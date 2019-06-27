@@ -29,7 +29,6 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/local_context.h"
 #include "library/metavar_context.h"
-#include "library/attribute_manager.h"
 #include "library/app_builder.h"
 #include "library/fun_info.h"
 #include "library/check.h"
@@ -51,11 +50,9 @@ void initialize_library_core_module() {
     initialize_trace();
     initialize_module();
     initialize_scoped_ext();
-    initialize_attribute_manager();
 }
 
 void finalize_library_core_module() {
-    finalize_attribute_manager();
     finalize_scoped_ext();
     finalize_module();
     finalize_trace();

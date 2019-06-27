@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "util/io.h"
 #include "util/array_ref.h"
 #include "kernel/replace_fn.h"
-#include "library/attribute_manager.h"
 #include "library/constants.h"
 #include "library/class.h"
 #include "library/num.h"
@@ -46,16 +45,6 @@ inductive AttributeApplicationTime
 */
 bool is_after_compilation_attribute(name const & n) {
     return get_io_scalar_result<uint8>(attribute_application_time_core(n.to_obj_arg(), io_mk_world())) == 1;
-}
-// ==========================================
-
-
-// ==========================================
-// configuration options
-static name * g_default_priority = nullptr;
-
-unsigned get_default_priority(options const & opts) {
-    return opts.get_unsigned(*g_default_priority, LEAN_DEFAULT_PRIORITY);
 }
 // ==========================================
 
@@ -142,29 +131,7 @@ void decl_attributes::parse_core(parser & p, bool compact) {
         } else {
             id = p.check_id_next("invalid attribute declaration, identifier expected");
         }
-        if (is_attribute(p.env(), id)) {
-            /* Old attribute manager */
-            if (scoped) {
-                throw parser_error("old attribute manager does not support scoped attributes", pos);
-            }
-            auto const & attr = ::lean::get_attribute(p.env(), id);
-            if (!deleted) {
-                for (auto const & entry : m_entries) {
-                    if (!entry.deleted() && are_incompatible(*entry.m_attr, attr)) {
-                        throw parser_error(sstream() << "invalid attribute [" << id
-                                           << "], declaration was already marked with ["
-                                           << entry.m_attr->get_name()
-                                           << "]", pos);
-                    }
-                }
-            }
-            attr_data_ptr data;
-            if (!deleted) {
-                expr e = parse_attr_arg(p, id);
-                data = attr.parse_data(e);
-            }
-            m_entries = cons({&attr, data}, m_entries);
-        } else if (is_new_attribute(id)) {
+        if (is_new_attribute(id)) {
             syntax args(box(0));
             if (!deleted) {
                 expr e = parse_attr_arg(p, id);
@@ -203,12 +170,8 @@ void decl_attributes::parse_compact(parser & p) {
     parse_core(p, true);
 }
 
-void decl_attributes::set_attribute(environment const & env, name const & attr_name, attr_data_ptr data) {
-    if (is_attribute(env, attr_name)) {
-        auto const & attr = ::lean::get_attribute(env, attr_name);
-        entry e = {&attr, data};
-        m_entries = append(m_entries, to_list(e));
-    } else if (is_new_attribute(attr_name)) {
+void decl_attributes::set_attribute(environment const & env, name const & attr_name) {
+    if (is_new_attribute(attr_name)) {
         // Temporary Hack... ignore attr_data_ptr
         syntax args(box(0));
         if (is_after_compilation_attribute(attr_name)) {
@@ -221,17 +184,6 @@ void decl_attributes::set_attribute(environment const & env, name const & attr_n
     }
 }
 
-attr_data_ptr decl_attributes::get_attribute(environment const & env, name const & attr_name) const {
-    if (!is_attribute(env, attr_name))
-        throw exception(sstream() << "unknown attribute [" << attr_name << "]");
-    auto const & attr = ::lean::get_attribute(env, attr_name);
-    for (entry const & e : m_entries) {
-        if (e.m_attr == &attr)
-            return e.m_params;
-    }
-    return nullptr;
-}
-
 bool decl_attributes::has_attribute(list<new_entry> const & entries, name const & attr_name) const {
     for (auto entry : entries) {
         if (entry.m_attr == attr_name)
@@ -241,14 +193,7 @@ bool decl_attributes::has_attribute(list<new_entry> const & entries, name const 
 }
 
 bool decl_attributes::has_attribute(environment const & env, name const & attr_name) const {
-    if (is_attribute(env, attr_name)) {
-        auto const & attr = ::lean::get_attribute(env, attr_name);
-        for (entry const & e : m_entries) {
-            if (e.m_attr == &attr)
-                return true;
-        }
-        return false;
-    } else if (is_new_attribute(attr_name)) {
+    if (is_new_attribute(attr_name)) {
         return has_attribute(m_after_tc_entries, attr_name) || has_attribute(m_after_comp_entries, attr_name);
     } else {
         throw exception(sstream() << "unknown attribute [" << attr_name << "]");
@@ -274,22 +219,6 @@ environment decl_attributes::apply_new_entries(environment env, list<new_entry> 
 }
 
 environment decl_attributes::apply_after_tc(environment env, io_state const & ios, name const & d) const {
-    buffer<entry> entries;
-    to_buffer(m_entries, entries);
-    unsigned i = entries.size();
-    while (i > 0) {
-        --i;
-        auto const & entry = entries[i];
-        if (entry.deleted()) {
-            if (!entry.m_attr->is_instance(env, d))
-                throw exception(sstream() << "cannot remove attribute [" << entry.m_attr->get_name()
-                                          << "]: no prior declaration on " << d);
-            env = entry.m_attr->unset(env, ios, d, m_persistent);
-        } else {
-            unsigned prio = get_default_priority(ios.get_options());
-            env = entry.m_attr->set_untyped(env, ios, d, prio, entry.m_params, m_persistent);
-        }
-    }
     return apply_new_entries(env, m_after_tc_entries, d);
 }
 
@@ -318,11 +247,8 @@ bool decl_attributes::has_class() const {
 }
 
 void initialize_decl_attributes() {
-    g_default_priority = new name{"default_priority"};
-    register_unsigned_option(*g_default_priority, LEAN_DEFAULT_PRIORITY, "default priority for attributes");
 }
 
 void finalize_decl_attributes() {
-    delete g_default_priority;
 }
 }

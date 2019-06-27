@@ -277,7 +277,6 @@ struct structure_cmd_fn {
     bool                        m_subobjects;
     levels                      m_ctx_levels; // context levels for creating aliases
     buffer<expr>                m_ctx_locals; // context local constants for creating aliases
-    unsigned                    m_prio;
 
     structure_cmd_fn(parser & p, cmd_meta const & meta):
         m_p(p),
@@ -289,7 +288,6 @@ struct structure_cmd_fn {
         m_infer_result_universe    = false;
         m_inductive_predicate      = false;
         m_subobjects               = !p.get_options().get_bool("old_structure_cmd", false);
-        m_prio                     = get_default_priority(p.get_options());
         if (!meta.m_attrs.ok_for_inductive_type())
             throw exception("only attribute [class] accepted for structures");
     }

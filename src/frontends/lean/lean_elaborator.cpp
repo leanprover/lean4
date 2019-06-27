@@ -160,7 +160,7 @@ decl_attributes to_decl_attributes(environment const & env, expr const & e, bool
         buffer<expr> args;
         auto attr = get_app_args(e, args);
         auto n = const_name(attr);
-        attributes.set_attribute(env, n, get_attribute(env, n).parse_data(e));
+        // attributes.set_attribute(env, n, get_attribute(env, n).parse_data(e));
     }
     return attributes;
 }

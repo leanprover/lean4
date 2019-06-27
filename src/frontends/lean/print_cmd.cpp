@@ -220,37 +220,8 @@ static void print_definition(environment const & env, message_builder & out, nam
     out.get_text_stream().update_options(opts) << d.get_value() << endl;
 }
 
-static void print_attributes(parser const & p, message_builder & out, name const & n) {
-    environment const & env = p.env();
-    buffer<attribute const *> attrs;
-    get_attributes(p.env(), attrs);
-    std::sort(attrs.begin(), attrs.end(), [](attribute const * a1, attribute const * a2) {
-        return a1->get_name() < a2->get_name();
-    });
-    bool first = true;
-    for (auto attr : attrs) {
-        if (attr->get_name() == "reducibility")
-            continue;
-        if (auto data = attr->get_untyped(env, n)) {
-            if (first) {
-                out << "@[";
-                first = false;
-            } else {
-                out << ", ";
-            }
-            out << attr->get_name();
-            data->print(out.get_text_stream().get_stream());
-            unsigned prio = attr->get_prio(env, n);
-            if (prio != LEAN_DEFAULT_PRIORITY)
-                out << ", priority " << prio;
-        }
-    }
-    if (!first)
-        out << "]\n";
-}
-
 static bool print_constant(parser const & p, message_builder & out, char const * kind, constant_info const & d, bool is_def = false) {
-    print_attributes(p, out, d.get_name());
+    // print_attributes(p, out, d.get_name());
     if (is_protected(p.env(), d.get_name()))
         out << "protected ";
     if (d.is_unsafe())
@@ -387,18 +358,6 @@ static void print_aliases(parser const & p, message_builder & out) {
         });
 }
 
-static void print_attribute(parser & p, message_builder & out, attribute const & attr) {
-    buffer<name> instances;
-    attr.get_instances(p.env(), instances);
-
-    // oldest first
-    unsigned i = instances.size();
-    while (i > 0) {
-        --i;
-        out << instances[i] << "\n";
-    }
-}
-
 environment print_cmd(parser & p) {
     // Fallbacks are handled via exceptions.
     auto _ = p.no_error_recovery_scope();
@@ -447,16 +406,6 @@ environment print_cmd(parser & p) {
         for (name const & i : get_class_instances(env, c)) {
             out << i << " : " << env.get(i).get_type() << endl;
         }
-    } else if (p.curr_is_token_or_id(get_attributes_tk())) {
-        p.next();
-        buffer<attribute const *> attrs;
-        get_attributes(p.env(), attrs);
-        std::sort(attrs.begin(), attrs.end(), [](attribute const * a1, attribute const * a2) {
-            return a1->get_name() < a2->get_name();
-        });
-        for (auto attr : attrs) {
-            out << "[" << attr->get_name() << "] " << attr->get_description() << endl;
-        }
     } else if (p.curr_is_token_or_id(get_prefix_tk())) {
         p.next();
         print_prefix(p, out);
@@ -474,16 +423,6 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_notation_tk())) {
         p.next();
         print_notation(p, out);
-    } else if (p.curr_is_token(get_lbracket_tk())) {
-        p.next();
-        auto pos = p.pos();
-        auto name = p.check_id_next("invalid attribute declaration, identifier expected");
-        p.check_token_next(get_rbracket_tk(), "invalid '#print [<attr>]', ']' expected");
-
-        if (!is_attribute(p.env(), name))
-            throw parser_error(sstream() << "unknown attribute [" << name << "]", pos);
-        auto const & attr = get_attribute(p.env(), name);
-        print_attribute(p, out, attr);
     } else {
         print_polymorphic(p, out);
     }

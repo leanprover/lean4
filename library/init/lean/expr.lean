@@ -98,6 +98,13 @@ def getAppFn : Expr → Expr
 | (Expr.app f a) := getAppFn f
 | e              := e
 
+def getAppNumArgsAux : Expr → Nat → Nat
+| (Expr.app f a) n := getAppNumArgsAux f (n+1)
+| e              n := n
+
+def getAppNumArgs (e : Expr) : Nat :=
+getAppNumArgsAux e 0
+
 def isAppOf (e : Expr) (n : Name) : Bool :=
 match e.getAppFn with
 | Expr.const c _ := c == n

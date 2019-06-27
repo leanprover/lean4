@@ -43,44 +43,101 @@ match entry with
       | none       := s.classToInstances.insert clsName [instName],
     .. s }
 
+def switch : ClassState → ClassState
+| ⟨m₁, m₂, m₃⟩ := ⟨m₁.switch, m₂.switch, m₃.switch⟩
+
 end ClassState
 
 /- TODO: add support for scoped instances -/
 def mkClassExtension : IO (SimplePersistentEnvExtension ClassEntry ClassState) :=
 registerSimplePersistentEnvExtension {
-  name          := `class,
+  name          := `classExt,
   addEntryFn    := ClassState.addEntry,
-  addImportedFn := mkStateFromImportedEntries ClassState.addEntry {}
+  addImportedFn := λ es, (mkStateFromImportedEntries ClassState.addEntry {} es).switch
 }
 
 @[init mkClassExtension]
 constant classExtension : SimplePersistentEnvExtension ClassEntry ClassState := default _
 
+@[export lean.is_class_core]
 def isClass (env : Environment) (n : Name) : Bool :=
 (classExtension.getState env).hasOutParam.contains n
 
+@[export lean.is_instance_core]
 def isInstance (env : Environment) (n : Name) : Bool :=
 (classExtension.getState env).instances.contains n
 
+@[export lean.get_class_instances_core]
 def getClassInstances (env : Environment) (n : Name) : List Name :=
 match (classExtension.getState env).classToInstances.find n with
 | some insts := insts
 | none       := []
 
+@[export lean.has_out_params_core]
+def hasOutParams (env : Environment) (n : Name) : Bool :=
+match (classExtension.getState env).hasOutParam.find n with
+| some b := b
+| none   := false
+
+@[export lean.is_out_param_core]
 private def isOutParam (e : Expr) : Bool :=
 e.isAppOfArity `outParam 1
 
-private def hasOutParam : Expr → Bool
-| (Expr.pi _ _ d b) := isOutParam d || hasOutParam b
+def Expr.hasOutParam : Expr → Bool
+| (Expr.pi _ _ d b) := isOutParam d || Expr.hasOutParam b
 | _                 := false
 
 def addClass (env : Environment) (clsName : Name) : Except String Environment :=
 if isClass env clsName then Except.error ("class has already been declared '" ++ toString clsName ++ "'")
 else match env.find clsName with
   | none      := Except.error ("unknown declaration '" ++ toString clsName ++ "'")
-  | some decl := Except.ok (classExtension.addEntry env (ClassEntry.«class» clsName (hasOutParam decl.type)))
+  | some decl := Except.ok (classExtension.addEntry env (ClassEntry.«class» clsName decl.type.hasOutParam))
 
--- def addInstance (env : Environment) (instName : Name) : Environment :=
--- match env.find
+private def consumeNLambdas : Nat → Expr → Option Expr
+| 0     e                  := some e
+| (i+1) (Expr.lam _ _ _ b) := consumeNLambdas i b
+| _     _                  := none
+
+partial def getClassName (env : Environment) : Expr → Option Name
+| (Expr.pi _ _ _ d) := getClassName d
+| e                 := do
+  Expr.const c _ ← pure e.getAppFn | none,
+  info ← env.find c,
+  match info.value with
+  | some val := do
+    body ← consumeNLambdas e.getAppNumArgs val,
+    getClassName body
+  | none :=
+    if isClass env c then some c
+    else none
+
+@[export lean.add_instance_core]
+def addInstance (env : Environment) (instName : Name) : Except String Environment :=
+match env.find instName with
+| none      := Except.error ("unknown declaration '" ++ toString instName ++ "'")
+| some decl :=
+  match getClassName env decl.type with
+  | none := Except.error ("invalid instance '" ++ toString instName ++ "', failed to retrieve class")
+  | some clsName := Except.ok (classExtension.addEntry env (ClassEntry.«instance» instName clsName))
+
+@[init] def registerClassAttr : IO Unit :=
+registerAttribute {
+  name  := `class,
+  descr := "type class",
+  add   := λ env decl args persistent, do
+    unless args.isMissing $ throw (IO.userError ("invalid attribute 'class', unexpected argument")),
+    unless persistent $ throw (IO.userError ("invalid attribute 'class', must be persistent")),
+    IO.ofExcept (addClass env decl)
+}
+
+@[init] def registerInstanceAttr : IO Unit :=
+registerAttribute {
+  name  := `instance,
+  descr := "type class instance",
+  add   := λ env decl args persistent, do
+    unless args.isMissing $ throw (IO.userError ("invalid attribute 'instance', unexpected argument")),
+    unless persistent $ throw (IO.userError ("invalid attribute 'instance', must be persistent")),
+    IO.ofExcept (addInstance env decl)
+}
 
 end Lean

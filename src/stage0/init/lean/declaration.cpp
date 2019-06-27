@@ -20,11 +20,14 @@ obj* l_Lean_ConstantInfo_name___boxed(obj*);
 obj* l_Lean_ConstantInfo_toConstantVal(obj*);
 obj* l_Lean_ConstantInfo_hints___main(obj*);
 obj* l_Lean_ConstantInfo_value___boxed(obj*);
+obj* l_Lean_ConstantInfo_hasValue___main___boxed(obj*);
 obj* l_Lean_ConstantInfo_value___main___boxed(obj*);
 obj* l_Lean_ConstantInfo_value(obj*);
 obj* l_Lean_ConstantInfo_lparams(obj*);
 obj* l_Lean_ConstantInfo_toConstantVal___main(obj*);
+uint8 l_Lean_ConstantInfo_hasValue(obj*);
 obj* l_Lean_ConstantInfo_hints___boxed(obj*);
+uint8 l_Lean_ConstantInfo_hasValue___main(obj*);
 obj* l_Lean_ConstantInfo_value___main(obj*);
 obj* l_Lean_ConstantInfo_hints(obj*);
 obj* l_Lean_ConstantInfo_hints___main___boxed(obj*);
@@ -33,6 +36,7 @@ obj* l_Lean_ConstantInfo_type(obj*);
 obj* l_Lean_ConstantInfo_type___boxed(obj*);
 obj* l_Lean_ConstantInfo_lparams___boxed(obj*);
 obj* l_Lean_ConstantInfo_toConstantVal___main___boxed(obj*);
+obj* l_Lean_ConstantInfo_hasValue___boxed(obj*);
 obj* l_Lean_ConstantInfo_toConstantVal___main(obj* x_1) {
 _start:
 {
@@ -188,6 +192,59 @@ lean::dec(x_1);
 return x_2;
 }
 }
+uint8 l_Lean_ConstantInfo_hasValue___main(obj* x_1) {
+_start:
+{
+switch (lean::obj_tag(x_1)) {
+case 1:
+{
+uint8 x_2; 
+x_2 = 1;
+return x_2;
+}
+case 2:
+{
+uint8 x_3; 
+x_3 = 1;
+return x_3;
+}
+default: 
+{
+uint8 x_4; 
+x_4 = 0;
+return x_4;
+}
+}
+}
+}
+obj* l_Lean_ConstantInfo_hasValue___main___boxed(obj* x_1) {
+_start:
+{
+uint8 x_2; obj* x_3; 
+x_2 = l_Lean_ConstantInfo_hasValue___main(x_1);
+lean::dec(x_1);
+x_3 = lean::box(x_2);
+return x_3;
+}
+}
+uint8 l_Lean_ConstantInfo_hasValue(obj* x_1) {
+_start:
+{
+uint8 x_2; 
+x_2 = l_Lean_ConstantInfo_hasValue___main(x_1);
+return x_2;
+}
+}
+obj* l_Lean_ConstantInfo_hasValue___boxed(obj* x_1) {
+_start:
+{
+uint8 x_2; obj* x_3; 
+x_2 = l_Lean_ConstantInfo_hasValue(x_1);
+lean::dec(x_1);
+x_3 = lean::box(x_2);
+return x_3;
+}
+}
 obj* l_Lean_ConstantInfo_hints___main(obj* x_1) {
 _start:
 {
@@ -246,6 +303,7 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_na
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ConstantInfo"), "lparams"), 1, l_Lean_ConstantInfo_lparams___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ConstantInfo"), "type"), 1, l_Lean_ConstantInfo_type___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ConstantInfo"), "value"), 1, l_Lean_ConstantInfo_value___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ConstantInfo"), "hasValue"), 1, l_Lean_ConstantInfo_hasValue___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ConstantInfo"), "hints"), 1, l_Lean_ConstantInfo_hints___boxed);
 return w;
 }

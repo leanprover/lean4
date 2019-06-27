@@ -157,6 +157,11 @@ def value : ConstantInfo → Option Expr
 | (thmInfo  {value := r, ..}) := some r.get
 | _                           := none
 
+def hasValue : ConstantInfo → Bool
+| (defnInfo {value := r, ..}) := true
+| (thmInfo  {value := r, ..}) := true
+| _                           := false
+
 def hints : ConstantInfo → ReducibilityHints
 | (defnInfo {hints := r, ..}) := r
 | _                           := ReducibilityHints.opaque

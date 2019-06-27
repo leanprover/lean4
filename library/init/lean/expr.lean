@@ -94,14 +94,24 @@ constant eqv (a : @& Expr) (b : @& Expr) : Bool := default _
 
 instance : HasBeq Expr := ⟨Expr.eqv⟩
 
+def getAppFn : Expr → Expr
+| (Expr.app f a) := getAppFn f
+| e              := e
+
+def isAppOf (e : Expr) (n : Name) : Bool :=
+match e.getAppFn with
+| Expr.const c _ := c == n
+| _ := false
+
+def isAppOfArity : Expr → Name → Nat → Bool
+| (Expr.const c _) n 0     := c == n
+| (Expr.app f _)   n (a+1) := isAppOfArity f n a
+| _                _ _     := false
+
 end Expr
 
 def mkConst (n : Name) (ls : List Level := []) : Expr :=
 Expr.const n ls
-
-def getAppFn : Expr → Expr
-| (Expr.app f a) := getAppFn f
-| e              := e
 
 def mkBinApp (f a b : Expr) :=
 Expr.app (Expr.app f a) b

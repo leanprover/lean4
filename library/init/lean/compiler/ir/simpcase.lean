@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.lean.compiler.ir.basic
+import init.lean.compiler.ir.format
 
 namespace Lean
 namespace IR
@@ -17,12 +18,15 @@ else
   let alts := alts.pop in
   alts.push (Alt.default last.body)
 
+private def getOccsOf (alts : Array Alt) (i : Nat) : Nat :=
+let aBody := (alts.get i).body in
+alts.iterateFrom 1 (i + 1) $ λ _ a' n,
+  if a'.body == aBody then n+1 else n
+
 private def maxOccs (alts : Array Alt) : Alt × Nat :=
-alts.iterateFrom (alts.get 0, 1) 1 $ λ i a p,
-  let aBody := a.body in
-  let noccs := alts.iterateFrom 1 (i.val + 1) $ λ _ a' n,
-    if a'.body == aBody then n+1 else n in
-  if noccs > p.2 then (a, noccs) else p
+alts.iterateFrom (alts.get 0, getOccsOf alts 0) 1 $ λ i a p,
+  let noccs := getOccsOf alts i.val in
+  if noccs > p.2 then (alts.fget i, noccs) else p
 
 private def addDefault (alts : Array Alt) : Array Alt :=
 if alts.size <= 1 || alts.any Alt.isDefault then alts

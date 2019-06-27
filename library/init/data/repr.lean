@@ -98,10 +98,10 @@ def hexDigitRepr (n : Nat) : String :=
 String.singleton $ Nat.digitChar n
 
 def charToHex (c : Char) : String :=
-let n  := Char.toNat c,
-    d2 := n / 16,
-    d1 := n % 16
-in hexDigitRepr d2 ++ hexDigitRepr d1
+let n  := Char.toNat c in
+let d2 := n / 16 in
+let d1 := n % 16 in
+hexDigitRepr d2 ++ hexDigitRepr d1
 
 def Char.quoteCore (c : Char) : String :=
 if       c = '\n' then "\\n"

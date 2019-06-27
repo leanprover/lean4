@@ -461,7 +461,7 @@ add_dependencies(leanstatic stdlib)
 
 ADD_CUSTOM_TARGET(bin_lib ALL
    COMMAND "${CMAKE_COMMAND}" -E make_directory "${LEAN_SOURCE_DIR}/../bin"
-   COMMAND "${CMAKE_COMMAND}" -E copy ${COPY_LIBS} "${CMAKE_BINARY_DIR}/stage1/libleanstdlib*" "${CMAKE_CURRENT_BINARY_DIR}/libleanstatic*" "${LEAN_SOURCE_DIR}/../bin"
+   COMMAND "${CMAKE_COMMAND}" -E copy ${COPY_LIBS} "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" "${CMAKE_CURRENT_BINARY_DIR}/libleanstatic.a" "${LEAN_SOURCE_DIR}/../bin"
    DEPENDS leanstatic
 )
 # Configure leanc

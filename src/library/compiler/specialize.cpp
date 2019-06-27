@@ -87,13 +87,13 @@ char const * to_str(spec_arg_kind k) {
 }
 
 class spec_info : public object_ref {
-    explicit spec_info(b_obj_arg o, bool b):object_ref(o, b) {}
 public:
     spec_info(names const & ns, spec_arg_kinds ks):
         object_ref(mk_cnstr(0, ns, ks)) {}
     spec_info():spec_info(names(), spec_arg_kinds()) {}
     spec_info(spec_info const & other):object_ref(other) {}
     spec_info(spec_info && other):object_ref(other) {}
+    spec_info(b_obj_arg o, bool b):object_ref(o, b) {}
     spec_info & operator=(spec_info const & other) { object_ref::operator=(other); return *this; }
     spec_info & operator=(spec_info && other) { object_ref::operator=(other); return *this; }
     names const & get_mutual_decls() const { return static_cast<names const &>(cnstr_get_ref(*this, 0)); }
@@ -102,70 +102,15 @@ public:
     static spec_info deserialize(deserializer & d) { return spec_info(d.read_object(), true); }
 };
 
-serializer & operator<<(serializer & s, spec_info const & si) { si.serialize(s); return s; }
-deserializer & operator>>(deserializer & d, spec_info & si) { si = spec_info::deserialize(d); return d; }
-
-/* Information for executing code specialization.
-   TODO(Leo): use the to be implemented new module system. */
-struct specialize_ext : public environment_extension {
-    typedef rb_expr_map<name> cache;
-    name_map<spec_info> m_spec_info;
-    cache               m_cache;
-};
-
-struct specialize_ext_reg {
-    unsigned m_ext_id;
-    specialize_ext_reg() { m_ext_id = environment::register_extension(new specialize_ext()); }
-};
-
-static specialize_ext_reg * g_ext = nullptr;
-static specialize_ext const & get_extension(environment const & env) {
-    return static_cast<specialize_ext const &>(env.get_extension(g_ext->m_ext_id));
-}
-static environment update(environment const & env, specialize_ext const & ext) {
-    return env.update(g_ext->m_ext_id, new specialize_ext(ext));
-}
-
-/* Support for old module manager.
-   Remark: this code will be deleted in the future */
-struct spec_info_modification : public modification {
-    LEAN_MODIFICATION("speci")
-
-    name      m_name;
-    spec_info m_spec_info;
-
-    spec_info_modification(name const & n, spec_info const & s) : m_name(n), m_spec_info(s) {}
-
-    void perform(environment & env) const override {
-        specialize_ext ext = get_extension(env);
-        ext.m_spec_info.insert(m_name, m_spec_info);
-        env = update(env, ext);
-    }
-
-    void serialize(serializer & s) const override {
-        s << m_name << m_spec_info;
-    }
-
-    static modification* deserialize(deserializer & d) {
-        name n; spec_info s;
-        d >> n >> s;
-        return new spec_info_modification(n, s);
-    }
-};
+object* add_specialization_info_core(object* env, object* fn, object* info);
+object* get_specialization_info_core(object* env, object* fn);
 
 static environment save_specialization_info(environment const & env, name const & fn, spec_info const & si) {
-    specialize_ext ext = get_extension(env);
-    ext.m_spec_info.insert(fn, si);
-    environment new_env = update(env, ext);
-    return module::add(new_env, new spec_info_modification(fn, si));
+    return environment(add_specialization_info_core(env.to_obj_arg(), fn.to_obj_arg(), si.to_obj_arg()));
 }
 
 static optional<spec_info> get_specialization_info(environment const & env, name const & fn) {
-    if (spec_info const * info = get_extension(env).m_spec_info.find(fn)) {
-        return optional<spec_info>(*info);
-    } else {
-        return optional<spec_info>();
-    }
+    return to_optional<spec_info>(get_specialization_info_core(env.to_obj_arg(), fn.to_obj_arg()));
 }
 
 typedef buffer<pair<name, buffer<spec_arg_kind>>> spec_info_buffer;
@@ -291,46 +236,15 @@ environment update_spec_info(environment const & env, comp_decls const & ds) {
     return new_env;
 }
 
-/* Support for old module manager.
-   Remark: this code will be deleted in the future */
-struct spec_cache_modification : public modification {
-    LEAN_MODIFICATION("specc")
-
-    expr      m_key;
-    name      m_fn_name;
-
-    spec_cache_modification(expr const & k, name const & fn) : m_key(k), m_fn_name(fn) {}
-
-    void perform(environment & env) const override {
-        specialize_ext ext = get_extension(env);
-        ext.m_cache.insert(m_key, m_fn_name);
-        env = update(env, ext);
-    }
-
-    void serialize(serializer & s) const override {
-        s << m_key << m_fn_name;
-    }
-
-    static modification* deserialize(deserializer & d) {
-        expr k; name f;
-        d >> k >> f;
-        return new spec_cache_modification(k, f);
-    }
-};
+object* cache_specialization_core(object* env, object* e, object* fn);
+object* get_cached_specialization_core(object* env, object* e);
 
 static environment cache_specialization(environment const & env, expr const & k, name const & fn) {
-    specialize_ext ext = get_extension(env);
-    ext.m_cache.insert(k, fn);
-    environment new_env = update(env, ext);
-    return module::add(new_env, new spec_cache_modification(k, fn));
+    return environment(cache_specialization_core(env.to_obj_arg(), k.to_obj_arg(), fn.to_obj_arg()));
 }
 
 static optional<name> get_cached_specialization(environment const & env, expr const & e) {
-    if (name const * it = get_extension(env).m_cache.find(e)) {
-        return optional<name>(*it);
-    } else {
-        return optional<name>();
-    }
+    return to_optional<name>(get_cached_specialization_core(env.to_obj_arg(), e.to_obj_arg()));
 }
 
 class specialize_fn {
@@ -1146,16 +1060,10 @@ pair<environment, comp_decls> specialize(environment env, comp_decls const & ds,
 }
 
 void initialize_specialize() {
-    g_ext = new specialize_ext_reg();
-    spec_info_modification::init();
-    spec_cache_modification::init();
     register_trace_class({"compiler", "spec_info"});
     register_trace_class({"compiler", "spec_candidate"});
 }
 
 void finalize_specialize() {
-    spec_info_modification::finalize();
-    spec_cache_modification::finalize();
-    delete g_ext;
 }
 }

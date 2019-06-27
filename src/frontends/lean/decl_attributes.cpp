@@ -303,19 +303,16 @@ environment decl_attributes::apply_all(environment env, io_state const & ios, na
 }
 
 bool decl_attributes::ok_for_inductive_type() const {
-    for (entry const & e : m_entries) {
-        name const & n = e.m_attr->get_name();
-        if (is_system_attribute(n)) {
-            if (n != "class" || e.deleted())
-                return false;
-        }
+    for (new_entry const & e : m_after_tc_entries) {
+        if (e.m_attr != "class" || e.m_deleted)
+            return false;
     }
     return true;
 }
 
 bool decl_attributes::has_class() const {
-    for (entry const & e : m_entries)
-        if (e.m_attr->get_name() == "class" && !e.deleted())
+    for (new_entry const & e : m_after_tc_entries)
+        if (e.m_attr == "class" && !e.m_deleted)
             return true;
     return false;
 }

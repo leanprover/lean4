@@ -192,4 +192,18 @@ inline object * mk_except_error_string(char const * err) {
     cnstr_set(r, 0, mk_string(err));
     return r;
 }
+
+/* Given `o` representing a Lean value of type `Except String A`, return `T` an smart pointer
+   that encapsulates `A` values or throw an exception */
+template<typename T> T get_except_value(obj_arg o) {
+    if (cnstr_tag(o) == 1) {
+        T result(cnstr_get(o, 0), true);
+        dec(o);
+        return result;
+    } else {
+        std::string err = string_to_std(cnstr_get(o, 0));
+        dec(o);
+        throw exception(err);
+    }
+}
 }

@@ -30,6 +30,11 @@ mpz::mpz(int64 v) {
         mpz_neg(m_val, m_val);
 }
 
+size_t mpz::get_size_t() const {
+    static_assert(sizeof(size_t) <= sizeof(mp_limb_t), "GMP word size should be not greater than system word size");
+    return static_cast<size_t>(mpz_getlimbn(m_val, 0));
+}
+
 unsigned mpz::log2() const {
     if (is_nonpos())
         return 0;

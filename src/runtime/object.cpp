@@ -890,16 +890,6 @@ void mark_persistent(object * o) {
 // =======================================
 // Natural numbers
 
-size_t size_t_of_nat(b_obj_arg n) {
-    if (is_scalar(n)) {
-        return unbox(n);
-    } else if (mpz_value(n).is_unsigned_long_int()) {
-        return static_cast<size_t>(mpz_value(n).get_unsigned_long_int());
-    } else {
-        return std::numeric_limits<size_t>::max();
-    }
-}
-
 object * nat_big_add(object * a1, object * a2) {
     lean_assert(!is_scalar(a1) || !is_scalar(a2));
     if (is_scalar(a1))
@@ -1136,7 +1126,7 @@ uint64 uint64_of_big_nat(b_obj_arg a) {
     mod2k(r, mpz_value(a), 64);
     if (sizeof(void*) == 8) {
         // 64 bit
-        return static_cast<uint64>(r.get_unsigned_long_int());
+        return static_cast<uint64>(r.get_size_t());
     } else {
         // 32 bit
         mpz l;
@@ -1148,10 +1138,7 @@ uint64 uint64_of_big_nat(b_obj_arg a) {
 }
 
 usize usize_of_big_nat(b_obj_arg a) {
-    if (sizeof(void*) == 8)
-        return uint64_of_big_nat(a);
-    else
-        return uint32_of_big_nat(a);
+    return mpz_value(a).get_size_t();
 }
 
 usize usize_mix_hash(usize a1, usize a2) {
@@ -1556,8 +1543,8 @@ object * mk_array(obj_arg n, obj_arg v) {
         sz = unbox(n);
     } else {
         mpz const & v = mpz_value(n);
-        if (!v.is_unsigned_long_int()) throw std::bad_alloc(); // we will run out of memory
-        sz = v.get_unsigned_long_int();
+        if (!v.is_size_t()) throw std::bad_alloc(); // we will run out of memory
+        sz = v.get_size_t();
         dec(n);
     }
     object * r    = alloc_array(sz, sz);
@@ -1715,7 +1702,7 @@ extern "C" object * lean_closure_max_args(object *) {
 }
 
 extern "C" object * lean_max_small_nat(object *) {
-    return mk_nat_obj(LEAN_MAX_SMALL_NAT);
+    return unsigned_to_nat(LEAN_MAX_SMALL_NAT);
 }
 
 // =======================================

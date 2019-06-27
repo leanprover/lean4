@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/constants.h"
 #include "library/protected.h"
-#include "library/type_context.h"
 #include "library/class.h"
 #include "library/attribute_manager.h"
 #include "library/trace.h"
@@ -165,24 +164,35 @@ bool has_class_out_params(environment const & env, name const & c) {
     return s.m_has_out_params.contains(c);
 }
 
+optional<name> get_class(environment const & env, expr type) {
+    while (is_pi(type)) {
+        type = binding_body(type);
+    }
+    expr f = get_app_fn(type);
+    if (!is_constant(f)) return optional<name>();
+    optional<constant_info> info = env.find(const_name(f));
+    if (!info) return optional<name>();
+    if (info->is_definition()) {
+        expr val = info->get_value();
+        unsigned nargs = get_app_num_args(type);
+        for (unsigned i = 0; i < nargs; i++) {
+            if (!is_lambda(val)) return optional<name>();
+            val = binding_body(val);
+        }
+        return get_class(env, val);
+    } else {
+        class_state const & s = class_ext::get_state(env);
+        if (!s.m_instances.contains(const_name(f))) return optional<name>();
+        return optional<name>(const_name(f));
+    }
+}
+
 environment add_instance_core(environment const & env, name const & n, bool persistent) {
     constant_info info = env.get(n);
     expr type = info.get_type();
-    type_context_old ctx(env, transparency_mode::All);
-    class_state S = class_ext::get_state(env);
-    type_context_old::tmp_locals locals(ctx);
-    while (true) {
-        type = ctx.whnf_head_pred(type, [&](expr const & e) {
-                expr const & fn = get_app_fn(e);
-                return !is_constant(fn) || !S.m_instances.contains(const_name(fn)); });
-        if (!is_pi(type))
-            break;
-        expr x = locals.push_local_from_binding(type);
-        type = instantiate(binding_body(type), x);
-    }
-    name c = get_class_name(env, get_app_fn(type));
-    check_is_class(env, c);
-    environment new_env = class_ext::add_entry(env, get_dummy_ios(), class_entry(class_entry_kind::Instance, c, n),
+    optional<name> c = get_class(env, type);
+    if (!c) throw exception("invalid instance, failed to find its class");
+    environment new_env = class_ext::add_entry(env, get_dummy_ios(), class_entry(class_entry_kind::Instance, *c, n),
                                                persistent);
     return new_env;
 }

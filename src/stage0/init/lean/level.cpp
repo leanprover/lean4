@@ -159,48 +159,60 @@ uint8 l_Lean_Level_hasParam___main(obj* x_1) {
 _start:
 {
 switch (lean::obj_tag(x_1)) {
-case 0:
-{
-uint8 x_2; 
-x_2 = 0;
-return x_2;
-}
 case 1:
 {
-obj* x_3; 
-x_3 = lean::cnstr_get(x_1, 0);
-x_1 = x_3;
+obj* x_2; 
+x_2 = lean::cnstr_get(x_1, 0);
+x_1 = x_2;
 goto _start;
 }
-case 4:
+case 2:
 {
-uint8 x_5; 
-x_5 = 1;
-return x_5;
-}
-case 5:
+obj* x_4; obj* x_5; uint8 x_6; 
+x_4 = lean::cnstr_get(x_1, 0);
+x_5 = lean::cnstr_get(x_1, 1);
+x_6 = l_Lean_Level_hasParam___main(x_4);
+if (x_6 == 0)
 {
-uint8 x_6; 
-x_6 = 0;
-return x_6;
-}
-default: 
-{
-obj* x_7; obj* x_8; uint8 x_9; 
-x_7 = lean::cnstr_get(x_1, 0);
-x_8 = lean::cnstr_get(x_1, 1);
-x_9 = l_Lean_Level_hasParam___main(x_7);
-if (x_9 == 0)
-{
-x_1 = x_8;
+x_1 = x_5;
 goto _start;
 }
 else
 {
-uint8 x_11; 
-x_11 = 1;
-return x_11;
+uint8 x_8; 
+x_8 = 1;
+return x_8;
 }
+}
+case 3:
+{
+obj* x_9; obj* x_10; uint8 x_11; 
+x_9 = lean::cnstr_get(x_1, 0);
+x_10 = lean::cnstr_get(x_1, 1);
+x_11 = l_Lean_Level_hasParam___main(x_9);
+if (x_11 == 0)
+{
+x_1 = x_10;
+goto _start;
+}
+else
+{
+uint8 x_13; 
+x_13 = 1;
+return x_13;
+}
+}
+case 4:
+{
+uint8 x_14; 
+x_14 = 1;
+return x_14;
+}
+default: 
+{
+uint8 x_15; 
+x_15 = 0;
+return x_15;
 }
 }
 }
@@ -237,49 +249,62 @@ uint8 l_Lean_Level_hasMvar___main(obj* x_1) {
 _start:
 {
 switch (lean::obj_tag(x_1)) {
-case 0:
-{
-uint8 x_2; 
-x_2 = 0;
-return x_2;
-}
 case 1:
 {
-obj* x_3; uint8 x_4; 
-x_3 = lean::cnstr_get(x_1, 0);
-x_4 = l_Lean_Level_hasParam___main(x_3);
-return x_4;
+obj* x_2; uint8 x_3; 
+x_2 = lean::cnstr_get(x_1, 0);
+x_3 = l_Lean_Level_hasParam___main(x_2);
+return x_3;
 }
-case 4:
+case 2:
 {
-uint8 x_5; 
-x_5 = 0;
-return x_5;
-}
-case 5:
+obj* x_4; obj* x_5; uint8 x_6; 
+x_4 = lean::cnstr_get(x_1, 0);
+x_5 = lean::cnstr_get(x_1, 1);
+x_6 = l_Lean_Level_hasParam___main(x_4);
+if (x_6 == 0)
 {
-uint8 x_6; 
-x_6 = 1;
-return x_6;
-}
-default: 
-{
-obj* x_7; obj* x_8; uint8 x_9; 
-x_7 = lean::cnstr_get(x_1, 0);
-x_8 = lean::cnstr_get(x_1, 1);
-x_9 = l_Lean_Level_hasParam___main(x_7);
-if (x_9 == 0)
-{
-uint8 x_10; 
-x_10 = l_Lean_Level_hasParam___main(x_8);
-return x_10;
+uint8 x_7; 
+x_7 = l_Lean_Level_hasParam___main(x_5);
+return x_7;
 }
 else
 {
-uint8 x_11; 
-x_11 = 1;
-return x_11;
+uint8 x_8; 
+x_8 = 1;
+return x_8;
 }
+}
+case 3:
+{
+obj* x_9; obj* x_10; uint8 x_11; 
+x_9 = lean::cnstr_get(x_1, 0);
+x_10 = lean::cnstr_get(x_1, 1);
+x_11 = l_Lean_Level_hasParam___main(x_9);
+if (x_11 == 0)
+{
+uint8 x_12; 
+x_12 = l_Lean_Level_hasParam___main(x_10);
+return x_12;
+}
+else
+{
+uint8 x_13; 
+x_13 = 1;
+return x_13;
+}
+}
+case 5:
+{
+uint8 x_14; 
+x_14 = 1;
+return x_14;
+}
+default: 
+{
+uint8 x_15; 
+x_15 = 0;
+return x_15;
 }
 }
 }
@@ -660,11 +685,6 @@ obj* l_Lean_Level_instantiate___main(obj* x_1, obj* x_2) {
 _start:
 {
 switch (lean::obj_tag(x_2)) {
-case 0:
-{
-lean::dec(x_1);
-return x_2;
-}
 case 1:
 {
 obj* x_3; obj* x_4; obj* x_5; 

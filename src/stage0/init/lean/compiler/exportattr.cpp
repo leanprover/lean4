@@ -276,49 +276,41 @@ return x_3;
 uint8 l___private_init_lean_compiler_exportattr_2__isValidCppName___main(obj* x_1) {
 _start:
 {
-switch (lean::obj_tag(x_1)) {
-case 0:
+if (lean::obj_tag(x_1) == 1)
 {
-uint8 x_2; 
-x_2 = 0;
-return x_2;
-}
-case 1:
+obj* x_2; obj* x_3; obj* x_4; uint8 x_5; 
+x_2 = lean::cnstr_get(x_1, 0);
+x_3 = lean::cnstr_get(x_1, 1);
+x_4 = lean::box(0);
+x_5 = lean_name_dec_eq(x_2, x_4);
+if (x_5 == 0)
 {
-obj* x_3; obj* x_4; obj* x_5; uint8 x_6; 
-x_3 = lean::cnstr_get(x_1, 0);
-x_4 = lean::cnstr_get(x_1, 1);
-x_5 = lean::box(0);
-x_6 = lean_name_dec_eq(x_3, x_5);
+uint8 x_6; 
+x_6 = l___private_init_lean_compiler_exportattr_1__isValidCppId(x_3);
 if (x_6 == 0)
 {
 uint8 x_7; 
-x_7 = l___private_init_lean_compiler_exportattr_1__isValidCppId(x_4);
-if (x_7 == 0)
-{
-uint8 x_8; 
-x_8 = 0;
-return x_8;
+x_7 = 0;
+return x_7;
 }
 else
 {
-x_1 = x_3;
+x_1 = x_2;
 goto _start;
 }
 }
 else
 {
-uint8 x_10; 
-x_10 = l___private_init_lean_compiler_exportattr_1__isValidCppId(x_4);
-return x_10;
+uint8 x_9; 
+x_9 = l___private_init_lean_compiler_exportattr_1__isValidCppId(x_3);
+return x_9;
 }
 }
-default: 
+else
 {
-uint8 x_11; 
-x_11 = 0;
-return x_11;
-}
+uint8 x_10; 
+x_10 = 0;
+return x_10;
 }
 }
 }

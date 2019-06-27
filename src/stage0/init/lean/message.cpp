@@ -266,26 +266,22 @@ return x_1;
 }
 else
 {
-obj* x_3; obj* x_4; uint8 x_5; uint8 x_6; 
+obj* x_3; obj* x_4; uint8 x_5; uint8 x_6; obj* x_7; 
 x_3 = lean::cnstr_get(x_2, 0);
 x_4 = lean::cnstr_get(x_2, 1);
 x_5 = l_List_foldr___main___at_Lean_MessageLog_hasErrors___spec__1(x_1, x_4);
 x_6 = lean::cnstr_get_scalar<uint8>(x_3, sizeof(void*)*5);
-switch (x_6) {
-case 0:
+x_7 = lean::box(x_6);
+if (lean::obj_tag(x_7) == 2)
 {
+uint8 x_8; 
+x_8 = 1;
+return x_8;
+}
+else
+{
+lean::dec(x_7);
 return x_5;
-}
-case 1:
-{
-return x_5;
-}
-default: 
-{
-uint8 x_7; 
-x_7 = 1;
-return x_7;
-}
 }
 }
 }

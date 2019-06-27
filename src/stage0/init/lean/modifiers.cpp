@@ -847,23 +847,17 @@ return x_5;
 obj* l___private_init_lean_modifiers_2__privatePrefixAux___main(obj* x_1) {
 _start:
 {
-switch (lean::obj_tag(x_1)) {
-case 0:
-{
-return x_1;
-}
-case 1:
+if (lean::obj_tag(x_1) == 1)
 {
 obj* x_2; 
 x_2 = lean::cnstr_get(x_1, 0);
 x_1 = x_2;
 goto _start;
 }
-default: 
+else
 {
 lean::inc(x_1);
 return x_1;
-}
 }
 }
 }

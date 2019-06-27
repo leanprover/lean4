@@ -2333,30 +2333,31 @@ if (x_10 == 0)
 obj* x_11; 
 x_11 = lean::cnstr_get(x_8, 0);
 switch (lean::obj_tag(x_11)) {
-case 0:
+case 2:
 {
 obj* x_12; 
-lean::free_heap_obj(x_8);
+x_12 = lean::cnstr_get(x_11, 1);
+lean::inc(x_12);
 lean::dec(x_11);
-x_12 = lean::box(0);
-return x_12;
+lean::cnstr_set(x_8, 0, x_12);
+return x_8;
 }
-case 1:
+case 3:
 {
 obj* x_13; 
-lean::free_heap_obj(x_8);
+x_13 = lean::cnstr_get(x_11, 1);
+lean::inc(x_13);
 lean::dec(x_11);
-x_13 = lean::box(0);
-return x_13;
+lean::cnstr_set(x_8, 0, x_13);
+return x_8;
 }
 default: 
 {
 obj* x_14; 
-x_14 = lean::cnstr_get(x_11, 1);
-lean::inc(x_14);
+lean::free_heap_obj(x_8);
 lean::dec(x_11);
-lean::cnstr_set(x_8, 0, x_14);
-return x_8;
+x_14 = lean::box(0);
+return x_14;
 }
 }
 }
@@ -2367,21 +2368,17 @@ x_15 = lean::cnstr_get(x_8, 0);
 lean::inc(x_15);
 lean::dec(x_8);
 switch (lean::obj_tag(x_15)) {
-case 0:
+case 2:
 {
-obj* x_16; 
+obj* x_16; obj* x_17; 
+x_16 = lean::cnstr_get(x_15, 1);
+lean::inc(x_16);
 lean::dec(x_15);
-x_16 = lean::box(0);
-return x_16;
-}
-case 1:
-{
-obj* x_17; 
-lean::dec(x_15);
-x_17 = lean::box(0);
+x_17 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_17, 0, x_16);
 return x_17;
 }
-default: 
+case 3:
 {
 obj* x_18; obj* x_19; 
 x_18 = lean::cnstr_get(x_15, 1);
@@ -2390,6 +2387,13 @@ lean::dec(x_15);
 x_19 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_19, 0, x_18);
 return x_19;
+}
+default: 
+{
+obj* x_20; 
+lean::dec(x_15);
+x_20 = lean::box(0);
+return x_20;
 }
 }
 }

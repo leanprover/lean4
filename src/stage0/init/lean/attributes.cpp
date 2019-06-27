@@ -996,12 +996,7 @@ return x_1;
 obj* l_Lean_Environment_registerNamespace___main(obj* x_1, obj* x_2) {
 _start:
 {
-switch (lean::obj_tag(x_2)) {
-case 0:
-{
-return x_1;
-}
-case 1:
+if (lean::obj_tag(x_2) == 1)
 {
 obj* x_3; obj* x_4; 
 x_3 = lean::cnstr_get(x_2, 0);
@@ -1011,11 +1006,10 @@ x_1 = x_4;
 x_2 = x_3;
 goto _start;
 }
-default: 
+else
 {
 lean::dec(x_2);
 return x_1;
-}
 }
 }
 }

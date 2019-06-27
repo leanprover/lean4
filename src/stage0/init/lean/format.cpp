@@ -358,19 +358,11 @@ obj* l_Lean_Format_flatten___main(obj* x_1) {
 _start:
 {
 switch (lean::obj_tag(x_1)) {
-case 0:
-{
-return x_1;
-}
 case 1:
 {
 obj* x_2; 
 x_2 = l_Lean_Format_flatten___main___closed__1;
 return x_2;
-}
-case 2:
-{
-return x_1;
 }
 case 3:
 {
@@ -425,7 +417,7 @@ else
 return x_1;
 }
 }
-default: 
+case 5:
 {
 obj* x_18; 
 x_18 = lean::cnstr_get(x_1, 0);
@@ -433,6 +425,10 @@ lean::inc(x_18);
 lean::dec(x_1);
 x_1 = x_18;
 goto _start;
+}
+default: 
+{
+return x_1;
 }
 }
 }

@@ -152,19 +152,16 @@ return x_4;
 uint8 l_Ordering_orElse___main(uint8 x_1, uint8 x_2) {
 _start:
 {
-switch (x_1) {
-case 0:
-{
-return x_1;
-}
-case 1:
+obj* x_3; 
+x_3 = lean::box(x_1);
+if (lean::obj_tag(x_3) == 1)
 {
 return x_2;
 }
-default: 
+else
 {
+lean::dec(x_3);
 return x_1;
-}
 }
 }
 }
@@ -184,19 +181,16 @@ return x_6;
 uint8 l_Ordering_orElse(uint8 x_1, uint8 x_2) {
 _start:
 {
-switch (x_1) {
-case 0:
-{
-return x_1;
-}
-case 1:
+obj* x_3; 
+x_3 = lean::box(x_1);
+if (lean::obj_tag(x_3) == 1)
 {
 return x_2;
 }
-default: 
+else
 {
+lean::dec(x_3);
 return x_1;
-}
 }
 }
 }
@@ -369,48 +363,38 @@ return x_5;
 }
 case 1:
 {
-switch (x_2) {
-case 0:
-{
-uint8 x_6; 
-x_6 = 0;
-return x_6;
-}
-case 1:
+obj* x_6; 
+x_6 = lean::box(x_2);
+if (lean::obj_tag(x_6) == 1)
 {
 uint8 x_7; 
 x_7 = 1;
 return x_7;
 }
-default: 
+else
 {
 uint8 x_8; 
+lean::dec(x_6);
 x_8 = 0;
 return x_8;
 }
 }
-}
 default: 
 {
-switch (x_2) {
-case 0:
-{
-uint8 x_9; 
-x_9 = 0;
-return x_9;
-}
-case 1:
+obj* x_9; 
+x_9 = lean::box(x_2);
+if (lean::obj_tag(x_9) == 2)
 {
 uint8 x_10; 
-x_10 = 0;
+x_10 = 1;
 return x_10;
 }
-default: 
+else
 {
 uint8 x_11; 
-x_11 = 1;
+lean::dec(x_9);
+x_11 = 0;
 return x_11;
-}
 }
 }
 }

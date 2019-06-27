@@ -289,30 +289,6 @@ static environment init_quot_cmd(parser & p) {
     return p.env().add(mk_quot_decl());
 }
 
-/*
-   Temporary procedure that converts metavariables in \c e to metavar_context metavariables.
-   After we convert the frontend to type_context_old, we will not need to use this procedure.
-*/
-static expr convert_metavars(metavar_context & mctx, expr const & e) {
-    expr_map<expr> cache;
-
-    std::function<expr(expr const & e)> convert = [&](expr const & e) {
-        return replace(e, [&](expr const e, unsigned) {
-                if (is_mvar(e)) {
-                    auto it = cache.find(e);
-                    if (it != cache.end())
-                        return some_expr(it->second);
-                    expr m = mctx.mk_metavar_decl(local_context(), convert(mvar_type(e)));
-                    cache.insert(mk_pair(e, m));
-                    return some_expr(m);
-                } else {
-                    return none_expr();
-                }
-            });
-    };
-    return convert(e);
-}
-
 environment import_cmd(parser & p) {
     throw parser_error("invalid 'import' command, it must be used in the beginning of the file", p.cmd_pos());
 }

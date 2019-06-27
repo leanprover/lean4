@@ -508,36 +508,6 @@ static environment compact_attribute_cmd(parser & p, cmd_meta const & meta) {
     return modifiers_cmd(p, {attributes, meta.m_modifiers, meta.m_doc_string});
 }
 
-static environment include_cmd_core(parser & p, bool include) {
-    if (!p.curr_is_identifier())
-        throw parser_error(sstream() << "invalid include/omit command, identifier expected", p.pos());
-    while (p.curr_is_identifier()) {
-        auto pos = p.pos();
-        name n = p.get_name_val();
-        p.next();
-        if (!p.get_local(n))
-            throw parser_error(sstream() << "invalid include/omit command, '" << n << "' is not a variable", pos);
-        if (include) {
-            if (p.is_include_variable(n))
-                throw parser_error(sstream() << "invalid include command, '" << n << "' has already been included", pos);
-            p.include_variable(n);
-        } else {
-            if (!p.is_include_variable(n))
-                throw parser_error(sstream() << "invalid omit command, '" << n << "' has not been included", pos);
-            p.omit_variable(n);
-        }
-    }
-    return p.env();
-}
-
-static environment include_cmd(parser & p) {
-    return include_cmd_core(p, true);
-}
-
-static environment omit_cmd(parser & p) {
-    return include_cmd_core(p, false);
-}
-
 void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("universe",        "declare a universe level", universe_cmd));
     add_cmd(r, cmd_info("universes",       "declare universe levels", universes_cmd));

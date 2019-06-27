@@ -11,8 +11,8 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 
 namespace lean {
-environment add_alias(parser & p, environment env, name const & id, name const & full_id,
-                      levels const & ctx_levels, buffer<expr> const & ctx_params) {
+environment add_alias(parser & /* p */, environment env, name const & id, name const & full_id,
+                      levels const & /* ctx_levels */, buffer<expr> const & /* ctx_params */) {
 //    if (!empty(ctx_levels) || !ctx_params.empty()) {
 //        expr r = mk_local_ref(full_id, ctx_levels, ctx_params);
 //        env = p.add_local_ref(env, id, r);

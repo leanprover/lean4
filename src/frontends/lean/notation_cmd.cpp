@@ -48,15 +48,6 @@ static unsigned parse_precedence_core(parser & p) {
     }
 }
 
-static optional<unsigned> parse_optional_precedence(parser & p) {
-    if (p.curr_is_token(get_colon_tk())) {
-        p.next();
-        return some(parse_precedence_core(p));
-    } else {
-        return optional<unsigned>();
-    }
-}
-
 static unsigned parse_precedence(parser & p) {
     return parse_precedence_core(p);
 }
@@ -277,11 +268,6 @@ static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_t
     }
 }
 
-static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_tokens) {
-    bool dummy;
-    return parse_quoted_symbol_or_token(p, new_tokens, dummy);
-}
-
 static expr parse_notation_expr(parser & p, buffer<expr> const & locals) {
     auto pos = p.pos();
     expr r = p.parse_expr();
@@ -317,7 +303,7 @@ static unsigned get_precedence(environment const & env, buffer<token_entry> cons
 }
 
 static action parse_action(parser & p, name const & prev_token, unsigned default_prec,
-                           buffer<expr> & locals, buffer<token_entry> & new_tokens) {
+                           buffer<expr> & /* locals */, buffer<token_entry> & new_tokens) {
     if (p.curr_is_token(get_colon_tk())) {
         p.next();
         if (p.curr_is_numeral() || p.curr_is_token_or_id(get_max_tk())) {

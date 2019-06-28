@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <algorithm>
+#include <string>
 #include "runtime/object.h"
 #include "runtime/optional.h"
 

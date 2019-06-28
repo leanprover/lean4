@@ -101,11 +101,11 @@ private def consumeNLambdas : Nat → Expr → Option Expr
 partial def getClassName (env : Environment) : Expr → Option Name
 | (Expr.pi _ _ _ d) := getClassName d
 | e                 := do
-  Expr.const c _ ← pure e.getAppFn | none,
-  info ← env.find c,
+  Expr.const c _ ← pure e.getAppFn | none;
+  info ← env.find c;
   match info.value with
   | some val := do
-    body ← consumeNLambdas e.getAppNumArgs val,
+    body ← consumeNLambdas e.getAppNumArgs val;
     getClassName body
   | none :=
     if isClass env c then some c
@@ -125,8 +125,8 @@ registerAttribute {
   name  := `class,
   descr := "type class",
   add   := λ env decl args persistent, do
-    unless args.isMissing $ throw (IO.userError ("invalid attribute 'class', unexpected argument")),
-    unless persistent $ throw (IO.userError ("invalid attribute 'class', must be persistent")),
+    unless args.isMissing $ throw (IO.userError ("invalid attribute 'class', unexpected argument"));
+    unless persistent $ throw (IO.userError ("invalid attribute 'class', must be persistent"));
     IO.ofExcept (addClass env decl)
 }
 
@@ -135,8 +135,8 @@ registerAttribute {
   name  := `instance,
   descr := "type class instance",
   add   := λ env decl args persistent, do
-    unless args.isMissing $ throw (IO.userError ("invalid attribute 'instance', unexpected argument")),
-    unless persistent $ throw (IO.userError ("invalid attribute 'instance', must be persistent")),
+    unless args.isMissing $ throw (IO.userError ("invalid attribute 'instance', unexpected argument"));
+    unless persistent $ throw (IO.userError ("invalid attribute 'instance', must be persistent"));
     IO.ofExcept (addInstance env decl)
 }
 

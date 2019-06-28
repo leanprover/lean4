@@ -95,7 +95,11 @@ static expr parse_let_body(parser & p, pos_info const & pos, bool in_do_block) {
             p.next();
             return p.parse_expr();
         } else {
-            p.check_token_next(get_comma_tk(), "invalid 'do' block 'let' declaration, ',' or 'in' expected");
+            if (p.curr_is_token(get_semicolon_tk()) || p.curr_is_token(get_comma_tk())) {
+                p.next();
+            } else {
+                p.check_token_next(get_semicolon_tk(), "invalid 'do' block 'let' declaration, ',', ';' or 'in' expected");
+            }
             if (p.curr_is_token(get_let_tk())) {
                 p.next();
                 return parse_let(p, pos, in_do_block);
@@ -277,7 +281,7 @@ static expr parse_do(parser & p, bool has_braces) {
             expr type, curr;
             std::tie(lhs, type, curr, else_case) = parse_do_action(p, new_locals);
             es.push_back(curr);
-            if (p.curr_is_token(get_comma_tk())) {
+            if (/* p.curr_is_token(get_comma_tk()) || */ p.curr_is_token(get_semicolon_tk())) {
                 p.next();
                 for (expr const & l : new_locals)
                     p.add_local(l);

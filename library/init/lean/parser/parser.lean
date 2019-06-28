@@ -972,9 +972,9 @@ match info.updateTokens tables.tokens with
 | Except.error msg    := throw (IO.userError msg)
 
 def addBuiltinLeadingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : Parser) : IO Unit :=
-do tables ← tablesRef.get,
-   tablesRef.reset,
-   tables ← updateTokens tables p.info,
+do tables ← tablesRef.get;
+   tablesRef.reset;
+   tables ← updateTokens tables p.info;
    match p.info.firstTokens with
    | FirstTokens.tokens tks :=
      let tables := tks.foldl (λ (tables : ParsingTables) tk, { leadingTable := tables.leadingTable.insert (mkSimpleName tk.val) p, .. tables }) tables;
@@ -983,9 +983,9 @@ do tables ← tablesRef.get,
      throw (IO.userError ("invalid builtin parser '" ++ toString declName ++ "', initial token is not statically known"))
 
 def addBuiltinTrailingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : TrailingParser) : IO Unit :=
-do tables ← tablesRef.get,
-   tablesRef.reset,
-   tables ← updateTokens tables p.info,
+do tables ← tablesRef.get;
+   tablesRef.reset;
+   tables ← updateTokens tables p.info;
    match p.info.firstTokens with
    | FirstTokens.tokens tks :=
      let tables := tks.foldl (λ (tables : ParsingTables) tk, { trailingTable := tables.trailingTable.insert (mkSimpleName tk.val) p, .. tables }) tables;
@@ -1017,8 +1017,8 @@ registerAttribute {
  name  := attrName,
  descr := "Builtin parser",
  add   := λ env declName args persistent, do {
-   unless args.isMissing $ throw (IO.userError ("invalid attribute '" ++ toString attrName ++ "', unexpected argument")),
-   unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString attrName ++ "', must be persistent")),
+   unless args.isMissing $ throw (IO.userError ("invalid attribute '" ++ toString attrName ++ "', unexpected argument"));
+   unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString attrName ++ "', must be persistent"));
    match env.find declName with
    | none  := throw "unknown declaration"
    | some decl :=
@@ -1045,7 +1045,7 @@ registerBuiltinParserAttribute `builtinTermParser `Lean.Parser.builtinTermParsin
 
 @[noinline] unsafe def runBuiltinParserUnsafe (kind : String) (ref : IO.Ref ParsingTables) : ParserFn leading :=
 λ a c s,
-match unsafeIO (do tables ← ref.get, pure $ prattParser kind tables a c s) with
+match unsafeIO (do tables ← ref.get; pure $ prattParser kind tables a c s) with
 | some s := s
 | none   := s.mkError "failed to access builtin reference"
 

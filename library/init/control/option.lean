@@ -31,7 +31,7 @@ namespace OptionT
   { pure := @OptionT.pure _ _, bind := @OptionT.bind _ _ }
 
   protected def orelse (ma : OptionT m α) (mb : OptionT m α) : OptionT m α :=
-  (do { some a ← ma | mb,
+  (do { some a ← ma | mb;
         pure (some a) } : m (Option α))
 
   @[inline] protected def fail : OptionT m α :=
@@ -55,7 +55,7 @@ namespace OptionT
   ⟨λ α, OptionT.monadMap⟩
 
   protected def catch (ma : OptionT m α) (handle : Unit → OptionT m α) : OptionT m α :=
-  (do { some a ← ma | (handle ()),
+  (do { some a ← ma | (handle ());
         pure a } : m (Option α))
 
   instance : MonadExcept Unit (OptionT m) :=

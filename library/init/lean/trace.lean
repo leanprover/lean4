@@ -48,23 +48,23 @@ traceCtx cls msg (pure () : m Unit)
 
 instance (m) [Monad m] : MonadTracer (TraceT m) :=
 { traceRoot := λ α pos cls msg ctx, do {
-    st ← get,
+    st ← get;
     if st.opts.getBool cls = true then do {
-      modify $ λ st, {curPos := pos, curTraces := [], ..st},
-      a ← ctx.get,
-      modify $ λ (st : TraceState), {roots := st.roots.insert pos ⟨msg, st.curTraces⟩, ..st},
+      modify $ λ st, {curPos := pos, curTraces := [], ..st};
+      a ← ctx.get;
+      modify $ λ (st : TraceState), {roots := st.roots.insert pos ⟨msg, st.curTraces⟩, ..st};
       pure a
     } else ctx.get
   },
   traceCtx := λ α cls msg ctx, do {
-    st ← get,
+    st ← get;
     -- tracing enabled?
-    some _ ← pure st.curPos | ctx.get,
+    some _ ← pure st.curPos | ctx.get;
     -- Trace class enabled?
     if st.opts.getBool cls = true then do {
-      set {curTraces := [], ..st},
-      a ← ctx.get,
-      modify $ λ (st' : TraceState), {curTraces := st.curTraces ++ [⟨msg, st'.curTraces⟩], ..st'},
+      set {curTraces := [], ..st};
+      a ← ctx.get;
+      modify $ λ (st' : TraceState), {curTraces := st.curTraces ++ [⟨msg, st'.curTraces⟩], ..st'};
       pure a
     } else
       -- disable tracing inside 'ctx'
@@ -76,7 +76,7 @@ instance (m) [Monad m] : MonadTracer (TraceT m) :=
 }
 
 def TraceT.run {m α} [Monad m] (opts : Options) (x : TraceT m α) : m (α × TraceMap) :=
-do (a, st) ← StateT.run x {opts := opts, roots := mkRBMap _ _ _, curPos := none, curTraces := []},
+do (a, st) ← StateT.run x {opts := opts, roots := RBMap.empty, curPos := none, curTraces := []};
    pure (a, st.roots)
 
 end Trace

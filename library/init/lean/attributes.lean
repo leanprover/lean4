@@ -145,31 +145,31 @@ constant attributeArrayRef : IO.Ref (Array AttributeImpl) := default _
 
 /- Low level attribute registration function. -/
 def registerAttribute (attr : AttributeImpl) : IO Unit :=
-do m ← attributeMapRef.get,
-   when (m.contains attr.name) $ throw (IO.userError ("invalid attribute declaration, '" ++ toString attr.name ++ "' has already been used")),
-   initializing ← IO.initializing,
-   unless initializing $ throw (IO.userError ("failed to register attribute, attributes can only be registered during initialization")),
-   attributeMapRef.modify (λ m, m.insert attr.name attr),
+do m ← attributeMapRef.get;
+   when (m.contains attr.name) $ throw (IO.userError ("invalid attribute declaration, '" ++ toString attr.name ++ "' has already been used"));
+   initializing ← IO.initializing;
+   unless initializing $ throw (IO.userError ("failed to register attribute, attributes can only be registered during initialization"));
+   attributeMapRef.modify (λ m, m.insert attr.name attr);
    attributeArrayRef.modify (λ attrs, attrs.push attr)
 
 /- Return true iff `n` is the name of a registered attribute. -/
 @[export lean.is_attribute_core]
 def isAttribute (n : Name) : IO Bool :=
-do m ← attributeMapRef.get, pure (m.contains n)
+do m ← attributeMapRef.get; pure (m.contains n)
 
 /- Return the name of all registered attributes. -/
 def getAttributeNames : IO (List Name) :=
-do m ← attributeMapRef.get, pure $ m.fold (λ r n _, n::r) []
+do m ← attributeMapRef.get; pure $ m.fold (λ r n _, n::r) []
 
 def getAttributeImpl (attrName : Name) : IO AttributeImpl :=
-do m ← attributeMapRef.get,
+do m ← attributeMapRef.get;
    match m.find attrName with
    | some attr := pure attr
    | none      := throw (IO.userError ("unknown attribute '" ++ toString attrName ++ "'"))
 
 @[export lean.attribute_application_time_core]
 def attributeApplicationTime (n : Name) : IO AttributeApplicationTime :=
-do attr ← getAttributeImpl n,
+do attr ← getAttributeImpl n;
    pure attr.applicationTime
 
 namespace Environment
@@ -181,7 +181,7 @@ namespace Environment
    - `args` is not valid for `attr`. -/
 @[export lean.add_attribute_core]
 def addAttribute (env : Environment) (decl : Name) (attrName : Name) (args : Syntax := Syntax.missing) (persistent := true) : IO Environment :=
-do attr ← getAttributeImpl attrName,
+do attr ← getAttributeImpl attrName;
    attr.add env decl args persistent
 
 /- Add a scoped attribute `attr` to declaration `decl` with arguments `args` and scope `decl.getPrefix`.
@@ -194,7 +194,7 @@ do attr ← getAttributeImpl attrName,
    Remark: the attribute will not be activated if `decl` is not inside the current namespace `env.getNamespace`. -/
 @[export lean.add_scoped_attribute_core]
 def addScopedAttribute (env : Environment) (decl : Name) (attrName : Name) (args : Syntax := Syntax.missing) : IO Environment :=
-do attr ← getAttributeImpl attrName,
+do attr ← getAttributeImpl attrName;
    attr.addScoped env decl args
 
 /- Remove attribute `attr` from declaration `decl`. The effect is the current scope.
@@ -204,36 +204,36 @@ do attr ← getAttributeImpl attrName,
    - `args` is not valid for `attr`. -/
 @[export lean.erase_attribute_core]
 def eraseAttribute (env : Environment) (decl : Name) (attrName : Name) (persistent := true) : IO Environment :=
-do attr ← getAttributeImpl attrName,
+do attr ← getAttributeImpl attrName;
    attr.erase env decl persistent
 
 /- Activate the scoped attribute `attr` for all declarations in scope `scope`.
    We use this function to implement the command `open foo`. -/
 @[export lean.activate_scoped_attribute_core]
 def activateScopedAttribute (env : Environment) (attrName : Name) (scope : Name) : IO Environment :=
-do attr ← getAttributeImpl attrName,
+do attr ← getAttributeImpl attrName;
    attr.activateScoped env scope
 
 /- Activate all scoped attributes at `scope` -/
 @[export lean.activate_scoped_attributes_core]
 def activateScopedAttributes (env : Environment) (scope : Name) : IO Environment :=
-do attrs ← attributeArrayRef.get,
+do attrs ← attributeArrayRef.get;
    attrs.mfoldl (λ env attr, attr.activateScoped env scope) env
 
 /- We use this function to implement commands `namespace foo` and `section foo`.
    It activates scoped attributes in the new resulting namespace. -/
 @[export lean.push_scope_core]
 def pushScope (env : Environment) (header : Name) (isNamespace : Bool) : IO Environment :=
-do let env := env.pushScopeCore header isNamespace,
-   let ns  := env.getNamespace,
-   attrs ← attributeArrayRef.get,
-   attrs.mfoldl (λ env attr, do env ← attr.pushScope env, if isNamespace then attr.activateScoped env ns else pure env) env
+do let env := env.pushScopeCore header isNamespace;
+   let ns  := env.getNamespace;
+   attrs ← attributeArrayRef.get;
+   attrs.mfoldl (λ env attr, do env ← attr.pushScope env; if isNamespace then attr.activateScoped env ns else pure env) env
 
 /- We use this function to implement commands `end foo` for closing namespaces and sections. -/
 @[export lean.pop_scope_core]
 def popScope (env : Environment) : IO Environment :=
-do let env := env.popScopeCore,
-   attrs ← attributeArrayRef.get,
+do let env := env.popScopeCore;
+   attrs ← attributeArrayRef.get;
    attrs.mfoldl (λ env attr, attr.popScope env) env
 
 end Environment
@@ -260,20 +260,20 @@ ext : PersistentEnvExtension Name NameSet ← registerPersistentEnvExtension {
     let r : Array Name := es.fold (λ a e, a.push e) Array.empty;
     r.qsort Name.quickLt,
   statsFn         := λ s, "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
-},
+};
 let attrImpl : AttributeImpl := {
   name  := name,
   descr := descr,
   add   := λ env decl args persistent, do
-    unless args.isMissing $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', unexpected argument")),
-    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent")),
+    unless args.isMissing $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', unexpected argument"));
+    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
     unless (env.getModuleIdxFor decl).isNone $
-      throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module")),
+      throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
     match validate env decl with
     | Except.error msg := throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
     | _                := pure $ ext.addEntry env decl
-},
-registerAttribute attrImpl,
+};
+registerAttribute attrImpl;
 pure { attr := attrImpl, ext := ext }
 
 namespace TagAttribute
@@ -309,23 +309,23 @@ ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistentEnv
     let r : Array (Name × α) := m.fold (λ a n p, a.push (n, p)) Array.empty;
     r.qsort (λ a b, Name.quickLt a.1 b.1),
   statsFn         := λ s, "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
-},
+};
 let attrImpl : AttributeImpl := {
   name  := name,
   descr := descr,
   add   := λ env decl args persistent, do
-    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent")),
+    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
     unless (env.getModuleIdxFor decl).isNone $
-      throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module")),
+      throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
     match getParam env decl args with
     | Except.error msg := throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
     | Except.ok val    := do
-      let env := ext.addEntry env (decl, val),
+      let env := ext.addEntry env (decl, val);
       match afterSet env decl val with
       | Except.error msg := throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
       | Except.ok env    := pure env
-},
-registerAttribute attrImpl,
+};
+registerAttribute attrImpl;
 pure { attr := attrImpl, ext := ext }
 
 namespace ParametricAttribute
@@ -368,19 +368,19 @@ ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistentEnv
     let r : Array (Name × α) := m.fold (λ a n p, a.push (n, p)) Array.empty;
     r.qsort (λ a b, Name.quickLt a.1 b.1),
   statsFn         := λ s, "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
-},
+};
 let attrs := attrDescrs.map $ λ ⟨name, descr, val⟩, { AttributeImpl .
   name  := name,
   descr := descr,
   add   := λ env decl args persistent, do
-    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent")),
+    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
     unless (env.getModuleIdxFor decl).isNone $
-      throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module")),
+      throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
     match validate env decl val with
     | Except.error msg := throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
     | _                := pure $ ext.addEntry env (decl, val)
-},
-attrs.mfor registerAttribute,
+};
+attrs.mfor registerAttribute;
 pure { ext := ext, attrs := attrs }
 
 namespace EnumAttributes

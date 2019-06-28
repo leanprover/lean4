@@ -137,7 +137,7 @@ mask.foldl
 
 abbrev M := ReaderT Context (State Nat)
 def mkFresh : M VarId :=
-do idx ← get, modify (+1), pure { idx := idx }
+do idx ← get; modify (+1); pure { idx := idx }
 
 def releaseUnreadFields (y : VarId) (mask : Mask) (b : FnBody) : M FnBody :=
 mask.size.mfold
@@ -145,7 +145,7 @@ mask.size.mfold
     match mask.get i with
     | some _ := pure b -- code took ownership of this field
     | none   := do
-      fld ← mkFresh,
+      fld ← mkFresh;
       pure (FnBody.vdecl fld IRType.object (Expr.proj i y) (FnBody.dec fld 1 true b)))
   b
 
@@ -240,22 +240,22 @@ and `z := reuse x ctor_i ws; F` is replaced with
 -/
 def mkFastPath (x y : VarId) (mask : Mask) (b : FnBody) : M FnBody :=
 do
-ctx ← read,
-let b := reuseToSet ctx x y b,
+ctx ← read;
+let b := reuseToSet ctx x y b;
 releaseUnreadFields y mask b
 
 -- Expand `bs; x := reset[n] y; b`
 partial def expand (mainFn : FnBody → Array FnBody → M FnBody)
             (bs : Array FnBody) (x : VarId) (n : Nat) (y : VarId) (b : FnBody) : M FnBody :=
 do
-let bOld := FnBody.vdecl x IRType.object (Expr.reset n y) b,
-let (bs, mask) := eraseProjIncFor n y bs,
-let bSlow      := mkSlowPath x y mask b,
-bFast ← mkFastPath x y mask b,
+let bOld := FnBody.vdecl x IRType.object (Expr.reset n y) b;
+let (bs, mask) := eraseProjIncFor n y bs;
+let bSlow      := mkSlowPath x y mask b;
+bFast ← mkFastPath x y mask b;
 /- We only optimize recursively the fast. -/
-bFast ← mainFn bFast Array.empty,
-c ← mkFresh,
-let b := FnBody.vdecl c IRType.uint8 (Expr.isShared y) (mkIf c bSlow bFast),
+bFast ← mainFn bFast Array.empty;
+c ← mkFresh;
+let b := FnBody.vdecl c IRType.uint8 (Expr.isShared y) (mkIf c bSlow bFast);
 pure $ reshape bs b
 
 partial def searchAndExpand : FnBody → Array FnBody → M FnBody
@@ -265,10 +265,10 @@ partial def searchAndExpand : FnBody → Array FnBody → M FnBody
   else
     searchAndExpand b (push bs d)
 | (FnBody.jdecl j xs v b) bs := do
-  v ← searchAndExpand v Array.empty,
+  v ← searchAndExpand v Array.empty;
   searchAndExpand b (push bs (FnBody.jdecl j xs v FnBody.nil))
 | (FnBody.case tid x alts) bs := do
-  alts ← alts.mmap $ λ alt, alt.mmodifyBody $ λ b, searchAndExpand b Array.empty,
+  alts ← alts.mmap $ λ alt, alt.mmodifyBody $ λ b, searchAndExpand b Array.empty;
   pure $ reshape bs (FnBody.case tid x alts)
 | b bs :=
   if b.isTerminal then pure $ reshape bs b

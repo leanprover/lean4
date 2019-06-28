@@ -70,19 +70,19 @@ if exported then ps else initBorrow ps
 
 partial def visitFnBody (fnid : FunId) : FnBody → State ParamMap Unit
 | (FnBody.jdecl j xs v b) := do
-  modify $ λ m, m.insert (Key.jp fnid j) (initBorrow xs),
-  visitFnBody v,
+  modify $ λ m, m.insert (Key.jp fnid j) (initBorrow xs);
+  visitFnBody v;
   visitFnBody b
 | e :=
   unless (e.isTerminal) $ do
-    let (instr, b) := e.split,
+    let (instr, b) := e.split;
     visitFnBody b
 
 def visitDecls (env : Environment) (decls : Array Decl) : State ParamMap Unit :=
 decls.mfor $ λ decl, match decl with
   | Decl.fdecl f xs _ b := do
-    let exported := isExport env f,
-    modify $ λ m, m.insert (Key.decl f) (initBorrowIfNotExported exported xs),
+    let exported := isExport env f;
+    modify $ λ m, m.insert (Key.decl f) (initBorrowIfNotExported exported xs);
     visitFnBody f b
   | _ := pure ()
 end InitParamMap
@@ -156,32 +156,32 @@ def ownArgs (xs : Array Arg) : M Unit :=
 xs.mfor ownArg
 
 def isOwned (x : VarId) : M Bool :=
-do s ← get,
+do s ← get;
    pure $ s.owned.contains x.idx
 
 /- Updates `map[k]` using the current set of `owned` variables. -/
 def updateParamMap (k : Key) : M Unit :=
 do
-s ← get,
+s ← get;
 match s.map.find k with
 | some ps := do
   ps ← ps.mmap $ λ (p : Param),
    if p.borrow && s.owned.contains p.x.idx then do
-     markModifiedParamMap, pure { borrow := false, .. p }
+     markModifiedParamMap; pure { borrow := false, .. p }
    else
-     pure p,
+     pure p;
   modify $ λ s, { map := s.map.insert k ps, .. s }
 | none    := pure ()
 
 def getParamInfo (k : Key) : M (Array Param) :=
 do
-s ← get,
+s ← get;
 match s.map.find k with
 | some ps := pure ps
 | none    :=
   match k with
   | (Key.decl fn) := do
-    ctx ← read,
+    ctx ← read;
     match findEnvDecl ctx.env fn with
     | some decl := pure decl.params
     | none      := pure Array.empty   -- unreachable if well-formed input
@@ -190,8 +190,8 @@ match s.map.find k with
 /- For each ps[i], if ps[i] is owned, then mark xs[i] as owned. -/
 def ownArgsUsingParams (xs : Array Arg) (ps : Array Param) : M Unit :=
 xs.size.mfor $ λ i, do
-  let x := xs.get i,
-  let p := ps.get i,
+  let x := xs.get i;
+  let p := ps.get i;
   unless p.borrow $ ownArg x
 
 /- For each xs[i], if xs[i] is owned, then mark ps[i] as owned.
@@ -201,8 +201,8 @@ xs.size.mfor $ λ i, do
    "break" the tail call. -/
 def ownParamsUsingArgs (xs : Array Arg) (ps : Array Param) : M Unit :=
 xs.size.mfor $ λ i, do
-  let x := xs.get i,
-  let p := ps.get i,
+  let x := xs.get i;
+  let p := ps.get i;
   match x with
   | Arg.var x := mwhen (isOwned x) $ ownVar p.x
   | _         := pure ()
@@ -219,7 +219,7 @@ xs.size.mfor $ λ i, do
 -/
 def ownArgsIfParam (xs : Array Arg) : M Unit :=
 do
-ctx ← read,
+ctx ← read;
 xs.mfor $ λ x,
   match x with
   | Arg.var x := when (ctx.paramSet.contains x.idx) $ ownVar x
@@ -230,7 +230,7 @@ def collectExpr (z : VarId) : Expr → M Unit
 | (Expr.reuse x _ _ ys) := ownVar z *> ownVar x *> ownArgsIfParam ys
 | (Expr.ctor _ xs)      := ownVar z *> ownArgsIfParam xs
 | (Expr.proj _ x)       := mwhen (isOwned z) $ ownVar x
-| (Expr.fap g xs)       := do ps ← getParamInfo (Key.decl g),
+| (Expr.fap g xs)       := do ps ← getParamInfo (Key.decl g);
   -- dbgTrace ("collectExpr: " ++ toString g ++ " " ++ toString (formatParams ps)) $ λ _,
   ownVar z *> ownArgsUsingParams xs ps
 | (Expr.ap x ys)        := ownVar z *> ownVar x *> ownArgs ys
@@ -238,12 +238,12 @@ def collectExpr (z : VarId) : Expr → M Unit
 | other                 := pure ()
 
 def preserveTailCall (x : VarId) (v : Expr) (b : FnBody) : M Unit :=
-do ctx ← read,
+do ctx ← read;
 match v, b with
 | (Expr.fap g ys), (FnBody.ret (Arg.var z)) :=
   when (ctx.currFn == g && x == z) $ do
     -- dbgTrace ("preserveTailCall " ++ toString b) $ λ _, do
-    ps ← getParamInfo (Key.decl g),
+    ps ← getParamInfo (Key.decl g);
     ownParamsUsingArgs ys ps
 | _, _ := pure ()
 
@@ -252,24 +252,24 @@ def updateParamSet (ctx : BorrowInfCtx) (ps : Array Param) : BorrowInfCtx :=
 
 partial def collectFnBody : FnBody → M Unit
 | (FnBody.jdecl j ys v b) := do
-  adaptReader (λ ctx, updateParamSet ctx ys) (collectFnBody v),
-  ctx ← read,
-  updateParamMap (Key.jp ctx.currFn j),
+  adaptReader (λ ctx, updateParamSet ctx ys) (collectFnBody v);
+  ctx ← read;
+  updateParamMap (Key.jp ctx.currFn j);
   collectFnBody b
 | (FnBody.vdecl x _ v b) := collectFnBody b *> collectExpr x v *> preserveTailCall x v b
 | (FnBody.jmp j ys)      := do
-  ctx ← read,
-  ps ← getParamInfo (Key.jp ctx.currFn j),
-  ownArgsUsingParams ys ps, -- for making sure the join point can reuse
+  ctx ← read;
+  ps ← getParamInfo (Key.jp ctx.currFn j);
+  ownArgsUsingParams ys ps; -- for making sure the join point can reuse
   ownParamsUsingArgs ys ps  -- for making sure the tail call is preserved
 | (FnBody.case _ _ alts) := alts.mfor $ λ alt, collectFnBody alt.body
 | e                      := unless (e.isTerminal) $ collectFnBody e.body
 
 @[specialize] partial def whileModifingOwnedAux (x : M Unit) : Unit → M Unit
 | _ := do
-  modify $ λ s, { modifiedOwned := false, .. s },
-  x,
-  s ← get,
+  modify $ λ s, { modifiedOwned := false, .. s };
+  x;
+  s ← get;
   if s.modifiedOwned then whileModifingOwnedAux ()
   else pure ()
 
@@ -280,18 +280,18 @@ whileModifingOwnedAux x ()
 partial def collectDecl : Decl → M Unit
 | (Decl.fdecl f ys _ b) :=
   adaptReader (λ ctx, let ctx := updateParamSet ctx ys; { currFn := f, .. ctx }) $ do
-   modify $ λ s : BorrowInfState, { owned := {}, .. s },
-   whileModifingOwned (collectFnBody b),
+   modify $ λ s : BorrowInfState, { owned := {}, .. s };
+   whileModifingOwned (collectFnBody b);
    updateParamMap (Key.decl f)
 | _ := pure ()
 
 @[specialize] partial def whileModifingParamMapAux (x : M Unit) : Unit → M Unit
 | _ := do
-  modify $ λ s, { modifiedParamMap := false, .. s },
-  s ← get,
+  modify $ λ s, { modifiedParamMap := false, .. s };
+  s ← get;
   -- dbgTrace (toString s.map) $ λ _, do
-  x,
-  s ← get,
+  x;
+  s ← get;
   if s.modifiedParamMap then whileModifingParamMapAux ()
   else pure ()
 
@@ -301,8 +301,8 @@ whileModifingParamMapAux x ()
 
 def collectDecls (decls : Array Decl) : M ParamMap :=
 do
-whileModifingParamMap (decls.mfor collectDecl),
-s ← get,
+whileModifingParamMap (decls.mfor collectDecl);
+s ← get;
 pure s.map
 
 def infer (env : Environment) (decls : Array Decl) : ParamMap :=
@@ -312,9 +312,9 @@ end Borrow
 
 def inferBorrow (decls : Array Decl) : CompilerM (Array Decl) :=
 do
-env ← getEnv,
-let decls    := decls.map Decl.normalizeIds,
-let paramMap := Borrow.infer env decls,
+env ← getEnv;
+let decls    := decls.map Decl.normalizeIds;
+let paramMap := Borrow.infer env decls;
 pure (Borrow.applyParamMap decls paramMap)
 
 end IR

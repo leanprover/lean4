@@ -29,30 +29,30 @@ IO.mkRef (mkNameMap OptionDecl)
 private constant optionDeclsRef : IO.Ref OptionDecls := default _
 
 def registerOption (name : Name) (decl : OptionDecl) : IO Unit :=
-do decls ← optionDeclsRef.get,
+do decls ← optionDeclsRef.get;
    when (decls.contains name) $
-     throw $ IO.userError ("invalid option declaration '" ++ toString name ++ "', option already exists"),
+     throw $ IO.userError ("invalid option declaration '" ++ toString name ++ "', option already exists");
    optionDeclsRef.set $ decls.insert name decl
 
 def getOptionDecls : IO OptionDecls := optionDeclsRef.get
 
 def getOptionDecl (name : Name) : IO OptionDecl :=
-do decls ← getOptionDecls,
-   (some decl) ← pure (decls.find name) | throw $ IO.userError ("unknown option '" ++ toString name ++ "'"),
+do decls ← getOptionDecls;
+   (some decl) ← pure (decls.find name) | throw $ IO.userError ("unknown option '" ++ toString name ++ "'");
    pure decl
 
 def getOptionDefaulValue (name : Name) : IO DataValue :=
-do decl ← getOptionDecl name,
+do decl ← getOptionDecl name;
    pure decl.defValue
 
 def getOptionDescr (name : Name) : IO String :=
-do decl ← getOptionDecl name,
+do decl ← getOptionDecl name;
    pure decl.descr
 
 def setOptionFromString (opts : Options) (entry : String) : IO Options :=
-do let ps := (entry.split "=").map String.trim,
-   [key, val] ← pure ps | throw "invalid configuration option entry, it must be of the form '<key> = <value>'",
-   defValue ← getOptionDefaulValue key.toName,
+do let ps := (entry.split "=").map String.trim;
+   [key, val] ← pure ps | throw "invalid configuration option entry, it must be of the form '<key> = <value>'";
+   defValue ← getOptionDefaulValue key.toName;
    match defValue with
    | DataValue.ofString v := pure $ opts.setString key val
    | DataValue.ofBool v   :=
@@ -61,10 +61,10 @@ do let ps := (entry.split "=").map String.trim,
      else throw $ IO.userError ("invalid Bool option value '" ++ val ++ "'")
    | DataValue.ofName v   := pure $ opts.setName key val.toName
    | DataValue.ofNat v    := do
-     unless val.isNat $ throw (IO.userError ("invalid Nat option value '" ++ val ++ "'")),
+     unless val.isNat $ throw (IO.userError ("invalid Nat option value '" ++ val ++ "'"));
      pure $ opts.setNat key val.toNat
    | DataValue.ofInt v    := do
-     unless val.isInt $ throw (IO.userError ("invalid Int option value '" ++ val ++ "'")),
+     unless val.isInt $ throw (IO.userError ("invalid Int option value '" ++ val ++ "'"));
      pure $ opts.setInt key val.toInt
 
 end Lean

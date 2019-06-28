@@ -21,13 +21,13 @@ match toBool b with
 | false := f
 
 @[macroInline] def orM {m : Type u → Type v} {β : Type u} [Monad m] [HasToBool β] (x y : m β) : m β :=
-do b ← x,
+do b ← x;
    match toBool b with
    | true  := pure b
    | false := y
 
 @[macroInline] def andM {m : Type u → Type v} {β : Type u} [Monad m] [HasToBool β] (x y : m β) : m β :=
-do b ← x,
+do b ← x;
    match toBool b with
    | true  := y
    | false := pure b

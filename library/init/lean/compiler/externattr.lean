@@ -147,7 +147,7 @@ def getExternEntryFor (d : ExternAttrData) (backend : Name) : Option ExternEntry
 getExternEntryForAux backend d.entries
 
 def mkExternCall (d : ExternAttrData) (backend : Name) (args : List String) : Option String :=
-do e ← getExternEntryFor d backend,
+do e ← getExternEntryFor d backend;
    expandExternEntry e args
 
 def isExtern (env : Environment) (fn : Name) : Bool :=
@@ -161,8 +161,8 @@ match getExternAttrData env fn with
 | _ := false
 
 def getExternNameFor (env : Environment) (backend : Name) (fn : Name) : Option String :=
-do data ← getExternAttrData env fn,
-   entry ← getExternEntryFor data backend,
+do data ← getExternAttrData env fn;
+   entry ← getExternEntryFor data backend;
    match entry with
    | ExternEntry.standard _ n := pure n
    | ExternEntry.foreign _ n  := pure n

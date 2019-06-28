@@ -41,8 +41,8 @@ protected def max : RBNode α β → Option (Sigma (λ k : α, β k))
 @[specialize] def mfold {m : Type w → Type w'} [Monad m] (f : σ → Π (k : α), β k → m σ) : σ → RBNode α β → m σ
 | b leaf             := pure b
 | b (node _ l k v r) := do
-  b ← mfold b l,
-  b ← f b k v,
+  b ← mfold b l;
+  b ← f b k v;
   mfold b r
 
 @[specialize] def revFold (f : σ → Π (k : α), β k → σ) : σ → RBNode α β → σ

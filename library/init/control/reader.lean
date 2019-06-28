@@ -30,7 +30,7 @@ pure
 λ r, pure a
 
 @[inline] protected def bind (x : ReaderT ρ m α) (f : α → ReaderT ρ m β) : ReaderT ρ m β :=
-λ r, do a ← x r, f a r
+λ r, do a ← x r; f a r
 
 @[inline] protected def map (f : α → β) (x : ReaderT ρ m α) : ReaderT ρ m β :=
 λ r, f <$> x r

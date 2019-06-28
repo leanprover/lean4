@@ -30,10 +30,10 @@ variables [Monad m] {α β : Type u}
 λ s, pure (a, s)
 
 @[inline] protected def bind (x : StateT σ m α) (f : α → StateT σ m β) : StateT σ m β :=
-λ s, do (a, s) ← x s, f a s
+λ s, do (a, s) ← x s; f a s
 
 @[inline] protected def map (f : α → β) (x : StateT σ m α) : StateT σ m β :=
-λ s, do (a, s) ← x s, pure (f a, s)
+λ s, do (a, s) ← x s; pure (f a, s)
 
 instance : Monad (StateT σ m) :=
 { pure := @StateT.pure _ _ _, bind := @StateT.bind _ _ _, map := @StateT.map _ _ _ }
@@ -59,7 +59,7 @@ instance [Alternative m] : Alternative (StateT σ m) :=
 λ s, pure (⟨⟩, f s)
 
 @[inline] protected def lift {α : Type u} (t : m α) : StateT σ m α :=
-λ s, do a ← t, pure (a, s)
+λ s, do a ← t; pure (a, s)
 
 instance : HasMonadLift m (StateT σ m) :=
 ⟨@StateT.lift σ m _⟩
@@ -70,8 +70,8 @@ instance (σ m m') [Monad m] [Monad m'] : MonadFunctor m m' (StateT σ m) (State
 @[inline] protected def adapt {σ σ' σ'' α : Type u} {m : Type u → Type v} [Monad m] (split : σ → σ' × σ'')
         (join : σ' → σ'' → σ) (x : StateT σ' m α) : StateT σ m α :=
 λ st, do
-  let (st, ctx) := split st,
-  (a, st') ← x st,
+  let (st, ctx) := split st;
+  (a, st') ← x st;
   pure (a, join st' ctx)
 
 instance (ε) [MonadExcept ε m] : MonadExcept ε (StateT σ m) :=
@@ -100,7 +100,7 @@ section
 variables {σ : Type u} {m : Type u → Type v}
 
 @[inline] def getModify [MonadState σ m] [Monad m] (f : σ → σ) : m σ :=
-do s ← get, modify f, pure s
+do s ← get; modify f; pure s
 
 -- NOTE: The Ordering of the following two instances determines that the top-most `StateT` Monad layer
 -- will be picked first

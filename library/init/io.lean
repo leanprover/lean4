@@ -85,7 +85,7 @@ open Fs
 
 @[specialize] partial def iterate {α β : Type} : α → (α → IO (Sum α β)) → IO β
 | a f :=
-  do v ← f a,
+  do v ← f a;
   match v with
   | Sum.inl a := iterate a f
   | Sum.inr b := pure b
@@ -154,18 +154,18 @@ do b ← h.read 1,
 
 def handle.readToEnd (h : handle) : m String :=
 Prim.liftIO $ Prim.iterate "" $ λ r, do
-  done ← h.isEof,
+  done ← h.isEof;
   if done
   then pure (Sum.inr r) -- stop
   else do
     -- HACK: use less efficient `getLine` while `read` is broken
-    c ← h.getLine,
+    c ← h.getLine;
     pure $ Sum.inl (r ++ c) -- continue
 
 def readFile (fname : String) (bin := false) : m String :=
-do h ← handle.mk fname Mode.read bin,
-   r ← h.readToEnd,
-   h.close,
+do h ← handle.mk fname Mode.read bin;
+   r ← h.readToEnd;
+   h.close;
    pure r
 
 -- def writeFile (fname : String) (data : String) (bin := false) : m Unit :=
@@ -229,8 +229,8 @@ variables {m : Type → Type} [Monad m] [monadIO m]
 @[inline] def Ref.swap {α : Type} (r : Ref α) (a : α) : m α := Prim.liftIO (Prim.Ref.swap r a)
 @[inline] def Ref.reset {α : Type} (r : Ref α) : m Unit := Prim.liftIO (Prim.Ref.reset r)
 @[inline] def Ref.modify {α : Type} (r : Ref α) (f : α → α) : m Unit :=
-do v ← r.get,
-   r.reset,
+do v ← r.get;
+   r.reset;
    r.set (f v)
 end
 end IO
@@ -259,7 +259,7 @@ instance HasRepr.HasEval {α : Type u} [HasRepr α] : HasEval α :=
 ⟨λ a, IO.println (repr a)⟩
 
 instance IO.HasEval {α : Type} [HasEval α] : HasEval (IO α) :=
-⟨λ x, do a ← x, HasEval.eval a⟩
+⟨λ x, do a ← x; HasEval.eval a⟩
 
 -- special case: do not print `()`
 instance IOUnit.HasEval : HasEval (IO Unit) :=

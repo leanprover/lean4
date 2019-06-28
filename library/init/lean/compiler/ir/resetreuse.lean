@@ -59,12 +59,12 @@ private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
 abbrev M := ReaderT LocalContext (StateT Index Id)
 
 private def mkFresh : M VarId :=
-do idx ← getModify (+1),
+do idx ← getModify (+1);
    pure { idx := idx }
 
 private def tryS (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=
-do w ← mkFresh,
-   let b' := S w c b,
+do w ← mkFresh;
+   let b' := S w c b;
    if b == b' then pure b
    else pure $ FnBody.vdecl w IRType.object (Expr.reset c.size x) b'
 
@@ -90,38 +90,38 @@ match b with
    is expensive: `O(n^2)` where `n` is the size of the function body. -/
 private partial def Dmain (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × Bool)
 | e@(FnBody.case tid y alts) := do
-  ctx ← read,
+  ctx ← read;
   if e.hasLiveVar ctx x then do
     /- If `x` is live in `e`, we recursively process each branch. -/
-    alts ← alts.mmap $ λ alt, alt.mmodifyBody (λ b, Dmain b >>= Dfinalize x c),
+    alts ← alts.mmap $ λ alt, alt.mmodifyBody (λ b, Dmain b >>= Dfinalize x c);
     pure (FnBody.case tid y alts, true)
   else pure (e, false)
 | (FnBody.jdecl j ys v b) := do
-  (b, _) ← adaptReader (λ ctx : LocalContext, ctx.addJP j ys v) (Dmain b),
-  (v, found) ← Dmain v,
+  (b, _) ← adaptReader (λ ctx : LocalContext, ctx.addJP j ys v) (Dmain b);
+  (v, found) ← Dmain v;
   /- If `found == true`, then `Dmain b` must also have returned `(b, true)` since
      we assume the IR does not have dead join points. So, if `x` is live in `j`,
      then it must also live in `b` since `j` is reachable from `b` with a `jmp`. -/
   pure (FnBody.jdecl j ys v b, found)
 | e := do
-  ctx ← read,
+  ctx ← read;
   if e.isTerminal then
     pure (e, e.hasLiveVar ctx x)
   else do
-    let (instr, b) := e.split,
+    let (instr, b) := e.split;
     if isCtorUsing instr x then
       /- If the scrutinee `x` (the one that is providing memory) is being
          stored in a constructor, then reuse will probably not be able to reuse memory at runtime.
          It may work only if the new cell is consumed, but we ignore this case. -/
       pure (e, true)
     else do
-      (b, found) ← Dmain b,
+      (b, found) ← Dmain b;
       /- Remark: it is fine to use `hasFreeVar` instead of `hasLiveVar`
          since `instr` is not a `FnBody.jmp` (it is not a terminal) nor it is a `FnBody.jdecl`. -/
       if found || !instr.hasFreeVar x then
         pure (instr.setBody b, found)
       else do
-        b ← tryS x c b,
+        b ← tryS x c b;
         pure (instr.setBody b, true)
 
 private def D (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=
@@ -130,23 +130,23 @@ Dmain x c b >>= Dfinalize x c
 partial def R : FnBody → M FnBody
 | (FnBody.case tid x alts) := do
     alts ← alts.mmap $ λ alt, do {
-      alt ← alt.mmodifyBody R,
+      alt ← alt.mmodifyBody R;
       match alt with
       | Alt.ctor c b :=
         if c.isScalar then pure alt
         else Alt.ctor c <$> D x c b
       | _            := pure alt
-    },
+    };
     pure $ FnBody.case tid x alts
 | (FnBody.jdecl j ys v b) := do
-  v ← R v,
-  b ← adaptReader (λ ctx : LocalContext, ctx.addJP j ys v) (R b),
+  v ← R v;
+  b ← adaptReader (λ ctx : LocalContext, ctx.addJP j ys v) (R b);
   pure $ FnBody.jdecl j ys v b
 | e := do
   if e.isTerminal then pure e
   else do
-    let (instr, b) := e.split,
-    b ← R b,
+    let (instr, b) := e.split;
+    b ← R b;
     pure (instr.setBody b)
 
 end ResetReuse

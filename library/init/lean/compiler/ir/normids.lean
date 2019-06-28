@@ -15,7 +15,7 @@ namespace UniqueIds
 abbrev M := StateT IndexSet Id
 
 def checkId (id : Index) : M Bool :=
-do found ← get,
+do found ← get;
    if found.contains id then pure false
    else modify (λ s, s.insert id) *> pure true
 
@@ -80,39 +80,39 @@ abbrev N := ReaderT IndexRenaming (State Nat)
 
 @[inline] def withVar {α : Type} (x : VarId) (k : VarId → N α) : N α :=
 λ m, do
-  n ← getModify (+1),
+  n ← getModify (+1);
   k { idx := n } (m.insert x.idx n)
 
 @[inline] def withJP {α : Type} (x : JoinPointId) (k : JoinPointId → N α) : N α :=
 λ m, do
-  n ← getModify (+1),
+  n ← getModify (+1);
   k { idx := n } (m.insert x.idx n)
 
 @[inline] def withParams {α : Type} (ps : Array Param) (k : Array Param → N α) : N α :=
 λ m, do
-  m ← ps.mfoldl (λ (m : IndexRenaming) p, do n ← getModify (+1), pure $ m.insert p.x.idx n) m,
-  let ps := ps.map $ λ p, { x := normVar p.x m, .. p },
+  m ← ps.mfoldl (λ (m : IndexRenaming) p, do n ← getModify (+1); pure $ m.insert p.x.idx n) m;
+  let ps := ps.map $ λ p, { x := normVar p.x m, .. p };
   k ps m
 
 instance MtoN {α} : HasCoe (M α) (N α) :=
 ⟨λ x m, pure $ x m⟩
 
 partial def normFnBody : FnBody → N FnBody
-| (FnBody.vdecl x t v b)     := do v ← normExpr v, withVar x $ λ x, FnBody.vdecl x t v <$> normFnBody b
+| (FnBody.vdecl x t v b)     := do v ← normExpr v; withVar x $ λ x, FnBody.vdecl x t v <$> normFnBody b
 | (FnBody.jdecl j ys v b)    := do
-  (ys, v) ← withParams ys $ λ ys, do { v ← normFnBody v, pure (ys, v) },
+  (ys, v) ← withParams ys $ λ ys, do { v ← normFnBody v; pure (ys, v) };
   withJP j $ λ j, FnBody.jdecl j ys v <$> normFnBody b
-| (FnBody.set x i y b)       := do x ← normVar x, y ← normArg y, FnBody.set x i y <$> normFnBody b
-| (FnBody.uset x i y b)      := do x ← normVar x, y ← normVar y, FnBody.uset x i y <$> normFnBody b
-| (FnBody.sset x i o y t b)  := do x ← normVar x, y ← normVar y, FnBody.sset x i o y t <$> normFnBody b
-| (FnBody.setTag x i b)      := do x ← normVar x, FnBody.setTag x i <$> normFnBody b
-| (FnBody.inc x n c b)       := do x ← normVar x, FnBody.inc x n c <$> normFnBody b
-| (FnBody.dec x n c b)       := do x ← normVar x, FnBody.dec x n c <$> normFnBody b
-| (FnBody.del x b)           := do x ← normVar x, FnBody.del x <$> normFnBody b
+| (FnBody.set x i y b)       := do x ← normVar x; y ← normArg y; FnBody.set x i y <$> normFnBody b
+| (FnBody.uset x i y b)      := do x ← normVar x; y ← normVar y; FnBody.uset x i y <$> normFnBody b
+| (FnBody.sset x i o y t b)  := do x ← normVar x; y ← normVar y; FnBody.sset x i o y t <$> normFnBody b
+| (FnBody.setTag x i b)      := do x ← normVar x; FnBody.setTag x i <$> normFnBody b
+| (FnBody.inc x n c b)       := do x ← normVar x; FnBody.inc x n c <$> normFnBody b
+| (FnBody.dec x n c b)       := do x ← normVar x; FnBody.dec x n c <$> normFnBody b
+| (FnBody.del x b)           := do x ← normVar x; FnBody.del x <$> normFnBody b
 | (FnBody.mdata d b)         := FnBody.mdata d <$> normFnBody b
 | (FnBody.case tid x alts)   := do
-  x ← normVar x,
-  alts ← alts.mmap $ λ alt, alt.mmodifyBody normFnBody,
+  x ← normVar x;
+  alts ← alts.mmap $ λ alt, alt.mmodifyBody normFnBody;
   pure $ FnBody.case tid x alts
 | (FnBody.jmp j ys)         := FnBody.jmp <$> normJP j <*> normArgs ys
 | (FnBody.ret x)            := FnBody.ret <$> normArg x

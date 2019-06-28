@@ -133,7 +133,7 @@ variables {m : Type v → Type v} [Monad m]
 | (leaf vs) b := vs.mfoldl f b
 
 @[specialize] def mfoldl (f : β → α → m β) (b : β) (t : PersistentArray α) : m β :=
-do b ← mfoldlAux f t.root b, t.tail.mfoldl f b
+do b ← mfoldlAux f t.root b; t.tail.mfoldl f b
 
 end
 
@@ -152,8 +152,8 @@ variables {m : Type v → Type v} [Monad m]
 
 @[specialize] def mmap (f : α → m β) (t : PersistentArray α) : m (PersistentArray β) :=
 do
-  root ← mmapAux f t.root,
-  tail ← t.tail.mmap f,
+  root ← mmapAux f t.root;
+  tail ← t.tail.mmap f;
   pure { tail := tail, root := root, .. t }
 
 end

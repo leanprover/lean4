@@ -32,7 +32,7 @@ modifyConstTable (λ cs, cs.qsort (λ e₁ e₂, Name.quickLt e₁.1 e₂.1))
    the program may crash if the type provided by the user is incorrect.
    It also assumes there are no threads trying to update the table concurrently. -/
 unsafe def evalConst (α : Type) [Inhabited α] (c : Name) : IO α :=
-do cs ← getConstTable,
+do cs ← getConstTable;
    match cs.binSearch (c, default _) (λ e₁ e₂, Name.quickLt e₁.1 e₂.1) with
    | some (_, v) := pure (unsafeCast v)
    | none        := throw (IO.userError ("unknow constant '" ++ toString c ++ "'"))

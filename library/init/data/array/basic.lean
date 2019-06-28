@@ -177,7 +177,7 @@ miterate₂ a₁ a₂ b (λ _ a₁ a₂ b, f b a₁ a₂)
 | i :=
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩;
-     do r ← f (a.fget idx),
+     do r ← f (a.fget idx);
         match r with
         | some v := pure r
         | none   := mfindAux (i+1)
@@ -216,7 +216,7 @@ variables {m : Type → Type v} [Monad m]
 | i :=
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩;
-     do b ← p (a.fget idx),
+     do b ← p (a.fget idx);
      match b with
      | true  := pure true
      | false := anyMAux (i+1)
@@ -266,7 +266,7 @@ variables {m : Type v → Type v} [Monad m]
      let idx : Fin a.size := ⟨i, h⟩;
      let v   : α          := a.fget idx;
      let a                := a.fset idx (@unsafeCast _ _ ⟨v⟩ ());
-     do newV ← f i v, ummapAux (i+1) (a.fset idx (@unsafeCast _ _ ⟨v⟩ newV))
+     do newV ← f i v; ummapAux (i+1) (a.fset idx (@unsafeCast _ _ ⟨v⟩ newV))
   else
      pure (unsafeCast a)
 
@@ -277,10 +277,10 @@ ummapAux (λ i a, f a) 0 as
 ummapAux f 0 as
 
 @[implementedBy Array.ummap] def mmap (f : α → m β) (as : Array α) : m (Array β) :=
-as.mfoldl (λ bs a, do b ← f a, pure (bs.push b)) (mkEmpty as.size)
+as.mfoldl (λ bs a, do b ← f a; pure (bs.push b)) (mkEmpty as.size)
 
 @[implementedBy Array.ummapIdx] def mmapIdx (f : Nat → α → m β) (as : Array α) : m (Array β) :=
-as.miterate (mkEmpty as.size) (λ i a bs, do b ← f i.val a, pure (bs.push b))
+as.miterate (mkEmpty as.size) (λ i a bs, do b ← f i.val a; pure (bs.push b))
 end
 
 @[inline] def modify [Inhabited α] (a : Array α) (i : Nat) (f : α → α) : Array α :=

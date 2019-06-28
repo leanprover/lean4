@@ -24,30 +24,30 @@ namespace IR
 
 private def compileAux (decls : Array Decl) : CompilerM Unit :=
 do
-logDecls `init decls,
-checkDecls decls,
-let decls := decls.map Decl.pushProj,
-logDecls `push_proj decls,
-let decls := decls.map Decl.insertResetReuse,
-logDecls `reset_reuse decls,
-let decls := decls.map Decl.elimDead,
-logDecls `elim_dead decls,
-let decls := decls.map Decl.simpCase,
-logDecls `simp_case decls,
-let decls := decls.map Decl.normalizeIds,
-decls ← inferBorrow decls,
-logDecls `borrow decls,
-decls ← explicitBoxing decls,
-logDecls `boxing decls,
-decls ← explicitRC decls,
-logDecls `rc decls,
-let decls := decls.map Decl.expandResetReuse,
-logDecls `expand_reset_reuse decls,
-let decls := decls.map Decl.pushProj,
-logDecls `push_proj decls,
-logDecls `result decls,
-checkDecls decls,
-addDecls decls,
+logDecls `init decls;
+checkDecls decls;
+let decls := decls.map Decl.pushProj;
+logDecls `push_proj decls;
+let decls := decls.map Decl.insertResetReuse;
+logDecls `reset_reuse decls;
+let decls := decls.map Decl.elimDead;
+logDecls `elim_dead decls;
+let decls := decls.map Decl.simpCase;
+logDecls `simp_case decls;
+let decls := decls.map Decl.normalizeIds;
+decls ← inferBorrow decls;
+logDecls `borrow decls;
+decls ← explicitBoxing decls;
+logDecls `boxing decls;
+decls ← explicitRC decls;
+logDecls `rc decls;
+let decls := decls.map Decl.expandResetReuse;
+logDecls `expand_reset_reuse decls;
+let decls := decls.map Decl.pushProj;
+logDecls `push_proj decls;
+logDecls `result decls;
+checkDecls decls;
+addDecls decls;
 pure ()
 
 @[export lean.ir.compile_core]

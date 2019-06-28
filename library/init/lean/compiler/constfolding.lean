@@ -58,9 +58,9 @@ def mkUInt32Lit (n : Nat) : Expr :=
 mkUIntLit {nbits := 32} n
 
 def foldBinUInt (fn : NumScalarTypeInfo → Bool → Nat → Nat → Nat) (beforeErasure : Bool) (a₁ a₂ : Expr) : Option Expr :=
-do n₁   ← getNumLit a₁,
-   n₂   ← getNumLit a₂,
-   info ← getInfoFromVal a₁,
+do n₁   ← getNumLit a₁;
+   n₂   ← getNumLit a₂;
+   info ← getInfoFromVal a₁;
    pure $ mkUIntLit info (fn info beforeErasure n₁ n₂)
 
 def foldUIntAdd := foldBinUInt $ λ _ _, (+)
@@ -77,8 +77,8 @@ def uintBinFoldFns : List (Name × BinFoldFn) :=
 numScalarTypes.foldl (λ r info, r ++ (preUIntBinFoldFns.map (λ ⟨suffix, fn⟩, (info.id ++ suffix, fn)))) []
 
 def foldNatBinOp (fn : Nat → Nat → Nat) (a₁ a₂ : Expr) : Option Expr :=
-do n₁   ← getNumLit a₁,
-   n₂   ← getNumLit a₂,
+do n₁   ← getNumLit a₁;
+   n₂   ← getNumLit a₂;
    pure $ Expr.lit (Literal.natVal (fn n₁ n₂))
 
 def foldNatAdd (_ : Bool) := foldNatBinOp (+)
@@ -105,8 +105,8 @@ match beforeErasure, r with
 
 def foldNatBinPred (mkPred : Expr → Expr → Expr) (fn : Nat → Nat → Bool)
                       (beforeErasure : Bool) (a₁ a₂ : Expr) : Option Expr :=
-do n₁   ← getNumLit a₁,
-   n₂   ← getNumLit a₂,
+do n₁   ← getNumLit a₁;
+   n₂   ← getNumLit a₂;
    pure $ toDecidableExpr beforeErasure (mkPred a₁ a₂) (fn n₁ n₂)
 
 def foldNatDecEq := foldNatBinPred mkNatEq (λ a b, a = b)
@@ -156,18 +156,18 @@ def binFoldFns : List (Name × BinFoldFn) :=
 boolFoldFns ++ uintBinFoldFns ++ natFoldFns
 
 def foldNatSucc (_ : Bool) (a : Expr) : Option Expr :=
-do n   ← getNumLit a,
+do n   ← getNumLit a;
    pure $ Expr.lit (Literal.natVal (n+1))
 
 def foldCharOfNat (beforeErasure : Bool) (a : Expr) : Option Expr :=
-do guard (!beforeErasure),
-   n ← getNumLit a,
+do guard (!beforeErasure);
+   n ← getNumLit a;
    pure $
      if isValidChar (UInt32.ofNat n) then mkUInt32Lit n
      else mkUInt32Lit 0
 
 def foldToNat (_ : Bool) (a : Expr) : Option Expr :=
-do n ← getNumLit a,
+do n ← getNumLit a;
    pure $ Expr.lit (Literal.natVal n)
 
 def uintFoldToNatFns : List (Name × UnFoldFn) :=
@@ -188,7 +188,7 @@ unFoldFns.lookup fn
 def foldBinOp (beforeErasure : Bool) (f : Expr) (a : Expr) (b : Expr) : Option Expr :=
 match f with
 | Expr.const fn _ := do
-   foldFn ← findBinFoldFn fn,
+   foldFn ← findBinFoldFn fn;
    foldFn beforeErasure a b
 | _ := none
 
@@ -196,7 +196,7 @@ match f with
 def foldUnOp (beforeErasure : Bool) (f : Expr) (a : Expr) : Option Expr :=
 match f with
 | Expr.const fn _ := do
-   foldFn ← findUnFoldFn fn,
+   foldFn ← findUnFoldFn fn;
    foldFn beforeErasure a
 | _ := none
 

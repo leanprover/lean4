@@ -109,11 +109,11 @@ match s with
 
 @[specialize] partial def mreplace {m : Type → Type} [Monad m] (fn : Syntax → m (Option Syntax)) : Syntax → m Syntax
 | stx@(node kind args scopes) := do
-  o ← fn stx,
+  o ← fn stx;
   (match o with
   | some stx := pure stx
-  | none     := do args ← args.mmap mreplace, pure (node kind args scopes))
-| stx := do o ← fn stx, pure (o.getOrElse stx)
+  | none     := do args ← args.mmap mreplace; pure (node kind args scopes))
+| stx := do o ← fn stx; pure (o.getOrElse stx)
 
 @[inline] def replace {m : Type → Type} [Monad m] (fn : Syntax → m (Option Syntax)) := @mreplace Id _
 
@@ -126,14 +126,14 @@ private def updateInfo : SourceInfo → String.Pos → SourceInfo
 @[inline]
 private def updateLeadingAux : Syntax → State String.Pos (Option Syntax)
 | (atom (some info) val) := do
-  last ← get,
-  set info.trailing.stopPos,
-  let newInfo := updateInfo info last in
+  last ← get;
+  set info.trailing.stopPos;
+  let newInfo := updateInfo info last;
   pure $ some (atom (some newInfo) val)
 | (ident (some info) rawVal val pre scopes) := do
-  last ← get,
-  set info.trailing.stopPos,
-  let newInfo := updateInfo info last in
+  last ← get;
+  set info.trailing.stopPos;
+  let newInfo := updateInfo info last;
   pure $ some (ident (some newInfo) rawVal val pre scopes)
 | _ := pure none
 
@@ -184,9 +184,9 @@ partial def reprint : Syntax → Option String
   if kind == choiceKind then
     if args.size == 0 then failure
     else do
-      s ← reprint (args.get 0),
-      args.mfoldlFrom (λ s stx, do s' ← reprint stx, guard (s == s'), pure s) s 1
-  else args.mfoldl (λ r stx, do s ← reprint stx, pure $ r ++ s) ""
+      s ← reprint (args.get 0);
+      args.mfoldlFrom (λ s stx, do s' ← reprint stx; guard (s == s'); pure s) s 1
+  else args.mfoldl (λ r stx, do s ← reprint stx; pure $ r ++ s) ""
 | missing := ""
 
 open Lean.Format

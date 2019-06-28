@@ -115,7 +115,7 @@ def IO.setRandSeed (n : Nat) : IO Unit :=
 IO.stdGenRef.set (mkStdGen n)
 
 def IO.rand (lo hi : Nat) : IO Nat :=
-do gen ← IO.stdGenRef.get,
-   let (r, gen) := randNat gen lo hi,
-   IO.stdGenRef.set gen,
+do gen ← IO.stdGenRef.get;
+   let (r, gen) := randNat gen lo hi;
+   IO.stdGenRef.set gen;
    pure r

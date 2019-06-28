@@ -29,12 +29,12 @@ partial def visitFnBody : FnBody → M Bool
   let checkFn (f : FunId) : M Bool :=
      if leanNameSpacePrefix.isPrefixOf f then pure true
      else do {
-       s ← get,
+       s ← get;
        if s.contains f then
          visitFnBody b
        else do
-         modify (λ s, s.insert f),
-         env ← read,
+         modify (λ s, s.insert f);
+         env ← read;
          match findEnvDecl env f with
          | some (Decl.fdecl _ _ _ fbody) := visitFnBody fbody <||> visitFnBody b
          | other                         := visitFnBody b
@@ -74,7 +74,7 @@ partial def collectFnBody : FnBody → M Unit
 | e := unless e.isTerminal $ collectFnBody e.body
 
 def collectInitDecl (fn : Name) : M Unit :=
-do env ← read,
+do env ← read;
    match getInitFnNameFor env fn with
    | some initFn := collect initFn
    | _           := pure ()

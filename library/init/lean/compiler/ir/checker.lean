@@ -17,17 +17,17 @@ structure Context :=
 abbrev M := ExceptT String (ReaderT Context Id)
 
 def getDecl (c : Name) : M Decl :=
-do ctx ← read,
+do ctx ← read;
    match findEnvDecl' ctx.env c ctx.decls with
    | none   := throw ("unknown declaration '" ++ toString c ++ "'")
    | some d := pure d
 
 def checkVar (x : VarId) : M Unit :=
-do ctx ← read,
+do ctx ← read;
    unless (ctx.localCtx.isLocalVar x.idx || ctx.localCtx.isParam x.idx) $ throw ("unknown variable '" ++ toString x ++ "'")
 
 def checkJP (j : JoinPointId) : M Unit :=
-do ctx ← read,
+do ctx ← read;
    unless (ctx.localCtx.isJP j.idx) $ throw ("unknown join point '" ++ toString j ++ "'")
 
 def checkArg (a : Arg) : M Unit :=
@@ -46,7 +46,7 @@ def checkObjType (ty : IRType) : M Unit := checkType ty IRType.isObj
 def checkScalarType (ty : IRType) : M Unit := checkType ty IRType.isScalar
 
 @[inline] def checkVarType (x : VarId) (p : IRType → Bool) : M Unit :=
-do ctx ← read,
+do ctx ← read;
    match ctx.localCtx.getType x with
    | some ty := checkType ty p
    | none    := throw ("unknown variable '" ++ toString x ++ "'")
@@ -59,14 +59,14 @@ checkVarType x IRType.isScalar
 
 def checkFullApp (c : FunId) (ys : Array Arg) : M Unit :=
 do
-decl ← getDecl c,
-unless (ys.size == decl.params.size) (throw ("incorrect number of arguments to '" ++ toString c ++ "', " ++ toString ys.size ++ " provided, " ++ toString decl.params.size ++ " expected")),
+decl ← getDecl c;
+unless (ys.size == decl.params.size) (throw ("incorrect number of arguments to '" ++ toString c ++ "', " ++ toString ys.size ++ " provided, " ++ toString decl.params.size ++ " expected"));
 checkArgs ys
 
 def checkPartialApp (c : FunId) (ys : Array Arg) : M Unit :=
 do
-decl ← getDecl c,
-unless (ys.size < decl.params.size) (throw ("too many arguments too partial application '" ++ toString c ++ "', num. args: " ++ toString ys.size ++ ", arity: " ++ toString decl.params.size)),
+decl ← getDecl c;
+unless (ys.size < decl.params.size) (throw ("too many arguments too partial application '" ++ toString c ++ "', num. args: " ++ toString ys.size ++ ", arity: " ++ toString decl.params.size));
 checkArgs ys
 
 def checkExpr (ty : IRType) : Expr → M Unit
@@ -87,22 +87,22 @@ def checkExpr (ty : IRType) : Expr → M Unit
 | (Expr.lit _)              := pure ()
 
 @[inline] def withParams (ps : Array Param) (k : M Unit) : M Unit :=
-do ctx ← read,
+do ctx ← read;
    localCtx ← ps.mfoldl (λ (ctx : LocalContext) p, do
-      when (ctx.contains p.x.idx) $ throw ("invalid parameter declaration, shadowing is not allowed"),
-      pure $ ctx.addParam p) ctx.localCtx,
+      when (ctx.contains p.x.idx) $ throw ("invalid parameter declaration, shadowing is not allowed");
+      pure $ ctx.addParam p) ctx.localCtx;
    adaptReader (λ _, { localCtx := localCtx, .. ctx }) k
 
 partial def checkFnBody : FnBody → M Unit
 | (FnBody.vdecl x t v b)    := do
-  checkExpr t v,
-  ctx ← read,
-  when (ctx.localCtx.contains x.idx) $ throw ("invalid variable declaration, shadowing is not allowed"),
+  checkExpr t v;
+  ctx ← read;
+  when (ctx.localCtx.contains x.idx) $ throw ("invalid variable declaration, shadowing is not allowed");
   adaptReader (λ ctx : Context, { localCtx := ctx.localCtx.addLocal x t v, .. ctx }) (checkFnBody b)
 | (FnBody.jdecl j ys v b) := do
-  withParams ys (checkFnBody v),
-  ctx ← read,
-  when (ctx.localCtx.contains j.idx) $ throw ("invalid join point declaration, shadowing is not allowed"),
+  withParams ys (checkFnBody v);
+  ctx ← read;
+  when (ctx.localCtx.contains j.idx) $ throw ("invalid join point declaration, shadowing is not allowed");
   adaptReader (λ ctx : Context, { localCtx := ctx.localCtx.addJP j ys v, .. ctx }) (checkFnBody b)
 | (FnBody.set x _ y b)      := checkVar x *> checkArg y *> checkFnBody b
 | (FnBody.uset x _ y b)     := checkVar x *> checkVar y *> checkFnBody b
@@ -125,7 +125,7 @@ end Checker
 
 def checkDecl (decls : Array Decl) (decl : Decl) : CompilerM Unit :=
 do
-env ← getEnv,
+env ← getEnv;
 match Checker.checkDecl decl { env := env, decls := decls } with
 | Except.error msg := throw ("IR check failed at '" ++ toString decl.name ++ "', error: " ++ msg)
 | other            := pure ()

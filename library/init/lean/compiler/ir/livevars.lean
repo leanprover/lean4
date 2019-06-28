@@ -58,7 +58,7 @@ partial def visitFnBody (w : Index) : FnBody → M Bool
 | (FnBody.del x b)          := visitVar w x <||> visitFnBody b
 | (FnBody.mdata _ b)        := visitFnBody b
 | (FnBody.jmp j ys)         := visitArgs w ys <||> do {
-    ctx ← get,
+    ctx ← get;
     match ctx.getJPBody j with
     | some b :=
       -- `j` is not a local join point since we assume we cannot shadow join point declarations.

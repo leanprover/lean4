@@ -14,7 +14,7 @@ def mkClosedTermCacheExtension : IO (SimplePersistentEnvExtension (Expr × Name)
 registerSimplePersistentEnvExtension {
   name       := `closedTermCache,
   addImportedFn := λ as,
-    let cache : ClosedTermCache := mkStateFromImportedEntries (λ s (p : Expr × Name), s.insert p.1 p.2) {} as in
+    let cache : ClosedTermCache := mkStateFromImportedEntries (λ s (p : Expr × Name), s.insert p.1 p.2) {} as;
     cache.switch,
   addEntryFn := λ s ⟨e, n⟩, s.insert e n
 }

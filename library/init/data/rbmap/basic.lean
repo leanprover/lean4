@@ -166,7 +166,7 @@ variables (lt : α → α → Bool)
   else appendTrees a b
 
 @[specialize] def erase (x : α) (t : RBNode α β) : RBNode α β :=
-let t := del lt x t in
+let t := del lt x t;
 t.setBlack
 
 end Erase

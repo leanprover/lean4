@@ -104,14 +104,11 @@ static expr parse_let_body(parser & p, pos_info const & pos, bool in_do_block) {
             }
         }
     } else {
-        if (p.curr_is_token(get_comma_tk())) {
-            p.next();
-            return parse_let(p, pos, in_do_block);
-        } else if (p.curr_is_token(get_in_tk())) {
+        if (p.curr_is_token(get_in_tk()) || p.curr_is_token(get_semicolon_tk())) {
             p.next();
             return p.parse_expr();
         } else {
-            p.maybe_throw_error({"invalid let declaration, 'in' or ',' expected", p.pos()});
+            p.maybe_throw_error({"invalid let declaration, 'in' or ';' expected", p.pos()});
             return p.parse_expr();
         }
     }

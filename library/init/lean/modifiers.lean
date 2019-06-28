@@ -51,14 +51,14 @@ def privateHeader : Name := `_private
 
 @[export lean.mk_private_prefix_core]
 def mkPrivatePrefix (env : Environment) : Environment × Name :=
-let idx := privateExt.getState env in
-let p   := Name.mkNumeral (privateHeader ++ env.mainModule) idx in
-let env := privateExt.setState env (idx+1) in
+let idx := privateExt.getState env;
+let p   := Name.mkNumeral (privateHeader ++ env.mainModule) idx;
+let env := privateExt.setState env (idx+1);
 (env, p)
 
 @[export lean.mk_private_name_core]
 def mkPrivateName (env : Environment) (n : Name) : Environment × Name :=
-let (env, p) := mkPrivatePrefix env in
+let (env, p) := mkPrivatePrefix env;
 (env, p ++ n)
 
 def isPrivateName : Name → Bool

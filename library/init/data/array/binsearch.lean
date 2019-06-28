@@ -14,8 +14,8 @@ namespace Array
 @[specialize] partial def binSearchAux {α : Type u} {β : Type v} [Inhabited α] [Inhabited β] (lt : α → α → Bool) (found : Option α → β) (as : Array α) (k : α) : Nat → Nat → β
 | lo hi :=
   if lo <= hi then
-    let m := (lo + hi)/2 in
-    let a := as.get m in
+    let m := (lo + hi)/2;
+    let a := as.get m;
     if lt a k then binSearchAux (m+1) hi
     else if lt k a then
       if m == 0 then found none

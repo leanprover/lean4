@@ -130,8 +130,8 @@ def getBoolLit : Expr → Option Bool
 | _                          := none
 
 def foldStrictAnd (_ : Bool) (a₁ a₂ : Expr) : Option Expr :=
-let v₁ := getBoolLit a₁ in
-let v₂ := getBoolLit a₂ in
+let v₁ := getBoolLit a₁;
+let v₂ := getBoolLit a₂;
 match v₁, v₂ with
 | some true,  _ := a₂
 | some false, _ := a₁
@@ -140,8 +140,8 @@ match v₁, v₂ with
 | _, _          := none
 
 def foldStrictOr (_ : Bool) (a₁ a₂ : Expr) : Option Expr :=
-let v₁ := getBoolLit a₁ in
-let v₂ := getBoolLit a₂ in
+let v₁ := getBoolLit a₁;
+let v₂ := getBoolLit a₂;
 match v₁, v₂ with
 | some true,  _ := a₁
 | some false, _ := a₂

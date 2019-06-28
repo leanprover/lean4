@@ -486,7 +486,7 @@ def toHexDigit (c : Nat) : String :=
 String.singleton c.digitChar
 
 def quoteString (s : String) : String :=
-let q := "\"" in
+let q := "\"";
 let q := s.foldl
   (λ q c, q ++
     if c == '\n' then "\\n"
@@ -496,7 +496,7 @@ let q := s.foldl
     else if c.toNat <= 255 && (c.toNat <= 31 || c.toNat >= 0x7f) then
       "\\x" ++ toHexDigit (c.toNat / 16) ++ toHexDigit (c.toNat % 16)
     else String.singleton c )
-  q in
+  q;
 q ++ "\""
 
 def emitNumLit (t : IRType) (v : Nat) : M Unit :=
@@ -559,9 +559,9 @@ That is, we have
 ```
 -/
 def overwriteParam (ps : Array Param) (ys : Array Arg) : Bool :=
-let n := ps.size in
+let n := ps.size;
 n.any $ λ i,
-  let p := ps.get i in
+  let p := ps.get i;
   (i+1, n).anyI $ λ j, paramEqArg p (ys.get j)
 
 def emitTailCall (v : Expr) : M Unit :=
@@ -653,7 +653,7 @@ unless (hasInitAttr env d.name) $
   | _ := pure ()
 
 def emitDecl (d : Decl) : M Unit :=
-let d := d.normalizeIds in
+let d := d.normalizeIds;
 catch
   (emitDeclAux d)
   (λ err, throw (err ++ "\ncompiling:\n" ++ toString d))

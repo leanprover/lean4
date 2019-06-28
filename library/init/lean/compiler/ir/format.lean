@@ -26,9 +26,9 @@ instance litValHasFormat : HasFormat LitVal := ⟨formatLitVal⟩
 
 private def formatCtorInfo : CtorInfo → Format
 | { name := name, cidx := cidx, usize := usize, ssize := ssize, .. } :=
-  let r := format "ctor_" ++ format cidx in
-  let r := if usize > 0 || ssize > 0 then r ++ "." ++ format usize ++ "." ++ format ssize else r in
-  let r := if name != Name.anonymous then r ++ "[" ++ format name ++ "]" else r in
+  let r := format "ctor_" ++ format cidx;
+  let r := if usize > 0 || ssize > 0 then r ++ "." ++ format usize ++ "." ++ format ssize else r;
+  let r := if name != Name.anonymous then r ++ "[" ++ format name ++ "]" else r;
   r
 
 instance ctorInfoHasFormat : HasFormat CtorInfo := ⟨formatCtorInfo⟩

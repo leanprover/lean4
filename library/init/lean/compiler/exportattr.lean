@@ -9,7 +9,7 @@ import init.lean.attributes
 namespace Lean
 
 private def isValidCppId (id : String) : Bool :=
-let first := id.get 0 in
+let first := id.get 0;
 first.isAlpha  && (id.toSubstring.drop 1).all (λ c, c.isAlpha || c.isDigit || c == '_')
 
 private def isValidCppName : Name → Bool

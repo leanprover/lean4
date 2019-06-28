@@ -40,7 +40,7 @@ do idx ← get,
    pure {idx := idx }
 
 def requiresBoxedVersion (env : Environment) (decl : Decl) : Bool :=
-let ps := decl.params in
+let ps := decl.params;
 ps.size > 0 && (decl.resultType.isScalar || ps.any (λ p, p.ty.isScalar || p.borrow) || isExtern env decl.name)
 
 def mkBoxedVersionAux (decl : Decl) : N Decl :=
@@ -49,9 +49,9 @@ let ps := decl.params,
 qs ← ps.mmap (λ _, do x ← mkFresh, pure { Param . x := x, ty := IRType.object, borrow := false }),
 (newVDecls, xs) ← qs.size.mfold
   (λ i (r : Array FnBody × Array Arg),
-     let (newVDecls, xs) := r in
-     let p := ps.get i in
-     let q := qs.get i in
+     let (newVDecls, xs) := r;
+     let p := ps.get i;
+     let q := qs.get i;
      if !p.ty.isScalar then pure (newVDecls, xs.push (Arg.var q.x))
      else do
        x ← mkFresh,
@@ -75,7 +75,7 @@ def mkBoxedVersion (decl : Decl) : Decl :=
 def addBoxedVersions (env : Environment) (decls : Array Decl) : Array Decl :=
 let boxedDecls := decls.foldl
   (λ (newDecls : Array Decl) decl, if requiresBoxedVersion env decl then newDecls.push (mkBoxedVersion decl) else newDecls)
-  Array.empty in
+  Array.empty;
 decls ++ boxedDecls
 
 @[export lean.ir.add_boxed_version_core]
@@ -92,11 +92,11 @@ let isScalar :=
    alts.size > 1 && -- Recall that we encode Unit and PUnit using `object`.
    alts.all (λ alt, match alt with
     | Alt.ctor c _  := c.isScalar
-    | Alt.default _ := false) in
+    | Alt.default _ := false);
 match isScalar with
 | false := IRType.object
 | true  :=
-  let n := alts.size in
+  let n := alts.size;
   if n < 256 then IRType.uint8
   else if n < 65536 then IRType.uint16
   else if n < 4294967296 then IRType.uint32
@@ -164,8 +164,8 @@ match x with
 
 @[specialize] def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Array Arg × Array FnBody) :=
 xs.miterate (Array.empty, Array.empty) $ λ i (x : Arg) (r : Array Arg × Array FnBody),
-  let expected := typeFromIdx i.val in
-  let (xs, bs) := r in
+  let expected := typeFromIdx i.val;
+  let (xs, bs) := r;
   match x with
   | Arg.irrelevant := pure (xs.push x, bs)
   | Arg.var x := do
@@ -257,13 +257,13 @@ partial def visitFnBody : FnBody → M FnBody
   pure other
 
 def run (env : Environment) (decls : Array Decl) : Array Decl :=
-let ctx : BoxingContext := { decls := decls, env := env } in
+let ctx : BoxingContext := { decls := decls, env := env };
 let decls := decls.map (λ decl, match decl with
   | Decl.fdecl f xs t b :=
-    let nextIdx := decl.maxIndex + 1 in
-    let b := (withParams xs (visitFnBody b) { resultType := t, .. ctx }).run' nextIdx in
+    let nextIdx := decl.maxIndex + 1;
+    let b := (withParams xs (visitFnBody b) { resultType := t, .. ctx }).run' nextIdx;
     Decl.fdecl f xs t b
-  | d := d) in
+  | d := d);
 addBoxedVersions env decls
 
 end ExplicitBoxing

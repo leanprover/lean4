@@ -11,11 +11,11 @@ partial def bitwise (f : Bool → Bool → Bool) : Nat → Nat → Nat | n m :=
 if n = 0 then      (if f false true then m else 0)
 else if m = 0 then (if f true false then n else 0)
 else
-  let n' := n / 2 in
-  let m' := m / 2 in
-  let b₁ := n % 2 = 1 in
-  let b₂ := m % 2 = 1 in
-  let r  := bitwise n' m' in
+  let n' := n / 2;
+  let m' := m / 2;
+  let b₁ := n % 2 = 1;
+  let b₂ := m % 2 = 1;
+  let r  := bitwise n' m';
   if f b₁ b₂ then bit1 r else bit0 r
 
 @[extern cpp "lean::nat_land"]

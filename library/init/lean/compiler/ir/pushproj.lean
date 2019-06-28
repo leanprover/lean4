@@ -14,19 +14,19 @@ partial def pushProjs : Array FnBody → Array Alt → Array IndexSet → Array 
 | bs alts altsF ctx ctxF :=
   if bs.isEmpty then (ctx.reverse, alts)
   else
-    let b    := bs.back in
-    let bs   := bs.pop in
-    let done (_ : Unit) := (bs.push b ++ ctx.reverse, alts) in
-    let skip (_ : Unit) := pushProjs bs alts altsF (ctx.push b) (b.collectFreeIndices ctxF) in
+    let b    := bs.back;
+    let bs   := bs.pop;
+    let done (_ : Unit) := (bs.push b ++ ctx.reverse, alts);
+    let skip (_ : Unit) := pushProjs bs alts altsF (ctx.push b) (b.collectFreeIndices ctxF);
     let push (x : VarId) (t : IRType) (v : Expr) :=
         if !ctxF.contains x.idx then
           let alts := alts.mapIdx $ λ i alt, alt.modifyBody $ λ b',
              if (altsF.get i).contains x.idx then b.setBody b'
-             else b' in
-          let altsF  := altsF.map $ λ s, if s.contains x.idx then b.collectFreeIndices s else s in
+             else b';
+          let altsF  := altsF.map $ λ s, if s.contains x.idx then b.collectFreeIndices s else s;
           pushProjs bs alts altsF ctx ctxF
         else
-          skip () in
+          skip ();
     match b with
     | FnBody.vdecl x t v _ :=
       match v with
@@ -40,14 +40,14 @@ partial def pushProjs : Array FnBody → Array Alt → Array IndexSet → Array 
 
 partial def FnBody.pushProj : FnBody → FnBody
 | b :=
-  let (bs, term) := b.flatten in
-  let bs         := modifyJPs bs FnBody.pushProj in
+  let (bs, term) := b.flatten;
+  let bs         := modifyJPs bs FnBody.pushProj;
   match term with
   | FnBody.case tid x alts :=
-    let altsF      := alts.map $ λ alt, alt.body.freeIndices in
-    let (bs, alts) := pushProjs bs alts altsF Array.empty {x.idx} in
-    let alts       := alts.map $ λ alt, alt.modifyBody FnBody.pushProj in
-    let term       := FnBody.case tid x alts in
+    let altsF      := alts.map $ λ alt, alt.body.freeIndices;
+    let (bs, alts) := pushProjs bs alts altsF Array.empty {x.idx};
+    let alts       := alts.map $ λ alt, alt.modifyBody FnBody.pushProj;
+    let term       := FnBody.case tid x alts;
     reshape bs term
   | other := reshape bs term
 

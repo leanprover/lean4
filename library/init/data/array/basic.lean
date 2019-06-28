@@ -106,9 +106,9 @@ if h : i < a.size then a.fset ⟨i, h⟩ v else a
 
 @[extern cpp inline "lean::array_fswap(#2, #3, #4)"]
 def fswap (a : Array α) (i j : @& Fin a.size) : Array α :=
-let v₁ := a.fget i in
-let v₂ := a.fget j in
-let a  := a.fset i v₂ in
+let v₁ := a.fget i;
+let v₂ := a.fget j;
+let a  := a.fset i v₂;
 a.fset j v₁
 
 @[extern cpp inline "lean::array_swap(#2, #3, #4)"]
@@ -119,8 +119,8 @@ else a
 else a
 
 @[inline] def fswapAt {α : Type} (a : Array α) (i : Fin a.size) (v : α) : α × Array α :=
-let e := a.fget i in
-let a := a.fset i v in
+let e := a.fget i;
+let a := a.fset i v;
 (e, a)
 
 @[inline] def swapAt {α : Type} (a : Array α) (i : Nat) (v : α) : α × Array α :=
@@ -142,7 +142,7 @@ variables {m : Type v → Type v} [Monad m]
 @[specialize] partial def miterateAux (a : Array α) (f : Π i : Fin a.size, α → β → m β) : Nat → β → m β
 | i b :=
   if h : i < a.size then
-     let idx : Fin a.size := ⟨i, h⟩ in
+     let idx : Fin a.size := ⟨i, h⟩;
      f idx (a.fget idx) b >>= miterateAux (i+1)
   else pure b
 
@@ -159,9 +159,9 @@ miterateAux a (λ _ b a, f a b) ini b
 @[specialize] partial def miterate₂Aux (a₁ : Array α) (a₂ : Array σ) (f : Π i : Fin a₁.size, α → σ → β → m β) : Nat → β → m β
 | i b :=
   if h₁ : i < a₁.size then
-     let idx₁ : Fin a₁.size := ⟨i, h₁⟩ in
+     let idx₁ : Fin a₁.size := ⟨i, h₁⟩;
      if h₂ : i < a₂.size then
-       let idx₂ : Fin a₂.size := ⟨i, h₂⟩ in
+       let idx₂ : Fin a₂.size := ⟨i, h₂⟩;
        f idx₁ (a₁.fget idx₁) (a₂.fget idx₂) b >>= miterate₂Aux (i+1)
      else pure b
   else pure b
@@ -176,7 +176,7 @@ miterate₂ a₁ a₂ b (λ _ a₁ a₂ b, f b a₁ a₂)
 @[specialize] partial def mfindAux (a : Array α) (f : α → m (Option β)) : Nat → m (Option β)
 | i :=
   if h : i < a.size then
-     let idx : Fin a.size := ⟨i, h⟩ in
+     let idx : Fin a.size := ⟨i, h⟩;
      do r ← f (a.fget idx),
         match r with
         | some v := pure r
@@ -215,7 +215,7 @@ variables {m : Type → Type v} [Monad m]
 @[specialize] partial def anyMAux (a : Array α) (p : α → m Bool) : Nat → m Bool
 | i :=
   if h : i < a.size then
-     let idx : Fin a.size := ⟨i, h⟩ in
+     let idx : Fin a.size := ⟨i, h⟩;
      do b ← p (a.fget idx),
      match b with
      | true  := pure true
@@ -238,7 +238,7 @@ Id.run $ anyM a p
 @[specialize] private def revIterateAux (a : Array α) (f : Π i : Fin a.size, α → β → β) : Π (i : Nat), i ≤ a.size → β → β
 | 0     h b := b
 | (j+1) h b :=
-  let i : Fin a.size := ⟨j, h⟩ in
+  let i : Fin a.size := ⟨j, h⟩;
   revIterateAux j (Nat.leOfLt h) (f i (a.fget i) b)
 
 @[inline] def revIterate (a : Array α) (b : β) (f : Π i : Fin a.size, α → β → β) : β :=
@@ -263,9 +263,9 @@ variables {m : Type v → Type v} [Monad m]
 @[specialize] unsafe partial def ummapAux (f : Nat → α → m β) : Nat → Array α → m (Array β)
 | i a :=
   if h : i < a.size then
-     let idx : Fin a.size := ⟨i, h⟩ in
-     let v   : α          := a.fget idx in
-     let a                := a.fset idx (@unsafeCast _ _ ⟨v⟩ ()) in
+     let idx : Fin a.size := ⟨i, h⟩;
+     let v   : α          := a.fget idx;
+     let a                := a.fset idx (@unsafeCast _ _ ⟨v⟩ ());
      do newV ← f i v, ummapAux (i+1) (a.fset idx (@unsafeCast _ _ ⟨v⟩ newV))
   else
      pure (unsafeCast a)
@@ -285,10 +285,10 @@ end
 
 @[inline] def modify [Inhabited α] (a : Array α) (i : Nat) (f : α → α) : Array α :=
 if h : i < a.size then
-  let idx : Fin a.size := ⟨i, h⟩ in
-  let v                := a.fget idx in
-  let a                := a.fset idx (default α) in
-  let v                := f v in
+  let idx : Fin a.size := ⟨i, h⟩;
+  let v                := a.fget idx;
+  let a                := a.fset idx (default α);
+  let v                := f v;
   a.fset idx v
 else
   a
@@ -306,8 +306,8 @@ variables {m : Type u → Type u} [Monad m]
 partial def mforAux {α : Type w} {β : Type u} (f : α → m β) (a : Array α) : Nat → m PUnit
 | i :=
   if h : i < a.size then
-     let idx : Fin a.size := ⟨i, h⟩ in
-     let v   : α          := a.fget idx in
+     let idx : Fin a.size := ⟨i, h⟩;
+     let v   : α          := a.fget idx;
      f v *> mforAux (i+1)
   else
      pure ⟨⟩
@@ -321,12 +321,12 @@ end
 partial def extractAux (a : Array α) : Nat → Π (e : Nat), e ≤ a.size → Array α → Array α
 | i e hle r :=
   if hlt : i < e then
-    let idx : Fin a.size := ⟨i, Nat.ltOfLtOfLe hlt hle⟩ in
+    let idx : Fin a.size := ⟨i, Nat.ltOfLtOfLe hlt hle⟩;
     extractAux (i+1) e hle (r.push (a.fget idx))
  else r
 
 def extract (a : Array α) (b e : Nat) : Array α :=
-let r : Array α := mkEmpty (e - b) in
+let r : Array α := mkEmpty (e - b);
 if h : e ≤ a.size then extractAux a b e h r
 else r
 
@@ -339,8 +339,8 @@ instance : HasAppend (Array α) := ⟨Array.append⟩
 partial def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) : Nat → Bool
 | i :=
   if h : i < a.size then
-     let aidx : Fin a.size := ⟨i, h⟩ in
-     let bidx : Fin b.size := ⟨i, hsz ▸ h⟩ in
+     let aidx : Fin a.size := ⟨i, h⟩;
+     let bidx : Fin b.size := ⟨i, hsz ▸ h⟩;
      match p (a.fget aidx) (b.fget bidx) with
      | true  := isEqvAux (i+1)
      | false := false
@@ -359,11 +359,11 @@ instance [HasBeq α] : HasBeq (Array α) :=
 -- TODO(Leo): justify termination using wf-rec, and use `fswap`
 partial def reverseAux : Array α → Nat → Array α
 | a i :=
-  let n := a.size in
+  let n := a.size;
   if i < n / 2 then
-     reverseAux (a.swap i (n - i - 1)) (i+1)
+    reverseAux (a.swap i (n - i - 1)) (i+1)
   else
-     a
+    a
 
 def reverse (a : Array α) : Array α :=
 reverseAux a 0

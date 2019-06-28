@@ -18,7 +18,7 @@ instance : HasSizeof Char :=
 
 namespace Char
 def utf8Size (c : Char) : UInt32 :=
-let v := c.val in
+let v := c.val;
      if UInt32.land v 0x80 = 0    then 1
 else if UInt32.land v 0xE0 = 0xC0 then 2
 else if UInt32.land v 0xF0 = 0xE0 then 3
@@ -88,7 +88,7 @@ def isAlphanum (c : Char) : Bool :=
 c.isAlpha || c.isDigit
 
 def toLower (c : Char) : Char :=
-let n := toNat c in
+let n := toNat c;
 if n >= 65 ∧ n <= 90 then ofNat (n + 32) else c
 
 end Char

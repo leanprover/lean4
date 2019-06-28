@@ -95,14 +95,14 @@ def set : String → (@& Pos) → Char → String
 
 @[extern cpp "lean::string_utf8_next"]
 def next (s : @& String) (p : @& Pos) : Pos :=
-let c := get s p in
+let c := get s p;
 p + csize c
 
 private def utf8PrevAux : List Char → Pos → Pos → Pos
 | []      i p := 0
 | (c::cs) i p :=
-  let cz := csize c in
-  let i' := i + cz in
+  let cz := csize c;
+  let i' := i + cz;
   if i' = p then i else utf8PrevAux cs i' p
 
 @[extern cpp "lean::string_utf8_prev"]
@@ -146,11 +146,11 @@ def extract : (@& String) → (@& Pos) → (@& Pos) → String
 partial def splitAux (s sep : String) : Pos → Pos → Pos → List String → List String
 | b i j r :=
   if s.atEnd i then
-    let r := if sep.atEnd j then ""::(s.extract b (i-j))::r else (s.extract b i)::r
-    in r.reverse
+    let r := if sep.atEnd j then ""::(s.extract b (i-j))::r else (s.extract b i)::r;
+    r.reverse
   else if s.get i == sep.get j then
-    let i := s.next i in
-    let j := sep.next j in
+    let i := s.next i;
+    let j := sep.next j;
     if sep.atEnd j then splitAux i i 0 (s.extract b (i-j)::r)
     else splitAux b i j r
   else splitAux b (s.next i) 0 r
@@ -250,9 +250,10 @@ end Iterator
 private partial def lineColumnAux (s : String) : Pos → Nat × Nat → Nat × Nat
 | i r@(line, col) :=
   if atEnd s i then r
-  else let c := s.get i in
-       if c = '\n' then lineColumnAux (s.next i) (line+1, 0)
-       else lineColumnAux (s.next i) (line, col+1)
+  else
+    let c := s.get i;
+    if c = '\n' then lineColumnAux (s.next i) (line+1, 0)
+    else lineColumnAux (s.next i) (line, col+1)
 
 def lineColumn (s : String) (pos : Pos) : Nat × Nat :=
 lineColumnAux s 0 (1, 0)
@@ -299,9 +300,10 @@ s.any (== c)
 @[specialize] partial def mapAux (f : Char → Char) : Pos → String → String
 | i s :=
   if s.atEnd i then s
-  else let c := f (s.get i) in
-       let s := s.set i c in
-       mapAux (s.next i) s
+  else
+    let c := f (s.get i);
+    let s := s.set i c;
+    mapAux (s.next i) s
 
 @[inline] def map (f : Char → Char) (s : String) : String :=
 mapAux f 0 s
@@ -316,8 +318,8 @@ partial def isPrefixOfAux (p s : String) : Pos → Bool
 | i :=
   if p.atEnd i then true
   else
-    let c₁ := p.get i in
-    let c₂ := s.get i in
+    let c₁ := p.get i;
+    let c₂ := s.get i;
     c₁ == c₂ && isPrefixOfAux (s.next i)
 
 /- Return true iff `p` is a prefix of `s` -/
@@ -339,7 +341,7 @@ namespace Substring
 
 @[inline] def next : Substring → String.Pos → String.Pos
 | ⟨s, b, e⟩ p :=
-  let p := s.next (b+p) in
+  let p := s.next (b+p);
   if p > e then e - b else p - b
 
 @[inline] def prev : Substring → String.Pos → String.Pos
@@ -365,12 +367,12 @@ match s with
 
 @[inline] def take : Substring → Nat → Substring
 | ⟨s, b, e⟩ n :=
-  let e := if b + n ≥ e then e else b + n in
+  let e := if b + n ≥ e then e else b + n;
   ⟨s, b, e⟩
 
 @[inline] def takeRight : Substring → Nat → Substring
 | ⟨s, b, e⟩ n :=
-  let b := if e - n ≤ b then b else e - n in
+  let b := if e - n ≤ b then b else e - n;
   ⟨s, b, e⟩
 
 @[inline] def atEnd : Substring → String.Pos → Bool
@@ -382,11 +384,11 @@ match s with
 partial def splitAux (s sep : String) (stopPos : String.Pos) : String.Pos → String.Pos → String.Pos → List Substring → List Substring
 | b i j r :=
   if i == stopPos then
-    let r := if sep.atEnd j then "".toSubstring::{str := s, startPos := b, stopPos := i-j}::r else {str := s, startPos := b, stopPos := i}::r
-    in r.reverse
+    let r := if sep.atEnd j then "".toSubstring::{str := s, startPos := b, stopPos := i-j}::r else {str := s, startPos := b, stopPos := i}::r;
+    r.reverse
   else if s.get i == sep.get j then
-    let i := s.next i in
-    let j := sep.next j in
+    let i := s.next i;
+    let j := sep.next j;
     if sep.atEnd j then splitAux i i 0 ({str := s, startPos := b, stopPos := i-j}::r)
     else splitAux b i j r
   else splitAux b (s.next i) 0 r
@@ -420,30 +422,31 @@ s.any (== c)
 
 @[inline] def takeWhile : Substring → (Char → Bool) → Substring
 | ⟨s, b, e⟩ p :=
-  let e := takeWhileAux s e p b in
+  let e := takeWhileAux s e p b;
   ⟨s, b, e⟩
 
 @[inline] def dropWhile : Substring → (Char → Bool) → Substring
 | ⟨s, b, e⟩ p :=
-  let b := takeWhileAux s e p b in
+  let b := takeWhileAux s e p b;
   ⟨s, b, e⟩
 
 @[specialize] partial def takeRightWhileAux (s : String) (begPos : String.Pos) (p : Char → Bool) : String.Pos → String.Pos
 | i :=
   if i == begPos then i
-  else let i' := s.prev i in
-       let c  := s.get i' in
-       if !p c then i
-       else takeRightWhileAux i'
+  else
+    let i' := s.prev i;
+    let c  := s.get i';
+    if !p c then i
+    else takeRightWhileAux i'
 
 @[inline] def takeRightWhile : Substring → (Char → Bool) → Substring
 | ⟨s, b, e⟩ p :=
-  let b := takeRightWhileAux s b p e in
+  let b := takeRightWhileAux s b p e;
   ⟨s, b, e⟩
 
 @[inline] def dropRightWhile : Substring → (Char → Bool) → Substring
 | ⟨s, b, e⟩ p :=
-  let e := takeRightWhileAux s b p e in
+  let e := takeRightWhileAux s b p e;
   ⟨s, b, e⟩
 
 @[inline] def trimLeft (s : Substring) : Substring :=
@@ -454,8 +457,8 @@ s.dropRightWhile Char.isWhitespace
 
 @[inline] def trim : Substring → Substring
 | ⟨s, b, e⟩ :=
-  let b := takeWhileAux s e Char.isWhitespace b in
-  let e := takeRightWhileAux s b Char.isWhitespace e in
+  let b := takeWhileAux s e Char.isWhitespace b;
+  let e := takeRightWhileAux s b Char.isWhitespace e;
   ⟨s, b, e⟩
 
 def toNat (s : Substring) : Nat :=

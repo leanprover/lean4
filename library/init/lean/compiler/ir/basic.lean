@@ -298,8 +298,8 @@ b.setBody FnBody.nil
 /- If b is a non terminal, then return a pair `(c, b')` s.t. `b == c <;> b'`,
    and c.body == FnBody.nil -/
 @[inline] def FnBody.split (b : FnBody) : FnBody × FnBody :=
-let b' := b.body in
-let c  := b.resetBody in
+let b' := b.body;
+let c  := b.resetBody;
 (c, b')
 
 def AltCore.body : Alt → FnBody
@@ -323,7 +323,7 @@ def Alt.isDefault : Alt → Bool
 | (Alt.default _) := true
 
 def push (bs : Array FnBody) (b : FnBody) : Array FnBody :=
-let b := b.resetBody in
+let b := b.resetBody;
 bs.push b
 
 partial def flattenAux : FnBody → Array FnBody → (Array FnBody) × FnBody
@@ -338,9 +338,9 @@ partial def reshapeAux : Array FnBody → Nat → FnBody → FnBody
 | a i b :=
   if i == 0 then b
   else
-    let i         := i - 1 in
-    let (curr, a) := a.swapAt i (default _) in
-    let b         := curr.setBody b in
+    let i         := i - 1;
+    let (curr, a) := a.swapAt i (default _);
+    let b         := curr.setBody b;
     reshapeAux a i b
 
 def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=

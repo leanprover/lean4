@@ -111,7 +111,7 @@ unsafe def setStateUnsafe {σ : Type} (ext : EnvExtension σ) (env : Environment
 constant setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment := default _
 
 unsafe def getStateUnsafe {σ : Type} (ext : EnvExtension σ) (env : Environment) : σ :=
-let s : EnvExtensionState := env.extensions.get ext.idx in
+let s : EnvExtensionState := env.extensions.get ext.idx;
 @unsafeCast _ _ ⟨ext.initial⟩ s
 
 @[implementedBy getStateUnsafe]
@@ -119,8 +119,8 @@ constant getState {σ : Type} (ext : EnvExtension σ) (env : Environment) : σ :
 
 @[inline] unsafe def modifyStateUnsafe {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment :=
 { extensions := env.extensions.modify ext.idx $ λ s,
-    let s : σ := (@unsafeCast _ _ ⟨ext.initial⟩ s) in
-    let s : σ := f s in
+    let s : σ := (@unsafeCast _ _ ⟨ext.initial⟩ s);
+    let s : σ := f s;
     unsafeCast s,
   .. env }
 
@@ -212,7 +212,7 @@ def getModuleEntries {α σ : Type} (ext : PersistentEnvExtension α σ) (env : 
 
 def addEntry {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) (a : α) : Environment :=
 ext.toEnvExtension.modifyState env $ λ s,
-  let state   := ext.addEntryFn s.state a in
+  let state   := ext.addEntryFn s.state a;
   { state := state, .. s }
 
 def getState {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) : σ :=
@@ -374,9 +374,9 @@ do
 pExts ← persistentEnvExtensionsRef.get,
 let entries : Array (Name × Array EnvExtensionEntry) := pExts.size.fold
   (λ i result,
-    let state  := (pExts.get i).getState env in
-    let exportEntriesFn := (pExts.get i).exportEntriesFn in
-    let extName    := (pExts.get i).name in
+    let state  := (pExts.get i).getState env;
+    let exportEntriesFn := (pExts.get i).exportEntriesFn;
+    let extName    := (pExts.get i).name;
     result.push (extName, exportEntriesFn state))
   Array.empty,
 bytes ← serializeModifications (modListExtension.getState env),
@@ -410,7 +410,7 @@ partial def importModulesAux : List Name → (NameSet × Array ModuleData) → I
 private partial def getEntriesFor (mod : ModuleData) (extId : Name) : Nat → Array EnvExtensionState
 | i :=
   if i < mod.entries.size then
-    let curr := mod.entries.get i in
+    let curr := mod.entries.get i;
     if curr.1 == extId then curr.2 else getEntriesFor (i+1)
   else
     Array.empty
@@ -420,7 +420,7 @@ do
 pExtDescrs ← persistentEnvExtensionsRef.get,
 pure $ mods.iterate env $ λ _ mod env,
   pExtDescrs.iterate env $ λ _ extDescr env,
-    let entries := getEntriesFor mod extDescr.name 0 in
+    let entries := getEntriesFor mod extDescr.name 0;
     extDescr.toEnvExtension.modifyState env $ λ s,
       { importedEntries := s.importedEntries.push entries,
         .. s }

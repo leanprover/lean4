@@ -56,9 +56,9 @@ else
 
 partial def setAux : PersistentArrayNode α → USize → USize → α → PersistentArrayNode α
 | (node cs) i shift a :=
-  let j     := div2Shift i shift in
-  let i     := mod2Shift i shift in
-  let shift := shift - initShift in
+  let j     := div2Shift i shift;
+  let i     := mod2Shift i shift;
+  let shift := shift - initShift;
   node $ cs.modify j.toNat $ λ c, setAux c i shift a
 | (leaf cs) i _     a := leaf (cs.set i.toNat a)
 
@@ -70,9 +70,9 @@ else
 
 @[specialize] partial def modifyAux [Inhabited α] (f : α → α) : PersistentArrayNode α → USize → USize → PersistentArrayNode α
 | (node cs) i shift :=
-  let j     := div2Shift i shift in
-  let i     := mod2Shift i shift in
-  let shift := shift - initShift in
+  let j     := div2Shift i shift;
+  let i     := mod2Shift i shift;
+  let shift := shift - initShift;
   node $ cs.modify j.toNat $ λ c, modifyAux c i shift
 | (leaf cs) i _     := leaf (cs.modify i.toNat f)
 
@@ -94,9 +94,9 @@ partial def insertNewLeaf : PersistentArrayNode α → USize → USize → Array
   if i < branching then
     node (cs.push (leaf a))
   else
-    let j     := div2Shift i shift in
-    let i     := mod2Shift i shift in
-    let shift := shift - initShift in
+    let j     := div2Shift i shift;
+    let i     := mod2Shift i shift;
+    let shift := shift - initShift;
     if j.toNat < cs.size then
        node $ cs.modify j.toNat $ λ c, insertNewLeaf c i shift a
     else
@@ -110,7 +110,7 @@ if t.size <= (mul2Shift 1 (t.shift + initShift)).toNat then
     .. t }
 else
   { tail := Array.empty,
-    root := let n := mkEmptyArray.push t.root in
+    root := let n := mkEmptyArray.push t.root;
             node (n.push (mkNewPath t.shift t.tail)),
     shift   := t.shift + initShift,
     tailOff := t.size,
@@ -119,7 +119,7 @@ else
 def tooBig : Nat := usizeSz / 8
 
 def push (t : PersistentArray α) (a : α) : PersistentArray α :=
-let r := { tail := t.tail.push a, size := t.size + 1, .. t } in
+let r := { tail := t.tail.push a, size := t.size + 1, .. t };
 if r.tail.size < branching.toNat || t.size >= tooBig then
   r
 else

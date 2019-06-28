@@ -43,12 +43,12 @@ private partial def syntaxToExternEntries (a : Array Syntax) : Nat → List Exte
   if i == a.size then Except.ok entries
   else match a.get i with
     | Syntax.ident _ _ backend _ _ :=
-      let i := i + 1 in
+      let i := i + 1;
       if i == a.size then Except.error "string or identifier expected"
       else match (a.get i).isIdOrAtom with
         | some "adhoc"  := syntaxToExternEntries (i+1) (ExternEntry.adhoc backend :: entries)
         | some "inline" :=
-          let i := i + 1 in
+          let i := i + 1;
           match (a.get i).isStrLit with
           | some pattern := syntaxToExternEntries (i+1) (ExternEntry.inline backend pattern :: entries)
           | none := Except.error "string literal expected"
@@ -65,7 +65,7 @@ match s with
   else
     let (arity, i) : Option Nat × Nat := match (args.get 0).isNatLit with
       | some arity := (some arity, 1)
-      | none       := (none, 0) in
+      | none       := (none, 0);
     match (args.get i).isStrLit with
     | some str :=
       if args.size == i+1 then
@@ -101,7 +101,7 @@ private def parseOptNum : Nat → String.Iterator → Nat → String.Iterator ×
 | (n+1) it r :=
   if !it.hasNext then (it, r)
   else
-    let c := it.curr in
+    let c := it.curr;
     if '0' <= c && c <= '9'
     then parseOptNum n it.next (r*10 + (c.toNat - '0'.toNat))
     else (it, r)
@@ -110,12 +110,12 @@ def expandExternPatternAux (args : List String) : Nat → String.Iterator → St
 | 0     it r := r
 | (i+1) it r :=
   if ¬ it.hasNext then r
-  else let c := it.curr in
+  else let c := it.curr;
     if c ≠ '#' then expandExternPatternAux i it.next (r.push c)
     else
-      let it      := it.next in
-      let (it, j) := parseOptNum it.remainingBytes it 0 in
-      let j       := j-1 in
+      let it      := it.next;
+      let (it, j) := parseOptNum it.remainingBytes it 0;
+      let j       := j-1;
       expandExternPatternAux i it (r ++ (args.getOpt j).getOrElse "")
 
 def expandExternPattern (pattern : String) (args : List String) : String :=

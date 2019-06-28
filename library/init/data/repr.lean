@@ -78,8 +78,8 @@ if n = 0xf then 'f' else
 def toDigitsCore (base : Nat) : Nat → Nat → List Char → List Char
 | 0        n ds := ds
 | (fuel+1) n ds :=
-  let d  := digitChar $ n % base in
-  let n' := n / base in
+  let d  := digitChar $ n % base;
+  let n' := n / base;
   if n' = 0 then d::ds
   else toDigitsCore fuel n' (d::ds)
 
@@ -98,9 +98,9 @@ def hexDigitRepr (n : Nat) : String :=
 String.singleton $ Nat.digitChar n
 
 def charToHex (c : Char) : String :=
-let n  := Char.toNat c in
-let d2 := n / 16 in
-let d1 := n % 16 in
+let n  := Char.toNat c;
+let d2 := n / 16;
+let d1 := n % 16;
 hexDigitRepr d2 ++ hexDigitRepr d1
 
 def Char.quoteCore (c : Char) : String :=

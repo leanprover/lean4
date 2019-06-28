@@ -40,19 +40,19 @@ c₁.name.getPrefix == c₂.name.getPrefix
 private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
 | (FnBody.vdecl x t v@(Expr.ctor c' ys) b) :=
   if mayReuse c c' then
-    let updtCidx := c.cidx != c'.cidx in
+    let updtCidx := c.cidx != c'.cidx;
     FnBody.vdecl x t (Expr.reuse w c' updtCidx ys) b
   else
     FnBody.vdecl x t v (S b)
 | (FnBody.jdecl j ys v b) :=
-  let v' := S v in
+  let v' := S v;
   if v == v' then FnBody.jdecl j ys v (S b)
   else FnBody.jdecl j ys v' b
 | (FnBody.case tid x alts)  := FnBody.case tid x $ alts.map $ λ alt, alt.modifyBody S
 | b :=
   if b.isTerminal then b
   else let
-    (instr, b) := b.split in
+    (instr, b) := b.split;
     instr.setBody (S b)
 
 /- We use `Context` to track join points in scope. -/
@@ -64,7 +64,7 @@ do idx ← getModify (+1),
 
 private def tryS (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=
 do w ← mkFresh,
-   let b' := S w c b in
+   let b' := S w c b,
    if b == b' then pure b
    else pure $ FnBody.vdecl w IRType.object (Expr.reset c.size x) b'
 
@@ -155,8 +155,8 @@ open ResetReuse
 
 def Decl.insertResetReuse : Decl → Decl
 | d@(Decl.fdecl f xs t b) :=
-  let nextIndex := d.maxIndex + 1 in
-  let b         := (R b {}).run' nextIndex in
+  let nextIndex := d.maxIndex + 1;
+  let b         := (R b {}).run' nextIndex;
   Decl.fdecl f xs t b
 | other := other
 

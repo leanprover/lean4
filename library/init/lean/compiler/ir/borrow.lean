@@ -43,9 +43,9 @@ def ParamMap.fmt (map : ParamMap) : Format :=
 let fmts := map.fold (λ fmt k ps,
   let k := match k with
     | Key.decl n  := format n
-    | Key.jp n id := format n ++ ":" ++ format id in
+    | Key.jp n id := format n ++ ":" ++ format id;
   fmt ++ Format.line ++ k ++ " -> " ++ formatParams ps)
- Format.nil in
+ Format.nil;
 "{" ++ (Format.nest 1 fmts) ++ "}"
 
 instance : HasFormat ParamMap := ⟨ParamMap.fmt⟩
@@ -96,22 +96,22 @@ namespace ApplyParamMap
 
 partial def visitFnBody : FnBody → FunId → ParamMap → FnBody
 | (FnBody.jdecl j xs v b) fnid map :=
-  let v := visitFnBody v fnid map in
-  let b := visitFnBody b fnid map in
+  let v := visitFnBody v fnid map;
+  let b := visitFnBody b fnid map;
   match map.find (Key.jp fnid j) with
   | some ys := FnBody.jdecl j ys v b
   | none    := FnBody.jdecl j xs v b
 | e fnid map :=
   if e.isTerminal then e
   else
-    let (instr, b) := e.split in
-    let b := visitFnBody b fnid map in
+    let (instr, b) := e.split;
+    let b := visitFnBody b fnid map;
     instr.setBody b
 
 def visitDecls (decls : Array Decl) (map : ParamMap) : Array Decl :=
 decls.map $ λ decl, match decl with
   | Decl.fdecl f xs ty b :=
-    let b := visitFnBody b f map in
+    let b := visitFnBody b f map;
     match map.find (Key.decl f) with
     | some xs := Decl.fdecl f xs ty b
     | none    := Decl.fdecl f xs ty b
@@ -279,7 +279,7 @@ whileModifingOwnedAux x ()
 
 partial def collectDecl : Decl → M Unit
 | (Decl.fdecl f ys _ b) :=
-  adaptReader (λ ctx, let ctx := updateParamSet ctx ys in { currFn := f, .. ctx }) $ do
+  adaptReader (λ ctx, let ctx := updateParamSet ctx ys; { currFn := f, .. ctx }) $ do
    modify $ λ s : BorrowInfState, { owned := {}, .. s },
    whileModifingOwned (collectFnBody b),
    updateParamMap (Key.decl f)

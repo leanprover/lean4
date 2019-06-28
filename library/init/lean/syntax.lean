@@ -157,9 +157,9 @@ partial def updateTrailing (trailing : Substring) : Syntax → Syntax
 | n@(Syntax.node k args scopes)                     :=
   if args.size == 0 then n
   else
-   let i    := args.size - 1 in
-   let last := updateTrailing (args.get i) in
-   let args := args.set i last in
+   let i    := args.size - 1;
+   let last := updateTrailing (args.get i);
+   let args := args.set i last;
    Syntax.node k args scopes
 | other := other
 
@@ -194,15 +194,15 @@ open Lean.Format
 protected partial def formatStx : Syntax → Format
 | (atom info val) := format $ repr val
 | (ident _ _ val pre scopes) :=
-  let scopes := pre.map format ++ scopes.reverse.map format in
-  let scopes := match scopes with [] := format "" | _ := bracket "{" (joinSep scopes ", ") "}" in
+  let scopes := pre.map format ++ scopes.reverse.map format;
+  let scopes := match scopes with [] := format "" | _ := bracket "{" (joinSep scopes ", ") "}";
   format "`" ++ format val ++ scopes
 | (node kind args scopes) :=
-  let scopes := match scopes with [] := format "" | _ := bracket "{" (joinSep scopes.reverse ", ") "}" in
+  let scopes := match scopes with [] := format "" | _ := bracket "{" (joinSep scopes.reverse ", ") "}";
   if kind = `Lean.Parser.noKind then
     sbracket $ scopes ++ joinSep (args.toList.map formatStx) line
   else
-    let shorterName := kind.replacePrefix `Lean.Parser Name.anonymous in
+    let shorterName := kind.replacePrefix `Lean.Parser Name.anonymous;
     paren $ joinSep ((format shorterName ++ scopes) :: args.toList.map formatStx) line
 | missing := "<missing>"
 
@@ -228,7 +228,7 @@ Syntax.node nullKind args []
 /- Helper functions for creating string and numeric literals -/
 
 def mkLit (kind : SyntaxNodeKind) (val : String) (info : Option SourceInfo := none) : Syntax :=
-let atom := Syntax.atom info val in
+let atom := Syntax.atom info val;
 Syntax.node kind (Array.singleton atom) []
 
 def mkStrLit (val : String) (info : Option SourceInfo := none) : Syntax :=
@@ -268,7 +268,7 @@ private partial def decodeBinLitAux (s : String) : Nat → Nat → Option Nat
 | i val :=
   if s.atEnd i then some val
   else
-    let c := s.get i in
+    let c := s.get i;
     if c == '0' then decodeBinLitAux (s.next i) (2*val)
     else if c == '1' then decodeBinLitAux (s.next i) (2*val + 1)
     else none
@@ -277,7 +277,7 @@ private partial def decodeOctalLitAux (s : String) : Nat → Nat → Option Nat
 | i val :=
   if s.atEnd i then some val
   else
-    let c := s.get i in
+    let c := s.get i;
     if '0' ≤ c && c ≤ '7' then decodeOctalLitAux (s.next i) (8*val + c.toNat - '0'.toNat)
     else none
 
@@ -285,7 +285,7 @@ private partial def decodeHexLitAux (s : String) : Nat → Nat → Option Nat
 | i val :=
   if s.atEnd i then some val
   else
-    let c := s.get i in
+    let c := s.get i;
     if '0' ≤ c && c ≤ '9' then decodeHexLitAux (s.next i) (16*val + c.toNat - '0'.toNat)
     else if 'a' ≤ c && c ≤ 'f' then decodeHexLitAux (s.next i) (16*val + 10 + c.toNat - 'a'.toNat)
     else if 'A' ≤ c && c ≤ 'F' then decodeHexLitAux (s.next i) (16*val + 10 + c.toNat - 'A'.toNat)
@@ -295,24 +295,24 @@ private partial def decodeDecimalLitAux (s : String) : Nat → Nat → Option Na
 | i val :=
   if s.atEnd i then some val
   else
-    let c := s.get i in
+    let c := s.get i;
     if '0' ≤ c && c ≤ '9' then decodeDecimalLitAux (s.next i) (10*val + c.toNat - '0'.toNat)
     else none
 
 private def decodeNatLitVal (s : String) : Option Nat :=
-let len := s.length in
+let len := s.length;
 if len == 0 then none
 else
-  let c := s.get 0 in
+  let c := s.get 0;
   if c == '0' then
     if len == 1 then some 0
     else
-     let c := s.get 1 in
-     if c == 'x' || c == 'X' then decodeHexLitAux s 2 0
-     else if c == 'b' || c == 'B' then decodeBinLitAux s 2 0
-     else if c == 'o' || c == 'O' then decodeOctalLitAux s 2 0
-     else if c.isDigit then decodeDecimalLitAux s 0 0
-     else none
+      let c := s.get 1;
+      if c == 'x' || c == 'X' then decodeHexLitAux s 2 0
+      else if c == 'b' || c == 'B' then decodeBinLitAux s 2 0
+      else if c == 'o' || c == 'O' then decodeOctalLitAux s 2 0
+      else if c.isDigit then decodeDecimalLitAux s 0 0
+      else none
   else if c.isDigit then decodeDecimalLitAux s 0 0
   else none
 

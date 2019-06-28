@@ -74,15 +74,15 @@ abbrev DeclMap := SMap Name Decl Name.quickLt
    `decls` may contain duplicate entries, but we assume the one that occurs last is the most recent one. -/
 private def mkEntryArray (decls : List Decl) : Array Decl :=
 /- Remove duplicates by adding decls into a map -/
-let map : HashMap Name Decl := {} in
-let map := decls.foldl (λ (map : HashMap Name Decl) decl, map.insert decl.name decl) map in
+let map : HashMap Name Decl := {};
+let map := decls.foldl (λ (map : HashMap Name Decl) decl, map.insert decl.name decl) map;
 map.fold (λ a k v, a.push v) Array.empty
 
 def mkDeclMapExtension : IO (SimplePersistentEnvExtension Decl DeclMap) :=
 registerSimplePersistentEnvExtension {
   name       := `IRDecls,
   addImportedFn := λ as,
-     let m : DeclMap := mkStateFromImportedEntries (λ s (d : Decl), s.insert d.name d) {} as in
+     let m : DeclMap := mkStateFromImportedEntries (λ s (d : Decl), s.insert d.name d) {} as;
      m.switch,
   addEntryFn := λ s d, s.insert d.name d,
   toArrayFn  := mkEntryArray

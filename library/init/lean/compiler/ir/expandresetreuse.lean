@@ -57,17 +57,17 @@ abbrev Mask := Array (Option VarId)
 /- Auxiliary function for eraseProjIncFor -/
 partial def eraseProjIncForAux (y : VarId) : Array FnBody → Mask → Array FnBody → Array FnBody × Mask
 | bs mask keep :=
-  let done (_ : Unit)        := (bs ++ keep.reverse, mask) in
-  let keepInstr (b : FnBody) := eraseProjIncForAux bs.pop mask (keep.push b) in
+  let done (_ : Unit)        := (bs ++ keep.reverse, mask);
+  let keepInstr (b : FnBody) := eraseProjIncForAux bs.pop mask (keep.push b);
   if bs.size < 2 then done ()
   else
-    let b := bs.back in
+    let b := bs.back;
     match b with
     | (FnBody.vdecl _ _ (Expr.sproj _ _ _) _) := keepInstr b
     | (FnBody.vdecl _ _ (Expr.uproj _ _) _)   := keepInstr b
     | (FnBody.inc z n c _) :=
       if n == 0 then done () else
-      let b' := bs.get (bs.size - 2) in
+      let b' := bs.get (bs.size - 2);
       match b' with
       | (FnBody.vdecl w _ (Expr.proj i x) _) :=
         if w == z && y == x then
@@ -78,10 +78,10 @@ partial def eraseProjIncForAux (y : VarId) : Array FnBody → Mask → Array FnB
              ```
              We keep `proj`, and `inc` when `n > 1`
           -/
-          let bs   := bs.pop.pop in
-          let mask := mask.set i (some z) in
-          let keep := keep.push b' in
-          let keep := if n == 1 then keep else keep.push (FnBody.inc z (n-1) c FnBody.nil) in
+          let bs   := bs.pop.pop;
+          let mask := mask.set i (some z);
+          let keep := keep.push b';
+          let keep := if n == 1 then keep else keep.push (FnBody.inc z (n-1) c FnBody.nil);
           eraseProjIncForAux bs mask keep
         else done ()
       | other := done ()
@@ -105,13 +105,13 @@ partial def reuseToCtor (x : VarId) : FnBody → FnBody
   | _ :=
     FnBody.vdecl z t v (reuseToCtor b)
 | (FnBody.case tid y alts) :=
-  let alts := alts.map $ λ alt, alt.modifyBody reuseToCtor in
+  let alts := alts.map $ λ alt, alt.modifyBody reuseToCtor;
   FnBody.case tid y alts
 | e :=
   if e.isTerminal then e
   else
-    let (instr, b) := e.split in
-    let b := reuseToCtor b in
+    let (instr, b) := e.split;
+    let b := reuseToCtor b;
     instr.setBody b
 
 /-
@@ -127,8 +127,8 @@ where `z_i`'s are the variables in `mask`,
 and `b'` is `b` where we removed `dec x` and replaced `reuse x ctor_i ...` with `ctor_i ...`.
 -/
 def mkSlowPath (x y : VarId) (mask : Mask) (b : FnBody) : FnBody :=
-let b := reuseToCtor x b in
-let b := FnBody.dec y 1 true b in
+let b := reuseToCtor x b;
+let b := FnBody.dec y 1 true b;
 mask.foldl
   (λ b m, match m with
     | some z := FnBody.inc z 1 true b
@@ -187,13 +187,13 @@ partial def removeSelfSet (ctx : Context) : FnBody → FnBody
   if isSelfSSet ctx x n i y then removeSelfSet b
   else FnBody.sset x n i y t (removeSelfSet b)
 | (FnBody.case tid y alts) :=
-  let alts := alts.map $ λ alt, alt.modifyBody removeSelfSet in
+  let alts := alts.map $ λ alt, alt.modifyBody removeSelfSet;
   FnBody.case tid y alts
 | e :=
   if e.isTerminal then e
   else
-    let (instr, b) := e.split in
-    let b := removeSelfSet b in
+    let (instr, b) := e.split;
+    let b := removeSelfSet b;
     instr.setBody b
 
 partial def reuseToSet (ctx : Context) (x y : VarId) : FnBody → FnBody
@@ -204,19 +204,19 @@ partial def reuseToSet (ctx : Context) (x y : VarId) : FnBody → FnBody
   match v with
   | Expr.reuse w c u zs :=
     if x == w then
-      let b := setFields y zs (b.replaceVar z y) in
-      let b := if u then FnBody.setTag y c.cidx b else b in
+      let b := setFields y zs (b.replaceVar z y);
+      let b := if u then FnBody.setTag y c.cidx b else b;
       removeSelfSet ctx b
     else FnBody.vdecl z t v (reuseToSet b)
   | _ := FnBody.vdecl z t v (reuseToSet b)
 | (FnBody.case tid y alts) :=
-  let alts := alts.map $ λ alt, alt.modifyBody reuseToSet in
+  let alts := alts.map $ λ alt, alt.modifyBody reuseToSet;
   FnBody.case tid y alts
 | e :=
   if e.isTerminal then e
   else
-    let (instr, b) := e.split in
-    let b := reuseToSet b in
+    let (instr, b) := e.split;
+    let b := reuseToSet b;
     instr.setBody b
 
 /-
@@ -275,12 +275,12 @@ partial def searchAndExpand : FnBody → Array FnBody → M FnBody
   else searchAndExpand b.body (push bs b)
 
 def main (d : Decl) : Decl :=
-let d := d.normalizeIds in
+let d := d.normalizeIds;
 match d with
 | (Decl.fdecl f xs t b) :=
-  let m := mkProjMap d in
-  let nextIdx := d.maxIndex + 1 in
-  let b := (searchAndExpand b Array.empty { projMap := m }).run' nextIdx in
+  let m := mkProjMap d;
+  let nextIdx := d.maxIndex + 1;
+  let b := (searchAndExpand b Array.empty { projMap := m }).run' nextIdx;
   Decl.fdecl f xs t b
 | d := d
 

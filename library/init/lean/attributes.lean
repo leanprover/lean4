@@ -73,13 +73,13 @@ match (scopeManagerExt.getState env).headers with
 
 @[export lean.to_valid_namespace_core]
 def toValidNamespace (env : Environment) (n : Name) : Option Name :=
-let s := scopeManagerExt.getState env in
+let s := scopeManagerExt.getState env;
 if s.allNamespaces.contains n then some n
 else s.namespaces.foldl
   (λ r ns, match r with
     | some _ := r
     | none   :=
-      let c := ns ++ n in
+      let c := ns ++ n;
       if s.allNamespaces.contains c then some c else none)
   none
 
@@ -92,14 +92,14 @@ def registerNamespace : Environment → Name → Environment
 | env _ := env
 
 def pushScopeCore (env : Environment) (header : Name) (isNamespace : Bool) : Environment :=
-let ns    := env.getNamespace in
-let newNs := if isNamespace then ns ++ header else ns in
-let env   := env.registerNamespaceAux newNs in
+let ns    := env.getNamespace;
+let newNs := if isNamespace then ns ++ header else ns;
+let env   := env.registerNamespaceAux newNs;
 let env   := scopeManagerExt.modifyState env $ λ s,
   { headers     := header :: s.headers,
     namespaces  := newNs :: s.namespaces,
     isNamespace := isNamespace :: s.isNamespace,
-    .. s } in
+    .. s };
 env
 
 def popScopeCore (env : Environment) : Environment :=
@@ -257,7 +257,7 @@ ext : PersistentEnvExtension Name NameSet ← registerPersistentEnvExtension {
   addImportedFn   := λ _, {},
   addEntryFn      := λ (s : NameSet) n, s.insert n,
   exportEntriesFn := λ es,
-    let r : Array Name := es.fold (λ a e, a.push e) Array.empty in
+    let r : Array Name := es.fold (λ a e, a.push e) Array.empty;
     r.qsort Name.quickLt,
   statsFn         := λ s, "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
 },
@@ -306,7 +306,7 @@ ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistentEnv
   addImportedFn   := λ _, {},
   addEntryFn      := λ (s : NameMap α) (p : Name × α), s.insert p.1 p.2,
   exportEntriesFn := λ m,
-    let r : Array (Name × α) := m.fold (λ a n p, a.push (n, p)) Array.empty in
+    let r : Array (Name × α) := m.fold (λ a n p, a.push (n, p)) Array.empty;
     r.qsort (λ a b, Name.quickLt a.1 b.1),
   statsFn         := λ s, "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
 },
@@ -365,7 +365,7 @@ ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistentEnv
   addImportedFn   := λ _, {},
   addEntryFn      := λ (s : NameMap α) (p : Name × α), s.insert p.1 p.2,
   exportEntriesFn := λ m,
-    let r : Array (Name × α) := m.fold (λ a n p, a.push (n, p)) Array.empty in
+    let r : Array (Name × α) := m.fold (λ a n p, a.push (n, p)) Array.empty;
     r.qsort (λ a b, Name.quickLt a.1 b.1),
   statsFn         := λ s, "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
 },

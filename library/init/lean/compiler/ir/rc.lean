@@ -51,7 +51,7 @@ match ctx.jpLiveVarMap.find j with
 | none   := {}
 
 def mustConsume (ctx : Context) (x : VarId) : Bool :=
-let info := getVarInfo ctx x in
+let info := getVarInfo ctx x;
 info.ref && !info.persistent && info.consume
 
 @[inline] def addInc (x : VarId) (b : FnBody) (n := 1) : FnBody :=
@@ -62,7 +62,7 @@ FnBody.dec x 1 true b
 
 private def updateRefUsingCtorInfo (ctx : Context) (x : VarId) (c : CtorInfo) : Context :=
 if c.isRef then ctx
-else let m := ctx.varMap in
+else let m := ctx.varMap;
   { varMap := match m.find x with
     | some info := m.insert x { ref := false, .. info } -- I really want a Lenses library + notation
     | none      := m,
@@ -75,7 +75,7 @@ caseLiveVars.fold
 
 /- `isFirstOcc xs x i = true` if `xs[i]` is the first occurrence of `xs[i]` in `xs` -/
 private def isFirstOcc (xs : Array Arg) (i : Nat) : Bool :=
-let x := xs.get i in
+let x := xs.get i;
 i.all $ λ j, xs.get j != x
 
 /- Return true if `x` also occurs in `ys` in a position that is not consumed.
@@ -83,7 +83,7 @@ i.all $ λ j, xs.get j != x
 @[specialize]
 private def isBorrowParamAux (x : VarId) (ys : Array Arg) (consumeParamPred : Nat → Bool) : Bool :=
 ys.size.any $ λ i,
-  let y := ys.get i in
+  let y := ys.get i;
   match y with
   | Arg.irrelevant := false
   | Arg.var y      := x == y && !consumeParamPred i
@@ -100,7 +100,7 @@ Return `n`, the number of times `x` is consumed.
 private def getNumConsumptions (x : VarId) (ys : Array Arg) (consumeParamPred : Nat → Bool) : Nat :=
 ys.size.fold
   (λ i n,
-    let y := ys.get i in
+    let y := ys.get i;
     match y with
     | Arg.irrelevant := n
     | Arg.var y      := if x == y && consumeParamPred i then n+1 else n)
@@ -110,20 +110,20 @@ ys.size.fold
 private def addIncBeforeAux (ctx : Context) (xs : Array Arg) (consumeParamPred : Nat → Bool) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
 xs.size.fold
   (λ i b,
-    let x := xs.get i in
+    let x := xs.get i;
     match x with
     | Arg.irrelevant := b
     | Arg.var x :=
-      let info := getVarInfo ctx x in
+      let info := getVarInfo ctx x;
       if !info.ref || info.persistent || !isFirstOcc xs i then b
       else
-        let numConsuptions := getNumConsumptions x xs consumeParamPred in -- number of times the argument is
+        let numConsuptions := getNumConsumptions x xs consumeParamPred; -- number of times the argument is
         let numIncs :=
           if !info.consume ||                     -- `x` is not a variable that must be consumed by the current procedure
              liveVarsAfter.contains x ||          -- `x` is live after executing instruction
              isBorrowParamAux x xs consumeParamPred  -- `x` is used in a position that is passed as a borrow reference
           then numConsuptions
-          else numConsuptions - 1 in
+          else numConsuptions - 1;
         -- dbgTrace ("addInc " ++ toString x ++ " nconsumptions: " ++ toString numConsuptions ++ " incs: " ++ toString numIncs
         --         ++ " consume: " ++ toString info.consume ++ " live: " ++ toString (liveVarsAfter.contains x)
         --         ++ " borrowParam : " ++ toString (isBorrowParamAux x xs consumeParamPred)) $ λ _,
@@ -194,89 +194,89 @@ let b := match v with
   | (Expr.ctor _ ys)       := addIncBeforeConsumeAll ctx ys (FnBody.vdecl z t v b) bLiveVars
   | (Expr.reuse _ _ _ ys)  := addIncBeforeConsumeAll ctx ys (FnBody.vdecl z t v b) bLiveVars
   | (Expr.proj _ x)        :=
-    let b := addDecIfNeeded ctx x b bLiveVars in
-    let b := if (getVarInfo ctx x).consume then addInc z b else b in
+    let b := addDecIfNeeded ctx x b bLiveVars;
+    let b := if (getVarInfo ctx x).consume then addInc z b else b;
     (FnBody.vdecl z t v b)
   | (Expr.uproj _ x)       := FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
   | (Expr.sproj _ _ x)     := FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
   | (Expr.fap f ys)        :=
     -- dbgTrace ("processVDecl " ++ toString v) $ λ _,
-    let ps := (getDecl ctx f).params in
-    let b  := addDecAfterFullApp ctx ys ps b bLiveVars in
-    let b  := FnBody.vdecl z t v b in
+    let ps := (getDecl ctx f).params;
+    let b  := addDecAfterFullApp ctx ys ps b bLiveVars;
+    let b  := FnBody.vdecl z t v b;
     addIncBefore ctx ys ps b bLiveVars
   | (Expr.pap _ ys)        := addIncBeforeConsumeAll ctx ys (FnBody.vdecl z t v b) bLiveVars
   | (Expr.ap x ys)         :=
-    let ysx := ys.push (Arg.var x) in -- TODO: avoid temporary array allocation
+    let ysx := ys.push (Arg.var x); -- TODO: avoid temporary array allocation
     addIncBeforeConsumeAll ctx ysx (FnBody.vdecl z t v b) bLiveVars
   | (Expr.unbox x)         := FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
-  | other                  := FnBody.vdecl z t v b in  -- Expr.reset, Expr.box, Expr.lit are handled here
-let liveVars := updateLiveVars v bLiveVars in
-let liveVars := liveVars.erase z in
+  | other                  := FnBody.vdecl z t v b;  -- Expr.reset, Expr.box, Expr.lit are handled here
+let liveVars := updateLiveVars v bLiveVars;
+let liveVars := liveVars.erase z;
 (b, liveVars)
 
 def updateVarInfoWithParams (ctx : Context) (ps : Array Param) : Context :=
-let m := ps.foldl (λ (m : VarMap) p, m.insert p.x { ref := p.ty.isObj, consume := !p.borrow }) ctx.varMap in
+let m := ps.foldl (λ (m : VarMap) p, m.insert p.x { ref := p.ty.isObj, consume := !p.borrow }) ctx.varMap;
 { varMap := m, .. ctx }
 
 partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
 | (FnBody.vdecl x t v b)    ctx :=
-  let ctx := updateVarInfo ctx x t v in
-  let (b, bLiveVars) := visitFnBody b ctx in
+  let ctx := updateVarInfo ctx x t v;
+  let (b, bLiveVars) := visitFnBody b ctx;
   processVDecl ctx x t v b bLiveVars
 | (FnBody.jdecl j xs v b)   ctx :=
-  let (v, vLiveVars) := visitFnBody v (updateVarInfoWithParams ctx xs) in
-  let v   := addDecForDeadParams xs v vLiveVars in
-  let ctx := { jpLiveVarMap := updateJPLiveVarMap j xs v ctx.jpLiveVarMap, .. ctx } in
-  let (b, bLiveVars) := visitFnBody b ctx in
+  let (v, vLiveVars) := visitFnBody v (updateVarInfoWithParams ctx xs);
+  let v   := addDecForDeadParams xs v vLiveVars;
+  let ctx := { jpLiveVarMap := updateJPLiveVarMap j xs v ctx.jpLiveVarMap, .. ctx };
+  let (b, bLiveVars) := visitFnBody b ctx;
   (FnBody.jdecl j xs v b, bLiveVars)
 | (FnBody.uset x i y b)     ctx :=
-  let (b, s) := visitFnBody b ctx in
+  let (b, s) := visitFnBody b ctx;
   -- We don't need to insert `y` since we only need to track live variables that are references at runtime
-  let s      := s.insert x in
+  let s      := s.insert x;
   (FnBody.uset x i y b, s)
 | (FnBody.sset x i o y t b) ctx :=
-  let (b, s) := visitFnBody b ctx in
+  let (b, s) := visitFnBody b ctx;
   -- We don't need to insert `y` since we only need to track live variables that are references at runtime
-  let s      := s.insert x in
+  let s      := s.insert x;
   (FnBody.sset x i o y t b, s)
 | (FnBody.mdata m b)        ctx :=
-  let (b, s) := visitFnBody b ctx in
+  let (b, s) := visitFnBody b ctx;
   (FnBody.mdata m b, s)
 | b@(FnBody.case tid x alts) ctx :=
-  let caseLiveVars := collectLiveVars b ctx.jpLiveVarMap in
+  let caseLiveVars := collectLiveVars b ctx.jpLiveVarMap;
   let alts         := alts.map $ λ alt, match alt with
     | Alt.ctor c b  :=
-      let ctx              := updateRefUsingCtorInfo ctx x c in
-      let (b, altLiveVars) := visitFnBody b ctx in
-      let b                := addDecForAlt ctx caseLiveVars altLiveVars b in
+      let ctx              := updateRefUsingCtorInfo ctx x c;
+      let (b, altLiveVars) := visitFnBody b ctx;
+      let b                := addDecForAlt ctx caseLiveVars altLiveVars b;
       Alt.ctor c b
     | Alt.default b :=
-      let (b, altLiveVars) := visitFnBody b ctx in
-      let b                := addDecForAlt ctx caseLiveVars altLiveVars b in
-      Alt.default b in
+      let (b, altLiveVars) := visitFnBody b ctx;
+      let b                := addDecForAlt ctx caseLiveVars altLiveVars b;
+      Alt.default b;
   (FnBody.case tid x alts, caseLiveVars)
 | b@(FnBody.ret x) ctx :=
   match x with
   | Arg.var x :=
-    let info := getVarInfo ctx x in
+    let info := getVarInfo ctx x;
     if info.ref && !info.persistent && !info.consume then (addInc x b, {x}) else (b, {x})
   | _         := (b, {})
 | b@(FnBody.jmp j xs) ctx :=
-  let jLiveVars := getJPLiveVars ctx j in
-  let ps        := getJPParams ctx j in
-  let b         := addIncBefore ctx xs ps b jLiveVars in
-  let bLiveVars := collectLiveVars b ctx.jpLiveVarMap in
+  let jLiveVars := getJPLiveVars ctx j;
+  let ps        := getJPParams ctx j;
+  let b         := addIncBefore ctx xs ps b jLiveVars;
+  let bLiveVars := collectLiveVars b ctx.jpLiveVarMap;
   (b, bLiveVars)
 | FnBody.unreachable _ := (FnBody.unreachable, {})
 | other ctx := (other, {}) -- unreachable if well-formed
 
 partial def visitDecl (env : Environment) (decls : Array Decl) : Decl → Decl
 | (Decl.fdecl f xs t b) :=
-  let ctx : Context  := { env := env, decls := decls } in
-  let ctx := updateVarInfoWithParams ctx xs in
-  let (b, bLiveVars) := visitFnBody b ctx in
-  let b := addDecForDeadParams xs b bLiveVars in
+  let ctx : Context  := { env := env, decls := decls };
+  let ctx := updateVarInfoWithParams ctx xs;
+  let (b, bLiveVars) := visitFnBody b ctx;
+  let b := addDecForDeadParams xs b bLiveVars;
   Decl.fdecl f xs t b
 | other := other
 

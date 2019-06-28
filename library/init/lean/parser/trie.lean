@@ -31,8 +31,8 @@ private partial def insertEmptyAux (s : String) (val : α) : String.Pos → Trie
 | i := match s.atEnd i with
   | true := Trie.Node (some val) RBNode.leaf
   | false :=
-    let c := s.get i in
-    let t := insertEmptyAux (s.next i) in
+    let c := s.get i;
+    let t := insertEmptyAux (s.next i);
     Trie.Node none (RBNode.singleton c t)
 
 private partial def insertAux (s : String) (val : α) : Trie α → String.Pos → Trie α
@@ -40,11 +40,11 @@ private partial def insertAux (s : String) (val : α) : Trie α → String.Pos �
   match s.atEnd i with
   | true := Trie.Node (some val) m -- overrides old value
   | false :=
-    let c := s.get i in
-    let i := s.next i in
+    let c := s.get i;
+    let i := s.next i;
     let t := match RBNode.find Char.lt m c with
       | none   := insertEmptyAux s val i
-      | some t := insertAux t i in
+      | some t := insertAux t i;
     Trie.Node v (RBNode.insert Char.lt m c t)
 
 def insert (t : Trie α) (s : String) (val : α) : Trie α :=
@@ -55,8 +55,8 @@ private partial def findAux (s : String) : Trie α → String.Pos → Option α
   match s.atEnd i with
   | true  := val
   | false :=
-    let c := s.get i in
-    let i := s.next i in
+    let c := s.get i;
+    let i := s.next i;
     match RBNode.find Char.lt m c with
     | none   := none
     | some t := findAux t i
@@ -74,9 +74,9 @@ private partial def matchPrefixAux (s : String) : Trie α → String.Pos → (St
   match s.atEnd i with
   | true  := updtAcc v i acc
   | false :=
-    let acc := updtAcc v i acc in
-    let c   := s.get i in
-    let i   := s.next i in
+    let acc := updtAcc v i acc;
+    let c   := s.get i;
+    let i   := s.next i;
     match RBNode.find Char.lt m c with
     | some t := matchPrefixAux t i acc
     | none   := acc

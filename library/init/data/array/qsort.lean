@@ -14,30 +14,30 @@ namespace Array
 | as i j :=
   if j < hi then
     if lt (as.get j) pivot then
-      let as := as.swap i j in
+      let as := as.swap i j;
       partitionAux as (i+1) (j+1)
     else
       partitionAux as i (j+1)
   else
-    let as := as.swap i hi in
+    let as := as.swap i hi;
     (i, as)
 
 @[inline] def partition {α : Type} [Inhabited α] (as : Array α) (lt : α → α → Bool) (lo hi : Nat) : Nat × Array α :=
-let mid := (lo + hi) / 2 in
-let as  := if lt (as.get mid) (as.get lo) then as.swap lo mid else as in
-let as  := if lt (as.get hi)  (as.get lo) then as.swap lo hi  else as in
-let as  := if lt (as.get mid) (as.get hi) then as.swap mid hi else as in
-let pivot := as.get hi in
+let mid := (lo + hi) / 2;
+let as  := if lt (as.get mid) (as.get lo) then as.swap lo mid else as;
+let as  := if lt (as.get hi)  (as.get lo) then as.swap lo hi  else as;
+let as  := if lt (as.get mid) (as.get hi) then as.swap mid hi else as;
+let pivot := as.get hi;
 partitionAux lt hi pivot as lo lo
 
 @[specialize] partial def qsortAux {α : Type} [Inhabited α] (lt : α → α → Bool) : Array α → Nat → Nat → Array α
 | as low high :=
   if low < high then
-    let p   := partition as lt low high in
+    let p   := partition as lt low high;
     -- TODO: fix `partial` support in the equation compiler, it breaks if we use `let (mid, as) := partition as lt low high`
-    let mid := p.1 in
-    let as  := p.2 in
-    let as  := qsortAux as low mid in
+    let mid := p.1;
+    let as  := p.2;
+    let as  := qsortAux as low mid;
     qsortAux as (mid+1) high
   else as
 

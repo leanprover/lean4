@@ -1691,7 +1691,7 @@ axiom choice {α : Sort u} : Nonempty α → α
 
 noncomputable def indefiniteDescription {α : Sort u} (p : α → Prop)
   (h : Exists (λ x, p x)) : {x // p x} :=
-choice $ let ⟨x, px⟩ := h in ⟨⟨x, px⟩⟩
+choice $ let ⟨x, px⟩ := h; ⟨⟨x, px⟩⟩
 
 noncomputable def choose {α : Sort u} {p : α → Prop} (h : Exists (λ x, p x)) : α :=
 (indefiniteDescription p h).val
@@ -1701,12 +1701,12 @@ theorem chooseSpec {α : Sort u} {p : α → Prop} (h : Exists (λ x, p x)) : p 
 
 /- Diaconescu's theorem: excluded middle from choice, Function extensionality and propositional extensionality. -/
 theorem em (p : Prop) : p ∨ ¬p :=
-let U (x : Prop) : Prop := x = True ∨ p in
-let V (x : Prop) : Prop := x = False ∨ p in
+let U (x : Prop) : Prop := x = True ∨ p;
+let V (x : Prop) : Prop := x = False ∨ p;
 have exU : Exists (λ x, U x), from ⟨True, Or.inl rfl⟩,
 have exV : Exists (λ x, V x), from ⟨False, Or.inl rfl⟩,
-let u : Prop := choose exU in
-let v : Prop := choose exV in
+let u : Prop := choose exU;
+let v : Prop := choose exV;
 have uDef : U u, from chooseSpec exU,
 have vDef : V v, from chooseSpec exV,
 have notUvOrP : u ≠ v ∨ p, from
@@ -1767,7 +1767,7 @@ noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop)
 @dite (Exists (λ x : α, p x)) (propDecidable _) _
   (λ hp : Exists (λ x : α, p x),
     show {x : α // Exists (λ y : α, p y) → p x}, from
-    let xp := indefiniteDescription _ hp in
+    let xp := indefiniteDescription _ hp;
     ⟨xp.val, λ h', xp.property⟩)
   (λ hp, ⟨choice h, λ h, absurd h hp⟩)
 

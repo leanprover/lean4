@@ -14,15 +14,15 @@ partial def reshapeWithoutDeadAux : Array FnBody → FnBody → IndexSet → FnB
 | bs b used :=
   if bs.isEmpty then b
   else
-    let curr := bs.back in
-    let bs   := bs.pop in
+    let curr := bs.back;
+    let bs   := bs.pop;
     let keep (_ : Unit) :=
-      let used := curr.collectFreeIndices used in
-      let b    := curr.setBody b in
-      reshapeWithoutDeadAux bs b used in
+      let used := curr.collectFreeIndices used;
+      let b    := curr.setBody b;
+      reshapeWithoutDeadAux bs b used;
     let keepIfUsed (vidx : Index) :=
       if used.contains vidx then keep ()
-      else reshapeWithoutDeadAux bs b used in
+      else reshapeWithoutDeadAux bs b used;
     match curr with
     | FnBody.vdecl x _ _ _  := keepIfUsed x.idx
     | FnBody.jdecl j _ _ _  := keepIfUsed j.idx
@@ -33,13 +33,13 @@ reshapeWithoutDeadAux bs term term.freeIndices
 
 partial def FnBody.elimDead : FnBody → FnBody
 | b :=
-  let (bs, term) := b.flatten in
-  let bs         := modifyJPs bs FnBody.elimDead in
+  let (bs, term) := b.flatten;
+  let bs         := modifyJPs bs FnBody.elimDead;
   let term       := match term with
     | FnBody.case tid x alts :=
-      let alts := alts.map $ λ alt, alt.modifyBody FnBody.elimDead in
+      let alts := alts.map $ λ alt, alt.modifyBody FnBody.elimDead;
       FnBody.case tid x alts
-    | other := other in
+    | other := other;
   reshapeWithoutDead bs term
 
 /-- Eliminate dead let-declarations and join points -/

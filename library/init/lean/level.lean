@@ -57,7 +57,7 @@ def Level.toNat : Level → Option Nat
 
 def Level.toOffset : Level → Level × Nat
 | Level.zero     := (Level.zero, 0)
-| (Level.succ l) := let (l', k) := Level.toOffset l in (l', k+1)
+| (Level.succ l) := let (l', k) := Level.toOffset l; (l', k+1)
 | l              := (l, 0)
 
 def Level.instantiate (s : Name → Option Level) : Level → Level
@@ -109,7 +109,7 @@ partial def Result.format : Result → Bool → Format
 | (Result.num k)          _ := toString k
 | (Result.offset f 0)     r := Result.format f r
 | (Result.offset f (k+1)) r :=
-  let f' := Result.format f false in
+  let f' := Result.format f false;
   parenIfFalse (f' ++ "+" ++ fmt (k+1)) r
 | (Result.maxNode fs)    r := parenIfFalse (Format.group $ "max"  ++ formatLst (λ r, Result.format r false) fs) r
 | (Result.imaxNode fs)   r := parenIfFalse (Format.group $ "imax" ++ formatLst (λ r, Result.format r false) fs) r

@@ -56,10 +56,12 @@ structure SpaceResult :=
 
 @[inline] private def merge (w : Nat) (r₁ : SpaceResult) (r₂ : Thunk SpaceResult) : SpaceResult :=
 if r₁.exceeded || r₁.found then r₁
-else let y := r₂.get in
-     if y.exceeded || y.found then y
-     else let newSpace := r₁.space + y.space in
-          { space := newSpace, exceeded := newSpace > w }
+else
+  let y := r₂.get;
+  if y.exceeded || y.found then y
+  else
+    let newSpace := r₁.space + y.space;
+    { space := newSpace, exceeded := newSpace > w }
 
 def spaceUptoLine : Format → Nat → SpaceResult
 | nil               w := {}
@@ -81,7 +83,7 @@ partial def be : Nat → Nat → String → List (Nat × Format) → String
 | w k out ((i, text s)::z)             := be w (k + s.length) (out ++ s) z
 | w k out ((i, line)::z)               := be w i ((out ++ "\n").pushn ' ' i) z
 | w k out ((i, choice f₁ f₂)::z)       :=
-  let r := merge w (spaceUptoLine f₁ w) (spaceUptoLine' z w) in
+  let r := merge w (spaceUptoLine f₁ w) (spaceUptoLine' z w);
   if r.exceeded then be w k out ((i, f₂)::z) else be w k out ((i, f₁)::z)
 
 @[inline] def bracket (l : String) (f : Format) (r : String) : Format :=

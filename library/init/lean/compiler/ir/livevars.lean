@@ -131,8 +131,8 @@ def collectExpr : Expr → Collector
 partial def collectFnBody : FnBody → JPLiveVarMap → Collector
 | (FnBody.vdecl x _ v b)    m := collectExpr v ∘ collectFnBody b m ∘ bindVar x
 | (FnBody.jdecl j ys v b)   m :=
-  let jLiveVars := (collectFnBody v m ∘ bindParams ys) {} in
-  let m         := m.insert j jLiveVars in
+  let jLiveVars := (collectFnBody v m ∘ bindParams ys) {};
+  let m         := m.insert j jLiveVars;
   collectFnBody b m
 | (FnBody.set x _ y b)      m := collectVar x ∘ collectArg y ∘ collectFnBody b m
 | (FnBody.setTag x _ b)     m := collectVar x ∘ collectFnBody b m
@@ -148,7 +148,7 @@ partial def collectFnBody : FnBody → JPLiveVarMap → Collector
 | (FnBody.jmp j xs)         m := collectJP m j ∘ collectArgs xs
 
 def updateJPLiveVarMap (j : JoinPointId) (ys : Array Param) (v : FnBody) (m : JPLiveVarMap) : JPLiveVarMap :=
-let jLiveVars := (collectFnBody v m ∘ bindParams ys) {} in
+let jLiveVars := (collectFnBody v m ∘ bindParams ys) {};
 m.insert j jLiveVars
 
 end LiveVars

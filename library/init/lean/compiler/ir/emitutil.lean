@@ -38,7 +38,7 @@ partial def visitFnBody : FnBody → M Bool
          match findEnvDecl env f with
          | some (Decl.fdecl _ _ _ fbody) := visitFnBody fbody <||> visitFnBody b
          | other                         := visitFnBody b
-    } in
+    };
   match v with
   | Expr.fap f _ := checkFn f
   | Expr.pap f _ := checkFn f

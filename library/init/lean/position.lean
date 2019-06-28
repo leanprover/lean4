@@ -43,8 +43,8 @@ private partial def ofStringAux (s : String) : String.Pos → Nat → Array Stri
 | i line ps lines :=
   if s.atEnd i then { source := s, positions := ps.push i, lines := lines.push line }
   else
-    let c := s.get i in
-    let i := s.next i in
+    let c := s.get i;
+    let i := s.next i;
     if c == '\n' then ofStringAux i (line+1) (ps.push i) (lines.push (line+1))
     else ofStringAux i line ps lines
 
@@ -59,11 +59,11 @@ private partial def toColumnAux (str : String) (lineBeginPos : String.Pos) (pos 
 /- Remark: `pos` is in `[ps.get b, ps.get e]` and `b < e` -/
 private partial def toPositionAux (str : String) (ps : Array Nat) (lines : Array Nat) (pos : String.Pos) : Nat → Nat → Position
 | b e :=
-  let posB := ps.get b in
+  let posB := ps.get b;
   if e == b + 1 then { line := lines.get b, column := toColumnAux str posB pos posB 0 }
   else
-    let m := (b + e) / 2 in
-    let posM := ps.get m in
+    let m := (b + e) / 2;
+    let posM := ps.get m;
     if pos == posM then { line := lines.get m, column := 0 }
     else if pos > posM then toPositionAux m e
     else toPositionAux b m

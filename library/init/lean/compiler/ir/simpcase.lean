@@ -14,32 +14,32 @@ def ensureHasDefault (alts : Array Alt) : Array Alt :=
 if alts.any Alt.isDefault then alts
 else if alts.size < 2 then alts
 else
-  let last := alts.back in
-  let alts := alts.pop in
+  let last := alts.back;
+  let alts := alts.pop;
   alts.push (Alt.default last.body)
 
 private def getOccsOf (alts : Array Alt) (i : Nat) : Nat :=
-let aBody := (alts.get i).body in
+let aBody := (alts.get i).body;
 alts.iterateFrom 1 (i + 1) $ λ _ a' n,
   if a'.body == aBody then n+1 else n
 
 private def maxOccs (alts : Array Alt) : Alt × Nat :=
 alts.iterateFrom (alts.get 0, getOccsOf alts 0) 1 $ λ i a p,
-  let noccs := getOccsOf alts i.val in
+  let noccs := getOccsOf alts i.val;
   if noccs > p.2 then (alts.fget i, noccs) else p
 
 private def addDefault (alts : Array Alt) : Array Alt :=
 if alts.size <= 1 || alts.any Alt.isDefault then alts
 else
-  let (max, noccs) := maxOccs alts in
+  let (max, noccs) := maxOccs alts;
   if noccs == 1 then alts
   else
-    let alts := alts.filter $ (λ alt, alt.body != max.body) in
+    let alts := alts.filter $ (λ alt, alt.body != max.body);
     alts.push (Alt.default max.body)
 
 private def mkSimpCase (tid : Name) (x : VarId) (alts : Array Alt) : FnBody :=
-let alts := alts.filter (λ alt, alt.body != FnBody.unreachable) in
-let alts := addDefault alts in
+let alts := alts.filter (λ alt, alt.body != FnBody.unreachable);
+let alts := addDefault alts;
 if alts.size == 0 then
   FnBody.unreachable
 else if alts.size == 1 then
@@ -49,11 +49,11 @@ else
 
 partial def FnBody.simpCase : FnBody → FnBody
 | b :=
-  let (bs, term) := b.flatten in
-  let bs         := modifyJPs bs FnBody.simpCase in
+  let (bs, term) := b.flatten;
+  let bs         := modifyJPs bs FnBody.simpCase;
   match term with
   | FnBody.case tid x alts :=
-    let alts := alts.map $ λ alt, alt.modifyBody FnBody.simpCase in
+    let alts := alts.map $ λ alt, alt.modifyBody FnBody.simpCase;
     reshape bs (mkSimpCase tid x alts)
   | other := reshape bs term
 

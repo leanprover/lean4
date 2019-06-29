@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "runtime/debug.h"
 
-#define LEAN_OBJECT_SIZE_DELTA     32
+#define LEAN_OBJECT_SIZE_DELTA     8
 #define LEAN_MAX_SMALL_OBJECT_SIZE 512
 #define LEAN_PAGE_SIZE             8192        // 8 Kb
 

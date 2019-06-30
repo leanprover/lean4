@@ -90,7 +90,7 @@ reserve infixr ` >=> `:55
 reserve infixl ` <*> `:60
 reserve infixl ` <* ` :60
 reserve infixr ` *> ` :60
-reserve infixr ` >>> `:60
+reserve infixr ` >> ` :60
 reserve infixr ` <$> `:100
 reserve infixr ` <$ ` :100
 reserve infixr ` $> ` :100
@@ -139,7 +139,7 @@ a
 
 /- `idRhs` is an auxiliary Declaration used in the equation Compiler to address performance
    issues when proving equational theorems. The equation Compiler uses it as a marker. -/
-@[macroInline] abbrev idRhs (α : Sort u) (a : α) : α := a
+@[macroInline, reducible] def idRhs (α : Sort u) (a : α) : α := a
 
 inductive PUnit : Sort u
 | unit : PUnit
@@ -149,7 +149,7 @@ inductive PUnit : Sort u
     unnecessary universe parameters. -/
 abbrev Unit : Type := PUnit
 
-@[pattern] abbrev Unit.unit : Unit := PUnit.unit
+@[matchPattern] abbrev Unit.unit : Unit := PUnit.unit
 
 /- Remark: thunks have an efficient implementation in the runtime. -/
 structure Thunk (α : Type u) : Type u :=
@@ -246,7 +246,7 @@ intro :: (mp : a → b) (mpr : b → a)
 
 infix = := Eq
 
-@[pattern] def rfl {α : Sort u} {a : α} : a = a := Eq.refl a
+@[matchPattern] def rfl {α : Sort u} {a : α} : a = a := Eq.refl a
 
 @[elabAsEliminator]
 theorem Eq.subst {α : Sort u} {P : α → Prop} {a b : α} (h₁ : a = b) (h₂ : P a) : P b :=
@@ -263,7 +263,7 @@ h ▸ rfl
 infix ~= := Heq
 infix ≅ := Heq
 
-@[pattern] def Heq.rfl {α : Sort u} {a : α} : a ≅ a := Heq.refl a
+@[matchPattern] def Heq.rfl {α : Sort u} {a : α} : a ≅ a := Heq.refl a
 
 theorem eqOfHeq {α : Sort u} {a a' : α} (h : a ≅ a') : a = a' :=
 have ∀ (α' : Sort u) (a' : α') (h₁ : @Heq α a α' a') (h₂ : α = α'), (Eq.recOn h₂ a : α') = a', from
@@ -306,8 +306,6 @@ structure Subtype {α : Sort u} (p : α → Prop) :=
 inductive Exists {α : Sort u} (p : α → Prop) : Prop
 | intro (w : α) (h : p w) : Exists
 
-attribute [ppAsAnonymousCtor] Sigma PSigma Subtype PProd And
-
 class inductive Decidable (p : Prop)
 | isFalse (h : ¬p) : Decidable
 | isTrue  (h : p) : Decidable
@@ -338,7 +336,6 @@ inductive List (T : Type u)
 | cons (hd : T) (tl : List) : List
 
 infixr :: := List.cons
-notation `[` l:(foldr `, ` (h t, List.cons h t) List.nil `]`) := l
 
 inductive Nat
 | zero : Nat
@@ -419,10 +416,10 @@ infixr \/      := Or
 infixr ∨       := Or
 infix <->      := Iff
 infix ↔        := Iff
-notation `exists` binders `, ` r:(scoped P, Exists P) := r
-notation `∃` binders `, ` r:(scoped P, Exists P) := r
+-- notation `exists` binders `, ` r:(scoped P, Exists P) := r
+-- notation `∃` binders `, ` r:(scoped P, Exists P) := r
 infixr <|>     := HasOrelse.orelse
-infixr ;       := HasAndthen.andthen
+infixr >>      := HasAndthen.andthen
 
 export HasAppend (append)
 
@@ -442,7 +439,7 @@ infix ⊃        := SSuperset
 @[inline] def bit0 {α : Type u} [s  : HasAdd α] (a  : α)                 : α := a + a
 @[inline] def bit1 {α : Type u} [s₁ : HasOne α] [s₂ : HasAdd α] (a : α) : α := (bit0 a) + 1
 
-attribute [pattern] HasZero.zero HasOne.one bit0 bit1 HasAdd.add HasNeg.neg
+attribute [matchPattern] HasZero.zero HasOne.one bit0 bit1 HasAdd.add HasNeg.neg
 
 export HasInsert (insert)
 
@@ -458,7 +455,7 @@ protected def Nat.add : (@& Nat) → (@& Nat) → Nat
 
 /- We mark the following definitions as pattern to make sure they can be used in recursive equations,
    and reduced by the equation Compiler. -/
-attribute [pattern] Nat.add Nat.add._main
+attribute [matchPattern] Nat.add Nat.add._main
 
 instance : HasZero Nat := ⟨Nat.zero⟩
 
@@ -795,7 +792,6 @@ def Or.symm := @Or.swap
 /- xor -/
 def Xor (a b : Prop) : Prop := (a ∧ ¬ b) ∨ (b ∧ ¬ a)
 
-@[recursor 5]
 theorem Iff.elim (h₁ : (a → b) → (b → a) → c) (h₂ : a ↔ b) : c :=
 Iff.rec h₁ h₂
 
@@ -872,7 +868,7 @@ Or.elim h id (λ nb, absurd hb nb)
 /- Exists -/
 
 theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
-  (h₁ : ∃ x, p x) (h₂ : ∀ (a : α), p a → b) : b :=
+   (h₁ : Exists (λ x, p x)) (h₂ : ∀ (a : α), p a → b) : b :=
 Exists.rec h₂ h₁
 
 /- Decidable -/
@@ -1106,7 +1102,7 @@ Nonempty.rec h₂ h₁
 instance nonemptyOfInhabited {α : Sort u} [Inhabited α] : Nonempty α :=
 ⟨default α⟩
 
-theorem nonemptyOfExists {α : Sort u} {p : α → Prop} : (∃ x, p x) → Nonempty α
+theorem nonemptyOfExists {α : Sort u} {p : α → Prop} : Exists (λ x, p x) → Nonempty α
 | ⟨w, h⟩ := ⟨w⟩
 
 /- Subsingleton -/
@@ -1144,31 +1140,30 @@ match h with
 
 section relation
 variables {α : Sort u} {β : Sort v} (r : β → β → Prop)
-local infix `≺`:50 := r
 
-def Reflexive := ∀ x, x ≺ x
+def Reflexive := ∀ x, r x x
 
-def Symmetric := ∀ {x y}, x ≺ y → y ≺ x
+def Symmetric := ∀ {x y}, r x y → r y x
 
-def Transitive := ∀ {x y z}, x ≺ y → y ≺ z → x ≺ z
+def Transitive := ∀ {x y z}, r x y → r y z → r x z
 
 def Equivalence := Reflexive r ∧ Symmetric r ∧ Transitive r
 
-def Total := ∀ x y, x ≺ y ∨ y ≺ x
+def Total := ∀ x y, r x y ∨ r y x
 
 def mkEquivalence (rfl : Reflexive r) (symm : Symmetric r) (trans : Transitive r) : Equivalence r :=
 ⟨rfl, @symm, @trans⟩
 
-def Irreflexive := ∀ x, ¬ x ≺ x
+def Irreflexive := ∀ x, ¬ r x x
 
-def AntiSymmetric := ∀ {x y}, x ≺ y → y ≺ x → x = y
+def AntiSymmetric := ∀ {x y}, r x y → r y x → x = y
 
 def emptyRelation := λ a₁ a₂ : α, False
 
 def Subrelation (q r : β → β → Prop) := ∀ {x y}, q x y → r x y
 
 def InvImage (f : α → β) : α → α → Prop :=
-λ a₁ a₂, f a₁ ≺ f a₂
+λ a₁ a₂, r (f a₁) (f a₂)
 
 theorem InvImage.Transitive (f : α → β) (h : Transitive r) : Transitive (InvImage r f) :=
 λ (a₁ a₂ a₃ : α) (h₁ : InvImage r f a₁ a₂) (h₂ : InvImage r f a₂ a₃), h h₁ h₂
@@ -1197,36 +1192,29 @@ theorem {u1 u2} TC.ndrecOn {α : Sort u} {r : α → α → Prop} {C : α → α
 
 end relation
 
-section binary
+section Binary
 variables {α : Type u} {β : Type v}
 variable f : α → α → α
-local infix * := f
 
-def Commutative        := ∀ a b, a * b = b * a
-def Associative        := ∀ a b c, (a * b) * c = a * (b * c)
+def Commutative        := ∀ a b, f a b = f b a
+def Associative        := ∀ a b c, f (f a b) c = f a (f b c)
 def RightCommutative (h : β → α → β) := ∀ b a₁ a₂, h (h b a₁) a₂ = h (h b a₂) a₁
 def LeftCommutative  (h : α → β → β) := ∀ a₁ a₂ b, h a₁ (h a₂ b) = h a₂ (h a₁ b)
 
-local infix `◾`:50 := Eq.trans
-
 theorem leftComm : Commutative f → Associative f → LeftCommutative f :=
 assume hcomm hassoc, assume a b c,
-  Eq.symm (hassoc a b c)
-◾ (hcomm a b ▸ rfl : (a*b)*c = (b*a)*c)
-◾ hassoc b a c
+((Eq.symm (hassoc a b c)).trans (hcomm a b ▸ rfl : f (f a b) c = f (f b a) c)).trans (hassoc b a c)
 
 theorem rightComm : Commutative f → Associative f → RightCommutative f :=
 assume hcomm hassoc, assume a b c,
-  hassoc a b c
-◾ (hcomm b c ▸ rfl : a*(b*c) = a*(c*b))
-◾ Eq.symm (hassoc a c b)
+((hassoc a b c).trans (hcomm b c ▸ rfl : f a (f b c) = f a (f c b))).trans (Eq.symm (hassoc a c b))
 
-end binary
+end Binary
 
 /- Subtype -/
 
 namespace Subtype
-def existsOfSubtype {α : Type u} {p : α → Prop} : { x // p x } → ∃ x, p x
+def existsOfSubtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (λ x, p x)
 | ⟨a, h⟩ := ⟨a, h⟩
 
 variables {α : Type u} {p : α → Prop}
@@ -1309,23 +1297,23 @@ def {u₁ u₂ v₁ v₂} Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β�
 
 /- Dependent products -/
 
-notation `Σ` binders `, ` r:(scoped p, Sigma p) := r
-notation `Σ'` binders `, ` r:(scoped p, PSigma p) := r
+-- notation `Σ` binders `, ` r:(scoped p, Sigma p) := r
+-- notation `Σ'` binders `, ` r:(scoped p, PSigma p) := r
 
-theorem exOfPsig {α : Type u} {p : α → Prop} : (Σ' x, p x) → ∃ x, p x
+theorem exOfPsig {α : Type u} {p : α → Prop} : (PSigma (λ x, p x)) → Exists (λ x, p x)
 | ⟨x, hx⟩ := ⟨x, hx⟩
 
 section
 variables {α : Type u} {β : α → Type v}
 
-protected theorem Sigma.Eq : ∀ {p₁ p₂ : Σ a : α, β a} (h₁ : p₁.1 = p₂.1), (Eq.recOn h₁ p₁.2 : β p₂.1) = p₂.2 → p₁ = p₂
+protected theorem Sigma.eq : ∀ {p₁ p₂ : Sigma (λ a : α, β a)} (h₁ : p₁.1 = p₂.1), (Eq.recOn h₁ p₁.2 : β p₂.1) = p₂.2 → p₁ = p₂
 | ⟨a, b⟩ ⟨.(a), .(b)⟩ rfl rfl := rfl
 end
 
 section
 variables {α : Sort u} {β : α → Sort v}
 
-protected theorem PSigma.Eq : ∀ {p₁ p₂ : PSigma β} (h₁ : p₁.1 = p₂.1), (Eq.recOn h₁ p₁.2 : β p₂.1) = p₂.2 → p₁ = p₂
+protected theorem PSigma.eq : ∀ {p₁ p₂ : PSigma β} (h₁ : p₁.1 = p₂.1), (Eq.recOn h₁ p₁.2 : β p₂.1) = p₂.2 → p₁ = p₂
 | ⟨a, b⟩ ⟨.(a), .(b)⟩ rfl rfl := rfl
 end
 
@@ -1405,7 +1393,7 @@ lift f c q
 protected theorem inductionOn {α : Sort u} {r : α → α → Prop} {β : Quot r → Prop} (q : Quot r) (h : ∀ a, β (Quot.mk r a)) : β q :=
 ind h q
 
-theorem existsRep {α : Sort u} {r : α → α → Prop} (q : Quot r) : ∃ a : α, (Quot.mk r a) = q :=
+theorem existsRep {α : Sort u} {r : α → α → Prop} (q : Quot r) : Exists (λ a : α, (Quot.mk r a) = q) :=
 Quot.inductionOn q (λ a, ⟨a, rfl⟩)
 
 section
@@ -1413,44 +1401,42 @@ variable {α : Sort u}
 variable {r : α → α → Prop}
 variable {β : Quot r → Sort v}
 
-local notation `⟦`:max a `⟧` := Quot.mk r a
-
 @[reducible, macroInline]
-protected def indep (f : Π a, β ⟦a⟧) (a : α) : PSigma β :=
-⟨⟦a⟧, f a⟩
+protected def indep (f : Π a, β (Quot.mk r a)) (a : α) : PSigma β :=
+⟨Quot.mk r a, f a⟩
 
-protected theorem indepCoherent (f : Π a, β ⟦a⟧)
-                     (h : ∀ (a b : α) (p : r a b), (Eq.rec (f a) (sound p) : β ⟦b⟧) = f b)
+protected theorem indepCoherent (f : Π a, β (Quot.mk r a))
+                     (h : ∀ (a b : α) (p : r a b), (Eq.rec (f a) (sound p) : β (Quot.mk r b)) = f b)
                      : ∀ a b, r a b → Quot.indep f a = Quot.indep f b  :=
-λ a b e, PSigma.Eq (sound e) (h a b e)
+λ a b e, PSigma.eq (sound e) (h a b e)
 
 protected theorem liftIndepPr1
-  (f : Π a, β ⟦a⟧) (h : ∀ (a b : α) (p : r a b), (Eq.rec (f a) (sound p) : β ⟦b⟧) = f b)
+  (f : Π a, β (Quot.mk r a)) (h : ∀ (a b : α) (p : r a b), (Eq.rec (f a) (sound p) : β (Quot.mk r b)) = f b)
   (q : Quot r) : (lift (Quot.indep f) (Quot.indepCoherent f h) q).1 = q  :=
 Quot.ind (λ (a : α), Eq.refl (Quot.indep f a).1) q
 
 @[reducible, elabAsEliminator, inline]
 protected def rec
-   (f : Π a, β ⟦a⟧) (h : ∀ (a b : α) (p : r a b), (Eq.rec (f a) (sound p) : β ⟦b⟧) = f b)
+   (f : Π a, β (Quot.mk r a)) (h : ∀ (a b : α) (p : r a b), (Eq.rec (f a) (sound p) : β (Quot.mk r b)) = f b)
    (q : Quot r) : β q :=
 Eq.ndrecOn (Quot.liftIndepPr1 f h q) ((lift (Quot.indep f) (Quot.indepCoherent f h) q).2)
 
 @[reducible, elabAsEliminator, inline]
 protected def recOn
-   (q : Quot r) (f : Π a, β ⟦a⟧) (h : ∀ (a b : α) (p : r a b), (Eq.rec (f a) (sound p) : β ⟦b⟧) = f b) : β q :=
+   (q : Quot r) (f : Π a, β (Quot.mk r a)) (h : ∀ (a b : α) (p : r a b), (Eq.rec (f a) (sound p) : β (Quot.mk r b)) = f b) : β q :=
 Quot.rec f h q
 
 @[reducible, elabAsEliminator, inline]
 protected def recOnSubsingleton
-   [h : ∀ a, Subsingleton (β ⟦a⟧)] (q : Quot r) (f : Π a, β ⟦a⟧) : β q :=
+   [h : ∀ a, Subsingleton (β (Quot.mk r a))] (q : Quot r) (f : Π a, β (Quot.mk r a)) : β q :=
 Quot.rec f (λ a b h, Subsingleton.elim _ (f b)) q
 
 @[reducible, elabAsEliminator, inline]
 protected def hrecOn
-   (q : Quot r) (f : Π a, β ⟦a⟧) (c : ∀ (a b : α) (p : r a b), f a ≅ f b) : β q :=
+   (q : Quot r) (f : Π a, β (Quot.mk r a)) (c : ∀ (a b : α) (p : r a b), f a ≅ f b) : β q :=
 Quot.recOn q f $
   λ a b p, eqOfHeq $
-    have p₁ : (Eq.rec (f a) (sound p) : β ⟦b⟧) ≅ f a, from eqRecHeq (sound p) (f a),
+    have p₁ : (Eq.rec (f a) (sound p) : β (Quot.mk r b)) ≅ f a, from eqRecHeq (sound p) (f a),
     Heq.trans p₁ (c a b p)
 
 end
@@ -1486,7 +1472,7 @@ Quot.liftOn q f c
 protected theorem inductionOn {α : Sort u} [s : Setoid α] {β : Quotient s → Prop} (q : Quotient s) (h : ∀ a, β ⟦a⟧) : β q :=
 Quot.inductionOn q h
 
-theorem existsRep {α : Sort u} [s : Setoid α] (q : Quotient s) : ∃ a : α, ⟦a⟧ = q :=
+theorem existsRep {α : Sort u} [s : Setoid α] (q : Quotient s) : Exists (λ a : α, ⟦a⟧ = q) :=
 Quot.existsRep q
 
 section
@@ -1520,7 +1506,6 @@ section
 universes uA uB uC
 variables {α : Sort uA} {β : Sort uB} {φ : Sort uC}
 variables [s₁ : Setoid α] [s₂ : Setoid β]
-include s₁ s₂
 
 @[reducible, elabAsEliminator, inline]
 protected def lift₂
@@ -1560,12 +1545,10 @@ protected theorem inductionOn₃
 Quotient.ind (λ a₁, Quotient.ind (λ a₂, Quotient.ind (λ a₃, h a₁ a₂ a₃) q₃) q₂) q₁
 end
 
-section exact
+section Exact
 variable   {α : Sort u}
-variable   [s : Setoid α]
-include s
 
-private def rel (q₁ q₂ : Quotient s) : Prop :=
+private def rel [s : Setoid α] (q₁ q₂ : Quotient s) : Prop :=
 Quotient.liftOn₂ q₁ q₂
   (λ a₁ a₂, a₁ ≈ a₂)
   (λ a₁ a₂ b₁ b₂ a₁b₁ a₂b₂,
@@ -1573,23 +1556,20 @@ Quotient.liftOn₂ q₁ q₂
       (λ a₁a₂, Setoid.trans (Setoid.symm a₁b₁) (Setoid.trans a₁a₂ a₂b₂))
       (λ b₁b₂, Setoid.trans a₁b₁ (Setoid.trans b₁b₂ (Setoid.symm a₂b₂)))))
 
-local infix `~` := rel
-
-private theorem rel.refl : ∀ q : Quotient s, q ~ q :=
+private theorem rel.refl [s : Setoid α] : ∀ q : Quotient s, rel q q :=
 λ q, Quot.inductionOn q (λ a, Setoid.refl a)
 
-private theorem eqImpRel {q₁ q₂ : Quotient s} : q₁ = q₂ → q₁ ~ q₂ :=
+private theorem eqImpRel [s : Setoid α] {q₁ q₂ : Quotient s} : q₁ = q₂ → rel q₁ q₂ :=
 assume h, Eq.ndrecOn h (rel.refl q₁)
 
-theorem exact {a b : α} : ⟦a⟧ = ⟦b⟧ → a ≈ b :=
+theorem exact [s : Setoid α] {a b : α} : ⟦a⟧ = ⟦b⟧ → a ≈ b :=
 assume h, eqImpRel h
-end exact
+end Exact
 
 section
 universes uA uB uC
 variables {α : Sort uA} {β : Sort uB}
 variables [s₁ : Setoid α] [s₂ : Setoid β]
-include s₁ s₂
 
 @[reducible, elabAsEliminator]
 protected def recOnSubsingleton₂
@@ -1642,16 +1622,14 @@ instance {α : Sort u} {s : Setoid α} [d : ∀ a b : α, Decidable (a ≈ b)] :
 namespace Function
 variables {α : Sort u} {β : α → Sort v}
 
-protected def Equiv (f₁ f₂ : Π x : α, β x) : Prop := ∀ x, f₁ x = f₂ x
+def Equiv (f₁ f₂ : Π x : α, β x) : Prop := ∀ x, f₁ x = f₂ x
 
-local infix `~` := Function.Equiv
+protected theorem Equiv.refl (f : Π x : α, β x) : Equiv f f := assume x, rfl
 
-protected theorem Equiv.refl (f : Π x : α, β x) : f ~ f := assume x, rfl
-
-protected theorem Equiv.symm {f₁ f₂ : Π x: α, β x} : f₁ ~ f₂ → f₂ ~ f₁ :=
+protected theorem Equiv.symm {f₁ f₂ : Π x: α, β x} : Equiv f₁ f₂ → Equiv f₂ f₁ :=
 λ h x, Eq.symm (h x)
 
-protected theorem Equiv.trans {f₁ f₂ f₃ : Π x: α, β x} : f₁ ~ f₂ → f₂ ~ f₃ → f₁ ~ f₃ :=
+protected theorem Equiv.trans {f₁ f₂ f₃ : Π x: α, β x} : Equiv f₁ f₂ → Equiv f₂ f₃ → Equiv f₁ f₃ :=
 λ h₁ h₂ x, Eq.trans (h₁ x) (h₂ x)
 
 protected theorem Equiv.isEquivalence (α : Sort u) (β : α → Sort v) : Equivalence (@Function.Equiv α β) :=
@@ -1676,8 +1654,6 @@ theorem funext {f₁ f₂ : Π x : α, β x} (h : ∀ x, f₁ x = f₂ x) : f₁
 show extfunApp ⟦f₁⟧ = extfunApp ⟦f₂⟧, from
 congrArg extfunApp (sound h)
 end
-
-local infix `~` := Function.Equiv
 
 instance Pi.Subsingleton {α : Sort u} {β : α → Sort v} [∀ a, Subsingleton (β a)] : Subsingleton (Π a, β a) :=
 ⟨λ f₁ f₂, funext (λ a, Subsingleton.elim (f₁ a) (f₂ a))⟩
@@ -1705,9 +1681,6 @@ infixr  ` ∘ `      := Function.comp
 @[inline, reducible] def swap {φ : α → β → Sort u₃} (f : Π x y, φ x y) : Π y x, φ x y :=
 λ y x, f x y
 
-infixl  ` on `:2         := onFun
-notation f ` -[` op `]- ` g  := combine f op g
-
 end Function
 
 /- Classical reasoning support -/
@@ -1717,23 +1690,23 @@ namespace Classical
 axiom choice {α : Sort u} : Nonempty α → α
 
 noncomputable def indefiniteDescription {α : Sort u} (p : α → Prop)
-  (h : ∃ x, p x) : {x // p x} :=
-choice $ let ⟨x, px⟩ := h in ⟨⟨x, px⟩⟩
+  (h : Exists (λ x, p x)) : {x // p x} :=
+choice $ let ⟨x, px⟩ := h; ⟨⟨x, px⟩⟩
 
-noncomputable def choose {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : α :=
+noncomputable def choose {α : Sort u} {p : α → Prop} (h : Exists (λ x, p x)) : α :=
 (indefiniteDescription p h).val
 
-theorem chooseSpec {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : p (choose h) :=
+theorem chooseSpec {α : Sort u} {p : α → Prop} (h : Exists (λ x, p x)) : p (choose h) :=
 (indefiniteDescription p h).property
 
 /- Diaconescu's theorem: excluded middle from choice, Function extensionality and propositional extensionality. -/
 theorem em (p : Prop) : p ∨ ¬p :=
-let U (x : Prop) : Prop := x = True ∨ p in
-let V (x : Prop) : Prop := x = False ∨ p in
-have exU : ∃ x, U x, from ⟨True, Or.inl rfl⟩,
-have exV : ∃ x, V x, from ⟨False, Or.inl rfl⟩,
-let u : Prop := choose exU in
-let v : Prop := choose exV in
+let U (x : Prop) : Prop := x = True ∨ p;
+let V (x : Prop) : Prop := x = False ∨ p;
+have exU : Exists (λ x, U x), from ⟨True, Or.inl rfl⟩,
+have exV : Exists (λ x, V x), from ⟨False, Or.inl rfl⟩,
+let u : Prop := choose exU;
+let v : Prop := choose exV;
 have uDef : U u, from chooseSpec exU,
 have vDef : V v, from chooseSpec exV,
 have notUvOrP : u ≠ v ∨ p, from
@@ -1762,13 +1735,13 @@ Or.elim notUvOrP
   (assume hne : u ≠ v, Or.inr (mt pImpliesUv hne))
   Or.inl
 
-theorem existsTrueOfNonempty {α : Sort u} : Nonempty α → ∃ x : α, True
+theorem existsTrueOfNonempty {α : Sort u} : Nonempty α → Exists (λ x : α, True)
 | ⟨x⟩ := ⟨x, trivial⟩
 
 noncomputable def inhabitedOfNonempty {α : Sort u} (h : Nonempty α) : Inhabited α :=
 ⟨choice h⟩
 
-noncomputable def inhabitedOfExists {α : Sort u} {p : α → Prop} (h : ∃ x, p x) :
+noncomputable def inhabitedOfExists {α : Sort u} {p : α → Prop} (h : Exists (λ x, p x)) :
   Inhabited α :=
 inhabitedOfNonempty (Exists.elim h (λ w hw, ⟨w⟩))
 
@@ -1777,11 +1750,9 @@ noncomputable def propDecidable (a : Prop) : Decidable a :=
 choice $ Or.elim (em a)
   (assume ha, ⟨isTrue ha⟩)
   (assume hna, ⟨isFalse hna⟩)
-local attribute [instance] propDecidable
 
 noncomputable def decidableInhabited (a : Prop) : Inhabited (Decidable a) :=
 ⟨propDecidable a⟩
-local attribute [instance] decidableInhabited
 
 noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α :=
 {decEq := λ x y, propDecidable (x = y)}
@@ -1792,11 +1763,13 @@ match (propDecidable (Nonempty α)) with
 | (isFalse hn) := PSum.inr (λ a, absurd (Nonempty.intro a) hn)
 
 noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop)
-  (h : Nonempty α) : {x : α // (∃ y : α, p y) → p x} :=
-if hp : ∃ x : α, p x then
-  let xp := indefiniteDescription _ hp in
-  ⟨xp.val, λ h', xp.property⟩
-else ⟨choice h, λ h, absurd h hp⟩
+  (h : Nonempty α) : {x : α // Exists (λ y : α, p y) → p x} :=
+@dite (Exists (λ x : α, p x)) (propDecidable _) _
+  (λ hp : Exists (λ x : α, p x),
+    show {x : α // Exists (λ y : α, p y) → p x}, from
+    let xp := indefiniteDescription _ hp;
+    ⟨xp.val, λ h', xp.property⟩)
+  (λ hp, ⟨choice h, λ h, absurd h hp⟩)
 
 /- the Hilbert epsilon Function -/
 
@@ -1804,10 +1777,10 @@ noncomputable def epsilon {α : Sort u} [h : Nonempty α] (p : α → Prop) : α
 (strongIndefiniteDescription p h).val
 
 theorem epsilonSpecAux {α : Sort u} (h : Nonempty α) (p : α → Prop)
-  : (∃ y, p y) → p (@epsilon α h p) :=
+  : Exists (λ y, p y) → p (@epsilon α h p) :=
 (strongIndefiniteDescription p h).property
 
-theorem epsilonSpec {α : Sort u} {p : α → Prop} (hex : ∃ y, p y) :
+theorem epsilonSpec {α : Sort u} {p : α → Prop} (hex : Exists (λ y, p y)) :
     p (@epsilon α (nonemptyOfExists hex) p) :=
 epsilonSpecAux (nonemptyOfExists hex) p hex
 
@@ -1816,12 +1789,12 @@ theorem epsilonSingleton {α : Sort u} (x : α) : @epsilon α ⟨x⟩ (λ y, y =
 
 /- the axiom of choice -/
 
-theorem axiomOfChoice {α : Sort u} {β : α → Sort v} {r : Π x, β x → Prop} (h : ∀ x, ∃ y, r x y) :
-  ∃ (f : Π x, β x), ∀ x, r x (f x) :=
+theorem axiomOfChoice {α : Sort u} {β : α → Sort v} {r : Π x, β x → Prop} (h : ∀ x, Exists (λ y, r x y)) :
+  Exists (λ (f : Π x, β x), ∀ x, r x (f x)) :=
 ⟨_, λ x, chooseSpec (h x)⟩
 
 theorem skolem {α : Sort u} {b : α → Sort v} {p : Π x, b x → Prop} :
-  (∀ x, ∃ y, p x y) ↔ ∃ (f : Π x, b x), ∀ x, p x (f x) :=
+  (∀ x, Exists (λ y, p x y)) ↔ Exists (λ (f : Π x, b x), ∀ x, p x (f x)) :=
 ⟨axiomOfChoice, λ ⟨f, hw⟩ x, ⟨f x, hw x⟩⟩
 
 theorem propComplete (a : Prop) : a = True ∨ a = False :=
@@ -1831,10 +1804,10 @@ Or.elim (em a)
 
 -- this supercedes byCases in Decidable
 theorem byCases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=
-Decidable.byCases hpq hnpq
+@Decidable.byCases _ _ (propDecidable _) hpq hnpq
 
 -- this supercedes byContradiction in Decidable
 theorem byContradiction {p : Prop} (h : ¬p → False) : p :=
-Decidable.byContradiction h
+@Decidable.byContradiction _ (propDecidable _) h
 
 end Classical

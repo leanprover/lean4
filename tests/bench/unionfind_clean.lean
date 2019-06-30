@@ -8,7 +8,7 @@ abbreviation ufData := Array nodeData
 abbreviation M (α : Type) := EState String ufData α
 
 def capacity : M Nat :=
-do d ← get, pure d.size
+do d ← get; pure d.size
 
 def findEntryAux : Nat → Node → M nodeData
 | 0     n := throw "out of fuel"
@@ -27,7 +27,7 @@ do c ← capacity;
    findEntryAux c n
 
 def find (n : Node) : M Node :=
-do e ← findEntry n, pure e.find
+do e ← findEntry n; pure e.find
 
 def mk : M Node :=
 do n ← capacity;
@@ -38,7 +38,7 @@ def union (n₁ n₂ : Node) : M Unit :=
 do r₁ ← findEntry n₁;
    r₂ ← findEntry n₂;
    if r₁.find = r₂.find then pure ()
-   else modify $ λ s;
+   else modify $ λ s,
      if r₁.rank < r₂.rank then s.set r₁.find { find := r₂.find }
      else if r₁.rank = r₂.rank then
         let s₁ := s.set r₁.find { find := r₂.find } in
@@ -51,7 +51,7 @@ def mkNodes : Nat → M Unit
 | (n+1) := mk *> mkNodes n
 
 def checkEq (n₁ n₂ : Node) : M Unit :=
-do r₁ ← find n₁, r₂ ← find n₂;
+do r₁ ← find n₁; r₂ ← find n₂;
    unless (r₁ = r₂) $ throw "nodes are not equal"
 
 def mergePackAux : Nat → Nat → Nat → M Unit
@@ -63,14 +63,14 @@ def mergePackAux : Nat → Nat → Nat → M Unit
   else pure ()
 
 def mergePack (d : Nat) : M Unit :=
-do c ← capacity, mergePackAux c 0 d
+do c ← capacity; mergePackAux c 0 d
 
 def numEqsAux : Nat → Node → Nat → M Nat
 | 0     _ r := pure r
 | (i+1) n r :=
   do c ← capacity;
      if n < c
-     then do { n₁ ← find n, numEqsAux i (n+1) (if n = n₁ then r else r+1) }
+     then do { n₁ ← find n; numEqsAux i (n+1) (if n = n₁ then r else r+1) }
      else pure r
 
 def numEqs : M Nat :=

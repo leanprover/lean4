@@ -2,7 +2,7 @@ def StateT' (m : Type → Type) (σ : Type) (α : Type) := σ → m (α × σ)
 namespace StateT'
 variables {m : Type → Type} [Monad m] {σ : Type} {α β : Type}
 @[inline] protected def pure (a : α) : StateT' m σ α := λ s, pure (a, s)
-@[inline] protected def bind (x : StateT' m σ α) (f : α → StateT' m σ β) : StateT' m σ β := λ s, do (a, s') ← x s, f a s'
+@[inline] protected def bind (x : StateT' m σ α) (f : α → StateT' m σ β) : StateT' m σ β := λ s, do (a, s') ← x s; f a s'
 @[inline] def read : StateT' m σ σ := λ s, pure (s, s)
 @[inline] def write (s' : σ) : StateT' m σ Unit := λ s, pure ((), s')
 @[inline] def updt (f : σ → σ) : StateT' m σ Unit := λ s, pure ((), f s)
@@ -15,11 +15,11 @@ namespace ExceptT'
 variables {m : Type → Type} [Monad m] {ε : Type} {α β : Type}
 @[inline] protected def pure (a : α) : ExceptT' m ε α := (pure (Except.ok a) : m (Except ε α))
 @[inline] protected def bind (x : ExceptT' m ε α) (f : α → ExceptT' m ε β) : ExceptT' m ε β :=
-(do { v ← x, match v with
+(do { v ← x; match v with
        | Except.error e := pure (Except.error e)
        | Except.ok a    := f a } : m (Except ε β))
 @[inline] def error (e : ε) : ExceptT' m ε α := (pure (Except.error e) : m (Except ε α))
-@[inline] def lift (x : m α) : ExceptT' m ε α := (do {a ← x, pure (Except.ok a) } : m (Except ε α))
+@[inline] def lift (x : m α) : ExceptT' m ε α := (do {a ← x; pure (Except.ok a) } : m (Except ε α))
 instance : Monad (ExceptT' m ε) :=
 {pure := @ExceptT'.pure _ _ _, bind := @ExceptT'.bind _ _ _}
 end ExceptT'
@@ -40,7 +40,7 @@ def run {α : Type} (x : M α) (s : ufData := ∅) : Except String α × ufData 
 x s
 
 def capacity : M Nat :=
-do d ← read, pure d.size
+do d ← read; pure d.size
 
 def findEntryAux : Nat → Node → M nodeData
 | 0     n := error "out of fuel"
@@ -59,7 +59,7 @@ do c ← capacity;
    findEntryAux c n
 
 def find (n : Node) : M Node :=
-do e ← findEntry n, pure e.find
+do e ← findEntry n; pure e.find
 
 def mk : M Node :=
 do n ← capacity;
@@ -70,7 +70,7 @@ def union (n₁ n₂ : Node) : M Unit :=
 do r₁ ← findEntry n₁;
    r₂ ← findEntry n₂;
    if r₁.find = r₂.find then pure ()
-   else updt $ λ s;
+   else updt $ λ s,
      if r₁.rank < r₂.rank then s.set r₁.find { find := r₂.find }
      else if r₁.rank = r₂.rank then
         let s₁ := s.set r₁.find { find := r₂.find } in
@@ -83,7 +83,7 @@ def mkNodes : Nat → M Unit
 | (n+1) := mk *> mkNodes n
 
 def checkEq (n₁ n₂ : Node) : M Unit :=
-do r₁ ← find n₁, r₂ ← find n₂;
+do r₁ ← find n₁; r₂ ← find n₂;
    unless (r₁ = r₂) $ error "nodes are not equal"
 
 def mergePackAux : Nat → Nat → Nat → M Unit
@@ -95,14 +95,14 @@ def mergePackAux : Nat → Nat → Nat → M Unit
   else pure ()
 
 def mergePack (d : Nat) : M Unit :=
-do c ← capacity, mergePackAux c 0 d
+do c ← capacity; mergePackAux c 0 d
 
 def numEqsAux : Nat → Node → Nat → M Nat
 | 0     _ r := pure r
 | (i+1) n r :=
   do c ← capacity;
      if n < c
-     then do { n₁ ← find n, numEqsAux i (n+1) (if n = n₁ then r else r+1) }
+     then do { n₁ ← find n; numEqsAux i (n+1) (if n = n₁ then r else r+1) }
      else pure r
 
 def numEqs : M Nat :=

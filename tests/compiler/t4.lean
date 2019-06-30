@@ -98,16 +98,16 @@ nestAux n f n e
 
 def deriv (i : Nat) (f : Expr) : IO Expr :=
 do
-  let d := d "x" f,
-  IO.println (toString (i+1) ++ " count: " ++ (toString $ count d)),
-  IO.println (toString d),
+  let d := d "x" f;
+  IO.println (toString (i+1) ++ " count: " ++ (toString $ count d));
+  IO.println (toString d);
   pure d
 
 def main (xs : List String) : IO UInt32 :=
-do let x := Var "x",
-   let f := add x (mul x (mul x (add x x))),
-   IO.println f,
-   nest deriv 3 f,
+do let x := Var "x";
+   let f := add x (mul x (mul x (add x x)));
+   IO.println f;
+   nest deriv 3 f;
    pure 0
 
 -- setOption profiler True

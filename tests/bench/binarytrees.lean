@@ -40,22 +40,22 @@ partial def depth : Nat -> Nat -> List (Nat × Nat × Task UInt32)
 
 def main : List String → IO UInt32
 | [s] := do
-  let n := s.toNat,
-  let maxN := Nat.max (minN + 2) n,
-  let stretchN := maxN + 1,
+  let n := s.toNat;
+  let maxN := Nat.max (minN + 2) n;
+  let stretchN := maxN + 1;
 
   -- stretch memory tree
-  let c := check (make $ UInt32.ofNat stretchN),
-  out "stretch tree" stretchN c,
+  let c := check (make $ UInt32.ofNat stretchN);
+  out "stretch tree" stretchN c;
 
   -- allocate a long lived tree
-  let long := make $ UInt32.ofNat maxN,
+  let long := make $ UInt32.ofNat maxN;
 
   -- allocate, walk, and deallocate many bottom-up binary trees
   let vs := (depth minN maxN), -- `using` (parList $ evalTuple3 r0 r0 rseq)
-  vs.mmap (λ ⟨m,d,i⟩, out (toString m ++ "\t trees") d i.get),
+  vs.mmap (λ ⟨m,d,i⟩, out (toString m ++ "\t trees") d i.get);
 
   -- confirm the the long-lived binary tree still exists
-  out "long lived tree" maxN (check long),
+  out "long lived tree" maxN (check long);
   pure 0
 | _ := pure 1

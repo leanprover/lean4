@@ -1,7 +1,7 @@
 def foo {m} [Monad m] [MonadExcept String m] [MonadState (Array Nat) m] : m Nat :=
-catch (do modify $ λ a : Array Nat, a.set 0 33,
+catch (do modify $ λ a : Array Nat, a.set 0 33;
           throw "error")
-      (λ _, do a ← get, pure $ a.get 0)
+      (λ _, do a ← get; pure $ a.get 0)
 
 def ex₁ : StateT (Array Nat) (ExceptT String Id) Nat :=
 foo

@@ -156,16 +156,16 @@ inductive tree (α : Type u)
 unsafe def visit {α : Type v} : tree α → coroutine Unit α Unit
 | tree.leaf         := pure ()
 | (tree.Node l a r) := do
-  visit l,
-  yield a,
+  visit l;
+  yield a;
   visit r
 
 unsafe def tst {α : Type} [HasToString α] (t : tree α) : ExceptT String IO Unit :=
-do c  ← pure $ visit t,
-   (yielded v₁ c) ← pure $ resume c (),
-   (yielded v₂ c) ← pure $ resume c (),
-   IO.println $ toString v₁,
-   IO.println $ toString v₂,
+do c  ← pure $ visit t;
+   (yielded v₁ c) ← pure $ resume c ();
+   (yielded v₂ c) ← pure $ resume c ();
+   IO.println $ toString v₁;
+   IO.println $ toString v₂;
    pure ()
 
 -- #eval tst (tree.Node (tree.Node (tree.Node tree.leaf 5 tree.leaf) 10 (tree.Node tree.leaf 20 tree.leaf)) 30 tree.leaf)
@@ -176,25 +176,25 @@ namespace ex2
 
 unsafe def ex : StateT Nat (coroutine Nat String) Unit :=
 do
-  x ← read,
-  y ← get,
-  set (y+5),
-  yield ("1) val: " ++ toString (x+y)),
-  x ← read,
-  y ← get,
-  yield ("2) val: " ++ toString (x+y)),
+  x ← read;
+  y ← get;
+  set (y+5);
+  yield ("1) val: " ++ toString (x+y));
+  x ← read;
+  y ← get;
+  yield ("2) val: " ++ toString (x+y));
   pure ()
 
 unsafe def tst2 : ExceptT String IO Unit :=
-do let c := StateT.run ex 5,
-   (yielded r c₁) ← pure $ resume c 10,
-   IO.println r,
-   (yielded r c₂) ← pure $ resume c₁ 20,
-   IO.println r,
-   (done _) ← pure $ resume c₂ 30,
-   (yielded r c₃) ← pure $ resume c₁ 100,
-   IO.println r,
-   IO.println "done",
+do let c := StateT.run ex 5;
+   (yielded r c₁) ← pure $ resume c 10;
+   IO.println r;
+   (yielded r c₂) ← pure $ resume c₁ 20;
+   IO.println r;
+   (done _) ← pure $ resume c₂ 30;
+   (yielded r c₃) ← pure $ resume c₁ 100;
+   IO.println r;
+   IO.println "done";
    pure ()
 
 -- #eval tst2

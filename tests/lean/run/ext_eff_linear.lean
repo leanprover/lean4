@@ -134,9 +134,9 @@ inductive State (σ : Type) : Type → Type
 @[inline] meta def eff.get {σ effs} [member (State σ) effs] : eff effs σ := eff.send State.get
 @[inline] meta def eff.put {σ effs} [member (State σ) effs] (s : σ) : eff effs Unit := eff.send (State.put s)
 meta instance {σ effs} [member (State σ) effs] : MonadState σ (eff effs) :=
-⟨λ α x, do st ← eff.get,
-           let ⟨a, s'⟩ := x.run st,
-           eff.put s',
+⟨λ α x, do st ← eff.get;
+           let ⟨a, s'⟩ := x.run st;
+           eff.put s';
            pure a⟩
 
 meta def State.run {σ effs α} (st : σ) : eff (State σ :: effs) α → eff effs (α × σ) :=

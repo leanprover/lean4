@@ -42,5 +42,5 @@ first-order unification.
 -/
 
 def foo2 : StateT δ (StateT σ Id) σ :=
-do s : σ  ← monadLift (get : StateT σ Id σ),
+do s : σ  ← monadLift (get : StateT σ Id σ);
    pure s

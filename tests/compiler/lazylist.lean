@@ -114,14 +114,14 @@ def iota (i : Nat := 0) : LazyList Nat :=
 LazyList.iterate Nat.succ i
 
 def tst : LazyList String :=
-do x ← [1, 2, 3].toLazy,
-   y ← [2, 3, 4].toLazy,
-   guard (x + y > 5),
+do x ← [1, 2, 3].toLazy;
+   y ← [2, 3, 4].toLazy;
+   guard (x + y > 5);
    pure (toString x ++ " + " ++ toString y ++ " = " ++ toString (x+y))
 
 def main : IO Unit :=
-do let n := 40,
-   IO.println $ tst.isEmpty,
-   IO.println $ tst.head,
-   IO.println $ (fib.interleave (iota.map (+100))).approx n,
+do let n := 40;
+   IO.println $ tst.isEmpty;
+   IO.println $ tst.head;
+   IO.println $ (fib.interleave (iota.map (+100))).approx n;
    IO.println $ (((iota.map (+10)).filter (λ v, v % 2 == 0)).approx n)

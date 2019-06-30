@@ -10,7 +10,7 @@ def mkRandomArray : Nat → Elem → Array Elem → Array Elem
 partial def checkSortedAux (a : Array Elem) : Nat → IO Unit
 | i :=
   if i < a.size - 1 then do
-    unless (a.get i <= a.get (i+1)) $ throw (IO.userError "array is not sorted"),
+    unless (a.get i <= a.get (i+1)) $ throw (IO.userError "array is not sorted");
     checkSortedAux (i+1)
   else
     pure ()
@@ -54,10 +54,10 @@ qsortAux lt as 0 (UInt32.ofNat (as.size - 1))
 
 def main (xs : List String) : IO Unit :=
 do
-let n := xs.head.toNat,
-n.mfor $ λ _,
+let n := xs.head.toNat;
+n.mfor $ λ _;
 n.mfor $ λ i, do
-  let xs := mkRandomArray i (UInt32.ofNat i) Array.empty,
-  let xs := qsort xs (λ a b, a < b),
-  --IO.println xs,
+  let xs := mkRandomArray i (UInt32.ofNat i) Array.empty;
+  let xs := qsort xs (λ a b, a < b);
+  --IO.println xs;
   checkSortedAux xs 0

@@ -23,6 +23,6 @@ def add (a b : Expr) : Expr :=
 addAux a b
 
 def main (xs : List String) : IO UInt32 :=
-do let x := Var "x",
-   IO.println (add (Val 1) (Add (Mul (Val 2) x) x)),
+do let x := Var "x";
+   IO.println (add (Val 1) (Add (Mul (Val 2) x) x));
    pure 0

@@ -84,13 +84,13 @@ unsafe def nest (f : Expr → IO Expr) : Nat → Expr → IO Expr
 
 unsafe def deriv (f : Expr) : IO Expr :=
 do
-  let d := d "x" f,
-  IO.print "count: ",
-  IO.println (count f),
+  let d := d "x" f;
+  IO.print "count: ";
+  IO.println (count f);
   pure d
 
 unsafe def main : IO Unit :=
-do let x := Var "x",
-   let f := pow x x,
-   nest deriv 9 f,
+do let x := Var "x";
+   let f := pow x x;
+   nest deriv 9 f;
    pure ()

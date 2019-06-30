@@ -120,9 +120,9 @@ inductive State (σ : Type) : Type → Type
 @[inline] def eff.get {σ effs} [member (State σ) effs] : eff effs σ := eff.send State.get
 @[inline] def eff.put {σ effs} [member (State σ) effs] (s : σ) : eff effs Unit := eff.send (State.put s)
 instance {σ effs} [member (State σ) effs] : MonadState σ (eff effs) :=
-⟨λ α x, do st ← eff.get,
-           let ⟨a, s'⟩ := x.run st,
-           eff.put s',
+⟨λ α x, do st ← eff.get;
+           let ⟨a, s'⟩ := x.run st;
+           eff.put s';
            pure a⟩
 
 @[inline] def State.run {σ effs α} (st : σ) : eff (State σ :: effs) α → eff effs (α × σ) :=
@@ -169,7 +169,7 @@ instance : HasRepr IO.error :=
       | IO.error.other s := "IO.error.other " ++ repr s⟩
 
 @[inline] def eff.catchIO {effs α} [member IO effs] (x : eff effs α) (catch : IO.error → eff effs α) : eff effs α :=
-x.interpose IO pure (λ β x k, do ex ← monadLift x.try,
+x.interpose IO pure (λ β x k, do ex ← monadLift x.try;
                                  match ex with
                                  | Except.ok b := k b
                                  | Except.error e := catch e)
@@ -185,12 +185,12 @@ eff.catchIO (Except.ok <$> x) (pure ∘ Except.error)
 -- handle IO exceptions before State
 def test1 :=
   let tf : Bool → eff [IO] _ := λ (x : Bool), Reader.run x $ State.run ([] : List String) $ eff.tryIo $
-  do modify (λ xs, "begin"::xs),
-     x ← read,
-     r ← monadLift $ exfn x,
-     modify (λ xs, "end"::xs),
+  do modify (λ xs, "begin"::xs);
+     x ← read;
+     r ← monadLift $ exfn x;
+     modify (λ xs, "end"::xs);
      pure r in
-  do repr <$> eff.runM (tf tt) >>= IO.println,
+  do repr <$> eff.runM (tf tt) >>= IO.println;
      repr <$> eff.runM (tf ff) >>= IO.println
 
 #eval test1
@@ -198,12 +198,12 @@ def test1 :=
 -- handle IO exceptions after State
 def test2 :=
   let tf : Bool → eff [IO] _ := λ (x : Bool), Reader.run x $ eff.tryIo $ State.run ([] : List String) $
-  do modify (λ xs, "begin"::xs),
-     x ← read,
-     r ← monadLift $ exfn x,
-     modify (λ xs, "end"::xs),
+  do modify (λ xs, "begin"::xs);
+     x ← read;
+     r ← monadLift $ exfn x;
+     modify (λ xs, "end"::xs);
      pure r in
-  do repr <$> eff.runM (tf tt) >>= IO.println,
+  do repr <$> eff.runM (tf tt) >>= IO.println;
      repr <$> eff.runM (tf ff) >>= IO.println
 
 #eval test2

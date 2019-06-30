@@ -15,20 +15,20 @@ constant builtinLevelParsingTable : IO.Ref ParsingTables := default _
 @[init] def regBuiltinLevelParserAttr : IO Unit :=
 registerBuiltinParserAttribute `builtinLevelParser `Lean.Parser.builtinLevelParsingTable
 
-def levelParser (rbp : Nat := 0) : Parser :=
+def levelParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
 { fn := λ _, runBuiltinParser "universe level" builtinLevelParsingTable rbp }
 
-/-
-def_parser [builtinLevelParser]
-  paren  := "(":max_prec; levelParser; ")":0
-  hole   := "_":max_prec
-  imax   := "imax"
-  max    := "max"
-  num    := numLit
-  id     := ident
-  addLit := levelParser; "+":65; numLit
-  app    := levelParser; levelParser maxPrec
--/
+namespace Level
+
+@[builtinLevelParser] def paren := parser! symbol "(" maxPrec >> levelParser >> ")"
+@[builtinLevelParser] def max   := parser! "max" >> many1 (levelParser maxPrec)
+@[builtinLevelParser] def imax  := parser! "imax" >> many1 (levelParser maxPrec)
+@[builtinLevelParser] def hole  := parser! "_"
+@[builtinLevelParser] def num   : Parser := numLit
+@[builtinLevelParser] def ident : Parser := ident
+@[builtinLevelParser] def addLit := tparser! pushLeading >> symbol "+" (65:Nat) >> numLit
+
+end Level
 
 end Parser
 end Lean

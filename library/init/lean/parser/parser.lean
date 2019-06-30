@@ -34,6 +34,12 @@ def beq : TokenConfig → TokenConfig → Bool
 instance : HasBeq TokenConfig :=
 ⟨beq⟩
 
+def toStr : TokenConfig → String
+| ⟨val, some lbp⟩ := val ++ ":" ++ toString lbp
+| ⟨val, none⟩     := val
+
+instance : HasToString TokenConfig := ⟨toStr⟩
+
 end TokenConfig
 
 structure TokenCacheEntry :=
@@ -152,6 +158,13 @@ def seq : FirstTokens → FirstTokens → FirstTokens
 | epsilon tks := tks
 | tks     _   := tks
 
+def toStr : FirstTokens → String
+| epsilon      := "epsilon"
+| unknown      := "unknown"
+| (tokens tks) := toString tks
+
+instance : HasToString FirstTokens := ⟨toStr⟩
+
 end FirstTokens
 
 structure ParserInfo :=
@@ -219,10 +232,10 @@ instance hashAndthen {k : ParserKind} : HasAndthen (Parser k) :=
 { info := nodeInfo p.info,
   fn   := nodeFn n p.fn }
 
-@[inline] def leadingNode (n : SyntaxNodeKind) (p : Parser leading) : Parser leading :=
+@[inline] def leadingNode (n : SyntaxNodeKind) (p : Parser leading) : Parser :=
 node n p
 
-@[inline] def trailingNode (n : SyntaxNodeKind) (p : Parser trailing) : Parser trailing :=
+@[inline] def trailingNode (n : SyntaxNodeKind) (p : Parser trailing) : TrailingParser :=
 node n p
 
 @[inline] def orelseFn {k : ParserKind} (p q : ParserFn k) : ParserFn k
@@ -917,7 +930,7 @@ def trailingParser (kind : String) (tables : ParsingTables) : ParserFn trailing 
 λ a c s,
   let iniSz   := s.stackSize;
   let (s, ps) := indexed tables.trailingTable c s;
-  if ps.isEmpty then
+  if ps.isEmpty && tables.trailingParsers.isEmpty then
     s.mkError ("expected trail of " ++ kind) -- better error message?
   else
     let s       := orelseFn (longestMatchFn ps) (anyOfFn tables.trailingParsers) a c s;

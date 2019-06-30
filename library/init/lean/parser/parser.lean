@@ -302,8 +302,15 @@ instance hashOrelse {k : ParserKind} : HasOrelse (Parser k) :=
 { info := noFirstTokenInfo p.info,
   fn   := manyFn p.fn }
 
+@[inline] def many1Fn {k : ParserKind} (p : ParserFn k) : ParserFn k :=
+λ a c s,
+  let iniSz  := s.stackSize;
+  let s := andthenFn p (manyAux p) a c s;
+  s.mkNode nullKind iniSz
+
 @[inline] def many1 {k : ParserKind} (p : Parser k) : Parser k :=
-andthen p (many p)
+{ info := p.info,
+  fn   := many1Fn p.fn }
 
 @[specialize] private partial def sepByFnAux {k : ParserKind} (p : ParserFn k) (sep : ParserFn k) (allowTrailingSep : Bool) (iniSz : Nat) : Bool → ParserFn k
 | pOpt a c s :=

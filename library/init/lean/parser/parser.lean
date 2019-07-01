@@ -933,30 +933,27 @@ def leadingParser (kind : String) (tables : ParsingTables) : ParserFn leading :=
     let s       := longestMatchFn ps a c s;
     mkResult s iniSz
 
-def trailingParser (kind : String) (tables : ParsingTables) : ParserFn trailing :=
-λ a c s,
-  let iniSz   := s.stackSize;
-  let (s, ps) := indexed tables.trailingTable c s;
-  if ps.isEmpty && tables.trailingParsers.isEmpty then
-    s.mkError ("expected trail of " ++ kind) -- better error message?
-  else
-    let s       := orelseFn (longestMatchFn ps) (anyOfFn tables.trailingParsers) a c s;
-    mkResult s iniSz
-
 partial def trailingLoop (kind : String) (tables : ParsingTables) (rbp : Nat) (c : ParserContext) : Syntax → ParserState → ParserState
 | left s :=
   let (s, lbp) := currLbp c s;
   if rbp ≥ lbp then s.pushSyntax left
   else
-    let s    := trailingParser kind tables left c s;
-    if s.hasError then s
+    let iniSz   := s.stackSize;
+    let (s, ps) := indexed tables.trailingTable c s;
+    if ps.isEmpty && tables.trailingParsers.isEmpty then
+      s.pushSyntax left -- no available trail
     else
-      let left := s.stxStack.back;
-      let s    := s.popSyntax;
-      trailingLoop left s
+      let s := orelseFn (longestMatchFn ps) (anyOfFn tables.trailingParsers) left c s;
+      if s.hasError then s
+      else
+        let s := mkResult s iniSz;
+        let left := s.stxStack.back;
+        let s    := s.popSyntax;
+        trailingLoop left s
 
 def prattParser (kind : String) (tables : ParsingTables) : ParserFn leading :=
 λ rbp c s,
+  let c := { tokens := tables.tokens, .. c };
   let s := leadingParser kind tables rbp c s;
   if s.hasError then s
   else
@@ -964,18 +961,18 @@ def prattParser (kind : String) (tables : ParsingTables) : ParserFn leading :=
     let s    := s.popSyntax;
     trailingLoop kind tables rbp c left s
 
-def mkParserContext (env : Environment) (input : String) (filename : String) (tokens : Trie TokenConfig) : ParserContext :=
+def mkParserContext (env : Environment) (input : String) (filename : String) : ParserContext :=
 { env      := env,
   input    := input,
   filename := filename,
   fileMap  := input.toFileMap,
-  tokens   := tokens }
+  tokens   := {} }
 
 def mkParserState (input : String) : ParserState :=
 { cache := initCacheForInput input }
 
 def runParser (env : Environment) (tables : ParsingTables) (input : String) (fileName := "<input>") (kind := "<main>") : Except String Syntax :=
-let c := mkParserContext env input fileName tables.tokens;
+let c := mkParserContext env input fileName;
 let s := mkParserState input;
 let s := prattParser kind tables (0 : Nat) c s;
 if s.hasError then

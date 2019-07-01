@@ -11,6 +11,7 @@ IO.println stx
 
 def main (xs : List String) : IO Unit :=
 do
+testParser "max 0 1";
 testParser "(1)";
 testParser "u";
 testParser "(u)";

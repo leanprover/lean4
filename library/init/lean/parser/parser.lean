@@ -1055,13 +1055,9 @@ registerAttribute {
 
 @[init mkBuiltinParsingTablesRef]
 constant builtinCommandParsingTable : IO.Ref ParsingTables := default _
-@[init mkBuiltinParsingTablesRef]
-constant builtinTermParsingTable : IO.Ref ParsingTables := default _
 
 @[init] def regBuiltinCommandParserAttr : IO Unit :=
 registerBuiltinParserAttribute `builtinCommandParser `Lean.Parser.builtinCommandParsingTable
-@[init] def regBuiltinTermParserAttr : IO Unit :=
-registerBuiltinParserAttribute `builtinTermParser `Lean.Parser.builtinTermParsingTable
 
 @[noinline] unsafe def runBuiltinParserUnsafe (kind : String) (ref : IO.Ref ParsingTables) : ParserFn leading :=
 λ a c s,
@@ -1074,9 +1070,6 @@ constant runBuiltinParser (kind : String) (ref : IO.Ref ParsingTables) : ParserF
 
 def commandParser (rbp : Nat := 0) : Parser :=
 { fn := λ _, runBuiltinParser "command" builtinCommandParsingTable rbp }
-
-def termParser (rbp : Nat := 0) : Parser :=
-{ fn := λ _, runBuiltinParser "term" builtinTermParsingTable rbp }
 
 /- TODO(Leo): delete -/
 @[init mkBuiltinParsingTablesRef]

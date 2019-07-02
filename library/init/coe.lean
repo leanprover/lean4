@@ -59,7 +59,7 @@ class HasCoeToSort (a : Sort u) : Type (max u (v+1)) :=
 @[inline] def coeT {a : Sort u} {b : Sort v} [HasCoeT a b] : a → b :=
 @HasCoeT.coe a b _
 
-@[inline] def coeFnB {a : Sort u} [HasCoeToFun.{u v} a] : Π x : a, HasCoeToFun.F.{u v} x :=
+@[inline] def coeFnB {a : Sort u} [HasCoeToFun.{u, v} a] : Π x : a, HasCoeToFun.F.{u, v} x :=
 HasCoeToFun.coe
 
 /- User Level coercion operators -/
@@ -67,10 +67,10 @@ HasCoeToFun.coe
 @[reducible, inline] def coe {a : Sort u} {b : Sort v} [HasLiftT a b] : a → b :=
 liftT
 
-@[reducible, inline] def coeFn {a : Sort u} [HasCoeToFun.{u v} a] : Π x : a, HasCoeToFun.F.{u v} x :=
+@[reducible, inline] def coeFn {a : Sort u} [HasCoeToFun.{u, v} a] : Π x : a, HasCoeToFun.F.{u, v} x :=
 HasCoeToFun.coe
 
-@[reducible, inline] def coeSort {a : Sort u} [HasCoeToSort.{u v} a] : a → HasCoeToSort.S.{u v} a :=
+@[reducible, inline] def coeSort {a : Sort u} [HasCoeToSort.{u, v} a] : a → HasCoeToSort.S.{u, v} a :=
 HasCoeToSort.coe
 
 /- Notation -/
@@ -122,12 +122,12 @@ instance coeTransAux {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [HasCoe a b
 instance coeBaseAux {a : Sort u} {b : Sort v} [HasCoe a b] : HasCoeTAux a b :=
 ⟨coeB⟩
 
-instance coeFnTrans {a : Sort u₁} {b : Sort u₂} [HasCoeTAux a b] [HasCoeToFun.{u₂ u₃} b] : HasCoeToFun.{u₁ u₃} a :=
-{ F   := λ x, @HasCoeToFun.F.{u₂ u₃} b _ (@HasCoeTAux.coe a b _ x),
+instance coeFnTrans {a : Sort u₁} {b : Sort u₂} [HasCoeTAux a b] [HasCoeToFun.{u₂, u₃} b] : HasCoeToFun.{u₁, u₃} a :=
+{ F   := λ x, @HasCoeToFun.F.{u₂, u₃} b _ (@HasCoeTAux.coe a b _ x),
   coe := λ x, coeFn (@HasCoeTAux.coe a b _ x) }
 
-instance coeSortTrans {a : Sort u₁} {b : Sort u₂} [HasCoeTAux a b] [HasCoeToSort.{u₂ u₃} b] : HasCoeToSort.{u₁ u₃} a :=
-{ S   := HasCoeToSort.S.{u₂ u₃} b,
+instance coeSortTrans {a : Sort u₁} {b : Sort u₂} [HasCoeTAux a b] [HasCoeToSort.{u₂, u₃} b] : HasCoeToSort.{u₁, u₃} a :=
+{ S   := HasCoeToSort.S.{u₂, u₃} b,
   coe := λ x, coeSort (@HasCoeTAux.coe a b _ x) }
 
 /- Every coercion is also a lift -/

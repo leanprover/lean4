@@ -1699,14 +1699,14 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, 
     if (!resolve_only && curr_is_token(get_llevel_curly_tk())) {
         next();
         explicit_levels = true;
-        while (!curr_is_token(get_rcurly_tk())) {
-            auto _ = backtracking_scope();
-            try {
-                lvl_buffer.push_back(parse_level());
-            } catch (backtracking_exception) {}
-            if (!consumed_input()) break;
+        while (true) {
+            lvl_buffer.push_back(parse_level());
+            if (!curr_is_token(get_comma_tk()))
+                break;
+            else
+                next();
         }
-        next();
+        check_token_next(get_rcurly_tk(), "expected '}'");
         ls = levels(lvl_buffer);
     }
 

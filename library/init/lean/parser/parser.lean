@@ -726,6 +726,7 @@ def symbolInfo (sym : String) (lbp : Option Nat) : ParserInfo :=
 λ _, symbolFnAux sym ("expected '" ++ sym ++ "'")
 
 @[inline] def symbol {k : ParserKind} (sym : String) (lbp : Option Nat := none) : Parser k :=
+let sym := sym.trim;
 { info := symbolInfo sym lbp,
   fn   := symbolFn sym }
 

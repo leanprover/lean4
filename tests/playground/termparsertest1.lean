@@ -17,4 +17,9 @@ testParser "x.{max u v}";
 testParser "x.{(max u v) 0}";
 testParser "f 0 1";
 testParser "f.{u+1} \"foo\" x";
+testParser "(f x, 0, 1)";
+testParser "()";
+testParser "(f x)";
+testParser "(f x : Type)";
+testParser "h (f x) (g y)";
 pure ()

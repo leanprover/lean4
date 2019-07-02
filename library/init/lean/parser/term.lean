@@ -27,6 +27,8 @@ namespace Term
 @[builtinTermParser] def type := parser! symbol "Type" maxPrec
 @[builtinTermParser] def sort := parser! symbol "Sort" maxPrec
 @[builtinTermParser] def hole := parser! symbol "_" maxPrec
+@[inline] def parenSpecial : Parser := optional (", " >> sepBy termParser ", " <|> " : " >> termParser)
+@[builtinTermParser] def paren := parser! symbol "(" maxPrec >> optional (termParser >> parenSpecial) >> ")"
 
 @[builtinTermParser] def app := tparser! pushLeading >> termParser maxPrec
 

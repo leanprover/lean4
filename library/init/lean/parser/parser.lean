@@ -276,7 +276,7 @@ instance hashOrelse {k : ParserKind} : HasOrelse (Parser k) :=
   let iniSz  := s.stackSize;
   let iniPos := s.pos;
   let s      := p a c s;
-  let s      := if s.hasError then s.restore iniSz iniPos else s;
+  let s      := if s.hasError && s.pos == iniPos then s.restore iniSz iniPos else s;
   s.mkNode nullKind iniSz
 
 @[inline] def optional {k : ParserKind} (p : Parser k) : Parser k :=

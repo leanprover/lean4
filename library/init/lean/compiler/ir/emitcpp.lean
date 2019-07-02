@@ -493,9 +493,10 @@ let q := s.foldl
     else if c == '\n' then "\\t"
     else if c == '\\' then "\\\\"
     else if c == '\"' then "\\\""
-    else if c.toNat <= 255 && (c.toNat <= 31 || c.toNat >= 0x7f) then
+    else if c.toNat <= 31 then
       "\\x" ++ toHexDigit (c.toNat / 16) ++ toHexDigit (c.toNat % 16)
-    else String.singleton c )
+    -- TODO(Leo): we should use `\unnnn` for escaping unicode characters.
+    else String.singleton c)
   q;
 q ++ "\""
 

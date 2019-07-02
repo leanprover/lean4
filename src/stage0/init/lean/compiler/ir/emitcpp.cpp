@@ -18267,9 +18267,25 @@ x_8 = 10;
 x_9 = x_7 == x_8;
 if (x_9 == 0)
 {
-uint32 x_10; uint8 x_11; 
+uint32 x_10; uint8 x_11; uint8 x_38; 
 x_10 = 92;
-x_11 = x_7 == x_10;
+x_38 = x_7 == x_10;
+if (x_38 == 0)
+{
+uint8 x_39; 
+x_39 = 0;
+x_11 = x_39;
+goto block_37;
+}
+else
+{
+uint8 x_40; 
+x_40 = 1;
+x_11 = x_40;
+goto block_37;
+}
+block_37:
+{
 if (x_11 == 0)
 {
 uint32 x_12; uint8 x_13; 
@@ -18279,7 +18295,7 @@ if (x_13 == 0)
 {
 obj* x_14; obj* x_15; uint8 x_16; 
 x_14 = lean::uint32_to_nat(x_7);
-x_15 = lean::mk_nat_obj(255u);
+x_15 = lean::mk_nat_obj(31u);
 x_16 = lean::nat_dec_le(x_14, x_15);
 if (x_16 == 0)
 {
@@ -18295,100 +18311,55 @@ goto _start;
 }
 else
 {
-obj* x_21; uint8 x_22; 
-x_21 = lean::mk_nat_obj(31u);
-x_22 = lean::nat_dec_le(x_14, x_21);
-if (x_22 == 0)
-{
-obj* x_23; uint8 x_24; 
-x_23 = lean::mk_nat_obj(127u);
-x_24 = lean::nat_dec_le(x_23, x_14);
-if (x_24 == 0)
-{
-obj* x_25; obj* x_26; obj* x_27; 
+obj* x_21; obj* x_22; obj* x_23; obj* x_24; obj* x_25; obj* x_26; obj* x_27; obj* x_28; obj* x_29; 
+x_21 = lean::mk_nat_obj(16u);
+x_22 = lean::nat_div(x_14, x_21);
+x_23 = l_Lean_IR_EmitCpp_toHexDigit(x_22);
+lean::dec(x_22);
+x_24 = l_Char_quoteCore___closed__1;
+x_25 = lean::string_append(x_24, x_23);
+lean::dec(x_23);
+x_26 = lean::nat_mod(x_14, x_21);
 lean::dec(x_14);
-x_25 = l_String_splitAux___main___closed__1;
-x_26 = lean::string_push(x_25, x_7);
-x_27 = lean::string_append(x_4, x_26);
+x_27 = l_Lean_IR_EmitCpp_toHexDigit(x_26);
 lean::dec(x_26);
+x_28 = lean::string_append(x_25, x_27);
+lean::dec(x_27);
+x_29 = lean::string_append(x_4, x_28);
+lean::dec(x_28);
 x_3 = x_6;
-x_4 = x_27;
-goto _start;
-}
-else
-{
-obj* x_29; obj* x_30; obj* x_31; obj* x_32; obj* x_33; obj* x_34; obj* x_35; obj* x_36; obj* x_37; 
-x_29 = lean::mk_nat_obj(16u);
-x_30 = lean::nat_div(x_14, x_29);
-x_31 = l_Lean_IR_EmitCpp_toHexDigit(x_30);
-lean::dec(x_30);
-x_32 = l_Char_quoteCore___closed__1;
-x_33 = lean::string_append(x_32, x_31);
-lean::dec(x_31);
-x_34 = lean::nat_mod(x_14, x_29);
-lean::dec(x_14);
-x_35 = l_Lean_IR_EmitCpp_toHexDigit(x_34);
-lean::dec(x_34);
-x_36 = lean::string_append(x_33, x_35);
-lean::dec(x_35);
-x_37 = lean::string_append(x_4, x_36);
-lean::dec(x_36);
-x_3 = x_6;
-x_4 = x_37;
+x_4 = x_29;
 goto _start;
 }
 }
 else
 {
-obj* x_39; obj* x_40; obj* x_41; obj* x_42; obj* x_43; obj* x_44; obj* x_45; obj* x_46; obj* x_47; 
-x_39 = lean::mk_nat_obj(16u);
-x_40 = lean::nat_div(x_14, x_39);
-x_41 = l_Lean_IR_EmitCpp_toHexDigit(x_40);
-lean::dec(x_40);
-x_42 = l_Char_quoteCore___closed__1;
-x_43 = lean::string_append(x_42, x_41);
-lean::dec(x_41);
-x_44 = lean::nat_mod(x_14, x_39);
-lean::dec(x_14);
-x_45 = l_Lean_IR_EmitCpp_toHexDigit(x_44);
-lean::dec(x_44);
-x_46 = lean::string_append(x_43, x_45);
-lean::dec(x_45);
-x_47 = lean::string_append(x_4, x_46);
-lean::dec(x_46);
+obj* x_31; obj* x_32; 
+x_31 = l_Char_quoteCore___closed__2;
+x_32 = lean::string_append(x_4, x_31);
 x_3 = x_6;
-x_4 = x_47;
+x_4 = x_32;
+goto _start;
+}
+}
+else
+{
+obj* x_34; obj* x_35; 
+x_34 = l_Char_quoteCore___closed__3;
+x_35 = lean::string_append(x_4, x_34);
+x_3 = x_6;
+x_4 = x_35;
 goto _start;
 }
 }
 }
 else
 {
-obj* x_49; obj* x_50; 
-x_49 = l_Char_quoteCore___closed__2;
-x_50 = lean::string_append(x_4, x_49);
+obj* x_41; obj* x_42; 
+x_41 = l_Char_quoteCore___closed__5;
+x_42 = lean::string_append(x_4, x_41);
 x_3 = x_6;
-x_4 = x_50;
-goto _start;
-}
-}
-else
-{
-obj* x_52; obj* x_53; 
-x_52 = l_Char_quoteCore___closed__3;
-x_53 = lean::string_append(x_4, x_52);
-x_3 = x_6;
-x_4 = x_53;
-goto _start;
-}
-}
-else
-{
-obj* x_55; obj* x_56; 
-x_55 = l_Char_quoteCore___closed__5;
-x_56 = lean::string_append(x_4, x_55);
-x_3 = x_6;
-x_4 = x_56;
+x_4 = x_42;
 goto _start;
 }
 }

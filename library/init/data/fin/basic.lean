@@ -25,7 +25,7 @@ Nat.decLt _ _
 instance decLe {n} (a b : Fin n) : Decidable (a ≤ b) :=
 Nat.decLe _ _
 
-def {u} elim0 {α : Sort u} : Fin 0 → α
+def elim0.{u} {α : Sort u} : Fin 0 → α
 | ⟨_, h⟩ := absurd h (notLtZero _)
 
 variable {n : Nat}

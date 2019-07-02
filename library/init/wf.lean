@@ -14,13 +14,13 @@ inductive Acc {α : Sort u} (r : α → α → Prop) : α → Prop
 | intro (x : α) (h : ∀ y, r y x → Acc y) : Acc x
 
 @[elabAsEliminator, inline, reducible]
-def {u1 u2} Acc.ndrec {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
+def Acc.ndrec.{u1, u2} {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
     (m : Π (x : α) (h : ∀ (y : α), r y x → Acc r y), (Π (y : α) (a : r y x), C y) → C x)
     {a : α} (n : Acc r a) : C a :=
 @Acc.rec α r (λ α _, C α) m a n
 
 @[elabAsEliminator, inline, reducible]
-def {u1 u2} Acc.ndrecOn {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
+def Acc.ndrecOn.{u1, u2} {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
     {a : α} (n : Acc r a)
     (m : Π (x : α) (h : ∀ (y : α), r y x → Acc r y), (Π (y : α) (a : r y x), C y) → C x)
     : C a :=

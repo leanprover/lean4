@@ -298,13 +298,13 @@ struct structure_cmd_fn {
     void parse_decl_name() {
         m_name_pos = m_p.pos();
         buffer<name> ls_buffer;
+        m_given_name = m_p.check_decl_id_next("invalid 'structure', identifier expected");
         if (parse_univ_params(m_p, ls_buffer)) {
             m_explicit_universe_params = true;
             m_level_names.append(ls_buffer);
         } else {
             m_explicit_universe_params = false;
         }
-        m_given_name = m_p.check_decl_id_next("invalid 'structure', identifier expected");
         if (is_private()) {
             std::tie(m_env, m_private_prefix) = mk_private_prefix(m_env);
             m_name = m_private_prefix + m_given_name;

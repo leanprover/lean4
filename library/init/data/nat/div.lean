@@ -26,7 +26,7 @@ congrFun (WellFounded.fixEq ltWf div.F x) y
 theorem divDef (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 :=
 difEqIf (0 < y ∧ y ≤ x) ((x - y) / y + 1) 0 ▸ divDefAux x y
 
-private theorem {u} div.induction.F
+private theorem div.induction.F.{u}
         (C : Nat → Nat → Sort u)
         (h₁ : ∀ x y, 0 < y ∧ y ≤ x → C (x - y) y → C x y)
         (h₂ : ∀ x y, ¬(0 < y ∧ y ≤ x) → C x y)
@@ -34,7 +34,7 @@ private theorem {u} div.induction.F
 if h : 0 < y ∧ y ≤ x then h₁ x y h (f (x - y) (divRecLemma h) y) else h₂ x y h
 
 @[elabAsEliminator]
-theorem {u} div.inductionOn
+theorem div.inductionOn.{u}
       {C : Nat → Nat → Sort u}
       (x y : Nat)
       (h₁ : ∀ x y, 0 < y ∧ y ≤ x → C (x - y) y → C x y)
@@ -59,7 +59,7 @@ theorem modDef (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else 
 difEqIf (0 < y ∧ y ≤ x) ((x - y) % y) x ▸ modDefAux x y
 
 @[elabAsEliminator]
-theorem {u} mod.inductionOn
+theorem mod.inductionOn.{u}
       {C : Nat → Nat → Sort u}
       (x y : Nat)
       (h₁ : ∀ x y, 0 < y ∧ y ≤ x → C (x - y) y → C x y)

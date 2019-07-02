@@ -203,11 +203,11 @@ inductive Eq {α : Sort u} (a : α) : α → Prop
 | refl : Eq a
 
 @[elabAsEliminator, inline, reducible]
-def {u1 u2} Eq.ndrec {α : Sort u2} {a : α} {C : α → Sort u1} (m : C a) {b : α} (h : Eq a b) : C b :=
+def Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {C : α → Sort u1} (m : C a) {b : α} (h : Eq a b) : C b :=
 @Eq.rec α a (λ α _, C α) m b h
 
 @[elabAsEliminator, inline, reducible]
-def {u1 u2} Eq.ndrecOn {α : Sort u2} {a : α} {C : α → Sort u1} {b : α} (h : Eq a b) (m : C a) : C b :=
+def Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {C : α → Sort u1} {b : α} (h : Eq a b) (m : C a) : C b :=
 @Eq.rec α a (λ α _, C α) m b h
 
 /-
@@ -730,11 +730,11 @@ section
 variables {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
 
 @[elabAsEliminator]
-theorem {u1 u2} Heq.ndrec {α : Sort u2} {a : α} {C : Π {β : Sort u2}, β → Sort u1} (m : C a) {β : Sort u2} {b : β} (h : a ≅ b) : C b :=
+theorem Heq.ndrec.{u1, u2} {α : Sort u2} {a : α} {C : Π {β : Sort u2}, β → Sort u1} (m : C a) {β : Sort u2} {b : β} (h : a ≅ b) : C b :=
 @Heq.rec α a (λ β b _, C b) m β b h
 
 @[elabAsEliminator]
-theorem {u1 u2} Heq.ndrecOn {α : Sort u2} {a : α} {C : Π {β : Sort u2}, β → Sort u1} {β : Sort u2} {b : β} (h : a ≅ b) (m : C a) : C b :=
+theorem Heq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {C : Π {β : Sort u2}, β → Sort u1} {β : Sort u2} {b : β} (h : a ≅ b) (m : C a) : C b :=
 @Heq.rec α a (λ β b _, C b) m β b h
 
 theorem Heq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : a ≅ b) (h₂ : p a) : p b :=
@@ -1036,7 +1036,7 @@ match dC with
 | (isFalse hc) := dE hc
 
 /-- Universe lifting operation -/
-structure {r s} ULift (α : Type s) : Type (max s r) :=
+structure ULift.{r, s} (α : Type s) : Type (max s r) :=
 up :: (down : α)
 
 namespace ULift
@@ -1176,14 +1176,14 @@ inductive TC {α : Sort u} (r : α → α → Prop) : α → α → Prop
 | trans : ∀ a b c, TC a b → TC b c → TC a c
 
 @[elabAsEliminator]
-theorem {u1 u2} TC.ndrec {α : Sort u} {r : α → α → Prop} {C : α → α → Prop}
+theorem TC.ndrec.{u1, u2} {α : Sort u} {r : α → α → Prop} {C : α → α → Prop}
                 (m₁ : ∀ (a b : α), r a b → C a b)
                 (m₂ : ∀ (a b c : α), TC r a b → TC r b c → C a b → C b c → C a c)
                 {a b : α} (h : TC r a b) : C a b :=
 @TC.rec α r (λ a b _, C a b) m₁ m₂ a b h
 
 @[elabAsEliminator]
-theorem {u1 u2} TC.ndrecOn {α : Sort u} {r : α → α → Prop} {C : α → α → Prop}
+theorem TC.ndrecOn.{u1, u2} {α : Sort u} {r : α → α → Prop} {C : α → α → Prop}
                 {a b : α} (h : TC r a b)
                 (m₁ : ∀ (a b : α), r a b → C a b)
                 (m₂ : ∀ (a b c : α), TC r a b → TC r b c → C a b → C b c → C a c)
@@ -1291,7 +1291,7 @@ theorem Prod.ltDef [HasLess α] [HasLess β] (s t : α × β) : (s < t) = (s.1 <
 rfl
 end
 
-def {u₁ u₂ v₁ v₂} Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
+def Prod.map.{u₁, u₂, v₁, v₂} {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
   (f : α₁ → α₂) (g : β₁ → β₂) : α₁ × β₁ → α₂ × β₂
 | (a, b) := (f a, g b)
 

@@ -28,16 +28,18 @@ Author: Leonardo de Moura
 
 namespace lean {
 bool parse_univ_params(parser & p, buffer<name> & lp_names) {
-    if (p.curr_is_token(get_lcurly_tk())) {
+    if (p.curr_is_token(get_llevel_curly_tk())) {
         p.next();
-        while (!p.curr_is_token(get_rcurly_tk())) {
-            auto pos0 = p.pos();
+        while (true) {
             name l = p.check_atomic_id_next("invalid declaration, identifier expected");
             lp_names.push_back(l);
             p.add_local_level(l, mk_univ_param(l));
-            if (p.pos() == pos0) break;
+            if (!p.curr_is_token(get_comma_tk()))
+                break;
+            else
+                p.next();
         }
-        p.next();
+        p.check_token_next(get_rcurly_tk(), "expected '}'");
         return true;
     } else {
         return false;
@@ -71,10 +73,9 @@ expr parse_single_header(parser & p, declaration_name_scope & scope, buffer <nam
         c_name = "_example";
         scope.set_name(c_name);
     } else {
-        if (!is_instance)
-            parse_univ_params(p, lp_names);
         if (!is_instance || p.curr_is_identifier()) {
             c_name = p.check_decl_id_next("invalid declaration, identifier expected");
+            parse_univ_params(p, lp_names);
             scope.set_name(c_name);
         }
     }
@@ -97,8 +98,7 @@ expr parse_single_header(parser & p, declaration_name_scope & scope, buffer <nam
     return p.save_pos(mk_local(c_name, type), c_pos);
 }
 
-void parse_mutual_header(parser & p, buffer <name> & lp_names, buffer <expr> & cs, buffer <expr> & params) {
-    parse_univ_params(p, lp_names);
+void parse_mutual_header(parser & p, buffer <name> & /* lp_names */, buffer <expr> & cs, buffer <expr> & params) {
     while (true) {
         auto c_pos  = p.pos();
         name c_name = p.check_decl_id_next("invalid mutual declaration, identifier expected");

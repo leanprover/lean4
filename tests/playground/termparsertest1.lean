@@ -23,4 +23,5 @@ testParser "()";
 testParser "(f x)";
 testParser "(f x : Type)";
 testParser "h (f x) (g y)";
+testParser "if x then f x else g x";
 pure ()

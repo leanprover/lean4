@@ -266,8 +266,8 @@ infix ≅ := Heq
 @[matchPattern] def Heq.rfl {α : Sort u} {a : α} : a ≅ a := Heq.refl a
 
 theorem eqOfHeq {α : Sort u} {a a' : α} (h : a ≅ a') : a = a' :=
-have ∀ (α' : Sort u) (a' : α') (h₁ : @Heq α a α' a') (h₂ : α = α'), (Eq.recOn h₂ a : α') = a', from
-  fun (α' : Sort u) (a' : α') (h₁ : @Heq α a α' a') => Heq.recOn h₁ (fun h₂ : α = α => rfl),
+have ∀ (α' : Sort u) (a' : α') (h₁ : @Heq α a α' a') (h₂ : α = α'), (Eq.recOn h₂ a : α') = a' :=
+  fun (α' : Sort u) (a' : α') (h₁ : @Heq α a α' a') => Heq.recOn h₁ (fun h₂ : α = α => rfl);
 show (Eq.ndrecOn (Eq.refl α) a : α) = a', from
   this α a' h (Eq.refl α)
 
@@ -825,7 +825,7 @@ Eq.recOn h Iff.rfl
 
 theorem neqOfNotIff {a b : Prop} : ¬(a ↔ b) → a ≠ b :=
 fun h₁ h₂ =>
-have a ↔ b, from Eq.subst h₂ (Iff.refl a),
+have a ↔ b, from Eq.subst h₂ (Iff.refl a);
 absurd this h₁
 
 theorem notIffNotOfIff (h₁ : a ↔ b) : ¬a ↔ ¬b :=
@@ -1437,7 +1437,7 @@ protected def hrecOn
    (q : Quot r) (f : Π a, β (Quot.mk r a)) (c : ∀ (a b : α) (p : r a b), f a ≅ f b) : β q :=
 Quot.recOn q f $
   fun a b p => eqOfHeq $
-    have p₁ : (Eq.rec (f a) (sound p) : β (Quot.mk r b)) ≅ f a, from eqRecHeq (sound p) (f a),
+    have p₁ : (Eq.rec (f a) (sound p) : β (Quot.mk r b)) ≅ f a := eqRecHeq (sound p) (f a);
     Heq.trans p₁ (c a b p)
 
 end
@@ -1705,34 +1705,34 @@ theorem chooseSpec {α : Sort u} {p : α → Prop} (h : Exists (fun x => p x)) :
 theorem em (p : Prop) : p ∨ ¬p :=
 let U (x : Prop) : Prop := x = True ∨ p;
 let V (x : Prop) : Prop := x = False ∨ p;
-have exU : Exists (fun x => U x), from ⟨True, Or.inl rfl⟩,
-have exV : Exists (fun x => V x), from ⟨False, Or.inl rfl⟩,
+have exU : Exists (fun x => U x), from ⟨True, Or.inl rfl⟩;
+have exV : Exists (fun x => V x), from ⟨False, Or.inl rfl⟩;
 let u : Prop := choose exU;
 let v : Prop := choose exV;
-have uDef : U u, from chooseSpec exU,
-have vDef : V v, from chooseSpec exV,
+have uDef : U u, from chooseSpec exU;
+have vDef : V v, from chooseSpec exV;
 have notUvOrP : u ≠ v ∨ p, from
   Or.elim uDef
     (fun hut : u = True =>
       Or.elim vDef
         (fun hvf : v = False =>
-          have hne : u ≠ v, from hvf.symm ▸ hut.symm ▸ trueNeFalse,
+          have hne : u ≠ v, from hvf.symm ▸ hut.symm ▸ trueNeFalse;
           Or.inl hne)
         Or.inr)
-    Or.inr,
+    Or.inr;
 have pImpliesUv : p → u = v, from
   fun hp : p =>
   have hpred : U = V, from
     funext $ fun x : Prop =>
       have hl : (x = True ∨ p) → (x = False ∨ p), from
-        fun a => Or.inr hp,
+        fun a => Or.inr hp;
       have hr : (x = False ∨ p) → (x = True ∨ p), from
-        fun a => Or.inr hp,
+        fun a => Or.inr hp;
       show (x = True ∨ p) = (x = False ∨ p), from
-        propext (Iff.intro hl hr),
+        propext (Iff.intro hl hr);
   have h₀ : ∀ exU exV, @choose _ U exU = @choose _ V exV, from
-    hpred ▸ fun exU exV => rfl,
-  show u = v, from h₀ _ _,
+    hpred ▸ fun exU exV => rfl;
+  show u = v, from h₀ _ _;
 Or.elim notUvOrP
   (fun (hne : u ≠ v) => Or.inr (mt pImpliesUv hne))
   Or.inl

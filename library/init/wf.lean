@@ -180,7 +180,7 @@ Acc.ndrecOn aca $ fun xa aca iha b =>
         @Prod.Lex.recOn α β ra rb (fun p₁ p₂ _ => fst p₂ = xa → snd p₂ = xb → Acc (Lex ra rb) p₁)
                          p (xa, xb) lt
           (fun (a₁ b₁ a₂ b₂ h) (Eq₂ : a₂ = xa) (Eq₃ : b₂ = xb) => iha a₁ (Eq.recOn Eq₂ h) b₁)
-          (fun (a b₁ b₂ h) (Eq₂ : a = xa) (Eq₃ : b₂ = xb) => Eq.recOn Eq₂.symm (ihb b₁ (Eq.recOn Eq₃ h))),
+          (fun (a b₁ b₂ h) (Eq₂ : a = xa) (Eq₃ : b₂ = xb) => Eq.recOn Eq₂.symm (ihb b₁ (Eq.recOn Eq₃ h)));
       aux rfl rfl
 
 -- The lexicographical order of well founded relations is well-founded
@@ -227,19 +227,19 @@ Acc.ndrecOn aca $ fun (xa aca) (iha : ∀ y, r y xa → ∀ b : β y, Acc (Lex r
             (fun (a₁ : α) (b₁ : β a₁) (a₂ : α) (b₂ : β a₂) (h : r a₁ a₂) (Eq₂ : a₂ = xa) (Eq₃ : b₂ ≅ xb) =>
               have aux : (∀ (y : α), r y xa → ∀ (b : β y), Acc (Lex r s) ⟨y, b⟩) →
                          r a₁ a₂ → ∀ (b₁ : β a₁), Acc (Lex r s) ⟨a₁, b₁⟩,
-              from Eq.subst Eq₂ (fun iha h b₁ => iha a₁ h b₁),
+              from Eq.subst Eq₂ (fun iha h b₁ => iha a₁ h b₁);
               aux iha h b₁)
             (fun (a : α) (b₁ b₂ : β a) (h : s a b₁ b₂) (Eq₂ : a = xa) (Eq₃ : b₂ ≅ xb) =>
               have aux : ∀ (xb : β xa), (∀ (y : β xa), s xa y xb → Acc (s xa) y) →
                            (∀ (y : β xa), s xa y xb → Acc (Lex r s) ⟨xa, y⟩) →
                            Lex r s p ⟨xa, xb⟩ → ∀ (b₁ : β a), s a b₁ b₂ → b₂ ≅ xb → Acc (Lex r s) ⟨a, b₁⟩,
               from Eq.subst Eq₂ $ fun xb acb ihb lt b₁ h Eq₃ =>
-                have newEq₃ : b₂ = xb, from eqOfHeq Eq₃,
+                have newEq₃ : b₂ = xb, from eqOfHeq Eq₃;
                 have aux : (∀ (y : β a), s a y xb → Acc (Lex r s) ⟨a, y⟩) →
                            ∀ (b₁ : β a), s a b₁ b₂ → Acc (Lex r s) ⟨a, b₁⟩,
-                from Eq.subst newEq₃ (fun ihb b₁ h => ihb b₁ h),
-                aux ihb b₁ h,
-              aux xb acb ihb lt b₁ h Eq₃),
+                from Eq.subst newEq₃ (fun ihb b₁ h => ihb b₁ h);
+                aux ihb b₁ h;
+              aux xb acb ihb lt b₁ h Eq₃);
         aux rfl (Heq.refl xb)
 
 -- The lexicographical order of well founded relations is well-founded
@@ -281,13 +281,13 @@ Acc.recOn acb $ fun (xb acb) (ihb : ∀ y, s y xb → ∀ a, Acc (RevLex r s) �
                             p ⟨xa, xb⟩ lt
           (fun (a₁ a₂ b) (h : r a₁ a₂) (Eq₂ : a₂ = xa) (Eq₃ : b = xb) =>
              show Acc (RevLex r s) ⟨a₁, b⟩, from
-             have r₁ : r a₁ xa, from Eq.recOn Eq₂ h,
-             have aux : Acc (RevLex r s) ⟨a₁, xb⟩, from iha a₁ r₁,
+             have r₁ : r a₁ xa, from Eq.recOn Eq₂ h;
+             have aux : Acc (RevLex r s) ⟨a₁, xb⟩, from iha a₁ r₁;
              Eq.recOn (Eq.symm Eq₃) aux)
           (fun (a₁ b₁ a₂ b₂) (h : s b₁ b₂) (Eq₂ : a₂ = xa) (Eq₃ : b₂ = xb) =>
             show Acc (RevLex r s) (mk a₁ b₁), from
-            have s₁ : s b₁ xb, from Eq.recOn Eq₃ h,
-            ihb b₁ s₁ a₁),
+            have s₁ : s b₁ xb, from Eq.recOn Eq₃ h;
+            ihb b₁ s₁ a₁);
       aux rfl rfl
 
 def revLexWf (ha : WellFounded r) (hb : WellFounded s) : WellFounded (RevLex r s) :=

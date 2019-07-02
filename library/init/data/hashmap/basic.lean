@@ -24,12 +24,12 @@ let n := if nbuckets = 0 then 8 else nbuckets;
 { size       := 0,
   buckets    :=
   ⟨ mkArray n AssocList.nil,
-    have p₁ : (mkArray n (@AssocList.nil α β)).size = n, from Array.szMkArrayEq _ _,
-    have p₂ : n = (if nbuckets = 0 then 8 else nbuckets), from rfl,
+    have p₁ : (mkArray n (@AssocList.nil α β)).size = n, from Array.szMkArrayEq _ _;
+    have p₂ : n = (if nbuckets = 0 then 8 else nbuckets), from rfl;
     have p₃ : (if nbuckets = 0 then 8 else nbuckets) > 0, from
               match nbuckets with
               | 0            := Nat.zeroLtSucc _
-              | (Nat.succ x) := Nat.zeroLtSucc _,
+              | (Nat.succ x) := Nat.zeroLtSucc _;
     transRelRight Greater (Eq.trans p₁ p₂) p₃ ⟩ }
 
 namespace HashMapImp
@@ -80,8 +80,8 @@ partial def moveEntries [Hashable α] : Nat → Array (AssocList α β) → Hash
 
 def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapImp α β :=
 let nbuckets := buckets.val.size * 2;
-have aux₁  : nbuckets > 0, from Nat.mulPos buckets.property (Nat.zeroLtBit0 Nat.oneNeZero),
-have aux₂  : (mkArray nbuckets (@AssocList.nil α β)).size = nbuckets, from Array.szMkArrayEq _ _,
+have aux₁  : nbuckets > 0, from Nat.mulPos buckets.property (Nat.zeroLtBit0 Nat.oneNeZero);
+have aux₂  : (mkArray nbuckets (@AssocList.nil α β)).size = nbuckets, from Array.szMkArrayEq _ _;
 let new_buckets : HashMapBucket α β := ⟨mkArray nbuckets AssocList.nil, aux₂.symm ▸ aux₁⟩;
 { size    := size,
   buckets := moveEntries 0 buckets.val new_buckets }

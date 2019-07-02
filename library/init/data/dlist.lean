@@ -40,8 +40,8 @@ def cons : α → DList α → DList α
 | a ⟨f, h⟩ := ⟨fun t => a :: f t,
                fun t =>
                show a :: f t = a :: f [] ++ t, from
-               have h₁ : a :: f t = a :: (f nil ++ t), from h t ▸ rfl,
-               have h₂ : a :: (f nil ++ t) = a :: f nil ++ t, from (consAppend _ _ _).symm,
+               have h₁ : a :: f t = a :: (f nil ++ t) := h t ▸ rfl;
+               have h₂ : a :: (f nil ++ t) = a :: f nil ++ t := (consAppend _ _ _).symm;
                Eq.trans h₁ h₂⟩
 
 def append : DList α → DList α → DList α

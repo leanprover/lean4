@@ -36,7 +36,7 @@ def ofNat {n : Nat} (a : Nat) : Fin (succ n) :=
 private theorem mlt {n b : Nat} : ∀ {a}, n > a → b % n < n
 | 0     h := Nat.modLt _ h
 | (a+1) h :=
-  have n > 0, from Nat.ltTrans (Nat.zeroLtSucc _) h,
+  have n > 0, from Nat.ltTrans (Nat.zeroLtSucc _) h;
   Nat.modLt _ this
 
 protected def add : Fin n → Fin n → Fin n

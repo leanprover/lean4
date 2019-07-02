@@ -417,7 +417,7 @@ static expr parse_have(parser & p, unsigned, expr const *, pos_info const & pos)
         p.check_token_next(get_comma_tk(), "invalid 'have' declaration, ',' expected");
         proof = parse_proof(p);
     }
-    p.check_token_next(get_comma_tk(), "invalid 'have' declaration, ',' expected");
+    p.check_token_next(get_semicolon_tk(), "invalid 'have' declaration, ';' expected");
     parser::local_scope scope(p);
     expr l = p.save_pos(mk_local(id, prop), pos);
     p.add_local(l);

@@ -71,10 +71,10 @@ theorem appendAssoc : ∀ (as bs cs : List α), (as ++ bs) ++ cs = as ++ (bs ++ 
 | []      bs cs := rfl
 | (a::as) bs cs :=
   show ((a::as) ++ bs) ++ cs = (a::as) ++ (bs ++ cs),      from
-  have h₁ : ((a::as) ++ bs) ++ cs = a::(as++bs) ++ cs,     from congrArg (fun ds => ds ++ cs) (consAppend a as bs),
-  have h₂ : a::(as++bs) ++ cs     = a::((as++bs) ++ cs),   from consAppend a (as++bs) cs,
-  have h₃ : a::((as++bs) ++ cs)   = a::(as ++ (bs ++ cs)), from congrArg (fun as => a::as) (appendAssoc as bs cs),
-  have h₄ : a::(as ++ (bs ++ cs)) = (a::as ++ (bs ++ cs)), from (consAppend a as (bs++cs)).symm,
+  have h₁ : ((a::as) ++ bs) ++ cs = a::(as++bs) ++ cs,     from congrArg (fun ds => ds ++ cs) (consAppend a as bs);
+  have h₂ : a::(as++bs) ++ cs     = a::((as++bs) ++ cs),   from consAppend a (as++bs) cs;
+  have h₃ : a::((as++bs) ++ cs)   = a::(as ++ (bs ++ cs)), from congrArg (fun as => a::as) (appendAssoc as bs cs);
+  have h₄ : a::(as ++ (bs ++ cs)) = (a::as ++ (bs ++ cs)), from (consAppend a as (bs++cs)).symm;
   Eq.trans (Eq.trans (Eq.trans h₁ h₂) h₃) h₄
 
 inductive Mem : α → List α → Prop

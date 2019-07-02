@@ -248,7 +248,7 @@ revIterateAux a f a.size (Nat.leRefl _) b
 revIterate a b (λ _, f)
 
 def toList (a : Array α) : List α :=
-a.revFoldl [] (::)
+a.revFoldl [] List.cons
 
 instance [HasRepr α] : HasRepr (Array α) :=
 ⟨repr ∘ toList⟩

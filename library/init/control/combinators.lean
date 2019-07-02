@@ -60,7 +60,7 @@ namespace List
 @[specialize]
 def mmap {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m (List β)
 | []      := pure []
-| (a::as) := (::) <$> (f a) <*> mmap as
+| (a::as) := List.cons <$> (f a) <*> mmap as
 
 @[specialize]
 def mfor {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m PUnit

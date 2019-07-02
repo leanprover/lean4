@@ -768,28 +768,6 @@ static expr parse_lparen(parser & p, unsigned, expr const *, pos_info const & po
     }
 }
 
-static expr parse_lambda_cons(parser & p, unsigned, expr const *, pos_info const & pos) {
-    list<pair<transition, parse_table>> ts = p.led().find(get_dcolon_tk());
-    if (!ts || tail(ts) || !head(ts).second.is_accepting())
-        throw parser_error("invalid '(::)' notation, infix operator '::' has not been defined yet or is the prefix of another notation declaration", pos);
-    notation::action const & act = head(ts).first.get_action();
-    if (act.kind() != notation::action_kind::Expr)
-        throw parser_error("invalid '(::)' notation, declaration for operator '::' is not compatible with the `(::)` syntactic sugar", pos);
-    expr args[2];
-    buffer<expr> vars;
-    args[0] = mk_local(p.next_name(), "_x", mk_expr_placeholder(), mk_binder_info());
-    vars.push_back(args[0]);
-    args[1] = mk_local(p.next_name(), "_y", mk_expr_placeholder(), mk_binder_info());
-    vars.push_back(args[1]);
-    buffer<expr> cs;
-    for (notation::accepting const & acc : head(ts).second.is_accepting()) {
-        expr r = p.copy_with_new_pos(acc.get_expr(), pos);
-        r = p.save_pos(mk_infix_function(Fun(vars, instantiate_rev(r, 2, args), p)), pos);
-        cs.push_back(r);
-    }
-    return p.save_pos(mk_choice(cs.size(), cs.data()), pos);
-}
-
 static expr parse_inaccessible(parser & p, unsigned, expr const *, pos_info const & pos) {
     expr e = p.parse_expr();
     if (!p.in_pattern()) {
@@ -847,7 +825,6 @@ parse_table init_nud_table() {
     r = r.add({transition("`", mk_ext_action(parse_quoted_name))}, x0);
     // r = r.add({transition("(:", Expr), transition(":)", mk_ext_action(parse_pattern))}, x0);
     r = r.add({transition("()", mk_ext_action(parse_unit))}, x0);
-    r = r.add({transition("(::)", mk_ext_action(parse_lambda_cons))}, x0);
     r = r.add({transition("fun", mk_ext_action(parse_lambda))}, x0);
     r = r.add({transition("Pi", Binders), transition(",", mk_scoped_expr_action(x0, 0, false))}, x0);
     r = r.add({transition("Type", mk_ext_action(parse_Type))}, x0);

@@ -30,19 +30,19 @@ variables {α : Type u} {β : Type v} {σ : Type w}
 @[extern cpp inline "lean::mk_empty_array(#2)"]
 def mkEmpty (c : @& Nat) : Array α :=
 { sz := 0,
-  data := λ ⟨x, h⟩, absurd h (Nat.notLtZero x) }
+  data := fun ⟨x, h⟩ => absurd h (Nat.notLtZero x) }
 
 @[extern cpp inline "lean::array_push(#2, #3)"]
 def push (a : Array α) (v : α) : Array α :=
 { sz   := Nat.succ a.sz,
-  data := λ ⟨j, h₁⟩,
+  data := fun ⟨j, h₁⟩ =>
     if h₂ : j = a.sz then v
     else a.data ⟨j, Nat.ltOfLeOfNe (Nat.leOfLtSucc h₁) h₂⟩ }
 
 @[extern cpp inline "lean::mk_array(#2, #3)"]
 def mkArray {α : Type u} (n : Nat) (v : α) : Array α :=
 { sz   := n,
-  data := λ _, v}
+  data := fun _ => v}
 
 theorem szMkArrayEq {α : Type u} (n : Nat) (v : α) : (mkArray n v).sz = n :=
 rfl
@@ -87,7 +87,7 @@ if h : i < a.size then some (a.fget ⟨i, h⟩) else none
 @[extern cpp inline "lean::array_fset(#2, #3, #4)"]
 def fset (a : Array α) (i : @& Fin a.size) (v : α) : Array α :=
 { sz   := a.sz,
-  data := λ j, if h : i = j then v else a.data j }
+  data := fun j => if h : i = j then v else a.data j }
 
 theorem szFSetEq (a : Array α) (i : Fin a.size) (v : α) : (fset a i v).size = a.size :=
 rfl
@@ -129,7 +129,7 @@ if h : i < a.size then fswapAt a ⟨i, h⟩ v else (v, a)
 @[extern cpp inline "lean::array_pop(#2)"]
 def pop (a : Array α) : Array α :=
 { sz   := Nat.pred a.size,
-  data := λ ⟨j, h⟩, a.fget ⟨j, Nat.ltOfLtOfLe h (Nat.predLe _)⟩ }
+  data := fun ⟨j, h⟩ => a.fget ⟨j, Nat.ltOfLtOfLe h (Nat.predLe _)⟩ }
 
 -- TODO(Leo): justify termination using wf-rec
 partial def shrink : Array α → Nat → Array α
@@ -150,10 +150,10 @@ variables {m : Type v → Type v} [Monad m]
 miterateAux a f 0 b
 
 @[inline] def mfoldl (f : β → α → m β) (b : β) (a : Array α) : m β :=
-miterate a b (λ _ b a, f a b)
+miterate a b (fun _ b a => f a b)
 
 @[inline] def mfoldlFrom (f : β → α → m β) (b : β) (a : Array α) (ini : Nat := 0) : m β :=
-miterateAux a (λ _ b a, f a b) ini b
+miterateAux a (fun _ b a => f a b) ini b
 
 -- TODO(Leo): justify termination using wf-rec
 @[specialize] partial def miterate₂Aux (a₁ : Array α) (a₂ : Array σ) (f : Π i : Fin a₁.size, α → σ → β → m β) : Nat → β → m β
@@ -170,7 +170,7 @@ miterateAux a (λ _ b a, f a b) ini b
 miterate₂Aux a₁ a₂ f 0 b
 
 @[inline] def mfoldl₂ (f : β → α → σ → m β) (b : β) (a₁ : Array α) (a₂ : Array σ): m β :=
-miterate₂ a₁ a₂ b (λ _ a₁ a₂ b, f b a₁ a₂)
+miterate₂ a₁ a₂ b (fun _ a₁ a₂ b => f b a₁ a₂)
 
 -- TODO(Leo): justify termination using wf-rec
 @[specialize] partial def mfindAux (a : Array α) (f : α → m (Option β)) : Nat → m (Option β)
@@ -195,7 +195,7 @@ Id.run $ miterateAux a f 0 b
 Id.run $ miterateAux a f i b
 
 @[inline] def foldl (f : β → α → β) (b : β) (a : Array α) : β :=
-iterate a b (λ _ a b, f b a)
+iterate a b (fun _ a b => f b a)
 
 @[inline] def foldlFrom (f : β → α → β) (b : β) (a : Array α) (ini : Nat := 0) : β :=
 Id.run $ mfoldlFrom f b a ini
@@ -204,7 +204,7 @@ Id.run $ mfoldlFrom f b a ini
 Id.run $ miterate₂Aux a₁ a₂ f 0 b
 
 @[inline] def foldl₂ (f : β → α → σ → β) (b : β) (a₁ : Array α) (a₂ : Array σ) : β :=
-iterate₂ a₁ a₂ b (λ _ a₁ a₂ b, f b a₁ a₂)
+iterate₂ a₁ a₂ b (fun _ a₁ a₂ b => f b a₁ a₂)
 
 @[inline] def find (a : Array α) (f : α → Option β) : Option β :=
 Id.run $ mfindAux a f 0
@@ -226,14 +226,14 @@ variables {m : Type → Type v} [Monad m]
 anyMAux a p 0
 
 @[inline] def allM (a : Array α) (p : α → m Bool) : m Bool :=
-not <$> anyM a (λ v, not <$> p v)
+not <$> anyM a (fun v => not <$> p v)
 end
 
 @[inline] def any (a : Array α) (p : α → Bool) : Bool :=
 Id.run $ anyM a p
 
 @[inline] def all (a : Array α) (p : α → Bool) : Bool :=
-!any a (λ v, !p v)
+!any a (fun v => !p v)
 
 @[specialize] private def revIterateAux (a : Array α) (f : Π i : Fin a.size, α → β → β) : Π (i : Nat), i ≤ a.size → β → β
 | 0     h b := b
@@ -245,7 +245,7 @@ Id.run $ anyM a p
 revIterateAux a f a.size (Nat.leRefl _) b
 
 @[inline] def revFoldl (a : Array α) (b : β) (f : α → β → β) : β :=
-revIterate a b (λ _, f)
+revIterate a b (fun _ => f)
 
 def toList (a : Array α) : List α :=
 a.revFoldl [] List.cons
@@ -271,16 +271,16 @@ variables {m : Type v → Type v} [Monad m]
      pure (unsafeCast a)
 
 @[inline] unsafe partial def ummap (f : α → m β) (as : Array α) : m (Array β) :=
-ummapAux (λ i a, f a) 0 as
+ummapAux (fun i a => f a) 0 as
 
 @[inline] unsafe partial def ummapIdx (f : Nat → α → m β) (as : Array α) : m (Array β) :=
 ummapAux f 0 as
 
 @[implementedBy Array.ummap] def mmap (f : α → m β) (as : Array α) : m (Array β) :=
-as.mfoldl (λ bs a, do b ← f a; pure (bs.push b)) (mkEmpty as.size)
+as.mfoldl (fun bs a => do b ← f a; pure (bs.push b)) (mkEmpty as.size)
 
 @[implementedBy Array.ummapIdx] def mmapIdx (f : Nat → α → m β) (as : Array α) : m (Array β) :=
-as.miterate (mkEmpty as.size) (λ i a bs, do b ← f i.val a; pure (bs.push b))
+as.miterate (mkEmpty as.size) (fun i a bs => do b ← f i.val a; pure (bs.push b))
 end
 
 @[inline] def modify [Inhabited α] (a : Array α) (i : Nat) (f : α → α) : Array α :=
@@ -331,7 +331,7 @@ if h : e ≤ a.size then extractAux a b e h r
 else r
 
 protected def append (a : Array α) (b : Array α) : Array α :=
-b.foldl (λ a v, a.push v) a
+b.foldl (fun a v => a.push v) a
 
 instance : HasAppend (Array α) := ⟨Array.append⟩
 
@@ -354,7 +354,7 @@ else
   false
 
 instance [HasBeq α] : HasBeq (Array α) :=
-⟨λ a b, isEqv a b HasBeq.beq⟩
+⟨fun a b => isEqv a b HasBeq.beq⟩
 
 -- TODO(Leo): justify termination using wf-rec, and use `fswap`
 partial def reverseAux : Array α → Nat → Array α

@@ -23,7 +23,7 @@ def String.decEq (s₁ s₂ : @& String) : Decidable (s₁ = s₂) :=
 match s₁, s₂ with
 | ⟨s₁⟩, ⟨s₂⟩ :=
  if h : s₁ = s₂ then isTrue (congrArg _ h)
- else isFalse (λ h', String.noConfusion h' (λ h', absurd h' h))
+ else isFalse (fun h' => String.noConfusion h' (fun h' => absurd h' h))
 
 instance : DecidableEq String :=
 {decEq := String.decEq}
@@ -33,7 +33,7 @@ def List.asString (s : List Char) : String :=
 
 namespace String
 instance : HasLess String :=
-⟨λ s₁ s₂, s₁.data < s₂.data⟩
+⟨fun s₁ s₂ => s₁.data < s₂.data⟩
 
 @[extern cpp "lean::string_dec_lt"]
 instance decLt (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
@@ -170,13 +170,13 @@ instance : HasAppend String :=
 def str : String → Char → String := push
 
 def pushn (s : String) (c : Char) (n : Nat) : String :=
-n.repeat (λ s, s.push c) s
+n.repeat (fun s => s.push c) s
 
 def isEmpty (s : String) : Bool :=
 s.bsize == 0
 
 def join (l : List String) : String :=
-l.foldl (λ r s, r ++ s) ""
+l.foldl (fun r s => r ++ s) ""
 
 def singleton (c : Char) : String :=
 "".push c
@@ -292,10 +292,10 @@ foldrAux f a s s.bsize 0
 anyAux s s.bsize p 0
 
 @[inline] def all (s : String) (p : Char → Bool) : Bool :=
-!s.any (λ c, !p c)
+!s.any (fun c => !p c)
 
 def contains (s : String) (c : Char) : Bool :=
-s.any (λ a, a == c)
+s.any (fun a => a == c)
 
 @[specialize] partial def mapAux (f : Char → Char) : Pos → String → String
 | i s :=
@@ -309,10 +309,10 @@ s.any (λ a, a == c)
 mapAux f 0 s
 
 def toNat (s : String) : Nat :=
-s.foldl (λ n c, n*10 + (c.toNat - '0'.toNat)) 0
+s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
 
 def isNat (s : String) : Bool :=
-s.all $ λ c, c.isDigit
+s.all $ fun c => c.isDigit
 
 partial def isPrefixOfAux (p s : String) : Pos → Bool
 | i :=
@@ -409,10 +409,10 @@ match s with
 | ⟨s, b, e⟩ := String.anyAux s e p b
 
 @[inline] def all (s : Substring) (p : Char → Bool) : Bool :=
-!s.any (λ c, !p c)
+!s.any (fun c => !p c)
 
 def contains (s : Substring) (c : Char) : Bool :=
-s.any (λ a, a == c)
+s.any (fun a => a == c)
 
 @[specialize] partial def takeWhileAux (s : String) (stopPos : String.Pos) (p : Char → Bool) : String.Pos → String.Pos
 | i :=
@@ -462,10 +462,10 @@ s.dropRightWhile Char.isWhitespace
   ⟨s, b, e⟩
 
 def toNat (s : Substring) : Nat :=
-s.foldl (λ n c, n*10 + (c.toNat - '0'.toNat)) 0
+s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
 
 def isNat (s : Substring) : Bool :=
-s.all $ λ c, c.isDigit
+s.all $ fun c => c.isDigit
 
 end Substring
 

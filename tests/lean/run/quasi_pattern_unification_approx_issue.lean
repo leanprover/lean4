@@ -22,13 +22,13 @@ Then, we need to solve:
 ==> instantiate metavars
 ?m σ =?= StateT σ id σ
 ==> (approximate since it is a quasi-pattern unification constraint)
-?m := λ σ, StateT σ id σ
+?m := fun σ => StateT σ id σ
 
 Remark: the constraint is not a Milner pattern because σ is in
 the local context of `?m`. We are ignoring the other possible solutions:
-?m := λ σ', StateT σ id σ
-?m := λ σ', StateT σ' id σ
-?m := λ σ', StateT σ id σ'
+?m := fun σ' => StateT σ id σ
+?m := fun σ' => StateT σ' id σ
+?m := fun σ' => StateT σ id σ'
 
 We need the quasi-pattern approximation for elaborating recursors.
 One Option is to enable this kind of approximation only when

@@ -23,7 +23,7 @@ match getIOTypeArg type with
 | _ := false
 
 def mkInitAttr : IO (ParametricAttribute Name) :=
-registerParametricAttribute `init "initialization procedure for global references" $ λ env declName stx,
+registerParametricAttribute `init "initialization procedure for global references" $ fun env declName stx =>
   match env.find declName with
   | none := Except.error "unknown declaration"
   | some decl :=

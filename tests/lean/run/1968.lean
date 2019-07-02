@@ -29,7 +29,7 @@ open value
 -- #eval value.op (op.mul 32) [[[ const 32, const 32 ]]]
 
 -- This also works
--- instance bvHasMul (w : Nat) : HasMul (value (bv w)) := ⟨λx y, value.op (op.mul w) [[[x, y]]]⟩
+-- instance bvHasMul (w : Nat) : HasMul (value (bv w)) := ⟨fun x y => w value.op (op.mul w) [[[x, y]]]⟩
 -- #eval const 32 * const 32
 
 -- This works

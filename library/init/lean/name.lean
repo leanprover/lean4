@@ -63,20 +63,20 @@ protected def decEq : Π (a b : @& Name), Decidable (a = b)
   if h₁ : s₁ = s₂ then
     match decEq p₁ p₂ with
     | isTrue h₂  := isTrue $ h₁ ▸ h₂ ▸ rfl
-    | isFalse h₂ := isFalse $ λ h, Name.noConfusion h $ λ hp hs, absurd hp h₂
-  else isFalse $ λ h, Name.noConfusion h $ λ hp hs, absurd hs h₁
+    | isFalse h₂ := isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hp h₂
+  else isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hs h₁
 | (mkNumeral p₁ n₁) (mkNumeral p₂ n₂) :=
   if h₁ : n₁ = n₂ then
     match decEq p₁ p₂ with
     | isTrue h₂  := isTrue $ h₁ ▸ h₂ ▸ rfl
-    | isFalse h₂ := isFalse $ λ h, Name.noConfusion h $ λ hp hs, absurd hp h₂
-  else isFalse $ λ h, Name.noConfusion h $ λ hp hs, absurd hs h₁
-| anonymous         (mkString _ _)    := isFalse $ λ h, Name.noConfusion h
-| anonymous         (mkNumeral _ _)   := isFalse $ λ h, Name.noConfusion h
-| (mkString _ _)    anonymous         := isFalse $ λ h, Name.noConfusion h
-| (mkString _ _)    (mkNumeral _ _)   := isFalse $ λ h, Name.noConfusion h
-| (mkNumeral _ _)   anonymous         := isFalse $ λ h, Name.noConfusion h
-| (mkNumeral _ _)   (mkString _ _)    := isFalse $ λ h, Name.noConfusion h
+    | isFalse h₂ := isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hp h₂
+  else isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hs h₁
+| anonymous         (mkString _ _)    := isFalse $ fun h => Name.noConfusion h
+| anonymous         (mkNumeral _ _)   := isFalse $ fun h => Name.noConfusion h
+| (mkString _ _)    anonymous         := isFalse $ fun h => Name.noConfusion h
+| (mkString _ _)    (mkNumeral _ _)   := isFalse $ fun h => Name.noConfusion h
+| (mkNumeral _ _)   anonymous         := isFalse $ fun h => Name.noConfusion h
+| (mkNumeral _ _)   (mkString _ _)    := isFalse $ fun h => Name.noConfusion h
 
 instance : DecidableEq Name :=
 {decEq := Name.decEq}
@@ -125,10 +125,10 @@ else quickLtCore n₁ n₂
 
 /- Alternative HasLt instance. -/
 @[inline] protected def hasLtQuick : HasLess Name :=
-⟨λ a b, Name.quickLt a b = true⟩
+⟨fun a b => Name.quickLt a b = true⟩
 
 @[inline] instance : DecidableRel (@HasLess.Less Name Name.hasLtQuick) :=
-inferInstanceAs (DecidableRel (λ a b, Name.quickLt a b = true))
+inferInstanceAs (DecidableRel (fun a b => Name.quickLt a b = true))
 
 def toStringWithSep (sep : String) : Name → String
 | anonymous               := "[anonymous]"
@@ -159,16 +159,16 @@ def isInternal : Name → Bool
 | _ := false
 
 theorem mkStringNeMkStringOfNePrefix {p₁ : Name} (s₁ : String) {p₂ : Name} (s₂ : String) : p₁ ≠ p₂ → mkString p₁ s₁ ≠ mkString p₂ s₂ :=
-λ h₁ h₂, Name.noConfusion h₂ (λ h _, absurd h h₁)
+fun h₁ h₂ => Name.noConfusion h₂ (fun h _ => absurd h h₁)
 
 theorem mkStringNeMkStringOfNeString (p₁ : Name) {s₁ : String} (p₂ : Name) {s₂ : String} : s₁ ≠ s₂ → mkString p₁ s₁ ≠ mkString p₂ s₂ :=
-λ h₁ h₂, Name.noConfusion h₂ (λ _ h, absurd h h₁)
+fun h₁ h₂ => Name.noConfusion h₂ (fun _ h => absurd h h₁)
 
 theorem mkNumeralNeMkNumeralOfNePrefix {p₁ : Name} (n₁ : Nat) {p₂ : Name} (n₂ : Nat) : p₁ ≠ p₂ → mkNumeral p₁ n₁ ≠ mkNumeral p₂ n₂ :=
-λ h₁ h₂, Name.noConfusion h₂ (λ h _, absurd h h₁)
+fun h₁ h₂ => Name.noConfusion h₂ (fun h _ => absurd h h₁)
 
 theorem mkNumeralNeMkNumeralOfNeNumeral (p₁ : Name) {n₁ : Nat} (p₂ : Name) {n₂ : Nat} : n₁ ≠ n₂ → mkNumeral p₁ n₁ ≠ mkNumeral p₂ n₂ :=
-λ h₁ h₂, Name.noConfusion h₂ (λ _ h, absurd h h₁)
+fun h₁ h₂ => Name.noConfusion h₂ (fun _ h => absurd h h₁)
 
 end Name
 
@@ -212,4 +212,4 @@ open Lean
 
 def String.toName (s : String) : Name :=
 let ps := s.split ".";
-ps.foldl (λ n p, Name.mkString n p.trim) Name.anonymous
+ps.foldl (fun n p => Name.mkString n p.trim) Name.anonymous

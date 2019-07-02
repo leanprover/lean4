@@ -23,22 +23,22 @@ variables {α : Type u} {β : Type v} {lt : α → α → Bool}
 RBMap.depth f t
 
 @[inline] def fold (f : β → α → β) (b : β) (t : RBTree α lt) : β :=
-RBMap.fold (λ r a _, f r a) b t
+RBMap.fold (fun r a _ => f r a) b t
 
 @[inline] def revFold (f : β → α → β) (b : β) (t : RBTree α lt) : β :=
-RBMap.revFold (λ r a _, f r a) b t
+RBMap.revFold (fun r a _ => f r a) b t
 
 @[inline] def mfold {m : Type v → Type w} [Monad m] (f : β → α → m β) (b : β) (t : RBTree α lt) : m β :=
-RBMap.mfold (λ r a _, f r a) b t
+RBMap.mfold (fun r a _ => f r a) b t
 
 @[inline] def mfor {m : Type v → Type w} [Monad m] (f : α → m β) (t : RBTree α lt) : m PUnit :=
-t.mfold (λ _ a, f a *> pure ⟨⟩) ⟨⟩
+t.mfold (fun _ a => f a *> pure ⟨⟩) ⟨⟩
 
 @[inline] def isEmpty (t : RBTree α lt) : Bool :=
 RBMap.isEmpty t
 
 @[specialize] def toList (t : RBTree α lt) : List α :=
-t.revFold (λ as a, a::as) []
+t.revFold (fun as a => a::as) []
 
 @[inline] protected def min (t : RBTree α lt) : Option α :=
 match RBMap.min t with
@@ -51,12 +51,12 @@ match RBMap.max t with
 | none        := none
 
 instance [HasRepr α] : HasRepr (RBTree α lt) :=
-⟨λ t, "rbtreeOf " ++ repr t.toList⟩
+⟨fun t => "rbtreeOf " ++ repr t.toList⟩
 
 @[inline] def insert (t : RBTree α lt) (a : α) : RBTree α lt :=
 RBMap.insert t a ()
 
-instance : HasInsert α (RBTree α lt) := ⟨λ a s, s.insert a⟩
+instance : HasInsert α (RBTree α lt) := ⟨fun a s => s.insert a⟩
 
 @[inline] def erase (t : RBTree α lt) (a : α) : RBTree α lt :=
 RBMap.erase t a
@@ -77,13 +77,13 @@ def fromList (l : List α) (lt : α → α → Bool) : RBTree α lt :=
 l.foldl insert (mkRBTree α lt)
 
 @[inline] def all (t : RBTree α lt) (p : α → Bool) : Bool :=
-RBMap.all t (λ a _, p a)
+RBMap.all t (fun a _ => p a)
 
 @[inline] def any (t : RBTree α lt) (p : α → Bool) : Bool :=
-RBMap.any t (λ a _, p a)
+RBMap.any t (fun a _ => p a)
 
 def subset (t₁ t₂ : RBTree α lt) : Bool :=
-t₁.all $ λ a, (t₂.find a).toBool
+t₁.all $ fun a => (t₂.find a).toBool
 
 def seteq (t₁ t₂ : RBTree α lt) : Bool :=
 subset t₁ t₂ && subset t₂ t₁

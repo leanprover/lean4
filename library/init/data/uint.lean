@@ -49,17 +49,17 @@ instance : Inhabited UInt8   := ⟨0⟩
 
 @[extern cpp inline "#1 == #2"]
 def UInt8.decEq (a b : UInt8) : Decidable (a = b) :=
-UInt8.casesOn a $ λ n, UInt8.casesOn b $ λ m,
-  if h : n = m then isTrue (h ▸ rfl) else isFalse (λ h', UInt8.noConfusion h' (λ h', absurd h' h))
+UInt8.casesOn a $ fun n => UInt8.casesOn b $ fun m =>
+  if h : n = m then isTrue (h ▸ rfl) else isFalse (fun h' => UInt8.noConfusion h' (fun h' => absurd h' h))
 
 @[extern cpp inline "#1 < #2"]
 def UInt8.decLt (a b : UInt8) : Decidable (a < b) :=
-UInt8.casesOn a $ λ n, UInt8.casesOn b $ λ m,
+UInt8.casesOn a $ fun n => UInt8.casesOn b $ fun m =>
   inferInstanceAs (Decidable (n < m))
 
 @[extern cpp inline "#1 <= #2"]
 def UInt8.decLe (a b : UInt8) : Decidable (a ≤ b) :=
-UInt8.casesOn a $ λ n, UInt8.casesOn b $ λ m,
+UInt8.casesOn a $ fun n => UInt8.casesOn b $ fun m =>
   inferInstanceAs (Decidable (n <= m))
 
 instance : DecidableEq UInt8 := {decEq := UInt8.decEq}
@@ -107,17 +107,17 @@ instance : Inhabited UInt16   := ⟨0⟩
 
 @[extern cpp inline "#1 == #2"]
 def UInt16.decEq (a b : UInt16) : Decidable (a = b) :=
-UInt16.casesOn a $ λ n, UInt16.casesOn b $ λ m,
-  if h : n = m then isTrue (h ▸ rfl) else isFalse (λ h', UInt16.noConfusion h' (λ h', absurd h' h))
+UInt16.casesOn a $ fun n => UInt16.casesOn b $ fun m =>
+  if h : n = m then isTrue (h ▸ rfl) else isFalse (fun h' => UInt16.noConfusion h' (fun h' => absurd h' h))
 
 @[extern cpp inline "#1 < #2"]
 def UInt16.decLt (a b : UInt16) : Decidable (a < b) :=
-UInt16.casesOn a $ λ n, UInt16.casesOn b $ λ m,
+UInt16.casesOn a $ fun n => UInt16.casesOn b $ fun m =>
   inferInstanceAs (Decidable (n < m))
 
 @[extern cpp inline "#1 <= #2"]
 def UInt16.decLe (a b : UInt16) : Decidable (a ≤ b) :=
-UInt16.casesOn a $ λ n, UInt16.casesOn b $ λ m,
+UInt16.casesOn a $ fun n => UInt16.casesOn b $ fun m =>
   inferInstanceAs (Decidable (n <= m))
 
 instance : DecidableEq UInt16 := {decEq := UInt16.decEq}
@@ -165,17 +165,17 @@ instance : Inhabited UInt32   := ⟨0⟩
 
 @[extern cpp inline "#1 == #2"]
 def UInt32.decEq (a b : UInt32) : Decidable (a = b) :=
-UInt32.casesOn a $ λ n, UInt32.casesOn b $ λ m,
-  if h : n = m then isTrue (h ▸ rfl) else isFalse (λ h', UInt32.noConfusion h' (λ h', absurd h' h))
+UInt32.casesOn a $ fun n => UInt32.casesOn b $ fun m =>
+  if h : n = m then isTrue (h ▸ rfl) else isFalse (fun h' => UInt32.noConfusion h' (fun h' => absurd h' h))
 
 @[extern cpp inline "#1 < #2"]
 def UInt32.decLt (a b : UInt32) : Decidable (a < b) :=
-UInt32.casesOn a $ λ n, UInt32.casesOn b $ λ m,
+UInt32.casesOn a $ fun n => UInt32.casesOn b $ fun m =>
   inferInstanceAs (Decidable (n < m))
 
 @[extern cpp inline "#1 <= #2"]
 def UInt32.decLe (a b : UInt32) : Decidable (a ≤ b) :=
-UInt32.casesOn a $ λ n, UInt32.casesOn b $ λ m,
+UInt32.casesOn a $ fun n => UInt32.casesOn b $ fun m =>
   inferInstanceAs (Decidable (n <= m))
 
 instance : DecidableEq UInt32 := {decEq := UInt32.decEq}
@@ -223,17 +223,17 @@ instance : Inhabited UInt64   := ⟨0⟩
 
 @[extern cpp inline "#1 == #2"]
 def UInt64.decEq (a b : UInt64) : Decidable (a = b) :=
-UInt64.casesOn a $ λ n, UInt64.casesOn b $ λ m,
-  if h : n = m then isTrue (h ▸ rfl) else isFalse (λ h', UInt64.noConfusion h' (λ h', absurd h' h))
+UInt64.casesOn a $ fun n => UInt64.casesOn b $ fun m =>
+  if h : n = m then isTrue (h ▸ rfl) else isFalse (fun h' => UInt64.noConfusion h' (fun h' => absurd h' h))
 
 @[extern cpp inline "#1 < #2"]
 def UInt64.decLt (a b : UInt64) : Decidable (a < b) :=
-UInt64.casesOn a $ λ n, UInt64.casesOn b $ λ m,
+UInt64.casesOn a $ fun n => UInt64.casesOn b $ fun m =>
   inferInstanceAs (Decidable (n < m))
 
 @[extern cpp inline "#1 <= #2"]
 def UInt64.decLe (a b : UInt64) : Decidable (a ≤ b) :=
-UInt64.casesOn a $ λ n, UInt64.casesOn b $ λ m,
+UInt64.casesOn a $ fun n => UInt64.casesOn b $ fun m =>
   inferInstanceAs (Decidable (n <= m))
 
 instance : DecidableEq UInt64 := {decEq := UInt64.decEq}
@@ -290,17 +290,17 @@ instance : Inhabited USize   := ⟨0⟩
 
 @[extern cpp inline "#1 == #2"]
 def USize.decEq (a b : USize) : Decidable (a = b) :=
-USize.casesOn a $ λ n, USize.casesOn b $ λ m,
-  if h : n = m then isTrue (h ▸ rfl) else isFalse (λ h', USize.noConfusion h' (λ h', absurd h' h))
+USize.casesOn a $ fun n => USize.casesOn b $ fun m =>
+  if h : n = m then isTrue (h ▸ rfl) else isFalse (fun h' => USize.noConfusion h' (fun h' => absurd h' h))
 
 @[extern cpp inline "#1 < #2"]
 def USize.decLt (a b : USize) : Decidable (a < b) :=
-USize.casesOn a $ λ n, USize.casesOn b $ λ m,
+USize.casesOn a $ fun n => USize.casesOn b $ fun m =>
   inferInstanceAs (Decidable (n < m))
 
 @[extern cpp inline "#1 <= #2"]
 def USize.decLe (a b : USize) : Decidable (a ≤ b) :=
-USize.casesOn a $ λ n, USize.casesOn b $ λ m,
+USize.casesOn a $ fun n => USize.casesOn b $ fun m =>
   inferInstanceAs (Decidable (n <= m))
 
 instance : DecidableEq USize := {decEq := USize.decEq}

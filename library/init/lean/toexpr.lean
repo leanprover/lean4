@@ -16,9 +16,9 @@ export ToExpr (toExpr)
 
 instance exprToExpr : ToExpr Expr := ⟨id⟩
 
-instance natToExpr : ToExpr Nat := ⟨λ n, Expr.lit (Literal.natVal n)⟩
+instance natToExpr : ToExpr Nat := ⟨fun n => Expr.lit (Literal.natVal n)⟩
 
-instance strToExpr : ToExpr String := ⟨λ s, Expr.lit (Literal.strVal s)⟩
+instance strToExpr : ToExpr String := ⟨fun s => Expr.lit (Literal.strVal s)⟩
 
 def nameToExprAux : Name → Expr
 | Name.anonymous       := mkConst `Lean.Name.anonymous

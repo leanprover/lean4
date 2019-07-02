@@ -15,4 +15,4 @@ def matchFailed {α : Type u} {m : Type u → Type v} [MonadFail m] : m α :=
 MonadFail.fail "match failed"
 
 instance monadFailLift (m n : Type u → Type v) [HasMonadLift m n] [MonadFail m] [Monad n] : MonadFail n :=
-{ fail := λ α s, monadLift (MonadFail.fail s : m α) }
+{ fail := fun α s => monadLift (MonadFail.fail s : m α) }

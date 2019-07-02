@@ -10,7 +10,7 @@ namespace Lean
 namespace Compiler
 
 def mkImplementedByAttr : IO (ParametricAttribute Name) :=
-registerParametricAttribute `implementedBy "name of the Lean (probably unsafe) function that implements opaque constant" $ λ env declName stx,
+registerParametricAttribute `implementedBy "name of the Lean (probably unsafe) function that implements opaque constant" $ fun env declName stx =>
   match env.find declName with
   | none := Except.error "unknown declaration"
   | some decl :=

@@ -43,7 +43,7 @@ let ⟨i, h⟩ := mkIdx data.property (hashFn a);
 data.update i (AssocList.cons a b (data.val.uget i h)) h
 
 @[inline] def mfoldBuckets {δ : Type w} {m : Type w → Type w} [Monad m] (data : HashMapBucket α β) (d : δ) (f : δ → α → β → m δ) : m δ :=
-data.val.mfoldl (λ d b, b.mfoldl f d) d
+data.val.mfoldl (fun d b => b.mfoldl f d) d
 
 @[inline] def foldBuckets {δ : Type w} (data : HashMapBucket α β) (d : δ) (f : δ → α → β → δ) : δ :=
 Id.run $ mfoldBuckets data d f

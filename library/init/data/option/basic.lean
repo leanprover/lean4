@@ -43,7 +43,7 @@ def toMonad {m : Type → Type} [Monad m] [Alternative m] {A} : Option A → m A
 Option.bind o (some ∘ f)
 
 theorem mapId {α} : (Option.map id : Option α → Option α) = id :=
-funext (λo, match o with | none := rfl | some x := rfl)
+funext (fun o => match o with | none := rfl | some x := rfl)
 
 instance : Monad Option :=
 {pure := @some, bind := @Option.bind, map := @Option.map}
@@ -76,13 +76,13 @@ instance (α : Type u) : Inhabited (Option α) :=
 ⟨none⟩
 
 instance {α : Type u} [DecidableEq α] : DecidableEq (Option α) :=
-{decEq := λ a b, match a, b with
+{decEq := fun a b => match a, b with
  | none,      none      := isTrue rfl
- | none,      (some v₂) := isFalse (λ h, Option.noConfusion h)
- | (some v₁), none      := isFalse (λ h, Option.noConfusion h)
+ | none,      (some v₂) := isFalse (fun h => Option.noConfusion h)
+ | (some v₁), none      := isFalse (fun h => Option.noConfusion h)
  | (some v₁), (some v₂) :=
    match decEq v₁ v₂ with
    | (isTrue e)  := isTrue (congrArg (@some α) e)
-   | (isFalse n) := isFalse (λ h, Option.noConfusion h (λ e, absurd e n))}
+   | (isFalse n) := isFalse (fun h => Option.noConfusion h (fun e => absurd e n))}
 
 instance {α : Type u} [HasLess α] : HasLess (Option α) := ⟨Option.lt HasLess.Less⟩

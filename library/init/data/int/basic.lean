@@ -84,12 +84,12 @@ protected def decEq (a b : @& Int) : Decidable (a = b) :=
 match a, b with
  | ofNat a, ofNat b := match decEq a b with
    | isTrue h  := isTrue  $ h ▸ rfl
-   | isFalse h := isFalse $ λ h', Int.noConfusion h' (λ h', absurd h' h)
+   | isFalse h := isFalse $ fun h' => Int.noConfusion h' (fun h' => absurd h' h)
  | negSucc a, negSucc b := match decEq a b with
    | isTrue h  := isTrue  $ h ▸ rfl
-   | isFalse h := isFalse $ λ h', Int.noConfusion h' (λ h', absurd h' h)
- | ofNat a, negSucc b := isFalse $ λ h, Int.noConfusion h
- | negSucc a, ofNat b := isFalse $ λ h, Int.noConfusion h
+   | isFalse h := isFalse $ fun h' => Int.noConfusion h' (fun h' => absurd h' h)
+ | ofNat a, negSucc b := isFalse $ fun h => Int.noConfusion h
+ | negSucc a, ofNat b := isFalse $ fun h => Int.noConfusion h
 
 instance Int.DecidableEq : DecidableEq Int :=
 {decEq := Int.decEq}
@@ -98,7 +98,7 @@ instance Int.DecidableEq : DecidableEq Int :=
 private def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
 match m with
 | ofNat m   := isTrue $ NonNeg.mk m
-| negSucc m := isFalse $ λ h, match h with end
+| negSucc m := isFalse $ fun h => match h with end
 
 @[extern cpp "lean::int_dec_le"]
 instance decLe (a b : @& Int) : Decidable (a ≤ b) :=

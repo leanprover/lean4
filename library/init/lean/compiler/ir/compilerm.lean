@@ -18,7 +18,7 @@ inductive LogEntry
 
 namespace LogEntry
 protected def fmt : LogEntry → Format
-| (step cls decls) := Format.bracket "[" (format cls) "]" ++ decls.foldl (λ fmt decl, fmt ++ Format.line ++ format decl) Format.nil
+| (step cls decls) := Format.bracket "[" (format cls) "]" ++ decls.foldl (fun fmt decl => fmt ++ Format.line ++ format decl) Format.nil
 | (message msg)    := msg
 
 instance : HasFormat LogEntry := ⟨LogEntry.fmt⟩
@@ -27,7 +27,7 @@ end LogEntry
 abbrev Log := Array LogEntry
 
 def Log.format (log : Log) : Format :=
-log.foldl (λ fmt entry, fmt ++ Format.line ++ format entry) Format.nil
+log.foldl (fun fmt entry => fmt ++ Format.line ++ format entry) Format.nil
 
 @[export lean.ir.log_to_string_core]
 def Log.toString (log : Log) : String :=
@@ -39,7 +39,7 @@ structure CompilerState :=
 abbrev CompilerM := ReaderT Options (EState String CompilerState)
 
 def log (entry : LogEntry) : CompilerM Unit :=
-modify $ λ s, { log := s.log.push entry, .. s }
+modify $ fun s => { log := s.log.push entry, .. s }
 
 def tracePrefixOptionName := `trace.compiler.ir
 
@@ -66,7 +66,7 @@ logMessageIfAux (tracePrefixOptionName ++ cls) a
 logMessageIfAux tracePrefixOptionName a
 
 @[inline] def modifyEnv (f : Environment → Environment) : CompilerM Unit :=
-modify $ λ s, { env := f s.env, .. s }
+modify $ fun s => { env := f s.env, .. s }
 
 abbrev DeclMap := SMap Name Decl Name.quickLt
 
@@ -75,16 +75,16 @@ abbrev DeclMap := SMap Name Decl Name.quickLt
 private def mkEntryArray (decls : List Decl) : Array Decl :=
 /- Remove duplicates by adding decls into a map -/
 let map : HashMap Name Decl := {};
-let map := decls.foldl (λ (map : HashMap Name Decl) decl, map.insert decl.name decl) map;
-map.fold (λ a k v, a.push v) Array.empty
+let map := decls.foldl (fun (map : HashMap Name Decl) decl => map.insert decl.name decl) map;
+map.fold (fun a k v => a.push v) Array.empty
 
 def mkDeclMapExtension : IO (SimplePersistentEnvExtension Decl DeclMap) :=
 registerSimplePersistentEnvExtension {
   name       := `IRDecls,
-  addImportedFn := λ as,
-     let m : DeclMap := mkStateFromImportedEntries (λ s (d : Decl), s.insert d.name d) {} as;
+  addImportedFn := fun as =>
+     let m : DeclMap := mkStateFromImportedEntries (fun s (d : Decl) => s.insert d.name d) {} as;
      m.switch,
-  addEntryFn := λ s d, s.insert d.name d,
+  addEntryFn := fun s d => s.insert d.name d,
   toArrayFn  := mkEntryArray
 }
 
@@ -117,13 +117,13 @@ def getEnv : CompilerM Environment :=
 do s ← get; pure s.env
 
 def addDecl (decl : Decl) : CompilerM Unit :=
-modifyEnv (λ env, declMapExt.addEntry env decl)
+modifyEnv (fun env => declMapExt.addEntry env decl)
 
 def addDecls (decls : Array Decl) : CompilerM Unit :=
 decls.mfor addDecl
 
 def findEnvDecl' (env : Environment) (n : Name) (decls : Array Decl) : Option Decl :=
-match decls.find (λ decl, if decl.name == n then some decl else none) with
+match decls.find (fun decl => if decl.name == n then some decl else none) with
 | some decl := some decl
 | none      := (declMapExt.getState env).find n
 
@@ -131,7 +131,7 @@ def findDecl' (n : Name) (decls : Array Decl) : CompilerM (Option Decl) :=
 do s ← get; pure $ findEnvDecl' s.env n decls
 
 def containsDecl' (n : Name) (decls : Array Decl) : CompilerM Bool :=
-if decls.any (λ decl, decl.name == n) then pure true
+if decls.any (fun decl => decl.name == n) then pure true
 else do
   s ← get;
   pure $ (declMapExt.getState s.env).contains n

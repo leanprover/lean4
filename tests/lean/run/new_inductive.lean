@@ -17,7 +17,7 @@ with boo : Nat → Type (max u v)
 #print bla
 
 inductive Term (α : Type) (β : Type)
-| var : α → bla Term (λ _, Term) 10 → Term
+| var : α → bla Term (fun _ => Term) 10 → Term
 | foo (p : Nat → myPair Term (myList Term)) (n : β) : myList (myList Term) → Term
 
 #print Term

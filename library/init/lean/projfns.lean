@@ -22,9 +22,9 @@ instance ProjectionFunctionInfo.inhabited : Inhabited ProjectionFunctionInfo :=
 def mkProjectionFnInfoExtension : IO (SimplePersistentEnvExtension (Name × ProjectionFunctionInfo) (NameMap ProjectionFunctionInfo)) :=
 registerSimplePersistentEnvExtension {
   name          := `projinfo,
-  addImportedFn := λ as, {},
-  addEntryFn    := λ s p, s.insert p.1 p.2,
-  toArrayFn     := λ es, es.toArray.qsort (λ a b, Name.quickLt a.1 b.1)
+  addImportedFn := fun as => {},
+  addEntryFn    := fun s p => s.insert p.1 p.2,
+  toArrayFn     := fun es => es.toArray.qsort (fun a b => Name.quickLt a.1 b.1)
 }
 
 @[init mkProjectionFnInfoExtension]
@@ -40,14 +40,14 @@ namespace Environment
 def getProjectionFnInfo (env : Environment) (projName : Name) : Option ProjectionFunctionInfo :=
 match env.getModuleIdxFor projName with
 | some modIdx :=
-  match (projectionFnInfoExt.getModuleEntries env modIdx).binSearch (projName, default _) (λ a b, Name.quickLt a.1 b.1) with
+  match (projectionFnInfoExt.getModuleEntries env modIdx).binSearch (projName, default _) (fun a b => Name.quickLt a.1 b.1) with
   | some e := some e.2
   | none   := none
 | none        := (projectionFnInfoExt.getState env).find projName
 
 def isProjectionFn (env : Environment) (n : Name) : Bool :=
 match env.getModuleIdxFor n with
-| some modIdx := (projectionFnInfoExt.getModuleEntries env modIdx).binSearchContains (n, default _) (λ a b, Name.quickLt a.1 b.1)
+| some modIdx := (projectionFnInfoExt.getModuleEntries env modIdx).binSearchContains (n, default _) (fun a b => Name.quickLt a.1 b.1)
 | none        := (projectionFnInfoExt.getState env).contains n
 
 end Environment

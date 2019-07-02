@@ -653,13 +653,13 @@ static expr parse_lambda_binder(parser & p, pos_info const & pos) {
         p.add_local(local);
     parser::local_scope scope2(p, new_env);
     expr body;
-    if (p.curr_is_token(get_comma_tk())) {
+    if (/* p.curr_is_token(get_comma_tk()) || */ p.curr_is_token(get_darrow_tk())) {
         p.next();
         body = p.parse_expr();
     } else if (p.curr_is_token(get_langle_tk())) {
         body = parse_lambda_core(p, pos);
     } else {
-        p.maybe_throw_error({"invalid lambda expression, ',' or '⟨' expected", p.pos()});
+        p.maybe_throw_error({"invalid lambda expression, ',', '=>' or '⟨' expected", p.pos()});
         body = p.parse_expr();
     }
     return p.rec_save_pos(Fun(locals, body, p), pos);
@@ -677,7 +677,7 @@ static expr parse_lambda_constructor(parser & p, pos_info const & ini_pos) {
     for (expr const & local : locals)
         p.add_local(local);
     expr body;
-    if (p.curr_is_token(get_comma_tk())) {
+    if (/* p.curr_is_token(get_comma_tk()) || */ p.curr_is_token(get_darrow_tk())) {
         p.next();
         body = p.parse_expr();
     } else {

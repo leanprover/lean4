@@ -16,7 +16,7 @@ constant builtinLevelParsingTable : IO.Ref ParsingTables := default _
 registerBuiltinParserAttribute `builtinLevelParser `Lean.Parser.builtinLevelParsingTable
 
 def levelParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
-{ fn := λ _, runBuiltinParser "universe level" builtinLevelParsingTable rbp }
+{ fn := fun _ => runBuiltinParser "universe level" builtinLevelParsingTable rbp }
 
 namespace Level
 

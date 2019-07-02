@@ -21,7 +21,7 @@ namespace MaxIndex
 abbrev Collector := Index → Index
 
 @[inline] private def skip : Collector := id
-@[inline] private def collect (x : Index) : Collector := λ y, if x > y then x else y
+@[inline] private def collect (x : Index) : Collector := fun y => if x > y then x else y
 @[inline] private def collectVar (x : VarId) : Collector := collect x.idx
 @[inline] private def collectJP (j : JoinPointId) : Collector := collect j.idx
 @[inline] private def seq (k₁ k₂ : Collector) : Collector := k₂ ∘ k₁
@@ -32,7 +32,7 @@ private def collectArg : Arg → Collector
 | irrelevant  := skip
 
 @[specialize] private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector :=
-λ m, as.foldl (λ m a, f a m) m
+fun m => as.foldl (fun m a => f a m) m
 
 private def collectArgs (as : Array Arg) : Collector := collectArray as collectArg
 private def collectParam (p : Param) : Collector := collectVar p.x
@@ -55,7 +55,7 @@ private def collectExpr : Expr → Collector
 | (Expr.isTaggedPtr x)   := collectVar x
 
 private def collectAlts (f : FnBody → Collector) (alts : Array Alt) : Collector :=
-collectArray alts $ λ alt, f alt.body
+collectArray alts $ fun alt => f alt.body
 
 partial def collectFnBody : FnBody → Collector
 | (FnBody.vdecl x _ v b)    := collectExpr v >> collectFnBody b
@@ -92,10 +92,10 @@ namespace FreeIndices
 abbrev Collector := IndexSet → IndexSet → IndexSet
 
 @[inline] private def skip : Collector :=
-λ bv fv, fv
+fun bv fv => fv
 
 @[inline] private def collectIndex (x : Index) : Collector :=
-λ bv fv, if bv.contains x then fv else fv.insert x
+fun bv fv => if bv.contains x then fv else fv.insert x
 
 @[inline] private def collectVar (x : VarId) : Collector :=
 collectIndex x.idx
@@ -104,7 +104,7 @@ collectIndex x.idx
 collectIndex x.idx
 
 @[inline] private def withIndex (x : Index) : Collector → Collector :=
-λ k bv fv, k (bv.insert x) fv
+fun k bv fv => k (bv.insert x) fv
 
 @[inline] private def withVar (x : VarId) : Collector → Collector :=
 withIndex x.idx
@@ -113,13 +113,13 @@ withIndex x.idx
 withIndex x.idx
 
 def insertParams (s : IndexSet) (ys : Array Param) : IndexSet :=
-ys.foldl (λ s p, s.insert p.x.idx) s
+ys.foldl (fun s p => s.insert p.x.idx) s
 
 @[inline] private def withParams (ys : Array Param) : Collector → Collector :=
-λ k bv fv, k (insertParams bv ys) fv
+fun k bv fv => k (insertParams bv ys) fv
 
 @[inline] private def seq : Collector → Collector → Collector :=
-λ k₁ k₂ bv fv, k₂ bv (k₁ bv fv)
+fun k₁ k₂ bv fv => k₂ bv (k₁ bv fv)
 
 instance : HasAndthen Collector := ⟨seq⟩
 
@@ -128,7 +128,7 @@ private def collectArg : Arg → Collector
 | irrelevant  := skip
 
 @[specialize] private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector :=
-λ bv fv, as.foldl (λ fv a, f a bv fv) fv
+fun bv fv => as.foldl (fun fv a => f a bv fv) fv
 
 private def collectArgs (as : Array Arg) : Collector :=
 collectArray as collectArg
@@ -150,7 +150,7 @@ private def collectExpr : Expr → Collector
 | (Expr.isTaggedPtr x)   := collectVar x
 
 private def collectAlts (f : FnBody → Collector) (alts : Array Alt) : Collector :=
-collectArray alts $ λ alt, f alt.body
+collectArray alts $ fun alt => f alt.body
 
 partial def collectFnBody : FnBody → Collector
 | (FnBody.vdecl x _ v b)    := collectExpr v >> withVar x (collectFnBody b)
@@ -192,7 +192,7 @@ def visitArgs (w : Index) (xs : Array Arg) : Bool :=
 xs.any (visitArg w)
 
 def visitParams (w : Index) (ps : Array Param) : Bool :=
-ps.any (λ p, w == p.x.idx)
+ps.any (fun p => w == p.x.idx)
 
 def visitExpr (w : Index) : Expr → Bool
 | (Expr.ctor _ ys)       := visitArgs w ys
@@ -223,7 +223,7 @@ partial def visitFnBody (w : Index) : FnBody → Bool
 | (FnBody.mdata _ b)        := visitFnBody b
 | (FnBody.jmp j ys)         := visitJP w j || visitArgs w ys
 | (FnBody.ret x)            := visitArg w x
-| (FnBody.case _ x alts)    := visitVar w x || alts.any (λ alt, visitFnBody alt.body)
+| (FnBody.case _ x alts)    := visitVar w x || alts.any (fun alt => visitFnBody alt.body)
 | (FnBody.unreachable)      := false
 
 end HasIndex

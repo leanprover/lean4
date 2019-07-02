@@ -67,40 +67,40 @@ inductive eff (effs : List effect) (α : Type)
 
 def eff.bind {α β : Type} {effs : List effect} : eff effs α → (α → eff effs β) → eff effs β
 | (eff.pure a) f := f a
-| (@eff.impure _ _ β u k) f := eff.impure u (λ b, eff.bind (k b) f)
+| (@eff.impure _ _ β u k) f := eff.impure u (fun b => eff.bind (k b) f)
 
 instance (effs) : Monad (eff effs) :=
-{ pure := λ α, eff.pure,
-  bind := λ α β, eff.bind }
+{ pure := fun α => eff.pure,
+  bind := fun α β => eff.bind }
 
 @[inline] def eff.send {e : effect} {effs α} [member e effs] : e α → eff effs α :=
-λ x, eff.impure (union.inj x) pure
+fun x => eff.impure (union.inj x) pure
 
 @[inline] def eff.sendM {e : effect} {effs α} [Monad e] [lastMember e effs] : e α → eff effs α :=
-λ x, eff.impure (union.inj x) pure
+fun x => eff.impure (union.inj x) pure
 
 @[inline] def eff.handleRelay {e : effect} {effs α β} (ret : β → eff effs α)
   (h : ∀ {β}, e β → (β → eff effs α) → eff effs α) : eff (e :: effs) β → eff effs α
 | (eff.pure a) := ret a
 | (@eff.impure _ _ β u k) := match u.decomp with
-  | Sum.inl e := h e (λ b, eff.handleRelay (k b))
-  | Sum.inr u := eff.impure u (λ b, eff.handleRelay (k b))
+  | Sum.inl e := h e (fun b => eff.handleRelay (k b))
+  | Sum.inr u := eff.impure u (fun b => eff.handleRelay (k b))
 
 
 @[inline] def eff.handleRelayΣ {e : effect} {effs α β} {σ : Type} (ret : σ → β → eff effs α)
   (h : ∀ {β}, σ → e β → (σ → β → eff effs α) → eff effs α) : σ → eff (e :: effs) β → eff effs α
 | st (eff.pure a) := ret st a
 | st (@eff.impure _ _ β u k) := match u.decomp with
-  | Sum.inl e := h st e (λ st b, eff.handleRelayΣ st (k b))
-  | Sum.inr u := eff.impure u (λ b, eff.handleRelayΣ st (k b))
+  | Sum.inl e := h st e (fun st b => eff.handleRelayΣ st (k b))
+  | Sum.inr u := eff.impure u (fun b => eff.handleRelayΣ st (k b))
 
 
 @[inline] def eff.interpose (e : effect) {effs α β} [member e effs] (ret : β → eff effs α)
   (h : ∀ {β}, e β → (β → eff effs α) → eff effs α) : eff effs β → eff effs α
 | (eff.pure a) := ret a
 | (@eff.impure _ _ β u k) := match u.prj e with
-  | some e := h e (λ b, eff.interpose (k b))
-  | none   := eff.impure u (λ b, eff.interpose (k b))
+  | some e := h e (fun b => eff.interpose (k b))
+  | none   := eff.impure u (fun b => eff.interpose (k b))
 
 
 inductive Reader (ρ : Type) : Type → Type
@@ -110,7 +110,7 @@ inductive Reader (ρ : Type) : Type → Type
 instance {ρ effs} [member (Reader ρ) effs] : MonadReader ρ (eff effs) := ⟨eff.read⟩
 
 @[inline] def Reader.run {ρ effs α} (env : ρ) : eff (Reader ρ :: effs) α → eff effs α :=
-eff.handleRelay pure (λ β x k, by cases x; exact k env)
+eff.handleRelay pure (fun β x k => by cases x; exact k env)
 
 
 inductive State (σ : Type) : Type → Type
@@ -120,13 +120,13 @@ inductive State (σ : Type) : Type → Type
 @[inline] def eff.get {σ effs} [member (State σ) effs] : eff effs σ := eff.send State.get
 @[inline] def eff.put {σ effs} [member (State σ) effs] (s : σ) : eff effs Unit := eff.send (State.put s)
 instance {σ effs} [member (State σ) effs] : MonadState σ (eff effs) :=
-⟨λ α x, do st ← eff.get;
+⟨fun α x => do st ← eff.get;
            let ⟨a, s'⟩ := x.run st;
            eff.put s';
            pure a⟩
 
 @[inline] def State.run {σ effs α} (st : σ) : eff (State σ :: effs) α → eff effs (α × σ) :=
-eff.handleRelayΣ (λ st a, pure (a, st)) (λ β st x k, begin
+eff.handleRelayΣ (fun st a => pure (a, st)) (fun β st x k => begin
   cases x,
   case State.get { exact k st st },
   case State.put : st' { exact k st' () }
@@ -137,12 +137,12 @@ inductive Exception (ε α : Type) : Type
 
 @[inline] def eff.throw {ε α effs} [member (Exception ε) effs] (ex : ε) : eff effs α := eff.send (Exception.throw ex)
 @[inline] def eff.catch {ε α effs} [member (Exception ε) effs] (x : eff effs α) (handle : ε → eff effs α) : eff effs α :=
-x.interpose (Exception ε) pure (λ β x k, match x with Exception.throw e := handle e)
+x.interpose (Exception ε) pure (fun β x k => match x with Exception.throw e := handle e)
 instance {ε effs} [member (Exception ε) effs] : MonadExcept ε (eff effs) :=
-⟨λ α, eff.throw, λ α, eff.catch⟩
+⟨fun α => eff.throw, fun α => eff.catch⟩
 
 @[inline] def Exception.run {ε effs α} : eff (Exception ε :: effs) α → eff effs (Except ε α) :=
-eff.handleRelay (pure ∘ Except.ok) (λ β x k, match x with Exception.throw e := pure (Except.error e))
+eff.handleRelay (pure ∘ Except.ok) (fun β x k => match x with Exception.throw e := pure (Except.error e))
 
 
 def eff.run {α : Type} : eff [] α → α
@@ -151,25 +151,25 @@ def eff.run {α : Type} : eff [] α → α
 def eff.runM {α : Type} {m} [Monad m] : eff [m] α → m α
 | (eff.pure a) := pure a
 | (eff.impure u k) := match u.decomp with
-  | Sum.inl m := m >>= λ a, eff.runM (k a)
+  | Sum.inl m := m >>= fun a => eff.runM (k a)
 
 instance (m effs) [member m effs] : HasMonadLift m (eff effs) :=
-⟨λ α, eff.send⟩
+⟨fun α => eff.send⟩
 
 section examples
 
 -- from http://okmij.org/ftp/Haskell/extensible/EffDynCatch.hs
 
 @[inline] def IO.try {α} : IO α → IO (Except IO.error α) :=
-λ x, IO.catch (Except.ok <$> x) (pure ∘ Except.error)
+fun x => IO.catch (Except.ok <$> x) (pure ∘ Except.error)
 
 instance : HasRepr IO.error :=
-⟨λ e, match e with
+⟨fun e => match e with
       | IO.error.sys n := "IO.error.sys " ++ repr n
       | IO.error.other s := "IO.error.other " ++ repr s⟩
 
 @[inline] def eff.catchIO {effs α} [member IO effs] (x : eff effs α) (catch : IO.error → eff effs α) : eff effs α :=
-x.interpose IO pure (λ β x k, do ex ← monadLift x.try;
+x.interpose IO pure (fun β x k => do ex ← monadLift x.try;
                                  match ex with
                                  | Except.ok b := k b
                                  | Except.error e := catch e)
@@ -184,11 +184,11 @@ eff.catchIO (Except.ok <$> x) (pure ∘ Except.error)
 
 -- handle IO exceptions before State
 def test1 :=
-  let tf : Bool → eff [IO] _ := λ (x : Bool), Reader.run x $ State.run ([] : List String) $ eff.tryIo $
-  do modify (λ xs, "begin"::xs);
+  let tf : Bool → eff [IO] _ := fun (x : Bool) => Reader.run x $ State.run ([] : List String) $ eff.tryIo $
+  do modify (fun xs => "begin"::xs);
      x ← read;
      r ← monadLift $ exfn x;
-     modify (λ xs, "end"::xs);
+     modify (fun xs => "end"::xs);
      pure r in
   do repr <$> eff.runM (tf tt) >>= IO.println;
      repr <$> eff.runM (tf ff) >>= IO.println
@@ -197,11 +197,11 @@ def test1 :=
 
 -- handle IO exceptions after State
 def test2 :=
-  let tf : Bool → eff [IO] _ := λ (x : Bool), Reader.run x $ eff.tryIo $ State.run ([] : List String) $
-  do modify (λ xs, "begin"::xs);
+  let tf : Bool → eff [IO] _ := fun (x : Bool) => Reader.run x $ eff.tryIo $ State.run ([] : List String) $
+  do modify (fun xs => "begin"::xs);
      x ← read;
      r ← monadLift $ exfn x;
-     modify (λ xs, "end"::xs);
+     modify (fun xs => "end"::xs);
      pure r in
   do repr <$> eff.runM (tf tt) >>= IO.println;
      repr <$> eff.runM (tf ff) >>= IO.println

@@ -13,7 +13,7 @@ namespace Lean
 namespace Parser
 
 inductive Trie (α : Type)
-| Node : Option α → RBNode Char (λ _, Trie) → Trie
+| Node : Option α → RBNode Char (fun _ => Trie) → Trie
 
 namespace Trie
 variables {α : Type}
@@ -85,11 +85,11 @@ def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : String.Pos × Opti
 matchPrefixAux s t i (i, none)
 
 private partial def toStringAux {α : Type} : Trie α → List Format
-| (Trie.Node val map) := map.fold (λ Fs c t,
+| (Trie.Node val map) := map.fold (fun Fs c t =>
   format (repr c) :: (Format.group $ Format.nest 2 $ flip Format.joinSep Format.line $ toStringAux t) :: Fs) []
 
 instance {α : Type} : HasToString (Trie α) :=
-⟨λ t, (flip Format.joinSep Format.line $ toStringAux t).pretty⟩
+⟨fun t => (flip Format.joinSep Format.line $ toStringAux t).pretty⟩
 end Trie
 
 end Parser

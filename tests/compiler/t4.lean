@@ -38,7 +38,7 @@ partial def addAux : Expr → Expr → Expr
 | f         g               := Add f g
 
 def add (a b : Expr) : Expr :=
--- dbgTrace (">> add (" ++ toString a ++ ", " ++ toString b ++ ")") $ λ _,
+-- dbgTrace (">> add (" ++ toString a ++ ", " ++ toString b ++ ")") $ fun _ =>
 addAux a b
 
 -- set_option trace.compiler.borrowed_inference true
@@ -56,7 +56,7 @@ partial def mulAux : Expr → Expr → Expr
 | f         g               := Mul f g
 
 def mul (a b : Expr) : Expr :=
--- dbgTrace (">> mul (" ++ toString a ++ ", " ++ toString b ++ ")") $ λ _,
+-- dbgTrace (">> mul (" ++ toString a ++ ", " ++ toString b ++ ")") $ fun _ =>
 mulAux a b
 
 def pow : Expr → Expr → Expr
@@ -75,7 +75,7 @@ def d (x : String) : Expr → Expr
 | (Var y)   := if x = y then Val 1 else Val 0
 | (Add f g) := add (d f) (d g)
 | (Mul f g) :=
-  -- dbgTrace (">> d (" ++ toString f ++ ", " ++ toString g ++ ")") $ λ _,
+  -- dbgTrace (">> d (" ++ toString f ++ ", " ++ toString g ++ ")") $ fun _ =>
   add (mul f (d g)) (mul g (d f))
 | (Pow f g) := mul (pow f g) (add (mul (mul g (d f)) (pow f (Val (-1)))) (mul (ln f) (d g)))
 | (Ln f)    := mul (d f) (pow f (Val (-1)))

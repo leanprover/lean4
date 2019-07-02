@@ -159,17 +159,17 @@ instance listHasFormat {α : Type u} [HasFormat α] : HasFormat (List α) :=
 ⟨List.format⟩
 
 instance prodHasFormat {α : Type u} {β : Type v} [HasFormat α] [HasFormat β] : HasFormat (Prod α β) :=
-⟨λ ⟨a, b⟩, paren $ format a ++ "," ++ line ++ format b⟩
+⟨fun ⟨a, b⟩ => paren $ format a ++ "," ++ line ++ format b⟩
 
 def Format.joinArraySep {α : Type u} [HasFormat α] (a : Array α) (sep : Format) : Format :=
-a.iterate nil (λ i a r, if i.val > 0 then r ++ sep ++ format a else r ++ format a)
+a.iterate nil (fun i a r => if i.val > 0 then r ++ sep ++ format a else r ++ format a)
 
-instance natHasFormat : HasFormat Nat       := ⟨λ n, toString n⟩
-instance uint16HasFormat : HasFormat UInt16 := ⟨λ n, toString n⟩
-instance uint32HasFormat : HasFormat UInt32 := ⟨λ n, toString n⟩
-instance uint64HasFormat : HasFormat UInt64 := ⟨λ n, toString n⟩
-instance usizeHasFormat : HasFormat USize   := ⟨λ n, toString n⟩
-instance nameHasFormat : HasFormat Name     := ⟨λ n, n.toString⟩
+instance natHasFormat : HasFormat Nat       := ⟨fun n => toString n⟩
+instance uint16HasFormat : HasFormat UInt16 := ⟨fun n => toString n⟩
+instance uint32HasFormat : HasFormat UInt32 := ⟨fun n => toString n⟩
+instance uint64HasFormat : HasFormat UInt64 := ⟨fun n => toString n⟩
+instance usizeHasFormat : HasFormat USize   := ⟨fun n => toString n⟩
+instance nameHasFormat : HasFormat Name     := ⟨fun n => n.toString⟩
 
 protected def Format.repr : Format → Format
 | nil := "Format.nil"

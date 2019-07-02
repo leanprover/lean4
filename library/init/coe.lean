@@ -80,13 +80,13 @@ universes u₁ u₂ u₃
 /- Transitive closure for HasLift, HasCoe, HasCoeToFun -/
 
 instance liftTrans {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [HasLift a b] [HasLiftT b c] : HasLiftT a c :=
-⟨λ x, liftT (lift x : b)⟩
+⟨fun x => liftT (lift x : b)⟩
 
 instance liftRefl {a : Sort u} : HasLiftT a a :=
 ⟨id⟩
 
 instance coeTrans {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [HasCoe a b] [HasCoeT b c] : HasCoeT a c :=
-⟨λ x, coeT (coeB x : b)⟩
+⟨fun x => coeT (coeB x : b)⟩
 
 instance coeBase {a : Sort u} {b : Sort v} [HasCoe a b] : HasCoeT a b :=
 ⟨coeB⟩
@@ -106,7 +106,7 @@ instance coeBase {a : Sort u} {b : Sort v} [HasCoe a b] : HasCoeT a b :=
    ...
 -/
 instance coeOption {a : Type u} : HasCoeT a (Option a) :=
-⟨λ x, some x⟩
+⟨fun x => some x⟩
 
 /- Auxiliary transitive closure for HasCoe which does not contain
    instances such as coeOption.
@@ -117,18 +117,18 @@ class HasCoeTAux (a : Sort u) (b : Sort v) :=
 (coe : a → b)
 
 instance coeTransAux {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [HasCoe a b] [HasCoeTAux b c] : HasCoeTAux a c :=
-⟨λ x : a, @HasCoeTAux.coe b c _ (coeB x)⟩
+⟨fun x : a => @HasCoeTAux.coe b c _ (coeB x)⟩
 
 instance coeBaseAux {a : Sort u} {b : Sort v} [HasCoe a b] : HasCoeTAux a b :=
 ⟨coeB⟩
 
 instance coeFnTrans {a : Sort u₁} {b : Sort u₂} [HasCoeTAux a b] [HasCoeToFun.{u₂, u₃} b] : HasCoeToFun.{u₁, u₃} a :=
-{ F   := λ x, @HasCoeToFun.F.{u₂, u₃} b _ (@HasCoeTAux.coe a b _ x),
-  coe := λ x, coeFn (@HasCoeTAux.coe a b _ x) }
+{ F   := fun x => @HasCoeToFun.F.{u₂, u₃} b _ (@HasCoeTAux.coe a b _ x),
+  coe := fun x => coeFn (@HasCoeTAux.coe a b _ x) }
 
 instance coeSortTrans {a : Sort u₁} {b : Sort u₂} [HasCoeTAux a b] [HasCoeToSort.{u₂, u₃} b] : HasCoeToSort.{u₁, u₃} a :=
 { S   := HasCoeToSort.S.{u₂, u₃} b,
-  coe := λ x, coeSort (@HasCoeTAux.coe a b _ x) }
+  coe := fun x => coeSort (@HasCoeTAux.coe a b _ x) }
 
 /- Every coercion is also a lift -/
 
@@ -138,7 +138,7 @@ instance coeToLift {a : Sort u} {b : Sort v} [HasCoeT a b] : HasLiftT a b :=
 /- basic coercions -/
 
 instance coeBoolToProp : HasCoe Bool Prop :=
-⟨λ y, y = true⟩
+⟨fun y => y = true⟩
 
 /- Tactics such as the simplifier only unfold reducible constants when checking whether two terms are definitionally
    equal or a Term is a proposition. The motivation is performance.
@@ -146,7 +146,7 @@ instance coeBoolToProp : HasCoe Bool Prop :=
    Thus, we mark the following instance as @[reducible], otherwise `simp` will not visit `↑p` when simplifying `↑p -> q`.
 -/
 @[reducible] instance coeSortBool : HasCoeToSort Bool :=
-⟨Prop, λ y, y = true⟩
+⟨Prop, fun y => y = true⟩
 
 instance coeDecidableEq (x : Bool) : Decidable (coe x) :=
 inferInstanceAs (Decidable (x = true))
@@ -161,22 +161,22 @@ universes ua ua₁ ua₂ ub ub₁ ub₂
 /- Remark: we can't use [HasLiftT a₂ a₁] since it will produce non-termination whenever a type class resolution
    problem does not have a solution. -/
 instance liftFn {a₁ : Sort ua₁} {a₂ : Sort ua₂} {b₁ : Sort ub₁} {b₂ : Sort ub₂} [HasLift a₂ a₁] [HasLiftT b₁ b₂] : HasLift (a₁ → b₁) (a₂ → b₂) :=
-⟨λ f x, coe (f (coe x))⟩
+⟨fun f x => coe (f (coe x))⟩
 
 instance liftFnRange {a : Sort ua} {b₁ : Sort ub₁} {b₂ : Sort ub₂} [HasLiftT b₁ b₂] : HasLift (a → b₁) (a → b₂) :=
-⟨λ f x, coe (f x)⟩
+⟨fun f x => coe (f x)⟩
 
 instance liftFnDom {a₁ : Sort ua₁} {a₂ : Sort ua₂} {b : Sort ub} [HasLift a₂ a₁] : HasLift (a₁ → b) (a₂ → b) :=
-⟨λ f x, f (coe x)⟩
+⟨fun f x => f (coe x)⟩
 
 instance liftPair {a₁ : Type ua₁} {a₂ : Type ub₂} {b₁ : Type ub₁} {b₂ : Type ub₂} [HasLiftT a₁ a₂] [HasLiftT b₁ b₂] : HasLift (a₁ × b₁) (a₂ × b₂) :=
-⟨λ p, Prod.casesOn p (λ x y, (coe x,  coe y))⟩
+⟨fun p => Prod.casesOn p (fun x y => (coe x,  coe y))⟩
 
 instance liftPair₁ {a₁ : Type ua₁} {a₂ : Type ua₂} {b : Type ub} [HasLiftT a₁ a₂] : HasLift (a₁ × b) (a₂ × b) :=
-⟨λ p, Prod.casesOn p (λ x y, (coe x, y))⟩
+⟨fun p => Prod.casesOn p (fun x y => (coe x, y))⟩
 
 instance liftPair₂ {a : Type ua} {b₁ : Type ub₁} {b₂ : Type ub₂} [HasLiftT b₁ b₂] : HasLift (a × b₁) (a × b₂) :=
-⟨λ p, Prod.casesOn p (λ x y, (x,  coe y))⟩
+⟨fun p => Prod.casesOn p (fun x y => (x,  coe y))⟩
 
 instance liftList {a : Type u} {b : Type v} [HasLiftT a b] : HasLift (List a) (List b) :=
-⟨λ l, List.map (@coe a b _) l⟩
+⟨fun l => List.map (@coe a b _) l⟩

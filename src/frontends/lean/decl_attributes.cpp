@@ -170,7 +170,7 @@ void decl_attributes::parse_compact(parser & p) {
     parse_core(p, true);
 }
 
-void decl_attributes::set_attribute(environment const & env, name const & attr_name) {
+void decl_attributes::set_attribute(environment const & /* env */, name const & attr_name) {
     if (is_new_attribute(attr_name)) {
         // Temporary Hack... ignore attr_data_ptr
         syntax args(box(0));
@@ -192,7 +192,7 @@ bool decl_attributes::has_attribute(list<new_entry> const & entries, name const 
     return false;
 }
 
-bool decl_attributes::has_attribute(environment const & env, name const & attr_name) const {
+bool decl_attributes::has_attribute(environment const & /* env */, name const & attr_name) const {
     if (is_new_attribute(attr_name)) {
         return has_attribute(m_after_tc_entries, attr_name) || has_attribute(m_after_comp_entries, attr_name);
     } else {
@@ -218,7 +218,7 @@ environment decl_attributes::apply_new_entries(environment env, list<new_entry> 
     return env;
 }
 
-environment decl_attributes::apply_after_tc(environment env, io_state const & ios, name const & d) const {
+environment decl_attributes::apply_after_tc(environment env, io_state const & /* ios */, name const & d) const {
     return apply_new_entries(env, m_after_tc_entries, d);
 }
 

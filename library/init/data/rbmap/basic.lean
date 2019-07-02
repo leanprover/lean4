@@ -24,12 +24,12 @@ def depth (f : Nat → Nat → Nat) : RBNode α β → Nat
 | leaf               := 0
 | (node _ l _ _ r)   := succ (f (depth l) (depth r))
 
-protected def min : RBNode α β → Option (Sigma (λ k : α, β k))
+protected def min : RBNode α β → Option (Sigma (fun k => β k))
 | leaf                  := none
 | (node _ leaf k v _)   := some ⟨k, v⟩
 | (node _ l k v _)      := min l
 
-protected def max : RBNode α β → Option (Sigma (λ k : α, β k))
+protected def max : RBNode α β → Option (Sigma (fun k => β k))
 | leaf                  := none
 | (node _ _ k v leaf)   := some ⟨k, v⟩
 | (node _ _ k v r)      := max r
@@ -174,14 +174,14 @@ end Erase
 section Membership
 variable (lt : α → α → Bool)
 
-@[specialize] def findCore : RBNode α β → Π k : α, Option (Sigma (λ k : α, β k))
+@[specialize] def findCore : RBNode α β → Π k : α, Option (Sigma (fun k => β k))
 | leaf               x := none
 | (node _ a ky vy b) x :=
    if lt x ky then findCore a x
    else if lt ky x then findCore b x
    else some ⟨ky, vy⟩
 
-@[specialize] def find {β : Type v} : RBNode α (λ _, β) → α → Option β
+@[specialize] def find {β : Type v} : RBNode α (fun _ => β) → α → Option β
 | leaf               x := none
 | (node _ a ky vy b) x :=
   if lt x ky then find a x
@@ -209,7 +209,7 @@ open RBNode
 /- TODO(Leo): define dRBMap -/
 
 def RBMap (α : Type u) (β : Type v) (lt : α → α → Bool) : Type (max u v) :=
-{t : RBNode α (λ _, β) // t.WellFormed lt }
+{t : RBNode α (fun _ => β) // t.WellFormed lt }
 
 @[inline] def mkRBMap (α : Type u) (β : Type v) (lt : α → α → Bool) : RBMap α β lt :=
 ⟨leaf, WellFormed.leafWff lt⟩
@@ -236,14 +236,14 @@ t.val.depth f
 | b ⟨t, _⟩ := t.mfold f b
 
 @[inline] def mfor {m : Type w → Type w'} [Monad m] (f : α → β → m σ) (t : RBMap α β lt) : m PUnit :=
-t.mfold (λ _ k v,  f k v *> pure ⟨⟩) ⟨⟩
+t.mfold (fun _ k v =>  f k v *> pure ⟨⟩) ⟨⟩
 
 @[inline] def isEmpty : RBMap α β lt → Bool
 | ⟨leaf, _⟩ := true
 | _         := false
 
 @[specialize] def toList : RBMap α β lt → List (α × β)
-| ⟨t, _⟩ := t.revFold (λ ps k v, (k, v)::ps) []
+| ⟨t, _⟩ := t.revFold (fun ps k v => (k, v)::ps) []
 
 @[inline] protected def min : RBMap α β lt → Option (α × β)
 | ⟨t, _⟩ :=
@@ -258,7 +258,7 @@ t.mfold (λ _ k v,  f k v *> pure ⟨⟩) ⟨⟩
   | none        := none
 
 instance [HasRepr α] [HasRepr β] : HasRepr (RBMap α β lt) :=
-⟨λ t, "rbmapOf " ++ repr t.toList⟩
+⟨fun t => "rbmapOf " ++ repr t.toList⟩
 
 @[inline] def insert : RBMap α β lt → α → β → RBMap α β lt
 | ⟨t, w⟩   k v := ⟨t.insert lt k v, WellFormed.insertWff w rfl⟩
@@ -270,7 +270,7 @@ instance [HasRepr α] [HasRepr β] : HasRepr (RBMap α β lt) :=
 | []          := mkRBMap _ _ _
 | (⟨k,v⟩::xs) := (ofList xs).insert k v
 
-@[inline] def findCore : RBMap α β lt → α → Option (Sigma (λ k : α, β))
+@[inline] def findCore : RBMap α β lt → α → Option (Sigma (fun (k : α) => β))
 | ⟨t, _⟩ x := t.findCore lt x
 
 @[inline] def find : RBMap α β lt → α → Option β
@@ -278,14 +278,14 @@ instance [HasRepr α] [HasRepr β] : HasRepr (RBMap α β lt) :=
 
 /-- (lowerBound k) retrieves the kv pair of the largest key smaller than or equal to `k`,
     if it exists. -/
-@[inline] def lowerBound : RBMap α β lt → α → Option (Sigma (λ k : α, β))
+@[inline] def lowerBound : RBMap α β lt → α → Option (Sigma (fun (k : α) => β))
 | ⟨t, _⟩ x := t.lowerBound lt x none
 
 @[inline] def contains (t : RBMap α β lt) (a : α) : Bool :=
 (t.find a).isSome
 
 @[inline] def fromList (l : List (α × β)) (lt : α → α → Bool) : RBMap α β lt :=
-l.foldl (λ r p, r.insert p.1 p.2) (mkRBMap α β lt)
+l.foldl (fun r p => r.insert p.1 p.2) (mkRBMap α β lt)
 
 @[inline] def all : RBMap α β lt → (α → β → Bool) → Bool
 | ⟨t, _⟩ p := t.all p
@@ -294,7 +294,7 @@ l.foldl (λ r p, r.insert p.1 p.2) (mkRBMap α β lt)
 | ⟨t, _⟩ p := t.any p
 
 def size (m : RBMap α β lt) : Nat :=
-m.fold (λ sz _ _, sz+1) 0
+m.fold (fun sz _ _ => sz+1) 0
 
 def maxDepth (t : RBMap α β lt) : Nat :=
 t.val.depth Nat.max

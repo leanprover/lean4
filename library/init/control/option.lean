@@ -49,18 +49,18 @@ namespace OptionT
   ⟨@OptionT.lift _ _⟩
 
   @[inline] protected def monadMap {m'} [Monad m'] {α} (f : ∀ {α}, m α → m' α) : OptionT m α → OptionT m' α :=
-  λ x, f x
+  fun x => f x
 
   instance (m') [Monad m'] : MonadFunctor m m' (OptionT m) (OptionT m') :=
-  ⟨λ α, OptionT.monadMap⟩
+  ⟨fun α => OptionT.monadMap⟩
 
   protected def catch (ma : OptionT m α) (handle : Unit → OptionT m α) : OptionT m α :=
   (do { some a ← ma | (handle ());
         pure a } : m (Option α))
 
   instance : MonadExcept Unit (OptionT m) :=
-  { throw := λ _ _, OptionT.fail, catch := @OptionT.catch _ _ }
+  { throw := fun _ _ => OptionT.fail, catch := @OptionT.catch _ _ }
 
-  instance (m out) [MonadRun out m] : MonadRun (λ α, out (Option α)) (OptionT m) :=
-  ⟨λ α, MonadRun.run⟩
+  instance (m out) [MonadRun out m] : MonadRun (fun α => out (Option α)) (OptionT m) :=
+  ⟨fun α => MonadRun.run⟩
 end OptionT

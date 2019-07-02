@@ -27,22 +27,22 @@ variables {σ : Type u} {m : Type u → Type v}
 variables [Monad m] {α β : Type u}
 
 @[inline] protected def pure (a : α) : StateT σ m α :=
-λ s, pure (a, s)
+fun s => pure (a, s)
 
 @[inline] protected def bind (x : StateT σ m α) (f : α → StateT σ m β) : StateT σ m β :=
-λ s, do (a, s) ← x s; f a s
+fun s => do (a, s) ← x s; f a s
 
 @[inline] protected def map (f : α → β) (x : StateT σ m α) : StateT σ m β :=
-λ s, do (a, s) ← x s; pure (f a, s)
+fun s => do (a, s) ← x s; pure (f a, s)
 
 instance : Monad (StateT σ m) :=
 { pure := @StateT.pure _ _ _, bind := @StateT.bind _ _ _, map := @StateT.map _ _ _ }
 
 @[inline] protected def orelse [Alternative m] {α : Type u} (x₁ x₂ : StateT σ m α) : StateT σ m α :=
-λ s, x₁ s <|> x₂ s
+fun s => x₁ s <|> x₂ s
 
 @[inline] protected def failure [Alternative m] {α : Type u} : StateT σ m α :=
-λ s, failure
+fun s => failure
 
 instance [Alternative m] : Alternative (StateT σ m) :=
 { failure := @StateT.failure _ _ _ _,
@@ -50,33 +50,33 @@ instance [Alternative m] : Alternative (StateT σ m) :=
   .. StateT.Monad }
 
 @[inline] protected def get : StateT σ m σ :=
-λ s, pure (s, s)
+fun s => pure (s, s)
 
 @[inline] protected def set : σ → StateT σ m PUnit :=
-λ s' s, pure (⟨⟩, s')
+fun s' s => pure (⟨⟩, s')
 
 @[inline] protected def modify (f : σ → σ) : StateT σ m PUnit :=
-λ s, pure (⟨⟩, f s)
+fun s => pure (⟨⟩, f s)
 
 @[inline] protected def lift {α : Type u} (t : m α) : StateT σ m α :=
-λ s, do a ← t; pure (a, s)
+fun s => do a ← t; pure (a, s)
 
 instance : HasMonadLift m (StateT σ m) :=
 ⟨@StateT.lift σ m _⟩
 
 instance (σ m m') [Monad m] [Monad m'] : MonadFunctor m m' (StateT σ m) (StateT σ m') :=
-⟨λ _ f x s, f (x s)⟩
+⟨fun _ f x s => f (x s)⟩
 
 @[inline] protected def adapt {σ σ' σ'' α : Type u} {m : Type u → Type v} [Monad m] (split : σ → σ' × σ'')
         (join : σ' → σ'' → σ) (x : StateT σ' m α) : StateT σ m α :=
-λ st, do
+fun st => do
   let (st, ctx) := split st;
   (a, st') ← x st;
   pure (a, join st' ctx)
 
 instance (ε) [MonadExcept ε m] : MonadExcept ε (StateT σ m) :=
-{ throw := λ α, StateT.lift ∘ throw,
-  catch := λ α x c s, catch (x s) (λ e, c e s) }
+{ throw := fun α => StateT.lift ∘ throw,
+  catch := fun α x c s => catch (x s) (fun e => c e s) }
 end
 end StateT
 
@@ -106,8 +106,8 @@ do s ← get; modify f; pure s
 -- will be picked first
 instance monadStateTrans {n : Type u → Type w} [HasMonadLift m n] [MonadState σ m] : MonadState σ n :=
 { get := monadLift (MonadState.get : m _),
-  set := λ st, monadLift (MonadState.set st : m _),
-  modify := λ f, monadLift (MonadState.modify f : m _) }
+  set := fun st => monadLift (MonadState.set st : m _),
+  modify := fun f => monadLift (MonadState.modify f : m _) }
 
 instance [Monad m] : MonadState σ (StateT σ m) :=
 { get := StateT.get,
@@ -133,7 +133,7 @@ end
     Example:
     ```
     def withSnd {α σ σ' : Type} (snd : σ') : State (σ × σ') α → State σ α :=
-    adaptState (λ st, ((st, snd), ())) (λ ⟨st,snd⟩ _, st)
+    adaptState (fun st => ((st, snd), ())) (fun ⟨st,snd⟩ _ => st)
     ```
 
     Note: This class can be seen as a simplification of the more "principled" definition
@@ -142,10 +142,10 @@ end
     (map {} {α : Type u} : (∀ {m : Type u → Type u} [Monad m], StateT σ m α → StateT σ' m α) → n α → n' α)
     ```
     which better describes the intent of "we can map a `StateT` anywhere in the Monad stack".
-    If we look at the unfolded Type of the first argument `∀ m [Monad m], (σ → m (α × σ)) → σ' → m (α × σ')`, we see that it has the lens Type `∀ f [Functor f], (α → f α) → β → f β` with `f` specialized to `λ σ, m (α × σ)` (exercise: show that this is a lawful Functor). We can build all lenses we are insterested in from the functions `split` and `join` as
+    If we look at the unfolded Type of the first argument `∀ m [Monad m], (σ → m (α × σ)) → σ' → m (α × σ')`, we see that it has the lens Type `∀ f [Functor f], (α → f α) → β → f β` with `f` specialized to `fun σ => m (α × σ)` (exercise: show that this is a lawful Functor). We can build all lenses we are insterested in from the functions `split` and `join` as
     ```
-    λ f _ st, let (st, ctx) := split st in
-              (λ st', join st' ctx) <$> f st
+    fun f _ st => let (st, ctx) := split st in
+              (fun st' => join st' ctx) <$> f st
     ```
     -/
 class MonadStateAdapter (σ σ' : outParam (Type u)) (m m' : Type u → Type v) :=
@@ -156,18 +156,18 @@ section
 variables {σ σ' : Type u} {m m' : Type u → Type v}
 
 def MonadStateAdapter.adaptState' [MonadStateAdapter σ σ' m m'] {α : Type u} (toSigma : σ' → σ) (fromSigma : σ → σ') : m α → m' α :=
-adaptState (λ st, (toSigma st, PUnit.unit)) (λ st _, fromSigma st)
+adaptState (fun st => (toSigma st, PUnit.unit)) (fun st _ => fromSigma st)
 export MonadStateAdapter (adaptState')
 
 instance monadStateAdapterTrans {n n' : Type u → Type v} [MonadFunctor m m' n n'] [MonadStateAdapter σ σ' m m'] : MonadStateAdapter σ σ' n n' :=
-⟨λ σ'' α split join, monadMap (λ α, (adaptState split join : m α → m' α))⟩
+⟨fun σ'' α split join => monadMap (fun α => (adaptState split join : m α → m' α))⟩
 
 instance [Monad m] : MonadStateAdapter σ σ' (StateT σ m) (StateT σ' m) :=
-⟨λ σ'' α, StateT.adapt⟩
+⟨fun σ'' α => StateT.adapt⟩
 end
 
-instance (σ : Type u) (m out : Type u → Type v) [Functor m] [MonadRun out m] : MonadRun (λ α, σ → out α) (StateT σ m) :=
-⟨λ α x, run ∘ StateT.run' x⟩
+instance (σ : Type u) (m out : Type u → Type v) [Functor m] [MonadRun out m] : MonadRun (fun α => σ → out α) (StateT σ m) :=
+⟨fun α x => run ∘ StateT.run' x⟩
 
 class MonadStateRunner (σ : Type u) (m m' : Type u → Type u) :=
 (runState {} {α : Type u} : m α → σ → m' α)
@@ -177,8 +177,8 @@ section
 variables {σ σ' : Type u} {m m' : Type u → Type u}
 
 instance monadStateRunnerTrans {n n' : Type u → Type u} [MonadFunctor m m' n n'] [MonadStateRunner σ m m'] : MonadStateRunner σ n n' :=
-⟨λ α x s, monadMap (λ α (y : m α), (runState y s : m' α)) x⟩
+⟨fun α x s => monadMap (fun (α) (y : m α) => (runState y s : m' α)) x⟩
 
 instance StateT.MonadStateRunner [Monad m] : MonadStateRunner σ (StateT σ m) m :=
-⟨λ α x s, Prod.fst <$> x s⟩
+⟨fun α x s => Prod.fst <$> x s⟩
 end

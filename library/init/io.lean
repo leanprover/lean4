@@ -153,7 +153,7 @@ do b ← h.read 1,
 -- h.putStr s *> h.putStr "\n"
 
 def handle.readToEnd (h : handle) : m String :=
-Prim.liftIO $ Prim.iterate "" $ λ r, do
+Prim.liftIO $ Prim.iterate "" $ fun r => do
   done ← h.isEof;
   if done
   then pure (Sum.inr r) -- stop
@@ -256,11 +256,11 @@ class HasEval (α : Type u) :=
 (eval : α → IO Unit)
 
 instance HasRepr.HasEval {α : Type u} [HasRepr α] : HasEval α :=
-⟨λ a, IO.println (repr a)⟩
+⟨fun a => IO.println (repr a)⟩
 
 instance IO.HasEval {α : Type} [HasEval α] : HasEval (IO α) :=
-⟨λ x, do a ← x; HasEval.eval a⟩
+⟨fun x => do a ← x; HasEval.eval a⟩
 
 -- special case: do not print `()`
 instance IOUnit.HasEval : HasEval (IO Unit) :=
-⟨λ x, x⟩
+⟨fun x => x⟩

@@ -63,4 +63,4 @@ def List.toByteArray (bs : List UInt8) : ByteArray :=
 bs.toByteArrayAux ByteArray.empty
 
 instance : HasToString ByteArray :=
-⟨λ bs, bs.toList.toString⟩
+⟨fun bs => bs.toList.toString⟩

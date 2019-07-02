@@ -36,19 +36,19 @@ abbrev N := State Nat
 
 private def mkFresh : N VarId :=
 do idx ← get;
-   modify (λ n, n + 1);
+   modify (fun n => n + 1);
    pure {idx := idx }
 
 def requiresBoxedVersion (env : Environment) (decl : Decl) : Bool :=
 let ps := decl.params;
-ps.size > 0 && (decl.resultType.isScalar || ps.any (λ p, p.ty.isScalar || p.borrow) || isExtern env decl.name)
+ps.size > 0 && (decl.resultType.isScalar || ps.any (fun p => p.ty.isScalar || p.borrow) || isExtern env decl.name)
 
 def mkBoxedVersionAux (decl : Decl) : N Decl :=
 do
 let ps := decl.params;
-qs ← ps.mmap (λ _, do x ← mkFresh; pure { Param . x := x, ty := IRType.object, borrow := false });
+qs ← ps.mmap (fun _ => do x ← mkFresh; pure { Param . x := x, ty := IRType.object, borrow := false });
 (newVDecls, xs) ← qs.size.mfold
-  (λ i (r : Array FnBody × Array Arg),
+  (fun i (r : Array FnBody × Array Arg) =>
      let (newVDecls, xs) := r;
      let p := ps.get i;
      let q := qs.get i;
@@ -74,7 +74,7 @@ def mkBoxedVersion (decl : Decl) : Decl :=
 
 def addBoxedVersions (env : Environment) (decls : Array Decl) : Array Decl :=
 let boxedDecls := decls.foldl
-  (λ (newDecls : Array Decl) decl, if requiresBoxedVersion env decl then newDecls.push (mkBoxedVersion decl) else newDecls)
+  (fun (newDecls : Array Decl) decl => if requiresBoxedVersion env decl then newDecls.push (mkBoxedVersion decl) else newDecls)
   Array.empty;
 decls ++ boxedDecls
 
@@ -90,7 +90,7 @@ else
 def getScrutineeType (alts : Array Alt) : IRType :=
 let isScalar :=
    alts.size > 1 && -- Recall that we encode Unit and PUnit using `object`.
-   alts.all (λ alt, match alt with
+   alts.all (fun alt => match alt with
     | Alt.ctor c _  := c.isScalar
     | Alt.default _ := false);
 match isScalar with
@@ -111,7 +111,7 @@ structure BoxingContext :=
 abbrev M := ReaderT BoxingContext (StateT Index Id)
 
 def mkFresh : M VarId :=
-do idx ← getModify (λ n, n + 1);
+do idx ← getModify (fun n => n + 1);
    pure { idx := idx }
 
 def getEnv : M Environment := BoxingContext.env <$> read
@@ -135,13 +135,13 @@ do ctx ← read;
    | none      := pure (default _) -- unreachable if well-formed
 
 @[inline] def withParams {α : Type} (xs : Array Param) (k : M α) : M α :=
-adaptReader (λ ctx : BoxingContext, { localCtx := ctx.localCtx.addParams xs, .. ctx }) k
+adaptReader (fun ctx : BoxingContext => { localCtx := ctx.localCtx.addParams xs, .. ctx }) k
 
 @[inline] def withVDecl {α : Type} (x : VarId) (ty : IRType) (v : Expr) (k : M α) : M α :=
-adaptReader (λ ctx : BoxingContext, { localCtx := ctx.localCtx.addLocal x ty v, .. ctx }) k
+adaptReader (fun ctx : BoxingContext => { localCtx := ctx.localCtx.addLocal x ty v, .. ctx }) k
 
 @[inline] def withJDecl {α : Type} (j : JoinPointId) (xs : Array Param) (v : FnBody) (k : M α) : M α :=
-adaptReader (λ ctx : BoxingContext, { localCtx := ctx.localCtx.addJP j xs v, .. ctx }) k
+adaptReader (fun ctx : BoxingContext => { localCtx := ctx.localCtx.addJP j xs v, .. ctx }) k
 
 /- Auxiliary function used by castVarIfNeeded.
    It is used when the expected type does not match `xType`.
@@ -159,11 +159,11 @@ do xType ← getVarType x;
 
 @[inline] def castArgIfNeeded (x : Arg) (expected : IRType) (k : Arg → M FnBody) : M FnBody :=
 match x with
-| Arg.var x := castVarIfNeeded x expected (λ x, k (Arg.var x))
+| Arg.var x := castVarIfNeeded x expected (fun x => k (Arg.var x))
 | _         := k x
 
 @[specialize] def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Array Arg × Array FnBody) :=
-xs.miterate (Array.empty, Array.empty) $ λ i (x : Arg) (r : Array Arg × Array FnBody),
+xs.miterate (Array.empty, Array.empty) $ fun i (x : Arg) (r : Array Arg × Array FnBody) =>
   let expected := typeFromIdx i.val;
   let (xs, bs) := r;
   match x with
@@ -178,12 +178,12 @@ xs.miterate (Array.empty, Array.empty) $ λ i (x : Arg) (r : Array Arg × Array 
       pure (xs.push (Arg.var y), bs.push b)
 
 @[inline] def castArgsIfNeeded (xs : Array Arg) (ps : Array Param) (k : Array Arg → M FnBody) : M FnBody :=
-do (ys, bs) ← castArgsIfNeededAux xs (λ i, (ps.get i).ty);
+do (ys, bs) ← castArgsIfNeededAux xs (fun i => (ps.get i).ty);
    b ← k ys;
    pure (reshape bs b)
 
 @[inline] def boxArgsIfNeeded (xs : Array Arg) (k : Array Arg → M FnBody) : M FnBody :=
-do (ys, bs) ← castArgsIfNeededAux xs (λ _, IRType.object);
+do (ys, bs) ← castArgsIfNeededAux xs (fun _ => IRType.object);
    b ← k ys;
    pure (reshape bs b)
 
@@ -206,20 +206,20 @@ match e with
   if c.isScalar && ty.isScalar then
     pure $ FnBody.vdecl x ty (Expr.lit (LitVal.num c.cidx)) b
   else
-    boxArgsIfNeeded ys $ λ ys, pure $ FnBody.vdecl x ty (Expr.ctor c ys) b
+    boxArgsIfNeeded ys $ fun ys => pure $ FnBody.vdecl x ty (Expr.ctor c ys) b
 | Expr.reuse w c u ys :=
-  boxArgsIfNeeded ys $ λ ys, pure $ FnBody.vdecl x ty (Expr.reuse w c u ys) b
+  boxArgsIfNeeded ys $ fun ys => pure $ FnBody.vdecl x ty (Expr.reuse w c u ys) b
 | Expr.fap f ys := do
   decl ← getDecl f;
-  castArgsIfNeeded ys decl.params $ λ ys,
+  castArgsIfNeeded ys decl.params $ fun ys =>
   castResultIfNeeded x ty (Expr.fap f ys) decl.resultType b
 | Expr.pap f ys := do
   env ← getEnv;
   decl ← getDecl f;
   let f := if requiresBoxedVersion env decl then mkBoxedName f else f;
-  boxArgsIfNeeded ys $ λ ys, pure $ FnBody.vdecl x ty (Expr.pap f ys) b
+  boxArgsIfNeeded ys $ fun ys => pure $ FnBody.vdecl x ty (Expr.pap f ys) b
 | Expr.ap f ys :=
-  boxArgsIfNeeded ys $ λ ys,
+  boxArgsIfNeeded ys $ fun ys =>
   unboxResultIfNeeded x ty (Expr.ap f ys) b
 | other :=
   pure $ FnBody.vdecl x ty e b
@@ -234,31 +234,31 @@ partial def visitFnBody : FnBody → M FnBody
   pure $ FnBody.jdecl j xs v b
 | (FnBody.uset x i y b)      := do
   b ← visitFnBody b;
-  castVarIfNeeded y IRType.usize $ λ y,
+  castVarIfNeeded y IRType.usize $ fun y =>
     pure $ FnBody.uset x i y b
 | (FnBody.sset x i o y ty b) := do
   b ← visitFnBody b;
-  castVarIfNeeded y ty $ λ y,
+  castVarIfNeeded y ty $ fun y =>
     pure $ FnBody.sset x i o y ty b
 | (FnBody.mdata d b)         :=
   FnBody.mdata d <$> visitFnBody b
 | (FnBody.case tid x alts)   := do
   let expected := getScrutineeType alts;
-  alts ← alts.mmap $ λ alt, alt.mmodifyBody visitFnBody;
-  castVarIfNeeded x expected $ λ x,
+  alts ← alts.mmap $ fun alt => alt.mmodifyBody visitFnBody;
+  castVarIfNeeded x expected $ fun x =>
     pure $ FnBody.case tid x alts
 | (FnBody.ret x)             := do
   expected ← getResultType;
-  castArgIfNeeded x expected (λ x, pure $ FnBody.ret x)
+  castArgIfNeeded x expected (fun x => pure $ FnBody.ret x)
 | (FnBody.jmp j ys)          := do
   ps ← getJPParams j;
-  castArgsIfNeeded ys ps (λ ys, pure $ FnBody.jmp j ys)
+  castArgsIfNeeded ys ps (fun ys => pure $ FnBody.jmp j ys)
 | other                      :=
   pure other
 
 def run (env : Environment) (decls : Array Decl) : Array Decl :=
 let ctx : BoxingContext := { decls := decls, env := env };
-let decls := decls.map (λ decl, match decl with
+let decls := decls.map (fun decl => match decl with
   | Decl.fdecl f xs t b :=
     let nextIdx := decl.maxIndex + 1;
     let b := (withParams xs (visitFnBody b) { resultType := t, .. ctx }).run' nextIdx;

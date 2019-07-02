@@ -69,7 +69,7 @@ partial def visitFnBody (w : Index) : FnBody → M Bool
       pure false
   }
 | (FnBody.ret x)            := visitArg w x
-| (FnBody.case _ x alts)    := visitVar w x <||> alts.anyM (λ alt, visitFnBody alt.body)
+| (FnBody.case _ x alts)    := visitVar w x <||> alts.anyM (fun alt => visitFnBody alt.body)
 | (FnBody.unreachable)      := pure false
 
 end IsLive
@@ -84,7 +84,7 @@ def FnBody.hasLiveVar (b : FnBody) (ctx : LocalContext) (x : VarId) : Bool :=
 (IsLive.visitFnBody x.idx b).run' ctx
 
 abbrev LiveVarSet   := VarIdSet
-abbrev JPLiveVarMap := RBMap JoinPointId LiveVarSet (λ j₁ j₂, j₁.idx < j₂.idx)
+abbrev JPLiveVarMap := RBMap JoinPointId LiveVarSet (fun j₁ j₂ => j₁.idx < j₂.idx)
 
 instance LiveVarSet.inhabited : Inhabited LiveVarSet := ⟨{}⟩
 
@@ -92,25 +92,25 @@ namespace LiveVars
 
 abbrev Collector := LiveVarSet → LiveVarSet
 
-@[inline] private def skip : Collector := λ s, s
-@[inline] private def collectVar (x : VarId) : Collector := λ s, s.insert x
+@[inline] private def skip : Collector := fun s => s
+@[inline] private def collectVar (x : VarId) : Collector := fun s => s.insert x
 private def collectArg : Arg → Collector
 | (Arg.var x) := collectVar x
 | irrelevant  := skip
 @[specialize] private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector :=
-λ s, as.foldl (λ s a, f a s) s
+fun s => as.foldl (fun s a => f a s) s
 private def collectArgs (as : Array Arg) : Collector :=
 collectArray as collectArg
 private def accumulate (s' : LiveVarSet) : Collector :=
-λ s, s'.fold (λ s x, s.insert x) s
+fun s => s'.fold (fun s x => s.insert x) s
 private def collectJP (m : JPLiveVarMap) (j : JoinPointId) : Collector :=
 match m.find j with
 | some xs := accumulate xs
 | none    := skip -- unreachable for well-formed code
 private def bindVar (x : VarId) : Collector :=
-λ s, s.erase x
+fun s => s.erase x
 private def bindParams (ps : Array Param) : Collector :=
-λ s, ps.foldl (λ s p, s.erase p.x) s
+fun s => ps.foldl (fun s p => s.erase p.x) s
 
 def collectExpr : Expr → Collector
 | (Expr.ctor _ ys)       := collectArgs ys
@@ -143,7 +143,7 @@ partial def collectFnBody : FnBody → JPLiveVarMap → Collector
 | (FnBody.del x b)          m := collectVar x ∘ collectFnBody b m
 | (FnBody.mdata _ b)        m := collectFnBody b m
 | (FnBody.ret x)            m := collectArg x
-| (FnBody.case _ x alts)    m := collectVar x ∘ collectArray alts (λ alt, collectFnBody alt.body m)
+| (FnBody.case _ x alts)    m := collectVar x ∘ collectArray alts (fun alt => collectFnBody alt.body m)
 | (FnBody.unreachable)      m := skip
 | (FnBody.jmp j xs)         m := collectJP m j ∘ collectArgs xs
 

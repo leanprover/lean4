@@ -18,15 +18,15 @@ namespace List
 
 protected def hasDecEq [DecidableEq α] : Π a b : List α, Decidable (a = b)
 | []      []      := isTrue rfl
-| (a::as) []      := isFalse (λ h, List.noConfusion h)
-| []      (b::bs) := isFalse (λ h, List.noConfusion h)
+| (a::as) []      := isFalse (fun h => List.noConfusion h)
+| []      (b::bs) := isFalse (fun h => List.noConfusion h)
 | (a::as) (b::bs) :=
   match decEq a b with
   | isTrue hab  :=
     match hasDecEq as bs with
     | isTrue habs  := isTrue (Eq.subst hab (Eq.subst habs rfl))
-    | isFalse nabs := isFalse (λ h, List.noConfusion h (λ _ habs, absurd habs nabs))
-  | isFalse nab := isFalse (λ h, List.noConfusion h (λ hab _, absurd hab nab))
+    | isFalse nabs := isFalse (fun h => List.noConfusion h (fun _ habs => absurd habs nabs))
+  | isFalse nab := isFalse (fun h => List.noConfusion h (fun hab _ => absurd hab nab))
 
 instance [DecidableEq α] : DecidableEq (List α) :=
 {decEq := List.hasDecEq}
@@ -36,7 +36,7 @@ def reverseAux : List α → List α → List α
 | (a::l) r := reverseAux l (a::r)
 
 def reverse : List α → List α :=
-λ l, reverseAux l []
+fun l => reverseAux l []
 
 protected def append (as bs : List α) : List α :=
 reverseAux as.reverse bs
@@ -62,7 +62,7 @@ theorem reverseAuxReverseAux : ∀ (as bs cs : List α), reverseAux (reverseAux 
 | (a::as) bs cs :=
   Eq.trans
     (reverseAuxReverseAux as (a::bs) cs)
-    (congrArg (λ b, reverseAux bs b) (reverseAuxReverseAux as [a] cs).symm)
+    (congrArg (fun b => reverseAux bs b) (reverseAuxReverseAux as [a] cs).symm)
 
 theorem consAppend (a : α) (as bs : List α) : (a::as) ++ bs = a::(as ++ bs) :=
 reverseAuxReverseAux as [a] bs
@@ -71,9 +71,9 @@ theorem appendAssoc : ∀ (as bs cs : List α), (as ++ bs) ++ cs = as ++ (bs ++ 
 | []      bs cs := rfl
 | (a::as) bs cs :=
   show ((a::as) ++ bs) ++ cs = (a::as) ++ (bs ++ cs),      from
-  have h₁ : ((a::as) ++ bs) ++ cs = a::(as++bs) ++ cs,     from congrArg (λ ds, ds ++ cs) (consAppend a as bs),
+  have h₁ : ((a::as) ++ bs) ++ cs = a::(as++bs) ++ cs,     from congrArg (fun ds => ds ++ cs) (consAppend a as bs),
   have h₂ : a::(as++bs) ++ cs     = a::((as++bs) ++ cs),   from consAppend a (as++bs) cs,
-  have h₃ : a::((as++bs) ++ cs)   = a::(as ++ (bs ++ cs)), from congrArg (λ as, a::as) (appendAssoc as bs cs),
+  have h₃ : a::((as++bs) ++ cs)   = a::(as ++ (bs ++ cs)), from congrArg (fun as => a::as) (appendAssoc as bs cs),
   have h₄ : a::(as ++ (bs ++ cs)) = (a::as ++ (bs ++ cs)), from (consAppend a as (bs++cs)).symm,
   Eq.trans (Eq.trans (Eq.trans h₁ h₂) h₃) h₄
 
@@ -89,7 +89,7 @@ theorem notMem : ∀ {a b : α} {bs : List α}, a ≠ b → ¬ a ∈ bs → ¬ a
 | _ _ _ _ h₁ (Mem.inTail _ h₂) := absurd h₂ h₁
 
 instance decidableMem [DecidableEq α] (a : α) : ∀ (l : List α), Decidable (a ∈ l)
-| []      := isFalse (λ h, match h with end)
+| []      := isFalse (fun h => match h with end)
 | (b::bs) :=
   if h₁ : a = b then isTrue (h₁.symm ▸ Mem.eqHead b bs)
   else match decidableMem bs with
@@ -213,7 +213,7 @@ def lookup [HasBeq α] : α → List (α × β) → Option β
   | false := lookup a es
 
 def removeAll [HasBeq α] (xs ys : List α) : List α :=
-xs.filter (λ x, ys.notElem x)
+xs.filter (fun x => ys.notElem x)
 
 def drop : Nat → List α → List α
 | 0     a       := a
@@ -236,17 +236,17 @@ def take : Nat → List α → List α
 @[specialize] def foldr1 (f : α → α → α) : Π (xs : List α), xs ≠ [] → α
 | []               h := absurd rfl h
 | [a]              _ := a
-| (a :: as@(_::_)) _ := f a (foldr1 as (λ h, List.noConfusion h))
+| (a :: as@(_::_)) _ := f a (foldr1 as (fun h => List.noConfusion h))
 
 @[specialize] def foldr1Opt (f : α → α → α) : List α → Option α
 | []        := none
-| (a :: as) := some $ foldr1 f (a :: as) (λ h, List.noConfusion h)
+| (a :: as) := some $ foldr1 f (a :: as) (fun h => List.noConfusion h)
 
 @[inline] def any (l : List α) (p : α → Bool) : Bool :=
-foldr (λ a r, p a || r) false l
+foldr (fun a r => p a || r) false l
 
 @[inline] def all (l : List α) (p : α → Bool) : Bool :=
-foldr (λ a r, p a && r) true l
+foldr (fun a r => p a && r) true l
 
 def or  (bs : List Bool) : Bool := bs.any id
 
@@ -270,7 +270,7 @@ instance [DecidableEq α] : HasInsert α (List α) :=
 ⟨List.insert⟩
 
 def replicate (n : Nat) (a : α) : List α :=
-n.repeat (λ xs, a :: xs) []
+n.repeat (fun xs => a :: xs) []
 
 def rangeAux : Nat → List Nat → List Nat
 | 0     ns := ns
@@ -292,11 +292,11 @@ def enum : List α → List (Nat × α) := enumFrom 0
 def getLastOfNonNil : Π (as : List α), as ≠ [] → α
 | []         h := absurd rfl h
 | [a]        h := a
-| (a::b::as) h := getLastOfNonNil (b::as) (λ h, List.noConfusion h)
+| (a::b::as) h := getLastOfNonNil (b::as) (fun h => List.noConfusion h)
 
 def getLast [Inhabited α] : List α → α
 | []      := arbitrary α
-| (a::as) := getLastOfNonNil (a::as) (λ h, List.noConfusion h)
+| (a::as) := getLastOfNonNil (a::as) (fun h => List.noConfusion h)
 
 def init : List α → List α
 | []     := []
@@ -326,21 +326,21 @@ instance [HasLess α] : HasLess (List α) :=
 ⟨List.Less⟩
 
 instance hasDecidableLt [HasLess α] [h : DecidableRel HasLess.Less] : Π l₁ l₂ : List α, Decidable (l₁ < l₂)
-| []      []      := isFalse (λ h, match h with end)
+| []      []      := isFalse (fun h => match h with end)
 | []      (b::bs) := isTrue (Less.nil _ _)
-| (a::as) []      := isFalse (λ h, match h with end)
+| (a::as) []      := isFalse (fun h => match h with end)
 | (a::as) (b::bs) :=
   match h a b with
   | isTrue h₁  := isTrue (Less.head _ _ h₁)
   | isFalse h₁ :=
     match h b a with
-    | isTrue h₂  := isFalse (λ h, match h with
+    | isTrue h₂  := isFalse (fun h => match h with
        | Less.head _ _ h₁' := absurd h₁' h₁
        | Less.tail _ h₂' _ := absurd h₂ h₂')
     | isFalse h₂ :=
       match hasDecidableLt as bs with
       | isTrue h₃  := isTrue (Less.tail h₁ h₂ h₃)
-      | isFalse h₃ := isFalse (λ h, match h with
+      | isFalse h₃ := isFalse (fun h => match h with
          | Less.head _ _ h₁' := absurd h₁' h₁
          | Less.tail _ _ h₃' := absurd h₃' h₃)
 
@@ -351,7 +351,7 @@ instance [HasLess α] : HasLessEq (List α) :=
 ⟨List.LessEq⟩
 
 instance hasDecidableLe [HasLess α] [h : DecidableRel (HasLess.Less : α → α → Prop)] : Π l₁ l₂ : List α, Decidable (l₁ ≤ l₂) :=
-λ a b, Not.Decidable
+fun a b => Not.Decidable
 
 /--  `isPrefixOf l₁ l₂` returns `true` Iff `l₁` is a prefix of `l₂`. -/
 def isPrefixOf [HasBeq α] : List α → List α → Bool

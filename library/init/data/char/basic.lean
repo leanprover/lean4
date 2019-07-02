@@ -14,7 +14,7 @@ structure Char :=
 (val : UInt32) (valid : isValidChar val)
 
 instance : HasSizeof Char :=
-⟨λ c, c.val.toNat⟩
+⟨fun c => c.val.toNat⟩
 
 namespace Char
 def utf8Size (c : Char) : UInt32 :=
@@ -57,13 +57,13 @@ theorem veqOfEq : ∀ {c d : Char}, c = d → c.val = d.val
 | _ _ rfl := rfl
 
 theorem neOfVne {c d : Char} (h : c.val ≠ d.val) : c ≠ d :=
-λ h', absurd (veqOfEq h') h
+fun h' => absurd (veqOfEq h') h
 
 theorem vneOfNe {c d : Char} (h : c ≠ d) : c.val ≠ d.val :=
-λ h', absurd (eqOfVeq h') h
+fun h' => absurd (eqOfVeq h') h
 
 instance : DecidableEq Char :=
-{decEq := λ i j, decidableOfDecidableOfIff
+{decEq := fun i j => decidableOfDecidableOfIff
   (decEq i.val j.val) ⟨Char.eqOfVeq, Char.veqOfEq⟩}
 
 instance : Inhabited Char :=

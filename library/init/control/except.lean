@@ -94,7 +94,7 @@ ExceptT.mk $ pure (Except.ok a)
 ExceptT.mk $ ma >>= ExceptT.bindCont f
 
 @[inline] protected def map {α β : Type u} (f : α → β) (x : ExceptT ε m α) : ExceptT ε m β :=
-ExceptT.mk $ x >>= λ a, match a with
+ExceptT.mk $ x >>= fun a => match a with
   | (Except.ok a)    := pure $ Except.ok (f a)
   | (Except.error e) := pure $ Except.error e
 
@@ -102,24 +102,24 @@ ExceptT.mk $ x >>= λ a, match a with
 ExceptT.mk $ Except.ok <$> t
 
 instance exceptTOfExcept : HasMonadLift (Except ε) (ExceptT ε m) :=
-⟨λ α e, ExceptT.mk $ pure e⟩
+⟨fun α e => ExceptT.mk $ pure e⟩
 
 instance : HasMonadLift m (ExceptT ε m) :=
 ⟨@ExceptT.lift _ _ _⟩
 
 @[inline] protected def catch {α : Type u} (ma : ExceptT ε m α) (handle : ε → ExceptT ε m α) : ExceptT ε m α :=
-ExceptT.mk $ ma >>= λ res, match res with
+ExceptT.mk $ ma >>= fun res => match res with
  | Except.ok a    := pure (Except.ok a)
  | Except.error e := (handle e)
 
 instance (m') [Monad m'] : MonadFunctor m m' (ExceptT ε m) (ExceptT ε m') :=
-⟨λ _ f x, f x⟩
+⟨fun _ f x => f x⟩
 
 instance : Monad (ExceptT ε m) :=
 { pure := @ExceptT.pure _ _ _, bind := @ExceptT.bind _ _ _, map := @ExceptT.map _ _ _ }
 
 @[inline] protected def adapt {ε' α : Type u} (f : ε → ε') : ExceptT ε m α → ExceptT ε' m α :=
-λ x, ExceptT.mk $ Except.mapError f <$> x
+fun x => ExceptT.mk $ Except.mapError f <$> x
 end ExceptT
 
 /-- An implementation of [MonadError](https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-Except.html#t:MonadError) -/
@@ -131,12 +131,12 @@ namespace MonadExcept
 variables {ε : Type u} {m : Type v → Type w}
 
 @[inline] protected def orelse [MonadExcept ε m] {α : Type v} (t₁ t₂ : m α) : m α :=
-catch t₁ $ λ _, t₂
+catch t₁ $ fun _ => t₂
 
 /-- Alternative orelse operator that allows to select which exception should be used.
     The default is to use the first exception since the standard `orelse` uses the second. -/
 @[inline] def orelse' [MonadExcept ε m] {α : Type v} (t₁ t₂ : m α) (useFirstEx := true) : m α :=
-catch t₁ $ λ e₁, catch t₂ $ λ e₂, throw (if useFirstEx then e₁ else e₂)
+catch t₁ $ fun e₁ => catch t₂ $ fun e₂ => throw (if useFirstEx then e₁ else e₂)
 
 @[inline] def liftExcept {ε' : Type u} [MonadExcept ε m] [HasLiftT ε' ε] [Monad m] {α : Type v} : Except ε' α → m α
 | (Except.error e) := throw (coe e)
@@ -146,11 +146,11 @@ end MonadExcept
 export MonadExcept (throw catch)
 
 instance (m : Type u → Type v) (ε : Type u) [Monad m] : MonadExcept ε (ExceptT ε m) :=
-{ throw := λ α e, ExceptT.mk $ pure (Except.error e),
+{ throw := fun α e => ExceptT.mk $ pure (Except.error e),
   catch := @ExceptT.catch ε _ _ }
 
 instance (ε) : MonadExcept ε (Except ε) :=
-{ throw := λ α, Except.error, catch := @Except.catch _ }
+{ throw := fun α => Except.error, catch := @Except.catch _ }
 
 /-- Adapt a Monad stack, changing its top-most error Type.
 
@@ -168,15 +168,15 @@ section
 variables {ε ε' : Type u} {m m' : Type u → Type v}
 
 instance monadExceptAdapterTrans {n n' : Type u → Type v} [MonadFunctor m m' n n'] [MonadExceptAdapter ε ε' m m'] : MonadExceptAdapter ε ε' n n' :=
-⟨λ α f, monadMap (λ α, (adaptExcept f : m α → m' α))⟩
+⟨fun α f => monadMap (fun α => (adaptExcept f : m α → m' α))⟩
 
 instance [Monad m] : MonadExceptAdapter ε ε' (ExceptT ε m) (ExceptT ε' m) :=
-⟨λ α, ExceptT.adapt⟩
+⟨fun α => ExceptT.adapt⟩
 end
 
-instance (ε m out) [MonadRun out m] : MonadRun (λ α, out (Except ε α)) (ExceptT ε m) :=
-⟨λ α, run⟩
+instance (ε m out) [MonadRun out m] : MonadRun (fun α => out (Except ε α)) (ExceptT ε m) :=
+⟨fun α => run⟩
 
 -- useful for implicit failures in do-notation
 instance (m : Type → Type) [Monad m] : MonadFail (ExceptT String m) :=
-⟨λ _, throw⟩
+⟨fun _ => throw⟩

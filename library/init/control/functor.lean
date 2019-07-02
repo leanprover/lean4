@@ -10,15 +10,15 @@ universes u v
 
 class Functor (f : Type u → Type v) : Type (max (u+1) v) :=
 (map : Π {α β : Type u}, (α → β) → f α → f β)
-(mapConst : Π {α β : Type u}, α → f β → f α := λ α β, map ∘ const β)
+(mapConst : Π {α β : Type u}, α → f β → f α := fun α β => map ∘ const β)
 
 infixr <$> := Functor.map
 infixr <$  := Functor.mapConst
 
 @[reducible] def Functor.mapConstRev {f : Type u → Type v} [Functor f] {α β : Type u} : f β → α → f α :=
-λ a b, b <$ a
+fun a b => b <$ a
 infixr $>  := Functor.mapConstRev
 
 @[reducible] def Functor.mapRev {f : Type u → Type v} [Functor f] {α β : Type u} : f α → (α → β) → f β :=
-λ a f, f <$> a
+fun a f => f <$> a
 infixl <&> := Functor.mapRev

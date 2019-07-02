@@ -85,10 +85,10 @@ theorem veqOfEq : ∀ {i j : Fin n}, i = j → (val i) = (val j)
 | ⟨iv, ilt⟩ .(_) rfl := rfl
 
 theorem neOfVne {i j : Fin n} (h : val i ≠ val j) : i ≠ j :=
-λ h', absurd (veqOfEq h') h
+fun h' => absurd (veqOfEq h') h
 
 theorem vneOfNe {i j : Fin n} (h : i ≠ j) : val i ≠ val j :=
-λ h', absurd (eqOfVeq h') h
+fun h' => absurd (eqOfVeq h') h
 
 theorem modnLt : ∀ {m : Nat} (i : Fin n), m > 0 → (i %ₙ m).val < m
 | m ⟨a, h⟩ hp :=  Nat.ltOfLeOfLt (modLe _ _) (modLt _ hp)
@@ -98,5 +98,5 @@ end Fin
 open Fin
 
 instance (n : Nat) : DecidableEq (Fin n) :=
-{decEq := λ i j, decidableOfDecidableOfIff
+{decEq := fun i j => decidableOfDecidableOfIff
   (decEq i.val j.val) ⟨eqOfVeq, veqOfEq⟩}

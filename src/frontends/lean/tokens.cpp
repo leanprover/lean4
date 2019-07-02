@@ -7,7 +7,6 @@ static name const * g_aliases_tk = nullptr;
 static name const * g_period_tk = nullptr;
 static name const * g_backtick_tk = nullptr;
 static name const * g_dslash_tk = nullptr;
-static name const * g_fieldarrow_tk = nullptr;
 static name const * g_placeholder_tk = nullptr;
 static name const * g_colon_tk = nullptr;
 static name const * g_semicolon_tk = nullptr;
@@ -67,6 +66,7 @@ static name const * g_classes_tk = nullptr;
 static name const * g_attributes_tk = nullptr;
 static name const * g_arrow_tk = nullptr;
 static name const * g_larrow_tk = nullptr;
+static name const * g_darrow_tk = nullptr;
 static name const * g_hiding_tk = nullptr;
 static name const * g_example_tk = nullptr;
 static name const * g_exposing_tk = nullptr;
@@ -134,7 +134,6 @@ void initialize_tokens() {
     g_period_tk = new name{"."};
     g_backtick_tk = new name{"`"};
     g_dslash_tk = new name{"//"};
-    g_fieldarrow_tk = new name{"~>"};
     g_placeholder_tk = new name{"_"};
     g_colon_tk = new name{":"};
     g_semicolon_tk = new name{";"};
@@ -194,6 +193,7 @@ void initialize_tokens() {
     g_attributes_tk = new name{"attributes"};
     g_arrow_tk = new name{"->"};
     g_larrow_tk = new name{"<-"};
+    g_darrow_tk = new name{"=>"};
     g_hiding_tk = new name{"hiding"};
     g_example_tk = new name{"example"};
     g_exposing_tk = new name{"exposing"};
@@ -262,7 +262,6 @@ void finalize_tokens() {
     delete g_period_tk;
     delete g_backtick_tk;
     delete g_dslash_tk;
-    delete g_fieldarrow_tk;
     delete g_placeholder_tk;
     delete g_colon_tk;
     delete g_semicolon_tk;
@@ -322,6 +321,7 @@ void finalize_tokens() {
     delete g_attributes_tk;
     delete g_arrow_tk;
     delete g_larrow_tk;
+    delete g_darrow_tk;
     delete g_hiding_tk;
     delete g_example_tk;
     delete g_exposing_tk;
@@ -389,7 +389,6 @@ name const & get_aliases_tk() { return *g_aliases_tk; }
 name const & get_period_tk() { return *g_period_tk; }
 name const & get_backtick_tk() { return *g_backtick_tk; }
 name const & get_dslash_tk() { return *g_dslash_tk; }
-name const & get_fieldarrow_tk() { return *g_fieldarrow_tk; }
 name const & get_placeholder_tk() { return *g_placeholder_tk; }
 name const & get_colon_tk() { return *g_colon_tk; }
 name const & get_semicolon_tk() { return *g_semicolon_tk; }
@@ -449,6 +448,7 @@ name const & get_classes_tk() { return *g_classes_tk; }
 name const & get_attributes_tk() { return *g_attributes_tk; }
 name const & get_arrow_tk() { return *g_arrow_tk; }
 name const & get_larrow_tk() { return *g_larrow_tk; }
+name const & get_darrow_tk() { return *g_darrow_tk; }
 name const & get_hiding_tk() { return *g_hiding_tk; }
 name const & get_example_tk() { return *g_example_tk; }
 name const & get_exposing_tk() { return *g_exposing_tk; }

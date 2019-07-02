@@ -21,7 +21,7 @@ structure VarInfo :=
 (persistent : Bool := false) -- true if the variable is statically known to be marked a Persistent at runtime
 (consume    : Bool := false) -- true if the variable RC must be "consumed"
 
-abbrev VarMap := RBMap VarId VarInfo (λ x y, x.idx < y.idx)
+abbrev VarMap := RBMap VarId VarInfo (fun x y => x.idx < y.idx)
 
 structure Context :=
 (env            : Environment)
@@ -70,26 +70,26 @@ else let m := ctx.varMap;
 
 private def addDecForAlt (ctx : Context) (caseLiveVars altLiveVars : LiveVarSet) (b : FnBody) : FnBody :=
 caseLiveVars.fold
-  (λ b x, if !altLiveVars.contains x && mustConsume ctx x then addDec x b else b)
+  (fun b x => if !altLiveVars.contains x && mustConsume ctx x then addDec x b else b)
   b
 
 /- `isFirstOcc xs x i = true` if `xs[i]` is the first occurrence of `xs[i]` in `xs` -/
 private def isFirstOcc (xs : Array Arg) (i : Nat) : Bool :=
 let x := xs.get i;
-i.all $ λ j, xs.get j != x
+i.all $ fun j => xs.get j != x
 
 /- Return true if `x` also occurs in `ys` in a position that is not consumed.
    That is, it is also passed as a borrow reference. -/
 @[specialize]
 private def isBorrowParamAux (x : VarId) (ys : Array Arg) (consumeParamPred : Nat → Bool) : Bool :=
-ys.size.any $ λ i,
+ys.size.any $ fun i =>
   let y := ys.get i;
   match y with
   | Arg.irrelevant := false
   | Arg.var y      := x == y && !consumeParamPred i
 
 private def isBorrowParam (x : VarId) (ys : Array Arg) (ps : Array Param) : Bool :=
-isBorrowParamAux x ys (λ i, !(ps.get i).borrow)
+isBorrowParamAux x ys (fun i => !(ps.get i).borrow)
 
 /-
 Return `n`, the number of times `x` is consumed.
@@ -99,7 +99,7 @@ Return `n`, the number of times `x` is consumed.
 @[specialize]
 private def getNumConsumptions (x : VarId) (ys : Array Arg) (consumeParamPred : Nat → Bool) : Nat :=
 ys.size.fold
-  (λ i n,
+  (fun i n =>
     let y := ys.get i;
     match y with
     | Arg.irrelevant := n
@@ -109,7 +109,7 @@ ys.size.fold
 @[specialize]
 private def addIncBeforeAux (ctx : Context) (xs : Array Arg) (consumeParamPred : Nat → Bool) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
 xs.size.fold
-  (λ i b,
+  (fun i b =>
     let x := xs.get i;
     match x with
     | Arg.irrelevant := b
@@ -126,17 +126,17 @@ xs.size.fold
           else numConsuptions - 1;
         -- dbgTrace ("addInc " ++ toString x ++ " nconsumptions: " ++ toString numConsuptions ++ " incs: " ++ toString numIncs
         --         ++ " consume: " ++ toString info.consume ++ " live: " ++ toString (liveVarsAfter.contains x)
-        --         ++ " borrowParam : " ++ toString (isBorrowParamAux x xs consumeParamPred)) $ λ _,
+        --         ++ " borrowParam : " ++ toString (isBorrowParamAux x xs consumeParamPred)) $ fun _ =>
         addInc x b numIncs)
   b
 
 private def addIncBefore (ctx : Context) (xs : Array Arg) (ps : Array Param) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
-addIncBeforeAux ctx xs (λ i, !(ps.get i).borrow) b liveVarsAfter
+addIncBeforeAux ctx xs (fun i => !(ps.get i).borrow) b liveVarsAfter
 
 /- See `addIncBeforeAux`/`addIncBefore` for the procedure that inserts `inc` operations before an application.  -/
 private def addDecAfterFullApp (ctx : Context) (xs : Array Arg) (ps : Array Param) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody :=
 xs.size.fold
-  (λ i b,
+  (fun i b =>
     match xs.get i with
     | Arg.irrelevant := b
     | Arg.var x      :=
@@ -150,13 +150,13 @@ xs.size.fold
   b
 
 private def addIncBeforeConsumeAll (ctx : Context) (xs : Array Arg) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
-addIncBeforeAux ctx xs (λ i, true) b liveVarsAfter
+addIncBeforeAux ctx xs (fun i => true) b liveVarsAfter
 
 /- Add `dec` instructions for parameters that are references, are not alive in `b`, and are not borrow.
    That is, we must make sure these parameters are consumed. -/
 private def addDecForDeadParams (ps : Array Param) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody :=
 ps.foldl
-  (λ b p, if !p.borrow && p.ty.isObj && !bLiveVars.contains p.x then addDec p.x b else b)
+  (fun b p => if !p.borrow && p.ty.isObj && !bLiveVars.contains p.x then addDec p.x b else b)
   b
 
 private def isPersistent : Expr → Bool
@@ -189,7 +189,7 @@ private def addDecIfNeeded (ctx : Context) (x : VarId) (b : FnBody) (bLiveVars :
 if mustConsume ctx x && !bLiveVars.contains x then addDec x b else b
 
 private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody × LiveVarSet :=
--- dbgTrace ("processVDecl " ++ toString z ++ " " ++ toString (format v)) $ λ _,
+-- dbgTrace ("processVDecl " ++ toString z ++ " " ++ toString (format v)) $ fun _ =>
 let b := match v with
   | (Expr.ctor _ ys)       := addIncBeforeConsumeAll ctx ys (FnBody.vdecl z t v b) bLiveVars
   | (Expr.reuse _ _ _ ys)  := addIncBeforeConsumeAll ctx ys (FnBody.vdecl z t v b) bLiveVars
@@ -200,7 +200,7 @@ let b := match v with
   | (Expr.uproj _ x)       := FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
   | (Expr.sproj _ _ x)     := FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
   | (Expr.fap f ys)        :=
-    -- dbgTrace ("processVDecl " ++ toString v) $ λ _,
+    -- dbgTrace ("processVDecl " ++ toString v) $ fun _ =>
     let ps := (getDecl ctx f).params;
     let b  := addDecAfterFullApp ctx ys ps b bLiveVars;
     let b  := FnBody.vdecl z t v b;
@@ -216,7 +216,7 @@ let liveVars := liveVars.erase z;
 (b, liveVars)
 
 def updateVarInfoWithParams (ctx : Context) (ps : Array Param) : Context :=
-let m := ps.foldl (λ (m : VarMap) p, m.insert p.x { ref := p.ty.isObj, consume := !p.borrow }) ctx.varMap;
+let m := ps.foldl (fun (m : VarMap) p => m.insert p.x { ref := p.ty.isObj, consume := !p.borrow }) ctx.varMap;
 { varMap := m, .. ctx }
 
 partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
@@ -245,7 +245,7 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
   (FnBody.mdata m b, s)
 | b@(FnBody.case tid x alts) ctx :=
   let caseLiveVars := collectLiveVars b ctx.jpLiveVarMap;
-  let alts         := alts.map $ λ alt, match alt with
+  let alts         := alts.map $ fun alt => match alt with
     | Alt.ctor c b  :=
       let ctx              := updateRefUsingCtorInfo ctx x c;
       let (b, altLiveVars) := visitFnBody b ctx;

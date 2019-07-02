@@ -18,7 +18,7 @@ abbrev ProjMap  := HashMap VarId Expr
 namespace CollectProjMap
 abbrev Collector := ProjMap → ProjMap
 @[inline] def collectVDecl (x : VarId) (v : Expr) : Collector :=
-λ m, match v with
+fun m => match v with
  | Expr.proj _ _    := m.insert x v
  | Expr.sproj _ _ _ := m.insert x v
  | Expr.uproj _ _   := m.insert x v
@@ -27,7 +27,7 @@ abbrev Collector := ProjMap → ProjMap
 partial def collectFnBody : FnBody → Collector
 | (FnBody.vdecl x _ v b)  := collectVDecl x v ∘ collectFnBody b
 | (FnBody.jdecl _ _ v b)  := collectFnBody v ∘ collectFnBody b
-| (FnBody.case _ _ alts)  := λ s, alts.foldl (λ s alt, collectFnBody alt.body s) s
+| (FnBody.case _ _ alts)  := fun s => alts.foldl (fun s alt => collectFnBody alt.body s) s
 | e                       := if e.isTerminal then id else collectFnBody e.body
 end CollectProjMap
 
@@ -49,7 +49,7 @@ partial def consumed (x : VarId) : FnBody → Bool
   | Expr.reuse y _ _ _   := x == y || consumed b
   | _                    := consumed b
 | (FnBody.dec y _ _ b)   := x == y || consumed b
-| (FnBody.case _ _ alts) := alts.all $ λ alt, consumed alt.body
+| (FnBody.case _ _ alts) := alts.all $ fun alt => consumed alt.body
 | e := !e.isTerminal && consumed e.body
 
 abbrev Mask := Array (Option VarId)
@@ -105,7 +105,7 @@ partial def reuseToCtor (x : VarId) : FnBody → FnBody
   | _ :=
     FnBody.vdecl z t v (reuseToCtor b)
 | (FnBody.case tid y alts) :=
-  let alts := alts.map $ λ alt, alt.modifyBody reuseToCtor;
+  let alts := alts.map $ fun alt => alt.modifyBody reuseToCtor;
   FnBody.case tid y alts
 | e :=
   if e.isTerminal then e
@@ -130,18 +130,18 @@ def mkSlowPath (x y : VarId) (mask : Mask) (b : FnBody) : FnBody :=
 let b := reuseToCtor x b;
 let b := FnBody.dec y 1 true b;
 mask.foldl
-  (λ b m, match m with
+  (fun b m => match m with
     | some z := FnBody.inc z 1 true b
     | none   := b)
   b
 
 abbrev M := ReaderT Context (State Nat)
 def mkFresh : M VarId :=
-do idx ← get; modify (λ n, n + 1); pure { idx := idx }
+do idx ← get; modify (fun n => n + 1); pure { idx := idx }
 
 def releaseUnreadFields (y : VarId) (mask : Mask) (b : FnBody) : M FnBody :=
 mask.size.mfold
-  (λ i b,
+  (fun i b =>
     match mask.get i with
     | some _ := pure b -- code took ownership of this field
     | none   := do
@@ -151,7 +151,7 @@ mask.size.mfold
 
 def setFields (y : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
 zs.size.fold
-  (λ i b, FnBody.set y i (zs.get i) b)
+  (fun i b => FnBody.set y i (zs.get i) b)
   b
 
 /- Given `set x[i] := y`, return true iff `y := proj[i] x` -/
@@ -187,7 +187,7 @@ partial def removeSelfSet (ctx : Context) : FnBody → FnBody
   if isSelfSSet ctx x n i y then removeSelfSet b
   else FnBody.sset x n i y t (removeSelfSet b)
 | (FnBody.case tid y alts) :=
-  let alts := alts.map $ λ alt, alt.modifyBody removeSelfSet;
+  let alts := alts.map $ fun alt => alt.modifyBody removeSelfSet;
   FnBody.case tid y alts
 | e :=
   if e.isTerminal then e
@@ -210,7 +210,7 @@ partial def reuseToSet (ctx : Context) (x y : VarId) : FnBody → FnBody
     else FnBody.vdecl z t v (reuseToSet b)
   | _ := FnBody.vdecl z t v (reuseToSet b)
 | (FnBody.case tid y alts) :=
-  let alts := alts.map $ λ alt, alt.modifyBody reuseToSet;
+  let alts := alts.map $ fun alt => alt.modifyBody reuseToSet;
   FnBody.case tid y alts
 | e :=
   if e.isTerminal then e
@@ -268,7 +268,7 @@ partial def searchAndExpand : FnBody → Array FnBody → M FnBody
   v ← searchAndExpand v Array.empty;
   searchAndExpand b (push bs (FnBody.jdecl j xs v FnBody.nil))
 | (FnBody.case tid x alts) bs := do
-  alts ← alts.mmap $ λ alt, alt.mmodifyBody $ λ b, searchAndExpand b Array.empty;
+  alts ← alts.mmap $ fun alt => alt.mmodifyBody $ fun b => searchAndExpand b Array.empty;
   pure $ reshape bs (FnBody.case tid x alts)
 | b bs :=
   if b.isTerminal then pure $ reshape bs b

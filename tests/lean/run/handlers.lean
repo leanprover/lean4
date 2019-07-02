@@ -21,22 +21,22 @@ structure comp (h : Type*) [handler h] (α : Type*) :=
 (handle : (α → h → handler.Result h) → h → handler.Result h)
 
 @[inline] def comp.do {h e u} {op : Type → Type → Type*} [isOp op] [handler h] [handles h op e] (f : op e u) : comp h (isOp.return op e u) :=
-⟨λ k h, handles.clause f k h⟩
+⟨fun k h => r handles.clause f k h⟩
 
 instance (h) [handler h] : Monad (comp h) :=
-{ pure := λ α v, ⟨λ k h, k v h⟩,
-  bind := λ α β ⟨c⟩ f, ⟨λ k h, c (λ x h', (f x).handle k h') h⟩ }
+{ pure := fun α v => ⟨fun k h => k v h⟩,
+  bind := fun α β ⟨c⟩ f => ⟨fun k h => c (fun x h' => (f x).handle k h') h⟩ }
 
 
 inductive Put : Type → Type → Type 1
 | mk {σ : Type} (s : σ) : Put σ Unit
 
-instance Put.op : isOp Put := ⟨λ _ _, Unit⟩
+instance Put.op : isOp Put := ⟨fun _ _ => Unit⟩
 
 inductive Get : Type → Type → Type 1
 | mk {σ : Type} : Get σ Unit
 
-instance Get.op : isOp Get := ⟨λ σ _, σ⟩
+instance Get.op : isOp Get := ⟨fun σ _ => σ⟩
 
 @[inline] def get {h σ } [handler h] [handles h Get σ] : comp h σ :=
 comp.do Get.mk
@@ -46,7 +46,7 @@ comp.do (Put.mk s)
 instance (h σ) [handler h] [handles h Get σ] [handles h Put σ] : MonadState σ (comp h) :=
 { get := get,
   put := put,
-  modify := λ f, f <$> get >>= put }
+  modify := fun f => f <$> get >>= put }
 
 structure stateH (h : Type) (σ : Type) (α : Type) := mk {} ::
 (State : σ)
@@ -54,22 +54,22 @@ structure stateH (h : Type) (σ : Type) (α : Type) := mk {} ::
 instance (h σ α) [handler h] : handler (stateH h σ α) := ⟨comp h α⟩
 
 instance stateHHandleGet (h σ α) [handler h] : handles (stateH h σ α) Get σ :=
-⟨λ _ _ k ⟨st⟩, k st ⟨st⟩⟩
+⟨fun _ _ k ⟨st⟩ => k st ⟨st⟩⟩
 
 instance stateHHandlePut (h σ α) [handler h] : handles (stateH h σ α) Put σ :=
-⟨λ _ op k _, by cases op with _ st'; apply k () ⟨st'⟩⟩
+⟨fun _ op k _ => by cases op with _ st'; apply k () ⟨st'⟩⟩
 
 instance stateHForward (h op σ α) [handler h] [isOp op] [handles h op α] : handles (stateH h σ α) op α :=
-⟨λ _ op k hi, comp.do op >>= (λ x, k x hi)⟩
+⟨fun _ op k hi => comp.do op >>= (fun x => k x hi)⟩
 
 @[inline] def handleState {h σ α} [handler h] (st : σ) (x : comp (stateH h σ α) α) : comp h α :=
-x.handle (λ a _, (pure a : comp h α)) ⟨st⟩
+x.handle (fun a _ => (pure a : comp h α)) ⟨st⟩
 
 
 inductive Read : Type → Type → Type 1
 | mk {ρ : Type} : Read ρ Unit
 
-instance Read.op : isOp Read := ⟨λ ρ _, ρ⟩
+instance Read.op : isOp Read := ⟨fun ρ _ => ρ⟩
 
 @[inline] def read {h ρ} [handler h] [handles h Read ρ] : comp h ρ :=
 comp.do Read.mk
@@ -83,13 +83,13 @@ structure readH (h : Type) (ρ : Type) (α : Type) := mk {} ::
 instance readH.handler (h ρ α) [handler h] : handler (readH h ρ α) := ⟨comp h α⟩
 
 instance readHHandleRead (h ρ α) [handler h] : handles (readH h ρ α) Read ρ :=
-⟨λ _ _ k ⟨env⟩, k env ⟨env⟩⟩
+⟨fun _ _ k ⟨env⟩ => k env ⟨env⟩⟩
 
 instance readHForward (h op ρ α) [handler h] [isOp op] [handles h op α] : handles (readH h ρ α) op α :=
-⟨λ _ op k hi, comp.do op >>= (λ x, k x hi)⟩
+⟨fun _ op k hi => comp.do op >>= (fun x => k x hi)⟩
 
 @[inline] def handleRead {h ρ α} [handler h] (env : ρ) (x : comp (readH h ρ α) α) : comp h α :=
-x.handle (λ a _, (pure a : comp h α)) ⟨env⟩
+x.handle (fun a _ => (pure a : comp h α)) ⟨env⟩
 
 
 structure pureH (α : Type) := mk {}
@@ -97,7 +97,7 @@ structure pureH (α : Type) := mk {}
 instance pureH.handler (α) : handler (pureH α) := ⟨α⟩
 
 @[inline] def handlePure {α} (x : comp (pureH α) α) : α :=
-x.handle (λ a _, a) ⟨⟩
+x.handle (fun a _ => a) ⟨⟩
 end handlers
 
 

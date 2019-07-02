@@ -149,7 +149,7 @@ private def updateLeadingAux : Syntax → State String.Pos (Option Syntax)
     Note that, the `SourceInfo.trailing` fields are correct.
     The implementation of this Function relies on this property. -/
 def updateLeading : Syntax → Syntax :=
-λ stx, Prod.fst <$> (mreplace updateLeadingAux stx).run 0
+fun stx => Prod.fst <$> (mreplace updateLeadingAux stx).run 0
 
 partial def updateTrailing (trailing : Substring) : Syntax → Syntax
 | (Syntax.atom (some info) val)                     := Syntax.atom (some (info.updateTrailing trailing)) val
@@ -185,8 +185,8 @@ partial def reprint : Syntax → Option String
     if args.size == 0 then failure
     else do
       s ← reprint (args.get 0);
-      args.mfoldlFrom (λ s stx, do s' ← reprint stx; guard (s == s'); pure s) s 1
-  else args.mfoldl (λ r stx, do s ← reprint stx; pure $ r ++ s) ""
+      args.mfoldlFrom (fun s stx => do s' ← reprint stx; guard (s == s'); pure s) s 1
+  else args.mfoldl (fun r stx => do s ← reprint stx; pure $ r ++ s) ""
 | missing := ""
 
 open Lean.Format

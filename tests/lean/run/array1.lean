@@ -1,15 +1,15 @@
 #check @Array.mk
 
-def v : Array Nat := @Array.mk Nat 10 (λ ⟨i, _⟩, i)
+def v : Array Nat := @Array.mk Nat 10 (fun ⟨i, _⟩ => i)
 
 def w : Array Nat :=
 (mkArray 9 1).push 3
 
 def f : Fin w.sz → Nat :=
-Array.casesOn w (λ _ f, f)
+Array.casesOn w (fun _ f => f)
 
 def arraySum (a : Array Nat) : Nat :=
-a.foldl (+) 0
+a.foldl Nat.add 0
 
 #exit
 

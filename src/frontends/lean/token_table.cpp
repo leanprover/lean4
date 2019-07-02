@@ -90,7 +90,7 @@ void init_token_table(token_table & t) {
          {"Type", g_max_prec}, {"Type*", g_max_prec}, {"Sort", g_max_prec}, {"Sort*", g_max_prec},
          {"(:", g_max_prec}, {":)", 0}, {".(", g_max_prec}, {"._", g_max_prec},
          {"⟨", g_max_prec}, {"⟩", 0}, {"^", 0},
-         {"//", 0}, {"|", 0}, {"with", 0}, {"without", 0}, {"..", 0}, {"...", 0}, {",", 0},
+         {"//", 0}, {"|", 0}, {"with", 0}, {"without", 0}, {"..", 0}, {"...", 0}, {",", 0}, {"=>", 0},
          {".", 0}, {":", 0}, {"!", 0}, {":=", 0}, {"--", 0}, {"#", g_max_prec},
          {"/-", 0}, {"/--", 0}, {"/-!", 0}, {"begin", g_max_prec}, {"using", 0},
          {"@@", g_max_prec}, {"@", g_max_prec}, {"@&", g_max_prec},
@@ -136,6 +136,7 @@ void init_token_table(token_table & t) {
     }
     t = add_token(t, "→", "->", get_arrow_prec());
     t = add_token(t, "←", "<-", 0);
+    t = add_token(t, "⇒", "=>", 0);
 
     auto it4 = cmd_aliases;
     while (it4->first) {

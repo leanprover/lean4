@@ -20,18 +20,18 @@ let y2 := y1 in
 y2 + n
 
 def cseTst (n : Nat) : Nat :=
-let y := Nat.succ ((λ x, x) n) in
+let y := Nat.succ ((fun x => x) n) in
 let z := Nat.succ n in
 y + z
 
 def tst1 (n : Nat) : Nat :=
 let p := (Nat.succ n, n) in
 let q := (p, p) in
-Prod.casesOn q (λ x y, Prod.casesOn x (λ z w, z))
+Prod.casesOn q (fun x y => Prod.casesOn x (fun z w => z))
 
 def tst2 (n : Nat) : Nat :=
-let p := (λ x, Nat.succ x, Nat.zero)  in
-let f := λ p : (Nat → Nat) × Nat, p.1 in
+let p := (fun x => Nat.succ x, Nat.zero)  in
+let f := fun (p : (Nat → Nat) × Nat) => p.1 in
 f p n
 
 def add' : Nat → Nat → Nat
@@ -42,22 +42,22 @@ def aux (i : Nat) (h : i > 0) :=
 i
 
 unsafe def foo2 : Nat :=
-@False.rec (λ _, Nat) sorry
+@False.rec (fun _ => Nat) sorry
 
 set_option pp.notation false
 
 def foo3 (n : Nat) : Nat :=
-(λ a : Nat, a + a + a) (n*n)
+(fun a : Nat => a + a + a) (n*n)
 
 def boo (a : Nat) (l : List Nat) : List Nat :=
 let f := @List.cons Nat in
 f a (f a l)
 
 def bla (i : Nat) (h : i > 0 ∧ i ≠ 10) : Nat :=
-@And.rec _ _ (λ _, Nat) (λ h₁ h₂, aux i h₁ + aux i h₁) h
+@And.rec _ _ (fun _ => Nat) (fun h₁ h₂ => aux i h₁ + aux i h₁) h
 
 def bla' (i : Nat) (h : i > 0 ∧ i ≠ 10) : Nat :=
-@And.casesOn _ _ (λ _, Nat) h (λ h₁ h₂, aux i h₁ + aux i h₁)
+@And.casesOn _ _ (fun _ => Nat) h (fun h₁ h₂ => aux i h₁ + aux i h₁)
 
 inductive vec (α : Type u) : Nat → Type u
 | nil {}  : vec 0

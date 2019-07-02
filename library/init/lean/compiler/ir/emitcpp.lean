@@ -41,13 +41,13 @@ do env ← getEnv;
    | none   := throw ("unknown declaration '" ++ toString n ++ "'")
 
 @[inline] def emit {α : Type} [HasToString α] (a : α) : M Unit :=
-modify (λ out, out ++ toString a)
+modify (fun out => out ++ toString a)
 
 @[inline] def emitLn {α : Type} [HasToString α] (a : α) : M Unit :=
 emit a *> emit "\n"
 
 def emitLns {α : Type} [HasToString α] (as : List α) : M Unit :=
-as.mfor $ λ a, emitLn a
+as.mfor $ fun a => emitLn a
 
 def argToCppString (x : Arg) : String :=
 match x with
@@ -132,7 +132,7 @@ when (ps.isEmpty && addExternForConsts) (emit "extern ");
 emit (toCppType decl.resultType ++ " " ++ cppBaseName);
 unless (ps.isEmpty) $ do {
   emit "(";
-  ps.size.mfor $ λ i, do {
+  ps.size.mfor $ fun i => do {
     when (i > 0) (emit ", ");
     emit (toCppType (ps.get i).ty)
   };
@@ -165,10 +165,10 @@ def emitFnDecls : M Unit :=
 do
 env ← getEnv;
 let decls := getDecls env;
-let modDecls  : NameSet := decls.foldl (λ s d, s.insert d.name) {};
-let usedDecls : NameSet := decls.foldl (λ s d, collectUsedDecls env d (s.insert d.name)) {};
+let modDecls  : NameSet := decls.foldl (fun s d => s.insert d.name) {};
+let usedDecls : NameSet := decls.foldl (fun s d => collectUsedDecls env d (s.insert d.name)) {};
 let usedDecls := usedDecls.toList;
-usedDecls.mfor $ λ n, do
+usedDecls.mfor $ fun n => do
   decl ← getDecl n;
   match getExternNameFor env `cpp decl.name with
   | some cppName := emitExternDeclAux decl cppName
@@ -222,7 +222,7 @@ match d with
 def hasMainFn : M Bool :=
 do env ← getEnv;
    let decls := getDecls env;
-   pure $ decls.any (λ d, d.name == `main)
+   pure $ decls.any (fun d => d.name == `main)
 
 def emitMainFnIfNeeded : M Unit :=
 mwhen hasMainFn emitMainFn
@@ -234,7 +234,7 @@ modName ← getModName;
 emitLn "// Lean compiler output";
 emitLn ("// Module: " ++ toString modName);
 emit "// Imports:";
-env.imports.mfor $ λ m, emit (" " ++ toString m);
+env.imports.mfor $ fun m => emit (" " ++ toString m);
 emitLn "";
 emitLn "#include \"runtime/object.h\"";
 emitLn "#include \"runtime/apply.h\"";
@@ -271,7 +271,7 @@ def declareVar (x : VarId) (t : IRType) : M Unit :=
 do emit (toCppType t); emit " "; emit x; emit "; "
 
 def declareParams (ps : Array Param) : M Unit :=
-ps.mfor $ λ p, declareVar p.x p.ty
+ps.mfor $ fun p => declareVar p.x p.ty
 
 partial def declareVars : FnBody → Bool → M Bool
 | e@(FnBody.vdecl x t _ b)  d := do
@@ -310,7 +310,7 @@ match isIf alts with
 | _ := do
   emit "switch ("; emitTag x; emitLn ") {";
   let alts := ensureHasDefault alts;
-  alts.mfor $ λ alt, match alt with
+  alts.mfor $ fun alt => match alt with
     | Alt.ctor c b  := emit "case " *> emit c.cidx *> emitLn ":" *> emitBody b
     | Alt.default b := emitLn "default: " *> emitBody b;
   emitLn "}"
@@ -355,7 +355,7 @@ def emitJmp (j : JoinPointId) (xs : Array Arg) : M Unit :=
 do
   ps ← getJPParams j;
   unless (xs.size == ps.size) (throw "invalid goto");
-  xs.size.mfor $ λ i, do {
+  xs.size.mfor $ fun i => do {
     let p := ps.get i;
     let x := xs.get i;
     emit p.x; emit " = "; emitArg x; emitLn ";"
@@ -366,7 +366,7 @@ def emitLhs (z : VarId) : M Unit :=
 do emit z; emit " = "
 
 def emitArgs (ys : Array Arg) : M Unit :=
-ys.size.mfor $ λ i, do
+ys.size.mfor $ fun i => do
   when (i > 0) (emit ", ");
   emitArg (ys.get i)
 
@@ -381,7 +381,7 @@ emit "lean::alloc_cnstr("; emit c.cidx; emit ", "; emit c.size; emit ", ";
 emitCtorScalarSize c.usize c.ssize; emitLn ");"
 
 def emitCtorSetArgs (z : VarId) (ys : Array Arg) : M Unit :=
-ys.size.mfor $ λ i, do
+ys.size.mfor $ fun i => do
   emit "lean::cnstr_set("; emit z; emit ", "; emit i; emit ", "; emitArg (ys.get i); emitLn ");"
 
 def emitCtor (z : VarId) (c : CtorInfo) (ys : Array Arg) : M Unit :=
@@ -395,7 +395,7 @@ else do
 def emitReset (z : VarId) (n : Nat) (x : VarId) : M Unit :=
 do
 emit "if (lean::is_exclusive("; emit x; emitLn ")) {";
-n.mfor $ λ i, do {
+n.mfor $ fun i => do {
   emit " lean::cnstr_release("; emit x; emit ", "; emit i; emitLn ");"
 };
 emit " "; emitLhs z; emit x; emitLn ";";
@@ -442,7 +442,7 @@ do
 decl ← getDecl f;
 let arity := decl.params.size;
 emitLhs z; emit "lean::alloc_closure(reinterpret_cast<void*>("; emitCppName f; emit "), "; emit arity; emit ", "; emit ys.size; emitLn ");";
-ys.size.mfor $ λ i, do {
+ys.size.mfor $ fun i => do {
    let y := ys.get i;
    emit "lean::closure_set("; emit z; emit ", "; emit i; emit ", "; emitArg y; emitLn ");"
 }
@@ -488,7 +488,7 @@ String.singleton c.digitChar
 def quoteString (s : String) : String :=
 let q := "\"";
 let q := s.foldl
-  (λ q c, q ++
+  (fun q c => q ++
     if c == '\n' then "\\n"
     else if c == '\n' then "\\t"
     else if c == '\\' then "\\\\"
@@ -560,9 +560,9 @@ That is, we have
 -/
 def overwriteParam (ps : Array Param) (ys : Array Arg) : Bool :=
 let n := ps.size;
-n.any $ λ i,
+n.any $ fun i =>
   let p := ps.get i;
-  (i+1, n).anyI $ λ j, paramEqArg p (ys.get j)
+  (i+1, n).anyI $ fun j => paramEqArg p (ys.get j)
 
 def emitTailCall (v : Expr) : M Unit :=
 match v with
@@ -572,21 +572,21 @@ match v with
   unless (ps.size == ys.size) (throw "invalid tail call");
   if overwriteParam ps ys then do {
     emitLn "{";
-    ps.size.mfor $ λ i, do {
+    ps.size.mfor $ fun i => do {
       let p := ps.get i;
       let y := ys.get i;
       unless (paramEqArg p y) $ do {
         emit (toCppType p.ty); emit " _tmp_"; emit i; emit " = "; emitArg y; emitLn ";"
       }
     };
-    ps.size.mfor $ λ i, do {
+    ps.size.mfor $ fun i => do {
       let p := ps.get i;
       let y := ys.get i;
       unless (paramEqArg p y) (do emit p.x; emit " = _tmp_"; emit i; emitLn ";")
     };
     emitLn "}"
   } else do {
-    ys.size.mfor $ λ i, do {
+    ys.size.mfor $ fun i => do {
       let p := ps.get i;
       let y := ys.get i;
       unless (paramEqArg p y) (do emit p.x; emit " = "; emitArg y; emitLn ";")
@@ -629,7 +629,7 @@ def emitDeclAux (d : Decl) : M Unit :=
 do
 env ← getEnv;
 let (vMap, jpMap) := mkVarJPMaps d;
-adaptReader (λ ctx : Context, { varMap := vMap, jpMap := jpMap, .. ctx }) $ do
+adaptReader (fun ctx : Context => { varMap := vMap, jpMap := jpMap, .. ctx }) $ do
 unless (hasInitAttr env d.name) $
   match d with
   | Decl.fdecl f xs t b := do
@@ -639,7 +639,7 @@ unless (hasInitAttr env d.name) $
     if xs.size > 0 then do {
       emit baseName;
       emit "(";
-      xs.size.mfor $ λ i, do {
+      xs.size.mfor $ fun i => do {
         when (i > 0) (emit ", ");
         let x := xs.get i;
         emit (toCppType x.ty); emit " "; emit(x.x)
@@ -650,7 +650,7 @@ unless (hasInitAttr env d.name) $
     };
     emitLn " {";
     emitLn "_start:";
-    adaptReader (λ ctx : Context, { mainFn := f, mainParams := xs, .. ctx }) (emitFnBody b);
+    adaptReader (fun ctx : Context => { mainFn := f, mainParams := xs, .. ctx }) (emitFnBody b);
     emitLn "}";
     closeNamespacesFor f
   | _ := pure ()
@@ -659,7 +659,7 @@ def emitDecl (d : Decl) : M Unit :=
 let d := d.normalizeIds;
 catch
   (emitDeclAux d)
-  (λ err, throw (err ++ "\ncompiling:\n" ++ toString d))
+  (fun err => throw (err ++ "\ncompiling:\n" ++ toString d))
 
 def emitFns : M Unit :=
 do
@@ -717,7 +717,7 @@ def emitInitFn : M Unit :=
 do
 env ← getEnv;
 modName ← getModName;
-env.imports.mfor $ λ m, emitLn ("obj* initialize_" ++ m.mangle "" ++ "(obj*);");
+env.imports.mfor $ fun m => emitLn ("obj* initialize_" ++ m.mangle "" ++ "(obj*);");
 emitLns [
     "static bool _G_initialized = false;",
     "obj* initialize_" ++ modName.mangle "" ++ "(obj* w) {",
@@ -725,7 +725,7 @@ emitLns [
     "_G_initialized = true;",
     "if (io_result_is_error(w)) return w;"
 ];
-env.imports.mfor $ λ m, emitLns [
+env.imports.mfor $ fun m => emitLns [
   "w = initialize_" ++ m.mangle "" ++ "(w);",
   "if (io_result_is_error(w)) return w;"
 ];

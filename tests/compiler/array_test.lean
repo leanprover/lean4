@@ -12,7 +12,7 @@ do
  IO.println (toString a.sz);
  let a := foo a;
  IO.println (toString a);
- let a := a.map (+10);
+ let a := a.map (fun a => a + 10);
  IO.println (toString a);
  IO.println (toString a.sz);
  let a1 := a.pop;
@@ -21,7 +21,7 @@ do
  IO.println (toString a2);
  let a2 := a.pop;
  IO.println a2;
- IO.println $ (([1, 2, 3, 4].toArray).map (+2)).map toString;
+ IO.println $ (([1, 2, 3, 4].toArray).map (fun a => a + 2)).map toString;
  IO.println $ ([1, 2, 3, 4].toArray.extract 1 3);
  IO.println $ ([1, 2, 3, 4].toArray.extract 0 100);
  IO.println $ ([1, 2, 3, 4].toArray.extract 1 1);
@@ -29,10 +29,10 @@ do
  IO.println [1,2,3,4].toArray.reverse;
  IO.println ([] : List Nat).toArray.reverse;
  IO.println [1,2,3].toArray.reverse;
- IO.println $ [1,2,3,4].toArray.filter (λ a, a % 2 == 0);
- IO.println $ [1,2,3,4,5].toArray.filter (λ a, a % 2 == 0);
- IO.println $ [1,2,3,4,5].toArray.filter (λ a, a % 2 == 1);
- IO.println $ [1,2,3,4].toArray.filter (>2);
- IO.println $ [1,2,3,4].toArray.filter (>10);
- IO.println $ [1,2,3,4].toArray.filter (>0);
+ IO.println $ [1,2,3,4].toArray.filter (fun a => a % 2 == 0);
+ IO.println $ [1,2,3,4,5].toArray.filter (fun a =>  a % 2 == 0);
+ IO.println $ [1,2,3,4,5].toArray.filter (fun a => a % 2 == 1);
+ IO.println $ [1,2,3,4].toArray.filter (fun a => a > 2);
+ IO.println $ [1,2,3,4].toArray.filter (fun a => a > 10);
+ IO.println $ [1,2,3,4].toArray.filter (fun a => a > 0);
  pure 0

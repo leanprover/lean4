@@ -19,10 +19,10 @@ instance {α : Type u} [HasRepr α] : HasRepr (id α) :=
 inferInstanceAs (HasRepr α)
 
 instance : HasRepr Bool :=
-⟨λ b, cond b "true" "false"⟩
+⟨fun b => cond b "true" "false"⟩
 
 instance {p : Prop} : HasRepr (Decidable p) :=
-⟨λ b : Decidable p, @ite p b _ "true" "false"⟩
+⟨fun b => @ite p b _ "true" "false"⟩
 
 protected def List.reprAux {α : Type u} [HasRepr α] : Bool → List α → String
 | b     []      := ""
@@ -37,22 +37,22 @@ instance {α : Type u} [HasRepr α] : HasRepr (List α) :=
 ⟨List.repr⟩
 
 instance : HasRepr Unit :=
-⟨λ u, "()"⟩
+⟨fun u => "()"⟩
 
 instance {α : Type u} [HasRepr α] : HasRepr (Option α) :=
-⟨λ o, match o with | none := "none" | (some a) := "(some " ++ repr a ++ ")"⟩
+⟨fun o => match o with | none := "none" | (some a) := "(some " ++ repr a ++ ")"⟩
 
 instance {α : Type u} {β : Type v} [HasRepr α] [HasRepr β] : HasRepr (α ⊕ β) :=
-⟨λ s, match s with | (inl a) := "(inl " ++ repr a ++ ")" | (inr b) := "(inr " ++ repr b ++ ")"⟩
+⟨fun s => match s with | (inl a) := "(inl " ++ repr a ++ ")" | (inr b) := "(inr " ++ repr b ++ ")"⟩
 
 instance {α : Type u} {β : Type v} [HasRepr α] [HasRepr β] : HasRepr (α × β) :=
-⟨λ ⟨a, b⟩, "(" ++ repr a ++ ", " ++ repr b ++ ")"⟩
+⟨fun ⟨a, b⟩ => "(" ++ repr a ++ ", " ++ repr b ++ ")"⟩
 
 instance {α : Type u} {β : α → Type v} [HasRepr α] [s : ∀ x, HasRepr (β x)] : HasRepr (Sigma β) :=
-⟨λ ⟨a, b⟩, "⟨"  ++ repr a ++ ", " ++ repr b ++ "⟩"⟩
+⟨fun ⟨a, b⟩ => "⟨"  ++ repr a ++ ", " ++ repr b ++ "⟩"⟩
 
 instance {α : Type u} {p : α → Prop} [HasRepr α] : HasRepr (Subtype p) :=
-⟨λ s, repr (val s)⟩
+⟨fun s => repr (val s)⟩
 
 namespace Nat
 
@@ -112,7 +112,7 @@ else if  c.toNat <= 31 ∨ c = '\x7f' then "\\x" ++ charToHex c
 else String.singleton c
 
 instance : HasRepr Char :=
-⟨λ c, "'" ++ Char.quoteCore c ++ "'"⟩
+⟨fun c => "'" ++ Char.quoteCore c ++ "'"⟩
 
 def String.quoteAux : List Char → String
 | []      := ""
@@ -126,18 +126,18 @@ instance : HasRepr String :=
 ⟨String.quote⟩
 
 instance : HasRepr Substring :=
-⟨λ s, String.quote s.toString ++ ".toSubstring"⟩
+⟨fun s => String.quote s.toString ++ ".toSubstring"⟩
 
 instance : HasRepr String.Iterator :=
-⟨λ it, it.remainingToString.quote ++ ".mkIterator"⟩
+⟨fun it => it.remainingToString.quote ++ ".mkIterator"⟩
 
 instance (n : Nat) : HasRepr (Fin n) :=
-⟨λ f, repr (Fin.val f)⟩
+⟨fun f => repr (Fin.val f)⟩
 
-instance : HasRepr UInt16 := ⟨λ n, repr n.toNat⟩
-instance : HasRepr UInt32 := ⟨λ n, repr n.toNat⟩
-instance : HasRepr UInt64 := ⟨λ n, repr n.toNat⟩
-instance : HasRepr USize  := ⟨λ n, repr n.toNat⟩
+instance : HasRepr UInt16 := ⟨fun n => repr n.toNat⟩
+instance : HasRepr UInt32 := ⟨fun n => repr n.toNat⟩
+instance : HasRepr UInt64 := ⟨fun n => repr n.toNat⟩
+instance : HasRepr USize  := ⟨fun n => repr n.toNat⟩
 
 def Char.repr (c : Char) : String :=
 repr c

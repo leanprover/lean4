@@ -21,7 +21,7 @@ inductive Trace
 
 partial def Trace.pp : Trace → Format
 | (Trace.mk (Message.fromFormat fmt) subtraces) :=
-fmt ++ Format.nest 2 (Format.join $ subtraces.map (λ t, Format.line ++ t.pp))
+fmt ++ Format.nest 2 (Format.join $ subtraces.map (fun t => Format.line ++ t.pp))
 
 namespace Trace
 
@@ -47,16 +47,16 @@ def Trace {m} [Monad m] [MonadTracer m] (cls : Name) (msg : Message) : m Unit :=
 traceCtx cls msg (pure () : m Unit)
 
 instance (m) [Monad m] : MonadTracer (TraceT m) :=
-{ traceRoot := λ α pos cls msg ctx, do {
+{ traceRoot := fun α pos cls msg ctx => do {
     st ← get;
     if st.opts.getBool cls = true then do {
-      modify $ λ st, {curPos := pos, curTraces := [], ..st};
+      modify $ fun st => {curPos := pos, curTraces := [], ..st};
       a ← ctx.get;
-      modify $ λ (st : TraceState), {roots := st.roots.insert pos ⟨msg, st.curTraces⟩, ..st};
+      modify $ fun (st : TraceState) => {roots := st.roots.insert pos ⟨msg, st.curTraces⟩, ..st};
       pure a
     } else ctx.get
   },
-  traceCtx := λ α cls msg ctx, do {
+  traceCtx := fun α cls msg ctx => do {
     st ← get;
     -- tracing enabled?
     some _ ← pure st.curPos | ctx.get;
@@ -64,13 +64,13 @@ instance (m) [Monad m] : MonadTracer (TraceT m) :=
     if st.opts.getBool cls = true then do {
       set {curTraces := [], ..st};
       a ← ctx.get;
-      modify $ λ (st' : TraceState), {curTraces := st.curTraces ++ [⟨msg, st'.curTraces⟩], ..st'};
+      modify $ fun (st' : TraceState) => {curTraces := st.curTraces ++ [⟨msg, st'.curTraces⟩], ..st'};
       pure a
     } else
       -- disable tracing inside 'ctx'
       adaptState'
-        (λ _, {curPos := none, ..st})
-        (λ st', {curPos := st.curPos, ..st'})
+        (fun _ => {curPos := none, ..st})
+        (fun st' => {curPos := st.curPos, ..st'})
         ctx.get
   }
 }

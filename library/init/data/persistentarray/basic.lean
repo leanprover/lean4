@@ -59,7 +59,7 @@ partial def setAux : PersistentArrayNode α → USize → USize → α → Persi
   let j     := div2Shift i shift;
   let i     := mod2Shift i shift;
   let shift := shift - initShift;
-  node $ cs.modify j.toNat $ λ c, setAux c i shift a
+  node $ cs.modify j.toNat $ fun c => setAux c i shift a
 | (leaf cs) i _     a := leaf (cs.set i.toNat a)
 
 def set (t : PersistentArray α) (i : Nat) (a : α) : PersistentArray α :=
@@ -73,7 +73,7 @@ else
   let j     := div2Shift i shift;
   let i     := mod2Shift i shift;
   let shift := shift - initShift;
-  node $ cs.modify j.toNat $ λ c, modifyAux c i shift
+  node $ cs.modify j.toNat $ fun c => modifyAux c i shift
 | (leaf cs) i _     := leaf (cs.modify i.toNat f)
 
 @[specialize] def modify [Inhabited α] (t : PersistentArray α) (i : Nat) (f : α → α) : PersistentArray α :=
@@ -98,7 +98,7 @@ partial def insertNewLeaf : PersistentArrayNode α → USize → USize → Array
     let i     := mod2Shift i shift;
     let shift := shift - initShift;
     if j.toNat < cs.size then
-       node $ cs.modify j.toNat $ λ c, insertNewLeaf c i shift a
+       node $ cs.modify j.toNat $ fun c => insertNewLeaf c i shift a
     else
        node $ cs.push $ mkNewPath shift a
 | n _ _ _ := n -- unreachable
@@ -129,7 +129,7 @@ section
 variables {m : Type v → Type v} [Monad m]
 
 @[specialize] partial def mfoldlAux (f : β → α → m β) : PersistentArrayNode α → β → m β
-| (node cs) b := cs.mfoldl (λ b c, mfoldlAux c b) b
+| (node cs) b := cs.mfoldl (fun b c => mfoldlAux c b) b
 | (leaf vs) b := vs.mfoldl f b
 
 @[specialize] def mfoldl (f : β → α → m β) (b : β) (t : PersistentArray α) : m β :=
@@ -141,13 +141,13 @@ end
 Id.run (t.mfoldl f b)
 
 def toList (t : PersistentArray α) : List α :=
-(t.foldl (λ xs x, x :: xs) []).reverse
+(t.foldl (fun xs x => x :: xs) []).reverse
 
 section
 variables {m : Type v → Type v} [Monad m]
 
 @[specialize] partial def mmapAux (f : α → m β) : PersistentArrayNode α → m (PersistentArrayNode β)
-| (node cs) := node <$> cs.mmap (λ c, mmapAux c)
+| (node cs) := node <$> cs.mmap (fun c => mmapAux c)
 | (leaf vs) := leaf <$> vs.mmap f
 
 @[specialize] def mmap (f : α → m β) (t : PersistentArray α) : m (PersistentArray β) :=
@@ -166,7 +166,7 @@ structure Stats :=
 
 partial def collectStats : PersistentArrayNode α → Stats → Nat → Stats
 | (node cs) s d :=
-  cs.foldl (λ s c, collectStats c s (d+1))
+  cs.foldl (fun s c => collectStats c s (d+1))
     { numNodes := s.numNodes + 1,
       depth    := Nat.max d s.depth, .. s }
 | (leaf vs) s d := { numNodes := s.numNodes + 1, depth := Nat.max d s.depth, .. s }

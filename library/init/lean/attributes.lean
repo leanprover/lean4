@@ -29,8 +29,8 @@ end ScopeManagerState
 def regScopeManagerExtension : IO (SimplePersistentEnvExtension Name ScopeManagerState) :=
 registerSimplePersistentEnvExtension {
   name            := `scopes,
-  addImportedFn   := λ as, mkStateFromImportedEntries ScopeManagerState.saveNamespace {} as,
-  addEntryFn      := λ s n, { allNamespaces := s.allNamespaces.insert n, .. s },
+  addImportedFn   := fun as => mkStateFromImportedEntries ScopeManagerState.saveNamespace {} as,
+  addEntryFn      := fun s n => { allNamespaces := s.allNamespaces.insert n, .. s },
 }
 
 @[init regScopeManagerExtension]
@@ -76,7 +76,7 @@ def toValidNamespace (env : Environment) (n : Name) : Option Name :=
 let s := scopeManagerExt.getState env;
 if s.allNamespaces.contains n then some n
 else s.namespaces.foldl
-  (λ r ns, match r with
+  (fun r ns => match r with
     | some _ := r
     | none   :=
       let c := ns ++ n;
@@ -95,7 +95,7 @@ def pushScopeCore (env : Environment) (header : Name) (isNamespace : Bool) : Env
 let ns    := env.getNamespace;
 let newNs := if isNamespace then ns ++ header else ns;
 let env   := env.registerNamespaceAux newNs;
-let env   := scopeManagerExt.modifyState env $ λ s,
+let env   := scopeManagerExt.modifyState env $ fun s =>
   { headers     := header :: s.headers,
     namespaces  := newNs :: s.namespaces,
     isNamespace := isNamespace :: s.isNamespace,
@@ -104,7 +104,7 @@ env
 
 def popScopeCore (env : Environment) : Environment :=
 if env.getNamespaces.isEmpty then env
-else scopeManagerExt.modifyState env $ λ s,
+else scopeManagerExt.modifyState env $ fun s =>
   { headers     := s.headers.tail,
     namespaces  := s.namespaces.tail,
     isNamespace := s.isNamespace.tail,
@@ -129,7 +129,7 @@ structure AttributeImpl :=
 (applicationTime := AttributeApplicationTime.afterTypeChecking)
 
 instance AttributeImpl.inhabited : Inhabited AttributeImpl :=
-⟨{ name := default _, descr := default _, add := λ env _ _ _, pure env }⟩
+⟨{ name := default _, descr := default _, add := fun env _ _ _ => pure env }⟩
 
 def mkAttributeMapRef : IO (IO.Ref (HashMap Name AttributeImpl)) :=
 IO.mkRef {}
@@ -149,8 +149,8 @@ do m ← attributeMapRef.get;
    when (m.contains attr.name) $ throw (IO.userError ("invalid attribute declaration, '" ++ toString attr.name ++ "' has already been used"));
    initializing ← IO.initializing;
    unless initializing $ throw (IO.userError ("failed to register attribute, attributes can only be registered during initialization"));
-   attributeMapRef.modify (λ m, m.insert attr.name attr);
-   attributeArrayRef.modify (λ attrs, attrs.push attr)
+   attributeMapRef.modify (fun m => m.insert attr.name attr);
+   attributeArrayRef.modify (fun attrs => attrs.push attr)
 
 /- Return true iff `n` is the name of a registered attribute. -/
 @[export lean.is_attribute_core]
@@ -159,7 +159,7 @@ do m ← attributeMapRef.get; pure (m.contains n)
 
 /- Return the name of all registered attributes. -/
 def getAttributeNames : IO (List Name) :=
-do m ← attributeMapRef.get; pure $ m.fold (λ r n _, n::r) []
+do m ← attributeMapRef.get; pure $ m.fold (fun r n _ => n::r) []
 
 def getAttributeImpl (attrName : Name) : IO AttributeImpl :=
 do m ← attributeMapRef.get;
@@ -218,7 +218,7 @@ do attr ← getAttributeImpl attrName;
 @[export lean.activate_scoped_attributes_core]
 def activateScopedAttributes (env : Environment) (scope : Name) : IO Environment :=
 do attrs ← attributeArrayRef.get;
-   attrs.mfoldl (λ env attr, attr.activateScoped env scope) env
+   attrs.mfoldl (fun env attr => attr.activateScoped env scope) env
 
 /- We use this function to implement commands `namespace foo` and `section foo`.
    It activates scoped attributes in the new resulting namespace. -/
@@ -227,14 +227,14 @@ def pushScope (env : Environment) (header : Name) (isNamespace : Bool) : IO Envi
 do let env := env.pushScopeCore header isNamespace;
    let ns  := env.getNamespace;
    attrs ← attributeArrayRef.get;
-   attrs.mfoldl (λ env attr, do env ← attr.pushScope env; if isNamespace then attr.activateScoped env ns else pure env) env
+   attrs.mfoldl (fun env attr => do env ← attr.pushScope env; if isNamespace then attr.activateScoped env ns else pure env) env
 
 /- We use this function to implement commands `end foo` for closing namespaces and sections. -/
 @[export lean.pop_scope_core]
 def popScope (env : Environment) : IO Environment :=
 do let env := env.popScopeCore;
    attrs ← attributeArrayRef.get;
-   attrs.mfoldl (λ env attr, attr.popScope env) env
+   attrs.mfoldl (fun env attr => attr.popScope env) env
 
 end Environment
 
@@ -250,21 +250,21 @@ structure TagAttribute :=
 (attr : AttributeImpl)
 (ext  : PersistentEnvExtension Name NameSet)
 
-def registerTagAttribute (name : Name) (descr : String) (validate : Environment → Name → Except String Unit := λ _ _, Except.ok ()) : IO TagAttribute :=
+def registerTagAttribute (name : Name) (descr : String) (validate : Environment → Name → Except String Unit := fun _ _ => Except.ok ()) : IO TagAttribute :=
 do
 ext : PersistentEnvExtension Name NameSet ← registerPersistentEnvExtension {
   name            := name,
-  addImportedFn   := λ _, {},
-  addEntryFn      := λ (s : NameSet) n, s.insert n,
-  exportEntriesFn := λ es,
-    let r : Array Name := es.fold (λ a e, a.push e) Array.empty;
+  addImportedFn   := fun _ => {},
+  addEntryFn      := fun (s : NameSet) n => s.insert n,
+  exportEntriesFn := fun es =>
+    let r : Array Name := es.fold (fun a e => a.push e) Array.empty;
     r.qsort Name.quickLt,
-  statsFn         := λ s, "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
+  statsFn         := fun s => "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
 };
 let attrImpl : AttributeImpl := {
   name  := name,
   descr := descr,
-  add   := λ env decl args persistent, do
+  add   := fun env decl args persistent => do
     unless args.isMissing $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', unexpected argument"));
     unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
     unless (env.getModuleIdxFor decl).isNone $
@@ -299,21 +299,21 @@ structure ParametricAttribute (α : Type) :=
 
 def registerParametricAttribute {α : Type} [Inhabited α] (name : Name) (descr : String)
        (getParam : Environment → Name → Syntax → Except String α)
-       (afterSet : Environment → Name → α → Except String Environment := λ env _ _, Except.ok env) : IO (ParametricAttribute α) :=
+       (afterSet : Environment → Name → α → Except String Environment := fun env _ _ => Except.ok env) : IO (ParametricAttribute α) :=
 do
 ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistentEnvExtension {
   name            := name,
-  addImportedFn   := λ _, {},
-  addEntryFn      := λ (s : NameMap α) (p : Name × α), s.insert p.1 p.2,
-  exportEntriesFn := λ m,
-    let r : Array (Name × α) := m.fold (λ a n p, a.push (n, p)) Array.empty;
-    r.qsort (λ a b, Name.quickLt a.1 b.1),
-  statsFn         := λ s, "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
+  addImportedFn   := fun _ => {},
+  addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2,
+  exportEntriesFn := fun m =>
+    let r : Array (Name × α) := m.fold (fun a n p => a.push (n, p)) Array.empty;
+    r.qsort (fun a b => Name.quickLt a.1 b.1),
+  statsFn         := fun s => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
 };
 let attrImpl : AttributeImpl := {
   name  := name,
   descr := descr,
-  add   := λ env decl args persistent, do
+  add   := fun env decl args persistent => do
     unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
     unless (env.getModuleIdxFor decl).isNone $
       throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
@@ -335,7 +335,7 @@ instance {α : Type} : Inhabited (ParametricAttribute α) := ⟨{attr := default
 def getParam {α : Type} [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) : Option α :=
 match env.getModuleIdxFor decl with
 | some modIdx :=
-  match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default _) (λ a b, Name.quickLt a.1 b.1) with
+  match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default _) (fun a b => Name.quickLt a.1 b.1) with
   | some (_, val) := some val
   | none          := none
 | none        := (attr.ext.getState env).find decl
@@ -358,21 +358,21 @@ structure EnumAttributes (α : Type) :=
 (attrs : List AttributeImpl)
 (ext   : PersistentEnvExtension (Name × α) (NameMap α))
 
-def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDescrs : List (Name × String × α)) (validate : Environment → Name → α → Except String Unit := λ _ _ _, Except.ok ()) : IO (EnumAttributes α) :=
+def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDescrs : List (Name × String × α)) (validate : Environment → Name → α → Except String Unit := fun _ _ _ => Except.ok ()) : IO (EnumAttributes α) :=
 do
 ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistentEnvExtension {
   name            := extName,
-  addImportedFn   := λ _, {},
-  addEntryFn      := λ (s : NameMap α) (p : Name × α), s.insert p.1 p.2,
-  exportEntriesFn := λ m,
-    let r : Array (Name × α) := m.fold (λ a n p, a.push (n, p)) Array.empty;
-    r.qsort (λ a b, Name.quickLt a.1 b.1),
-  statsFn         := λ s, "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
+  addImportedFn   := fun _ => {},
+  addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2,
+  exportEntriesFn := fun m =>
+    let r : Array (Name × α) := m.fold (fun a n p => a.push (n, p)) Array.empty;
+    r.qsort (fun a b => Name.quickLt a.1 b.1),
+  statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
 };
-let attrs := attrDescrs.map $ λ ⟨name, descr, val⟩, { AttributeImpl .
+let attrs := attrDescrs.map $ fun ⟨name, descr, val⟩ => { AttributeImpl .
   name  := name,
   descr := descr,
-  add   := λ env decl args persistent, do
+  add   := fun env decl args persistent => do
     unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
     unless (env.getModuleIdxFor decl).isNone $
       throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
@@ -390,7 +390,7 @@ instance {α : Type} : Inhabited (EnumAttributes α) := ⟨{attrs := [], ext := 
 def getValue {α : Type} [Inhabited α] (attr : EnumAttributes α) (env : Environment) (decl : Name) : Option α :=
 match env.getModuleIdxFor decl with
 | some modIdx :=
-  match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default _) (λ a b, Name.quickLt a.1 b.1) with
+  match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default _) (fun a b => Name.quickLt a.1 b.1) with
   | some (_, val) := some val
   | none          := none
 | none        := (attr.ext.getState env).find decl

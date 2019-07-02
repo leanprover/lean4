@@ -162,7 +162,7 @@ expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & po
         } else if (p.curr_is_token(get_period_tk())) {
             p.next();
             return parse_qualified_structure_instance(p, id, id_pos);
-        } else if (p.curr_is_token(get_assign_tk()) || p.curr_is_token(get_fieldarrow_tk())) {
+        } else if (p.curr_is_token(get_assign_tk())) {
             return parse_structure_instance(p, id);
         } else if (p.curr_is_token(get_membership_tk()) || p.curr_is_token(get_in_tk())) {
             p.next();

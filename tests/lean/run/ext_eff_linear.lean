@@ -87,34 +87,34 @@ meta def eff.bind {α β : Type} {effs : List effect} : eff effs α → (α → 
 | (@eff.impure _ _ β u k) f := eff.impure u (ftcQueue.Node k (ftcQueue.leaf f))
 
 meta instance (effs) : Monad (eff effs) :=
-{ pure := λ α, eff.pure,
-  bind := λ α β, eff.bind }
+{ pure := fun α => eff.pure,
+  bind := fun α β => eff.bind }
 
 @[inline] meta def eff.send {e : effect} {effs α} [member e effs] : e α → eff effs α :=
-λ x, eff.impure (union.inj x) (ftcQueue.leaf pure)
+fun x => eff.impure (union.inj x) (ftcQueue.leaf pure)
 
 @[inline] meta def eff.handleRelay {e : effect} {effs α β} (ret : β → eff effs α)
   (h : ∀ {β}, e β → (β → eff effs α) → eff effs α) : eff (e :: effs) β → eff effs α
 | (eff.pure a) := ret a
 | (@eff.impure _ _ γ u k) := match u.decomp with
-  | Sum.inl e := h e (λ c, eff.handleRelay (arrs.apply k c))
-  | Sum.inr u := eff.impure u (ftcQueue.leaf (λ c, eff.handleRelay (arrs.apply k c)))
+  | Sum.inl e := h e (fun c => eff.handleRelay (arrs.apply k c))
+  | Sum.inr u := eff.impure u (ftcQueue.leaf (fun c => eff.handleRelay (arrs.apply k c)))
 
 
 @[inline] meta def eff.handleRelayΣ {e : effect} {effs α β} {σ : Type} (ret : σ → β → eff effs α)
   (h : ∀ {β}, σ → e β → (σ → β → eff effs α) → eff effs α) : σ → eff (e :: effs) β → eff effs α
 | st (eff.pure a) := ret st a
 | st (@eff.impure _ _ γ u k) := match u.decomp with
-  | Sum.inl e := h st e (λ st c, eff.handleRelayΣ st (arrs.apply k c))
-  | Sum.inr u := eff.impure u (ftcQueue.leaf (λ c, eff.handleRelayΣ st (arrs.apply k c)))
+  | Sum.inl e := h st e (fun st c => eff.handleRelayΣ st (arrs.apply k c))
+  | Sum.inr u := eff.impure u (ftcQueue.leaf (fun c => eff.handleRelayΣ st (arrs.apply k c)))
 
 
 @[inline] meta def eff.interpose {e : effect} {effs α β} [member e effs] (ret : β → eff effs α)
   (h : ∀ {β}, e β → (β → eff effs α) → eff effs α) : eff effs β → eff effs α
 | (eff.pure a) := ret a
 | (@eff.impure _ _ γ u k) := match u.prj e with
-  | some e := h e (λ c, eff.interpose (arrs.apply k c))
-  | none   := eff.impure u (ftcQueue.leaf (λ c, eff.interpose (arrs.apply k c)))
+  | some e := h e (fun c => eff.interpose (arrs.apply k c))
+  | none   := eff.impure u (ftcQueue.leaf (fun c => eff.interpose (arrs.apply k c)))
 
 
 inductive Reader (ρ : Type) : Type → Type
@@ -124,7 +124,7 @@ inductive Reader (ρ : Type) : Type → Type
 meta instance {ρ effs} [member (Reader ρ) effs] : MonadReader ρ (eff effs) := ⟨eff.read⟩
 
 @[inline] meta def Reader.run {ρ effs α} (env : ρ) : eff (Reader ρ :: effs) α → eff effs α :=
-eff.handleRelay pure (λ β x k, by cases x; exact k env)
+eff.handleRelay pure (fun β x k => by cases x; exact k env)
 
 
 inductive State (σ : Type) : Type → Type
@@ -134,13 +134,13 @@ inductive State (σ : Type) : Type → Type
 @[inline] meta def eff.get {σ effs} [member (State σ) effs] : eff effs σ := eff.send State.get
 @[inline] meta def eff.put {σ effs} [member (State σ) effs] (s : σ) : eff effs Unit := eff.send (State.put s)
 meta instance {σ effs} [member (State σ) effs] : MonadState σ (eff effs) :=
-⟨λ α x, do st ← eff.get;
+⟨fun α x => do st ← eff.get;
            let ⟨a, s'⟩ := x.run st;
            eff.put s';
            pure a⟩
 
 meta def State.run {σ effs α} (st : σ) : eff (State σ :: effs) α → eff effs (α × σ) :=
-eff.handleRelayΣ (λ st a, pure (a, st)) (λ β st x k, begin
+eff.handleRelayΣ (fun st a => pure (a, st)) (fun β st x k => begin
   cases x,
   case State.get { exact k st st },
   case State.put : st' { exact k st' () }
@@ -151,12 +151,12 @@ inductive Exception (ε α : Type) : Type
 
 @[inline] meta def eff.throw {ε α effs} [member (Exception ε) effs] (ex : ε) : eff effs α := eff.send (Exception.throw ex)
 @[inline] meta def eff.catch {ε α effs} [member (Exception ε) effs] (x : eff effs α) (handle : ε → eff effs α) : eff effs α :=
-x.interpose pure (λ β x k, match (x : Exception ε β) with Exception.throw e := handle e)
+x.interpose pure (fun β x k => match (x : Exception ε β) with Exception.throw e := handle e)
 meta instance {ε effs} [member (Exception ε) effs] : MonadExcept ε (eff effs) :=
-⟨λ α, eff.throw, λ α, eff.catch⟩
+⟨fun α => eff.throw, fun α => eff.catch⟩
 
 @[inline] meta def Exception.run {ε effs α} : eff (Exception ε :: effs) α → eff effs (Except ε α) :=
-eff.handleRelay (pure ∘ Except.ok) (λ β x k, match x with Exception.throw e := pure (Except.error e))
+eff.handleRelay (pure ∘ Except.ok) (fun β x k => match x with Exception.throw e := pure (Except.error e))
 
 
 meta def eff.run {α : Type} : eff [] α → α

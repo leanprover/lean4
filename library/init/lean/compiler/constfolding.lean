@@ -30,10 +30,10 @@ def numScalarTypes : List NumScalarTypeInfo :=
  {id := `USize, nbits := System.platform.nbits}]
 
 def isOfNat (fn : Name) : Bool :=
-numScalarTypes.any (λ info, info.ofNatFn = fn)
+numScalarTypes.any (fun info => info.ofNatFn = fn)
 
 def isToNat (fn : Name) : Bool :=
-numScalarTypes.any (λ info, info.toNatFn = fn)
+numScalarTypes.any (fun info => info.toNatFn = fn)
 
 def getInfoFromFn (fn : Name) : List NumScalarTypeInfo → Option NumScalarTypeInfo
 | []            := none
@@ -63,18 +63,18 @@ do n₁   ← getNumLit a₁;
    info ← getInfoFromVal a₁;
    pure $ mkUIntLit info (fn info beforeErasure n₁ n₂)
 
-def foldUIntAdd := foldBinUInt $ λ _ _, HasAdd.add
-def foldUIntMul := foldBinUInt $ λ _ _, HasMul.mul
-def foldUIntDiv := foldBinUInt $ λ _ _, HasDiv.div
-def foldUIntMod := foldBinUInt $ λ _ _, HasMod.mod
-def foldUIntSub := foldBinUInt $ λ info _ a b, (a + (info.size - b))
+def foldUIntAdd := foldBinUInt $ fun _ _ => HasAdd.add
+def foldUIntMul := foldBinUInt $ fun _ _ => HasMul.mul
+def foldUIntDiv := foldBinUInt $ fun _ _ => HasDiv.div
+def foldUIntMod := foldBinUInt $ fun _ _ => HasMod.mod
+def foldUIntSub := foldBinUInt $ fun info _ a b => (a + (info.size - b))
 
 def preUIntBinFoldFns : List (Name × BinFoldFn) :=
 [(`add, foldUIntAdd), (`mul, foldUIntMul), (`div, foldUIntDiv),
  (`mod, foldUIntMod), (`sub, foldUIntSub)]
 
 def uintBinFoldFns : List (Name × BinFoldFn) :=
-numScalarTypes.foldl (λ r info, r ++ (preUIntBinFoldFns.map (λ ⟨suffix, fn⟩, (info.id ++ suffix, fn)))) []
+numScalarTypes.foldl (fun r info => r ++ (preUIntBinFoldFns.map (fun ⟨suffix, fn⟩ => (info.id ++ suffix, fn)))) []
 
 def foldNatBinOp (fn : Nat → Nat → Nat) (a₁ a₂ : Expr) : Option Expr :=
 do n₁   ← getNumLit a₁;
@@ -109,9 +109,9 @@ do n₁   ← getNumLit a₁;
    n₂   ← getNumLit a₂;
    pure $ toDecidableExpr beforeErasure (mkPred a₁ a₂) (fn n₁ n₂)
 
-def foldNatDecEq := foldNatBinPred mkNatEq (λ a b, a = b)
-def foldNatDecLt := foldNatBinPred mkNatLt (λ a b, a < b)
-def foldNatDecLe := foldNatBinPred mkNatLe (λ a b, a ≤ b)
+def foldNatDecEq := foldNatBinPred mkNatEq (fun a b => a = b)
+def foldNatDecLt := foldNatBinPred mkNatLt (fun a b => a < b)
+def foldNatDecLe := foldNatBinPred mkNatLe (fun a b => a ≤ b)
 
 def natFoldFns : List (Name × BinFoldFn) :=
 [(`Nat.add, foldNatAdd),
@@ -171,7 +171,7 @@ do n ← getNumLit a;
    pure $ Expr.lit (Literal.natVal n)
 
 def uintFoldToNatFns : List (Name × UnFoldFn) :=
-numScalarTypes.foldl (λ r info, (info.toNatFn, foldToNat) :: r) []
+numScalarTypes.foldl (fun r info => (info.toNatFn, foldToNat) :: r) []
 
 def unFoldFns : List (Name × UnFoldFn) :=
 [(`Nat.succ, foldNatSucc),

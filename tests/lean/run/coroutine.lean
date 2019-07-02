@@ -30,21 +30,21 @@ export coroutineResultCore (done yielded)
 | (mk k) a := k a
 
 @[inline] protected def pure (b : β) : coroutine α δ β :=
-mk $ λ _, done b
+mk $ fun _ => done b
 
 /-- Read the input argument passed to the coroutine.
     Remark: should we use a different Name? I added an instance [MonadReader] later. -/
 @[inline] protected def read : coroutine α δ α :=
-mk $ λ a, done a
+mk $ fun a => done a
 
 /-- Run nested coroutine with transformed input argument. Like `ReaderT.adapt`, but
     cannot change the input Type. -/
 @[inline] protected def adapt (f : α → α) (c : coroutine α δ β) : coroutine α δ β :=
-mk $ λ a, c.resume (f a)
+mk $ fun a => c.resume (f a)
 
 /-- Return the control to the invoker with Result `d` -/
 @[inline] protected def yield (d : δ) : coroutine α δ PUnit :=
-mk $ λ a : α, yielded d (coroutine.pure ⟨⟩)
+mk $ fun a => yielded d (coroutine.pure ⟨⟩)
 
 /-
 TODO(Leo): following relations have been commented because Lean4 is currently
@@ -58,8 +58,8 @@ theorem directSubcoroutineWf : WellFounded (@directSubcoroutine α δ β) :=
 begin
   Constructor, intro c,
   apply @coroutine.ind _ _ _
-          (λ c, Acc directSubcoroutine c)
-          (λ r, ∀ (d : δ) (c : coroutine α δ β), r = yielded d c → Acc directSubcoroutine c),
+          (fun c => Acc directSubcoroutine c)
+          (fun r => ∀ (d : δ) (c : coroutine α δ β), r = yielded d c → Acc directSubcoroutine c),
   { intros k ih, dsimp at ih, Constructor, intros c' h, cases h, apply ih hA hD, assumption },
   { intros, contradiction },
   { intros d c ih d₁ c₁ Heq, injection Heq, subst c, assumption }
@@ -76,12 +76,12 @@ Tc.wf directSubcoroutineWf
 -- Local instances for proving termination by well founded relation
 
 def bindWfInst : HasWellFounded (Σ' a : coroutine α δ β, (β → coroutine α δ γ)) :=
-{ r  := Psigma.Lex directSubcoroutine (λ _, emptyRelation),
-  wf := Psigma.lexWf directSubcoroutineWf (λ _, emptyWf) }
+{ r  := Psigma.Lex directSubcoroutine (fun _ => emptyRelation),
+  wf := Psigma.lexWf directSubcoroutineWf (fun _ => emptyWf) }
 
 def pipeWfInst : HasWellFounded (Σ' a : coroutine α δ β, coroutine δ γ β) :=
-{ r  := Psigma.Lex directSubcoroutine (λ _, emptyRelation),
-  wf := Psigma.lexWf directSubcoroutineWf (λ _, emptyWf) }
+{ r  := Psigma.Lex directSubcoroutine (fun _ => emptyRelation),
+  wf := Psigma.lexWf directSubcoroutineWf (fun _ => emptyWf) }
 
 local attribute [instance] wfInst₁ wfInst₂
 
@@ -92,7 +92,7 @@ open wellFoundedTactics
 /- TODO: remove `unsafe` keyword after we restore well-founded recursion -/
 
 @[inlineIfReduce] protected unsafe def bind : coroutine α δ β → (β → coroutine α δ γ) → coroutine α δ γ
-| (mk k) f := mk $ λ a,
+| (mk k) f := mk $ fun a =>
     match k a, rfl : ∀ (n : _), n = k a → _ with
     | done b, _      := coroutine.resume (f b) a
     | yielded d c, h :=
@@ -101,7 +101,7 @@ open wellFoundedTactics
 --  usingWellFounded { decTac := unfoldWfRel >> processLex (tactic.assumption) }
 
 unsafe def pipe : coroutine α δ β → coroutine δ γ β → coroutine α γ β
-| (mk k₁) (mk k₂) := mk $ λ a,
+| (mk k₁) (mk k₂) := mk $ fun a =>
   match k₁ a, rfl : ∀ (n : _), n = k₁ a → _ with
   | done b, h        := done b
   | yielded d k₁', h :=
@@ -120,7 +120,7 @@ private unsafe def finishAux (f : δ → α) : coroutine α δ β → α → Lis
 
 /-- Run a coroutine to completion, feeding back yielded items after transforming them with `f`. -/
 unsafe def finish (f : δ → α) : coroutine α δ β → α → List δ × β :=
-λ k a, finishAux f k a []
+fun k a => finishAux f k a []
 
 unsafe instance : Monad (coroutine α δ) :=
 { pure := @coroutine.pure _ _,
@@ -140,7 +140,7 @@ instance (α : Type u) (δ : Type v) : monadCoroutine α δ (coroutine α δ) :=
 
 instance monadCoroutineTrans (α : Type u) (δ : Type v) (m : Type w → Type r) (n : Type w → Type s)
                                [HasMonadLift m n] [monadCoroutine α δ m] : monadCoroutine α δ n :=
-{ yield := λ d, monadLift (monadCoroutine.yield d : m _) }
+{ yield := fun d => monadLift (monadCoroutine.yield d : m _) }
 
 export monadCoroutine (yield)
 

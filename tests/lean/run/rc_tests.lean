@@ -59,7 +59,7 @@ end x5
 namespace x6
 
 @[noinline] def act : State Nat Unit :=
-modify (+1)
+modify (fun a => a + 1)
 
 def f : State Nat Unit :=
 act *> act

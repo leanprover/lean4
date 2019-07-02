@@ -17,15 +17,15 @@ abbrev M := StateT IndexSet Id
 def checkId (id : Index) : M Bool :=
 do found ← get;
    if found.contains id then pure false
-   else modify (λ s, s.insert id) *> pure true
+   else modify (fun s => s.insert id) *> pure true
 
 def checkParams (ps : Array Param) : M Bool :=
-ps.allM $ λ p, checkId p.x.idx
+ps.allM $ fun p => checkId p.x.idx
 
 partial def checkFnBody : FnBody → M Bool
 | (FnBody.vdecl x _ _ b)  := checkId x.idx <&&> checkFnBody b
 | (FnBody.jdecl j ys _ b) := checkId j.idx <&&> checkParams ys <&&> checkFnBody b
-| (FnBody.case _ _ alts)  := alts.allM $ λ alt, checkFnBody alt.body
+| (FnBody.case _ _ alts)  := alts.allM $ fun alt => checkFnBody alt.body
 | b                       := if b.isTerminal then pure true else checkFnBody b.body
 
 partial def checkDecl : Decl → M Bool
@@ -43,7 +43,7 @@ namespace NormalizeIds
 abbrev M := ReaderT IndexRenaming Id
 
 def normIndex (x : Index) : M Index :=
-λ m, match m.find x with
+fun m => match m.find x with
 | some y := y
 | none   := x
 
@@ -58,7 +58,7 @@ def normArg : Arg → M Arg
 | other       := pure other
 
 def normArgs (as : Array Arg) : M (Array Arg) :=
-λ m, as.map $ λ a, normArg a m
+fun m => as.map $ fun a => normArg a m
 
 def normExpr : Expr → M Expr
 | (Expr.ctor c ys)      m := Expr.ctor c (normArgs ys m)
@@ -79,29 +79,29 @@ def normExpr : Expr → M Expr
 abbrev N := ReaderT IndexRenaming (State Nat)
 
 @[inline] def withVar {α : Type} (x : VarId) (k : VarId → N α) : N α :=
-λ m, do
-  n ← getModify (λ n, n + 1);
+fun m => do
+  n ← getModify (fun n => n + 1);
   k { idx := n } (m.insert x.idx n)
 
 @[inline] def withJP {α : Type} (x : JoinPointId) (k : JoinPointId → N α) : N α :=
-λ m, do
-  n ← getModify (λ n, n + 1);
+fun m => do
+  n ← getModify (fun n => n + 1);
   k { idx := n } (m.insert x.idx n)
 
 @[inline] def withParams {α : Type} (ps : Array Param) (k : Array Param → N α) : N α :=
-λ m, do
-  m ← ps.mfoldl (λ (m : IndexRenaming) p, do n ← getModify (λ n, n + 1); pure $ m.insert p.x.idx n) m;
-  let ps := ps.map $ λ p, { x := normVar p.x m, .. p };
+fun m => do
+  m ← ps.mfoldl (fun (m : IndexRenaming) p => do n ← getModify (fun n => n + 1); pure $ m.insert p.x.idx n) m;
+  let ps := ps.map $ fun p => { x := normVar p.x m, .. p };
   k ps m
 
 instance MtoN {α} : HasCoe (M α) (N α) :=
-⟨λ x m, pure $ x m⟩
+⟨fun x m => pure $ x m⟩
 
 partial def normFnBody : FnBody → N FnBody
-| (FnBody.vdecl x t v b)     := do v ← normExpr v; withVar x $ λ x, FnBody.vdecl x t v <$> normFnBody b
+| (FnBody.vdecl x t v b)     := do v ← normExpr v; withVar x $ fun x => FnBody.vdecl x t v <$> normFnBody b
 | (FnBody.jdecl j ys v b)    := do
-  (ys, v) ← withParams ys $ λ ys, do { v ← normFnBody v; pure (ys, v) };
-  withJP j $ λ j, FnBody.jdecl j ys v <$> normFnBody b
+  (ys, v) ← withParams ys $ fun ys => do { v ← normFnBody v; pure (ys, v) };
+  withJP j $ fun j => FnBody.jdecl j ys v <$> normFnBody b
 | (FnBody.set x i y b)       := do x ← normVar x; y ← normArg y; FnBody.set x i y <$> normFnBody b
 | (FnBody.uset x i y b)      := do x ← normVar x; y ← normVar y; FnBody.uset x i y <$> normFnBody b
 | (FnBody.sset x i o y t b)  := do x ← normVar x; y ← normVar y; FnBody.sset x i o y t <$> normFnBody b
@@ -112,14 +112,14 @@ partial def normFnBody : FnBody → N FnBody
 | (FnBody.mdata d b)         := FnBody.mdata d <$> normFnBody b
 | (FnBody.case tid x alts)   := do
   x ← normVar x;
-  alts ← alts.mmap $ λ alt, alt.mmodifyBody normFnBody;
+  alts ← alts.mmap $ fun alt => alt.mmodifyBody normFnBody;
   pure $ FnBody.case tid x alts
 | (FnBody.jmp j ys)         := FnBody.jmp <$> normJP j <*> normArgs ys
 | (FnBody.ret x)            := FnBody.ret <$> normArg x
 | FnBody.unreachable        := pure FnBody.unreachable
 
 def normDecl : Decl → N Decl
-| (Decl.fdecl f xs t b) := withParams xs $ λ xs, Decl.fdecl f xs t <$> normFnBody b
+| (Decl.fdecl f xs t b) := withParams xs $ fun xs => Decl.fdecl f xs t <$> normFnBody b
 | other                 := pure other
 
 end NormalizeIds
@@ -166,7 +166,7 @@ as.map (mapArg f)
 | (FnBody.dec x n c b)       := FnBody.dec (f x) n c (mapFnBody b)
 | (FnBody.del x b)           := FnBody.del (f x) (mapFnBody b)
 | (FnBody.mdata d b)         := FnBody.mdata d (mapFnBody b)
-| (FnBody.case tid x alts)   := FnBody.case tid (f x) (alts.map (λ alt, alt.modifyBody mapFnBody))
+| (FnBody.case tid x alts)   := FnBody.case tid (f x) (alts.map (fun alt => alt.modifyBody mapFnBody))
 | (FnBody.jmp j ys)          := FnBody.jmp j (mapArgs f ys)
 | (FnBody.ret x)             := FnBody.ret (mapArg f x)
 | FnBody.unreachable         := FnBody.unreachable
@@ -178,7 +178,7 @@ MapVars.mapFnBody f b
 
 /- Replace `x` with `y` in `b`. This function assumes `b` does not shadow `x` -/
 def FnBody.replaceVar (x y : VarId) (b : FnBody) : FnBody :=
-b.mapVars $ λ z, if x == z then y else z
+b.mapVars $ fun z => if x == z then y else z
 
 end IR
 end Lean

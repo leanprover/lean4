@@ -34,10 +34,10 @@ export HasMonadLiftT (monadLift)
 ⟨monadLift⟩
 
 instance hasMonadLiftTTrans (m n o) [HasMonadLift n o] [HasMonadLiftT m n] : HasMonadLiftT m o :=
-⟨λ α ma, HasMonadLift.monadLift (monadLift ma : n α)⟩
+⟨fun α ma => HasMonadLift.monadLift (monadLift ma : n α)⟩
 
 instance hasMonadLiftTRefl (m) : HasMonadLiftT m m :=
-⟨λ α, id⟩
+⟨fun α => id⟩
 
 theorem monadLiftRefl {m : Type u → Type v} {α} : (monadLift : m α → m α) = id := rfl
 
@@ -63,10 +63,10 @@ export MonadFunctorT (monadMap)
 
 instance monadFunctorTTrans (m m' n n' o o') [MonadFunctor n n' o o'] [MonadFunctorT m m' n n'] :
   MonadFunctorT m m' o o' :=
-⟨λ α f, MonadFunctor.monadMap (λ β, (monadMap @f : n β → n' β))⟩
+⟨fun α f => MonadFunctor.monadMap (fun β => (monadMap @f : n β → n' β))⟩
 
 instance monadFunctorTRefl (m m') : MonadFunctorT m m' m m' :=
-⟨λ α f, f⟩
+⟨fun α f => f⟩
 
 theorem monadMapRefl {m m' : Type u → Type v} (f : ∀ {β}, m β → m' β) {α} : (monadMap @f : m α → m' α) = f := rfl
 

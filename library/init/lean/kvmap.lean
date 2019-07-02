@@ -119,19 +119,19 @@ export isKVMapVal (set)
 isKVMapVal.get m k defVal
 
 instance boolVal : isKVMapVal Bool :=
-{ defVal := false, set := setBool, get := λ k n v, getBool k n v }
+{ defVal := false, set := setBool, get := fun k n v => getBool k n v }
 
 instance natVal : isKVMapVal Nat :=
-{ defVal := 0, set := setNat, get := λ k n v, getNat k n v }
+{ defVal := 0, set := setNat, get := fun k n v => getNat k n v }
 
 instance intVal : isKVMapVal Int :=
-{ defVal := 0, set := setInt, get := λ k n v, getInt k n v }
+{ defVal := 0, set := setInt, get := fun k n v => getInt k n v }
 
 instance nameVal : isKVMapVal Name :=
-{ defVal := Name.anonymous, set := setName, get := λ k n v, getName k n v }
+{ defVal := Name.anonymous, set := setName, get := fun k n v => getName k n v }
 
 instance stringVal : isKVMapVal String :=
-{ defVal := "", set := setString, get := λ k n v, getString k n v }
+{ defVal := "", set := setString, get := fun k n v => getString k n v }
 
 end KVMap
 end Lean

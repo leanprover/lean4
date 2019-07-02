@@ -56,7 +56,7 @@ instance : HasAppend MessageLog :=
 ⟨MessageLog.append⟩
 
 def hasErrors (log : MessageLog) : Bool :=
-log.revList.any $ λ m, match m.severity with
+log.revList.any $ fun m => match m.severity with
 | MessageSeverity.error := true
 | _                     := false
 

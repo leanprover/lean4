@@ -76,34 +76,34 @@ def checkExpr (ty : IRType) : Expr → M Unit
 | (Expr.ctor c ys)          := when c.isRef (checkObjType ty) *> checkArgs ys
 | (Expr.reset _ x)          := checkObjVar x *> checkObjType ty
 | (Expr.reuse x i u ys)     := checkObjVar x *> checkArgs ys *> checkObjType ty
-| (Expr.box xty x)          := checkObjType ty *> checkScalarVar x *> checkVarType x (λ t, t == xty)
+| (Expr.box xty x)          := checkObjType ty *> checkScalarVar x *> checkVarType x (fun t => t == xty)
 | (Expr.unbox x)            := checkScalarType ty *> checkObjVar x
 | (Expr.proj _ x)           := checkObjVar x *> checkObjType ty
-| (Expr.uproj _ x)          := checkObjVar x *> checkType ty (λ t, t == IRType.usize)
+| (Expr.uproj _ x)          := checkObjVar x *> checkType ty (fun t => t == IRType.usize)
 | (Expr.sproj _ _ x)        := checkObjVar x *> checkScalarType ty
-| (Expr.isShared x)         := checkObjVar x *> checkType ty (λ t, t == IRType.uint8)
-| (Expr.isTaggedPtr x)      := checkObjVar x *> checkType ty (λ t, t == IRType.uint8)
+| (Expr.isShared x)         := checkObjVar x *> checkType ty (fun t => t == IRType.uint8)
+| (Expr.isTaggedPtr x)      := checkObjVar x *> checkType ty (fun t => t == IRType.uint8)
 | (Expr.lit (LitVal.str _)) := checkObjType ty
 | (Expr.lit _)              := pure ()
 
 @[inline] def withParams (ps : Array Param) (k : M Unit) : M Unit :=
 do ctx ← read;
-   localCtx ← ps.mfoldl (λ (ctx : LocalContext) p, do
+   localCtx ← ps.mfoldl (fun (ctx : LocalContext) p => do
       when (ctx.contains p.x.idx) $ throw ("invalid parameter declaration, shadowing is not allowed");
       pure $ ctx.addParam p) ctx.localCtx;
-   adaptReader (λ _, { localCtx := localCtx, .. ctx }) k
+   adaptReader (fun _ => { localCtx := localCtx, .. ctx }) k
 
 partial def checkFnBody : FnBody → M Unit
 | (FnBody.vdecl x t v b)    := do
   checkExpr t v;
   ctx ← read;
   when (ctx.localCtx.contains x.idx) $ throw ("invalid variable declaration, shadowing is not allowed");
-  adaptReader (λ ctx : Context, { localCtx := ctx.localCtx.addLocal x t v, .. ctx }) (checkFnBody b)
+  adaptReader (fun (ctx : Context) => { localCtx := ctx.localCtx.addLocal x t v, .. ctx }) (checkFnBody b)
 | (FnBody.jdecl j ys v b) := do
   withParams ys (checkFnBody v);
   ctx ← read;
   when (ctx.localCtx.contains j.idx) $ throw ("invalid join point declaration, shadowing is not allowed");
-  adaptReader (λ ctx : Context, { localCtx := ctx.localCtx.addJP j ys v, .. ctx }) (checkFnBody b)
+  adaptReader (fun (ctx : Context) => { localCtx := ctx.localCtx.addJP j ys v, .. ctx }) (checkFnBody b)
 | (FnBody.set x _ y b)      := checkVar x *> checkArg y *> checkFnBody b
 | (FnBody.uset x _ y b)     := checkVar x *> checkVar y *> checkFnBody b
 | (FnBody.sset x _ _ y _ b) := checkVar x *> checkVar y *> checkFnBody b
@@ -114,7 +114,7 @@ partial def checkFnBody : FnBody → M Unit
 | (FnBody.mdata _ b)        := checkFnBody b
 | (FnBody.jmp j ys)         := checkJP j *> checkArgs ys
 | (FnBody.ret x)            := checkArg x
-| (FnBody.case _ x alts)    := checkVar x *> alts.mfor (λ alt, checkFnBody alt.body)
+| (FnBody.case _ x alts)    := checkVar x *> alts.mfor (fun alt => checkFnBody alt.body)
 | (FnBody.unreachable)      := pure ()
 
 def checkDecl : Decl → M Unit

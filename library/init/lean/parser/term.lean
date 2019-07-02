@@ -17,7 +17,7 @@ constant builtinTermParsingTable : IO.Ref ParsingTables := default _
 registerBuiltinParserAttribute `builtinTermParser `Lean.Parser.builtinTermParsingTable
 
 def termParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
-{ fn := λ _, runBuiltinParser "term" builtinTermParsingTable rbp }
+{ fn := fun _ => runBuiltinParser "term" builtinTermParsingTable rbp }
 
 namespace Term
 

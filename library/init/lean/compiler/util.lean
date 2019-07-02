@@ -23,7 +23,7 @@ structure AtMostOnceData :=
 def Visitor := AtMostOnceData → AtMostOnceData
 
 @[inline] def seq (f g : Visitor) : Visitor :=
-λ d, match f d with
+fun d => match f d with
 | ⟨found, false⟩ := ⟨found, false⟩
 | other          := g other
 
@@ -73,7 +73,7 @@ def isEagerLambdaLiftingName : Name → Bool
 @[export lean.get_decl_names_for_code_gen_core]
 private def getDeclNamesForCodeGen : Declaration → List Name
 | (Declaration.defnDecl { name := n, .. })   := [n]
-| (Declaration.mutualDefnDecl defs)          := defs.map $ λ d, d.name
+| (Declaration.mutualDefnDecl defs)          := defs.map $ fun d => d.name
 | _                                          := []
 
 def checkIsDefinition (env : Environment) (n : Name) : Except String Unit :=

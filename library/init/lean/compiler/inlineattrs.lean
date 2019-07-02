@@ -34,7 +34,7 @@ registerEnumAttributes `inlineAttrs
    (`inlineIfReduce, "mark definition to be inlined when resultant term after reduction is not a `cases_on` application", InlineAttributeKind.inlineIfReduce),
    (`noinline, "mark definition to never be inlined", InlineAttributeKind.noinline),
    (`macroInline, "mark definition to always be inlined before ANF conversion", InlineAttributeKind.macroInline)]
-  (λ env declName _, checkIsDefinition env declName)
+  (fun env declName _ => checkIsDefinition env declName)
 
 @[init mkInlineAttrs]
 constant inlineAttrs : EnumAttributes InlineAttributeKind := default _

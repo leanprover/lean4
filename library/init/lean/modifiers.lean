@@ -11,9 +11,9 @@ namespace Lean
 def mkProtectedExtension : IO (SimplePersistentEnvExtension Name NameSet) :=
 registerSimplePersistentEnvExtension {
   name          := `protected,
-  addImportedFn := λ as, {},
-  addEntryFn    := λ s n, s.insert n,
-  toArrayFn     := λ es, es.toArray.qsort Name.quickLt
+  addImportedFn := fun as => {},
+  addEntryFn    := fun s n => s.insert n,
+  toArrayFn     := fun es => es.toArray.qsort Name.quickLt
 }
 
 @[init mkProtectedExtension]

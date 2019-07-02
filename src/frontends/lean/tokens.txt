@@ -2,7 +2,6 @@ aliases      aliases
 period       .
 backtick     `
 dslash       //
-fieldarrow   ~>
 placeholder  _
 colon        :
 semicolon    ;
@@ -62,6 +61,7 @@ classes      classes
 attributes   attributes
 arrow        ->
 larrow       <-
+darrow       =>
 hiding       hiding
 example      example
 exposing     exposing

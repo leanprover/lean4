@@ -33,17 +33,17 @@ structure JoinPointId :=
 abbrev Index.lt (a b : Index) : Bool := a < b
 
 namespace VarId
-instance : HasBeq VarId := ⟨λ a b, a.idx == b.idx⟩
-instance : HasToString VarId := ⟨λ a, "x_" ++ toString a.idx⟩
-instance : HasFormat VarId := ⟨λ a, toString a⟩
-instance : Hashable VarId := ⟨λ a, hash a.idx⟩
+instance : HasBeq VarId := ⟨fun a b => a.idx == b.idx⟩
+instance : HasToString VarId := ⟨fun a => "x_" ++ toString a.idx⟩
+instance : HasFormat VarId := ⟨fun a => toString a⟩
+instance : Hashable VarId := ⟨fun a => hash a.idx⟩
 end VarId
 
 namespace JoinPointId
-instance : HasBeq JoinPointId := ⟨λ a b, a.idx == b.idx⟩
-instance : HasToString JoinPointId := ⟨λ a, "block_" ++ toString a.idx⟩
-instance : HasFormat JoinPointId := ⟨λ a, toString a⟩
-instance : Hashable JoinPointId := ⟨λ a, hash a.idx⟩
+instance : HasBeq JoinPointId := ⟨fun a b => a.idx == b.idx⟩
+instance : HasToString JoinPointId := ⟨fun a => "block_" ++ toString a.idx⟩
+instance : HasFormat JoinPointId := ⟨fun a => toString a⟩
+instance : Hashable JoinPointId := ⟨fun a => hash a.idx⟩
 end JoinPointId
 
 abbrev MData := KVMap
@@ -347,12 +347,12 @@ def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=
 reshapeAux bs bs.size term
 
 @[inline] def modifyJPs (bs : Array FnBody) (f : FnBody → FnBody) : Array FnBody :=
-bs.map $ λ b, match b with
+bs.map $ fun b => match b with
   | FnBody.jdecl j xs v k := FnBody.jdecl j xs (f v) k
   | other                 := other
 
 @[inline] def mmodifyJPs {m : Type → Type} [Monad m] (bs : Array FnBody) (f : FnBody → m FnBody) : m (Array FnBody) :=
-bs.mmap $ λ b, match b with
+bs.mmap $ fun b => match b with
   | FnBody.jdecl j xs v k := do v ← f v; pure $ FnBody.jdecl j xs v k
   | other                 := pure other
 
@@ -468,7 +468,7 @@ def Arg.alphaEqv (ρ : IndexRenaming) : Arg → Arg → Bool
 instance Arg.hasAeqv : HasAlphaEqv Arg := ⟨Arg.alphaEqv⟩
 
 def args.alphaEqv (ρ : IndexRenaming) (args₁ args₂ : Array Arg) : Bool :=
-Array.isEqv args₁ args₂ (λ a b, aeqv ρ a b)
+Array.isEqv args₁ args₂ (fun a b => aeqv ρ a b)
 
 instance args.hasAeqv : HasAlphaEqv (Array Arg) := ⟨args.alphaEqv⟩
 
@@ -500,7 +500,7 @@ else none
 
 def addParamsRename (ρ : IndexRenaming) (ps₁ ps₂ : Array Param) : Option IndexRenaming :=
 if ps₁.size != ps₂.size then none
-else Array.foldl₂ (λ ρ p₁ p₂, do ρ ← ρ; addParamRename ρ p₁ p₂) (some ρ) ps₁ ps₂
+else Array.foldl₂ (fun ρ p₁ p₂ => do ρ ← ρ; addParamRename ρ p₁ p₂) (some ρ) ps₁ ps₂
 
 partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
 | ρ (FnBody.vdecl x₁ t₁ v₁ b₁)      (FnBody.vdecl x₂ t₂ v₂ b₂)        := t₁ == t₂ && aeqv ρ v₁ v₂ && FnBody.alphaEqv (addVarRename ρ x₁.idx x₂.idx) b₁ b₂
@@ -516,7 +516,7 @@ partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
 | ρ (FnBody.dec x₁ n₁ c₁ b₁)        (FnBody.dec x₂ n₂ c₂ b₂)          := aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.del x₁ b₁)              (FnBody.del x₂ b₂)                := aeqv ρ x₁ x₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.mdata m₁ b₁)            (FnBody.mdata m₂ b₂)              := m₁ == m₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ (FnBody.case n₁ x₁ alts₁)       (FnBody.case n₂ x₂ alts₂)         := n₁ == n₂ && aeqv ρ x₁ x₂ && Array.isEqv alts₁ alts₂ (λ alt₁ alt₂,
+| ρ (FnBody.case n₁ x₁ alts₁)       (FnBody.case n₂ x₂ alts₂)         := n₁ == n₂ && aeqv ρ x₁ x₂ && Array.isEqv alts₁ alts₂ (fun alt₁ alt₂ =>
    match alt₁, alt₂ with
    | Alt.ctor i₁ b₁, Alt.ctor i₂ b₂ := i₁ == i₂ && FnBody.alphaEqv ρ b₁ b₂
    | Alt.default b₁, Alt.default b₂ := FnBody.alphaEqv ρ b₁ b₂
@@ -531,7 +531,7 @@ FnBody.alphaEqv ∅  b₁ b₂
 
 instance FnBody.HasBeq : HasBeq FnBody := ⟨FnBody.beq⟩
 
-abbrev VarIdSet := RBTree VarId (λ x y, x.idx < y.idx)
+abbrev VarIdSet := RBTree VarId (fun x y => x.idx < y.idx)
 namespace VarIdSet
 instance : Inhabited VarIdSet := ⟨{}⟩
 end VarIdSet

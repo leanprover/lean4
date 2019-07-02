@@ -34,7 +34,7 @@ structure StdGen :=
 def stdRange := (1, 2147483562)
 
 instance : HasRepr StdGen :=
-{ repr := λ ⟨s1, s2⟩, "⟨" ++ toString s1 ++ ", " ++ toString s2 ++ "⟩" }
+{ repr := fun ⟨s1, s2⟩ => "⟨" ++ toString s1 ++ ", " ++ toString s2 ++ "⟩" }
 
 def stdNext : StdGen → Nat × StdGen
 | ⟨s1, s2⟩ :=
@@ -58,7 +58,7 @@ def stdSplit : StdGen → StdGen × StdGen
   (leftG, rightG)
 
 instance : RandomGen StdGen :=
-{range  := λ _, stdRange,
+{range  := fun _ => stdRange,
  next   := stdNext,
  split  := stdSplit}
 

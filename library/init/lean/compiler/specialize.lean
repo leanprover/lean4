@@ -30,7 +30,7 @@ def mkSpecializeAttrs : IO (EnumAttributes SpecializeAttributeKind) :=
 registerEnumAttributes `specializeAttrs
   [(`specialize, "mark definition to always be inlined", SpecializeAttributeKind.specialize),
    (`nospecialize, "mark definition to never be inlined", SpecializeAttributeKind.nospecialize) ]
-  (λ env declName _, checkIsDefinition env declName)
+  (fun env declName _ => checkIsDefinition env declName)
 
 @[init mkSpecializeAttrs]
 constant specializeAttrs : EnumAttributes SpecializeAttributeKind := default _
@@ -84,7 +84,7 @@ def mkSpecExtension : IO (SimplePersistentEnvExtension SpecEntry SpecState) :=
 registerSimplePersistentEnvExtension {
   name          := `specialize,
   addEntryFn    := SpecState.addEntry,
-  addImportedFn := λ es, (mkStateFromImportedEntries SpecState.addEntry {} es).switch
+  addImportedFn := fun es => (mkStateFromImportedEntries SpecState.addEntry {} es).switch
 }
 
 @[init mkSpecExtension]

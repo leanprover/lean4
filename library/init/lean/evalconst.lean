@@ -26,14 +26,14 @@ unsafe constant getConstTable : IO (Array (Name × NonScalar)) := default _
    See `src/init/init.cpp` -/
 @[export lean.sort_const_table_core]
 unsafe def sortConstTable : IO Unit :=
-modifyConstTable (λ cs, cs.qsort (λ e₁ e₂, Name.quickLt e₁.1 e₂.1))
+modifyConstTable (fun cs => cs.qsort (fun e₁ e₂ => Name.quickLt e₁.1 e₂.1))
 
 /- We make this primitive as `unsafe` because it uses `unsafeCast`, and
    the program may crash if the type provided by the user is incorrect.
    It also assumes there are no threads trying to update the table concurrently. -/
 unsafe def evalConst (α : Type) [Inhabited α] (c : Name) : IO α :=
 do cs ← getConstTable;
-   match cs.binSearch (c, default _) (λ e₁ e₂, Name.quickLt e₁.1 e₂.1) with
+   match cs.binSearch (c, default _) (fun e₁ e₂ => Name.quickLt e₁.1 e₂.1) with
    | some (_, v) := pure (unsafeCast v)
    | none        := throw (IO.userError ("unknow constant '" ++ toString c ++ "'"))
 

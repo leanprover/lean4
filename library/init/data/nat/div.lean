@@ -8,7 +8,7 @@ import init.wf init.data.nat.basic
 namespace Nat
 
 private def divRecLemma {x y : Nat} : 0 < y ∧ y ≤ x → x - y < x :=
-λ h, And.rec (λ ypos ylex, subLt (Nat.ltOfLtOfLe ypos ylex) ypos) h
+fun h => And.rec (fun ypos ylex => subLt (Nat.ltOfLtOfLe ypos ylex) ypos) h
 
 private def div.F (x : Nat) (f : Π x₁, x₁ < x → Nat → Nat) (y : Nat) : Nat :=
 if h : 0 < y ∧ y ≤ x then f (x - y) (divRecLemma h) y + 1 else zero
@@ -69,39 +69,39 @@ div.inductionOn x y h₁ h₂
 
 theorem modZero (a : Nat) : a % 0 = a :=
 suffices (if 0 < 0 ∧ 0 ≤ a then (a - 0) % 0 else a) = a, from (modDef a 0).symm ▸ this,
-have h : ¬ (0 < 0 ∧ 0 ≤ a), from λ ⟨h₁, _⟩, absurd h₁ (Nat.ltIrrefl _),
+have h : ¬ (0 < 0 ∧ 0 ≤ a), from fun ⟨h₁, _⟩ => absurd h₁ (Nat.ltIrrefl _),
 ifNeg h
 
 theorem modEqOfLt {a b : Nat} (h : a < b) : a % b = a :=
 suffices (if 0 < b ∧ b ≤ a then (a - b) % b else a) = a, from (modDef a b).symm ▸ this,
-have h' : ¬(0 < b ∧ b ≤ a), from λ ⟨_, h₁⟩, absurd h₁ (Nat.notLeOfGt h),
+have h' : ¬(0 < b ∧ b ≤ a), from fun ⟨_, h₁⟩ => absurd h₁ (Nat.notLeOfGt h),
 ifNeg h'
 
 theorem modEqSubMod {a b : Nat} (h : a ≥ b) : a % b = (a - b) % b :=
 Or.elim (eqZeroOrPos b)
-  (λ h₁, h₁.symm ▸ (Nat.subZero a).symm ▸ rfl)
-  (λ h₁, (modDef a b).symm ▸ ifPos ⟨h₁, h⟩)
+  (fun h₁ => h₁.symm ▸ (Nat.subZero a).symm ▸ rfl)
+  (fun h₁ => (modDef a b).symm ▸ ifPos ⟨h₁, h⟩)
 
 theorem modLt (x : Nat) {y : Nat} : y > 0 → x % y < y :=
 mod.inductionOn x y
-  (λ x y ⟨_, h₁⟩ h₂ h₃,
+  (fun (x y) ⟨_, h₁⟩ (h₂ h₃) =>
    have ih  : (x - y) % y < y, from h₂ h₃,
    have Heq : x % y = (x - y) % y, from modEqSubMod h₁,
    Heq.symm ▸ ih)
-  (λ x y h₁ h₂,
+  (fun x y h₁ h₂ =>
     have h₁ : ¬ 0 < y ∨ ¬ y ≤ x, from Iff.mp (Decidable.notAndIffOrNot _ _) h₁,
     Or.elim h₁
-     (λ h₁, absurd h₂ h₁)
-     (λ h₁,
+     (fun h₁ => absurd h₂ h₁)
+     (fun h₁ =>
         have hgt : y > x, from gtOfNotLe h₁,
         have Heq : x % y = x, from modEqOfLt hgt,
         Heq.symm ▸ hgt))
 
 theorem modLe (x y : Nat) : x % y ≤ x :=
 Or.elim (Nat.ltOrGe x y)
-  (λ h₁ : x < y, (modEqOfLt h₁).symm ▸ Nat.leRefl _)
-  (λ h₁ : x ≥ y, Or.elim (eqZeroOrPos y)
-    (λ h₂ : y = 0, h₂.symm ▸ (Nat.modZero x).symm ▸ Nat.leRefl _)
-    (λ h₂ : y > 0, Nat.leTrans (Nat.leOfLt (Nat.modLt _ h₂)) h₁))
+  (fun (h₁ : x < y) => (modEqOfLt h₁).symm ▸ Nat.leRefl _)
+  (fun (h₁ : x ≥ y) => Or.elim (eqZeroOrPos y)
+    (fun (h₂ : y = 0) => h₂.symm ▸ (Nat.modZero x).symm ▸ Nat.leRefl _)
+    (fun (h₂ : y > 0) => Nat.leTrans (Nat.leOfLt (Nat.modLt _ h₂)) h₁))
 
 end Nat

@@ -29,6 +29,6 @@ class HasSeqRight (f : Type u → Type v) : Type (max (u+1) v) :=
 infixr *> := HasSeqRight.seqRight
 
 class Applicative (f : Type u → Type v) extends Functor f, HasPure f, HasSeq f, HasSeqLeft f, HasSeqRight f :=
-(map      := λ _ _ x y, pure x <*> y)
-(seqLeft  := λ α β a b, const β <$> a <*> b)
-(seqRight := λ α β a b, const α id <$> a <*> b)
+(map      := fun _ _ x y => pure x <*> y)
+(seqLeft  := fun α β a b => const β <$> a <*> b)
+(seqRight := fun α β a b => const α id <$> a <*> b)

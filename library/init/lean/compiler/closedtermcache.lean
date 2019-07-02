@@ -13,10 +13,10 @@ abbrev ClosedTermCache := SMap Expr Name Expr.quickLt
 def mkClosedTermCacheExtension : IO (SimplePersistentEnvExtension (Expr × Name) ClosedTermCache) :=
 registerSimplePersistentEnvExtension {
   name       := `closedTermCache,
-  addImportedFn := λ as,
-    let cache : ClosedTermCache := mkStateFromImportedEntries (λ s (p : Expr × Name), s.insert p.1 p.2) {} as;
+  addImportedFn := fun as =>
+    let cache : ClosedTermCache := mkStateFromImportedEntries (fun s (p : Expr × Name) => s.insert p.1 p.2) {} as;
     cache.switch,
-  addEntryFn := λ s ⟨e, n⟩, s.insert e n
+  addEntryFn := fun s ⟨e, n⟩ => s.insert e n
 }
 
 @[init mkClosedTermCacheExtension]

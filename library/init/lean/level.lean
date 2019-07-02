@@ -111,8 +111,8 @@ partial def Result.format : Result → Bool → Format
 | (Result.offset f (k+1)) r :=
   let f' := Result.format f false;
   parenIfFalse (f' ++ "+" ++ fmt (k+1)) r
-| (Result.maxNode fs)    r := parenIfFalse (Format.group $ "max"  ++ formatLst (λ r, Result.format r false) fs) r
-| (Result.imaxNode fs)   r := parenIfFalse (Format.group $ "imax" ++ formatLst (λ r, Result.format r false) fs) r
+| (Result.maxNode fs)    r := parenIfFalse (Format.group $ "max"  ++ formatLst (fun r => Result.format r false) fs) r
+| (Result.imaxNode fs)   r := parenIfFalse (Format.group $ "imax" ++ formatLst (fun r => Result.format r false) fs) r
 
 def Level.toResult : Level → Result
 | Level.zero         := Result.num 0

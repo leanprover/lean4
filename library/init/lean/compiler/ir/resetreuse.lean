@@ -48,7 +48,7 @@ private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
   let v' := S v;
   if v == v' then FnBody.jdecl j ys v (S b)
   else FnBody.jdecl j ys v' b
-| (FnBody.case tid x alts)  := FnBody.case tid x $ alts.map $ λ alt, alt.modifyBody S
+| (FnBody.case tid x alts)  := FnBody.case tid x $ alts.map $ fun alt => alt.modifyBody S
 | b :=
   if b.isTerminal then b
   else let
@@ -59,7 +59,7 @@ private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
 abbrev M := ReaderT LocalContext (StateT Index Id)
 
 private def mkFresh : M VarId :=
-do idx ← getModify (λ n, n + 1);
+do idx ← getModify (fun n => n + 1);
    pure { idx := idx }
 
 private def tryS (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=
@@ -73,7 +73,7 @@ private def Dfinalize (x : VarId) (c : CtorInfo) : FnBody × Bool → M FnBody
 | (b, false) := tryS x c b
 
 private def argsContainsVar (ys : Array Arg) (x : VarId) : Bool :=
-ys.any $ λ arg, match arg with
+ys.any $ fun arg => match arg with
   | Arg.var y := x == y
   | _         := false
 
@@ -93,11 +93,11 @@ private partial def Dmain (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × B
   ctx ← read;
   if e.hasLiveVar ctx x then do
     /- If `x` is live in `e`, we recursively process each branch. -/
-    alts ← alts.mmap $ λ alt, alt.mmodifyBody (λ b, Dmain b >>= Dfinalize x c);
+    alts ← alts.mmap $ fun alt => alt.mmodifyBody (fun b => Dmain b >>= Dfinalize x c);
     pure (FnBody.case tid y alts, true)
   else pure (e, false)
 | (FnBody.jdecl j ys v b) := do
-  (b, _) ← adaptReader (λ ctx : LocalContext, ctx.addJP j ys v) (Dmain b);
+  (b, _) ← adaptReader (fun ctx : LocalContext => ctx.addJP j ys v) (Dmain b);
   (v, found) ← Dmain v;
   /- If `found == true`, then `Dmain b` must also have returned `(b, true)` since
      we assume the IR does not have dead join points. So, if `x` is live in `j`,
@@ -129,7 +129,7 @@ Dmain x c b >>= Dfinalize x c
 
 partial def R : FnBody → M FnBody
 | (FnBody.case tid x alts) := do
-    alts ← alts.mmap $ λ alt, do {
+    alts ← alts.mmap $ fun alt => do {
       alt ← alt.mmodifyBody R;
       match alt with
       | Alt.ctor c b :=
@@ -140,7 +140,7 @@ partial def R : FnBody → M FnBody
     pure $ FnBody.case tid x alts
 | (FnBody.jdecl j ys v b) := do
   v ← R v;
-  b ← adaptReader (λ ctx : LocalContext, ctx.addJP j ys v) (R b);
+  b ← adaptReader (fun (ctx : LocalContext) => ctx.addJP j ys v) (R b);
   pure $ FnBody.jdecl j ys v b
 | e := do
   if e.isTerminal then pure e

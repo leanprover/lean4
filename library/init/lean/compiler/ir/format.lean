@@ -16,7 +16,7 @@ private def formatArg : Arg → Format
 instance argHasFormat : HasFormat Arg := ⟨formatArg⟩
 
 private def formatArray {α : Type} [HasFormat α] (args : Array α) : Format :=
-args.foldl (λ r a, r ++ " " ++ format a) Format.nil
+args.foldl (fun r a => r ++ " " ++ format a) Format.nil
 
 private def formatLitVal : LitVal → Format
 | (LitVal.num v) := format v
@@ -50,7 +50,7 @@ private def formatExpr : Expr → Format
 | (Expr.isTaggedPtr x)   := "isTaggedPtr " ++ format x
 
 instance exprHasFormat   : HasFormat Expr := ⟨formatExpr⟩
-instance exprHasToString : HasToString Expr := ⟨λ e, Format.pretty (format e)⟩
+instance exprHasToString : HasToString Expr := ⟨fun e => Format.pretty (format e)⟩
 
 private def formatIRType : IRType → Format
 | IRType.float      := "float"
@@ -88,13 +88,13 @@ partial def formatFnBody (indent : Nat := 2) : FnBody → Format
 | (FnBody.dec x n c b)       := "dec" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x ++ ";" ++ Format.line ++ formatFnBody b
 | (FnBody.del x b)           := "del " ++ format x ++ ";" ++ Format.line ++ formatFnBody b
 | (FnBody.mdata d b)         := "mdata " ++ format d ++ ";" ++ Format.line ++ formatFnBody b
-| (FnBody.case tid x cs)     := "case " ++ format x ++ " of" ++ cs.foldl (λ r c, r ++ Format.line ++ formatAlt formatFnBody indent c) Format.nil
+| (FnBody.case tid x cs)     := "case " ++ format x ++ " of" ++ cs.foldl (fun r c => r ++ Format.line ++ formatAlt formatFnBody indent c) Format.nil
 | (FnBody.jmp j ys)          := "jmp " ++ format j ++ formatArray ys
 | (FnBody.ret x)             := "ret " ++ format x
 | FnBody.unreachable         := "⊥"
 
 instance fnBodyHasFormat : HasFormat FnBody := ⟨formatFnBody⟩
-instance fnBodyHasToString : HasToString FnBody := ⟨λ b, (format b).pretty⟩
+instance fnBodyHasToString : HasToString FnBody := ⟨fun b => (format b).pretty⟩
 
 def formatDecl (indent : Nat := 2) : Decl → Format
 | (Decl.fdecl f xs ty b)  := "def " ++ format f ++ formatParams xs ++ format " : " ++ format ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody indent b)

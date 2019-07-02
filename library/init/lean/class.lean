@@ -53,7 +53,7 @@ def mkClassExtension : IO (SimplePersistentEnvExtension ClassEntry ClassState) :
 registerSimplePersistentEnvExtension {
   name          := `classExt,
   addEntryFn    := ClassState.addEntry,
-  addImportedFn := λ es, (mkStateFromImportedEntries ClassState.addEntry {} es).switch
+  addImportedFn := fun es => (mkStateFromImportedEntries ClassState.addEntry {} es).switch
 }
 
 @[init mkClassExtension]
@@ -124,7 +124,7 @@ match env.find instName with
 registerAttribute {
   name  := `class,
   descr := "type class",
-  add   := λ env decl args persistent, do
+  add   := fun env decl args persistent => do
     unless args.isMissing $ throw (IO.userError ("invalid attribute 'class', unexpected argument"));
     unless persistent $ throw (IO.userError ("invalid attribute 'class', must be persistent"));
     IO.ofExcept (addClass env decl)
@@ -134,7 +134,7 @@ registerAttribute {
 registerAttribute {
   name  := `instance,
   descr := "type class instance",
-  add   := λ env decl args persistent, do
+  add   := fun env decl args persistent => do
     unless args.isMissing $ throw (IO.userError ("invalid attribute 'instance', unexpected argument"));
     unless persistent $ throw (IO.userError ("invalid attribute 'instance', must be persistent"));
     IO.ofExcept (addInstance env decl)

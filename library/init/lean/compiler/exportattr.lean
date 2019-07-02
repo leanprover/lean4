@@ -10,7 +10,7 @@ namespace Lean
 
 private def isValidCppId (id : String) : Bool :=
 let first := id.get 0;
-first.isAlpha  && (id.toSubstring.drop 1).all (λ c, c.isAlpha || c.isDigit || c == '_')
+first.isAlpha  && (id.toSubstring.drop 1).all (fun c => c.isAlpha || c.isDigit || c == '_')
 
 private def isValidCppName : Name → Bool
 | (Name.mkString Name.anonymous s) := isValidCppId s
@@ -18,7 +18,7 @@ private def isValidCppName : Name → Bool
 | _ := false
 
 def mkExportAttr : IO (ParametricAttribute Name) :=
-registerParametricAttribute `export "name to be used by code generators" $ λ _ _ stx,
+registerParametricAttribute `export "name to be used by code generators" $ fun _ _ stx =>
   match attrParamSyntaxToIdentifier stx with
   | some exportName :=
     if isValidCppName exportName then Except.ok exportName

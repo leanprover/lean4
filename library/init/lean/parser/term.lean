@@ -31,9 +31,12 @@ namespace Term
 @[inline] def parenSpecial : Parser := optional (", " >> sepBy termParser ", " <|> " : " >> termParser)
 @[builtinTermParser] def paren := parser! symbol "(" maxPrec >> optional (termParser >> parenSpecial) >> ")"
 @[inline] def optIdent : Parser := optional (try (ident >> " : "))
-@[builtinTermParser] def ifTerm := parser! "if " >> optIdent >> termParser >> " then " >> termParser >> " else " >> termParser
--- @[builtinTermParser] def haveTerm := parser! "have " >> optIdent >> termParser >> " then " >> termParser >> " else " >> termParser
-
+@[builtinTermParser] def ifTerm    := parser! "if " >> optIdent >> termParser >> " then " >> termParser >> " else " >> termParser
+def fromTerm   := parser! "from " >> termParser
+def haveAssign := parser! " := " >> termParser
+def haveFrom   := parser! ", " >> fromTerm
+@[builtinTermParser] def haveTerm   := parser! "have " >> optIdent >> termParser >> (haveAssign <|> haveFrom) >> "; " >> termParser
+@[builtinTermParser] def showTerm   := parser! "show " >> termParser >> ", " >> termParser
 
 @[builtinTermParser] def app := tparser! pushLeading >> termParser maxPrec
 

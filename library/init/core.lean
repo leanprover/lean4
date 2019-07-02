@@ -631,7 +631,7 @@ infix != := bne
 def implies (a b : Prop) := a → b
 
 theorem implies.trans {p q r : Prop} (h₁ : implies p q) (h₂ : implies q r) : implies p r :=
-assume hp, h₂ (h₁ hp)
+λ hp, h₂ (h₁ hp)
 
 def trivial : True := ⟨⟩
 
@@ -641,7 +641,7 @@ False.rec (λ _, C) h
 @[macroInline] def absurd {a : Prop} {b : Sort v} (h₁ : a) (h₂ : ¬a) : b :=
 False.elim (h₂ h₁)
 
-theorem mt {a b : Prop} (h₁ : a → b) (h₂ : ¬b) : ¬a := assume ha : a, h₂ (h₁ ha)
+theorem mt {a b : Prop} (h₁ : a → b) (h₂ : ¬b) : ¬a := λ ha : a, h₂ (h₁ ha)
 
 theorem notFalse : ¬False := id
 
@@ -679,7 +679,7 @@ theorem ofEqTrue {p : Prop} (h : p = True) : p :=
 h.symm ▸ trivial
 
 theorem notOfEqFalse {p : Prop} (h : p = False) : ¬p :=
-assume hp, h ▸ hp
+λ hp, h ▸ hp
 
 @[macroInline] def cast {α β : Sort u} (h : α = β) (a : α) : β :=
 Eq.rec a h
@@ -704,15 +704,15 @@ theorem Ne.elim (h : a ≠ b) : a = b → False := h
 theorem Ne.irrefl (h : a ≠ a) : False := h rfl
 
 theorem Ne.symm (h : a ≠ b) : b ≠ a :=
-assume (h₁ : b = a), h (h₁.symm)
+λ (h₁ : b = a), h (h₁.symm)
 
 theorem falseOfNe : a ≠ a → False := Ne.irrefl
 
 theorem neFalseOfSelf : p → p ≠ False :=
-assume (hp : p) (Heq : p = False), Heq ▸ hp
+λ (hp : p) (Heq : p = False), Heq ▸ hp
 
 theorem neTrueOfNot : ¬p → p ≠ True :=
-assume (hnp : ¬p) (Heq : p = True), (Heq ▸ hnp) trivial
+λ (hnp : ¬p) (Heq : p = True), (Heq ▸ hnp) trivial
 
 theorem trueNeFalse : ¬True = False :=
 neFalseOfSelf trivial
@@ -777,7 +777,7 @@ theorem And.elim (h₁ : a ∧ b) (h₂ : a → b → c) : c :=
 And.rec h₂ h₁
 
 theorem And.swap : a ∧ b → b ∧ a :=
-assume ⟨ha, hb⟩, ⟨hb, ha⟩
+λ ⟨ha, hb⟩, ⟨hb, ha⟩
 
 def And.symm := @And.swap
 
@@ -803,15 +803,15 @@ theorem iffIffImpliesAndImplies (a b : Prop) : (a ↔ b) ↔ (a → b) ∧ (b �
 Iff.intro (λ h, And.intro h.mp h.mpr) (λ h, Iff.intro h.left h.right)
 
 theorem Iff.refl (a : Prop) : a ↔ a :=
-Iff.intro (assume h, h) (assume h, h)
+Iff.intro (λ h, h) (λ h, h)
 
 theorem Iff.rfl {a : Prop} : a ↔ a :=
 Iff.refl a
 
 theorem Iff.trans (h₁ : a ↔ b) (h₂ : b ↔ c) : a ↔ c :=
 Iff.intro
-  (assume ha, Iff.mp h₂ (Iff.mp h₁ ha))
-  (assume hc, Iff.mpr h₁ (Iff.mpr h₂ hc))
+  (λ ha, Iff.mp h₂ (Iff.mp h₁ ha))
+  (λ hc, Iff.mpr h₁ (Iff.mpr h₂ hc))
 
 theorem Iff.symm (h : a ↔ b) : b ↔ a :=
 Iff.intro (Iff.right h) (Iff.left h)
@@ -829,8 +829,8 @@ absurd this h₁
 
 theorem notIffNotOfIff (h₁ : a ↔ b) : ¬a ↔ ¬b :=
 Iff.intro
- (assume (hna : ¬ a) (hb : b), hna (Iff.right h₁ hb))
- (assume (hnb : ¬ b) (ha : a), hnb (Iff.left h₁ ha))
+ (λ (hna : ¬ a) (hb : b), hna (Iff.right h₁ hb))
+ (λ (hnb : ¬ b) (ha : a), hnb (Iff.left h₁ ha))
 
 theorem ofIffTrue (h : a ↔ True) : a :=
 Iff.mp (Iff.symm h) trivial
@@ -846,7 +846,7 @@ theorem iffFalseIntro (h : ¬a) : a ↔ False :=
 Iff.intro h (False.rec (λ _, a))
 
 theorem notNotIntro (ha : a) : ¬¬a :=
-assume hna : ¬a, hna ha
+λ hna : ¬a, hna ha
 
 theorem notTrue : (¬ True) ↔ False :=
 iffFalseIntro (notNotIntro trivial)
@@ -957,8 +957,8 @@ variables {p q : Prop}
 @[macroInline] instance [Decidable p] [Decidable q] : Decidable (p ∧ q) :=
 if hp : p then
   if hq : q then isTrue ⟨hp, hq⟩
-  else isFalse (assume h : p ∧ q, hq (And.right h))
-else isFalse (assume h : p ∧ q, hp (And.left h))
+  else isFalse (λ h : p ∧ q, hq (And.right h))
+else isFalse (λ h : p ∧ q, hp (And.left h))
 
 @[macroInline] instance [Decidable p] [Decidable q] : Decidable (p ∨ q) :=
 if hp : p then isTrue (Or.inl hp) else
@@ -970,9 +970,9 @@ if hp : p then isFalse (absurd hp) else isTrue hp
 
 @[macroInline] instance implies.Decidable [Decidable p] [Decidable q] : Decidable (p → q) :=
 if hp : p then
-  if hq : q then isTrue (assume h, hq)
-  else isFalse (assume h : p → q, absurd (h hp) hq)
-else isTrue (assume h, absurd h hp)
+  if hq : q then isTrue (λ h, hq)
+  else isFalse (λ h : p → q, absurd (h hp) hq)
+else isTrue (λ h, absurd h hp)
 
 instance [Decidable p] [Decidable q] : Decidable (p ↔ q) :=
 if hp : p then
@@ -1202,11 +1202,11 @@ def RightCommutative (h : β → α → β) := ∀ b a₁ a₂, h (h b a₁) a�
 def LeftCommutative  (h : α → β → β) := ∀ a₁ a₂ b, h a₁ (h a₂ b) = h a₂ (h a₁ b)
 
 theorem leftComm : Commutative f → Associative f → LeftCommutative f :=
-assume hcomm hassoc, assume a b c,
+λ hcomm hassoc, λ a b c,
 ((Eq.symm (hassoc a b c)).trans (hcomm a b ▸ rfl : f (f a b) c = f (f b a) c)).trans (hassoc b a c)
 
 theorem rightComm : Commutative f → Associative f → RightCommutative f :=
-assume hcomm hassoc, assume a b c,
+λ hcomm hassoc, λ a b c,
 ((hassoc a b c).trans (hcomm b c ▸ rfl : f a (f b c) = f a (f c b))).trans (Eq.symm (hassoc a c b))
 
 end Binary
@@ -1275,8 +1275,8 @@ instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
   | (isTrue e₁) :=
     (match (decEq b b') with
      | (isTrue e₂)  := isTrue (Eq.recOn e₁ (Eq.recOn e₂ rfl))
-     | (isFalse n₂) := isFalse (assume h, Prod.noConfusion h (λ e₁' e₂', absurd e₂' n₂)))
-  | (isFalse n₁) := isFalse (assume h, Prod.noConfusion h (λ e₁' e₂', absurd e₁' n₁))}
+     | (isFalse n₂) := isFalse (λ h, Prod.noConfusion h (λ e₁' e₂', absurd e₂' n₂)))
+  | (isFalse n₁) := isFalse (λ h, Prod.noConfusion h (λ e₁' e₂', absurd e₁' n₁))}
 
 instance [HasLess α] [HasLess β] : HasLess (α × β) :=
 ⟨λ s t, s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)⟩
@@ -1560,10 +1560,10 @@ private theorem rel.refl [s : Setoid α] : ∀ q : Quotient s, rel q q :=
 λ q, Quot.inductionOn q (λ a, Setoid.refl a)
 
 private theorem eqImpRel [s : Setoid α] {q₁ q₂ : Quotient s} : q₁ = q₂ → rel q₁ q₂ :=
-assume h, Eq.ndrecOn h (rel.refl q₁)
+λ h, Eq.ndrecOn h (rel.refl q₁)
 
 theorem exact [s : Setoid α] {a b : α} : ⟦a⟧ = ⟦b⟧ → a ≈ b :=
-assume h, eqImpRel h
+λ h, eqImpRel h
 end Exact
 
 section
@@ -1624,7 +1624,7 @@ variables {α : Sort u} {β : α → Sort v}
 
 def Equiv (f₁ f₂ : Π x : α, β x) : Prop := ∀ x, f₁ x = f₂ x
 
-protected theorem Equiv.refl (f : Π x : α, β x) : Equiv f f := assume x, rfl
+protected theorem Equiv.refl (f : Π x : α, β x) : Equiv f f := λ x, rfl
 
 protected theorem Equiv.symm {f₁ f₂ : Π x: α, β x} : Equiv f₁ f₂ → Equiv f₂ f₁ :=
 λ h x, Eq.symm (h x)
@@ -1645,7 +1645,7 @@ private def funSetoid (α : Sort u) (β : α → Sort v) : Setoid (Π x : α, β
 Setoid.mk (@Function.Equiv α β) (Function.Equiv.isEquivalence α β)
 
 private def extfunApp (f : Quotient $ funSetoid α β) : Π x : α, β x :=
-assume x,
+λ x,
 Quot.liftOn f
   (λ f : Π x : α, β x, f x)
   (λ f₁ f₂ h, h x)
@@ -1711,28 +1711,28 @@ have uDef : U u, from chooseSpec exU,
 have vDef : V v, from chooseSpec exV,
 have notUvOrP : u ≠ v ∨ p, from
   Or.elim uDef
-    (assume hut : u = True,
+    (λ hut : u = True,
       Or.elim vDef
-        (assume hvf : v = False,
+        (λ hvf : v = False,
           have hne : u ≠ v, from hvf.symm ▸ hut.symm ▸ trueNeFalse,
           Or.inl hne)
         Or.inr)
     Or.inr,
 have pImpliesUv : p → u = v, from
-  assume hp : p,
+  λ hp : p,
   have hpred : U = V, from
-    funext $ assume x : Prop,
+    funext $ λ x : Prop,
       have hl : (x = True ∨ p) → (x = False ∨ p), from
-        assume a, Or.inr hp,
+        λ a, Or.inr hp,
       have hr : (x = False ∨ p) → (x = True ∨ p), from
-        assume a, Or.inr hp,
+        λ a, Or.inr hp,
       show (x = True ∨ p) = (x = False ∨ p), from
         propext (Iff.intro hl hr),
   have h₀ : ∀ exU exV, @choose _ U exU = @choose _ V exV, from
     hpred ▸ λ exU exV, rfl,
   show u = v, from h₀ _ _,
 Or.elim notUvOrP
-  (assume hne : u ≠ v, Or.inr (mt pImpliesUv hne))
+  (λ hne : u ≠ v, Or.inr (mt pImpliesUv hne))
   Or.inl
 
 theorem existsTrueOfNonempty {α : Sort u} : Nonempty α → Exists (λ x : α, True)
@@ -1748,8 +1748,8 @@ inhabitedOfNonempty (Exists.elim h (λ w hw, ⟨w⟩))
 /- all propositions are Decidable -/
 noncomputable def propDecidable (a : Prop) : Decidable a :=
 choice $ Or.elim (em a)
-  (assume ha, ⟨isTrue ha⟩)
-  (assume hna, ⟨isFalse hna⟩)
+  (λ ha, ⟨isTrue ha⟩)
+  (λ hna, ⟨isFalse hna⟩)
 
 noncomputable def decidableInhabited (a : Prop) : Inhabited (Decidable a) :=
 ⟨propDecidable a⟩

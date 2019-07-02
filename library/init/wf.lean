@@ -42,7 +42,7 @@ class HasWellFounded (α : Sort u) : Type u :=
 
 namespace WellFounded
 def apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) : ∀ a, Acc r a :=
-assume a, WellFounded.recOn wf (λ p, p) a
+λ a, WellFounded.recOn wf (λ p, p) a
 
 section
 variables {α : Sort u} {r : α → α → Prop} (hwf : WellFounded r)

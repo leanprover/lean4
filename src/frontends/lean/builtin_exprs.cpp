@@ -703,22 +703,6 @@ static expr parse_lambda(parser & p, unsigned, expr const *, pos_info const & po
     return parse_lambda_core(p, pos);
 }
 
-static expr parse_assume(parser & p, unsigned, expr const *, pos_info const & pos) {
-    if (p.curr_is_token(get_colon_tk())) {
-        // anonymous `assume`
-        p.next();
-        expr prop = p.parse_expr();
-        p.check_token_next(get_comma_tk(), "invalid 'assume', ',' expected");
-        parser::local_scope scope(p);
-        expr l = p.save_pos(mk_local(get_this_tk(), prop), pos);
-        p.add_local(l);
-        expr body = p.parse_expr();
-        return p.save_pos(Fun(l, body, p), pos);
-    } else {
-        return parse_lambda_core(p, pos);
-    }
-}
-
 static expr parse_list(parser & p, unsigned, expr const *, pos_info const & pos) {
     buffer<expr> elems;
     if (!p.curr_is_token(get_rbracket_tk())) {
@@ -851,7 +835,6 @@ parse_table init_nud_table() {
     expr x0 = mk_bvar(0);
     parse_table r;
     r = r.add({transition("have", mk_ext_action(parse_have))}, x0);
-    r = r.add({transition("assume", mk_ext_action(parse_assume))}, x0);
     r = r.add({transition("show", mk_ext_action(parse_show))}, x0);
     r = r.add({transition("suffices", mk_ext_action(parse_suffices))}, x0);
     r = r.add({transition("if", mk_ext_action(parse_if_then_else))}, x0);

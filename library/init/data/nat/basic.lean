@@ -492,13 +492,13 @@ theorem natZeroEqZero : Nat.zero = 0 :=
 rfl
 
 protected theorem oneNeZero : 1 ≠ (0 : Nat) :=
-assume h, Nat.noConfusion h
+λ h, Nat.noConfusion h
 
 protected theorem zeroNeOne : 0 ≠ (1 : Nat) :=
-assume h, Nat.noConfusion h
+λ h, Nat.noConfusion h
 
 theorem succNeZero (n : Nat) : succ n ≠ 0 :=
-assume h, Nat.noConfusion h
+λ h, Nat.noConfusion h
 
 protected theorem bit0SuccEq (n : Nat) : bit0 (succ n) = succ (succ (bit0 n)) :=
 show succ (succ n + n) = succ (succ (n + n)), from

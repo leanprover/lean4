@@ -710,7 +710,8 @@ def symbolFnAux (sym : String) (errorMsg : String) : BasicParserFn :=
 satisfySymbolFn (fun s => s == sym) errorMsg
 
 def insertToken (sym : String) (lbp : Option Nat) (tks : Trie TokenConfig) : ExceptT String Id (Trie TokenConfig) :=
-match tks.find sym, lbp with
+if sym == "" then throw "invalid empty symbol"
+else match tks.find sym, lbp with
 | none,       _           := pure (tks.insert sym { val := sym, lbp := lbp })
 | some _,     none        := pure tks
 | some tk,    some newLbp :=
@@ -984,15 +985,15 @@ else
 def mkBuiltinParsingTablesRef : IO (IO.Ref ParsingTables) :=
 IO.mkRef {}
 
-private def updateTokens (tables : ParsingTables) (info : ParserInfo) : IO ParsingTables :=
+private def updateTokens (tables : ParsingTables) (info : ParserInfo) (declName : Name) : IO ParsingTables :=
 match info.updateTokens tables.tokens with
 | Except.ok newTokens := pure { tokens := newTokens, .. tables }
-| Except.error msg    := throw (IO.userError msg)
+| Except.error msg    := throw (IO.userError ("invalid builtin parser '" ++ toString declName ++ "', " ++ msg))
 
 def addBuiltinLeadingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : Parser) : IO Unit :=
 do tables ← tablesRef.get;
    tablesRef.reset;
-   tables ← updateTokens tables p.info;
+   tables ← updateTokens tables p.info declName;
    match p.info.firstTokens with
    | FirstTokens.tokens tks :=
      let tables := tks.foldl (fun (tables : ParsingTables) tk => { leadingTable := tables.leadingTable.insert (mkSimpleName tk.val) p, .. tables }) tables;
@@ -1003,7 +1004,7 @@ do tables ← tablesRef.get;
 def addBuiltinTrailingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : TrailingParser) : IO Unit :=
 do tables ← tablesRef.get;
    tablesRef.reset;
-   tables ← updateTokens tables p.info;
+   tables ← updateTokens tables p.info declName;
    match p.info.firstTokens with
    | FirstTokens.tokens tks :=
      let tables := tks.foldl (fun (tables : ParsingTables) tk => { trailingTable := tables.trailingTable.insert (mkSimpleName tk.val) p, .. tables }) tables;

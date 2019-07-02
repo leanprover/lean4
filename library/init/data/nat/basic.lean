@@ -466,7 +466,7 @@ protected theorem addLeAddRight {n m : Nat} (h : n ≤ m) (k : Nat) : n + k ≤ 
 have h₁ : n + k = k + n, from Nat.addComm _ _,
 have h₂ : k + n ≤ k + m, from Nat.addLeAddLeft h k,
 have h₃ : k + m = m + k, from Nat.addComm _ _,
-transRelLeft (≤) (transRelRight (≤) h₁ h₂) h₃
+transRelLeft (λ a b, a ≤ b) (transRelRight (λ a b, a ≤ b) h₁ h₂) h₃
 
 protected theorem addLtAddLeft {n m : Nat} (h : n < m) (k : Nat) : k + n < k + m :=
 ltOfSuccLe (addSucc k n ▸ Nat.addLeAddLeft (succLeOfLt h) k)
@@ -509,7 +509,7 @@ protected theorem zeroLtBit0 : ∀ {n : Nat}, n ≠ 0 → 0 < bit0 n
 | (succ n) h :=
   have h₁ : 0 < succ (succ (bit0 n)),             from zeroLtSucc _,
   have h₂ : succ (succ (bit0 n)) = bit0 (succ n), from (Nat.bit0SuccEq n).symm,
-  transRelLeft (<) h₁ h₂
+  transRelLeft (λ a b, a < b) h₁ h₂
 
 protected theorem zeroLtBit1 (n : Nat) : 0 < bit1 n :=
 zeroLtSucc _
@@ -573,7 +573,7 @@ protected theorem bit0Inj : ∀ {n m : Nat}, bit0 n = bit0 m → n = m
   have succ (n + n) = succ (m + m), from this,
   have n + n = m + m, from Nat.noConfusion this id,
   have n = m, from bit0Inj this,
-  congrArg (+1) this
+  congrArg (λ a, a + 1) this
 
 protected theorem bit1Inj : ∀ {n m : Nat}, bit1 n = bit1 m → n = m :=
 λ n m h,

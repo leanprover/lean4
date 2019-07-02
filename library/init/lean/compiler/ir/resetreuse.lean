@@ -59,7 +59,7 @@ private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
 abbrev M := ReaderT LocalContext (StateT Index Id)
 
 private def mkFresh : M VarId :=
-do idx ← getModify (+1);
+do idx ← getModify (λ n, n + 1);
    pure { idx := idx }
 
 private def tryS (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=

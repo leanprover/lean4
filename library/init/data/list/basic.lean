@@ -71,7 +71,7 @@ theorem appendAssoc : ∀ (as bs cs : List α), (as ++ bs) ++ cs = as ++ (bs ++ 
 | []      bs cs := rfl
 | (a::as) bs cs :=
   show ((a::as) ++ bs) ++ cs = (a::as) ++ (bs ++ cs),      from
-  have h₁ : ((a::as) ++ bs) ++ cs = a::(as++bs) ++ cs,     from congrArg (++ cs) (consAppend a as bs),
+  have h₁ : ((a::as) ++ bs) ++ cs = a::(as++bs) ++ cs,     from congrArg (λ ds, ds ++ cs) (consAppend a as bs),
   have h₂ : a::(as++bs) ++ cs     = a::((as++bs) ++ cs),   from consAppend a (as++bs) cs,
   have h₃ : a::((as++bs) ++ cs)   = a::(as ++ (bs ++ cs)), from congrArg (λ as, a::as) (appendAssoc as bs cs),
   have h₄ : a::(as ++ (bs ++ cs)) = (a::as ++ (bs ++ cs)), from (consAppend a as (bs++cs)).symm,
@@ -325,7 +325,7 @@ inductive Less [HasLess α] : List α → List α → Prop
 instance [HasLess α] : HasLess (List α) :=
 ⟨List.Less⟩
 
-instance hasDecidableLt [HasLess α] [h : DecidableRel ((<) : α → α → Prop)] : Π l₁ l₂ : List α, Decidable (l₁ < l₂)
+instance hasDecidableLt [HasLess α] [h : DecidableRel HasLess.Less] : Π l₁ l₂ : List α, Decidable (l₁ < l₂)
 | []      []      := isFalse (λ h, match h with end)
 | []      (b::bs) := isTrue (Less.nil _ _)
 | (a::as) []      := isFalse (λ h, match h with end)
@@ -350,7 +350,7 @@ instance hasDecidableLt [HasLess α] [h : DecidableRel ((<) : α → α → Prop
 instance [HasLess α] : HasLessEq (List α) :=
 ⟨List.LessEq⟩
 
-instance hasDecidableLe [HasLess α] [h : DecidableRel ((<) : α → α → Prop)] : Π l₁ l₂ : List α, Decidable (l₁ ≤ l₂) :=
+instance hasDecidableLe [HasLess α] [h : DecidableRel (HasLess.Less : α → α → Prop)] : Π l₁ l₂ : List α, Decidable (l₁ ≤ l₂) :=
 λ a b, Not.Decidable
 
 /--  `isPrefixOf l₁ l₂` returns `true` Iff `l₁` is a prefix of `l₂`. -/

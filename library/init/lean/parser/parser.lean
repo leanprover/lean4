@@ -417,7 +417,7 @@ partial def whitespace : BasicParserFn
     else if curr == '-' then
       let i    := input.next i;
       let curr := input.get i;
-      if curr == '-' then andthenAux (takeUntilFn (= '\n')) whitespace c (s.next input i)
+      if curr == '-' then andthenAux (takeUntilFn (λ c, c = '\n')) whitespace c (s.next input i)
       else s
     else if curr == '/' then
       let i    := input.next i;
@@ -707,7 +707,7 @@ else
     | _                 := s.mkErrorAt errorMsg startPos
 
 def symbolFnAux (sym : String) (errorMsg : String) : BasicParserFn :=
-satisfySymbolFn (== sym) errorMsg
+satisfySymbolFn (λ s, s == sym) errorMsg
 
 def insertToken (sym : String) (lbp : Option Nat) (tks : Trie TokenConfig) : ExceptT String Id (Trie TokenConfig) :=
 match tks.find sym, lbp with

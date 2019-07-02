@@ -27,7 +27,7 @@ instance : HasCoe String Format := ⟨text⟩
 instance : Inhabited Format     := ⟨nil⟩
 
 def join (xs : List Format) : Format :=
-xs.foldl (++) ""
+xs.foldl HasAppend.append ""
 
 def isNil : Format → Bool
 | nil := true

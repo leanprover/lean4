@@ -295,7 +295,7 @@ anyAux s s.bsize p 0
 !s.any (λ c, !p c)
 
 def contains (s : String) (c : Char) : Bool :=
-s.any (== c)
+s.any (λ a, a == c)
 
 @[specialize] partial def mapAux (f : Char → Char) : Pos → String → String
 | i s :=
@@ -412,7 +412,7 @@ match s with
 !s.any (λ c, !p c)
 
 def contains (s : Substring) (c : Char) : Bool :=
-s.any (== c)
+s.any (λ a, a == c)
 
 @[specialize] partial def takeWhileAux (s : String) (stopPos : String.Pos) (p : Char → Bool) : String.Pos → String.Pos
 | i :=

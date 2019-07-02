@@ -76,13 +76,13 @@ def checkExpr (ty : IRType) : Expr → M Unit
 | (Expr.ctor c ys)          := when c.isRef (checkObjType ty) *> checkArgs ys
 | (Expr.reset _ x)          := checkObjVar x *> checkObjType ty
 | (Expr.reuse x i u ys)     := checkObjVar x *> checkArgs ys *> checkObjType ty
-| (Expr.box xty x)          := checkObjType ty *> checkScalarVar x *> checkVarType x (==xty)
+| (Expr.box xty x)          := checkObjType ty *> checkScalarVar x *> checkVarType x (λ t, t == xty)
 | (Expr.unbox x)            := checkScalarType ty *> checkObjVar x
 | (Expr.proj _ x)           := checkObjVar x *> checkObjType ty
-| (Expr.uproj _ x)          := checkObjVar x *> checkType ty (==IRType.usize)
+| (Expr.uproj _ x)          := checkObjVar x *> checkType ty (λ t, t == IRType.usize)
 | (Expr.sproj _ _ x)        := checkObjVar x *> checkScalarType ty
-| (Expr.isShared x)         := checkObjVar x *> checkType ty (==IRType.uint8)
-| (Expr.isTaggedPtr x)      := checkObjVar x *> checkType ty (==IRType.uint8)
+| (Expr.isShared x)         := checkObjVar x *> checkType ty (λ t, t == IRType.uint8)
+| (Expr.isTaggedPtr x)      := checkObjVar x *> checkType ty (λ t, t == IRType.uint8)
 | (Expr.lit (LitVal.str _)) := checkObjType ty
 | (Expr.lit _)              := pure ()
 

@@ -354,7 +354,7 @@ else
   false
 
 instance [HasBeq α] : HasBeq (Array α) :=
-⟨λ a b, isEqv a b (==)⟩
+⟨λ a b, isEqv a b HasBeq.beq⟩
 
 -- TODO(Leo): justify termination using wf-rec, and use `fswap`
 partial def reverseAux : Array α → Nat → Array α

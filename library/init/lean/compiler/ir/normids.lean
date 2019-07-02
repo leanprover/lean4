@@ -80,17 +80,17 @@ abbrev N := ReaderT IndexRenaming (State Nat)
 
 @[inline] def withVar {α : Type} (x : VarId) (k : VarId → N α) : N α :=
 λ m, do
-  n ← getModify (+1);
+  n ← getModify (λ n, n + 1);
   k { idx := n } (m.insert x.idx n)
 
 @[inline] def withJP {α : Type} (x : JoinPointId) (k : JoinPointId → N α) : N α :=
 λ m, do
-  n ← getModify (+1);
+  n ← getModify (λ n, n + 1);
   k { idx := n } (m.insert x.idx n)
 
 @[inline] def withParams {α : Type} (ps : Array Param) (k : Array Param → N α) : N α :=
 λ m, do
-  m ← ps.mfoldl (λ (m : IndexRenaming) p, do n ← getModify (+1); pure $ m.insert p.x.idx n) m;
+  m ← ps.mfoldl (λ (m : IndexRenaming) p, do n ← getModify (λ n, n + 1); pure $ m.insert p.x.idx n) m;
   let ps := ps.map $ λ p, { x := normVar p.x m, .. p };
   k ps m
 

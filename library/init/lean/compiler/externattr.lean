@@ -122,7 +122,7 @@ def expandExternPattern (pattern : String) (args : List String) : String :=
 expandExternPatternAux args pattern.length pattern.mkIterator ""
 
 def mkSimpleFnCall (fn : String) (args : List String) : String :=
-fn ++ "(" ++ ((args.intersperse ", ").foldl (++) "") ++ ")"
+fn ++ "(" ++ ((args.intersperse ", ").foldl HasAppend.append "") ++ ")"
 
 def expandExternEntry : ExternEntry → List String → Option String
 | (ExternEntry.adhoc _) args        := none -- backend must expand it

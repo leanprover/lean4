@@ -36,7 +36,7 @@ abbrev N := State Nat
 
 private def mkFresh : N VarId :=
 do idx ← get;
-   modify (+1);
+   modify (λ n, n + 1);
    pure {idx := idx }
 
 def requiresBoxedVersion (env : Environment) (decl : Decl) : Bool :=
@@ -111,7 +111,7 @@ structure BoxingContext :=
 abbrev M := ReaderT BoxingContext (StateT Index Id)
 
 def mkFresh : M VarId :=
-do idx ← getModify (+1);
+do idx ← getModify (λ n, n + 1);
    pure { idx := idx }
 
 def getEnv : M Environment := BoxingContext.env <$> read

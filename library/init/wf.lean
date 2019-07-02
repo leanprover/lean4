@@ -136,7 +136,7 @@ def Nat.ltWf : WellFounded Nat.lt :=
         (λ e, Eq.substr e ih) (Acc.inv ih))⟩
 
 def measure {α : Sort u} : (α → Nat) → α → α → Prop :=
-InvImage (<)
+InvImage (λ a b, a < b)
 
 def measureWf {α : Sort u} (f : α → Nat) : WellFounded (measure f) :=
 InvImage.wf f Nat.ltWf

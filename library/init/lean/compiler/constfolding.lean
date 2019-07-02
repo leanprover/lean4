@@ -63,10 +63,10 @@ do n₁   ← getNumLit a₁;
    info ← getInfoFromVal a₁;
    pure $ mkUIntLit info (fn info beforeErasure n₁ n₂)
 
-def foldUIntAdd := foldBinUInt $ λ _ _, (+)
-def foldUIntMul := foldBinUInt $ λ _ _, (*)
-def foldUIntDiv := foldBinUInt $ λ _ _, (/)
-def foldUIntMod := foldBinUInt $ λ _ _, (%)
+def foldUIntAdd := foldBinUInt $ λ _ _, HasAdd.add
+def foldUIntMul := foldBinUInt $ λ _ _, HasMul.mul
+def foldUIntDiv := foldBinUInt $ λ _ _, HasDiv.div
+def foldUIntMod := foldBinUInt $ λ _ _, HasMod.mod
 def foldUIntSub := foldBinUInt $ λ info _ a b, (a + (info.size - b))
 
 def preUIntBinFoldFns : List (Name × BinFoldFn) :=
@@ -81,11 +81,11 @@ do n₁   ← getNumLit a₁;
    n₂   ← getNumLit a₂;
    pure $ Expr.lit (Literal.natVal (fn n₁ n₂))
 
-def foldNatAdd (_ : Bool) := foldNatBinOp (+)
-def foldNatMul (_ : Bool) := foldNatBinOp (*)
-def foldNatDiv (_ : Bool) := foldNatBinOp (/)
-def foldNatMod (_ : Bool) := foldNatBinOp (%)
-def foldNatPow (_ : Bool) := foldNatBinOp (^)
+def foldNatAdd (_ : Bool) := foldNatBinOp HasAdd.add
+def foldNatMul (_ : Bool) := foldNatBinOp HasMul.mul
+def foldNatDiv (_ : Bool) := foldNatBinOp HasDiv.div
+def foldNatMod (_ : Bool) := foldNatBinOp HasMod.mod
+def foldNatPow (_ : Bool) := foldNatBinOp HasPow.pow
 
 def mkNatEq (a b : Expr) : Expr :=
 mkBinApp (Expr.app (Expr.const `Eq [Level.one]) (Expr.const `Nat [])) a b

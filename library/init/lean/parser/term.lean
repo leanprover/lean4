@@ -21,7 +21,7 @@ def termParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
 
 namespace Term
 
-@[builtinTermParser] def ident := parser! ident >> optional (".{" >> many1 levelParser >> "}")
+@[builtinTermParser] def ident := parser! ident >> optional (".{" >> sepBy1 levelParser ", " >> "}")
 @[builtinTermParser] def num : Parser := numLit
 @[builtinTermParser] def str : Parser := strLit
 @[builtinTermParser] def type := parser! symbol "Type" maxPrec

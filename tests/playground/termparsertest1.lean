@@ -11,10 +11,11 @@ IO.println stx
 
 def main (xs : List String) : IO Unit :=
 do
-testParser "x.{u v+1}";
+testParser "x.{u, v+1}";
+testParser "x.{u}";
 testParser "x";
 testParser "x.{max u v}";
-testParser "x.{(max u v) 0}";
+testParser "x.{max u v, 0}";
 testParser "f 0 1";
 testParser "f.{u+1} \"foo\" x";
 testParser "(f x, 0, 1)";

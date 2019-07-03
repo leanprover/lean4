@@ -268,7 +268,7 @@ infix ≅ := Heq
 theorem eqOfHeq {α : Sort u} {a a' : α} (h : a ≅ a') : a = a' :=
 have ∀ (α' : Sort u) (a' : α') (h₁ : @Heq α a α' a') (h₂ : α = α'), (Eq.recOn h₂ a : α') = a' :=
   fun (α' : Sort u) (a' : α') (h₁ : @Heq α a α' a') => Heq.recOn h₁ (fun h₂ : α = α => rfl);
-show (Eq.ndrecOn (Eq.refl α) a : α) = a', from
+show (Eq.ndrecOn (Eq.refl α) a : α) = a' from
   this α a' h (Eq.refl α)
 
 inductive Sum (α : Type u) (β : Type v)
@@ -1653,7 +1653,7 @@ Quot.liftOn f
   (fun f₁ f₂ h => h x)
 
 theorem funext {f₁ f₂ : Π x : α, β x} (h : ∀ x, f₁ x = f₂ x) : f₁ = f₂ :=
-show extfunApp ⟦f₁⟧ = extfunApp ⟦f₂⟧, from
+show extfunApp ⟦f₁⟧ = extfunApp ⟦f₂⟧ from
 congrArg extfunApp (sound h)
 end
 
@@ -1728,11 +1728,11 @@ have pImpliesUv : p → u = v from
         fun a => Or.inr hp;
       have hr : (x = False ∨ p) → (x = True ∨ p) from
         fun a => Or.inr hp;
-      show (x = True ∨ p) = (x = False ∨ p), from
+      show (x = True ∨ p) = (x = False ∨ p) from
         propext (Iff.intro hl hr);
   have h₀ : ∀ exU exV, @choose _ U exU = @choose _ V exV from
     hpred ▸ fun exU exV => rfl;
-  show u = v, from h₀ _ _;
+  show u = v from h₀ _ _;
 Or.elim notUvOrP
   (fun (hne : u ≠ v) => Or.inr (mt pImpliesUv hne))
   Or.inl
@@ -1768,7 +1768,7 @@ noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop)
   (h : Nonempty α) : {x : α // Exists (fun y : α => p y) → p x} :=
 @dite (Exists (fun x : α => p x)) (propDecidable _) _
   (fun hp : Exists (fun x : α => p x) =>
-    show {x : α // Exists (fun y : α => p y) → p x}, from
+    show {x : α // Exists (fun y : α => p y) → p x} from
     let xp := indefiniteDescription _ hp;
     ⟨xp.val, fun h' => xp.property⟩)
   (fun hp => ⟨choice h, fun h => absurd h hp⟩)

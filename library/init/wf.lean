@@ -15,14 +15,14 @@ inductive Acc {α : Sort u} (r : α → α → Prop) : α → Prop
 
 @[elabAsEliminator, inline, reducible]
 def Acc.ndrec.{u1, u2} {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
-    (m : Π (x : α) (h : ∀ (y : α), r y x → Acc r y), (Π (y : α) (a : r y x), C y) → C x)
+    (m : ∀ (x : α) (h : ∀ (y : α), r y x → Acc r y), (∀ (y : α) (a : r y x), C y) → C x)
     {a : α} (n : Acc r a) : C a :=
 @Acc.rec α r (fun α _ => C α) m a n
 
 @[elabAsEliminator, inline, reducible]
 def Acc.ndrecOn.{u1, u2} {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
     {a : α} (n : Acc r a)
-    (m : Π (x : α) (h : ∀ (y : α), r y x → Acc r y), (Π (y : α) (a : r y x), C y) → C x)
+    (m : ∀ (x : α) (h : ∀ (y : α), r y x → Acc r y), (∀ (y : α) (a : r y x), C y) → C x)
     : C a :=
 @Acc.rec α r (fun α _ => C α) m a n
 
@@ -47,14 +47,14 @@ fun a => WellFounded.recOn wf (fun p => p) a
 section
 variables {α : Sort u} {r : α → α → Prop} (hwf : WellFounded r)
 
-theorem recursion {C : α → Sort v} (a : α) (h : Π x, (Π y, r y x → C y) → C x) : C a :=
+theorem recursion {C : α → Sort v} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a :=
 Acc.recOn (apply hwf a) (fun x₁ ac₁ ih => h x₁ ih)
 
 theorem induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a :=
 recursion hwf a h
 
 variable {C : α → Sort v}
-variable F : Π x, (Π y, r y x → C y) → C x
+variable F : ∀ x, (∀ y, r y x → C y) → C x
 
 def fixF (x : α) (a : Acc r x) : C x :=
 Acc.recOn a (fun x₁ ac₁ ih => F x₁ ih)
@@ -67,11 +67,11 @@ end
 variables {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
 
 -- Well-founded fixpoint
-def fix (hwf : WellFounded r) (F : Π x, (Π y, r y x → C y) → C x) (x : α) : C x :=
+def fix (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) : C x :=
 fixF F x (apply hwf x)
 
 -- Well-founded fixpoint satisfies fixpoint equation
-theorem fixEq (hwf : WellFounded r) (F : Π x, (Π y, r y x → C y) → C x) (x : α) :
+theorem fixEq (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) :
   fix hwf F x = F x (fun y h => fix hwf F y) :=
 fixFEq F x (apply hwf x)
 end WellFounded
@@ -215,7 +215,7 @@ end
 
 section
 variables {α : Sort u} {β : α → Sort v}
-variables {r  : α → α → Prop} {s : Π a : α, β a → β a → Prop}
+variables {r  : α → α → Prop} {s : ∀ a : α, β a → β a → Prop}
 
 def lexAccessible {a} (aca : Acc r a) (acb : ∀ a, WellFounded (s a)) : ∀ (b : β a), Acc (Lex r s) ⟨a, b⟩ :=
 Acc.ndrecOn aca $ fun (xa aca) (iha : ∀ y, r y xa → ∀ b : β y, Acc (Lex r s) ⟨y, b⟩) (b : β xa) =>

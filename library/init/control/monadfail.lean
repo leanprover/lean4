@@ -9,7 +9,7 @@ import init.control.lift init.data.string.basic
 universes u v
 
 class MonadFail (m : Type u → Type v) :=
-(fail {} : Π {a}, String → m a)
+(fail {} : ∀ {a}, String → m a)
 
 def matchFailed {α : Type u} {m : Type u → Type v} [MonadFail m] : m α :=
 MonadFail.fail "match failed"

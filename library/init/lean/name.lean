@@ -57,7 +57,7 @@ def components (n : Name) : List Name :=
 n.components'.reverse
 
 @[extern "lean_name_dec_eq"]
-protected def decEq : Π (a b : @& Name), Decidable (a = b)
+protected def decEq : ∀ (a b : @& Name), Decidable (a = b)
 | anonymous          anonymous          := isTrue rfl
 | (mkString p₁ s₁)  (mkString p₂ s₂)  :=
   if h₁ : s₁ = s₂ then

@@ -10,7 +10,7 @@ universes u v w
 open Function
 
 class HasBind (m : Type u → Type v) :=
-(bind : Π {α β : Type u}, m α → (α → m β) → m β)
+(bind : ∀ {α β : Type u}, m α → (α → m β) → m β)
 
 export HasBind (bind)
 

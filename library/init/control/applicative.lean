@@ -14,17 +14,17 @@ class HasPure (f : Type u → Type v) :=
 export HasPure (pure)
 
 class HasSeq (f : Type u → Type v) : Type (max (u+1) v) :=
-(seq  : Π {α β : Type u}, f (α → β) → f α → f β)
+(seq  : ∀ {α β : Type u}, f (α → β) → f α → f β)
 
 infixl <*> := HasSeq.seq
 
 class HasSeqLeft (f : Type u → Type v) : Type (max (u+1) v) :=
-(seqLeft : Π {α β : Type u}, f α → f β → f α)
+(seqLeft : ∀ {α β : Type u}, f α → f β → f α)
 
 infixl <* := HasSeqLeft.seqLeft
 
 class HasSeqRight (f : Type u → Type v) : Type (max (u+1) v) :=
-(seqRight : Π {α β : Type u}, f α → f β → f β)
+(seqRight : ∀ {α β : Type u}, f α → f β → f β)
 
 infixr *> := HasSeqRight.seqRight
 

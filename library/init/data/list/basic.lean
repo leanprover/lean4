@@ -16,7 +16,7 @@ variables {α : Type u} {β : Type v} {γ : Type w}
 
 namespace List
 
-protected def hasDecEq [DecidableEq α] : Π a b : List α, Decidable (a = b)
+protected def hasDecEq [DecidableEq α] : ∀ a b : List α, Decidable (a = b)
 | []      []      := isTrue rfl
 | (a::as) []      := isFalse (fun h => List.noConfusion h)
 | []      (b::bs) := isFalse (fun h => List.noConfusion h)
@@ -233,7 +233,7 @@ def take : Nat → List α → List α
 | []       := b
 | (a :: l) := f a (foldr l)
 
-@[specialize] def foldr1 (f : α → α → α) : Π (xs : List α), xs ≠ [] → α
+@[specialize] def foldr1 (f : α → α → α) : ∀ (xs : List α), xs ≠ [] → α
 | []               h := absurd rfl h
 | [a]              _ := a
 | (a :: as@(_::_)) _ := f a (foldr1 as (fun h => List.noConfusion h))
@@ -289,7 +289,7 @@ def enumFrom : Nat → List α → List (Nat × α)
 
 def enum : List α → List (Nat × α) := enumFrom 0
 
-def getLastOfNonNil : Π (as : List α), as ≠ [] → α
+def getLastOfNonNil : ∀ (as : List α), as ≠ [] → α
 | []         h := absurd rfl h
 | [a]        h := a
 | (a::b::as) h := getLastOfNonNil (b::as) (fun h => List.noConfusion h)
@@ -325,7 +325,7 @@ inductive Less [HasLess α] : List α → List α → Prop
 instance [HasLess α] : HasLess (List α) :=
 ⟨List.Less⟩
 
-instance hasDecidableLt [HasLess α] [h : DecidableRel HasLess.Less] : Π l₁ l₂ : List α, Decidable (l₁ < l₂)
+instance hasDecidableLt [HasLess α] [h : DecidableRel HasLess.Less] : ∀ l₁ l₂ : List α, Decidable (l₁ < l₂)
 | []      []      := isFalse (fun h => match h with end)
 | []      (b::bs) := isTrue (Less.nil _ _)
 | (a::as) []      := isFalse (fun h => match h with end)
@@ -350,7 +350,7 @@ instance hasDecidableLt [HasLess α] [h : DecidableRel HasLess.Less] : Π l₁ l
 instance [HasLess α] : HasLessEq (List α) :=
 ⟨List.LessEq⟩
 
-instance hasDecidableLe [HasLess α] [h : DecidableRel (HasLess.Less : α → α → Prop)] : Π l₁ l₂ : List α, Decidable (l₁ ≤ l₂) :=
+instance hasDecidableLe [HasLess α] [h : DecidableRel (HasLess.Less : α → α → Prop)] : ∀ l₁ l₂ : List α, Decidable (l₁ ≤ l₂) :=
 fun a b => Not.Decidable
 
 /--  `isPrefixOf l₁ l₂` returns `true` Iff `l₁` is a prefix of `l₂`. -/

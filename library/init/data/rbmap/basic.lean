@@ -34,39 +34,39 @@ protected def max : RBNode α β → Option (Sigma (fun k => β k))
 | (node _ _ k v leaf)   := some ⟨k, v⟩
 | (node _ _ k v r)      := max r
 
-@[specialize] def fold (f : σ → Π (k : α), β k → σ) : σ → RBNode α β → σ
+@[specialize] def fold (f : σ → ∀ (k : α), β k → σ) : σ → RBNode α β → σ
 | b leaf             := b
 | b (node _ l k v r) := fold (f (fold b l) k v) r
 
-@[specialize] def mfold {m : Type w → Type w'} [Monad m] (f : σ → Π (k : α), β k → m σ) : σ → RBNode α β → m σ
+@[specialize] def mfold {m : Type w → Type w'} [Monad m] (f : σ → ∀ (k : α), β k → m σ) : σ → RBNode α β → m σ
 | b leaf             := pure b
 | b (node _ l k v r) := do
   b ← mfold b l;
   b ← f b k v;
   mfold b r
 
-@[specialize] def revFold (f : σ → Π (k : α), β k → σ) : σ → RBNode α β → σ
+@[specialize] def revFold (f : σ → ∀ (k : α), β k → σ) : σ → RBNode α β → σ
 | b leaf               := b
 | b (node _ l k v r)   := revFold (f (revFold b r) k v) l
 
-@[specialize] def all (p : Π k : α, β k → Bool) : RBNode α β → Bool
+@[specialize] def all (p : ∀ k : α, β k → Bool) : RBNode α β → Bool
 | leaf                 := true
 | (node _ l k v r)     := p k v && all l && all r
 
-@[specialize] def any (p : Π k : α, β k → Bool) : RBNode α β → Bool
+@[specialize] def any (p : ∀ k : α, β k → Bool) : RBNode α β → Bool
 | leaf                 := false
 | (node _ l k v r)   := p k v || any l || any r
 
 def singleton (k : α) (v : β k) : RBNode α β :=
 node red leaf k v leaf
 
-@[inline] def balance1 : Π a, β a → RBNode α β → RBNode α β → RBNode α β
+@[inline] def balance1 : ∀ a, β a → RBNode α β → RBNode α β → RBNode α β
 | kv vv t (node _ (node red l kx vx r₁) ky vy r₂) := node red (node black l kx vx r₁) ky vy (node black r₂ kv vv t)
 | kv vv t (node _ l₁ ky vy (node red l₂ kx vx r)) := node red (node black l₁ ky vy l₂) kx vx (node black r kv vv t)
 | kv vv t (node _ l  ky vy r)                     := node black (node red l ky vy r) kv vv t
 | _  _  _                                       _ := leaf -- unreachable
 
-@[inline] def balance2 : RBNode α β → Π a, β a → RBNode α β → RBNode α β
+@[inline] def balance2 : RBNode α β → ∀ a, β a → RBNode α β → RBNode α β
 | t kv vv (node _ (node red l kx₁ vx₁ r₁) ky vy r₂)  := node red (node black t kv vv l) kx₁ vx₁ (node black r₁ ky vy r₂)
 | t kv vv (node _ l₁ ky vy (node red l₂ kx₂ vx₂ r₂)) := node red (node black t kv vv l₁) ky vy (node black l₂ kx₂ vx₂ r₂)
 | t kv vv (node _ l ky vy r)                         := node black t kv vv (node red l ky vy r)
@@ -84,7 +84,7 @@ section Insert
 
 variables (lt : α → α → Bool)
 
-@[specialize] def ins : RBNode α β → Π k : α, β k → RBNode α β
+@[specialize] def ins : RBNode α β → ∀ k : α, β k → RBNode α β
 | leaf                 kx vx := node red leaf kx vx leaf
 | (node red a ky vy b) kx vx :=
    if lt kx ky then node red (ins a kx vx) ky vy b
@@ -110,7 +110,7 @@ else ins lt t k v
 
 end Insert
 
-def balance₃ : RBNode α β → Π k, β k → RBNode α β → RBNode α β
+def balance₃ : RBNode α β → ∀ k, β k → RBNode α β → RBNode α β
 | (node red (node red a kx vx b) ky vy c) k v d := node red (node black a kx vx b) ky vy (node black c k v d)
 | (node red a kx vx (node red b ky vy c)) k v d := node red (node black a kx vx b) ky vy (node black c k v d)
 | a k v (node red b ky vy (node red c kz vz d)) := node red (node black a k v b) ky vy (node black c kz vz d)
@@ -121,7 +121,7 @@ def setRed : RBNode α β → RBNode α β
 | (node _ a k v b) := node red a k v b
 | e                := e
 
-def balLeft : RBNode α β → Π k, β k → RBNode α β → RBNode α β
+def balLeft : RBNode α β → ∀ k, β k → RBNode α β → RBNode α β
 | (node red a kx vx b) k v r                      := node red (node black a kx vx b) k v r
 | l k v (node black a ky vy b)                    := balance₃ l k v (node red a ky vy b)
 | l k v (node red (node black a ky vy b) kz vz c) := node red (node black l k v a) ky vy (balance₃ b kz vz (setRed c))
@@ -174,7 +174,7 @@ end Erase
 section Membership
 variable (lt : α → α → Bool)
 
-@[specialize] def findCore : RBNode α β → Π k : α, Option (Sigma (fun k => β k))
+@[specialize] def findCore : RBNode α β → ∀ k : α, Option (Sigma (fun k => β k))
 | leaf               x := none
 | (node _ a ky vy b) x :=
    if lt x ky then findCore a x

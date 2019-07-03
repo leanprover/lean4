@@ -10,7 +10,7 @@ namespace Nat
 private def divRecLemma {x y : Nat} : 0 < y ∧ y ≤ x → x - y < x :=
 fun h => And.rec (fun ypos ylex => subLt (Nat.ltOfLtOfLe ypos ylex) ypos) h
 
-private def div.F (x : Nat) (f : Π x₁, x₁ < x → Nat → Nat) (y : Nat) : Nat :=
+private def div.F (x : Nat) (f : ∀ x₁, x₁ < x → Nat → Nat) (y : Nat) : Nat :=
 if h : 0 < y ∧ y ≤ x then f (x - y) (divRecLemma h) y + 1 else zero
 
 @[extern cpp "lean::nat_div"]
@@ -42,7 +42,7 @@ theorem div.inductionOn.{u}
       : C x y :=
 WellFounded.fix Nat.ltWf (div.induction.F C h₁ h₂) x y
 
-private def mod.F (x : Nat) (f : Π x₁, x₁ < x → Nat → Nat) (y : Nat) : Nat :=
+private def mod.F (x : Nat) (f : ∀ x₁, x₁ < x → Nat → Nat) (y : Nat) : Nat :=
 if h : 0 < y ∧ y ≤ x then f (x - y) (divRecLemma h) y else x
 
 @[extern cpp "lean::nat_mod"]

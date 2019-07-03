@@ -8,8 +8,8 @@ import init.core init.control.applicative
 universes u v
 
 class Alternative (f : Type u → Type v) extends Applicative f : Type (max (u+1) v) :=
-(failure : Π {α : Type u}, f α)
-(orelse  : Π {α : Type u}, f α → f α → f α)
+(failure : ∀ {α : Type u}, f α)
+(orelse  : ∀ {α : Type u}, f α → f α → f α)
 
 instance alternativeHasOrelse (f : Type u → Type v) (α : Type u) [Alternative f] : HasOrelse (f α) :=
 ⟨Alternative.orelse⟩

@@ -37,21 +37,24 @@ def singleton (a : α) : DList α :=
  fun t => rfl⟩
 
 def cons : α → DList α → DList α
-| a ⟨f, h⟩ := ⟨fun t => a :: f t,
-               fun t =>
-               show a :: f t = a :: f [] ++ t, from
-               have h₁ : a :: f t = a :: (f nil ++ t) := h t ▸ rfl;
-               have h₂ : a :: (f nil ++ t) = a :: f nil ++ t := (consAppend _ _ _).symm;
-               Eq.trans h₁ h₂⟩
+| a ⟨f, h⟩ :=
+  ⟨fun t => a :: f t,
+   fun t =>
+    show a :: f t = a :: f [] ++ t from
+    have h₁ : a :: f t = a :: (f nil ++ t) := h t ▸ rfl;
+    have h₂ : a :: (f nil ++ t) = a :: f nil ++ t := (consAppend _ _ _).symm;
+    Eq.trans h₁ h₂⟩
 
 def append : DList α → DList α → DList α
-| ⟨f, h₁⟩ ⟨g, h₂⟩ := ⟨f ∘ g, fun t =>
-                      show f (g t) = (f (g [])) ++ t, from
-                      (h₁ (g [])).symm ▸ (appendAssoc (f []) (g []) t).symm ▸ h₂ t ▸ h₁ (g t) ▸ rfl⟩
+| ⟨f, h₁⟩ ⟨g, h₂⟩ :=
+  ⟨f ∘ g, fun t =>
+    show f (g t) = (f (g [])) ++ t from
+   (h₁ (g [])).symm ▸ (appendAssoc (f []) (g []) t).symm ▸ h₂ t ▸ h₁ (g t) ▸ rfl⟩
 
 def push : DList α → α → DList α
-| ⟨f, h⟩ a := ⟨fun t => f (a :: t),
-               fun t => (h (a::t)).symm ▸ (h [a]).symm ▸ (appendAssoc (f []) [a] t).symm ▸ rfl⟩
+| ⟨f, h⟩ a :=
+  ⟨fun t => f (a :: t),
+   fun t => (h (a::t)).symm ▸ (h [a]).symm ▸ (appendAssoc (f []) [a] t).symm ▸ rfl⟩
 
 instance : HasAppend (DList α) :=
 ⟨DList.append⟩

@@ -25,5 +25,7 @@ testParser "(f x : Type)";
 testParser "h (f x) (g y)";
 testParser "if x then f x else g x";
 testParser "if h : x then f x h else g x h";
-testParser "have p x y, from f x; g this";
+testParser "have p x y from f x; g this";
+testParser "suffices h : p x y from f x; g this";
+testParser "show p x y from f x";
 pure ()

@@ -414,7 +414,6 @@ static expr parse_have(parser & p, unsigned, expr const *, pos_info const & pos)
         p.next();
         proof = p.parse_expr();
     } else {
-        p.check_token_next(get_comma_tk(), "invalid 'have' declaration, ',' expected");
         proof = parse_proof(p);
     }
     p.check_token_next(get_semicolon_tk(), "invalid 'have' declaration, ';' expected");
@@ -431,7 +430,6 @@ static expr parse_have(parser & p, unsigned, expr const *, pos_info const & pos)
 
 static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos) {
     expr prop  = p.parse_expr();
-    p.check_token_next(get_comma_tk(), "invalid 'show' declaration, ',' expected");
     expr proof = parse_proof(p);
     expr b = p.save_pos(mk_lambda(get_this_tk(), prop, mk_bvar(0)), pos);
     expr r = p.mk_app(b, proof, pos);
@@ -462,7 +460,6 @@ static expr parse_suffices(parser & p, unsigned, expr const *, pos_info const & 
         from  = p.parse_expr();
     }
     expr local = p.save_pos(mk_local(id, from), prop_pos);
-    p.check_token_next(get_comma_tk(), "invalid 'suffices' declaration, ',' expected");
     expr body;
     {
         parser::local_scope scope(p);
@@ -470,7 +467,7 @@ static expr parse_suffices(parser & p, unsigned, expr const *, pos_info const & 
         body = parse_proof(p);
     }
     expr proof = p.save_pos(Fun(local, body, p), pos);
-    p.check_token_next(get_comma_tk(), "invalid 'suffices' declaration, ',' expected");
+    p.check_token_next(get_semicolon_tk(), "invalid 'suffices' declaration, ';' expected");
     expr rest  = p.parse_expr();
     expr r = p.mk_app(proof, rest, pos);
     return p.save_pos(mk_suffices_annotation(r), pos);

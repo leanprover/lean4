@@ -825,7 +825,7 @@ Eq.recOn h Iff.rfl
 
 theorem neqOfNotIff {a b : Prop} : ¬(a ↔ b) → a ≠ b :=
 fun h₁ h₂ =>
-have a ↔ b, from Eq.subst h₂ (Iff.refl a);
+have a ↔ b from Eq.subst h₂ (Iff.refl a);
 absurd this h₁
 
 theorem notIffNotOfIff (h₁ : a ↔ b) : ¬a ↔ ¬b :=
@@ -1705,32 +1705,32 @@ theorem chooseSpec {α : Sort u} {p : α → Prop} (h : Exists (fun x => p x)) :
 theorem em (p : Prop) : p ∨ ¬p :=
 let U (x : Prop) : Prop := x = True ∨ p;
 let V (x : Prop) : Prop := x = False ∨ p;
-have exU : Exists (fun x => U x), from ⟨True, Or.inl rfl⟩;
-have exV : Exists (fun x => V x), from ⟨False, Or.inl rfl⟩;
+have exU : Exists (fun x => U x) from ⟨True, Or.inl rfl⟩;
+have exV : Exists (fun x => V x) from ⟨False, Or.inl rfl⟩;
 let u : Prop := choose exU;
 let v : Prop := choose exV;
-have uDef : U u, from chooseSpec exU;
-have vDef : V v, from chooseSpec exV;
-have notUvOrP : u ≠ v ∨ p, from
+have uDef : U u from chooseSpec exU;
+have vDef : V v from chooseSpec exV;
+have notUvOrP : u ≠ v ∨ p from
   Or.elim uDef
     (fun hut : u = True =>
       Or.elim vDef
         (fun hvf : v = False =>
-          have hne : u ≠ v, from hvf.symm ▸ hut.symm ▸ trueNeFalse;
+          have hne : u ≠ v from hvf.symm ▸ hut.symm ▸ trueNeFalse;
           Or.inl hne)
         Or.inr)
     Or.inr;
-have pImpliesUv : p → u = v, from
+have pImpliesUv : p → u = v from
   fun hp : p =>
-  have hpred : U = V, from
+  have hpred : U = V from
     funext $ fun x : Prop =>
-      have hl : (x = True ∨ p) → (x = False ∨ p), from
+      have hl : (x = True ∨ p) → (x = False ∨ p) from
         fun a => Or.inr hp;
-      have hr : (x = False ∨ p) → (x = True ∨ p), from
+      have hr : (x = False ∨ p) → (x = True ∨ p) from
         fun a => Or.inr hp;
       show (x = True ∨ p) = (x = False ∨ p), from
         propext (Iff.intro hl hr);
-  have h₀ : ∀ exU exV, @choose _ U exU = @choose _ V exV, from
+  have h₀ : ∀ exU exV, @choose _ U exU = @choose _ V exV from
     hpred ▸ fun exU exV => rfl;
   show u = v, from h₀ _ _;
 Or.elim notUvOrP

@@ -68,13 +68,13 @@ theorem mod.inductionOn.{u}
 div.inductionOn x y h₁ h₂
 
 theorem modZero (a : Nat) : a % 0 = a :=
-suffices (if 0 < 0 ∧ 0 ≤ a then (a - 0) % 0 else a) = a, from (modDef a 0).symm ▸ this,
-have h : ¬ (0 < 0 ∧ 0 ≤ a), from fun ⟨h₁, _⟩ => absurd h₁ (Nat.ltIrrefl _);
+suffices (if 0 < 0 ∧ 0 ≤ a then (a - 0) % 0 else a) = a from (modDef a 0).symm ▸ this;
+have h : ¬ (0 < 0 ∧ 0 ≤ a) from fun ⟨h₁, _⟩ => absurd h₁ (Nat.ltIrrefl _);
 ifNeg h
 
 theorem modEqOfLt {a b : Nat} (h : a < b) : a % b = a :=
-suffices (if 0 < b ∧ b ≤ a then (a - b) % b else a) = a, from (modDef a b).symm ▸ this,
-have h' : ¬(0 < b ∧ b ≤ a), from fun ⟨_, h₁⟩ => absurd h₁ (Nat.notLeOfGt h);
+suffices (if 0 < b ∧ b ≤ a then (a - b) % b else a) = a from (modDef a b).symm ▸ this;
+have h' : ¬(0 < b ∧ b ≤ a) from fun ⟨_, h₁⟩ => absurd h₁ (Nat.notLeOfGt h);
 ifNeg h'
 
 theorem modEqSubMod {a b : Nat} (h : a ≥ b) : a % b = (a - b) % b :=
@@ -85,16 +85,16 @@ Or.elim (eqZeroOrPos b)
 theorem modLt (x : Nat) {y : Nat} : y > 0 → x % y < y :=
 mod.inductionOn x y
   (fun (x y) ⟨_, h₁⟩ (h₂ h₃) =>
-   have ih  : (x - y) % y < y, from h₂ h₃;
-   have Heq : x % y = (x - y) % y, from modEqSubMod h₁;
+   have ih  : (x - y) % y < y from h₂ h₃;
+   have Heq : x % y = (x - y) % y from modEqSubMod h₁;
    Heq.symm ▸ ih)
   (fun x y h₁ h₂ =>
-    have h₁ : ¬ 0 < y ∨ ¬ y ≤ x, from Iff.mp (Decidable.notAndIffOrNot _ _) h₁;
+    have h₁ : ¬ 0 < y ∨ ¬ y ≤ x from Iff.mp (Decidable.notAndIffOrNot _ _) h₁;
     Or.elim h₁
      (fun h₁ => absurd h₂ h₁)
      (fun h₁ =>
-       have hgt : y > x, from gtOfNotLe h₁;
-       have Heq : x % y = x, from modEqOfLt hgt;
+       have hgt : y > x from gtOfNotLe h₁;
+       have Heq : x % y = x from modEqOfLt hgt;
        Heq.symm ▸ hgt))
 
 theorem modLe (x y : Nat) : x % y ≤ x :=

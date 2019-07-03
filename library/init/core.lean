@@ -1081,7 +1081,7 @@ instance Prop.Inhabited : Inhabited Prop :=
 instance Fun.Inhabited (α : Sort u) {β : Sort v} [h : Inhabited β] : Inhabited (α → β) :=
 Inhabited.casesOn h (fun b => ⟨fun a => b⟩)
 
-instance Pi.Inhabited (α : Sort u) {β : α → Sort v} [∀ x, Inhabited (β x)] : Inhabited (∀ x, β x) :=
+instance Forall.Inhabited (α : Sort u) {β : α → Sort v} [∀ x, Inhabited (β x)] : Inhabited (∀ x, β x) :=
 ⟨fun a => default (β a)⟩
 
 instance : Inhabited Bool := ⟨false⟩
@@ -1657,7 +1657,7 @@ show extfunApp ⟦f₁⟧ = extfunApp ⟦f₂⟧ from
 congrArg extfunApp (sound h)
 end
 
-instance Pi.Subsingleton {α : Sort u} {β : α → Sort v} [∀ a, Subsingleton (β a)] : Subsingleton (∀ a, β a) :=
+instance Forall.Subsingleton {α : Sort u} {β : α → Sort v} [∀ a, Subsingleton (β a)] : Subsingleton (∀ a, β a) :=
 ⟨fun f₁ f₂ => funext (fun a => Subsingleton.elim (f₁ a) (f₂ a))⟩
 
 /- General operations on functions -/

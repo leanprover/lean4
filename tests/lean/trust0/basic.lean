@@ -123,7 +123,7 @@ succLeSucc
 
 theorem succSubSuccEqSub (a b : ℕ) : succ a - succ b = a - b :=
 Nat.recOn b
-  (show succ a - succ zero = a - zero, from (Eq.refl (succ a - succ zero)))
+  (show succ a - succ zero = a - zero from (Eq.refl (succ a - succ zero)))
   (fun b => congrArg pred)
 
 theorem notSuccLeSelf : ∀ n : ℕ, ¬succ n ≤ n :=
@@ -151,7 +151,7 @@ theorem subLt : ∀ {a b : ℕ}, 0 < a → 0 < b → a - b < a
 | (a+1) 0     h1 h2 := absurd h2 (Nat.ltIrrefl 0)
 | (a+1) (b+1) h1 h2 :=
   Eq.symm (succSubSuccEqSub a b) ▸
-    show a - b < succ a, from
+    show a - b < succ a from
     ltSuccOfLe (subLe a b)
 
 protected theorem ltOfLtOfLe {n m k : ℕ} : n < m → m ≤ k → n < k :=

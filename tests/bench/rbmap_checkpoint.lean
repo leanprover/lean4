@@ -67,8 +67,8 @@ else ins t k v
 def mkMapAux (freq : Nat) : Nat → Tree → List Tree → List Tree
 | 0     m r := m::r
 | (n+1) m r :=
-  let m := insert m n (n % 10 = 0) in
-  let r := if n % freq == 0 then m::r else r in
+  let m := insert m n (n % 10 = 0);
+  let r := if n % freq == 0 then m::r else r;
   mkMapAux n m r
 
 def mkMap (n : Nat) (freq : Nat) : List Tree :=
@@ -86,6 +86,6 @@ let n     := n.toNat;
 let freq  := freq.toNat;
 let freq  := if freq == 0 then 1 else freq;
 let mList := mkMap n freq;
-let v     := fold (λ (k : Nat) (v : Bool) (r : Nat), if v then r + 1 else r) mList.head 0;
+let v     := fold (fun (k : Nat) (v : Bool) (r : Nat) => if v then r + 1 else r) mList.head 0;
 IO.println (toString (myLen mList 0) ++ " " ++ toString v) *>
 pure 0

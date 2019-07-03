@@ -28,14 +28,14 @@ partial def sumT : UInt32 -> UInt32 -> UInt32 -> UInt32
 | d i t :=
   if i = 0 then t
   else
-    let a := check (make d) in
+    let a := check (make d);
     sumT d (i-1) (t + a)
 
 -- generate many trees
 partial def depth : Nat -> Nat -> List (Nat × Nat × Task UInt32)
 | d m := if d ≤ m then
-    let n := 2 ^ (m - d + minN) in
-    (n, d, Task.mk (λ _, sumT (UInt32.ofNat d) (UInt32.ofNat n) 0)) :: depth (d+2) m
+    let n := 2 ^ (m - d + minN);
+    (n, d, Task.mk (fun _ => sumT (UInt32.ofNat d) (UInt32.ofNat n) 0)) :: depth (d+2) m
   else []
 
 def main : List String → IO UInt32
@@ -53,7 +53,7 @@ def main : List String → IO UInt32
 
   -- allocate, walk, and deallocate many bottom-up binary trees
   let vs := (depth minN maxN), -- `using` (parList $ evalTuple3 r0 r0 rseq)
-  vs.mmap (λ ⟨m,d,i⟩, out (toString m ++ "\t trees") d i.get);
+  vs.mmap (fun ⟨m,d,i⟩ => out (toString m ++ "\t trees") d i.get);
 
   -- confirm the the long-lived binary tree still exists
   out "long lived tree" maxN (check long);

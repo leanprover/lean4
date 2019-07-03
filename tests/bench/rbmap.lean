@@ -70,7 +70,7 @@ def mkMap (n : Nat) :=
 mkMapAux n Leaf
 
 def main (xs : List String) : IO UInt32 :=
-let m := mkMap xs.head.toNat in
-let v := fold (λ (k : Nat) (v : Bool) (r : Nat), if v then r + 1 else r) m 0 in
+let m := mkMap xs.head.toNat;
+let v := fold (fun (k : Nat) (v : Bool) (r : Nat) => if v then r + 1 else r) m 0;
 IO.println (toString v) *>
 pure 0

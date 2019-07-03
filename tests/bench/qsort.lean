@@ -57,9 +57,9 @@ qsortAux lt as 0 (UInt32.ofNat (as.size - 1))
 def main (xs : List String) : IO Unit :=
 do
 let n := xs.head.toNat;
-n.mfor $ λ _,
-n.mfor $ λ i, do
+n.mfor $ fun _ =>
+n.mfor $ fun i => do
   let xs := mkRandomArray i (UInt32.ofNat i) Array.empty;
-  let xs := qsort xs (λ a b, a < b);
+  let xs := qsort xs (fun a b => a < b);
   --IO.println xs;
   checkSortedAux xs 0

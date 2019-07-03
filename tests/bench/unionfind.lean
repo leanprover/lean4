@@ -1,11 +1,11 @@
 def StateT' (m : Type → Type) (σ : Type) (α : Type) := σ → m (α × σ)
 namespace StateT'
 variables {m : Type → Type} [Monad m] {σ : Type} {α β : Type}
-@[inline] protected def pure (a : α) : StateT' m σ α := λ s, pure (a, s)
-@[inline] protected def bind (x : StateT' m σ α) (f : α → StateT' m σ β) : StateT' m σ β := λ s, do (a, s') ← x s; f a s'
-@[inline] def read : StateT' m σ σ := λ s, pure (s, s)
-@[inline] def write (s' : σ) : StateT' m σ Unit := λ s, pure ((), s')
-@[inline] def updt (f : σ → σ) : StateT' m σ Unit := λ s, pure ((), f s)
+@[inline] protected def pure (a : α) : StateT' m σ α := fun s => pure (a, s)
+@[inline] protected def bind (x : StateT' m σ α) (f : α → StateT' m σ β) : StateT' m σ β := fun s => do (a, s') ← x s; f a s'
+@[inline] def read : StateT' m σ σ := fun s => pure (s, s)
+@[inline] def write (s' : σ) : StateT' m σ Unit := fun s => pure ((), s')
+@[inline] def updt (f : σ → σ) : StateT' m σ Unit := fun s => pure ((), f s)
 instance : Monad (StateT' m σ) :=
 {pure := @StateT'.pure _ _ _, bind := @StateT'.bind _ _ _}
 end StateT'
@@ -50,7 +50,7 @@ def findEntryAux : Nat → Node → M nodeData
        do { let e := s.fget ⟨n, h⟩;
             if e.find = n then pure e
             else do e₁ ← findEntryAux i e.find;
-                    updt (λ s, s.set n e₁);
+                    updt (fun s => s.set n e₁);
                     pure e₁ }
      else error "invalid Node"
 
@@ -63,17 +63,17 @@ do e ← findEntry n; pure e.find
 
 def mk : M Node :=
 do n ← capacity;
-   updt $ λ s, s.push {find := n, rank := 1};
+   updt $ fun s => s.push {find := n, rank := 1};
    pure n
 
 def union (n₁ n₂ : Node) : M Unit :=
 do r₁ ← findEntry n₁;
    r₂ ← findEntry n₂;
    if r₁.find = r₂.find then pure ()
-   else updt $ λ s,
+   else updt $ fun s =>
      if r₁.rank < r₂.rank then s.set r₁.find { find := r₂.find }
      else if r₁.rank = r₂.rank then
-        let s₁ := s.set r₁.find { find := r₂.find } in
+        let s₁ := s.set r₁.find { find := r₂.find };
         s₁.set r₂.find { rank := r₂.rank + 1, .. r₂}
      else s.set r₂.find { find := r₁.find }
 
@@ -120,7 +120,7 @@ else do
   numEqs
 
 def main (xs : List String) : IO UInt32 :=
-let n := xs.head.toNat in
+let n := xs.head.toNat;
 match run (test n) with
 | (Except.ok v, s)    := IO.println ("ok " ++ toString v) *> pure 0
 | (Except.error e, s) := IO.println ("Error : " ++ e) *> pure 1

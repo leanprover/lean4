@@ -1,6 +1,12 @@
 
+# Alias for settings
+config: ''
+
 # Logging level
 log_level: info
+
+# Additional settings file
+settings: ''
 
 # Acquire sudo privileges and run benchmark programs with non-sudo user. Only supported on the command line.
 sudo: false
@@ -85,7 +91,7 @@ report:
     # Properties that aren't shown in the report.
     excluded_properties: [__ov-time, avg_mem_usage, avg_res_set, max_res_set, stime, utime]
     
-    # File that contains the benchmarking results
+    # Files that contain the benchmarking results
     in: run_output.yaml
     
     # List of included run blocks (all: include all), identified by their description or tag attribute
@@ -94,17 +100,40 @@ report:
     # Replace the property names in reports with longer more descriptive versions?
     long_properties: false
     
-    # Possible reporter are 'console', 'html', 'html2' and 'csv'
+    # Possible reporter are 'console', 'html', 'html2', 'csv' and 'codespeed'
     reporter: console
     
     # Produce xkcd like plots (requires the humor sans font to be installed)
     xkcd_like_plots: false
     
+    #   Reporter that outputs JSON as expected by [codespeed](https://github.com/tobami/codespeed).
+    #   Branch name and commit ID are taken from the current directory.
+    #   Use it like this:
+    #   ```
+    #   temci report --reporter codespeed ... | curl --data-urlencode json@- http://localhost:8000/result/add/json/
+    #   ```
+    codespeed_misc:
+        
+        # Environment name reported to codespeed. Defaults to current host name.
+        environment: ''
+        
+        # Executable name reported to codespeed. Defaults to the project name.
+        executable: ''
+        
+        # Project name reported to codespeed.
+        project: lean4
+    
     #   Simple reporter that outputs just text.
     console_misc:
         
-        # Output file name or stdard out (-)
+        # 'auto': report clusters (runs with the same description) and singles (clusters with a single entry, combined) separately, 'single': report all clusters together as one, 'cluster': report all clusters separately, 'both': append the output of 'cluster' to the output of 'single'
+        mode: auto
+        
+        # Output file name or `-` (stdout)
         out: '-'
+        
+        # Report on the failing blocks
+        report_errors: true
         
         # Print statistical tests for every property for every two programs
         with_tester_results: true
@@ -258,6 +287,9 @@ run:
     # Output file for the benchmarking results
     out: run_output.yaml
     
+    # Record the caught errors in the run_output file
+    record_errors_in_file: true
+    
     # Number of benchmarking runs that are done together
     run_block_size: 1
     
@@ -297,7 +329,10 @@ run:
     #   The constructor calls the ``setup`` method.
     exec_misc:
         
-        # Enable other plugins by default: none =  (enable none by default); all = cpu_governor,disable_swap,sync,stop_start,other_nice,nice,disable_aslr,disable_ht,disable_intel_turbo (enable all, might freeze your system); usable = cpu_governor,disable_swap,sync,nice,disable_aslr,disable_ht,disable_intel_turbo (like 'all' but doesn't affect other processes)
+        # Parse the program output as a YAML dictionary of that gives for a specific property a measurement. Not all runners support it.
+        parse_output: false
+        
+        # Enable other plugins by default: none =  (enable none by default); all = cpu_governor,disable_swap,sync,stop_start,other_nice,nice,disable_aslr,disable_ht,disable_intel_turbo (enable all, might freeze your system); usable = cpu_governor,disable_swap,sync,nice,disable_aslr,disable_ht,cpuset,disable_intel_turbo (like 'all' but doesn't affect other processes)
         preset: none
         
         # Pick a random command if more than one run command is passed.
@@ -310,6 +345,9 @@ run:
         
         # Enable:   Allows the setting of the scaling governor of all cpu cores, to ensure that all use the same.
         cpu_governor_active: null
+        
+        # Enable:   Enable cpusets, simply sets run/cpuset/active to true
+        cpuset_active: null
         
         # Enable:   Disable address space randomization
         disable_aslr_active: null
@@ -337,7 +375,7 @@ run:
         # Enable:   Adds random environment variables.
         env_randomize_active: null
         
-        # Possible run driver plugins are 'nice', 'env_randomize', 'preheat', 'other_nice', 'stop_start', 'sync', 'sleep', 'drop_fs_caches', 'disable_swap', 'disable_cpu_caches', 'cpu_governor', 'disable_aslr', 'disable_ht' and 'disable_intel_turbo'
+        # Possible run driver plugins are 'nice', 'env_randomize', 'preheat', 'other_nice', 'stop_start', 'sync', 'sleep', 'drop_fs_caches', 'disable_swap', 'disable_cpu_caches', 'cpu_governor', 'disable_aslr', 'disable_ht', 'disable_intel_turbo' and 'cpuset'
         exec_active: []
         
         # Enable:   Allows the setting of the nice and ionice values of the benchmarking process.
@@ -368,6 +406,9 @@ run:
             
             # New scaling governor for all cpus
             governor: performance
+        
+        #   Enable cpusets, simply sets run/cpuset/active to true
+        cpuset_misc: !!map {}
         
         #   Disable address space randomization
         disable_aslr_misc: !!map {}
@@ -473,8 +514,7 @@ run:
         sync_misc: !!map {}
     
     # Maximum runs per tag (block attribute 'tag'), min('max_runs', 'per_tag') is used
-    #max_runs_per_tag:
-    #  slow: 3
+    max_runs_per_tag: !!map {}
     
     #   Implements a run driver that runs the benched command a single time with redirected in- and output.
     #   It can be used to run own benchmarking commands inside a sane benchmarking environment
@@ -482,7 +522,7 @@ run:
     #   The constructor calls the ``setup`` method.
     shell_misc:
         
-        # Enable other plugins by default: none =  (enable none by default); all = cpu_governor,disable_swap,sync,stop_start,other_nice,nice,disable_aslr,disable_ht,disable_intel_turbo (enable all, might freeze your system); usable = cpu_governor,disable_swap,sync,nice,disable_aslr,disable_ht,disable_intel_turbo (like 'all' but doesn't affect other processes)
+        # Enable other plugins by default: none =  (enable none by default); all = cpu_governor,disable_swap,sync,stop_start,other_nice,nice,disable_aslr,disable_ht,disable_intel_turbo (enable all, might freeze your system); usable = cpu_governor,disable_swap,sync,nice,disable_aslr,disable_ht,cpuset,disable_intel_turbo (like 'all' but doesn't affect other processes)
         preset: none
 
 stats:
@@ -494,7 +534,7 @@ stats:
     tester: t
     
     # Range of p values that allow no conclusion.
-    uncertainty_range: !!python/tuple [0.05, 0.15]
+    uncertainty_range: [0.05, 0.15]
     
     #   Tester that uses the Anderson statistic on 2 samples.
     anderson_misc: !!map {}

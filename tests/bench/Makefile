@@ -16,7 +16,7 @@ MLTON_FLAGS =
 MLKIT_FLAGS =
 SWIFTC_FLAGS = -O -whole-module-optimization
 
-TEMCI_FLAGS ?=
+TEMCI_FLAGS = --settings cross.yaml
 
 TEMCI ?= temci
 LEAN_BIN ?= ../../bin

@@ -247,7 +247,7 @@ run:
     max_block_time: '-1'
     
     # Maximum number of benchmarking runs
-    max_runs: 20
+    max_runs: 10
     
     # Maximum time the whole benchmarking should take, -1 == no timeout, supports normal time span expressions
     max_time: '-1'

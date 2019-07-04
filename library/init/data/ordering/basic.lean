@@ -12,7 +12,7 @@ inductive Ordering
 | lt | Eq | gt
 
 instance : HasRepr Ordering :=
-⟨(fun s => match s with | Ordering.lt := "lt" | Ordering.Eq := "Eq" | Ordering.gt := "gt")⟩
+⟨(fun s => match s with | Ordering.lt => "lt" | Ordering.Eq => "Eq" | Ordering.gt => "gt")⟩
 
 namespace Ordering
 def swap : Ordering → Ordering
@@ -42,18 +42,18 @@ cmpUsing HasLess.Less a b
 instance : DecidableEq Ordering :=
 {decEq := fun a b =>
   match a with
-  | Ordering.lt :=
+  | Ordering.lt =>
     match b with
-    | Ordering.lt := isTrue rfl
-    | Ordering.Eq := isFalse (fun h => Ordering.noConfusion h)
-    | Ordering.gt := isFalse (fun h => Ordering.noConfusion h)
-  | Ordering.Eq :=
+    | Ordering.lt => isTrue rfl
+    | Ordering.Eq => isFalse (fun h => Ordering.noConfusion h)
+    | Ordering.gt => isFalse (fun h => Ordering.noConfusion h)
+  | Ordering.Eq =>
     match b with
-    | Ordering.lt := isFalse (fun h => Ordering.noConfusion h)
-    | Ordering.Eq := isTrue rfl
-    | Ordering.gt := isFalse (fun h => Ordering.noConfusion h)
-  | Ordering.gt :=
+    | Ordering.lt => isFalse (fun h => Ordering.noConfusion h)
+    | Ordering.Eq => isTrue rfl
+    | Ordering.gt => isFalse (fun h => Ordering.noConfusion h)
+  | Ordering.gt =>
     match b with
-    | Ordering.lt := isFalse (fun h => Ordering.noConfusion h)
-    | Ordering.Eq := isFalse (fun h => Ordering.noConfusion h)
-    | Ordering.gt := isTrue rfl}
+    | Ordering.lt => isFalse (fun h => Ordering.noConfusion h)
+    | Ordering.Eq => isFalse (fun h => Ordering.noConfusion h)
+    | Ordering.gt => isTrue rfl}

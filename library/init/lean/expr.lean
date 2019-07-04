@@ -107,8 +107,8 @@ getAppNumArgsAux e 0
 
 def isAppOf (e : Expr) (n : Name) : Bool :=
 match e.getAppFn with
-| Expr.const c _ := c == n
-| _ := false
+| Expr.const c _ => c == n
+| _ => false
 
 def isAppOfArity : Expr → Name → Nat → Bool
 | (Expr.const c _) n 0     := c == n

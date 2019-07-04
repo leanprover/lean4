@@ -348,13 +348,13 @@ reshapeAux bs bs.size term
 
 @[inline] def modifyJPs (bs : Array FnBody) (f : FnBody → FnBody) : Array FnBody :=
 bs.map $ fun b => match b with
-  | FnBody.jdecl j xs v k := FnBody.jdecl j xs (f v) k
-  | other                 := other
+  | FnBody.jdecl j xs v k => FnBody.jdecl j xs (f v) k
+  | other                 => other
 
 @[inline] def mmodifyJPs {m : Type → Type} [Monad m] (bs : Array FnBody) (f : FnBody → m FnBody) : m (Array FnBody) :=
 bs.mmap $ fun b => match b with
-  | FnBody.jdecl j xs v k := do v ← f v; pure $ FnBody.jdecl j xs v k
-  | other                 := pure other
+  | FnBody.jdecl j xs v k => do v ← f v; pure $ FnBody.jdecl j xs v k
+  | other                 => pure other
 
 @[export lean.ir.mk_alt_core] def mkAlt (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (b : FnBody) : Alt := Alt.ctor ⟨n, cidx, size, usize, ssize⟩ b
 
@@ -411,28 +411,28 @@ ps.foldl LocalContext.addParam ctx
 
 def LocalContext.isJP (ctx : LocalContext) (idx : Index) : Bool :=
 match ctx.find idx with
-| some (LocalContextEntry.joinPoint _ _) := true
-| other := false
+| some (LocalContextEntry.joinPoint _ _) => true
+| other => false
 
 def LocalContext.getJPBody (ctx : LocalContext) (j : JoinPointId) : Option FnBody :=
 match ctx.find j.idx with
-| some (LocalContextEntry.joinPoint _ b) := some b
-| other := none
+| some (LocalContextEntry.joinPoint _ b) => some b
+| other => none
 
 def LocalContext.getJPParams (ctx : LocalContext) (j : JoinPointId) : Option (Array Param) :=
 match ctx.find j.idx with
-| some (LocalContextEntry.joinPoint ys _) := some ys
-| other := none
+| some (LocalContextEntry.joinPoint ys _) => some ys
+| other => none
 
 def LocalContext.isParam (ctx : LocalContext) (idx : Index) : Bool :=
 match ctx.find idx with
-| some (LocalContextEntry.param _) := true
-| other := false
+| some (LocalContextEntry.param _) => true
+| other => false
 
 def LocalContext.isLocalVar (ctx : LocalContext) (idx : Index) : Bool :=
 match ctx.find idx with
-| some (LocalContextEntry.localVar _ _) := true
-| other := false
+| some (LocalContextEntry.localVar _ _) => true
+| other => false
 
 def LocalContext.contains (ctx : LocalContext) (idx : Index) : Bool :=
 ctx.contains idx
@@ -442,9 +442,9 @@ ctx.erase j.idx
 
 def LocalContext.getType (ctx : LocalContext) (x : VarId) : Option IRType :=
 match ctx.find x.idx with
-| some (LocalContextEntry.param t) := some t
-| some (LocalContextEntry.localVar t _) := some t
-| other := none
+| some (LocalContextEntry.param t) => some t
+| some (LocalContextEntry.localVar t _) => some t
+| other => none
 
 abbrev IndexRenaming := RBMap Index Index Index.lt
 
@@ -455,8 +455,8 @@ export HasAlphaEqv (aeqv)
 
 def VarId.alphaEqv (ρ : IndexRenaming) (v₁ v₂ : VarId) : Bool :=
 match ρ.find v₁.idx with
-| some v := v == v₂.idx
-| none   := v₁ == v₂
+| some v => v == v₂.idx
+| none   => v₁ == v₂
 
 instance VarId.hasAeqv : HasAlphaEqv VarId := ⟨VarId.alphaEqv⟩
 
@@ -505,8 +505,8 @@ else Array.foldl₂ (fun ρ p₁ p₂ => do ρ ← ρ; addParamRename ρ p₁ p�
 partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
 | ρ (FnBody.vdecl x₁ t₁ v₁ b₁)      (FnBody.vdecl x₂ t₂ v₂ b₂)        := t₁ == t₂ && aeqv ρ v₁ v₂ && FnBody.alphaEqv (addVarRename ρ x₁.idx x₂.idx) b₁ b₂
 | ρ (FnBody.jdecl j₁ ys₁ v₁ b₁)  (FnBody.jdecl j₂ ys₂ v₂ b₂)          := match addParamsRename ρ ys₁ ys₂ with
-  | some ρ' := FnBody.alphaEqv ρ' v₁ v₂ && FnBody.alphaEqv (addVarRename ρ j₁.idx j₂.idx) b₁ b₂
-  | none    := false
+  | some ρ' => FnBody.alphaEqv ρ' v₁ v₂ && FnBody.alphaEqv (addVarRename ρ j₁.idx j₂.idx) b₁ b₂
+  | none    => false
 | ρ (FnBody.set x₁ i₁ y₁ b₁)        (FnBody.set x₂ i₂ y₂ b₂)          := aeqv ρ x₁ x₂ && i₁ == i₂ && aeqv ρ y₁ y₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.uset x₁ i₁ y₁ b₁)       (FnBody.uset x₂ i₂ y₂ b₂)         := aeqv ρ x₁ x₂ && i₁ == i₂ && aeqv ρ y₁ y₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.sset x₁ i₁ o₁ y₁ t₁ b₁) (FnBody.sset x₂ i₂ o₂ y₂ t₂ b₂)   :=
@@ -518,9 +518,9 @@ partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
 | ρ (FnBody.mdata m₁ b₁)            (FnBody.mdata m₂ b₂)              := m₁ == m₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.case n₁ x₁ alts₁)       (FnBody.case n₂ x₂ alts₂)         := n₁ == n₂ && aeqv ρ x₁ x₂ && Array.isEqv alts₁ alts₂ (fun alt₁ alt₂ =>
    match alt₁, alt₂ with
-   | Alt.ctor i₁ b₁, Alt.ctor i₂ b₂ := i₁ == i₂ && FnBody.alphaEqv ρ b₁ b₂
-   | Alt.default b₁, Alt.default b₂ := FnBody.alphaEqv ρ b₁ b₂
-   | _,              _              := false)
+   | Alt.ctor i₁ b₁, Alt.ctor i₂ b₂ => i₁ == i₂ && FnBody.alphaEqv ρ b₁ b₂
+   | Alt.default b₁, Alt.default b₂ => FnBody.alphaEqv ρ b₁ b₂
+   | _,              _              => false)
 | ρ (FnBody.jmp j₁ ys₁)             (FnBody.jmp j₂ ys₂)               := j₁ == j₂ && aeqv ρ ys₁ ys₂
 | ρ (FnBody.ret x₁)                 (FnBody.ret x₂)                   := aeqv ρ x₁ x₂
 | _ FnBody.unreachable              FnBody.unreachable                := true

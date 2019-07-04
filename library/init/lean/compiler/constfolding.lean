@@ -98,10 +98,10 @@ mkBinApp (mkBinApp (Expr.const `HasLt.le [Level.zero]) (Expr.const `Nat []) (Exp
 
 def toDecidableExpr (beforeErasure : Bool) (pred : Expr) (r : Bool) : Expr :=
 match beforeErasure, r with
-| false, true  := mkDecIsTrue  neutralExpr neutralExpr
-| false, false := mkDecIsFalse neutralExpr neutralExpr
-| true,  true  := mkDecIsTrue pred (mkLcProof pred)
-| true,  false := mkDecIsFalse pred (mkLcProof pred)
+| false, true  => mkDecIsTrue  neutralExpr neutralExpr
+| false, false => mkDecIsFalse neutralExpr neutralExpr
+| true,  true  => mkDecIsTrue pred (mkLcProof pred)
+| true,  false => mkDecIsFalse pred (mkLcProof pred)
 
 def foldNatBinPred (mkPred : Expr → Expr → Expr) (fn : Nat → Nat → Bool)
                       (beforeErasure : Bool) (a₁ a₂ : Expr) : Option Expr :=
@@ -133,21 +133,21 @@ def foldStrictAnd (_ : Bool) (a₁ a₂ : Expr) : Option Expr :=
 let v₁ := getBoolLit a₁;
 let v₂ := getBoolLit a₂;
 match v₁, v₂ with
-| some true,  _ := a₂
-| some false, _ := a₁
-| _, some true  := a₁
-| _, some false := a₂
-| _, _          := none
+| some true,  _ => a₂
+| some false, _ => a₁
+| _, some true  => a₁
+| _, some false => a₂
+| _, _          => none
 
 def foldStrictOr (_ : Bool) (a₁ a₂ : Expr) : Option Expr :=
 let v₁ := getBoolLit a₁;
 let v₂ := getBoolLit a₂;
 match v₁, v₂ with
-| some true,  _ := a₁
-| some false, _ := a₂
-| _, some true  := a₂
-| _, some false := a₁
-| _, _          := none
+| some true,  _ => a₁
+| some false, _ => a₂
+| _, some true  => a₂
+| _, some false => a₁
+| _, _          => none
 
 def boolFoldFns : List (Name × BinFoldFn) :=
 [(`strictOr, foldStrictOr), (`strictAnd, foldStrictAnd)]
@@ -187,18 +187,18 @@ unFoldFns.lookup fn
 @[export lean.fold_bin_op_core]
 def foldBinOp (beforeErasure : Bool) (f : Expr) (a : Expr) (b : Expr) : Option Expr :=
 match f with
-| Expr.const fn _ := do
+| Expr.const fn _ => do
    foldFn ← findBinFoldFn fn;
    foldFn beforeErasure a b
-| _ := none
+| _ => none
 
 @[export lean.fold_un_op_core]
 def foldUnOp (beforeErasure : Bool) (f : Expr) (a : Expr) : Option Expr :=
 match f with
-| Expr.const fn _ := do
+| Expr.const fn _ => do
    foldFn ← findUnFoldFn fn;
    foldFn beforeErasure a
-| _ := none
+| _ => none
 
 end Compiler
 end Lean

@@ -55,28 +55,28 @@ def contains (m : KVMap) (n : Name) : Bool :=
 
 def getString (m : KVMap) (k : Name) (defVal := "") : String :=
 match m.find k with
-| some (DataValue.ofString v) := v
-| _                           := defVal
+| some (DataValue.ofString v) => v
+| _                           => defVal
 
 def getNat (m : KVMap) (k : Name) (defVal := 0) : Nat :=
 match m.find k with
-| some (DataValue.ofNat v) := v
-| _                        := defVal
+| some (DataValue.ofNat v) => v
+| _                        => defVal
 
 def getInt (m : KVMap) (k : Name) (defVal : Int := 0) : Int :=
 match m.find k with
-| some (DataValue.ofInt v) := v
-| _                        := defVal
+| some (DataValue.ofInt v) => v
+| _                        => defVal
 
 def getBool (m : KVMap) (k : Name) (defVal := false) : Bool :=
 match m.find k with
-| some (DataValue.ofBool v) := v
-| _                         := defVal
+| some (DataValue.ofBool v) => v
+| _                         => defVal
 
 def getName (m : KVMap) (k : Name) (defVal := Name.anonymous) : Name :=
 match m.find k with
-| some (DataValue.ofName v) := v
-| _                         := defVal
+| some (DataValue.ofName v) => v
+| _                         => defVal
 
 def setString (m : KVMap) (k : Name) (v : String) : KVMap :=
 m.insert k (DataValue.ofString v)
@@ -97,8 +97,8 @@ def subsetAux : List (Name × DataValue) → KVMap → Bool
 | []            m₂ := true
 | ((k, v₁)::m₁) m₂ :=
   match m₂.find k with
-  | some v₂ := v₁ == v₂ && subsetAux m₁ m₂
-  | none    := false
+  | some v₂ => v₁ == v₂ && subsetAux m₁ m₂
+  | none    => false
 
 def subset : KVMap → KVMap → Bool
 | ⟨m₁⟩ m₂ := subsetAux m₁ m₂

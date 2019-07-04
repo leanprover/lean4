@@ -24,9 +24,9 @@ partial def reshapeWithoutDeadAux : Array FnBody → FnBody → IndexSet → FnB
       if used.contains vidx then keep ()
       else reshapeWithoutDeadAux bs b used;
     match curr with
-    | FnBody.vdecl x _ _ _  := keepIfUsed x.idx
-    | FnBody.jdecl j _ _ _  := keepIfUsed j.idx
-    | _                     := keep ()
+    | FnBody.vdecl x _ _ _  => keepIfUsed x.idx
+    | FnBody.jdecl j _ _ _  => keepIfUsed j.idx
+    | _                     => keep ()
 
 def reshapeWithoutDead (bs : Array FnBody) (term : FnBody) : FnBody :=
 reshapeWithoutDeadAux bs term term.freeIndices
@@ -36,10 +36,10 @@ partial def FnBody.elimDead : FnBody → FnBody
   let (bs, term) := b.flatten;
   let bs         := modifyJPs bs FnBody.elimDead;
   let term       := match term with
-    | FnBody.case tid x alts :=
+    | FnBody.case tid x alts =>
       let alts := alts.map $ fun alt => alt.modifyBody FnBody.elimDead;
       FnBody.case tid x alts
-    | other := other;
+    | other => other;
   reshapeWithoutDead bs term
 
 /-- Eliminate dead let-declarations and join points -/

@@ -53,8 +53,8 @@ pure ()
 @[export lean.ir.compile_core]
 def compile (env : Environment) (opts : Options) (decls : Array Decl) : Log × (Except String Environment) :=
 match (compileAux decls opts).run { env := env } with
-| EState.Result.ok     _  s := (s.log, Except.ok s.env)
-| EState.Result.error msg s := (s.log, Except.error msg)
+| EState.Result.ok     _  s => (s.log, Except.ok s.env)
+| EState.Result.error msg s => (s.log, Except.error msg)
 
 end IR
 end Lean

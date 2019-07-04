@@ -60,11 +60,11 @@ partial def visitFnBody (w : Index) : FnBody → M Bool
 | (FnBody.jmp j ys)         := visitArgs w ys <||> do {
     ctx ← get;
     match ctx.getJPBody j with
-    | some b :=
+    | some b =>
       -- `j` is not a local join point since we assume we cannot shadow join point declarations.
       -- Instead of marking the join points that we have already been visited, we permanently remove `j` from the context.
       set (ctx.eraseJoinPointDecl j) *> visitFnBody b
-    | none   :=
+    | none   =>
       -- `j` must be a local join point. So do nothing since we have already visite its body.
       pure false
   }
@@ -105,8 +105,8 @@ private def accumulate (s' : LiveVarSet) : Collector :=
 fun s => s'.fold (fun s x => s.insert x) s
 private def collectJP (m : JPLiveVarMap) (j : JoinPointId) : Collector :=
 match m.find j with
-| some xs := accumulate xs
-| none    := skip -- unreachable for well-formed code
+| some xs => accumulate xs
+| none    => skip -- unreachable for well-formed code
 private def bindVar (x : VarId) : Collector :=
 fun s => s.erase x
 private def bindParams (ps : Array Param) : Collector :=

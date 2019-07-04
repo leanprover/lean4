@@ -129,11 +129,11 @@ def balLeft : RBNode α β → ∀ k, β k → RBNode α β → RBNode α β
 
 def balRight (l : RBNode α β) (k : α) (v : β k) (r : RBNode α β) : RBNode α β :=
 match r with
-| (node red b ky vy c) := node red l k v (node black b ky vy c)
-| _ := match l with
-  | node black a kx vx b                    := balance₃ (node red a kx vx b) k v r
-  | node red a kx vx (node black b ky vy c) := node red (balance₃ (setRed a) kx vx b) ky vy (node black c k v r)
-  | _                                       := node red l k v r -- unreachable
+| (node red b ky vy c) => node red l k v (node black b ky vy c)
+| _ => match l with
+  | node black a kx vx b                    => balance₃ (node red a kx vx b) k v r
+  | node red a kx vx (node black b ky vy c) => node red (balance₃ (setRed a) kx vx b) ky vy (node black c k v r)
+  | _                                       => node red l k v r -- unreachable
 
 -- TODO: use wellfounded recursion
 partial def appendTrees :  RBNode α β → RBNode α β → RBNode α β
@@ -141,12 +141,12 @@ partial def appendTrees :  RBNode α β → RBNode α β → RBNode α β
 | x leaf := x
 | (node red a kx vx b) (node red c ky vy d) :=
   match appendTrees b c with
-  | node red b' kz vz c' := node red (node red a kx vx b') kz vz (node red c' ky vy d)
-  | bc                   := node red a kx vx (node red bc ky vy d)
+  | node red b' kz vz c' => node red (node red a kx vx b') kz vz (node red c' ky vy d)
+  | bc                   => node red a kx vx (node red bc ky vy d)
 | (node black a kx vx b) (node black c ky vy d) :=
    match appendTrees b c with
-   | node red b' kz vz c' := node red (node black a kx vx b') kz vz (node black c' ky vy d)
-   | bc                   := balLeft a kx vx (node black bc ky vy d)
+   | node red b' kz vz c' => node red (node black a kx vx b') kz vz (node black c' ky vy d)
+   | bc                   => balLeft a kx vx (node black bc ky vy d)
  | a (node red b kx vx c) := node red (appendTrees a b) kx vx c
  | (node red a kx vx b) c := node red a kx vx (appendTrees b c)
 
@@ -248,14 +248,14 @@ t.mfold (fun _ k v =>  f k v *> pure ⟨⟩) ⟨⟩
 @[inline] protected def min : RBMap α β lt → Option (α × β)
 | ⟨t, _⟩ :=
   match t.min with
-  | some ⟨k, v⟩ := some (k, v)
-  | none        := none
+  | some ⟨k, v⟩ => some (k, v)
+  | none        => none
 
 @[inline] protected def max : RBMap α β lt → Option (α × β)
 | ⟨t, _⟩ :=
   match t.max with
-  | some ⟨k, v⟩ := some (k, v)
-  | none        := none
+  | some ⟨k, v⟩ => some (k, v)
+  | none        => none
 
 instance [HasRepr α] [HasRepr β] : HasRepr (RBMap α β lt) :=
 ⟨fun t => "rbmapOf " ++ repr t.toList⟩

@@ -54,16 +54,16 @@ do let ps := (entry.split "=").map String.trim;
    [key, val] ← pure ps | throw "invalid configuration option entry, it must be of the form '<key> = <value>'";
    defValue ← getOptionDefaulValue key.toName;
    match defValue with
-   | DataValue.ofString v := pure $ opts.setString key val
-   | DataValue.ofBool v   :=
+   | DataValue.ofString v => pure $ opts.setString key val
+   | DataValue.ofBool v   =>
      if key == "true" then pure $ opts.setBool key true
      else if key == "false" then pure $ opts.setBool key false
      else throw $ IO.userError ("invalid Bool option value '" ++ val ++ "'")
-   | DataValue.ofName v   := pure $ opts.setName key val.toName
-   | DataValue.ofNat v    := do
+   | DataValue.ofName v   => pure $ opts.setName key val.toName
+   | DataValue.ofNat v    => do
      unless val.isNat $ throw (IO.userError ("invalid Nat option value '" ++ val ++ "'"));
      pure $ opts.setNat key val.toNat
-   | DataValue.ofInt v    := do
+   | DataValue.ofInt v    => do
      unless val.isInt $ throw (IO.userError ("invalid Int option value '" ++ val ++ "'"));
      pure $ opts.setInt key val.toInt
 

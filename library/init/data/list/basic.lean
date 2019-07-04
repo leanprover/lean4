@@ -22,11 +22,11 @@ protected def hasDecEq [DecidableEq α] : ∀ a b : List α, Decidable (a = b)
 | []      (b::bs) := isFalse (fun h => List.noConfusion h)
 | (a::as) (b::bs) :=
   match decEq a b with
-  | isTrue hab  :=
+  | isTrue hab  =>
     match hasDecEq as bs with
-    | isTrue habs  := isTrue (Eq.subst hab (Eq.subst habs rfl))
-    | isFalse nabs := isFalse (fun h => List.noConfusion h (fun _ habs => absurd habs nabs))
-  | isFalse nab := isFalse (fun h => List.noConfusion h (fun hab _ => absurd hab nab))
+    | isTrue habs  => isTrue (Eq.subst hab (Eq.subst habs rfl))
+    | isFalse nabs => isFalse (fun h => List.noConfusion h (fun _ habs => absurd habs nabs))
+  | isFalse nab => isFalse (fun h => List.noConfusion h (fun hab _ => absurd hab nab))
 
 instance [DecidableEq α] : DecidableEq (List α) :=
 {decEq := List.hasDecEq}
@@ -93,8 +93,8 @@ instance decidableMem [DecidableEq α] (a : α) : ∀ (l : List α), Decidable (
 | (b::bs) :=
   if h₁ : a = b then isTrue (h₁.symm ▸ Mem.eqHead b bs)
   else match decidableMem bs with
-       | isTrue  h₂ := isTrue (Mem.inTail _ h₂)
-       | isFalse h₂ := isFalse (notMem h₁ h₂)
+    | isTrue  h₂ => isTrue (Mem.inTail _ h₂)
+    | isFalse h₂ => isFalse (notMem h₁ h₂)
 
 instance : HasEmptyc (List α) :=
 ⟨List.nil⟩
@@ -154,14 +154,14 @@ def join : List (List α) → List α
 | []     := []
 | (a::as) :=
   match f a with
-  | none   := filterMap as
-  | some b := b :: filterMap as
+  | none   => filterMap as
+  | some b => b :: filterMap as
 
 @[specialize] def filterAux (p : α → Bool) : List α → List α → List α
 | []      rs := rs.reverse
 | (a::as) rs := match p a with
-   | true  := filterAux as (a::rs)
-   | false := filterAux as rs
+   | true  => filterAux as (a::rs)
+   | false => filterAux as rs
 
 @[inline] def filter (p : α → Bool) (as : List α) : List α :=
 filterAux p as []
@@ -170,8 +170,8 @@ filterAux p as []
 | []      (bs, cs) := (bs.reverse, cs.reverse)
 | (a::as) (bs, cs) :=
   match p a with
-  | true  := partitionAux as (a::bs, cs)
-  | false := partitionAux as (bs, a::cs)
+  | true  => partitionAux as (a::bs, cs)
+  | false => partitionAux as (bs, a::cs)
 
 @[inline] def partition (p : α → Bool) (as : List α) : List α × List α :=
 partitionAux p as ([], [])
@@ -179,20 +179,20 @@ partitionAux p as ([], [])
 def dropWhile (p : α → Bool) : List α → List α
 | []     := []
 | (a::l) := match p a with
-            | true  := dropWhile l
-            | false :=  a::l
+  | true  => dropWhile l
+  | false =>  a::l
 
 def find (p : α → Bool) : List α → Option α
 | []      := none
 | (a::as) := match p a with
-  | true  := some a
-  | false := find as
+  | true  => some a
+  | false => find as
 
 def elem [HasBeq α] (a : α) : List α → Bool
 | []      := false
 | (b::bs) := match a == b with
-  | true  := true
-  | false := elem bs
+  | true  => true
+  | false => elem bs
 
 def notElem [HasBeq α] (a : α) (as : List α) : Bool :=
 !(as.elem a)
@@ -200,8 +200,8 @@ def notElem [HasBeq α] (a : α) (as : List α) : Bool :=
 @[specialize] def spanAux (p : α → Bool) : List α → List α → List α × List α
 | []      rs := (rs.reverse, [])
 | (a::as) rs := match p a with
-  | true  := spanAux as (a::rs)
-  | false := (rs.reverse, a::as)
+  | true  => spanAux as (a::rs)
+  | false => (rs.reverse, a::as)
 
 @[inline] def span (p : α → Bool) (as : List α) : List α × List α :=
 spanAux p as []
@@ -209,8 +209,8 @@ spanAux p as []
 def lookup [HasBeq α] : α → List (α × β) → Option β
 | _ []          := none
 | a ((k,b)::es) := match a == k with
-  | true  := some b
-  | false := lookup a es
+  | true  => some b
+  | false => lookup a es
 
 def removeAll [HasBeq α] (xs ys : List α) : List α :=
 xs.filter (fun x => ys.notElem x)
@@ -261,7 +261,7 @@ zipWith Prod.mk
 
 def unzip : List (α × β) → List α × List β
 | []            := ([], [])
-| ((a, b) :: t) := match unzip t with | (al, bl) := (a::al, b::bl)
+| ((a, b) :: t) := match unzip t with | (al, bl) => (a::al, b::bl)
 
 protected def insert [DecidableEq α] (a : α) (l : List α) : List α :=
 if a ∈ l then l else a :: l
@@ -331,18 +331,18 @@ instance hasDecidableLt [HasLess α] [h : DecidableRel HasLess.Less] : ∀ l₁ 
 | (a::as) []      := isFalse (fun h => match h with end)
 | (a::as) (b::bs) :=
   match h a b with
-  | isTrue h₁  := isTrue (Less.head _ _ h₁)
-  | isFalse h₁ :=
+  | isTrue h₁  => isTrue (Less.head _ _ h₁)
+  | isFalse h₁ =>
     match h b a with
-    | isTrue h₂  := isFalse (fun h => match h with
-       | Less.head _ _ h₁' := absurd h₁' h₁
-       | Less.tail _ h₂' _ := absurd h₂ h₂')
-    | isFalse h₂ :=
+    | isTrue h₂  => isFalse (fun h => match h with
+       | Less.head _ _ h₁' => absurd h₁' h₁
+       | Less.tail _ h₂' _ => absurd h₂ h₂')
+    | isFalse h₂ =>
       match hasDecidableLt as bs with
-      | isTrue h₃  := isTrue (Less.tail h₁ h₂ h₃)
-      | isFalse h₃ := isFalse (fun h => match h with
-         | Less.head _ _ h₁' := absurd h₁' h₁
-         | Less.tail _ _ h₃' := absurd h₃' h₃)
+      | isTrue h₃  => isTrue (Less.tail h₁ h₂ h₃)
+      | isFalse h₃ => isFalse (fun h => match h with
+         | Less.head _ _ h₁' => absurd h₁' h₁
+         | Less.tail _ _ h₃' => absurd h₃' h₃)
 
 @[reducible] protected def LessEq [HasLess α] (a b : List α) : Prop :=
 ¬ b < a

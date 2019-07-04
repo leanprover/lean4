@@ -34,13 +34,13 @@ instance : Inhabited ClassState := ⟨{}⟩
 
 def addEntry (s : ClassState) (entry : ClassEntry) : ClassState :=
 match entry with
-| ClassEntry.«class» clsName hasOutParam :=
+| ClassEntry.«class» clsName hasOutParam =>
   { hasOutParam := s.hasOutParam.insert clsName hasOutParam, .. s }
-| ClassEntry.«instance» instName clsName :=
+| ClassEntry.«instance» instName clsName =>
   { instances        := s.instances.insert instName (),
     classToInstances := match s.classToInstances.find clsName with
-      | some insts := s.classToInstances.insert clsName (instName :: insts)
-      | none       := s.classToInstances.insert clsName [instName],
+      | some insts => s.classToInstances.insert clsName (instName :: insts)
+      | none       => s.classToInstances.insert clsName [instName],
     .. s }
 
 def switch : ClassState → ClassState
@@ -70,14 +70,14 @@ def isInstance (env : Environment) (n : Name) : Bool :=
 @[export lean.get_class_instances_core]
 def getClassInstances (env : Environment) (n : Name) : List Name :=
 match (classExtension.getState env).classToInstances.find n with
-| some insts := insts
-| none       := []
+| some insts => insts
+| none       => []
 
 @[export lean.has_out_params_core]
 def hasOutParams (env : Environment) (n : Name) : Bool :=
 match (classExtension.getState env).hasOutParam.find n with
-| some b := b
-| none   := false
+| some b => b
+| none   => false
 
 @[export lean.is_out_param_core]
 private def isOutParam (e : Expr) : Bool :=
@@ -90,8 +90,8 @@ def Expr.hasOutParam : Expr → Bool
 def addClass (env : Environment) (clsName : Name) : Except String Environment :=
 if isClass env clsName then Except.error ("class has already been declared '" ++ toString clsName ++ "'")
 else match env.find clsName with
-  | none      := Except.error ("unknown declaration '" ++ toString clsName ++ "'")
-  | some decl := Except.ok (classExtension.addEntry env (ClassEntry.«class» clsName decl.type.hasOutParam))
+  | none      => Except.error ("unknown declaration '" ++ toString clsName ++ "'")
+  | some decl => Except.ok (classExtension.addEntry env (ClassEntry.«class» clsName decl.type.hasOutParam))
 
 private def consumeNLambdas : Nat → Expr → Option Expr
 | 0     e                  := some e
@@ -104,21 +104,21 @@ partial def getClassName (env : Environment) : Expr → Option Name
   Expr.const c _ ← pure e.getAppFn | none;
   info ← env.find c;
   match info.value with
-  | some val := do
+  | some val => do
     body ← consumeNLambdas e.getAppNumArgs val;
     getClassName body
-  | none :=
+  | none =>
     if isClass env c then some c
     else none
 
 @[export lean.add_instance_core]
 def addInstance (env : Environment) (instName : Name) : Except String Environment :=
 match env.find instName with
-| none      := Except.error ("unknown declaration '" ++ toString instName ++ "'")
-| some decl :=
+| none      => Except.error ("unknown declaration '" ++ toString instName ++ "'")
+| some decl =>
   match getClassName env decl.type with
-  | none := Except.error ("invalid instance '" ++ toString instName ++ "', failed to retrieve class")
-  | some clsName := Except.ok (classExtension.addEntry env (ClassEntry.«instance» instName clsName))
+  | none => Except.error ("invalid instance '" ++ toString instName ++ "', failed to retrieve class")
+  | some clsName => Except.ok (classExtension.addEntry env (ClassEntry.«instance» instName clsName))
 
 @[init] def registerClassAttr : IO Unit :=
 registerAttribute {

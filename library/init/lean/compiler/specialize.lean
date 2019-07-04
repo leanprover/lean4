@@ -37,8 +37,8 @@ constant specializeAttrs : EnumAttributes SpecializeAttributeKind := default _
 
 private partial def hasSpecializeAttrAux (env : Environment) (kind : SpecializeAttributeKind) : Name → Bool
 | n := match specializeAttrs.getValue env n with
-  | some k := kind == k
-  | none   := if n.isInternal then hasSpecializeAttrAux n.getPrefix else false
+  | some k => kind == k
+  | none   => if n.isInternal then hasSpecializeAttrAux n.getPrefix else false
 
 @[export lean.has_specialize_attribute_core]
 def hasSpecializeAttribute (env : Environment) (n : Name) : Bool :=
@@ -72,8 +72,8 @@ instance : Inhabited SpecState := ⟨{}⟩
 
 def addEntry (s : SpecState) (e : SpecEntry) : SpecState :=
 match e with
-| SpecEntry.info name info := { specInfo := s.specInfo.insert name info, .. s }
-| SpecEntry.cache key fn   := { cache    := s.cache.insert key fn, .. s }
+| SpecEntry.info name info => { specInfo := s.specInfo.insert name info, .. s }
+| SpecEntry.cache key fn   => { cache    := s.cache.insert key fn, .. s }
 
 def switch : SpecState → SpecState
 | ⟨m₁, m₂⟩ := ⟨m₁.switch, m₂.switch⟩

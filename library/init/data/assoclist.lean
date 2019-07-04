@@ -25,8 +25,8 @@ Id.run (mfoldl f d as)
 def find [HasBeq α] (a : α) : AssocList α β → Option β
 | nil           := none
 | (cons k v es) := match k == a with
-  | true  := some v
-  | false := find es
+  | true  => some v
+  | false => find es
 
 def contains [HasBeq α] (a : α) : AssocList α β → Bool
 | nil           := false
@@ -35,13 +35,13 @@ def contains [HasBeq α] (a : α) : AssocList α β → Bool
 def replace [HasBeq α] (a : α) (b : β) : AssocList α β → AssocList α β
 | nil           := nil
 | (cons k v es) := match k == a with
-  | true  := cons a b es
-  | false := cons k v (replace es)
+  | true  => cons a b es
+  | false => cons k v (replace es)
 
 def erase [HasBeq α] (a : α) : AssocList α β → AssocList α β
 | nil           := nil
 | (cons k v es) := match k == a with
-  | true  := es
-  | false := cons k v (erase es)
+  | true  => es
+  | false => cons k v (erase es)
 
 end AssocList

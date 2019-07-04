@@ -9,8 +9,8 @@ namespace x1
 
 def f (x : Bool) (y z : Nat) : Nat :=
 match x with
-| true := y
-| false := z + y + y
+| true => y
+| false => z + y + y
 
 end x1
 

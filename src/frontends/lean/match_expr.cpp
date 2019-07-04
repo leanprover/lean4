@@ -63,7 +63,7 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
             bool skip_main_fn = true;
             lhs = p.patexpr_to_pattern(lhs, skip_main_fn, locals);
             auto assign_pos = p.pos();
-            p.check_token_next(get_assign_tk(), "invalid 'match' expression, ':=' expected");
+            p.check_token_next(get_darrow_tk(), "invalid 'match' expression, '=>' expected");
             {
                 parser::local_scope scope2(p);
                 for (expr const & local : locals)

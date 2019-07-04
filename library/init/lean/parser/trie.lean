@@ -29,8 +29,8 @@ instance : Inhabited (Trie α) :=
 
 private partial def insertEmptyAux (s : String) (val : α) : String.Pos → Trie α
 | i := match s.atEnd i with
-  | true := Trie.Node (some val) RBNode.leaf
-  | false :=
+  | true => Trie.Node (some val) RBNode.leaf
+  | false =>
     let c := s.get i;
     let t := insertEmptyAux (s.next i);
     Trie.Node none (RBNode.singleton c t)
@@ -38,13 +38,13 @@ private partial def insertEmptyAux (s : String) (val : α) : String.Pos → Trie
 private partial def insertAux (s : String) (val : α) : Trie α → String.Pos → Trie α
 | (Trie.Node v m) i :=
   match s.atEnd i with
-  | true := Trie.Node (some val) m -- overrides old value
-  | false :=
+  | true  => Trie.Node (some val) m -- overrides old value
+  | false =>
     let c := s.get i;
     let i := s.next i;
     let t := match RBNode.find Char.lt m c with
-      | none   := insertEmptyAux s val i
-      | some t := insertAux t i;
+      | none   => insertEmptyAux s val i
+      | some t => insertAux t i;
     Trie.Node v (RBNode.insert Char.lt m c t)
 
 def insert (t : Trie α) (s : String) (val : α) : Trie α :=
@@ -53,33 +53,33 @@ insertAux s val t 0
 private partial def findAux (s : String) : Trie α → String.Pos → Option α
 | (Trie.Node val m) i :=
   match s.atEnd i with
-  | true  := val
-  | false :=
+  | true  => val
+  | false =>
     let c := s.get i;
     let i := s.next i;
     match RBNode.find Char.lt m c with
-    | none   := none
-    | some t := findAux t i
+    | none   => none
+    | some t => findAux t i
 
 def find (t : Trie α) (s : String) : Option α :=
 findAux s t 0
 
 private def updtAcc (v : Option α) (i : String.Pos) (acc : String.Pos × Option α) : String.Pos × Option α :=
 match v, acc with
-| some v, (j, w) := (i, some v)  -- we pattern match on `acc` to enable memory reuse
-| none,   acc    := acc
+| some v, (j, w) => (i, some v)  -- we pattern match on `acc` to enable memory reuse
+| none,   acc    => acc
 
 private partial def matchPrefixAux (s : String) : Trie α → String.Pos → (String.Pos × Option α) → String.Pos × Option α
 | (Trie.Node v m) i acc :=
   match s.atEnd i with
-  | true  := updtAcc v i acc
-  | false :=
+  | true  => updtAcc v i acc
+  | false =>
     let acc := updtAcc v i acc;
     let c   := s.get i;
     let i   := s.next i;
     match RBNode.find Char.lt m c with
-    | some t := matchPrefixAux t i acc
-    | none   := acc
+    | some t => matchPrefixAux t i acc
+    | none   => acc
 
 def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : String.Pos × Option α :=
 matchPrefixAux s t i (i, none)

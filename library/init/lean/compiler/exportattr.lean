@@ -20,10 +20,10 @@ private def isValidCppName : Name → Bool
 def mkExportAttr : IO (ParametricAttribute Name) :=
 registerParametricAttribute `export "name to be used by code generators" $ fun _ _ stx =>
   match attrParamSyntaxToIdentifier stx with
-  | some exportName :=
+  | some exportName =>
     if isValidCppName exportName then Except.ok exportName
     else Except.error "invalid 'export' function name, is not a valid C++ identifier"
-  | _ := Except.error "unexpected kind of argument"
+  | _ => Except.error "unexpected kind of argument"
 
 @[init mkExportAttr]
 constant exportAttr : ParametricAttribute Name := default _

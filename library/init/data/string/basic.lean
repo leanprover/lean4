@@ -21,7 +21,7 @@ attribute [extern cpp "lean::string_data"] String.data
 @[extern cpp "lean::string_dec_eq"]
 def String.decEq (s₁ s₂ : @& String) : Decidable (s₁ = s₂) :=
 match s₁, s₂ with
-| ⟨s₁⟩, ⟨s₂⟩ :=
+| ⟨s₁⟩, ⟨s₂⟩ =>
  if h : s₁ = s₂ then isTrue (congrArg _ h)
  else isFalse (fun h' => String.noConfusion h' (fun h' => absurd h' h))
 
@@ -353,7 +353,7 @@ s.get 0
 
 @[inline] def posOf (s : Substring) (c : Char) : String.Pos :=
 match s with
-| ⟨s, b, e⟩ := (String.posOfAux s c e b) - b
+| ⟨s, b, e⟩ => (String.posOfAux s c e b) - b
 
 @[inline] def drop : Substring → Nat → Substring
 | ⟨s, b, e⟩ n :=
@@ -398,15 +398,15 @@ if sep == "" then [s] else splitAux s.str sep s.stopPos s.startPos s.startPos 0 
 
 @[inline] def foldl {α : Type u} (f : α → Char → α) (a : α) (s : Substring) : α :=
 match s with
-| ⟨s, b, e⟩ := String.foldlAux f s e b a
+| ⟨s, b, e⟩ => String.foldlAux f s e b a
 
 @[inline] def foldr {α : Type u} (f : Char → α → α) (a : α) (s : Substring) : α :=
 match s with
-| ⟨s, b, e⟩ := String.foldrAux f a s e b
+| ⟨s, b, e⟩ => String.foldrAux f a s e b
 
 @[inline] def any (s : Substring) (p : Char → Bool) : Bool :=
 match s with
-| ⟨s, b, e⟩ := String.anyAux s e p b
+| ⟨s, b, e⟩ => String.anyAux s e p b
 
 @[inline] def all (s : Substring) (p : Char → Bool) : Bool :=
 !s.any (fun c => !p c)

@@ -42,40 +42,40 @@ private partial def syntaxToExternEntries (a : Array Syntax) : Nat → List Exte
 | i entries :=
   if i == a.size then Except.ok entries
   else match a.get i with
-    | Syntax.ident _ _ backend _ _ :=
+    | Syntax.ident _ _ backend _ _ =>
       let i := i + 1;
       if i == a.size then Except.error "string or identifier expected"
       else match (a.get i).isIdOrAtom with
-        | some "adhoc"  := syntaxToExternEntries (i+1) (ExternEntry.adhoc backend :: entries)
-        | some "inline" :=
+        | some "adhoc"  => syntaxToExternEntries (i+1) (ExternEntry.adhoc backend :: entries)
+        | some "inline" =>
           let i := i + 1;
           match (a.get i).isStrLit with
-          | some pattern := syntaxToExternEntries (i+1) (ExternEntry.inline backend pattern :: entries)
-          | none := Except.error "string literal expected"
-        | _ := match (a.get i).isStrLit with
-          | some fn := syntaxToExternEntries (i+1) (ExternEntry.standard backend fn :: entries)
-          | none := Except.error "string literal expected"
-    | _ := Except.error "identifier expected"
+          | some pattern => syntaxToExternEntries (i+1) (ExternEntry.inline backend pattern :: entries)
+          | none => Except.error "string literal expected"
+        | _ => match (a.get i).isStrLit with
+          | some fn => syntaxToExternEntries (i+1) (ExternEntry.standard backend fn :: entries)
+          | none => Except.error "string literal expected"
+    | _ => Except.error "identifier expected"
 
 private def syntaxToExternAttrData (s : Syntax) : ExceptT String Id  ExternAttrData :=
 match s with
-| Syntax.missing := Except.ok { entries := [ ExternEntry.adhoc `all ] }
-| Syntax.node _ args _ :=
+| Syntax.missing => Except.ok { entries := [ ExternEntry.adhoc `all ] }
+| Syntax.node _ args _ =>
   if args.size == 0 then Except.error "unexpected kind of argument"
   else
     let (arity, i) : Option Nat × Nat := match (args.get 0).isNatLit with
-      | some arity := (some arity, 1)
-      | none       := (none, 0);
+      | some arity => (some arity, 1)
+      | none       => (none, 0);
     match (args.get i).isStrLit with
-    | some str :=
+    | some str =>
       if args.size == i+1 then
         Except.ok { arity := arity, entries := [ ExternEntry.standard `all str ] }
       else
         Except.error "invalid extern attribute"
-    | none := match syntaxToExternEntries args i [] with
-      | Except.ok entries := Except.ok { arity := arity, entries := entries }
-      | Except.error msg  := Except.error msg
-| _ := Except.error "unexpected kind of argument"
+    | none => match syntaxToExternEntries args i [] with
+      | Except.ok entries => Except.ok { arity := arity, entries := entries }
+      | Except.error msg  => Except.error msg
+| _ => Except.error "unexpected kind of argument"
 
 @[extern "lean_add_extern"]
 constant addExtern (env : Environment) (n : Name) : ExceptT String Id Environment := default _
@@ -157,15 +157,15 @@ def isExtern (env : Environment) (fn : Name) : Bool :=
    Thus, there is no name mangling. -/
 def isExternC (env : Environment) (fn : Name) : Bool :=
 match getExternAttrData env fn with
-| some { entries := [ ExternEntry.standard `all _ ], .. } := true
-| _ := false
+| some { entries := [ ExternEntry.standard `all _ ], .. } => true
+| _ => false
 
 def getExternNameFor (env : Environment) (backend : Name) (fn : Name) : Option String :=
 do data ← getExternAttrData env fn;
    entry ← getExternEntryFor data backend;
    match entry with
-   | ExternEntry.standard _ n := pure n
-   | ExternEntry.foreign _ n  := pure n
-   | _ := failure
+   | ExternEntry.standard _ n => pure n
+   | ExternEntry.foreign _ n  => pure n
+   | _ => failure
 
 end Lean

@@ -24,8 +24,8 @@ def Visitor := AtMostOnceData → AtMostOnceData
 
 @[inline] def seq (f g : Visitor) : Visitor :=
 fun d => match f d with
-| ⟨found, false⟩ := ⟨found, false⟩
-| other          := g other
+| ⟨found, false⟩ => ⟨found, false⟩
+| other          => g other
 
 instance : HasAndthen Visitor :=
 ⟨seq⟩
@@ -78,9 +78,9 @@ private def getDeclNamesForCodeGen : Declaration → List Name
 
 def checkIsDefinition (env : Environment) (n : Name) : Except String Unit :=
 match env.find n with
-| (some (ConstantInfo.defnInfo _)) := Except.ok ()
-| none := Except.error "unknow declaration"
-| _    := Except.error "declaration is not a definition"
+| (some (ConstantInfo.defnInfo _)) => Except.ok ()
+| none => Except.error "unknow declaration"
+| _    => Except.error "declaration is not a definition"
 
 end Compiler
 end Lean

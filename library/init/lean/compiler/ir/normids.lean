@@ -44,8 +44,8 @@ abbrev M := ReaderT IndexRenaming Id
 
 def normIndex (x : Index) : M Index :=
 fun m => match m.find x with
-| some y := y
-| none   := x
+| some y => y
+| none   => x
 
 def normVar (x : VarId) : M VarId :=
 VarId.mk <$> normIndex x.idx

@@ -62,14 +62,14 @@ protected def decEq : ∀ (a b : @& Name), Decidable (a = b)
 | (mkString p₁ s₁)  (mkString p₂ s₂)  :=
   if h₁ : s₁ = s₂ then
     match decEq p₁ p₂ with
-    | isTrue h₂  := isTrue $ h₁ ▸ h₂ ▸ rfl
-    | isFalse h₂ := isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hp h₂
+    | isTrue h₂  => isTrue $ h₁ ▸ h₂ ▸ rfl
+    | isFalse h₂ => isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hp h₂
   else isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hs h₁
 | (mkNumeral p₁ n₁) (mkNumeral p₂ n₂) :=
   if h₁ : n₁ = n₂ then
     match decEq p₁ p₂ with
-    | isTrue h₂  := isTrue $ h₁ ▸ h₂ ▸ rfl
-    | isFalse h₂ := isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hp h₂
+    | isTrue h₂  => isTrue $ h₁ ▸ h₂ ▸ rfl
+    | isFalse h₂ => isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hp h₂
   else isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hs h₁
 | anonymous         (mkString _ _)    := isFalse $ fun h => Name.noConfusion h
 | anonymous         (mkNumeral _ _)   := isFalse $ fun h => Name.noConfusion h

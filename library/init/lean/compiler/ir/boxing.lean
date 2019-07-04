@@ -91,11 +91,11 @@ def getScrutineeType (alts : Array Alt) : IRType :=
 let isScalar :=
    alts.size > 1 && -- Recall that we encode Unit and PUnit using `object`.
    alts.all (fun alt => match alt with
-    | Alt.ctor c _  := c.isScalar
-    | Alt.default _ := false);
+    | Alt.ctor c _  => c.isScalar
+    | Alt.default _ => false);
 match isScalar with
-| false := IRType.object
-| true  :=
+| false => IRType.object
+| true  =>
   let n := alts.size;
   if n < 256 then IRType.uint8
   else if n < 65536 then IRType.uint16
@@ -121,18 +121,18 @@ def getResultType : M IRType := BoxingContext.resultType <$> read
 def getVarType (x : VarId) : M IRType :=
 do localCtx ← getLocalContext;
    match localCtx.getType x with
-   | some t := pure t
-   | none   := pure IRType.object -- unreachable, we assume the code is well formed
+   | some t => pure t
+   | none   => pure IRType.object -- unreachable, we assume the code is well formed
 def getJPParams (j : JoinPointId) : M (Array Param) :=
 do localCtx ← getLocalContext;
    match localCtx.getJPParams j with
-   | some ys := pure ys
-   | none    := pure Array.empty -- unreachable, we assume the code is well formed
+   | some ys => pure ys
+   | none    => pure Array.empty -- unreachable, we assume the code is well formed
 def getDecl (fid : FunId) : M Decl :=
 do ctx ← read;
    match findEnvDecl' ctx.env fid ctx.decls with
-   | some decl := pure decl
-   | none      := pure (default _) -- unreachable if well-formed
+   | some decl => pure decl
+   | none      => pure (default _) -- unreachable if well-formed
 
 @[inline] def withParams {α : Type} (xs : Array Param) (k : M α) : M α :=
 adaptReader (fun ctx : BoxingContext => { localCtx := ctx.localCtx.addParams xs, .. ctx }) k
@@ -159,16 +159,16 @@ do xType ← getVarType x;
 
 @[inline] def castArgIfNeeded (x : Arg) (expected : IRType) (k : Arg → M FnBody) : M FnBody :=
 match x with
-| Arg.var x := castVarIfNeeded x expected (fun x => k (Arg.var x))
-| _         := k x
+| Arg.var x => castVarIfNeeded x expected (fun x => k (Arg.var x))
+| _         => k x
 
 @[specialize] def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Array Arg × Array FnBody) :=
 xs.miterate (Array.empty, Array.empty) $ fun i (x : Arg) (r : Array Arg × Array FnBody) =>
   let expected := typeFromIdx i.val;
   let (xs, bs) := r;
   match x with
-  | Arg.irrelevant := pure (xs.push x, bs)
-  | Arg.var x := do
+  | Arg.irrelevant => pure (xs.push x, bs)
+  | Arg.var x => do
     xType ← getVarType x;
     if eqvTypes xType expected then pure (xs.push (Arg.var x), bs)
     else do
@@ -202,26 +202,26 @@ else do
 
 def visitVDeclExpr (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody :=
 match e with
-| Expr.ctor c ys :=
+| Expr.ctor c ys =>
   if c.isScalar && ty.isScalar then
     pure $ FnBody.vdecl x ty (Expr.lit (LitVal.num c.cidx)) b
   else
     boxArgsIfNeeded ys $ fun ys => pure $ FnBody.vdecl x ty (Expr.ctor c ys) b
-| Expr.reuse w c u ys :=
+| Expr.reuse w c u ys =>
   boxArgsIfNeeded ys $ fun ys => pure $ FnBody.vdecl x ty (Expr.reuse w c u ys) b
-| Expr.fap f ys := do
+| Expr.fap f ys => do
   decl ← getDecl f;
   castArgsIfNeeded ys decl.params $ fun ys =>
   castResultIfNeeded x ty (Expr.fap f ys) decl.resultType b
-| Expr.pap f ys := do
+| Expr.pap f ys => do
   env ← getEnv;
   decl ← getDecl f;
   let f := if requiresBoxedVersion env decl then mkBoxedName f else f;
   boxArgsIfNeeded ys $ fun ys => pure $ FnBody.vdecl x ty (Expr.pap f ys) b
-| Expr.ap f ys :=
+| Expr.ap f ys =>
   boxArgsIfNeeded ys $ fun ys =>
   unboxResultIfNeeded x ty (Expr.ap f ys) b
-| other :=
+| other =>
   pure $ FnBody.vdecl x ty e b
 
 partial def visitFnBody : FnBody → M FnBody
@@ -259,11 +259,11 @@ partial def visitFnBody : FnBody → M FnBody
 def run (env : Environment) (decls : Array Decl) : Array Decl :=
 let ctx : BoxingContext := { decls := decls, env := env };
 let decls := decls.map (fun decl => match decl with
-  | Decl.fdecl f xs t b :=
+  | Decl.fdecl f xs t b =>
     let nextIdx := decl.maxIndex + 1;
     let b := (withParams xs (visitFnBody b) { resultType := t, .. ctx }).run' nextIdx;
     Decl.fdecl f xs t b
-  | d := d);
+  | d => d);
 addBoxedVersions env decls
 
 end ExplicitBoxing

@@ -16,8 +16,8 @@ variables {m : Type → Type} [Monad m] {ε : Type} {α β : Type}
 @[inline] protected def pure (a : α) : ExceptT' m ε α := (pure (Except.ok a) : m (Except ε α))
 @[inline] protected def bind (x : ExceptT' m ε α) (f : α → ExceptT' m ε β) : ExceptT' m ε β :=
 (do { v ← x; match v with
-       | Except.error e := pure (Except.error e)
-       | Except.ok a    := f a } : m (Except ε β))
+       | Except.error e => pure (Except.error e)
+       | Except.ok a    => f a } : m (Except ε β))
 @[inline] def error (e : ε) : ExceptT' m ε α := (pure (Except.error e) : m (Except ε α))
 @[inline] def lift (x : m α) : ExceptT' m ε α := (do {a ← x; pure (Except.ok a) } : m (Except ε α))
 instance : Monad (ExceptT' m ε) :=
@@ -122,5 +122,5 @@ else do
 def main (xs : List String) : IO UInt32 :=
 let n := xs.head.toNat;
 match run (test n) with
-| (Except.ok v, s)    := IO.println ("ok " ++ toString v) *> pure 0
-| (Except.error e, s) := IO.println ("Error : " ++ e) *> pure 1
+| (Except.ok v, s)    => IO.println ("ok " ++ toString v) *> pure 0
+| (Except.error e, s) => IO.println ("Error : " ++ e) *> pure 1

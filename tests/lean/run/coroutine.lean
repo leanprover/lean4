@@ -94,8 +94,8 @@ open wellFoundedTactics
 @[inlineIfReduce] protected unsafe def bind : coroutine α δ β → (β → coroutine α δ γ) → coroutine α δ γ
 | (mk k) f := mk $ fun a =>
     match k a, rfl : ∀ (n : _), n = k a → _ with
-    | done b, _      := coroutine.resume (f b) a
-    | yielded d c, h :=
+    | done b, _      => coroutine.resume (f b) a
+    | yielded d c, h =>
       -- have directSubcoroutine c (mk k), { apply directSubcoroutine.mk k a d, rw h },
       yielded d (bind c f)
 --  usingWellFounded { decTac := unfoldWfRel >> processLex (tactic.assumption) }
@@ -103,11 +103,11 @@ open wellFoundedTactics
 unsafe def pipe : coroutine α δ β → coroutine δ γ β → coroutine α γ β
 | (mk k₁) (mk k₂) := mk $ fun a =>
   match k₁ a, rfl : ∀ (n : _), n = k₁ a → _ with
-  | done b, h        := done b
-  | yielded d k₁', h :=
+  | done b, h        => done b
+  | yielded d k₁', h =>
     match k₂ d with
-    | done b        := done b
-    | yielded r k₂' :=
+    | done b        => done b
+    | yielded r k₂' =>
       -- have directSubcoroutine k₁' (mk k₁), { apply directSubcoroutine.mk k₁ a d, rw h },
       yielded r (pipe k₁' k₂')
 -- usingWellFounded { decTac := unfoldWfRel >> processLex (tactic.assumption) }
@@ -115,8 +115,8 @@ unsafe def pipe : coroutine α δ β → coroutine δ γ β → coroutine α γ 
 private unsafe def finishAux (f : δ → α) : coroutine α δ β → α → List δ → List δ × β
 | (mk k) a ds :=
   match k a with
-  | done b       := (ds.reverse, b)
-  | yielded d k' := finishAux k' (f d) (d::ds)
+  | done b       => (ds.reverse, b)
+  | yielded d k' => finishAux k' (f d) (d::ds)
 
 /-- Run a coroutine to completion, feeding back yielded items after transforming them with `f`. -/
 unsafe def finish (f : δ → α) : coroutine α δ β → α → List δ × β :=

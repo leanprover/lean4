@@ -44,8 +44,8 @@ private partial def hasInlineAttrAux (env : Environment) (kind : InlineAttribute
   /- We never inline auxiliary declarations created by eager lambda lifting -/
   if isEagerLambdaLiftingName n then false
   else match inlineAttrs.getValue env n with
-    | some k := kind == k
-    | none   := if n.isInternal then hasInlineAttrAux n.getPrefix else false
+    | some k => kind == k
+    | none   => if n.isInternal then hasInlineAttrAux n.getPrefix else false
 
 @[export lean.has_inline_attribute_core]
 def hasInlineAttribute (env : Environment) (n : Name) : Bool :=

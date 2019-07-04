@@ -86,6 +86,6 @@ let n     := n.toNat;
 let freq  := freq.toNat;
 let freq  := if freq == 0 then 1 else freq;
 let mList := mkMap n freq;
-let v     := fold (λ (k : Nat) (v : Bool) (r : Nat), if v then r + 1 else r) mList.head 0;
+let v     := fold (fun (k : Nat) (v : Bool) (r : Nat) => if v then r + 1 else r) mList.head 0;
 IO.println (toString (myLen mList 0) ++ " " ++ toString v) *>
 pure 0

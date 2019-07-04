@@ -67,8 +67,8 @@ def Level.instantiate (s : Name → Option Level) : Level → Level
 | (Level.imax l₁ l₂) := Level.imax (Level.instantiate l₁) (Level.instantiate l₂)
 | l@(Level.Param n)  :=
   match s n with
-  | some l' := l'
-  | none    := l
+  | some l' => l'
+  | none    => l
 | l                  := l
 
 @[extern "lean_level_hash"]

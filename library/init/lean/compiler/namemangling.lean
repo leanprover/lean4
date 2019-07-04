@@ -40,8 +40,8 @@ private def Name.mangleAux : Name → String
 | (Name.mkString p s) :=
   let m := String.mangle s;
   match p with
-  | Name.anonymous := m
-  | _              := Name.mangleAux p ++ "_" ++ m
+  | Name.anonymous => m
+  | _              => Name.mangleAux p ++ "_" ++ m
 | (Name.mkNumeral p n) := Name.mangleAux p ++ "_" ++ toString n ++ "_"
 
 def Name.mangle (n : Name) (pre : String := "l_") : String :=

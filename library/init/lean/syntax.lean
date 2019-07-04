@@ -67,25 +67,25 @@ False.elim (match h with end)
 
 @[inline] def withArgs {α : Type} (n : SyntaxNode) (fn : Array Syntax → α) : α :=
 match n with
-| ⟨Syntax.node _ args _, _⟩   := fn args
-| ⟨Syntax.missing, h⟩         := unreachIsNodeMissing h
-| ⟨Syntax.atom _ _, h⟩        := unreachIsNodeAtom h
-| ⟨Syntax.ident _ _ _ _ _, h⟩ := unreachIsNodeIdent h
+| ⟨Syntax.node _ args _, _⟩   => fn args
+| ⟨Syntax.missing, h⟩         => unreachIsNodeMissing h
+| ⟨Syntax.atom _ _, h⟩        => unreachIsNodeAtom h
+| ⟨Syntax.ident _ _ _ _ _, h⟩ => unreachIsNodeIdent h
 
 @[inline] def updateArgs (n : SyntaxNode) (fn : Array Syntax → Array Syntax) : Syntax :=
 match n with
-| ⟨Syntax.node kind args scopes, _⟩ := Syntax.node kind (fn args) scopes
-| ⟨Syntax.missing, h⟩               := unreachIsNodeMissing h
-| ⟨Syntax.atom _ _, h⟩              := unreachIsNodeAtom h
-| ⟨Syntax.ident _ _ _ _ _, h⟩       := unreachIsNodeIdent h
+| ⟨Syntax.node kind args scopes, _⟩ => Syntax.node kind (fn args) scopes
+| ⟨Syntax.missing, h⟩               => unreachIsNodeMissing h
+| ⟨Syntax.atom _ _, h⟩              => unreachIsNodeAtom h
+| ⟨Syntax.ident _ _ _ _ _, h⟩       => unreachIsNodeIdent h
 
 -- TODO(Sebastian): exhaustively argue why (if?) this is correct
 -- The basic idea is List concatenation with elimination of adjacent identical scopes
 def MacroScopes.flip : MacroScopes → MacroScopes → MacroScopes
 | ys []      := ys
 | ys (x::xs) := match MacroScopes.flip ys xs with
-  | y::ys := if x == y then ys else x::y::ys
-  | []    := [x]
+  | y::ys => if x == y then ys else x::y::ys
+  | []    => [x]
 
 namespace Syntax
 def isIdent : Syntax → Bool
@@ -103,16 +103,16 @@ def flipScopes (scopes : MacroScopes) : Syntax → Syntax
 
 @[inline] def toSyntaxNode {α : Type} (s : Syntax) (base : α) (fn : SyntaxNode → α) : α :=
 match s with
-| Syntax.node kind args []     := fn ⟨Syntax.node kind args [], IsNode.mk _ _ _⟩
-| Syntax.node kind args scopes := fn ⟨Syntax.node kind (args.map (flipScopes scopes)) [], IsNode.mk _ _ _⟩
-| other                        := base
+| Syntax.node kind args []     => fn ⟨Syntax.node kind args [], IsNode.mk _ _ _⟩
+| Syntax.node kind args scopes => fn ⟨Syntax.node kind (args.map (flipScopes scopes)) [], IsNode.mk _ _ _⟩
+| other                        => base
 
 @[specialize] partial def mreplace {m : Type → Type} [Monad m] (fn : Syntax → m (Option Syntax)) : Syntax → m Syntax
 | stx@(node kind args scopes) := do
   o ← fn stx;
   (match o with
-  | some stx := pure stx
-  | none     := do args ← args.mmap mreplace; pure (node kind args scopes))
+  | some stx => pure stx
+  | none     => do args ← args.mmap mreplace; pure (node kind args scopes))
 | stx := do o ← fn stx; pure (o.getOrElse stx)
 
 @[inline] def replace {m : Type → Type} [Monad m] (fn : Syntax → m (Option Syntax)) := @mreplace Id _
@@ -195,10 +195,10 @@ protected partial def formatStx : Syntax → Format
 | (atom info val) := format $ repr val
 | (ident _ _ val pre scopes) :=
   let scopes := pre.map format ++ scopes.reverse.map format;
-  let scopes := match scopes with [] := format "" | _ := bracket "{" (joinSep scopes ", ") "}";
+  let scopes := match scopes with [] => format "" | _ => bracket "{" (joinSep scopes ", ") "}";
   format "`" ++ format val ++ scopes
 | (node kind args scopes) :=
-  let scopes := match scopes with [] := format "" | _ := bracket "{" (joinSep scopes.reverse ", ") "}";
+  let scopes := match scopes with [] => format "" | _ => bracket "{" (joinSep scopes.reverse ", ") "}";
   if kind = `Lean.Parser.noKind then
     sbracket $ scopes ++ joinSep (args.toList.map formatStx) line
   else
@@ -251,8 +251,8 @@ def isStrLit : Syntax → Option String
 | (Syntax.node k args _) :=
   if k == strLitKind && args.size == 1 then
     match args.get 0 with
-    | (Syntax.atom _ val) := some val
-    | _ := none
+    | (Syntax.atom _ val) => some val
+    | _ => none
   else
     none
 | _ := none
@@ -320,8 +320,8 @@ def isNatLit : Syntax → Option Nat
 | (Syntax.node k args _) :=
   if k == numLitKind && args.size == 1 then
     match args.get 0 with
-    | (Syntax.atom _ val) := decodeNatLitVal val
-    | _ := none
+    | (Syntax.atom _ val) => decodeNatLitVal val
+    | _ => none
   else
     none
 | _ := none

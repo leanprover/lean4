@@ -34,7 +34,7 @@ modifyConstTable (fun cs => cs.qsort (fun e₁ e₂ => Name.quickLt e₁.1 e₂.
 unsafe def evalConst (α : Type) [Inhabited α] (c : Name) : IO α :=
 do cs ← getConstTable;
    match cs.binSearch (c, default _) (fun e₁ e₂ => Name.quickLt e₁.1 e₂.1) with
-   | some (_, v) := pure (unsafeCast v)
-   | none        := throw (IO.userError ("unknow constant '" ++ toString c ++ "'"))
+   | some (_, v) => pure (unsafeCast v)
+   | none        => throw (IO.userError ("unknow constant '" ++ toString c ++ "'"))
 
 end Lean

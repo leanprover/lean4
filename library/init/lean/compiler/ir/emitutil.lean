@@ -15,8 +15,8 @@ namespace IR
 /- Return true iff `b` is of the form `let x := g ys; ret x` -/
 def isTailCallTo (g : Name) (b : FnBody) : Bool :=
 match b with
-| FnBody.vdecl x _ (Expr.fap f _) (FnBody.ret (Arg.var y)) := x == y && f == g
-| _  := false
+| FnBody.vdecl x _ (Expr.fap f _) (FnBody.ret (Arg.var y)) => x == y && f == g
+| _  => false
 
 namespace UsesLeanNamespace
 
@@ -36,13 +36,13 @@ partial def visitFnBody : FnBody → M Bool
          modify (fun s => s.insert f);
          env ← read;
          match findEnvDecl env f with
-         | some (Decl.fdecl _ _ _ fbody) := visitFnBody fbody <||> visitFnBody b
-         | other                         := visitFnBody b
+         | some (Decl.fdecl _ _ _ fbody) => visitFnBody fbody <||> visitFnBody b
+         | other                         => visitFnBody b
     };
   match v with
-  | Expr.fap f _ := checkFn f
-  | Expr.pap f _ := checkFn f
-  | other        := visitFnBody b
+  | Expr.fap f _ => checkFn f
+  | Expr.pap f _ => checkFn f
+  | other        => visitFnBody b
 | (FnBody.jdecl _ _ v b) := visitFnBody v <||> visitFnBody b
 | (FnBody.case _ _ alts) := alts.anyM $ fun alt => visitFnBody alt.body
 | e :=
@@ -66,9 +66,9 @@ modify (fun s => s.insert f)
 partial def collectFnBody : FnBody → M Unit
 | (FnBody.vdecl _ _ v b) :=
   match v with
-  | Expr.fap f _ := collect f *> collectFnBody b
-  | Expr.pap f _ := collect f *> collectFnBody b
-  | other        := collectFnBody b
+  | Expr.fap f _ => collect f *> collectFnBody b
+  | Expr.pap f _ => collect f *> collectFnBody b
+  | other        => collectFnBody b
 | (FnBody.jdecl _ _ v b) := collectFnBody v *> collectFnBody b
 | (FnBody.case _ _ alts) := alts.mfor $ fun alt => collectFnBody alt.body
 | e := unless e.isTerminal $ collectFnBody e.body
@@ -76,8 +76,8 @@ partial def collectFnBody : FnBody → M Unit
 def collectInitDecl (fn : Name) : M Unit :=
 do env ← read;
    match getInitFnNameFor env fn with
-   | some initFn := collect initFn
-   | _           := pure ()
+   | some initFn => collect initFn
+   | _           => pure ()
 
 def collectDecl : Decl → M NameSet
 | (Decl.fdecl fn _ _ b)  := collectInitDecl fn *> CollectUsedDecls.collectFnBody b *> get

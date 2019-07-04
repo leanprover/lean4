@@ -95,14 +95,14 @@ def mfirst {m : Type u → Type v} [Monad m] [Alternative m] {α : Type w} {β :
 def mexists {m : Type → Type u} [Monad m] {α : Type v} (f : α → m Bool) : List α → m Bool
 | []      := pure false
 | (a::as) := do b ← f a; match b with
-  | true  := pure true
-  | false :=  mexists as
+  | true  => pure true
+  | false =>  mexists as
 
 @[specialize]
 def mforall {m : Type → Type u} [Monad m] {α : Type v} (f : α → m Bool) : List α → m Bool
 | []      := pure true
 | (a::as) := do b ← f a; match b with
-  | true  := mforall as
-  | false := pure false
+  | true  => mforall as
+  | false => pure false
 
 end List

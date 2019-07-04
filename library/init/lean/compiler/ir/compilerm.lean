@@ -45,8 +45,8 @@ def tracePrefixOptionName := `trace.compiler.ir
 
 private def isLogEnabledFor (opts : Options) (optName : Name) : Bool :=
 match opts.find optName with
-| some (DataValue.ofBool v) := v
-| other := opts.getBool tracePrefixOptionName
+| some (DataValue.ofBool v) => v
+| other => opts.getBool tracePrefixOptionName
 
 private def logDeclsAux (optName : Name) (cls : Name) (decls : Array Decl) : CompilerM Unit :=
 do opts ← read;
@@ -124,8 +124,8 @@ decls.mfor addDecl
 
 def findEnvDecl' (env : Environment) (n : Name) (decls : Array Decl) : Option Decl :=
 match decls.find (fun decl => if decl.name == n then some decl else none) with
-| some decl := some decl
-| none      := (declMapExt.getState env).find n
+| some decl => some decl
+| none      => (declMapExt.getState env).find n
 
 def findDecl' (n : Name) (decls : Array Decl) : CompilerM (Option Decl) :=
 do s ← get; pure $ findEnvDecl' s.env n decls

@@ -42,13 +42,13 @@ t.revFold (fun as a => a::as) []
 
 @[inline] protected def min (t : RBTree α lt) : Option α :=
 match RBMap.min t with
-| some ⟨a, _⟩ := some a
-| none        := none
+| some ⟨a, _⟩ => some a
+| none        => none
 
 @[inline] protected def max (t : RBTree α lt) : Option α :=
 match RBMap.max t with
-| some ⟨a, _⟩ := some a
-| none        := none
+| some ⟨a, _⟩ => some a
+| none        => none
 
 instance [HasRepr α] : HasRepr (RBTree α lt) :=
 ⟨fun t => "rbtreeOf " ++ repr t.toList⟩
@@ -67,8 +67,8 @@ RBMap.erase t a
 
 @[inline] def find (t : RBTree α lt) (a : α) : Option α :=
 match RBMap.findCore t a with
-| some ⟨a, _⟩ := some a
-| none        := none
+| some ⟨a, _⟩ => some a
+| none        => none
 
 @[inline] def contains (t : RBTree α lt) (a : α) : Bool :=
 (t.find a).isSome

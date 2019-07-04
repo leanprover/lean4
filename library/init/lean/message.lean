@@ -25,9 +25,9 @@ namespace Message
 protected def toString (msg : Message) : String :=
 msg.filename ++ ":" ++ toString msg.pos.line ++ ":" ++ toString msg.pos.column ++ ": " ++
 (match msg.severity with
- | MessageSeverity.information := ""
- | MessageSeverity.warning := "warning: "
- | MessageSeverity.error := "error: ") ++
+ | MessageSeverity.information => ""
+ | MessageSeverity.warning => "warning: "
+ | MessageSeverity.error => "error: ") ++
 (if msg.caption = "" then "" else msg.caption ++ ":\n") ++
 msg.text
 
@@ -57,8 +57,8 @@ instance : HasAppend MessageLog :=
 
 def hasErrors (log : MessageLog) : Bool :=
 log.revList.any $ fun m => match m.severity with
-| MessageSeverity.error := true
-| _                     := false
+| MessageSeverity.error => true
+| _                     => false
 
 def toList (log : MessageLog) : List Message :=
 log.revList.reverse

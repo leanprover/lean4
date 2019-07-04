@@ -96,14 +96,14 @@ def next (s : ParserState) (input : String) (pos : Nat) : ParserState :=
 
 def toErrorMsg (ctx : ParserContext) (s : ParserState) : String :=
 match s.errorMsg with
-| none     := ""
-| some msg :=
+| none     => ""
+| some msg =>
   let pos := ctx.fileMap.toPosition s.pos;
   ctx.filename ++ ":" ++ toString pos.line ++ ":" ++ toString pos.column ++ " " ++ msg
 
 def mkNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserState :=
 match s with
-| ⟨stack, pos, cache, err⟩ :=
+| ⟨stack, pos, cache, err⟩ =>
   if err != none && stack.size == iniStackSz then
     -- If there is an error but there are no new nodes on the stack, we just return `d`
     s
@@ -115,14 +115,14 @@ match s with
 
 def mkError (s : ParserState) (msg : String) : ParserState :=
 match s with
-| ⟨stack, pos, cache, _⟩ := ⟨stack, pos, cache, some msg⟩
+| ⟨stack, pos, cache, _⟩ => ⟨stack, pos, cache, some msg⟩
 
 def mkEOIError (s : ParserState) : ParserState :=
 s.mkError "end of input"
 
 def mkErrorAt (s : ParserState) (msg : String) (pos : String.Pos) : ParserState :=
 match s with
-| ⟨stack, _, cache, _⟩ := ⟨stack, pos, cache, some msg⟩
+| ⟨stack, _, cache, _⟩ => ⟨stack, pos, cache, some msg⟩
 
 end ParserState
 
@@ -264,8 +264,8 @@ instance hashOrelse {k : ParserKind} : HasOrelse (Parser k) :=
   let iniSz  := s.stackSize;
   let iniPos := s.pos;
   match p a c s with
-  | ⟨stack, _, cache, some msg⟩ := ⟨stack.shrink iniSz, iniPos, cache, some msg⟩
-  | other                       := other
+  | ⟨stack, _, cache, some msg⟩ => ⟨stack.shrink iniSz, iniPos, cache, some msg⟩
+  | other                       => other
 
 @[inline] def try {k : ParserKind} (p : Parser k) : Parser k :=
 { info := noFirstTokenInfo p.info,
@@ -581,8 +581,8 @@ def isIdCont : String → ParserState → Bool
 
 private def isToken (idStartPos idStopPos : Nat) (tk : Option TokenConfig) : Bool :=
 match tk with
-| none    := false
-| some tk :=
+| none    => false
+| some tk =>
    -- if a token is both a symbol and a valid identifier (i.e. a keyword),
    -- we want it to be recognized as a symbol
   tk.val.bsize ≥ idStopPos - idStopPos
@@ -590,8 +590,8 @@ match tk with
 def mkTokenAndFixPos (startPos : Nat) (tk : Option TokenConfig) : BasicParserFn :=
 fun c s =>
 match tk with
-| none    := s.mkErrorAt "token expected" startPos
-| some tk :=
+| none    => s.mkErrorAt "token expected" startPos
+| some tk =>
   let input     := c.input;
   let leading   := mkEmptySubstringAt input startPos;
   let val       := tk.val;
@@ -665,12 +665,12 @@ private def tokenFnAux : BasicParserFn
 
 private def updateCache (startPos : Nat) (s : ParserState) : ParserState :=
 match s with
-| ⟨stack, pos, cache, none⟩ :=
+| ⟨stack, pos, cache, none⟩ =>
   if stack.size == 0 then s
   else
     let tk := stack.back;
     ⟨stack, pos, { tokenCache := { startPos := startPos, stopPos := pos, token := tk } }, none⟩
-| other := other
+| other => other
 
 def tokenFn : BasicParserFn :=
 fun c s =>
@@ -703,8 +703,8 @@ fun c s =>
     s.mkErrorAt errorMsg startPos
   else
     match s.stxStack.back with
-    | Syntax.atom _ sym := if p sym then s else s.mkErrorAt errorMsg startPos
-    | _                 := s.mkErrorAt errorMsg startPos
+    | Syntax.atom _ sym => if p sym then s else s.mkErrorAt errorMsg startPos
+    | _                 => s.mkErrorAt errorMsg startPos
 
 def symbolFnAux (sym : String) (errorMsg : String) : BasicParserFn :=
 satisfySymbolFn (fun s => s == sym) errorMsg
@@ -712,12 +712,12 @@ satisfySymbolFn (fun s => s == sym) errorMsg
 def insertToken (sym : String) (lbp : Option Nat) (tks : Trie TokenConfig) : ExceptT String Id (Trie TokenConfig) :=
 if sym == "" then throw "invalid empty symbol"
 else match tks.find sym, lbp with
-| none,       _           := pure (tks.insert sym { val := sym, lbp := lbp })
-| some _,     none        := pure tks
-| some tk,    some newLbp :=
+| none,       _           => pure (tks.insert sym { val := sym, lbp := lbp })
+| some _,     none        => pure tks
+| some tk,    some newLbp =>
   match tk.lbp with
-  | none        := pure (tks.insert sym { val := sym, lbp := lbp })
-  | some oldLbp := if newLbp == oldLbp then pure tks else throw ("precedence mismatch for '" ++ toString sym ++ "', previous: " ++ toString oldLbp ++ ", new: " ++ toString newLbp)
+  | none        => pure (tks.insert sym { val := sym, lbp := lbp })
+  | some oldLbp => if newLbp == oldLbp then pure tks else throw ("precedence mismatch for '" ++ toString sym ++ "', previous: " ++ toString oldLbp ++ ", new: " ++ toString newLbp)
 
 def symbolInfo (sym : String) (lbp : Option Nat) : ParserInfo :=
 { updateTokens := insertToken sym lbp,
@@ -785,20 +785,20 @@ namespace ParserState
 
 def keepNewError (s : ParserState) (oldStackSize : Nat) : ParserState :=
 match s with
-| ⟨stack, pos, cache, err⟩ := ⟨stack.shrink oldStackSize, pos, cache, err⟩
+| ⟨stack, pos, cache, err⟩ => ⟨stack.shrink oldStackSize, pos, cache, err⟩
 
 def keepPrevError (s : ParserState) (oldStackSize : Nat) (oldStopPos : String.Pos) (oldError : Option String) : ParserState :=
 match s with
-| ⟨stack, _, cache, _⟩ := ⟨stack.shrink oldStackSize, oldStopPos, cache, oldError⟩
+| ⟨stack, _, cache, _⟩ => ⟨stack.shrink oldStackSize, oldStopPos, cache, oldError⟩
 
 def mergeErrors (s : ParserState) (oldStackSize : Nat) (oldError : String) : ParserState :=
 match s with
-| ⟨stack, pos, cache, some err⟩ := ⟨stack.shrink oldStackSize, pos, cache, some (err ++ "; " ++ oldError)⟩
-| other                         := other
+| ⟨stack, pos, cache, some err⟩ => ⟨stack.shrink oldStackSize, pos, cache, some (err ++ "; " ++ oldError)⟩
+| other                         => other
 
 def mkLongestNodeAlt (s : ParserState) (startSize : Nat) : ParserState :=
 match s with
-| ⟨stack, pos, cache, _⟩ :=
+| ⟨stack, pos, cache, _⟩ =>
   if stack.size == startSize then ⟨stack.push Syntax.missing, pos, cache, none⟩ -- parser did not create any node, then we just add `Syntax.missing`
   else if stack.size == startSize + 1 then s
   else
@@ -809,7 +809,7 @@ match s with
 
 def keepLatest (s : ParserState) (startStackSize : Nat) : ParserState :=
 match s with
-| ⟨stack, pos, cache, _⟩ :=
+| ⟨stack, pos, cache, _⟩ =>
   let node  := stack.back;
   let stack := stack.shrink startStackSize;
   let stack := stack.push node;
@@ -829,17 +829,17 @@ let prevSize      := s.stackSize;
 let s             := s.restore prevSize startPos;
 let s             := p a c s;
 match prevErrorMsg, s.errorMsg with
-| none, none   := -- both succeeded
+| none, none   => -- both succeeded
   if s.pos > prevStopPos      then s.replaceLongest startSize prevSize -- replace
   else if s.pos < prevStopPos then s.restore prevSize prevStopPos      -- keep prev
   else s.mkLongestNodeAlt prevSize                                     -- keep both
-| none, some _ := -- prev succeeded, current failed
+| none, some _ => -- prev succeeded, current failed
   s.restore prevSize prevStopPos
-| some oldError, some _ := -- both failed
+| some oldError, some _ => -- both failed
   if s.pos > prevStopPos      then s.keepNewError prevSize
   else if s.pos < prevStopPos then s.keepPrevError prevSize prevStopPos prevErrorMsg
   else s.mergeErrors prevSize oldError
-| some _, none := -- prev failed, current succeeded
+| some _, none => -- prev failed, current succeeded
   s.mkLongestNodeAlt startSize
 
 def longestMatchMkResult (startSize : Nat) (s : ParserState) : ParserState :=
@@ -883,8 +883,8 @@ namespace TokenMap
 
 def insert {α : Type} (map : TokenMap α) (k : Name) (v : α) : TokenMap α :=
 match map.find k with
-| none    := map.insert k [v]
-| some vs := map.insert k (v::vs)
+| none    => map.insert k [v]
+| some vs => map.insert k (v::vs)
 
 instance {α : Type} : Inhabited (TokenMap α) := ⟨RBMap.empty⟩
 
@@ -901,25 +901,25 @@ structure ParsingTables :=
 def currLbp (c : ParserContext) (s : ParserState) : ParserState × Nat :=
 let (s, stx) := peekToken c s;
 match stx with
-| some (Syntax.atom _ sym) :=
+| some (Syntax.atom _ sym) =>
   match c.tokens.matchPrefix sym 0 with
-  | (_, some tk) := (s, tk.lbp.getOrElse 0)
-  | _            := (s, 0)
-| some (Syntax.ident _ _ _ _ _) := (s, maxPrec)
-| some (Syntax.node k _ _)      := if k == numLitKind || k == strLitKind then (s, maxPrec) else (s, 0)
-| _                             := (s, 0)
+  | (_, some tk) => (s, tk.lbp.getOrElse 0)
+  | _            => (s, 0)
+| some (Syntax.ident _ _ _ _ _) => (s, maxPrec)
+| some (Syntax.node k _ _)      => if k == numLitKind || k == strLitKind then (s, maxPrec) else (s, 0)
+| _                             => (s, 0)
 
 def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState) : ParserState × List α :=
 let (s, stx) := peekToken c s;
 let find (n : Name) : ParserState × List α :=
   match map.find n with
-  | some as := (s, as)
-  | _       := (s, []);
+  | some as => (s, as)
+  | _       => (s, []);
 match stx with
-| some (Syntax.atom _ sym)      := find (mkSimpleName sym)
-| some (Syntax.ident _ _ _ _ _) := find `ident
-| some (Syntax.node k _ _)      := find k
-| _                             := (s, [])
+| some (Syntax.atom _ sym)      => find (mkSimpleName sym)
+| some (Syntax.ident _ _ _ _ _) => find `ident
+| some (Syntax.node k _ _)      => find k
+| _                             => (s, [])
 
 private def mkResult (s : ParserState) (iniSz : Nat) : ParserState :=
 if s.stackSize == iniSz + 1 then s
@@ -987,18 +987,18 @@ IO.mkRef {}
 
 private def updateTokens (tables : ParsingTables) (info : ParserInfo) (declName : Name) : IO ParsingTables :=
 match info.updateTokens tables.tokens with
-| Except.ok newTokens := pure { tokens := newTokens, .. tables }
-| Except.error msg    := throw (IO.userError ("invalid builtin parser '" ++ toString declName ++ "', " ++ msg))
+| Except.ok newTokens => pure { tokens := newTokens, .. tables }
+| Except.error msg    => throw (IO.userError ("invalid builtin parser '" ++ toString declName ++ "', " ++ msg))
 
 def addBuiltinLeadingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : Parser) : IO Unit :=
 do tables ← tablesRef.get;
    tablesRef.reset;
    tables ← updateTokens tables p.info declName;
    match p.info.firstTokens with
-   | FirstTokens.tokens tks :=
+   | FirstTokens.tokens tks =>
      let tables := tks.foldl (fun (tables : ParsingTables) tk => { leadingTable := tables.leadingTable.insert (mkSimpleName tk.val) p, .. tables }) tables;
      tablesRef.set tables
-   | _ :=
+   | _ =>
      throw (IO.userError ("invalid builtin parser '" ++ toString declName ++ "', initial token is not statically known"))
 
 def addBuiltinTrailingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : TrailingParser) : IO Unit :=
@@ -1006,10 +1006,10 @@ do tables ← tablesRef.get;
    tablesRef.reset;
    tables ← updateTokens tables p.info declName;
    match p.info.firstTokens with
-   | FirstTokens.tokens tks :=
+   | FirstTokens.tokens tks =>
      let tables := tks.foldl (fun (tables : ParsingTables) tk => { trailingTable := tables.trailingTable.insert (mkSimpleName tk.val) p, .. tables }) tables;
      tablesRef.set tables
-   | _ :=
+   | _ =>
      let tables := { trailingParsers := p :: tables.trailingParsers, .. tables };
      tablesRef.set tables
 
@@ -1019,8 +1019,8 @@ let type := Expr.app (mkConst `IO) (mkConst `Unit);
 let val  := mkCApp addFnName [mkConst refDeclName, toExpr declName, mkConst declName];
 let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
 match env.addAndCompile {} decl with
-| none     := throw (IO.userError ("failed to emit registration code for builtin parser '" ++ toString declName ++ "'"))
-| some env := IO.ofExcept (setInitAttr env name)
+| none     => throw (IO.userError ("failed to emit registration code for builtin parser '" ++ toString declName ++ "'"))
+| some env => IO.ofExcept (setInitAttr env name)
 
 def declareLeadingBuiltinParser (env : Environment) (refDeclName : Name) (declName : Name) : IO Environment :=
 declareBuiltinParser env `Lean.Parser.addBuiltinLeadingParser refDeclName declName
@@ -1039,14 +1039,14 @@ registerAttribute {
    unless args.isMissing $ throw (IO.userError ("invalid attribute '" ++ toString attrName ++ "', unexpected argument"));
    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString attrName ++ "', must be persistent"));
    match env.find declName with
-   | none  := throw "unknown declaration"
-   | some decl :=
+   | none  => throw "unknown declaration"
+   | some decl =>
      match decl.type with
-     | Expr.const `Lean.Parser.TrailingParser _ :=
+     | Expr.const `Lean.Parser.TrailingParser _ =>
        declareTrailingBuiltinParser env refDeclName declName
-     | Expr.app (Expr.const `Lean.Parser.Parser _) (Expr.const `Lean.Parser.ParserKind.leading _) :=
+     | Expr.app (Expr.const `Lean.Parser.Parser _) (Expr.const `Lean.Parser.ParserKind.leading _) =>
        declareLeadingBuiltinParser env refDeclName declName
-     | _ :=
+     | _ =>
        throw (IO.userError ("unexpected parser type at '" ++ toString declName ++ "' (`Parser` or `TrailingParser` expected"))
  },
  applicationTime := AttributeApplicationTime.afterCompilation
@@ -1061,8 +1061,8 @@ registerBuiltinParserAttribute `builtinCommandParser `Lean.Parser.builtinCommand
 @[noinline] unsafe def runBuiltinParserUnsafe (kind : String) (ref : IO.Ref ParsingTables) : ParserFn leading :=
 fun a c s =>
 match unsafeIO (do tables ← ref.get; pure $ prattParser kind tables a c s) with
-| some s := s
-| none   := s.mkError "failed to access builtin reference"
+| some s => s
+| none   => s.mkError "failed to access builtin reference"
 
 @[implementedBy runBuiltinParserUnsafe]
 constant runBuiltinParser (kind : String) (ref : IO.Ref ParsingTables) : ParserFn leading := default _

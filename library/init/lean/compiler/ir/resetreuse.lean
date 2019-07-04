@@ -74,13 +74,13 @@ private def Dfinalize (x : VarId) (c : CtorInfo) : FnBody × Bool → M FnBody
 
 private def argsContainsVar (ys : Array Arg) (x : VarId) : Bool :=
 ys.any $ fun arg => match arg with
-  | Arg.var y := x == y
-  | _         := false
+  | Arg.var y => x == y
+  | _         => false
 
 private def isCtorUsing (b : FnBody) (x : VarId) : Bool :=
 match b with
-| (FnBody.vdecl _ _ (Expr.ctor _ ys) _) := argsContainsVar ys x
-| _ := false
+| (FnBody.vdecl _ _ (Expr.ctor _ ys) _) => argsContainsVar ys x
+| _ => false
 
 /- Given `Dmain b`, the resulting pair `(new_b, flag)` contains the new body `new_b`,
    and `flag == true` if `x` is live in `b`.
@@ -132,10 +132,10 @@ partial def R : FnBody → M FnBody
     alts ← alts.mmap $ fun alt => do {
       alt ← alt.mmodifyBody R;
       match alt with
-      | Alt.ctor c b :=
+      | Alt.ctor c b =>
         if c.isScalar then pure alt
         else Alt.ctor c <$> D x c b
-      | _            := pure alt
+      | _            => pure alt
     };
     pure $ FnBody.case tid x alts
 | (FnBody.jdecl j ys v b) := do

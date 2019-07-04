@@ -34,18 +34,18 @@ def constFolding : Expr → Expr
   let e₁ := constFolding e₁ in
   let e₂ := constFolding e₂ in
   (match e₁, e₂ with
-   | Val a, Val b         := Val (a+b)
-   | Val a, Add e (Val b) := Add (Val (a+b)) e
-   | Val a, Add (Val b) e := Add (Val (a+b)) e
-   | _,     _             := Add e₁ e₂)
+   | Val a, Val b         => Val (a+b)
+   | Val a, Add e (Val b) => Add (Val (a+b)) e
+   | Val a, Add (Val b) e => Add (Val (a+b)) e
+   | _,     _             => Add e₁ e₂)
 | (Mul e₁ e₂) :=
   let e₁ := constFolding e₁ in
   let e₂ := constFolding e₂ in
   (match e₁, e₂ with
-   | Val a, Val b         := Val (a*b)
-   | Val a, Mul e (Val b) := Mul (Val (a*b)) e
-   | Val a, Mul (Val b) e := Mul (Val (a*b)) e
-   | _,     _             := Mul e₁ e₂)
+   | Val a, Val b         => Val (a*b)
+   | Val a, Mul e (Val b) => Mul (Val (a*b)) e
+   | Val a, Mul (Val b) e => Mul (Val (a*b)) e
+   | _,     _             => Mul e₁ e₂)
 | e         := e
 
 def size : Expr → Nat

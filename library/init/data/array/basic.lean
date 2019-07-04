@@ -179,8 +179,8 @@ miterate₂ a₁ a₂ b (fun _ a₁ a₂ b => f b a₁ a₂)
      let idx : Fin a.size := ⟨i, h⟩;
      do r ← f (a.fget idx);
         match r with
-        | some v := pure r
-        | none   := mfindAux (i+1)
+        | some v => pure r
+        | none   => mfindAux (i+1)
   else pure none
 
 @[inline] def mfind (a : Array α) (f : α → m (Option β)) : m (Option β) :=
@@ -218,8 +218,8 @@ variables {m : Type → Type v} [Monad m]
      let idx : Fin a.size := ⟨i, h⟩;
      do b ← p (a.fget idx);
      match b with
-     | true  := pure true
-     | false := anyMAux (i+1)
+     | true  => pure true
+     | false => anyMAux (i+1)
   else pure false
 
 @[inline] def anyM (a : Array α) (p : α → m Bool) : m Bool :=
@@ -342,8 +342,8 @@ partial def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α →
      let aidx : Fin a.size := ⟨i, h⟩;
      let bidx : Fin b.size := ⟨i, hsz ▸ h⟩;
      match p (a.fget aidx) (b.fget bidx) with
-     | true  := isEqvAux (i+1)
-     | false := false
+     | true  => isEqvAux (i+1)
+     | false => false
   else
     true
 

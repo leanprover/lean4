@@ -39,16 +39,16 @@ namespace Environment
 @[export lean.get_projection_info_core]
 def getProjectionFnInfo (env : Environment) (projName : Name) : Option ProjectionFunctionInfo :=
 match env.getModuleIdxFor projName with
-| some modIdx :=
+| some modIdx =>
   match (projectionFnInfoExt.getModuleEntries env modIdx).binSearch (projName, default _) (fun a b => Name.quickLt a.1 b.1) with
-  | some e := some e.2
-  | none   := none
-| none        := (projectionFnInfoExt.getState env).find projName
+  | some e => some e.2
+  | none   => none
+| none        => (projectionFnInfoExt.getState env).find projName
 
 def isProjectionFn (env : Environment) (n : Name) : Bool :=
 match env.getModuleIdxFor n with
-| some modIdx := (projectionFnInfoExt.getModuleEntries env modIdx).binSearchContains (n, default _) (fun a b => Name.quickLt a.1 b.1)
-| none        := (projectionFnInfoExt.getState env).contains n
+| some modIdx => (projectionFnInfoExt.getModuleEntries env modIdx).binSearchContains (n, default _) (fun a b => Name.quickLt a.1 b.1)
+| none        => (projectionFnInfoExt.getState env).contains n
 
 end Environment
 end Lean

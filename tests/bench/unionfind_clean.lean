@@ -18,7 +18,7 @@ def findEntryAux : Nat → Node → M nodeData
        do { let e := s.fget ⟨n, h⟩;
             if e.find = n then pure e
             else do e₁ ← findEntryAux i e.find;
-                    modify (λ s, s.set n e₁);
+                    modify (fun s => s.set n e₁);
                     pure e₁ }
      else throw "invalid Node"
 
@@ -31,14 +31,14 @@ do e ← findEntry n; pure e.find
 
 def mk : M Node :=
 do n ← capacity;
-   modify $ λ s, s.push {find := n, rank := 1};
+   modify $ fun s => s.push {find := n, rank := 1};
    pure n
 
 def union (n₁ n₂ : Node) : M Unit :=
 do r₁ ← findEntry n₁;
    r₂ ← findEntry n₂;
    if r₁.find = r₂.find then pure ()
-   else modify $ λ s,
+   else modify $ fun s =>
      if r₁.rank < r₂.rank then s.set r₁.find { find := r₂.find }
      else if r₁.rank = r₂.rank then
         let s₁ := s.set r₁.find { find := r₂.find } in
@@ -90,5 +90,5 @@ else do
 def main (xs : List String) : IO UInt32 :=
 let n := xs.head.toNat in
 match (test n).run Array.empty with
-| EState.Result.ok v s    := IO.println ("ok " ++ toString v) *> pure 0
-| EState.Result.error e s := IO.println ("Error : " ++ e) *> pure 1
+| EState.Result.ok v s    => IO.println ("ok " ++ toString v) *> pure 0
+| EState.Result.error e s => IO.println ("Error : " ++ e) *> pure 1

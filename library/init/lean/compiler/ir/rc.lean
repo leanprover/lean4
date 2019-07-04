@@ -32,23 +32,23 @@ structure Context :=
 
 def getDecl (ctx : Context) (fid : FunId) : Decl :=
  match findEnvDecl' ctx.env fid ctx.decls with
-| some decl := decl
-| none      := default _ -- unreachable if well-formed
+| some decl => decl
+| none      => default _ -- unreachable if well-formed
 
 def getVarInfo (ctx : Context) (x : VarId) : VarInfo :=
 match ctx.varMap.find x with
-| some info := info
-| none      := {} -- unreachable in well-formed code
+| some info => info
+| none      => {} -- unreachable in well-formed code
 
 def getJPParams (ctx : Context) (j : JoinPointId) : Array Param :=
 match ctx.localCtx.getJPParams j with
-| some ps := ps
-| none    := Array.empty -- unreachable in well-formed code
+| some ps => ps
+| none    => Array.empty -- unreachable in well-formed code
 
 def getJPLiveVars (ctx : Context) (j : JoinPointId) : LiveVarSet :=
 match ctx.jpLiveVarMap.find j with
-| some s := s
-| none   := {}
+| some s => s
+| none   => {}
 
 def mustConsume (ctx : Context) (x : VarId) : Bool :=
 let info := getVarInfo ctx x;
@@ -64,8 +64,8 @@ private def updateRefUsingCtorInfo (ctx : Context) (x : VarId) (c : CtorInfo) : 
 if c.isRef then ctx
 else let m := ctx.varMap;
   { varMap := match m.find x with
-    | some info := m.insert x { ref := false, .. info } -- I really want a Lenses library + notation
-    | none      := m,
+    | some info => m.insert x { ref := false, .. info } -- I really want a Lenses library + notation
+    | none      => m,
     .. ctx }
 
 private def addDecForAlt (ctx : Context) (caseLiveVars altLiveVars : LiveVarSet) (b : FnBody) : FnBody :=
@@ -85,8 +85,8 @@ private def isBorrowParamAux (x : VarId) (ys : Array Arg) (consumeParamPred : Na
 ys.size.any $ fun i =>
   let y := ys.get i;
   match y with
-  | Arg.irrelevant := false
-  | Arg.var y      := x == y && !consumeParamPred i
+  | Arg.irrelevant => false
+  | Arg.var y      => x == y && !consumeParamPred i
 
 private def isBorrowParam (x : VarId) (ys : Array Arg) (ps : Array Param) : Bool :=
 isBorrowParamAux x ys (fun i => !(ps.get i).borrow)
@@ -102,8 +102,8 @@ ys.size.fold
   (fun i n =>
     let y := ys.get i;
     match y with
-    | Arg.irrelevant := n
-    | Arg.var y      := if x == y && consumeParamPred i then n+1 else n)
+    | Arg.irrelevant => n
+    | Arg.var y      => if x == y && consumeParamPred i then n+1 else n)
   0
 
 @[specialize]
@@ -112,8 +112,8 @@ xs.size.fold
   (fun i b =>
     let x := xs.get i;
     match x with
-    | Arg.irrelevant := b
-    | Arg.var x :=
+    | Arg.irrelevant => b
+    | Arg.var x =>
       let info := getVarInfo ctx x;
       if !info.ref || info.persistent || !isFirstOcc xs i then b
       else
@@ -138,8 +138,8 @@ private def addDecAfterFullApp (ctx : Context) (xs : Array Arg) (ps : Array Para
 xs.size.fold
   (fun i b =>
     match xs.get i with
-    | Arg.irrelevant := b
-    | Arg.var x      :=
+    | Arg.irrelevant => b
+    | Arg.var x      =>
       /- We must add a `dec` if `x` must be consumed, it is alive after the application,
          and it has been borrowed by the application.
          Remark: `x` may occur multiple times in the application (e.g., `f x y x`).
@@ -166,17 +166,17 @@ private def isPersistent : Expr → Bool
 /- We do not need to consume the projection of a variable that is not consumed -/
 private def consumeExpr (m : VarMap) : Expr → Bool
 | (Expr.proj i x) := match m.find x with
-  | some info := info.consume
-  | none      := true
+  | some info => info.consume
+  | none      => true
 | other := true
 
 /- Return true iff `v` at runtime is a scalar value stored in a tagged pointer.
    We do not need RC operations for this kind of value. -/
 private def isScalarBoxedInTaggedPtr (v : Expr) : Bool :=
 match v with
-| Expr.ctor c ys          := c.size == 0 && c.ssize == 0 && c.usize == 0
-| Expr.lit (LitVal.num n) := n ≤ maxSmallNat
-| _ := false
+| Expr.ctor c ys          => c.size == 0 && c.ssize == 0 && c.usize == 0
+| Expr.lit (LitVal.num n) => n ≤ maxSmallNat
+| _ => false
 
 private def updateVarInfo (ctx : Context) (x : VarId) (t : IRType) (v : Expr) : Context :=
 { varMap := ctx.varMap.insert x {
@@ -191,26 +191,26 @@ if mustConsume ctx x && !bLiveVars.contains x then addDec x b else b
 private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody × LiveVarSet :=
 -- dbgTrace ("processVDecl " ++ toString z ++ " " ++ toString (format v)) $ fun _ =>
 let b := match v with
-  | (Expr.ctor _ ys)       := addIncBeforeConsumeAll ctx ys (FnBody.vdecl z t v b) bLiveVars
-  | (Expr.reuse _ _ _ ys)  := addIncBeforeConsumeAll ctx ys (FnBody.vdecl z t v b) bLiveVars
-  | (Expr.proj _ x)        :=
+  | (Expr.ctor _ ys)       => addIncBeforeConsumeAll ctx ys (FnBody.vdecl z t v b) bLiveVars
+  | (Expr.reuse _ _ _ ys)  => addIncBeforeConsumeAll ctx ys (FnBody.vdecl z t v b) bLiveVars
+  | (Expr.proj _ x)        =>
     let b := addDecIfNeeded ctx x b bLiveVars;
     let b := if (getVarInfo ctx x).consume then addInc z b else b;
     (FnBody.vdecl z t v b)
-  | (Expr.uproj _ x)       := FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
-  | (Expr.sproj _ _ x)     := FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
-  | (Expr.fap f ys)        :=
+  | (Expr.uproj _ x)       => FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
+  | (Expr.sproj _ _ x)     => FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
+  | (Expr.fap f ys)        =>
     -- dbgTrace ("processVDecl " ++ toString v) $ fun _ =>
     let ps := (getDecl ctx f).params;
     let b  := addDecAfterFullApp ctx ys ps b bLiveVars;
     let b  := FnBody.vdecl z t v b;
     addIncBefore ctx ys ps b bLiveVars
-  | (Expr.pap _ ys)        := addIncBeforeConsumeAll ctx ys (FnBody.vdecl z t v b) bLiveVars
-  | (Expr.ap x ys)         :=
+  | (Expr.pap _ ys)        => addIncBeforeConsumeAll ctx ys (FnBody.vdecl z t v b) bLiveVars
+  | (Expr.ap x ys)         =>
     let ysx := ys.push (Arg.var x); -- TODO: avoid temporary array allocation
     addIncBeforeConsumeAll ctx ysx (FnBody.vdecl z t v b) bLiveVars
-  | (Expr.unbox x)         := FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
-  | other                  := FnBody.vdecl z t v b;  -- Expr.reset, Expr.box, Expr.lit are handled here
+  | (Expr.unbox x)         => FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
+  | other                  => FnBody.vdecl z t v b;  -- Expr.reset, Expr.box, Expr.lit are handled here
 let liveVars := updateLiveVars v bLiveVars;
 let liveVars := liveVars.erase z;
 (b, liveVars)
@@ -246,22 +246,22 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
 | b@(FnBody.case tid x alts) ctx :=
   let caseLiveVars := collectLiveVars b ctx.jpLiveVarMap;
   let alts         := alts.map $ fun alt => match alt with
-    | Alt.ctor c b  :=
+    | Alt.ctor c b  =>
       let ctx              := updateRefUsingCtorInfo ctx x c;
       let (b, altLiveVars) := visitFnBody b ctx;
       let b                := addDecForAlt ctx caseLiveVars altLiveVars b;
       Alt.ctor c b
-    | Alt.default b :=
+    | Alt.default b =>
       let (b, altLiveVars) := visitFnBody b ctx;
       let b                := addDecForAlt ctx caseLiveVars altLiveVars b;
       Alt.default b;
   (FnBody.case tid x alts, caseLiveVars)
 | b@(FnBody.ret x) ctx :=
   match x with
-  | Arg.var x :=
+  | Arg.var x =>
     let info := getVarInfo ctx x;
     if info.ref && !info.persistent && !info.consume then (addInc x b, {x}) else (b, {x})
-  | _         := (b, {})
+  | _         => (b, {})
 | b@(FnBody.jmp j xs) ctx :=
   let jLiveVars := getJPLiveVars ctx j;
   let ps        := getJPParams ctx j;

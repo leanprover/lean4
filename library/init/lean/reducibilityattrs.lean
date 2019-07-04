@@ -25,13 +25,13 @@ constant reducibilityAttrs : EnumAttributes ReducibilityStatus := default _
 @[export lean.get_reducibility_status_core]
 def getReducibilityStatus (env : Environment) (n : Name) : ReducibilityStatus :=
 match reducibilityAttrs.getValue env n with
-| some s := s
-| none   := ReducibilityStatus.semireducible
+| some s => s
+| none   => ReducibilityStatus.semireducible
 
 @[export lean.set_reducibility_status_core]
 def setReducibilityStatus (env : Environment) (n : Name) (s : ReducibilityStatus) : Environment :=
 match reducibilityAttrs.setValue env n s with
-| Except.ok env := env
-| _ := env -- TODO(Leo): we should extend EnumAttributes.setValue in the future and ensure it never fails
+| Except.ok env => env
+| _ => env -- TODO(Leo): we should extend EnumAttributes.setValue in the future and ensure it never fails
 
 end Lean

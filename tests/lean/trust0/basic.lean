@@ -58,8 +58,8 @@ def hasDecEq : Π a b : Nat, Decidable (a = b)
 | zero     (succ y) := isFalse (fun h => Nat.noConfusion h)
 | (succ x) (succ y) :=
     match hasDecEq x y with
-    | isTrue xeqy := isTrue (xeqy ▸ Eq.refl (succ x))
-    | isFalse xney := isFalse (fun h => Nat.noConfusion h (fun xeqy => absurd xeqy xney))
+    | isTrue xeqy => isTrue (xeqy ▸ Eq.refl (succ x))
+    | isFalse xney => isFalse (fun h => Nat.noConfusion h (fun xeqy => absurd xeqy xney))
 
 instance : DecidableEq ℕ :=
 {decEq := hasDecEq}
@@ -109,8 +109,8 @@ instance decidableLe : ∀ a b : ℕ, Decidable (a ≤ b)
 | (a+1) 0     := isFalse (notSuccLeZero a)
 | (a+1) (b+1) :=
   match decidableLe a b with
-  | isTrue h  := isTrue (succLeSucc h)
-  | isFalse h := isFalse (fun a => h (leOfSuccLeSucc a))
+  | isTrue h  => isTrue (succLeSucc h)
+  | isFalse h => isFalse (fun a => h (leOfSuccLeSucc a))
 
 instance decidableLt : ∀ a b : ℕ, Decidable (a < b) :=
 fun a b => Nat.decidableLe (succ a) b

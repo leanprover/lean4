@@ -40,10 +40,10 @@ instance : HasRepr Unit :=
 ⟨fun u => "()"⟩
 
 instance {α : Type u} [HasRepr α] : HasRepr (Option α) :=
-⟨fun o => match o with | none := "none" | (some a) := "(some " ++ repr a ++ ")"⟩
+⟨fun o => match o with | none => "none" | (some a) => "(some " ++ repr a ++ ")"⟩
 
 instance {α : Type u} {β : Type v} [HasRepr α] [HasRepr β] : HasRepr (α ⊕ β) :=
-⟨fun s => match s with | (inl a) := "(inl " ++ repr a ++ ")" | (inr b) := "(inr " ++ repr b ++ ")"⟩
+⟨fun s => match s with | (inl a) => "(inl " ++ repr a ++ ")" | (inr b) => "(inr " ++ repr b ++ ")"⟩
 
 instance {α : Type u} {β : Type v} [HasRepr α] [HasRepr β] : HasRepr (α × β) :=
 ⟨fun ⟨a, b⟩ => "(" ++ repr a ++ ", " ++ repr b ++ ")"⟩

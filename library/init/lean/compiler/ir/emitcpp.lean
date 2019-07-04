@@ -37,8 +37,8 @@ def getModName : M Name := Context.modName <$> read
 def getDecl (n : Name) : M Decl :=
 do env ← getEnv;
    match findEnvDecl env n with
-   | some d := pure d
-   | none   := throw ("unknown declaration '" ++ toString n ++ "'")
+   | some d => pure d
+   | none   => throw ("unknown declaration '" ++ toString n ++ "'")
 
 @[inline] def emit {α : Type} [HasToString α] (a : α) : M Unit :=
 modify (fun out => out ++ toString a)
@@ -51,8 +51,8 @@ as.mfor $ fun a => emitLn a
 
 def argToCppString (x : Arg) : String :=
 match x with
-| Arg.var x := toString x
-| _         := "lean::box(0)"
+| Arg.var x => toString x
+| _         => "lean::box(0)"
 
 def emitArg (x : Arg) : M Unit :=
 emit (argToCppString x)
@@ -79,8 +79,8 @@ openNamespacesAux n.getPrefix
 def openNamespacesFor (n : Name) : M Unit :=
 do env ← getEnv;
    match getExportNameFor env n with
-   | none   := pure ()
-   | some n := openNamespaces n
+   | none   => pure ()
+   | some n => openNamespaces n
 
 def closeNamespacesAux : Name → M Unit
 | Name.anonymous      := pure ()
@@ -93,8 +93,8 @@ closeNamespacesAux n.getPrefix
 def closeNamespacesFor (n : Name) : M Unit :=
 do env ← getEnv;
    match getExportNameFor env n with
-   | none   := pure ()
-   | some n := closeNamespaces n
+   | none   => pure ()
+   | some n => closeNamespaces n
 
 def throwInvalidExportName {α : Type} (n : Name) : M α :=
 throw ("invalid export name '" ++ toString n ++ "'")
@@ -102,15 +102,15 @@ throw ("invalid export name '" ++ toString n ++ "'")
 def toBaseCppName (n : Name) : M String :=
 do env ← getEnv;
    match getExportNameFor env n with
-   | some (Name.mkString _ s) := pure s
-   | some _                   := throwInvalidExportName n
-   | none                     := if n == `main then pure leanMainFn else pure n.mangle
+   | some (Name.mkString _ s) => pure s
+   | some _                   => throwInvalidExportName n
+   | none                     => if n == `main then pure leanMainFn else pure n.mangle
 
 def toCppName (n : Name) : M String :=
 do env ← getEnv;
    match getExportNameFor env n with
-   | some s := pure (s.toStringWithSep "::")
-   | none   := if n == `main then pure leanMainFn else pure n.mangle
+   | some s => pure (s.toStringWithSep "::")
+   | none   => if n == `main then pure leanMainFn else pure n.mangle
 
 def emitCppName (n : Name) : M Unit :=
 toCppName n >>= emit
@@ -118,9 +118,9 @@ toCppName n >>= emit
 def toCppInitName (n : Name) : M String :=
 do env ← getEnv;
    match getExportNameFor env n with
-   | some (Name.mkString p s) := pure $ (Name.mkString p ("_init_" ++ s)).toStringWithSep "::"
-   | some _                   := throwInvalidExportName n
-   | none                     := pure ("_init_" ++ n.mangle)
+   | some (Name.mkString p s) => pure $ (Name.mkString p ("_init_" ++ s)).toStringWithSep "::"
+   | some _                   => throwInvalidExportName n
+   | none                     => pure ("_init_" ++ n.mangle)
 
 def emitCppInitName (n : Name) : M Unit :=
 toCppInitName n >>= emit
@@ -171,14 +171,14 @@ let usedDecls := usedDecls.toList;
 usedDecls.mfor $ fun n => do
   decl ← getDecl n;
   match getExternNameFor env `cpp decl.name with
-  | some cppName := emitExternDeclAux decl cppName
-  | none         := emitFnDecl decl (!modDecls.contains n)
+  | some cppName => emitExternDeclAux decl cppName
+  | none         => emitFnDecl decl (!modDecls.contains n)
 
 def emitMainFn : M Unit :=
 do
 d ← getDecl `main;
 match d with
-| Decl.fdecl f xs t b := do
+| Decl.fdecl f xs t b => do
   unless (xs.size == 2 || xs.size == 1) (throw "invalid main function, incorrect arity when generating code");
   env ← getEnv;
   let usesLeanAPI := usesLeanNamespace env d;
@@ -217,7 +217,7 @@ match d with
            "  return 1;",
            "}"];
   emitLn "}"
-| other := throw "function declaration expected"
+| other => throw "function declaration expected"
 
 def hasMainFn : M Bool :=
 do env ← getEnv;
@@ -258,14 +258,14 @@ throw ("unknown variable '" ++ toString x ++ "'")
 def isObj (x : VarId) : M Bool :=
 do ctx ← read;
    match ctx.varMap.find x with
-   | some t := pure t.isObj
-   | none   := throwUnknownVar x
+   | some t => pure t.isObj
+   | none   => throwUnknownVar x
 
 def getJPParams (j : JoinPointId) : M (Array Param) :=
 do ctx ← read;
    match ctx.jpMap.find j with
-   | some ps := pure ps
-   | none    := throw "unknown join point"
+   | some ps => pure ps
+   | none    => throw "unknown join point"
 
 def declareVar (x : VarId) (t : IRType) : M Unit :=
 do emit (toCppType t); emit " "; emit x; emit "; "
@@ -294,8 +294,8 @@ else
 def isIf (alts : Array Alt) : Option (Nat × FnBody × FnBody) :=
 if alts.size != 2 then none
 else match alts.get 0 with
-  | Alt.ctor c b := some (c.cidx, b, (alts.get 1).body)
-  | _            := none
+  | Alt.ctor c b => some (c.cidx, b, (alts.get 1).body)
+  | _            => none
 
 def emitIf (emitBody : FnBody → M Unit) (x : VarId) (tag : Nat) (t : FnBody) (e : FnBody) : M Unit :=
 do
@@ -306,13 +306,13 @@ emitBody e
 
 def emitCase (emitBody : FnBody → M Unit) (x : VarId) (alts : Array Alt) : M Unit :=
 match isIf alts with
-| some (tag, t, e) := emitIf emitBody x tag t e
-| _ := do
+| some (tag, t, e) => emitIf emitBody x tag t e
+| _ => do
   emit "switch ("; emitTag x; emitLn ") {";
   let alts := ensureHasDefault alts;
   alts.mfor $ fun alt => match alt with
-    | Alt.ctor c b  := emit "case " *> emit c.cidx *> emitLn ":" *> emitBody b
-    | Alt.default b := emitLn "default: " *> emitBody b;
+    | Alt.ctor c b  => emit "case " *> emit c.cidx *> emitLn ":" *> emitBody b
+    | Alt.default b => emitLn "default: " *> emitBody b;
   emitLn "}"
 
 def emitInc (x : VarId) (n : Nat) (checkRef : Bool) : M Unit :=
@@ -431,11 +431,11 @@ do
 emitLhs z;
 decl ← getDecl f;
 match decl with
-| Decl.extern _ _ _ extData :=
+| Decl.extern _ _ _ extData =>
   match mkExternCall extData `cpp (toStringArgs ys) with
-  | some c := emit c *> emitLn ";"
-  | none   := throw "failed to emit extern application"
-| _ := do emitCppName f; when (ys.size > 0) (do emit "("; emitArgs ys; emit ")"); emitLn ";"
+  | some c => emit c *> emitLn ";"
+  | none   => throw "failed to emit extern application"
+| _ => do emitCppName f; when (ys.size > 0) (do emit "("; emitArgs ys; emit ")"); emitLn ";"
 
 def emitPartialApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit :=
 do
@@ -456,11 +456,11 @@ else do
 
 def emitBoxFn (xType : IRType) : M Unit :=
 match xType with
-| IRType.usize  := emit "lean::box_size_t"
-| IRType.uint32 := emit "lean::box_uint32"
-| IRType.uint64 := emit "lean::box_uint64"
-| IRType.float  := throw "floats are not supported yet"
-| other         := emit "lean::box"
+| IRType.usize  => emit "lean::box_size_t"
+| IRType.uint32 => emit "lean::box_uint32"
+| IRType.uint64 => emit "lean::box_uint64"
+| IRType.float  => throw "floats are not supported yet"
+| other         => emit "lean::box"
 
 def emitBox (z : VarId) (x : VarId) (xType : IRType) : M Unit :=
 do emitLhs z; emitBoxFn xType; emit "("; emit x; emitLn ");"
@@ -469,11 +469,11 @@ def emitUnbox (z : VarId) (t : IRType) (x : VarId) : M Unit :=
 do
 emitLhs z;
 match t with
-| IRType.usize  := emit "lean::unbox_size_t"
-| IRType.uint32 := emit "lean::unbox_uint32"
-| IRType.uint64 := emit "lean::unbox_uint64"
-| IRType.float  := throw "floats are not supported yet"
-| other         := emit "lean::unbox";
+| IRType.usize  => emit "lean::unbox_size_t"
+| IRType.uint32 => emit "lean::unbox_uint32"
+| IRType.uint64 => emit "lean::unbox_uint64"
+| IRType.float  => throw "floats are not supported yet"
+| other         => emit "lean::unbox";
 emit "("; emit x; emitLn ");"
 
 def emitIsShared (z : VarId) (x : VarId) : M Unit :=
@@ -512,37 +512,37 @@ else
 def emitLit (z : VarId) (t : IRType) (v : LitVal) : M Unit :=
 emitLhs z *>
 match v with
-| LitVal.num v := emitNumLit t v *> emitLn ";"
-| LitVal.str v := do emit "lean::mk_string("; emit (quoteString v); emitLn ");"
+| LitVal.num v => emitNumLit t v *> emitLn ";"
+| LitVal.str v => do emit "lean::mk_string("; emit (quoteString v); emitLn ");"
 
 def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
 match v with
-| Expr.ctor c ys      := emitCtor z c ys
-| Expr.reset n x      := emitReset z n x
-| Expr.reuse x c u ys := emitReuse z x c u ys
-| Expr.proj i x       := emitProj z i x
-| Expr.uproj i x      := emitUProj z i x
-| Expr.sproj n o x    := emitSProj z t n o x
-| Expr.fap c ys       := emitFullApp z c ys
-| Expr.pap c ys       := emitPartialApp z c ys
-| Expr.ap x ys        := emitApp z x ys
-| Expr.box t x        := emitBox z x t
-| Expr.unbox x        := emitUnbox z t x
-| Expr.isShared x     := emitIsShared z x
-| Expr.isTaggedPtr x  := emitIsTaggedPtr z x
-| Expr.lit v          := emitLit z t v
+| Expr.ctor c ys      => emitCtor z c ys
+| Expr.reset n x      => emitReset z n x
+| Expr.reuse x c u ys => emitReuse z x c u ys
+| Expr.proj i x       => emitProj z i x
+| Expr.uproj i x      => emitUProj z i x
+| Expr.sproj n o x    => emitSProj z t n o x
+| Expr.fap c ys       => emitFullApp z c ys
+| Expr.pap c ys       => emitPartialApp z c ys
+| Expr.ap x ys        => emitApp z x ys
+| Expr.box t x        => emitBox z x t
+| Expr.unbox x        => emitUnbox z t x
+| Expr.isShared x     => emitIsShared z x
+| Expr.isTaggedPtr x  => emitIsTaggedPtr z x
+| Expr.lit v          => emitLit z t v
 
 def isTailCall (x : VarId) (v : Expr) (b : FnBody) : M Bool :=
 do
 ctx ← read;
 match v, b with
-| Expr.fap f _, FnBody.ret (Arg.var y) := pure $ f == ctx.mainFn && x == y
-| _, _ := pure false
+| Expr.fap f _, FnBody.ret (Arg.var y) => pure $ f == ctx.mainFn && x == y
+| _, _ => pure false
 
 def paramEqArg (p : Param) (x : Arg) : Bool :=
 match x with
-| Arg.var x := p.x == x
-| _ := false
+| Arg.var x => p.x == x
+| _ => false
 
 /-
 Given `[p_0, ..., p_{n-1}]`, `[y_0, ..., y_{n-1}]`, representing the assignments
@@ -567,7 +567,7 @@ n.any $ fun i =>
 
 def emitTailCall (v : Expr) : M Unit :=
 match v with
-| Expr.fap _ ys := do
+| Expr.fap _ ys => do
   ctx ← read;
   let ps := ctx.mainParams;
   unless (ps.size == ys.size) (throw "invalid tail call");
@@ -594,7 +594,7 @@ match v with
     }
   };
   emitLn "goto _start;"
-| _ := throw "bug at emitTailCall"
+| _ => throw "bug at emitTailCall"
 
 partial def emitBlock (emitBody : FnBody → M Unit) : FnBody → M Unit
 | (FnBody.jdecl j xs v b)   := emitBlock b
@@ -633,7 +633,7 @@ let (vMap, jpMap) := mkVarJPMaps d;
 adaptReader (fun ctx : Context => { varMap := vMap, jpMap := jpMap, .. ctx }) $ do
 unless (hasInitAttr env d.name) $
   match d with
-  | Decl.fdecl f xs t b := do
+  | Decl.fdecl f xs t b => do
     openNamespacesFor f;
     baseName ← toBaseCppName f;
     emit (toCppType t); emit " ";
@@ -654,7 +654,7 @@ unless (hasInitAttr env d.name) $
     adaptReader (fun ctx : Context => { mainFn := f, mainParams := xs, .. ctx }) (emitFnBody b);
     emitLn "}";
     closeNamespacesFor f
-  | _ := pure ()
+  | _ => pure ()
 
 def emitDecl (d : Decl) : M Unit :=
 let d := d.normalizeIds;
@@ -671,8 +671,8 @@ decls.reverse.mfor emitDecl
 def quoteNameAux : Name → Option String
 | (Name.mkString Name.anonymous s) := some $ "lean::mk_const_name(" ++ repr s ++ ")"
 | (Name.mkString p s) := match quoteNameAux p with
-  | some q := some $ "lean::mk_const_name(" ++ q ++ ", " ++ repr s ++ ")"
-  | _ := none
+  | some q => some $ "lean::mk_const_name(" ++ q ++ ", " ++ repr s ++ ")"
+  | _ => none
 | _ := none
 
 def quoteName (n : Name) : Option String :=
@@ -688,31 +688,31 @@ if isIOUnitInitFn env n then do {
   emitLn "if (io_result_is_error(w)) return w;"
 } else if (d.params.size == 0) then do {
   match getInitFnNameFor env d.name with
-  | some initFn := do {
+  | some initFn => do {
     emit "w = "; emitCppName initFn; emitLn "(w);";
     emitLn "if (io_result_is_error(w)) return w;";
     emitCppName n; emitLn " = io_result_get_value(w);"
   }
-  | _ := do {
+  | _ => do {
     emitCppName n; emit " = "; emitCppInitName n; emitLn "();"
   };
   if d.resultType.isObj then do {
     emit "lean::mark_persistent("; emitCppName n; emitLn ");";
     match quoteName n with
-    | some q := do emit ("lean::register_constant(" ++ q ++ ", "); emitCppName n; emitLn ");"
-    | none   := pure ()
+    | some q => do emit ("lean::register_constant(" ++ q ++ ", "); emitCppName n; emitLn ");"
+    | none   => pure ()
   } else unless d.resultType.isIrrelevant $ do {
     match quoteName n with
-    | some q := do emit ("lean::register_constant(" ++ q ++ ", "); emitBoxFn d.resultType; emit "("; emitCppName n; emitLn "));"
-    | none   := pure ()
+    | some q => do emit ("lean::register_constant(" ++ q ++ ", "); emitBoxFn d.resultType; emit "("; emitCppName n; emitLn "));"
+    | none   => pure ()
   }
 } else
   /- TODO(Leo): perhaps we should add a flag to disable closure registration. -/
   match quoteName d.name with
-  | some q := do
+  | some q => do
     let clsName := if requiresBoxedVersion env d then mkBoxedName d.name else d.name;
     emit ("REGISTER_LEAN_FUNCTION(" ++ q ++ ", " ++ toString d.params.size ++ ", "); emitCppName clsName; emitLn ");"
-  | _ := pure ()
+  | _ => pure ()
 
 def emitInitFn : M Unit :=
 do
@@ -749,8 +749,8 @@ end EmitCpp
 @[export lean.ir.emit_cpp_core]
 def emitCpp (env : Environment) (modName : Name) : Except String String :=
 match (EmitCpp.main { env := env, modName := modName }).run "" with
-| EState.Result.ok    _   s := Except.ok s
-| EState.Result.error err _ := Except.error err
+| EState.Result.ok    _   s => Except.ok s
+| EState.Result.error err _ => Except.error err
 
 end IR
 end Lean

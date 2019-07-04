@@ -382,11 +382,11 @@ protected theorem ltOrGe : ∀ (n m : Nat), n < m ∨ n ≥ m
 | n 0     := Or.inr (zeroLe n)
 | n (m+1) :=
   match ltOrGe n m with
-  | Or.inl h := Or.inl (leSuccOfLe h)
-  | Or.inr h :=
+  | Or.inl h => Or.inl (leSuccOfLe h)
+  | Or.inr h =>
     match Nat.eqOrLtOfLe h with
-    | Or.inl h1 := Or.inl (h1 ▸ ltSuccSelf m)
-    | Or.inr h1 := Or.inr h1
+    | Or.inl h1 => Or.inl (h1 ▸ ltSuccSelf m)
+    | Or.inr h1 => Or.inr h1
 
 protected theorem leTotal (m n : Nat) : m ≤ n ∨ n ≤ m :=
 Or.elim (Nat.ltOrGe m n)
@@ -434,7 +434,7 @@ theorem le.dest : ∀ {n m : Nat}, n ≤ m → Exists (fun k => n + k = m)
   have n ≤ m from h;
   have Exists (fun k => n + k = m) from le.dest this;
   match this with
-  | ⟨k, h⟩ := ⟨k, show succ n + k = succ m from ((succAdd n k).symm ▸ h ▸ rfl)⟩
+  | ⟨k, h⟩ => ⟨k, show succ n + k = succ m from ((succAdd n k).symm ▸ h ▸ rfl)⟩
 
 theorem le.intro {n m k : Nat} (h : n + k = m) : n ≤ m :=
 h ▸ leAddRight n k
@@ -458,7 +458,7 @@ Or.elim (Nat.ltOrGe n m)
 
 protected theorem addLeAddLeft {n m : Nat} (h : n ≤ m) (k : Nat) : k + n ≤ k + m :=
 match le.dest h with
-| ⟨w, hw⟩ :=
+| ⟨w, hw⟩ =>
   have h₁ : k + n + w = k + (n + w) from Nat.addAssoc _ _ _;
   have h₂ : k + (n + w) = k + m     from congrArg _ hw;
   le.intro $ h₁.trans h₂
@@ -643,7 +643,7 @@ protected theorem oneLeBit0 : ∀ (n : Nat), n ≠ 0 → 1 ≤ bit0 n
 
 theorem mulLeMulLeft {n m : Nat} (k : Nat) (h : n ≤ m) : k * n ≤ k * m :=
 match le.dest h with
-| ⟨l, hl⟩ :=
+| ⟨l, hl⟩ =>
   have k * n + k * l = k * m from Nat.leftDistrib k n l ▸ hl.symm ▸ rfl;
   le.intro this
 

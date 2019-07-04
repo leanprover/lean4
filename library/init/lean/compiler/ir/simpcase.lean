@@ -52,10 +52,10 @@ partial def FnBody.simpCase : FnBody → FnBody
   let (bs, term) := b.flatten;
   let bs         := modifyJPs bs FnBody.simpCase;
   match term with
-  | FnBody.case tid x alts :=
+  | FnBody.case tid x alts =>
     let alts := alts.map $ fun alt => alt.modifyBody FnBody.simpCase;
     reshape bs (mkSimpCase tid x alts)
-  | other := reshape bs term
+  | other => reshape bs term
 
 /-- Simplify `case`
   - Remove unreachable branches.

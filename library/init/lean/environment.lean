@@ -83,8 +83,8 @@ env.const2ModIdx.find c
 
 def isConstructor (env : Environment) (c : Name) : Bool :=
 match env.find c with
-| ConstantInfo.ctorInfo _ := true
-| _ := false
+| ConstantInfo.ctorInfo _ => true
+| _ => false
 
 /--
 Type check, add and compile the given declaration.
@@ -279,7 +279,7 @@ registerPersistentEnvExtension {
   name := descr.name,
   addImportedFn := fun as => ([], descr.addImportedFn as),
   addEntryFn := fun s e => match s with
-    | (entries, s) := (e::entries, descr.addEntryFn s e),
+    | (entries, s) => (e::entries, descr.addEntryFn s e),
   exportEntriesFn := fun s => descr.toArrayFn s.1.reverse,
   statsFn := fun s => format "number of local entries: " ++ format s.1.length
 }

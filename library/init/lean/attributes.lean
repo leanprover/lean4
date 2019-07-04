@@ -52,8 +52,8 @@ env.getNamespaceSet.contains n
 @[export lean.in_section_core]
 def inSection (env : Environment) : Bool :=
 match (scopeManagerExt.getState env).isNamespace with
-| (b::_) := !b
-| _      := false
+| (b::_) => !b
+| _      => false
 
 @[export lean.has_open_scopes_core]
 def hasOpenScopes (env : Environment) : Bool :=
@@ -62,14 +62,14 @@ def hasOpenScopes (env : Environment) : Bool :=
 @[export lean.get_namespace_core]
 def getNamespace (env : Environment) : Name :=
 match env.getNamespaces with
-| (n::_) := n
-| _      := Name.anonymous
+| (n::_) => n
+| _      => Name.anonymous
 
 @[export lean.get_scope_header_core]
 def getScopeHeader (env : Environment) : Name :=
 match (scopeManagerExt.getState env).headers with
-| (n::_) := n
-| _      := Name.anonymous
+| (n::_) => n
+| _      => Name.anonymous
 
 @[export lean.to_valid_namespace_core]
 def toValidNamespace (env : Environment) (n : Name) : Option Name :=
@@ -77,8 +77,8 @@ let s := scopeManagerExt.getState env;
 if s.allNamespaces.contains n then some n
 else s.namespaces.foldl
   (fun r ns => match r with
-    | some _ := r
-    | none   :=
+    | some _ => r
+    | none   =>
       let c := ns ++ n;
       if s.allNamespaces.contains c then some c else none)
   none
@@ -164,8 +164,8 @@ do m ← attributeMapRef.get; pure $ m.fold (fun r n _ => n::r) []
 def getAttributeImpl (attrName : Name) : IO AttributeImpl :=
 do m ← attributeMapRef.get;
    match m.find attrName with
-   | some attr := pure attr
-   | none      := throw (IO.userError ("unknown attribute '" ++ toString attrName ++ "'"))
+   | some attr => pure attr
+   | none      => throw (IO.userError ("unknown attribute '" ++ toString attrName ++ "'"))
 
 @[export lean.attribute_application_time_core]
 def attributeApplicationTime (n : Name) : IO AttributeApplicationTime :=
@@ -270,8 +270,8 @@ let attrImpl : AttributeImpl := {
     unless (env.getModuleIdxFor decl).isNone $
       throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
     match validate env decl with
-    | Except.error msg := throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
-    | _                := pure $ ext.addEntry env decl
+    | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
+    | _                => pure $ ext.addEntry env decl
 };
 registerAttribute attrImpl;
 pure { attr := attrImpl, ext := ext }
@@ -282,8 +282,8 @@ instance : Inhabited TagAttribute := ⟨{attr := default _, ext := default _}⟩
 
 def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
 match env.getModuleIdxFor decl with
-| some modIdx := (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
-| none        := (attr.ext.getState env).contains decl
+| some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
+| none        => (attr.ext.getState env).contains decl
 
 end TagAttribute
 
@@ -318,12 +318,12 @@ let attrImpl : AttributeImpl := {
     unless (env.getModuleIdxFor decl).isNone $
       throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
     match getParam env decl args with
-    | Except.error msg := throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
-    | Except.ok val    := do
+    | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
+    | Except.ok val    => do
       let env := ext.addEntry env (decl, val);
       match afterSet env decl val with
-      | Except.error msg := throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
-      | Except.ok env    := pure env
+      | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
+      | Except.ok env    => pure env
 };
 registerAttribute attrImpl;
 pure { attr := attrImpl, ext := ext }
@@ -334,11 +334,11 @@ instance {α : Type} : Inhabited (ParametricAttribute α) := ⟨{attr := default
 
 def getParam {α : Type} [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) : Option α :=
 match env.getModuleIdxFor decl with
-| some modIdx :=
+| some modIdx =>
   match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default _) (fun a b => Name.quickLt a.1 b.1) with
-  | some (_, val) := some val
-  | none          := none
-| none        := (attr.ext.getState env).find decl
+  | some (_, val) => some val
+  | none          => none
+| none        => (attr.ext.getState env).find decl
 
 def setParam {α : Type} (attr : ParametricAttribute α) (env : Environment) (decl : Name) (param : α) : Except String Environment :=
 if (env.getModuleIdxFor decl).isSome then
@@ -377,8 +377,8 @@ let attrs := attrDescrs.map $ fun ⟨name, descr, val⟩ => { AttributeImpl .
     unless (env.getModuleIdxFor decl).isNone $
       throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
     match validate env decl val with
-    | Except.error msg := throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
-    | _                := pure $ ext.addEntry env (decl, val)
+    | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
+    | _                => pure $ ext.addEntry env (decl, val)
 };
 attrs.mfor registerAttribute;
 pure { ext := ext, attrs := attrs }
@@ -389,11 +389,11 @@ instance {α : Type} : Inhabited (EnumAttributes α) := ⟨{attrs := [], ext := 
 
 def getValue {α : Type} [Inhabited α] (attr : EnumAttributes α) (env : Environment) (decl : Name) : Option α :=
 match env.getModuleIdxFor decl with
-| some modIdx :=
+| some modIdx =>
   match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default _) (fun a b => Name.quickLt a.1 b.1) with
-  | some (_, val) := some val
-  | none          := none
-| none        := (attr.ext.getState env).find decl
+  | some (_, val) => some val
+  | none          => none
+| none        => (attr.ext.getState env).find decl
 
 def setValue {α : Type} (attrs : EnumAttributes α) (env : Environment) (decl : Name) (val : α) : Except String Environment :=
 if (env.getModuleIdxFor decl).isSome then
@@ -412,12 +412,12 @@ end EnumAttributes
    decode the Syntax object. -/
 def attrParamSyntaxToIdentifier (s : Syntax) : Option Name :=
 match s with
-| Syntax.node k args _ :=
+| Syntax.node k args _ =>
   if k == nullKind && args.size == 1 then match args.get 0 with
-    | Syntax.ident _ _ id _ _ := some id
-    | _ := none
+    | Syntax.ident _ _ id _ _ => some id
+    | _ => none
   else
     none
-| _ := none
+| _ => none
 
 end Lean

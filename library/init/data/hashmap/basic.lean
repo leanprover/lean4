@@ -28,8 +28,8 @@ let n := if nbuckets = 0 then 8 else nbuckets;
     have p₂ : n = (if nbuckets = 0 then 8 else nbuckets) from rfl;
     have p₃ : (if nbuckets = 0 then 8 else nbuckets) > 0 from
       match nbuckets with
-      | 0            := Nat.zeroLtSucc _
-      | (Nat.succ x) := Nat.zeroLtSucc _;
+      | 0            => Nat.zeroLtSucc _
+      | (Nat.succ x) => Nat.zeroLtSucc _;
     transRelRight Greater (Eq.trans p₁ p₂) p₃ ⟩ }
 
 namespace HashMapImp
@@ -56,13 +56,13 @@ foldBuckets m.buckets d f
 
 def find [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option β :=
 match m with
-| ⟨_, buckets⟩ :=
+| ⟨_, buckets⟩ =>
   let ⟨i, h⟩ := mkIdx buckets.property (hash a);
   (buckets.val.uget i h).find a
 
 def contains [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) : Bool :=
 match m with
-| ⟨_, buckets⟩ :=
+| ⟨_, buckets⟩ =>
   let ⟨i, h⟩ := mkIdx buckets.property (hash a);
   (buckets.val.uget i h).contains a
 
@@ -88,7 +88,7 @@ let new_buckets : HashMapBucket α β := ⟨mkArray nbuckets AssocList.nil, aux�
 
 def insert [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) (b : β) : HashMapImp α β :=
 match m with
-| ⟨size, buckets⟩ :=
+| ⟨size, buckets⟩ =>
   let ⟨i, h⟩ := mkIdx buckets.property (hash a);
   let bkt    := buckets.val.uget i h;
   if bkt.contains a
@@ -102,7 +102,7 @@ match m with
 
 def erase [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) : HashMapImp α β :=
 match m with
-| ⟨ size, buckets ⟩ :=
+| ⟨ size, buckets ⟩ =>
   let ⟨i, h⟩ := mkIdx buckets.property (hash a);
   let bkt    := buckets.val.uget i h;
   if bkt.contains a then ⟨size - 1, buckets.update i (bkt.erase a) h⟩
@@ -134,31 +134,31 @@ instance : HasEmptyc (HashMap α β) :=
 
 @[inline] def insert (m : HashMap α β) (a : α) (b : β) : HashMap α β :=
 match m with
-| ⟨ m, hw ⟩ := ⟨ m.insert a b, WellFormed.insertWff m a b hw ⟩
+| ⟨ m, hw ⟩ => ⟨ m.insert a b, WellFormed.insertWff m a b hw ⟩
 
 @[inline] def erase (m : HashMap α β) (a : α) : HashMap α β :=
 match m with
-| ⟨ m, hw ⟩ := ⟨ m.erase a, WellFormed.eraseWff m a hw ⟩
+| ⟨ m, hw ⟩ => ⟨ m.erase a, WellFormed.eraseWff m a hw ⟩
 
 @[inline] def find (m : HashMap α β) (a : α) : Option β :=
 match m with
-| ⟨ m, _ ⟩ := m.find a
+| ⟨ m, _ ⟩ => m.find a
 
 @[inline] def contains (m : HashMap α β) (a : α) : Bool :=
 match m with
-| ⟨ m, _ ⟩ := m.contains a
+| ⟨ m, _ ⟩ => m.contains a
 
 @[inline] def mfold {δ : Type w} {m : Type w → Type w} [Monad m] (f : δ → α → β → m δ) (d : δ) (h : HashMap α β) : m δ :=
 match h with
-| ⟨ h, _ ⟩ := h.mfold f d
+| ⟨ h, _ ⟩ => h.mfold f d
 
 @[inline] def fold {δ : Type w} (f : δ → α → β → δ) (d : δ) (m : HashMap α β) : δ :=
 match m with
-| ⟨ m, _ ⟩ := m.fold f d
+| ⟨ m, _ ⟩ => m.fold f d
 
 @[inline] def size (m : HashMap α β) : Nat :=
 match m with
-| ⟨ {size := sz, ..}, _ ⟩ := sz
+| ⟨ {size := sz, ..}, _ ⟩ => sz
 
 @[inline] def empty (m : HashMap α β) : Bool :=
 m.size = 0

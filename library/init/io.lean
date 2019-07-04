@@ -69,8 +69,8 @@ namespace IO
 
 def ofExcept {ε α : Type} [HasToString ε] (e : Except ε α) : IO α :=
 match e with
-| Except.ok a    := pure a
-| Except.error e := throw (IO.userError (toString e))
+| Except.ok a    => pure a
+| Except.error e => throw (IO.userError (toString e))
 
 def lazyPure {α : Type} (fn : Unit → α) : IO α :=
 pure (fn ())
@@ -87,8 +87,8 @@ open Fs
 | a f :=
   do v ← f a;
   match v with
-  | Sum.inl a := iterate a f
-  | Sum.inr b := pure b
+  | Sum.inl a => iterate a f
+  | Sum.inr b => pure b
 
 @[extern 2 "lean_io_prim_put_str"]
 constant putStr (s: @& String) : IO Unit := default _

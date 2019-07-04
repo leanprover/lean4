@@ -19,8 +19,8 @@ abbrev M := ExceptT String (ReaderT Context Id)
 def getDecl (c : Name) : M Decl :=
 do ctx ← read;
    match findEnvDecl' ctx.env c ctx.decls with
-   | none   := throw ("unknown declaration '" ++ toString c ++ "'")
-   | some d := pure d
+   | none   => throw ("unknown declaration '" ++ toString c ++ "'")
+   | some d => pure d
 
 def checkVar (x : VarId) : M Unit :=
 do ctx ← read;
@@ -32,8 +32,8 @@ do ctx ← read;
 
 def checkArg (a : Arg) : M Unit :=
 match a with
-| Arg.var x := checkVar x
-| other     := pure ()
+| Arg.var x => checkVar x
+| other     => pure ()
 
 def checkArgs (as : Array Arg) : M Unit :=
 as.mfor checkArg
@@ -48,8 +48,8 @@ def checkScalarType (ty : IRType) : M Unit := checkType ty IRType.isScalar
 @[inline] def checkVarType (x : VarId) (p : IRType → Bool) : M Unit :=
 do ctx ← read;
    match ctx.localCtx.getType x with
-   | some ty := checkType ty p
-   | none    := throw ("unknown variable '" ++ toString x ++ "'")
+   | some ty => checkType ty p
+   | none    => throw ("unknown variable '" ++ toString x ++ "'")
 
 def checkObjVar (x : VarId) : M Unit :=
 checkVarType x IRType.isObj
@@ -127,8 +127,8 @@ def checkDecl (decls : Array Decl) (decl : Decl) : CompilerM Unit :=
 do
 env ← getEnv;
 match Checker.checkDecl decl { env := env, decls := decls } with
-| Except.error msg := throw ("IR check failed at '" ++ toString decl.name ++ "', error: " ++ msg)
-| other            := pure ()
+| Except.error msg => throw ("IR check failed at '" ++ toString decl.name ++ "', error: " ++ msg)
+| other            => pure ()
 
 def checkDecls (decls : Array Decl) : CompilerM Unit :=
 decls.mfor (checkDecl decls)

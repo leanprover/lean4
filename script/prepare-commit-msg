@@ -11,7 +11,7 @@ file=$(echo "$diff" | sort -n -k 3 | tail -n 1)
 # extract filename
 file=$(echo "$file" | cut -f 2 -d' ')
 file="${file#'src/'}"
-file="${file%.*}"
+file="${file%.(cpp|h|md|lean)}"
 case $file in
     tests/*)
         type=test

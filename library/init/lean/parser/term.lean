@@ -21,12 +21,13 @@ def termParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
 
 namespace Term
 
-@[builtinTermParser] def ident := parser! ident >> optional (".{" >> sepBy1 levelParser ", " >> "}")
+@[builtinTermParser] def id := parser! ident >> optional (".{" >> sepBy1 levelParser ", " >> "}")
 @[builtinTermParser] def num : Parser := numLit
 @[builtinTermParser] def str : Parser := strLit
 @[builtinTermParser] def type := parser! symbol "Type" maxPrec
 @[builtinTermParser] def sort := parser! symbol "Sort" maxPrec
 @[builtinTermParser] def hole := parser! symbol "_" maxPrec
+@[builtinTermParser] def «sorry» := parser! symbol "sorry" maxPrec
 @[builtinTermParser] def cdot := parser! symbol "·" maxPrec
 @[inline] def parenSpecial : Parser := optional (", " >> sepBy termParser ", " <|> " : " >> termParser)
 @[builtinTermParser] def paren := parser! symbol "(" maxPrec >> optional (termParser >> parenSpecial) >> ")"
@@ -45,8 +46,10 @@ def structInstSource := parser! ".." -- >> optional termParser
 def typeSpec := parser! " : " >> termParser
 def optType : Parser := optional typeSpec
 @[builtinTermParser] def subtype := parser! "{" >> ident >> optType >> " // " >> termParser >> "}"
+@[builtinTermParser] def list := parser! symbol "[" maxPrec >> sepBy termParser "," true >> "]"
 
-@[builtinTermParser] def app := tparser! pushLeading >> termParser maxPrec
+@[builtinTermParser] def app  := tparser! pushLeading >> termParser maxPrec
+@[builtinTermParser] def proj := tparser! pushLeading >> symbolNoWs "." (some (maxPrec+1)) >> (fieldIdx <|> ident)
 
 end Term
 

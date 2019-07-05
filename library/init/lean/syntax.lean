@@ -35,6 +35,7 @@ abbrev SyntaxNodeKind := Name
 @[matchPattern] def nullKind : SyntaxNodeKind := `null
 def strLitKind : SyntaxNodeKind := `strLit
 def numLitKind : SyntaxNodeKind := `numLit
+def fieldIdxKind : SyntaxNodeKind := `fieldIdx
 
 /- Syntax AST -/
 
@@ -316,15 +317,21 @@ else
   else if c.isDigit then decodeDecimalLitAux s 0 0
   else none
 
-def isNatLit : Syntax → Option Nat
+def isNatLitAux (nodeKind : SyntaxNodeKind) : Syntax → Option Nat
 | (Syntax.node k args _) :=
-  if k == numLitKind && args.size == 1 then
+  if k == nodeKind && args.size == 1 then
     match args.get 0 with
     | (Syntax.atom _ val) => decodeNatLitVal val
     | _ => none
   else
     none
 | _ := none
+
+def isNatLit (s : Syntax) : Option Nat :=
+isNatLitAux numLitKind s
+
+def isFieldIdx (s : Syntax) : Option Nat :=
+isNatLitAux fieldIdxKind s
 
 def isIdOrAtom : Syntax → Option String
 | (Syntax.atom _ val)           := some val

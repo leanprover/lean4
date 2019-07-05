@@ -780,6 +780,20 @@ fun _ c s =>
 { fn   := identFn,
   info := mkAtomicInfo "ident" }
 
+def fieldIdxFn : BasicParserFn :=
+fun c s =>
+  let iniPos := s.pos;
+  let curr     := c.input.get iniPos;
+  if curr.isDigit && curr != '0' then
+    let s     := takeWhileFn (fun c => c.isDigit) c s;
+    mkNodeToken fieldIdxKind iniPos c s
+  else
+    s.mkErrorAt "expected field index" iniPos
+
+@[inline] def fieldIdx {k : ParserKind} : Parser k :=
+{ fn   := fun _ => fieldIdxFn,
+  info := mkAtomicInfo "fieldIdx" }
+
 instance string2basic {k : ParserKind} : HasCoe String (Parser k) :=
 ⟨symbol⟩
 

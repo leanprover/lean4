@@ -122,7 +122,7 @@ private def updateInfo : SourceInfo → String.Pos → SourceInfo
 | {leading := {str := s, startPos := _, stopPos := _}, pos := pos, trailing := trailing} last :=
   {leading := {str := s, startPos := last, stopPos := pos}, pos := pos, trailing := trailing}
 
-/- Remark: the State `String.Pos` is the `SourceInfo.trailing.endPos` of the previous token,
+/- Remark: the State `String.Pos` is the `SourceInfo.trailing.stopPos` of the previous token,
    or the beginning of the String. -/
 @[inline]
 private def updateLeadingAux : Syntax → State String.Pos (Option Syntax)
@@ -166,13 +166,19 @@ partial def updateTrailing (trailing : Substring) : Syntax → Syntax
 
 /-- Retrieve the left-most leaf's info in the Syntax tree. -/
 partial def getHeadInfo : Syntax → Option SourceInfo
-| (atom info _)         := info
-| (ident info _ _ _ _ ) := info
-| (node _ args _)       := args.find getHeadInfo
-| _                     := none
+| missing              := none
+| (atom info _)        := info
+| (ident info _ _ _ _) := info
+| (node _ args _)      := args.find getHeadInfo
 
 def getPos (stx : Syntax) : Option String.Pos :=
 SourceInfo.pos <$> stx.getHeadInfo
+
+partial def getTailInfo : Syntax → Option SourceInfo
+| missing               := none
+| (atom info _)         := info
+| (ident info _ _ _ _)  := info
+| (node _ args _)       := args.findRev getTailInfo
 
 private def reprintLeaf : Option SourceInfo → String → String
 | none        val := val

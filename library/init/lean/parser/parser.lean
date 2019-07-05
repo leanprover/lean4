@@ -733,6 +733,35 @@ let sym := sym.trim;
 { info := symbolInfo sym lbp,
   fn   := symbolFn sym }
 
+partial def strAux (sym : String) (errorMsg : String) : Nat → BasicParserFn
+| j c s :=
+  if sym.atEnd j then s
+  else
+    let i := s.pos;
+    let input := c.input;
+    if input.atEnd i || sym.get j != input.get i then s.mkError errorMsg
+    else strAux (sym.next j) c (s.next input i)
+
+@[inline] def symbolNoWsFnAux (sym : String) (errorMsg : String) : ParserFn trailing :=
+fun leading c s =>
+  let stx : Syntax := leading;
+  match stx.getTailInfo with
+  | some info =>
+    if info.trailing.stopPos > info.trailing.startPos then
+      s.mkError errorMsg
+    else
+      strAux sym errorMsg 0 c s
+  | none => s.mkError errorMsg
+
+@[inline] def symbolNoWsFn (sym : String) : ParserFn trailing :=
+symbolNoWsFnAux sym ("expected '" ++ sym ++ "' without whitespaces arount it")
+
+/- Similar to `symbol`, but succeeds only if there is no space whitespace after leading term and after `sym`. -/
+@[inline] def symbolNoWs (sym : String) (lbp : Option Nat := none) : TrailingParser :=
+let sym := sym.trim;
+{ info := symbolInfo sym lbp,
+  fn   := symbolNoWsFn sym }
+
 def unicodeSymbolFnAux (sym asciiSym : String) (errorMsg : String) : BasicParserFn :=
 satisfySymbolFn (fun s => s == sym || s == asciiSym) errorMsg
 

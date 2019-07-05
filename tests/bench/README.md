@@ -5,7 +5,7 @@ separate benchmark suites based on the
 [temci](https://github.com/parttimenerd/temci) benchmarking tool:
 * The light-weight "Speedcenter" suite benchmarks the current build of Lean. It
   can be used for quick comparisons on the cmdline and powers the [Lean
-  Speedcenter](http://i44vm3.ipd.kit.edu/lean-speedcenter/) website.
+  Speedcenter](http://speedcenter.informatik.kit.edu/lean/) website.
 * The heavy-weight "Cross" suite benchmarks multiple Lean configurations and
   other functional compilers against each other and generates CSV and HTML
   reports from that. It was created for the paper "Counting Immutable Beans -

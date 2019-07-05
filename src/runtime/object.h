@@ -773,7 +773,7 @@ inline obj_res mk_nat_obj(mpz const & m) {
         return mk_nat_obj_core(m);
 }
 
-inline obj_res unsigned_to_nat(usize n) {
+inline obj_res usize_to_nat(usize n) {
     if (n <= LEAN_MAX_SMALL_NAT) {
         return box(n);
     } else {
@@ -782,7 +782,7 @@ inline obj_res unsigned_to_nat(usize n) {
 }
 
 inline obj_res mk_nat_obj(unsigned n) {
-    return unsigned_to_nat(static_cast<usize>(n));
+    return usize_to_nat(static_cast<usize>(n));
 }
 
 inline obj_res uint64_to_nat(uint64 n) {
@@ -1167,7 +1167,7 @@ inline size_t string_size(b_obj_arg o) { return to_string(o)->m_size; }
 inline size_t string_len(b_obj_arg o) { return to_string(o)->m_length; }
 obj_res string_push(obj_arg s, uint32 c);
 obj_res string_append(obj_arg s1, b_obj_arg s2);
-inline obj_res string_length(b_obj_arg s) { return unsigned_to_nat(string_len(s)); } // TODO(Leo): improve
+inline obj_res string_length(b_obj_arg s) { return usize_to_nat(string_len(s)); } // TODO(Leo): improve
 obj_res string_mk(obj_arg cs);
 obj_res string_data(obj_arg s);
 
@@ -1177,7 +1177,7 @@ obj_res string_utf8_prev(b_obj_arg s, b_obj_arg i);
 obj_res string_utf8_set(obj_arg s, b_obj_arg i, uint32 c);
 inline uint8 string_utf8_at_end(b_obj_arg s, b_obj_arg i) { return !is_scalar(i) || unbox(i) >= string_size(s) - 1; }
 obj_res string_utf8_extract(b_obj_arg s, b_obj_arg b, b_obj_arg e);
-inline obj_res string_utf8_byte_size(b_obj_arg s) { return unsigned_to_nat(string_size(s) - 1); }
+inline obj_res string_utf8_byte_size(b_obj_arg s) { return usize_to_nat(string_size(s) - 1); }
 
 inline bool string_eq(b_obj_arg s1, b_obj_arg s2) { return s1 == s2 || (string_size(s1) == string_size(s2) && std::memcmp(string_cstr(s1), string_cstr(s2), string_size(s1)) == 0); }
 bool string_eq(b_obj_arg s1, char const * s2);
@@ -1232,7 +1232,7 @@ inline obj_res byte_array_set(obj_arg a, b_obj_arg i, uint8 b) {
 // uint8
 uint8 uint8_of_big_nat(b_obj_arg a);
 inline uint8 uint8_of_nat(b_obj_arg a) { return is_scalar(a) ? static_cast<uint8>(unbox(a)) : uint8_of_big_nat(a); }
-inline obj_res uint8_to_nat(uint8 a) { return unsigned_to_nat(static_cast<usize>(a)); }
+inline obj_res uint8_to_nat(uint8 a) { return usize_to_nat(static_cast<usize>(a)); }
 inline uint8 uint8_add(uint8 a1, uint8 a2) { return a1+a2; }
 inline uint8 uint8_sub(uint8 a1, uint8 a2) { return a1-a2; }
 inline uint8 uint8_mul(uint8 a1, uint8 a2) { return a1*a2; }
@@ -1254,7 +1254,7 @@ inline uint8 uint8_dec_le(uint8 a1, uint8 a2) { return a1 <= a2; }
 // uint16
 uint16 uint16_of_big_nat(b_obj_arg a);
 inline uint16 uint16_of_nat(b_obj_arg a) { return is_scalar(a) ? static_cast<uint16>(unbox(a)) : uint16_of_big_nat(a); }
-inline obj_res uint16_to_nat(uint16 a) { return unsigned_to_nat(static_cast<usize>(a)); }
+inline obj_res uint16_to_nat(uint16 a) { return usize_to_nat(static_cast<usize>(a)); }
 inline uint16 uint16_add(uint16 a1, uint16 a2) { return a1+a2; }
 inline uint16 uint16_sub(uint16 a1, uint16 a2) { return a1-a2; }
 inline uint16 uint16_mul(uint16 a1, uint16 a2) { return a1*a2; }
@@ -1276,7 +1276,7 @@ inline uint8 uint16_dec_le(uint16 a1, uint16 a2) { return a1 <= a2; }
 // uint32
 uint32 uint32_of_big_nat(b_obj_arg a);
 inline uint32 uint32_of_nat(b_obj_arg a) { return is_scalar(a) ? static_cast<uint32>(unbox(a)) : uint32_of_big_nat(a); }
-inline obj_res uint32_to_nat(uint32 a) { return unsigned_to_nat(static_cast<usize>(a)); }
+inline obj_res uint32_to_nat(uint32 a) { return usize_to_nat(static_cast<usize>(a)); }
 inline uint32 uint32_add(uint32 a1, uint32 a2) { return a1+a2; }
 inline uint32 uint32_sub(uint32 a1, uint32 a2) { return a1-a2; }
 inline uint32 uint32_mul(uint32 a1, uint32 a2) { return a1*a2; }
@@ -1326,9 +1326,6 @@ inline uint8 uint64_dec_le(uint64 a1, uint64 a2) { return a1 <= a2; }
 // usize
 usize usize_of_big_nat(b_obj_arg a);
 inline usize usize_of_nat(b_obj_arg a) { return is_scalar(a) ? unbox(a) : usize_of_big_nat(a); }
-inline obj_res usize_to_nat(usize a) {
-    return unsigned_to_nat(a);
-}
 inline usize usize_add(usize a1, usize a2) { return a1+a2; }
 inline usize usize_sub(usize a1, usize a2) { return a1-a2; }
 inline usize usize_mul(usize a1, usize a2) { return a1*a2; }

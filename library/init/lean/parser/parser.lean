@@ -752,8 +752,9 @@ def mkAtomicInfo (k : String) : ParserInfo :=
 
 def numLitFn {k : ParserKind} : ParserFn k :=
 fun _ c s =>
-  let s := tokenFn c s;
-  if s.hasError || !(s.stxStack.back.isOfKind numLitKind) then s.mkError "expected numeral" else s
+  let iniPos := s.pos;
+  let s      := tokenFn c s;
+  if s.hasError || !(s.stxStack.back.isOfKind numLitKind) then s.mkErrorAt "expected numeral" iniPos else s
 
 @[inline] def numLit {k : ParserKind} : Parser k :=
 { fn   := numLitFn,
@@ -761,8 +762,9 @@ fun _ c s =>
 
 def strLitFn {k : ParserKind} : ParserFn k :=
 fun _ c s =>
-let s := tokenFn c s;
-if s.hasError || !(s.stxStack.back.isOfKind strLitKind) then s.mkError "expected string literal" else s
+  let iniPos := s.pos;
+  let s := tokenFn c s;
+  if s.hasError || !(s.stxStack.back.isOfKind strLitKind) then s.mkErrorAt "expected string literal" iniPos else s
 
 @[inline] def strLit {k : ParserKind} : Parser k :=
 { fn   := strLitFn,
@@ -770,11 +772,9 @@ if s.hasError || !(s.stxStack.back.isOfKind strLitKind) then s.mkError "expected
 
 def identFn {k : ParserKind} : ParserFn k :=
 fun _ c s =>
-let s := tokenFn c s;
-if s.hasError || !(s.stxStack.back.isIdent) then
-  s.mkError "expected identifier"
-else
-  s
+  let iniPos := s.pos;
+  let s      := tokenFn c s;
+  if s.hasError || !(s.stxStack.back.isIdent) then s.mkErrorAt "expected identifier" iniPos else s
 
 @[inline] def ident {k : ParserKind} : Parser k :=
 { fn   := identFn,

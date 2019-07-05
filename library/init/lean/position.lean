@@ -26,6 +26,9 @@ protected def lt : Position → Position → Bool
 instance : HasFormat Position :=
 ⟨fun ⟨l, c⟩ => "⟨" ++ fmt l ++ ", " ++ fmt c ++ "⟩"⟩
 
+instance : HasToString Position :=
+⟨fun ⟨l, c⟩ => "⟨" ++ toString l ++ ", " ++ toString c ++ "⟩"⟩
+
 instance : Inhabited Position := ⟨⟨1, 0⟩⟩
 end Position
 

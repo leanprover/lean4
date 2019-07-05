@@ -110,9 +110,9 @@ match s with
 @[specialize] partial def mreplace {m : Type → Type} [Monad m] (fn : Syntax → m (Option Syntax)) : Syntax → m Syntax
 | stx@(node kind args scopes) := do
   o ← fn stx;
-  (match o with
+  match o with
   | some stx => pure stx
-  | none     => do args ← args.mmap mreplace; pure (node kind args scopes))
+  | none     => do args ← args.mmap mreplace; pure (node kind args scopes)
 | stx := do o ← fn stx; pure (o.getOrElse stx)
 
 @[inline] def replace {m : Type → Type} [Monad m] (fn : Syntax → m (Option Syntax)) := @mreplace Id _

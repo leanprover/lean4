@@ -11,6 +11,7 @@ IO.println stx
 
 def main (xs : List String) : IO Unit :=
 do
+testParser "Prod.mk";
 testParser "x.{u, v+1}";
 testParser "x.{u}";
 testParser "x";
@@ -28,4 +29,10 @@ testParser "if h : x then f x h else g x h";
 testParser "have p x y from f x; g this";
 testParser "suffices h : p x y from f x; g this";
 testParser "show p x y from f x";
+testParser "fun x y => f y x";
+testParser "fun (x y : Nat) => f y x";
+testParser "fun (x, y) => f y x";
+testParser "fun z (x, y) => f y x";
+testParser "fun ⟨x, y⟩ ⟨z, w⟩ => f y x w z";
+testParser "fun (Prod.mk x y) => f y x";
 pure ()

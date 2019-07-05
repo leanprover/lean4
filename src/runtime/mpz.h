@@ -58,7 +58,12 @@ public:
     bool is_unsigned_int() const { return mpz_fits_uint_p(m_val) != 0; }
     bool is_long_int() const { return mpz_fits_slong_p(m_val) != 0; }
     bool is_unsigned_long_int() const { return mpz_fits_ulong_p(m_val) != 0; }
-    bool is_size_t() const { return is_nonneg() && mpz_size(m_val) * sizeof(mp_limb_t) <= sizeof(size_t); }
+    bool is_size_t() const {
+        // GMP only features `fits` functions up to `unsigned long`, which is smaller than `size_t` on Windows.
+        // So we directly count the number of mpz words instead.
+        static_assert(sizeof(size_t) == sizeof(mp_limb_t), "GMP word size should be equal to system word size");
+        return is_nonneg() && mpz_size(m_val) <= 1;
+    }
 
     long int get_long_int() const { lean_assert(is_long_int()); return mpz_get_si(m_val); }
     int get_int() const { lean_assert(is_int()); return static_cast<int>(get_long_int()); }

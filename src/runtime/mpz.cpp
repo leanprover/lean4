@@ -31,7 +31,10 @@ mpz::mpz(int64 v) {
 }
 
 size_t mpz::get_size_t() const {
-    static_assert(sizeof(size_t) <= sizeof(mp_limb_t), "GMP word size should be not greater than system word size");
+    // GMP only features accessors up to `unsigned long`, which is smaller than `size_t` on Windows.
+    // So we directly access the lowest mpz word instead.
+    static_assert(sizeof(size_t) == sizeof(mp_limb_t), "GMP word size should be equal system word size");
+    // NOTE: mpz_getlimbn returns 0 if the index is out of range (i.e. `m_val == 0`)
     return static_cast<size_t>(mpz_getlimbn(m_val, 0));
 }
 

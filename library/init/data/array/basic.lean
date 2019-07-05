@@ -186,6 +186,24 @@ miterate₂ a₁ a₂ b (fun _ a₁ a₂ b => f b a₁ a₂)
 @[inline] def mfind (a : Array α) (f : α → m (Option β)) : m (Option β) :=
 mfindAux a f 0
 
+@[specialize] partial def mfindRevAux (a : Array α) (f : α → m (Option β)) : ∀ (idx : Nat), idx ≤ a.size → m (Option β)
+| i h :=
+  if hLt : 0 < i then
+    have i - 1 < i from Nat.subLt hLt (Nat.zeroLtSucc 0);
+    have i - 1 < a.size from Nat.ltOfLtOfLe this h;
+    let idx : Fin a.size := ⟨i - 1, this⟩;
+    do
+      r ← f (a.fget idx);
+      match r with
+      | some v => pure r
+      | none   =>
+        have i - 1 ≤ a.size from Nat.leOfLt this;
+        mfindRevAux (i-1) this
+  else pure none
+
+@[inline] def mfindRev (a : Array α) (f : α → m (Option β)) : m (Option β) :=
+mfindRevAux a f a.size (Nat.leRefl _)
+
 end
 
 @[inline] def iterate (a : Array α) (b : β) (f : ∀ i : Fin a.size, α → β → β) : β :=
@@ -208,6 +226,9 @@ iterate₂ a₁ a₂ b (fun _ a₁ a₂ b => f b a₁ a₂)
 
 @[inline] def find (a : Array α) (f : α → Option β) : Option β :=
 Id.run $ mfindAux a f 0
+
+@[inline] def findRev (a : Array α) (f : α → Option β) : Option β :=
+Id.run $ mfindRevAux a f a.size (Nat.leRefl _)
 
 section
 variables {m : Type → Type v} [Monad m]

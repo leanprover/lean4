@@ -635,6 +635,7 @@ partial def identFnAux (startPos : Nat) (tk : Option TokenConfig) : Name → Bas
       else
         let r := Name.mkString r (input.extract startPart stopPart);
         if isIdCont input s then
+          let s := s.next input s.pos;
           identFnAux r c s
         else
           mkIdResult startPos tk r c s
@@ -644,6 +645,7 @@ partial def identFnAux (startPos : Nat) (tk : Option TokenConfig) : Name → Bas
       let stopPart  := s.pos;
       let r := Name.mkString r (input.extract startPart stopPart);
       if isIdCont input s then
+        let s := s.next input s.pos;
         identFnAux r c s
       else
         mkIdResult startPart tk r c s

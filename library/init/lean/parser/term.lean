@@ -32,15 +32,21 @@ namespace Term
 @[builtinTermParser] def paren := parser! symbol "(" maxPrec >> optional (termParser >> parenSpecial) >> ")"
 @[builtinTermParser] def anonymousCtor := parser! symbol "⟨" maxPrec >> sepBy1 termParser ", " >> symbol "⟩"
 @[inline] def optIdent : Parser := optional (try (ident >> " : "))
-@[builtinTermParser] def ifTerm    := parser! "if " >> optIdent >> termParser >> " then " >> termParser >> " else " >> termParser
+@[builtinTermParser] def «if»  := parser! "if " >> optIdent >> termParser >> " then " >> termParser >> " else " >> termParser
 def fromTerm   := parser! " from " >> termParser
 def haveAssign := parser! " := " >> termParser
-@[builtinTermParser] def haveTerm     := parser! "have " >> optIdent >> termParser >> (haveAssign <|> fromTerm) >> "; " >> termParser
-@[builtinTermParser] def sufficesTerm := parser! "suffices " >> optIdent >> termParser >> fromTerm >> "; " >> termParser
-@[builtinTermParser] def showTerm     := parser! "show " >> termParser >> fromTerm
-@[builtinTermParser] def funTerm      := parser! unicodeSymbol "λ" "fun" >> many1 (termParser maxPrec) >> unicodeSymbol "⇒" "=>" >> termParser
+@[builtinTermParser] def «have» := parser! "have " >> optIdent >> termParser >> (haveAssign <|> fromTerm) >> "; " >> termParser
+@[builtinTermParser] def «suffices» := parser! "suffices " >> optIdent >> termParser >> fromTerm >> "; " >> termParser
+@[builtinTermParser] def «show»     := parser! "show " >> termParser >> fromTerm
+@[builtinTermParser] def «fun»      := parser! unicodeSymbol "λ" "fun" >> many1 (termParser maxPrec) >> unicodeSymbol "⇒" "=>" >> termParser
+def structInstField  := parser! ident >> " := " >> termParser
+def structInstSource := parser! ".." -- >> optional termParser
+@[builtinTermParser] def structInst := parser! symbol "{" maxPrec >> optional (try (ident >> " . ")) >> sepBy (structInstField <|> structInstSource) ", " true >> "}"
+def typeSpec := parser! " : " >> termParser
+def optType : Parser := optional typeSpec
+@[builtinTermParser] def subtype := parser! "{" >> ident >> optType >> " // " >> termParser >> "}"
 
-@[builtinTermParser] def appTerm := tparser! pushLeading >> termParser maxPrec
+@[builtinTermParser] def app := tparser! pushLeading >> termParser maxPrec
 
 end Term
 

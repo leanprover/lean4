@@ -9,13 +9,9 @@
       #  properties: ['cache-misses', 'wall-clock']
   run_config:
     <<: *time
-    cwd: ../../build/release/
+    cwd: ../../library
     cmd: |
-      bash -c "
-      set -euo pipefail &&
-      cmake . -DLEAN_EXTRA_MAKE_OPTS='-Dprofiler=true -Dprofiler.threshold=9999' >&2 &&
-      cmake --build . --target clean-olean >&2 &&
-      cmake --build . --target stdlib 2>&1 | ../../tests/bench/accumulate_profile.py"
+      bash -c "find . -name '*.lean' -exec ../bin/lean -Dprofiler=true -Dprofiler.threshold=9999 {} \; 2>&1 | ../tests/bench/accumulate_profile.py"
     max_runs: 3
     parse_output: true
 - attributes:

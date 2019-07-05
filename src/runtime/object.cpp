@@ -1702,7 +1702,7 @@ extern "C" object * lean_closure_max_args(object *) {
 }
 
 extern "C" object * lean_max_small_nat(object *) {
-    return unsigned_to_nat(LEAN_MAX_SMALL_NAT);
+    return usize_to_nat(LEAN_MAX_SMALL_NAT);
 }
 
 // =======================================

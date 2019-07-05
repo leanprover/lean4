@@ -11,7 +11,7 @@
     <<: *time
     cwd: ../../library
     cmd: |
-      bash -c "find . -name '*.lean' -exec ../bin/lean -Dprofiler=true -Dprofiler.threshold=9999 {} \; 2>&1 | ../tests/bench/accumulate_profile.py"
+      bash -c "find . -name '*.lean' -exec ../bin/lean --stats -Dprofiler=true -Dprofiler.threshold=9999 {} \; 2>&1 | ../tests/bench/accumulate_profile.py"
     max_runs: 3
     parse_output: true
 - attributes:

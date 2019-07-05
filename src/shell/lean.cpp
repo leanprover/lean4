@@ -312,7 +312,9 @@ int main(int argc, char ** argv) {
             console.log(e);
         });
 #endif
+    auto init_start = std::chrono::steady_clock::now();
     ::initializer init;
+    second_duration init_time = std::chrono::steady_clock::now() - init_start;
     bool make_mode = false;
     bool use_stdin = false;
     unsigned trust_lvl = LEAN_BELIEVER_TRUST_LEVEL + 1;
@@ -436,6 +438,10 @@ int main(int argc, char ** argv) {
                                          opts.get_bool("server") ? LEAN_SERVER_DEFAULT_MAX_HEARTBEAT
                                                                  : LEAN_DEFAULT_MAX_HEARTBEAT)) {
         set_max_heartbeat_thousands(timeout);
+    }
+
+    if (get_profiler(opts)) {
+        report_profiling_time("initialization", init_time);
     }
 
     environment env(trust_lvl);

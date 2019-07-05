@@ -795,7 +795,9 @@ match s with
 
 def mergeErrors (s : ParserState) (oldStackSize : Nat) (oldError : String) : ParserState :=
 match s with
-| ⟨stack, pos, cache, some err⟩ => ⟨stack.shrink oldStackSize, pos, cache, some (err ++ "; " ++ oldError)⟩
+| ⟨stack, pos, cache, some err⟩ =>
+  if oldError == err then s
+  else ⟨stack.shrink oldStackSize, pos, cache, some (err ++ "; " ++ oldError)⟩
 | other                         => other
 
 def mkLongestNodeAlt (s : ParserState) (startSize : Nat) : ParserState :=

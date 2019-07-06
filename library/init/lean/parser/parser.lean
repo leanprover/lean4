@@ -728,10 +728,13 @@ def symbolInfo (sym : String) (lbp : Option Nat) : ParserInfo :=
 @[inline] def symbolFn {k : ParserKind} (sym : String) : ParserFn k :=
 fun _ => symbolFnAux sym ("expected '" ++ sym ++ "'")
 
-@[inline] def symbol {k : ParserKind} (sym : String) (lbp : Option Nat := none) : Parser k :=
+@[inline] def symbolAux {k : ParserKind} (sym : String) (lbp : Option Nat := none) : Parser k :=
 let sym := sym.trim;
 { info := symbolInfo sym lbp,
   fn   := symbolFn sym }
+
+@[inline] def symbol {k : ParserKind} (sym : String) (lbp : Nat) : Parser k :=
+symbolAux sym lbp
 
 partial def strAux (sym : String) (errorMsg : String) : Nat → BasicParserFn
 | j c s :=
@@ -757,10 +760,13 @@ fun leading c s =>
 symbolNoWsFnAux sym ("expected '" ++ sym ++ "' without whitespaces arount it")
 
 /- Similar to `symbol`, but succeeds only if there is no space whitespace after leading term and after `sym`. -/
-@[inline] def symbolNoWs (sym : String) (lbp : Option Nat := none) : TrailingParser :=
+@[inline] def symbolNoWsAux (sym : String) (lbp : Option Nat) : TrailingParser :=
 let sym := sym.trim;
 { info := symbolInfo sym lbp,
   fn   := symbolNoWsFn sym }
+
+@[inline] def symbolNoWs (sym : String) (lbp : Nat) : TrailingParser :=
+symbolNoWsAux sym lbp
 
 def unicodeSymbolFnAux (sym asciiSym : String) (errorMsg : String) : BasicParserFn :=
 satisfySymbolFn (fun s => s == sym || s == asciiSym) errorMsg
@@ -824,7 +830,7 @@ fun c s =>
   info := mkAtomicInfo "fieldIdx" }
 
 instance string2basic {k : ParserKind} : HasCoe String (Parser k) :=
-⟨symbol⟩
+⟨symbolAux⟩
 
 namespace ParserState
 
@@ -953,7 +959,8 @@ match stx with
   | (_, some tk) => (s, tk.lbp.getOrElse 0)
   | _            => (s, 0)
 | some (Syntax.ident _ _ _ _ _) => (s, maxPrec)
-| some (Syntax.node k _ _)      => if k == numLitKind || k == strLitKind then (s, maxPrec) else (s, 0)
+-- TODO(Leo): add support for associating lbp with syntax node kinds.
+| some (Syntax.node k _ _)      => if k == numLitKind || k == strLitKind || k == fieldIdxKind then (s, maxPrec) else (s, 0)
 | _                             => (s, 0)
 
 def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState) : ParserState × List α :=
@@ -990,7 +997,7 @@ partial def trailingLoop (kind : String) (tables : ParsingTables) (rbp : Nat) (c
     let iniSz   := s.stackSize;
     let (s, ps) := indexed tables.trailingTable c s;
     if ps.isEmpty && tables.trailingParsers.isEmpty then
-      s.pushSyntax left -- no available trail
+      s.pushSyntax left -- no available trailing parser
     else
       let s := orelseFn (longestMatchFn ps) (anyOfFn tables.trailingParsers) left c s;
       if s.hasError then s

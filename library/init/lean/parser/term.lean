@@ -31,7 +31,7 @@ namespace Term
 @[builtinTermParser] def cdot := parser! symbol "·" maxPrec
 @[inline] def parenSpecial : Parser := optional (", " >> sepBy termParser ", " <|> " : " >> termParser)
 @[builtinTermParser] def paren := parser! symbol "(" maxPrec >> optional (termParser >> parenSpecial) >> ")"
-@[builtinTermParser] def anonymousCtor := parser! symbol "⟨" maxPrec >> sepBy1 termParser ", " >> symbol "⟩"
+@[builtinTermParser] def anonymousCtor := parser! symbol "⟨" maxPrec >> sepBy1 termParser ", " >> "⟩"
 @[inline] def optIdent : Parser := optional (try (ident >> " : "))
 @[builtinTermParser] def «if»  := parser! "if " >> optIdent >> termParser >> " then " >> termParser >> " else " >> termParser
 def fromTerm   := parser! " from " >> termParser
@@ -49,7 +49,7 @@ def optType : Parser := optional typeSpec
 @[builtinTermParser] def list := parser! symbol "[" maxPrec >> sepBy termParser "," true >> "]"
 
 @[builtinTermParser] def app  := tparser! pushLeading >> termParser maxPrec
-@[builtinTermParser] def proj := tparser! pushLeading >> symbolNoWs "." (some (maxPrec+1)) >> (fieldIdx <|> ident)
+@[builtinTermParser] def proj := tparser! pushLeading >> symbolNoWs "." (maxPrec+1) >> (fieldIdx <|> ident)
 
 end Term
 

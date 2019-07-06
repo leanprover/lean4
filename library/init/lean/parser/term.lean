@@ -19,7 +19,23 @@ registerBuiltinParserAttribute `builtinTermParser `Lean.Parser.builtinTermParsin
 def termParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
 { fn := fun _ => runBuiltinParser "term" builtinTermParsingTable rbp }
 
+
 namespace Term
+/- Helper functions for defining simple parsers -/
+
+def unicodeInfixR (sym : String) (asciiSym : String) (lbp : Nat) : TrailingParser :=
+pushLeading >> unicodeSymbol sym asciiSym lbp >> termParser (lbp - 1)
+
+def infixR (sym : String) (lbp : Nat) : TrailingParser :=
+pushLeading >> symbol sym lbp >> termParser (lbp - 1)
+
+def unicodeInfixL (sym : String) (asciiSym : String) (lbp : Nat) : TrailingParser :=
+pushLeading >> unicodeSymbol sym asciiSym lbp >> termParser lbp
+
+def infixL (sym : String) (lbp : Nat) : TrailingParser :=
+pushLeading >> symbol sym lbp >> termParser lbp
+
+/- Builting parsers -/
 
 @[builtinTermParser] def id := parser! ident >> optional (".{" >> sepBy1 levelParser ", " >> "}")
 @[builtinTermParser] def num : Parser := numLit
@@ -41,15 +57,36 @@ def haveAssign := parser! " := " >> termParser
 @[builtinTermParser] def «show»     := parser! "show " >> termParser >> fromTerm
 @[builtinTermParser] def «fun»      := parser! unicodeSymbol "λ" "fun" >> many1 (termParser maxPrec) >> unicodeSymbol "⇒" "=>" >> termParser
 def structInstField  := parser! ident >> " := " >> termParser
-def structInstSource := parser! ".." -- >> optional termParser
+def structInstSource := parser! ".." >> optional termParser
 @[builtinTermParser] def structInst := parser! symbol "{" maxPrec >> optional (try (ident >> " . ")) >> sepBy (structInstField <|> structInstSource) ", " true >> "}"
 def typeSpec := parser! " : " >> termParser
 def optType : Parser := optional typeSpec
 @[builtinTermParser] def subtype := parser! "{" >> ident >> optType >> " // " >> termParser >> "}"
 @[builtinTermParser] def list := parser! symbol "[" maxPrec >> sepBy termParser "," true >> "]"
 
-@[builtinTermParser] def app  := tparser! pushLeading >> termParser maxPrec
-@[builtinTermParser] def proj := tparser! pushLeading >> symbolNoWs "." (maxPrec+1) >> (fieldIdx <|> ident)
+@[builtinTermParser] def app   := tparser! pushLeading >> termParser maxPrec
+@[builtinTermParser] def proj  := tparser! pushLeading >> symbolNoWs "." (maxPrec+1) >> (fieldIdx <|> ident)
+@[builtinTermParser] def arrow := tparser! unicodeInfixR "→" "->" 25
+
+@[builtinTermParser] def fcomp := tparser! infixR " ∘ " 90
+
+@[builtinTermParser] def add   := tparser! infixL " + "  65
+@[builtinTermParser] def sub   := tparser! infixL " - "  65
+@[builtinTermParser] def mul   := tparser! infixL " * "  70
+@[builtinTermParser] def div   := tparser! infixL " / "  70
+@[builtinTermParser] def mod   := tparser! infixL " % "  70
+@[builtinTermParser] def modN  := tparser! infixL " %ₙ " 70
+
+@[builtinTermParser] def le    := tparser! unicodeInfixL " ≤ " " <= " 50
+@[builtinTermParser] def ge    := tparser! unicodeInfixL " ≥ " " >= " 50
+@[builtinTermParser] def lt    := tparser! infixL " < " 50
+@[builtinTermParser] def gt    := tparser! infixL " > " 50
+@[builtinTermParser] def eq    := tparser! infixL " = " 50
+@[builtinTermParser] def beq   := tparser! infixL " == " 50
+
+@[builtinTermParser] def and   := tparser! unicodeInfixR " ∧ " " /\\ " 35
+@[builtinTermParser] def or    := tparser! unicodeInfixR " ∨ " " \\/ " 30
+@[builtinTermParser] def iff   := tparser! unicodeInfixL " ↔ " " <-> " 20
 
 end Term
 

@@ -660,14 +660,13 @@ pair<expr, names> parser::elaborate_type(name const & decl_name, metavar_context
 }
 
 void parser::throw_invalid_open_binder(pos_info const & pos) {
-    maybe_throw_error({"invalid binder, '(', '{', '[', '{{', '⦃' or identifier expected", pos});
+    maybe_throw_error({"invalid binder, '(', '{', '[', or identifier expected", pos});
 }
 
 /**
    \brief Return an optional binder_info object based on the current token
       - '('          : default
       - '{'          : implicit
-      - '{{' or '⦃'  : strict implicit
       - '['          : inst_implicit (i.e., implicit argument that should be
                        synthesized using type class resolution)
 
@@ -681,18 +680,10 @@ optional<binder_info> parser::parse_optional_binder_info(bool simple_only) {
         return optional<binder_info>();
     } else if (curr_is_token(get_lcurly_tk())) {
         next();
-        if (curr_is_token(get_lcurly_tk())) {
-            next();
-            return some(mk_strict_implicit_binder_info());
-        } else {
-            return some(mk_implicit_binder_info());
-        }
+        return some(mk_implicit_binder_info());
     } else if (curr_is_token(get_lbracket_tk())) {
         next();
         return some(mk_inst_implicit_binder_info());
-    } else if (curr_is_token(get_ldcurly_tk())) {
-        next();
-        return some(mk_strict_implicit_binder_info());
     } else {
         return optional<binder_info>();
     }
@@ -700,7 +691,7 @@ optional<binder_info> parser::parse_optional_binder_info(bool simple_only) {
 
 /**
    \brief Return binder_info object based on the current token, it fails if the current token
-   is not '(', '{', '{{', '⦃', or '['
+   is not '(', '{', or '['
 
    \see parse_optional_binder_info
 */
@@ -719,7 +710,6 @@ binder_info parser::parse_binder_info(bool simple_only) {
      - none            : do not consume anything
      - default         : consume ')'
      - implicit        : consume '}'
-     - strict implicit : consume '}}' or '⦄'
      - inst implicit   : consume ']'
 */
 void parser::parse_close_binder_info(optional<binder_info> const & bi) {
@@ -729,13 +719,6 @@ void parser::parse_close_binder_info(optional<binder_info> const & bi) {
         check_token_next(get_rcurly_tk(), "invalid declaration, '}' expected");
     } else if (is_inst_implicit(*bi)) {
         check_token_next(get_rbracket_tk(), "invalid declaration, ']' expected");
-    } else if (is_strict_implicit(*bi)) {
-        if (curr_is_token(get_rcurly_tk())) {
-            next();
-            check_token_next(get_rcurly_tk(), "invalid declaration, '}' expected");
-        } else {
-            check_token_next(get_rdcurly_tk(), "invalid declaration, '⦄' expected");
-        }
     } else {
         check_token_next(get_rparen_tk(), "invalid declaration, ')' expected");
     }
@@ -908,7 +891,7 @@ void parser::parse_binders_core(buffer<expr> & r, parse_binders_config & cfg) {
     while (true) {
         if (curr_is_identifier() || curr_is_token(get_placeholder_tk())) {
             if (cfg.m_explicit_delimiters) {
-                throw parser_error("invalid binder declaration, delimiter/bracket expected (i.e., '(', '{', '[', '{{')",
+                throw parser_error("invalid binder declaration, delimiter/bracket expected (i.e., '(', '{', '[')",
                                    pos());
             }
             /* We only allow the default parameter value syntax for declarations with

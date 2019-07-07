@@ -12,7 +12,7 @@ namespace Nat
 
 inductive lessThanOrEqual (a : ℕ) : ℕ → Prop
 | refl : lessThanOrEqual a
-| step : Π {b}, lessThanOrEqual b → lessThanOrEqual (succ b)
+| step : ∀ {b}, lessThanOrEqual b → lessThanOrEqual (succ b)
 
 @[elabAsEliminator]
 theorem lessThanOrEqual.ndrec  {a : Nat} {C : Nat → Prop} (m₁ : C a) (m₂ : ∀ (b : Nat), lessThanOrEqual a b → C b → C (succ b)) {b : ℕ} (h : lessThanOrEqual a b) : C b :=
@@ -52,7 +52,7 @@ instance : HasSub ℕ :=
 instance : HasMul ℕ :=
 ⟨Nat.mul⟩
 
-def hasDecEq : Π a b : Nat, Decidable (a = b)
+def hasDecEq : ∀ (a b : Nat), Decidable (a = b)
 | zero     zero     := isTrue rfl
 | (succ x) zero     := isFalse (fun h => Nat.noConfusion h)
 | zero     (succ y) := isFalse (fun h => Nat.noConfusion h)

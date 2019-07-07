@@ -61,8 +61,8 @@ def bla' (i : Nat) (h : i > 0 ∧ i ≠ 10) : Nat :=
 
 inductive vec (α : Type u) : Nat → Type u
 | nil {}  : vec 0
-| cons    : Π {n}, α → vec n → vec (Nat.succ n)
+| cons    : ∀ {n}, α → vec n → vec (Nat.succ n)
 
-def vec.map {α β σ : Type u} (f : α → β → σ) : Π {n : Nat}, vec α n → vec β n → vec σ n
+def vec.map {α β σ : Type u} (f : α → β → σ) : ∀ {n : Nat}, vec α n → vec β n → vec σ n
 | _ vec.nil vec.nil                 := vec.nil
 | _ (vec.cons a as) (vec.cons b bs) := vec.cons (f a b) (vec.map as bs)

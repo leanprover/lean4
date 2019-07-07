@@ -77,7 +77,7 @@ void for_each(token_table const & s, std::function<void(char const *, token_info
 
 void init_token_table(token_table & t) {
     pair<char const *, unsigned> builtin[] =
-        {{"fun", 0}, {"Pi", 0}, {"let", 0}, {"in", 0}, {"at", 0},
+        {{"fun", 0}, {"forall", 0}, {"let", 0}, {"in", 0}, {"at", 0},
          {"have", 0}, {"assume", 0}, {"show", 0}, {"suffices", 0},
          {"do", 0}, {"if", 0}, {"then", 0}, {"else", 0}, {"by", 0},
          {"hiding", 0}, {"replacing", 0}, {"renaming", 0},
@@ -111,8 +111,7 @@ void init_token_table(token_table & t) {
          "#compile", "#unify", "#compact_tst", nullptr};
 
     pair<char const *, char const *> aliases[] =
-        {{"λ", "fun"}, {"forall", "Pi"},
-         {"∀", "Pi"}, {"Π", "Pi"}, {"(|", "⟨"}, {"|)", "⟩"}, {nullptr, nullptr}};
+        {{"λ", "fun"}, {"∀", "forall"}, {"(|", "⟨"}, {"|)", "⟩"}, {nullptr, nullptr}};
 
     pair<char const *, char const *> cmd_aliases[] =
         {{nullptr, nullptr}};

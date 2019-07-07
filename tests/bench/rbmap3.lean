@@ -34,19 +34,19 @@ protected def max : Rbnode α β → Option (Sigma (fun k => β k))
 | (Node _ _ k v leaf)   := some ⟨k, v⟩
 | (Node _ _ k v r)      := max r
 
-@[specialize] def fold (f : Π (k : α), β k → σ → σ) : Rbnode α β → σ → σ
+@[specialize] def fold (f : ∀ (k : α), β k → σ → σ) : Rbnode α β → σ → σ
 | leaf b               := b
 | (Node _ l k v r)   b := fold r (f k v (fold l b))
 
-@[specialize] def revFold (f : Π (k : α), β k → σ → σ) : Rbnode α β → σ → σ
+@[specialize] def revFold (f : ∀ (k : α), β k → σ → σ) : Rbnode α β → σ → σ
 | leaf b               := b
 | (Node _ l k v r)   b := revFold l (f k v (revFold r b))
 
-@[specialize] def all (p : Π k : α, β k → Bool) : Rbnode α β → Bool
+@[specialize] def all (p : ∀ k : α, β k → Bool) : Rbnode α β → Bool
 | leaf                 := true
 | (Node _ l k v r)     := p k v && all l && all r
 
-@[specialize] def any (p : Π k : α, β k → Bool) : Rbnode α β → Bool
+@[specialize] def any (p : ∀ k : α, β k → Bool) : Rbnode α β → Bool
 | leaf               := false
 | (Node _ l k v r)   := p k v || any l || any r
 
@@ -54,7 +54,7 @@ def isRed : Rbnode α β → Bool
 | (Node red _ _ _ _) := true
 | _                  := false
 
-def rotateLeft : Π (n : Rbnode α β), n ≠ leaf → Rbnode α β
+def rotateLeft : ∀ (n : Rbnode α β), n ≠ leaf → Rbnode α β
 | n@(Node hc hl hk hv (Node red xl xk xv xr)) _ :=
   if !isRed hl
   then (Node hc (Node red hl hk hv xl) xk xv xr)
@@ -74,7 +74,7 @@ theorem rotateLeftNeLeaf : ∀ (n : Rbnode α β) (h : n ≠ leaf), rotateLeft n
 | leaf h _                                := absurd rfl h
 | (Node _ _ _ _ (Node black _ _ _ _)) _ h := Rbnode.noConfusion h
 
-def rotateRight : Π (n : Rbnode α β), n ≠ leaf → Rbnode α β
+def rotateRight : ∀ (n : Rbnode α β), n ≠ leaf → Rbnode α β
 | n@(Node hc (Node red xl xk xv xr) hk hv hr) _ :=
   if isRed xl
   then (Node hc xl xk xv (Node red xr hk hv hr))
@@ -95,7 +95,7 @@ def flipColor : Rbnode α β → Rbnode α β
 | (Node c l k v r) := Node (flip c) l k v r
 | leaf             := leaf
 
-def flipColors : Π (n : Rbnode α β), n ≠ leaf → Rbnode α β
+def flipColors : ∀ (n : Rbnode α β), n ≠ leaf → Rbnode α β
 | n@(Node c l k v r) _ :=
   if isRed l ∧ isRed r
   then Node (flip c) (flipColor l) k v (flipColor r)
@@ -133,7 +133,7 @@ variable (lt : α → α → Prop)
 
 variable [DecidableRel lt]
 
-def findCore : Rbnode α β → Π k : α, Option (Sigma (fun k => β k))
+def findCore : Rbnode α β → ∀ k : α, Option (Sigma (fun k => β k))
 | leaf                 x := none
 | (Node _ a ky vy b) x :=
   (match cmpUsing lt x ky with

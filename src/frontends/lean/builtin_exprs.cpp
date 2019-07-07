@@ -823,7 +823,7 @@ parse_table init_nud_table() {
     // r = r.add({transition("(:", Expr), transition(":)", mk_ext_action(parse_pattern))}, x0);
     r = r.add({transition("()", mk_ext_action(parse_unit))}, x0);
     r = r.add({transition("fun", mk_ext_action(parse_lambda))}, x0);
-    r = r.add({transition("Pi", Binders), transition(",", mk_scoped_expr_action(x0, 0, false))}, x0);
+    r = r.add({transition("forall", Binders), transition(",", mk_scoped_expr_action(x0, 0, false))}, x0);
     r = r.add({transition("Type", mk_ext_action(parse_Type))}, x0);
     r = r.add({transition("Type*", mk_ext_action(parse_Type_star))}, x0);
     r = r.add({transition("Sort", mk_ext_action(parse_Sort))}, x0);

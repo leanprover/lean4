@@ -23,20 +23,23 @@ namespace Parser
 def maxPrec : Nat := 1024
 
 structure TokenConfig :=
-(val : String)
-(lbp : Option Nat := none)
+(val     : String)
+(lbp     : Option Nat := none)
+(lbpNoWs : Option Nat := none) -- optional left-binding power when there is not whitespace before the token.
 
 namespace TokenConfig
 
 def beq : TokenConfig → TokenConfig → Bool
-| ⟨val₁, lbp₁⟩ ⟨val₂, lbp₂⟩ := val₁ == val₂ && lbp₁ == lbp₂
+| ⟨val₁, lbp₁, lbpnws₁⟩ ⟨val₂, lbp₂, lbpnws₂⟩ := val₁ == val₂ && lbp₁ == lbp₂ && lbpnws₁ == lbpnws₂
 
 instance : HasBeq TokenConfig :=
 ⟨beq⟩
 
 def toStr : TokenConfig → String
-| ⟨val, some lbp⟩ := val ++ ":" ++ toString lbp
-| ⟨val, none⟩     := val
+| ⟨val, some lbp, some lbpnws⟩ := val ++ ":" ++ toString lbp ++ ":" ++ toString lbpnws
+| ⟨val, some lbp, none⟩        := val ++ ":" ++ toString lbp
+| ⟨val, none, some lbpnws⟩     := val ++ ":none:" ++ toString lbpnws
+| ⟨val, none, none⟩            := val
 
 instance : HasToString TokenConfig := ⟨toStr⟩
 
@@ -718,7 +721,7 @@ else match tks.find sym, lbp with
 | some _,     none        => pure tks
 | some tk,    some newLbp =>
   match tk.lbp with
-  | none        => pure (tks.insert sym { val := sym, lbp := lbp })
+  | none        => pure (tks.insert sym { lbp := lbp, .. tk })
   | some oldLbp => if newLbp == oldLbp then pure tks else throw ("precedence mismatch for '" ++ toString sym ++ "', previous: " ++ toString oldLbp ++ ", new: " ++ toString newLbp)
 
 def symbolInfo (sym : String) (lbp : Option Nat) : ParserInfo :=
@@ -745,16 +748,31 @@ partial def strAux (sym : String) (errorMsg : String) : Nat → BasicParserFn
     if input.atEnd i || sym.get j != input.get i then s.mkError errorMsg
     else strAux (sym.next j) c (s.next input i)
 
+def insertNoWsToken (sym : String) (lbpNoWs : Option Nat) (tks : Trie TokenConfig) : ExceptT String Id (Trie TokenConfig) :=
+if sym == "" then throw "invalid empty symbol"
+else match tks.find sym, lbpNoWs with
+| none,       _           => pure (tks.insert sym { val := sym, lbpNoWs := lbpNoWs })
+| some _,     none        => pure tks
+| some tk,    some newLbp =>
+  match tk.lbpNoWs with
+  | none        => pure (tks.insert sym { lbpNoWs := lbpNoWs, .. tk })
+  | some oldLbp => if newLbp == oldLbp then pure tks else throw ("(no whitespace) precedence mismatch for '" ++ toString sym ++ "', previous: " ++ toString oldLbp ++ ", new: " ++ toString newLbp)
+
+def symbolNoWsInfo (sym : String) (lbpNoWs : Option Nat) : ParserInfo :=
+{ updateTokens := insertNoWsToken sym lbpNoWs,
+  firstTokens  := FirstTokens.tokens [ { val := sym, lbpNoWs := lbpNoWs } ] }
+
+def checkTailNoWs (left : Syntax) : Bool :=
+match left.getTailInfo with
+| some info => info.trailing.stopPos == info.trailing.startPos
+| none      => false
+
 @[inline] def symbolNoWsFnAux (sym : String) (errorMsg : String) : ParserFn trailing :=
-fun leading c s =>
-  let stx : Syntax := leading;
-  match stx.getTailInfo with
-  | some info =>
-    if info.trailing.stopPos > info.trailing.startPos then
-      s.mkError errorMsg
-    else
-      strAux sym errorMsg 0 c s
-  | none => s.mkError errorMsg
+fun left c s =>
+  if checkTailNoWs left then
+    strAux sym errorMsg 0 c s
+  else
+    s.mkError errorMsg
 
 @[inline] def symbolNoWsFn (sym : String) : ParserFn trailing :=
 symbolNoWsFnAux sym ("expected '" ++ sym ++ "' without whitespaces arount it")
@@ -762,7 +780,7 @@ symbolNoWsFnAux sym ("expected '" ++ sym ++ "' without whitespaces arount it")
 /- Similar to `symbol`, but succeeds only if there is no space whitespace after leading term and after `sym`. -/
 @[inline] def symbolNoWsAux (sym : String) (lbp : Option Nat) : TrailingParser :=
 let sym := sym.trim;
-{ info := symbolInfo sym lbp,
+{ info := symbolNoWsInfo sym lbp,
   fn   := symbolNoWsFn sym }
 
 @[inline] def symbolNoWs (sym : String) (lbp : Nat) : TrailingParser :=
@@ -951,12 +969,16 @@ structure ParsingTables :=
 (trailingParsers : List TrailingParser := []) -- for supporting parsers such as function application
 (tokens          : Trie TokenConfig := {})
 
-def currLbp (c : ParserContext) (s : ParserState) : ParserState × Nat :=
+def currLbp (left : Syntax) (c : ParserContext) (s : ParserState) : ParserState × Nat :=
 let (s, stx) := peekToken c s;
 match stx with
 | some (Syntax.atom _ sym) =>
   match c.tokens.matchPrefix sym 0 with
-  | (_, some tk) => (s, tk.lbp.getOrElse 0)
+  | (_, some tk) => match tk.lbp, tk.lbpNoWs with
+    | some lbp, none         => (s, lbp)
+    | none, some lbpNoWs     => (s, lbpNoWs)
+    | some lbp, some lbpNoWs => if checkTailNoWs left then (s, lbpNoWs) else (s, lbp)
+    | none, none             => (s, 0)
   | _            => (s, 0)
 | some (Syntax.ident _ _ _ _ _) => (s, maxPrec)
 -- TODO(Leo): add support for associating lbp with syntax node kinds.
@@ -991,7 +1013,7 @@ fun a c s =>
 
 partial def trailingLoop (kind : String) (tables : ParsingTables) (rbp : Nat) (c : ParserContext) : Syntax → ParserState → ParserState
 | left s :=
-  let (s, lbp) := currLbp c s;
+  let (s, lbp) := currLbp left c s;
   if rbp ≥ lbp then s.pushSyntax left
   else
     let iniSz   := s.stackSize;

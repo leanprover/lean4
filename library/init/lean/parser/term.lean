@@ -67,6 +67,7 @@ def optType : Parser := optional typeSpec
 @[builtinTermParser] def app   := tparser! pushLeading >> termParser maxPrec
 @[builtinTermParser] def proj  := tparser! pushLeading >> symbolNoWs "." (maxPrec+1) >> (fieldIdx <|> ident)
 @[builtinTermParser] def arrow := tparser! unicodeInfixR "→" "->" 25
+@[builtinTermParser] def array := tparser! pushLeading >> symbolNoWs "[" (maxPrec+1) >> termParser >>"]"
 
 @[builtinTermParser] def fcomp := tparser! infixR " ∘ " 90
 

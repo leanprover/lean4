@@ -275,7 +275,7 @@ instance hashOrelse {k : ParserKind} : HasOrelse (Parser k) :=
   | other                       => other
 
 @[inline] def try {k : ParserKind} (p : Parser k) : Parser k :=
-{ info := noFirstTokenInfo p.info,
+{ info := p.info,
   fn   := tryFn p.fn }
 
 @[inline] def optionalFn {k : ParserKind} (p : ParserFn k) : ParserFn k :=

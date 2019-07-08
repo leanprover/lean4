@@ -66,8 +66,16 @@ def typeSpec := parser! " : " >> termParser
 def optType : Parser := optional typeSpec
 @[builtinTermParser] def subtype := parser! "{" >> ident >> optType >> " // " >> termParser >> "}"
 @[builtinTermParser] def list := parser! symbol "[" appPrec >> sepBy termParser "," true >> "]"
--- def binderIdent := ident <|> hole
-@[builtinTermParser] def depArrow := parser! "{" >> many1 ident >> " : " >> termParser >> "}" >> unicodeSymbolCheckPrec " → " " -> " 25 >> termParser
+def binderIdent : Parser  := ident <|> hole
+@[inline] def binderType (requireType := false) : Parser :=
+if requireType then " : " >> termParser else optional (" : " >> termParser)
+def binderDefault := parser! " := " >> termParser
+def binderTactic  := parser! " . " >> termParser
+def explicitBinder (requireType := false) := parser! "(" >> many1 binderIdent >> binderType requireType >> optional (binderDefault <|> binderTactic) >> ")"
+def implicitBinder (requireType := false) := parser! "{" >> many1 binderIdent >> binderType requireType >> "}"
+def instBinder                            := parser! "[" >> optIdent >> termParser >> "]"
+def bracktedBinder (requireType := false) := explicitBinder requireType <|> implicitBinder requireType <|> instBinder
+@[builtinTermParser] def depArrow := parser! bracktedBinder true >> unicodeSymbolCheckPrec " → " " -> " 25 >> termParser
 
 
 @[builtinTermParser] def app   := tparser! pushLeading >> termParser appPrec

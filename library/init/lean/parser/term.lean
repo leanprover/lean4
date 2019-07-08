@@ -77,6 +77,9 @@ def bracktedBinder (requireType := false) := explicitBinder requireType <|> impl
 @[builtinTermParser] def depArrow := parser! bracktedBinder true >> unicodeSymbolCheckPrec " → " " -> " 25 >> termParser
 def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser! unicodeSymbol "∀" "forall" >> many1 (simpleBinder <|> bracktedBinder) >> ", " >> termParser
+def equation := parser! " | " >> sepBy1 termParser ", " >> " => " >> termParser
+@[builtinTermParser] def «match» := parser! "match " >> sepBy1 termParser ", " >> optType >> " with " >> many1 equation
+@[builtinTermParser] def «nomatch» := parser! "nomatch " >> termParser
 
 def namedArgument  := tparser! try ("(" >> ident >> " := ") >> termParser >> ")"
 @[builtinTermParser] def app   := tparser! pushLeading >> (namedArgument <|> termParser appPrec)

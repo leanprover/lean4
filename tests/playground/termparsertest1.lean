@@ -74,7 +74,11 @@ test [
 "f (x : a) -> b",
 "f ((x : a) -> b)",
 "(f : (n : Nat) → Vector Nat n) -> Nat",
-"∀ x y (z : Nat), x > y -> x > y - z"
+"∀ x y (z : Nat), x > y -> x > y - z",
+"
+match x with
+| some x => true
+| none => false"
 ];
 testFailures [
 "f {x : a} -> b",

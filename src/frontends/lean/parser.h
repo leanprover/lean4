@@ -112,7 +112,6 @@ struct parser : public abstract_parser {
     expr parse_inst_implicit_decl();
     void parse_inst_implicit_decl(buffer<expr> & r);
     expr parse_binder_core(binder_info bi, unsigned rbp);
-    bool parse_binder_collection(buffer<pair<pos_info, name>> const & names, binder_info bi, buffer<expr> & r);
     void parse_binder_block(buffer<expr> & r, binder_info bi, unsigned rbp, bool allow_default);
     struct parse_binders_config {
         /* (input) If m_allow_empty is true, then parse_binders will succeed even if not binder is parsed. */

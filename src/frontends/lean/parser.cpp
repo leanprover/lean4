@@ -757,57 +757,6 @@ expr parser::parse_binder(unsigned rbp) {
     }
 }
 
-/* Lean allow binders of the form <tt>ID_1 ... ID_n 'op' S</tt>
-   Where 'op' is an infix operator, and s an expression (i.e., "collection").
-   This notation expands to:
-     (ID_1 ... ID_n : _) (H_1 : ID_1 'op' S) ... (H_n : ID_n 'op' S)
-
-   This method return true if the next token is an infix operator,
-   and populates r with the locals above.
-*/
-bool parser::parse_binder_collection(buffer<pair<pos_info, name>> const & names, binder_info bi, buffer<expr> & r) {
-    if (!curr_is_keyword())
-        return false;
-    name tk = get_token_info().value();
-    list<pair<notation::transition, parse_table>> trans_list = led().find(tk);
-    if (length(trans_list) != 1)
-        return false;
-    pair<notation::transition, parse_table> const & p = head(trans_list);
-    list<notation::accepting> const & acc_lst = p.second.is_accepting();
-    if (length(acc_lst) != 1)
-        return false; // no overloading
-    notation::accepting const & acc = head(acc_lst);
-    lean_assert(!acc.get_postponed());
-    expr pred     = acc.get_expr();
-    auto k        = p.first.get_action().kind();
-    if (k == notation::action_kind::Skip ||
-        k == notation::action_kind::Ext)
-        return false;
-    unsigned rbp  = p.first.get_action().rbp();
-    next(); // consume tk
-    expr S        = parse_expr(rbp);
-    unsigned old_sz = r.size();
-    /* Add (ID_1 ... ID_n : _) to r */
-    for (auto p : names) {
-        expr arg_type = save_pos(mk_expr_placeholder(), p.first);
-        expr local = save_pos(mk_local(p.second, arg_type, bi), p.first);
-        add_local(local);
-        r.push_back(local);
-    }
-    /* Add (H_1 : ID_1 'op' S) ... (H_n : ID_n 'op' S) */
-    unsigned i = old_sz;
-    for (auto p : names) {
-        expr ID      = r[i];
-        expr args[2] = {ID, S};
-        expr ID_op_S = instantiate_rev(pred, 2, args);
-        expr local = save_pos(mk_local("H", ID_op_S, bi), p.first);
-        add_local(local);
-        r.push_back(local);
-        i++;
-    }
-    return true;
-}
-
 /**
    \brief Parse <tt>ID ... ID ':' expr</tt>, where the expression
    represents the type of the identifiers.
@@ -840,8 +789,6 @@ void parser::parse_binder_block(buffer<expr> & r, binder_info bi, unsigned rbp, 
         next();
         expr val = parse_expr(rbp);
         type = mk_opt_param(copy_pos(val, mk_expr_placeholder()), val);
-    } else if (parse_binder_collection(names, bi, r)) {
-        return;
     }
     for (auto p : names) {
         expr arg_type = type ? *type : save_pos(mk_expr_placeholder(), p.first);

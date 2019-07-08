@@ -152,7 +152,7 @@ expr resolve_names(parser & p, expr const & e) {
 }
 
 
-decl_attributes to_decl_attributes(environment const & env, expr const & e, bool local) {
+decl_attributes to_decl_attributes(environment const & /* env */, expr const & e, bool local) {
     decl_attributes attributes(!local);
     buffer<expr> attrs;
     get_app_args(e, attrs);

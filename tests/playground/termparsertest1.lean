@@ -14,6 +14,19 @@ is.mfor $ fun input => do
   IO.println input;
   testParser input
 
+def testParserFailure (input : String) : IO Unit :=
+do
+env ← mkEmptyEnvironment;
+termPTables ← builtinTermParsingTable.get;
+match runParser env termPTables input "<input>" "expr" with
+| Except.ok _      => throw "unexpected success"
+| Except.error msg => IO.println ("failed as expected, error: " ++ msg)
+
+def testFailures (is : List String) : IO Unit :=
+is.mfor $ fun input => do
+  IO.println input;
+  testParserFailure input
+
 def main (xs : List String) : IO Unit :=
 do
 test [
@@ -62,4 +75,7 @@ test [
 "f ((x : a) -> b)",
 "(f : (n : Nat) → Vector Nat n) -> Nat",
 "∀ x y (z : Nat), x > y -> x > y - z"
+];
+testFailures [
+"f {x : a} -> b"
 ]

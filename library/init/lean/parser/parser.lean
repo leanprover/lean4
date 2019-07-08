@@ -801,6 +801,8 @@ def unicodeSymbolInfo (sym asciiSym : String) (lbp : Option Nat) : ParserInfo :=
 fun _ => unicodeSymbolFnAux sym asciiSym ("expected '" ++ sym ++ "' or '" ++ asciiSym ++ "'")
 
 @[inline] def unicodeSymbol {k : ParserKind} (sym asciiSym : String) (lbp : Option Nat := none) : Parser k :=
+let sym := sym.trim;
+let asciiSym := asciiSym.trim;
 { info := unicodeSymbolInfo sym asciiSym lbp,
   fn   := unicodeSymbolFn sym asciiSym }
 

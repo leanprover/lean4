@@ -237,7 +237,9 @@ instance hashAndthen {k : ParserKind} : HasAndthen (Parser k) :=
 
 @[inline] def node {k : ParserKind} (n : SyntaxNodeKind) (p : Parser k) : Parser k :=
 { info := nodeInfo p.info,
-  fn   := nodeFn n p.fn }
+  /- Remark: the compiler currently does not eta-expand structure fields.
+     So, we force it here to trigger inlining at `node` combinators. -/
+  fn   := fun a c s => nodeFn n p.fn a c s}
 
 @[inline] def leadingNode (n : SyntaxNodeKind) (p : Parser leading) : Parser :=
 node n p

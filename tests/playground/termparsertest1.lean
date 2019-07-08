@@ -59,5 +59,7 @@ test [
 "{a : Type} -> [HasToString a] -> (x : a) -> b",
 "f ({x : a} -> b)",
 "f (x : a) -> b",
-"f ((x : a) -> b)"
+"f ((x : a) -> b)",
+"(f : (n : Nat) → Vector Nat n) -> Nat",
+"∀ x y (z : Nat), x > y -> x > y - z"
 ]

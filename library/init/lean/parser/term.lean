@@ -76,7 +76,8 @@ def implicitBinder (requireType := false) := parser! "{" >> many1 binderIdent >>
 def instBinder                            := parser! "[" >> optIdent >> termParser >> "]"
 def bracktedBinder (requireType := false) := explicitBinder requireType <|> implicitBinder requireType <|> instBinder
 @[builtinTermParser] def depArrow := parser! bracktedBinder true >> unicodeSymbolCheckPrec " → " " -> " 25 >> termParser
-
+def simpleBinder := parser! many1 binderIdent
+@[builtinTermParser] def «forall» := parser! unicodeSymbol "∀" "forall" >> many1 (simpleBinder <|> bracktedBinder) >> ", " >> termParser
 
 @[builtinTermParser] def app   := tparser! pushLeading >> termParser appPrec
 @[builtinTermParser] def proj  := tparser! pushLeading >> symbolNoWs "." (appPrec+1) >> (fieldIdx <|> ident)

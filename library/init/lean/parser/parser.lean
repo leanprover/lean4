@@ -1074,6 +1074,7 @@ def mkParserState (input : String) : ParserState :=
 def runParser (env : Environment) (tables : ParsingTables) (input : String) (fileName := "<input>") (kind := "<main>") : Except String Syntax :=
 let c := mkParserContext env input fileName;
 let s := mkParserState input;
+let s := whitespace c s;
 let s := prattParser kind tables (0 : Nat) c s;
 if s.hasError then
   Except.error (s.toErrorMsg c)

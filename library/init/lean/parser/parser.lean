@@ -16,11 +16,15 @@ import init.lean.compiler.initattr
 namespace Lean
 namespace Parser
 
-/- Maximum standard precedence. This is the precedence of Function application.
-   In the standard Lean language, only the token `.` has a left-binding power greater
-   than `maxPrec` (so that field accesses like `g (h x).f` are parsed as `g ((h x).f)`,
-   not `(g (h x)).f`). -/
-def maxPrec : Nat := 1024
+/- Function application precedence.
+   In the standard lean language, only two tokens have precedence higher that `appPrec`.
+   - The token `.` has precedence `appPrec+1`. Thus, field accesses like `g (h x).f` are parsed as `g ((h x).f)`,
+     not `(g (h x)).f`
+   - The token `[` when not preceded with whitespace has precedence `appPrec+1`. If there is whitespace before
+     `[`, then its precedence is `appPrec`. Thus, `f a[i]` is parsed as `f (a[i])` where `a[i]` is an "find-like operation"
+      (e.g., array access, map access, etc.). `f a [i]` is parsed as `(f a) [i]` where `[i]` is a singleton collection
+      (e.g., a list). -/
+def appPrec : Nat := 1024
 
 structure TokenConfig :=
 (val     : String)
@@ -980,9 +984,9 @@ match stx with
     | some lbp, some lbpNoWs => if checkTailNoWs left then (s, lbpNoWs) else (s, lbp)
     | none, none             => (s, 0)
   | _            => (s, 0)
-| some (Syntax.ident _ _ _ _ _) => (s, maxPrec)
+| some (Syntax.ident _ _ _ _ _) => (s, appPrec)
 -- TODO(Leo): add support for associating lbp with syntax node kinds.
-| some (Syntax.node k _ _)      => if k == numLitKind || k == strLitKind || k == fieldIdxKind then (s, maxPrec) else (s, 0)
+| some (Syntax.node k _ _)      => if k == numLitKind || k == strLitKind || k == fieldIdxKind then (s, appPrec) else (s, 0)
 | _                             => (s, 0)
 
 def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState) : ParserState × List α :=

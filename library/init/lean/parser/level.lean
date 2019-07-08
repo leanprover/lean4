@@ -20,9 +20,9 @@ def levelParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
 
 namespace Level
 
-@[builtinLevelParser] def paren := parser! symbol "(" maxPrec >> levelParser >> ")"
-@[builtinLevelParser] def max   := parser! "max" >> many1 (levelParser maxPrec)
-@[builtinLevelParser] def imax  := parser! "imax" >> many1 (levelParser maxPrec)
+@[builtinLevelParser] def paren := parser! symbol "(" appPrec >> levelParser >> ")"
+@[builtinLevelParser] def max   := parser! "max" >> many1 (levelParser appPrec)
+@[builtinLevelParser] def imax  := parser! "imax" >> many1 (levelParser appPrec)
 @[builtinLevelParser] def hole  := parser! "_"
 @[builtinLevelParser] def num   : Parser := numLit
 @[builtinLevelParser] def ident : Parser := ident

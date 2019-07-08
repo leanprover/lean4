@@ -45,10 +45,9 @@ pushLeading >> symbol sym lbp >> termParser lbp
 @[builtinTermParser] def hole := parser! symbol "_" appPrec
 @[builtinTermParser] def «sorry» := parser! symbol "sorry" appPrec
 @[builtinTermParser] def cdot := parser! symbol "·" appPrec
-def namedArgument  := parser! " := " >> termParser
 def typeAscription := parser! " : " >> termParser
 def tupleTail      := parser! ", " >> sepBy1 termParser ", "
-def parenSpecial : Parser := optional (tupleTail <|> typeAscription <|> namedArgument)
+def parenSpecial : Parser := optional (tupleTail <|> typeAscription)
 @[builtinTermParser] def paren := parser! symbol "(" appPrec >> optional (termParser >> parenSpecial) >> ")"
 @[builtinTermParser] def anonymousCtor := parser! symbol "⟨" appPrec >> sepBy1 termParser ", " >> "⟩"
 @[inline] def optIdent : Parser := optional (try (ident >> " : "))
@@ -79,7 +78,8 @@ def bracktedBinder (requireType := false) := explicitBinder requireType <|> impl
 def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser! unicodeSymbol "∀" "forall" >> many1 (simpleBinder <|> bracktedBinder) >> ", " >> termParser
 
-@[builtinTermParser] def app   := tparser! pushLeading >> termParser appPrec
+def namedArgument  := tparser! try ("(" >> ident >> " := ") >> termParser >> ")"
+@[builtinTermParser] def app   := tparser! pushLeading >> (namedArgument <|> termParser appPrec)
 @[builtinTermParser] def proj  := tparser! pushLeading >> symbolNoWs "." (appPrec+1) >> (fieldIdx <|> ident)
 @[builtinTermParser] def arrow := tparser! unicodeInfixR " → " " -> " 25
 @[builtinTermParser] def array := tparser! pushLeading >> symbolNoWs "[" (appPrec+1) >> termParser >>"]"

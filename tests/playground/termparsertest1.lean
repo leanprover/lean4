@@ -19,7 +19,7 @@ do
 env ← mkEmptyEnvironment;
 termPTables ← builtinTermParsingTable.get;
 match runParser env termPTables input "<input>" "expr" with
-| Except.ok _      => throw "unexpected success"
+| Except.ok stx    => throw (IO.userError ("unexpected success\n" ++ toString stx))
 | Except.error msg => IO.println ("failed as expected, error: " ++ msg)
 
 def testFailures (is : List String) : IO Unit :=
@@ -77,5 +77,6 @@ test [
 "∀ x y (z : Nat), x > y -> x > y - z"
 ];
 testFailures [
-"f {x : a} -> b"
+"f {x : a} -> b",
+"(x := 20)"
 ]

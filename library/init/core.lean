@@ -267,7 +267,7 @@ infix ≅ := Heq
 
 theorem eqOfHeq {α : Sort u} {a a' : α} (h : a ≅ a') : a = a' :=
 have ∀ (α' : Sort u) (a' : α') (h₁ : @Heq α a α' a') (h₂ : α = α'), (Eq.recOn h₂ a : α') = a' :=
-  fun (α' : Sort u) (a' : α') (h₁ : @Heq α a α' a') => Heq.recOn h₁ (fun h₂ : α = α => rfl);
+  fun (α' : Sort u) (a' : α') (h₁ : @Heq α a α' a') => Heq.recOn h₁ (fun (h₂ : α = α) => rfl);
 show (Eq.ndrecOn (Eq.refl α) a : α) = a' from
   this α a' h (Eq.refl α)
 
@@ -317,7 +317,7 @@ class inductive Decidable (p : Prop)
 ∀ (a b : α), Decidable (r a b)
 
 class DecidableEq (α : Sort u) :=
-{decEq : ∀ a b : α, Decidable (a = b)}
+{decEq : ∀ (a b : α), Decidable (a = b)}
 
 export DecidableEq (decEq)
 
@@ -741,7 +741,7 @@ theorem Heq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {C : ∀ {β : Sort u2}, β
 theorem Heq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : a ≅ b) (h₂ : p a) : p b :=
 Eq.recOn (eqOfHeq h₁) h₂
 
-theorem Heq.subst {p : ∀ T : Sort u, T → Prop} (h₁ : a ≅ b) (h₂ : p α a) : p β b :=
+theorem Heq.subst {p : ∀ (T : Sort u), T → Prop} (h₁ : a ≅ b) (h₂ : p α a) : p β b :=
 Heq.ndrecOn h₁ h₂
 
 theorem Heq.symm (h : a ≅ b) : b ≅ a :=
@@ -1109,7 +1109,7 @@ theorem nonemptyOfExists {α : Sort u} {p : α → Prop} : Exists (fun x => p x)
 /- Subsingleton -/
 
 class inductive Subsingleton (α : Sort u) : Prop
-| intro (h : ∀ a b : α, a = b) : Subsingleton
+| intro (h : ∀ (a b : α), a = b) : Subsingleton
 
 protected def Subsingleton.elim {α : Sort u} [h : Subsingleton α] : ∀ (a b : α), a = b :=
 Subsingleton.casesOn h (fun p => p)
@@ -1159,7 +1159,7 @@ def Irreflexive := ∀ x, ¬ r x x
 
 def AntiSymmetric := ∀ {x y}, r x y → r y x → x = y
 
-def emptyRelation := fun a₁ a₂ : α => False
+def emptyRelation (a₁ a₂ : α) : Prop := False
 
 def Subrelation (q r : β → β → Prop) := ∀ {x y}, q x y → r x y
 
@@ -1286,8 +1286,8 @@ instance [HasLess α] [HasLess β] : HasLess (α × β) :=
 
 instance prodHasDecidableLt
          [HasLess α] [HasLess β] [DecidableEq α] [DecidableEq β]
-         [∀ a b : α, Decidable (a < b)] [∀ a b : β, Decidable (a < b)]
-         : ∀ s t : α × β, Decidable (s < t) :=
+         [∀ (a b : α), Decidable (a < b)] [∀ (a b : β), Decidable (a < b)]
+         : ∀ (s t : α × β), Decidable (s < t) :=
 fun t s => Or.Decidable
 
 theorem Prod.ltDef [HasLess α] [HasLess β] (s t : α × β) : (s < t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
@@ -1475,7 +1475,7 @@ Quot.liftOn q f c
 protected theorem inductionOn {α : Sort u} [s : Setoid α] {β : Quotient s → Prop} (q : Quotient s) (h : ∀ a, β ⟦a⟧) : β q :=
 Quot.inductionOn q h
 
-theorem existsRep {α : Sort u} [s : Setoid α] (q : Quotient s) : Exists (fun a : α => ⟦a⟧ = q) :=
+theorem existsRep {α : Sort u} [s : Setoid α] (q : Quotient s) : Exists (fun (a : α) => ⟦a⟧ = q) :=
 Quot.existsRep q
 
 section
@@ -1559,7 +1559,7 @@ Quotient.liftOn₂ q₁ q₂
       (fun a₁a₂ => Setoid.trans (Setoid.symm a₁b₁) (Setoid.trans a₁a₂ a₂b₂))
       (fun b₁b₂ => Setoid.trans a₁b₁ (Setoid.trans b₁b₂ (Setoid.symm a₂b₂)))))
 
-private theorem rel.refl [s : Setoid α] : ∀ q : Quotient s, rel q q :=
+private theorem rel.refl [s : Setoid α] : ∀ (q : Quotient s), rel q q :=
 fun q => Quot.inductionOn q (fun a => Setoid.refl a)
 
 private theorem eqImpRel [s : Setoid α] {q₁ q₂ : Quotient s} : q₁ = q₂ → rel q₁ q₂ :=
@@ -1612,7 +1612,7 @@ EqvGen.recOn H
   (fun x y z _ _ IH₁ IH₂ => Eq.trans IH₁ IH₂)
 end
 
-instance {α : Sort u} {s : Setoid α} [d : ∀ a b : α, Decidable (a ≈ b)] : DecidableEq (Quotient s) :=
+instance {α : Sort u} {s : Setoid α} [d : ∀ (a b : α), Decidable (a ≈ b)] : DecidableEq (Quotient s) :=
 {decEq := fun (q₁ q₂ : Quotient s) =>
   Quotient.recOnSubsingleton₂ q₁ q₂
     (fun a₁ a₂ =>
@@ -1625,15 +1625,15 @@ instance {α : Sort u} {s : Setoid α} [d : ∀ a b : α, Decidable (a ≈ b)] :
 namespace Function
 variables {α : Sort u} {β : α → Sort v}
 
-def Equiv (f₁ f₂ : ∀ x : α, β x) : Prop := ∀ x, f₁ x = f₂ x
+def Equiv (f₁ f₂ : ∀ (x : α), β x) : Prop := ∀ x, f₁ x = f₂ x
 
-protected theorem Equiv.refl (f : ∀ x : α, β x) : Equiv f f :=
+protected theorem Equiv.refl (f : ∀ (x : α), β x) : Equiv f f :=
 fun x => rfl
 
-protected theorem Equiv.symm {f₁ f₂ : ∀ x: α, β x} : Equiv f₁ f₂ → Equiv f₂ f₁ :=
+protected theorem Equiv.symm {f₁ f₂ : ∀ (x : α), β x} : Equiv f₁ f₂ → Equiv f₂ f₁ :=
 fun h x => Eq.symm (h x)
 
-protected theorem Equiv.trans {f₁ f₂ f₃ : ∀ x: α, β x} : Equiv f₁ f₂ → Equiv f₂ f₃ → Equiv f₁ f₃ :=
+protected theorem Equiv.trans {f₁ f₂ f₃ : ∀ (x : α), β x} : Equiv f₁ f₂ → Equiv f₂ f₃ → Equiv f₁ f₃ :=
 fun h₁ h₂ x => Eq.trans (h₁ x) (h₂ x)
 
 protected theorem Equiv.isEquivalence (α : Sort u) (β : α → Sort v) : Equivalence (@Function.Equiv α β) :=
@@ -1645,16 +1645,16 @@ open Quotient
 variables {α : Sort u} {β : α → Sort v}
 
 @[instance]
-private def funSetoid (α : Sort u) (β : α → Sort v) : Setoid (∀ x : α, β x) :=
+private def funSetoid (α : Sort u) (β : α → Sort v) : Setoid (∀ (x : α), β x) :=
 Setoid.mk (@Function.Equiv α β) (Function.Equiv.isEquivalence α β)
 
-private def extfunApp (f : Quotient $ funSetoid α β) : ∀ x : α, β x :=
+private def extfunApp (f : Quotient $ funSetoid α β) : ∀ (x : α), β x :=
 fun x =>
 Quot.liftOn f
-  (fun (f : ∀ x : α, β x) => f x)
+  (fun (f : ∀ (x : α), β x) => f x)
   (fun f₁ f₂ h => h x)
 
-theorem funext {f₁ f₂ : ∀ x : α, β x} (h : ∀ x, f₁ x = f₂ x) : f₁ = f₂ :=
+theorem funext {f₁ f₂ : ∀ (x : α), β x} (h : ∀ x, f₁ x = f₂ x) : f₁ = f₂ :=
 show extfunApp ⟦f₁⟧ = extfunApp ⟦f₂⟧ from
 congrArg extfunApp (sound h)
 end
@@ -1715,17 +1715,17 @@ have uDef : U u from chooseSpec exU;
 have vDef : V v from chooseSpec exV;
 have notUvOrP : u ≠ v ∨ p from
   Or.elim uDef
-    (fun hut : u = True =>
+    (fun hut =>
       Or.elim vDef
-        (fun hvf : v = False =>
+        (fun hvf =>
           have hne : u ≠ v from hvf.symm ▸ hut.symm ▸ trueNeFalse;
           Or.inl hne)
         Or.inr)
     Or.inr;
 have pImpliesUv : p → u = v from
-  fun hp : p =>
+  fun hp =>
   have hpred : U = V from
-    funext $ fun x : Prop =>
+    funext $ fun x =>
       have hl : (x = True ∨ p) → (x = False ∨ p) from
         fun a => Or.inr hp;
       have hr : (x = False ∨ p) → (x = True ∨ p) from
@@ -1739,7 +1739,7 @@ Or.elim notUvOrP
   (fun (hne : u ≠ v) => Or.inr (mt pImpliesUv hne))
   Or.inl
 
-theorem existsTrueOfNonempty {α : Sort u} : Nonempty α → Exists (fun x : α => True)
+theorem existsTrueOfNonempty {α : Sort u} : Nonempty α → Exists (fun (x : α) => True)
 | ⟨x⟩ := ⟨x, trivial⟩
 
 noncomputable def inhabitedOfNonempty {α : Sort u} (h : Nonempty α) : Inhabited α :=
@@ -1767,10 +1767,10 @@ match (propDecidable (Nonempty α)) with
 | (isFalse hn) => PSum.inr (fun a => absurd (Nonempty.intro a) hn)
 
 noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop)
-  (h : Nonempty α) : {x : α // Exists (fun y : α => p y) → p x} :=
-@dite (Exists (fun x : α => p x)) (propDecidable _) _
-  (fun hp : Exists (fun x : α => p x) =>
-    show {x : α // Exists (fun y : α => p y) → p x} from
+  (h : Nonempty α) : {x : α // Exists (fun (y : α) => p y) → p x} :=
+@dite (Exists (fun (x : α) => p x)) (propDecidable _) _
+  (fun (hp : Exists (fun (x : α) => p x)) =>
+    show {x : α // Exists (fun (y : α) => p y) → p x} from
     let xp := indefiniteDescription _ hp;
     ⟨xp.val, fun h' => xp.property⟩)
   (fun hp => ⟨choice h, fun h => absurd h hp⟩)

@@ -630,7 +630,7 @@ def emitDeclAux (d : Decl) : M Unit :=
 do
 env ← getEnv;
 let (vMap, jpMap) := mkVarJPMaps d;
-adaptReader (fun ctx : Context => { varMap := vMap, jpMap := jpMap, .. ctx }) $ do
+adaptReader (fun (ctx : Context) => { varMap := vMap, jpMap := jpMap, .. ctx }) $ do
 unless (hasInitAttr env d.name) $
   match d with
   | Decl.fdecl f xs t b => do
@@ -651,7 +651,7 @@ unless (hasInitAttr env d.name) $
     };
     emitLn " {";
     emitLn "_start:";
-    adaptReader (fun ctx : Context => { mainFn := f, mainParams := xs, .. ctx }) (emitFnBody b);
+    adaptReader (fun (ctx : Context) => { mainFn := f, mainParams := xs, .. ctx }) (emitFnBody b);
     emitLn "}";
     closeNamespacesFor f
   | _ => pure ()

@@ -49,11 +49,11 @@ protected def max : RBNode α β → Option (Sigma (fun k => β k))
 | b leaf               := b
 | b (node _ l k v r)   := revFold (f (revFold b r) k v) l
 
-@[specialize] def all (p : ∀ k : α, β k → Bool) : RBNode α β → Bool
+@[specialize] def all (p : ∀ k, β k → Bool) : RBNode α β → Bool
 | leaf                 := true
 | (node _ l k v r)     := p k v && all l && all r
 
-@[specialize] def any (p : ∀ k : α, β k → Bool) : RBNode α β → Bool
+@[specialize] def any (p : ∀ k, β k → Bool) : RBNode α β → Bool
 | leaf                 := false
 | (node _ l k v r)   := p k v || any l || any r
 
@@ -84,7 +84,7 @@ section Insert
 
 variables (lt : α → α → Bool)
 
-@[specialize] def ins : RBNode α β → ∀ k : α, β k → RBNode α β
+@[specialize] def ins : RBNode α β → ∀ k, β k → RBNode α β
 | leaf                 kx vx := node red leaf kx vx leaf
 | (node red a ky vy b) kx vx :=
    if lt kx ky then node red (ins a kx vx) ky vy b
@@ -174,7 +174,7 @@ end Erase
 section Membership
 variable (lt : α → α → Bool)
 
-@[specialize] def findCore : RBNode α β → ∀ k : α, Option (Sigma (fun k => β k))
+@[specialize] def findCore : RBNode α β → ∀ (k : α), Option (Sigma (fun k => β k))
 | leaf               x := none
 | (node _ a ky vy b) x :=
    if lt x ky then findCore a x

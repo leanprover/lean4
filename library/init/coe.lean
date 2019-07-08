@@ -59,7 +59,7 @@ class HasCoeToSort (a : Sort u) : Type (max u (v+1)) :=
 @[inline] def coeT {a : Sort u} {b : Sort v} [HasCoeT a b] : a → b :=
 @HasCoeT.coe a b _
 
-@[inline] def coeFnB {a : Sort u} [HasCoeToFun.{u, v} a] : ∀ x : a, HasCoeToFun.F.{u, v} x :=
+@[inline] def coeFnB {a : Sort u} [HasCoeToFun.{u, v} a] : ∀ (x : a), HasCoeToFun.F.{u, v} x :=
 HasCoeToFun.coe
 
 /- User Level coercion operators -/
@@ -67,7 +67,7 @@ HasCoeToFun.coe
 @[reducible, inline] def coe {a : Sort u} {b : Sort v} [HasLiftT a b] : a → b :=
 liftT
 
-@[reducible, inline] def coeFn {a : Sort u} [HasCoeToFun.{u, v} a] : ∀ x : a, HasCoeToFun.F.{u, v} x :=
+@[reducible, inline] def coeFn {a : Sort u} [HasCoeToFun.{u, v} a] : ∀ (x : a), HasCoeToFun.F.{u, v} x :=
 HasCoeToFun.coe
 
 @[reducible, inline] def coeSort {a : Sort u} [HasCoeToSort.{u, v} a] : a → HasCoeToSort.S.{u, v} a :=
@@ -117,7 +117,7 @@ class HasCoeTAux (a : Sort u) (b : Sort v) :=
 (coe : a → b)
 
 instance coeTransAux {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [HasCoe a b] [HasCoeTAux b c] : HasCoeTAux a c :=
-⟨fun x : a => @HasCoeTAux.coe b c _ (coeB x)⟩
+⟨fun x => @HasCoeTAux.coe b c _ (coeB x)⟩
 
 instance coeBaseAux {a : Sort u} {b : Sort v} [HasCoe a b] : HasCoeTAux a b :=
 ⟨coeB⟩

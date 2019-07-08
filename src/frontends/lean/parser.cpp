@@ -841,10 +841,20 @@ void parser::parse_binders_core(buffer<expr> & r, parse_binders_config & cfg) {
                 throw parser_error("invalid binder declaration, delimiter/bracket expected (i.e., '(', '{', '[')",
                                    pos());
             }
-            /* We only allow the default parameter value syntax for declarations with
-               surrounded by () */
-            bool new_allow_default = false;
-            parse_binder_block(r, mk_binder_info(), cfg.m_rbp, new_allow_default);
+            while (curr_is_identifier() || curr_is_token(get_placeholder_tk())) {
+                auto p = pos();
+                name x;
+                if (curr_is_identifier()) {
+                    x = check_atomic_id_next("invalid binder, atomic identifier expected");
+                } else {
+                    x = "_x";
+                    next();
+                }
+                expr type = save_pos(mk_expr_placeholder(), p);
+                expr local = save_pos(mk_local(x, type, mk_binder_info()), p);
+                add_local(local);
+                r.push_back(local);
+            }
             cfg.m_last_block_delimited = false;
         } else {
             /* We only allow the default parameter value syntax for declarations with

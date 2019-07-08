@@ -280,7 +280,7 @@ whileModifingOwnedAux x ()
 partial def collectDecl : Decl → M Unit
 | (Decl.fdecl f ys _ b) :=
   adaptReader (fun ctx => let ctx := updateParamSet ctx ys; { currFn := f, .. ctx }) $ do
-   modify $ fun s : BorrowInfState => { owned := {}, .. s };
+   modify $ fun (s : BorrowInfState) => { owned := {}, .. s };
    whileModifingOwned (collectFnBody b);
    updateParamMap (Key.decl f)
 | _ := pure ()

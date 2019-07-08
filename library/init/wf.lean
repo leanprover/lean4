@@ -215,10 +215,10 @@ end
 
 section
 variables {α : Sort u} {β : α → Sort v}
-variables {r  : α → α → Prop} {s : ∀ a : α, β a → β a → Prop}
+variables {r  : α → α → Prop} {s : ∀ (a : α), β a → β a → Prop}
 
 def lexAccessible {a} (aca : Acc r a) (acb : ∀ a, WellFounded (s a)) : ∀ (b : β a), Acc (Lex r s) ⟨a, b⟩ :=
-Acc.ndrecOn aca $ fun (xa aca) (iha : ∀ y, r y xa → ∀ b : β y, Acc (Lex r s) ⟨y, b⟩) (b : β xa) =>
+Acc.ndrecOn aca $ fun (xa aca) (iha : ∀ y, r y xa → ∀ (b : β y), Acc (Lex r s) ⟨y, b⟩) (b : β xa) =>
   Acc.ndrecOn (WellFounded.apply (acb xa) b) $ fun xb acb (ihb : ∀ (y : β xa), s xa y xb → Acc (Lex r s) ⟨xa, y⟩) =>
      Acc.intro ⟨xa, xb⟩ $ fun (p) (lt : Lex r s p ⟨xa, xb⟩) =>
         have aux : xa = xa → xb ≅ xb → Acc (Lex r s) p from

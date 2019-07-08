@@ -139,14 +139,14 @@ section
 variables {m : Type v → Type v} [Monad m]
 
 -- TODO(Leo): justify termination using wf-rec
-@[specialize] partial def miterateAux (a : Array α) (f : ∀ i : Fin a.size, α → β → m β) : Nat → β → m β
+@[specialize] partial def miterateAux (a : Array α) (f : ∀ (i : Fin a.size), α → β → m β) : Nat → β → m β
 | i b :=
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩;
      f idx (a.fget idx) b >>= miterateAux (i+1)
   else pure b
 
-@[inline] def miterate (a : Array α) (b : β) (f : ∀ i : Fin a.size, α → β → m β) : m β :=
+@[inline] def miterate (a : Array α) (b : β) (f : ∀ (i : Fin a.size), α → β → m β) : m β :=
 miterateAux a f 0 b
 
 @[inline] def mfoldl (f : β → α → m β) (b : β) (a : Array α) : m β :=
@@ -156,7 +156,7 @@ miterate a b (fun _ b a => f a b)
 miterateAux a (fun _ b a => f a b) ini b
 
 -- TODO(Leo): justify termination using wf-rec
-@[specialize] partial def miterate₂Aux (a₁ : Array α) (a₂ : Array σ) (f : ∀ i : Fin a₁.size, α → σ → β → m β) : Nat → β → m β
+@[specialize] partial def miterate₂Aux (a₁ : Array α) (a₂ : Array σ) (f : ∀ (i : Fin a₁.size), α → σ → β → m β) : Nat → β → m β
 | i b :=
   if h₁ : i < a₁.size then
      let idx₁ : Fin a₁.size := ⟨i, h₁⟩;
@@ -166,7 +166,7 @@ miterateAux a (fun _ b a => f a b) ini b
      else pure b
   else pure b
 
-@[inline] def miterate₂ (a₁ : Array α) (a₂ : Array σ) (b : β) (f : ∀ i : Fin a₁.size, α → σ → β → m β) : m β :=
+@[inline] def miterate₂ (a₁ : Array α) (a₂ : Array σ) (b : β) (f : ∀ (i : Fin a₁.size), α → σ → β → m β) : m β :=
 miterate₂Aux a₁ a₂ f 0 b
 
 @[inline] def mfoldl₂ (f : β → α → σ → m β) (b : β) (a₁ : Array α) (a₂ : Array σ): m β :=
@@ -206,10 +206,10 @@ mfindRevAux a f a.size (Nat.leRefl _)
 
 end
 
-@[inline] def iterate (a : Array α) (b : β) (f : ∀ i : Fin a.size, α → β → β) : β :=
+@[inline] def iterate (a : Array α) (b : β) (f : ∀ (i : Fin a.size), α → β → β) : β :=
 Id.run $ miterateAux a f 0 b
 
-@[inline] def iterateFrom (a : Array α) (b : β) (i : Nat) (f : ∀ i : Fin a.size, α → β → β) : β :=
+@[inline] def iterateFrom (a : Array α) (b : β) (i : Nat) (f : ∀ (i : Fin a.size), α → β → β) : β :=
 Id.run $ miterateAux a f i b
 
 @[inline] def foldl (f : β → α → β) (b : β) (a : Array α) : β :=
@@ -218,7 +218,7 @@ iterate a b (fun _ a b => f b a)
 @[inline] def foldlFrom (f : β → α → β) (b : β) (a : Array α) (ini : Nat := 0) : β :=
 Id.run $ mfoldlFrom f b a ini
 
-@[inline] def iterate₂ (a₁ : Array α) (a₂ : Array σ) (b : β) (f : ∀ i : Fin a₁.size, α → σ → β → β) : β :=
+@[inline] def iterate₂ (a₁ : Array α) (a₂ : Array σ) (b : β) (f : ∀ (i : Fin a₁.size), α → σ → β → β) : β :=
 Id.run $ miterate₂Aux a₁ a₂ f 0 b
 
 @[inline] def foldl₂ (f : β → α → σ → β) (b : β) (a₁ : Array α) (a₂ : Array σ) : β :=
@@ -256,13 +256,13 @@ Id.run $ anyM a p
 @[inline] def all (a : Array α) (p : α → Bool) : Bool :=
 !any a (fun v => !p v)
 
-@[specialize] private def revIterateAux (a : Array α) (f : ∀ i : Fin a.size, α → β → β) : ∀ (i : Nat), i ≤ a.size → β → β
+@[specialize] private def revIterateAux (a : Array α) (f : ∀ (i : Fin a.size), α → β → β) : ∀ (i : Nat), i ≤ a.size → β → β
 | 0     h b := b
 | (j+1) h b :=
   let i : Fin a.size := ⟨j, h⟩;
   revIterateAux j (Nat.leOfLt h) (f i (a.fget i) b)
 
-@[inline] def revIterate (a : Array α) (b : β) (f : ∀ i : Fin a.size, α → β → β) : β :=
+@[inline] def revIterate (a : Array α) (b : β) (f : ∀ (i : Fin a.size), α → β → β) : β :=
 revIterateAux a f a.size (Nat.leRefl _) b
 
 @[inline] def revFoldl (a : Array α) (b : β) (f : α → β → β) : β :=

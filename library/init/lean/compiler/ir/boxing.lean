@@ -135,13 +135,13 @@ do ctx ← read;
    | none      => pure (default _) -- unreachable if well-formed
 
 @[inline] def withParams {α : Type} (xs : Array Param) (k : M α) : M α :=
-adaptReader (fun ctx : BoxingContext => { localCtx := ctx.localCtx.addParams xs, .. ctx }) k
+adaptReader (fun (ctx : BoxingContext) => { localCtx := ctx.localCtx.addParams xs, .. ctx }) k
 
 @[inline] def withVDecl {α : Type} (x : VarId) (ty : IRType) (v : Expr) (k : M α) : M α :=
-adaptReader (fun ctx : BoxingContext => { localCtx := ctx.localCtx.addLocal x ty v, .. ctx }) k
+adaptReader (fun (ctx : BoxingContext) => { localCtx := ctx.localCtx.addLocal x ty v, .. ctx }) k
 
 @[inline] def withJDecl {α : Type} (j : JoinPointId) (xs : Array Param) (v : FnBody) (k : M α) : M α :=
-adaptReader (fun ctx : BoxingContext => { localCtx := ctx.localCtx.addJP j xs v, .. ctx }) k
+adaptReader (fun (ctx : BoxingContext) => { localCtx := ctx.localCtx.addJP j xs v, .. ctx }) k
 
 /- Auxiliary function used by castVarIfNeeded.
    It is used when the expected type does not match `xType`.

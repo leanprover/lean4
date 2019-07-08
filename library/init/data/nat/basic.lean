@@ -116,11 +116,11 @@ instance : HasPow Nat Nat :=
 
 /- Nat.add theorems -/
 
-protected theorem zeroAdd : ∀ n : Nat, 0 + n = n
+protected theorem zeroAdd : ∀ (n : Nat), 0 + n = n
 | 0     := rfl
 | (n+1) := congrArg succ (zeroAdd n)
 
-theorem succAdd : ∀ n m : Nat, (succ n) + m = succ (n + m)
+theorem succAdd : ∀ (n m : Nat), (succ n) + m = succ (n + m)
 | n 0     := rfl
 | n (m+1) := congrArg succ (succAdd n m)
 
@@ -136,13 +136,13 @@ rfl
 theorem succEqAddOne (n : Nat) : succ n = n + 1 :=
 rfl
 
-protected theorem addComm : ∀ n m : Nat, n + m = m + n
+protected theorem addComm : ∀ (n m : Nat), n + m = m + n
 | n 0     := Eq.symm (Nat.zeroAdd n)
 | n (m+1) :=
   suffices succ (n + m) = succ (m + n) from Eq.symm (succAdd m n) ▸ this;
   congrArg succ (addComm n m)
 
-protected theorem addAssoc : ∀ n m k : Nat, (n + m) + k = n + (m + k)
+protected theorem addAssoc : ∀ (n m k : Nat), (n + m) + k = n + (m + k)
 | n m 0        := rfl
 | n m (succ k) := congrArg succ (addAssoc n m k)
 
@@ -225,7 +225,7 @@ protected theorem mulAssoc : ∀ (n m k : Nat), (n * m) * k = n * (m * k)
 
 /- Inequalities -/
 
-protected def leRefl : ∀ n : Nat, n ≤ n
+protected def leRefl : ∀ (n : Nat), n ≤ n
 | zero     := rfl
 | (succ n) := leRefl n
 
@@ -302,7 +302,7 @@ Nat.recOn m
   (show succ n - succ zero = n - zero from (Eq.refl (succ n - succ zero)))
   (fun m => congrArg pred)
 
-theorem notSuccLeSelf : ∀ n : Nat, ¬succ n ≤ n :=
+theorem notSuccLeSelf : ∀ (n : Nat), ¬succ n ≤ n :=
 fun n => Nat.rec (notSuccLeZero 0) (fun a b c => b (leOfSuccLeSucc c)) n
 
 protected theorem ltIrrefl (n : Nat) : ¬n < n :=
@@ -536,7 +536,7 @@ protected theorem bit1NeOne : ∀ {n : Nat}, n ≠ 0 → bit1 n ≠ 1
 | 0     h h1 := absurd rfl h
 | (n+1) h h1 := Nat.noConfusion h1 (fun h2 => absurd h2 (succNeZero _))
 
-protected theorem bit0NeOne : ∀ n : Nat, bit0 n ≠ 1
+protected theorem bit0NeOne : ∀ (n : Nat), bit0 n ≠ 1
 | 0     h := absurd h (Ne.symm Nat.oneNeZero)
 | (n+1) h :=
   have h1 : succ (succ (n + n)) = 1 from succAdd n n ▸ h;
@@ -670,7 +670,7 @@ rfl
 
 theorem powZero (n : Nat) : n^0 = 1 := rfl
 
-theorem powLePowOfLeLeft {n m : Nat} (h : n ≤ m) : ∀ i : Nat, n^i ≤ m^i
+theorem powLePowOfLeLeft {n m : Nat} (h : n ≤ m) : ∀ (i : Nat), n^i ≤ m^i
 | 0        := Nat.leRefl _
 | (succ i) := Nat.mulLeMul (powLePowOfLeLeft i) h
 

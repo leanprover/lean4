@@ -806,6 +806,22 @@ let asciiSym := asciiSym.trim;
 { info := unicodeSymbolInfo sym asciiSym lbp,
   fn   := unicodeSymbolFn sym asciiSym }
 
+def unicodeSymbolCheckPrecFnAux (sym asciiSym : String) (lbp : Nat) (errorMsg : String) (precErrorMsg : String) : ParserFn leading :=
+fun (rbp : Nat) c s =>
+  if rbp > lbp then s.mkError precErrorMsg
+  else satisfySymbolFn (fun s => s == sym || s == asciiSym) errorMsg c s
+
+@[inline] def unicodeSymbolCheckPrecFn (sym asciiSym : String) (lbp : Nat) : ParserFn leading :=
+unicodeSymbolCheckPrecFnAux sym asciiSym lbp
+  ("expected '" ++ sym ++ "' or '" ++ asciiSym ++ "'")
+  ("found '" ++ sym ++ "' as expected, but brackets are needed") -- improve error message
+
+@[inline] def unicodeSymbolCheckPrec (sym asciiSym : String) (lbp : Nat) : Parser leading :=
+let sym := sym.trim;
+let asciiSym := asciiSym.trim;
+{ info := unicodeSymbolInfo sym asciiSym lbp,
+  fn   := unicodeSymbolCheckPrecFn sym asciiSym lbp }
+
 def mkAtomicInfo (k : String) : ParserInfo :=
 { firstTokens := FirstTokens.tokens [ { val := k } ] }
 

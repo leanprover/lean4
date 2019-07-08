@@ -16,9 +16,11 @@ constant builtinTermParsingTable : IO.Ref ParsingTables := default _
 @[init] def regBuiltinTermParserAttr : IO Unit :=
 registerBuiltinParserAttribute `builtinTermParser `Lean.Parser.builtinTermParsingTable
 
-def termParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
-{ fn := fun _ => runBuiltinParser "term" builtinTermParsingTable rbp }
+def termParserFn {k : ParserKind} (rbp : Nat) : ParserFn k :=
+fun _ => runBuiltinParser "term" builtinTermParsingTable rbp
 
+@[inline] def termParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
+{ fn := termParserFn rbp }
 
 namespace Term
 /- Helper functions for defining simple parsers -/

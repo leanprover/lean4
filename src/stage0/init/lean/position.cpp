@@ -20,12 +20,14 @@ obj* l_Lean_FileMap_toPosition___main(obj*, obj*);
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
+extern obj* l_Sigma_HasRepr___rarg___closed__1;
 obj* l_Lean_Position_DecidableEq___boxed(obj*, obj*);
 obj* l_Lean_Position_Lean_HasFormat(obj*);
 obj* l_Lean_FileMap_ofString___closed__2;
 obj* l_String_toFileMap(obj*);
 obj* l___private_init_lean_position_1__ofStringAux___main(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_position_2__toColumnAux___main(obj*, obj*, obj*, obj*);
+obj* l_Lean_Position_HasToString(obj*);
 obj* l_Lean_Position_Lean_HasFormat___closed__1;
 obj* l_Lean_FileMap_Inhabited;
 obj* l___private_init_lean_position_3__toPositionAux(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -37,6 +39,10 @@ obj* l_Lean_Position_Inhabited;
 obj* l_Lean_Position_lt___boxed(obj*, obj*);
 obj* l_Lean_Position_lt___main___boxed(obj*, obj*);
 obj* l_Nat_repr(obj*);
+namespace lean {
+obj* string_append(obj*, obj*);
+}
+extern obj* l_List_reprAux___main___rarg___closed__1;
 obj* l_Lean_Position_Lean_HasFormat___closed__2;
 namespace lean {
 uint8 string_utf8_at_end(obj*, obj*);
@@ -60,6 +66,7 @@ obj* l___private_init_lean_position_3__toPositionAux___main(obj*, obj*, obj*, ob
 uint8 l_UInt32_decEq(uint32, uint32);
 uint8 l_Lean_Position_DecidableEq(obj*, obj*);
 obj* l___private_init_lean_position_2__toColumnAux___boxed(obj*, obj*, obj*, obj*, obj*);
+extern obj* l_Sigma_HasRepr___rarg___closed__2;
 obj* l_Lean_Position_lt___main___closed__2;
 obj* l_Nat_decLt___boxed(obj*, obj*);
 extern obj* l_Lean_formatKVMap___closed__1;
@@ -258,6 +265,29 @@ lean::cnstr_set(x_13, 0, x_11);
 lean::cnstr_set(x_13, 1, x_12);
 lean::cnstr_set_scalar(x_13, sizeof(void*)*2, x_5);
 return x_13;
+}
+}
+obj* l_Lean_Position_HasToString(obj* x_1) {
+_start:
+{
+obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; 
+x_2 = lean::cnstr_get(x_1, 0);
+lean::inc(x_2);
+x_3 = lean::cnstr_get(x_1, 1);
+lean::inc(x_3);
+lean::dec(x_1);
+x_4 = l_Nat_repr(x_2);
+x_5 = l_Sigma_HasRepr___rarg___closed__1;
+x_6 = lean::string_append(x_5, x_4);
+lean::dec(x_4);
+x_7 = l_List_reprAux___main___rarg___closed__1;
+x_8 = lean::string_append(x_6, x_7);
+x_9 = l_Nat_repr(x_3);
+x_10 = lean::string_append(x_8, x_9);
+lean::dec(x_9);
+x_11 = l_Sigma_HasRepr___rarg___closed__2;
+x_12 = lean::string_append(x_10, x_11);
+return x_12;
 }
 }
 obj* _init_l_Lean_Position_Inhabited() {
@@ -616,6 +646,7 @@ lean::mark_persistent(l_Lean_Position_Lean_HasFormat___closed__1);
 l_Lean_Position_Lean_HasFormat___closed__2 = _init_l_Lean_Position_Lean_HasFormat___closed__2();
 lean::mark_persistent(l_Lean_Position_Lean_HasFormat___closed__2);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Position"), "Lean"), "HasFormat"), 1, l_Lean_Position_Lean_HasFormat);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Position"), "HasToString"), 1, l_Lean_Position_HasToString);
 l_Lean_Position_Inhabited = _init_l_Lean_Position_Inhabited();
 lean::mark_persistent(l_Lean_Position_Inhabited);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Position"), "Inhabited"), l_Lean_Position_Inhabited);

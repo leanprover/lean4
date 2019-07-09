@@ -51,7 +51,9 @@ obj* l_Lean_mkExternCall(obj*, obj*, obj*);
 obj* l_Lean_registerParametricAttribute___at_Lean_mkExternAttr___spec__1___closed__1;
 obj* l_Lean_mkExternAttr___closed__3;
 obj* l_String_Iterator_remainingBytes___main(obj*);
+extern obj* l_Lean_numLitKind;
 obj* l_Lean_mkExternAttr___lambda__1___boxed(obj*, obj*, obj*);
+obj* l_Lean_Syntax_isNatLitAux___main(obj*, obj*);
 obj* l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main___boxed(obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main___closed__1;
 obj* l_Lean_isExtern___boxed(obj*, obj*);
@@ -76,7 +78,6 @@ obj* l_Lean_expandExternPatternAux___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_registerParametricAttribute___at_Lean_mkExternAttr___spec__1___lambda__1(obj*);
 obj* l_Lean_expandExternPattern(obj*, obj*);
 obj* l_Lean_Environment_getModuleIdxFor(obj*, obj*);
-obj* l_Lean_Syntax_isNatLit___main(obj*);
 obj* l_String_Iterator_next___main(obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkExternAttr___spec__4___boxed(obj*, obj*, obj*, obj*, obj*);
 namespace lean {
@@ -531,219 +532,220 @@ x_5 = lean::mk_nat_obj(0u);
 x_6 = lean::nat_dec_eq(x_4, x_5);
 if (x_6 == 0)
 {
-obj* x_7; obj* x_8; obj* x_9; 
+obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
 x_7 = l_Lean_stxInh;
 x_8 = lean::array_get(x_7, x_3, x_5);
-x_9 = l_Lean_Syntax_isNatLit___main(x_8);
-if (lean::obj_tag(x_9) == 0)
-{
-obj* x_10; 
-x_10 = l_Lean_Syntax_isStrLit___main(x_8);
-lean::dec(x_8);
+x_9 = l_Lean_numLitKind;
+x_10 = l_Lean_Syntax_isNatLitAux___main(x_9, x_8);
 if (lean::obj_tag(x_10) == 0)
 {
-obj* x_11; obj* x_12; 
-lean::dec(x_4);
-x_11 = lean::box(0);
-x_12 = l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main(x_3, x_5, x_11);
-if (lean::obj_tag(x_12) == 0)
-{
-uint8 x_13; 
-x_13 = !lean::is_exclusive(x_12);
-if (x_13 == 0)
-{
-return x_12;
-}
-else
-{
-obj* x_14; obj* x_15; 
-x_14 = lean::cnstr_get(x_12, 0);
-lean::inc(x_14);
-lean::dec(x_12);
-x_15 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_15, 0, x_14);
-return x_15;
-}
-}
-else
-{
-uint8 x_16; 
-x_16 = !lean::is_exclusive(x_12);
-if (x_16 == 0)
-{
-obj* x_17; obj* x_18; 
-x_17 = lean::cnstr_get(x_12, 0);
-x_18 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_18, 0, x_9);
-lean::cnstr_set(x_18, 1, x_17);
-lean::cnstr_set(x_12, 0, x_18);
-return x_12;
-}
-else
-{
-obj* x_19; obj* x_20; obj* x_21; 
-x_19 = lean::cnstr_get(x_12, 0);
-lean::inc(x_19);
-lean::dec(x_12);
-x_20 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_20, 0, x_9);
-lean::cnstr_set(x_20, 1, x_19);
-x_21 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_21, 0, x_20);
-return x_21;
-}
-}
-}
-else
-{
-obj* x_22; obj* x_23; uint8 x_24; 
-x_22 = lean::cnstr_get(x_10, 0);
-lean::inc(x_22);
-lean::dec(x_10);
-x_23 = lean::mk_nat_obj(1u);
-x_24 = lean::nat_dec_eq(x_4, x_23);
-lean::dec(x_4);
-if (x_24 == 0)
-{
-obj* x_25; 
-lean::dec(x_22);
-x_25 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__2;
-return x_25;
-}
-else
-{
-obj* x_26; obj* x_27; obj* x_28; obj* x_29; obj* x_30; obj* x_31; 
-x_26 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__3;
-x_27 = lean::alloc_cnstr(2, 2, 0);
-lean::cnstr_set(x_27, 0, x_26);
-lean::cnstr_set(x_27, 1, x_22);
-x_28 = lean::box(0);
-x_29 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_29, 0, x_27);
-lean::cnstr_set(x_29, 1, x_28);
-x_30 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_30, 0, x_9);
-lean::cnstr_set(x_30, 1, x_29);
-x_31 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_31, 0, x_30);
-return x_31;
-}
-}
-}
-else
-{
-obj* x_32; obj* x_33; obj* x_34; 
+obj* x_11; 
+x_11 = l_Lean_Syntax_isStrLit___main(x_8);
 lean::dec(x_8);
-x_32 = lean::mk_nat_obj(1u);
-x_33 = lean::array_get(x_7, x_3, x_32);
-x_34 = l_Lean_Syntax_isStrLit___main(x_33);
-lean::dec(x_33);
-if (lean::obj_tag(x_34) == 0)
+if (lean::obj_tag(x_11) == 0)
 {
-obj* x_35; obj* x_36; 
+obj* x_12; obj* x_13; 
 lean::dec(x_4);
-x_35 = lean::box(0);
-x_36 = l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main(x_3, x_32, x_35);
-if (lean::obj_tag(x_36) == 0)
+x_12 = lean::box(0);
+x_13 = l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main(x_3, x_5, x_12);
+if (lean::obj_tag(x_13) == 0)
 {
-uint8 x_37; 
-lean::dec(x_9);
-x_37 = !lean::is_exclusive(x_36);
-if (x_37 == 0)
+uint8 x_14; 
+x_14 = !lean::is_exclusive(x_13);
+if (x_14 == 0)
 {
-return x_36;
+return x_13;
 }
 else
 {
-obj* x_38; obj* x_39; 
-x_38 = lean::cnstr_get(x_36, 0);
-lean::inc(x_38);
-lean::dec(x_36);
-x_39 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_39, 0, x_38);
-return x_39;
-}
-}
-else
-{
-uint8 x_40; 
-x_40 = !lean::is_exclusive(x_36);
-if (x_40 == 0)
-{
-obj* x_41; obj* x_42; 
-x_41 = lean::cnstr_get(x_36, 0);
-x_42 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_42, 0, x_9);
-lean::cnstr_set(x_42, 1, x_41);
-lean::cnstr_set(x_36, 0, x_42);
-return x_36;
-}
-else
-{
-obj* x_43; obj* x_44; obj* x_45; 
-x_43 = lean::cnstr_get(x_36, 0);
-lean::inc(x_43);
-lean::dec(x_36);
-x_44 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_44, 0, x_9);
-lean::cnstr_set(x_44, 1, x_43);
-x_45 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_45, 0, x_44);
-return x_45;
-}
+obj* x_15; obj* x_16; 
+x_15 = lean::cnstr_get(x_13, 0);
+lean::inc(x_15);
+lean::dec(x_13);
+x_16 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_16, 0, x_15);
+return x_16;
 }
 }
 else
 {
-obj* x_46; obj* x_47; uint8 x_48; 
-x_46 = lean::cnstr_get(x_34, 0);
-lean::inc(x_46);
+uint8 x_17; 
+x_17 = !lean::is_exclusive(x_13);
+if (x_17 == 0)
+{
+obj* x_18; obj* x_19; 
+x_18 = lean::cnstr_get(x_13, 0);
+x_19 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_19, 0, x_10);
+lean::cnstr_set(x_19, 1, x_18);
+lean::cnstr_set(x_13, 0, x_19);
+return x_13;
+}
+else
+{
+obj* x_20; obj* x_21; obj* x_22; 
+x_20 = lean::cnstr_get(x_13, 0);
+lean::inc(x_20);
+lean::dec(x_13);
+x_21 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_21, 0, x_10);
+lean::cnstr_set(x_21, 1, x_20);
+x_22 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_22, 0, x_21);
+return x_22;
+}
+}
+}
+else
+{
+obj* x_23; obj* x_24; uint8 x_25; 
+x_23 = lean::cnstr_get(x_11, 0);
+lean::inc(x_23);
+lean::dec(x_11);
+x_24 = lean::mk_nat_obj(1u);
+x_25 = lean::nat_dec_eq(x_4, x_24);
+lean::dec(x_4);
+if (x_25 == 0)
+{
+obj* x_26; 
+lean::dec(x_23);
+x_26 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__2;
+return x_26;
+}
+else
+{
+obj* x_27; obj* x_28; obj* x_29; obj* x_30; obj* x_31; obj* x_32; 
+x_27 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__3;
+x_28 = lean::alloc_cnstr(2, 2, 0);
+lean::cnstr_set(x_28, 0, x_27);
+lean::cnstr_set(x_28, 1, x_23);
+x_29 = lean::box(0);
+x_30 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_30, 0, x_28);
+lean::cnstr_set(x_30, 1, x_29);
+x_31 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_31, 0, x_10);
+lean::cnstr_set(x_31, 1, x_30);
+x_32 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_32, 0, x_31);
+return x_32;
+}
+}
+}
+else
+{
+obj* x_33; obj* x_34; obj* x_35; 
+lean::dec(x_8);
+x_33 = lean::mk_nat_obj(1u);
+x_34 = lean::array_get(x_7, x_3, x_33);
+x_35 = l_Lean_Syntax_isStrLit___main(x_34);
 lean::dec(x_34);
-x_47 = lean::mk_nat_obj(2u);
-x_48 = lean::nat_dec_eq(x_4, x_47);
-lean::dec(x_4);
-if (x_48 == 0)
+if (lean::obj_tag(x_35) == 0)
 {
-obj* x_49; 
-lean::dec(x_46);
-lean::dec(x_9);
-x_49 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__2;
-return x_49;
+obj* x_36; obj* x_37; 
+lean::dec(x_4);
+x_36 = lean::box(0);
+x_37 = l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main(x_3, x_33, x_36);
+if (lean::obj_tag(x_37) == 0)
+{
+uint8 x_38; 
+lean::dec(x_10);
+x_38 = !lean::is_exclusive(x_37);
+if (x_38 == 0)
+{
+return x_37;
 }
 else
 {
-obj* x_50; obj* x_51; obj* x_52; obj* x_53; obj* x_54; obj* x_55; 
-x_50 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__3;
-x_51 = lean::alloc_cnstr(2, 2, 0);
-lean::cnstr_set(x_51, 0, x_50);
-lean::cnstr_set(x_51, 1, x_46);
-x_52 = lean::box(0);
-x_53 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_53, 0, x_51);
-lean::cnstr_set(x_53, 1, x_52);
-x_54 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_54, 0, x_9);
+obj* x_39; obj* x_40; 
+x_39 = lean::cnstr_get(x_37, 0);
+lean::inc(x_39);
+lean::dec(x_37);
+x_40 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_40, 0, x_39);
+return x_40;
+}
+}
+else
+{
+uint8 x_41; 
+x_41 = !lean::is_exclusive(x_37);
+if (x_41 == 0)
+{
+obj* x_42; obj* x_43; 
+x_42 = lean::cnstr_get(x_37, 0);
+x_43 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_43, 0, x_10);
+lean::cnstr_set(x_43, 1, x_42);
+lean::cnstr_set(x_37, 0, x_43);
+return x_37;
+}
+else
+{
+obj* x_44; obj* x_45; obj* x_46; 
+x_44 = lean::cnstr_get(x_37, 0);
+lean::inc(x_44);
+lean::dec(x_37);
+x_45 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_45, 0, x_10);
+lean::cnstr_set(x_45, 1, x_44);
+x_46 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_46, 0, x_45);
+return x_46;
+}
+}
+}
+else
+{
+obj* x_47; obj* x_48; uint8 x_49; 
+x_47 = lean::cnstr_get(x_35, 0);
+lean::inc(x_47);
+lean::dec(x_35);
+x_48 = lean::mk_nat_obj(2u);
+x_49 = lean::nat_dec_eq(x_4, x_48);
+lean::dec(x_4);
+if (x_49 == 0)
+{
+obj* x_50; 
+lean::dec(x_47);
+lean::dec(x_10);
+x_50 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__2;
+return x_50;
+}
+else
+{
+obj* x_51; obj* x_52; obj* x_53; obj* x_54; obj* x_55; obj* x_56; 
+x_51 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__3;
+x_52 = lean::alloc_cnstr(2, 2, 0);
+lean::cnstr_set(x_52, 0, x_51);
+lean::cnstr_set(x_52, 1, x_47);
+x_53 = lean::box(0);
+x_54 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_54, 0, x_52);
 lean::cnstr_set(x_54, 1, x_53);
-x_55 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_55, 0, x_54);
-return x_55;
+x_55 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_55, 0, x_10);
+lean::cnstr_set(x_55, 1, x_54);
+x_56 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_56, 0, x_55);
+return x_56;
 }
 }
 }
 }
 else
 {
-obj* x_56; 
+obj* x_57; 
 lean::dec(x_4);
-x_56 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__4;
-return x_56;
+x_57 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__4;
+return x_57;
 }
 }
 default: 
 {
-obj* x_57; 
-x_57 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__4;
-return x_57;
+obj* x_58; 
+x_58 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__4;
+return x_58;
 }
 }
 }

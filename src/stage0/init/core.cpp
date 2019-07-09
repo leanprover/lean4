@@ -100,7 +100,6 @@ obj* l_Not_Decidable___rarg___boxed(obj*);
 obj* l_id___rarg___boxed(obj*);
 obj* l_setoidHasEquiv(obj*, obj*);
 obj* l_Nat_sizeof___main___boxed(obj*);
-obj* l_Pi_Inhabited___rarg(obj*, obj*);
 obj* l_Sigma_sizeof___at_Sigma_HasSizeof___spec__1___rarg(obj*, obj*, obj*);
 obj* l_Task_get___boxed(obj*, obj*);
 obj* l_Prop_Inhabited;
@@ -156,7 +155,6 @@ obj* l_Nat_HasOne;
 obj* l_Subtype_DecidableEq(obj*, obj*);
 obj* l_Decidable_recOnFalse___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Quot_rec(obj*, obj*, obj*);
-obj* l_Pi_Inhabited(obj*, obj*);
 obj* l_Quotient_recOn(obj*, obj*, obj*);
 obj* l_Subtype_Inhabited___rarg___boxed(obj*, obj*);
 obj* l_Quot_indep___rarg(obj*, obj*);
@@ -195,6 +193,7 @@ obj* l_Thunk_get___boxed(obj*, obj*);
 obj* l_Quotient_rec(obj*, obj*, obj*);
 uint8 l_Prod_DecidableEq___rarg(obj*, obj*, obj*, obj*);
 obj* l_Sum_sizeof___main(obj*, obj*);
+obj* l_Forall_Inhabited___rarg(obj*, obj*);
 obj* l_Eq_mpr___rarg(obj*);
 obj* l_Eq_ndrecOn___rarg(obj*);
 obj* l_Quot_rec___boxed(obj*, obj*, obj*);
@@ -287,7 +286,6 @@ obj* l_defaultHasSizeof___closed__1;
 uint8 l_Xor_Decidable___rarg(uint8, uint8);
 obj* l_cond___rarg(uint8, obj*, obj*);
 obj* l_Bool_sizeof(uint8);
-obj* l_Pi_Inhabited___boxed(obj*, obj*);
 obj* l_Prod_map(obj*, obj*, obj*, obj*);
 obj* l_decidableOfDecidableOfEq(obj*, obj*);
 obj* l_Quot_recOn___rarg(obj*, obj*, obj*);
@@ -320,6 +318,7 @@ obj* l_Subtype_HasSizeof___rarg___boxed(obj*, obj*);
 obj* l_Sum_HasSizeof(obj*, obj*);
 obj* l_Function_const___rarg(obj*, obj*);
 obj* l_Eq_ndrec(obj*, obj*, obj*);
+obj* l_Forall_Inhabited___boxed(obj*, obj*);
 uint8 l_xor___main(uint8, uint8);
 obj* l_Decidable_decide(obj*);
 obj* l_idRhs___rarg___boxed(obj*);
@@ -388,6 +387,7 @@ obj* l_Option_sizeof(obj*);
 obj* l_Quotient_recOnSubsingleton___boxed(obj*, obj*, obj*, obj*);
 obj* l_Sigma_sizeof___main___boxed(obj*, obj*);
 obj* l_Sum_inhabitedLeft(obj*, obj*);
+obj* l_Forall_Inhabited(obj*, obj*);
 obj* l_Thunk_get(obj*, obj*);
 obj* l_Function_swap___rarg(obj*, obj*, obj*);
 obj* l_Task_pure(obj*, obj*);
@@ -3117,7 +3117,7 @@ lean::dec(x_1);
 return x_3;
 }
 }
-obj* l_Pi_Inhabited___rarg(obj* x_1, obj* x_2) {
+obj* l_Forall_Inhabited___rarg(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
@@ -3125,19 +3125,19 @@ x_3 = lean::apply_1(x_1, x_2);
 return x_3;
 }
 }
-obj* l_Pi_Inhabited(obj* x_1, obj* x_2) {
+obj* l_Forall_Inhabited(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Pi_Inhabited___rarg), 2, 0);
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Forall_Inhabited___rarg), 2, 0);
 return x_3;
 }
 }
-obj* l_Pi_Inhabited___boxed(obj* x_1, obj* x_2) {
+obj* l_Forall_Inhabited___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_Pi_Inhabited(x_1, x_2);
+x_3 = l_Forall_Inhabited(x_1, x_2);
 lean::dec(x_2);
 return x_3;
 }
@@ -4495,7 +4495,7 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name("default"), 1, l_default);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name("arbitrary"), 1, l_arbitrary);
 l_Prop_Inhabited = _init_l_Prop_Inhabited();
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Fun"), "Inhabited"), 2, l_Fun_Inhabited);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Pi"), "Inhabited"), 2, l_Pi_Inhabited___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Forall"), "Inhabited"), 2, l_Forall_Inhabited___boxed);
 l_Bool_Inhabited = _init_l_Bool_Inhabited();
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Bool"), "Inhabited"), lean::box(l_Bool_Inhabited));
 l_True_Inhabited = _init_l_True_Inhabited();

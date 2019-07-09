@@ -14,11 +14,13 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+obj* l_Lean_Syntax_getTailInfo___main(obj*);
 obj* l___private_init_lean_syntax_5__decodeOctalLitAux___main(obj*, obj*, obj*);
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
 obj* l_Lean_Syntax_getHeadInfo___boxed(obj*);
 obj* l_Lean_Syntax_replace(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_Syntax_reprint___main___spec__1(obj*, obj*, obj*, obj*);
+obj* l_Lean_Syntax_isNatLitAux___boxed(obj*, obj*);
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_Lean_Syntax_reprint___main___boxed(obj*);
 obj* l_Lean_Syntax_flipScopes___rarg(obj*);
@@ -51,6 +53,7 @@ obj* l_List_reverse___rarg(obj*);
 obj* l___private_init_lean_syntax_4__decodeBinLitAux___main(obj*, obj*, obj*);
 obj* l_Lean_Syntax_formatStx___main(obj*);
 obj* l_Lean_numLitKind;
+obj* l_Lean_Syntax_isNatLitAux___main(obj*, obj*);
 obj* l_Lean_Format_joinSep___main___at_Lean_Syntax_formatStx___main___spec__2(obj*, obj*);
 uint8 l_Lean_Syntax_isOfKind___main(obj*, obj*);
 obj* l_Lean_Syntax_updateTrailing(obj*, obj*);
@@ -66,6 +69,7 @@ obj* l_Lean_Syntax_isMissing___main___boxed(obj*);
 obj* l_Lean_Syntax_reprint___boxed(obj*);
 obj* l___private_init_lean_syntax_8__decodeNatLitVal(obj*);
 obj* l_Lean_Syntax_formatStx___main___closed__2;
+obj* l_Lean_Syntax_isFieldIdx___boxed(obj*);
 obj* l_Lean_Syntax_flipScopes___main(obj*);
 obj* l_Lean_Syntax_HasToString;
 obj* l_Lean_Syntax_formatStx___main___closed__4;
@@ -76,6 +80,7 @@ obj* l___private_init_lean_syntax_6__decodeHexLitAux(obj*, obj*, obj*);
 obj* l_Lean_mkNumLit(obj*, obj*);
 extern obj* l_Lean_Format_join___closed__1;
 obj* l___private_init_lean_syntax_6__decodeHexLitAux___main___boxed(obj*, obj*, obj*);
+obj* l_Array_mfindRevAux___main___at_Lean_Syntax_getTailInfo___main___spec__1(obj*, obj*, obj*);
 obj* l_Lean_SourceInfo_updateTrailing(obj*, obj*);
 obj* l___private_init_lean_syntax_1__updateInfo___main(obj*, obj*);
 obj* l_Array_toList___rarg(obj*);
@@ -91,16 +96,17 @@ obj* l_Lean_Syntax_mreplace___main___rarg(obj*, obj*, obj*);
 obj* l_Lean_Syntax_reprint___main___closed__1;
 obj* l_Lean_Syntax_mreplace___boxed(obj*);
 obj* l_Lean_unreachIsNodeIdent___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_Syntax_getTailInfo___main___boxed(obj*);
 obj* l_Lean_MacroScope_DecidableEq;
 obj* l_List_map___main___at_Lean_Syntax_formatStx___main___spec__1(obj*);
 obj* l_Lean_Syntax_getPos___boxed(obj*);
-obj* l_Lean_Syntax_isNatLit___main(obj*);
 obj* l_Array_miterateAux___main___at_Lean_Syntax_reprint___main___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Syntax_Lean_HasFormat;
 obj* l_Lean_Syntax_formatStx(obj*);
 namespace lean {
 obj* mk_syntax_str_lit_core(obj*);
 }
+obj* l_Lean_Syntax_isFieldIdx(obj*);
 namespace lean {
 obj* string_append(obj*, obj*);
 }
@@ -114,10 +120,12 @@ uint8 string_utf8_at_end(obj*, obj*);
 }
 obj* l_Lean_Syntax_mreplace___main___at_Lean_Syntax_updateLeading___spec__1(obj*, obj*);
 uint8 l_Lean_Syntax_isOfKind(obj*, obj*);
+obj* l_Lean_Syntax_isNatLitAux___main___boxed(obj*, obj*);
 obj* l_Lean_Syntax_getHeadInfo___main(obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
+obj* l_Array_mfindRevAux___main___at_Lean_Syntax_getTailInfo___main___spec__1___boxed(obj*, obj*, obj*);
 obj* l_Lean_Syntax_formatStx___main___closed__1;
 uint8 l_Lean_Syntax_isIdent___main(obj*);
 obj* l_Array_ummapAux___main___at_Lean_Syntax_mreplace___main___spec__1___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -173,10 +181,10 @@ extern obj* l_Lean_formatKVMap___closed__1;
 namespace lean {
 obj* mk_syntax_list_core(obj*);
 }
-obj* l_Lean_Syntax_isNatLit___main___boxed(obj*);
 obj* l_Lean_Syntax_isStrLit(obj*);
 obj* l_Lean_Syntax_flipScopes___boxed(obj*);
 obj* l_Lean_Syntax_isIdOrAtom___main___boxed(obj*);
+obj* l_Lean_Syntax_getTailInfo___boxed(obj*);
 obj* l_Lean_Syntax_isIdOrAtom___boxed(obj*);
 namespace lean {
 obj* mk_syntax_num_lit_core(obj*);
@@ -208,6 +216,7 @@ obj* string_utf8_byte_size(obj*);
 }
 obj* l_Lean_Syntax_isNatLit___boxed(obj*);
 obj* l___private_init_lean_syntax_8__decodeNatLitVal___boxed(obj*);
+obj* l_Lean_Syntax_getTailInfo(obj*);
 namespace lean {
 obj* uint32_to_nat(uint32);
 }
@@ -220,6 +229,7 @@ obj* l___private_init_lean_syntax_7__decodeDecimalLitAux(obj*, obj*, obj*);
 obj* l_Lean_Syntax_formatStx___main___closed__6;
 obj* l_String_quote(obj*);
 obj* l_Lean_Syntax_mreplace(obj*);
+obj* l_Lean_Syntax_isNatLitAux(obj*, obj*);
 obj* l_Lean_Syntax_isStrLit___boxed(obj*);
 namespace lean {
 obj* mk_syntax_atom_core(obj*);
@@ -239,6 +249,7 @@ obj* l_Lean_Syntax_toSyntaxNode___rarg(obj*, obj*, obj*);
 obj* l_Lean_Syntax_isIdent___boxed(obj*);
 obj* l_Lean_Syntax_getHeadInfo___main___boxed(obj*);
 obj* l_Lean_SourceInfo_updateTrailing___main(obj*, obj*);
+obj* l_Lean_fieldIdxKind;
 obj* l_Lean_Syntax_toSyntaxNode___rarg___boxed(obj*, obj*, obj*);
 obj* l_Lean_unreachIsNodeIdent(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 uint8 l_Lean_Syntax_isMissing(obj*);
@@ -336,6 +347,16 @@ _start:
 obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::box(0);
 x_2 = lean::mk_string("numLit");
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_fieldIdxKind() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = lean::mk_string("fieldIdx");
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2443,6 +2464,105 @@ lean::dec(x_1);
 return x_2;
 }
 }
+obj* l_Array_mfindRevAux___main___at_Lean_Syntax_getTailInfo___main___spec__1(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; uint8 x_5; 
+x_4 = lean::mk_nat_obj(0u);
+x_5 = lean::nat_dec_lt(x_4, x_2);
+if (x_5 == 0)
+{
+obj* x_6; 
+lean::dec(x_2);
+x_6 = lean::box(0);
+return x_6;
+}
+else
+{
+obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
+x_7 = lean::mk_nat_obj(1u);
+x_8 = lean::nat_sub(x_2, x_7);
+lean::dec(x_2);
+x_9 = lean::array_fget(x_1, x_8);
+x_10 = l_Lean_Syntax_getTailInfo___main(x_9);
+lean::dec(x_9);
+if (lean::obj_tag(x_10) == 0)
+{
+x_2 = x_8;
+x_3 = lean::box(0);
+goto _start;
+}
+else
+{
+lean::dec(x_8);
+return x_10;
+}
+}
+}
+}
+obj* l_Lean_Syntax_getTailInfo___main(obj* x_1) {
+_start:
+{
+switch (lean::obj_tag(x_1)) {
+case 0:
+{
+obj* x_2; 
+x_2 = lean::box(0);
+return x_2;
+}
+case 1:
+{
+obj* x_3; obj* x_4; obj* x_5; 
+x_3 = lean::cnstr_get(x_1, 1);
+x_4 = lean::array_get_size(x_3);
+x_5 = l_Array_mfindRevAux___main___at_Lean_Syntax_getTailInfo___main___spec__1(x_3, x_4, lean::box(0));
+return x_5;
+}
+default: 
+{
+obj* x_6; 
+x_6 = lean::cnstr_get(x_1, 0);
+lean::inc(x_6);
+return x_6;
+}
+}
+}
+}
+obj* l_Array_mfindRevAux___main___at_Lean_Syntax_getTailInfo___main___spec__1___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_Array_mfindRevAux___main___at_Lean_Syntax_getTailInfo___main___spec__1(x_1, x_2, x_3);
+lean::dec(x_1);
+return x_4;
+}
+}
+obj* l_Lean_Syntax_getTailInfo___main___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_Syntax_getTailInfo___main(x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l_Lean_Syntax_getTailInfo(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_Syntax_getTailInfo___main(x_1);
+return x_2;
+}
+}
+obj* l_Lean_Syntax_getTailInfo___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_Syntax_getTailInfo(x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
 obj* l___private_init_lean_syntax_3__reprintLeaf___main(obj* x_1, obj* x_2) {
 _start:
 {
@@ -4340,16 +4460,15 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_Lean_Syntax_isNatLit___main(obj* x_1) {
+obj* l_Lean_Syntax_isNatLitAux___main(obj* x_1, obj* x_2) {
 _start:
 {
-if (lean::obj_tag(x_1) == 1)
+if (lean::obj_tag(x_2) == 1)
 {
-obj* x_2; obj* x_3; obj* x_4; uint8 x_5; 
-x_2 = lean::cnstr_get(x_1, 0);
-x_3 = lean::cnstr_get(x_1, 1);
-x_4 = l_Lean_numLitKind;
-x_5 = lean_name_dec_eq(x_2, x_4);
+obj* x_3; obj* x_4; uint8 x_5; 
+x_3 = lean::cnstr_get(x_2, 0);
+x_4 = lean::cnstr_get(x_2, 1);
+x_5 = lean_name_dec_eq(x_3, x_1);
 if (x_5 == 0)
 {
 obj* x_6; 
@@ -4359,7 +4478,7 @@ return x_6;
 else
 {
 obj* x_7; obj* x_8; uint8 x_9; 
-x_7 = lean::array_get_size(x_3);
+x_7 = lean::array_get_size(x_4);
 x_8 = lean::mk_nat_obj(1u);
 x_9 = lean::nat_dec_eq(x_7, x_8);
 lean::dec(x_7);
@@ -4374,7 +4493,7 @@ else
 obj* x_11; obj* x_12; obj* x_13; 
 x_11 = l_Lean_stxInh;
 x_12 = lean::mk_nat_obj(0u);
-x_13 = lean::array_get(x_11, x_3, x_12);
+x_13 = lean::array_get(x_11, x_4, x_12);
 if (lean::obj_tag(x_13) == 2)
 {
 obj* x_14; obj* x_15; 
@@ -4403,21 +4522,41 @@ return x_17;
 }
 }
 }
-obj* l_Lean_Syntax_isNatLit___main___boxed(obj* x_1) {
+obj* l_Lean_Syntax_isNatLitAux___main___boxed(obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_2; 
-x_2 = l_Lean_Syntax_isNatLit___main(x_1);
+obj* x_3; 
+x_3 = l_Lean_Syntax_isNatLitAux___main(x_1, x_2);
+lean::dec(x_2);
 lean::dec(x_1);
-return x_2;
+return x_3;
+}
+}
+obj* l_Lean_Syntax_isNatLitAux(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_Lean_Syntax_isNatLitAux___main(x_1, x_2);
+return x_3;
+}
+}
+obj* l_Lean_Syntax_isNatLitAux___boxed(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_Lean_Syntax_isNatLitAux(x_1, x_2);
+lean::dec(x_2);
+lean::dec(x_1);
+return x_3;
 }
 }
 obj* l_Lean_Syntax_isNatLit(obj* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = l_Lean_Syntax_isNatLit___main(x_1);
-return x_2;
+obj* x_2; obj* x_3; 
+x_2 = l_Lean_numLitKind;
+x_3 = l_Lean_Syntax_isNatLitAux___main(x_2, x_1);
+return x_3;
 }
 }
 obj* l_Lean_Syntax_isNatLit___boxed(obj* x_1) {
@@ -4425,6 +4564,24 @@ _start:
 {
 obj* x_2; 
 x_2 = l_Lean_Syntax_isNatLit(x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l_Lean_Syntax_isFieldIdx(obj* x_1) {
+_start:
+{
+obj* x_2; obj* x_3; 
+x_2 = l_Lean_fieldIdxKind;
+x_3 = l_Lean_Syntax_isNatLitAux___main(x_2, x_1);
+return x_3;
+}
+}
+obj* l_Lean_Syntax_isFieldIdx___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_Syntax_isFieldIdx(x_1);
 lean::dec(x_1);
 return x_2;
 }
@@ -4522,6 +4679,9 @@ lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "strLit
 l_Lean_numLitKind = _init_l_Lean_numLitKind();
 lean::mark_persistent(l_Lean_numLitKind);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "numLitKind"), l_Lean_numLitKind);
+l_Lean_fieldIdxKind = _init_l_Lean_fieldIdxKind();
+lean::mark_persistent(l_Lean_fieldIdxKind);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "fieldIdxKind"), l_Lean_fieldIdxKind);
 l_Lean_stxInh = _init_l_Lean_stxInh();
 lean::mark_persistent(l_Lean_stxInh);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "stxInh"), l_Lean_stxInh);
@@ -4542,6 +4702,7 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_na
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Syntax"), "updateTrailing"), 2, l_Lean_Syntax_updateTrailing);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Syntax"), "getHeadInfo"), 1, l_Lean_Syntax_getHeadInfo___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Syntax"), "getPos"), 1, l_Lean_Syntax_getPos___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Syntax"), "getTailInfo"), 1, l_Lean_Syntax_getTailInfo___boxed);
 l_Lean_Syntax_reprint___main___closed__1 = _init_l_Lean_Syntax_reprint___main___closed__1();
 lean::mark_persistent(l_Lean_Syntax_reprint___main___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Syntax"), "reprint"), 1, l_Lean_Syntax_reprint___boxed);
@@ -4575,7 +4736,9 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkNumLi
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Syntax"), "isStrLit"), 1, l_Lean_Syntax_isStrLit___boxed);
 l___private_init_lean_syntax_8__decodeNatLitVal___closed__1 = _init_l___private_init_lean_syntax_8__decodeNatLitVal___closed__1();
 lean::mark_persistent(l___private_init_lean_syntax_8__decodeNatLitVal___closed__1);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Syntax"), "isNatLitAux"), 2, l_Lean_Syntax_isNatLitAux___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Syntax"), "isNatLit"), 1, l_Lean_Syntax_isNatLit___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Syntax"), "isFieldIdx"), 1, l_Lean_Syntax_isFieldIdx___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Syntax"), "isIdOrAtom"), 1, l_Lean_Syntax_isIdOrAtom___boxed);
 return w;
 }

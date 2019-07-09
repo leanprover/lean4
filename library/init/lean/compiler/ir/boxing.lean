@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.control.estate
 import init.control.reader
+import init.lean.runtime
 import init.lean.compiler.externattr
 import init.lean.compiler.ir.basic
 import init.lean.compiler.ir.compilerm
@@ -32,6 +33,10 @@ Assumptions:
 def mkBoxedName (n : Name) : Name :=
 Name.mkString n "_boxed"
 
+def isBoxedName : Name → Bool
+| (Name.mkString _ "_boxed") := true
+| _ := false
+
 abbrev N := State Nat
 
 private def mkFresh : N VarId :=
@@ -41,7 +46,8 @@ do idx ← get;
 
 def requiresBoxedVersion (env : Environment) (decl : Decl) : Bool :=
 let ps := decl.params;
-ps.size > 0 && (decl.resultType.isScalar || ps.any (fun p => p.ty.isScalar || p.borrow) || isExtern env decl.name)
+(ps.size > 0 && (decl.resultType.isScalar || ps.any (fun p => p.ty.isScalar || p.borrow) || isExtern env decl.name))
+|| ps.size > closureMaxArgs
 
 def mkBoxedVersionAux (decl : Decl) : N Decl :=
 do

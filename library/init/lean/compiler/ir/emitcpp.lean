@@ -17,7 +17,7 @@ import init.lean.compiler.ir.boxing
 
 namespace Lean
 namespace IR
-open ExplicitBoxing (requiresBoxedVersion mkBoxedName)
+open ExplicitBoxing (requiresBoxedVersion mkBoxedName isBoxedName)
 namespace EmitCpp
 
 def leanMainFn := "_lean_main"
@@ -132,10 +132,13 @@ when (ps.isEmpty && addExternForConsts) (emit "extern ");
 emit (toCppType decl.resultType ++ " " ++ cppBaseName);
 unless (ps.isEmpty) $ do {
   emit "(";
-  ps.size.mfor $ fun i => do {
-    when (i > 0) (emit ", ");
-    emit (toCppType (ps.get i).ty)
-  };
+  if ps.size > closureMaxArgs && isBoxedName decl.name then
+    emit "obj**"
+  else
+    ps.size.mfor $ fun i => do {
+      when (i > 0) (emit ", ");
+      emit (toCppType (ps.get i).ty)
+    };
   emit ")"
 };
 emitLn ";"
@@ -640,16 +643,24 @@ unless (hasInitAttr env d.name) $
     if xs.size > 0 then do {
       emit baseName;
       emit "(";
-      xs.size.mfor $ fun i => do {
-        when (i > 0) (emit ", ");
-        let x := xs.get i;
-        emit (toCppType x.ty); emit " "; emit(x.x)
-      };
+      if xs.size > closureMaxArgs && isBoxedName d.name then
+        emit "obj** _args"
+      else
+        xs.size.mfor $ fun i => do {
+          when (i > 0) (emit ", ");
+          let x := xs.get i;
+          emit (toCppType x.ty); emit " "; emit x.x
+        };
       emit ")"
     } else do {
       emit ("_init_" ++ baseName ++ "()")
     };
     emitLn " {";
+    when (xs.size > closureMaxArgs && isBoxedName d.name) $
+      xs.size.mfor $ fun i => do {
+        let x := xs.get i;
+        emit "obj * "; emit x.x; emit " = _args["; emit i; emitLn "];"
+      };
     emitLn "_start:";
     adaptReader (fun (ctx : Context) => { mainFn := f, mainParams := xs, .. ctx }) (emitFnBody b);
     emitLn "}";

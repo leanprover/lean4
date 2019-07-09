@@ -220,7 +220,7 @@ fun a c s => andthenAux (p a) (q a) c s
 
 @[inline] def andthen {k : ParserKind} (p q : Parser k) : Parser k :=
 { info := andthenInfo p.info q.info,
-  fn   := fun a c s => andthenFn p.fn q.fn a c s}
+  fn   := andthenFn p.fn q.fn }
 
 instance hashAndthen {k : ParserKind} : HasAndthen (Parser k) :=
 ⟨andthen⟩
@@ -239,7 +239,7 @@ instance hashAndthen {k : ParserKind} : HasAndthen (Parser k) :=
 { info := nodeInfo p.info,
   /- Remark: the compiler currently does not eta-expand structure fields.
      So, we force it here to trigger inlining at `node` combinators. -/
-  fn   := fun a c s => nodeFn n p.fn a c s}
+  fn   := nodeFn n p.fn }
 
 @[inline] def leadingNode (n : SyntaxNodeKind) (p : Parser leading) : Parser :=
 node n p
@@ -260,7 +260,7 @@ node n p
 
 @[inline] def orelse {k : ParserKind} (p q : Parser k) : Parser k :=
 { info := orelseInfo p.info q.info,
-  fn   := fun a c s => orelseFn p.fn q.fn a c s}
+  fn   := orelseFn p.fn q.fn }
 
 instance hashOrelse {k : ParserKind} : HasOrelse (Parser k) :=
 ⟨orelse⟩
@@ -278,7 +278,7 @@ instance hashOrelse {k : ParserKind} : HasOrelse (Parser k) :=
 
 @[inline] def try {k : ParserKind} (p : Parser k) : Parser k :=
 { info := p.info,
-  fn   := fun a c s => tryFn p.fn a c s }
+  fn   := tryFn p.fn }
 
 @[inline] def optionalFn {k : ParserKind} (p : ParserFn k) : ParserFn k :=
 fun a c s =>
@@ -290,7 +290,7 @@ fun a c s =>
 
 @[inline] def optional {k : ParserKind} (p : Parser k) : Parser k :=
 { info := noFirstTokenInfo p.info,
-  fn   := fun a c s => optionalFn p.fn a c s }
+  fn   := optionalFn p.fn }
 
 @[specialize] partial def manyAux {k : ParserKind} (p : ParserFn k) : ParserFn k
 | a c s :=
@@ -309,7 +309,7 @@ fun a c s =>
 
 @[inline] def many {k : ParserKind} (p : Parser k) : Parser k :=
 { info := noFirstTokenInfo p.info,
-  fn   := fun a c s => manyFn p.fn a c s }
+  fn   := manyFn p.fn }
 
 @[inline] def many1Fn {k : ParserKind} (p : ParserFn k) : ParserFn k :=
 fun a c s =>
@@ -319,7 +319,7 @@ fun a c s =>
 
 @[inline] def many1 {k : ParserKind} (p : Parser k) : Parser k :=
 { info := p.info,
-  fn   := fun a c s => many1Fn p.fn a c s }
+  fn   := many1Fn p.fn }
 
 @[specialize] private partial def sepByFnAux {k : ParserKind} (p : ParserFn k) (sep : ParserFn k) (allowTrailingSep : Bool) (iniSz : Nat) : Bool → ParserFn k
 | pOpt a c s :=
@@ -363,11 +363,11 @@ fun a c s =>
 
 @[inline] def sepBy {k : ParserKind} (p sep : Parser k) (allowTrailingSep : Bool := false) : Parser k :=
 { info := sepByInfo p.info sep.info,
-  fn   := fun a c s => sepByFn allowTrailingSep p.fn sep.fn a c s }
+  fn   := sepByFn allowTrailingSep p.fn sep.fn }
 
 @[inline] def sepBy1 {k : ParserKind} (p sep : Parser k) (allowTrailingSep : Bool := false) : Parser k :=
 { info := sepBy1Info p.info sep.info,
-  fn   := fun a c s => sepBy1Fn allowTrailingSep p.fn sep.fn a c s }
+  fn   := sepBy1Fn allowTrailingSep p.fn sep.fn }
 
 @[specialize] partial def satisfyFn (p : Char → Bool) (errorMsg : String := "unexpected character") : BasicParserFn
 | c s :=
@@ -740,7 +740,7 @@ fun _ => symbolFnAux sym ("expected '" ++ sym ++ "'")
 @[inline] def symbolAux {k : ParserKind} (sym : String) (lbp : Option Nat := none) : Parser k :=
 let sym := sym.trim;
 { info := symbolInfo sym lbp,
-  fn   := fun a c s => symbolFn sym a c s }
+  fn   := symbolFn sym }
 
 @[inline] def symbol {k : ParserKind} (sym : String) (lbp : Nat) : Parser k :=
 symbolAux sym lbp
@@ -787,7 +787,7 @@ symbolNoWsFnAux sym ("expected '" ++ sym ++ "' without whitespaces arount it")
 @[inline] def symbolNoWsAux (sym : String) (lbp : Option Nat) : TrailingParser :=
 let sym := sym.trim;
 { info := symbolNoWsInfo sym lbp,
-  fn   := fun a c s => symbolNoWsFn sym a c s }
+  fn   := symbolNoWsFn sym }
 
 @[inline] def symbolNoWs (sym : String) (lbp : Nat) : TrailingParser :=
 symbolNoWsAux sym lbp
@@ -806,7 +806,7 @@ fun _ => unicodeSymbolFnAux sym asciiSym ("expected '" ++ sym ++ "' or '" ++ asc
 let sym := sym.trim;
 let asciiSym := asciiSym.trim;
 { info := unicodeSymbolInfo sym asciiSym lbp,
-  fn   := fun a c s => unicodeSymbolFn sym asciiSym a c s }
+  fn   := unicodeSymbolFn sym asciiSym }
 
 def unicodeSymbolCheckPrecFnAux (sym asciiSym : String) (lbp : Nat) (errorMsg : String) (precErrorMsg : String) : ParserFn leading :=
 fun (rbp : Nat) c s =>

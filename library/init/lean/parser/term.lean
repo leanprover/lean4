@@ -47,42 +47,42 @@ pushLeading >> symbol sym lbp >> termParser lbp
 @[builtinTermParser] def hole := parser! symbol "_" appPrec
 @[builtinTermParser] def «sorry» := parser! symbol "sorry" appPrec
 @[builtinTermParser] def cdot := parser! symbol "·" appPrec
-@[inline] def typeAscription := parser! " : " >> termParser
-@[inline] def tupleTail      := parser! ", " >> sepBy1 termParser ", "
-@[inline] def parenSpecial : Parser := optional (tupleTail <|> typeAscription)
+def typeAscription := parser! " : " >> termParser
+def tupleTail      := parser! ", " >> sepBy1 termParser ", "
+def parenSpecial : Parser := optional (tupleTail <|> typeAscription)
 @[builtinTermParser] def paren := parser! symbol "(" appPrec >> optional (termParser >> parenSpecial) >> ")"
 @[builtinTermParser] def anonymousCtor := parser! symbol "⟨" appPrec >> sepBy1 termParser ", " >> "⟩"
-@[inline] def optIdent : Parser := optional (try (ident >> " : "))
+def optIdent : Parser := optional (try (ident >> " : "))
 @[builtinTermParser] def «if»  := parser! "if " >> optIdent >> termParser >> " then " >> termParser >> " else " >> termParser
-@[inline] def fromTerm   := parser! " from " >> termParser
-@[inline] def haveAssign := parser! " := " >> termParser
+def fromTerm   := parser! " from " >> termParser
+def haveAssign := parser! " := " >> termParser
 @[builtinTermParser] def «have» := parser! "have " >> optIdent >> termParser >> (haveAssign <|> fromTerm) >> "; " >> termParser
 @[builtinTermParser] def «suffices» := parser! "suffices " >> optIdent >> termParser >> fromTerm >> "; " >> termParser
 @[builtinTermParser] def «show»     := parser! "show " >> termParser >> fromTerm
 @[builtinTermParser] def «fun»      := parser! unicodeSymbol "λ" "fun" >> many1 (termParser appPrec) >> unicodeSymbol "⇒" "=>" >> termParser
-@[inline] def structInstField  := parser! ident >> " := " >> termParser
-@[inline] def structInstSource := parser! ".." >> optional termParser
+def structInstField  := parser! ident >> " := " >> termParser
+def structInstSource := parser! ".." >> optional termParser
 @[builtinTermParser] def structInst := parser! symbol "{" appPrec >> optional (try (ident >> " . ")) >> sepBy (structInstField <|> structInstSource) ", " true >> "}"
-@[inline] def typeSpec := parser! " : " >> termParser
-@[inline] def optType : Parser := optional typeSpec
+def typeSpec := parser! " : " >> termParser
+def optType : Parser := optional typeSpec
 @[builtinTermParser] def subtype := parser! "{" >> ident >> optType >> " // " >> termParser >> "}"
 @[builtinTermParser] def list := parser! symbol "[" appPrec >> sepBy termParser "," true >> "]"
-@[inline] def binderIdent : Parser  := ident <|> hole
-@[inline] def binderType (requireType := false) : Parser := if requireType then " : " >> termParser else optional (" : " >> termParser)
-@[inline] def binderDefault := parser! " := " >> termParser
-@[inline] def binderTactic  := parser! " . " >> termParser
-@[inline] def explicitBinder (requireType := false) := parser! "(" >> many1 binderIdent >> binderType requireType >> optional (binderDefault <|> binderTactic) >> ")"
-@[inline] def implicitBinder (requireType := false) := parser! "{" >> many1 binderIdent >> binderType requireType >> "}"
-@[inline] def instBinder := parser! "[" >> optIdent >> termParser >> "]"
-@[inline] def bracktedBinder (requireType := false) := explicitBinder requireType <|> implicitBinder requireType <|> instBinder
+def binderIdent : Parser  := ident <|> hole
+def binderType (requireType := false) : Parser := if requireType then " : " >> termParser else optional (" : " >> termParser)
+def binderDefault := parser! " := " >> termParser
+def binderTactic  := parser! " . " >> termParser
+def explicitBinder (requireType := false) := parser! "(" >> many1 binderIdent >> binderType requireType >> optional (binderDefault <|> binderTactic) >> ")"
+def implicitBinder (requireType := false) := parser! "{" >> many1 binderIdent >> binderType requireType >> "}"
+def instBinder := parser! "[" >> optIdent >> termParser >> "]"
+def bracktedBinder (requireType := false) := explicitBinder requireType <|> implicitBinder requireType <|> instBinder
 @[builtinTermParser] def depArrow := parser! bracktedBinder true >> unicodeSymbolCheckPrec " → " " -> " 25 >> termParser
-@[inline] def simpleBinder := parser! many1 binderIdent
+def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser! unicodeSymbol "∀" "forall" >> many1 (simpleBinder <|> bracktedBinder) >> ", " >> termParser
-@[inline] def equation := parser! " | " >> sepBy1 termParser ", " >> " => " >> termParser
+def equation := parser! " | " >> sepBy1 termParser ", " >> " => " >> termParser
 @[builtinTermParser] def «match» := parser! "match " >> sepBy1 termParser ", " >> optType >> " with " >> many1 equation
 @[builtinTermParser] def «nomatch» := parser! "nomatch " >> termParser
 
-@[inline] def namedArgument  := tparser! try ("(" >> ident >> " := ") >> termParser >> ")"
+def namedArgument  := tparser! try ("(" >> ident >> " := ") >> termParser >> ")"
 @[builtinTermParser] def app   := tparser! pushLeading >> (namedArgument <|> termParser appPrec)
 @[builtinTermParser] def proj  := tparser! pushLeading >> symbolNoWs "." (appPrec+1) >> (fieldIdx <|> ident)
 @[builtinTermParser] def arrow := tparser! unicodeInfixR " → " " -> " 25

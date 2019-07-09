@@ -14,6 +14,8 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+obj* l_hasMonadLiftToHasCoe___elambda__1___rarg(obj*, obj*);
+obj* l_hasMonadLiftToHasCoe___elambda__1___boxed(obj*, obj*, obj*);
 obj* l_monadFunctorTTrans(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_hasMonadLiftTRefl___rarg(obj*);
 obj* l_hasMonadLiftToHasCoe___boxed(obj*, obj*);
@@ -23,6 +25,7 @@ obj* l_monadFunctorTRefl___boxed(obj*, obj*, obj*);
 obj* l_hasMonadLiftTTrans___rarg(obj*, obj*, obj*, obj*);
 obj* l_hasMonadLiftTRefl___boxed(obj*, obj*);
 obj* l_monadFunctorTRefl___rarg(obj*, obj*);
+obj* l_hasMonadLiftToHasCoe___elambda__1(obj*, obj*, obj*);
 obj* l_monadFunctorTRefl(obj*, obj*, obj*);
 obj* l_hasMonadLiftTRefl(obj*, obj*);
 obj* l_hasMonadLiftTTrans(obj*, obj*, obj*);
@@ -31,11 +34,28 @@ obj* l_hasMonadLiftTTrans___boxed(obj*, obj*, obj*);
 obj* l_monadFunctorTTrans___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_hasMonadLiftToHasCoe___rarg(obj*, obj*);
 obj* l_monadFunctorTTrans___rarg___lambda__1(obj*, obj*, obj*, obj*);
+obj* l_hasMonadLiftToHasCoe___elambda__1___rarg(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::apply_2(x_1, lean::box(0), x_2);
+return x_3;
+}
+}
+obj* l_hasMonadLiftToHasCoe___elambda__1(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_hasMonadLiftToHasCoe___elambda__1___rarg), 2, 0);
+return x_4;
+}
+}
 obj* l_hasMonadLiftToHasCoe___rarg(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = lean::apply_1(x_1, lean::box(0));
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_hasMonadLiftToHasCoe___elambda__1___rarg), 2, 1);
+lean::closure_set(x_3, 0, x_1);
 return x_3;
 }
 }
@@ -45,6 +65,16 @@ _start:
 obj* x_3; 
 x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_hasMonadLiftToHasCoe___rarg), 2, 0);
 return x_3;
+}
+}
+obj* l_hasMonadLiftToHasCoe___elambda__1___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_hasMonadLiftToHasCoe___elambda__1(x_1, x_2, x_3);
+lean::dec(x_2);
+lean::dec(x_1);
+return x_4;
 }
 }
 obj* l_hasMonadLiftToHasCoe___boxed(obj* x_1, obj* x_2) {

@@ -31,8 +31,9 @@ extern obj* l_Lean_Inhabited;
 obj* l_List_redLength___main___rarg(obj*);
 obj* l_Array_mkEmpty(obj*, obj*);
 obj* l_Lean_projectionFnInfoExt___elambda__3___boxed(obj*, obj*);
+obj* l_Lean_projectionFnInfoExt___elambda__4___closed__1;
 obj* l_Array_swap(obj*, obj*, obj*, obj*);
-obj* l_Lean_projectionFnInfoExt___elambda__4(obj*, obj*, obj*);
+obj* l_Lean_projectionFnInfoExt___elambda__4(obj*);
 obj* l_Lean_mkProjectionFnInfoExtension___lambda__3(obj*);
 obj* l_Lean_projectionFnInfoExt___elambda__2___boxed(obj*);
 obj* l_Lean_Environment_getModuleIdxFor(obj*, obj*);
@@ -54,7 +55,7 @@ uint8 l_Lean_NameMap_contains___rarg(obj*, obj*);
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
-obj* l_Lean_projectionFnInfoExt___elambda__4___boxed(obj*, obj*, obj*);
+obj* l_Lean_projectionFnInfoExt___elambda__4___boxed(obj*);
 obj* l_Lean_Environment_getProjectionFnInfo___closed__1;
 obj* l_Lean_mkProjectionFnInfoExtension___lambda__1(obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkProjectionFnInfoExtension___spec__2___closed__1;
@@ -454,14 +455,24 @@ lean::inc(x_1);
 return x_1;
 }
 }
-obj* l_Lean_projectionFnInfoExt___elambda__4(obj* x_1, obj* x_2, obj* x_3) {
+obj* _init_l_Lean_projectionFnInfoExt___elambda__4___closed__1() {
 _start:
 {
-obj* x_4; 
-x_4 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_4, 0, x_1);
-lean::cnstr_set(x_4, 1, x_2);
-return x_4;
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = lean::box(0);
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
+obj* l_Lean_projectionFnInfoExt___elambda__4(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_projectionFnInfoExt___elambda__4___closed__1;
+return x_2;
 }
 }
 obj* l_Lean_projectionFnInfoExt___elambda__1___boxed(obj* x_1) {
@@ -492,13 +503,13 @@ lean::dec(x_1);
 return x_3;
 }
 }
-obj* l_Lean_projectionFnInfoExt___elambda__4___boxed(obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Lean_projectionFnInfoExt___elambda__4___boxed(obj* x_1) {
 _start:
 {
-obj* x_4; 
-x_4 = l_Lean_projectionFnInfoExt___elambda__4(x_1, x_2, x_3);
-lean::dec(x_3);
-return x_4;
+obj* x_2; 
+x_2 = l_Lean_projectionFnInfoExt___elambda__4(x_1);
+lean::dec(x_1);
+return x_2;
 }
 }
 namespace lean {
@@ -922,6 +933,8 @@ lean::mark_persistent(l___private_init_data_array_qsort_1__partitionAux___main__
 l_Lean_mkProjectionFnInfoExtension___closed__1 = _init_l_Lean_mkProjectionFnInfoExtension___closed__1();
 lean::mark_persistent(l_Lean_mkProjectionFnInfoExtension___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkProjectionFnInfoExtension"), 1, l_Lean_mkProjectionFnInfoExtension);
+l_Lean_projectionFnInfoExt___elambda__4___closed__1 = _init_l_Lean_projectionFnInfoExt___elambda__4___closed__1();
+lean::mark_persistent(l_Lean_projectionFnInfoExt___elambda__4___closed__1);
 w = l_Lean_mkProjectionFnInfoExtension(w);
 if (io_result_is_error(w)) return w;
 l_Lean_projectionFnInfoExt = io_result_get_value(w);

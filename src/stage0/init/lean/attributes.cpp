@@ -253,7 +253,7 @@ obj* l_Array_miterateAux___main___at_Lean_Environment_activateScopedAttributes__
 obj* l_AssocList_find___main___at_Lean_getAttributeImpl___spec__2(obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_EnumAttributes_getValue___spec__1___rarg___boxed(obj*, obj*);
 obj* l_Array_qsortAux___main___at_Lean_registerParametricAttribute___spec__2___rarg___boxed(obj*, obj*, obj*, obj*);
-obj* l_Lean_scopeManagerExt___elambda__4___boxed(obj*, obj*, obj*);
+obj* l_Lean_scopeManagerExt___elambda__4___boxed(obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_registerEnumAttributes___spec__4___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_registerEnumAttributes___spec__5___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_List_foldl___main___at_Lean_Environment_toValidNamespace___spec__1(obj*, obj*, obj*, obj*);
@@ -285,6 +285,7 @@ obj* l_Lean_ParametricAttribute_setParam___rarg___closed__2;
 obj* l_RBNode_find___main___at_Lean_EnumAttributes_setValue___spec__1(obj*);
 obj* l_Lean_registerParametricAttribute___rarg___lambda__2(obj*, obj*);
 obj* l_Lean_scopeManagerExt___elambda__3(obj*, obj*);
+obj* l_Lean_scopeManagerExt___elambda__4___closed__1;
 obj* l_AssocList_mfoldl___main___at_Lean_getAttributeNames___spec__1(obj*, obj*);
 obj* l_Lean_scopeManagerExt___elambda__1___boxed(obj*);
 obj* l_Array_miterateAux___main___at_Lean_Environment_pushScope___spec__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -363,7 +364,7 @@ obj* to_valid_namespace_core(obj*, obj*);
 }
 obj* l_IO_Prim_Ref_reset(obj*, obj*, obj*);
 obj* l_Lean_getAttributeImpl(obj*, obj*);
-obj* l_Lean_scopeManagerExt___elambda__4(obj*, obj*, obj*);
+obj* l_Lean_scopeManagerExt___elambda__4(obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_registerEnumAttributes___spec__6(obj*);
 obj* l_Lean_TagAttribute_hasTag___boxed(obj*, obj*, obj*);
 obj* l_Lean_Environment_eraseAttribute___boxed(obj*, obj*, obj*, obj*, obj*);
@@ -644,14 +645,29 @@ lean::inc(x_1);
 return x_1;
 }
 }
-obj* l_Lean_scopeManagerExt___elambda__4(obj* x_1, obj* x_2, obj* x_3) {
+obj* _init_l_Lean_scopeManagerExt___elambda__4___closed__1() {
 _start:
 {
-obj* x_4; 
+obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+x_1 = lean::box(0);
+x_2 = lean::box(0);
+x_3 = lean::alloc_cnstr(0, 4, 0);
+lean::cnstr_set(x_3, 0, x_2);
+lean::cnstr_set(x_3, 1, x_1);
+lean::cnstr_set(x_3, 2, x_1);
+lean::cnstr_set(x_3, 3, x_1);
 x_4 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_4, 0, x_1);
-lean::cnstr_set(x_4, 1, x_2);
+lean::cnstr_set(x_4, 1, x_3);
 return x_4;
+}
+}
+obj* l_Lean_scopeManagerExt___elambda__4(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_scopeManagerExt___elambda__4___closed__1;
+return x_2;
 }
 }
 obj* l_Lean_scopeManagerExt___elambda__1___boxed(obj* x_1) {
@@ -682,13 +698,13 @@ lean::dec(x_1);
 return x_3;
 }
 }
-obj* l_Lean_scopeManagerExt___elambda__4___boxed(obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Lean_scopeManagerExt___elambda__4___boxed(obj* x_1) {
 _start:
 {
-obj* x_4; 
-x_4 = l_Lean_scopeManagerExt___elambda__4(x_1, x_2, x_3);
-lean::dec(x_3);
-return x_4;
+obj* x_2; 
+x_2 = l_Lean_scopeManagerExt___elambda__4(x_1);
+lean::dec(x_1);
+return x_2;
 }
 }
 namespace lean {
@@ -9530,6 +9546,8 @@ lean::mark_persistent(l_Lean_regScopeManagerExtension___lambda__2___closed__1);
 l_Lean_regScopeManagerExtension___closed__1 = _init_l_Lean_regScopeManagerExtension___closed__1();
 lean::mark_persistent(l_Lean_regScopeManagerExtension___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "regScopeManagerExtension"), 1, l_Lean_regScopeManagerExtension);
+l_Lean_scopeManagerExt___elambda__4___closed__1 = _init_l_Lean_scopeManagerExt___elambda__4___closed__1();
+lean::mark_persistent(l_Lean_scopeManagerExt___elambda__4___closed__1);
 w = l_Lean_regScopeManagerExtension(w);
 if (io_result_is_error(w)) return w;
 l_Lean_scopeManagerExt = io_result_get_value(w);

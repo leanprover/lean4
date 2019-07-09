@@ -143,7 +143,7 @@ obj* l_Lean_registerClassAttr___lambda__1___closed__1;
 obj* l_HashMapImp_insert___at_Lean_ClassState_addEntry___spec__15(obj*, obj*, obj*);
 obj* l_Lean_SMap_insert___main___at_Lean_ClassState_addEntry___spec__14(obj*, obj*, obj*);
 obj* l_AssocList_replace___main___at_Lean_ClassState_addEntry___spec__9___boxed(obj*, obj*, obj*);
-obj* l_Lean_classExtension___elambda__4(obj*, obj*, obj*);
+obj* l_Lean_classExtension___elambda__4(obj*);
 uint8 l_Lean_Expr_isAppOfArity___main(obj*, obj*, obj*);
 obj* l_AssocList_replace___main___at_Lean_ClassState_addEntry___spec__20(obj*, obj*, obj*);
 obj* l_mkHashMap___at_Lean_ClassState_Inhabited___spec__2(obj*);
@@ -191,6 +191,7 @@ obj* l_mkHashMap___at_Lean_ClassState_Inhabited___spec__6(obj*);
 namespace lean {
 uint8 nat_dec_le(obj*, obj*);
 }
+obj* l_Lean_classExtension___elambda__4___closed__1;
 obj* l_Lean_classExtension;
 namespace lean {
 uint8 is_out_param_core(obj*);
@@ -207,7 +208,7 @@ obj* l_Lean_classExtension___elambda__1(obj*);
 obj* l_Lean_registerClassAttr___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_IO_ofExcept___at_Lean_registerClassAttr___spec__1___boxed(obj*, obj*);
 obj* l_HashMapImp_find___at_Lean_hasOutParams___spec__2(obj*, obj*);
-obj* l_Lean_classExtension___elambda__4___boxed(obj*, obj*, obj*);
+obj* l_Lean_classExtension___elambda__4___boxed(obj*);
 obj* l_Lean_ClassState_Inhabited;
 obj* l_RBNode_ins___main___at_Lean_ClassState_addEntry___spec__23(obj*, obj*, obj*);
 obj* l_Lean_addClass___closed__2;
@@ -7171,14 +7172,30 @@ lean::inc(x_1);
 return x_1;
 }
 }
-obj* l_Lean_classExtension___elambda__4(obj* x_1, obj* x_2, obj* x_3) {
+obj* _init_l_Lean_classExtension___elambda__4___closed__1() {
 _start:
 {
-obj* x_4; 
-x_4 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_4, 0, x_1);
-lean::cnstr_set(x_4, 1, x_2);
-return x_4;
+obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
+x_1 = lean::box(0);
+x_2 = l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__1;
+x_3 = l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__3;
+x_4 = l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__5;
+x_5 = lean::alloc_cnstr(0, 3, 0);
+lean::cnstr_set(x_5, 0, x_2);
+lean::cnstr_set(x_5, 1, x_3);
+lean::cnstr_set(x_5, 2, x_4);
+x_6 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_6, 0, x_1);
+lean::cnstr_set(x_6, 1, x_5);
+return x_6;
+}
+}
+obj* l_Lean_classExtension___elambda__4(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_classExtension___elambda__4___closed__1;
+return x_2;
 }
 }
 obj* l_Lean_classExtension___elambda__1___boxed(obj* x_1) {
@@ -7209,13 +7226,13 @@ lean::dec(x_1);
 return x_3;
 }
 }
-obj* l_Lean_classExtension___elambda__4___boxed(obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Lean_classExtension___elambda__4___boxed(obj* x_1) {
 _start:
 {
-obj* x_4; 
-x_4 = l_Lean_classExtension___elambda__4(x_1, x_2, x_3);
-lean::dec(x_3);
-return x_4;
+obj* x_2; 
+x_2 = l_Lean_classExtension___elambda__4(x_1);
+lean::dec(x_1);
+return x_2;
 }
 }
 uint8 l_HashMapImp_contains___at_Lean_isClass___spec__2(obj* x_1, obj* x_2) {
@@ -8602,6 +8619,8 @@ lean::mark_persistent(l_Lean_mkClassExtension___lambda__1___closed__1);
 l_Lean_mkClassExtension___closed__1 = _init_l_Lean_mkClassExtension___closed__1();
 lean::mark_persistent(l_Lean_mkClassExtension___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkClassExtension"), 1, l_Lean_mkClassExtension);
+l_Lean_classExtension___elambda__4___closed__1 = _init_l_Lean_classExtension___elambda__4___closed__1();
+lean::mark_persistent(l_Lean_classExtension___elambda__4___closed__1);
 w = l_Lean_mkClassExtension(w);
 if (io_result_is_error(w)) return w;
 l_Lean_classExtension = io_result_get_value(w);

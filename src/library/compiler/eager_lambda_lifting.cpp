@@ -106,6 +106,8 @@ class eager_lambda_lifting_fn {
                             ok = false;
                             return false;
                         } else {
+                            if (!collect_fvars_core(d.get_type(), collected, fvars))
+                                return false;
                             fvars.push_back(x);
                         }
                     }

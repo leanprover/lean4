@@ -766,39 +766,7 @@ class specialize_fn {
     }
 
     expr eta_expand_specialization(expr e) {
-        /* Remark: we do not use `type_checker.eta_expand` because it does not preserve LCNF */
-        try {
-            buffer<expr> args;
-            type_checker tc(m_st);
-            expr e_type = tc.whnf(tc.infer(e));
-            local_ctx lctx;
-            while (is_pi(e_type)) {
-                expr arg = lctx.mk_local_decl(ngen(), binding_name(e_type), binding_domain(e_type), binding_info(e_type));
-                args.push_back(arg);
-                e_type = type_checker(m_st, lctx).whnf(instantiate(binding_body(e_type), arg));
-            }
-            if (args.empty())
-                return e;
-            buffer<expr> fvars;
-            while (is_let(e)) {
-                expr type = instantiate_rev(let_type(e), fvars.size(), fvars.data());
-                expr val  = instantiate_rev(let_value(e), fvars.size(), fvars.data());
-                expr fvar = lctx.mk_local_decl(ngen(), let_name(e), type, val);
-                fvars.push_back(fvar);
-                e         = let_body(e);
-            }
-            e = instantiate_rev(e, fvars.size(), fvars.data());
-            if (!is_lcnf_atom(e)) {
-                e = lctx.mk_local_decl(ngen(), "_e", type_checker(m_st, lctx).infer(e), e);
-                fvars.push_back(e);
-            }
-            e = mk_app(e, args);
-            return lctx.mk_lambda(args, lctx.mk_lambda(fvars, e));
-        } catch (exception &) {
-            /* This can happen since previous compilation steps may have
-               produced type incorrect terms. */
-            return e;
-        }
+        return lcnf_eta_expand(m_st, local_ctx(), e);
     }
 
     expr abstract_spec_ctx(spec_ctx const & ctx, expr const & code) {

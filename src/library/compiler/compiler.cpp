@@ -198,7 +198,7 @@ environment compile(environment const & env, options const & opts, names cs) {
     ds = apply(simp, env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
     environment new_env = env;
-    std::tie(new_env, ds) = eager_lambda_lifting(new_env, ds);
+    std::tie(new_env, ds) = eager_lambda_lifting(new_env, ds, cfg);
     trace_compiler(name({"compiler", "eager_lambda_lifting"}), ds);
     ds = apply(max_sharing, ds);
     trace_compiler(name({"compiler", "stage1"}), ds);

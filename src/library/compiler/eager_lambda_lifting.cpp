@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/class.h"
 #include "library/compiler/util.h"
+#include "library/compiler/csimp.h"
 #include "library/compiler/closed_term_cache.h"
 
 namespace lean {
@@ -98,6 +99,7 @@ static bool depends_on_fvar(local_ctx const & lctx, buffer<expr> const & params,
 */
 class eager_lambda_lifting_fn {
     type_checker::state m_st;
+    csimp_cfg           m_cfg;
     local_ctx           m_lctx;
     buffer<comp_decl>   m_new_decls;
     name                m_base_name;
@@ -109,6 +111,10 @@ class eager_lambda_lifting_fn {
     environment const & env() const { return m_st.env(); }
 
     name_generator & ngen() { return m_st.ngen(); }
+
+    expr eta_expand(expr const & e) {
+        return lcnf_eta_expand(m_st, m_lctx, e);
+    }
 
     name next_name() {
         name r = mk_elambda_lifting_name(m_base_name, m_next_idx);
@@ -183,7 +189,7 @@ class eager_lambda_lifting_fn {
         }
     }
 
-    expr lift_lambda(expr e) {
+    expr lift_lambda(expr e, bool apply_simp) {
         lean_assert(is_lambda(e));
         buffer<expr> fvars;
         if (!collect_fvars(e, fvars)) {
@@ -215,6 +221,9 @@ class eager_lambda_lifting_fn {
             local_decl const & decl = m_lctx.get_local_decl(new_params[i]);
             expr type = abstract(decl.get_type(), i, new_params.data());
             code = ::lean::mk_lambda(decl.get_user_name(), type, code);
+        }
+        if (apply_simp) {
+            code = csimp(env(), code, m_cfg);
         }
         expr type = cheap_beta_reduce(type_checker(m_st).infer(code));
         name n    = next_name();
@@ -298,7 +307,10 @@ class eager_lambda_lifting_fn {
             expr type = abstract(decl.get_type(), i, fvars.data());
             expr val  = *decl.get_value();
             if (m_terminal_lambdas.contains(n) && !m_nonterminal_lambdas.contains(n)) {
-                val = lift_lambda(val);
+                expr new_val = eta_expand(val);
+                lean_assert(is_lambda(new_val));
+                bool apply_simp = new_val != val;
+                val = lift_lambda(new_val, apply_simp);
             }
             r = ::lean::mk_let(decl.get_user_name(), type, abstract(val, i, fvars.data()), r);
         }
@@ -363,6 +375,7 @@ class eager_lambda_lifting_fn {
                 if (is_fvar(arg)) {
                     name x; expr v;
                     std::tie(x, v) = find(arg);
+                    v = eta_expand(v);
                     if (is_lambda(v)) {
                         m_terminal_lambdas.insert(x);
                     }
@@ -375,8 +388,8 @@ class eager_lambda_lifting_fn {
     }
 
 public:
-    eager_lambda_lifting_fn(environment const & env):
-        m_st(env) {}
+    eager_lambda_lifting_fn(environment const & env, csimp_cfg const & cfg):
+        m_st(env), m_cfg(cfg) {}
 
     pair<environment, comp_decls> operator()(comp_decl const & cdecl) {
         m_base_name = cdecl.fst();
@@ -387,14 +400,14 @@ public:
     }
 };
 
-pair<environment, comp_decls> eager_lambda_lifting(environment env, comp_decls const & ds) {
+pair<environment, comp_decls> eager_lambda_lifting(environment env, comp_decls const & ds, csimp_cfg const & cfg) {
     comp_decls r;
     for (comp_decl const & d : ds) {
         if (has_inline_attribute(env, d.fst()) || is_instance(env, d.fst())) {
             r = append(r, comp_decls(d));
         } else {
             comp_decls new_ds;
-            std::tie(env, new_ds) = eager_lambda_lifting_fn(env)(d);
+            std::tie(env, new_ds) = eager_lambda_lifting_fn(env, cfg)(d);
             r = append(r, new_ds);
         }
     }

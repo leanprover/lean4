@@ -174,6 +174,10 @@ bool lcnf_check_let_decls(environment const & env, comp_decl const & d);
 bool lcnf_check_let_decls(environment const & env, comp_decls const & ds);
 
 // =======================================
+/* Similar to `type_checker::eta_expand`, but preserves LCNF */
+expr lcnf_eta_expand(type_checker::state & st, local_ctx lctx, expr e);
+
+// =======================================
 // UInt and USize helper functions
 
 expr mk_usize_type();

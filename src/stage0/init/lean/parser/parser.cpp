@@ -397,6 +397,7 @@ obj* l_Lean_Parser_many(uint8, obj*);
 obj* l_Lean_Parser_finishCommentBlock___main(obj*, obj*, obj*);
 uint8 l_Lean_Parser_TokenConfig_beq(obj*, obj*);
 obj* l___private_init_lean_parser_parser_4__tokenFnAux(obj*, obj*);
+obj* l_Lean_Parser_node___lambda__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_mkCApp(obj*, obj*);
 obj* l_Lean_Parser_numLitFn___rarg(obj*, obj*);
 obj* l_Lean_Parser_noFirstTokenInfo(obj*);
@@ -2292,23 +2293,36 @@ return x_5;
 }
 }
 }
+obj* l_Lean_Parser_node___lambda__1(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+_start:
+{
+obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
+x_6 = lean::cnstr_get(x_1, 1);
+lean::inc(x_6);
+lean::dec(x_1);
+x_7 = lean::cnstr_get(x_5, 0);
+lean::inc(x_7);
+x_8 = lean::array_get_size(x_7);
+lean::dec(x_7);
+x_9 = lean::apply_3(x_6, x_3, x_4, x_5);
+x_10 = l_Lean_Parser_ParserState_mkNode(x_9, x_2, x_8);
+return x_10;
+}
+}
 obj* l_Lean_Parser_node(uint8 x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
 x_4 = lean::cnstr_get(x_3, 0);
 lean::inc(x_4);
 x_5 = l_Lean_Parser_nodeInfo(x_4);
-x_6 = lean::cnstr_get(x_3, 1);
-lean::inc(x_6);
-lean::dec(x_3);
-x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_nodeFn___rarg), 5, 2);
-lean::closure_set(x_7, 0, x_2);
-lean::closure_set(x_7, 1, x_6);
-x_8 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_8, 0, x_5);
-lean::cnstr_set(x_8, 1, x_7);
-return x_8;
+x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_node___lambda__1), 5, 2);
+lean::closure_set(x_6, 0, x_3);
+lean::closure_set(x_6, 1, x_2);
+x_7 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_7, 0, x_5);
+lean::cnstr_set(x_7, 1, x_6);
+return x_7;
 }
 }
 obj* l_Lean_Parser_node___boxed(obj* x_1, obj* x_2, obj* x_3) {
@@ -2324,39 +2338,33 @@ return x_5;
 obj* l_Lean_Parser_leadingNode(obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
+obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
 x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 x_4 = l_Lean_Parser_nodeInfo(x_3);
-x_5 = lean::cnstr_get(x_2, 1);
-lean::inc(x_5);
-lean::dec(x_2);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_nodeFn___rarg), 5, 2);
-lean::closure_set(x_6, 0, x_1);
-lean::closure_set(x_6, 1, x_5);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_4);
-lean::cnstr_set(x_7, 1, x_6);
-return x_7;
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_node___lambda__1), 5, 2);
+lean::closure_set(x_5, 0, x_2);
+lean::closure_set(x_5, 1, x_1);
+x_6 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_6, 0, x_4);
+lean::cnstr_set(x_6, 1, x_5);
+return x_6;
 }
 }
 obj* l_Lean_Parser_trailingNode(obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
+obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
 x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 x_4 = l_Lean_Parser_nodeInfo(x_3);
-x_5 = lean::cnstr_get(x_2, 1);
-lean::inc(x_5);
-lean::dec(x_2);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_nodeFn___rarg), 5, 2);
-lean::closure_set(x_6, 0, x_1);
-lean::closure_set(x_6, 1, x_5);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_4);
-lean::cnstr_set(x_7, 1, x_6);
-return x_7;
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_node___lambda__1), 5, 2);
+lean::closure_set(x_5, 0, x_2);
+lean::closure_set(x_5, 1, x_1);
+x_6 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_6, 0, x_4);
+lean::cnstr_set(x_6, 1, x_5);
+return x_6;
 }
 }
 obj* l_Lean_Parser_orelseFn___main___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {

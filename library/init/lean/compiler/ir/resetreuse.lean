@@ -97,11 +97,12 @@ private partial def Dmain (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × B
     pure (FnBody.case tid y alts, true)
   else pure (e, false)
 | (FnBody.jdecl j ys v b) := do
-  (b, _) ← adaptReader (fun (ctx : LocalContext) => ctx.addJP j ys v) (Dmain b);
-  (v, found) ← Dmain v;
-  /- If `found == true`, then `Dmain b` must also have returned `(b, true)` since
-     we assume the IR does not have dead join points. So, if `x` is live in `j`,
-     then it must also live in `b` since `j` is reachable from `b` with a `jmp`. -/
+  (b, found) ← adaptReader (fun (ctx : LocalContext) => ctx.addJP j ys v) (Dmain b);
+  (v, _ /- found' -/) ← Dmain v;
+  /- If `found' == true`, then `Dmain b` must also have returned `(b, true)` since
+     we assume the IR does not have dead join points. So, if `x` is live in `j` (i.e., `v`),
+     then it must also live in `b` since `j` is reachable from `b` with a `jmp`.
+     On the other hand, `x` may be live in `b` but dead in `j` (i.e., `v`). -/
   pure (FnBody.jdecl j ys v b, found)
 | e := do
   ctx ← read;

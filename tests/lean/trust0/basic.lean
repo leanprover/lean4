@@ -73,7 +73,7 @@ rfl
 
 /- properties of inequality -/
 
-protected def leRefl : ∀ a : ℕ, a ≤ a :=
+protected def leRefl : ∀ (a : ℕ), a ≤ a :=
 lessThanOrEqual.refl
 
 theorem leSucc (n : ℕ) : n ≤ succ n :=
@@ -104,7 +104,7 @@ fun h => lessThanOrEqual.ndrecOn h
 theorem leOfSuccLeSucc {n m : ℕ} : succ n ≤ succ m → n ≤ m :=
 predLePred
 
-instance decidableLe : ∀ a b : ℕ, Decidable (a ≤ b)
+instance decidableLe : ∀ (a b : ℕ), Decidable (a ≤ b)
 | 0     b     := isTrue (zeroLe b)
 | (a+1) 0     := isFalse (notSuccLeZero a)
 | (a+1) (b+1) :=
@@ -112,7 +112,7 @@ instance decidableLe : ∀ a b : ℕ, Decidable (a ≤ b)
   | isTrue h  => isTrue (succLeSucc h)
   | isFalse h => isFalse (fun a => h (leOfSuccLeSucc a))
 
-instance decidableLt : ∀ a b : ℕ, Decidable (a < b) :=
+instance decidableLt : ∀ (a b : ℕ), Decidable (a < b) :=
 fun a b => Nat.decidableLe (succ a) b
 
 protected theorem eqOrLtOfLe {a b : ℕ} (h : a ≤ b) : a = b ∨ a < b :=
@@ -126,7 +126,7 @@ Nat.recOn b
   (show succ a - succ zero = a - zero from (Eq.refl (succ a - succ zero)))
   (fun b => congrArg pred)
 
-theorem notSuccLeSelf : ∀ n : ℕ, ¬succ n ≤ n :=
+theorem notSuccLeSelf : ∀ (n : ℕ), ¬succ n ≤ n :=
 fun n => Nat.rec (notSuccLeZero 0) (fun a b c => b (leOfSuccLeSucc c)) n
 
 protected theorem ltIrrefl (n : ℕ) : ¬n < n :=

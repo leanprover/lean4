@@ -47,7 +47,7 @@ unsafe def foo2 : Nat :=
 set_option pp.notation false
 
 def foo3 (n : Nat) : Nat :=
-(fun a : Nat => a + a + a) (n*n)
+(fun (a : Nat) => a + a + a) (n*n)
 
 def boo (a : Nat) (l : List Nat) : List Nat :=
 let f := @List.cons Nat in

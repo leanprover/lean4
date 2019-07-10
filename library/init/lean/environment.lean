@@ -309,6 +309,11 @@ def CPPExtensionState := NonScalar
 
 instance CPPExtensionState.inhabited : Inhabited CPPExtensionState := inferInstanceAs (Inhabited NonScalar)
 
+section
+/- It is not safe to use "extract closed term" optimization in the following code because of `unsafeIO`.
+   If `compiler.extract_closed` is set to true, then the compiler will cache the result of
+   `exts ← envExtensionsRef.get` during initialization which is incorrect. -/
+set_option compiler.extract_closed false
 @[export lean.register_extension_core]
 unsafe def registerCPPExtension (initial : CPPExtensionState) : Option Nat :=
 unsafeIO (do ext ← registerEnvExtension initial; pure ext.idx)
@@ -320,6 +325,7 @@ unsafeIO (do exts ← envExtensionsRef.get; pure $ (exts.get idx).setState env s
 @[export lean.get_extension_core]
 unsafe def getCPPExtensionState (env : Environment) (idx : Nat) : Option CPPExtensionState :=
 unsafeIO (do exts ← envExtensionsRef.get; pure $ (exts.get idx).getState env)
+end
 
 /- Legacy support for Modification objects -/
 

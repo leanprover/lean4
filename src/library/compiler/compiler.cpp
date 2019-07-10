@@ -31,10 +31,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name * g_codegen = nullptr;
+static name * g_extract_closed = nullptr;
 
-bool is_codegen_enabled(options const & opts) {
-    return opts.get_bool(*g_codegen, true);
-}
+bool is_codegen_enabled(options const & opts) { return opts.get_bool(*g_codegen, true); }
+bool is_extract_closed_enabled(options const & opts) { return opts.get_bool(*g_extract_closed, true); }
 
 static name get_real_name(name const & n) {
     if (optional<name> new_n = is_unsafe_rec_name(n))
@@ -222,10 +222,12 @@ environment compile(environment const & env, options const & opts, names cs) {
     trace_compiler(name({"compiler", "simp"}), ds);
     new_env = cache_stage2(new_env, ds);
     trace_compiler(name({"compiler", "stage2"}), ds);
-    std::tie(new_env, ds) = extract_closed(new_env, ds);
-    ds = apply(elim_dead_let, ds);
-    ds = apply(esimp, new_env, ds);
-    trace_compiler(name({"compiler", "extract_closed"}), ds);
+    if (is_extract_closed_enabled(opts)) {
+        std::tie(new_env, ds) = extract_closed(new_env, ds);
+        ds = apply(elim_dead_let, ds);
+        ds = apply(esimp, new_env, ds);
+        trace_compiler(name({"compiler", "extract_closed"}), ds);
+    }
     new_env = cache_new_stage2(new_env, ds);
     ds = apply(esimp, new_env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
@@ -260,9 +262,10 @@ extern "C" object * lean_add_and_compile(object * env, object * opts, object * d
 }
 
 void initialize_compiler() {
-    g_codegen = new name("codegen");
+    g_codegen        = new name("codegen");
+    g_extract_closed = new name{"compiler", "extract_closed"};
     register_bool_option(*g_codegen, true, "(compiler) enable/disable code generation");
-
+    register_bool_option(*g_extract_closed, true, "(compiler) enable/disable closed term caching");
     register_trace_class("compiler");
     register_trace_class({"compiler", "input"});
     register_trace_class({"compiler", "eta_expand"});
@@ -302,5 +305,6 @@ void initialize_compiler() {
 
 void finalize_compiler() {
     delete g_codegen;
+    delete g_extract_closed;
 }
 }

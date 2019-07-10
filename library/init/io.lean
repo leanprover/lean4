@@ -45,9 +45,14 @@ id
 
 abbrev IO : Type → Type := EIO IO.Error
 
-@[inline]
-unsafe def unsafeIO {α : Type} (fn : IO α) : Option α :=
+section
+/- After we inline `EState.run'`, the closed term `((), ())` is generated, where the second `()`
+   represents the "initial world". We don't want to cache this closed term. So, we disable
+   the "extract closed terms" optimization. -/
+set_option compiler.extract_closed false
+@[inline] unsafe def unsafeIO {α : Type} (fn : IO α) : Option α :=
 fn.run' ()
+end
 
 @[extern 4 "lean_io_timeit"]
 constant timeit {α : Type} (msg : @& String) (fn : IO α) : IO α := default _

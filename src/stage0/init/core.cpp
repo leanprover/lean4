@@ -122,6 +122,7 @@ obj* l_Quotient_recOnSubsingleton_u2082___at_Quotient_DecidableEq___spec__1___bo
 obj* l_default_sizeof___main(obj*, obj*);
 obj* l_Sigma_HasSizeof___boxed(obj*, obj*);
 obj* l_std_priority_default;
+obj* l_Bool_HasSizeof___closed__1;
 obj* l_Quotient_DecidableEq___rarg(obj*, obj*, obj*, obj*);
 obj* l___private_init_core_20__funSetoid(obj*, obj*);
 obj* l_arbitrary___rarg(obj*);
@@ -165,6 +166,7 @@ obj* l_xor___boxed(obj*, obj*);
 obj* l_Prod_Inhabited(obj*, obj*);
 obj* l_PSigma_HasSizeof(obj*, obj*);
 obj* l_dite_Decidable___rarg___boxed(obj*, obj*, obj*);
+obj* l_PUnit_HasSizeof___closed__1;
 obj* l_Quot_indep(obj*, obj*, obj*);
 obj* l_Prod_map___main(obj*, obj*, obj*, obj*);
 obj* l_List_HasSizeof___rarg(obj*);
@@ -211,6 +213,7 @@ obj* l_Task_bind___boxed(obj*, obj*, obj*, obj*);
 obj* l_List_sizeof___rarg(obj*, obj*);
 obj* l_Subtype_sizeof___rarg(obj*, obj*, obj*);
 obj* l_Quotient_rec___boxed(obj*, obj*, obj*);
+obj* l_Nat_prio___closed__1;
 obj* l_PUnit_sizeof(obj*);
 obj* l_False_elim(obj*, uint8);
 namespace lean {
@@ -311,9 +314,11 @@ uint8 l_not(uint8);
 uint8 l_decidableOfDecidableOfEq___rarg(uint8, obj*);
 uint8 l_False_Decidable;
 obj* l_Quotient_rec___rarg(obj*, obj*, obj*);
+obj* l_std_prec_maxPlus___closed__1;
 obj* l_Bool_DecidableEq___boxed(obj*, obj*);
 obj* l_cond___rarg___boxed(obj*, obj*, obj*);
 obj* l_PUnit_sizeof___boxed(obj*);
+obj* l_Nat_HasSizeof___closed__1;
 obj* l_Subtype_HasSizeof___rarg___boxed(obj*, obj*);
 obj* l_Sum_HasSizeof(obj*, obj*);
 obj* l_Function_const___rarg(obj*, obj*);
@@ -394,6 +399,7 @@ obj* l_Task_pure(obj*, obj*);
 obj* l_cond(obj*);
 obj* l_or___boxed(obj*, obj*);
 obj* l_PSigma_sizeof(obj*, obj*);
+obj* l_Nat_HasAdd___closed__1;
 obj* l_Subtype_Inhabited___boxed(obj*, obj*);
 obj* l_Bool_sizeof___main(uint8);
 obj* l_ite(obj*);
@@ -792,11 +798,19 @@ x_1 = lean::mk_nat_obj(1u);
 return x_1;
 }
 }
-obj* _init_l_Nat_HasAdd() {
+obj* _init_l_Nat_HasAdd___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_add___boxed), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_Nat_HasAdd() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Nat_HasAdd___closed__1;
 return x_1;
 }
 }
@@ -824,7 +838,7 @@ x_1 = lean::mk_nat_obj(4294967295u);
 return x_1;
 }
 }
-obj* _init_l_Nat_prio() {
+obj* _init_l_Nat_prio___closed__1() {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; 
@@ -832,6 +846,14 @@ x_1 = l_std_priority_default;
 x_2 = lean::mk_nat_obj(100u);
 x_3 = lean::nat_add(x_1, x_2);
 return x_3;
+}
+}
+obj* _init_l_Nat_prio() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Nat_prio___closed__1;
+return x_1;
 }
 }
 obj* _init_l_std_prec_max() {
@@ -850,7 +872,7 @@ x_1 = lean::mk_nat_obj(25u);
 return x_1;
 }
 }
-obj* _init_l_std_prec_maxPlus() {
+obj* _init_l_std_prec_maxPlus___closed__1() {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; 
@@ -858,6 +880,14 @@ x_1 = l_std_prec_max;
 x_2 = lean::mk_nat_obj(10u);
 x_3 = lean::nat_add(x_1, x_2);
 return x_3;
+}
+}
+obj* _init_l_std_prec_maxPlus() {
+_start:
+{
+obj* x_1; 
+x_1 = l_std_prec_maxPlus___closed__1;
+return x_1;
 }
 }
 obj* l_default_sizeof___main(obj* x_1, obj* x_2) {
@@ -943,11 +973,19 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* _init_l_Nat_HasSizeof() {
+obj* _init_l_Nat_HasSizeof___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_sizeof___boxed), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_Nat_HasSizeof() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Nat_HasSizeof___closed__1;
 return x_1;
 }
 }
@@ -1499,11 +1537,19 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* _init_l_PUnit_HasSizeof() {
+obj* _init_l_PUnit_HasSizeof___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_PUnit_sizeof___boxed), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_PUnit_HasSizeof() {
+_start:
+{
+obj* x_1; 
+x_1 = l_PUnit_HasSizeof___closed__1;
 return x_1;
 }
 }
@@ -1543,11 +1589,19 @@ x_3 = l_Bool_sizeof(x_2);
 return x_3;
 }
 }
-obj* _init_l_Bool_HasSizeof() {
+obj* _init_l_Bool_HasSizeof___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Bool_sizeof___boxed), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_Bool_HasSizeof() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Bool_HasSizeof___closed__1;
 return x_1;
 }
 }
@@ -4397,6 +4451,8 @@ lean::register_constant(lean::mk_const_name(lean::mk_const_name("Nat"), "HasZero
 l_Nat_HasOne = _init_l_Nat_HasOne();
 lean::mark_persistent(l_Nat_HasOne);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Nat"), "HasOne"), l_Nat_HasOne);
+l_Nat_HasAdd___closed__1 = _init_l_Nat_HasAdd___closed__1();
+lean::mark_persistent(l_Nat_HasAdd___closed__1);
 l_Nat_HasAdd = _init_l_Nat_HasAdd();
 lean::mark_persistent(l_Nat_HasAdd);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Nat"), "HasAdd"), l_Nat_HasAdd);
@@ -4409,6 +4465,8 @@ lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_n
 l_std_priority_max = _init_l_std_priority_max();
 lean::mark_persistent(l_std_priority_max);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("std"), "priority"), "max"), l_std_priority_max);
+l_Nat_prio___closed__1 = _init_l_Nat_prio___closed__1();
+lean::mark_persistent(l_Nat_prio___closed__1);
 l_Nat_prio = _init_l_Nat_prio();
 lean::mark_persistent(l_Nat_prio);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Nat"), "prio"), l_Nat_prio);
@@ -4418,6 +4476,8 @@ lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_n
 l_std_prec_arrow = _init_l_std_prec_arrow();
 lean::mark_persistent(l_std_prec_arrow);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("std"), "prec"), "arrow"), l_std_prec_arrow);
+l_std_prec_maxPlus___closed__1 = _init_l_std_prec_maxPlus___closed__1();
+lean::mark_persistent(l_std_prec_maxPlus___closed__1);
 l_std_prec_maxPlus = _init_l_std_prec_maxPlus();
 lean::mark_persistent(l_std_prec_maxPlus);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("std"), "prec"), "maxPlus"), l_std_prec_maxPlus);
@@ -4426,6 +4486,8 @@ l_defaultHasSizeof___closed__1 = _init_l_defaultHasSizeof___closed__1();
 lean::mark_persistent(l_defaultHasSizeof___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name("defaultHasSizeof"), 1, l_defaultHasSizeof);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "sizeof"), 1, l_Nat_sizeof___boxed);
+l_Nat_HasSizeof___closed__1 = _init_l_Nat_HasSizeof___closed__1();
+lean::mark_persistent(l_Nat_HasSizeof___closed__1);
 l_Nat_HasSizeof = _init_l_Nat_HasSizeof();
 lean::mark_persistent(l_Nat_HasSizeof);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Nat"), "HasSizeof"), l_Nat_HasSizeof);
@@ -4440,10 +4502,14 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Sigma"), "HasSiz
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("PSigma"), "sizeof"), 2, l_PSigma_sizeof___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("PSigma"), "HasSizeof"), 2, l_PSigma_HasSizeof___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("PUnit"), "sizeof"), 1, l_PUnit_sizeof___boxed);
+l_PUnit_HasSizeof___closed__1 = _init_l_PUnit_HasSizeof___closed__1();
+lean::mark_persistent(l_PUnit_HasSizeof___closed__1);
 l_PUnit_HasSizeof = _init_l_PUnit_HasSizeof();
 lean::mark_persistent(l_PUnit_HasSizeof);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("PUnit"), "HasSizeof"), l_PUnit_HasSizeof);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Bool"), "sizeof"), 1, l_Bool_sizeof___boxed);
+l_Bool_HasSizeof___closed__1 = _init_l_Bool_HasSizeof___closed__1();
+lean::mark_persistent(l_Bool_HasSizeof___closed__1);
 l_Bool_HasSizeof = _init_l_Bool_HasSizeof();
 lean::mark_persistent(l_Bool_HasSizeof);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Bool"), "HasSizeof"), l_Bool_HasSizeof);

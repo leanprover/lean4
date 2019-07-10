@@ -52,11 +52,13 @@ uint8 nat_dec_lt(obj*, obj*);
 }
 obj* l_Nat_ble___boxed(obj*, obj*);
 uint8 l_Nat_anyAux___main___at_Prod_allI___spec__1(obj*, obj*, obj*);
+obj* l_Nat_HasSub___closed__1;
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
 uint8 l_Nat_anyAux___main(obj*, obj*, obj*);
 uint8 l_Nat_anyAux(obj*, obj*, obj*);
+obj* l_Nat_HasPow___closed__1;
 obj* l_Nat_repeat___rarg(obj*, obj*, obj*);
 obj* l_Nat_foldAux(obj*);
 obj* l_Prod_anyI___boxed(obj*, obj*);
@@ -83,12 +85,14 @@ uint8 nat_dec_le(obj*, obj*);
 }
 obj* l_Nat_anyAux___main___boxed(obj*, obj*, obj*);
 obj* l_Nat_repeat(obj*);
+obj* l_Nat_DecidableEq___closed__1;
 obj* l_Nat_max___boxed(obj*, obj*);
 obj* l_Nat_max(obj*, obj*);
 obj* l_Nat_DecidableEq;
 namespace lean {
 obj* nat_mul(obj*, obj*);
 }
+obj* l_Nat_HasMul___closed__1;
 obj* l_Nat_beq___boxed(obj* x_1, obj* x_2) {
 _start:
 {
@@ -107,11 +111,19 @@ x_4 = lean::box(x_3);
 return x_4;
 }
 }
-obj* _init_l_Nat_DecidableEq() {
+obj* _init_l_Nat_DecidableEq___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_decEq___boxed), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_Nat_DecidableEq() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Nat_DecidableEq___closed__1;
 return x_1;
 }
 }
@@ -164,7 +176,7 @@ x_3 = lean::nat_mul(x_1, x_2);
 return x_3;
 }
 }
-obj* _init_l_Nat_HasSub() {
+obj* _init_l_Nat_HasSub___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -172,11 +184,27 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_sub___boxed), 2, 0);
 return x_1;
 }
 }
-obj* _init_l_Nat_HasMul() {
+obj* _init_l_Nat_HasSub() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Nat_HasSub___closed__1;
+return x_1;
+}
+}
+obj* _init_l_Nat_HasMul___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_mul___boxed), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_Nat_HasMul() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Nat_HasMul___closed__1;
 return x_1;
 }
 }
@@ -555,11 +583,19 @@ lean::dec(x_1);
 return x_3;
 }
 }
-obj* _init_l_Nat_HasPow() {
+obj* _init_l_Nat_HasPow___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_pow___boxed), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_Nat_HasPow() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Nat_HasPow___closed__1;
 return x_1;
 }
 }
@@ -750,6 +786,8 @@ w = initialize_init_core(w);
 if (io_result_is_error(w)) return w;
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "beq"), 2, l_Nat_beq___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "decEq"), 2, l_Nat_decEq___boxed);
+l_Nat_DecidableEq___closed__1 = _init_l_Nat_DecidableEq___closed__1();
+lean::mark_persistent(l_Nat_DecidableEq___closed__1);
 l_Nat_DecidableEq = _init_l_Nat_DecidableEq();
 lean::mark_persistent(l_Nat_DecidableEq);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Nat"), "DecidableEq"), l_Nat_DecidableEq);
@@ -763,9 +801,13 @@ lean::register_constant(lean::mk_const_name(lean::mk_const_name("Nat"), "HasLess
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "pred"), 1, l_Nat_pred___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "sub"), 2, l_Nat_sub___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "mul"), 2, l_Nat_mul___boxed);
+l_Nat_HasSub___closed__1 = _init_l_Nat_HasSub___closed__1();
+lean::mark_persistent(l_Nat_HasSub___closed__1);
 l_Nat_HasSub = _init_l_Nat_HasSub();
 lean::mark_persistent(l_Nat_HasSub);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Nat"), "HasSub"), l_Nat_HasSub);
+l_Nat_HasMul___closed__1 = _init_l_Nat_HasMul___closed__1();
+lean::mark_persistent(l_Nat_HasMul___closed__1);
 l_Nat_HasMul = _init_l_Nat_HasMul();
 lean::mark_persistent(l_Nat_HasMul);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Nat"), "HasMul"), l_Nat_HasMul);
@@ -777,6 +819,8 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "all"), 2
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "repeatAux"), 1, l_Nat_repeatAux);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "repeat"), 1, l_Nat_repeat);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "pow"), 2, l_Nat_pow___boxed);
+l_Nat_HasPow___closed__1 = _init_l_Nat_HasPow___closed__1();
+lean::mark_persistent(l_Nat_HasPow___closed__1);
 l_Nat_HasPow = _init_l_Nat_HasPow();
 lean::mark_persistent(l_Nat_HasPow);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Nat"), "HasPow"), l_Nat_HasPow);

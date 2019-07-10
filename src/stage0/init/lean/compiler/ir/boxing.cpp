@@ -48,7 +48,6 @@ obj* l_Lean_IR_ExplicitBoxing_addBoxedVersions___boxed(obj*, obj*);
 obj* l_Lean_IR_MaxIndex_collectDecl___main(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_ExplicitBoxing_castArgsIfNeeded___spec__2(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_ExplicitBoxing_visitVDeclExpr___spec__2(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_Array_mkEmpty(obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_castArgIfNeeded___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_withVDecl(obj*);
 obj* l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___at_Lean_IR_ExplicitBoxing_visitVDeclExpr___spec__1___boxed(obj*, obj*, obj*, obj*);
@@ -118,7 +117,6 @@ obj* l_Lean_IR_ExplicitBoxing_mkFresh(obj*);
 obj* l_Lean_PersistentEnvExtension_addEntry___rarg(obj*, obj*, obj*);
 uint8 l_Lean_IR_ExplicitBoxing_requiresBoxedVersion(obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__1;
-obj* l_Lean_IR_ExplicitBoxing_getDecl___closed__1;
 obj* l_Lean_IR_getEnv___rarg(obj*);
 obj* l_Lean_IR_ExplicitBoxing_visitVDeclExpr(obj*, uint8, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_Decl_params___main(obj*);
@@ -133,6 +131,7 @@ obj* l_Array_get(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_mkBoxedVersion(obj*);
 obj* l_Lean_IR_ExplicitBoxing_getEnv(obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_getVarType___boxed(obj*, obj*, obj*);
+extern obj* l_Lean_IR_Decl_Inhabited___closed__1;
 obj* l_Lean_IR_ExplicitBoxing_getDecl___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_getJPParams(obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_addBoxedVersions(obj*, obj*);
@@ -648,14 +647,12 @@ return x_73;
 obj* _init_l_Lean_IR_ExplicitBoxing_mkBoxedVersionAux___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; 
-x_1 = lean::mk_nat_obj(0u);
-x_2 = lean::mk_empty_array(x_1);
-lean::inc(x_2);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_2);
-lean::cnstr_set(x_3, 1, x_2);
-return x_3;
+obj* x_1; obj* x_2; 
+x_1 = l_Array_empty___closed__1;
+x_2 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_2, 0, x_1);
+lean::cnstr_set(x_2, 1, x_1);
+return x_2;
 }
 }
 obj* l_Lean_IR_ExplicitBoxing_mkBoxedVersionAux(obj* x_1, obj* x_2) {
@@ -1471,23 +1468,6 @@ lean::dec(x_1);
 return x_4;
 }
 }
-obj* _init_l_Lean_IR_ExplicitBoxing_getDecl___closed__1() {
-_start:
-{
-obj* x_1; obj* x_2; obj* x_3; uint8 x_4; obj* x_5; obj* x_6; 
-x_1 = lean::mk_nat_obj(0u);
-x_2 = lean::mk_empty_array(x_1);
-x_3 = lean::box(0);
-x_4 = 6;
-x_5 = lean::box(13);
-x_6 = lean::alloc_cnstr(0, 3, 1);
-lean::cnstr_set(x_6, 0, x_3);
-lean::cnstr_set(x_6, 1, x_2);
-lean::cnstr_set(x_6, 2, x_5);
-lean::cnstr_set_scalar(x_6, sizeof(void*)*3, x_4);
-return x_6;
-}
-}
 obj* l_Lean_IR_ExplicitBoxing_getDecl(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -1498,7 +1478,7 @@ x_6 = l_Lean_IR_findEnvDecl_x27(x_4, x_1, x_5);
 if (lean::obj_tag(x_6) == 0)
 {
 obj* x_7; obj* x_8; 
-x_7 = l_Lean_IR_ExplicitBoxing_getDecl___closed__1;
+x_7 = l_Lean_IR_Decl_Inhabited___closed__1;
 x_8 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_8, 0, x_7);
 lean::cnstr_set(x_8, 1, x_3);
@@ -6463,8 +6443,6 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_na
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "ExplicitBoxing"), "getResultType"), 2, l_Lean_IR_ExplicitBoxing_getResultType___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "ExplicitBoxing"), "getVarType"), 3, l_Lean_IR_ExplicitBoxing_getVarType___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "ExplicitBoxing"), "getJPParams"), 3, l_Lean_IR_ExplicitBoxing_getJPParams___boxed);
-l_Lean_IR_ExplicitBoxing_getDecl___closed__1 = _init_l_Lean_IR_ExplicitBoxing_getDecl___closed__1();
-lean::mark_persistent(l_Lean_IR_ExplicitBoxing_getDecl___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "ExplicitBoxing"), "getDecl"), 3, l_Lean_IR_ExplicitBoxing_getDecl___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "ExplicitBoxing"), "withParams"), 1, l_Lean_IR_ExplicitBoxing_withParams);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "ExplicitBoxing"), "withVDecl"), 1, l_Lean_IR_ExplicitBoxing_withVDecl);

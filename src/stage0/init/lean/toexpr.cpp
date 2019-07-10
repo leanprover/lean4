@@ -15,14 +15,18 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_Lean_strToExpr(obj*);
+extern obj* l_mjoin___rarg___closed__1;
 obj* l_Lean_nameToExprAux___main___closed__3;
 obj* l_Lean_nameToExprAux___main___closed__1;
-obj* l_id___rarg___boxed(obj*);
 extern "C" obj* lean_expr_mk_const(obj*, obj*);
+obj* l_Lean_nameToExprAux___main___closed__7;
+obj* l_Lean_nameToExprAux___main___closed__8;
 obj* l_Lean_mkBinCApp(obj*, obj*, obj*);
 extern "C" obj* lean_name_mk_string(obj*, obj*);
 obj* l_Lean_nameToExprAux___main(obj*);
+obj* l_Lean_nameToExprAux___main___closed__6;
 obj* l_Lean_nameToExprAux(obj*);
+obj* l_Lean_nameToExprAux___main___closed__9;
 obj* l_Lean_nameToExprAux___main___closed__5;
 obj* l_Lean_nameToExprAux___main___closed__4;
 obj* l_Lean_exprToExpr;
@@ -30,11 +34,12 @@ obj* l_Lean_nameToExpr;
 obj* l_Lean_natToExpr(obj*);
 obj* l_Lean_nameToExprAux___main___closed__2;
 extern "C" obj* lean_expr_mk_lit(obj*);
+obj* l_Lean_nameToExpr___closed__1;
 obj* _init_l_Lean_exprToExpr() {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_id___rarg___boxed), 1, 0);
+x_1 = l_mjoin___rarg___closed__1;
 return x_1;
 }
 }
@@ -85,29 +90,57 @@ return x_1;
 obj* _init_l_Lean_nameToExprAux___main___closed__4() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
+obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::box(0);
-x_2 = lean::mk_string("Lean");
+x_2 = l_Lean_nameToExprAux___main___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::mk_string("Name");
-x_5 = lean_name_mk_string(x_3, x_4);
-x_6 = lean::mk_string("mkString");
-x_7 = lean_name_mk_string(x_5, x_6);
-return x_7;
+return x_3;
 }
 }
 obj* _init_l_Lean_nameToExprAux___main___closed__5() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
-x_1 = lean::box(0);
-x_2 = lean::mk_string("Lean");
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_nameToExprAux___main___closed__4;
+x_2 = l_Lean_nameToExprAux___main___closed__2;
 x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::mk_string("Name");
-x_5 = lean_name_mk_string(x_3, x_4);
-x_6 = lean::mk_string("mkNumeral");
-x_7 = lean_name_mk_string(x_5, x_6);
-return x_7;
+return x_3;
+}
+}
+obj* _init_l_Lean_nameToExprAux___main___closed__6() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("mkString");
+return x_1;
+}
+}
+obj* _init_l_Lean_nameToExprAux___main___closed__7() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_nameToExprAux___main___closed__5;
+x_2 = l_Lean_nameToExprAux___main___closed__6;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_nameToExprAux___main___closed__8() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("mkNumeral");
+return x_1;
+}
+}
+obj* _init_l_Lean_nameToExprAux___main___closed__9() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_nameToExprAux___main___closed__5;
+x_2 = l_Lean_nameToExprAux___main___closed__8;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
 }
 }
 obj* l_Lean_nameToExprAux___main(obj* x_1) {
@@ -139,7 +172,7 @@ x_12 = l_Lean_nameToExprAux___main(x_10);
 x_13 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_13, 0, x_11);
 x_14 = lean_expr_mk_lit(x_13);
-x_15 = l_Lean_nameToExprAux___main___closed__4;
+x_15 = l_Lean_nameToExprAux___main___closed__7;
 x_16 = l_Lean_mkBinCApp(x_15, x_12, x_14);
 return x_16;
 }
@@ -155,7 +188,7 @@ x_19 = l_Lean_nameToExprAux___main(x_17);
 x_20 = lean::alloc_cnstr(0, 1, 0);
 lean::cnstr_set(x_20, 0, x_18);
 x_21 = lean_expr_mk_lit(x_20);
-x_22 = l_Lean_nameToExprAux___main___closed__5;
+x_22 = l_Lean_nameToExprAux___main___closed__9;
 x_23 = l_Lean_mkBinCApp(x_22, x_19, x_21);
 return x_23;
 }
@@ -170,11 +203,19 @@ x_2 = l_Lean_nameToExprAux___main(x_1);
 return x_2;
 }
 }
-obj* _init_l_Lean_nameToExpr() {
+obj* _init_l_Lean_nameToExpr___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_nameToExprAux), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_nameToExpr() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_nameToExpr___closed__1;
 return x_1;
 }
 }
@@ -201,7 +242,17 @@ l_Lean_nameToExprAux___main___closed__4 = _init_l_Lean_nameToExprAux___main___cl
 lean::mark_persistent(l_Lean_nameToExprAux___main___closed__4);
 l_Lean_nameToExprAux___main___closed__5 = _init_l_Lean_nameToExprAux___main___closed__5();
 lean::mark_persistent(l_Lean_nameToExprAux___main___closed__5);
+l_Lean_nameToExprAux___main___closed__6 = _init_l_Lean_nameToExprAux___main___closed__6();
+lean::mark_persistent(l_Lean_nameToExprAux___main___closed__6);
+l_Lean_nameToExprAux___main___closed__7 = _init_l_Lean_nameToExprAux___main___closed__7();
+lean::mark_persistent(l_Lean_nameToExprAux___main___closed__7);
+l_Lean_nameToExprAux___main___closed__8 = _init_l_Lean_nameToExprAux___main___closed__8();
+lean::mark_persistent(l_Lean_nameToExprAux___main___closed__8);
+l_Lean_nameToExprAux___main___closed__9 = _init_l_Lean_nameToExprAux___main___closed__9();
+lean::mark_persistent(l_Lean_nameToExprAux___main___closed__9);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "nameToExprAux"), 1, l_Lean_nameToExprAux);
+l_Lean_nameToExpr___closed__1 = _init_l_Lean_nameToExpr___closed__1();
+lean::mark_persistent(l_Lean_nameToExpr___closed__1);
 l_Lean_nameToExpr = _init_l_Lean_nameToExpr();
 lean::mark_persistent(l_Lean_nameToExpr);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "nameToExpr"), l_Lean_nameToExpr);

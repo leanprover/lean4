@@ -14,19 +14,23 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+obj* l_Lean_mkReducibilityAttrs___closed__4;
 obj* l_Lean_registerEnumAttributes___at_Lean_mkReducibilityAttrs___spec__1___lambda__2___boxed(obj*);
 obj* l_Lean_mkReducibilityAttrs___closed__1;
 obj* l_Array_qsortAux___main___at_Lean_mkReducibilityAttrs___spec__3___boxed(obj*, obj*, obj*);
+obj* l_Lean_mkReducibilityAttrs___closed__16;
 extern obj* l_Array_empty___closed__1;
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
 obj* l_Lean_mkReducibilityAttrs___closed__2;
+obj* l_Lean_mkReducibilityAttrs___closed__17;
+obj* l_Lean_mkReducibilityAttrs___closed__12;
 obj* l_RBNode_find___main___at_Lean_getReducibilityStatus___spec__2(obj*, obj*);
 obj* l_List_map___main___at_Lean_mkReducibilityAttrs___spec__5(obj*, obj*, obj*);
 obj* l_Lean_mkReducibilityAttrs(obj*);
+extern obj* l_Lean_AttributeImpl_inhabited___closed__5;
 extern obj* l_Lean_registerTagAttribute___lambda__5___closed__1;
-obj* l_Lean_PersistentEnvExtension_inhabited___rarg___lambda__1___boxed(obj*);
 obj* l_Lean_setReducibilityStatus___boxed(obj*, obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_binSearchAux___main___at_Lean_getReducibilityStatus___spec__3(obj*, obj*, obj*, obj*);
@@ -35,13 +39,16 @@ obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
 obj* l_Lean_mkReducibilityAttrs___lambda__1___closed__1;
 extern obj* l_Lean_Inhabited;
 obj* l_Lean_EnumAttributes_getValue___at_Lean_getReducibilityStatus___spec__1(obj*, obj*, obj*);
-obj* l_Array_mkEmpty(obj*, obj*);
+obj* l_Lean_mkReducibilityAttrs___closed__15;
 extern obj* l_Lean_registerEnumAttributes___rarg___closed__1;
 obj* l_Array_swap(obj*, obj*, obj*, obj*);
 obj* l_List_map___main___at_Lean_mkReducibilityAttrs___spec__5___lambda__1(obj*, obj*, uint8, obj*, obj*, obj*, obj*, uint8, obj*);
+extern obj* l_Lean_AttributeImpl_inhabited___closed__4;
 namespace lean {
 obj* set_reducibility_status_core(obj*, obj*, uint8);
 }
+extern obj* l_Lean_EnumAttributes_Inhabited___closed__1;
+obj* l_Lean_mkReducibilityAttrs___closed__8;
 obj* l_Lean_mkReducibilityAttrs___lambda__1(obj*, obj*, uint8);
 obj* l_Lean_PersistentEnvExtension_getState___rarg(obj*, obj*);
 obj* l_Lean_mkReducibilityAttrs___closed__3;
@@ -49,11 +56,12 @@ obj* l_Lean_Environment_getModuleIdxFor(obj*, obj*);
 namespace lean {
 obj* string_append(obj*, obj*);
 }
+obj* l_Lean_mkReducibilityAttrs___closed__7;
 obj* l_List_mfor___main___at_Lean_registerEnumAttributes___spec__8(obj*, obj*);
+obj* l_Lean_mkReducibilityAttrs___closed__11;
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
-extern obj* l_Lean_registerTagAttribute___closed__6;
 obj* l_Lean_mkReducibilityAttrs___lambda__1___boxed(obj*, obj*, obj*);
 extern obj* l_Lean_registerTagAttribute___lambda__5___closed__4;
 obj* l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(obj*, obj*, obj*);
@@ -69,7 +77,6 @@ namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_RBNode_fold___main___at_Lean_mkReducibilityAttrs___spec__2(obj*, obj*);
-obj* l_ExceptT_Monad___rarg___lambda__8___boxed(obj*, obj*);
 obj* l_Array_push(obj*, obj*, obj*);
 obj* l_Array_binSearchAux___main___at_Lean_getReducibilityStatus___spec__3___boxed(obj*, obj*, obj*, obj*);
 obj* l_Array_qsortAux___main___at_Lean_mkReducibilityAttrs___spec__3(obj*, obj*, obj*);
@@ -79,18 +86,21 @@ obj* l_Lean_registerEnumAttributes___at_Lean_mkReducibilityAttrs___spec__1___clo
 uint8 l_Lean_ReducibilityStatus_inhabited;
 obj* l_Lean_registerEnumAttributes___at_Lean_mkReducibilityAttrs___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_registerTagAttribute___lambda__7___boxed(obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_mkReducibilityAttrs___closed__18;
 obj* l_Lean_PersistentEnvExtension_addEntry___rarg(obj*, obj*, obj*);
+obj* l_Lean_mkReducibilityAttrs___closed__6;
 uint8 l_Lean_Name_quickLt(obj*, obj*);
-obj* l_Lean_PersistentEnvExtension_inhabited___rarg___lambda__2___boxed(obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Array_get(obj*, obj*, obj*, obj*);
+obj* l_Lean_mkReducibilityAttrs___closed__9;
 extern obj* l_Lean_registerTagAttribute___lambda__5___closed__3;
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4___closed__1;
-extern obj* l_Lean_registerTagAttribute___closed__5;
 extern obj* l_Lean_Name_toString___closed__1;
+obj* l_Lean_mkReducibilityAttrs___closed__5;
 namespace lean {
 uint8 nat_dec_le(obj*, obj*);
 }
+obj* l_Lean_mkReducibilityAttrs___closed__10;
 namespace lean {
 obj* nat_div(obj*, obj*);
 }
@@ -99,11 +109,13 @@ uint8 get_reducibility_status_core(obj*, obj*);
 }
 obj* l_Lean_registerEnumAttributes___at_Lean_mkReducibilityAttrs___spec__1___lambda__2(obj*);
 obj* l_Lean_EnumAttributes_getValue___at_Lean_getReducibilityStatus___spec__1___boxed(obj*, obj*, obj*);
+obj* l_Lean_mkReducibilityAttrs___closed__13;
 obj* l_List_map___main___at_Lean_mkReducibilityAttrs___spec__5___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg(obj*, obj*);
 obj* l_Lean_EnumAttributes_setValue___rarg(obj*, obj*, obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_getReducibilityStatus___spec__2___boxed(obj*, obj*);
 obj* l_Lean_registerEnumAttributes___at_Lean_mkReducibilityAttrs___spec__1___lambda__1(obj*, obj*);
+obj* l_Lean_mkReducibilityAttrs___closed__14;
 extern obj* l_Lean_registerTagAttribute___closed__1;
 obj* l_Lean_registerTagAttribute___lambda__6___boxed(obj*, obj*, obj*, obj*, obj*);
 uint8 _init_l_Lean_ReducibilityStatus_inhabited() {
@@ -619,8 +631,8 @@ lean::closure_set(x_14, 0, x_10);
 lean::inc(x_10);
 x_15 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__7___boxed), 5, 1);
 lean::closure_set(x_15, 0, x_10);
-x_16 = l_Lean_registerTagAttribute___closed__5;
-x_17 = l_Lean_registerTagAttribute___closed__6;
+x_16 = l_Lean_AttributeImpl_inhabited___closed__4;
+x_17 = l_Lean_AttributeImpl_inhabited___closed__5;
 x_18 = 0;
 x_19 = lean::alloc_cnstr(0, 8, 1);
 lean::cnstr_set(x_19, 0, x_10);
@@ -669,8 +681,8 @@ lean::closure_set(x_28, 0, x_24);
 lean::inc(x_24);
 x_29 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__7___boxed), 5, 1);
 lean::closure_set(x_29, 0, x_24);
-x_30 = l_Lean_registerTagAttribute___closed__5;
-x_31 = l_Lean_registerTagAttribute___closed__6;
+x_30 = l_Lean_AttributeImpl_inhabited___closed__4;
+x_31 = l_Lean_AttributeImpl_inhabited___closed__5;
 x_32 = 0;
 x_33 = lean::alloc_cnstr(0, 8, 1);
 lean::cnstr_set(x_33, 0, x_24);
@@ -935,65 +947,187 @@ return x_4;
 obj* _init_l_Lean_mkReducibilityAttrs___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; 
-x_1 = lean::box(0);
-x_2 = lean::mk_string("reducibility");
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
+obj* x_1; 
+x_1 = lean::mk_string("reducibility");
+return x_1;
 }
 }
 obj* _init_l_Lean_mkReducibilityAttrs___closed__2() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; uint8 x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; uint8 x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; uint8 x_16; obj* x_17; obj* x_18; obj* x_19; obj* x_20; obj* x_21; obj* x_22; obj* x_23; 
+obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::box(0);
-x_2 = lean::mk_string("reducible");
-lean::inc(x_2);
+x_2 = l_Lean_mkReducibilityAttrs___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = 0;
-x_5 = lean::box(x_4);
-x_6 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_6, 0, x_2);
-lean::cnstr_set(x_6, 1, x_5);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_3);
-lean::cnstr_set(x_7, 1, x_6);
-x_8 = lean::mk_string("semireducible");
-lean::inc(x_8);
-x_9 = lean_name_mk_string(x_1, x_8);
-x_10 = 1;
-x_11 = lean::box(x_10);
-x_12 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_12, 0, x_8);
-lean::cnstr_set(x_12, 1, x_11);
-x_13 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_13, 0, x_9);
-lean::cnstr_set(x_13, 1, x_12);
-x_14 = lean::mk_string("irreducible");
-lean::inc(x_14);
-x_15 = lean_name_mk_string(x_1, x_14);
-x_16 = 2;
-x_17 = lean::box(x_16);
-x_18 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_18, 0, x_14);
-lean::cnstr_set(x_18, 1, x_17);
-x_19 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_19, 0, x_15);
-lean::cnstr_set(x_19, 1, x_18);
-x_20 = lean::box(0);
-x_21 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_21, 0, x_19);
-lean::cnstr_set(x_21, 1, x_20);
-x_22 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_22, 0, x_13);
-lean::cnstr_set(x_22, 1, x_21);
-x_23 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_23, 0, x_7);
-lean::cnstr_set(x_23, 1, x_22);
-return x_23;
+return x_3;
 }
 }
 obj* _init_l_Lean_mkReducibilityAttrs___closed__3() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("reducible");
+return x_1;
+}
+}
+obj* _init_l_Lean_mkReducibilityAttrs___closed__4() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_mkReducibilityAttrs___closed__3;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_mkReducibilityAttrs___closed__5() {
+_start:
+{
+obj* x_1; uint8 x_2; obj* x_3; obj* x_4; 
+x_1 = l_Lean_mkReducibilityAttrs___closed__3;
+x_2 = 0;
+x_3 = lean::box(x_2);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_1);
+lean::cnstr_set(x_4, 1, x_3);
+return x_4;
+}
+}
+obj* _init_l_Lean_mkReducibilityAttrs___closed__6() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_mkReducibilityAttrs___closed__4;
+x_2 = l_Lean_mkReducibilityAttrs___closed__5;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_mkReducibilityAttrs___closed__7() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("semireducible");
+return x_1;
+}
+}
+obj* _init_l_Lean_mkReducibilityAttrs___closed__8() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_mkReducibilityAttrs___closed__7;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_mkReducibilityAttrs___closed__9() {
+_start:
+{
+obj* x_1; uint8 x_2; obj* x_3; obj* x_4; 
+x_1 = l_Lean_mkReducibilityAttrs___closed__7;
+x_2 = 1;
+x_3 = lean::box(x_2);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_1);
+lean::cnstr_set(x_4, 1, x_3);
+return x_4;
+}
+}
+obj* _init_l_Lean_mkReducibilityAttrs___closed__10() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_mkReducibilityAttrs___closed__8;
+x_2 = l_Lean_mkReducibilityAttrs___closed__9;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_mkReducibilityAttrs___closed__11() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("irreducible");
+return x_1;
+}
+}
+obj* _init_l_Lean_mkReducibilityAttrs___closed__12() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_mkReducibilityAttrs___closed__11;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_mkReducibilityAttrs___closed__13() {
+_start:
+{
+obj* x_1; uint8 x_2; obj* x_3; obj* x_4; 
+x_1 = l_Lean_mkReducibilityAttrs___closed__11;
+x_2 = 2;
+x_3 = lean::box(x_2);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_1);
+lean::cnstr_set(x_4, 1, x_3);
+return x_4;
+}
+}
+obj* _init_l_Lean_mkReducibilityAttrs___closed__14() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_mkReducibilityAttrs___closed__12;
+x_2 = l_Lean_mkReducibilityAttrs___closed__13;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_mkReducibilityAttrs___closed__15() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_mkReducibilityAttrs___closed__14;
+x_3 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_3, 0, x_2);
+lean::cnstr_set(x_3, 1, x_1);
+return x_3;
+}
+}
+obj* _init_l_Lean_mkReducibilityAttrs___closed__16() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_mkReducibilityAttrs___closed__10;
+x_2 = l_Lean_mkReducibilityAttrs___closed__15;
+x_3 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_mkReducibilityAttrs___closed__17() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_mkReducibilityAttrs___closed__6;
+x_2 = l_Lean_mkReducibilityAttrs___closed__16;
+x_3 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_mkReducibilityAttrs___closed__18() {
 _start:
 {
 obj* x_1; 
@@ -1005,9 +1139,9 @@ obj* l_Lean_mkReducibilityAttrs(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
-x_2 = l_Lean_mkReducibilityAttrs___closed__1;
-x_3 = l_Lean_mkReducibilityAttrs___closed__2;
-x_4 = l_Lean_mkReducibilityAttrs___closed__3;
+x_2 = l_Lean_mkReducibilityAttrs___closed__2;
+x_3 = l_Lean_mkReducibilityAttrs___closed__17;
+x_4 = l_Lean_mkReducibilityAttrs___closed__18;
 x_5 = l_Lean_registerEnumAttributes___at_Lean_mkReducibilityAttrs___spec__1(x_2, x_3, x_4, x_1);
 return x_5;
 }
@@ -1401,6 +1535,36 @@ l_Lean_mkReducibilityAttrs___closed__2 = _init_l_Lean_mkReducibilityAttrs___clos
 lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__2);
 l_Lean_mkReducibilityAttrs___closed__3 = _init_l_Lean_mkReducibilityAttrs___closed__3();
 lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__3);
+l_Lean_mkReducibilityAttrs___closed__4 = _init_l_Lean_mkReducibilityAttrs___closed__4();
+lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__4);
+l_Lean_mkReducibilityAttrs___closed__5 = _init_l_Lean_mkReducibilityAttrs___closed__5();
+lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__5);
+l_Lean_mkReducibilityAttrs___closed__6 = _init_l_Lean_mkReducibilityAttrs___closed__6();
+lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__6);
+l_Lean_mkReducibilityAttrs___closed__7 = _init_l_Lean_mkReducibilityAttrs___closed__7();
+lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__7);
+l_Lean_mkReducibilityAttrs___closed__8 = _init_l_Lean_mkReducibilityAttrs___closed__8();
+lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__8);
+l_Lean_mkReducibilityAttrs___closed__9 = _init_l_Lean_mkReducibilityAttrs___closed__9();
+lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__9);
+l_Lean_mkReducibilityAttrs___closed__10 = _init_l_Lean_mkReducibilityAttrs___closed__10();
+lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__10);
+l_Lean_mkReducibilityAttrs___closed__11 = _init_l_Lean_mkReducibilityAttrs___closed__11();
+lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__11);
+l_Lean_mkReducibilityAttrs___closed__12 = _init_l_Lean_mkReducibilityAttrs___closed__12();
+lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__12);
+l_Lean_mkReducibilityAttrs___closed__13 = _init_l_Lean_mkReducibilityAttrs___closed__13();
+lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__13);
+l_Lean_mkReducibilityAttrs___closed__14 = _init_l_Lean_mkReducibilityAttrs___closed__14();
+lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__14);
+l_Lean_mkReducibilityAttrs___closed__15 = _init_l_Lean_mkReducibilityAttrs___closed__15();
+lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__15);
+l_Lean_mkReducibilityAttrs___closed__16 = _init_l_Lean_mkReducibilityAttrs___closed__16();
+lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__16);
+l_Lean_mkReducibilityAttrs___closed__17 = _init_l_Lean_mkReducibilityAttrs___closed__17();
+lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__17);
+l_Lean_mkReducibilityAttrs___closed__18 = _init_l_Lean_mkReducibilityAttrs___closed__18();
+lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__18);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkReducibilityAttrs"), 1, l_Lean_mkReducibilityAttrs);
 w = l_Lean_mkReducibilityAttrs(w);
 if (io_result_is_error(w)) return w;

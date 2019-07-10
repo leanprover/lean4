@@ -22,6 +22,8 @@ obj* l_EState_Result_repr___main(obj*, obj*, obj*);
 obj* l_EState_Result_toString___main___rarg___closed__1;
 obj* l_EState_set(obj*, obj*);
 obj* l_EState_resultOk_mk(obj*, obj*, obj*);
+obj* l_EState_Monad___closed__6;
+obj* l_EState_MonadState___closed__3;
 obj* l_EState_map___rarg(obj*, obj*, obj*);
 obj* l_EState_orelse(obj*, obj*, obj*);
 obj* l_EState_run_x27(obj*, obj*, obj*);
@@ -30,7 +32,9 @@ obj* l_EState_unreachableError(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_EState_orelse_x27___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_EState_Result_toString___main(obj*, obj*, obj*);
 obj* l_EState_run___rarg(obj*, obj*);
+obj* l_EState_MonadExcept___closed__2;
 obj* l_EState_Result_toString___main___rarg(obj*, obj*, obj*);
+obj* l_EState_Monad___closed__5;
 obj* l_EState_throw___rarg(obj*, obj*);
 obj* l_EState_Result_toString(obj*, obj*, obj*);
 obj* l_EState_adaptExcept___rarg(obj*, obj*, obj*);
@@ -41,25 +45,34 @@ obj* l_EState_unreachableError___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*)
 namespace lean {
 obj* string_append(obj*, obj*);
 }
+obj* l_EState_Monad___closed__2;
 obj* l_EState_Result_repr___main___rarg(obj*, obj*, obj*);
 extern obj* l_Option_HasRepr___rarg___closed__3;
 obj* l_EState_HasOrelse___closed__1;
 obj* l_EState_pure(obj*, obj*, obj*);
+obj* l_EState_Monad___closed__4;
 extern obj* l_Except_toString___main___rarg___closed__2;
 obj* l_EState_HasOrelse(obj*, obj*, obj*);
 obj* l_EState_Monad___lambda__1(obj*, obj*, obj*, obj*, obj*);
+obj* l_EState_MonadExcept___closed__3;
 obj* l_EState_modify___rarg(obj*, obj*);
+obj* l_EState_Monad___closed__10;
 obj* l_EState_catch___rarg(obj*, obj*, obj*);
 obj* l_EState_get(obj*, obj*);
 obj* l_EState_adaptExcept(obj*, obj*, obj*, obj*);
 obj* l_EState_Monad___lambda__2(obj*, obj*, obj*, obj*, obj*);
 obj* l_EState_HasRepr(obj*, obj*, obj*);
+obj* l_EState_MonadState___closed__2;
+obj* l_EState_Monad___closed__3;
+obj* l_EState_Monad___closed__9;
 obj* l_EState_bind___rarg(obj*, obj*, obj*);
 obj* l_EState_Monad___lambda__3(obj*, obj*, obj*, obj*, obj*);
+obj* l_EState_Monad___closed__8;
 extern obj* l_Except_toString___main___rarg___closed__1;
 obj* l_EState_run_x27___rarg(obj*, obj*);
 obj* l_EState_Result_repr___rarg(obj*, obj*, obj*);
 obj* l_EState_orelse___rarg(obj*, obj*, obj*);
+obj* l_EState_MonadState___closed__4;
 obj* l_EState_seqRight(obj*, obj*, obj*, obj*);
 obj* l_EState_MonadState(obj*, obj*);
 obj* l_EState_pure___rarg(obj*, obj*);
@@ -73,6 +86,7 @@ obj* l_EState_MonadExcept___closed__1;
 obj* l_EState_MonadExcept(obj*, obj*);
 obj* l_EState_catch(obj*, obj*, obj*);
 obj* l_EState_MonadState___closed__1;
+obj* l_EState_Monad___closed__7;
 obj* l_EState_Result_repr(obj*, obj*, obj*);
 obj* l_EState_run(obj*, obj*, obj*);
 obj* l_EState_set___rarg(obj*, obj*);
@@ -1393,42 +1407,114 @@ return x_34;
 obj* _init_l_EState_Monad___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
+obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_map), 4, 2);
 lean::closure_set(x_1, 0, lean::box(0));
 lean::closure_set(x_1, 1, lean::box(0));
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_Monad___lambda__1), 5, 0);
+return x_1;
+}
+}
+obj* _init_l_EState_Monad___closed__2() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_Monad___lambda__1), 5, 0);
+return x_1;
+}
+}
+obj* _init_l_EState_Monad___closed__3() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_EState_Monad___closed__1;
+x_2 = l_EState_Monad___closed__2;
 x_3 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_3, 0, x_1);
 lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_pure), 3, 2);
-lean::closure_set(x_4, 0, lean::box(0));
-lean::closure_set(x_4, 1, lean::box(0));
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_seqRight), 4, 2);
-lean::closure_set(x_5, 0, lean::box(0));
-lean::closure_set(x_5, 1, lean::box(0));
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_Monad___lambda__2), 5, 0);
-x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_Monad___lambda__3), 5, 0);
-x_8 = lean::alloc_cnstr(0, 5, 0);
-lean::cnstr_set(x_8, 0, x_3);
-lean::cnstr_set(x_8, 1, x_4);
-lean::cnstr_set(x_8, 2, x_6);
-lean::cnstr_set(x_8, 3, x_7);
-lean::cnstr_set(x_8, 4, x_5);
-x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_bind), 4, 2);
-lean::closure_set(x_9, 0, lean::box(0));
-lean::closure_set(x_9, 1, lean::box(0));
-x_10 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_10, 0, x_8);
-lean::cnstr_set(x_10, 1, x_9);
-return x_10;
+return x_3;
+}
+}
+obj* _init_l_EState_Monad___closed__4() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_pure), 3, 2);
+lean::closure_set(x_1, 0, lean::box(0));
+lean::closure_set(x_1, 1, lean::box(0));
+return x_1;
+}
+}
+obj* _init_l_EState_Monad___closed__5() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_seqRight), 4, 2);
+lean::closure_set(x_1, 0, lean::box(0));
+lean::closure_set(x_1, 1, lean::box(0));
+return x_1;
+}
+}
+obj* _init_l_EState_Monad___closed__6() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_Monad___lambda__2), 5, 0);
+return x_1;
+}
+}
+obj* _init_l_EState_Monad___closed__7() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_Monad___lambda__3), 5, 0);
+return x_1;
+}
+}
+obj* _init_l_EState_Monad___closed__8() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
+x_1 = l_EState_Monad___closed__3;
+x_2 = l_EState_Monad___closed__4;
+x_3 = l_EState_Monad___closed__6;
+x_4 = l_EState_Monad___closed__7;
+x_5 = l_EState_Monad___closed__5;
+x_6 = lean::alloc_cnstr(0, 5, 0);
+lean::cnstr_set(x_6, 0, x_1);
+lean::cnstr_set(x_6, 1, x_2);
+lean::cnstr_set(x_6, 2, x_3);
+lean::cnstr_set(x_6, 3, x_4);
+lean::cnstr_set(x_6, 4, x_5);
+return x_6;
+}
+}
+obj* _init_l_EState_Monad___closed__9() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_bind), 4, 2);
+lean::closure_set(x_1, 0, lean::box(0));
+lean::closure_set(x_1, 1, lean::box(0));
+return x_1;
+}
+}
+obj* _init_l_EState_Monad___closed__10() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_EState_Monad___closed__8;
+x_2 = l_EState_Monad___closed__9;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
 }
 }
 obj* l_EState_Monad(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_EState_Monad___closed__1;
+x_3 = l_EState_Monad___closed__10;
 return x_3;
 }
 }
@@ -1451,10 +1537,34 @@ return x_4;
 obj* _init_l_EState_MonadState___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_get___rarg), 1, 0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_set___rarg), 2, 0);
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_modify___rarg), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_EState_MonadState___closed__2() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_set___rarg), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_EState_MonadState___closed__3() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_modify___rarg), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_EState_MonadState___closed__4() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+x_1 = l_EState_MonadState___closed__1;
+x_2 = l_EState_MonadState___closed__2;
+x_3 = l_EState_MonadState___closed__3;
 x_4 = lean::alloc_cnstr(0, 3, 0);
 lean::cnstr_set(x_4, 0, x_1);
 lean::cnstr_set(x_4, 1, x_2);
@@ -1466,20 +1576,36 @@ obj* l_EState_MonadState(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_EState_MonadState___closed__1;
+x_3 = l_EState_MonadState___closed__4;
 return x_3;
 }
 }
 obj* _init_l_EState_MonadExcept___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; 
+obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_throw), 3, 2);
 lean::closure_set(x_1, 0, lean::box(0));
 lean::closure_set(x_1, 1, lean::box(0));
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_catch), 3, 2);
-lean::closure_set(x_2, 0, lean::box(0));
-lean::closure_set(x_2, 1, lean::box(0));
+return x_1;
+}
+}
+obj* _init_l_EState_MonadExcept___closed__2() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_catch), 3, 2);
+lean::closure_set(x_1, 0, lean::box(0));
+lean::closure_set(x_1, 1, lean::box(0));
+return x_1;
+}
+}
+obj* _init_l_EState_MonadExcept___closed__3() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_EState_MonadExcept___closed__1;
+x_2 = l_EState_MonadExcept___closed__2;
 x_3 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_3, 0, x_1);
 lean::cnstr_set(x_3, 1, x_2);
@@ -1490,7 +1616,7 @@ obj* l_EState_MonadExcept(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_EState_MonadExcept___closed__1;
+x_3 = l_EState_MonadExcept___closed__3;
 return x_3;
 }
 }
@@ -1586,15 +1712,43 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("EState"), "map")
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("EState"), "seqRight"), 4, l_EState_seqRight);
 l_EState_Monad___closed__1 = _init_l_EState_Monad___closed__1();
 lean::mark_persistent(l_EState_Monad___closed__1);
+l_EState_Monad___closed__2 = _init_l_EState_Monad___closed__2();
+lean::mark_persistent(l_EState_Monad___closed__2);
+l_EState_Monad___closed__3 = _init_l_EState_Monad___closed__3();
+lean::mark_persistent(l_EState_Monad___closed__3);
+l_EState_Monad___closed__4 = _init_l_EState_Monad___closed__4();
+lean::mark_persistent(l_EState_Monad___closed__4);
+l_EState_Monad___closed__5 = _init_l_EState_Monad___closed__5();
+lean::mark_persistent(l_EState_Monad___closed__5);
+l_EState_Monad___closed__6 = _init_l_EState_Monad___closed__6();
+lean::mark_persistent(l_EState_Monad___closed__6);
+l_EState_Monad___closed__7 = _init_l_EState_Monad___closed__7();
+lean::mark_persistent(l_EState_Monad___closed__7);
+l_EState_Monad___closed__8 = _init_l_EState_Monad___closed__8();
+lean::mark_persistent(l_EState_Monad___closed__8);
+l_EState_Monad___closed__9 = _init_l_EState_Monad___closed__9();
+lean::mark_persistent(l_EState_Monad___closed__9);
+l_EState_Monad___closed__10 = _init_l_EState_Monad___closed__10();
+lean::mark_persistent(l_EState_Monad___closed__10);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("EState"), "Monad"), 2, l_EState_Monad);
 l_EState_HasOrelse___closed__1 = _init_l_EState_HasOrelse___closed__1();
 lean::mark_persistent(l_EState_HasOrelse___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("EState"), "HasOrelse"), 3, l_EState_HasOrelse);
 l_EState_MonadState___closed__1 = _init_l_EState_MonadState___closed__1();
 lean::mark_persistent(l_EState_MonadState___closed__1);
+l_EState_MonadState___closed__2 = _init_l_EState_MonadState___closed__2();
+lean::mark_persistent(l_EState_MonadState___closed__2);
+l_EState_MonadState___closed__3 = _init_l_EState_MonadState___closed__3();
+lean::mark_persistent(l_EState_MonadState___closed__3);
+l_EState_MonadState___closed__4 = _init_l_EState_MonadState___closed__4();
+lean::mark_persistent(l_EState_MonadState___closed__4);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("EState"), "MonadState"), 2, l_EState_MonadState);
 l_EState_MonadExcept___closed__1 = _init_l_EState_MonadExcept___closed__1();
 lean::mark_persistent(l_EState_MonadExcept___closed__1);
+l_EState_MonadExcept___closed__2 = _init_l_EState_MonadExcept___closed__2();
+lean::mark_persistent(l_EState_MonadExcept___closed__2);
+l_EState_MonadExcept___closed__3 = _init_l_EState_MonadExcept___closed__3();
+lean::mark_persistent(l_EState_MonadExcept___closed__3);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("EState"), "MonadExcept"), 2, l_EState_MonadExcept);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("EState"), "run"), 3, l_EState_run);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("EState"), "run'"), 3, l_EState_run_x27);

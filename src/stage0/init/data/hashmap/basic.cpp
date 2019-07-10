@@ -39,6 +39,7 @@ obj* l_HashMapImp_mfold___boxed(obj*, obj*, obj*, obj*);
 obj* l_Array_mkArray(obj*, obj*, obj*);
 obj* l_AssocList_mfoldl___main___at_HashMap_fold___spec__1(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_HashMap_fold___spec__2___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
+obj* l_mkHashMapImp___rarg___closed__2;
 obj* l_HashMap_contains___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_HashMapImp_mfold___rarg(obj*, obj*, obj*, obj*);
 obj* l_HashMap_numBuckets___rarg___boxed(obj*);
@@ -179,15 +180,23 @@ return x_6;
 obj* _init_l_mkHashMapImp___rarg___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
+obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::box(0);
 x_2 = lean::mk_nat_obj(8u);
 x_3 = lean::mk_array(x_2, x_1);
-x_4 = lean::mk_nat_obj(0u);
-x_5 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_5, 0, x_4);
-lean::cnstr_set(x_5, 1, x_3);
-return x_5;
+return x_3;
+}
+}
+obj* _init_l_mkHashMapImp___rarg___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::mk_nat_obj(0u);
+x_2 = l_mkHashMapImp___rarg___closed__1;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
 }
 }
 obj* l_mkHashMapImp___rarg(obj* x_1) {
@@ -210,7 +219,7 @@ else
 {
 obj* x_7; 
 lean::dec(x_1);
-x_7 = l_mkHashMapImp___rarg___closed__1;
+x_7 = l_mkHashMapImp___rarg___closed__2;
 return x_7;
 }
 }
@@ -1648,6 +1657,8 @@ if (io_result_is_error(w)) return w;
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("HashMapBucket"), "update"), 2, l_HashMapBucket_update);
 l_mkHashMapImp___rarg___closed__1 = _init_l_mkHashMapImp___rarg___closed__1();
 lean::mark_persistent(l_mkHashMapImp___rarg___closed__1);
+l_mkHashMapImp___rarg___closed__2 = _init_l_mkHashMapImp___rarg___closed__2();
+lean::mark_persistent(l_mkHashMapImp___rarg___closed__2);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name("mkHashMapImp"), 2, l_mkHashMapImp);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("HashMapImp"), "mkIdx"), 3, l_HashMapImp_mkIdx___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("HashMapImp"), "reinsertAux"), 2, l_HashMapImp_reinsertAux);

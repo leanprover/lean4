@@ -14,42 +14,66 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+obj* l_Lean_Parser_Level_max___closed__2;
+obj* l_Lean_Parser_Level_addLit___elambda__1___closed__5;
 obj* l_Lean_Parser_manyAux___main___at_Lean_Parser_Level_max___elambda__1___spec__1___boxed(obj*, obj*, obj*, obj*);
+obj* l_Lean_Parser_Level_imax___closed__1;
+obj* l_Lean_Parser_regBuiltinLevelParserAttr___closed__3;
 obj* l_Lean_Parser_addBuiltinLeadingParser(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_regBuiltinLevelParserAttr___closed__2;
 obj* l_Lean_Parser_Level_paren;
+obj* l_Lean_Parser_Level_paren___elambda__1___rarg___closed__9;
+obj* l_Lean_Parser_Level_imax___closed__2;
+obj* l_Lean_Parser_Level_hole___closed__4;
 obj* l_Lean_Parser_ParserState_restore(obj*, obj*, obj*);
 obj* l_Lean_Parser_symbolInfo(obj*, obj*);
 obj* l_Lean_Parser_Level_max___elambda__1___closed__2;
 obj* l_Lean_Parser_andthenInfo(obj*, obj*);
+extern obj* l_Lean_Parser_declareLeadingBuiltinParser___closed__1;
 obj* l_Lean_Parser_Level_max;
 obj* l_Lean_Parser_Level_ident___elambda__1___rarg(obj*, obj*);
 obj* l_Lean_Parser_Level_max___elambda__1___closed__1;
+extern obj* l_Lean_LevelToFormat_Result_format___main___closed__3;
 obj* l_Lean_Parser_Level_addLit___elambda__1___closed__1;
 obj* l_Lean_Parser_Level_paren___elambda__1___rarg___closed__1;
 obj* l_Lean_Parser_builtinLevelParsingTable;
+obj* l_Lean_Parser_Level_paren___closed__5;
+obj* l_Lean_Parser_Level_addLit___closed__6;
+obj* l_Lean_Parser_Level_hole___closed__2;
 extern obj* l_Lean_Parser_appPrec;
 obj* l_Lean_Parser_Level_hole___elambda__1___rarg___closed__2;
 obj* l_Lean_Parser_symbolFnAux(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_registerBuiltinParserAttribute(obj*, obj*, obj*);
 obj* l_Lean_Parser_Level_addLit;
+obj* l_Lean_Parser_Level_paren___closed__3;
+extern obj* l_Lean_LevelToFormat_Result_format___main___closed__5;
+extern obj* l_Lean_Parser_symbolFn___rarg___closed__1;
 obj* l___regBuiltinParser_Lean_Parser_Level_num___closed__1;
-obj* l_ExceptT_lift___rarg___lambda__1(obj*);
 obj* l_Lean_Parser_levelParserFn(uint8);
-obj* l_Lean_Parser_mkAtomicInfo(obj*);
 obj* l_Lean_Parser_Level_max___elambda__1(obj*, obj*, obj*);
 obj* l_Lean_Parser_Level_imax___elambda__1___closed__3;
+extern obj* l_Lean_LevelToFormat_Result_format___main___closed__1;
 obj* l_Lean_Parser_levelParser(uint8, obj*);
 obj* l_Lean_Parser_Level_num;
+obj* l_Lean_Parser_Level_paren___closed__4;
 obj* l___regBuiltinParser_Lean_Parser_Level_addLit(obj*);
 obj* l_Lean_Parser_Level_max___elambda__1___closed__3;
+obj* l_Lean_Parser_Level_paren___closed__1;
+extern obj* l_Lean_Name_appendIndexAfter___main___closed__1;
+obj* l_Lean_Parser_Level_paren___closed__6;
 obj* l_Lean_Parser_Level_num___elambda__1___boxed(obj*);
 obj* l___regBuiltinParser_Lean_Parser_Level_hole(obj*);
+obj* l_Lean_Parser_Level_paren___elambda__1___rarg___closed__6;
 obj* l_Lean_Parser_Level_addLit___elambda__1___closed__3;
+obj* l_Lean_Parser_Level_num___closed__1;
 obj* l_Lean_Parser_Level_paren___elambda__1(obj*);
+obj* l_Lean_Parser_Level_paren___elambda__1___rarg___closed__8;
 obj* l_Lean_Parser_ParserState_mkNode(obj*, obj*, obj*);
+obj* l_Lean_Parser_Level_max___closed__4;
 obj* l_Lean_Parser_levelParserFn___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_Level_paren___elambda__1___rarg(obj*, obj*);
+obj* l_Lean_Parser_Level_max___closed__1;
+obj* l_Lean_Parser_Level_addLit___closed__5;
 extern obj* l_Lean_Parser_manyAux___main___closed__1;
 obj* l_Lean_Parser_runBuiltinParserUnsafe(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_Lean_Parser_Parser_inhabited___closed__1;
@@ -58,37 +82,63 @@ obj* string_append(obj*, obj*);
 }
 obj* l_Lean_Parser_Level_addLit___elambda__1___closed__2;
 obj* l_Lean_Parser_levelParser___boxed(obj*, obj*);
+extern obj* l_Option_HasRepr___rarg___closed__3;
+obj* l_Lean_Parser_Level_imax___elambda__1___closed__4;
+extern obj* l_Char_HasRepr___closed__1;
+obj* l___regBuiltinParser_Lean_Parser_Level_num___closed__2;
+obj* l_Lean_Parser_Level_paren___closed__7;
 extern "C" obj* lean_name_mk_string(obj*, obj*);
 obj* l_Lean_Parser_Level_imax___elambda__1___closed__2;
 obj* l_Lean_Parser_Level_num___elambda__1(obj*);
+obj* l_Lean_Parser_regBuiltinLevelParserAttr___closed__4;
 obj* l___regBuiltinParser_Lean_Parser_Level_imax(obj*);
 extern obj* l_Lean_nullKind;
 obj* l_Lean_Parser_Level_hole___elambda__1___rarg(obj*, obj*);
 obj* l_Lean_Parser_addBuiltinTrailingParser(obj*, obj*, obj*, obj*);
+obj* l_Lean_Parser_Level_num___closed__2;
 obj* l_Lean_Parser_levelParserFn___rarg___closed__1;
+obj* l_Lean_Parser_Level_max___elambda__1___closed__4;
+obj* l_Lean_Parser_Level_ident___closed__1;
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
+extern obj* l_Prod_HasRepr___rarg___closed__1;
 obj* l_Lean_Parser_Level_ident___elambda__1___boxed(obj*);
 obj* l_Lean_Parser_Level_hole___elambda__1___rarg___closed__3;
+extern obj* l_Lean_Parser_ident___closed__1;
 obj* l_Lean_Parser_Level_paren___elambda__1___rarg___closed__3;
 obj* l_Lean_Parser_Level_hole___elambda__1___rarg___closed__1;
 obj* l_Lean_Parser_Level_ident___elambda__1(obj*);
+obj* l_Lean_Parser_Level_ident___closed__2;
 obj* l_Lean_Parser_Level_paren___elambda__1___rarg___closed__4;
 obj* l_Lean_Parser_numLitFn___rarg(obj*, obj*);
+obj* l_Lean_Parser_Level_paren___closed__2;
 obj* l_Lean_Parser_ParserState_pushSyntax(obj*, obj*);
+obj* l_Lean_Parser_Level_paren___elambda__1___rarg___closed__7;
 obj* l_Lean_Parser_Level_imax;
+obj* l_Lean_Parser_Level_imax___closed__5;
+obj* l_Lean_Parser_Level_hole___elambda__1___rarg___closed__4;
+extern obj* l_Lean_Parser_numLit___closed__1;
 obj* l_Lean_Parser_regBuiltinLevelParserAttr(obj*);
+obj* l_Lean_Parser_Level_imax___closed__4;
 obj* l_Lean_Parser_Level_hole___elambda__1___boxed(obj*);
 obj* l_Lean_Parser_identFn___rarg(obj*, obj*);
 obj* l_String_trim(obj*);
+obj* l_Lean_Parser_Level_imax___closed__3;
+extern obj* l_Lean_Parser_ident___closed__2;
+obj* l_Lean_Parser_Level_addLit___elambda__1___closed__4;
+obj* l_Lean_Parser_Level_addLit___closed__1;
+obj* l_Lean_Parser_Level_addLit___closed__7;
 obj* l_Lean_Parser_levelParserFn___boxed(obj*);
 obj* l_Lean_Parser_Level_addLit___elambda__1(obj*, obj*, obj*);
+obj* l_Lean_Parser_Level_hole___closed__1;
 obj* l_Lean_Parser_Level_hole___elambda__1(obj*);
 obj* l___regBuiltinParser_Lean_Parser_Level_max(obj*);
+obj* l_Lean_Parser_Level_paren___elambda__1___rarg___closed__10;
 obj* l_Lean_Parser_ParserState_mkError(obj*, obj*);
 obj* l_Lean_Parser_nodeInfo(obj*);
 obj* l_Array_size(obj*, obj*);
+obj* l_Lean_Parser_Level_max___closed__5;
 obj* l_Lean_Parser_Level_paren___elambda__1___rarg___closed__5;
 obj* l_Lean_Parser_Level_num___elambda__1___rarg(obj*, obj*);
 obj* l___regBuiltinParser_Lean_Parser_Level_ident___closed__1;
@@ -100,44 +150,63 @@ obj* l_Lean_Parser_Level_imax___elambda__1___closed__1;
 obj* l_Lean_Parser_Level_hole;
 obj* l_Lean_Parser_Level_max___elambda__1___boxed(obj*, obj*, obj*);
 obj* l___regBuiltinParser_Lean_Parser_Level_paren(obj*);
+obj* l_Lean_Parser_Level_addLit___closed__3;
 obj* l_Lean_Parser_Level_ident;
+obj* l_Lean_Parser_Level_addLit___closed__2;
 extern obj* l_Lean_Parser_epsilonInfo;
+obj* l_Lean_Parser_Level_paren___closed__8;
 obj* l_Lean_Parser_Level_imax___elambda__1(obj*, obj*, obj*);
+obj* l_Lean_Parser_Level_hole___closed__3;
 obj* l_Lean_Parser_Level_imax___elambda__1___boxed(obj*, obj*, obj*);
+obj* l_Lean_Parser_Level_max___closed__3;
 obj* l_Lean_Parser_Level_paren___elambda__1___rarg___closed__2;
+obj* l_Lean_Parser_Level_hole___elambda__1___rarg___closed__5;
 obj* l_Lean_Parser_Level_paren___elambda__1___boxed(obj*);
+obj* l_Lean_Parser_Level_addLit___closed__4;
 obj* l___regBuiltinParser_Lean_Parser_Level_ident(obj*);
 obj* l_Lean_Parser_mkBuiltinParsingTablesRef(obj*);
 obj* _init_l_Lean_Parser_regBuiltinLevelParserAttr___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; 
-x_1 = lean::box(0);
-x_2 = lean::mk_string("builtinLevelParser");
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
+obj* x_1; 
+x_1 = lean::mk_string("builtinLevelParser");
+return x_1;
 }
 }
 obj* _init_l_Lean_Parser_regBuiltinLevelParserAttr___closed__2() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
+obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::box(0);
-x_2 = lean::mk_string("Lean");
+x_2 = l_Lean_Parser_regBuiltinLevelParserAttr___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::mk_string("Parser");
-x_5 = lean_name_mk_string(x_3, x_4);
-x_6 = lean::mk_string("builtinLevelParsingTable");
-x_7 = lean_name_mk_string(x_5, x_6);
-return x_7;
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_regBuiltinLevelParserAttr___closed__3() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("builtinLevelParsingTable");
+return x_1;
+}
+}
+obj* _init_l_Lean_Parser_regBuiltinLevelParserAttr___closed__4() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_declareLeadingBuiltinParser___closed__1;
+x_2 = l_Lean_Parser_regBuiltinLevelParserAttr___closed__3;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
 }
 }
 obj* l_Lean_Parser_regBuiltinLevelParserAttr(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; 
-x_2 = l_Lean_Parser_regBuiltinLevelParserAttr___closed__1;
-x_3 = l_Lean_Parser_regBuiltinLevelParserAttr___closed__2;
+x_2 = l_Lean_Parser_regBuiltinLevelParserAttr___closed__2;
+x_3 = l_Lean_Parser_regBuiltinLevelParserAttr___closed__4;
 x_4 = l_Lean_Parser_registerBuiltinParserAttribute(x_2, x_3, x_1);
 return x_4;
 }
@@ -213,69 +282,95 @@ return x_4;
 obj* _init_l_Lean_Parser_Level_paren___elambda__1___rarg___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; 
-x_1 = lean::mk_string("(");
-x_2 = l_String_trim(x_1);
-lean::dec(x_1);
-return x_2;
+obj* x_1; 
+x_1 = lean::mk_string("Level");
+return x_1;
 }
 }
 obj* _init_l_Lean_Parser_Level_paren___elambda__1___rarg___closed__2() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
-x_1 = lean::mk_string("(");
-x_2 = l_String_trim(x_1);
-lean::dec(x_1);
-x_3 = lean::mk_string("expected '");
-x_4 = lean::string_append(x_3, x_2);
-lean::dec(x_2);
-x_5 = lean::mk_string("'");
-x_6 = lean::string_append(x_4, x_5);
-lean::dec(x_5);
-return x_6;
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_declareLeadingBuiltinParser___closed__1;
+x_2 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
 }
 }
 obj* _init_l_Lean_Parser_Level_paren___elambda__1___rarg___closed__3() {
 _start:
 {
-obj* x_1; obj* x_2; 
-x_1 = lean::mk_string(")");
-x_2 = l_String_trim(x_1);
-lean::dec(x_1);
-return x_2;
+obj* x_1; 
+x_1 = lean::mk_string("paren");
+return x_1;
 }
 }
 obj* _init_l_Lean_Parser_Level_paren___elambda__1___rarg___closed__4() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
-x_1 = lean::mk_string(")");
-x_2 = l_String_trim(x_1);
-lean::dec(x_1);
-x_3 = lean::mk_string("expected '");
-x_4 = lean::string_append(x_3, x_2);
-lean::dec(x_2);
-x_5 = lean::mk_string("'");
-x_6 = lean::string_append(x_4, x_5);
-lean::dec(x_5);
-return x_6;
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__2;
+x_2 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__3;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
 }
 }
 obj* _init_l_Lean_Parser_Level_paren___elambda__1___rarg___closed__5() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
-x_1 = lean::box(0);
-x_2 = lean::mk_string("Lean");
-x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::mk_string("Parser");
-x_5 = lean_name_mk_string(x_3, x_4);
-x_6 = lean::mk_string("Level");
-x_7 = lean_name_mk_string(x_5, x_6);
-x_8 = lean::mk_string("paren");
-x_9 = lean_name_mk_string(x_7, x_8);
-return x_9;
+obj* x_1; obj* x_2; 
+x_1 = l_Prod_HasRepr___rarg___closed__1;
+x_2 = l_String_trim(x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_Parser_Level_paren___elambda__1___rarg___closed__6() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = l_Option_HasRepr___rarg___closed__3;
+x_2 = l_String_trim(x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_Parser_Level_paren___elambda__1___rarg___closed__7() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_symbolFn___rarg___closed__1;
+x_2 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__5;
+x_3 = lean::string_append(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_paren___elambda__1___rarg___closed__8() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__7;
+x_2 = l_Char_HasRepr___closed__1;
+x_3 = lean::string_append(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_paren___elambda__1___rarg___closed__9() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_symbolFn___rarg___closed__1;
+x_2 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__6;
+x_3 = lean::string_append(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_paren___elambda__1___rarg___closed__10() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__9;
+x_2 = l_Char_HasRepr___closed__1;
+x_3 = lean::string_append(x_1, x_2);
+return x_3;
 }
 }
 obj* l_Lean_Parser_Level_paren___elambda__1___rarg(obj* x_1, obj* x_2) {
@@ -286,8 +381,8 @@ x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 x_4 = lean::array_get_size(x_3);
 lean::dec(x_3);
-x_5 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__1;
-x_6 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__2;
+x_5 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__5;
+x_6 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__8;
 lean::inc(x_1);
 x_7 = l_Lean_Parser_symbolFnAux(x_5, x_6, x_1, x_2);
 x_8 = lean::cnstr_get(x_7, 3);
@@ -305,10 +400,10 @@ lean::inc(x_13);
 if (lean::obj_tag(x_13) == 0)
 {
 obj* x_14; obj* x_15; obj* x_16; obj* x_17; obj* x_18; 
-x_14 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__3;
-x_15 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__4;
+x_14 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__6;
+x_15 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__10;
 x_16 = l_Lean_Parser_symbolFnAux(x_14, x_15, x_1, x_12);
-x_17 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__5;
+x_17 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__4;
 x_18 = l_Lean_Parser_ParserState_mkNode(x_16, x_17, x_4);
 return x_18;
 }
@@ -317,7 +412,7 @@ else
 obj* x_19; obj* x_20; 
 lean::dec(x_13);
 lean::dec(x_1);
-x_19 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__5;
+x_19 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__4;
 x_20 = l_Lean_Parser_ParserState_mkNode(x_12, x_19, x_4);
 return x_20;
 }
@@ -327,7 +422,7 @@ else
 obj* x_21; obj* x_22; 
 lean::dec(x_8);
 lean::dec(x_1);
-x_21 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__5;
+x_21 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__4;
 x_22 = l_Lean_Parser_ParserState_mkNode(x_7, x_21, x_4);
 return x_22;
 }
@@ -341,35 +436,91 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_Level_paren___el
 return x_2;
 }
 }
-obj* _init_l_Lean_Parser_Level_paren() {
+obj* _init_l_Lean_Parser_Level_paren___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; 
+obj* x_1; obj* x_2; 
 x_1 = l_Lean_Parser_appPrec;
 x_2 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
-x_3 = lean::mk_string("(");
-x_4 = l_String_trim(x_3);
-lean::dec(x_3);
-x_5 = l_Lean_Parser_symbolInfo(x_4, x_2);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_ExceptT_lift___rarg___lambda__1), 1, 0);
-x_7 = lean::box(1);
-x_8 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_8, 0, x_6);
-lean::cnstr_set(x_8, 1, x_7);
-x_9 = lean::box(0);
-x_10 = lean::mk_string(")");
-x_11 = l_String_trim(x_10);
-lean::dec(x_10);
-x_12 = l_Lean_Parser_symbolInfo(x_11, x_9);
-x_13 = l_Lean_Parser_andthenInfo(x_8, x_12);
-x_14 = l_Lean_Parser_andthenInfo(x_5, x_13);
-x_15 = l_Lean_Parser_nodeInfo(x_14);
-x_16 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_Level_paren___elambda__1___boxed), 1, 0);
-x_17 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_17, 0, x_15);
-lean::cnstr_set(x_17, 1, x_16);
-return x_17;
+return x_2;
+}
+}
+obj* _init_l_Lean_Parser_Level_paren___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__5;
+x_2 = l_Lean_Parser_Level_paren___closed__1;
+x_3 = l_Lean_Parser_symbolInfo(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_paren___closed__3() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__6;
+x_3 = l_Lean_Parser_symbolInfo(x_2, x_1);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_paren___closed__4() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Parser_inhabited___closed__1;
+x_2 = l_Lean_Parser_Level_paren___closed__3;
+x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_paren___closed__5() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_paren___closed__2;
+x_2 = l_Lean_Parser_Level_paren___closed__4;
+x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_paren___closed__6() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = l_Lean_Parser_Level_paren___closed__5;
+x_2 = l_Lean_Parser_nodeInfo(x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_Parser_Level_paren___closed__7() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_Level_paren___elambda__1___boxed), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Parser_Level_paren___closed__8() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_paren___closed__6;
+x_2 = l_Lean_Parser_Level_paren___closed__7;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_paren() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_Parser_Level_paren___closed__8;
+return x_1;
 }
 }
 obj* l_Lean_Parser_Level_paren___elambda__1___boxed(obj* x_1) {
@@ -386,7 +537,7 @@ _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
 x_2 = l_Lean_Parser_builtinLevelParsingTable;
-x_3 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__5;
+x_3 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__4;
 x_4 = l_Lean_Parser_Level_paren;
 x_5 = l_Lean_Parser_addBuiltinLeadingParser(x_2, x_3, x_4, x_1);
 return x_5;
@@ -446,43 +597,40 @@ return x_18;
 obj* _init_l_Lean_Parser_Level_max___elambda__1___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; 
-x_1 = lean::mk_string("max");
-x_2 = l_String_trim(x_1);
-lean::dec(x_1);
-return x_2;
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__2;
+x_2 = l_Lean_LevelToFormat_Result_format___main___closed__3;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
 }
 }
 obj* _init_l_Lean_Parser_Level_max___elambda__1___closed__2() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
-x_1 = lean::mk_string("max");
+obj* x_1; obj* x_2; 
+x_1 = l_Lean_LevelToFormat_Result_format___main___closed__3;
 x_2 = l_String_trim(x_1);
-lean::dec(x_1);
-x_3 = lean::mk_string("expected '");
-x_4 = lean::string_append(x_3, x_2);
-lean::dec(x_2);
-x_5 = lean::mk_string("'");
-x_6 = lean::string_append(x_4, x_5);
-lean::dec(x_5);
-return x_6;
+return x_2;
 }
 }
 obj* _init_l_Lean_Parser_Level_max___elambda__1___closed__3() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
-x_1 = lean::box(0);
-x_2 = lean::mk_string("Lean");
-x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::mk_string("Parser");
-x_5 = lean_name_mk_string(x_3, x_4);
-x_6 = lean::mk_string("Level");
-x_7 = lean_name_mk_string(x_5, x_6);
-x_8 = lean::mk_string("max");
-x_9 = lean_name_mk_string(x_7, x_8);
-return x_9;
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_symbolFn___rarg___closed__1;
+x_2 = l_Lean_Parser_Level_max___elambda__1___closed__2;
+x_3 = lean::string_append(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_max___elambda__1___closed__4() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_max___elambda__1___closed__3;
+x_2 = l_Char_HasRepr___closed__1;
+x_3 = lean::string_append(x_1, x_2);
+return x_3;
 }
 }
 obj* l_Lean_Parser_Level_max___elambda__1(obj* x_1, obj* x_2, obj* x_3) {
@@ -493,8 +641,8 @@ x_4 = lean::cnstr_get(x_3, 0);
 lean::inc(x_4);
 x_5 = lean::array_get_size(x_4);
 lean::dec(x_4);
-x_6 = l_Lean_Parser_Level_max___elambda__1___closed__1;
-x_7 = l_Lean_Parser_Level_max___elambda__1___closed__2;
+x_6 = l_Lean_Parser_Level_max___elambda__1___closed__2;
+x_7 = l_Lean_Parser_Level_max___elambda__1___closed__4;
 lean::inc(x_2);
 x_8 = l_Lean_Parser_symbolFnAux(x_6, x_7, x_2, x_3);
 x_9 = lean::cnstr_get(x_8, 3);
@@ -520,7 +668,7 @@ x_17 = 0;
 x_18 = l_Lean_Parser_manyAux___main___at_Lean_Parser_Level_max___elambda__1___spec__1(x_17, x_1, x_2, x_15);
 x_19 = l_Lean_nullKind;
 x_20 = l_Lean_Parser_ParserState_mkNode(x_18, x_19, x_11);
-x_21 = l_Lean_Parser_Level_max___elambda__1___closed__3;
+x_21 = l_Lean_Parser_Level_max___elambda__1___closed__1;
 x_22 = l_Lean_Parser_ParserState_mkNode(x_20, x_21, x_5);
 return x_22;
 }
@@ -531,7 +679,7 @@ lean::dec(x_16);
 lean::dec(x_2);
 x_23 = l_Lean_nullKind;
 x_24 = l_Lean_Parser_ParserState_mkNode(x_15, x_23, x_11);
-x_25 = l_Lean_Parser_Level_max___elambda__1___closed__3;
+x_25 = l_Lean_Parser_Level_max___elambda__1___closed__1;
 x_26 = l_Lean_Parser_ParserState_mkNode(x_24, x_25, x_5);
 return x_26;
 }
@@ -541,33 +689,67 @@ else
 obj* x_27; obj* x_28; 
 lean::dec(x_9);
 lean::dec(x_2);
-x_27 = l_Lean_Parser_Level_max___elambda__1___closed__3;
+x_27 = l_Lean_Parser_Level_max___elambda__1___closed__1;
 x_28 = l_Lean_Parser_ParserState_mkNode(x_8, x_27, x_5);
 return x_28;
 }
 }
 }
+obj* _init_l_Lean_Parser_Level_max___closed__1() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_Parser_Level_max___elambda__1___closed__2;
+x_3 = l_Lean_Parser_symbolInfo(x_2, x_1);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_max___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_max___closed__1;
+x_2 = l_Lean_Parser_Parser_inhabited___closed__1;
+x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_max___closed__3() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = l_Lean_Parser_Level_max___closed__2;
+x_2 = l_Lean_Parser_nodeInfo(x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_Parser_Level_max___closed__4() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_Level_max___elambda__1___boxed), 3, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Parser_Level_max___closed__5() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_max___closed__3;
+x_2 = l_Lean_Parser_Level_max___closed__4;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
 obj* _init_l_Lean_Parser_Level_max() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
-x_1 = lean::box(0);
-x_2 = lean::mk_string("max");
-x_3 = l_String_trim(x_2);
-lean::dec(x_2);
-x_4 = l_Lean_Parser_symbolInfo(x_3, x_1);
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_ExceptT_lift___rarg___lambda__1), 1, 0);
-x_6 = lean::box(1);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_5);
-lean::cnstr_set(x_7, 1, x_6);
-x_8 = l_Lean_Parser_andthenInfo(x_4, x_7);
-x_9 = l_Lean_Parser_nodeInfo(x_8);
-x_10 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_Level_max___elambda__1___boxed), 3, 0);
-x_11 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_11, 0, x_9);
-lean::cnstr_set(x_11, 1, x_10);
-return x_11;
+obj* x_1; 
+x_1 = l_Lean_Parser_Level_max___closed__5;
+return x_1;
 }
 }
 obj* l_Lean_Parser_manyAux___main___at_Lean_Parser_Level_max___elambda__1___spec__1___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
@@ -595,7 +777,7 @@ _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
 x_2 = l_Lean_Parser_builtinLevelParsingTable;
-x_3 = l_Lean_Parser_Level_max___elambda__1___closed__3;
+x_3 = l_Lean_Parser_Level_max___elambda__1___closed__1;
 x_4 = l_Lean_Parser_Level_max;
 x_5 = l_Lean_Parser_addBuiltinLeadingParser(x_2, x_3, x_4, x_1);
 return x_5;
@@ -604,43 +786,40 @@ return x_5;
 obj* _init_l_Lean_Parser_Level_imax___elambda__1___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; 
-x_1 = lean::mk_string("imax");
-x_2 = l_String_trim(x_1);
-lean::dec(x_1);
-return x_2;
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__2;
+x_2 = l_Lean_LevelToFormat_Result_format___main___closed__5;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
 }
 }
 obj* _init_l_Lean_Parser_Level_imax___elambda__1___closed__2() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
-x_1 = lean::mk_string("imax");
+obj* x_1; obj* x_2; 
+x_1 = l_Lean_LevelToFormat_Result_format___main___closed__5;
 x_2 = l_String_trim(x_1);
-lean::dec(x_1);
-x_3 = lean::mk_string("expected '");
-x_4 = lean::string_append(x_3, x_2);
-lean::dec(x_2);
-x_5 = lean::mk_string("'");
-x_6 = lean::string_append(x_4, x_5);
-lean::dec(x_5);
-return x_6;
+return x_2;
 }
 }
 obj* _init_l_Lean_Parser_Level_imax___elambda__1___closed__3() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
-x_1 = lean::box(0);
-x_2 = lean::mk_string("Lean");
-x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::mk_string("Parser");
-x_5 = lean_name_mk_string(x_3, x_4);
-x_6 = lean::mk_string("Level");
-x_7 = lean_name_mk_string(x_5, x_6);
-x_8 = lean::mk_string("imax");
-x_9 = lean_name_mk_string(x_7, x_8);
-return x_9;
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_symbolFn___rarg___closed__1;
+x_2 = l_Lean_Parser_Level_imax___elambda__1___closed__2;
+x_3 = lean::string_append(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_imax___elambda__1___closed__4() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_imax___elambda__1___closed__3;
+x_2 = l_Char_HasRepr___closed__1;
+x_3 = lean::string_append(x_1, x_2);
+return x_3;
 }
 }
 obj* l_Lean_Parser_Level_imax___elambda__1(obj* x_1, obj* x_2, obj* x_3) {
@@ -651,8 +830,8 @@ x_4 = lean::cnstr_get(x_3, 0);
 lean::inc(x_4);
 x_5 = lean::array_get_size(x_4);
 lean::dec(x_4);
-x_6 = l_Lean_Parser_Level_imax___elambda__1___closed__1;
-x_7 = l_Lean_Parser_Level_imax___elambda__1___closed__2;
+x_6 = l_Lean_Parser_Level_imax___elambda__1___closed__2;
+x_7 = l_Lean_Parser_Level_imax___elambda__1___closed__4;
 lean::inc(x_2);
 x_8 = l_Lean_Parser_symbolFnAux(x_6, x_7, x_2, x_3);
 x_9 = lean::cnstr_get(x_8, 3);
@@ -678,7 +857,7 @@ x_17 = 0;
 x_18 = l_Lean_Parser_manyAux___main___at_Lean_Parser_Level_max___elambda__1___spec__1(x_17, x_1, x_2, x_15);
 x_19 = l_Lean_nullKind;
 x_20 = l_Lean_Parser_ParserState_mkNode(x_18, x_19, x_11);
-x_21 = l_Lean_Parser_Level_imax___elambda__1___closed__3;
+x_21 = l_Lean_Parser_Level_imax___elambda__1___closed__1;
 x_22 = l_Lean_Parser_ParserState_mkNode(x_20, x_21, x_5);
 return x_22;
 }
@@ -689,7 +868,7 @@ lean::dec(x_16);
 lean::dec(x_2);
 x_23 = l_Lean_nullKind;
 x_24 = l_Lean_Parser_ParserState_mkNode(x_15, x_23, x_11);
-x_25 = l_Lean_Parser_Level_imax___elambda__1___closed__3;
+x_25 = l_Lean_Parser_Level_imax___elambda__1___closed__1;
 x_26 = l_Lean_Parser_ParserState_mkNode(x_24, x_25, x_5);
 return x_26;
 }
@@ -699,33 +878,67 @@ else
 obj* x_27; obj* x_28; 
 lean::dec(x_9);
 lean::dec(x_2);
-x_27 = l_Lean_Parser_Level_imax___elambda__1___closed__3;
+x_27 = l_Lean_Parser_Level_imax___elambda__1___closed__1;
 x_28 = l_Lean_Parser_ParserState_mkNode(x_8, x_27, x_5);
 return x_28;
 }
 }
 }
+obj* _init_l_Lean_Parser_Level_imax___closed__1() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_Parser_Level_imax___elambda__1___closed__2;
+x_3 = l_Lean_Parser_symbolInfo(x_2, x_1);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_imax___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_imax___closed__1;
+x_2 = l_Lean_Parser_Parser_inhabited___closed__1;
+x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_imax___closed__3() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = l_Lean_Parser_Level_imax___closed__2;
+x_2 = l_Lean_Parser_nodeInfo(x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_Parser_Level_imax___closed__4() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_Level_imax___elambda__1___boxed), 3, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Parser_Level_imax___closed__5() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_imax___closed__3;
+x_2 = l_Lean_Parser_Level_imax___closed__4;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
 obj* _init_l_Lean_Parser_Level_imax() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
-x_1 = lean::box(0);
-x_2 = lean::mk_string("imax");
-x_3 = l_String_trim(x_2);
-lean::dec(x_2);
-x_4 = l_Lean_Parser_symbolInfo(x_3, x_1);
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_ExceptT_lift___rarg___lambda__1), 1, 0);
-x_6 = lean::box(1);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_5);
-lean::cnstr_set(x_7, 1, x_6);
-x_8 = l_Lean_Parser_andthenInfo(x_4, x_7);
-x_9 = l_Lean_Parser_nodeInfo(x_8);
-x_10 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_Level_imax___elambda__1___boxed), 3, 0);
-x_11 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_11, 0, x_9);
-lean::cnstr_set(x_11, 1, x_10);
-return x_11;
+obj* x_1; 
+x_1 = l_Lean_Parser_Level_imax___closed__5;
+return x_1;
 }
 }
 obj* l_Lean_Parser_Level_imax___elambda__1___boxed(obj* x_1, obj* x_2, obj* x_3) {
@@ -742,7 +955,7 @@ _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
 x_2 = l_Lean_Parser_builtinLevelParsingTable;
-x_3 = l_Lean_Parser_Level_imax___elambda__1___closed__3;
+x_3 = l_Lean_Parser_Level_imax___elambda__1___closed__1;
 x_4 = l_Lean_Parser_Level_imax;
 x_5 = l_Lean_Parser_addBuiltinLeadingParser(x_2, x_3, x_4, x_1);
 return x_5;
@@ -751,43 +964,48 @@ return x_5;
 obj* _init_l_Lean_Parser_Level_hole___elambda__1___rarg___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; 
-x_1 = lean::mk_string("_");
-x_2 = l_String_trim(x_1);
-lean::dec(x_1);
-return x_2;
+obj* x_1; 
+x_1 = lean::mk_string("hole");
+return x_1;
 }
 }
 obj* _init_l_Lean_Parser_Level_hole___elambda__1___rarg___closed__2() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
-x_1 = lean::mk_string("_");
-x_2 = l_String_trim(x_1);
-lean::dec(x_1);
-x_3 = lean::mk_string("expected '");
-x_4 = lean::string_append(x_3, x_2);
-lean::dec(x_2);
-x_5 = lean::mk_string("'");
-x_6 = lean::string_append(x_4, x_5);
-lean::dec(x_5);
-return x_6;
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__2;
+x_2 = l_Lean_Parser_Level_hole___elambda__1___rarg___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
 }
 }
 obj* _init_l_Lean_Parser_Level_hole___elambda__1___rarg___closed__3() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
-x_1 = lean::box(0);
-x_2 = lean::mk_string("Lean");
-x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::mk_string("Parser");
-x_5 = lean_name_mk_string(x_3, x_4);
-x_6 = lean::mk_string("Level");
-x_7 = lean_name_mk_string(x_5, x_6);
-x_8 = lean::mk_string("hole");
-x_9 = lean_name_mk_string(x_7, x_8);
-return x_9;
+obj* x_1; obj* x_2; 
+x_1 = l_Lean_Name_appendIndexAfter___main___closed__1;
+x_2 = l_String_trim(x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_Parser_Level_hole___elambda__1___rarg___closed__4() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_symbolFn___rarg___closed__1;
+x_2 = l_Lean_Parser_Level_hole___elambda__1___rarg___closed__3;
+x_3 = lean::string_append(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_hole___elambda__1___rarg___closed__5() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_hole___elambda__1___rarg___closed__4;
+x_2 = l_Char_HasRepr___closed__1;
+x_3 = lean::string_append(x_1, x_2);
+return x_3;
 }
 }
 obj* l_Lean_Parser_Level_hole___elambda__1___rarg(obj* x_1, obj* x_2) {
@@ -798,10 +1016,10 @@ x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 x_4 = lean::array_get_size(x_3);
 lean::dec(x_3);
-x_5 = l_Lean_Parser_Level_hole___elambda__1___rarg___closed__1;
-x_6 = l_Lean_Parser_Level_hole___elambda__1___rarg___closed__2;
+x_5 = l_Lean_Parser_Level_hole___elambda__1___rarg___closed__3;
+x_6 = l_Lean_Parser_Level_hole___elambda__1___rarg___closed__5;
 x_7 = l_Lean_Parser_symbolFnAux(x_5, x_6, x_1, x_2);
-x_8 = l_Lean_Parser_Level_hole___elambda__1___rarg___closed__3;
+x_8 = l_Lean_Parser_Level_hole___elambda__1___rarg___closed__2;
 x_9 = l_Lean_Parser_ParserState_mkNode(x_7, x_8, x_4);
 return x_9;
 }
@@ -814,21 +1032,51 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_Level_hole___ela
 return x_2;
 }
 }
+obj* _init_l_Lean_Parser_Level_hole___closed__1() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_Parser_Level_hole___elambda__1___rarg___closed__3;
+x_3 = l_Lean_Parser_symbolInfo(x_2, x_1);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_hole___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = l_Lean_Parser_Level_hole___closed__1;
+x_2 = l_Lean_Parser_nodeInfo(x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_Parser_Level_hole___closed__3() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_Level_hole___elambda__1___boxed), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Parser_Level_hole___closed__4() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_hole___closed__2;
+x_2 = l_Lean_Parser_Level_hole___closed__3;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
 obj* _init_l_Lean_Parser_Level_hole() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
-x_1 = lean::box(0);
-x_2 = lean::mk_string("_");
-x_3 = l_String_trim(x_2);
-lean::dec(x_2);
-x_4 = l_Lean_Parser_symbolInfo(x_3, x_1);
-x_5 = l_Lean_Parser_nodeInfo(x_4);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_Level_hole___elambda__1___boxed), 1, 0);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_5);
-lean::cnstr_set(x_7, 1, x_6);
-return x_7;
+obj* x_1; 
+x_1 = l_Lean_Parser_Level_hole___closed__4;
+return x_1;
 }
 }
 obj* l_Lean_Parser_Level_hole___elambda__1___boxed(obj* x_1) {
@@ -845,7 +1093,7 @@ _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
 x_2 = l_Lean_Parser_builtinLevelParsingTable;
-x_3 = l_Lean_Parser_Level_hole___elambda__1___rarg___closed__3;
+x_3 = l_Lean_Parser_Level_hole___elambda__1___rarg___closed__2;
 x_4 = l_Lean_Parser_Level_hole;
 x_5 = l_Lean_Parser_addBuiltinLeadingParser(x_2, x_3, x_4, x_1);
 return x_5;
@@ -867,17 +1115,32 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_Level_num___elam
 return x_2;
 }
 }
+obj* _init_l_Lean_Parser_Level_num___closed__1() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_Level_num___elambda__1___boxed), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Parser_Level_num___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_numLit___closed__1;
+x_2 = l_Lean_Parser_Level_num___closed__1;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
 obj* _init_l_Lean_Parser_Level_num() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
-x_1 = lean::mk_string("numLit");
-x_2 = l_Lean_Parser_mkAtomicInfo(x_1);
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_Level_num___elambda__1___boxed), 1, 0);
-x_4 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_4, 0, x_2);
-lean::cnstr_set(x_4, 1, x_3);
-return x_4;
+obj* x_1; 
+x_1 = l_Lean_Parser_Level_num___closed__2;
+return x_1;
 }
 }
 obj* l_Lean_Parser_Level_num___elambda__1___boxed(obj* x_1) {
@@ -892,17 +1155,19 @@ return x_2;
 obj* _init_l___regBuiltinParser_Lean_Parser_Level_num___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
-x_1 = lean::box(0);
-x_2 = lean::mk_string("Lean");
+obj* x_1; 
+x_1 = lean::mk_string("num");
+return x_1;
+}
+}
+obj* _init_l___regBuiltinParser_Lean_Parser_Level_num___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__2;
+x_2 = l___regBuiltinParser_Lean_Parser_Level_num___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::mk_string("Parser");
-x_5 = lean_name_mk_string(x_3, x_4);
-x_6 = lean::mk_string("Level");
-x_7 = lean_name_mk_string(x_5, x_6);
-x_8 = lean::mk_string("num");
-x_9 = lean_name_mk_string(x_7, x_8);
-return x_9;
+return x_3;
 }
 }
 obj* l___regBuiltinParser_Lean_Parser_Level_num(obj* x_1) {
@@ -910,7 +1175,7 @@ _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
 x_2 = l_Lean_Parser_builtinLevelParsingTable;
-x_3 = l___regBuiltinParser_Lean_Parser_Level_num___closed__1;
+x_3 = l___regBuiltinParser_Lean_Parser_Level_num___closed__2;
 x_4 = l_Lean_Parser_Level_num;
 x_5 = l_Lean_Parser_addBuiltinLeadingParser(x_2, x_3, x_4, x_1);
 return x_5;
@@ -932,17 +1197,32 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_Level_ident___el
 return x_2;
 }
 }
+obj* _init_l_Lean_Parser_Level_ident___closed__1() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_Level_ident___elambda__1___boxed), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Parser_Level_ident___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_ident___closed__2;
+x_2 = l_Lean_Parser_Level_ident___closed__1;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
 obj* _init_l_Lean_Parser_Level_ident() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
-x_1 = lean::mk_string("ident");
-x_2 = l_Lean_Parser_mkAtomicInfo(x_1);
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_Level_ident___elambda__1___boxed), 1, 0);
-x_4 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_4, 0, x_2);
-lean::cnstr_set(x_4, 1, x_3);
-return x_4;
+obj* x_1; 
+x_1 = l_Lean_Parser_Level_ident___closed__2;
+return x_1;
 }
 }
 obj* l_Lean_Parser_Level_ident___elambda__1___boxed(obj* x_1) {
@@ -957,17 +1237,11 @@ return x_2;
 obj* _init_l___regBuiltinParser_Lean_Parser_Level_ident___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
-x_1 = lean::box(0);
-x_2 = lean::mk_string("Lean");
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__2;
+x_2 = l_Lean_Parser_ident___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::mk_string("Parser");
-x_5 = lean_name_mk_string(x_3, x_4);
-x_6 = lean::mk_string("Level");
-x_7 = lean_name_mk_string(x_5, x_6);
-x_8 = lean::mk_string("ident");
-x_9 = lean_name_mk_string(x_7, x_8);
-return x_9;
+return x_3;
 }
 }
 obj* l___regBuiltinParser_Lean_Parser_Level_ident(obj* x_1) {
@@ -984,43 +1258,48 @@ return x_5;
 obj* _init_l_Lean_Parser_Level_addLit___elambda__1___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; 
-x_1 = lean::mk_string("+");
-x_2 = l_String_trim(x_1);
-lean::dec(x_1);
-return x_2;
+obj* x_1; 
+x_1 = lean::mk_string("addLit");
+return x_1;
 }
 }
 obj* _init_l_Lean_Parser_Level_addLit___elambda__1___closed__2() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
-x_1 = lean::mk_string("+");
-x_2 = l_String_trim(x_1);
-lean::dec(x_1);
-x_3 = lean::mk_string("expected '");
-x_4 = lean::string_append(x_3, x_2);
-lean::dec(x_2);
-x_5 = lean::mk_string("'");
-x_6 = lean::string_append(x_4, x_5);
-lean::dec(x_5);
-return x_6;
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__2;
+x_2 = l_Lean_Parser_Level_addLit___elambda__1___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
 }
 }
 obj* _init_l_Lean_Parser_Level_addLit___elambda__1___closed__3() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
-x_1 = lean::box(0);
-x_2 = lean::mk_string("Lean");
-x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::mk_string("Parser");
-x_5 = lean_name_mk_string(x_3, x_4);
-x_6 = lean::mk_string("Level");
-x_7 = lean_name_mk_string(x_5, x_6);
-x_8 = lean::mk_string("addLit");
-x_9 = lean_name_mk_string(x_7, x_8);
-return x_9;
+obj* x_1; obj* x_2; 
+x_1 = l_Lean_LevelToFormat_Result_format___main___closed__1;
+x_2 = l_String_trim(x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_Parser_Level_addLit___elambda__1___closed__4() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_symbolFn___rarg___closed__1;
+x_2 = l_Lean_Parser_Level_addLit___elambda__1___closed__3;
+x_3 = lean::string_append(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_addLit___elambda__1___closed__5() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_addLit___elambda__1___closed__4;
+x_2 = l_Char_HasRepr___closed__1;
+x_3 = lean::string_append(x_1, x_2);
+return x_3;
 }
 }
 obj* l_Lean_Parser_Level_addLit___elambda__1(obj* x_1, obj* x_2, obj* x_3) {
@@ -1039,8 +1318,8 @@ lean::dec(x_3);
 if (lean::obj_tag(x_7) == 0)
 {
 obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
-x_8 = l_Lean_Parser_Level_addLit___elambda__1___closed__1;
-x_9 = l_Lean_Parser_Level_addLit___elambda__1___closed__2;
+x_8 = l_Lean_Parser_Level_addLit___elambda__1___closed__3;
+x_9 = l_Lean_Parser_Level_addLit___elambda__1___closed__5;
 lean::inc(x_2);
 x_10 = l_Lean_Parser_symbolFnAux(x_8, x_9, x_2, x_6);
 x_11 = lean::cnstr_get(x_10, 3);
@@ -1049,7 +1328,7 @@ if (lean::obj_tag(x_11) == 0)
 {
 obj* x_12; obj* x_13; obj* x_14; 
 x_12 = l_Lean_Parser_numLitFn___rarg(x_2, x_10);
-x_13 = l_Lean_Parser_Level_addLit___elambda__1___closed__3;
+x_13 = l_Lean_Parser_Level_addLit___elambda__1___closed__2;
 x_14 = l_Lean_Parser_ParserState_mkNode(x_12, x_13, x_5);
 return x_14;
 }
@@ -1058,7 +1337,7 @@ else
 obj* x_15; obj* x_16; 
 lean::dec(x_11);
 lean::dec(x_2);
-x_15 = l_Lean_Parser_Level_addLit___elambda__1___closed__3;
+x_15 = l_Lean_Parser_Level_addLit___elambda__1___closed__2;
 x_16 = l_Lean_Parser_ParserState_mkNode(x_10, x_15, x_5);
 return x_16;
 }
@@ -1068,34 +1347,87 @@ else
 obj* x_17; obj* x_18; 
 lean::dec(x_7);
 lean::dec(x_2);
-x_17 = l_Lean_Parser_Level_addLit___elambda__1___closed__3;
+x_17 = l_Lean_Parser_Level_addLit___elambda__1___closed__2;
 x_18 = l_Lean_Parser_ParserState_mkNode(x_6, x_17, x_5);
 return x_18;
 }
 }
 }
-obj* _init_l_Lean_Parser_Level_addLit() {
+obj* _init_l_Lean_Parser_Level_addLit___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; 
+obj* x_1; obj* x_2; 
 x_1 = lean::mk_nat_obj(65u);
 x_2 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
-x_3 = lean::mk_string("+");
-x_4 = l_String_trim(x_3);
-lean::dec(x_3);
-x_5 = l_Lean_Parser_symbolInfo(x_4, x_2);
-x_6 = lean::mk_string("numLit");
-x_7 = l_Lean_Parser_mkAtomicInfo(x_6);
-x_8 = l_Lean_Parser_andthenInfo(x_5, x_7);
-x_9 = l_Lean_Parser_epsilonInfo;
-x_10 = l_Lean_Parser_andthenInfo(x_9, x_8);
-x_11 = l_Lean_Parser_nodeInfo(x_10);
-x_12 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_Level_addLit___elambda__1), 3, 0);
-x_13 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_13, 0, x_11);
-lean::cnstr_set(x_13, 1, x_12);
-return x_13;
+return x_2;
+}
+}
+obj* _init_l_Lean_Parser_Level_addLit___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_addLit___elambda__1___closed__3;
+x_2 = l_Lean_Parser_Level_addLit___closed__1;
+x_3 = l_Lean_Parser_symbolInfo(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_addLit___closed__3() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_addLit___closed__2;
+x_2 = l_Lean_Parser_numLit___closed__1;
+x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_addLit___closed__4() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_epsilonInfo;
+x_2 = l_Lean_Parser_Level_addLit___closed__3;
+x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_addLit___closed__5() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = l_Lean_Parser_Level_addLit___closed__4;
+x_2 = l_Lean_Parser_nodeInfo(x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_Parser_Level_addLit___closed__6() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_Level_addLit___elambda__1), 3, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Parser_Level_addLit___closed__7() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_addLit___closed__5;
+x_2 = l_Lean_Parser_Level_addLit___closed__6;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Parser_Level_addLit() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_Parser_Level_addLit___closed__7;
+return x_1;
 }
 }
 obj* l___regBuiltinParser_Lean_Parser_Level_addLit(obj* x_1) {
@@ -1103,7 +1435,7 @@ _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
 x_2 = l_Lean_Parser_builtinLevelParsingTable;
-x_3 = l_Lean_Parser_Level_addLit___elambda__1___closed__3;
+x_3 = l_Lean_Parser_Level_addLit___elambda__1___closed__2;
 x_4 = l_Lean_Parser_Level_addLit;
 x_5 = l_Lean_Parser_addBuiltinTrailingParser(x_2, x_3, x_4, x_1);
 return x_5;
@@ -1126,6 +1458,10 @@ l_Lean_Parser_regBuiltinLevelParserAttr___closed__1 = _init_l_Lean_Parser_regBui
 lean::mark_persistent(l_Lean_Parser_regBuiltinLevelParserAttr___closed__1);
 l_Lean_Parser_regBuiltinLevelParserAttr___closed__2 = _init_l_Lean_Parser_regBuiltinLevelParserAttr___closed__2();
 lean::mark_persistent(l_Lean_Parser_regBuiltinLevelParserAttr___closed__2);
+l_Lean_Parser_regBuiltinLevelParserAttr___closed__3 = _init_l_Lean_Parser_regBuiltinLevelParserAttr___closed__3();
+lean::mark_persistent(l_Lean_Parser_regBuiltinLevelParserAttr___closed__3);
+l_Lean_Parser_regBuiltinLevelParserAttr___closed__4 = _init_l_Lean_Parser_regBuiltinLevelParserAttr___closed__4();
+lean::mark_persistent(l_Lean_Parser_regBuiltinLevelParserAttr___closed__4);
 w = l_Lean_Parser_regBuiltinLevelParserAttr(w);
 if (io_result_is_error(w)) return w;
 l_Lean_Parser_levelParserFn___rarg___closed__1 = _init_l_Lean_Parser_levelParserFn___rarg___closed__1();
@@ -1142,6 +1478,32 @@ l_Lean_Parser_Level_paren___elambda__1___rarg___closed__4 = _init_l_Lean_Parser_
 lean::mark_persistent(l_Lean_Parser_Level_paren___elambda__1___rarg___closed__4);
 l_Lean_Parser_Level_paren___elambda__1___rarg___closed__5 = _init_l_Lean_Parser_Level_paren___elambda__1___rarg___closed__5();
 lean::mark_persistent(l_Lean_Parser_Level_paren___elambda__1___rarg___closed__5);
+l_Lean_Parser_Level_paren___elambda__1___rarg___closed__6 = _init_l_Lean_Parser_Level_paren___elambda__1___rarg___closed__6();
+lean::mark_persistent(l_Lean_Parser_Level_paren___elambda__1___rarg___closed__6);
+l_Lean_Parser_Level_paren___elambda__1___rarg___closed__7 = _init_l_Lean_Parser_Level_paren___elambda__1___rarg___closed__7();
+lean::mark_persistent(l_Lean_Parser_Level_paren___elambda__1___rarg___closed__7);
+l_Lean_Parser_Level_paren___elambda__1___rarg___closed__8 = _init_l_Lean_Parser_Level_paren___elambda__1___rarg___closed__8();
+lean::mark_persistent(l_Lean_Parser_Level_paren___elambda__1___rarg___closed__8);
+l_Lean_Parser_Level_paren___elambda__1___rarg___closed__9 = _init_l_Lean_Parser_Level_paren___elambda__1___rarg___closed__9();
+lean::mark_persistent(l_Lean_Parser_Level_paren___elambda__1___rarg___closed__9);
+l_Lean_Parser_Level_paren___elambda__1___rarg___closed__10 = _init_l_Lean_Parser_Level_paren___elambda__1___rarg___closed__10();
+lean::mark_persistent(l_Lean_Parser_Level_paren___elambda__1___rarg___closed__10);
+l_Lean_Parser_Level_paren___closed__1 = _init_l_Lean_Parser_Level_paren___closed__1();
+lean::mark_persistent(l_Lean_Parser_Level_paren___closed__1);
+l_Lean_Parser_Level_paren___closed__2 = _init_l_Lean_Parser_Level_paren___closed__2();
+lean::mark_persistent(l_Lean_Parser_Level_paren___closed__2);
+l_Lean_Parser_Level_paren___closed__3 = _init_l_Lean_Parser_Level_paren___closed__3();
+lean::mark_persistent(l_Lean_Parser_Level_paren___closed__3);
+l_Lean_Parser_Level_paren___closed__4 = _init_l_Lean_Parser_Level_paren___closed__4();
+lean::mark_persistent(l_Lean_Parser_Level_paren___closed__4);
+l_Lean_Parser_Level_paren___closed__5 = _init_l_Lean_Parser_Level_paren___closed__5();
+lean::mark_persistent(l_Lean_Parser_Level_paren___closed__5);
+l_Lean_Parser_Level_paren___closed__6 = _init_l_Lean_Parser_Level_paren___closed__6();
+lean::mark_persistent(l_Lean_Parser_Level_paren___closed__6);
+l_Lean_Parser_Level_paren___closed__7 = _init_l_Lean_Parser_Level_paren___closed__7();
+lean::mark_persistent(l_Lean_Parser_Level_paren___closed__7);
+l_Lean_Parser_Level_paren___closed__8 = _init_l_Lean_Parser_Level_paren___closed__8();
+lean::mark_persistent(l_Lean_Parser_Level_paren___closed__8);
 l_Lean_Parser_Level_paren = _init_l_Lean_Parser_Level_paren();
 lean::mark_persistent(l_Lean_Parser_Level_paren);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Level"), "paren"), l_Lean_Parser_Level_paren);
@@ -1153,6 +1515,18 @@ l_Lean_Parser_Level_max___elambda__1___closed__2 = _init_l_Lean_Parser_Level_max
 lean::mark_persistent(l_Lean_Parser_Level_max___elambda__1___closed__2);
 l_Lean_Parser_Level_max___elambda__1___closed__3 = _init_l_Lean_Parser_Level_max___elambda__1___closed__3();
 lean::mark_persistent(l_Lean_Parser_Level_max___elambda__1___closed__3);
+l_Lean_Parser_Level_max___elambda__1___closed__4 = _init_l_Lean_Parser_Level_max___elambda__1___closed__4();
+lean::mark_persistent(l_Lean_Parser_Level_max___elambda__1___closed__4);
+l_Lean_Parser_Level_max___closed__1 = _init_l_Lean_Parser_Level_max___closed__1();
+lean::mark_persistent(l_Lean_Parser_Level_max___closed__1);
+l_Lean_Parser_Level_max___closed__2 = _init_l_Lean_Parser_Level_max___closed__2();
+lean::mark_persistent(l_Lean_Parser_Level_max___closed__2);
+l_Lean_Parser_Level_max___closed__3 = _init_l_Lean_Parser_Level_max___closed__3();
+lean::mark_persistent(l_Lean_Parser_Level_max___closed__3);
+l_Lean_Parser_Level_max___closed__4 = _init_l_Lean_Parser_Level_max___closed__4();
+lean::mark_persistent(l_Lean_Parser_Level_max___closed__4);
+l_Lean_Parser_Level_max___closed__5 = _init_l_Lean_Parser_Level_max___closed__5();
+lean::mark_persistent(l_Lean_Parser_Level_max___closed__5);
 l_Lean_Parser_Level_max = _init_l_Lean_Parser_Level_max();
 lean::mark_persistent(l_Lean_Parser_Level_max);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Level"), "max"), l_Lean_Parser_Level_max);
@@ -1164,6 +1538,18 @@ l_Lean_Parser_Level_imax___elambda__1___closed__2 = _init_l_Lean_Parser_Level_im
 lean::mark_persistent(l_Lean_Parser_Level_imax___elambda__1___closed__2);
 l_Lean_Parser_Level_imax___elambda__1___closed__3 = _init_l_Lean_Parser_Level_imax___elambda__1___closed__3();
 lean::mark_persistent(l_Lean_Parser_Level_imax___elambda__1___closed__3);
+l_Lean_Parser_Level_imax___elambda__1___closed__4 = _init_l_Lean_Parser_Level_imax___elambda__1___closed__4();
+lean::mark_persistent(l_Lean_Parser_Level_imax___elambda__1___closed__4);
+l_Lean_Parser_Level_imax___closed__1 = _init_l_Lean_Parser_Level_imax___closed__1();
+lean::mark_persistent(l_Lean_Parser_Level_imax___closed__1);
+l_Lean_Parser_Level_imax___closed__2 = _init_l_Lean_Parser_Level_imax___closed__2();
+lean::mark_persistent(l_Lean_Parser_Level_imax___closed__2);
+l_Lean_Parser_Level_imax___closed__3 = _init_l_Lean_Parser_Level_imax___closed__3();
+lean::mark_persistent(l_Lean_Parser_Level_imax___closed__3);
+l_Lean_Parser_Level_imax___closed__4 = _init_l_Lean_Parser_Level_imax___closed__4();
+lean::mark_persistent(l_Lean_Parser_Level_imax___closed__4);
+l_Lean_Parser_Level_imax___closed__5 = _init_l_Lean_Parser_Level_imax___closed__5();
+lean::mark_persistent(l_Lean_Parser_Level_imax___closed__5);
 l_Lean_Parser_Level_imax = _init_l_Lean_Parser_Level_imax();
 lean::mark_persistent(l_Lean_Parser_Level_imax);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Level"), "imax"), l_Lean_Parser_Level_imax);
@@ -1175,18 +1561,40 @@ l_Lean_Parser_Level_hole___elambda__1___rarg___closed__2 = _init_l_Lean_Parser_L
 lean::mark_persistent(l_Lean_Parser_Level_hole___elambda__1___rarg___closed__2);
 l_Lean_Parser_Level_hole___elambda__1___rarg___closed__3 = _init_l_Lean_Parser_Level_hole___elambda__1___rarg___closed__3();
 lean::mark_persistent(l_Lean_Parser_Level_hole___elambda__1___rarg___closed__3);
+l_Lean_Parser_Level_hole___elambda__1___rarg___closed__4 = _init_l_Lean_Parser_Level_hole___elambda__1___rarg___closed__4();
+lean::mark_persistent(l_Lean_Parser_Level_hole___elambda__1___rarg___closed__4);
+l_Lean_Parser_Level_hole___elambda__1___rarg___closed__5 = _init_l_Lean_Parser_Level_hole___elambda__1___rarg___closed__5();
+lean::mark_persistent(l_Lean_Parser_Level_hole___elambda__1___rarg___closed__5);
+l_Lean_Parser_Level_hole___closed__1 = _init_l_Lean_Parser_Level_hole___closed__1();
+lean::mark_persistent(l_Lean_Parser_Level_hole___closed__1);
+l_Lean_Parser_Level_hole___closed__2 = _init_l_Lean_Parser_Level_hole___closed__2();
+lean::mark_persistent(l_Lean_Parser_Level_hole___closed__2);
+l_Lean_Parser_Level_hole___closed__3 = _init_l_Lean_Parser_Level_hole___closed__3();
+lean::mark_persistent(l_Lean_Parser_Level_hole___closed__3);
+l_Lean_Parser_Level_hole___closed__4 = _init_l_Lean_Parser_Level_hole___closed__4();
+lean::mark_persistent(l_Lean_Parser_Level_hole___closed__4);
 l_Lean_Parser_Level_hole = _init_l_Lean_Parser_Level_hole();
 lean::mark_persistent(l_Lean_Parser_Level_hole);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Level"), "hole"), l_Lean_Parser_Level_hole);
 w = l___regBuiltinParser_Lean_Parser_Level_hole(w);
 if (io_result_is_error(w)) return w;
+l_Lean_Parser_Level_num___closed__1 = _init_l_Lean_Parser_Level_num___closed__1();
+lean::mark_persistent(l_Lean_Parser_Level_num___closed__1);
+l_Lean_Parser_Level_num___closed__2 = _init_l_Lean_Parser_Level_num___closed__2();
+lean::mark_persistent(l_Lean_Parser_Level_num___closed__2);
 l_Lean_Parser_Level_num = _init_l_Lean_Parser_Level_num();
 lean::mark_persistent(l_Lean_Parser_Level_num);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Level"), "num"), l_Lean_Parser_Level_num);
 l___regBuiltinParser_Lean_Parser_Level_num___closed__1 = _init_l___regBuiltinParser_Lean_Parser_Level_num___closed__1();
 lean::mark_persistent(l___regBuiltinParser_Lean_Parser_Level_num___closed__1);
+l___regBuiltinParser_Lean_Parser_Level_num___closed__2 = _init_l___regBuiltinParser_Lean_Parser_Level_num___closed__2();
+lean::mark_persistent(l___regBuiltinParser_Lean_Parser_Level_num___closed__2);
 w = l___regBuiltinParser_Lean_Parser_Level_num(w);
 if (io_result_is_error(w)) return w;
+l_Lean_Parser_Level_ident___closed__1 = _init_l_Lean_Parser_Level_ident___closed__1();
+lean::mark_persistent(l_Lean_Parser_Level_ident___closed__1);
+l_Lean_Parser_Level_ident___closed__2 = _init_l_Lean_Parser_Level_ident___closed__2();
+lean::mark_persistent(l_Lean_Parser_Level_ident___closed__2);
 l_Lean_Parser_Level_ident = _init_l_Lean_Parser_Level_ident();
 lean::mark_persistent(l_Lean_Parser_Level_ident);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Level"), "ident"), l_Lean_Parser_Level_ident);
@@ -1200,6 +1608,24 @@ l_Lean_Parser_Level_addLit___elambda__1___closed__2 = _init_l_Lean_Parser_Level_
 lean::mark_persistent(l_Lean_Parser_Level_addLit___elambda__1___closed__2);
 l_Lean_Parser_Level_addLit___elambda__1___closed__3 = _init_l_Lean_Parser_Level_addLit___elambda__1___closed__3();
 lean::mark_persistent(l_Lean_Parser_Level_addLit___elambda__1___closed__3);
+l_Lean_Parser_Level_addLit___elambda__1___closed__4 = _init_l_Lean_Parser_Level_addLit___elambda__1___closed__4();
+lean::mark_persistent(l_Lean_Parser_Level_addLit___elambda__1___closed__4);
+l_Lean_Parser_Level_addLit___elambda__1___closed__5 = _init_l_Lean_Parser_Level_addLit___elambda__1___closed__5();
+lean::mark_persistent(l_Lean_Parser_Level_addLit___elambda__1___closed__5);
+l_Lean_Parser_Level_addLit___closed__1 = _init_l_Lean_Parser_Level_addLit___closed__1();
+lean::mark_persistent(l_Lean_Parser_Level_addLit___closed__1);
+l_Lean_Parser_Level_addLit___closed__2 = _init_l_Lean_Parser_Level_addLit___closed__2();
+lean::mark_persistent(l_Lean_Parser_Level_addLit___closed__2);
+l_Lean_Parser_Level_addLit___closed__3 = _init_l_Lean_Parser_Level_addLit___closed__3();
+lean::mark_persistent(l_Lean_Parser_Level_addLit___closed__3);
+l_Lean_Parser_Level_addLit___closed__4 = _init_l_Lean_Parser_Level_addLit___closed__4();
+lean::mark_persistent(l_Lean_Parser_Level_addLit___closed__4);
+l_Lean_Parser_Level_addLit___closed__5 = _init_l_Lean_Parser_Level_addLit___closed__5();
+lean::mark_persistent(l_Lean_Parser_Level_addLit___closed__5);
+l_Lean_Parser_Level_addLit___closed__6 = _init_l_Lean_Parser_Level_addLit___closed__6();
+lean::mark_persistent(l_Lean_Parser_Level_addLit___closed__6);
+l_Lean_Parser_Level_addLit___closed__7 = _init_l_Lean_Parser_Level_addLit___closed__7();
+lean::mark_persistent(l_Lean_Parser_Level_addLit___closed__7);
 l_Lean_Parser_Level_addLit = _init_l_Lean_Parser_Level_addLit();
 lean::mark_persistent(l_Lean_Parser_Level_addLit);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Level"), "addLit"), l_Lean_Parser_Level_addLit);

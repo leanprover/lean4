@@ -42,6 +42,7 @@ obj* l_IO_Fs_handle_getLine(obj*, obj*);
 obj* l_IO_print___boxed(obj*, obj*);
 obj* l_IO_ofExcept(obj*, obj*);
 obj* l_IO_print___at_HasRepr_HasEval___spec__2___boxed(obj*, obj*);
+obj* l_IO_Error_HasToString___closed__1;
 obj* l_IO_Prim_iterate___at_IO_Fs_handle_readToEnd___spec__3___boxed(obj*, obj*, obj*);
 obj* l_IO_Ref_reset___rarg(obj*, obj*, obj*);
 obj* l_IO_Error_Inhabited;
@@ -206,11 +207,19 @@ x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_EIO_Inhabited___rarg), 1, 0)
 return x_3;
 }
 }
-obj* _init_l_IO_Error_HasToString() {
+obj* _init_l_IO_Error_HasToString___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_String_HasToString___boxed), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_IO_Error_HasToString() {
+_start:
+{
+obj* x_1; 
+x_1 = l_IO_Error_HasToString___closed__1;
 return x_1;
 }
 }
@@ -1738,6 +1747,8 @@ l_EIO_MonadExcept___closed__1 = _init_l_EIO_MonadExcept___closed__1();
 lean::mark_persistent(l_EIO_MonadExcept___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("EIO"), "MonadExcept"), 1, l_EIO_MonadExcept);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("EIO"), "Inhabited"), 2, l_EIO_Inhabited);
+l_IO_Error_HasToString___closed__1 = _init_l_IO_Error_HasToString___closed__1();
+lean::mark_persistent(l_IO_Error_HasToString___closed__1);
 l_IO_Error_HasToString = _init_l_IO_Error_HasToString();
 lean::mark_persistent(l_IO_Error_HasToString);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Error"), "HasToString"), l_IO_Error_HasToString);

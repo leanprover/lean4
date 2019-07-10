@@ -100,6 +100,7 @@ obj* l_String_pushn___boxed(obj*, obj*, obj*);
 obj* l_String_get___boxed(obj*, obj*);
 uint8 l_String_Iterator_hasNext(obj*);
 obj* l_String_offsetOfPos(obj*, obj*);
+obj* l_String_DecidableEq___closed__1;
 obj* l_String_HasAppend;
 obj* l_String_HasLess;
 obj* l_Substring_contains___boxed(obj*, obj*);
@@ -246,6 +247,7 @@ uint32 string_utf8_get(obj*, obj*);
 }
 obj* l_Substring_drop___boxed(obj*, obj*);
 obj* l_String_trimRight___boxed(obj*);
+obj* l_Substring_drop___main___closed__2;
 obj* l_Substring_splitAux(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_String_singleton(uint32);
 obj* l___private_init_data_string_basic_8__lineColumnAux___main___boxed(obj*, obj*, obj*);
@@ -263,6 +265,7 @@ obj* l_Substring_toIterator(obj*);
 uint8 l_Substring_atEnd(obj*, obj*);
 obj* l_Substring_next___main(obj*, obj*);
 obj* l_Substring_take___main(obj*, obj*);
+obj* l_String_HasAppend___closed__1;
 uint8 l_Char_isDigit(uint32);
 obj* l_String_dropRight(obj*, obj*);
 obj* l_Substring_all___boxed(obj*, obj*);
@@ -355,6 +358,7 @@ obj* l_String_take___boxed(obj*, obj*);
 uint8 l_String_Iterator_hasPrev(obj*);
 obj* l_List_foldl___main___at_String_join___spec__1(obj*, obj*);
 obj* l_Substring_toIterator___boxed(obj*);
+obj* l_String_HasSizeof___closed__1;
 uint8 l_Substring_isNat(obj*);
 obj* l_String_Iterator_setCurr(obj*, uint32);
 obj* l_String_foldlAux___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
@@ -423,11 +427,19 @@ x_4 = lean::box(x_3);
 return x_4;
 }
 }
-obj* _init_l_String_DecidableEq() {
+obj* _init_l_String_DecidableEq___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_String_decEq___boxed), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_String_DecidableEq() {
+_start:
+{
+obj* x_1; 
+x_1 = l_String_DecidableEq___closed__1;
 return x_1;
 }
 }
@@ -1344,11 +1356,11 @@ obj* _init_l_String_Inhabited() {
 _start:
 {
 obj* x_1; 
-x_1 = lean::mk_string("");
+x_1 = l_String_splitAux___main___closed__1;
 return x_1;
 }
 }
-obj* _init_l_String_HasSizeof() {
+obj* _init_l_String_HasSizeof___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -1356,11 +1368,27 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_String_length___boxed), 1, 0
 return x_1;
 }
 }
-obj* _init_l_String_HasAppend() {
+obj* _init_l_String_HasSizeof() {
+_start:
+{
+obj* x_1; 
+x_1 = l_String_HasSizeof___closed__1;
+return x_1;
+}
+}
+obj* _init_l_String_HasAppend___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_String_append___boxed), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_String_HasAppend() {
+_start:
+{
+obj* x_1; 
+x_1 = l_String_HasAppend___closed__1;
 return x_1;
 }
 }
@@ -3536,14 +3564,23 @@ return x_4;
 obj* _init_l_Substring_drop___main___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
-x_1 = lean::mk_string("");
+obj* x_1; obj* x_2; 
+x_1 = l_String_splitAux___main___closed__1;
 x_2 = lean::string_utf8_byte_size(x_1);
-x_3 = lean::mk_nat_obj(0u);
+return x_2;
+}
+}
+obj* _init_l_Substring_drop___main___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+x_1 = l_String_splitAux___main___closed__1;
+x_2 = lean::mk_nat_obj(0u);
+x_3 = l_Substring_drop___main___closed__1;
 x_4 = lean::alloc_cnstr(0, 3, 0);
 lean::cnstr_set(x_4, 0, x_1);
-lean::cnstr_set(x_4, 1, x_3);
-lean::cnstr_set(x_4, 2, x_2);
+lean::cnstr_set(x_4, 1, x_2);
+lean::cnstr_set(x_4, 2, x_3);
 return x_4;
 }
 }
@@ -3573,7 +3610,7 @@ lean::dec(x_7);
 lean::free_heap_obj(x_1);
 lean::dec(x_6);
 lean::dec(x_4);
-x_9 = l_Substring_drop___main___closed__1;
+x_9 = l_Substring_drop___main___closed__2;
 return x_9;
 }
 }
@@ -3605,7 +3642,7 @@ obj* x_16;
 lean::dec(x_13);
 lean::dec(x_12);
 lean::dec(x_10);
-x_16 = l_Substring_drop___main___closed__1;
+x_16 = l_Substring_drop___main___closed__2;
 return x_16;
 }
 }
@@ -3646,7 +3683,7 @@ lean::dec(x_7);
 lean::free_heap_obj(x_1);
 lean::dec(x_6);
 lean::dec(x_4);
-x_9 = l_Substring_drop___main___closed__1;
+x_9 = l_Substring_drop___main___closed__2;
 return x_9;
 }
 }
@@ -3678,7 +3715,7 @@ obj* x_16;
 lean::dec(x_13);
 lean::dec(x_12);
 lean::dec(x_10);
-x_16 = l_Substring_drop___main___closed__1;
+x_16 = l_Substring_drop___main___closed__2;
 return x_16;
 }
 }
@@ -3719,7 +3756,7 @@ lean::dec(x_7);
 lean::free_heap_obj(x_1);
 lean::dec(x_5);
 lean::dec(x_4);
-x_9 = l_Substring_drop___main___closed__1;
+x_9 = l_Substring_drop___main___closed__2;
 return x_9;
 }
 }
@@ -3751,7 +3788,7 @@ obj* x_16;
 lean::dec(x_13);
 lean::dec(x_11);
 lean::dec(x_10);
-x_16 = l_Substring_drop___main___closed__1;
+x_16 = l_Substring_drop___main___closed__2;
 return x_16;
 }
 }
@@ -3792,7 +3829,7 @@ lean::dec(x_7);
 lean::free_heap_obj(x_1);
 lean::dec(x_5);
 lean::dec(x_4);
-x_9 = l_Substring_drop___main___closed__1;
+x_9 = l_Substring_drop___main___closed__2;
 return x_9;
 }
 }
@@ -3824,7 +3861,7 @@ obj* x_16;
 lean::dec(x_13);
 lean::dec(x_11);
 lean::dec(x_10);
-x_16 = l_Substring_drop___main___closed__1;
+x_16 = l_Substring_drop___main___closed__2;
 return x_16;
 }
 }
@@ -4161,7 +4198,7 @@ obj* _init_l_Substring_extract___main___closed__1() {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
-x_1 = lean::mk_string("");
+x_1 = l_String_splitAux___main___closed__1;
 x_2 = lean::mk_nat_obj(0u);
 x_3 = lean::mk_nat_obj(1u);
 x_4 = lean::alloc_cnstr(0, 3, 0);
@@ -4411,7 +4448,7 @@ lean::cnstr_set(x_29, 2, x_28);
 x_30 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_30, 0, x_29);
 lean::cnstr_set(x_30, 1, x_7);
-x_31 = l_Substring_drop___main___closed__1;
+x_31 = l_Substring_drop___main___closed__2;
 x_32 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_32, 0, x_31);
 lean::cnstr_set(x_32, 1, x_30);
@@ -5430,12 +5467,10 @@ obj* _init_l_String_drop___closed__1() {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
-x_1 = lean::mk_string("");
-x_2 = lean::string_utf8_byte_size(x_1);
-x_3 = lean::mk_nat_obj(0u);
-x_4 = lean::string_utf8_extract(x_1, x_3, x_2);
-lean::dec(x_2);
-lean::dec(x_1);
+x_1 = l_String_splitAux___main___closed__1;
+x_2 = lean::mk_nat_obj(0u);
+x_3 = l_Substring_drop___main___closed__1;
+x_4 = lean::string_utf8_extract(x_1, x_2, x_3);
 return x_4;
 }
 }
@@ -5728,6 +5763,8 @@ if (io_result_is_error(w)) return w;
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "mk"), 1, l_String_mk___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "data"), 1, l_String_data___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "decEq"), 2, l_String_decEq___boxed);
+l_String_DecidableEq___closed__1 = _init_l_String_DecidableEq___closed__1();
+lean::mark_persistent(l_String_DecidableEq___closed__1);
 l_String_DecidableEq = _init_l_String_DecidableEq();
 lean::mark_persistent(l_String_DecidableEq);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("String"), "DecidableEq"), l_String_DecidableEq);
@@ -5760,9 +5797,13 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "split
 l_String_Inhabited = _init_l_String_Inhabited();
 lean::mark_persistent(l_String_Inhabited);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("String"), "Inhabited"), l_String_Inhabited);
+l_String_HasSizeof___closed__1 = _init_l_String_HasSizeof___closed__1();
+lean::mark_persistent(l_String_HasSizeof___closed__1);
 l_String_HasSizeof = _init_l_String_HasSizeof();
 lean::mark_persistent(l_String_HasSizeof);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("String"), "HasSizeof"), l_String_HasSizeof);
+l_String_HasAppend___closed__1 = _init_l_String_HasAppend___closed__1();
+lean::mark_persistent(l_String_HasAppend___closed__1);
 l_String_HasAppend = _init_l_String_HasAppend();
 lean::mark_persistent(l_String_HasAppend);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("String"), "HasAppend"), l_String_HasAppend);
@@ -5817,6 +5858,8 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Substring"), "fr
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Substring"), "posOf"), 2, l_Substring_posOf___boxed);
 l_Substring_drop___main___closed__1 = _init_l_Substring_drop___main___closed__1();
 lean::mark_persistent(l_Substring_drop___main___closed__1);
+l_Substring_drop___main___closed__2 = _init_l_Substring_drop___main___closed__2();
+lean::mark_persistent(l_Substring_drop___main___closed__2);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Substring"), "drop"), 2, l_Substring_drop___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Substring"), "dropRight"), 2, l_Substring_dropRight___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Substring"), "take"), 2, l_Substring_take___boxed);

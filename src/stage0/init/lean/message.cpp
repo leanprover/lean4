@@ -17,6 +17,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 obj* l_Lean_MessageLog_empty;
 obj* l_Lean_Message_toString___closed__2;
 obj* l_Lean_Message_toString___closed__1;
+obj* l_Lean_Message_Inhabited___closed__2;
 obj* l_Lean_MessageLog_append(obj*, obj*);
 obj* l_List_reverse___rarg(obj*);
 obj* l_Lean_MessageLog_toList(obj*);
@@ -32,15 +33,18 @@ namespace lean {
 obj* string_append(obj*, obj*);
 }
 obj* l_List_append___rarg(obj*, obj*);
+obj* l_Lean_Message_HasToString___closed__1;
 namespace lean {
 uint8 string_dec_eq(obj*, obj*);
 }
+obj* l_Lean_MessageLog_HasAppend___closed__1;
 obj* l_Lean_MessageLog_add(obj*, obj*);
 obj* l_Lean_Message_toString(obj*);
 obj* l_Lean_MessageLog_HasAppend;
 obj* l_Lean_MessageLog_hasErrors___boxed(obj*);
 uint8 l_List_foldr___main___at_Lean_MessageLog_hasErrors___spec__1(uint8, obj*);
 extern obj* l_String_splitAux___main___closed__1;
+obj* l_Lean_Message_Inhabited___closed__1;
 obj* _init_l_Lean_Message_toString___closed__1() {
 _start:
 {
@@ -192,34 +196,57 @@ return x_44;
 }
 }
 }
-obj* _init_l_Lean_Message_Inhabited() {
+obj* _init_l_Lean_Message_Inhabited___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; uint8 x_6; obj* x_7; 
+obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::mk_nat_obj(0u);
 x_2 = lean::mk_nat_obj(1u);
 x_3 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_3, 0, x_1);
 lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::box(0);
-x_5 = lean::mk_string("");
-x_6 = 2;
-lean::inc(x_5, 2);
-x_7 = lean::alloc_cnstr(0, 5, 1);
-lean::cnstr_set(x_7, 0, x_5);
-lean::cnstr_set(x_7, 1, x_3);
-lean::cnstr_set(x_7, 2, x_4);
-lean::cnstr_set(x_7, 3, x_5);
-lean::cnstr_set(x_7, 4, x_5);
-lean::cnstr_set_scalar(x_7, sizeof(void*)*5, x_6);
-return x_7;
+return x_3;
+}
+}
+obj* _init_l_Lean_Message_Inhabited___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; uint8 x_4; obj* x_5; 
+x_1 = lean::box(0);
+x_2 = l_String_splitAux___main___closed__1;
+x_3 = l_Lean_Message_Inhabited___closed__1;
+x_4 = 2;
+x_5 = lean::alloc_cnstr(0, 5, 1);
+lean::cnstr_set(x_5, 0, x_2);
+lean::cnstr_set(x_5, 1, x_3);
+lean::cnstr_set(x_5, 2, x_1);
+lean::cnstr_set(x_5, 3, x_2);
+lean::cnstr_set(x_5, 4, x_2);
+lean::cnstr_set_scalar(x_5, sizeof(void*)*5, x_4);
+return x_5;
+}
+}
+obj* _init_l_Lean_Message_Inhabited() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_Message_Inhabited___closed__2;
+return x_1;
+}
+}
+obj* _init_l_Lean_Message_HasToString___closed__1() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Message_toString), 1, 0);
+return x_1;
 }
 }
 obj* _init_l_Lean_Message_HasToString() {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Message_toString), 1, 0);
+x_1 = l_Lean_Message_HasToString___closed__1;
 return x_1;
 }
 }
@@ -249,11 +276,19 @@ x_3 = l_List_append___rarg(x_2, x_1);
 return x_3;
 }
 }
-obj* _init_l_Lean_MessageLog_HasAppend() {
+obj* _init_l_Lean_MessageLog_HasAppend___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_MessageLog_append), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_MessageLog_HasAppend() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_MessageLog_HasAppend___closed__1;
 return x_1;
 }
 }
@@ -345,9 +380,15 @@ lean::mark_persistent(l_Lean_Message_toString___closed__3);
 l_Lean_Message_toString___closed__4 = _init_l_Lean_Message_toString___closed__4();
 lean::mark_persistent(l_Lean_Message_toString___closed__4);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Message"), "toString"), 1, l_Lean_Message_toString);
+l_Lean_Message_Inhabited___closed__1 = _init_l_Lean_Message_Inhabited___closed__1();
+lean::mark_persistent(l_Lean_Message_Inhabited___closed__1);
+l_Lean_Message_Inhabited___closed__2 = _init_l_Lean_Message_Inhabited___closed__2();
+lean::mark_persistent(l_Lean_Message_Inhabited___closed__2);
 l_Lean_Message_Inhabited = _init_l_Lean_Message_Inhabited();
 lean::mark_persistent(l_Lean_Message_Inhabited);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Message"), "Inhabited"), l_Lean_Message_Inhabited);
+l_Lean_Message_HasToString___closed__1 = _init_l_Lean_Message_HasToString___closed__1();
+lean::mark_persistent(l_Lean_Message_HasToString___closed__1);
 l_Lean_Message_HasToString = _init_l_Lean_Message_HasToString();
 lean::mark_persistent(l_Lean_Message_HasToString);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Message"), "HasToString"), l_Lean_Message_HasToString);
@@ -356,6 +397,8 @@ lean::mark_persistent(l_Lean_MessageLog_empty);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "MessageLog"), "empty"), l_Lean_MessageLog_empty);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "MessageLog"), "add"), 2, l_Lean_MessageLog_add);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "MessageLog"), "append"), 2, l_Lean_MessageLog_append);
+l_Lean_MessageLog_HasAppend___closed__1 = _init_l_Lean_MessageLog_HasAppend___closed__1();
+lean::mark_persistent(l_Lean_MessageLog_HasAppend___closed__1);
 l_Lean_MessageLog_HasAppend = _init_l_Lean_MessageLog_HasAppend();
 lean::mark_persistent(l_Lean_MessageLog_HasAppend);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "MessageLog"), "HasAppend"), l_Lean_MessageLog_HasAppend);

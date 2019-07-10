@@ -30,12 +30,14 @@ obj* l_Int_HasDiv;
 namespace lean {
 uint8 int_dec_eq(obj*, obj*);
 }
+obj* l_Int_HasNeg___closed__1;
 obj* l_Int_HasRepr;
 obj* l_Int_negOfNat___boxed(obj*);
 obj* l_Int_natMod(obj*, obj*);
 obj* l_Int_repr___boxed(obj*);
 obj* l_Int_toNat___main(obj*);
 obj* l___private_init_data_int_basic_1__decNonneg___boxed(obj*);
+obj* l_Int_zero___closed__1;
 obj* l_Int_div___boxed(obj*, obj*);
 obj* l_Int_toNat___main___boxed(obj*);
 namespace lean {
@@ -48,12 +50,16 @@ obj* l_Int_HasToString;
 obj* l_Int_add___boxed(obj*, obj*);
 obj* l_Int_mod___boxed(obj*, obj*);
 obj* l_Int_Int_DecidableEq;
+obj* l_Int_one___closed__1;
+obj* l_Int_HasAdd___closed__1;
 obj* l_Int_HasAdd;
 obj* l_Int_HasZero;
 obj* l_Int_HasOne;
 obj* l_Nat_repr(obj*);
 obj* l_Int_HasMod;
 obj* l_Int_ofNat___boxed(obj*);
+obj* l_Int_HasMul___closed__1;
+obj* l_Int_HasRepr___closed__1;
 obj* l_String_toInt___closed__1;
 namespace lean {
 obj* string_append(obj*, obj*);
@@ -78,14 +84,17 @@ uint8 l_String_isInt___closed__1;
 namespace lean {
 uint32 string_utf8_get(obj*, obj*);
 }
+extern obj* l_Substring_drop___main___closed__2;
 namespace lean {
 uint8 int_dec_nonneg(obj*);
 }
+obj* l_Int_HasMod___closed__1;
 uint8 l_UInt32_decEq(uint32, uint32);
+obj* l_Int_HasSub___closed__1;
+obj* l_String_toInt___closed__2;
 obj* l_Int_decLt___boxed(obj*, obj*);
 obj* l_Int_repr___main___closed__1;
 obj* l_Int_HasNeg;
-obj* l_Int_repr___main___closed__2;
 namespace lean {
 obj* int_mul(obj*, obj*);
 }
@@ -108,6 +117,7 @@ obj* string_utf8_byte_size(obj*);
 }
 obj* l_Int_decEq___boxed(obj*, obj*);
 obj* l_Int_repr___main___boxed(obj*);
+obj* l_Int_HasDiv___closed__1;
 obj* l_Int_one;
 obj* l_Int_toNat___boxed(obj*);
 uint8 l_Substring_isNat(obj*);
@@ -117,6 +127,7 @@ namespace lean {
 uint8 int_dec_le(obj*, obj*);
 }
 obj* l_Int_natMod___boxed(obj*, obj*);
+obj* l_Int_Int_DecidableEq___closed__1;
 obj* l_Int_sub___boxed(obj*, obj*);
 namespace lean {
 uint8 int_dec_lt(obj*, obj*);
@@ -128,6 +139,7 @@ obj* int_div(obj*, obj*);
 namespace lean {
 obj* int_mod(obj*, obj*);
 }
+obj* l_String_toInt___closed__3;
 namespace lean {
 obj* int_neg_succ_of_nat(obj*);
 }
@@ -156,7 +168,7 @@ x_2 = lean::nat2int(x_1);
 return x_2;
 }
 }
-obj* _init_l_Int_zero() {
+obj* _init_l_Int_zero___closed__1() {
 _start:
 {
 obj* x_1; obj* x_2; 
@@ -165,13 +177,29 @@ x_2 = lean::nat2int(x_1);
 return x_2;
 }
 }
-obj* _init_l_Int_one() {
+obj* _init_l_Int_zero() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Int_zero___closed__1;
+return x_1;
+}
+}
+obj* _init_l_Int_one___closed__1() {
 _start:
 {
 obj* x_1; obj* x_2; 
 x_1 = lean::mk_nat_obj(1u);
 x_2 = lean::nat2int(x_1);
 return x_2;
+}
+}
+obj* _init_l_Int_one() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Int_one___closed__1;
+return x_1;
 }
 }
 obj* _init_l_Int_HasZero() {
@@ -298,7 +326,7 @@ x_3 = lean::int_mul(x_1, x_2);
 return x_3;
 }
 }
-obj* _init_l_Int_HasNeg() {
+obj* _init_l_Int_HasNeg___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -306,7 +334,15 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Int_neg___boxed), 1, 0);
 return x_1;
 }
 }
-obj* _init_l_Int_HasAdd() {
+obj* _init_l_Int_HasNeg() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Int_HasNeg___closed__1;
+return x_1;
+}
+}
+obj* _init_l_Int_HasAdd___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -314,11 +350,27 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Int_add___boxed), 2, 0);
 return x_1;
 }
 }
-obj* _init_l_Int_HasMul() {
+obj* _init_l_Int_HasAdd() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Int_HasAdd___closed__1;
+return x_1;
+}
+}
+obj* _init_l_Int_HasMul___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Int_mul___boxed), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_Int_HasMul() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Int_HasMul___closed__1;
 return x_1;
 }
 }
@@ -330,11 +382,19 @@ x_3 = lean::int_sub(x_1, x_2);
 return x_3;
 }
 }
-obj* _init_l_Int_HasSub() {
+obj* _init_l_Int_HasSub___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Int_sub___boxed), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_Int_HasSub() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Int_HasSub___closed__1;
 return x_1;
 }
 }
@@ -363,11 +423,19 @@ x_4 = lean::box(x_3);
 return x_4;
 }
 }
-obj* _init_l_Int_Int_DecidableEq() {
+obj* _init_l_Int_Int_DecidableEq___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Int_decEq___boxed), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_Int_Int_DecidableEq() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Int_Int_DecidableEq___closed__1;
 return x_1;
 }
 }
@@ -409,15 +477,6 @@ return x_2;
 obj* _init_l_Int_repr___main___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; 
-x_1 = lean::mk_nat_obj(0u);
-x_2 = lean::nat2int(x_1);
-return x_2;
-}
-}
-obj* _init_l_Int_repr___main___closed__2() {
-_start:
-{
 obj* x_1; 
 x_1 = lean::mk_string("-");
 return x_1;
@@ -427,7 +486,7 @@ obj* l_Int_repr___main(obj* x_1) {
 _start:
 {
 obj* x_2; uint8 x_3; 
-x_2 = l_Int_repr___main___closed__1;
+x_2 = l_Int_zero___closed__1;
 x_3 = lean::int_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
@@ -446,7 +505,7 @@ lean::dec(x_6);
 x_9 = lean::nat_add(x_8, x_7);
 lean::dec(x_8);
 x_10 = l_Nat_repr(x_9);
-x_11 = l_Int_repr___main___closed__2;
+x_11 = l_Int_repr___main___closed__1;
 x_12 = lean::string_append(x_11, x_10);
 lean::dec(x_10);
 return x_12;
@@ -479,7 +538,7 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* _init_l_Int_HasRepr() {
+obj* _init_l_Int_HasRepr___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -487,11 +546,19 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Int_repr___boxed), 1, 0);
 return x_1;
 }
 }
+obj* _init_l_Int_HasRepr() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Int_HasRepr___closed__1;
+return x_1;
+}
+}
 obj* _init_l_Int_HasToString() {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Int_repr___boxed), 1, 0);
+x_1 = l_Int_HasRepr___closed__1;
 return x_1;
 }
 }
@@ -511,7 +578,7 @@ x_3 = lean::int_mod(x_1, x_2);
 return x_3;
 }
 }
-obj* _init_l_Int_HasDiv() {
+obj* _init_l_Int_HasDiv___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -519,7 +586,15 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Int_div___boxed), 2, 0);
 return x_1;
 }
 }
-obj* _init_l_Int_HasMod() {
+obj* _init_l_Int_HasDiv() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Int_HasDiv___closed__1;
+return x_1;
+}
+}
+obj* _init_l_Int_HasMod___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -527,11 +602,19 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Int_mod___boxed), 2, 0);
 return x_1;
 }
 }
+obj* _init_l_Int_HasMod() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Int_HasMod___closed__1;
+return x_1;
+}
+}
 obj* l_Int_toNat___main(obj* x_1) {
 _start:
 {
 obj* x_2; uint8 x_3; 
-x_2 = l_Int_repr___main___closed__1;
+x_2 = l_Int_zero___closed__1;
 x_3 = lean::int_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
@@ -596,19 +679,28 @@ return x_3;
 obj* _init_l_String_toInt___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
-x_1 = lean::mk_string("");
-x_2 = lean::string_utf8_byte_size(x_1);
-x_3 = lean::mk_nat_obj(0u);
-x_4 = lean::alloc_cnstr(0, 3, 0);
-lean::cnstr_set(x_4, 0, x_1);
-lean::cnstr_set(x_4, 1, x_3);
-lean::cnstr_set(x_4, 2, x_2);
-x_5 = l_Substring_toNat(x_4);
-x_6 = lean::nat2int(x_5);
-x_7 = lean::int_neg(x_6);
-lean::dec(x_6);
-return x_7;
+obj* x_1; obj* x_2; 
+x_1 = l_Substring_drop___main___closed__2;
+x_2 = l_Substring_toNat(x_1);
+return x_2;
+}
+}
+obj* _init_l_String_toInt___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = l_String_toInt___closed__1;
+x_2 = lean::nat2int(x_1);
+return x_2;
+}
+}
+obj* _init_l_String_toInt___closed__3() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = l_String_toInt___closed__2;
+x_2 = lean::int_neg(x_1);
+return x_2;
 }
 }
 obj* l_String_toInt(obj* x_1) {
@@ -651,7 +743,7 @@ else
 obj* x_15; 
 lean::dec(x_8);
 lean::dec(x_1);
-x_15 = l_String_toInt___closed__1;
+x_15 = l_String_toInt___closed__3;
 return x_15;
 }
 }
@@ -660,16 +752,10 @@ return x_15;
 uint8 _init_l_String_isInt___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; uint8 x_5; 
-x_1 = lean::mk_string("");
-x_2 = lean::string_utf8_byte_size(x_1);
-x_3 = lean::mk_nat_obj(0u);
-x_4 = lean::alloc_cnstr(0, 3, 0);
-lean::cnstr_set(x_4, 0, x_1);
-lean::cnstr_set(x_4, 1, x_3);
-lean::cnstr_set(x_4, 2, x_2);
-x_5 = l_Substring_isNat(x_4);
-return x_5;
+obj* x_1; uint8 x_2; 
+x_1 = l_Substring_drop___main___closed__2;
+x_2 = l_Substring_isNat(x_1);
+return x_2;
 }
 }
 uint8 l_String_isInt(obj* x_1) {
@@ -746,9 +832,13 @@ if (io_result_is_error(w)) return w;
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Int"), "ofNat"), 1, l_Int_ofNat___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Int"), "negSucc"), 1, l_Int_negSucc___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Int"), "HasCoe"), 1, l_Int_HasCoe);
+l_Int_zero___closed__1 = _init_l_Int_zero___closed__1();
+lean::mark_persistent(l_Int_zero___closed__1);
 l_Int_zero = _init_l_Int_zero();
 lean::mark_persistent(l_Int_zero);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Int"), "zero"), l_Int_zero);
+l_Int_one___closed__1 = _init_l_Int_one___closed__1();
+lean::mark_persistent(l_Int_one___closed__1);
 l_Int_one = _init_l_Int_one();
 lean::mark_persistent(l_Int_one);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Int"), "one"), l_Int_one);
@@ -763,16 +853,24 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Int"), "neg"), 1
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Int"), "subNatNat"), 2, l_Int_subNatNat___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Int"), "add"), 2, l_Int_add___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Int"), "mul"), 2, l_Int_mul___boxed);
+l_Int_HasNeg___closed__1 = _init_l_Int_HasNeg___closed__1();
+lean::mark_persistent(l_Int_HasNeg___closed__1);
 l_Int_HasNeg = _init_l_Int_HasNeg();
 lean::mark_persistent(l_Int_HasNeg);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Int"), "HasNeg"), l_Int_HasNeg);
+l_Int_HasAdd___closed__1 = _init_l_Int_HasAdd___closed__1();
+lean::mark_persistent(l_Int_HasAdd___closed__1);
 l_Int_HasAdd = _init_l_Int_HasAdd();
 lean::mark_persistent(l_Int_HasAdd);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Int"), "HasAdd"), l_Int_HasAdd);
+l_Int_HasMul___closed__1 = _init_l_Int_HasMul___closed__1();
+lean::mark_persistent(l_Int_HasMul___closed__1);
 l_Int_HasMul = _init_l_Int_HasMul();
 lean::mark_persistent(l_Int_HasMul);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Int"), "HasMul"), l_Int_HasMul);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Int"), "sub"), 2, l_Int_sub___boxed);
+l_Int_HasSub___closed__1 = _init_l_Int_HasSub___closed__1();
+lean::mark_persistent(l_Int_HasSub___closed__1);
 l_Int_HasSub = _init_l_Int_HasSub();
 lean::mark_persistent(l_Int_HasSub);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Int"), "HasSub"), l_Int_HasSub);
@@ -783,6 +881,8 @@ l_Int_HasLess = _init_l_Int_HasLess();
 lean::mark_persistent(l_Int_HasLess);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Int"), "HasLess"), l_Int_HasLess);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Int"), "decEq"), 2, l_Int_decEq___boxed);
+l_Int_Int_DecidableEq___closed__1 = _init_l_Int_Int_DecidableEq___closed__1();
+lean::mark_persistent(l_Int_Int_DecidableEq___closed__1);
 l_Int_Int_DecidableEq = _init_l_Int_Int_DecidableEq();
 lean::mark_persistent(l_Int_Int_DecidableEq);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Int"), "Int"), "DecidableEq"), l_Int_Int_DecidableEq);
@@ -791,9 +891,9 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Int"), "decLt"),
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Int"), "natAbs"), 1, l_Int_natAbs___boxed);
 l_Int_repr___main___closed__1 = _init_l_Int_repr___main___closed__1();
 lean::mark_persistent(l_Int_repr___main___closed__1);
-l_Int_repr___main___closed__2 = _init_l_Int_repr___main___closed__2();
-lean::mark_persistent(l_Int_repr___main___closed__2);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Int"), "repr"), 1, l_Int_repr___boxed);
+l_Int_HasRepr___closed__1 = _init_l_Int_HasRepr___closed__1();
+lean::mark_persistent(l_Int_HasRepr___closed__1);
 l_Int_HasRepr = _init_l_Int_HasRepr();
 lean::mark_persistent(l_Int_HasRepr);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Int"), "HasRepr"), l_Int_HasRepr);
@@ -802,9 +902,13 @@ lean::mark_persistent(l_Int_HasToString);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Int"), "HasToString"), l_Int_HasToString);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Int"), "div"), 2, l_Int_div___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Int"), "mod"), 2, l_Int_mod___boxed);
+l_Int_HasDiv___closed__1 = _init_l_Int_HasDiv___closed__1();
+lean::mark_persistent(l_Int_HasDiv___closed__1);
 l_Int_HasDiv = _init_l_Int_HasDiv();
 lean::mark_persistent(l_Int_HasDiv);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Int"), "HasDiv"), l_Int_HasDiv);
+l_Int_HasMod___closed__1 = _init_l_Int_HasMod___closed__1();
+lean::mark_persistent(l_Int_HasMod___closed__1);
 l_Int_HasMod = _init_l_Int_HasMod();
 lean::mark_persistent(l_Int_HasMod);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Int"), "HasMod"), l_Int_HasMod);
@@ -812,6 +916,10 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Int"), "toNat"),
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Int"), "natMod"), 2, l_Int_natMod___boxed);
 l_String_toInt___closed__1 = _init_l_String_toInt___closed__1();
 lean::mark_persistent(l_String_toInt___closed__1);
+l_String_toInt___closed__2 = _init_l_String_toInt___closed__2();
+lean::mark_persistent(l_String_toInt___closed__2);
+l_String_toInt___closed__3 = _init_l_String_toInt___closed__3();
+lean::mark_persistent(l_String_toInt___closed__3);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "toInt"), 1, l_String_toInt);
 l_String_isInt___closed__1 = _init_l_String_isInt___closed__1();
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "isInt"), 1, l_String_isInt___boxed);

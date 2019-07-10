@@ -24,16 +24,29 @@ obj* l_List_Monad;
 obj* l_List_map___main___rarg(obj*, obj*);
 obj* l_List_Monad___lambda__2(obj*, obj*, obj*, obj*);
 obj* l_List_append(obj*);
+obj* l_List_Monad___closed__8;
+obj* l_List_Monad___closed__6;
 obj* l_List_join___main___rarg(obj*);
+obj* l_List_Alternative___closed__1;
+obj* l_List_Monad___closed__10;
+obj* l_List_Monad___closed__5;
 obj* l_List_pure(obj*);
 obj* l_List_map___main___at_List_Monad___spec__3(obj*, obj*);
+obj* l_List_Alternative___closed__2;
+obj* l_List_Monad___closed__9;
 obj* l_List_map___main___at_List_Monad___spec__5___rarg(obj*, obj*);
 obj* l_List_map___main___at_List_Monad___spec__1(obj*, obj*);
+obj* l_List_Monad___closed__1;
+obj* l_List_Monad___closed__3;
 obj* l_List_Alternative;
 obj* l_List_map___main___at_List_Monad___spec__1___rarg(obj*, obj*);
+obj* l_List_Monad___closed__7;
+obj* l_List_Monad___closed__4;
 obj* l_List_map___main___at_List_Monad___spec__4___rarg(obj*, obj*);
 obj* l_List_map(obj*, obj*);
 obj* l_List_map___main___at_List_Monad___spec__2(obj*, obj*);
+obj* l_List_Monad___closed__2;
+obj* l_List_Alternative___closed__3;
 obj* l_List_Monad___lambda__3(obj*, obj*, obj*, obj*);
 obj* l_List_map___main___at_List_Monad___spec__5(obj*, obj*);
 obj* l_List_map___main___at_List_Monad___spec__4(obj*, obj*);
@@ -338,30 +351,110 @@ x_6 = l_List_join___main___rarg(x_5);
 return x_6;
 }
 }
-obj* _init_l_List_Monad() {
+obj* _init_l_List_Monad___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
+obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_List_map), 2, 0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_List_Monad___lambda__1), 4, 0);
+return x_1;
+}
+}
+obj* _init_l_List_Monad___closed__2() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_List_Monad___lambda__1), 4, 0);
+return x_1;
+}
+}
+obj* _init_l_List_Monad___closed__3() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_List_Monad___closed__1;
+x_2 = l_List_Monad___closed__2;
 x_3 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_3, 0, x_1);
 lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_List_pure), 1, 0);
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_List_Monad___lambda__2), 4, 0);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_List_Monad___lambda__3), 4, 0);
-x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_List_Monad___lambda__4), 4, 0);
-x_8 = lean::alloc_cnstr(0, 5, 0);
-lean::cnstr_set(x_8, 0, x_3);
-lean::cnstr_set(x_8, 1, x_4);
-lean::cnstr_set(x_8, 2, x_5);
-lean::cnstr_set(x_8, 3, x_6);
-lean::cnstr_set(x_8, 4, x_7);
-x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_List_bind), 2, 0);
-x_10 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_10, 0, x_8);
-lean::cnstr_set(x_10, 1, x_9);
-return x_10;
+return x_3;
+}
+}
+obj* _init_l_List_Monad___closed__4() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_List_pure), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_List_Monad___closed__5() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_List_Monad___lambda__2), 4, 0);
+return x_1;
+}
+}
+obj* _init_l_List_Monad___closed__6() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_List_Monad___lambda__3), 4, 0);
+return x_1;
+}
+}
+obj* _init_l_List_Monad___closed__7() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_List_Monad___lambda__4), 4, 0);
+return x_1;
+}
+}
+obj* _init_l_List_Monad___closed__8() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
+x_1 = l_List_Monad___closed__3;
+x_2 = l_List_Monad___closed__4;
+x_3 = l_List_Monad___closed__5;
+x_4 = l_List_Monad___closed__6;
+x_5 = l_List_Monad___closed__7;
+x_6 = lean::alloc_cnstr(0, 5, 0);
+lean::cnstr_set(x_6, 0, x_1);
+lean::cnstr_set(x_6, 1, x_2);
+lean::cnstr_set(x_6, 2, x_3);
+lean::cnstr_set(x_6, 3, x_4);
+lean::cnstr_set(x_6, 4, x_5);
+return x_6;
+}
+}
+obj* _init_l_List_Monad___closed__9() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_List_bind), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_List_Monad___closed__10() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_List_Monad___closed__8;
+x_2 = l_List_Monad___closed__9;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
+obj* _init_l_List_Monad() {
+_start:
+{
+obj* x_1; 
+x_1 = l_List_Monad___closed__10;
+return x_1;
 }
 }
 obj* l_List_Alternative___lambda__1(obj* x_1) {
@@ -372,20 +465,44 @@ x_2 = lean::box(0);
 return x_2;
 }
 }
-obj* _init_l_List_Alternative() {
+obj* _init_l_List_Alternative___closed__1() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_List_Alternative___lambda__1), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_List_Alternative___closed__2() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_List_append), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_List_Alternative___closed__3() {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
 x_1 = l_List_Monad;
 x_2 = lean::cnstr_get(x_1, 0);
 lean::inc(x_2);
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_List_Alternative___lambda__1), 1, 0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_List_append), 1, 0);
+x_3 = l_List_Alternative___closed__1;
+x_4 = l_List_Alternative___closed__2;
 x_5 = lean::alloc_cnstr(0, 3, 0);
 lean::cnstr_set(x_5, 0, x_2);
 lean::cnstr_set(x_5, 1, x_3);
 lean::cnstr_set(x_5, 2, x_4);
 return x_5;
+}
+}
+obj* _init_l_List_Alternative() {
+_start:
+{
+obj* x_1; 
+x_1 = l_List_Alternative___closed__3;
+return x_1;
 }
 }
 obj* initialize_init_data_list_basic(obj*);
@@ -402,9 +519,35 @@ w = initialize_init_control_alternative(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_control_monad(w);
 if (io_result_is_error(w)) return w;
+l_List_Monad___closed__1 = _init_l_List_Monad___closed__1();
+lean::mark_persistent(l_List_Monad___closed__1);
+l_List_Monad___closed__2 = _init_l_List_Monad___closed__2();
+lean::mark_persistent(l_List_Monad___closed__2);
+l_List_Monad___closed__3 = _init_l_List_Monad___closed__3();
+lean::mark_persistent(l_List_Monad___closed__3);
+l_List_Monad___closed__4 = _init_l_List_Monad___closed__4();
+lean::mark_persistent(l_List_Monad___closed__4);
+l_List_Monad___closed__5 = _init_l_List_Monad___closed__5();
+lean::mark_persistent(l_List_Monad___closed__5);
+l_List_Monad___closed__6 = _init_l_List_Monad___closed__6();
+lean::mark_persistent(l_List_Monad___closed__6);
+l_List_Monad___closed__7 = _init_l_List_Monad___closed__7();
+lean::mark_persistent(l_List_Monad___closed__7);
+l_List_Monad___closed__8 = _init_l_List_Monad___closed__8();
+lean::mark_persistent(l_List_Monad___closed__8);
+l_List_Monad___closed__9 = _init_l_List_Monad___closed__9();
+lean::mark_persistent(l_List_Monad___closed__9);
+l_List_Monad___closed__10 = _init_l_List_Monad___closed__10();
+lean::mark_persistent(l_List_Monad___closed__10);
 l_List_Monad = _init_l_List_Monad();
 lean::mark_persistent(l_List_Monad);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("List"), "Monad"), l_List_Monad);
+l_List_Alternative___closed__1 = _init_l_List_Alternative___closed__1();
+lean::mark_persistent(l_List_Alternative___closed__1);
+l_List_Alternative___closed__2 = _init_l_List_Alternative___closed__2();
+lean::mark_persistent(l_List_Alternative___closed__2);
+l_List_Alternative___closed__3 = _init_l_List_Alternative___closed__3();
+lean::mark_persistent(l_List_Alternative___closed__3);
 l_List_Alternative = _init_l_List_Alternative();
 lean::mark_persistent(l_List_Alternative);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("List"), "Alternative"), l_List_Alternative);

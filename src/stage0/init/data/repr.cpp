@@ -49,6 +49,7 @@ obj* l_List_repr___main(obj*);
 obj* l_List_reprAux(obj*);
 obj* l_Unit_HasRepr___boxed(obj*);
 obj* l_charToHex___boxed(obj*);
+obj* l_String_HasRepr___closed__1;
 obj* l_id_HasRepr(obj*);
 obj* l_List_reprAux___rarg(obj*, uint8, obj*);
 obj* l_Bool_HasRepr___closed__2;
@@ -156,6 +157,7 @@ obj* l_List_repr(obj*);
 obj* l_List_HasRepr___rarg(obj*);
 obj* l_hexDigitRepr___boxed(obj*);
 obj* l_Fin_HasRepr(obj*);
+obj* l_Nat_HasRepr___closed__1;
 obj* l_String_Iterator_HasRepr(obj*);
 obj* l_List_repr___main___rarg(obj*, obj*);
 obj* l_Unit_HasRepr___closed__1;
@@ -1042,11 +1044,19 @@ x_4 = lean::string_mk(x_3);
 return x_4;
 }
 }
-obj* _init_l_Nat_HasRepr() {
+obj* _init_l_Nat_HasRepr___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_repr), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_Nat_HasRepr() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Nat_HasRepr___closed__1;
 return x_1;
 }
 }
@@ -1342,11 +1352,19 @@ return x_8;
 }
 }
 }
-obj* _init_l_String_HasRepr() {
+obj* _init_l_String_HasRepr___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_String_quote), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_String_HasRepr() {
+_start:
+{
+obj* x_1; 
+x_1 = l_String_HasRepr___closed__1;
 return x_1;
 }
 }
@@ -1592,6 +1610,8 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "digitCha
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "toDigitsCore"), 4, l_Nat_toDigitsCore___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "toDigits"), 2, l_Nat_toDigits___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "repr"), 1, l_Nat_repr);
+l_Nat_HasRepr___closed__1 = _init_l_Nat_HasRepr___closed__1();
+lean::mark_persistent(l_Nat_HasRepr___closed__1);
 l_Nat_HasRepr = _init_l_Nat_HasRepr();
 lean::mark_persistent(l_Nat_HasRepr);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Nat"), "HasRepr"), l_Nat_HasRepr);
@@ -1617,6 +1637,8 @@ lean::mark_persistent(l_String_quote___closed__1);
 l_String_quote___closed__2 = _init_l_String_quote___closed__2();
 lean::mark_persistent(l_String_quote___closed__2);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "quote"), 1, l_String_quote);
+l_String_HasRepr___closed__1 = _init_l_String_HasRepr___closed__1();
+lean::mark_persistent(l_String_HasRepr___closed__1);
 l_String_HasRepr = _init_l_String_HasRepr();
 lean::mark_persistent(l_String_HasRepr);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("String"), "HasRepr"), l_String_HasRepr);

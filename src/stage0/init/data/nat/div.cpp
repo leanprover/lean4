@@ -20,6 +20,8 @@ obj* nat_sub(obj*, obj*);
 }
 obj* l___private_init_data_nat_div_5__mod_F___boxed(obj*, obj*, obj*);
 obj* l_Nat_div___boxed(obj*, obj*);
+obj* l_Nat_HasDiv___closed__1;
+obj* l_Nat_HasMod___closed__1;
 obj* l___private_init_data_nat_div_5__mod_F(obj*, obj*, obj*);
 obj* l___private_init_data_nat_div_2__div_F(obj*, obj*, obj*);
 namespace lean {
@@ -96,11 +98,19 @@ x_3 = lean::nat_div(x_1, x_2);
 return x_3;
 }
 }
-obj* _init_l_Nat_HasDiv() {
+obj* _init_l_Nat_HasDiv___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_div___boxed), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_Nat_HasDiv() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Nat_HasDiv___closed__1;
 return x_1;
 }
 }
@@ -155,11 +165,19 @@ x_3 = lean::nat_mod(x_1, x_2);
 return x_3;
 }
 }
-obj* _init_l_Nat_HasMod() {
+obj* _init_l_Nat_HasMod___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_mod___boxed), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_Nat_HasMod() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Nat_HasMod___closed__1;
 return x_1;
 }
 }
@@ -175,10 +193,14 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_data_nat_basic(w);
 if (io_result_is_error(w)) return w;
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "div"), 2, l_Nat_div___boxed);
+l_Nat_HasDiv___closed__1 = _init_l_Nat_HasDiv___closed__1();
+lean::mark_persistent(l_Nat_HasDiv___closed__1);
 l_Nat_HasDiv = _init_l_Nat_HasDiv();
 lean::mark_persistent(l_Nat_HasDiv);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Nat"), "HasDiv"), l_Nat_HasDiv);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "mod"), 2, l_Nat_mod___boxed);
+l_Nat_HasMod___closed__1 = _init_l_Nat_HasMod___closed__1();
+lean::mark_persistent(l_Nat_HasMod___closed__1);
 l_Nat_HasMod = _init_l_Nat_HasMod();
 lean::mark_persistent(l_Nat_HasMod);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Nat"), "HasMod"), l_Nat_HasMod);

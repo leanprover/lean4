@@ -28,12 +28,14 @@ obj* l_Lean_Expr_pi___boxed(obj*, obj*, obj*, obj*);
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
+obj* l_Lean_Expr_HasBeq___closed__1;
 obj* l_Lean_Expr_isAppOfArity___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_exprIsInhabited;
 extern "C" usize lean_expr_hash(obj*);
 extern "C" obj* lean_expr_dbg_to_string(obj*);
 obj* l_Lean_mkApp(obj*, obj*);
 obj* l_Lean_Expr_eqv___boxed(obj*, obj*);
+obj* l_Lean_mkDecIsTrue___closed__4;
 extern "C" obj* lean_expr_mk_pi(obj*, uint8, obj*, obj*);
 obj* l_Lean_Expr_getAppNumArgsAux___boxed(obj*, obj*);
 extern "C" obj* lean_expr_mk_app(obj*, obj*);
@@ -43,6 +45,7 @@ extern "C" obj* lean_expr_mk_let(obj*, obj*, obj*, obj*);
 obj* l_Lean_Expr_getAppFn___main(obj*);
 obj* l_Lean_mkDecIsFalse___closed__1;
 obj* l_Lean_Expr_isAppOfArity___boxed(obj*, obj*, obj*);
+obj* l_Lean_mkDecIsTrue___closed__3;
 obj* l_Lean_mkConst(obj*, obj*);
 obj* l_Lean_Expr_getAppNumArgsAux___main(obj*, obj*);
 obj* l_Lean_Expr_sort___boxed(obj*);
@@ -51,6 +54,7 @@ obj* l_List_foldl___main___at_Lean_mkApp___spec__1(obj*, obj*);
 extern "C" obj* lean_expr_mk_proj(obj*, obj*, obj*);
 extern "C" obj* lean_expr_mk_const(obj*, obj*);
 obj* l_Lean_Expr_bvar___boxed(obj*);
+obj* l_Lean_Expr_Hashable___closed__1;
 extern "C" uint8 lean_expr_eqv(obj*, obj*);
 obj* l_Lean_MData_HasEmptyc;
 obj* l_Lean_Expr_dbgToString___boxed(obj*);
@@ -68,8 +72,10 @@ namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_Lean_Expr_app___boxed(obj*, obj*);
+obj* l_Lean_mkDecIsTrue___closed__2;
 obj* l_Lean_Expr_getAppFn___main___boxed(obj*);
 obj* l_Lean_mkCApp(obj*, obj*);
+obj* l_Lean_mkDecIsTrue___closed__5;
 uint8 l_Lean_Expr_isAppOfArity___main(obj*, obj*, obj*);
 extern "C" obj* lean_expr_mk_mvar(obj*, obj*);
 extern "C" obj* lean_expr_mk_bvar(obj*);
@@ -88,7 +94,10 @@ obj* l_Lean_Expr_mvar___boxed(obj*, obj*);
 obj* l_Lean_Expr_getAppFn___boxed(obj*);
 uint8 l_Lean_Expr_isAppOfArity(obj*, obj*, obj*);
 obj* l_Lean_Expr_getAppNumArgsAux(obj*, obj*);
+obj* l_Lean_mkDecIsFalse___closed__3;
+obj* l_Lean_exprIsInhabited___closed__1;
 extern "C" obj* lean_expr_mk_lit(obj*);
+obj* l_Lean_mkDecIsFalse___closed__2;
 obj* l_Lean_Expr_lt___boxed(obj*, obj*);
 obj* _init_l_Lean_MData_empty() {
 _start:
@@ -106,7 +115,7 @@ x_1 = lean::box(0);
 return x_1;
 }
 }
-obj* _init_l_Lean_exprIsInhabited() {
+obj* _init_l_Lean_exprIsInhabited___closed__1() {
 _start:
 {
 obj* x_1; obj* x_2; 
@@ -114,6 +123,14 @@ x_1 = lean::box(0);
 x_2 = lean::alloc_cnstr(3, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
+}
+}
+obj* _init_l_Lean_exprIsInhabited() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_exprIsInhabited___closed__1;
+return x_1;
 }
 }
 obj* l_Lean_Expr_bvar___boxed(obj* x_1) {
@@ -263,11 +280,19 @@ x_3 = lean::box_size_t(x_2);
 return x_3;
 }
 }
-obj* _init_l_Lean_Expr_Hashable() {
+obj* _init_l_Lean_Expr_Hashable___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Expr_hash___boxed), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Expr_Hashable() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_Expr_Hashable___closed__1;
 return x_1;
 }
 }
@@ -306,11 +331,19 @@ x_4 = lean::box(x_3);
 return x_4;
 }
 }
-obj* _init_l_Lean_Expr_HasBeq() {
+obj* _init_l_Lean_Expr_HasBeq___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Expr_eqv___boxed), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Expr_HasBeq() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_Expr_HasBeq___closed__1;
 return x_1;
 }
 }
@@ -574,22 +607,54 @@ return x_6;
 obj* _init_l_Lean_mkDecIsTrue___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
+obj* x_1; 
+x_1 = lean::mk_string("Decidable");
+return x_1;
+}
+}
+obj* _init_l_Lean_mkDecIsTrue___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::box(0);
-x_2 = lean::mk_string("Decidable");
+x_2 = l_Lean_mkDecIsTrue___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::mk_string("isTrue");
-x_5 = lean_name_mk_string(x_3, x_4);
-x_6 = lean::box(0);
-x_7 = lean_expr_mk_const(x_5, x_6);
-return x_7;
+return x_3;
+}
+}
+obj* _init_l_Lean_mkDecIsTrue___closed__3() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("isTrue");
+return x_1;
+}
+}
+obj* _init_l_Lean_mkDecIsTrue___closed__4() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_mkDecIsTrue___closed__2;
+x_2 = l_Lean_mkDecIsTrue___closed__3;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_mkDecIsTrue___closed__5() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_mkDecIsTrue___closed__4;
+x_3 = lean_expr_mk_const(x_2, x_1);
+return x_3;
 }
 }
 obj* l_Lean_mkDecIsTrue(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
-x_3 = l_Lean_mkDecIsTrue___closed__1;
+x_3 = l_Lean_mkDecIsTrue___closed__5;
 x_4 = l_Lean_mkBinApp(x_3, x_1, x_2);
 return x_4;
 }
@@ -597,22 +662,36 @@ return x_4;
 obj* _init_l_Lean_mkDecIsFalse___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
-x_1 = lean::box(0);
-x_2 = lean::mk_string("Decidable");
+obj* x_1; 
+x_1 = lean::mk_string("isFalse");
+return x_1;
+}
+}
+obj* _init_l_Lean_mkDecIsFalse___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_mkDecIsTrue___closed__2;
+x_2 = l_Lean_mkDecIsFalse___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::mk_string("isFalse");
-x_5 = lean_name_mk_string(x_3, x_4);
-x_6 = lean::box(0);
-x_7 = lean_expr_mk_const(x_5, x_6);
-return x_7;
+return x_3;
+}
+}
+obj* _init_l_Lean_mkDecIsFalse___closed__3() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_mkDecIsFalse___closed__2;
+x_3 = lean_expr_mk_const(x_2, x_1);
+return x_3;
 }
 }
 obj* l_Lean_mkDecIsFalse(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
-x_3 = l_Lean_mkDecIsFalse___closed__1;
+x_3 = l_Lean_mkDecIsFalse___closed__3;
 x_4 = l_Lean_mkBinApp(x_3, x_1, x_2);
 return x_4;
 }
@@ -634,6 +713,8 @@ lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_n
 l_Lean_MData_HasEmptyc = _init_l_Lean_MData_HasEmptyc();
 lean::mark_persistent(l_Lean_MData_HasEmptyc);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "MData"), "HasEmptyc"), l_Lean_MData_HasEmptyc);
+l_Lean_exprIsInhabited___closed__1 = _init_l_Lean_exprIsInhabited___closed__1();
+lean::mark_persistent(l_Lean_exprIsInhabited___closed__1);
 l_Lean_exprIsInhabited = _init_l_Lean_exprIsInhabited();
 lean::mark_persistent(l_Lean_exprIsInhabited);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "exprIsInhabited"), l_Lean_exprIsInhabited);
@@ -652,6 +733,8 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_na
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkApp"), 2, l_Lean_mkApp);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkCApp"), 2, l_Lean_mkCApp);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Expr"), "hash"), 1, l_Lean_Expr_hash___boxed);
+l_Lean_Expr_Hashable___closed__1 = _init_l_Lean_Expr_Hashable___closed__1();
+lean::mark_persistent(l_Lean_Expr_Hashable___closed__1);
 l_Lean_Expr_Hashable = _init_l_Lean_Expr_Hashable();
 lean::mark_persistent(l_Lean_Expr_Hashable);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Expr"), "Hashable"), l_Lean_Expr_Hashable);
@@ -659,6 +742,8 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_na
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Expr"), "quickLt"), 2, l_Lean_Expr_quickLt___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Expr"), "lt"), 2, l_Lean_Expr_lt___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Expr"), "eqv"), 2, l_Lean_Expr_eqv___boxed);
+l_Lean_Expr_HasBeq___closed__1 = _init_l_Lean_Expr_HasBeq___closed__1();
+lean::mark_persistent(l_Lean_Expr_HasBeq___closed__1);
 l_Lean_Expr_HasBeq = _init_l_Lean_Expr_HasBeq();
 lean::mark_persistent(l_Lean_Expr_HasBeq);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Expr"), "HasBeq"), l_Lean_Expr_HasBeq);
@@ -672,9 +757,21 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkBinAp
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkBinCApp"), 3, l_Lean_mkBinCApp);
 l_Lean_mkDecIsTrue___closed__1 = _init_l_Lean_mkDecIsTrue___closed__1();
 lean::mark_persistent(l_Lean_mkDecIsTrue___closed__1);
+l_Lean_mkDecIsTrue___closed__2 = _init_l_Lean_mkDecIsTrue___closed__2();
+lean::mark_persistent(l_Lean_mkDecIsTrue___closed__2);
+l_Lean_mkDecIsTrue___closed__3 = _init_l_Lean_mkDecIsTrue___closed__3();
+lean::mark_persistent(l_Lean_mkDecIsTrue___closed__3);
+l_Lean_mkDecIsTrue___closed__4 = _init_l_Lean_mkDecIsTrue___closed__4();
+lean::mark_persistent(l_Lean_mkDecIsTrue___closed__4);
+l_Lean_mkDecIsTrue___closed__5 = _init_l_Lean_mkDecIsTrue___closed__5();
+lean::mark_persistent(l_Lean_mkDecIsTrue___closed__5);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkDecIsTrue"), 2, l_Lean_mkDecIsTrue);
 l_Lean_mkDecIsFalse___closed__1 = _init_l_Lean_mkDecIsFalse___closed__1();
 lean::mark_persistent(l_Lean_mkDecIsFalse___closed__1);
+l_Lean_mkDecIsFalse___closed__2 = _init_l_Lean_mkDecIsFalse___closed__2();
+lean::mark_persistent(l_Lean_mkDecIsFalse___closed__2);
+l_Lean_mkDecIsFalse___closed__3 = _init_l_Lean_mkDecIsFalse___closed__3();
+lean::mark_persistent(l_Lean_mkDecIsFalse___closed__3);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkDecIsFalse"), 2, l_Lean_mkDecIsFalse);
 return w;
 }

@@ -57,6 +57,7 @@ namespace lean {
 obj* byte_array_data(obj*);
 }
 obj* l_ByteArray_toListAux___main(obj*, obj*, obj*);
+obj* l_ByteArray_empty___closed__1;
 obj* l_List_toByteArray(obj*);
 extern obj* l_List_repr___main___rarg___closed__1;
 obj* l_ByteArray_HasToString___boxed(obj*);
@@ -104,13 +105,21 @@ x_2 = lean::mk_empty_byte_array(x_1);
 return x_2;
 }
 }
-obj* _init_l_ByteArray_empty() {
+obj* _init_l_ByteArray_empty___closed__1() {
 _start:
 {
 obj* x_1; obj* x_2; 
 x_1 = lean::mk_nat_obj(0u);
 x_2 = lean::mk_empty_byte_array(x_1);
 return x_2;
+}
+}
+obj* _init_l_ByteArray_empty() {
+_start:
+{
+obj* x_1; 
+x_1 = l_ByteArray_empty___closed__1;
+return x_1;
 }
 }
 obj* _init_l_ByteArray_Inhabited() {
@@ -423,6 +432,8 @@ if (io_result_is_error(w)) return w;
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("ByteArray"), "mk"), 1, l_ByteArray_mk___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("ByteArray"), "data"), 1, l_ByteArray_data___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("ByteArray"), "mkEmpty"), 1, l_ByteArray_mkEmpty___boxed);
+l_ByteArray_empty___closed__1 = _init_l_ByteArray_empty___closed__1();
+lean::mark_persistent(l_ByteArray_empty___closed__1);
 l_ByteArray_empty = _init_l_ByteArray_empty();
 lean::mark_persistent(l_ByteArray_empty);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("ByteArray"), "empty"), l_ByteArray_empty);

@@ -20,6 +20,7 @@ obj* l_Lean_IR_CollectMaps_collectFnBody___main(obj*, obj*);
 obj* l_Array_mkArray(obj*, obj*, obj*);
 obj* l_Lean_IR_mkVarJPMaps___closed__1;
 obj* l_Lean_IR_CollectUsedDecls_collect(obj*, obj*, obj*);
+obj* l_Lean_IR_mkVarJPMaps___closed__3;
 obj* l_Lean_IR_UsesLeanNamespace_visitFnBody(obj*, obj*, obj*);
 namespace lean {
 obj* get_init_fn_name_for_core(obj*, obj*);
@@ -34,6 +35,7 @@ obj* l_Array_uget(obj*, obj*, usize, obj*);
 obj* l_Lean_IR_CollectUsedDecls_collect___boxed(obj*, obj*, obj*);
 obj* l_Array_uset(obj*, obj*, usize, obj*, obj*);
 obj* l_HashMapImp_insert___at_Lean_IR_CollectMaps_collectVar___main___spec__1(obj*, obj*, uint8);
+extern obj* l_Lean_Syntax_formatStx___main___closed__4;
 obj* l_Lean_IR_CollectMaps_collectDecl(obj*, obj*);
 obj* l_Lean_IR_CollectUsedDecls_collectFnBody___boxed(obj*, obj*, obj*);
 uint8 l_AssocList_contains___main___at_Lean_IR_CollectMaps_collectVar___main___spec__2(obj*, obj*);
@@ -59,7 +61,6 @@ uint8 nat_dec_lt(obj*, obj*);
 uint8 l_Lean_IR_FnBody_isTerminal___main(obj*);
 obj* l_Array_anyMAux___main___at_Lean_IR_UsesLeanNamespace_visitFnBody___main___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
-extern "C" obj* lean_name_mk_string(obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
@@ -94,6 +95,7 @@ obj* l_Array_size(obj*, obj*);
 obj* l_Array_fset(obj*, obj*, obj*, obj*);
 obj* l_HashMapImp_moveEntries___main___at_Lean_IR_CollectMaps_collectVar___main___spec__4(obj*, obj*, obj*);
 obj* l_mkHashMapImp___rarg(obj*);
+obj* l_Lean_IR_mkVarJPMaps___closed__2;
 obj* l_Lean_IR_CollectUsedDecls_collectFnBody(obj*, obj*, obj*);
 obj* l_Lean_IR_CollectMaps_collectParams___boxed(obj*, obj*);
 obj* l_Array_mforAux___main___at_Lean_IR_CollectUsedDecls_collectFnBody___main___spec__1___boxed(obj*, obj*, obj*, obj*);
@@ -193,11 +195,9 @@ return x_4;
 obj* _init_l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; 
-x_1 = lean::box(0);
-x_2 = lean::mk_string("Lean");
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
+obj* x_1; 
+x_1 = l_Lean_Syntax_formatStx___main___closed__4;
+return x_1;
 }
 }
 obj* l_Array_anyMAux___main___at_Lean_IR_UsesLeanNamespace_visitFnBody___main___spec__1(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
@@ -2162,12 +2162,29 @@ return x_2;
 obj* _init_l_Lean_IR_mkVarJPMaps___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; 
+obj* x_1; obj* x_2; 
 x_1 = lean::mk_nat_obj(8u);
 x_2 = l_mkHashMapImp___rarg(x_1);
-lean::inc(x_2);
+return x_2;
+}
+}
+obj* _init_l_Lean_IR_mkVarJPMaps___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = lean::mk_nat_obj(8u);
+x_2 = l_mkHashMapImp___rarg(x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_IR_mkVarJPMaps___closed__3() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_IR_mkVarJPMaps___closed__1;
+x_2 = l_Lean_IR_mkVarJPMaps___closed__2;
 x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_2);
+lean::cnstr_set(x_3, 0, x_1);
 lean::cnstr_set(x_3, 1, x_2);
 return x_3;
 }
@@ -2176,7 +2193,7 @@ obj* l_Lean_IR_mkVarJPMaps(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = l_Lean_IR_mkVarJPMaps___closed__1;
+x_2 = l_Lean_IR_mkVarJPMaps___closed__3;
 x_3 = l_Lean_IR_CollectMaps_collectDecl___main(x_1, x_2);
 return x_3;
 }
@@ -2213,6 +2230,10 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_na
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "CollectMaps"), "collectDecl"), 2, l_Lean_IR_CollectMaps_collectDecl);
 l_Lean_IR_mkVarJPMaps___closed__1 = _init_l_Lean_IR_mkVarJPMaps___closed__1();
 lean::mark_persistent(l_Lean_IR_mkVarJPMaps___closed__1);
+l_Lean_IR_mkVarJPMaps___closed__2 = _init_l_Lean_IR_mkVarJPMaps___closed__2();
+lean::mark_persistent(l_Lean_IR_mkVarJPMaps___closed__2);
+l_Lean_IR_mkVarJPMaps___closed__3 = _init_l_Lean_IR_mkVarJPMaps___closed__3();
+lean::mark_persistent(l_Lean_IR_mkVarJPMaps___closed__3);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "mkVarJPMaps"), 1, l_Lean_IR_mkVarJPMaps);
 return w;
 }

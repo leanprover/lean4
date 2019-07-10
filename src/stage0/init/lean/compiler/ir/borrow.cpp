@@ -24,7 +24,6 @@ obj* nat_sub(obj*, obj*);
 }
 obj* l_HashMapImp_find___at_Lean_IR_Borrow_ApplyParamMap_visitFnBody___main___spec__1(obj*, obj*);
 obj* l_Lean_Format_pretty(obj*, obj*);
-extern obj* l_Lean_Syntax_formatStx___main___closed__5;
 extern obj* l_Lean_IR_JoinPointId_HasToString___closed__1;
 obj* l_Array_mkArray(obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_ownArgs(obj*, obj*, obj*);
@@ -42,6 +41,8 @@ obj* l_Lean_IR_Borrow_Key_getHash___boxed(obj*);
 obj* l_Lean_IR_Decl_normalizeIds(obj*);
 obj* l_Lean_IR_Borrow_Key_getHash___main___boxed(obj*);
 obj* l_Lean_IR_Borrow_ownArg___boxed(obj*, obj*, obj*);
+obj* l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__3;
+obj* l_Lean_IR_Borrow_Key_HasBeq___closed__1;
 obj* l_Lean_IR_Borrow_preserveTailCall(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_InitParamMap_visitDecls(obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_Lean_HasFormat;
@@ -68,12 +69,12 @@ uint8 l_Lean_IR_IRType_isObj___main(uint8);
 obj* l_Lean_IR_Borrow_ownArgsIfParam___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_preserveTailCall___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_whileModifingOwnedAux___main(obj*, obj*, obj*, obj*);
-extern obj* l_Lean_Syntax_formatStx___main___closed__4;
 obj* l_Lean_IR_Borrow_collectDecl___main(obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_getParamInfo(obj*, obj*, obj*);
 obj* l_Array_mforAux___main___at_Lean_IR_Borrow_InitParamMap_visitDecls___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_applyParamMap___boxed(obj*, obj*);
 obj* l_Lean_IR_Borrow_isOwned___boxed(obj*, obj*, obj*);
+obj* l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__4;
 obj* l_Lean_IR_Borrow_collectDecl(obj*, obj*, obj*);
 obj* l_Nat_repr(obj*);
 obj* l_Lean_IR_Borrow_Key_HasBeq;
@@ -87,6 +88,7 @@ obj* string_append(obj*, obj*);
 obj* l_Nat_mforAux___main___at_Lean_IR_Borrow_ownParamsUsingArgs___spec__1(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_mforAux___main___at_Lean_IR_Borrow_ownArgsIfParam___spec__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_AssocList_mfoldl___main___at_Lean_IR_Borrow_InitParamMap_visitFnBody___main___spec__5(obj*, obj*);
+obj* l_Lean_IR_Borrow_Key_Hashable___closed__1;
 obj* l_Lean_IR_inferBorrow___boxed(obj*, obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_IR_Borrow_ApplyParamMap_visitDecls___spec__1___boxed(obj*, obj*, obj*);
 namespace lean {
@@ -106,6 +108,7 @@ obj* l_Lean_IR_Borrow_ApplyParamMap_visitDecls___boxed(obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_collectFnBody(obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_whileModifingOwned(obj*, obj*, obj*);
+obj* l_Lean_IR_Borrow_Lean_HasFormat___closed__1;
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
@@ -131,6 +134,7 @@ obj* l_Lean_IR_Borrow_getParamInfo___boxed(obj*, obj*, obj*);
 obj* l_Array_mforAux___main___at_Lean_IR_Borrow_InitParamMap_visitDecls___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_updateParamMap(obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_ApplyParamMap_visitFnBody(obj*, obj*, obj*);
+extern obj* l_Lean_Syntax_formatStx___main___closed__13;
 obj* l_Lean_IR_Borrow_collectExpr(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_ownArgs___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_markModifiedParamMap___rarg(obj*);
@@ -184,6 +188,7 @@ obj* l_Lean_IR_Borrow_Key_beq___main___boxed(obj*, obj*);
 obj* l_Lean_IR_Borrow_collectDecls___boxed(obj*, obj*, obj*);
 uint8 l_Lean_IR_Borrow_Key_beq___main(obj*, obj*);
 obj* l_Lean_IR_Borrow_collectExpr___main(obj*, obj*, obj*, obj*);
+extern obj* l_Lean_Syntax_formatStx___main___closed__11;
 obj* l_AssocList_replace___main___at_Lean_IR_Borrow_InitParamMap_visitFnBody___main___spec__6(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_Borrow_updateParamSet___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_ownArgsIfParam(obj*, obj*, obj*);
@@ -281,11 +286,19 @@ x_4 = lean::box(x_3);
 return x_4;
 }
 }
-obj* _init_l_Lean_IR_Borrow_Key_HasBeq() {
+obj* _init_l_Lean_IR_Borrow_Key_HasBeq___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_IR_Borrow_Key_beq___boxed), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_IR_Borrow_Key_HasBeq() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_IR_Borrow_Key_HasBeq___closed__1;
 return x_1;
 }
 }
@@ -339,7 +352,7 @@ x_3 = lean::box_size_t(x_2);
 return x_3;
 }
 }
-obj* _init_l_Lean_IR_Borrow_Key_Hashable() {
+obj* _init_l_Lean_IR_Borrow_Key_Hashable___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -347,21 +360,45 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_IR_Borrow_Key_getHash__
 return x_1;
 }
 }
+obj* _init_l_Lean_IR_Borrow_Key_Hashable() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_IR_Borrow_Key_Hashable___closed__1;
+return x_1;
+}
+}
 obj* _init_l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; 
+obj* x_1; 
 x_1 = lean::mk_string(" -> ");
-x_2 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
-return x_2;
+return x_1;
 }
 }
 obj* _init_l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__2() {
 _start:
 {
 obj* x_1; obj* x_2; 
+x_1 = l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__1;
+x_2 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
+}
+}
+obj* _init_l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__3() {
+_start:
+{
+obj* x_1; 
 x_1 = lean::mk_string(":");
+return x_1;
+}
+}
+obj* _init_l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__4() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__3;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
@@ -408,7 +445,7 @@ x_16 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_16, 0, x_8);
 lean::cnstr_set(x_16, 1, x_15);
 lean::cnstr_set_scalar(x_16, sizeof(void*)*2, x_6);
-x_17 = l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__1;
+x_17 = l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__2;
 x_18 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_18, 0, x_16);
 lean::cnstr_set(x_18, 1, x_17);
@@ -433,7 +470,7 @@ x_23 = l_Lean_Name_toString___closed__1;
 x_24 = l_Lean_Name_toStringWithSep___main(x_23, x_21);
 x_25 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_25, 0, x_24);
-x_26 = l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__2;
+x_26 = l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__4;
 x_27 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_27, 0, x_25);
 lean::cnstr_set(x_27, 1, x_26);
@@ -452,7 +489,7 @@ x_33 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_33, 0, x_8);
 lean::cnstr_set(x_33, 1, x_32);
 lean::cnstr_set_scalar(x_33, sizeof(void*)*2, x_6);
-x_34 = l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__1;
+x_34 = l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__2;
 x_35 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_35, 0, x_33);
 lean::cnstr_set(x_35, 1, x_34);
@@ -507,12 +544,12 @@ x_7 = lean::alloc_cnstr(3, 2, 0);
 lean::cnstr_set(x_7, 0, x_6);
 lean::cnstr_set(x_7, 1, x_5);
 x_8 = 0;
-x_9 = l_Lean_Syntax_formatStx___main___closed__4;
+x_9 = l_Lean_Syntax_formatStx___main___closed__11;
 x_10 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_10, 0, x_9);
 lean::cnstr_set(x_10, 1, x_7);
 lean::cnstr_set_scalar(x_10, sizeof(void*)*2, x_8);
-x_11 = l_Lean_Syntax_formatStx___main___closed__5;
+x_11 = l_Lean_Syntax_formatStx___main___closed__13;
 x_12 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_12, 0, x_10);
 lean::cnstr_set(x_12, 1, x_11);
@@ -539,11 +576,19 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* _init_l_Lean_IR_Borrow_Lean_HasFormat() {
+obj* _init_l_Lean_IR_Borrow_Lean_HasFormat___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_IR_Borrow_ParamMap_fmt___boxed), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_IR_Borrow_Lean_HasFormat() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_IR_Borrow_Lean_HasFormat___closed__1;
 return x_1;
 }
 }
@@ -3898,10 +3943,14 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_normids(w);
 if (io_result_is_error(w)) return w;
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "Borrow"), "Key"), "beq"), 2, l_Lean_IR_Borrow_Key_beq___boxed);
+l_Lean_IR_Borrow_Key_HasBeq___closed__1 = _init_l_Lean_IR_Borrow_Key_HasBeq___closed__1();
+lean::mark_persistent(l_Lean_IR_Borrow_Key_HasBeq___closed__1);
 l_Lean_IR_Borrow_Key_HasBeq = _init_l_Lean_IR_Borrow_Key_HasBeq();
 lean::mark_persistent(l_Lean_IR_Borrow_Key_HasBeq);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "Borrow"), "Key"), "HasBeq"), l_Lean_IR_Borrow_Key_HasBeq);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "Borrow"), "Key"), "getHash"), 1, l_Lean_IR_Borrow_Key_getHash___boxed);
+l_Lean_IR_Borrow_Key_Hashable___closed__1 = _init_l_Lean_IR_Borrow_Key_Hashable___closed__1();
+lean::mark_persistent(l_Lean_IR_Borrow_Key_Hashable___closed__1);
 l_Lean_IR_Borrow_Key_Hashable = _init_l_Lean_IR_Borrow_Key_Hashable();
 lean::mark_persistent(l_Lean_IR_Borrow_Key_Hashable);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "Borrow"), "Key"), "Hashable"), l_Lean_IR_Borrow_Key_Hashable);
@@ -3909,7 +3958,13 @@ l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__1
 lean::mark_persistent(l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__1);
 l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__2 = _init_l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__2();
 lean::mark_persistent(l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__2);
+l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__3 = _init_l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__3();
+lean::mark_persistent(l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__3);
+l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__4 = _init_l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__4();
+lean::mark_persistent(l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__4);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "Borrow"), "ParamMap"), "fmt"), 1, l_Lean_IR_Borrow_ParamMap_fmt___boxed);
+l_Lean_IR_Borrow_Lean_HasFormat___closed__1 = _init_l_Lean_IR_Borrow_Lean_HasFormat___closed__1();
+lean::mark_persistent(l_Lean_IR_Borrow_Lean_HasFormat___closed__1);
 l_Lean_IR_Borrow_Lean_HasFormat = _init_l_Lean_IR_Borrow_Lean_HasFormat();
 lean::mark_persistent(l_Lean_IR_Borrow_Lean_HasFormat);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "Borrow"), "Lean"), "HasFormat"), l_Lean_IR_Borrow_Lean_HasFormat);

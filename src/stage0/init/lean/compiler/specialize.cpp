@@ -15,6 +15,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_RBNode_setBlack___main___rarg(obj*);
+obj* l_Lean_Compiler_specExtension___closed__5;
 extern "C" uint8 lean_expr_quick_lt(obj*, obj*);
 obj* l_Lean_Compiler_specExtension___elambda__2___boxed(obj*);
 obj* l_Lean_Compiler_SpecializeAttributeKind_beq___boxed(obj*, obj*);
@@ -25,12 +26,15 @@ obj* l___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux___main___
 obj* l_Array_binSearchAux___main___at___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux___main___spec__3___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_find___main___at_Lean_Compiler_getSpecializationInfo___spec__1(obj*, obj*);
 obj* l_HashMapImp_insert___at_Lean_Compiler_SpecState_addEntry___spec__4(obj*, obj*, obj*);
+obj* l_Lean_Compiler_mkSpecExtension___lambda__1___closed__3;
 extern obj* l_Array_empty___closed__1;
 obj* l_RBNode_fold___main___at_Lean_Compiler_mkSpecializeAttrs___spec__2(obj*, obj*);
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
 obj* l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___main___spec__1(obj*);
+obj* l_Lean_Compiler_mkSpecExtension___closed__2;
+obj* l_Lean_Compiler_specExtension___closed__2;
 obj* l_Array_miterateAux___main___at_Lean_Compiler_mkSpecExtension___spec__2(obj*, obj*, obj*, obj*);
 uint8 l_AssocList_contains___main___at_Lean_Compiler_SpecState_addEntry___spec__14(obj*, obj*);
 obj* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__1___lambda__1(obj*, obj*);
@@ -39,35 +43,42 @@ obj* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__
 extern "C" usize lean_expr_hash(obj*);
 obj* l_RBNode_find___main___at_Lean_Compiler_getCachedSpecialization___spec__2(obj*, obj*);
 obj* l_Lean_SMap_insert___main___at_Lean_Compiler_SpecState_addEntry___spec__1(obj*, obj*, obj*);
+obj* l_Lean_Compiler_SpecState_Inhabited___closed__2;
+extern obj* l_Lean_AttributeImpl_inhabited___closed__5;
 obj* l_Lean_Compiler_SpecializeAttributeKind_HasBeq;
 extern obj* l_Lean_registerTagAttribute___lambda__5___closed__1;
 obj* l_Lean_Compiler_mkSpecExtension___lambda__1(obj*);
 obj* l_AssocList_contains___main___at_Lean_Compiler_SpecState_addEntry___spec__5___boxed(obj*, obj*);
 obj* l_Lean_Compiler_mkSpecExtension(obj*);
-obj* l_Lean_PersistentEnvExtension_inhabited___rarg___lambda__1___boxed(obj*);
 obj* l_Lean_Compiler_mkSpecializeAttrs___closed__3;
+obj* l_Lean_Compiler_mkSpecializeAttrs___closed__8;
 obj* l_Lean_Compiler_specExtension___elambda__4___closed__1;
 obj* l_Lean_Compiler_SpecState_Inhabited;
 obj* l_RBNode_find___main___at___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux___main___spec__2(obj*, obj*);
 obj* l_Lean_EnumAttributes_getValue___at___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux___main___spec__1___boxed(obj*, obj*, obj*);
 obj* l_Array_qsortAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__3(obj*, obj*, obj*);
+obj* l_Lean_Compiler_mkSpecializeAttrs___closed__15;
 obj* l_Lean_Expr_quickLt___boxed(obj*, obj*);
 obj* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__1(obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux___boxed(obj*, obj*, obj*);
+obj* l_Lean_Compiler_mkSpecializeAttrs___closed__9;
 obj* l_Array_miterateAux___main___at_Lean_Compiler_mkSpecExtension___spec__2___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Compiler_mkSpecExtension___lambda__1___closed__1;
 obj* l_Lean_Compiler_specExtension___elambda__1(obj*);
 obj* l_Array_uget(obj*, obj*, usize, obj*);
 obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
+obj* l_Lean_Compiler_SpecState_Inhabited___closed__3;
 obj* l_Lean_SimplePersistentEnvExtension_getState___rarg(obj*, obj*);
 obj* l_AssocList_mfoldl___main___at_Lean_Compiler_SpecState_addEntry___spec__17(obj*, obj*);
-obj* l_Lean_SMap_insert___main___at_Lean_Compiler_SpecState_addEntry___spec__10___closed__1;
+obj* l_Lean_Compiler_SpecState_Inhabited___closed__1;
 extern obj* l_Lean_Inhabited;
 obj* l_Array_uset(obj*, obj*, usize, obj*, obj*);
 obj* l_Lean_Compiler_SpecializeAttributeKind_beq___main___boxed(obj*, obj*);
+obj* l_Lean_Compiler_SpecState_Inhabited___closed__5;
 obj* l_Lean_Compiler_mkSpecializeAttrs(obj*);
+obj* l_Lean_Compiler_specExtension___closed__4;
 obj* l_HashMapImp_find___at_Lean_Compiler_getCachedSpecialization___spec__3___boxed(obj*, obj*);
-obj* l_Array_mkEmpty(obj*, obj*);
+obj* l_Lean_Compiler_mkSpecializeAttrs___closed__12;
 obj* l_Array_binSearchAux___main___at___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux___main___spec__3(obj*, obj*, obj*, obj*);
 obj* l_AssocList_find___main___at_Lean_Compiler_getSpecializationInfo___spec__4(obj*, obj*);
 obj* l_Lean_EnumAttributes_getValue___at___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux___main___spec__1(obj*, obj*, obj*);
@@ -76,7 +87,10 @@ extern obj* l_Lean_registerEnumAttributes___rarg___closed__1;
 obj* l_mkHashMap___at_Lean_Compiler_SpecState_Inhabited___spec__2(obj*);
 obj* l_Array_swap(obj*, obj*, obj*, obj*);
 obj* l_AssocList_find___main___at_Lean_Compiler_getSpecializationInfo___spec__4___boxed(obj*, obj*);
+extern obj* l_Lean_AttributeImpl_inhabited___closed__4;
 obj* l_RBNode_insert___at_Lean_Compiler_SpecState_addEntry___spec__2(obj*, obj*, obj*);
+extern obj* l_Lean_EnumAttributes_Inhabited___closed__1;
+obj* l_Lean_Compiler_SpecState_Inhabited___closed__6;
 obj* l_RBNode_find___main___at_Lean_Compiler_getSpecializationInfo___spec__2___boxed(obj*, obj*);
 obj* l_Lean_SMap_find___main___at_Lean_Compiler_getCachedSpecialization___spec__1(obj*, obj*);
 obj* l_Lean_Compiler_specExtension___elambda__4___boxed(obj*);
@@ -86,6 +100,7 @@ obj* add_specialization_info_core(obj*, obj*, obj*);
 obj* l_Lean_Compiler_specExtension___elambda__2(obj*);
 obj* l_List_map___main___at_Lean_Compiler_mkSpecializeAttrs___spec__5___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Compiler_specExtension;
+obj* l_Lean_Compiler_specExtension___closed__1;
 extern "C" usize lean_name_hash_usize(obj*);
 obj* l_RBNode_find___main___at___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux___main___spec__2___boxed(obj*, obj*);
 extern "C" uint8 lean_expr_eqv(obj*, obj*);
@@ -93,6 +108,7 @@ obj* l_Lean_PersistentEnvExtension_getState___rarg(obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_HashMapImp_expand___at_Lean_Compiler_SpecState_addEntry___spec__6(obj*, obj*);
 obj* l_Lean_Environment_getModuleIdxFor(obj*, obj*);
+obj* l_Lean_Compiler_mkSpecializeAttrs___closed__11;
 obj* l_Lean_mkStateFromImportedEntries___at_Lean_Compiler_mkSpecExtension___spec__1(obj*, obj*);
 obj* l_mkHashMap___at_Lean_Compiler_SpecState_Inhabited___spec__1(obj*);
 namespace lean {
@@ -102,6 +118,8 @@ obj* l_RBNode_insert___at_Lean_Compiler_SpecState_addEntry___spec__11(obj*, obj*
 obj* l_List_map___main___at_Lean_Compiler_mkSpecializeAttrs___spec__5(obj*, obj*, obj*);
 obj* l_List_mfor___main___at_Lean_registerEnumAttributes___spec__8(obj*, obj*);
 obj* l_Lean_Compiler_mkSpecializeAttrs___closed__1;
+obj* l_Lean_Compiler_mkSpecializeAttrs___closed__14;
+obj* l_Lean_Compiler_specExtension___closed__7;
 namespace lean {
 uint8 has_specialize_attribute_core(obj*, obj*);
 }
@@ -111,7 +129,7 @@ namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1;
-extern obj* l_Lean_registerTagAttribute___closed__6;
+obj* l_Lean_Compiler_specExtension___closed__3;
 extern obj* l_Lean_registerTagAttribute___lambda__5___closed__4;
 obj* l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(obj*, obj*, obj*);
 uint8 l_Lean_Compiler_SpecializeAttributeKind_Inhabited;
@@ -128,14 +146,16 @@ obj* l_Lean_SMap_find___main___at_Lean_Compiler_getSpecializationInfo___spec__1_
 obj* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(obj*, obj*, obj*);
 obj* l_Lean_Compiler_SpecState_switch(obj*);
 extern obj* l_Lean_registerTagAttribute___lambda__5___closed__5;
+obj* l_Lean_Compiler_mkSpecializeAttrs___closed__7;
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_HashMapImp_expand___at_Lean_Compiler_SpecState_addEntry___spec__15(obj*, obj*);
-obj* l_ExceptT_Monad___rarg___lambda__8___boxed(obj*, obj*);
+obj* l_Lean_Compiler_specExtension___closed__6;
 obj* l_Array_push(obj*, obj*, obj*);
 uint8 l_RBNode_isRed___main___rarg(obj*);
 uint8 l_Lean_Compiler_SpecializeAttributeKind_beq(uint8, uint8);
+extern obj* l_Lean_regScopeManagerExtension___closed__5;
 obj* l_RBNode_fold___main___at_Lean_Compiler_mkSpecializeAttrs___spec__2___boxed(obj*, obj*);
 obj* l_Lean_Compiler_specExtension___elambda__3(obj*, obj*);
 obj* l_Lean_Compiler_hasNospecializeAttribute___boxed(obj*, obj*);
@@ -143,6 +163,8 @@ obj* l_Lean_Compiler_mkSpecializeAttrs___closed__2;
 obj* l_HashMapImp_find___at_Lean_Compiler_getSpecializationInfo___spec__3(obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4(obj*, obj*, obj*, obj*, obj*);
 obj* l_AssocList_find___main___at_Lean_Compiler_getCachedSpecialization___spec__4___boxed(obj*, obj*);
+obj* l_Lean_Compiler_mkSpecializeAttrs___closed__6;
+obj* l_Lean_Compiler_mkSpecializeAttrs___closed__5;
 obj* l_RBNode_find___main___at_Lean_Compiler_getSpecializationInfo___spec__2(obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_Compiler_getCachedSpecialization___spec__2___boxed(obj*, obj*);
 namespace lean {
@@ -152,6 +174,7 @@ obj* l_Lean_mkStateFromImportedEntries___at_Lean_Compiler_mkSpecExtension___spec
 obj* l_Lean_registerTagAttribute___lambda__7___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Compiler_mkSpecializeAttrs___lambda__1(obj*, obj*, uint8);
 obj* l_Lean_PersistentEnvExtension_addEntry___rarg(obj*, obj*, obj*);
+obj* l_Lean_Compiler_mkSpecExtension___lambda__1___closed__2;
 uint8 l_Lean_Name_quickLt(obj*, obj*);
 obj* l_HashMapImp_moveEntries___main___at_Lean_Compiler_SpecState_addEntry___spec__16(obj*, obj*, obj*);
 namespace lean {
@@ -162,11 +185,12 @@ obj* l_HashMapImp_insert___at_Lean_Compiler_SpecState_addEntry___spec__13(obj*, 
 obj* l_Lean_Compiler_specializeAttrs;
 uint8 l_AssocList_contains___main___at_Lean_Compiler_SpecState_addEntry___spec__5(obj*, obj*);
 obj* l_RBNode_ins___main___at_Lean_Compiler_SpecState_addEntry___spec__3(obj*, obj*, obj*);
+obj* l_Lean_Compiler_SpecializeAttributeKind_HasBeq___closed__1;
 obj* l_RBNode_ins___main___at_Lean_Compiler_SpecState_addEntry___spec__12(obj*, obj*, obj*);
 obj* l_Lean_SMap_find___main___at_Lean_Compiler_getCachedSpecialization___spec__1___boxed(obj*, obj*);
 obj* l_Lean_Compiler_SpecState_addEntry(obj*, obj*);
+extern obj* l_HashMap_Inhabited___closed__1;
 obj* l_Lean_Compiler_hasSpecializeAttribute___boxed(obj*, obj*);
-obj* l_Lean_PersistentEnvExtension_inhabited___rarg___lambda__2___boxed(obj*);
 obj* l_Array_size(obj*, obj*);
 uint8 l___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux___main(obj*, uint8, obj*);
 obj* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__1___lambda__2(obj*);
@@ -180,16 +204,17 @@ extern obj* l_Lean_registerTagAttribute___lambda__5___closed__3;
 obj* l_Lean_SMap_insert___main___at_Lean_Compiler_SpecState_addEntry___spec__10(obj*, obj*, obj*);
 obj* l_AssocList_find___main___at_Lean_Compiler_getCachedSpecialization___spec__4(obj*, obj*);
 obj* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__1___lambda__2___boxed(obj*);
-extern obj* l_Lean_registerTagAttribute___closed__5;
 extern obj* l_Lean_Name_toString___closed__1;
 namespace lean {
 obj* get_cached_specialization_core(obj*, obj*);
 }
+obj* l_Lean_Compiler_mkSpecializeAttrs___closed__10;
 namespace lean {
 uint8 nat_dec_le(obj*, obj*);
 }
 obj* l_AssocList_mfoldl___main___at_Lean_Compiler_SpecState_addEntry___spec__8(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_Compiler_mkSpecExtension___spec__3___boxed(obj*, obj*, obj*, obj*);
+obj* l_Lean_Compiler_SpecState_Inhabited___closed__4;
 obj* l_AssocList_replace___main___at_Lean_Compiler_SpecState_addEntry___spec__9(obj*, obj*, obj*);
 obj* l_Lean_Compiler_checkIsDefinition(obj*, obj*);
 obj* l_Lean_Compiler_mkSpecExtension___lambda__1___boxed(obj*);
@@ -201,6 +226,7 @@ obj* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__
 obj* l_HashMapImp_find___at_Lean_Compiler_getSpecializationInfo___spec__3___boxed(obj*, obj*);
 obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg(obj*, obj*);
 obj* l_Lean_Compiler_specExtension___elambda__3___boxed(obj*, obj*);
+obj* l_Lean_Compiler_mkSpecExtension___closed__3;
 uint8 l_Lean_Name_isInternal___main(obj*);
 obj* l_HashMapImp_find___at_Lean_Compiler_getCachedSpecialization___spec__3(obj*, obj*);
 namespace lean {
@@ -213,10 +239,11 @@ namespace lean {
 uint8 has_nospecialize_attribute_core(obj*, obj*);
 }
 uint8 l___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux(obj*, uint8, obj*);
+obj* l_Lean_Compiler_mkSpecializeAttrs___closed__4;
 obj* l_Lean_Compiler_specExtension___elambda__4(obj*);
-obj* l_Lean_regScopeManagerExtension___lambda__3(obj*);
 obj* l_Array_qsortAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__3___boxed(obj*, obj*, obj*);
 obj* l_Lean_registerTagAttribute___lambda__6___boxed(obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_Compiler_mkSpecializeAttrs___closed__13;
 uint8 _init_l_Lean_Compiler_SpecializeAttributeKind_Inhabited() {
 _start:
 {
@@ -294,11 +321,19 @@ x_6 = lean::box(x_5);
 return x_6;
 }
 }
-obj* _init_l_Lean_Compiler_SpecializeAttributeKind_HasBeq() {
+obj* _init_l_Lean_Compiler_SpecializeAttributeKind_HasBeq___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Compiler_SpecializeAttributeKind_beq___boxed), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_SpecializeAttributeKind_HasBeq() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_Compiler_SpecializeAttributeKind_HasBeq___closed__1;
 return x_1;
 }
 }
@@ -807,8 +842,8 @@ lean::closure_set(x_14, 0, x_10);
 lean::inc(x_10);
 x_15 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__7___boxed), 5, 1);
 lean::closure_set(x_15, 0, x_10);
-x_16 = l_Lean_registerTagAttribute___closed__5;
-x_17 = l_Lean_registerTagAttribute___closed__6;
+x_16 = l_Lean_AttributeImpl_inhabited___closed__4;
+x_17 = l_Lean_AttributeImpl_inhabited___closed__5;
 x_18 = 0;
 x_19 = lean::alloc_cnstr(0, 8, 1);
 lean::cnstr_set(x_19, 0, x_10);
@@ -857,8 +892,8 @@ lean::closure_set(x_28, 0, x_24);
 lean::inc(x_24);
 x_29 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__7___boxed), 5, 1);
 lean::closure_set(x_29, 0, x_24);
-x_30 = l_Lean_registerTagAttribute___closed__5;
-x_31 = l_Lean_registerTagAttribute___closed__6;
+x_30 = l_Lean_AttributeImpl_inhabited___closed__4;
+x_31 = l_Lean_AttributeImpl_inhabited___closed__5;
 x_32 = 0;
 x_33 = lean::alloc_cnstr(0, 8, 1);
 lean::cnstr_set(x_33, 0, x_24);
@@ -1113,51 +1148,148 @@ return x_4;
 obj* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; 
-x_1 = lean::box(0);
-x_2 = lean::mk_string("specializeAttrs");
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
+obj* x_1; 
+x_1 = lean::mk_string("specializeAttrs");
+return x_1;
 }
 }
 obj* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__2() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; uint8 x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; uint8 x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; obj* x_18; 
+obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::box(0);
-x_2 = lean::mk_string("specialize");
+x_2 = l_Lean_Compiler_mkSpecializeAttrs___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::mk_string("mark definition to always be inlined");
-x_5 = 0;
-x_6 = lean::box(x_5);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_4);
-lean::cnstr_set(x_7, 1, x_6);
-x_8 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_8, 0, x_3);
-lean::cnstr_set(x_8, 1, x_7);
-x_9 = lean::mk_string("nospecialize");
-x_10 = lean_name_mk_string(x_1, x_9);
-x_11 = lean::mk_string("mark definition to never be inlined");
-x_12 = 1;
-x_13 = lean::box(x_12);
-x_14 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_14, 0, x_11);
-lean::cnstr_set(x_14, 1, x_13);
-x_15 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_15, 0, x_10);
-lean::cnstr_set(x_15, 1, x_14);
-x_16 = lean::box(0);
-x_17 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_17, 0, x_15);
-lean::cnstr_set(x_17, 1, x_16);
-x_18 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_18, 0, x_8);
-lean::cnstr_set(x_18, 1, x_17);
-return x_18;
+return x_3;
 }
 }
 obj* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__3() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("specialize");
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__4() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_Compiler_mkSpecializeAttrs___closed__3;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__5() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("mark definition to always be inlined");
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__6() {
+_start:
+{
+obj* x_1; uint8 x_2; obj* x_3; obj* x_4; 
+x_1 = l_Lean_Compiler_mkSpecializeAttrs___closed__5;
+x_2 = 0;
+x_3 = lean::box(x_2);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_1);
+lean::cnstr_set(x_4, 1, x_3);
+return x_4;
+}
+}
+obj* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__7() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Compiler_mkSpecializeAttrs___closed__4;
+x_2 = l_Lean_Compiler_mkSpecializeAttrs___closed__6;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__8() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("nospecialize");
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__9() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_Compiler_mkSpecializeAttrs___closed__8;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__10() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("mark definition to never be inlined");
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__11() {
+_start:
+{
+obj* x_1; uint8 x_2; obj* x_3; obj* x_4; 
+x_1 = l_Lean_Compiler_mkSpecializeAttrs___closed__10;
+x_2 = 1;
+x_3 = lean::box(x_2);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_1);
+lean::cnstr_set(x_4, 1, x_3);
+return x_4;
+}
+}
+obj* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__12() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Compiler_mkSpecializeAttrs___closed__9;
+x_2 = l_Lean_Compiler_mkSpecializeAttrs___closed__11;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__13() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_Compiler_mkSpecializeAttrs___closed__12;
+x_3 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_3, 0, x_2);
+lean::cnstr_set(x_3, 1, x_1);
+return x_3;
+}
+}
+obj* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__14() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Compiler_mkSpecializeAttrs___closed__7;
+x_2 = l_Lean_Compiler_mkSpecializeAttrs___closed__13;
+x_3 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__15() {
 _start:
 {
 obj* x_1; 
@@ -1169,9 +1301,9 @@ obj* l_Lean_Compiler_mkSpecializeAttrs(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
-x_2 = l_Lean_Compiler_mkSpecializeAttrs___closed__1;
-x_3 = l_Lean_Compiler_mkSpecializeAttrs___closed__2;
-x_4 = l_Lean_Compiler_mkSpecializeAttrs___closed__3;
+x_2 = l_Lean_Compiler_mkSpecializeAttrs___closed__2;
+x_3 = l_Lean_Compiler_mkSpecializeAttrs___closed__14;
+x_4 = l_Lean_Compiler_mkSpecializeAttrs___closed__15;
 x_5 = l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__1(x_2, x_3, x_4, x_1);
 return x_5;
 }
@@ -1598,27 +1730,78 @@ x_2 = l_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
+obj* _init_l_Lean_Compiler_SpecState_Inhabited___closed__1() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = lean::mk_nat_obj(8u);
+x_2 = l_mkHashMapImp___rarg(x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_Compiler_SpecState_Inhabited___closed__2() {
+_start:
+{
+obj* x_1; uint8 x_2; obj* x_3; obj* x_4; 
+x_1 = lean::box(0);
+x_2 = 1;
+x_3 = l_Lean_Compiler_SpecState_Inhabited___closed__1;
+x_4 = lean::alloc_cnstr(0, 2, 1);
+lean::cnstr_set(x_4, 0, x_3);
+lean::cnstr_set(x_4, 1, x_1);
+lean::cnstr_set_scalar(x_4, sizeof(void*)*2, x_2);
+return x_4;
+}
+}
+obj* _init_l_Lean_Compiler_SpecState_Inhabited___closed__3() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = lean::mk_nat_obj(8u);
+x_2 = l_mkHashMapImp___rarg(x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_Compiler_SpecState_Inhabited___closed__4() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Expr_quickLt___boxed), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_SpecState_Inhabited___closed__5() {
+_start:
+{
+obj* x_1; uint8 x_2; obj* x_3; obj* x_4; 
+x_1 = lean::box(0);
+x_2 = 1;
+x_3 = l_Lean_Compiler_SpecState_Inhabited___closed__3;
+x_4 = lean::alloc_cnstr(0, 2, 1);
+lean::cnstr_set(x_4, 0, x_3);
+lean::cnstr_set(x_4, 1, x_1);
+lean::cnstr_set_scalar(x_4, sizeof(void*)*2, x_2);
+return x_4;
+}
+}
+obj* _init_l_Lean_Compiler_SpecState_Inhabited___closed__6() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Compiler_SpecState_Inhabited___closed__2;
+x_2 = l_Lean_Compiler_SpecState_Inhabited___closed__5;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
 obj* _init_l_Lean_Compiler_SpecState_Inhabited() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; uint8 x_4; obj* x_5; obj* x_6; obj* x_7; 
-x_1 = lean::mk_nat_obj(8u);
-x_2 = l_mkHashMapImp___rarg(x_1);
-x_3 = lean::box(0);
-x_4 = 1;
-lean::inc(x_2);
-x_5 = lean::alloc_cnstr(0, 2, 1);
-lean::cnstr_set(x_5, 0, x_2);
-lean::cnstr_set(x_5, 1, x_3);
-lean::cnstr_set_scalar(x_5, sizeof(void*)*2, x_4);
-x_6 = lean::alloc_cnstr(0, 2, 1);
-lean::cnstr_set(x_6, 0, x_2);
-lean::cnstr_set(x_6, 1, x_3);
-lean::cnstr_set_scalar(x_6, sizeof(void*)*2, x_4);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_5);
-lean::cnstr_set(x_7, 1, x_6);
-return x_7;
+obj* x_1; 
+x_1 = l_Lean_Compiler_SpecState_Inhabited___closed__6;
+return x_1;
 }
 }
 obj* l_RBNode_ins___main___at_Lean_Compiler_SpecState_addEntry___spec__3(obj* x_1, obj* x_2, obj* x_3) {
@@ -7246,14 +7429,6 @@ return x_44;
 }
 }
 }
-obj* _init_l_Lean_SMap_insert___main___at_Lean_Compiler_SpecState_addEntry___spec__10___closed__1() {
-_start:
-{
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Expr_quickLt___boxed), 2, 0);
-return x_1;
-}
-}
 obj* l_Lean_SMap_insert___main___at_Lean_Compiler_SpecState_addEntry___spec__10(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -7591,24 +7766,41 @@ return x_4;
 obj* _init_l_Lean_Compiler_mkSpecExtension___lambda__1___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; uint8 x_4; obj* x_5; obj* x_6; obj* x_7; 
-x_1 = lean::mk_nat_obj(8u);
-x_2 = l_mkHashMapImp___rarg(x_1);
-x_3 = lean::box(0);
-x_4 = 1;
-lean::inc(x_2);
-x_5 = lean::alloc_cnstr(0, 2, 1);
-lean::cnstr_set(x_5, 0, x_2);
-lean::cnstr_set(x_5, 1, x_3);
-lean::cnstr_set_scalar(x_5, sizeof(void*)*2, x_4);
-x_6 = lean::alloc_cnstr(0, 2, 1);
-lean::cnstr_set(x_6, 0, x_2);
-lean::cnstr_set(x_6, 1, x_3);
-lean::cnstr_set_scalar(x_6, sizeof(void*)*2, x_4);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_5);
-lean::cnstr_set(x_7, 1, x_6);
-return x_7;
+obj* x_1; uint8 x_2; obj* x_3; obj* x_4; 
+x_1 = lean::box(0);
+x_2 = 1;
+x_3 = l_HashMap_Inhabited___closed__1;
+x_4 = lean::alloc_cnstr(0, 2, 1);
+lean::cnstr_set(x_4, 0, x_3);
+lean::cnstr_set(x_4, 1, x_1);
+lean::cnstr_set_scalar(x_4, sizeof(void*)*2, x_2);
+return x_4;
+}
+}
+obj* _init_l_Lean_Compiler_mkSpecExtension___lambda__1___closed__2() {
+_start:
+{
+obj* x_1; uint8 x_2; obj* x_3; obj* x_4; 
+x_1 = lean::box(0);
+x_2 = 1;
+x_3 = l_HashMap_Inhabited___closed__1;
+x_4 = lean::alloc_cnstr(0, 2, 1);
+lean::cnstr_set(x_4, 0, x_3);
+lean::cnstr_set(x_4, 1, x_1);
+lean::cnstr_set_scalar(x_4, sizeof(void*)*2, x_2);
+return x_4;
+}
+}
+obj* _init_l_Lean_Compiler_mkSpecExtension___lambda__1___closed__3() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Compiler_mkSpecExtension___lambda__1___closed__1;
+x_2 = l_Lean_Compiler_mkSpecExtension___lambda__1___closed__2;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
 }
 }
 obj* l_Lean_Compiler_mkSpecExtension___lambda__1(obj* x_1) {
@@ -7616,7 +7808,7 @@ _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
 x_2 = lean::mk_nat_obj(0u);
-x_3 = l_Lean_Compiler_mkSpecExtension___lambda__1___closed__1;
+x_3 = l_Lean_Compiler_mkSpecExtension___lambda__1___closed__3;
 x_4 = l_Array_miterateAux___main___at_Lean_Compiler_mkSpecExtension___spec__3(x_1, x_1, x_2, x_3);
 x_5 = l_Lean_Compiler_SpecState_switch___main(x_4);
 return x_5;
@@ -7625,26 +7817,40 @@ return x_5;
 obj* _init_l_Lean_Compiler_mkSpecExtension___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
-x_1 = lean::box(0);
-x_2 = lean::mk_string("specialize");
-x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Compiler_SpecState_addEntry), 2, 0);
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Compiler_mkSpecExtension___lambda__1___boxed), 1, 0);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_regScopeManagerExtension___lambda__3), 1, 0);
-x_7 = lean::alloc_cnstr(0, 4, 0);
-lean::cnstr_set(x_7, 0, x_3);
-lean::cnstr_set(x_7, 1, x_4);
-lean::cnstr_set(x_7, 2, x_5);
-lean::cnstr_set(x_7, 3, x_6);
-return x_7;
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Compiler_SpecState_addEntry), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_mkSpecExtension___closed__2() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Compiler_mkSpecExtension___lambda__1___boxed), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_mkSpecExtension___closed__3() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
+x_1 = l_Lean_Compiler_mkSpecializeAttrs___closed__4;
+x_2 = l_Lean_Compiler_mkSpecExtension___closed__1;
+x_3 = l_Lean_Compiler_mkSpecExtension___closed__2;
+x_4 = l_Lean_regScopeManagerExtension___closed__5;
+x_5 = lean::alloc_cnstr(0, 4, 0);
+lean::cnstr_set(x_5, 0, x_1);
+lean::cnstr_set(x_5, 1, x_2);
+lean::cnstr_set(x_5, 2, x_3);
+lean::cnstr_set(x_5, 3, x_4);
+return x_5;
 }
 }
 obj* l_Lean_Compiler_mkSpecExtension(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = l_Lean_Compiler_mkSpecExtension___closed__1;
+x_2 = l_Lean_Compiler_mkSpecExtension___closed__3;
 x_3 = l_Lean_registerSimplePersistentEnvExtension___rarg(x_2, x_1);
 return x_3;
 }
@@ -7713,28 +7919,13 @@ return x_1;
 obj* _init_l_Lean_Compiler_specExtension___elambda__4___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; uint8 x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
+obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::box(0);
-x_2 = lean::mk_nat_obj(8u);
-x_3 = l_mkHashMapImp___rarg(x_2);
-x_4 = lean::box(0);
-x_5 = 1;
-lean::inc(x_3);
-x_6 = lean::alloc_cnstr(0, 2, 1);
-lean::cnstr_set(x_6, 0, x_3);
-lean::cnstr_set(x_6, 1, x_4);
-lean::cnstr_set_scalar(x_6, sizeof(void*)*2, x_5);
-x_7 = lean::alloc_cnstr(0, 2, 1);
-lean::cnstr_set(x_7, 0, x_3);
-lean::cnstr_set(x_7, 1, x_4);
-lean::cnstr_set_scalar(x_7, sizeof(void*)*2, x_5);
-x_8 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_8, 0, x_6);
-lean::cnstr_set(x_8, 1, x_7);
-x_9 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_9, 0, x_1);
-lean::cnstr_set(x_9, 1, x_8);
-return x_9;
+x_2 = l_Lean_Compiler_mkSpecExtension___lambda__1___closed__3;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
 }
 }
 obj* l_Lean_Compiler_specExtension___elambda__4(obj* x_1) {
@@ -7743,6 +7934,82 @@ _start:
 obj* x_2; 
 x_2 = l_Lean_Compiler_specExtension___elambda__4___closed__1;
 return x_2;
+}
+}
+obj* _init_l_Lean_Compiler_specExtension___closed__1() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Array_empty___closed__1;
+x_2 = l_Lean_Compiler_specExtension___elambda__4___closed__1;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Compiler_specExtension___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::mk_nat_obj(0u);
+x_2 = l_Lean_Compiler_specExtension___closed__1;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Compiler_specExtension___closed__3() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Compiler_specExtension___elambda__4___boxed), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_specExtension___closed__4() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Compiler_specExtension___elambda__3___boxed), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_specExtension___closed__5() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Compiler_specExtension___elambda__2___boxed), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_specExtension___closed__6() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Compiler_specExtension___elambda__1___boxed), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_specExtension___closed__7() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
+x_1 = l_Lean_Compiler_specExtension___closed__2;
+x_2 = lean::box(0);
+x_3 = l_Lean_Compiler_specExtension___closed__3;
+x_4 = l_Lean_Compiler_specExtension___closed__4;
+x_5 = l_Lean_Compiler_specExtension___closed__5;
+x_6 = l_Lean_Compiler_specExtension___closed__6;
+x_7 = lean::alloc_cnstr(0, 6, 0);
+lean::cnstr_set(x_7, 0, x_1);
+lean::cnstr_set(x_7, 1, x_2);
+lean::cnstr_set(x_7, 2, x_3);
+lean::cnstr_set(x_7, 3, x_4);
+lean::cnstr_set(x_7, 4, x_5);
+lean::cnstr_set(x_7, 5, x_6);
+return x_7;
 }
 }
 obj* l_Lean_Compiler_specExtension___elambda__1___boxed(obj* x_1) {
@@ -8188,6 +8455,8 @@ if (io_result_is_error(w)) return w;
 l_Lean_Compiler_SpecializeAttributeKind_Inhabited = _init_l_Lean_Compiler_SpecializeAttributeKind_Inhabited();
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "SpecializeAttributeKind"), "Inhabited"), lean::box(l_Lean_Compiler_SpecializeAttributeKind_Inhabited));
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "SpecializeAttributeKind"), "beq"), 2, l_Lean_Compiler_SpecializeAttributeKind_beq___boxed);
+l_Lean_Compiler_SpecializeAttributeKind_HasBeq___closed__1 = _init_l_Lean_Compiler_SpecializeAttributeKind_HasBeq___closed__1();
+lean::mark_persistent(l_Lean_Compiler_SpecializeAttributeKind_HasBeq___closed__1);
 l_Lean_Compiler_SpecializeAttributeKind_HasBeq = _init_l_Lean_Compiler_SpecializeAttributeKind_HasBeq();
 lean::mark_persistent(l_Lean_Compiler_SpecializeAttributeKind_HasBeq);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "SpecializeAttributeKind"), "HasBeq"), l_Lean_Compiler_SpecializeAttributeKind_HasBeq);
@@ -8203,6 +8472,30 @@ l_Lean_Compiler_mkSpecializeAttrs___closed__2 = _init_l_Lean_Compiler_mkSpeciali
 lean::mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__2);
 l_Lean_Compiler_mkSpecializeAttrs___closed__3 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__3();
 lean::mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__3);
+l_Lean_Compiler_mkSpecializeAttrs___closed__4 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__4();
+lean::mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__4);
+l_Lean_Compiler_mkSpecializeAttrs___closed__5 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__5();
+lean::mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__5);
+l_Lean_Compiler_mkSpecializeAttrs___closed__6 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__6();
+lean::mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__6);
+l_Lean_Compiler_mkSpecializeAttrs___closed__7 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__7();
+lean::mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__7);
+l_Lean_Compiler_mkSpecializeAttrs___closed__8 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__8();
+lean::mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__8);
+l_Lean_Compiler_mkSpecializeAttrs___closed__9 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__9();
+lean::mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__9);
+l_Lean_Compiler_mkSpecializeAttrs___closed__10 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__10();
+lean::mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__10);
+l_Lean_Compiler_mkSpecializeAttrs___closed__11 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__11();
+lean::mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__11);
+l_Lean_Compiler_mkSpecializeAttrs___closed__12 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__12();
+lean::mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__12);
+l_Lean_Compiler_mkSpecializeAttrs___closed__13 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__13();
+lean::mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__13);
+l_Lean_Compiler_mkSpecializeAttrs___closed__14 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__14();
+lean::mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__14);
+l_Lean_Compiler_mkSpecializeAttrs___closed__15 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__15();
+lean::mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__15);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "mkSpecializeAttrs"), 1, l_Lean_Compiler_mkSpecializeAttrs);
 w = l_Lean_Compiler_mkSpecializeAttrs(w);
 if (io_result_is_error(w)) return w;
@@ -8211,20 +8504,52 @@ lean::mark_persistent(l_Lean_Compiler_specializeAttrs);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "specializeAttrs"), l_Lean_Compiler_specializeAttrs);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "hasSpecializeAttribute"), 2, l_Lean_Compiler_hasSpecializeAttribute___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "hasNospecializeAttribute"), 2, l_Lean_Compiler_hasNospecializeAttribute___boxed);
+l_Lean_Compiler_SpecState_Inhabited___closed__1 = _init_l_Lean_Compiler_SpecState_Inhabited___closed__1();
+lean::mark_persistent(l_Lean_Compiler_SpecState_Inhabited___closed__1);
+l_Lean_Compiler_SpecState_Inhabited___closed__2 = _init_l_Lean_Compiler_SpecState_Inhabited___closed__2();
+lean::mark_persistent(l_Lean_Compiler_SpecState_Inhabited___closed__2);
+l_Lean_Compiler_SpecState_Inhabited___closed__3 = _init_l_Lean_Compiler_SpecState_Inhabited___closed__3();
+lean::mark_persistent(l_Lean_Compiler_SpecState_Inhabited___closed__3);
+l_Lean_Compiler_SpecState_Inhabited___closed__4 = _init_l_Lean_Compiler_SpecState_Inhabited___closed__4();
+lean::mark_persistent(l_Lean_Compiler_SpecState_Inhabited___closed__4);
+l_Lean_Compiler_SpecState_Inhabited___closed__5 = _init_l_Lean_Compiler_SpecState_Inhabited___closed__5();
+lean::mark_persistent(l_Lean_Compiler_SpecState_Inhabited___closed__5);
+l_Lean_Compiler_SpecState_Inhabited___closed__6 = _init_l_Lean_Compiler_SpecState_Inhabited___closed__6();
+lean::mark_persistent(l_Lean_Compiler_SpecState_Inhabited___closed__6);
 l_Lean_Compiler_SpecState_Inhabited = _init_l_Lean_Compiler_SpecState_Inhabited();
 lean::mark_persistent(l_Lean_Compiler_SpecState_Inhabited);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "SpecState"), "Inhabited"), l_Lean_Compiler_SpecState_Inhabited);
-l_Lean_SMap_insert___main___at_Lean_Compiler_SpecState_addEntry___spec__10___closed__1 = _init_l_Lean_SMap_insert___main___at_Lean_Compiler_SpecState_addEntry___spec__10___closed__1();
-lean::mark_persistent(l_Lean_SMap_insert___main___at_Lean_Compiler_SpecState_addEntry___spec__10___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "SpecState"), "addEntry"), 2, l_Lean_Compiler_SpecState_addEntry);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "SpecState"), "switch"), 1, l_Lean_Compiler_SpecState_switch);
 l_Lean_Compiler_mkSpecExtension___lambda__1___closed__1 = _init_l_Lean_Compiler_mkSpecExtension___lambda__1___closed__1();
 lean::mark_persistent(l_Lean_Compiler_mkSpecExtension___lambda__1___closed__1);
+l_Lean_Compiler_mkSpecExtension___lambda__1___closed__2 = _init_l_Lean_Compiler_mkSpecExtension___lambda__1___closed__2();
+lean::mark_persistent(l_Lean_Compiler_mkSpecExtension___lambda__1___closed__2);
+l_Lean_Compiler_mkSpecExtension___lambda__1___closed__3 = _init_l_Lean_Compiler_mkSpecExtension___lambda__1___closed__3();
+lean::mark_persistent(l_Lean_Compiler_mkSpecExtension___lambda__1___closed__3);
 l_Lean_Compiler_mkSpecExtension___closed__1 = _init_l_Lean_Compiler_mkSpecExtension___closed__1();
 lean::mark_persistent(l_Lean_Compiler_mkSpecExtension___closed__1);
+l_Lean_Compiler_mkSpecExtension___closed__2 = _init_l_Lean_Compiler_mkSpecExtension___closed__2();
+lean::mark_persistent(l_Lean_Compiler_mkSpecExtension___closed__2);
+l_Lean_Compiler_mkSpecExtension___closed__3 = _init_l_Lean_Compiler_mkSpecExtension___closed__3();
+lean::mark_persistent(l_Lean_Compiler_mkSpecExtension___closed__3);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "mkSpecExtension"), 1, l_Lean_Compiler_mkSpecExtension);
 l_Lean_Compiler_specExtension___elambda__4___closed__1 = _init_l_Lean_Compiler_specExtension___elambda__4___closed__1();
 lean::mark_persistent(l_Lean_Compiler_specExtension___elambda__4___closed__1);
+l_Lean_Compiler_specExtension___closed__1 = _init_l_Lean_Compiler_specExtension___closed__1();
+lean::mark_persistent(l_Lean_Compiler_specExtension___closed__1);
+l_Lean_Compiler_specExtension___closed__2 = _init_l_Lean_Compiler_specExtension___closed__2();
+lean::mark_persistent(l_Lean_Compiler_specExtension___closed__2);
+l_Lean_Compiler_specExtension___closed__3 = _init_l_Lean_Compiler_specExtension___closed__3();
+lean::mark_persistent(l_Lean_Compiler_specExtension___closed__3);
+l_Lean_Compiler_specExtension___closed__4 = _init_l_Lean_Compiler_specExtension___closed__4();
+lean::mark_persistent(l_Lean_Compiler_specExtension___closed__4);
+l_Lean_Compiler_specExtension___closed__5 = _init_l_Lean_Compiler_specExtension___closed__5();
+lean::mark_persistent(l_Lean_Compiler_specExtension___closed__5);
+l_Lean_Compiler_specExtension___closed__6 = _init_l_Lean_Compiler_specExtension___closed__6();
+lean::mark_persistent(l_Lean_Compiler_specExtension___closed__6);
+l_Lean_Compiler_specExtension___closed__7 = _init_l_Lean_Compiler_specExtension___closed__7();
+lean::mark_persistent(l_Lean_Compiler_specExtension___closed__7);
 w = l_Lean_Compiler_mkSpecExtension(w);
 if (io_result_is_error(w)) return w;
 l_Lean_Compiler_specExtension = io_result_get_value(w);

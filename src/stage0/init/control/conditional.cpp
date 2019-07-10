@@ -15,7 +15,6 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_bool___rarg___boxed(obj*, obj*, obj*, obj*);
-obj* l_id___rarg___boxed(obj*);
 obj* l_andM___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_bool___rarg(obj*, obj*, obj*, obj*);
 obj* l_orM___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*);
@@ -24,6 +23,7 @@ obj* l_Bool_HasToBool;
 obj* l_notM___boxed(obj*);
 obj* l_orM___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_Option_HasToBool___closed__1;
+extern obj* l_liftRefl___closed__1;
 obj* l_notM___rarg___closed__1;
 obj* l_Option_toBool___rarg___boxed(obj*);
 obj* l_andM___boxed(obj*, obj*);
@@ -42,7 +42,7 @@ obj* _init_l_Bool_HasToBool() {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_id___rarg___boxed), 1, 0);
+x_1 = l_liftRefl___closed__1;
 return x_1;
 }
 }

@@ -19,32 +19,43 @@ obj* l___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___main(obj*);
 obj* l_Lean_Compiler_atMostOnce_HasAndthen;
 obj* l_Lean_Compiler_atMostOnce_seq(obj*, obj*, obj*);
 uint8 l_String_isPrefixOf(obj*, obj*);
+obj* l_Lean_Compiler_mkLcProof___closed__3;
 extern "C" obj* lean_expr_mk_app(obj*, obj*);
 namespace lean {
 uint8 at_most_once_core(obj*, obj*);
 }
+obj* l_Lean_Compiler_atMostOnce_HasAndthen___closed__1;
 obj* l_Lean_Compiler_atMostOnce_visit___boxed(obj*, obj*, obj*);
+obj* l_Lean_Compiler_unreachableExpr___closed__2;
 uint8 l_Lean_Compiler_isEagerLambdaLiftingName___main(obj*);
 obj* l_Lean_Compiler_atMostOnce_visit___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_Compiler_atMostOnce_visitFVar___main(obj*, obj*, obj*);
 obj* l_Lean_Compiler_checkIsDefinition___closed__3;
 obj* l_Lean_Compiler_mkLcProof(obj*);
+obj* l_Lean_Compiler_objectType___closed__3;
 obj* l_Nat_repr(obj*);
+obj* l_Lean_Compiler_neutralExpr___closed__1;
 extern "C" obj* lean_expr_mk_const(obj*, obj*);
 obj* l_Lean_Compiler_objectType;
+obj* l_Lean_Compiler_neutralExpr___closed__3;
 namespace lean {
 obj* string_append(obj*, obj*);
 }
 obj* l_Lean_Compiler_atMostOnce___closed__1;
 obj* l_List_map___main___at___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___main___spec__1(obj*);
+obj* l_Lean_Compiler_objectType___closed__2;
 extern "C" obj* lean_name_mk_string(obj*, obj*);
 obj* l_Lean_Compiler_atMostOnce_visit___main(obj*, obj*, obj*);
 obj* l_Lean_Compiler_atMostOnce___boxed(obj*, obj*);
+obj* l_Lean_Compiler_objectType___closed__1;
 obj* l_Lean_Compiler_atMostOnce_visit(obj*, obj*, obj*);
+obj* l_Lean_Compiler_unreachableExpr___closed__3;
 obj* l_Lean_Compiler_isEagerLambdaLiftingName___main___closed__1;
 obj* l_Lean_Compiler_atMostOnce_visitFVar(obj*, obj*, obj*);
 obj* l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1;
 obj* l_Lean_Compiler_voidType;
+obj* l_Lean_Compiler_checkIsDefinition___closed__4;
+obj* l_Lean_Compiler_neutralExpr___closed__2;
 obj* l_Lean_Compiler_atMostOnce_skip(obj*);
 namespace lean {
 obj* environment_find_core(obj*, obj*);
@@ -53,87 +64,205 @@ namespace lean {
 obj* get_decl_names_for_code_gen_core(obj*);
 }
 obj* l_Lean_Compiler_atMostOnce_skip___boxed(obj*);
+obj* l_Lean_Compiler_unreachableExpr___closed__1;
 namespace lean {
 uint8 is_eager_lambda_lifting_name_core(obj*);
 }
 obj* l_Lean_Compiler_mkLcProof___closed__1;
 obj* l_Lean_Compiler_isEagerLambdaLiftingName___boxed(obj*);
+obj* l_Lean_Compiler_voidType___closed__2;
 obj* l_Lean_Compiler_checkIsDefinition___closed__1;
+obj* l_Lean_Compiler_mkLcProof___closed__2;
 obj* l_Lean_Compiler_checkIsDefinition___closed__2;
 obj* l_Lean_Compiler_checkIsDefinition(obj*, obj*);
 namespace lean {
 obj* mk_eager_lambda_lifting_name_core(obj*, obj*);
 }
+obj* l_Lean_Compiler_voidType___closed__1;
 obj* l_Lean_Compiler_neutralExpr;
+obj* l_Lean_Compiler_checkIsDefinition___closed__5;
 obj* l_Lean_Compiler_atMostOnce_visitFVar___boxed(obj*, obj*, obj*);
 obj* l_Lean_Compiler_unreachableExpr;
+obj* l_Lean_Compiler_voidType___closed__3;
 obj* l_Lean_Compiler_atMostOnce_visitFVar___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_Compiler_isEagerLambdaLiftingName___main___boxed(obj*);
+obj* _init_l_Lean_Compiler_neutralExpr___closed__1() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("_neutral");
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_neutralExpr___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_Compiler_neutralExpr___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Compiler_neutralExpr___closed__3() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_Compiler_neutralExpr___closed__2;
+x_3 = lean_expr_mk_const(x_2, x_1);
+return x_3;
+}
+}
 obj* _init_l_Lean_Compiler_neutralExpr() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
+obj* x_1; 
+x_1 = l_Lean_Compiler_neutralExpr___closed__3;
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_unreachableExpr___closed__1() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("_unreachable");
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_unreachableExpr___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::box(0);
-x_2 = lean::mk_string("_neutral");
+x_2 = l_Lean_Compiler_unreachableExpr___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::box(0);
-x_5 = lean_expr_mk_const(x_3, x_4);
-return x_5;
+return x_3;
+}
+}
+obj* _init_l_Lean_Compiler_unreachableExpr___closed__3() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_Compiler_unreachableExpr___closed__2;
+x_3 = lean_expr_mk_const(x_2, x_1);
+return x_3;
 }
 }
 obj* _init_l_Lean_Compiler_unreachableExpr() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
+obj* x_1; 
+x_1 = l_Lean_Compiler_unreachableExpr___closed__3;
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_objectType___closed__1() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("_obj");
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_objectType___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::box(0);
-x_2 = lean::mk_string("_unreachable");
+x_2 = l_Lean_Compiler_objectType___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::box(0);
-x_5 = lean_expr_mk_const(x_3, x_4);
-return x_5;
+return x_3;
+}
+}
+obj* _init_l_Lean_Compiler_objectType___closed__3() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_Compiler_objectType___closed__2;
+x_3 = lean_expr_mk_const(x_2, x_1);
+return x_3;
 }
 }
 obj* _init_l_Lean_Compiler_objectType() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
+obj* x_1; 
+x_1 = l_Lean_Compiler_objectType___closed__3;
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_voidType___closed__1() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("_void");
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_voidType___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::box(0);
-x_2 = lean::mk_string("_obj");
+x_2 = l_Lean_Compiler_voidType___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::box(0);
-x_5 = lean_expr_mk_const(x_3, x_4);
-return x_5;
+return x_3;
+}
+}
+obj* _init_l_Lean_Compiler_voidType___closed__3() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_Compiler_voidType___closed__2;
+x_3 = lean_expr_mk_const(x_2, x_1);
+return x_3;
 }
 }
 obj* _init_l_Lean_Compiler_voidType() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
-x_1 = lean::box(0);
-x_2 = lean::mk_string("_void");
-x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::box(0);
-x_5 = lean_expr_mk_const(x_3, x_4);
-return x_5;
+obj* x_1; 
+x_1 = l_Lean_Compiler_voidType___closed__3;
+return x_1;
 }
 }
 obj* _init_l_Lean_Compiler_mkLcProof___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
+obj* x_1; 
+x_1 = lean::mk_string("lcProof");
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_mkLcProof___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::box(0);
-x_2 = lean::mk_string("lcProof");
+x_2 = l_Lean_Compiler_mkLcProof___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::box(0);
-x_5 = lean_expr_mk_const(x_3, x_4);
-return x_5;
+return x_3;
+}
+}
+obj* _init_l_Lean_Compiler_mkLcProof___closed__3() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_Compiler_mkLcProof___closed__2;
+x_3 = lean_expr_mk_const(x_2, x_1);
+return x_3;
 }
 }
 obj* l_Lean_Compiler_mkLcProof(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = l_Lean_Compiler_mkLcProof___closed__1;
+x_2 = l_Lean_Compiler_mkLcProof___closed__3;
 x_3 = lean_expr_mk_app(x_2, x_1);
 return x_3;
 }
@@ -157,11 +286,19 @@ return x_6;
 }
 }
 }
-obj* _init_l_Lean_Compiler_atMostOnce_HasAndthen() {
+obj* _init_l_Lean_Compiler_atMostOnce_HasAndthen___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Compiler_atMostOnce_seq), 3, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_atMostOnce_HasAndthen() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_Compiler_atMostOnce_HasAndthen___closed__1;
 return x_1;
 }
 }
@@ -911,24 +1048,40 @@ return x_2;
 obj* _init_l_Lean_Compiler_checkIsDefinition___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; 
+obj* x_1; 
 x_1 = lean::mk_string("unknow declaration");
-x_2 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
-return x_2;
+return x_1;
 }
 }
 obj* _init_l_Lean_Compiler_checkIsDefinition___closed__2() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = lean::mk_string("declaration is not a definition");
+x_1 = l_Lean_Compiler_checkIsDefinition___closed__1;
 x_2 = lean::alloc_cnstr(0, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
 obj* _init_l_Lean_Compiler_checkIsDefinition___closed__3() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("declaration is not a definition");
+return x_1;
+}
+}
+obj* _init_l_Lean_Compiler_checkIsDefinition___closed__4() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = l_Lean_Compiler_checkIsDefinition___closed__3;
+x_2 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_Compiler_checkIsDefinition___closed__5() {
 _start:
 {
 obj* x_1; obj* x_2; 
@@ -946,7 +1099,7 @@ x_3 = lean::environment_find_core(x_1, x_2);
 if (lean::obj_tag(x_3) == 0)
 {
 obj* x_4; 
-x_4 = l_Lean_Compiler_checkIsDefinition___closed__1;
+x_4 = l_Lean_Compiler_checkIsDefinition___closed__2;
 return x_4;
 }
 else
@@ -959,14 +1112,14 @@ if (lean::obj_tag(x_5) == 1)
 {
 obj* x_6; 
 lean::dec(x_5);
-x_6 = l_Lean_Compiler_checkIsDefinition___closed__3;
+x_6 = l_Lean_Compiler_checkIsDefinition___closed__5;
 return x_6;
 }
 else
 {
 obj* x_7; 
 lean::dec(x_5);
-x_7 = l_Lean_Compiler_checkIsDefinition___closed__2;
+x_7 = l_Lean_Compiler_checkIsDefinition___closed__4;
 return x_7;
 }
 }
@@ -980,22 +1133,52 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_environment(w);
 if (io_result_is_error(w)) return w;
+l_Lean_Compiler_neutralExpr___closed__1 = _init_l_Lean_Compiler_neutralExpr___closed__1();
+lean::mark_persistent(l_Lean_Compiler_neutralExpr___closed__1);
+l_Lean_Compiler_neutralExpr___closed__2 = _init_l_Lean_Compiler_neutralExpr___closed__2();
+lean::mark_persistent(l_Lean_Compiler_neutralExpr___closed__2);
+l_Lean_Compiler_neutralExpr___closed__3 = _init_l_Lean_Compiler_neutralExpr___closed__3();
+lean::mark_persistent(l_Lean_Compiler_neutralExpr___closed__3);
 l_Lean_Compiler_neutralExpr = _init_l_Lean_Compiler_neutralExpr();
 lean::mark_persistent(l_Lean_Compiler_neutralExpr);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "neutralExpr"), l_Lean_Compiler_neutralExpr);
+l_Lean_Compiler_unreachableExpr___closed__1 = _init_l_Lean_Compiler_unreachableExpr___closed__1();
+lean::mark_persistent(l_Lean_Compiler_unreachableExpr___closed__1);
+l_Lean_Compiler_unreachableExpr___closed__2 = _init_l_Lean_Compiler_unreachableExpr___closed__2();
+lean::mark_persistent(l_Lean_Compiler_unreachableExpr___closed__2);
+l_Lean_Compiler_unreachableExpr___closed__3 = _init_l_Lean_Compiler_unreachableExpr___closed__3();
+lean::mark_persistent(l_Lean_Compiler_unreachableExpr___closed__3);
 l_Lean_Compiler_unreachableExpr = _init_l_Lean_Compiler_unreachableExpr();
 lean::mark_persistent(l_Lean_Compiler_unreachableExpr);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "unreachableExpr"), l_Lean_Compiler_unreachableExpr);
+l_Lean_Compiler_objectType___closed__1 = _init_l_Lean_Compiler_objectType___closed__1();
+lean::mark_persistent(l_Lean_Compiler_objectType___closed__1);
+l_Lean_Compiler_objectType___closed__2 = _init_l_Lean_Compiler_objectType___closed__2();
+lean::mark_persistent(l_Lean_Compiler_objectType___closed__2);
+l_Lean_Compiler_objectType___closed__3 = _init_l_Lean_Compiler_objectType___closed__3();
+lean::mark_persistent(l_Lean_Compiler_objectType___closed__3);
 l_Lean_Compiler_objectType = _init_l_Lean_Compiler_objectType();
 lean::mark_persistent(l_Lean_Compiler_objectType);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "objectType"), l_Lean_Compiler_objectType);
+l_Lean_Compiler_voidType___closed__1 = _init_l_Lean_Compiler_voidType___closed__1();
+lean::mark_persistent(l_Lean_Compiler_voidType___closed__1);
+l_Lean_Compiler_voidType___closed__2 = _init_l_Lean_Compiler_voidType___closed__2();
+lean::mark_persistent(l_Lean_Compiler_voidType___closed__2);
+l_Lean_Compiler_voidType___closed__3 = _init_l_Lean_Compiler_voidType___closed__3();
+lean::mark_persistent(l_Lean_Compiler_voidType___closed__3);
 l_Lean_Compiler_voidType = _init_l_Lean_Compiler_voidType();
 lean::mark_persistent(l_Lean_Compiler_voidType);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "voidType"), l_Lean_Compiler_voidType);
 l_Lean_Compiler_mkLcProof___closed__1 = _init_l_Lean_Compiler_mkLcProof___closed__1();
 lean::mark_persistent(l_Lean_Compiler_mkLcProof___closed__1);
+l_Lean_Compiler_mkLcProof___closed__2 = _init_l_Lean_Compiler_mkLcProof___closed__2();
+lean::mark_persistent(l_Lean_Compiler_mkLcProof___closed__2);
+l_Lean_Compiler_mkLcProof___closed__3 = _init_l_Lean_Compiler_mkLcProof___closed__3();
+lean::mark_persistent(l_Lean_Compiler_mkLcProof___closed__3);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "mkLcProof"), 1, l_Lean_Compiler_mkLcProof);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "atMostOnce"), "seq"), 3, l_Lean_Compiler_atMostOnce_seq);
+l_Lean_Compiler_atMostOnce_HasAndthen___closed__1 = _init_l_Lean_Compiler_atMostOnce_HasAndthen___closed__1();
+lean::mark_persistent(l_Lean_Compiler_atMostOnce_HasAndthen___closed__1);
 l_Lean_Compiler_atMostOnce_HasAndthen = _init_l_Lean_Compiler_atMostOnce_HasAndthen();
 lean::mark_persistent(l_Lean_Compiler_atMostOnce_HasAndthen);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "atMostOnce"), "HasAndthen"), l_Lean_Compiler_atMostOnce_HasAndthen);
@@ -1017,6 +1200,10 @@ l_Lean_Compiler_checkIsDefinition___closed__2 = _init_l_Lean_Compiler_checkIsDef
 lean::mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__2);
 l_Lean_Compiler_checkIsDefinition___closed__3 = _init_l_Lean_Compiler_checkIsDefinition___closed__3();
 lean::mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__3);
+l_Lean_Compiler_checkIsDefinition___closed__4 = _init_l_Lean_Compiler_checkIsDefinition___closed__4();
+lean::mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__4);
+l_Lean_Compiler_checkIsDefinition___closed__5 = _init_l_Lean_Compiler_checkIsDefinition___closed__5();
+lean::mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__5);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "checkIsDefinition"), 2, l_Lean_Compiler_checkIsDefinition);
 return w;
 }

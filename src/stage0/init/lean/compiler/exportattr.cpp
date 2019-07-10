@@ -16,7 +16,6 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #endif
 obj* l_Lean_attrParamSyntaxToIdentifier(obj*);
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
-obj* l_Lean_AttributeImpl_inhabited___lambda__4___boxed(obj*, obj*, obj*);
 extern obj* l_Array_empty___closed__1;
 namespace lean {
 obj* nat_sub(obj*, obj*);
@@ -24,28 +23,28 @@ obj* nat_sub(obj*, obj*);
 obj* l_Lean_mkExportAttr___closed__2;
 obj* l_Lean_registerParametricAttribute___at_Lean_mkExportAttr___spec__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_mkExportAttr___closed__4;
-obj* l_Lean_AttributeImpl_inhabited___lambda__3___boxed(obj*, obj*, obj*, obj*);
 namespace lean {
 obj* get_export_name_for_core(obj*, obj*);
 }
+extern obj* l_Lean_AttributeImpl_inhabited___closed__5;
 obj* l_Lean_mkExportAttr___lambda__1(obj*, obj*, obj*);
-obj* l_Lean_PersistentEnvExtension_inhabited___rarg___lambda__1___boxed(obj*);
+uint8 l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__2;
 uint8 l_Lean_isExport(obj*, obj*);
 obj* l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__1___boxed(obj*, obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_getExportNameFor___spec__2(obj*, obj*);
 obj* l___private_init_lean_compiler_exportattr_2__isValidCppName___main___boxed(obj*);
 obj* l_Lean_registerAttribute(obj*, obj*);
+obj* l_Lean_mkExportAttr___closed__5;
 uint8 l_Char_isAlpha(uint32);
 extern obj* l_Lean_Inhabited;
 obj* l_Lean_mkExportAttr___lambda__1___boxed(obj*, obj*, obj*);
 extern obj* l_Lean_registerParametricAttribute___rarg___closed__1;
-obj* l_Array_mkEmpty(obj*, obj*);
 obj* l_Lean_mkExportAttr(obj*);
 obj* l_Array_swap(obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_exportattr_2__isValidCppName___boxed(obj*);
+extern obj* l_Lean_AttributeImpl_inhabited___closed__4;
 uint8 l___private_init_lean_compiler_exportattr_2__isValidCppName(obj*);
 obj* l_Lean_mkExportAttr___closed__1;
-obj* l_Lean_AttributeImpl_inhabited___lambda__5(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_getState___rarg(obj*, obj*);
 obj* l_Lean_registerParametricAttribute___at_Lean_mkExportAttr___spec__1___lambda__1___boxed(obj*);
 obj* l_Lean_Environment_getModuleIdxFor(obj*, obj*);
@@ -56,8 +55,8 @@ namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
 obj* l_Lean_registerParametricAttribute___at_Lean_mkExportAttr___spec__1___lambda__1(obj*);
-extern obj* l_Lean_registerTagAttribute___closed__6;
-obj* l_Lean_AttributeImpl_inhabited___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*);
+extern obj* l_Substring_drop___main___closed__1;
+extern obj* l_Lean_ParametricAttribute_Inhabited___closed__1;
 extern "C" obj* lean_name_mk_string(obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
@@ -67,7 +66,6 @@ namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_RBNode_fold___main___at_Lean_mkExportAttr___spec__2(obj*, obj*);
-obj* l_ExceptT_Monad___rarg___lambda__8___boxed(obj*, obj*);
 uint8 l___private_init_lean_compiler_exportattr_2__isValidCppName___main(obj*);
 obj* l_Array_push(obj*, obj*, obj*);
 obj* l_Lean_ParametricAttribute_getParam___at_Lean_getExportNameFor___spec__1___boxed(obj*, obj*, obj*);
@@ -86,14 +84,12 @@ obj* l_Lean_registerTagAttribute___lambda__7___boxed(obj*, obj*, obj*, obj*, obj
 obj* l_Lean_exportAttr;
 uint8 l_Lean_Name_quickLt(obj*, obj*);
 obj* l_Array_binSearchAux___main___at_Lean_getExportNameFor___spec__3___boxed(obj*, obj*, obj*, obj*);
-obj* l_Lean_PersistentEnvExtension_inhabited___rarg___lambda__2___boxed(obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Array_get(obj*, obj*, obj*, obj*);
 namespace lean {
 obj* string_utf8_next(obj*, obj*);
 }
 uint8 l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__1;
-extern obj* l_Lean_registerTagAttribute___closed__5;
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkExportAttr___spec__4___closed__1;
 namespace lean {
 uint8 nat_dec_le(obj*, obj*);
@@ -107,7 +103,7 @@ namespace lean {
 obj* nat_div(obj*, obj*);
 }
 obj* l_Array_qsortAux___main___at_Lean_mkExportAttr___spec__3(obj*, obj*, obj*);
-obj* l_Lean_AttributeImpl_inhabited___lambda__2___boxed(obj*, obj*, obj*, obj*);
+obj* l_Lean_mkExportAttr___lambda__1___closed__3;
 obj* l_RBNode_fold___main___at_Lean_mkExportAttr___spec__2___boxed(obj*, obj*);
 obj* l_Lean_mkExportAttr___closed__3;
 obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg(obj*, obj*);
@@ -115,9 +111,11 @@ uint8 l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isV
 obj* l_Lean_ParametricAttribute_getParam___at_Lean_getExportNameFor___spec__1(obj*, obj*, obj*);
 obj* l_Array_qsortAux___main___at_Lean_mkExportAttr___spec__3___boxed(obj*, obj*, obj*);
 extern obj* l_Lean_registerTagAttribute___closed__1;
+obj* l_Lean_mkExportAttr___lambda__1___closed__4;
 obj* l_Lean_isExport___boxed(obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkExportAttr___spec__4___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_registerTagAttribute___lambda__6___boxed(obj*, obj*, obj*, obj*, obj*);
+extern obj* l_String_splitAux___main___closed__1;
 obj* l_Array_binSearchAux___main___at_Lean_getExportNameFor___spec__3(obj*, obj*, obj*, obj*);
 uint8 l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__1(obj* x_1, obj* x_2, obj* x_3) {
 _start:
@@ -185,23 +183,29 @@ uint8 _init_l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; uint8 x_4; 
-x_1 = lean::mk_string("");
-x_2 = lean::string_utf8_byte_size(x_1);
+x_1 = l_String_splitAux___main___closed__1;
+x_2 = l_Substring_drop___main___closed__1;
 x_3 = lean::mk_nat_obj(0u);
 x_4 = l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__1(x_1, x_2, x_3);
-lean::dec(x_2);
-lean::dec(x_1);
-if (x_4 == 0)
+return x_4;
+}
+}
+uint8 _init_l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__2() {
+_start:
 {
-uint8 x_5; 
-x_5 = 1;
-return x_5;
+uint8 x_1; 
+x_1 = l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__1;
+if (x_1 == 0)
+{
+uint8 x_2; 
+x_2 = 1;
+return x_2;
 }
 else
 {
-uint8 x_6; 
-x_6 = 0;
-return x_6;
+uint8 x_3; 
+x_3 = 0;
+return x_3;
 }
 }
 }
@@ -246,7 +250,7 @@ else
 {
 uint8 x_12; 
 lean::dec(x_6);
-x_12 = l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__1;
+x_12 = l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__2;
 return x_12;
 }
 }
@@ -667,8 +671,8 @@ lean::closure_set(x_16, 0, x_1);
 lean::inc(x_1);
 x_17 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__7___boxed), 5, 1);
 lean::closure_set(x_17, 0, x_1);
-x_18 = l_Lean_registerTagAttribute___closed__5;
-x_19 = l_Lean_registerTagAttribute___closed__6;
+x_18 = l_Lean_AttributeImpl_inhabited___closed__4;
+x_19 = l_Lean_AttributeImpl_inhabited___closed__5;
 x_20 = 0;
 x_21 = lean::alloc_cnstr(0, 8, 1);
 lean::cnstr_set(x_21, 0, x_1);
@@ -762,8 +766,8 @@ lean::closure_set(x_38, 0, x_1);
 lean::inc(x_1);
 x_39 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__7___boxed), 5, 1);
 lean::closure_set(x_39, 0, x_1);
-x_40 = l_Lean_registerTagAttribute___closed__5;
-x_41 = l_Lean_registerTagAttribute___closed__6;
+x_40 = l_Lean_AttributeImpl_inhabited___closed__4;
+x_41 = l_Lean_AttributeImpl_inhabited___closed__5;
 x_42 = 0;
 x_43 = lean::alloc_cnstr(0, 8, 1);
 lean::cnstr_set(x_43, 0, x_1);
@@ -861,18 +865,34 @@ return x_56;
 obj* _init_l_Lean_mkExportAttr___lambda__1___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; 
+obj* x_1; 
 x_1 = lean::mk_string("unexpected kind of argument");
-x_2 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
-return x_2;
+return x_1;
 }
 }
 obj* _init_l_Lean_mkExportAttr___lambda__1___closed__2() {
 _start:
 {
 obj* x_1; obj* x_2; 
+x_1 = l_Lean_mkExportAttr___lambda__1___closed__1;
+x_2 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_mkExportAttr___lambda__1___closed__3() {
+_start:
+{
+obj* x_1; 
 x_1 = lean::mk_string("invalid 'export' function name, is not a valid C++ identifier");
+return x_1;
+}
+}
+obj* _init_l_Lean_mkExportAttr___lambda__1___closed__4() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = l_Lean_mkExportAttr___lambda__1___closed__3;
 x_2 = lean::alloc_cnstr(0, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
@@ -886,7 +906,7 @@ x_4 = l_Lean_attrParamSyntaxToIdentifier(x_3);
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_5; 
-x_5 = l_Lean_mkExportAttr___lambda__1___closed__1;
+x_5 = l_Lean_mkExportAttr___lambda__1___closed__2;
 return x_5;
 }
 else
@@ -900,7 +920,7 @@ if (x_7 == 0)
 {
 obj* x_8; 
 lean::dec(x_6);
-x_8 = l_Lean_mkExportAttr___lambda__1___closed__2;
+x_8 = l_Lean_mkExportAttr___lambda__1___closed__4;
 return x_8;
 }
 else
@@ -925,14 +945,22 @@ return x_4;
 obj* _init_l_Lean_mkExportAttr___closed__1() {
 _start:
 {
+obj* x_1; 
+x_1 = lean::mk_string("export");
+return x_1;
+}
+}
+obj* _init_l_Lean_mkExportAttr___closed__2() {
+_start:
+{
 obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::box(0);
-x_2 = lean::mk_string("export");
+x_2 = l_Lean_mkExportAttr___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-obj* _init_l_Lean_mkExportAttr___closed__2() {
+obj* _init_l_Lean_mkExportAttr___closed__3() {
 _start:
 {
 obj* x_1; 
@@ -940,7 +968,7 @@ x_1 = lean::mk_string("name to be used by code generators");
 return x_1;
 }
 }
-obj* _init_l_Lean_mkExportAttr___closed__3() {
+obj* _init_l_Lean_mkExportAttr___closed__4() {
 _start:
 {
 obj* x_1; 
@@ -948,7 +976,7 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_mkExportAttr___lambda__
 return x_1;
 }
 }
-obj* _init_l_Lean_mkExportAttr___closed__4() {
+obj* _init_l_Lean_mkExportAttr___closed__5() {
 _start:
 {
 obj* x_1; 
@@ -960,10 +988,10 @@ obj* l_Lean_mkExportAttr(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
-x_2 = l_Lean_mkExportAttr___closed__1;
-x_3 = l_Lean_mkExportAttr___closed__2;
-x_4 = l_Lean_mkExportAttr___closed__3;
-x_5 = l_Lean_mkExportAttr___closed__4;
+x_2 = l_Lean_mkExportAttr___closed__2;
+x_3 = l_Lean_mkExportAttr___closed__3;
+x_4 = l_Lean_mkExportAttr___closed__4;
+x_5 = l_Lean_mkExportAttr___closed__5;
 x_6 = l_Lean_registerParametricAttribute___at_Lean_mkExportAttr___spec__1(x_2, x_3, x_4, x_5, x_1);
 return x_6;
 }
@@ -1308,6 +1336,7 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_attributes(w);
 if (io_result_is_error(w)) return w;
 l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__1 = _init_l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__1();
+l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__2 = _init_l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__2();
 l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkExportAttr___spec__4___closed__1 = _init_l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkExportAttr___spec__4___closed__1();
 lean::mark_persistent(l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkExportAttr___spec__4___closed__1);
 l_Lean_registerParametricAttribute___at_Lean_mkExportAttr___spec__1___closed__1 = _init_l_Lean_registerParametricAttribute___at_Lean_mkExportAttr___spec__1___closed__1();
@@ -1316,6 +1345,10 @@ l_Lean_mkExportAttr___lambda__1___closed__1 = _init_l_Lean_mkExportAttr___lambda
 lean::mark_persistent(l_Lean_mkExportAttr___lambda__1___closed__1);
 l_Lean_mkExportAttr___lambda__1___closed__2 = _init_l_Lean_mkExportAttr___lambda__1___closed__2();
 lean::mark_persistent(l_Lean_mkExportAttr___lambda__1___closed__2);
+l_Lean_mkExportAttr___lambda__1___closed__3 = _init_l_Lean_mkExportAttr___lambda__1___closed__3();
+lean::mark_persistent(l_Lean_mkExportAttr___lambda__1___closed__3);
+l_Lean_mkExportAttr___lambda__1___closed__4 = _init_l_Lean_mkExportAttr___lambda__1___closed__4();
+lean::mark_persistent(l_Lean_mkExportAttr___lambda__1___closed__4);
 l_Lean_mkExportAttr___closed__1 = _init_l_Lean_mkExportAttr___closed__1();
 lean::mark_persistent(l_Lean_mkExportAttr___closed__1);
 l_Lean_mkExportAttr___closed__2 = _init_l_Lean_mkExportAttr___closed__2();
@@ -1324,6 +1357,8 @@ l_Lean_mkExportAttr___closed__3 = _init_l_Lean_mkExportAttr___closed__3();
 lean::mark_persistent(l_Lean_mkExportAttr___closed__3);
 l_Lean_mkExportAttr___closed__4 = _init_l_Lean_mkExportAttr___closed__4();
 lean::mark_persistent(l_Lean_mkExportAttr___closed__4);
+l_Lean_mkExportAttr___closed__5 = _init_l_Lean_mkExportAttr___closed__5();
+lean::mark_persistent(l_Lean_mkExportAttr___closed__5);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkExportAttr"), 1, l_Lean_mkExportAttr);
 w = l_Lean_mkExportAttr(w);
 if (io_result_is_error(w)) return w;

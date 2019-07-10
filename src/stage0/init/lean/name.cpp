@@ -49,6 +49,7 @@ obj* l_Lean_Name_append(obj*, obj*);
 obj* l_RBNode_insert___at_Lean_NameSet_insert___spec__1(obj*, obj*, obj*);
 extern "C" usize lean_name_hash_usize(obj*);
 uint8 l_Lean_Name_quickLtCore(obj*, obj*);
+obj* l_Lean_Name_HasAppend___closed__1;
 obj* l_Lean_Name_DecidableRel___boxed(obj*, obj*);
 obj* l_Lean_Name_append___main___boxed(obj*, obj*);
 obj* l_Lean_Name_components_x27(obj*);
@@ -70,6 +71,7 @@ obj* l_Lean_Name_getPrefix(obj*);
 obj* l_Lean_Name_appendIndexAfter(obj*, obj*);
 extern "C" obj* lean_name_mk_string(obj*, obj*);
 obj* l_Lean_mkNameSet;
+obj* l_Lean_Name_DecidableEq___closed__1;
 uint8 l_Lean_NameMap_contains___rarg(obj*, obj*);
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
@@ -89,6 +91,7 @@ uint8 string_dec_eq(obj*, obj*);
 uint8 l_UInt32_decEq(uint32, uint32);
 obj* l_Lean_mkNameMap(obj*);
 obj* l_Lean_Name_getPrefix___boxed(obj*);
+obj* l_Lean_Name_Hashable___closed__1;
 obj* l_Lean_NameMap_contains(obj*);
 obj* l_Lean_Name_updatePrefix___main(obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_NameMap_contains___spec__1(obj*);
@@ -117,6 +120,7 @@ obj* l_Lean_Name_components_x27___main(obj*);
 uint8 l_Lean_Name_DecidableRel(obj*, obj*);
 obj* l_Lean_Name_toString___closed__1;
 obj* l_RBNode_find___main___at_Lean_NameMap_find___spec__1___rarg___boxed(obj*, obj*);
+obj* l_Lean_stringToName___closed__1;
 obj* l_Lean_Name_replacePrefix(obj*, obj*, obj*);
 obj* l_Lean_Name_getPrefix___main___boxed(obj*);
 uint8 l_Lean_Name_isPrefixOf___main(obj*, obj*);
@@ -133,6 +137,7 @@ obj* l_Lean_Name_quickLtCore___main___boxed(obj*, obj*);
 obj* l_RBNode_insert___at_Lean_NameMap_insert___spec__1(obj*);
 obj* l_Lean_Name_toStringWithSep___boxed(obj*, obj*);
 obj* l_Lean_mkNumName(obj*, obj*);
+obj* l_Lean_Name_HasToString___closed__1;
 uint8 l_Lean_Name_isInternal(obj*);
 obj* l_Lean_Name_toString(obj*);
 obj* l_RBNode_ins___main___at_Lean_NameSet_insert___spec__2(obj*, obj*, obj*);
@@ -188,11 +193,19 @@ x_3 = lean_name_mk_string(x_2, x_1);
 return x_3;
 }
 }
-obj* _init_l_Lean_stringToName() {
+obj* _init_l_Lean_stringToName___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_mkSimpleName), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_stringToName() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_stringToName___closed__1;
 return x_1;
 }
 }
@@ -205,11 +218,19 @@ x_3 = lean::box_size_t(x_2);
 return x_3;
 }
 }
-obj* _init_l_Lean_Name_Hashable() {
+obj* _init_l_Lean_Name_Hashable___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Name_hash___boxed), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Name_Hashable() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_Name_Hashable___closed__1;
 return x_1;
 }
 }
@@ -364,11 +385,19 @@ x_4 = lean::box(x_3);
 return x_4;
 }
 }
-obj* _init_l_Lean_Name_DecidableEq() {
+obj* _init_l_Lean_Name_DecidableEq___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Name_decEq___boxed), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Name_DecidableEq() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_Name_DecidableEq___closed__1;
 return x_1;
 }
 }
@@ -434,11 +463,19 @@ lean::dec(x_1);
 return x_3;
 }
 }
-obj* _init_l_Lean_Name_HasAppend() {
+obj* _init_l_Lean_Name_HasAppend___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Name_append___boxed), 2, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Name_HasAppend() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_Name_HasAppend___closed__1;
 return x_1;
 }
 }
@@ -935,11 +972,19 @@ x_3 = l_Lean_Name_toStringWithSep___main(x_2, x_1);
 return x_3;
 }
 }
-obj* _init_l_Lean_Name_HasToString() {
+obj* _init_l_Lean_Name_HasToString___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Name_toString), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_Lean_Name_HasToString() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_Name_HasToString___closed__1;
 return x_1;
 }
 }
@@ -8876,10 +8921,14 @@ lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "Inhabi
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkStrName"), 2, l_Lean_mkStrName);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkNumName"), 2, l_Lean_mkNumName);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkSimpleName"), 1, l_Lean_mkSimpleName);
+l_Lean_stringToName___closed__1 = _init_l_Lean_stringToName___closed__1();
+lean::mark_persistent(l_Lean_stringToName___closed__1);
 l_Lean_stringToName = _init_l_Lean_stringToName();
 lean::mark_persistent(l_Lean_stringToName);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "stringToName"), l_Lean_stringToName);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Name"), "hash"), 1, l_Lean_Name_hash___boxed);
+l_Lean_Name_Hashable___closed__1 = _init_l_Lean_Name_Hashable___closed__1();
+lean::mark_persistent(l_Lean_Name_Hashable___closed__1);
 l_Lean_Name_Hashable = _init_l_Lean_Name_Hashable();
 lean::mark_persistent(l_Lean_Name_Hashable);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Name"), "Hashable"), l_Lean_Name_Hashable);
@@ -8888,10 +8937,14 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_na
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Name"), "components'"), 1, l_Lean_Name_components_x27);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Name"), "components"), 1, l_Lean_Name_components);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Name"), "decEq"), 2, l_Lean_Name_decEq___boxed);
+l_Lean_Name_DecidableEq___closed__1 = _init_l_Lean_Name_DecidableEq___closed__1();
+lean::mark_persistent(l_Lean_Name_DecidableEq___closed__1);
 l_Lean_Name_DecidableEq = _init_l_Lean_Name_DecidableEq();
 lean::mark_persistent(l_Lean_Name_DecidableEq);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Name"), "DecidableEq"), l_Lean_Name_DecidableEq);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Name"), "append"), 2, l_Lean_Name_append___boxed);
+l_Lean_Name_HasAppend___closed__1 = _init_l_Lean_Name_HasAppend___closed__1();
+lean::mark_persistent(l_Lean_Name_HasAppend___closed__1);
 l_Lean_Name_HasAppend = _init_l_Lean_Name_HasAppend();
 lean::mark_persistent(l_Lean_Name_HasAppend);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Name"), "HasAppend"), l_Lean_Name_HasAppend);
@@ -8909,6 +8962,8 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_na
 l_Lean_Name_toString___closed__1 = _init_l_Lean_Name_toString___closed__1();
 lean::mark_persistent(l_Lean_Name_toString___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Name"), "toString"), 1, l_Lean_Name_toString);
+l_Lean_Name_HasToString___closed__1 = _init_l_Lean_Name_HasToString___closed__1();
+lean::mark_persistent(l_Lean_Name_HasToString___closed__1);
 l_Lean_Name_HasToString = _init_l_Lean_Name_HasToString();
 lean::mark_persistent(l_Lean_Name_HasToString);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Name"), "HasToString"), l_Lean_Name_HasToString);

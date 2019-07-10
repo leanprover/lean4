@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+obj* l_String_Hashable___closed__1;
 obj* l_String_Hashable;
 usize l_Nat_hash(obj*);
 namespace lean {
@@ -29,6 +30,7 @@ namespace lean {
 usize usize_of_nat(obj*);
 }
 obj* l_Nat_hash___boxed(obj*);
+obj* l_Nat_Hashable___closed__1;
 obj* l_mixHash___boxed(obj* x_1, obj* x_2) {
 _start:
 {
@@ -49,11 +51,19 @@ x_3 = lean::box_size_t(x_2);
 return x_3;
 }
 }
-obj* _init_l_String_Hashable() {
+obj* _init_l_String_Hashable___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_String_hash___boxed), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_String_Hashable() {
+_start:
+{
+obj* x_1; 
+x_1 = l_String_Hashable___closed__1;
 return x_1;
 }
 }
@@ -75,11 +85,19 @@ x_3 = lean::box_size_t(x_2);
 return x_3;
 }
 }
-obj* _init_l_Nat_Hashable() {
+obj* _init_l_Nat_Hashable___closed__1() {
 _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_hash___boxed), 1, 0);
+return x_1;
+}
+}
+obj* _init_l_Nat_Hashable() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Nat_Hashable___closed__1;
 return x_1;
 }
 }
@@ -96,10 +114,14 @@ w = initialize_init_data_string_default(w);
 if (io_result_is_error(w)) return w;
 REGISTER_LEAN_FUNCTION(lean::mk_const_name("mixHash"), 2, l_mixHash___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "hash"), 1, l_String_hash___boxed);
+l_String_Hashable___closed__1 = _init_l_String_Hashable___closed__1();
+lean::mark_persistent(l_String_Hashable___closed__1);
 l_String_Hashable = _init_l_String_Hashable();
 lean::mark_persistent(l_String_Hashable);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("String"), "Hashable"), l_String_Hashable);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "hash"), 1, l_Nat_hash___boxed);
+l_Nat_Hashable___closed__1 = _init_l_Nat_Hashable___closed__1();
+lean::mark_persistent(l_Nat_Hashable___closed__1);
 l_Nat_Hashable = _init_l_Nat_Hashable();
 lean::mark_persistent(l_Nat_Hashable);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Nat"), "Hashable"), l_Nat_Hashable);

@@ -15,27 +15,40 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 uint8 l_Lean_ElaboratorStrategy_inhabited;
+obj* l_Lean_mkElaboratorStrategyAttrs___closed__10;
+obj* l_Lean_mkElaboratorStrategyAttrs___closed__19;
 extern obj* l_Array_empty___closed__1;
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
+obj* l_Lean_mkElaboratorStrategyAttrs___closed__9;
+extern obj* l_Lean_AttributeImpl_inhabited___closed__5;
 extern obj* l_Lean_registerTagAttribute___lambda__5___closed__1;
-obj* l_Lean_PersistentEnvExtension_inhabited___rarg___lambda__1___boxed(obj*);
 obj* l_Array_qsortAux___main___at_Lean_mkElaboratorStrategyAttrs___spec__3___boxed(obj*, obj*, obj*);
+obj* l_Lean_mkElaboratorStrategyAttrs___closed__16;
 obj* l_RBNode_fold___main___at_Lean_mkElaboratorStrategyAttrs___spec__2___boxed(obj*, obj*);
+obj* l_Lean_mkElaboratorStrategyAttrs___closed__6;
+obj* l_Lean_mkElaboratorStrategyAttrs___closed__4;
 obj* l_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2___boxed(obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkElaboratorStrategyAttrs___spec__4(obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_mkElaboratorStrategyAttrs___closed__13;
 obj* l_Lean_EnumAttributes_getValue___at_Lean_getElaboratorStrategy___spec__1___boxed(obj*, obj*, obj*);
 obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
 obj* l_Lean_mkElaboratorStrategyAttrs___lambda__1(obj*, obj*, uint8);
+obj* l_Lean_mkElaboratorStrategyAttrs___closed__8;
 extern obj* l_Lean_Inhabited;
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkElaboratorStrategyAttrs___spec__4___boxed(obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_mkElaboratorStrategyAttrs___closed__14;
+obj* l_Lean_mkElaboratorStrategyAttrs___closed__12;
+obj* l_Lean_mkElaboratorStrategyAttrs___closed__7;
 obj* l_RBNode_fold___main___at_Lean_mkElaboratorStrategyAttrs___spec__2(obj*, obj*);
-obj* l_Array_mkEmpty(obj*, obj*);
 obj* l_Lean_mkElaboratorStrategyAttrs___closed__3;
 extern obj* l_Lean_registerEnumAttributes___rarg___closed__1;
 obj* l_Array_swap(obj*, obj*, obj*, obj*);
+extern obj* l_Lean_AttributeImpl_inhabited___closed__4;
+extern obj* l_Lean_EnumAttributes_Inhabited___closed__1;
 obj* l_List_map___main___at_Lean_mkElaboratorStrategyAttrs___spec__5___lambda__1(obj*, obj*, uint8, obj*, obj*, obj*, obj*, uint8, obj*);
+obj* l_Lean_mkElaboratorStrategyAttrs___closed__15;
 obj* l_Lean_PersistentEnvExtension_getState___rarg(obj*, obj*);
 obj* l_Array_qsortAux___main___at_Lean_mkElaboratorStrategyAttrs___spec__3(obj*, obj*, obj*);
 obj* l_Lean_Environment_getModuleIdxFor(obj*, obj*);
@@ -43,11 +56,11 @@ namespace lean {
 obj* string_append(obj*, obj*);
 }
 obj* l_Lean_mkElaboratorStrategyAttrs___closed__2;
+obj* l_Lean_mkElaboratorStrategyAttrs___closed__17;
 obj* l_List_mfor___main___at_Lean_registerEnumAttributes___spec__8(obj*, obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
-extern obj* l_Lean_registerTagAttribute___closed__6;
 extern obj* l_Lean_registerTagAttribute___lambda__5___closed__4;
 obj* l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(obj*, obj*, obj*);
 extern "C" obj* lean_name_mk_string(obj*, obj*);
@@ -62,7 +75,6 @@ extern obj* l_Lean_registerTagAttribute___lambda__5___closed__5;
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
-obj* l_ExceptT_Monad___rarg___lambda__8___boxed(obj*, obj*);
 obj* l_Lean_registerEnumAttributes___at_Lean_mkElaboratorStrategyAttrs___spec__1___lambda__2(obj*);
 obj* l_Array_push(obj*, obj*, obj*);
 obj* l_List_map___main___at_Lean_mkElaboratorStrategyAttrs___spec__5(obj*, obj*, obj*);
@@ -70,21 +82,23 @@ obj* l_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2(obj*, obj*);
 obj* l_Lean_registerEnumAttributes___at_Lean_mkElaboratorStrategyAttrs___spec__1___closed__2;
 obj* l_Lean_registerEnumAttributes___at_Lean_mkElaboratorStrategyAttrs___spec__1___lambda__2___boxed(obj*);
 obj* l_Lean_registerEnumAttributes___at_Lean_mkElaboratorStrategyAttrs___spec__1___lambda__1(obj*, obj*);
+obj* l_Lean_mkElaboratorStrategyAttrs___closed__5;
 obj* l_Lean_registerTagAttribute___lambda__7___boxed(obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_mkElaboratorStrategyAttrs___closed__20;
 obj* l_Lean_PersistentEnvExtension_addEntry___rarg(obj*, obj*, obj*);
 uint8 l_Lean_Name_quickLt(obj*, obj*);
 obj* l_Lean_mkElaboratorStrategyAttrs___closed__1;
 namespace lean {
 obj* get_elaborator_strategy_core(obj*, obj*);
 }
-obj* l_Lean_PersistentEnvExtension_inhabited___rarg___lambda__2___boxed(obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Lean_elaboratorStrategyAttrs;
 obj* l_Array_binSearchAux___main___at_Lean_getElaboratorStrategy___spec__3___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_EnumAttributes_getValue___at_Lean_getElaboratorStrategy___spec__1(obj*, obj*, obj*);
 obj* l_Array_get(obj*, obj*, obj*, obj*);
+obj* l_Lean_mkElaboratorStrategyAttrs___closed__18;
+obj* l_Lean_mkElaboratorStrategyAttrs___closed__11;
 extern obj* l_Lean_registerTagAttribute___lambda__5___closed__3;
-extern obj* l_Lean_registerTagAttribute___closed__5;
 extern obj* l_Lean_Name_toString___closed__1;
 namespace lean {
 uint8 nat_dec_le(obj*, obj*);
@@ -99,6 +113,7 @@ obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg(obj*, obj*);
 obj* l_Lean_mkElaboratorStrategyAttrs___lambda__1___boxed(obj*, obj*, obj*);
 obj* l_Array_binSearchAux___main___at_Lean_getElaboratorStrategy___spec__3(obj*, obj*, obj*, obj*);
 extern obj* l_Lean_registerTagAttribute___closed__1;
+obj* l_Lean_mkElaboratorStrategyAttrs___closed__21;
 obj* l_Lean_registerTagAttribute___lambda__6___boxed(obj*, obj*, obj*, obj*, obj*);
 uint8 _init_l_Lean_ElaboratorStrategy_inhabited() {
 _start:
@@ -613,8 +628,8 @@ lean::closure_set(x_14, 0, x_10);
 lean::inc(x_10);
 x_15 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__7___boxed), 5, 1);
 lean::closure_set(x_15, 0, x_10);
-x_16 = l_Lean_registerTagAttribute___closed__5;
-x_17 = l_Lean_registerTagAttribute___closed__6;
+x_16 = l_Lean_AttributeImpl_inhabited___closed__4;
+x_17 = l_Lean_AttributeImpl_inhabited___closed__5;
 x_18 = 0;
 x_19 = lean::alloc_cnstr(0, 8, 1);
 lean::cnstr_set(x_19, 0, x_10);
@@ -663,8 +678,8 @@ lean::closure_set(x_28, 0, x_24);
 lean::inc(x_24);
 x_29 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__7___boxed), 5, 1);
 lean::closure_set(x_29, 0, x_24);
-x_30 = l_Lean_registerTagAttribute___closed__5;
-x_31 = l_Lean_registerTagAttribute___closed__6;
+x_30 = l_Lean_AttributeImpl_inhabited___closed__4;
+x_31 = l_Lean_AttributeImpl_inhabited___closed__5;
 x_32 = 0;
 x_33 = lean::alloc_cnstr(0, 8, 1);
 lean::cnstr_set(x_33, 0, x_24);
@@ -929,65 +944,211 @@ return x_4;
 obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; 
-x_1 = lean::box(0);
-x_2 = lean::mk_string("elaboratorStrategy");
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
+obj* x_1; 
+x_1 = lean::mk_string("elaboratorStrategy");
+return x_1;
 }
 }
 obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__2() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; uint8 x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; uint8 x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; obj* x_18; uint8 x_19; obj* x_20; obj* x_21; obj* x_22; obj* x_23; obj* x_24; obj* x_25; obj* x_26; 
+obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::box(0);
-x_2 = lean::mk_string("elabWithExpectedType");
+x_2 = l_Lean_mkElaboratorStrategyAttrs___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::mk_string("instructs elaborator that the arguments of the function application (f ...) should be elaborated using information about the expected type");
-x_5 = 1;
-x_6 = lean::box(x_5);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_4);
-lean::cnstr_set(x_7, 1, x_6);
-x_8 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_8, 0, x_3);
-lean::cnstr_set(x_8, 1, x_7);
-x_9 = lean::mk_string("elabSimple");
-x_10 = lean_name_mk_string(x_1, x_9);
-x_11 = lean::mk_string("instructs elaborator that the arguments of the function application (f ...) should be elaborated from left to right, and without propagating information from the expected type to its arguments");
-x_12 = 0;
-x_13 = lean::box(x_12);
-x_14 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_14, 0, x_11);
-lean::cnstr_set(x_14, 1, x_13);
-x_15 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_15, 0, x_10);
-lean::cnstr_set(x_15, 1, x_14);
-x_16 = lean::mk_string("elabAsEliminator");
-x_17 = lean_name_mk_string(x_1, x_16);
-x_18 = lean::mk_string("instructs elaborator that the arguments of the function application (f ...) should be elaborated as f were an eliminator");
-x_19 = 2;
-x_20 = lean::box(x_19);
-x_21 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_21, 0, x_18);
-lean::cnstr_set(x_21, 1, x_20);
-x_22 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_22, 0, x_17);
-lean::cnstr_set(x_22, 1, x_21);
-x_23 = lean::box(0);
-x_24 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_24, 0, x_22);
-lean::cnstr_set(x_24, 1, x_23);
-x_25 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_25, 0, x_15);
-lean::cnstr_set(x_25, 1, x_24);
-x_26 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_26, 0, x_8);
-lean::cnstr_set(x_26, 1, x_25);
-return x_26;
+return x_3;
 }
 }
 obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__3() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("elabWithExpectedType");
+return x_1;
+}
+}
+obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__4() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_mkElaboratorStrategyAttrs___closed__3;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__5() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("instructs elaborator that the arguments of the function application (f ...) should be elaborated using information about the expected type");
+return x_1;
+}
+}
+obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__6() {
+_start:
+{
+obj* x_1; uint8 x_2; obj* x_3; obj* x_4; 
+x_1 = l_Lean_mkElaboratorStrategyAttrs___closed__5;
+x_2 = 1;
+x_3 = lean::box(x_2);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_1);
+lean::cnstr_set(x_4, 1, x_3);
+return x_4;
+}
+}
+obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__7() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_mkElaboratorStrategyAttrs___closed__4;
+x_2 = l_Lean_mkElaboratorStrategyAttrs___closed__6;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__8() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("elabSimple");
+return x_1;
+}
+}
+obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__9() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_mkElaboratorStrategyAttrs___closed__8;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__10() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("instructs elaborator that the arguments of the function application (f ...) should be elaborated from left to right, and without propagating information from the expected type to its arguments");
+return x_1;
+}
+}
+obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__11() {
+_start:
+{
+obj* x_1; uint8 x_2; obj* x_3; obj* x_4; 
+x_1 = l_Lean_mkElaboratorStrategyAttrs___closed__10;
+x_2 = 0;
+x_3 = lean::box(x_2);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_1);
+lean::cnstr_set(x_4, 1, x_3);
+return x_4;
+}
+}
+obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__12() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_mkElaboratorStrategyAttrs___closed__9;
+x_2 = l_Lean_mkElaboratorStrategyAttrs___closed__11;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__13() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("elabAsEliminator");
+return x_1;
+}
+}
+obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__14() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_mkElaboratorStrategyAttrs___closed__13;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__15() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("instructs elaborator that the arguments of the function application (f ...) should be elaborated as f were an eliminator");
+return x_1;
+}
+}
+obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__16() {
+_start:
+{
+obj* x_1; uint8 x_2; obj* x_3; obj* x_4; 
+x_1 = l_Lean_mkElaboratorStrategyAttrs___closed__15;
+x_2 = 2;
+x_3 = lean::box(x_2);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_1);
+lean::cnstr_set(x_4, 1, x_3);
+return x_4;
+}
+}
+obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__17() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_mkElaboratorStrategyAttrs___closed__14;
+x_2 = l_Lean_mkElaboratorStrategyAttrs___closed__16;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__18() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_mkElaboratorStrategyAttrs___closed__17;
+x_3 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_3, 0, x_2);
+lean::cnstr_set(x_3, 1, x_1);
+return x_3;
+}
+}
+obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__19() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_mkElaboratorStrategyAttrs___closed__12;
+x_2 = l_Lean_mkElaboratorStrategyAttrs___closed__18;
+x_3 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__20() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_mkElaboratorStrategyAttrs___closed__7;
+x_2 = l_Lean_mkElaboratorStrategyAttrs___closed__19;
+x_3 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_mkElaboratorStrategyAttrs___closed__21() {
 _start:
 {
 obj* x_1; 
@@ -999,9 +1160,9 @@ obj* l_Lean_mkElaboratorStrategyAttrs(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
-x_2 = l_Lean_mkElaboratorStrategyAttrs___closed__1;
-x_3 = l_Lean_mkElaboratorStrategyAttrs___closed__2;
-x_4 = l_Lean_mkElaboratorStrategyAttrs___closed__3;
+x_2 = l_Lean_mkElaboratorStrategyAttrs___closed__2;
+x_3 = l_Lean_mkElaboratorStrategyAttrs___closed__20;
+x_4 = l_Lean_mkElaboratorStrategyAttrs___closed__21;
 x_5 = l_Lean_registerEnumAttributes___at_Lean_mkElaboratorStrategyAttrs___spec__1(x_2, x_3, x_4, x_1);
 return x_5;
 }
@@ -1335,6 +1496,42 @@ l_Lean_mkElaboratorStrategyAttrs___closed__2 = _init_l_Lean_mkElaboratorStrategy
 lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__2);
 l_Lean_mkElaboratorStrategyAttrs___closed__3 = _init_l_Lean_mkElaboratorStrategyAttrs___closed__3();
 lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__3);
+l_Lean_mkElaboratorStrategyAttrs___closed__4 = _init_l_Lean_mkElaboratorStrategyAttrs___closed__4();
+lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__4);
+l_Lean_mkElaboratorStrategyAttrs___closed__5 = _init_l_Lean_mkElaboratorStrategyAttrs___closed__5();
+lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__5);
+l_Lean_mkElaboratorStrategyAttrs___closed__6 = _init_l_Lean_mkElaboratorStrategyAttrs___closed__6();
+lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__6);
+l_Lean_mkElaboratorStrategyAttrs___closed__7 = _init_l_Lean_mkElaboratorStrategyAttrs___closed__7();
+lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__7);
+l_Lean_mkElaboratorStrategyAttrs___closed__8 = _init_l_Lean_mkElaboratorStrategyAttrs___closed__8();
+lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__8);
+l_Lean_mkElaboratorStrategyAttrs___closed__9 = _init_l_Lean_mkElaboratorStrategyAttrs___closed__9();
+lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__9);
+l_Lean_mkElaboratorStrategyAttrs___closed__10 = _init_l_Lean_mkElaboratorStrategyAttrs___closed__10();
+lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__10);
+l_Lean_mkElaboratorStrategyAttrs___closed__11 = _init_l_Lean_mkElaboratorStrategyAttrs___closed__11();
+lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__11);
+l_Lean_mkElaboratorStrategyAttrs___closed__12 = _init_l_Lean_mkElaboratorStrategyAttrs___closed__12();
+lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__12);
+l_Lean_mkElaboratorStrategyAttrs___closed__13 = _init_l_Lean_mkElaboratorStrategyAttrs___closed__13();
+lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__13);
+l_Lean_mkElaboratorStrategyAttrs___closed__14 = _init_l_Lean_mkElaboratorStrategyAttrs___closed__14();
+lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__14);
+l_Lean_mkElaboratorStrategyAttrs___closed__15 = _init_l_Lean_mkElaboratorStrategyAttrs___closed__15();
+lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__15);
+l_Lean_mkElaboratorStrategyAttrs___closed__16 = _init_l_Lean_mkElaboratorStrategyAttrs___closed__16();
+lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__16);
+l_Lean_mkElaboratorStrategyAttrs___closed__17 = _init_l_Lean_mkElaboratorStrategyAttrs___closed__17();
+lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__17);
+l_Lean_mkElaboratorStrategyAttrs___closed__18 = _init_l_Lean_mkElaboratorStrategyAttrs___closed__18();
+lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__18);
+l_Lean_mkElaboratorStrategyAttrs___closed__19 = _init_l_Lean_mkElaboratorStrategyAttrs___closed__19();
+lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__19);
+l_Lean_mkElaboratorStrategyAttrs___closed__20 = _init_l_Lean_mkElaboratorStrategyAttrs___closed__20();
+lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__20);
+l_Lean_mkElaboratorStrategyAttrs___closed__21 = _init_l_Lean_mkElaboratorStrategyAttrs___closed__21();
+lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__21);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkElaboratorStrategyAttrs"), 1, l_Lean_mkElaboratorStrategyAttrs);
 w = l_Lean_mkElaboratorStrategyAttrs(w);
 if (io_result_is_error(w)) return w;

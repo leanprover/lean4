@@ -370,7 +370,6 @@ obj* l_Lean_Parser_manyAux___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_takeWhileFn___at_Lean_Parser_identFnAux___main___spec__1(obj*, obj*);
 obj* l_Lean_Parser_symbolFn___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_satisfyFn___main___at_Lean_Parser_binNumberFn___spec__1(obj*, obj*, obj*);
-extern obj* l_unsafeIO___rarg___closed__1;
 obj* l_Lean_Parser_registerBuiltinParserAttribute___lambda__1___closed__2;
 obj* l_Lean_Parser_many1(uint8, obj*);
 obj* l_Lean_Parser_trailingLoop___boxed(obj*);
@@ -466,6 +465,7 @@ obj* l_Lean_ConstantInfo_type(obj*);
 namespace lean {
 obj* environment_find_core(obj*, obj*);
 }
+obj* l_Lean_Parser_runBuiltinParserUnsafe___closed__2;
 obj* l_Lean_Parser_unicodeSymbolCheckPrecFn(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_takeUntilFn___main___at_Lean_Parser_identFnAux___main___spec__2(obj*, obj*);
 obj* l_Lean_Parser_TokenConfig_HasToString;
@@ -22995,11 +22995,22 @@ x_1 = lean::mk_string("failed to access builtin reference");
 return x_1;
 }
 }
+obj* _init_l_Lean_Parser_runBuiltinParserUnsafe___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = lean::box(0);
+x_2 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_2, 0, x_1);
+lean::cnstr_set(x_2, 1, x_1);
+return x_2;
+}
+}
 obj* l_Lean_Parser_runBuiltinParserUnsafe(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
 obj* x_6; obj* x_11; obj* x_12; 
-x_11 = l_unsafeIO___rarg___closed__1;
+x_11 = l_Lean_Parser_runBuiltinParserUnsafe___closed__2;
 x_12 = lean::io_ref_get(x_2, x_11);
 if (lean::obj_tag(x_12) == 0)
 {
@@ -23519,6 +23530,8 @@ w = l_Lean_Parser_regBuiltinCommandParserAttr(w);
 if (io_result_is_error(w)) return w;
 l_Lean_Parser_runBuiltinParserUnsafe___closed__1 = _init_l_Lean_Parser_runBuiltinParserUnsafe___closed__1();
 lean::mark_persistent(l_Lean_Parser_runBuiltinParserUnsafe___closed__1);
+l_Lean_Parser_runBuiltinParserUnsafe___closed__2 = _init_l_Lean_Parser_runBuiltinParserUnsafe___closed__2();
+lean::mark_persistent(l_Lean_Parser_runBuiltinParserUnsafe___closed__2);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "runBuiltinParserUnsafe"), 5, l_Lean_Parser_runBuiltinParserUnsafe___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "runBuiltinParser"), 4, l_Lean_Parser_runBuiltinParser___boxed);
 l_Lean_Parser_commandParser___elambda__1___closed__1 = _init_l_Lean_Parser_commandParser___elambda__1___closed__1();

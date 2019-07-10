@@ -95,7 +95,6 @@ obj* l_IO_Prim_handle_flush___boxed(obj*, obj*);
 obj* l_IO_println___boxed(obj*);
 obj* l_IO_Fs_handle_flush___boxed(obj*, obj*);
 extern "C" obj* lean_io_prim_handle_close(obj*, obj*);
-obj* l_unsafeIO___rarg___closed__1;
 obj* l_IO_Ref_modify___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_IO_mkRef(obj*, obj*);
 obj* l_IO_Fs_readFile___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
@@ -247,39 +246,31 @@ return x_1;
 }
 }
 }
-obj* _init_l_unsafeIO___rarg___closed__1() {
-_start:
-{
-obj* x_1; obj* x_2; 
-x_1 = lean::box(0);
-x_2 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_2, 0, x_1);
-lean::cnstr_set(x_2, 1, x_1);
-return x_2;
-}
-}
 obj* l_unsafeIO___rarg(obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; 
-x_2 = l_unsafeIO___rarg___closed__1;
-x_3 = lean::apply_1(x_1, x_2);
-if (lean::obj_tag(x_3) == 0)
+obj* x_2; obj* x_3; obj* x_4; 
+x_2 = lean::box(0);
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_2);
+lean::cnstr_set(x_3, 1, x_2);
+x_4 = lean::apply_1(x_1, x_3);
+if (lean::obj_tag(x_4) == 0)
 {
-obj* x_4; obj* x_5; 
-x_4 = lean::cnstr_get(x_3, 0);
-lean::inc(x_4);
-lean::dec(x_3);
-x_5 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_5, 0, x_4);
-return x_5;
+obj* x_5; obj* x_6; 
+x_5 = lean::cnstr_get(x_4, 0);
+lean::inc(x_5);
+lean::dec(x_4);
+x_6 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_6, 0, x_5);
+return x_6;
 }
 else
 {
-obj* x_6; 
-lean::dec(x_3);
-x_6 = lean::box(0);
-return x_6;
+obj* x_7; 
+lean::dec(x_4);
+x_7 = lean::box(0);
+return x_7;
 }
 }
 }
@@ -1755,8 +1746,6 @@ lean::mark_persistent(l_IO_Error_Inhabited);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Error"), "Inhabited"), l_IO_Error_Inhabited);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("IO"), "userError"), 1, l_IO_userError___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Error"), "toString"), 1, lean::io_error_to_string_core);
-l_unsafeIO___rarg___closed__1 = _init_l_unsafeIO___rarg___closed__1();
-lean::mark_persistent(l_unsafeIO___rarg___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name("unsafeIO"), 1, l_unsafeIO);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name("timeit"), 4, l_timeit___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name("allocprof"), 4, l_allocprof___boxed);

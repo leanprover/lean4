@@ -78,8 +78,7 @@ def bracktedBinder (requireType := false) := explicitBinder requireType <|> impl
 def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser! unicodeSymbol "∀" "forall" >> many1 (simpleBinder <|> bracktedBinder) >> ", " >> termParser
 def equation := parser! " | " >> sepBy1 termParser ", " >> " => " >> termParser
-def equations : Parser := withPosition $ fun pos => many1 (checkColGe pos.column "'match' cases must be indented" >> equation)
-@[builtinTermParser] def «match» := parser! "match " >> sepBy1 termParser ", " >> optType >> " with " >> equations
+@[builtinTermParser] def «match» := parser! "match " >> sepBy1 termParser ", " >> optType >> " with " >> many1Indent equation "'match' cases must be indented"
 @[builtinTermParser] def «nomatch» := parser! "nomatch " >> termParser
 
 def namedArgument  := tparser! try ("(" >> ident >> " := ") >> termParser >> ")"

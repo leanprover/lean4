@@ -745,15 +745,6 @@ let sym := sym.trim;
 @[inline] def symbol {k : ParserKind} (sym : String) (lbp : Nat) : Parser k :=
 symbolAux sym lbp
 
-@[inline] def checkColGeFn (col : Nat) (errorMsg : String) : BasicParserFn :=
-fun c s =>
-  let pos := c.fileMap.toPosition s.pos;
-  if pos.column ≥ col then s
-  else s.mkError errorMsg
-
-@[inline] def checkColGe {k : ParserKind} (col : Nat) (errorMsg : String) : Parser k :=
-{ fn := fun _ => checkColGeFn col errorMsg }
-
 partial def strAux (sym : String) (errorMsg : String) : Nat → BasicParserFn
 | j c s :=
   if sym.atEnd j then s
@@ -980,11 +971,23 @@ def anyOfFn {k : ParserKind} : List (Parser k) → ParserFn k
 | [p]     a c s := p.fn a c s
 | (p::ps) a c s := orelseFn p.fn (anyOfFn ps) a c s
 
+@[inline] def checkColGeFn (col : Nat) (errorMsg : String) : BasicParserFn :=
+fun c s =>
+  let pos := c.fileMap.toPosition s.pos;
+  if pos.column ≥ col then s
+  else s.mkError errorMsg
+
+@[inline] def checkColGe {k : ParserKind} (col : Nat) (errorMsg : String) : Parser k :=
+{ fn := fun _ => checkColGeFn col errorMsg }
+
 @[inline] def withPosition {k : ParserKind} (p : Position → Parser k) : Parser k :=
 { info := (p { line := 1, column := 0 }).info,
   fn   := fun a c s =>
    let pos := c.fileMap.toPosition s.pos;
    (p pos).fn a c s }
+
+@[inline] def many1Indent {k : ParserKind} (p : Parser k) (errorMsg : String) : Parser k :=
+withPosition $ fun pos => many1 (checkColGe pos.column errorMsg >> p)
 
 /-- A multimap indexed by tokens. Used for indexing parsers by their leading token. -/
 def TokenMap (α : Type) := RBMap Name (List α) Name.quickLt

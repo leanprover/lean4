@@ -132,23 +132,10 @@ class extract_closed_fn {
             fvars.push_back(new_fvar);
             e = binding_body(e);
         }
-        expr r = visit(instantiate_rev(e, fvars.size(), fvars.data()), true);
+        expr r = visit(instantiate_rev(e, fvars.size(), fvars.data()));
         return m_lctx.mk_lambda(fvars, r);
     }
 
-    expr visit_let(expr e) {
-        flet<local_ctx> save_lctx(m_lctx, m_lctx);
-        buffer<expr> fvars;
-        while (is_let(e)) {
-            lean_assert(!has_loose_bvars(let_type(e)));
-            expr new_val  = visit(instantiate_rev(let_value(e), fvars.size(), fvars.data()), false);
-            expr new_fvar = m_lctx.mk_local_decl(ngen(), let_name(e), let_type(e), new_val);
-            fvars.push_back(new_fvar);
-            e = let_body(e);
-        }
-        expr r = visit(instantiate_rev(e, fvars.size(), fvars.data()), true);
-        return m_lctx.mk_lambda(fvars, r);
-    }
 
     bool is_neutral_constructor_app(expr const & e) {
         if (!is_constructor_app(env(), e)) return false;
@@ -232,44 +219,42 @@ class extract_closed_fn {
         return mk_constant(c);
     }
 
-    expr visit_app(expr const & e, bool root) {
-        buffer<expr> args;
-        expr const & fn = get_app_args(e, args);
-        bool is_cases   = is_cases_on_app(env(), fn);
-        for (unsigned i = 0; i < args.size(); i++) {
-            /* arg is a "root" iff `e` is a cases, and `arg` is a minor premise */
-            args[i] = visit(args[i], is_cases && i > 0);
+    expr visit_let(expr e) {
+        flet<local_ctx> save_lctx(m_lctx, m_lctx);
+        buffer<expr> fvars;
+        while (is_let(e)) {
+            lean_assert(!has_loose_bvars(let_type(e)));
+            expr new_val  = visit(instantiate_rev(let_value(e), fvars.size(), fvars.data()));
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), let_name(e), let_type(e), new_val);
+            fvars.push_back(new_fvar);
+            e = let_body(e);
         }
-        expr r = mk_app(fn, args);
-        bool c = is_closed(r);
-        if (root && c) {
-            return mk_aux_constant(r);
-        } else if (!c && !is_cases) {
-            /* Create auxiliary constants for closed arguments. */
-            bool modified = false;
-            for (expr & arg : args) {
-                if (is_closed(arg)) {
-                    expr new_arg = mk_aux_constant(arg);
-                    if (new_arg != arg) modified = true;
-                    arg = new_arg;
-                }
-            }
-            return modified ? mk_app(fn, args) : r;
-        } else {
-            return r;
-        }
+        expr r = visit(instantiate_rev(e, fvars.size(), fvars.data()));
+        return m_lctx.mk_lambda(fvars, r);
     }
 
-    expr visit_atom(expr const & e, bool root) {
-        if (!root) return e;
+    expr visit_app(expr const & e) {
+        buffer<expr> args;
+        expr const & fn = get_app_args(e, args);
+        for (unsigned i = 0; i < args.size(); i++) {
+            args[i] = visit(args[i]);
+        }
+        expr r = mk_app(fn, args);
+        if (is_closed(r))
+            return mk_aux_constant(r);
+        else
+            return r;
+    }
+
+    expr visit_atom(expr const & e) {
         return mk_aux_constant(e);
     }
 
-    expr visit(expr const & e, bool root) {
+    expr visit(expr const & e) {
         switch (e.kind()) {
-        case expr_kind::Lit:    return visit_atom(e, root);
-        case expr_kind::Const:  return visit_atom(e, root);
-        case expr_kind::App:    return visit_app(e, root);
+        case expr_kind::Lit:    return visit_atom(e);
+        case expr_kind::Const:  return visit_atom(e);
+        case expr_kind::App:    return visit_app(e);
         case expr_kind::Lambda: return visit_lambda(e);
         case expr_kind::Let:    return visit_let(e);
         default:                return e;
@@ -287,12 +272,12 @@ public:
             return mk_pair(env(), comp_decls(d));
         }
         expr v      = d.snd();
-        if (!is_lambda(v)) {
-            /* `d` already has arity 0. */
+        if (is_extract_closed_aux_fn(d.fst())) {
+            /* Do not extract closed terms from an auxiliary declaration created by this module. */
             return mk_pair(env(), comp_decls(d));
         }
         m_base_name = d.fst();
-        expr new_v  = visit(v, true);
+        expr new_v  = visit(v);
         comp_decl new_d(d.fst(), new_v);
         m_new_decls.push_back(new_d);
         return mk_pair(env(), comp_decls(m_new_decls));

@@ -646,47 +646,55 @@ void mark_mt(object * o) {
     return;
 #endif
     if (is_scalar(o) || !is_st_heap_obj(o)) return;
-    o->m_mem_kind = static_cast<unsigned>(object_memory_kind::MTHeap);
 
-    switch (get_kind(o)) {
-    case object_kind::ScalarArray:
-    case object_kind::String:
-    case object_kind::MPZ:
-        return;
-    case object_kind::External: {
-        object * fn = alloc_closure(reinterpret_cast<void*>(mark_mt_fn), 1, 0);
-        to_external(o)->m_class->m_foreach(to_external(o)->m_data, fn);
-        dec(fn);
-        return;
-    }
-    case object_kind::Task:
-        mark_mt(task_get(o));
-        return;
-    case object_kind::Constructor: {
-        object ** it  = cnstr_obj_cptr(o);
-        object ** end = it + cnstr_num_objs(o);
-        for (; it != end; ++it) mark_mt(*it);
-        return;
-    }
-    case object_kind::Closure: {
-        object ** it  = closure_arg_cptr(o);
-        object ** end = it + closure_num_fixed(o);
-        for (; it != end; ++it) mark_mt(*it);
-        return;
-    }
-    case object_kind::Array: {
-        object ** it  = array_cptr(o);
-        object ** end = it + array_size(o);
-        for (; it != end; ++it) mark_mt(*it);
-        return;
-    }
-    case object_kind::Thunk:
-        if (object * c = to_thunk(o)->m_closure) mark_mt(c);
-        if (object * v = to_thunk(o)->m_value) mark_mt(v);
-        return;
-    case object_kind::Ref:
-        if (object * v = to_ref(o)->m_value) mark_mt(v);
-        return;
+    buffer<object*> todo;
+    todo.push_back(o);
+    while (!todo.empty()) {
+        object * o = todo.back();
+        todo.pop_back();
+        if (!is_scalar(o) && is_st_heap_obj(o)) {
+            o->m_mem_kind = static_cast<unsigned>(object_memory_kind::MTHeap);
+            switch (get_kind(o)) {
+            case object_kind::ScalarArray:
+            case object_kind::String:
+            case object_kind::MPZ:
+                break;
+            case object_kind::External: {
+                object * fn = alloc_closure(reinterpret_cast<void*>(mark_mt_fn), 1, 0);
+                to_external(o)->m_class->m_foreach(to_external(o)->m_data, fn);
+                dec(fn);
+                break;
+            }
+            case object_kind::Task:
+                todo.push_back(task_get(o));
+                break;
+            case object_kind::Constructor: {
+                object ** it  = cnstr_obj_cptr(o);
+                object ** end = it + cnstr_num_objs(o);
+                for (; it != end; ++it) todo.push_back(*it);
+                break;
+            }
+            case object_kind::Closure: {
+                object ** it  = closure_arg_cptr(o);
+                object ** end = it + closure_num_fixed(o);
+                for (; it != end; ++it) todo.push_back(*it);
+                break;
+            }
+            case object_kind::Array: {
+                object ** it  = array_cptr(o);
+                object ** end = it + array_size(o);
+                for (; it != end; ++it) todo.push_back(*it);
+                break;
+            }
+            case object_kind::Thunk:
+                if (object * c = to_thunk(o)->m_closure) todo.push_back(c);
+                if (object * v = to_thunk(o)->m_value) todo.push_back(v);
+                break;
+            case object_kind::Ref:
+                if (object * v = to_ref(o)->m_value) todo.push_back(v);
+                break;
+            }
+        }
     }
 }
 
@@ -842,48 +850,54 @@ static obj_res mark_persistent_fn(obj_arg o) {
 }
 
 void mark_persistent(object * o) {
-    if (is_scalar(o) || !is_heap_obj(o)) return;
-    o->m_mem_kind = static_cast<unsigned>(object_memory_kind::Persistent);
-
-    switch (get_kind(o)) {
-    case object_kind::ScalarArray:
-    case object_kind::String:
-    case object_kind::MPZ:
-        return;
-    case object_kind::External: {
-        object * fn = alloc_closure(reinterpret_cast<void*>(mark_persistent_fn), 1, 0);
-        to_external(o)->m_class->m_foreach(to_external(o)->m_data, fn);
-        dec(fn);
-        return;
-    }
-    case object_kind::Task:
-        mark_persistent(task_get(o));
-        return;
-    case object_kind::Constructor: {
-        object ** it  = cnstr_obj_cptr(o);
-        object ** end = it + cnstr_num_objs(o);
-        for (; it != end; ++it) mark_persistent(*it);
-        return;
-    }
-    case object_kind::Closure: {
-        object ** it  = closure_arg_cptr(o);
-        object ** end = it + closure_num_fixed(o);
-        for (; it != end; ++it) mark_persistent(*it);
-        return;
-    }
-    case object_kind::Array: {
-        object ** it  = array_cptr(o);
-        object ** end = it + array_size(o);
-        for (; it != end; ++it) mark_persistent(*it);
-        return;
-    }
-    case object_kind::Thunk:
-        if (object * c = to_thunk(o)->m_closure) mark_persistent(c);
-        if (object * v = to_thunk(o)->m_value) mark_persistent(v);
-        return;
-    case object_kind::Ref:
-        if (object * v = to_ref(o)->m_value) mark_persistent(v);
-        return;
+    buffer<object*> todo;
+    todo.push_back(o);
+    while (!todo.empty()) {
+        object * o = todo.back();
+        todo.pop_back();
+        if (!is_scalar(o) && is_heap_obj(o)) {
+            o->m_mem_kind = static_cast<unsigned>(object_memory_kind::Persistent);
+            switch (get_kind(o)) {
+            case object_kind::ScalarArray:
+            case object_kind::String:
+            case object_kind::MPZ:
+                break;
+            case object_kind::External: {
+                object * fn = alloc_closure(reinterpret_cast<void*>(mark_persistent_fn), 1, 0);
+                to_external(o)->m_class->m_foreach(to_external(o)->m_data, fn);
+                dec(fn);
+                break;
+            }
+            case object_kind::Task:
+                todo.push_back(task_get(o));
+                break;
+            case object_kind::Constructor: {
+                object ** it  = cnstr_obj_cptr(o);
+                object ** end = it + cnstr_num_objs(o);
+                for (; it != end; ++it) todo.push_back(*it);
+                break;
+            }
+            case object_kind::Closure: {
+                object ** it  = closure_arg_cptr(o);
+                object ** end = it + closure_num_fixed(o);
+                for (; it != end; ++it) todo.push_back(*it);
+                break;
+            }
+            case object_kind::Array: {
+                object ** it  = array_cptr(o);
+                object ** end = it + array_size(o);
+                for (; it != end; ++it) todo.push_back(*it);
+                break;
+            }
+            case object_kind::Thunk:
+                if (object * c = to_thunk(o)->m_closure) todo.push_back(c);
+                if (object * v = to_thunk(o)->m_value) todo.push_back(v);
+                break;
+            case object_kind::Ref:
+                if (object * v = to_ref(o)->m_value) todo.push_back(v);
+                break;
+            }
+        }
     }
 }
 

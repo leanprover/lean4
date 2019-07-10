@@ -78,7 +78,14 @@ test [
 "
 match x with
 | some x => true
-| none => false"
+| none => false",
+"
+match x with
+| some y => match y with
+  | some (a, b) => a + b
+  | none        => 1
+| none => 0
+"
 ];
 testFailures [
 "f {x : a} -> b",

@@ -754,6 +754,20 @@ partial def strAux (sym : String) (errorMsg : String) : Nat → BasicParserFn
     if input.atEnd i || sym.get j != input.get i then s.mkError errorMsg
     else strAux (sym.next j) c (s.next input i)
 
+def checkTailWs (prev : Syntax) : Bool :=
+match prev.getTailInfo with
+| some info => info.trailing.stopPos > info.trailing.startPos
+| none      => false
+
+def checkWsBeforeFn (errorMsg : String) : BasicParserFn :=
+fun c s =>
+  let prev := s.stxStack.back;
+  if checkTailWs prev then s else s.mkError errorMsg
+
+def checkWsBefore {k : ParserKind} (errorMsg : String) : Parser k :=
+{ info := epsilonInfo,
+  fn   := fun _ => checkWsBeforeFn errorMsg }
+
 def insertNoWsToken (sym : String) (lbpNoWs : Option Nat) (tks : Trie TokenConfig) : ExceptT String Id (Trie TokenConfig) :=
 if sym == "" then throw "invalid empty symbol"
 else match tks.find sym, lbpNoWs with

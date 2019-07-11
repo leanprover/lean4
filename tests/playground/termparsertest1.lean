@@ -89,9 +89,22 @@ match x with
 "Type u",
 "Sort v",
 "Type 1",
-"f Type 1"
+"f Type 1",
+"let x := 0; x + 1",
+"let x : Nat := 0; x + 1",
+"let f (x : Nat) := x + 1; f 0",
+"let f {α : Type} (a : α) : α := a; f 10",
+"let f (x) := x + 1; f 10 + f 20",
+"let (x, y) := f 10; x + y",
+"let { fst := x, .. } := f 10; x + x",
+"let x.y := f 10; x",
+"let x.1 := f 10; x",
+"let x[i].y := f 10; x",
+"let x[i] := f 20; x"
 ];
 testFailures [
 "f {x : a} -> b",
-"(x := 20)"
+"(x := 20)",
+"let x 10; x",
+"let x := y"
 ]

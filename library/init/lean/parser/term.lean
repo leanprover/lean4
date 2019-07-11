@@ -82,6 +82,12 @@ def simpleBinder := parser! many1 binderIdent
 def equation := parser! " | " >> sepBy1 termParser ", " >> " => " >> termParser
 @[builtinTermParser] def «match» := parser! "match " >> sepBy1 termParser ", " >> optType >> " with " >> many1Indent equation "'match' cases must be indented"
 @[builtinTermParser] def «nomatch» := parser! "nomatch " >> termParser
+def letLhsId      := parser! ident >> optType >> " := "
+/- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
+def letLhsBinders := parser! ident >> checkWsBefore "expected space before binders" >> many bracktedBinder >> optType >> " := "
+def letLhsPat     := parser! termParser >> " := "
+def letLhs        := (try letLhsId <|> try letLhsBinders <|> letLhsPat)
+@[builtinTermParser] def «let» := parser! "let " >> letLhs >> termParser >> "; " >> termParser
 
 def namedArgument  := tparser! try ("(" >> ident >> " := ") >> termParser >> ")"
 @[builtinTermParser] def app     := tparser! pushLeading >> (namedArgument <|> termParser appPrec)

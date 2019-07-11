@@ -84,7 +84,6 @@ reserve infixr ` :: `:67
 
 /- Control -/
 reserve infixr ` <|> `:2
-reserve infixr `; `   :3
 reserve infixr ` >>= `:55
 reserve infixr ` >=> `:55
 reserve infixl ` <*> `:60

@@ -100,7 +100,10 @@ match x with
 "let x.y := f 10; x",
 "let x.1 := f 10; x",
 "let x[i].y := f 10; x",
-"let x[i] := f 20; x"
+"let x[i] := f 20; x",
+"-x + y",
+"!x",
+"¬ a ∧ b"
 ];
 testFailures [
 "f {x : a} -> b",

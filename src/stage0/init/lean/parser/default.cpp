@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.parser.default
-// Imports: init.lean.parser.parser init.lean.parser.level init.lean.parser.term
+// Imports: init.lean.parser.parser init.lean.parser.level init.lean.parser.term init.lean.parser.command
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -17,6 +17,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 obj* initialize_init_lean_parser_parser(obj*);
 obj* initialize_init_lean_parser_level(obj*);
 obj* initialize_init_lean_parser_term(obj*);
+obj* initialize_init_lean_parser_command(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_parser_default(obj* w) {
 if (_G_initialized) return w;
@@ -27,6 +28,8 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_parser_level(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_parser_term(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_parser_command(w);
 if (io_result_is_error(w)) return w;
 return w;
 }

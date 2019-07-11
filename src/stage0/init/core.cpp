@@ -88,7 +88,6 @@ obj* l_prodHasDecidableLt___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Quotient_recOnSubsingleton___rarg(obj*, obj*);
 obj* l_Prod_sizeof(obj*, obj*);
 obj* l_Quot_hrecOn___rarg(obj*, obj*, obj*);
-obj* l_singleton___rarg(obj*, obj*, obj*);
 obj* l_decidableOfDecidableOfIff___rarg___boxed(obj*, obj*);
 uint8 l_and(uint8, uint8);
 obj* l_ite___rarg___boxed(obj*, obj*, obj*, obj*);
@@ -280,7 +279,6 @@ obj* l_EqvGen_Setoid(obj*, obj*);
 obj* l_idRhs___rarg(obj*);
 obj* l_Sigma_sizeof___main___at_Sigma_HasSizeof___spec__2___rarg(obj*, obj*, obj*);
 obj* l_Prod_HasSizeof___rarg(obj*, obj*);
-obj* l_singleton(obj*, obj*);
 obj* l_PSigma_sizeof___main___at_PSigma_HasSizeof___spec__2___boxed(obj*, obj*);
 uint8 l_PUnit_DecidableEq(obj*, obj*);
 obj* l_Function_swap(obj*, obj*, obj*);
@@ -756,22 +754,6 @@ _start:
 obj* x_2; 
 x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_bit1___rarg), 3, 0);
 return x_2;
-}
-}
-obj* l_singleton___rarg(obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-obj* x_4; 
-x_4 = lean::apply_2(x_2, x_3, x_1);
-return x_4;
-}
-}
-obj* l_singleton(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_singleton___rarg), 3, 0);
-return x_3;
 }
 }
 obj* l_Nat_add___boxed(obj* x_1, obj* x_2) {
@@ -4443,7 +4425,6 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Eq"), "ndrecOn")
 REGISTER_LEAN_FUNCTION(lean::mk_const_name("decidableOfDecidableEq"), 1, l_decidableOfDecidableEq);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name("bit0"), 1, l_bit0);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name("bit1"), 1, l_bit1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name("singleton"), 2, l_singleton);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "add"), 2, l_Nat_add___boxed);
 l_Nat_HasZero = _init_l_Nat_HasZero();
 lean::mark_persistent(l_Nat_HasZero);

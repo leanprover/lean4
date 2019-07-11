@@ -23,7 +23,6 @@ obj* l_RBNode_findCore___main___rarg(obj*, obj*, obj*);
 obj* l_rbtreeOf(obj*);
 obj* l_List_foldl___main___at_RBTree_fromList___spec__1___rarg(obj*, obj*, obj*);
 obj* l_RBTree_max___boxed(obj*, obj*);
-obj* l_RBTree_HasInsert(obj*);
 obj* l_RBNode_all___main___at_RBTree_subset___spec__1___rarg___boxed(obj*, obj*, obj*);
 obj* l_RBTree_ofList___main(obj*);
 obj* l_RBNode_fold___main___at_RBTree_fold___spec__1(obj*, obj*);
@@ -45,6 +44,7 @@ obj* l_RBNode_min___main___rarg(obj*);
 obj* l_RBNode_mfold___main___at_RBTree_mfor___spec__1___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_RBNode_max___main___rarg(obj*);
 obj* l_RBNode_mfold___main___at_RBTree_mfold___spec__1___rarg(obj*, obj*, obj*, obj*);
+obj* l_RBTree_empty(obj*, obj*);
 obj* l_RBTree_toList___rarg(obj*);
 obj* l_RBTree_HasRepr___boxed(obj*, obj*);
 obj* l_RBTree_HasRepr___rarg___boxed(obj*, obj*);
@@ -52,6 +52,7 @@ obj* l_RBNode_depth___main___rarg(obj*, obj*);
 obj* l_RBNode_revFold___main___at_RBTree_toList___spec__1(obj*);
 obj* l_RBTree_erase(obj*);
 uint8 l_RBTree_any___rarg(obj*, obj*);
+obj* l_RBTree_empty___boxed(obj*, obj*);
 obj* l_RBTree_HasRepr___rarg___closed__1;
 obj* l_RBTree_depth___boxed(obj*, obj*);
 obj* l_RBTree_depth___rarg(obj*, obj*);
@@ -116,7 +117,6 @@ obj* l_RBNode_all___main___at_RBTree_subset___spec__1(obj*);
 uint8 l_RBTree_isEmpty___rarg(obj*);
 obj* l_RBTree_ofList(obj*);
 obj* l_RBTree_depth(obj*, obj*);
-obj* l_RBTree_HasInsert___rarg(obj*, obj*, obj*);
 obj* l_RBTree_fold___boxed(obj*, obj*, obj*);
 obj* l_RBTree_toList___boxed(obj*, obj*);
 obj* l_RBNode_mfold___main___at_RBTree_mfor___spec__1___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -157,6 +157,23 @@ _start:
 {
 obj* x_3; 
 x_3 = l_RBTree_HasEmptyc(x_1, x_2);
+lean::dec(x_2);
+return x_3;
+}
+}
+obj* l_RBTree_empty(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::box(0);
+return x_3;
+}
+}
+obj* l_RBTree_empty___boxed(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_RBTree_empty(x_1, x_2);
 lean::dec(x_2);
 return x_3;
 }
@@ -870,23 +887,6 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_RBTree_insert___rarg), 3, 0)
 return x_2;
 }
 }
-obj* l_RBTree_HasInsert___rarg(obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-obj* x_4; obj* x_5; 
-x_4 = lean::box(0);
-x_5 = l_RBNode_insert___rarg(x_1, x_3, x_2, x_4);
-return x_5;
-}
-}
-obj* l_RBTree_HasInsert(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_RBTree_HasInsert___rarg), 3, 0);
-return x_2;
-}
-}
 obj* l_RBTree_erase___rarg(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -1470,6 +1470,7 @@ w = initialize_init_data_rbmap_basic(w);
 if (io_result_is_error(w)) return w;
 REGISTER_LEAN_FUNCTION(lean::mk_const_name("mkRBTree"), 2, l_mkRBTree___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("RBTree"), "HasEmptyc"), 2, l_RBTree_HasEmptyc___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("RBTree"), "empty"), 2, l_RBTree_empty___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("RBTree"), "depth"), 2, l_RBTree_depth___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("RBTree"), "fold"), 3, l_RBTree_fold___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("RBTree"), "revFold"), 3, l_RBTree_revFold___boxed);
@@ -1483,7 +1484,6 @@ l_RBTree_HasRepr___rarg___closed__1 = _init_l_RBTree_HasRepr___rarg___closed__1(
 lean::mark_persistent(l_RBTree_HasRepr___rarg___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("RBTree"), "HasRepr"), 2, l_RBTree_HasRepr___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("RBTree"), "insert"), 1, l_RBTree_insert);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("RBTree"), "HasInsert"), 1, l_RBTree_HasInsert);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("RBTree"), "erase"), 1, l_RBTree_erase);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("RBTree"), "ofList"), 1, l_RBTree_ofList);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("RBTree"), "find"), 1, l_RBTree_find);

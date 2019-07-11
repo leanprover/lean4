@@ -27,7 +27,6 @@ obj* l_RBNode_find___main___at___private_init_lean_compiler_ir_livevars_7__colle
 uint8 l_Lean_IR_HasIndex_visitExpr___main(obj*, obj*);
 uint8 l_Array_anyMAux___main___at_Lean_IR_HasIndex_visitArgs___spec__1(obj*, obj*, obj*);
 obj* l_RBNode_fold___main___at___private_init_lean_compiler_ir_livevars_6__accumulate___spec__1___boxed(obj*, obj*, obj*);
-obj* l_RBNode_ins___main___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__2(obj*, obj*, obj*);
 obj* l_Lean_IR_IsLive_visitFnBody___main(obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_livevars_9__bindParams___boxed(obj*, obj*);
 obj* l_Lean_IR_IsLive_visitArg(obj*, obj*, obj*);
@@ -69,7 +68,6 @@ uint8 l_RBNode_isRed___main___rarg(obj*);
 obj* l_Lean_IR_IsLive_visitFnBody___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_hasLiveVar(obj*, obj*, obj*);
 obj* l_Lean_IR_IsLive_visitJP___boxed(obj*, obj*, obj*);
-obj* l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(obj*, obj*, obj*);
 obj* l_RBNode_erase___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__1(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_livevars_4__collectArray___at___private_init_lean_compiler_ir_livevars_5__collectArgs___spec__1___boxed(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_livevars_3__collectArg___main(obj*, obj*);
@@ -104,9 +102,12 @@ obj* l___private_init_lean_compiler_ir_livevars_3__collectArg(obj*, obj*);
 obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_livevars_5__collectArgs___spec__2___boxed(obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_livevars_6__accumulate(obj*, obj*);
 obj* l_Lean_IR_IsLive_visitVar(obj*, obj*, obj*);
+obj* l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_livevars_4__collectArray___spec__1(obj*);
 obj* l_RBNode_erase___at___private_init_lean_compiler_ir_livevars_8__bindVar___spec__1___boxed(obj*, obj*);
+obj* l_Lean_IR_mkLiveVarSet(obj*);
 uint8 l_Lean_IR_HasIndex_visitArg___main(obj*, obj*);
+obj* l_RBNode_ins___main___at_Lean_IR_mkLiveVarSet___spec__2(obj*, obj*, obj*);
 obj* l_Lean_IR_IsLive_visitArg___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_IsLive_visitVar(obj* x_1, obj* x_2, obj* x_3) {
 _start:
@@ -671,23 +672,7 @@ x_1 = lean::box(0);
 return x_1;
 }
 }
-obj* l___private_init_lean_compiler_ir_livevars_1__skip(obj* x_1) {
-_start:
-{
-lean::inc(x_1);
-return x_1;
-}
-}
-obj* l___private_init_lean_compiler_ir_livevars_1__skip___boxed(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l___private_init_lean_compiler_ir_livevars_1__skip(x_1);
-lean::dec(x_1);
-return x_2;
-}
-}
-obj* l_RBNode_ins___main___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__2(obj* x_1, obj* x_2, obj* x_3) {
+obj* l_RBNode_ins___main___at_Lean_IR_mkLiveVarSet___spec__2(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 if (lean::obj_tag(x_1) == 0)
@@ -733,7 +718,7 @@ return x_1;
 else
 {
 obj* x_14; 
-x_14 = l_RBNode_ins___main___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__2(x_11, x_2, x_3);
+x_14 = l_RBNode_ins___main___at_Lean_IR_mkLiveVarSet___spec__2(x_11, x_2, x_3);
 lean::cnstr_set(x_1, 3, x_14);
 return x_1;
 }
@@ -741,7 +726,7 @@ return x_1;
 else
 {
 obj* x_15; 
-x_15 = l_RBNode_ins___main___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__2(x_8, x_2, x_3);
+x_15 = l_RBNode_ins___main___at_Lean_IR_mkLiveVarSet___spec__2(x_8, x_2, x_3);
 lean::cnstr_set(x_1, 0, x_15);
 return x_1;
 }
@@ -779,7 +764,7 @@ return x_22;
 else
 {
 obj* x_23; obj* x_24; 
-x_23 = l_RBNode_ins___main___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__2(x_19, x_2, x_3);
+x_23 = l_RBNode_ins___main___at_Lean_IR_mkLiveVarSet___spec__2(x_19, x_2, x_3);
 x_24 = lean::alloc_cnstr(1, 4, 1);
 lean::cnstr_set(x_24, 0, x_16);
 lean::cnstr_set(x_24, 1, x_17);
@@ -792,7 +777,7 @@ return x_24;
 else
 {
 obj* x_25; obj* x_26; 
-x_25 = l_RBNode_ins___main___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__2(x_16, x_2, x_3);
+x_25 = l_RBNode_ins___main___at_Lean_IR_mkLiveVarSet___spec__2(x_16, x_2, x_3);
 x_26 = lean::alloc_cnstr(1, 4, 1);
 lean::cnstr_set(x_26, 0, x_25);
 lean::cnstr_set(x_26, 1, x_17);
@@ -834,14 +819,14 @@ x_34 = l_RBNode_isRed___main___rarg(x_31);
 if (x_34 == 0)
 {
 obj* x_35; 
-x_35 = l_RBNode_ins___main___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__2(x_31, x_2, x_3);
+x_35 = l_RBNode_ins___main___at_Lean_IR_mkLiveVarSet___spec__2(x_31, x_2, x_3);
 lean::cnstr_set(x_1, 3, x_35);
 return x_1;
 }
 else
 {
 obj* x_36; 
-x_36 = l_RBNode_ins___main___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__2(x_31, x_2, x_3);
+x_36 = l_RBNode_ins___main___at_Lean_IR_mkLiveVarSet___spec__2(x_31, x_2, x_3);
 if (lean::obj_tag(x_36) == 0)
 {
 lean::free_heap_obj(x_1);
@@ -1514,14 +1499,14 @@ x_174 = l_RBNode_isRed___main___rarg(x_28);
 if (x_174 == 0)
 {
 obj* x_175; 
-x_175 = l_RBNode_ins___main___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__2(x_28, x_2, x_3);
+x_175 = l_RBNode_ins___main___at_Lean_IR_mkLiveVarSet___spec__2(x_28, x_2, x_3);
 lean::cnstr_set(x_1, 0, x_175);
 return x_1;
 }
 else
 {
 obj* x_176; 
-x_176 = l_RBNode_ins___main___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__2(x_28, x_2, x_3);
+x_176 = l_RBNode_ins___main___at_Lean_IR_mkLiveVarSet___spec__2(x_28, x_2, x_3);
 if (lean::obj_tag(x_176) == 0)
 {
 lean::free_heap_obj(x_1);
@@ -2233,7 +2218,7 @@ x_322 = l_RBNode_isRed___main___rarg(x_318);
 if (x_322 == 0)
 {
 obj* x_323; obj* x_324; 
-x_323 = l_RBNode_ins___main___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__2(x_318, x_2, x_3);
+x_323 = l_RBNode_ins___main___at_Lean_IR_mkLiveVarSet___spec__2(x_318, x_2, x_3);
 x_324 = lean::alloc_cnstr(1, 4, 1);
 lean::cnstr_set(x_324, 0, x_315);
 lean::cnstr_set(x_324, 1, x_316);
@@ -2245,7 +2230,7 @@ return x_324;
 else
 {
 obj* x_325; 
-x_325 = l_RBNode_ins___main___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__2(x_318, x_2, x_3);
+x_325 = l_RBNode_ins___main___at_Lean_IR_mkLiveVarSet___spec__2(x_318, x_2, x_3);
 if (lean::obj_tag(x_325) == 0)
 {
 lean::dec(x_317);
@@ -2677,7 +2662,7 @@ x_400 = l_RBNode_isRed___main___rarg(x_315);
 if (x_400 == 0)
 {
 obj* x_401; obj* x_402; 
-x_401 = l_RBNode_ins___main___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__2(x_315, x_2, x_3);
+x_401 = l_RBNode_ins___main___at_Lean_IR_mkLiveVarSet___spec__2(x_315, x_2, x_3);
 x_402 = lean::alloc_cnstr(1, 4, 1);
 lean::cnstr_set(x_402, 0, x_401);
 lean::cnstr_set(x_402, 1, x_316);
@@ -2689,7 +2674,7 @@ return x_402;
 else
 {
 obj* x_403; 
-x_403 = l_RBNode_ins___main___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__2(x_315, x_2, x_3);
+x_403 = l_RBNode_ins___main___at_Lean_IR_mkLiveVarSet___spec__2(x_315, x_2, x_3);
 if (lean::obj_tag(x_403) == 0)
 {
 lean::dec(x_318);
@@ -3118,7 +3103,7 @@ return x_477;
 }
 }
 }
-obj* l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(obj* x_1, obj* x_2, obj* x_3) {
+obj* l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 uint8 x_4; 
@@ -3126,16 +3111,42 @@ x_4 = l_RBNode_isRed___main___rarg(x_1);
 if (x_4 == 0)
 {
 obj* x_5; 
-x_5 = l_RBNode_ins___main___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__2(x_1, x_2, x_3);
+x_5 = l_RBNode_ins___main___at_Lean_IR_mkLiveVarSet___spec__2(x_1, x_2, x_3);
 return x_5;
 }
 else
 {
 obj* x_6; obj* x_7; 
-x_6 = l_RBNode_ins___main___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__2(x_1, x_2, x_3);
+x_6 = l_RBNode_ins___main___at_Lean_IR_mkLiveVarSet___spec__2(x_1, x_2, x_3);
 x_7 = l_RBNode_setBlack___main___rarg(x_6);
 return x_7;
 }
+}
+}
+obj* l_Lean_IR_mkLiveVarSet(obj* x_1) {
+_start:
+{
+obj* x_2; obj* x_3; obj* x_4; 
+x_2 = lean::box(0);
+x_3 = lean::box(0);
+x_4 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_2, x_1, x_3);
+return x_4;
+}
+}
+obj* l___private_init_lean_compiler_ir_livevars_1__skip(obj* x_1) {
+_start:
+{
+lean::inc(x_1);
+return x_1;
+}
+}
+obj* l___private_init_lean_compiler_ir_livevars_1__skip___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l___private_init_lean_compiler_ir_livevars_1__skip(x_1);
+lean::dec(x_1);
+return x_2;
 }
 }
 obj* l___private_init_lean_compiler_ir_livevars_2__collectVar(obj* x_1, obj* x_2) {
@@ -3143,7 +3154,7 @@ _start:
 {
 obj* x_3; obj* x_4; 
 x_3 = lean::box(0);
-x_4 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_2, x_1, x_3);
+x_4 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_2, x_1, x_3);
 return x_4;
 }
 }
@@ -3157,7 +3168,7 @@ x_3 = lean::cnstr_get(x_1, 0);
 lean::inc(x_3);
 lean::dec(x_1);
 x_4 = lean::box(0);
-x_5 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_2, x_3, x_4);
+x_5 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_2, x_3, x_4);
 return x_5;
 }
 else
@@ -3337,7 +3348,7 @@ lean::inc(x_6);
 lean::dec(x_3);
 x_7 = l_RBNode_fold___main___at___private_init_lean_compiler_ir_livevars_6__accumulate___spec__1(x_1, x_2, x_4);
 x_8 = lean::box(0);
-x_9 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_7, x_5, x_8);
+x_9 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_7, x_5, x_8);
 x_2 = x_9;
 x_3 = x_6;
 goto _start;
@@ -3736,7 +3747,7 @@ x_6 = lean::cnstr_get(x_1, 1);
 lean::inc(x_6);
 lean::dec(x_1);
 x_7 = lean::box(0);
-x_8 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_2, x_6, x_7);
+x_8 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_2, x_6, x_7);
 return x_8;
 }
 case 2:
@@ -3751,7 +3762,7 @@ x_11 = lean::mk_nat_obj(0u);
 x_12 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_livevars_5__collectArgs___spec__2(x_10, x_10, x_11, x_2);
 lean::dec(x_10);
 x_13 = lean::box(0);
-x_14 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_12, x_9, x_13);
+x_14 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_12, x_9, x_13);
 return x_14;
 }
 case 3:
@@ -3761,7 +3772,7 @@ x_15 = lean::cnstr_get(x_1, 1);
 lean::inc(x_15);
 lean::dec(x_1);
 x_16 = lean::box(0);
-x_17 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_2, x_15, x_16);
+x_17 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_2, x_15, x_16);
 return x_17;
 }
 case 4:
@@ -3771,7 +3782,7 @@ x_18 = lean::cnstr_get(x_1, 1);
 lean::inc(x_18);
 lean::dec(x_1);
 x_19 = lean::box(0);
-x_20 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_2, x_18, x_19);
+x_20 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_2, x_18, x_19);
 return x_20;
 }
 case 5:
@@ -3781,7 +3792,7 @@ x_21 = lean::cnstr_get(x_1, 2);
 lean::inc(x_21);
 lean::dec(x_1);
 x_22 = lean::box(0);
-x_23 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_2, x_21, x_22);
+x_23 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_2, x_21, x_22);
 return x_23;
 }
 case 6:
@@ -3818,7 +3829,7 @@ x_32 = lean::mk_nat_obj(0u);
 x_33 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_livevars_5__collectArgs___spec__2(x_31, x_31, x_32, x_2);
 lean::dec(x_31);
 x_34 = lean::box(0);
-x_35 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_33, x_30, x_34);
+x_35 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_33, x_30, x_34);
 return x_35;
 }
 case 11:
@@ -3833,7 +3844,7 @@ x_36 = lean::cnstr_get(x_1, 0);
 lean::inc(x_36);
 lean::dec(x_1);
 x_37 = lean::box(0);
-x_38 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_2, x_36, x_37);
+x_38 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_2, x_36, x_37);
 return x_38;
 }
 }
@@ -6393,7 +6404,7 @@ lean::dec(x_1);
 x_23 = l_Lean_IR_LiveVars_collectFnBody___main(x_22, x_2, x_3);
 x_24 = l___private_init_lean_compiler_ir_livevars_3__collectArg___main(x_21, x_23);
 x_25 = lean::box(0);
-x_26 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_24, x_20, x_25);
+x_26 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_24, x_20, x_25);
 return x_26;
 }
 case 4:
@@ -6408,8 +6419,8 @@ lean::inc(x_29);
 lean::dec(x_1);
 x_30 = l_Lean_IR_LiveVars_collectFnBody___main(x_29, x_2, x_3);
 x_31 = lean::box(0);
-x_32 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_30, x_28, x_31);
-x_33 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_32, x_27, x_31);
+x_32 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_30, x_28, x_31);
+x_33 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_32, x_27, x_31);
 return x_33;
 }
 case 5:
@@ -6424,8 +6435,8 @@ lean::inc(x_36);
 lean::dec(x_1);
 x_37 = l_Lean_IR_LiveVars_collectFnBody___main(x_36, x_2, x_3);
 x_38 = lean::box(0);
-x_39 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_37, x_35, x_38);
-x_40 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_39, x_34, x_38);
+x_39 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_37, x_35, x_38);
+x_40 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_39, x_34, x_38);
 return x_40;
 }
 case 8:
@@ -6438,7 +6449,7 @@ lean::inc(x_42);
 lean::dec(x_1);
 x_43 = l_Lean_IR_LiveVars_collectFnBody___main(x_42, x_2, x_3);
 x_44 = lean::box(0);
-x_45 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_43, x_41, x_44);
+x_45 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_43, x_41, x_44);
 return x_45;
 }
 case 9:
@@ -6462,7 +6473,7 @@ x_50 = lean::mk_nat_obj(0u);
 x_51 = l_Array_miterateAux___main___at_Lean_IR_LiveVars_collectFnBody___main___spec__4(x_2, x_49, x_49, x_50, x_3);
 lean::dec(x_49);
 x_52 = lean::box(0);
-x_53 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_51, x_48, x_52);
+x_53 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_51, x_48, x_52);
 return x_53;
 }
 case 11:
@@ -6506,7 +6517,7 @@ lean::inc(x_62);
 lean::dec(x_1);
 x_63 = l_Lean_IR_LiveVars_collectFnBody___main(x_62, x_2, x_3);
 x_64 = lean::box(0);
-x_65 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_63, x_61, x_64);
+x_65 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_63, x_61, x_64);
 return x_65;
 }
 }
@@ -6604,6 +6615,7 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_na
 l_Lean_IR_LiveVarSet_inhabited = _init_l_Lean_IR_LiveVarSet_inhabited();
 lean::mark_persistent(l_Lean_IR_LiveVarSet_inhabited);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "LiveVarSet"), "inhabited"), l_Lean_IR_LiveVarSet_inhabited);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "mkLiveVarSet"), 1, l_Lean_IR_mkLiveVarSet);
 l___private_init_lean_compiler_ir_livevars_6__accumulate___closed__1 = _init_l___private_init_lean_compiler_ir_livevars_6__accumulate___closed__1();
 lean::mark_persistent(l___private_init_lean_compiler_ir_livevars_6__accumulate___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "LiveVars"), "collectExpr"), 2, l_Lean_IR_LiveVars_collectExpr);

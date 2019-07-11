@@ -24,7 +24,6 @@ obj* l_List_head___rarg___boxed(obj*, obj*);
 obj* l_List_notElem(obj*);
 obj* l_List_foldr1Opt___rarg(obj*, obj*);
 obj* l_List_zipWith___main___rarg(obj*, obj*, obj*);
-uint8 l_List_decidableMem___rarg(obj*, obj*, obj*);
 uint8 l_List_any___rarg(obj*, obj*);
 obj* l_List_join(obj*);
 namespace lean {
@@ -50,7 +49,6 @@ obj* l_List_intersperse___main___rarg(obj*, obj*);
 obj* l_List_intersperse___main(obj*);
 obj* l_List_lengthAux___main(obj*);
 obj* l_List_and___boxed(obj*);
-obj* l_List_insert(obj*);
 obj* l_List_get___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_lengthAux___main___rarg(obj*, obj*);
 obj* l_List_head___main___rarg___boxed(obj*, obj*);
@@ -60,7 +58,6 @@ uint8 l_List_foldr___main___at_List_or___spec__1(uint8, obj*);
 obj* l_List_rangeAux(obj*, obj*);
 obj* l_List_getOpt___main___rarg(obj*, obj*);
 obj* l_List_partition___rarg(obj*, obj*);
-obj* l_List_HasInsert___rarg(obj*);
 obj* l_List_foldr1Opt(obj*);
 obj* l_List_filterMap(obj*, obj*);
 obj* l_List_bind(obj*, obj*);
@@ -89,7 +86,6 @@ obj* l_List_enumFrom(obj*);
 obj* l_List_elem___main(obj*);
 obj* l_List_HasEmptyc(obj*);
 obj* l_List_reverseAux(obj*);
-obj* l_List_insert___rarg(obj*, obj*, obj*);
 obj* l_List_map___main___rarg(obj*, obj*);
 obj* l_List_HasLess___boxed(obj*, obj*);
 uint8 l_List_notElem___rarg(obj*, obj*, obj*);
@@ -110,11 +106,9 @@ obj* l_List_filterAux___main___rarg(obj*, obj*, obj*);
 obj* l_List_append(obj*);
 obj* l_List_isSuffixOf___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_lookup___main(obj*, obj*);
-obj* l_List_decidableMem(obj*);
 uint8 l_Not_Decidable___rarg(uint8);
 obj* l_List_replicate(obj*);
 obj* l_List_init(obj*);
-obj* l_List_HasMem(obj*);
 uint8 l_List_foldr___main___at_List_all___spec__1___rarg(obj*, uint8, obj*);
 obj* l_List_partitionAux___main___rarg(obj*, obj*, obj*);
 obj* l_List_partitionAux___main(obj*);
@@ -150,7 +144,6 @@ obj* l_List_partition___rarg___closed__1;
 obj* l_List_spanAux___main___rarg(obj*, obj*, obj*);
 obj* l_List_rangeAux___main(obj*, obj*);
 obj* l_List_HasLessEq(obj*, obj*);
-uint8 l_List_decidableMem___main___rarg(obj*, obj*, obj*);
 obj* l_List_foldr1Opt___main___rarg(obj*, obj*);
 obj* l_List_foldr1___main___rarg(obj*, obj*, obj*);
 obj* l_List_filterAux___main___at_List_removeAll___spec__1(obj*);
@@ -176,7 +169,6 @@ obj* l_List_pure(obj*);
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
-obj* l_List_decidableMem___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_getLastOfNonNil___main___rarg(obj*, obj*);
 uint8 l_List_hasDecidableLt___main___at_List_hasDecidableLe___spec__1___rarg(obj*, obj*, obj*, obj*);
 obj* l_List_init___rarg(obj*);
@@ -211,7 +203,6 @@ uint8 l_List_hasDecidableLt___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_List_foldl___main___rarg(obj*, obj*, obj*);
 obj* l_List_dropWhile___main(obj*);
 obj* l_List_reverseAux___main___rarg(obj*, obj*);
-obj* l_List_HasInsert(obj*);
 obj* l_List_lengthAux___rarg(obj*, obj*);
 obj* l_List_lengthAux___main___rarg___boxed(obj*, obj*);
 obj* l_List_spanAux___rarg(obj*, obj*, obj*);
@@ -233,7 +224,6 @@ obj* l_List_spanAux___main(obj*);
 obj* l_List_notElem___rarg___boxed(obj*, obj*, obj*);
 uint8 l_List_foldr___main___at_List_and___spec__1(uint8, obj*);
 obj* l_List_isSuffixOf(obj*);
-obj* l_List_decidableMem___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_hasDecEq(obj*);
 obj* l_List_zipWith___rarg(obj*, obj*, obj*);
 obj* l_List_head___main___rarg(obj*, obj*);
@@ -284,7 +274,6 @@ obj* l_List_spanAux(obj*);
 obj* l_List_getLast___main(obj*);
 obj* l_List_HasAppend___closed__1;
 obj* l_List_zip___rarg___lambda__1(obj*, obj*);
-obj* l_List_decidableMem___main(obj*);
 obj* l_List_foldr___main___at_List_any___spec__1(obj*);
 obj* l_List_isPrefixOf___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_foldl(obj*, obj*);
@@ -558,109 +547,6 @@ _start:
 obj* x_2; 
 x_2 = l_List_HasAppend___closed__1;
 return x_2;
-}
-}
-obj* l_List_HasMem(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = lean::box(0);
-return x_2;
-}
-}
-uint8 l_List_decidableMem___main___rarg(obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-if (lean::obj_tag(x_3) == 0)
-{
-uint8 x_4; 
-lean::dec(x_2);
-lean::dec(x_1);
-x_4 = 0;
-return x_4;
-}
-else
-{
-obj* x_5; obj* x_6; obj* x_7; uint8 x_8; 
-x_5 = lean::cnstr_get(x_3, 0);
-lean::inc(x_5);
-x_6 = lean::cnstr_get(x_3, 1);
-lean::inc(x_6);
-lean::dec(x_3);
-lean::inc(x_1);
-lean::inc(x_2);
-x_7 = lean::apply_2(x_1, x_2, x_5);
-x_8 = lean::unbox(x_7);
-lean::dec(x_7);
-if (x_8 == 0)
-{
-uint8 x_9; 
-x_9 = l_List_decidableMem___main___rarg(x_1, x_2, x_6);
-if (x_9 == 0)
-{
-uint8 x_10; 
-x_10 = 0;
-return x_10;
-}
-else
-{
-uint8 x_11; 
-x_11 = 1;
-return x_11;
-}
-}
-else
-{
-uint8 x_12; 
-lean::dec(x_6);
-lean::dec(x_2);
-lean::dec(x_1);
-x_12 = 1;
-return x_12;
-}
-}
-}
-}
-obj* l_List_decidableMem___main(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_List_decidableMem___main___rarg___boxed), 3, 0);
-return x_2;
-}
-}
-obj* l_List_decidableMem___main___rarg___boxed(obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-uint8 x_4; obj* x_5; 
-x_4 = l_List_decidableMem___main___rarg(x_1, x_2, x_3);
-x_5 = lean::box(x_4);
-return x_5;
-}
-}
-uint8 l_List_decidableMem___rarg(obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-uint8 x_4; 
-x_4 = l_List_decidableMem___main___rarg(x_1, x_2, x_3);
-return x_4;
-}
-}
-obj* l_List_decidableMem(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_List_decidableMem___rarg___boxed), 3, 0);
-return x_2;
-}
-}
-obj* l_List_decidableMem___rarg___boxed(obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-uint8 x_4; obj* x_5; 
-x_4 = l_List_decidableMem___rarg(x_1, x_2, x_3);
-x_5 = lean::box(x_4);
-return x_5;
 }
 }
 obj* l_List_HasEmptyc(obj* x_1) {
@@ -3397,53 +3283,6 @@ x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_List_unzip___rarg), 1, 0);
 return x_3;
 }
 }
-obj* l_List_insert___rarg(obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-uint8 x_4; 
-lean::inc(x_3);
-lean::inc(x_2);
-x_4 = l_List_decidableMem___main___rarg(x_1, x_2, x_3);
-if (x_4 == 0)
-{
-obj* x_5; 
-x_5 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_5, 0, x_2);
-lean::cnstr_set(x_5, 1, x_3);
-return x_5;
-}
-else
-{
-lean::dec(x_2);
-return x_3;
-}
-}
-}
-obj* l_List_insert(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_List_insert___rarg), 3, 0);
-return x_2;
-}
-}
-obj* l_List_HasInsert___rarg(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_List_insert___rarg), 3, 1);
-lean::closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
-obj* l_List_HasInsert(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_List_HasInsert___rarg), 1, 0);
-return x_2;
-}
-}
 obj* l_Nat_repeatAux___main___at_List_replicate___spec__1___rarg(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -4622,8 +4461,6 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("List"), "append"
 l_List_HasAppend___closed__1 = _init_l_List_HasAppend___closed__1();
 lean::mark_persistent(l_List_HasAppend___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("List"), "HasAppend"), 1, l_List_HasAppend);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("List"), "HasMem"), 1, l_List_HasMem);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("List"), "decidableMem"), 1, l_List_decidableMem);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("List"), "HasEmptyc"), 1, l_List_HasEmptyc);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("List"), "erase"), 1, l_List_erase);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("List"), "lengthAux"), 1, l_List_lengthAux);
@@ -4667,8 +4504,6 @@ l_List_zip___rarg___closed__1 = _init_l_List_zip___rarg___closed__1();
 lean::mark_persistent(l_List_zip___rarg___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("List"), "zip"), 2, l_List_zip);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("List"), "unzip"), 2, l_List_unzip);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("List"), "insert"), 1, l_List_insert);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("List"), "HasInsert"), 1, l_List_HasInsert);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("List"), "replicate"), 1, l_List_replicate);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("List"), "rangeAux"), 2, l_List_rangeAux);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("List"), "range"), 1, l_List_range);

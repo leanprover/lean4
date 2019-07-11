@@ -43,6 +43,7 @@ pushLeading >> symbol sym lbp >> termParser lbp
 @[builtinTermParser] def str : Parser := strLit
 @[builtinTermParser] def type := parser! symbol "Type" appPrec
 @[builtinTermParser] def sort := parser! symbol "Sort" appPrec
+@[builtinTermParser] def prop := parser! symbol "Prop" appPrec
 @[builtinTermParser] def hole := parser! symbol "_" appPrec
 @[builtinTermParser] def «sorry» := parser! symbol "sorry" appPrec
 @[builtinTermParser] def cdot   := parser! symbol "·" appPrec
@@ -102,7 +103,8 @@ def checkIsSort := checkLeading (fun leading => leading.isOfKind `Lean.Parser.Te
 @[builtinTermParser] def arrow   := tparser! unicodeInfixR " → " " -> " 25
 @[builtinTermParser] def array   := tparser! pushLeading >> symbolNoWs "[" (appPrec+1) >> termParser >>"]"
 
-@[builtinTermParser] def fcomp := tparser! infixR " ∘ " 90
+@[builtinTermParser] def dollar := tparser! infixR " $ " 1
+@[builtinTermParser] def fcomp  := tparser! infixR " ∘ " 90
 
 @[builtinTermParser] def prod  := tparser! infixR " × " 35
 

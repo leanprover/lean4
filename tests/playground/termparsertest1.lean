@@ -103,7 +103,17 @@ match x with
 "let x[i] := f 20; x",
 "-x + y",
 "!x",
-"¬ a ∧ b"
+"¬ a ∧ b",
+"
+do
+  x ← f a;
+  x : Nat ← f a;
+  g x;
+  let y := g x;
+  (a, b) <- h x y;
+  let (a, b) := (b, a);
+  pure (a + b)",
+"do { x ← f a; pure $ a + a }"
 ];
 testFailures [
 "f {x : a} -> b",

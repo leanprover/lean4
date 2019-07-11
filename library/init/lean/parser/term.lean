@@ -88,8 +88,17 @@ def letLhsId      := parser! ident >> optType >> " := "
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
 def letLhsBinders := parser! ident >> checkWsBefore "expected space before binders" >> many bracktedBinder >> optType >> " := "
 def letLhsPat     := parser! termParser >> " := "
-def letLhs        := (try letLhsId <|> try letLhsBinders <|> letLhsPat)
+def letLhs        := try letLhsId <|> try letLhsBinders <|> letLhsPat
 @[builtinTermParser] def «let» := parser! "let " >> letLhs >> termParser >> "; " >> termParser
+def leftArrow : Parser := unicodeSymbol " ← " " <- "
+def doLet  := parser! "let " >> letLhs >> termParser
+def doId   := parser! try (ident >> optType >> leftArrow) >> termParser
+def doPat  := parser! try (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
+def doExpr := parser! termParser
+def doElem := doLet <|> doId <|> doPat <|> doExpr
+def doSeq  := parser! many (doElem >> "; ") >> termParser
+def bracketedDoSeq := parser! "{" >> doSeq >> "}"
+@[builtinTermParser] def «do»  := parser! "do " >> (bracketedDoSeq <|> doSeq)
 
 @[builtinTermParser] def not    := parser! symbol "¬" 40 >> termParser 40
 @[builtinTermParser] def bnot   := parser! symbol "!" 40 >> termParser 40

@@ -58,11 +58,6 @@ reserve prefix `!`:40
 reserve infixl ` && `:35
 reserve infixl ` || `:30
 
-/- set operations -/
-
-reserve infix ` ∈ `:50
-reserve infix ` ∉ `:50
-
 /- other symbols -/
 
 reserve infixl ` ++ `:65
@@ -350,8 +345,6 @@ class HasOrelse   (α : Type u) := (orelse  : α → α → α)
 class HasAndthen  (α : Type u) := (andthen : α → α → α)
 class HasEquiv    (α : Sort u) := (Equiv : α → α → Prop)
 class HasEmptyc   (α : Type u) := (emptyc : α)
-/- Type class for set-like membership -/
-class HasMem (α : outParam $ Type u) (γ : Type v) := (mem : α → γ → Prop)
 
 class HasPow (α : Type u) (β : Type v) :=
 (pow : α → β → α)
@@ -359,8 +352,6 @@ class HasPow (α : Type u) (β : Type v) :=
 export HasAndthen (andthen)
 export HasPow (pow)
 
-infix ∈        := HasMem.mem
-notation a ` ∉ ` s := ¬ HasMem.mem a s
 infix +        := HasAdd.add
 infix *        := HasMul.mul
 infix -        := HasSub.sub

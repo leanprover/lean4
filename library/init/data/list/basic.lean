@@ -77,25 +77,6 @@ theorem appendAssoc : ∀ (as bs cs : List α), (as ++ bs) ++ cs = as ++ (bs ++ 
   have h₄ : a::(as ++ (bs ++ cs)) = (a::as ++ (bs ++ cs)) from (consAppend a as (bs++cs)).symm;
   Eq.trans (Eq.trans (Eq.trans h₁ h₂) h₃) h₄
 
-inductive Mem : α → List α → Prop
-| eqHead (a : α) (as : List α) : Mem a (a::as)
-| inTail {a : α} (b : α) {bs : List α} (h : Mem a bs) : Mem a (b::bs)
-
-instance : HasMem α (List α) :=
-⟨Mem⟩
-
-theorem notMem : ∀ {a b : α} {bs : List α}, a ≠ b → ¬ a ∈ bs → ¬ a ∈ b :: bs
-| _ _ _ h _  (Mem.eqHead _ _)  := absurd rfl h
-| _ _ _ _ h₁ (Mem.inTail _ h₂) := absurd h₂ h₁
-
-instance decidableMem [DecidableEq α] (a : α) : ∀ (l : List α), Decidable (a ∈ l)
-| []      := isFalse (fun h => match h with end)
-| (b::bs) :=
-  if h₁ : a = b then isTrue (h₁.symm ▸ Mem.eqHead b bs)
-  else match decidableMem bs with
-    | isTrue  h₂ => isTrue (Mem.inTail _ h₂)
-    | isFalse h₂ => isFalse (notMem h₁ h₂)
-
 instance : HasEmptyc (List α) :=
 ⟨List.nil⟩
 
@@ -262,9 +243,6 @@ zipWith Prod.mk
 def unzip : List (α × β) → List α × List β
 | []            := ([], [])
 | ((a, b) :: t) := match unzip t with | (al, bl) => (a::al, b::bl)
-
-protected def insert [DecidableEq α] (a : α) (l : List α) : List α :=
-if a ∈ l then l else a :: l
 
 def replicate (n : Nat) (a : α) : List α :=
 n.repeat (fun xs => a :: xs) []

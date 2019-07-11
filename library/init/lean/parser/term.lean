@@ -45,7 +45,8 @@ pushLeading >> symbol sym lbp >> termParser lbp
 @[builtinTermParser] def sort := parser! symbol "Sort" appPrec
 @[builtinTermParser] def hole := parser! symbol "_" appPrec
 @[builtinTermParser] def «sorry» := parser! symbol "sorry" appPrec
-@[builtinTermParser] def cdot := parser! symbol "·" appPrec
+@[builtinTermParser] def cdot   := parser! symbol "·" appPrec
+@[builtinTermParser] def emptyC := parser! symbol "∅" appPrec
 def typeAscription := parser! " : " >> termParser
 def tupleTail      := parser! ", " >> sepBy1 termParser ", "
 def parenSpecial : Parser := optional (tupleTail <|> typeAscription)

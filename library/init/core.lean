@@ -13,7 +13,6 @@ notation f ` $ `:1 a:0 := f a
 /- Logical operations and relations -/
 
 reserve prefix `¬`:40
-reserve prefix `~`:40
 reserve infixr ` ∧ `:35
 reserve infixr ` /\ `:35
 reserve infixr ` \/ `:30
@@ -27,15 +26,10 @@ reserve infix ` ~= `:50
 reserve infix ` ≅ `:50
 reserve infix ` ≠ `:50
 reserve infix ` ≈ `:50
-reserve infix ` ~ `:50
-reserve infix ` ≡ `:50
-reserve infixl ` ⬝ `:75
 reserve infixr ` ▸ `:75
-reserve infixr ` ▹ `:75
 
 /- types and Type constructors -/
 
-reserve infixr ` ⊕ `:30
 reserve infixr ` × `:35
 
 /- arithmetic operations -/
@@ -68,17 +62,9 @@ reserve infixl ` || `:30
 
 reserve infix ` ∈ `:50
 reserve infix ` ∉ `:50
-reserve infixl ` ∩ `:70
-reserve infixl ` ∪ `:65
-reserve infix ` ⊆ `:50
-reserve infix ` ⊇ `:50
-reserve infix ` ⊂ `:50
-reserve infix ` ⊃ `:50
-reserve infix ` \ `:70
 
 /- other symbols -/
 
-reserve infix ` ∣ `:50
 reserve infixl ` ++ `:65
 reserve infixr ` :: `:67
 
@@ -354,7 +340,6 @@ class HasMul      (α : Type u) := (mul : α → α → α)
 class HasNeg      (α : Type u) := (neg : α → α)
 class HasSub      (α : Type u) := (sub : α → α → α)
 class HasDiv      (α : Type u) := (div : α → α → α)
-class HasDivides  (α : Type u) := (Divides : α → α → Prop)
 class HasMod      (α : Type u) := (mod : α → α → α)
 class HasModn     (α : Type u) := (modn : α → Nat → α)
 class HasLessEq   (α : Type u) := (LessEq : α → α → Prop)
@@ -363,20 +348,8 @@ class HasBeq      (α : Type u) := (beq : α → α → Bool)
 class HasAppend   (α : Type u) := (append : α → α → α)
 class HasOrelse   (α : Type u) := (orelse  : α → α → α)
 class HasAndthen  (α : Type u) := (andthen : α → α → α)
-class HasUnion    (α : Type u) := (union : α → α → α)
-class HasInter    (α : Type u) := (inter : α → α → α)
-class HasSDiff    (α : Type u) := (sdiff : α → α → α)
 class HasEquiv    (α : Sort u) := (Equiv : α → α → Prop)
-class HasSubset   (α : Type u) := (Subset : α → α → Prop)
-class HasSSubset  (α : Type u) := (SSubset : α → α → Prop)
-/- Type classes HasEmptyc and HasInsert are
-   used to implement polymorphic notation for collections.
-   Example: {a, b, c}. -/
 class HasEmptyc   (α : Type u) := (emptyc : α)
-class HasInsert   (α : outParam $ Type u) (γ : Type v) := (insert : α → γ → γ)
-/- Type class used to implement the notation { a ∈ c | p a } -/
-class HasSep (α : outParam $ Type u) (γ : Type v) :=
-(sep : (α → Prop) → γ → γ)
 /- Type class for set-like membership -/
 class HasMem (α : outParam $ Type u) (γ : Type v) := (mem : α → γ → Prop)
 
@@ -392,7 +365,6 @@ infix +        := HasAdd.add
 infix *        := HasMul.mul
 infix -        := HasSub.sub
 infix /        := HasDiv.div
-infix ∣        := HasDivides.Divides
 infix %        := HasMod.mod
 infix %ₙ       := HasModn.modn
 prefix -       := HasNeg.neg
@@ -402,11 +374,6 @@ infix <        := HasLess.Less
 infix ==       := HasBeq.beq
 infix ++       := HasAppend.append
 notation `∅`   := HasEmptyc.emptyc _
-infix ∪        := HasUnion.union
-infix ∩        := HasInter.inter
-infix ⊆        := HasSubset.Subset
-infix ⊂        := HasSSubset.SSubset
-infix \        := HasSDiff.sdiff
 infix ≈        := HasEquiv.Equiv
 infixr ^       := HasPow.pow
 infixr /\      := And
@@ -429,22 +396,10 @@ infix >=       := GreaterEq
 infix ≥        := GreaterEq
 infix >        := Greater
 
-@[reducible] def Superset {α : Type u} [HasSubset α] (a b : α) : Prop := HasSubset.Subset b a
-@[reducible] def SSuperset {α : Type u} [HasSSubset α] (a b : α) : Prop := HasSSubset.SSubset b a
-
-infix ⊇        := Superset
-infix ⊃        := SSuperset
-
 @[inline] def bit0 {α : Type u} [s  : HasAdd α] (a  : α)                 : α := a + a
 @[inline] def bit1 {α : Type u} [s₁ : HasOne α] [s₂ : HasAdd α] (a : α) : α := (bit0 a) + 1
 
 attribute [matchPattern] HasZero.zero HasOne.one bit0 bit1 HasAdd.add HasNeg.neg
-
-export HasInsert (insert)
-
-/- The Empty collection -/
-@[inline] def singleton {α : Type u} {γ : Type v} [HasEmptyc γ] [HasInsert α γ] (a : α) : γ :=
-HasInsert.insert a ∅
 
 /- Nat basic instances -/
 @[extern cpp "lean::nat_add"]
@@ -1239,18 +1194,16 @@ end Subtype
 
 /- Sum -/
 
-infixr ⊕ := Sum
-
 section
 variables {α : Type u} {β : Type v}
 
-instance Sum.inhabitedLeft [h : Inhabited α] : Inhabited (α ⊕ β) :=
+instance Sum.inhabitedLeft [h : Inhabited α] : Inhabited (Sum α β) :=
 ⟨Sum.inl (default α)⟩
 
-instance Sum.inhabitedRight [h : Inhabited β] : Inhabited (α ⊕ β) :=
+instance Sum.inhabitedRight [h : Inhabited β] : Inhabited (Sum α β) :=
 ⟨Sum.inr (default β)⟩
 
-instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : DecidableEq (α ⊕ β) :=
+instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : DecidableEq (Sum α β) :=
 {decEq := fun a b =>
  match a, b with
  | (Sum.inl a), (Sum.inl b) =>

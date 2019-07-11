@@ -88,6 +88,9 @@ abbrev JPLiveVarMap := RBMap JoinPointId LiveVarSet (fun j₁ j₂ => j₁.idx <
 
 instance LiveVarSet.inhabited : Inhabited LiveVarSet := ⟨{}⟩
 
+def mkLiveVarSet (x : VarId) : LiveVarSet :=
+RBTree.empty.insert x
+
 namespace LiveVars
 
 abbrev Collector := LiveVarSet → LiveVarSet

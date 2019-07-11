@@ -260,7 +260,7 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
   match x with
   | Arg.var x =>
     let info := getVarInfo ctx x;
-    if info.ref && !info.persistent && !info.consume then (addInc x b, {x}) else (b, {x})
+    if info.ref && !info.persistent && !info.consume then (addInc x b, mkLiveVarSet x) else (b, mkLiveVarSet x)
   | _         => (b, {})
 | b@(FnBody.jmp j xs) ctx :=
   let jLiveVars := getJPLiveVars ctx j;

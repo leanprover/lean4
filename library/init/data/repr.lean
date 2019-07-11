@@ -42,7 +42,7 @@ instance : HasRepr Unit :=
 instance {α : Type u} [HasRepr α] : HasRepr (Option α) :=
 ⟨fun o => match o with | none => "none" | (some a) => "(some " ++ repr a ++ ")"⟩
 
-instance {α : Type u} {β : Type v} [HasRepr α] [HasRepr β] : HasRepr (α ⊕ β) :=
+instance {α : Type u} {β : Type v} [HasRepr α] [HasRepr β] : HasRepr (Sum α β) :=
 ⟨fun s => match s with | (inl a) => "(inl " ++ repr a ++ ")" | (inr b) => "(inr " ++ repr b ++ ")"⟩
 
 instance {α : Type u} {β : Type v} [HasRepr α] [HasRepr β] : HasRepr (α × β) :=

@@ -390,6 +390,9 @@ Decl.extern f xs ty e
 abbrev IndexSet := RBTree Index Index.lt
 instance vsetInh : Inhabited IndexSet := ⟨{}⟩
 
+def mkIndexSet (idx : Index) : IndexSet :=
+RBTree.empty.insert idx
+
 inductive LocalContextEntry
 | param     : IRType → LocalContextEntry
 | localVar  : IRType → Expr → LocalContextEntry

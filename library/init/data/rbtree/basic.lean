@@ -19,6 +19,9 @@ instance (α : Type u) (lt : α → α → Bool) : HasEmptyc (RBTree α lt) :=
 namespace RBTree
 variables {α : Type u} {β : Type v} {lt : α → α → Bool}
 
+@[inline] def empty : RBTree α lt :=
+RBMap.empty
+
 @[inline] def depth (f : Nat → Nat → Nat) (t : RBTree α lt) : Nat :=
 RBMap.depth f t
 
@@ -55,8 +58,6 @@ instance [HasRepr α] : HasRepr (RBTree α lt) :=
 
 @[inline] def insert (t : RBTree α lt) (a : α) : RBTree α lt :=
 RBMap.insert t a ()
-
-instance : HasInsert α (RBTree α lt) := ⟨fun a s => s.insert a⟩
 
 @[inline] def erase (t : RBTree α lt) (a : α) : RBTree α lt :=
 RBMap.erase t a

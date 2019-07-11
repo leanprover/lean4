@@ -266,9 +266,6 @@ def unzip : List (α × β) → List α × List β
 protected def insert [DecidableEq α] (a : α) (l : List α) : List α :=
 if a ∈ l then l else a :: l
 
-instance [DecidableEq α] : HasInsert α (List α) :=
-⟨List.insert⟩
-
 def replicate (n : Nat) (a : α) : List α :=
 n.repeat (fun xs => a :: xs) []
 

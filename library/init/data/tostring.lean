@@ -76,7 +76,7 @@ instance : HasToString USize :=
 instance {α : Type u} [HasToString α] : HasToString (Option α) :=
 ⟨fun o => match o with | none => "none" | (some a) => "(some " ++ toString a ++ ")"⟩
 
-instance {α : Type u} {β : Type v} [HasToString α] [HasToString β] : HasToString (α ⊕ β) :=
+instance {α : Type u} {β : Type v} [HasToString α] [HasToString β] : HasToString (Sum α β) :=
 ⟨fun s => match s with | (inl a) => "(inl " ++ toString a ++ ")" | (inr b) => "(inr " ++ toString b ++ ")"⟩
 
 instance {α : Type u} {β : Type v} [HasToString α] [HasToString β] : HasToString (α × β) :=

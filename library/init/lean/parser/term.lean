@@ -66,6 +66,8 @@ def typeSpec := parser! " : " >> termParser
 def optType : Parser := optional typeSpec
 @[builtinTermParser] def subtype := parser! "{" >> ident >> optType >> " // " >> termParser >> "}"
 @[builtinTermParser] def list := parser! symbol "[" appPrec >> sepBy termParser "," true >> "]"
+@[builtinTermParser] def explicit := parser! symbol "@" appPrec >> id
+@[builtinTermParser] def inaccessible := parser! symbol ".(" appPrec >> termParser >> ")"
 def binderIdent : Parser  := ident <|> hole
 def binderType (requireType := false) : Parser := if requireType then " : " >> termParser else optional (" : " >> termParser)
 def binderDefault := parser! " := " >> termParser
@@ -82,10 +84,12 @@ def equation := parser! " | " >> sepBy1 termParser ", " >> " => " >> termParser
 @[builtinTermParser] def «nomatch» := parser! "nomatch " >> termParser
 
 def namedArgument  := tparser! try ("(" >> ident >> " := ") >> termParser >> ")"
-@[builtinTermParser] def app   := tparser! pushLeading >> (namedArgument <|> termParser appPrec)
-@[builtinTermParser] def proj  := tparser! pushLeading >> symbolNoWs "." (appPrec+1) >> (fieldIdx <|> ident)
-@[builtinTermParser] def arrow := tparser! unicodeInfixR " → " " -> " 25
-@[builtinTermParser] def array := tparser! pushLeading >> symbolNoWs "[" (appPrec+1) >> termParser >>"]"
+@[builtinTermParser] def app     := tparser! pushLeading >> (namedArgument <|> termParser appPrec)
+def checkIsSort := checkLeading (fun leading => leading.isOfKind `Lean.Parser.Term.type || leading.isOfKind `Lean.Parser.Term.sort)
+@[builtinTermParser] def sortApp := tparser! checkIsSort >> pushLeading >> levelParser appPrec
+@[builtinTermParser] def proj    := tparser! pushLeading >> symbolNoWs "." (appPrec+1) >> (fieldIdx <|> ident)
+@[builtinTermParser] def arrow   := tparser! unicodeInfixR " → " " -> " 25
+@[builtinTermParser] def array   := tparser! pushLeading >> symbolNoWs "[" (appPrec+1) >> termParser >>"]"
 
 @[builtinTermParser] def fcomp := tparser! infixR " ∘ " 90
 

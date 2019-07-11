@@ -85,7 +85,11 @@ match x with
   | some (a, b) => a + b
   | none        => 1
 | none => 0
-"
+",
+"Type u",
+"Sort v",
+"Type 1",
+"f Type 1"
 ];
 testFailures [
 "f {x : a} -> b",

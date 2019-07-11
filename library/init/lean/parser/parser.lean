@@ -1196,12 +1196,6 @@ registerAttribute {
  applicationTime := AttributeApplicationTime.afterCompilation
 }
 
-@[init mkBuiltinParsingTablesRef]
-constant builtinCommandParsingTable : IO.Ref ParsingTables := default _
-
-@[init] def regBuiltinCommandParserAttr : IO Unit :=
-registerBuiltinParserAttribute `builtinCommandParser `Lean.Parser.builtinCommandParsingTable
-
 @[noinline] unsafe def runBuiltinParserUnsafe (kind : String) (ref : IO.Ref ParsingTables) : ParserFn leading :=
 fun a c s =>
 match unsafeIO (do tables ← ref.get; pure $ prattParser kind tables a c s) with
@@ -1210,9 +1204,6 @@ match unsafeIO (do tables ← ref.get; pure $ prattParser kind tables a c s) wit
 
 @[implementedBy runBuiltinParserUnsafe]
 constant runBuiltinParser (kind : String) (ref : IO.Ref ParsingTables) : ParserFn leading := default _
-
-def commandParser (rbp : Nat := 0) : Parser :=
-{ fn := fun _ => runBuiltinParser "command" builtinCommandParsingTable rbp }
 
 /- TODO(Leo): delete -/
 @[init mkBuiltinParsingTablesRef]

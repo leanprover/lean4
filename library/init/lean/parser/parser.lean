@@ -292,6 +292,17 @@ fun a c s =>
 { info := noFirstTokenInfo p.info,
   fn   := optionalFn p.fn }
 
+@[inline] def lookaheadFn {k : ParserKind} (p : ParserFn k) : ParserFn k :=
+fun a c s =>
+  let iniSz  := s.stackSize;
+  let iniPos := s.pos;
+  let s      := p a c s;
+  if s.hasError then s else s.restore iniSz iniPos
+
+@[inline] def lookahead {k : ParserKind} (p : Parser k) : Parser k :=
+{ info := p.info,
+  fn   := lookaheadFn p.fn }
+
 @[specialize] partial def manyAux {k : ParserKind} (p : ParserFn k) : ParserFn k
 | a c s :=
   let iniSz  := s.stackSize;

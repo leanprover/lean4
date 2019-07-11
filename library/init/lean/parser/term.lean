@@ -81,17 +81,20 @@ def bracktedBinder (requireType := false) := explicitBinder requireType <|> impl
 @[builtinTermParser] def depArrow := parser! bracktedBinder true >> unicodeSymbolCheckPrec " → " " -> " 25 >> termParser
 def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser! unicodeSymbol "∀" "forall" >> many1 (simpleBinder <|> bracktedBinder) >> ", " >> termParser
-def equation := parser! " | " >> sepBy1 termParser ", " >> " => " >> termParser
-@[builtinTermParser] def «match» := parser! "match " >> sepBy1 termParser ", " >> optType >> " with " >> many1Indent equation "'match' cases must be indented"
+def matchAlt := parser! " | " >> sepBy1 termParser ", " >> " => " >> termParser
+@[builtinTermParser] def «match» := parser! "match " >> sepBy1 termParser ", " >> optType >> " with " >> many1Indent matchAlt "'match' alternatives must be indented"
 @[builtinTermParser] def «nomatch» := parser! "nomatch " >> termParser
-def letLhsId      := parser! ident >> optType >> " := "
+
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
-def letLhsBinders := parser! ident >> checkWsBefore "expected space before binders" >> many bracktedBinder >> optType >> " := "
-def letLhsPat     := parser! termParser >> " := "
-def letLhs        := try letLhsId <|> try letLhsBinders <|> letLhsPat
-@[builtinTermParser] def «let» := parser! "let " >> letLhs >> termParser >> "; " >> termParser
+def letIdLhs : Parser := ident >> checkWsBefore "expected space before binders" >> many bracktedBinder >> optType
+def letIdDecl         := parser! try (letIdLhs >> " := ") >> termParser
+def equation := parser! " | " >> many1 (termParser appPrec) >> " := " >> termParser
+def letEqns           := parser! try (letIdLhs >> lookahead " | ") >> many1Indent equation "equations must be indented"
+def letPatDecl        := parser! termParser >> " := " >> termParser
+def letDecl           := try letIdDecl <|> letEqns <|> letPatDecl
+@[builtinTermParser] def «let» := parser! "let " >> letDecl >> "; " >> termParser
 def leftArrow : Parser := unicodeSymbol " ← " " <- "
-def doLet  := parser! "let " >> letLhs >> termParser
+def doLet  := parser! "let " >> letDecl
 def doId   := parser! try (ident >> optType >> leftArrow) >> termParser
 def doPat  := parser! try (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
 def doExpr := parser! termParser

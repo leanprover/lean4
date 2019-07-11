@@ -113,7 +113,11 @@ do
   (a, b) <- h x y;
   let (a, b) := (b, a);
   pure (a + b)",
-"do { x ← f a; pure $ a + a }"
+"do { x ← f a; pure $ a + a }",
+"let f : Nat → Nat → Nat
+   | 0 a     := a + 10
+   | (n+1) b := n * b;
+f 20"
 ];
 testFailures [
 "f {x : a} -> b",

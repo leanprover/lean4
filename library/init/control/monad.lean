@@ -14,12 +14,12 @@ class HasBind (m : Type u → Type v) :=
 
 export HasBind (bind)
 
-infixr >>= := bind
+infixr `>>=` := bind
 
 @[inline] def mcomp {α : Type u} {β δ : Type v} {m : Type v → Type w} [HasBind m] (f : α → m β) (g : β → m δ) : α → m δ :=
 fun a => f a >>= g
 
-infixr >=> := mcomp
+infixr `>=>` := mcomp
 
 class Monad (m : Type u → Type v) extends Applicative m, HasBind m : Type (max (u+1) v) :=
 (map      := fun α β f x => x >>= pure ∘ f)

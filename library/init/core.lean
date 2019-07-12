@@ -224,7 +224,7 @@ intro :: (mp : a → b) (mpr : b → a)
 
 /- Eq basic support -/
 
-infix = := Eq
+infix `=` := Eq
 
 @[matchPattern] def rfl {α : Sort u} {a : α} : a = a := Eq.refl a
 
@@ -232,7 +232,7 @@ infix = := Eq
 theorem Eq.subst {α : Sort u} {P : α → Prop} {a b : α} (h₁ : a = b) (h₂ : P a) : P b :=
 Eq.ndrec h₂ h₁
 
-infixr ▸ := Eq.subst
+infixr `▸` := Eq.subst
 
 theorem Eq.trans {α : Sort u} {a b c : α} (h₁ : a = b) (h₂ : b = c) : a = c :=
 h₂ ▸ h₁
@@ -240,8 +240,8 @@ h₂ ▸ h₁
 theorem Eq.symm {α : Sort u} {a b : α} (h : a = b) : b = a :=
 h ▸ rfl
 
-infix ~= := Heq
-infix ≅ := Heq
+infix `~=` := Heq
+infix `≅` := Heq
 
 @[matchPattern] def Heq.rfl {α : Sort u} {a : α} : a ≅ a := Heq.refl a
 
@@ -315,7 +315,7 @@ inductive List (T : Type u)
 | nil {} : List
 | cons (hd : T) (tl : List) : List
 
-infixr :: := List.cons
+infixr `::` := List.cons
 
 inductive Nat
 | zero : Nat
@@ -352,40 +352,40 @@ class HasPow (α : Type u) (β : Type v) :=
 export HasAndthen (andthen)
 export HasPow (pow)
 
-infix +        := HasAdd.add
-infix *        := HasMul.mul
-infix -        := HasSub.sub
-infix /        := HasDiv.div
-infix %        := HasMod.mod
-infix %ₙ       := HasModn.modn
-prefix -       := HasNeg.neg
-infix <=       := HasLessEq.LessEq
-infix ≤        := HasLessEq.LessEq
-infix <        := HasLess.Less
-infix ==       := HasBeq.beq
-infix ++       := HasAppend.append
+infix `+`        := HasAdd.add
+infix `*`        := HasMul.mul
+infix `-`        := HasSub.sub
+infix `/`        := HasDiv.div
+infix `%`        := HasMod.mod
+infix `%ₙ`       := HasModn.modn
+prefix `-`       := HasNeg.neg
+infix `<=`       := HasLessEq.LessEq
+infix `≤`        := HasLessEq.LessEq
+infix `<`        := HasLess.Less
+infix `==`       := HasBeq.beq
+infix `++`       := HasAppend.append
 notation `∅`   := HasEmptyc.emptyc _
-infix ≈        := HasEquiv.Equiv
-infixr ^       := HasPow.pow
-infixr /\      := And
-infixr ∧       := And
-infixr \/      := Or
-infixr ∨       := Or
-infix <->      := Iff
-infix ↔        := Iff
+infix `≈`        := HasEquiv.Equiv
+infixr `^`       := HasPow.pow
+infixr `/\`      := And
+infixr `∧`       := And
+infixr `\/`      := Or
+infixr `∨`       := Or
+infix `<->`      := Iff
+infix `↔`        := Iff
 -- notation `exists` binders `, ` r:(scoped P, Exists P) := r
 -- notation `∃` binders `, ` r:(scoped P, Exists P) := r
-infixr <|>     := HasOrelse.orelse
-infixr >>      := HasAndthen.andthen
+infixr `<|>`     := HasOrelse.orelse
+infixr `>>`      := HasAndthen.andthen
 
 export HasAppend (append)
 
 @[reducible] def GreaterEq {α : Type u} [HasLessEq α] (a b : α) : Prop := HasLessEq.LessEq b a
 @[reducible] def Greater {α : Type u} [HasLess α] (a b : α) : Prop     := HasLess.Less b a
 
-infix >=       := GreaterEq
-infix ≥        := GreaterEq
-infix >        := Greater
+infix `>=`       := GreaterEq
+infix `≥`        := GreaterEq
+infix `>`        := Greater
 
 @[inline] def bit0 {α : Type u} [s  : HasAdd α] (a  : α)                 : α := a + a
 @[inline] def bit1 {α : Type u} [s₁ : HasOne α] [s₂ : HasAdd α] (a : α) : α := (bit0 a) + 1
@@ -434,7 +434,7 @@ be stronger than application.
 
 def std.prec.maxPlus : Nat := std.prec.max + 10
 
-infixr × := Prod
+infixr `×` := Prod
 -- notation for n-ary tuples
 
 /- Some type that is not a scalar value in our runtime.
@@ -559,9 +559,9 @@ theorem optParamEq (α : Sort u) (default : α) : optParam α default = α := rf
 | true  b := not b
 | false b := b
 
-prefix ! := not
-infix || := or
-infix && := and
+prefix `!` := not
+infix `||` := or
+infix `&&` := and
 
 @[extern cpp inline "#1 || #2"] def strictOr  (b₁ b₂ : Bool) := b₁ || b₂
 @[extern cpp inline "#1 && #2"] def strictAnd (b₁ b₂ : Bool) := b₁ && b₂
@@ -569,7 +569,7 @@ infix && := and
 @[inline] def bne {α : Type u} [HasBeq α] (a b : α) : Bool :=
 !(a == b)
 
-infix != := bne
+infix `!=` := bne
 
 /- Logical connectives an equality -/
 
@@ -635,7 +635,7 @@ theorem castProofIrrel {α β : Sort u} (h₁ h₂ : α = β) (a : α) : cast h�
 theorem castEq {α : Sort u} (h : α = α) (a : α) : cast h a = a := rfl
 
 @[reducible] def Ne {α : Sort u} (a b : α) := ¬(a = b)
-infix ≠ := Ne
+infix `≠` := Ne
 
 theorem Ne.def {α : Sort u} (a b : α) : a ≠ b = ¬ (a = b) := rfl
 

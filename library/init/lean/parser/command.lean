@@ -85,6 +85,23 @@ def openRenamingItem := parser! ident >> unicodeSymbol "→" "->" >> ident
 def openRenaming     := parser! try ("(" >> "renaming") >> sepBy1 openRenamingItem ", " >> ")"
 @[builtinCommandParser] def «open»       := parser! "open " >> ident >> optional openOnly >> optional openRenaming >> optional openHiding
 
+/- Lean3 command declaration commands -/
+def maxPrec := parser! "max"
+def precedenceLit : Parser := numLit <|> maxPrec
+def «precedence» := parser! " : " >> precedenceLit
+def quotedSymbolPrec := parser! quotedSymbol >> optional «precedence»
+def symbol : Parser := quotedSymbolPrec <|> unquotedSymbol
+def «prefix»   := parser! "prefix"
+def «infix»    := parser! "infix"
+def «infixl»   := parser! "infixl"
+def «infixr»   := parser! "infixr"
+def «postfix»  := parser! "postfix"
+def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «postfix»
+@[builtinCommandParser] def «reserve»  := parser! "reserve " >> mixfixKind >> quotedSymbolPrec
+def mixfixSymbol := quotedSymbolPrec <|> unquotedSymbol
+@[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> mixfixSymbol >> " := " >> termParser
+@[builtinCommandParser] def «notation» := parser! "notation" >> quotedSymbol
+
 end Command
 end Parser
 end Lean

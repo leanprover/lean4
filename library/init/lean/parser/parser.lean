@@ -492,6 +492,9 @@ private def rawAux {k : ParserKind} (startPos : Nat) (trailingWs : Bool) : Parse
   let s := p a c s;
   if s.hasError then s else rawAux startPos trailingWs a c s
 
+@[inline] def chFn {k : ParserKind} (c : Char) (trailingWs := false) : ParserFn k :=
+rawFn (fun _ => satisfyFn (fun d => c == d) ("expected '" ++ toString c ++ "'")) trailingWs
+
 def hexDigitFn : BasicParserFn
 | c s :=
   let input := c.input;
@@ -906,7 +909,25 @@ fun _ c s =>
   info := mkAtomicInfo "ident" }
 
 @[inline] def rawIdent {k : ParserKind} : Parser k :=
-{ fn   := fun _ => rawIdentFn }
+{ fn := fun _ => rawIdentFn }
+
+def quotedSymbolFn {k : ParserKind} : ParserFn k :=
+nodeFn `quotedSymbol (andthenFn (andthenFn (chFn '`') (rawFn (fun _ => takeUntilFn (fun c => c == '`')))) (chFn '`' true))
+
+def quotedSymbol {k : ParserKind} : Parser k :=
+{ fn := quotedSymbolFn }
+
+def unquotedSymbolFn {k : ParserKind} : ParserFn k :=
+fun _ c s =>
+  let iniPos := s.pos;
+  let s      := tokenFn c s;
+  if s.hasError || s.stxStack.back.isIdent || s.stxStack.back.isOfKind strLitKind || s.stxStack.back.isOfKind numLitKind then
+    s.mkErrorAt "expected symbol" iniPos
+  else
+    s
+
+def unquotedSymbol {k : ParserKind} : Parser k :=
+{ fn := unquotedSymbolFn }
 
 def fieldIdxFn : BasicParserFn :=
 fun c s =>

@@ -29,5 +29,9 @@ test [
 ",
 "local attribute [instance] foo bla",
 "attribute [inline] test",
-"open Lean (hiding Name)"
+"open Lean (hiding Name)",
+"notation ` + `",
+"reserve infixr ` ∨ `:30",
+"reserve prefix `¬`:40",
+"infixr ` ^ ` := HasPow.pow"
 ]

@@ -21,5 +21,6 @@ test [
 "@[inline] def x := 2",
 "protected def length.{u} {α : Type u} : List α → Nat
   | [] := 0
-  | (a::as) := 1 + length as"
+  | (a::as) := 1 + length as",
+"/-- doc string test -/   private theorem bla (x : Nat) : x = x := Eq.refl x"
 ]

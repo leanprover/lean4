@@ -22,9 +22,8 @@ def commandParser (rbp : Nat := 0) : Parser :=
 { fn := commandParserFn rbp }
 
 namespace Command
-
 def commentBody : Parser :=
-{ fn := fun _ => finishCommentBlock 1 }
+{ fn := rawFn (fun _ => finishCommentBlock 1) true }
 
 def docComment       := parser! "/--" >> commentBody
 def attrArg : Parser := ident <|> strLit <|> numLit

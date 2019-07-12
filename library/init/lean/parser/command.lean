@@ -41,11 +41,16 @@ def optDeclSig       := parser! many Term.bracktedBinder >> Term.optType
 def declValSimple    := parser! " := " >> termParser
 def declValEqns      := parser! many1Indent Term.equation "equations must be indented"
 def declVal          := declValSimple <|> declValEqns
-def «def»            := parser! "def " >> declId >> optDeclSig >> declVal
 def «abbrev»         := parser! "abbrev " >> declId >> optDeclSig >> declVal
+def «def»            := parser! "def " >> declId >> optDeclSig >> declVal
 def «theorem»        := parser! "theorem " >> declId >> declSig >> declVal
+def «constant»       := parser! "constant " >> declId >> declSig >> optional declValSimple
+def «instance»       := parser! "instance " >> optional declId >> declSig >> declVal
+def «axiom»          := parser! "axiom " >> declId >> declSig
+def «example»        := parser! "example " >> declSig >> declVal
 
-@[builtinCommandParser] def declaration := declModifiers >> («abbrev» <|> «def» <|> «theorem»)
+@[builtinCommandParser] def declaration :=
+declModifiers >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «instance» <|> «axiom» <|> «example»)
 
 end Command
 

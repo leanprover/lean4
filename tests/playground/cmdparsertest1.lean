@@ -30,8 +30,11 @@ test [
 "local attribute [instance] foo bla",
 "attribute [inline] test",
 "open Lean (hiding Name)",
-"notation ` + `",
 "reserve infixr ` ∨ `:30",
 "reserve prefix `¬`:40",
-"infixr ` ^ ` := HasPow.pow"
+"infixr ` ^ ` := HasPow.pow",
+"notation f ` $ `:1 a:0 := f a",
+"notation `Prop` := Sort 0",
+"notation `∅`   := HasEmptyc.emptyc _",
+"notation `⟦`:max a `⟧`:0 := Quotient.mk a"
 ]

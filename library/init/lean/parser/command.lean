@@ -100,7 +100,8 @@ def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «p
 @[builtinCommandParser] def «reserve»  := parser! "reserve " >> mixfixKind >> quotedSymbolPrec
 def mixfixSymbol := quotedSymbolPrec <|> unquotedSymbol
 @[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> mixfixSymbol >> " := " >> termParser
-@[builtinCommandParser] def «notation» := parser! "notation" >> quotedSymbol
+def identPrec := parser! ident >> optional «precedence»
+@[builtinCommandParser] def «notation» := parser! "notation" >> optional ident >> many (quotedSymbolPrec <|> identPrec) >> " := " >> termParser
 
 end Command
 end Parser

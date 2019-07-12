@@ -22,5 +22,9 @@ test [
 "protected def length.{u} {α : Type u} : List α → Nat
   | [] := 0
   | (a::as) := 1 + length as",
-"/-- doc string test -/   private theorem bla (x : Nat) : x = x := Eq.refl x"
+"/-- doc string test -/   private theorem bla (x : Nat) : x = x := Eq.refl x",
+"class Alternative (f : Type u → Type v) extends Applicative f : Type (max (u+1) v) :=
+(failure : ∀ {α : Type u}, f α)
+(orelse  : ∀ {α : Type u}, f α → f α → f α)
+"
 ]

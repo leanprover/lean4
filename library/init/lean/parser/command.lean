@@ -42,9 +42,10 @@ def declValSimple    := parser! " := " >> termParser
 def declValEqns      := parser! many1Indent Term.equation "equations must be indented"
 def declVal          := declValSimple <|> declValEqns
 def «def»            := parser! "def " >> declId >> optDeclSig >> declVal
+def «abbrev»         := parser! "abbrev " >> declId >> optDeclSig >> declVal
 def «theorem»        := parser! "theorem " >> declId >> declSig >> declVal
 
-@[builtinCommandParser] def declaration := declModifiers >> («def» <|> «theorem»)
+@[builtinCommandParser] def declaration := declModifiers >> («abbrev» <|> «def» <|> «theorem»)
 
 end Command
 

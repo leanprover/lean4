@@ -8,3 +8,4 @@ import init.lean.parser.parser
 import init.lean.parser.level
 import init.lean.parser.term
 import init.lean.parser.command
+import init.lean.parser.module

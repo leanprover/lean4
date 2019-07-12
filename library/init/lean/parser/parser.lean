@@ -495,6 +495,9 @@ private def rawAux {k : ParserKind} (startPos : Nat) (trailingWs : Bool) : Parse
 @[inline] def chFn {k : ParserKind} (c : Char) (trailingWs := false) : ParserFn k :=
 rawFn (fun _ => satisfyFn (fun d => c == d) ("expected '" ++ toString c ++ "'")) trailingWs
 
+def rawCh {k : ParserKind} (c : Char) (trailingWs := false) : Parser k :=
+{ fn := chFn c trailingWs }
+
 def hexDigitFn : BasicParserFn
 | c s :=
   let input := c.input;

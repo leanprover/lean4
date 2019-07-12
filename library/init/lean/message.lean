@@ -40,11 +40,10 @@ end Message
 
 structure MessageLog :=
 -- messages are stored in reverse for efficient append
-(revList : List Message)
+(revList : List Message := [])
 
 namespace MessageLog
-def empty : MessageLog :=
-⟨[]⟩
+def empty : MessageLog := ⟨[]⟩
 
 def add (msg : Message) (log : MessageLog) : MessageLog :=
 ⟨msg :: log.revList⟩

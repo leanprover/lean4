@@ -1231,14 +1231,5 @@ match unsafeIO (do tables ← ref.get; pure $ prattParser kind tables a c s) wit
 @[implementedBy runBuiltinParserUnsafe]
 constant runBuiltinParser (kind : String) (ref : IO.Ref ParsingTables) : ParserFn leading := default _
 
-/- TODO(Leo): delete -/
-@[init mkBuiltinParsingTablesRef]
-constant builtinTestParsingTable : IO.Ref ParsingTables := default _
-@[init] def regBuiltinTestParserAttr : IO Unit :=
-registerBuiltinParserAttribute `builtinTestParser `Lean.Parser.builtinTestParsingTable
-
-def testParser (rbp : Nat := 0) : Parser :=
-{ fn := fun _ => runBuiltinParser "testExpr" builtinTestParsingTable rbp }
-
 end Parser
 end Lean

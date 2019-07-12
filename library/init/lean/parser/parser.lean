@@ -149,26 +149,37 @@ def ParserFn (k : ParserKind) := ParserArg k → BasicParserFn
 instance ParserFn.inhabited (k : ParserKind) : Inhabited (ParserFn k) := ⟨fun _ _ => id⟩
 
 inductive FirstTokens
-| epsilon : FirstTokens
-| unknown : FirstTokens
-| tokens  : List TokenConfig → FirstTokens
+| epsilon   : FirstTokens
+| unknown   : FirstTokens
+| tokens    : List TokenConfig → FirstTokens
+| optTokens : List TokenConfig → FirstTokens
 
 namespace FirstTokens
 
 def merge : FirstTokens → FirstTokens → FirstTokens
-| epsilon     tks         := tks
-| tks         epsilon     := tks
-| (tokens s₁) (tokens s₂) := tokens (s₁ ++ s₂)
-| _           _           := unknown
+| epsilon        tks            := tks
+| tks            epsilon        := tks
+| (tokens s₁)    (tokens s₂)    := tokens (s₁ ++ s₂)
+| (optTokens s₁) (optTokens s₂) := optTokens (s₁ ++ s₂)
+| (tokens s₁)    (optTokens s₂) := tokens (s₁ ++ s₂)
+| (optTokens s₁) (tokens s₂)    := tokens (s₁ ++ s₂)
+| _              _              := unknown
 
 def seq : FirstTokens → FirstTokens → FirstTokens
-| epsilon tks := tks
-| tks     _   := tks
+| epsilon        tks            := tks
+| (optTokens s₁) (optTokens s₂) := optTokens (s₁ ++ s₂)
+| (optTokens s₁) (tokens s₂)    := tokens (s₁ ++ s₂)
+| tks            _              := tks
+
+def toOptional : FirstTokens → FirstTokens
+| (tokens tks) := optTokens tks
+| tks          := tks
 
 def toStr : FirstTokens → String
-| epsilon      := "epsilon"
-| unknown      := "unknown"
-| (tokens tks) := toString tks
+| epsilon         := "epsilon"
+| unknown         := "unknown"
+| (tokens tks)    := toString tks
+| (optTokens tks) := "?" ++ toString tks
 
 instance : HasToString FirstTokens := ⟨toStr⟩
 
@@ -288,8 +299,12 @@ fun a c s =>
   let s      := if s.hasError && s.pos == iniPos then s.restore iniSz iniPos else s;
   s.mkNode nullKind iniSz
 
+@[noinline] def optionaInfo (p : ParserInfo) : ParserInfo :=
+{ updateTokens := p.updateTokens,
+  firstTokens  := p.firstTokens.toOptional }
+
 @[inline] def optional {k : ParserKind} (p : Parser k) : Parser k :=
-{ info := noFirstTokenInfo p.info,
+{ info := optionaInfo p.info,
   fn   := optionalFn p.fn }
 
 @[inline] def lookaheadFn {k : ParserKind} (p : ParserFn k) : ParserFn k :=

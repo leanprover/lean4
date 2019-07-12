@@ -45,17 +45,7 @@ def declVal          := declValSimple <|> declValEqns
 def «def»            := parser! "def " >> declId >> optDeclSig >> declVal
 def «theorem»        := parser! "theorem " >> declId >> declSig >> declVal
 
-def declaration      := declModifiers >> («def» <|> «theorem»)
-
-/- TODO: remove this hack by improving how we compute `Parser.info.firstTokens` -/
-def declTokens := ["/--", "@[", "private", "protected", "noncomputable", "unsafe", "def", "theorem"]
-
-@[builtinCommandParser] def declEntry : Parser :=
-{ info := {
-    firstTokens := FirstTokens.tokens $ declTokens.map $ fun tk => { val := tk },
-    .. declaration.info
-  },
-  fn   := declaration.fn }
+@[builtinCommandParser] def declaration := declModifiers >> («def» <|> «theorem»)
 
 end Command
 

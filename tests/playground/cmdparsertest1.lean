@@ -16,6 +16,7 @@ is.mfor $ fun input => do
 
 def main (xs : List String) : IO Unit :=
 do
+IO.println Command.declaration.info.firstTokens;
 test [
 "@[inline] def x := 2",
 "protected def length.{u} {α : Type u} : List α → Nat

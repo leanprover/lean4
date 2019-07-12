@@ -27,13 +27,14 @@ def commentBody : Parser :=
 
 def docComment       := parser! "/--" >> commentBody
 def attrArg : Parser := ident <|> strLit <|> numLit
-def attrInstance     := parser! ident >> many attrArg
+-- use `rawIdent` because of attribute names such as `instance`
+def attrInstance     := parser! rawIdent >> many attrArg
 def attributes       := parser! "@[" >> sepBy1 attrInstance ", " >> "]"
 def «private»        := parser! "private "
 def «protected»      := parser! "protected "
 def visibility       := «private» <|> «protected»
-def «noncomputable»  := parser! " noncomputable "
-def «unsafe»         := parser! " unsafe "
+def «noncomputable»  := parser! "noncomputable "
+def «unsafe»         := parser! "unsafe "
 def declModifiers    := parser! optional docComment >> optional «attributes» >> optional visibility >> optional «noncomputable» >> optional «unsafe»
 def declId           := parser! ident >> optional (".{" >> sepBy1 ident ", " >> "}")
 def declSig          := parser! many Term.bracktedBinder >> Term.typeSpec
@@ -66,7 +67,24 @@ def «structure»          := parser! (structureTk <|> classTk) >> declId >> man
 @[builtinCommandParser] def declaration := parser!
 declModifiers >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «instance» <|> «axiom» <|> «example» <|> «inductive» <|> «structure»)
 
-end Command
+@[builtinCommandParser] def «section»    := parser! "section " >> optional ident
+@[builtinCommandParser] def «namespace»  := parser! "namespace " >> ident
+@[builtinCommandParser] def «end»        := parser! "end " >> optional ident
+@[builtinCommandParser] def «variable»   := parser! "variable " >> Term.bracktedBinder
+@[builtinCommandParser] def «variables»  := parser! "variables " >> many1 Term.bracktedBinder
+@[builtinCommandParser] def «universe»   := parser! "universe " >> ident
+@[builtinCommandParser] def «universes»  := parser! "universes " >> many1 ident
+@[builtinCommandParser] def check        := parser! "#check " >> termParser
+@[builtinCommandParser] def «init_quot»  := parser! "init_quot"
+@[builtinCommandParser] def «set_option» := parser! "set_option " >> ident >> ("true" <|> "false" <|> strLit <|> numLit)
+@[builtinCommandParser] def «attribute»  := parser! optional "local " >> "attribute " >> "[" >> sepBy1 attrInstance ", " >> "]" >> many1 ident
+@[builtinCommandParser] def «export»     := parser! "export " >> ident >> "(" >> many1 ident >> ")"
+def openOnly         := parser! try ("(" >> ident) >> many ident >> ")"
+def openHiding       := parser! try ("(" >> "hiding") >> many1 ident >> ")"
+def openRenamingItem := parser! ident >> unicodeSymbol "→" "->" >> ident
+def openRenaming     := parser! try ("(" >> "renaming") >> sepBy1 openRenamingItem ", " >> ")"
+@[builtinCommandParser] def «open»       := parser! "open " >> ident >> optional openOnly >> optional openRenaming >> optional openHiding
 
+end Command
 end Parser
 end Lean

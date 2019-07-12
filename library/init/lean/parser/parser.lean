@@ -732,6 +732,14 @@ else
   let stx := s.stxStack.back;
   (s.restore iniSz iniPos, some stx)
 
+/- Treat keywords as identifiers. -/
+def rawIdentFn : BasicParserFn :=
+fun c s =>
+  let input := c.input;
+  let i     := s.pos;
+  if input.atEnd i then s.mkEOIError
+  else identFnAux i none Name.anonymous c s
+
 @[inline] def satisfySymbolFn (p : String → Bool) (errorMsg : String) : BasicParserFn :=
 fun c s =>
   let startPos := s.pos;
@@ -896,6 +904,9 @@ fun _ c s =>
 @[inline] def ident {k : ParserKind} : Parser k :=
 { fn   := identFn,
   info := mkAtomicInfo "ident" }
+
+@[inline] def rawIdent {k : ParserKind} : Parser k :=
+{ fn   := fun _ => rawIdentFn }
 
 def fieldIdxFn : BasicParserFn :=
 fun c s =>

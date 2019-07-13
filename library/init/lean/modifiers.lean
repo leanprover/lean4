@@ -30,7 +30,7 @@ match env.getModuleIdxFor n with
 | none        => (protectedExt.getState env).contains n
 
 def mkPrivateExtension : IO (EnvExtension Nat) :=
-registerEnvExtension 1
+registerEnvExtension (fun _ => 1)
 
 @[init mkPrivateExtension]
 constant privateExt : EnvExtension Nat := default _

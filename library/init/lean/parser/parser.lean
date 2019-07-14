@@ -787,6 +787,41 @@ let sym := sym.trim;
 @[inline] def symbol {k : ParserKind} (sym : String) (lbp : Nat) : Parser k :=
 symbolAux sym lbp
 
+/-- Check if the following token is the symbol _or_ identifier `sym`. Useful for
+    parsing local tokens that have not been added to the token table (but may have
+    been so by some unrelated code).
+
+    For example, the universe `max` Function is parsed using this combinator so that
+    it can still be used as an identifier outside of universes (but registering it
+    as a token in a Term Syntax would not break the universe Parser). -/
+def symbolOrIdentFnAux (sym : String) (errorMsg : String) : BasicParserFn :=
+fun c s =>
+  let startPos := s.pos;
+  let s := tokenFn c s;
+  if s.hasError then s.mkErrorAt errorMsg startPos
+  else
+    match s.stxStack.back with
+    | Syntax.atom _ sym' =>
+      if sym == sym' then s else s.mkErrorAt errorMsg startPos
+    | Syntax.ident info rawVal _ _ _ =>
+      if sym == rawVal.toString then
+        let s := s.popSyntax;
+        s.pushSyntax (Syntax.atom info sym)
+      else
+        s.mkErrorAt errorMsg startPos
+    | _ => s.mkErrorAt errorMsg startPos
+
+@[inline] def symbolOrIdentFn (sym : String) : BasicParserFn :=
+symbolOrIdentFnAux sym ("expected '" ++ sym ++ "'")
+
+def symbolOrIdentInfo (sym : String) : ParserInfo :=
+{ firstTokens  := FirstTokens.tokens [ { val := sym, lbp := none } ] }
+
+@[inline] def symbolOrIdent {k : ParserKind} (sym : String) : Parser k :=
+let sym := sym.trim;
+{ info := symbolOrIdentInfo sym,
+  fn   := fun _ => symbolOrIdentFn sym }
+
 partial def strAux (sym : String) (errorMsg : String) : Nat → BasicParserFn
 | j c s :=
   if sym.atEnd j then s

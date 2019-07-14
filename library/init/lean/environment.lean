@@ -185,6 +185,15 @@ structure PersistentEnvExtensionState (α : Type) (σ : Type) :=
    TODO: mark opaque. -/
 structure PersistentEnvExtension (α : Type) (σ : Type) extends EnvExtension (PersistentEnvExtensionState α σ) :=
 (name            : Name)
+/- TODO: add support for retuning an error message at `addImportedFn`
+   It is probably bettern to use
+     (addImportedFn   : Array (Array α) → σ × Option String)
+   instead of
+     (addImportedFn   : Array (Array α) → Except String σ)
+   because we use `addImportedFn Array.empty` to initialize the extension state at `mkEmptyEnvironment`,
+   `addImportedFn Array.empty` must not fail. A more complicated design would be
+     (addImportedFn (es : Array (Array α)) → {r : Except String σ // es.size == 0 → r.isOk })
+-/
 (addImportedFn   : Array (Array α) → σ)
 (addEntryFn      : σ → α → σ)
 (exportEntriesFn : σ → Array α)

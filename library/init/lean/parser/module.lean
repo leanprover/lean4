@@ -17,10 +17,11 @@ def importPath := parser! many (rawCh '.' true) >> ident
 def «import»   := parser! "import " >> many1 importPath
 def header     := parser! optional «prelude» >> many «import»
 
-def tokens : Trie TokenConfig :=
-match header.info.updateTokens {} with
-| Except.ok t    => t
-| Except.error _ => {} -- should be unreachable
+def updateTokens (c : ParserContext) : ParserContext :=
+{ tokens := match header.info.updateTokens c.tokens with
+    | Except.ok tables => tables
+    | Except.error _   => {}, -- unreachable
+  .. c }
 
 end Module
 
@@ -44,7 +45,7 @@ match r.state.errorMsg with
 
 def mkModuleReader (env : Environment) (input : String) (fileName := "<input>") : Option Syntax × ModuleReader :=
 let c := mkParserContext env input fileName;
-let c := { tokens := Module.tokens, .. c };
+let c := Module.updateTokens c;
 let s := mkParserState input;
 let s := whitespace c s;
 let s := Module.header.fn (0:Nat) c s;

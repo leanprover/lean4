@@ -454,6 +454,8 @@ f 20
     (Term.mul (Term.id `n (null)) "*" (Term.id `b (null))))))
  ";"
  (Term.app (Term.id `f (null)) (numLit "20")))
+max a b
+(Term.app (Term.app (Term.id `max (null)) (Term.id `a (null))) (Term.id `b (null)))
 f {x : a} -> b
 failed as expected, error: <input>:1:10 found '→' as expected, but brackets are needed
 (x := 20)

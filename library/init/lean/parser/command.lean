@@ -89,7 +89,7 @@ def openRenaming     := parser! try ("(" >> "renaming") >> sepBy1 openRenamingIt
 @[builtinCommandParser] def «open»       := parser! "open " >> ident >> optional openOnly >> optional openRenaming >> optional openHiding
 
 /- Lean3 command declaration commands -/
-def maxPrec := parser! "max"
+def maxPrec := parser! symbolOrIdent "max"
 def precedenceLit : Parser := numLit <|> maxPrec
 def «precedence» := parser! " : " >> precedenceLit
 def quotedSymbolPrec := parser! quotedSymbol >> optional «precedence»

@@ -117,7 +117,8 @@ do
 "let f : Nat → Nat → Nat
    | 0 a     := a + 10
    | (n+1) b := n * b;
-f 20"
+f 20",
+"max a b"
 ];
 testFailures [
 "f {x : a} -> b",

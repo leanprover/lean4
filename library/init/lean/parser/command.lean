@@ -15,11 +15,14 @@ constant builtinCommandParsingTable : IO.Ref ParsingTables := default _
 @[init] def regBuiltinCommandParserAttr : IO Unit :=
 registerBuiltinParserAttribute `builtinCommandParser `Lean.Parser.builtinCommandParsingTable
 
-def commandParserFn {k : ParserKind} (rbp : Nat) : ParserFn k :=
-fun _ => runBuiltinParser "command" builtinCommandParsingTable rbp
+def mkCommandParserAttribute : IO ParserAttribute :=
+registerParserAttribute `commandParser "command" "command parser" (some builtinCommandParsingTable)
 
-def commandParser (rbp : Nat := 0) : Parser :=
-{ fn := commandParserFn rbp }
+@[init mkCommandParserAttribute]
+constant commandParserAttribute : ParserAttribute := default _
+
+@[inline] def commandParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
+{ fn := fun _ => commandParserAttribute.runParser rbp }
 
 namespace Command
 def commentBody : Parser :=

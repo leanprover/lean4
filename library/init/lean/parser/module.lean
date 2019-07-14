@@ -57,7 +57,7 @@ r.context.input.atEnd r.state.pos
 
 def nextCommand : ModuleReader → Option Syntax × ModuleReader
 | ⟨c, s, m⟩ :=
-  let s := commandParser.fn (0:Nat) c s;
+  let s := (commandParser : Parser).fn (0:Nat) c s;
   checkResult { context := c, state := s, messages := m }
 
 end ModuleReader

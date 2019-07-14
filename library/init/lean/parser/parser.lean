@@ -1086,6 +1086,8 @@ structure ParsingTables :=
 (trailingParsers : List TrailingParser := []) -- for supporting parsers such as function application
 (tokens          : Trie TokenConfig := {})
 
+instance ParsingTables.inhabited : Inhabited ParsingTables := ⟨{}⟩
+
 def currLbp (left : Syntax) (c : ParserContext) (s : ParserState) : ParserState × Nat :=
 let (s, stx) := peekToken c s;
 match stx with
@@ -1254,6 +1256,66 @@ match unsafeIO (do tables ← ref.get; pure $ prattParser kind tables a c s) wit
 
 @[implementedBy runBuiltinParserUnsafe]
 constant runBuiltinParser (kind : String) (ref : IO.Ref ParsingTables) : ParserFn leading := default _
+
+inductive ParserAttributeEntry
+| leading (n : Name)
+| trailing (n : Name)
+
+structure ParserAttribute :=
+(attr : AttributeImpl)
+(ext  : PersistentEnvExtension ParserAttributeEntry ParsingTables)
+(kind : String)
+
+instance ParserAttribute.inhabited : Inhabited ParserAttribute := ⟨{attr := default _, ext := default _, kind := ""}⟩
+
+section
+set_option compiler.extract_closed false
+unsafe def getParsingTableUnsafe (ref : Option (IO.Ref ParsingTables)) : Option ParsingTables :=
+match ref with
+| some ref => unsafeIO ref.get
+| none     => none
+
+@[implementedBy getParsingTableUnsafe]
+constant getParsingTable (ref : Option (IO.Ref ParsingTables)) : Option ParsingTables := default _
+end
+
+/-
+This is just the basic skeleton where we create an
+extensible/scoped parser attribute that is optionally initialized with
+a builtin parser attribute.
+
+The current implementation just uses the bultin parser.
+We still need to:
+- Add a ParserDescr type, and write an interpreter for it.
+- Add support for scoped parser extensions.
+-/
+def registerParserAttribute (attrName : Name) (kind : String) (descr : String) (builtinTable : Option (IO.Ref ParsingTables) := none) : IO ParserAttribute :=
+do
+ext : PersistentEnvExtension ParserAttributeEntry ParsingTables ← registerPersistentEnvExtension {
+  name            := attrName,
+  addImportedFn   := fun _ =>                        -- TODO
+    match getParsingTable builtinTable with
+    | some t => t
+    | none   => {},
+  addEntryFn      := fun (s : ParsingTables) _ => s, -- TODO
+  exportEntriesFn := fun _ => Array.empty,           -- TODO
+  statsFn         := fun _ => fmt "parser attribute" -- TODO
+};
+let attrImpl : AttributeImpl := {
+  name  := attrName,
+  descr := descr,
+  add   := fun env decl args persistent => pure env -- TODO
+};
+pure { ext := ext, attr := attrImpl, kind := kind }
+
+namespace ParserAttribute
+
+def runParser (attr : ParserAttribute) : ParserFn leading :=
+fun a c s =>
+  let tables : ParsingTables := attr.ext.getState c.env;
+  prattParser attr.kind tables a c s
+
+end ParserAttribute
 
 end Parser
 end Lean

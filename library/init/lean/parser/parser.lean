@@ -59,12 +59,14 @@ structure ParserCache :=
 def initCacheForInput (input : String) : ParserCache :=
 { tokenCache := { startPos := input.bsize + 1 /- make sure it is not a valid position -/} }
 
+abbrev TokenTable := Trie TokenConfig
+
 structure ParserContext :=
 (env      : Environment)
 (input    : String)
 (filename : String)
 (fileMap  : FileMap)
-(tokens   : Trie TokenConfig)
+(tokens   : TokenTable)
 
 structure ParserState :=
 (stxStack : Array Syntax := Array.empty)
@@ -186,7 +188,7 @@ instance : HasToString FirstTokens := ⟨toStr⟩
 end FirstTokens
 
 structure ParserInfo :=
-(updateTokens : Trie TokenConfig → ExceptT String Id (Trie TokenConfig) := fun tks => pure tks)
+(updateTokens : TokenTable → ExceptT String Id TokenTable := fun tks => pure tks)
 (firstTokens  : FirstTokens := FirstTokens.unknown)
 
 structure Parser (k : ParserKind := leading) :=
@@ -760,7 +762,7 @@ fun c s =>
 def symbolFnAux (sym : String) (errorMsg : String) : BasicParserFn :=
 satisfySymbolFn (fun s => s == sym) errorMsg
 
-def insertToken (sym : String) (lbp : Option Nat) (tks : Trie TokenConfig) : ExceptT String Id (Trie TokenConfig) :=
+def insertToken (sym : String) (lbp : Option Nat) (tks : TokenTable) : ExceptT String Id TokenTable :=
 if sym == "" then throw "invalid empty symbol"
 else match tks.find sym, lbp with
 | none,       _           => pure (tks.insert sym { val := sym, lbp := lbp })
@@ -808,7 +810,7 @@ def checkWsBefore {k : ParserKind} (errorMsg : String) : Parser k :=
 { info := epsilonInfo,
   fn   := fun _ => checkWsBeforeFn errorMsg }
 
-def insertNoWsToken (sym : String) (lbpNoWs : Option Nat) (tks : Trie TokenConfig) : ExceptT String Id (Trie TokenConfig) :=
+def insertNoWsToken (sym : String) (lbpNoWs : Option Nat) (tks : TokenTable) : ExceptT String Id TokenTable :=
 if sym == "" then throw "invalid empty symbol"
 else match tks.find sym, lbpNoWs with
 | none,       _           => pure (tks.insert sym { val := sym, lbpNoWs := lbpNoWs })
@@ -1084,7 +1086,6 @@ structure ParsingTables :=
 (leadingTable    : TokenMap Parser := {})
 (trailingTable   : TokenMap TrailingParser := {})
 (trailingParsers : List TrailingParser := []) -- for supporting parsers such as function application
-(tokens          : Trie TokenConfig := {})
 
 instance ParsingTables.inhabited : Inhabited ParsingTables := ⟨{}⟩
 
@@ -1150,7 +1151,6 @@ partial def trailingLoop (kind : String) (tables : ParsingTables) (rbp : Nat) (c
 
 def prattParser (kind : String) (tables : ParsingTables) : ParserFn leading :=
 fun rbp c s =>
-  let c := { tokens := tables.tokens, .. c };
   let s := leadingParser kind tables rbp c s;
   if s.hasError then s
   else
@@ -1158,12 +1158,63 @@ fun rbp c s =>
     let s    := s.popSyntax;
     trailingLoop kind tables rbp c left s
 
+def mkBuiltinTokenTable : IO (IO.Ref TokenTable) :=
+IO.mkRef {}
+
+@[init mkBuiltinTokenTable]
+constant builtinTokenTable : IO.Ref TokenTable := default _
+
+section
+set_option compiler.extract_closed false
+unsafe def getBuiltinTokenTableUnsafe : Unit → TokenTable :=
+fun _ => match unsafeIO builtinTokenTable.get with
+  | some table => table
+  | none       => {}
+
+@[implementedBy getBuiltinTokenTableUnsafe]
+constant getBuiltinTokenTable : Unit → TokenTable := default _
+
+def mkImportedTokenTable (es : Array (Array TokenConfig)) : TokenTable :=
+getBuiltinTokenTable () -- TODO
+end
+
+/- We use a TokenTable attribute to make sure they are scoped.
+   Users do not directly use this attribute. They use them indirectly when
+   they use parser attributes. -/
+structure TokenTableAttribute :=
+(attr : AttributeImpl)
+(ext  : PersistentEnvExtension TokenConfig TokenTable)
+
+instance TokenTableAttribute.inhabited : Inhabited TokenTableAttribute := ⟨{ attr := default _, ext := default _ }⟩
+
+section
+set_option compiler.extract_closed false
+def mkTokenTableAttribute : IO TokenTableAttribute :=
+do
+ext : PersistentEnvExtension TokenConfig TokenTable ← registerPersistentEnvExtension {
+  name            := `_tokens_,
+  addImportedFn   := mkImportedTokenTable,
+  addEntryFn      := fun (s : TokenTable) _ => s,         -- TODO
+  exportEntriesFn := fun _ => Array.empty,                -- TODO
+  statsFn         := fun _ => fmt "token table attribute" -- TODO
+};
+let attrImpl : AttributeImpl := {
+  name  := `_tokens_,
+  descr := "internal token table attribute",
+  add   := fun env decl args persistent => pure env -- TODO
+};
+pure { ext := ext, attr := attrImpl }
+end
+
+@[init mkTokenTableAttribute]
+constant tokenTableAttribute : TokenTableAttribute := default _
+
 def mkParserContext (env : Environment) (input : String) (filename : String) : ParserContext :=
 { env      := env,
   input    := input,
   filename := filename,
   fileMap  := input.toFileMap,
-  tokens   := {} }
+  tokens   := tokenTableAttribute.ext.getState env }
 
 def mkParserState (input : String) : ParserState :=
 { cache := initCacheForInput input }
@@ -1181,15 +1232,16 @@ else
 def mkBuiltinParsingTablesRef : IO (IO.Ref ParsingTables) :=
 IO.mkRef {}
 
-private def updateTokens (tables : ParsingTables) (info : ParserInfo) (declName : Name) : IO ParsingTables :=
-match info.updateTokens tables.tokens with
-| Except.ok newTokens => pure { tokens := newTokens, .. tables }
-| Except.error msg    => throw (IO.userError ("invalid builtin parser '" ++ toString declName ++ "', " ++ msg))
+private def updateTokens (info : ParserInfo) (declName : Name) : IO Unit :=
+do tokens ← builtinTokenTable.swap {};
+   match info.updateTokens tokens with
+   | Except.ok newTokens => builtinTokenTable.set newTokens
+   | Except.error msg    => throw (IO.userError ("invalid builtin parser '" ++ toString declName ++ "', " ++ msg))
 
 def addBuiltinLeadingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : Parser) : IO Unit :=
 do tables ← tablesRef.get;
    tablesRef.reset;
-   tables ← updateTokens tables p.info declName;
+   updateTokens p.info declName;
    match p.info.firstTokens with
    | FirstTokens.tokens tks =>
      let tables := tks.foldl (fun (tables : ParsingTables) tk => { leadingTable := tables.leadingTable.insert (mkSimpleName tk.val) p, .. tables }) tables;
@@ -1200,7 +1252,7 @@ do tables ← tablesRef.get;
 def addBuiltinTrailingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : TrailingParser) : IO Unit :=
 do tables ← tablesRef.get;
    tablesRef.reset;
-   tables ← updateTokens tables p.info declName;
+   updateTokens p.info declName;
    match p.info.firstTokens with
    | FirstTokens.tokens tks =>
      let tables := tks.foldl (fun (tables : ParsingTables) tk => { trailingTable := tables.trailingTable.insert (mkSimpleName tk.val) p, .. tables }) tables;
@@ -1266,7 +1318,7 @@ structure ParserAttribute :=
 (ext  : PersistentEnvExtension ParserAttributeEntry ParsingTables)
 (kind : String)
 
-instance ParserAttribute.inhabited : Inhabited ParserAttribute := ⟨{attr := default _, ext := default _, kind := ""}⟩
+instance ParserAttribute.inhabited : Inhabited ParserAttribute := ⟨{ attr := default _, ext := default _, kind := "" }⟩
 
 section
 set_option compiler.extract_closed false

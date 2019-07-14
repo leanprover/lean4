@@ -815,7 +815,7 @@ fun c s =>
 symbolOrIdentFnAux sym ("expected '" ++ sym ++ "'")
 
 def symbolOrIdentInfo (sym : String) : ParserInfo :=
-{ firstTokens  := FirstTokens.tokens [ { val := sym, lbp := none } ] }
+{ firstTokens  := FirstTokens.tokens [ { val := sym }, { val := "ident" } ] }
 
 @[inline] def symbolOrIdent {k : ParserKind} (sym : String) : Parser k :=
 let sym := sym.trim;

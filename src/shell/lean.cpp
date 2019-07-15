@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "util/timer.h"
 #include "util/macros.h"
+#include "util/io.h"
 #include "util/lean_path.h"
 #include "util/file_lock.h"
 #include "util/options.h"
@@ -292,6 +293,13 @@ public:
     }
 };
 
+namespace lean {
+object* test_module_parser_core(object* env, object* input, object* filename, object* w);
+bool test_module_parser(environment const & env, std::string const & input, std::string const & filename) {
+    return get_io_scalar_result<bool>(test_module_parser_core(env.to_obj_arg(), mk_string(input), mk_string(filename), io_mk_world()));
+}
+}
+
 int main(int argc, char ** argv) {
 #if defined(LEAN_EMSCRIPTEN)
     EM_ASM(
@@ -482,55 +490,39 @@ int main(int argc, char ** argv) {
         input_path.push_back(dirname(mod_fn));
         main_module_name = module_name_of_file(input_path, mod_fn);
     }
+
     try {
-        scope_traces_as_messages scope_trace_msgs(mod_fn, {1, 0});
-        simple_pos_info_provider pip(mod_fn.c_str());
-        scope_pos_info_provider scope_pip(pip);
-
-        // TODO(Sebastian): parse imports using new frontend
-        std::vector<rel_module_name> rel_imports;
-        std::istringstream in(contents);
-        parser p(env, ios, in, mod_fn);
-        p.parse_imports(rel_imports);
-
-        std::vector<module_name> imports;
-        auto dir = dirname(mod_fn);
-        for (auto const & rel : rel_imports)
-            imports.push_back(absolutize_module_name(path.get_path(), dir, rel));
-
-        if (only_deps) {
-            for (auto const & import : imports) {
-                std::string m_name = find_file(path.get_path(), import, {".lean"});
-                auto last_idx = m_name.find_last_of(".");
-                std::string rawname = m_name.substr(0, last_idx);
-                std::string ext = m_name.substr(last_idx);
-                m_name = rawname + ".olean";
-                std::cout << m_name << "\n";
-            }
-            return 0;
-        }
-
         bool ok = true;
         if (new_frontend) {
-#if 0
-            env.set_main_module(main_module_name);
-            // Some C++ parts like profiling need a global message log. We may want to refactor them into a
-            // message_log-passing state monad in the future.
-            message_log l;
-            scope_message_log scope_log(l);
-            // res : estate.result io.error io.world (prod (list syntax) environment)
-            object_ref res { lean_process_file(mk_string(mod_fn), mk_string(contents), static_cast<uint8>(json_output),
-                                               env.to_obj_arg(), io_mk_world()) };
-            if (io_result_is_error(res.raw())) {
-                // estate.result.error _
-                ok = false;
-            } else {
-                // estate.result.ok (prod (list syntax) environment) io.world
-                ok = true;
-                env = environment(cnstr_get(io_result_get_value(res.raw()), 1), true);
-            }
-#endif
+            ok = lean::test_module_parser(env, contents, mod_fn);
         } else {
+            scope_traces_as_messages scope_trace_msgs(mod_fn, {1, 0});
+            simple_pos_info_provider pip(mod_fn.c_str());
+            scope_pos_info_provider scope_pip(pip);
+
+            // TODO(Sebastian): parse imports using new frontend
+            std::vector<rel_module_name> rel_imports;
+            std::istringstream in(contents);
+            parser p(env, ios, in, mod_fn);
+            p.parse_imports(rel_imports);
+
+            std::vector<module_name> imports;
+            auto dir = dirname(mod_fn);
+            for (auto const & rel : rel_imports)
+                imports.push_back(absolutize_module_name(path.get_path(), dir, rel));
+
+            if (only_deps) {
+                for (auto const & import : imports) {
+                    std::string m_name = find_file(path.get_path(), import, {".lean"});
+                    auto last_idx = m_name.find_last_of(".");
+                    std::string rawname = m_name.substr(0, last_idx);
+                    std::string ext = m_name.substr(last_idx);
+                    m_name = rawname + ".olean";
+                    std::cout << m_name << "\n";
+                }
+                return 0;
+            }
+
             message_log l;
             scope_message_log scope_log(l);
             set_search_path(path.get_path());

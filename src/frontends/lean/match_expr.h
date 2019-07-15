@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 namespace lean {
 struct parser;
 expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos);
+expr parse_nomatch(parser & p, unsigned, expr const *, pos_info const & pos);
 
 void initialize_match_expr();
 void finalize_match_expr();

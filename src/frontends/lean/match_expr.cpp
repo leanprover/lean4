@@ -84,6 +84,20 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
     return p.mk_app(f, ts, pos);
 }
 
+expr parse_nomatch(parser & p, unsigned, expr const *, pos_info const & pos) {
+    parser::local_scope scope1(p);
+    match_definition_scope scope2(p.env());
+    equations_header header = mk_match_header(scope2.get_name(), scope2.get_actual_name());
+    buffer<expr> eqns;
+    buffer<expr> ts;
+    ts.push_back(p.parse_expr());
+    expr fn = mk_local(p.next_name(), get_aux_match_suffix(), mk_expr_placeholder(), mk_rec_info());
+    /* Empty match */
+    eqns.push_back(Fun(fn, mk_no_equation()));
+    expr f = p.save_pos(mk_equations(header, eqns.size(), eqns.data()), pos);
+    return p.mk_app(f, ts, pos);
+}
+
 void initialize_match_expr() {
 }
 

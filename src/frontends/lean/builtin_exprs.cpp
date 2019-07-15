@@ -834,6 +834,7 @@ parse_table init_nud_table() {
     r = r.add({transition("@&", mk_ext_action(parse_borrowed_expr))}, x0);
     r = r.add({transition("sorry", mk_ext_action(parse_sorry))}, x0);
     r = r.add({transition("match", mk_ext_action(parse_match))}, x0);
+    r = r.add({transition("nomatch", mk_ext_action(parse_nomatch))}, x0);
     r = r.add({transition("do", mk_ext_action(parse_do_expr))}, x0);
     r = r.add({transition("parser!", mk_ext_action(parse_lparser))}, x0);
     r = r.add({transition("tparser!", mk_ext_action(parse_tparser))}, x0);

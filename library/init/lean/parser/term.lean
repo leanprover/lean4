@@ -89,6 +89,7 @@ def matchAlt := parser! " | " >> sepBy1 termParser ", " >> " => " >> termParser
 @[builtinTermParser] def «nomatch»  := parser! "nomatch " >> termParser
 @[builtinTermParser] def «parser!»  := parser! "parser! " >> termParser
 @[builtinTermParser] def «tparser!» := parser! "tparser! " >> termParser
+@[builtinTermParser] def borrowed   := parser! symbol "@&" appPrec >> termParser (appPrec - 1)
 
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
 def letIdLhs : Parser := ident >> checkWsBefore "expected space before binders" >> many bracktedBinder >> optType

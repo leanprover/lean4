@@ -42,7 +42,7 @@ private partial def syntaxToExternEntries (a : Array Syntax) : Nat → List Exte
 | i entries :=
   if i == a.size then Except.ok entries
   else match a.get i with
-    | Syntax.ident _ _ backend _ _ =>
+    | Syntax.ident _ _ backend _ =>
       let i := i + 1;
       if i == a.size then Except.error "string or identifier expected"
       else match (a.get i).isIdOrAtom with
@@ -60,7 +60,7 @@ private partial def syntaxToExternEntries (a : Array Syntax) : Nat → List Exte
 private def syntaxToExternAttrData (s : Syntax) : ExceptT String Id  ExternAttrData :=
 match s with
 | Syntax.missing => Except.ok { entries := [ ExternEntry.adhoc `all ] }
-| Syntax.node _ args _ =>
+| Syntax.node _ args =>
   if args.size == 0 then Except.error "unexpected kind of argument"
   else
     let (arity, i) : Option Nat × Nat := match (args.get 0).isNatLit with

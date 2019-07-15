@@ -7,16 +7,6 @@ prelude
 import init.lean.name init.lean.format init.data.array
 
 namespace Lean
-/-- A hygiene marker introduced by a macro expansion. -/
-def MacroScope := Nat
-
-namespace MacroScope
-instance : DecidableEq MacroScope := inferInstanceAs (DecidableEq Nat)
-instance : HasFormat MacroScope   := inferInstanceAs (HasFormat Nat)
-end MacroScope
-
-abbrev MacroScopes := List MacroScope
-
 structure SourceInfo :=
 /- Will be inferred after parsing by `Syntax.updateLeading`. During parsing,
    it is not at all clear what the preceding token was, especially with backtracking. -/
@@ -41,9 +31,9 @@ def fieldIdxKind : SyntaxNodeKind := `fieldIdx
 
 inductive Syntax
 | missing
-| node   (kind : SyntaxNodeKind) (args : Array Syntax) (scopes : MacroScopes)
+| node   (kind : SyntaxNodeKind) (args : Array Syntax)
 | atom   (info : Option SourceInfo) (val : String)
-| ident  (info : Option SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List Name) (scopes : MacroScopes)
+| ident  (info : Option SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List Name)
 
 instance stxInh : Inhabited Syntax :=
 ⟨Syntax.missing⟩
@@ -53,67 +43,48 @@ def Syntax.isMissing : Syntax → Bool
 | _ := false
 
 inductive IsNode : Syntax → Prop
-| mk (kind : SyntaxNodeKind) (args : Array Syntax) (scopes : MacroScopes) : IsNode (Syntax.node kind args scopes)
+| mk (kind : SyntaxNodeKind) (args : Array Syntax) : IsNode (Syntax.node kind args)
 
 def SyntaxNode : Type := {s : Syntax // IsNode s }
 
 def notIsNodeMissing (h : IsNode Syntax.missing) : False                   := match h with end
 def notIsNodeAtom   {info val} (h : IsNode (Syntax.atom info val)) : False := match h with end
-def notIsNodeIdent  {info rawVal val preresolved scopes} (h : IsNode (Syntax.ident info rawVal val preresolved scopes)) : False := match h with end
+def notIsNodeIdent  {info rawVal val preresolved} (h : IsNode (Syntax.ident info rawVal val preresolved)) : False := match h with end
 
 def unreachIsNodeMissing {α : Type} (h : IsNode Syntax.missing) : α := False.elim (notIsNodeMissing h)
 def unreachIsNodeAtom {α : Type} {info val} (h : IsNode (Syntax.atom info val)) : α := False.elim (notIsNodeAtom h)
-def unreachIsNodeIdent {α : Type} {info rawVal val preresolved scopes} (h : IsNode (Syntax.ident info rawVal val preresolved scopes)) : α :=
+def unreachIsNodeIdent {α : Type} {info rawVal val preresolved} (h : IsNode (Syntax.ident info rawVal val preresolved)) : α :=
 False.elim (match h with end)
 
 @[inline] def withArgs {α : Type} (n : SyntaxNode) (fn : Array Syntax → α) : α :=
 match n with
-| ⟨Syntax.node _ args _, _⟩   => fn args
-| ⟨Syntax.missing, h⟩         => unreachIsNodeMissing h
-| ⟨Syntax.atom _ _, h⟩        => unreachIsNodeAtom h
-| ⟨Syntax.ident _ _ _ _ _, h⟩ => unreachIsNodeIdent h
+| ⟨Syntax.node _ args, _⟩ => fn args
+| ⟨Syntax.missing, h⟩       => unreachIsNodeMissing h
+| ⟨Syntax.atom _ _, h⟩      => unreachIsNodeAtom h
+| ⟨Syntax.ident _ _ _ _, h⟩ => unreachIsNodeIdent h
 
 @[inline] def updateArgs (n : SyntaxNode) (fn : Array Syntax → Array Syntax) : Syntax :=
 match n with
-| ⟨Syntax.node kind args scopes, _⟩ => Syntax.node kind (fn args) scopes
-| ⟨Syntax.missing, h⟩               => unreachIsNodeMissing h
-| ⟨Syntax.atom _ _, h⟩              => unreachIsNodeAtom h
-| ⟨Syntax.ident _ _ _ _ _, h⟩       => unreachIsNodeIdent h
-
--- TODO(Sebastian): exhaustively argue why (if?) this is correct
--- The basic idea is List concatenation with elimination of adjacent identical scopes
-def MacroScopes.flip : MacroScopes → MacroScopes → MacroScopes
-| ys []      := ys
-| ys (x::xs) := match MacroScopes.flip ys xs with
-  | y::ys => if x == y then ys else x::y::ys
-  | []    => [x]
+| ⟨Syntax.node kind args, _⟩ => Syntax.node kind (fn args)
+| ⟨Syntax.missing, h⟩        => unreachIsNodeMissing h
+| ⟨Syntax.atom _ _, h⟩       => unreachIsNodeAtom h
+| ⟨Syntax.ident _ _ _ _,  h⟩ => unreachIsNodeIdent h
 
 namespace Syntax
 def isIdent : Syntax → Bool
-| (Syntax.ident _ _ _ _ _) := true
-| _                        := false
+| (Syntax.ident _ _ _ _) := true
+| _                      := false
 
 def isOfKind : Syntax → SyntaxNodeKind → Bool
-| (Syntax.node kind _ _) k := k == kind
-| other                  _ := false
-
-def flipScopes (scopes : MacroScopes) : Syntax → Syntax
-| (Syntax.ident info rawVal val pre scopes) := Syntax.ident info rawVal val pre (scopes.flip scopes)
-| (Syntax.node kind args scopes)            := Syntax.node kind args (scopes.flip scopes)
-| other := other
-
-@[inline] def toSyntaxNode {α : Type} (s : Syntax) (base : α) (fn : SyntaxNode → α) : α :=
-match s with
-| Syntax.node kind args []     => fn ⟨Syntax.node kind args [], IsNode.mk _ _ _⟩
-| Syntax.node kind args scopes => fn ⟨Syntax.node kind (args.map (flipScopes scopes)) [], IsNode.mk _ _ _⟩
-| other                        => base
+| (Syntax.node kind _) k := k == kind
+| other                _ := false
 
 @[specialize] partial def mreplace {m : Type → Type} [Monad m] (fn : Syntax → m (Option Syntax)) : Syntax → m Syntax
-| stx@(node kind args scopes) := do
+| stx@(node kind args) := do
   o ← fn stx;
   match o with
   | some stx => pure stx
-  | none     => do args ← args.mmap mreplace; pure (node kind args scopes)
+  | none     => do args ← args.mmap mreplace; pure (node kind args)
 | stx := do o ← fn stx; pure (o.getOrElse stx)
 
 @[inline] def replace {m : Type → Type} [Monad m] (fn : Syntax → m (Option Syntax)) := @mreplace Id _
@@ -131,11 +102,11 @@ private def updateLeadingAux : Syntax → State String.Pos (Option Syntax)
   set info.trailing.stopPos;
   let newInfo := updateInfo info last;
   pure $ some (atom (some newInfo) val)
-| (ident (some info) rawVal val pre scopes) := do
+| (ident (some info) rawVal val pre) := do
   last ← get;
   set info.trailing.stopPos;
   let newInfo := updateInfo info last;
-  pure $ some (ident (some newInfo) rawVal val pre scopes)
+  pure $ some (ident (some newInfo) rawVal val pre)
 | _ := pure none
 
 /-- Set `SourceInfo.leading` according to the trailing stop of the preceding token.
@@ -153,41 +124,41 @@ def updateLeading : Syntax → Syntax :=
 fun stx => Prod.fst <$> (mreplace updateLeadingAux stx).run 0
 
 partial def updateTrailing (trailing : Substring) : Syntax → Syntax
-| (Syntax.atom (some info) val)                     := Syntax.atom (some (info.updateTrailing trailing)) val
-| (Syntax.ident (some info) rawVal val pre scopes)  := Syntax.ident (some (info.updateTrailing trailing)) rawVal val pre scopes
-| n@(Syntax.node k args scopes)                     :=
+| (Syntax.atom (some info) val)             := Syntax.atom (some (info.updateTrailing trailing)) val
+| (Syntax.ident (some info) rawVal val pre) := Syntax.ident (some (info.updateTrailing trailing)) rawVal val pre
+| n@(Syntax.node k args)                    :=
   if args.size == 0 then n
   else
    let i    := args.size - 1;
    let last := updateTrailing (args.get i);
    let args := args.set i last;
-   Syntax.node k args scopes
+   Syntax.node k args
 | other := other
 
 /-- Retrieve the left-most leaf's info in the Syntax tree. -/
 partial def getHeadInfo : Syntax → Option SourceInfo
-| missing              := none
-| (atom info _)        := info
-| (ident info _ _ _ _) := info
-| (node _ args _)      := args.find getHeadInfo
+| missing             := none
+| (atom info _)       := info
+| (ident info _ _ _ ) := info
+| (node _ args)       := args.find getHeadInfo
 
 def getPos (stx : Syntax) : Option String.Pos :=
 SourceInfo.pos <$> stx.getHeadInfo
 
 partial def getTailInfo : Syntax → Option SourceInfo
-| missing               := none
-| (atom info _)         := info
-| (ident info _ _ _ _)  := info
-| (node _ args _)       := args.findRev getTailInfo
+| missing             := none
+| (atom info _)       := info
+| (ident info _ _ _)  := info
+| (node _ args)       := args.findRev getTailInfo
 
 private def reprintLeaf : Option SourceInfo → String → String
 | none        val := val
 | (some info) val := info.leading.toString ++ val ++ info.trailing.toString
 
 partial def reprint : Syntax → Option String
-| (atom info val)           := reprintLeaf info val
-| (ident info rawVal _ _ _) := reprintLeaf info rawVal.toString
-| (node kind args _)        :=
+| (atom info val)         := reprintLeaf info val
+| (ident info rawVal _ _) := reprintLeaf info rawVal.toString
+| (node kind args)        :=
   if kind == choiceKind then
     if args.size == 0 then failure
     else do
@@ -199,18 +170,14 @@ partial def reprint : Syntax → Option String
 open Lean.Format
 
 protected partial def formatStx : Syntax → Format
-| (atom info val) := format $ repr val
-| (ident _ _ val pre scopes) :=
-  let scopes := pre.map format ++ scopes.reverse.map format;
-  let scopes := match scopes with [] => format "" | _ => bracket "{" (joinSep scopes ", ") "}";
-  format "`" ++ format val ++ scopes
-| (node kind args scopes) :=
-  let scopes := match scopes with [] => format "" | _ => bracket "{" (joinSep scopes.reverse ", ") "}";
+| (atom info val)     := format $ repr val
+| (ident _ _ val pre) := format "`" ++ format val
+| (node kind args)    :=
   if kind = `Lean.Parser.noKind then
-    sbracket $ scopes ++ joinSep (args.toList.map formatStx) line
+    sbracket $ joinSep (args.toList.map formatStx) line
   else
     let shorterName := kind.replacePrefix `Lean.Parser Name.anonymous;
-    paren $ joinSep ((format shorterName ++ scopes) :: args.toList.map formatStx) line
+    paren $ joinSep ((format shorterName) :: args.toList.map formatStx) line
 | missing := "<missing>"
 
 instance : HasFormat Syntax := ⟨Syntax.formatStx⟩
@@ -226,17 +193,17 @@ Syntax.atom none val
 
 @[export lean.mk_syntax_ident_core]
 def mkSimpleIdent (val : Name) : Syntax :=
-Syntax.ident none (toString val).toSubstring val [] []
+Syntax.ident none (toString val).toSubstring val []
 
 @[export lean.mk_syntax_list_core]
 def mkListNode (args : Array Syntax) : Syntax :=
-Syntax.node nullKind args []
+Syntax.node nullKind args
 
 /- Helper functions for creating string and numeric literals -/
 
 def mkLit (kind : SyntaxNodeKind) (val : String) (info : Option SourceInfo := none) : Syntax :=
 let atom := Syntax.atom info val;
-Syntax.node kind (Array.singleton atom) []
+Syntax.node kind (Array.singleton atom)
 
 def mkStrLit (val : String) (info : Option SourceInfo := none) : Syntax :=
 mkLit strLitKind val info
@@ -255,7 +222,7 @@ mkNumLit (toString val)
 namespace Syntax
 
 def isStrLit : Syntax → Option String
-| (Syntax.node k args _) :=
+| (Syntax.node k args) :=
   if k == strLitKind && args.size == 1 then
     match args.get 0 with
     | (Syntax.atom _ val) => some val
@@ -324,7 +291,7 @@ else
   else none
 
 def isNatLitAux (nodeKind : SyntaxNodeKind) : Syntax → Option Nat
-| (Syntax.node k args _) :=
+| (Syntax.node k args) :=
   if k == nodeKind && args.size == 1 then
     match args.get 0 with
     | (Syntax.atom _ val) => decodeNatLitVal val
@@ -340,8 +307,8 @@ def isFieldIdx (s : Syntax) : Option Nat :=
 isNatLitAux fieldIdxKind s
 
 def isIdOrAtom : Syntax → Option String
-| (Syntax.atom _ val)           := some val
-| (Syntax.ident _ rawVal _ _ _) := some rawVal.toString
+| (Syntax.atom _ val)         := some val
+| (Syntax.ident _ rawVal _ _) := some rawVal.toString
 | _ := none
 
 end Syntax

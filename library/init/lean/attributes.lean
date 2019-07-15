@@ -412,9 +412,9 @@ end EnumAttributes
    decode the Syntax object. -/
 def attrParamSyntaxToIdentifier (s : Syntax) : Option Name :=
 match s with
-| Syntax.node k args _ =>
+| Syntax.node k args =>
   if k == nullKind && args.size == 1 then match args.get 0 with
-    | Syntax.ident _ _ id _ _ => some id
+    | Syntax.ident _ _ id _ => some id
     | _ => none
   else
     none

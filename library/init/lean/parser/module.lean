@@ -54,7 +54,7 @@ match s.errorMsg with
 
 private def mkEOI (pos : String.Pos) : Syntax :=
 let atom := Syntax.atom (some { pos := pos, trailing := "".toSubstring, leading := "".toSubstring }) "";
-Syntax.node `Lean.Parser.Module.eoi [atom].toArray []
+Syntax.node `Lean.Parser.Module.eoi [atom].toArray
 
 def isEOI (s : Syntax) : Bool :=
 s.isOfKind `Lean.Parser.Module.eoi

@@ -122,7 +122,7 @@ match s with
     -- If there is an error but there are no new nodes on the stack, we just return `d`
     s
   else
-    let newNode := Syntax.node k (stack.extract iniStackSz stack.size) [];
+    let newNode := Syntax.node k (stack.extract iniStackSz stack.size);
     let stack   := stack.shrink iniStackSz;
     let stack   := stack.push newNode;
     ⟨stack, pos, cache, err⟩
@@ -677,7 +677,7 @@ else
   let leading         := mkEmptySubstringAt input startPos;
   let trailing        := { Substring . str := input, startPos := stopPos, stopPos := trailingStopPos };
   let info            := { SourceInfo . leading := leading, trailing := trailing, pos := startPos };
-  let atom            := Syntax.ident (some info) rawVal val [] [];
+  let atom            := Syntax.ident (some info) rawVal val [];
   s.pushSyntax atom
 
 partial def identFnAux (startPos : Nat) (tk : Option TokenConfig) : Name → BasicParserFn
@@ -821,7 +821,7 @@ fun c s =>
     match s.stxStack.back with
     | Syntax.atom _ sym' =>
       if sym == sym' then s else s.mkErrorAt errorMsg startPos
-    | Syntax.ident info rawVal _ _ _ =>
+    | Syntax.ident info rawVal _ _ =>
       if sym == rawVal.toString then
         let s := s.popSyntax;
         s.pushSyntax (Syntax.atom info sym)
@@ -1028,7 +1028,7 @@ match s with
   else if stack.size == startSize + 1 then s
   else
     -- parser created more than one node, combine them into a single node
-    let node := Syntax.node nullKind (stack.extract startSize stack.size) [];
+    let node := Syntax.node nullKind (stack.extract startSize stack.size);
     let stack := stack.shrink startSize;
     ⟨stack.push node, pos, cache, none⟩
 
@@ -1153,10 +1153,10 @@ match stx with
     | some lbp, some lbpNoWs => if checkTailNoWs left then (s, lbpNoWs) else (s, lbp)
     | none, none             => (s, 0)
   | _            => (s, 0)
-| some (Syntax.ident _ _ _ _ _) => (s, appPrec)
+| some (Syntax.ident _ _ _ _) => (s, appPrec)
 -- TODO(Leo): add support for associating lbp with syntax node kinds.
-| some (Syntax.node k _ _)      => if k == numLitKind || k == strLitKind || k == fieldIdxKind then (s, appPrec) else (s, 0)
-| _                             => (s, 0)
+| some (Syntax.node k _)      => if k == numLitKind || k == strLitKind || k == fieldIdxKind then (s, appPrec) else (s, 0)
+| _                           => (s, 0)
 
 def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState) : ParserState × List α :=
 let (s, stx) := peekToken c s;
@@ -1165,10 +1165,10 @@ let find (n : Name) : ParserState × List α :=
   | some as => (s, as)
   | _       => (s, []);
 match stx with
-| some (Syntax.atom _ sym)      => find (mkSimpleName sym)
-| some (Syntax.ident _ _ _ _ _) => find `ident
-| some (Syntax.node k _ _)      => find k
-| _                             => (s, [])
+| some (Syntax.atom _ sym)    => find (mkSimpleName sym)
+| some (Syntax.ident _ _ _ _) => find `ident
+| some (Syntax.node k _)      => find k
+| _                           => (s, [])
 
 private def mkResult (s : ParserState) (iniSz : Nat) : ParserState :=
 if s.stackSize == iniSz + 1 then s

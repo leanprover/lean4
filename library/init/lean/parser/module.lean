@@ -38,8 +38,8 @@ private def mkErrorMessage (c : ParserContext) (pos : String.Pos) (errorMsg : St
 let pos := c.fileMap.toPosition pos;
 { filename := c.filename, pos := pos, text := errorMsg }
 
-def mkModuleParser (env : Environment) (input : String) (fileName := "<input>") : Option Syntax × ModuleParser :=
-let c   := mkParserContext env input fileName;
+def mkModuleParser (env : Environment) (input : String) (filename := "<input>") : Option Syntax × ModuleParser :=
+let c   := mkParserContext env input filename;
 let c   := Module.updateTokens c;
 let s   := mkParserState input;
 let s   := whitespace c s;
@@ -87,6 +87,21 @@ partial def parseCommand (env : Environment) : ModuleParser → Syntax × Module
         let msg := mkErrorMessage c s.pos errorMsg;
         let p   := { pos := s.pos, recovering := true, messages := p.messages.add msg, .. p };
         parseCommand p
+
+private partial def testModuleParserAux (env : Environment) : ModuleParser → IO Bool
+| p :=
+  match parseCommand env p with
+  | (stx, p) =>
+    if isEOI stx then do
+      p.messages.toList.mfor $ fun msg => IO.println msg;
+      pure (!p.messages.hasErrors)
+    else
+      testModuleParserAux p
+
+@[export lean.test_module_parser_core]
+def testModuleParser (env : Environment) (input : String) (filename := "<input>") : IO Bool :=
+let (_, p) := mkModuleParser env input filename;
+testModuleParserAux env p
 
 end Parser
 end Lean

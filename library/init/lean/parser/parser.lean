@@ -260,12 +260,25 @@ node n p
 @[inline] def trailingNode (n : SyntaxNodeKind) (p : Parser trailing) : TrailingParser :=
 node n p
 
+def mergeOrElseErrors (s : ParserState) (error1 : String) (iniPos : Nat) : ParserState :=
+match s with
+| ⟨stack, pos, cache, some error2⟩ =>
+  if pos == iniPos then ⟨stack, pos, cache, some (error1 ++ "; " ++ error2)⟩
+  else s
+| other => other
+
 @[inline] def orelseFn {k : ParserKind} (p q : ParserFn k) : ParserFn k
 | a c s :=
   let iniSz  := s.stackSize;
   let iniPos := s.pos;
   let s      := p a c s;
-  if s.hasError && s.pos == iniPos then q a c (s.restore iniSz iniPos) else s
+  match s.errorMsg with
+  | some errorMsg =>
+    if s.pos == iniPos then
+      mergeOrElseErrors (q a c (s.restore iniSz iniPos)) errorMsg iniPos
+    else
+      s
+  | none => s
 
 @[noinline] def orelseInfo (p q : ParserInfo) : ParserInfo :=
 { updateTokens := fun tks => q.updateTokens tks >>= p.updateTokens,

@@ -26,6 +26,7 @@ obj* l_Lean_IR_findDecl_x27(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_containsDecl(obj*, obj*, obj*);
 obj* l_Lean_SMap_switch___at_Lean_IR_mkDeclMapExtension___spec__8(obj*);
 obj* l_Lean_IR_LogEntry_fmt___main(obj*);
+obj* l_Lean_IR_declMapExt___lambda__1(obj*, obj*);
 obj* l_Lean_IR_findEnvDecl___boxed(obj*, obj*);
 extern obj* l_Array_empty___closed__1;
 obj* l_Lean_IR_LogEntry_Lean_HasFormat___closed__1;
@@ -33,6 +34,7 @@ obj* l_Lean_Format_pretty(obj*, obj*);
 obj* l_Lean_IR_mkDeclMapExtension___closed__1;
 obj* l_Array_mkArray(obj*, obj*, obj*);
 obj* l_Lean_IR_formatDecl___main(obj*, obj*);
+obj* l_Lean_IR_declMapExt___lambda__1___boxed(obj*, obj*);
 obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__10(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_getEnv___boxed(obj*);
 obj* l_HashMapImp_find___at_Lean_IR_findEnvDecl___spec__3(obj*, obj*);
@@ -66,6 +68,7 @@ obj* l_Lean_IR_declMapExt___elambda__4(obj*);
 obj* l_HashMapImp_expand___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__4(obj*, obj*);
 obj* l_Lean_IR_getDecls___boxed(obj*);
 obj* l_Lean_mkStateFromImportedEntries___at_Lean_IR_mkDeclMapExtension___spec__5(obj*, obj*);
+obj* l_Thunk_mk(obj*, obj*);
 obj* l_Lean_SimplePersistentEnvExtension_getEntries___rarg(obj*, obj*);
 uint8 l_Lean_KVMap_getBool(obj*, obj*, uint8);
 obj* l_Lean_IR_findEnvDecl_x27(obj*, obj*, obj*);
@@ -175,6 +178,7 @@ obj* l_AssocList_mfoldl___main___at___private_init_lean_compiler_ir_compilerm_4_
 obj* l_Lean_IR_containsDecl_x27(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_containsDecl___boxed(obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_compilerm_3__logMessageIfAux___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_IR_declMapExt___closed__8;
 extern obj* l_Lean_SMap_empty___at_Lean_Environment_Inhabited___spec__2___closed__1;
 obj* l_Lean_IR_getEnv(obj*);
 uint8 l_HashMapImp_contains___at_Lean_IR_containsDecl___spec__2(obj*, obj*);
@@ -4213,31 +4217,60 @@ x_2 = l_Lean_IR_declMapExt___elambda__4___closed__1;
 return x_2;
 }
 }
+obj* l_Lean_IR_declMapExt___lambda__1(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_4; uint8 x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
+x_3 = lean::box(0);
+x_4 = lean::box(0);
+x_5 = 1;
+x_6 = l_HashMap_Inhabited___closed__1;
+x_7 = lean::alloc_cnstr(0, 2, 1);
+lean::cnstr_set(x_7, 0, x_6);
+lean::cnstr_set(x_7, 1, x_4);
+lean::cnstr_set_scalar(x_7, sizeof(void*)*2, x_5);
+x_8 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_8, 0, x_3);
+lean::cnstr_set(x_8, 1, x_7);
+x_9 = l_Array_empty___closed__1;
+x_10 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_10, 0, x_9);
+lean::cnstr_set(x_10, 1, x_8);
+return x_10;
+}
+}
 obj* _init_l_Lean_IR_declMapExt___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; 
-x_1 = l_Array_empty___closed__1;
-x_2 = l_Lean_IR_declMapExt___elambda__4___closed__1;
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_1);
-lean::cnstr_set(x_3, 1, x_2);
-return x_3;
+obj* x_1; obj* x_2; 
+x_1 = l_Lean_SMap_empty___at_Lean_Environment_Inhabited___spec__2___closed__1;
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_IR_declMapExt___lambda__1___boxed), 2, 1);
+lean::closure_set(x_2, 0, x_1);
+return x_2;
 }
 }
 obj* _init_l_Lean_IR_declMapExt___closed__2() {
 _start:
 {
+obj* x_1; obj* x_2; 
+x_1 = l_Lean_IR_declMapExt___closed__1;
+x_2 = lean::mk_thunk(x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_IR_declMapExt___closed__3() {
+_start:
+{
 obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::mk_nat_obj(0u);
-x_2 = l_Lean_IR_declMapExt___closed__1;
+x_2 = l_Lean_IR_declMapExt___closed__2;
 x_3 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_3, 0, x_1);
 lean::cnstr_set(x_3, 1, x_2);
 return x_3;
 }
 }
-obj* _init_l_Lean_IR_declMapExt___closed__3() {
+obj* _init_l_Lean_IR_declMapExt___closed__4() {
 _start:
 {
 obj* x_1; 
@@ -4245,7 +4278,7 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_IR_declMapExt___elambda
 return x_1;
 }
 }
-obj* _init_l_Lean_IR_declMapExt___closed__4() {
+obj* _init_l_Lean_IR_declMapExt___closed__5() {
 _start:
 {
 obj* x_1; 
@@ -4253,7 +4286,7 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_IR_declMapExt___elambda
 return x_1;
 }
 }
-obj* _init_l_Lean_IR_declMapExt___closed__5() {
+obj* _init_l_Lean_IR_declMapExt___closed__6() {
 _start:
 {
 obj* x_1; 
@@ -4261,7 +4294,7 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_IR_declMapExt___elambda
 return x_1;
 }
 }
-obj* _init_l_Lean_IR_declMapExt___closed__6() {
+obj* _init_l_Lean_IR_declMapExt___closed__7() {
 _start:
 {
 obj* x_1; 
@@ -4269,16 +4302,16 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_IR_declMapExt___elambda
 return x_1;
 }
 }
-obj* _init_l_Lean_IR_declMapExt___closed__7() {
+obj* _init_l_Lean_IR_declMapExt___closed__8() {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
-x_1 = l_Lean_IR_declMapExt___closed__2;
+x_1 = l_Lean_IR_declMapExt___closed__3;
 x_2 = lean::box(0);
-x_3 = l_Lean_IR_declMapExt___closed__3;
-x_4 = l_Lean_IR_declMapExt___closed__4;
-x_5 = l_Lean_IR_declMapExt___closed__5;
-x_6 = l_Lean_IR_declMapExt___closed__6;
+x_3 = l_Lean_IR_declMapExt___closed__4;
+x_4 = l_Lean_IR_declMapExt___closed__5;
+x_5 = l_Lean_IR_declMapExt___closed__6;
+x_6 = l_Lean_IR_declMapExt___closed__7;
 x_7 = lean::alloc_cnstr(0, 6, 0);
 lean::cnstr_set(x_7, 0, x_1);
 lean::cnstr_set(x_7, 1, x_2);
@@ -4324,6 +4357,16 @@ obj* x_2;
 x_2 = l_Lean_IR_declMapExt___elambda__4(x_1);
 lean::dec(x_1);
 return x_2;
+}
+}
+obj* l_Lean_IR_declMapExt___lambda__1___boxed(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_Lean_IR_declMapExt___lambda__1(x_1, x_2);
+lean::dec(x_2);
+lean::dec(x_1);
+return x_3;
 }
 }
 obj* l_RBNode_find___main___at_Lean_IR_findEnvDecl___spec__2(obj* x_1, obj* x_2) {
@@ -5573,6 +5616,8 @@ l_Lean_IR_declMapExt___closed__6 = _init_l_Lean_IR_declMapExt___closed__6();
 lean::mark_persistent(l_Lean_IR_declMapExt___closed__6);
 l_Lean_IR_declMapExt___closed__7 = _init_l_Lean_IR_declMapExt___closed__7();
 lean::mark_persistent(l_Lean_IR_declMapExt___closed__7);
+l_Lean_IR_declMapExt___closed__8 = _init_l_Lean_IR_declMapExt___closed__8();
+lean::mark_persistent(l_Lean_IR_declMapExt___closed__8);
 w = l_Lean_IR_mkDeclMapExtension(w);
 if (io_result_is_error(w)) return w;
 l_Lean_IR_declMapExt = io_result_get_value(w);

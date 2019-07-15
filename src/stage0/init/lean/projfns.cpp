@@ -24,6 +24,7 @@ obj* nat_sub(obj*, obj*);
 }
 obj* l_Lean_mkProjectionFnInfoExtension___closed__4;
 obj* l_Lean_mkProjectionFnInfoExtension___lambda__2___boxed(obj*);
+obj* l_Lean_projectionFnInfoExt___lambda__1___boxed(obj*);
 obj* l_Lean_projectionFnInfoExt___elambda__1___boxed(obj*);
 obj* l_Array_binSearchAux___main___at_Lean_Environment_getProjectionFnInfo___spec__2(obj*, obj*, obj*, obj*);
 obj* l_List_toArrayAux___main___rarg(obj*, obj*);
@@ -39,6 +40,7 @@ obj* l_Lean_projectionFnInfoExt___elambda__3___boxed(obj*, obj*);
 obj* l_Lean_projectionFnInfoExt___elambda__4___closed__1;
 obj* l_Array_swap(obj*, obj*, obj*, obj*);
 obj* l_Lean_projectionFnInfoExt___elambda__4(obj*);
+obj* l_Thunk_mk(obj*, obj*);
 obj* l_Lean_mkProjectionFnInfoExtension___lambda__3(obj*);
 obj* l_Lean_projectionFnInfoExt___elambda__2___boxed(obj*);
 obj* l_Lean_Environment_getModuleIdxFor(obj*, obj*);
@@ -69,10 +71,13 @@ obj* l_Array_binSearchAux___main___at_Lean_Environment_getProjectionFnInfo___spe
 obj* l_Lean_addProjectionFnInfo___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_binSearchAux___main___at_Lean_Environment_isProjectionFn___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_projectionFnInfoExt___closed__5;
+obj* l_Lean_projectionFnInfoExt___closed__8;
 namespace lean {
 obj* add_projection_info_core(obj*, obj*, obj*, obj*, obj*, uint8);
 }
+obj* l_Lean_projectionFnInfoExt___lambda__1(obj*);
 obj* l_Lean_PersistentEnvExtension_addEntry___rarg(obj*, obj*, obj*);
+obj* l_Lean_projectionFnInfoExt___lambda__1___closed__1;
 uint8 l_Lean_Name_quickLt(obj*, obj*);
 obj* l_Lean_projectionFnInfoExt___closed__6;
 namespace lean {
@@ -535,7 +540,7 @@ x_2 = l_Lean_projectionFnInfoExt___elambda__4___closed__1;
 return x_2;
 }
 }
-obj* _init_l_Lean_projectionFnInfoExt___closed__1() {
+obj* _init_l_Lean_projectionFnInfoExt___lambda__1___closed__1() {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; 
@@ -547,19 +552,44 @@ lean::cnstr_set(x_3, 1, x_2);
 return x_3;
 }
 }
+obj* l_Lean_projectionFnInfoExt___lambda__1(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_projectionFnInfoExt___lambda__1___closed__1;
+return x_2;
+}
+}
+obj* _init_l_Lean_projectionFnInfoExt___closed__1() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_projectionFnInfoExt___lambda__1___boxed), 1, 0);
+return x_1;
+}
+}
 obj* _init_l_Lean_projectionFnInfoExt___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = l_Lean_projectionFnInfoExt___closed__1;
+x_2 = lean::mk_thunk(x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_projectionFnInfoExt___closed__3() {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::mk_nat_obj(0u);
-x_2 = l_Lean_projectionFnInfoExt___closed__1;
+x_2 = l_Lean_projectionFnInfoExt___closed__2;
 x_3 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_3, 0, x_1);
 lean::cnstr_set(x_3, 1, x_2);
 return x_3;
 }
 }
-obj* _init_l_Lean_projectionFnInfoExt___closed__3() {
+obj* _init_l_Lean_projectionFnInfoExt___closed__4() {
 _start:
 {
 obj* x_1; 
@@ -567,7 +597,7 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_projectionFnInfoExt___e
 return x_1;
 }
 }
-obj* _init_l_Lean_projectionFnInfoExt___closed__4() {
+obj* _init_l_Lean_projectionFnInfoExt___closed__5() {
 _start:
 {
 obj* x_1; 
@@ -575,7 +605,7 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_projectionFnInfoExt___e
 return x_1;
 }
 }
-obj* _init_l_Lean_projectionFnInfoExt___closed__5() {
+obj* _init_l_Lean_projectionFnInfoExt___closed__6() {
 _start:
 {
 obj* x_1; 
@@ -583,7 +613,7 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_projectionFnInfoExt___e
 return x_1;
 }
 }
-obj* _init_l_Lean_projectionFnInfoExt___closed__6() {
+obj* _init_l_Lean_projectionFnInfoExt___closed__7() {
 _start:
 {
 obj* x_1; 
@@ -591,16 +621,16 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_projectionFnInfoExt___e
 return x_1;
 }
 }
-obj* _init_l_Lean_projectionFnInfoExt___closed__7() {
+obj* _init_l_Lean_projectionFnInfoExt___closed__8() {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
-x_1 = l_Lean_projectionFnInfoExt___closed__2;
+x_1 = l_Lean_projectionFnInfoExt___closed__3;
 x_2 = lean::box(0);
-x_3 = l_Lean_projectionFnInfoExt___closed__3;
-x_4 = l_Lean_projectionFnInfoExt___closed__4;
-x_5 = l_Lean_projectionFnInfoExt___closed__5;
-x_6 = l_Lean_projectionFnInfoExt___closed__6;
+x_3 = l_Lean_projectionFnInfoExt___closed__4;
+x_4 = l_Lean_projectionFnInfoExt___closed__5;
+x_5 = l_Lean_projectionFnInfoExt___closed__6;
+x_6 = l_Lean_projectionFnInfoExt___closed__7;
 x_7 = lean::alloc_cnstr(0, 6, 0);
 lean::cnstr_set(x_7, 0, x_1);
 lean::cnstr_set(x_7, 1, x_2);
@@ -644,6 +674,15 @@ _start:
 {
 obj* x_2; 
 x_2 = l_Lean_projectionFnInfoExt___elambda__4(x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l_Lean_projectionFnInfoExt___lambda__1___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_projectionFnInfoExt___lambda__1(x_1);
 lean::dec(x_1);
 return x_2;
 }
@@ -1068,6 +1107,8 @@ lean::mark_persistent(l_Lean_mkProjectionFnInfoExtension___closed__6);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkProjectionFnInfoExtension"), 1, l_Lean_mkProjectionFnInfoExtension);
 l_Lean_projectionFnInfoExt___elambda__4___closed__1 = _init_l_Lean_projectionFnInfoExt___elambda__4___closed__1();
 lean::mark_persistent(l_Lean_projectionFnInfoExt___elambda__4___closed__1);
+l_Lean_projectionFnInfoExt___lambda__1___closed__1 = _init_l_Lean_projectionFnInfoExt___lambda__1___closed__1();
+lean::mark_persistent(l_Lean_projectionFnInfoExt___lambda__1___closed__1);
 l_Lean_projectionFnInfoExt___closed__1 = _init_l_Lean_projectionFnInfoExt___closed__1();
 lean::mark_persistent(l_Lean_projectionFnInfoExt___closed__1);
 l_Lean_projectionFnInfoExt___closed__2 = _init_l_Lean_projectionFnInfoExt___closed__2();
@@ -1082,6 +1123,8 @@ l_Lean_projectionFnInfoExt___closed__6 = _init_l_Lean_projectionFnInfoExt___clos
 lean::mark_persistent(l_Lean_projectionFnInfoExt___closed__6);
 l_Lean_projectionFnInfoExt___closed__7 = _init_l_Lean_projectionFnInfoExt___closed__7();
 lean::mark_persistent(l_Lean_projectionFnInfoExt___closed__7);
+l_Lean_projectionFnInfoExt___closed__8 = _init_l_Lean_projectionFnInfoExt___closed__8();
+lean::mark_persistent(l_Lean_projectionFnInfoExt___closed__8);
 w = l_Lean_mkProjectionFnInfoExtension(w);
 if (io_result_is_error(w)) return w;
 l_Lean_projectionFnInfoExt = io_result_get_value(w);

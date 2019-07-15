@@ -26,6 +26,7 @@ obj* l_Lean_registerClassAttr___closed__5;
 obj* l_Lean_registerClassAttr___closed__6;
 obj* l_AssocList_find___main___at_Lean_ClassState_addEntry___spec__13___boxed(obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_ClassState_addEntry___spec__11___boxed(obj*, obj*);
+obj* l_Lean_classExtension___lambda__1___closed__1;
 obj* l_HashMapImp_contains___at_Lean_isClass___spec__2___boxed(obj*, obj*);
 obj* l_Lean_mkClassExtension___lambda__1(obj*);
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
@@ -85,6 +86,7 @@ obj* l_Lean_SMap_find___main___at_Lean_hasOutParams___spec__1___boxed(obj*, obj*
 obj* l_AssocList_mfoldl___main___at_Lean_ClassState_addEntry___spec__19(obj*, obj*);
 obj* l_Lean_ClassEntry_getName___main(obj*);
 obj* l_Lean_mkClassExtension___closed__5;
+obj* l_Thunk_mk(obj*, obj*);
 obj* l_Lean_Expr_hasOutParam___main___boxed(obj*);
 obj* l_AssocList_mfoldl___main___at_Lean_ClassState_addEntry___spec__8(obj*, obj*);
 obj* l_AssocList_mfoldl___main___at_Lean_ClassState_addEntry___spec__28(obj*, obj*);
@@ -100,6 +102,7 @@ obj* l_RBNode_insert___at_Lean_NameSet_insert___spec__1(obj*, obj*, obj*);
 obj* l_Lean_SMap_contains___main___at_Lean_isInstance___spec__1___boxed(obj*, obj*);
 obj* l_Lean_getClassName(obj*, obj*);
 obj* l_Lean_hasOutParams___boxed(obj*, obj*);
+obj* l_Lean_classExtension___lambda__1___boxed(obj*);
 obj* l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__1___closed__1;
 extern "C" usize lean_name_hash_usize(obj*);
 obj* l_HashMapImp_find___at_Lean_ClassState_addEntry___spec__12(obj*, obj*);
@@ -124,6 +127,7 @@ obj* add_instance_core(obj*, obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
+obj* l_Lean_classExtension___closed__8;
 extern obj* l_Char_HasRepr___closed__1;
 obj* l_AssocList_contains___main___at_Lean_ClassState_addEntry___spec__25___boxed(obj*, obj*);
 uint8 l_Lean_Syntax_isMissing___main(obj*);
@@ -245,6 +249,7 @@ obj* nat_mul(obj*, obj*);
 }
 obj* l_Lean_registerInstanceAttr___lambda__1___closed__1;
 obj* l_Lean_registerInstanceAttr___closed__3;
+obj* l_Lean_classExtension___lambda__1(obj*);
 obj* l_HashMapImp_expand___at_Lean_ClassState_addEntry___spec__17(obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_isClass___spec__3___boxed(obj*, obj*);
 obj* l_Lean_classExtension___closed__5;
@@ -7295,7 +7300,7 @@ x_2 = l_Lean_classExtension___elambda__4___closed__1;
 return x_2;
 }
 }
-obj* _init_l_Lean_classExtension___closed__1() {
+obj* _init_l_Lean_classExtension___lambda__1___closed__1() {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; 
@@ -7307,19 +7312,44 @@ lean::cnstr_set(x_3, 1, x_2);
 return x_3;
 }
 }
+obj* l_Lean_classExtension___lambda__1(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_classExtension___lambda__1___closed__1;
+return x_2;
+}
+}
+obj* _init_l_Lean_classExtension___closed__1() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_classExtension___lambda__1___boxed), 1, 0);
+return x_1;
+}
+}
 obj* _init_l_Lean_classExtension___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = l_Lean_classExtension___closed__1;
+x_2 = lean::mk_thunk(x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_classExtension___closed__3() {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::mk_nat_obj(0u);
-x_2 = l_Lean_classExtension___closed__1;
+x_2 = l_Lean_classExtension___closed__2;
 x_3 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_3, 0, x_1);
 lean::cnstr_set(x_3, 1, x_2);
 return x_3;
 }
 }
-obj* _init_l_Lean_classExtension___closed__3() {
+obj* _init_l_Lean_classExtension___closed__4() {
 _start:
 {
 obj* x_1; 
@@ -7327,7 +7357,7 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_classExtension___elambd
 return x_1;
 }
 }
-obj* _init_l_Lean_classExtension___closed__4() {
+obj* _init_l_Lean_classExtension___closed__5() {
 _start:
 {
 obj* x_1; 
@@ -7335,7 +7365,7 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_classExtension___elambd
 return x_1;
 }
 }
-obj* _init_l_Lean_classExtension___closed__5() {
+obj* _init_l_Lean_classExtension___closed__6() {
 _start:
 {
 obj* x_1; 
@@ -7343,7 +7373,7 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_classExtension___elambd
 return x_1;
 }
 }
-obj* _init_l_Lean_classExtension___closed__6() {
+obj* _init_l_Lean_classExtension___closed__7() {
 _start:
 {
 obj* x_1; 
@@ -7351,16 +7381,16 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_classExtension___elambd
 return x_1;
 }
 }
-obj* _init_l_Lean_classExtension___closed__7() {
+obj* _init_l_Lean_classExtension___closed__8() {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
-x_1 = l_Lean_classExtension___closed__2;
+x_1 = l_Lean_classExtension___closed__3;
 x_2 = lean::box(0);
-x_3 = l_Lean_classExtension___closed__3;
-x_4 = l_Lean_classExtension___closed__4;
-x_5 = l_Lean_classExtension___closed__5;
-x_6 = l_Lean_classExtension___closed__6;
+x_3 = l_Lean_classExtension___closed__4;
+x_4 = l_Lean_classExtension___closed__5;
+x_5 = l_Lean_classExtension___closed__6;
+x_6 = l_Lean_classExtension___closed__7;
 x_7 = lean::alloc_cnstr(0, 6, 0);
 lean::cnstr_set(x_7, 0, x_1);
 lean::cnstr_set(x_7, 1, x_2);
@@ -7404,6 +7434,15 @@ _start:
 {
 obj* x_2; 
 x_2 = l_Lean_classExtension___elambda__4(x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l_Lean_classExtension___lambda__1___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_classExtension___lambda__1(x_1);
 lean::dec(x_1);
 return x_2;
 }
@@ -8916,6 +8955,8 @@ lean::mark_persistent(l_Lean_mkClassExtension___closed__5);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkClassExtension"), 1, l_Lean_mkClassExtension);
 l_Lean_classExtension___elambda__4___closed__1 = _init_l_Lean_classExtension___elambda__4___closed__1();
 lean::mark_persistent(l_Lean_classExtension___elambda__4___closed__1);
+l_Lean_classExtension___lambda__1___closed__1 = _init_l_Lean_classExtension___lambda__1___closed__1();
+lean::mark_persistent(l_Lean_classExtension___lambda__1___closed__1);
 l_Lean_classExtension___closed__1 = _init_l_Lean_classExtension___closed__1();
 lean::mark_persistent(l_Lean_classExtension___closed__1);
 l_Lean_classExtension___closed__2 = _init_l_Lean_classExtension___closed__2();
@@ -8930,6 +8971,8 @@ l_Lean_classExtension___closed__6 = _init_l_Lean_classExtension___closed__6();
 lean::mark_persistent(l_Lean_classExtension___closed__6);
 l_Lean_classExtension___closed__7 = _init_l_Lean_classExtension___closed__7();
 lean::mark_persistent(l_Lean_classExtension___closed__7);
+l_Lean_classExtension___closed__8 = _init_l_Lean_classExtension___closed__8();
+lean::mark_persistent(l_Lean_classExtension___closed__8);
 w = l_Lean_mkClassExtension(w);
 if (io_result_is_error(w)) return w;
 l_Lean_classExtension = io_result_get_value(w);

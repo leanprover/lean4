@@ -1022,8 +1022,6 @@ if (lean::obj_tag(x_4) == 0)
 {
 obj* x_5; obj* x_6; obj* x_7; 
 x_5 = lean::cnstr_get(x_1, 1);
-lean::inc(x_5);
-lean::dec(x_1);
 x_6 = l_Lean_PersistentEnvExtension_getState___rarg(x_5, x_2);
 x_7 = l_RBNode_find___main___at_Lean_Compiler_getImplementedBy___spec__2(x_6, x_3);
 lean::dec(x_3);
@@ -1037,8 +1035,6 @@ x_8 = lean::cnstr_get(x_4, 0);
 lean::inc(x_8);
 lean::dec(x_4);
 x_9 = lean::cnstr_get(x_1, 1);
-lean::inc(x_9);
-lean::dec(x_1);
 x_10 = l_Lean_PersistentEnvExtension_getModuleEntries___rarg(x_9, x_2, x_8);
 lean::dec(x_8);
 x_11 = lean::box(0);
@@ -1128,6 +1124,7 @@ _start:
 obj* x_4; 
 x_4 = l_Lean_ParametricAttribute_getParam___at_Lean_Compiler_getImplementedBy___spec__1(x_1, x_2, x_3);
 lean::dec(x_2);
+lean::dec(x_1);
 return x_4;
 }
 }

@@ -25,43 +25,68 @@ def updateTokens (c : ParserContext) : ParserContext :=
 
 end Module
 
-structure ModuleReader :=
-(context  : ParserContext)
-(state    : ParserState)
-(messages : MessageLog := {})
+structure ModuleParser :=
+(context    : ParserContextCore)
+(pos        : String.Pos := 0)
+(messages   : MessageLog := {})
+(recovering : Bool := false)
 
-private def checkResult (r : ModuleReader) : Option Syntax × ModuleReader :=
-let s   := r.state;
-match r.state.errorMsg with
-| some msg =>
-  let c   := r.context;
-  let pos := c.fileMap.toPosition s.pos;
-  let msg := { Message . filename := c.filename, pos := pos, text := msg, caption := "parser" };
-  (none, { messages := r.messages.add msg, .. r })
+instance ModuleParser.inhabited : Inhabited ModuleParser :=
+⟨{context := default _}⟩
+
+private def mkErrorMessage (c : ParserContext) (pos : String.Pos) (errorMsg : String) : Message :=
+let pos := c.fileMap.toPosition pos;
+{ filename := c.filename, pos := pos, text := errorMsg }
+
+def mkModuleParser (env : Environment) (input : String) (fileName := "<input>") : Option Syntax × ModuleParser :=
+let c   := mkParserContext env input fileName;
+let c   := Module.updateTokens c;
+let s   := mkParserState input;
+let s   := whitespace c s;
+let s   := Module.header.fn (0:Nat) c s;
+match s.errorMsg with
+| some errorMsg =>
+  let msg := mkErrorMessage c s.pos errorMsg;
+  (none, { context := c.toParserContextCore, pos := s.pos, messages := { MessageLog . }.add msg, recovering := true })
 | none =>
   let stx := s.stxStack.back;
-  let s   := s.popSyntax;
-  (some stx, { state := s, .. r })
+  (stx, { context := c.toParserContextCore, pos := s.pos })
 
-def mkModuleReader (env : Environment) (input : String) (fileName := "<input>") : Option Syntax × ModuleReader :=
-let c := mkParserContext env input fileName;
-let c := Module.updateTokens c;
-let s := mkParserState input;
-let s := whitespace c s;
-let s := Module.header.fn (0:Nat) c s;
-checkResult { context := c, state := s }
+private def mkEOI (pos : String.Pos) : Syntax :=
+let atom := Syntax.atom (some { pos := pos, trailing := "".toSubstring, leading := "".toSubstring }) "";
+Syntax.node `Lean.Parser.Module.eoi [atom].toArray []
 
-namespace ModuleReader
+def isEOI (s : Syntax) : Bool :=
+s.isOfKind `Lean.Parser.Module.eoi
 
-def isEOI (r : ModuleReader) : Bool :=
-r.context.input.atEnd r.state.pos
+private def consumeInput (c : ParserContext) (pos : String.Pos) : String.Pos :=
+let s : ParserState := { cache := initCacheForInput c.input, pos := pos };
+let s := tokenFn c s;
+match s.errorMsg with
+| some _ => pos + 1
+| none   => s.pos
 
-def nextCommand : ModuleReader → Option Syntax × ModuleReader
-| ⟨c, s, m⟩ :=
-  let s := (commandParser : Parser).fn (0:Nat) c s;
-  checkResult { context := c, state := s, messages := m }
-
-end ModuleReader
+partial def parseCommand (env : Environment) : ModuleParser → Syntax × ModuleParser
+| p :=
+  if p.context.input.atEnd p.pos then
+    (mkEOI p.pos, p)
+  else
+    let c : ParserContext := { env := env, .. p.context };
+    let s : ParserState   := { cache := initCacheForInput c.input, pos := p.pos };
+    let s := (commandParser : Parser).fn (0:Nat) c s;
+    match s.errorMsg with
+    | none =>
+      let stx := s.stxStack.back;
+      let p   := { pos := s.pos, recovering := false, .. p };
+      (stx, p)
+    | some errorMsg =>
+      if p.recovering then
+        let p := { pos := consumeInput c s.pos, .. p };
+        parseCommand p
+      else
+        let msg := mkErrorMessage c s.pos errorMsg;
+        let p   := { pos := s.pos, recovering := true, messages := p.messages.add msg, .. p };
+        parseCommand p
 
 end Parser
 end Lean

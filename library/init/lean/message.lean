@@ -28,7 +28,7 @@ msg.filename ++ ":" ++ toString msg.pos.line ++ ":" ++ toString msg.pos.column +
  | MessageSeverity.information => ""
  | MessageSeverity.warning => "warning: "
  | MessageSeverity.error => "error: ") ++
-(if msg.caption = "" then "" else msg.caption ++ ":\n") ++
+(if msg.caption == "" then "" else msg.caption ++ ":\n") ++
 msg.text
 
 instance : Inhabited Message :=

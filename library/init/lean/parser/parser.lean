@@ -61,12 +61,17 @@ def initCacheForInput (input : String) : ParserCache :=
 
 abbrev TokenTable := Trie TokenConfig
 
-structure ParserContext :=
-(env      : Environment)
+structure ParserContextCore :=
 (input    : String)
 (filename : String)
 (fileMap  : FileMap)
 (tokens   : TokenTable)
+
+instance ParserContextCore.inhabited : Inhabited ParserContextCore :=
+⟨{ input := "", filename := "", fileMap := default _, tokens := {} }⟩
+
+structure ParserContext extends ParserContextCore :=
+(env      : Environment)
 
 structure ParserState :=
 (stxStack : Array Syntax := Array.empty)

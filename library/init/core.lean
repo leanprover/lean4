@@ -1140,7 +1140,7 @@ end relation
 
 section Binary
 variables {α : Type u} {β : Type v}
-variable f : α → α → α
+variable (f : α → α → α)
 
 def Commutative        := ∀ a b, f a b = f b a
 def Associative        := ∀ a b c, f (f a b) c = f a (f b c)

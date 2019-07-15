@@ -646,7 +646,7 @@ match tk with
 | some tk =>
    -- if a token is both a symbol and a valid identifier (i.e. a keyword),
    -- we want it to be recognized as a symbol
-  tk.val.bsize ≥ idStopPos - idStopPos
+  tk.val.bsize ≥ idStopPos - idStartPos
 
 def mkTokenAndFixPos (startPos : Nat) (tk : Option TokenConfig) : BasicParserFn :=
 fun c s =>

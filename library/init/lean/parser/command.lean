@@ -57,6 +57,7 @@ def strictInferMod   := parser! try ("(" >> ")")
 def inferMod         := relaxedInferMod <|> strictInferMod
 def introRule        := parser! " | " >> ident >> optional inferMod >> optDeclSig
 def «inductive»      := parser! "inductive " >> declId >> optDeclSig >> many introRule
+def classInductive   := parser! try ("class " >> "inductive ") >> declId >> optDeclSig >> many introRule
 def structExplicitBinder := parser! "(" >> many ident >> optional inferMod >> optDeclSig >> optional Term.binderDefault >> ")"
 def structImplicitBinder := parser! "{" >> many ident >> optional inferMod >> optDeclSig >> "}"
 def structInstBinder     := parser! "[" >> many ident >> optional inferMod >> optDeclSig >> "]"
@@ -68,7 +69,7 @@ def «extends»            := parser! " extends " >> sepBy1 termParser ", "
 def «structure»          := parser! (structureTk <|> classTk) >> declId >> many Term.bracktedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields
 
 @[builtinCommandParser] def declaration := parser!
-declModifiers >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «instance» <|> «axiom» <|> «example» <|> «inductive» <|> «structure»)
+declModifiers >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «instance» <|> «axiom» <|> «example» <|> «inductive» <|> classInductive <|> «structure»)
 
 @[builtinCommandParser] def «section»    := parser! "section " >> optional ident
 @[builtinCommandParser] def «namespace»  := parser! "namespace " >> ident

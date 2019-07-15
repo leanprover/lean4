@@ -40,13 +40,6 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
 
         p.check_token_next(get_with_tk(), "invalid 'match' expression, 'with' expected");
 
-        if (p.curr_is_token(get_end_tk())) {
-            /* Empty match */
-            p.next();
-            eqns.push_back(Fun(fn, mk_no_equation()));
-            expr f = p.save_pos(mk_equations(header, eqns.size(), eqns.data()), pos);
-            return p.mk_app(f, ts, pos);
-        }
         unsigned case_column = p.pos().second;
         if (is_eqn_prefix(p))
             p.next(); // optional '|' in the first case

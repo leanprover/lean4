@@ -14,7 +14,7 @@
     "open" "export" "axiom" "inductive" "coinductive" "with" "without"
     "structure" "universe" "universes" "hide"
     "precedence" "reserve"
-    "match" "infix" "infixl" "infixr" "notation" "postfix" "prefix" "instance"
+    "match" "nomatch" "infix" "infixl" "infixr" "notation" "postfix" "prefix" "instance"
     "end" "this" "using" "using_well_founded" "namespace" "section"
     "attribute" "local" "set_option" "extends" "include" "omit" "classes" "class"
     "attributes" "raw" "replacing"

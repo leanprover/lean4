@@ -47,14 +47,14 @@ inductive IsNode : Syntax → Prop
 
 def SyntaxNode : Type := {s : Syntax // IsNode s }
 
-def notIsNodeMissing (h : IsNode Syntax.missing) : False                   := match h with end
-def notIsNodeAtom   {info val} (h : IsNode (Syntax.atom info val)) : False := match h with end
-def notIsNodeIdent  {info rawVal val preresolved} (h : IsNode (Syntax.ident info rawVal val preresolved)) : False := match h with end
+def notIsNodeMissing (h : IsNode Syntax.missing) : False                   := nomatch h
+def notIsNodeAtom   {info val} (h : IsNode (Syntax.atom info val)) : False := nomatch h
+def notIsNodeIdent  {info rawVal val preresolved} (h : IsNode (Syntax.ident info rawVal val preresolved)) : False := nomatch h
 
 def unreachIsNodeMissing {α : Type} (h : IsNode Syntax.missing) : α := False.elim (notIsNodeMissing h)
 def unreachIsNodeAtom {α : Type} {info val} (h : IsNode (Syntax.atom info val)) : α := False.elim (notIsNodeAtom h)
 def unreachIsNodeIdent {α : Type} {info rawVal val preresolved} (h : IsNode (Syntax.ident info rawVal val preresolved)) : α :=
-False.elim (match h with end)
+False.elim (nomatch h)
 
 @[inline] def withArgs {α : Type} (n : SyntaxNode) (fn : Array Syntax → α) : α :=
 match n with

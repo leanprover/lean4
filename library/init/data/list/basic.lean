@@ -301,9 +301,9 @@ instance [HasLess α] : HasLess (List α) :=
 ⟨List.Less⟩
 
 instance hasDecidableLt [HasLess α] [h : DecidableRel HasLess.Less] : ∀ (l₁ l₂ : List α), Decidable (l₁ < l₂)
-| []      []      := isFalse (fun h => match h with end)
+| []      []      := isFalse (fun h => nomatch h)
 | []      (b::bs) := isTrue (Less.nil _ _)
-| (a::as) []      := isFalse (fun h => match h with end)
+| (a::as) []      := isFalse (fun h => nomatch h)
 | (a::as) (b::bs) :=
   match h a b with
   | isTrue h₁  => isTrue (Less.head _ _ h₁)

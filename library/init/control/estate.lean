@@ -23,7 +23,7 @@ inductive Result.IsOk : Result ε σ α → Prop
 | mk (a : α) (s : σ) : Result.IsOk (Result.ok a s)
 
 theorem notIsOkError {e : ε} {s : σ} (h : @Result.IsOk _ _ α (Result.error e s)) : False :=
-match h with end
+nomatch h
 
 @[inline] def unreachableError {β : Type v} {e : ε} {s : σ} (h : @Result.IsOk _ _ α (Result.error e s)) : β :=
 False.elim (notIsOkError h)

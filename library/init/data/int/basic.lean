@@ -98,7 +98,7 @@ instance Int.DecidableEq : DecidableEq Int :=
 private def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
 match m with
 | ofNat m   => isTrue $ NonNeg.mk m
-| negSucc m => isFalse $ fun h => match h with end
+| negSucc m => isFalse $ fun h => nomatch h
 
 @[extern cpp "lean::int_dec_le"]
 instance decLe (a b : @& Int) : Decidable (a ≤ b) :=

@@ -54,7 +54,7 @@ theorem induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, r y x → C y) 
 recursion hwf a h
 
 variable {C : α → Sort v}
-variable F : ∀ x, (∀ y, r y x → C y) → C x
+variable (F : ∀ x, (∀ y, r y x → C y) → C x)
 
 def fixF (x : α) (a : Acc r x) : C x :=
 Acc.recOn a (fun x₁ ac₁ ih => F x₁ ih)

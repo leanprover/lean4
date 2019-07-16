@@ -1,20 +1,20 @@
 Prod.mk
 (Term.id `Prod.mk (null))
 x.{u, v+1}
-(Term.id `x (null ".{" (null `u "," (Level.addLit `v "+" (numLit "1"))) "}"))
+(Term.id `x (null (Term.explicitUniv ".{" (null `u "," (Level.addLit `v "+" (numLit "1"))) "}")))
 x.{u}
-(Term.id `x (null ".{" (null `u) "}"))
+(Term.id `x (null (Term.explicitUniv ".{" (null `u) "}")))
 x
 (Term.id `x (null))
 x.{max u v}
-(Term.id `x (null ".{" (null (Level.max "max" (null `u `v))) "}"))
+(Term.id `x (null (Term.explicitUniv ".{" (null (Level.max "max" (null `u `v))) "}")))
 x.{max u v, 0}
-(Term.id `x (null ".{" (null (Level.max "max" (null `u `v)) "," (numLit "0")) "}"))
+(Term.id `x (null (Term.explicitUniv ".{" (null (Level.max "max" (null `u `v)) "," (numLit "0")) "}")))
 f 0 1
 (Term.app (Term.app (Term.id `f (null)) (numLit "0")) (numLit "1"))
 f.{u+1} "foo" x
 (Term.app
- (Term.app (Term.id `f (null ".{" (null (Level.addLit `u "+" (numLit "1"))) "}")) (strLit "\"foo\""))
+ (Term.app (Term.id `f (null (Term.explicitUniv ".{" (null (Level.addLit `u "+" (numLit "1"))) "}"))) (strLit "\"foo\""))
  (Term.id `x (null)))
 (f x, 0, 1)
 (Term.paren
@@ -335,6 +335,7 @@ let (x, y) := f 10; x + y
  "let"
  (Term.letPatDecl
   (Term.paren "(" (null (Term.id `x (null)) (null (Term.tupleTail "," (null (Term.id `y (null)))))) ")")
+  (null)
   ":="
   (Term.app (Term.id `f (null)) (numLit "10")))
  ";"
@@ -348,6 +349,7 @@ let { fst := x, .. } := f 10; x + x
    (null)
    (null (Term.structInstField `fst ":=" (Term.id `x (null))) "," (Term.structInstSource ".." (null)))
    "}")
+  (null)
   ":="
   (Term.app (Term.id `f (null)) (numLit "10")))
  ";"
@@ -361,7 +363,11 @@ let x.y := f 10; x
 let x.1 := f 10; x
 (Term.let
  "let"
- (Term.letPatDecl (Term.proj (Term.id `x (null)) (fieldIdx "1")) ":=" (Term.app (Term.id `f (null)) (numLit "10")))
+ (Term.letPatDecl
+  (Term.proj (Term.id `x (null)) (fieldIdx "1"))
+  (null)
+  ":="
+  (Term.app (Term.id `f (null)) (numLit "10")))
  ";"
  (Term.id `x (null)))
 let x[i].y := f 10; x
@@ -369,6 +375,7 @@ let x[i].y := f 10; x
  "let"
  (Term.letPatDecl
   (Term.proj (Term.array (Term.id `x (null)) (Term.id `i (null)) "]") `y)
+  (null)
   ":="
   (Term.app (Term.id `f (null)) (numLit "10")))
  ";"
@@ -378,6 +385,7 @@ let x[i] := f 20; x
  "let"
  (Term.letPatDecl
   (Term.array (Term.id `x (null)) (Term.id `i (null)) "]")
+  (null)
   ":="
   (Term.app (Term.id `f (null)) (numLit "20")))
  ";"
@@ -419,20 +427,24 @@ do
     "let"
     (Term.letPatDecl
      (Term.paren "(" (null (Term.id `a (null)) (null (Term.tupleTail "," (null (Term.id `b (null)))))) ")")
+     (null)
      ":="
      (Term.paren "(" (null (Term.id `b (null)) (null (Term.tupleTail "," (null (Term.id `a (null)))))) ")")))
-   ";")
-  (Term.app
-   (Term.id `pure (null))
-   (Term.paren "(" (null (Term.add (Term.id `a (null)) "+" (Term.id `b (null))) (null)) ")"))))
+   ";"
+   (Term.doExpr
+    (Term.app
+     (Term.id `pure (null))
+     (Term.paren "(" (null (Term.add (Term.id `a (null)) "+" (Term.id `b (null))) (null)) ")"))))))
 do { x ← f a; pure $ a + a }
 (Term.do
  "do"
  (Term.bracketedDoSeq
   "{"
   (Term.doSeq
-   (null (Term.doId `x (null) "←" (Term.app (Term.id `f (null)) (Term.id `a (null)))) ";")
-   (Term.dollar (Term.id `pure (null)) "$" (Term.add (Term.id `a (null)) "+" (Term.id `a (null)))))
+   (null
+    (Term.doId `x (null) "←" (Term.app (Term.id `f (null)) (Term.id `a (null))))
+    ";"
+    (Term.doExpr (Term.dollar (Term.id `pure (null)) "$" (Term.add (Term.id `a (null)) "+" (Term.id `a (null)))))))
   "}"))
 let f : Nat → Nat → Nat
    | 0 a     := a + 10
@@ -459,7 +471,7 @@ max a b
 f {x : a} -> b
 failed as expected, error: <input>:1:10 found '→' as expected, but brackets are needed
 (x := 20)
-failed as expected, error: <input>:1:3 expected ')'; expected ':'
+failed as expected, error: <input>:1:3 expected ':' or ')'
 let x 10; x
 failed as expected, error: <input>:1:8 expected ':='
 let x := y

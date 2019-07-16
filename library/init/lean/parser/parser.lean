@@ -87,7 +87,7 @@ private def expectedToString : List String → String
 | (e::es)  := e ++ ", " ++ expectedToString es
 
 protected def toString (e : Error) : String :=
-let unexpected := if e.unexpected == "" then [] else ["unexpected " ++ e.unexpected];
+let unexpected := if e.unexpected == "" then [] else [e.unexpected];
 let expected   := if e.expected == [] then [] else ["expected " ++ expectedToString e.expected];
 "; ".intercalate $ unexpected ++ expected
 

@@ -258,7 +258,8 @@ succLeSucc (zeroLe n)
 def succPos := zeroLtSucc
 
 theorem notSuccLeZero : ∀ (n : Nat), succ n ≤ 0 → False
-.
+| 0     h := nomatch h
+| (n+1) h := nomatch h
 
 theorem notLtZero (n : Nat) : ¬ n < 0 :=
 notSuccLeZero n

@@ -162,9 +162,11 @@ def checkIsSort := checkLeading (fun leading => leading.isOfKind `Lean.Parser.Te
 @[builtinTermParser] def cons   := tparser! infixR " :: " 67
 
 @[builtinTermParser] def orelse      := tparser! infixR " <|> " 2
+@[builtinTermParser] def orM         := tparser! infixR " <||> " 30
+@[builtinTermParser] def andM        := tparser! infixR " <&&> " 35
 @[builtinTermParser] def andthen     := tparser! infixR " >> "  60
 @[builtinTermParser] def bind        := tparser! infixR " >>= " 55
-@[builtinTermParser] def andM        := tparser! infixR " <&> " 100
+@[builtinTermParser] def mapRev      := tparser! infixR " <&> " 100
 @[builtinTermParser] def seq         := tparser! infixL " <*> " 60
 @[builtinTermParser] def seqLeft     := tparser! infixL " <* "  60
 @[builtinTermParser] def seqRight    := tparser! infixR " *> "  60

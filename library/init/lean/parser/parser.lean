@@ -73,11 +73,42 @@ instance ParserContextCore.inhabited : Inhabited ParserContextCore :=
 structure ParserContext extends ParserContextCore :=
 (env      : Environment)
 
+structure Error :=
+(unexpected : String := "")
+(expected : List String := [])
+
+namespace Error
+instance : Inhabited Error := ⟨{}⟩
+
+private def expectedToString : List String → String
+| []       := ""
+| [e]      := e
+| [e1, e2] := e1 ++ " or " ++ e2
+| (e::es)  := e ++ ", " ++ expectedToString es
+
+protected def toString (e : Error) : String :=
+let unexpected := if e.unexpected == "" then [] else ["unexpected " ++ e.unexpected];
+let expected   := if e.expected == [] then [] else ["expected " ++ expectedToString e.expected];
+";".intercalate $ unexpected ++ expected
+
+instance : HasToString Error := ⟨Error.toString⟩
+
+protected def beq (e₁ e₂ :  Error) : Bool :=
+e₁.unexpected == e₂.unexpected && e₁.expected == e₂.expected
+
+instance : HasBeq Error := ⟨Error.beq⟩
+
+def merge (e₁ e₂ : Error) : Error :=
+match e₂ with
+| { unexpected := u, .. } => { unexpected := if u == "" then e₁.unexpected else u, expected := e₁.expected ++ e₂.expected }
+
+end Error
+
 structure ParserState :=
 (stxStack : Array Syntax := Array.empty)
 (pos      : String.Pos := 0)
 (cache    : ParserCache := {})
-(errorMsg : Option String := none)
+(errorMsg : Option Error := none)
 
 namespace ParserState
 
@@ -113,7 +144,7 @@ match s.errorMsg with
 | none     => ""
 | some msg =>
   let pos := ctx.fileMap.toPosition s.pos;
-  ctx.filename ++ ":" ++ toString pos.line ++ ":" ++ toString pos.column ++ " " ++ msg
+  ctx.filename ++ ":" ++ toString pos.line ++ ":" ++ toString pos.column ++ " " ++ toString msg
 
 def mkNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserState :=
 match s with
@@ -129,14 +160,26 @@ match s with
 
 def mkError (s : ParserState) (msg : String) : ParserState :=
 match s with
-| ⟨stack, pos, cache, _⟩ => ⟨stack, pos, cache, some msg⟩
+| ⟨stack, pos, cache, _⟩ => ⟨stack, pos, cache, some { expected := [ msg ] }⟩
+
+def mkUnexpectedError (s : ParserState) (msg : String) : ParserState :=
+match s with
+| ⟨stack, pos, cache, _⟩ => ⟨stack, pos, cache, some { unexpected := msg }⟩
 
 def mkEOIError (s : ParserState) : ParserState :=
-s.mkError "end of input"
+s.mkUnexpectedError "end of input"
 
 def mkErrorAt (s : ParserState) (msg : String) (pos : String.Pos) : ParserState :=
 match s with
-| ⟨stack, _, cache, _⟩ => ⟨stack, pos, cache, some msg⟩
+| ⟨stack, _, cache, _⟩ => ⟨stack, pos, cache, some { expected := [ msg ] }⟩
+
+def mkErrorsAt (s : ParserState) (ex : List String) (pos : String.Pos) : ParserState :=
+match s with
+| ⟨stack, _, cache, _⟩ => ⟨stack, pos, cache, some { expected := ex }⟩
+
+def mkUnexpectedErrorAt (s : ParserState) (msg : String) (pos : String.Pos) : ParserState :=
+match s with
+| ⟨stack, _, cache, _⟩ => ⟨stack, pos, cache, some { unexpected := msg }⟩
 
 end ParserState
 
@@ -218,7 +261,7 @@ fun a c s => s.pushSyntax a
 @[inline] def checkLeadingFn (p : Syntax → Bool) : ParserFn trailing :=
 fun a c s =>
   if p a then s
-  else s.mkError "invalid leading token"
+  else s.mkUnexpectedError "invalid leading token"
 
 @[inline] def checkLeading (p : Syntax → Bool) : TrailingParser :=
 { info := epsilonInfo,
@@ -265,10 +308,10 @@ node n p
 @[inline] def trailingNode (n : SyntaxNodeKind) (p : Parser trailing) : TrailingParser :=
 node n p
 
-def mergeOrElseErrors (s : ParserState) (error1 : String) (iniPos : Nat) : ParserState :=
+def mergeOrElseErrors (s : ParserState) (error1 : Error) (iniPos : Nat) : ParserState :=
 match s with
 | ⟨stack, pos, cache, some error2⟩ =>
-  if pos == iniPos then ⟨stack, pos, cache, some (error1 ++ "; " ++ error2)⟩
+  if pos == iniPos then ⟨stack, pos, cache, some (error1.merge error2)⟩
   else s
 | other => other
 
@@ -344,7 +387,7 @@ fun a c s =>
   let iniPos := s.pos;
   let s      := p a c s;
   if s.hasError then s.restore iniSz iniPos
-  else if iniPos == s.pos then s.mkError "invalid 'many' parser combinator application, parser did not consume anything"
+  else if iniPos == s.pos then s.mkUnexpectedError "invalid 'many' parser combinator application, parser did not consume anything"
   else manyAux a c s
 
 @[inline] def manyFn {k : ParserKind} (p : ParserFn k) : ParserFn k :=
@@ -420,7 +463,7 @@ fun a c s =>
   let i := s.pos;
   if c.input.atEnd i then s.mkEOIError
   else if p (c.input.get i) then s.next c.input i
-  else s.mkError errorMsg
+  else s.mkUnexpectedError errorMsg
 
 @[specialize] partial def takeUntilFn (p : Char → Bool) : BasicParserFn
 | c s :=
@@ -513,7 +556,7 @@ private def rawAux {k : ParserKind} (startPos : Nat) (trailingWs : Bool) : Parse
   if s.hasError then s else rawAux startPos trailingWs a c s
 
 @[inline] def chFn {k : ParserKind} (c : Char) (trailingWs := false) : ParserFn k :=
-rawFn (fun _ => satisfyFn (fun d => c == d) ("expected '" ++ toString c ++ "'")) trailingWs
+rawFn (fun _ => satisfyFn (fun d => c == d) ("'" ++ toString c ++ "'")) trailingWs
 
 def rawCh {k : ParserKind} (c : Char) (trailingWs := false) : Parser k :=
 { fn := chFn c trailingWs }
@@ -527,7 +570,7 @@ def hexDigitFn : BasicParserFn
     let curr := input.get i;
     let i    := input.next i;
     if curr.isDigit || ('a' <= curr && curr <= 'f') || ('A' <= curr && curr <= 'F') then s.setPos i
-    else s.mkError "invalid hexadecimal numeral, hexadecimal digit expected"
+    else s.mkUnexpectedError "invalid hexadecimal numeral"
 
 def quotedCharFn : BasicParserFn
 | c s :=
@@ -543,7 +586,7 @@ def quotedCharFn : BasicParserFn
     else if curr == 'u' then
       andthenAux hexDigitFn (andthenAux hexDigitFn (andthenAux hexDigitFn hexDigitFn)) c (s.next input i)
     else
-      s.mkError "invalid escape sequence"
+      s.mkUnexpectedError "invalid escape sequence"
 
 /-- Push `(Syntax.node tk <new-atom>)` into syntax stack -/
 def mkNodeToken (n : SyntaxNodeKind) (startPos : Nat) : BasicParserFn :=
@@ -573,7 +616,7 @@ def charLitFnAux (startPos : Nat) : BasicParserFn
       let curr := input.get i;
       let s    := s.setPos (input.next i);
       if curr == '\'' then mkNodeToken charLitKind startPos c s
-      else s.mkError "expected end of character literal"
+      else s.mkUnexpectedError "missing end of character literal"
 
 partial def strLitFnAux (startPos : Nat) : BasicParserFn
 | c s :=
@@ -607,17 +650,17 @@ fun c s =>
 
 def binNumberFn (startPos : Nat) : BasicParserFn :=
 fun c s =>
-  let s := takeWhile1Fn (fun c => c == '0' || c == '1') "expected binary number" c s;
+  let s := takeWhile1Fn (fun c => c == '0' || c == '1') "binary number" c s;
   mkNodeToken numLitKind startPos c s
 
 def octalNumberFn (startPos : Nat) : BasicParserFn :=
 fun c s =>
-  let s := takeWhile1Fn (fun c => '0' ≤ c && c ≤ '7') "expected octal number" c s;
+  let s := takeWhile1Fn (fun c => '0' ≤ c && c ≤ '7') "octal number" c s;
   mkNodeToken numLitKind startPos c s
 
 def hexNumberFn (startPos : Nat) : BasicParserFn :=
 fun c s =>
-  let s := takeWhile1Fn (fun c => ('0' ≤ c && c ≤ '9') || ('a' ≤ c && c ≤ 'f') || ('A' ≤ c && c ≤ 'F')) "expected hexadecimal number" c s;
+  let s := takeWhile1Fn (fun c => ('0' ≤ c && c ≤ '9') || ('a' ≤ c && c ≤ 'f') || ('A' ≤ c && c ≤ 'F')) "hexadecimal number" c s;
   mkNodeToken numLitKind startPos c s
 
 def numberFnAux : BasicParserFn :=
@@ -641,7 +684,7 @@ fun c s =>
     else if curr.isDigit then
       decimalNumberFn startPos c (s.next input startPos)
     else
-      s.mkError "expected numeral"
+      s.mkError "numeral"
 
 def isIdCont : String → ParserState → Bool
 | input s :=
@@ -668,7 +711,7 @@ match tk with
 def mkTokenAndFixPos (startPos : Nat) (tk : Option TokenConfig) : BasicParserFn :=
 fun c s =>
 match tk with
-| none    => s.mkErrorAt "token expected" startPos
+| none    => s.mkErrorAt "token" startPos
 | some tk =>
   let input     := c.input;
   let leading   := mkEmptySubstringAt input startPos;
@@ -708,7 +751,7 @@ partial def identFnAux (startPos : Nat) (tk : Option TokenConfig) : Name → Bas
       let startPart := input.next i;
       let s         := takeUntilFn isIdEndEscape c (s.setPos startPart);
       let stopPart  := s.pos;
-      let s         := satisfyFn isIdEndEscape "end of escaped identifier expected" c s;
+      let s         := satisfyFn isIdEndEscape "missing end of escaped identifier" c s;
       if s.hasError then s
       else
         let r := Name.mkString r (input.extract startPart stopPart);
@@ -785,19 +828,19 @@ fun c s =>
   if input.atEnd i then s.mkEOIError
   else identFnAux i none Name.anonymous c s
 
-@[inline] def satisfySymbolFn (p : String → Bool) (errorMsg : String) : BasicParserFn :=
+@[inline] def satisfySymbolFn (p : String → Bool) (expected : List String) : BasicParserFn :=
 fun c s =>
   let startPos := s.pos;
   let s        := tokenFn c s;
   if s.hasError then
-    s.mkErrorAt errorMsg startPos
+    s.mkErrorsAt expected startPos
   else
     match s.stxStack.back with
-    | Syntax.atom _ sym => if p sym then s else s.mkErrorAt errorMsg startPos
-    | _                 => s.mkErrorAt errorMsg startPos
+    | Syntax.atom _ sym => if p sym then s else s.mkErrorsAt expected startPos
+    | _                 => s.mkErrorsAt expected startPos
 
-def symbolFnAux (sym : String) (errorMsg : String) : BasicParserFn :=
-satisfySymbolFn (fun s => s == sym) errorMsg
+@[inline] def symbolFnAux (sym : String) (errorMsg : String) : BasicParserFn :=
+satisfySymbolFn (fun s => s == sym) [errorMsg]
 
 def insertToken (sym : String) (lbp : Option Nat) (tks : TokenTable) : ExceptT String Id TokenTable :=
 if sym == "" then throw "invalid empty symbol"
@@ -814,7 +857,7 @@ def symbolInfo (sym : String) (lbp : Option Nat) : ParserInfo :=
   firstTokens  := FirstTokens.tokens [ { val := sym, lbp := lbp } ] }
 
 @[inline] def symbolFn {k : ParserKind} (sym : String) : ParserFn k :=
-fun _ => symbolFnAux sym ("expected '" ++ sym ++ "'")
+fun _ => symbolFnAux sym ("'" ++ sym ++ "'")
 
 @[inline] def symbolAux {k : ParserKind} (sym : String) (lbp : Option Nat := none) : Parser k :=
 let sym := sym.trim;
@@ -849,7 +892,7 @@ fun c s =>
     | _ => s.mkErrorAt errorMsg startPos
 
 @[inline] def symbolOrIdentFn (sym : String) : BasicParserFn :=
-symbolOrIdentFnAux sym ("expected '" ++ sym ++ "'")
+symbolOrIdentFnAux sym ("'" ++ sym ++ "'")
 
 def symbolOrIdentInfo (sym : String) : ParserInfo :=
 { firstTokens  := FirstTokens.tokens [ { val := sym }, { val := "ident" } ] }
@@ -909,7 +952,7 @@ fun left c s =>
     s.mkError errorMsg
 
 @[inline] def symbolNoWsFn (sym : String) : ParserFn trailing :=
-symbolNoWsFnAux sym ("expected '" ++ sym ++ "' without whitespaces arount it")
+symbolNoWsFnAux sym ("'" ++ sym ++ "' without whitespaces arount it")
 
 /- Similar to `symbol`, but succeeds only if there is no space whitespace after leading term and after `sym`. -/
 @[inline] def symbolNoWsAux (sym : String) (lbp : Option Nat) : TrailingParser :=
@@ -920,15 +963,15 @@ let sym := sym.trim;
 @[inline] def symbolNoWs (sym : String) (lbp : Nat) : TrailingParser :=
 symbolNoWsAux sym lbp
 
-def unicodeSymbolFnAux (sym asciiSym : String) (errorMsg : String) : BasicParserFn :=
-satisfySymbolFn (fun s => s == sym || s == asciiSym) errorMsg
+def unicodeSymbolFnAux (sym asciiSym : String) (expected : List String) : BasicParserFn :=
+satisfySymbolFn (fun s => s == sym || s == asciiSym) expected
 
 def unicodeSymbolInfo (sym asciiSym : String) (lbp : Option Nat) : ParserInfo :=
 { updateTokens := fun tks => insertToken sym lbp tks >>= insertToken asciiSym lbp,
   firstTokens  := FirstTokens.tokens [ { val := sym, lbp := lbp }, { val := asciiSym, lbp := lbp } ] }
 
 @[inline] def unicodeSymbolFn {k : ParserKind} (sym asciiSym : String) : ParserFn k :=
-fun _ => unicodeSymbolFnAux sym asciiSym ("expected '" ++ sym ++ "' or '" ++ asciiSym ++ "'")
+fun _ => unicodeSymbolFnAux sym asciiSym ["'" ++ sym ++ "', '" ++ asciiSym ++ "'"]
 
 @[inline] def unicodeSymbol {k : ParserKind} (sym asciiSym : String) (lbp : Option Nat := none) : Parser k :=
 let sym := sym.trim;
@@ -936,14 +979,14 @@ let asciiSym := asciiSym.trim;
 { info := unicodeSymbolInfo sym asciiSym lbp,
   fn   := unicodeSymbolFn sym asciiSym }
 
-def unicodeSymbolCheckPrecFnAux (sym asciiSym : String) (lbp : Nat) (errorMsg : String) (precErrorMsg : String) : ParserFn leading :=
+def unicodeSymbolCheckPrecFnAux (sym asciiSym : String) (lbp : Nat) (expected : List String) (precErrorMsg : String) : ParserFn leading :=
 fun (rbp : Nat) c s =>
-  if rbp > lbp then s.mkError precErrorMsg
-  else satisfySymbolFn (fun s => s == sym || s == asciiSym) errorMsg c s
+  if rbp > lbp then s.mkUnexpectedError precErrorMsg
+  else satisfySymbolFn (fun s => s == sym || s == asciiSym) expected c s
 
 @[inline] def unicodeSymbolCheckPrecFn (sym asciiSym : String) (lbp : Nat) : ParserFn leading :=
 unicodeSymbolCheckPrecFnAux sym asciiSym lbp
-  ("expected '" ++ sym ++ "' or '" ++ asciiSym ++ "'")
+  ["'" ++ sym ++ "'", "'" ++ asciiSym ++ "'"]
   ("found '" ++ sym ++ "' as expected, but brackets are needed") -- improve error message
 
 @[inline] def unicodeSymbolCheckPrec (sym asciiSym : String) (lbp : Nat) : Parser leading :=
@@ -959,7 +1002,7 @@ def numLitFn {k : ParserKind} : ParserFn k :=
 fun _ c s =>
   let iniPos := s.pos;
   let s      := tokenFn c s;
-  if s.hasError || !(s.stxStack.back.isOfKind numLitKind) then s.mkErrorAt "expected numeral" iniPos else s
+  if s.hasError || !(s.stxStack.back.isOfKind numLitKind) then s.mkErrorAt "numeral" iniPos else s
 
 @[inline] def numLit {k : ParserKind} : Parser k :=
 { fn   := numLitFn,
@@ -969,7 +1012,7 @@ def strLitFn {k : ParserKind} : ParserFn k :=
 fun _ c s =>
   let iniPos := s.pos;
   let s := tokenFn c s;
-  if s.hasError || !(s.stxStack.back.isOfKind strLitKind) then s.mkErrorAt "expected string literal" iniPos else s
+  if s.hasError || !(s.stxStack.back.isOfKind strLitKind) then s.mkErrorAt "string literal" iniPos else s
 
 @[inline] def strLit {k : ParserKind} : Parser k :=
 { fn   := strLitFn,
@@ -979,7 +1022,7 @@ def charLitFn {k : ParserKind} : ParserFn k :=
 fun _ c s =>
   let iniPos := s.pos;
   let s := tokenFn c s;
-  if s.hasError || !(s.stxStack.back.isOfKind charLitKind) then s.mkErrorAt "expected character literal" iniPos else s
+  if s.hasError || !(s.stxStack.back.isOfKind charLitKind) then s.mkErrorAt "character literal" iniPos else s
 
 @[inline] def charLit {k : ParserKind} : Parser k :=
 { fn   := charLitFn,
@@ -989,7 +1032,7 @@ def identFn {k : ParserKind} : ParserFn k :=
 fun _ c s =>
   let iniPos := s.pos;
   let s      := tokenFn c s;
-  if s.hasError || !(s.stxStack.back.isIdent) then s.mkErrorAt "expected identifier" iniPos else s
+  if s.hasError || !(s.stxStack.back.isIdent) then s.mkErrorAt "identifier" iniPos else s
 
 @[inline] def ident {k : ParserKind} : Parser k :=
 { fn   := identFn,
@@ -1009,7 +1052,7 @@ fun _ c s =>
   let iniPos := s.pos;
   let s      := tokenFn c s;
   if s.hasError || s.stxStack.back.isIdent || s.stxStack.back.isOfKind strLitKind || s.stxStack.back.isOfKind numLitKind then
-    s.mkErrorAt "expected symbol" iniPos
+    s.mkErrorAt "symbol" iniPos
   else
     s
 
@@ -1024,7 +1067,7 @@ fun c s =>
     let s     := takeWhileFn (fun c => c.isDigit) c s;
     mkNodeToken fieldIdxKind iniPos c s
   else
-    s.mkErrorAt "expected field index" iniPos
+    s.mkErrorAt "field index" iniPos
 
 @[inline] def fieldIdx {k : ParserKind} : Parser k :=
 { fn   := fun _ => fieldIdxFn,
@@ -1039,15 +1082,15 @@ def keepNewError (s : ParserState) (oldStackSize : Nat) : ParserState :=
 match s with
 | ⟨stack, pos, cache, err⟩ => ⟨stack.shrink oldStackSize, pos, cache, err⟩
 
-def keepPrevError (s : ParserState) (oldStackSize : Nat) (oldStopPos : String.Pos) (oldError : Option String) : ParserState :=
+def keepPrevError (s : ParserState) (oldStackSize : Nat) (oldStopPos : String.Pos) (oldError : Option Error) : ParserState :=
 match s with
 | ⟨stack, _, cache, _⟩ => ⟨stack.shrink oldStackSize, oldStopPos, cache, oldError⟩
 
-def mergeErrors (s : ParserState) (oldStackSize : Nat) (oldError : String) : ParserState :=
+def mergeErrors (s : ParserState) (oldStackSize : Nat) (oldError : Error) : ParserState :=
 match s with
 | ⟨stack, pos, cache, some err⟩ =>
   if oldError == err then s
-  else ⟨stack.shrink oldStackSize, pos, cache, some (err ++ "; " ++ oldError)⟩
+  else ⟨stack.shrink oldStackSize, pos, cache, some (oldError.merge err)⟩
 | other                         => other
 
 def mkLongestNodeAlt (s : ParserState) (startSize : Nat) : ParserState :=
@@ -1208,7 +1251,7 @@ fun a c s =>
   let iniSz   := s.stackSize;
   let (s, ps) := indexed tables.leadingTable c s;
   if ps.isEmpty then
-    s.mkError ("expected " ++ kind)
+    s.mkError kind
   else
     let s       := longestMatchFn ps a c s;
     mkResult s iniSz

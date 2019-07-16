@@ -46,7 +46,7 @@ let s   := whitespace c s;
 let s   := Module.header.fn (0:Nat) c s;
 match s.errorMsg with
 | some errorMsg =>
-  let msg := mkErrorMessage c s.pos errorMsg;
+  let msg := mkErrorMessage c s.pos (toString errorMsg);
   (none, { context := c.toParserContextCore, pos := s.pos, messages := { MessageLog . }.add msg, recovering := true })
 | none =>
   let stx := s.stxStack.back;
@@ -84,7 +84,7 @@ partial def parseCommand (env : Environment) : ModuleParser → Syntax × Module
         let p := { pos := consumeInput c s.pos, .. p };
         parseCommand p
       else
-        let msg := mkErrorMessage c s.pos errorMsg;
+        let msg := mkErrorMessage c s.pos (toString errorMsg);
         let p   := { pos := s.pos, recovering := true, messages := p.messages.add msg, .. p };
         parseCommand p
 

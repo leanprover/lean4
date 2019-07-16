@@ -1266,6 +1266,10 @@ fun a c s =>
     let s       := longestMatchFn ps a c s;
     mkResult s iniSz
 
+def trailingLoopStep (tables : ParsingTables) (ps : List (Parser trailing)) : ParserFn trailing :=
+fun left c s =>
+  orelseFn (longestMatchFn ps) (anyOfFn tables.trailingParsers) left c s
+
 partial def trailingLoop (tables : ParsingTables) (rbp : Nat) (c : ParserContext) : Syntax → ParserState → ParserState
 | left s :=
   let (s, lbp) := currLbp left c s;
@@ -1276,7 +1280,7 @@ partial def trailingLoop (tables : ParsingTables) (rbp : Nat) (c : ParserContext
     if ps.isEmpty && tables.trailingParsers.isEmpty then
       s.pushSyntax left -- no available trailing parser
     else
-      let s := orelseFn (longestMatchFn ps) (anyOfFn tables.trailingParsers) left c s;
+      let s := trailingLoopStep tables ps left c s;
       if s.hasError then s
       else
         let s := mkResult s iniSz;

@@ -59,7 +59,7 @@ False.elim (nomatch h)
 
 @[inline] def withArgs {α : Type} (n : SyntaxNode) (fn : Array Syntax → α) : α :=
 match n with
-| ⟨Syntax.node _ args, _⟩ => fn args
+| ⟨Syntax.node _ args, _⟩   => fn args
 | ⟨Syntax.missing, h⟩       => unreachIsNodeMissing h
 | ⟨Syntax.atom _ _, h⟩      => unreachIsNodeAtom h
 | ⟨Syntax.ident _ _ _ _, h⟩ => unreachIsNodeIdent h

@@ -41,7 +41,9 @@ def infixL (sym : String) (lbp : Nat) : TrailingParser :=
 pushLeading >> symbol sym lbp >> termParser lbp
 
 /- Builting parsers -/
-@[builtinTermParser] def id := parser! ident >> optional (".{" >> sepBy1 levelParser ", " >> "}")
+def explicitUniv   := parser! ".{" >> sepBy1 levelParser ", " >> "}"
+def namedPattern := parser! checkNoWsBefore "no space before '@'" >> "@" >> termParser appPrec
+@[builtinTermParser] def id := parser! ident >> optional (explicitUniv <|> namedPattern)
 @[builtinTermParser] def num : Parser := numLit
 @[builtinTermParser] def str : Parser := strLit
 @[builtinTermParser] def char : Parser := charLit

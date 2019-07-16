@@ -925,6 +925,20 @@ def checkWsBefore {k : ParserKind} (errorMsg : String) : Parser k :=
 { info := epsilonInfo,
   fn   := fun _ => checkWsBeforeFn errorMsg }
 
+def checkTailNoWs (prev : Syntax) : Bool :=
+match prev.getTailInfo with
+| some info => info.trailing.stopPos == info.trailing.startPos
+| none      => false
+
+def checkNoWsBeforeFn (errorMsg : String) : BasicParserFn :=
+fun c s =>
+  let prev := s.stxStack.back;
+  if checkTailNoWs prev then s else s.mkError errorMsg
+
+def checkNoWsBefore {k : ParserKind} (errorMsg : String) : Parser k :=
+{ info := epsilonInfo,
+  fn   := fun _ => checkNoWsBeforeFn errorMsg }
+
 def insertNoWsToken (sym : String) (lbpNoWs : Option Nat) (tks : TokenTable) : ExceptT String Id TokenTable :=
 if sym == "" then throw "invalid empty symbol"
 else match tks.find sym, lbpNoWs with
@@ -938,11 +952,6 @@ else match tks.find sym, lbpNoWs with
 def symbolNoWsInfo (sym : String) (lbpNoWs : Option Nat) : ParserInfo :=
 { updateTokens := insertNoWsToken sym lbpNoWs,
   firstTokens  := FirstTokens.tokens [ { val := sym, lbpNoWs := lbpNoWs } ] }
-
-def checkTailNoWs (left : Syntax) : Bool :=
-match left.getTailInfo with
-| some info => info.trailing.stopPos == info.trailing.startPos
-| none      => false
 
 @[inline] def symbolNoWsFnAux (sym : String) (errorMsg : String) : ParserFn trailing :=
 fun left c s =>

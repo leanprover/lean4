@@ -579,7 +579,7 @@ def quotedCharFn : BasicParserFn
   if input.atEnd i then s.mkEOIError
   else
     let curr := input.get i;
-    if curr == '\\' || curr == '\"' || curr == '\'' || curr == '\n' || curr == '\t' then
+    if curr == '\\' || curr == '\"' || curr == '\'' || curr == 'n' || curr == 't' then
       s.next input i
     else if curr == 'x' then
       andthenAux hexDigitFn hexDigitFn c (s.next input i)

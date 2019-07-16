@@ -59,6 +59,9 @@ Syntax.node `Lean.Parser.Module.eoi [atom].toArray
 def isEOI (s : Syntax) : Bool :=
 s.isOfKind `Lean.Parser.Module.eoi
 
+def isExitCommand (s : Syntax) : Bool :=
+s.isOfKind `Lean.Parser.Command.exit
+
 private def consumeInput (c : ParserContext) (pos : String.Pos) : String.Pos :=
 let s : ParserState := { cache := initCacheForInput c.input, pos := pos };
 let s := tokenFn c s;
@@ -92,7 +95,7 @@ private partial def testModuleParserAux (env : Environment) : ModuleParser → I
 | p :=
   match parseCommand env p with
   | (stx, p) =>
-    if isEOI stx then do
+    if isEOI stx || isExitCommand stx then do
       p.messages.toList.mfor $ fun msg => IO.println msg;
       pure (!p.messages.hasErrors)
     else

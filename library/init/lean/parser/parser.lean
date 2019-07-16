@@ -558,6 +558,23 @@ let trailing  := { Substring . str := input, startPos := stopPos, stopPos := wsS
 let info      := { SourceInfo . leading := leading, pos := startPos, trailing := trailing };
 s.pushSyntax (mkLit n val (some info))
 
+def charLitFnAux (startPos : Nat) : BasicParserFn
+| c s :=
+  let input := c.input;
+  let i     := s.pos;
+  if input.atEnd i then s.mkEOIError
+  else
+    let curr := input.get i;
+    let s    := s.setPos (input.next i);
+    let s    := if curr == '\\' then quotedCharFn c s else s;
+    if s.hasError then s
+    else
+      let i    := s.pos;
+      let curr := input.get i;
+      let s    := s.setPos (input.next i);
+      if curr == '\'' then mkNodeToken charLitKind startPos c s
+      else s.mkError "expected end of character literal"
+
 partial def strLitFnAux (startPos : Nat) : BasicParserFn
 | c s :=
   let input := c.input;
@@ -720,6 +737,8 @@ private def tokenFnAux : BasicParserFn
   let curr  := input.get i;
   if curr == '\"' then
     strLitFnAux i c (s.next input i)
+  else if curr == '\'' then
+    charLitFnAux i c (s.next input i)
   else if curr.isDigit then
     numberFnAux c s
   else
@@ -956,6 +975,16 @@ fun _ c s =>
 { fn   := strLitFn,
   info := mkAtomicInfo "strLit" }
 
+def charLitFn {k : ParserKind} : ParserFn k :=
+fun _ c s =>
+  let iniPos := s.pos;
+  let s := tokenFn c s;
+  if s.hasError || !(s.stxStack.back.isOfKind charLitKind) then s.mkErrorAt "expected character literal" iniPos else s
+
+@[inline] def charLit {k : ParserKind} : Parser k :=
+{ fn   := charLitFn,
+  info := mkAtomicInfo "charLit" }
+
 def identFn {k : ParserKind} : ParserFn k :=
 fun _ c s =>
   let iniPos := s.pos;
@@ -1155,7 +1184,7 @@ match stx with
   | _            => (s, 0)
 | some (Syntax.ident _ _ _ _) => (s, appPrec)
 -- TODO(Leo): add support for associating lbp with syntax node kinds.
-| some (Syntax.node k _)      => if k == numLitKind || k == strLitKind || k == fieldIdxKind then (s, appPrec) else (s, 0)
+| some (Syntax.node k _)      => if k == numLitKind || k == charLitKind || k == strLitKind || k == fieldIdxKind then (s, appPrec) else (s, 0)
 | _                           => (s, 0)
 
 def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState) : ParserState × List α :=

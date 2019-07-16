@@ -44,6 +44,7 @@ pushLeading >> symbol sym lbp >> termParser lbp
 @[builtinTermParser] def id := parser! ident >> optional (".{" >> sepBy1 levelParser ", " >> "}")
 @[builtinTermParser] def num : Parser := numLit
 @[builtinTermParser] def str : Parser := strLit
+@[builtinTermParser] def char : Parser := charLit
 @[builtinTermParser] def type := parser! symbol "Type" appPrec
 @[builtinTermParser] def sort := parser! symbol "Sort" appPrec
 @[builtinTermParser] def prop := parser! symbol "Prop" appPrec

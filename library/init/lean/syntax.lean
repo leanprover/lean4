@@ -24,6 +24,7 @@ abbrev SyntaxNodeKind := Name
 @[matchPattern] def choiceKind : SyntaxNodeKind := `choice
 @[matchPattern] def nullKind : SyntaxNodeKind := `null
 def strLitKind : SyntaxNodeKind := `strLit
+def charLitKind : SyntaxNodeKind := `charLit
 def numLitKind : SyntaxNodeKind := `numLit
 def fieldIdxKind : SyntaxNodeKind := `fieldIdx
 

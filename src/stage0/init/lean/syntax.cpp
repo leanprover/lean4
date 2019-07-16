@@ -68,6 +68,7 @@ obj* l_Lean_Syntax_isMissing___main___boxed(obj*);
 obj* l_Lean_Syntax_reprint___boxed(obj*);
 obj* l___private_init_lean_syntax_8__decodeNatLitVal(obj*);
 obj* l_Lean_Syntax_formatStx___main___closed__2;
+obj* l_Lean_charLitKind___closed__2;
 obj* l_Lean_Syntax_isFieldIdx___boxed(obj*);
 obj* l_Lean_Syntax_HasToString;
 obj* l_Lean_Syntax_formatStx___main___closed__4;
@@ -135,6 +136,7 @@ namespace lean {
 obj* nat_add(obj*, obj*);
 }
 extern obj* l_Lean_Format_paren___closed__3;
+obj* l_Lean_charLitKind___closed__1;
 obj* l_Lean_nullKind;
 obj* l_Lean_choiceKind;
 namespace lean {
@@ -240,6 +242,7 @@ obj* l_Lean_withArgs(obj*);
 obj* l___private_init_lean_syntax_6__decodeHexLitAux___boxed(obj*, obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_Syntax_replace___spec__2(obj*, obj*, obj*);
 obj* l_Lean_Syntax_isIdent___boxed(obj*);
+obj* l_Lean_charLitKind;
 obj* l_Lean_Syntax_getHeadInfo___main___boxed(obj*);
 obj* l_Lean_SourceInfo_updateTrailing___main(obj*, obj*);
 obj* l_Lean_fieldIdxKind;
@@ -361,6 +364,32 @@ _start:
 {
 obj* x_1; 
 x_1 = l_Lean_strLitKind___closed__2;
+return x_1;
+}
+}
+obj* _init_l_Lean_charLitKind___closed__1() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("charLit");
+return x_1;
+}
+}
+obj* _init_l_Lean_charLitKind___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = l_Lean_charLitKind___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_charLitKind() {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_charLitKind___closed__2;
 return x_1;
 }
 }
@@ -3972,6 +4001,13 @@ lean::mark_persistent(l_Lean_strLitKind___closed__2);
 l_Lean_strLitKind = _init_l_Lean_strLitKind();
 lean::mark_persistent(l_Lean_strLitKind);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "strLitKind"), l_Lean_strLitKind);
+l_Lean_charLitKind___closed__1 = _init_l_Lean_charLitKind___closed__1();
+lean::mark_persistent(l_Lean_charLitKind___closed__1);
+l_Lean_charLitKind___closed__2 = _init_l_Lean_charLitKind___closed__2();
+lean::mark_persistent(l_Lean_charLitKind___closed__2);
+l_Lean_charLitKind = _init_l_Lean_charLitKind();
+lean::mark_persistent(l_Lean_charLitKind);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "charLitKind"), l_Lean_charLitKind);
 l_Lean_numLitKind___closed__1 = _init_l_Lean_numLitKind___closed__1();
 lean::mark_persistent(l_Lean_numLitKind___closed__1);
 l_Lean_numLitKind___closed__2 = _init_l_Lean_numLitKind___closed__2();

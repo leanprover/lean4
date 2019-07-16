@@ -34,6 +34,7 @@ obj* l_Option_bind___main(obj*, obj*);
 obj* l_Option_Monad___closed__4;
 obj* l_Option_Monad;
 obj* l_Option_get___rarg___boxed(obj*, obj*);
+obj* l_Option_HasBeq(obj*);
 obj* l_Option_HasLess___boxed(obj*, obj*);
 obj* l_Option_Monad___lambda__5(obj*, obj*, obj*, obj*);
 obj* l_Option_decidableRelLt___boxed(obj*, obj*);
@@ -52,6 +53,7 @@ obj* l_Option_orelse___rarg___boxed(obj*, obj*);
 obj* l_Option_map(obj*, obj*);
 obj* l_Option_Monad___lambda__1(obj*, obj*, obj*, obj*);
 uint8 l_Option_toBool___rarg(obj*);
+obj* l_Option_HasBeq___rarg(obj*, obj*, obj*);
 obj* l_Option_getOrElse___main___rarg(obj*, obj*);
 obj* l_Option_toMonad___rarg(obj*, obj*, obj*);
 uint8 l_Option_toBool___main___rarg(obj*);
@@ -1213,6 +1215,62 @@ x_5 = lean::box(x_4);
 return x_5;
 }
 }
+obj* l_Option_HasBeq___rarg(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+if (lean::obj_tag(x_2) == 0)
+{
+lean::dec(x_1);
+if (lean::obj_tag(x_3) == 0)
+{
+uint8 x_4; obj* x_5; 
+x_4 = 1;
+x_5 = lean::box(x_4);
+return x_5;
+}
+else
+{
+uint8 x_6; obj* x_7; 
+lean::dec(x_3);
+x_6 = 0;
+x_7 = lean::box(x_6);
+return x_7;
+}
+}
+else
+{
+if (lean::obj_tag(x_3) == 0)
+{
+uint8 x_8; obj* x_9; 
+lean::dec(x_2);
+lean::dec(x_1);
+x_8 = 0;
+x_9 = lean::box(x_8);
+return x_9;
+}
+else
+{
+obj* x_10; obj* x_11; obj* x_12; 
+x_10 = lean::cnstr_get(x_2, 0);
+lean::inc(x_10);
+lean::dec(x_2);
+x_11 = lean::cnstr_get(x_3, 0);
+lean::inc(x_11);
+lean::dec(x_3);
+x_12 = lean::apply_2(x_1, x_10, x_11);
+return x_12;
+}
+}
+}
+}
+obj* l_Option_HasBeq(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_HasBeq___rarg), 3, 0);
+return x_2;
+}
+}
 obj* l_Option_HasLess(obj* x_1, obj* x_2) {
 _start:
 {
@@ -1291,6 +1349,7 @@ lean::register_constant(lean::mk_const_name(lean::mk_const_name("Option"), "Alte
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Option"), "decidableRelLt"), 2, l_Option_decidableRelLt___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Option"), "Inhabited"), 1, l_Option_Inhabited);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Option"), "DecidableEq"), 1, l_Option_DecidableEq);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Option"), "HasBeq"), 1, l_Option_HasBeq);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Option"), "HasLess"), 2, l_Option_HasLess___boxed);
 return w;
 }

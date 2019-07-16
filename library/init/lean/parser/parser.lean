@@ -1266,7 +1266,7 @@ fun a c s =>
     let s       := longestMatchFn ps a c s;
     mkResult s iniSz
 
-partial def trailingLoop (kind : String) (tables : ParsingTables) (rbp : Nat) (c : ParserContext) : Syntax → ParserState → ParserState
+partial def trailingLoop (tables : ParsingTables) (rbp : Nat) (c : ParserContext) : Syntax → ParserState → ParserState
 | left s :=
   let (s, lbp) := currLbp left c s;
   if rbp ≥ lbp then s.pushSyntax left
@@ -1291,7 +1291,7 @@ fun rbp c s =>
   else
     let left := s.stxStack.back;
     let s    := s.popSyntax;
-    trailingLoop kind tables rbp c left s
+    trailingLoop tables rbp c left s
 
 def mkBuiltinTokenTable : IO (IO.Ref TokenTable) :=
 IO.mkRef {}

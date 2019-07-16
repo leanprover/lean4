@@ -80,6 +80,7 @@ declModifiers >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «
 @[builtinCommandParser] def «universe»   := parser! "universe " >> ident
 @[builtinCommandParser] def «universes»  := parser! "universes " >> many1 ident
 @[builtinCommandParser] def check        := parser! "#check " >> termParser
+@[builtinCommandParser] def exit         := parser! "#exit"
 @[builtinCommandParser] def «init_quot»  := parser! "init_quot"
 @[builtinCommandParser] def «set_option» := parser! "set_option " >> ident >> (symbolOrIdent "true" <|> symbolOrIdent "false" <|> strLit <|> numLit)
 @[builtinCommandParser] def «attribute»  := parser! optional "local " >> "attribute " >> "[" >> sepBy1 attrInstance ", " >> "]" >> many1 ident

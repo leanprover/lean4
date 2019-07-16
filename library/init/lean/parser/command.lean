@@ -88,7 +88,7 @@ def openOnly         := parser! try ("(" >> ident) >> many ident >> ")"
 def openHiding       := parser! try ("(" >> "hiding") >> many1 ident >> ")"
 def openRenamingItem := parser! ident >> unicodeSymbol "→" "->" >> ident
 def openRenaming     := parser! try ("(" >> "renaming") >> sepBy1 openRenamingItem ", " >> ")"
-@[builtinCommandParser] def «open»       := parser! "open " >> ident >> optional openOnly >> optional openRenaming >> optional openHiding
+@[builtinCommandParser] def «open»       := parser! "open " >> many1 ident >> optional openOnly >> optional openRenaming >> optional openHiding
 
 /- Lean3 command declaration commands -/
 def maxPrec := parser! symbolOrIdent "max"

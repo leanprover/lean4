@@ -386,7 +386,8 @@ fun a c s =>
   let iniSz  := s.stackSize;
   let iniPos := s.pos;
   let s      := p a c s;
-  if s.hasError then s.restore iniSz iniPos
+  if s.hasError then
+    if iniPos == s.pos then s.restore iniSz iniPos else s
   else if iniPos == s.pos then s.mkUnexpectedError "invalid 'many' parser combinator application, parser did not consume anything"
   else manyAux a c s
 

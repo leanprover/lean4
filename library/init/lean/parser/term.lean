@@ -109,7 +109,7 @@ def doId   := parser! try (ident >> optType >> leftArrow) >> termParser
 def doPat  := parser! try (termParser >> leftArrow) >> termParser >> optional (" | " >> termParser)
 def doExpr := parser! termParser
 def doElem := doLet <|> doId <|> doPat <|> doExpr
-def doSeq  := parser! many (doElem >> "; ") >> termParser
+def doSeq  := parser! sepBy1 doElem "; "
 def bracketedDoSeq := parser! "{" >> doSeq >> "}"
 @[builtinTermParser] def «do»  := parser! "do " >> (bracketedDoSeq <|> doSeq)
 

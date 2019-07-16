@@ -85,4 +85,11 @@ instance {α : Type u} [DecidableEq α] : DecidableEq (Option α) :=
    | (isTrue e)  => isTrue (congrArg (@some α) e)
    | (isFalse n) => isFalse (fun h => Option.noConfusion h (fun e => absurd e n))}
 
+instance {α : Type u} [HasBeq α] : HasBeq (Option α) :=
+⟨fun a b => match a, b with
+ | none,      none      => true
+ | none,      (some v₂) => false
+ | (some v₁), none      => false
+ | (some v₁), (some v₂) => v₁ == v₂⟩
+
 instance {α : Type u} [HasLess α] : HasLess (Option α) := ⟨Option.lt HasLess.Less⟩

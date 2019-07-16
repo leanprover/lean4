@@ -726,7 +726,7 @@ match tk with
 
 def mkIdResult (startPos : Nat) (tk : Option TokenConfig) (val : Name) : BasicParserFn :=
 fun c s =>
-let stopPos              := s.pos;
+let stopPos           := s.pos;
 if isToken startPos stopPos tk then
   mkTokenAndFixPos startPos tk c s
 else
@@ -769,7 +769,7 @@ partial def identFnAux (startPos : Nat) (tk : Option TokenConfig) : Name → Bas
         let s := s.next input s.pos;
         identFnAux r c s
       else
-        mkIdResult startPart tk r c s
+        mkIdResult startPos tk r c s
     else
       mkTokenAndFixPos startPos tk c s
 

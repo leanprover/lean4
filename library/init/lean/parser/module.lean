@@ -100,8 +100,9 @@ private partial def testModuleParserAux (env : Environment) : ModuleParser → I
 
 @[export lean.test_module_parser_core]
 def testModuleParser (env : Environment) (input : String) (filename := "<input>") : IO Bool :=
-let (_, p) := mkModuleParser env input filename;
-testModuleParserAux env p
+timeit (filename ++ " parser") $
+  let (_, p) := mkModuleParser env input filename;
+  testModuleParserAux env p
 
 end Parser
 end Lean

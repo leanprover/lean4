@@ -100,7 +100,7 @@ def letIdLhs : Parser := ident >> checkWsBefore "expected space before binders" 
 def letIdDecl         := parser! try (letIdLhs >> " := ") >> termParser
 def equation := parser! " | " >> many1 (termParser appPrec) >> " := " >> termParser
 def letEqns           := parser! try (letIdLhs >> lookahead " | ") >> many1Indent equation "equations must be indented"
-def letPatDecl        := parser! termParser >> " := " >> termParser
+def letPatDecl        := parser! termParser >> optType >> " := " >> termParser
 def letDecl           := try letIdDecl <|> letEqns <|> letPatDecl
 @[builtinTermParser] def «let» := parser! "let " >> letDecl >> "; " >> termParser
 def leftArrow : Parser := unicodeSymbol " ← " " <- "

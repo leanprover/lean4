@@ -91,21 +91,22 @@ partial def parseCommand (env : Environment) : ModuleParser → Syntax × Module
         let p   := { pos := s.pos, recovering := true, messages := p.messages.add msg, .. p };
         parseCommand p
 
-private partial def testModuleParserAux (env : Environment) : ModuleParser → IO Bool
+private partial def testModuleParserAux (env : Environment) (displayStx : Bool) : ModuleParser → IO Bool
 | p :=
   match parseCommand env p with
   | (stx, p) =>
     if isEOI stx || isExitCommand stx then do
       p.messages.toList.mfor $ fun msg => IO.println msg;
       pure (!p.messages.hasErrors)
-    else
+    else do
+      when displayStx (IO.println stx);
       testModuleParserAux p
 
 @[export lean.test_module_parser_core]
-def testModuleParser (env : Environment) (input : String) (filename := "<input>") : IO Bool :=
+def testModuleParser (env : Environment) (input : String) (filename := "<input>") (displayStx := false) : IO Bool :=
 timeit (filename ++ " parser") $
   let (_, p) := mkModuleParser env input filename;
-  testModuleParserAux env p
+  testModuleParserAux env displayStx p
 
 end Parser
 end Lean

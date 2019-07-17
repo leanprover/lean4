@@ -294,9 +294,9 @@ public:
 };
 
 namespace lean {
-object* test_module_parser_core(object* env, object* input, object* filename, object* w);
+object* test_module_parser_core(object* env, object* input, object* filename, uint8 displayCtx, object* w);
 bool test_module_parser(environment const & env, std::string const & input, std::string const & filename) {
-    return get_io_scalar_result<bool>(test_module_parser_core(env.to_obj_arg(), mk_string(input), mk_string(filename), io_mk_world()));
+    return get_io_scalar_result<bool>(test_module_parser_core(env.to_obj_arg(), mk_string(input), mk_string(filename), false, io_mk_world()));
 }
 }
 

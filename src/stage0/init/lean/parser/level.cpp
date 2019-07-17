@@ -762,12 +762,26 @@ return x_16;
 }
 else
 {
-obj* x_17; 
+obj* x_17; uint8 x_18; 
 lean::dec(x_11);
 lean::dec(x_3);
-x_17 = l_Lean_Parser_ParserState_restore(x_10, x_6, x_7);
+x_17 = lean::cnstr_get(x_10, 1);
+lean::inc(x_17);
+x_18 = lean::nat_dec_eq(x_7, x_17);
+lean::dec(x_17);
+if (x_18 == 0)
+{
+lean::dec(x_7);
 lean::dec(x_6);
-return x_17;
+return x_10;
+}
+else
+{
+obj* x_19; 
+x_19 = l_Lean_Parser_ParserState_restore(x_10, x_6, x_7);
+lean::dec(x_6);
+return x_19;
+}
 }
 }
 }

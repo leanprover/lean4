@@ -91,14 +91,11 @@ static expr parse_let(parser & p, pos_info const & pos, bool in_do_block);
 static expr parse_do(parser & p, bool has_braces);
 static expr parse_let_body(parser & p, pos_info const & pos, bool in_do_block) {
     if (in_do_block) {
-        if (p.curr_is_token(get_in_tk())) {
-            p.next();
-            return p.parse_expr();
-        } else {
-            if (p.curr_is_token(get_semicolon_tk()) || p.curr_is_token(get_comma_tk())) {
+        {
+            if (p.curr_is_token(get_semicolon_tk())) {
                 p.next();
             } else {
-                p.check_token_next(get_semicolon_tk(), "invalid 'do' block 'let' declaration, ',', ';' or 'in' expected");
+                p.check_token_next(get_semicolon_tk(), "invalid 'do' block 'let' declaration, ';' expected");
             }
             if (p.curr_is_token(get_let_tk())) {
                 p.next();
@@ -108,11 +105,11 @@ static expr parse_let_body(parser & p, pos_info const & pos, bool in_do_block) {
             }
         }
     } else {
-        if (p.curr_is_token(get_in_tk()) || p.curr_is_token(get_semicolon_tk())) {
+        if (p.curr_is_token(get_semicolon_tk())) {
             p.next();
             return p.parse_expr();
         } else {
-            p.maybe_throw_error({"invalid let declaration, 'in' or ';' expected", p.pos()});
+            p.maybe_throw_error({"invalid let declaration, ';' expected", p.pos()});
             return p.parse_expr();
         }
     }
@@ -656,7 +653,7 @@ static expr parse_lambda_binder(parser & p, pos_info const & pos) {
     } else if (p.curr_is_token(get_langle_tk())) {
         body = parse_lambda_core(p, pos);
     } else {
-        p.maybe_throw_error({"invalid lambda expression, ',', '=>' or '⟨' expected", p.pos()});
+        p.maybe_throw_error({"invalid lambda expression, '=>' or '⟨' expected", p.pos()});
         body = p.parse_expr();
     }
     return p.rec_save_pos(Fun(locals, body, p), pos);
@@ -674,7 +671,7 @@ static expr parse_lambda_constructor(parser & p, pos_info const & ini_pos) {
     for (expr const & local : locals)
         p.add_local(local);
     expr body;
-    if (/* p.curr_is_token(get_comma_tk()) || */ p.curr_is_token(get_darrow_tk())) {
+    if (p.curr_is_token(get_darrow_tk())) {
         p.next();
         body = p.parse_expr();
     } else {

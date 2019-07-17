@@ -85,11 +85,12 @@ declModifiers >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «
 @[builtinCommandParser] def «set_option» := parser! "set_option " >> ident >> (symbolOrIdent "true" <|> symbolOrIdent "false" <|> strLit <|> numLit)
 @[builtinCommandParser] def «attribute»  := parser! optional "local " >> "attribute " >> "[" >> sepBy1 attrInstance ", " >> "]" >> many1 ident
 @[builtinCommandParser] def «export»     := parser! "export " >> ident >> "(" >> many1 ident >> ")"
-def openOnly         := parser! try ("(" >> ident) >> many ident >> ")"
-def openHiding       := parser! try ("(" >> "hiding") >> many1 ident >> ")"
+def openHiding       := parser! try (ident >> "hiding") >> many1 ident
 def openRenamingItem := parser! ident >> unicodeSymbol "→" "->" >> ident
-def openRenaming     := parser! try ("(" >> "renaming") >> sepBy1 openRenamingItem ", " >> ")"
-@[builtinCommandParser] def «open»       := parser! "open " >> many1 ident >> optional openOnly >> optional openRenaming >> optional openHiding
+def openRenaming     := parser! try (ident >> "renaming") >> sepBy1 openRenamingItem ", "
+def openOnly         := parser! try (ident >> "(") >> many1 ident >> ")"
+def openSimple       := parser! many1 ident
+@[builtinCommandParser] def «open»       := parser! "open " >> (openHiding <|> openRenaming <|> openOnly <|> openSimple)
 
 /- Lean3 command declaration commands -/
 def maxPrec := parser! symbolOrIdent "max"

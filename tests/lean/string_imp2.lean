@@ -5,21 +5,21 @@ def g (s : String) : String :=
 s.push ' ' ++ s.push '-'
 
 def h (s : String) : String :=
-let it₁ := s.mkIterator in
-let it₂ := it₁.next in
+let it₁ := s.mkIterator;
+let it₂ := it₁.next;
 it₁.remainingToString ++ "-" ++ it₂.remainingToString
 
 
 #exit -- Disabled until we implement new VM
 
 def r (s : String) : String :=
-let it₁ := s.mkIterator.toEnd in
-let it₂ := it₁.prev in
+let it₁ := s.mkIterator.toEnd;
+let it₂ := it₁.prev;
 it₁.prevToString ++ "-" ++ it₂.prevToString
 
 def s (s : String) : String :=
-let it₁ := s.mkIterator.toEnd in
-let it₂ := it₁.prev in
+let it₁ := s.mkIterator.toEnd;
+let it₂ := it₁.prev;
 (it₁.insert "abc").toString ++ (it₂.insert "de").toString
 
 

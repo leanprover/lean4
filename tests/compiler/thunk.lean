@@ -1,5 +1,5 @@
 def compute (v : Nat) : Thunk Nat :=
-⟨fun _ => let xs := List.replicate 100000 v in xs.foldl Nat.add 0⟩
+⟨fun _ => let xs := List.replicate 100000 v; xs.foldl Nat.add 0⟩
 
 @[noinline]
 def test (t : Thunk Nat) (n : Nat) : Nat :=

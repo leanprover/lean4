@@ -1,8 +1,8 @@
 def foo (a : Array Nat) : Array Nat :=
-let a := a.push 0 in
-let a := a.push 1 in
-let a := a.push 2 in
-let a := a.push 3 in
+let a := a.push 0;
+let a := a.push 1;
+let a := a.push 2;
+let a := a.push 3;
 a
 
 def main : IO UInt32 :=

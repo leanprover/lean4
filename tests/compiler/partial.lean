@@ -9,6 +9,6 @@ partial def contains : String → Char → Nat → Bool
        else contains s c (s.next i)
 
 def main : IO Unit :=
-let s1 := "hello" in
+let s1 := "hello";
 IO.println (contains s1 'a' 0) *>
 IO.println (contains s1 'o' 0)

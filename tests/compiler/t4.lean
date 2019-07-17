@@ -24,7 +24,7 @@ partial def pown : Int → Int → Int
 | a 0 := 1
 | a 1 := a
 | a n :=
-  let b := pown a (n / 2) in
+  let b := pown a (n / 2);
   b * b * (if n % 2 = 0 then 1 else a)
 
 partial def addAux : Expr → Expr → Expr

@@ -6,9 +6,9 @@ def showChars : Nat → String → String.Pos → IO Unit
     showChars n s (s.next idx)
 
 def main : IO UInt32 :=
-let s₁             := "hello α_world_β" in
-let b : String.Pos := 0 in
-let e              := s₁.bsize in
+let s₁             := "hello α_world_β";
+let b : String.Pos := 0;
+let e              := s₁.bsize;
 IO.println (s₁.extract b e) *>
 IO.println (s₁.extract (b+2) e) *>
 IO.println (s₁.extract (b+2) (e-1)) *>

@@ -6,32 +6,32 @@ set_option pp.binder_types false
 set_option pp.proofs true
 
 def foo (n : Nat) : Nat :=
-let x := Nat.zero in
-let x1 := Nat.succ x in
-let x2 := Nat.succ x1 in
-let x3 := Nat.succ x2 in
-let x4 := Nat.succ x3 in
-let x5 := Nat.succ x4 in
-let x6 := Nat.succ x5 in
-let x7 := Nat.succ x   in
-let x8 := Nat.succ x7 in
-let y1 := x in
-let y2 := y1 in
+let x := Nat.zero;
+let x1 := Nat.succ x;
+let x2 := Nat.succ x1;
+let x3 := Nat.succ x2;
+let x4 := Nat.succ x3;
+let x5 := Nat.succ x4;
+let x6 := Nat.succ x5;
+let x7 := Nat.succ x  ;
+let x8 := Nat.succ x7;
+let y1 := x;
+let y2 := y1;
 y2 + n
 
 def cseTst (n : Nat) : Nat :=
-let y := Nat.succ ((fun x => x) n) in
-let z := Nat.succ n in
+let y := Nat.succ ((fun x => x) n);
+let z := Nat.succ n;
 y + z
 
 def tst1 (n : Nat) : Nat :=
-let p := (Nat.succ n, n) in
-let q := (p, p) in
+let p := (Nat.succ n, n);
+let q := (p, p);
 Prod.casesOn q (fun x y => Prod.casesOn x (fun z w => z))
 
 def tst2 (n : Nat) : Nat :=
-let p := (fun x => Nat.succ x, Nat.zero)  in
-let f := fun (p : (Nat → Nat) × Nat) => p.1 in
+let p := (fun x => Nat.succ x, Nat.zero) ;
+let f := fun (p : (Nat → Nat) × Nat) => p.1;
 f p n
 
 def add' : Nat → Nat → Nat
@@ -50,7 +50,7 @@ def foo3 (n : Nat) : Nat :=
 (fun (a : Nat) => a + a + a) (n*n)
 
 def boo (a : Nat) (l : List Nat) : List Nat :=
-let f := @List.cons Nat in
+let f := @List.cons Nat;
 f a (f a l)
 
 def bla (i : Nat) (h : i > 0 ∧ i ≠ 10) : Nat :=

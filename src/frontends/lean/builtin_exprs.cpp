@@ -838,20 +838,9 @@ parse_table init_nud_table() {
     return r;
 }
 
-static expr parse_field(parser & p, unsigned, expr const * args, pos_info const & pos) {
-    if (p.curr_is_numeral()) {
-        unsigned fidx = p.parse_small_nat();
-        return p.save_pos(mk_field_notation(args[0], fidx), pos);
-    } else {
-        name field = p.check_id_next("identifier or numeral expected");
-        return p.save_pos(mk_field_notation(args[0], field), pos);
-    }
-}
-
 parse_table init_led_table() {
     parse_table r(false);
     r = r.add({transition("->", mk_expr_action(get_arrow_prec()-1))},    mk_arrow(mk_bvar(1), mk_bvar(1)));
-    r = r.add({transition("^.", mk_ext_action(parse_field))}, mk_bvar(0));
     return r;
 }
 

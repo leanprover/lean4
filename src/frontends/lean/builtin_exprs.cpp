@@ -515,7 +515,7 @@ static expr parse_if_then_else(parser & p, unsigned, expr const *, pos_info cons
 static expr parse_explicit_core(parser & p, pos_info const & pos, bool partial) {
     if (!p.curr_is_identifier())
         return p.parser_error_or_expr({sstream() << "invalid '" << (partial ? "@@" : "@") << "', identifier expected", p.pos()});
-    expr fn = unwrap_pos(p.parse_id(/* allow_field_notation */ false));
+    expr fn = unwrap_pos(p.parse_id());
     if (is_choice(fn)) {
         sstream s;
         s << "invalid '" << (partial ? "@@" : "@") << "', function is overloaded, use fully qualified names (overloads: ";

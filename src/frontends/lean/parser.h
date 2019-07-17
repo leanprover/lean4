@@ -386,7 +386,7 @@ public:
     void parse_close_binder_info(binder_info bi) { return parse_close_binder_info(optional<binder_info>(bi)); }
 
     /** \brief Convert an identifier into an expression (constant or local constant) based on the current scope */
-    expr id_to_expr(name const & id, pos_info const & p, bool resolve_only = false, bool allow_field_notation = true,
+    expr id_to_expr(name const & id, pos_info const & p, bool resolve_only = false,
                     names const & extra_locals = names());
 
     /** Always parses an expression.  Returns a synthetic sorry even if no input is consumed. */
@@ -417,7 +417,7 @@ public:
     /* \brief Set pattern mode, and invoke fn. The new locals are stored in new_locals */
     expr parse_pattern(std::function<expr(parser &)> const & fn, buffer<expr> & new_locals);
 
-    expr parse_id(bool allow_field_notation = true);
+    expr parse_id();
 
     expr parse_led(expr left);
     expr parse_led_loop(expr left, unsigned rbp);
@@ -492,8 +492,7 @@ public:
     list<expr> locals_to_context() const;
     /** \brief Return all local declarations and aliases */
     list<pair<name, expr>> const & get_local_entries() const { return m_local_decls.get_entries(); }
-    optional<expr> resolve_local(name const & id, pos_info const & p, names const & extra_locals,
-                                 bool allow_field_notation = true);
+    optional<expr> resolve_local(name const & id, pos_info const & p, names const & extra_locals);
 
 
     void maybe_throw_error(parser_error && err);

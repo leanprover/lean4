@@ -1307,8 +1307,8 @@ section
 set_option compiler.extract_closed false
 unsafe def getBuiltinTokenTableUnsafe : Unit → TokenTable :=
 fun _ => match unsafeIO builtinTokenTable.get with
-  | some table => table
-  | none       => {}
+  | Except.ok table => table
+  | _       => {}
 
 @[implementedBy getBuiltinTokenTableUnsafe]
 constant getBuiltinTokenTable : Unit → TokenTable := default _
@@ -1442,8 +1442,8 @@ registerAttribute {
 @[noinline] unsafe def runBuiltinParserUnsafe (kind : String) (ref : IO.Ref ParsingTables) : ParserFn leading :=
 fun a c s =>
 match unsafeIO (do tables ← ref.get; pure $ prattParser kind tables a c s) with
-| some s => s
-| none   => s.mkError "failed to access builtin reference"
+| Except.ok s => s
+| _           => s.mkError "failed to access builtin reference"
 
 @[implementedBy runBuiltinParserUnsafe]
 constant runBuiltinParser (kind : String) (ref : IO.Ref ParsingTables) : ParserFn leading := default _
@@ -1463,7 +1463,7 @@ section
 set_option compiler.extract_closed false
 unsafe def getParsingTableUnsafe (ref : Option (IO.Ref ParsingTables)) : Option ParsingTables :=
 match ref with
-| some ref => unsafeIO ref.get
+| some ref => (unsafeIO ref.get).toOption
 | none     => none
 
 @[implementedBy getParsingTableUnsafe]

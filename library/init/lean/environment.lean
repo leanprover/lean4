@@ -328,15 +328,15 @@ section
 set_option compiler.extract_closed false
 @[export lean.register_extension_core]
 unsafe def registerCPPExtension (initial : CPPExtensionState) : Option Nat :=
-unsafeIO (do ext ← registerEnvExtension (fun _ => initial); pure ext.idx)
+(unsafeIO (do ext ← registerEnvExtension (fun _ => initial); pure ext.idx)).toOption
 
 @[export lean.set_extension_core]
 unsafe def setCPPExtensionState (env : Environment) (idx : Nat) (s : CPPExtensionState) : Option Environment :=
-unsafeIO (do exts ← envExtensionsRef.get; pure $ (exts.get idx).setState env s)
+(unsafeIO (do exts ← envExtensionsRef.get; pure $ (exts.get idx).setState env s)).toOption
 
 @[export lean.get_extension_core]
 unsafe def getCPPExtensionState (env : Environment) (idx : Nat) : Option CPPExtensionState :=
-unsafeIO (do exts ← envExtensionsRef.get; pure $ (exts.get idx).getState env)
+(unsafeIO (do exts ← envExtensionsRef.get; pure $ (exts.get idx).getState env)).toOption
 end
 
 /- Legacy support for Modification objects -/

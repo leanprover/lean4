@@ -16,7 +16,7 @@ inductive MessageSeverity
 structure Message :=
 (filename : String)
 (pos      : Position)
-(endPos  : Option Position  := none)
+(endPos   : Option Position  := none)
 (severity : MessageSeverity := MessageSeverity.error)
 (caption  : String           := "")
 (text     : String)

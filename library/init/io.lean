@@ -50,8 +50,11 @@ section
    represents the "initial world". We don't want to cache this closed term. So, we disable
    the "extract closed terms" optimization. -/
 set_option compiler.extract_closed false
-@[inline] unsafe def unsafeIO {α : Type} (fn : IO α) : Option α :=
-fn.run' ()
+@[inline] unsafe def unsafeIO {α : Type} (fn : IO α) : Except IO.Error α :=
+match fn.run () with
+| EState.Result.ok a _    => Except.ok a
+| EState.Result.error e _ => Except.error e
+
 end
 
 @[extern 4 "lean_io_timeit"]

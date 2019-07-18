@@ -127,6 +127,78 @@ registerAttribute {
  applicationTime := AttributeApplicationTime.afterCompilation
 }
 
+structure ElabAttributeEntry :=
+(kind     : SyntaxNodeKind)
+(declName : Name)
+
+structure ElabAttribute (σ : Type) :=
+(attr : AttributeImpl)
+(ext  : PersistentEnvExtension ElabAttributeEntry σ)
+(kind : String)
+
+namespace ElabAttribute
+
+instance {σ} [Inhabited σ] : Inhabited (ElabAttribute σ) := ⟨{ attr := default _, ext := default _, kind := "" }⟩
+
+end ElabAttribute
+
+/-
+This is just the basic skeleton for the `[termElab]` attribute and environment extension.
+The state is initialized using `builtinTermElabTable`.
+
+The current implementation just uses the bultin elaborators.
+-/
+def mkElabAttribute {σ} [Inhabited σ] (attrName : Name) (kind : String) (builtinTable : IO.Ref σ) : IO (ElabAttribute σ) :=
+do
+ext : PersistentEnvExtension ElabAttributeEntry σ ← registerPersistentEnvExtension {
+  name            := attrName,
+  addImportedFn   := fun es => do
+    table ← builtinTable.get;
+    -- TODO: populate table with `es`
+    pure table,
+  addEntryFn      := fun (s : σ) _ => s,                            -- TODO
+  exportEntriesFn := fun _ => Array.empty,                          -- TODO
+  statsFn         := fun _ => fmt (kind ++ " elaborator attribute") -- TODO
+};
+let attrImpl : AttributeImpl := {
+  name  := attrName,
+  descr := kind ++ " elaborator",
+  add   := fun env decl args persistent => pure env -- TODO
+};
+pure { ext := ext, attr := attrImpl, kind := kind }
+
+abbrev TermElabAttribute := ElabAttribute TermElabTable
+def mkTermElabAttribute : IO TermElabAttribute :=
+mkElabAttribute `elabTerm "term" builtinTermElabTable
+@[init mkTermElabAttribute]
+constant termElabAttribute : TermElabAttribute := default _
+
+abbrev CommandElabAttribute := ElabAttribute CommandElabTable
+def mkCommandElabAttribute : IO CommandElabAttribute :=
+mkElabAttribute `commandTerm "command" builtinCommandElabTable
+@[init mkCommandElabAttribute]
+constant commandElabAttribute : CommandElabAttribute := default _
+
+def elabTerm (s : Syntax) : Elab Expr :=
+match s with
+| Syntax.node k _ => do
+  st ← get;
+  let tables := termElabAttribute.ext.getState st.env;
+  match tables.find k with
+  | some elab => elab s
+  | none      => throw (ElabException.other ("term elaborator failed, no support for syntax '" ++ toString k ++ "'"))
+| _ => throw (ElabException.other "term elaborator failed, unexpected syntax")
+
+def elabCommand (s : Syntax) : Elab Unit :=
+match s with
+| Syntax.node k _ => do
+  st ← get;
+  let tables := commandElabAttribute.ext.getState st.env;
+  match tables.find k with
+  | some elab => elab s
+  | none      => throw (ElabException.other ("command elaborator failed, no support for syntax '" ++ toString k ++ "'"))
+| _ => throw (ElabException.other "command elaborator failed, unexpected syntax")
+
 /-
 Examples:
 

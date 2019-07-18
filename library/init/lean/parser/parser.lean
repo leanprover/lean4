@@ -61,6 +61,8 @@ def initCacheForInput (input : String) : ParserCache :=
 
 abbrev TokenTable := Trie TokenConfig
 
+abbrev SyntaxNodeKindSet := HashMap SyntaxNodeKind Unit
+
 structure ParserContextCore :=
 (input    : String)
 (filename : String)
@@ -236,8 +238,9 @@ instance : HasToString FirstTokens := ⟨toStr⟩
 end FirstTokens
 
 structure ParserInfo :=
-(updateTokens : TokenTable → ExceptT String Id TokenTable := fun tks => pure tks)
-(firstTokens  : FirstTokens := FirstTokens.unknown)
+(updateTokens  : TokenTable → ExceptT String Id TokenTable := fun tks => pure tks)
+(updateKindSet : SyntaxNodeKindSet → SyntaxNodeKindSet     := id)
+(firstTokens   : FirstTokens                               := FirstTokens.unknown)
 
 structure Parser (k : ParserKind := leading) :=
 (info : ParserInfo := {})
@@ -276,8 +279,9 @@ fun c s =>
 fun a c s => andthenAux (p a) (q a) c s
 
 @[noinline] def andthenInfo (p q : ParserInfo) : ParserInfo :=
-{ updateTokens := fun tks => q.updateTokens tks >>= p.updateTokens,
-  firstTokens  := p.firstTokens.seq q.firstTokens }
+{ updateTokens  := fun tks => q.updateTokens tks >>= p.updateTokens,
+  updateKindSet := p.updateKindSet ∘ q.updateKindSet,
+  firstTokens   := p.firstTokens.seq q.firstTokens }
 
 @[inline] def andthen {k : ParserKind} (p q : Parser k) : Parser k :=
 { info := andthenInfo p.info q.info,
@@ -292,12 +296,13 @@ instance hashAndthen {k : ParserKind} : HasAndthen (Parser k) :=
   let s     := p a c s;
   s.mkNode n iniSz
 
-@[noinline] def nodeInfo (p : ParserInfo) : ParserInfo :=
-{ updateTokens := p.updateTokens,
-  firstTokens  := p.firstTokens }
+@[noinline] def nodeInfo (n : SyntaxNodeKind) (p : ParserInfo) : ParserInfo :=
+{ updateTokens  := p.updateTokens,
+  updateKindSet := fun s => s.insert n (),
+  firstTokens   := p.firstTokens }
 
 @[inline] def node {k : ParserKind} (n : SyntaxNodeKind) (p : Parser k) : Parser k :=
-{ info := nodeInfo p.info,
+{ info := nodeInfo n p.info,
   /- Remark: the compiler currently does not eta-expand structure fields.
      So, we force it here to trigger inlining at `node` combinators. -/
   fn   := nodeFn n p.fn }
@@ -329,8 +334,9 @@ match s with
   | none => s
 
 @[noinline] def orelseInfo (p q : ParserInfo) : ParserInfo :=
-{ updateTokens := fun tks => q.updateTokens tks >>= p.updateTokens,
-  firstTokens  := p.firstTokens.merge q.firstTokens }
+{ updateTokens  := fun tks => q.updateTokens tks >>= p.updateTokens,
+  updateKindSet := p.updateKindSet ∘ q.updateKindSet,
+  firstTokens   := p.firstTokens.merge q.firstTokens }
 
 @[inline] def orelse {k : ParserKind} (p q : Parser k) : Parser k :=
 { info := orelseInfo p.info q.info,
@@ -340,7 +346,8 @@ instance hashOrelse {k : ParserKind} : HasOrelse (Parser k) :=
 ⟨orelse⟩
 
 @[noinline] def noFirstTokenInfo (info : ParserInfo) : ParserInfo :=
-{ updateTokens := info.updateTokens }
+{ updateTokens  := info.updateTokens,
+  updateKindSet := info.updateKindSet }
 
 @[inline] def tryFn {k : ParserKind} (p : ParserFn k ) : ParserFn k
 | a c s :=
@@ -363,8 +370,9 @@ fun a c s =>
   s.mkNode nullKind iniSz
 
 @[noinline] def optionaInfo (p : ParserInfo) : ParserInfo :=
-{ updateTokens := p.updateTokens,
-  firstTokens  := p.firstTokens.toOptional }
+{ updateTokens  := p.updateTokens,
+  updateKindSet := p.updateKindSet,
+  firstTokens   := p.firstTokens.toOptional }
 
 @[inline] def optional {k : ParserKind} (p : Parser k) : Parser k :=
 { info := optionaInfo p.info,
@@ -445,11 +453,13 @@ fun a c s =>
   sepByFnAux p sep allowTrailingSep iniSz false a c s
 
 @[noinline] def sepByInfo (p sep : ParserInfo) : ParserInfo :=
-{ updateTokens := fun tks => p.updateTokens tks >>= sep.updateTokens }
+{ updateTokens  := fun tks => p.updateTokens tks >>= sep.updateTokens,
+  updateKindSet := p.updateKindSet ∘ sep.updateKindSet }
 
 @[noinline] def sepBy1Info (p sep : ParserInfo) : ParserInfo :=
-{ updateTokens := fun tks => p.updateTokens tks >>= sep.updateTokens,
-  firstTokens  := p.firstTokens }
+{ updateTokens  := fun tks => p.updateTokens tks >>= sep.updateTokens,
+  updateKindSet := p.updateKindSet ∘ sep.updateKindSet,
+  firstTokens   := p.firstTokens }
 
 @[inline] def sepBy {k : ParserKind} (p sep : Parser k) (allowTrailingSep : Bool := false) : Parser k :=
 { info := sepByInfo p.info sep.info,
@@ -1061,7 +1071,7 @@ def unquotedSymbolFn {k : ParserKind} : ParserFn k :=
 fun _ c s =>
   let iniPos := s.pos;
   let s      := tokenFn c s;
-  if s.hasError || s.stxStack.back.isIdent || s.stxStack.back.isOfKind strLitKind || s.stxStack.back.isOfKind numLitKind then
+  if s.hasError || s.stxStack.back.isIdent || s.stxStack.back.isOfKind strLitKind || s.stxStack.back.isOfKind charLitKind || s.stxStack.back.isOfKind numLitKind then
     s.mkErrorAt "symbol" iniPos
   else
     s
@@ -1314,7 +1324,7 @@ fun _ => match unsafeIO builtinTokenTable.get with
 constant getBuiltinTokenTable : Unit → TokenTable := default _
 
 def mkImportedTokenTable (es : Array (Array TokenConfig)) : TokenTable :=
-getBuiltinTokenTable () -- TODO
+getBuiltinTokenTable () -- TODO: process `es`
 end
 
 /- We use a TokenTable attribute to make sure they are scoped.
@@ -1347,6 +1357,22 @@ end
 
 @[init mkTokenTableAttribute]
 constant tokenTableAttribute : TokenTableAttribute := default _
+
+/- Global table with all SyntaxNodeKind's -/
+def mkSyntaxNodeKindSetRef : IO (IO.Ref SyntaxNodeKindSet) := IO.mkRef {}
+@[init mkSyntaxNodeKindSetRef]
+constant syntaxNodeKindSetRef : IO.Ref SyntaxNodeKindSet := default _
+
+def updateSyntaxNodeKinds (pinfo : ParserInfo) : IO Unit :=
+syntaxNodeKindSetRef.modify pinfo.updateKindSet
+
+def isValidSyntaxNodeKind (k : SyntaxNodeKind) : IO Bool :=
+do s ← syntaxNodeKindSetRef.get;
+   pure $ s.contains k
+
+def getSyntaxNodeKinds : IO (List SyntaxNodeKind) :=
+do s ← syntaxNodeKindSetRef.get;
+   pure $ s.fold (fun ks k _ => k::ks) []
 
 def mkParserContext (env : Environment) (input : String) (filename : String) : ParserContext :=
 { env      := env,
@@ -1381,6 +1407,7 @@ def addBuiltinLeadingParser (tablesRef : IO.Ref ParsingTables) (declName : Name)
 do tables ← tablesRef.get;
    tablesRef.reset;
    updateTokens p.info declName;
+   updateSyntaxNodeKinds p.info;
    match p.info.firstTokens with
    | FirstTokens.tokens tks =>
      let tables := tks.foldl (fun (tables : ParsingTables) tk => { leadingTable := tables.leadingTable.insert (mkSimpleName tk.val) p, .. tables }) tables;
@@ -1392,6 +1419,7 @@ def addBuiltinTrailingParser (tablesRef : IO.Ref ParsingTables) (declName : Name
 do tables ← tablesRef.get;
    tablesRef.reset;
    updateTokens p.info declName;
+   updateSyntaxNodeKinds p.info;
    match p.info.firstTokens with
    | FirstTokens.tokens tks =>
      let tables := tks.foldl (fun (tables : ParsingTables) tk => { trailingTable := tables.trailingTable.insert (mkSimpleName tk.val) p, .. tables }) tables;

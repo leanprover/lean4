@@ -11,7 +11,20 @@ namespace Lean
 namespace Parser
 
 namespace Module
+/-
+Remark: `ParserFn` depends on `Environment`. More specifically, the `ParserContext` structure contains an `Environment` object.
+So, the following approach forces us to build an `Environment` object before we read the file header. This will create problems
+in the future. As soon as we allow imported Lean files to extend Lean itself (e.g., it defines a new builtin parser object, or
+we want to execute initialization code marked with `@[init]`), we don't want to create `Environment` object before we import
+files. See comment at `EnvExtension`. Some environment extensions (e.g., parsing tables) access global references using unsafe
+features. The initialization code marked with `@[init]` may populate these global references.
 
+Possible solutions:
+
+1- We replace the field `init` with `initFn : IO σ`.
+
+2- We use a simpler parsing framework that does not depend on `Environment`; or we make the current one parametric on the Environment.
+-/
 def «prelude»  := parser! "prelude"
 def importPath := parser! many (rawCh '.' true) >> ident
 def «import»   := parser! "import " >> many1 importPath

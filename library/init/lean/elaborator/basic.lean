@@ -16,7 +16,6 @@ structure ElabScope :=
 structure ElabState :=
 (env      : Environment)
 (parser   : Parser.ModuleParser)
-(messages : MessageLog := {})
 (ngen     : NameGenerator := {})
 (scopes   : List ElabScope := [])
 
@@ -199,15 +198,50 @@ match s with
   | none      => throw (ElabException.other ("command elaborator failed, no support for syntax '" ++ toString k ++ "'"))
 | _ => throw (ElabException.other "command elaborator failed, unexpected syntax")
 
-/-
-Examples:
+def mkElabState (env : Environment) (parser : Parser.ModuleParser) : ElabState :=
+{ env := env, parser := parser }
 
-@[builtinTermElab «do»] def elabDo : TermElab :=
-fun stx => pure (default Expr)
+def processCommand : Elab Bool :=
+do s ← get;
+   let p   := s.parser;
+   let pos := p.pos;
+   match Parser.parseCommand s.env p with
+   | (stx, p) => do
+     modify (fun s => { parser := p, .. s });
+     if Parser.isEOI stx || Parser.isExitCommand stx then
+       pure true -- Done
+     else do
+       elabCommand stx;
+       pure false
 
-@[builtinCommandElab «open»] def elabOpen : CommandElab :=
-fun stx => pure ()
--/
+partial def processCommandsAux : Unit → Elab Unit
+| () := do
+  done ← processCommand;
+  if done then pure ()
+  else processCommandsAux ()
+
+def processCommands : Elab Unit :=
+processCommandsAux ()
+
+def processHeader (header : Syntax) (messages : MessageLog) : IO (Option Environment × MessageLog) :=
+-- TODO
+pure (none, messages)
+
+def testFrontend (input : String) (filename := "<input>") : IO (Option Environment × MessageLog) :=
+do env ← mkEmptyEnvironment;
+   let (stx, p) := Parser.mkModuleParser env input filename;
+   match stx with
+   | none => pure (none, p.messages)
+   | some stx => do
+     (optEnv, messages) ← processHeader stx p.messages;
+     match optEnv with
+     | none => pure (none, messages)
+     | some env =>
+       let p := { messages := messages, .. p };
+       let s := mkElabState env p;
+       match processCommands.run s with
+       | EState.Result.ok _ s    => pure (some s.env, s.parser.messages)
+       | EState.Result.error _ s => pure (none, s.parser.messages)
 
 namespace Elab
 

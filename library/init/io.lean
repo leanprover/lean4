@@ -23,7 +23,7 @@ def EIO (ε : Type) : Type → Type := EState ε IO.RealWorld
 
 instance (ε : Type) : Monad (EIO ε) := inferInstanceAs (Monad (EState ε IO.RealWorld))
 instance (ε : Type) : MonadExcept ε (EIO ε) := inferInstanceAs (MonadExcept ε (EState ε IO.RealWorld))
-
+instance (α ε : Type) : HasOrelse (EIO ε α) := ⟨MonadExcept.orelse⟩
 instance {ε : Type} {α : Type} [Inhabited ε] : Inhabited (EIO ε α) :=
 inferInstanceAs (Inhabited (EState ε IO.RealWorld α))
 

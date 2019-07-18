@@ -47,12 +47,14 @@ constant builtinCommandElabTable : IO.Ref CommandElabTable := default _
 
 def addBuiltinTermElab (k : SyntaxNodeKind) (declName : Name) (elab : TermElab) : IO Unit :=
 do m ← builtinTermElabTable.get;
-   when (m.contains k) $ throw (IO.userError ("invalid builtin term elaborator, elaborator for '" ++ toString k ++ "' has already been defined"));
+   when (m.contains k) $
+     throw (IO.userError ("invalid builtin term elaborator, elaborator for '" ++ toString k ++ "' has already been defined"));
    builtinTermElabTable.modify $ fun m => m.insert k elab
 
 def addBuiltinCommandElab (k : SyntaxNodeKind) (declName : Name) (elab : CommandElab) : IO Unit :=
 do m ← builtinCommandElabTable.get;
-   when (m.contains k) $ throw (IO.userError ("invalid builtin command elaborator, elaborator for '" ++ toString k ++ "' has already been defined"));
+   when (m.contains k) $
+     throw (IO.userError ("invalid builtin command elaborator, elaborator for '" ++ toString k ++ "' has already been defined"));
    builtinCommandElabTable.modify $ fun m => m.insert k elab
 
 def checkSyntaxNodeKind (k : Name) : IO Name :=
@@ -76,14 +78,20 @@ match attrParamSyntaxToIdentifier arg with
   throw (IO.userError ("invalid syntax node kind '" ++ toString k ++ "'"))
 | none   => throw (IO.userError ("syntax node kind is missing"))
 
-def declareBuiltinTermElab (env : Environment) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
+def declareBuiltinElab (env : Environment) (addFn : Name) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
 let name := `_regBuiltinTermElab ++ declName;
 let type := Expr.app (mkConst `IO) (mkConst `Unit);
-let val  := mkCApp `Lean.addBuiltinTermElab [toExpr kind, toExpr declName, mkConst declName];
+let val  := mkCApp addFn [toExpr kind, toExpr declName, mkConst declName];
 let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
 match env.addAndCompile {} decl with
 | none     => throw (IO.userError ("failed to emit registration code for builtin term elaborator '" ++ toString declName ++ "'"))
 | some env => IO.ofExcept (setInitAttr env name)
+
+def declareBuiltinTermElab (env : Environment) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
+declareBuiltinElab env `Lean.addBuiltinTermElab kind declName
+
+def declareBuiltinCommandElab (env : Environment) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
+declareBuiltinElab env `Lean.addBuiltinCommandElab kind declName
 
 @[init] def registerBuiltinTermElabAttr : IO Unit :=
 registerAttribute {
@@ -102,9 +110,27 @@ registerAttribute {
  applicationTime := AttributeApplicationTime.afterCompilation
 }
 
+@[init] def registerBuiltinCommandElabAttr : IO Unit :=
+registerAttribute {
+ name  := `builtinCommandElab,
+ descr := "Builtin command elaborator",
+ add   := fun env declName arg persistent => do {
+   unless persistent $ throw (IO.userError ("invalid attribute 'builtinCommandElab', must be persistent"));
+   kind ← syntaxNodeKindOfAttrParam env `Lean.Parser.Command arg;
+   match env.find declName with
+   | none  => throw "unknown declaration"
+   | some decl =>
+     match decl.type with
+     | Expr.const `Lean.CommandElab _ => declareBuiltinCommandElab env kind declName
+     | _ => throw (IO.userError ("unexpected command elaborator type at '" ++ toString declName ++ "' `CommandElab` expected"))
+ },
+ applicationTime := AttributeApplicationTime.afterCompilation
+}
 
--- @[builtinTermElab «do»] def elabDo : TermElab :=
--- fun stx => pure (default Expr)
+/-
+ @[builtinTermElab «do»] def elabDo : TermElab :=
+ fun stx => pure (default Expr)
+-/
 
 namespace Elab
 

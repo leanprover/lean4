@@ -178,28 +178,51 @@ mkElabAttribute `commandTerm "command" builtinCommandElabTable
 @[init mkCommandElabAttribute]
 constant commandElabAttribute : CommandElabAttribute := default _
 
-def elabTerm (s : Syntax) : Elab Expr :=
-match s with
+def logErrorAt (pos : String.Pos) (errorMsg : String) : Elab Unit :=
+do s ← get;
+   let ctx := s.parser.context;
+   let pos := ctx.fileMap.toPosition pos;
+   let msg := { Message . filename := ctx.filename, pos := pos, text := errorMsg };
+   modify (fun s => { parser := { messages := s.parser.messages.add msg, .. s.parser }, .. s })
+
+def getPos (stx : Syntax) : Elab String.Pos :=
+match stx.getPos with
+| some p => pure p
+| none   => do s ← get; pure s.parser.pos
+
+def logError (stx : Syntax) (errorMsg : String) : Elab Unit :=
+do pos ← getPos stx;
+   logErrorAt pos errorMsg
+
+def logErrorAndThrow {α : Type} (stx : Syntax) (errorMsg : String) : Elab α :=
+do logError stx errorMsg;
+   throw (ElabException.other errorMsg)
+
+def elabTerm (stx : Syntax) : Elab Expr :=
+match stx with
 | Syntax.node k _ => do
-  st ← get;
-  let tables := termElabAttribute.ext.getState st.env;
+  s ← get;
+  let tables := termElabAttribute.ext.getState s.env;
   match tables.find k with
-  | some elab => elab s
-  | none      => throw (ElabException.other ("term elaborator failed, no support for syntax '" ++ toString k ++ "'"))
+  | some elab => elab stx
+  | none      => logErrorAndThrow stx ("term elaborator failed, no support for syntax '" ++ toString k ++ "'")
 | _ => throw (ElabException.other "term elaborator failed, unexpected syntax")
 
-def elabCommand (s : Syntax) : Elab Unit :=
-match s with
+def elabCommand (stx : Syntax) : Elab Unit :=
+match stx with
 | Syntax.node k _ => do
-  st ← get;
-  let tables := commandElabAttribute.ext.getState st.env;
+  s ← get;
+  let tables := commandElabAttribute.ext.getState s.env;
   match tables.find k with
-  | some elab => elab s
-  | none      => throw (ElabException.other ("command elaborator failed, no support for syntax '" ++ toString k ++ "'"))
+  | some elab => elab stx
+  | none      => logErrorAndThrow stx ("command elaborator failed, no support for syntax '" ++ toString k ++ "'")
 | _ => throw (ElabException.other "command elaborator failed, unexpected syntax")
 
 def mkElabState (env : Environment) (parser : Parser.ModuleParser) : ElabState :=
 { env := env, parser := parser }
+
+def updateParser (p : Parser.ModuleParser) : Elab Unit :=
+modify (fun s => { parser := p, .. s })
 
 def processCommand : Elab Bool :=
 do s ← get;
@@ -207,11 +230,12 @@ do s ← get;
    let pos := p.pos;
    match Parser.parseCommand s.env p with
    | (stx, p) => do
-     modify (fun s => { parser := p, .. s });
-     if Parser.isEOI stx || Parser.isExitCommand stx then
+     if Parser.isEOI stx || Parser.isExitCommand stx then do
+       updateParser p;
        pure true -- Done
      else do
        elabCommand stx;
+       updateParser p;
        pure false
 
 partial def processCommandsAux : Unit → Elab Unit

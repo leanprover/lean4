@@ -150,7 +150,7 @@ def registerTagAttribute (name : Name) (descr : String) (validate : Environment 
 do
 ext : PersistentEnvExtension Name NameSet ← registerPersistentEnvExtension {
   name            := name,
-  addImportedFn   := fun _ => {},
+  addImportedFn   := fun _ => pure {},
   addEntryFn      := fun (s : NameSet) n => s.insert n,
   exportEntriesFn := fun es =>
     let r : Array Name := es.fold (fun a e => a.push e) Array.empty;
@@ -199,7 +199,7 @@ def registerParametricAttribute {α : Type} [Inhabited α] (name : Name) (descr 
 do
 ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistentEnvExtension {
   name            := name,
-  addImportedFn   := fun _ => {},
+  addImportedFn   := fun _ => pure {},
   addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2,
   exportEntriesFn := fun m =>
     let r : Array (Name × α) := m.fold (fun a n p => a.push (n, p)) Array.empty;
@@ -258,7 +258,7 @@ def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDesc
 do
 ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistentEnvExtension {
   name            := extName,
-  addImportedFn   := fun _ => {},
+  addImportedFn   := fun _ => pure {},
   addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2,
   exportEntriesFn := fun m =>
     let r : Array (Name × α) := m.fold (fun a n p => a.push (n, p)) Array.empty;

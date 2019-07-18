@@ -99,11 +99,9 @@ end Environment
 /- "Raw" environment extension.
    TODO: mark opaque. -/
 structure EnvExtension (σ : Type) :=
-(idx      : Nat)
-/- We use a thunk here to make sure the initial states are only computed when we create the first Environment object.
-   The motivation is that some environment extensions (e.g., parsing tables) use unsafe features, and the must be
-   executed after we have finished initialization. -/
-(initial  : Thunk σ)
+(idx       : Nat)
+(mkInitial : IO σ)
+(stateInh  : σ)
 
 namespace EnvExtension
 unsafe def setStateUnsafe {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment :=
@@ -114,14 +112,14 @@ constant setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : �
 
 unsafe def getStateUnsafe {σ : Type} (ext : EnvExtension σ) (env : Environment) : σ :=
 let s : EnvExtensionState := env.extensions.get ext.idx;
-@unsafeCast _ _ ⟨ext.initial.get⟩ s
+@unsafeCast _ _ ⟨ext.stateInh⟩ s
 
 @[implementedBy getStateUnsafe]
-constant getState {σ : Type} (ext : EnvExtension σ) (env : Environment) : σ := ext.initial.get
+constant getState {σ : Type} (ext : EnvExtension σ) (env : Environment) : σ := ext.stateInh
 
 @[inline] unsafe def modifyStateUnsafe {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment :=
 { extensions := env.extensions.modify ext.idx $ fun s =>
-    let s : σ := (@unsafeCast _ _ ⟨ext.initial.get⟩ s);
+    let s : σ := (@unsafeCast _ _ ⟨ext.stateInh⟩ s);
     let s : σ := f s;
     unsafeCast s,
   .. env }
@@ -138,17 +136,18 @@ IO.mkRef Array.empty
 private constant envExtensionsRef : IO.Ref (Array (EnvExtension EnvExtensionState)) := default _
 
 instance EnvExtension.Inhabited (σ : Type) [Inhabited σ] : Inhabited (EnvExtension σ) :=
-⟨{ idx := 0, initial := Thunk.mk (fun _ => default _) }⟩
+⟨{ idx := 0, stateInh := default _, mkInitial := default _ }⟩
 
-unsafe def registerEnvExtensionUnsafe {σ : Type} (initStateFn : Unit → σ) : IO (EnvExtension σ) :=
+unsafe def registerEnvExtensionUnsafe {σ : Type} [Inhabited σ] (mkInitial : IO σ) : IO (EnvExtension σ) :=
 do
 initializing ← IO.initializing;
 unless initializing $ throw (IO.userError ("failed to register environment, extensions can only be registered during initialization"));
 exts ← envExtensionsRef.get;
 let idx := exts.size;
 let ext : EnvExtension σ := {
-   idx      := idx,
-   initial  := Thunk.mk initStateFn
+   idx        := idx,
+   mkInitial  := mkInitial,
+   stateInh   := default _
 };
 envExtensionsRef.modify (fun exts => exts.push (unsafeCast ext));
 pure ext
@@ -158,10 +157,10 @@ pure ext
    1- Our implementation assumes the number of extensions does not change after an environment object is created.
    2- We do not use any synchronization primitive to access `envExtensionsRef`. -/
 @[implementedBy registerEnvExtensionUnsafe]
-constant registerEnvExtension {σ : Type} (initStateFn : Unit → σ) : IO (EnvExtension σ) := default _
+constant registerEnvExtension {σ : Type} [Inhabited σ] (mkInitial : IO σ) : IO (EnvExtension σ) := default _
 
 private def mkInitialExtensionStates : IO (Array EnvExtensionState) :=
-do exts ← envExtensionsRef.get; pure $ exts.map $ fun ext => ext.initial.get
+do exts ← envExtensionsRef.get; exts.mmap $ fun ext => ext.mkInitial
 
 @[export lean.mk_empty_environment_core]
 def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment :=
@@ -194,7 +193,7 @@ structure PersistentEnvExtension (α : Type) (σ : Type) extends EnvExtension (P
    `addImportedFn Array.empty` must not fail. A more complicated design would be
      (addImportedFn (es : Array (Array α)) → {r : Except String σ // es.size == 0 → r.isOk })
 -/
-(addImportedFn   : Array (Array α) → σ)
+(addImportedFn   : Array (Array α) → IO σ)
 (addEntryFn      : σ → α → σ)
 (exportEntriesFn : σ → Array α)
 (statsFn         : σ → Format)
@@ -209,7 +208,7 @@ instance PersistentEnvExtensionState.inhabited {α σ} [Inhabited σ] : Inhabite
 ⟨{importedEntries := Array.empty, state := default _ }⟩
 
 instance PersistentEnvExtension.inhabited {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α σ) :=
-⟨{ toEnvExtension := { idx := 0, initial := Thunk.mk (fun _ => default _) },
+⟨{ toEnvExtension := { idx := 0, stateInh := default _, mkInitial := default _ },
    name := default _,
    addImportedFn := fun _ => default _,
    addEntryFn := fun s _ => s,
@@ -245,20 +244,22 @@ private constant persistentEnvExtensionsRef : IO.Ref (Array (PersistentEnvExtens
 
 structure PersistentEnvExtensionDescr (α σ : Type) :=
 (name            : Name)
-(addImportedFn   : Array (Array α) → σ)
+(addImportedFn   : Array (Array α) → IO σ)
 (addEntryFn      : σ → α → σ)
 (exportEntriesFn : σ → Array α)
 (statsFn         : σ → Format := fun _ => Format.nil)
 
-unsafe def registerPersistentEnvExtensionUnsafe {α σ : Type} (descr : PersistentEnvExtensionDescr α σ) : IO (PersistentEnvExtension α σ) :=
+unsafe def registerPersistentEnvExtensionUnsafe {α σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α σ) : IO (PersistentEnvExtension α σ) :=
 do
 pExts ← persistentEnvExtensionsRef.get;
 when (pExts.any (fun ext => ext.name == descr.name)) $ throw (IO.userError ("invalid environment extension, '" ++ toString descr.name ++ "' has already been used"));
-ext ← registerEnvExtension (fun _ =>
+ext ← registerEnvExtension (do
+  state ← descr.addImportedFn Array.empty;
   let s : PersistentEnvExtensionState α σ := {
     importedEntries := Array.empty,
-    state           := descr.addImportedFn Array.empty };
-  s);
+    state           := state
+  };
+  pure s);
 let pExt : PersistentEnvExtension α σ := {
   toEnvExtension  := ext,
   name            := descr.name,
@@ -271,7 +272,7 @@ persistentEnvExtensionsRef.modify (fun pExts => pExts.push (unsafeCast pExt));
 pure pExt
 
 @[implementedBy registerPersistentEnvExtensionUnsafe]
-constant registerPersistentEnvExtension {α σ : Type} (descr : PersistentEnvExtensionDescr α σ) : IO (PersistentEnvExtension α σ) := default _
+constant registerPersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α σ) : IO (PersistentEnvExtension α σ) := default _
 
 /- Simple PersistentEnvExtension that implements exportEntriesFn using a list of entries. -/
 
@@ -286,10 +287,10 @@ structure SimplePersistentEnvExtensionDescr (α σ : Type) :=
 (addImportedFn : Array (Array α) → σ)
 (toArrayFn     : List α → Array α := fun es => es.toArray)
 
-def registerSimplePersistentEnvExtension {α σ : Type} (descr : SimplePersistentEnvExtensionDescr α σ) : IO (SimplePersistentEnvExtension α σ) :=
+def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : SimplePersistentEnvExtensionDescr α σ) : IO (SimplePersistentEnvExtension α σ) :=
 registerPersistentEnvExtension {
   name := descr.name,
-  addImportedFn := fun as => ([], descr.addImportedFn as),
+  addImportedFn := fun as => pure ([], descr.addImportedFn as),
   addEntryFn := fun s e => match s with
     | (entries, s) => (e::entries, descr.addEntryFn s e),
   exportEntriesFn := fun s => descr.toArrayFn s.1.reverse,
@@ -328,7 +329,7 @@ section
 set_option compiler.extract_closed false
 @[export lean.register_extension_core]
 unsafe def registerCPPExtension (initial : CPPExtensionState) : Option Nat :=
-(unsafeIO (do ext ← registerEnvExtension (fun _ => initial); pure ext.idx)).toOption
+(unsafeIO (do ext ← registerEnvExtension (pure initial); pure ext.idx)).toOption
 
 @[export lean.set_extension_core]
 unsafe def setCPPExtensionState (env : Environment) (idx : Nat) (s : CPPExtensionState) : Option Environment :=
@@ -353,7 +354,7 @@ def Modification := NonScalar
 instance Modification.inhabited : Inhabited Modification := inferInstanceAs (Inhabited NonScalar)
 
 def regModListExtension : IO (EnvExtension (List Modification)) :=
-registerEnvExtension (fun _ => [])
+registerEnvExtension (pure [])
 
 @[init regModListExtension]
 constant modListExtension : EnvExtension (List Modification) := default _
@@ -446,9 +447,10 @@ pure $ mods.iterate env $ fun _ mod env =>
 private def finalizePersistentExtensions (env : Environment) : IO Environment :=
 do
 pExtDescrs ← persistentEnvExtensionsRef.get;
-pure $ pExtDescrs.iterate env $ fun _ extDescr env =>
-  extDescr.toEnvExtension.modifyState env $ fun s =>
-    { state := extDescr.addImportedFn s.importedEntries, .. s }
+pExtDescrs.miterate env $ fun _ extDescr env => do
+  let s := extDescr.toEnvExtension.getState env;
+  newState ← extDescr.addImportedFn s.importedEntries;
+  pure $ extDescr.toEnvExtension.setState env { state := newState, .. s }
 
 @[export lean.import_modules_core]
 def importModules (modNames : List Name) (trustLevel : UInt32 := 0) : IO Environment :=

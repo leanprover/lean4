@@ -1342,7 +1342,7 @@ def mkTokenTableAttribute : IO TokenTableAttribute :=
 do
 ext : PersistentEnvExtension TokenConfig TokenTable ← registerPersistentEnvExtension {
   name            := `_tokens_,
-  addImportedFn   := mkImportedTokenTable,
+  addImportedFn   := fun es => pure $ mkImportedTokenTable es,
   addEntryFn      := fun (s : TokenTable) _ => s,         -- TODO
   exportEntriesFn := fun _ => Array.empty,                -- TODO
   statsFn         := fun _ => fmt "token table attribute" -- TODO
@@ -1487,17 +1487,6 @@ structure ParserAttribute :=
 
 instance ParserAttribute.inhabited : Inhabited ParserAttribute := ⟨{ attr := default _, ext := default _, kind := "" }⟩
 
-section
-set_option compiler.extract_closed false
-unsafe def getParsingTableUnsafe (ref : Option (IO.Ref ParsingTables)) : Option ParsingTables :=
-match ref with
-| some ref => (unsafeIO ref.get).toOption
-| none     => none
-
-@[implementedBy getParsingTableUnsafe]
-constant getParsingTable (ref : Option (IO.Ref ParsingTables)) : Option ParsingTables := default _
-end
-
 /-
 This is just the basic skeleton where we create an
 extensible/scoped parser attribute that is optionally initialized with
@@ -1512,10 +1501,12 @@ def registerParserAttribute (attrName : Name) (kind : String) (descr : String) (
 do
 ext : PersistentEnvExtension ParserAttributeEntry ParsingTables ← registerPersistentEnvExtension {
   name            := attrName,
-  addImportedFn   := fun _ =>                        -- TODO
-    match getParsingTable builtinTable with
-    | some t => t
-    | none   => {},
+  addImportedFn   := fun es => do
+    table ← match builtinTable with
+    | some table => table.get
+    | none       => pure {};
+    -- TODO: populate table with `es`
+    pure table,
   addEntryFn      := fun (s : ParsingTables) _ => s, -- TODO
   exportEntriesFn := fun _ => Array.empty,           -- TODO
   statsFn         := fun _ => fmt "parser attribute" -- TODO

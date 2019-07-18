@@ -19,8 +19,8 @@ uint8 has_match_pattern_attribute_core(obj*, obj*);
 }
 obj* l_Lean_EqnCompiler_matchPatternAttr;
 obj* l_Lean_EqnCompiler_mkMatchPatternAttr___closed__3;
+extern obj* l_Lean_TagAttribute_Inhabited___closed__3;
 obj* l_Lean_EqnCompiler_mkMatchPatternAttr(obj*);
-extern obj* l_Lean_TagAttribute_Inhabited___closed__5;
 obj* l_Lean_EqnCompiler_mkMatchPatternAttr___lambda__1___closed__1;
 obj* l_Lean_EqnCompiler_mkMatchPatternAttr___lambda__1___boxed(obj*, obj*);
 obj* l_Lean_registerTagAttribute(obj*, obj*, obj*, obj*);

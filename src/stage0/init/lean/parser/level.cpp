@@ -148,7 +148,7 @@ obj* l_Lean_Parser_Level_hole___elambda__1(obj*);
 obj* l___regBuiltinParser_Lean_Parser_Level_max(obj*);
 obj* l_Lean_Parser_symbolOrIdentInfo(obj*);
 obj* l_Lean_Parser_Level_paren___elambda__1___rarg___closed__10;
-obj* l_Lean_Parser_nodeInfo(obj*);
+obj* l_Lean_Parser_nodeInfo(obj*, obj*);
 obj* l_Lean_Parser_Level_addLit___elambda__1___closed__6;
 obj* l_Array_size(obj*, obj*);
 obj* l_Lean_Parser_mkLevelParserAttribute___closed__3;
@@ -667,10 +667,11 @@ return x_3;
 obj* _init_l_Lean_Parser_Level_paren___closed__6() {
 _start:
 {
-obj* x_1; obj* x_2; 
-x_1 = l_Lean_Parser_Level_paren___closed__5;
-x_2 = l_Lean_Parser_nodeInfo(x_1);
-return x_2;
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__4;
+x_2 = l_Lean_Parser_Level_paren___closed__5;
+x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
+return x_3;
 }
 }
 obj* _init_l_Lean_Parser_Level_paren___closed__7() {
@@ -907,10 +908,11 @@ return x_3;
 obj* _init_l_Lean_Parser_Level_max___closed__3() {
 _start:
 {
-obj* x_1; obj* x_2; 
-x_1 = l_Lean_Parser_Level_max___closed__2;
-x_2 = l_Lean_Parser_nodeInfo(x_1);
-return x_2;
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_max___elambda__1___closed__1;
+x_2 = l_Lean_Parser_Level_max___closed__2;
+x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
+return x_3;
 }
 }
 obj* _init_l_Lean_Parser_Level_max___closed__4() {
@@ -1094,10 +1096,11 @@ return x_3;
 obj* _init_l_Lean_Parser_Level_imax___closed__3() {
 _start:
 {
-obj* x_1; obj* x_2; 
-x_1 = l_Lean_Parser_Level_imax___closed__2;
-x_2 = l_Lean_Parser_nodeInfo(x_1);
-return x_2;
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_imax___elambda__1___closed__1;
+x_2 = l_Lean_Parser_Level_imax___closed__2;
+x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
+return x_3;
 }
 }
 obj* _init_l_Lean_Parser_Level_imax___closed__4() {
@@ -1298,10 +1301,11 @@ return x_3;
 obj* _init_l_Lean_Parser_Level_hole___closed__2() {
 _start:
 {
-obj* x_1; obj* x_2; 
-x_1 = l_Lean_Parser_Level_hole___closed__1;
-x_2 = l_Lean_Parser_nodeInfo(x_1);
-return x_2;
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_hole___elambda__1___rarg___closed__2;
+x_2 = l_Lean_Parser_Level_hole___closed__1;
+x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
+return x_3;
 }
 }
 obj* _init_l_Lean_Parser_Level_hole___closed__3() {
@@ -1749,10 +1753,11 @@ return x_3;
 obj* _init_l_Lean_Parser_Level_addLit___closed__5() {
 _start:
 {
-obj* x_1; obj* x_2; 
-x_1 = l_Lean_Parser_Level_addLit___closed__4;
-x_2 = l_Lean_Parser_nodeInfo(x_1);
-return x_2;
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Level_addLit___elambda__1___closed__2;
+x_2 = l_Lean_Parser_Level_addLit___closed__4;
+x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
+return x_3;
 }
 }
 obj* _init_l_Lean_Parser_Level_addLit___closed__6() {

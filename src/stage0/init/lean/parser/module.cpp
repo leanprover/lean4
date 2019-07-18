@@ -140,7 +140,7 @@ obj* l_Lean_Parser_Module_prelude___closed__4;
 obj* l_Lean_Parser_Module_prelude___elambda__1(obj*);
 extern obj* l_Lean_Parser_ParserContextCore_inhabited___closed__1;
 obj* l_List_mfor___main___at___private_init_lean_parser_module_4__testModuleParserAux___main___spec__5(obj*, obj*);
-obj* l_Lean_Parser_nodeInfo(obj*);
+obj* l_Lean_Parser_nodeInfo(obj*, obj*);
 obj* l_Lean_Message_toString(obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Lean_Parser_Module_import___elambda__1___closed__5;
@@ -335,10 +335,11 @@ return x_3;
 obj* _init_l_Lean_Parser_Module_prelude___closed__2() {
 _start:
 {
-obj* x_1; obj* x_2; 
-x_1 = l_Lean_Parser_Module_prelude___closed__1;
-x_2 = l_Lean_Parser_nodeInfo(x_1);
-return x_2;
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Module_prelude___elambda__1___rarg___closed__4;
+x_2 = l_Lean_Parser_Module_prelude___closed__1;
+x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
+return x_3;
 }
 }
 obj* _init_l_Lean_Parser_Module_prelude___closed__3() {
@@ -526,10 +527,11 @@ return x_3;
 obj* _init_l_Lean_Parser_Module_importPath___closed__4() {
 _start:
 {
-obj* x_1; obj* x_2; 
-x_1 = l_Lean_Parser_Module_importPath___closed__3;
-x_2 = l_Lean_Parser_nodeInfo(x_1);
-return x_2;
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Module_importPath___elambda__1___closed__2;
+x_2 = l_Lean_Parser_Module_importPath___closed__3;
+x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
+return x_3;
 }
 }
 obj* _init_l_Lean_Parser_Module_importPath___closed__5() {
@@ -850,10 +852,11 @@ return x_4;
 obj* _init_l_Lean_Parser_Module_import___closed__3() {
 _start:
 {
-obj* x_1; obj* x_2; 
-x_1 = l_Lean_Parser_Module_import___closed__2;
-x_2 = l_Lean_Parser_nodeInfo(x_1);
-return x_2;
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Module_import___elambda__1___closed__2;
+x_2 = l_Lean_Parser_Module_import___closed__2;
+x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
+return x_3;
 }
 }
 obj* _init_l_Lean_Parser_Module_import___closed__4() {
@@ -1143,10 +1146,11 @@ return x_3;
 obj* _init_l_Lean_Parser_Module_header___closed__4() {
 _start:
 {
-obj* x_1; obj* x_2; 
-x_1 = l_Lean_Parser_Module_header___closed__3;
-x_2 = l_Lean_Parser_nodeInfo(x_1);
-return x_2;
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Parser_Module_header___elambda__1___closed__2;
+x_2 = l_Lean_Parser_Module_header___closed__3;
+x_3 = l_Lean_Parser_nodeInfo(x_1, x_2);
+return x_3;
 }
 }
 obj* _init_l_Lean_Parser_Module_header___closed__5() {

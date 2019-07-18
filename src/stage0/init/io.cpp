@@ -29,11 +29,13 @@ obj* l_IO_HasEval(obj*);
 obj* l_IO_Ref_modify(obj*);
 obj* l_IO_Fs_handle_isEof___rarg(obj*, obj*);
 obj* l_getModify___rarg___lambda__1___boxed(obj*, obj*, obj*);
+obj* l_MonadExcept_orelse___at_EIO_HasOrelse___spec__1(obj*, obj*);
 obj* l_IO_Fs_handle_close___rarg(obj*, obj*);
 obj* l_IO_Ref_swap(obj*, obj*);
 obj* l_EIO_Inhabited___rarg(obj*);
 obj* l_HasRepr_HasEval___rarg(obj*, obj*, obj*);
 obj* l_IO_Prim_Ref_swap___boxed(obj*, obj*, obj*, obj*);
+obj* l_EIO_HasOrelse(obj*, obj*);
 obj* l_IO_Fs_handle_mk(obj*, obj*);
 extern "C" obj* lean_io_prim_handle_is_eof(obj*, obj*);
 obj* l_IO_println___at_HasRepr_HasEval___spec__1___boxed(obj*, obj*);
@@ -50,6 +52,7 @@ obj* l_EIO_Inhabited(obj*, obj*);
 obj* l_unsafeIO(obj*);
 obj* l_IO_Prim_iterate___at_IO_Fs_handle_readToEnd___spec__3(obj*, obj*, obj*);
 obj* l_EIO_Monad(obj*);
+obj* l_EIO_HasOrelse___closed__1;
 extern "C" obj* lean_io_prim_put_str(obj*, obj*);
 obj* l_IO_Ref_modify___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_IO_Ref_modify___boxed(obj*);
@@ -66,6 +69,7 @@ obj* l_IO_Ref_swap___rarg(obj*, obj*, obj*, obj*);
 obj* l_IO_Fs_handle_flush(obj*, obj*);
 obj* l_IO_Prim_Ref_get___boxed(obj*, obj*, obj*);
 extern "C" obj* lean_io_prim_get_line(obj*);
+obj* l_MonadExcept_orelse___at_EIO_HasOrelse___spec__1___rarg(obj*, obj*, obj*);
 extern "C" obj* lean_io_allocprof(obj*, obj*, obj*, obj*);
 obj* l_IO_Ref_set___rarg(obj*, obj*, obj*, obj*);
 obj* l_IO_Error_HasToString;
@@ -188,6 +192,71 @@ _start:
 obj* x_2; 
 x_2 = l_EIO_MonadExcept___closed__1;
 return x_2;
+}
+}
+obj* l_MonadExcept_orelse___at_EIO_HasOrelse___spec__1___rarg(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = lean::apply_1(x_1, x_3);
+if (lean::obj_tag(x_4) == 0)
+{
+lean::dec(x_2);
+return x_4;
+}
+else
+{
+uint8 x_5; 
+x_5 = !lean::is_exclusive(x_4);
+if (x_5 == 0)
+{
+obj* x_6; obj* x_7; obj* x_8; 
+x_6 = lean::cnstr_get(x_4, 0);
+lean::dec(x_6);
+x_7 = lean::box(0);
+lean::cnstr_set_tag(x_4, 0);
+lean::cnstr_set(x_4, 0, x_7);
+x_8 = lean::apply_1(x_2, x_4);
+return x_8;
+}
+else
+{
+obj* x_9; obj* x_10; obj* x_11; obj* x_12; 
+x_9 = lean::cnstr_get(x_4, 1);
+lean::inc(x_9);
+lean::dec(x_4);
+x_10 = lean::box(0);
+x_11 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_11, 0, x_10);
+lean::cnstr_set(x_11, 1, x_9);
+x_12 = lean::apply_1(x_2, x_11);
+return x_12;
+}
+}
+}
+}
+obj* l_MonadExcept_orelse___at_EIO_HasOrelse___spec__1(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_MonadExcept_orelse___at_EIO_HasOrelse___spec__1___rarg), 3, 0);
+return x_3;
+}
+}
+obj* _init_l_EIO_HasOrelse___closed__1() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_MonadExcept_orelse___at_EIO_HasOrelse___spec__1___rarg), 3, 0);
+return x_1;
+}
+}
+obj* l_EIO_HasOrelse(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_EIO_HasOrelse___closed__1;
+return x_3;
 }
 }
 obj* l_EIO_Inhabited___rarg(obj* x_1) {
@@ -1749,6 +1818,9 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("EIO"), "Monad"),
 l_EIO_MonadExcept___closed__1 = _init_l_EIO_MonadExcept___closed__1();
 lean::mark_persistent(l_EIO_MonadExcept___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("EIO"), "MonadExcept"), 1, l_EIO_MonadExcept);
+l_EIO_HasOrelse___closed__1 = _init_l_EIO_HasOrelse___closed__1();
+lean::mark_persistent(l_EIO_HasOrelse___closed__1);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("EIO"), "HasOrelse"), 2, l_EIO_HasOrelse);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("EIO"), "Inhabited"), 2, l_EIO_Inhabited);
 l_IO_Error_HasToString___closed__1 = _init_l_IO_Error_HasToString___closed__1();
 lean::mark_persistent(l_IO_Error_HasToString___closed__1);

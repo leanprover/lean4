@@ -76,11 +76,10 @@ match attrParamSyntaxToIdentifier arg with
   throw (IO.userError ("invalid syntax node kind '" ++ toString k ++ "'"))
 | none   => throw (IO.userError ("syntax node kind is missing"))
 
-
 def declareBuiltinTermElab (env : Environment) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
 let name := `_regBuiltinTermElab ++ declName;
 let type := Expr.app (mkConst `IO) (mkConst `Unit);
-let val  := mkCApp `addBuiltinTermElab [toExpr kind, toExpr declName, mkConst declName];
+let val  := mkCApp `Lean.addBuiltinTermElab [toExpr kind, toExpr declName, mkConst declName];
 let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
 match env.addAndCompile {} decl with
 | none     => throw (IO.userError ("failed to emit registration code for builtin term elaborator '" ++ toString declName ++ "'"))
@@ -102,6 +101,10 @@ registerAttribute {
  },
  applicationTime := AttributeApplicationTime.afterCompilation
 }
+
+
+-- @[builtinTermElab «do»] def elabDo : TermElab :=
+-- fun stx => pure (default Expr)
 
 namespace Elab
 

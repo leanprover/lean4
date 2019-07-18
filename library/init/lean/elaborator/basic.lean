@@ -128,8 +128,13 @@ registerAttribute {
 }
 
 /-
- @[builtinTermElab «do»] def elabDo : TermElab :=
- fun stx => pure (default Expr)
+Examples:
+
+@[builtinTermElab «do»] def elabDo : TermElab :=
+fun stx => pure (default Expr)
+
+@[builtinCommandElab «open»] def elabOpen : CommandElab :=
+fun stx => pure ()
 -/
 
 namespace Elab

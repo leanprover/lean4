@@ -276,10 +276,13 @@ return x_6;
 }
 else
 {
-obj* x_7; 
+obj* x_7; obj* x_8; 
+x_7 = lean::cnstr_get(x_4, 0);
+lean::inc(x_7);
 lean::dec(x_4);
-x_7 = lean::box(0);
-return x_7;
+x_8 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_8, 0, x_7);
+return x_8;
 }
 }
 }

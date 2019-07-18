@@ -24078,10 +24078,13 @@ goto block_5;
 }
 else
 {
-obj* x_12; 
+obj* x_12; obj* x_13; 
+x_12 = lean::cnstr_get(x_9, 0);
+lean::inc(x_12);
 lean::dec(x_9);
-x_12 = lean::box(0);
-x_2 = x_12;
+x_13 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_13, 0, x_12);
+x_2 = x_13;
 goto block_5;
 }
 block_5:
@@ -24089,6 +24092,7 @@ block_5:
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
+lean::dec(x_2);
 x_3 = l_Lean_Parser_Trie_empty(lean::box(0));
 return x_3;
 }
@@ -26772,13 +26776,16 @@ goto block_10;
 }
 else
 {
-obj* x_16; 
-lean::dec(x_12);
+obj* x_16; obj* x_17; 
 lean::dec(x_4);
 lean::dec(x_3);
 lean::dec(x_1);
-x_16 = lean::box(0);
-x_6 = x_16;
+x_16 = lean::cnstr_get(x_12, 0);
+lean::inc(x_16);
+lean::dec(x_12);
+x_17 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_17, 0, x_16);
+x_6 = x_17;
 goto block_10;
 }
 block_10:
@@ -26786,6 +26793,7 @@ block_10:
 if (lean::obj_tag(x_6) == 0)
 {
 obj* x_7; obj* x_8; 
+lean::dec(x_6);
 x_7 = l_Lean_Parser_runBuiltinParserUnsafe___closed__1;
 x_8 = l_Lean_Parser_ParserState_mkError(x_5, x_7);
 return x_8;

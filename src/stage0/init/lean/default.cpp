@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.default
-// Imports: init.lean.compiler.default init.lean.environment init.lean.modifiers init.lean.projfns init.lean.runtime init.lean.attributes init.lean.evalconst init.lean.parser.default init.lean.reducibilityattrs init.lean.elaborator.default init.lean.eqncompiler.default init.lean.class
+// Imports: init.lean.compiler.default init.lean.environment init.lean.modifiers init.lean.projfns init.lean.runtime init.lean.attributes init.lean.parser.default init.lean.reducibilityattrs init.lean.elaborator.default init.lean.eqncompiler.default init.lean.class
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -20,7 +20,6 @@ obj* initialize_init_lean_modifiers(obj*);
 obj* initialize_init_lean_projfns(obj*);
 obj* initialize_init_lean_runtime(obj*);
 obj* initialize_init_lean_attributes(obj*);
-obj* initialize_init_lean_evalconst(obj*);
 obj* initialize_init_lean_parser_default(obj*);
 obj* initialize_init_lean_reducibilityattrs(obj*);
 obj* initialize_init_lean_elaborator_default(obj*);
@@ -42,8 +41,6 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_runtime(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_attributes(w);
-if (io_result_is_error(w)) return w;
-w = initialize_init_lean_evalconst(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_parser_default(w);
 if (io_result_is_error(w)) return w;

@@ -1796,41 +1796,6 @@ runtime_stats g_runtime_stats;
 #endif
 
 // =======================================
-// Global constant table
-
-static object * g_decls = nullptr;
-
-/* Remark: this is ugly, it forces the Lean runtime to depend on the implementation of `Lean.Name`.
-   This may be an issue for standalone applications. */
-extern "C" object* lean_name_mk_string(obj_arg p, obj_arg s);
-
-obj_res mk_const_name(obj_arg p, char const * s) {
-    return lean_name_mk_string(p, mk_string(s));
-}
-
-/* Remark: we should improve this too. A standalone application implemented in Lean will seldom
-   need a table with all constants. This table is only used to implement `Lean.evalConst`
-   unsafe primitive. */
-void register_constant(obj_arg fn, obj_arg obj) {
-    object * p = alloc_cnstr(0, 2, 0);
-    cnstr_set(p, 0, fn);
-    cnstr_set(p, 1, obj);
-    g_decls = array_push(g_decls, p);
-}
-
-obj_res set_io_result(obj_arg r, obj_arg a);
-
-extern "C" obj_res lean_modify_constant_table(obj_arg f, obj_arg w) {
-    g_decls = apply_1(f, g_decls);
-    return w;
-}
-
-extern "C" obj_res lean_get_constant_table(obj_arg w) {
-    inc(g_decls);
-    return set_io_result(w, g_decls);
-}
-
-// =======================================
 // Module initialization
 
 void initialize_object() {
@@ -1838,7 +1803,6 @@ void initialize_object() {
     g_ext_classes_mutex = new mutex();
     g_array_empty       = alloc_array(0, 0);
     mark_persistent(g_array_empty);
-    g_decls             = alloc_array(0, 8192);
 }
 
 void finalize_object() {

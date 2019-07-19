@@ -10,7 +10,6 @@ import init.lean.modifiers
 import init.lean.projfns
 import init.lean.runtime
 import init.lean.attributes
-import init.lean.evalconst
 import init.lean.parser
 import init.lean.reducibilityattrs
 import init.lean.elaborator

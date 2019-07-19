@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include <chrono>
+#include <fstream>
 #include <iomanip>
 #include <string>
 #include "runtime/object.h"
@@ -60,6 +61,17 @@ obj_res set_io_error(obj_arg r, std::string const & msg) {
 static bool g_initializing = true;
 void io_mark_end_initialization() {
     g_initializing = false;
+}
+
+extern "C" obj_res lean_io_prim_read_text_file(obj_arg fname, obj_arg w) {
+    std::ifstream in(string_cstr(fname), std::ifstream::binary);
+    if (!in.good()) {
+        return set_io_error(w, "file not found");
+    } else {
+        std::stringstream buf;
+        buf << in.rdbuf();
+        return set_io_result(w, mk_string(buf.str()));
+    }
 }
 
 extern "C" obj_res lean_io_initializing(obj_arg r) {

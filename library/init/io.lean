@@ -100,6 +100,8 @@ open Fs
 
 @[extern 2 "lean_io_prim_put_str"]
 constant putStr (s: @& String) : IO Unit := default _
+@[extern 2 "lean_io_prim_read_text_file"]
+constant readTextFile (s : @& String) : IO String := default _
 @[extern 1 "lean_io_prim_get_line"]
 constant getLine : IO String := default _
 @[extern 4 "lean_io_prim_handle_mk"]
@@ -131,6 +133,9 @@ putStr ∘ toString $ s
 
 def println {α} [HasToString α] (s : α) : m Unit :=
 print s *> putStr "\n"
+
+def readTextFile : String → m String :=
+Prim.liftIO ∘ Prim.readTextFile
 end
 
 namespace Fs

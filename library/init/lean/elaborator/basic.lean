@@ -248,8 +248,9 @@ def processCommands : Elab Unit :=
 processCommandsAux ()
 
 def processHeader (header : Syntax) (messages : MessageLog) : IO (Option Environment × MessageLog) :=
--- TODO
-pure (none, messages)
+do IO.println header;
+   -- TODO
+   pure (none, messages)
 
 def testFrontend (input : String) (filename := "<input>") : IO (Option Environment × MessageLog) :=
 do env ← mkEmptyEnvironment;

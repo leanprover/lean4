@@ -16,6 +16,7 @@ structure ElabScope :=
 structure ElabState :=
 (env      : Environment)
 (parser   : Parser.ModuleParser)
+(cmdPos   : String.Pos := 0)
 (ngen     : NameGenerator := {})
 (scopes   : List ElabScope := [])
 
@@ -185,10 +186,14 @@ do s ← get;
    let msg := { Message . filename := ctx.filename, pos := pos, text := errorMsg };
    modify (fun s => { parser := { messages := s.parser.messages.add msg, .. s.parser }, .. s })
 
+def logErrorUsingCmdPos (errorMsg : String) : Elab Unit :=
+do s ← get;
+   logErrorAt s.cmdPos errorMsg
+
 def getPos (stx : Syntax) : Elab String.Pos :=
 match stx.getPos with
 | some p => pure p
-| none   => do s ← get; pure s.parser.pos
+| none   => do s ← get; pure s.cmdPos
 
 def logError (stx : Syntax) (errorMsg : String) : Elab Unit :=
 do pos ← getPos stx;
@@ -215,8 +220,8 @@ match stx with
   let tables := commandElabAttribute.ext.getState s.env;
   match tables.find k with
   | some elab => elab stx
-  | none      => logErrorAndThrow stx ("command elaborator failed, no support for syntax '" ++ toString k ++ "'")
-| _ => throw (ElabException.other "command elaborator failed, unexpected syntax")
+  | none      => logError stx ("command elaborator failed, no support for syntax '" ++ toString k ++ "'")
+| _ => logErrorUsingCmdPos ("command elaborator failed, unexpected syntax")
 
 def mkElabState (env : Environment) (parser : Parser.ModuleParser) : ElabState :=
 { env := env, parser := parser }
@@ -224,18 +229,20 @@ def mkElabState (env : Environment) (parser : Parser.ModuleParser) : ElabState :
 def updateParser (p : Parser.ModuleParser) : Elab Unit :=
 modify (fun s => { parser := p, .. s })
 
+def updateCmdPos : Elab Unit :=
+modify (fun s => { cmdPos := s.parser.pos, .. s })
+
 def processCommand : Elab Bool :=
-do s ← get;
-   let p   := s.parser;
-   let pos := p.pos;
+do updateCmdPos;
+   s ← get;
+   let p         := s.parser;
    match Parser.parseCommand s.env p with
    | (stx, p) => do
+     updateParser p;
      if Parser.isEOI stx || Parser.isExitCommand stx then do
-       updateParser p;
        pure true -- Done
      else do
        elabCommand stx;
-       updateParser p;
        pure false
 
 partial def processCommandsAux : Unit → Elab Unit
@@ -250,7 +257,8 @@ processCommandsAux ()
 def processHeader (header : Syntax) (messages : MessageLog) : IO (Option Environment × MessageLog) :=
 do IO.println header;
    -- TODO
-   pure (none, messages)
+   env ← mkEmptyEnvironment;
+   pure (some env, messages)
 
 def testFrontend (input : String) (filename := "<input>") : IO (Option Environment × MessageLog) :=
 do env ← mkEmptyEnvironment;

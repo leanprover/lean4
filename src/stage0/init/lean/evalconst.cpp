@@ -624,15 +624,11 @@ w = initialize_init_data_array_default(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_name(w);
 if (io_result_is_error(w)) return w;
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "modifyConstTable"), 2, l_Lean_modifyConstTable___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getConstTable"), 1, l_Lean_getConstTable___boxed);
 l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_sortConstTable___spec__2___closed__1 = _init_l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_sortConstTable___spec__2___closed__1();
 lean::mark_persistent(l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_sortConstTable___spec__2___closed__1);
 l_Lean_sortConstTable___closed__1 = _init_l_Lean_sortConstTable___closed__1();
 lean::mark_persistent(l_Lean_sortConstTable___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "sortConstTable"), 1, lean::sort_const_table_core);
 l_Lean_evalConst___rarg___closed__1 = _init_l_Lean_evalConst___rarg___closed__1();
 lean::mark_persistent(l_Lean_evalConst___rarg___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "evalConst"), 1, l_Lean_evalConst);
 return w;
 }

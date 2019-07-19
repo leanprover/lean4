@@ -105,7 +105,5 @@ w = initialize_init_data_string_basic(w);
 if (io_result_is_error(w)) return w;
 l_matchFailed___rarg___closed__1 = _init_l_matchFailed___rarg___closed__1();
 lean::mark_persistent(l_matchFailed___rarg___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name("matchFailed"), 2, l_matchFailed___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name("monadFailLift"), 2, l_monadFailLift___boxed);
 return w;
 }

@@ -178,8 +178,5 @@ l_Lean_NameGenerator_Inhabited___closed__3 = _init_l_Lean_NameGenerator_Inhabite
 lean::mark_persistent(l_Lean_NameGenerator_Inhabited___closed__3);
 l_Lean_NameGenerator_Inhabited = _init_l_Lean_NameGenerator_Inhabited();
 lean::mark_persistent(l_Lean_NameGenerator_Inhabited);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "NameGenerator"), "Inhabited"), l_Lean_NameGenerator_Inhabited);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "NameGenerator"), "next"), 1, l_Lean_NameGenerator_next);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "NameGenerator"), "mkChild"), 1, l_Lean_NameGenerator_mkChild);
 return w;
 }

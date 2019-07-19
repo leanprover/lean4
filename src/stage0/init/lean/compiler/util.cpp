@@ -1141,7 +1141,6 @@ l_Lean_Compiler_neutralExpr___closed__3 = _init_l_Lean_Compiler_neutralExpr___cl
 lean::mark_persistent(l_Lean_Compiler_neutralExpr___closed__3);
 l_Lean_Compiler_neutralExpr = _init_l_Lean_Compiler_neutralExpr();
 lean::mark_persistent(l_Lean_Compiler_neutralExpr);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "neutralExpr"), l_Lean_Compiler_neutralExpr);
 l_Lean_Compiler_unreachableExpr___closed__1 = _init_l_Lean_Compiler_unreachableExpr___closed__1();
 lean::mark_persistent(l_Lean_Compiler_unreachableExpr___closed__1);
 l_Lean_Compiler_unreachableExpr___closed__2 = _init_l_Lean_Compiler_unreachableExpr___closed__2();
@@ -1150,7 +1149,6 @@ l_Lean_Compiler_unreachableExpr___closed__3 = _init_l_Lean_Compiler_unreachableE
 lean::mark_persistent(l_Lean_Compiler_unreachableExpr___closed__3);
 l_Lean_Compiler_unreachableExpr = _init_l_Lean_Compiler_unreachableExpr();
 lean::mark_persistent(l_Lean_Compiler_unreachableExpr);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "unreachableExpr"), l_Lean_Compiler_unreachableExpr);
 l_Lean_Compiler_objectType___closed__1 = _init_l_Lean_Compiler_objectType___closed__1();
 lean::mark_persistent(l_Lean_Compiler_objectType___closed__1);
 l_Lean_Compiler_objectType___closed__2 = _init_l_Lean_Compiler_objectType___closed__2();
@@ -1159,7 +1157,6 @@ l_Lean_Compiler_objectType___closed__3 = _init_l_Lean_Compiler_objectType___clos
 lean::mark_persistent(l_Lean_Compiler_objectType___closed__3);
 l_Lean_Compiler_objectType = _init_l_Lean_Compiler_objectType();
 lean::mark_persistent(l_Lean_Compiler_objectType);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "objectType"), l_Lean_Compiler_objectType);
 l_Lean_Compiler_voidType___closed__1 = _init_l_Lean_Compiler_voidType___closed__1();
 lean::mark_persistent(l_Lean_Compiler_voidType___closed__1);
 l_Lean_Compiler_voidType___closed__2 = _init_l_Lean_Compiler_voidType___closed__2();
@@ -1168,32 +1165,22 @@ l_Lean_Compiler_voidType___closed__3 = _init_l_Lean_Compiler_voidType___closed__
 lean::mark_persistent(l_Lean_Compiler_voidType___closed__3);
 l_Lean_Compiler_voidType = _init_l_Lean_Compiler_voidType();
 lean::mark_persistent(l_Lean_Compiler_voidType);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "voidType"), l_Lean_Compiler_voidType);
 l_Lean_Compiler_mkLcProof___closed__1 = _init_l_Lean_Compiler_mkLcProof___closed__1();
 lean::mark_persistent(l_Lean_Compiler_mkLcProof___closed__1);
 l_Lean_Compiler_mkLcProof___closed__2 = _init_l_Lean_Compiler_mkLcProof___closed__2();
 lean::mark_persistent(l_Lean_Compiler_mkLcProof___closed__2);
 l_Lean_Compiler_mkLcProof___closed__3 = _init_l_Lean_Compiler_mkLcProof___closed__3();
 lean::mark_persistent(l_Lean_Compiler_mkLcProof___closed__3);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "mkLcProof"), 1, l_Lean_Compiler_mkLcProof);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "atMostOnce"), "seq"), 3, l_Lean_Compiler_atMostOnce_seq);
 l_Lean_Compiler_atMostOnce_HasAndthen___closed__1 = _init_l_Lean_Compiler_atMostOnce_HasAndthen___closed__1();
 lean::mark_persistent(l_Lean_Compiler_atMostOnce_HasAndthen___closed__1);
 l_Lean_Compiler_atMostOnce_HasAndthen = _init_l_Lean_Compiler_atMostOnce_HasAndthen();
 lean::mark_persistent(l_Lean_Compiler_atMostOnce_HasAndthen);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "atMostOnce"), "HasAndthen"), l_Lean_Compiler_atMostOnce_HasAndthen);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "atMostOnce"), "skip"), 1, l_Lean_Compiler_atMostOnce_skip___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "atMostOnce"), "visitFVar"), 3, l_Lean_Compiler_atMostOnce_visitFVar___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "atMostOnce"), "visit"), 3, l_Lean_Compiler_atMostOnce_visit___boxed);
 l_Lean_Compiler_atMostOnce___closed__1 = _init_l_Lean_Compiler_atMostOnce___closed__1();
 lean::mark_persistent(l_Lean_Compiler_atMostOnce___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "atMostOnce"), 2, l_Lean_Compiler_atMostOnce___boxed);
 l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1 = _init_l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1();
 lean::mark_persistent(l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "mkEagerLambdaLiftingName"), 2, lean::mk_eager_lambda_lifting_name_core);
 l_Lean_Compiler_isEagerLambdaLiftingName___main___closed__1 = _init_l_Lean_Compiler_isEagerLambdaLiftingName___main___closed__1();
 lean::mark_persistent(l_Lean_Compiler_isEagerLambdaLiftingName___main___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "isEagerLambdaLiftingName"), 1, l_Lean_Compiler_isEagerLambdaLiftingName___boxed);
 l_Lean_Compiler_checkIsDefinition___closed__1 = _init_l_Lean_Compiler_checkIsDefinition___closed__1();
 lean::mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__1);
 l_Lean_Compiler_checkIsDefinition___closed__2 = _init_l_Lean_Compiler_checkIsDefinition___closed__2();
@@ -1204,6 +1191,5 @@ l_Lean_Compiler_checkIsDefinition___closed__4 = _init_l_Lean_Compiler_checkIsDef
 lean::mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__4);
 l_Lean_Compiler_checkIsDefinition___closed__5 = _init_l_Lean_Compiler_checkIsDefinition___closed__5();
 lean::mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__5);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "checkIsDefinition"), 2, l_Lean_Compiler_checkIsDefinition);
 return w;
 }

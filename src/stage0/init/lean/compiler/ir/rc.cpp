@@ -6583,18 +6583,7 @@ w = initialize_init_lean_compiler_ir_compilerm(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_livevars(w);
 if (io_result_is_error(w)) return w;
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "ExplicitRC"), "getDecl"), 2, l_Lean_IR_ExplicitRC_getDecl___boxed);
 l_Lean_IR_ExplicitRC_getVarInfo___closed__1 = _init_l_Lean_IR_ExplicitRC_getVarInfo___closed__1();
 lean::mark_persistent(l_Lean_IR_ExplicitRC_getVarInfo___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "ExplicitRC"), "getVarInfo"), 2, l_Lean_IR_ExplicitRC_getVarInfo___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "ExplicitRC"), "getJPParams"), 2, l_Lean_IR_ExplicitRC_getJPParams___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "ExplicitRC"), "getJPLiveVars"), 2, l_Lean_IR_ExplicitRC_getJPLiveVars___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "ExplicitRC"), "mustConsume"), 2, l_Lean_IR_ExplicitRC_mustConsume___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "ExplicitRC"), "addInc"), 3, l_Lean_IR_ExplicitRC_addInc);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "ExplicitRC"), "addDec"), 2, l_Lean_IR_ExplicitRC_addDec);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "ExplicitRC"), "updateVarInfoWithParams"), 2, l_Lean_IR_ExplicitRC_updateVarInfoWithParams___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "ExplicitRC"), "visitFnBody"), 2, l_Lean_IR_ExplicitRC_visitFnBody);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "ExplicitRC"), "visitDecl"), 3, l_Lean_IR_ExplicitRC_visitDecl);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "explicitRC"), 3, l_Lean_IR_explicitRC___boxed);
 return w;
 }

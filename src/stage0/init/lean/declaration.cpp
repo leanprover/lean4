@@ -298,12 +298,5 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_expr(w);
 if (io_result_is_error(w)) return w;
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ConstantInfo"), "toConstantVal"), 1, l_Lean_ConstantInfo_toConstantVal___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ConstantInfo"), "name"), 1, l_Lean_ConstantInfo_name___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ConstantInfo"), "lparams"), 1, l_Lean_ConstantInfo_lparams___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ConstantInfo"), "type"), 1, l_Lean_ConstantInfo_type___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ConstantInfo"), "value"), 1, l_Lean_ConstantInfo_value___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ConstantInfo"), "hasValue"), 1, l_Lean_ConstantInfo_hasValue___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ConstantInfo"), "hints"), 1, l_Lean_ConstantInfo_hints___boxed);
 return w;
 }

@@ -318,15 +318,9 @@ w = initialize_init_data_option_basic(w);
 if (io_result_is_error(w)) return w;
 l_Bool_HasToBool = _init_l_Bool_HasToBool();
 lean::mark_persistent(l_Bool_HasToBool);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name("Bool"), "HasToBool"), l_Bool_HasToBool);
 l_Option_HasToBool___closed__1 = _init_l_Option_HasToBool___closed__1();
 lean::mark_persistent(l_Option_HasToBool___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Option"), "HasToBool"), 1, l_Option_HasToBool);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name("bool"), 2, l_bool);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name("orM"), 2, l_orM___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name("andM"), 2, l_andM___boxed);
 l_notM___rarg___closed__1 = _init_l_notM___rarg___closed__1();
 lean::mark_persistent(l_notM___rarg___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name("notM"), 1, l_notM___boxed);
 return w;
 }

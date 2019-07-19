@@ -2909,12 +2909,9 @@ l_Lean_Compiler_mkImplementedByAttr___closed__4 = _init_l_Lean_Compiler_mkImplem
 lean::mark_persistent(l_Lean_Compiler_mkImplementedByAttr___closed__4);
 l_Lean_Compiler_mkImplementedByAttr___closed__5 = _init_l_Lean_Compiler_mkImplementedByAttr___closed__5();
 lean::mark_persistent(l_Lean_Compiler_mkImplementedByAttr___closed__5);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "mkImplementedByAttr"), 1, l_Lean_Compiler_mkImplementedByAttr);
 w = l_Lean_Compiler_mkImplementedByAttr(w);
 if (io_result_is_error(w)) return w;
 l_Lean_Compiler_implementedByAttr = io_result_get_value(w);
 lean::mark_persistent(l_Lean_Compiler_implementedByAttr);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "implementedByAttr"), l_Lean_Compiler_implementedByAttr);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "getImplementedBy"), 2, lean::get_implemented_by_core);
 return w;
 }

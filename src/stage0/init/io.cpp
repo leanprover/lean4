@@ -39,6 +39,7 @@ obj* l_EIO_HasOrelse(obj*, obj*);
 obj* l_IO_Fs_handle_mk(obj*, obj*);
 extern "C" obj* lean_io_prim_handle_is_eof(obj*, obj*);
 obj* l_IO_println___at_HasRepr_HasEval___spec__1___boxed(obj*, obj*);
+obj* l_IO_readTextFile___boxed(obj*, obj*);
 obj* l_IO_Prim_iterate___main___at_IO_Fs_handle_readToEnd___spec__4___boxed(obj*, obj*, obj*);
 obj* l_IO_Fs_handle_getLine(obj*, obj*);
 obj* l_IO_print___boxed(obj*, obj*);
@@ -97,14 +98,17 @@ obj* l_IO_Inhabited(obj*);
 obj* l_IO_Ref_modify___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*);
 obj* l_IO_Prim_handle_close___boxed(obj*, obj*);
 obj* l_IO_Prim_handle_flush___boxed(obj*, obj*);
+obj* l_IO_readTextFile(obj*, obj*);
 obj* l_IO_println___boxed(obj*);
 obj* l_IO_Fs_handle_flush___boxed(obj*, obj*);
 extern "C" obj* lean_io_prim_handle_close(obj*, obj*);
 obj* l_IO_Ref_modify___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_IO_mkRef(obj*, obj*);
 obj* l_IO_Fs_readFile___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
+obj* l_IO_readTextFile___rarg(obj*, obj*);
 obj* l_IO_Prim_mkRef(obj*, obj*, obj*);
 obj* l_IO_Fs_readFile___rarg(obj*, obj*, obj*, uint8);
+obj* l_IO_Prim_readTextFile___boxed(obj*, obj*);
 obj* l_IO_Fs_handle_mk___boxed(obj*, obj*);
 obj* l_IO_mkRef___boxed(obj*, obj*);
 obj* l_IO_Fs_readFile___boxed(obj*);
@@ -113,6 +117,7 @@ obj* l_IO_Fs_handle_getLine___at_IO_Fs_handle_readToEnd___spec__2(obj*, obj*);
 obj* l_IO_println___at_HasRepr_HasEval___spec__1(obj*, obj*);
 obj* l_IO_HasEval___rarg(obj*, obj*, obj*);
 obj* l_IO_Fs_handle_readToEnd(obj*, obj*);
+extern "C" obj* lean_io_prim_read_text_file(obj*, obj*);
 obj* l_IO_println___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_IO_Fs_handle_getLine___at_IO_Fs_handle_readToEnd___spec__2___boxed(obj*, obj*);
 obj* l_IO_Fs_handle_getLine___boxed(obj*, obj*);
@@ -632,6 +637,14 @@ x_3 = lean_io_prim_put_str(x_1, x_2);
 return x_3;
 }
 }
+obj* l_IO_Prim_readTextFile___boxed(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean_io_prim_read_text_file(x_1, x_2);
+return x_3;
+}
+}
 obj* l_IO_Prim_getLine___boxed(obj* x_1) {
 _start:
 {
@@ -803,6 +816,34 @@ obj* x_2;
 x_2 = l_IO_println(x_1);
 lean::dec(x_1);
 return x_2;
+}
+}
+obj* l_IO_readTextFile___rarg(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_4; 
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_IO_Prim_readTextFile___boxed), 2, 1);
+lean::closure_set(x_3, 0, x_2);
+x_4 = lean::apply_2(x_1, lean::box(0), x_3);
+return x_4;
+}
+}
+obj* l_IO_readTextFile(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_IO_readTextFile___rarg), 2, 0);
+return x_3;
+}
+}
+obj* l_IO_readTextFile___boxed(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_IO_readTextFile(x_1, x_2);
+lean::dec(x_2);
+lean::dec(x_1);
+return x_3;
 }
 }
 obj* l_IO_Fs_handle_mk___rarg(obj* x_1, obj* x_2, uint8 x_3, uint8 x_4) {
@@ -1814,65 +1855,17 @@ w = initialize_init_data_string_basic(w);
 if (io_result_is_error(w)) return w;
 l_EIO_Monad___closed__1 = _init_l_EIO_Monad___closed__1();
 lean::mark_persistent(l_EIO_Monad___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("EIO"), "Monad"), 1, l_EIO_Monad);
 l_EIO_MonadExcept___closed__1 = _init_l_EIO_MonadExcept___closed__1();
 lean::mark_persistent(l_EIO_MonadExcept___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("EIO"), "MonadExcept"), 1, l_EIO_MonadExcept);
 l_EIO_HasOrelse___closed__1 = _init_l_EIO_HasOrelse___closed__1();
 lean::mark_persistent(l_EIO_HasOrelse___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("EIO"), "HasOrelse"), 2, l_EIO_HasOrelse);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("EIO"), "Inhabited"), 2, l_EIO_Inhabited);
 l_IO_Error_HasToString___closed__1 = _init_l_IO_Error_HasToString___closed__1();
 lean::mark_persistent(l_IO_Error_HasToString___closed__1);
 l_IO_Error_HasToString = _init_l_IO_Error_HasToString();
 lean::mark_persistent(l_IO_Error_HasToString);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Error"), "HasToString"), l_IO_Error_HasToString);
 l_IO_Error_Inhabited = _init_l_IO_Error_Inhabited();
 lean::mark_persistent(l_IO_Error_Inhabited);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Error"), "Inhabited"), l_IO_Error_Inhabited);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("IO"), "userError"), 1, l_IO_userError___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Error"), "toString"), 1, lean::io_error_to_string_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name("unsafeIO"), 1, l_unsafeIO);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name("timeit"), 4, l_timeit___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name("allocprof"), 4, l_allocprof___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("IO"), "initializing"), 1, l_IO_initializing___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("IO"), "ofExcept"), 2, l_IO_ofExcept);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("IO"), "lazyPure"), 1, l_IO_lazyPure);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Prim"), "iterate"), 2, l_IO_Prim_iterate);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Prim"), "putStr"), 2, l_IO_Prim_putStr___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Prim"), "getLine"), 1, l_IO_Prim_getLine___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Prim"), "handle"), "mk"), 4, l_IO_Prim_handle_mk___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Prim"), "handle"), "isEof"), 2, l_IO_Prim_handle_isEof___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Prim"), "handle"), "flush"), 2, l_IO_Prim_handle_flush___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Prim"), "handle"), "close"), 2, l_IO_Prim_handle_close___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Prim"), "handle"), "getLine"), 2, l_IO_Prim_handle_getLine___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Prim"), "liftIO"), 2, l_IO_Prim_liftIO___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("IO"), "print"), 2, l_IO_print___boxed);
 l_IO_println___rarg___closed__1 = _init_l_IO_println___rarg___closed__1();
 lean::mark_persistent(l_IO_println___rarg___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("IO"), "println"), 1, l_IO_println___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Fs"), "handle"), "mk"), 2, l_IO_Fs_handle_mk___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Fs"), "handle"), "isEof"), 2, l_IO_Fs_handle_isEof___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Fs"), "handle"), "flush"), 2, l_IO_Fs_handle_flush___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Fs"), "handle"), "close"), 2, l_IO_Fs_handle_close___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Fs"), "handle"), "getLine"), 2, l_IO_Fs_handle_getLine___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Fs"), "handle"), "readToEnd"), 2, l_IO_Fs_handle_readToEnd___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Fs"), "readFile"), 1, l_IO_Fs_readFile___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("IO"), "RefPointed"), 1, l_IO_RefPointed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("IO"), "Inhabited"), 1, l_IO_Inhabited);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Prim"), "mkRef"), 3, l_IO_Prim_mkRef___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Prim"), "Ref"), "get"), 3, l_IO_Prim_Ref_get___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Prim"), "Ref"), "set"), 4, l_IO_Prim_Ref_set___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Prim"), "Ref"), "swap"), 4, l_IO_Prim_Ref_swap___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Prim"), "Ref"), "reset"), 3, l_IO_Prim_Ref_reset___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("IO"), "mkRef"), 2, l_IO_mkRef___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Ref"), "get"), 2, l_IO_Ref_get___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Ref"), "set"), 2, l_IO_Ref_set___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Ref"), "swap"), 2, l_IO_Ref_swap___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Ref"), "reset"), 2, l_IO_Ref_reset___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Ref"), "modify"), 1, l_IO_Ref_modify___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("HasRepr"), "HasEval"), 1, l_HasRepr_HasEval);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("IO"), "HasEval"), 1, l_IO_HasEval);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("IOUnit"), "HasEval"), 2, l_IOUnit_HasEval);
 return w;
 }

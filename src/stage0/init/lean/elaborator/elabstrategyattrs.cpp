@@ -3223,7 +3223,6 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_attributes(w);
 if (io_result_is_error(w)) return w;
 l_Lean_ElaboratorStrategy_inhabited = _init_l_Lean_ElaboratorStrategy_inhabited();
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ElaboratorStrategy"), "inhabited"), lean::box(l_Lean_ElaboratorStrategy_inhabited));
 l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkElaboratorStrategyAttrs___spec__4___closed__1 = _init_l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkElaboratorStrategyAttrs___spec__4___closed__1();
 lean::mark_persistent(l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkElaboratorStrategyAttrs___spec__4___closed__1);
 l_Lean_registerEnumAttributes___at_Lean_mkElaboratorStrategyAttrs___spec__1___closed__1 = _init_l_Lean_registerEnumAttributes___at_Lean_mkElaboratorStrategyAttrs___spec__1___closed__1();
@@ -3274,12 +3273,9 @@ l_Lean_mkElaboratorStrategyAttrs___closed__20 = _init_l_Lean_mkElaboratorStrateg
 lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__20);
 l_Lean_mkElaboratorStrategyAttrs___closed__21 = _init_l_Lean_mkElaboratorStrategyAttrs___closed__21();
 lean::mark_persistent(l_Lean_mkElaboratorStrategyAttrs___closed__21);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkElaboratorStrategyAttrs"), 1, l_Lean_mkElaboratorStrategyAttrs);
 w = l_Lean_mkElaboratorStrategyAttrs(w);
 if (io_result_is_error(w)) return w;
 l_Lean_elaboratorStrategyAttrs = io_result_get_value(w);
 lean::mark_persistent(l_Lean_elaboratorStrategyAttrs);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "elaboratorStrategyAttrs"), l_Lean_elaboratorStrategyAttrs);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getElaboratorStrategy"), 2, lean::get_elaborator_strategy_core);
 return w;
 }

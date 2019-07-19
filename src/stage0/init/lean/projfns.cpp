@@ -2866,7 +2866,6 @@ l_Lean_ProjectionFunctionInfo_inhabited___closed__1 = _init_l_Lean_ProjectionFun
 lean::mark_persistent(l_Lean_ProjectionFunctionInfo_inhabited___closed__1);
 l_Lean_ProjectionFunctionInfo_inhabited = _init_l_Lean_ProjectionFunctionInfo_inhabited();
 lean::mark_persistent(l_Lean_ProjectionFunctionInfo_inhabited);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ProjectionFunctionInfo"), "inhabited"), l_Lean_ProjectionFunctionInfo_inhabited);
 l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkProjectionFnInfoExtension___spec__2___closed__1 = _init_l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkProjectionFnInfoExtension___spec__2___closed__1();
 lean::mark_persistent(l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkProjectionFnInfoExtension___spec__2___closed__1);
 l_Lean_registerEnvExtensionUnsafe___at_Lean_mkProjectionFnInfoExtension___spec__6___closed__1 = _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_mkProjectionFnInfoExtension___spec__6___closed__1();
@@ -2885,7 +2884,6 @@ l_Lean_mkProjectionFnInfoExtension___closed__5 = _init_l_Lean_mkProjectionFnInfo
 lean::mark_persistent(l_Lean_mkProjectionFnInfoExtension___closed__5);
 l_Lean_mkProjectionFnInfoExtension___closed__6 = _init_l_Lean_mkProjectionFnInfoExtension___closed__6();
 lean::mark_persistent(l_Lean_mkProjectionFnInfoExtension___closed__6);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkProjectionFnInfoExtension"), 1, l_Lean_mkProjectionFnInfoExtension);
 l_Lean_projectionFnInfoExt___closed__1 = _init_l_Lean_projectionFnInfoExt___closed__1();
 lean::mark_persistent(l_Lean_projectionFnInfoExt___closed__1);
 l_Lean_projectionFnInfoExt___closed__2 = _init_l_Lean_projectionFnInfoExt___closed__2();
@@ -2902,9 +2900,5 @@ w = l_Lean_mkProjectionFnInfoExtension(w);
 if (io_result_is_error(w)) return w;
 l_Lean_projectionFnInfoExt = io_result_get_value(w);
 lean::mark_persistent(l_Lean_projectionFnInfoExt);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "projectionFnInfoExt"), l_Lean_projectionFnInfoExt);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "addProjectionFnInfo"), 6, l_Lean_addProjectionFnInfo___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "getProjectionFnInfo"), 2, lean::get_projection_info_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "isProjectionFn"), 2, l_Lean_Environment_isProjectionFn___boxed);
 return w;
 }

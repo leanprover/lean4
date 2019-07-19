@@ -67,7 +67,5 @@ w = initialize_init_lean_position(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_io(w);
 if (io_result_is_error(w)) return w;
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "profileit"), 5, l_Lean_profileit___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "profileitPure"), 1, l_Lean_profileitPure);
 return w;
 }

@@ -3480,12 +3480,10 @@ l_Lean_IR_argHasFormat___closed__1 = _init_l_Lean_IR_argHasFormat___closed__1();
 lean::mark_persistent(l_Lean_IR_argHasFormat___closed__1);
 l_Lean_IR_argHasFormat = _init_l_Lean_IR_argHasFormat();
 lean::mark_persistent(l_Lean_IR_argHasFormat);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "argHasFormat"), l_Lean_IR_argHasFormat);
 l_Lean_IR_litValHasFormat___closed__1 = _init_l_Lean_IR_litValHasFormat___closed__1();
 lean::mark_persistent(l_Lean_IR_litValHasFormat___closed__1);
 l_Lean_IR_litValHasFormat = _init_l_Lean_IR_litValHasFormat();
 lean::mark_persistent(l_Lean_IR_litValHasFormat);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "litValHasFormat"), l_Lean_IR_litValHasFormat);
 l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__1 = _init_l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__1();
 lean::mark_persistent(l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__1);
 l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__2 = _init_l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__2();
@@ -3496,7 +3494,6 @@ l_Lean_IR_ctorInfoHasFormat___closed__1 = _init_l_Lean_IR_ctorInfoHasFormat___cl
 lean::mark_persistent(l_Lean_IR_ctorInfoHasFormat___closed__1);
 l_Lean_IR_ctorInfoHasFormat = _init_l_Lean_IR_ctorInfoHasFormat();
 lean::mark_persistent(l_Lean_IR_ctorInfoHasFormat);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "ctorInfoHasFormat"), l_Lean_IR_ctorInfoHasFormat);
 l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__1 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__1();
 lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__1);
 l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__2 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__2();
@@ -3565,8 +3562,6 @@ l_Lean_IR_exprHasFormat___closed__1 = _init_l_Lean_IR_exprHasFormat___closed__1(
 lean::mark_persistent(l_Lean_IR_exprHasFormat___closed__1);
 l_Lean_IR_exprHasFormat = _init_l_Lean_IR_exprHasFormat();
 lean::mark_persistent(l_Lean_IR_exprHasFormat);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "exprHasFormat"), l_Lean_IR_exprHasFormat);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "exprHasToString"), 1, l_Lean_IR_exprHasToString);
 l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__1 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__1();
 lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__1);
 l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__2 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__2();
@@ -3603,7 +3598,6 @@ l_Lean_IR_typeHasFormat___closed__1 = _init_l_Lean_IR_typeHasFormat___closed__1(
 lean::mark_persistent(l_Lean_IR_typeHasFormat___closed__1);
 l_Lean_IR_typeHasFormat = _init_l_Lean_IR_typeHasFormat();
 lean::mark_persistent(l_Lean_IR_typeHasFormat);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "typeHasFormat"), l_Lean_IR_typeHasFormat);
 l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__1 = _init_l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__1();
 lean::mark_persistent(l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__1);
 l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__2 = _init_l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__2();
@@ -3616,7 +3610,6 @@ l_Lean_IR_paramHasFormat___closed__1 = _init_l_Lean_IR_paramHasFormat___closed__
 lean::mark_persistent(l_Lean_IR_paramHasFormat___closed__1);
 l_Lean_IR_paramHasFormat = _init_l_Lean_IR_paramHasFormat();
 lean::mark_persistent(l_Lean_IR_paramHasFormat);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "paramHasFormat"), l_Lean_IR_paramHasFormat);
 l_Lean_IR_formatAlt___main___closed__1 = _init_l_Lean_IR_formatAlt___main___closed__1();
 lean::mark_persistent(l_Lean_IR_formatAlt___main___closed__1);
 l_Lean_IR_formatAlt___main___closed__2 = _init_l_Lean_IR_formatAlt___main___closed__2();
@@ -3625,8 +3618,6 @@ l_Lean_IR_formatAlt___main___closed__3 = _init_l_Lean_IR_formatAlt___main___clos
 lean::mark_persistent(l_Lean_IR_formatAlt___main___closed__3);
 l_Lean_IR_formatAlt___main___closed__4 = _init_l_Lean_IR_formatAlt___main___closed__4();
 lean::mark_persistent(l_Lean_IR_formatAlt___main___closed__4);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "formatAlt"), 3, l_Lean_IR_formatAlt);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "formatParams"), 1, l_Lean_IR_formatParams___boxed);
 l_Lean_IR_formatFnBody___main___closed__1 = _init_l_Lean_IR_formatFnBody___main___closed__1();
 lean::mark_persistent(l_Lean_IR_formatFnBody___main___closed__1);
 l_Lean_IR_formatFnBody___main___closed__2 = _init_l_Lean_IR_formatFnBody___main___closed__2();
@@ -3707,13 +3698,10 @@ l_Lean_IR_formatFnBody___main___closed__39 = _init_l_Lean_IR_formatFnBody___main
 lean::mark_persistent(l_Lean_IR_formatFnBody___main___closed__39);
 l_Lean_IR_formatFnBody___main___closed__40 = _init_l_Lean_IR_formatFnBody___main___closed__40();
 lean::mark_persistent(l_Lean_IR_formatFnBody___main___closed__40);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "formatFnBody"), 2, l_Lean_IR_formatFnBody);
 l_Lean_IR_fnBodyHasFormat___closed__1 = _init_l_Lean_IR_fnBodyHasFormat___closed__1();
 lean::mark_persistent(l_Lean_IR_fnBodyHasFormat___closed__1);
 l_Lean_IR_fnBodyHasFormat = _init_l_Lean_IR_fnBodyHasFormat();
 lean::mark_persistent(l_Lean_IR_fnBodyHasFormat);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "fnBodyHasFormat"), l_Lean_IR_fnBodyHasFormat);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "fnBodyHasToString"), 1, l_Lean_IR_fnBodyHasToString);
 l_Lean_IR_formatDecl___main___closed__1 = _init_l_Lean_IR_formatDecl___main___closed__1();
 lean::mark_persistent(l_Lean_IR_formatDecl___main___closed__1);
 l_Lean_IR_formatDecl___main___closed__2 = _init_l_Lean_IR_formatDecl___main___closed__2();
@@ -3722,17 +3710,13 @@ l_Lean_IR_formatDecl___main___closed__3 = _init_l_Lean_IR_formatDecl___main___cl
 lean::mark_persistent(l_Lean_IR_formatDecl___main___closed__3);
 l_Lean_IR_formatDecl___main___closed__4 = _init_l_Lean_IR_formatDecl___main___closed__4();
 lean::mark_persistent(l_Lean_IR_formatDecl___main___closed__4);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "formatDecl"), 2, l_Lean_IR_formatDecl);
 l_Lean_IR_declHasFormat___closed__1 = _init_l_Lean_IR_declHasFormat___closed__1();
 lean::mark_persistent(l_Lean_IR_declHasFormat___closed__1);
 l_Lean_IR_declHasFormat = _init_l_Lean_IR_declHasFormat();
 lean::mark_persistent(l_Lean_IR_declHasFormat);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "declHasFormat"), l_Lean_IR_declHasFormat);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "declToString"), 1, lean::ir::decl_to_string_core);
 l_Lean_IR_declHasToString___closed__1 = _init_l_Lean_IR_declHasToString___closed__1();
 lean::mark_persistent(l_Lean_IR_declHasToString___closed__1);
 l_Lean_IR_declHasToString = _init_l_Lean_IR_declHasToString();
 lean::mark_persistent(l_Lean_IR_declHasToString);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "declHasToString"), l_Lean_IR_declHasToString);
 return w;
 }

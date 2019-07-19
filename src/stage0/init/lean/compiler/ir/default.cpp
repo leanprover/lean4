@@ -8232,6 +8232,5 @@ l___private_init_lean_compiler_ir_default_1__compileAux___closed__27 = _init_l__
 lean::mark_persistent(l___private_init_lean_compiler_ir_default_1__compileAux___closed__27);
 l___private_init_lean_compiler_ir_default_1__compileAux___closed__28 = _init_l___private_init_lean_compiler_ir_default_1__compileAux___closed__28();
 lean::mark_persistent(l___private_init_lean_compiler_ir_default_1__compileAux___closed__28);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "compile"), 3, lean::ir::compile_core);
 return w;
 }

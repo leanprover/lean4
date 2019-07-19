@@ -11011,14 +11011,7 @@ w = initialize_init_lean_format(w);
 if (io_result_is_error(w)) return w;
 l_Lean_Parser_Trie_empty___closed__1 = _init_l_Lean_Parser_Trie_empty___closed__1();
 lean::mark_persistent(l_Lean_Parser_Trie_empty___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Trie"), "empty"), 1, l_Lean_Parser_Trie_empty);
 l_Lean_Parser_Trie_HasEmptyc___closed__1 = _init_l_Lean_Parser_Trie_HasEmptyc___closed__1();
 lean::mark_persistent(l_Lean_Parser_Trie_HasEmptyc___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Trie"), "HasEmptyc"), 1, l_Lean_Parser_Trie_HasEmptyc);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Trie"), "Inhabited"), 1, l_Lean_Parser_Trie_Inhabited);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Trie"), "insert"), 1, l_Lean_Parser_Trie_insert);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Trie"), "find"), 1, l_Lean_Parser_Trie_find);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Trie"), "matchPrefix"), 1, l_Lean_Parser_Trie_matchPrefix);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Trie"), "HasToString"), 1, l_Lean_Parser_Trie_HasToString);
 return w;
 }

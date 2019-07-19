@@ -541,7 +541,6 @@ l_List_Monad___closed__10 = _init_l_List_Monad___closed__10();
 lean::mark_persistent(l_List_Monad___closed__10);
 l_List_Monad = _init_l_List_Monad();
 lean::mark_persistent(l_List_Monad);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name("List"), "Monad"), l_List_Monad);
 l_List_Alternative___closed__1 = _init_l_List_Alternative___closed__1();
 lean::mark_persistent(l_List_Alternative___closed__1);
 l_List_Alternative___closed__2 = _init_l_List_Alternative___closed__2();
@@ -550,6 +549,5 @@ l_List_Alternative___closed__3 = _init_l_List_Alternative___closed__3();
 lean::mark_persistent(l_List_Alternative___closed__3);
 l_List_Alternative = _init_l_List_Alternative();
 lean::mark_persistent(l_List_Alternative);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name("List"), "Alternative"), l_List_Alternative);
 return w;
 }

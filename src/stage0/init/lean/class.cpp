@@ -141,7 +141,6 @@ uint8 nat_dec_lt(obj*, obj*);
 }
 extern obj* l_Char_HasRepr___closed__1;
 obj* l_AssocList_contains___main___at_Lean_ClassState_addEntry___spec__25___boxed(obj*, obj*);
-uint8 l_Lean_Syntax_isMissing___main(obj*);
 obj* l_Lean_classExtension___elambda__3___boxed(obj*, obj*);
 uint8 l_AssocList_contains___main___at_Lean_ClassState_addEntry___spec__16(obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
@@ -209,6 +208,7 @@ obj* l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__3___closed__2;
 namespace lean {
 uint8 is_class_core(obj*, obj*);
 }
+uint8 l_Lean_Syntax_isMissing___main___rarg(obj*);
 obj* l_Lean_classExtension___closed__2;
 obj* l_Lean_SMap_switch___at_Lean_ClassState_switch___main___spec__1(obj*);
 obj* l_RBNode_find___main___at_Lean_isClass___spec__3(obj*, obj*);
@@ -10258,7 +10258,7 @@ obj* l_Lean_registerClassAttr___lambda__1(obj* x_1, obj* x_2, obj* x_3, uint8 x_
 _start:
 {
 uint8 x_6; 
-x_6 = l_Lean_Syntax_isMissing___main(x_3);
+x_6 = l_Lean_Syntax_isMissing___main___rarg(x_3);
 if (x_6 == 0)
 {
 uint8 x_7; 
@@ -10482,7 +10482,7 @@ obj* l_Lean_registerInstanceAttr___lambda__1(obj* x_1, obj* x_2, obj* x_3, uint8
 _start:
 {
 uint8 x_6; 
-x_6 = l_Lean_Syntax_isMissing___main(x_3);
+x_6 = l_Lean_Syntax_isMissing___main___rarg(x_3);
 if (x_6 == 0)
 {
 uint8 x_7; 
@@ -10685,8 +10685,6 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_attributes(w);
 if (io_result_is_error(w)) return w;
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ClassEntry"), "getName"), 1, l_Lean_ClassEntry_getName___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ClassEntry"), "lt"), 2, l_Lean_ClassEntry_lt___boxed);
 l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__1___closed__1 = _init_l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__1___closed__1();
 lean::mark_persistent(l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__1___closed__1);
 l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__1___closed__2 = _init_l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__1___closed__2();
@@ -10709,9 +10707,6 @@ l_Lean_ClassState_Inhabited___closed__1 = _init_l_Lean_ClassState_Inhabited___cl
 lean::mark_persistent(l_Lean_ClassState_Inhabited___closed__1);
 l_Lean_ClassState_Inhabited = _init_l_Lean_ClassState_Inhabited();
 lean::mark_persistent(l_Lean_ClassState_Inhabited);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ClassState"), "Inhabited"), l_Lean_ClassState_Inhabited);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ClassState"), "addEntry"), 2, l_Lean_ClassState_addEntry);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ClassState"), "switch"), 1, l_Lean_ClassState_switch);
 l_Lean_registerEnvExtensionUnsafe___at_Lean_mkClassExtension___spec__7___closed__1 = _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_mkClassExtension___spec__7___closed__1();
 lean::mark_persistent(l_Lean_registerEnvExtensionUnsafe___at_Lean_mkClassExtension___spec__7___closed__1);
 l_Lean_registerEnvExtensionUnsafe___at_Lean_mkClassExtension___spec__7___closed__2 = _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_mkClassExtension___spec__7___closed__2();
@@ -10726,7 +10721,6 @@ l_Lean_mkClassExtension___closed__4 = _init_l_Lean_mkClassExtension___closed__4(
 lean::mark_persistent(l_Lean_mkClassExtension___closed__4);
 l_Lean_mkClassExtension___closed__5 = _init_l_Lean_mkClassExtension___closed__5();
 lean::mark_persistent(l_Lean_mkClassExtension___closed__5);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkClassExtension"), 1, l_Lean_mkClassExtension);
 l_Lean_classExtension___closed__1 = _init_l_Lean_classExtension___closed__1();
 lean::mark_persistent(l_Lean_classExtension___closed__1);
 l_Lean_classExtension___closed__2 = _init_l_Lean_classExtension___closed__2();
@@ -10743,27 +10737,18 @@ w = l_Lean_mkClassExtension(w);
 if (io_result_is_error(w)) return w;
 l_Lean_classExtension = io_result_get_value(w);
 lean::mark_persistent(l_Lean_classExtension);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "classExtension"), l_Lean_classExtension);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "isClass"), 2, l_Lean_isClass___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "isInstance"), 2, l_Lean_isInstance___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getClassInstances"), 2, lean::get_class_instances_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "hasOutParams"), 2, l_Lean_hasOutParams___boxed);
 l___private_init_lean_class_1__isOutParam___closed__1 = _init_l___private_init_lean_class_1__isOutParam___closed__1();
 lean::mark_persistent(l___private_init_lean_class_1__isOutParam___closed__1);
 l___private_init_lean_class_1__isOutParam___closed__2 = _init_l___private_init_lean_class_1__isOutParam___closed__2();
 lean::mark_persistent(l___private_init_lean_class_1__isOutParam___closed__2);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Expr"), "hasOutParam"), 1, l_Lean_Expr_hasOutParam___boxed);
 l_Lean_addClass___closed__1 = _init_l_Lean_addClass___closed__1();
 lean::mark_persistent(l_Lean_addClass___closed__1);
 l_Lean_addClass___closed__2 = _init_l_Lean_addClass___closed__2();
 lean::mark_persistent(l_Lean_addClass___closed__2);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "addClass"), 2, l_Lean_addClass);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getClassName"), 2, l_Lean_getClassName___boxed);
 l_Lean_addInstance___closed__1 = _init_l_Lean_addInstance___closed__1();
 lean::mark_persistent(l_Lean_addInstance___closed__1);
 l_Lean_addInstance___closed__2 = _init_l_Lean_addInstance___closed__2();
 lean::mark_persistent(l_Lean_addInstance___closed__2);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "addInstance"), 2, lean::add_instance_core);
 l_Lean_registerClassAttr___lambda__1___closed__1 = _init_l_Lean_registerClassAttr___lambda__1___closed__1();
 lean::mark_persistent(l_Lean_registerClassAttr___lambda__1___closed__1);
 l_Lean_registerClassAttr___lambda__1___closed__2 = _init_l_Lean_registerClassAttr___lambda__1___closed__2();

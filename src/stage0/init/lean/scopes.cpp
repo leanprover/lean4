@@ -2923,8 +2923,6 @@ l_Lean_ScopeManagerState_Inhabited___closed__1 = _init_l_Lean_ScopeManagerState_
 lean::mark_persistent(l_Lean_ScopeManagerState_Inhabited___closed__1);
 l_Lean_ScopeManagerState_Inhabited = _init_l_Lean_ScopeManagerState_Inhabited();
 lean::mark_persistent(l_Lean_ScopeManagerState_Inhabited);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ScopeManagerState"), "Inhabited"), l_Lean_ScopeManagerState_Inhabited);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ScopeManagerState"), "saveNamespace"), 2, l_Lean_ScopeManagerState_saveNamespace);
 l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__1 = _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__1();
 lean::mark_persistent(l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__1);
 l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__2 = _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__2();
@@ -2943,7 +2941,6 @@ l_Lean_regScopeManagerExtension___closed__5 = _init_l_Lean_regScopeManagerExtens
 lean::mark_persistent(l_Lean_regScopeManagerExtension___closed__5);
 l_Lean_regScopeManagerExtension___closed__6 = _init_l_Lean_regScopeManagerExtension___closed__6();
 lean::mark_persistent(l_Lean_regScopeManagerExtension___closed__6);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "regScopeManagerExtension"), 1, l_Lean_regScopeManagerExtension);
 l_Lean_scopeManagerExt___closed__1 = _init_l_Lean_scopeManagerExt___closed__1();
 lean::mark_persistent(l_Lean_scopeManagerExt___closed__1);
 l_Lean_scopeManagerExt___closed__2 = _init_l_Lean_scopeManagerExt___closed__2();
@@ -2960,20 +2957,7 @@ w = l_Lean_regScopeManagerExtension(w);
 if (io_result_is_error(w)) return w;
 l_Lean_scopeManagerExt = io_result_get_value(w);
 lean::mark_persistent(l_Lean_scopeManagerExt);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "scopeManagerExt"), l_Lean_scopeManagerExt);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "getNamespaces"), 1, lean::get_namespaces_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "getNamespaceSet"), 1, l_Lean_Environment_getNamespaceSet___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "isNamespace"), 2, l_Lean_Environment_isNamespace___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "inSection"), 1, l_Lean_Environment_inSection___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "hasOpenScopes"), 1, l_Lean_Environment_hasOpenScopes___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "getNamespace"), 1, lean::get_namespace_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "getScopeHeader"), 1, lean::get_scope_header_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "toValidNamespace"), 2, lean::to_valid_namespace_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "registerNamespaceAux"), 2, l_Lean_Environment_registerNamespaceAux);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "registerNamespace"), 2, lean::register_namespace_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "pushScopeCore"), 3, l_Lean_Environment_pushScopeCore___boxed);
 l_Lean_Environment_popScopeCore___closed__1 = _init_l_Lean_Environment_popScopeCore___closed__1();
 lean::mark_persistent(l_Lean_Environment_popScopeCore___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "popScopeCore"), 1, l_Lean_Environment_popScopeCore);
 return w;
 }

@@ -323,7 +323,5 @@ l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed_
 lean::mark_persistent(l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__2);
 l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__3 = _init_l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__3();
 lean::mark_persistent(l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__3);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "String"), "mangle"), 1, l_Lean_String_mangle);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Name"), "mangle"), 2, l_Lean_Name_mangle);
 return w;
 }

@@ -144,12 +144,9 @@ l_Lean_EqnCompiler_mkMatchPatternAttr___closed__3 = _init_l_Lean_EqnCompiler_mkM
 lean::mark_persistent(l_Lean_EqnCompiler_mkMatchPatternAttr___closed__3);
 l_Lean_EqnCompiler_mkMatchPatternAttr___closed__4 = _init_l_Lean_EqnCompiler_mkMatchPatternAttr___closed__4();
 lean::mark_persistent(l_Lean_EqnCompiler_mkMatchPatternAttr___closed__4);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "EqnCompiler"), "mkMatchPatternAttr"), 1, l_Lean_EqnCompiler_mkMatchPatternAttr);
 w = l_Lean_EqnCompiler_mkMatchPatternAttr(w);
 if (io_result_is_error(w)) return w;
 l_Lean_EqnCompiler_matchPatternAttr = io_result_get_value(w);
 lean::mark_persistent(l_Lean_EqnCompiler_matchPatternAttr);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "EqnCompiler"), "matchPatternAttr"), l_Lean_EqnCompiler_matchPatternAttr);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "EqnCompiler"), "hasMatchPatternAttribute"), 2, l_Lean_EqnCompiler_hasMatchPatternAttribute___boxed);
 return w;
 }

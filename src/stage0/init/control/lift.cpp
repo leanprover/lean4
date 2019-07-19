@@ -226,10 +226,5 @@ w = initialize_init_coe(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_control_monad(w);
 if (io_result_is_error(w)) return w;
-REGISTER_LEAN_FUNCTION(lean::mk_const_name("hasMonadLiftToHasCoe"), 2, l_hasMonadLiftToHasCoe___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name("hasMonadLiftTTrans"), 3, l_hasMonadLiftTTrans___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name("hasMonadLiftTRefl"), 2, l_hasMonadLiftTRefl___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name("monadFunctorTTrans"), 6, l_monadFunctorTTrans___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name("monadFunctorTRefl"), 3, l_monadFunctorTRefl___boxed);
 return w;
 }

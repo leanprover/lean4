@@ -1574,139 +1574,108 @@ return x_3;
 obj* l_Lean_Parser_Level_addLit___elambda__1(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
+obj* x_4; obj* x_5; obj* x_6; obj* x_14; obj* x_15; 
 x_4 = lean::cnstr_get(x_3, 0);
 lean::inc(x_4);
 x_5 = lean::array_get_size(x_4);
 lean::dec(x_4);
 lean::inc(x_3);
-x_6 = l_Lean_Parser_ParserState_pushSyntax(x_3, x_1);
-x_7 = lean::cnstr_get(x_3, 3);
-lean::inc(x_7);
-if (lean::obj_tag(x_7) == 0)
-{
-obj* x_8; obj* x_9; obj* x_10; 
-x_8 = lean::cnstr_get(x_3, 1);
-lean::inc(x_8);
-lean::dec(x_3);
-lean::inc(x_2);
-x_9 = l_Lean_Parser_tokenFn(x_2, x_6);
-x_10 = lean::cnstr_get(x_9, 3);
-lean::inc(x_10);
-if (lean::obj_tag(x_10) == 0)
-{
-obj* x_11; obj* x_12; 
-x_11 = lean::cnstr_get(x_9, 0);
-lean::inc(x_11);
-x_12 = l_Array_back___at___private_init_lean_parser_parser_6__updateCache___spec__1(x_11);
-lean::dec(x_11);
-if (lean::obj_tag(x_12) == 2)
-{
-obj* x_13; obj* x_14; uint8 x_15; 
-x_13 = lean::cnstr_get(x_12, 1);
-lean::inc(x_13);
-lean::dec(x_12);
-x_14 = l_Lean_Parser_Level_addLit___elambda__1___closed__3;
-x_15 = lean::string_dec_eq(x_13, x_14);
-lean::dec(x_13);
-if (x_15 == 0)
+x_14 = l_Lean_Parser_ParserState_pushSyntax(x_3, x_1);
+x_15 = lean::cnstr_get(x_3, 3);
+lean::inc(x_15);
+if (lean::obj_tag(x_15) == 0)
 {
 obj* x_16; obj* x_17; obj* x_18; 
-x_16 = l_Lean_Parser_Level_addLit___elambda__1___closed__6;
-x_17 = l_Lean_Parser_ParserState_mkErrorsAt(x_9, x_16, x_8);
+x_16 = lean::cnstr_get(x_3, 1);
+lean::inc(x_16);
+lean::dec(x_3);
+lean::inc(x_2);
+x_17 = l_Lean_Parser_tokenFn(x_2, x_14);
 x_18 = lean::cnstr_get(x_17, 3);
 lean::inc(x_18);
 if (lean::obj_tag(x_18) == 0)
 {
-obj* x_19; obj* x_20; obj* x_21; 
-x_19 = l_Lean_Parser_numLitFn___rarg(x_2, x_17);
-x_20 = l_Lean_Parser_Level_addLit___elambda__1___closed__2;
-x_21 = l_Lean_Parser_ParserState_mkNode(x_19, x_20, x_5);
-return x_21;
+obj* x_19; obj* x_20; 
+x_19 = lean::cnstr_get(x_17, 0);
+lean::inc(x_19);
+x_20 = l_Array_back___at___private_init_lean_parser_parser_6__updateCache___spec__1(x_19);
+lean::dec(x_19);
+if (lean::obj_tag(x_20) == 2)
+{
+obj* x_21; obj* x_22; uint8 x_23; 
+x_21 = lean::cnstr_get(x_20, 1);
+lean::inc(x_21);
+lean::dec(x_20);
+x_22 = l_Lean_Parser_Level_addLit___elambda__1___closed__3;
+x_23 = lean::string_dec_eq(x_21, x_22);
+lean::dec(x_21);
+if (x_23 == 0)
+{
+obj* x_24; obj* x_25; 
+x_24 = l_Lean_Parser_Level_addLit___elambda__1___closed__6;
+x_25 = l_Lean_Parser_ParserState_mkErrorsAt(x_17, x_24, x_16);
+x_6 = x_25;
+goto block_13;
 }
 else
 {
-obj* x_22; obj* x_23; 
+lean::dec(x_16);
+x_6 = x_17;
+goto block_13;
+}
+}
+else
+{
+obj* x_26; obj* x_27; 
+lean::dec(x_20);
+x_26 = l_Lean_Parser_Level_addLit___elambda__1___closed__6;
+x_27 = l_Lean_Parser_ParserState_mkErrorsAt(x_17, x_26, x_16);
+x_6 = x_27;
+goto block_13;
+}
+}
+else
+{
+obj* x_28; obj* x_29; 
 lean::dec(x_18);
-lean::dec(x_2);
-x_22 = l_Lean_Parser_Level_addLit___elambda__1___closed__2;
-x_23 = l_Lean_Parser_ParserState_mkNode(x_17, x_22, x_5);
-return x_23;
+x_28 = l_Lean_Parser_Level_addLit___elambda__1___closed__6;
+x_29 = l_Lean_Parser_ParserState_mkErrorsAt(x_17, x_28, x_16);
+x_6 = x_29;
+goto block_13;
 }
 }
 else
 {
-obj* x_24; obj* x_25; obj* x_26; 
-lean::dec(x_8);
-x_24 = l_Lean_Parser_numLitFn___rarg(x_2, x_9);
-x_25 = l_Lean_Parser_Level_addLit___elambda__1___closed__2;
-x_26 = l_Lean_Parser_ParserState_mkNode(x_24, x_25, x_5);
-return x_26;
-}
-}
-else
-{
-obj* x_27; obj* x_28; obj* x_29; 
-lean::dec(x_12);
-x_27 = l_Lean_Parser_Level_addLit___elambda__1___closed__6;
-x_28 = l_Lean_Parser_ParserState_mkErrorsAt(x_9, x_27, x_8);
-x_29 = lean::cnstr_get(x_28, 3);
-lean::inc(x_29);
-if (lean::obj_tag(x_29) == 0)
-{
-obj* x_30; obj* x_31; obj* x_32; 
-x_30 = l_Lean_Parser_numLitFn___rarg(x_2, x_28);
-x_31 = l_Lean_Parser_Level_addLit___elambda__1___closed__2;
-x_32 = l_Lean_Parser_ParserState_mkNode(x_30, x_31, x_5);
-return x_32;
-}
-else
-{
-obj* x_33; obj* x_34; 
-lean::dec(x_29);
-lean::dec(x_2);
-x_33 = l_Lean_Parser_Level_addLit___elambda__1___closed__2;
-x_34 = l_Lean_Parser_ParserState_mkNode(x_28, x_33, x_5);
-return x_34;
-}
-}
-}
-else
-{
-obj* x_35; obj* x_36; obj* x_37; 
-lean::dec(x_10);
-x_35 = l_Lean_Parser_Level_addLit___elambda__1___closed__6;
-x_36 = l_Lean_Parser_ParserState_mkErrorsAt(x_9, x_35, x_8);
-x_37 = lean::cnstr_get(x_36, 3);
-lean::inc(x_37);
-if (lean::obj_tag(x_37) == 0)
-{
-obj* x_38; obj* x_39; obj* x_40; 
-x_38 = l_Lean_Parser_numLitFn___rarg(x_2, x_36);
-x_39 = l_Lean_Parser_Level_addLit___elambda__1___closed__2;
-x_40 = l_Lean_Parser_ParserState_mkNode(x_38, x_39, x_5);
-return x_40;
-}
-else
-{
-obj* x_41; obj* x_42; 
-lean::dec(x_37);
-lean::dec(x_2);
-x_41 = l_Lean_Parser_Level_addLit___elambda__1___closed__2;
-x_42 = l_Lean_Parser_ParserState_mkNode(x_36, x_41, x_5);
-return x_42;
-}
-}
-}
-else
-{
-obj* x_43; obj* x_44; 
-lean::dec(x_7);
+obj* x_30; obj* x_31; 
+lean::dec(x_15);
 lean::dec(x_3);
 lean::dec(x_2);
-x_43 = l_Lean_Parser_Level_addLit___elambda__1___closed__2;
-x_44 = l_Lean_Parser_ParserState_mkNode(x_6, x_43, x_5);
-return x_44;
+x_30 = l_Lean_Parser_Level_addLit___elambda__1___closed__2;
+x_31 = l_Lean_Parser_ParserState_mkNode(x_14, x_30, x_5);
+return x_31;
+}
+block_13:
+{
+obj* x_7; 
+x_7 = lean::cnstr_get(x_6, 3);
+lean::inc(x_7);
+if (lean::obj_tag(x_7) == 0)
+{
+obj* x_8; obj* x_9; obj* x_10; 
+x_8 = l_Lean_Parser_numLitFn___rarg(x_2, x_6);
+x_9 = l_Lean_Parser_Level_addLit___elambda__1___closed__2;
+x_10 = l_Lean_Parser_ParserState_mkNode(x_8, x_9, x_5);
+return x_10;
+}
+else
+{
+obj* x_11; obj* x_12; 
+lean::dec(x_7);
+lean::dec(x_2);
+x_11 = l_Lean_Parser_Level_addLit___elambda__1___closed__2;
+x_12 = l_Lean_Parser_ParserState_mkNode(x_6, x_11, x_5);
+return x_12;
+}
 }
 }
 }
@@ -1811,7 +1780,6 @@ w = l_Lean_Parser_mkBuiltinParsingTablesRef(w);
 if (io_result_is_error(w)) return w;
 l_Lean_Parser_builtinLevelParsingTable = io_result_get_value(w);
 lean::mark_persistent(l_Lean_Parser_builtinLevelParsingTable);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "builtinLevelParsingTable"), l_Lean_Parser_builtinLevelParsingTable);
 l_Lean_Parser_regBuiltinLevelParserAttr___closed__1 = _init_l_Lean_Parser_regBuiltinLevelParserAttr___closed__1();
 lean::mark_persistent(l_Lean_Parser_regBuiltinLevelParserAttr___closed__1);
 l_Lean_Parser_regBuiltinLevelParserAttr___closed__2 = _init_l_Lean_Parser_regBuiltinLevelParserAttr___closed__2();
@@ -1832,13 +1800,10 @@ l_Lean_Parser_mkLevelParserAttribute___closed__4 = _init_l_Lean_Parser_mkLevelPa
 lean::mark_persistent(l_Lean_Parser_mkLevelParserAttribute___closed__4);
 l_Lean_Parser_mkLevelParserAttribute___closed__5 = _init_l_Lean_Parser_mkLevelParserAttribute___closed__5();
 lean::mark_persistent(l_Lean_Parser_mkLevelParserAttribute___closed__5);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "mkLevelParserAttribute"), 1, l_Lean_Parser_mkLevelParserAttribute);
 w = l_Lean_Parser_mkLevelParserAttribute(w);
 if (io_result_is_error(w)) return w;
 l_Lean_Parser_levelParserAttribute = io_result_get_value(w);
 lean::mark_persistent(l_Lean_Parser_levelParserAttribute);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "levelParserAttribute"), l_Lean_Parser_levelParserAttribute);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "levelParser"), 2, l_Lean_Parser_levelParser___boxed);
 l_Lean_Parser_Level_paren___elambda__1___rarg___closed__1 = _init_l_Lean_Parser_Level_paren___elambda__1___rarg___closed__1();
 lean::mark_persistent(l_Lean_Parser_Level_paren___elambda__1___rarg___closed__1);
 l_Lean_Parser_Level_paren___elambda__1___rarg___closed__2 = _init_l_Lean_Parser_Level_paren___elambda__1___rarg___closed__2();
@@ -1881,7 +1846,6 @@ l_Lean_Parser_Level_paren___closed__8 = _init_l_Lean_Parser_Level_paren___closed
 lean::mark_persistent(l_Lean_Parser_Level_paren___closed__8);
 l_Lean_Parser_Level_paren = _init_l_Lean_Parser_Level_paren();
 lean::mark_persistent(l_Lean_Parser_Level_paren);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Level"), "paren"), l_Lean_Parser_Level_paren);
 w = l___regBuiltinParser_Lean_Parser_Level_paren(w);
 if (io_result_is_error(w)) return w;
 l_Lean_Parser_Level_max___elambda__1___closed__1 = _init_l_Lean_Parser_Level_max___elambda__1___closed__1();
@@ -1904,7 +1868,6 @@ l_Lean_Parser_Level_max___closed__5 = _init_l_Lean_Parser_Level_max___closed__5(
 lean::mark_persistent(l_Lean_Parser_Level_max___closed__5);
 l_Lean_Parser_Level_max = _init_l_Lean_Parser_Level_max();
 lean::mark_persistent(l_Lean_Parser_Level_max);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Level"), "max"), l_Lean_Parser_Level_max);
 w = l___regBuiltinParser_Lean_Parser_Level_max(w);
 if (io_result_is_error(w)) return w;
 l_Lean_Parser_Level_imax___elambda__1___closed__1 = _init_l_Lean_Parser_Level_imax___elambda__1___closed__1();
@@ -1927,7 +1890,6 @@ l_Lean_Parser_Level_imax___closed__5 = _init_l_Lean_Parser_Level_imax___closed__
 lean::mark_persistent(l_Lean_Parser_Level_imax___closed__5);
 l_Lean_Parser_Level_imax = _init_l_Lean_Parser_Level_imax();
 lean::mark_persistent(l_Lean_Parser_Level_imax);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Level"), "imax"), l_Lean_Parser_Level_imax);
 w = l___regBuiltinParser_Lean_Parser_Level_imax(w);
 if (io_result_is_error(w)) return w;
 l_Lean_Parser_Level_hole___elambda__1___rarg___closed__1 = _init_l_Lean_Parser_Level_hole___elambda__1___rarg___closed__1();
@@ -1952,7 +1914,6 @@ l_Lean_Parser_Level_hole___closed__4 = _init_l_Lean_Parser_Level_hole___closed__
 lean::mark_persistent(l_Lean_Parser_Level_hole___closed__4);
 l_Lean_Parser_Level_hole = _init_l_Lean_Parser_Level_hole();
 lean::mark_persistent(l_Lean_Parser_Level_hole);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Level"), "hole"), l_Lean_Parser_Level_hole);
 w = l___regBuiltinParser_Lean_Parser_Level_hole(w);
 if (io_result_is_error(w)) return w;
 l_Lean_Parser_Level_num___closed__1 = _init_l_Lean_Parser_Level_num___closed__1();
@@ -1961,7 +1922,6 @@ l_Lean_Parser_Level_num___closed__2 = _init_l_Lean_Parser_Level_num___closed__2(
 lean::mark_persistent(l_Lean_Parser_Level_num___closed__2);
 l_Lean_Parser_Level_num = _init_l_Lean_Parser_Level_num();
 lean::mark_persistent(l_Lean_Parser_Level_num);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Level"), "num"), l_Lean_Parser_Level_num);
 l___regBuiltinParser_Lean_Parser_Level_num___closed__1 = _init_l___regBuiltinParser_Lean_Parser_Level_num___closed__1();
 lean::mark_persistent(l___regBuiltinParser_Lean_Parser_Level_num___closed__1);
 l___regBuiltinParser_Lean_Parser_Level_num___closed__2 = _init_l___regBuiltinParser_Lean_Parser_Level_num___closed__2();
@@ -1974,7 +1934,6 @@ l_Lean_Parser_Level_ident___closed__2 = _init_l_Lean_Parser_Level_ident___closed
 lean::mark_persistent(l_Lean_Parser_Level_ident___closed__2);
 l_Lean_Parser_Level_ident = _init_l_Lean_Parser_Level_ident();
 lean::mark_persistent(l_Lean_Parser_Level_ident);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Level"), "ident"), l_Lean_Parser_Level_ident);
 l___regBuiltinParser_Lean_Parser_Level_ident___closed__1 = _init_l___regBuiltinParser_Lean_Parser_Level_ident___closed__1();
 lean::mark_persistent(l___regBuiltinParser_Lean_Parser_Level_ident___closed__1);
 w = l___regBuiltinParser_Lean_Parser_Level_ident(w);
@@ -2007,7 +1966,6 @@ l_Lean_Parser_Level_addLit___closed__7 = _init_l_Lean_Parser_Level_addLit___clos
 lean::mark_persistent(l_Lean_Parser_Level_addLit___closed__7);
 l_Lean_Parser_Level_addLit = _init_l_Lean_Parser_Level_addLit();
 lean::mark_persistent(l_Lean_Parser_Level_addLit);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Parser"), "Level"), "addLit"), l_Lean_Parser_Level_addLit);
 w = l___regBuiltinParser_Lean_Parser_Level_addLit(w);
 if (io_result_is_error(w)) return w;
 return w;

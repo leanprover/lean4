@@ -521,8 +521,5 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_array_basic(w);
 if (io_result_is_error(w)) return w;
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Array"), "partition"), 1, l_Array_partition);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Array"), "qsortAux"), 1, l_Array_qsortAux);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Array"), "qsort"), 1, l_Array_qsort);
 return w;
 }

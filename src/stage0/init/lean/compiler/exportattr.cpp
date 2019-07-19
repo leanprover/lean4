@@ -3105,13 +3105,9 @@ l_Lean_mkExportAttr___closed__4 = _init_l_Lean_mkExportAttr___closed__4();
 lean::mark_persistent(l_Lean_mkExportAttr___closed__4);
 l_Lean_mkExportAttr___closed__5 = _init_l_Lean_mkExportAttr___closed__5();
 lean::mark_persistent(l_Lean_mkExportAttr___closed__5);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkExportAttr"), 1, l_Lean_mkExportAttr);
 w = l_Lean_mkExportAttr(w);
 if (io_result_is_error(w)) return w;
 l_Lean_exportAttr = io_result_get_value(w);
 lean::mark_persistent(l_Lean_exportAttr);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "exportAttr"), l_Lean_exportAttr);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getExportNameFor"), 2, lean::get_export_name_for_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "isExport"), 2, l_Lean_isExport___boxed);
 return w;
 }

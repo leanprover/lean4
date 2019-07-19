@@ -3339,15 +3339,9 @@ l_Lean_mkInitAttr___closed__4 = _init_l_Lean_mkInitAttr___closed__4();
 lean::mark_persistent(l_Lean_mkInitAttr___closed__4);
 l_Lean_mkInitAttr___closed__5 = _init_l_Lean_mkInitAttr___closed__5();
 lean::mark_persistent(l_Lean_mkInitAttr___closed__5);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkInitAttr"), 1, l_Lean_mkInitAttr);
 w = l_Lean_mkInitAttr(w);
 if (io_result_is_error(w)) return w;
 l_Lean_initAttr = io_result_get_value(w);
 lean::mark_persistent(l_Lean_initAttr);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "initAttr"), l_Lean_initAttr);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "isIOUnitInitFn"), 2, l_Lean_isIOUnitInitFn___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getInitFnNameFor"), 2, lean::get_init_fn_name_for_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "hasInitAttr"), 2, l_Lean_hasInitAttr___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "setInitAttr"), 3, l_Lean_setInitAttr);
 return w;
 }

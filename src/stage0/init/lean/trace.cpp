@@ -3761,11 +3761,5 @@ w = initialize_init_lean_name(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_options(w);
 if (io_result_is_error(w)) return w;
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "HasCoe"), 1, l_Lean_HasCoe___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Trace"), "pp"), 1, l_Lean_Trace_pp);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Trace"), "Monad"), 1, l_Lean_Trace_Monad___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Trace"), "Trace"), 1, l_Lean_Trace_Trace___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Trace"), "Lean"), "Trace"), "MonadTracer"), 1, l_Lean_Trace_Lean_Trace_MonadTracer___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Trace"), "TraceT"), "run"), 2, l_Lean_Trace_TraceT_run___boxed);
 return w;
 }

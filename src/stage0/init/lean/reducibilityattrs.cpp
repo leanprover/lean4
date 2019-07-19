@@ -3262,7 +3262,6 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_attributes(w);
 if (io_result_is_error(w)) return w;
 l_Lean_ReducibilityStatus_inhabited = _init_l_Lean_ReducibilityStatus_inhabited();
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ReducibilityStatus"), "inhabited"), lean::box(l_Lean_ReducibilityStatus_inhabited));
 l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4___closed__1 = _init_l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4___closed__1();
 lean::mark_persistent(l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4___closed__1);
 l_Lean_registerEnumAttributes___at_Lean_mkReducibilityAttrs___spec__1___closed__1 = _init_l_Lean_registerEnumAttributes___at_Lean_mkReducibilityAttrs___spec__1___closed__1();
@@ -3307,13 +3306,9 @@ l_Lean_mkReducibilityAttrs___closed__17 = _init_l_Lean_mkReducibilityAttrs___clo
 lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__17);
 l_Lean_mkReducibilityAttrs___closed__18 = _init_l_Lean_mkReducibilityAttrs___closed__18();
 lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__18);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkReducibilityAttrs"), 1, l_Lean_mkReducibilityAttrs);
 w = l_Lean_mkReducibilityAttrs(w);
 if (io_result_is_error(w)) return w;
 l_Lean_reducibilityAttrs = io_result_get_value(w);
 lean::mark_persistent(l_Lean_reducibilityAttrs);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "reducibilityAttrs"), l_Lean_reducibilityAttrs);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getReducibilityStatus"), 2, l_Lean_getReducibilityStatus___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "setReducibilityStatus"), 3, l_Lean_setReducibilityStatus___boxed);
 return w;
 }

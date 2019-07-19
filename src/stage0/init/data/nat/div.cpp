@@ -192,17 +192,13 @@ w = initialize_init_wf(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_nat_basic(w);
 if (io_result_is_error(w)) return w;
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "div"), 2, l_Nat_div___boxed);
 l_Nat_HasDiv___closed__1 = _init_l_Nat_HasDiv___closed__1();
 lean::mark_persistent(l_Nat_HasDiv___closed__1);
 l_Nat_HasDiv = _init_l_Nat_HasDiv();
 lean::mark_persistent(l_Nat_HasDiv);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name("Nat"), "HasDiv"), l_Nat_HasDiv);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "mod"), 2, l_Nat_mod___boxed);
 l_Nat_HasMod___closed__1 = _init_l_Nat_HasMod___closed__1();
 lean::mark_persistent(l_Nat_HasMod___closed__1);
 l_Nat_HasMod = _init_l_Nat_HasMod();
 lean::mark_persistent(l_Nat_HasMod);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name("Nat"), "HasMod"), l_Nat_HasMod);
 return w;
 }

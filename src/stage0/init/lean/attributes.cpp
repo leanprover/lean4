@@ -39,7 +39,6 @@ obj* l_Lean_mkAttributeArrayRef(obj*);
 extern obj* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
 obj* l_Lean_registerTagAttribute___lambda__4___closed__2;
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerParametricAttribute___spec__9(obj*);
-extern obj* l_Lean_stxInh;
 obj* l_RBNode_find___main___at_Lean_ParametricAttribute_getParam___spec__1___rarg(obj*, obj*);
 obj* l_Array_binSearchAux___main___at_Lean_EnumAttributes_getValue___spec__2(obj*);
 obj* l_Lean_registerTagAttribute___lambda__7(obj*, obj*, obj*, uint8, obj*);
@@ -188,7 +187,6 @@ obj* l_Lean_registerTagAttribute___lambda__5___closed__4;
 obj* l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(obj*, obj*, obj*);
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__6(obj*, obj*);
 obj* l_Lean_AttributeImpl_inhabited___closed__2;
-uint8 l_Lean_Syntax_isMissing___main(obj*);
 obj* l_Lean_EnumAttributes_getValue(obj*);
 obj* l_Lean_mkAttributeMapRef(obj*);
 obj* l_Array_anyMAux___main___at_Lean_registerParametricAttribute___spec__8(obj*);
@@ -274,6 +272,7 @@ obj* l_RBNode_find___main___at_Lean_EnumAttributes_setValue___spec__1(obj*);
 obj* l_List_map___main___at_Lean_registerEnumAttributes___spec__10___rarg(obj*, obj*, obj*);
 obj* l_Lean_AttributeImpl_inhabited___closed__6;
 obj* l_Lean_registerParametricAttribute___rarg___lambda__2(obj*, obj*);
+uint8 l_Lean_Syntax_isMissing___main___rarg(obj*);
 obj* l_AssocList_mfoldl___main___at_Lean_getAttributeNames___spec__1(obj*, obj*);
 obj* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_registerParametricAttribute___spec__7(obj*);
 obj* l_Array_miterateAux___main___at_Lean_Environment_pushScope___spec__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -6158,7 +6157,7 @@ obj* l_Lean_registerTagAttribute___lambda__5(obj* x_1, obj* x_2, obj* x_3, obj* 
 _start:
 {
 uint8 x_9; 
-x_9 = l_Lean_Syntax_isMissing___main(x_6);
+x_9 = l_Lean_Syntax_isMissing___main___rarg(x_6);
 if (x_9 == 0)
 {
 uint8 x_10; 
@@ -13899,7 +13898,7 @@ return x_10;
 else
 {
 obj* x_11; obj* x_12; obj* x_13; 
-x_11 = l_Lean_stxInh;
+x_11 = lean::box(0);
 x_12 = lean::mk_nat_obj(0u);
 x_13 = lean::array_get(x_11, x_3, x_12);
 if (lean::obj_tag(x_13) == 3)
@@ -13978,39 +13977,22 @@ l_Lean_AttributeImpl_inhabited___closed__6 = _init_l_Lean_AttributeImpl_inhabite
 lean::mark_persistent(l_Lean_AttributeImpl_inhabited___closed__6);
 l_Lean_AttributeImpl_inhabited = _init_l_Lean_AttributeImpl_inhabited();
 lean::mark_persistent(l_Lean_AttributeImpl_inhabited);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "AttributeImpl"), "inhabited"), l_Lean_AttributeImpl_inhabited);
 l_Lean_mkAttributeMapRef___closed__1 = _init_l_Lean_mkAttributeMapRef___closed__1();
 lean::mark_persistent(l_Lean_mkAttributeMapRef___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkAttributeMapRef"), 1, l_Lean_mkAttributeMapRef);
 w = l_Lean_mkAttributeMapRef(w);
 if (io_result_is_error(w)) return w;
 l_Lean_attributeMapRef = io_result_get_value(w);
 lean::mark_persistent(l_Lean_attributeMapRef);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "attributeMapRef"), l_Lean_attributeMapRef);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkAttributeArrayRef"), 1, l_Lean_mkAttributeArrayRef);
 w = l_Lean_mkAttributeArrayRef(w);
 if (io_result_is_error(w)) return w;
 l_Lean_attributeArrayRef = io_result_get_value(w);
 lean::mark_persistent(l_Lean_attributeArrayRef);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "attributeArrayRef"), l_Lean_attributeArrayRef);
 l_Lean_registerAttribute___closed__1 = _init_l_Lean_registerAttribute___closed__1();
 lean::mark_persistent(l_Lean_registerAttribute___closed__1);
 l_Lean_registerAttribute___closed__2 = _init_l_Lean_registerAttribute___closed__2();
 lean::mark_persistent(l_Lean_registerAttribute___closed__2);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "registerAttribute"), 2, l_Lean_registerAttribute);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "isAttribute"), 2, lean::is_attribute_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getAttributeNames"), 1, l_Lean_getAttributeNames);
 l_Lean_getAttributeImpl___closed__1 = _init_l_Lean_getAttributeImpl___closed__1();
 lean::mark_persistent(l_Lean_getAttributeImpl___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getAttributeImpl"), 2, l_Lean_getAttributeImpl);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "attributeApplicationTime"), 2, lean::attribute_application_time_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "addAttribute"), 6, l_Lean_Environment_addAttribute___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "addScopedAttribute"), 5, lean::add_scoped_attribute_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "eraseAttribute"), 5, l_Lean_Environment_eraseAttribute___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "activateScopedAttribute"), 4, lean::activate_scoped_attribute_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "activateScopedAttributes"), 3, lean::activate_scoped_attributes_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "pushScope"), 4, l_Lean_Environment_pushScope___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "popScope"), 2, lean::pop_scope_core);
 l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__6___closed__1 = _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__6___closed__1();
 lean::mark_persistent(l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__6___closed__1);
 l_Lean_registerTagAttribute___lambda__4___closed__1 = _init_l_Lean_registerTagAttribute___lambda__4___closed__1();
@@ -14039,7 +14021,6 @@ l_Lean_registerTagAttribute___closed__3 = _init_l_Lean_registerTagAttribute___cl
 lean::mark_persistent(l_Lean_registerTagAttribute___closed__3);
 l_Lean_registerTagAttribute___closed__4 = _init_l_Lean_registerTagAttribute___closed__4();
 lean::mark_persistent(l_Lean_registerTagAttribute___closed__4);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "registerTagAttribute"), 4, l_Lean_registerTagAttribute);
 l_Lean_TagAttribute_Inhabited___closed__1 = _init_l_Lean_TagAttribute_Inhabited___closed__1();
 lean::mark_persistent(l_Lean_TagAttribute_Inhabited___closed__1);
 l_Lean_TagAttribute_Inhabited___closed__2 = _init_l_Lean_TagAttribute_Inhabited___closed__2();
@@ -14048,8 +14029,6 @@ l_Lean_TagAttribute_Inhabited___closed__3 = _init_l_Lean_TagAttribute_Inhabited_
 lean::mark_persistent(l_Lean_TagAttribute_Inhabited___closed__3);
 l_Lean_TagAttribute_Inhabited = _init_l_Lean_TagAttribute_Inhabited();
 lean::mark_persistent(l_Lean_TagAttribute_Inhabited);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "TagAttribute"), "Inhabited"), l_Lean_TagAttribute_Inhabited);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "TagAttribute"), "hasTag"), 3, l_Lean_TagAttribute_hasTag___boxed);
 l_Lean_registerParametricAttribute___rarg___lambda__3___closed__1 = _init_l_Lean_registerParametricAttribute___rarg___lambda__3___closed__1();
 lean::mark_persistent(l_Lean_registerParametricAttribute___rarg___lambda__3___closed__1);
 l_Lean_registerParametricAttribute___rarg___lambda__3___closed__2 = _init_l_Lean_registerParametricAttribute___rarg___lambda__3___closed__2();
@@ -14062,18 +14041,14 @@ l_Lean_registerParametricAttribute___rarg___closed__1 = _init_l_Lean_registerPar
 lean::mark_persistent(l_Lean_registerParametricAttribute___rarg___closed__1);
 l_Lean_registerParametricAttribute___rarg___closed__2 = _init_l_Lean_registerParametricAttribute___rarg___closed__2();
 lean::mark_persistent(l_Lean_registerParametricAttribute___rarg___closed__2);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "registerParametricAttribute"), 1, l_Lean_registerParametricAttribute);
 l_Lean_ParametricAttribute_Inhabited___closed__1 = _init_l_Lean_ParametricAttribute_Inhabited___closed__1();
 lean::mark_persistent(l_Lean_ParametricAttribute_Inhabited___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ParametricAttribute"), "Inhabited"), 1, l_Lean_ParametricAttribute_Inhabited);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ParametricAttribute"), "getParam"), 1, l_Lean_ParametricAttribute_getParam);
 l_Lean_ParametricAttribute_setParam___rarg___closed__1 = _init_l_Lean_ParametricAttribute_setParam___rarg___closed__1();
 lean::mark_persistent(l_Lean_ParametricAttribute_setParam___rarg___closed__1);
 l_Lean_ParametricAttribute_setParam___rarg___closed__2 = _init_l_Lean_ParametricAttribute_setParam___rarg___closed__2();
 lean::mark_persistent(l_Lean_ParametricAttribute_setParam___rarg___closed__2);
 l_Lean_ParametricAttribute_setParam___rarg___closed__3 = _init_l_Lean_ParametricAttribute_setParam___rarg___closed__3();
 lean::mark_persistent(l_Lean_ParametricAttribute_setParam___rarg___closed__3);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ParametricAttribute"), "setParam"), 1, l_Lean_ParametricAttribute_setParam);
 l_Lean_registerEnumAttributes___rarg___lambda__2___closed__1 = _init_l_Lean_registerEnumAttributes___rarg___lambda__2___closed__1();
 lean::mark_persistent(l_Lean_registerEnumAttributes___rarg___lambda__2___closed__1);
 l_Lean_registerEnumAttributes___rarg___lambda__2___closed__2 = _init_l_Lean_registerEnumAttributes___rarg___lambda__2___closed__2();
@@ -14084,16 +14059,11 @@ l_Lean_registerEnumAttributes___rarg___lambda__2___closed__4 = _init_l_Lean_regi
 lean::mark_persistent(l_Lean_registerEnumAttributes___rarg___lambda__2___closed__4);
 l_Lean_registerEnumAttributes___rarg___closed__1 = _init_l_Lean_registerEnumAttributes___rarg___closed__1();
 lean::mark_persistent(l_Lean_registerEnumAttributes___rarg___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "registerEnumAttributes"), 1, l_Lean_registerEnumAttributes);
 l_Lean_EnumAttributes_Inhabited___closed__1 = _init_l_Lean_EnumAttributes_Inhabited___closed__1();
 lean::mark_persistent(l_Lean_EnumAttributes_Inhabited___closed__1);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "EnumAttributes"), "Inhabited"), 1, l_Lean_EnumAttributes_Inhabited);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "EnumAttributes"), "getValue"), 1, l_Lean_EnumAttributes_getValue);
 l_Lean_EnumAttributes_setValue___rarg___closed__1 = _init_l_Lean_EnumAttributes_setValue___rarg___closed__1();
 lean::mark_persistent(l_Lean_EnumAttributes_setValue___rarg___closed__1);
 l_Lean_EnumAttributes_setValue___rarg___closed__2 = _init_l_Lean_EnumAttributes_setValue___rarg___closed__2();
 lean::mark_persistent(l_Lean_EnumAttributes_setValue___rarg___closed__2);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "EnumAttributes"), "setValue"), 1, l_Lean_EnumAttributes_setValue);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "attrParamSyntaxToIdentifier"), 1, l_Lean_attrParamSyntaxToIdentifier___boxed);
 return w;
 }

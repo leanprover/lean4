@@ -427,11 +427,5 @@ l_Ordering_HasRepr___closed__2 = _init_l_Ordering_HasRepr___closed__2();
 lean::mark_persistent(l_Ordering_HasRepr___closed__2);
 l_Ordering_HasRepr___closed__3 = _init_l_Ordering_HasRepr___closed__3();
 lean::mark_persistent(l_Ordering_HasRepr___closed__3);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Ordering"), "HasRepr"), 1, l_Ordering_HasRepr___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Ordering"), "swap"), 1, l_Ordering_swap___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Ordering"), "orElse"), 2, l_Ordering_orElse___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name("cmpUsing"), 2, l_cmpUsing___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name("cmp"), 2, l_cmp___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Ordering"), "DecidableEq"), 2, l_Ordering_DecidableEq___boxed);
 return w;
 }

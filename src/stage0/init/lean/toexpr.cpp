@@ -229,9 +229,6 @@ w = initialize_init_lean_expr(w);
 if (io_result_is_error(w)) return w;
 l_Lean_exprToExpr = _init_l_Lean_exprToExpr();
 lean::mark_persistent(l_Lean_exprToExpr);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "exprToExpr"), l_Lean_exprToExpr);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "natToExpr"), 1, l_Lean_natToExpr);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "strToExpr"), 1, l_Lean_strToExpr);
 l_Lean_nameToExprAux___main___closed__1 = _init_l_Lean_nameToExprAux___main___closed__1();
 lean::mark_persistent(l_Lean_nameToExprAux___main___closed__1);
 l_Lean_nameToExprAux___main___closed__2 = _init_l_Lean_nameToExprAux___main___closed__2();
@@ -250,11 +247,9 @@ l_Lean_nameToExprAux___main___closed__8 = _init_l_Lean_nameToExprAux___main___cl
 lean::mark_persistent(l_Lean_nameToExprAux___main___closed__8);
 l_Lean_nameToExprAux___main___closed__9 = _init_l_Lean_nameToExprAux___main___closed__9();
 lean::mark_persistent(l_Lean_nameToExprAux___main___closed__9);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "nameToExprAux"), 1, l_Lean_nameToExprAux);
 l_Lean_nameToExpr___closed__1 = _init_l_Lean_nameToExpr___closed__1();
 lean::mark_persistent(l_Lean_nameToExpr___closed__1);
 l_Lean_nameToExpr = _init_l_Lean_nameToExpr();
 lean::mark_persistent(l_Lean_nameToExpr);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "nameToExpr"), l_Lean_nameToExpr);
 return w;
 }

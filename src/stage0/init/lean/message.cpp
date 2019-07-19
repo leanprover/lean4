@@ -14,9 +14,11 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+obj* l_Lean_mkErrorStringWithPos(obj*, obj*, obj*, obj*);
 obj* l_Lean_MessageLog_empty;
 obj* l_Lean_Message_toString___closed__2;
 obj* l_Lean_Message_toString___closed__1;
+obj* l_Lean_mkErrorStringWithPos___closed__1;
 obj* l_Lean_Message_Inhabited___closed__2;
 obj* l_Lean_MessageLog_append(obj*, obj*);
 obj* l_List_reverse___rarg(obj*);
@@ -33,10 +35,12 @@ namespace lean {
 obj* string_append(obj*, obj*);
 }
 obj* l_List_append___rarg(obj*, obj*);
+extern obj* l_Lean_Format_flatten___main___closed__1;
 obj* l_Lean_Message_HasToString___closed__1;
 namespace lean {
 uint8 string_dec_eq(obj*, obj*);
 }
+obj* l_Lean_mkErrorStringWithPos___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_MessageLog_HasAppend___closed__1;
 obj* l_Lean_MessageLog_add(obj*, obj*);
 obj* l_Lean_Message_toString(obj*);
@@ -45,7 +49,8 @@ obj* l_Lean_MessageLog_hasErrors___boxed(obj*);
 uint8 l_List_foldr___main___at_Lean_MessageLog_hasErrors___spec__1(uint8, obj*);
 extern obj* l_String_splitAux___main___closed__1;
 obj* l_Lean_Message_Inhabited___closed__1;
-obj* _init_l_Lean_Message_toString___closed__1() {
+obj* l_Lean_Message_toString___closed__5;
+obj* _init_l_Lean_mkErrorStringWithPos___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -53,15 +58,35 @@ x_1 = lean::mk_string(":");
 return x_1;
 }
 }
-obj* _init_l_Lean_Message_toString___closed__2() {
+obj* l_Lean_mkErrorStringWithPos(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-obj* x_1; 
-x_1 = lean::mk_string(": ");
-return x_1;
+obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; 
+x_5 = l_Lean_mkErrorStringWithPos___closed__1;
+x_6 = lean::string_append(x_1, x_5);
+x_7 = l_Nat_repr(x_2);
+x_8 = lean::string_append(x_6, x_7);
+lean::dec(x_7);
+x_9 = lean::string_append(x_8, x_5);
+x_10 = l_Nat_repr(x_3);
+x_11 = lean::string_append(x_9, x_10);
+lean::dec(x_10);
+x_12 = l_Lean_Format_flatten___main___closed__1;
+x_13 = lean::string_append(x_11, x_12);
+x_14 = lean::string_append(x_13, x_4);
+return x_14;
 }
 }
-obj* _init_l_Lean_Message_toString___closed__3() {
+obj* l_Lean_mkErrorStringWithPos___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_Lean_mkErrorStringWithPos(x_1, x_2, x_3, x_4);
+lean::dec(x_4);
+return x_5;
+}
+}
+obj* _init_l_Lean_Message_toString___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -69,7 +94,16 @@ x_1 = lean::mk_string(":\n");
 return x_1;
 }
 }
-obj* _init_l_Lean_Message_toString___closed__4() {
+obj* _init_l_Lean_Message_toString___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = l_String_splitAux___main___closed__1;
+x_2 = lean::string_append(x_1, x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_Message_toString___closed__3() {
 _start:
 {
 obj* x_1; 
@@ -77,120 +111,144 @@ x_1 = lean::mk_string("warning: ");
 return x_1;
 }
 }
+obj* _init_l_Lean_Message_toString___closed__4() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_Lean_Message_toString___closed__3;
+x_2 = l_String_splitAux___main___closed__1;
+x_3 = lean::string_append(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Message_toString___closed__5() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l_EState_Result_toString___main___rarg___closed__2;
+x_2 = l_String_splitAux___main___closed__1;
+x_3 = lean::string_append(x_1, x_2);
+return x_3;
+}
+}
 obj* l_Lean_Message_toString(obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; uint8 x_15; obj* x_16; obj* x_17; uint8 x_18; 
+obj* x_2; obj* x_3; obj* x_4; obj* x_5; uint8 x_6; obj* x_7; obj* x_8; uint8 x_9; 
 x_2 = lean::cnstr_get(x_1, 0);
 lean::inc(x_2);
-x_3 = l_Lean_Message_toString___closed__1;
-x_4 = lean::string_append(x_2, x_3);
-x_5 = lean::cnstr_get(x_1, 1);
+x_3 = lean::cnstr_get(x_1, 1);
+lean::inc(x_3);
+x_4 = lean::cnstr_get(x_3, 0);
+lean::inc(x_4);
+x_5 = lean::cnstr_get(x_3, 1);
 lean::inc(x_5);
-x_6 = lean::cnstr_get(x_5, 0);
-lean::inc(x_6);
-x_7 = l_Nat_repr(x_6);
-x_8 = lean::string_append(x_4, x_7);
-lean::dec(x_7);
-x_9 = lean::string_append(x_8, x_3);
-x_10 = lean::cnstr_get(x_5, 1);
-lean::inc(x_10);
-lean::dec(x_5);
-x_11 = l_Nat_repr(x_10);
-x_12 = lean::string_append(x_9, x_11);
-lean::dec(x_11);
-x_13 = l_Lean_Message_toString___closed__2;
-x_14 = lean::string_append(x_12, x_13);
-x_15 = lean::cnstr_get_scalar<uint8>(x_1, sizeof(void*)*5);
-x_16 = lean::cnstr_get(x_1, 3);
-lean::inc(x_16);
-x_17 = l_String_splitAux___main___closed__1;
-x_18 = lean::string_dec_eq(x_16, x_17);
-switch (x_15) {
+lean::dec(x_3);
+x_6 = lean::cnstr_get_scalar<uint8>(x_1, sizeof(void*)*5);
+x_7 = lean::cnstr_get(x_1, 3);
+lean::inc(x_7);
+x_8 = l_String_splitAux___main___closed__1;
+x_9 = lean::string_dec_eq(x_7, x_8);
+switch (x_6) {
 case 0:
 {
-obj* x_19; obj* x_20; 
-x_19 = lean::cnstr_get(x_1, 4);
-lean::inc(x_19);
-lean::dec(x_1);
-x_20 = lean::string_append(x_14, x_17);
-if (x_18 == 0)
+if (x_9 == 0)
 {
-obj* x_21; obj* x_22; obj* x_23; obj* x_24; 
-x_21 = l_Lean_Message_toString___closed__3;
-x_22 = lean::string_append(x_16, x_21);
-x_23 = lean::string_append(x_20, x_22);
-lean::dec(x_22);
-x_24 = lean::string_append(x_23, x_19);
-lean::dec(x_19);
-return x_24;
+obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; 
+x_10 = lean::cnstr_get(x_1, 4);
+lean::inc(x_10);
+lean::dec(x_1);
+x_11 = l_Lean_Message_toString___closed__1;
+x_12 = lean::string_append(x_7, x_11);
+x_13 = lean::string_append(x_8, x_12);
+lean::dec(x_12);
+x_14 = lean::string_append(x_13, x_10);
+lean::dec(x_10);
+x_15 = l_Lean_mkErrorStringWithPos(x_2, x_4, x_5, x_14);
+lean::dec(x_14);
+return x_15;
 }
 else
 {
-obj* x_25; obj* x_26; 
+obj* x_16; obj* x_17; obj* x_18; obj* x_19; 
+lean::dec(x_7);
+x_16 = lean::cnstr_get(x_1, 4);
+lean::inc(x_16);
+lean::dec(x_1);
+x_17 = l_Lean_Message_toString___closed__2;
+x_18 = lean::string_append(x_17, x_16);
 lean::dec(x_16);
-x_25 = lean::string_append(x_20, x_17);
-x_26 = lean::string_append(x_25, x_19);
-lean::dec(x_19);
-return x_26;
+x_19 = l_Lean_mkErrorStringWithPos(x_2, x_4, x_5, x_18);
+lean::dec(x_18);
+return x_19;
 }
 }
 case 1:
 {
-obj* x_27; obj* x_28; obj* x_29; 
+if (x_9 == 0)
+{
+obj* x_20; obj* x_21; obj* x_22; obj* x_23; obj* x_24; obj* x_25; obj* x_26; 
+x_20 = lean::cnstr_get(x_1, 4);
+lean::inc(x_20);
+lean::dec(x_1);
+x_21 = l_Lean_Message_toString___closed__1;
+x_22 = lean::string_append(x_7, x_21);
+x_23 = l_Lean_Message_toString___closed__3;
+x_24 = lean::string_append(x_23, x_22);
+lean::dec(x_22);
+x_25 = lean::string_append(x_24, x_20);
+lean::dec(x_20);
+x_26 = l_Lean_mkErrorStringWithPos(x_2, x_4, x_5, x_25);
+lean::dec(x_25);
+return x_26;
+}
+else
+{
+obj* x_27; obj* x_28; obj* x_29; obj* x_30; 
+lean::dec(x_7);
 x_27 = lean::cnstr_get(x_1, 4);
 lean::inc(x_27);
 lean::dec(x_1);
 x_28 = l_Lean_Message_toString___closed__4;
-x_29 = lean::string_append(x_14, x_28);
-if (x_18 == 0)
-{
-obj* x_30; obj* x_31; obj* x_32; obj* x_33; 
-x_30 = l_Lean_Message_toString___closed__3;
-x_31 = lean::string_append(x_16, x_30);
-x_32 = lean::string_append(x_29, x_31);
-lean::dec(x_31);
-x_33 = lean::string_append(x_32, x_27);
+x_29 = lean::string_append(x_28, x_27);
 lean::dec(x_27);
-return x_33;
-}
-else
-{
-obj* x_34; obj* x_35; 
-lean::dec(x_16);
-x_34 = lean::string_append(x_29, x_17);
-x_35 = lean::string_append(x_34, x_27);
-lean::dec(x_27);
-return x_35;
+x_30 = l_Lean_mkErrorStringWithPos(x_2, x_4, x_5, x_29);
+lean::dec(x_29);
+return x_30;
 }
 }
 default: 
 {
-obj* x_36; obj* x_37; obj* x_38; 
-x_36 = lean::cnstr_get(x_1, 4);
-lean::inc(x_36);
-lean::dec(x_1);
-x_37 = l_EState_Result_toString___main___rarg___closed__2;
-x_38 = lean::string_append(x_14, x_37);
-if (x_18 == 0)
+if (x_9 == 0)
 {
-obj* x_39; obj* x_40; obj* x_41; obj* x_42; 
-x_39 = l_Lean_Message_toString___closed__3;
-x_40 = lean::string_append(x_16, x_39);
-x_41 = lean::string_append(x_38, x_40);
-lean::dec(x_40);
-x_42 = lean::string_append(x_41, x_36);
+obj* x_31; obj* x_32; obj* x_33; obj* x_34; obj* x_35; obj* x_36; obj* x_37; 
+x_31 = lean::cnstr_get(x_1, 4);
+lean::inc(x_31);
+lean::dec(x_1);
+x_32 = l_Lean_Message_toString___closed__1;
+x_33 = lean::string_append(x_7, x_32);
+x_34 = l_EState_Result_toString___main___rarg___closed__2;
+x_35 = lean::string_append(x_34, x_33);
+lean::dec(x_33);
+x_36 = lean::string_append(x_35, x_31);
+lean::dec(x_31);
+x_37 = l_Lean_mkErrorStringWithPos(x_2, x_4, x_5, x_36);
 lean::dec(x_36);
-return x_42;
+return x_37;
 }
 else
 {
-obj* x_43; obj* x_44; 
-lean::dec(x_16);
-x_43 = lean::string_append(x_38, x_17);
-x_44 = lean::string_append(x_43, x_36);
-lean::dec(x_36);
-return x_44;
+obj* x_38; obj* x_39; obj* x_40; obj* x_41; 
+lean::dec(x_7);
+x_38 = lean::cnstr_get(x_1, 4);
+lean::inc(x_38);
+lean::dec(x_1);
+x_39 = l_Lean_Message_toString___closed__5;
+x_40 = lean::string_append(x_39, x_38);
+lean::dec(x_38);
+x_41 = l_Lean_mkErrorStringWithPos(x_2, x_4, x_5, x_40);
+lean::dec(x_40);
+return x_41;
 }
 }
 }
@@ -371,6 +429,8 @@ w = initialize_init_data_tostring(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_position(w);
 if (io_result_is_error(w)) return w;
+l_Lean_mkErrorStringWithPos___closed__1 = _init_l_Lean_mkErrorStringWithPos___closed__1();
+lean::mark_persistent(l_Lean_mkErrorStringWithPos___closed__1);
 l_Lean_Message_toString___closed__1 = _init_l_Lean_Message_toString___closed__1();
 lean::mark_persistent(l_Lean_Message_toString___closed__1);
 l_Lean_Message_toString___closed__2 = _init_l_Lean_Message_toString___closed__2();
@@ -379,30 +439,23 @@ l_Lean_Message_toString___closed__3 = _init_l_Lean_Message_toString___closed__3(
 lean::mark_persistent(l_Lean_Message_toString___closed__3);
 l_Lean_Message_toString___closed__4 = _init_l_Lean_Message_toString___closed__4();
 lean::mark_persistent(l_Lean_Message_toString___closed__4);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Message"), "toString"), 1, l_Lean_Message_toString);
+l_Lean_Message_toString___closed__5 = _init_l_Lean_Message_toString___closed__5();
+lean::mark_persistent(l_Lean_Message_toString___closed__5);
 l_Lean_Message_Inhabited___closed__1 = _init_l_Lean_Message_Inhabited___closed__1();
 lean::mark_persistent(l_Lean_Message_Inhabited___closed__1);
 l_Lean_Message_Inhabited___closed__2 = _init_l_Lean_Message_Inhabited___closed__2();
 lean::mark_persistent(l_Lean_Message_Inhabited___closed__2);
 l_Lean_Message_Inhabited = _init_l_Lean_Message_Inhabited();
 lean::mark_persistent(l_Lean_Message_Inhabited);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Message"), "Inhabited"), l_Lean_Message_Inhabited);
 l_Lean_Message_HasToString___closed__1 = _init_l_Lean_Message_HasToString___closed__1();
 lean::mark_persistent(l_Lean_Message_HasToString___closed__1);
 l_Lean_Message_HasToString = _init_l_Lean_Message_HasToString();
 lean::mark_persistent(l_Lean_Message_HasToString);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Message"), "HasToString"), l_Lean_Message_HasToString);
 l_Lean_MessageLog_empty = _init_l_Lean_MessageLog_empty();
 lean::mark_persistent(l_Lean_MessageLog_empty);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "MessageLog"), "empty"), l_Lean_MessageLog_empty);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "MessageLog"), "add"), 2, l_Lean_MessageLog_add);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "MessageLog"), "append"), 2, l_Lean_MessageLog_append);
 l_Lean_MessageLog_HasAppend___closed__1 = _init_l_Lean_MessageLog_HasAppend___closed__1();
 lean::mark_persistent(l_Lean_MessageLog_HasAppend___closed__1);
 l_Lean_MessageLog_HasAppend = _init_l_Lean_MessageLog_HasAppend();
 lean::mark_persistent(l_Lean_MessageLog_HasAppend);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "MessageLog"), "HasAppend"), l_Lean_MessageLog_HasAppend);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "MessageLog"), "hasErrors"), 1, l_Lean_MessageLog_hasErrors___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "MessageLog"), "toList"), 1, l_Lean_MessageLog_toList);
 return w;
 }

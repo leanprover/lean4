@@ -35,7 +35,6 @@ obj* l_Array_uget(obj*, obj*, usize, obj*);
 obj* l_Lean_IR_CollectUsedDecls_collect___boxed(obj*, obj*, obj*);
 obj* l_Array_uset(obj*, obj*, usize, obj*, obj*);
 obj* l_HashMapImp_insert___at_Lean_IR_CollectMaps_collectVar___main___spec__1(obj*, obj*, uint8);
-extern obj* l_Lean_Syntax_formatStx___main___closed__4;
 obj* l_Lean_IR_CollectMaps_collectDecl(obj*, obj*);
 obj* l_Lean_IR_CollectUsedDecls_collectFnBody___boxed(obj*, obj*, obj*);
 uint8 l_AssocList_contains___main___at_Lean_IR_CollectMaps_collectVar___main___spec__2(obj*, obj*);
@@ -114,6 +113,7 @@ namespace lean {
 obj* nat_mul(obj*, obj*);
 }
 obj* l_Lean_IR_usesLeanNamespace___main___boxed(obj*, obj*);
+extern obj* l_Lean_Syntax_formatStx___main___rarg___closed__4;
 obj* l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix;
 obj* l_AssocList_replace___main___at_Lean_IR_CollectMaps_collectVar___main___spec__6___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_CollectMaps_collectParams(obj*, obj*);
@@ -196,7 +196,7 @@ obj* _init_l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix() {
 _start:
 {
 obj* x_1; 
-x_1 = l_Lean_Syntax_formatStx___main___closed__4;
+x_1 = l_Lean_Syntax_formatStx___main___rarg___closed__4;
 return x_1;
 }
 }
@@ -2212,28 +2212,13 @@ w = initialize_init_lean_compiler_initattr(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_compilerm(w);
 if (io_result_is_error(w)) return w;
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "isTailCallTo"), 2, l_Lean_IR_isTailCallTo___boxed);
 l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix = _init_l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix();
 lean::mark_persistent(l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix);
-lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "UsesLeanNamespace"), "leanNameSpacePrefix"), l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "UsesLeanNamespace"), "visitFnBody"), 3, l_Lean_IR_UsesLeanNamespace_visitFnBody___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "usesLeanNamespace"), 2, l_Lean_IR_usesLeanNamespace___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "CollectUsedDecls"), "collect"), 3, l_Lean_IR_CollectUsedDecls_collect___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "CollectUsedDecls"), "collectFnBody"), 3, l_Lean_IR_CollectUsedDecls_collectFnBody___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "CollectUsedDecls"), "collectInitDecl"), 3, l_Lean_IR_CollectUsedDecls_collectInitDecl);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "CollectUsedDecls"), "collectDecl"), 3, l_Lean_IR_CollectUsedDecls_collectDecl);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "collectUsedDecls"), 3, l_Lean_IR_collectUsedDecls);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "CollectMaps"), "collectVar"), 3, l_Lean_IR_CollectMaps_collectVar___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "CollectMaps"), "collectParams"), 2, l_Lean_IR_CollectMaps_collectParams___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "CollectMaps"), "collectJP"), 3, l_Lean_IR_CollectMaps_collectJP);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "CollectMaps"), "collectFnBody"), 2, l_Lean_IR_CollectMaps_collectFnBody);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "CollectMaps"), "collectDecl"), 2, l_Lean_IR_CollectMaps_collectDecl);
 l_Lean_IR_mkVarJPMaps___closed__1 = _init_l_Lean_IR_mkVarJPMaps___closed__1();
 lean::mark_persistent(l_Lean_IR_mkVarJPMaps___closed__1);
 l_Lean_IR_mkVarJPMaps___closed__2 = _init_l_Lean_IR_mkVarJPMaps___closed__2();
 lean::mark_persistent(l_Lean_IR_mkVarJPMaps___closed__2);
 l_Lean_IR_mkVarJPMaps___closed__3 = _init_l_Lean_IR_mkVarJPMaps___closed__3();
 lean::mark_persistent(l_Lean_IR_mkVarJPMaps___closed__3);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "mkVarJPMaps"), 1, l_Lean_IR_mkVarJPMaps);
 return w;
 }

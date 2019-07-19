@@ -52,7 +52,7 @@ match s.errorMsg with
   (stx, { context := c.toParserContextCore, pos := s.pos })
 
 private def mkEOI (pos : String.Pos) : Syntax :=
-let atom := Syntax.atom (some { pos := pos, trailing := "".toSubstring, leading := "".toSubstring }) "";
+let atom := mkAtom { pos := pos, trailing := "".toSubstring, leading := "".toSubstring } "";
 Syntax.node `Lean.Parser.Module.eoi [atom].toArray
 
 def isEOI (s : Syntax) : Bool :=

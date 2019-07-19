@@ -17,6 +17,12 @@ import init.lean.compiler.initattr
 namespace Lean
 namespace Parser
 
+abbrev mkAtom (info : SourceInfo) (val : String) : Syntax :=
+Syntax.atom info val
+
+abbrev mkIdent (info : SourceInfo) (rawVal : Substring) (val : Name) : Syntax :=
+Syntax.ident (some info) rawVal val []
+
 /- Function application precedence.
    In the standard lean language, only two tokens have precedence higher that `appPrec`.
    - The token `.` has precedence `appPrec+1`. Thus, field accesses like `g (h x).f` are parsed as `g ((h x).f)`,
@@ -553,11 +559,11 @@ private def rawAux {k : ParserKind} (startPos : Nat) (trailingWs : Bool) : Parse
     let s        := whitespace c s;
     let stopPos' := s.pos;
     let trailing := { Substring . str := input, startPos := stopPos, stopPos := stopPos' };
-    let atom     := Syntax.atom (some { leading := leading, pos := startPos, trailing := trailing }) val;
+    let atom     := mkAtom { leading := leading, pos := startPos, trailing := trailing } val;
     s.pushSyntax atom
   else
     let trailing := mkEmptySubstringAt input stopPos;
-    let atom := Syntax.atom (some { leading := leading, pos := startPos, trailing := trailing }) val;
+    let atom     := mkAtom { leading := leading, pos := startPos, trailing := trailing } val;
     s.pushSyntax atom
 
 /-- Match an arbitrary Parser and return the consumed String in a `Syntax.atom`. -/
@@ -733,7 +739,7 @@ match tk with
   let s         := whitespace c s;
   let wsStopPos := s.pos;
   let trailing  := { Substring . str := input, startPos := stopPos, stopPos := wsStopPos };
-  let atom      := Syntax.atom (some { leading := leading, pos := startPos, trailing := trailing }) val;
+  let atom      := mkAtom { leading := leading, pos := startPos, trailing := trailing } val;
   s.pushSyntax atom
 
 def mkIdResult (startPos : Nat) (tk : Option TokenConfig) (val : Name) : BasicParserFn :=
@@ -749,7 +755,7 @@ else
   let leading         := mkEmptySubstringAt input startPos;
   let trailing        := { Substring . str := input, startPos := stopPos, stopPos := trailingStopPos };
   let info            := { SourceInfo . leading := leading, trailing := trailing, pos := startPos };
-  let atom            := Syntax.ident (some info) rawVal val [];
+  let atom            := mkIdent info rawVal val;
   s.pushSyntax atom
 
 partial def identFnAux (startPos : Nat) (tk : Option TokenConfig) : Name → BasicParserFn

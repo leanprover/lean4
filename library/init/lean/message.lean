@@ -9,6 +9,9 @@ prelude
 import init.data.tostring init.lean.position
 
 namespace Lean
+def mkErrorStringWithPos (filename : String) (line col : Nat) (msg : String) : String :=
+filename ++ ":" ++ toString line ++ ":" ++ toString col ++ " " ++ toString msg
+
 inductive MessageSeverity
 | information | warning | error
 
@@ -23,13 +26,12 @@ structure Message :=
 
 namespace Message
 protected def toString (msg : Message) : String :=
-msg.filename ++ ":" ++ toString msg.pos.line ++ ":" ++ toString msg.pos.column ++ ": " ++
-(match msg.severity with
- | MessageSeverity.information => ""
- | MessageSeverity.warning => "warning: "
- | MessageSeverity.error => "error: ") ++
-(if msg.caption == "" then "" else msg.caption ++ ":\n") ++
-msg.text
+mkErrorStringWithPos msg.filename msg.pos.line msg.pos.column
+ ((match msg.severity with
+   | MessageSeverity.information => ""
+   | MessageSeverity.warning => "warning: "
+   | MessageSeverity.error => "error: ") ++
+  (if msg.caption == "" then "" else msg.caption ++ ":\n") ++ msg.text)
 
 instance : Inhabited Message :=
 ⟨{ filename := "", pos := ⟨0, 1⟩, text := ""}⟩

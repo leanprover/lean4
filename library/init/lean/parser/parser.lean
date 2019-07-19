@@ -7,6 +7,7 @@ prelude
 import init.lean.position
 import init.lean.syntax
 import init.lean.toexpr
+import init.lean.message
 import init.lean.environment
 import init.lean.attributes
 import init.lean.parser.trie
@@ -146,7 +147,7 @@ match s.errorMsg with
 | none     => ""
 | some msg =>
   let pos := ctx.fileMap.toPosition s.pos;
-  ctx.filename ++ ":" ++ toString pos.line ++ ":" ++ toString pos.column ++ " " ++ toString msg
+  mkErrorStringWithPos ctx.filename pos.line pos.column (toString msg)
 
 def mkNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserState :=
 match s with

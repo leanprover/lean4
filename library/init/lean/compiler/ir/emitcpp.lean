@@ -679,17 +679,6 @@ env ← getEnv;
 let decls := getDecls env;
 decls.reverse.mfor emitDecl
 
-def quoteNameAux : Name → Option String
-| (Name.mkString Name.anonymous s) := some $ "lean::mk_const_name(" ++ repr s ++ ")"
-| (Name.mkString p s) := match quoteNameAux p with
-  | some q => some $ "lean::mk_const_name(" ++ q ++ ", " ++ repr s ++ ")"
-  | _ => none
-| _ := none
-
-def quoteName (n : Name) : Option String :=
-if n.isInternal then none
-else quoteNameAux n
-
 def emitDeclInit (d : Decl) : M Unit :=
 do
 env ← getEnv;
@@ -697,7 +686,7 @@ let n := d.name;
 if isIOUnitInitFn env n then do {
   emit "w = "; emitCppName n; emitLn "(w);";
   emitLn "if (io_result_is_error(w)) return w;"
-} else if (d.params.size == 0) then do {
+} else when (d.params.size == 0) $ do {
   match getInitFnNameFor env d.name with
   | some initFn => do {
     emit "w = "; emitCppName initFn; emitLn "(w);";
@@ -707,23 +696,10 @@ if isIOUnitInitFn env n then do {
   | _ => do {
     emitCppName n; emit " = "; emitCppInitName n; emitLn "();"
   };
-  if d.resultType.isObj then do {
-    emit "lean::mark_persistent("; emitCppName n; emitLn ");";
-    match quoteName n with
-    | some q => do emit ("lean::register_constant(" ++ q ++ ", "); emitCppName n; emitLn ");"
-    | none   => pure ()
-  } else unless d.resultType.isIrrelevant $ do {
-    match quoteName n with
-    | some q => do emit ("lean::register_constant(" ++ q ++ ", "); emitBoxFn d.resultType; emit "("; emitCppName n; emitLn "));"
-    | none   => pure ()
+  when d.resultType.isObj $ do {
+    emit "lean::mark_persistent("; emitCppName n; emitLn ");"
   }
-} else
-  /- TODO(Leo): perhaps we should add a flag to disable closure registration. -/
-  match quoteName d.name with
-  | some q => do
-    let clsName := if requiresBoxedVersion env d then mkBoxedName d.name else d.name;
-    emit ("REGISTER_LEAN_FUNCTION(" ++ q ++ ", " ++ toString d.params.size ++ ", "); emitCppName clsName; emitLn ");"
-  | _ => pure ()
+}
 
 def emitInitFn : M Unit :=
 do

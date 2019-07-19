@@ -20,27 +20,27 @@ def appendMul : Expr → Expr → Expr
 
 def reassoc : Expr → Expr
 | (Add e₁ e₂) :=
-  let e₁' := reassoc e₁ in
-  let e₂' := reassoc e₂ in
+  let e₁' := reassoc e₁;
+  let e₂' := reassoc e₂;
   appendAdd e₁' e₂'
 | (Mul e₁ e₂) :=
-  let e₁' := reassoc e₁ in
-  let e₂' := reassoc e₂ in
+  let e₁' := reassoc e₁;
+  let e₂' := reassoc e₂;
   appendMul e₁' e₂'
 | e := e
 
 def constFolding : Expr → Expr
 | (Add e₁ e₂) :=
-  let e₁ := constFolding e₁ in
-  let e₂ := constFolding e₂ in
+  let e₁ := constFolding e₁;
+  let e₂ := constFolding e₂;
   (match e₁, e₂ with
    | Val a, Val b         => Val (a+b)
    | Val a, Add e (Val b) => Add (Val (a+b)) e
    | Val a, Add (Val b) e => Add (Val (a+b)) e
    | _,     _             => Add e₁ e₂)
 | (Mul e₁ e₂) :=
-  let e₁ := constFolding e₁ in
-  let e₂ := constFolding e₂ in
+  let e₁ := constFolding e₁;
+  let e₂ := constFolding e₂;
   (match e₁, e₂ with
    | Val a, Val b         => Val (a*b)
    | Val a, Mul e (Val b) => Mul (Val (a*b)) e
@@ -66,8 +66,8 @@ def eval : Expr → Nat
 | (Mul l r) := eval l * eval r
 
 def main : IO UInt32 :=
-let e  := (mkExpr 23 1) in
-let v₁ := eval e in
-let v₂ := eval (constFolding (reassoc e)) in
+let e  := (mkExpr 23 1);
+let v₁ := eval e;
+let v₂ := eval (constFolding (reassoc e));
 IO.println (toString v₁ ++ " " ++ toString v₂) *>
 pure 0

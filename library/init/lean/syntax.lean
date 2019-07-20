@@ -30,7 +30,7 @@ def fieldIdxKind : SyntaxNodeKind := `fieldIdx
 
 /- Syntax AST -/
 
-inductive Syntax (α : Type := Unit)
+inductive Syntax (α : Type := Empty)
 | missing {} : Syntax
 | node   (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
 | atom   {} (info : Option SourceInfo) (val : String) : Syntax

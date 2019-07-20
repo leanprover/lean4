@@ -1381,12 +1381,17 @@ def getSyntaxNodeKinds : IO (List SyntaxNodeKind) :=
 do s ← syntaxNodeKindSetRef.get;
    pure $ s.fold (fun ks k _ => k::ks) []
 
-def mkParserContext (env : Environment) (input : String) (filename : String) : ParserContext :=
-{ env      := env,
-  input    := input,
+def mkParserContextCore (env : Environment) (input : String) (filename : String) : ParserContextCore :=
+{ input    := input,
   filename := filename,
   fileMap  := input.toFileMap,
   tokens   := tokenTableAttribute.ext.getState env }
+
+@[inline] def ParserContextCore.toParserContext (env : Environment) (ctx : ParserContextCore) : ParserContext :=
+{ env := env, toParserContextCore := ctx }
+
+def mkParserContext (env : Environment) (input : String) (filename : String) : ParserContext :=
+(mkParserContextCore env input filename).toParserContext env
 
 def mkParserState (input : String) : ParserState :=
 { cache := initCacheForInput input }

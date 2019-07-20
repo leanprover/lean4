@@ -45,7 +45,9 @@ structure MessageLog :=
 (revList : List Message := [])
 
 namespace MessageLog
-def empty : MessageLog := ⟨[]⟩
+def empty : MessageLog := ⟨{}⟩
+
+instance : Inhabited MessageLog := ⟨{}⟩
 
 def add (msg : Message) (log : MessageLog) : MessageLog :=
 ⟨msg :: log.revList⟩

@@ -24,32 +24,30 @@ def updateTokens (c : ParserContext) : ParserContext :=
 
 end Module
 
-structure ModuleParser :=
-(context    : ParserContextCore)
+structure ModuleParserState :=
 (pos        : String.Pos := 0)
-(messages   : MessageLog := {})
-(recovering : Bool := false)
+(recovering : Bool       := false)
 
-instance ModuleParser.inhabited : Inhabited ModuleParser :=
-⟨{context := default _}⟩
+instance ModuleParserState.inhabited : Inhabited ModuleParserState :=
+⟨{}⟩
 
 private def mkErrorMessage (c : ParserContext) (pos : String.Pos) (errorMsg : String) : Message :=
 let pos := c.fileMap.toPosition pos;
 { filename := c.filename, pos := pos, text := errorMsg }
 
-def mkModuleParser (env : Environment) (input : String) (filename := "<input>") : Option Syntax × ModuleParser :=
-let c   := mkParserContext env input filename;
+def parseHeader (env : Environment) (c : ParserContextCore) : Syntax × ModuleParserState × MessageLog :=
+let c   := c.toParserContext env;
 let c   := Module.updateTokens c;
-let s   := mkParserState input;
+let s   := mkParserState c.input;
 let s   := whitespace c s;
 let s   := Module.header.fn (0:Nat) c s;
+let stx := s.stxStack.back;
 match s.errorMsg with
 | some errorMsg =>
   let msg := mkErrorMessage c s.pos (toString errorMsg);
-  (none, { context := c.toParserContextCore, pos := s.pos, messages := { MessageLog . }.add msg, recovering := true })
+  (stx, { pos := s.pos, recovering := true }, { MessageLog . }.add msg)
 | none =>
-  let stx := s.stxStack.back;
-  (stx, { context := c.toParserContextCore, pos := s.pos })
+  (stx, { pos := s.pos }, {})
 
 private def mkEOI (pos : String.Pos) : Syntax :=
 let atom := mkAtom { pos := pos, trailing := "".toSubstring, leading := "".toSubstring } "";
@@ -68,45 +66,44 @@ match s.errorMsg with
 | some _ => pos + 1
 | none   => s.pos
 
-partial def parseCommand (env : Environment) : ModuleParser → Syntax × ModuleParser
-| p :=
-  if p.context.input.atEnd p.pos then
-    (mkEOI p.pos, p)
+partial def parseCommand (env : Environment) (c : ParserContextCore) : ModuleParserState → MessageLog → Syntax × ModuleParserState × MessageLog
+| s@{ pos := pos, recovering := recovering } messages :=
+  if c.input.atEnd pos then
+    (mkEOI pos, s, messages)
   else
-    let c : ParserContext := { env := env, .. p.context };
-    let s : ParserState   := { cache := initCacheForInput c.input, pos := p.pos };
-    let s := (commandParser : Parser).fn (0:Nat) c s;
+    let c  := c.toParserContext env;
+    let s  := { ParserState . cache := initCacheForInput c.input, pos := pos };
+    let s  := (commandParser : Parser).fn (0:Nat) c s;
     match s.errorMsg with
     | none =>
       let stx := s.stxStack.back;
-      let p   := { pos := s.pos, recovering := false, .. p };
-      (stx, p)
+      (stx, { pos := s.pos }, messages)
     | some errorMsg =>
-      if p.recovering then
-        let p := { pos := consumeInput c s.pos, .. p };
-        parseCommand p
+      if recovering then
+        parseCommand { pos := consumeInput c s.pos, recovering := true } messages
       else
-        let msg := mkErrorMessage c s.pos (toString errorMsg);
-        let p   := { pos := s.pos, recovering := true, messages := p.messages.add msg, .. p };
-        parseCommand p
+        let msg      := mkErrorMessage c s.pos (toString errorMsg);
+        let messages := messages.add msg;
+        parseCommand { pos := consumeInput c s.pos, recovering := true } messages
 
-private partial def testModuleParserAux (env : Environment) (displayStx : Bool) : ModuleParser → IO Bool
-| p :=
-  match parseCommand env p with
-  | (stx, p) =>
+private partial def testModuleParserAux (env : Environment) (c : ParserContextCore) (displayStx : Bool) : ModuleParserState → MessageLog → IO Bool
+| s messages :=
+  match parseCommand env c s messages with
+  | (stx, s, messages) =>
     if isEOI stx || isExitCommand stx then do
-      p.messages.toList.mfor $ fun msg => IO.println msg;
-      pure (!p.messages.hasErrors)
+      messages.toList.mfor $ fun msg => IO.println msg;
+      pure (!messages.hasErrors)
     else do
       when displayStx (IO.println stx);
-      testModuleParserAux p
+      testModuleParserAux s messages
 
 @[export lean.test_module_parser_core]
 def testModuleParser (env : Environment) (input : String) (filename := "<input>") (displayStx := false) : IO Bool :=
 timeit (filename ++ " parser") $ do
-  let (stx, p) := mkModuleParser env input filename;
+  let ctx                := mkParserContextCore env input filename;
+  let (stx, s, messages) := parseHeader env ctx;
   when displayStx (IO.println stx);
-  testModuleParserAux env displayStx p
+  testModuleParserAux env ctx displayStx s messages
 
 end Parser
 end Lean

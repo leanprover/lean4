@@ -4,18 +4,23 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
+import init.control.reader
 import init.lean.namegenerator
 import init.lean.scopes
 import init.lean.parser.module
 
 namespace Lean
 
+structure ElabContext :=
+(fileName : String)
+(fileMap  : FileMap)
+
 structure ElabScope :=
 (options : Options := {})
 
 structure ElabState :=
 (env      : Environment)
-(parser   : Parser.ModuleParser)
+(messages : MessageLog := {})
 (cmdPos   : String.Pos := 0)
 (ngen     : NameGenerator := {})
 (scopes   : List ElabScope := [])
@@ -31,7 +36,7 @@ instance : Inhabited ElabException := ⟨other "error"⟩
 
 end ElabException
 
-abbrev Elab := EState ElabException ElabState
+abbrev Elab := ReaderT ElabContext (EState ElabException ElabState)
 
 abbrev TermElab    := Syntax → Elab Expr
 abbrev CommandElab := Syntax → Elab Unit
@@ -180,11 +185,10 @@ mkElabAttribute `commandTerm "command" builtinCommandElabTable
 constant commandElabAttribute : CommandElabAttribute := default _
 
 def logErrorAt (pos : String.Pos) (errorMsg : String) : Elab Unit :=
-do s ← get;
-   let ctx := s.parser.context;
+do ctx ← read;
    let pos := ctx.fileMap.toPosition pos;
-   let msg := { Message . filename := ctx.filename, pos := pos, text := errorMsg };
-   modify (fun s => { parser := { messages := s.parser.messages.add msg, .. s.parser }, .. s })
+   let msg := { Message . filename := ctx.fileName, pos := pos, text := errorMsg };
+   modify (fun s => { messages := s.messages.add msg, .. s })
 
 def logErrorUsingCmdPos (errorMsg : String) : Elab Unit :=
 do s ← get;
@@ -223,60 +227,71 @@ match stx with
   | none      => logError stx ("command elaborator failed, no support for syntax '" ++ toString k ++ "'")
 | _ => logErrorUsingCmdPos ("command elaborator failed, unexpected syntax")
 
-def mkElabState (env : Environment) (parser : Parser.ModuleParser) : ElabState :=
-{ env := env, parser := parser }
+structure FrontendState :=
+(elabState   : ElabState)
+(parserState : Parser.ModuleParserState)
 
-def updateParser (p : Parser.ModuleParser) : Elab Unit :=
-modify (fun s => { parser := p, .. s })
+abbrev Frontend := ReaderT Parser.ParserContextCore (EState ElabException FrontendState)
 
-def updateCmdPos : Elab Unit :=
-modify (fun s => { cmdPos := s.parser.pos, .. s })
+def getElabContext : Frontend ElabContext :=
+do c ← read;
+   pure { fileName := c.filename, fileMap := c.fileMap }
 
-def processCommand : Elab Bool :=
+def elabCommandAtFrontend (stx : Syntax) : Frontend Unit :=
+do c ← getElabContext;
+   monadLift $ EState.adaptState (elabCommand stx c)
+      (fun (s : FrontendState) => (s.elabState, s.parserState))
+      (fun es ps => { elabState := es, parserState := ps })
+
+def updateCmdPos : Frontend Unit :=
+modify $ fun s => { elabState := { cmdPos := s.parserState.pos, .. s.elabState }, .. s }
+
+def processCommand : Frontend Bool :=
 do updateCmdPos;
    s ← get;
-   let p         := s.parser;
-   match Parser.parseCommand s.env p with
-   | (stx, p) => do
-     updateParser p;
-     if Parser.isEOI stx || Parser.isExitCommand stx then do
+   let es := s.elabState;
+   let ps := s.parserState;
+   c ← read;
+   match Parser.parseCommand es.env c ps es.messages with
+   | (cmd, ps, messages) => do
+     set { elabState := { messages := messages, .. es }, parserState := ps };
+     if Parser.isEOI cmd || Parser.isExitCommand cmd then do
        pure true -- Done
      else do
-       elabCommand stx;
+       elabCommandAtFrontend cmd;
        pure false
 
-partial def processCommandsAux : Unit → Elab Unit
+partial def processCommandsAux : Unit → Frontend Unit
 | () := do
   done ← processCommand;
   if done then pure ()
   else processCommandsAux ()
 
-def processCommands : Elab Unit :=
+def processCommands : Frontend Unit :=
 processCommandsAux ()
 
-def processHeader (header : Syntax) (messages : MessageLog) : IO (Option Environment × MessageLog) :=
+def processHeader (header : Syntax) (messages : MessageLog) : IO (Environment × MessageLog) :=
 do IO.println header;
    -- TODO
    env ← mkEmptyEnvironment;
-   pure (some env, messages)
+   pure (env, messages)
 
-def testFrontend (input : String) (filename := "<input>") : IO (Option Environment × MessageLog) :=
+def testFrontend (input : String) (fileName := "<input>") : IO (Environment × MessageLog) :=
 do env ← mkEmptyEnvironment;
-   let (stx, p) := Parser.mkModuleParser env input filename;
-   match stx with
-   | none => pure (none, p.messages)
-   | some stx => do
-     (optEnv, messages) ← processHeader stx p.messages;
-     match optEnv with
-     | none => pure (none, messages)
-     | some env =>
-       let p := { messages := messages, .. p };
-       let s := mkElabState env p;
-       match processCommands.run s with
-       | EState.Result.ok _ s    => pure (some s.env, s.parser.messages)
-       | EState.Result.error _ s => pure (none, s.parser.messages)
+   let ctx := Parser.mkParserContextCore env input fileName;
+   match Parser.parseHeader env ctx with
+   | (header, parserState, messages) => do
+     (env, messages) ← processHeader header messages;
+     let elabState := { ElabState . env := env, messages := messages };
+     match (processCommands ctx).run { elabState := elabState, parserState := parserState } with
+       | EState.Result.ok _ s    => pure (s.elabState.env, s.elabState.messages)
+       | EState.Result.error _ s => pure (s.elabState.env, s.elabState.messages)
+
 
 namespace Elab
+
+instance {α} : Inhabited (Elab α) :=
+⟨fun _ => default _⟩
 
 /- Remark: in an ideal world where performance doesn't matter, we would define `Elab` as
    ```

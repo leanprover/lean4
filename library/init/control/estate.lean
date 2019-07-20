@@ -134,6 +134,15 @@ instance : MonadState σ (EState ε σ) :=
 instance : MonadExcept ε (EState ε σ) :=
 { throw := @EState.throw _ _, catch := @EState.catch _ _ }
 
+@[inline] def adaptState {σ₁ σ₂} (x : EState ε σ₁ α) (split : σ → σ₁ × σ₂) (merge : σ₁ → σ₂ → σ) : EState ε σ α :=
+fun r => match r with
+  | ⟨Result.error _ _, h⟩ => unreachableError h
+  | ⟨Result.ok _ s, _⟩    =>
+    let (s₁, s₂) := split s;
+    match x (resultOk.mk ⟨⟩ s₁) with
+    | Result.ok a s₁    => Result.ok a (merge s₁ s₂)
+    | Result.error e s₁ => Result.error e (merge s₁ s₂)
+
 @[inline] def run (x : EState ε σ α) (s : σ) : Result ε σ α :=
 x (resultOk.mk ⟨⟩ s)
 

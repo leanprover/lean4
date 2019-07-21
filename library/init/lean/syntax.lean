@@ -99,9 +99,9 @@ def isIdent {α} : Syntax α → Bool
 | (ident _ _ _ _) := true
 | _               := false
 
-def getIdentVal {α} : Syntax α → Option Name
-| (ident _ _ val _) := val
-| _                 := none
+@[inline] def getIdentVal {α ε m} [MonadExcept ε m] [HasLiftT String ε] [Monad m] : Syntax α → m Name
+| (ident _ _ val _) := pure val
+| _                 := throw (coe "ill-formed syntax")
 
 def isOfKind {α} : Syntax α → SyntaxNodeKind → Bool
 | (node kind _) k := k == kind

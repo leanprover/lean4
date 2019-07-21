@@ -40,6 +40,8 @@ end ElabException
 
 abbrev Elab := ReaderT ElabContext (EState ElabException ElabState)
 
+instance str2ElabException : HasCoe String ElabException := ⟨ElabException.other⟩
+
 abbrev TermElab    := SyntaxNode → Elab Expr
 abbrev CommandElab := SyntaxNode → Elab Unit
 
@@ -207,7 +209,7 @@ do pos ← getPos stx;
 
 def logErrorAndThrow {α : Type} (stx : Syntax) (errorMsg : String) : Elab α :=
 do logError stx errorMsg;
-   throw (ElabException.other errorMsg)
+   throw errorMsg
 
 def elabTerm (stx : Syntax) : Elab Expr :=
 stx.ifNode
@@ -218,7 +220,7 @@ stx.ifNode
     match tables.find k with
     | some elab => elab n
     | none      => logErrorAndThrow stx ("term elaborator failed, no support for syntax '" ++ toString k ++ "'"))
-  (fun _ => throw $ ElabException.other "term elaborator failed, unexpected syntax")
+  (fun _ => throw "term elaborator failed, unexpected syntax")
 
 def elabCommand (stx : Syntax) : Elab Unit :=
 stx.ifNode

@@ -188,10 +188,14 @@ mkElabAttribute `commandTerm "command" builtinCommandElabTable
 @[init mkCommandElabAttribute]
 constant commandElabAttribute : CommandElabAttribute := default _
 
-def logErrorAt (pos : String.Pos) (errorMsg : String) : Elab Unit :=
+def mkMessage (msg : String) (pos : Option String.Pos := none) : Elab Message :=
 do ctx ← read;
-   let pos := ctx.fileMap.toPosition pos;
-   let msg := { Message . filename := ctx.fileName, pos := pos, text := errorMsg };
+   s ← get;
+   let pos := ctx.fileMap.toPosition (pos.getOrElse s.cmdPos);
+   pure { filename := ctx.fileName, pos := pos, text := msg }
+
+def logErrorAt (pos : String.Pos) (errorMsg : String) : Elab Unit :=
+do msg ← mkMessage errorMsg pos;
    modify (fun s => { messages := s.messages.add msg, .. s })
 
 def logErrorUsingCmdPos (errorMsg : String) : Elab Unit :=
@@ -206,6 +210,15 @@ match stx.getPos with
 def logError (stx : Syntax) (errorMsg : String) : Elab Unit :=
 do pos ← getPos stx;
    logErrorAt pos errorMsg
+
+def toMessage : ElabException → Elab Message
+| (ElabException.msg m)   := pure m
+| (ElabException.io e)    := mkMessage (toString e)
+| (ElabException.other e) := mkMessage e
+
+def logElabException (e : ElabException) : Elab Unit :=
+do msg ← toMessage e;
+   modify (fun s => { messages := s.messages.add msg, .. s })
 
 def logErrorAndThrow {α : Type} (stx : Syntax) (errorMsg : String) : Elab α :=
 do logError stx errorMsg;
@@ -243,11 +256,14 @@ def getElabContext : Frontend ElabContext :=
 do c ← read;
    pure { fileName := c.filename, fileMap := c.fileMap }
 
-def elabCommandAtFrontend (stx : Syntax) : Frontend Unit :=
+@[specialize] def runElab {α} (x : Elab α) : Frontend α :=
 do c ← getElabContext;
-   monadLift $ EState.adaptState (elabCommand stx c)
+   monadLift $ EState.adaptState (x c)
       (fun (s : FrontendState) => (s.elabState, s.parserState))
       (fun es ps => { elabState := es, parserState := ps })
+
+def elabCommandAtFrontend (stx : Syntax) : Frontend Unit :=
+runElab (elabCommand stx)
 
 def updateCmdPos : Frontend Unit :=
 modify $ fun s => { elabState := { cmdPos := s.parserState.pos, .. s.elabState }, .. s }
@@ -264,7 +280,7 @@ do updateCmdPos;
      if Parser.isEOI cmd || Parser.isExitCommand cmd then do
        pure true -- Done
      else do
-       elabCommandAtFrontend cmd;
+       catch (elabCommandAtFrontend cmd) $ fun e => runElab (logElabException e);
        pure false
 
 partial def processCommandsAux : Unit → Frontend Unit

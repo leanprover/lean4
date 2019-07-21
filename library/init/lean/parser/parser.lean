@@ -1540,4 +1540,18 @@ fun a c s =>
 end ParserAttribute
 
 end Parser
+
+namespace Syntax
+
+def getOptional {α} (s : Syntax α) : Option (Syntax α) :=
+s.ifNode
+  (fun n => if n.getNumArgs == 1 then some (n.getArg 0) else none)
+  (fun _ => none)
+
+def getOptionalIdent {α ε m} [MonadExcept ε m] [HasLiftT String ε] [Monad m] (stx : Syntax α) : m (Option Name) :=
+match stx.getOptional with
+| some stx => do id ← stx.getIdentVal; pure (some id)
+| none     => pure none
+
+end Syntax
 end Lean

@@ -16,6 +16,8 @@ structure ElabContext :=
 (fileMap  : FileMap)
 
 structure ElabScope :=
+(cmd     : String)
+(header  : Name)
 (options : Options := {})
 
 structure ElabState :=
@@ -38,8 +40,8 @@ end ElabException
 
 abbrev Elab := ReaderT ElabContext (EState ElabException ElabState)
 
-abbrev TermElab    := Syntax → Elab Expr
-abbrev CommandElab := Syntax → Elab Unit
+abbrev TermElab    := SyntaxNode → Elab Expr
+abbrev CommandElab := SyntaxNode → Elab Unit
 
 abbrev TermElabTable : Type := SMap SyntaxNodeKind TermElab Name.quickLt
 abbrev CommandElabTable : Type := SMap SyntaxNodeKind CommandElab Name.quickLt
@@ -208,24 +210,26 @@ do logError stx errorMsg;
    throw (ElabException.other errorMsg)
 
 def elabTerm (stx : Syntax) : Elab Expr :=
-match stx with
-| Syntax.node k _ => do
-  s ← get;
-  let tables := termElabAttribute.ext.getState s.env;
-  match tables.find k with
-  | some elab => elab stx
-  | none      => logErrorAndThrow stx ("term elaborator failed, no support for syntax '" ++ toString k ++ "'")
-| _ => throw (ElabException.other "term elaborator failed, unexpected syntax")
+stx.ifNode
+  (fun n => do
+    s ← get;
+    let tables := termElabAttribute.ext.getState s.env;
+    let k      := n.getKind;
+    match tables.find k with
+    | some elab => elab n
+    | none      => logErrorAndThrow stx ("term elaborator failed, no support for syntax '" ++ toString k ++ "'"))
+  (fun _ => throw $ ElabException.other "term elaborator failed, unexpected syntax")
 
 def elabCommand (stx : Syntax) : Elab Unit :=
-match stx with
-| Syntax.node k _ => do
-  s ← get;
-  let tables := commandElabAttribute.ext.getState s.env;
-  match tables.find k with
-  | some elab => elab stx
-  | none      => logError stx ("command elaborator failed, no support for syntax '" ++ toString k ++ "'")
-| _ => logErrorUsingCmdPos ("command elaborator failed, unexpected syntax")
+stx.ifNode
+  (fun n => do
+    s ← get;
+    let tables := commandElabAttribute.ext.getState s.env;
+    let k := n.getKind;
+    match tables.find k with
+    | some elab => elab n
+    | none      => logError stx ("command elaborator failed, no support for syntax '" ++ toString k ++ "'"))
+  (fun _ => logErrorUsingCmdPos ("command elaborator failed, unexpected syntax"))
 
 structure FrontendState :=
 (elabState   : ElabState)

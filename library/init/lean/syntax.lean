@@ -47,12 +47,22 @@ def Syntax.isMissing {α} : Syntax α → Bool
 inductive IsNode {α} : Syntax α → Prop
 | mk (kind : SyntaxNodeKind) (args : Array (Syntax α)) : IsNode (Syntax.node kind args)
 
-def SyntaxNode (α : Type) : Type := {s : Syntax α // IsNode s }
+def SyntaxNode (α : Type := Empty) : Type := {s : Syntax α // IsNode s }
 
 def unreachIsNodeMissing {α β} (h : IsNode (@Syntax.missing α)) : β := False.elim (nomatch h)
 def unreachIsNodeAtom {α β} {info val} (h : IsNode (@Syntax.atom α info val)) : β := False.elim (nomatch h)
 def unreachIsNodeIdent {α β info rawVal val preresolved} (h : IsNode (@Syntax.ident α info rawVal val preresolved)) : β := False.elim (nomatch h)
 def unreachIsNodeOther {α β} {a : α} (h : IsNode (Syntax.other a)) : β := False.elim (nomatch h)
+
+namespace SyntaxNode
+
+@[inline] def getKind {α} (n : SyntaxNode α) : SyntaxNodeKind :=
+match n with
+| ⟨Syntax.node k args, _⟩   => k
+| ⟨Syntax.missing, h⟩       => unreachIsNodeMissing h
+| ⟨Syntax.atom _ _, h⟩      => unreachIsNodeAtom h
+| ⟨Syntax.ident _ _ _ _, h⟩ => unreachIsNodeIdent h
+| ⟨Syntax.other _ , h⟩      => unreachIsNodeOther h
 
 @[inline] def withArgs {α β} (n : SyntaxNode α) (fn : Array (Syntax α) → β) : β :=
 match n with
@@ -62,6 +72,12 @@ match n with
 | ⟨Syntax.ident _ _ _ _, h⟩ => unreachIsNodeIdent h
 | ⟨Syntax.other _ , h⟩      => unreachIsNodeOther h
 
+@[inline] def getNumArgs {α} (n : SyntaxNode α) : Nat :=
+withArgs n $ fun args => args.size
+
+@[inline] def getArg {α} (n : SyntaxNode α) (i : Nat) : Syntax α :=
+withArgs n $ fun args => args.get i
+
 @[inline] def updateArgs {α} (n : SyntaxNode α) (fn : Array (Syntax α) → Array (Syntax α)) : Syntax α :=
 match n with
 | ⟨Syntax.node kind args, _⟩ => Syntax.node kind (fn args)
@@ -70,10 +86,22 @@ match n with
 | ⟨Syntax.ident _ _ _ _,  h⟩ => unreachIsNodeIdent h
 | ⟨Syntax.other _, h⟩        => unreachIsNodeOther h
 
+end SyntaxNode
+
 namespace Syntax
+
+@[inline] def ifNode {α β} (stx : Syntax α) (hyes : SyntaxNode α → β) (hno : Unit → β) : β :=
+match stx with
+| Syntax.node k args => hyes ⟨Syntax.node k args, IsNode.mk k args⟩
+| _                  => hno ()
+
 def isIdent {α} : Syntax α → Bool
 | (ident _ _ _ _) := true
 | _               := false
+
+def getIdentVal {α} : Syntax α → Option Name
+| (ident _ _ val _) := val
+| _                 := none
 
 def isOfKind {α} : Syntax α → SyntaxNodeKind → Bool
 | (node kind _) k := k == kind

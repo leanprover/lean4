@@ -57,5 +57,10 @@ fun n => do
   | none => unless (checkAnonymousScope scopes) $ throw "invalid 'end', name is missing"
   | some header => unless (checkEndHeader header scopes) $ throw "invalid 'end', name mismatch"
 
+/- We just ignore Lean3 notation declaration commands. -/
+@[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()
+@[builtinCommandElab «reserve»] def elabReserve : CommandElab := fun _ => pure ()
+@[builtinCommandElab «notation»] def elabNotation : CommandElab := fun _ => pure ()
+
 end Elab
 end Lean

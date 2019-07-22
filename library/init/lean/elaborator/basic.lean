@@ -19,6 +19,7 @@ structure ElabScope :=
 (cmd     : String)
 (header  : Name)
 (options : Options := {})
+(ns      : Name := Name.anonymous) -- current namespace
 
 structure ElabState :=
 (env      : Environment)
@@ -314,6 +315,12 @@ namespace Elab
 
 instance {α} : Inhabited (Elab α) :=
 ⟨fun _ => default _⟩
+
+def getNamespace : Elab Name :=
+do s ← get;
+   match s.scopes with
+   | []      => pure Name.anonymous
+   | (sc::_) => pure sc.ns
 
 /- Remark: in an ideal world where performance doesn't matter, we would define `Elab` as
    ```

@@ -43,6 +43,11 @@ def getPrefix : Name → Name
 | (mkString p s)  := p
 | (mkNumeral p s) := p
 
+def getNumParts : Name → Nat
+| anonymous       := 0
+| (mkString p _)  := getNumParts p + 1
+| (mkNumeral p _) := getNumParts p + 1
+
 def updatePrefix : Name → Name → Name
 | anonymous       newP := anonymous
 | (mkString p s)  newP := mkString newP s
@@ -80,6 +85,10 @@ protected def decEq : ∀ (a b : @& Name), Decidable (a = b)
 
 instance : DecidableEq Name :=
 {decEq := Name.decEq}
+
+def eqStr : Name → String → Bool
+| (mkString Name.anonymous s) s' := s == s'
+| _ _ := false
 
 protected def append : Name → Name → Name
 | n anonymous := n

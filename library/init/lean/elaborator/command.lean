@@ -9,31 +9,52 @@ import init.lean.elaborator.basic
 namespace Lean
 namespace Elab
 
+private def addScopes (cmd : String) : Name → Name → List ElabScope → List ElabScope
+| Name.anonymous ns scopes := scopes
+| (Name.mkString p h) ns scopes :=
+  let ns := Name.mkString ns h;
+  { cmd := cmd, header := h, ns := ns.mkString h } :: addScopes p ns scopes
+| _ _ _ := [] -- unreachable
+
 @[builtinCommandElab «namespace»] def elabNamespace : CommandElab :=
 fun n => do
+  ns     ← getNamespace;
   header ← (n.getArg 1).getIdentVal;
-  modify $ fun s =>
-    let scope : ElabScope := { cmd := "namespace", header := header };
-    { scopes := scope :: s.scopes, .. s }
+  modify $ fun s => { scopes := addScopes "namespace" header ns s.scopes, .. s }
 
 @[builtinCommandElab «section»] def elabSection : CommandElab :=
 fun n => do
+  ns     ← getNamespace;
   header ← (n.getArg 1).getOptionalIdent;
-  let header := header.getOrElse Name.anonymous;
   modify $ fun s =>
-    let scope : ElabScope := { cmd := "section", header := header };
-    { scopes := scope :: s.scopes, .. s }
+    match header with
+    | some header => { scopes := addScopes "section" header ns s.scopes, .. s }
+    | none        => { scopes := { cmd := "section", header := Name.anonymous, ns := ns } :: s.scopes, .. s }
+
+private def getNumEndScopes : Option Name → Nat
+| none     := 1
+| (some n) := n.getNumParts
+
+private def checkAnonymousScope : List ElabScope → Bool
+| ({ header := Name.anonymous, .. } :: _) := true
+| _ := false
+
+private def checkEndHeader : Name → List ElabScope → Bool
+| Name.anonymous _ := true
+| (Name.mkString p s) ({ header := h, .. } :: scopes) := h.eqStr s && checkEndHeader p scopes
+| _ _ := false
 
 @[builtinCommandElab «end»] def elabEnd : CommandElab :=
 fun n => do
-  s ← get;
-  match s.scopes with
-  | [] => throw "invalid 'end', there is no open scope"
-  | (scope::scopes) => do
-    modify $ fun s => { scopes := scopes, .. s };
-    header ← (n.getArg 1).getOptionalIdent;
-    let header := header.getOrElse Name.anonymous;
-    unless (scope.header == header) $ throw "invalid 'end', name mismatch"
+  s      ← get;
+  header ← (n.getArg 1).getOptionalIdent;
+  let num    := getNumEndScopes header;
+  let scopes := s.scopes;
+  modify $ fun s => { scopes := s.scopes.drop num, .. s };
+  when (num > scopes.length) $ throw "invalid 'end', insufficient scopes";
+  match header with
+  | none => unless (checkAnonymousScope scopes) $ throw "invalid 'end', name is missing"
+  | some header => unless (checkEndHeader header scopes) $ throw "invalid 'end', name mismatch"
 
 end Elab
 end Lean

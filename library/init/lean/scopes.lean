@@ -8,7 +8,11 @@ import init.lean.environment
 
 namespace Lean
 
-/- Scope management -/
+/- Scope management
+
+TODO: delete after we delete parser implemented in C++.
+We have decided to store scope information at ElabState
+-/
 
 structure ScopeManagerState :=
 (allNamespaces : NameSet := {})

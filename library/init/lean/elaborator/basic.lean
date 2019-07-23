@@ -11,19 +11,6 @@ import init.lean.parser.module
 
 namespace Lean
 
-def regNamespacesExtension : IO (SimplePersistentEnvExtension Name NameSet) :=
-registerSimplePersistentEnvExtension {
-  name            := `namespaces,
-  addImportedFn   := fun as => mkStateFromImportedEntries NameSet.insert {} as,
-  addEntryFn      := fun s n => s.insert n
-}
-
-@[init regNamespacesExtension]
-constant namespacesExt : SimplePersistentEnvExtension Name NameSet := default _
-
-def registerNamespace (env : Environment) (n : Name) : Environment :=
-if (namespacesExt.getState env).contains n then env else namespacesExt.addEntry env n
-
 inductive OpenDecl
 | simple (ns : Name)
 | explicit (ns : Name) (ids : List Name)
@@ -41,12 +28,18 @@ structure ElabScope :=
 (ns        : Name := Name.anonymous) -- current namespace
 (openDecls : List OpenDecl := [])
 
+namespace ElabScope
+
+instance : Inhabited ElabScope := ⟨{ cmd := "", header := default _ }⟩
+
+end ElabScope
+
 structure ElabState :=
 (env      : Environment)
 (messages : MessageLog := {})
 (cmdPos   : String.Pos := 0)
 (ngen     : NameGenerator := {})
-(scopes   : List ElabScope := [])
+(scopes   : List ElabScope := [{ cmd := "root", header := Name.anonymous }])
 
 inductive ElabException
 | io    : IO.Error → ElabException
@@ -336,11 +329,65 @@ namespace Elab
 instance {α} : Inhabited (Elab α) :=
 ⟨fun _ => default _⟩
 
+def getOpenDecls : Elab (List OpenDecl) :=
+do s ← get;
+   pure s.scopes.head.openDecls
+
+def regNamespacesExtension : IO (SimplePersistentEnvExtension Name NameSet) :=
+registerSimplePersistentEnvExtension {
+  name            := `namespaces,
+  addImportedFn   := fun as => mkStateFromImportedEntries NameSet.insert {} as,
+  addEntryFn      := fun s n => s.insert n
+}
+
+@[init regNamespacesExtension]
+constant namespacesExt : SimplePersistentEnvExtension Name NameSet := default _
+
+def registerNamespace (env : Environment) (n : Name) : Environment :=
+if (namespacesExt.getState env).contains n then env else namespacesExt.addEntry env n
+
+def isNamespace (env : Environment) (n : Name) : Bool :=
+(namespacesExt.getState env).contains n
+
 def getNamespace : Elab Name :=
 do s ← get;
    match s.scopes with
    | []      => pure Name.anonymous
    | (sc::_) => pure sc.ns
+
+def rootNamespace := `_root_
+
+def removeRoot (n : Name) : Name :=
+n.replacePrefix rootNamespace Name.anonymous
+
+def resolveNamespaceUsingScopes (env : Environment) (n : Name) : List ElabScope → Option Name
+| [] := none
+| ({ ns := ns, .. } :: scopes) := if isNamespace env (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingScopes scopes
+
+def resolveNamespaceUsingOpenDecls (env : Environment) (n : Name) : List OpenDecl → Option Name
+| []                         := none
+| (OpenDecl.simple ns :: ds) :=  if isNamespace env (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingOpenDecls ds
+| (_ :: ds)                  := resolveNamespaceUsingOpenDecls ds
+
+/-
+Given a name `n` try to find namespace it refers to. The resolution procedure works as follows
+1- If `n` is the extact name of an existing namespace, then return `n`
+2- If `n` is in the scope of `namespace` commands declaring namespace headers `h_1`, ..., `h_n`,
+   then return `h_1 ++ ... ++ h_i ++ n` if it is the name of an existing namespace. We search "backwards".
+3- Finally, for each command `open N`, return `N ++ n` if it is the name of an existing namespace.
+   We search "backwards" again. That is, we try the most recent `open` command first.
+   We only consider simple `open` commands.
+-/
+def resolveNamespace (n : Name) : Elab Name :=
+do s ← get;
+   if isNamespace s.env n then pure n
+   else match resolveNamespaceUsingScopes s.env n s.scopes  with
+     | some n => pure n
+     | none   => do
+       openDecls ← getOpenDecls;
+       match resolveNamespaceUsingOpenDecls s.env n openDecls with
+       | some n => pure n
+       | none   => throw (ElabException.other ("unknown namespace '" ++ toString n ++ "'"))
 
 /- Remark: in an ideal world where performance doesn't matter, we would define `Elab` as
    ```

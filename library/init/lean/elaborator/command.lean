@@ -53,8 +53,13 @@ fun n => do
   header ← (n.getArg 1).getOptionalIdent;
   let num    := getNumEndScopes header;
   let scopes := s.scopes;
-  modify $ fun s => { scopes := s.scopes.drop num, .. s };
-  when (num > scopes.length) $ throw "invalid 'end', insufficient scopes";
+  if num < scopes.length then
+    modify $ fun s => { scopes := s.scopes.drop num, .. s }
+  else do {
+    -- we keep "root" scope
+    modify $ fun s => { scopes := s.scopes.drop (s.scopes.length - 1), .. s };
+    throw "invalid 'end', insufficient scopes"
+  };
   match header with
   | none => unless (checkAnonymousScope scopes) $ throw "invalid 'end', name is missing"
   | some header => unless (checkEndHeader header scopes) $ throw "invalid 'end', name mismatch"

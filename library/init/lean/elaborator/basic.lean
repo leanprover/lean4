@@ -11,15 +11,22 @@ import init.lean.parser.module
 
 namespace Lean
 
+inductive OpenDecl
+| simple (ns : Name)
+| explicit (ns : Name) (ids : List Name)
+| «hiding» (ns : Name) (ex : List Name)
+| «renaming» (ns : Name) (renames : List (Name × Name))
+
 structure ElabContext :=
 (fileName : String)
 (fileMap  : FileMap)
 
 structure ElabScope :=
-(cmd     : String)
-(header  : Name)
-(options : Options := {})
-(ns      : Name := Name.anonymous) -- current namespace
+(cmd       : String)
+(header    : Name)
+(options   : Options := {})
+(ns        : Name := Name.anonymous) -- current namespace
+(openDecls : List OpenDecl := [])
 
 structure ElabState :=
 (env      : Environment)

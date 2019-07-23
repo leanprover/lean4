@@ -46,6 +46,7 @@ obj* l_Lean_MessageLog_add(obj*, obj*);
 obj* l_Lean_Message_toString(obj*);
 obj* l_Lean_MessageLog_HasAppend;
 obj* l_Lean_MessageLog_hasErrors___boxed(obj*);
+obj* l_Lean_MessageLog_Inhabited;
 uint8 l_List_foldr___main___at_Lean_MessageLog_hasErrors___spec__1(uint8, obj*);
 extern obj* l_String_splitAux___main___closed__1;
 obj* l_Lean_Message_Inhabited___closed__1;
@@ -316,6 +317,14 @@ x_1 = lean::box(0);
 return x_1;
 }
 }
+obj* _init_l_Lean_MessageLog_Inhabited() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::box(0);
+return x_1;
+}
+}
 obj* l_Lean_MessageLog_add(obj* x_1, obj* x_2) {
 _start:
 {
@@ -453,6 +462,8 @@ l_Lean_Message_HasToString = _init_l_Lean_Message_HasToString();
 lean::mark_persistent(l_Lean_Message_HasToString);
 l_Lean_MessageLog_empty = _init_l_Lean_MessageLog_empty();
 lean::mark_persistent(l_Lean_MessageLog_empty);
+l_Lean_MessageLog_Inhabited = _init_l_Lean_MessageLog_Inhabited();
+lean::mark_persistent(l_Lean_MessageLog_Inhabited);
 l_Lean_MessageLog_HasAppend___closed__1 = _init_l_Lean_MessageLog_HasAppend___closed__1();
 lean::mark_persistent(l_Lean_MessageLog_HasAppend___closed__1);
 l_Lean_MessageLog_HasAppend = _init_l_Lean_MessageLog_HasAppend();

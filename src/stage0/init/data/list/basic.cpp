@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+obj* l_List_eraseDupsAux___rarg(obj*, obj*, obj*);
 obj* l_List_map_u2082___main(obj*, obj*, obj*);
 obj* l_List_dropWhile(obj*);
 obj* l_List_hasDecidableLt___rarg___boxed(obj*, obj*, obj*, obj*);
@@ -30,6 +31,7 @@ namespace lean {
 obj* nat_sub(obj*, obj*);
 }
 obj* l_List_length___rarg(obj*);
+obj* l_List_eraseDupsAux(obj*);
 obj* l_List_isEmpty___main___rarg___boxed(obj*);
 obj* l_List_getLastOfNonNil___rarg___boxed(obj*, obj*);
 obj* l_List_getLastOfNonNil___main(obj*);
@@ -162,6 +164,7 @@ obj* l_List_isEmpty(obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
+obj* l_List_eraseDups(obj*);
 obj* l_List_elem___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_foldr1(obj*);
 obj* l_List_isEqv___rarg___boxed(obj*, obj*, obj*);
@@ -197,6 +200,7 @@ uint8 l_List_and(obj*);
 obj* l_List_head(obj*);
 obj* l_List_getLast___rarg___boxed(obj*, obj*);
 obj* l_List_map___main(obj*, obj*);
+obj* l_List_eraseDupsAux___main___rarg(obj*, obj*, obj*);
 obj* l_List_foldr___main(obj*, obj*);
 obj* l_List_hasDecidableLt___main___at_List_hasDecidableLe___spec__1(obj*);
 uint8 l_List_hasDecidableLt___main___rarg(obj*, obj*, obj*, obj*);
@@ -255,9 +259,11 @@ obj* l_List_isEqv___main(obj*);
 uint8 l_List_hasDecidableLt___rarg(obj*, obj*, obj*, obj*);
 obj* l_List_getLast___main___rarg___boxed(obj*, obj*);
 obj* l_List_any(obj*);
+obj* l_List_eraseDupsAux___main(obj*);
 obj* l_List_hasDecEq___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_iota___main(obj*);
 obj* l_List_partition(obj*);
+obj* l_List_eraseDups___rarg(obj*, obj*);
 obj* l_List_take___main___rarg(obj*, obj*);
 obj* l_List_hasDecidableLt(obj*);
 obj* l_List_erase(obj*);
@@ -2091,6 +2097,121 @@ uint8 x_4; obj* x_5;
 x_4 = l_List_notElem___rarg(x_1, x_2, x_3);
 x_5 = lean::box(x_4);
 return x_5;
+}
+}
+obj* l_List_eraseDupsAux___main___rarg(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+if (lean::obj_tag(x_2) == 0)
+{
+obj* x_4; 
+lean::dec(x_1);
+x_4 = l_List_reverse___rarg(x_3);
+return x_4;
+}
+else
+{
+uint8 x_5; 
+x_5 = !lean::is_exclusive(x_2);
+if (x_5 == 0)
+{
+obj* x_6; obj* x_7; uint8 x_8; 
+x_6 = lean::cnstr_get(x_2, 0);
+x_7 = lean::cnstr_get(x_2, 1);
+lean::inc(x_3);
+lean::inc(x_6);
+lean::inc(x_1);
+x_8 = l_List_elem___main___rarg(x_1, x_6, x_3);
+if (x_8 == 0)
+{
+lean::cnstr_set(x_2, 1, x_3);
+{
+obj* _tmp_1 = x_7;
+obj* _tmp_2 = x_2;
+x_2 = _tmp_1;
+x_3 = _tmp_2;
+}
+goto _start;
+}
+else
+{
+lean::free_heap_obj(x_2);
+lean::dec(x_6);
+x_2 = x_7;
+goto _start;
+}
+}
+else
+{
+obj* x_11; obj* x_12; uint8 x_13; 
+x_11 = lean::cnstr_get(x_2, 0);
+x_12 = lean::cnstr_get(x_2, 1);
+lean::inc(x_12);
+lean::inc(x_11);
+lean::dec(x_2);
+lean::inc(x_3);
+lean::inc(x_11);
+lean::inc(x_1);
+x_13 = l_List_elem___main___rarg(x_1, x_11, x_3);
+if (x_13 == 0)
+{
+obj* x_14; 
+x_14 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_14, 0, x_11);
+lean::cnstr_set(x_14, 1, x_3);
+x_2 = x_12;
+x_3 = x_14;
+goto _start;
+}
+else
+{
+lean::dec(x_11);
+x_2 = x_12;
+goto _start;
+}
+}
+}
+}
+}
+obj* l_List_eraseDupsAux___main(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_List_eraseDupsAux___main___rarg), 3, 0);
+return x_2;
+}
+}
+obj* l_List_eraseDupsAux___rarg(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_List_eraseDupsAux___main___rarg(x_1, x_2, x_3);
+return x_4;
+}
+}
+obj* l_List_eraseDupsAux(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_List_eraseDupsAux___rarg), 3, 0);
+return x_2;
+}
+}
+obj* l_List_eraseDups___rarg(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_4; 
+x_3 = lean::box(0);
+x_4 = l_List_eraseDupsAux___main___rarg(x_1, x_2, x_3);
+return x_4;
+}
+}
+obj* l_List_eraseDups(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_List_eraseDups___rarg), 2, 0);
+return x_2;
 }
 }
 obj* l_List_spanAux___main___rarg(obj* x_1, obj* x_2, obj* x_3) {

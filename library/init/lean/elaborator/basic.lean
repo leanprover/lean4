@@ -11,6 +11,19 @@ import init.lean.parser.module
 
 namespace Lean
 
+def regNamespacesExtension : IO (SimplePersistentEnvExtension Name NameSet) :=
+registerSimplePersistentEnvExtension {
+  name            := `namespaces,
+  addImportedFn   := fun as => mkStateFromImportedEntries NameSet.insert {} as,
+  addEntryFn      := fun s n => s.insert n
+}
+
+@[init regNamespacesExtension]
+constant namespacesExt : SimplePersistentEnvExtension Name NameSet := default _
+
+def registerNamespace (env : Environment) (n : Name) : Environment :=
+if (namespacesExt.getState env).contains n then env else namespacesExt.addEntry env n
+
 inductive OpenDecl
 | simple (ns : Name)
 | explicit (ns : Name) (ids : List Name)

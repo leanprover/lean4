@@ -21,7 +21,9 @@ private def addScopes (cmd : String) : Name → Name → List ElabScope → List
 fun n => do
   ns     ← getNamespace;
   header ← (n.getArg 1).getIdentVal;
-  modify $ fun s => { scopes := addScopes "namespace" header ns s.scopes, .. s }
+  modify $ fun s => { scopes := addScopes "namespace" header ns s.scopes, .. s };
+  ns     ← getNamespace;
+  modify $ fun s => { env := registerNamespace s.env ns }
 
 @[builtinCommandElab «section»] def elabSection : CommandElab :=
 fun n => do

@@ -1420,25 +1420,26 @@ do tables ← tablesRef.get;
    tablesRef.reset;
    updateTokens p.info declName;
    updateSyntaxNodeKinds p.info;
+   let addTokens (tks : List TokenConfig) : IO Unit :=
+     let tks := tks.map $ fun tk => mkSimpleName tk.val;
+     tablesRef.set $ tks.eraseDups.foldl (fun (tables : ParsingTables) tk => { leadingTable := tables.leadingTable.insert tk p, .. tables }) tables;
    match p.info.firstTokens with
-   | FirstTokens.tokens tks =>
-     let tables := tks.foldl (fun (tables : ParsingTables) tk => { leadingTable := tables.leadingTable.insert (mkSimpleName tk.val) p, .. tables }) tables;
-     tablesRef.set tables
-   | _ =>
-     throw (IO.userError ("invalid builtin parser '" ++ toString declName ++ "', initial token is not statically known"))
+   | FirstTokens.tokens tks    => addTokens tks
+   | FirstTokens.optTokens tks => addTokens tks
+   | _ => throw (IO.userError ("invalid builtin parser '" ++ toString declName ++ "', initial token is not statically known"))
 
 def addBuiltinTrailingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : TrailingParser) : IO Unit :=
 do tables ← tablesRef.get;
    tablesRef.reset;
    updateTokens p.info declName;
    updateSyntaxNodeKinds p.info;
+   let addTokens (tks : List TokenConfig) : IO Unit :=
+     let tks := tks.map $ fun tk => mkSimpleName tk.val;
+     tablesRef.set $ tks.eraseDups.foldl (fun (tables : ParsingTables) tk => { trailingTable := tables.trailingTable.insert tk p, .. tables }) tables;
    match p.info.firstTokens with
-   | FirstTokens.tokens tks =>
-     let tables := tks.foldl (fun (tables : ParsingTables) tk => { trailingTable := tables.trailingTable.insert (mkSimpleName tk.val) p, .. tables }) tables;
-     tablesRef.set tables
-   | _ =>
-     let tables := { trailingParsers := p :: tables.trailingParsers, .. tables };
-     tablesRef.set tables
+   | FirstTokens.tokens tks    => addTokens tks
+   | FirstTokens.optTokens tks => addTokens tks
+   | _ => tablesRef.set { trailingParsers := p :: tables.trailingParsers, .. tables }
 
 def declareBuiltinParser (env : Environment) (addFnName : Name) (refDeclName : Name) (declName : Name) : IO Environment :=
 let name := `_regBuiltinParser ++ declName;

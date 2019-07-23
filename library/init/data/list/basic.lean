@@ -80,9 +80,11 @@ theorem appendAssoc : ∀ (as bs cs : List α), (as ++ bs) ++ cs = as ++ (bs ++ 
 instance : HasEmptyc (List α) :=
 ⟨List.nil⟩
 
-protected def erase {α} [DecidableEq α] : List α → α → List α
-| []     b := []
-| (a::l) b := if a = b then l else a :: erase l b
+protected def erase {α} [HasBeq α] : List α → α → List α
+| []      b := []
+| (a::as) b := match a == b with
+  | true  => as
+  | false => a :: erase as b
 
 def lengthAux : List α → Nat → Nat
 | []      n := n
@@ -177,6 +179,15 @@ def elem [HasBeq α] (a : α) : List α → Bool
 
 def notElem [HasBeq α] (a : α) (as : List α) : Bool :=
 !(as.elem a)
+
+def eraseDupsAux {α} [HasBeq α] : List α → List α → List α
+| []      bs := bs.reverse
+| (a::as) bs := match bs.elem a with
+  | true  => eraseDupsAux as bs
+  | false => eraseDupsAux as (a::bs)
+
+def eraseDups {α} [HasBeq α] (as : List α) : List α :=
+eraseDupsAux as []
 
 @[specialize] def spanAux (p : α → Bool) : List α → List α → List α × List α
 | []      rs := (rs.reverse, [])

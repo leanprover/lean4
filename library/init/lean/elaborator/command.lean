@@ -23,7 +23,7 @@ fun n => do
   header ← (n.getArg 1).getIdentVal;
   modify $ fun s => { scopes := addScopes "namespace" header ns s.scopes, .. s };
   ns     ← getNamespace;
-  modify $ fun s => { env := registerNamespace s.env ns }
+  modify $ fun s => { env := registerNamespace s.env ns, .. s }
 
 @[builtinCommandElab «section»] def elabSection : CommandElab :=
 fun n => do

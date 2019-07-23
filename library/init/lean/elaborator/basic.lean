@@ -264,8 +264,8 @@ stx.ifNode
     let k := n.getKind;
     match tables.find k with
     | some elab => elab n
-    | none      => logError stx ("command elaborator failed, no support for syntax '" ++ toString k ++ "'"))
-  (fun _ => logErrorUsingCmdPos ("command elaborator failed, unexpected syntax"))
+    | none      => logError stx ("command '" ++ toString k ++ "' has not been implemented"))
+  (fun _ => logErrorUsingCmdPos ("unexpected command"))
 
 structure FrontendState :=
 (elabState   : ElabState)

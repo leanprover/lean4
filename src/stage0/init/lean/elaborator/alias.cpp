@@ -35,10 +35,8 @@ obj* l_Lean_aliasExtension___closed__5;
 obj* l_Lean_SMap_insert___main___at_Lean_addAliasEntry___spec__1(obj*, obj*, obj*);
 obj* l_Lean_aliasExtension___closed__9;
 obj* l_Array_miterateAux___main___at_Lean_mkAliasExtension___spec__5___boxed(obj*, obj*, obj*, obj*);
-obj* l_Lean_mkAliasExtension___closed__6;
 obj* l_AssocList_find___main___at_Lean_isAlias___spec__4___boxed(obj*, obj*);
 obj* l_Lean_aliasExtension;
-obj* l_List_toArrayAux___main___rarg(obj*, obj*);
 obj* l_Lean_mkStateFromImportedEntries___at_Lean_mkAliasExtension___spec__3___boxed(obj*, obj*);
 obj* l_Array_uget(obj*, obj*, usize, obj*);
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__4;
@@ -49,7 +47,6 @@ obj* l_Array_miterateAux___main___at_Lean_mkAliasExtension___spec__4(obj*, obj*,
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkAliasExtension___spec__10(obj*, obj*);
 obj* l_Lean_aliasExtension___elambda__2___boxed(obj*);
 obj* l_Array_uset(obj*, obj*, usize, obj*, obj*);
-obj* l_List_redLength___main___rarg(obj*);
 uint8 l_Array_anyMAux___main___at_Lean_mkAliasExtension___spec__9(obj*, obj*, obj*);
 obj* l_IO_Prim_Ref_set(obj*, obj*, obj*, obj*);
 obj* l_Lean_mkAliasExtension___closed__4;
@@ -60,7 +57,6 @@ obj* l_Lean_aliasExtension___closed__7;
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3(obj*, obj*);
 extern "C" obj* lean_io_initializing(obj*);
 obj* l_HashMapImp_moveEntries___main___at_Lean_addAliasEntry___spec__7(obj*, obj*, obj*);
-obj* l_Array_mkEmpty(obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_isAlias___spec__2___boxed(obj*, obj*);
 obj* l_Lean_SMap_empty___at_Lean_mkAliasExtension___spec__1___closed__1;
 obj* l_Lean_mkAliasExtension___closed__1;
@@ -108,7 +104,6 @@ obj* l_AssocList_contains___main___at_Lean_addAliasEntry___spec__5___boxed(obj*,
 obj* l_Lean_PersistentEnvExtension_addEntry___rarg(obj*, obj*, obj*);
 obj* l_IO_Prim_Ref_get(obj*, obj*, obj*);
 uint8 l_Lean_Name_quickLt(obj*, obj*);
-obj* l_Lean_mkAliasExtension___lambda__2(obj*);
 uint8 l_AssocList_contains___main___at_Lean_addAliasEntry___spec__5(obj*, obj*);
 namespace lean {
 usize usize_modn(usize, obj*);
@@ -141,6 +136,7 @@ obj* nat_mul(obj*, obj*);
 }
 obj* l_Lean_mkAliasExtension___lambda__1___boxed(obj*);
 extern obj* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
+extern obj* l_Lean_regNamespacesExtension___closed__5;
 obj* l_IO_Prim_Ref_reset(obj*, obj*, obj*);
 extern obj* l___private_init_lean_environment_5__envExtensionsRef;
 extern obj* l_String_splitAux___main___closed__1;
@@ -4928,17 +4924,6 @@ x_5 = l_Lean_SMap_switch___at_Lean_mkAliasExtension___spec__6(x_4);
 return x_5;
 }
 }
-obj* l_Lean_mkAliasExtension___lambda__2(obj* x_1) {
-_start:
-{
-obj* x_2; obj* x_3; obj* x_4; 
-x_2 = l_List_redLength___main___rarg(x_1);
-x_3 = lean::mk_empty_array(x_2);
-lean::dec(x_2);
-x_4 = l_List_toArrayAux___main___rarg(x_1, x_3);
-return x_4;
-}
-}
 obj* _init_l_Lean_mkAliasExtension___closed__1() {
 _start:
 {
@@ -4976,19 +4961,11 @@ return x_1;
 obj* _init_l_Lean_mkAliasExtension___closed__5() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_mkAliasExtension___lambda__2), 1, 0);
-return x_1;
-}
-}
-obj* _init_l_Lean_mkAliasExtension___closed__6() {
-_start:
-{
 obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
 x_1 = l_Lean_mkAliasExtension___closed__2;
 x_2 = l_Lean_mkAliasExtension___closed__3;
 x_3 = l_Lean_mkAliasExtension___closed__4;
-x_4 = l_Lean_mkAliasExtension___closed__5;
+x_4 = l_Lean_regNamespacesExtension___closed__5;
 x_5 = lean::alloc_cnstr(0, 4, 0);
 lean::cnstr_set(x_5, 0, x_1);
 lean::cnstr_set(x_5, 1, x_2);
@@ -5001,7 +4978,7 @@ obj* l_Lean_mkAliasExtension(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = l_Lean_mkAliasExtension___closed__6;
+x_2 = l_Lean_mkAliasExtension___closed__5;
 x_3 = l_Lean_registerSimplePersistentEnvExtension___at_Lean_mkAliasExtension___spec__7(x_2, x_1);
 return x_3;
 }
@@ -5481,8 +5458,6 @@ l_Lean_mkAliasExtension___closed__4 = _init_l_Lean_mkAliasExtension___closed__4(
 lean::mark_persistent(l_Lean_mkAliasExtension___closed__4);
 l_Lean_mkAliasExtension___closed__5 = _init_l_Lean_mkAliasExtension___closed__5();
 lean::mark_persistent(l_Lean_mkAliasExtension___closed__5);
-l_Lean_mkAliasExtension___closed__6 = _init_l_Lean_mkAliasExtension___closed__6();
-lean::mark_persistent(l_Lean_mkAliasExtension___closed__6);
 l_Lean_aliasExtension___closed__1 = _init_l_Lean_aliasExtension___closed__1();
 lean::mark_persistent(l_Lean_aliasExtension___closed__1);
 l_Lean_aliasExtension___closed__2 = _init_l_Lean_aliasExtension___closed__2();

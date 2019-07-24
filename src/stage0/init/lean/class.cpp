@@ -101,6 +101,7 @@ obj* l_AssocList_mfoldl___main___at_Lean_ClassState_addEntry___spec__8(obj*, obj
 obj* l_AssocList_mfoldl___main___at_Lean_ClassState_addEntry___spec__28(obj*, obj*);
 extern obj* l_Lean_AttributeImpl_inhabited___closed__4;
 obj* l_Lean_SMap_insert___main___at_Lean_ClassState_addEntry___spec__1___boxed(obj*, obj*, obj*);
+obj* l_Lean_registerTagAttribute___lambda__5___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_ClassState_switch___main(obj*);
 obj* l_Lean_ClassEntry_getName(obj*);
 obj* l___private_init_lean_class_2__consumeNLambdas___main(obj*, obj*);
@@ -165,7 +166,6 @@ uint8 has_out_params_core(obj*, obj*);
 obj* l_HashMapImp_expand___at_Lean_ClassState_addEntry___spec__26(obj*, obj*);
 obj* l_Array_push(obj*, obj*, obj*);
 uint8 l_RBNode_isRed___main___rarg(obj*);
-extern obj* l_Lean_regScopeManagerExtension___closed__5;
 obj* l_Lean_SMap_contains___main___at_Lean_isClass___spec__1___boxed(obj*, obj*);
 extern obj* l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1;
 obj* l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__5;
@@ -188,7 +188,6 @@ obj* l_Lean_mkClassExtension___lambda__1___boxed(obj*);
 obj* l_EState_bind___rarg(obj*, obj*, obj*);
 obj* l_HashMapImp_expand___at_Lean_ClassState_addEntry___spec__6(obj*, obj*);
 obj* l_Lean_mkClassExtension___closed__4;
-obj* l_Lean_registerTagAttribute___lambda__7___boxed(obj*, obj*, obj*, obj*, obj*);
 uint8 l_AssocList_contains___main___at_Lean_ClassState_addEntry___spec__25(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_addEntry___rarg(obj*, obj*, obj*);
 obj* l_Lean_getClassName___boxed(obj*, obj*);
@@ -268,6 +267,7 @@ obj* nat_mul(obj*, obj*);
 obj* l_Lean_registerInstanceAttr___lambda__1___closed__1;
 obj* l_Lean_registerInstanceAttr___closed__3;
 extern obj* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
+extern obj* l_Lean_regNamespacesExtension___closed__5;
 obj* l_HashMapImp_expand___at_Lean_ClassState_addEntry___spec__17(obj*, obj*);
 obj* l_IO_Prim_Ref_reset(obj*, obj*, obj*);
 extern obj* l___private_init_lean_environment_5__envExtensionsRef;
@@ -8987,7 +8987,7 @@ obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5;
 x_1 = l_Lean_mkClassExtension___closed__2;
 x_2 = l_Lean_mkClassExtension___closed__3;
 x_3 = l_Lean_mkClassExtension___closed__4;
-x_4 = l_Lean_regScopeManagerExtension___closed__5;
+x_4 = l_Lean_regNamespacesExtension___closed__5;
 x_5 = lean::alloc_cnstr(0, 4, 0);
 lean::cnstr_set(x_5, 0, x_1);
 lean::cnstr_set(x_5, 1, x_2);
@@ -10377,7 +10377,7 @@ _start:
 {
 obj* x_1; obj* x_2; 
 x_1 = l_Lean_registerClassAttr___closed__2;
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__6___boxed), 5, 1);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__5___boxed), 5, 1);
 lean::closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -10387,7 +10387,7 @@ _start:
 {
 obj* x_1; obj* x_2; 
 x_1 = l_Lean_registerClassAttr___closed__2;
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__7___boxed), 5, 1);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__6___boxed), 5, 1);
 lean::closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -10601,7 +10601,7 @@ _start:
 {
 obj* x_1; obj* x_2; 
 x_1 = l_Lean_registerInstanceAttr___closed__2;
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__6___boxed), 5, 1);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__5___boxed), 5, 1);
 lean::closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -10611,7 +10611,7 @@ _start:
 {
 obj* x_1; obj* x_2; 
 x_1 = l_Lean_registerInstanceAttr___closed__2;
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__7___boxed), 5, 1);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__6___boxed), 5, 1);
 lean::closure_set(x_2, 0, x_1);
 return x_2;
 }

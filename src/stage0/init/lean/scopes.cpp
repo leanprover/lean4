@@ -41,14 +41,12 @@ uint8 l_List_isEmpty___main___rarg(obj*);
 namespace lean {
 obj* get_scope_header_core(obj*);
 }
-obj* l_List_toArrayAux___main___rarg(obj*, obj*);
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__4;
 obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
 obj* l_Lean_SimplePersistentEnvExtension_getState___rarg(obj*, obj*);
 obj* l_Lean_scopeManagerExt;
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__2;
 obj* l_Lean_ScopeManagerState_Inhabited;
-obj* l_List_redLength___main___rarg(obj*);
 obj* l_Lean_Environment_registerNamespaceAux(obj*, obj*);
 obj* l_IO_Prim_Ref_set(obj*, obj*, obj*, obj*);
 namespace lean {
@@ -57,7 +55,6 @@ obj* get_namespace_core(obj*);
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(obj*, obj*, obj*);
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3(obj*, obj*);
 extern "C" obj* lean_io_initializing(obj*);
-obj* l_Array_mkEmpty(obj*, obj*);
 obj* l_Lean_SimplePersistentEnvExtension_modifyState___rarg(obj*, obj*, obj*);
 obj* l_Lean_regScopeManagerExtension___lambda__1(obj*, obj*);
 obj* l_Lean_scopeManagerExt___closed__2;
@@ -104,7 +101,6 @@ obj* register_namespace_core(obj*, obj*);
 obj* l_Lean_regScopeManagerExtension___lambda__2(obj*);
 obj* l_Lean_scopeManagerExt___elambda__2___boxed(obj*);
 obj* l_Lean_regScopeManagerExtension___closed__3;
-obj* l_Lean_regScopeManagerExtension___closed__6;
 obj* l_Lean_scopeManagerExt___elambda__4___boxed(obj*);
 obj* l_List_foldl___main___at_Lean_Environment_toValidNamespace___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_ScopeManagerState_saveNamespace(obj*, obj*);
@@ -137,6 +133,7 @@ obj* l_Lean_Environment_hasOpenScopes___boxed(obj*);
 obj* l_Lean_Name_append___main(obj*, obj*);
 obj* l_Lean_Environment_pushScopeCore___lambda__1___boxed(obj*, obj*, obj*, obj*);
 extern obj* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
+extern obj* l_Lean_regNamespacesExtension___closed__5;
 namespace lean {
 obj* to_valid_namespace_core(obj*, obj*);
 }
@@ -144,7 +141,6 @@ obj* l_IO_Prim_Ref_reset(obj*, obj*, obj*);
 extern obj* l___private_init_lean_environment_5__envExtensionsRef;
 obj* l_Lean_scopeManagerExt___elambda__4(obj*);
 obj* l_Lean_scopeManagerExt___elambda__4___rarg(obj*);
-obj* l_Lean_regScopeManagerExtension___lambda__3(obj*);
 extern obj* l_String_splitAux___main___closed__1;
 obj* _init_l_Lean_ScopeManagerState_Inhabited___closed__1() {
 _start:
@@ -2094,17 +2090,6 @@ x_4 = l_Array_miterateAux___main___at_Lean_regScopeManagerExtension___spec__3(x_
 return x_4;
 }
 }
-obj* l_Lean_regScopeManagerExtension___lambda__3(obj* x_1) {
-_start:
-{
-obj* x_2; obj* x_3; obj* x_4; 
-x_2 = l_List_redLength___main___rarg(x_1);
-x_3 = lean::mk_empty_array(x_2);
-lean::dec(x_2);
-x_4 = l_List_toArrayAux___main___rarg(x_1, x_3);
-return x_4;
-}
-}
 obj* _init_l_Lean_regScopeManagerExtension___closed__1() {
 _start:
 {
@@ -2142,19 +2127,11 @@ return x_1;
 obj* _init_l_Lean_regScopeManagerExtension___closed__5() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_regScopeManagerExtension___lambda__3), 1, 0);
-return x_1;
-}
-}
-obj* _init_l_Lean_regScopeManagerExtension___closed__6() {
-_start:
-{
 obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
 x_1 = l_Lean_regScopeManagerExtension___closed__2;
 x_2 = l_Lean_regScopeManagerExtension___closed__3;
 x_3 = l_Lean_regScopeManagerExtension___closed__4;
-x_4 = l_Lean_regScopeManagerExtension___closed__5;
+x_4 = l_Lean_regNamespacesExtension___closed__5;
 x_5 = lean::alloc_cnstr(0, 4, 0);
 lean::cnstr_set(x_5, 0, x_1);
 lean::cnstr_set(x_5, 1, x_2);
@@ -2167,7 +2144,7 @@ obj* l_Lean_regScopeManagerExtension(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = l_Lean_regScopeManagerExtension___closed__6;
+x_2 = l_Lean_regScopeManagerExtension___closed__5;
 x_3 = l_Lean_registerSimplePersistentEnvExtension___at_Lean_regScopeManagerExtension___spec__4(x_2, x_1);
 return x_3;
 }
@@ -2939,8 +2916,6 @@ l_Lean_regScopeManagerExtension___closed__4 = _init_l_Lean_regScopeManagerExtens
 lean::mark_persistent(l_Lean_regScopeManagerExtension___closed__4);
 l_Lean_regScopeManagerExtension___closed__5 = _init_l_Lean_regScopeManagerExtension___closed__5();
 lean::mark_persistent(l_Lean_regScopeManagerExtension___closed__5);
-l_Lean_regScopeManagerExtension___closed__6 = _init_l_Lean_regScopeManagerExtension___closed__6();
-lean::mark_persistent(l_Lean_regScopeManagerExtension___closed__6);
 l_Lean_scopeManagerExt___closed__1 = _init_l_Lean_scopeManagerExt___closed__1();
 lean::mark_persistent(l_Lean_scopeManagerExt___closed__1);
 l_Lean_scopeManagerExt___closed__2 = _init_l_Lean_scopeManagerExt___closed__2();

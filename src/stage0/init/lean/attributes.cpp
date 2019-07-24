@@ -16,6 +16,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #endif
 obj* l_RBNode_find___main___at_Lean_EnumAttributes_setValue___spec__1___rarg(obj*, obj*);
 obj* l_Lean_getAttributeImpl___closed__1;
+obj* l_Lean_registerTagAttribute___lambda__3___closed__1;
 obj* l_RBNode_fold___main___at_Lean_registerEnumAttributes___spec__1(obj*);
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
 obj* l_Lean_attributeArrayRef;
@@ -41,8 +42,6 @@ obj* l_Lean_registerTagAttribute___lambda__4___closed__2;
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerParametricAttribute___spec__9(obj*);
 obj* l_RBNode_find___main___at_Lean_ParametricAttribute_getParam___spec__1___rarg(obj*, obj*);
 obj* l_Array_binSearchAux___main___at_Lean_EnumAttributes_getValue___spec__2(obj*);
-obj* l_Lean_registerTagAttribute___lambda__7(obj*, obj*, obj*, uint8, obj*);
-obj* l_Lean_registerTagAttribute___closed__4;
 namespace lean {
 obj* add_scoped_attribute_core(obj*, obj*, obj*, obj*, obj*);
 }
@@ -65,7 +64,6 @@ obj* l_Lean_AttributeImpl_inhabited___closed__5;
 namespace lean {
 obj* attribute_application_time_core(obj*, obj*);
 }
-obj* l_Lean_registerTagAttribute___lambda__5___closed__1;
 obj* l_Lean_registerTagAttribute___lambda__4___closed__4;
 extern obj* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__2;
 uint8 l_HashMapImp_contains___at_Lean_registerAttribute___spec__1(obj*, obj*);
@@ -75,7 +73,7 @@ obj* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_registerParametricAtt
 obj* l_RBNode_find___main___at_Lean_EnumAttributes_setValue___spec__1___rarg___boxed(obj*, obj*);
 obj* l_Lean_registerAttribute(obj*, obj*);
 obj* l_HashMapImp_contains___at_Lean_registerAttribute___spec__1___boxed(obj*, obj*);
-obj* l_Lean_registerTagAttribute___lambda__4___boxed(obj*);
+obj* l_Lean_registerTagAttribute___lambda__4___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_registerTagAttribute___spec__3___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_Environment_popScope___spec__1(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_registerParametricAttribute___spec__3___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -112,9 +110,9 @@ obj* l_Lean_AttributeImpl_inhabited___lambda__2___closed__2;
 extern "C" obj* lean_io_initializing(obj*);
 obj* l_RBNode_fold___main___at_Lean_registerEnumAttributes___spec__1___rarg___boxed(obj*, obj*);
 obj* l_Array_binSearchAux___main___at_Lean_ParametricAttribute_getParam___spec__2(obj*);
-obj* l_Lean_registerTagAttribute___lambda__4(obj*);
+obj* l_Lean_registerTagAttribute___lambda__4(obj*, obj*, obj*, obj*, obj*, obj*, uint8, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_registerParametricAttribute___spec__4___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_Lean_registerTagAttribute___lambda__2(obj*, obj*);
+obj* l_Lean_registerTagAttribute___lambda__2(obj*);
 obj* l_Lean_ParametricAttribute_getParam___rarg___boxed(obj*, obj*, obj*, obj*);
 namespace lean {
 obj* push_scope_core(obj*, obj*, uint8, obj*);
@@ -122,6 +120,7 @@ obj* push_scope_core(obj*, obj*, uint8, obj*);
 obj* l_Lean_registerEnumAttributes___rarg___lambda__2___closed__4;
 obj* l_Array_binSearchAux___main___at_Lean_ParametricAttribute_getParam___spec__2___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_registerEnumAttributes___rarg___closed__1;
+extern obj* l_Lean_regNamespacesExtension___closed__3;
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__6___closed__1;
 obj* l_Array_swap(obj*, obj*, obj*, obj*);
 obj* l_Lean_registerEnumAttributes___rarg___lambda__2___closed__1;
@@ -133,7 +132,7 @@ obj* activate_scoped_attribute_core(obj*, obj*, obj*, obj*);
 uint8 l_Lean_NameSet_contains(obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_registerEnumAttributes___spec__6___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_ParametricAttribute_getParam___spec__1___rarg___boxed(obj*, obj*);
-obj* l_Lean_registerTagAttribute___lambda__5___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_registerTagAttribute___lambda__5___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_registerTagAttribute(obj*, obj*, obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_registerParametricAttribute___spec__6___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_EnumAttributes_Inhabited___closed__1;
@@ -141,7 +140,6 @@ obj* l_Nat_repr(obj*);
 namespace lean {
 obj* is_attribute_core(obj*, obj*);
 }
-obj* l_RBNode_insert___at_Lean_NameSet_insert___spec__1(obj*, obj*, obj*);
 obj* l_Lean_registerParametricAttribute(obj*);
 obj* l_Lean_AttributeImpl_inhabited___lambda__5(obj*, obj*);
 obj* l_Lean_registerEnumAttributes___rarg___lambda__2___closed__3;
@@ -151,6 +149,7 @@ obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_register
 obj* l_Lean_Environment_pushScope___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_getState___rarg(obj*, obj*);
 obj* l_List_mfor___main___at_Lean_registerEnumAttributes___spec__11(obj*, obj*);
+obj* l_Lean_registerTagAttribute___lambda__3___closed__2;
 obj* l_Lean_AttributeImpl_inhabited___lambda__2___closed__4;
 obj* l_Lean_Environment_getModuleIdxFor(obj*, obj*);
 obj* l_AssocList_mfoldl___main___at_Lean_getAttributeNames___spec__1___boxed(obj*, obj*);
@@ -183,14 +182,13 @@ obj* l_Array_anyMAux___main___at_Lean_registerParametricAttribute___spec__8___ra
 extern obj* l_Char_HasRepr___closed__1;
 obj* l_Lean_ParametricAttribute_Inhabited___closed__1;
 obj* l_Lean_AttributeImpl_inhabited___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*);
-obj* l_Lean_registerTagAttribute___lambda__5___closed__4;
 obj* l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(obj*, obj*, obj*);
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__6(obj*, obj*);
 obj* l_Lean_AttributeImpl_inhabited___closed__2;
 obj* l_Lean_EnumAttributes_getValue(obj*);
 obj* l_Lean_mkAttributeMapRef(obj*);
 obj* l_Array_anyMAux___main___at_Lean_registerParametricAttribute___spec__8(obj*);
-obj* l_Lean_registerTagAttribute___lambda__5(obj*, obj*, obj*, obj*, obj*, obj*, uint8, obj*);
+obj* l_Lean_registerTagAttribute___lambda__5(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
 obj* l_Array_qsortAux___main___at_Lean_registerEnumAttributes___spec__2___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Environment_addAttribute___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -204,7 +202,6 @@ namespace lean {
 obj* add_attribute_core(obj*, obj*, obj*, obj*, uint8, obj*);
 }
 obj* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(obj*, obj*, obj*);
-obj* l_Lean_registerTagAttribute___lambda__5___closed__5;
 extern obj* l_Lean_nullKind;
 obj* l_Array_miterateAux___main___at_Lean_Environment_activateScopedAttributes___spec__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_registerTagAttribute___lambda__4___closed__3;
@@ -234,7 +231,6 @@ obj* l_IO_Prim_mkRef(obj*, obj*, obj*);
 uint8 l_Lean_TagAttribute_hasTag(obj*, obj*, obj*);
 obj* l_Array_anyMAux___main___at_Lean_registerEnumAttributes___spec__8(obj*);
 uint8 l_Array_binSearchAux___main___at_Lean_TagAttribute_hasTag___spec__1(obj*, obj*, obj*, obj*);
-obj* l_Lean_registerTagAttribute___lambda__5___closed__2;
 obj* l_Lean_registerEnumAttributes___rarg___lambda__2___closed__2;
 obj* l_Lean_registerParametricAttribute___rarg___lambda__4___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_registerParametricAttribute___spec__4___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -255,7 +251,6 @@ obj* l_Array_qsortAux___main___at_Lean_registerParametricAttribute___spec__2(obj
 obj* l_Lean_Environment_popScopeCore(obj*);
 obj* l_Lean_AttributeImpl_inhabited___lambda__4(obj*, obj*, obj*);
 obj* l_RBNode_fold___main___at_Lean_registerParametricAttribute___spec__1___rarg(obj*, obj*);
-obj* l_Lean_registerTagAttribute___lambda__7___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_AttributeImpl_inhabited___lambda__2___closed__3;
 obj* l_Lean_PersistentEnvExtension_addEntry___rarg(obj*, obj*, obj*);
 obj* l_IO_Prim_Ref_get(obj*, obj*, obj*);
@@ -277,8 +272,9 @@ obj* l_AssocList_mfoldl___main___at_Lean_getAttributeNames___spec__1(obj*, obj*)
 obj* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_registerParametricAttribute___spec__7(obj*);
 obj* l_Array_miterateAux___main___at_Lean_Environment_pushScope___spec__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_binSearchAux___main___at_Lean_EnumAttributes_getValue___spec__2___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_Lean_registerTagAttribute___lambda__6(obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_registerTagAttribute___lambda__6(obj*, obj*, obj*, uint8, obj*);
 obj* l_Lean_attrParamSyntaxToIdentifier___boxed(obj*);
+obj* l_Lean_registerTagAttribute___lambda__3___closed__4;
 obj* l_Array_size(obj*, obj*);
 obj* l_Lean_registerEnumAttributes___rarg___lambda__1(obj*, obj*);
 obj* l_Lean_registerParametricAttribute___rarg___lambda__3___boxed(obj*);
@@ -291,10 +287,12 @@ obj* l_Lean_EnumAttributes_setValue___rarg___closed__2;
 obj* l_mkHashMapImp___rarg(obj*);
 obj* l_Lean_registerTagAttribute___closed__3;
 obj* l_AssocList_contains___main___at_Lean_registerAttribute___spec__2___boxed(obj*, obj*);
+obj* l_Lean_registerTagAttribute___lambda__4___closed__5;
 obj* l_Lean_AttributeImpl_inhabited___lambda__2(obj*, obj*, obj*, obj*);
-obj* l_Lean_registerTagAttribute___lambda__5___closed__3;
+obj* l_Lean_registerTagAttribute___lambda__3___closed__3;
 obj* l_Lean_AttributeImpl_inhabited___lambda__1(obj*, obj*, obj*, uint8, obj*);
 obj* l_RBNode_find___main___at_Lean_EnumAttributes_getValue___spec__1___rarg(obj*, obj*);
+obj* l_Lean_registerTagAttribute___lambda__3___boxed(obj*);
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 extern obj* l_Lean_Name_toString___closed__1;
 obj* l_Lean_ParametricAttribute_setParam___rarg___closed__3;
@@ -6024,16 +6022,7 @@ return x_8;
 }
 }
 }
-obj* l_Lean_registerTagAttribute___lambda__2(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; obj* x_4; 
-x_3 = lean::box(0);
-x_4 = l_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_1, x_2, x_3);
-return x_4;
-}
-}
-obj* l_Lean_registerTagAttribute___lambda__3(obj* x_1) {
+obj* l_Lean_registerTagAttribute___lambda__2(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
@@ -6049,7 +6038,7 @@ lean::dec(x_6);
 return x_8;
 }
 }
-obj* _init_l_Lean_registerTagAttribute___lambda__4___closed__1() {
+obj* _init_l_Lean_registerTagAttribute___lambda__3___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -6057,22 +6046,22 @@ x_1 = lean::mk_string("tag attribute");
 return x_1;
 }
 }
-obj* _init_l_Lean_registerTagAttribute___lambda__4___closed__2() {
+obj* _init_l_Lean_registerTagAttribute___lambda__3___closed__2() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l_Lean_registerTagAttribute___lambda__4___closed__1;
+x_1 = l_Lean_registerTagAttribute___lambda__3___closed__1;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l_Lean_registerTagAttribute___lambda__4___closed__3() {
+obj* _init_l_Lean_registerTagAttribute___lambda__3___closed__3() {
 _start:
 {
 uint8 x_1; obj* x_2; obj* x_3; obj* x_4; 
 x_1 = 0;
-x_2 = l_Lean_registerTagAttribute___lambda__4___closed__2;
+x_2 = l_Lean_registerTagAttribute___lambda__3___closed__2;
 x_3 = lean::box(1);
 x_4 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_4, 0, x_2);
@@ -6081,12 +6070,12 @@ lean::cnstr_set_scalar(x_4, sizeof(void*)*2, x_1);
 return x_4;
 }
 }
-obj* _init_l_Lean_registerTagAttribute___lambda__4___closed__4() {
+obj* _init_l_Lean_registerTagAttribute___lambda__3___closed__4() {
 _start:
 {
 uint8 x_1; obj* x_2; obj* x_3; obj* x_4; 
 x_1 = 0;
-x_2 = l_Lean_registerTagAttribute___lambda__4___closed__3;
+x_2 = l_Lean_registerTagAttribute___lambda__3___closed__3;
 x_3 = l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4___closed__2;
 x_4 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_4, 0, x_2);
@@ -6095,7 +6084,7 @@ lean::cnstr_set_scalar(x_4, sizeof(void*)*2, x_1);
 return x_4;
 }
 }
-obj* l_Lean_registerTagAttribute___lambda__4(obj* x_1) {
+obj* l_Lean_registerTagAttribute___lambda__3(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; uint8 x_6; obj* x_7; obj* x_8; 
@@ -6105,7 +6094,7 @@ x_4 = l_Nat_repr(x_3);
 x_5 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_5, 0, x_4);
 x_6 = 0;
-x_7 = l_Lean_registerTagAttribute___lambda__4___closed__4;
+x_7 = l_Lean_registerTagAttribute___lambda__3___closed__4;
 x_8 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_8, 0, x_7);
 lean::cnstr_set(x_8, 1, x_5);
@@ -6113,7 +6102,7 @@ lean::cnstr_set_scalar(x_8, sizeof(void*)*2, x_6);
 return x_8;
 }
 }
-obj* _init_l_Lean_registerTagAttribute___lambda__5___closed__1() {
+obj* _init_l_Lean_registerTagAttribute___lambda__4___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -6121,7 +6110,7 @@ x_1 = lean::mk_string("invalid attribute '");
 return x_1;
 }
 }
-obj* _init_l_Lean_registerTagAttribute___lambda__5___closed__2() {
+obj* _init_l_Lean_registerTagAttribute___lambda__4___closed__2() {
 _start:
 {
 obj* x_1; 
@@ -6129,7 +6118,7 @@ x_1 = lean::mk_string("', unexpected argument");
 return x_1;
 }
 }
-obj* _init_l_Lean_registerTagAttribute___lambda__5___closed__3() {
+obj* _init_l_Lean_registerTagAttribute___lambda__4___closed__3() {
 _start:
 {
 obj* x_1; 
@@ -6137,7 +6126,7 @@ x_1 = lean::mk_string("', must be persistent");
 return x_1;
 }
 }
-obj* _init_l_Lean_registerTagAttribute___lambda__5___closed__4() {
+obj* _init_l_Lean_registerTagAttribute___lambda__4___closed__4() {
 _start:
 {
 obj* x_1; 
@@ -6145,7 +6134,7 @@ x_1 = lean::mk_string("', ");
 return x_1;
 }
 }
-obj* _init_l_Lean_registerTagAttribute___lambda__5___closed__5() {
+obj* _init_l_Lean_registerTagAttribute___lambda__4___closed__5() {
 _start:
 {
 obj* x_1; 
@@ -6153,7 +6142,7 @@ x_1 = lean::mk_string("', declaration is in an imported module");
 return x_1;
 }
 }
-obj* l_Lean_registerTagAttribute___lambda__5(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, uint8 x_7, obj* x_8) {
+obj* l_Lean_registerTagAttribute___lambda__4(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, uint8 x_7, obj* x_8) {
 _start:
 {
 uint8 x_9; 
@@ -6173,10 +6162,10 @@ x_11 = lean::cnstr_get(x_8, 0);
 lean::dec(x_11);
 x_12 = l_Lean_Name_toString___closed__1;
 x_13 = l_Lean_Name_toStringWithSep___main(x_12, x_1);
-x_14 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_14 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_15 = lean::string_append(x_14, x_13);
 lean::dec(x_13);
-x_16 = l_Lean_registerTagAttribute___lambda__5___closed__2;
+x_16 = l_Lean_registerTagAttribute___lambda__4___closed__2;
 x_17 = lean::string_append(x_15, x_16);
 lean::cnstr_set_tag(x_8, 1);
 lean::cnstr_set(x_8, 0, x_17);
@@ -6190,10 +6179,10 @@ lean::inc(x_18);
 lean::dec(x_8);
 x_19 = l_Lean_Name_toString___closed__1;
 x_20 = l_Lean_Name_toStringWithSep___main(x_19, x_1);
-x_21 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_21 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_22 = lean::string_append(x_21, x_20);
 lean::dec(x_20);
-x_23 = l_Lean_registerTagAttribute___lambda__5___closed__2;
+x_23 = l_Lean_registerTagAttribute___lambda__4___closed__2;
 x_24 = lean::string_append(x_22, x_23);
 x_25 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_25, 0, x_24);
@@ -6218,10 +6207,10 @@ x_27 = lean::cnstr_get(x_8, 0);
 lean::dec(x_27);
 x_28 = l_Lean_Name_toString___closed__1;
 x_29 = l_Lean_Name_toStringWithSep___main(x_28, x_1);
-x_30 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_30 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_31 = lean::string_append(x_30, x_29);
 lean::dec(x_29);
-x_32 = l_Lean_registerTagAttribute___lambda__5___closed__3;
+x_32 = l_Lean_registerTagAttribute___lambda__4___closed__3;
 x_33 = lean::string_append(x_31, x_32);
 lean::cnstr_set_tag(x_8, 1);
 lean::cnstr_set(x_8, 0, x_33);
@@ -6235,10 +6224,10 @@ lean::inc(x_34);
 lean::dec(x_8);
 x_35 = l_Lean_Name_toString___closed__1;
 x_36 = l_Lean_Name_toStringWithSep___main(x_35, x_1);
-x_37 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_37 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_38 = lean::string_append(x_37, x_36);
 lean::dec(x_36);
-x_39 = l_Lean_registerTagAttribute___lambda__5___closed__3;
+x_39 = l_Lean_registerTagAttribute___lambda__4___closed__3;
 x_40 = lean::string_append(x_38, x_39);
 x_41 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_41, 0, x_40);
@@ -6273,10 +6262,10 @@ lean::inc(x_46);
 lean::dec(x_45);
 x_47 = l_Lean_Name_toString___closed__1;
 x_48 = l_Lean_Name_toStringWithSep___main(x_47, x_1);
-x_49 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_49 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_50 = lean::string_append(x_49, x_48);
 lean::dec(x_48);
-x_51 = l_Lean_registerTagAttribute___lambda__5___closed__4;
+x_51 = l_Lean_registerTagAttribute___lambda__4___closed__4;
 x_52 = lean::string_append(x_50, x_51);
 x_53 = lean::string_append(x_52, x_46);
 lean::dec(x_46);
@@ -6304,10 +6293,10 @@ lean::dec(x_3);
 lean::dec(x_2);
 x_55 = l_Lean_Name_toString___closed__1;
 x_56 = l_Lean_Name_toStringWithSep___main(x_55, x_1);
-x_57 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_57 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_58 = lean::string_append(x_57, x_56);
 lean::dec(x_56);
-x_59 = l_Lean_registerTagAttribute___lambda__5___closed__5;
+x_59 = l_Lean_registerTagAttribute___lambda__4___closed__5;
 x_60 = lean::string_append(x_58, x_59);
 lean::cnstr_set_tag(x_8, 1);
 lean::cnstr_set(x_8, 0, x_60);
@@ -6338,10 +6327,10 @@ lean::inc(x_64);
 lean::dec(x_63);
 x_65 = l_Lean_Name_toString___closed__1;
 x_66 = l_Lean_Name_toStringWithSep___main(x_65, x_1);
-x_67 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_67 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_68 = lean::string_append(x_67, x_66);
 lean::dec(x_66);
-x_69 = l_Lean_registerTagAttribute___lambda__5___closed__4;
+x_69 = l_Lean_registerTagAttribute___lambda__4___closed__4;
 x_70 = lean::string_append(x_68, x_69);
 x_71 = lean::string_append(x_70, x_64);
 lean::dec(x_64);
@@ -6372,10 +6361,10 @@ lean::dec(x_3);
 lean::dec(x_2);
 x_75 = l_Lean_Name_toString___closed__1;
 x_76 = l_Lean_Name_toStringWithSep___main(x_75, x_1);
-x_77 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_77 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_78 = lean::string_append(x_77, x_76);
 lean::dec(x_76);
-x_79 = l_Lean_registerTagAttribute___lambda__5___closed__5;
+x_79 = l_Lean_registerTagAttribute___lambda__4___closed__5;
 x_80 = lean::string_append(x_78, x_79);
 x_81 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_81, 0, x_80);
@@ -6387,7 +6376,7 @@ return x_81;
 }
 }
 }
-obj* l_Lean_registerTagAttribute___lambda__6(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+obj* l_Lean_registerTagAttribute___lambda__5(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
 uint8 x_6; 
@@ -6428,7 +6417,7 @@ return x_21;
 }
 }
 }
-obj* l_Lean_registerTagAttribute___lambda__7(obj* x_1, obj* x_2, obj* x_3, uint8 x_4, obj* x_5) {
+obj* l_Lean_registerTagAttribute___lambda__6(obj* x_1, obj* x_2, obj* x_3, uint8 x_4, obj* x_5) {
 _start:
 {
 uint8 x_6; 
@@ -6481,7 +6470,7 @@ obj* _init_l_Lean_registerTagAttribute___closed__2() {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__2), 2, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__2), 1, 0);
 return x_1;
 }
 }
@@ -6489,15 +6478,7 @@ obj* _init_l_Lean_registerTagAttribute___closed__3() {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__3), 1, 0);
-return x_1;
-}
-}
-obj* _init_l_Lean_registerTagAttribute___closed__4() {
-_start:
-{
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__4___boxed), 1, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__3___boxed), 1, 0);
 return x_1;
 }
 }
@@ -6506,9 +6487,9 @@ _start:
 {
 obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
 x_5 = l_Lean_registerTagAttribute___closed__1;
-x_6 = l_Lean_registerTagAttribute___closed__2;
-x_7 = l_Lean_registerTagAttribute___closed__3;
-x_8 = l_Lean_registerTagAttribute___closed__4;
+x_6 = l_Lean_regNamespacesExtension___closed__3;
+x_7 = l_Lean_registerTagAttribute___closed__2;
+x_8 = l_Lean_registerTagAttribute___closed__3;
 lean::inc(x_1);
 x_9 = lean::alloc_cnstr(0, 5, 0);
 lean::cnstr_set(x_9, 0, x_1);
@@ -6529,15 +6510,15 @@ x_13 = lean::box(0);
 lean::cnstr_set(x_10, 0, x_13);
 lean::inc(x_12);
 lean::inc(x_1);
-x_14 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__5___boxed), 8, 3);
+x_14 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__4___boxed), 8, 3);
 lean::closure_set(x_14, 0, x_1);
 lean::closure_set(x_14, 1, x_3);
 lean::closure_set(x_14, 2, x_12);
 lean::inc(x_1);
-x_15 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__6___boxed), 5, 1);
+x_15 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__5___boxed), 5, 1);
 lean::closure_set(x_15, 0, x_1);
 lean::inc(x_1);
-x_16 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__7___boxed), 5, 1);
+x_16 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__6___boxed), 5, 1);
 lean::closure_set(x_16, 0, x_1);
 x_17 = l_Lean_AttributeImpl_inhabited___closed__4;
 x_18 = l_Lean_AttributeImpl_inhabited___closed__5;
@@ -6623,15 +6604,15 @@ lean::cnstr_set(x_35, 0, x_34);
 lean::cnstr_set(x_35, 1, x_33);
 lean::inc(x_32);
 lean::inc(x_1);
-x_36 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__5___boxed), 8, 3);
+x_36 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__4___boxed), 8, 3);
 lean::closure_set(x_36, 0, x_1);
 lean::closure_set(x_36, 1, x_3);
 lean::closure_set(x_36, 2, x_32);
 lean::inc(x_1);
-x_37 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__6___boxed), 5, 1);
+x_37 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__5___boxed), 5, 1);
 lean::closure_set(x_37, 0, x_1);
 lean::inc(x_1);
-x_38 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__7___boxed), 5, 1);
+x_38 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__6___boxed), 5, 1);
 lean::closure_set(x_38, 0, x_1);
 x_39 = l_Lean_AttributeImpl_inhabited___closed__4;
 x_40 = l_Lean_AttributeImpl_inhabited___closed__5;
@@ -6767,44 +6748,44 @@ lean::dec(x_1);
 return x_3;
 }
 }
-obj* l_Lean_registerTagAttribute___lambda__4___boxed(obj* x_1) {
+obj* l_Lean_registerTagAttribute___lambda__3___boxed(obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_Lean_registerTagAttribute___lambda__4(x_1);
+x_2 = l_Lean_registerTagAttribute___lambda__3(x_1);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_Lean_registerTagAttribute___lambda__5___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8) {
+obj* l_Lean_registerTagAttribute___lambda__4___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8) {
 _start:
 {
 uint8 x_9; obj* x_10; 
 x_9 = lean::unbox(x_7);
 lean::dec(x_7);
-x_10 = l_Lean_registerTagAttribute___lambda__5(x_1, x_2, x_3, x_4, x_5, x_6, x_9, x_8);
+x_10 = l_Lean_registerTagAttribute___lambda__4(x_1, x_2, x_3, x_4, x_5, x_6, x_9, x_8);
 lean::dec(x_6);
 return x_10;
 }
 }
-obj* l_Lean_registerTagAttribute___lambda__6___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+obj* l_Lean_registerTagAttribute___lambda__5___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
 obj* x_6; 
-x_6 = l_Lean_registerTagAttribute___lambda__6(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_Lean_registerTagAttribute___lambda__5(x_1, x_2, x_3, x_4, x_5);
 lean::dec(x_4);
 lean::dec(x_3);
 lean::dec(x_2);
 return x_6;
 }
 }
-obj* l_Lean_registerTagAttribute___lambda__7___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+obj* l_Lean_registerTagAttribute___lambda__6___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
 uint8 x_6; obj* x_7; 
 x_6 = lean::unbox(x_4);
 lean::dec(x_4);
-x_7 = l_Lean_registerTagAttribute___lambda__7(x_1, x_2, x_3, x_6, x_5);
+x_7 = l_Lean_registerTagAttribute___lambda__6(x_1, x_2, x_3, x_6, x_5);
 lean::dec(x_3);
 lean::dec(x_2);
 return x_7;
@@ -9348,10 +9329,10 @@ x_11 = lean::cnstr_get(x_9, 0);
 lean::dec(x_11);
 x_12 = l_Lean_Name_toString___closed__1;
 x_13 = l_Lean_Name_toStringWithSep___main(x_12, x_1);
-x_14 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_14 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_15 = lean::string_append(x_14, x_13);
 lean::dec(x_13);
-x_16 = l_Lean_registerTagAttribute___lambda__5___closed__3;
+x_16 = l_Lean_registerTagAttribute___lambda__4___closed__3;
 x_17 = lean::string_append(x_15, x_16);
 lean::cnstr_set_tag(x_9, 1);
 lean::cnstr_set(x_9, 0, x_17);
@@ -9365,10 +9346,10 @@ lean::inc(x_18);
 lean::dec(x_9);
 x_19 = l_Lean_Name_toString___closed__1;
 x_20 = l_Lean_Name_toStringWithSep___main(x_19, x_1);
-x_21 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_21 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_22 = lean::string_append(x_21, x_20);
 lean::dec(x_20);
-x_23 = l_Lean_registerTagAttribute___lambda__5___closed__3;
+x_23 = l_Lean_registerTagAttribute___lambda__4___closed__3;
 x_24 = lean::string_append(x_22, x_23);
 x_25 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_25, 0, x_24);
@@ -9404,10 +9385,10 @@ lean::inc(x_30);
 lean::dec(x_29);
 x_31 = l_Lean_Name_toString___closed__1;
 x_32 = l_Lean_Name_toStringWithSep___main(x_31, x_1);
-x_33 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_33 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_34 = lean::string_append(x_33, x_32);
 lean::dec(x_32);
-x_35 = l_Lean_registerTagAttribute___lambda__5___closed__4;
+x_35 = l_Lean_registerTagAttribute___lambda__4___closed__4;
 x_36 = lean::string_append(x_34, x_35);
 x_37 = lean::string_append(x_36, x_30);
 lean::dec(x_30);
@@ -9436,10 +9417,10 @@ lean::inc(x_42);
 lean::dec(x_41);
 x_43 = l_Lean_Name_toString___closed__1;
 x_44 = l_Lean_Name_toStringWithSep___main(x_43, x_1);
-x_45 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_45 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_46 = lean::string_append(x_45, x_44);
 lean::dec(x_44);
-x_47 = l_Lean_registerTagAttribute___lambda__5___closed__4;
+x_47 = l_Lean_registerTagAttribute___lambda__4___closed__4;
 x_48 = lean::string_append(x_46, x_47);
 x_49 = lean::string_append(x_48, x_42);
 lean::dec(x_42);
@@ -9471,10 +9452,10 @@ lean::dec(x_3);
 lean::dec(x_2);
 x_51 = l_Lean_Name_toString___closed__1;
 x_52 = l_Lean_Name_toStringWithSep___main(x_51, x_1);
-x_53 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_53 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_54 = lean::string_append(x_53, x_52);
 lean::dec(x_52);
-x_55 = l_Lean_registerTagAttribute___lambda__5___closed__5;
+x_55 = l_Lean_registerTagAttribute___lambda__4___closed__5;
 x_56 = lean::string_append(x_54, x_55);
 lean::cnstr_set_tag(x_9, 1);
 lean::cnstr_set(x_9, 0, x_56);
@@ -9506,10 +9487,10 @@ lean::inc(x_60);
 lean::dec(x_59);
 x_61 = l_Lean_Name_toString___closed__1;
 x_62 = l_Lean_Name_toStringWithSep___main(x_61, x_1);
-x_63 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_63 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_64 = lean::string_append(x_63, x_62);
 lean::dec(x_62);
-x_65 = l_Lean_registerTagAttribute___lambda__5___closed__4;
+x_65 = l_Lean_registerTagAttribute___lambda__4___closed__4;
 x_66 = lean::string_append(x_64, x_65);
 x_67 = lean::string_append(x_66, x_60);
 lean::dec(x_60);
@@ -9539,10 +9520,10 @@ lean::inc(x_73);
 lean::dec(x_72);
 x_74 = l_Lean_Name_toString___closed__1;
 x_75 = l_Lean_Name_toStringWithSep___main(x_74, x_1);
-x_76 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_76 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_77 = lean::string_append(x_76, x_75);
 lean::dec(x_75);
-x_78 = l_Lean_registerTagAttribute___lambda__5___closed__4;
+x_78 = l_Lean_registerTagAttribute___lambda__4___closed__4;
 x_79 = lean::string_append(x_77, x_78);
 x_80 = lean::string_append(x_79, x_73);
 lean::dec(x_73);
@@ -9577,10 +9558,10 @@ lean::dec(x_3);
 lean::dec(x_2);
 x_84 = l_Lean_Name_toString___closed__1;
 x_85 = l_Lean_Name_toStringWithSep___main(x_84, x_1);
-x_86 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_86 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_87 = lean::string_append(x_86, x_85);
 lean::dec(x_85);
-x_88 = l_Lean_registerTagAttribute___lambda__5___closed__5;
+x_88 = l_Lean_registerTagAttribute___lambda__4___closed__5;
 x_89 = lean::string_append(x_87, x_88);
 x_90 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_90, 0, x_89);
@@ -9642,10 +9623,10 @@ lean::closure_set(x_16, 1, x_4);
 lean::closure_set(x_16, 2, x_14);
 lean::closure_set(x_16, 3, x_5);
 lean::inc(x_2);
-x_17 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__6___boxed), 5, 1);
+x_17 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__5___boxed), 5, 1);
 lean::closure_set(x_17, 0, x_2);
 lean::inc(x_2);
-x_18 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__7___boxed), 5, 1);
+x_18 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__6___boxed), 5, 1);
 lean::closure_set(x_18, 0, x_2);
 x_19 = l_Lean_AttributeImpl_inhabited___closed__4;
 x_20 = l_Lean_AttributeImpl_inhabited___closed__5;
@@ -9737,10 +9718,10 @@ lean::closure_set(x_38, 1, x_4);
 lean::closure_set(x_38, 2, x_34);
 lean::closure_set(x_38, 3, x_5);
 lean::inc(x_2);
-x_39 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__6___boxed), 5, 1);
+x_39 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__5___boxed), 5, 1);
 lean::closure_set(x_39, 0, x_2);
 lean::inc(x_2);
-x_40 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__7___boxed), 5, 1);
+x_40 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__6___boxed), 5, 1);
 lean::closure_set(x_40, 0, x_2);
 x_41 = l_Lean_AttributeImpl_inhabited___closed__4;
 x_42 = l_Lean_AttributeImpl_inhabited___closed__5;
@@ -12652,10 +12633,10 @@ x_11 = lean::cnstr_get(x_9, 0);
 lean::dec(x_11);
 x_12 = l_Lean_Name_toString___closed__1;
 x_13 = l_Lean_Name_toStringWithSep___main(x_12, x_1);
-x_14 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_14 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_15 = lean::string_append(x_14, x_13);
 lean::dec(x_13);
-x_16 = l_Lean_registerTagAttribute___lambda__5___closed__3;
+x_16 = l_Lean_registerTagAttribute___lambda__4___closed__3;
 x_17 = lean::string_append(x_15, x_16);
 lean::cnstr_set_tag(x_9, 1);
 lean::cnstr_set(x_9, 0, x_17);
@@ -12669,10 +12650,10 @@ lean::inc(x_18);
 lean::dec(x_9);
 x_19 = l_Lean_Name_toString___closed__1;
 x_20 = l_Lean_Name_toStringWithSep___main(x_19, x_1);
-x_21 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_21 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_22 = lean::string_append(x_21, x_20);
 lean::dec(x_20);
-x_23 = l_Lean_registerTagAttribute___lambda__5___closed__3;
+x_23 = l_Lean_registerTagAttribute___lambda__4___closed__3;
 x_24 = lean::string_append(x_22, x_23);
 x_25 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_25, 0, x_24);
@@ -12709,10 +12690,10 @@ lean::inc(x_30);
 lean::dec(x_29);
 x_31 = l_Lean_Name_toString___closed__1;
 x_32 = l_Lean_Name_toStringWithSep___main(x_31, x_1);
-x_33 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_33 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_34 = lean::string_append(x_33, x_32);
 lean::dec(x_32);
-x_35 = l_Lean_registerTagAttribute___lambda__5___closed__4;
+x_35 = l_Lean_registerTagAttribute___lambda__4___closed__4;
 x_36 = lean::string_append(x_34, x_35);
 x_37 = lean::string_append(x_36, x_30);
 lean::dec(x_30);
@@ -12744,10 +12725,10 @@ lean::dec(x_3);
 lean::dec(x_2);
 x_40 = l_Lean_Name_toString___closed__1;
 x_41 = l_Lean_Name_toStringWithSep___main(x_40, x_1);
-x_42 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_42 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_43 = lean::string_append(x_42, x_41);
 lean::dec(x_41);
-x_44 = l_Lean_registerTagAttribute___lambda__5___closed__5;
+x_44 = l_Lean_registerTagAttribute___lambda__4___closed__5;
 x_45 = lean::string_append(x_43, x_44);
 lean::cnstr_set_tag(x_9, 1);
 lean::cnstr_set(x_9, 0, x_45);
@@ -12780,10 +12761,10 @@ lean::inc(x_49);
 lean::dec(x_48);
 x_50 = l_Lean_Name_toString___closed__1;
 x_51 = l_Lean_Name_toStringWithSep___main(x_50, x_1);
-x_52 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_52 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_53 = lean::string_append(x_52, x_51);
 lean::dec(x_51);
-x_54 = l_Lean_registerTagAttribute___lambda__5___closed__4;
+x_54 = l_Lean_registerTagAttribute___lambda__4___closed__4;
 x_55 = lean::string_append(x_53, x_54);
 x_56 = lean::string_append(x_55, x_49);
 lean::dec(x_49);
@@ -12818,10 +12799,10 @@ lean::dec(x_3);
 lean::dec(x_2);
 x_61 = l_Lean_Name_toString___closed__1;
 x_62 = l_Lean_Name_toStringWithSep___main(x_61, x_1);
-x_63 = l_Lean_registerTagAttribute___lambda__5___closed__1;
+x_63 = l_Lean_registerTagAttribute___lambda__4___closed__1;
 x_64 = lean::string_append(x_63, x_62);
 lean::dec(x_62);
-x_65 = l_Lean_registerTagAttribute___lambda__5___closed__5;
+x_65 = l_Lean_registerTagAttribute___lambda__4___closed__5;
 x_66 = lean::string_append(x_64, x_65);
 x_67 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_67, 0, x_66);
@@ -12872,10 +12853,10 @@ lean::closure_set(x_13, 1, x_1);
 lean::closure_set(x_13, 2, x_12);
 lean::closure_set(x_13, 3, x_2);
 lean::inc(x_10);
-x_14 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__6___boxed), 5, 1);
+x_14 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__5___boxed), 5, 1);
 lean::closure_set(x_14, 0, x_10);
 lean::inc(x_10);
-x_15 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__7___boxed), 5, 1);
+x_15 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__6___boxed), 5, 1);
 lean::closure_set(x_15, 0, x_10);
 x_16 = l_Lean_AttributeImpl_inhabited___closed__4;
 x_17 = l_Lean_AttributeImpl_inhabited___closed__5;
@@ -12922,10 +12903,10 @@ lean::closure_set(x_27, 1, x_1);
 lean::closure_set(x_27, 2, x_26);
 lean::closure_set(x_27, 3, x_2);
 lean::inc(x_24);
-x_28 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__6___boxed), 5, 1);
+x_28 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__5___boxed), 5, 1);
 lean::closure_set(x_28, 0, x_24);
 lean::inc(x_24);
-x_29 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__7___boxed), 5, 1);
+x_29 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerTagAttribute___lambda__6___boxed), 5, 1);
 lean::closure_set(x_29, 0, x_24);
 x_30 = l_Lean_AttributeImpl_inhabited___closed__4;
 x_31 = l_Lean_AttributeImpl_inhabited___closed__5;
@@ -13995,6 +13976,14 @@ l_Lean_getAttributeImpl___closed__1 = _init_l_Lean_getAttributeImpl___closed__1(
 lean::mark_persistent(l_Lean_getAttributeImpl___closed__1);
 l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__6___closed__1 = _init_l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__6___closed__1();
 lean::mark_persistent(l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__6___closed__1);
+l_Lean_registerTagAttribute___lambda__3___closed__1 = _init_l_Lean_registerTagAttribute___lambda__3___closed__1();
+lean::mark_persistent(l_Lean_registerTagAttribute___lambda__3___closed__1);
+l_Lean_registerTagAttribute___lambda__3___closed__2 = _init_l_Lean_registerTagAttribute___lambda__3___closed__2();
+lean::mark_persistent(l_Lean_registerTagAttribute___lambda__3___closed__2);
+l_Lean_registerTagAttribute___lambda__3___closed__3 = _init_l_Lean_registerTagAttribute___lambda__3___closed__3();
+lean::mark_persistent(l_Lean_registerTagAttribute___lambda__3___closed__3);
+l_Lean_registerTagAttribute___lambda__3___closed__4 = _init_l_Lean_registerTagAttribute___lambda__3___closed__4();
+lean::mark_persistent(l_Lean_registerTagAttribute___lambda__3___closed__4);
 l_Lean_registerTagAttribute___lambda__4___closed__1 = _init_l_Lean_registerTagAttribute___lambda__4___closed__1();
 lean::mark_persistent(l_Lean_registerTagAttribute___lambda__4___closed__1);
 l_Lean_registerTagAttribute___lambda__4___closed__2 = _init_l_Lean_registerTagAttribute___lambda__4___closed__2();
@@ -14003,24 +13992,14 @@ l_Lean_registerTagAttribute___lambda__4___closed__3 = _init_l_Lean_registerTagAt
 lean::mark_persistent(l_Lean_registerTagAttribute___lambda__4___closed__3);
 l_Lean_registerTagAttribute___lambda__4___closed__4 = _init_l_Lean_registerTagAttribute___lambda__4___closed__4();
 lean::mark_persistent(l_Lean_registerTagAttribute___lambda__4___closed__4);
-l_Lean_registerTagAttribute___lambda__5___closed__1 = _init_l_Lean_registerTagAttribute___lambda__5___closed__1();
-lean::mark_persistent(l_Lean_registerTagAttribute___lambda__5___closed__1);
-l_Lean_registerTagAttribute___lambda__5___closed__2 = _init_l_Lean_registerTagAttribute___lambda__5___closed__2();
-lean::mark_persistent(l_Lean_registerTagAttribute___lambda__5___closed__2);
-l_Lean_registerTagAttribute___lambda__5___closed__3 = _init_l_Lean_registerTagAttribute___lambda__5___closed__3();
-lean::mark_persistent(l_Lean_registerTagAttribute___lambda__5___closed__3);
-l_Lean_registerTagAttribute___lambda__5___closed__4 = _init_l_Lean_registerTagAttribute___lambda__5___closed__4();
-lean::mark_persistent(l_Lean_registerTagAttribute___lambda__5___closed__4);
-l_Lean_registerTagAttribute___lambda__5___closed__5 = _init_l_Lean_registerTagAttribute___lambda__5___closed__5();
-lean::mark_persistent(l_Lean_registerTagAttribute___lambda__5___closed__5);
+l_Lean_registerTagAttribute___lambda__4___closed__5 = _init_l_Lean_registerTagAttribute___lambda__4___closed__5();
+lean::mark_persistent(l_Lean_registerTagAttribute___lambda__4___closed__5);
 l_Lean_registerTagAttribute___closed__1 = _init_l_Lean_registerTagAttribute___closed__1();
 lean::mark_persistent(l_Lean_registerTagAttribute___closed__1);
 l_Lean_registerTagAttribute___closed__2 = _init_l_Lean_registerTagAttribute___closed__2();
 lean::mark_persistent(l_Lean_registerTagAttribute___closed__2);
 l_Lean_registerTagAttribute___closed__3 = _init_l_Lean_registerTagAttribute___closed__3();
 lean::mark_persistent(l_Lean_registerTagAttribute___closed__3);
-l_Lean_registerTagAttribute___closed__4 = _init_l_Lean_registerTagAttribute___closed__4();
-lean::mark_persistent(l_Lean_registerTagAttribute___closed__4);
 l_Lean_TagAttribute_Inhabited___closed__1 = _init_l_Lean_TagAttribute_Inhabited___closed__1();
 lean::mark_persistent(l_Lean_TagAttribute_Inhabited___closed__1);
 l_Lean_TagAttribute_Inhabited___closed__2 = _init_l_Lean_TagAttribute_Inhabited___closed__2();

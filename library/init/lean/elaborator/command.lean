@@ -67,8 +67,25 @@ fun n => do
 
 @[builtinCommandElab «export»] def elabExport : CommandElab :=
 fun n => do
-  runIO (IO.println n.val);
-  pure ()
+  -- `n` is of the form (Command.export "export" <namespace> "(" (null <ids>*) ")")
+  let ns  := (n.getArg 1).getIdentVal;
+  let ids := (n.getArg 3).getArgs;
+  ns ← resolveNamespace ns;
+  currNs ← getNamespace;
+  when (ns == currNs) $ throw "invalid 'export', self export";
+  s ← get;
+  let env := s.env;
+  aliases ← ids.mfoldl (fun (aliases : List (Name × Name)) (idStx : Syntax) => do {
+    let id := idStx.getIdentVal;
+    let declName := ns ++ id;
+    if env.contains declName then
+      pure $ (currNs ++ id, declName) :: aliases
+    else do
+      logError idStx ("unknown declaration '" ++ toString declName ++ "'");
+      pure aliases
+    })
+    [];
+  modify $ fun s => { env := aliases.foldl (fun env p => addAlias env p.1 p.2) s.env, .. s }
 
 /- We just ignore Lean3 notation declaration commands. -/
 @[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()

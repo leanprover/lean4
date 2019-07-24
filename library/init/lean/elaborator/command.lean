@@ -10,28 +10,29 @@ import init.lean.elaborator.basic
 namespace Lean
 namespace Elab
 
-private def addScopes (cmd : String) : Name → Name → List ElabScope → List ElabScope
-| Name.anonymous ns scopes := scopes
-| (Name.mkString p h) ns scopes :=
-  let ns := Name.mkString ns h;
-  { cmd := cmd, header := h, ns := ns.mkString h } :: addScopes p ns scopes
-| _ _ _ := [] -- unreachable
+private def addScopes (cmd : String) (updateNamespace : Bool) : Name → List ElabScope → List ElabScope
+| Name.anonymous      scopes := scopes
+| (Name.mkString p h) scopes :=
+  let scopes := addScopes p scopes;
+  let ns     := scopes.head.ns;
+  let ns     := if updateNamespace then Name.mkString ns h else ns;
+  { cmd := cmd, header := h, ns := ns } :: scopes
+| _ _ := [] -- unreachable
 
 @[builtinCommandElab «namespace»] def elabNamespace : CommandElab :=
 fun n => do
-  ns     ← getNamespace;
   let header := (n.getArg 1).getIdentVal;
-  modify $ fun s => { scopes := addScopes "namespace" header ns s.scopes, .. s };
+  modify $ fun s => { scopes := addScopes "namespace" true header s.scopes, .. s };
   ns     ← getNamespace;
   modify $ fun s => { env := registerNamespace s.env ns, .. s }
 
 @[builtinCommandElab «section»] def elabSection : CommandElab :=
 fun n => do
-  ns     ← getNamespace;
   let header := (n.getArg 1).getOptionalIdent;
+  ns ← getNamespace;
   modify $ fun s =>
     match header with
-    | some header => { scopes := addScopes "section" header ns s.scopes, .. s }
+    | some header => { scopes := addScopes "section" false header s.scopes, .. s }
     | none        => { scopes := { cmd := "section", header := Name.anonymous, ns := ns } :: s.scopes, .. s }
 
 private def getNumEndScopes : Option Name → Nat

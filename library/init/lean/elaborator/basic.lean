@@ -367,22 +367,6 @@ def getOpenDecls : Elab (List OpenDecl) :=
 do s ← get;
    pure s.scopes.head.openDecls
 
-def regNamespacesExtension : IO (SimplePersistentEnvExtension Name NameSet) :=
-registerSimplePersistentEnvExtension {
-  name            := `namespaces,
-  addImportedFn   := fun as => mkStateFromImportedEntries NameSet.insert {} as,
-  addEntryFn      := fun s n => s.insert n
-}
-
-@[init regNamespacesExtension]
-constant namespacesExt : SimplePersistentEnvExtension Name NameSet := default _
-
-def registerNamespace (env : Environment) (n : Name) : Environment :=
-if (namespacesExt.getState env).contains n then env else namespacesExt.addEntry env n
-
-def isNamespace (env : Environment) (n : Name) : Bool :=
-(namespacesExt.getState env).contains n
-
 def getNamespace : Elab Name :=
 do s ← get;
    match s.scopes with

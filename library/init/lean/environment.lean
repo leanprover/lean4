@@ -43,8 +43,7 @@ namespace Environment
 instance : Inhabited Environment :=
 ⟨{ const2ModIdx := {}, constants := {}, extensions := Array.empty }⟩
 
-@[export lean.environment_add_core]
-def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
+def addAux (env : Environment) (cinfo : ConstantInfo) : Environment :=
 { constants := env.constants.insert cinfo.name cinfo, .. env }
 
 @[export lean.environment_find_core]
@@ -481,7 +480,40 @@ env ← finalizePersistentExtensions env;
 env ← mods.miterate env $ fun _ mod env => performModifications env mod.serialized;
 pure env
 
+def regNamespacesExtension : IO (SimplePersistentEnvExtension Name NameSet) :=
+registerSimplePersistentEnvExtension {
+  name            := `namespaces,
+  addImportedFn   := fun as => mkStateFromImportedEntries NameSet.insert {} as,
+  addEntryFn      := fun s n => s.insert n
+}
+
+@[init regNamespacesExtension]
+constant namespacesExt : SimplePersistentEnvExtension Name NameSet := default _
+
+def registerNamespace (env : Environment) (n : Name) : Environment :=
+if (namespacesExt.getState env).contains n then env else namespacesExt.addEntry env n
+
+def isNamespace (env : Environment) (n : Name) : Bool :=
+(namespacesExt.getState env).contains n
+
+def getNamespaceSet (env : Environment) : NameSet :=
+namespacesExt.getState env
+
 namespace Environment
+
+private def isNamespaceName : Name → Bool
+| (Name.mkString Name.anonymous _) := true
+| (Name.mkString p _)              := isNamespaceName p
+| _                                := false
+
+private def registerNamePrefixes : Environment → Name → Environment
+| env (Name.mkString p _) := if isNamespaceName p then registerNamePrefixes (registerNamespace env p) p else env
+| env _                   := env
+
+@[export lean.environment_add_core]
+def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
+let env := registerNamePrefixes env cinfo.name;
+env.addAux cinfo
 
 @[export lean.display_stats_core]
 def displayStats (env : Environment) : IO Unit :=

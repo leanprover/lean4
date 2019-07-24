@@ -78,6 +78,9 @@ withArgs n $ fun args => args.size
 @[inline] def getArg {α} (n : SyntaxNode α) (i : Nat) : Syntax α :=
 withArgs n $ fun args => args.get i
 
+@[inline] def getArgs {α} (n : SyntaxNode α) : Array (Syntax α) :=
+withArgs n $ fun args => args
+
 @[inline] def updateArgs {α} (n : SyntaxNode α) (fn : Array (Syntax α) → Array (Syntax α)) : Syntax α :=
 match n with
 | ⟨Syntax.node kind args, _⟩ => Syntax.node kind (fn args)
@@ -99,13 +102,29 @@ def isIdent {α} : Syntax α → Bool
 | (ident _ _ _ _) := true
 | _               := false
 
-@[inline] def getIdentVal {α ε m} [MonadExcept ε m] [HasLiftT String ε] [Monad m] : Syntax α → m Name
-| (ident _ _ val _) := pure val
-| _                 := throw (coe "ill-formed syntax")
+def getIdentVal {α} : Syntax α → Name
+| (ident _ _ val _) := val
+| _                 := Name.anonymous
 
 def isOfKind {α} : Syntax α → SyntaxNodeKind → Bool
 | (node kind _) k := k == kind
 | _             _ := false
+
+def asNode {α} : Syntax α → SyntaxNode α
+| (Syntax.node kind args) := ⟨Syntax.node kind args, IsNode.mk kind args⟩
+| _                       := ⟨Syntax.node nullKind Array.empty, IsNode.mk nullKind Array.empty⟩
+
+def getNumArgs {α} (stx : Syntax α) : Nat :=
+stx.asNode.getNumArgs
+
+def getArgs {α} (stx : Syntax α) : Array (Syntax α) :=
+stx.asNode.getArgs
+
+def getArg {α} (stx : Syntax α) (i : Nat) : Syntax α :=
+stx.asNode.getArg i
+
+def getKind {α} (stx : Syntax α) : SyntaxNodeKind :=
+stx.asNode.getKind
 
 @[specialize] partial def mreplace {α} {m : Type → Type} [Monad m] (fn : Syntax α → m (Option (Syntax α))) : Syntax α → m (Syntax α)
 | stx@(node kind args) := do

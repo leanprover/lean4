@@ -20,7 +20,7 @@ private def addScopes (cmd : String) : Name → Name → List ElabScope → List
 @[builtinCommandElab «namespace»] def elabNamespace : CommandElab :=
 fun n => do
   ns     ← getNamespace;
-  header ← (n.getArg 1).getIdentVal;
+  let header := (n.getArg 1).getIdentVal;
   modify $ fun s => { scopes := addScopes "namespace" header ns s.scopes, .. s };
   ns     ← getNamespace;
   modify $ fun s => { env := registerNamespace s.env ns, .. s }
@@ -28,7 +28,7 @@ fun n => do
 @[builtinCommandElab «section»] def elabSection : CommandElab :=
 fun n => do
   ns     ← getNamespace;
-  header ← (n.getArg 1).getOptionalIdent;
+  let header := (n.getArg 1).getOptionalIdent;
   modify $ fun s =>
     match header with
     | some header => { scopes := addScopes "section" header ns s.scopes, .. s }
@@ -50,7 +50,7 @@ private def checkEndHeader : Name → List ElabScope → Bool
 @[builtinCommandElab «end»] def elabEnd : CommandElab :=
 fun n => do
   s      ← get;
-  header ← (n.getArg 1).getOptionalIdent;
+  let header := (n.getArg 1).getOptionalIdent;
   let num    := getNumEndScopes header;
   let scopes := s.scopes;
   if num < scopes.length then
@@ -63,6 +63,11 @@ fun n => do
   match header with
   | none => unless (checkAnonymousScope scopes) $ throw "invalid 'end', name is missing"
   | some header => unless (checkEndHeader header scopes) $ throw "invalid 'end', name mismatch"
+
+@[builtinCommandElab «export»] def elabExport : CommandElab :=
+fun n => do
+  runIO (IO.println n.val);
+  pure ()
 
 /- We just ignore Lean3 notation declaration commands. -/
 @[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()

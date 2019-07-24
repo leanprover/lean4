@@ -103,6 +103,16 @@ extern "C" object * lean_find_olean(object * mod_name, object * w) {
     }
 }
 
+extern "C" object * lean_set_search_path(object * w) {
+    try {
+        standard_search_path path;
+        set_search_path(path.get_path());
+        return w;
+    } catch (exception & ex) {
+        return set_io_error(w, ex.what());
+    }
+}
+
 // =======================================
 // Legacy support for Lean3 modification objects
 

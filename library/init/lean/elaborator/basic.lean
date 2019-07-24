@@ -306,23 +306,57 @@ partial def processCommandsAux : Unit → Frontend Unit
 def processCommands : Frontend Unit :=
 processCommandsAux ()
 
-def processHeader (header : Syntax) (messages : MessageLog) : IO (Environment × MessageLog) :=
-do IO.println header;
-   -- TODO
-   env ← mkEmptyEnvironment;
-   pure (env, messages)
+def absolutizeModuleName (m : Name) (k : Option Nat) : IO Name :=
+do unless (k == none) $ throw ("relative imports are not supported yet"); -- TODO
+   -- TODO: check whether the .olean file exists and use `m.default` when it doesn't.
+   pure m
 
-def testFrontend (input : String) (fileName := "<input>") : IO (Environment × MessageLog) :=
-do env ← mkEmptyEnvironment;
+def processHeaderAux (header : Syntax) (trustLevel : UInt32) : IO Environment :=
+do let header     := header.asNode;
+   let imports    := if (header.getArg 0).isNone then [`init.default] else [];
+   let modImports := (header.getArg 1).getArgs;
+   imports ← modImports.mfoldl (fun imports stx =>
+     -- `stx` is of the form `(Module.import "import" (null ...))
+     let importPaths := (stx.getArg 1).getArgs; -- .asNode.getArgs;
+     importPaths.mfoldl (fun imports stx => do
+       -- `stx` is of the form `(Module.importPath (null "*"*) <id>)
+       let stx := stx.asNode;
+       let rel := stx.getArg 0;
+       let k   := if rel.isNone then none else some (rel.getNumArgs);
+       let id  := (stx.getArg 1).getIdentVal;
+       m ← absolutizeModuleName id k;
+       pure (m::imports))
+       imports)
+     imports;
+   let imports := imports.reverse;
+   importModules imports trustLevel
+
+def processHeader (header : Syntax) (messages : MessageLog) (ctx : Parser.ParserContextCore) (trustLevel : UInt32 := 0) : IO (Environment × MessageLog) :=
+catch
+  (do env ← processHeaderAux header trustLevel;
+      pure (env, messages))
+  (fun e => do
+     env ← mkEmptyEnvironment;
+     let spos := header.getPos.getOrElse 0;
+     let pos  := ctx.fileMap.toPosition spos;
+     pure (env, messages.add { filename := ctx.filename, text := toString e, pos := pos }))
+
+/- TODO: support for non-standard search path for web interface -/
+@[extern 1 "lean_set_search_path"]
+constant setSearchPath : IO Unit := default _
+
+def testFrontend (input : String) (fileName : Option String := none) : IO (Environment × MessageLog) :=
+do setSearchPath;
+   env ← mkEmptyEnvironment;
+   let fileName := fileName.getOrElse "<input>";
    let ctx := Parser.mkParserContextCore env input fileName;
    match Parser.parseHeader env ctx with
    | (header, parserState, messages) => do
-     (env, messages) ← processHeader header messages;
+     (env, messages) ← processHeader header messages ctx;
      let elabState := { ElabState . env := env, messages := messages };
      match (processCommands ctx).run { elabState := elabState, parserState := parserState } with
        | EState.Result.ok _ s    => pure (s.elabState.env, s.elabState.messages)
        | EState.Result.error _ s => pure (s.elabState.env, s.elabState.messages)
-
 
 namespace Elab
 

@@ -118,6 +118,9 @@ constant handle.close (h : @& handle) : IO Unit := default _
 @[extern 2 "lean_io_prim_handle_get_line"]
 constant handle.getLine (h : @& handle) : IO String := default _
 
+@[extern 2 "lean_io_getenv"]
+constant getEnv (var : String) : IO (Option String) := default _
+
 @[inline] def liftIO {m : Type → Type} {α : Type} [monadIO m] (x : IO α) : m α :=
 monadLift x
 end Prim
@@ -136,6 +139,10 @@ print s *> putStr "\n"
 
 def readTextFile : String → m String :=
 Prim.liftIO ∘ Prim.readTextFile
+
+def getEnv : String → m (Option String) :=
+Prim.liftIO ∘ Prim.getEnv
+
 end
 
 namespace Fs

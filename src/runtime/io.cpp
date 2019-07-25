@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <fstream>
 #include <iomanip>
 #include <string>
+#include <cstdlib>
 #include "runtime/object.h"
 #include "runtime/allocprof.h"
 namespace lean {
@@ -139,6 +140,15 @@ extern "C" obj_res lean_io_allocprof(obj_arg, b_obj_arg msg, obj_arg fn, obj_arg
     std::ostream & out = std::cerr; // TODO(Leo): replace?
     allocprof prof(out, string_cstr(msg));
     return apply_1(fn, r);
+}
+
+extern "C" obj_res lean_io_getenv(obj_arg env_var, obj_arg r) {
+    char * val = std::getenv(string_cstr(env_var));
+    if (val) {
+        return set_io_result(r, mk_option_some(mk_string(val)));
+    } else {
+        return set_io_result(r, mk_option_none());
+    }
 }
 
 // =======================================

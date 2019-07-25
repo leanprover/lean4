@@ -4,14 +4,25 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
+#include <windows.h>
+#endif
 #include <iostream>
 #include <chrono>
 #include <fstream>
 #include <iomanip>
 #include <string>
 #include <cstdlib>
+#include <sys/stat.h>
 #include "runtime/object.h"
 #include "runtime/allocprof.h"
+
+#ifdef _MSC_VER
+#define S_ISDIR(mode) ((mode & _S_IFDIR) != 0)
+#else
+#include <dirent.h>
+#endif
+
 namespace lean {
 static obj_res const REAL_WORLD = box(0);
 
@@ -149,6 +160,48 @@ extern "C" obj_res lean_io_getenv(obj_arg env_var, obj_arg r) {
     } else {
         return set_io_result(r, mk_option_none());
     }
+}
+
+extern "C" obj_res lean_io_realpath(obj_arg fname, obj_arg r) {
+#if defined(LEAN_EMSCRIPTEN)
+    return set_io_result(r, fname);
+#elif defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
+    constexpr unsigned BufferSize = 8192;
+    char buffer[BufferSize];
+    DWORD retval = GetFullPathName(string_cstr(fname), BufferSize, buffer, nullptr);
+    if (retval == 0 || retval > BufferSize) {
+        return set_io_result(r, fname);
+    } else {
+        dec_ref(fname);
+        return set_io_result(r, mk_string(buffer));
+    }
+#else
+    constexpr unsigned BufferSize = 8192;
+    char buffer[BufferSize];
+    char * tmp = realpath(string_cstr(fname), buffer);
+    if (tmp) {
+        obj_res s = mk_string(tmp);
+        dec_ref(fname);
+        return set_io_result(r, s);
+    } else {
+        return set_io_error(r, mk_io_user_error(mk_string("file not found")));
+    }
+#endif
+}
+
+extern "C" obj_res lean_io_is_dir(b_obj_arg fname, obj_arg r) {
+    struct stat st;
+    if (stat(string_cstr(fname), &st) == 0) {
+        bool b = S_ISDIR(st.st_mode);
+        return set_io_result(r, box(b));
+    } else {
+        return set_io_result(r, box(0));
+    }
+}
+
+extern "C" obj_res lean_io_file_exists(b_obj_arg fname, obj_arg r) {
+    bool b = !!std::ifstream(string_cstr(fname));
+    return set_io_result(r, box(b));
 }
 
 // =======================================

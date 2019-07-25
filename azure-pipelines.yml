@@ -39,7 +39,7 @@ jobs:
   steps:
   - script: |
       choco install -y msys2
-      C:\tools\msys64\usr\bin\bash -lc "pacman --noconfirm -S make python mingw-w64-x86_64-cmake mingw-w64-x86_64-gcc git diffutils"
+      C:\tools\msys64\usr\bin\bash -lc "pacman --noconfirm -S make python mingw-w64-x86_64-cmake mingw-w64-x86_64-gcc mingw-w64-x86_64-clang mingw-w64-x86_64-polly git diffutils"
     displayName: Setup
   - script: |
       C:\tools\msys64\usr\bin\bash -l ./script/ci.sh

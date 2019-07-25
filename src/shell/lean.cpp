@@ -197,7 +197,6 @@ static void display_help(std::ostream & out) {
 #endif
     std::cout << "  --deps             just print dependencies of a Lean input\n";
 #if defined(LEAN_JSON)
-    std::cout << "  --path             display the path used for finding Lean libraries and extensions\n";
     std::cout << "  --json             print JSON-formatted structured error messages\n";
     std::cout << "  --server           start lean in server mode\n";
     std::cout << "  --server=file      start lean in server mode, redirecting standard input from the specified file (for debugging)\n";
@@ -228,7 +227,6 @@ static struct option g_long_options[] = {
     {"cpp",          optional_argument, 0, 'c'},
 #if defined(LEAN_JSON)
     {"json",         no_argument,       0, 'J'},
-    {"path",         no_argument,       0, 'p'},
     {"server",       optional_argument, 0, 'S'},
 #endif
     {"new-frontend", optional_argument, 0, 'n'},
@@ -242,7 +240,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:c:qpgvht:012j:012rM:012T:012a"
+    "PdD:c:qgvht:012j:012rM:012T:012a"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -337,7 +335,7 @@ int main(int argc, char ** argv) {
     bool json_output = false;
 #endif
 
-    standard_search_path path;
+    search_path path = get_lean_path_from_env().value_or(get_builtin_search_path());
 
     options opts;
     optional<std::string> server_in;
@@ -404,19 +402,6 @@ int main(int argc, char ** argv) {
                 opts = opts.update(lean::name{"trace", "as_messages"}, true);
                 json_output = true;
                 break;
-            case 'p': {
-                json out;
-
-                auto & out_path = out["path"] = json::array();
-                for (auto & p : path.get_path()) out_path.push_back(p);
-
-                out["leanpkg_path_file"] = path.m_leanpkg_path_fn ? *path.m_leanpkg_path_fn
-                                                                  : path.m_user_leanpkg_path_fn;
-                out["is_user_leanpkg_path"] = !path.m_leanpkg_path_fn;
-
-                std::cout << std::setw(2) << out << std::endl;
-                return 0;
-            }
 #endif
             case 'P':
                 opts = opts.update("profiler", true);
@@ -484,7 +469,7 @@ int main(int argc, char ** argv) {
         }
         mod_fn = lrealpath(argv[optind]);
         contents = read_file(mod_fn);
-        search_path input_path = path.get_path();
+        search_path input_path = path;
         /* We accept stand-alone files as input, but imports should always be part of a package so that we can give
          * them a (stable) absolute name. */
         input_path.push_back(dirname(mod_fn));
@@ -509,11 +494,11 @@ int main(int argc, char ** argv) {
             std::vector<module_name> imports;
             auto dir = dirname(mod_fn);
             for (auto const & rel : rel_imports)
-                imports.push_back(absolutize_module_name(path.get_path(), dir, rel));
+                imports.push_back(absolutize_module_name(path, dir, rel));
 
             if (only_deps) {
                 for (auto const & import : imports) {
-                    std::string m_name = find_file(path.get_path(), import, {".lean"});
+                    std::string m_name = find_file(path, import, {".lean"});
                     auto last_idx = m_name.find_last_of(".");
                     std::string rawname = m_name.substr(0, last_idx);
                     std::string ext = m_name.substr(last_idx);
@@ -525,7 +510,7 @@ int main(int argc, char ** argv) {
 
             message_log l;
             scope_message_log scope_log(l);
-            set_search_path(path.get_path());
+            set_search_path(path);
             if (stats) {
                 timeit timer(std::cout, "import");
                 env = import_modules(trust_lvl, imports);
@@ -570,7 +555,7 @@ int main(int argc, char ** argv) {
                 std::cerr << "failed to create '" << *cpp_output << "'\n";
                 return 1;
             }
-            auto mod = module_name_of_file(path.get_path(), mod_fn);
+            auto mod = module_name_of_file(path, mod_fn);
             out << lean::ir::emit_cpp(env, mod).data();
             out.close();
         }

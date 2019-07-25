@@ -26,58 +26,6 @@ static bool exists(std::string const & fn) {
     return !!std::ifstream(fn);
 }
 
-optional<std::string> get_leanpkg_path_file() {
-    auto dir = lrealpath(".");
-    while (true) {
-        auto fn = dir + get_dir_sep() + "leanpkg.path";
-        if (exists(fn)) return optional<std::string>(fn);
-
-        auto i = dir.rfind(get_dir_sep());
-        if (i == std::string::npos) {
-            return optional<std::string>();
-        } else {
-            dir = dir.substr(0, i);
-        }
-    }
-}
-
-std::string get_user_leanpkg_path() {
-    // TODO(gabriel): check if this works on windows
-    if (auto home = getenv("HOME")) {
-        return std::string(home) + get_dir_sep() + ".lean" + get_dir_sep() + "leanpkg.path";
-    } else {
-        return "/could-not-find-home";
-    }
-}
-
-static optional<std::string> begins_with(std::string const & s, std::string const & prefix) {
-    if (prefix.size() <= s.size() && s.substr(0, prefix.size()) == prefix) {
-        return optional<std::string>(s.substr(prefix.size(), s.size()));
-    } else {
-        return optional<std::string>();
-    }
-}
-
-search_path parse_leanpkg_path(std::string const & fn) {
-    std::ifstream in(fn);
-    if (!in) throw exception(sstream() << "cannot open " << fn);
-    auto fn_dir = dirname(fn);
-    search_path path;
-    while (!in.eof()) {
-        std::string line;
-        std::getline(in, line);
-
-        if (auto rest = begins_with(line, "path "))
-            path.push_back(lrealpath(resolve(*rest, fn_dir)));
-
-        if (line == "builtin_path") {
-            auto builtin = get_builtin_search_path();
-            path.insert(path.end(), builtin.begin(), builtin.end());
-        }
-    }
-    return path;
-}
-
 optional<search_path> get_lean_path_from_env() {
     if (auto r = getenv("LEAN_PATH")) {
         auto lean_path = normalize_path(r);
@@ -114,26 +62,6 @@ search_path get_builtin_search_path() {
     return path;
 }
 
-standard_search_path::standard_search_path() {
-    m_builtin = get_builtin_search_path();
-
-    m_from_env = get_lean_path_from_env();
-    m_leanpkg_path_fn = get_leanpkg_path_file();
-    m_user_leanpkg_path_fn = get_user_leanpkg_path();
-
-    if (m_leanpkg_path_fn) {
-        m_from_leanpkg_path = parse_leanpkg_path(*m_leanpkg_path_fn);
-    } else if (exists(m_user_leanpkg_path_fn)) {
-        m_from_leanpkg_path = parse_leanpkg_path(m_user_leanpkg_path_fn);
-    }
-}
-
-search_path standard_search_path::get_path() const {
-    if (m_from_env) return *m_from_env;
-    if (m_from_leanpkg_path) return *m_from_leanpkg_path;
-    return m_builtin;
-}
-
 bool is_lean_file(std::string const & fname) {
     return has_file_ext(fname, ".lean");
 }
@@ -167,10 +95,6 @@ optional<std::string> check_file(std::string const & path, std::string const & f
         }
     }
     return check_file_core(file, ext);
-}
-
-std::string name_to_file(name const & fname) {
-    return fname.to_string(get_dir_sep());
 }
 
 static std::string find_file(search_path const & paths, std::string fname, std::initializer_list<char const *> const & extensions) {
@@ -257,24 +181,6 @@ name module_name_of_file(search_path const & paths, std::string const & fname0) 
 module_name absolutize_module_name(search_path const & path, std::string const & base, rel_module_name const & rel) {
     // TODO(Sebastian): Should make sure that the result of `find_file` is still in the same package as `base`
     return module_name_of_file(path, find_file(path, base, rel.m_updirs, rel.m_name, ".lean"));
-}
-
-void find_imports_core(std::string const & base, optional<unsigned> const & k,
-                       std::vector<pair<std::string, std::string>> & imports) {
-    std::vector<std::string> files;
-    find_files(base, ".lean", files);
-    find_files(base, ".olean", files);
-
-    for (auto const & file : files) {
-        auto import = file.substr(base.size() + 1, file.rfind('.') - (base.size() + 1));
-        std::replace(import.begin(), import.end(), get_dir_sep_ch(), '.');
-        if (k)
-            import = std::string(*k + 1, '.') + import;
-        auto n = import.rfind(".default");
-        if (n != static_cast<unsigned>(-1) && n == import.size() - std::string(".default").size())
-            import = import.substr(0, n);
-        imports.push_back({import, file});
-    }
 }
 
 std::string olean_of_lean(std::string const & lean_fn) {

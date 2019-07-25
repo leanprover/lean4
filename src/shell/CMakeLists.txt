@@ -22,7 +22,7 @@ add_custom_target(stdlib
   # '-G Ninja' complains otherwise
   BYPRODUCTS "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"
   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
-  COMMAND make -j8 "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" "LEAN=$<TARGET_FILE:lean_stage0>" "LEANC_OPTS=${LEANC_OPTS}" "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
+  COMMAND ${CMAKE_COMMAND} -E env "LEAN_PATH=." make -j8 "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" "LEAN=$<TARGET_FILE:lean_stage0>" "LEANC_OPTS=${LEANC_OPTS}" "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
   DEPENDS lean_stage0)
 install(FILES "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" DESTINATION lib)
 
@@ -92,8 +92,6 @@ add_test(lean_version2 "${CMAKE_CURRENT_BINARY_DIR}/lean" --v)
 endif()
 add_test(lean_ghash1   "${CMAKE_CURRENT_BINARY_DIR}/lean" -g)
 add_test(lean_ghash2   "${CMAKE_CURRENT_BINARY_DIR}/lean" --githash)
-add_test(lean_path1    "${CMAKE_CURRENT_BINARY_DIR}/lean" -p)
-add_test(lean_path2    "${CMAKE_CURRENT_BINARY_DIR}/lean" --path)
 add_test(lean_new_frontend "${CMAKE_CURRENT_BINARY_DIR}/lean" --new-frontend "${LEAN_SOURCE_DIR}/../library/init/core.lean")
 add_test(lean_unknown_option bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "-z")
 add_test(lean_unknown_file1 bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lean")

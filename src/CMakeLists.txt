@@ -32,6 +32,8 @@ option(TCMALLOC           "TCMALLOC"           OFF)
 option(JEMALLOC           "JEMALLOC"           OFF)
 # When OFF we disable JSON support to support older compilers
 option(JSON               "JSON"               ON)
+# When OFF we disable LLVM support
+option(JSON               "LLVM"               ON)
 
 # When cross-compiling, we do not compile the standard library since
 # the executable will not work on the host machine
@@ -172,6 +174,9 @@ if((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
     set(EXTRA_UTIL_LIBS ${EXTRA_UTIL_LIBS} -lpsapi)
   endif()
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_WINDOWS -D LEAN_WIN_STACK_SIZE=${LEAN_WIN_STACK_SIZE}")
+else()
+  # Windows does not support pthread or fPIC
+  set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -pthread -fPIC")
 endif()
 
 if("${CYGWIN}" EQUAL "1")
@@ -203,6 +208,23 @@ endif()
 
 if(AUTO_THREAD_FINALIZATION AND NOT MSVC)
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_AUTO_THREAD_FINALIZATION")
+endif()
+
+if(LLVM)
+  find_package(LLVM REQUIRED CONFIG)
+  message(STATUS "Found CLANG ${CLANG_PACKAGE_VERSION}")
+  message(STATUS "Using ClangConfig.cmake in: ${CLANG_DIR}")
+  message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+  message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+
+  include_directories(${LLVM_INCLUDE_DIRS})
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_LLVM")
+
+  # Find the libraries that correspond to the LLVM components
+  #   that we wish to use and define llvm_libs
+  llvm_map_components_to_libnames(llvm_libs nativecodegen)
+else()
+  message(WARNING "Disabling LLVM support.  JIT compilation will not be available")
 endif()
 
 if(STATIC)
@@ -462,6 +484,11 @@ target_link_libraries(leanstatic_stage0 ${EXTRA_LIBS})
 add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
 add_library(leanstdlib STATIC IMPORTED)
 target_link_libraries(leanstatic leanstdlib ${EXTRA_LIBS})
+
+if(LLVM)
+  target_link_libraries(leanstatic_stage0 ${llvm_libs})
+  target_link_libraries(leanstatic ${llvm_libs})
+endif()
 
 ADD_CUSTOM_TARGET(bin_lib ALL
    COMMAND "${CMAKE_COMMAND}" -E make_directory "${LEAN_SOURCE_DIR}/../bin"

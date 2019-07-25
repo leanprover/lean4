@@ -1,6 +1,6 @@
-{ stdenv, cmake, python, gmp }:
+{ clangStdenv, cmake, llvm, python, gmp }:
 
-stdenv.mkDerivation rec {
+clangStdenv.mkDerivation rec {
   name = "lean-${version}";
   version = "local";
 
@@ -8,7 +8,7 @@ stdenv.mkDerivation rec {
   src = builtins.fetchGit { url = ./.; };
 
   nativeBuildInputs = [ cmake python ];
-  buildInputs = [ gmp ];
+  buildInputs = [ gmp llvm ];
   enableParallelBuilding = true;
 
   preConfigure = ''
@@ -18,7 +18,7 @@ stdenv.mkDerivation rec {
     patchShebangs ../../bin
   '';
 
-  meta = with stdenv.lib; {
+  meta = with clangStdenv.lib; {
     description = "Automatic and interactive theorem prover";
     homepage    = https://leanprover.github.io/;
     license     = licenses.asl20;

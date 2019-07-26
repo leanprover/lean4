@@ -6,6 +6,11 @@ Author: Leonardo de Moura
 */
 #if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
 #include <windows.h>
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
+#else
+// Linux include files
+#include <unistd.h>
 #endif
 #include <iostream>
 #include <chrono>
@@ -153,7 +158,7 @@ extern "C" obj_res lean_io_allocprof(obj_arg, b_obj_arg msg, obj_arg fn, obj_arg
     return apply_1(fn, r);
 }
 
-extern "C" obj_res lean_io_getenv(obj_arg env_var, obj_arg r) {
+extern "C" obj_res lean_io_getenv(b_obj_arg env_var, obj_arg r) {
     char * val = std::getenv(string_cstr(env_var));
     if (val) {
         return set_io_result(r, mk_option_some(mk_string(val)));
@@ -202,6 +207,36 @@ extern "C" obj_res lean_io_is_dir(b_obj_arg fname, obj_arg r) {
 extern "C" obj_res lean_io_file_exists(b_obj_arg fname, obj_arg r) {
     bool b = !!std::ifstream(string_cstr(fname));
     return set_io_result(r, box(b));
+}
+
+extern "C" obj_res lean_io_app_dir(obj_arg r) {
+#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
+    HMODULE hModule = GetModuleHandleW(NULL);
+    WCHAR path[MAX_PATH];
+    GetModuleFileNameW(hModule, path, MAX_PATH);
+    return set_io_result(r, mk_string(path));
+#elif defined(__APPLE__)
+    char buf1[PATH_MAX];
+    char buf2[PATH_MAX];
+    uint32_t bufsize = PATH_MAX;
+    if (_NSGetExecutablePath(buf1, &bufsize) != 0)
+        return set_io_error(r, mk_string("failed to locate application"));
+    if (!realpath(buf1, buf2))
+        return set_io_error(r, mk_string("failed to resolve symbolic links when locating application"));
+    return set_io_result(r, mk_string(buf2));
+#else
+    // Linux version
+    char path[PATH_MAX];
+    char dest[PATH_MAX];
+    memset(dest, 0, PATH_MAX);
+    pid_t pid = getpid();
+    snprintf(path, PATH_MAX, "/proc/%d/exe", pid);
+    if (readlink(path, dest, PATH_MAX) == -1) {
+        return set_io_error(r, mk_string("failed to locate application"));
+    } else {
+        return set_io_result(r, mk_string(dest));
+    }
+#endif
 }
 
 // =======================================

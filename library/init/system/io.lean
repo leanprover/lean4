@@ -119,7 +119,15 @@ constant handle.close (h : @& handle) : IO Unit := default _
 constant handle.getLine (h : @& handle) : IO String := default _
 
 @[extern 2 "lean_io_getenv"]
-constant getEnv (var : String) : IO (Option String) := default _
+constant getEnv (var : @& String) : IO (Option String) := default _
+@[extern 2 "lean_io_realpath"]
+constant realPath (fname : String) : IO String := default _
+@[extern 2 "lean_io_is_dir"]
+constant isDir (fname : @& String) : IO Bool := default _
+@[extern 2 "lean_io_file_exists"]
+constant fileExists (fname : @& String) : IO Bool := default _
+@[extern 1 "lean_io_app_dir"]
+constant appDir : IO String := default _
 
 @[inline] def liftIO {m : Type → Type} {α : Type} [monadIO m] (x : IO α) : m α :=
 monadLift x
@@ -131,17 +139,14 @@ variables {m : Type → Type} [Monad m] [monadIO m]
 private def putStr : String → m Unit :=
 Prim.liftIO ∘ Prim.putStr
 
-def print {α} [HasToString α] (s : α) : m Unit :=
-putStr ∘ toString $ s
-
-def println {α} [HasToString α] (s : α) : m Unit :=
-print s *> putStr "\n"
-
-def readTextFile : String → m String :=
-Prim.liftIO ∘ Prim.readTextFile
-
-def getEnv : String → m (Option String) :=
-Prim.liftIO ∘ Prim.getEnv
+def print {α} [HasToString α] (s : α) : m Unit := putStr ∘ toString $ s
+def println {α} [HasToString α] (s : α) : m Unit := print s *> putStr "\n"
+def readTextFile : String → m String := Prim.liftIO ∘ Prim.readTextFile
+def getEnv : String → m (Option String) := Prim.liftIO ∘ Prim.getEnv
+def realPath : String → m String := Prim.liftIO ∘ Prim.realPath
+def isDir : String → m Bool := Prim.liftIO ∘ Prim.isDir
+def fileExists : String → m Bool := Prim.liftIO ∘ Prim.fileExists
+def appDir : m String := Prim.liftIO Prim.appDir
 
 end
 

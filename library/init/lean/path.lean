@@ -7,9 +7,11 @@ prelude
 import init.system.io
 import init.system.filepath
 import init.data.array
+import init.control.combinators
+import init.lean.modulename
 
 namespace Lean
-open System.FilePath (pathSeparator searchPathSeparator)
+open System.FilePath (pathSeparator searchPathSeparator extSeparator)
 private def pathSep : String := toString pathSeparator
 private def searchPathSep : String := toString searchPathSeparator
 
@@ -26,14 +28,12 @@ searchPathRef.set (s.split searchPathSep).toArray
 def getBuiltinSearchPath : IO String :=
 do appDir ← IO.appDir;
    let libDir := appDir ++ pathSep ++ ".." ++ pathSep ++ "library";
-   IO.println libDir;
    libDirExists ← IO.isDir libDir;
    if libDirExists then
      IO.realPath libDir
    else do
      let installedLibDir := appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "library";
      installedLibDirExists ← IO.isDir installedLibDir;
-     IO.println installedLibDir;
      if installedLibDirExists then do
        IO.realPath installedLibDir
      else
@@ -62,7 +62,37 @@ def findFile (fname : String) : IO (Option String) :=
 do paths ← searchPathRef.get;
    paths.mfind $ fun path => do
      let curr := path ++ pathSep ++ fname;
+     IO.println ("trying " ++ curr);
      ex ← IO.fileExists curr;
      if ex then pure (some curr) else pure none
+
+def modNameToFileName : Name → String
+| (Name.mkString Name.anonymous h)  := h
+| (Name.mkString p h)               := modNameToFileName p ++ pathSep ++ h
+| Name.anonymous                    := ""
+| (Name.mkNumeral p _)              := modNameToFileName p
+
+def addRel : Nat → String
+| 0     := "."
+| (n+1) := addRel n ++ pathSep ++ ".."
+
+def findLeanFile (modName : ModuleName) (ext : String) : IO String :=
+match modName with
+| ModuleName.explicit modName => do
+  let fname := modNameToFileName modName ++ toString extSeparator ++ ext;
+  some fname ← findFile fname | throw (IO.userError ("module '" ++ toString modName ++ "' not found"));
+  IO.realPath fname
+| ModuleName.relative n modName => do
+  let fname := modNameToFileName modName ++ toString extSeparator ++ ext;
+  let fname := addRel n ++ pathSep ++ fname;
+  ex ← IO.fileExists fname;
+  unless ex $ throw (IO.userError ("module '" ++ toString modName ++ "' not found"));
+  IO.realPath fname
+
+def findOLean (modName : ModuleName) : IO String :=
+findLeanFile modName "olean"
+
+def findLean (modName : Name) : IO String :=
+findLeanFile modName "lean"
 
 end Lean

@@ -410,7 +410,7 @@ def writeModule (env : Environment) (fname : String) : IO Unit :=
 do modData ← mkModuleData env; saveModuleData fname modData
 
 @[extern 2 "lean_find_olean"]
-constant findOLean (modName : Name) : IO String := default _
+constant findOLeanOld (modName : Name) : IO String := default _
 
 partial def importModulesAux : List Name → (NameSet × Array ModuleData) → IO (NameSet × Array ModuleData)
 | []      r         := pure r
@@ -419,7 +419,7 @@ partial def importModulesAux : List Name → (NameSet × Array ModuleData) → I
     importModulesAux ms (s, mods)
   else do
     let s := s.insert m;
-    mFile ← findOLean m;
+    mFile ← findOLeanOld m;
     mod ← readModuleData mFile;
     (s, mods) ← importModulesAux mod.imports.toList (s, mods);
     let mods := mods.push mod;

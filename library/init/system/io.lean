@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
-import init.control.estate init.data.string.basic
+import init.control.estate
+import init.data.string.basic
+import init.system.filepath
 
 /-- Like https://hackage.haskell.org/package/ghc-Prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld.
     Makes sure we never reorder `IO` operations.
@@ -127,7 +129,7 @@ constant isDir (fname : @& String) : IO Bool := default _
 @[extern 2 "lean_io_file_exists"]
 constant fileExists (fname : @& String) : IO Bool := default _
 @[extern 1 "lean_io_app_dir"]
-constant appDir : IO String := default _
+constant appPath : IO String := default _
 
 @[inline] def liftIO {m : Type → Type} {α : Type} [monadIO m] (x : IO α) : m α :=
 monadLift x
@@ -146,7 +148,11 @@ def getEnv : String → m (Option String) := Prim.liftIO ∘ Prim.getEnv
 def realPath : String → m String := Prim.liftIO ∘ Prim.realPath
 def isDir : String → m Bool := Prim.liftIO ∘ Prim.isDir
 def fileExists : String → m Bool := Prim.liftIO ∘ Prim.fileExists
-def appDir : m String := Prim.liftIO Prim.appDir
+def appPath : m String := Prim.liftIO Prim.appPath
+
+def appDir : m String :=
+do p ← appPath;
+   realPath (System.FilePath.dirName p)
 
 end
 

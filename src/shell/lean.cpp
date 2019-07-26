@@ -296,6 +296,12 @@ object* test_module_parser_core(object* env, object* input, object* filename, ui
 bool test_module_parser(environment const & env, std::string const & input, std::string const & filename) {
     return get_io_scalar_result<bool>(test_module_parser_core(env.to_obj_arg(), mk_string(input), mk_string(filename), false, io_mk_world()));
 }
+
+object* init_search_path_core(object* opt_path, object* w);
+
+void init_search_path() {
+    get_io_scalar_result<unsigned>(init_search_path_core(mk_option_none(), io_mk_world()));
+}
 }
 
 int main(int argc, char ** argv) {
@@ -334,6 +340,8 @@ int main(int argc, char ** argv) {
 #if defined(LEAN_JSON)
     bool json_output = false;
 #endif
+
+    init_search_path();
 
     search_path path = get_lean_path_from_env().value_or(get_builtin_search_path());
 

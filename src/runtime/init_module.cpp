@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "runtime/object.h"
 #include "runtime/io.h"
-#include "runtime/platform.h"
 
 namespace lean {
 void initialize_runtime_module() {
@@ -20,10 +19,8 @@ void initialize_runtime_module() {
     initialize_io();
     initialize_serializer();
     initialize_thread();
-    initialize_platform();
 }
 void finalize_runtime_module() {
-    finalize_platform();
     finalize_thread();
     finalize_serializer();
     finalize_io();

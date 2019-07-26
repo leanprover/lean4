@@ -18,13 +18,17 @@ else()
   set(LEANC_OPTS "-g")
 endif()
 
-add_custom_target(stdlib
+add_custom_target(make_stdlib
   # '-G Ninja' complains otherwise
   BYPRODUCTS "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"
   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
   COMMAND ${CMAKE_COMMAND} -E env "LEAN_PATH=." make -j8 "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" "LEAN=$<TARGET_FILE:lean_stage0>" "LEANC_OPTS=${LEANC_OPTS}" "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
   DEPENDS lean_stage0)
-install(FILES "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" DESTINATION lib)
+set_target_properties(leanstdlib PROPERTIES
+  IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"
+  IMPORTED_LINK_INTERFACE_LIBRARIES leanstatic)
+add_dependencies(leanstdlib make_stdlib)
+install(FILES "$<TARGET_FILE:leanstdlib>" DESTINATION lib)
 
 add_custom_target(update-stage0
   COMMAND make update-stage0 "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"

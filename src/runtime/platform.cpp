@@ -22,7 +22,4 @@ extern "C" uint8 lean_system_platform_windows(obj_arg) {
     return 0;
 #endif
 }
-
-void initialize_platform() {}
-void finalize_platform() {}
 }

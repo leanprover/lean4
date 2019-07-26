@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import init.lean.path
 import init.lean.compiler
 import init.lean.environment
 import init.lean.modifiers

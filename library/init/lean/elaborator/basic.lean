@@ -343,10 +343,10 @@ catch
 
 /- TODO: support for non-standard search path for web interface -/
 @[extern 1 "lean_set_search_path"]
-constant setSearchPath : IO Unit := default _
+constant setSearchPathOld : IO Unit := default _
 
 def testFrontend (input : String) (fileName : Option String := none) : IO (Environment × MessageLog) :=
-do setSearchPath;
+do setSearchPathOld;
    env ← mkEmptyEnvironment;
    let fileName := fileName.getOrElse "<input>";
    let ctx := Parser.mkParserContextCore env input fileName;

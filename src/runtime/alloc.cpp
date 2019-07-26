@@ -261,7 +261,7 @@ static page * alloc_page(heap * h, unsigned obj_size) {
     p->m_header.m_slot_idx   = slot_idx;
     char * curr_free         = p->m_data;
     set_next_obj(curr_free, nullptr);
-    char * end               = p->m_data + LEAN_PAGE_SIZE - sizeof(page_header);
+    char * end               = p->m_data + (LEAN_PAGE_SIZE - sizeof(page_header));
     unsigned num_free        = 1;
     char * next_free         = curr_free + obj_size;
     while (true) {

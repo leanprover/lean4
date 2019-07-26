@@ -136,18 +136,18 @@ inline constexpr unsigned reflected_offset(expr_kind k) {
 
 inline constexpr unsigned hash_offset(expr_kind k) {
     return
-        k == expr_kind::FVar   ? scalar_offset(k) + sizeof(unsigned char) : // for binder_info, TODO(Leo): delete after we remove support for legacy code
-        k == expr_kind::Lambda ? scalar_offset(k) + sizeof(unsigned char) : // for binder_info
-        k == expr_kind::Pi     ? scalar_offset(k) + sizeof(unsigned char) : // for binder_info
+        k == expr_kind::FVar   ? scalar_offset(k) + sizeof(unsigned) : // for binder_info, TODO(Leo): delete after we remove support for legacy code
+        k == expr_kind::Lambda ? scalar_offset(k) + sizeof(unsigned) : // for binder_info
+        k == expr_kind::Pi     ? scalar_offset(k) + sizeof(unsigned) : // for binder_info
         scalar_offset(k);
 }
 
 inline constexpr size_t flags_offset(expr_kind k) { return hash_offset(k) + sizeof(unsigned); }
-inline constexpr size_t weight_offset(expr_kind k) { return flags_offset(k) + sizeof(unsigned char); }
+inline constexpr size_t weight_offset(expr_kind k) { return flags_offset(k) + sizeof(unsigned); }
 inline constexpr size_t depth_offset(expr_kind k) { return weight_offset(k) + sizeof(unsigned); }
 inline constexpr size_t loose_bvar_range_offset(expr_kind k) { return depth_offset(k) + sizeof(unsigned); }
 /* Size for scalar value area for non recursive expression. */
-inline constexpr size_t expr_scalar_size(expr_kind k) { return flags_offset(k) + sizeof(unsigned char); }
+inline constexpr size_t expr_scalar_size(expr_kind k) { return flags_offset(k) + sizeof(unsigned); }
 /* Size for scalar value area for recursive expression. */
 inline constexpr size_t rec_expr_scalar_size(expr_kind k) { return loose_bvar_range_offset(k) + sizeof(unsigned); }
 

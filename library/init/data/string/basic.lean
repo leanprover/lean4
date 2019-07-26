@@ -131,6 +131,16 @@ partial def posOfAux (s : String) (c : Char) (stopPos : Pos) : Pos → Pos
 @[inline] def posOf (s : String) (c : Char) : Pos :=
 posOfAux s c s.bsize 0
 
+partial def revPosOfAux (s : String) (c : Char) : Pos → Option Pos
+| pos :=
+ if s.get pos == c then some pos
+ else if pos == 0 then none
+ else revPosOfAux (s.prev pos)
+
+def revPosOf (s : String) (c : Char) : Option Pos :=
+if s.bsize == 0 then none
+else revPosOfAux s c (s.prev s.bsize)
+
 private def utf8ExtractAux₂ : List Char → Pos → Pos → List Char
 | []      _ _ := []
 | (c::cs) i e := if i = e then [] else c :: utf8ExtractAux₂ cs (i + csize c) e

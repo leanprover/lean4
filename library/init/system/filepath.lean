@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.system.platform
-import init.data.char.basic
+import init.data.string.basic
 
 namespace System
 namespace FilePath
@@ -26,6 +26,11 @@ if isWindows then ';' else ':'
 /-- File extension character -/
 def extSeparator : Char :=
 '.'
+
+def dirName (fname : String) : String :=
+match fname.revPosOf pathSeparator with
+| none => "."
+| some pos => { Substring . str := fname, startPos := 0, stopPos := pos }.toString
 
 end FilePath
 end System

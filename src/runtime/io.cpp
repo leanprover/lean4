@@ -214,7 +214,9 @@ extern "C" obj_res lean_io_app_dir(obj_arg r) {
     HMODULE hModule = GetModuleHandleW(NULL);
     WCHAR path[MAX_PATH];
     GetModuleFileNameW(hModule, path, MAX_PATH);
-    return set_io_result(r, mk_string(path));
+    std::wstring pathwstr(path);
+    std::string pathstr(pathwstr.begin(), pathwstr.end());
+    return set_io_result(r, mk_string(pathstr));
 #elif defined(__APPLE__)
     char buf1[PATH_MAX];
     char buf2[PATH_MAX];

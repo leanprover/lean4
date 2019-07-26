@@ -27,7 +27,7 @@ structure NumScalarTypeInfo :=
 
 def numScalarTypes : List NumScalarTypeInfo :=
 [{nbits := 8}, {nbits := 16}, {nbits := 32}, {nbits := 64},
- {id := `USize, nbits := System.platform.nbits}]
+ {id := `USize, nbits := System.Platform.numBits}]
 
 def isOfNat (fn : Name) : Bool :=
 numScalarTypes.any (fun info => info.ofNatFn = fn)

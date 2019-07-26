@@ -33,6 +33,9 @@ variable {n : Nat}
 def ofNat {n : Nat} (a : Nat) : Fin (succ n) :=
 ⟨a % succ n, Nat.modLt _ (Nat.zeroLtSucc _)⟩
 
+def ofNat' {n : Nat} (a : Nat) (h : n > 0) : Fin n :=
+⟨a % n, Nat.modLt _ h⟩
+
 private theorem mlt {n b : Nat} : ∀ {a}, n > a → b % n < n
 | 0     h := Nat.modLt _ h
 | (a+1) h :=

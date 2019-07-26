@@ -240,12 +240,15 @@ instance : DecidableEq UInt64 := {decEq := UInt64.decEq}
 instance UInt64.hasDecidableLt (a b : UInt64) : Decidable (a < b) := UInt64.decLt a b
 instance UInt64.hasDecidableLe (a b : UInt64) : Decidable (a ≤ b) := UInt64.decLe a b
 
-def usizeSz : Nat := (2:Nat) ^ System.platform.nbits
+def usizeSz : Nat := (2:Nat) ^ System.Platform.numBits
 structure USize :=
 (val : Fin usizeSz)
 
+theorem usizeSzGt0 : usizeSz > 0 :=
+Nat.posPowOfPos System.Platform.numBits (Nat.zeroLtSucc _)
+
 @[extern cpp "lean::usize_of_nat"]
-def USize.ofNat (n : @& Nat) : USize := ⟨Fin.ofNat n⟩
+def USize.ofNat (n : @& Nat) : USize := ⟨Fin.ofNat' n usizeSzGt0⟩
 @[extern cpp "lean::usize_to_nat"]
 def USize.toNat (n : USize) : Nat := n.val.val
 @[extern cpp inline "#1 + #2"]

@@ -4,11 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.core
+import init.data.nat.basic
 
 namespace System
+namespace Platform
 
--- TODO: mark as opaque, the VM provides platform specific implementation
-def platform.nbits : Nat := 64
+@[extern "lean_system_platform_nbits"]
+constant getNumBits : Unit → Nat := default _
 
+@[extern "lean_system_platform_windows"]
+constant getIsWindows : Unit → Bool := default _
+
+def numBits : Nat := getNumBits ()
+def isWindows : Bool := getIsWindows ()
+
+end Platform
 end System

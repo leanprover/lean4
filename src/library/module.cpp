@@ -29,7 +29,8 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include "library/util.h"
 
 namespace lean {
-static char const * g_olean_header   = "oleanfile";
+// manually padded to multiple of word size, see `initialize_module`
+static char const * g_olean_header   = "oleanfile!!!!!!!";
 
 extern "C" object * lean_save_module_data(object * fname, object * mdata, object * w) {
     std::string olean_fn(string_cstr(fname));
@@ -248,6 +249,9 @@ environment add(environment const & env, declaration const & d, bool check) {
 } // end of namespace module
 
 void initialize_module() {
+    // file header size should preserve alignment
+    // can't be a static_assert because strlen isn't constexpr...
+    lean_always_assert(strlen(g_olean_header) % sizeof(object *) == 0);
     g_modification_class = register_external_object_class(modification_finalizer, modification_foreach);
     g_object_readers = new object_readers();
     g_search_path    = new search_path();

@@ -23,6 +23,7 @@ obj* l_String_posOfAux___main(obj*, uint32, obj*, obj*);
 obj* l_String_prev___boxed(obj*, obj*);
 obj* l_Substring_dropRight___boxed(obj*, obj*);
 obj* l_String_mkIterator(obj*);
+obj* l_String_revPosOf(obj*, uint32);
 obj* l___private_init_data_string_basic_4__utf8SetAux(uint32, obj*, obj*, obj*);
 obj* l_String_posOf___boxed(obj*, obj*);
 obj* l_Substring_takeWhileAux(obj*, obj*, obj*, obj*);
@@ -168,6 +169,7 @@ obj* l_String_Iterator_next___main(obj*);
 obj* l_Substring_takeRightWhileAux___boxed(obj*, obj*, obj*, obj*);
 obj* l___private_init_data_string_basic_7__utf8ExtractAux_u2081___main(obj*, obj*, obj*, obj*);
 obj* l_String_all___boxed(obj*, obj*);
+obj* l_String_revPosOfAux___main(obj*, uint32, obj*);
 namespace lean {
 obj* string_append(obj*, obj*);
 }
@@ -316,6 +318,8 @@ obj* l_Substring_prev___main___boxed(obj*, obj*);
 obj* l_List_intercalate___rarg(obj*, obj*);
 obj* l___private_init_data_string_basic_2__utf8ByteSizeAux___main(obj*, obj*);
 obj* l___private_init_data_string_basic_6__utf8ExtractAux_u2082___main___boxed(obj*, obj*, obj*);
+obj* l_String_revPosOfAux(obj*, uint32, obj*);
+obj* l_String_revPosOfAux___boxed(obj*, obj*, obj*);
 obj* l_Substring_dropWhile___main(obj*, obj*);
 uint32 l_Char_utf8Size(uint32);
 obj* l_String_Iterator_toEnd___main(obj*);
@@ -362,6 +366,7 @@ obj* l_String_HasSizeof___closed__1;
 uint8 l_Substring_isNat(obj*);
 obj* l_String_Iterator_setCurr(obj*, uint32);
 obj* l_String_foldlAux___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
+obj* l_String_revPosOf___boxed(obj*, obj*);
 obj* l_Substring_toString___main(obj*);
 obj* l_String_Iterator_toEnd(obj*);
 obj* l_String_bsize___boxed(obj*);
@@ -381,6 +386,7 @@ obj* l_String_trimLeft(obj*);
 obj* l___private_init_data_string_basic_2__utf8ByteSizeAux(obj*, obj*);
 uint8 l_String_anyAux___main___at_String_contains___spec__1(uint32, obj*, obj*, obj*);
 obj* l_String_length___boxed(obj*);
+obj* l_String_revPosOfAux___main___boxed(obj*, obj*, obj*);
 obj* l_String_anyAux___main___at_String_isNat___spec__1___boxed(obj*, obj*, obj*);
 uint8 l_String_anyAux(obj*, obj*, obj*, obj*);
 obj* l_Substring_prev___boxed(obj*, obj*);
@@ -1001,6 +1007,107 @@ uint32 x_3; obj* x_4;
 x_3 = lean::unbox_uint32(x_2);
 lean::dec(x_2);
 x_4 = l_String_posOf(x_1, x_3);
+lean::dec(x_1);
+return x_4;
+}
+}
+obj* l_String_revPosOfAux___main(obj* x_1, uint32 x_2, obj* x_3) {
+_start:
+{
+uint32 x_4; uint8 x_5; 
+x_4 = lean::string_utf8_get(x_1, x_3);
+x_5 = x_4 == x_2;
+if (x_5 == 0)
+{
+obj* x_6; uint8 x_7; 
+x_6 = lean::mk_nat_obj(0u);
+x_7 = lean::nat_dec_eq(x_3, x_6);
+if (x_7 == 0)
+{
+obj* x_8; 
+x_8 = lean::string_utf8_prev(x_1, x_3);
+lean::dec(x_3);
+x_3 = x_8;
+goto _start;
+}
+else
+{
+obj* x_10; 
+lean::dec(x_3);
+x_10 = lean::box(0);
+return x_10;
+}
+}
+else
+{
+obj* x_11; 
+x_11 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_11, 0, x_3);
+return x_11;
+}
+}
+}
+obj* l_String_revPosOfAux___main___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+uint32 x_4; obj* x_5; 
+x_4 = lean::unbox_uint32(x_2);
+lean::dec(x_2);
+x_5 = l_String_revPosOfAux___main(x_1, x_4, x_3);
+lean::dec(x_1);
+return x_5;
+}
+}
+obj* l_String_revPosOfAux(obj* x_1, uint32 x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_String_revPosOfAux___main(x_1, x_2, x_3);
+return x_4;
+}
+}
+obj* l_String_revPosOfAux___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+uint32 x_4; obj* x_5; 
+x_4 = lean::unbox_uint32(x_2);
+lean::dec(x_2);
+x_5 = l_String_revPosOfAux(x_1, x_4, x_3);
+lean::dec(x_1);
+return x_5;
+}
+}
+obj* l_String_revPosOf(obj* x_1, uint32 x_2) {
+_start:
+{
+obj* x_3; obj* x_4; uint8 x_5; 
+x_3 = lean::string_utf8_byte_size(x_1);
+x_4 = lean::mk_nat_obj(0u);
+x_5 = lean::nat_dec_eq(x_3, x_4);
+if (x_5 == 0)
+{
+obj* x_6; obj* x_7; 
+x_6 = lean::string_utf8_prev(x_1, x_3);
+lean::dec(x_3);
+x_7 = l_String_revPosOfAux___main(x_1, x_2, x_6);
+return x_7;
+}
+else
+{
+obj* x_8; 
+lean::dec(x_3);
+x_8 = lean::box(0);
+return x_8;
+}
+}
+}
+obj* l_String_revPosOf___boxed(obj* x_1, obj* x_2) {
+_start:
+{
+uint32 x_3; obj* x_4; 
+x_3 = lean::unbox_uint32(x_2);
+lean::dec(x_2);
+x_4 = l_String_revPosOf(x_1, x_3);
 lean::dec(x_1);
 return x_4;
 }

@@ -139,6 +139,7 @@ obj* l_Lean_registerParametricAttribute___rarg___lambda__4___boxed(obj*, obj*, o
 obj* l_EState_bind___rarg(obj*, obj*, obj*);
 obj* l_Lean_getExternEntryFor___boxed(obj*, obj*);
 obj* l_Lean_ExternAttrData_inhabited___closed__1;
+extern obj* l_System_FilePath_dirName___closed__1;
 obj* l_IO_Prim_Ref_get(obj*, obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkExternAttr___spec__4(obj*, obj*, obj*, obj*, obj*);
 uint8 l_Lean_Name_quickLt(obj*, obj*);
@@ -155,7 +156,6 @@ obj* l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___close
 obj* l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__9;
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 uint8 l_String_Iterator_hasNext___main(obj*);
-extern obj* l_Lean_Name_toString___closed__1;
 namespace lean {
 uint8 nat_dec_le(obj*, obj*);
 }
@@ -2539,7 +2539,7 @@ obj* x_124; obj* x_125; obj* x_126; obj* x_127; obj* x_128; obj* x_129; obj* x_1
 x_124 = lean::cnstr_get(x_1, 0);
 lean::inc(x_124);
 lean::dec(x_1);
-x_125 = l_Lean_Name_toString___closed__1;
+x_125 = l_System_FilePath_dirName___closed__1;
 x_126 = l_Lean_Name_toStringWithSep___main(x_125, x_124);
 x_127 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 x_128 = lean::string_append(x_127, x_126);
@@ -2800,7 +2800,7 @@ obj* x_184; obj* x_185; obj* x_186; obj* x_187; obj* x_188; obj* x_189; obj* x_1
 x_184 = lean::cnstr_get(x_1, 0);
 lean::inc(x_184);
 lean::dec(x_1);
-x_185 = l_Lean_Name_toString___closed__1;
+x_185 = l_System_FilePath_dirName___closed__1;
 x_186 = l_Lean_Name_toStringWithSep___main(x_185, x_184);
 x_187 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 x_188 = lean::string_append(x_187, x_186);

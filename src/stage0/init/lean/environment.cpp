@@ -80,8 +80,8 @@ obj* l_HashMapImp_insert___at_Lean_Environment_addAux___spec__4(obj*, obj*, obj*
 namespace lean {
 obj* environment_add_modification_core(obj*, obj*);
 }
-extern "C" obj* lean_find_olean(obj*, obj*);
 obj* l_Lean_EnvExtension_Inhabited___rarg___closed__1;
+extern "C" obj* lean_find_olean(obj*, obj*);
 obj* l_List_lengthAux___main___rarg(obj*, obj*);
 obj* l_Lean_Environment_displayStats___closed__5;
 obj* l_Array_miterateAux___main___at___private_init_lean_environment_11__finalizePersistentExtensions___spec__1(obj*, obj*, obj*, obj*, obj*);
@@ -149,6 +149,7 @@ obj* l_Lean_PersistentEnvExtension_inhabited___rarg___lambda__3___boxed(obj*);
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(obj*, obj*, obj*);
 obj* l_Lean_Environment_displayStats___closed__3;
 obj* l___private_init_lean_environment_6__mkInitialExtensionStates(obj*);
+obj* l_Lean_findOLeanOld___boxed(obj*, obj*);
 obj* l_Lean_Name_quickLt___boxed(obj*, obj*);
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3(obj*, obj*);
 obj* l_Lean_regNamespacesExtension___lambda__1(obj*, obj*);
@@ -339,7 +340,6 @@ obj* l_Lean_Environment_contains___boxed(obj*, obj*);
 extern "C" obj* lean_read_module_data(obj*, obj*);
 obj* l_EState_bind___rarg(obj*, obj*, obj*);
 obj* l_IO_println___at_HasRepr_HasEval___spec__1(obj*, obj*);
-obj* l_Lean_findOLean___boxed(obj*, obj*);
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4___boxed(obj*);
 obj* l_Lean_SMap_numBuckets___at_Lean_Environment_displayStats___spec__5___boxed(obj*);
 obj* l_Lean_namespacesExt___closed__6;
@@ -12990,7 +12990,7 @@ return x_17;
 }
 }
 }
-obj* l_Lean_findOLean___boxed(obj* x_1, obj* x_2) {
+obj* l_Lean_findOLeanOld___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 

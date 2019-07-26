@@ -49,6 +49,7 @@ uint8 string_dec_eq(obj*, obj*);
 }
 obj* l_IO_Prim_mkRef(obj*, obj*, obj*);
 obj* l_String_trim(obj*);
+extern obj* l_System_FilePath_dirName___closed__1;
 obj* l_String_split(obj*, obj*);
 obj* l___private_init_lean_options_2__optionDeclsRef;
 obj* l_IO_Prim_Ref_get(obj*, obj*, obj*);
@@ -59,7 +60,6 @@ uint8 l_String_isNat(obj*);
 obj* l_String_toName(obj*);
 obj* l_Lean_KVMap_setString(obj*, obj*, obj*);
 obj* l_Lean_setOptionFromString___closed__3;
-extern obj* l_Lean_Name_toString___closed__1;
 obj* l_Lean_getOptionDefaulValue(obj*, obj*);
 obj* l_Lean_registerOption___closed__2;
 obj* l_Lean_setOptionFromString(obj*, obj*, obj*);
@@ -135,7 +135,7 @@ else
 obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; 
 lean::dec(x_7);
 lean::dec(x_2);
-x_12 = l_Lean_Name_toString___closed__1;
+x_12 = l_System_FilePath_dirName___closed__1;
 x_13 = l_Lean_Name_toStringWithSep___main(x_12, x_1);
 x_14 = l_Lean_registerOption___closed__1;
 x_15 = lean::string_append(x_14, x_13);
@@ -172,7 +172,7 @@ else
 obj* x_25; obj* x_26; obj* x_27; obj* x_28; obj* x_29; obj* x_30; obj* x_31; 
 lean::dec(x_18);
 lean::dec(x_2);
-x_25 = l_Lean_Name_toString___closed__1;
+x_25 = l_System_FilePath_dirName___closed__1;
 x_26 = l_Lean_Name_toStringWithSep___main(x_25, x_1);
 x_27 = l_Lean_registerOption___closed__1;
 x_28 = lean::string_append(x_27, x_26);
@@ -291,7 +291,7 @@ lean::dec(x_6);
 if (lean::obj_tag(x_7) == 0)
 {
 obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; 
-x_8 = l_Lean_Name_toString___closed__1;
+x_8 = l_System_FilePath_dirName___closed__1;
 x_9 = l_Lean_Name_toStringWithSep___main(x_8, x_1);
 x_10 = l_Lean_getOptionDecl___closed__1;
 x_11 = lean::string_append(x_10, x_9);
@@ -326,7 +326,7 @@ lean::dec(x_15);
 if (lean::obj_tag(x_17) == 0)
 {
 obj* x_18; obj* x_19; obj* x_20; obj* x_21; obj* x_22; obj* x_23; obj* x_24; 
-x_18 = l_Lean_Name_toString___closed__1;
+x_18 = l_System_FilePath_dirName___closed__1;
 x_19 = l_Lean_Name_toStringWithSep___main(x_18, x_1);
 x_20 = l_Lean_getOptionDecl___closed__1;
 x_21 = lean::string_append(x_20, x_19);

@@ -46,6 +46,7 @@ do val ← IO.getEnv "LEAN_PATH";
    | some val =>
      pure $ val.split searchPathSep
 
+@[export lean.init_search_path_core]
 def initSearchPath (path : Option String := "") : IO Unit :=
 match path with
 | some path => setSearchPath path

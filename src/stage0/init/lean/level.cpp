@@ -87,12 +87,12 @@ obj* l_Lean_Nat_imax___boxed(obj*, obj*);
 obj* l_Lean_LevelToFormat_parenIfFalse___main(obj*, uint8);
 obj* l_Lean_LevelToFormat_Level_toResult___main(obj*);
 extern "C" obj* level_mk_succ(obj*);
+extern obj* l_System_FilePath_dirName___closed__1;
 extern obj* l_Lean_HasRepr___closed__1;
 obj* l_Lean_LevelToFormat_Result_format___boxed(obj*, obj*);
 obj* l_Lean_Level_toNat___main___closed__1;
 obj* l_Lean_LevelToFormat_Result_imax(obj*, obj*);
 obj* l_Lean_Level_succ___boxed(obj*);
-extern obj* l_Lean_Name_toString___closed__1;
 obj* l_Lean_LevelToFormat_levelHasFormat;
 obj* l_Lean_LevelToFormat_Result_format(obj*, uint8);
 obj* l_Lean_Level_hasMvar___boxed(obj*);
@@ -1323,7 +1323,7 @@ obj* l_Lean_fmt___at_Lean_LevelToFormat_Level_toResult___main___spec__1(obj* x_1
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; 
-x_2 = l_Lean_Name_toString___closed__1;
+x_2 = l_System_FilePath_dirName___closed__1;
 x_3 = l_Lean_Name_toStringWithSep___main(x_2, x_1);
 x_4 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_4, 0, x_3);

@@ -222,6 +222,7 @@ obj* l_Lean_Syntax_reprint___main___rarg___closed__1;
 obj* l_Lean_Syntax_getArgs___rarg___boxed(obj*);
 obj* l_Lean_Name_replacePrefix___main(obj*, obj*, obj*);
 extern obj* l_Lean_Format_sbracket___closed__3;
+extern obj* l_System_FilePath_dirName___closed__1;
 obj* l_Lean_SyntaxNode_getNumArgs(obj*);
 obj* l___private_init_lean_syntax_6__decodeHexLitAux___main(obj*, obj*, obj*);
 extern obj* l_Lean_HasRepr___closed__1;
@@ -264,7 +265,6 @@ obj* string_utf8_next(obj*, obj*);
 }
 obj* l_Array_ummapAux___main___at_Lean_Syntax_mreplace___main___spec__1___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_Syntax_mreplace___main___spec__1___boxed(obj*, obj*);
-extern obj* l_Lean_Name_toString___closed__1;
 namespace lean {
 obj* string_utf8_extract(obj*, obj*, obj*);
 }
@@ -3362,7 +3362,7 @@ obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x
 x_7 = l_Lean_Syntax_formatStx___main___rarg___closed__6;
 x_8 = lean::box(0);
 x_9 = l_Lean_Name_replacePrefix___main(x_3, x_7, x_8);
-x_10 = l_Lean_Name_toString___closed__1;
+x_10 = l_System_FilePath_dirName___closed__1;
 x_11 = l_Lean_Name_toStringWithSep___main(x_10, x_9);
 x_12 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_12, 0, x_11);
@@ -3439,7 +3439,7 @@ obj* x_41; obj* x_42; obj* x_43; obj* x_44; uint8 x_45; obj* x_46; obj* x_47;
 x_41 = lean::cnstr_get(x_1, 2);
 lean::inc(x_41);
 lean::dec(x_1);
-x_42 = l_Lean_Name_toString___closed__1;
+x_42 = l_System_FilePath_dirName___closed__1;
 x_43 = l_Lean_Name_toStringWithSep___main(x_42, x_41);
 x_44 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_44, 0, x_43);
@@ -3549,7 +3549,7 @@ _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
 x_2 = lean::box(0);
-x_3 = l_Lean_Name_toString___closed__1;
+x_3 = l_System_FilePath_dirName___closed__1;
 lean::inc(x_1);
 x_4 = l_Lean_Name_toStringWithSep___main(x_3, x_1);
 x_5 = lean::string_utf8_byte_size(x_4);

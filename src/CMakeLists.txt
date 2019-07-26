@@ -456,6 +456,9 @@ endif()
 add_library(leanstatic_stage0 ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS} $<TARGET_OBJECTS:stage0>)
 target_link_libraries(leanstatic_stage0 ${EXTRA_LIBS})
 
+# `leanstatic` and `leanstdlib` are cyclically dependent static libraries.
+# We use the approach described at
+# https://cmake.org/cmake/help/v3.3/command/target_link_libraries.html#cyclic-dependencies-of-static-libraries
 add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
 add_library(leanstdlib STATIC IMPORTED)
 target_link_libraries(leanstatic leanstdlib ${EXTRA_LIBS})

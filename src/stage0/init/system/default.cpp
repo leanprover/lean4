@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.platform
-// Imports: init.core
+// Module: init.system.default
+// Imports: init.system.io init.system.platform
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -14,24 +14,16 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-obj* l_System_platform_nbits;
-obj* _init_l_System_platform_nbits() {
-_start:
-{
-obj* x_1; 
-x_1 = lean::mk_nat_obj(64u);
-return x_1;
-}
-}
-obj* initialize_init_core(obj*);
+obj* initialize_init_system_io(obj*);
+obj* initialize_init_system_platform(obj*);
 static bool _G_initialized = false;
-obj* initialize_init_platform(obj* w) {
+obj* initialize_init_system_default(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (io_result_is_error(w)) return w;
-w = initialize_init_core(w);
+w = initialize_init_system_io(w);
 if (io_result_is_error(w)) return w;
-l_System_platform_nbits = _init_l_System_platform_nbits();
-lean::mark_persistent(l_System_platform_nbits);
+w = initialize_init_system_platform(w);
+if (io_result_is_error(w)) return w;
 return w;
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.constfolding
-// Imports: init.lean.expr init.platform init.lean.compiler.util
+// Imports: init.system.platform init.lean.expr init.lean.compiler.util
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -94,7 +94,6 @@ obj* l_Lean_Compiler_foldNatSucc(uint8);
 obj* l_Lean_Compiler_natFoldFns___closed__24;
 obj* l_Lean_Compiler_natFoldFns___closed__4;
 obj* l_Lean_Compiler_boolFoldFns;
-extern obj* l_System_platform_nbits;
 obj* l_Lean_Compiler_natFoldFns___closed__5;
 obj* l_Lean_Compiler_numScalarTypes___closed__6;
 obj* l_Lean_Compiler_numScalarTypes___closed__21;
@@ -279,6 +278,7 @@ obj* l_Lean_Compiler_natFoldFns___closed__25;
 obj* l_Lean_Compiler_natFoldFns___closed__38;
 obj* l_Lean_mkDecIsTrue(obj*, obj*);
 obj* l_Lean_Compiler_natFoldFns___closed__8;
+extern obj* l_System_Platform_numBits;
 obj* l_Lean_Compiler_mkNatLt___closed__6;
 obj* l_Lean_Compiler_preUIntBinFoldFns___closed__14;
 obj* l_Lean_Compiler_natFoldFns___closed__22;
@@ -627,7 +627,7 @@ obj* _init_l_Lean_Compiler_numScalarTypes___closed__23() {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
-x_1 = l_System_platform_nbits;
+x_1 = l_System_Platform_numBits;
 x_2 = l_Lean_Compiler_numScalarTypes___closed__20;
 x_3 = l_Lean_Compiler_numScalarTypes___closed__21;
 x_4 = l_Lean_Compiler_numScalarTypes___closed__22;
@@ -4282,17 +4282,17 @@ x_5 = lean::fold_un_op_core(x_4, x_2, x_3);
 return x_5;
 }
 }
+obj* initialize_init_system_platform(obj*);
 obj* initialize_init_lean_expr(obj*);
-obj* initialize_init_platform(obj*);
 obj* initialize_init_lean_compiler_util(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_constfolding(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (io_result_is_error(w)) return w;
-w = initialize_init_lean_expr(w);
+w = initialize_init_system_platform(w);
 if (io_result_is_error(w)) return w;
-w = initialize_init_platform(w);
+w = initialize_init_lean_expr(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_util(w);
 if (io_result_is_error(w)) return w;

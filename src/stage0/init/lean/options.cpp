@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.options
-// Imports: init.lean.kvmap init.io init.control.combinators init.data.tostring
+// Imports: init.lean.kvmap init.system.io init.control.combinators init.data.tostring
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -1367,7 +1367,7 @@ return x_212;
 }
 }
 obj* initialize_init_lean_kvmap(obj*);
-obj* initialize_init_io(obj*);
+obj* initialize_init_system_io(obj*);
 obj* initialize_init_control_combinators(obj*);
 obj* initialize_init_data_tostring(obj*);
 static bool _G_initialized = false;
@@ -1377,7 +1377,7 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_kvmap(w);
 if (io_result_is_error(w)) return w;
-w = initialize_init_io(w);
+w = initialize_init_system_io(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_control_combinators(w);
 if (io_result_is_error(w)) return w;

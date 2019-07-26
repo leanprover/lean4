@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.default
-// Imports: init.core init.control.default init.data.basic init.coe init.wf init.data.default init.io init.util init.fix
+// Imports: init.core init.control.default init.data.basic init.coe init.wf init.data.default init.system.default init.util init.fix
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -20,7 +20,7 @@ obj* initialize_init_data_basic(obj*);
 obj* initialize_init_coe(obj*);
 obj* initialize_init_wf(obj*);
 obj* initialize_init_data_default(obj*);
-obj* initialize_init_io(obj*);
+obj* initialize_init_system_default(obj*);
 obj* initialize_init_util(obj*);
 obj* initialize_init_fix(obj*);
 static bool _G_initialized = false;
@@ -40,7 +40,7 @@ w = initialize_init_wf(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_default(w);
 if (io_result_is_error(w)) return w;
-w = initialize_init_io(w);
+w = initialize_init_system_default(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_util(w);
 if (io_result_is_error(w)) return w;

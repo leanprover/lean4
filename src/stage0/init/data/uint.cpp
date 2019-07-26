@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.data.uint
-// Imports: init.data.fin.basic init.platform
+// Imports: init.data.fin.basic init.system.platform
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -80,7 +80,6 @@ uint8 l_UInt8_add(uint8, uint8);
 obj* l_UInt32_lor___boxed(obj*, obj*);
 obj* l_USize_mul___boxed(obj*, obj*);
 obj* l_USize_HasMod___closed__1;
-extern obj* l_System_platform_nbits;
 obj* l_UInt32_DecidableEq___closed__1;
 obj* l_USize_decLe___boxed(obj*, obj*);
 obj* l_UInt8_HasSub___closed__1;
@@ -233,6 +232,7 @@ uint16 l_UInt16_add(uint16, uint16);
 obj* l_UInt32_DecidableEq;
 obj* l_UInt8_mul___boxed(obj*, obj*);
 obj* l_UInt32_decLe___boxed(obj*, obj*);
+extern obj* l_System_Platform_numBits;
 obj* l_UInt64_modn___boxed(obj*, obj*);
 obj* l_UInt64_mul___boxed(obj*, obj*);
 obj* l_USize_HasModn;
@@ -1679,7 +1679,7 @@ _start:
 {
 obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::mk_nat_obj(2u);
-x_2 = l_System_platform_nbits;
+x_2 = l_System_Platform_numBits;
 x_3 = l_Nat_pow___main(x_1, x_2);
 return x_3;
 }
@@ -2067,7 +2067,7 @@ return x_6;
 }
 }
 obj* initialize_init_data_fin_basic(obj*);
-obj* initialize_init_platform(obj*);
+obj* initialize_init_system_platform(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_data_uint(obj* w) {
 if (_G_initialized) return w;
@@ -2075,7 +2075,7 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_fin_basic(w);
 if (io_result_is_error(w)) return w;
-w = initialize_init_platform(w);
+w = initialize_init_system_platform(w);
 if (io_result_is_error(w)) return w;
 l_uint8Sz = _init_l_uint8Sz();
 lean::mark_persistent(l_uint8Sz);

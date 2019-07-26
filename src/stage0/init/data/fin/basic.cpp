@@ -58,6 +58,7 @@ namespace lean {
 obj* nat_mod(obj*, obj*);
 }
 obj* l_Fin_div___main___boxed(obj*, obj*, obj*);
+obj* l_Fin_ofNat_x27(obj*, obj*, obj*);
 obj* l_Fin_DecidableEq(obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
@@ -75,6 +76,7 @@ obj* l_Fin_sub___boxed(obj*, obj*, obj*);
 obj* l_Fin_decLt___boxed(obj*);
 obj* l_Fin_add___main___boxed(obj*, obj*, obj*);
 obj* l_Fin_sub___main(obj*, obj*, obj*);
+obj* l_Fin_ofNat_x27___boxed(obj*, obj*, obj*);
 obj* l_Fin_HasMul(obj*);
 obj* l_Fin_decLe___rarg___boxed(obj*, obj*);
 obj* l_Fin_HasOne(obj*);
@@ -263,6 +265,24 @@ x_3 = l_Fin_ofNat(x_1, x_2);
 lean::dec(x_2);
 lean::dec(x_1);
 return x_3;
+}
+}
+obj* l_Fin_ofNat_x27(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = lean::nat_mod(x_2, x_1);
+return x_4;
+}
+}
+obj* l_Fin_ofNat_x27___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_Fin_ofNat_x27(x_1, x_2, x_3);
+lean::dec(x_2);
+lean::dec(x_1);
+return x_4;
 }
 }
 obj* l_Fin_add___main(obj* x_1, obj* x_2, obj* x_3) {

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.util
-// Imports: init.lean.position init.io
+// Imports: init.system.io init.lean.position
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -56,16 +56,16 @@ lean::dec(x_1);
 return x_5;
 }
 }
+obj* initialize_init_system_io(obj*);
 obj* initialize_init_lean_position(obj*);
-obj* initialize_init_io(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_util(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (io_result_is_error(w)) return w;
-w = initialize_init_lean_position(w);
+w = initialize_init_system_io(w);
 if (io_result_is_error(w)) return w;
-w = initialize_init_io(w);
+w = initialize_init_lean_position(w);
 if (io_result_is_error(w)) return w;
 return w;
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.environment
-// Imports: init.io init.util init.data.bytearray.default init.lean.declaration init.lean.smap
+// Imports: init.system.io init.util init.data.bytearray.default init.lean.declaration init.lean.smap
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -24184,7 +24184,7 @@ lean::dec(x_1);
 return x_5;
 }
 }
-obj* initialize_init_io(obj*);
+obj* initialize_init_system_io(obj*);
 obj* initialize_init_util(obj*);
 obj* initialize_init_data_bytearray_default(obj*);
 obj* initialize_init_lean_declaration(obj*);
@@ -24194,7 +24194,7 @@ obj* initialize_init_lean_environment(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (io_result_is_error(w)) return w;
-w = initialize_init_io(w);
+w = initialize_init_system_io(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_util(w);
 if (io_result_is_error(w)) return w;

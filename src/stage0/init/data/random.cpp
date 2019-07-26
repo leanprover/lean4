@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.data.random
-// Imports: init.io init.data.int.default
+// Imports: init.system.io init.data.int.default
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -3420,14 +3420,14 @@ lean::dec(x_1);
 return x_4;
 }
 }
-obj* initialize_init_io(obj*);
+obj* initialize_init_system_io(obj*);
 obj* initialize_init_data_int_default(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_data_random(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (io_result_is_error(w)) return w;
-w = initialize_init_io(w);
+w = initialize_init_system_io(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_int_default(w);
 if (io_result_is_error(w)) return w;

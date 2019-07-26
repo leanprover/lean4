@@ -1,5 +1,5 @@
 prelude
-import init.core init.io init.data.ordering
+import init.core init.system.io init.data.ordering
 
 universes u v w
 
@@ -42,11 +42,11 @@ protected def max : Rbnode α β → Option (Sigma (fun k => β k))
 | leaf b               := b
 | (Node _ l k v r)   b := revFold l (f k v (revFold r b))
 
-@[specialize] def all (p : ∀ k : α, β k → Bool) : Rbnode α β → Bool
+@[specialize] def all (p : ∀ (k : α), β k → Bool) : Rbnode α β → Bool
 | leaf                 := true
 | (Node _ l k v r)     := p k v && all l && all r
 
-@[specialize] def any (p : ∀ k : α, β k → Bool) : Rbnode α β → Bool
+@[specialize] def any (p : ∀ (k : α), β k → Bool) : Rbnode α β → Bool
 | leaf               := false
 | (Node _ l k v r)   := p k v || any l || any r
 
@@ -103,10 +103,10 @@ def flipColors : ∀ (n : Rbnode α β), n ≠ leaf → Rbnode α β
 | leaf h := absurd rfl h
 
 def fixup (n : Rbnode α β) (h : n ≠ leaf) : Rbnode α β :=
-let n₁ := rotateLeft n h in
-let h₁ := (rotateLeftNeLeaf n h) in
-let n₂ := rotateRight n₁ h₁ in
-let h₂ := (rotateRightNeLeaf n₁ h₁) in
+let n₁ := rotateLeft n h;
+let h₁ := (rotateLeftNeLeaf n h);
+let n₂ := rotateRight n₁ h₁;
+let h₂ := (rotateRightNeLeaf n₁ h₁);
 flipColors n₂ h₂
 
 def setBlack : Rbnode α β → Rbnode α β
@@ -133,7 +133,7 @@ variable (lt : α → α → Prop)
 
 variable [DecidableRel lt]
 
-def findCore : Rbnode α β → ∀ k : α, Option (Sigma (fun k => β k))
+def findCore : Rbnode α β → ∀ (k : α), Option (Sigma (fun k => β k))
 | leaf                 x := none
 | (Node _ a ky vy b) x :=
   (match cmpUsing lt x ky with

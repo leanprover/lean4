@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.ordering.basic init.coe init.data.option.basic init.io
+import init.data.ordering.basic init.coe init.data.option.basic init.system.io
 
 universes u v w w'
 
@@ -67,8 +67,8 @@ else ins t k v
 def mkMapAux (freq : Nat) : Nat → Tree → List Tree → List Tree
 | 0     m r := m::r
 | (n+1) m r :=
-  let m := insert m n (n % 10 = 0) in
-  let r := if n % freq == 0 then m::r else r in
+  let m := insert m n (n % 10 = 0);
+  let r := if n % freq == 0 then m::r else r;
   mkMapAux n m r
 
 def mkMap (n : Nat) (freq : Nat) : List Tree :=

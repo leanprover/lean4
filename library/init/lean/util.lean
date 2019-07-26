@@ -4,11 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 -/
 prelude
-import init.lean.position init.io
+import init.system.io
+import init.lean.position
 
 namespace Lean
 
-/-- Print and accumulate run time of `act` when Option `profiler` is set to `True`. -/
+/-- Print and accumulate run time of `act` when Option `profiler` is set to `true`. -/
 @[extern 5 "lean_lean_profileit"]
 constant profileit {α : Type} (category : @& String) (pos : @& Position) (act : IO α) : IO α := act
 def profileitPure {α : Type} (category : String) (pos : Position) (fn : Unit → α) : IO α :=

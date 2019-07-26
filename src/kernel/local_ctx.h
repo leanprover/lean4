@@ -34,8 +34,8 @@ public:
         if (is_scalar(cnstr_get(raw(), 3))) return none_expr();
         else return some_expr(static_cast<expr const &>(cnstr_get_ref(raw(), 3)));
     }
-    binder_info get_info() const { return static_cast<binder_info>(cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*4)); }
-    unsigned get_idx() const { return cnstr_get_scalar<unsigned>(raw(), sizeof(object*)*4+sizeof(unsigned char)); }
+    unsigned get_idx() const { return cnstr_get_scalar<unsigned>(raw(), sizeof(object*)*4); }
+    binder_info get_info() const { return static_cast<binder_info>(cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*4+sizeof(unsigned))); }
     expr mk_ref() const;
 };
 

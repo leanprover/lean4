@@ -9,6 +9,7 @@ import init.util
 import init.data.bytearray
 import init.lean.declaration
 import init.lean.smap
+import init.lean.path
 
 namespace Lean
 /- Opaque environment extension state. It is essentially the Lean version of a C `void *`
@@ -409,9 +410,6 @@ serialized := bytes
 def writeModule (env : Environment) (fname : String) : IO Unit :=
 do modData ← mkModuleData env; saveModuleData fname modData
 
-@[extern 2 "lean_find_olean"]
-constant findOLeanOld (modName : Name) : IO String := default _
-
 partial def importModulesAux : List Name → (NameSet × Array ModuleData) → IO (NameSet × Array ModuleData)
 | []      r         := pure r
 | (m::ms) (s, mods) :=
@@ -419,7 +417,7 @@ partial def importModulesAux : List Name → (NameSet × Array ModuleData) → I
     importModulesAux ms (s, mods)
   else do
     let s := s.insert m;
-    mFile ← findOLeanOld m;
+    mFile ← findOLean m;
     mod ← readModuleData mFile;
     (s, mods) ← importModulesAux mod.imports.toList (s, mods);
     let mods := mods.push mod;

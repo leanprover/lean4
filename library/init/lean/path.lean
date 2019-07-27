@@ -68,7 +68,6 @@ do paths ← searchPathRef.get;
    paths.mfind $ fun path => do
      let path := path ++ pathSep;
      let curr := path ++ fname;
-     IO.println ("trying " ++ curr);
      ex ← IO.fileExists curr;
      if ex then pure (some (path, curr)) else pure none
 
@@ -97,12 +96,13 @@ match rel with
   fname ← IO.realPath fname;
   pure (path, fname)
 
-def findOLean (rel : Option Nat) (modName : Name) : IO (String × String) :=
-findLeanFile rel modName "olean"
+def findOLean (modName : Name) : IO String :=
+Prod.snd <$> findLeanFile none modName "olean"
 
-def findLean (rel : Option Nat) (modName : Name) : IO (String × String) :=
-findLeanFile rel modName "lean"
+def findLean (rel : Option Nat) (modName : Name) : IO String :=
+Prod.snd <$> findLeanFile rel modName "lean"
 
+/-
 def absolutizeModuleName (rel : Option Nat) (modName : Name) : IO Name :=
 match rel with
 | none => pure modName
@@ -112,5 +112,6 @@ match rel with
   let fname := fname.take (fname.length - "olean".length - 1 /- path separator -/);
   let comps := fname.split pathSep;
   pure $ comps.foldl Name.mkString Name.anonymous
+-/
 
 end Lean

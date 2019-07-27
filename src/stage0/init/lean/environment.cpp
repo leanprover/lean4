@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.environment
-// Imports: init.system.io init.util init.data.bytearray.default init.lean.declaration init.lean.smap
+// Imports: init.system.io init.util init.data.bytearray.default init.lean.declaration init.lean.smap init.lean.path
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -80,8 +80,8 @@ obj* l_HashMapImp_insert___at_Lean_Environment_addAux___spec__4(obj*, obj*, obj*
 namespace lean {
 obj* environment_add_modification_core(obj*, obj*);
 }
+obj* l_Lean_findOLean(obj*, obj*);
 obj* l_Lean_EnvExtension_Inhabited___rarg___closed__1;
-extern "C" obj* lean_find_olean(obj*, obj*);
 obj* l_List_lengthAux___main___rarg(obj*, obj*);
 obj* l_Lean_Environment_displayStats___closed__5;
 obj* l_Array_miterateAux___main___at___private_init_lean_environment_11__finalizePersistentExtensions___spec__1(obj*, obj*, obj*, obj*, obj*);
@@ -149,7 +149,6 @@ obj* l_Lean_PersistentEnvExtension_inhabited___rarg___lambda__3___boxed(obj*);
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(obj*, obj*, obj*);
 obj* l_Lean_Environment_displayStats___closed__3;
 obj* l___private_init_lean_environment_6__mkInitialExtensionStates(obj*);
-obj* l_Lean_findOLeanOld___boxed(obj*, obj*);
 obj* l_Lean_Name_quickLt___boxed(obj*, obj*);
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3(obj*, obj*);
 obj* l_Lean_regNamespacesExtension___lambda__1(obj*, obj*);
@@ -12990,14 +12989,6 @@ return x_17;
 }
 }
 }
-obj* l_Lean_findOLeanOld___boxed(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = lean_find_olean(x_1, x_2);
-return x_3;
-}
-}
 obj* l_Lean_importModulesAux___main(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -13052,7 +13043,7 @@ lean::dec(x_15);
 x_16 = lean::box(0);
 lean::inc(x_8);
 x_17 = l_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_10, x_8, x_16);
-x_18 = lean_find_olean(x_8, x_3);
+x_18 = l_Lean_findOLean(x_8, x_3);
 if (lean::obj_tag(x_18) == 0)
 {
 uint8 x_19; 
@@ -13478,7 +13469,7 @@ lean::dec(x_2);
 x_108 = lean::box(0);
 lean::inc(x_8);
 x_109 = l_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_10, x_8, x_108);
-x_110 = lean_find_olean(x_8, x_3);
+x_110 = l_Lean_findOLean(x_8, x_3);
 if (lean::obj_tag(x_110) == 0)
 {
 obj* x_111; obj* x_112; obj* x_113; obj* x_114; obj* x_115; 
@@ -24189,6 +24180,7 @@ obj* initialize_init_util(obj*);
 obj* initialize_init_data_bytearray_default(obj*);
 obj* initialize_init_lean_declaration(obj*);
 obj* initialize_init_lean_smap(obj*);
+obj* initialize_init_lean_path(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_environment(obj* w) {
 if (_G_initialized) return w;
@@ -24203,6 +24195,8 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_declaration(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_smap(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_path(w);
 if (io_result_is_error(w)) return w;
 l_Lean_EnvExtensionState_inhabited = _init_l_Lean_EnvExtensionState_inhabited();
 lean::mark_persistent(l_Lean_EnvExtensionState_inhabited);

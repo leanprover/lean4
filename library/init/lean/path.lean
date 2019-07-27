@@ -63,13 +63,13 @@ match path with
     curr ← IO.realPath ".";
     setSearchPath [path, curr]
 
-def findFile (fname : String) : IO (Option (String × String)) :=
+def findFile (fname : String) : IO (Option String) :=
 do paths ← searchPathRef.get;
    paths.mfind $ fun path => do
      let path := path ++ pathSep;
      let curr := path ++ fname;
      ex ← IO.fileExists curr;
-     if ex then pure (some (path, curr)) else pure none
+     if ex then pure (some curr) else pure none
 
 def modNameToFileName : Name → String
 | (Name.mkString Name.anonymous h)  := h
@@ -81,37 +81,49 @@ def addRel (basePath : String) : Nat → String
 | 0     := basePath
 | (n+1) := addRel n ++ pathSep ++ ".."
 
-def findLeanFile (rel : Option Nat) (modName : Name) (ext : String) : IO (String × String) :=
+def findLeanFile (rel : Option Nat) (modName : Name) (ext : String) : IO String :=
 let fname := modNameToFileName modName ++ toString extSeparator ++ ext;
 match rel with
 | none => do
-  some (path, fname) ← findFile fname | throw (IO.userError ("module '" ++ toString modName ++ "' not found"));
-  fname ← IO.realPath fname;
-  pure (path, fname)
+  some fname ← findFile fname | throw (IO.userError ("module '" ++ toString modName ++ "' not found"));
+  IO.realPath fname
 | some n => do
   path  ← IO.realPath ".";
   let fname := addRel path n ++ pathSep ++ fname;
   ex ← IO.fileExists fname;
   unless ex $ throw (IO.userError ("module '" ++ toString modName ++ "' not found"));
-  fname ← IO.realPath fname;
-  pure (path, fname)
+  IO.realPath fname
 
 def findOLean (modName : Name) : IO String :=
-Prod.snd <$> findLeanFile none modName "olean"
+findLeanFile none modName "olean"
 
 def findLean (rel : Option Nat) (modName : Name) : IO String :=
-Prod.snd <$> findLeanFile rel modName "lean"
+findLeanFile rel modName "lean"
 
-/-
-def absolutizeModuleName (rel : Option Nat) (modName : Name) : IO Name :=
-match rel with
-| none => pure modName
-| _    => do
-  (path, fname) ← findOLean rel modName;
-  let fname := fname.drop path.length;
-  let fname := fname.take (fname.length - "olean".length - 1 /- path separator -/);
-  let comps := fname.split pathSep;
-  pure $ comps.foldl Name.mkString Name.anonymous
--/
+def findAtSearchPath (fname : String) : IO String :=
+do fname ← IO.realPath fname;
+   paths ← searchPathRef.get;
+   match paths.find (fun path => if path.isPrefixOf fname then some path else none) with
+   | some r => pure r
+   | none   => throw (IO.userError ("file '" ++ fname ++ "' not in the search path"))
+
+def fileNameToModuleName (fname : String) : IO Name :=
+do
+path  ← findAtSearchPath fname;
+fname ← IO.realPath fname;
+let fnameSuffix := fname.drop path.length;
+let fnameSuffix := if fnameSuffix.get 0 == pathSeparator then fnameSuffix.drop 1 else fnameSuffix;
+if path ++ pathSep ++ fnameSuffix != fname then
+  throw (IO.userError ("failed to convert file '" ++ fname ++ "' to module name, path is not a prefix of the given file"))
+else do
+  some extPos ← pure (fnameSuffix.revPosOf '.')
+    | throw (IO.userError ("failed to convert file '" ++ fname ++ "' to module name, extension is missing"));
+  let modNameStr := fnameSuffix.extract 0 extPos;
+  let extStr     := fnameSuffix.extract (extPos + 1) fnameSuffix.bsize;
+  let parts      := modNameStr.split pathSep;
+  let modName    := parts.foldl Name.mkString Name.anonymous;
+  fname' ← findLeanFile none modName extStr;
+  unless (fname == fname') $ throw (IO.userError ("failed to convert file '" ++ fname ++ "' to module name, module name '" ++ toString modName ++ "' resolves to '" ++ fname' ++ "'"));
+  pure modName
 
 end Lean

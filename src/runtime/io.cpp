@@ -80,10 +80,19 @@ void io_mark_end_initialization() {
     g_initializing = false;
 }
 
-extern "C" obj_res lean_io_prim_read_text_file(obj_arg fname, obj_arg w) {
+static obj_res mk_file_not_found_error(obj_arg w, b_obj_arg fname) {
+    object * err = mk_string("file '");
+    err = string_append(err, fname);
+    object * tmp = mk_string("' not found");
+    err = string_append(err, tmp);
+    dec_ref(tmp);
+    return set_io_error(w, err);
+}
+
+extern "C" obj_res lean_io_prim_read_text_file(b_obj_arg fname, obj_arg w) {
     std::ifstream in(string_cstr(fname), std::ifstream::binary);
     if (!in.good()) {
-        return set_io_error(w, "file not found");
+        return mk_file_not_found_error(w, fname);
     } else {
         std::stringstream buf;
         buf << in.rdbuf();
@@ -189,7 +198,9 @@ extern "C" obj_res lean_io_realpath(obj_arg fname, obj_arg r) {
         dec_ref(fname);
         return set_io_result(r, s);
     } else {
-        return set_io_error(r, mk_io_user_error(mk_string("file not found")));
+        obj_res res = mk_file_not_found_error(r, fname);
+        dec_ref(fname);
+        return res;
     }
 #endif
 }

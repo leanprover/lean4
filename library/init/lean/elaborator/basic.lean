@@ -306,7 +306,7 @@ partial def processCommandsAux : Unit → Frontend Unit
 def processCommands : Frontend Unit :=
 processCommandsAux ()
 
-def absolutizeModuleName (m : Name) (k : Option Nat) : IO Name :=
+def absolutizeModuleNameAux (m : Name) (k : Option Nat) : IO Name :=
 do unless (k == none) $ throw ("relative imports are not supported yet"); -- TODO
    -- TODO: check whether the .olean file exists and use `m.default` when it doesn't.
    pure m
@@ -324,7 +324,7 @@ do let header     := header.asNode;
        let rel := stx.getArg 0;
        let k   := if rel.isNone then none else some (rel.getNumArgs);
        let id  := (stx.getArg 1).getIdentVal;
-       m ← absolutizeModuleName id k;
+       m ← absolutizeModuleNameAux id k;
        pure (m::imports))
        imports)
      imports;

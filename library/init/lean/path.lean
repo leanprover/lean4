@@ -8,7 +8,7 @@ import init.system.io
 import init.system.filepath
 import init.data.array
 import init.control.combinators
-import init.lean.modulename
+import init.lean.name
 
 namespace Lean
 open System.FilePath (pathSeparator searchPathSeparator extSeparator)
@@ -22,8 +22,12 @@ do curr ← IO.realPath ".";
 @[init mkSearchPathRef]
 constant searchPathRef : IO.Ref (Array String) := default _
 
-def setSearchPath (s : String) : IO Unit :=
-searchPathRef.set (s.split searchPathSep).toArray
+def setSearchPath (s : List String) : IO Unit :=
+do s ← s.mmap IO.realPath;
+   searchPathRef.set s.toArray
+
+def setSearchPathFromString (s : String) : IO Unit :=
+setSearchPath (s.split searchPathSep)
 
 def getBuiltinSearchPath : IO String :=
 do appDir ← IO.appDir;
@@ -49,23 +53,24 @@ do val ← IO.getEnv "LEAN_PATH";
 @[export lean.init_search_path_core]
 def initSearchPath (path : Option String := "") : IO Unit :=
 match path with
-| some path => setSearchPath path
+| some path => setSearchPathFromString path
 | none      => do
   path ← getSearchPathFromEnv;
   match path with
-  | some path => searchPathRef.set path.toArray
+  | some path => setSearchPath path
   | none => do
     path ← getBuiltinSearchPath;
     curr ← IO.realPath ".";
-    searchPathRef.set [path, curr].toArray
+    setSearchPath [path, curr]
 
-def findFile (fname : String) : IO (Option String) :=
+def findFile (fname : String) : IO (Option (String × String)) :=
 do paths ← searchPathRef.get;
    paths.mfind $ fun path => do
-     let curr := path ++ pathSep ++ fname;
+     let path := path ++ pathSep;
+     let curr := path ++ fname;
      IO.println ("trying " ++ curr);
      ex ← IO.fileExists curr;
-     if ex then pure (some curr) else pure none
+     if ex then pure (some (path, curr)) else pure none
 
 def modNameToFileName : Name → String
 | (Name.mkString Name.anonymous h)  := h
@@ -73,27 +78,39 @@ def modNameToFileName : Name → String
 | Name.anonymous                    := ""
 | (Name.mkNumeral p _)              := modNameToFileName p
 
-def addRel : Nat → String
-| 0     := "."
+def addRel (basePath : String) : Nat → String
+| 0     := basePath
 | (n+1) := addRel n ++ pathSep ++ ".."
 
-def findLeanFile (modName : ModuleName) (ext : String) : IO String :=
-match modName with
-| ModuleName.explicit modName => do
-  let fname := modNameToFileName modName ++ toString extSeparator ++ ext;
-  some fname ← findFile fname | throw (IO.userError ("module '" ++ toString modName ++ "' not found"));
-  IO.realPath fname
-| ModuleName.relative n modName => do
-  let fname := modNameToFileName modName ++ toString extSeparator ++ ext;
-  let fname := addRel n ++ pathSep ++ fname;
+def findLeanFile (rel : Option Nat) (modName : Name) (ext : String) : IO (String × String) :=
+let fname := modNameToFileName modName ++ toString extSeparator ++ ext;
+match rel with
+| none => do
+  some (path, fname) ← findFile fname | throw (IO.userError ("module '" ++ toString modName ++ "' not found"));
+  fname ← IO.realPath fname;
+  pure (path, fname)
+| some n => do
+  path  ← IO.realPath ".";
+  let fname := addRel path n ++ pathSep ++ fname;
   ex ← IO.fileExists fname;
   unless ex $ throw (IO.userError ("module '" ++ toString modName ++ "' not found"));
-  IO.realPath fname
+  fname ← IO.realPath fname;
+  pure (path, fname)
 
-def findOLean (modName : ModuleName) : IO String :=
-findLeanFile modName "olean"
+def findOLean (rel : Option Nat) (modName : Name) : IO (String × String) :=
+findLeanFile rel modName "olean"
 
-def findLean (modName : Name) : IO String :=
-findLeanFile modName "lean"
+def findLean (rel : Option Nat) (modName : Name) : IO (String × String) :=
+findLeanFile rel modName "lean"
+
+def absolutizeModuleName (rel : Option Nat) (modName : Name) : IO Name :=
+match rel with
+| none => pure modName
+| _    => do
+  (path, fname) ← findOLean rel modName;
+  let fname := fname.drop path.length;
+  let fname := fname.take (fname.length - "olean".length - 1 /- path separator -/);
+  let comps := fname.split pathSep;
+  pure $ comps.foldl Name.mkString Name.anonymous
 
 end Lean

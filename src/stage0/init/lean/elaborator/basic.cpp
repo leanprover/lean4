@@ -92,6 +92,7 @@ obj* get_namespaces_core(obj*);
 }
 obj* l_Lean_processCommandsAux(obj*);
 obj* l_Lean_Elab_removeRoot(obj*);
+obj* l_Lean_absolutizeModuleNameAux___boxed(obj*, obj*, obj*);
 obj* l_Array_uget(obj*, obj*, usize, obj*);
 obj* l_Lean_processCommandsAux___main___rarg(obj*, obj*);
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__4;
@@ -245,7 +246,6 @@ uint8 l_Lean_isNamespace(obj*, obj*);
 obj* l_Lean_mkCApp(obj*, obj*);
 obj* l_Lean_SMap_insert___main___at_Lean_addBuiltinCommandElab___spec__5(obj*, obj*, obj*);
 obj* l_Lean_testFrontend___closed__2;
-obj* l_Lean_absolutizeModuleName(obj*, obj*, obj*);
 obj* l_Lean_Parser_parseCommand___main(obj*, obj*, obj*, obj*);
 obj* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_mkCommandElabAttribute___spec__2(obj*, obj*);
 obj* l_Lean_SMap_find___main___at_Lean_elabCommand___spec__1(obj*, obj*);
@@ -257,7 +257,6 @@ obj* l_Lean_registerBuiltinTermElabAttr___lambda__1___closed__5;
 obj* l_Lean_mkCommandElabAttribute(obj*);
 obj* l_Lean_syntaxNodeKindOfAttrParam___boxed(obj*, obj*, obj*, obj*);
 obj* l_HashMapImp_expand___at_Lean_addBuiltinCommandElab___spec__9(obj*, obj*);
-obj* l_Lean_absolutizeModuleName___closed__1;
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkTermElabAttribute___spec__4(obj*, obj*);
 obj* l_List_head___main___at_Lean_Elab_getOpenDecls___spec__1(obj*);
 obj* l_EState_bind___rarg(obj*, obj*, obj*);
@@ -274,6 +273,7 @@ obj* l_Lean_mkMessage___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Name_replacePrefix___main(obj*, obj*, obj*);
 obj* l_Lean_ElabException_Inhabited___closed__2;
 extern obj* l_System_FilePath_dirName___closed__1;
+obj* l_Lean_absolutizeModuleNameAux(obj*, obj*, obj*);
 obj* l_Lean_processHeaderAux___closed__1;
 obj* l_Lean_logErrorUsingCmdPos___boxed(obj*, obj*, obj*);
 obj* l_Lean_checkSyntaxNodeKindAtNamespaces(obj*, obj*, obj*);
@@ -329,7 +329,6 @@ obj* l_Lean_SMap_empty___at_Lean_mkBuiltinCommandElabTable___spec__1___closed__1
 obj* l_Lean_syntaxNodeKindOfAttrParam___closed__2;
 obj* l_Lean_SMap_empty___at_Lean_mkBuiltinTermElabTable___spec__1___closed__1;
 obj* l_Lean_mkElabAttribute___rarg___lambda__2(obj*, obj*);
-obj* l_Lean_absolutizeModuleName___boxed(obj*, obj*, obj*);
 obj* l_Lean_addBuiltinTermElab___boxed(obj*, obj*, obj*, obj*);
 obj* l_HashMapImp_find___at_Lean_elabTerm___spec__2___boxed(obj*, obj*);
 obj* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_mkTermElabAttribute___spec__2(obj*, obj*);
@@ -376,6 +375,7 @@ obj* l_Lean_mkElabAttribute___rarg___closed__1;
 obj* l_AssocList_contains___main___at_Lean_addBuiltinTermElab___spec__3___boxed(obj*, obj*);
 obj* l_Lean_mkTermElabAttribute(obj*);
 extern obj* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
+obj* l_Lean_absolutizeModuleNameAux___closed__1;
 obj* l_IO_Prim_Ref_reset(obj*, obj*, obj*);
 obj* l_Lean_Elab_rootNamespace___closed__1;
 obj* l_Lean_testFrontend___closed__4;
@@ -16254,7 +16254,7 @@ x_3 = l_Lean_processCommandsAux___main___rarg(x_1, x_2);
 return x_3;
 }
 }
-obj* _init_l_Lean_absolutizeModuleName___closed__1() {
+obj* _init_l_Lean_absolutizeModuleNameAux___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -16262,7 +16262,7 @@ x_1 = lean::mk_string("relative imports are not supported yet");
 return x_1;
 }
 }
-obj* l_Lean_absolutizeModuleName(obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Lean_absolutizeModuleNameAux(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 if (lean::obj_tag(x_2) == 0)
@@ -16299,7 +16299,7 @@ if (x_8 == 0)
 obj* x_9; obj* x_10; 
 x_9 = lean::cnstr_get(x_3, 0);
 lean::dec(x_9);
-x_10 = l_Lean_absolutizeModuleName___closed__1;
+x_10 = l_Lean_absolutizeModuleNameAux___closed__1;
 lean::cnstr_set_tag(x_3, 1);
 lean::cnstr_set(x_3, 0, x_10);
 return x_3;
@@ -16310,7 +16310,7 @@ obj* x_11; obj* x_12; obj* x_13;
 x_11 = lean::cnstr_get(x_3, 1);
 lean::inc(x_11);
 lean::dec(x_3);
-x_12 = l_Lean_absolutizeModuleName___closed__1;
+x_12 = l_Lean_absolutizeModuleNameAux___closed__1;
 x_13 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_13, 0, x_12);
 lean::cnstr_set(x_13, 1, x_11);
@@ -16319,11 +16319,11 @@ return x_13;
 }
 }
 }
-obj* l_Lean_absolutizeModuleName___boxed(obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Lean_absolutizeModuleNameAux___boxed(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = l_Lean_absolutizeModuleName(x_1, x_2, x_3);
+x_4 = l_Lean_absolutizeModuleNameAux(x_1, x_2, x_3);
 lean::dec(x_2);
 return x_4;
 }
@@ -16389,7 +16389,7 @@ x_23 = lean::array_get(x_1, x_17, x_14);
 lean::dec(x_17);
 x_24 = l_Lean_Syntax_getIdentVal___main___rarg(x_23);
 lean::dec(x_23);
-x_25 = l_Lean_absolutizeModuleName(x_24, x_22, x_6);
+x_25 = l_Lean_absolutizeModuleNameAux(x_24, x_22, x_6);
 lean::dec(x_22);
 if (lean::obj_tag(x_25) == 0)
 {
@@ -16466,7 +16466,7 @@ x_42 = lean::array_get(x_1, x_17, x_14);
 lean::dec(x_17);
 x_43 = l_Lean_Syntax_getIdentVal___main___rarg(x_42);
 lean::dec(x_42);
-x_44 = l_Lean_absolutizeModuleName(x_43, x_41, x_6);
+x_44 = l_Lean_absolutizeModuleNameAux(x_43, x_41, x_6);
 if (lean::obj_tag(x_44) == 0)
 {
 uint8 x_45; 
@@ -19121,8 +19121,8 @@ l_Lean_elabCommand___closed__2 = _init_l_Lean_elabCommand___closed__2();
 lean::mark_persistent(l_Lean_elabCommand___closed__2);
 l_Lean_elabCommand___closed__3 = _init_l_Lean_elabCommand___closed__3();
 lean::mark_persistent(l_Lean_elabCommand___closed__3);
-l_Lean_absolutizeModuleName___closed__1 = _init_l_Lean_absolutizeModuleName___closed__1();
-lean::mark_persistent(l_Lean_absolutizeModuleName___closed__1);
+l_Lean_absolutizeModuleNameAux___closed__1 = _init_l_Lean_absolutizeModuleNameAux___closed__1();
+lean::mark_persistent(l_Lean_absolutizeModuleNameAux___closed__1);
 l_Lean_processHeaderAux___closed__1 = _init_l_Lean_processHeaderAux___closed__1();
 lean::mark_persistent(l_Lean_processHeaderAux___closed__1);
 l_Lean_processHeaderAux___closed__2 = _init_l_Lean_processHeaderAux___closed__2();

@@ -527,7 +527,6 @@ int main(int argc, char ** argv) {
 
             message_log l;
             scope_message_log scope_log(l);
-            set_search_path(path);
             if (stats) {
                 timeit timer(std::cout, "import");
                 env = import_modules(trust_lvl, imports);

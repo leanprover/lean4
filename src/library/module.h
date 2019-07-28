@@ -16,9 +16,6 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include "util/lean_path.h"
 
 namespace lean {
-/** Set .olean search path. This function is invoked during initialization. */
-void set_search_path(search_path const & p);
-
 /** \brief Return an environment where all modules in \c modules are imported.
     Modules included directly or indirectly by them are also imported.
 

@@ -89,31 +89,6 @@ extern "C" object * lean_read_module_data(object * fname, object * w) {
     }
 }
 
-static search_path * g_search_path = nullptr;
-void set_search_path(search_path const & p) {
-    *g_search_path = p;
-}
-
-extern "C" object * lean_find_olean(object * mod_name, object * w) {
-    name mod(mod_name);
-    try {
-        std::string fn = find_file(*g_search_path, mod, {".olean"});
-        return set_io_result(w, mk_string(fn));
-    } catch (exception & ex) {
-        return set_io_error(w, ex.what());
-    }
-}
-
-extern "C" object * lean_set_search_path(object * w) {
-    try {
-        search_path path = get_lean_path_from_env().value_or(get_builtin_search_path());
-        set_search_path(path);
-        return w;
-    } catch (exception & ex) {
-        return set_io_error(w, ex.what());
-    }
-}
-
 // =======================================
 // Legacy support for Lean3 modification objects
 
@@ -254,11 +229,9 @@ void initialize_module() {
     lean_always_assert(strlen(g_olean_header) % sizeof(object *) == 0);
     g_modification_class = register_external_object_class(modification_finalizer, modification_foreach);
     g_object_readers = new object_readers();
-    g_search_path    = new search_path();
 }
 
 void finalize_module() {
     delete g_object_readers;
-    delete g_search_path;
 }
 }

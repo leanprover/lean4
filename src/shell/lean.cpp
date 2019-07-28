@@ -302,6 +302,14 @@ object* init_search_path_core(object* opt_path, object* w);
 void init_search_path() {
     get_io_scalar_result<unsigned>(init_search_path_core(mk_option_none(), io_mk_world()));
 }
+
+object* find_lean_core(object* mod_name, object* w);
+
+std::string find_lean_file(name mod_name) {
+    string_ref fname = get_io_result<string_ref>(find_lean_core(mod_name.to_obj_arg(), io_mk_world()));
+    return fname.to_std_string();
+}
+
 }
 
 int main(int argc, char ** argv) {
@@ -506,7 +514,7 @@ int main(int argc, char ** argv) {
 
             if (only_deps) {
                 for (auto const & import : imports) {
-                    std::string m_name = find_file(path, import, {".lean"});
+                    std::string m_name = find_lean_file(import);
                     auto last_idx = m_name.find_last_of(".");
                     std::string rawname = m_name.substr(0, last_idx);
                     std::string ext = m_name.substr(last_idx);

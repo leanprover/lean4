@@ -93,7 +93,6 @@ obj* l_IO_userError___boxed(obj*);
 obj* l_IO_Prim_getLine___boxed(obj*);
 obj* l_IO_Prim_handle_isEof___boxed(obj*, obj*);
 extern "C" obj* lean_io_file_exists(obj*, obj*);
-obj* l_IO_appDir___rarg___lambda__1___boxed(obj*, obj*);
 obj* l_IO_Ref_get(obj*, obj*);
 obj* l_IO_getEnv___boxed(obj*, obj*);
 obj* l_IO_Prim_liftIO___boxed(obj*, obj*);
@@ -1084,7 +1083,7 @@ lean::dec(x_1);
 x_4 = l_IO_appPath___rarg___closed__1;
 lean::inc(x_2);
 x_5 = lean::apply_2(x_2, lean::box(0), x_4);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_IO_appDir___rarg___lambda__1___boxed), 2, 1);
+x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_IO_appDir___rarg___lambda__1), 2, 1);
 lean::closure_set(x_6, 0, x_2);
 x_7 = lean::apply_4(x_3, lean::box(0), lean::box(0), x_5, x_6);
 return x_7;
@@ -1096,15 +1095,6 @@ _start:
 obj* x_2; 
 x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_IO_appDir___rarg), 2, 0);
 return x_2;
-}
-}
-obj* l_IO_appDir___rarg___lambda__1___boxed(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_IO_appDir___rarg___lambda__1(x_1, x_2);
-lean::dec(x_2);
-return x_3;
 }
 }
 obj* l_IO_appDir___boxed(obj* x_1) {

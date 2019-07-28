@@ -17238,7 +17238,6 @@ if (x_10 == 0)
 obj* x_11; obj* x_12; 
 x_11 = lean::cnstr_get(x_9, 0);
 x_12 = l_System_FilePath_dirName(x_11);
-lean::dec(x_11);
 lean::cnstr_set(x_1, 0, x_12);
 lean::cnstr_set(x_9, 0, x_1);
 return x_9;
@@ -17252,7 +17251,6 @@ lean::inc(x_14);
 lean::inc(x_13);
 lean::dec(x_9);
 x_15 = l_System_FilePath_dirName(x_13);
-lean::dec(x_13);
 lean::cnstr_set(x_1, 0, x_15);
 x_16 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_16, 0, x_1);
@@ -17307,7 +17305,6 @@ if (lean::is_exclusive(x_22)) {
  x_25 = lean::box(0);
 }
 x_26 = l_System_FilePath_dirName(x_23);
-lean::dec(x_23);
 x_27 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_27, 0, x_26);
 if (lean::is_scalar(x_25)) {

@@ -317,6 +317,7 @@ obj* l_Nat_mforAux___main___at_Lean_IR_EmitCpp_emitDeclAux___spec__2___boxed(obj
 obj* l_Array_mforAux___main___at_Lean_IR_EmitCpp_emitCase___spec__1___closed__1;
 obj* l_Lean_IR_EmitCpp_emitApp___closed__2;
 extern obj* l_Char_quoteCore___closed__5;
+obj* l_List_foldl___main___at_Lean_moduleNameOfFileName___spec__1(obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
@@ -451,7 +452,6 @@ obj* l_RBNode_revFold___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__4(obj*, ob
 obj* l_Lean_IR_EmitCpp_emitInitFn___boxed(obj*, obj*);
 obj* l_Nat_mforAux___main___at_Lean_IR_EmitCpp_emitTailCall___spec__1(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_openNamespacesFor___boxed(obj*, obj*, obj*);
-obj* l_List_foldl___main___at_Lean_IR_EmitCpp_cppQualifiedNameToName___spec__1(obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitFileHeader___closed__6;
 obj* l_Lean_IR_EmitCpp_emitReuse(obj*, obj*, obj*, uint8, obj*, obj*, obj*);
 obj* l_Array_get(obj*, obj*, obj*, obj*);
@@ -3266,28 +3266,6 @@ lean::dec(x_1);
 return x_6;
 }
 }
-obj* l_List_foldl___main___at_Lean_IR_EmitCpp_cppQualifiedNameToName___spec__1(obj* x_1, obj* x_2) {
-_start:
-{
-if (lean::obj_tag(x_2) == 0)
-{
-return x_1;
-}
-else
-{
-obj* x_3; obj* x_4; obj* x_5; 
-x_3 = lean::cnstr_get(x_2, 0);
-lean::inc(x_3);
-x_4 = lean::cnstr_get(x_2, 1);
-lean::inc(x_4);
-lean::dec(x_2);
-x_5 = lean_name_mk_string(x_1, x_3);
-x_1 = x_5;
-x_2 = x_4;
-goto _start;
-}
-}
-}
 obj* l_Lean_IR_EmitCpp_cppQualifiedNameToName(obj* x_1) {
 _start:
 {
@@ -3295,7 +3273,7 @@ obj* x_2; obj* x_3; obj* x_4; obj* x_5;
 x_2 = l_Lean_IR_EmitCpp_toCppName___closed__1;
 x_3 = l_String_split(x_1, x_2);
 x_4 = lean::box(0);
-x_5 = l_List_foldl___main___at_Lean_IR_EmitCpp_cppQualifiedNameToName___spec__1(x_4, x_3);
+x_5 = l_List_foldl___main___at_Lean_moduleNameOfFileName___spec__1(x_4, x_3);
 return x_5;
 }
 }

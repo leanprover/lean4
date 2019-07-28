@@ -106,7 +106,7 @@ do fname ← IO.realPath (System.FilePath.normalizePathSeparators fname);
 def moduleNameOfFileName (fname : String) : IO Name :=
 do
 path  ← findAtSearchPath fname;
-fname ← IO.realPath fname;
+fname ← IO.realPath (System.FilePath.normalizePathSeparators fname);
 let fnameSuffix := fname.drop path.length;
 let fnameSuffix := if fnameSuffix.get 0 == pathSeparator then fnameSuffix.drop 1 else fnameSuffix;
 if path ++ pathSep ++ fnameSuffix != fname then

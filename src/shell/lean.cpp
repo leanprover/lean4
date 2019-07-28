@@ -310,6 +310,11 @@ std::string find_lean_file(name mod_name) {
     return fname.to_std_string();
 }
 
+object* module_name_of_file_core(object* fname, object* w);
+
+name module_name_of_file2(std::string const & fname) {
+    return get_io_result<name>(module_name_of_file_core(mk_string(fname), io_mk_world()));
+}
 }
 
 int main(int argc, char ** argv) {
@@ -485,11 +490,7 @@ int main(int argc, char ** argv) {
         }
         mod_fn = lrealpath(argv[optind]);
         contents = read_file(mod_fn);
-        search_path input_path = path;
-        /* We accept stand-alone files as input, but imports should always be part of a package so that we can give
-         * them a (stable) absolute name. */
-        input_path.push_back(dirname(mod_fn));
-        main_module_name = module_name_of_file(input_path, mod_fn);
+        main_module_name = module_name_of_file2(mod_fn);
     }
 
     try {

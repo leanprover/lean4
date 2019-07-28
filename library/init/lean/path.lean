@@ -77,28 +77,22 @@ def modNameToFileName : Name → String
 | Name.anonymous                    := ""
 | (Name.mkNumeral p _)              := modNameToFileName p
 
-def addRel (basePath : String) : Nat → String
-| 0     := basePath
+def addRel (baseDir : String) : Nat → String
+| 0     := baseDir
 | (n+1) := addRel n ++ pathSep ++ ".."
 
-def findLeanFile (rel : Option Nat) (modName : Name) (ext : String) : IO String :=
+def findLeanFile (modName : Name) (ext : String) : IO String :=
+do
 let fname := modNameToFileName modName ++ toString extSeparator ++ ext;
-match rel with
-| none => do
-  some fname ← findFile fname | throw (IO.userError ("module '" ++ toString modName ++ "' not found"));
-  IO.realPath fname
-| some n => do
-  path  ← IO.realPath ".";
-  let fname := addRel path n ++ pathSep ++ fname;
-  ex ← IO.fileExists fname;
-  unless ex $ throw (IO.userError ("module '" ++ toString modName ++ "' not found"));
-  IO.realPath fname
+some fname ← findFile fname | throw (IO.userError ("module '" ++ toString modName ++ "' not found"));
+IO.realPath fname
 
 def findOLean (modName : Name) : IO String :=
-findLeanFile none modName "olean"
+findLeanFile modName "olean"
 
-def findLean (rel : Option Nat) (modName : Name) : IO String :=
-findLeanFile rel modName "lean"
+@[export lean.find_lean_core]
+def findLean (modName : Name) : IO String :=
+findLeanFile modName "lean"
 
 def findAtSearchPath (fname : String) : IO String :=
 do fname ← IO.realPath fname;
@@ -107,7 +101,8 @@ do fname ← IO.realPath fname;
    | some r => pure r
    | none   => throw (IO.userError ("file '" ++ fname ++ "' not in the search path"))
 
-def fileNameToModuleName (fname : String) : IO Name :=
+@[export lean.module_name_of_file_core]
+def moduleNameOfFileName (fname : String) : IO Name :=
 do
 path  ← findAtSearchPath fname;
 fname ← IO.realPath fname;
@@ -122,7 +117,7 @@ else do
   let extStr     := fnameSuffix.extract (extPos + 1) fnameSuffix.bsize;
   let parts      := modNameStr.split pathSep;
   let modName    := parts.foldl Name.mkString Name.anonymous;
-  fname' ← findLeanFile none modName extStr;
+  fname' ← findLeanFile modName extStr;
   unless (fname == fname') $ throw (IO.userError ("failed to convert file '" ++ fname ++ "' to module name, module name '" ++ toString modName ++ "' resolves to '" ++ fname' ++ "'"));
   pure modName
 

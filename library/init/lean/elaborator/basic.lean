@@ -306,12 +306,18 @@ partial def processCommandsAux : Unit → Frontend Unit
 def processCommands : Frontend Unit :=
 processCommandsAux ()
 
-def absolutizeModuleNameAux (m : Name) (k : Option Nat) : IO Name :=
-do unless (k == none) $ throw ("relative imports are not supported yet"); -- TODO
-   -- TODO: check whether the .olean file exists and use `m.default` when it doesn't.
-   pure m
+@[export lean.absolutize_module_name_core]
+def absolutizeModuleName (baseDir : Option String) (m : Name) (k : Option Nat) : IO Name :=
+match k, baseDir with
+| none,   _            => pure m
+| some k, none         => throw (IO.userError ("invalid use of relative import, file name of main file is not available"))
+| some k, some baseDir => do
+  let dir        := addRel baseDir k;
+  let pathSep    := toString System.FilePath.pathSeparator;
+  let oleanFName := dir ++ pathSep ++ modNameToFileName m ++ toString System.FilePath.extSeparator ++ "olean";
+  moduleNameOfFileName oleanFName
 
-def processHeaderAux (header : Syntax) (trustLevel : UInt32) : IO Environment :=
+def processHeaderAux (baseDir : Option String) (header : Syntax) (trustLevel : UInt32) : IO Environment :=
 do let header     := header.asNode;
    let imports    := if (header.getArg 0).isNone then [`init.default] else [];
    let modImports := (header.getArg 1).getArgs;
@@ -322,18 +328,18 @@ do let header     := header.asNode;
        -- `stx` is of the form `(Module.importPath (null "*"*) <id>)
        let stx := stx.asNode;
        let rel := stx.getArg 0;
-       let k   := if rel.isNone then none else some (rel.getNumArgs);
+       let k   := if rel.isNone then none else some (rel.getNumArgs - 1);
        let id  := (stx.getArg 1).getIdentVal;
-       m ← absolutizeModuleNameAux id k;
+       m ← absolutizeModuleName baseDir id k;
        pure (m::imports))
        imports)
      imports;
    let imports := imports.reverse;
    importModules imports trustLevel
 
-def processHeader (header : Syntax) (messages : MessageLog) (ctx : Parser.ParserContextCore) (trustLevel : UInt32 := 0) : IO (Environment × MessageLog) :=
+def processHeader (baseDir : Option String) (header : Syntax) (messages : MessageLog) (ctx : Parser.ParserContextCore) (trustLevel : UInt32 := 0) : IO (Environment × MessageLog) :=
 catch
-  (do env ← processHeaderAux header trustLevel;
+  (do env ← processHeaderAux baseDir header trustLevel;
       pure (env, messages))
   (fun e => do
      env ← mkEmptyEnvironment;
@@ -341,18 +347,21 @@ catch
      let pos  := ctx.fileMap.toPosition spos;
      pure (env, messages.add { filename := ctx.filename, text := toString e, pos := pos }))
 
-/- TODO: support for non-standard search path for web interface -/
-@[extern 1 "lean_set_search_path"]
-constant setSearchPathOld : IO Unit := default _
+def toBaseDir (fileName : Option String) : IO (Option String) :=
+match fileName with
+| none => pure none
+| some fileName => do
+  fileName ← IO.realPath fileName;
+  pure $ some (System.FilePath.dirName fileName)
 
 def testFrontend (input : String) (fileName : Option String := none) : IO (Environment × MessageLog) :=
-do setSearchPathOld;
-   env ← mkEmptyEnvironment;
+do env ← mkEmptyEnvironment;
+   baseDir ← toBaseDir fileName;
    let fileName := fileName.getOrElse "<input>";
    let ctx := Parser.mkParserContextCore env input fileName;
    match Parser.parseHeader env ctx with
    | (header, parserState, messages) => do
-     (env, messages) ← processHeader header messages ctx;
+     (env, messages) ← processHeader baseDir header messages ctx;
      let elabState := { ElabState . env := env, messages := messages };
      match (processCommands ctx).run { elabState := elabState, parserState := parserState } with
        | EState.Result.ok _ s    => pure (s.elabState.env, s.elabState.messages)

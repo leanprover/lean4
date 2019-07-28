@@ -27,7 +27,13 @@ if isWindows then ';' else ':'
 def extSeparator : Char :=
 '.'
 
+def normalizePathSeparators (fname : String) : String :=
+if pathSeparators.length == 1 then fname
+else fname.map (fun c =>
+  if pathSeparators.any (fun c' => c == c') then pathSeparator else c)
+
 def dirName (fname : String) : String :=
+let fname := normalizePathSeparators fname;
 match fname.revPosOf pathSeparator with
 | none => "."
 | some pos => { Substring . str := fname, startPos := 0, stopPos := pos }.toString

@@ -23,7 +23,7 @@ do curr ← IO.realPath ".";
 constant searchPathRef : IO.Ref (Array String) := default _
 
 def setSearchPath (s : List String) : IO Unit :=
-do s ← s.mmap IO.realPath;
+do s ← s.mmap (fun p => IO.realPath (System.FilePath.normalizePathSeparators p));
    searchPathRef.set s.toArray
 
 def setSearchPathFromString (s : String) : IO Unit :=
@@ -64,7 +64,8 @@ match path with
     setSearchPath [path, curr]
 
 def findFile (fname : String) : IO (Option String) :=
-do paths ← searchPathRef.get;
+do let fname := System.FilePath.normalizePathSeparators fname;
+   paths ← searchPathRef.get;
    paths.mfind $ fun path => do
      let path := path ++ pathSep;
      let curr := path ++ fname;
@@ -95,7 +96,7 @@ def findLean (modName : Name) : IO String :=
 findLeanFile modName "lean"
 
 def findAtSearchPath (fname : String) : IO String :=
-do fname ← IO.realPath fname;
+do fname ← IO.realPath (System.FilePath.normalizePathSeparators fname);
    paths ← searchPathRef.get;
    match paths.find (fun path => if path.isPrefixOf fname then some path else none) with
    | some r => pure r

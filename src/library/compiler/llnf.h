@@ -63,8 +63,8 @@ struct field_info {
     expr get_type() const { return m_type; }
     static field_info mk_irrelevant() { return field_info(); }
     static field_info mk_object(unsigned idx) { return field_info(idx); }
-    static field_info mk_usize(unsigned n) { return field_info(n, true); }
-    static field_info mk_scalar(unsigned sz, unsigned offset, expr const & type) { return field_info(sz, 0, offset, type); }
+    static field_info mk_usize() { return field_info(0, true); }
+    static field_info mk_scalar(unsigned sz, expr const & type) { return field_info(sz, 0, 0, type); }
 };
 
 struct cnstr_info {

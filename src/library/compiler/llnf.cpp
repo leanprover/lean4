@@ -242,9 +242,8 @@ static void get_cnstr_info_core(type_checker::state & st, name const & n, buffer
     unsigned nparams    = val.get_nparams();
     local_ctx lctx;
     buffer<expr> telescope;
-    unsigned next_object = 0;
-    unsigned next_usize  = 0;
-    unsigned next_offset = 0;
+    unsigned next_object     = 0;
+    unsigned max_scalar_size = 0;
     to_telescope(env, lctx, st.ngen(), type, telescope);
     lean_assert(telescope.size() >= nparams);
     for (unsigned i = nparams; i < telescope.size(); i++) {
@@ -255,37 +254,43 @@ static void get_cnstr_info_core(type_checker::state & st, name const & n, buffer
             type_checker tc(st, lctx);
             ftype = tc.whnf(ftype);
             if (is_usize_type(ftype)) {
-                result.push_back(field_info::mk_usize(next_usize));
-                next_usize++;
+                result.push_back(field_info::mk_usize());
             } else if (optional<unsigned> sz = is_builtin_scalar(ftype)) {
-                result.push_back(field_info::mk_scalar(*sz, next_offset, ftype));
-                next_offset += *sz;
+                max_scalar_size = std::max(*sz, max_scalar_size);
+                result.push_back(field_info::mk_scalar(*sz, ftype));
             } else if (optional<unsigned> sz = is_enum_type(env, ftype)) {
                 optional<expr> uint = to_uint_type(*sz);
                 if (!uint) throw exception("code generation failed, enumeration type is too big");
-                result.push_back(field_info::mk_scalar(*sz, next_offset, *uint));
-                next_offset += *sz;
+                max_scalar_size = std::max(*sz, max_scalar_size);
+                result.push_back(field_info::mk_scalar(*sz, *uint));
             } else {
                 result.push_back(field_info::mk_object(next_object));
                 next_object++;
             }
         }
     }
-    unsigned nobjs     = next_object;
-    unsigned nusizes   = next_usize;
+    unsigned next_idx = next_object;
     /* Remark:
        - usize fields are stored after object fields.
-       - regular scalar fields are stored after object and usize fields */
+       - regular scalar fields are stored after object and usize fields,
+         and are sorted by size. */
+    /* Fix USize idxs */
     for (field_info & info : result) {
-        switch (info.m_kind) {
-        case field_info::Scalar:
-            info.m_offset += (nobjs + nusizes) * sizeof(void*);
-            break;
-        case field_info::USize:
-            info.m_offset += nobjs * sizeof(void*);
-            break;
-        default:
-            break;
+        if (info.m_kind == field_info::USize) {
+            info.m_idx = next_idx;
+            next_idx++;
+        }
+    }
+    unsigned idx    = next_idx;
+    unsigned offset = 0;
+    /* Fix regular scalar offsets and idxs */
+    for (unsigned sz = max_scalar_size; sz > 0; sz--) {
+        for (field_info & info : result) {
+            if (info.m_kind == field_info::Scalar && info.m_size == sz) {
+                info.m_idx    = idx;
+                info.m_offset = offset;
+                offset += info.m_size;
+            }
         }
     }
 }
@@ -531,9 +536,6 @@ class to_lambda_pure_fn {
             unsigned saved_fvars_size = m_fvars.size();
             expr minor           = args[i+1];
             cnstr_info cinfo     = get_cnstr_info(cnames[i]);
-            unsigned next_idx    = 0;
-            unsigned next_usize  = 0;
-            unsigned next_offset = 0;
             buffer<expr> fields;
             for (field_info const & info : cinfo.m_field_info) {
                 lean_assert(is_lambda(minor));
@@ -542,16 +544,13 @@ class to_lambda_pure_fn {
                     fields.push_back(mk_enf_neutral());
                     break;
                 case field_info::Object:
-                    fields.push_back(mk_let_decl(mk_enf_object_type(), mk_app(mk_llnf_proj(next_idx), major)));
-                    next_idx++;
+                    fields.push_back(mk_let_decl(mk_enf_object_type(), mk_app(mk_llnf_proj(info.m_idx), major)));
                     break;
                 case field_info::USize:
-                    fields.push_back(mk_let_decl(info.get_type(), mk_uproj(major, (cinfo.m_num_objs + next_usize))));
-                    next_usize++;
+                    fields.push_back(mk_let_decl(info.get_type(), mk_uproj(major, info.m_idx)));
                     break;
                 case field_info::Scalar:
-                    fields.push_back(mk_let_decl(info.get_type(), mk_sproj(major, info.m_size, (cinfo.m_num_objs + cinfo.m_num_usizes), next_offset)));
-                    next_offset += info.m_size;
+                    fields.push_back(mk_let_decl(info.get_type(), mk_sproj(major, info.m_size, info.m_idx, info.m_offset)));
                     break;
                 }
                 minor = binding_body(minor);
@@ -637,8 +636,6 @@ class to_lambda_pure_fn {
         }
         expr r = mk_app(mk_llnf_cnstr(I, cidx, k_info.m_num_usizes, k_info.m_scalar_sz), obj_args);
         j = nparams;
-        unsigned offset = 0;
-        unsigned uidx   = 0;
         bool first      = true;
         for (field_info const & info : k_info.m_field_info) {
             switch (info.m_kind) {
@@ -646,16 +643,14 @@ class to_lambda_pure_fn {
                 if (first) {
                     r = mk_let_decl(mk_enf_object_type(), r);
                 }
-                r = mk_let_decl(mk_enf_object_type(), mk_sset(r, info.m_size, (k_info.m_num_objs + k_info.m_num_usizes), offset, args[j]));
-                offset += info.m_size;
+                r = mk_let_decl(mk_enf_object_type(), mk_sset(r, info.m_size, info.m_idx, info.m_offset, args[j]));
                 first = false;
                 break;
             case field_info::USize:
                 if (first) {
                     r = mk_let_decl(mk_enf_object_type(), r);
                 }
-                r = mk_let_decl(mk_enf_object_type(), mk_uset(r, k_info.m_num_objs + uidx, args[j]));
-                uidx++;
+                r = mk_let_decl(mk_enf_object_type(), mk_uset(r, info.m_idx, args[j]));
                 first = false;
                 break;
 
@@ -673,9 +668,6 @@ class to_lambda_pure_fn {
         lean_assert(S_val.get_ncnstrs() == 1);
         name k_name = head(S_val.get_cnstrs());
         cnstr_info k_info = get_cnstr_info(k_name);
-        unsigned idx      = 0;
-        unsigned offset   = 0;
-        unsigned uidx     = 0;
         unsigned i        = 0;
         for (field_info const & info : k_info.m_field_info) {
             switch (info.m_kind) {
@@ -685,18 +677,15 @@ class to_lambda_pure_fn {
                 break;
             case field_info::Object:
                 if (proj_idx(e) == i)
-                    return mk_app(mk_llnf_proj(idx), visit(proj_expr(e)));
-                idx++;
+                    return mk_app(mk_llnf_proj(info.m_idx), visit(proj_expr(e)));
                 break;
             case field_info::USize:
                 if (proj_idx(e) == i)
-                    return mk_app(mk_llnf_uproj(k_info.m_num_objs + uidx), visit(proj_expr(e)));
-                uidx++;
+                    return mk_app(mk_llnf_uproj(info.m_idx), visit(proj_expr(e)));
                 break;
             case field_info::Scalar:
                 if (proj_idx(e) == i)
-                    return mk_sproj(visit(proj_expr(e)), info.m_size, (k_info.m_num_objs + k_info.m_num_usizes), offset);
-                offset += info.m_size;
+                    return mk_sproj(visit(proj_expr(e)), info.m_size, info.m_idx, info.m_offset);
                 break;
             }
             i++;

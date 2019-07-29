@@ -23,7 +23,7 @@ do curr ← IO.realPath ".";
 constant searchPathRef : IO.Ref (Array String) := default _
 
 def setSearchPath (s : List String) : IO Unit :=
-do s ← s.mmap (fun p => IO.realPath (System.FilePath.normalizePathSeparators p));
+do s ← s.mmap (fun p => IO.realPath (System.FilePath.normalizePath p));
    searchPathRef.set s.toArray
 
 def setSearchPathFromString (s : String) : IO Unit :=
@@ -64,7 +64,7 @@ match path with
     setSearchPath [path, curr]
 
 def findFile (fname : String) : IO (Option String) :=
-do let fname := System.FilePath.normalizePathSeparators fname;
+do let fname := System.FilePath.normalizePath fname;
    paths ← searchPathRef.get;
    paths.mfind $ fun path => do
      let path := path ++ pathSep;
@@ -96,7 +96,7 @@ def findLean (modName : Name) : IO String :=
 findLeanFile modName "lean"
 
 def findAtSearchPath (fname : String) : IO String :=
-do fname ← IO.realPath (System.FilePath.normalizePathSeparators fname);
+do fname ← IO.realPath (System.FilePath.normalizePath fname);
    paths ← searchPathRef.get;
    match paths.find (fun path => if path.isPrefixOf fname then some path else none) with
    | some r => pure r
@@ -106,7 +106,7 @@ do fname ← IO.realPath (System.FilePath.normalizePathSeparators fname);
 def moduleNameOfFileName (fname : String) : IO Name :=
 do
 path  ← findAtSearchPath fname;
-fname ← IO.realPath (System.FilePath.normalizePathSeparators fname);
+fname ← IO.realPath (System.FilePath.normalizePath fname);
 let fnameSuffix := fname.drop path.length;
 let fnameSuffix := if fnameSuffix.get 0 == pathSeparator then fnameSuffix.drop 1 else fnameSuffix;
 if path ++ pathSep ++ fnameSuffix != fname then

@@ -100,7 +100,7 @@ do fname ← IO.realPath (System.FilePath.normalizePathSeparators fname);
    paths ← searchPathRef.get;
    match paths.find (fun path => if path.isPrefixOf fname then some path else none) with
    | some r => pure r
-   | none   => throw (IO.userError ("file '" ++ fname ++ "' not in the search path"))
+   | none   => throw (IO.userError ("file '" ++ fname ++ "' not in the search path " ++ repr paths))
 
 @[export lean.module_name_of_file_core]
 def moduleNameOfFileName (fname : String) : IO Name :=

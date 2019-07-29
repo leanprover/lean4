@@ -15,15 +15,19 @@ open System.FilePath (pathSeparator searchPathSeparator extSeparator)
 private def pathSep : String := toString pathSeparator
 private def searchPathSep : String := toString searchPathSeparator
 
+def realPathNormalized (fname : String) : IO String :=
+do fname ← IO.realPath fname;
+   pure (System.FilePath.normalizePath fname)
+
 def mkSearchPathRef : IO (IO.Ref (Array String)) :=
-do curr ← IO.realPath ".";
+do curr ← realPathNormalized ".";
    IO.mkRef (Array.singleton curr)
 
 @[init mkSearchPathRef]
 constant searchPathRef : IO.Ref (Array String) := default _
 
 def setSearchPath (s : List String) : IO Unit :=
-do s ← s.mmap (fun p => IO.realPath (System.FilePath.normalizePath p));
+do s ← s.mmap realPathNormalized;
    searchPathRef.set s.toArray
 
 def setSearchPathFromString (s : String) : IO Unit :=
@@ -34,12 +38,12 @@ do appDir ← IO.appDir;
    let libDir := appDir ++ pathSep ++ ".." ++ pathSep ++ "library";
    libDirExists ← IO.isDir libDir;
    if libDirExists then
-     IO.realPath libDir
+     realPathNormalized libDir
    else do
      let installedLibDir := appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "library";
      installedLibDirExists ← IO.isDir installedLibDir;
      if installedLibDirExists then do
-       IO.realPath installedLibDir
+       realPathNormalized installedLibDir
      else
        throw (IO.userError "failed to locate builtin search path, please set LEAN_PATH")
 
@@ -60,7 +64,7 @@ match path with
   | some path => setSearchPath path
   | none => do
     path ← getBuiltinSearchPath;
-    curr ← IO.realPath ".";
+    curr ← realPathNormalized ".";
     setSearchPath [path, curr]
 
 def findFile (fname : String) : IO (Option String) :=
@@ -86,7 +90,7 @@ def findLeanFile (modName : Name) (ext : String) : IO String :=
 do
 let fname := modNameToFileName modName ++ toString extSeparator ++ ext;
 some fname ← findFile fname | throw (IO.userError ("module '" ++ toString modName ++ "' not found"));
-IO.realPath fname
+realPathNormalized fname
 
 def findOLean (modName : Name) : IO String :=
 findLeanFile modName "olean"
@@ -96,7 +100,7 @@ def findLean (modName : Name) : IO String :=
 findLeanFile modName "lean"
 
 def findAtSearchPath (fname : String) : IO String :=
-do fname ← IO.realPath (System.FilePath.normalizePath fname);
+do fname ← realPathNormalized fname;
    paths ← searchPathRef.get;
    match paths.find (fun path => if path.isPrefixOf fname then some path else none) with
    | some r => pure r
@@ -106,7 +110,7 @@ do fname ← IO.realPath (System.FilePath.normalizePath fname);
 def moduleNameOfFileName (fname : String) : IO Name :=
 do
 path  ← findAtSearchPath fname;
-fname ← IO.realPath (System.FilePath.normalizePath fname);
+fname ← realPathNormalized fname;
 let fnameSuffix := fname.drop path.length;
 let fnameSuffix := if fnameSuffix.get 0 == pathSeparator then fnameSuffix.drop 1 else fnameSuffix;
 if path ++ pathSep ++ fnameSuffix != fname then

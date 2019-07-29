@@ -22,4 +22,12 @@ extern "C" uint8 lean_system_platform_windows(obj_arg) {
     return 0;
 #endif
 }
+
+extern "C" uint8 lean_system_platform_osx(obj_arg) {
+#if defined(__APPLE__)
+    return 1;
+#else
+    return 0;
+#endif
+}
 }

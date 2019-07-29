@@ -14,6 +14,16 @@ Author: Leonardo de Moura
 namespace lean {
 #define TERMINATOR_ID (static_cast<unsigned>(object_kind::External) + 1)
 
+// special object that terminates the data block constructing the object graph rooted in `m_value`
+struct terminator_object : public object {
+    object * m_value;
+
+    explicit terminator_object(object * value) : object(object_kind::External, object_memory_kind::Region), m_value(value) {
+        // not an actual `object_kind`, so write to the field directly
+        m_kind = TERMINATOR_ID;
+    }
+};
+
 object_compactor::object_compactor():
     m_begin(malloc(LEAN_COMPACTOR_INIT_SZ)),
     m_end(m_begin),
@@ -60,11 +70,8 @@ object_offset object_compactor::to_offset(object * o) {
 }
 
 void object_compactor::insert_terminator(object * o) {
-    void * mem = alloc(sizeof(object) + sizeof(object*));
-    object * r = new (mem) object(object_kind::External, object_memory_kind::Region);
-    r->m_kind  = TERMINATOR_ID;
-    object** ptr = reinterpret_cast<object**>(reinterpret_cast<char*>(r) + sizeof(object));
-    *ptr = to_offset(o);
+    void * mem = alloc(sizeof(terminator_object));
+    new (mem) terminator_object(to_offset(o));
 }
 
 object * object_compactor::copy_object(object * o) {
@@ -296,8 +303,8 @@ object * compacted_region::read() {
         lean_assert(static_cast<char*>(m_next) + sizeof(object) <= m_end);
         object * curr = reinterpret_cast<object*>(m_next);
         if (curr->m_kind == TERMINATOR_ID) {
-            object * r = *reinterpret_cast<object**>(static_cast<char*>(m_next) + sizeof(object));
-            move(sizeof(object) + sizeof(object*));
+            object * r = reinterpret_cast<terminator_object*>(m_next)->m_value;
+            move(sizeof(terminator_object));
             return fix_object_ptr(r);
         } else {
             switch (get_kind(curr)) {

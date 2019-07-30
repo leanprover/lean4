@@ -28,6 +28,12 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include "library/time_task.h"
 #include "library/util.h"
 
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+#include <sanitizer/lsan_interface.h>
+#endif
+#endif
+
 namespace lean {
 // manually padded to multiple of word size, see `initialize_module`
 static char const * g_olean_header   = "oleanfile!!!!!!!";
@@ -82,6 +88,12 @@ extern "C" object * lean_read_module_data(object * fname, object * w) {
         in.close();
         /* We don't free compacted_region objects */
         compacted_region * region = new compacted_region(size - header_size, buffer);
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+        // do not report as leak
+        __lsan_ignore_object(region);
+#endif
+#endif
         object * mod = region->read();
         return set_io_result(w, mod);
     } catch (exception & ex) {

@@ -125,11 +125,9 @@ static inline void free_heap_obj_core(object * o) {
 #endif
 #ifdef LEAN_FAKE_FREE
     // Set kinds to invalid values, which should trap any further accesses in debug mode.
-    // Make sure object kind is recoverable for printing deleted objects
-    if (o->m_mem_kind != 42) {
-        o->m_kind = -o->m_kind;
-        o->m_mem_kind = 42;
-    }
+    lean_always_assert(o->m_kind != 42);
+    o->m_kind = 42;
+    o->m_mem_kind = 42;
 #else
 #ifdef LEAN_SMALL_ALLOCATOR
     dealloc(reinterpret_cast<char *>(o) - sizeof(rc_type), sz);

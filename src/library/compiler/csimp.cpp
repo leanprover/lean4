@@ -1136,7 +1136,6 @@ class csimp_fn {
     expr visit_lambda(expr e, bool is_join_point_def, bool top) {
         lean_assert(is_lambda(e));
         lean_assert(!top || m_fvars.size() == 0);
-        lean_assert(!top || !already_simplified(e));
         if (already_simplified(e))
             return e;
         buffer<expr> binding_fvars;

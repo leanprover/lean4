@@ -23,6 +23,7 @@ jobs:
     displayName: Setup
   - script: |
       . ~/.nix-profile/etc/profile.d/nix.sh
+      export CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
       nix-shell --run ./script/ci.sh
     displayName: Build
   - task: PublishTestResults@2
@@ -39,12 +40,12 @@ jobs:
   steps:
   - script: |
       choco install -y msys2
-      C:\tools\msys64\usr\bin\bash -lc "pacman --noconfirm -S make python mingw-w64-x86_64-cmake mingw-w64-x86_64-gcc mingw-w64-x86_64-clang mingw-w64-x86_64-polly git diffutils"
+      C:\tools\msys64\usr\bin\bash -lc "pacman --noconfirm -S make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-polly git diffutils"
     displayName: Setup
   - script: |
       C:\tools\msys64\usr\bin\bash -l ./script/ci.sh
     env:
-      CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles"
+      CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
       # use mingw64 shell
       MSYSTEM: MINGW64
       # don't let bash reset cwd

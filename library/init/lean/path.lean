@@ -67,12 +67,14 @@ match path with
     curr ← realPathNormalized ".";
     setSearchPath [path, curr]
 
-def findFile (fname : String) : IO (Option String) :=
+def findFile (fname : String) (ext : String) : IO (Option String) :=
 do let fname := System.FilePath.normalizePath fname;
    paths ← searchPathRef.get;
    paths.mfind $ fun path => do
-     let path := path ++ pathSep;
-     let curr := path ++ fname;
+     let curr := path ++ pathSep ++ fname;
+     isDir ← IO.isDir curr;
+     let curr := if isDir then curr ++ pathSep ++ "default" else curr;
+     let curr := curr ++ toString extSeparator ++ ext;
      ex ← IO.fileExists curr;
      if ex then pure (some curr) else pure none
 
@@ -88,8 +90,8 @@ def addRel (baseDir : String) : Nat → String
 
 def findLeanFile (modName : Name) (ext : String) : IO String :=
 do
-let fname := modNameToFileName modName ++ toString extSeparator ++ ext;
-some fname ← findFile fname | throw (IO.userError ("module '" ++ toString modName ++ "' not found"));
+let fname := modNameToFileName modName;
+some fname ← findFile fname ext | throw (IO.userError ("module '" ++ toString modName ++ "' not found"));
 realPathNormalized fname
 
 def findOLean (modName : Name) : IO String :=

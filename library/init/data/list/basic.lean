@@ -86,6 +86,11 @@ protected def erase {α} [HasBeq α] : List α → α → List α
   | true  => as
   | false => a :: erase as b
 
+def eraseIdx : List α → Nat → List α
+| []      _     := []
+| (a::as) 0     := as
+| (a::as) (n+1) := a :: eraseIdx as n
+
 def lengthAux : List α → Nat → Nat
 | []      n := n
 | (a::as) n := lengthAux as (n+1)

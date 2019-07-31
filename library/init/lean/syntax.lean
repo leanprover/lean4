@@ -102,7 +102,7 @@ def isIdent {α} : Syntax α → Bool
 | (ident _ _ _ _) := true
 | _               := false
 
-def getIdentVal {α} : Syntax α → Name
+def getId {α} : Syntax α → Name
 | (ident _ _ val _) := val
 | _                 := Name.anonymous
 
@@ -122,6 +122,9 @@ stx.asNode.getArgs
 
 def getArg {α} (stx : Syntax α) (i : Nat) : Syntax α :=
 stx.asNode.getArg i
+
+def getIdAt {α} (stx : Syntax α) (i : Nat) : Name :=
+(stx.getArg i).getId
 
 def getKind {α} (stx : Syntax α) : SyntaxNodeKind :=
 stx.asNode.getKind
@@ -230,6 +233,13 @@ instance {α} : HasFormat (Syntax α)   := ⟨Syntax.formatStx⟩
 instance {α} : HasToString (Syntax α) := ⟨toString ∘ format⟩
 
 end Syntax
+
+namespace SyntaxNode
+
+@[inline] def getIdAt {α} (n : SyntaxNode α) (i : Nat) : Name :=
+(n.getArg i).getId
+
+end SyntaxNode
 
 /- Helper functions for creating Syntax objects using C++ -/
 

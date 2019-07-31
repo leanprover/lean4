@@ -12,10 +12,20 @@ import init.lean.parser.module
 namespace Lean
 
 inductive OpenDecl
-| simple (ns : Name)
-| explicit (ns : Name) (ids : List Name)
-| «hiding» (ns : Name) (ex : List Name)
-| «renaming» (ns : Name) (renames : List (Name × Name))
+| simple   (ns : Name)
+| explicit (id : Name) (declName : Name)
+| except   (ns : Name) (except : List Name)
+
+namespace OpenDecl
+instance : Inhabited OpenDecl := ⟨simple Name.anonymous⟩
+
+instance : HasToString OpenDecl :=
+⟨fun decl => match decl with
+ | simple ns        => toString ns
+ | explicit id decl => toString id ++ " → " ++ toString decl
+ | except ns ex     => toString ns ++ " hiding " ++ toString ex⟩
+
+end OpenDecl
 
 structure ElabContext :=
 (fileName : String)
@@ -238,6 +248,12 @@ def logErrorAndThrow {α : Type} (stx : Syntax) (errorMsg : String) : Elab α :=
 do logError stx errorMsg;
    throw errorMsg
 
+def logUnknownDecl (stx : Syntax) (declName : Name) : Elab Unit :=
+logError stx ("unknown declaration '" ++ toString declName ++ "'")
+
+def getEnv : Elab Environment :=
+do s ← get; pure s.env
+
 def elabTerm (stx : Syntax) : Elab Expr :=
 stx.ifNode
   (fun n => do
@@ -329,7 +345,7 @@ do let header     := header.asNode;
        let stx := stx.asNode;
        let rel := stx.getArg 0;
        let k   := if rel.isNone then none else some (rel.getNumArgs - 1);
-       let id  := (stx.getArg 1).getIdentVal;
+       let id  := stx.getIdAt 1;
        m ← absolutizeModuleName baseDir id k;
        pure (m::imports))
        imports)

@@ -21,7 +21,7 @@ private def addScopes (cmd : String) (updateNamespace : Bool) : Name → List El
 
 @[builtinCommandElab «namespace»] def elabNamespace : CommandElab :=
 fun n => do
-  let header := (n.getArg 1).getIdentVal;
+  let header := n.getIdAt 1;
   modify $ fun s => { scopes := addScopes "namespace" true header s.scopes, .. s };
   ns     ← getNamespace;
   modify $ fun s => { env := registerNamespace s.env ns, .. s }
@@ -68,24 +68,98 @@ fun n => do
 @[builtinCommandElab «export»] def elabExport : CommandElab :=
 fun n => do
   -- `n` is of the form (Command.export "export" <namespace> "(" (null <ids>*) ")")
-  let ns  := (n.getArg 1).getIdentVal;
-  let ids := (n.getArg 3).getArgs;
+  let ns  := n.getIdAt 1;
   ns ← resolveNamespace ns;
   currNs ← getNamespace;
   when (ns == currNs) $ throw "invalid 'export', self export";
-  s ← get;
-  let env := s.env;
+  env ← getEnv;
+  let ids := (n.getArg 3).getArgs;
   aliases ← ids.mfoldl (fun (aliases : List (Name × Name)) (idStx : Syntax) => do {
-    let id := idStx.getIdentVal;
+    let id := idStx.getId;
     let declName := ns ++ id;
     if env.contains declName then
       pure $ (currNs ++ id, declName) :: aliases
     else do
-      logError idStx ("unknown declaration '" ++ toString declName ++ "'");
+      logUnknownDecl idStx declName;
       pure aliases
     })
     [];
   modify $ fun s => { env := aliases.foldl (fun env p => addAlias env p.1 p.2) s.env, .. s }
+
+@[specialize] def modifyScope (f : ElabScope → ElabScope) : Elab Unit :=
+modify $ fun s =>
+  { scopes := match s.scopes with
+    | h::t => f h :: t
+    | []   => [], -- unreachable
+    .. s }
+
+def addOpenDecl (d : OpenDecl) : Elab Unit :=
+modifyScope $ fun scope => { openDecls := d :: scope.openDecls, .. scope }
+
+def elabOpenSimple (n : SyntaxNode) : Elab Unit :=
+let nss := n.getArg 0;
+nss.mforArgs $ fun ns => do
+  ns ← resolveNamespace ns.getId;
+  addOpenDecl (OpenDecl.simple ns)
+
+def elabOpenOnly (n : SyntaxNode) : Elab Unit :=
+do
+let ns  := n.getIdAt 0;
+ns ← resolveNamespace ns;
+let ids := n.getArg 2;
+ids.mforArgs $ fun idStx => do
+  let id := idStx.getId;
+  let declName := ns ++ id;
+  env ← getEnv;
+  if env.contains declName then
+    addOpenDecl (OpenDecl.explicit id declName)
+  else
+    logUnknownDecl idStx declName
+
+def elabOpenHiding (n : SyntaxNode) : Elab Unit :=
+do
+let ns := n.getIdAt 0;
+ns ← resolveNamespace ns;
+let idsStx := n.getArg 2;
+env ← getEnv;
+ids : List Name ← idsStx.mfoldArgs (fun idStx ids => do
+  let id := idStx.getId;
+  let declName := ns ++ id;
+  if env.contains declName then
+    pure (id::ids)
+  else do
+    logUnknownDecl idStx declName;
+    pure ids)
+  [];
+addOpenDecl (OpenDecl.except ns ids)
+
+def elabOpenRenaming (n : SyntaxNode) : Elab Unit :=
+do
+let ns := n.getIdAt 0;
+ns ← resolveNamespace ns;
+let rs := (n.getArg 2);
+rs.mforSepArgs $ fun stx => do
+  let fromId   := stx.getIdAt 0;
+  let toId     := stx.getIdAt 2;
+  let declName := ns ++ fromId;
+  env ← getEnv;
+  if env.contains declName then
+    addOpenDecl (OpenDecl.explicit toId declName)
+  else
+    logUnknownDecl stx declName
+
+@[builtinCommandElab «open»] def elabOpen : CommandElab :=
+fun n => do
+  let body := (n.getArg 1).asNode;
+  let k    := body.getKind;
+  if k == `Lean.Parser.Command.openSimple then
+    elabOpenSimple body
+  else if k == `Lean.Parser.Command.openOnly then
+    elabOpenOnly body
+  else if k == `Lean.Parser.Command.openHiding then
+    elabOpenHiding body
+  else
+    elabOpenRenaming body
 
 /- We just ignore Lean3 notation declaration commands. -/
 @[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()

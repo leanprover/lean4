@@ -1554,8 +1554,40 @@ s.ifNode
 
 def getOptionalIdent {α} (stx : Syntax α) : Option Name :=
 match stx.getOptional with
-| some stx => some stx.getIdentVal
+| some stx => some stx.getId
 | none     => none
+
+section
+variables {α β : Type} {m : Type → Type} [Monad m]
+
+@[specialize] partial def mfoldArgsAux (delta : Nat) (s : Array (Syntax α)) (f : Syntax α → β → m β) : Nat → β → m β
+| i b :=
+  if h : i < s.size then do
+    let curr := s.fget ⟨i, h⟩;
+    b ← f curr b;
+    mfoldArgsAux (i+delta) b
+  else
+    pure b
+
+@[inline] def mfoldArgs (s : Syntax α) (f : Syntax α → β → m β) (b : β) : m β :=
+mfoldArgsAux 1 s.getArgs f 0 b
+
+@[inline] def foldArgs (s : Syntax α) (f : Syntax α → β → β) (b : β) : β :=
+Id.run (s.mfoldArgs f b)
+
+@[inline] def mforArgs (s : Syntax α) (f : Syntax α → m Unit) : m Unit :=
+s.mfoldArgs (fun s _ => f s) ()
+
+@[inline] def mfoldSepArgs (s : Syntax α) (f : Syntax α → β → m β) (b : β) : m β :=
+mfoldArgsAux 2 s.getArgs f 0 b
+
+@[inline] def foldSepArgs (s : Syntax α) (f : Syntax α → β → β) (b : β) : β :=
+Id.run (s.mfoldSepArgs f b)
+
+@[inline] def mforSepArgs (s : Syntax α) (f : Syntax α → m Unit) : m Unit :=
+s.mfoldSepArgs (fun s _ => f s) ()
+
+end
 
 end Syntax
 end Lean

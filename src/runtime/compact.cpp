@@ -14,7 +14,12 @@ Author: Leonardo de Moura
 namespace lean {
 #define TERMINATOR_ID (static_cast<unsigned>(object_kind::External) + 1)
 
-// special object that terminates the data block constructing the object graph rooted in `m_value`
+/*
+  Special object that terminates the data block constructing the object graph rooted in `m_value`.
+  We use this object to ensure `m_value` is correctly aligned. In the past, we would allocate
+  a chunk of memory `p` of size `sizeof(object) + sizeof(object*)`, and then write at `p + sizeof(object)`.
+  This is incorrect because `sizeof(object)` is not a multiple of the word size.
+*/
 struct terminator_object : public object {
     object * m_value;
 

@@ -37,6 +37,7 @@ structure ElabScope :=
 (options   : Options := {})
 (ns        : Name := Name.anonymous) -- current namespace
 (openDecls : List OpenDecl := [])
+(univs     : List Name := [])
 
 namespace ElabScope
 
@@ -388,9 +389,14 @@ namespace Elab
 instance {α} : Inhabited (Elab α) :=
 ⟨fun _ => default _⟩
 
+def getScope : Elab ElabScope :=
+do s ← get; pure s.scopes.head
+
 def getOpenDecls : Elab (List OpenDecl) :=
-do s ← get;
-   pure s.scopes.head.openDecls
+ElabScope.openDecls <$> getScope
+
+def getUniverses : Elab (List Name) :=
+ElabScope.univs <$> getScope
 
 def getNamespace : Elab Name :=
 do s ← get;

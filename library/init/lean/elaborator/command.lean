@@ -161,6 +161,24 @@ fun n => do
   else
     elabOpenRenaming body
 
+def addUniverse (idStx : Syntax) : Elab Unit :=
+do
+let id := idStx.getId;
+univs ← getUniverses;
+if univs.elem id then
+  logError idStx ("a universe named '" ++ toString id ++ "' has already been declared in this Scope")
+else
+  modifyScope $ fun scope => { univs := id :: scope.univs, .. scope }
+
+@[builtinCommandElab «universe»] def elabUniverse : CommandElab :=
+fun n => do
+  addUniverse (n.getArg 1)
+
+@[builtinCommandElab «universes»] def elabUniverses : CommandElab :=
+fun n => do
+  let idsStx := n.getArg 1;
+  idsStx.mforArgs addUniverse
+
 /- We just ignore Lean3 notation declaration commands. -/
 @[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()
 @[builtinCommandElab «reserve»] def elabReserve : CommandElab := fun _ => pure ()

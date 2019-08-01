@@ -203,7 +203,7 @@ constant Quot.lift {α : Sort u} {r : α → α → Prop} {β : Sort v} (f : α 
 constant Quot.ind {α : Sort u} {r : α → α → Prop} {β : Quot r → Prop} :
   (∀ a : α, β (Quot.mk r a)) → ∀ q : Quot r, β q
 -/
-initQuot
+init_quot
 
 inductive Heq {α : Sort u} (a : α) : ∀ {β : Sort u}, β → Prop
 | refl : Heq a

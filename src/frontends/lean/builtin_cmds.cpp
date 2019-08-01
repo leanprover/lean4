@@ -407,7 +407,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("namespace",         "open a new namespace", namespace_cmd));
     add_cmd(r, cmd_info("end",               "close the current namespace/section", end_scoped_cmd));
     add_cmd(r, cmd_info("#check",            "type check given expression, and display its type", check_cmd));
-    add_cmd(r, cmd_info("initQuot",          "initialize `quot` type computational rules", init_quot_cmd));
+    add_cmd(r, cmd_info("init_quot",         "initialize `quot` type computational rules", init_quot_cmd));
     add_cmd(r, cmd_info("import",            "import module(s)", import_cmd));
     add_cmd(r, cmd_info("hide",              "hide aliases in the current scope", hide_cmd));
     register_decl_cmds(r);

@@ -19,7 +19,7 @@
     "attribute" "local" "set_option" "extends" "include" "omit" "classes" "class"
     "attributes" "raw" "replacing"
     "calc" "have" "show" "suffices" "by" "in" "at" "do" "let" "forall" "Pi" "fun"
-    "exists" "if" "then" "else" "assume" "from"
+    "exists" "if" "then" "else" "assume" "from" "init_quot"
     "mutual" "def" "run_cmd")
   "lean keywords ending with 'word' (not symbol)")
 (defconst lean4-keywords1-regexp

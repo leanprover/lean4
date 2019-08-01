@@ -33,7 +33,7 @@ option(JEMALLOC           "JEMALLOC"           OFF)
 # When OFF we disable JSON support to support older compilers
 option(JSON               "JSON"               ON)
 # When OFF we disable LLVM support
-option(LLVM               "LLVM"               ON)
+option(LLVM               "LLVM"               OFF)
 
 # When cross-compiling, we do not compile the standard library since
 # the executable will not work on the host machine

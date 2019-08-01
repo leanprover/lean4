@@ -571,7 +571,7 @@ int main(int argc, char ** argv) {
                 std::cerr << "failed to create '" << *cpp_output << "'\n";
                 return 1;
             }
-            auto mod = module_name_of_file(path, mod_fn);
+            auto mod = module_name_of_file2(mod_fn);
             out << lean::ir::emit_cpp(env, mod).data();
             out.close();
         }

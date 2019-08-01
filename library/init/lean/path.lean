@@ -33,39 +33,36 @@ do s ← s.mmap realPathNormalized;
 def setSearchPathFromString (s : String) : IO Unit :=
 setSearchPath (s.split searchPathSep)
 
-def getBuiltinSearchPath : IO String :=
+def getBuiltinSearchPath : IO (List String) :=
 do appDir ← IO.appDir;
    let libDir := appDir ++ pathSep ++ ".." ++ pathSep ++ "library";
    libDirExists ← IO.isDir libDir;
-   if libDirExists then
-     realPathNormalized libDir
+   if libDirExists then do
+     path ← realPathNormalized libDir;
+     pure [path]
    else do
      let installedLibDir := appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "library";
      installedLibDirExists ← IO.isDir installedLibDir;
      if installedLibDirExists then do
-       realPathNormalized installedLibDir
+       path ← realPathNormalized installedLibDir;
+       pure [path]
      else
-       throw (IO.userError "failed to locate builtin search path, please set LEAN_PATH")
+       pure []
 
-def getSearchPathFromEnv : IO (Option (List String)) :=
+def getSearchPathFromEnv : IO (List String) :=
 do val ← IO.getEnv "LEAN_PATH";
    match val with
-   | none     => pure none
-   | some val =>
-     pure $ val.split searchPathSep
+   | none     => pure ["."] -- If LEAN_PATH is not defined, use current directory
+   | some val => pure (val.split searchPathSep)
 
 @[export lean.init_search_path_core]
 def initSearchPath (path : Option String := "") : IO Unit :=
 match path with
 | some path => setSearchPathFromString path
 | none      => do
-  path ← getSearchPathFromEnv;
-  match path with
-  | some path => setSearchPath path
-  | none => do
-    path ← getBuiltinSearchPath;
-    curr ← realPathNormalized ".";
-    setSearchPath [path, curr]
+  pathEnv     ← getSearchPathFromEnv;
+  builtinPath ← getBuiltinSearchPath;
+  setSearchPath (pathEnv ++ builtinPath)
 
 def findFile (fname : String) (ext : String) : IO (Option String) :=
 do let fname := System.FilePath.normalizePath fname;

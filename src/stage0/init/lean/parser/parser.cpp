@@ -92,6 +92,7 @@ obj* l_Lean_Parser_anyOfFn___main___closed__1;
 obj* l_Lean_Parser_anyOfFn___boxed(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 obj* l_Lean_Parser_longestMatchMkResult(obj*, obj*);
+obj* l_Lean_Syntax_mfoldArgsAux___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_symbolOrIdent___boxed(obj*, obj*);
 obj* l_List_toString___main___at_Lean_Parser_FirstTokens_toStr___main___spec__1(obj*);
 obj* l_Array_mkArray(obj*, obj*, obj*);
@@ -127,6 +128,7 @@ obj* l_Lean_Parser_orelseInfo(obj*, obj*);
 extern obj* l_mjoin___rarg___closed__1;
 obj* l_Lean_Parser_mkTokenAndFixPos___closed__1;
 extern obj* l_Lean_AttributeImpl_inhabited___closed__5;
+obj* l_Lean_Syntax_mfoldArgsAux___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_lookaheadFn(uint8);
 obj* l_AssocList_replace___main___at_Lean_Parser_nodeInfo___elambda__1___spec__6(obj*, obj*, obj*);
 extern obj* l_Lean_registerTagAttribute___lambda__4___closed__4;
@@ -156,6 +158,7 @@ obj* l_Lean_Parser_symbolNoWsFn(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_runBuiltinParserUnsafe___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_unquotedSymbolFn(uint8, obj*);
 obj* l_Lean_Parser_ParserState_stackSize(obj*);
+obj* l_Lean_Syntax_mforArgs(obj*, obj*);
 obj* l_Lean_Syntax_getOptionalIdent(obj*);
 obj* l_Lean_Parser_symbolOrIdent___lambda__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_registerAttribute(obj*, obj*);
@@ -163,6 +166,8 @@ obj* l_Lean_Parser_sepBy1Info(obj*, obj*);
 obj* l_Lean_Parser_quotedSymbolFn___rarg___closed__3;
 obj* l_Lean_Parser_rawCh___elambda__1___rarg(uint32, uint8, obj*, obj*, obj*);
 obj* l_Lean_Parser_hexDigitFn___main(obj*, obj*);
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_foldArgs___spec__1(obj*, obj*);
+obj* l_Lean_Syntax_foldArgs___rarg___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_mkNodeToken___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_symbolNoWsAux(obj*, obj*);
 obj* l_Lean_Parser_mkAtomicInfo___closed__2;
@@ -184,6 +189,7 @@ uint8 l___private_init_lean_parser_parser_4__isToken(obj*, obj*, obj*);
 obj* l_Lean_Parser_hexDigitFn___boxed(obj*, obj*);
 obj* l_Lean_Parser_string2basic___boxed(obj*, obj*);
 obj* l_List_foldl___main___at_Lean_Parser_addBuiltinTrailingParser___spec__1(obj*, obj*, obj*);
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforArgs___spec__1___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_List_eraseDupsAux___main___at_Lean_Parser_addBuiltinLeadingParser___spec__3(obj*, obj*);
 obj* l_Lean_Parser_TokenMap_insert___rarg(obj*, obj*, obj*);
 uint8 l_List_isEmpty___main___rarg(obj*);
@@ -227,6 +233,7 @@ obj* l_Lean_Parser_symbolFnAux(obj*, obj*, obj*, obj*);
 obj* l_HashMapImp_moveEntries___main___at_Lean_Parser_nodeInfo___elambda__1___spec__4(obj*, obj*, obj*);
 obj* l_Lean_Parser_sepBy1Fn___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_declareTrailingBuiltinParser___boxed(obj*, obj*, obj*, obj*);
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_foldSepArgs___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_takeWhileFn(obj*, obj*, obj*);
 obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_Lean_Parser_unquotedSymbolFn___boxed(obj*, obj*);
@@ -241,6 +248,7 @@ obj* l_Lean_Parser_registerBuiltinParserAttribute(obj*, obj*, obj*);
 obj* l_Lean_Parser_checkLeadingFn(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_quotedCharFn(obj*, obj*);
 obj* l_Lean_Parser_unicodeSymbolInfo___closed__1;
+obj* l_Lean_Syntax_mfoldArgsAux___main(obj*, obj*, obj*);
 obj* l_Lean_Syntax_getOptional___rarg___boxed(obj*);
 obj* l_Lean_Parser_takeUntilFn___main___at_Lean_Parser_hexNumberFn___spec__3(obj*, obj*);
 obj* l_IO_Prim_Ref_set(obj*, obj*, obj*, obj*);
@@ -251,6 +259,7 @@ obj* l_Lean_Parser_checkWsBeforeFn___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_takeUntilFn___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_longestMatchFn___main(uint8, obj*, obj*, obj*, obj*);
 extern obj* l_Lean_Options_empty;
+obj* l_Lean_Syntax_mforArgs___rarg___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_longestMatchFn(uint8, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_symbolFn___boxed(obj*);
 obj* l_Lean_Parser_epsilonInfo___closed__3;
@@ -300,6 +309,7 @@ namespace lean {
 obj* string_push(obj*, uint32);
 }
 obj* l_Lean_Parser_ParserState_replaceLongest(obj*, obj*, obj*);
+obj* l_Lean_Syntax_foldArgs(obj*, obj*);
 obj* l_Lean_Parser_takeUntilFn___main___at_Lean_Parser_octalNumberFn___spec__3___boxed(obj*, obj*);
 obj* l_Lean_Parser_trailingLoop___main(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_Parser_inhabited___boxed(obj*);
@@ -308,6 +318,7 @@ obj* l_Lean_Parser_fieldIdxFn(obj*, obj*);
 obj* l___private_init_lean_parser_parser_3__rawAux___boxed(obj*);
 obj* l_Lean_Parser_optionalFn___boxed(obj*);
 obj* l_Lean_Parser_declareTrailingBuiltinParser(obj*, obj*, obj*, obj*);
+obj* l_Lean_Syntax_mforSepArgs___rarg(obj*, obj*, obj*);
 obj* l_Lean_Parser_checkWsBefore(uint8, obj*);
 obj* l_Lean_Parser_mkParserState___boxed(obj*);
 obj* l_RBNode_ins___main___at_Lean_Parser_TokenMap_insert___spec__3___rarg(obj*, obj*, obj*);
@@ -332,6 +343,8 @@ obj* l_Nat_repr(obj*);
 obj* l_Array_back___at___private_init_lean_parser_parser_6__updateCache___spec__1___boxed(obj*);
 obj* l_Lean_Parser_checkNoWsBeforeFn(obj*, obj*, obj*);
 extern obj* l_Lean_EnvExtensionState_inhabited;
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforArgs___spec__1___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_Syntax_mfoldArgsAux___main___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_mkNodeToken(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_node(uint8, obj*, obj*);
 obj* l_Array_anyMAux___main___at_Lean_Parser_registerParserAttribute___spec__2___boxed(obj*, obj*, obj*);
@@ -347,6 +360,7 @@ obj* l_Lean_Parser_symbolNoWsFn___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_ParserState_mkEOIError___closed__1;
 extern "C" obj* lean_expr_mk_const(obj*, obj*);
 obj* l_Lean_Parser_hashOrelse___boxed(obj*);
+obj* l_Lean_Syntax_mfoldArgsAux___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_symbolNoWsInfo___elambda__2(obj*, obj*, obj*);
 obj* l_Lean_Parser_ParserState_restore___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_rawCh___boxed(obj*, obj*, obj*);
@@ -383,6 +397,7 @@ obj* l_Lean_Parser_Parser_inhabited___closed__1;
 obj* l_Lean_Parser_FirstTokens_merge___main(obj*, obj*);
 obj* l_Lean_Parser_withPosition___boxed(obj*, obj*);
 extern obj* l_Lean_registerTagAttribute___lambda__4___closed__1;
+obj* l_Lean_Syntax_mforArgs___rarg(obj*, obj*, obj*);
 obj* l_Lean_Parser_ParserState_shrinkStack___boxed(obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_Parser_TokenMap_insert___spec__1___rarg___boxed(obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_Parser_indexed___spec__1___rarg(obj*, obj*);
@@ -395,6 +410,7 @@ obj* l___private_init_lean_parser_trie_3__findAux___main___rarg(obj*, obj*, obj*
 obj* l_Lean_Parser_takeWhile1Fn(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_rawCh___elambda__1___boxed(obj*);
 obj* l_Lean_Parser_manyAux___main(uint8, obj*, obj*, obj*, obj*);
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforArgs___spec__1___boxed(obj*, obj*);
 obj* l_Lean_Parser_symbolNoWsInfo___elambda__1___boxed(obj*);
 obj* l_Lean_Parser_manyFn___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_unicodeSymbol(uint8, obj*, obj*, obj*);
@@ -418,6 +434,7 @@ obj* l_Lean_Parser_unquotedSymbol(uint8);
 obj* l_Lean_Parser_FirstTokens_seq(obj*, obj*);
 obj* l_Lean_Parser_andthenFn(uint8);
 obj* l_Lean_Parser_takeWhileFn___at_Lean_Parser_binNumberFn___spec__2___boxed(obj*, obj*);
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforSepArgs___spec__1___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_IO_Prim_Ref_swap(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_insertNoWsToken___closed__1;
 obj* l_Lean_Parser_charLit___boxed(obj*);
@@ -435,7 +452,9 @@ obj* l_Lean_Parser_quotedSymbol___boxed(obj*);
 obj* l_Lean_Parser_checkNoWsBeforeFn___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_mkIdent(obj*, obj*, obj*);
 uint8 l_Lean_Parser_isIdCont(obj*, obj*);
+obj* l_Lean_Syntax_mfoldSepArgs___rarg(obj*, obj*, obj*, obj*);
 extern obj* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__1;
+obj* l_Lean_Syntax_getArgs___rarg(obj*);
 obj* l_Lean_Parser_ident(uint8);
 obj* l_Lean_Parser_tokenFn(obj*, obj*);
 extern obj* l_Char_HasRepr___closed__1;
@@ -444,6 +463,7 @@ obj* l_RBNode_ins___main___at_Lean_Parser_TokenMap_insert___spec__7___rarg(obj*,
 obj* l_Lean_AttributeImpl_inhabited___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_registerBuiltinParserAttribute___lambda__1___closed__8;
 obj* l_Lean_Parser_ParserFn_inhabited___rarg___boxed(obj*);
+obj* l_Lean_Syntax_foldArgs___rarg(obj*, obj*, obj*);
 obj* l_Lean_Parser_symbolOrIdentInfo___closed__2;
 obj* l_Lean_Parser_sepByFn(uint8, uint8, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_whitespace___boxed(obj*, obj*);
@@ -471,8 +491,10 @@ obj* l_Lean_Parser_longestMatchFnAux___boxed(obj*, obj*, obj*, obj*, obj*, obj*,
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
+obj* l_Lean_Syntax_foldSepArgs___rarg___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_symbolNoWs(obj*, obj*);
 obj* l_AssocList_contains___main___at_Lean_Parser_nodeInfo___elambda__1___spec__2___boxed(obj*, obj*);
+obj* l_Lean_Syntax_getId___main___rarg(obj*);
 obj* l_Lean_Parser_binNumberFn___boxed(obj*, obj*, obj*);
 extern obj* l_Lean_charLitKind___closed__1;
 extern obj* l_Lean_nullKind;
@@ -507,6 +529,7 @@ obj* l_Lean_Parser_Error_HasToString___closed__1;
 obj* l_ExceptT_Monad___rarg___lambda__8___boxed(obj*, obj*);
 obj* l_Lean_Parser_TokenConfig_toStr(obj*);
 obj* l_Lean_Parser_symbolFn___rarg(obj*, obj*, obj*, obj*);
+obj* l_Lean_Syntax_mforSepArgs(obj*, obj*);
 obj* l_Lean_Parser_symbol___boxed(obj*, obj*, obj*);
 obj* l_Array_push(obj*, obj*, obj*);
 obj* l_Lean_Parser_Trie_empty(obj*);
@@ -516,6 +539,7 @@ obj* l_Lean_Parser_satisfyFn___main___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_pushLeadingFn(obj*, obj*, obj*);
 extern obj* l_Lean_strLitKind;
 obj* l_Lean_Parser_ident___closed__1;
+obj* l_Lean_Syntax_foldSepArgs___rarg(obj*, obj*, obj*);
 obj* l_Lean_Parser_Parser_inhabited___lambda__1___boxed(obj*, obj*, obj*);
 obj* l_Array_anyMAux___main___at_Lean_Parser_mkTokenTableAttribute___spec__3___boxed(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_Parser_getSyntaxNodeKinds___spec__2(obj*, obj*, obj*, obj*);
@@ -574,7 +598,10 @@ obj* l_Lean_Parser_mkAtomicInfo___elambda__2(obj*);
 obj* l_Lean_Parser_lookahead(uint8, obj*);
 uint8 l_Lean_Parser_TokenConfig_beq(obj*, obj*);
 obj* l_Lean_Parser_quotedSymbolFn___rarg___closed__2;
+obj* l_Lean_Syntax_mfoldArgs(obj*, obj*, obj*);
+obj* l_Lean_Syntax_mfoldArgsAux(obj*, obj*, obj*);
 obj* l_Lean_mkCApp(obj*, obj*);
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforArgs___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_numLitFn___rarg(obj*, obj*);
 obj* l_Lean_Parser_ParsingTables_inhabited___closed__1;
 obj* l_Lean_Parser_unquotedSymbol___boxed(obj*);
@@ -605,6 +632,7 @@ obj* l_Lean_Parser_mkTokenTableAttribute___lambda__1___boxed(obj*, obj*);
 obj* l_Lean_Parser_checkColGe___lambda__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_unicodeSymbolInfo___elambda__2(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_numLit___closed__1;
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_foldSepArgs___spec__1(obj*, obj*);
 obj* l_Lean_Parser_ParserState_keepNewError(obj*, obj*);
 obj* l_Lean_Parser_identFnAux___main(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_initCacheForInput___boxed(obj*);
@@ -613,6 +641,7 @@ obj* l_EState_bind___rarg(obj*, obj*, obj*);
 obj* l_Lean_Parser_finishCommentBlock___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_takeWhileFn___at_Lean_Parser_octalNumberFn___spec__2(obj*, obj*);
 obj* l_Lean_Parser_FirstTokens_merge(obj*, obj*);
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_foldArgs___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_nodeFn(uint8);
 obj* l_Lean_Parser_octalNumberFn___boxed(obj*, obj*, obj*);
 extern obj* l___private_init_lean_compiler_initattr_2__isUnitType___main___closed__2;
@@ -621,6 +650,7 @@ extern obj* l_Lean_Parser_Trie_HasEmptyc___closed__1;
 obj* l_Lean_Parser_identFn___rarg(obj*, obj*);
 obj* l___private_init_lean_parser_parser_8__updateTokens(obj*, obj*, obj*);
 uint8 l_Array_anyMAux___main___at_Lean_Parser_mkTokenTableAttribute___spec__3(obj*, obj*, obj*);
+obj* l_Lean_Syntax_mfoldArgsAux___main___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 extern obj* l_Lean_Position_Inhabited___closed__1;
 obj* l_Lean_Parser_longestMatchStep(uint8);
 obj* l_Lean_Parser_manyAux___main___at_Lean_Parser_many1Indent___spec__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -672,6 +702,7 @@ obj* l_Lean_Parser_checkColGeFn(obj*, obj*, obj*, obj*);
 obj* l_Lean_ParametricAttribute_setParam___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_unicodeSymbolFn___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_takeUntilFn___main___at_Lean_Parser_takeWhileFn___spec__1___boxed(obj*, obj*, obj*);
+obj* l_Lean_Syntax_mfoldSepArgs___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_ConstantInfo_type(obj*);
 obj* l_Lean_Parser_registerParserAttribute___lambda__1(obj*, obj*, obj*);
 obj* l___private_init_lean_parser_parser_1__expectedToString___main___closed__1;
@@ -683,8 +714,10 @@ obj* l_Lean_Parser_runBuiltinParserUnsafe___closed__2;
 extern obj* l_Lean_AttributeImpl_inhabited___closed__6;
 obj* l_Lean_Parser_unicodeSymbolCheckPrecFn(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_trailingLoopStep(obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_Syntax_mfoldArgs___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_takeUntilFn___main___at_Lean_Parser_identFnAux___main___spec__2(obj*, obj*);
 uint8 l_Lean_Syntax_isMissing___main___rarg(obj*);
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforSepArgs___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_TokenConfig_HasToString;
 obj* l_Lean_Parser_ParserState_mkEOIError(obj*);
 obj* l_Lean_Parser_longestMatchFn_u2081___rarg(obj*, obj*, obj*, obj*);
@@ -694,6 +727,7 @@ obj* l_Lean_Parser_ParserState_setCache(obj*, obj*);
 obj* l_RBNode_insert___at_Lean_Parser_TokenMap_insert___spec__5(obj*);
 obj* l_Lean_Parser_symbolAux___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_symbolOrIdentInfo(obj*);
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforArgs___spec__1(obj*, obj*);
 obj* l_Lean_Parser_quotedSymbolFn___rarg___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_ParserState_mkError(obj*, obj*);
 obj* l_RBNode_ins___main___at_Lean_Parser_TokenMap_insert___spec__7(obj*);
@@ -720,6 +754,7 @@ obj* l_Lean_Parser_Error_toString___closed__1;
 obj* l_Lean_Parser_ParserState_keepNewError___boxed(obj*, obj*);
 obj* l_Lean_Parser_rawCh___elambda__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_ParserState_keepPrevError___boxed(obj*, obj*, obj*, obj*);
+obj* l_Lean_Syntax_mforSepArgs___boxed(obj*, obj*);
 obj* l_Lean_Parser_FirstTokens_toOptional(obj*);
 obj* l_Array_fset(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_charLit(uint8);
@@ -728,6 +763,7 @@ obj* l_Lean_Parser_satisfyFn___main___at_Lean_Parser_chFn___spec__1(uint32, obj*
 obj* l_Lean_Parser_checkTailNoWs___boxed(obj*);
 obj* l_Array_get(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_chFn(uint8);
+obj* l_Lean_Syntax_foldSepArgs(obj*, obj*);
 obj* l_Lean_Parser_satisfyFn___main___at_Lean_Parser_chFn___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_peekToken(obj*, obj*);
 uint8 l_Lean_Parser_Error_beq(obj*, obj*);
@@ -737,6 +773,7 @@ obj* l_mkHashMapImp___rarg(obj*);
 obj* l_Lean_Parser_registerBuiltinParserAttribute___lambda__1___closed__6;
 obj* l___private_init_lean_parser_parser_7__mkResult(obj*, obj*);
 obj* l_Lean_Parser_strLit___closed__1;
+obj* l_Lean_Syntax_mforSepArgs___rarg___boxed(obj*, obj*, obj*);
 obj* l_AssocList_mfoldl___main___at_Lean_Parser_getSyntaxNodeKinds___spec__1___boxed(obj*, obj*);
 obj* l_Lean_Parser_takeUntilFn___main___at_Lean_Parser_quotedSymbolFn___spec__2___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_Error_toString___closed__4;
@@ -747,6 +784,7 @@ uint8 l_List_hasDecEq___main___at_Lean_Parser_Error_toString___spec__1(obj*, obj
 obj* l_Lean_Parser_quotedSymbolFn___rarg___closed__5;
 obj* l_Lean_Parser_lookaheadFn___boxed(obj*);
 obj* l_Lean_Parser_unicodeSymbolFn___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_Syntax_mfoldArgs___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_ParserAttribute_inhabited___closed__4;
 obj* l_Lean_Parser_identFn___boxed(obj*, obj*);
 obj* l_RBNode_ins___main___at_Lean_Parser_TokenMap_insert___spec__4(obj*);
@@ -769,6 +807,7 @@ obj* l_Lean_Parser_isValidSyntaxNodeKind___boxed(obj*, obj*);
 obj* l_Lean_Parser_satisfyFn___main___at_Lean_Parser_identFnAux___main___spec__4___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_indexed(obj*);
 obj* l_Lean_Parser_registerBuiltinParserAttribute___lambda__1(obj*, obj*, obj*, obj*, obj*, uint8, obj*);
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_foldArgs___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_satisfyFn___main___at_Lean_Parser_hexNumberFn___spec__1___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_chFn___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
@@ -788,6 +827,7 @@ namespace lean {
 obj* string_utf8_extract(obj*, obj*, obj*);
 }
 obj* l_Lean_Parser_symbolOrIdentInfo___closed__1;
+obj* l_Lean_Syntax_mfoldArgs___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_charLitFn___rarg(obj*, obj*);
 obj* l_Lean_Parser_ParsingTables_inhabited;
 obj* l_Lean_Parser_strLit___boxed(obj*);
@@ -804,6 +844,7 @@ obj* l_Lean_Parser_mkBuiltinTokenTable(obj*);
 obj* l_Lean_Parser_rawIdent___lambda__1___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_checkWsBefore___boxed(obj*, obj*);
 obj* l_Lean_Parser_ident___boxed(obj*);
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_foldSepArgs___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_takeWhileFn___at_Lean_Parser_hexNumberFn___spec__2___boxed(obj*, obj*);
 obj* l_Lean_Parser_rawFn___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_takeUntilFn___main___at_Lean_Parser_takeWhileFn___spec__1(obj*, obj*, obj*);
@@ -822,12 +863,14 @@ obj* l_Lean_Parser_unicodeSymbolCheckPrec(obj*, obj*, obj*);
 obj* l_Lean_Parser_rawFn___main___boxed(obj*);
 obj* l_Lean_Parser_mkTokenTableAttribute___lambda__1(obj*, obj*);
 obj* l_Lean_Parser_TokenMap_HasEmptyc(obj*);
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforSepArgs___spec__1___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_longestMatchFnAux___main___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_pushLeading;
 obj* l_Lean_Parser_declareBuiltinParser___closed__4;
 obj* l_Lean_Parser_checkNoWsBefore___elambda__1___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_tryFn(uint8);
 obj* l___private_init_lean_parser_parser_5__tokenFnAux(obj*, obj*);
+obj* l_Lean_Syntax_mfoldSepArgs___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_epsilonInfo;
 obj* l_Lean_Parser_ParserState_toErrorMsg(obj*, obj*);
 obj* l_Lean_Parser_symbolFn(uint8);
@@ -837,12 +880,14 @@ obj* l_Lean_Parser_checkWsBeforeFn(obj*, obj*, obj*);
 obj* l_Lean_Parser_identFn___rarg___closed__1;
 obj* l_Lean_Parser_hexNumberFn(obj*, obj*, obj*);
 obj* l_Lean_Parser_updateSyntaxNodeKinds(obj*, obj*);
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforSepArgs___spec__1(obj*, obj*);
 obj* l_Lean_Parser_runBuiltinParserUnsafe___closed__1;
 obj* l_Lean_Parser_orelse(uint8, obj*, obj*);
-obj* l_Lean_Syntax_getIdentVal___main___rarg(obj*);
+obj* l_Lean_Syntax_mfoldArgsAux___main___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*, obj*);
 extern obj* l___private_init_lean_environment_8__persistentEnvExtensionsRef;
 obj* l_Lean_Parser_satisfyFn(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_fieldIdx(uint8);
+obj* l_Lean_Syntax_mfoldSepArgs(obj*, obj*, obj*);
 obj* l_Lean_Parser_orelse___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_insertToken___closed__3;
 obj* l_Lean_Parser_noFirstTokenInfo___elambda__1(obj*, obj*);
@@ -890,6 +935,7 @@ obj* l_Lean_Parser_isIdCont___main___boxed(obj*, obj*);
 obj* l_Lean_Parser_charLitFnAux___main___closed__1;
 obj* l_Lean_Parser_orelseInfo___elambda__2(obj*, obj*, obj*);
 obj* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_Parser_mkTokenTableAttribute___spec__2(obj*, obj*);
+obj* l_Lean_Syntax_mforArgs___boxed(obj*, obj*);
 extern obj* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
 obj* l_Lean_Parser_FirstTokens_toStr___main___closed__3;
 obj* l_Lean_Parser_withPosition(uint8, obj*);
@@ -925,6 +971,7 @@ obj* l_Lean_Parser_takeUntilFn___main___at_Lean_Parser_identFnAux___main___spec_
 obj* l_Lean_Parser_lookaheadFn___rarg(obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_parser_parser_3__rawAux(uint8);
 obj* l_Lean_Parser_isValidSyntaxNodeKind(obj*, obj*);
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforSepArgs___spec__1___boxed(obj*, obj*);
 obj* l_Lean_Parser_ParserState_replaceLongest___boxed(obj*, obj*, obj*);
 obj* l_Lean_registerTagAttribute___lambda__6___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_sepByInfo(obj*, obj*);
@@ -32898,7 +32945,7 @@ if (x_4 == 0)
 {
 obj* x_5; obj* x_6; 
 x_5 = lean::cnstr_get(x_2, 0);
-x_6 = l_Lean_Syntax_getIdentVal___main___rarg(x_5);
+x_6 = l_Lean_Syntax_getId___main___rarg(x_5);
 lean::dec(x_5);
 lean::cnstr_set(x_2, 0, x_6);
 return x_2;
@@ -32909,7 +32956,7 @@ obj* x_7; obj* x_8; obj* x_9;
 x_7 = lean::cnstr_get(x_2, 0);
 lean::inc(x_7);
 lean::dec(x_2);
-x_8 = l_Lean_Syntax_getIdentVal___main___rarg(x_7);
+x_8 = l_Lean_Syntax_getId___main___rarg(x_7);
 lean::dec(x_7);
 x_9 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_9, 0, x_8);
@@ -32933,6 +32980,562 @@ obj* x_2;
 x_2 = l_Lean_Syntax_getOptionalIdent___rarg(x_1);
 lean::dec(x_1);
 return x_2;
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main___rarg___lambda__1(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
+_start:
+{
+obj* x_7; obj* x_8; 
+x_7 = lean::nat_add(x_1, x_2);
+x_8 = l_Lean_Syntax_mfoldArgsAux___main___rarg(x_3, x_2, x_4, x_5, x_7, x_6);
+return x_8;
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
+_start:
+{
+obj* x_7; uint8 x_8; 
+x_7 = lean::array_get_size(x_3);
+x_8 = lean::nat_dec_lt(x_5, x_7);
+lean::dec(x_7);
+if (x_8 == 0)
+{
+obj* x_9; obj* x_10; obj* x_11; 
+lean::dec(x_5);
+lean::dec(x_4);
+lean::dec(x_3);
+lean::dec(x_2);
+x_9 = lean::cnstr_get(x_1, 0);
+lean::inc(x_9);
+lean::dec(x_1);
+x_10 = lean::cnstr_get(x_9, 1);
+lean::inc(x_10);
+lean::dec(x_9);
+x_11 = lean::apply_2(x_10, lean::box(0), x_6);
+return x_11;
+}
+else
+{
+obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; 
+x_12 = lean::array_fget(x_3, x_5);
+x_13 = lean::cnstr_get(x_1, 1);
+lean::inc(x_13);
+lean::inc(x_4);
+x_14 = lean::apply_2(x_4, x_12, x_6);
+x_15 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Syntax_mfoldArgsAux___main___rarg___lambda__1___boxed), 6, 5);
+lean::closure_set(x_15, 0, x_5);
+lean::closure_set(x_15, 1, x_2);
+lean::closure_set(x_15, 2, x_1);
+lean::closure_set(x_15, 3, x_3);
+lean::closure_set(x_15, 4, x_4);
+x_16 = lean::apply_4(x_13, lean::box(0), lean::box(0), x_14, x_15);
+return x_16;
+}
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Syntax_mfoldArgsAux___main___rarg), 6, 0);
+return x_4;
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main___rarg___lambda__1___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
+_start:
+{
+obj* x_7; 
+x_7 = l_Lean_Syntax_mfoldArgsAux___main___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6);
+lean::dec(x_1);
+return x_7;
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_Lean_Syntax_mfoldArgsAux___main(x_1, x_2, x_3);
+lean::dec(x_3);
+return x_4;
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
+_start:
+{
+obj* x_7; 
+x_7 = l_Lean_Syntax_mfoldArgsAux___main___rarg(x_1, x_2, x_3, x_4, x_5, x_6);
+return x_7;
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Syntax_mfoldArgsAux___rarg), 6, 0);
+return x_4;
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_Lean_Syntax_mfoldArgsAux(x_1, x_2, x_3);
+lean::dec(x_3);
+return x_4;
+}
+}
+obj* l_Lean_Syntax_mfoldArgs___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+x_5 = l_Lean_Syntax_getArgs___rarg(x_2);
+x_6 = lean::mk_nat_obj(1u);
+x_7 = lean::mk_nat_obj(0u);
+x_8 = l_Lean_Syntax_mfoldArgsAux___main___rarg(x_1, x_6, x_5, x_3, x_7, x_4);
+return x_8;
+}
+}
+obj* l_Lean_Syntax_mfoldArgs(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Syntax_mfoldArgs___rarg___boxed), 4, 0);
+return x_4;
+}
+}
+obj* l_Lean_Syntax_mfoldArgs___rarg___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_Lean_Syntax_mfoldArgs___rarg(x_1, x_2, x_3, x_4);
+lean::dec(x_2);
+return x_5;
+}
+}
+obj* l_Lean_Syntax_mfoldArgs___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_Lean_Syntax_mfoldArgs(x_1, x_2, x_3);
+lean::dec(x_3);
+return x_4;
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_foldArgs___spec__1___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+_start:
+{
+obj* x_6; uint8 x_7; 
+x_6 = lean::array_get_size(x_3);
+x_7 = lean::nat_dec_lt(x_4, x_6);
+lean::dec(x_6);
+if (x_7 == 0)
+{
+lean::dec(x_4);
+lean::dec(x_1);
+return x_5;
+}
+else
+{
+obj* x_8; obj* x_9; obj* x_10; 
+x_8 = lean::array_fget(x_3, x_4);
+lean::inc(x_1);
+x_9 = lean::apply_2(x_1, x_8, x_5);
+x_10 = lean::nat_add(x_4, x_2);
+lean::dec(x_4);
+x_4 = x_10;
+x_5 = x_9;
+goto _start;
+}
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_foldArgs___spec__1(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_foldArgs___spec__1___rarg___boxed), 5, 0);
+return x_3;
+}
+}
+obj* l_Lean_Syntax_foldArgs___rarg(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
+x_4 = l_Lean_Syntax_getArgs___rarg(x_1);
+x_5 = lean::mk_nat_obj(1u);
+x_6 = lean::mk_nat_obj(0u);
+x_7 = l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_foldArgs___spec__1___rarg(x_2, x_5, x_4, x_6, x_3);
+lean::dec(x_4);
+return x_7;
+}
+}
+obj* l_Lean_Syntax_foldArgs(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Syntax_foldArgs___rarg___boxed), 3, 0);
+return x_3;
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_foldArgs___spec__1___rarg___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+_start:
+{
+obj* x_6; 
+x_6 = l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_foldArgs___spec__1___rarg(x_1, x_2, x_3, x_4, x_5);
+lean::dec(x_3);
+lean::dec(x_2);
+return x_6;
+}
+}
+obj* l_Lean_Syntax_foldArgs___rarg___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_Lean_Syntax_foldArgs___rarg(x_1, x_2, x_3);
+lean::dec(x_1);
+return x_4;
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforArgs___spec__1___rarg___lambda__1(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
+_start:
+{
+obj* x_7; obj* x_8; 
+x_7 = lean::nat_add(x_1, x_2);
+x_8 = l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforArgs___spec__1___rarg(x_3, x_4, x_2, x_5, x_7, x_6);
+return x_8;
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforArgs___spec__1___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
+_start:
+{
+obj* x_7; uint8 x_8; 
+x_7 = lean::array_get_size(x_4);
+x_8 = lean::nat_dec_lt(x_5, x_7);
+lean::dec(x_7);
+if (x_8 == 0)
+{
+obj* x_9; obj* x_10; obj* x_11; 
+lean::dec(x_5);
+lean::dec(x_4);
+lean::dec(x_3);
+lean::dec(x_2);
+x_9 = lean::cnstr_get(x_1, 0);
+lean::inc(x_9);
+lean::dec(x_1);
+x_10 = lean::cnstr_get(x_9, 1);
+lean::inc(x_10);
+lean::dec(x_9);
+x_11 = lean::apply_2(x_10, lean::box(0), x_6);
+return x_11;
+}
+else
+{
+obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; 
+lean::dec(x_6);
+x_12 = lean::array_fget(x_4, x_5);
+x_13 = lean::cnstr_get(x_1, 1);
+lean::inc(x_13);
+lean::inc(x_2);
+x_14 = lean::apply_1(x_2, x_12);
+x_15 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforArgs___spec__1___rarg___lambda__1___boxed), 6, 5);
+lean::closure_set(x_15, 0, x_5);
+lean::closure_set(x_15, 1, x_3);
+lean::closure_set(x_15, 2, x_1);
+lean::closure_set(x_15, 3, x_2);
+lean::closure_set(x_15, 4, x_4);
+x_16 = lean::apply_4(x_13, lean::box(0), lean::box(0), x_14, x_15);
+return x_16;
+}
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforArgs___spec__1(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforArgs___spec__1___rarg), 6, 0);
+return x_3;
+}
+}
+obj* l_Lean_Syntax_mforArgs___rarg(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+x_4 = l_Lean_Syntax_getArgs___rarg(x_2);
+x_5 = lean::mk_nat_obj(1u);
+x_6 = lean::mk_nat_obj(0u);
+x_7 = lean::box(0);
+x_8 = l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforArgs___spec__1___rarg(x_1, x_3, x_5, x_4, x_6, x_7);
+return x_8;
+}
+}
+obj* l_Lean_Syntax_mforArgs(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Syntax_mforArgs___rarg___boxed), 3, 0);
+return x_3;
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforArgs___spec__1___rarg___lambda__1___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
+_start:
+{
+obj* x_7; 
+x_7 = l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforArgs___spec__1___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6);
+lean::dec(x_1);
+return x_7;
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforArgs___spec__1___boxed(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforArgs___spec__1(x_1, x_2);
+lean::dec(x_2);
+return x_3;
+}
+}
+obj* l_Lean_Syntax_mforArgs___rarg___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_Lean_Syntax_mforArgs___rarg(x_1, x_2, x_3);
+lean::dec(x_2);
+return x_4;
+}
+}
+obj* l_Lean_Syntax_mforArgs___boxed(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_Lean_Syntax_mforArgs(x_1, x_2);
+lean::dec(x_2);
+return x_3;
+}
+}
+obj* l_Lean_Syntax_mfoldSepArgs___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+x_5 = l_Lean_Syntax_getArgs___rarg(x_2);
+x_6 = lean::mk_nat_obj(2u);
+x_7 = lean::mk_nat_obj(0u);
+x_8 = l_Lean_Syntax_mfoldArgsAux___main___rarg(x_1, x_6, x_5, x_3, x_7, x_4);
+return x_8;
+}
+}
+obj* l_Lean_Syntax_mfoldSepArgs(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Syntax_mfoldSepArgs___rarg___boxed), 4, 0);
+return x_4;
+}
+}
+obj* l_Lean_Syntax_mfoldSepArgs___rarg___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_Lean_Syntax_mfoldSepArgs___rarg(x_1, x_2, x_3, x_4);
+lean::dec(x_2);
+return x_5;
+}
+}
+obj* l_Lean_Syntax_mfoldSepArgs___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_Lean_Syntax_mfoldSepArgs(x_1, x_2, x_3);
+lean::dec(x_3);
+return x_4;
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_foldSepArgs___spec__1___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+_start:
+{
+obj* x_6; uint8 x_7; 
+x_6 = lean::array_get_size(x_3);
+x_7 = lean::nat_dec_lt(x_4, x_6);
+lean::dec(x_6);
+if (x_7 == 0)
+{
+lean::dec(x_4);
+lean::dec(x_1);
+return x_5;
+}
+else
+{
+obj* x_8; obj* x_9; obj* x_10; 
+x_8 = lean::array_fget(x_3, x_4);
+lean::inc(x_1);
+x_9 = lean::apply_2(x_1, x_8, x_5);
+x_10 = lean::nat_add(x_4, x_2);
+lean::dec(x_4);
+x_4 = x_10;
+x_5 = x_9;
+goto _start;
+}
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_foldSepArgs___spec__1(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_foldSepArgs___spec__1___rarg___boxed), 5, 0);
+return x_3;
+}
+}
+obj* l_Lean_Syntax_foldSepArgs___rarg(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
+x_4 = l_Lean_Syntax_getArgs___rarg(x_1);
+x_5 = lean::mk_nat_obj(2u);
+x_6 = lean::mk_nat_obj(0u);
+x_7 = l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_foldSepArgs___spec__1___rarg(x_2, x_5, x_4, x_6, x_3);
+lean::dec(x_4);
+return x_7;
+}
+}
+obj* l_Lean_Syntax_foldSepArgs(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Syntax_foldSepArgs___rarg___boxed), 3, 0);
+return x_3;
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_foldSepArgs___spec__1___rarg___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+_start:
+{
+obj* x_6; 
+x_6 = l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_foldSepArgs___spec__1___rarg(x_1, x_2, x_3, x_4, x_5);
+lean::dec(x_3);
+lean::dec(x_2);
+return x_6;
+}
+}
+obj* l_Lean_Syntax_foldSepArgs___rarg___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_Lean_Syntax_foldSepArgs___rarg(x_1, x_2, x_3);
+lean::dec(x_1);
+return x_4;
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforSepArgs___spec__1___rarg___lambda__1(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
+_start:
+{
+obj* x_7; obj* x_8; 
+x_7 = lean::nat_add(x_1, x_2);
+x_8 = l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforSepArgs___spec__1___rarg(x_3, x_4, x_2, x_5, x_7, x_6);
+return x_8;
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforSepArgs___spec__1___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
+_start:
+{
+obj* x_7; uint8 x_8; 
+x_7 = lean::array_get_size(x_4);
+x_8 = lean::nat_dec_lt(x_5, x_7);
+lean::dec(x_7);
+if (x_8 == 0)
+{
+obj* x_9; obj* x_10; obj* x_11; 
+lean::dec(x_5);
+lean::dec(x_4);
+lean::dec(x_3);
+lean::dec(x_2);
+x_9 = lean::cnstr_get(x_1, 0);
+lean::inc(x_9);
+lean::dec(x_1);
+x_10 = lean::cnstr_get(x_9, 1);
+lean::inc(x_10);
+lean::dec(x_9);
+x_11 = lean::apply_2(x_10, lean::box(0), x_6);
+return x_11;
+}
+else
+{
+obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; 
+lean::dec(x_6);
+x_12 = lean::array_fget(x_4, x_5);
+x_13 = lean::cnstr_get(x_1, 1);
+lean::inc(x_13);
+lean::inc(x_2);
+x_14 = lean::apply_1(x_2, x_12);
+x_15 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforSepArgs___spec__1___rarg___lambda__1___boxed), 6, 5);
+lean::closure_set(x_15, 0, x_5);
+lean::closure_set(x_15, 1, x_3);
+lean::closure_set(x_15, 2, x_1);
+lean::closure_set(x_15, 3, x_2);
+lean::closure_set(x_15, 4, x_4);
+x_16 = lean::apply_4(x_13, lean::box(0), lean::box(0), x_14, x_15);
+return x_16;
+}
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforSepArgs___spec__1(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforSepArgs___spec__1___rarg), 6, 0);
+return x_3;
+}
+}
+obj* l_Lean_Syntax_mforSepArgs___rarg(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+x_4 = l_Lean_Syntax_getArgs___rarg(x_2);
+x_5 = lean::mk_nat_obj(2u);
+x_6 = lean::mk_nat_obj(0u);
+x_7 = lean::box(0);
+x_8 = l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforSepArgs___spec__1___rarg(x_1, x_3, x_5, x_4, x_6, x_7);
+return x_8;
+}
+}
+obj* l_Lean_Syntax_mforSepArgs(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Syntax_mforSepArgs___rarg___boxed), 3, 0);
+return x_3;
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforSepArgs___spec__1___rarg___lambda__1___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
+_start:
+{
+obj* x_7; 
+x_7 = l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforSepArgs___spec__1___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6);
+lean::dec(x_1);
+return x_7;
+}
+}
+obj* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforSepArgs___spec__1___boxed(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_mforSepArgs___spec__1(x_1, x_2);
+lean::dec(x_2);
+return x_3;
+}
+}
+obj* l_Lean_Syntax_mforSepArgs___rarg___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_Lean_Syntax_mforSepArgs___rarg(x_1, x_2, x_3);
+lean::dec(x_2);
+return x_4;
+}
+}
+obj* l_Lean_Syntax_mforSepArgs___boxed(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_Lean_Syntax_mforSepArgs(x_1, x_2);
+lean::dec(x_2);
+return x_3;
 }
 }
 obj* initialize_init_lean_position(obj*);

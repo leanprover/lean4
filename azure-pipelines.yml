@@ -12,6 +12,19 @@ jobs:
     matrix:
       Linux:
         imageName: ubuntu-latest
+      Linux Debug:
+        imageName: ubuntu-latest
+        CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Debug
+      Linux -fsanitize=address,undefined:
+        imageName: ubuntu-latest
+        CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined
+      Linux LLVM=ON:
+        imageName: ubuntu-latest
+        CMAKE_OPTIONS: -DLLVM=ON
+      Linux Clang 8 LLVM=ON:
+        imageName: ubuntu-latest
+        NIX_SHELL_OPTIONS: --arg clang '(import <nixpkgs> {}).clang_8'
+        CMAKE_OPTIONS: -DLLVM=ON
       macOS:
         imageName: macos-latest
   pool:
@@ -19,12 +32,11 @@ jobs:
   steps:
   - script: |
       curl https://nixos.org/nix/install | sh
-      . ~/.nix-profile/etc/profile.d/nix.sh
     displayName: Setup
   - script: |
       . ~/.nix-profile/etc/profile.d/nix.sh
-      export CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
-      nix-shell --run ./script/ci.sh
+      export CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ $CMAKE_OPTIONS"
+      eval nix-shell $NIX_SHELL_OPTIONS --run ./script/ci.sh
     displayName: Build
   - task: PublishTestResults@2
     inputs:

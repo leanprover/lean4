@@ -92,6 +92,9 @@ def fset (a : Array α) (i : @& Fin a.size) (v : α) : Array α :=
 theorem szFSetEq (a : Array α) (i : Fin a.size) (v : α) : (fset a i v).size = a.size :=
 rfl
 
+theorem szPushEq (a : Array α) (v : α) : (push a v).size = a.size + 1 :=
+rfl
+
 /- Low-level version of `fset` which is as fast as a C array fset.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `fset` may be slightly slower than `uset`. -/

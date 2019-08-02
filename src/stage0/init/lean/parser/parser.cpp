@@ -82,7 +82,6 @@ obj* l_Lean_Parser_numLit___boxed(obj*);
 obj* l_Lean_Parser_unicodeSymbolFn___rarg___closed__1;
 obj* l_Lean_Parser_orelseFn(uint8);
 obj* l_RBNode_find___main___at_Lean_Parser_indexed___spec__1___rarg___boxed(obj*, obj*);
-obj* l_Lean_Parser_getBuiltinTokenTableUnsafe___boxed(obj*);
 uint8 l_Lean_isIdEndEscape(uint32);
 obj* l_Lean_Parser_nodeInfo___elambda__1(obj*, obj*);
 obj* l_Lean_Parser_ParserAttribute_inhabited;
@@ -321,6 +320,7 @@ obj* l_Lean_Parser_declareTrailingBuiltinParser(obj*, obj*, obj*, obj*);
 obj* l_Lean_Syntax_mforSepArgs___rarg(obj*, obj*, obj*);
 obj* l_Lean_Parser_checkWsBefore(uint8, obj*);
 obj* l_Lean_Parser_mkParserState___boxed(obj*);
+obj* l_Lean_Parser_mkImportedTokenTable___rarg(obj*);
 obj* l_RBNode_ins___main___at_Lean_Parser_TokenMap_insert___spec__3___rarg(obj*, obj*, obj*);
 obj* l_Lean_Parser_quotedCharFn___boxed(obj*, obj*);
 obj* l_Lean_Parser_chFn___boxed(obj*);
@@ -351,7 +351,6 @@ obj* l_Array_anyMAux___main___at_Lean_Parser_registerParserAttribute___spec__2__
 obj* l_Lean_Parser_rawFn___main(uint8);
 obj* l_Lean_Parser_checkNoWsBefore___elambda__1(uint8);
 obj* l___private_init_lean_parser_parser_2__sepByFnAux___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_Lean_Parser_getBuiltinTokenTableUnsafe(obj*);
 obj* l_Lean_Parser_andthen___boxed(obj*, obj*, obj*);
 obj* l_Lean_AttributeImpl_inhabited___lambda__5(obj*, obj*);
 obj* l_Lean_Parser_currLbp___boxed(obj*, obj*, obj*);
@@ -532,7 +531,6 @@ obj* l_Lean_Parser_symbolFn___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_Syntax_mforSepArgs(obj*, obj*);
 obj* l_Lean_Parser_symbol___boxed(obj*, obj*, obj*);
 obj* l_Array_push(obj*, obj*, obj*);
-obj* l_Lean_Parser_Trie_empty(obj*);
 obj* l_Lean_Parser_charLitFn___boxed(obj*, obj*);
 uint8 l_RBNode_isRed___main___rarg(obj*);
 obj* l_Lean_Parser_satisfyFn___main___boxed(obj*, obj*, obj*, obj*);
@@ -567,7 +565,6 @@ obj* l_Lean_Parser_TokenTableAttribute_inhabited___closed__1;
 obj* l_Lean_Parser_unicodeSymbolCheckPrecFnAux(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_symbolNoWsInfo___elambda__1(obj*);
 obj* l_Lean_Parser_strAux___main(obj*, obj*, obj*, obj*, obj*);
-obj* l_Lean_Parser_getBuiltinTokenTable(obj*);
 obj* l_Lean_Parser_ParserAttribute_inhabited___closed__1;
 obj* l_Lean_Parser_takeWhile1Fn___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_epsilonInfo___elambda__1___boxed(obj*);
@@ -854,7 +851,6 @@ obj* l_Lean_Parser_fieldIdxFn___closed__1;
 obj* l_Lean_Parser_identFn(uint8, obj*);
 obj* l_Lean_Parser_identFnAux___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_quotedCharFn___main___closed__1;
-obj* l_Lean_Parser_getBuiltinTokenTable___boxed(obj*);
 obj* l_Lean_Parser_symbolAux(uint8, obj*, obj*);
 obj* l_Lean_Parser_andthenInfo___elambda__1(obj*, obj*, obj*);
 obj* l_Lean_Parser_ParserState_mkErrorAt(obj*, obj*, obj*);
@@ -24846,95 +24842,64 @@ x_3 = lean::io_mk_ref(x_2, x_1);
 return x_3;
 }
 }
-obj* l_Lean_Parser_getBuiltinTokenTableUnsafe(obj* x_1) {
+obj* l_Lean_Parser_mkImportedTokenTable___rarg(obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
-x_6 = lean::box(0);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_6);
-lean::cnstr_set(x_7, 1, x_6);
-x_8 = l_Lean_Parser_builtinTokenTable;
-x_9 = lean::io_ref_get(x_8, x_7);
-if (lean::obj_tag(x_9) == 0)
+obj* x_2; obj* x_3; 
+x_2 = l_Lean_Parser_builtinTokenTable;
+x_3 = lean::io_ref_get(x_2, x_1);
+if (lean::obj_tag(x_3) == 0)
 {
-obj* x_10; obj* x_11; 
-x_10 = lean::cnstr_get(x_9, 0);
-lean::inc(x_10);
-lean::dec(x_9);
-x_11 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_11, 0, x_10);
-x_2 = x_11;
-goto block_5;
-}
-else
+uint8 x_4; 
+x_4 = !lean::is_exclusive(x_3);
+if (x_4 == 0)
 {
-obj* x_12; obj* x_13; 
-x_12 = lean::cnstr_get(x_9, 0);
-lean::inc(x_12);
-lean::dec(x_9);
-x_13 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_13, 0, x_12);
-x_2 = x_13;
-goto block_5;
-}
-block_5:
-{
-if (lean::obj_tag(x_2) == 0)
-{
-obj* x_3; 
-lean::dec(x_2);
-x_3 = l_Lean_Parser_Trie_empty(lean::box(0));
 return x_3;
 }
 else
 {
-obj* x_4; 
-x_4 = lean::cnstr_get(x_2, 0);
-lean::inc(x_4);
-lean::dec(x_2);
-return x_4;
+obj* x_5; obj* x_6; obj* x_7; 
+x_5 = lean::cnstr_get(x_3, 0);
+x_6 = lean::cnstr_get(x_3, 1);
+lean::inc(x_6);
+lean::inc(x_5);
+lean::dec(x_3);
+x_7 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_7, 0, x_5);
+lean::cnstr_set(x_7, 1, x_6);
+return x_7;
 }
 }
-}
-}
-obj* l_Lean_Parser_getBuiltinTokenTableUnsafe___boxed(obj* x_1) {
-_start:
+else
 {
-obj* x_2; 
-x_2 = l_Lean_Parser_getBuiltinTokenTableUnsafe(x_1);
-lean::dec(x_1);
-return x_2;
-}
-}
-obj* l_Lean_Parser_getBuiltinTokenTable(obj* x_1) {
-_start:
+uint8 x_8; 
+x_8 = !lean::is_exclusive(x_3);
+if (x_8 == 0)
 {
-obj* x_2; obj* x_3; obj* x_4; 
-x_2 = lean::box(0);
-x_3 = lean::box(0);
-x_4 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_4, 0, x_2);
-lean::cnstr_set(x_4, 1, x_3);
-return x_4;
+return x_3;
 }
-}
-obj* l_Lean_Parser_getBuiltinTokenTable___boxed(obj* x_1) {
-_start:
+else
 {
-obj* x_2; 
-x_2 = l_Lean_Parser_getBuiltinTokenTable(x_1);
-lean::dec(x_1);
-return x_2;
+obj* x_9; obj* x_10; obj* x_11; 
+x_9 = lean::cnstr_get(x_3, 0);
+x_10 = lean::cnstr_get(x_3, 1);
+lean::inc(x_10);
+lean::inc(x_9);
+lean::dec(x_3);
+x_11 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_11, 0, x_9);
+lean::cnstr_set(x_11, 1, x_10);
+return x_11;
+}
+}
 }
 }
 obj* l_Lean_Parser_mkImportedTokenTable(obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; 
-x_2 = lean::box(0);
-x_3 = l_Lean_Parser_getBuiltinTokenTableUnsafe(x_2);
-return x_3;
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_mkImportedTokenTable___rarg), 1, 0);
+return x_2;
 }
 }
 obj* l_Lean_Parser_mkImportedTokenTable___boxed(obj* x_1) {
@@ -26800,31 +26765,9 @@ return x_200;
 obj* l_Lean_Parser_mkTokenTableAttribute___lambda__1(obj* x_1, obj* x_2) {
 _start:
 {
-uint8 x_3; 
-x_3 = !lean::is_exclusive(x_2);
-if (x_3 == 0)
-{
-obj* x_4; obj* x_5; obj* x_6; 
-x_4 = lean::cnstr_get(x_2, 0);
-lean::dec(x_4);
-x_5 = lean::box(0);
-x_6 = l_Lean_Parser_getBuiltinTokenTableUnsafe(x_5);
-lean::cnstr_set(x_2, 0, x_6);
-return x_2;
-}
-else
-{
-obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
-x_7 = lean::cnstr_get(x_2, 1);
-lean::inc(x_7);
-lean::dec(x_2);
-x_8 = lean::box(0);
-x_9 = l_Lean_Parser_getBuiltinTokenTableUnsafe(x_8);
-x_10 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_10, 0, x_9);
-lean::cnstr_set(x_10, 1, x_7);
-return x_10;
-}
+obj* x_3; 
+x_3 = l_Lean_Parser_mkImportedTokenTable___rarg(x_2);
+return x_3;
 }
 }
 obj* l_Lean_Parser_mkTokenTableAttribute___lambda__2(obj* x_1) {

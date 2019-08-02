@@ -1320,19 +1320,10 @@ IO.mkRef {}
 @[init mkBuiltinTokenTable]
 constant builtinTokenTable : IO.Ref TokenTable := default _
 
-section
-set_option compiler.extract_closed false
-unsafe def getBuiltinTokenTableUnsafe : Unit → TokenTable :=
-fun _ => match unsafeIO builtinTokenTable.get with
-  | Except.ok table => table
-  | _       => {}
-
-@[implementedBy getBuiltinTokenTableUnsafe]
-constant getBuiltinTokenTable : Unit → TokenTable := default _
-
-def mkImportedTokenTable (es : Array (Array TokenConfig)) : TokenTable :=
-getBuiltinTokenTable () -- TODO: process `es`
-end
+def mkImportedTokenTable (es : Array (Array TokenConfig)) : IO TokenTable :=
+do table ← builtinTokenTable.get;
+   -- TODO: add `es` to `table`
+   pure table
 
 /- We use a TokenTable attribute to make sure they are scoped.
    Users do not directly use this attribute. They use them indirectly when
@@ -1349,7 +1340,7 @@ def mkTokenTableAttribute : IO TokenTableAttribute :=
 do
 ext : PersistentEnvExtension TokenConfig TokenTable ← registerPersistentEnvExtension {
   name            := `_tokens_,
-  addImportedFn   := fun es => pure $ mkImportedTokenTable es,
+  addImportedFn   := fun es => mkImportedTokenTable es,
   addEntryFn      := fun (s : TokenTable) _ => s,         -- TODO
   exportEntriesFn := fun _ => Array.empty,                -- TODO
   statsFn         := fun _ => fmt "token table attribute" -- TODO

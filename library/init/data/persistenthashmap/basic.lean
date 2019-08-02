@@ -175,8 +175,8 @@ partial def eraseAux [HasBeq α] : Node α β → USize → α → Node α β ×
 | n@(Node.collision keys vals heq) _ k :=
   match keys.indexOf k with
   | some idx =>
-    let ⟨keys', keq⟩ := keys.eraseIdxSz idx.val;
-    let ⟨vals', veq⟩ := vals.eraseIdxSz idx.val;
+    let ⟨keys', keq⟩ := keys.eraseIdx' idx;
+    let ⟨vals', veq⟩ := vals.eraseIdx' (Eq.rec idx heq);
     have keys.size - 1 = vals.size - 1 from heq ▸ rfl;
     (Node.collision keys' vals' (keq.trans (this.trans veq.symm)), true)
   | none     => (n, false)

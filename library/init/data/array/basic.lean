@@ -472,8 +472,8 @@ partial def eraseIdxSzAux {α} (a : Array α) : ∀ (i : Nat) (r : Array α), r.
     ⟨r.pop, (szPopEq r).trans (heq ▸ rfl)⟩
 end
 
-def eraseIdxSz {α} (a : Array α) (i : Nat) : { r : Array α // r.size = a.size - 1 } :=
-eraseIdxSzAux a i a rfl
+def eraseIdx' {α} (a : Array α) (i : Fin a.size) : { r : Array α // r.size = a.size - 1 } :=
+eraseIdxSzAux a (i.val + 1) a rfl
 
 end Array
 

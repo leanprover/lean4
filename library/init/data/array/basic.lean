@@ -424,6 +424,32 @@ reverseAux a 0
 @[inline] def filter (p : α → Bool) (as : Array α) : Array α :=
 filterAux p as 0 0
 
+partial def indexOfAux {α} [HasBeq α] (a : Array α) (v : α) : Nat → Option (Fin a.size)
+| i :=
+  if h : i < a.size then
+    let idx : Fin a.size := ⟨i, h⟩;
+    if a.fget idx == v then some idx
+    else indexOfAux (i+1)
+  else none
+
+def indexOf {α} [HasBeq α] (a : Array α) (v : α) : Option (Fin a.size) :=
+indexOfAux a v 0
+
+partial def eraseIdxAux {α} : Nat → Array α → Array α
+| i a :=
+  if h : i < a.size then
+    let idx  : Fin a.size := ⟨i, h⟩;
+    let idx1 : Fin a.size := ⟨i - 1, Nat.ltOfLeOfLt (Nat.predLe i) h⟩;
+    eraseIdxAux (i+1) (a.fswap idx idx1)
+  else
+    a.pop
+
+def feraseIdx {α} (a : Array α) (i : Fin a.size) : Array α :=
+eraseIdxAux (i.val + 1) a
+
+def eraseIdx {α} (a : Array α) (i : Nat) : Array α :=
+if i < a.size then eraseIdxAux (i+1) a else a
+
 end Array
 
 export Array (mkArray)

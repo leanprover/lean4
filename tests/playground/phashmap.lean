@@ -34,10 +34,36 @@ n.mfor $ fun i =>
   | none   => IO.println ("failed to find " ++ toString i)
   | some v => unless (v == i*10) (IO.println ("unexpected value " ++ toString i ++ " => " ++ toString v))
 
+def delOdd (n : Nat) (m : Map) : Map :=
+n.fold (fun i m => if i % 2 == 0 then m else m.erase i) m
+
+def check2 (n : Nat) (bot : Nat) (m : Map) : IO Unit :=
+n.mfor $ fun i =>
+  if i % 2 == 0 && i >= bot then
+    match m.find i with
+    | none   => IO.println ("failed to find " ++ toString i)
+    | some v => unless (v == i*10) (IO.println ("unexpected value " ++ toString i ++ " => " ++ toString v))
+  else
+    unless (m.find i == none) (IO.println ("mapping still contains " ++ toString i))
+
+def delLess (n : Nat) (m : Map) : Map :=
+n.fold (fun i m => m.erase i) m
+
 def main (xs : List String) : IO Unit :=
 do
-let n := 1000000;
+let n := 500000;
 let m := mkMap n;
 -- IO.println (formatMap m.root);
 IO.println m.stats;
-check n m
+check n m;
+let m := delOdd n m;
+IO.println m.stats;
+check2 n 0 m;
+let m := delLess 499000 m;
+check2 n 499000 m;
+IO.println m.size;
+IO.println m.stats;
+let m := delLess 499900 m;
+check2 n 499900 m;
+IO.println m.size;
+IO.println m.stats

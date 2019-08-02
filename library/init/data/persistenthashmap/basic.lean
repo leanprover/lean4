@@ -150,6 +150,56 @@ partial def findAux [HasBeq α] : Node α β → USize → α → Option β
 def find [HasBeq α] [Hashable α] : PersistentHashMap α β → α → Option β
 | { root := n, .. } k := findAux n (hash k) k
 
+partial def isUnaryEntries (a : Array (Entry α β (Node α β))) : Nat → Option (α × β) → Option (α × β)
+| i acc :=
+  if h : i < a.size then
+    match a.fget ⟨i, h⟩ with
+    | Entry.null      => isUnaryEntries (i+1) acc
+    | Entry.ref _     => none
+    | Entry.entry k v =>
+      match acc with
+      | none   => isUnaryEntries (i+1) (some (k, v))
+      | some _ => none
+  else acc
+
+def isUnaryNode : Node α β → Option (α × β)
+| (Node.entries entries)         := isUnaryEntries entries 0 none
+| (Node.collision keys vals heq) :=
+  if h : 0 < keys.size then
+    some (keys.fget ⟨0, h⟩, vals.fget ⟨0, heq ▸ h⟩)
+  else
+    none
+
+partial def eraseAux [HasBeq α] : Node α β → USize → α → Node α β × Bool
+| n@(Node.collision keys vals heq) _ k :=
+  match keys.indexOf k with
+  | some idx =>
+    let ⟨keys', keq⟩ := keys.eraseIdxSz idx.val;
+    let ⟨vals', veq⟩ := vals.eraseIdxSz idx.val;
+    have keys.size - 1 = vals.size - 1 from heq ▸ rfl;
+    (Node.collision keys' vals' (keq.trans (this.trans veq.symm)), true)
+  | none     => (n, false)
+| n@(Node.entries entries) h k :=
+  let j       := (mod2Shift h shift).toNat;
+  let entry   := entries.get j;
+  match entry with
+  | Entry.null       => (n, false)
+  | Entry.entry k' v =>
+    if k == k' then (Node.entries (entries.set j Entry.null), true) else (n, false)
+  | Entry.ref node   =>
+    let entries := entries.set j Entry.null;
+    let (newNode, deleted) := eraseAux node (div2Shift h shift) k;
+    if !deleted then (n, false)
+    else match isUnaryNode newNode with
+      | none        => (Node.entries (entries.set j (Entry.ref newNode)), true)
+      | some (k, v) => (Node.entries (entries.set j (Entry.entry k v)), true)
+
+def erase [HasBeq α] [Hashable α] : PersistentHashMap α β → α → PersistentHashMap α β
+| { root := n, size := sz } k :=
+  let h := hash k;
+  let (n, del) := eraseAux n h k;
+  { root := n, size := if del then sz - 1 else sz }
+
 section
 variables {m : Type w → Type w'} [Monad m]
 variables {σ : Type w}

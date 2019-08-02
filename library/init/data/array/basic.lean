@@ -450,6 +450,31 @@ eraseIdxAux (i.val + 1) a
 def eraseIdx {α} (a : Array α) (i : Nat) : Array α :=
 if i < a.size then eraseIdxAux (i+1) a else a
 
+theorem szFSwapEq (a : Array α) (i j : Fin a.size) : (a.fswap i j).size = a.size :=
+rfl
+
+theorem szPopEq (a : Array α) : a.pop.size = a.size - 1 :=
+rfl
+
+section
+/- Instance for justifying `partial` declaration.
+   We should be able to delete it as soon as we restore support for well-founded recursion. -/
+instance eraseIdxSzAuxInstance (a : Array α) : Inhabited { r : Array α // r.size = a.size - 1 } :=
+⟨⟨a.pop, szPopEq a⟩⟩
+
+partial def eraseIdxSzAux {α} (a : Array α) : ∀ (i : Nat) (r : Array α), r.size = a.size → { r : Array α // r.size = a.size - 1 }
+| i r heq :=
+  if h : i < r.size then
+    let idx  : Fin r.size := ⟨i, h⟩;
+    let idx1 : Fin r.size := ⟨i - 1, Nat.ltOfLeOfLt (Nat.predLe i) h⟩;
+    eraseIdxSzAux (i+1) (r.fswap idx idx1) ((szFSwapEq r idx idx1).trans heq)
+  else
+    ⟨r.pop, (szPopEq r).trans (heq ▸ rfl)⟩
+end
+
+def eraseIdxSz {α} (a : Array α) (i : Nat) : { r : Array α // r.size = a.size - 1 } :=
+eraseIdxSzAux a i a rfl
+
 end Array
 
 export Array (mkArray)

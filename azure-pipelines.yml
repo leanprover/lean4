@@ -31,7 +31,11 @@ jobs:
     vmImage: $(imageName)
   steps:
   - script: |
-      curl https://nixos.org/nix/install | sh
+      # https://github.com/commercialhaskell/stack/commit/b2e2f3d0568e6d73fc0477dee8ca7c04466ec1f6
+      (for i in {1..5}; do bash <(curl https://nixos.org/nix/install) && exit 0; done; exit 1)
+      . ~/.nix-profile/etc/profile.d/nix.sh
+      # open shell once for initial setup
+      eval nix-shell $NIX_SHELL_OPTIONS --run true
     displayName: Setup
   - script: |
       . ~/.nix-profile/etc/profile.d/nix.sh

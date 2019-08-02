@@ -1,0 +1,17 @@
+(some 1)
+{ nodes := 2, null := 31, collisions := 2, depth := 2}
+(some 1)
+none
+(some 3)
+{ nodes := 2, null := 31, collisions := 1, depth := 2}
+none
+none
+(some 3)
+{ nodes := 1, null := 31, collisions := 0, depth := 1}
+none
+none
+(some 3)
+none
+none
+none
+{ nodes := 1, null := 32, collisions := 0, depth := 1}

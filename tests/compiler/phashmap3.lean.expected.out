@@ -1,0 +1,2 @@
+{ nodes := 7, null := 185, collisions := 3, depth := 7}
+{ nodes := 1, null := 31, collisions := 0, depth := 1}

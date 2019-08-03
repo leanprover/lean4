@@ -10,10 +10,6 @@ Author: Leonardo de Moura
 namespace lean {
 bool is_lt(expr const & a, expr const & b, bool use_hash, local_context const * lctx) {
     if (is_eqp(a, b))                    return false;
-    unsigned wa = get_weight(a);
-    unsigned wb = get_weight(b);
-    if (wa < wb)                         return true;
-    if (wa > wb)                         return false;
     if (a.kind() != b.kind())            return a.kind() < b.kind();
     if (use_hash) {
         if (hash(a) < hash(b))           return true;
@@ -126,10 +122,6 @@ bool is_lt_no_level_params(levels const & as, levels const & bs) {
 
 bool is_lt_no_level_params(expr const & a, expr const & b) {
     if (is_eqp(a, b))                    return false;
-    unsigned wa = get_weight(a);
-    unsigned wb = get_weight(b);
-    if (wa < wb)                         return true;
-    if (wa > wb)                         return false;
     if (a.kind() != b.kind())            return a.kind() < b.kind();
     switch (a.kind()) {
     case expr_kind::Lit:

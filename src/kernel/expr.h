@@ -145,10 +145,6 @@ bool has_univ_mvar(expr const & e);
 inline bool has_mvar(expr const & e) { return has_expr_mvar(e) || has_univ_mvar(e); }
 bool has_fvar(expr const & e);
 bool has_univ_param(expr const & e);
-unsigned expr_get_weight(object * e);
-inline unsigned get_weight(expr const & e) { return expr_get_weight(e.raw()); }
-unsigned expr_get_depth(object * e);
-inline unsigned get_depth(expr const & e) { return expr_get_depth(e.raw()); }
 unsigned expr_get_loose_bvar_range(object * e);
 inline unsigned get_loose_bvar_range(expr const & e) { return expr_get_loose_bvar_range(e.raw()); }
 

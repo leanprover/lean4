@@ -520,7 +520,7 @@ private:
     std::function<bool(name const & e)> const * m_transparency_pred{nullptr}; // NOLINT
 
     static bool is_equiv_cache_target(expr const & e1, expr const & e2) {
-        return !has_metavar(e1) && !has_metavar(e2) && (get_weight(e1) > 1 || get_weight(e2) > 1);
+        return !has_metavar(e1) && !has_metavar(e2) && (!is_atomic(e1) || !is_atomic(e2));
     }
     bool is_cached_equiv(expr const & e1, expr const & e2) {
         return is_equiv_cache_target(e1, e2) && m_cache->get_equiv(m_transparency_mode, e1, e2);

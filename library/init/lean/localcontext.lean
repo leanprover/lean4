@@ -115,6 +115,19 @@ lctx.decls.findRev (fun decl =>
   | none      => none
   | some decl => if decl.userName == userName then some decl else none)
 
+def usesUserName (lctx : LocalContext) (userName : Name) : Bool :=
+(lctx.findFromUserName userName).isSome
+
+partial def getUnusedNameAux (lctx : LocalContext) (suggestion : Name) : Nat → Name × Nat
+| i :=
+  let curr := suggestion.appendIndexAfter i;
+  if lctx.usesUserName curr then getUnusedNameAux (i + 1)
+  else (curr, i + 1)
+
+def getUnusedName (lctx : LocalContext) (suggestion : Name) : Name :=
+if lctx.usesUserName suggestion then (lctx.getUnusedNameAux suggestion 1).1
+else suggestion
+
 def lastDecl (lctx : LocalContext) : Option LocalDecl :=
 lctx.decls.get (lctx.decls.size - 1)
 

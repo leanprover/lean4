@@ -175,8 +175,8 @@ else
         .. t }
 
 section
-variables {m : Type u → Type v} [Monad m]
-variable {β: Type u}
+variables {m : Type v → Type w} [Monad m]
+variable {β : Type v}
 
 @[specialize] partial def mfoldlAux (f : β → α → m β) : PersistentArrayNode α → β → m β
 | (node cs) b := cs.mfoldl (fun b c => mfoldlAux c b) b
@@ -221,7 +221,7 @@ def toList (t : PersistentArray α) : List α :=
 
 section
 variables {m : Type u → Type v} [Monad m]
-variable {β:Type u}
+variable {β : Type u}
 
 @[specialize] partial def mmapAux (f : α → m β) : PersistentArrayNode α → m (PersistentArrayNode β)
 | (node cs) := node <$> cs.mmap (fun c => mmapAux c)

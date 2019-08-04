@@ -68,6 +68,10 @@ attribute [extern "lean_expr_mk_lit"]    Expr.lit
 attribute [extern "lean_expr_mk_mdata"]  Expr.mdata
 attribute [extern "lean_expr_mk_proj"]   Expr.proj
 
+-- deprecated Constructor
+@[extern "lean_expr_local"]
+constant Expr.local (n : Name) (pp : Name) (ty : Expr) (bi : BinderInfo) : Expr := default _
+
 def mkApp (fn : Expr) (args : List Expr) : Expr :=
 args.foldl Expr.app fn
 

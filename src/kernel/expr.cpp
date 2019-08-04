@@ -464,6 +464,11 @@ static expr * g_Type0 = nullptr;
 expr mk_Prop() { return *g_Prop; }
 expr mk_Type() { return *g_Type0; }
 
+// Legacy
+extern "C" obj_res lean_expr_local(obj_arg vm_name, obj_arg vm_pp_name, obj_arg vm_type, uint8 vm_binder_info) {
+    return mk_local(name(vm_name), name(vm_pp_name), expr(vm_type), static_cast<binder_info>(vm_binder_info)).steal();
+}
+
 // =======================================
 // Auxiliary constructors and accessors
 

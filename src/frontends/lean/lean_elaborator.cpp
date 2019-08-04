@@ -534,8 +534,4 @@ extern "C" obj_res lean_elaborator_elaborate_command(b_obj_arg vm_filename, obj_
     }
     return mk_cnstr(0, object_ref(vm_out), log.raw()).steal();
 }
-
-extern "C" obj_res lean_expr_local(obj_arg vm_name, obj_arg vm_pp_name, obj_arg vm_type, uint8 vm_binder_info) {
-    return mk_local(name(vm_name), name(vm_pp_name), expr(vm_type), static_cast<binder_info>(vm_binder_info)).steal();
-}
 }

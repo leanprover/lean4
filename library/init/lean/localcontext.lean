@@ -78,19 +78,27 @@ match lctx with
 def find (lctx : LocalContext) (name : Name) : Option LocalDecl :=
 lctx.nameToDecl.find name
 
-/-
 private partial def popTailNoneAux : PArray (Option LocalDecl) → PArray (Option LocalDecl)
 | a :=
   if a.size == 0 then a
-  else if
+  else match a.get (a.size - 1) with
+    | none   => popTailNoneAux a.pop
+    | some _ => a
 
 def erase (lctx : LocalContext) (name : Name) : LocalContext :=
 match lctx with
 | { nameToDecl := map, decls := decls } =>
   match map.find name with
   | none      => lctx
-  | some decl => { nameToDecl := map.erase name, decls := decls.set decl.index none }
--/
+  | some decl => { nameToDecl := map.erase name, decls := popTailNoneAux (decls.set decl.index none) }
+
+def pop (lctx : LocalContext): LocalContext :=
+match lctx with
+| { nameToDecl := map, decls := decls } =>
+  if decls.size == 0 then lctx
+  else match decls.get (decls.size - 1) with
+    | none      => lctx -- unreachable
+    | some decl => { nameToDecl := map.erase decl.name, decls := popTailNoneAux decls.pop }
 
 end LocalContext
 

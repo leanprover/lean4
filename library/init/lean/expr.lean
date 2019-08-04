@@ -21,27 +21,10 @@ abbrev empty : MData := {KVMap .}
 instance : HasEmptyc MData := ⟨empty⟩
 end MData
 
-/-
-TODO(Leo): fix the `mvar` Constructor.
-In Lean3 (and Lean4), we have two kinds of metavariables: regular and temporary.
-The Type of regular metavariables is stored in the metavarContext.
-The Type of temporary metavariables is stored in the metavar itself. This decision is legacy from Lean2.
-Moreover, the `Name` in temporary metavariables are supposed to be (small) numerals. So,
-we can store their assignment as an Array. Actually, it is a numeral with a hidden unique prefix.
-The decision of storing the Type of the tmp metavar is also debatable.
-For example, we can avoid this by have another Array with their types.
-For regular metavariables, the `Expr` field is a dummy value.
-
-We should have two different constructors:
-`| mvar : Name → Expr` for regular metavariables
-and
-`| tmvar : Usize → Expr` for temporary metavariables
-The `Usize` makes it clear that we can use arrays to store tmp metavar assignments and their types.
--/
 inductive Expr
 | bvar  : Nat → Expr                                -- bound variables
 | fvar  : Name → Expr                               -- free variables
-| mvar  : Name → Expr → Expr                        -- (temporary) meta variables
+| mvar  : Name → Expr                               -- meta variables
 | sort  : Level → Expr                              -- Sort
 | const : Name → List Level → Expr                  -- constants
 | app   : Expr → Expr → Expr                        -- application

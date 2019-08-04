@@ -444,7 +444,7 @@ expr mk_let(name const & n, expr const & t, expr const & v, expr const & b) {
     return expr(lean_expr_mk_let(n.raw(), t.raw(), v.raw(), b.raw()));
 }
 
-extern "C" object * lean_expr_mk_mvar(object * n, object * t) {
+extern "C" object * lean_expr_mk_mvar_core(object * n, object * t) {
     object * r = alloc_cnstr(static_cast<unsigned>(expr_kind::MVar), 2, rec_expr_scalar_size(expr_kind::MVar));
     cnstr_set(r, 0, n);
     cnstr_set(r, 1, t);
@@ -453,9 +453,14 @@ extern "C" object * lean_expr_mk_mvar(object * n, object * t) {
     return r;
 }
 
+extern "C" object * lean_expr_mk_mvar(object * n) {
+    inc(g_dummy->raw());
+    return lean_expr_mk_mvar_core(n, g_dummy->raw());
+}
+
 expr mk_mvar(name const & n, expr const & t) {
     inc(n.raw()); inc(t.raw());
-    return expr(lean_expr_mk_mvar(n.raw(), t.raw()));
+    return expr(lean_expr_mk_mvar_core(n.raw(), t.raw()));
 }
 
 static expr * g_Prop  = nullptr;

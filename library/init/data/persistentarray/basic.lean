@@ -131,6 +131,49 @@ if r.tail.size < branching.toNat || t.size >= tooBig then
 else
   mkNewTail r
 
+private def emptyArray {α : Type u} : Array (PersistentArrayNode α) :=
+Array.mkEmpty PersistentArray.branching.toNat
+
+partial def popLeaf : PersistentArrayNode α → Option (Array α) × Array (PersistentArrayNode α)
+| n@(node cs) :=
+  if h : cs.size ≠ 0 then
+    let idx : Fin cs.size := ⟨cs.size - 1, Nat.predLt h⟩;
+    let last := cs.fget idx;
+    match popLeaf last with
+    | (none,   _)       => (none, emptyArray)
+    | (some l, newLast) =>
+      if newLast.size == 0 then
+        let cs := cs.pop;
+        if cs.isEmpty then (some l, emptyArray) else (some l, cs)
+      else
+        (some l, cs.fset idx (node newLast))
+  else
+    (none, emptyArray)
+| (leaf vs) := (some vs, emptyArray)
+
+def pop (t : PersistentArray α) : PersistentArray α :=
+if t.tail.size > 0 then
+  { tail := t.tail.pop, size := t.size - 1, .. t }
+else
+  match popLeaf t.root with
+  | (none, _) => t
+  | (some last, newRoots) =>
+    let last       := last.pop;
+    let newSize    := t.size - 1;
+    let newTailOff := newSize - last.size;
+    if newRoots.size == 1 then
+      { root    := newRoots.get 0,
+        shift   := t.shift - initShift,
+        size    := newSize,
+        tail    := last,
+        tailOff := newTailOff }
+    else
+      { root    := node newRoots,
+        size    := newSize,
+        tail    := last,
+        tailOff := newTailOff,
+        .. t }
+
 section
 variables {m : Type u → Type v} [Monad m]
 variable {β: Type u}
@@ -183,7 +226,7 @@ def stats (r : PersistentArray α) : Stats :=
 collectStats r.root { numNodes := 0, depth := 0, tailSize := r.tail.size } 0
 
 def Stats.toString (s : Stats) : String :=
-toString [s.numNodes, s.depth, s.tailSize]
+"{nodes := " ++ toString s.numNodes ++ ", depth := " ++ toString s.depth  ++ ", tail size := " ++ toString s.tailSize ++ "}"
 
 instance : HasToString Stats := ⟨Stats.toString⟩
 

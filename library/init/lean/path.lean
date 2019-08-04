@@ -65,15 +65,18 @@ match path with
   setSearchPath (pathEnv ++ builtinPath)
 
 def findFile (fname : String) (ext : String) : IO (Option String) :=
+let checkFile (curr : String) : IO (Option String) := do {
+  ex ← IO.fileExists curr;
+  if ex then pure (some curr) else pure none
+};
 do let fname := System.FilePath.normalizePath fname;
    paths ← searchPathRef.get;
    paths.mfind $ fun path => do
      let curr := path ++ pathSep ++ fname;
-     isDir ← IO.isDir curr;
-     let curr := if isDir then curr ++ pathSep ++ "default" else curr;
-     let curr := curr ++ toString extSeparator ++ ext;
-     ex ← IO.fileExists curr;
-     if ex then pure (some curr) else pure none
+     result ← checkFile (curr ++ toString extSeparator ++ ext);
+     match result with
+     | none  => checkFile (curr ++ pathSep ++ "default" ++ toString extSeparator ++ ext)
+     | other => pure other
 
 def modNameToFileName : Name → String
 | (Name.mkString Name.anonymous h)  := h

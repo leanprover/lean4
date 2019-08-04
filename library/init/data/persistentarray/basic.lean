@@ -182,13 +182,39 @@ variable {β: Type u}
 | (node cs) b := cs.mfoldl (fun b c => mfoldlAux c b) b
 | (leaf vs) b := vs.mfoldl f b
 
-@[specialize] def mfoldl (f : β → α → m β) (b : β) (t : PersistentArray α) : m β :=
+@[specialize] def mfoldl (t : PersistentArray α) (f : β → α → m β) (b : β) : m β :=
 do b ← mfoldlAux f t.root b; t.tail.mfoldl f b
+
+@[specialize] partial def mfindAux (f : α → m (Option β)) : PersistentArrayNode α → m (Option β)
+| (node cs) := cs.mfind (fun c => mfindAux c)
+| (leaf vs) := vs.mfind f
+
+@[specialize] def mfind (t : PersistentArray α) (f : α → m (Option β)) : m (Option β) :=
+do b ← mfindAux f t.root;
+   match b with
+   | none   => t.tail.mfind f
+   | some b => pure (some b)
+
+@[specialize] partial def mfindRevAux (f : α → m (Option β)) : PersistentArrayNode α → m (Option β)
+| (node cs) := cs.mfindRev (fun c => mfindRevAux c)
+| (leaf vs) := vs.mfindRev f
+
+@[specialize] def mfindRev (t : PersistentArray α) (f : α → m (Option β)) : m (Option β) :=
+do b ← t.tail.mfindRev f;
+   match b with
+   | none   => mfindRevAux f t.root
+   | some b => pure (some b)
 
 end
 
-@[inline] def foldl {β} (f : β → α → β) (b : β) (t : PersistentArray α) : β :=
+@[inline] def foldl {β} (t : PersistentArray α) (f : β → α → β) (b : β) : β :=
 Id.run (t.mfoldl f b)
+
+@[inline] def find {β} (t : PersistentArray α) (f : α → (Option β)) : Option β :=
+Id.run (t.mfind f)
+
+@[inline] def findRev {β} (t : PersistentArray α) (f : α → (Option β)) : Option β :=
+Id.run (t.mfindRev f)
 
 def toList (t : PersistentArray α) : List α :=
 (t.foldl (fun xs x => x :: xs) []).reverse

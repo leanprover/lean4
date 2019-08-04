@@ -2032,98 +2032,16 @@ return x_22;
 }
 else
 {
-obj* x_23; obj* x_24; obj* x_25; obj* x_26; obj* x_27; 
+obj* x_23; obj* x_24; obj* x_25; obj* x_26; obj* x_27; obj* x_28; obj* x_49; obj* x_50; obj* x_51; obj* x_52; 
 x_23 = lean::array_fget(x_3, x_4);
 x_24 = l___private_init_lean_path_1__pathSep;
 x_25 = lean::string_append(x_23, x_24);
 x_26 = lean::string_append(x_25, x_2);
-x_27 = lean_io_is_dir(x_26, x_5);
-if (lean::obj_tag(x_27) == 0)
-{
-uint8 x_28; 
-x_28 = !lean::is_exclusive(x_27);
-if (x_28 == 0)
-{
-obj* x_29; obj* x_30; uint8 x_31; 
-x_29 = lean::cnstr_get(x_27, 0);
-x_30 = lean::box(0);
-lean::cnstr_set(x_27, 0, x_30);
-x_31 = lean::unbox(x_29);
-lean::dec(x_29);
-if (x_31 == 0)
-{
-obj* x_32; obj* x_33; obj* x_34; obj* x_35; 
-x_32 = l_Array_mfindAux___main___at_Lean_findFile___spec__2___closed__1;
-x_33 = lean::string_append(x_26, x_32);
-x_34 = lean::string_append(x_33, x_1);
-x_35 = lean_io_file_exists(x_34, x_27);
-if (lean::obj_tag(x_35) == 0)
-{
-obj* x_36; uint8 x_37; 
-x_36 = lean::cnstr_get(x_35, 0);
-lean::inc(x_36);
-x_37 = lean::unbox(x_36);
-lean::dec(x_36);
-if (x_37 == 0)
-{
-obj* x_38; obj* x_39; 
-lean::dec(x_34);
-x_38 = lean::cnstr_get(x_35, 1);
-lean::inc(x_38);
-lean::dec(x_35);
-x_39 = lean::box(0);
-x_6 = x_39;
-x_7 = x_38;
-goto block_14;
-}
-else
-{
-obj* x_40; obj* x_41; 
-x_40 = lean::cnstr_get(x_35, 1);
-lean::inc(x_40);
-lean::dec(x_35);
-x_41 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_41, 0, x_34);
-x_6 = x_41;
-x_7 = x_40;
-goto block_14;
-}
-}
-else
-{
-uint8 x_42; 
-lean::dec(x_34);
-lean::dec(x_4);
-x_42 = !lean::is_exclusive(x_35);
-if (x_42 == 0)
-{
-return x_35;
-}
-else
-{
-obj* x_43; obj* x_44; obj* x_45; 
-x_43 = lean::cnstr_get(x_35, 0);
-x_44 = lean::cnstr_get(x_35, 1);
-lean::inc(x_44);
-lean::inc(x_43);
-lean::dec(x_35);
-x_45 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_45, 0, x_43);
-lean::cnstr_set(x_45, 1, x_44);
-return x_45;
-}
-}
-}
-else
-{
-obj* x_46; obj* x_47; obj* x_48; obj* x_49; obj* x_50; obj* x_51; obj* x_52; 
-x_46 = lean::string_append(x_26, x_24);
-x_47 = l_Array_mfindAux___main___at_Lean_findFile___spec__2___closed__2;
-x_48 = lean::string_append(x_46, x_47);
 x_49 = l_Array_mfindAux___main___at_Lean_findFile___spec__2___closed__1;
-x_50 = lean::string_append(x_48, x_49);
+lean::inc(x_26);
+x_50 = lean::string_append(x_26, x_49);
 x_51 = lean::string_append(x_50, x_1);
-x_52 = lean_io_file_exists(x_51, x_27);
+x_52 = lean_io_file_exists(x_51, x_5);
 if (lean::obj_tag(x_52) == 0)
 {
 obj* x_53; uint8 x_54; 
@@ -2139,9 +2057,9 @@ x_55 = lean::cnstr_get(x_52, 1);
 lean::inc(x_55);
 lean::dec(x_52);
 x_56 = lean::box(0);
-x_6 = x_56;
-x_7 = x_55;
-goto block_14;
+x_27 = x_56;
+x_28 = x_55;
+goto block_48;
 }
 else
 {
@@ -2151,15 +2069,16 @@ lean::inc(x_57);
 lean::dec(x_52);
 x_58 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_58, 0, x_51);
-x_6 = x_58;
-x_7 = x_57;
-goto block_14;
+x_27 = x_58;
+x_28 = x_57;
+goto block_48;
 }
 }
 else
 {
 uint8 x_59; 
 lean::dec(x_51);
+lean::dec(x_26);
 lean::dec(x_4);
 x_59 = !lean::is_exclusive(x_52);
 if (x_59 == 0)
@@ -2180,181 +2099,85 @@ lean::cnstr_set(x_62, 1, x_61);
 return x_62;
 }
 }
-}
-}
-else
+block_48:
 {
-obj* x_63; obj* x_64; obj* x_65; obj* x_66; uint8 x_67; 
-x_63 = lean::cnstr_get(x_27, 0);
-x_64 = lean::cnstr_get(x_27, 1);
-lean::inc(x_64);
-lean::inc(x_63);
-lean::dec(x_27);
-x_65 = lean::box(0);
-x_66 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_66, 0, x_65);
-lean::cnstr_set(x_66, 1, x_64);
-x_67 = lean::unbox(x_63);
-lean::dec(x_63);
-if (x_67 == 0)
+if (lean::obj_tag(x_27) == 0)
 {
-obj* x_68; obj* x_69; obj* x_70; obj* x_71; 
-x_68 = l_Array_mfindAux___main___at_Lean_findFile___spec__2___closed__1;
-x_69 = lean::string_append(x_26, x_68);
-x_70 = lean::string_append(x_69, x_1);
-x_71 = lean_io_file_exists(x_70, x_66);
-if (lean::obj_tag(x_71) == 0)
+obj* x_29; obj* x_30; obj* x_31; obj* x_32; obj* x_33; obj* x_34; obj* x_35; obj* x_36; obj* x_37; 
+x_29 = lean::box(0);
+x_30 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_30, 0, x_29);
+lean::cnstr_set(x_30, 1, x_28);
+x_31 = lean::string_append(x_26, x_24);
+x_32 = l_Array_mfindAux___main___at_Lean_findFile___spec__2___closed__2;
+x_33 = lean::string_append(x_31, x_32);
+x_34 = l_Array_mfindAux___main___at_Lean_findFile___spec__2___closed__1;
+x_35 = lean::string_append(x_33, x_34);
+x_36 = lean::string_append(x_35, x_1);
+x_37 = lean_io_file_exists(x_36, x_30);
+if (lean::obj_tag(x_37) == 0)
 {
-obj* x_72; uint8 x_73; 
-x_72 = lean::cnstr_get(x_71, 0);
-lean::inc(x_72);
-x_73 = lean::unbox(x_72);
-lean::dec(x_72);
-if (x_73 == 0)
+obj* x_38; uint8 x_39; 
+x_38 = lean::cnstr_get(x_37, 0);
+lean::inc(x_38);
+x_39 = lean::unbox(x_38);
+lean::dec(x_38);
+if (x_39 == 0)
 {
-obj* x_74; obj* x_75; 
-lean::dec(x_70);
-x_74 = lean::cnstr_get(x_71, 1);
-lean::inc(x_74);
-lean::dec(x_71);
-x_75 = lean::box(0);
-x_6 = x_75;
-x_7 = x_74;
+obj* x_40; obj* x_41; 
+lean::dec(x_36);
+x_40 = lean::cnstr_get(x_37, 1);
+lean::inc(x_40);
+lean::dec(x_37);
+x_41 = lean::box(0);
+x_6 = x_41;
+x_7 = x_40;
 goto block_14;
 }
 else
 {
-obj* x_76; obj* x_77; 
-x_76 = lean::cnstr_get(x_71, 1);
-lean::inc(x_76);
-lean::dec(x_71);
-x_77 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_77, 0, x_70);
-x_6 = x_77;
-x_7 = x_76;
+obj* x_42; obj* x_43; 
+x_42 = lean::cnstr_get(x_37, 1);
+lean::inc(x_42);
+lean::dec(x_37);
+x_43 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_43, 0, x_36);
+x_6 = x_43;
+x_7 = x_42;
 goto block_14;
 }
 }
 else
 {
-obj* x_78; obj* x_79; obj* x_80; obj* x_81; 
-lean::dec(x_70);
+uint8 x_44; 
+lean::dec(x_36);
 lean::dec(x_4);
-x_78 = lean::cnstr_get(x_71, 0);
-lean::inc(x_78);
-x_79 = lean::cnstr_get(x_71, 1);
-lean::inc(x_79);
-if (lean::is_exclusive(x_71)) {
- lean::cnstr_release(x_71, 0);
- lean::cnstr_release(x_71, 1);
- x_80 = x_71;
-} else {
- lean::dec_ref(x_71);
- x_80 = lean::box(0);
-}
-if (lean::is_scalar(x_80)) {
- x_81 = lean::alloc_cnstr(1, 2, 0);
-} else {
- x_81 = x_80;
-}
-lean::cnstr_set(x_81, 0, x_78);
-lean::cnstr_set(x_81, 1, x_79);
-return x_81;
-}
+x_44 = !lean::is_exclusive(x_37);
+if (x_44 == 0)
+{
+return x_37;
 }
 else
 {
-obj* x_82; obj* x_83; obj* x_84; obj* x_85; obj* x_86; obj* x_87; obj* x_88; 
-x_82 = lean::string_append(x_26, x_24);
-x_83 = l_Array_mfindAux___main___at_Lean_findFile___spec__2___closed__2;
-x_84 = lean::string_append(x_82, x_83);
-x_85 = l_Array_mfindAux___main___at_Lean_findFile___spec__2___closed__1;
-x_86 = lean::string_append(x_84, x_85);
-x_87 = lean::string_append(x_86, x_1);
-x_88 = lean_io_file_exists(x_87, x_66);
-if (lean::obj_tag(x_88) == 0)
-{
-obj* x_89; uint8 x_90; 
-x_89 = lean::cnstr_get(x_88, 0);
-lean::inc(x_89);
-x_90 = lean::unbox(x_89);
-lean::dec(x_89);
-if (x_90 == 0)
-{
-obj* x_91; obj* x_92; 
-lean::dec(x_87);
-x_91 = lean::cnstr_get(x_88, 1);
-lean::inc(x_91);
-lean::dec(x_88);
-x_92 = lean::box(0);
-x_6 = x_92;
-x_7 = x_91;
-goto block_14;
-}
-else
-{
-obj* x_93; obj* x_94; 
-x_93 = lean::cnstr_get(x_88, 1);
-lean::inc(x_93);
-lean::dec(x_88);
-x_94 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_94, 0, x_87);
-x_6 = x_94;
-x_7 = x_93;
-goto block_14;
-}
-}
-else
-{
-obj* x_95; obj* x_96; obj* x_97; obj* x_98; 
-lean::dec(x_87);
-lean::dec(x_4);
-x_95 = lean::cnstr_get(x_88, 0);
-lean::inc(x_95);
-x_96 = lean::cnstr_get(x_88, 1);
-lean::inc(x_96);
-if (lean::is_exclusive(x_88)) {
- lean::cnstr_release(x_88, 0);
- lean::cnstr_release(x_88, 1);
- x_97 = x_88;
-} else {
- lean::dec_ref(x_88);
- x_97 = lean::box(0);
-}
-if (lean::is_scalar(x_97)) {
- x_98 = lean::alloc_cnstr(1, 2, 0);
-} else {
- x_98 = x_97;
-}
-lean::cnstr_set(x_98, 0, x_95);
-lean::cnstr_set(x_98, 1, x_96);
-return x_98;
-}
+obj* x_45; obj* x_46; obj* x_47; 
+x_45 = lean::cnstr_get(x_37, 0);
+x_46 = lean::cnstr_get(x_37, 1);
+lean::inc(x_46);
+lean::inc(x_45);
+lean::dec(x_37);
+x_47 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_47, 0, x_45);
+lean::cnstr_set(x_47, 1, x_46);
+return x_47;
 }
 }
 }
 else
 {
-uint8 x_99; 
 lean::dec(x_26);
-lean::dec(x_4);
-x_99 = !lean::is_exclusive(x_27);
-if (x_99 == 0)
-{
-return x_27;
-}
-else
-{
-obj* x_100; obj* x_101; obj* x_102; 
-x_100 = lean::cnstr_get(x_27, 0);
-x_101 = lean::cnstr_get(x_27, 1);
-lean::inc(x_101);
-lean::inc(x_100);
-lean::dec(x_27);
-x_102 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_102, 0, x_100);
-lean::cnstr_set(x_102, 1, x_101);
-return x_102;
+x_6 = x_27;
+x_7 = x_28;
+goto block_14;
 }
 }
 }

@@ -38,6 +38,7 @@ obj* l_Lean_Expr_eqv___boxed(obj*, obj*);
 obj* l_Lean_mkDecIsTrue___closed__4;
 extern "C" obj* lean_expr_mk_pi(obj*, uint8, obj*, obj*);
 obj* l_Lean_Expr_getAppNumArgsAux___boxed(obj*, obj*);
+extern "C" obj* lean_expr_local(obj*, obj*, obj*, uint8);
 extern "C" obj* lean_expr_mk_app(obj*, obj*);
 obj* l_Lean_Expr_quickLt___boxed(obj*, obj*);
 obj* l_Lean_Expr_isAppOf___boxed(obj*, obj*);
@@ -91,6 +92,7 @@ obj* l_Lean_Expr_HasBeq;
 obj* l_Lean_Expr_Hashable;
 obj* l_Lean_Expr_getAppNumArgs___boxed(obj*);
 obj* l_Lean_Expr_mvar___boxed(obj*, obj*);
+obj* l_Lean_Expr_local___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Expr_getAppFn___boxed(obj*);
 uint8 l_Lean_Expr_isAppOfArity(obj*, obj*, obj*);
 obj* l_Lean_Expr_getAppNumArgsAux(obj*, obj*);
@@ -229,6 +231,15 @@ _start:
 obj* x_4; 
 x_4 = lean_expr_mk_proj(x_1, x_2, x_3);
 return x_4;
+}
+}
+obj* l_Lean_Expr_local___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+uint8 x_5; obj* x_6; 
+x_5 = lean::unbox(x_4);
+x_6 = lean_expr_local(x_1, x_2, x_3, x_5);
+return x_6;
 }
 }
 obj* l_List_foldl___main___at_Lean_mkApp___spec__1(obj* x_1, obj* x_2) {

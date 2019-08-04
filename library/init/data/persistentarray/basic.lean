@@ -36,6 +36,12 @@ namespace PersistentArray
 variables {α : Type u}
 open PersistentArrayNode
 
+def empty : PersistentArray α :=
+{}
+
+def isEmpty (a : PersistentArray α) : Bool :=
+a.size == 0
+
 instance : Inhabited (PersistentArray α) := ⟨{}⟩
 
 def mkEmptyArray : Array α := Array.mkEmpty branching.toNat

@@ -44,6 +44,9 @@ variables {α : Type u} {β : Type v}
 
 def empty : PersistentHashMap α β := {}
 
+def isEmpty (m : PersistentHashMap α β) : Bool :=
+m.size == 0
+
 instance : Inhabited (PersistentHashMap α β) := ⟨{}⟩
 
 def mkEmptyEntries {α β} : Node α β :=

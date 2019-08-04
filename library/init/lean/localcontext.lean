@@ -49,6 +49,10 @@ def value : LocalDecl → Expr
 | (cdecl _ _ _ _ _) := default _
 | (ldecl _ _ _ _ v) := v
 
+def updateUserName : LocalDecl → Name → LocalDecl
+| (cdecl index name _ type bi)  userName := cdecl index name userName type bi
+| (ldecl index name _ type val) userName := ldecl index name userName type val
+
 end LocalDecl
 
 structure LocalContext :=
@@ -78,6 +82,11 @@ match lctx with
 def find (lctx : LocalContext) (name : Name) : Option LocalDecl :=
 lctx.nameToDecl.find name
 
+def findFVar (lctx : LocalContext) (e : Expr) : Option LocalDecl :=
+match e with
+| Expr.fvar n => lctx.find n
+| _           => none
+
 private partial def popTailNoneAux : PArray (Option LocalDecl) → PArray (Option LocalDecl)
 | a :=
   if a.size == 0 then a
@@ -100,6 +109,55 @@ match lctx with
     | none      => lctx -- unreachable
     | some decl => { nameToDecl := map.erase decl.name, decls := popTailNoneAux decls.pop }
 
-end LocalContext
+def findFromUserName (lctx : LocalContext) (userName : Name) : Option LocalDecl :=
+lctx.decls.findRev (fun decl =>
+  match decl with
+  | none      => none
+  | some decl => if decl.userName == userName then some decl else none)
 
+def lastDecl (lctx : LocalContext) : Option LocalDecl :=
+lctx.decls.get (lctx.decls.size - 1)
+
+def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : LocalContext :=
+match lctx with
+| { nameToDecl := map, decls := decls } =>
+  match lctx.findFromUserName fromName with
+  | none      => lctx
+  | some decl =>
+    let decl := decl.updateUserName toName;
+    { nameToDecl := map.insert decl.name decl,
+      decls      := decls.set decl.index decl }
+
+section
+universes u v
+variables {m : Type u → Type v} [Monad m]
+variable {β : Type u}
+
+@[specialize] def mfoldl (lctx : LocalContext) (f : LocalDecl → β → m β) (b : β) : m β :=
+lctx.decls.mfoldl (fun b decl => match decl with
+  | none      => pure b
+  | some decl => f decl b)
+  b
+
+@[specialize] def mfindDecl (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
+lctx.decls.mfind $ fun decl => match decl with
+  | none      => pure none
+  | some decl => f decl
+
+@[specialize] def mfindDeclRev (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
+lctx.decls.mfindRev $ fun decl => match decl with
+  | none      => pure none
+  | some decl => f decl
+end
+
+@[inline] def foldl {β} (lctx : LocalContext) (f : LocalDecl → β → β) (b : β) : β :=
+Id.run $ lctx.mfoldl f b
+
+@[inline] def findDecl {β} (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
+Id.run $ lctx.mfindDecl f
+
+@[inline] def findDeclRev {β} (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
+Id.run $ lctx.mfindDeclRev f
+
+end LocalContext
 end Lean

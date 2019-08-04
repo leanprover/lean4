@@ -44,6 +44,7 @@ obj* l_Array_miterateAux___main___at_PersistentHashMap_foldl___spec__3(obj*, obj
 obj* l_PersistentHashMap_mfoldlAux___main___at_PersistentHashMap_foldl___spec__2(obj*, obj*, obj*);
 obj* l_PersistentHashMap_mfoldl___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_eraseAux___rarg(obj*, obj*, usize, obj*);
+obj* l_PersistentHashMap_isEmpty(obj*, obj*);
 obj* l_Array_miterateAux___main___at_PersistentHashMap_toList___spec__4___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_PersistentHashMap_toList___spec__3___rarg(obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_findAtAux___main(obj*, obj*);
@@ -125,6 +126,7 @@ namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_Array_miterateAux___main___at_PersistentHashMap_toList___spec__3___rarg___boxed(obj*, obj*, obj*, obj*);
+obj* l_PersistentHashMap_isEmpty___rarg___boxed(obj*);
 obj* l_PersistentHashMap_insertAux___main___rarg(obj*, obj*, obj*, usize, usize, obj*, obj*);
 obj* l_Array_push(obj*, obj*, obj*);
 obj* l_Array_indexOfAux___main___rarg(obj*, obj*, obj*, obj*);
@@ -202,6 +204,7 @@ obj* l_PersistentHashMap_findAux___main___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_mkCollisionNode(obj*, obj*);
 obj* l_PersistentHashMap_insertAux(obj*, obj*);
 obj* l_PersistentHashMap_isUnaryNode___main___rarg___boxed(obj*);
+uint8 l_PersistentHashMap_isEmpty___rarg(obj*);
 obj* l_PersistentHashMap_findAux(obj*, obj*);
 obj* l_PersistentHashMap_mfoldl___boxed(obj*, obj*, obj*);
 obj* l_PersistentHashMap_collectStats___rarg___boxed(obj*, obj*, obj*);
@@ -323,6 +326,34 @@ _start:
 {
 obj* x_3; 
 x_3 = l_PersistentHashMap_empty___closed__3;
+return x_3;
+}
+}
+uint8 l_PersistentHashMap_isEmpty___rarg(obj* x_1) {
+_start:
+{
+obj* x_2; obj* x_3; uint8 x_4; 
+x_2 = lean::cnstr_get(x_1, 1);
+x_3 = lean::mk_nat_obj(0u);
+x_4 = lean::nat_dec_eq(x_2, x_3);
+return x_4;
+}
+}
+obj* l_PersistentHashMap_isEmpty(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_PersistentHashMap_isEmpty___rarg___boxed), 1, 0);
+return x_3;
+}
+}
+obj* l_PersistentHashMap_isEmpty___rarg___boxed(obj* x_1) {
+_start:
+{
+uint8 x_2; obj* x_3; 
+x_2 = l_PersistentHashMap_isEmpty___rarg(x_1);
+lean::dec(x_1);
+x_3 = lean::box(x_2);
 return x_3;
 }
 }

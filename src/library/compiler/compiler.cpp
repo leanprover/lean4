@@ -273,6 +273,7 @@ void initialize_compiler() {
     register_trace_class({"compiler", "cce"});
     register_trace_class({"compiler", "simp"});
     register_trace_class({"compiler", "simp_detail"});
+    register_trace_class({"compiler", "simp_float_cases"});
     register_trace_class({"compiler", "elim_dead_let"});
     register_trace_class({"compiler", "cse"});
     register_trace_class({"compiler", "specialize"});

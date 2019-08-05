@@ -456,7 +456,7 @@ class csimp_fn {
                         }
                     }
                 }
-                lean_trace(name({"compiler", "simp"}),
+                lean_trace(name({"compiler", "simp_float_cases"}),
                            tout() << "mk_join " << fvar << "\n" << c << "\n---\n"
                            << e << "\n======>\n" << mk_app(fn, args) << "\n";);
                 return mk_app(fn, args);
@@ -653,7 +653,7 @@ class csimp_fn {
             new_minor                 = mk_minor_lambda(zs, new_minor);
             c_args[minor_idx]         = new_minor;
         }
-        lean_trace(name({"compiler", "simp"}),
+        lean_trace(name({"compiler", "simp_float_cases"}),
                    tout() << "float_cases_on [" << get_lcnf_size(env(), e) << "]\n" << c << "\n----\n" << e << "\n=====>\n"
                    << mk_app(c_fn, c_args) << "\n";);
         return mk_app(c_fn, c_args);

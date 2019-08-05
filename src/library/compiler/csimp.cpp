@@ -637,9 +637,11 @@ class csimp_fn {
             buffer<expr> zs;
             unsigned saved_fvars_size = m_fvars.size();
             expr minor_val            = get_minor_body(minor, zs);
-            flet<expr2ctor> save_expr2ctor(m_expr2ctor, m_expr2ctor);
-            update_expr2ctor(major, c_fn, c_args, i, zs);
-            minor_val                 = visit(minor_val, false);
+            {
+                flet<expr2ctor> save_expr2ctor(m_expr2ctor, m_expr2ctor);
+                update_expr2ctor(major, c_fn, c_args, i, zs);
+                minor_val             = visit(minor_val, false);
+            }
             expr new_minor;
             if (is_join_point_app(minor_val)) {
                 buffer<expr> jp_args;
@@ -1497,9 +1499,12 @@ class csimp_fn {
             unsigned saved_fvars_size = m_fvars.size();
             buffer<expr> zs;
             minor = get_minor_body(minor, zs);
-            flet<expr2ctor> save_expr2ctor(m_expr2ctor, m_expr2ctor);
-            update_expr2ctor(major, c, args, cidx, zs);
-            expr new_minor = visit(minor, false);
+            expr new_minor;
+            {
+                flet<expr2ctor> save_expr2ctor(m_expr2ctor, m_expr2ctor);
+                update_expr2ctor(major, c, args, cidx, zs);
+                new_minor = visit(minor, false);
+            }
             new_minor = mk_let(zs, saved_fvars_size, new_minor, false);
             expr result_minor = mk_minor_lambda(zs, new_minor);
             if (all_equal_opt) {

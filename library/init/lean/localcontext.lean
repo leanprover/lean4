@@ -65,6 +65,7 @@ instance : Inhabited LocalContext := ⟨{}⟩
 def isEmpty (lctx : LocalContext) : Bool :=
 lctx.nameToDecl.isEmpty
 
+/- Low level API for creating local declarations. It is used to implement actions in the monads `Elab` and `Tactic`. It should not be used directly since the argument `(name : Name)` is assumed to be "unique". -/
 def mkLocalDecl (lctx : LocalContext) (name : Name) (userName : Name) (type : Expr) (bi : BinderInfo := BinderInfo.default) : LocalDecl × LocalContext :=
 match lctx with
 | { nameToDecl := map, decls := decls } =>
@@ -146,10 +147,10 @@ universes u v
 variables {m : Type u → Type v} [Monad m]
 variable {β : Type u}
 
-@[specialize] def mfoldl (lctx : LocalContext) (f : LocalDecl → β → m β) (b : β) : m β :=
+@[specialize] def mfoldl (lctx : LocalContext) (f : β → LocalDecl → m β) (b : β) : m β :=
 lctx.decls.mfoldl (fun b decl => match decl with
   | none      => pure b
-  | some decl => f decl b)
+  | some decl => f b decl)
   b
 
 @[specialize] def mfindDecl (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
@@ -161,9 +162,16 @@ lctx.decls.mfind $ fun decl => match decl with
 lctx.decls.mfindRev $ fun decl => match decl with
   | none      => pure none
   | some decl => f decl
+
+@[specialize] def mfoldlFrom (lctx : LocalContext) (f : β → LocalDecl → m β) (b : β) (decl : LocalDecl) : m β :=
+lctx.decls.mfoldlFrom (fun b decl => match decl with
+  | none      => pure b
+  | some decl => f b decl)
+  b decl.index
+
 end
 
-@[inline] def foldl {β} (lctx : LocalContext) (f : LocalDecl → β → β) (b : β) : β :=
+@[inline] def foldl {β} (lctx : LocalContext) (f : β → LocalDecl → β) (b : β) : β :=
 Id.run $ lctx.mfoldl f b
 
 @[inline] def findDecl {β} (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
@@ -171,6 +179,29 @@ Id.run $ lctx.mfindDecl f
 
 @[inline] def findDeclRev {β} (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
 Id.run $ lctx.mfindDeclRev f
+
+@[inline] def foldlFrom {β} (lctx : LocalContext) (f : β → LocalDecl → β) (b : β) (decl : LocalDecl) : β :=
+Id.run $ lctx.mfoldlFrom f b decl
+
+partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) : Nat → Nat → Bool
+| i j :=
+  if i < a₁.size then
+  if j < a₂.size then
+    match a₁.get i with
+    | none       => isSubPrefixOfAux (i+1) j
+    | some decl₁ =>
+      match a₂.get j with
+      | none => isSubPrefixOfAux i (j+1)
+      | some decl₂ =>
+        if decl₁.name == decl₂.name then isSubPrefixOfAux (i+1) (j+1) else isSubPrefixOfAux i (j+1)
+  else false
+  else true
+
+/- Given `lctx₁` of the form `(x_1 : A_1) ... (x_n : A_n)`, then return true
+   iff there is a local context `B_1* (x_1 : A_1) ... B_n* (x_n : A_n)` which is a prefix
+   of `lctx₂` where `B_i`'s are (possibly empty) sequences of local declarations. -/
+def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) : Bool :=
+isSubPrefixOfAux lctx₁.decls lctx₂.decls 0 0
 
 end LocalContext
 end Lean

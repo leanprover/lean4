@@ -205,6 +205,20 @@ do b ← t.tail.mfindRev f;
    | none   => mfindRevAux f t.root
    | some b => pure (some b)
 
+partial def mfoldlFromAux (f : β → α → m β) : PersistentArrayNode α → USize → USize → β → m β
+| (node cs) i shift b := do
+  let j    := (div2Shift i shift).toNat;
+  b ← mfoldlFromAux (cs.get j) (mod2Shift i shift) (shift - initShift) b;
+  cs.mfoldlFrom (fun b c => mfoldlAux f c b) b (j+1)
+| (leaf vs) i _ b := vs.mfoldlFrom f b i.toNat
+
+def mfoldlFrom (t : PersistentArray α) (f : β → α → m β) (b : β) (ini : Nat) : m β :=
+if ini >= t.tailOff then
+  t.tail.mfoldlFrom f b (ini - t.tailOff)
+else do
+  b ← mfoldlFromAux f t.root (USize.ofNat ini) t.shift b;
+  t.tail.mfoldl f b
+
 end
 
 @[inline] def foldl {β} (t : PersistentArray α) (f : β → α → β) (b : β) : β :=
@@ -215,6 +229,9 @@ Id.run (t.mfind f)
 
 @[inline] def findRev {β} (t : PersistentArray α) (f : α → (Option β)) : Option β :=
 Id.run (t.mfindRev f)
+
+@[inline] def foldlFrom {β} (t : PersistentArray α) (f : β → α → β) (b : β) (ini : Nat) : β :=
+Id.run (t.mfoldlFrom f b ini)
 
 def toList (t : PersistentArray α) : List α :=
 (t.foldl (fun xs x => x :: xs) []).reverse

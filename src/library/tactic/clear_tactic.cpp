@@ -27,27 +27,6 @@ expr clear(metavar_context & mctx, expr const & mvar, expr const & H) {
     return new_mvar;
 }
 
-expr clear_rec_core(metavar_context & mctx, expr const & mvar) {
-    optional<metavar_decl> g   = mctx.find_metavar_decl(mvar);
-    lean_assert(g);
-    local_context lctx         = g->get_context();
-    if (optional<local_decl> d = lctx.find_if([](local_decl const & decl) { return is_rec(decl.get_info()); })) {
-        return clear(mctx, mvar, d->mk_ref());
-    } else {
-        return mvar;
-    }
-}
-
-expr clear_recs(metavar_context & mctx, expr const & mvar) {
-    expr curr = mvar;
-    while (true) {
-        expr next = clear_rec_core(mctx, curr);
-        if (next == curr)
-            return curr;
-        curr = next;
-    }
-}
-
 void initialize_clear_tactic() {
 }
 

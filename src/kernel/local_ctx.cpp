@@ -24,15 +24,12 @@ bool is_local_decl_ref(expr const & e) { // TODO(Leo): delete
 local_decl::local_decl():object_ref(*g_dummy_decl) {}
 
 local_decl::local_decl(unsigned idx, name const & n, name const & un, expr const & t, expr const & v):
-    object_ref(mk_cnstr(0, n, un, t, v, sizeof(unsigned) + sizeof(unsigned char))) {
-    cnstr_set_scalar<unsigned>(raw(), sizeof(object*)*4, idx);
-    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*4+sizeof(unsigned), 0);
+    object_ref(mk_cnstr(1, nat(idx), n, un, t, v)) {
 }
 
 local_decl::local_decl(unsigned idx, name const & n, name const & un, expr const & t, binder_info bi):
-    object_ref(mk_cnstr(0, n, un, t, object_ref(box(0)), sizeof(unsigned) + sizeof(unsigned char))) {
-    cnstr_set_scalar<unsigned>(raw(), sizeof(object*)*4, idx);
-    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*4+sizeof(unsigned), static_cast<unsigned char>(bi));
+    object_ref(mk_cnstr(0, nat(idx), n, un, t, sizeof(unsigned char))) {
+    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*4, static_cast<unsigned char>(bi));
 }
 
 local_decl::local_decl(local_decl const & d, expr const & t, expr const & v):

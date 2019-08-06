@@ -11,6 +11,11 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
+/*
+inductive LocalDecl
+| cdecl (index : Nat) (name : Name) (userName : Name) (type : Expr) (bi : BinderInfo)
+| ldecl (index : Nat) (name : Name) (userName : Name) (type : Expr) (value : Expr)
+*/
 class local_decl : public object_ref {
     friend class local_ctx;
     friend class local_context;
@@ -26,16 +31,18 @@ public:
     local_decl & operator=(local_decl const & other) { object_ref::operator=(other); return *this; }
     local_decl & operator=(local_decl && other) { object_ref::operator=(other); return *this; }
     friend bool is_eqp(local_decl const & d1, local_decl const & d2) { return d1.raw() == d2.raw(); }
-    name const & get_name() const { return static_cast<name const &>(cnstr_get_ref(raw(), 0)); }
-    name const & get_user_name() const { return static_cast<name const &>(cnstr_get_ref(raw(), 1)); }
-    expr const & get_type() const { return static_cast<expr const &>(cnstr_get_ref(raw(), 2)); }
+    unsigned get_idx() const { return static_cast<nat const &>(cnstr_get_ref(raw(), 0)).get_small_value(); }
+    name const & get_name() const { return static_cast<name const &>(cnstr_get_ref(raw(), 1)); }
+    name const & get_user_name() const { return static_cast<name const &>(cnstr_get_ref(raw(), 2)); }
+    expr const & get_type() const { return static_cast<expr const &>(cnstr_get_ref(raw(), 3)); }
     optional<expr> get_value() const {
-        /* Remark: if we decide to expose `local_decl` in Lean, we will need to use Lean `option` type. */
-        if (is_scalar(cnstr_get(raw(), 3))) return none_expr();
-        else return some_expr(static_cast<expr const &>(cnstr_get_ref(raw(), 3)));
+        if (cnstr_tag(raw()) == 0) return none_expr();
+        return some_expr(static_cast<expr const &>(cnstr_get_ref(raw(), 4)));
     }
-    unsigned get_idx() const { return cnstr_get_scalar<unsigned>(raw(), sizeof(object*)*4); }
-    binder_info get_info() const { return static_cast<binder_info>(cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*4+sizeof(unsigned))); }
+    binder_info get_info() const {
+        if (cnstr_tag(raw()) == 0) return static_cast<binder_info>(cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*4));
+        else return binder_info();
+    }
     expr mk_ref() const;
 };
 

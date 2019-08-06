@@ -302,7 +302,7 @@ bool local_context::well_formed(expr const & e) const {
     return ok;
 }
 
-format local_context::pp(formatter const & fmt, std::function<bool(local_decl const &)> const & pred) const { // NOLINT
+format local_context::pp(formatter const & fmt) const { // NOLINT
     options const & opts = fmt.get_options();
     unsigned indent      = get_pp_indent(opts);
     unsigned max_hs      = get_pp_goal_max_hyps(opts);
@@ -312,8 +312,6 @@ format local_context::pp(formatter const & fmt, std::function<bool(local_decl co
     optional<expr> type;
     format r;
     m_idx2local_decl.for_each([&](unsigned, local_decl const & d) {
-            if (!pred(d))
-                return;
             if (i >= max_hs)
                 return;
             i++;

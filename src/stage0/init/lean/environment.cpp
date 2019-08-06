@@ -10266,32 +10266,38 @@ uint8 x_4;
 x_4 = !lean::is_exclusive(x_3);
 if (x_4 == 0)
 {
-obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
 x_5 = lean::cnstr_get(x_3, 0);
 lean::dec(x_5);
 x_6 = lean::box(0);
-x_7 = lean::apply_1(x_1, x_2);
-x_8 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_8, 0, x_6);
-lean::cnstr_set(x_8, 1, x_7);
-lean::cnstr_set(x_3, 0, x_8);
+x_7 = lean::cnstr_get(x_1, 2);
+lean::inc(x_7);
+lean::dec(x_1);
+x_8 = lean::apply_1(x_7, x_2);
+x_9 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_9, 0, x_6);
+lean::cnstr_set(x_9, 1, x_8);
+lean::cnstr_set(x_3, 0, x_9);
 return x_3;
 }
 else
 {
-obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; 
-x_9 = lean::cnstr_get(x_3, 1);
-lean::inc(x_9);
+obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; 
+x_10 = lean::cnstr_get(x_3, 1);
+lean::inc(x_10);
 lean::dec(x_3);
-x_10 = lean::box(0);
-x_11 = lean::apply_1(x_1, x_2);
-x_12 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_12, 0, x_10);
-lean::cnstr_set(x_12, 1, x_11);
-x_13 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_13, 0, x_12);
-lean::cnstr_set(x_13, 1, x_9);
-return x_13;
+x_11 = lean::box(0);
+x_12 = lean::cnstr_get(x_1, 2);
+lean::inc(x_12);
+lean::dec(x_1);
+x_13 = lean::apply_1(x_12, x_2);
+x_14 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_14, 0, x_11);
+lean::cnstr_set(x_14, 1, x_13);
+x_15 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_15, 0, x_14);
+lean::cnstr_set(x_15, 1, x_10);
+return x_15;
 }
 }
 }
@@ -10302,48 +10308,57 @@ uint8 x_4;
 x_4 = !lean::is_exclusive(x_2);
 if (x_4 == 0)
 {
-obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
 x_5 = lean::cnstr_get(x_2, 0);
 x_6 = lean::cnstr_get(x_2, 1);
 lean::inc(x_3);
 x_7 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_7, 0, x_3);
 lean::cnstr_set(x_7, 1, x_5);
-x_8 = lean::apply_2(x_1, x_6, x_3);
-lean::cnstr_set(x_2, 1, x_8);
+x_8 = lean::cnstr_get(x_1, 1);
+lean::inc(x_8);
+lean::dec(x_1);
+x_9 = lean::apply_2(x_8, x_6, x_3);
+lean::cnstr_set(x_2, 1, x_9);
 lean::cnstr_set(x_2, 0, x_7);
 return x_2;
 }
 else
 {
-obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; 
-x_9 = lean::cnstr_get(x_2, 0);
-x_10 = lean::cnstr_get(x_2, 1);
+obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; 
+x_10 = lean::cnstr_get(x_2, 0);
+x_11 = lean::cnstr_get(x_2, 1);
+lean::inc(x_11);
 lean::inc(x_10);
-lean::inc(x_9);
 lean::dec(x_2);
 lean::inc(x_3);
-x_11 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_11, 0, x_3);
-lean::cnstr_set(x_11, 1, x_9);
-x_12 = lean::apply_2(x_1, x_10, x_3);
-x_13 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_13, 0, x_11);
-lean::cnstr_set(x_13, 1, x_12);
-return x_13;
+x_12 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_12, 0, x_3);
+lean::cnstr_set(x_12, 1, x_10);
+x_13 = lean::cnstr_get(x_1, 1);
+lean::inc(x_13);
+lean::dec(x_1);
+x_14 = lean::apply_2(x_13, x_11, x_3);
+x_15 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_15, 0, x_12);
+lean::cnstr_set(x_15, 1, x_14);
+return x_15;
 }
 }
 }
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3(obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; obj* x_4; obj* x_5; 
-x_3 = lean::cnstr_get(x_2, 0);
+obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
+x_3 = lean::cnstr_get(x_1, 3);
 lean::inc(x_3);
+lean::dec(x_1);
+x_4 = lean::cnstr_get(x_2, 0);
+lean::inc(x_4);
 lean::dec(x_2);
-x_4 = l_List_reverse___rarg(x_3);
-x_5 = lean::apply_1(x_1, x_4);
-return x_5;
+x_5 = l_List_reverse___rarg(x_4);
+x_6 = lean::apply_1(x_3, x_5);
+return x_6;
 }
 }
 obj* _init_l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4___closed__1() {
@@ -10394,31 +10409,26 @@ return x_1;
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; 
+obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
 x_4 = lean::cnstr_get(x_2, 0);
 lean::inc(x_4);
-x_5 = lean::cnstr_get(x_2, 1);
-lean::inc(x_5);
-x_6 = lean::cnstr_get(x_2, 2);
-lean::inc(x_6);
-x_7 = lean::cnstr_get(x_2, 3);
-lean::inc(x_7);
-lean::dec(x_2);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1), 3, 1);
-lean::closure_set(x_8, 0, x_6);
-x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2), 3, 1);
-lean::closure_set(x_9, 0, x_5);
-x_10 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3), 2, 1);
-lean::closure_set(x_10, 0, x_7);
-x_11 = l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1;
-x_12 = lean::alloc_cnstr(0, 5, 0);
-lean::cnstr_set(x_12, 0, x_4);
-lean::cnstr_set(x_12, 1, x_8);
-lean::cnstr_set(x_12, 2, x_9);
-lean::cnstr_set(x_12, 3, x_10);
-lean::cnstr_set(x_12, 4, x_11);
-x_13 = l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_registerSimplePersistentEnvExtension___spec__1___rarg(x_1, x_12, x_3);
-return x_13;
+lean::inc(x_2);
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1), 3, 1);
+lean::closure_set(x_5, 0, x_2);
+lean::inc(x_2);
+x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2), 3, 1);
+lean::closure_set(x_6, 0, x_2);
+x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3), 2, 1);
+lean::closure_set(x_7, 0, x_2);
+x_8 = l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1;
+x_9 = lean::alloc_cnstr(0, 5, 0);
+lean::cnstr_set(x_9, 0, x_4);
+lean::cnstr_set(x_9, 1, x_5);
+lean::cnstr_set(x_9, 2, x_6);
+lean::cnstr_set(x_9, 3, x_7);
+lean::cnstr_set(x_9, 4, x_8);
+x_10 = l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_registerSimplePersistentEnvExtension___spec__1___rarg(x_1, x_9, x_3);
+return x_10;
 }
 }
 obj* l_Lean_registerSimplePersistentEnvExtension(obj* x_1, obj* x_2) {
@@ -19036,31 +19046,26 @@ return x_195;
 obj* l_Lean_registerSimplePersistentEnvExtension___at_Lean_regNamespacesExtension___spec__4(obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; 
+obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
 x_3 = lean::cnstr_get(x_1, 0);
 lean::inc(x_3);
-x_4 = lean::cnstr_get(x_1, 1);
-lean::inc(x_4);
-x_5 = lean::cnstr_get(x_1, 2);
-lean::inc(x_5);
-x_6 = lean::cnstr_get(x_1, 3);
-lean::inc(x_6);
-lean::dec(x_1);
-x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1), 3, 1);
-lean::closure_set(x_7, 0, x_5);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2), 3, 1);
-lean::closure_set(x_8, 0, x_4);
-x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3), 2, 1);
-lean::closure_set(x_9, 0, x_6);
-x_10 = l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1;
-x_11 = lean::alloc_cnstr(0, 5, 0);
-lean::cnstr_set(x_11, 0, x_3);
-lean::cnstr_set(x_11, 1, x_7);
-lean::cnstr_set(x_11, 2, x_8);
-lean::cnstr_set(x_11, 3, x_9);
-lean::cnstr_set(x_11, 4, x_10);
-x_12 = l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_regNamespacesExtension___spec__5(x_11, x_2);
-return x_12;
+lean::inc(x_1);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1), 3, 1);
+lean::closure_set(x_4, 0, x_1);
+lean::inc(x_1);
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2), 3, 1);
+lean::closure_set(x_5, 0, x_1);
+x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3), 2, 1);
+lean::closure_set(x_6, 0, x_1);
+x_7 = l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1;
+x_8 = lean::alloc_cnstr(0, 5, 0);
+lean::cnstr_set(x_8, 0, x_3);
+lean::cnstr_set(x_8, 1, x_4);
+lean::cnstr_set(x_8, 2, x_5);
+lean::cnstr_set(x_8, 3, x_6);
+lean::cnstr_set(x_8, 4, x_7);
+x_9 = l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_regNamespacesExtension___spec__5(x_8, x_2);
+return x_9;
 }
 }
 obj* l_Lean_regNamespacesExtension___lambda__1(obj* x_1, obj* x_2) {

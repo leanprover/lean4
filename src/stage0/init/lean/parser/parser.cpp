@@ -6695,22 +6695,20 @@ lean::inc(x_5);
 x_6 = lean::string_utf8_at_end(x_4, x_5);
 if (x_6 == 0)
 {
-uint32 x_7; obj* x_8; obj* x_9; uint8 x_20; 
+uint32 x_7; obj* x_8; uint8 x_9; uint8 x_21; 
 x_7 = lean::string_utf8_get(x_4, x_5);
 x_8 = lean::string_utf8_next(x_4, x_5);
 lean::dec(x_5);
-x_20 = l_Char_isDigit(x_7);
-if (x_20 == 0)
+x_21 = l_Char_isDigit(x_7);
+if (x_21 == 0)
 {
-uint32 x_21; uint8 x_22; 
-x_21 = 97;
-x_22 = x_21 <= x_7;
-if (x_22 == 0)
+uint32 x_22; uint8 x_23; 
+x_22 = 97;
+x_23 = x_22 <= x_7;
+if (x_23 == 0)
 {
-obj* x_23; 
-x_23 = lean::box(0);
-x_9 = x_23;
-goto block_19;
+x_9 = x_21;
+goto block_20;
 }
 else
 {
@@ -6719,10 +6717,16 @@ x_24 = 102;
 x_25 = x_7 <= x_24;
 if (x_25 == 0)
 {
+x_9 = x_25;
+goto block_20;
+}
+else
+{
 obj* x_26; 
-x_26 = lean::box(0);
-x_9 = x_26;
-goto block_19;
+x_26 = l_Lean_Parser_ParserState_setPos(x_2, x_8);
+return x_26;
+}
+}
 }
 else
 {
@@ -6730,21 +6734,14 @@ obj* x_27;
 x_27 = l_Lean_Parser_ParserState_setPos(x_2, x_8);
 return x_27;
 }
-}
-}
-else
-{
-obj* x_28; 
-x_28 = l_Lean_Parser_ParserState_setPos(x_2, x_8);
-return x_28;
-}
-block_19:
+block_20:
 {
 uint32 x_10; uint8 x_11; 
-lean::dec(x_9);
 x_10 = 65;
 x_11 = x_10 <= x_7;
 if (x_11 == 0)
+{
+if (x_9 == 0)
 {
 obj* x_12; obj* x_13; 
 lean::dec(x_8);
@@ -6754,33 +6751,40 @@ return x_13;
 }
 else
 {
-uint32 x_14; uint8 x_15; 
-x_14 = 70;
-x_15 = x_7 <= x_14;
-if (x_15 == 0)
-{
-obj* x_16; obj* x_17; 
-lean::dec(x_8);
-x_16 = l_Lean_Parser_hexDigitFn___main___closed__1;
-x_17 = l_Lean_Parser_ParserState_mkUnexpectedError(x_2, x_16);
-return x_17;
+obj* x_14; 
+x_14 = l_Lean_Parser_ParserState_setPos(x_2, x_8);
+return x_14;
+}
 }
 else
 {
-obj* x_18; 
-x_18 = l_Lean_Parser_ParserState_setPos(x_2, x_8);
+uint32 x_15; uint8 x_16; 
+x_15 = 70;
+x_16 = x_7 <= x_15;
+if (x_16 == 0)
+{
+obj* x_17; obj* x_18; 
+lean::dec(x_8);
+x_17 = l_Lean_Parser_hexDigitFn___main___closed__1;
+x_18 = l_Lean_Parser_ParserState_mkUnexpectedError(x_2, x_17);
 return x_18;
 }
+else
+{
+obj* x_19; 
+x_19 = l_Lean_Parser_ParserState_setPos(x_2, x_8);
+return x_19;
+}
 }
 }
 }
 else
 {
-obj* x_29; obj* x_30; 
+obj* x_28; obj* x_29; 
 lean::dec(x_5);
-x_29 = l_Lean_Parser_ParserState_mkEOIError___closed__1;
-x_30 = l_Lean_Parser_ParserState_mkUnexpectedError(x_2, x_29);
-return x_30;
+x_28 = l_Lean_Parser_ParserState_mkEOIError___closed__1;
+x_29 = l_Lean_Parser_ParserState_mkUnexpectedError(x_2, x_28);
+return x_29;
 }
 }
 }
@@ -7892,12 +7896,12 @@ x_10 = 97;
 x_11 = x_10 <= x_8;
 if (x_11 == 0)
 {
+if (x_9 == 0)
+{
 uint32 x_12; uint8 x_13; 
 x_12 = 65;
 x_13 = x_12 <= x_8;
 if (x_13 == 0)
-{
-if (x_9 == 0)
 {
 obj* x_14; 
 lean::dec(x_4);
@@ -7906,24 +7910,25 @@ return x_14;
 }
 else
 {
-obj* x_15; 
-lean::dec(x_1);
-x_15 = l_Lean_Parser_ParserState_next(x_3, x_6, x_4);
+uint32 x_15; uint8 x_16; 
+x_15 = 70;
+x_16 = x_8 <= x_15;
+if (x_16 == 0)
+{
+obj* x_17; 
 lean::dec(x_4);
-return x_15;
-}
+x_17 = l_Lean_Parser_ParserState_mkUnexpectedError(x_3, x_1);
+return x_17;
 }
 else
 {
-uint32 x_16; uint8 x_17; 
-x_16 = 70;
-x_17 = x_8 <= x_16;
-if (x_17 == 0)
-{
 obj* x_18; 
+lean::dec(x_1);
+x_18 = l_Lean_Parser_ParserState_next(x_3, x_6, x_4);
 lean::dec(x_4);
-x_18 = l_Lean_Parser_ParserState_mkUnexpectedError(x_3, x_1);
 return x_18;
+}
+}
 }
 else
 {
@@ -7932,7 +7937,6 @@ lean::dec(x_1);
 x_19 = l_Lean_Parser_ParserState_next(x_3, x_6, x_4);
 lean::dec(x_4);
 return x_19;
-}
 }
 }
 else
@@ -8044,34 +8048,35 @@ x_9 = 97;
 x_10 = x_9 <= x_7;
 if (x_10 == 0)
 {
+if (x_8 == 0)
+{
 uint32 x_11; uint8 x_12; 
 x_11 = 65;
 x_12 = x_11 <= x_7;
 if (x_12 == 0)
 {
-if (x_8 == 0)
+lean::dec(x_3);
+return x_2;
+}
+else
+{
+uint32 x_13; uint8 x_14; 
+x_13 = 70;
+x_14 = x_7 <= x_13;
+if (x_14 == 0)
 {
 lean::dec(x_3);
 return x_2;
 }
 else
 {
-obj* x_13; 
-x_13 = l_Lean_Parser_ParserState_next(x_2, x_5, x_3);
+obj* x_15; 
+x_15 = l_Lean_Parser_ParserState_next(x_2, x_5, x_3);
 lean::dec(x_3);
-x_2 = x_13;
+x_2 = x_15;
 goto _start;
 }
 }
-else
-{
-uint32 x_15; uint8 x_16; 
-x_15 = 70;
-x_16 = x_7 <= x_15;
-if (x_16 == 0)
-{
-lean::dec(x_3);
-return x_2;
 }
 else
 {
@@ -8080,7 +8085,6 @@ x_17 = l_Lean_Parser_ParserState_next(x_2, x_5, x_3);
 lean::dec(x_3);
 x_2 = x_17;
 goto _start;
-}
 }
 }
 else

@@ -1182,37 +1182,63 @@ return x_3;
 uint8 l_Lean_IR_ExplicitBoxing_eqvTypes(uint8 x_1, uint8 x_2) {
 _start:
 {
-uint8 x_3; uint8 x_4; 
+uint8 x_3; uint8 x_4; uint8 x_5; 
 x_3 = l_Lean_IR_IRType_isScalar___main(x_1);
 x_4 = l_Lean_IR_IRType_isScalar___main(x_2);
 if (x_3 == 0)
 {
 if (x_4 == 0)
 {
-uint8 x_5; 
-x_5 = 1;
-return x_5;
+uint8 x_9; 
+x_9 = 1;
+x_5 = x_9;
+goto block_8;
 }
 else
 {
-uint8 x_6; 
-x_6 = 0;
-return x_6;
+uint8 x_10; 
+x_10 = 0;
+x_5 = x_10;
+goto block_8;
 }
 }
 else
 {
 if (x_4 == 0)
 {
-uint8 x_7; 
-x_7 = 0;
-return x_7;
+uint8 x_11; 
+x_11 = 0;
+x_5 = x_11;
+goto block_8;
 }
 else
 {
-uint8 x_8; 
-x_8 = l_Lean_IR_IRType_beq___main(x_1, x_2);
-return x_8;
+uint8 x_12; 
+x_12 = 1;
+x_5 = x_12;
+goto block_8;
+}
+}
+block_8:
+{
+if (x_5 == 0)
+{
+uint8 x_6; 
+x_6 = 0;
+return x_6;
+}
+else
+{
+if (x_3 == 0)
+{
+return x_5;
+}
+else
+{
+uint8 x_7; 
+x_7 = l_Lean_IR_IRType_beq___main(x_1, x_2);
+return x_7;
+}
 }
 }
 }

@@ -17,6 +17,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
 obj* l_Lean_attrParamSyntaxToIdentifier(obj*);
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
+obj* l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__2___boxed(obj*, obj*, obj*, obj*);
 extern obj* l_Array_empty___closed__1;
 namespace lean {
 obj* nat_sub(obj*, obj*);
@@ -31,9 +32,8 @@ obj* get_export_name_for_core(obj*, obj*);
 }
 extern obj* l_Lean_AttributeImpl_inhabited___closed__5;
 obj* l_Lean_mkExportAttr___lambda__1(obj*, obj*, obj*);
-uint8 l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__2;
 uint8 l_Lean_isExport(obj*, obj*);
-obj* l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__1___boxed(obj*, obj*, obj*);
+obj* l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_getExportNameFor___spec__2(obj*, obj*);
 obj* l___private_init_lean_compiler_exportattr_2__isValidCppName___main___boxed(obj*);
 obj* l_Lean_registerAttribute(obj*, obj*);
@@ -85,6 +85,7 @@ uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_RBNode_fold___main___at_Lean_mkExportAttr___spec__2(obj*, obj*);
 uint8 l___private_init_lean_compiler_exportattr_2__isValidCppName___main(obj*);
+uint8 l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__2(uint8, obj*, obj*, obj*);
 obj* l_Array_push(obj*, obj*, obj*);
 obj* l_Lean_ParametricAttribute_getParam___at_Lean_getExportNameFor___spec__1___boxed(obj*, obj*, obj*);
 namespace lean {
@@ -108,7 +109,6 @@ obj* l_Array_get(obj*, obj*, obj*, obj*);
 namespace lean {
 obj* string_utf8_next(obj*, obj*);
 }
-uint8 l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__1;
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 extern obj* l_Lean_Name_toString___closed__1;
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkExportAttr___spec__4___closed__1;
@@ -128,7 +128,7 @@ obj* l_Lean_mkExportAttr___lambda__1___closed__3;
 obj* l_RBNode_fold___main___at_Lean_mkExportAttr___spec__2___boxed(obj*, obj*);
 obj* l_Lean_mkExportAttr___closed__3;
 extern obj* l___private_init_lean_environment_8__persistentEnvExtensionsRef;
-uint8 l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__1(obj*, obj*, obj*);
+uint8 l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__1(uint8, obj*, obj*, obj*);
 obj* l_Lean_ParametricAttribute_getParam___at_Lean_getExportNameFor___spec__1(obj*, obj*, obj*);
 obj* l_Array_qsortAux___main___at_Lean_mkExportAttr___spec__3___boxed(obj*, obj*, obj*);
 extern obj* l_Lean_registerTagAttribute___closed__1;
@@ -141,95 +141,195 @@ obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkExport
 obj* l_Lean_registerTagAttribute___lambda__6___boxed(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_String_splitAux___main___closed__1;
 obj* l_Array_binSearchAux___main___at_Lean_getExportNameFor___spec__3(obj*, obj*, obj*, obj*);
-uint8 l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__1(obj* x_1, obj* x_2, obj* x_3) {
+uint8 l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__1(uint8 x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-uint8 x_4; 
-x_4 = lean::nat_dec_eq(x_3, x_2);
-if (x_4 == 0)
+uint8 x_5; 
+x_5 = lean::nat_dec_eq(x_4, x_3);
+if (x_5 == 0)
 {
-uint32 x_5; uint8 x_6; 
-x_5 = lean::string_utf8_get(x_1, x_3);
-x_6 = l_Char_isAlpha(x_5);
-if (x_6 == 0)
-{
-uint8 x_7; 
-x_7 = l_Char_isDigit(x_5);
+uint32 x_6; uint8 x_7; 
+x_6 = lean::string_utf8_get(x_2, x_4);
+x_7 = l_Char_isAlpha(x_6);
 if (x_7 == 0)
 {
-uint32 x_8; uint8 x_9; 
-x_8 = 95;
-x_9 = x_5 == x_8;
-if (x_9 == 0)
+uint8 x_8; 
+x_8 = l_Char_isDigit(x_6);
+if (x_8 == 0)
 {
-uint8 x_10; 
-lean::dec(x_3);
-x_10 = 1;
-return x_10;
+uint32 x_9; uint8 x_10; 
+x_9 = 95;
+x_10 = x_6 == x_9;
+if (x_10 == 0)
+{
+uint8 x_11; 
+lean::dec(x_4);
+x_11 = 1;
+return x_11;
 }
 else
 {
-obj* x_11; 
-x_11 = lean::string_utf8_next(x_1, x_3);
-lean::dec(x_3);
-x_3 = x_11;
+obj* x_12; 
+x_12 = lean::string_utf8_next(x_2, x_4);
+lean::dec(x_4);
+x_4 = x_12;
 goto _start;
 }
 }
 else
 {
-obj* x_13; 
-x_13 = lean::string_utf8_next(x_1, x_3);
-lean::dec(x_3);
-x_3 = x_13;
-goto _start;
-}
+if (x_1 == 0)
+{
+uint8 x_14; 
+lean::dec(x_4);
+x_14 = 1;
+return x_14;
 }
 else
 {
 obj* x_15; 
-x_15 = lean::string_utf8_next(x_1, x_3);
-lean::dec(x_3);
-x_3 = x_15;
+x_15 = lean::string_utf8_next(x_2, x_4);
+lean::dec(x_4);
+x_4 = x_15;
+goto _start;
+}
+}
+}
+else
+{
+if (x_1 == 0)
+{
+uint32 x_17; uint8 x_18; 
+x_17 = 95;
+x_18 = x_6 == x_17;
+if (x_18 == 0)
+{
+uint8 x_19; 
+lean::dec(x_4);
+x_19 = 1;
+return x_19;
+}
+else
+{
+obj* x_20; 
+x_20 = lean::string_utf8_next(x_2, x_4);
+lean::dec(x_4);
+x_4 = x_20;
 goto _start;
 }
 }
 else
 {
-uint8 x_17; 
-lean::dec(x_3);
-x_17 = 0;
-return x_17;
+obj* x_22; 
+x_22 = lean::string_utf8_next(x_2, x_4);
+lean::dec(x_4);
+x_4 = x_22;
+goto _start;
 }
 }
-}
-uint8 _init_l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__1() {
-_start:
-{
-obj* x_1; obj* x_2; obj* x_3; uint8 x_4; 
-x_1 = l_String_splitAux___main___closed__1;
-x_2 = l_Substring_drop___main___closed__1;
-x_3 = lean::mk_nat_obj(0u);
-x_4 = l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__1(x_1, x_2, x_3);
-return x_4;
-}
-}
-uint8 _init_l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__2() {
-_start:
-{
-uint8 x_1; 
-x_1 = l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__1;
-if (x_1 == 0)
-{
-uint8 x_2; 
-x_2 = 1;
-return x_2;
 }
 else
 {
-uint8 x_3; 
-x_3 = 0;
-return x_3;
+uint8 x_24; 
+lean::dec(x_4);
+x_24 = 0;
+return x_24;
+}
+}
+}
+uint8 l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__2(uint8 x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+uint8 x_5; 
+x_5 = lean::nat_dec_eq(x_4, x_3);
+if (x_5 == 0)
+{
+uint32 x_6; uint8 x_7; 
+x_6 = lean::string_utf8_get(x_2, x_4);
+x_7 = l_Char_isAlpha(x_6);
+if (x_7 == 0)
+{
+uint8 x_8; 
+x_8 = l_Char_isDigit(x_6);
+if (x_8 == 0)
+{
+uint32 x_9; uint8 x_10; 
+x_9 = 95;
+x_10 = x_6 == x_9;
+if (x_10 == 0)
+{
+uint8 x_11; 
+lean::dec(x_4);
+x_11 = 1;
+return x_11;
+}
+else
+{
+obj* x_12; 
+x_12 = lean::string_utf8_next(x_2, x_4);
+lean::dec(x_4);
+x_4 = x_12;
+goto _start;
+}
+}
+else
+{
+if (x_1 == 0)
+{
+uint8 x_14; 
+lean::dec(x_4);
+x_14 = 1;
+return x_14;
+}
+else
+{
+obj* x_15; 
+x_15 = lean::string_utf8_next(x_2, x_4);
+lean::dec(x_4);
+x_4 = x_15;
+goto _start;
+}
+}
+}
+else
+{
+if (x_1 == 0)
+{
+uint32 x_17; uint8 x_18; 
+x_17 = 95;
+x_18 = x_6 == x_17;
+if (x_18 == 0)
+{
+uint8 x_19; 
+lean::dec(x_4);
+x_19 = 1;
+return x_19;
+}
+else
+{
+obj* x_20; 
+x_20 = lean::string_utf8_next(x_2, x_4);
+lean::dec(x_4);
+x_4 = x_20;
+goto _start;
+}
+}
+else
+{
+obj* x_22; 
+x_22 = lean::string_utf8_next(x_2, x_4);
+lean::dec(x_4);
+x_4 = x_22;
+goto _start;
+}
+}
+}
+else
+{
+uint8 x_24; 
+lean::dec(x_4);
+x_24 = 0;
+return x_24;
 }
 }
 }
@@ -255,7 +355,7 @@ x_8 = lean::nat_dec_le(x_6, x_7);
 if (x_8 == 0)
 {
 uint8 x_9; 
-x_9 = l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__1(x_1, x_6, x_7);
+x_9 = l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__1(x_4, x_1, x_6, x_7);
 lean::dec(x_6);
 if (x_9 == 0)
 {
@@ -272,23 +372,51 @@ return x_11;
 }
 else
 {
-uint8 x_12; 
+obj* x_12; obj* x_13; uint8 x_14; 
 lean::dec(x_6);
-x_12 = l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__2;
-return x_12;
+x_12 = l_String_splitAux___main___closed__1;
+x_13 = l_Substring_drop___main___closed__1;
+x_14 = l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__2(x_4, x_12, x_13, x_2);
+if (x_14 == 0)
+{
+uint8 x_15; 
+x_15 = 1;
+return x_15;
+}
+else
+{
+uint8 x_16; 
+x_16 = 0;
+return x_16;
 }
 }
 }
 }
-obj* l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__1___boxed(obj* x_1, obj* x_2, obj* x_3) {
+}
+obj* l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__1___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-uint8 x_4; obj* x_5; 
-x_4 = l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__1(x_1, x_2, x_3);
-lean::dec(x_2);
+uint8 x_5; uint8 x_6; obj* x_7; 
+x_5 = lean::unbox(x_1);
 lean::dec(x_1);
-x_5 = lean::box(x_4);
-return x_5;
+x_6 = l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__1(x_5, x_2, x_3, x_4);
+lean::dec(x_3);
+lean::dec(x_2);
+x_7 = lean::box(x_6);
+return x_7;
+}
+}
+obj* l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__2___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+uint8 x_5; uint8 x_6; obj* x_7; 
+x_5 = lean::unbox(x_1);
+lean::dec(x_1);
+x_6 = l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__2(x_5, x_2, x_3, x_4);
+lean::dec(x_3);
+lean::dec(x_2);
+x_7 = lean::box(x_6);
+return x_7;
 }
 }
 obj* l___private_init_lean_compiler_exportattr_1__isValidCppId___boxed(obj* x_1) {
@@ -3081,8 +3209,6 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_attributes(w);
 if (io_result_is_error(w)) return w;
-l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__1 = _init_l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__1();
-l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__2 = _init_l___private_init_lean_compiler_exportattr_1__isValidCppId___closed__2();
 l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkExportAttr___spec__4___closed__1 = _init_l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkExportAttr___spec__4___closed__1();
 lean::mark_persistent(l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkExportAttr___spec__4___closed__1);
 l_Lean_registerParametricAttribute___at_Lean_mkExportAttr___spec__1___closed__1 = _init_l_Lean_registerParametricAttribute___at_Lean_mkExportAttr___spec__1___closed__1();

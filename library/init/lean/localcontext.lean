@@ -56,8 +56,8 @@ def updateUserName : LocalDecl → Name → LocalDecl
 end LocalDecl
 
 structure LocalContext :=
-(nameToDecl : PHashMap Name LocalDecl   := PersistentHashMap.empty)
-(decls      : PArray (Option LocalDecl) := PersistentArray.empty)
+(nameToDecl : PersistentHashMap Name LocalDecl := {})
+(decls      : PersistentArray (Option LocalDecl) := {})
 
 namespace LocalContext
 instance : Inhabited LocalContext := ⟨{}⟩

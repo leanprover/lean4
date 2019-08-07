@@ -24,10 +24,10 @@ structure DelayedMetavarAssignment :=
 (val      : Expr)
 
 structure MetavarContext :=
-(decls       : PHashMap Name MetavarDecl)
-(lAssignment : PHashMap Name Level)
-(eAssignment : PHashMap Name Expr)
-(dAssignment : PHashMap Name DelayedMetavarAssignment)
+(decls       : PersistentHashMap Name MetavarDecl := {})
+(lAssignment : PersistentHashMap Name Level := {})
+(eAssignment : PersistentHashMap Name Expr := {})
+(dAssignment : PersistentHashMap Name DelayedMetavarAssignment := {})
 
 namespace MetavarContext
 

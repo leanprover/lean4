@@ -240,15 +240,14 @@ list<expr> erase_inaccessible_annotations(list<expr> const & es) {
 
 local_context erase_inaccessible_annotations(local_context const & lctx) {
     local_context r;
-    r.m_next_idx        = lctx.m_next_idx;
     lctx.m_idx2local_decl.for_each([&](unsigned, local_decl const & d) {
             expr new_type = erase_inaccessible_annotations(d.get_type());
-            optional<expr> new_value;
-            if (auto val = d.get_value())
-                new_value = erase_inaccessible_annotations(*val);
-            auto new_d = local_context::update_local_decl(d, new_type, new_value);
-            r.m_name2local_decl.insert(d.get_name(), new_d);
-            r.m_idx2local_decl.insert(d.get_idx(), new_d);
+            if (auto val = d.get_value()) {
+                expr new_value = erase_inaccessible_annotations(*val);
+                r.mk_local_decl_core(d.get_name(), d.get_user_name(), new_type, new_value);
+            } else {
+                r.mk_local_decl_core(d.get_name(), d.get_user_name(), new_type, d.get_info());
+            }
         });
     return r;
 }

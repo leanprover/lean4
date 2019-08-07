@@ -77,6 +77,8 @@ message_builder & message_builder::set_exception(std::exception const & ex, bool
     } else if (dynamic_cast<declaration_has_free_vars_exception const *>(&ex)) {
         *this << "invalid declaration, it contains free variables";
     } else if (auto kex = dynamic_cast<kernel_exception_with_lctx const *>(&ex)) {
+        // TODO(Leo) FIX
+#if 0
         type_context_old ctx(kex->get_environment(), get_global_ios().get_options(), metavar_context(),
                              local_context(kex->get_local_ctx()));
         auto fmt = get_global_ios().get_formatter_factory()(kex->get_environment(), get_global_ios().get_options(),
@@ -99,6 +101,7 @@ message_builder & message_builder::set_exception(std::exception const & ex, bool
         } else {
             lean_unreachable();
         }
+#endif
     } else {
         *this << ex.what();
     }

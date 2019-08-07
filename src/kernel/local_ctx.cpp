@@ -43,37 +43,42 @@ expr local_decl::mk_ref() const {
     return mk_local_ref(get_name(), get_user_name(), get_info());
 }
 
+object * mk_empty_local_ctx_core(object*);
+uint8 local_ctx_is_empty_core(object*);
+object * local_ctx_mk_local_decl_core(object * lctx, object * name, object * user_name, object * expr, uint8 bi);
+object * local_ctx_mk_let_decl_core(object * lctx, object * name, object * user_name, object * type, object * value);
+object * local_ctx_find_core(object * lctx, object * name);
+object * local_ctx_erase_core(object * lctx, object * name);
+
+local_ctx::local_ctx():object_ref(mk_empty_local_ctx_core(box(0))) {
+}
+
+bool local_ctx::empty() const {
+    return local_ctx_is_empty_core(to_obj_arg());
+}
+
 local_decl local_ctx::mk_local_decl(name const & n, name const & un, expr const & type, expr const & value) {
-    lean_assert(!m_name2local_decl.contains(n));
-    unsigned idx = m_next_idx;
-    m_next_idx++;
-    local_decl d(idx, n, un, type, value);
-    m_name2local_decl.insert(n, d);
-    return d;
+    object * p = local_ctx_mk_let_decl_core(raw(), n.to_obj_arg(), un.to_obj_arg(), type.to_obj_arg(), value.to_obj_arg());
+    local_decl decl(cnstr_get(p, 0));
+    m_obj = cnstr_get(p, 1);
+    free_heap_obj(p);
+    return decl;
 }
 
 local_decl local_ctx::mk_local_decl(name const & n, name const & un, expr const & type, binder_info bi) {
-    lean_assert(!m_name2local_decl.contains(n));
-    unsigned idx = m_next_idx;
-    m_next_idx++;
-    local_decl d(idx, n, un, type, bi);
-    m_name2local_decl.insert(n, d);
-    return d;
+    object * p = local_ctx_mk_local_decl_core(raw(), n.to_obj_arg(), un.to_obj_arg(), type.to_obj_arg(), static_cast<uint8>(bi));
+    local_decl decl(cnstr_get(p, 0));
+    m_obj = cnstr_get(p, 1);
+    free_heap_obj(p);
+    return decl;
 }
 
 optional<local_decl> local_ctx::find_local_decl(name const & n) const {
-    if (auto r = m_name2local_decl.find(n))
-        return optional<local_decl>(*r);
-    else
-        return optional<local_decl>();
+    return to_optional<local_decl>(local_ctx_find_core(to_obj_arg(), n.to_obj_arg()));
 }
 
-optional<local_decl> local_ctx::find_local_decl(expr const & e) const {
-    return find_local_decl(local_name(e));
-}
-
-local_decl const & local_ctx::get_local_decl(name const & n) const {
-    if (local_decl const * r = m_name2local_decl.find(n))
+local_decl local_ctx::get_local_decl(name const & n) const {
+    if (optional<local_decl> r = find_local_decl(n))
         return *r;
     else
         throw exception(sstream() << "unknown free variable: " << n);
@@ -85,8 +90,7 @@ expr local_ctx::get_local(name const & n) const {
 }
 
 void local_ctx::clear(local_decl const & d) {
-    lean_assert(find_local_decl(d.get_name()));
-    m_name2local_decl.erase(d.get_name());
+    m_obj = local_ctx_erase_core(m_obj, d.get_name().to_obj_arg());
 }
 
 template<bool is_lambda>

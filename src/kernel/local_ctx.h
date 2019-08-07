@@ -28,6 +28,8 @@ public:
     local_decl();
     local_decl(local_decl const & other):object_ref(other) {}
     local_decl(local_decl && other):object_ref(other) {}
+    local_decl(obj_arg o):object_ref(o) {}
+    local_decl(b_obj_arg o, bool):object_ref(o, true) {}
     local_decl & operator=(local_decl const & other) { object_ref::operator=(other); return *this; }
     local_decl & operator=(local_decl && other) { object_ref::operator=(other); return *this; }
     friend bool is_eqp(local_decl const & d1, local_decl const & d2) { return d1.raw() == d2.raw(); }
@@ -47,16 +49,17 @@ public:
 };
 
 /* Plain local context object used by the kernel type checker. */
-class local_ctx {
+class local_ctx : public object_ref {
 protected:
-    unsigned                  m_next_idx;
-    name_map<local_decl>      m_name2local_decl; // mapping from unique identifier to local_decl
-
     template<bool is_lambda> expr mk_binding(unsigned num, expr const * fvars, expr const & b) const;
 public:
-    local_ctx():m_next_idx(0) {}
+    local_ctx();
+    local_ctx(local_ctx const & other):object_ref(other) {}
+    local_ctx(local_ctx && other):object_ref(other) {}
+    local_ctx & operator=(local_ctx const & other) { object_ref::operator=(other); return *this; }
+    local_ctx & operator=(local_ctx && other) { object_ref::operator=(other); return *this; }
 
-    bool empty() const { return m_name2local_decl.empty(); }
+    bool empty() const;
 
     /* Low level `mk_local_decl` */
     local_decl mk_local_decl(name const & n, name const & un, expr const & type, binder_info bi);
@@ -71,14 +74,12 @@ public:
         return mk_local_decl(g.next(), un, type, value).mk_ref();
     }
 
-    /** \brief Return the local declarations for the given reference.
-
-        \pre is_fvar(e) */
-    optional<local_decl> find_local_decl(expr const & e) const;
+    /** \brief Return the local declarations for the given reference. */
     optional<local_decl> find_local_decl(name const & n) const;
+    optional<local_decl> find_local_decl(expr const & e) const { return find_local_decl(fvar_name(e)); }
 
-    local_decl const & get_local_decl(name const & n) const;
-    local_decl const & get_local_decl(expr const & e) const { return get_local_decl(fvar_name(e)); }
+    local_decl get_local_decl(name const & n) const;
+    local_decl get_local_decl(expr const & e) const { return get_local_decl(fvar_name(e)); }
 
     /* \brief Return type of the given free variable.
        \pre is_fvar(e) */
@@ -99,14 +100,6 @@ public:
     expr mk_pi(expr const & fvar, expr const & e) { return mk_pi(1, &fvar, e); }
     expr mk_lambda(std::initializer_list<expr> const & fvars, expr const & e) { return mk_lambda(fvars.size(), fvars.begin(), e); }
     expr mk_pi(std::initializer_list<expr> const & fvars, expr const & e) { return mk_pi(fvars.size(), fvars.begin(), e); }
-
-    friend bool is_decl_eqp(local_ctx const & ctx1, local_ctx const & ctx2) {
-        return is_eqp(ctx1.m_name2local_decl, ctx2.m_name2local_decl);
-    }
-
-    friend bool equal_locals(local_ctx const & ctx1, local_ctx const & ctx2) {
-        return is_decl_eqp(ctx1, ctx2) || ctx1.m_name2local_decl.equal_keys(ctx2.m_name2local_decl);
-    }
 };
 
 void initialize_local_ctx();

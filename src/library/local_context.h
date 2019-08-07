@@ -51,11 +51,15 @@ class local_context : public local_ctx {
         else return local_decl(d, t);
     }
 
+    local_decl mk_local_decl_core(name const & n, name const & un, expr const & type, binder_info bi);
+    local_decl mk_local_decl_core(name const & n, name const & un, expr const & type, expr const & value);
+
 public:
     local_context() {}
-    explicit local_context(local_ctx const & lctx): local_ctx(lctx) {}
-
-    bool empty() const { return m_idx2local_decl.empty(); }
+    local_context(local_context const & lctx):local_ctx(lctx), m_idx2local_decl(lctx.m_idx2local_decl) {}
+    local_context(local_context && lctx):local_ctx(lctx), m_idx2local_decl(lctx.m_idx2local_decl) {}
+    local_context & operator=(local_context const & other) { local_ctx::operator=(other); m_idx2local_decl = other.m_idx2local_decl; return *this; }
+    local_context & operator=(local_context && other) { local_ctx::operator=(other); m_idx2local_decl = other.m_idx2local_decl; return *this; }
 
     expr mk_local_decl(expr const & type, binder_info bi = mk_binder_info());
     expr mk_local_decl(expr const & type, expr const & value);
@@ -75,8 +79,6 @@ public:
 
     optional<local_decl> find_last_local_decl() const;
     local_decl get_last_local_decl() const;
-
-    bool rename_user_name(name const & from, name const & to);
 
     /** \brief Execute fn for each local declaration created after \c d. */
     void for_each_after(local_decl const & d, std::function<void(local_decl const &)> const & fn) const;
@@ -128,14 +130,6 @@ public:
 
     /** \brief Remove the given local decl. */
     void clear(local_decl const & d);
-
-    friend bool is_decl_eqp(local_context const & ctx1, local_context const & ctx2) {
-        return is_eqp(ctx1.m_name2local_decl, ctx2.m_name2local_decl);
-    }
-
-    friend bool equal_locals(local_context const & ctx1, local_context const & ctx2) {
-        return is_decl_eqp(ctx1, ctx2) || ctx1.m_name2local_decl.equal_keys(ctx2.m_name2local_decl);
-    }
 
     /** \brief Erase inaccessible annotations from the local context.
         This function is defined in the file library/equations_compiler/util.h.

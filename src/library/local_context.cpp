@@ -125,6 +125,18 @@ bool depends_on(expr const & e, metavar_context const & mctx, local_context cons
     return depends_on_fn(mctx, lctx, num, locals)(e);
 }
 
+local_decl local_context::mk_local_decl_core(name const & n, name const & un, expr const & type, binder_info bi) {
+    local_decl d = local_ctx::mk_local_decl(n, un, type, bi);
+    m_idx2local_decl.insert(d.get_idx(), d);
+    return d;
+}
+
+local_decl local_context::mk_local_decl_core(name const & n, name const & un, expr const & type, expr const & value) {
+    local_decl d = local_ctx::mk_local_decl(n, un, type, value);
+    m_idx2local_decl.insert(d.get_idx(), d);
+    return d;
+}
+
 expr local_context::mk_local_decl(name const & n, name const & un, expr const & type, optional<expr> const & value, binder_info bi) {
     local_decl d = value ? local_ctx::mk_local_decl(n, un, type, *value) : local_ctx::mk_local_decl(n, un, type, bi);
     m_idx2local_decl.insert(d.get_idx(), d);
@@ -165,6 +177,7 @@ void local_context::clear(local_decl const & d) {
     lean_assert(find_local_decl(d.get_name()));
     local_ctx::clear(d);
     m_idx2local_decl.erase(d.get_idx());
+    lean_assert(!find_local_decl(d.get_name()));
 }
 
 optional<local_decl> local_context::find_local_decl_from_user_name(name const & n) const {
@@ -196,23 +209,7 @@ void local_context::for_each_after(local_decl const & d, std::function<void(loca
 void local_context::pop_local_decl() {
     lean_assert(!m_idx2local_decl.empty());
     local_decl d = m_idx2local_decl.max();
-    m_name2local_decl.erase(d.get_name());
-    m_idx2local_decl.erase(d.get_idx());
-}
-
-bool local_context::rename_user_name(name const & from, name const & to) {
-    if (auto d = find_local_decl_from_user_name(from)) {
-        local_decl new_d;
-        if (d->get_value())
-            new_d = local_decl(d->get_idx(), d->get_name(), to, d->get_type(), *d->get_value());
-        else
-            new_d = local_decl(d->get_idx(), d->get_name(), to, d->get_type(), d->get_info());
-        m_idx2local_decl.insert(d->get_idx(), new_d);
-        m_name2local_decl.insert(d->get_name(), new_d);
-        return true;
-    } else {
-        return false;
-    }
+    clear(d);
 }
 
 optional<local_decl> local_context::has_dependencies(local_decl const & d, metavar_context const & mctx) const {
@@ -229,15 +226,15 @@ optional<local_decl> local_context::has_dependencies(local_decl const & d, metav
 
 bool local_context::is_subset_of(name_set const & ls) const {
     // TODO(Leo): we can improve performance by implementing the subset operation in the rb_map/rb_tree class
-    return !static_cast<bool>(m_name2local_decl.find_if([&](name const & n, local_decl const &) {
-                return !ls.contains(n);
+    return !static_cast<bool>(m_idx2local_decl.find_if([&](unsigned, local_decl const & d) {
+                return !ls.contains(d.get_name());
             }));
 }
 
 bool local_context::is_subset_of(local_context const & ctx) const {
     // TODO(Leo): we can improve performance by implementing the subset operation in the rb_map/rb_tree class
-    return !static_cast<bool>(m_name2local_decl.find_if([&](name const & n, local_decl const &) {
-                return !ctx.m_name2local_decl.contains(n);
+    return !static_cast<bool>(m_idx2local_decl.find_if([&](unsigned, local_decl const & d) {
+                return !ctx.find_local_decl(d.get_name());
             }));
 }
 
@@ -250,8 +247,7 @@ local_context local_context::remove(buffer<expr> const & locals) const {
     local_context r          = *this;
     for (expr const & l : locals) {
         local_decl d = get_local_decl(l);
-        r.m_name2local_decl.erase(local_name(l));
-        r.m_idx2local_decl.erase(d.get_idx());
+        r.clear(d);
     }
     lean_assert(r.well_formed());
     return r;
@@ -375,16 +371,12 @@ name local_context::get_unused_name(name const & suggestion) const {
 
 local_context local_context::instantiate_mvars(metavar_context & mctx) const {
     local_context r;
-    r.m_next_idx        = m_next_idx;
     m_idx2local_decl.for_each([&](unsigned, local_decl const & d) {
             expr new_type = mctx.instantiate_mvars(d.get_type());
-            local_decl new_d;
             if (auto v = d.get_value())
-                new_d = local_decl(d, new_type, mctx.instantiate_mvars(*v));
+                r.mk_local_decl_core(d.get_name(), d.get_user_name(), new_type, mctx.instantiate_mvars(*v));
             else
-                new_d = local_decl(d, new_type);
-            r.m_name2local_decl.insert(d.get_name(), new_d);
-            r.m_idx2local_decl.insert(d.get_idx(), new_d);
+                r.mk_local_decl_core(d.get_name(), d.get_user_name(), new_type, d.get_info());
         });
     return r;
 }

@@ -338,8 +338,8 @@ Id.run $ mmap f as
 end
 
 section
-variables {m : Type u → Type u} [Monad m]
-variable {β:Type u}
+variables {m : Type u → Type v} [Monad m]
+variable {β : Type u}
 
 @[specialize]
 partial def mforAux {α : Type w} {β : Type u} (f : α → m β) (a : Array α) : Nat → m PUnit

@@ -15,6 +15,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_PersistentArray_mfind___at_Lean_LocalContext_findDecl___spec__2(obj*);
+obj* l_PersistentArray_mfor___at_Lean_LocalContext_mfor___spec__1___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_PersistentArray_mfoldlAux___main___at_Lean_LocalContext_foldlFrom___spec__4___rarg___boxed(obj*, obj*, obj*);
 obj* l_PersistentArray_mfoldl___at_Lean_LocalContext_mfoldl___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 namespace lean {
@@ -49,8 +50,10 @@ namespace lean {
 obj* nat_sub(obj*, obj*);
 }
 obj* l_Array_miterateAux___main___at_Lean_LocalContext_mfoldl___spec__3___boxed(obj*);
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__5___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_PersistentArray_mfoldlFromAux___main___rarg(obj*, obj*, obj*, obj*, usize, usize, obj*);
 obj* l_Lean_LocalContext_findDeclRev___rarg___boxed(obj*, obj*);
+obj* l_Lean_LocalContext_mfor(obj*);
 obj* l_PersistentArray_mfoldlAux___main___at_Lean_LocalContext_mfoldl___spec__2___boxed(obj*);
 obj* l_Lean_LocalContext_foldlFrom___rarg(obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_findAtAux___main___at_Lean_LocalContext_find___spec__3(obj*, obj*, obj*, obj*, obj*);
@@ -79,6 +82,7 @@ obj* l_Array_mfindRevAux___main___at_Lean_LocalContext_mfindDeclRev___spec__5___
 obj* l_Array_mfindAux___main___at_Lean_LocalContext_mfindDecl___spec__4___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_mfindAux___main___at_Lean_LocalContext_findDecl___spec__4(obj*);
 obj* l_Lean_LocalDecl_name___boxed(obj*);
+obj* l_Lean_LocalContext_mfor___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Array_mfindRevAux___main___at_Lean_LocalContext_mfindDeclRev___spec__5(obj*);
 obj* l_Array_mfindRevAux___main___at_Lean_LocalContext_mfindDeclRev___spec__2___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_LocalDecl_type___main(obj*);
@@ -92,9 +96,12 @@ obj* l_PersistentArray_mfind___at_Lean_LocalContext_mfindDecl___spec__1___rarg(o
 obj* l_Lean_LocalDecl_valueOpt___boxed(obj*);
 obj* l_Array_mfindAux___main___at_Lean_LocalContext_mfindDecl___spec__4___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_mfindRevAux___main___at_Lean_LocalContext_mfindDeclRev___spec__2___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__4___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__3(obj*);
 usize l_USize_sub(usize, usize);
 obj* l_Array_miterateAux___main___at_Lean_LocalContext_mfoldl___spec__4(obj*);
 obj* l_Array_mfindAux___main___at_Lean_LocalContext_findDecl___spec__5(obj*);
+obj* l_PersistentArray_mforAux___main___at_Lean_LocalContext_mfor___spec__2___boxed(obj*);
 obj* l_PersistentHashMap_isUnaryNode___main___rarg(obj*);
 obj* l_Lean_LocalContext_mfindDeclRev___at_Lean_LocalContext_findDeclRev___spec__1(obj*);
 obj* l_Array_mfindRevAux___main___at_Lean_LocalContext_mfindDeclRev___spec__2___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -107,6 +114,7 @@ obj* l_Lean_LocalContext_findDeclRev(obj*);
 obj* l_PersistentArray_mfindRev___at_Lean_LocalContext_findDeclRev___spec__2___rarg___boxed(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_LocalContext_mfoldlFrom___spec__3___boxed(obj*);
 obj* l_Array_mfindAux___main___at_Lean_LocalContext_findDecl___spec__5___rarg(obj*, obj*, obj*);
+obj* l_Lean_LocalContext_mfor___boxed(obj*);
 obj* l_PersistentArray_mfindAux___main___at_Lean_LocalContext_findDecl___spec__3___rarg(obj*, obj*);
 obj* l_Array_mfindRevAux___main___at_Lean_LocalContext_mfindDeclRev___spec__5___boxed(obj*);
 obj* l_Array_miterateAux___main___at_Lean_LocalContext_foldlFrom___spec__7___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -128,9 +136,11 @@ obj* l_Lean_LocalContext_findDecl___rarg(obj*, obj*);
 obj* l___private_init_lean_localcontext_1__popTailNoneAux___main(obj*);
 obj* l_PersistentArray_mfind___at_Lean_LocalContext_mfindDecl___spec__1___boxed(obj*);
 obj* l_Lean_LocalContext_mkLocalDecl___boxed(obj*, obj*, obj*, obj*, obj*);
+obj* l_PersistentArray_mfor___at_Lean_LocalContext_mfor___spec__1___boxed(obj*);
 obj* l_Array_mfindRevAux___main___at_Lean_LocalContext_findFromUserName___spec__4(obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_LocalContext_mfoldlFrom___spec__3(obj*);
 obj* l_PersistentArray_pop___rarg(obj*);
+obj* l_Lean_LocalContext_mfor___rarg(obj*, obj*, obj*, obj*);
 obj* l_PersistentArray_mfind___at_Lean_LocalContext_findDecl___spec__2___rarg(obj*, obj*);
 obj* l_Array_mfindAux___main___at_Lean_LocalContext_mfindDecl___spec__5___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_mfindRevAux___main___at_Lean_LocalContext_mfindDeclRev___spec__4___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*);
@@ -150,6 +160,7 @@ namespace lean {
 obj* local_ctx_pop_core(obj*);
 }
 extern "C" usize lean_name_hash_usize(obj*);
+obj* l_PersistentArray_mforAux___main___at_Lean_LocalContext_mfor___spec__2___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_LocalContext_mfoldlFrom(obj*);
 obj* l_Lean_LocalDecl_userName(obj*);
 extern obj* l_PersistentArray_empty___closed__3;
@@ -176,6 +187,7 @@ uint8 nat_dec_lt(obj*, obj*);
 obj* l_Lean_LocalDecl_isLet___main___boxed(obj*);
 obj* l_PersistentArray_mfindRevAux___main___at_Lean_LocalContext_findDeclRev___spec__4(obj*);
 obj* l_Lean_LocalContext_mfindDeclRev___rarg(obj*, obj*, obj*, obj*);
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__3___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_LocalContext_findDecl(obj*);
 obj* l_Array_mfindRevAux___main___at_Lean_LocalContext_mfindDeclRev___spec__2___boxed(obj*);
 obj* l_Array_miterateAux___main___at_Lean_LocalContext_foldl___spec__4___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
@@ -191,9 +203,11 @@ obj* l_PersistentHashMap_find___main___at_Lean_LocalContext_find___spec__1(obj*,
 obj* l_Array_fget(obj*, obj*, obj*);
 obj* l_Lean_LocalContext_mfoldlFrom___at_Lean_LocalContext_foldlFrom___spec__1___rarg(obj*, obj*, obj*, obj*);
 obj* l_Array_mfindRevAux___main___at_Lean_LocalContext_mfindDeclRev___spec__4___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_PersistentArray_mforAux___main___at_Lean_LocalContext_mfor___spec__2___rarg(obj*, obj*, obj*, obj*);
 obj* l_Array_mfindRevAux___main___at_Lean_LocalContext_findFromUserName___spec__4___boxed(obj*, obj*, obj*, obj*);
 obj* l_PersistentArray_mfindAux___main___at_Lean_LocalContext_findDecl___spec__3___rarg___boxed(obj*, obj*);
 uint8 l_Lean_LocalDecl_binderInfo(obj*);
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__4(obj*);
 obj* l_PersistentArray_mfoldlFrom___at_Lean_LocalContext_mfoldlFrom___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
@@ -208,6 +222,7 @@ obj* l_Lean_LocalDecl_type___boxed(obj*);
 obj* l_Lean_LocalDecl_value(obj*);
 obj* l_Array_push(obj*, obj*, obj*);
 obj* l_Array_mfindRevAux___main___at_Lean_LocalContext_findDeclRev___spec__3(obj*);
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__5___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_LocalContext_mfoldlFrom___spec__2___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_insertAux___main___at_Lean_LocalContext_mkLocalDecl___spec__2___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_LocalContext_foldlFrom___spec__8___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -248,9 +263,12 @@ obj* l_Array_miterateAux___main___at_Lean_LocalContext_foldlFrom___spec__9___rar
 obj* l_Lean_LocalDecl_valueOpt___main(obj*);
 obj* l_Lean_LocalContext_mfoldl___at_Lean_LocalContext_foldl___spec__1___rarg(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_LocalContext_mfoldlFrom___spec__2___boxed(obj*);
+obj* l_PersistentArray_mfor___at_Lean_LocalContext_mfor___spec__1(obj*);
 obj* l_PersistentArray_mfoldlFrom___at_Lean_LocalContext_mfoldlFrom___spec__1___rarg___lambda__1(obj*, obj*, obj*, obj*);
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__4___boxed(obj*);
 obj* l_Lean_LocalContext_mfoldl___boxed(obj*);
 obj* l_Array_mfindAux___main___at_Lean_LocalContext_mfindDecl___spec__4___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__5___boxed(obj*);
 obj* l_PersistentHashMap_erase___main___at_Lean_LocalContext_erase___spec__1(obj*, obj*);
 obj* l_Array_mfindRevAux___main___at_Lean_LocalContext_mfindDeclRev___spec__4___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_LocalContext_foldlFrom(obj*);
@@ -268,6 +286,7 @@ obj* l_Lean_LocalContext_foldl___rarg(obj*, obj*, obj*);
 obj* l_PersistentArray_mfoldlFrom___at_Lean_LocalContext_foldlFrom___spec__2___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_LocalContext_mfoldl___at_Lean_LocalContext_foldl___spec__1___rarg___boxed(obj*, obj*, obj*);
 obj* l_Lean_Name_appendIndexAfter___main(obj*, obj*);
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__3___rarg(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_PersistentHashMap_insertAux___main___rarg___closed__3;
 obj* l_Array_size(obj*, obj*);
 obj* l_Lean_LocalDecl_valueOpt(obj*);
@@ -323,6 +342,7 @@ obj* l_Lean_LocalContext_foldlFrom___rarg___boxed(obj*, obj*, obj*, obj*);
 namespace lean {
 usize usize_of_nat(obj*);
 }
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__3___boxed(obj*);
 obj* l_Array_mfindAux___main___at_Lean_LocalContext_mfindDecl___spec__3___boxed(obj*);
 obj* l_PersistentArray_mfindRev___at_Lean_LocalContext_mfindDeclRev___spec__1___boxed(obj*);
 obj* l_Lean_LocalContext_isEmpty___boxed(obj*);
@@ -332,6 +352,7 @@ obj* l_Array_miterateAux___main___at_Lean_LocalContext_foldl___spec__5(obj*);
 obj* l_PersistentArray_mfind___at_Lean_LocalContext_mfindDecl___spec__1(obj*);
 uint8 l_USize_decLe(usize, usize);
 uint8 l_Lean_LocalContext_isSubPrefixOfAux___main(obj*, obj*, obj*, obj*);
+obj* l_PersistentArray_mforAux___main___at_Lean_LocalContext_mfor___spec__2(obj*);
 obj* l_Array_mfindRevAux___main___at_Lean_LocalContext_findFromUserName___spec__2(obj*, obj*, obj*, obj*);
 obj* l_Lean_LocalDecl_index___boxed(obj*);
 obj* l_Lean_LocalContext_mfoldlFrom___at_Lean_LocalContext_foldlFrom___spec__1___rarg___lambda__1(obj*, obj*, obj*);
@@ -340,8 +361,10 @@ obj* l_Array_mfindAux___main___at_Lean_LocalContext_mfindDecl___spec__4___boxed(
 obj* l_Lean_LocalDecl_isLet___boxed(obj*);
 obj* l_Array_miterateAux___main___at_Lean_LocalContext_mfoldlFrom___spec__2(obj*);
 obj* l_PersistentArray_mfoldlFromAux___main___at_Lean_LocalContext_foldlFrom___spec__3(obj*);
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__5(obj*);
 obj* l_Array_set(obj*, obj*, obj*, obj*);
 obj* l_Lean_LocalDecl_value___main(obj*);
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__4___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_mfindRevAux___main___at_Lean_LocalContext_findDeclRev___spec__5(obj*);
 obj* l_Lean_LocalDecl_userName___boxed(obj*);
 obj* l_Lean_LocalContext_getUnusedNameAux(obj*, obj*, obj*);
@@ -364,6 +387,7 @@ obj* l_PersistentArray_mfoldlAux___main___at_Lean_LocalContext_foldlFrom___spec_
 obj* l_PersistentHashMap_insertAux___main___at_Lean_LocalContext_mkLocalDecl___spec__2(obj*, usize, usize, obj*, obj*);
 obj* l_Array_mfindAux___main___at_Lean_LocalContext_findDecl___spec__4___rarg___boxed(obj*, obj*, obj*);
 uint8 l_PersistentHashMap_isEmpty___rarg(obj*);
+obj* l_PersistentArray_mfor___at_Lean_LocalContext_mfor___spec__1___rarg(obj*, obj*, obj*, obj*);
 obj* l_PersistentArray_mfindRev___at_Lean_LocalContext_findDeclRev___spec__2(obj*);
 obj* l_Array_mfindRevAux___main___at_Lean_LocalContext_findFromUserName___spec__5(obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_LocalContext_foldlFrom___spec__8(obj*);
@@ -3559,6 +3583,390 @@ _start:
 {
 obj* x_2; 
 x_2 = l_Lean_LocalContext_mfoldl(x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__3___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+_start:
+{
+obj* x_6; uint8 x_7; 
+x_6 = lean::array_get_size(x_4);
+x_7 = lean::nat_dec_lt(x_5, x_6);
+lean::dec(x_6);
+if (x_7 == 0)
+{
+obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
+lean::dec(x_3);
+x_8 = lean::cnstr_get(x_1, 0);
+lean::inc(x_8);
+lean::dec(x_1);
+x_9 = lean::cnstr_get(x_8, 1);
+lean::inc(x_9);
+lean::dec(x_8);
+x_10 = lean::box(0);
+x_11 = lean::apply_2(x_9, lean::box(0), x_10);
+return x_11;
+}
+else
+{
+obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; obj* x_18; obj* x_19; 
+x_12 = lean::array_fget(x_4, x_5);
+x_13 = lean::cnstr_get(x_1, 0);
+lean::inc(x_13);
+x_14 = lean::cnstr_get(x_13, 4);
+lean::inc(x_14);
+lean::dec(x_13);
+lean::inc(x_3);
+lean::inc(x_1);
+x_15 = l_PersistentArray_mforAux___main___at_Lean_LocalContext_mfor___spec__2___rarg(x_1, lean::box(0), x_3, x_12);
+lean::dec(x_12);
+x_16 = lean::mk_nat_obj(1u);
+x_17 = lean::nat_add(x_5, x_16);
+x_18 = l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__3___rarg(x_1, lean::box(0), x_3, x_4, x_17);
+lean::dec(x_17);
+x_19 = lean::apply_4(x_14, lean::box(0), lean::box(0), x_15, x_18);
+return x_19;
+}
+}
+}
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__3(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__3___rarg___boxed), 5, 0);
+return x_2;
+}
+}
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__4___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+_start:
+{
+obj* x_6; uint8 x_7; 
+x_6 = lean::array_get_size(x_4);
+x_7 = lean::nat_dec_lt(x_5, x_6);
+lean::dec(x_6);
+if (x_7 == 0)
+{
+obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
+lean::dec(x_3);
+x_8 = lean::cnstr_get(x_1, 0);
+lean::inc(x_8);
+lean::dec(x_1);
+x_9 = lean::cnstr_get(x_8, 1);
+lean::inc(x_9);
+lean::dec(x_8);
+x_10 = lean::box(0);
+x_11 = lean::apply_2(x_9, lean::box(0), x_10);
+return x_11;
+}
+else
+{
+obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; 
+x_12 = lean::array_fget(x_4, x_5);
+x_13 = lean::cnstr_get(x_1, 0);
+lean::inc(x_13);
+x_14 = lean::cnstr_get(x_13, 4);
+lean::inc(x_14);
+x_15 = lean::mk_nat_obj(1u);
+x_16 = lean::nat_add(x_5, x_15);
+lean::inc(x_3);
+x_17 = l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__4___rarg(x_1, lean::box(0), x_3, x_4, x_16);
+lean::dec(x_16);
+if (lean::obj_tag(x_12) == 0)
+{
+obj* x_18; obj* x_19; obj* x_20; obj* x_21; 
+lean::dec(x_3);
+x_18 = lean::cnstr_get(x_13, 1);
+lean::inc(x_18);
+lean::dec(x_13);
+x_19 = lean::box(0);
+x_20 = lean::apply_2(x_18, lean::box(0), x_19);
+x_21 = lean::apply_4(x_14, lean::box(0), lean::box(0), x_20, x_17);
+return x_21;
+}
+else
+{
+obj* x_22; obj* x_23; obj* x_24; obj* x_25; obj* x_26; obj* x_27; obj* x_28; 
+x_22 = lean::cnstr_get(x_12, 0);
+lean::inc(x_22);
+lean::dec(x_12);
+x_23 = lean::apply_1(x_3, x_22);
+x_24 = lean::cnstr_get(x_13, 1);
+lean::inc(x_24);
+lean::dec(x_13);
+x_25 = lean::box(0);
+x_26 = lean::apply_2(x_24, lean::box(0), x_25);
+lean::inc(x_14);
+x_27 = lean::apply_4(x_14, lean::box(0), lean::box(0), x_23, x_26);
+x_28 = lean::apply_4(x_14, lean::box(0), lean::box(0), x_27, x_17);
+return x_28;
+}
+}
+}
+}
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__4(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__4___rarg___boxed), 5, 0);
+return x_2;
+}
+}
+obj* l_PersistentArray_mforAux___main___at_Lean_LocalContext_mfor___spec__2___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+if (lean::obj_tag(x_4) == 0)
+{
+obj* x_5; obj* x_6; obj* x_7; 
+x_5 = lean::cnstr_get(x_4, 0);
+x_6 = lean::mk_nat_obj(0u);
+x_7 = l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__3___rarg(x_1, lean::box(0), x_3, x_5, x_6);
+return x_7;
+}
+else
+{
+obj* x_8; obj* x_9; obj* x_10; 
+x_8 = lean::cnstr_get(x_4, 0);
+x_9 = lean::mk_nat_obj(0u);
+x_10 = l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__4___rarg(x_1, lean::box(0), x_3, x_8, x_9);
+return x_10;
+}
+}
+}
+obj* l_PersistentArray_mforAux___main___at_Lean_LocalContext_mfor___spec__2(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_PersistentArray_mforAux___main___at_Lean_LocalContext_mfor___spec__2___rarg___boxed), 4, 0);
+return x_2;
+}
+}
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__5___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+_start:
+{
+obj* x_6; uint8 x_7; 
+x_6 = lean::array_get_size(x_4);
+x_7 = lean::nat_dec_lt(x_5, x_6);
+lean::dec(x_6);
+if (x_7 == 0)
+{
+obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
+lean::dec(x_3);
+x_8 = lean::cnstr_get(x_1, 0);
+lean::inc(x_8);
+lean::dec(x_1);
+x_9 = lean::cnstr_get(x_8, 1);
+lean::inc(x_9);
+lean::dec(x_8);
+x_10 = lean::box(0);
+x_11 = lean::apply_2(x_9, lean::box(0), x_10);
+return x_11;
+}
+else
+{
+obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; 
+x_12 = lean::array_fget(x_4, x_5);
+x_13 = lean::cnstr_get(x_1, 0);
+lean::inc(x_13);
+x_14 = lean::cnstr_get(x_13, 4);
+lean::inc(x_14);
+x_15 = lean::mk_nat_obj(1u);
+x_16 = lean::nat_add(x_5, x_15);
+lean::inc(x_3);
+x_17 = l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__5___rarg(x_1, lean::box(0), x_3, x_4, x_16);
+lean::dec(x_16);
+if (lean::obj_tag(x_12) == 0)
+{
+obj* x_18; obj* x_19; obj* x_20; obj* x_21; 
+lean::dec(x_3);
+x_18 = lean::cnstr_get(x_13, 1);
+lean::inc(x_18);
+lean::dec(x_13);
+x_19 = lean::box(0);
+x_20 = lean::apply_2(x_18, lean::box(0), x_19);
+x_21 = lean::apply_4(x_14, lean::box(0), lean::box(0), x_20, x_17);
+return x_21;
+}
+else
+{
+obj* x_22; obj* x_23; obj* x_24; obj* x_25; obj* x_26; obj* x_27; obj* x_28; 
+x_22 = lean::cnstr_get(x_12, 0);
+lean::inc(x_22);
+lean::dec(x_12);
+x_23 = lean::apply_1(x_3, x_22);
+x_24 = lean::cnstr_get(x_13, 1);
+lean::inc(x_24);
+lean::dec(x_13);
+x_25 = lean::box(0);
+x_26 = lean::apply_2(x_24, lean::box(0), x_25);
+lean::inc(x_14);
+x_27 = lean::apply_4(x_14, lean::box(0), lean::box(0), x_23, x_26);
+x_28 = lean::apply_4(x_14, lean::box(0), lean::box(0), x_27, x_17);
+return x_28;
+}
+}
+}
+}
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__5(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__5___rarg___boxed), 5, 0);
+return x_2;
+}
+}
+obj* l_PersistentArray_mfor___at_Lean_LocalContext_mfor___spec__1___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; 
+x_5 = lean::cnstr_get(x_1, 0);
+lean::inc(x_5);
+x_6 = lean::cnstr_get(x_5, 4);
+lean::inc(x_6);
+lean::dec(x_5);
+x_7 = lean::cnstr_get(x_4, 0);
+lean::inc(x_3);
+lean::inc(x_1);
+x_8 = l_PersistentArray_mforAux___main___at_Lean_LocalContext_mfor___spec__2___rarg(x_1, lean::box(0), x_3, x_7);
+x_9 = lean::cnstr_get(x_4, 1);
+x_10 = lean::mk_nat_obj(0u);
+x_11 = l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__5___rarg(x_1, lean::box(0), x_3, x_9, x_10);
+x_12 = lean::apply_4(x_6, lean::box(0), lean::box(0), x_8, x_11);
+return x_12;
+}
+}
+obj* l_PersistentArray_mfor___at_Lean_LocalContext_mfor___spec__1(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_PersistentArray_mfor___at_Lean_LocalContext_mfor___spec__1___rarg___boxed), 4, 0);
+return x_2;
+}
+}
+obj* l_Lean_LocalContext_mfor___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; obj* x_6; 
+x_5 = lean::cnstr_get(x_3, 1);
+x_6 = l_PersistentArray_mfor___at_Lean_LocalContext_mfor___spec__1___rarg(x_1, lean::box(0), x_4, x_5);
+return x_6;
+}
+}
+obj* l_Lean_LocalContext_mfor(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_LocalContext_mfor___rarg___boxed), 4, 0);
+return x_2;
+}
+}
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__3___rarg___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+_start:
+{
+obj* x_6; 
+x_6 = l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__3___rarg(x_1, x_2, x_3, x_4, x_5);
+lean::dec(x_5);
+lean::dec(x_4);
+return x_6;
+}
+}
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__3___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__3(x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__4___rarg___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+_start:
+{
+obj* x_6; 
+x_6 = l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__4___rarg(x_1, x_2, x_3, x_4, x_5);
+lean::dec(x_5);
+lean::dec(x_4);
+return x_6;
+}
+}
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__4___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__4(x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l_PersistentArray_mforAux___main___at_Lean_LocalContext_mfor___spec__2___rarg___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_PersistentArray_mforAux___main___at_Lean_LocalContext_mfor___spec__2___rarg(x_1, x_2, x_3, x_4);
+lean::dec(x_4);
+return x_5;
+}
+}
+obj* l_PersistentArray_mforAux___main___at_Lean_LocalContext_mfor___spec__2___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_PersistentArray_mforAux___main___at_Lean_LocalContext_mfor___spec__2(x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__5___rarg___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+_start:
+{
+obj* x_6; 
+x_6 = l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__5___rarg(x_1, x_2, x_3, x_4, x_5);
+lean::dec(x_5);
+lean::dec(x_4);
+return x_6;
+}
+}
+obj* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__5___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__5(x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l_PersistentArray_mfor___at_Lean_LocalContext_mfor___spec__1___rarg___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_PersistentArray_mfor___at_Lean_LocalContext_mfor___spec__1___rarg(x_1, x_2, x_3, x_4);
+lean::dec(x_4);
+return x_5;
+}
+}
+obj* l_PersistentArray_mfor___at_Lean_LocalContext_mfor___spec__1___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_PersistentArray_mfor___at_Lean_LocalContext_mfor___spec__1(x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l_Lean_LocalContext_mfor___rarg___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_Lean_LocalContext_mfor___rarg(x_1, x_2, x_3, x_4);
+lean::dec(x_3);
+return x_5;
+}
+}
+obj* l_Lean_LocalContext_mfor___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_LocalContext_mfor(x_1);
 lean::dec(x_1);
 return x_2;
 }

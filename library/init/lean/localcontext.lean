@@ -62,10 +62,19 @@ structure LocalContext :=
 namespace LocalContext
 instance : Inhabited LocalContext := ⟨{}⟩
 
+@[export lean.mk_empty_local_ctx_core]
+def mkEmpty : Unit → LocalContext :=
+fun _ => {}
+
+def empty : LocalContext :=
+{}
+
+@[export lean.local_ctx_is_empty_core]
 def isEmpty (lctx : LocalContext) : Bool :=
 lctx.nameToDecl.isEmpty
 
 /- Low level API for creating local declarations. It is used to implement actions in the monads `Elab` and `Tactic`. It should not be used directly since the argument `(name : Name)` is assumed to be "unique". -/
+@[export lean.local_ctx_mk_local_decl_core]
 def mkLocalDecl (lctx : LocalContext) (name : Name) (userName : Name) (type : Expr) (bi : BinderInfo := BinderInfo.default) : LocalDecl × LocalContext :=
 match lctx with
 | { nameToDecl := map, decls := decls } =>
@@ -73,6 +82,7 @@ match lctx with
   let decl := LocalDecl.cdecl idx name userName type bi;
   (decl, { nameToDecl := map.insert name decl, decls := decls.push decl })
 
+@[export lean.local_ctx_mk_let_decl_core]
 def mkLetDecl (lctx : LocalContext) (name : Name) (userName : Name) (type : Expr) (value : Expr) : LocalDecl × LocalContext :=
 match lctx with
 | { nameToDecl := map, decls := decls } =>
@@ -80,6 +90,7 @@ match lctx with
   let decl := LocalDecl.ldecl idx name userName type value;
   (decl, { nameToDecl := map.insert name decl, decls := decls.push decl })
 
+@[export lean.local_ctx_find_core]
 def find (lctx : LocalContext) (name : Name) : Option LocalDecl :=
 lctx.nameToDecl.find name
 
@@ -95,6 +106,7 @@ private partial def popTailNoneAux : PArray (Option LocalDecl) → PArray (Optio
     | none   => popTailNoneAux a.pop
     | some _ => a
 
+@[export lean.local_ctx_erase_core]
 def erase (lctx : LocalContext) (name : Name) : LocalContext :=
 match lctx with
 | { nameToDecl := map, decls := decls } =>
@@ -102,6 +114,7 @@ match lctx with
   | none      => lctx
   | some decl => { nameToDecl := map.erase name, decls := popTailNoneAux (decls.set decl.index none) }
 
+@[export lean.local_ctx_pop_core]
 def pop (lctx : LocalContext): LocalContext :=
 match lctx with
 | { nameToDecl := map, decls := decls } =>
@@ -110,12 +123,14 @@ match lctx with
     | none      => lctx -- unreachable
     | some decl => { nameToDecl := map.erase decl.name, decls := popTailNoneAux decls.pop }
 
+@[export lean.local_ctx_find_from_user_name_core]
 def findFromUserName (lctx : LocalContext) (userName : Name) : Option LocalDecl :=
 lctx.decls.findRev (fun decl =>
   match decl with
   | none      => none
   | some decl => if decl.userName == userName then some decl else none)
 
+@[export lean.local_ctx_uses_user_name_core]
 def usesUserName (lctx : LocalContext) (userName : Name) : Bool :=
 (lctx.findFromUserName userName).isSome
 
@@ -125,13 +140,16 @@ partial def getUnusedNameAux (lctx : LocalContext) (suggestion : Name) : Nat →
   if lctx.usesUserName curr then getUnusedNameAux (i + 1)
   else (curr, i + 1)
 
+@[export lean.local_ctx_get_unused_name_core]
 def getUnusedName (lctx : LocalContext) (suggestion : Name) : Name :=
 if lctx.usesUserName suggestion then (lctx.getUnusedNameAux suggestion 1).1
 else suggestion
 
+@[export lean.local_ctx_last_decl_core]
 def lastDecl (lctx : LocalContext) : Option LocalDecl :=
 lctx.decls.get (lctx.decls.size - 1)
 
+@[export lean.local_ctx_rename_user_name_core]
 def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : LocalContext :=
 match lctx with
 | { nameToDecl := map, decls := decls } =>
@@ -141,6 +159,14 @@ match lctx with
     let decl := decl.updateUserName toName;
     { nameToDecl := map.insert decl.name decl,
       decls      := decls.set decl.index decl }
+
+@[export lean.local_ctx_num_indices_core]
+def numIndices (lctx : LocalContext) : Nat :=
+lctx.decls.size
+
+@[export lean.local_ctx_get_core]
+def get (lctx : LocalContext) (i : Nat) : Option LocalDecl :=
+lctx.decls.get i
 
 section
 universes u v

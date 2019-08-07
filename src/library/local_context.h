@@ -92,7 +92,6 @@ public:
         unsigned >= idx. */
     name get_unused_name(name const & prefix, unsigned & idx) const;
     name get_unused_name(name const & suggestion) const;
-    /** \brief Return true iff the given name is a hypothesis "user name". */
     bool uses_user_name(name const & n) const;
 
     /** \brief Return true iff all locals in this context are in the set \c ls. */

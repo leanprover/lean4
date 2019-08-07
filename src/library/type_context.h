@@ -668,9 +668,6 @@ public:
     }
 
     virtual void pop_local() override;
-    virtual bool is_local_user_name(name const & n) const override {
-        return static_cast<bool>(m_lctx.uses_user_name(n));
-    }
 
     /** Similar to whnf, but invokes the given predicate before unfolding constant symbols in the head.
         If pred(e') is false, then the method will not unfold definition in the head of e', and will return e'.

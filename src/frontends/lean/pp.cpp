@@ -597,13 +597,17 @@ auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ
         if (auto n1 = private_to_user_name(short_n))
             short_n = *n1;
     }
+/*
     if (m_ctx.is_local_user_name(short_n.get_root())) {
         if (m_ctx.is_local_user_name(n.get_root())) {
             n = get_root_tk() + n;
         }
     } else {
-        n = short_n;
+*/
+    n = short_n;
+/*
     }
+*/
     if (m_universes && !empty(const_levels(e))) {
         unsigned first_idx = 0;
         buffer<level> ls;

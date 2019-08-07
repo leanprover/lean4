@@ -27,11 +27,6 @@ public:
     virtual void pop_local();
 
     expr check(expr const & e, bool infer_only) { return infer_only ? infer(e) : check(e); }
-
-    /* This method is used by the pretty printer to decide whether the `_root_` prefix needs
-       to be added or not when formatting a constant.
-       TODO(Kha, Leo): this looks hackish, we should find a better solution. */
-    virtual bool is_local_user_name(name const &) const { return false; }
 };
 
 class push_local_fn {

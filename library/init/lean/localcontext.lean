@@ -179,6 +179,11 @@ lctx.decls.mfoldl (fun b decl => match decl with
   | some decl => f b decl)
   b
 
+@[specialize] def mfor (lctx : LocalContext) (f : LocalDecl → m β) : m PUnit :=
+lctx.decls.mfor $ fun decl => match decl with
+  | none      => pure PUnit.unit
+  | some decl => f decl *> pure PUnit.unit
+
 @[specialize] def mfindDecl (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
 lctx.decls.mfind $ fun decl => match decl with
   | none      => pure none

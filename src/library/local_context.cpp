@@ -126,20 +126,15 @@ bool depends_on(expr const & e, metavar_context const & mctx, local_context cons
 }
 
 local_decl local_context::mk_local_decl_core(name const & n, name const & un, expr const & type, binder_info bi) {
-    local_decl d = local_ctx::mk_local_decl(n, un, type, bi);
-    m_idx2local_decl.insert(d.get_idx(), d);
-    return d;
+    return local_ctx::mk_local_decl(n, un, type, bi);
 }
 
 local_decl local_context::mk_local_decl_core(name const & n, name const & un, expr const & type, expr const & value) {
-    local_decl d = local_ctx::mk_local_decl(n, un, type, value);
-    m_idx2local_decl.insert(d.get_idx(), d);
-    return d;
+    return local_ctx::mk_local_decl(n, un, type, value);
 }
 
 expr local_context::mk_local_decl(name const & n, name const & un, expr const & type, optional<expr> const & value, binder_info bi) {
     local_decl d = value ? local_ctx::mk_local_decl(n, un, type, *value) : local_ctx::mk_local_decl(n, un, type, bi);
-    m_idx2local_decl.insert(d.get_idx(), d);
     return d.mk_ref();
 }
 
@@ -169,15 +164,25 @@ expr local_context::mk_local_decl(name const & n, name const & un, expr const & 
     return mk_local_decl(n, un, type, some_expr(value), mk_binder_info());
 }
 
-optional<local_decl> local_context::back_find_if(std::function<bool(local_decl const &)> const & pred) const { // NOLINT
-    return m_idx2local_decl.back_find_if([&](unsigned, local_decl const & d) { return pred(d); });
+object* local_ctx_num_indices_core(object* lctx);
+object* local_ctx_get_core(object* lctx, object* idx);
+
+unsigned local_context::num_indices() const {
+    return unbox(local_ctx_num_indices_core(to_obj_arg()));
 }
 
-void local_context::clear(local_decl const & d) {
-    lean_assert(find_local_decl(d.get_name()));
-    local_ctx::clear(d);
-    m_idx2local_decl.erase(d.get_idx());
-    lean_assert(!find_local_decl(d.get_name()));
+optional<local_decl> local_context::get_decl_at(unsigned idx) const {
+    return to_optional<local_decl>(local_ctx_get_core(to_obj_arg(), box(idx)));
+}
+
+optional<local_decl> local_context::back_find_if(std::function<bool(local_decl const &)> const & pred) const { // NOLINT
+    unsigned i = num_indices();
+    while (i > 0) {
+        --i;
+        optional<local_decl> decl = get_decl_at(i);
+        if (decl && pred(*decl)) return decl;
+    }
+    return optional<local_decl>();
 }
 
 optional<local_decl> local_context::find_local_decl_from_user_name(name const & n) const {
@@ -185,31 +190,50 @@ optional<local_decl> local_context::find_local_decl_from_user_name(name const & 
 }
 
 optional<local_decl> local_context::find_last_local_decl() const {
-    if (m_idx2local_decl.empty()) return optional<local_decl>();
-    return optional<local_decl>(m_idx2local_decl.max());
+    unsigned i = num_indices();
+    while (i > 0) {
+        --i;
+        optional<local_decl> decl = get_decl_at(i);
+        if (decl) return decl;
+    }
+    return optional<local_decl>();
 }
 
 local_decl local_context::get_last_local_decl() const {
-    if (m_idx2local_decl.empty()) throw("unknown local constant, context is empty");
-    return m_idx2local_decl.max();
+    if (auto decl = find_last_local_decl())
+        return *decl;
+    throw("unknown local constant, context is empty");
 }
 
 void local_context::for_each(std::function<void(local_decl const &)> const & fn) const {
-    m_idx2local_decl.for_each([&](unsigned, local_decl const & d) { fn(d); });
+    unsigned num = num_indices();
+    for (unsigned i = 0; i < num; i++) {
+        optional<local_decl> decl = get_decl_at(i);
+        if (decl) fn(*decl);
+    }
 }
 
 optional<local_decl> local_context::find_if(std::function<bool(local_decl const &)> const & pred) const {
-    return m_idx2local_decl.find_if([&](unsigned, local_decl const & d) { return pred(d); });
+    unsigned num = num_indices();
+    for (unsigned i = 0; i < num; i++) {
+        optional<local_decl> decl = get_decl_at(i);
+        if (decl && pred(*decl)) return decl;
+    }
+    return optional<local_decl>();
 }
 
 void local_context::for_each_after(local_decl const & d, std::function<void(local_decl const &)> const & fn) const {
-    m_idx2local_decl.for_each_greater(d.get_idx(), [&](unsigned, local_decl const & d) { return fn(d); });
+    unsigned num = num_indices();
+    for (unsigned i = d.get_idx() + 1; i < num; i++) {
+        optional<local_decl> decl = get_decl_at(i);
+        if (decl) fn(*decl);
+    }
 }
 
+object* local_ctx_pop_core(object* lctx);
+
 void local_context::pop_local_decl() {
-    lean_assert(!m_idx2local_decl.empty());
-    local_decl d = m_idx2local_decl.max();
-    clear(d);
+    m_obj = local_ctx_pop_core(m_obj);
 }
 
 optional<local_decl> local_context::has_dependencies(local_decl const & d, metavar_context const & mctx) const {
@@ -226,14 +250,14 @@ optional<local_decl> local_context::has_dependencies(local_decl const & d, metav
 
 bool local_context::is_subset_of(name_set const & ls) const {
     // TODO(Leo): we can improve performance by implementing the subset operation in the rb_map/rb_tree class
-    return !static_cast<bool>(m_idx2local_decl.find_if([&](unsigned, local_decl const & d) {
+    return !static_cast<bool>(find_if([&](local_decl const & d) {
                 return !ls.contains(d.get_name());
             }));
 }
 
 bool local_context::is_subset_of(local_context const & ctx) const {
     // TODO(Leo): we can improve performance by implementing the subset operation in the rb_map/rb_tree class
-    return !static_cast<bool>(m_idx2local_decl.find_if([&](unsigned, local_decl const & d) {
+    return !static_cast<bool>(find_if([&](local_decl const & d) {
                 return !ctx.find_local_decl(d.get_name());
             }));
 }
@@ -307,7 +331,7 @@ format local_context::pp(formatter const & fmt) const { // NOLINT
     format ids;
     optional<expr> type;
     format r;
-    m_idx2local_decl.for_each([&](unsigned, local_decl const & d) {
+    for_each([&](local_decl const & d) {
             if (i >= max_hs)
                 return;
             i++;
@@ -349,8 +373,7 @@ format local_context::pp(formatter const & fmt) const { // NOLINT
 }
 
 bool local_context::uses_user_name(name const & n) const {
-    return static_cast<bool>(m_idx2local_decl.find_if([&](unsigned, local_decl const & d) {
-                return d.get_user_name() == n; }));
+    return static_cast<bool>(find_if([&](local_decl const & d) { return d.get_user_name() == n; }));
 }
 
 name local_context::get_unused_name(name const & prefix, unsigned & idx) const {
@@ -371,7 +394,7 @@ name local_context::get_unused_name(name const & suggestion) const {
 
 local_context local_context::instantiate_mvars(metavar_context & mctx) const {
     local_context r;
-    m_idx2local_decl.for_each([&](unsigned, local_decl const & d) {
+    for_each([&](local_decl const & d) {
             expr new_type = mctx.instantiate_mvars(d.get_type());
             if (auto v = d.get_value())
                 r.mk_local_decl_core(d.get_name(), d.get_user_name(), new_type, mctx.instantiate_mvars(*v));

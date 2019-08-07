@@ -240,7 +240,7 @@ list<expr> erase_inaccessible_annotations(list<expr> const & es) {
 
 local_context erase_inaccessible_annotations(local_context const & lctx) {
     local_context r;
-    lctx.m_idx2local_decl.for_each([&](unsigned, local_decl const & d) {
+    lctx.for_each([&](local_decl const & d) {
             expr new_type = erase_inaccessible_annotations(d.get_type());
             if (auto val = d.get_value()) {
                 expr new_value = erase_inaccessible_annotations(*val);

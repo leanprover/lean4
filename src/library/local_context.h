@@ -39,27 +39,16 @@ class metavar_context;
    "freezing" local instances. */
 class local_context : public local_ctx {
     friend class type_context_old;
-    typedef unsigned_map<local_decl> idx2local_decl;
-    idx2local_decl m_idx2local_decl;
 
     local_context remove(buffer<expr> const & locals) const;
     expr mk_local_decl(name const & n, name const & un, expr const & type,
                        optional<expr> const & value, binder_info bi);
-    static local_decl update_local_decl(local_decl const & d, expr const & t,
-                                        optional<expr> const & v) {
-        if (v) return local_decl(d, t, *v);
-        else return local_decl(d, t);
-    }
-
     local_decl mk_local_decl_core(name const & n, name const & un, expr const & type, binder_info bi);
     local_decl mk_local_decl_core(name const & n, name const & un, expr const & type, expr const & value);
-
+    unsigned num_indices() const;
+    optional<local_decl> get_decl_at(unsigned idx) const;
 public:
     local_context() {}
-    local_context(local_context const & lctx):local_ctx(lctx), m_idx2local_decl(lctx.m_idx2local_decl) {}
-    local_context(local_context && lctx):local_ctx(lctx), m_idx2local_decl(lctx.m_idx2local_decl) {}
-    local_context & operator=(local_context const & other) { local_ctx::operator=(other); m_idx2local_decl = other.m_idx2local_decl; return *this; }
-    local_context & operator=(local_context && other) { local_ctx::operator=(other); m_idx2local_decl = other.m_idx2local_decl; return *this; }
 
     expr mk_local_decl(expr const & type, binder_info bi = mk_binder_info());
     expr mk_local_decl(expr const & type, expr const & value);
@@ -126,9 +115,6 @@ public:
         and for instantiating metavariables created by the elaborator before
         invoking the tactic framework. */
     local_context instantiate_mvars(metavar_context & ctx) const;
-
-    /** \brief Remove the given local decl. */
-    void clear(local_decl const & d);
 
     /** \brief Erase inaccessible annotations from the local context.
         This function is defined in the file library/equations_compiler/util.h.

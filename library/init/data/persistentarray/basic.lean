@@ -219,6 +219,13 @@ else do
   b ← mfoldlFromAux f t.root (USize.ofNat ini) t.shift b;
   t.tail.mfoldl f b
 
+@[specialize] partial def mforAux (f : α → m β) : PersistentArrayNode α → m PUnit
+| (node cs) := cs.mfor (fun c => mforAux c)
+| (leaf vs) := vs.mfor f
+
+@[specialize] def mfor (t : PersistentArray α) (f : α → m β) : m PUnit :=
+mforAux f t.root *> t.tail.mfor f
+
 end
 
 @[inline] def foldl {β} (t : PersistentArray α) (f : β → α → β) (b : β) : β :=

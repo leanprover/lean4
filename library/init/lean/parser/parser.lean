@@ -974,7 +974,16 @@ def symbolNoWsInfo (sym : String) (lbpNoWs : Option Nat) : ParserInfo :=
 @[inline] def symbolNoWsFnAux (sym : String) (errorMsg : String) : ParserFn trailing :=
 fun left c s =>
   if checkTailNoWs left then
-    strAux sym errorMsg 0 c s
+    let startPos := s.pos;
+    let input    := c.input;
+    let s        := strAux sym errorMsg 0 c s;
+    if s.hasError then s
+    else
+      let leading   := mkEmptySubstringAt input startPos;
+      let stopPos   := startPos + sym.bsize;
+      let trailing  := mkEmptySubstringAt input stopPos;
+      let atom      := mkAtom { leading := leading, pos := startPos, trailing := trailing } sym;
+      s.pushSyntax atom
   else
     s.mkError errorMsg
 

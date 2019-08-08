@@ -251,23 +251,6 @@ extern "C" object * lean_compile_decl(object * env, object * opts, object * decl
         });
 }
 
-environment add_and_compile(environment const & env, options const & opts, declaration const & decl) {
-    environment new_env = env.add(decl);
-    return compile(new_env, opts, get_decl_names_for_code_gen(decl));
-}
-
-// TODO(Leo): better error handling. We are just returning `Option Environment` and "forgetting" failure.
-// I will do it after we move more code to Lean.
-extern "C" object * lean_add_and_compile(object * env, object * opts, object * decl) {
-    try {
-        environment new_env = add_and_compile(environment(env, true), options(opts, true), declaration(decl, true));
-        return mk_cnstr(1, new_env).steal();
-    } catch (exception & ex) {
-        // throw;
-        return box(0);
-    }
-}
-
 void initialize_compiler() {
     g_codegen        = new name("codegen");
     g_extract_closed = new name{"compiler", "extract_closed"};

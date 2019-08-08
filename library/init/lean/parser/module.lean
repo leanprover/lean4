@@ -105,5 +105,26 @@ timeit (filename ++ " parser") $ do
   when displayStx (IO.println stx);
   testModuleParserAux env ctx displayStx s messages
 
+partial def parseFileAux (env : Environment) (ctx : ParserContextCore) : ModuleParserState → MessageLog → Array Syntax → IO Syntax
+| state msgs stxs :=
+  match parseCommand env ctx state msgs with
+  | (stx, state, msgs) =>
+    if isEOI stx then
+      if msgs.isEmpty then
+        pure (mkListNode stxs)
+      else do
+        msgs.toList.mfor $ fun msg => IO.println msg;
+        throw (IO.userError "failed to parse file")
+    else
+      parseFileAux state msgs (stxs.push stx)
+
+def parseFile (env : Environment) (fname : String) : IO Syntax :=
+do
+fname ← IO.realPath fname;
+contents ← IO.readTextFile fname;
+let ctx := mkParserContextCore env contents fname;
+let (stx, state, messages) := parseHeader env ctx;
+parseFileAux env ctx state messages (Array.singleton stx)
+
 end Parser
 end Lean

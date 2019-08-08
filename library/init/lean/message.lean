@@ -47,6 +47,9 @@ structure MessageLog :=
 namespace MessageLog
 def empty : MessageLog := ⟨{}⟩
 
+def isEmpty (log : MessageLog) : Bool :=
+log.revList.isEmpty
+
 instance : Inhabited MessageLog := ⟨{}⟩
 
 def add (msg : Message) (log : MessageLog) : MessageLog :=

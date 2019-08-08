@@ -111,7 +111,8 @@ partial def parseFileAux (env : Environment) (ctx : ParserContextCore) : ModuleP
   | (stx, state, msgs) =>
     if isEOI stx then
       if msgs.isEmpty then
-        pure (mkListNode stxs)
+        let stx := mkListNode stxs;
+        pure stx.updateLeading
       else do
         msgs.toList.mfor $ fun msg => IO.println msg;
         throw (IO.userError "failed to parse file")

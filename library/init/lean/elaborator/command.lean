@@ -179,6 +179,13 @@ fun n => do
   let idsStx := n.getArg 1;
   idsStx.mforArgs addUniverse
 
+@[builtinCommandElab «init_quot»] def elabInitQuot : CommandElab :=
+fun _ => do
+  env ← getEnv;
+  match env.addDecl Declaration.quotDecl with
+  | Except.ok env   => setEnv env
+  | Except.error ex => logElabException (ElabException.kernel ex)
+
 /- We just ignore Lean3 notation declaration commands. -/
 @[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()
 @[builtinCommandElab «reserve»] def elabReserve : CommandElab := fun _ => pure ()

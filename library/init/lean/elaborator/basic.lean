@@ -261,6 +261,9 @@ logError stx ("unknown declaration '" ++ toString declName ++ "'")
 def getEnv : Elab Environment :=
 do s ← get; pure s.env
 
+def setEnv (env : Environment) : Elab Unit :=
+modify $ fun s => { env := env, .. s }
+
 def elabTerm (stx : Syntax) : Elab Expr :=
 stx.ifNode
   (fun n => do

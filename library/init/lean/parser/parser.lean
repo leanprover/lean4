@@ -1438,8 +1438,9 @@ let type := Expr.app (mkConst `IO) (mkConst `Unit);
 let val  := mkCApp addFnName [mkConst refDeclName, toExpr declName, mkConst declName];
 let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
 match env.addAndCompile {} decl with
-| none     => throw (IO.userError ("failed to emit registration code for builtin parser '" ++ toString declName ++ "'"))
-| some env => IO.ofExcept (setInitAttr env name)
+-- TODO: pretty print error
+| Except.error _ => throw (IO.userError ("failed to emit registration code for builtin parser '" ++ toString declName ++ "'"))
+| Except.ok env  => IO.ofExcept (setInitAttr env name)
 
 def declareLeadingBuiltinParser (env : Environment) (refDeclName : Name) (declName : Name) : IO Environment :=
 declareBuiltinParser env `Lean.Parser.addBuiltinLeadingParser refDeclName declName

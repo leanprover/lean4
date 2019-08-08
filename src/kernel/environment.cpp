@@ -237,6 +237,12 @@ environment environment::add(declaration const & d, bool check) const {
     lean_unreachable();
 }
 
+extern "C" object * lean_add_decl(object * env, object * decl) {
+    return catch_kernel_exceptions<environment>([&]() {
+            return environment(env).add(declaration(decl, true));
+        });
+}
+
 static void env_ext_finalizer(void * ext) {
     delete static_cast<environment_extension*>(ext);
 }

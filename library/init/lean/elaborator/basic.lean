@@ -53,9 +53,10 @@ structure ElabState :=
 (scopes   : List ElabScope := [{ cmd := "root", header := Name.anonymous }])
 
 inductive ElabException
-| io    : IO.Error → ElabException
-| msg   : Message → ElabException
-| other : String → ElabException
+| io     : IO.Error → ElabException
+| msg    : Message → ElabException
+| kernel : KernelException → ElabException
+| other  : String → ElabException
 
 namespace ElabException
 
@@ -118,8 +119,9 @@ let type := Expr.app (mkConst `IO) (mkConst `Unit);
 let val  := mkCApp addFn [toExpr kind, toExpr declName, mkConst declName];
 let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
 match env.addAndCompile {} decl with
-| none     => throw (IO.userError ("failed to emit registration code for builtin term elaborator '" ++ toString declName ++ "'"))
-| some env => IO.ofExcept (setInitAttr env name)
+-- TODO: pretty print error
+| Except.error _ => throw (IO.userError ("failed to emit registration code for builtin term elaborator '" ++ toString declName ++ "'"))
+| Except.ok env  => IO.ofExcept (setInitAttr env name)
 
 def declareBuiltinTermElab (env : Environment) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
 declareBuiltinElab env `Lean.addBuiltinTermElab kind declName
@@ -237,9 +239,13 @@ do pos ← getPos stx;
    logErrorAt pos errorMsg
 
 def toMessage : ElabException → Elab Message
-| (ElabException.msg m)   := pure m
-| (ElabException.io e)    := mkMessage (toString e)
-| (ElabException.other e) := mkMessage e
+| (ElabException.msg m)    := pure m
+| (ElabException.io e)     := mkMessage (toString e)
+| (ElabException.other e)  := mkMessage e
+| (ElabException.kernel e) :=
+  match e with
+  | KernelException.other msg => mkMessage msg
+  | _                         => mkMessage "kernel exception" -- TODO(pretty print them)
 
 def logElabException (e : ElabException) : Elab Unit :=
 do msg ← toMessage e;

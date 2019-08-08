@@ -10,6 +10,7 @@ import init.data.bytearray
 import init.lean.declaration
 import init.lean.smap
 import init.lean.path
+import init.lean.localcontext
 
 namespace Lean
 /- Opaque environment extension state. It is essentially the Lean version of a C `void *`
@@ -86,13 +87,35 @@ match env.find c with
 | ConstantInfo.ctorInfo _ => true
 | _ => false
 
-/--
-Type check, add and compile the given declaration.
+end Environment
 
-TODO: better error handling, we are forgetting the information produced by the C++ type checker and compiler.
--/
-@[extern "lean_add_and_compile"]
-constant addAndCompile (env : @& Environment) (o : @& Options) (d : @& Declaration) : Option Environment := default _
+inductive KernelException
+| unknownConstant  (env : Environment) (name : Name)
+| alreadyDeclared  (env : Environment) (name : Name)
+| declTypeMismatch (env : Environment) (decl : Declaration) (givenType : Expr)
+| declHasMVars     (env : Environment) (name : Name) (expr : Expr)
+| declHasFVars     (env : Environment) (name : Name) (expr : Expr)
+| funExpected      (env : Environment) (lctx : LocalContext) (expr : Expr)
+| typeExpected     (env : Environment) (lctx : LocalContext) (expr : Expr)
+| letTypeMismatch  (env : Environment) (lctx : LocalContext) (name : Name) (givenType : Expr) (expectedType : Expr)
+| exprTypeMismatch (env : Environment) (lctx : LocalContext) (expr : Expr) (expectedType : Expr)
+| appTypeMismatch  (env : Environment) (lctx : LocalContext) (app : Expr) (funType : Expr) (argType : Expr)
+| invalidProj      (env : Environment) (lctx : LocalContext) (proj : Expr)
+| other            (msg : String)
+
+namespace Environment
+
+/- Type check given declaration and add it to the environment -/
+@[extern "lean_add_decl"]
+constant addDecl (env : Environment) (decl : @& Declaration) : Except KernelException Environment := default _
+
+/- Compile the given declaration, it assumes the declaration has already been added to the environment using `addDecl`. -/
+@[extern "lean_compile_decl"]
+constant compileDecl (env : Environment) (opt : @& Options) (decl : @& Declaration) : Except KernelException Environment := default _
+
+def addAndCompile (env : Environment) (opt : Options) (decl : Declaration) : Except KernelException Environment :=
+do env ← addDecl env decl;
+   compileDecl env opt decl
 
 end Environment
 

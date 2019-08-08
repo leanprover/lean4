@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "util/option_declarations.h"
 #include "kernel/type_checker.h"
+#include "kernel/kernel_exception.h"
 #include "library/max_sharing.h"
 #include "library/trace.h"
 #include "library/sorry.h"
@@ -242,6 +243,12 @@ environment compile(environment const & env, options const & opts, names cs) {
 object* get_decl_names_for_code_gen_core(object *);
 names get_decl_names_for_code_gen(declaration const & decl) {
     return names(get_decl_names_for_code_gen_core(decl.to_obj_arg()));
+}
+
+extern "C" object * lean_compile_decl(object * env, object * opts, object * decl) {
+    return catch_kernel_exceptions<environment>([&]() {
+            return compile(environment(env), options(opts, true), get_decl_names_for_code_gen(declaration(decl, true)));
+        });
 }
 
 environment add_and_compile(environment const & env, options const & opts, declaration const & decl) {

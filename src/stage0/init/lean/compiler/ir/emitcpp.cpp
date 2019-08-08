@@ -212,7 +212,6 @@ obj* l_Nat_mforAux___main___at_Lean_IR_EmitCpp_emitReset___spec__1___closed__1;
 obj* l_Lean_IR_EmitCpp_emitNumLit___closed__2;
 obj* l_Lean_IR_EmitCpp_emitPartialApp___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Nat_repr(obj*);
-obj* l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
 extern obj* l_String_quote___closed__1;
 obj* l_Lean_IR_EmitCpp_declareParams___boxed(obj*, obj*, obj*);
 uint8 l_Lean_hasInitAttr(obj*, obj*);
@@ -269,6 +268,7 @@ uint8 l_Lean_IR_isTailCallTo(obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitInitFn___closed__5;
 obj* l_Lean_IR_EmitCpp_emitNumLit(uint8, obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitExternDeclAux___boxed(obj*, obj*, obj*, obj*);
+extern obj* l_PersistentHashMap_Stats_toString___closed__5;
 obj* l_Lean_IR_EmitCpp_emitMainFn___closed__43;
 obj* l_Lean_IR_EmitCpp_emitUSet(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitLn(obj*);
@@ -1557,14 +1557,6 @@ lean::dec(x_2);
 return x_4;
 }
 }
-obj* _init_l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1() {
-_start:
-{
-obj* x_1; 
-x_1 = lean::mk_string("}");
-return x_1;
-}
-}
 obj* l_Lean_IR_EmitCpp_closeNamespacesAux___main(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -1608,7 +1600,7 @@ obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; obj* x_18;
 x_12 = lean::cnstr_get(x_3, 1);
 x_13 = lean::cnstr_get(x_3, 0);
 lean::dec(x_13);
-x_14 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_14 = l_PersistentHashMap_Stats_toString___closed__5;
 x_15 = lean::string_append(x_12, x_14);
 x_16 = l_IO_println___rarg___closed__1;
 x_17 = lean::string_append(x_15, x_16);
@@ -1624,7 +1616,7 @@ obj* x_20; obj* x_21; obj* x_22; obj* x_23; obj* x_24; obj* x_25; obj* x_26;
 x_20 = lean::cnstr_get(x_3, 1);
 lean::inc(x_20);
 lean::dec(x_3);
-x_21 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_21 = l_PersistentHashMap_Stats_toString___closed__5;
 x_22 = lean::string_append(x_20, x_21);
 x_23 = l_IO_println___rarg___closed__1;
 x_24 = lean::string_append(x_22, x_23);
@@ -4810,7 +4802,7 @@ _start:
 {
 obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::box(0);
-x_2 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_2 = l_PersistentHashMap_Stats_toString___closed__5;
 x_3 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_3, 0, x_2);
 lean::cnstr_set(x_3, 1, x_1);
@@ -5298,7 +5290,7 @@ lean::dec(x_38);
 x_39 = l_Lean_IR_EmitCpp_emitMainFn___closed__13;
 x_40 = lean::string_append(x_37, x_39);
 x_41 = lean::string_append(x_40, x_19);
-x_42 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_42 = l_PersistentHashMap_Stats_toString___closed__5;
 x_43 = lean::string_append(x_41, x_42);
 x_44 = lean::string_append(x_43, x_19);
 lean::cnstr_set(x_35, 1, x_44);
@@ -5367,7 +5359,7 @@ lean::dec(x_35);
 x_61 = l_Lean_IR_EmitCpp_emitMainFn___closed__13;
 x_62 = lean::string_append(x_60, x_61);
 x_63 = lean::string_append(x_62, x_19);
-x_64 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_64 = l_PersistentHashMap_Stats_toString___closed__5;
 x_65 = lean::string_append(x_63, x_64);
 x_66 = lean::string_append(x_65, x_19);
 x_67 = lean::alloc_cnstr(0, 2, 0);
@@ -5487,7 +5479,7 @@ if (lean::is_exclusive(x_95)) {
 x_98 = l_Lean_IR_EmitCpp_emitMainFn___closed__13;
 x_99 = lean::string_append(x_96, x_98);
 x_100 = lean::string_append(x_99, x_19);
-x_101 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_101 = l_PersistentHashMap_Stats_toString___closed__5;
 x_102 = lean::string_append(x_100, x_101);
 x_103 = lean::string_append(x_102, x_19);
 if (lean::is_scalar(x_97)) {
@@ -5841,7 +5833,7 @@ return x_224;
 block_190:
 {
 obj* x_171; obj* x_172; obj* x_173; obj* x_174; obj* x_175; obj* x_176; 
-x_171 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_171 = l_PersistentHashMap_Stats_toString___closed__5;
 x_172 = lean::string_append(x_170, x_171);
 x_173 = lean::string_append(x_172, x_155);
 x_174 = lean::alloc_cnstr(0, 2, 0);
@@ -6027,7 +6019,7 @@ return x_275;
 block_252:
 {
 obj* x_237; obj* x_238; obj* x_239; obj* x_240; obj* x_241; obj* x_242; 
-x_237 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_237 = l_PersistentHashMap_Stats_toString___closed__5;
 x_238 = lean::string_append(x_236, x_237);
 x_239 = lean::string_append(x_238, x_155);
 x_240 = lean::alloc_cnstr(0, 2, 0);
@@ -6275,7 +6267,7 @@ if (lean::is_exclusive(x_338)) {
 x_341 = l_Lean_IR_EmitCpp_emitMainFn___closed__13;
 x_342 = lean::string_append(x_339, x_341);
 x_343 = lean::string_append(x_342, x_321);
-x_344 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_344 = l_PersistentHashMap_Stats_toString___closed__5;
 x_345 = lean::string_append(x_343, x_344);
 x_346 = lean::string_append(x_345, x_321);
 if (lean::is_scalar(x_340)) {
@@ -6610,7 +6602,7 @@ return x_454;
 block_431:
 {
 obj* x_416; obj* x_417; obj* x_418; obj* x_419; obj* x_420; obj* x_421; 
-x_416 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_416 = l_PersistentHashMap_Stats_toString___closed__5;
 x_417 = lean::string_append(x_415, x_416);
 x_418 = lean::string_append(x_417, x_399);
 x_419 = lean::alloc_cnstr(0, 2, 0);
@@ -10100,7 +10092,7 @@ obj* x_25; obj* x_26; obj* x_27; obj* x_28; obj* x_29;
 x_25 = lean::cnstr_get(x_23, 1);
 x_26 = lean::cnstr_get(x_23, 0);
 lean::dec(x_26);
-x_27 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_27 = l_PersistentHashMap_Stats_toString___closed__5;
 x_28 = lean::string_append(x_25, x_27);
 x_29 = lean::string_append(x_28, x_19);
 lean::cnstr_set(x_23, 1, x_29);
@@ -10113,7 +10105,7 @@ obj* x_30; obj* x_31; obj* x_32; obj* x_33; obj* x_34;
 x_30 = lean::cnstr_get(x_23, 1);
 lean::inc(x_30);
 lean::dec(x_23);
-x_31 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_31 = l_PersistentHashMap_Stats_toString___closed__5;
 x_32 = lean::string_append(x_30, x_31);
 x_33 = lean::string_append(x_32, x_19);
 x_34 = lean::alloc_cnstr(0, 2, 0);
@@ -10175,7 +10167,7 @@ if (lean::is_exclusive(x_47)) {
  lean::dec_ref(x_47);
  x_49 = lean::box(0);
 }
-x_50 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_50 = l_PersistentHashMap_Stats_toString___closed__5;
 x_51 = lean::string_append(x_48, x_50);
 x_52 = lean::string_append(x_51, x_42);
 if (lean::is_scalar(x_49)) {
@@ -10293,7 +10285,7 @@ if (lean::is_exclusive(x_77)) {
  lean::dec_ref(x_77);
  x_79 = lean::box(0);
 }
-x_80 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_80 = l_PersistentHashMap_Stats_toString___closed__5;
 x_81 = lean::string_append(x_78, x_80);
 x_82 = lean::string_append(x_81, x_72);
 if (lean::is_scalar(x_79)) {
@@ -13968,7 +13960,7 @@ lean::dec(x_47);
 x_48 = l_Lean_IR_EmitCpp_emitReset___closed__4;
 x_49 = lean::string_append(x_46, x_48);
 x_50 = lean::string_append(x_49, x_17);
-x_51 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_51 = l_PersistentHashMap_Stats_toString___closed__5;
 x_52 = lean::string_append(x_50, x_51);
 x_53 = lean::string_append(x_52, x_17);
 lean::cnstr_set(x_44, 1, x_53);
@@ -13984,7 +13976,7 @@ lean::dec(x_44);
 x_55 = l_Lean_IR_EmitCpp_emitReset___closed__4;
 x_56 = lean::string_append(x_54, x_55);
 x_57 = lean::string_append(x_56, x_17);
-x_58 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_58 = l_PersistentHashMap_Stats_toString___closed__5;
 x_59 = lean::string_append(x_57, x_58);
 x_60 = lean::string_append(x_59, x_17);
 x_61 = lean::alloc_cnstr(0, 2, 0);
@@ -14057,7 +14049,7 @@ if (lean::is_exclusive(x_82)) {
 x_85 = l_Lean_IR_EmitCpp_emitReset___closed__4;
 x_86 = lean::string_append(x_83, x_85);
 x_87 = lean::string_append(x_86, x_17);
-x_88 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_88 = l_PersistentHashMap_Stats_toString___closed__5;
 x_89 = lean::string_append(x_87, x_88);
 x_90 = lean::string_append(x_89, x_17);
 if (lean::is_scalar(x_84)) {
@@ -14185,7 +14177,7 @@ if (lean::is_exclusive(x_122)) {
 x_125 = l_Lean_IR_EmitCpp_emitReset___closed__4;
 x_126 = lean::string_append(x_123, x_125);
 x_127 = lean::string_append(x_126, x_17);
-x_128 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_128 = l_PersistentHashMap_Stats_toString___closed__5;
 x_129 = lean::string_append(x_127, x_128);
 x_130 = lean::string_append(x_129, x_17);
 if (lean::is_scalar(x_124)) {
@@ -14375,7 +14367,7 @@ if (lean::is_exclusive(x_181)) {
 x_184 = l_Lean_IR_EmitCpp_emitReset___closed__4;
 x_185 = lean::string_append(x_182, x_184);
 x_186 = lean::string_append(x_185, x_153);
-x_187 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_187 = l_PersistentHashMap_Stats_toString___closed__5;
 x_188 = lean::string_append(x_186, x_187);
 x_189 = lean::string_append(x_188, x_153);
 if (lean::is_scalar(x_183)) {
@@ -14582,7 +14574,7 @@ if (x_4 == 0)
 {
 obj* x_43; obj* x_44; obj* x_45; obj* x_46; 
 lean::dec(x_3);
-x_43 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_43 = l_PersistentHashMap_Stats_toString___closed__5;
 x_44 = lean::string_append(x_42, x_43);
 x_45 = lean::string_append(x_44, x_19);
 lean::cnstr_set(x_35, 1, x_45);
@@ -14612,7 +14604,7 @@ lean::dec(x_55);
 x_57 = l_Lean_IR_EmitCpp_emitInc___closed__2;
 x_58 = lean::string_append(x_56, x_57);
 x_59 = lean::string_append(x_58, x_19);
-x_60 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_60 = l_PersistentHashMap_Stats_toString___closed__5;
 x_61 = lean::string_append(x_59, x_60);
 x_62 = lean::string_append(x_61, x_19);
 lean::cnstr_set(x_35, 1, x_62);
@@ -14636,7 +14628,7 @@ if (x_4 == 0)
 {
 obj* x_69; obj* x_70; obj* x_71; obj* x_72; obj* x_73; 
 lean::dec(x_3);
-x_69 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_69 = l_PersistentHashMap_Stats_toString___closed__5;
 x_70 = lean::string_append(x_68, x_69);
 x_71 = lean::string_append(x_70, x_19);
 x_72 = lean::alloc_cnstr(0, 2, 0);
@@ -14667,7 +14659,7 @@ lean::dec(x_82);
 x_84 = l_Lean_IR_EmitCpp_emitInc___closed__2;
 x_85 = lean::string_append(x_83, x_84);
 x_86 = lean::string_append(x_85, x_19);
-x_87 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_87 = l_PersistentHashMap_Stats_toString___closed__5;
 x_88 = lean::string_append(x_86, x_87);
 x_89 = lean::string_append(x_88, x_19);
 x_90 = lean::alloc_cnstr(0, 2, 0);
@@ -14741,7 +14733,7 @@ if (x_4 == 0)
 {
 obj* x_109; obj* x_110; obj* x_111; obj* x_112; obj* x_113; 
 lean::dec(x_3);
-x_109 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_109 = l_PersistentHashMap_Stats_toString___closed__5;
 x_110 = lean::string_append(x_108, x_109);
 x_111 = lean::string_append(x_110, x_19);
 if (lean::is_scalar(x_104)) {
@@ -14776,7 +14768,7 @@ lean::dec(x_122);
 x_124 = l_Lean_IR_EmitCpp_emitInc___closed__2;
 x_125 = lean::string_append(x_123, x_124);
 x_126 = lean::string_append(x_125, x_19);
-x_127 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_127 = l_PersistentHashMap_Stats_toString___closed__5;
 x_128 = lean::string_append(x_126, x_127);
 x_129 = lean::string_append(x_128, x_19);
 if (lean::is_scalar(x_104)) {
@@ -14904,7 +14896,7 @@ if (x_4 == 0)
 {
 obj* x_157; obj* x_158; obj* x_159; obj* x_160; obj* x_161; 
 lean::dec(x_3);
-x_157 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_157 = l_PersistentHashMap_Stats_toString___closed__5;
 x_158 = lean::string_append(x_156, x_157);
 x_159 = lean::string_append(x_158, x_19);
 if (lean::is_scalar(x_152)) {
@@ -14939,7 +14931,7 @@ lean::dec(x_170);
 x_172 = l_Lean_IR_EmitCpp_emitInc___closed__2;
 x_173 = lean::string_append(x_171, x_172);
 x_174 = lean::string_append(x_173, x_19);
-x_175 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_175 = l_PersistentHashMap_Stats_toString___closed__5;
 x_176 = lean::string_append(x_174, x_175);
 x_177 = lean::string_append(x_176, x_19);
 if (lean::is_scalar(x_152)) {
@@ -15131,7 +15123,7 @@ if (x_4 == 0)
 {
 obj* x_226; obj* x_227; obj* x_228; obj* x_229; obj* x_230; 
 lean::dec(x_3);
-x_226 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_226 = l_PersistentHashMap_Stats_toString___closed__5;
 x_227 = lean::string_append(x_225, x_226);
 x_228 = lean::string_append(x_227, x_201);
 if (lean::is_scalar(x_221)) {
@@ -15166,7 +15158,7 @@ lean::dec(x_239);
 x_241 = l_Lean_IR_EmitCpp_emitInc___closed__2;
 x_242 = lean::string_append(x_240, x_241);
 x_243 = lean::string_append(x_242, x_201);
-x_244 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_244 = l_PersistentHashMap_Stats_toString___closed__5;
 x_245 = lean::string_append(x_243, x_244);
 x_246 = lean::string_append(x_245, x_201);
 if (lean::is_scalar(x_221)) {
@@ -20549,7 +20541,7 @@ obj* x_51; obj* x_52; obj* x_53; obj* x_54; obj* x_55; obj* x_56; obj* x_57; obj
 x_51 = lean::cnstr_get(x_49, 1);
 x_52 = lean::cnstr_get(x_49, 0);
 lean::dec(x_52);
-x_53 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_53 = l_PersistentHashMap_Stats_toString___closed__5;
 x_54 = lean::string_append(x_51, x_53);
 x_55 = lean::string_append(x_54, x_43);
 x_56 = l_Lean_IR_EmitCpp_emitTailCall___closed__3;
@@ -20565,7 +20557,7 @@ obj* x_59; obj* x_60; obj* x_61; obj* x_62; obj* x_63; obj* x_64; obj* x_65; obj
 x_59 = lean::cnstr_get(x_49, 1);
 lean::inc(x_59);
 lean::dec(x_49);
-x_60 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_60 = l_PersistentHashMap_Stats_toString___closed__5;
 x_61 = lean::string_append(x_59, x_60);
 x_62 = lean::string_append(x_61, x_43);
 x_63 = l_Lean_IR_EmitCpp_emitTailCall___closed__3;
@@ -20625,7 +20617,7 @@ if (lean::is_exclusive(x_73)) {
  lean::dec_ref(x_73);
  x_75 = lean::box(0);
 }
-x_76 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_76 = l_PersistentHashMap_Stats_toString___closed__5;
 x_77 = lean::string_append(x_74, x_76);
 x_78 = lean::string_append(x_77, x_43);
 x_79 = l_Lean_IR_EmitCpp_emitTailCall___closed__3;
@@ -20832,7 +20824,7 @@ if (lean::is_exclusive(x_123)) {
  lean::dec_ref(x_123);
  x_125 = lean::box(0);
 }
-x_126 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_126 = l_PersistentHashMap_Stats_toString___closed__5;
 x_127 = lean::string_append(x_124, x_126);
 x_128 = lean::string_append(x_127, x_116);
 x_129 = l_Lean_IR_EmitCpp_emitTailCall___closed__3;
@@ -22192,7 +22184,7 @@ obj* x_24; obj* x_25; obj* x_26; obj* x_27; obj* x_28;
 x_24 = lean::cnstr_get(x_22, 1);
 x_25 = lean::cnstr_get(x_22, 0);
 lean::dec(x_25);
-x_26 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_26 = l_PersistentHashMap_Stats_toString___closed__5;
 x_27 = lean::string_append(x_24, x_26);
 x_28 = lean::string_append(x_27, x_9);
 lean::cnstr_set(x_22, 1, x_28);
@@ -22205,7 +22197,7 @@ obj* x_29; obj* x_30; obj* x_31; obj* x_32; obj* x_33;
 x_29 = lean::cnstr_get(x_22, 1);
 lean::inc(x_29);
 lean::dec(x_22);
-x_30 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_30 = l_PersistentHashMap_Stats_toString___closed__5;
 x_31 = lean::string_append(x_29, x_30);
 x_32 = lean::string_append(x_31, x_9);
 x_33 = lean::alloc_cnstr(0, 2, 0);
@@ -22260,7 +22252,7 @@ if (lean::is_exclusive(x_40)) {
  lean::dec_ref(x_40);
  x_42 = lean::box(0);
 }
-x_43 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_43 = l_PersistentHashMap_Stats_toString___closed__5;
 x_44 = lean::string_append(x_41, x_43);
 x_45 = lean::string_append(x_44, x_9);
 if (lean::is_scalar(x_42)) {
@@ -22370,7 +22362,7 @@ if (lean::is_exclusive(x_62)) {
  lean::dec_ref(x_62);
  x_64 = lean::box(0);
 }
-x_65 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_65 = l_PersistentHashMap_Stats_toString___closed__5;
 x_66 = lean::string_append(x_63, x_65);
 x_67 = lean::string_append(x_66, x_9);
 if (lean::is_scalar(x_64)) {
@@ -22475,7 +22467,7 @@ obj* x_89; obj* x_90; obj* x_91; obj* x_92; obj* x_93;
 x_89 = lean::cnstr_get(x_87, 1);
 x_90 = lean::cnstr_get(x_87, 0);
 lean::dec(x_90);
-x_91 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_91 = l_PersistentHashMap_Stats_toString___closed__5;
 x_92 = lean::string_append(x_89, x_91);
 x_93 = lean::string_append(x_92, x_9);
 lean::cnstr_set(x_87, 1, x_93);
@@ -22488,7 +22480,7 @@ obj* x_94; obj* x_95; obj* x_96; obj* x_97; obj* x_98;
 x_94 = lean::cnstr_get(x_87, 1);
 lean::inc(x_94);
 lean::dec(x_87);
-x_95 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_95 = l_PersistentHashMap_Stats_toString___closed__5;
 x_96 = lean::string_append(x_94, x_95);
 x_97 = lean::string_append(x_96, x_9);
 x_98 = lean::alloc_cnstr(0, 2, 0);
@@ -22543,7 +22535,7 @@ if (lean::is_exclusive(x_105)) {
  lean::dec_ref(x_105);
  x_107 = lean::box(0);
 }
-x_108 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_108 = l_PersistentHashMap_Stats_toString___closed__5;
 x_109 = lean::string_append(x_106, x_108);
 x_110 = lean::string_append(x_109, x_9);
 if (lean::is_scalar(x_107)) {
@@ -22656,7 +22648,7 @@ if (lean::is_exclusive(x_130)) {
  lean::dec_ref(x_130);
  x_132 = lean::box(0);
 }
-x_133 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_133 = l_PersistentHashMap_Stats_toString___closed__5;
 x_134 = lean::string_append(x_131, x_133);
 x_135 = lean::string_append(x_134, x_9);
 if (lean::is_scalar(x_132)) {
@@ -22829,7 +22821,7 @@ if (lean::is_exclusive(x_168)) {
  lean::dec_ref(x_168);
  x_170 = lean::box(0);
 }
-x_171 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_171 = l_PersistentHashMap_Stats_toString___closed__5;
 x_172 = lean::string_append(x_169, x_171);
 x_173 = lean::string_append(x_172, x_152);
 if (lean::is_scalar(x_170)) {
@@ -22954,7 +22946,7 @@ if (lean::is_exclusive(x_194)) {
  lean::dec_ref(x_194);
  x_196 = lean::box(0);
 }
-x_197 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_197 = l_PersistentHashMap_Stats_toString___closed__5;
 x_198 = lean::string_append(x_195, x_197);
 x_199 = lean::string_append(x_198, x_152);
 if (lean::is_scalar(x_196)) {
@@ -23577,7 +23569,7 @@ obj* x_51; obj* x_52; obj* x_53; obj* x_54; obj* x_55; obj* x_56;
 x_51 = lean::cnstr_get(x_49, 1);
 x_52 = lean::cnstr_get(x_49, 0);
 lean::dec(x_52);
-x_53 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_53 = l_PersistentHashMap_Stats_toString___closed__5;
 x_54 = lean::string_append(x_51, x_53);
 x_55 = lean::string_append(x_54, x_39);
 lean::cnstr_set(x_49, 1, x_55);
@@ -23592,7 +23584,7 @@ obj* x_57; obj* x_58; obj* x_59; obj* x_60; obj* x_61; obj* x_62;
 x_57 = lean::cnstr_get(x_49, 1);
 lean::inc(x_57);
 lean::dec(x_49);
-x_58 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_58 = l_PersistentHashMap_Stats_toString___closed__5;
 x_59 = lean::string_append(x_57, x_58);
 x_60 = lean::string_append(x_59, x_39);
 x_61 = lean::alloc_cnstr(0, 2, 0);
@@ -23663,7 +23655,7 @@ obj* x_75; obj* x_76; obj* x_77; obj* x_78; obj* x_79; obj* x_80;
 x_75 = lean::cnstr_get(x_73, 1);
 x_76 = lean::cnstr_get(x_73, 0);
 lean::dec(x_76);
-x_77 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_77 = l_PersistentHashMap_Stats_toString___closed__5;
 x_78 = lean::string_append(x_75, x_77);
 x_79 = lean::string_append(x_78, x_39);
 lean::cnstr_set(x_73, 1, x_79);
@@ -23678,7 +23670,7 @@ obj* x_81; obj* x_82; obj* x_83; obj* x_84; obj* x_85; obj* x_86;
 x_81 = lean::cnstr_get(x_73, 1);
 lean::inc(x_81);
 lean::dec(x_73);
-x_82 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_82 = l_PersistentHashMap_Stats_toString___closed__5;
 x_83 = lean::string_append(x_81, x_82);
 x_84 = lean::string_append(x_83, x_39);
 x_85 = lean::alloc_cnstr(0, 2, 0);
@@ -23755,7 +23747,7 @@ obj* x_101; obj* x_102; obj* x_103; obj* x_104; obj* x_105; obj* x_106;
 x_101 = lean::cnstr_get(x_99, 1);
 x_102 = lean::cnstr_get(x_99, 0);
 lean::dec(x_102);
-x_103 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_103 = l_PersistentHashMap_Stats_toString___closed__5;
 x_104 = lean::string_append(x_101, x_103);
 x_105 = lean::string_append(x_104, x_39);
 lean::cnstr_set(x_99, 1, x_105);
@@ -23770,7 +23762,7 @@ obj* x_107; obj* x_108; obj* x_109; obj* x_110; obj* x_111; obj* x_112;
 x_107 = lean::cnstr_get(x_99, 1);
 lean::inc(x_107);
 lean::dec(x_99);
-x_108 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_108 = l_PersistentHashMap_Stats_toString___closed__5;
 x_109 = lean::string_append(x_107, x_108);
 x_110 = lean::string_append(x_109, x_39);
 x_111 = lean::alloc_cnstr(0, 2, 0);
@@ -23840,7 +23832,7 @@ if (lean::is_exclusive(x_123)) {
  lean::dec_ref(x_123);
  x_125 = lean::box(0);
 }
-x_126 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_126 = l_PersistentHashMap_Stats_toString___closed__5;
 x_127 = lean::string_append(x_124, x_126);
 x_128 = lean::string_append(x_127, x_39);
 if (lean::is_scalar(x_125)) {
@@ -24141,7 +24133,7 @@ if (lean::is_exclusive(x_196)) {
  lean::dec_ref(x_196);
  x_198 = lean::box(0);
 }
-x_199 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_199 = l_PersistentHashMap_Stats_toString___closed__5;
 x_200 = lean::string_append(x_197, x_199);
 x_201 = lean::string_append(x_200, x_186);
 if (lean::is_scalar(x_198)) {
@@ -24220,7 +24212,7 @@ if (lean::is_exclusive(x_214)) {
  lean::dec_ref(x_214);
  x_216 = lean::box(0);
 }
-x_217 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_217 = l_PersistentHashMap_Stats_toString___closed__5;
 x_218 = lean::string_append(x_215, x_217);
 x_219 = lean::string_append(x_218, x_186);
 if (lean::is_scalar(x_216)) {
@@ -24313,7 +24305,7 @@ if (lean::is_exclusive(x_234)) {
  lean::dec_ref(x_234);
  x_236 = lean::box(0);
 }
-x_237 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_237 = l_PersistentHashMap_Stats_toString___closed__5;
 x_238 = lean::string_append(x_235, x_237);
 x_239 = lean::string_append(x_238, x_186);
 if (lean::is_scalar(x_236)) {
@@ -24686,7 +24678,7 @@ if (lean::is_exclusive(x_318)) {
  lean::dec_ref(x_318);
  x_320 = lean::box(0);
 }
-x_321 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_321 = l_PersistentHashMap_Stats_toString___closed__5;
 x_322 = lean::string_append(x_319, x_321);
 x_323 = lean::string_append(x_322, x_308);
 if (lean::is_scalar(x_320)) {
@@ -24765,7 +24757,7 @@ if (lean::is_exclusive(x_336)) {
  lean::dec_ref(x_336);
  x_338 = lean::box(0);
 }
-x_339 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_339 = l_PersistentHashMap_Stats_toString___closed__5;
 x_340 = lean::string_append(x_337, x_339);
 x_341 = lean::string_append(x_340, x_308);
 if (lean::is_scalar(x_338)) {
@@ -24858,7 +24850,7 @@ if (lean::is_exclusive(x_356)) {
  lean::dec_ref(x_356);
  x_358 = lean::box(0);
 }
-x_359 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_359 = l_PersistentHashMap_Stats_toString___closed__5;
 x_360 = lean::string_append(x_357, x_359);
 x_361 = lean::string_append(x_360, x_308);
 if (lean::is_scalar(x_358)) {
@@ -25329,7 +25321,7 @@ if (lean::is_exclusive(x_460)) {
  lean::dec_ref(x_460);
  x_462 = lean::box(0);
 }
-x_463 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_463 = l_PersistentHashMap_Stats_toString___closed__5;
 x_464 = lean::string_append(x_461, x_463);
 x_465 = lean::string_append(x_464, x_450);
 if (lean::is_scalar(x_462)) {
@@ -25408,7 +25400,7 @@ if (lean::is_exclusive(x_478)) {
  lean::dec_ref(x_478);
  x_480 = lean::box(0);
 }
-x_481 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_481 = l_PersistentHashMap_Stats_toString___closed__5;
 x_482 = lean::string_append(x_479, x_481);
 x_483 = lean::string_append(x_482, x_450);
 if (lean::is_scalar(x_480)) {
@@ -25501,7 +25493,7 @@ if (lean::is_exclusive(x_498)) {
  lean::dec_ref(x_498);
  x_500 = lean::box(0);
 }
-x_501 = l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1;
+x_501 = l_PersistentHashMap_Stats_toString___closed__5;
 x_502 = lean::string_append(x_499, x_501);
 x_503 = lean::string_append(x_502, x_450);
 if (lean::is_scalar(x_500)) {
@@ -29550,8 +29542,6 @@ l_Lean_IR_EmitCpp_openNamespacesAux___main___closed__2 = _init_l_Lean_IR_EmitCpp
 lean::mark_persistent(l_Lean_IR_EmitCpp_openNamespacesAux___main___closed__2);
 l_Lean_IR_EmitCpp_openNamespacesAux___main___closed__3 = _init_l_Lean_IR_EmitCpp_openNamespacesAux___main___closed__3();
 lean::mark_persistent(l_Lean_IR_EmitCpp_openNamespacesAux___main___closed__3);
-l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1 = _init_l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1();
-lean::mark_persistent(l_Lean_IR_EmitCpp_closeNamespacesAux___main___closed__1);
 l_Lean_IR_EmitCpp_throwInvalidExportName___rarg___closed__1 = _init_l_Lean_IR_EmitCpp_throwInvalidExportName___rarg___closed__1();
 lean::mark_persistent(l_Lean_IR_EmitCpp_throwInvalidExportName___rarg___closed__1);
 l_Lean_IR_EmitCpp_toBaseCppName___closed__1 = _init_l_Lean_IR_EmitCpp_toBaseCppName___closed__1();

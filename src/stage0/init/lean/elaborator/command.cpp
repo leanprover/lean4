@@ -1331,7 +1331,7 @@ _start:
 {
 obj* x_1; obj* x_2; 
 x_1 = l_Lean_Elab_elabEnd___closed__1;
-x_2 = lean::alloc_cnstr(2, 1, 0);
+x_2 = lean::alloc_cnstr(3, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1349,7 +1349,7 @@ _start:
 {
 obj* x_1; obj* x_2; 
 x_1 = l_Lean_Elab_elabEnd___closed__3;
-x_2 = lean::alloc_cnstr(2, 1, 0);
+x_2 = lean::alloc_cnstr(3, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1367,7 +1367,7 @@ _start:
 {
 obj* x_1; obj* x_2; 
 x_1 = l_Lean_Elab_elabEnd___closed__5;
-x_2 = lean::alloc_cnstr(2, 1, 0);
+x_2 = lean::alloc_cnstr(3, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1949,7 +1949,7 @@ _start:
 {
 obj* x_1; obj* x_2; 
 x_1 = l_Lean_Elab_elabExport___closed__1;
-x_2 = lean::alloc_cnstr(2, 1, 0);
+x_2 = lean::alloc_cnstr(3, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.environment
-// Imports: init.system.io init.util init.data.bytearray.default init.lean.declaration init.lean.smap init.lean.path
+// Imports: init.system.io init.util init.data.bytearray.default init.lean.declaration init.lean.smap init.lean.path init.lean.localcontext
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -100,6 +100,7 @@ obj* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_regNamespacesExtensio
 obj* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__3;
 obj* l_Nat_foldAux___main___at_Lean_mkModuleData___spec__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_mkStateFromImportedEntries(obj*, obj*);
+extern "C" obj* lean_add_decl(obj*, obj*);
 uint8 l_Lean_SMap_contains___main___at_Lean_Environment_contains___spec__1(obj*, obj*);
 extern obj* l_Lean_findOLean___closed__1;
 obj* l_Lean_EnvExtension_modifyStateUnsafe(obj*);
@@ -155,6 +156,7 @@ obj* l_Lean_regNamespacesExtension___lambda__1(obj*, obj*);
 obj* l_RBNode_depth___main___rarg(obj*, obj*);
 obj* l_Lean_EnvExtension_setState___boxed(obj*, obj*, obj*, obj*);
 extern "C" obj* lean_io_initializing(obj*);
+obj* l_Lean_Environment_compileDecl___boxed(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_importModules___spec__8(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_SimplePersistentEnvExtension_setState___rarg(obj*, obj*, obj*);
 obj* l_Array_mkEmpty(obj*, obj*);
@@ -261,7 +263,7 @@ extern "C" obj* lean_name_mk_string(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_importModules___spec__10___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_regModListExtension___spec__1(obj*, obj*);
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg(obj*, obj*, obj*);
-extern "C" obj* lean_add_and_compile(obj*, obj*, obj*);
+obj* l_Lean_Environment_addAndCompile(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_regNamespacesExtension___spec__3___boxed(obj*, obj*, obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
@@ -321,6 +323,7 @@ obj* l_Lean_PersistentEnvExtension_setState(obj*, obj*);
 obj* l___private_init_lean_environment_13__registerNamePrefixes___main(obj*, obj*);
 obj* l_Lean_EnvExtension_modifyState(obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_regNamespacesExtension___spec__2___boxed(obj*, obj*, obj*, obj*);
+extern "C" obj* lean_compile_decl(obj*, obj*, obj*);
 obj* l_Nat_foldAux___main___at_Lean_mkModuleData___spec__1___boxed(obj*, obj*, obj*, obj*, obj*);
 uint8 l_Lean_isNamespace(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_mkStateFromImportedEntries___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -333,6 +336,7 @@ obj* l_Array_miterateAux___main___at___private_init_lean_environment_10__setImpo
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerPersistentEnvExtensionUnsafe___spec__2___rarg(obj*, obj*, obj*);
 obj* l_AssocList_mfoldl___main___at_Lean_importModules___spec__5(obj*, obj*);
 obj* l_Lean_importModules___boxed(obj*, obj*, obj*);
+obj* l_Lean_Environment_addDecl___boxed(obj*, obj*);
 extern obj* l_NonScalar_Inhabited;
 obj* l_Array_miterateAux___main___at_Lean_mkStateFromImportedEntries___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_mforAux___main___at_Lean_Environment_displayStats___spec__10___closed__3;
@@ -4142,11 +4146,64 @@ x_4 = lean::box(x_3);
 return x_4;
 }
 }
+obj* l_Lean_Environment_addDecl___boxed(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean_add_decl(x_1, x_2);
+return x_3;
+}
+}
+obj* l_Lean_Environment_compileDecl___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = lean_compile_decl(x_1, x_2, x_3);
+return x_4;
+}
+}
+obj* l_Lean_Environment_addAndCompile(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = lean_add_decl(x_1, x_3);
+if (lean::obj_tag(x_4) == 0)
+{
+uint8 x_5; 
+x_5 = !lean::is_exclusive(x_4);
+if (x_5 == 0)
+{
+return x_4;
+}
+else
+{
+obj* x_6; obj* x_7; 
+x_6 = lean::cnstr_get(x_4, 0);
+lean::inc(x_6);
+lean::dec(x_4);
+x_7 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_7, 0, x_6);
+return x_7;
+}
+}
+else
+{
+obj* x_8; obj* x_9; 
+x_8 = lean::cnstr_get(x_4, 0);
+lean::inc(x_8);
+lean::dec(x_4);
+x_9 = lean_compile_decl(x_8, x_2, x_3);
+return x_9;
+}
+}
+}
 obj* l_Lean_Environment_addAndCompile___boxed(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = lean_add_and_compile(x_1, x_2, x_3);
+x_4 = l_Lean_Environment_addAndCompile(x_1, x_2, x_3);
+lean::dec(x_3);
+lean::dec(x_2);
 return x_4;
 }
 }
@@ -24189,6 +24246,7 @@ obj* initialize_init_data_bytearray_default(obj*);
 obj* initialize_init_lean_declaration(obj*);
 obj* initialize_init_lean_smap(obj*);
 obj* initialize_init_lean_path(obj*);
+obj* initialize_init_lean_localcontext(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_environment(obj* w) {
 if (_G_initialized) return w;
@@ -24205,6 +24263,8 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_smap(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_path(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_localcontext(w);
 if (io_result_is_error(w)) return w;
 l_Lean_EnvExtensionState_inhabited = _init_l_Lean_EnvExtensionState_inhabited();
 lean::mark_persistent(l_Lean_EnvExtensionState_inhabited);

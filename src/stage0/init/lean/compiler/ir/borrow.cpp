@@ -91,6 +91,7 @@ obj* string_append(obj*, obj*);
 obj* l_Nat_mforAux___main___at_Lean_IR_Borrow_ownParamsUsingArgs___spec__1(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_mforAux___main___at_Lean_IR_Borrow_ownArgsIfParam___spec__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_AssocList_mfoldl___main___at_Lean_IR_Borrow_InitParamMap_visitFnBody___main___spec__5(obj*, obj*);
+extern obj* l_PersistentHashMap_Stats_toString___closed__5;
 obj* l_Lean_IR_Borrow_Key_Hashable___closed__1;
 obj* l_Lean_IR_inferBorrow___boxed(obj*, obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_IR_Borrow_ApplyParamMap_visitDecls___spec__1___boxed(obj*, obj*, obj*);
@@ -160,7 +161,6 @@ obj* l_Lean_IR_getEnv___rarg(obj*);
 obj* l_Lean_IR_Decl_params___main(obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__2;
-obj* l_Lean_IR_Borrow_ParamMap_fmt___closed__4;
 obj* l_Lean_IR_Borrow_Key_Hashable;
 obj* l_Array_mforAux___main___at_Lean_IR_Borrow_ownArgs___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Array_fset(obj*, obj*, obj*, obj*);
@@ -554,16 +554,8 @@ return x_2;
 obj* _init_l_Lean_IR_Borrow_ParamMap_fmt___closed__3() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::mk_string("}");
-return x_1;
-}
-}
-obj* _init_l_Lean_IR_Borrow_ParamMap_fmt___closed__4() {
-_start:
-{
 obj* x_1; obj* x_2; 
-x_1 = l_Lean_IR_Borrow_ParamMap_fmt___closed__3;
+x_1 = l_PersistentHashMap_Stats_toString___closed__5;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
@@ -587,7 +579,7 @@ x_10 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_10, 0, x_9);
 lean::cnstr_set(x_10, 1, x_7);
 lean::cnstr_set_scalar(x_10, sizeof(void*)*2, x_8);
-x_11 = l_Lean_IR_Borrow_ParamMap_fmt___closed__4;
+x_11 = l_Lean_IR_Borrow_ParamMap_fmt___closed__3;
 x_12 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_12, 0, x_10);
 lean::cnstr_set(x_12, 1, x_11);
@@ -4002,8 +3994,6 @@ l_Lean_IR_Borrow_ParamMap_fmt___closed__2 = _init_l_Lean_IR_Borrow_ParamMap_fmt_
 lean::mark_persistent(l_Lean_IR_Borrow_ParamMap_fmt___closed__2);
 l_Lean_IR_Borrow_ParamMap_fmt___closed__3 = _init_l_Lean_IR_Borrow_ParamMap_fmt___closed__3();
 lean::mark_persistent(l_Lean_IR_Borrow_ParamMap_fmt___closed__3);
-l_Lean_IR_Borrow_ParamMap_fmt___closed__4 = _init_l_Lean_IR_Borrow_ParamMap_fmt___closed__4();
-lean::mark_persistent(l_Lean_IR_Borrow_ParamMap_fmt___closed__4);
 l_Lean_IR_Borrow_Lean_HasFormat___closed__1 = _init_l_Lean_IR_Borrow_Lean_HasFormat___closed__1();
 lean::mark_persistent(l_Lean_IR_Borrow_Lean_HasFormat___closed__1);
 l_Lean_IR_Borrow_Lean_HasFormat = _init_l_Lean_IR_Borrow_Lean_HasFormat();

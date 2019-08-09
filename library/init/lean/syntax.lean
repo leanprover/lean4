@@ -217,38 +217,44 @@ partial def updateTrailing {α} (trailing : Substring) : Syntax α → Syntax α
 | s := s
 
 /-- Retrieve the left-most leaf's info in the Syntax tree. -/
-partial def getLeftMostInfo {α} : Syntax α → Option SourceInfo
+partial def getHeadInfo {α} : Syntax α → Option SourceInfo
 | (atom info _)       := info
 | (ident info _ _ _ ) := info
-| (node _ args)       := args.find getLeftMostInfo
+| (node _ args)       := args.find getHeadInfo
 | _                   := none
 
 def getPos {α} (stx : Syntax α) : Option String.Pos :=
-SourceInfo.pos <$> stx.getLeftMostInfo
+SourceInfo.pos <$> stx.getHeadInfo
 
 partial def getTailInfo {α} : Syntax α → Option SourceInfo
 | (atom info _)       := info
 | (ident info _ _ _)  := info
-| (node _ args)       := getTailInfo args.back
+| (node _ args)       := args.findRev getTailInfo
 | _                   := none
 
-partial def setTailInfo {α} : Syntax α → Option SourceInfo → Syntax α
-| (atom _ val)             info := atom info val
-| (ident _ rawVal val pre) info := ident info rawVal val pre
-| (node k args)            info := node k $ args.modify (args.size - 1) $ fun arg => setTailInfo arg info
-| stx                      _    := stx
+@[specialize] private partial def updateLast {α} [Inhabited α] (a : Array α) (f : α → Option α) : Nat → Option (Array α)
+| i :=
+  if i == 0 then none
+  else
+    let i := i - 1;
+    let v := a.get i;
+    match f v with
+    | some v => some $ a.set i v
+    | none   => updateLast i
 
-partial def getHeadInfo {α} : Syntax α → Option SourceInfo
-| (atom info _)       := info
-| (ident info _ _ _)  := info
-| (node _ args)       := getHeadInfo $ args.get 0
-| _                   := none
+partial def setTailInfoAux {α} (info : Option SourceInfo) : Syntax α → Option (Syntax α)
+| (atom _ val)             := some $ atom info val
+| (ident _ rawVal val pre) := some $ ident info rawVal val pre
+| (node k args)            :=
+  match updateLast args setTailInfoAux args.size with
+  | some args => some $ node k args
+  | none      => none
+| stx                      := none
 
-partial def setHeadInfo {α} : Syntax α → Option SourceInfo → Syntax α
-| (atom _ val)             info := atom info val
-| (ident _ rawVal val pre) info := ident info rawVal val pre
-| (node k args)            info := node k $ args.modify 0 $ fun arg => setTailInfo arg info
-| stx                      _    := stx
+def setTailInfo {α} (stx : Syntax α) (info : Option SourceInfo) : Syntax α :=
+match setTailInfoAux info stx with
+| some stx => stx
+| none     => stx
 
 private def reprintLeaf : Option SourceInfo → String → String
 | none        val := val

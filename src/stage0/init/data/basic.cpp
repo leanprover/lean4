@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.data.basic
-// Imports: init.data.nat.basic init.data.fin.basic init.data.list.basic init.data.char.basic init.data.string.basic init.data.option.basic init.data.uint init.data.ordering.basic init.data.repr init.data.tostring
+// Imports: init.data.nat.basic init.data.fin.basic init.data.list.basic init.data.char.basic init.data.string.basic init.data.option.basic init.data.uint init.data.repr init.data.tostring
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -21,7 +21,6 @@ obj* initialize_init_data_char_basic(obj*);
 obj* initialize_init_data_string_basic(obj*);
 obj* initialize_init_data_option_basic(obj*);
 obj* initialize_init_data_uint(obj*);
-obj* initialize_init_data_ordering_basic(obj*);
 obj* initialize_init_data_repr(obj*);
 obj* initialize_init_data_tostring(obj*);
 static bool _G_initialized = false;
@@ -42,8 +41,6 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_data_option_basic(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_uint(w);
-if (io_result_is_error(w)) return w;
-w = initialize_init_data_ordering_basic(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_repr(w);
 if (io_result_is_error(w)) return w;

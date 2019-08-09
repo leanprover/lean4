@@ -33,15 +33,15 @@ mcond c t (pure ())
 namespace Nat
 
 @[specialize] def mforAux {m} [Applicative m] (f : Nat → m Unit) (n : Nat) : Nat → m Unit
-| 0     := pure ()
-| (i+1) := f (n-i-1) *> mforAux i
+| 0     => pure ()
+| i+1   => f (n-i-1) *> mforAux i
 
 @[inline] def mfor {m} [Applicative m] (n : Nat) (f : Nat → m Unit) : m Unit :=
 mforAux f n n
 
 @[specialize] def mfoldAux {α : Type u} {m : Type u → Type v} [Monad m] (f : Nat → α → m α) (n : Nat) : Nat → α → m α
-| 0     a := pure a
-| (i+1) a := f (n-i-1) a >>= mfoldAux i
+| 0,     a => pure a
+| i+1,   a => f (n-i-1) a >>= mfoldAux i
 
 @[inline] def mfold {α : Type u} {m : Type u → Type v} [Monad m] (f : Nat → α → m α) (a : α) (n : Nat) : m α :=
 mfoldAux f n n a
@@ -59,49 +59,49 @@ namespace List
 
 @[specialize]
 def mmap {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m (List β)
-| []      := pure []
-| (a::as) := List.cons <$> (f a) <*> mmap as
+| []      => pure []
+| a::as   => List.cons <$> (f a) <*> mmap as
 
 @[specialize]
 def mfor {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m PUnit
-| []       := pure ⟨⟩
-| (h :: t) := f h *> mfor t
+| []       => pure ⟨⟩
+| h :: t   => f h *> mfor t
 
 @[specialize]
 def mfilter {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) : List α → m (List α)
-| []       := pure []
-| (h :: t) := do b ← f h; t' ← mfilter t; cond b (pure (h :: t')) (pure t')
+| []       => pure []
+| h :: t   => do b ← f h; t' ← mfilter t; cond b (pure (h :: t')) (pure t')
 
 @[specialize]
 def mfoldl {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (s → α → m s) → s → List α → m s
-| f s [] := pure s
-| f s (h :: r) := do
+| f, s, [] => pure s
+| f, s, h :: r   => do
   s' ← f s h;
   mfoldl f s' r
 
 @[specialize]
 def mfoldr {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (α → s → m s) → s → List α → m s
-| f s [] := pure s
-| f s (h :: r) := do
+| f, s, [] => pure s
+| f, s, h :: r   => do
   s' ← mfoldr f s r;
   f h s'
 
 @[specialize]
 def mfirst {m : Type u → Type v} [Monad m] [Alternative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m β
-| []      := failure
-| (a::as) := f a <|> mfirst as
+| []      => failure
+| a::as   => f a <|> mfirst as
 
 @[specialize]
 def mexists {m : Type → Type u} [Monad m] {α : Type v} (f : α → m Bool) : List α → m Bool
-| []      := pure false
-| (a::as) := do b ← f a; match b with
+| []      => pure false
+| a::as   => do b ← f a; match b with
   | true  => pure true
   | false =>  mexists as
 
 @[specialize]
 def mforall {m : Type → Type u} [Monad m] {α : Type v} (f : α → m Bool) : List α → m Bool
-| []      := pure true
-| (a::as) := do b ← f a; match b with
+| []      => pure true
+| a::as   => do b ← f a; match b with
   | true  => mforall as
   | false => pure false
 

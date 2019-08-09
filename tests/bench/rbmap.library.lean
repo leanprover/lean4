@@ -1,8 +1,8 @@
 @[reducible] def Map : Type := RBMap Nat Bool (fun a b => a < b)
 
 def mkMapAux : Nat → Map → Map
-| 0 m := m
-| (n+1) m := mkMapAux n (m.insert n (n % 10 = 0))
+| 0, m => m
+| n+1,   m => mkMapAux n (m.insert n (n % 10 = 0))
 
 def mkMap (n : Nat) :=
 mkMapAux n {}

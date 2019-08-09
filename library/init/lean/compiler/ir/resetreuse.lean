@@ -38,18 +38,18 @@ c₁.size == c₂.size && c₁.usize == c₂.usize && c₁.ssize == c₂.ssize &
 c₁.name.getPrefix == c₂.name.getPrefix
 
 private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
-| (FnBody.vdecl x t v@(Expr.ctor c' ys) b) :=
+| FnBody.vdecl x t v@(Expr.ctor c' ys) b   =>
   if mayReuse c c' then
     let updtCidx := c.cidx != c'.cidx;
     FnBody.vdecl x t (Expr.reuse w c' updtCidx ys) b
   else
     FnBody.vdecl x t v (S b)
-| (FnBody.jdecl j ys v b) :=
+| FnBody.jdecl j ys v b   =>
   let v' := S v;
   if v == v' then FnBody.jdecl j ys v (S b)
   else FnBody.jdecl j ys v' b
-| (FnBody.case tid x alts)  := FnBody.case tid x $ alts.map $ fun alt => alt.modifyBody S
-| b :=
+| FnBody.case tid x alts    => FnBody.case tid x $ alts.map $ fun alt => alt.modifyBody S
+| b =>
   if b.isTerminal then b
   else let
     (instr, b) := b.split;
@@ -69,8 +69,8 @@ do w ← mkFresh;
    else pure $ FnBody.vdecl w IRType.object (Expr.reset c.size x) b'
 
 private def Dfinalize (x : VarId) (c : CtorInfo) : FnBody × Bool → M FnBody
-| (b, true)  := pure b
-| (b, false) := tryS x c b
+| (b, true)  => pure b
+| (b, false) => tryS x c b
 
 private def argsContainsVar (ys : Array Arg) (x : VarId) : Bool :=
 ys.any $ fun arg => match arg with
@@ -89,14 +89,14 @@ match b with
    `D` checks whether `x` is live in `F` or not. This is great for clarity but it
    is expensive: `O(n^2)` where `n` is the size of the function body. -/
 private partial def Dmain (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × Bool)
-| e@(FnBody.case tid y alts) := do
+| e@(FnBody.case tid y alts) => do
   ctx ← read;
   if e.hasLiveVar ctx x then do
     /- If `x` is live in `e`, we recursively process each branch. -/
     alts ← alts.mmap $ fun alt => alt.mmodifyBody (fun b => Dmain b >>= Dfinalize x c);
     pure (FnBody.case tid y alts, true)
   else pure (e, false)
-| (FnBody.jdecl j ys v b) := do
+| FnBody.jdecl j ys v b   => do
   (b, found) ← adaptReader (fun (ctx : LocalContext) => ctx.addJP j ys v) (Dmain b);
   (v, _ /- found' -/) ← Dmain v;
   /- If `found' == true`, then `Dmain b` must also have returned `(b, true)` since
@@ -104,7 +104,7 @@ private partial def Dmain (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × B
      then it must also live in `b` since `j` is reachable from `b` with a `jmp`.
      On the other hand, `x` may be live in `b` but dead in `j` (i.e., `v`). -/
   pure (FnBody.jdecl j ys v b, found)
-| e := do
+| e => do
   ctx ← read;
   if e.isTerminal then
     pure (e, e.hasLiveVar ctx x)
@@ -129,7 +129,7 @@ private def D (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=
 Dmain x c b >>= Dfinalize x c
 
 partial def R : FnBody → M FnBody
-| (FnBody.case tid x alts) := do
+| FnBody.case tid x alts   => do
     alts ← alts.mmap $ fun alt => do {
       alt ← alt.mmodifyBody R;
       match alt with
@@ -139,11 +139,11 @@ partial def R : FnBody → M FnBody
       | _            => pure alt
     };
     pure $ FnBody.case tid x alts
-| (FnBody.jdecl j ys v b) := do
+| FnBody.jdecl j ys v b   => do
   v ← R v;
   b ← adaptReader (fun (ctx : LocalContext) => ctx.addJP j ys v) (R b);
   pure $ FnBody.jdecl j ys v b
-| e := do
+| e => do
   if e.isTerminal then pure e
   else do
     let (instr, b) := e.split;
@@ -155,11 +155,11 @@ end ResetReuse
 open ResetReuse
 
 def Decl.insertResetReuse : Decl → Decl
-| d@(Decl.fdecl f xs t b) :=
+| d@(Decl.fdecl f xs t b) =>
   let nextIndex := d.maxIndex + 1;
   let b         := (R b {}).run' nextIndex;
   Decl.fdecl f xs t b
-| other := other
+| other => other
 
 end IR
 end Lean

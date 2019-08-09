@@ -98,8 +98,8 @@ do b ← Parser.isValidSyntaxNodeKind k;
   else throw (IO.userError "failed")
 
 def checkSyntaxNodeKindAtNamespaces (k : Name) : List Name → IO Name
-| []      := throw (IO.userError "failed")
-| (n::ns) := checkSyntaxNodeKind (n ++ k) <|> checkSyntaxNodeKindAtNamespaces ns
+| []      => throw (IO.userError "failed")
+| n::ns   => checkSyntaxNodeKind (n ++ k) <|> checkSyntaxNodeKindAtNamespaces ns
 
 def syntaxNodeKindOfAttrParam (env : Environment) (parserNamespace : Name) (arg : Syntax) : IO SyntaxNodeKind :=
 match attrParamSyntaxToIdentifier arg with
@@ -239,10 +239,10 @@ do pos ← getPos stx;
    logErrorAt pos errorMsg
 
 def toMessage : ElabException → Elab Message
-| (ElabException.msg m)    := pure m
-| (ElabException.io e)     := mkMessage (toString e)
-| (ElabException.other e)  := mkMessage e
-| (ElabException.kernel e) :=
+| ElabException.msg m      => pure m
+| ElabException.io e       => mkMessage (toString e)
+| ElabException.other e    => mkMessage e
+| ElabException.kernel e   =>
   match e with
   | KernelException.other msg => mkMessage msg
   | _                         => mkMessage "kernel exception" -- TODO(pretty print them)
@@ -324,7 +324,7 @@ do updateCmdPos;
        pure false
 
 partial def processCommandsAux : Unit → Frontend Unit
-| () := do
+| () => do
   done ← processCommand;
   if done then pure ()
   else processCommandsAux ()
@@ -419,13 +419,13 @@ def removeRoot (n : Name) : Name :=
 n.replacePrefix rootNamespace Name.anonymous
 
 def resolveNamespaceUsingScopes (env : Environment) (n : Name) : List ElabScope → Option Name
-| [] := none
-| ({ ns := ns, .. } :: scopes) := if isNamespace env (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingScopes scopes
+| [] => none
+| { ns := ns, .. } :: scopes   => if isNamespace env (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingScopes scopes
 
 def resolveNamespaceUsingOpenDecls (env : Environment) (n : Name) : List OpenDecl → Option Name
-| []                         := none
-| (OpenDecl.simple ns :: ds) :=  if isNamespace env (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingOpenDecls ds
-| (_ :: ds)                  := resolveNamespaceUsingOpenDecls ds
+| []                         => none
+| OpenDecl.simple ns :: ds   =>  if isNamespace env (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingOpenDecls ds
+| _ :: ds                    => resolveNamespaceUsingOpenDecls ds
 
 /-
 Given a name `n` try to find namespace it refers to. The resolution procedure works as follows

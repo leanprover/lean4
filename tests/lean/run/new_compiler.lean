@@ -35,8 +35,8 @@ let f := fun (p : (Nat → Nat) × Nat) => p.1;
 f p n
 
 def add' : Nat → Nat → Nat
-| 0 b     := Nat.succ b
-| (a+1) b := Nat.succ (Nat.succ (add' a b))
+| 0, b     => Nat.succ b
+| a+1,   b => Nat.succ (Nat.succ (add' a b))
 
 def aux (i : Nat) (h : i > 0) :=
 i
@@ -64,5 +64,5 @@ inductive vec (α : Type u) : Nat → Type u
 | cons    : ∀ {n}, α → vec n → vec (Nat.succ n)
 
 def vec.map {α β σ : Type u} (f : α → β → σ) : ∀ {n : Nat}, vec α n → vec β n → vec σ n
-| _ vec.nil vec.nil                 := vec.nil
-| _ (vec.cons a as) (vec.cons b bs) := vec.cons (f a b) (vec.map as bs)
+| _, vec.nil, vec.nil                 => vec.nil
+| _, vec.cons a as,   vec.cons b bs   => vec.cons (f a b) (vec.map as bs)

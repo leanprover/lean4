@@ -35,16 +35,16 @@ instance : HasLess ℕ :=
 ⟨Nat.lt⟩
 
 def pred : ℕ → ℕ
-| 0     := 0
-| (a+1) := a
+| 0     => 0
+| a+1   => a
 
 protected def sub : ℕ → ℕ → ℕ
-| a 0     := a
-| a (b+1) := pred (sub a b)
+| a, 0     => a
+| a, b+1   => pred (sub a b)
 
 protected def mul : Nat → Nat → Nat
-| a 0     := 0
-| a (b+1) := (mul a b) + a
+| a, 0     => 0
+| a, b+1   => (mul a b) + a
 
 instance : HasSub ℕ :=
 ⟨Nat.sub⟩
@@ -53,10 +53,10 @@ instance : HasMul ℕ :=
 ⟨Nat.mul⟩
 
 def hasDecEq : ∀ (a b : Nat), Decidable (a = b)
-| zero     zero     := isTrue rfl
-| (succ x) zero     := isFalse (fun h => Nat.noConfusion h)
-| zero     (succ y) := isFalse (fun h => Nat.noConfusion h)
-| (succ x) (succ y) :=
+| zero,     zero     => isTrue rfl
+| succ x,   zero     => isFalse (fun h => Nat.noConfusion h)
+| zero,     succ y   => isFalse (fun h => Nat.noConfusion h)
+| succ x,   succ y   =>
     match hasDecEq x y with
     | isTrue xeqy => isTrue (xeqy ▸ Eq.refl (succ x))
     | isFalse xney => isFalse (fun h => Nat.noConfusion h (fun xeqy => absurd xeqy xney))
@@ -65,8 +65,8 @@ instance : DecidableEq ℕ :=
 {decEq := hasDecEq}
 
 def repeat.{u} {α : Type u} (f : ℕ → α → α) : ℕ → α → α
-| 0         a := a
-| (succ n)  a := f n (repeat n a)
+| 0,         a => a
+| succ n,    a => f n (repeat n a)
 
 theorem natZeroEqZero : Nat.zero = 0 :=
 rfl
@@ -83,8 +83,8 @@ theorem succLeSucc {n m : ℕ} : n ≤ m → succ n ≤ succ m :=
 fun h => lessThanOrEqual.ndrec (Nat.leRefl (succ n)) (fun a b => lessThanOrEqual.step) h
 
 theorem zeroLe : ∀ (n : ℕ), 0 ≤ n
-| 0     := Nat.leRefl 0
-| (n+1) := lessThanOrEqual.step (zeroLe n)
+| 0     => Nat.leRefl 0
+| n+1   => lessThanOrEqual.step (zeroLe n)
 
 theorem zeroLtSucc (n : ℕ) : 0 < succ n :=
 succLeSucc (zeroLe n)
@@ -105,9 +105,9 @@ theorem leOfSuccLeSucc {n m : ℕ} : succ n ≤ succ m → n ≤ m :=
 predLePred
 
 instance decidableLe : ∀ (a b : ℕ), Decidable (a ≤ b)
-| 0     b     := isTrue (zeroLe b)
-| (a+1) 0     := isFalse (notSuccLeZero a)
-| (a+1) (b+1) :=
+| 0,     b     => isTrue (zeroLe b)
+| a+1,   0     => isFalse (notSuccLeZero a)
+| a+1,   b+1   =>
   match decidableLe a b with
   | isTrue h  => isTrue (succLeSucc h)
   | isFalse h => isFalse (fun a => h (leOfSuccLeSucc a))
@@ -136,20 +136,20 @@ protected theorem leTrans {n m k : ℕ} (h1 : n ≤ m) : m ≤ k → n ≤ k :=
 lessThanOrEqual.ndrec h1 (fun p h2 => lessThanOrEqual.step)
 
 theorem predLe : ∀ (n : ℕ), pred n ≤ n
-| 0        := lessThanOrEqual.refl 0
-| (succ a) := lessThanOrEqual.step (lessThanOrEqual.refl a)
+| 0        => lessThanOrEqual.refl 0
+| succ a   => lessThanOrEqual.step (lessThanOrEqual.refl a)
 
 theorem predLt : ∀ {n : ℕ}, n ≠ 0 → pred n < n
-| 0        h := absurd rfl h
-| (succ a) h := ltSuccOfLe (lessThanOrEqual.refl _)
+| 0,        h => absurd rfl h
+| succ a,   h => ltSuccOfLe (lessThanOrEqual.refl _)
 
 theorem subLe (a b : ℕ) : a - b ≤ a :=
 Nat.recOn b (Nat.leRefl (a - 0)) (fun b₁ => Nat.leTrans (predLe (a - b₁)))
 
 theorem subLt : ∀ {a b : ℕ}, 0 < a → 0 < b → a - b < a
-| 0     b     h1 h2 := absurd h1 (Nat.ltIrrefl 0)
-| (a+1) 0     h1 h2 := absurd h2 (Nat.ltIrrefl 0)
-| (a+1) (b+1) h1 h2 :=
+| 0,     b,     h1, h2 => absurd h1 (Nat.ltIrrefl 0)
+| a+1,   0,     h1, h2 => absurd h2 (Nat.ltIrrefl 0)
+| a+1,   b+1,   h1, h2 =>
   Eq.symm (succSubSuccEqSub a b) ▸
     show a - b < succ a from
     ltSuccOfLe (subLe a b)

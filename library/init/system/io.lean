@@ -94,7 +94,7 @@ namespace Prim
 open Fs
 
 @[specialize] partial def iterate {α β : Type} : α → (α → IO (Sum α β)) → IO β
-| a f :=
+| a, f =>
   do v ← f a;
   match v with
   | Sum.inl a => iterate a f

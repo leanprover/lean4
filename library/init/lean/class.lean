@@ -15,8 +15,8 @@ inductive ClassEntry
 namespace ClassEntry
 
 @[inline] def getName : ClassEntry → Name
-| («class» n _) := n
-| («instance» n _) := n
+| «class» n _   => n
+| «instance» n _   => n
 
 def lt (a b : ClassEntry) : Bool :=
 Name.quickLt a.getName b.getName
@@ -44,7 +44,7 @@ match entry with
     .. s }
 
 def switch : ClassState → ClassState
-| ⟨m₁, m₂, m₃⟩ := ⟨m₁.switch, m₂.switch, m₃.switch⟩
+| ⟨m₁, m₂, m₃⟩ => ⟨m₁.switch, m₂.switch, m₃.switch⟩
 
 end ClassState
 
@@ -84,8 +84,8 @@ private def isOutParam (e : Expr) : Bool :=
 e.isAppOfArity `outParam 1
 
 def Expr.hasOutParam : Expr → Bool
-| (Expr.pi _ _ d b) := isOutParam d || Expr.hasOutParam b
-| _                 := false
+| Expr.pi _ _ d b   => isOutParam d || Expr.hasOutParam b
+| _                 => false
 
 def addClass (env : Environment) (clsName : Name) : Except String Environment :=
 if isClass env clsName then Except.error ("class has already been declared '" ++ toString clsName ++ "'")
@@ -94,13 +94,13 @@ else match env.find clsName with
   | some decl => Except.ok (classExtension.addEntry env (ClassEntry.«class» clsName decl.type.hasOutParam))
 
 private def consumeNLambdas : Nat → Expr → Option Expr
-| 0     e                  := some e
-| (i+1) (Expr.lam _ _ _ b) := consumeNLambdas i b
-| _     _                  := none
+| 0,     e                  => some e
+| i+1,   Expr.lam _ _ _ b   => consumeNLambdas i b
+| _,     _                  => none
 
 partial def getClassName (env : Environment) : Expr → Option Name
-| (Expr.pi _ _ _ d) := getClassName d
-| e                 := do
+| Expr.pi _ _ _ d   => getClassName d
+| e                 => do
   Expr.const c _ ← pure e.getAppFn | none;
   info ← env.find c;
   match info.value with

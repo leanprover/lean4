@@ -41,16 +41,16 @@ structure TokenConfig :=
 namespace TokenConfig
 
 def beq : TokenConfig → TokenConfig → Bool
-| ⟨val₁, lbp₁, lbpnws₁⟩ ⟨val₂, lbp₂, lbpnws₂⟩ := val₁ == val₂ && lbp₁ == lbp₂ && lbpnws₁ == lbpnws₂
+| ⟨val₁, lbp₁, lbpnws₁⟩, ⟨val₂, lbp₂, lbpnws₂⟩ => val₁ == val₂ && lbp₁ == lbp₂ && lbpnws₁ == lbpnws₂
 
 instance : HasBeq TokenConfig :=
 ⟨beq⟩
 
 def toStr : TokenConfig → String
-| ⟨val, some lbp, some lbpnws⟩ := val ++ ":" ++ toString lbp ++ ":" ++ toString lbpnws
-| ⟨val, some lbp, none⟩        := val ++ ":" ++ toString lbp
-| ⟨val, none, some lbpnws⟩     := val ++ ":none:" ++ toString lbpnws
-| ⟨val, none, none⟩            := val
+| ⟨val, some lbp, some lbpnws⟩ => val ++ ":" ++ toString lbp ++ ":" ++ toString lbpnws
+| ⟨val, some lbp, none⟩        => val ++ ":" ++ toString lbp
+| ⟨val, none, some lbpnws⟩     => val ++ ":none:" ++ toString lbpnws
+| ⟨val, none, none⟩            => val
 
 instance : HasToString TokenConfig := ⟨toStr⟩
 
@@ -90,10 +90,10 @@ namespace Error
 instance : Inhabited Error := ⟨{}⟩
 
 private def expectedToString : List String → String
-| []       := ""
-| [e]      := e
-| [e1, e2] := e1 ++ " or " ++ e2
-| (e::es)  := e ++ ", " ++ expectedToString es
+| []       => ""
+| [e]      => e
+| [e1, e2] => e1 ++ " or " ++ e2
+| e::es    => e ++ ", " ++ expectedToString es
 
 protected def toString (e : Error) : String :=
 let unexpected := if e.unexpected == "" then [] else [e.unexpected];
@@ -198,8 +198,8 @@ inductive ParserKind
 export ParserKind (leading trailing)
 
 def ParserArg : ParserKind → Type
-| ParserKind.leading := Nat
-| ParserKind.trailing := Syntax
+| ParserKind.leading => Nat
+| ParserKind.trailing => Syntax
 
 def BasicParserFn := ParserContext → ParserState → ParserState
 
@@ -216,29 +216,29 @@ inductive FirstTokens
 namespace FirstTokens
 
 def merge : FirstTokens → FirstTokens → FirstTokens
-| epsilon        tks            := tks
-| tks            epsilon        := tks
-| (tokens s₁)    (tokens s₂)    := tokens (s₁ ++ s₂)
-| (optTokens s₁) (optTokens s₂) := optTokens (s₁ ++ s₂)
-| (tokens s₁)    (optTokens s₂) := tokens (s₁ ++ s₂)
-| (optTokens s₁) (tokens s₂)    := tokens (s₁ ++ s₂)
-| _              _              := unknown
+| epsilon,        tks            => tks
+| tks,            epsilon        => tks
+| tokens s₁,      tokens s₂      => tokens (s₁ ++ s₂)
+| optTokens s₁,   optTokens s₂   => optTokens (s₁ ++ s₂)
+| tokens s₁,      optTokens s₂   => tokens (s₁ ++ s₂)
+| optTokens s₁,   tokens s₂      => tokens (s₁ ++ s₂)
+| _,              _              => unknown
 
 def seq : FirstTokens → FirstTokens → FirstTokens
-| epsilon        tks            := tks
-| (optTokens s₁) (optTokens s₂) := optTokens (s₁ ++ s₂)
-| (optTokens s₁) (tokens s₂)    := tokens (s₁ ++ s₂)
-| tks            _              := tks
+| epsilon,        tks            => tks
+| optTokens s₁,   optTokens s₂   => optTokens (s₁ ++ s₂)
+| optTokens s₁,   tokens s₂      => tokens (s₁ ++ s₂)
+| tks,            _              => tks
 
 def toOptional : FirstTokens → FirstTokens
-| (tokens tks) := optTokens tks
-| tks          := tks
+| tokens tks   => optTokens tks
+| tks          => tks
 
 def toStr : FirstTokens → String
-| epsilon         := "epsilon"
-| unknown         := "unknown"
-| (tokens tks)    := toString tks
-| (optTokens tks) := "?" ++ toString tks
+| epsilon         => "epsilon"
+| unknown         => "unknown"
+| tokens tks      => toString tks
+| optTokens tks   => "?" ++ toString tks
 
 instance : HasToString FirstTokens := ⟨toStr⟩
 
@@ -298,7 +298,7 @@ instance hashAndthen {k : ParserKind} : HasAndthen (Parser k) :=
 ⟨andthen⟩
 
 @[inline] def nodeFn {k : ParserKind} (n : SyntaxNodeKind) (p : ParserFn k) : ParserFn k
-| a c s :=
+| a, c, s =>
   let iniSz := s.stackSize;
   let s     := p a c s;
   s.mkNode n iniSz
@@ -328,7 +328,7 @@ match s with
 | other => other
 
 @[inline] def orelseFn {k : ParserKind} (p q : ParserFn k) : ParserFn k
-| a c s :=
+| a, c, s =>
   let iniSz  := s.stackSize;
   let iniPos := s.pos;
   let s      := p a c s;
@@ -357,7 +357,7 @@ instance hashOrelse {k : ParserKind} : HasOrelse (Parser k) :=
   updateKindSet := info.updateKindSet }
 
 @[inline] def tryFn {k : ParserKind} (p : ParserFn k ) : ParserFn k
-| a c s :=
+| a, c, s =>
   let iniSz  := s.stackSize;
   let iniPos := s.pos;
   match p a c s with
@@ -397,7 +397,7 @@ fun a c s =>
   fn   := lookaheadFn p.fn }
 
 @[specialize] partial def manyAux {k : ParserKind} (p : ParserFn k) : ParserFn k
-| a c s :=
+| a, c, s =>
   let iniSz  := s.stackSize;
   let iniPos := s.pos;
   let s      := p a c s;
@@ -427,7 +427,7 @@ fun a c s =>
   fn   := many1Fn p.fn }
 
 @[specialize] private partial def sepByFnAux {k : ParserKind} (p : ParserFn k) (sep : ParserFn k) (allowTrailingSep : Bool) (iniSz : Nat) : Bool → ParserFn k
-| pOpt a c s :=
+| pOpt, a, c, s =>
   let sz  := s.stackSize;
   let pos := s.pos;
   let s   := p a c s;
@@ -450,12 +450,12 @@ fun a c s =>
       sepByFnAux allowTrailingSep a c s
 
 @[specialize] def sepByFn {k : ParserKind} (allowTrailingSep : Bool) (p : ParserFn k) (sep : ParserFn k) : ParserFn k
-| a c s :=
+| a, c, s =>
   let iniSz := s.stackSize;
   sepByFnAux p sep allowTrailingSep iniSz true a c s
 
 @[specialize] def sepBy1Fn {k : ParserKind} (allowTrailingSep : Bool) (p : ParserFn k) (sep : ParserFn k) : ParserFn k
-| a c s :=
+| a, c, s =>
   let iniSz := s.stackSize;
   sepByFnAux p sep allowTrailingSep iniSz false a c s
 
@@ -477,14 +477,14 @@ fun a c s =>
   fn   := sepBy1Fn allowTrailingSep p.fn sep.fn }
 
 @[specialize] partial def satisfyFn (p : Char → Bool) (errorMsg : String := "unexpected character") : BasicParserFn
-| c s :=
+| c, s =>
   let i := s.pos;
   if c.input.atEnd i then s.mkEOIError
   else if p (c.input.get i) then s.next c.input i
   else s.mkUnexpectedError errorMsg
 
 @[specialize] partial def takeUntilFn (p : Char → Bool) : BasicParserFn
-| c s :=
+| c, s =>
   let i := s.pos;
   if c.input.atEnd i then s
   else if p (c.input.get i) then s
@@ -497,7 +497,7 @@ takeUntilFn (fun c => !p c)
 andthenAux (satisfyFn p errorMsg) (takeWhileFn p)
 
 partial def finishCommentBlock : Nat → BasicParserFn
-| nesting c s :=
+| nesting, c, s =>
   let input := c.input;
   let i     := s.pos;
   if input.atEnd i then s.mkEOIError
@@ -523,7 +523,7 @@ partial def finishCommentBlock : Nat → BasicParserFn
 
 /- Consume whitespace and comments -/
 partial def whitespace : BasicParserFn
-| c s :=
+| c, s =>
   let input := c.input;
   let i     := s.pos;
   if input.atEnd i then s
@@ -550,7 +550,7 @@ def mkEmptySubstringAt (s : String) (p : Nat) : Substring :=
 {str := s, startPos := p, stopPos := p }
 
 private def rawAux {k : ParserKind} (startPos : Nat) (trailingWs : Bool) : ParserFn k
-| a c s :=
+| a, c, s =>
   let input   := c.input;
   let stopPos := s.pos;
   let leading := mkEmptySubstringAt input startPos;
@@ -568,7 +568,7 @@ private def rawAux {k : ParserKind} (startPos : Nat) (trailingWs : Bool) : Parse
 
 /-- Match an arbitrary Parser and return the consumed String in a `Syntax.atom`. -/
 @[inline] def rawFn {k : ParserKind} (p : ParserFn k) (trailingWs := false) : ParserFn k
-| a c s :=
+| a, c, s =>
   let startPos := s.pos;
   let s := p a c s;
   if s.hasError then s else rawAux startPos trailingWs a c s
@@ -580,7 +580,7 @@ def rawCh {k : ParserKind} (c : Char) (trailingWs := false) : Parser k :=
 { fn := chFn c trailingWs }
 
 def hexDigitFn : BasicParserFn
-| c s :=
+| c, s =>
   let input := c.input;
   let i     := s.pos;
   if input.atEnd i then s.mkEOIError
@@ -591,7 +591,7 @@ def hexDigitFn : BasicParserFn
     else s.mkUnexpectedError "invalid hexadecimal numeral"
 
 def quotedCharFn : BasicParserFn
-| c s :=
+| c, s =>
   let input := c.input;
   let i     := s.pos;
   if input.atEnd i then s.mkEOIError
@@ -620,7 +620,7 @@ let info      := { SourceInfo . leading := leading, pos := startPos, trailing :=
 s.pushSyntax (mkLit n val (some info))
 
 def charLitFnAux (startPos : Nat) : BasicParserFn
-| c s :=
+| c, s =>
   let input := c.input;
   let i     := s.pos;
   if input.atEnd i then s.mkEOIError
@@ -637,7 +637,7 @@ def charLitFnAux (startPos : Nat) : BasicParserFn
       else s.mkUnexpectedError "missing end of character literal"
 
 partial def strLitFnAux (startPos : Nat) : BasicParserFn
-| c s :=
+| c, s =>
   let input := c.input;
   let i     := s.pos;
   if input.atEnd i then s.mkEOIError
@@ -705,7 +705,7 @@ fun c s =>
       s.mkError "numeral"
 
 def isIdCont : String → ParserState → Bool
-| input s :=
+| input, s =>
   let i    := s.pos;
   let curr := input.get i;
   if curr == '.' then
@@ -759,7 +759,7 @@ else
   s.pushSyntax atom
 
 partial def identFnAux (startPos : Nat) (tk : Option TokenConfig) : Name → BasicParserFn
-| r c s :=
+| r, c, s =>
   let input := c.input;
   let i     := s.pos;
   if input.atEnd i then s.mkEOIError
@@ -792,7 +792,7 @@ partial def identFnAux (startPos : Nat) (tk : Option TokenConfig) : Name → Bas
       mkTokenAndFixPos startPos tk c s
 
 private def tokenFnAux : BasicParserFn
-| c s :=
+| c, s =>
   let input := c.input;
   let i     := s.pos;
   let curr  := input.get i;
@@ -921,7 +921,7 @@ let sym := sym.trim;
   fn   := fun _ => symbolOrIdentFn sym }
 
 partial def strAux (sym : String) (errorMsg : String) : Nat → BasicParserFn
-| j c s :=
+| j, c, s =>
   if sym.atEnd j then s
   else
     let i := s.pos;
@@ -1179,8 +1179,8 @@ def longestMatchMkResult (startSize : Nat) (s : ParserState) : ParserState :=
 if !s.hasError && s.stackSize > startSize + 1 then s.mkNode choiceKind startSize else s
 
 def longestMatchFnAux {k : ParserKind} (startSize : Nat) (startPos : String.Pos) : List (Parser k) → ParserFn k
-| []      := fun _ _ s => longestMatchMkResult startSize s
-| (p::ps) := fun a c s =>
+| []      => fun _ _ s => longestMatchMkResult startSize s
+| p::ps   => fun a c s =>
    let s := longestMatchStep startSize startPos p.fn a c s;
    longestMatchFnAux ps a c s
 
@@ -1191,9 +1191,9 @@ let s := p a c s;
 if s.hasError then s else s.mkLongestNodeAlt startSize
 
 def longestMatchFn {k : ParserKind} : List (Parser k) → ParserFn k
-| []      := fun _ _ s => s.mkError "longestMatch: empty list"
-| [p]     := longestMatchFn₁ p.fn
-| (p::ps) := fun a c s =>
+| []      => fun _ _ s => s.mkError "longestMatch: empty list"
+| [p]     => longestMatchFn₁ p.fn
+| p::ps   => fun a c s =>
   let startSize := s.stackSize;
   let startPos  := s.pos;
   let s         := p.fn a c s;
@@ -1205,9 +1205,9 @@ def longestMatchFn {k : ParserKind} : List (Parser k) → ParserFn k
     longestMatchFnAux startSize startPos ps a c s
 
 def anyOfFn {k : ParserKind} : List (Parser k) → ParserFn k
-| []      _ _ s := s.mkError "anyOf: empty list"
-| [p]     a c s := p.fn a c s
-| (p::ps) a c s := orelseFn p.fn (anyOfFn ps) a c s
+| [],      _, _, s => s.mkError "anyOf: empty list"
+| [p],     a, c, s => p.fn a c s
+| p::ps,   a, c, s => orelseFn p.fn (anyOfFn ps) a c s
 
 @[inline] def checkColGeFn (col : Nat) (errorMsg : String) : BasicParserFn :=
 fun c s =>
@@ -1297,7 +1297,7 @@ fun left c s =>
   orelseFn (longestMatchFn ps) (anyOfFn tables.trailingParsers) left c s
 
 partial def trailingLoop (tables : ParsingTables) (rbp : Nat) (c : ParserContext) : Syntax → ParserState → ParserState
-| left s :=
+| left, s =>
   let (s, lbp) := currLbp left c s;
   if rbp ≥ lbp then s.pushSyntax left
   else
@@ -1562,7 +1562,7 @@ section
 variables {α β : Type} {m : Type → Type} [Monad m]
 
 @[specialize] partial def mfoldArgsAux (delta : Nat) (s : Array (Syntax α)) (f : Syntax α → β → m β) : Nat → β → m β
-| i b :=
+| i, b =>
   if h : i < s.size then do
     let curr := s.fget ⟨i, h⟩;
     b ← f curr b;

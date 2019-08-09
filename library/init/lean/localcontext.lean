@@ -18,40 +18,40 @@ namespace LocalDecl
 instance : Inhabited LocalDecl := ⟨ldecl (default _) (default _) (default _) (default _) (default _)⟩
 
 def isLet : LocalDecl → Bool
-| (cdecl _ _ _ _ _) := false
-| (ldecl _ _ _ _ _) := true
+| cdecl _ _ _ _ _   => false
+| ldecl _ _ _ _ _   => true
 
 def index : LocalDecl → Nat
-| (cdecl idx _ _ _ _) := idx
-| (ldecl idx _ _ _ _) := idx
+| cdecl idx _ _ _ _   => idx
+| ldecl idx _ _ _ _   => idx
 
 def name : LocalDecl → Name
-| (cdecl _ n _ _ _) := n
-| (ldecl _ n _ _ _) := n
+| cdecl _ n _ _ _   => n
+| ldecl _ n _ _ _   => n
 
 def userName : LocalDecl → Name
-| (cdecl _ _ n _ _) := n
-| (ldecl _ _ n _ _) := n
+| cdecl _ _ n _ _   => n
+| ldecl _ _ n _ _   => n
 
 def type : LocalDecl → Expr
-| (cdecl _ _ _ t _) := t
-| (ldecl _ _ _ t _) := t
+| cdecl _ _ _ t _   => t
+| ldecl _ _ _ t _   => t
 
 def binderInfo : LocalDecl → BinderInfo
-| (cdecl _ _ _ _ bi) := bi
-| (ldecl _ _ _ _ _)  := BinderInfo.default
+| cdecl _ _ _ _ bi   => bi
+| ldecl _ _ _ _ _    => BinderInfo.default
 
 def valueOpt : LocalDecl → Option Expr
-| (cdecl _ _ _ _ _) := none
-| (ldecl _ _ _ _ v) := some v
+| cdecl _ _ _ _ _   => none
+| ldecl _ _ _ _ v   => some v
 
 def value : LocalDecl → Expr
-| (cdecl _ _ _ _ _) := default _
-| (ldecl _ _ _ _ v) := v
+| cdecl _ _ _ _ _   => default _
+| ldecl _ _ _ _ v   => v
 
 def updateUserName : LocalDecl → Name → LocalDecl
-| (cdecl index name _ type bi)  userName := cdecl index name userName type bi
-| (ldecl index name _ type val) userName := ldecl index name userName type val
+| cdecl index name _ type bi,    userName => cdecl index name userName type bi
+| ldecl index name _ type val,   userName => ldecl index name userName type val
 
 end LocalDecl
 
@@ -100,7 +100,7 @@ match e with
 | _           => none
 
 private partial def popTailNoneAux : PArray (Option LocalDecl) → PArray (Option LocalDecl)
-| a :=
+| a =>
   if a.size == 0 then a
   else match a.get (a.size - 1) with
     | none   => popTailNoneAux a.pop
@@ -135,7 +135,7 @@ def usesUserName (lctx : LocalContext) (userName : Name) : Bool :=
 (lctx.findFromUserName userName).isSome
 
 partial def getUnusedNameAux (lctx : LocalContext) (suggestion : Name) : Nat → Name × Nat
-| i :=
+| i =>
   let curr := suggestion.appendIndexAfter i;
   if lctx.usesUserName curr then getUnusedNameAux (i + 1)
   else (curr, i + 1)
@@ -215,7 +215,7 @@ Id.run $ lctx.mfindDeclRev f
 Id.run $ lctx.mfoldlFrom f b decl
 
 partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) : Nat → Nat → Bool
-| i j :=
+| i, j =>
   if i < a₁.size then
   if j < a₂.size then
     match a₁.get i with

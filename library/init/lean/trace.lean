@@ -20,7 +20,7 @@ inductive Trace
 | mk (msg : Message) (subtraces : List Trace)
 
 partial def Trace.pp : Trace → Format
-| (Trace.mk (Message.fromFormat fmt) subtraces) :=
+| Trace.mk (Message.fromFormat fmt) subtraces   =>
 fmt ++ Format.nest 2 (Format.join $ subtraces.map (fun t => Format.line ++ t.pp))
 
 namespace Trace

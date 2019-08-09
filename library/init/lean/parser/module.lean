@@ -67,7 +67,7 @@ match s.errorMsg with
 | none   => s.pos
 
 partial def parseCommand (env : Environment) (c : ParserContextCore) : ModuleParserState → MessageLog → Syntax × ModuleParserState × MessageLog
-| s@{ pos := pos, recovering := recovering } messages :=
+| s@{ pos := pos, recovering := recovering }, messages =>
   if c.input.atEnd pos then
     (mkEOI pos, s, messages)
   else
@@ -87,7 +87,7 @@ partial def parseCommand (env : Environment) (c : ParserContextCore) : ModulePar
         parseCommand { pos := consumeInput c s.pos, recovering := true } messages
 
 private partial def testModuleParserAux (env : Environment) (c : ParserContextCore) (displayStx : Bool) : ModuleParserState → MessageLog → IO Bool
-| s messages :=
+| s, messages =>
   match parseCommand env c s messages with
   | (stx, s, messages) =>
     if isEOI stx || isExitCommand stx then do
@@ -106,7 +106,7 @@ timeit (filename ++ " parser") $ do
   testModuleParserAux env ctx displayStx s messages
 
 partial def parseFileAux (env : Environment) (ctx : ParserContextCore) : ModuleParserState → MessageLog → Array Syntax → IO Syntax
-| state msgs stxs :=
+| state, msgs, stxs =>
   match parseCommand env ctx state msgs with
   | (stx, state, msgs) =>
     if isEOI stx then

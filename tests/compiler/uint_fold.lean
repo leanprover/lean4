@@ -9,7 +9,7 @@ let a2 : UInt32 := x + a1;
 let a3 : UInt32 := 10;
 y + a2 + h v + a3
 
-partial def g : UInt32 → UInt32 → UInt32 | x y :=
+partial def g : UInt32 → UInt32 → UInt32 | x, y =>
 if x = 0 then y else g (x-1) (y+2)
 
 def foo : UInt8 :=

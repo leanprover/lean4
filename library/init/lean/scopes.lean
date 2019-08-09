@@ -93,8 +93,8 @@ if env.getNamespaceSet.contains n then env else scopeManagerExt.addEntry env n
 
 @[export lean.register_namespace_core]
 def registerNamespace : Environment → Name → Environment
-| env n@(Name.mkString p _) := registerNamespace (registerNamespaceAux env n) p
-| env _ := env
+| env, n@(Name.mkString p _) => registerNamespace (registerNamespaceAux env n) p
+| env, _ => env
 
 def pushScopeCore (env : Environment) (header : Name) (isNamespace : Bool) : Environment :=
 let ns    := env.getNamespace;

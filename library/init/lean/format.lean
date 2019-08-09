@@ -30,24 +30,24 @@ def join (xs : List Format) : Format :=
 xs.foldl HasAppend.append ""
 
 def isNil : Format → Bool
-| nil := true
-| _   := false
+| nil => true
+| _   => false
 
 def flatten : Format → Format
-| nil                     := nil
-| line                    := text " "
-| f@(text _)              := f
-| (nest _ f)              := flatten f
-| (choice f _)            := flatten f
-| f@(compose true _ _)    := f
-| f@(compose false f₁ f₂) := compose true (flatten f₁) (flatten f₂)
+| nil                     => nil
+| line                    => text " "
+| f@(text _)              => f
+| nest _ f                => flatten f
+| choice f _              => flatten f
+| f@(compose true _ _)    => f
+| f@(compose false f₁ f₂) => compose true (flatten f₁) (flatten f₂)
 
 @[export lean.format_group_core]
 def group : Format → Format
-| nil                  := nil
-| f@(text _)           := f
-| f@(compose true _ _) := f
-| f                    := choice (flatten f) f
+| nil                  => nil
+| f@(text _)           => f
+| f@(compose true _ _) => f
+| f                    => choice (flatten f) f
 
 structure SpaceResult :=
 (found    := false)
@@ -64,25 +64,25 @@ else
     { space := newSpace, exceeded := newSpace > w }
 
 def spaceUptoLine : Format → Nat → SpaceResult
-| nil               w := {}
-| line              w := { found := true }
-| (text s)          w := { space := s.length, exceeded := s.length > w }
-| (compose _ f₁ f₂) w := merge w (spaceUptoLine f₁ w) (spaceUptoLine f₂ w)
-| (nest _ f)        w := spaceUptoLine f w
-| (choice f₁ f₂)    w := spaceUptoLine f₂ w
+| nil,               w => {}
+| line,              w => { found := true }
+| text s,            w => { space := s.length, exceeded := s.length > w }
+| compose _ f₁ f₂,   w => merge w (spaceUptoLine f₁ w) (spaceUptoLine f₂ w)
+| nest _ f,          w => spaceUptoLine f w
+| choice f₁ f₂,      w => spaceUptoLine f₂ w
 
 def spaceUptoLine' : List (Nat × Format) → Nat → SpaceResult
-| []      w := {}
-| (p::ps) w := merge w (spaceUptoLine p.2 w) (spaceUptoLine' ps w)
+| [],      w => {}
+| p::ps,   w => merge w (spaceUptoLine p.2 w) (spaceUptoLine' ps w)
 
 partial def be : Nat → Nat → String → List (Nat × Format) → String
-| w k out []                           := out
-| w k out ((i, nil)::z)                := be w k out z
-| w k out ((i, (compose _ f₁ f₂))::z)  := be w k out ((i, f₁)::(i, f₂)::z)
-| w k out ((i, (nest n f))::z)         := be w k out ((i+n, f)::z)
-| w k out ((i, text s)::z)             := be w (k + s.length) (out ++ s) z
-| w k out ((i, line)::z)               := be w i ((out ++ "\n").pushn ' ' i) z
-| w k out ((i, choice f₁ f₂)::z)       :=
+| w, k, out, []                           => out
+| w, k, out, (i, nil)::z                  => be w k out z
+| w, k, out, (i, (compose _ f₁ f₂))::z    => be w k out ((i, f₁)::(i, f₂)::z)
+| w, k, out, (i, (nest n f))::z           => be w k out ((i+n, f)::z)
+| w, k, out, (i, text s)::z               => be w (k + s.length) (out ++ s) z
+| w, k, out, (i, line)::z                 => be w i ((out ++ "\n").pushn ' ' i) z
+| w, k, out, (i, choice f₁ f₂)::z         =>
   let r := merge w (spaceUptoLine f₁ w) (spaceUptoLine' z w);
   if r.exceeded then be w k out ((i, f₂)::z) else be w k out ((i, f₁)::z)
 
@@ -139,21 +139,21 @@ instance formatHasFormat : HasFormat Format :=
 instance stringHasFormat : HasFormat String := ⟨Format.text⟩
 
 def Format.joinSep {α : Type u} [HasFormat α] : List α → Format → Format
-| []      sep  := nil
-| [a]     sep := format a
-| (a::as) sep := format a ++ sep ++ Format.joinSep as sep
+| [],      sep  => nil
+| [a],     sep => format a
+| a::as,   sep => format a ++ sep ++ Format.joinSep as sep
 
 def Format.prefixJoin {α : Type u} [HasFormat α] (pre : Format) : List α → Format
-| []      := nil
-| (a::as) := pre ++ format a ++ Format.prefixJoin as
+| []      => nil
+| a::as   => pre ++ format a ++ Format.prefixJoin as
 
 def Format.joinSuffix {α : Type u} [HasFormat α] : List α → Format → Format
-| []      suffix := nil
-| (a::as) suffix := format a ++ suffix ++ Format.joinSuffix as suffix
+| [],      suffix => nil
+| a::as,   suffix => format a ++ suffix ++ Format.joinSuffix as suffix
 
 def List.format {α : Type u} [HasFormat α] : List α → Format
-| [] := "[]"
-| xs := sbracket $ Format.joinSep xs ("," ++ line)
+| [] => "[]"
+| xs => sbracket $ Format.joinSep xs ("," ++ line)
 
 instance listHasFormat {α : Type u} [HasFormat α] : HasFormat (List α) :=
 ⟨List.format⟩
@@ -172,12 +172,12 @@ instance usizeHasFormat : HasFormat USize   := ⟨fun n => toString n⟩
 instance nameHasFormat : HasFormat Name     := ⟨fun n => n.toString⟩
 
 protected def Format.repr : Format → Format
-| nil := "Format.nil"
-| line := "Format.line"
-| (text s) := paren $ "Format.text" ++ line ++ repr s
-| (nest n f) := paren $ "Format.nest" ++ line ++ repr n ++ line ++ Format.repr f
-| (compose b f₁ f₂) := paren $ "Format.compose " ++ repr b ++ line ++ Format.repr f₁ ++ line ++ Format.repr f₂
-| (choice f₁ f₂) := paren $ "Format.choice" ++ line ++ Format.repr f₁ ++ line ++ Format.repr f₂
+| nil => "Format.nil"
+| line => "Format.line"
+| text s   => paren $ "Format.text" ++ line ++ repr s
+| nest n f   => paren $ "Format.nest" ++ line ++ repr n ++ line ++ Format.repr f
+| compose b f₁ f₂   => paren $ "Format.compose " ++ repr b ++ line ++ Format.repr f₁ ++ line ++ Format.repr f₂
+| choice f₁ f₂   => paren $ "Format.choice" ++ line ++ Format.repr f₁ ++ line ++ Format.repr f₂
 
 
 instance formatHasToString : HasToString Format := ⟨Format.pretty⟩
@@ -185,16 +185,16 @@ instance formatHasToString : HasToString Format := ⟨Format.pretty⟩
 instance : HasRepr Format := ⟨Format.pretty ∘ Format.repr⟩
 
 def formatDataValue : DataValue → Format
-| (DataValue.ofString v) := format (repr v)
-| (DataValue.ofBool v)   := format v
-| (DataValue.ofName v)   := "`" ++ format v
-| (DataValue.ofNat v)    := format v
-| (DataValue.ofInt v)    := format v
+| DataValue.ofString v   => format (repr v)
+| DataValue.ofBool v     => format v
+| DataValue.ofName v     => "`" ++ format v
+| DataValue.ofNat v      => format v
+| DataValue.ofInt v      => format v
 
 instance dataValueHasFormat : HasFormat DataValue := ⟨formatDataValue⟩
 
 def formatEntry : Name × DataValue → Format
-| (n, v) := format n ++ " := " ++ format v
+| (n, v) => format n ++ " := " ++ format v
 
 instance entryHasFormat : HasFormat (Name × DataValue) := ⟨formatEntry⟩
 

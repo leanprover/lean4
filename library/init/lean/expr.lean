@@ -82,12 +82,12 @@ constant eqv (a : @& Expr) (b : @& Expr) : Bool := default _
 instance : HasBeq Expr := ⟨Expr.eqv⟩
 
 def getAppFn : Expr → Expr
-| (Expr.app f a) := getAppFn f
-| e              := e
+| Expr.app f a   => getAppFn f
+| e              => e
 
 def getAppNumArgsAux : Expr → Nat → Nat
-| (Expr.app f a) n := getAppNumArgsAux f (n+1)
-| e              n := n
+| Expr.app f a,   n => getAppNumArgsAux f (n+1)
+| e,              n => n
 
 def getAppNumArgs (e : Expr) : Nat :=
 getAppNumArgsAux e 0
@@ -98,9 +98,9 @@ match e.getAppFn with
 | _ => false
 
 def isAppOfArity : Expr → Name → Nat → Bool
-| (Expr.const c _) n 0     := c == n
-| (Expr.app f _)   n (a+1) := isAppOfArity f n a
-| _                _ _     := false
+| Expr.const c _,   n, 0     => c == n
+| Expr.app f _,     n, a+1   => isAppOfArity f n a
+| _,                _, _     => false
 
 end Expr
 

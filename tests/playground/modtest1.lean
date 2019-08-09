@@ -3,7 +3,7 @@ open Lean
 open Lean.Parser
 
 partial def parseCommands (env : Environment) (displayStx : Bool) : ModuleParser → IO ModuleParser
-| p :=
+| p =>
   match parseCommand env p with
   | (stx, p) =>
     if isEOI stx then pure p

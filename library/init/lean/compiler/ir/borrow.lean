@@ -24,15 +24,15 @@ inductive Key
 
 namespace Key
 def beq : Key → Key → Bool
-| (decl n₁)   (decl n₂)   := n₁ == n₂
-| (jp n₁ id₁) (jp n₂ id₂) := n₁ == n₂ && id₁ == id₂
-| _           _           := false
+| decl n₁,     decl n₂     => n₁ == n₂
+| jp n₁ id₁,   jp n₂ id₂   => n₁ == n₂ && id₁ == id₂
+| _,           _           => false
 
 instance : HasBeq Key := ⟨beq⟩
 
 def getHash : Key → USize
-| (decl n)  := hash n
-| (jp n id) := mixHash (hash n) (hash id)
+| decl n    => hash n
+| jp n id   => mixHash (hash n) (hash id)
 
 instance : Hashable Key := ⟨getHash⟩
 end Key
@@ -69,11 +69,11 @@ def initBorrowIfNotExported (exported : Bool) (ps : Array Param) : Array Param :
 if exported then ps else initBorrow ps
 
 partial def visitFnBody (fnid : FunId) : FnBody → State ParamMap Unit
-| (FnBody.jdecl j xs v b) := do
+| FnBody.jdecl j xs v b   => do
   modify $ fun m => m.insert (Key.jp fnid j) (initBorrow xs);
   visitFnBody v;
   visitFnBody b
-| e :=
+| e =>
   unless (e.isTerminal) $ do
     let (instr, b) := e.split;
     visitFnBody b
@@ -95,13 +95,13 @@ def mkInitParamMap (env : Environment) (decls : Array Decl) : ParamMap :=
 namespace ApplyParamMap
 
 partial def visitFnBody : FnBody → FunId → ParamMap → FnBody
-| (FnBody.jdecl j xs v b) fnid map :=
+| FnBody.jdecl j xs v b,   fnid, map =>
   let v := visitFnBody v fnid map;
   let b := visitFnBody b fnid map;
   match map.find (Key.jp fnid j) with
   | some ys => FnBody.jdecl j ys v b
   | none    => FnBody.jdecl j xs v b
-| e fnid map :=
+| e, fnid, map =>
   if e.isTerminal then e
   else
     let (instr, b) := e.split;
@@ -226,16 +226,16 @@ xs.mfor $ fun x =>
   | _ => pure ()
 
 def collectExpr (z : VarId) : Expr → M Unit
-| (Expr.reset _ x)      := ownVar z *> ownVar x
-| (Expr.reuse x _ _ ys) := ownVar z *> ownVar x *> ownArgsIfParam ys
-| (Expr.ctor _ xs)      := ownVar z *> ownArgsIfParam xs
-| (Expr.proj _ x)       := mwhen (isOwned z) $ ownVar x
-| (Expr.fap g xs)       := do ps ← getParamInfo (Key.decl g);
+| Expr.reset _ x        => ownVar z *> ownVar x
+| Expr.reuse x _ _ ys   => ownVar z *> ownVar x *> ownArgsIfParam ys
+| Expr.ctor _ xs        => ownVar z *> ownArgsIfParam xs
+| Expr.proj _ x         => mwhen (isOwned z) $ ownVar x
+| Expr.fap g xs         => do ps ← getParamInfo (Key.decl g);
   -- dbgTrace ("collectExpr: " ++ toString g ++ " " ++ toString (formatParams ps)) $ fun _ =>
   ownVar z *> ownArgsUsingParams xs ps
-| (Expr.ap x ys)        := ownVar z *> ownVar x *> ownArgs ys
-| (Expr.pap _ xs)       := ownVar z *> ownArgs xs
-| other                 := pure ()
+| Expr.ap x ys          => ownVar z *> ownVar x *> ownArgs ys
+| Expr.pap _ xs         => ownVar z *> ownArgs xs
+| other                 => pure ()
 
 def preserveTailCall (x : VarId) (v : Expr) (b : FnBody) : M Unit :=
 do ctx ← read;
@@ -251,22 +251,22 @@ def updateParamSet (ctx : BorrowInfCtx) (ps : Array Param) : BorrowInfCtx :=
 { paramSet := ps.foldl (fun s p => s.insert p.x.idx) ctx.paramSet, .. ctx }
 
 partial def collectFnBody : FnBody → M Unit
-| (FnBody.jdecl j ys v b) := do
+| FnBody.jdecl j ys v b   => do
   adaptReader (fun ctx => updateParamSet ctx ys) (collectFnBody v);
   ctx ← read;
   updateParamMap (Key.jp ctx.currFn j);
   collectFnBody b
-| (FnBody.vdecl x _ v b) := collectFnBody b *> collectExpr x v *> preserveTailCall x v b
-| (FnBody.jmp j ys)      := do
+| FnBody.vdecl x _ v b   => collectFnBody b *> collectExpr x v *> preserveTailCall x v b
+| FnBody.jmp j ys        => do
   ctx ← read;
   ps ← getParamInfo (Key.jp ctx.currFn j);
   ownArgsUsingParams ys ps; -- for making sure the join point can reuse
   ownParamsUsingArgs ys ps  -- for making sure the tail call is preserved
-| (FnBody.case _ _ alts) := alts.mfor $ fun alt => collectFnBody alt.body
-| e                      := unless (e.isTerminal) $ collectFnBody e.body
+| FnBody.case _ _ alts   => alts.mfor $ fun alt => collectFnBody alt.body
+| e                      => unless (e.isTerminal) $ collectFnBody e.body
 
 @[specialize] partial def whileModifingOwnedAux (x : M Unit) : Unit → M Unit
-| _ := do
+| _ => do
   modify $ fun s => { modifiedOwned := false, .. s };
   x;
   s ← get;
@@ -278,15 +278,15 @@ partial def collectFnBody : FnBody → M Unit
 whileModifingOwnedAux x ()
 
 partial def collectDecl : Decl → M Unit
-| (Decl.fdecl f ys _ b) :=
+| Decl.fdecl f ys _ b   =>
   adaptReader (fun ctx => let ctx := updateParamSet ctx ys; { currFn := f, .. ctx }) $ do
    modify $ fun (s : BorrowInfState) => { owned := {}, .. s };
    whileModifingOwned (collectFnBody b);
    updateParamMap (Key.decl f)
-| _ := pure ()
+| _ => pure ()
 
 @[specialize] partial def whileModifingParamMapAux (x : M Unit) : Unit → M Unit
-| _ := do
+| _ => do
   modify $ fun s => { modifiedParamMap := false, .. s };
   s ← get;
   -- dbgTrace (toString s.map) $ fun _ => do

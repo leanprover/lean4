@@ -46,10 +46,11 @@ environment ensure_decl_namespaces(environment const & env, name const & full_n)
 expr parse_equation_lhs(parser & p, expr const & fn, buffer<expr> & locals) {
     auto lhs_pos = p.pos();
     buffer<expr> lhs_args;
-    lhs_args.push_back(p.parse_pattern_or_expr(get_max_prec()));
-    while (!p.curr_is_token(get_assign_tk())) {
+    lhs_args.push_back(p.parse_pattern_or_expr());
+    while (p.curr_is_token(get_comma_tk())) {
+        p.next();
         auto pos0 = p.pos();
-        lhs_args.push_back(p.parse_pattern_or_expr(get_max_prec()));
+        lhs_args.push_back(p.parse_pattern_or_expr());
         if (p.pos() == pos0) break;
     }
     expr lhs = p.mk_app(p.save_pos(mk_explicit(fn), lhs_pos), lhs_args, lhs_pos);
@@ -62,7 +63,7 @@ expr parse_equation(parser & p, expr const & fn) {
     buffer<expr> locals;
     expr lhs = parse_equation_lhs(p, fn, locals);
     auto assign_pos = p.pos();
-    p.check_token_next(get_assign_tk(), "invalid equation, ':=' expected");
+    p.check_token_next(get_darrow_tk(), "invalid equation, '=>' expected");
     expr rhs = p.parse_scoped_expr(locals);
     return Fun(locals, p.save_pos(mk_equation(lhs, rhs), assign_pos), p);
 }

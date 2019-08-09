@@ -311,4 +311,4 @@ instance USize.hasDecidableLt (a b : USize) : Decidable (a < b) := USize.decLt a
 instance USize.hasDecidableLe (a b : USize) : Decidable (a ≤ b) := USize.decLe a b
 
 theorem USize.modnLt {m : Nat} : ∀ (u : USize), m > 0 → USize.toNat (u %ₙ m) < m
-| ⟨u⟩ h := Fin.modnLt u h
+| ⟨u⟩, h => Fin.modnLt u h

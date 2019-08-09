@@ -51,10 +51,10 @@ if h : isValidChar (UInt32.ofNat n) then {val := UInt32.ofNat n, valid := h} els
 c.val.toNat
 
 theorem eqOfVeq : ∀ {c d : Char}, c.val = d.val → c = d
-| ⟨v, h⟩ ⟨_, _⟩ rfl := rfl
+| ⟨v, h⟩, ⟨_, _⟩, rfl => rfl
 
 theorem veqOfEq : ∀ {c d : Char}, c = d → c.val = d.val
-| _ _ rfl := rfl
+| _, _, rfl => rfl
 
 theorem neOfVne {c d : Char} (h : c.val ≠ d.val) : c ≠ d :=
 fun h' => absurd (veqOfEq h') h

@@ -18,9 +18,9 @@ namespace SpecializeAttributeKind
 instance : Inhabited SpecializeAttributeKind := ⟨SpecializeAttributeKind.specialize⟩
 
 protected def beq : SpecializeAttributeKind → SpecializeAttributeKind → Bool
-| specialize specialize := true
-| nospecialize nospecialize := true
-| _ _ := false
+| specialize, specialize => true
+| nospecialize, nospecialize => true
+| _, _ => false
 
 instance : HasBeq SpecializeAttributeKind := ⟨SpecializeAttributeKind.beq⟩
 
@@ -36,7 +36,7 @@ registerEnumAttributes `specializeAttrs
 constant specializeAttrs : EnumAttributes SpecializeAttributeKind := default _
 
 private partial def hasSpecializeAttrAux (env : Environment) (kind : SpecializeAttributeKind) : Name → Bool
-| n := match specializeAttrs.getValue env n with
+| n => match specializeAttrs.getValue env n with
   | some k => kind == k
   | none   => if n.isInternal then hasSpecializeAttrAux n.getPrefix else false
 
@@ -76,7 +76,7 @@ match e with
 | SpecEntry.cache key fn   => { cache    := s.cache.insert key fn, .. s }
 
 def switch : SpecState → SpecState
-| ⟨m₁, m₂⟩ := ⟨m₁.switch, m₂.switch⟩
+| ⟨m₁, m₂⟩ => ⟨m₁.switch, m₂.switch⟩
 
 end SpecState
 

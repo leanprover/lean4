@@ -7,17 +7,17 @@ inductive Expr
 open Expr
 
 def Expr.toString : Expr → String
-| (Val n) := toString n
-| (Var x) := x
-| (Add f g) := "(" ++ Expr.toString f ++ " + " ++ Expr.toString g ++ ")"
-| (Mul f g) := "(" ++ Expr.toString f ++ " * " ++ Expr.toString g ++ ")"
+| Val n   => toString n
+| Var x   => x
+| Add f g   => "(" ++ Expr.toString f ++ " + " ++ Expr.toString g ++ ")"
+| Mul f g   => "(" ++ Expr.toString f ++ " * " ++ Expr.toString g ++ ")"
 
 instance : HasToString Expr :=
 ⟨Expr.toString⟩
 
 partial def addAux : Expr → Expr → Expr
-| f         (Add (Val n) g) := addAux (Val n) (addAux f g)
-| f         g               := Add f g
+| f,         Add (Val n) g   => addAux (Val n) (addAux f g)
+| f,         g               => Add f g
 
 def add (a b : Expr) : Expr :=
 addAux a b

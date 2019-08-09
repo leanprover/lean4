@@ -58,20 +58,20 @@ def emitArg (x : Arg) : M Unit :=
 emit (argToCppString x)
 
 def toCppType : IRType → String
-| IRType.float      := "double"
-| IRType.uint8      := "uint8"
-| IRType.uint16     := "uint16"
-| IRType.uint32     := "uint32"
-| IRType.uint64     := "uint64"
-| IRType.usize      := "usize"
-| IRType.object     := "obj*"
-| IRType.tobject    := "obj*"
-| IRType.irrelevant := "obj*"
+| IRType.float      => "double"
+| IRType.uint8      => "uint8"
+| IRType.uint16     => "uint16"
+| IRType.uint32     => "uint32"
+| IRType.uint64     => "uint64"
+| IRType.usize      => "usize"
+| IRType.object     => "obj*"
+| IRType.tobject    => "obj*"
+| IRType.irrelevant => "obj*"
 
 def openNamespacesAux : Name → M Unit
-| Name.anonymous      := pure ()
-| (Name.mkString p s) := openNamespacesAux p *> emitLn ("namespace " ++ s ++ " {")
-| n                   := throw ("invalid namespace '" ++ toString n ++ "'")
+| Name.anonymous      => pure ()
+| Name.mkString p s   => openNamespacesAux p *> emitLn ("namespace " ++ s ++ " {")
+| n                   => throw ("invalid namespace '" ++ toString n ++ "'")
 
 def openNamespaces (n : Name) : M Unit :=
 openNamespacesAux n.getPrefix
@@ -83,9 +83,9 @@ do env ← getEnv;
    | some n => openNamespaces n
 
 def closeNamespacesAux : Name → M Unit
-| Name.anonymous      := pure ()
-| (Name.mkString p _) := emitLn "}" *> closeNamespacesAux p
-| n                   := throw ("invalid namespace '" ++ toString n ++ "'")
+| Name.anonymous      => pure ()
+| Name.mkString p _   => emitLn "}" *> closeNamespacesAux p
+| n                   => throw ("invalid namespace '" ++ toString n ++ "'")
 
 def closeNamespaces (n : Name) : M Unit :=
 closeNamespacesAux n.getPrefix
@@ -277,14 +277,14 @@ def declareParams (ps : Array Param) : M Unit :=
 ps.mfor $ fun p => declareVar p.x p.ty
 
 partial def declareVars : FnBody → Bool → M Bool
-| e@(FnBody.vdecl x t _ b)  d := do
+| e@(FnBody.vdecl x t _ b),  d => do
   ctx ← read;
   if isTailCallTo ctx.mainFn e then
     pure d
   else
     declareVar x t *> declareVars b true
-| (FnBody.jdecl j xs _ b)   d := declareParams xs *> declareVars b (d || xs.size > 0)
-| e                         d := if e.isTerminal then pure d else declareVars e.body d
+| FnBody.jdecl j xs _ b,     d => declareParams xs *> declareVars b (d || xs.size > 0)
+| e,                         d => if e.isTerminal then pure d else declareVars e.body d
 
 def emitTag (x : VarId) : M Unit :=
 do
@@ -600,28 +600,28 @@ match v with
 | _ => throw "bug at emitTailCall"
 
 partial def emitBlock (emitBody : FnBody → M Unit) : FnBody → M Unit
-| (FnBody.jdecl j xs v b)   := emitBlock b
-| d@(FnBody.vdecl x t v b)  :=
+| FnBody.jdecl j xs v b     => emitBlock b
+| d@(FnBody.vdecl x t v b)  =>
   do ctx ← read; if isTailCallTo ctx.mainFn d then emitTailCall v else emitVDecl x t v *> emitBlock b
-| (FnBody.inc x n c b)      := emitInc x n c *> emitBlock b
-| (FnBody.dec x n c b)      := emitDec x n c *> emitBlock b
-| (FnBody.del x b)          := emitDel x *> emitBlock b
-| (FnBody.setTag x i b)     := emitSetTag x i *> emitBlock b
-| (FnBody.set x i y b)      := emitSet x i y *> emitBlock b
-| (FnBody.uset x i y b)     := emitUSet x i y *> emitBlock b
-| (FnBody.sset x i o y _ b) := emitSSet x i o y *> emitBlock b
-| (FnBody.mdata _ b)        := emitBlock b
-| (FnBody.ret x)            := emit "return " *> emitArg x *> emitLn ";"
-| (FnBody.case _ x alts)    := emitCase emitBody x alts
-| (FnBody.jmp j xs)         := emitJmp j xs
-| FnBody.unreachable        := emitLn "lean_unreachable();"
+| FnBody.inc x n c b        => emitInc x n c *> emitBlock b
+| FnBody.dec x n c b        => emitDec x n c *> emitBlock b
+| FnBody.del x b            => emitDel x *> emitBlock b
+| FnBody.setTag x i b       => emitSetTag x i *> emitBlock b
+| FnBody.set x i y b        => emitSet x i y *> emitBlock b
+| FnBody.uset x i y b       => emitUSet x i y *> emitBlock b
+| FnBody.sset x i o y _ b   => emitSSet x i o y *> emitBlock b
+| FnBody.mdata _ b          => emitBlock b
+| FnBody.ret x              => emit "return " *> emitArg x *> emitLn ";"
+| FnBody.case _ x alts      => emitCase emitBody x alts
+| FnBody.jmp j xs           => emitJmp j xs
+| FnBody.unreachable        => emitLn "lean_unreachable();"
 
 partial def emitJPs (emitBody : FnBody → M Unit) : FnBody → M Unit
-| (FnBody.jdecl j xs v b) := do emit j; emitLn ":"; emitBody v; emitJPs b
-| e                       := unless e.isTerminal (emitJPs e.body)
+| FnBody.jdecl j xs v b   => do emit j; emitLn ":"; emitBody v; emitJPs b
+| e                       => unless e.isTerminal (emitJPs e.body)
 
 partial def emitFnBody : FnBody → M Unit
-| b := do
+| b => do
 emitLn "{";
 declared ← declareVars b false;
 when declared (emitLn "");

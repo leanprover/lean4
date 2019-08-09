@@ -7,7 +7,7 @@ instance : Inhabited Tree := ⟨Nil⟩
 -- This Function has an extra argument to suppress the
 -- common sub-expression elimination optimization
 partial def make' : UInt32 -> UInt32 -> Tree
-| n d :=
+| n, d =>
   if d = 0 then Node Nil Nil
   else Node (make' n (d - 1)) (make' (n + 1) (d - 1))
 
@@ -15,8 +15,8 @@ partial def make' : UInt32 -> UInt32 -> Tree
 def make (d : UInt32) := make' d d
 
 def check : Tree → UInt32
-| Nil := 0
-| (Node l r) := 1 + check l + check r
+| Nil => 0
+| Node l r   => 1 + check l + check r
 
 def minN := 4
 
@@ -25,7 +25,7 @@ IO.println (s ++ " of depth " ++ toString n ++ "\t check: " ++ toString t)
 
 -- allocate and check lots of trees
 partial def sumT : UInt32 -> UInt32 -> UInt32 -> UInt32
-| d i t :=
+| d, i, t =>
   if i = 0 then t
   else
     let a := check (make d);
@@ -33,13 +33,13 @@ partial def sumT : UInt32 -> UInt32 -> UInt32 -> UInt32
 
 -- generate many trees
 partial def depth : Nat -> Nat -> List (Nat × Nat × Task UInt32)
-| d m := if d ≤ m then
+| d, m => if d ≤ m then
     let n := 2 ^ (m - d + minN);
     (n, d, Task.mk (fun _ => sumT (UInt32.ofNat d) (UInt32.ofNat n) 0)) :: depth (d+2) m
   else []
 
 def main : List String → IO UInt32
-| [s] := do
+| [s] => do
   let n := s.toNat;
   let maxN := Nat.max (minN + 2) n;
   let stretchN := maxN + 1;
@@ -58,4 +58,4 @@ def main : List String → IO UInt32
   -- confirm the the long-lived binary tree still exists
   out "long lived tree" maxN (check long);
   pure 0
-| _ := pure 1
+| _ => pure 1

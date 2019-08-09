@@ -13,7 +13,7 @@ let hs : List Heap := n.fold (fun i hs =>
 hs.foldl (fun h₁ h₂ => h₁.merge h₂) BinomialHeap.empty
 
 partial def display : Nat → Heap → IO Unit
-| prev h :=
+| prev, h =>
   if h.isEmpty then pure ()
   else do
     let m := h.head;

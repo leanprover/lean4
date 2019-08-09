@@ -68,7 +68,7 @@ match m with
 
 -- TODO: remove `partial` by using well-founded recursion
 partial def moveEntries [Hashable α] : Nat → Array (AssocList α β) → HashMapBucket α β → HashMapBucket α β
-| i source target :=
+| i, source, target =>
   if h : i < source.size then
      let idx : Fin source.size := ⟨i, h⟩;
      let es  : AssocList α β   := source.fget idx;

@@ -4,7 +4,7 @@ inductive Term : Type
 
 namespace Term
 instance : Inhabited Term := ⟨Term.const 0⟩
-partial def hasToString : Term -> String | (const n) := "CONST(" ++ toString n ++ ")" | (app ts)  := "APP"
+partial def hasToString : Term -> String | const n   => "CONST(" ++ toString n ++ ")" | app ts    => "APP"
 instance : HasToString Term := ⟨hasToString⟩
 end Term
 
@@ -14,7 +14,7 @@ structure MyState : Type := (ts : List Term)
 def emit (t : Term) : State MyState Unit := modify (λ ms => ⟨t::ms.ts⟩)
 
 partial def foo : MyState -> Term -> Term -> List Term
-| ms₀ t u :=
+| ms₀, t, u =>
   let stateT : State MyState Unit := do {
 
     match t with

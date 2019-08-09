@@ -11,7 +11,7 @@ namespace Lean
 namespace IR
 
 partial def reshapeWithoutDeadAux : Array FnBody → FnBody → IndexSet → FnBody
-| bs b used :=
+| bs, b, used =>
   if bs.isEmpty then b
   else
     let curr := bs.back;
@@ -32,7 +32,7 @@ def reshapeWithoutDead (bs : Array FnBody) (term : FnBody) : FnBody :=
 reshapeWithoutDeadAux bs term term.freeIndices
 
 partial def FnBody.elimDead : FnBody → FnBody
-| b :=
+| b =>
   let (bs, term) := b.flatten;
   let bs         := modifyJPs bs FnBody.elimDead;
   let term       := match term with
@@ -44,8 +44,8 @@ partial def FnBody.elimDead : FnBody → FnBody
 
 /-- Eliminate dead let-declarations and join points -/
 def Decl.elimDead : Decl → Decl
-| (Decl.fdecl f xs t b) := Decl.fdecl f xs t b.elimDead
-| other                 := other
+| Decl.fdecl f xs t b   => Decl.fdecl f xs t b.elimDead
+| other                 => other
 
 end IR
 end Lean

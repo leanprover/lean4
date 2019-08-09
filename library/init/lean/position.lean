@@ -21,7 +21,7 @@ instance : DecidableEq Position :=
   else isFalse (fun contra => Position.noConfusion contra (fun e₁ e₂ => absurd e₁ h₁))}
 
 protected def lt : Position → Position → Bool
-| ⟨l₁, c₁⟩ ⟨l₂, c₂⟩ := (l₁, c₁) < (l₂, c₂)
+| ⟨l₁, c₁⟩, ⟨l₂, c₂⟩ => (l₁, c₁) < (l₂, c₂)
 
 instance : HasFormat Position :=
 ⟨fun ⟨l, c⟩ => "⟨" ++ fmt l ++ ", " ++ fmt c ++ "⟩"⟩
@@ -43,7 +43,7 @@ instance : Inhabited FileMap :=
 ⟨{ source := "", positions := Array.empty, lines := Array.empty }⟩
 
 private partial def ofStringAux (s : String) : String.Pos → Nat → Array String.Pos → Array Nat → FileMap
-| i line ps lines :=
+| i, line, ps, lines =>
   if s.atEnd i then { source := s, positions := ps.push i, lines := lines.push line }
   else
     let c := s.get i;
@@ -55,13 +55,13 @@ def ofString (s : String) : FileMap :=
 ofStringAux s 0 1 (Array.empty.push 0) (Array.empty.push 1)
 
 private partial def toColumnAux (str : String) (lineBeginPos : String.Pos) (pos : String.Pos) : String.Pos → Nat → Nat
-| i c :=
+| i, c =>
   if i == pos || str.atEnd i then c
   else toColumnAux (str.next i) (c+1)
 
 /- Remark: `pos` is in `[ps.get b, ps.get e]` and `b < e` -/
 private partial def toPositionAux (str : String) (ps : Array Nat) (lines : Array Nat) (pos : String.Pos) : Nat → Nat → Position
-| b e :=
+| b, e =>
   let posB := ps.get b;
   if e == b + 1 then { line := lines.get b, column := toColumnAux str posB pos posB 0 }
   else
@@ -72,7 +72,7 @@ private partial def toPositionAux (str : String) (ps : Array Nat) (lines : Array
     else toPositionAux b m
 
 def toPosition : FileMap → String.Pos → Position
-| { source := str, positions := ps, lines := lines } pos := toPositionAux str ps lines pos 0 (ps.size-1)
+| { source := str, positions := ps, lines := lines }, pos => toPositionAux str ps lines pos 0 (ps.size-1)
 
 end FileMap
 end Lean

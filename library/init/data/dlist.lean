@@ -30,14 +30,14 @@ instance : HasEmptyc (DList α) :=
 ⟨DList.empty⟩
 
 def toList : DList α → List α
-| ⟨f, h⟩ := f []
+| ⟨f, h⟩ => f []
 
 def singleton (a : α) : DList α :=
 ⟨fun t => a :: t,
  fun t => rfl⟩
 
 def cons : α → DList α → DList α
-| a ⟨f, h⟩ :=
+| a, ⟨f, h⟩ =>
   ⟨fun t => a :: f t,
    fun t =>
     show a :: f t = a :: f [] ++ t from
@@ -46,13 +46,13 @@ def cons : α → DList α → DList α
     Eq.trans h₁ h₂⟩
 
 def append : DList α → DList α → DList α
-| ⟨f, h₁⟩ ⟨g, h₂⟩ :=
+| ⟨f, h₁⟩, ⟨g, h₂⟩ =>
   ⟨f ∘ g, fun t =>
     show f (g t) = (f (g [])) ++ t from
    (h₁ (g [])).symm ▸ (appendAssoc (f []) (g []) t).symm ▸ h₂ t ▸ h₁ (g t) ▸ rfl⟩
 
 def push : DList α → α → DList α
-| ⟨f, h⟩ a :=
+| ⟨f, h⟩, a =>
   ⟨fun t => f (a :: t),
    fun t => (h (a::t)).symm ▸ (h [a]).symm ▸ (appendAssoc (f []) [a] t).symm ▸ rfl⟩
 

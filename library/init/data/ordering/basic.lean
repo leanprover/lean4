@@ -16,19 +16,19 @@ instance : HasRepr Ordering :=
 
 namespace Ordering
 def swap : Ordering → Ordering
-| lt := gt
-| Eq := Eq
-| gt := lt
+| lt => gt
+| Eq => Eq
+| gt => lt
 
 @[inline] def orElse : Ordering → Ordering → Ordering
-| lt _ := lt
-| Eq o := o
-| gt _ := gt
+| lt, _ => lt
+| Eq, o => o
+| gt, _ => gt
 
 theorem swapSwap : ∀ (o : Ordering), o.swap.swap = o
-| lt := rfl
-| Eq := rfl
-| gt := rfl
+| lt => rfl
+| Eq => rfl
+| gt => rfl
 end Ordering
 
 @[inline] def cmpUsing {α : Type u} (lt : α → α → Prop) [DecidableRel lt] (a b : α) : Ordering :=

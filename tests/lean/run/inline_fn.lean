@@ -2,8 +2,8 @@ def f {α : Type} [HasAdd α] (x : α) :=
 x + x + x
 
 def h : Nat → Nat
-| 0     := 10
-| (n+1) := n * h n
+| 0     => 10
+| n+1   => n * h n
 
 def g1 (x : Nat) :=
 inline f x

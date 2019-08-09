@@ -395,8 +395,8 @@ attribute [matchPattern] HasZero.zero HasOne.one bit0 bit1 HasAdd.add HasNeg.neg
 /- Nat basic instances -/
 @[extern cpp "lean::nat_add"]
 protected def Nat.add : (@& Nat) → (@& Nat) → Nat
-| a  Nat.zero     := a
-| a  (Nat.succ b) := Nat.succ (Nat.add a b)
+| a,  Nat.zero     => a
+| a,  Nat.succ b   => Nat.succ (Nat.add a b)
 
 /- We mark the following definitions as pattern to make sure they can be used in recursive equations,
    and reduced by the equation Compiler. -/
@@ -456,75 +456,75 @@ From now on, the inductive Compiler will automatically generate sizeof instances
 
 /- Every Type `α` has a default HasSizeof instance that just returns 0 for every element of `α` -/
 protected def default.sizeof (α : Sort u) : α → Nat
-| a := 0
+| a => 0
 
 instance defaultHasSizeof (α : Sort u) : HasSizeof α :=
 ⟨default.sizeof α⟩
 
 protected def Nat.sizeof : Nat → Nat
-| n := n
+| n => n
 
 instance : HasSizeof Nat :=
 ⟨Nat.sizeof⟩
 
 protected def Prod.sizeof {α : Type u} {β : Type v} [HasSizeof α] [HasSizeof β] : (Prod α β) → Nat
-| ⟨a, b⟩ := 1 + sizeof a + sizeof b
+| ⟨a, b⟩ => 1 + sizeof a + sizeof b
 
 instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (Prod α β) :=
 ⟨Prod.sizeof⟩
 
 protected def Sum.sizeof {α : Type u} {β : Type v} [HasSizeof α] [HasSizeof β] : (Sum α β) → Nat
-| (Sum.inl a) := 1 + sizeof a
-| (Sum.inr b) := 1 + sizeof b
+| Sum.inl a   => 1 + sizeof a
+| Sum.inr b   => 1 + sizeof b
 
 instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (Sum α β) :=
 ⟨Sum.sizeof⟩
 
 protected def PSum.sizeof {α : Type u} {β : Type v} [HasSizeof α] [HasSizeof β] : (PSum α β) → Nat
-| (PSum.inl a) := 1 + sizeof a
-| (PSum.inr b) := 1 + sizeof b
+| PSum.inl a   => 1 + sizeof a
+| PSum.inr b   => 1 + sizeof b
 
 instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (PSum α β) :=
 ⟨PSum.sizeof⟩
 
 protected def Sigma.sizeof {α : Type u} {β : α → Type v} [HasSizeof α] [∀ a, HasSizeof (β a)] : Sigma β → Nat
-| ⟨a, b⟩ := 1 + sizeof a + sizeof b
+| ⟨a, b⟩ => 1 + sizeof a + sizeof b
 
 instance (α : Type u) (β : α → Type v) [HasSizeof α] [∀ a, HasSizeof (β a)] : HasSizeof (Sigma β) :=
 ⟨Sigma.sizeof⟩
 
 protected def PSigma.sizeof {α : Type u} {β : α → Type v} [HasSizeof α] [∀ a, HasSizeof (β a)] : PSigma β → Nat
-| ⟨a, b⟩ := 1 + sizeof a + sizeof b
+| ⟨a, b⟩ => 1 + sizeof a + sizeof b
 
 instance (α : Type u) (β : α → Type v) [HasSizeof α] [∀ a, HasSizeof (β a)] : HasSizeof (PSigma β) :=
 ⟨PSigma.sizeof⟩
 
 protected def PUnit.sizeof : PUnit → Nat
-| u := 1
+| u => 1
 
 instance : HasSizeof PUnit := ⟨PUnit.sizeof⟩
 
 protected def Bool.sizeof : Bool → Nat
-| b := 1
+| b => 1
 
 instance : HasSizeof Bool := ⟨Bool.sizeof⟩
 
 protected def Option.sizeof {α : Type u} [HasSizeof α] : Option α → Nat
-| none     := 1
-| (some a) := 1 + sizeof a
+| none     => 1
+| some a   => 1 + sizeof a
 
 instance (α : Type u) [HasSizeof α] : HasSizeof (Option α) :=
 ⟨Option.sizeof⟩
 
 protected def List.sizeof {α : Type u} [HasSizeof α] : List α → Nat
-| List.nil        := 1
-| (List.cons a l) := 1 + sizeof a + List.sizeof l
+| List.nil        => 1
+| List.cons a l   => 1 + sizeof a + List.sizeof l
 
 instance (α : Type u) [HasSizeof α] : HasSizeof (List α) :=
 ⟨List.sizeof⟩
 
 protected def Subtype.sizeof {α : Type u} [HasSizeof α] {p : α → Prop} : Subtype p → Nat
-| ⟨a, _⟩ := sizeof a
+| ⟨a, _⟩ => sizeof a
 
 instance {α : Type u} [HasSizeof α] (p : α → Prop) : HasSizeof (Subtype p) :=
 ⟨Subtype.sizeof⟩
@@ -540,24 +540,24 @@ theorem optParamEq (α : Sort u) (default : α) : optParam α default = α := rf
 /- Boolean operators -/
 
 @[macroInline] def cond {a : Type u} : Bool → a → a → a
-| true  x y := x
-| false x y := y
+| true,  x, y => x
+| false, x, y => y
 
 @[macroInline] def or : Bool → Bool → Bool
-| true  _  := true
-| false b  := b
+| true,  _  => true
+| false, b  => b
 
 @[macroInline] def and : Bool → Bool → Bool
-| false _  := false
-| true  b  := b
+| false, _  => false
+| true,  b  => b
 
 @[macroInline] def not : Bool → Bool
-| true  := false
-| false := true
+| true  => false
+| false => true
 
 @[macroInline] def xor : Bool → Bool → Bool
-| true  b := not b
-| false b := b
+| true,  b => not b
+| false, b => b
 
 prefix `!` := not
 infix `||` := or
@@ -665,12 +665,12 @@ neFalseOfSelf trivial
 end Ne
 
 theorem eqFalseOfNeTrue : ∀ {b : Bool}, b ≠ true → b = false
-| true h := False.elim (h rfl)
-| false h := rfl
+| true, h => False.elim (h rfl)
+| false, h => rfl
 
 theorem eqTrueOfNeFalse : ∀ {b : Bool}, b ≠ false → b = true
-| true h := rfl
-| false h := False.elim (h rfl)
+| true, h => rfl
+| false, h => False.elim (h rfl)
 
 section
 variables {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
@@ -709,13 +709,13 @@ Heq.ndrecOn h (Eq.refl α)
 end
 
 theorem eqRecHeq {α : Sort u} {φ : α → Sort v} : ∀ {a a' : α} (h : a = a') (p : φ a), (Eq.recOn h p : φ a') ≅ p
-| a _ rfl p := Heq.refl p
+| a, _, rfl, p => Heq.refl p
 
 theorem ofHeqTrue {a : Prop} (h : a ≅ True) : a :=
 ofEqTrue (eqOfHeq h)
 
 theorem castHeq : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≅ a
-| α _ rfl a := Heq.refl a
+| α, _, rfl, a => Heq.refl a
 
 variables {a b c d : Prop}
 
@@ -988,7 +988,7 @@ up :: (down : α)
 namespace ULift
 /- Bijection between α and ULift.{v} α -/
 theorem upDown {α : Type u} : ∀ (b : ULift.{v} α), up (down b) = b
-| (up a) := rfl
+| up a   => rfl
 
 theorem downUp {α : Type u} (a : α) : down (up.{v} a) = a := rfl
 end ULift
@@ -1000,7 +1000,7 @@ up :: (down : α)
 namespace PLift
 /- Bijection between α and PLift α -/
 theorem upDown {α : Sort u} : ∀ (b : PLift α), up (down b) = b
-| (up a) := rfl
+| up a   => rfl
 
 theorem downUp {α : Sort u} (a : α) : down (up a) = a := rfl
 end PLift
@@ -1049,7 +1049,7 @@ instance nonemptyOfInhabited {α : Sort u} [Inhabited α] : Nonempty α :=
 ⟨default α⟩
 
 theorem nonemptyOfExists {α : Sort u} {p : α → Prop} : Exists (fun x => p x) → Nonempty α
-| ⟨w, h⟩ := ⟨w⟩
+| ⟨w, h⟩ => ⟨w⟩
 
 /- Subsingleton -/
 
@@ -1161,7 +1161,7 @@ end Binary
 
 namespace Subtype
 def existsOfSubtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (fun x => p x)
-| ⟨a, h⟩ := ⟨a, h⟩
+| ⟨a, h⟩ => ⟨a, h⟩
 
 variables {α : Type u} {p : α → Prop}
 
@@ -1169,7 +1169,7 @@ theorem tagIrrelevant {a : α} (h1 h2 : p a) : mk a h1 = mk a h2 :=
 rfl
 
 protected theorem eq : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
-| ⟨x, h1⟩ ⟨.(x), h2⟩ rfl := rfl
+| ⟨x, h1⟩, ⟨.(x), h2⟩, rfl => rfl
 
 theorem eta (a : {x // p x}) (h : p (val a)) : mk (val a) h = a :=
 Subtype.eq rfl
@@ -1239,7 +1239,7 @@ end
 
 def Prod.map.{u₁, u₂, v₁, v₂} {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
   (f : α₁ → α₂) (g : β₁ → β₂) : α₁ × β₁ → α₂ × β₂
-| (a, b) := (f a, g b)
+| (a, b) => (f a, g b)
 
 /- Dependent products -/
 
@@ -1247,20 +1247,20 @@ def Prod.map.{u₁, u₂, v₁, v₂} {α₁ : Type u₁} {α₂ : Type u₂} {�
 -- notation `Σ'` binders `, ` r:(scoped p, PSigma p) := r
 
 theorem exOfPsig {α : Type u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x)
-| ⟨x, hx⟩ := ⟨x, hx⟩
+| ⟨x, hx⟩ => ⟨x, hx⟩
 
 section
 variables {α : Type u} {β : α → Type v}
 
 protected theorem Sigma.eq : ∀ {p₁ p₂ : Sigma (fun a => β a)} (h₁ : p₁.1 = p₂.1), (Eq.recOn h₁ p₁.2 : β p₂.1) = p₂.2 → p₁ = p₂
-| ⟨a, b⟩ ⟨.(a), .(b)⟩ rfl rfl := rfl
+| ⟨a, b⟩, ⟨.(a), .(b)⟩, rfl, rfl => rfl
 end
 
 section
 variables {α : Sort u} {β : α → Sort v}
 
 protected theorem PSigma.eq : ∀ {p₁ p₂ : PSigma β} (h₁ : p₁.1 = p₂.1), (Eq.recOn h₁ p₁.2 : β p₂.1) = p₂.2 → p₁ = p₂
-| ⟨a, b⟩ ⟨.(a), .(b)⟩ rfl rfl := rfl
+| ⟨a, b⟩, ⟨.(a), .(b)⟩, rfl, rfl => rfl
 end
 
 /- Universe polymorphic unit -/
@@ -1681,7 +1681,7 @@ Or.elim notUvOrP
   Or.inl
 
 theorem existsTrueOfNonempty {α : Sort u} : Nonempty α → Exists (fun (x : α) => True)
-| ⟨x⟩ := ⟨x, trivial⟩
+| ⟨x⟩ => ⟨x, trivial⟩
 
 noncomputable def inhabitedOfNonempty {α : Sort u} (h : Nonempty α) : Inhabited α :=
 ⟨choice h⟩

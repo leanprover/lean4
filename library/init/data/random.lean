@@ -37,7 +37,7 @@ instance : HasRepr StdGen :=
 { repr := fun ⟨s1, s2⟩ => "⟨" ++ toString s1 ++ ", " ++ toString s2 ++ "⟩" }
 
 def stdNext : StdGen → Nat × StdGen
-| ⟨s1, s2⟩ :=
+| ⟨s1, s2⟩ =>
   let k    : Int := s1 / 53668;
   let s1'  : Int := 40014 * ((s1 : Int) - k * 53668) - k * 12211;
   let s1'' : Int := if s1' < 0 then s1' + 2147483563 else s1';
@@ -49,7 +49,7 @@ def stdNext : StdGen → Nat × StdGen
   (z'.toNat, ⟨s1''.toNat, s2''.toNat⟩)
 
 def stdSplit : StdGen → StdGen × StdGen
-| g@⟨s1, s2⟩ :=
+| g@⟨s1, s2⟩ =>
   let newS1  := if s1 = 2147483562 then 1 else s1 + 1;
   let newS2  := if s2 = 1          then 2147483398 else s2 - 1;
   let newG   := (stdNext g).2;
@@ -76,8 +76,8 @@ Generate random values until we exceed the target magnitude.
 The parameter `r` is the "remaining" magnitude.
 -/
 private partial def randNatAux {gen : Type u} [RandomGen gen] (genLo genMag : Nat) : Nat → (Nat × gen) → Nat × gen
-| 0        (v, g) := (v, g)
-| r'@(r+1) (v, g) :=
+| 0,        (v, g) => (v, g)
+| r'@(r+1), (v, g) =>
   let (x, g') := RandomGen.next g;
   let v'      := v*genMag + (x - genLo);
   randNatAux (r' / genMag - 1) (v', g')

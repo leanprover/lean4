@@ -11,7 +11,7 @@ namespace Array
 -- TODO: remove `partial` using well-founded recursion
 
 @[specialize] private partial def partitionAux {α : Type} [Inhabited α] (lt : α → α → Bool) (hi : Nat) (pivot : α) : Array α → Nat → Nat → Nat × Array α
-| as i j :=
+| as, i, j =>
   if j < hi then
     if lt (as.get j) pivot then
       let as := as.swap i j;
@@ -31,7 +31,7 @@ let pivot := as.get hi;
 partitionAux lt hi pivot as lo lo
 
 @[specialize] partial def qsortAux {α : Type} [Inhabited α] (lt : α → α → Bool) : Array α → Nat → Nat → Array α
-| as low high :=
+| as, low, high =>
   if low < high then
     let p   := partition as lt low high;
     -- TODO: fix `partial` support in the equation compiler, it breaks if we use `let (mid, as) := partition as lt low high`

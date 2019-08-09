@@ -160,15 +160,15 @@ ps.foldl
   b
 
 private def isPersistent : Expr → Bool
-| (Expr.fap c xs) := xs.isEmpty -- all global constants are persistent objects
-| _               := false
+| Expr.fap c xs   => xs.isEmpty -- all global constants are persistent objects
+| _               => false
 
 /- We do not need to consume the projection of a variable that is not consumed -/
 private def consumeExpr (m : VarMap) : Expr → Bool
-| (Expr.proj i x) := match m.find x with
+| Expr.proj i x   => match m.find x with
   | some info => info.consume
   | none      => true
-| other := true
+| other => true
 
 /- Return true iff `v` at runtime is a scalar value stored in a tagged pointer.
    We do not need RC operations for this kind of value. -/
@@ -220,30 +220,30 @@ let m := ps.foldl (fun (m : VarMap) p => m.insert p.x { ref := p.ty.isObj, consu
 { varMap := m, .. ctx }
 
 partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
-| (FnBody.vdecl x t v b)    ctx :=
+| FnBody.vdecl x t v b,      ctx =>
   let ctx := updateVarInfo ctx x t v;
   let (b, bLiveVars) := visitFnBody b ctx;
   processVDecl ctx x t v b bLiveVars
-| (FnBody.jdecl j xs v b)   ctx :=
+| FnBody.jdecl j xs v b,     ctx =>
   let (v, vLiveVars) := visitFnBody v (updateVarInfoWithParams ctx xs);
   let v   := addDecForDeadParams xs v vLiveVars;
   let ctx := { jpLiveVarMap := updateJPLiveVarMap j xs v ctx.jpLiveVarMap, .. ctx };
   let (b, bLiveVars) := visitFnBody b ctx;
   (FnBody.jdecl j xs v b, bLiveVars)
-| (FnBody.uset x i y b)     ctx :=
+| FnBody.uset x i y b,       ctx =>
   let (b, s) := visitFnBody b ctx;
   -- We don't need to insert `y` since we only need to track live variables that are references at runtime
   let s      := s.insert x;
   (FnBody.uset x i y b, s)
-| (FnBody.sset x i o y t b) ctx :=
+| FnBody.sset x i o y t b,   ctx =>
   let (b, s) := visitFnBody b ctx;
   -- We don't need to insert `y` since we only need to track live variables that are references at runtime
   let s      := s.insert x;
   (FnBody.sset x i o y t b, s)
-| (FnBody.mdata m b)        ctx :=
+| FnBody.mdata m b,          ctx =>
   let (b, s) := visitFnBody b ctx;
   (FnBody.mdata m b, s)
-| b@(FnBody.case tid x alts) ctx :=
+| b@(FnBody.case tid x alts), ctx =>
   let caseLiveVars := collectLiveVars b ctx.jpLiveVarMap;
   let alts         := alts.map $ fun alt => match alt with
     | Alt.ctor c b  =>
@@ -256,29 +256,29 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
       let b                := addDecForAlt ctx caseLiveVars altLiveVars b;
       Alt.default b;
   (FnBody.case tid x alts, caseLiveVars)
-| b@(FnBody.ret x) ctx :=
+| b@(FnBody.ret x), ctx =>
   match x with
   | Arg.var x =>
     let info := getVarInfo ctx x;
     if info.ref && !info.persistent && !info.consume then (addInc x b, mkLiveVarSet x) else (b, mkLiveVarSet x)
   | _         => (b, {})
-| b@(FnBody.jmp j xs) ctx :=
+| b@(FnBody.jmp j xs), ctx =>
   let jLiveVars := getJPLiveVars ctx j;
   let ps        := getJPParams ctx j;
   let b         := addIncBefore ctx xs ps b jLiveVars;
   let bLiveVars := collectLiveVars b ctx.jpLiveVarMap;
   (b, bLiveVars)
-| FnBody.unreachable _ := (FnBody.unreachable, {})
-| other ctx := (other, {}) -- unreachable if well-formed
+| FnBody.unreachable, _ => (FnBody.unreachable, {})
+| other, ctx => (other, {}) -- unreachable if well-formed
 
 partial def visitDecl (env : Environment) (decls : Array Decl) : Decl → Decl
-| (Decl.fdecl f xs t b) :=
+| Decl.fdecl f xs t b   =>
   let ctx : Context  := { env := env, decls := decls };
   let ctx := updateVarInfoWithParams ctx xs;
   let (b, bLiveVars) := visitFnBody b ctx;
   let b := addDecForDeadParams xs b bLiveVars;
   Decl.fdecl f xs t b
-| other := other
+| other => other
 
 end ExplicitRC
 

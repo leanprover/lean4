@@ -29,8 +29,8 @@ if h : p then pure ⟨h⟩ else failure
 /- Later we define a coercion from Bool to Prop, but this version will still be useful.
    Given (t : tactic Bool), we can write t >>= guardb -/
 @[inline] def guardb {f : Type → Type v} [Alternative f] : Bool → f Unit
-| true  := pure ()
-| false := failure
+| true  => pure ()
+| false => failure
 
 @[inline] def optional (x : f α) : f (Option α) :=
 some <$> x <|> pure none

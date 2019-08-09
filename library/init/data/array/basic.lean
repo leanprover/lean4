@@ -136,7 +136,7 @@ def pop (a : Array α) : Array α :=
 
 -- TODO(Leo): justify termination using wf-rec
 partial def shrink : Array α → Nat → Array α
-| a n := if n ≥ a.size then a else shrink a.pop n
+| a, n => if n ≥ a.size then a else shrink a.pop n
 
 section
 variables {m : Type v → Type w} [Monad m]
@@ -144,7 +144,7 @@ variables {β : Type v} {σ : Type u}
 
 -- TODO(Leo): justify termination using wf-rec
 @[specialize] partial def miterateAux (a : Array α) (f : ∀ (i : Fin a.size), α → β → m β) : Nat → β → m β
-| i b :=
+| i, b =>
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩;
      f idx (a.fget idx) b >>= miterateAux (i+1)
@@ -161,7 +161,7 @@ miterateAux a (fun _ b a => f a b) ini b
 
 -- TODO(Leo): justify termination using wf-rec
 @[specialize] partial def miterate₂Aux (a₁ : Array α) (a₂ : Array σ) (f : ∀ (i : Fin a₁.size), α → σ → β → m β) : Nat → β → m β
-| i b :=
+| i, b =>
   if h₁ : i < a₁.size then
      let idx₁ : Fin a₁.size := ⟨i, h₁⟩;
      if h₂ : i < a₂.size then
@@ -179,7 +179,7 @@ miterate₂ a₁ a₂ b (fun _ a₁ a₂ b => f b a₁ a₂)
 
 -- TODO(Leo): justify termination using wf-rec
 @[specialize] partial def mfindAux (a : Array α) (f : α → m (Option β)) : Nat → m (Option β)
-| i :=
+| i =>
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩;
      do r ← f (a.fget idx);
@@ -192,7 +192,7 @@ miterate₂ a₁ a₂ b (fun _ a₁ a₂ b => f b a₁ a₂)
 mfindAux a f 0
 
 @[specialize] partial def mfindRevAux (a : Array α) (f : α → m (Option β)) : ∀ (idx : Nat), idx ≤ a.size → m (Option β)
-| i h :=
+| i, h =>
   if hLt : 0 < i then
     have i - 1 < i from Nat.subLt hLt (Nat.zeroLtSucc 0);
     have i - 1 < a.size from Nat.ltOfLtOfLe this h;
@@ -243,7 +243,7 @@ section
 variables {m : Type → Type w} [Monad m]
 
 @[specialize] partial def anyMAux (a : Array α) (p : α → m Bool) : Nat → m Bool
-| i :=
+| i =>
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩;
      do b ← p (a.fget idx);
@@ -269,8 +269,8 @@ section
 variable {β:Type w}
 
 @[specialize] private def revIterateAux (a : Array α) (f : ∀ (i : Fin a.size), α → β → β) : ∀ (i : Nat), i ≤ a.size → β → β
-| 0     h b := b
-| (j+1) h b :=
+| 0,     h, b => b
+| j+1,   h, b =>
   let i : Fin a.size := ⟨j, h⟩;
   revIterateAux j (Nat.leOfLt h) (f i (a.fget i) b)
 
@@ -295,7 +295,7 @@ variables {m : Type u → Type w} [Monad m]
 variable {β:Type u}
 
 @[specialize] unsafe partial def ummapAux (f : Nat → α → m β) : Nat → Array α → m (Array β)
-| i a :=
+| i, a =>
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩;
      let v   : α          := a.fget idx;
@@ -343,7 +343,7 @@ variable {β : Type u}
 
 @[specialize]
 partial def mforAux {α : Type w} {β : Type u} (f : α → m β) (a : Array α) : Nat → m PUnit
-| i :=
+| i =>
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩;
      let v   : α          := a.fget idx;
@@ -358,7 +358,7 @@ end
 
 -- TODO(Leo): justify termination using wf-rec
 partial def extractAux (a : Array α) : Nat → ∀ (e : Nat), e ≤ a.size → Array α → Array α
-| i e hle r :=
+| i, e, hle, r =>
   if hlt : i < e then
     let idx : Fin a.size := ⟨i, Nat.ltOfLtOfLe hlt hle⟩;
     extractAux (i+1) e hle (r.push (a.fget idx))
@@ -376,7 +376,7 @@ instance : HasAppend (Array α) := ⟨Array.append⟩
 
 -- TODO(Leo): justify termination using wf-rec
 partial def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) : Nat → Bool
-| i :=
+| i =>
   if h : i < a.size then
      let aidx : Fin a.size := ⟨i, h⟩;
      let bidx : Fin b.size := ⟨i, hsz ▸ h⟩;
@@ -397,7 +397,7 @@ instance [HasBeq α] : HasBeq (Array α) :=
 
 -- TODO(Leo): justify termination using wf-rec, and use `fswap`
 partial def reverseAux : Array α → Nat → Array α
-| a i :=
+| a, i =>
   let n := a.size;
   if i < n / 2 then
     reverseAux (a.swap i (n - i - 1)) (i+1)
@@ -409,7 +409,7 @@ reverseAux a 0
 
 -- TODO(Leo): justify termination using wf-rec
 @[specialize] partial def filterAux (p : α → Bool) : Array α → Nat → Nat → Array α
-| a i j :=
+| a, i, j =>
   if h₁ : i < a.size then
     if p (a.fget ⟨i, h₁⟩) then
        if h₂ : j < i then
@@ -425,7 +425,7 @@ reverseAux a 0
 filterAux p as 0 0
 
 partial def indexOfAux {α} [HasBeq α] (a : Array α) (v : α) : Nat → Option (Fin a.size)
-| i :=
+| i =>
   if h : i < a.size then
     let idx : Fin a.size := ⟨i, h⟩;
     if a.fget idx == v then some idx
@@ -436,7 +436,7 @@ def indexOf {α} [HasBeq α] (a : Array α) (v : α) : Option (Fin a.size) :=
 indexOfAux a v 0
 
 partial def eraseIdxAux {α} : Nat → Array α → Array α
-| i a :=
+| i, a =>
   if h : i < a.size then
     let idx  : Fin a.size := ⟨i, h⟩;
     let idx1 : Fin a.size := ⟨i - 1, Nat.ltOfLeOfLt (Nat.predLe i) h⟩;
@@ -463,7 +463,7 @@ instance eraseIdxSzAuxInstance (a : Array α) : Inhabited { r : Array α // r.si
 ⟨⟨a.pop, szPopEq a⟩⟩
 
 partial def eraseIdxSzAux {α} (a : Array α) : ∀ (i : Nat) (r : Array α), r.size = a.size → { r : Array α // r.size = a.size - 1 }
-| i r heq :=
+| i, r, heq =>
   if h : i < r.size then
     let idx  : Fin r.size := ⟨i, h⟩;
     let idx1 : Fin r.size := ⟨i - 1, Nat.ltOfLeOfLt (Nat.predLe i) h⟩;
@@ -480,12 +480,12 @@ end Array
 export Array (mkArray)
 
 @[inlineIfReduce] def List.toArrayAux {α : Type u} : List α → Array α → Array α
-| []      r := r
-| (a::as) r := List.toArrayAux as (r.push a)
+| [],      r => r
+| a::as,   r => List.toArrayAux as (r.push a)
 
 @[inlineIfReduce] def List.redLength {α : Type u} : List α → Nat
-| []      := 0
-| (_::as) := as.redLength + 1
+| []      => 0
+| _::as   => as.redLength + 1
 
 @[inline] def List.toArray {α : Type u} (as : List α) : Array α :=
 as.toArrayAux (Array.mkEmpty as.redLength)

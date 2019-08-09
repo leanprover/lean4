@@ -425,8 +425,8 @@ def writeModule (env : Environment) (fname : String) : IO Unit :=
 do modData ← mkModuleData env; saveModuleData fname modData
 
 partial def importModulesAux : List Name → (NameSet × Array ModuleData) → IO (NameSet × Array ModuleData)
-| []      r         := pure r
-| (m::ms) (s, mods) :=
+| [],      r         => pure r
+| m::ms,   (s, mods) =>
   if s.contains m then
     importModulesAux ms (s, mods)
   else do
@@ -438,7 +438,7 @@ partial def importModulesAux : List Name → (NameSet × Array ModuleData) → I
     importModulesAux ms (s, mods)
 
 private partial def getEntriesFor (mod : ModuleData) (extId : Name) : Nat → Array EnvExtensionState
-| i :=
+| i =>
   if i < mod.entries.size then
     let curr := mod.entries.get i;
     if curr.1 == extId then curr.2 else getEntriesFor (i+1)
@@ -514,13 +514,13 @@ namespacesExt.getState env
 namespace Environment
 
 private def isNamespaceName : Name → Bool
-| (Name.mkString Name.anonymous _) := true
-| (Name.mkString p _)              := isNamespaceName p
-| _                                := false
+| Name.mkString Name.anonymous _   => true
+| Name.mkString p _                => isNamespaceName p
+| _                                => false
 
 private def registerNamePrefixes : Environment → Name → Environment
-| env (Name.mkString p _) := if isNamespaceName p then registerNamePrefixes (registerNamespace env p) p else env
-| env _                   := env
+| env, Name.mkString p _   => if isNamespaceName p then registerNamePrefixes (registerNamespace env p) p else env
+| env, _                   => env
 
 @[export lean.environment_add_core]
 def add (env : Environment) (cinfo : ConstantInfo) : Environment :=

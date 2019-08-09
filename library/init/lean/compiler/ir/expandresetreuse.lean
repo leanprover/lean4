@@ -25,10 +25,10 @@ fun m => match v with
  | _                => m
 
 partial def collectFnBody : FnBody → Collector
-| (FnBody.vdecl x _ v b)  := collectVDecl x v ∘ collectFnBody b
-| (FnBody.jdecl _ _ v b)  := collectFnBody v ∘ collectFnBody b
-| (FnBody.case _ _ alts)  := fun s => alts.foldl (fun s alt => collectFnBody alt.body s) s
-| e                       := if e.isTerminal then id else collectFnBody e.body
+| FnBody.vdecl x _ v b    => collectVDecl x v ∘ collectFnBody b
+| FnBody.jdecl _ _ v b    => collectFnBody v ∘ collectFnBody b
+| FnBody.case _ _ alts    => fun s => alts.foldl (fun s alt => collectFnBody alt.body s) s
+| e                       => if e.isTerminal then id else collectFnBody e.body
 end CollectProjMap
 
 /- Create a mapping from variables to projections.
@@ -44,19 +44,19 @@ structure Context :=
 /- Return true iff `x` is consumed in all branches of the current block.
    Here consumption means the block contains a `dec x` or `reuse x ...`. -/
 partial def consumed (x : VarId) : FnBody → Bool
-| (FnBody.vdecl _ _ v b) :=
+| FnBody.vdecl _ _ v b   =>
   match v with
   | Expr.reuse y _ _ _ => x == y || consumed b
   | _                  => consumed b
-| (FnBody.dec y _ _ b)   := x == y || consumed b
-| (FnBody.case _ _ alts) := alts.all $ fun alt => consumed alt.body
-| e := !e.isTerminal && consumed e.body
+| FnBody.dec y _ _ b     => x == y || consumed b
+| FnBody.case _ _ alts   => alts.all $ fun alt => consumed alt.body
+| e => !e.isTerminal && consumed e.body
 
 abbrev Mask := Array (Option VarId)
 
 /- Auxiliary function for eraseProjIncFor -/
 partial def eraseProjIncForAux (y : VarId) : Array FnBody → Mask → Array FnBody → Array FnBody × Mask
-| bs mask keep :=
+| bs, mask, keep =>
   let done (_ : Unit)        := (bs ++ keep.reverse, mask);
   let keepInstr (b : FnBody) := eraseProjIncForAux bs.pop mask (keep.push b);
   if bs.size < 2 then done ()
@@ -94,20 +94,20 @@ eraseProjIncForAux y bs (mkArray n none) Array.empty
 
 /- Replace `reuse x ctor ...` with `ctor ...`, and remoce `dec x` -/
 partial def reuseToCtor (x : VarId) : FnBody → FnBody
-| (FnBody.dec y n c b) :=
+| FnBody.dec y n c b   =>
   if x == y then b -- n must be 1 since `x := reset ...`
   else FnBody.dec y n c (reuseToCtor b)
-| (FnBody.vdecl z t v b) :=
+| FnBody.vdecl z t v b   =>
   match v with
   | Expr.reuse y c u xs =>
     if x == y then FnBody.vdecl z t (Expr.ctor c xs) b
     else FnBody.vdecl z t v (reuseToCtor b)
   | _ =>
     FnBody.vdecl z t v (reuseToCtor b)
-| (FnBody.case tid y alts) :=
+| FnBody.case tid y alts   =>
   let alts := alts.map $ fun alt => alt.modifyBody reuseToCtor;
   FnBody.case tid y alts
-| e :=
+| e =>
   if e.isTerminal then e
   else
     let (instr, b) := e.split;
@@ -177,19 +177,19 @@ match ctx.projMap.find y with
 
 /- Remove unnecessary `set/uset/sset` operations -/
 partial def removeSelfSet (ctx : Context) : FnBody → FnBody
-| (FnBody.set x i y b) :=
+| FnBody.set x i y b   =>
   if isSelfSet ctx x i y then removeSelfSet b
   else FnBody.set x i y (removeSelfSet b)
-| (FnBody.uset x i y b) :=
+| FnBody.uset x i y b   =>
   if isSelfUSet ctx x i y then removeSelfSet b
   else FnBody.uset x i y (removeSelfSet b)
-| (FnBody.sset x n i y t b) :=
+| FnBody.sset x n i y t b   =>
   if isSelfSSet ctx x n i y then removeSelfSet b
   else FnBody.sset x n i y t (removeSelfSet b)
-| (FnBody.case tid y alts) :=
+| FnBody.case tid y alts   =>
   let alts := alts.map $ fun alt => alt.modifyBody removeSelfSet;
   FnBody.case tid y alts
-| e :=
+| e =>
   if e.isTerminal then e
   else
     let (instr, b) := e.split;
@@ -197,10 +197,10 @@ partial def removeSelfSet (ctx : Context) : FnBody → FnBody
     instr.setBody b
 
 partial def reuseToSet (ctx : Context) (x y : VarId) : FnBody → FnBody
-| (FnBody.dec z n c b) :=
+| FnBody.dec z n c b   =>
   if x == z then FnBody.del y b
   else FnBody.dec z n c (reuseToSet b)
-| (FnBody.vdecl z t v b) :=
+| FnBody.vdecl z t v b   =>
   match v with
   | Expr.reuse w c u zs =>
     if x == w then
@@ -209,10 +209,10 @@ partial def reuseToSet (ctx : Context) (x y : VarId) : FnBody → FnBody
       removeSelfSet ctx b
     else FnBody.vdecl z t v (reuseToSet b)
   | _ => FnBody.vdecl z t v (reuseToSet b)
-| (FnBody.case tid y alts) :=
+| FnBody.case tid y alts   =>
   let alts := alts.map $ fun alt => alt.modifyBody reuseToSet;
   FnBody.case tid y alts
-| e :=
+| e =>
   if e.isTerminal then e
   else
     let (instr, b) := e.split;
@@ -259,18 +259,18 @@ let b := FnBody.vdecl c IRType.uint8 (Expr.isShared y) (mkIf c bSlow bFast);
 pure $ reshape bs b
 
 partial def searchAndExpand : FnBody → Array FnBody → M FnBody
-| d@(FnBody.vdecl x t (Expr.reset n y) b) bs :=
+| d@(FnBody.vdecl x t (Expr.reset n y) b), bs =>
   if consumed x b then do
     expand searchAndExpand bs x n y b
   else
     searchAndExpand b (push bs d)
-| (FnBody.jdecl j xs v b) bs := do
+| FnBody.jdecl j xs v b,   bs => do
   v ← searchAndExpand v Array.empty;
   searchAndExpand b (push bs (FnBody.jdecl j xs v FnBody.nil))
-| (FnBody.case tid x alts) bs := do
+| FnBody.case tid x alts,   bs => do
   alts ← alts.mmap $ fun alt => alt.mmodifyBody $ fun b => searchAndExpand b Array.empty;
   pure $ reshape bs (FnBody.case tid x alts)
-| b bs :=
+| b, bs =>
   if b.isTerminal then pure $ reshape bs b
   else searchAndExpand b.body (push bs b)
 

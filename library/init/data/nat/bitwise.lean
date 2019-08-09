@@ -7,7 +7,7 @@ prelude
 import init.data.nat.basic init.data.nat.div init.coe
 namespace Nat
 
-partial def bitwise (f : Bool → Bool → Bool) : Nat → Nat → Nat | n m :=
+partial def bitwise (f : Bool → Bool → Bool) : Nat → Nat → Nat | n, m =>
 if n = 0 then      (if f false true then m else 0)
 else if m = 0 then (if f true false then n else 0)
 else

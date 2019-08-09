@@ -39,93 +39,93 @@ instance : Hashable Name :=
 ⟨Name.hash⟩
 
 def getPrefix : Name → Name
-| anonymous       := anonymous
-| (mkString p s)  := p
-| (mkNumeral p s) := p
+| anonymous       => anonymous
+| mkString p s    => p
+| mkNumeral p s   => p
 
 def getNumParts : Name → Nat
-| anonymous       := 0
-| (mkString p _)  := getNumParts p + 1
-| (mkNumeral p _) := getNumParts p + 1
+| anonymous       => 0
+| mkString p _    => getNumParts p + 1
+| mkNumeral p _   => getNumParts p + 1
 
 def updatePrefix : Name → Name → Name
-| anonymous       newP := anonymous
-| (mkString p s)  newP := mkString newP s
-| (mkNumeral p s) newP := mkNumeral newP s
+| anonymous,       newP => anonymous
+| mkString p s,    newP => mkString newP s
+| mkNumeral p s,   newP => mkNumeral newP s
 
 def components' : Name → List Name
-| anonymous               := []
-| (mkString n s)          := mkString anonymous s :: components' n
-| (mkNumeral n v)         := mkNumeral anonymous v :: components' n
+| anonymous               => []
+| mkString n s            => mkString anonymous s :: components' n
+| mkNumeral n v           => mkNumeral anonymous v :: components' n
 
 def components (n : Name) : List Name :=
 n.components'.reverse
 
 @[extern "lean_name_dec_eq"]
 protected def decEq : ∀ (a b : @& Name), Decidable (a = b)
-| anonymous          anonymous          := isTrue rfl
-| (mkString p₁ s₁)  (mkString p₂ s₂)  :=
+| anonymous,          anonymous          => isTrue rfl
+| mkString p₁ s₁,    mkString p₂ s₂    =>
   if h₁ : s₁ = s₂ then
     match decEq p₁ p₂ with
     | isTrue h₂  => isTrue $ h₁ ▸ h₂ ▸ rfl
     | isFalse h₂ => isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hp h₂
   else isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hs h₁
-| (mkNumeral p₁ n₁) (mkNumeral p₂ n₂) :=
+| mkNumeral p₁ n₁,   mkNumeral p₂ n₂   =>
   if h₁ : n₁ = n₂ then
     match decEq p₁ p₂ with
     | isTrue h₂  => isTrue $ h₁ ▸ h₂ ▸ rfl
     | isFalse h₂ => isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hp h₂
   else isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hs h₁
-| anonymous         (mkString _ _)    := isFalse $ fun h => Name.noConfusion h
-| anonymous         (mkNumeral _ _)   := isFalse $ fun h => Name.noConfusion h
-| (mkString _ _)    anonymous         := isFalse $ fun h => Name.noConfusion h
-| (mkString _ _)    (mkNumeral _ _)   := isFalse $ fun h => Name.noConfusion h
-| (mkNumeral _ _)   anonymous         := isFalse $ fun h => Name.noConfusion h
-| (mkNumeral _ _)   (mkString _ _)    := isFalse $ fun h => Name.noConfusion h
+| anonymous,         mkString _ _      => isFalse $ fun h => Name.noConfusion h
+| anonymous,         mkNumeral _ _     => isFalse $ fun h => Name.noConfusion h
+| mkString _ _,      anonymous         => isFalse $ fun h => Name.noConfusion h
+| mkString _ _,      mkNumeral _ _     => isFalse $ fun h => Name.noConfusion h
+| mkNumeral _ _,     anonymous         => isFalse $ fun h => Name.noConfusion h
+| mkNumeral _ _,     mkString _ _      => isFalse $ fun h => Name.noConfusion h
 
 instance : DecidableEq Name :=
 {decEq := Name.decEq}
 
 def eqStr : Name → String → Bool
-| (mkString Name.anonymous s) s' := s == s'
-| _ _ := false
+| mkString Name.anonymous s,   s' => s == s'
+| _, _ => false
 
 protected def append : Name → Name → Name
-| n anonymous := n
-| n (mkString p s) :=
+| n, anonymous => n
+| n, mkString p s   =>
   mkString (append n p) s
-| n (mkNumeral p d) :=
+| n, mkNumeral p d   =>
   mkNumeral (append n p) d
 
 instance : HasAppend Name :=
 ⟨Name.append⟩
 
 def replacePrefix : Name → Name → Name → Name
-| anonymous anonymous newP := newP
-| anonymous _         _     := anonymous
-| n@(mkString p s) queryP newP :=
+| anonymous, anonymous, newP => newP
+| anonymous, _,         _     => anonymous
+| n@(mkString p s), queryP, newP =>
   if n = queryP then
     newP
   else
     mkString (p.replacePrefix queryP newP) s
-| n@(mkNumeral p s) queryP newP :=
+| n@(mkNumeral p s), queryP, newP =>
   if n = queryP then
     newP
   else
     mkNumeral (p.replacePrefix queryP newP) s
 
 def isPrefixOf : Name → Name → Bool
-| p anonymous          := p == anonymous
-| p n@(mkNumeral p' _) := p == n || isPrefixOf p p'
-| p n@(mkString p' _)  := p == n || isPrefixOf p p'
+| p, anonymous          => p == anonymous
+| p, n@(mkNumeral p' _) => p == n || isPrefixOf p p'
+| p, n@(mkString p' _)  => p == n || isPrefixOf p p'
 
 def quickLtCore : Name → Name → Bool
-| anonymous        anonymous          := false
-| anonymous        _                  := true
-| (mkNumeral n v) (mkNumeral n' v')   := v < v' || (v = v' && n.quickLtCore n')
-| (mkNumeral _ _) (mkString _ _)      := true
-| (mkString n s)  (mkString n' s')    := s < s' || (s = s' && n.quickLtCore n')
-| _                _                  := false
+| anonymous,        anonymous          => false
+| anonymous,        _                  => true
+| mkNumeral n v,   mkNumeral n' v'     => v < v' || (v = v' && n.quickLtCore n')
+| mkNumeral _ _,   mkString _ _        => true
+| mkString n s,    mkString n' s'      => s < s' || (s = s' && n.quickLtCore n')
+| _,                _                  => false
 
 def quickLt (n₁ n₂ : Name) : Bool :=
 if n₁.hash < n₂.hash then true
@@ -140,11 +140,11 @@ else quickLtCore n₁ n₂
 inferInstanceAs (DecidableRel (fun a b => Name.quickLt a b = true))
 
 def toStringWithSep (sep : String) : Name → String
-| anonymous               := "[anonymous]"
-| (mkString anonymous s)  := s
-| (mkNumeral anonymous v) := toString v
-| (mkString n s)          := toStringWithSep n ++ sep ++ s
-| (mkNumeral n v)         := toStringWithSep n ++ sep ++ repr v
+| anonymous               => "[anonymous]"
+| mkString anonymous s    => s
+| mkNumeral anonymous v   => toString v
+| mkString n s            => toStringWithSep n ++ sep ++ s
+| mkNumeral n v           => toStringWithSep n ++ sep ++ repr v
 
 protected def toString : Name → String :=
 toStringWithSep "."
@@ -153,19 +153,19 @@ instance : HasToString Name :=
 ⟨Name.toString⟩
 
 def appendAfter : Name → String → Name
-| (mkString p s) suffix := mkString p (s ++ suffix)
-| n              suffix := mkString n suffix
+| mkString p s,   suffix => mkString p (s ++ suffix)
+| n,              suffix => mkString n suffix
 
 def appendIndexAfter : Name → Nat → Name
-| (mkString p s) idx := mkString p (s ++ "_" ++ toString idx)
-| n              idx := mkString n ("_" ++ toString idx)
+| mkString p s,   idx => mkString p (s ++ "_" ++ toString idx)
+| n,              idx => mkString n ("_" ++ toString idx)
 
 /- The frontend does not allow user declarations to start with `_` in any of its parts.
    We use name parts starting with `_` internally to create auxiliary names (e.g., `_private`). -/
 def isInternal : Name → Bool
-| (mkString p s)  := s.get 0 == '_' || isInternal p
-| (mkNumeral p _) := isInternal p
-| _ := false
+| mkString p s    => s.get 0 == '_' || isInternal p
+| mkNumeral p _   => isInternal p
+| _ => false
 
 theorem mkStringNeMkStringOfNePrefix {p₁ : Name} (s₁ : String) {p₂ : Name} (s₂ : String) : p₁ ≠ p₂ → mkString p₁ s₁ ≠ mkString p₂ s₂ :=
 fun h₁ h₂ => Name.noConfusion h₂ (fun h _ => absurd h h₁)

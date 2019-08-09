@@ -12,7 +12,7 @@ namespace Array
 -- TODO: remove `partial` using well-founded recursion
 
 @[specialize] partial def binSearchAux {α : Type u} {β : Type v} [Inhabited α] [Inhabited β] (lt : α → α → Bool) (found : Option α → β) (as : Array α) (k : α) : Nat → Nat → β
-| lo hi :=
+| lo, hi =>
   if lo <= hi then
     let m := (lo + hi)/2;
     let a := as.get m;

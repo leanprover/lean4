@@ -11,13 +11,13 @@ namespace Lean
 namespace Elab
 
 private def addScopes (cmd : String) (updateNamespace : Bool) : Name → List ElabScope → List ElabScope
-| Name.anonymous      scopes := scopes
-| (Name.mkString p h) scopes :=
+| Name.anonymous,      scopes => scopes
+| Name.mkString p h,   scopes =>
   let scopes := addScopes p scopes;
   let ns     := scopes.head.ns;
   let ns     := if updateNamespace then Name.mkString ns h else ns;
   { cmd := cmd, header := h, ns := ns } :: scopes
-| _ _ := [] -- unreachable
+| _, _ => [] -- unreachable
 
 @[builtinCommandElab «namespace»] def elabNamespace : CommandElab :=
 fun n => do
@@ -36,17 +36,17 @@ fun n => do
     | none        => { scopes := { cmd := "section", header := Name.anonymous, ns := ns } :: s.scopes, .. s }
 
 private def getNumEndScopes : Option Name → Nat
-| none     := 1
-| (some n) := n.getNumParts
+| none     => 1
+| some n   => n.getNumParts
 
 private def checkAnonymousScope : List ElabScope → Bool
-| ({ header := Name.anonymous, .. } :: _) := true
-| _ := false
+| { header := Name.anonymous, .. } :: _   => true
+| _ => false
 
 private def checkEndHeader : Name → List ElabScope → Bool
-| Name.anonymous _ := true
-| (Name.mkString p s) ({ header := h, .. } :: scopes) := h.eqStr s && checkEndHeader p scopes
-| _ _ := false
+| Name.anonymous, _ => true
+| Name.mkString p s,   { header := h, .. } :: scopes   => h.eqStr s && checkEndHeader p scopes
+| _, _ => false
 
 @[builtinCommandElab «end»] def elabEnd : CommandElab :=
 fun n => do

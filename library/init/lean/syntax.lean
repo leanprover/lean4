@@ -56,8 +56,8 @@ instance stxInh {α} : Inhabited (Syntax α) :=
 ⟨Syntax.missing⟩
 
 def Syntax.isMissing {α} : Syntax α → Bool
-| Syntax.missing := true
-| _ := false
+| Syntax.missing => true
+| _ => false
 
 inductive IsNode {α} : Syntax α → Prop
 | mk (kind : SyntaxNodeKind) (args : Array (Syntax α)) : IsNode (Syntax.node kind args)
@@ -109,8 +109,8 @@ end SyntaxNode
 namespace Syntax
 
 def setAtomVal {α} : Syntax α → String → Syntax α
-| (atom info _) v := (atom info v)
-| stx           _ := stx
+| atom info _,   v => (atom info v)
+| stx,           _ => stx
 
 @[inline] def ifNode {α β} (stx : Syntax α) (hyes : SyntaxNode α → β) (hno : Unit → β) : β :=
 match stx with
@@ -123,20 +123,20 @@ match stx with
 | _                  => hno ()
 
 def isIdent {α} : Syntax α → Bool
-| (ident _ _ _ _) := true
-| _               := false
+| ident _ _ _ _   => true
+| _               => false
 
 def getId {α} : Syntax α → Name
-| (ident _ _ val _) := val
-| _                 := Name.anonymous
+| ident _ _ val _   => val
+| _                 => Name.anonymous
 
 def isOfKind {α} : Syntax α → SyntaxNodeKind → Bool
-| (node kind _) k := k == kind
-| _             _ := false
+| node kind _,   k => k == kind
+| _,             _ => false
 
 def asNode {α} : Syntax α → SyntaxNode α
-| (Syntax.node kind args) := ⟨Syntax.node kind args, IsNode.mk kind args⟩
-| _                       := ⟨Syntax.node nullKind Array.empty, IsNode.mk nullKind Array.empty⟩
+| Syntax.node kind args   => ⟨Syntax.node kind args, IsNode.mk kind args⟩
+| _                       => ⟨Syntax.node nullKind Array.empty, IsNode.mk nullKind Array.empty⟩
 
 def getNumArgs {α} (stx : Syntax α) : Nat :=
 stx.asNode.getNumArgs
@@ -154,41 +154,41 @@ def getKind {α} (stx : Syntax α) : SyntaxNodeKind :=
 stx.asNode.getKind
 
 @[specialize] partial def mreplace {α} {m : Type → Type} [Monad m] (fn : Syntax α → m (Option (Syntax α))) : Syntax α → m (Syntax α)
-| stx@(node kind args) := do
+| stx@(node kind args) => do
   o ← fn stx;
   match o with
   | some stx => pure stx
   | none     => do args ← args.mmap mreplace; pure (node kind args)
-| stx := do o ← fn stx; pure (o.getOrElse stx)
+| stx => do o ← fn stx; pure (o.getOrElse stx)
 
 @[specialize] partial def mrewriteBottomUp {α} {m : Type → Type} [Monad m] (fn : Syntax α → m (Syntax α)) : Syntax α → m (Syntax α)
-| (node kind args) := do
+| node kind args   => do
   args ← args.mmap mrewriteBottomUp;
   fn (node kind args)
-| stx := fn stx
+| stx => fn stx
 
 @[inline] def rewriteBottomUp {α} (fn : Syntax α → Syntax α) (stx : Syntax α) : Syntax α :=
 Id.run $ stx.mrewriteBottomUp fn
 
 private def updateInfo : SourceInfo → String.Pos → SourceInfo
-| {leading := {str := s, startPos := _, stopPos := _}, pos := pos, trailing := trailing} last :=
+| {leading := {str := s, startPos := _, stopPos := _}, pos := pos, trailing := trailing}, last =>
   {leading := {str := s, startPos := last, stopPos := pos}, pos := pos, trailing := trailing}
 
 /- Remark: the State `String.Pos` is the `SourceInfo.trailing.stopPos` of the previous token,
    or the beginning of the String. -/
 @[inline]
 private def updateLeadingAux {α} : Syntax α → State String.Pos (Option (Syntax α))
-| (atom (some info) val) := do
+| atom (some info) val   => do
   last ← get;
   set info.trailing.stopPos;
   let newInfo := updateInfo info last;
   pure $ some (atom (some newInfo) val)
-| (ident (some info) rawVal val pre) := do
+| ident (some info) rawVal val pre   => do
   last ← get;
   set info.trailing.stopPos;
   let newInfo := updateInfo info last;
   pure $ some (ident (some newInfo) rawVal val pre)
-| _ := pure none
+| _ => pure none
 
 /-- Set `SourceInfo.leading` according to the trailing stop of the preceding token.
     The Result is a round-tripping Syntax tree IF, in the input Syntax tree,
@@ -205,35 +205,35 @@ def updateLeading {α} : Syntax α → Syntax α :=
 fun stx => (mreplace updateLeadingAux stx).run' 0
 
 partial def updateTrailing {α} (trailing : Substring) : Syntax α → Syntax α
-| (Syntax.atom (some info) val)             := Syntax.atom (some (info.updateTrailing trailing)) val
-| (Syntax.ident (some info) rawVal val pre) := Syntax.ident (some (info.updateTrailing trailing)) rawVal val pre
-| n@(Syntax.node k args)                    :=
+| Syntax.atom (some info) val               => Syntax.atom (some (info.updateTrailing trailing)) val
+| Syntax.ident (some info) rawVal val pre   => Syntax.ident (some (info.updateTrailing trailing)) rawVal val pre
+| n@(Syntax.node k args)                    =>
   if args.size == 0 then n
   else
    let i    := args.size - 1;
    let last := updateTrailing (args.get i);
    let args := args.set i last;
    Syntax.node k args
-| s := s
+| s => s
 
 /-- Retrieve the left-most leaf's info in the Syntax tree. -/
 partial def getHeadInfo {α} : Syntax α → Option SourceInfo
-| (atom info _)       := info
-| (ident info _ _ _ ) := info
-| (node _ args)       := args.find getHeadInfo
-| _                   := none
+| atom info _         => info
+| ident info _ _ _    => info
+| node _ args         => args.find getHeadInfo
+| _                   => none
 
 def getPos {α} (stx : Syntax α) : Option String.Pos :=
 SourceInfo.pos <$> stx.getHeadInfo
 
 partial def getTailInfo {α} : Syntax α → Option SourceInfo
-| (atom info _)       := info
-| (ident info _ _ _)  := info
-| (node _ args)       := args.findRev getTailInfo
-| _                   := none
+| atom info _         => info
+| ident info _ _ _    => info
+| node _ args         => args.findRev getTailInfo
+| _                   => none
 
 @[specialize] private partial def updateLast {α} [Inhabited α] (a : Array α) (f : α → Option α) : Nat → Option (Array α)
-| i :=
+| i =>
   if i == 0 then none
   else
     let i := i - 1;
@@ -243,13 +243,13 @@ partial def getTailInfo {α} : Syntax α → Option SourceInfo
     | none   => updateLast i
 
 partial def setTailInfoAux {α} (info : Option SourceInfo) : Syntax α → Option (Syntax α)
-| (atom _ val)             := some $ atom info val
-| (ident _ rawVal val pre) := some $ ident info rawVal val pre
-| (node k args)            :=
+| atom _ val               => some $ atom info val
+| ident _ rawVal val pre   => some $ ident info rawVal val pre
+| node k args              =>
   match updateLast args setTailInfoAux args.size with
   | some args => some $ node k args
   | none      => none
-| stx                      := none
+| stx                      => none
 
 def setTailInfo {α} (stx : Syntax α) (info : Option SourceInfo) : Syntax α :=
 match setTailInfoAux info stx with
@@ -257,34 +257,34 @@ match setTailInfoAux info stx with
 | none     => stx
 
 private def reprintLeaf : Option SourceInfo → String → String
-| none        val := val
-| (some info) val := info.leading.toString ++ val ++ info.trailing.toString
+| none,        val => val
+| some info,   val => info.leading.toString ++ val ++ info.trailing.toString
 
 partial def reprint {α} : Syntax α → Option String
-| (atom info val)         := reprintLeaf info val
-| (ident info rawVal _ _) := reprintLeaf info rawVal.toString
-| (node kind args)        :=
+| atom info val           => reprintLeaf info val
+| ident info rawVal _ _   => reprintLeaf info rawVal.toString
+| node kind args          =>
   if kind == choiceKind then
     if args.size == 0 then failure
     else do
       s ← reprint (args.get 0);
       args.mfoldlFrom (fun s stx => do s' ← reprint stx; guard (s == s'); pure s) s 1
   else args.mfoldl (fun r stx => do s ← reprint stx; pure $ r ++ s) ""
-| _ := ""
+| _ => ""
 
 open Lean.Format
 
 protected partial def formatStx {α} : Syntax α → Format
-| (atom info val)     := format $ repr val
-| (ident _ _ val pre) := format "`" ++ format val
-| (node kind args)    :=
+| atom info val       => format $ repr val
+| ident _ _ val pre   => format "`" ++ format val
+| node kind args      =>
   if kind = `Lean.Parser.noKind then
     sbracket $ joinSep (args.toList.map formatStx) line
   else
     let shorterName := kind.replacePrefix `Lean.Parser Name.anonymous;
     paren $ joinSep ((format shorterName) :: args.toList.map formatStx) line
-| missing   := "<missing>"
-| (other _) := "<other>"
+| missing   => "<missing>"
+| other _   => "<other>"
 
 instance {α} : HasFormat (Syntax α)   := ⟨Syntax.formatStx⟩
 instance {α} : HasToString (Syntax α) := ⟨toString ∘ format⟩
@@ -335,14 +335,14 @@ mkNumLit (toString val)
 namespace Syntax
 
 def isStrLit {α} : Syntax α → Option String
-| (Syntax.node k args) :=
+| Syntax.node k args   =>
   if k == strLitKind && args.size == 1 then
     match args.get 0 with
     | (Syntax.atom _ val) => some val
     | _ => none
   else
     none
-| _ := none
+| _ => none
 
 /- Recall that we don't have special Syntax constructors for storing numeric atoms.
    The idea is to have an extensible approach where embedded DSLs may have new kind of atoms and/or
@@ -352,7 +352,7 @@ def isStrLit {α} : Syntax α → Option String
    for Syntax objects representing these numerals. -/
 
 private partial def decodeBinLitAux (s : String) : Nat → Nat → Option Nat
-| i val :=
+| i, val =>
   if s.atEnd i then some val
   else
     let c := s.get i;
@@ -361,7 +361,7 @@ private partial def decodeBinLitAux (s : String) : Nat → Nat → Option Nat
     else none
 
 private partial def decodeOctalLitAux (s : String) : Nat → Nat → Option Nat
-| i val :=
+| i, val =>
   if s.atEnd i then some val
   else
     let c := s.get i;
@@ -369,7 +369,7 @@ private partial def decodeOctalLitAux (s : String) : Nat → Nat → Option Nat
     else none
 
 private partial def decodeHexLitAux (s : String) : Nat → Nat → Option Nat
-| i val :=
+| i, val =>
   if s.atEnd i then some val
   else
     let c := s.get i;
@@ -379,7 +379,7 @@ private partial def decodeHexLitAux (s : String) : Nat → Nat → Option Nat
     else none
 
 private partial def decodeDecimalLitAux (s : String) : Nat → Nat → Option Nat
-| i val :=
+| i, val =>
   if s.atEnd i then some val
   else
     let c := s.get i;
@@ -404,14 +404,14 @@ else
   else none
 
 def isNatLitAux {α} (nodeKind : SyntaxNodeKind) : Syntax α → Option Nat
-| (Syntax.node k args) :=
+| Syntax.node k args   =>
   if k == nodeKind && args.size == 1 then
     match args.get 0 with
     | (Syntax.atom _ val) => decodeNatLitVal val
     | _ => none
   else
     none
-| _ := none
+| _ => none
 
 def isNatLit {α} (s : Syntax α) : Option Nat :=
 isNatLitAux numLitKind s
@@ -420,9 +420,9 @@ def isFieldIdx {α} (s : Syntax α) : Option Nat :=
 isNatLitAux fieldIdxKind s
 
 def isIdOrAtom {α} : Syntax α → Option String
-| (Syntax.atom _ val)         := some val
-| (Syntax.ident _ rawVal _ _) := some rawVal.toString
-| _ := none
+| Syntax.atom _ val           => some val
+| Syntax.ident _ rawVal _ _   => some rawVal.toString
+| _ => none
 
 end Syntax
 

@@ -51,8 +51,8 @@ end x4
 namespace x5
 
 def myMap {α : Type u} {β : Type v} (f : α → β) : List α → List β
-| []      := []
-| (x::xs) := f x :: myMap xs
+| []      => []
+| x::xs   => f x :: myMap xs
 
 end x5
 
@@ -72,9 +72,9 @@ inductive S
 | v1 | v2 | v3
 
 def foo : S → S × S
-| S.v1 := (S.v2, S.v1)
-| S.v2 := (S.v3, S.v2)
-| S.v3 := (S.v1, S.v2)
+| S.v1 => (S.v2, S.v1)
+| S.v2 => (S.v3, S.v2)
+| S.v3 => (S.v1, S.v2)
 
 end x7
 

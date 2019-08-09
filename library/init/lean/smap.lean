@@ -39,22 +39,22 @@ def empty : SMap α β lt := {}
 instance : HasEmptyc (SMap α β lt) := ⟨SMap.empty⟩
 
 @[specialize] def insert : SMap α β lt → α → β → SMap α β lt
-| ⟨true, m₁, m₂⟩ k v  := ⟨true, m₁.insert k v, m₂⟩
-| ⟨false, m₁, m₂⟩ k v := ⟨false, m₁, m₂.insert k v⟩
+| ⟨true, m₁, m₂⟩, k, v  => ⟨true, m₁.insert k v, m₂⟩
+| ⟨false, m₁, m₂⟩, k, v => ⟨false, m₁, m₂.insert k v⟩
 
 @[specialize] def find : SMap α β lt → α → Option β
-| ⟨true, m₁, _⟩ k   := m₁.find k
-| ⟨false, m₁, m₂⟩ k := (m₂.find k).orelse (m₁.find k)
+| ⟨true, m₁, _⟩, k   => m₁.find k
+| ⟨false, m₁, m₂⟩, k => (m₂.find k).orelse (m₁.find k)
 
 @[specialize] def contains : SMap α β lt → α → Bool
-| ⟨true, m₁, _⟩ k   := m₁.contains k
-| ⟨false, m₁, m₂⟩ k := m₁.contains k || m₂.contains k
+| ⟨true, m₁, _⟩, k   => m₁.contains k
+| ⟨false, m₁, m₂⟩, k => m₁.contains k || m₂.contains k
 
 /- Similar to `find`, but searches for result in the hashmap first.
    So, the result is correct only if we never "overwrite" `map₁` entries using `map₂`. -/
 @[specialize] def find' : SMap α β lt → α → Option β
-| ⟨true, m₁, _⟩ k   := m₁.find k
-| ⟨false, m₁, m₂⟩ k := (m₁.find k).orelse (m₂.find k)
+| ⟨true, m₁, _⟩, k   => m₁.find k
+| ⟨false, m₁, m₂⟩, k => (m₁.find k).orelse (m₂.find k)
 
 /- Move from stage 1 into stage 2. -/
 def switch (m : SMap α β lt) : SMap α β lt :=

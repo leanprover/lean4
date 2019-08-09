@@ -21,12 +21,12 @@ section
 variables {ε : Type u} {α : Type v}
 
 protected def Except.toString [HasToString ε] [HasToString α] : Except ε α → String
-| (Except.error e) := "(error " ++ toString e ++ ")"
-| (Except.ok a)    := "(ok " ++ toString a ++ ")"
+| Except.error e   => "(error " ++ toString e ++ ")"
+| Except.ok a      => "(ok " ++ toString a ++ ")"
 
 protected def Except.repr [HasRepr ε] [HasRepr α] : Except ε α → String
-| (Except.error e) := "(error " ++ repr e ++ ")"
-| (Except.ok a)    := "(ok " ++ repr a ++ ")"
+| Except.error e   => "(error " ++ repr e ++ ")"
+| Except.ok a      => "(ok " ++ repr a ++ ")"
 
 instance [HasToString ε] [HasToString α] : HasToString (Except ε α) :=
 ⟨Except.toString⟩
@@ -42,12 +42,12 @@ variables {ε : Type u}
 Except.ok a
 
 @[inline] protected def map {α β : Type v} (f : α → β) : Except ε α → Except ε β
-| (Except.error err) := Except.error err
-| (Except.ok v) := Except.ok $ f v
+| Except.error err   => Except.error err
+| Except.ok v   => Except.ok $ f v
 
 @[inline] protected def mapError {ε' : Type u} {α : Type v} (f : ε → ε') : Except ε α → Except ε' α
-| (Except.error err) := Except.error $ f err
-| (Except.ok v) := Except.ok v
+| Except.error err   => Except.error $ f err
+| Except.ok v   => Except.ok v
 
 @[inline] protected def bind {α β : Type v} (ma : Except ε α) (f : α → Except ε β) : Except ε β :=
 match ma with
@@ -55,12 +55,12 @@ match ma with
 | (Except.ok v)      => f v
 
 @[inline] protected def toBool {α : Type v} : Except ε α → Bool
-| (Except.ok _)    := true
-| (Except.error _) := false
+| Except.ok _      => true
+| Except.error _   => false
 
 @[inline] protected def toOption {α : Type v} : Except ε α → Option α
-| (Except.ok a)    := some a
-| (Except.error _) := none
+| Except.ok a      => some a
+| Except.error _   => none
 
 @[inline] protected def catch {α : Type u} (ma : Except ε α) (handle : ε → Except ε α) : Except ε α :=
 match ma with
@@ -87,8 +87,8 @@ variables {ε : Type u} {m : Type u → Type v} [Monad m]
 ExceptT.mk $ pure (Except.ok a)
 
 @[inline] protected def bindCont {α β : Type u} (f : α → ExceptT ε m β) : Except ε α → m (Except ε β)
-| (Except.ok a)    := f a
-| (Except.error e) := pure (Except.error e)
+| Except.ok a      => f a
+| Except.error e   => pure (Except.error e)
 
 @[inline] protected def bind {α β : Type u} (ma : ExceptT ε m α) (f : α → ExceptT ε m β) : ExceptT ε m β :=
 ExceptT.mk $ ma >>= ExceptT.bindCont f
@@ -139,8 +139,8 @@ catch t₁ $ fun _ => t₂
 catch t₁ $ fun e₁ => catch t₂ $ fun e₂ => throw (if useFirstEx then e₁ else e₂)
 
 @[inline] def liftExcept {ε' : Type u} [MonadExcept ε m] [HasLiftT ε' ε] [Monad m] {α : Type v} : Except ε' α → m α
-| (Except.error e) := throw (coe e)
-| (Except.ok a)    := pure a
+| Except.error e   => throw (coe e)
+| Except.ok a      => pure a
 end MonadExcept
 
 export MonadExcept (throw catch)

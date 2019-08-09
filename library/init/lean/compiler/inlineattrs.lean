@@ -18,11 +18,11 @@ namespace InlineAttributeKind
 instance : Inhabited InlineAttributeKind := ⟨InlineAttributeKind.inline⟩
 
 protected def beq : InlineAttributeKind → InlineAttributeKind → Bool
-| inline inline := true
-| noinline noinline := true
-| macroInline macroInline := true
-| inlineIfReduce inlineIfReduce := true
-| _ _ := false
+| inline, inline => true
+| noinline, noinline => true
+| macroInline, macroInline => true
+| inlineIfReduce, inlineIfReduce => true
+| _, _ => false
 
 instance : HasBeq InlineAttributeKind := ⟨InlineAttributeKind.beq⟩
 
@@ -40,7 +40,7 @@ registerEnumAttributes `inlineAttrs
 constant inlineAttrs : EnumAttributes InlineAttributeKind := default _
 
 private partial def hasInlineAttrAux (env : Environment) (kind : InlineAttributeKind) : Name → Bool
-| n :=
+| n =>
   /- We never inline auxiliary declarations created by eager lambda lifting -/
   if isEagerLambdaLiftingName n then false
   else match inlineAttrs.getValue env n with

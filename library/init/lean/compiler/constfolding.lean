@@ -37,20 +37,20 @@ def isToNat (fn : Name) : Bool :=
 numScalarTypes.any (fun info => info.toNatFn = fn)
 
 def getInfoFromFn (fn : Name) : List NumScalarTypeInfo → Option NumScalarTypeInfo
-| []            := none
-| (info::infos) :=
+| []            => none
+| info::infos   =>
   if info.ofNatFn = fn then some info
   else getInfoFromFn infos
 
 def getInfoFromVal : Expr → Option NumScalarTypeInfo
-| (Expr.app (Expr.const fn _) _) := getInfoFromFn fn numScalarTypes
-| _ := none
+| Expr.app (Expr.const fn _) _   => getInfoFromFn fn numScalarTypes
+| _ => none
 
 @[export lean.get_num_lit_core]
 def getNumLit : Expr → Option Nat
-| (Expr.lit (Literal.natVal n))  := some n
-| (Expr.app (Expr.const fn _) a) := if isOfNat fn then getNumLit a else none
-| _                              := none
+| Expr.lit (Literal.natVal n)    => some n
+| Expr.app (Expr.const fn _) a   => if isOfNat fn then getNumLit a else none
+| _                              => none
 
 def mkUIntLit (info : NumScalarTypeInfo) (n : Nat) : Expr :=
 Expr.app (Expr.const info.ofNatFn []) (Expr.lit (Literal.natVal (n%info.size)))
@@ -126,9 +126,9 @@ def natFoldFns : List (Name × BinFoldFn) :=
  (`Nat.decLe, foldNatDecLe)]
 
 def getBoolLit : Expr → Option Bool
-| (Expr.const `Bool.true _)  := some true
-| (Expr.const `Bool.false _) := some false
-| _                          := none
+| Expr.const `Bool.true _    => some true
+| Expr.const `Bool.false _   => some false
+| _                          => none
 
 def foldStrictAnd (_ : Bool) (a₁ a₂ : Expr) : Option Expr :=
 let v₁ := getBoolLit a₁;

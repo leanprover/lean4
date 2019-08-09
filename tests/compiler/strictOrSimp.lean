@@ -1,5 +1,5 @@
 partial def spin : Nat → Bool
-| n := spin (n)
+| n => spin (n)
 
 @[inline] def C : Nat := 0
 

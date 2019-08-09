@@ -26,25 +26,25 @@ instance : Inhabited ByteArray :=
 
 @[extern cpp "lean::byte_array_push"]
 def push : ByteArray → UInt8 → ByteArray
-| ⟨bs⟩ b := ⟨bs.push b⟩
+| ⟨bs⟩, b => ⟨bs.push b⟩
 
 @[extern cpp "lean::byte_array_size"]
 def size : (@& ByteArray) → Nat
-| ⟨bs⟩ := bs.size
+| ⟨bs⟩ => bs.size
 
 @[extern cpp "lean::byte_array_get"]
 def get : (@& ByteArray) → (@& Nat) → UInt8
-| ⟨bs⟩ i := bs.get i
+| ⟨bs⟩, i => bs.get i
 
 @[extern cpp "lean::byte_array_set"]
 def set : ByteArray → (@& Nat) → UInt8 → ByteArray
-| ⟨bs⟩ i b := ⟨bs.set i b⟩
+| ⟨bs⟩, i, b => ⟨bs.set i b⟩
 
 def isEmpty (s : ByteArray) : Bool :=
 s.size == 0
 
 partial def toListAux (bs : ByteArray) : Nat → List UInt8 → List UInt8
-| i r :=
+| i, r =>
   if i < bs.size then
     toListAux (i+1) (bs.get i :: r)
   else
@@ -56,8 +56,8 @@ toListAux bs 0 []
 end ByteArray
 
 def List.toByteArrayAux : List UInt8 → ByteArray → ByteArray
-| []      r := r
-| (b::bs) r := List.toByteArrayAux bs (r.push b)
+| [],      r => r
+| b::bs,   r => List.toByteArrayAux bs (r.push b)
 
 def List.toByteArray (bs : List UInt8) : ByteArray :=
 bs.toByteArrayAux ByteArray.empty

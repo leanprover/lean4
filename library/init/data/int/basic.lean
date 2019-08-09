@@ -28,8 +28,8 @@ instance : HasZero Int := ⟨Int.zero⟩
 instance : HasOne Int  := ⟨Int.one⟩
 
 def negOfNat : Nat → Int
-| 0        := 0
-| (succ m) := negSucc m
+| 0        => 0
+| succ m   => negSucc m
 
 @[extern cpp "lean::int_neg"]
 protected def neg (n : @& Int) : Int :=
@@ -115,8 +115,8 @@ match m with
 | negSucc m => m.succ
 
 protected def repr : Int → String
-| (ofNat m)   := Nat.repr m
-| (negSucc m) := "-" ++ Nat.repr (succ m)
+| ofNat m     => Nat.repr m
+| negSucc m   => "-" ++ Nat.repr (succ m)
 
 instance : HasRepr Int :=
 ⟨Int.repr⟩
@@ -126,24 +126,24 @@ instance : HasToString Int :=
 
 @[extern cpp "lean::int_div"]
 def div : (@& Int) → (@& Int) → Int
-| (ofNat m)   (ofNat n)   := ofNat (m / n)
-| (ofNat m)   (negSucc n) := -ofNat (m / succ n)
-| (negSucc m) (ofNat n)   := -ofNat (succ m / n)
-| (negSucc m) (negSucc n) := ofNat (succ m / succ n)
+| ofNat m,     ofNat n     => ofNat (m / n)
+| ofNat m,     negSucc n   => -ofNat (m / succ n)
+| negSucc m,   ofNat n     => -ofNat (succ m / n)
+| negSucc m,   negSucc n   => ofNat (succ m / succ n)
 
 @[extern cpp "lean::int_mod"]
 def mod : (@& Int) → (@& Int) → Int
-| (ofNat m)   (ofNat n)   := ofNat (m % n)
-| (ofNat m)   (negSucc n) := ofNat (m % succ n)
-| (negSucc m) (ofNat n)   := -ofNat (succ m % n)
-| (negSucc m) (negSucc n) := -ofNat (succ m % succ n)
+| ofNat m,     ofNat n     => ofNat (m % n)
+| ofNat m,     negSucc n   => ofNat (m % succ n)
+| negSucc m,   ofNat n     => -ofNat (succ m % n)
+| negSucc m,   negSucc n   => -ofNat (succ m % succ n)
 
 instance : HasDiv Int := ⟨Int.div⟩
 instance : HasMod Int := ⟨Int.mod⟩
 
 def toNat : Int → Nat
-| (ofNat n)   := n
-| (negSucc n) := 0
+| ofNat n     => n
+| negSucc n   => 0
 
 def natMod (m n : Int) : Nat := (m % n).toNat
 

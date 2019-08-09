@@ -36,8 +36,8 @@ do let Map := RBMap Nat Nat (fun a b => a < b);
 abbrev Map := RBMap Nat Nat (fun a b => a < b)
 
 def mkRandMap (max : Nat) : Nat → Map → Array (Nat × Nat) → IO (Map × Array (Nat × Nat))
-| 0     m a := pure (m, a)
-| (n+1) m a := do
+| 0,     m, a => pure (m, a)
+| n+1,   m, a => do
   k ← IO.rand 0 max;
   v ← IO.rand 0 max;
   if m.find k == none then do

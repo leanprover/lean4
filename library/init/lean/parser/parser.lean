@@ -988,7 +988,7 @@ fun left c s =>
     s.mkError errorMsg
 
 @[inline] def symbolNoWsFn (sym : String) : ParserFn trailing :=
-symbolNoWsFnAux sym ("'" ++ sym ++ "' without whitespaces arount it")
+symbolNoWsFnAux sym ("'" ++ sym ++ "' without whitespaces around it")
 
 /- Similar to `symbol`, but succeeds only if there is no space whitespace after leading term and after `sym`. -/
 @[inline] def symbolNoWsAux (sym : String) (lbp : Option Nat) : TrailingParser :=

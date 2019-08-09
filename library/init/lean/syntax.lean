@@ -137,6 +137,15 @@ stx.asNode.getKind
   | none     => do args ← args.mmap mreplace; pure (node kind args)
 | stx := do o ← fn stx; pure (o.getOrElse stx)
 
+@[specialize] partial def mrewriteBottomUp {α} {m : Type → Type} [Monad m] (fn : Syntax α → m (Syntax α)) : Syntax α → m (Syntax α)
+| (node kind args) := do
+  args ← args.mmap mrewriteBottomUp;
+  fn (node kind args)
+| stx := fn stx
+
+@[inline] def rewriteBottomUp {α} (fn : Syntax α → Syntax α) (stx : Syntax α) : Syntax α :=
+Id.run $ stx.mrewriteBottomUp fn
+
 private def updateInfo : SourceInfo → String.Pos → SourceInfo
 | {leading := {str := s, startPos := _, stopPos := _}, pos := pos, trailing := trailing} last :=
   {leading := {str := s, startPos := last, stopPos := pos}, pos := pos, trailing := trailing}

@@ -17,7 +17,7 @@ inductive coroutineResultCore (coroutine : Type (max u v w)) (α : Type u) (δ :
 inductive coroutine (α : Type u) (δ : Type v) (β : Type w) : Type (max u v w)
 | mk    {} : (α → coroutineResultCore coroutine α δ β) → coroutine
 
-abbreviation coroutineResult (α : Type u) (δ : Type v) (β : Type w) : Type (max u v w) :=
+abbrev coroutineResult (α : Type u) (δ : Type v) (β : Type w) : Type (max u v w) :=
 coroutineResultCore (coroutine α δ β) α δ β
 
 namespace coroutine

@@ -153,6 +153,26 @@ partial def findAux [HasBeq α] : Node α β → USize → α → Option β
 def find [HasBeq α] [Hashable α] : PersistentHashMap α β → α → Option β
 | { root := n, .. }, k => findAux n (hash k) k
 
+partial def containsAtAux [HasBeq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) : Nat → α → Bool
+| i, k =>
+  if h : i < keys.size then
+    let k' := keys.fget ⟨i, h⟩;
+    if k == k' then true
+    else containsAtAux (i+1) k
+  else false
+
+partial def containsAux [HasBeq α] : Node α β → USize → α → Bool
+| Node.entries entries, h, k =>
+  let j     := (mod2Shift h shift).toNat;
+  match entries.get j with
+  | Entry.null       => false
+  | Entry.ref node   => containsAux node (div2Shift h shift) k
+  | Entry.entry k' v => k == k'
+| Node.collision keys vals heq, _, k => containsAtAux keys vals heq 0 k
+
+def contains [HasBeq α] [Hashable α] : PersistentHashMap α β → α → Bool
+| { root := n, .. }, k => containsAux n (hash k) k
+
 partial def isUnaryEntries (a : Array (Entry α β (Node α β))) : Nat → Option (α × β) → Option (α × β)
 | i, acc =>
   if h : i < a.size then

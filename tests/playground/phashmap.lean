@@ -49,6 +49,12 @@ n.mfor $ fun i =>
 def delLess (n : Nat) (m : Map) : Map :=
 n.fold (fun i m => m.erase i) m
 
+def checkContains (n : Nat) (m : Map) : IO Unit :=
+n.mfor $ fun i =>
+  match m.find i with
+  | none   => unless (!m.contains i) (IO.println "bug at contains!")
+  | some _ => unless (m.contains i) (IO.println "bug at contains!")
+
 def main (xs : List String) : IO Unit :=
 do
 let n := 500000;
@@ -56,14 +62,17 @@ let m := mkMap n;
 -- IO.println (formatMap m.root);
 IO.println m.stats;
 check n m;
+checkContains n m;
 let m := delOdd n m;
 IO.println m.stats;
 check2 n 0 m;
+checkContains n m;
 let m := delLess 499000 m;
 check2 n 499000 m;
 IO.println m.size;
 IO.println m.stats;
 let m := delLess 499900 m;
 check2 n 499900 m;
+checkContains n m;
 IO.println m.size;
 IO.println m.stats

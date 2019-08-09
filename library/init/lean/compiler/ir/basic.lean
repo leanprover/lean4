@@ -268,7 +268,7 @@ def FnBody.isTerminal : FnBody → Bool
 
 def FnBody.body : FnBody → FnBody
 | FnBody.vdecl _ _ _ b    => b
-| FnBody.jdecl _ _ _ b  => b
+| FnBody.jdecl _ _ _ b    => b
 | FnBody.set _ _ _ b      => b
 | FnBody.uset _ _ _ b     => b
 | FnBody.sset _ _ _ _ _ b => b

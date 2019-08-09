@@ -9,7 +9,7 @@ stx.rewriteBottomUp $ fun stx =>
     (fun stx =>
        let args := stx.getArgs;
        let args := args.modify 1 $ fun patterns =>
-         let patterns := patterns.asNode.updateArgs $ fun args => args.map Syntax.removeParen;
+         let patterns := patterns.asNode.modifyArgs $ fun args => args.map Syntax.removeParen;
          patterns.manyToSepBy ",";
        let args := args.modify 2 $ fun assignTk => assignTk.setAtomVal "=>";
        Syntax.node `Lean.Parser.Term.matchAlt args)

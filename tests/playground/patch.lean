@@ -1,9 +1,19 @@
 import init.lean.parser
+import init.lean.parser.transform
 open Lean
 open Lean.Parser
 
 def fixEqnSyntax (stx : Syntax) : Syntax :=
-stx
+stx.rewriteBottomUp $ fun stx =>
+  stx.ifNodeKind `Lean.Parser.Term.equation3
+    (fun stx =>
+       let args := stx.getArgs;
+       let args := args.modify 1 $ fun patterns =>
+         let patterns := patterns.asNode.updateArgs $ fun args => args.map Syntax.removeParen;
+         patterns.manyToSepBy ",";
+       let args := args.modify 2 $ fun assignTk => assignTk.setAtomVal "=>";
+       Syntax.node `Lean.Parser.Term.matchAlt args)
+    (fun _ => stx)
 
 def main (xs : List String) : IO Unit :=
 do

@@ -156,17 +156,17 @@ fun (Prod.mk x y) => f y x
  (null (Term.structInstField `fst ":=" (numLit "10")) "," (Term.structInstSource ".." (null)))
  "}")
 a[i]
-(Term.array (Term.id `a (null)) (Term.id `i (null)) "]")
+(Term.array (Term.id `a (null)) "[" (Term.id `i (null)) "]")
 f [10, 20]
 (Term.app (Term.id `f (null)) (Term.list "[" (null (numLit "10") "," (numLit "20")) "]"))
 g a[x+2]
-(Term.app (Term.id `g (null)) (Term.array (Term.id `a (null)) (Term.add (Term.id `x (null)) "+" (numLit "2")) "]"))
+(Term.app (Term.id `g (null)) (Term.array (Term.id `a (null)) "[" (Term.add (Term.id `x (null)) "+" (numLit "2")) "]"))
 g f.a.1.2.bla x.1.a
 (Term.app
  (Term.app
   (Term.id `g (null))
-  (Term.proj (Term.proj (Term.proj (Term.id `f.a (null)) (fieldIdx "1")) (fieldIdx "2")) `bla))
- (Term.proj (Term.proj (Term.id `x (null)) (fieldIdx "1")) `a))
+  (Term.proj (Term.proj (Term.proj (Term.id `f.a (null)) "." (fieldIdx "1")) "." (fieldIdx "2")) "." `bla))
+ (Term.proj (Term.proj (Term.id `x (null)) "." (fieldIdx "1")) "." `a))
 x+y*z < 10/3
 (Term.lt
  (Term.add (Term.id `x (null)) "+" (Term.mul (Term.id `y (null)) "*" (Term.id `z (null))))
@@ -364,7 +364,7 @@ let x.1 := f 10; x
 (Term.let
  "let"
  (Term.letPatDecl
-  (Term.proj (Term.id `x (null)) (fieldIdx "1"))
+  (Term.proj (Term.id `x (null)) "." (fieldIdx "1"))
   (null)
   ":="
   (Term.app (Term.id `f (null)) (numLit "10")))
@@ -374,7 +374,7 @@ let x[i].y := f 10; x
 (Term.let
  "let"
  (Term.letPatDecl
-  (Term.proj (Term.array (Term.id `x (null)) (Term.id `i (null)) "]") `y)
+  (Term.proj (Term.array (Term.id `x (null)) "[" (Term.id `i (null)) "]") "." `y)
   (null)
   ":="
   (Term.app (Term.id `f (null)) (numLit "10")))
@@ -384,7 +384,7 @@ let x[i] := f 20; x
 (Term.let
  "let"
  (Term.letPatDecl
-  (Term.array (Term.id `x (null)) (Term.id `i (null)) "]")
+  (Term.array (Term.id `x (null)) "[" (Term.id `i (null)) "]")
   (null)
   ":="
   (Term.app (Term.id `f (null)) (numLit "20")))
@@ -458,8 +458,8 @@ f 20
   (null
    (Term.typeSpec ":" (Term.arrow (Term.id `Nat (null)) "→" (Term.arrow (Term.id `Nat (null)) "→" (Term.id `Nat (null))))))
   (null
-   (Term.equation "|" (null (numLit "0") (Term.id `a (null))) ":=" (Term.add (Term.id `a (null)) "+" (numLit "10")))
-   (Term.equation
+   (Term.equation3 "|" (null (numLit "0") (Term.id `a (null))) ":=" (Term.add (Term.id `a (null)) "+" (numLit "10")))
+   (Term.equation3
     "|"
     (null (Term.paren "(" (null (Term.add (Term.id `n (null)) "+" (numLit "1")) (null)) ")") (Term.id `b (null)))
     ":="

@@ -68,6 +68,7 @@ obj* l_Lean_Parser_Command_section___closed__4;
 obj* l_Lean_Parser_Command_structExplicitBinder;
 obj* l_Lean_Parser_Command_structureTk___elambda__1___rarg___closed__7;
 obj* l_Lean_Parser_Command_openRenaming___closed__3;
+extern obj* l_Lean_Parser_Term_matchAlt___elambda__1___closed__8;
 obj* l_Lean_Parser_addBuiltinLeadingParser(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_Command_variables___elambda__1___closed__6;
 obj* l_Lean_Parser_Command_export___elambda__1(obj*, obj*, obj*);
@@ -540,7 +541,6 @@ obj* l_Lean_Parser_Command_export___elambda__1___closed__7;
 obj* l_Lean_Parser_Command_openHiding___closed__5;
 obj* l_Lean_Parser_Command_universes___elambda__1___closed__4;
 obj* l_Lean_Parser_Command_extends___elambda__1___closed__4;
-extern obj* l_Lean_Parser_Term_matchAlt___elambda__1___closed__12;
 obj* l_Lean_Parser_Term_typeSpec___elambda__1___rarg(obj*, obj*);
 obj* l_Lean_Parser_Command_instance___closed__3;
 extern obj* l_Lean_Parser_Term_typeAscription___closed__1;
@@ -8738,7 +8738,7 @@ lean::dec(x_52);
 if (x_54 == 0)
 {
 obj* x_55; obj* x_56; 
-x_55 = l_Lean_Parser_Term_matchAlt___elambda__1___closed__12;
+x_55 = l_Lean_Parser_Term_matchAlt___elambda__1___closed__8;
 x_56 = l_Lean_Parser_ParserState_mkErrorsAt(x_48, x_55, x_47);
 x_6 = x_56;
 goto block_46;
@@ -8754,7 +8754,7 @@ else
 {
 obj* x_57; obj* x_58; 
 lean::dec(x_51);
-x_57 = l_Lean_Parser_Term_matchAlt___elambda__1___closed__12;
+x_57 = l_Lean_Parser_Term_matchAlt___elambda__1___closed__8;
 x_58 = l_Lean_Parser_ParserState_mkErrorsAt(x_48, x_57, x_47);
 x_6 = x_58;
 goto block_46;
@@ -8764,7 +8764,7 @@ else
 {
 obj* x_59; obj* x_60; 
 lean::dec(x_49);
-x_59 = l_Lean_Parser_Term_matchAlt___elambda__1___closed__12;
+x_59 = l_Lean_Parser_Term_matchAlt___elambda__1___closed__8;
 x_60 = l_Lean_Parser_ParserState_mkErrorsAt(x_48, x_59, x_47);
 x_6 = x_60;
 goto block_46;

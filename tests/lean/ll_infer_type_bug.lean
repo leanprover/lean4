@@ -1,6 +1,6 @@
 def f : List Nat → Bool
-| []      := false
-| (a::as) := a > 0 && f as
+| []      => false
+| (a::as) => a > 0 && f as
 
 #check f._main._cstage2
 

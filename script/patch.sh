@@ -53,5 +53,7 @@ for leanFile in `find . -name '*.lean'`; do
     diff $leanFile $leanFile.new > /dev/null
     if [ $? -ne 0 ]; then
         echo "modified $leanFile"
+        mv $leanFile.new $leanFile
+        rm -f $leanFile.old
     fi
 done

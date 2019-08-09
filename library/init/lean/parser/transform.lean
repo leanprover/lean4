@@ -27,5 +27,21 @@ match stx with
   node k args
 | stx => stx
 
+def removeParen (stx : Syntax) : Syntax :=
+stx.ifNodeKind `Lean.Parser.Term.paren
+  (fun stx =>
+    let body := stx.getArg 1;
+    if body.getNumArgs != 2 then stx.val
+    else if (body.getArg 1).isNone then
+      let body := body.getArg 0;
+      match stx.getArg 2, body.getTailInfo with
+      | atom (some info) ")", some bodyInfo =>
+        let bodyInfoTrail := bodyInfo.trailing.toString ++ "  ";      -- add whithespaces for removed parentheses
+        let bodyInfoTrail := bodyInfoTrail ++ info.trailing.toString; -- add close paren trailing spaces
+        body.setTailInfo (some { trailing := bodyInfoTrail.toSubstring, .. bodyInfo })
+      | _, _ => stx.val
+    else stx.val)
+  (fun _ => stx)
+
 end Syntax
 end Lean

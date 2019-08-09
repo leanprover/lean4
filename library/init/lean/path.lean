@@ -79,14 +79,14 @@ do let fname := System.FilePath.normalizePath fname;
      | other => pure other
 
 def modNameToFileName : Name → String
-| Name.mkString Name.anonymous h    => h
-| Name.mkString p h                 => modNameToFileName p ++ pathSep ++ h
-| Name.anonymous                    => ""
-| Name.mkNumeral p _                => modNameToFileName p
+| Name.mkString Name.anonymous h => h
+| Name.mkString p h              => modNameToFileName p ++ pathSep ++ h
+| Name.anonymous                 => ""
+| Name.mkNumeral p _             => modNameToFileName p
 
 def addRel (baseDir : String) : Nat → String
-| 0     => baseDir
-| n+1   => addRel n ++ pathSep ++ ".."
+| 0   => baseDir
+| n+1 => addRel n ++ pathSep ++ ".."
 
 def findLeanFile (modName : Name) (ext : String) : IO String :=
 do

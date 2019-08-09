@@ -134,14 +134,14 @@ inductive ConstantInfo
 namespace ConstantInfo
 
 def toConstantVal : ConstantInfo → ConstantVal
-| defnInfo     {toConstantVal := d, ..}   => d
-| axiomInfo    {toConstantVal := d, ..}   => d
-| thmInfo      {toConstantVal := d, ..}   => d
-| opaqueInfo   {toConstantVal := d, ..}   => d
-| quotInfo     {toConstantVal := d, ..}   => d
-| inductInfo   {toConstantVal := d, ..}   => d
-| ctorInfo     {toConstantVal := d, ..}   => d
-| recInfo      {toConstantVal := d, ..}   => d
+| defnInfo     {toConstantVal := d, ..} => d
+| axiomInfo    {toConstantVal := d, ..} => d
+| thmInfo      {toConstantVal := d, ..} => d
+| opaqueInfo   {toConstantVal := d, ..} => d
+| quotInfo     {toConstantVal := d, ..} => d
+| inductInfo   {toConstantVal := d, ..} => d
+| ctorInfo     {toConstantVal := d, ..} => d
+| recInfo      {toConstantVal := d, ..} => d
 
 def name (d : ConstantInfo) : Name :=
 d.toConstantVal.name
@@ -153,18 +153,18 @@ def type (d : ConstantInfo) : Expr :=
 d.toConstantVal.type
 
 def value : ConstantInfo → Option Expr
-| defnInfo {value := r, ..}   => some r
-| thmInfo  {value := r, ..}   => some r.get
-| _                           => none
+| defnInfo {value := r, ..} => some r
+| thmInfo  {value := r, ..} => some r.get
+| _                         => none
 
 def hasValue : ConstantInfo → Bool
-| defnInfo {value := r, ..}   => true
-| thmInfo  {value := r, ..}   => true
-| _                           => false
+| defnInfo {value := r, ..} => true
+| thmInfo  {value := r, ..} => true
+| _                         => false
 
 def hints : ConstantInfo → ReducibilityHints
-| defnInfo {hints := r, ..}   => r
-| _                           => ReducibilityHints.opaque
+| defnInfo {hints := r, ..} => r
+| _                         => ReducibilityHints.opaque
 
 end ConstantInfo
 end Lean

@@ -16,10 +16,10 @@ inductive DataValue
 | ofInt    (v : Int)
 
 def DataValue.beq : DataValue → DataValue → Bool
-| DataValue.ofString s₁, DataValue.ofString s₂   => s₁ = s₂
-| DataValue.ofNat n₁,    DataValue.ofNat n₂      => n₂ = n₂
-| DataValue.ofBool b₁,   DataValue.ofBool b₂     => b₁ = b₂
-| _,                       _                     => false
+| DataValue.ofString s₁, DataValue.ofString s₂ => s₁ = s₂
+| DataValue.ofNat n₁,    DataValue.ofNat n₂    => n₂ = n₂
+| DataValue.ofBool b₁,   DataValue.ofBool b₂   => b₁ = b₂
+| _,                       _                   => false
 
 instance DataValue.HasBeq : HasBeq DataValue := ⟨DataValue.beq⟩
 

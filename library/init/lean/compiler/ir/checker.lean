@@ -70,21 +70,21 @@ unless (ys.size < decl.params.size) (throw ("too many arguments too partial appl
 checkArgs ys
 
 def checkExpr (ty : IRType) : Expr → M Unit
-| Expr.pap f ys             => checkPartialApp f ys *> checkObjType ty -- partial applications should always produce a closure object
-| Expr.ap x ys              => checkObjVar x *> checkArgs ys
-| Expr.fap f ys             => checkFullApp f ys
-| Expr.ctor c ys            => when c.isRef (checkObjType ty) *> checkArgs ys
-| Expr.reset _ x            => checkObjVar x *> checkObjType ty
-| Expr.reuse x i u ys       => checkObjVar x *> checkArgs ys *> checkObjType ty
-| Expr.box xty x            => checkObjType ty *> checkScalarVar x *> checkVarType x (fun t => t == xty)
-| Expr.unbox x              => checkScalarType ty *> checkObjVar x
-| Expr.proj _ x             => checkObjVar x *> checkObjType ty
-| Expr.uproj _ x            => checkObjVar x *> checkType ty (fun t => t == IRType.usize)
-| Expr.sproj _ _ x          => checkObjVar x *> checkScalarType ty
-| Expr.isShared x           => checkObjVar x *> checkType ty (fun t => t == IRType.uint8)
-| Expr.isTaggedPtr x        => checkObjVar x *> checkType ty (fun t => t == IRType.uint8)
-| Expr.lit (LitVal.str _)   => checkObjType ty
-| Expr.lit _                => pure ()
+| Expr.pap f ys           => checkPartialApp f ys *> checkObjType ty -- partial applications should always produce a closure object
+| Expr.ap x ys            => checkObjVar x *> checkArgs ys
+| Expr.fap f ys           => checkFullApp f ys
+| Expr.ctor c ys          => when c.isRef (checkObjType ty) *> checkArgs ys
+| Expr.reset _ x          => checkObjVar x *> checkObjType ty
+| Expr.reuse x i u ys     => checkObjVar x *> checkArgs ys *> checkObjType ty
+| Expr.box xty x          => checkObjType ty *> checkScalarVar x *> checkVarType x (fun t => t == xty)
+| Expr.unbox x            => checkScalarType ty *> checkObjVar x
+| Expr.proj _ x           => checkObjVar x *> checkObjType ty
+| Expr.uproj _ x          => checkObjVar x *> checkType ty (fun t => t == IRType.usize)
+| Expr.sproj _ _ x        => checkObjVar x *> checkScalarType ty
+| Expr.isShared x         => checkObjVar x *> checkType ty (fun t => t == IRType.uint8)
+| Expr.isTaggedPtr x      => checkObjVar x *> checkType ty (fun t => t == IRType.uint8)
+| Expr.lit (LitVal.str _) => checkObjType ty
+| Expr.lit _              => pure ()
 
 @[inline] def withParams (ps : Array Param) (k : M Unit) : M Unit :=
 do ctx ← read;
@@ -94,32 +94,32 @@ do ctx ← read;
    adaptReader (fun _ => { localCtx := localCtx, .. ctx }) k
 
 partial def checkFnBody : FnBody → M Unit
-| FnBody.vdecl x t v b      => do
+| FnBody.vdecl x t v b    => do
   checkExpr t v;
   ctx ← read;
   when (ctx.localCtx.contains x.idx) $ throw ("invalid variable declaration, shadowing is not allowed");
   adaptReader (fun (ctx : Context) => { localCtx := ctx.localCtx.addLocal x t v, .. ctx }) (checkFnBody b)
-| FnBody.jdecl j ys v b   => do
+| FnBody.jdecl j ys v b => do
   withParams ys (checkFnBody v);
   ctx ← read;
   when (ctx.localCtx.contains j.idx) $ throw ("invalid join point declaration, shadowing is not allowed");
   adaptReader (fun (ctx : Context) => { localCtx := ctx.localCtx.addJP j ys v, .. ctx }) (checkFnBody b)
-| FnBody.set x _ y b        => checkVar x *> checkArg y *> checkFnBody b
-| FnBody.uset x _ y b       => checkVar x *> checkVar y *> checkFnBody b
-| FnBody.sset x _ _ y _ b   => checkVar x *> checkVar y *> checkFnBody b
-| FnBody.setTag x _ b       => checkVar x *> checkFnBody b
-| FnBody.inc x _ _ b        => checkVar x *> checkFnBody b
-| FnBody.dec x _ _ b        => checkVar x *> checkFnBody b
-| FnBody.del x b            => checkVar x *> checkFnBody b
-| FnBody.mdata _ b          => checkFnBody b
-| FnBody.jmp j ys           => checkJP j *> checkArgs ys
-| FnBody.ret x              => checkArg x
-| FnBody.case _ x alts      => checkVar x *> alts.mfor (fun alt => checkFnBody alt.body)
-| FnBody.unreachable        => pure ()
+| FnBody.set x _ y b      => checkVar x *> checkArg y *> checkFnBody b
+| FnBody.uset x _ y b     => checkVar x *> checkVar y *> checkFnBody b
+| FnBody.sset x _ _ y _ b => checkVar x *> checkVar y *> checkFnBody b
+| FnBody.setTag x _ b     => checkVar x *> checkFnBody b
+| FnBody.inc x _ _ b      => checkVar x *> checkFnBody b
+| FnBody.dec x _ _ b      => checkVar x *> checkFnBody b
+| FnBody.del x b          => checkVar x *> checkFnBody b
+| FnBody.mdata _ b        => checkFnBody b
+| FnBody.jmp j ys         => checkJP j *> checkArgs ys
+| FnBody.ret x            => checkArg x
+| FnBody.case _ x alts    => checkVar x *> alts.mfor (fun alt => checkFnBody alt.body)
+| FnBody.unreachable      => pure ()
 
 def checkDecl : Decl → M Unit
-| Decl.fdecl f xs t b    => withParams xs (checkFnBody b)
-| Decl.extern f xs t _   => withParams xs (pure ())
+| Decl.fdecl f xs t b  => withParams xs (checkFnBody b)
+| Decl.extern f xs t _ => withParams xs (pure ())
 
 end Checker
 

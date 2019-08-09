@@ -34,12 +34,12 @@ abbrev resultOk (ε σ α : Type u) := {r : Result ε σ α // r.IsOk}
 ⟨Result.ok a s, Result.IsOk.mk a s⟩
 
 protected def Result.toString [HasToString ε] [HasToString α] : Result ε σ α → String
-| Result.ok a _      => "ok: " ++ toString a
-| Result.error e _   => "error: " ++ toString e
+| Result.ok a _    => "ok: " ++ toString a
+| Result.error e _ => "error: " ++ toString e
 
 protected def Result.repr [HasRepr ε] [HasRepr α] : Result ε σ α → String
-| Result.error e _   => "(error " ++ repr e ++ ")"
-| Result.ok a _      => "(ok " ++ repr a ++ ")"
+| Result.error e _ => "(error " ++ repr e ++ ")"
+| Result.ok a _    => "(ok " ++ repr a ++ ")"
 
 instance [HasToString ε] [HasToString α] : HasToString (Result ε σ α) := ⟨Result.toString⟩
 instance [HasRepr ε] [HasRepr α] : HasRepr (Result ε σ α) := ⟨Result.repr⟩

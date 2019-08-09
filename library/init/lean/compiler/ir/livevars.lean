@@ -47,17 +47,17 @@ abbrev M := State LocalContext
 @[inline] def visitExpr (w : Index) (e : Expr) : M Bool := pure (HasIndex.visitExpr w e)
 
 partial def visitFnBody (w : Index) : FnBody → M Bool
-| FnBody.vdecl x _ v b      => visitExpr w v <||> visitFnBody b
-| FnBody.jdecl j ys v b     => visitFnBody v <||> visitFnBody b
-| FnBody.set x _ y b        => visitVar w x <||> visitArg w y <||> visitFnBody b
-| FnBody.uset x _ y b       => visitVar w x <||> visitVar w y <||> visitFnBody b
-| FnBody.sset x _ _ y _ b   => visitVar w x <||> visitVar w y <||> visitFnBody b
-| FnBody.setTag x _ b       => visitVar w x <||> visitFnBody b
-| FnBody.inc x _ _ b        => visitVar w x <||> visitFnBody b
-| FnBody.dec x _ _ b        => visitVar w x <||> visitFnBody b
-| FnBody.del x b            => visitVar w x <||> visitFnBody b
-| FnBody.mdata _ b          => visitFnBody b
-| FnBody.jmp j ys           => visitArgs w ys <||> do {
+| FnBody.vdecl x _ v b    => visitExpr w v <||> visitFnBody b
+| FnBody.jdecl j ys v b   => visitFnBody v <||> visitFnBody b
+| FnBody.set x _ y b      => visitVar w x <||> visitArg w y <||> visitFnBody b
+| FnBody.uset x _ y b     => visitVar w x <||> visitVar w y <||> visitFnBody b
+| FnBody.sset x _ _ y _ b => visitVar w x <||> visitVar w y <||> visitFnBody b
+| FnBody.setTag x _ b     => visitVar w x <||> visitFnBody b
+| FnBody.inc x _ _ b      => visitVar w x <||> visitFnBody b
+| FnBody.dec x _ _ b      => visitVar w x <||> visitFnBody b
+| FnBody.del x b          => visitVar w x <||> visitFnBody b
+| FnBody.mdata _ b        => visitFnBody b
+| FnBody.jmp j ys         => visitArgs w ys <||> do {
     ctx ← get;
     match ctx.getJPBody j with
     | some b =>
@@ -68,9 +68,9 @@ partial def visitFnBody (w : Index) : FnBody → M Bool
       -- `j` must be a local join point. So do nothing since we have already visite its body.
       pure false
   }
-| FnBody.ret x              => visitArg w x
-| FnBody.case _ x alts      => visitVar w x <||> alts.anyM (fun alt => visitFnBody alt.body)
-| FnBody.unreachable        => pure false
+| FnBody.ret x            => visitArg w x
+| FnBody.case _ x alts    => visitVar w x <||> alts.anyM (fun alt => visitFnBody alt.body)
+| FnBody.unreachable      => pure false
 
 end IsLive
 
@@ -98,8 +98,8 @@ abbrev Collector := LiveVarSet → LiveVarSet
 @[inline] private def skip : Collector := fun s => s
 @[inline] private def collectVar (x : VarId) : Collector := fun s => s.insert x
 private def collectArg : Arg → Collector
-| Arg.var x   => collectVar x
-| irrelevant  => skip
+| Arg.var x  => collectVar x
+| irrelevant => skip
 @[specialize] private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector :=
 fun s => as.foldl (fun s a => f a s) s
 private def collectArgs (as : Array Arg) : Collector :=
@@ -116,20 +116,20 @@ private def bindParams (ps : Array Param) : Collector :=
 fun s => ps.foldl (fun s p => s.erase p.x) s
 
 def collectExpr : Expr → Collector
-| Expr.ctor _ ys         => collectArgs ys
-| Expr.reset _ x         => collectVar x
-| Expr.reuse x _ _ ys    => collectVar x ∘ collectArgs ys
-| Expr.proj _ x          => collectVar x
-| Expr.uproj _ x         => collectVar x
-| Expr.sproj _ _ x       => collectVar x
-| Expr.fap _ ys          => collectArgs ys
-| Expr.pap _ ys          => collectArgs ys
-| Expr.ap x ys           => collectVar x ∘ collectArgs ys
-| Expr.box _ x           => collectVar x
-| Expr.unbox x           => collectVar x
-| Expr.lit v             => skip
-| Expr.isShared x        => collectVar x
-| Expr.isTaggedPtr x     => collectVar x
+| Expr.ctor _ ys      => collectArgs ys
+| Expr.reset _ x      => collectVar x
+| Expr.reuse x _ _ ys => collectVar x ∘ collectArgs ys
+| Expr.proj _ x       => collectVar x
+| Expr.uproj _ x      => collectVar x
+| Expr.sproj _ _ x    => collectVar x
+| Expr.fap _ ys       => collectArgs ys
+| Expr.pap _ ys       => collectArgs ys
+| Expr.ap x ys        => collectVar x ∘ collectArgs ys
+| Expr.box _ x        => collectVar x
+| Expr.unbox x        => collectVar x
+| Expr.lit v          => skip
+| Expr.isShared x     => collectVar x
+| Expr.isTaggedPtr x  => collectVar x
 
 partial def collectFnBody : FnBody → JPLiveVarMap → Collector
 | FnBody.vdecl x _ v b,    m => collectExpr v ∘ collectFnBody b m ∘ bindVar x

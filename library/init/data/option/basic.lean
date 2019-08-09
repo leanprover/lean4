@@ -20,20 +20,20 @@ def toMonad {m : Type → Type} [Monad m] [Alternative m] {A} : Option A → m A
 | none,   e => e
 
 @[inline] def get {α : Type u} [Inhabited α] : Option α → α
-| some x   => x
-| none     => default α
+| some x => x
+| none   => default α
 
 @[inline] def toBool {α : Type u} : Option α → Bool
-| some _   => true
-| none     => false
+| some _ => true
+| none   => false
 
 @[inline] def isSome {α : Type u} : Option α → Bool
-| some _   => true
-| none     => false
+| some _ => true
+| none   => false
 
 @[inline] def isNone {α : Type u} : Option α → Bool
-| some _   => false
-| none     => true
+| some _ => false
+| none   => true
 
 @[inline] protected def bind {α : Type u} {β : Type v} : Option α → (α → Option β) → Option β
 | none,   b => none
@@ -49,8 +49,8 @@ instance : Monad Option :=
 {pure := @some, bind := @Option.bind, map := @Option.map}
 
 @[macroInline] protected def orelse {α : Type u} : Option α → Option α → Option α
-| some a, _  => some a
-| none,   b  => b
+| some a, _ => some a
+| none,   b => b
 
 /- Remark: when using the polymorphic notation `a <|> b` is not a `[macroInline]`.
    Thus, `a <|> b` will make `Option.orelse` to behave like it was marked as `[inline]`. -/
@@ -60,15 +60,15 @@ instance : Alternative Option :=
   ..Option.Monad }
 
 @[inline] protected def lt {α : Type u} (r : α → α → Prop) : Option α → Option α → Prop
-| none, some x       => True
-| some x,   some y   => r x y
-| _, _               => False
+| none, some x     => True
+| some x,   some y => r x y
+| _, _             => False
 
 instance decidableRelLt {α : Type u} (r : α → α → Prop) [s : DecidableRel r] : DecidableRel (Option.lt r)
-| none,   some y   => isTrue  trivial
-| some x, some y   => s x y
-| some x, none     => isFalse notFalse
-| none,   none     => isFalse notFalse
+| none,   some y => isTrue  trivial
+| some x, some y => s x y
+| some x, none   => isFalse notFalse
+| none,   none   => isFalse notFalse
 
 end Option
 

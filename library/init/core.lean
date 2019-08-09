@@ -395,8 +395,8 @@ attribute [matchPattern] HasZero.zero HasOne.one bit0 bit1 HasAdd.add HasNeg.neg
 /- Nat basic instances -/
 @[extern cpp "lean::nat_add"]
 protected def Nat.add : (@& Nat) → (@& Nat) → Nat
-| a, Nat.zero     => a
-| a, Nat.succ b   => Nat.succ (Nat.add a b)
+| a, Nat.zero   => a
+| a, Nat.succ b => Nat.succ (Nat.add a b)
 
 /- We mark the following definitions as pattern to make sure they can be used in recursive equations,
    and reduced by the equation Compiler. -/
@@ -474,15 +474,15 @@ instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (
 ⟨Prod.sizeof⟩
 
 protected def Sum.sizeof {α : Type u} {β : Type v} [HasSizeof α] [HasSizeof β] : (Sum α β) → Nat
-| Sum.inl a   => 1 + sizeof a
-| Sum.inr b   => 1 + sizeof b
+| Sum.inl a => 1 + sizeof a
+| Sum.inr b => 1 + sizeof b
 
 instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (Sum α β) :=
 ⟨Sum.sizeof⟩
 
 protected def PSum.sizeof {α : Type u} {β : Type v} [HasSizeof α] [HasSizeof β] : (PSum α β) → Nat
-| PSum.inl a   => 1 + sizeof a
-| PSum.inr b   => 1 + sizeof b
+| PSum.inl a => 1 + sizeof a
+| PSum.inr b => 1 + sizeof b
 
 instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (PSum α β) :=
 ⟨PSum.sizeof⟩
@@ -510,15 +510,15 @@ protected def Bool.sizeof : Bool → Nat
 instance : HasSizeof Bool := ⟨Bool.sizeof⟩
 
 protected def Option.sizeof {α : Type u} [HasSizeof α] : Option α → Nat
-| none     => 1
-| some a   => 1 + sizeof a
+| none   => 1
+| some a => 1 + sizeof a
 
 instance (α : Type u) [HasSizeof α] : HasSizeof (Option α) :=
 ⟨Option.sizeof⟩
 
 protected def List.sizeof {α : Type u} [HasSizeof α] : List α → Nat
-| List.nil        => 1
-| List.cons a l   => 1 + sizeof a + List.sizeof l
+| List.nil      => 1
+| List.cons a l => 1 + sizeof a + List.sizeof l
 
 instance (α : Type u) [HasSizeof α] : HasSizeof (List α) :=
 ⟨List.sizeof⟩
@@ -544,12 +544,12 @@ theorem optParamEq (α : Sort u) (default : α) : optParam α default = α := rf
 | false, x, y => y
 
 @[macroInline] def or : Bool → Bool → Bool
-| true,  _  => true
-| false, b  => b
+| true,  _ => true
+| false, b => b
 
 @[macroInline] def and : Bool → Bool → Bool
-| false, _  => false
-| true,  b  => b
+| false, _ => false
+| true,  b => b
 
 @[macroInline] def not : Bool → Bool
 | true  => false
@@ -988,7 +988,7 @@ up :: (down : α)
 namespace ULift
 /- Bijection between α and ULift.{v} α -/
 theorem upDown {α : Type u} : ∀ (b : ULift.{v} α), up (down b) = b
-| up a   => rfl
+| up a => rfl
 
 theorem downUp {α : Type u} (a : α) : down (up.{v} a) = a := rfl
 end ULift
@@ -1000,7 +1000,7 @@ up :: (down : α)
 namespace PLift
 /- Bijection between α and PLift α -/
 theorem upDown {α : Sort u} : ∀ (b : PLift α), up (down b) = b
-| up a   => rfl
+| up a => rfl
 
 theorem downUp {α : Sort u} (a : α) : down (up a) = a := rfl
 end PLift

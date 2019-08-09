@@ -186,8 +186,8 @@ variable {β : Type v}
 do b ← mfoldlAux f t.root b; t.tail.mfoldl f b
 
 @[specialize] partial def mfindAux (f : α → m (Option β)) : PersistentArrayNode α → m (Option β)
-| node cs   => cs.mfind (fun c => mfindAux c)
-| leaf vs   => vs.mfind f
+| node cs => cs.mfind (fun c => mfindAux c)
+| leaf vs => vs.mfind f
 
 @[specialize] def mfind (t : PersistentArray α) (f : α → m (Option β)) : m (Option β) :=
 do b ← mfindAux f t.root;
@@ -196,8 +196,8 @@ do b ← mfindAux f t.root;
    | some b => pure (some b)
 
 @[specialize] partial def mfindRevAux (f : α → m (Option β)) : PersistentArrayNode α → m (Option β)
-| node cs   => cs.mfindRev (fun c => mfindRevAux c)
-| leaf vs   => vs.mfindRev f
+| node cs => cs.mfindRev (fun c => mfindRevAux c)
+| leaf vs => vs.mfindRev f
 
 @[specialize] def mfindRev (t : PersistentArray α) (f : α → m (Option β)) : m (Option β) :=
 do b ← t.tail.mfindRev f;
@@ -220,8 +220,8 @@ else do
   t.tail.mfoldl f b
 
 @[specialize] partial def mforAux (f : α → m β) : PersistentArrayNode α → m PUnit
-| node cs   => cs.mfor (fun c => mforAux c)
-| leaf vs   => vs.mfor f
+| node cs => cs.mfor (fun c => mforAux c)
+| leaf vs => vs.mfor f
 
 @[specialize] def mfor (t : PersistentArray α) (f : α → m β) : m PUnit :=
 mforAux f t.root *> t.tail.mfor f
@@ -248,8 +248,8 @@ variables {m : Type u → Type v} [Monad m]
 variable {β : Type u}
 
 @[specialize] partial def mmapAux (f : α → m β) : PersistentArrayNode α → m (PersistentArrayNode β)
-| node cs   => node <$> cs.mmap (fun c => mmapAux c)
-| leaf vs   => leaf <$> vs.mmap f
+| node cs => node <$> cs.mmap (fun c => mmapAux c)
+| leaf vs => leaf <$> vs.mmap f
 
 @[specialize] def mmap (f : α → m β) (t : PersistentArray α) : m (PersistentArray β) :=
 do

@@ -39,14 +39,14 @@ instance : Hashable Name :=
 ⟨Name.hash⟩
 
 def getPrefix : Name → Name
-| anonymous       => anonymous
-| mkString p s    => p
-| mkNumeral p s   => p
+| anonymous     => anonymous
+| mkString p s  => p
+| mkNumeral p s => p
 
 def getNumParts : Name → Nat
-| anonymous       => 0
-| mkString p _    => getNumParts p + 1
-| mkNumeral p _   => getNumParts p + 1
+| anonymous     => 0
+| mkString p _  => getNumParts p + 1
+| mkNumeral p _ => getNumParts p + 1
 
 def updatePrefix : Name → Name → Name
 | anonymous,     newP => anonymous
@@ -54,34 +54,34 @@ def updatePrefix : Name → Name → Name
 | mkNumeral p s, newP => mkNumeral newP s
 
 def components' : Name → List Name
-| anonymous               => []
-| mkString n s            => mkString anonymous s :: components' n
-| mkNumeral n v           => mkNumeral anonymous v :: components' n
+| anonymous     => []
+| mkString n s  => mkString anonymous s :: components' n
+| mkNumeral n v => mkNumeral anonymous v :: components' n
 
 def components (n : Name) : List Name :=
 n.components'.reverse
 
 @[extern "lean_name_dec_eq"]
 protected def decEq : ∀ (a b : @& Name), Decidable (a = b)
-| anonymous,        anonymous          => isTrue rfl
-| mkString p₁ s₁,  mkString p₂ s₂    =>
+| anonymous,        anonymous        => isTrue rfl
+| mkString p₁ s₁,  mkString p₂ s₂  =>
   if h₁ : s₁ = s₂ then
     match decEq p₁ p₂ with
     | isTrue h₂  => isTrue $ h₁ ▸ h₂ ▸ rfl
     | isFalse h₂ => isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hp h₂
   else isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hs h₁
-| mkNumeral p₁ n₁, mkNumeral p₂ n₂   =>
+| mkNumeral p₁ n₁, mkNumeral p₂ n₂ =>
   if h₁ : n₁ = n₂ then
     match decEq p₁ p₂ with
     | isTrue h₂  => isTrue $ h₁ ▸ h₂ ▸ rfl
     | isFalse h₂ => isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hp h₂
   else isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hs h₁
-| anonymous,       mkString _ _      => isFalse $ fun h => Name.noConfusion h
-| anonymous,       mkNumeral _ _     => isFalse $ fun h => Name.noConfusion h
-| mkString _ _,    anonymous         => isFalse $ fun h => Name.noConfusion h
-| mkString _ _,    mkNumeral _ _     => isFalse $ fun h => Name.noConfusion h
-| mkNumeral _ _,   anonymous         => isFalse $ fun h => Name.noConfusion h
-| mkNumeral _ _,   mkString _ _      => isFalse $ fun h => Name.noConfusion h
+| anonymous,       mkString _ _    => isFalse $ fun h => Name.noConfusion h
+| anonymous,       mkNumeral _ _   => isFalse $ fun h => Name.noConfusion h
+| mkString _ _,    anonymous       => isFalse $ fun h => Name.noConfusion h
+| mkString _ _,    mkNumeral _ _   => isFalse $ fun h => Name.noConfusion h
+| mkNumeral _ _,   anonymous       => isFalse $ fun h => Name.noConfusion h
+| mkNumeral _ _,   mkString _ _    => isFalse $ fun h => Name.noConfusion h
 
 instance : DecidableEq Name :=
 {decEq := Name.decEq}
@@ -120,12 +120,12 @@ def isPrefixOf : Name → Name → Bool
 | p, n@(mkString p' _)  => p == n || isPrefixOf p p'
 
 def quickLtCore : Name → Name → Bool
-| anonymous,      anonymous          => false
-| anonymous,      _                  => true
-| mkNumeral n v, mkNumeral n' v'     => v < v' || (v = v' && n.quickLtCore n')
-| mkNumeral _ _, mkString _ _        => true
-| mkString n s,  mkString n' s'      => s < s' || (s = s' && n.quickLtCore n')
-| _,              _                  => false
+| anonymous,      anonymous      => false
+| anonymous,      _              => true
+| mkNumeral n v, mkNumeral n' v' => v < v' || (v = v' && n.quickLtCore n')
+| mkNumeral _ _, mkString _ _    => true
+| mkString n s,  mkString n' s'  => s < s' || (s = s' && n.quickLtCore n')
+| _,              _              => false
 
 def quickLt (n₁ n₂ : Name) : Bool :=
 if n₁.hash < n₂.hash then true
@@ -140,11 +140,11 @@ else quickLtCore n₁ n₂
 inferInstanceAs (DecidableRel (fun a b => Name.quickLt a b = true))
 
 def toStringWithSep (sep : String) : Name → String
-| anonymous               => "[anonymous]"
-| mkString anonymous s    => s
-| mkNumeral anonymous v   => toString v
-| mkString n s            => toStringWithSep n ++ sep ++ s
-| mkNumeral n v           => toStringWithSep n ++ sep ++ repr v
+| anonymous             => "[anonymous]"
+| mkString anonymous s  => s
+| mkNumeral anonymous v => toString v
+| mkString n s          => toStringWithSep n ++ sep ++ s
+| mkNumeral n v         => toStringWithSep n ++ sep ++ repr v
 
 protected def toString : Name → String :=
 toStringWithSep "."

@@ -25,10 +25,10 @@ fun m => match v with
  | _                => m
 
 partial def collectFnBody : FnBody → Collector
-| FnBody.vdecl x _ v b    => collectVDecl x v ∘ collectFnBody b
-| FnBody.jdecl _ _ v b    => collectFnBody v ∘ collectFnBody b
-| FnBody.case _ _ alts    => fun s => alts.foldl (fun s alt => collectFnBody alt.body s) s
-| e                       => if e.isTerminal then id else collectFnBody e.body
+| FnBody.vdecl x _ v b => collectVDecl x v ∘ collectFnBody b
+| FnBody.jdecl _ _ v b => collectFnBody v ∘ collectFnBody b
+| FnBody.case _ _ alts => fun s => alts.foldl (fun s alt => collectFnBody alt.body s) s
+| e                    => if e.isTerminal then id else collectFnBody e.body
 end CollectProjMap
 
 /- Create a mapping from variables to projections.

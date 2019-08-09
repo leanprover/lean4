@@ -36,8 +36,8 @@ fun n => do
     | none        => { scopes := { cmd := "section", header := Name.anonymous, ns := ns } :: s.scopes, .. s }
 
 private def getNumEndScopes : Option Name → Nat
-| none     => 1
-| some n   => n.getNumParts
+| none   => 1
+| some n => n.getNumParts
 
 private def checkAnonymousScope : List ElabScope → Bool
 | { header := Name.anonymous, .. } :: _   => true

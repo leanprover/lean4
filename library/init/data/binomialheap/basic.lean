@@ -23,8 +23,8 @@ variables {α : Type u}
 instance : Inhabited (Heap α) := ⟨Heap.empty⟩
 
 def hRank : List (HeapNode α) → Nat
-| []     => 0
-| h::_   => h.rank
+| []   => 0
+| h::_ => h.rank
 
 def isEmpty : Heap α → Bool
 | Heap.empty => true
@@ -54,42 +54,42 @@ else
       if r != hRank t₂ then mergeNodes t₁ (merged :: t₂) else merged :: mergeNodes t₁ t₂
 
 @[specialize] def merge (lt : α → α → Bool) : Heap α → Heap α → Heap α
-| Heap.empty,    h             => h
-| h,             Heap.empty    => h
-| Heap.heap h₁, Heap.heap h₂   => Heap.heap (mergeNodes lt h₁ h₂)
+| Heap.empty,    h           => h
+| h,             Heap.empty  => h
+| Heap.heap h₁, Heap.heap h₂ => Heap.heap (mergeNodes lt h₁ h₂)
 
 @[specialize] def headOpt (lt : α → α → Bool) : Heap α → Option α
-| Heap.empty    => none
-| Heap.heap h   => h.foldl
+| Heap.empty  => none
+| Heap.heap h => h.foldl
   (fun r n => match r with
    | none   => n.val
    | some v => if lt v n.val then v else n.val) none
 
 /- O(log n) -/
 @[specialize] def head [Inhabited α] (lt : α → α → Bool) : Heap α → α
-| Heap.empty          => default α
-| Heap.heap []        => default α
-| Heap.heap (h::hs)   => hs.foldl (fun r n => if lt r n.val then r else n.val) h.val
+| Heap.empty        => default α
+| Heap.heap []      => default α
+| Heap.heap (h::hs) => hs.foldl (fun r n => if lt r n.val then r else n.val) h.val
 
 @[specialize] def findMin (lt : α → α → Bool) : List (HeapNode α) → Nat → HeapNode α × Nat → HeapNode α × Nat
 | [],    _,   r          => r
 | h::hs, idx, (h', idx') => if lt h.val h'.val then findMin hs (idx+1) (h, idx) else findMin hs (idx+1) (h', idx')
 
 def tail (lt : α → α → Bool) : Heap α → Heap α
-| Heap.empty          => Heap.empty
-| Heap.heap []        => Heap.empty
-| Heap.heap [h]       =>
+| Heap.empty        => Heap.empty
+| Heap.heap []      => Heap.empty
+| Heap.heap [h]     =>
   match h.children with
   | []      => Heap.empty
   | (h::hs) => hs.foldl (merge lt) h
-| Heap.heap hhs@(h::hs)   =>
+| Heap.heap hhs@(h::hs) =>
   let (min, minIdx) := findMin lt hs 1 (h, 0);
   let rest          := hhs.eraseIdx minIdx;
   min.children.foldl (merge lt) (Heap.heap rest)
 
 partial def toList (lt : α → α → Bool) : Heap α → List α
-| Heap.empty     => []
-| h              => match headOpt lt h with
+| Heap.empty => []
+| h          => match headOpt lt h with
   | none   => []
   | some a => a :: toList (tail lt h)
 

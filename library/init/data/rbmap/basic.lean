@@ -21,41 +21,41 @@ variables {α : Type u} {β : α → Type v} {σ : Type w}
 open Rbcolor Nat
 
 def depth (f : Nat → Nat → Nat) : RBNode α β → Nat
-| leaf               => 0
-| node _ l _ _ r     => succ (f (depth l) (depth r))
+| leaf           => 0
+| node _ l _ _ r => succ (f (depth l) (depth r))
 
 protected def min : RBNode α β → Option (Sigma (fun k => β k))
-| leaf                  => none
-| node _ leaf k v _     => some ⟨k, v⟩
-| node _ l k v _        => min l
+| leaf              => none
+| node _ leaf k v _ => some ⟨k, v⟩
+| node _ l k v _    => min l
 
 protected def max : RBNode α β → Option (Sigma (fun k => β k))
-| leaf                  => none
-| node _ _ k v leaf     => some ⟨k, v⟩
-| node _ _ k v r        => max r
+| leaf              => none
+| node _ _ k v leaf => some ⟨k, v⟩
+| node _ _ k v r    => max r
 
 @[specialize] def fold (f : σ → ∀ (k : α), β k → σ) : σ → RBNode α β → σ
-| b, leaf             => b
-| b, node _ l k v r   => fold (f (fold b l) k v) r
+| b, leaf           => b
+| b, node _ l k v r => fold (f (fold b l) k v) r
 
 @[specialize] def mfold {m : Type w → Type w'} [Monad m] (f : σ → ∀ (k : α), β k → m σ) : σ → RBNode α β → m σ
-| b, leaf             => pure b
-| b, node _ l k v r   => do
+| b, leaf           => pure b
+| b, node _ l k v r => do
   b ← mfold b l;
   b ← f b k v;
   mfold b r
 
 @[specialize] def revFold (f : σ → ∀ (k : α), β k → σ) : σ → RBNode α β → σ
-| b, leaf               => b
-| b, node _ l k v r     => revFold (f (revFold b r) k v) l
+| b, leaf           => b
+| b, node _ l k v r => revFold (f (revFold b r) k v) l
 
 @[specialize] def all (p : ∀ k, β k → Bool) : RBNode α β → Bool
-| leaf                 => true
-| node _ l k v r       => p k v && all l && all r
+| leaf           => true
+| node _ l k v r => p k v && all l && all r
 
 @[specialize] def any (p : ∀ k, β k → Bool) : RBNode α β → Bool
-| leaf                 => false
-| node _ l k v r     => p k v || any l || any r
+| leaf             => false
+| node _ l k v r => p k v || any l || any r
 
 def singleton (k : α) (v : β k) : RBNode α β :=
 node red leaf k v leaf
@@ -67,18 +67,18 @@ node red leaf k v leaf
 | _,  _,  _,                                       _ => leaf -- unreachable
 
 @[inline] def balance2 : RBNode α β → ∀ a, β a → RBNode α β → RBNode α β
-| t, kv, vv, node _ (node red l kx₁ vx₁ r₁) ky vy r₂    => node red (node black t kv vv l) kx₁ vx₁ (node black r₁ ky vy r₂)
-| t, kv, vv, node _ l₁ ky vy (node red l₂ kx₂ vx₂ r₂)   => node red (node black t kv vv l₁) ky vy (node black l₂ kx₂ vx₂ r₂)
-| t, kv, vv, node _ l ky vy r                           => node black t kv vv (node red l ky vy r)
-| _, _,  _,                                        _    => leaf -- unreachable
+| t, kv, vv, node _ (node red l kx₁ vx₁ r₁) ky vy r₂  => node red (node black t kv vv l) kx₁ vx₁ (node black r₁ ky vy r₂)
+| t, kv, vv, node _ l₁ ky vy (node red l₂ kx₂ vx₂ r₂) => node red (node black t kv vv l₁) ky vy (node black l₂ kx₂ vx₂ r₂)
+| t, kv, vv, node _ l ky vy r                         => node black t kv vv (node red l ky vy r)
+| _, _,  _,                                        _  => leaf -- unreachable
 
 def isRed : RBNode α β → Bool
-| node red _ _ _ _   => true
-| _                  => false
+| node red _ _ _ _ => true
+| _                => false
 
 def isBlack : RBNode α β → Bool
-| node black _ _ _ _   => true
-| _                    => false
+| node black _ _ _ _ => true
+| _                  => false
 
 section Insert
 
@@ -101,8 +101,8 @@ variables (lt : α → α → Bool)
        node black a kx vx b
 
 def setBlack : RBNode α β → RBNode α β
-| node _ l k v r   => node black l k v r
-| e                => e
+| node _ l k v r => node black l k v r
+| e              => e
 
 @[specialize] def insert (t : RBNode α β) (k : α) (v : β k) : RBNode α β :=
 if isRed t then setBlack (ins lt t k v)
@@ -118,14 +118,14 @@ def balance₃ : RBNode α β → ∀ k, β k → RBNode α β → RBNode α β
 | l, k, v, r                                       => node black l k v r
 
 def setRed : RBNode α β → RBNode α β
-| node _ a k v b   => node red a k v b
-| e                => e
+| node _ a k v b => node red a k v b
+| e              => e
 
 def balLeft : RBNode α β → ∀ k, β k → RBNode α β → RBNode α β
-| node red a kx vx b,   k, v, r                      => node red (node black a kx vx b) k v r
-| l, k, v, node black a ky vy b                      => balance₃ l k v (node red a ky vy b)
-| l, k, v, node red (node black a ky vy b) kz vz c   => node red (node black l k v a) ky vy (balance₃ b kz vz (setRed c))
-| l, k, v, r                                         => node red l k v r -- unreachable
+| node red a kx vx b,   k, v, r                    => node red (node black a kx vx b) k v r
+| l, k, v, node black a ky vy b                    => balance₃ l k v (node red a ky vy b)
+| l, k, v, node red (node black a ky vy b) kz vz c => node red (node black l k v a) ky vy (balance₃ b kz vz (setRed c))
+| l, k, v, r                                       => node red l k v r -- unreachable
 
 def balRight (l : RBNode α β) (k : α) (v : β k) (r : RBNode α β) : RBNode α β :=
 match r with
@@ -155,8 +155,8 @@ section Erase
 variables (lt : α → α → Bool)
 
 @[specialize] def del (x : α) : RBNode α β → RBNode α β
-| leaf             => leaf
-| node _ a y v b   =>
+| leaf           => leaf
+| node _ a y v b =>
   if lt x y then
     if a.isBlack then balLeft (del a) y v b
     else node red (del a) y v b
@@ -267,8 +267,8 @@ instance [HasRepr α] [HasRepr β] : HasRepr (RBMap α β lt) :=
 | ⟨t, w⟩, k => ⟨t.erase lt k, WellFormed.eraseWff w rfl⟩
 
 @[specialize] def ofList : List (α × β) → RBMap α β lt
-| []          => mkRBMap _ _ _
-| ⟨k,v⟩::xs   => (ofList xs).insert k v
+| []        => mkRBMap _ _ _
+| ⟨k,v⟩::xs => (ofList xs).insert k v
 
 @[inline] def findCore : RBMap α β lt → α → Option (Sigma (fun (k : α) => β))
 | ⟨t, _⟩, x => t.findCore lt x

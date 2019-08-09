@@ -11,10 +11,10 @@ namespace Nat
 
 @[extern cpp "lean::nat_dec_eq"]
 def beq : Nat → Nat → Bool
-| zero,   zero     => true
-| zero,   succ m   => false
-| succ n, zero     => false
-| succ n, succ m   => beq n m
+| zero,   zero   => true
+| zero,   succ m => false
+| succ n, zero   => false
+| succ n, succ m => beq n m
 
 theorem eqOfBeqEqTt : ∀ {n m : Nat}, beq n m = true → n = m
 | zero,   zero,   h => rfl
@@ -44,10 +44,10 @@ else isFalse (neOfBeqEqFf (eqFalseOfNeTrue h))
 
 @[extern cpp "lean::nat_dec_le"]
 def ble : Nat → Nat → Bool
-| zero,   zero     => true
-| zero,   succ m   => true
-| succ n, zero     => false
-| succ n, succ m   => ble n m
+| zero,   zero   => true
+| zero,   succ m => true
+| succ n, zero   => false
+| succ n, succ m => ble n m
 
 protected def le (n m : Nat) : Prop :=
 ble n m = true
@@ -63,18 +63,18 @@ instance : HasLess Nat :=
 
 @[extern cpp inline "lean::nat_sub(#1, lean::box(1))"]
 def pred : Nat → Nat
-| 0     => 0
-| a+1   => a
+| 0   => 0
+| a+1 => a
 
 @[extern cpp "lean::nat_sub"]
 protected def sub : (@& Nat) → (@& Nat) → Nat
-| a, 0     => a
-| a, b+1   => pred (sub a b)
+| a, 0   => a
+| a, b+1 => pred (sub a b)
 
 @[extern cpp "lean::nat_mul"]
 protected def mul : (@& Nat) → (@& Nat) → Nat
-| a, 0     => 0
-| a, b+1   => (mul a b) + a
+| a, 0   => 0
+| a, b+1 => (mul a b) + a
 
 instance : HasSub Nat :=
 ⟨Nat.sub⟩
@@ -90,8 +90,8 @@ instance : HasMul Nat :=
 foldAux f n n a
 
 @[specialize] def anyAux (f : Nat → Bool) (s : Nat) : Nat → Bool
-| 0         => false
-| succ n    => f (s - (succ n)) || anyAux n
+| 0      => false
+| succ n => f (s - (succ n)) || anyAux n
 
 /- `any f n = true` iff there is `i in [0, n-1]` s.t. `f i = true` -/
 @[inline] def any (f : Nat → Bool) (n : Nat) : Bool :=
@@ -108,8 +108,8 @@ anyAux f n n
 repeatAux f n a
 
 protected def pow (m : Nat) : Nat → Nat
-| 0        => 1
-| succ n   => pow n * m
+| 0      => 1
+| succ n => pow n * m
 
 instance : HasPow Nat Nat :=
 ⟨Nat.pow⟩
@@ -117,12 +117,12 @@ instance : HasPow Nat Nat :=
 /- Nat.add theorems -/
 
 protected theorem zeroAdd : ∀ (n : Nat), 0 + n = n
-| 0     => rfl
-| n+1   => congrArg succ (zeroAdd n)
+| 0   => rfl
+| n+1 => congrArg succ (zeroAdd n)
 
 theorem succAdd : ∀ (n m : Nat), (succ n) + m = succ (n + m)
-| n, 0     => rfl
-| n, m+1   => congrArg succ (succAdd n m)
+| n, 0   => rfl
+| n, m+1 => congrArg succ (succAdd n m)
 
 theorem addSucc (n m : Nat) : n + succ m = succ (n + m) :=
 rfl
@@ -137,14 +137,14 @@ theorem succEqAddOne (n : Nat) : succ n = n + 1 :=
 rfl
 
 protected theorem addComm : ∀ (n m : Nat), n + m = m + n
-| n, 0     => Eq.symm (Nat.zeroAdd n)
-| n, m+1   =>
+| n, 0   => Eq.symm (Nat.zeroAdd n)
+| n, m+1 =>
   suffices succ (n + m) = succ (m + n) from Eq.symm (succAdd m n) ▸ this;
   congrArg succ (addComm n m)
 
 protected theorem addAssoc : ∀ (n m k : Nat), (n + m) + k = n + (m + k)
-| n, m, 0        => rfl
-| n, m, succ k   => congrArg succ (addAssoc n m k)
+| n, m, 0      => rfl
+| n, m, succ k => congrArg succ (addAssoc n m k)
 
 protected theorem addLeftComm : ∀ (n m k : Nat), n + (m + k) = m + (n + k) :=
 leftComm Nat.add Nat.addComm Nat.addAssoc
@@ -173,19 +173,19 @@ theorem mulSucc (n m : Nat) : n * succ m = n * m + n :=
 rfl
 
 protected theorem zeroMul : ∀ (n : Nat), 0 * n = 0
-| 0        => rfl
-| succ n   => (mulSucc 0 n).symm ▸ (zeroMul n).symm ▸ rfl
+| 0      => rfl
+| succ n => (mulSucc 0 n).symm ▸ (zeroMul n).symm ▸ rfl
 
 theorem succMul : ∀ (n m : Nat), (succ n) * m = (n * m) + m
-| n, 0        => rfl
-| n, succ m   =>
+| n, 0      => rfl
+| n, succ m =>
   have succ (n * m + m + n) = succ (n * m + n + m) from
     congrArg succ (Nat.addRightComm _ _ _);
   (mulSucc n m).symm ▸ (mulSucc (succ n) m).symm ▸ (succMul n m).symm ▸ this
 
 protected theorem mulComm : ∀ (n m : Nat), n * m = m * n
-| n, 0        => (Nat.zeroMul n).symm ▸ (Nat.mulZero n).symm ▸ rfl
-| n, succ m   => (mulSucc n m).symm ▸ (succMul m n).symm ▸ (mulComm n m).symm ▸ rfl
+| n, 0      => (Nat.zeroMul n).symm ▸ (Nat.mulZero n).symm ▸ rfl
+| n, succ m => (mulSucc n m).symm ▸ (succMul m n).symm ▸ (mulComm n m).symm ▸ rfl
 
 protected theorem mulOne : ∀ (n : Nat), n * 1 = n :=
 Nat.zeroAdd
@@ -213,8 +213,8 @@ have h₄ : n * k + k * m = n * k + m * k from Nat.mulComm m k ▸ rfl;
 ((h₁.trans h₂).trans h₃).trans h₄
 
 protected theorem mulAssoc : ∀ (n m k : Nat), (n * m) * k = n * (m * k)
-| n, m, 0        => rfl
-| n, m, succ k   =>
+| n, m, 0      => rfl
+| n, m, succ k =>
   have h₁ : n * m * succ k = n * m * (k + 1)              from rfl;
   have h₂ : n * m * (k + 1) = (n * m * k) + n * m * 1     from Nat.leftDistrib _ _ _;
   have h₃ : (n * m * k) + n * m * 1 = (n * m * k) + n * m from (Nat.mulOne (n*m)).symm ▸ rfl;
@@ -226,12 +226,12 @@ protected theorem mulAssoc : ∀ (n m k : Nat), (n * m) * k = n * (m * k)
 /- Inequalities -/
 
 protected def leRefl : ∀ (n : Nat), n ≤ n
-| zero     => rfl
-| succ n   => leRefl n
+| zero   => rfl
+| succ n => leRefl n
 
 theorem leSucc : ∀ (n : Nat), n ≤ succ n
-| zero     => rfl
-| succ n   => leSucc n
+| zero   => rfl
+| succ n => leSucc n
 
 theorem succLeSucc {n m : Nat} (h : n ≤ m) : succ n ≤ succ m :=
 h
@@ -249,8 +249,8 @@ theorem leStep : ∀ {n m : Nat}, n ≤ m → n ≤ succ m
   succLeSucc this
 
 theorem zeroLe : ∀ (n : Nat), 0 ≤ n
-| zero     => rfl
-| succ n   => rfl
+| zero   => rfl
+| succ n => rfl
 
 theorem zeroLtSucc (n : Nat) : 0 < succ n :=
 succLeSucc (zeroLe n)
@@ -320,8 +320,8 @@ protected theorem leTrans : ∀ {n m k : Nat}, n ≤ m → m ≤ k → n ≤ k
   succLeSucc this
 
 theorem predLe : ∀ (n : Nat), pred n ≤ n
-| zero     => rfl
-| succ n   => leSucc _
+| zero   => rfl
+| succ n => leSucc _
 
 theorem predLt : ∀ {n : Nat}, n ≠ 0 → pred n < n
 | zero,   h => absurd rfl h
@@ -356,8 +356,8 @@ leOfSuccLe h
 def lt.step {n m : Nat} : n < m → n < succ m := leStep
 
 theorem eqZeroOrPos : ∀ (n : Nat), n = 0 ∨ n > 0
-| 0     => Or.inl rfl
-| n+1   => Or.inr (succPos _)
+| 0   => Or.inl rfl
+| n+1 => Or.inr (succPos _)
 
 protected theorem ltTrans {n m k : Nat} (h₁ : n < m) : m < k → n < k :=
 Nat.leTrans (leStep h₁)
@@ -380,8 +380,8 @@ protected theorem leAntisymm : ∀ {n m : Nat}, n ≤ m → m ≤ n → n = m
   congrArg succ this
 
 protected theorem ltOrGe : ∀ (n m : Nat), n < m ∨ n ≥ m
-| n, 0     => Or.inr (zeroLe n)
-| n, m+1   =>
+| n, 0   => Or.inr (zeroLe n)
+| n, m+1 =>
   match ltOrGe n m with
   | Or.inl h => Or.inl (leSuccOfLe h)
   | Or.inr h =>
@@ -421,8 +421,8 @@ Decidable.byCases
      Or.inl (leOfSuccLeSucc this))
 
 theorem leAddRight : ∀ (n k : Nat), n ≤ n + k
-| n, 0     => Nat.leRefl n
-| n, k+1   => leSuccOfLe (leAddRight n k)
+| n, 0   => Nat.leRefl n
+| n, k+1 => leSuccOfLe (leAddRight n k)
 
 theorem leAddLeft (n m : Nat): n ≤ m + n :=
 Nat.addComm n m ▸ leAddRight n m
@@ -672,8 +672,8 @@ rfl
 theorem powZero (n : Nat) : n^0 = 1 := rfl
 
 theorem powLePowOfLeLeft {n m : Nat} (h : n ≤ m) : ∀ (i : Nat), n^i ≤ m^i
-| 0        => Nat.leRefl _
-| succ i   => Nat.mulLeMul (powLePowOfLeLeft i) h
+| 0      => Nat.leRefl _
+| succ i => Nat.mulLeMul (powLePowOfLeLeft i) h
 
 theorem powLePowOfLeRight {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤ j → n^i ≤ n^j
 | 0,      h =>

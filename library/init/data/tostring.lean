@@ -35,13 +35,13 @@ instance {p : Prop} : HasToString (Decidable p) :=
 ⟨fun b => @ite p b _ "true" "false"⟩
 
 protected def List.toStringAux {α : Type u} [HasToString α] : Bool → List α → String
-| b,     []      => ""
-| true,  x::xs   => toString x ++ List.toStringAux false xs
-| false, x::xs   => ", " ++ toString x ++ List.toStringAux false xs
+| b,     []    => ""
+| true,  x::xs => toString x ++ List.toStringAux false xs
+| false, x::xs => ", " ++ toString x ++ List.toStringAux false xs
 
 protected def List.toString {α : Type u} [HasToString α] : List α → String
-| []      => "[]"
-| x::xs   => "[" ++ List.toStringAux true (x::xs) ++ "]"
+| []    => "[]"
+| x::xs => "[" ++ List.toStringAux true (x::xs) ++ "]"
 
 instance {α : Type u} [HasToString α] : HasToString (List α) :=
 ⟨List.toString⟩

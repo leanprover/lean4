@@ -62,8 +62,8 @@ partial def FnBody.simpCase : FnBody → FnBody
   - Remove `case` if there is only one branch.
   - Merge most common branches using `Alt.default`. -/
 def Decl.simpCase : Decl → Decl
-| Decl.fdecl f xs t b   => Decl.fdecl f xs t b.simpCase
-| other                 => other
+| Decl.fdecl f xs t b => Decl.fdecl f xs t b.simpCase
+| other               => other
 
 end IR
 end Lean

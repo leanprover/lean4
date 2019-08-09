@@ -38,14 +38,14 @@ instance : HasAndthen Visitor :=
 | {found := true,  result := true} => {found := true, result := x != y}
 
 def visit (x : Name) : Expr → Visitor
-| Expr.fvar y         => visitFVar y x
-| Expr.app f a        => visit a >> visit f
-| Expr.lam _ _ d b    => visit d >> visit b
-| Expr.pi _ _ d b     => visit d >> visit b
-| Expr.elet _ t v b   => visit t >> visit v >> visit b
-| Expr.mdata _ e      => visit e
-| Expr.proj _ _ e     => visit e
-| _                   => skip
+| Expr.fvar y       => visitFVar y x
+| Expr.app f a      => visit a >> visit f
+| Expr.lam _ _ d b  => visit d >> visit b
+| Expr.pi _ _ d b   => visit d >> visit b
+| Expr.elet _ t v b => visit t >> visit v >> visit b
+| Expr.mdata _ e    => visit e
+| Expr.proj _ _ e   => visit e
+| _                 => skip
 
 end atMostOnce
 
@@ -72,9 +72,9 @@ def isEagerLambdaLiftingName : Name → Bool
     We use this definition to implement `add_and_compile`. -/
 @[export lean.get_decl_names_for_code_gen_core]
 private def getDeclNamesForCodeGen : Declaration → List Name
-| Declaration.defnDecl { name := n, .. }     => [n]
-| Declaration.mutualDefnDecl defs            => defs.map $ fun d => d.name
-| _                                          => []
+| Declaration.defnDecl { name := n, .. } => [n]
+| Declaration.mutualDefnDecl defs        => defs.map $ fun d => d.name
+| _                                      => []
 
 def checkIsDefinition (env : Environment) (n : Name) : Except String Unit :=
 match env.find n with

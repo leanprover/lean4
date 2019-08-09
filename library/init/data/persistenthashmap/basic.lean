@@ -166,8 +166,8 @@ partial def isUnaryEntries (a : Array (Entry α β (Node α β))) : Nat → Opti
   else acc
 
 def isUnaryNode : Node α β → Option (α × β)
-| Node.entries entries           => isUnaryEntries entries 0 none
-| Node.collision keys vals heq   =>
+| Node.entries entries         => isUnaryEntries entries 0 none
+| Node.collision keys vals heq =>
   if h : 1 = keys.size then
     have 0 < keys.size from h ▸ (Nat.zeroLtSucc _);
     some (keys.fget ⟨0, this⟩, vals.fget ⟨0, heq ▸ this⟩)

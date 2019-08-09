@@ -52,8 +52,8 @@ partial def visitFnBody : FnBody → M Bool
 end UsesLeanNamespace
 
 def usesLeanNamespace (env : Environment) : Decl → Bool
-| Decl.fdecl _ _ _ b   => (UsesLeanNamespace.visitFnBody b env).run' {}
-| _                    => false
+| Decl.fdecl _ _ _ b => (UsesLeanNamespace.visitFnBody b env).run' {}
+| _                  => false
 
 
 namespace CollectUsedDecls
@@ -80,8 +80,8 @@ do env ← read;
    | _           => pure ()
 
 def collectDecl : Decl → M NameSet
-| Decl.fdecl fn _ _ b    => collectInitDecl fn *> CollectUsedDecls.collectFnBody b *> get
-| Decl.extern fn _ _ _   => collectInitDecl fn *> get
+| Decl.fdecl fn _ _ b  => collectInitDecl fn *> CollectUsedDecls.collectFnBody b *> get
+| Decl.extern fn _ _ _ => collectInitDecl fn *> get
 
 end CollectUsedDecls
 
@@ -102,10 +102,10 @@ fun s => ps.foldl (fun s p => collectVar p.x p.ty s) s
 
 /- `collectFnBody` assumes the variables in -/
 partial def collectFnBody : FnBody → Collector
-| FnBody.vdecl x t _ b    => collectVar x t ∘ collectFnBody b
-| FnBody.jdecl j xs v b   => collectJP j xs ∘ collectParams xs ∘ collectFnBody v ∘ collectFnBody b
-| FnBody.case _ _ alts    => fun s => alts.foldl (fun s alt => collectFnBody alt.body s) s
-| e                       => if e.isTerminal then id else collectFnBody e.body
+| FnBody.vdecl x t _ b  => collectVar x t ∘ collectFnBody b
+| FnBody.jdecl j xs v b => collectJP j xs ∘ collectParams xs ∘ collectFnBody v ∘ collectFnBody b
+| FnBody.case _ _ alts  => fun s => alts.foldl (fun s alt => collectFnBody alt.body s) s
+| e                     => if e.isTerminal then id else collectFnBody e.body
 
 def collectDecl : Decl → Collector
 | Decl.fdecl _ xs _ b   => collectParams xs ∘ collectFnBody b

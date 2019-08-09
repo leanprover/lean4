@@ -160,8 +160,8 @@ ps.foldl
   b
 
 private def isPersistent : Expr → Bool
-| Expr.fap c xs   => xs.isEmpty -- all global constants are persistent objects
-| _               => false
+| Expr.fap c xs => xs.isEmpty -- all global constants are persistent objects
+| _             => false
 
 /- We do not need to consume the projection of a variable that is not consumed -/
 private def consumeExpr (m : VarMap) : Expr → Bool

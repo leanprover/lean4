@@ -53,8 +53,8 @@ partial def FnBody.pushProj : FnBody → FnBody
 
 /-- Push projections inside `case` branches. -/
 def Decl.pushProj : Decl → Decl
-| Decl.fdecl f xs t b   => Decl.fdecl f xs t b.pushProj
-| other                 => other
+| Decl.fdecl f xs t b => Decl.fdecl f xs t b.pushProj
+| other               => other
 
 end IR
 end Lean

@@ -63,8 +63,8 @@ RBMap.insert t a ()
 RBMap.erase t a
 
 @[specialize] def ofList : List α → RBTree α lt
-| []      => mkRBTree _ _
-| x::xs   => (ofList xs).insert x
+| []    => mkRBTree _ _
+| x::xs => (ofList xs).insert x
 
 @[inline] def find (t : RBTree α lt) (a : α) : Option α :=
 match RBMap.findCore t a with

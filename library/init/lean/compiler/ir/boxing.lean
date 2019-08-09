@@ -231,35 +231,35 @@ match e with
   pure $ FnBody.vdecl x ty e b
 
 partial def visitFnBody : FnBody → M FnBody
-| FnBody.vdecl x t v b       => do
+| FnBody.vdecl x t v b     => do
   b ← withVDecl x t v (visitFnBody b);
   visitVDeclExpr x t v b
-| FnBody.jdecl j xs v b      => do
+| FnBody.jdecl j xs v b    => do
   v ← withParams xs (visitFnBody v);
   b ← withJDecl j xs v (visitFnBody b);
   pure $ FnBody.jdecl j xs v b
-| FnBody.uset x i y b        => do
+| FnBody.uset x i y b      => do
   b ← visitFnBody b;
   castVarIfNeeded y IRType.usize $ fun y =>
     pure $ FnBody.uset x i y b
-| FnBody.sset x i o y ty b   => do
+| FnBody.sset x i o y ty b => do
   b ← visitFnBody b;
   castVarIfNeeded y ty $ fun y =>
     pure $ FnBody.sset x i o y ty b
-| FnBody.mdata d b           =>
+| FnBody.mdata d b         =>
   FnBody.mdata d <$> visitFnBody b
-| FnBody.case tid x alts     => do
+| FnBody.case tid x alts   => do
   let expected := getScrutineeType alts;
   alts ← alts.mmap $ fun alt => alt.mmodifyBody visitFnBody;
   castVarIfNeeded x expected $ fun x =>
     pure $ FnBody.case tid x alts
-| FnBody.ret x               => do
+| FnBody.ret x             => do
   expected ← getResultType;
   castArgIfNeeded x expected (fun x => pure $ FnBody.ret x)
-| FnBody.jmp j ys            => do
+| FnBody.jmp j ys          => do
   ps ← getJPParams j;
   castArgsIfNeeded ys ps (fun ys => pure $ FnBody.jmp j ys)
-| other                      =>
+| other                    =>
   pure other
 
 def run (env : Environment) (decls : Array Decl) : Array Decl :=

@@ -41,7 +41,7 @@ List.hasDecidableLt s₁.data s₂.data
 
 @[extern cpp "lean::string_length"]
 def length : (@& String) → Nat
-| ⟨s⟩  => s.length
+| ⟨s⟩ => s.length
 
 /- The internal implementation uses dynamic arrays and will perform destructive updates
    if the String is not shared. -/
@@ -237,8 +237,8 @@ def extract : Iterator → Iterator → String
   else s₁.extract b e
 
 def forward : Iterator → Nat → Iterator
-| it, 0     => it
-| it, n+1   => forward it.next n
+| it, 0   => it
+| it, n+1 => forward it.next n
 
 def remainingToString : Iterator → String
 | ⟨s, i⟩ => s.extract i s.bsize
@@ -249,12 +249,12 @@ def isPrefixOfRemaining : Iterator → Iterator → Bool
 | ⟨s₁, i₁⟩, ⟨s₂, i₂⟩ => s₁.extract i₁ s₁.bsize = s₂.extract i₂ (i₂ + (s₁.bsize - i₁))
 
 def nextn : Iterator → Nat → Iterator
-| it, 0     => it
-| it, i+1   => nextn it.next i
+| it, 0   => it
+| it, i+1 => nextn it.next i
 
 def prevn : Iterator → Nat → Iterator
-| it, 0     => it
-| it, i+1   => prevn it.prev i
+| it, 0   => it
+| it, i+1 => prevn it.prev i
 end Iterator
 
 private partial def lineColumnAux (s : String) : Pos → Nat × Nat → Nat × Nat

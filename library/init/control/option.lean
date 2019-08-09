@@ -18,8 +18,8 @@ namespace OptionT
   variables {m : Type u → Type v} [Monad m] {α β : Type u}
 
   @[inline] protected def bindCont {α β : Type u} (f : α → OptionT m β) : Option α → m (Option β)
-  | some a   => f a
-  | none     => pure none
+  | some a => f a
+  | none   => pure none
 
   @[inline] protected def bind (ma : OptionT m α) (f : α → OptionT m β) : OptionT m β :=
   (ma >>= OptionT.bindCont f : m (Option β))

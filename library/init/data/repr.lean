@@ -25,13 +25,13 @@ instance {p : Prop} : HasRepr (Decidable p) :=
 ⟨fun b => @ite p b _ "true" "false"⟩
 
 protected def List.reprAux {α : Type u} [HasRepr α] : Bool → List α → String
-| b,     []      => ""
-| true,  x::xs   => repr x ++ List.reprAux false xs
-| false, x::xs   => ", " ++ repr x ++ List.reprAux false xs
+| b,     []    => ""
+| true,  x::xs => repr x ++ List.reprAux false xs
+| false, x::xs => ", " ++ repr x ++ List.reprAux false xs
 
 protected def List.repr {α : Type u} [HasRepr α] : List α → String
-| []      => "[]"
-| x::xs   => "[" ++ List.reprAux true (x::xs) ++ "]"
+| []    => "[]"
+| x::xs => "[" ++ List.reprAux true (x::xs) ++ "]"
 
 instance {α : Type u} [HasRepr α] : HasRepr (List α) :=
 ⟨List.repr⟩
@@ -115,8 +115,8 @@ instance : HasRepr Char :=
 ⟨fun c => "'" ++ Char.quoteCore c ++ "'"⟩
 
 def String.quoteAux : List Char → String
-| []      => ""
-| x::xs   => Char.quoteCore x ++ String.quoteAux xs
+| []    => ""
+| x::xs => Char.quoteCore x ++ String.quoteAux xs
 
 def String.quote (s : String) : String :=
 if s.isEmpty = true then "\"\""

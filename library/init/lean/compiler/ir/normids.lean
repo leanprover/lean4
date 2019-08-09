@@ -23,14 +23,14 @@ def checkParams (ps : Array Param) : M Bool :=
 ps.allM $ fun p => checkId p.x.idx
 
 partial def checkFnBody : FnBody → M Bool
-| FnBody.vdecl x _ _ b    => checkId x.idx <&&> checkFnBody b
-| FnBody.jdecl j ys _ b   => checkId j.idx <&&> checkParams ys <&&> checkFnBody b
-| FnBody.case _ _ alts    => alts.allM $ fun alt => checkFnBody alt.body
-| b                       => if b.isTerminal then pure true else checkFnBody b.body
+| FnBody.vdecl x _ _ b  => checkId x.idx <&&> checkFnBody b
+| FnBody.jdecl j ys _ b => checkId j.idx <&&> checkParams ys <&&> checkFnBody b
+| FnBody.case _ _ alts  => alts.allM $ fun alt => checkFnBody alt.body
+| b                     => if b.isTerminal then pure true else checkFnBody b.body
 
 partial def checkDecl : Decl → M Bool
-| Decl.fdecl _ xs _ b    => checkParams xs <&&> checkFnBody b
-| Decl.extern _ xs _ _   => checkParams xs
+| Decl.fdecl _ xs _ b  => checkParams xs <&&> checkFnBody b
+| Decl.extern _ xs _ _ => checkParams xs
 
 end UniqueIds
 
@@ -54,8 +54,8 @@ def normJP (x : JoinPointId) : M JoinPointId :=
 JoinPointId.mk <$> normIndex x.idx
 
 def normArg : Arg → M Arg
-| Arg.var x   => Arg.var <$> normVar x
-| other       => pure other
+| Arg.var x => Arg.var <$> normVar x
+| other     => pure other
 
 def normArgs (as : Array Arg) : M (Array Arg) :=
 fun m => as.map $ fun a => normArg a m
@@ -98,29 +98,29 @@ instance MtoN {α} : HasCoe (M α) (N α) :=
 ⟨fun x m => pure $ x m⟩
 
 partial def normFnBody : FnBody → N FnBody
-| FnBody.vdecl x t v b       => do v ← normExpr v; withVar x $ fun x => FnBody.vdecl x t v <$> normFnBody b
-| FnBody.jdecl j ys v b      => do
+| FnBody.vdecl x t v b    => do v ← normExpr v; withVar x $ fun x => FnBody.vdecl x t v <$> normFnBody b
+| FnBody.jdecl j ys v b   => do
   (ys, v) ← withParams ys $ fun ys => do { v ← normFnBody v; pure (ys, v) };
   withJP j $ fun j => FnBody.jdecl j ys v <$> normFnBody b
-| FnBody.set x i y b         => do x ← normVar x; y ← normArg y; FnBody.set x i y <$> normFnBody b
-| FnBody.uset x i y b        => do x ← normVar x; y ← normVar y; FnBody.uset x i y <$> normFnBody b
-| FnBody.sset x i o y t b    => do x ← normVar x; y ← normVar y; FnBody.sset x i o y t <$> normFnBody b
-| FnBody.setTag x i b        => do x ← normVar x; FnBody.setTag x i <$> normFnBody b
-| FnBody.inc x n c b         => do x ← normVar x; FnBody.inc x n c <$> normFnBody b
-| FnBody.dec x n c b         => do x ← normVar x; FnBody.dec x n c <$> normFnBody b
-| FnBody.del x b             => do x ← normVar x; FnBody.del x <$> normFnBody b
-| FnBody.mdata d b           => FnBody.mdata d <$> normFnBody b
-| FnBody.case tid x alts     => do
+| FnBody.set x i y b      => do x ← normVar x; y ← normArg y; FnBody.set x i y <$> normFnBody b
+| FnBody.uset x i y b     => do x ← normVar x; y ← normVar y; FnBody.uset x i y <$> normFnBody b
+| FnBody.sset x i o y t b => do x ← normVar x; y ← normVar y; FnBody.sset x i o y t <$> normFnBody b
+| FnBody.setTag x i b     => do x ← normVar x; FnBody.setTag x i <$> normFnBody b
+| FnBody.inc x n c b      => do x ← normVar x; FnBody.inc x n c <$> normFnBody b
+| FnBody.dec x n c b      => do x ← normVar x; FnBody.dec x n c <$> normFnBody b
+| FnBody.del x b          => do x ← normVar x; FnBody.del x <$> normFnBody b
+| FnBody.mdata d b        => FnBody.mdata d <$> normFnBody b
+| FnBody.case tid x alts  => do
   x ← normVar x;
   alts ← alts.mmap $ fun alt => alt.mmodifyBody normFnBody;
   pure $ FnBody.case tid x alts
-| FnBody.jmp j ys           => FnBody.jmp <$> normJP j <*> normArgs ys
-| FnBody.ret x              => FnBody.ret <$> normArg x
-| FnBody.unreachable        => pure FnBody.unreachable
+| FnBody.jmp j ys        => FnBody.jmp <$> normJP j <*> normArgs ys
+| FnBody.ret x           => FnBody.ret <$> normArg x
+| FnBody.unreachable     => pure FnBody.unreachable
 
 def normDecl : Decl → N Decl
-| Decl.fdecl f xs t b   => withParams xs $ fun xs => Decl.fdecl f xs t <$> normFnBody b
-| other                 => pure other
+| Decl.fdecl f xs t b => withParams xs $ fun xs => Decl.fdecl f xs t <$> normFnBody b
+| other               => pure other
 
 end NormalizeIds
 
@@ -133,43 +133,43 @@ def Decl.normalizeIds (d : Decl) : Decl :=
 namespace MapVars
 
 @[inline] def mapArg (f : VarId → VarId) : Arg → Arg
-| Arg.var x   => Arg.var (f x)
-| a           => a
+| Arg.var x => Arg.var (f x)
+| a         => a
 
 @[specialize] def mapArgs (f : VarId → VarId) (as : Array Arg) : Array Arg :=
 as.map (mapArg f)
 
 @[specialize] def mapExpr (f : VarId → VarId) : Expr → Expr
-| Expr.ctor c ys        => Expr.ctor c (mapArgs f ys)
-| Expr.reset n x        => Expr.reset n (f x)
-| Expr.reuse x c u ys   => Expr.reuse (f x) c u (mapArgs f ys)
-| Expr.proj i x         => Expr.proj i (f x)
-| Expr.uproj i x        => Expr.uproj i (f x)
-| Expr.sproj n o x      => Expr.sproj n o (f x)
-| Expr.fap c ys         => Expr.fap c (mapArgs f ys)
-| Expr.pap c ys         => Expr.pap c (mapArgs f ys)
-| Expr.ap x ys          => Expr.ap (f x) (mapArgs f ys)
-| Expr.box t x          => Expr.box t (f x)
-| Expr.unbox x          => Expr.unbox (f x)
-| Expr.isShared x       => Expr.isShared (f x)
-| Expr.isTaggedPtr x    => Expr.isTaggedPtr (f x)
-| e@(Expr.lit v)        =>  e
+| Expr.ctor c ys      => Expr.ctor c (mapArgs f ys)
+| Expr.reset n x      => Expr.reset n (f x)
+| Expr.reuse x c u ys => Expr.reuse (f x) c u (mapArgs f ys)
+| Expr.proj i x       => Expr.proj i (f x)
+| Expr.uproj i x      => Expr.uproj i (f x)
+| Expr.sproj n o x    => Expr.sproj n o (f x)
+| Expr.fap c ys       => Expr.fap c (mapArgs f ys)
+| Expr.pap c ys       => Expr.pap c (mapArgs f ys)
+| Expr.ap x ys        => Expr.ap (f x) (mapArgs f ys)
+| Expr.box t x        => Expr.box t (f x)
+| Expr.unbox x        => Expr.unbox (f x)
+| Expr.isShared x     => Expr.isShared (f x)
+| Expr.isTaggedPtr x  => Expr.isTaggedPtr (f x)
+| e@(Expr.lit v)      =>  e
 
 @[specialize] partial def mapFnBody (f : VarId → VarId) : FnBody → FnBody
-| FnBody.vdecl x t v b       => FnBody.vdecl x t (mapExpr f v) (mapFnBody b)
-| FnBody.jdecl j ys v b      => FnBody.jdecl j ys (mapFnBody v) (mapFnBody b)
-| FnBody.set x i y b         => FnBody.set (f x) i (mapArg f y) (mapFnBody b)
-| FnBody.setTag x i b        => FnBody.setTag (f x) i (mapFnBody b)
-| FnBody.uset x i y b        => FnBody.uset (f x) i (f y) (mapFnBody b)
-| FnBody.sset x i o y t b    => FnBody.sset (f x) i o (f y) t (mapFnBody b)
-| FnBody.inc x n c b         => FnBody.inc (f x) n c (mapFnBody b)
-| FnBody.dec x n c b         => FnBody.dec (f x) n c (mapFnBody b)
-| FnBody.del x b             => FnBody.del (f x) (mapFnBody b)
-| FnBody.mdata d b           => FnBody.mdata d (mapFnBody b)
-| FnBody.case tid x alts     => FnBody.case tid (f x) (alts.map (fun alt => alt.modifyBody mapFnBody))
-| FnBody.jmp j ys            => FnBody.jmp j (mapArgs f ys)
-| FnBody.ret x               => FnBody.ret (mapArg f x)
-| FnBody.unreachable         => FnBody.unreachable
+| FnBody.vdecl x t v b    => FnBody.vdecl x t (mapExpr f v) (mapFnBody b)
+| FnBody.jdecl j ys v b   => FnBody.jdecl j ys (mapFnBody v) (mapFnBody b)
+| FnBody.set x i y b      => FnBody.set (f x) i (mapArg f y) (mapFnBody b)
+| FnBody.setTag x i b     => FnBody.setTag (f x) i (mapFnBody b)
+| FnBody.uset x i y b     => FnBody.uset (f x) i (f y) (mapFnBody b)
+| FnBody.sset x i o y t b => FnBody.sset (f x) i o (f y) t (mapFnBody b)
+| FnBody.inc x n c b      => FnBody.inc (f x) n c (mapFnBody b)
+| FnBody.dec x n c b      => FnBody.dec (f x) n c (mapFnBody b)
+| FnBody.del x b          => FnBody.del (f x) (mapFnBody b)
+| FnBody.mdata d b        => FnBody.mdata d (mapFnBody b)
+| FnBody.case tid x alts  => FnBody.case tid (f x) (alts.map (fun alt => alt.modifyBody mapFnBody))
+| FnBody.jmp j ys         => FnBody.jmp j (mapArgs f ys)
+| FnBody.ret x            => FnBody.ret (mapArg f x)
+| FnBody.unreachable      => FnBody.unreachable
 
 end MapVars
 

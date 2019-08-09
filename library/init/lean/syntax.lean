@@ -123,20 +123,20 @@ match stx with
 | _                  => hno ()
 
 def isIdent {α} : Syntax α → Bool
-| ident _ _ _ _   => true
-| _               => false
+| ident _ _ _ _ => true
+| _             => false
 
 def getId {α} : Syntax α → Name
-| ident _ _ val _   => val
-| _                 => Name.anonymous
+| ident _ _ val _ => val
+| _               => Name.anonymous
 
 def isOfKind {α} : Syntax α → SyntaxNodeKind → Bool
 | node kind _, k => k == kind
 | _,           _ => false
 
 def asNode {α} : Syntax α → SyntaxNode α
-| Syntax.node kind args   => ⟨Syntax.node kind args, IsNode.mk kind args⟩
-| _                       => ⟨Syntax.node nullKind Array.empty, IsNode.mk nullKind Array.empty⟩
+| Syntax.node kind args => ⟨Syntax.node kind args, IsNode.mk kind args⟩
+| _                     => ⟨Syntax.node nullKind Array.empty, IsNode.mk nullKind Array.empty⟩
 
 def getNumArgs {α} (stx : Syntax α) : Nat :=
 stx.asNode.getNumArgs
@@ -238,19 +238,19 @@ partial def updateTrailing {α} (trailing : Substring) : Syntax α → Syntax α
 
 /-- Retrieve the left-most leaf's info in the Syntax tree. -/
 partial def getHeadInfo {α} : Syntax α → Option SourceInfo
-| atom info _         => info
-| ident info _ _ _    => info
-| node _ args         => args.find getHeadInfo
-| _                   => none
+| atom info _      => info
+| ident info _ _ _ => info
+| node _ args      => args.find getHeadInfo
+| _                => none
 
 def getPos {α} (stx : Syntax α) : Option String.Pos :=
 SourceInfo.pos <$> stx.getHeadInfo
 
 partial def getTailInfo {α} : Syntax α → Option SourceInfo
-| atom info _         => info
-| ident info _ _ _    => info
-| node _ args         => args.findRev getTailInfo
-| _                   => none
+| atom info _      => info
+| ident info _ _ _ => info
+| node _ args      => args.findRev getTailInfo
+| _                => none
 
 @[specialize] private partial def updateLast {α} [Inhabited α] (a : Array α) (f : α → Option α) : Nat → Option (Array α)
 | i =>
@@ -263,13 +263,13 @@ partial def getTailInfo {α} : Syntax α → Option SourceInfo
     | none   => updateLast i
 
 partial def setTailInfoAux {α} (info : Option SourceInfo) : Syntax α → Option (Syntax α)
-| atom _ val               => some $ atom info val
-| ident _ rawVal val pre   => some $ ident info rawVal val pre
-| node k args              =>
+| atom _ val             => some $ atom info val
+| ident _ rawVal val pre => some $ ident info rawVal val pre
+| node k args            =>
   match updateLast args setTailInfoAux args.size with
   | some args => some $ node k args
   | none      => none
-| stx                      => none
+| stx                    => none
 
 def setTailInfo {α} (stx : Syntax α) (info : Option SourceInfo) : Syntax α :=
 match setTailInfoAux info stx with
@@ -295,16 +295,16 @@ partial def reprint {α} : Syntax α → Option String
 open Lean.Format
 
 protected partial def formatStx {α} : Syntax α → Format
-| atom info val       => format $ repr val
-| ident _ _ val pre   => format "`" ++ format val
-| node kind args      =>
+| atom info val     => format $ repr val
+| ident _ _ val pre => format "`" ++ format val
+| node kind args    =>
   if kind = `Lean.Parser.noKind then
     sbracket $ joinSep (args.toList.map formatStx) line
   else
     let shorterName := kind.replacePrefix `Lean.Parser Name.anonymous;
     paren $ joinSep ((format shorterName) :: args.toList.map formatStx) line
-| missing   => "<missing>"
-| other _   => "<other>"
+| missing => "<missing>"
+| other _ => "<other>"
 
 instance {α} : HasFormat (Syntax α)   := ⟨Syntax.formatStx⟩
 instance {α} : HasToString (Syntax α) := ⟨toString ∘ format⟩

@@ -18,36 +18,36 @@ namespace LocalDecl
 instance : Inhabited LocalDecl := ⟨ldecl (default _) (default _) (default _) (default _) (default _)⟩
 
 def isLet : LocalDecl → Bool
-| cdecl _ _ _ _ _   => false
-| ldecl _ _ _ _ _   => true
+| cdecl _ _ _ _ _ => false
+| ldecl _ _ _ _ _ => true
 
 def index : LocalDecl → Nat
-| cdecl idx _ _ _ _   => idx
-| ldecl idx _ _ _ _   => idx
+| cdecl idx _ _ _ _ => idx
+| ldecl idx _ _ _ _ => idx
 
 def name : LocalDecl → Name
-| cdecl _ n _ _ _   => n
-| ldecl _ n _ _ _   => n
+| cdecl _ n _ _ _ => n
+| ldecl _ n _ _ _ => n
 
 def userName : LocalDecl → Name
-| cdecl _ _ n _ _   => n
-| ldecl _ _ n _ _   => n
+| cdecl _ _ n _ _ => n
+| ldecl _ _ n _ _ => n
 
 def type : LocalDecl → Expr
-| cdecl _ _ _ t _   => t
-| ldecl _ _ _ t _   => t
+| cdecl _ _ _ t _ => t
+| ldecl _ _ _ t _ => t
 
 def binderInfo : LocalDecl → BinderInfo
-| cdecl _ _ _ _ bi   => bi
-| ldecl _ _ _ _ _    => BinderInfo.default
+| cdecl _ _ _ _ bi => bi
+| ldecl _ _ _ _ _  => BinderInfo.default
 
 def valueOpt : LocalDecl → Option Expr
-| cdecl _ _ _ _ _   => none
-| ldecl _ _ _ _ v   => some v
+| cdecl _ _ _ _ _ => none
+| ldecl _ _ _ _ v => some v
 
 def value : LocalDecl → Expr
-| cdecl _ _ _ _ _   => default _
-| ldecl _ _ _ _ v   => v
+| cdecl _ _ _ _ _ => default _
+| ldecl _ _ _ _ v => v
 
 def updateUserName : LocalDecl → Name → LocalDecl
 | cdecl index name _ type bi,  userName => cdecl index name userName type bi

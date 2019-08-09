@@ -216,29 +216,29 @@ inductive FirstTokens
 namespace FirstTokens
 
 def merge : FirstTokens → FirstTokens → FirstTokens
-| epsilon,      tks            => tks
-| tks,          epsilon        => tks
-| tokens s₁,    tokens s₂      => tokens (s₁ ++ s₂)
-| optTokens s₁, optTokens s₂   => optTokens (s₁ ++ s₂)
-| tokens s₁,    optTokens s₂   => tokens (s₁ ++ s₂)
-| optTokens s₁, tokens s₂      => tokens (s₁ ++ s₂)
-| _,            _              => unknown
+| epsilon,      tks          => tks
+| tks,          epsilon      => tks
+| tokens s₁,    tokens s₂    => tokens (s₁ ++ s₂)
+| optTokens s₁, optTokens s₂ => optTokens (s₁ ++ s₂)
+| tokens s₁,    optTokens s₂ => tokens (s₁ ++ s₂)
+| optTokens s₁, tokens s₂    => tokens (s₁ ++ s₂)
+| _,            _            => unknown
 
 def seq : FirstTokens → FirstTokens → FirstTokens
-| epsilon,      tks            => tks
-| optTokens s₁, optTokens s₂   => optTokens (s₁ ++ s₂)
-| optTokens s₁, tokens s₂      => tokens (s₁ ++ s₂)
-| tks,          _              => tks
+| epsilon,      tks          => tks
+| optTokens s₁, optTokens s₂ => optTokens (s₁ ++ s₂)
+| optTokens s₁, tokens s₂    => tokens (s₁ ++ s₂)
+| tks,          _            => tks
 
 def toOptional : FirstTokens → FirstTokens
-| tokens tks   => optTokens tks
-| tks          => tks
+| tokens tks => optTokens tks
+| tks        => tks
 
 def toStr : FirstTokens → String
-| epsilon         => "epsilon"
-| unknown         => "unknown"
-| tokens tks      => toString tks
-| optTokens tks   => "?" ++ toString tks
+| epsilon       => "epsilon"
+| unknown       => "unknown"
+| tokens tks    => toString tks
+| optTokens tks => "?" ++ toString tks
 
 instance : HasToString FirstTokens := ⟨toStr⟩
 
@@ -1179,8 +1179,8 @@ def longestMatchMkResult (startSize : Nat) (s : ParserState) : ParserState :=
 if !s.hasError && s.stackSize > startSize + 1 then s.mkNode choiceKind startSize else s
 
 def longestMatchFnAux {k : ParserKind} (startSize : Nat) (startPos : String.Pos) : List (Parser k) → ParserFn k
-| []      => fun _ _ s => longestMatchMkResult startSize s
-| p::ps   => fun a c s =>
+| []    => fun _ _ s => longestMatchMkResult startSize s
+| p::ps => fun a c s =>
    let s := longestMatchStep startSize startPos p.fn a c s;
    longestMatchFnAux ps a c s
 
@@ -1191,9 +1191,9 @@ let s := p a c s;
 if s.hasError then s else s.mkLongestNodeAlt startSize
 
 def longestMatchFn {k : ParserKind} : List (Parser k) → ParserFn k
-| []      => fun _ _ s => s.mkError "longestMatch: empty list"
-| [p]     => longestMatchFn₁ p.fn
-| p::ps   => fun a c s =>
+| []    => fun _ _ s => s.mkError "longestMatch: empty list"
+| [p]   => longestMatchFn₁ p.fn
+| p::ps => fun a c s =>
   let startSize := s.stackSize;
   let startPos  := s.pos;
   let s         := p.fn a c s;

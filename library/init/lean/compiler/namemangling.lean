@@ -8,8 +8,8 @@ import init.lean.name
 namespace Lean
 
 private def String.mangleAux : Nat → String.Iterator → String → String
-| 0,     it, r => r
-| i+1,   it, r =>
+| 0,   it, r => r
+| i+1, it, r =>
   let c := it.curr;
   if c.isAlpha || c.isDigit then
     String.mangleAux i it.next (r.push c)

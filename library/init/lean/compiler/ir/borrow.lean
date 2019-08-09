@@ -24,9 +24,9 @@ inductive Key
 
 namespace Key
 def beq : Key → Key → Bool
-| decl n₁,     decl n₂     => n₁ == n₂
-| jp n₁ id₁,   jp n₂ id₂   => n₁ == n₂ && id₁ == id₂
-| _,           _           => false
+| decl n₁,   decl n₂     => n₁ == n₂
+| jp n₁ id₁, jp n₂ id₂   => n₁ == n₂ && id₁ == id₂
+| _,         _           => false
 
 instance : HasBeq Key := ⟨beq⟩
 

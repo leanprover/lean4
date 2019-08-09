@@ -395,8 +395,8 @@ attribute [matchPattern] HasZero.zero HasOne.one bit0 bit1 HasAdd.add HasNeg.neg
 /- Nat basic instances -/
 @[extern cpp "lean::nat_add"]
 protected def Nat.add : (@& Nat) → (@& Nat) → Nat
-| a,  Nat.zero     => a
-| a,  Nat.succ b   => Nat.succ (Nat.add a b)
+| a, Nat.zero     => a
+| a, Nat.succ b   => Nat.succ (Nat.add a b)
 
 /- We mark the following definitions as pattern to make sure they can be used in recursive equations,
    and reduced by the equation Compiler. -/

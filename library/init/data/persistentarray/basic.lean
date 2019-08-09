@@ -51,8 +51,8 @@ abbrev div2Shift (i : USize) (shift : USize) : USize := USize.shift_right i shif
 abbrev mod2Shift (i : USize) (shift : USize) : USize := USize.land i ((USize.shift_left 1 shift) - 1)
 
 partial def getAux [Inhabited α] : PersistentArrayNode α → USize → USize → α
-| node cs,   i, shift => getAux (cs.get (div2Shift i shift).toNat) (mod2Shift i shift) (shift - initShift)
-| leaf cs,   i, _     => cs.get i.toNat
+| node cs, i, shift => getAux (cs.get (div2Shift i shift).toNat) (mod2Shift i shift) (shift - initShift)
+| leaf cs, i, _     => cs.get i.toNat
 
 def get [Inhabited α] (t : PersistentArray α) (i : Nat) : α :=
 if i >= t.tailOff then
@@ -61,12 +61,12 @@ else
   getAux t.root (USize.ofNat i) t.shift
 
 partial def setAux : PersistentArrayNode α → USize → USize → α → PersistentArrayNode α
-| node cs,   i, shift, a =>
+| node cs, i, shift, a =>
   let j     := div2Shift i shift;
   let i     := mod2Shift i shift;
   let shift := shift - initShift;
   node $ cs.modify j.toNat $ fun c => setAux c i shift a
-| leaf cs,   i, _,     a => leaf (cs.set i.toNat a)
+| leaf cs, i, _,     a => leaf (cs.set i.toNat a)
 
 def set (t : PersistentArray α) (i : Nat) (a : α) : PersistentArray α :=
 if i >= t.tailOff then
@@ -75,12 +75,12 @@ else
   { root := setAux t.root (USize.ofNat i) t.shift a, .. t }
 
 @[specialize] partial def modifyAux [Inhabited α] (f : α → α) : PersistentArrayNode α → USize → USize → PersistentArrayNode α
-| node cs,   i, shift =>
+| node cs, i, shift =>
   let j     := div2Shift i shift;
   let i     := mod2Shift i shift;
   let shift := shift - initShift;
   node $ cs.modify j.toNat $ fun c => modifyAux c i shift
-| leaf cs,   i, _     => leaf (cs.modify i.toNat f)
+| leaf cs, i, _     => leaf (cs.modify i.toNat f)
 
 @[specialize] def modify [Inhabited α] (t : PersistentArray α) (i : Nat) (f : α → α) : PersistentArray α :=
 if i >= t.tailOff then
@@ -179,8 +179,8 @@ variables {m : Type v → Type w} [Monad m]
 variable {β : Type v}
 
 @[specialize] partial def mfoldlAux (f : β → α → m β) : PersistentArrayNode α → β → m β
-| node cs,   b => cs.mfoldl (fun b c => mfoldlAux c b) b
-| leaf vs,   b => vs.mfoldl f b
+| node cs, b => cs.mfoldl (fun b c => mfoldlAux c b) b
+| leaf vs, b => vs.mfoldl f b
 
 @[specialize] def mfoldl (t : PersistentArray α) (f : β → α → m β) (b : β) : m β :=
 do b ← mfoldlAux f t.root b; t.tail.mfoldl f b
@@ -206,11 +206,11 @@ do b ← t.tail.mfindRev f;
    | some b => pure (some b)
 
 partial def mfoldlFromAux (f : β → α → m β) : PersistentArrayNode α → USize → USize → β → m β
-| node cs,   i, shift, b => do
+| node cs, i, shift, b => do
   let j    := (div2Shift i shift).toNat;
   b ← mfoldlFromAux (cs.get j) (mod2Shift i shift) (shift - initShift) b;
   cs.mfoldlFrom (fun b c => mfoldlAux f c b) b (j+1)
-| leaf vs,   i, _, b => vs.mfoldlFrom f b i.toNat
+| leaf vs, i, _, b => vs.mfoldlFrom f b i.toNat
 
 def mfoldlFrom (t : PersistentArray α) (f : β → α → m β) (b : β) (ini : Nat) : m β :=
 if ini >= t.tailOff then
@@ -266,11 +266,11 @@ structure Stats :=
 (numNodes : Nat) (depth : Nat) (tailSize : Nat)
 
 partial def collectStats : PersistentArrayNode α → Stats → Nat → Stats
-| node cs,   s, d =>
+| node cs, s, d =>
   cs.foldl (fun s c => collectStats c s (d+1))
     { numNodes := s.numNodes + 1,
       depth    := Nat.max d s.depth, .. s }
-| leaf vs,   s, d => { numNodes := s.numNodes + 1, depth := Nat.max d s.depth, .. s }
+| leaf vs, s, d => { numNodes := s.numNodes + 1, depth := Nat.max d s.depth, .. s }
 
 def stats (r : PersistentArray α) : Stats :=
 collectStats r.root { numNodes := 0, depth := 0, tailSize := r.tail.size } 0
@@ -283,8 +283,8 @@ instance : HasToString Stats := ⟨Stats.toString⟩
 end PersistentArray
 
 def List.toPersistentArrayAux {α : Type u} : List α → PersistentArray α → PersistentArray α
-| [],      t => t
-| x::xs,   t => List.toPersistentArrayAux xs (t.push x)
+| [],    t => t
+| x::xs, t => List.toPersistentArrayAux xs (t.push x)
 
 def List.toPersistentArray {α : Type u} (xs : List α) : PersistentArray α :=
 xs.toPersistentArrayAux {}

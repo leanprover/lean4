@@ -37,8 +37,8 @@ def ofNat' {n : Nat} (a : Nat) (h : n > 0) : Fin n :=
 ⟨a % n, Nat.modLt _ h⟩
 
 private theorem mlt {n b : Nat} : ∀ {a}, n > a → b % n < n
-| 0,     h => Nat.modLt _ h
-| a+1,   h =>
+| 0,   h => Nat.modLt _ h
+| a+1, h =>
   have n > 0 from Nat.ltTrans (Nat.zeroLtSucc _) h;
   Nat.modLt _ this
 

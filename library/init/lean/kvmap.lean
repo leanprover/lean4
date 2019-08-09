@@ -16,10 +16,10 @@ inductive DataValue
 | ofInt    (v : Int)
 
 def DataValue.beq : DataValue → DataValue → Bool
-| DataValue.ofString s₁,   DataValue.ofString s₂   => s₁ = s₂
-| DataValue.ofNat n₁,      DataValue.ofNat n₂      => n₂ = n₂
-| DataValue.ofBool b₁,     DataValue.ofBool b₂     => b₁ = b₂
-| _,                         _                     => false
+| DataValue.ofString s₁, DataValue.ofString s₂   => s₁ = s₂
+| DataValue.ofNat n₁,    DataValue.ofNat n₂      => n₂ = n₂
+| DataValue.ofBool b₁,   DataValue.ofBool b₂     => b₁ = b₂
+| _,                       _                     => false
 
 instance DataValue.HasBeq : HasBeq DataValue := ⟨DataValue.beq⟩
 
@@ -37,15 +37,15 @@ structure KVMap :=
 
 namespace KVMap
 def findCore : List (Name × DataValue) → Name → Option DataValue
-| [],         k' => none
-| (k,v)::m,   k' => if k = k' then some v else findCore m k'
+| [],       k' => none
+| (k,v)::m, k' => if k = k' then some v else findCore m k'
 
 def find : KVMap → Name → Option DataValue
 | ⟨m⟩, k => findCore m k
 
 def insertCore : List (Name × DataValue) → Name → DataValue → List (Name × DataValue)
-| [],         k', v' => [(k',v')]
-| (k,v)::m,   k', v' => if k = k' then (k, v') :: m else (k, v) :: insertCore m k' v'
+| [],       k', v' => [(k',v')]
+| (k,v)::m, k', v' => if k = k' then (k, v') :: m else (k, v) :: insertCore m k' v'
 
 def insert : KVMap → Name → DataValue → KVMap
 | ⟨m⟩, k, v => ⟨insertCore m k v⟩
@@ -94,8 +94,8 @@ def setName (m : KVMap) (k : Name) (v : Name) : KVMap :=
 m.insert k (DataValue.ofName v)
 
 def subsetAux : List (Name × DataValue) → KVMap → Bool
-| [],            m₂ => true
-| (k, v₁)::m₁,   m₂ =>
+| [],          m₂ => true
+| (k, v₁)::m₁, m₂ =>
   match m₂.find k with
   | some v₂ => v₁ == v₂ && subsetAux m₁ m₂
   | none    => false

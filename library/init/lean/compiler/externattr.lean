@@ -97,8 +97,8 @@ def getExternAttrData (env : Environment) (n : Name) : Option ExternAttrData :=
 externAttr.getParam env n
 
 private def parseOptNum : Nat → String.Iterator → Nat → String.Iterator × Nat
-| 0,     it, r => (it, r)
-| n+1,   it, r =>
+| 0,   it, r => (it, r)
+| n+1, it, r =>
   if !it.hasNext then (it, r)
   else
     let c := it.curr;
@@ -107,8 +107,8 @@ private def parseOptNum : Nat → String.Iterator → Nat → String.Iterator ×
     else (it, r)
 
 def expandExternPatternAux (args : List String) : Nat → String.Iterator → String → String
-| 0,     it, r => r
-| i+1,   it, r =>
+| 0,   it, r => r
+| i+1, it, r =>
   if ¬ it.hasNext then r
   else let c := it.curr;
     if c ≠ '#' then expandExternPatternAux i it.next (r.push c)
@@ -125,10 +125,10 @@ def mkSimpleFnCall (fn : String) (args : List String) : String :=
 fn ++ "(" ++ ((args.intersperse ", ").foldl HasAppend.append "") ++ ")"
 
 def expandExternEntry : ExternEntry → List String → Option String
-| ExternEntry.adhoc _,   args        => none -- backend must expand it
-| ExternEntry.standard _ fn,   args  => some (mkSimpleFnCall fn args)
-| ExternEntry.inline _ pat,   args   => some (expandExternPattern pat args)
-| ExternEntry.foreign _ fn,   args   => some (mkSimpleFnCall fn args)
+| ExternEntry.adhoc _, args        => none -- backend must expand it
+| ExternEntry.standard _ fn, args  => some (mkSimpleFnCall fn args)
+| ExternEntry.inline _ pat, args   => some (expandExternPattern pat args)
+| ExternEntry.foreign _ fn, args   => some (mkSimpleFnCall fn args)
 
 def ExternEntry.backend : ExternEntry → Name
 | ExternEntry.adhoc n        => n

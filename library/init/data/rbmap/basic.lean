@@ -85,12 +85,12 @@ section Insert
 variables (lt : α → α → Bool)
 
 @[specialize] def ins : RBNode α β → ∀ k, β k → RBNode α β
-| leaf,                 kx, vx => node red leaf kx vx leaf
-| node red a ky vy b,   kx, vx =>
+| leaf,               kx, vx => node red leaf kx vx leaf
+| node red a ky vy b, kx, vx =>
    if lt kx ky then node red (ins a kx vx) ky vy b
    else if lt ky kx then node red a ky vy (ins b kx vx)
    else node red a kx vx b
-| node black a ky vy b,   kx, vx =>
+| node black a ky vy b, kx, vx =>
     if lt kx ky then
       if isRed a then balance1 ky vy b (ins a kx vx)
       else node black (ins a kx vx) ky vy b
@@ -175,22 +175,22 @@ section Membership
 variable (lt : α → α → Bool)
 
 @[specialize] def findCore : RBNode α β → ∀ (k : α), Option (Sigma (fun k => β k))
-| leaf,               x => none
-| node _ a ky vy b,   x =>
+| leaf,             x => none
+| node _ a ky vy b, x =>
    if lt x ky then findCore a x
    else if lt ky x then findCore b x
    else some ⟨ky, vy⟩
 
 @[specialize] def find {β : Type v} : RBNode α (fun _ => β) → α → Option β
-| leaf,               x => none
-| node _ a ky vy b,   x =>
+| leaf,             x => none
+| node _ a ky vy b, x =>
   if lt x ky then find a x
   else if lt ky x then find b x
   else some vy
 
 @[specialize] def lowerBound : RBNode α β → α → Option (Sigma β) → Option (Sigma β)
-| leaf,               x, lb => lb
-| node _ a ky vy b,   x, lb =>
+| leaf,             x, lb => lb
+| node _ a ky vy b, x, lb =>
   if lt x ky then lowerBound a x lb
   else if lt ky x then lowerBound b x (some ⟨ky, vy⟩)
   else some ⟨ky, vy⟩
@@ -261,7 +261,7 @@ instance [HasRepr α] [HasRepr β] : HasRepr (RBMap α β lt) :=
 ⟨fun t => "rbmapOf " ++ repr t.toList⟩
 
 @[inline] def insert : RBMap α β lt → α → β → RBMap α β lt
-| ⟨t, w⟩,   k, v => ⟨t.insert lt k v, WellFormed.insertWff w rfl⟩
+| ⟨t, w⟩, k, v => ⟨t.insert lt k v, WellFormed.insertWff w rfl⟩
 
 @[inline] def erase : RBMap α β lt → α → RBMap α β lt
 | ⟨t, w⟩, k => ⟨t.erase lt k, WellFormed.eraseWff w rfl⟩

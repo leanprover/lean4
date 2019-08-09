@@ -109,8 +109,8 @@ end SyntaxNode
 namespace Syntax
 
 def setAtomVal {α} : Syntax α → String → Syntax α
-| atom info _,   v => (atom info v)
-| stx,           _ => stx
+| atom info _, v => (atom info v)
+| stx,         _ => stx
 
 @[inline] def ifNode {α β} (stx : Syntax α) (hyes : SyntaxNode α → β) (hno : Unit → β) : β :=
 match stx with
@@ -131,8 +131,8 @@ def getId {α} : Syntax α → Name
 | _                 => Name.anonymous
 
 def isOfKind {α} : Syntax α → SyntaxNodeKind → Bool
-| node kind _,   k => k == kind
-| _,             _ => false
+| node kind _, k => k == kind
+| _,           _ => false
 
 def asNode {α} : Syntax α → SyntaxNode α
 | Syntax.node kind args   => ⟨Syntax.node kind args, IsNode.mk kind args⟩
@@ -277,8 +277,8 @@ match setTailInfoAux info stx with
 | none     => stx
 
 private def reprintLeaf : Option SourceInfo → String → String
-| none,        val => val
-| some info,   val => info.leading.toString ++ val ++ info.trailing.toString
+| none,      val => val
+| some info, val => info.leading.toString ++ val ++ info.trailing.toString
 
 partial def reprint {α} : Syntax α → Option String
 | atom info val           => reprintLeaf info val

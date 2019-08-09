@@ -64,16 +64,16 @@ else
     { space := newSpace, exceeded := newSpace > w }
 
 def spaceUptoLine : Format → Nat → SpaceResult
-| nil,               w => {}
-| line,              w => { found := true }
-| text s,            w => { space := s.length, exceeded := s.length > w }
-| compose _ f₁ f₂,   w => merge w (spaceUptoLine f₁ w) (spaceUptoLine f₂ w)
-| nest _ f,          w => spaceUptoLine f w
-| choice f₁ f₂,      w => spaceUptoLine f₂ w
+| nil,             w => {}
+| line,            w => { found := true }
+| text s,          w => { space := s.length, exceeded := s.length > w }
+| compose _ f₁ f₂, w => merge w (spaceUptoLine f₁ w) (spaceUptoLine f₂ w)
+| nest _ f,        w => spaceUptoLine f w
+| choice f₁ f₂,    w => spaceUptoLine f₂ w
 
 def spaceUptoLine' : List (Nat × Format) → Nat → SpaceResult
-| [],      w => {}
-| p::ps,   w => merge w (spaceUptoLine p.2 w) (spaceUptoLine' ps w)
+| [],    w => {}
+| p::ps, w => merge w (spaceUptoLine p.2 w) (spaceUptoLine' ps w)
 
 partial def be : Nat → Nat → String → List (Nat × Format) → String
 | w, k, out, []                           => out
@@ -139,17 +139,17 @@ instance formatHasFormat : HasFormat Format :=
 instance stringHasFormat : HasFormat String := ⟨Format.text⟩
 
 def Format.joinSep {α : Type u} [HasFormat α] : List α → Format → Format
-| [],      sep  => nil
-| [a],     sep => format a
-| a::as,   sep => format a ++ sep ++ Format.joinSep as sep
+| [],    sep  => nil
+| [a],   sep => format a
+| a::as, sep => format a ++ sep ++ Format.joinSep as sep
 
 def Format.prefixJoin {α : Type u} [HasFormat α] (pre : Format) : List α → Format
 | []      => nil
 | a::as   => pre ++ format a ++ Format.prefixJoin as
 
 def Format.joinSuffix {α : Type u} [HasFormat α] : List α → Format → Format
-| [],      suffix => nil
-| a::as,   suffix => format a ++ suffix ++ Format.joinSuffix as suffix
+| [],    suffix => nil
+| a::as, suffix => format a ++ suffix ++ Format.joinSuffix as suffix
 
 def List.format {α : Type u} [HasFormat α] : List α → Format
 | [] => "[]"

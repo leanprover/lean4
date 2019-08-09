@@ -36,7 +36,7 @@ private partial def insertEmptyAux (s : String) (val : α) : String.Pos → Trie
     Trie.Node none (RBNode.singleton c t)
 
 private partial def insertAux (s : String) (val : α) : Trie α → String.Pos → Trie α
-| Trie.Node v m,   i =>
+| Trie.Node v m, i =>
   match s.atEnd i with
   | true  => Trie.Node (some val) m -- overrides old value
   | false =>
@@ -51,7 +51,7 @@ def insert (t : Trie α) (s : String) (val : α) : Trie α :=
 insertAux s val t 0
 
 private partial def findAux (s : String) : Trie α → String.Pos → Option α
-| Trie.Node val m,   i =>
+| Trie.Node val m, i =>
   match s.atEnd i with
   | true  => val
   | false =>
@@ -70,7 +70,7 @@ match v, acc with
 | none,   acc    => acc
 
 private partial def matchPrefixAux (s : String) : Trie α → String.Pos → (String.Pos × Option α) → String.Pos × Option α
-| Trie.Node v m,   i, acc =>
+| Trie.Node v m, i, acc =>
   match s.atEnd i with
   | true  => updtAcc v i acc
   | false =>

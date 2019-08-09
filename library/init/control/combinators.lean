@@ -40,8 +40,8 @@ namespace Nat
 mforAux f n n
 
 @[specialize] def mfoldAux {α : Type u} {m : Type u → Type v} [Monad m] (f : Nat → α → m α) (n : Nat) : Nat → α → m α
-| 0,     a => pure a
-| i+1,   a => f (n-i-1) a >>= mfoldAux i
+| 0,   a => pure a
+| i+1, a => f (n-i-1) a >>= mfoldAux i
 
 @[inline] def mfold {α : Type u} {m : Type u → Type v} [Monad m] (f : Nat → α → m α) (a : α) (n : Nat) : m α :=
 mfoldAux f n n a

@@ -106,7 +106,7 @@ let vs := (vs.push v₁).push v₂;
 Node.collision ks vs rfl
 
 partial def insertAux [HasBeq α] [Hashable α] : Node α β → USize → USize → α → β → Node α β
-| Node.collision keys vals heq,   _, depth, k, v =>
+| Node.collision keys vals heq, _, depth, k, v =>
   let newNode := insertAtCollisionNode ⟨Node.collision keys vals heq, IsCollisionNode.mk _ _ _⟩ k v;
   if depth >= maxDepth || getCollisionNodeSize newNode < maxCollisions then newNode.val
   else match newNode with
@@ -120,7 +120,7 @@ partial def insertAux [HasBeq α] [Hashable α] : Node α β → USize → USize
         --          toString (div2Shift h (shift * (depth - 1)))) $ fun _ =>
         let h := div2Shift h (shift * (depth - 1));
         insertAux entries h depth k v
-| Node.entries entries,   h, depth, k, v =>
+| Node.entries entries, h, depth, k, v =>
   let j     := (mod2Shift h shift).toNat;
   Node.entries $ entries.modify j $ fun entry =>
     match entry with
@@ -142,13 +142,13 @@ partial def findAtAux [HasBeq α] (keys : Array α) (vals : Array β) (heq : key
   else none
 
 partial def findAux [HasBeq α] : Node α β → USize → α → Option β
-| Node.entries entries,   h, k =>
+| Node.entries entries, h, k =>
   let j     := (mod2Shift h shift).toNat;
   match entries.get j with
   | Entry.null       => none
   | Entry.ref node   => findAux node (div2Shift h shift) k
   | Entry.entry k' v => if k == k' then some v else none
-| Node.collision keys vals heq,   _, k => findAtAux keys vals heq 0 k
+| Node.collision keys vals heq, _, k => findAtAux keys vals heq 0 k
 
 def find [HasBeq α] [Hashable α] : PersistentHashMap α β → α → Option β
 | { root := n, .. }, k => findAux n (hash k) k
@@ -209,8 +209,8 @@ variables {m : Type w → Type w'} [Monad m]
 variables {σ : Type w}
 
 @[specialize] partial def mfoldlAux (f : σ → α → β → m σ) : Node α β → σ → m σ
-| Node.collision keys vals heq,   acc => keys.miterate acc $ fun i k acc => f acc k (vals.fget ⟨i.val, heq ▸ i.isLt⟩)
-| Node.entries entries,   acc => entries.mfoldl (fun acc entry =>
+| Node.collision keys vals heq, acc => keys.miterate acc $ fun i k acc => f acc k (vals.fget ⟨i.val, heq ▸ i.isLt⟩)
+| Node.entries entries, acc => entries.mfoldl (fun acc entry =>
   match entry with
   | Entry.null      => pure acc
   | Entry.entry k v => f acc k v
@@ -234,12 +234,12 @@ structure Stats :=
 (maxDepth      : Nat := 0)
 
 partial def collectStats : Node α β → Stats → Nat → Stats
-| Node.collision keys _ _,   stats, depth =>
+| Node.collision keys _ _, stats, depth =>
   { numNodes      := stats.numNodes + 1,
     numCollisions := stats.numCollisions + keys.size - 1,
     maxDepth      := Nat.max stats.maxDepth depth,
     .. stats }
-| Node.entries entries,   stats, depth =>
+| Node.entries entries, stats, depth =>
   let stats :=
     { numNodes      := stats.numNodes + 1,
       maxDepth      := Nat.max stats.maxDepth depth,

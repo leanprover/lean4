@@ -54,9 +54,9 @@ else
       if r != hRank t₂ then mergeNodes t₁ (merged :: t₂) else merged :: mergeNodes t₁ t₂
 
 @[specialize] def merge (lt : α → α → Bool) : Heap α → Heap α → Heap α
-| Heap.empty,      h             => h
-| h,               Heap.empty    => h
-| Heap.heap h₁,   Heap.heap h₂   => Heap.heap (mergeNodes lt h₁ h₂)
+| Heap.empty,    h             => h
+| h,             Heap.empty    => h
+| Heap.heap h₁, Heap.heap h₂   => Heap.heap (mergeNodes lt h₁ h₂)
 
 @[specialize] def headOpt (lt : α → α → Bool) : Heap α → Option α
 | Heap.empty    => none
@@ -72,8 +72,8 @@ else
 | Heap.heap (h::hs)   => hs.foldl (fun r n => if lt r n.val then r else n.val) h.val
 
 @[specialize] def findMin (lt : α → α → Bool) : List (HeapNode α) → Nat → HeapNode α × Nat → HeapNode α × Nat
-| [],      _,   r          => r
-| h::hs,   idx, (h', idx') => if lt h.val h'.val then findMin hs (idx+1) (h, idx) else findMin hs (idx+1) (h', idx')
+| [],    _,   r          => r
+| h::hs, idx, (h', idx') => if lt h.val h'.val then findMin hs (idx+1) (h, idx) else findMin hs (idx+1) (h', idx')
 
 def tail (lt : α → α → Bool) : Heap α → Heap α
 | Heap.empty          => Heap.empty

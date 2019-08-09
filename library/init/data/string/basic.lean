@@ -63,8 +63,8 @@ private def csize (c : Char) : Nat :=
 c.utf8Size.toNat
 
 private def utf8ByteSizeAux : List Char → Nat → Nat
-| [],      r => r
-| c::cs,   r => utf8ByteSizeAux cs (r + csize c)
+| [],    r => r
+| c::cs, r => utf8ByteSizeAux cs (r + csize c)
 
 @[extern cpp "lean::string_utf8_byte_size"]
 def utf8ByteSize : (@& String) → Nat
@@ -77,16 +77,16 @@ utf8ByteSize s
 {str := s, startPos := 0, stopPos := s.bsize}
 
 private def utf8GetAux : List Char → Pos → Pos → Char
-| [],      i, p => default Char
-| c::cs,   i, p => if i = p then c else utf8GetAux cs (i + csize c) p
+| [],    i, p => default Char
+| c::cs, i, p => if i = p then c else utf8GetAux cs (i + csize c) p
 
 @[extern cpp "lean::string_utf8_get"]
 def get : (@& String) → (@& Pos) → Char
 | ⟨s⟩, p => utf8GetAux s 0 p
 
 private def utf8SetAux (c' : Char) : List Char → Pos → Pos → List Char
-| [],      i, p => []
-| c::cs,   i, p =>
+| [],    i, p => []
+| c::cs, i, p =>
   if i = p then (c'::cs) else c::(utf8SetAux cs (i + csize c) p)
 
 @[extern cpp "lean::string_utf8_set"]
@@ -99,8 +99,8 @@ let c := get s p;
 p + csize c
 
 private def utf8PrevAux : List Char → Pos → Pos → Pos
-| [],      i, p => 0
-| c::cs,   i, p =>
+| [],    i, p => 0
+| c::cs, i, p =>
   let cz := csize c;
   let i' := i + cz;
   if i' = p then i else utf8PrevAux cs i' p
@@ -142,8 +142,8 @@ if s.bsize == 0 then none
 else revPosOfAux s c (s.prev s.bsize)
 
 private def utf8ExtractAux₂ : List Char → Pos → Pos → List Char
-| [],      _, _ => []
-| c::cs,   i, e => if i = e then [] else c :: utf8ExtractAux₂ cs (i + csize c) e
+| [],    _, _ => []
+| c::cs, i, e => if i = e then [] else c :: utf8ExtractAux₂ cs (i + csize c) e
 
 private def utf8ExtractAux₁ : List Char → Pos → Pos → Pos → List Char
 | [],        _, _, _ => []

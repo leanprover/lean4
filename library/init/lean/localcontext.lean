@@ -50,8 +50,8 @@ def value : LocalDecl → Expr
 | ldecl _ _ _ _ v   => v
 
 def updateUserName : LocalDecl → Name → LocalDecl
-| cdecl index name _ type bi,    userName => cdecl index name userName type bi
-| ldecl index name _ type val,   userName => ldecl index name userName type val
+| cdecl index name _ type bi,  userName => cdecl index name userName type bi
+| ldecl index name _ type val, userName => ldecl index name userName type val
 
 end LocalDecl
 

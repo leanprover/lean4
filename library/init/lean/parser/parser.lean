@@ -216,19 +216,19 @@ inductive FirstTokens
 namespace FirstTokens
 
 def merge : FirstTokens → FirstTokens → FirstTokens
-| epsilon,        tks            => tks
-| tks,            epsilon        => tks
-| tokens s₁,      tokens s₂      => tokens (s₁ ++ s₂)
-| optTokens s₁,   optTokens s₂   => optTokens (s₁ ++ s₂)
-| tokens s₁,      optTokens s₂   => tokens (s₁ ++ s₂)
-| optTokens s₁,   tokens s₂      => tokens (s₁ ++ s₂)
-| _,              _              => unknown
+| epsilon,      tks            => tks
+| tks,          epsilon        => tks
+| tokens s₁,    tokens s₂      => tokens (s₁ ++ s₂)
+| optTokens s₁, optTokens s₂   => optTokens (s₁ ++ s₂)
+| tokens s₁,    optTokens s₂   => tokens (s₁ ++ s₂)
+| optTokens s₁, tokens s₂      => tokens (s₁ ++ s₂)
+| _,            _              => unknown
 
 def seq : FirstTokens → FirstTokens → FirstTokens
-| epsilon,        tks            => tks
-| optTokens s₁,   optTokens s₂   => optTokens (s₁ ++ s₂)
-| optTokens s₁,   tokens s₂      => tokens (s₁ ++ s₂)
-| tks,            _              => tks
+| epsilon,      tks            => tks
+| optTokens s₁, optTokens s₂   => optTokens (s₁ ++ s₂)
+| optTokens s₁, tokens s₂      => tokens (s₁ ++ s₂)
+| tks,          _              => tks
 
 def toOptional : FirstTokens → FirstTokens
 | tokens tks   => optTokens tks
@@ -1205,9 +1205,9 @@ def longestMatchFn {k : ParserKind} : List (Parser k) → ParserFn k
     longestMatchFnAux startSize startPos ps a c s
 
 def anyOfFn {k : ParserKind} : List (Parser k) → ParserFn k
-| [],      _, _, s => s.mkError "anyOf: empty list"
-| [p],     a, c, s => p.fn a c s
-| p::ps,   a, c, s => orelseFn p.fn (anyOfFn ps) a c s
+| [],    _, _, s => s.mkError "anyOf: empty list"
+| [p],   a, c, s => p.fn a c s
+| p::ps, a, c, s => orelseFn p.fn (anyOfFn ps) a c s
 
 @[inline] def checkColGeFn (col : Nat) (errorMsg : String) : BasicParserFn :=
 fun c s =>

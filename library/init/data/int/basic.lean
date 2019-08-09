@@ -126,17 +126,17 @@ instance : HasToString Int :=
 
 @[extern cpp "lean::int_div"]
 def div : (@& Int) → (@& Int) → Int
-| ofNat m,     ofNat n     => ofNat (m / n)
-| ofNat m,     negSucc n   => -ofNat (m / succ n)
-| negSucc m,   ofNat n     => -ofNat (succ m / n)
-| negSucc m,   negSucc n   => ofNat (succ m / succ n)
+| ofNat m,   ofNat n     => ofNat (m / n)
+| ofNat m,   negSucc n   => -ofNat (m / succ n)
+| negSucc m, ofNat n     => -ofNat (succ m / n)
+| negSucc m, negSucc n   => ofNat (succ m / succ n)
 
 @[extern cpp "lean::int_mod"]
 def mod : (@& Int) → (@& Int) → Int
-| ofNat m,     ofNat n     => ofNat (m % n)
-| ofNat m,     negSucc n   => ofNat (m % succ n)
-| negSucc m,   ofNat n     => -ofNat (succ m % n)
-| negSucc m,   negSucc n   => -ofNat (succ m % succ n)
+| ofNat m,   ofNat n     => ofNat (m % n)
+| ofNat m,   negSucc n   => ofNat (m % succ n)
+| negSucc m, ofNat n     => -ofNat (succ m % n)
+| negSucc m, negSucc n   => -ofNat (succ m % succ n)
 
 instance : HasDiv Int := ⟨Int.div⟩
 instance : HasMod Int := ⟨Int.mod⟩

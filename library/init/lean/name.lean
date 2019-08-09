@@ -49,9 +49,9 @@ def getNumParts : Name → Nat
 | mkNumeral p _   => getNumParts p + 1
 
 def updatePrefix : Name → Name → Name
-| anonymous,       newP => anonymous
-| mkString p s,    newP => mkString newP s
-| mkNumeral p s,   newP => mkNumeral newP s
+| anonymous,     newP => anonymous
+| mkString p s,  newP => mkString newP s
+| mkNumeral p s, newP => mkNumeral newP s
 
 def components' : Name → List Name
 | anonymous               => []
@@ -63,25 +63,25 @@ n.components'.reverse
 
 @[extern "lean_name_dec_eq"]
 protected def decEq : ∀ (a b : @& Name), Decidable (a = b)
-| anonymous,          anonymous          => isTrue rfl
-| mkString p₁ s₁,    mkString p₂ s₂    =>
+| anonymous,        anonymous          => isTrue rfl
+| mkString p₁ s₁,  mkString p₂ s₂    =>
   if h₁ : s₁ = s₂ then
     match decEq p₁ p₂ with
     | isTrue h₂  => isTrue $ h₁ ▸ h₂ ▸ rfl
     | isFalse h₂ => isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hp h₂
   else isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hs h₁
-| mkNumeral p₁ n₁,   mkNumeral p₂ n₂   =>
+| mkNumeral p₁ n₁, mkNumeral p₂ n₂   =>
   if h₁ : n₁ = n₂ then
     match decEq p₁ p₂ with
     | isTrue h₂  => isTrue $ h₁ ▸ h₂ ▸ rfl
     | isFalse h₂ => isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hp h₂
   else isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hs h₁
-| anonymous,         mkString _ _      => isFalse $ fun h => Name.noConfusion h
-| anonymous,         mkNumeral _ _     => isFalse $ fun h => Name.noConfusion h
-| mkString _ _,      anonymous         => isFalse $ fun h => Name.noConfusion h
-| mkString _ _,      mkNumeral _ _     => isFalse $ fun h => Name.noConfusion h
-| mkNumeral _ _,     anonymous         => isFalse $ fun h => Name.noConfusion h
-| mkNumeral _ _,     mkString _ _      => isFalse $ fun h => Name.noConfusion h
+| anonymous,       mkString _ _      => isFalse $ fun h => Name.noConfusion h
+| anonymous,       mkNumeral _ _     => isFalse $ fun h => Name.noConfusion h
+| mkString _ _,    anonymous         => isFalse $ fun h => Name.noConfusion h
+| mkString _ _,    mkNumeral _ _     => isFalse $ fun h => Name.noConfusion h
+| mkNumeral _ _,   anonymous         => isFalse $ fun h => Name.noConfusion h
+| mkNumeral _ _,   mkString _ _      => isFalse $ fun h => Name.noConfusion h
 
 instance : DecidableEq Name :=
 {decEq := Name.decEq}
@@ -120,12 +120,12 @@ def isPrefixOf : Name → Name → Bool
 | p, n@(mkString p' _)  => p == n || isPrefixOf p p'
 
 def quickLtCore : Name → Name → Bool
-| anonymous,        anonymous          => false
-| anonymous,        _                  => true
-| mkNumeral n v,   mkNumeral n' v'     => v < v' || (v = v' && n.quickLtCore n')
-| mkNumeral _ _,   mkString _ _        => true
-| mkString n s,    mkString n' s'      => s < s' || (s = s' && n.quickLtCore n')
-| _,                _                  => false
+| anonymous,      anonymous          => false
+| anonymous,      _                  => true
+| mkNumeral n v, mkNumeral n' v'     => v < v' || (v = v' && n.quickLtCore n')
+| mkNumeral _ _, mkString _ _        => true
+| mkString n s,  mkString n' s'      => s < s' || (s = s' && n.quickLtCore n')
+| _,              _                  => false
 
 def quickLt (n₁ n₂ : Name) : Bool :=
 if n₁.hash < n₂.hash then true
@@ -153,12 +153,12 @@ instance : HasToString Name :=
 ⟨Name.toString⟩
 
 def appendAfter : Name → String → Name
-| mkString p s,   suffix => mkString p (s ++ suffix)
-| n,              suffix => mkString n suffix
+| mkString p s, suffix => mkString p (s ++ suffix)
+| n,            suffix => mkString n suffix
 
 def appendIndexAfter : Name → Nat → Name
-| mkString p s,   idx => mkString p (s ++ "_" ++ toString idx)
-| n,              idx => mkString n ("_" ++ toString idx)
+| mkString p s, idx => mkString p (s ++ "_" ++ toString idx)
+| n,            idx => mkString n ("_" ++ toString idx)
 
 /- The frontend does not allow user declarations to start with `_` in any of its parts.
    We use name parts starting with `_` internally to create auxiliary names (e.g., `_private`). -/

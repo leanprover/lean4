@@ -132,9 +132,9 @@ inductive LitVal
 | str (v : String)
 
 def LitVal.beq : LitVal → LitVal → Bool
-| LitVal.num v₁,   LitVal.num v₂   => v₁ == v₂
-| LitVal.str v₁,   LitVal.str v₂   => v₁ == v₂
-| _,               _               => false
+| LitVal.num v₁, LitVal.num v₂   => v₁ == v₂
+| LitVal.str v₁, LitVal.str v₂   => v₁ == v₂
+| _,             _               => false
 
 instance LitVal.HasBeq : HasBeq LitVal := ⟨LitVal.beq⟩
 
@@ -280,17 +280,17 @@ def FnBody.body : FnBody → FnBody
 | other                     => other
 
 def FnBody.setBody : FnBody → FnBody → FnBody
-| FnBody.vdecl x t v _,      b => FnBody.vdecl x t v b
-| FnBody.jdecl j xs v _,     b => FnBody.jdecl j xs v b
-| FnBody.set x i y _,        b => FnBody.set x i y b
-| FnBody.uset x i y _,       b => FnBody.uset x i y b
-| FnBody.sset x i o y t _,   b => FnBody.sset x i o y t b
-| FnBody.setTag x i _,       b => FnBody.setTag x i b
-| FnBody.inc x n c _,        b => FnBody.inc x n c b
-| FnBody.dec x n c _,        b => FnBody.dec x n c b
-| FnBody.del x _,            b => FnBody.del x b
-| FnBody.mdata d _,          b => FnBody.mdata d b
-| other,                     b => other
+| FnBody.vdecl x t v _,    b => FnBody.vdecl x t v b
+| FnBody.jdecl j xs v _,   b => FnBody.jdecl j xs v b
+| FnBody.set x i y _,      b => FnBody.set x i y b
+| FnBody.uset x i y _,     b => FnBody.uset x i y b
+| FnBody.sset x i o y t _, b => FnBody.sset x i o y t b
+| FnBody.setTag x i _,     b => FnBody.setTag x i b
+| FnBody.inc x n c _,      b => FnBody.inc x n c b
+| FnBody.dec x n c _,      b => FnBody.dec x n c b
+| FnBody.del x _,          b => FnBody.del x b
+| FnBody.mdata d _,        b => FnBody.mdata d b
+| other,                   b => other
 
 @[inline] def FnBody.resetBody (b : FnBody) : FnBody :=
 b.setBody FnBody.nil
@@ -307,8 +307,8 @@ def AltCore.body : Alt → FnBody
 | Alt.default b   => b
 
 def AltCore.setBody : Alt → FnBody → Alt
-| Alt.ctor c _,   b  => Alt.ctor c b
-| Alt.default _,   b => Alt.default b
+| Alt.ctor c _, b  => Alt.ctor c b
+| Alt.default _, b => Alt.default b
 
 @[inline] def AltCore.modifyBody (f : FnBody → FnBody) : AltCore FnBody → Alt
 | Alt.ctor c b    => Alt.ctor c (f b)
@@ -476,21 +476,21 @@ Array.isEqv args₁ args₂ (fun a b => aeqv ρ a b)
 instance args.hasAeqv : HasAlphaEqv (Array Arg) := ⟨args.alphaEqv⟩
 
 def Expr.alphaEqv (ρ : IndexRenaming) : Expr → Expr → Bool
-| Expr.ctor i₁ ys₁,          Expr.ctor i₂ ys₂          => i₁ == i₂ && aeqv ρ ys₁ ys₂
-| Expr.reset n₁ x₁,          Expr.reset n₂ x₂          => n₁ == n₂ && aeqv ρ x₁ x₂
-| Expr.reuse x₁ i₁ u₁ ys₁,   Expr.reuse x₂ i₂ u₂ ys₂   => aeqv ρ x₁ x₂ && i₁ == i₂ && u₁ == u₂ && aeqv ρ ys₁ ys₂
-| Expr.proj i₁ x₁,           Expr.proj i₂ x₂           => i₁ == i₂ && aeqv ρ x₁ x₂
-| Expr.uproj i₁ x₁,          Expr.uproj i₂ x₂          => i₁ == i₂ && aeqv ρ x₁ x₂
-| Expr.sproj n₁ o₁ x₁,       Expr.sproj n₂ o₂ x₂       => n₁ == n₂ && o₁ == o₂ && aeqv ρ x₁ x₂
-| Expr.fap c₁ ys₁,           Expr.fap c₂ ys₂           => c₁ == c₂ && aeqv ρ ys₁ ys₂
-| Expr.pap c₁ ys₁,           Expr.pap c₂ ys₂           => c₁ == c₂ && aeqv ρ ys₂ ys₂
-| Expr.ap x₁ ys₁,            Expr.ap x₂ ys₂            => aeqv ρ x₁ x₂ && aeqv ρ ys₁ ys₂
-| Expr.box ty₁ x₁,           Expr.box ty₂ x₂           => ty₁ == ty₂ && aeqv ρ x₁ x₂
-| Expr.unbox x₁,             Expr.unbox x₂             => aeqv ρ x₁ x₂
-| Expr.lit v₁,               Expr.lit v₂               => v₁ == v₂
-| Expr.isShared x₁,          Expr.isShared x₂          => aeqv ρ x₁ x₂
-| Expr.isTaggedPtr x₁,       Expr.isTaggedPtr x₂       => aeqv ρ x₁ x₂
-| _,                          _                        => false
+| Expr.ctor i₁ ys₁,        Expr.ctor i₂ ys₂          => i₁ == i₂ && aeqv ρ ys₁ ys₂
+| Expr.reset n₁ x₁,        Expr.reset n₂ x₂          => n₁ == n₂ && aeqv ρ x₁ x₂
+| Expr.reuse x₁ i₁ u₁ ys₁, Expr.reuse x₂ i₂ u₂ ys₂   => aeqv ρ x₁ x₂ && i₁ == i₂ && u₁ == u₂ && aeqv ρ ys₁ ys₂
+| Expr.proj i₁ x₁,         Expr.proj i₂ x₂           => i₁ == i₂ && aeqv ρ x₁ x₂
+| Expr.uproj i₁ x₁,        Expr.uproj i₂ x₂          => i₁ == i₂ && aeqv ρ x₁ x₂
+| Expr.sproj n₁ o₁ x₁,     Expr.sproj n₂ o₂ x₂       => n₁ == n₂ && o₁ == o₂ && aeqv ρ x₁ x₂
+| Expr.fap c₁ ys₁,         Expr.fap c₂ ys₂           => c₁ == c₂ && aeqv ρ ys₁ ys₂
+| Expr.pap c₁ ys₁,         Expr.pap c₂ ys₂           => c₁ == c₂ && aeqv ρ ys₂ ys₂
+| Expr.ap x₁ ys₁,          Expr.ap x₂ ys₂            => aeqv ρ x₁ x₂ && aeqv ρ ys₁ ys₂
+| Expr.box ty₁ x₁,         Expr.box ty₂ x₂           => ty₁ == ty₂ && aeqv ρ x₁ x₂
+| Expr.unbox x₁,           Expr.unbox x₂             => aeqv ρ x₁ x₂
+| Expr.lit v₁,             Expr.lit v₂               => v₁ == v₂
+| Expr.isShared x₁,        Expr.isShared x₂          => aeqv ρ x₁ x₂
+| Expr.isTaggedPtr x₁,     Expr.isTaggedPtr x₂       => aeqv ρ x₁ x₂
+| _,                        _                        => false
 
 instance Expr.hasAeqv : HasAlphaEqv Expr:= ⟨Expr.alphaEqv⟩
 
@@ -506,28 +506,28 @@ if ps₁.size != ps₂.size then none
 else Array.foldl₂ (fun ρ p₁ p₂ => do ρ ← ρ; addParamRename ρ p₁ p₂) (some ρ) ps₁ ps₂
 
 partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
-| ρ, FnBody.vdecl x₁ t₁ v₁ b₁,        FnBody.vdecl x₂ t₂ v₂ b₂          => t₁ == t₂ && aeqv ρ v₁ v₂ && FnBody.alphaEqv (addVarRename ρ x₁.idx x₂.idx) b₁ b₂
-| ρ, FnBody.jdecl j₁ ys₁ v₁ b₁,    FnBody.jdecl j₂ ys₂ v₂ b₂            => match addParamsRename ρ ys₁ ys₂ with
+| ρ, FnBody.vdecl x₁ t₁ v₁ b₁,      FnBody.vdecl x₂ t₂ v₂ b₂          => t₁ == t₂ && aeqv ρ v₁ v₂ && FnBody.alphaEqv (addVarRename ρ x₁.idx x₂.idx) b₁ b₂
+| ρ, FnBody.jdecl j₁ ys₁ v₁ b₁,  FnBody.jdecl j₂ ys₂ v₂ b₂            => match addParamsRename ρ ys₁ ys₂ with
   | some ρ' => FnBody.alphaEqv ρ' v₁ v₂ && FnBody.alphaEqv (addVarRename ρ j₁.idx j₂.idx) b₁ b₂
   | none    => false
-| ρ, FnBody.set x₁ i₁ y₁ b₁,          FnBody.set x₂ i₂ y₂ b₂            => aeqv ρ x₁ x₂ && i₁ == i₂ && aeqv ρ y₁ y₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ, FnBody.uset x₁ i₁ y₁ b₁,         FnBody.uset x₂ i₂ y₂ b₂           => aeqv ρ x₁ x₂ && i₁ == i₂ && aeqv ρ y₁ y₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ, FnBody.sset x₁ i₁ o₁ y₁ t₁ b₁,   FnBody.sset x₂ i₂ o₂ y₂ t₂ b₂     =>
+| ρ, FnBody.set x₁ i₁ y₁ b₁,        FnBody.set x₂ i₂ y₂ b₂            => aeqv ρ x₁ x₂ && i₁ == i₂ && aeqv ρ y₁ y₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ, FnBody.uset x₁ i₁ y₁ b₁,       FnBody.uset x₂ i₂ y₂ b₂           => aeqv ρ x₁ x₂ && i₁ == i₂ && aeqv ρ y₁ y₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ, FnBody.sset x₁ i₁ o₁ y₁ t₁ b₁, FnBody.sset x₂ i₂ o₂ y₂ t₂ b₂     =>
   aeqv ρ x₁ x₂ && i₁ = i₂ && o₁ = o₂ && aeqv ρ y₁ y₂ && t₁ == t₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ, FnBody.setTag x₁ i₁ b₁,          FnBody.setTag x₂ i₂ b₂            => aeqv ρ x₁ x₂ && i₁ == i₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ, FnBody.inc x₁ n₁ c₁ b₁,          FnBody.inc x₂ n₂ c₂ b₂            => aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ, FnBody.dec x₁ n₁ c₁ b₁,          FnBody.dec x₂ n₂ c₂ b₂            => aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ, FnBody.del x₁ b₁,                FnBody.del x₂ b₂                  => aeqv ρ x₁ x₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ, FnBody.mdata m₁ b₁,              FnBody.mdata m₂ b₂                => m₁ == m₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ, FnBody.case n₁ x₁ alts₁,         FnBody.case n₂ x₂ alts₂           => n₁ == n₂ && aeqv ρ x₁ x₂ && Array.isEqv alts₁ alts₂ (fun alt₁ alt₂ =>
+| ρ, FnBody.setTag x₁ i₁ b₁,        FnBody.setTag x₂ i₂ b₂            => aeqv ρ x₁ x₂ && i₁ == i₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ, FnBody.inc x₁ n₁ c₁ b₁,        FnBody.inc x₂ n₂ c₂ b₂            => aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ, FnBody.dec x₁ n₁ c₁ b₁,        FnBody.dec x₂ n₂ c₂ b₂            => aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ, FnBody.del x₁ b₁,              FnBody.del x₂ b₂                  => aeqv ρ x₁ x₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ, FnBody.mdata m₁ b₁,            FnBody.mdata m₂ b₂                => m₁ == m₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ, FnBody.case n₁ x₁ alts₁,       FnBody.case n₂ x₂ alts₂           => n₁ == n₂ && aeqv ρ x₁ x₂ && Array.isEqv alts₁ alts₂ (fun alt₁ alt₂ =>
    match alt₁, alt₂ with
    | Alt.ctor i₁ b₁, Alt.ctor i₂ b₂ => i₁ == i₂ && FnBody.alphaEqv ρ b₁ b₂
    | Alt.default b₁, Alt.default b₂ => FnBody.alphaEqv ρ b₁ b₂
    | _,              _              => false)
-| ρ, FnBody.jmp j₁ ys₁,               FnBody.jmp j₂ ys₂                 => j₁ == j₂ && aeqv ρ ys₁ ys₂
-| ρ, FnBody.ret x₁,                   FnBody.ret x₂                     => aeqv ρ x₁ x₂
-| _, FnBody.unreachable,              FnBody.unreachable                => true
-| _, _,                               _                                 => false
+| ρ, FnBody.jmp j₁ ys₁,             FnBody.jmp j₂ ys₂                 => j₁ == j₂ && aeqv ρ ys₁ ys₂
+| ρ, FnBody.ret x₁,                 FnBody.ret x₂                     => aeqv ρ x₁ x₂
+| _, FnBody.unreachable,            FnBody.unreachable                => true
+| _, _,                             _                                 => false
 
 def FnBody.beq (b₁ b₂ : FnBody) : Bool :=
 FnBody.alphaEqv ∅  b₁ b₂

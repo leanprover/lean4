@@ -76,8 +76,8 @@ if n = 0xf then 'f' else
 '*'
 
 def toDigitsCore (base : Nat) : Nat → Nat → List Char → List Char
-| 0,        n, ds => ds
-| fuel+1,   n, ds =>
+| 0,      n, ds => ds
+| fuel+1, n, ds =>
   let d  := digitChar $ n % base;
   let n' := n / base;
   if n' = 0 then d::ds

@@ -425,8 +425,8 @@ def writeModule (env : Environment) (fname : String) : IO Unit :=
 do modData ← mkModuleData env; saveModuleData fname modData
 
 partial def importModulesAux : List Name → (NameSet × Array ModuleData) → IO (NameSet × Array ModuleData)
-| [],      r         => pure r
-| m::ms,   (s, mods) =>
+| [],    r         => pure r
+| m::ms, (s, mods) =>
   if s.contains m then
     importModulesAux ms (s, mods)
   else do

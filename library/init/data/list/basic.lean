@@ -17,10 +17,10 @@ variables {α : Type u} {β : Type v} {γ : Type w}
 namespace List
 
 protected def hasDecEq [DecidableEq α] : ∀ (a b : List α), Decidable (a = b)
-| [],      []      => isTrue rfl
-| a::as,   []      => isFalse (fun h => List.noConfusion h)
-| [],      b::bs   => isFalse (fun h => List.noConfusion h)
-| a::as,   b::bs   =>
+| [],    []      => isTrue rfl
+| a::as, []      => isFalse (fun h => List.noConfusion h)
+| [],    b::bs   => isFalse (fun h => List.noConfusion h)
+| a::as, b::bs   =>
   match decEq a b with
   | isTrue hab  =>
     match hasDecEq as bs with
@@ -32,8 +32,8 @@ instance [DecidableEq α] : DecidableEq (List α) :=
 {decEq := List.hasDecEq}
 
 def reverseAux : List α → List α → List α
-| [],     r => r
-| a::l,   r => reverseAux l (a::r)
+| [],   r => r
+| a::l, r => reverseAux l (a::r)
 
 def reverse : List α → List α :=
 fun l => reverseAux l []
@@ -45,8 +45,8 @@ instance : HasAppend (List α) :=
 ⟨List.append⟩
 
 theorem reverseAuxReverseAuxNil : ∀ (as bs : List α), reverseAux (reverseAux as bs) [] = reverseAux bs as
-| [],  bs     => rfl
-| a::as,   bs =>
+| [], bs     => rfl
+| a::as,  bs =>
   show reverseAux (reverseAux as (a::bs)) [] = reverseAux bs (a::as) from
   reverseAuxReverseAuxNil as (a::bs)
 
@@ -58,8 +58,8 @@ show reverseAux (reverseAux as []) [] = as from
 reverseAuxReverseAuxNil as []
 
 theorem reverseAuxReverseAux : ∀ (as bs cs : List α), reverseAux (reverseAux as bs) cs = reverseAux bs (reverseAux (reverseAux as []) cs)
-| [],      bs, cs => rfl
-| a::as,   bs, cs =>
+| [],    bs, cs => rfl
+| a::as, bs, cs =>
   Eq.trans
     (reverseAuxReverseAux as (a::bs) cs)
     (congrArg (fun b => reverseAux bs b) (reverseAuxReverseAux as [a] cs).symm)
@@ -68,8 +68,8 @@ theorem consAppend (a : α) (as bs : List α) : (a::as) ++ bs = a::(as ++ bs) :=
 reverseAuxReverseAux as [a] bs
 
 theorem appendAssoc : ∀ (as bs cs : List α), (as ++ bs) ++ cs = as ++ (bs ++ cs)
-| [],      bs, cs => rfl
-| a::as,   bs, cs =>
+| [],    bs, cs => rfl
+| a::as, bs, cs =>
   show ((a::as) ++ bs) ++ cs = (a::as) ++ (bs ++ cs)      from
   have h₁ : ((a::as) ++ bs) ++ cs = a::(as++bs) ++ cs     from congrArg (fun ds => ds ++ cs) (consAppend a as bs);
   have h₂ : a::(as++bs) ++ cs     = a::((as++bs) ++ cs)   from consAppend a (as++bs) cs;
@@ -81,19 +81,19 @@ instance : HasEmptyc (List α) :=
 ⟨List.nil⟩
 
 protected def erase {α} [HasBeq α] : List α → α → List α
-| [],      b => []
-| a::as,   b => match a == b with
+| [],    b => []
+| a::as, b => match a == b with
   | true  => as
   | false => a :: erase as b
 
 def eraseIdx : List α → Nat → List α
-| [],      _     => []
-| a::as,   0     => as
-| a::as,   n+1   => a :: eraseIdx as n
+| [],    _     => []
+| a::as, 0     => as
+| a::as, n+1   => a :: eraseIdx as n
 
 def lengthAux : List α → Nat → Nat
-| [],      n => n
-| a::as,   n => lengthAux as (n+1)
+| [],    n => n
+| a::as, n => lengthAux as (n+1)
 
 def length (as : List α) : Nat :=
 lengthAux as 0
@@ -103,19 +103,19 @@ def isEmpty : List α → Bool
 | _ :: _   => false
 
 def get [Inhabited α] : Nat → List α → α
-| 0,     a::as   => a
-| n+1,   a::as   => get n as
-| _,     _       => default α
+| 0,   a::as   => a
+| n+1, a::as   => get n as
+| _,   _       => default α
 
 def getOpt : Nat → List α → Option α
-| 0,     a::as   => some a
-| n+1,   a::as   => getOpt n as
-| _,     _       => none
+| 0,   a::as   => some a
+| n+1, a::as   => getOpt n as
+| _,   _       => none
 
 def set : List α → Nat → α → List α
-| a::as,   0,     b => b::as
-| a::as,   n+1,   b => a::(set as n b)
-| [],      _,     _ => []
+| a::as, 0,   b => b::as
+| a::as, n+1, b => a::(set as n b)
+| [],    _,   _ => []
 
 def head [Inhabited α] : List α → α
 | []     => default α
@@ -130,9 +130,9 @@ def tail : List α → List α
 | a::as   => f a :: map as
 
 @[specialize] def map₂ (f : α → β → γ) : List α → List β → List γ
-| [],      _       => []
-| _,       []      => []
-| a::as,   b::bs   => f a b :: map₂ as bs
+| [],    _       => []
+| _,     []      => []
+| a::as, b::bs   => f a b :: map₂ as bs
 
 def join : List (List α) → List α
 | []        => []
@@ -146,8 +146,8 @@ def join : List (List α) → List α
   | some b => b :: filterMap as
 
 @[specialize] def filterAux (p : α → Bool) : List α → List α → List α
-| [],      rs => rs.reverse
-| a::as,   rs => match p a with
+| [],    rs => rs.reverse
+| a::as, rs => match p a with
    | true  => filterAux as (a::rs)
    | false => filterAux as rs
 
@@ -155,8 +155,8 @@ def join : List (List α) → List α
 filterAux p as []
 
 @[specialize] def partitionAux (p : α → Bool) : List α → List α × List α → List α × List α
-| [],      (bs, cs) => (bs.reverse, cs.reverse)
-| a::as,   (bs, cs) =>
+| [],    (bs, cs) => (bs.reverse, cs.reverse)
+| a::as, (bs, cs) =>
   match p a with
   | true  => partitionAux as (a::bs, cs)
   | false => partitionAux as (bs, a::cs)
@@ -186,8 +186,8 @@ def notElem [HasBeq α] (a : α) (as : List α) : Bool :=
 !(as.elem a)
 
 def eraseDupsAux {α} [HasBeq α] : List α → List α → List α
-| [],      bs => bs.reverse
-| a::as,   bs => match bs.elem a with
+| [],    bs => bs.reverse
+| a::as, bs => match bs.elem a with
   | true  => eraseDupsAux as bs
   | false => eraseDupsAux as (a::bs)
 
@@ -195,8 +195,8 @@ def eraseDups {α} [HasBeq α] (as : List α) : List α :=
 eraseDupsAux as []
 
 @[specialize] def spanAux (p : α → Bool) : List α → List α → List α × List α
-| [],      rs => (rs.reverse, [])
-| a::as,   rs => match p a with
+| [],    rs => (rs.reverse, [])
+| a::as, rs => match p a with
   | true  => spanAux as (a::rs)
   | false => (rs.reverse, a::as)
 
@@ -213,14 +213,14 @@ def removeAll [HasBeq α] (xs ys : List α) : List α :=
 xs.filter (fun x => ys.notElem x)
 
 def drop : Nat → List α → List α
-| 0,     a       => a
-| n+1,   []      => []
-| n+1,   a::as   => drop n as
+| 0,   a       => a
+| n+1, []      => []
+| n+1, a::as   => drop n as
 
 def take : Nat → List α → List α
-| 0,     a       => []
-| n+1,   []      => []
-| n+1,   a::as   => a :: take n as
+| 0,   a       => []
+| n+1, []      => []
+| n+1, a::as   => a :: take n as
 
 @[specialize] def foldl (f : α → β → α) : α → List β → α
 | a, []       => a
@@ -231,9 +231,9 @@ def take : Nat → List α → List α
 | a :: l   => f a (foldr l)
 
 @[specialize] def foldr1 (f : α → α → α) : ∀ (xs : List α), xs ≠ [] → α
-| [],               h => absurd rfl h
-| [a],              _ => a
-| a :: as@(_::_),   _ => f a (foldr1 as (fun h => List.noConfusion h))
+| [],             h => absurd rfl h
+| [a],            _ => a
+| a :: as@(_::_), _ => f a (foldr1 as (fun h => List.noConfusion h))
 
 @[specialize] def foldr1Opt (f : α → α → α) : List α → Option α
 | []        => none
@@ -250,8 +250,8 @@ def or  (bs : List Bool) : Bool := bs.any id
 def and (bs : List Bool) : Bool := bs.all id
 
 def zipWith (f : α → β → γ) : List α → List β → List γ
-| x::xs,   y::ys   => f x y :: zipWith xs ys
-| _,       _       => []
+| x::xs, y::ys   => f x y :: zipWith xs ys
+| _,     _       => []
 
 def zip : List α → List β → List (Prod α β) :=
 zipWith Prod.mk
@@ -264,8 +264,8 @@ def replicate (n : Nat) (a : α) : List α :=
 n.repeat (fun xs => a :: xs) []
 
 def rangeAux : Nat → List Nat → List Nat
-| 0,     ns => ns
-| n+1,   ns => rangeAux n (n::ns)
+| 0,   ns => ns
+| n+1, ns => rangeAux n (n::ns)
 
 def range (n : Nat) : List Nat :=
 rangeAux n []
@@ -281,9 +281,9 @@ def enumFrom : Nat → List α → List (Nat × α)
 def enum : List α → List (Nat × α) := enumFrom 0
 
 def getLastOfNonNil : ∀ (as : List α), as ≠ [] → α
-| [],         h => absurd rfl h
-| [a],        h => a
-| a::b::as,   h => getLastOfNonNil (b::as) (fun h => List.noConfusion h)
+| [],       h => absurd rfl h
+| [a],      h => a
+| a::b::as, h => getLastOfNonNil (b::as) (fun h => List.noConfusion h)
 
 def getLast [Inhabited α] : List α → α
 | []      => arbitrary α
@@ -317,10 +317,10 @@ instance [HasLess α] : HasLess (List α) :=
 ⟨List.Less⟩
 
 instance hasDecidableLt [HasLess α] [h : DecidableRel HasLess.Less] : ∀ (l₁ l₂ : List α), Decidable (l₁ < l₂)
-| [],      []      => isFalse (fun h => nomatch h)
-| [],      b::bs   => isTrue (Less.nil _ _)
-| a::as,   []      => isFalse (fun h => nomatch h)
-| a::as,   b::bs   =>
+| [],    []      => isFalse (fun h => nomatch h)
+| [],    b::bs   => isTrue (Less.nil _ _)
+| a::as, []      => isFalse (fun h => nomatch h)
+| a::as, b::bs   =>
   match h a b with
   | isTrue h₁  => isTrue (Less.head _ _ h₁)
   | isFalse h₁ =>
@@ -346,16 +346,16 @@ fun a b => Not.Decidable
 
 /--  `isPrefixOf l₁ l₂` returns `true` Iff `l₁` is a prefix of `l₂`. -/
 def isPrefixOf [HasBeq α] : List α → List α → Bool
-| [],      _       => true
-| _,       []      => false
-| a::as,   b::bs   => a == b && isPrefixOf as bs
+| [],    _       => true
+| _,     []      => false
+| a::as, b::bs   => a == b && isPrefixOf as bs
 
 /--  `isSuffixOf l₁ l₂` returns `true` Iff `l₁` is a suffix of `l₂`. -/
 def isSuffixOf [HasBeq α] (l₁ l₂ : List α) : Bool :=
 isPrefixOf l₁.reverse l₂.reverse
 
 @[specialize] def isEqv : List α → List α → (α → α → Bool) → Bool
-| [],      [],      _   => true
-| a::as,   b::bs,   eqv => eqv a b && isEqv as bs eqv
-| _,       _,       eqv => false
+| [],    [],    _   => true
+| a::as, b::bs, eqv => eqv a b && isEqv as bs eqv
+| _,     _,     eqv => false
 end List

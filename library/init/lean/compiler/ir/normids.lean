@@ -61,20 +61,20 @@ def normArgs (as : Array Arg) : M (Array Arg) :=
 fun m => as.map $ fun a => normArg a m
 
 def normExpr : Expr → M Expr
-| Expr.ctor c ys,        m => Expr.ctor c (normArgs ys m)
-| Expr.reset n x,        m => Expr.reset n (normVar x m)
-| Expr.reuse x c u ys,   m => Expr.reuse (normVar x m) c u (normArgs ys m)
-| Expr.proj i x,         m => Expr.proj i (normVar x m)
-| Expr.uproj i x,        m => Expr.uproj i (normVar x m)
-| Expr.sproj n o x,      m => Expr.sproj n o (normVar x m)
-| Expr.fap c ys,         m => Expr.fap c (normArgs ys m)
-| Expr.pap c ys,         m => Expr.pap c (normArgs ys m)
-| Expr.ap x ys,          m => Expr.ap (normVar x m) (normArgs ys m)
-| Expr.box t x,          m => Expr.box t (normVar x m)
-| Expr.unbox x,          m => Expr.unbox (normVar x m)
-| Expr.isShared x,       m => Expr.isShared (normVar x m)
-| Expr.isTaggedPtr x,    m => Expr.isTaggedPtr (normVar x m)
-| e@(Expr.lit v),        m =>  e
+| Expr.ctor c ys,      m => Expr.ctor c (normArgs ys m)
+| Expr.reset n x,      m => Expr.reset n (normVar x m)
+| Expr.reuse x c u ys, m => Expr.reuse (normVar x m) c u (normArgs ys m)
+| Expr.proj i x,       m => Expr.proj i (normVar x m)
+| Expr.uproj i x,      m => Expr.uproj i (normVar x m)
+| Expr.sproj n o x,    m => Expr.sproj n o (normVar x m)
+| Expr.fap c ys,       m => Expr.fap c (normArgs ys m)
+| Expr.pap c ys,       m => Expr.pap c (normArgs ys m)
+| Expr.ap x ys,        m => Expr.ap (normVar x m) (normArgs ys m)
+| Expr.box t x,        m => Expr.box t (normVar x m)
+| Expr.unbox x,        m => Expr.unbox (normVar x m)
+| Expr.isShared x,     m => Expr.isShared (normVar x m)
+| Expr.isTaggedPtr x,  m => Expr.isTaggedPtr (normVar x m)
+| e@(Expr.lit v),      m =>  e
 
 abbrev N := ReaderT IndexRenaming (State Nat)
 

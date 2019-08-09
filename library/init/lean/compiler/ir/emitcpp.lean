@@ -277,14 +277,14 @@ def declareParams (ps : Array Param) : M Unit :=
 ps.mfor $ fun p => declareVar p.x p.ty
 
 partial def declareVars : FnBody → Bool → M Bool
-| e@(FnBody.vdecl x t _ b),  d => do
+| e@(FnBody.vdecl x t _ b), d => do
   ctx ← read;
   if isTailCallTo ctx.mainFn e then
     pure d
   else
     declareVar x t *> declareVars b true
-| FnBody.jdecl j xs _ b,     d => declareParams xs *> declareVars b (d || xs.size > 0)
-| e,                         d => if e.isTerminal then pure d else declareVars e.body d
+| FnBody.jdecl j xs _ b,    d => declareParams xs *> declareVars b (d || xs.size > 0)
+| e,                        d => if e.isTerminal then pure d else declareVars e.body d
 
 def emitTag (x : VarId) : M Unit :=
 do

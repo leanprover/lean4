@@ -269,8 +269,8 @@ section
 variable {β:Type w}
 
 @[specialize] private def revIterateAux (a : Array α) (f : ∀ (i : Fin a.size), α → β → β) : ∀ (i : Nat), i ≤ a.size → β → β
-| 0,     h, b => b
-| j+1,   h, b =>
+| 0,   h, b => b
+| j+1, h, b =>
   let i : Fin a.size := ⟨j, h⟩;
   revIterateAux j (Nat.leOfLt h) (f i (a.fget i) b)
 
@@ -480,8 +480,8 @@ end Array
 export Array (mkArray)
 
 @[inlineIfReduce] def List.toArrayAux {α : Type u} : List α → Array α → Array α
-| [],      r => r
-| a::as,   r => List.toArrayAux as (r.push a)
+| [],    r => r
+| a::as, r => List.toArrayAux as (r.push a)
 
 @[inlineIfReduce] def List.redLength {α : Type u} : List α → Nat
 | []      => 0

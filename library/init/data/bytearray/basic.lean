@@ -56,8 +56,8 @@ toListAux bs 0 []
 end ByteArray
 
 def List.toByteArrayAux : List UInt8 → ByteArray → ByteArray
-| [],      r => r
-| b::bs,   r => List.toByteArrayAux bs (r.push b)
+| [],    r => r
+| b::bs, r => List.toByteArrayAux bs (r.push b)
 
 def List.toByteArray (bs : List UInt8) : ByteArray :=
 bs.toByteArrayAux ByteArray.empty

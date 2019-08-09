@@ -94,9 +94,9 @@ else match env.find clsName with
   | some decl => Except.ok (classExtension.addEntry env (ClassEntry.«class» clsName decl.type.hasOutParam))
 
 private def consumeNLambdas : Nat → Expr → Option Expr
-| 0,     e                  => some e
-| i+1,   Expr.lam _ _ _ b   => consumeNLambdas i b
-| _,     _                  => none
+| 0,   e                  => some e
+| i+1, Expr.lam _ _ _ b   => consumeNLambdas i b
+| _,   _                  => none
 
 partial def getClassName (env : Environment) : Expr → Option Name
 | Expr.pi _ _ _ d   => getClassName d

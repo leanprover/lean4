@@ -14,8 +14,23 @@ structure SourceInfo :=
 (pos      : String.Pos)
 (trailing : Substring)
 
-def SourceInfo.updateTrailing : SourceInfo → Substring → SourceInfo
-| ⟨leading, pos, _⟩ trailing := ⟨leading, pos, trailing⟩
+namespace SourceInfo
+
+def updateTrailing (info : SourceInfo) (trailing : Substring) : SourceInfo :=
+{ trailing := trailing, .. info }
+
+def truncateTrailing (info : SourceInfo) : SourceInfo :=
+{ trailing := { stopPos := info.trailing.startPos, .. info.trailing }, .. info }
+
+/- Update `info₁.trailing.stopPos` to `info₂.trailing.stopPos` -/
+def appendToTrailing (info₁ info₂ : SourceInfo) : SourceInfo :=
+{ trailing := { stopPos := info₂.trailing.stopPos, .. info₁.trailing }, .. info₁ }
+
+/- Update `info₁.leading.startPos` to `info₂.leading.startPos` -/
+def appendToLeading (info₁ info₂ : SourceInfo) : SourceInfo :=
+{ leading := { startPos := info₂.leading.startPos, .. info₁.leading }, .. info₁ }
+
+end SourceInfo
 
 /- Node kind generation -/
 
@@ -93,9 +108,18 @@ end SyntaxNode
 
 namespace Syntax
 
+def setAtomVal {α} : Syntax α → String → Syntax α
+| (atom info _) v := (atom info v)
+| stx           _ := stx
+
 @[inline] def ifNode {α β} (stx : Syntax α) (hyes : SyntaxNode α → β) (hno : Unit → β) : β :=
 match stx with
 | Syntax.node k args => hyes ⟨Syntax.node k args, IsNode.mk k args⟩
+| _                  => hno ()
+
+@[inline] def ifNodeKind {α β} (stx : Syntax α) (kind : SyntaxNodeKind) (hyes : SyntaxNode α → β) (hno : Unit → β) : β :=
+match stx with
+| Syntax.node k args => if k == kind then hyes ⟨Syntax.node k args, IsNode.mk k args⟩ else hno ()
 | _                  => hno ()
 
 def isIdent {α} : Syntax α → Bool
@@ -193,20 +217,38 @@ partial def updateTrailing {α} (trailing : Substring) : Syntax α → Syntax α
 | s := s
 
 /-- Retrieve the left-most leaf's info in the Syntax tree. -/
-partial def getHeadInfo {α} : Syntax α → Option SourceInfo
+partial def getLeftMostInfo {α} : Syntax α → Option SourceInfo
 | (atom info _)       := info
 | (ident info _ _ _ ) := info
-| (node _ args)       := args.find getHeadInfo
+| (node _ args)       := args.find getLeftMostInfo
 | _                   := none
 
 def getPos {α} (stx : Syntax α) : Option String.Pos :=
-SourceInfo.pos <$> stx.getHeadInfo
+SourceInfo.pos <$> stx.getLeftMostInfo
 
 partial def getTailInfo {α} : Syntax α → Option SourceInfo
 | (atom info _)       := info
 | (ident info _ _ _)  := info
-| (node _ args)       := args.findRev getTailInfo
+| (node _ args)       := getTailInfo args.back
 | _                   := none
+
+partial def setTailInfo {α} : Syntax α → Option SourceInfo → Syntax α
+| (atom _ val)             info := atom info val
+| (ident _ rawVal val pre) info := ident info rawVal val pre
+| (node k args)            info := node k $ args.modify (args.size - 1) $ fun arg => setTailInfo arg info
+| stx                      _    := stx
+
+partial def getHeadInfo {α} : Syntax α → Option SourceInfo
+| (atom info _)       := info
+| (ident info _ _ _)  := info
+| (node _ args)       := getHeadInfo $ args.get 0
+| _                   := none
+
+partial def setHeadInfo {α} : Syntax α → Option SourceInfo → Syntax α
+| (atom _ val)             info := atom info val
+| (ident _ rawVal val pre) info := ident info rawVal val pre
+| (node k args)            info := node k $ args.modify 0 $ fun arg => setTailInfo arg info
+| stx                      _    := stx
 
 private def reprintLeaf : Option SourceInfo → String → String
 | none        val := val

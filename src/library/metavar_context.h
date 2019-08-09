@@ -131,13 +131,6 @@ public:
     /** \brief Return true iff all metavariables ?M in \c e are declared in this metavar context,
         and context of ?M is a subset of \c ctx */
     bool well_formed(local_context const & ctx, expr const & e) const;
-
-    friend bool is_eqp(metavar_context const & ctx1, metavar_context const & ctx2) {
-        return
-            is_eqp(ctx1.m_decls, ctx2.m_decls) &&
-            is_eqp(ctx1.m_uassignment, ctx2.m_uassignment) &&
-            is_eqp(ctx1.m_eassignment, ctx2.m_eassignment);
-    }
 };
 
 /** \brief Check whether the local context lctx is well-formed and well-formed with respect to \c mctx.

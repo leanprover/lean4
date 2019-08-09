@@ -66,7 +66,6 @@ tactic_state set_env(tactic_state const & s, environment const & env) {
 }
 
 tactic_state set_mctx(tactic_state const & s, metavar_context const & mctx) {
-    if (is_eqp(s.mctx(), mctx)) return s;
     return tactic_state(s.env(), s.get_options(), s.decl_name(), mctx, s.goals(), s.main());
 }
 

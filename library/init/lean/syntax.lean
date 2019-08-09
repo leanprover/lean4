@@ -96,7 +96,7 @@ withArgs n $ fun args => args.get i
 @[inline] def getArgs {α} (n : SyntaxNode α) : Array (Syntax α) :=
 withArgs n $ fun args => args
 
-@[inline] def updateArgs {α} (n : SyntaxNode α) (fn : Array (Syntax α) → Array (Syntax α)) : Syntax α :=
+@[inline] def modifyArgs {α} (n : SyntaxNode α) (fn : Array (Syntax α) → Array (Syntax α)) : Syntax α :=
 match n with
 | ⟨Syntax.node kind args, _⟩ => Syntax.node kind (fn args)
 | ⟨Syntax.missing, h⟩        => unreachIsNodeMissing h
@@ -146,6 +146,26 @@ stx.asNode.getArgs
 
 def getArg {α} (stx : Syntax α) (i : Nat) : Syntax α :=
 stx.asNode.getArg i
+
+def setArgs {α} (stx : Syntax α) (args : Array (Syntax α)) : Syntax α :=
+match stx with
+| node k _ => node k args
+| stx      => stx
+
+@[inline] def modifyArgs {α} (stx : Syntax α) (fn : Array (Syntax α) → Array (Syntax α)) : Syntax α :=
+match stx with
+| node k args => node k (fn args)
+| stx         => stx
+
+def setArg {α} (stx : Syntax α) (i : Nat) (arg : Syntax α) : Syntax α :=
+match stx with
+| node k args => node k (args.set i arg)
+| stx         => stx
+
+@[inline] def modifyArg {α} (stx : Syntax α) (i : Nat) (fn : Syntax α → Syntax α) : Syntax α :=
+match stx with
+| node k args => node k (args.modify i fn)
+| stx         => stx
 
 def getIdAt {α} (stx : Syntax α) (i : Nat) : Name :=
 (stx.getArg i).getId

@@ -8,18 +8,17 @@ Author: Leonardo de Moura
 #include "library/local_context.h"
 
 namespace lean {
-class metavar_decl {
-    name          m_user_name;
-    local_context m_context;
-    expr          m_type;
-    friend class metavar_context;
-    metavar_decl(name const & user_name, local_context const & ctx, expr const & type):
-        m_user_name(user_name), m_context(ctx), m_type(type) {}
+class metavar_decl : public object_ref {
 public:
-    metavar_decl() {}
-    expr const & get_type() const { return m_type; }
-    local_context const & get_context() const { return m_context; }
-    name const & get_user_name() const { return m_user_name; }
+    metavar_decl();
+    metavar_decl(name const & user_name, local_context const & ctx, expr const & type);
+    metavar_decl(metavar_decl const & other):object_ref(other) {}
+    metavar_decl(metavar_decl && other):object_ref(other) {}
+    metavar_decl & operator=(metavar_decl const & other) { object_ref::operator=(other); return *this; }
+    metavar_decl & operator=(metavar_decl && other) { object_ref::operator=(other); return *this; }
+    name const & get_user_name() const { return static_cast<name const &>(cnstr_get_ref(raw(), 0)); }
+    local_context const & get_context() const { return static_cast<local_context const &>(cnstr_get_ref(raw(), 1)); }
+    expr const & get_type() const { return static_cast<expr const &>(cnstr_get_ref(raw(), 2)); }
 };
 
 bool is_metavar_decl_ref(level const & l);

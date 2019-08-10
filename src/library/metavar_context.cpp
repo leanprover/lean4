@@ -14,6 +14,13 @@ namespace lean {
 static name *       g_meta_prefix;
 static expr *       g_dummy_type;
 
+metavar_decl::metavar_decl(name const & user_name, local_context const & lctx, expr const & type):
+    object_ref(mk_cnstr(0, user_name, lctx, type)) {
+}
+
+metavar_decl::metavar_decl():
+    metavar_decl(name(), local_context(), expr()) {}
+
 static expr mk_meta_ref(name const & n) {
     return mk_metavar(n, *g_dummy_type);
 }

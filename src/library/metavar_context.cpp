@@ -36,6 +36,14 @@ name get_metavar_decl_ref_suffix(expr const & e) {
     return mvar_name(e).replace_prefix(*g_meta_prefix, name());
 }
 
+metavar_context::delayed_assignment::delayed_assignment(local_context const & lctx, exprs const & locals, expr const & v):
+    object_ref(mk_cnstr(0, lctx, locals, v)) {
+}
+
+metavar_context::delayed_assignment::delayed_assignment():
+    delayed_assignment(local_context(), exprs(), expr()) {
+}
+
 // TODO(Leo): fix this
 static name mk_meta_decl_name() {
     return mk_tagged_fresh_name(*g_meta_prefix);
@@ -91,7 +99,7 @@ void metavar_context::assign(expr const & e, expr const & v) {
     m_eassignment.insert(mvar_name(e), v);
 }
 
-void metavar_context::assign(expr const & e, local_context const & lctx, list<expr> const & locals, expr const & v) {
+void metavar_context::assign(expr const & e, local_context const & lctx, exprs const & locals, expr const & v) {
     m_dassignment.insert(mvar_name(e), delayed_assignment(lctx, locals, v));
 }
 
@@ -143,21 +151,21 @@ struct metavar_context::interface_impl {
         /* Remark: a delayed assignment can be transformed in a regular assignment
            as soon as all metavariables occurring in the assigned value have
            been assigned. */
-        expr new_v = m_ctx.instantiate_mvars(d->m_val);
+        expr new_v = m_ctx.instantiate_mvars(d->get_val());
         if (has_expr_metavar(new_v)) {
             m_delayed_found.insert(mvar_name(e));
-            if (!is_eqp(new_v, d->m_val))
-                m_ctx.assign(e, d->m_lctx, d->m_locals, new_v);
+            if (!is_eqp(new_v, d->get_val()))
+                m_ctx.assign(e, d->get_lctx(), d->get_locals(), new_v);
             return none_expr();
         } else {
             m_ctx.m_dassignment.erase(mvar_name(e));
             buffer<expr> locals;
-            to_buffer(d->m_locals, locals);
+            to_buffer(d->get_locals(), locals);
             new_v = abstract(new_v, locals.size(), locals.data());
             unsigned i = locals.size();
             while (i > 0) {
                 --i;
-                local_decl decl = d->m_lctx.get_local_decl(locals[i]);
+                local_decl decl = d->get_lctx().get_local_decl(locals[i]);
                 expr type       = abstract(decl.get_type(), i, locals.data());
                 if (optional<expr> letval = decl.get_value()) {
                     letval = abstract(*letval, i, locals.data());

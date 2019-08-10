@@ -29,15 +29,17 @@ name get_metavar_decl_ref_suffix(level const & l);
 name get_metavar_decl_ref_suffix(expr const & e);
 
 class metavar_context {
-    struct delayed_assignment {
-        local_context m_lctx;
-        list<expr>    m_locals;
-        expr          m_val;
-        delayed_assignment() {}
-        delayed_assignment(local_context const & lctx, list<expr> const & locals, expr const & v):
-            m_lctx(lctx), m_locals(locals), m_val(v) {
-            lean_assert(std::all_of(locals.begin(), locals.end(), is_local));
-        }
+    class delayed_assignment : public object_ref {
+    public:
+        delayed_assignment();
+        delayed_assignment(local_context const & lctx, exprs const & locals, expr const & v);
+        delayed_assignment(delayed_assignment const & other):object_ref(other) {}
+        delayed_assignment(delayed_assignment && other):object_ref(other) {}
+        delayed_assignment & operator=(delayed_assignment const & other) { object_ref::operator=(other); return *this; }
+        delayed_assignment & operator=(delayed_assignment && other) { object_ref::operator=(other); return *this; }
+        local_context const & get_lctx() const { return static_cast<local_context const &>(cnstr_get_ref(raw(), 0)); }
+        exprs const & get_locals() const { return static_cast<exprs const &>(cnstr_get_ref(raw(), 1)); }
+        expr const & get_val() const { return static_cast<expr const &>(cnstr_get_ref(raw(), 2)); }
     };
 
     name_map<metavar_decl>       m_decls;
@@ -103,7 +105,7 @@ public:
 
       \pre is_metavar_decl_ref(e)
     */
-    void assign(expr const & e, local_context const & lctx, list<expr> const & locals, expr const & v);
+    void assign(expr const & e, local_context const & lctx, exprs const & locals, expr const & v);
 
     level instantiate_mvars(level const & l);
     expr instantiate_mvars(expr const & e);

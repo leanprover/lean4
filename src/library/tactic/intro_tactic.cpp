@@ -46,7 +46,7 @@ optional<expr> intron_core(environment const & env, options const & opts, metava
     }
     expr new_M   = ctx.mk_metavar_decl(ctx.lctx(), type);
     mctx = ctx.mctx();
-    mctx.assign(mvar, ctx.lctx(), to_list(new_Hs), new_M);
+    mctx.assign(mvar, ctx.lctx(), exprs(new_Hs), new_M);
     return some_expr(new_M);
 }
 

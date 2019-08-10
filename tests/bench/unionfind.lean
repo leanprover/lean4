@@ -24,14 +24,14 @@ instance : Monad (ExceptT' m ε) :=
 {pure := @ExceptT'.pure _ _ _, bind := @ExceptT'.bind _ _ _}
 end ExceptT'
 
-abbreviation Node := Nat
+abbrev Node := Nat
 
 structure nodeData :=
 (find : Node) (rank : Nat := 0)
 
-abbreviation ufData := Array nodeData
+abbrev ufData := Array nodeData
 
-abbreviation M (α : Type) := ExceptT' (StateT' Id ufData) String α
+abbrev M (α : Type) := ExceptT' (StateT' Id ufData) String α
 @[inline] def read : M ufData := ExceptT'.lift StateT'.read
 @[inline] def write (s : ufData) : M Unit := ExceptT'.lift (StateT'.write s)
 @[inline] def updt (f : ufData → ufData) : M Unit := ExceptT'.lift (StateT'.updt f)
@@ -43,8 +43,8 @@ def capacity : M Nat :=
 do d ← read; pure d.size
 
 def findEntryAux : Nat → Node → M nodeData
-| 0     n := error "out of fuel"
-| (i+1) n :=
+| 0,   n => error "out of fuel"
+| i+1, n =>
   do s ← read;
      if h : n < s.size then
        do { let e := s.fget ⟨n, h⟩;
@@ -79,16 +79,16 @@ do r₁ ← findEntry n₁;
 
 
 def mkNodes : Nat → M Unit
-| 0     := pure ()
-| (n+1) := mk *> mkNodes n
+| 0   => pure ()
+| n+1 => mk *> mkNodes n
 
 def checkEq (n₁ n₂ : Node) : M Unit :=
 do r₁ ← find n₁; r₂ ← find n₂;
    unless (r₁ = r₂) $ error "nodes are not equal"
 
 def mergePackAux : Nat → Nat → Nat → M Unit
-| 0     _ _ := pure ()
-| (i+1) n d :=
+| 0,   _, _ => pure ()
+| i+1, n, d =>
   do c ← capacity;
   if (n+d) < c
   then union n (n+d) *> mergePackAux i (n+1) d
@@ -98,8 +98,8 @@ def mergePack (d : Nat) : M Unit :=
 do c ← capacity; mergePackAux c 0 d
 
 def numEqsAux : Nat → Node → Nat → M Nat
-| 0     _ r := pure r
-| (i+1) n r :=
+| 0,   _, r => pure r
+| i+1, n, r =>
   do c ← capacity;
      if n < c
      then do { n₁ ← find n; numEqsAux i (n+1) (if n = n₁ then r else r+1) }

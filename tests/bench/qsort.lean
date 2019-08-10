@@ -1,14 +1,14 @@
-abbreviation Elem := UInt32
+abbrev Elem := UInt32
 
 def badRand (seed : Elem) : Elem :=
 seed * 1664525 + 1013904223
 
 def mkRandomArray : Nat → Elem → Array Elem → Array Elem
-| 0     seed as := as
-| (i+1) seed as := mkRandomArray i (badRand seed) (as.push seed)
+| 0,   seed, as => as
+| i+1, seed, as => mkRandomArray i (badRand seed) (as.push seed)
 
 partial def checkSortedAux (a : Array Elem) : Nat → IO Unit
-| i :=
+| i =>
   if i < a.size - 1 then do
     unless (a.get i <= a.get (i+1)) $ throw (IO.userError "array is not sorted");
     checkSortedAux (i+1)
@@ -16,12 +16,12 @@ partial def checkSortedAux (a : Array Elem) : Nat → IO Unit
     pure ()
 
 -- copied from stdlib, but with `UInt32` indices instead of `Nat` (which is more comparable to the other versions)
-abbreviation Idx := UInt32
+abbrev Idx := UInt32
 instance : HasLift UInt32 Nat := ⟨UInt32.toNat⟩
 prefix `↑`:max := coe
 
 @[specialize] private partial def partitionAux {α : Type} [Inhabited α] (lt : α → α → Bool) (hi : Idx) (pivot : α) : Array α → Idx → Idx → Idx × Array α
-| as i j :=
+| as, i, j =>
   if j < hi then
     if lt (as.get ↑j) pivot then
       let as := as.swap ↑i ↑j;
@@ -41,7 +41,7 @@ let pivot := as.get ↑hi;
 partitionAux lt hi pivot as lo lo
 
 @[specialize] partial def qsortAux {α : Type} [Inhabited α] (lt : α → α → Bool) : Array α → Idx → Idx → Array α
-| as low high :=
+| as, low, high =>
   if low < high then
     let p   := partition as lt low high;
     -- TODO: fix `partial` support in the equation compiler, it breaks if we use `let (mid, as) := partition as lt low high`

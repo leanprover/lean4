@@ -21,7 +21,11 @@ extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_PersistentHashMap_findAux___main___at_Lean_MetavarContext_getLevelAssignment___spec__2(obj*, usize, obj*);
 usize l_USize_mul(usize, usize);
 obj* l_PersistentHashMap_findAtAux___main___at_Lean_MetavarContext_findDecl___spec__3(obj*, obj*, obj*, obj*, obj*);
+namespace lean {
+obj* nat_sub(obj*, obj*);
+}
 obj* l_PersistentHashMap_find___main___at_Lean_MetavarContext_findDecl___spec__1(obj*, obj*);
+obj* l_PersistentHashMap_erase___main___at_Lean_MetavarContext_eraseDelayed___spec__1___boxed(obj*, obj*);
 obj* l_PersistentHashMap_insertAux___main___at_Lean_MetavarContext_assignExpr___spec__2___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_find___main___at_Lean_MetavarContext_getDelayedAssignment___spec__1(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_MetavarContext_mkDecl___spec__4(usize, obj*, obj*, obj*, obj*, obj*);
@@ -32,18 +36,24 @@ obj* l_PersistentHashMap_contains___main___at_Lean_MetavarContext_isLevelAssigne
 obj* l_PersistentHashMap_find___main___at_Lean_MetavarContext_findDecl___spec__1___boxed(obj*, obj*);
 obj* l_PersistentHashMap_insert___main___at_Lean_MetavarContext_assignLevel___spec__1(obj*, obj*, obj*);
 obj* l_PersistentHashMap_findAtAux___main___at_Lean_MetavarContext_getDelayedAssignment___spec__3(obj*, obj*, obj*, obj*, obj*);
+namespace lean {
+obj* metavar_ctx_erase_delayed_core(obj*, obj*);
+}
 obj* l_PersistentHashMap_containsAtAux___main___at_Lean_MetavarContext_isLevelAssigned___spec__3___boxed(obj*, obj*, obj*);
 namespace lean {
 obj* metavar_ctx_get_delayed_assignment_core(obj*, obj*);
 }
 usize l_USize_sub(usize, usize);
+obj* l_Lean_MetavarContext_mkMetavarContext___closed__1;
 obj* l_PersistentHashMap_contains___main___at_Lean_MetavarContext_istDelayedAssigned___spec__1___boxed(obj*, obj*);
+obj* l_PersistentHashMap_isUnaryNode___main___rarg(obj*);
 obj* l_Array_miterateAux___main___at_Lean_MetavarContext_assignLevel___spec__4(usize, obj*, obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_insertAux___main___at_Lean_MetavarContext_mkDecl___spec__2___boxed(obj*, obj*, obj*, obj*, obj*);
 uint8 l_PersistentHashMap_containsAux___main___at_Lean_MetavarContext_istDelayedAssigned___spec__2(obj*, usize, obj*);
 namespace lean {
 obj* metavar_ctx_get_expr_assignment_core(obj*, obj*);
 }
+obj* l_PersistentHashMap_eraseAux___main___at_Lean_MetavarContext_eraseDelayed___spec__2(obj*, usize, obj*);
 obj* l_PersistentHashMap_find___main___at_Lean_MetavarContext_getExprAssignment___spec__1(obj*, obj*);
 obj* l_PersistentHashMap_insertAux___main___at_Lean_MetavarContext_assignDelayed___spec__2___boxed(obj*, obj*, obj*, obj*, obj*);
 uint8 l_PersistentHashMap_contains___main___at_Lean_MetavarContext_isLevelAssigned___spec__1(obj*, obj*);
@@ -66,19 +76,25 @@ uint8 nat_dec_lt(obj*, obj*);
 }
 uint8 l_PersistentHashMap_contains___main___at_Lean_MetavarContext_isExprAssigned___spec__1(obj*, obj*);
 obj* l_PersistentHashMap_findAtAux___main___at_Lean_MetavarContext_getExprAssignment___spec__3(obj*, obj*, obj*, obj*, obj*);
+namespace lean {
+obj* mk_metavar_ctx_core(obj*);
+}
 uint8 l_PersistentHashMap_containsAux___main___at_Lean_MetavarContext_isLevelAssigned___spec__2(obj*, usize, obj*);
+extern obj* l_PersistentHashMap_empty___closed__3;
 obj* l_PersistentHashMap_insert___main___at_Lean_MetavarContext_mkDecl___spec__1(obj*, obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_MetavarContext_assignExpr___spec__4(usize, obj*, obj*, obj*, obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
+obj* l_PersistentHashMap_erase___main___at_Lean_MetavarContext_eraseDelayed___spec__1(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_MetavarContext_assignLevel___spec__4___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 namespace lean {
 obj* metavar_ctx_assign_expr_core(obj*, obj*, obj*);
 }
 obj* l_Array_miterateAux___main___at_Lean_MetavarContext_assignDelayed___spec__4(usize, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_push(obj*, obj*, obj*);
+obj* l_PersistentHashMap_eraseAux___main___at_Lean_MetavarContext_eraseDelayed___spec__2___boxed(obj*, obj*, obj*);
 obj* l_PersistentHashMap_findAtAux___main___at_Lean_MetavarContext_getDelayedAssignment___spec__3___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_insertAtCollisionNodeAux___main___at_Lean_MetavarContext_mkDecl___spec__3(obj*, obj*, obj*, obj*);
 extern usize l_PersistentHashMap_insertAux___main___rarg___closed__2;
@@ -96,6 +112,7 @@ obj* l_PersistentHashMap_insertAtCollisionNodeAux___main___at_Lean_MetavarContex
 obj* l_Lean_MetavarContext_isLevelAssigned___boxed(obj*, obj*);
 extern obj* l_PersistentHashMap_insertAux___main___rarg___closed__3;
 obj* l_Array_size(obj*, obj*);
+obj* l_Array_eraseIdx_x27___rarg(obj*, obj*);
 obj* l_PersistentHashMap_insertAtCollisionNodeAux___main___at_Lean_MetavarContext_assignDelayed___spec__3(obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_findAtAux___main___at_Lean_MetavarContext_getExprAssignment___spec__3___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_fset(obj*, obj*, obj*, obj*);
@@ -103,6 +120,7 @@ namespace lean {
 uint8 metavar_ctx_is_expr_assigned(obj*, obj*);
 }
 obj* l_Array_get(obj*, obj*, obj*, obj*);
+obj* l_Array_indexOfAux___main___at_Lean_LocalContext_erase___spec__3(obj*, obj*, obj*);
 namespace lean {
 obj* metavar_ctx_mk_decl_core(obj*, obj*, obj*, obj*, obj*);
 }
@@ -125,6 +143,7 @@ obj* l_PersistentHashMap_find___main___at_Lean_MetavarContext_getLevelAssignment
 obj* l_PersistentHashMap_findAux___main___at_Lean_MetavarContext_getExprAssignment___spec__2___boxed(obj*, obj*, obj*);
 obj* l_PersistentHashMap_find___main___at_Lean_MetavarContext_getExprAssignment___spec__1___boxed(obj*, obj*);
 uint8 l_PersistentHashMap_containsAux___main___at_Lean_MetavarContext_isExprAssigned___spec__2(obj*, usize, obj*);
+obj* l_Array_set(obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_findAux___main___at_Lean_MetavarContext_getExprAssignment___spec__2(obj*, usize, obj*);
 usize l_USize_land(usize, usize);
 namespace lean {
@@ -138,6 +157,30 @@ obj* l_PersistentHashMap_findAux___main___at_Lean_MetavarContext_getDelayedAssig
 obj* l_PersistentHashMap_containsAux___main___at_Lean_MetavarContext_isLevelAssigned___spec__2___boxed(obj*, obj*, obj*);
 obj* l_PersistentHashMap_insertAux___main___at_Lean_MetavarContext_assignLevel___spec__2(obj*, usize, usize, obj*, obj*);
 obj* l_Lean_MetavarContext_istDelayedAssigned___boxed(obj*, obj*);
+obj* _init_l_Lean_MetavarContext_mkMetavarContext___closed__1() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = l_PersistentHashMap_empty___closed__3;
+x_2 = lean::alloc_cnstr(0, 4, 0);
+lean::cnstr_set(x_2, 0, x_1);
+lean::cnstr_set(x_2, 1, x_1);
+lean::cnstr_set(x_2, 2, x_1);
+lean::cnstr_set(x_2, 3, x_1);
+return x_2;
+}
+}
+namespace lean {
+obj* mk_metavar_ctx_core(obj* x_1) {
+_start:
+{
+obj* x_2; 
+lean::dec(x_1);
+x_2 = l_Lean_MetavarContext_mkMetavarContext___closed__1;
+return x_2;
+}
+}
+}
 obj* l_PersistentHashMap_insertAtCollisionNodeAux___main___at_Lean_MetavarContext_mkDecl___spec__3(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
@@ -3384,6 +3427,692 @@ x_4 = lean::box(x_3);
 return x_4;
 }
 }
+obj* l_PersistentHashMap_eraseAux___main___at_Lean_MetavarContext_eraseDelayed___spec__2(obj* x_1, usize x_2, obj* x_3) {
+_start:
+{
+if (lean::obj_tag(x_1) == 0)
+{
+obj* x_4; usize x_5; usize x_6; usize x_7; obj* x_8; obj* x_9; obj* x_10; 
+x_4 = lean::cnstr_get(x_1, 0);
+lean::inc(x_4);
+x_5 = 5;
+x_6 = l_PersistentHashMap_insertAux___main___rarg___closed__2;
+x_7 = x_2 & x_6;
+x_8 = lean::usize_to_nat(x_7);
+x_9 = lean::box(2);
+x_10 = lean::array_get(x_9, x_4, x_8);
+switch (lean::obj_tag(x_10)) {
+case 0:
+{
+obj* x_11; uint8 x_12; 
+x_11 = lean::cnstr_get(x_10, 0);
+lean::inc(x_11);
+lean::dec(x_10);
+x_12 = lean_name_dec_eq(x_3, x_11);
+lean::dec(x_11);
+if (x_12 == 0)
+{
+uint8 x_13; obj* x_14; obj* x_15; 
+lean::dec(x_8);
+lean::dec(x_4);
+x_13 = 0;
+x_14 = lean::box(x_13);
+x_15 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_15, 0, x_1);
+lean::cnstr_set(x_15, 1, x_14);
+return x_15;
+}
+else
+{
+uint8 x_16; 
+x_16 = !lean::is_exclusive(x_1);
+if (x_16 == 0)
+{
+obj* x_17; obj* x_18; uint8 x_19; obj* x_20; obj* x_21; 
+x_17 = lean::cnstr_get(x_1, 0);
+lean::dec(x_17);
+x_18 = lean::array_set(x_4, x_8, x_9);
+lean::dec(x_8);
+lean::cnstr_set(x_1, 0, x_18);
+x_19 = 1;
+x_20 = lean::box(x_19);
+x_21 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_21, 0, x_1);
+lean::cnstr_set(x_21, 1, x_20);
+return x_21;
+}
+else
+{
+obj* x_22; obj* x_23; uint8 x_24; obj* x_25; obj* x_26; 
+lean::dec(x_1);
+x_22 = lean::array_set(x_4, x_8, x_9);
+lean::dec(x_8);
+x_23 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_23, 0, x_22);
+x_24 = 1;
+x_25 = lean::box(x_24);
+x_26 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_26, 0, x_23);
+lean::cnstr_set(x_26, 1, x_25);
+return x_26;
+}
+}
+}
+case 1:
+{
+uint8 x_27; 
+x_27 = !lean::is_exclusive(x_10);
+if (x_27 == 0)
+{
+obj* x_28; obj* x_29; usize x_30; obj* x_31; obj* x_32; uint8 x_33; 
+x_28 = lean::cnstr_get(x_10, 0);
+x_29 = lean::array_set(x_4, x_8, x_9);
+x_30 = x_2 >> x_5;
+x_31 = l_PersistentHashMap_eraseAux___main___at_Lean_MetavarContext_eraseDelayed___spec__2(x_28, x_30, x_3);
+x_32 = lean::cnstr_get(x_31, 1);
+lean::inc(x_32);
+x_33 = lean::unbox(x_32);
+lean::dec(x_32);
+if (x_33 == 0)
+{
+uint8 x_34; 
+lean::dec(x_29);
+lean::free_heap_obj(x_10);
+lean::dec(x_8);
+x_34 = !lean::is_exclusive(x_31);
+if (x_34 == 0)
+{
+obj* x_35; obj* x_36; uint8 x_37; obj* x_38; 
+x_35 = lean::cnstr_get(x_31, 1);
+lean::dec(x_35);
+x_36 = lean::cnstr_get(x_31, 0);
+lean::dec(x_36);
+x_37 = 0;
+x_38 = lean::box(x_37);
+lean::cnstr_set(x_31, 1, x_38);
+lean::cnstr_set(x_31, 0, x_1);
+return x_31;
+}
+else
+{
+uint8 x_39; obj* x_40; obj* x_41; 
+lean::dec(x_31);
+x_39 = 0;
+x_40 = lean::box(x_39);
+x_41 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_41, 0, x_1);
+lean::cnstr_set(x_41, 1, x_40);
+return x_41;
+}
+}
+else
+{
+uint8 x_42; 
+x_42 = !lean::is_exclusive(x_1);
+if (x_42 == 0)
+{
+obj* x_43; uint8 x_44; 
+x_43 = lean::cnstr_get(x_1, 0);
+lean::dec(x_43);
+x_44 = !lean::is_exclusive(x_31);
+if (x_44 == 0)
+{
+obj* x_45; obj* x_46; obj* x_47; 
+x_45 = lean::cnstr_get(x_31, 0);
+x_46 = lean::cnstr_get(x_31, 1);
+lean::dec(x_46);
+x_47 = l_PersistentHashMap_isUnaryNode___main___rarg(x_45);
+if (lean::obj_tag(x_47) == 0)
+{
+obj* x_48; uint8 x_49; obj* x_50; 
+lean::cnstr_set(x_10, 0, x_45);
+x_48 = lean::array_set(x_29, x_8, x_10);
+lean::dec(x_8);
+lean::cnstr_set(x_1, 0, x_48);
+x_49 = 1;
+x_50 = lean::box(x_49);
+lean::cnstr_set(x_31, 1, x_50);
+lean::cnstr_set(x_31, 0, x_1);
+return x_31;
+}
+else
+{
+obj* x_51; uint8 x_52; 
+lean::free_heap_obj(x_31);
+lean::dec(x_45);
+lean::free_heap_obj(x_10);
+x_51 = lean::cnstr_get(x_47, 0);
+lean::inc(x_51);
+lean::dec(x_47);
+x_52 = !lean::is_exclusive(x_51);
+if (x_52 == 0)
+{
+obj* x_53; obj* x_54; obj* x_55; obj* x_56; uint8 x_57; obj* x_58; 
+x_53 = lean::cnstr_get(x_51, 0);
+x_54 = lean::cnstr_get(x_51, 1);
+x_55 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_55, 0, x_53);
+lean::cnstr_set(x_55, 1, x_54);
+x_56 = lean::array_set(x_29, x_8, x_55);
+lean::dec(x_8);
+lean::cnstr_set(x_1, 0, x_56);
+x_57 = 1;
+x_58 = lean::box(x_57);
+lean::cnstr_set(x_51, 1, x_58);
+lean::cnstr_set(x_51, 0, x_1);
+return x_51;
+}
+else
+{
+obj* x_59; obj* x_60; obj* x_61; obj* x_62; uint8 x_63; obj* x_64; obj* x_65; 
+x_59 = lean::cnstr_get(x_51, 0);
+x_60 = lean::cnstr_get(x_51, 1);
+lean::inc(x_60);
+lean::inc(x_59);
+lean::dec(x_51);
+x_61 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_61, 0, x_59);
+lean::cnstr_set(x_61, 1, x_60);
+x_62 = lean::array_set(x_29, x_8, x_61);
+lean::dec(x_8);
+lean::cnstr_set(x_1, 0, x_62);
+x_63 = 1;
+x_64 = lean::box(x_63);
+x_65 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_65, 0, x_1);
+lean::cnstr_set(x_65, 1, x_64);
+return x_65;
+}
+}
+}
+else
+{
+obj* x_66; obj* x_67; 
+x_66 = lean::cnstr_get(x_31, 0);
+lean::inc(x_66);
+lean::dec(x_31);
+x_67 = l_PersistentHashMap_isUnaryNode___main___rarg(x_66);
+if (lean::obj_tag(x_67) == 0)
+{
+obj* x_68; uint8 x_69; obj* x_70; obj* x_71; 
+lean::cnstr_set(x_10, 0, x_66);
+x_68 = lean::array_set(x_29, x_8, x_10);
+lean::dec(x_8);
+lean::cnstr_set(x_1, 0, x_68);
+x_69 = 1;
+x_70 = lean::box(x_69);
+x_71 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_71, 0, x_1);
+lean::cnstr_set(x_71, 1, x_70);
+return x_71;
+}
+else
+{
+obj* x_72; obj* x_73; obj* x_74; obj* x_75; obj* x_76; obj* x_77; uint8 x_78; obj* x_79; obj* x_80; 
+lean::dec(x_66);
+lean::free_heap_obj(x_10);
+x_72 = lean::cnstr_get(x_67, 0);
+lean::inc(x_72);
+lean::dec(x_67);
+x_73 = lean::cnstr_get(x_72, 0);
+lean::inc(x_73);
+x_74 = lean::cnstr_get(x_72, 1);
+lean::inc(x_74);
+if (lean::is_exclusive(x_72)) {
+ lean::cnstr_release(x_72, 0);
+ lean::cnstr_release(x_72, 1);
+ x_75 = x_72;
+} else {
+ lean::dec_ref(x_72);
+ x_75 = lean::box(0);
+}
+x_76 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_76, 0, x_73);
+lean::cnstr_set(x_76, 1, x_74);
+x_77 = lean::array_set(x_29, x_8, x_76);
+lean::dec(x_8);
+lean::cnstr_set(x_1, 0, x_77);
+x_78 = 1;
+x_79 = lean::box(x_78);
+if (lean::is_scalar(x_75)) {
+ x_80 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_80 = x_75;
+}
+lean::cnstr_set(x_80, 0, x_1);
+lean::cnstr_set(x_80, 1, x_79);
+return x_80;
+}
+}
+}
+else
+{
+obj* x_81; obj* x_82; obj* x_83; 
+lean::dec(x_1);
+x_81 = lean::cnstr_get(x_31, 0);
+lean::inc(x_81);
+if (lean::is_exclusive(x_31)) {
+ lean::cnstr_release(x_31, 0);
+ lean::cnstr_release(x_31, 1);
+ x_82 = x_31;
+} else {
+ lean::dec_ref(x_31);
+ x_82 = lean::box(0);
+}
+x_83 = l_PersistentHashMap_isUnaryNode___main___rarg(x_81);
+if (lean::obj_tag(x_83) == 0)
+{
+obj* x_84; obj* x_85; uint8 x_86; obj* x_87; obj* x_88; 
+lean::cnstr_set(x_10, 0, x_81);
+x_84 = lean::array_set(x_29, x_8, x_10);
+lean::dec(x_8);
+x_85 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_85, 0, x_84);
+x_86 = 1;
+x_87 = lean::box(x_86);
+if (lean::is_scalar(x_82)) {
+ x_88 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_88 = x_82;
+}
+lean::cnstr_set(x_88, 0, x_85);
+lean::cnstr_set(x_88, 1, x_87);
+return x_88;
+}
+else
+{
+obj* x_89; obj* x_90; obj* x_91; obj* x_92; obj* x_93; obj* x_94; obj* x_95; uint8 x_96; obj* x_97; obj* x_98; 
+lean::dec(x_82);
+lean::dec(x_81);
+lean::free_heap_obj(x_10);
+x_89 = lean::cnstr_get(x_83, 0);
+lean::inc(x_89);
+lean::dec(x_83);
+x_90 = lean::cnstr_get(x_89, 0);
+lean::inc(x_90);
+x_91 = lean::cnstr_get(x_89, 1);
+lean::inc(x_91);
+if (lean::is_exclusive(x_89)) {
+ lean::cnstr_release(x_89, 0);
+ lean::cnstr_release(x_89, 1);
+ x_92 = x_89;
+} else {
+ lean::dec_ref(x_89);
+ x_92 = lean::box(0);
+}
+x_93 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_93, 0, x_90);
+lean::cnstr_set(x_93, 1, x_91);
+x_94 = lean::array_set(x_29, x_8, x_93);
+lean::dec(x_8);
+x_95 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_95, 0, x_94);
+x_96 = 1;
+x_97 = lean::box(x_96);
+if (lean::is_scalar(x_92)) {
+ x_98 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_98 = x_92;
+}
+lean::cnstr_set(x_98, 0, x_95);
+lean::cnstr_set(x_98, 1, x_97);
+return x_98;
+}
+}
+}
+}
+else
+{
+obj* x_99; obj* x_100; usize x_101; obj* x_102; obj* x_103; uint8 x_104; 
+x_99 = lean::cnstr_get(x_10, 0);
+lean::inc(x_99);
+lean::dec(x_10);
+x_100 = lean::array_set(x_4, x_8, x_9);
+x_101 = x_2 >> x_5;
+x_102 = l_PersistentHashMap_eraseAux___main___at_Lean_MetavarContext_eraseDelayed___spec__2(x_99, x_101, x_3);
+x_103 = lean::cnstr_get(x_102, 1);
+lean::inc(x_103);
+x_104 = lean::unbox(x_103);
+lean::dec(x_103);
+if (x_104 == 0)
+{
+obj* x_105; uint8 x_106; obj* x_107; obj* x_108; 
+lean::dec(x_100);
+lean::dec(x_8);
+if (lean::is_exclusive(x_102)) {
+ lean::cnstr_release(x_102, 0);
+ lean::cnstr_release(x_102, 1);
+ x_105 = x_102;
+} else {
+ lean::dec_ref(x_102);
+ x_105 = lean::box(0);
+}
+x_106 = 0;
+x_107 = lean::box(x_106);
+if (lean::is_scalar(x_105)) {
+ x_108 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_108 = x_105;
+}
+lean::cnstr_set(x_108, 0, x_1);
+lean::cnstr_set(x_108, 1, x_107);
+return x_108;
+}
+else
+{
+obj* x_109; obj* x_110; obj* x_111; obj* x_112; 
+if (lean::is_exclusive(x_1)) {
+ lean::cnstr_release(x_1, 0);
+ x_109 = x_1;
+} else {
+ lean::dec_ref(x_1);
+ x_109 = lean::box(0);
+}
+x_110 = lean::cnstr_get(x_102, 0);
+lean::inc(x_110);
+if (lean::is_exclusive(x_102)) {
+ lean::cnstr_release(x_102, 0);
+ lean::cnstr_release(x_102, 1);
+ x_111 = x_102;
+} else {
+ lean::dec_ref(x_102);
+ x_111 = lean::box(0);
+}
+x_112 = l_PersistentHashMap_isUnaryNode___main___rarg(x_110);
+if (lean::obj_tag(x_112) == 0)
+{
+obj* x_113; obj* x_114; obj* x_115; uint8 x_116; obj* x_117; obj* x_118; 
+x_113 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_113, 0, x_110);
+x_114 = lean::array_set(x_100, x_8, x_113);
+lean::dec(x_8);
+if (lean::is_scalar(x_109)) {
+ x_115 = lean::alloc_cnstr(0, 1, 0);
+} else {
+ x_115 = x_109;
+}
+lean::cnstr_set(x_115, 0, x_114);
+x_116 = 1;
+x_117 = lean::box(x_116);
+if (lean::is_scalar(x_111)) {
+ x_118 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_118 = x_111;
+}
+lean::cnstr_set(x_118, 0, x_115);
+lean::cnstr_set(x_118, 1, x_117);
+return x_118;
+}
+else
+{
+obj* x_119; obj* x_120; obj* x_121; obj* x_122; obj* x_123; obj* x_124; obj* x_125; uint8 x_126; obj* x_127; obj* x_128; 
+lean::dec(x_111);
+lean::dec(x_110);
+x_119 = lean::cnstr_get(x_112, 0);
+lean::inc(x_119);
+lean::dec(x_112);
+x_120 = lean::cnstr_get(x_119, 0);
+lean::inc(x_120);
+x_121 = lean::cnstr_get(x_119, 1);
+lean::inc(x_121);
+if (lean::is_exclusive(x_119)) {
+ lean::cnstr_release(x_119, 0);
+ lean::cnstr_release(x_119, 1);
+ x_122 = x_119;
+} else {
+ lean::dec_ref(x_119);
+ x_122 = lean::box(0);
+}
+x_123 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_123, 0, x_120);
+lean::cnstr_set(x_123, 1, x_121);
+x_124 = lean::array_set(x_100, x_8, x_123);
+lean::dec(x_8);
+if (lean::is_scalar(x_109)) {
+ x_125 = lean::alloc_cnstr(0, 1, 0);
+} else {
+ x_125 = x_109;
+}
+lean::cnstr_set(x_125, 0, x_124);
+x_126 = 1;
+x_127 = lean::box(x_126);
+if (lean::is_scalar(x_122)) {
+ x_128 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_128 = x_122;
+}
+lean::cnstr_set(x_128, 0, x_125);
+lean::cnstr_set(x_128, 1, x_127);
+return x_128;
+}
+}
+}
+}
+default: 
+{
+uint8 x_129; obj* x_130; obj* x_131; 
+lean::dec(x_8);
+lean::dec(x_4);
+x_129 = 0;
+x_130 = lean::box(x_129);
+x_131 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_131, 0, x_1);
+lean::cnstr_set(x_131, 1, x_130);
+return x_131;
+}
+}
+}
+else
+{
+obj* x_132; obj* x_133; obj* x_134; obj* x_135; 
+x_132 = lean::cnstr_get(x_1, 0);
+lean::inc(x_132);
+x_133 = lean::cnstr_get(x_1, 1);
+lean::inc(x_133);
+x_134 = lean::mk_nat_obj(0u);
+x_135 = l_Array_indexOfAux___main___at_Lean_LocalContext_erase___spec__3(x_132, x_3, x_134);
+if (lean::obj_tag(x_135) == 0)
+{
+uint8 x_136; obj* x_137; obj* x_138; 
+lean::dec(x_133);
+lean::dec(x_132);
+x_136 = 0;
+x_137 = lean::box(x_136);
+x_138 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_138, 0, x_1);
+lean::cnstr_set(x_138, 1, x_137);
+return x_138;
+}
+else
+{
+uint8 x_139; 
+x_139 = !lean::is_exclusive(x_1);
+if (x_139 == 0)
+{
+obj* x_140; obj* x_141; obj* x_142; obj* x_143; obj* x_144; uint8 x_145; obj* x_146; obj* x_147; 
+x_140 = lean::cnstr_get(x_1, 1);
+lean::dec(x_140);
+x_141 = lean::cnstr_get(x_1, 0);
+lean::dec(x_141);
+x_142 = lean::cnstr_get(x_135, 0);
+lean::inc(x_142);
+lean::dec(x_135);
+x_143 = l_Array_eraseIdx_x27___rarg(x_132, x_142);
+x_144 = l_Array_eraseIdx_x27___rarg(x_133, x_142);
+lean::dec(x_142);
+lean::cnstr_set(x_1, 1, x_144);
+lean::cnstr_set(x_1, 0, x_143);
+x_145 = 1;
+x_146 = lean::box(x_145);
+x_147 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_147, 0, x_1);
+lean::cnstr_set(x_147, 1, x_146);
+return x_147;
+}
+else
+{
+obj* x_148; obj* x_149; obj* x_150; obj* x_151; uint8 x_152; obj* x_153; obj* x_154; 
+lean::dec(x_1);
+x_148 = lean::cnstr_get(x_135, 0);
+lean::inc(x_148);
+lean::dec(x_135);
+x_149 = l_Array_eraseIdx_x27___rarg(x_132, x_148);
+x_150 = l_Array_eraseIdx_x27___rarg(x_133, x_148);
+lean::dec(x_148);
+x_151 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_151, 0, x_149);
+lean::cnstr_set(x_151, 1, x_150);
+x_152 = 1;
+x_153 = lean::box(x_152);
+x_154 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_154, 0, x_151);
+lean::cnstr_set(x_154, 1, x_153);
+return x_154;
+}
+}
+}
+}
+}
+obj* l_PersistentHashMap_erase___main___at_Lean_MetavarContext_eraseDelayed___spec__1(obj* x_1, obj* x_2) {
+_start:
+{
+uint8 x_3; 
+x_3 = !lean::is_exclusive(x_1);
+if (x_3 == 0)
+{
+obj* x_4; obj* x_5; usize x_6; obj* x_7; obj* x_8; uint8 x_9; 
+x_4 = lean::cnstr_get(x_1, 0);
+x_5 = lean::cnstr_get(x_1, 1);
+x_6 = lean_name_hash_usize(x_2);
+x_7 = l_PersistentHashMap_eraseAux___main___at_Lean_MetavarContext_eraseDelayed___spec__2(x_4, x_6, x_2);
+x_8 = lean::cnstr_get(x_7, 1);
+lean::inc(x_8);
+x_9 = lean::unbox(x_8);
+lean::dec(x_8);
+if (x_9 == 0)
+{
+obj* x_10; 
+x_10 = lean::cnstr_get(x_7, 0);
+lean::inc(x_10);
+lean::dec(x_7);
+lean::cnstr_set(x_1, 0, x_10);
+return x_1;
+}
+else
+{
+obj* x_11; obj* x_12; obj* x_13; 
+x_11 = lean::cnstr_get(x_7, 0);
+lean::inc(x_11);
+lean::dec(x_7);
+x_12 = lean::mk_nat_obj(1u);
+x_13 = lean::nat_sub(x_5, x_12);
+lean::dec(x_5);
+lean::cnstr_set(x_1, 1, x_13);
+lean::cnstr_set(x_1, 0, x_11);
+return x_1;
+}
+}
+else
+{
+obj* x_14; obj* x_15; usize x_16; obj* x_17; obj* x_18; uint8 x_19; 
+x_14 = lean::cnstr_get(x_1, 0);
+x_15 = lean::cnstr_get(x_1, 1);
+lean::inc(x_15);
+lean::inc(x_14);
+lean::dec(x_1);
+x_16 = lean_name_hash_usize(x_2);
+x_17 = l_PersistentHashMap_eraseAux___main___at_Lean_MetavarContext_eraseDelayed___spec__2(x_14, x_16, x_2);
+x_18 = lean::cnstr_get(x_17, 1);
+lean::inc(x_18);
+x_19 = lean::unbox(x_18);
+lean::dec(x_18);
+if (x_19 == 0)
+{
+obj* x_20; obj* x_21; 
+x_20 = lean::cnstr_get(x_17, 0);
+lean::inc(x_20);
+lean::dec(x_17);
+x_21 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_21, 0, x_20);
+lean::cnstr_set(x_21, 1, x_15);
+return x_21;
+}
+else
+{
+obj* x_22; obj* x_23; obj* x_24; obj* x_25; 
+x_22 = lean::cnstr_get(x_17, 0);
+lean::inc(x_22);
+lean::dec(x_17);
+x_23 = lean::mk_nat_obj(1u);
+x_24 = lean::nat_sub(x_15, x_23);
+lean::dec(x_15);
+x_25 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_25, 0, x_22);
+lean::cnstr_set(x_25, 1, x_24);
+return x_25;
+}
+}
+}
+}
+namespace lean {
+obj* metavar_ctx_erase_delayed_core(obj* x_1, obj* x_2) {
+_start:
+{
+uint8 x_3; 
+x_3 = !lean::is_exclusive(x_1);
+if (x_3 == 0)
+{
+obj* x_4; obj* x_5; 
+x_4 = lean::cnstr_get(x_1, 3);
+x_5 = l_PersistentHashMap_erase___main___at_Lean_MetavarContext_eraseDelayed___spec__1(x_4, x_2);
+lean::dec(x_2);
+lean::cnstr_set(x_1, 3, x_5);
+return x_1;
+}
+else
+{
+obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
+x_6 = lean::cnstr_get(x_1, 0);
+x_7 = lean::cnstr_get(x_1, 1);
+x_8 = lean::cnstr_get(x_1, 2);
+x_9 = lean::cnstr_get(x_1, 3);
+lean::inc(x_9);
+lean::inc(x_8);
+lean::inc(x_7);
+lean::inc(x_6);
+lean::dec(x_1);
+x_10 = l_PersistentHashMap_erase___main___at_Lean_MetavarContext_eraseDelayed___spec__1(x_9, x_2);
+lean::dec(x_2);
+x_11 = lean::alloc_cnstr(0, 4, 0);
+lean::cnstr_set(x_11, 0, x_6);
+lean::cnstr_set(x_11, 1, x_7);
+lean::cnstr_set(x_11, 2, x_8);
+lean::cnstr_set(x_11, 3, x_10);
+return x_11;
+}
+}
+}
+}
+obj* l_PersistentHashMap_eraseAux___main___at_Lean_MetavarContext_eraseDelayed___spec__2___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+usize x_4; obj* x_5; 
+x_4 = lean::unbox_size_t(x_2);
+lean::dec(x_2);
+x_5 = l_PersistentHashMap_eraseAux___main___at_Lean_MetavarContext_eraseDelayed___spec__2(x_1, x_4, x_3);
+lean::dec(x_3);
+return x_5;
+}
+}
+obj* l_PersistentHashMap_erase___main___at_Lean_MetavarContext_eraseDelayed___spec__1___boxed(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_PersistentHashMap_erase___main___at_Lean_MetavarContext_eraseDelayed___spec__1(x_1, x_2);
+lean::dec(x_2);
+return x_3;
+}
+}
 obj* initialize_init_lean_localcontext(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_metavarcontext(obj* w) {
@@ -3392,5 +4121,7 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_localcontext(w);
 if (io_result_is_error(w)) return w;
+l_Lean_MetavarContext_mkMetavarContext___closed__1 = _init_l_Lean_MetavarContext_mkMetavarContext___closed__1();
+lean::mark_persistent(l_Lean_MetavarContext_mkMetavarContext___closed__1);
 return w;
 }

@@ -31,6 +31,10 @@ structure MetavarContext :=
 
 namespace MetavarContext
 
+@[export lean.mk_metavar_ctx_core]
+def mkMetavarContext : Unit → MetavarContext :=
+fun _ => {}
+
 /- Low level API for creating metavariable declarations.
    It is used to implement actions in the monads `Elab` and `Tactic`.
    It should not be used directly since the argument `(mvarId : Name)` is assumed to be "unique". -/
@@ -77,6 +81,10 @@ m.eAssignment.contains mvarId
 @[export lean.metavar_ctx_is_delayed_assigned]
 def istDelayedAssigned (m : MetavarContext) (mvarId : Name) : Bool :=
 m.dAssignment.contains mvarId
+
+@[export lean.metavar_ctx_erase_delayed_core]
+def eraseDelayed (m : MetavarContext) (mvarId : Name) : MetavarContext :=
+{ dAssignment := m.dAssignment.erase mvarId, .. m }
 
 end MetavarContext
 end Lean

@@ -56,6 +56,39 @@ static name mk_meta_decl_name() {
     return mk_tagged_fresh_name(*g_meta_prefix);
 }
 
+object* mk_metavar_ctx_core(object*);
+object* metavar_ctx_mk_decl_core(object*, object*, object*, object*, object*);
+object* metavar_ctx_find_decl_core(object*, object*);
+object* metavar_ctx_assign_level_core(object*, object*, object*);
+object* metavar_ctx_assign_expr_core(object*, object*, object*);
+object* metavar_ctx_assign_delayed_core(object*, object*, object*, object*, object*);
+object* metavar_ctx_get_level_assignment_core(object*, object*);
+object* metavar_ctx_get_expr_assignment_core(object*, object*);
+object* metavar_ctx_get_delayed_assignment_core(object*, object*);
+uint8 metavar_ctx_is_level_assigned(object*, object*);
+uint8 metavar_ctx_is_expr_assigned(object*, object*);
+uint8 metavar_ctx_is_delayed_assigned(object*, object*);
+object* metavar_ctx_erase_delayed_core(object*, object*);
+
+metavar_context::metavar_context():
+    object_ref(mk_metavar_ctx_core(box(0))) {
+}
+
+bool metavar_context::is_assigned(level const & l) const {
+    lean_assert(is_metavar_decl_ref(l));
+    return metavar_ctx_is_level_assigned(to_obj_arg(), mvar_id(l).to_obj_arg());
+}
+
+bool metavar_context::is_assigned(expr const & m) const {
+    lean_assert(is_metavar_decl_ref(m));
+    return metavar_ctx_is_expr_assigned(to_obj_arg(), mvar_name(m).to_obj_arg());
+}
+
+bool metavar_context::is_delayed_assigned(expr const & m) const {
+    lean_assert(is_metavar_decl_ref(m));
+    return metavar_ctx_is_delayed_assigned(to_obj_arg(), mvar_name(m).to_obj_arg());
+}
+
 level metavar_context::mk_univ_metavar_decl() {
     // TODO(Leo): should use name_generator
     return mk_univ_mvar(mk_meta_decl_name());
@@ -64,20 +97,18 @@ level metavar_context::mk_univ_metavar_decl() {
 expr metavar_context::mk_metavar_decl(name const & user_name, local_context const & lctx, expr const & type) {
     // TODO(Leo): should use name_generator
     name n = mk_meta_decl_name();
-    m_decls.insert(n, metavar_decl(user_name, lctx, head_beta_reduce(type)));
+    m_obj = metavar_ctx_mk_decl_core(m_obj, n.to_obj_arg(), user_name.to_obj_arg(), lctx.to_obj_arg(), head_beta_reduce(type).to_obj_arg());
+    lean_assert(find_metavar_decl(mk_meta_ref(n)));
     return mk_meta_ref(n);
 }
 
 optional<metavar_decl> metavar_context::find_metavar_decl(expr const & e) const {
     lean_assert(is_metavar_decl_ref(e));
-    if (auto r = m_decls.find(mvar_name(e)))
-        return optional<metavar_decl>(*r);
-    else
-        return optional<metavar_decl>();
+    return to_optional<metavar_decl>(metavar_ctx_find_decl_core(to_obj_arg(), mvar_name(e).to_obj_arg()));
 }
 
-metavar_decl const & metavar_context::get_metavar_decl(expr const & e) const {
-    if (auto r = m_decls.find(mvar_name(e)))
+metavar_decl metavar_context::get_metavar_decl(expr const & e) const {
+    if (auto r = find_metavar_decl(e))
         return *r;
     else
         throw exception("unknown metavariable");
@@ -98,40 +129,34 @@ expr metavar_context::get_local(expr const & mvar, name const & n) const {
 }
 
 void metavar_context::assign(level const & u, level const & l) {
-    m_uassignment.insert(mvar_id(u), l);
+    m_obj = metavar_ctx_assign_level_core(m_obj, mvar_id(u).to_obj_arg(), l.to_obj_arg());
+    lean_assert(is_assigned(u));
 }
 
 void metavar_context::assign(expr const & e, expr const & v) {
     lean_assert(!is_delayed_assigned(e));
-    m_eassignment.insert(mvar_name(e), v);
+    m_obj = metavar_ctx_assign_expr_core(m_obj, mvar_name(e).to_obj_arg(), v.to_obj_arg());
+    lean_assert(is_assigned(e));
 }
 
 void metavar_context::assign(expr const & e, local_context const & lctx, exprs const & locals, expr const & v) {
-    m_dassignment.insert(mvar_name(e), delayed_assignment(lctx, locals, v));
+    m_obj = metavar_ctx_assign_delayed_core(m_obj, mvar_name(e).to_obj_arg(), lctx.to_obj_arg(), locals.to_obj_arg(), v.to_obj_arg());
+    lean_assert(is_delayed_assigned(e));
 }
 
 optional<level> metavar_context::get_assignment(level const & l) const {
     lean_assert(is_metavar_decl_ref(l));
-    if (auto v = m_uassignment.find(mvar_id(l)))
-        return some_level(*v);
-    else
-        return none_level();
+    return to_optional<level>(metavar_ctx_get_level_assignment_core(to_obj_arg(), mvar_id(l).to_obj_arg()));
 }
 
 optional<expr> metavar_context::get_assignment(expr const & e) const {
     lean_assert(is_metavar_decl_ref(e));
-    if (auto v = m_eassignment.find(mvar_name(e)))
-        return some_expr(*v);
-    else
-        return none_expr();
+    return to_optional<expr>(metavar_ctx_get_expr_assignment_core(to_obj_arg(), mvar_name(e).to_obj_arg()));
 }
 
 optional<metavar_context::delayed_assignment> metavar_context::get_delayed_assignment(expr const & e) const {
     lean_assert(is_metavar_decl_ref(e));
-    if (auto v = m_dassignment.find(mvar_name(e)))
-        return optional<delayed_assignment>(*v);
-    else
-        return optional<delayed_assignment>();
+    return to_optional<metavar_context::delayed_assignment>(metavar_ctx_get_delayed_assignment_core(to_obj_arg(), mvar_name(e).to_obj_arg()));
 }
 
 struct metavar_context::interface_impl {
@@ -165,7 +190,8 @@ struct metavar_context::interface_impl {
                 m_ctx.assign(e, d->get_lctx(), d->get_locals(), new_v);
             return none_expr();
         } else {
-            m_ctx.m_dassignment.erase(mvar_name(e));
+            m_ctx.m_obj = metavar_ctx_erase_delayed_core(m_ctx.m_obj, mvar_name(e).to_obj_arg());
+            lean_assert(!m_ctx.is_delayed_assigned(e));
             buffer<expr> locals;
             to_buffer(d->get_locals(), locals);
             new_v = abstract(new_v, locals.size(), locals.data());
@@ -227,7 +253,11 @@ void metavar_context::instantiate_mvars_at_type_of(expr const & m) {
     expr type      = d.get_type();
     expr new_type  = instantiate_mvars(type);
     if (new_type != type) {
-        m_decls.insert(mvar_name(m), metavar_decl(d.get_user_name(), d.get_context(), new_type));
+        m_obj = metavar_ctx_mk_decl_core(m_obj,
+                                         mvar_name(m).to_obj_arg(),
+                                         d.get_user_name().to_obj_arg(),
+                                         d.get_context().to_obj_arg(),
+                                         new_type.to_obj_arg());
     }
 }
 

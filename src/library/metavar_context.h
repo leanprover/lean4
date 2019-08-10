@@ -14,6 +14,8 @@ public:
     metavar_decl(name const & user_name, local_context const & ctx, expr const & type);
     metavar_decl(metavar_decl const & other):object_ref(other) {}
     metavar_decl(metavar_decl && other):object_ref(other) {}
+    metavar_decl(obj_arg o):object_ref(o) {}
+    metavar_decl(b_obj_arg o, bool):object_ref(o, true) {}
     metavar_decl & operator=(metavar_decl const & other) { object_ref::operator=(other); return *this; }
     metavar_decl & operator=(metavar_decl && other) { object_ref::operator=(other); return *this; }
     name const & get_user_name() const { return static_cast<name const &>(cnstr_get_ref(raw(), 0)); }
@@ -27,28 +29,30 @@ bool is_metavar_decl_ref(expr const & e);
 name get_metavar_decl_ref_suffix(level const & l);
 name get_metavar_decl_ref_suffix(expr const & e);
 
-class metavar_context {
+class metavar_context : public object_ref {
     class delayed_assignment : public object_ref {
     public:
         delayed_assignment();
         delayed_assignment(local_context const & lctx, exprs const & locals, expr const & v);
         delayed_assignment(delayed_assignment const & other):object_ref(other) {}
         delayed_assignment(delayed_assignment && other):object_ref(other) {}
+        delayed_assignment(obj_arg o):object_ref(o) {}
+        delayed_assignment(b_obj_arg o, bool):object_ref(o, true) {}
         delayed_assignment & operator=(delayed_assignment const & other) { object_ref::operator=(other); return *this; }
         delayed_assignment & operator=(delayed_assignment && other) { object_ref::operator=(other); return *this; }
         local_context const & get_lctx() const { return static_cast<local_context const &>(cnstr_get_ref(raw(), 0)); }
         exprs const & get_locals() const { return static_cast<exprs const &>(cnstr_get_ref(raw(), 1)); }
         expr const & get_val() const { return static_cast<expr const &>(cnstr_get_ref(raw(), 2)); }
     };
-
-    name_map<metavar_decl>       m_decls;
-    name_map<level>              m_uassignment;
-    name_map<expr>               m_eassignment;
-    name_map<delayed_assignment> m_dassignment;
-
     struct interface_impl;
     friend struct interface_impl;
 public:
+    metavar_context();
+    metavar_context(metavar_context const & other):object_ref(other) {}
+    metavar_context(metavar_context && other):object_ref(other) {}
+    metavar_context & operator=(metavar_context const & other) { object_ref::operator=(other); return *this; }
+    metavar_context & operator=(metavar_context && other) { object_ref::operator=(other); return *this; }
+
     level mk_univ_metavar_decl();
 
     expr mk_metavar_decl(name const & user_name, local_context const & ctx, expr const & type);
@@ -59,7 +63,7 @@ public:
 
     optional<metavar_decl> find_metavar_decl(expr const & mvar) const;
 
-    metavar_decl const & get_metavar_decl(expr const & mvar) const;
+    metavar_decl get_metavar_decl(expr const & mvar) const;
 
     /** \brief Return the local_decl for `n` in the local context for the metavariable `mvar`
         \pre is_metavar(mvar) */
@@ -74,20 +78,9 @@ public:
         \pre find_metavar_decl(mvar)->get_context().get_local_decl(n) */
     expr get_local(expr const & mvar, name const & n) const;
 
-    bool is_assigned(level const & l) const {
-        lean_assert(is_metavar_decl_ref(l));
-        return m_uassignment.contains(mvar_id(l));
-    }
-
-    bool is_assigned(expr const & m) const {
-        lean_assert(is_metavar_decl_ref(m));
-        return m_eassignment.contains(mvar_name(m));
-    }
-
-    bool is_delayed_assigned(expr const & m) const {
-        lean_assert(is_metavar_decl_ref(m));
-        return m_dassignment.contains(mvar_name(m));
-    }
+    bool is_assigned(level const & l) const;
+    bool is_assigned(expr const & m) const;
+    bool is_delayed_assigned(expr const & m) const;
 
     void assign(level const & u, level const & l);
     void assign(expr const & e, expr const & v);

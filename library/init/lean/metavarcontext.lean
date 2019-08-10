@@ -79,7 +79,7 @@ def isExprAssigned (m : MetavarContext) (mvarId : Name) : Bool :=
 m.eAssignment.contains mvarId
 
 @[export lean.metavar_ctx_is_delayed_assigned]
-def istDelayedAssigned (m : MetavarContext) (mvarId : Name) : Bool :=
+def isDelayedAssigned (m : MetavarContext) (mvarId : Name) : Bool :=
 m.dAssignment.contains mvarId
 
 @[export lean.metavar_ctx_erase_delayed_core]

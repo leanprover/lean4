@@ -47,7 +47,7 @@ private def resolveOpenDecls (env : Environment) (id : Name) : List OpenDecl →
 private def resolveNameAux (env : Environment) (ns : Name) (openDecls : List OpenDecl) : Name → Nat → List (Nat × Name)
 | id@(Name.mkString p _), projSize =>
   match resolveUsingNamespace env id ns with
-  | resolvedIds@(_ :: _) => resolvedIds.map $ fun id => (projSize, id)
+  | resolvedIds@(_ :: _) => resolvedIds.eraseDups.map $ fun id => (projSize, id)
   | [] =>
   match resolveExact env id with
   | some newId => [(projSize, newId)]
@@ -56,7 +56,7 @@ private def resolveNameAux (env : Environment) (ns : Name) (openDecls : List Ope
   let resolvedIds := resolveOpenDecls env id openDecls resolvedIds;
   let resolvedIds := getAliases env id ++ resolvedIds;
   match resolvedIds with
-  | resolvedIds@(_ :: _) => resolvedIds.map $ fun id => (projSize, id)
+  | resolvedIds@(_ :: _) => resolvedIds.eraseDups.map $ fun id => (projSize, id)
   | [] => resolveNameAux p (projSize + 1)
 | _, _ => []
 

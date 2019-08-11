@@ -191,7 +191,8 @@ fun _ => do
 fun n => do
   let id := n.getIdAt 1;
   resolvedIds ← resolveName id;
-  runIO (IO.println resolvedIds);
+  pos ← getPosition;
+  runIO (IO.println (toString pos ++ " " ++ toString resolvedIds));
   pure ()
 
 /- We just ignore Lean3 notation declaration commands. -/

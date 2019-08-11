@@ -214,6 +214,11 @@ mkElabAttribute `commandTerm "command" builtinCommandElabTable
 @[init mkCommandElabAttribute]
 constant commandElabAttribute : CommandElabAttribute := default _
 
+def getPosition (pos : Option String.Pos := none) : Elab Position :=
+do ctx ← read;
+   s ← get;
+   pure $ ctx.fileMap.toPosition (pos.getOrElse s.cmdPos)
+
 def mkMessage (msg : String) (pos : Option String.Pos := none) : Elab Message :=
 do ctx ← read;
    s ← get;

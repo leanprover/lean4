@@ -37,8 +37,10 @@ partitionAux lt hi pivot as lo lo
     -- TODO: fix `partial` support in the equation compiler, it breaks if we use `let (mid, as) := partition as lt low high`
     let mid := p.1;
     let as  := p.2;
-    let as  := qsortAux as low mid;
-    qsortAux as (mid+1) high
+    if mid >= high then as
+    else
+      let as  := qsortAux as low mid;
+      qsortAux as (mid+1) high
   else as
 
 @[inline] def qsort {α : Type} [Inhabited α] (as : Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1) : Array α :=

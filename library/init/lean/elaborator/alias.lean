@@ -15,8 +15,8 @@ abbrev AliasEntry := Name × Name
 
 def addAliasEntry (s : AliasState) (e : AliasEntry) : AliasState :=
 match s.find e.1 with
-| none     => s.insert e.1 [e.2]
-| some ids => s.insert e.1 (e.2 :: ids)
+| none    => s.insert e.1 [e.2]
+| some es => if es.elem e.2 then s else s.insert e.1 (e.2 :: es)
 
 def mkAliasExtension : IO (SimplePersistentEnvExtension AliasEntry AliasState) :=
 registerSimplePersistentEnvExtension {
@@ -35,6 +35,6 @@ aliasExtension.addEntry env (a, e)
 def getAliases (env : Environment) (a : Name) : List Name :=
 match (aliasExtension.getState env).find a with
 | none    => []
-| some as => as
+| some es => es
 
 end Lean

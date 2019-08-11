@@ -241,171 +241,158 @@ goto _start;
 obj* l_Array_qsortAux___main___at_Lean_mkReducibilityAttrs___spec__3(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-uint8 x_4; 
-x_4 = lean::nat_dec_lt(x_2, x_3);
-if (x_4 == 0)
+obj* x_4; uint8 x_13; 
+x_13 = lean::nat_dec_lt(x_2, x_3);
+if (x_13 == 0)
 {
 lean::dec(x_2);
 return x_1;
 }
 else
 {
-obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_57; obj* x_58; obj* x_59; obj* x_60; obj* x_61; uint8 x_62; 
-x_5 = lean::nat_add(x_2, x_3);
-x_6 = lean::mk_nat_obj(2u);
-x_7 = lean::nat_div(x_5, x_6);
-lean::dec(x_5);
-x_57 = l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4___closed__1;
-x_58 = lean::array_get(x_57, x_1, x_7);
-x_59 = lean::array_get(x_57, x_1, x_2);
-x_60 = lean::cnstr_get(x_58, 0);
-lean::inc(x_60);
-lean::dec(x_58);
-x_61 = lean::cnstr_get(x_59, 0);
-lean::inc(x_61);
-lean::dec(x_59);
-x_62 = l_Lean_Name_quickLt(x_60, x_61);
-lean::dec(x_61);
-lean::dec(x_60);
-if (x_62 == 0)
+obj* x_14; obj* x_15; obj* x_16; obj* x_17; obj* x_42; obj* x_43; obj* x_44; obj* x_45; obj* x_46; uint8 x_47; 
+x_14 = lean::nat_add(x_2, x_3);
+x_15 = lean::mk_nat_obj(2u);
+x_16 = lean::nat_div(x_14, x_15);
+lean::dec(x_14);
+x_42 = l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4___closed__1;
+x_43 = lean::array_get(x_42, x_1, x_16);
+x_44 = lean::array_get(x_42, x_1, x_2);
+x_45 = lean::cnstr_get(x_43, 0);
+lean::inc(x_45);
+lean::dec(x_43);
+x_46 = lean::cnstr_get(x_44, 0);
+lean::inc(x_46);
+lean::dec(x_44);
+x_47 = l_Lean_Name_quickLt(x_45, x_46);
+lean::dec(x_46);
+lean::dec(x_45);
+if (x_47 == 0)
 {
-x_8 = x_1;
-goto block_56;
+x_17 = x_1;
+goto block_41;
 }
 else
 {
-obj* x_63; 
-x_63 = lean::array_swap(x_1, x_2, x_7);
-x_8 = x_63;
-goto block_56;
+obj* x_48; 
+x_48 = lean::array_swap(x_1, x_2, x_16);
+x_17 = x_48;
+goto block_41;
 }
-block_56:
+block_41:
 {
-obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; uint8 x_14; 
-x_9 = l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4___closed__1;
-x_10 = lean::array_get(x_9, x_8, x_3);
-x_11 = lean::array_get(x_9, x_8, x_2);
-x_12 = lean::cnstr_get(x_10, 0);
-lean::inc(x_12);
-x_13 = lean::cnstr_get(x_11, 0);
-lean::inc(x_13);
-lean::dec(x_11);
-x_14 = l_Lean_Name_quickLt(x_12, x_13);
-lean::dec(x_13);
-if (x_14 == 0)
+obj* x_18; obj* x_19; obj* x_20; obj* x_21; obj* x_22; uint8 x_23; 
+x_18 = l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4___closed__1;
+x_19 = lean::array_get(x_18, x_17, x_3);
+x_20 = lean::array_get(x_18, x_17, x_2);
+x_21 = lean::cnstr_get(x_19, 0);
+lean::inc(x_21);
+x_22 = lean::cnstr_get(x_20, 0);
+lean::inc(x_22);
+lean::dec(x_20);
+x_23 = l_Lean_Name_quickLt(x_21, x_22);
+lean::dec(x_22);
+if (x_23 == 0)
 {
-obj* x_15; obj* x_16; uint8 x_17; 
-x_15 = lean::array_get(x_9, x_8, x_7);
-x_16 = lean::cnstr_get(x_15, 0);
-lean::inc(x_16);
-lean::dec(x_15);
-x_17 = l_Lean_Name_quickLt(x_16, x_12);
-lean::dec(x_12);
+obj* x_24; obj* x_25; uint8 x_26; 
+x_24 = lean::array_get(x_18, x_17, x_16);
+x_25 = lean::cnstr_get(x_24, 0);
+lean::inc(x_25);
+lean::dec(x_24);
+x_26 = l_Lean_Name_quickLt(x_25, x_21);
+lean::dec(x_21);
+lean::dec(x_25);
+if (x_26 == 0)
+{
+obj* x_27; 
 lean::dec(x_16);
-if (x_17 == 0)
-{
-obj* x_18; obj* x_19; obj* x_20; obj* x_21; obj* x_22; obj* x_23; 
-lean::dec(x_7);
 lean::inc(x_2, 2);
-x_18 = l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4(x_3, x_10, x_8, x_2, x_2);
-lean::dec(x_10);
-x_19 = lean::cnstr_get(x_18, 0);
-lean::inc(x_19);
-x_20 = lean::cnstr_get(x_18, 1);
-lean::inc(x_20);
-lean::dec(x_18);
-x_21 = l_Array_qsortAux___main___at_Lean_mkReducibilityAttrs___spec__3(x_20, x_2, x_19);
-x_22 = lean::mk_nat_obj(1u);
-x_23 = lean::nat_add(x_19, x_22);
+x_27 = l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4(x_3, x_19, x_17, x_2, x_2);
 lean::dec(x_19);
-x_1 = x_21;
-x_2 = x_23;
-goto _start;
+x_4 = x_27;
+goto block_12;
 }
 else
 {
-obj* x_25; obj* x_26; obj* x_27; obj* x_28; obj* x_29; obj* x_30; obj* x_31; obj* x_32; 
-lean::dec(x_10);
-x_25 = lean::array_swap(x_8, x_7, x_3);
-lean::dec(x_7);
-x_26 = lean::array_get(x_9, x_25, x_3);
+obj* x_28; obj* x_29; obj* x_30; 
+lean::dec(x_19);
+x_28 = lean::array_swap(x_17, x_16, x_3);
+lean::dec(x_16);
+x_29 = lean::array_get(x_18, x_28, x_3);
 lean::inc(x_2, 2);
-x_27 = l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4(x_3, x_26, x_25, x_2, x_2);
-lean::dec(x_26);
-x_28 = lean::cnstr_get(x_27, 0);
-lean::inc(x_28);
-x_29 = lean::cnstr_get(x_27, 1);
-lean::inc(x_29);
-lean::dec(x_27);
-x_30 = l_Array_qsortAux___main___at_Lean_mkReducibilityAttrs___spec__3(x_29, x_2, x_28);
-x_31 = lean::mk_nat_obj(1u);
-x_32 = lean::nat_add(x_28, x_31);
-lean::dec(x_28);
-x_1 = x_30;
-x_2 = x_32;
-goto _start;
+x_30 = l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4(x_3, x_29, x_28, x_2, x_2);
+lean::dec(x_29);
+x_4 = x_30;
+goto block_12;
 }
 }
 else
 {
-obj* x_34; obj* x_35; obj* x_36; obj* x_37; obj* x_38; uint8 x_39; 
-lean::dec(x_12);
-lean::dec(x_10);
-x_34 = lean::array_swap(x_8, x_2, x_3);
-x_35 = lean::array_get(x_9, x_34, x_7);
-x_36 = lean::array_get(x_9, x_34, x_3);
-x_37 = lean::cnstr_get(x_35, 0);
-lean::inc(x_37);
+obj* x_31; obj* x_32; obj* x_33; obj* x_34; obj* x_35; uint8 x_36; 
+lean::dec(x_21);
+lean::dec(x_19);
+x_31 = lean::array_swap(x_17, x_2, x_3);
+x_32 = lean::array_get(x_18, x_31, x_16);
+x_33 = lean::array_get(x_18, x_31, x_3);
+x_34 = lean::cnstr_get(x_32, 0);
+lean::inc(x_34);
+lean::dec(x_32);
+x_35 = lean::cnstr_get(x_33, 0);
+lean::inc(x_35);
+x_36 = l_Lean_Name_quickLt(x_34, x_35);
 lean::dec(x_35);
-x_38 = lean::cnstr_get(x_36, 0);
-lean::inc(x_38);
-x_39 = l_Lean_Name_quickLt(x_37, x_38);
-lean::dec(x_38);
-lean::dec(x_37);
-if (x_39 == 0)
+lean::dec(x_34);
+if (x_36 == 0)
 {
-obj* x_40; obj* x_41; obj* x_42; obj* x_43; obj* x_44; obj* x_45; 
-lean::dec(x_7);
+obj* x_37; 
+lean::dec(x_16);
 lean::inc(x_2, 2);
-x_40 = l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4(x_3, x_36, x_34, x_2, x_2);
-lean::dec(x_36);
-x_41 = lean::cnstr_get(x_40, 0);
-lean::inc(x_41);
-x_42 = lean::cnstr_get(x_40, 1);
-lean::inc(x_42);
-lean::dec(x_40);
-x_43 = l_Array_qsortAux___main___at_Lean_mkReducibilityAttrs___spec__3(x_42, x_2, x_41);
-x_44 = lean::mk_nat_obj(1u);
-x_45 = lean::nat_add(x_41, x_44);
-lean::dec(x_41);
-x_1 = x_43;
-x_2 = x_45;
+x_37 = l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4(x_3, x_33, x_31, x_2, x_2);
+lean::dec(x_33);
+x_4 = x_37;
+goto block_12;
+}
+else
+{
+obj* x_38; obj* x_39; obj* x_40; 
+lean::dec(x_33);
+x_38 = lean::array_swap(x_31, x_16, x_3);
+lean::dec(x_16);
+x_39 = lean::array_get(x_18, x_38, x_3);
+lean::inc(x_2, 2);
+x_40 = l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4(x_3, x_39, x_38, x_2, x_2);
+lean::dec(x_39);
+x_4 = x_40;
+goto block_12;
+}
+}
+}
+}
+block_12:
+{
+obj* x_5; obj* x_6; uint8 x_7; 
+x_5 = lean::cnstr_get(x_4, 0);
+lean::inc(x_5);
+x_6 = lean::cnstr_get(x_4, 1);
+lean::inc(x_6);
+lean::dec(x_4);
+x_7 = lean::nat_dec_le(x_3, x_5);
+if (x_7 == 0)
+{
+obj* x_8; obj* x_9; obj* x_10; 
+x_8 = l_Array_qsortAux___main___at_Lean_mkReducibilityAttrs___spec__3(x_6, x_2, x_5);
+x_9 = lean::mk_nat_obj(1u);
+x_10 = lean::nat_add(x_5, x_9);
+lean::dec(x_5);
+x_1 = x_8;
+x_2 = x_10;
 goto _start;
 }
 else
 {
-obj* x_47; obj* x_48; obj* x_49; obj* x_50; obj* x_51; obj* x_52; obj* x_53; obj* x_54; 
-lean::dec(x_36);
-x_47 = lean::array_swap(x_34, x_7, x_3);
-lean::dec(x_7);
-x_48 = lean::array_get(x_9, x_47, x_3);
-lean::inc(x_2, 2);
-x_49 = l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4(x_3, x_48, x_47, x_2, x_2);
-lean::dec(x_48);
-x_50 = lean::cnstr_get(x_49, 0);
-lean::inc(x_50);
-x_51 = lean::cnstr_get(x_49, 1);
-lean::inc(x_51);
-lean::dec(x_49);
-x_52 = l_Array_qsortAux___main___at_Lean_mkReducibilityAttrs___spec__3(x_51, x_2, x_50);
-x_53 = lean::mk_nat_obj(1u);
-x_54 = lean::nat_add(x_50, x_53);
-lean::dec(x_50);
-x_1 = x_52;
-x_2 = x_54;
-goto _start;
-}
-}
+lean::dec(x_5);
+lean::dec(x_2);
+return x_6;
 }
 }
 }

@@ -167,6 +167,12 @@ def isInternal : Name → Bool
 | mkNumeral p _   => isInternal p
 | _ => false
 
+def isAtomic : Name → Bool
+| anonymous => true
+| mkString anonymous _ => true
+| mkNumeral anonymous _ => true
+| _ => false
+
 theorem mkStringNeMkStringOfNePrefix {p₁ : Name} (s₁ : String) {p₂ : Name} (s₂ : String) : p₁ ≠ p₂ → mkString p₁ s₁ ≠ mkString p₂ s₂ :=
 fun h₁ h₂ => Name.noConfusion h₂ (fun h _ => absurd h h₁)
 

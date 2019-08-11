@@ -12,18 +12,16 @@ import init.lean.parser.module
 namespace Lean
 
 inductive OpenDecl
-| simple   (ns : Name)
+| simple   (ns : Name) (except : List Name)
 | explicit (id : Name) (declName : Name)
-| except   (ns : Name) (except : List Name)
 
 namespace OpenDecl
-instance : Inhabited OpenDecl := ⟨simple Name.anonymous⟩
+instance : Inhabited OpenDecl := ⟨simple Name.anonymous []⟩
 
 instance : HasToString OpenDecl :=
 ⟨fun decl => match decl with
- | simple ns        => toString ns
  | explicit id decl => toString id ++ " → " ++ toString decl
- | except ns ex     => toString ns ++ " hiding " ++ toString ex⟩
+ | simple ns ex     => toString ns ++ (if ex == [] then "" else " hiding " ++ toString ex)⟩
 
 end OpenDecl
 
@@ -38,6 +36,7 @@ structure ElabScope :=
 (ns        : Name := Name.anonymous) -- current namespace
 (openDecls : List OpenDecl := [])
 (univs     : List Name := [])
+(lctx      : LocalContext := {})
 
 namespace ElabScope
 
@@ -423,9 +422,9 @@ def resolveNamespaceUsingScopes (env : Environment) (n : Name) : List ElabScope 
 | { ns := ns, .. } :: scopes   => if isNamespace env (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingScopes scopes
 
 def resolveNamespaceUsingOpenDecls (env : Environment) (n : Name) : List OpenDecl → Option Name
-| []                       => none
-| OpenDecl.simple ns :: ds =>  if isNamespace env (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingOpenDecls ds
-| _ :: ds                  => resolveNamespaceUsingOpenDecls ds
+| []                          => none
+| OpenDecl.simple ns [] :: ds =>  if isNamespace env (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingOpenDecls ds
+| _ :: ds                     => resolveNamespaceUsingOpenDecls ds
 
 /-
 Given a name `n` try to find namespace it refers to. The resolution procedure works as follows

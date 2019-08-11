@@ -10,10 +10,13 @@ namespace Lean
 
 /- We use aliases to implement the `export <id> (<id>+)` command. -/
 
-abbrev AliasState := SMap Name Name Name.quickLt
+abbrev AliasState := SMap Name (List Name) Name.quickLt
 abbrev AliasEntry := Name × Name
 
-def addAliasEntry (s : AliasState) (e : AliasEntry) : AliasState := s.insert e.1 e.2
+def addAliasEntry (s : AliasState) (e : AliasEntry) : AliasState :=
+match s.find e.1 with
+| none     => s.insert e.1 [e.2]
+| some ids => s.insert e.1 (e.2 :: ids)
 
 def mkAliasExtension : IO (SimplePersistentEnvExtension AliasEntry AliasState) :=
 registerSimplePersistentEnvExtension {
@@ -29,7 +32,9 @@ constant aliasExtension : SimplePersistentEnvExtension AliasEntry AliasState := 
 def addAlias (env : Environment) (a : Name) (e : Name) : Environment :=
 aliasExtension.addEntry env (a, e)
 
-def isAlias (env : Environment) (a : Name) : Option Name :=
-(aliasExtension.getState env).find a
+def getAliases (env : Environment) (a : Name) : List Name :=
+match (aliasExtension.getState env).find a with
+| none    => []
+| some as => as
 
 end Lean

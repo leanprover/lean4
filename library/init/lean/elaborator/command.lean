@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.lean.elaborator.alias
 import init.lean.elaborator.basic
+import init.lean.elaborator.resolvename
 
 namespace Lean
 namespace Elab
@@ -100,7 +101,7 @@ def elabOpenSimple (n : SyntaxNode) : Elab Unit :=
 let nss := n.getArg 0;
 nss.mforArgs $ fun ns => do
   ns ← resolveNamespace ns.getId;
-  addOpenDecl (OpenDecl.simple ns)
+  addOpenDecl (OpenDecl.simple ns [])
 
 def elabOpenOnly (n : SyntaxNode) : Elab Unit :=
 do
@@ -131,7 +132,7 @@ ids : List Name ← idsStx.mfoldArgs (fun idStx ids => do
     logUnknownDecl idStx declName;
     pure ids)
   [];
-addOpenDecl (OpenDecl.except ns ids)
+addOpenDecl (OpenDecl.simple ns ids)
 
 def elabOpenRenaming (n : SyntaxNode) : Elab Unit :=
 do
@@ -185,6 +186,13 @@ fun _ => do
   match env.addDecl Declaration.quotDecl with
   | Except.ok env   => setEnv env
   | Except.error ex => logElabException (ElabException.kernel ex)
+
+@[builtinCommandElab «resolve_name»] def elabResolveName : CommandElab :=
+fun n => do
+  let id := n.getIdAt 1;
+  resolvedIds ← resolveName id;
+  runIO (IO.println resolvedIds);
+  pure ()
 
 /- We just ignore Lean3 notation declaration commands. -/
 @[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()

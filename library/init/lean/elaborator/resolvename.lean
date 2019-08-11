@@ -66,5 +66,16 @@ do env ← getEnv;
    openDecls ← getOpenDecls;
    pure $ resolveNameAux env ns openDecls id 0
 
+private partial def preresolveNamesAux {α} (env : Environment) (ns : Name) (openDecls : List OpenDecl) : Syntax α → Syntax α
+| Syntax.node k args             => Syntax.node k (args.map preresolveNamesAux)
+| Syntax.ident info rawVal val _ => Syntax.ident info rawVal val (resolveNameAux env ns openDecls val 0)
+| stx                            => stx
+
+def preresolveNames {α} (stx : Syntax α) : Elab (Syntax α) :=
+do env ← getEnv;
+   ns  ← getNamespace;
+   openDecls ← getOpenDecls;
+   pure $ preresolveNamesAux env ns openDecls stx
+
 end Elab
 end Lean

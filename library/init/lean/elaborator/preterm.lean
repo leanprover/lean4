@@ -52,6 +52,33 @@ private def dummy : Expr := Expr.const `Prop []
 
 namespace Elab
 
+partial def toLevel : Syntax → Elab Level
+| stx => do
+  match stx.getKind with
+  | `Lean.Parser.Level.paren  => toLevel $ stx.getArg 1
+  | `Lean.Parser.Level.max    => do
+     let args := (stx.getArg 1).getArgs;
+     first ← toLevel (args.get 0);
+     args.mfoldlFrom (fun r arg => Level.max r <$> toLevel arg) first 1
+  | `Lean.Parser.Level.imax   => do
+     let args := (stx.getArg 1).getArgs;
+     first ← toLevel (args.get 0);
+     args.mfoldlFrom (fun r arg => Level.imax r <$> toLevel arg) first 1
+  | `Lean.Parser.Level.hole   => pure $ Level.mvar Name.anonymous
+  | `Lean.Parser.Level.num    => pure $ Level.ofNat $ (stx.getArg 0).toNat
+  | `Lean.Parser.Level.ident  => do
+     let id := stx.getIdAt 0;
+     univs ← getUniverses;
+     if univs.elem id then pure $ Level.param id
+     else do
+       logError stx ("unknown universe variable '" ++ toString id ++ "'");
+       pure $ Level.mvar Name.anonymous
+  | `Lean.Parser.Level.addLit => do
+     level ← toLevel $ stx.getArg 0;
+     let k := (stx.getArg 2).toNat;
+     pure $ level.addOffset k
+  | other => throw "unexpected universe level syntax"
+
 def toPreTerm (stx : Syntax) : Elab PreTerm :=
 stx.ifNode
   (fun n => do
@@ -68,6 +95,18 @@ fun _ => pure $ Expr.sort $ Level.succ Level.zero
 
 @[builtinPreTermElab «sort»] def convertSort : PreTermElab :=
 fun _ => pure $ Expr.sort Level.zero
+
+@[builtinPreTermElab «prop»] def convertProp : PreTermElab :=
+fun _ => pure $ Expr.sort Level.zero
+
+@[builtinPreTermElab «sortApp»] def convertSortApp : PreTermElab :=
+fun n => do
+   let sort := n.getArg 0;
+   level ← toLevel $ n.getArg 1;
+   if sort.isOfKind `Lean.Parser.Term.type then
+     pure $ Expr.sort $ Level.succ level
+   else
+     pure $ Expr.sort level
 
 end Elab
 end Lean

@@ -21,6 +21,7 @@ obj* l_unsafeCast(obj*, obj*, obj*, obj*);
 obj* l_Lean_Syntax_setTailInfoAux(obj*);
 obj* l_Lean_Syntax_setTailInfoAux___main(obj*);
 obj* l_Array_ummapAux___main___at_Lean_Syntax_mrewriteBottomUp___main___spec__1(obj*, obj*);
+obj* l_Lean_Syntax_toNat___rarg___boxed(obj*);
 obj* l_Array_miterateAux___main___at_Lean_Syntax_reprint___main___spec__1(obj*);
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_Lean_Syntax_getHeadInfo___main___rarg___boxed(obj*);
@@ -44,6 +45,7 @@ obj* l_Array_mkArray(obj*, obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_Syntax_updateLeading___spec__2(obj*);
 obj* l_Lean_Syntax_getTailInfo___main___rarg___boxed(obj*);
 obj* l_Lean_Syntax_getId(obj*);
+obj* l_Lean_Syntax_toNat(obj*);
 obj* l_Array_ummapAux___main___at_Lean_Syntax_mreplace___main___spec__1(obj*, obj*);
 obj* l_Lean_mkStrLit(obj*, obj*);
 obj* l_Lean_strLitKind___closed__1;
@@ -295,6 +297,7 @@ namespace lean {
 obj* string_utf8_extract(obj*, obj*, obj*);
 }
 obj* l_Lean_Syntax_ifNodeKind___rarg___boxed(obj*, obj*, obj*, obj*);
+obj* l_Lean_Syntax_toNat___rarg(obj*);
 obj* l_Array_mfindRevAux___main___at_Lean_Syntax_getTailInfo___main___spec__1___rarg(obj*, obj*, obj*);
 obj* l_Lean_SyntaxNode_modifyArgs___rarg(obj*, obj*);
 obj* l_Lean_Syntax_getPos___rarg(obj*);
@@ -5700,6 +5703,45 @@ _start:
 {
 obj* x_2; 
 x_2 = l_Lean_Syntax_isIdOrAtom___rarg(x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l_Lean_Syntax_toNat___rarg(obj* x_1) {
+_start:
+{
+obj* x_2; obj* x_3; 
+x_2 = l_Lean_numLitKind;
+x_3 = l_Lean_Syntax_isNatLitAux___rarg(x_2, x_1);
+if (lean::obj_tag(x_3) == 0)
+{
+obj* x_4; 
+x_4 = lean::mk_nat_obj(0u);
+return x_4;
+}
+else
+{
+obj* x_5; 
+x_5 = lean::cnstr_get(x_3, 0);
+lean::inc(x_5);
+lean::dec(x_3);
+return x_5;
+}
+}
+}
+obj* l_Lean_Syntax_toNat(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Syntax_toNat___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+obj* l_Lean_Syntax_toNat___rarg___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_Syntax_toNat___rarg(x_1);
 lean::dec(x_1);
 return x_2;
 }

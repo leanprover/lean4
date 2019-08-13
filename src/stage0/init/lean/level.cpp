@@ -74,6 +74,7 @@ obj* l_Lean_LevelToFormat_Result_format___main___boxed(obj*, obj*);
 obj* l_Lean_Level_max___boxed(obj*, obj*);
 extern "C" obj* level_mk_imax(obj*, obj*);
 obj* l_Lean_Level_imax___boxed(obj*, obj*);
+obj* l_Lean_Level_addOffsetAux(obj*, obj*);
 obj* l_Lean_Level_ofNat___main___boxed(obj*);
 obj* l_Lean_Level_one___closed__1;
 obj* l_Lean_Level_toNat___main___boxed(obj*);
@@ -89,6 +90,8 @@ obj* format_group_core(obj*);
 obj* l_Lean_LevelToFormat_Result_format___boxed(obj*, obj*);
 obj* l_Lean_Level_toNat___main___closed__1;
 obj* l_Lean_LevelToFormat_Result_imax(obj*, obj*);
+obj* l_Lean_Level_addOffsetAux___main(obj*, obj*);
+obj* l_Lean_Level_addOffset(obj*, obj*);
 obj* l_Lean_Level_succ___boxed(obj*);
 obj* l_Lean_LevelToFormat_levelHasFormat;
 obj* l_Lean_LevelToFormat_Result_format(obj*, uint8);
@@ -376,6 +379,46 @@ obj* x_2;
 x_2 = l_Lean_Level_ofNat(x_1);
 lean::dec(x_1);
 return x_2;
+}
+}
+obj* l_Lean_Level_addOffsetAux___main(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; uint8 x_4; 
+x_3 = lean::mk_nat_obj(0u);
+x_4 = lean::nat_dec_eq(x_1, x_3);
+if (x_4 == 0)
+{
+obj* x_5; obj* x_6; obj* x_7; 
+x_5 = lean::mk_nat_obj(1u);
+x_6 = lean::nat_sub(x_1, x_5);
+lean::dec(x_1);
+x_7 = level_mk_succ(x_2);
+x_1 = x_6;
+x_2 = x_7;
+goto _start;
+}
+else
+{
+lean::dec(x_1);
+return x_2;
+}
+}
+}
+obj* l_Lean_Level_addOffsetAux(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_Lean_Level_addOffsetAux___main(x_1, x_2);
+return x_3;
+}
+}
+obj* l_Lean_Level_addOffset(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_Lean_Level_addOffsetAux___main(x_2, x_1);
+return x_3;
 }
 }
 obj* l_Lean_Nat_imax(obj* x_1, obj* x_2) {

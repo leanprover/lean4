@@ -489,7 +489,6 @@ obj* l_Lean_Parser_Term_match___elambda__1___closed__2;
 obj* l_Lean_Parser_Term_namedPattern___elambda__1___rarg___closed__6;
 obj* l_Lean_Parser_Term_paren___closed__7;
 obj* l_Lean_Parser_Term_doId___closed__4;
-extern obj* l___regBuiltinParser_Lean_Parser_Level_num___closed__1;
 obj* l_Lean_Parser_Term_borrowed___elambda__1___rarg___closed__8;
 obj* l_Lean_Parser_Term_explicitBinder___elambda__1___closed__2;
 obj* l_Lean_Parser_Term_map___elambda__1___closed__2;
@@ -719,6 +718,7 @@ obj* l_Lean_Parser_Term_doPat___closed__8;
 obj* l_Lean_Parser_Term_doLet;
 obj* l_Lean_Parser_Term_namedPattern___elambda__1___rarg___closed__1;
 obj* l___private_init_lean_parser_parser_2__sepByFnAux___main___at_Lean_Parser_Term_explicitUniv___elambda__1___spec__2___closed__4;
+extern obj* l_Lean_Parser_Level_num___elambda__1___rarg___closed__1;
 obj* l_Lean_Parser_Term_list___closed__8;
 obj* l___regBuiltinParser_Lean_Parser_Term_eq(obj*);
 obj* l_Lean_Parser_Term_mapRev___closed__3;
@@ -3338,7 +3338,7 @@ _start:
 {
 obj* x_1; obj* x_2; obj* x_3; 
 x_1 = l_Lean_Parser_Term_explicitUniv___elambda__1___closed__2;
-x_2 = l___regBuiltinParser_Lean_Parser_Level_num___closed__1;
+x_2 = l_Lean_Parser_Level_num___elambda__1___rarg___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

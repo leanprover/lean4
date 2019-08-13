@@ -444,6 +444,10 @@ def isIdOrAtom {α} : Syntax α → Option String
 | Syntax.ident _ rawVal _ _   => some rawVal.toString
 | _ => none
 
-end Syntax
+def toNat {α} (stx : Syntax α) : Nat :=
+match stx.isNatLit with
+| some val => val
+| none     => 0
 
+end Syntax
 end Lean

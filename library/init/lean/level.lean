@@ -13,13 +13,13 @@ inductive Level
 | succ   : Level → Level
 | max    : Level → Level → Level
 | imax   : Level → Level → Level
-| Param  : Name → Level
+| param  : Name → Level
 | mvar   : Name → Level
 
 attribute [extern "level_mk_succ"]  Level.succ
 attribute [extern "level_mk_max"]   Level.max
 attribute [extern "level_mk_imax"]  Level.imax
-attribute [extern "level_mk_param"] Level.Param
+attribute [extern "level_mk_param"] Level.param
 attribute [extern "level_mk_mvar"]  Level.mvar
 
 instance levelIsInhabited : Inhabited Level :=
@@ -28,7 +28,7 @@ instance levelIsInhabited : Inhabited Level :=
 def Level.one : Level := Level.succ Level.zero
 
 def Level.hasParam : Level → Bool
-| Level.Param _    => true
+| Level.param _    => true
 | Level.succ l     => Level.hasParam l
 | Level.max l₁ l₂  => Level.hasParam l₁ || Level.hasParam l₂
 | Level.imax l₁ l₂ => Level.hasParam l₁ || Level.hasParam l₂
@@ -44,6 +44,13 @@ def Level.hasMvar : Level → Bool
 def Level.ofNat : Nat → Level
 | 0   => Level.zero
 | n+1 => Level.succ (Level.ofNat n)
+
+def Level.addOffsetAux : Nat → Level → Level
+| 0,     l => l
+| (n+1), l => Level.addOffsetAux n (Level.succ l)
+
+def Level.addOffset (l : Level) (n : Nat) : Level :=
+l.addOffsetAux n
 
 def Nat.imax (n m : Nat) : Nat :=
 if m = 0 then 0 else Nat.max n m
@@ -65,7 +72,7 @@ def Level.instantiate (s : Name → Option Level) : Level → Level
 | Level.succ l      => Level.succ (Level.instantiate l)
 | Level.max l₁ l₂   => Level.max (Level.instantiate l₁) (Level.instantiate l₂)
 | Level.imax l₁ l₂  => Level.imax (Level.instantiate l₁) (Level.instantiate l₂)
-| l@(Level.Param n) =>
+| l@(Level.param n) =>
   match s n with
   | some l' => l'
   | none    => l
@@ -119,7 +126,7 @@ def Level.toResult : Level → Result
 | Level.succ l     => Result.succ (Level.toResult l)
 | Level.max l₁ l₂  => Result.max (Level.toResult l₁) (Level.toResult l₂)
 | Level.imax l₁ l₂ => Result.imax (Level.toResult l₁) (Level.toResult l₂)
-| Level.Param n    => Result.leaf (fmt n)
+| Level.param n    => Result.leaf (fmt n)
 | Level.mvar n     => Result.leaf (fmt n)
 
 def Level.format (l : Level) : Format :=

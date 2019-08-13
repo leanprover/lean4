@@ -107,6 +107,14 @@ match n with
 end SyntaxNode
 
 namespace Syntax
+/- TODO: remove `@[extern]` when compiler can perform the following optimization automatically -/
+@[extern cpp inline "#2"]
+partial def lift (α) : Syntax → Syntax α
+| atom info val             => atom info val
+| node k args               => node k $ args.map lift
+| missing                   => missing
+| ident info rawVal val pre => ident info rawVal val pre
+| other o                   => False.elim (nomatch o)
 
 def setAtomVal {α} : Syntax α → String → Syntax α
 | atom info _, v => (atom info v)

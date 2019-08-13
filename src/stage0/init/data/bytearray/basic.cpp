@@ -21,6 +21,7 @@ obj* l_ByteArray_mk___boxed(obj*);
 obj* l_ByteArray_mkEmpty___boxed(obj*);
 obj* l_ByteArray_toList___boxed(obj*);
 obj* l_ByteArray_toListAux___boxed(obj*, obj*, obj*);
+extern obj* l_List_repr___rarg___closed__3;
 obj* l_ByteArray_isEmpty___boxed(obj*);
 obj* l_List_toByteArrayAux(obj*, obj*);
 namespace lean {
@@ -35,7 +36,7 @@ namespace lean {
 obj* byte_array_mk(obj*);
 }
 obj* l_Nat_repr(obj*);
-extern obj* l_List_repr___main___rarg___closed__3;
+extern obj* l_List_repr___rarg___closed__2;
 obj* l_ByteArray_HasToString(obj*);
 namespace lean {
 obj* string_append(obj*, obj*);
@@ -45,6 +46,7 @@ obj* l_ByteArray_empty;
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
+obj* l_List_toString___at_ByteArray_HasToString___spec__1(obj*);
 obj* l_ByteArray_get___boxed(obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
@@ -59,7 +61,6 @@ obj* byte_array_data(obj*);
 obj* l_ByteArray_toListAux___main(obj*, obj*, obj*);
 obj* l_ByteArray_empty___closed__1;
 obj* l_List_toByteArray(obj*);
-extern obj* l_List_repr___main___rarg___closed__1;
 obj* l_ByteArray_HasToString___boxed(obj*);
 obj* l_ByteArray_set___boxed(obj*, obj*, obj*);
 namespace lean {
@@ -70,10 +71,9 @@ obj* l_List_toStringAux___main___at_ByteArray_HasToString___spec__2(uint8, obj*)
 obj* l_List_toByteArrayAux___main(obj*, obj*);
 obj* l_ByteArray_Inhabited;
 obj* l_ByteArray_toListAux(obj*, obj*, obj*);
-extern obj* l_List_repr___main___rarg___closed__2;
-obj* l_List_toString___main___at_ByteArray_HasToString___spec__1(obj*);
 uint8 l_ByteArray_isEmpty(obj*);
 obj* l_ByteArray_size___boxed(obj*);
+extern obj* l_List_repr___rarg___closed__1;
 namespace lean {
 obj* byte_array_set(obj*, obj*, uint8);
 }
@@ -364,13 +364,13 @@ return x_21;
 }
 }
 }
-obj* l_List_toString___main___at_ByteArray_HasToString___spec__1(obj* x_1) {
+obj* l_List_toString___at_ByteArray_HasToString___spec__1(obj* x_1) {
 _start:
 {
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_2; 
-x_2 = l_List_repr___main___rarg___closed__1;
+x_2 = l_List_repr___rarg___closed__1;
 return x_2;
 }
 else
@@ -378,10 +378,10 @@ else
 uint8 x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
 x_3 = 1;
 x_4 = l_List_toStringAux___main___at_ByteArray_HasToString___spec__2(x_3, x_1);
-x_5 = l_List_repr___main___rarg___closed__2;
+x_5 = l_List_repr___rarg___closed__2;
 x_6 = lean::string_append(x_5, x_4);
 lean::dec(x_4);
-x_7 = l_List_repr___main___rarg___closed__3;
+x_7 = l_List_repr___rarg___closed__3;
 x_8 = lean::string_append(x_6, x_7);
 return x_8;
 }
@@ -392,7 +392,7 @@ _start:
 {
 obj* x_2; obj* x_3; 
 x_2 = l_ByteArray_toList(x_1);
-x_3 = l_List_toString___main___at_ByteArray_HasToString___spec__1(x_2);
+x_3 = l_List_toString___at_ByteArray_HasToString___spec__1(x_2);
 return x_3;
 }
 }

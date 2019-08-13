@@ -20,6 +20,7 @@ obj* l_RBNode_any___main___at_RBTree_any___spec__1(obj*);
 obj* l_RBNode_mfold___main___at_RBTree_mfor___spec__1___boxed(obj*, obj*, obj*);
 obj* l_RBNode_mfold___main___at_RBTree_mfor___spec__1___rarg___lambda__2___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_RBNode_findCore___main___rarg(obj*, obj*, obj*);
+obj* l_List_repr___rarg(obj*, obj*);
 obj* l_rbtreeOf(obj*);
 obj* l_List_foldl___main___at_RBTree_fromList___spec__1___rarg(obj*, obj*, obj*);
 obj* l_RBTree_max___boxed(obj*, obj*);
@@ -63,6 +64,7 @@ obj* l_RBTree_max___rarg___boxed(obj*);
 obj* l_RBTree_revFold___rarg(obj*, obj*, obj*);
 obj* l_mkRBTree(obj*, obj*);
 obj* l_RBTree_min(obj*, obj*);
+obj* l_RBTree_min___rarg___closed__1;
 uint8 l_RBNode_any___main___at_RBTree_any___spec__1___rarg(obj*, obj*);
 namespace lean {
 obj* string_append(obj*, obj*);
@@ -125,7 +127,6 @@ obj* l_RBTree_mfor___rarg(obj*, obj*, obj*);
 obj* l_RBNode_mfold___main___at_RBTree_mfold___spec__1___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_RBTree_all(obj*, obj*);
 obj* l_RBTree_toList___rarg___boxed(obj*);
-obj* l_List_repr___main___rarg(obj*, obj*);
 obj* l_RBTree_max(obj*, obj*);
 obj* l_mkRBTree(obj* x_1, obj* x_2) {
 _start:
@@ -690,6 +691,14 @@ lean::dec(x_2);
 return x_3;
 }
 }
+obj* _init_l_RBTree_min___rarg___closed__1() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::box(0);
+return x_1;
+}
+}
 obj* l_RBTree_min___rarg(obj* x_1) {
 _start:
 {
@@ -698,7 +707,7 @@ x_2 = l_RBNode_min___main___rarg(x_1);
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
-x_3 = lean::box(0);
+x_3 = l_RBTree_min___rarg___closed__1;
 return x_3;
 }
 else
@@ -765,7 +774,7 @@ x_2 = l_RBNode_max___main___rarg(x_1);
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
-x_3 = lean::box(0);
+x_3 = l_RBTree_min___rarg___closed__1;
 return x_3;
 }
 else
@@ -837,7 +846,7 @@ _start:
 {
 obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
 x_3 = l_RBTree_toList___rarg(x_2);
-x_4 = l_List_repr___main___rarg(x_1, x_3);
+x_4 = l_List_repr___rarg(x_1, x_3);
 x_5 = l_RBTree_HasRepr___rarg___closed__1;
 x_6 = lean::string_append(x_5, x_4);
 lean::dec(x_4);
@@ -1468,6 +1477,8 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_rbmap_basic(w);
 if (io_result_is_error(w)) return w;
+l_RBTree_min___rarg___closed__1 = _init_l_RBTree_min___rarg___closed__1();
+lean::mark_persistent(l_RBTree_min___rarg___closed__1);
 l_RBTree_HasRepr___rarg___closed__1 = _init_l_RBTree_HasRepr___rarg___closed__1();
 lean::mark_persistent(l_RBTree_HasRepr___rarg___closed__1);
 return w;

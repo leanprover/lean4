@@ -71,7 +71,6 @@ uint8 nat_dec_lt(obj*, obj*);
 }
 obj* l_Lean_registerParametricAttribute___at_Lean_mkExportAttr___spec__1___lambda__1(obj*);
 obj* l_Array_anyMAux___main___at_Lean_mkExportAttr___spec__6___boxed(obj*, obj*, obj*);
-extern obj* l_Substring_drop___main___closed__1;
 extern obj* l_Lean_ParametricAttribute_Inhabited___closed__1;
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkExportAttr___spec__7(obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
@@ -106,6 +105,7 @@ uint8 l_Lean_Name_quickLt(obj*, obj*);
 obj* l_Array_binSearchAux___main___at_Lean_getExportNameFor___spec__3___boxed(obj*, obj*, obj*, obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Array_get(obj*, obj*, obj*, obj*);
+extern obj* l_Substring_drop___closed__1;
 namespace lean {
 obj* string_utf8_next(obj*, obj*);
 }
@@ -375,7 +375,7 @@ else
 obj* x_12; obj* x_13; uint8 x_14; 
 lean::dec(x_6);
 x_12 = l_String_splitAux___main___closed__1;
-x_13 = l_Substring_drop___main___closed__1;
+x_13 = l_Substring_drop___closed__1;
 x_14 = l_String_anyAux___main___at___private_init_lean_compiler_exportattr_1__isValidCppId___spec__2(x_4, x_12, x_13, x_2);
 if (x_14 == 0)
 {

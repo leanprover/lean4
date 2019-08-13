@@ -14,7 +14,6 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-obj* l_RBNode_setBlack___main___rarg(obj*);
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
 obj* l_RBNode_ins___main___at_Lean_mkClosedTermCacheExtension___spec__3(obj*, obj*, obj*);
 obj* l_Lean_closedTermCacheExt;
@@ -39,17 +38,16 @@ extern obj* l_Lean_EnvExtension_Inhabited___rarg___closed__1;
 obj* l_AssocList_replace___main___at_Lean_mkClosedTermCacheExtension___spec__9(obj*, obj*, obj*);
 obj* l_AssocList_mfoldl___main___at_Lean_mkClosedTermCacheExtension___spec__8(obj*, obj*);
 obj* l_Lean_mkClosedTermCacheExtension___closed__1;
-obj* l_Lean_SMap_insert___main___at_Lean_mkClosedTermCacheExtension___spec__1(obj*, obj*, obj*);
 uint8 l_Array_anyMAux___main___at_Lean_mkClosedTermCacheExtension___spec__18(obj*, obj*, obj*);
 obj* l_Lean_Expr_quickLt___boxed(obj*, obj*);
 obj* l_Lean_closedTermCacheExt___closed__4;
-obj* l_Lean_SMap_find___main___at_Lean_getClosedTermName___spec__1(obj*, obj*);
 obj* l_Lean_closedTermCacheExt___closed__9;
 obj* l_Array_uget(obj*, obj*, usize, obj*);
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__4;
 obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
 obj* l_Array_anyMAux___main___at_Lean_mkClosedTermCacheExtension___spec__18___boxed(obj*, obj*, obj*);
 obj* l_Lean_SimplePersistentEnvExtension_getState___rarg(obj*, obj*);
+obj* l_Lean_SMap_find___at_Lean_getClosedTermName___spec__1___boxed(obj*, obj*);
 obj* l_Array_uset(obj*, obj*, usize, obj*, obj*);
 obj* l_HashMapImp_insert___at_Lean_mkClosedTermCacheExtension___spec__4(obj*, obj*, obj*);
 obj* l_IO_Prim_Ref_set(obj*, obj*, obj*, obj*);
@@ -62,8 +60,8 @@ obj* l_Lean_mkClosedTermCacheExtension___closed__3;
 obj* l_Lean_closedTermCacheExt___elambda__3___boxed(obj*, obj*);
 obj* l_Lean_mkClosedTermCacheExtension(obj*);
 obj* l_HashMapImp_find___at_Lean_getClosedTermName___spec__3(obj*, obj*);
+obj* l_Lean_SMap_find___at_Lean_getClosedTermName___spec__1(obj*, obj*);
 uint8 l_AssocList_contains___main___at_Lean_mkClosedTermCacheExtension___spec__5(obj*, obj*);
-obj* l_Lean_SMap_find___main___at_Lean_getClosedTermName___spec__1___boxed(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_mkClosedTermCacheExtension___spec__13(obj*, obj*, obj*, obj*);
 obj* l_Lean_mkClosedTermCacheExtension___closed__5;
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
@@ -75,8 +73,8 @@ obj* string_append(obj*, obj*);
 }
 obj* l_HashMapImp_moveEntries___main___at_Lean_mkClosedTermCacheExtension___spec__7(obj*, obj*, obj*);
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1(obj*, obj*, obj*);
+uint8 l_RBNode_isRed___rarg(obj*);
 obj* l_AssocList_find___main___at_Lean_getClosedTermName___spec__4(obj*, obj*);
-obj* l_Lean_SMap_insert___main___at_Lean_mkClosedTermCacheExtension___spec__1___closed__1;
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
@@ -90,7 +88,7 @@ obj* nat_add(obj*, obj*);
 }
 obj* l_Lean_SMap_switch___at_Lean_mkClosedTermCacheExtension___spec__15(obj*);
 obj* l_Array_push(obj*, obj*, obj*);
-uint8 l_RBNode_isRed___main___rarg(obj*);
+obj* l_Lean_SMap_insert___at_Lean_mkClosedTermCacheExtension___spec__1___closed__1;
 obj* l_Lean_mkClosedTermCacheExtension___lambda__2(obj*);
 obj* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_mkClosedTermCacheExtension___spec__17(obj*, obj*);
 extern obj* l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1;
@@ -99,6 +97,7 @@ obj* l_Lean_closedTermCacheExt___closed__6;
 obj* l_Array_miterateAux___main___at_Lean_mkClosedTermCacheExtension___spec__13___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_closedTermCacheExt___closed__3;
 obj* l_Array_miterateAux___main___at_Lean_mkClosedTermCacheExtension___spec__14___boxed(obj*, obj*, obj*, obj*);
+obj* l_Lean_SMap_insert___at_Lean_mkClosedTermCacheExtension___spec__1(obj*, obj*, obj*);
 obj* l_Lean_closedTermCacheExt___closed__1;
 obj* l_EState_bind___rarg(obj*, obj*, obj*);
 obj* l_Lean_mkStateFromImportedEntries___at_Lean_mkClosedTermCacheExtension___spec__12___boxed(obj*, obj*);
@@ -123,6 +122,7 @@ namespace lean {
 obj* get_closed_term_name_core(obj*, obj*);
 }
 obj* l_Lean_closedTermCacheExt___elambda__3(obj*, obj*);
+obj* l_RBNode_setBlack___rarg(obj*);
 obj* l_RBNode_find___main___at_Lean_getClosedTermName___spec__2(obj*, obj*);
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 extern obj* l_Lean_Name_toString___closed__1;
@@ -289,7 +289,7 @@ return x_1;
 else
 {
 uint8 x_34; 
-x_34 = l_RBNode_isRed___main___rarg(x_31);
+x_34 = l_RBNode_isRed___rarg(x_31);
 if (x_34 == 0)
 {
 obj* x_35; 
@@ -969,7 +969,7 @@ return x_1;
 else
 {
 uint8 x_174; 
-x_174 = l_RBNode_isRed___main___rarg(x_28);
+x_174 = l_RBNode_isRed___rarg(x_28);
 if (x_174 == 0)
 {
 obj* x_175; 
@@ -1688,7 +1688,7 @@ return x_321;
 else
 {
 uint8 x_322; 
-x_322 = l_RBNode_isRed___main___rarg(x_318);
+x_322 = l_RBNode_isRed___rarg(x_318);
 if (x_322 == 0)
 {
 obj* x_323; obj* x_324; 
@@ -2132,7 +2132,7 @@ return x_399;
 else
 {
 uint8 x_400; 
-x_400 = l_RBNode_isRed___main___rarg(x_315);
+x_400 = l_RBNode_isRed___rarg(x_315);
 if (x_400 == 0)
 {
 obj* x_401; obj* x_402; 
@@ -2581,7 +2581,7 @@ obj* l_RBNode_insert___at_Lean_mkClosedTermCacheExtension___spec__2(obj* x_1, ob
 _start:
 {
 uint8 x_4; 
-x_4 = l_RBNode_isRed___main___rarg(x_1);
+x_4 = l_RBNode_isRed___rarg(x_1);
 if (x_4 == 0)
 {
 obj* x_5; 
@@ -2592,7 +2592,7 @@ else
 {
 obj* x_6; obj* x_7; 
 x_6 = l_RBNode_ins___main___at_Lean_mkClosedTermCacheExtension___spec__3(x_1, x_2, x_3);
-x_7 = l_RBNode_setBlack___main___rarg(x_6);
+x_7 = l_RBNode_setBlack___rarg(x_6);
 return x_7;
 }
 }
@@ -2927,7 +2927,7 @@ return x_44;
 }
 }
 }
-obj* _init_l_Lean_SMap_insert___main___at_Lean_mkClosedTermCacheExtension___spec__1___closed__1() {
+obj* _init_l_Lean_SMap_insert___at_Lean_mkClosedTermCacheExtension___spec__1___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -2935,7 +2935,7 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Expr_quickLt___boxed), 
 return x_1;
 }
 }
-obj* l_Lean_SMap_insert___main___at_Lean_mkClosedTermCacheExtension___spec__1(obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Lean_SMap_insert___at_Lean_mkClosedTermCacheExtension___spec__1(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 uint8 x_4; 
@@ -3058,7 +3058,7 @@ lean::inc(x_8);
 x_9 = lean::cnstr_get(x_7, 1);
 lean::inc(x_9);
 lean::dec(x_7);
-x_10 = l_Lean_SMap_insert___main___at_Lean_mkClosedTermCacheExtension___spec__1(x_4, x_8, x_9);
+x_10 = l_Lean_SMap_insert___at_Lean_mkClosedTermCacheExtension___spec__1(x_4, x_8, x_9);
 x_11 = lean::mk_nat_obj(1u);
 x_12 = lean::nat_add(x_3, x_11);
 lean::dec(x_3);
@@ -4912,7 +4912,7 @@ lean::inc(x_3);
 x_4 = lean::cnstr_get(x_2, 1);
 lean::inc(x_4);
 lean::dec(x_2);
-x_5 = l_Lean_SMap_insert___main___at_Lean_mkClosedTermCacheExtension___spec__1(x_1, x_3, x_4);
+x_5 = l_Lean_SMap_insert___at_Lean_mkClosedTermCacheExtension___spec__1(x_1, x_3, x_4);
 return x_5;
 }
 }
@@ -5354,7 +5354,7 @@ lean::dec(x_9);
 return x_10;
 }
 }
-obj* l_Lean_SMap_find___main___at_Lean_getClosedTermName___spec__1(obj* x_1, obj* x_2) {
+obj* l_Lean_SMap_find___at_Lean_getClosedTermName___spec__1(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; 
@@ -5393,7 +5393,7 @@ obj* x_3; obj* x_4; obj* x_5;
 x_3 = l_Lean_closedTermCacheExt;
 x_4 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_3, x_1);
 lean::dec(x_1);
-x_5 = l_Lean_SMap_find___main___at_Lean_getClosedTermName___spec__1(x_4, x_2);
+x_5 = l_Lean_SMap_find___at_Lean_getClosedTermName___spec__1(x_4, x_2);
 lean::dec(x_2);
 lean::dec(x_4);
 return x_5;
@@ -5430,11 +5430,11 @@ lean::dec(x_1);
 return x_3;
 }
 }
-obj* l_Lean_SMap_find___main___at_Lean_getClosedTermName___spec__1___boxed(obj* x_1, obj* x_2) {
+obj* l_Lean_SMap_find___at_Lean_getClosedTermName___spec__1___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_Lean_SMap_find___main___at_Lean_getClosedTermName___spec__1(x_1, x_2);
+x_3 = l_Lean_SMap_find___at_Lean_getClosedTermName___spec__1(x_1, x_2);
 lean::dec(x_2);
 lean::dec(x_1);
 return x_3;
@@ -5448,8 +5448,8 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_environment(w);
 if (io_result_is_error(w)) return w;
-l_Lean_SMap_insert___main___at_Lean_mkClosedTermCacheExtension___spec__1___closed__1 = _init_l_Lean_SMap_insert___main___at_Lean_mkClosedTermCacheExtension___spec__1___closed__1();
-lean::mark_persistent(l_Lean_SMap_insert___main___at_Lean_mkClosedTermCacheExtension___spec__1___closed__1);
+l_Lean_SMap_insert___at_Lean_mkClosedTermCacheExtension___spec__1___closed__1 = _init_l_Lean_SMap_insert___at_Lean_mkClosedTermCacheExtension___spec__1___closed__1();
+lean::mark_persistent(l_Lean_SMap_insert___at_Lean_mkClosedTermCacheExtension___spec__1___closed__1);
 l_Lean_SMap_empty___at_Lean_mkClosedTermCacheExtension___spec__10___closed__1 = _init_l_Lean_SMap_empty___at_Lean_mkClosedTermCacheExtension___spec__10___closed__1();
 lean::mark_persistent(l_Lean_SMap_empty___at_Lean_mkClosedTermCacheExtension___spec__10___closed__1);
 l_Lean_SMap_empty___at_Lean_mkClosedTermCacheExtension___spec__10___closed__2 = _init_l_Lean_SMap_empty___at_Lean_mkClosedTermCacheExtension___spec__10___closed__2();

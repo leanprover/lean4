@@ -15,208 +15,201 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_Lean_IR_formatDecl(obj*, obj*);
+obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__8;
+obj* l_Lean_IR_formatAlt___closed__4;
 obj* l_Lean_IR_formatFnBody___main___closed__20;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__10;
 obj* l_Lean_IR_formatAlt(obj*, obj*, obj*);
 obj* l_Lean_IR_formatFnBody___main___closed__32;
 obj* l_Lean_IR_formatFnBody___main___closed__1;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__6;
+obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__2;
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__29;
+obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__12;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__23;
 obj* l_Lean_formatKVMap(obj*);
-obj* l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__3;
+obj* l_Lean_IR_formatDecl___closed__3;
 obj* l_Lean_Format_pretty(obj*, obj*);
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__3;
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__3;
+obj* l___private_init_lean_compiler_ir_format_7__formatParam___closed__2;
 extern obj* l_Lean_Format_paren___closed__2;
+obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__13;
 extern obj* l_Lean_IR_JoinPointId_HasToString___closed__1;
-obj* l_Lean_IR_formatDecl___main(obj*, obj*);
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__11;
-obj* l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main(obj*);
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__4;
-obj* l___private_init_lean_compiler_ir_format_1__formatArg___main___closed__1;
 obj* l_Lean_IR_typeHasFormat___closed__1;
 obj* l_Array_miterateAux___main___at_Lean_IR_formatFnBody___main___spec__1___boxed(obj*, obj*, obj*, obj*, obj*);
-obj* l_Lean_Format_group___main(obj*);
+obj* l_Lean_IR_formatAlt___closed__2;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__4;
 obj* l_Lean_IR_argHasFormat___closed__1;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__10;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__13;
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main(uint8);
+obj* l_Lean_IR_formatAlt___closed__3;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__13;
 obj* l_Lean_IR_formatParams___boxed(obj*);
 obj* l_Lean_IR_formatFnBody___main___closed__36;
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__16;
+obj* l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__2;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__20;
 obj* l___private_init_lean_compiler_ir_format_6__formatIRType___boxed(obj*);
 obj* l_Lean_IR_formatFnBody___main___closed__6;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__17;
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__13;
-obj* l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__1;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__26;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__29;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__22;
+obj* l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__1;
 namespace lean {
 namespace ir {
 obj* decl_to_string_core(obj*);
 }
 }
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main(obj*);
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__2;
 obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__30;
 obj* l_Lean_IR_formatFnBody___main___closed__17;
+obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__14;
 extern obj* l_Lean_Format_sbracket___closed__1;
-obj* l_Lean_IR_formatAlt___main___closed__1;
 obj* l_Array_miterateAux___main___at_Lean_IR_formatParams___spec__2___boxed(obj*, obj*, obj*, obj*);
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__14;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__1;
 extern obj* l_Lean_Options_empty;
 obj* l___private_init_lean_compiler_ir_format_5__formatExpr(obj*);
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__15;
 obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_2__formatArray___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_paramHasFormat___closed__1;
 obj* l_Lean_IR_formatFnBody___main___closed__13;
 obj* l_Lean_IR_declHasFormat;
 obj* l_Lean_IR_fnBodyHasFormat___closed__1;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__21;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__5;
 obj* l_Array_miterateAux___main___at_Lean_IR_formatFnBody___main___spec__1(obj*, obj*, obj*, obj*, obj*);
+obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__4;
 extern obj* l_Lean_Format_join___closed__1;
 obj* l_Lean_IR_ctorInfoHasFormat___closed__1;
+obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__6;
+obj* l___private_init_lean_compiler_ir_format_7__formatParam___closed__4;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__16;
 obj* l___private_init_lean_compiler_ir_format_1__formatArg(obj*);
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__9;
 obj* l_Lean_IR_exprHasFormat___closed__1;
 obj* l_Lean_IR_formatFnBody___main___closed__23;
 obj* l_Lean_IR_formatFnBody___main___closed__31;
 obj* l_Lean_IR_formatFnBody___main___closed__11;
 obj* l___private_init_lean_compiler_ir_format_7__formatParam(obj*);
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__26;
-extern obj* l_Lean_formatEntry___main___closed__2;
-obj* l_Lean_IR_formatAlt___main(obj*, obj*, obj*);
 obj* l_Nat_repr(obj*);
-obj* l___private_init_lean_compiler_ir_format_1__formatArg___main___closed__2;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__30;
 obj* l_Lean_IR_formatFnBody___main___closed__12;
 extern obj* l_Lean_Format_sbracket___closed__2;
 obj* l_Lean_IR_formatFnBody___main___closed__15;
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main___boxed(obj*);
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__14;
 obj* l_Lean_IR_argHasFormat;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__11;
 obj* l_Lean_IR_typeHasFormat;
-obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___main___spec__2___boxed(obj*, obj*, obj*, obj*);
-obj* l_Lean_IR_formatDecl___main___closed__4;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__22;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__9;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__27;
+obj* l___private_init_lean_compiler_ir_format_7__formatParam___closed__3;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__18;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__6;
 namespace lean {
 obj* string_append(obj*, obj*);
 }
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__8;
 obj* l_Lean_IR_formatFnBody___main___closed__8;
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__8;
 obj* l_Lean_IR_fnBodyHasFormat;
-obj* l___private_init_lean_compiler_ir_format_1__formatArg___main(obj*);
-obj* l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__4;
+obj* l_Lean_IR_formatDecl___closed__4;
+obj* l___private_init_lean_compiler_ir_format_1__formatArg___closed__2;
 obj* l___private_init_lean_compiler_ir_format_2__formatArray___at_Lean_IR_formatParams___spec__1(obj*);
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__24;
+obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__9;
+obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__1;
 obj* l_Lean_IR_formatFnBody___main___closed__3;
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__23;
-obj* l___private_init_lean_compiler_ir_format_3__formatLitVal___main(obj*);
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__18;
+obj* l___private_init_lean_compiler_ir_format_2__formatArray___at___private_init_lean_compiler_ir_format_5__formatExpr___spec__1___boxed(obj*);
 obj* l_Lean_IR_litValHasFormat___closed__1;
 obj* l_Array_miterateAux___main___at_Lean_IR_formatParams___spec__2(obj*, obj*, obj*, obj*);
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__15;
 obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_2__formatArray___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_formatFnBody___main___closed__9;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__9;
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__2;
+obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__16;
 obj* l_Array_fget(obj*, obj*, obj*);
 obj* l_Lean_IR_formatFnBody___main___closed__29;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__17;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__12;
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
 extern obj* l_Lean_Format_paren___closed__3;
-obj* l_Lean_IR_formatDecl___main___closed__1;
+obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__5;
 obj* l_Lean_IR_formatFnBody___main___closed__24;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__2;
+obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___spec__2___boxed(obj*, obj*, obj*, obj*);
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__28;
 obj* l_Lean_IR_formatFnBody___main___closed__37;
 obj* l_Lean_IR_declHasToString___closed__1;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__1;
 obj* l_Lean_IR_formatFnBody___main___closed__14;
 obj* l_Lean_IR_formatFnBody___main___closed__2;
 obj* l___private_init_lean_compiler_ir_format_3__formatLitVal(obj*);
+obj* l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__3;
 obj* l___private_init_lean_compiler_ir_format_2__formatArray___rarg___boxed(obj*, obj*);
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__1;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__12;
-obj* l_Lean_IR_formatDecl___main___closed__3;
+obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___spec__2(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_declHasFormat___closed__1;
-obj* l___private_init_lean_compiler_ir_format_7__formatParam___main(obj*);
 obj* l_Lean_IR_formatFnBody___main___closed__19;
-obj* l___private_init_lean_compiler_ir_format_2__formatArray___at___private_init_lean_compiler_ir_format_5__formatExpr___main___spec__1___boxed(obj*);
-obj* l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__2;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__20;
 obj* l_Lean_IR_formatFnBody___main___closed__25;
 obj* l_Lean_IR_declHasToString;
 obj* l___private_init_lean_compiler_ir_format_6__formatIRType(uint8);
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__15;
 obj* l_Lean_IR_formatFnBody___main___closed__40;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__5;
-obj* l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__1;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__11;
+obj* l___private_init_lean_compiler_ir_format_2__formatArray___at___private_init_lean_compiler_ir_format_5__formatExpr___spec__1(obj*);
 obj* l_Lean_IR_formatFnBody___main___closed__10;
 extern obj* l_Lean_Format_sbracket___closed__3;
+obj* l_Lean_IR_formatDecl___closed__1;
 extern obj* l_System_FilePath_dirName___closed__1;
 obj* l_Lean_IR_formatFnBody___main___closed__5;
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__12;
-obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___main___spec__2(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_formatFnBody(obj*, obj*);
 obj* l_Lean_IR_ctorInfoHasFormat;
 extern obj* l_Lean_formatKVMap___closed__1;
-obj* l_Lean_IR_formatDecl___main___closed__2;
+obj* l___private_init_lean_compiler_ir_format_1__formatArg___closed__1;
 obj* l_Lean_IR_formatFnBody___main___closed__16;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__7;
+namespace lean {
+obj* format_group_core(obj*);
+}
 obj* l_Lean_IR_formatFnBody___main___closed__26;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__25;
+obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__15;
 obj* l___private_init_lean_compiler_ir_format_2__formatArray___at_Lean_IR_formatParams___spec__1___boxed(obj*);
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__3;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__31;
 obj* l_Lean_IR_exprHasToString(obj*);
 obj* l_Lean_IR_formatFnBody___main___closed__21;
-obj* l_Lean_IR_formatAlt___main___closed__3;
-obj* l_Lean_IR_formatAlt___main___closed__4;
 obj* l___private_init_lean_compiler_ir_format_2__formatArray(obj*);
 obj* l___private_init_lean_compiler_ir_format_4__formatCtorInfo(obj*);
-obj* l___private_init_lean_compiler_ir_format_2__formatArray___at___private_init_lean_compiler_ir_format_5__formatExpr___main___spec__1(obj*);
 extern obj* l_Lean_IR_VarId_HasToString___closed__1;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__24;
 obj* l_Lean_IR_formatFnBody___main___closed__34;
 obj* l_Lean_IR_formatFnBody___main___closed__30;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__19;
+extern obj* l_Lean_formatEntry___closed__2;
 obj* l_Array_size(obj*, obj*);
 extern obj* l_Lean_Format_flatten___main___closed__2;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__19;
 obj* l_Lean_IR_exprHasFormat;
 obj* l_Lean_IR_formatParams(obj*);
 obj* l_Lean_IR_formatFnBody___main___closed__18;
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__5;
-obj* l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__2;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__31;
+obj* l___private_init_lean_compiler_ir_format_7__formatParam___closed__1;
+obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__3;
 obj* l___private_init_lean_compiler_ir_format_2__formatArray___rarg(obj*, obj*);
+obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__10;
 obj* l_Lean_IR_formatFnBody___main___closed__35;
 obj* l_Lean_IR_litValHasFormat;
 obj* l_Lean_IR_fnBodyHasToString(obj*);
-obj* l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__3;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__27;
+obj* l_Lean_IR_formatAlt___closed__1;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__7;
+obj* l_Lean_IR_formatDecl___closed__2;
 obj* l_Lean_IR_formatFnBody___main___closed__28;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__28;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__4;
 obj* l_Lean_IR_formatFnBody___main___closed__38;
-obj* l_Lean_IR_formatAlt___main___closed__2;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__21;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__25;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__32;
 obj* l_Lean_IR_formatFnBody___main___closed__33;
 obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_2__formatArray___spec__1(obj*);
 obj* l_String_quote(obj*);
+obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__11;
+obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__7;
 obj* l_Lean_IR_paramHasFormat;
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__10;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__14;
 obj* l_Lean_IR_formatFnBody___main___closed__39;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__16;
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__32;
 obj* l_Lean_IR_formatFnBody___main___closed__7;
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__8;
 obj* l_Lean_IR_formatFnBody___main___closed__22;
 obj* l_Lean_IR_formatFnBody___main___closed__4;
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__7;
 obj* l_Lean_IR_formatFnBody___main___closed__27;
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__6;
 obj* l_Lean_IR_formatFnBody___main(obj*, obj*);
-obj* _init_l___private_init_lean_compiler_ir_format_1__formatArg___main___closed__1() {
+obj* _init_l___private_init_lean_compiler_ir_format_1__formatArg___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -224,17 +217,17 @@ x_1 = lean::mk_string("◾");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_1__formatArg___main___closed__2() {
+obj* _init_l___private_init_lean_compiler_ir_format_1__formatArg___closed__2() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_1__formatArg___main___closed__1;
+x_1 = l___private_init_lean_compiler_ir_format_1__formatArg___closed__1;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* l___private_init_lean_compiler_ir_format_1__formatArg___main(obj* x_1) {
+obj* l___private_init_lean_compiler_ir_format_1__formatArg(obj* x_1) {
 _start:
 {
 if (lean::obj_tag(x_1) == 0)
@@ -254,17 +247,9 @@ return x_6;
 else
 {
 obj* x_7; 
-x_7 = l___private_init_lean_compiler_ir_format_1__formatArg___main___closed__2;
+x_7 = l___private_init_lean_compiler_ir_format_1__formatArg___closed__2;
 return x_7;
 }
-}
-}
-obj* l___private_init_lean_compiler_ir_format_1__formatArg(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l___private_init_lean_compiler_ir_format_1__formatArg___main(x_1);
-return x_2;
 }
 }
 obj* _init_l_Lean_IR_argHasFormat___closed__1() {
@@ -366,7 +351,7 @@ lean::dec(x_2);
 return x_3;
 }
 }
-obj* l___private_init_lean_compiler_ir_format_3__formatLitVal___main(obj* x_1) {
+obj* l___private_init_lean_compiler_ir_format_3__formatLitVal(obj* x_1) {
 _start:
 {
 if (lean::obj_tag(x_1) == 0)
@@ -393,14 +378,6 @@ return x_7;
 }
 }
 }
-obj* l___private_init_lean_compiler_ir_format_3__formatLitVal(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l___private_init_lean_compiler_ir_format_3__formatLitVal___main(x_1);
-return x_2;
-}
-}
 obj* _init_l_Lean_IR_litValHasFormat___closed__1() {
 _start:
 {
@@ -417,7 +394,7 @@ x_1 = l_Lean_IR_litValHasFormat___closed__1;
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__1() {
+obj* _init_l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -425,17 +402,17 @@ x_1 = lean::mk_string("ctor_");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__2() {
+obj* _init_l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__2() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__1;
+x_1 = l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__1;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__3() {
+obj* _init_l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__3() {
 _start:
 {
 obj* x_1; obj* x_2; 
@@ -445,7 +422,7 @@ lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main(obj* x_1) {
+obj* l___private_init_lean_compiler_ir_format_4__formatCtorInfo(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; uint8 x_8; obj* x_9; obj* x_10; obj* x_11; uint8 x_12; obj* x_13; uint8 x_14; 
@@ -462,7 +439,7 @@ x_6 = l_Nat_repr(x_3);
 x_7 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_7, 0, x_6);
 x_8 = 0;
-x_9 = l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__2;
+x_9 = l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__2;
 x_10 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_10, 0, x_9);
 lean::cnstr_set(x_10, 1, x_7);
@@ -511,7 +488,7 @@ return x_10;
 else
 {
 obj* x_24; obj* x_25; obj* x_26; obj* x_27; obj* x_28; obj* x_29; obj* x_30; obj* x_31; obj* x_32; 
-x_24 = l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__3;
+x_24 = l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__3;
 x_25 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_25, 0, x_10);
 lean::cnstr_set(x_25, 1, x_24);
@@ -567,7 +544,7 @@ return x_32;
 else
 {
 obj* x_41; obj* x_42; obj* x_43; obj* x_44; obj* x_45; obj* x_46; obj* x_47; obj* x_48; obj* x_49; 
-x_41 = l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__3;
+x_41 = l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__3;
 x_42 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_42, 0, x_10);
 lean::cnstr_set(x_42, 1, x_41);
@@ -621,14 +598,6 @@ return x_49;
 }
 }
 }
-obj* l___private_init_lean_compiler_ir_format_4__formatCtorInfo(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main(x_1);
-return x_2;
-}
-}
 obj* _init_l_Lean_IR_ctorInfoHasFormat___closed__1() {
 _start:
 {
@@ -645,7 +614,7 @@ x_1 = l_Lean_IR_ctorInfoHasFormat___closed__1;
 return x_1;
 }
 }
-obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___main___spec__2(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___spec__2(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_5; uint8 x_6; 
@@ -667,7 +636,7 @@ x_10 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_10, 0, x_4);
 lean::cnstr_set(x_10, 1, x_9);
 lean::cnstr_set_scalar(x_10, sizeof(void*)*2, x_8);
-x_11 = l___private_init_lean_compiler_ir_format_1__formatArg___main(x_7);
+x_11 = l___private_init_lean_compiler_ir_format_1__formatArg(x_7);
 x_12 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_12, 0, x_10);
 lean::cnstr_set(x_12, 1, x_11);
@@ -681,17 +650,17 @@ goto _start;
 }
 }
 }
-obj* l___private_init_lean_compiler_ir_format_2__formatArray___at___private_init_lean_compiler_ir_format_5__formatExpr___main___spec__1(obj* x_1) {
+obj* l___private_init_lean_compiler_ir_format_2__formatArray___at___private_init_lean_compiler_ir_format_5__formatExpr___spec__1(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; 
 x_2 = lean::mk_nat_obj(0u);
 x_3 = lean::box(0);
-x_4 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___main___spec__2(x_1, x_1, x_2, x_3);
+x_4 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___spec__2(x_1, x_1, x_2, x_3);
 return x_4;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__1() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -699,17 +668,17 @@ x_1 = lean::mk_string("reset[");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__2() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__2() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__1;
+x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__1;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__3() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__3() {
 _start:
 {
 obj* x_1; 
@@ -717,17 +686,17 @@ x_1 = lean::mk_string("] ");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__4() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__4() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__3;
+x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__3;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__5() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__5() {
 _start:
 {
 obj* x_1; 
@@ -735,17 +704,17 @@ x_1 = lean::mk_string("reuse");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__6() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__6() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__5;
+x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__5;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__7() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__7() {
 _start:
 {
 obj* x_1; 
@@ -753,22 +722,22 @@ x_1 = lean::mk_string(" in ");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__8() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__8() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__7;
+x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__7;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__9() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__9() {
 _start:
 {
 uint8 x_1; obj* x_2; obj* x_3; obj* x_4; 
 x_1 = 0;
-x_2 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__6;
+x_2 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__6;
 x_3 = l_Lean_Format_join___closed__1;
 x_4 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_4, 0, x_2);
@@ -777,12 +746,12 @@ lean::cnstr_set_scalar(x_4, sizeof(void*)*2, x_1);
 return x_4;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__10() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__10() {
 _start:
 {
 uint8 x_1; obj* x_2; obj* x_3; obj* x_4; 
 x_1 = 0;
-x_2 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__9;
+x_2 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__9;
 x_3 = l_Lean_Format_flatten___main___closed__2;
 x_4 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_4, 0, x_2);
@@ -791,7 +760,7 @@ lean::cnstr_set_scalar(x_4, sizeof(void*)*2, x_1);
 return x_4;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__11() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__11() {
 _start:
 {
 obj* x_1; 
@@ -799,23 +768,23 @@ x_1 = lean::mk_string("!");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__12() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__12() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__11;
+x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__11;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__13() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__13() {
 _start:
 {
 uint8 x_1; obj* x_2; obj* x_3; obj* x_4; 
 x_1 = 0;
-x_2 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__6;
-x_3 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__12;
+x_2 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__6;
+x_3 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__12;
 x_4 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_4, 0, x_2);
 lean::cnstr_set(x_4, 1, x_3);
@@ -823,12 +792,12 @@ lean::cnstr_set_scalar(x_4, sizeof(void*)*2, x_1);
 return x_4;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__14() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__14() {
 _start:
 {
 uint8 x_1; obj* x_2; obj* x_3; obj* x_4; 
 x_1 = 0;
-x_2 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__13;
+x_2 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__13;
 x_3 = l_Lean_Format_flatten___main___closed__2;
 x_4 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_4, 0, x_2);
@@ -837,7 +806,7 @@ lean::cnstr_set_scalar(x_4, sizeof(void*)*2, x_1);
 return x_4;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__15() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__15() {
 _start:
 {
 obj* x_1; 
@@ -845,17 +814,17 @@ x_1 = lean::mk_string("proj[");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__16() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__16() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__15;
+x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__15;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__17() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__17() {
 _start:
 {
 obj* x_1; 
@@ -863,17 +832,17 @@ x_1 = lean::mk_string("uproj[");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__18() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__18() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__17;
+x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__17;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__19() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__19() {
 _start:
 {
 obj* x_1; 
@@ -881,17 +850,17 @@ x_1 = lean::mk_string("sproj[");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__20() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__20() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__19;
+x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__19;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__21() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__21() {
 _start:
 {
 obj* x_1; 
@@ -899,17 +868,17 @@ x_1 = lean::mk_string("pap ");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__22() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__22() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__21;
+x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__21;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__23() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__23() {
 _start:
 {
 obj* x_1; 
@@ -917,17 +886,17 @@ x_1 = lean::mk_string("app ");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__24() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__24() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__23;
+x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__23;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__25() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__25() {
 _start:
 {
 obj* x_1; 
@@ -935,17 +904,17 @@ x_1 = lean::mk_string("box ");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__26() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__26() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__25;
+x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__25;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__27() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__27() {
 _start:
 {
 obj* x_1; 
@@ -953,17 +922,17 @@ x_1 = lean::mk_string("unbox ");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__28() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__28() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__27;
+x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__27;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__29() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__29() {
 _start:
 {
 obj* x_1; 
@@ -971,17 +940,17 @@ x_1 = lean::mk_string("isShared ");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__30() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__30() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__29;
+x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__29;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__31() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__31() {
 _start:
 {
 obj* x_1; 
@@ -989,17 +958,17 @@ x_1 = lean::mk_string("isTaggedPtr ");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__32() {
+obj* _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__32() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__31;
+x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__31;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main(obj* x_1) {
+obj* l___private_init_lean_compiler_ir_format_5__formatExpr(obj* x_1) {
 _start:
 {
 switch (lean::obj_tag(x_1)) {
@@ -1011,10 +980,10 @@ lean::inc(x_2);
 x_3 = lean::cnstr_get(x_1, 1);
 lean::inc(x_3);
 lean::dec(x_1);
-x_4 = l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main(x_2);
+x_4 = l___private_init_lean_compiler_ir_format_4__formatCtorInfo(x_2);
 x_5 = lean::mk_nat_obj(0u);
 x_6 = lean::box(0);
-x_7 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___main___spec__2(x_3, x_3, x_5, x_6);
+x_7 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___spec__2(x_3, x_3, x_5, x_6);
 lean::dec(x_3);
 x_8 = 0;
 x_9 = lean::alloc_cnstr(4, 2, 1);
@@ -1035,12 +1004,12 @@ x_12 = l_Nat_repr(x_10);
 x_13 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_13, 0, x_12);
 x_14 = 0;
-x_15 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__2;
+x_15 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__2;
 x_16 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_16, 0, x_15);
 lean::cnstr_set(x_16, 1, x_13);
 lean::cnstr_set_scalar(x_16, sizeof(void*)*2, x_14);
-x_17 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__4;
+x_17 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__4;
 x_18 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_18, 0, x_16);
 lean::cnstr_set(x_18, 1, x_17);
@@ -1074,21 +1043,21 @@ x_30 = lean::string_append(x_29, x_28);
 lean::dec(x_28);
 x_31 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_31, 0, x_30);
-x_32 = l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main(x_25);
+x_32 = l___private_init_lean_compiler_ir_format_4__formatCtorInfo(x_25);
 x_33 = lean::mk_nat_obj(0u);
 x_34 = lean::box(0);
-x_35 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___main___spec__2(x_27, x_27, x_33, x_34);
+x_35 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___spec__2(x_27, x_27, x_33, x_34);
 lean::dec(x_27);
 if (x_26 == 0)
 {
 uint8 x_36; obj* x_37; obj* x_38; obj* x_39; obj* x_40; obj* x_41; obj* x_42; 
 x_36 = 0;
-x_37 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__10;
+x_37 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__10;
 x_38 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_38, 0, x_37);
 lean::cnstr_set(x_38, 1, x_31);
 lean::cnstr_set_scalar(x_38, sizeof(void*)*2, x_36);
-x_39 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__8;
+x_39 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__8;
 x_40 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_40, 0, x_38);
 lean::cnstr_set(x_40, 1, x_39);
@@ -1107,12 +1076,12 @@ else
 {
 uint8 x_43; obj* x_44; obj* x_45; obj* x_46; obj* x_47; obj* x_48; obj* x_49; 
 x_43 = 0;
-x_44 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__14;
+x_44 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__14;
 x_45 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_45, 0, x_44);
 lean::cnstr_set(x_45, 1, x_31);
 lean::cnstr_set_scalar(x_45, sizeof(void*)*2, x_43);
-x_46 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__8;
+x_46 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__8;
 x_47 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_47, 0, x_45);
 lean::cnstr_set(x_47, 1, x_46);
@@ -1140,12 +1109,12 @@ x_52 = l_Nat_repr(x_50);
 x_53 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_53, 0, x_52);
 x_54 = 0;
-x_55 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__16;
+x_55 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__16;
 x_56 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_56, 0, x_55);
 lean::cnstr_set(x_56, 1, x_53);
 lean::cnstr_set_scalar(x_56, sizeof(void*)*2, x_54);
-x_57 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__4;
+x_57 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__4;
 x_58 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_58, 0, x_56);
 lean::cnstr_set(x_58, 1, x_57);
@@ -1174,12 +1143,12 @@ x_66 = l_Nat_repr(x_64);
 x_67 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_67, 0, x_66);
 x_68 = 0;
-x_69 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__18;
+x_69 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__18;
 x_70 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_70, 0, x_69);
 lean::cnstr_set(x_70, 1, x_67);
 lean::cnstr_set_scalar(x_70, sizeof(void*)*2, x_68);
-x_71 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__4;
+x_71 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__4;
 x_72 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_72, 0, x_70);
 lean::cnstr_set(x_72, 1, x_71);
@@ -1210,7 +1179,7 @@ x_81 = l_Nat_repr(x_78);
 x_82 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_82, 0, x_81);
 x_83 = 0;
-x_84 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__20;
+x_84 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__20;
 x_85 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_85, 0, x_84);
 lean::cnstr_set(x_85, 1, x_82);
@@ -1227,7 +1196,7 @@ x_90 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_90, 0, x_87);
 lean::cnstr_set(x_90, 1, x_89);
 lean::cnstr_set_scalar(x_90, sizeof(void*)*2, x_83);
-x_91 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__4;
+x_91 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__4;
 x_92 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_92, 0, x_90);
 lean::cnstr_set(x_92, 1, x_91);
@@ -1258,7 +1227,7 @@ x_102 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_102, 0, x_101);
 x_103 = lean::mk_nat_obj(0u);
 x_104 = lean::box(0);
-x_105 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___main___spec__2(x_99, x_99, x_103, x_104);
+x_105 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___spec__2(x_99, x_99, x_103, x_104);
 lean::dec(x_99);
 x_106 = 0;
 x_107 = lean::alloc_cnstr(4, 2, 1);
@@ -1280,14 +1249,14 @@ x_111 = l_Lean_Name_toStringWithSep___main(x_110, x_108);
 x_112 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_112, 0, x_111);
 x_113 = 0;
-x_114 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__22;
+x_114 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__22;
 x_115 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_115, 0, x_114);
 lean::cnstr_set(x_115, 1, x_112);
 lean::cnstr_set_scalar(x_115, sizeof(void*)*2, x_113);
 x_116 = lean::mk_nat_obj(0u);
 x_117 = lean::box(0);
-x_118 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___main___spec__2(x_109, x_109, x_116, x_117);
+x_118 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___spec__2(x_109, x_109, x_116, x_117);
 lean::dec(x_109);
 x_119 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_119, 0, x_115);
@@ -1310,14 +1279,14 @@ lean::dec(x_122);
 x_125 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_125, 0, x_124);
 x_126 = 0;
-x_127 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__24;
+x_127 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__24;
 x_128 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_128, 0, x_127);
 lean::cnstr_set(x_128, 1, x_125);
 lean::cnstr_set_scalar(x_128, sizeof(void*)*2, x_126);
 x_129 = lean::mk_nat_obj(0u);
 x_130 = lean::box(0);
-x_131 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___main___spec__2(x_121, x_121, x_129, x_130);
+x_131 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___spec__2(x_121, x_121, x_129, x_130);
 lean::dec(x_121);
 x_132 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_132, 0, x_128);
@@ -1338,7 +1307,7 @@ lean::dec(x_134);
 x_137 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_137, 0, x_136);
 x_138 = 0;
-x_139 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__26;
+x_139 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__26;
 x_140 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_140, 0, x_139);
 lean::cnstr_set(x_140, 1, x_137);
@@ -1358,7 +1327,7 @@ lean::dec(x_142);
 x_145 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_145, 0, x_144);
 x_146 = 0;
-x_147 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__28;
+x_147 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__28;
 x_148 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_148, 0, x_147);
 lean::cnstr_set(x_148, 1, x_145);
@@ -1371,7 +1340,7 @@ obj* x_149; obj* x_150;
 x_149 = lean::cnstr_get(x_1, 0);
 lean::inc(x_149);
 lean::dec(x_1);
-x_150 = l___private_init_lean_compiler_ir_format_3__formatLitVal___main(x_149);
+x_150 = l___private_init_lean_compiler_ir_format_3__formatLitVal(x_149);
 return x_150;
 }
 case 12:
@@ -1387,7 +1356,7 @@ lean::dec(x_152);
 x_155 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_155, 0, x_154);
 x_156 = 0;
-x_157 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__30;
+x_157 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__30;
 x_158 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_158, 0, x_157);
 lean::cnstr_set(x_158, 1, x_155);
@@ -1407,7 +1376,7 @@ lean::dec(x_160);
 x_163 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_163, 0, x_162);
 x_164 = 0;
-x_165 = l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__32;
+x_165 = l___private_init_lean_compiler_ir_format_5__formatExpr___closed__32;
 x_166 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_166, 0, x_165);
 lean::cnstr_set(x_166, 1, x_163);
@@ -1417,30 +1386,22 @@ return x_166;
 }
 }
 }
-obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___main___spec__2___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___spec__2___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_5; 
-x_5 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___main___spec__2(x_1, x_2, x_3, x_4);
+x_5 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___spec__2(x_1, x_2, x_3, x_4);
 lean::dec(x_2);
 lean::dec(x_1);
 return x_5;
 }
 }
-obj* l___private_init_lean_compiler_ir_format_2__formatArray___at___private_init_lean_compiler_ir_format_5__formatExpr___main___spec__1___boxed(obj* x_1) {
+obj* l___private_init_lean_compiler_ir_format_2__formatArray___at___private_init_lean_compiler_ir_format_5__formatExpr___spec__1___boxed(obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l___private_init_lean_compiler_ir_format_2__formatArray___at___private_init_lean_compiler_ir_format_5__formatExpr___main___spec__1(x_1);
+x_2 = l___private_init_lean_compiler_ir_format_2__formatArray___at___private_init_lean_compiler_ir_format_5__formatExpr___spec__1(x_1);
 lean::dec(x_1);
-return x_2;
-}
-}
-obj* l___private_init_lean_compiler_ir_format_5__formatExpr(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l___private_init_lean_compiler_ir_format_5__formatExpr___main(x_1);
 return x_2;
 }
 }
@@ -1464,13 +1425,13 @@ obj* l_Lean_IR_exprHasToString(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; 
-x_2 = l___private_init_lean_compiler_ir_format_5__formatExpr___main(x_1);
+x_2 = l___private_init_lean_compiler_ir_format_5__formatExpr(x_1);
 x_3 = l_Lean_Options_empty;
 x_4 = l_Lean_Format_pretty(x_2, x_3);
 return x_4;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__1() {
+obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -1478,17 +1439,17 @@ x_1 = lean::mk_string("float");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__2() {
+obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__2() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__1;
+x_1 = l___private_init_lean_compiler_ir_format_6__formatIRType___closed__1;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__3() {
+obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__3() {
 _start:
 {
 obj* x_1; 
@@ -1496,17 +1457,17 @@ x_1 = lean::mk_string("u8");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__4() {
+obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__4() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__3;
+x_1 = l___private_init_lean_compiler_ir_format_6__formatIRType___closed__3;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__5() {
+obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__5() {
 _start:
 {
 obj* x_1; 
@@ -1514,17 +1475,17 @@ x_1 = lean::mk_string("u16");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__6() {
+obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__6() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__5;
+x_1 = l___private_init_lean_compiler_ir_format_6__formatIRType___closed__5;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__7() {
+obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__7() {
 _start:
 {
 obj* x_1; 
@@ -1532,17 +1493,17 @@ x_1 = lean::mk_string("u32");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__8() {
+obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__8() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__7;
+x_1 = l___private_init_lean_compiler_ir_format_6__formatIRType___closed__7;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__9() {
+obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__9() {
 _start:
 {
 obj* x_1; 
@@ -1550,17 +1511,17 @@ x_1 = lean::mk_string("u64");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__10() {
+obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__10() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__9;
+x_1 = l___private_init_lean_compiler_ir_format_6__formatIRType___closed__9;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__11() {
+obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__11() {
 _start:
 {
 obj* x_1; 
@@ -1568,17 +1529,17 @@ x_1 = lean::mk_string("usize");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__12() {
+obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__12() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__11;
+x_1 = l___private_init_lean_compiler_ir_format_6__formatIRType___closed__11;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__13() {
+obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__13() {
 _start:
 {
 obj* x_1; 
@@ -1586,17 +1547,17 @@ x_1 = lean::mk_string("obj");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__14() {
+obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__14() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__13;
+x_1 = l___private_init_lean_compiler_ir_format_6__formatIRType___closed__13;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__15() {
+obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__15() {
 _start:
 {
 obj* x_1; 
@@ -1604,93 +1565,75 @@ x_1 = lean::mk_string("tobj");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__16() {
+obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__16() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__15;
+x_1 = l___private_init_lean_compiler_ir_format_6__formatIRType___closed__15;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main(uint8 x_1) {
+obj* l___private_init_lean_compiler_ir_format_6__formatIRType(uint8 x_1) {
 _start:
 {
 switch (x_1) {
 case 0:
 {
 obj* x_2; 
-x_2 = l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__2;
+x_2 = l___private_init_lean_compiler_ir_format_6__formatIRType___closed__2;
 return x_2;
 }
 case 1:
 {
 obj* x_3; 
-x_3 = l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__4;
+x_3 = l___private_init_lean_compiler_ir_format_6__formatIRType___closed__4;
 return x_3;
 }
 case 2:
 {
 obj* x_4; 
-x_4 = l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__6;
+x_4 = l___private_init_lean_compiler_ir_format_6__formatIRType___closed__6;
 return x_4;
 }
 case 3:
 {
 obj* x_5; 
-x_5 = l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__8;
+x_5 = l___private_init_lean_compiler_ir_format_6__formatIRType___closed__8;
 return x_5;
 }
 case 4:
 {
 obj* x_6; 
-x_6 = l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__10;
+x_6 = l___private_init_lean_compiler_ir_format_6__formatIRType___closed__10;
 return x_6;
 }
 case 5:
 {
 obj* x_7; 
-x_7 = l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__12;
+x_7 = l___private_init_lean_compiler_ir_format_6__formatIRType___closed__12;
 return x_7;
 }
 case 6:
 {
 obj* x_8; 
-x_8 = l___private_init_lean_compiler_ir_format_1__formatArg___main___closed__2;
+x_8 = l___private_init_lean_compiler_ir_format_1__formatArg___closed__2;
 return x_8;
 }
 case 7:
 {
 obj* x_9; 
-x_9 = l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__14;
+x_9 = l___private_init_lean_compiler_ir_format_6__formatIRType___closed__14;
 return x_9;
 }
 default: 
 {
 obj* x_10; 
-x_10 = l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__16;
+x_10 = l___private_init_lean_compiler_ir_format_6__formatIRType___closed__16;
 return x_10;
 }
 }
-}
-}
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main___boxed(obj* x_1) {
-_start:
-{
-uint8 x_2; obj* x_3; 
-x_2 = lean::unbox(x_1);
-lean::dec(x_1);
-x_3 = l___private_init_lean_compiler_ir_format_6__formatIRType___main(x_2);
-return x_3;
-}
-}
-obj* l___private_init_lean_compiler_ir_format_6__formatIRType(uint8 x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l___private_init_lean_compiler_ir_format_6__formatIRType___main(x_1);
-return x_2;
 }
 }
 obj* l___private_init_lean_compiler_ir_format_6__formatIRType___boxed(obj* x_1) {
@@ -1719,7 +1662,7 @@ x_1 = l_Lean_IR_typeHasFormat___closed__1;
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__1() {
+obj* _init_l___private_init_lean_compiler_ir_format_7__formatParam___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -1727,17 +1670,17 @@ x_1 = lean::mk_string(" : ");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__2() {
+obj* _init_l___private_init_lean_compiler_ir_format_7__formatParam___closed__2() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__1;
+x_1 = l___private_init_lean_compiler_ir_format_7__formatParam___closed__1;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__3() {
+obj* _init_l___private_init_lean_compiler_ir_format_7__formatParam___closed__3() {
 _start:
 {
 obj* x_1; 
@@ -1745,17 +1688,17 @@ x_1 = lean::mk_string("@& ");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__4() {
+obj* _init_l___private_init_lean_compiler_ir_format_7__formatParam___closed__4() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__3;
+x_1 = l___private_init_lean_compiler_ir_format_7__formatParam___closed__3;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* l___private_init_lean_compiler_ir_format_7__formatParam___main(obj* x_1) {
+obj* l___private_init_lean_compiler_ir_format_7__formatParam(obj* x_1) {
 _start:
 {
 obj* x_2; uint8 x_3; uint8 x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; uint8 x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; 
@@ -1776,12 +1719,12 @@ x_11 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_11, 0, x_10);
 lean::cnstr_set(x_11, 1, x_8);
 lean::cnstr_set_scalar(x_11, sizeof(void*)*2, x_9);
-x_12 = l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__2;
+x_12 = l___private_init_lean_compiler_ir_format_7__formatParam___closed__2;
 x_13 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_13, 0, x_11);
 lean::cnstr_set(x_13, 1, x_12);
 lean::cnstr_set_scalar(x_13, sizeof(void*)*2, x_9);
-x_14 = l___private_init_lean_compiler_ir_format_6__formatIRType___main(x_4);
+x_14 = l___private_init_lean_compiler_ir_format_6__formatIRType(x_4);
 if (x_3 == 0)
 {
 obj* x_15; obj* x_16; obj* x_17; obj* x_18; obj* x_19; 
@@ -1804,7 +1747,7 @@ return x_19;
 else
 {
 obj* x_20; obj* x_21; obj* x_22; obj* x_23; obj* x_24; 
-x_20 = l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__4;
+x_20 = l___private_init_lean_compiler_ir_format_7__formatParam___closed__4;
 x_21 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_21, 0, x_13);
 lean::cnstr_set(x_21, 1, x_20);
@@ -1820,14 +1763,6 @@ lean::cnstr_set(x_24, 1, x_23);
 lean::cnstr_set_scalar(x_24, sizeof(void*)*2, x_9);
 return x_24;
 }
-}
-}
-obj* l___private_init_lean_compiler_ir_format_7__formatParam(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l___private_init_lean_compiler_ir_format_7__formatParam___main(x_1);
-return x_2;
 }
 }
 obj* _init_l_Lean_IR_paramHasFormat___closed__1() {
@@ -1846,7 +1781,7 @@ x_1 = l_Lean_IR_paramHasFormat___closed__1;
 return x_1;
 }
 }
-obj* _init_l_Lean_IR_formatAlt___main___closed__1() {
+obj* _init_l_Lean_IR_formatAlt___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -1854,17 +1789,17 @@ x_1 = lean::mk_string(" →");
 return x_1;
 }
 }
-obj* _init_l_Lean_IR_formatAlt___main___closed__2() {
+obj* _init_l_Lean_IR_formatAlt___closed__2() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l_Lean_IR_formatAlt___main___closed__1;
+x_1 = l_Lean_IR_formatAlt___closed__1;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l_Lean_IR_formatAlt___main___closed__3() {
+obj* _init_l_Lean_IR_formatAlt___closed__3() {
 _start:
 {
 obj* x_1; 
@@ -1872,17 +1807,17 @@ x_1 = lean::mk_string("default →");
 return x_1;
 }
 }
-obj* _init_l_Lean_IR_formatAlt___main___closed__4() {
+obj* _init_l_Lean_IR_formatAlt___closed__4() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l_Lean_IR_formatAlt___main___closed__3;
+x_1 = l_Lean_IR_formatAlt___closed__3;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* l_Lean_IR_formatAlt___main(obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Lean_IR_formatAlt(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 if (lean::obj_tag(x_3) == 0)
@@ -1901,7 +1836,7 @@ x_8 = l_Lean_Name_toStringWithSep___main(x_7, x_6);
 x_9 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_9, 0, x_8);
 x_10 = 0;
-x_11 = l_Lean_IR_formatAlt___main___closed__2;
+x_11 = l_Lean_IR_formatAlt___closed__2;
 x_12 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_12, 0, x_9);
 lean::cnstr_set(x_12, 1, x_11);
@@ -1937,21 +1872,13 @@ lean::cnstr_set_scalar(x_22, sizeof(void*)*2, x_20);
 x_23 = lean::alloc_cnstr(3, 2, 0);
 lean::cnstr_set(x_23, 0, x_2);
 lean::cnstr_set(x_23, 1, x_22);
-x_24 = l_Lean_IR_formatAlt___main___closed__4;
+x_24 = l_Lean_IR_formatAlt___closed__4;
 x_25 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_25, 0, x_24);
 lean::cnstr_set(x_25, 1, x_23);
 lean::cnstr_set_scalar(x_25, sizeof(void*)*2, x_20);
 return x_25;
 }
-}
-}
-obj* l_Lean_IR_formatAlt(obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-obj* x_4; 
-x_4 = l_Lean_IR_formatAlt___main(x_1, x_2, x_3);
-return x_4;
 }
 }
 obj* l_Array_miterateAux___main___at_Lean_IR_formatParams___spec__2(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
@@ -1976,7 +1903,7 @@ x_10 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_10, 0, x_4);
 lean::cnstr_set(x_10, 1, x_9);
 lean::cnstr_set_scalar(x_10, sizeof(void*)*2, x_8);
-x_11 = l___private_init_lean_compiler_ir_format_7__formatParam___main(x_7);
+x_11 = l___private_init_lean_compiler_ir_format_7__formatParam(x_7);
 x_12 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_12, 0, x_10);
 lean::cnstr_set(x_12, 1, x_11);
@@ -2065,7 +1992,7 @@ lean::inc(x_1);
 x_12 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_IR_formatFnBody___main), 2, 1);
 lean::closure_set(x_12, 0, x_1);
 lean::inc(x_1);
-x_13 = l_Lean_IR_formatAlt___main(x_12, x_1, x_8);
+x_13 = l_Lean_IR_formatAlt(x_12, x_1, x_8);
 x_14 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_14, 0, x_11);
 lean::cnstr_set(x_14, 1, x_13);
@@ -2486,22 +2413,22 @@ x_13 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_13, 0, x_12);
 lean::cnstr_set(x_13, 1, x_10);
 lean::cnstr_set_scalar(x_13, sizeof(void*)*2, x_11);
-x_14 = l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__2;
+x_14 = l___private_init_lean_compiler_ir_format_7__formatParam___closed__2;
 x_15 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_15, 0, x_13);
 lean::cnstr_set(x_15, 1, x_14);
 lean::cnstr_set_scalar(x_15, sizeof(void*)*2, x_11);
-x_16 = l___private_init_lean_compiler_ir_format_6__formatIRType___main(x_4);
+x_16 = l___private_init_lean_compiler_ir_format_6__formatIRType(x_4);
 x_17 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_17, 0, x_15);
 lean::cnstr_set(x_17, 1, x_16);
 lean::cnstr_set_scalar(x_17, sizeof(void*)*2, x_11);
-x_18 = l_Lean_formatEntry___main___closed__2;
+x_18 = l_Lean_formatEntry___closed__2;
 x_19 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_19, 0, x_17);
 lean::cnstr_set(x_19, 1, x_18);
 lean::cnstr_set_scalar(x_19, sizeof(void*)*2, x_11);
-x_20 = l___private_init_lean_compiler_ir_format_5__formatExpr___main(x_5);
+x_20 = l___private_init_lean_compiler_ir_format_5__formatExpr(x_5);
 x_21 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_21, 0, x_19);
 lean::cnstr_set(x_21, 1, x_20);
@@ -2627,7 +2554,7 @@ x_70 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_70, 0, x_68);
 lean::cnstr_set(x_70, 1, x_69);
 lean::cnstr_set_scalar(x_70, sizeof(void*)*2, x_61);
-x_71 = l___private_init_lean_compiler_ir_format_1__formatArg___main(x_55);
+x_71 = l___private_init_lean_compiler_ir_format_1__formatArg(x_55);
 x_72 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_72, 0, x_70);
 lean::cnstr_set(x_72, 1, x_71);
@@ -2671,7 +2598,7 @@ x_88 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_88, 0, x_87);
 lean::cnstr_set(x_88, 1, x_85);
 lean::cnstr_set_scalar(x_88, sizeof(void*)*2, x_86);
-x_89 = l_Lean_formatEntry___main___closed__2;
+x_89 = l_Lean_formatEntry___closed__2;
 x_90 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_90, 0, x_88);
 lean::cnstr_set(x_90, 1, x_89);
@@ -2823,12 +2750,12 @@ x_152 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_152, 0, x_150);
 lean::cnstr_set(x_152, 1, x_151);
 lean::cnstr_set_scalar(x_152, sizeof(void*)*2, x_138);
-x_153 = l___private_init_lean_compiler_ir_format_6__formatIRType___main(x_132);
+x_153 = l___private_init_lean_compiler_ir_format_6__formatIRType(x_132);
 x_154 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_154, 0, x_152);
 lean::cnstr_set(x_154, 1, x_153);
 lean::cnstr_set_scalar(x_154, sizeof(void*)*2, x_138);
-x_155 = l_Lean_formatEntry___main___closed__2;
+x_155 = l_Lean_formatEntry___closed__2;
 x_156 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_156, 0, x_154);
 lean::cnstr_set(x_156, 1, x_155);
@@ -2899,7 +2826,7 @@ x_184 = l_Lean_Format_sbracket___closed__1;
 x_185 = lean::alloc_cnstr(3, 2, 0);
 lean::cnstr_set(x_185, 0, x_184);
 lean::cnstr_set(x_185, 1, x_183);
-x_186 = l_Lean_Format_group___main(x_185);
+x_186 = lean::format_group_core(x_185);
 x_187 = l_Lean_IR_formatFnBody___main___closed__20;
 x_188 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_188, 0, x_187);
@@ -2997,7 +2924,7 @@ x_222 = l_Lean_Format_sbracket___closed__1;
 x_223 = lean::alloc_cnstr(3, 2, 0);
 lean::cnstr_set(x_223, 0, x_222);
 lean::cnstr_set(x_223, 1, x_221);
-x_224 = l_Lean_Format_group___main(x_223);
+x_224 = lean::format_group_core(x_223);
 x_225 = l_Lean_IR_formatFnBody___main___closed__24;
 x_226 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_226, 0, x_225);
@@ -3166,7 +3093,7 @@ lean::dec(x_1);
 x_285 = lean::cnstr_get(x_2, 0);
 lean::inc(x_285);
 lean::dec(x_2);
-x_286 = l___private_init_lean_compiler_ir_format_1__formatArg___main(x_285);
+x_286 = l___private_init_lean_compiler_ir_format_1__formatArg(x_285);
 x_287 = 0;
 x_288 = l_Lean_IR_formatFnBody___main___closed__36;
 x_289 = lean::alloc_cnstr(4, 2, 1);
@@ -3198,7 +3125,7 @@ lean::cnstr_set(x_298, 1, x_295);
 lean::cnstr_set_scalar(x_298, sizeof(void*)*2, x_296);
 x_299 = lean::mk_nat_obj(0u);
 x_300 = lean::box(0);
-x_301 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___main___spec__2(x_291, x_291, x_299, x_300);
+x_301 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___spec__2(x_291, x_291, x_299, x_300);
 lean::dec(x_291);
 x_302 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_302, 0, x_298);
@@ -3263,7 +3190,7 @@ x_5 = l_Lean_Format_pretty(x_3, x_4);
 return x_5;
 }
 }
-obj* _init_l_Lean_IR_formatDecl___main___closed__1() {
+obj* _init_l_Lean_IR_formatDecl___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -3271,17 +3198,17 @@ x_1 = lean::mk_string("def ");
 return x_1;
 }
 }
-obj* _init_l_Lean_IR_formatDecl___main___closed__2() {
+obj* _init_l_Lean_IR_formatDecl___closed__2() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l_Lean_IR_formatDecl___main___closed__1;
+x_1 = l_Lean_IR_formatDecl___closed__1;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l_Lean_IR_formatDecl___main___closed__3() {
+obj* _init_l_Lean_IR_formatDecl___closed__3() {
 _start:
 {
 obj* x_1; 
@@ -3289,17 +3216,17 @@ x_1 = lean::mk_string("extern ");
 return x_1;
 }
 }
-obj* _init_l_Lean_IR_formatDecl___main___closed__4() {
+obj* _init_l_Lean_IR_formatDecl___closed__4() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l_Lean_IR_formatDecl___main___closed__3;
+x_1 = l_Lean_IR_formatDecl___closed__3;
 x_2 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* l_Lean_IR_formatDecl___main(obj* x_1, obj* x_2) {
+obj* l_Lean_IR_formatDecl(obj* x_1, obj* x_2) {
 _start:
 {
 if (lean::obj_tag(x_2) == 0)
@@ -3318,7 +3245,7 @@ x_8 = l_Lean_Name_toStringWithSep___main(x_7, x_3);
 x_9 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_9, 0, x_8);
 x_10 = 0;
-x_11 = l_Lean_IR_formatDecl___main___closed__2;
+x_11 = l_Lean_IR_formatDecl___closed__2;
 x_12 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_12, 0, x_11);
 lean::cnstr_set(x_12, 1, x_9);
@@ -3331,12 +3258,12 @@ x_16 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_16, 0, x_12);
 lean::cnstr_set(x_16, 1, x_15);
 lean::cnstr_set_scalar(x_16, sizeof(void*)*2, x_10);
-x_17 = l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__2;
+x_17 = l___private_init_lean_compiler_ir_format_7__formatParam___closed__2;
 x_18 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_18, 0, x_16);
 lean::cnstr_set(x_18, 1, x_17);
 lean::cnstr_set_scalar(x_18, sizeof(void*)*2, x_10);
-x_19 = l___private_init_lean_compiler_ir_format_6__formatIRType___main(x_5);
+x_19 = l___private_init_lean_compiler_ir_format_6__formatIRType(x_5);
 x_20 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_20, 0, x_18);
 lean::cnstr_set(x_20, 1, x_19);
@@ -3377,7 +3304,7 @@ x_32 = l_Lean_Name_toStringWithSep___main(x_31, x_28);
 x_33 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_33, 0, x_32);
 x_34 = 0;
-x_35 = l_Lean_IR_formatDecl___main___closed__4;
+x_35 = l_Lean_IR_formatDecl___closed__4;
 x_36 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_36, 0, x_35);
 lean::cnstr_set(x_36, 1, x_33);
@@ -3390,26 +3317,18 @@ x_40 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_40, 0, x_36);
 lean::cnstr_set(x_40, 1, x_39);
 lean::cnstr_set_scalar(x_40, sizeof(void*)*2, x_34);
-x_41 = l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__2;
+x_41 = l___private_init_lean_compiler_ir_format_7__formatParam___closed__2;
 x_42 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_42, 0, x_40);
 lean::cnstr_set(x_42, 1, x_41);
 lean::cnstr_set_scalar(x_42, sizeof(void*)*2, x_34);
-x_43 = l___private_init_lean_compiler_ir_format_6__formatIRType___main(x_30);
+x_43 = l___private_init_lean_compiler_ir_format_6__formatIRType(x_30);
 x_44 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_44, 0, x_42);
 lean::cnstr_set(x_44, 1, x_43);
 lean::cnstr_set_scalar(x_44, sizeof(void*)*2, x_34);
 return x_44;
 }
-}
-}
-obj* l_Lean_IR_formatDecl(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_Lean_IR_formatDecl___main(x_1, x_2);
-return x_3;
 }
 }
 obj* _init_l_Lean_IR_declHasFormat___closed__1() {
@@ -3437,7 +3356,7 @@ _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
 x_2 = lean::mk_nat_obj(2u);
-x_3 = l_Lean_IR_formatDecl___main(x_2, x_1);
+x_3 = l_Lean_IR_formatDecl(x_2, x_1);
 x_4 = l_Lean_Options_empty;
 x_5 = l_Lean_Format_pretty(x_3, x_4);
 return x_5;
@@ -3472,10 +3391,10 @@ w = initialize_init_lean_compiler_ir_basic(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_format(w);
 if (io_result_is_error(w)) return w;
-l___private_init_lean_compiler_ir_format_1__formatArg___main___closed__1 = _init_l___private_init_lean_compiler_ir_format_1__formatArg___main___closed__1();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_1__formatArg___main___closed__1);
-l___private_init_lean_compiler_ir_format_1__formatArg___main___closed__2 = _init_l___private_init_lean_compiler_ir_format_1__formatArg___main___closed__2();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_1__formatArg___main___closed__2);
+l___private_init_lean_compiler_ir_format_1__formatArg___closed__1 = _init_l___private_init_lean_compiler_ir_format_1__formatArg___closed__1();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_1__formatArg___closed__1);
+l___private_init_lean_compiler_ir_format_1__formatArg___closed__2 = _init_l___private_init_lean_compiler_ir_format_1__formatArg___closed__2();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_1__formatArg___closed__2);
 l_Lean_IR_argHasFormat___closed__1 = _init_l_Lean_IR_argHasFormat___closed__1();
 lean::mark_persistent(l_Lean_IR_argHasFormat___closed__1);
 l_Lean_IR_argHasFormat = _init_l_Lean_IR_argHasFormat();
@@ -3484,140 +3403,140 @@ l_Lean_IR_litValHasFormat___closed__1 = _init_l_Lean_IR_litValHasFormat___closed
 lean::mark_persistent(l_Lean_IR_litValHasFormat___closed__1);
 l_Lean_IR_litValHasFormat = _init_l_Lean_IR_litValHasFormat();
 lean::mark_persistent(l_Lean_IR_litValHasFormat);
-l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__1 = _init_l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__1();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__1);
-l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__2 = _init_l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__2();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__2);
-l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__3 = _init_l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__3();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_4__formatCtorInfo___main___closed__3);
+l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__1 = _init_l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__1();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__1);
+l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__2 = _init_l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__2();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__2);
+l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__3 = _init_l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__3();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__3);
 l_Lean_IR_ctorInfoHasFormat___closed__1 = _init_l_Lean_IR_ctorInfoHasFormat___closed__1();
 lean::mark_persistent(l_Lean_IR_ctorInfoHasFormat___closed__1);
 l_Lean_IR_ctorInfoHasFormat = _init_l_Lean_IR_ctorInfoHasFormat();
 lean::mark_persistent(l_Lean_IR_ctorInfoHasFormat);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__1 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__1();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__1);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__2 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__2();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__2);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__3 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__3();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__3);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__4 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__4();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__4);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__5 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__5();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__5);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__6 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__6();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__6);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__7 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__7();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__7);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__8 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__8();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__8);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__9 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__9();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__9);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__10 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__10();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__10);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__11 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__11();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__11);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__12 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__12();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__12);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__13 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__13();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__13);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__14 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__14();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__14);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__15 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__15();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__15);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__16 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__16();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__16);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__17 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__17();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__17);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__18 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__18();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__18);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__19 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__19();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__19);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__20 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__20();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__20);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__21 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__21();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__21);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__22 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__22();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__22);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__23 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__23();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__23);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__24 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__24();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__24);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__25 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__25();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__25);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__26 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__26();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__26);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__27 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__27();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__27);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__28 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__28();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__28);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__29 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__29();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__29);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__30 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__30();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__30);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__31 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__31();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__31);
-l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__32 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__32();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__32);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__1 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__1();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__1);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__2 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__2();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__2);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__3 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__3();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__3);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__4 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__4();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__4);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__5 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__5();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__5);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__6 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__6();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__6);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__7 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__7();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__7);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__8 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__8();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__8);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__9 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__9();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__9);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__10 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__10();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__10);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__11 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__11();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__11);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__12 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__12();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__12);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__13 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__13();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__13);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__14 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__14();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__14);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__15 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__15();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__15);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__16 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__16();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__16);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__17 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__17();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__17);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__18 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__18();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__18);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__19 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__19();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__19);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__20 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__20();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__20);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__21 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__21();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__21);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__22 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__22();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__22);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__23 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__23();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__23);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__24 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__24();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__24);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__25 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__25();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__25);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__26 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__26();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__26);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__27 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__27();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__27);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__28 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__28();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__28);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__29 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__29();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__29);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__30 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__30();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__30);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__31 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__31();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__31);
+l___private_init_lean_compiler_ir_format_5__formatExpr___closed__32 = _init_l___private_init_lean_compiler_ir_format_5__formatExpr___closed__32();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_5__formatExpr___closed__32);
 l_Lean_IR_exprHasFormat___closed__1 = _init_l_Lean_IR_exprHasFormat___closed__1();
 lean::mark_persistent(l_Lean_IR_exprHasFormat___closed__1);
 l_Lean_IR_exprHasFormat = _init_l_Lean_IR_exprHasFormat();
 lean::mark_persistent(l_Lean_IR_exprHasFormat);
-l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__1 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__1();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__1);
-l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__2 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__2();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__2);
-l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__3 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__3();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__3);
-l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__4 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__4();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__4);
-l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__5 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__5();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__5);
-l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__6 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__6();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__6);
-l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__7 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__7();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__7);
-l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__8 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__8();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__8);
-l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__9 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__9();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__9);
-l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__10 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__10();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__10);
-l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__11 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__11();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__11);
-l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__12 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__12();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__12);
-l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__13 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__13();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__13);
-l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__14 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__14();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__14);
-l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__15 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__15();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__15);
-l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__16 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__16();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__16);
+l___private_init_lean_compiler_ir_format_6__formatIRType___closed__1 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__1();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___closed__1);
+l___private_init_lean_compiler_ir_format_6__formatIRType___closed__2 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__2();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___closed__2);
+l___private_init_lean_compiler_ir_format_6__formatIRType___closed__3 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__3();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___closed__3);
+l___private_init_lean_compiler_ir_format_6__formatIRType___closed__4 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__4();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___closed__4);
+l___private_init_lean_compiler_ir_format_6__formatIRType___closed__5 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__5();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___closed__5);
+l___private_init_lean_compiler_ir_format_6__formatIRType___closed__6 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__6();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___closed__6);
+l___private_init_lean_compiler_ir_format_6__formatIRType___closed__7 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__7();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___closed__7);
+l___private_init_lean_compiler_ir_format_6__formatIRType___closed__8 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__8();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___closed__8);
+l___private_init_lean_compiler_ir_format_6__formatIRType___closed__9 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__9();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___closed__9);
+l___private_init_lean_compiler_ir_format_6__formatIRType___closed__10 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__10();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___closed__10);
+l___private_init_lean_compiler_ir_format_6__formatIRType___closed__11 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__11();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___closed__11);
+l___private_init_lean_compiler_ir_format_6__formatIRType___closed__12 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__12();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___closed__12);
+l___private_init_lean_compiler_ir_format_6__formatIRType___closed__13 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__13();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___closed__13);
+l___private_init_lean_compiler_ir_format_6__formatIRType___closed__14 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__14();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___closed__14);
+l___private_init_lean_compiler_ir_format_6__formatIRType___closed__15 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__15();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___closed__15);
+l___private_init_lean_compiler_ir_format_6__formatIRType___closed__16 = _init_l___private_init_lean_compiler_ir_format_6__formatIRType___closed__16();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_6__formatIRType___closed__16);
 l_Lean_IR_typeHasFormat___closed__1 = _init_l_Lean_IR_typeHasFormat___closed__1();
 lean::mark_persistent(l_Lean_IR_typeHasFormat___closed__1);
 l_Lean_IR_typeHasFormat = _init_l_Lean_IR_typeHasFormat();
 lean::mark_persistent(l_Lean_IR_typeHasFormat);
-l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__1 = _init_l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__1();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__1);
-l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__2 = _init_l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__2();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__2);
-l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__3 = _init_l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__3();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__3);
-l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__4 = _init_l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__4();
-lean::mark_persistent(l___private_init_lean_compiler_ir_format_7__formatParam___main___closed__4);
+l___private_init_lean_compiler_ir_format_7__formatParam___closed__1 = _init_l___private_init_lean_compiler_ir_format_7__formatParam___closed__1();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_7__formatParam___closed__1);
+l___private_init_lean_compiler_ir_format_7__formatParam___closed__2 = _init_l___private_init_lean_compiler_ir_format_7__formatParam___closed__2();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_7__formatParam___closed__2);
+l___private_init_lean_compiler_ir_format_7__formatParam___closed__3 = _init_l___private_init_lean_compiler_ir_format_7__formatParam___closed__3();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_7__formatParam___closed__3);
+l___private_init_lean_compiler_ir_format_7__formatParam___closed__4 = _init_l___private_init_lean_compiler_ir_format_7__formatParam___closed__4();
+lean::mark_persistent(l___private_init_lean_compiler_ir_format_7__formatParam___closed__4);
 l_Lean_IR_paramHasFormat___closed__1 = _init_l_Lean_IR_paramHasFormat___closed__1();
 lean::mark_persistent(l_Lean_IR_paramHasFormat___closed__1);
 l_Lean_IR_paramHasFormat = _init_l_Lean_IR_paramHasFormat();
 lean::mark_persistent(l_Lean_IR_paramHasFormat);
-l_Lean_IR_formatAlt___main___closed__1 = _init_l_Lean_IR_formatAlt___main___closed__1();
-lean::mark_persistent(l_Lean_IR_formatAlt___main___closed__1);
-l_Lean_IR_formatAlt___main___closed__2 = _init_l_Lean_IR_formatAlt___main___closed__2();
-lean::mark_persistent(l_Lean_IR_formatAlt___main___closed__2);
-l_Lean_IR_formatAlt___main___closed__3 = _init_l_Lean_IR_formatAlt___main___closed__3();
-lean::mark_persistent(l_Lean_IR_formatAlt___main___closed__3);
-l_Lean_IR_formatAlt___main___closed__4 = _init_l_Lean_IR_formatAlt___main___closed__4();
-lean::mark_persistent(l_Lean_IR_formatAlt___main___closed__4);
+l_Lean_IR_formatAlt___closed__1 = _init_l_Lean_IR_formatAlt___closed__1();
+lean::mark_persistent(l_Lean_IR_formatAlt___closed__1);
+l_Lean_IR_formatAlt___closed__2 = _init_l_Lean_IR_formatAlt___closed__2();
+lean::mark_persistent(l_Lean_IR_formatAlt___closed__2);
+l_Lean_IR_formatAlt___closed__3 = _init_l_Lean_IR_formatAlt___closed__3();
+lean::mark_persistent(l_Lean_IR_formatAlt___closed__3);
+l_Lean_IR_formatAlt___closed__4 = _init_l_Lean_IR_formatAlt___closed__4();
+lean::mark_persistent(l_Lean_IR_formatAlt___closed__4);
 l_Lean_IR_formatFnBody___main___closed__1 = _init_l_Lean_IR_formatFnBody___main___closed__1();
 lean::mark_persistent(l_Lean_IR_formatFnBody___main___closed__1);
 l_Lean_IR_formatFnBody___main___closed__2 = _init_l_Lean_IR_formatFnBody___main___closed__2();
@@ -3702,14 +3621,14 @@ l_Lean_IR_fnBodyHasFormat___closed__1 = _init_l_Lean_IR_fnBodyHasFormat___closed
 lean::mark_persistent(l_Lean_IR_fnBodyHasFormat___closed__1);
 l_Lean_IR_fnBodyHasFormat = _init_l_Lean_IR_fnBodyHasFormat();
 lean::mark_persistent(l_Lean_IR_fnBodyHasFormat);
-l_Lean_IR_formatDecl___main___closed__1 = _init_l_Lean_IR_formatDecl___main___closed__1();
-lean::mark_persistent(l_Lean_IR_formatDecl___main___closed__1);
-l_Lean_IR_formatDecl___main___closed__2 = _init_l_Lean_IR_formatDecl___main___closed__2();
-lean::mark_persistent(l_Lean_IR_formatDecl___main___closed__2);
-l_Lean_IR_formatDecl___main___closed__3 = _init_l_Lean_IR_formatDecl___main___closed__3();
-lean::mark_persistent(l_Lean_IR_formatDecl___main___closed__3);
-l_Lean_IR_formatDecl___main___closed__4 = _init_l_Lean_IR_formatDecl___main___closed__4();
-lean::mark_persistent(l_Lean_IR_formatDecl___main___closed__4);
+l_Lean_IR_formatDecl___closed__1 = _init_l_Lean_IR_formatDecl___closed__1();
+lean::mark_persistent(l_Lean_IR_formatDecl___closed__1);
+l_Lean_IR_formatDecl___closed__2 = _init_l_Lean_IR_formatDecl___closed__2();
+lean::mark_persistent(l_Lean_IR_formatDecl___closed__2);
+l_Lean_IR_formatDecl___closed__3 = _init_l_Lean_IR_formatDecl___closed__3();
+lean::mark_persistent(l_Lean_IR_formatDecl___closed__3);
+l_Lean_IR_formatDecl___closed__4 = _init_l_Lean_IR_formatDecl___closed__4();
+lean::mark_persistent(l_Lean_IR_formatDecl___closed__4);
 l_Lean_IR_declHasFormat___closed__1 = _init_l_Lean_IR_declHasFormat___closed__1();
 lean::mark_persistent(l_Lean_IR_declHasFormat___closed__1);
 l_Lean_IR_declHasFormat = _init_l_Lean_IR_declHasFormat();

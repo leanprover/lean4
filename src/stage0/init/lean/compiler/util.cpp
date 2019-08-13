@@ -15,7 +15,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
-obj* l___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___main(obj*);
+obj* l_List_map___main___at___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___spec__1(obj*);
 obj* l_Lean_Compiler_atMostOnce_HasAndthen;
 obj* l_Lean_Compiler_atMostOnce_seq(obj*, obj*, obj*);
 uint8 l_String_isPrefixOf(obj*, obj*);
@@ -29,7 +29,6 @@ obj* l_Lean_Compiler_atMostOnce_visit___boxed(obj*, obj*, obj*);
 obj* l_Lean_Compiler_unreachableExpr___closed__2;
 uint8 l_Lean_Compiler_isEagerLambdaLiftingName___main(obj*);
 obj* l_Lean_Compiler_atMostOnce_visit___main___boxed(obj*, obj*, obj*);
-obj* l_Lean_Compiler_atMostOnce_visitFVar___main(obj*, obj*, obj*);
 obj* l_Lean_Compiler_checkIsDefinition___closed__3;
 obj* l_Lean_Compiler_mkLcProof(obj*);
 obj* l_Lean_Compiler_objectType___closed__3;
@@ -42,7 +41,6 @@ namespace lean {
 obj* string_append(obj*, obj*);
 }
 obj* l_Lean_Compiler_atMostOnce___closed__1;
-obj* l_List_map___main___at___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___main___spec__1(obj*);
 obj* l_Lean_Compiler_objectType___closed__2;
 extern "C" obj* lean_name_mk_string(obj*, obj*);
 obj* l_Lean_Compiler_atMostOnce_visit___main(obj*, obj*, obj*);
@@ -84,7 +82,6 @@ obj* l_Lean_Compiler_checkIsDefinition___closed__5;
 obj* l_Lean_Compiler_atMostOnce_visitFVar___boxed(obj*, obj*, obj*);
 obj* l_Lean_Compiler_unreachableExpr;
 obj* l_Lean_Compiler_voidType___closed__3;
-obj* l_Lean_Compiler_atMostOnce_visitFVar___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_Compiler_isEagerLambdaLiftingName___main___boxed(obj*);
 obj* _init_l_Lean_Compiler_neutralExpr___closed__1() {
 _start:
@@ -316,127 +313,6 @@ obj* x_2;
 x_2 = l_Lean_Compiler_atMostOnce_skip(x_1);
 lean::dec(x_1);
 return x_2;
-}
-}
-obj* l_Lean_Compiler_atMostOnce_visitFVar___main(obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-uint8 x_4; 
-x_4 = lean::cnstr_get_scalar<uint8>(x_3, 0);
-if (x_4 == 0)
-{
-uint8 x_5; 
-x_5 = !lean::is_exclusive(x_3);
-if (x_5 == 0)
-{
-uint8 x_6; 
-x_6 = lean::cnstr_get_scalar<uint8>(x_3, 1);
-if (x_6 == 0)
-{
-lean::cnstr_set_scalar(x_3, 0, x_6);
-return x_3;
-}
-else
-{
-uint8 x_7; 
-x_7 = lean_name_dec_eq(x_1, x_2);
-lean::cnstr_set_scalar(x_3, 0, x_7);
-return x_3;
-}
-}
-else
-{
-uint8 x_8; 
-x_8 = lean::cnstr_get_scalar<uint8>(x_3, 1);
-lean::dec(x_3);
-if (x_8 == 0)
-{
-obj* x_9; 
-x_9 = lean::alloc_cnstr(0, 0, 2);
-lean::cnstr_set_scalar(x_9, 0, x_8);
-lean::cnstr_set_scalar(x_9, 1, x_8);
-return x_9;
-}
-else
-{
-uint8 x_10; obj* x_11; 
-x_10 = lean_name_dec_eq(x_1, x_2);
-x_11 = lean::alloc_cnstr(0, 0, 2);
-lean::cnstr_set_scalar(x_11, 0, x_10);
-lean::cnstr_set_scalar(x_11, 1, x_8);
-return x_11;
-}
-}
-}
-else
-{
-uint8 x_12; 
-x_12 = lean::cnstr_get_scalar<uint8>(x_3, 1);
-if (x_12 == 0)
-{
-return x_3;
-}
-else
-{
-uint8 x_13; 
-x_13 = !lean::is_exclusive(x_3);
-if (x_13 == 0)
-{
-uint8 x_14; 
-x_14 = lean_name_dec_eq(x_1, x_2);
-if (x_14 == 0)
-{
-uint8 x_15; 
-x_15 = 1;
-lean::cnstr_set_scalar(x_3, 0, x_12);
-lean::cnstr_set_scalar(x_3, 1, x_15);
-return x_3;
-}
-else
-{
-uint8 x_16; 
-x_16 = 0;
-lean::cnstr_set_scalar(x_3, 0, x_12);
-lean::cnstr_set_scalar(x_3, 1, x_16);
-return x_3;
-}
-}
-else
-{
-uint8 x_17; 
-lean::dec(x_3);
-x_17 = lean_name_dec_eq(x_1, x_2);
-if (x_17 == 0)
-{
-uint8 x_18; obj* x_19; 
-x_18 = 1;
-x_19 = lean::alloc_cnstr(0, 0, 2);
-lean::cnstr_set_scalar(x_19, 0, x_12);
-lean::cnstr_set_scalar(x_19, 1, x_18);
-return x_19;
-}
-else
-{
-uint8 x_20; obj* x_21; 
-x_20 = 0;
-x_21 = lean::alloc_cnstr(0, 0, 2);
-lean::cnstr_set_scalar(x_21, 0, x_12);
-lean::cnstr_set_scalar(x_21, 1, x_20);
-return x_21;
-}
-}
-}
-}
-}
-}
-obj* l_Lean_Compiler_atMostOnce_visitFVar___main___boxed(obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-obj* x_4; 
-x_4 = l_Lean_Compiler_atMostOnce_visitFVar___main(x_1, x_2, x_3);
-lean::dec(x_2);
-lean::dec(x_1);
-return x_4;
 }
 }
 obj* l_Lean_Compiler_atMostOnce_visitFVar(obj* x_1, obj* x_2, obj* x_3) {
@@ -944,7 +820,7 @@ x_3 = lean::box(x_2);
 return x_3;
 }
 }
-obj* l_List_map___main___at___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___main___spec__1(obj* x_1) {
+obj* l_List_map___main___at___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___spec__1(obj* x_1) {
 _start:
 {
 if (lean::obj_tag(x_1) == 0)
@@ -971,7 +847,7 @@ lean::dec(x_7);
 x_8 = lean::cnstr_get(x_4, 0);
 lean::inc(x_8);
 lean::dec(x_4);
-x_9 = l_List_map___main___at___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___main___spec__1(x_6);
+x_9 = l_List_map___main___at___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___spec__1(x_6);
 lean::cnstr_set(x_1, 1, x_9);
 lean::cnstr_set(x_1, 0, x_8);
 return x_1;
@@ -985,7 +861,7 @@ lean::dec(x_1);
 x_11 = lean::cnstr_get(x_4, 0);
 lean::inc(x_11);
 lean::dec(x_4);
-x_12 = l_List_map___main___at___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___main___spec__1(x_10);
+x_12 = l_List_map___main___at___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___spec__1(x_10);
 x_13 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_13, 0, x_11);
 lean::cnstr_set(x_13, 1, x_12);
@@ -994,7 +870,8 @@ return x_13;
 }
 }
 }
-obj* l___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___main(obj* x_1) {
+namespace lean {
+obj* get_decl_names_for_code_gen_core(obj* x_1) {
 _start:
 {
 switch (lean::obj_tag(x_1)) {
@@ -1022,7 +899,7 @@ obj* x_7; obj* x_8;
 x_7 = lean::cnstr_get(x_1, 0);
 lean::inc(x_7);
 lean::dec(x_1);
-x_8 = l_List_map___main___at___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___main___spec__1(x_7);
+x_8 = l_List_map___main___at___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___spec__1(x_7);
 return x_8;
 }
 default: 
@@ -1033,15 +910,6 @@ x_9 = lean::box(0);
 return x_9;
 }
 }
-}
-}
-namespace lean {
-obj* get_decl_names_for_code_gen_core(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___main(x_1);
-return x_2;
 }
 }
 }

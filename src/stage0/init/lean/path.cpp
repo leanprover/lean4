@@ -28,6 +28,7 @@ obj* nat_sub(obj*, obj*);
 obj* l_IO_isDir___at_Lean_getBuiltinSearchPath___spec__3___boxed(obj*, obj*);
 obj* l_Lean_getSearchPathFromEnv___closed__1;
 obj* l_Array_mkArray(obj*, obj*, obj*);
+extern obj* l_List_repr___rarg___closed__3;
 obj* l_Lean_moduleNameOfFileName___closed__4;
 obj* l_Lean_findOLean(obj*, obj*);
 obj* l_IO_realPath___at_Lean_realPathNormalized___spec__1(obj*, obj*);
@@ -55,18 +56,18 @@ obj* string_push(obj*, uint32);
 obj* l_Lean_findLeanFile___boxed(obj*, obj*, obj*);
 obj* l_Array_toList___rarg(obj*);
 extern "C" obj* lean_io_getenv(obj*, obj*);
+extern obj* l_List_repr___rarg___closed__2;
 extern uint32 l_System_FilePath_searchPathSeparator;
 obj* l_Lean_getSearchPathFromEnv___closed__2;
 obj* l_Array_mfindAux___main___at_Lean_findFile___spec__2___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_findFile(obj*, obj*, obj*);
 extern "C" obj* lean_io_file_exists(obj*, obj*);
-extern obj* l_List_repr___main___rarg___closed__3;
 obj* l_Lean_realPathNormalized(obj*, obj*);
-obj* l_List_repr___main___at_Lean_findAtSearchPath___spec__2(obj*);
 obj* l_Lean_modNameToFileName___boxed(obj*);
 namespace lean {
 obj* string_append(obj*, obj*);
 }
+obj* l_List_repr___at_Lean_findAtSearchPath___spec__2(obj*);
 obj* l_Lean_findAtSearchPath___closed__1;
 extern obj* l_List_reprAux___main___rarg___closed__1;
 obj* l_IO_appPath___at_Lean_getBuiltinSearchPath___spec__2(obj*);
@@ -115,7 +116,6 @@ obj* l_Lean_modNameToFileName___main___boxed(obj*);
 obj* l_Lean_moduleNameOfFileName___closed__1;
 obj* l_String_split(obj*, obj*);
 obj* l_IO_Prim_Ref_get(obj*, obj*, obj*);
-extern obj* l_List_repr___main___rarg___closed__1;
 obj* l_Lean_findAtSearchPath(obj*, obj*);
 obj* l_Array_mfindAux___main___at_Lean_findFile___spec__2___closed__1;
 obj* l_Lean_moduleNameOfFileName___closed__3;
@@ -145,9 +145,9 @@ obj* find_lean_core(obj*, obj*);
 }
 obj* l_Lean_addRel(obj*, obj*);
 obj* l_String_quote(obj*);
-extern obj* l_List_repr___main___rarg___closed__2;
 obj* l_Lean_mkSearchPathRef(obj*);
 obj* l_Lean_getBuiltinSearchPath___closed__3;
+extern obj* l_List_repr___rarg___closed__1;
 obj* l_Lean_getBuiltinSearchPath(obj*);
 extern obj* l_String_splitAux___main___closed__1;
 obj* l_Array_mfindAux___main___at_Lean_findAtSearchPath___spec__1___boxed(obj*, obj*, obj*);
@@ -2686,13 +2686,13 @@ return x_17;
 }
 }
 }
-obj* l_List_repr___main___at_Lean_findAtSearchPath___spec__2(obj* x_1) {
+obj* l_List_repr___at_Lean_findAtSearchPath___spec__2(obj* x_1) {
 _start:
 {
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_2; 
-x_2 = l_List_repr___main___rarg___closed__1;
+x_2 = l_List_repr___rarg___closed__1;
 return x_2;
 }
 else
@@ -2700,10 +2700,10 @@ else
 uint8 x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
 x_3 = 1;
 x_4 = l_List_reprAux___main___at_Lean_findAtSearchPath___spec__3(x_3, x_1);
-x_5 = l_List_repr___main___rarg___closed__2;
+x_5 = l_List_repr___rarg___closed__2;
 x_6 = lean::string_append(x_5, x_4);
 lean::dec(x_4);
-x_7 = l_List_repr___main___rarg___closed__3;
+x_7 = l_List_repr___rarg___closed__3;
 x_8 = lean::string_append(x_6, x_7);
 return x_8;
 }
@@ -2762,7 +2762,7 @@ x_15 = l_Lean_findAtSearchPath___closed__2;
 x_16 = lean::string_append(x_14, x_15);
 x_17 = l_Array_toList___rarg(x_10);
 lean::dec(x_10);
-x_18 = l_List_repr___main___at_Lean_findAtSearchPath___spec__2(x_17);
+x_18 = l_List_repr___at_Lean_findAtSearchPath___spec__2(x_17);
 x_19 = lean::string_append(x_16, x_18);
 lean::dec(x_18);
 lean::cnstr_set_tag(x_8, 1);
@@ -2801,7 +2801,7 @@ x_27 = l_Lean_findAtSearchPath___closed__2;
 x_28 = lean::string_append(x_26, x_27);
 x_29 = l_Array_toList___rarg(x_21);
 lean::dec(x_21);
-x_30 = l_List_repr___main___at_Lean_findAtSearchPath___spec__2(x_29);
+x_30 = l_List_repr___at_Lean_findAtSearchPath___spec__2(x_29);
 x_31 = lean::string_append(x_28, x_30);
 lean::dec(x_30);
 x_32 = lean::alloc_cnstr(1, 2, 0);
@@ -2889,7 +2889,7 @@ x_52 = l_Lean_findAtSearchPath___closed__2;
 x_53 = lean::string_append(x_51, x_52);
 x_54 = l_Array_toList___rarg(x_45);
 lean::dec(x_45);
-x_55 = l_List_repr___main___at_Lean_findAtSearchPath___spec__2(x_54);
+x_55 = l_List_repr___at_Lean_findAtSearchPath___spec__2(x_54);
 x_56 = lean::string_append(x_53, x_55);
 lean::dec(x_55);
 if (lean::is_scalar(x_47)) {

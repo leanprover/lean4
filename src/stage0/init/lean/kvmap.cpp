@@ -14,7 +14,6 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-obj* l_Lean_KVMap_subset___main___boxed(obj*, obj*);
 obj* l_Lean_KVMap_HasBeq___closed__1;
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_Lean_KVMap_getNat(obj*, obj*, obj*);
@@ -26,11 +25,9 @@ obj* l_Lean_KVMap_subset___boxed(obj*, obj*);
 obj* l_Lean_KVMap_getInt(obj*, obj*, obj*);
 obj* l_Lean_KVMap_stringVal___closed__2;
 obj* l_Lean_KVMap_getString(obj*, obj*, obj*);
-obj* l_Lean_DataValue_beq___main___boxed(obj*, obj*);
 obj* l_Lean_KVMap_findCore___main(obj*, obj*);
 obj* l_Lean_KVMap_nameVal___closed__1;
 obj* l_Lean_KVMap_findCore(obj*, obj*);
-uint8 l_Lean_KVMap_subset___main(obj*, obj*);
 obj* l_Lean_KVMap_boolVal;
 obj* l_Lean_KVMap_findCore___boxed(obj*, obj*);
 obj* l_Lean_KVMap_setNat(obj*, obj*, obj*);
@@ -49,7 +46,6 @@ obj* l_Lean_KVMap_setInt(obj*, obj*, obj*);
 obj* l_Lean_KVMap_boolVal___closed__1;
 obj* l_Lean_KVMap_insert(obj*, obj*, obj*);
 obj* l_Lean_DataValue_HasBeq;
-obj* l_Lean_KVMap_insert___main(obj*, obj*, obj*);
 obj* l_Lean_DataValue_beq___boxed(obj*, obj*);
 obj* l_Lean_KVMap_stringVal;
 obj* l_Lean_KVMap_natVal___closed__3;
@@ -71,11 +67,9 @@ obj* l_Lean_int2DataValue(obj*);
 namespace lean {
 uint8 string_dec_eq(obj*, obj*);
 }
-obj* l_Lean_KVMap_find___main(obj*, obj*);
 obj* l_Lean_KVMap_get___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_KVMap_eqv___boxed(obj*, obj*);
 obj* l_Lean_bool2DataValue___boxed(obj*);
-obj* l_Lean_KVMap_find___main___boxed(obj*, obj*);
 uint8 l_Lean_KVMap_subsetAux(obj*, obj*);
 obj* l_Lean_KVMap_nameVal;
 obj* l_Lean_KVMap_nameVal___closed__3;
@@ -95,11 +89,10 @@ obj* l_Lean_KVMap_insertCore(obj*, obj*, obj*);
 obj* l_Lean_KVMap_intVal;
 obj* l_Lean_KVMap_intVal___closed__2;
 obj* l_Lean_KVMap_getNat___boxed(obj*, obj*, obj*);
-uint8 l_Lean_DataValue_beq___main(obj*, obj*);
 obj* l_Lean_nat2DataValue(obj*);
 extern obj* l_String_splitAux___main___closed__1;
 obj* l_Lean_KVMap_natVal;
-uint8 l_Lean_DataValue_beq___main(obj* x_1, obj* x_2) {
+uint8 l_Lean_DataValue_beq(obj* x_1, obj* x_2) {
 _start:
 {
 switch (lean::obj_tag(x_1)) {
@@ -191,25 +184,6 @@ x_18 = 0;
 return x_18;
 }
 }
-}
-}
-obj* l_Lean_DataValue_beq___main___boxed(obj* x_1, obj* x_2) {
-_start:
-{
-uint8 x_3; obj* x_4; 
-x_3 = l_Lean_DataValue_beq___main(x_1, x_2);
-lean::dec(x_2);
-lean::dec(x_1);
-x_4 = lean::box(x_3);
-return x_4;
-}
-}
-uint8 l_Lean_DataValue_beq(obj* x_1, obj* x_2) {
-_start:
-{
-uint8 x_3; 
-x_3 = l_Lean_DataValue_beq___main(x_1, x_2);
-return x_3;
 }
 }
 obj* l_Lean_DataValue_beq___boxed(obj* x_1, obj* x_2) {
@@ -355,24 +329,6 @@ lean::dec(x_1);
 return x_3;
 }
 }
-obj* l_Lean_KVMap_find___main(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_Lean_KVMap_findCore___main(x_1, x_2);
-return x_3;
-}
-}
-obj* l_Lean_KVMap_find___main___boxed(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_Lean_KVMap_find___main(x_1, x_2);
-lean::dec(x_2);
-lean::dec(x_1);
-return x_3;
-}
-}
 obj* l_Lean_KVMap_find(obj* x_1, obj* x_2) {
 _start:
 {
@@ -502,14 +458,6 @@ return x_24;
 }
 }
 obj* l_Lean_KVMap_insertCore(obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-obj* x_4; 
-x_4 = l_Lean_KVMap_insertCore___main(x_1, x_2, x_3);
-return x_4;
-}
-}
-obj* l_Lean_KVMap_insert___main(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
@@ -864,7 +812,7 @@ obj* x_10; uint8 x_11;
 x_10 = lean::cnstr_get(x_8, 0);
 lean::inc(x_10);
 lean::dec(x_8);
-x_11 = l_Lean_DataValue_beq___main(x_7, x_10);
+x_11 = l_Lean_DataValue_beq(x_7, x_10);
 lean::dec(x_10);
 if (x_11 == 0)
 {
@@ -905,25 +853,6 @@ _start:
 {
 uint8 x_3; obj* x_4; 
 x_3 = l_Lean_KVMap_subsetAux(x_1, x_2);
-lean::dec(x_2);
-lean::dec(x_1);
-x_4 = lean::box(x_3);
-return x_4;
-}
-}
-uint8 l_Lean_KVMap_subset___main(obj* x_1, obj* x_2) {
-_start:
-{
-uint8 x_3; 
-x_3 = l_Lean_KVMap_subsetAux___main(x_1, x_2);
-return x_3;
-}
-}
-obj* l_Lean_KVMap_subset___main___boxed(obj* x_1, obj* x_2) {
-_start:
-{
-uint8 x_3; obj* x_4; 
-x_3 = l_Lean_KVMap_subset___main(x_1, x_2);
 lean::dec(x_2);
 lean::dec(x_1);
 x_4 = lean::box(x_3);

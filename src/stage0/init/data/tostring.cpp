@@ -19,12 +19,11 @@ obj* uint8_to_nat(uint8);
 }
 obj* l_List_toStringAux___rarg(obj*, uint8, obj*);
 extern obj* l_Sum_HasRepr___rarg___closed__1;
-obj* l_String_Iterator_remainingToString___main(obj*);
 extern obj* l_Sigma_HasRepr___rarg___closed__1;
 obj* l_UInt16_HasToString___boxed(obj*);
+extern obj* l_List_repr___rarg___closed__3;
 obj* l_Decidable_HasToString___rarg(uint8);
 obj* l_Sigma_HasToString(obj*, obj*);
-obj* l_List_toString___main(obj*);
 obj* l_UInt32_HasToString___boxed(obj*);
 obj* l_List_toStringAux___rarg___boxed(obj*, obj*, obj*);
 obj* l_Nat_HasToString(obj*);
@@ -51,10 +50,9 @@ obj* string_push(obj*, uint32);
 }
 obj* l_Sigma_HasToString___rarg(obj*, obj*, obj*);
 obj* l_Nat_repr(obj*);
+extern obj* l_List_repr___rarg___closed__2;
 obj* l_Substring_HasToString(obj*);
 obj* l_List_HasToString(obj*);
-extern obj* l_List_repr___main___rarg___closed__3;
-obj* l_List_toString___main___rarg(obj*, obj*);
 extern obj* l_Option_HasRepr___rarg___closed__1;
 namespace lean {
 obj* string_append(obj*, obj*);
@@ -78,7 +76,6 @@ obj* l_Option_HasToString(obj*);
 obj* l_List_HasToString___rarg(obj*);
 extern obj* l_Sigma_HasRepr___rarg___closed__2;
 obj* l_String_Iterator_HasToString___boxed(obj*);
-extern obj* l_List_repr___main___rarg___closed__1;
 obj* l_UInt8_HasToString___boxed(obj*);
 obj* l_Char_HasToString(uint32);
 obj* l_Sum_HasToString___rarg(obj*, obj*, obj*);
@@ -100,16 +97,17 @@ obj* uint32_to_nat(uint32);
 }
 obj* l_Unit_HasToString___boxed(obj*);
 obj* l_Char_HasToString___boxed(obj*);
-extern obj* l_List_repr___main___rarg___closed__2;
 namespace lean {
 obj* usize_to_nat(usize);
 }
 obj* l_Decidable_HasToString(obj*);
 extern obj* l_Bool_HasRepr___closed__1;
+extern obj* l_List_repr___rarg___closed__1;
 obj* l_Sigma_HasToString___boxed(obj*, obj*);
 obj* l_String_Iterator_HasToString(obj*);
 extern obj* l_Unit_HasRepr___closed__1;
 obj* l_UInt64_HasToString___boxed(obj*);
+obj* l_String_Iterator_remainingToString(obj*);
 obj* l_USize_HasToString(usize);
 extern obj* l_String_splitAux___main___closed__1;
 obj* l_id_HasToString___rarg(obj* x_1) {
@@ -176,7 +174,7 @@ obj* l_String_Iterator_HasToString(obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_String_Iterator_remainingToString___main(x_1);
+x_2 = l_String_Iterator_remainingToString(x_1);
 return x_2;
 }
 }
@@ -354,14 +352,14 @@ x_5 = l_List_toStringAux___rarg(x_1, x_4, x_3);
 return x_5;
 }
 }
-obj* l_List_toString___main___rarg(obj* x_1, obj* x_2) {
+obj* l_List_toString___rarg(obj* x_1, obj* x_2) {
 _start:
 {
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
 lean::dec(x_1);
-x_3 = l_List_repr___main___rarg___closed__1;
+x_3 = l_List_repr___rarg___closed__1;
 return x_3;
 }
 else
@@ -369,29 +367,13 @@ else
 uint8 x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
 x_4 = 1;
 x_5 = l_List_toStringAux___main___rarg(x_1, x_4, x_2);
-x_6 = l_List_repr___main___rarg___closed__2;
+x_6 = l_List_repr___rarg___closed__2;
 x_7 = lean::string_append(x_6, x_5);
 lean::dec(x_5);
-x_8 = l_List_repr___main___rarg___closed__3;
+x_8 = l_List_repr___rarg___closed__3;
 x_9 = lean::string_append(x_7, x_8);
 return x_9;
 }
-}
-}
-obj* l_List_toString___main(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_List_toString___main___rarg), 2, 0);
-return x_2;
-}
-}
-obj* l_List_toString___rarg(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_List_toString___main___rarg(x_1, x_2);
-return x_3;
 }
 }
 obj* l_List_toString(obj* x_1) {

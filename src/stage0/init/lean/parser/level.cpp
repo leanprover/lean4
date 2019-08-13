@@ -48,6 +48,7 @@ obj* l_Lean_Parser_ParserState_mkUnexpectedError(obj*, obj*);
 obj* l_Lean_Parser_Level_paren___closed__5;
 obj* l_Lean_Parser_Level_addLit___closed__6;
 obj* l_Lean_Parser_Level_hole___closed__2;
+extern obj* l_Lean_Name_appendIndexAfter___closed__1;
 extern obj* l_Lean_Parser_appPrec;
 obj* l_Lean_Parser_Level_hole___elambda__1___rarg___closed__2;
 obj* l_Lean_Parser_registerBuiltinParserAttribute(obj*, obj*, obj*);
@@ -65,7 +66,6 @@ obj* l_Lean_Parser_Level_paren___closed__4;
 obj* l___regBuiltinParser_Lean_Parser_Level_addLit(obj*);
 obj* l_Lean_Parser_Level_max___elambda__1___closed__3;
 obj* l_Lean_Parser_Level_paren___closed__1;
-extern obj* l_Lean_Name_appendIndexAfter___main___closed__1;
 obj* l_Lean_Parser_Level_paren___closed__6;
 obj* l_Lean_Parser_Level_num___elambda__1___boxed(obj*);
 obj* l___regBuiltinParser_Lean_Parser_Level_hole(obj*);
@@ -1173,7 +1173,7 @@ obj* _init_l_Lean_Parser_Level_hole___elambda__1___rarg___closed__3() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l_Lean_Name_appendIndexAfter___main___closed__1;
+x_1 = l_Lean_Name_appendIndexAfter___closed__1;
 x_2 = l_String_trim(x_1);
 return x_2;
 }

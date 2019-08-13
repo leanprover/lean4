@@ -15,6 +15,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
+obj* l_Lean_IR_FnBody_setBody(obj*, obj*);
 extern obj* l_Array_empty___closed__1;
 namespace lean {
 obj* nat_sub(obj*, obj*);
@@ -24,7 +25,7 @@ obj* l_Lean_IR_Decl_pushProj(obj*);
 obj* l_Array_ummapAux___main___at_Lean_IR_pushProjs___main___spec__3___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_freeIndices(obj*);
 obj* l_Array_ummapAux___main___at_Lean_IR_FnBody_pushProj___main___spec__3(obj*, obj*);
-obj* l_Lean_IR_Decl_pushProj___main(obj*);
+obj* l_Lean_IR_AltCore_body(obj*);
 obj* l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_14__collectIndex___spec__1(obj*, obj*);
 obj* l_Lean_IR_reshape(obj*, obj*);
 obj* l_Lean_IR_FnBody_pushProj(obj*);
@@ -45,14 +46,12 @@ obj* l_Lean_IR_FnBody_collectFreeIndices(obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_IR_FnBody_pushProj___main___spec__2(obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_IR_pushProjs___main___spec__3(obj*, obj*, obj*, obj*);
 obj* l_Array_reverseAux___main___rarg(obj*, obj*);
-obj* l_Lean_IR_AltCore_body___main(obj*);
 obj* l_Array_pop(obj*, obj*);
 obj* l_Lean_IR_pushProjs___main(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_back___at_Lean_IR_pushProjs___main___spec__1(obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Array_fset(obj*, obj*, obj*, obj*);
 obj* l_Array_get(obj*, obj*, obj*, obj*);
-obj* l_Lean_IR_FnBody_setBody___main(obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_IR_pushProjs___main___spec__2(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_mkIndexSet(obj*);
 obj* l_Array_back___at_Lean_IR_pushProjs___main___spec__1___boxed(obj*);
@@ -128,7 +127,7 @@ else
 obj* x_25; obj* x_26; obj* x_27; obj* x_28; 
 lean::dec(x_20);
 lean::inc(x_2);
-x_25 = l_Lean_IR_FnBody_setBody___main(x_2, x_17);
+x_25 = l_Lean_IR_FnBody_setBody(x_2, x_17);
 x_26 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_26, 0, x_16);
 lean::cnstr_set(x_26, 1, x_25);
@@ -166,7 +165,7 @@ else
 obj* x_38; obj* x_39; obj* x_40; obj* x_41; 
 lean::dec(x_33);
 lean::inc(x_2);
-x_38 = l_Lean_IR_FnBody_setBody___main(x_2, x_30);
+x_38 = l_Lean_IR_FnBody_setBody(x_2, x_30);
 x_39 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_39, 0, x_38);
 x_40 = x_39;
@@ -514,7 +513,7 @@ x_8 = lean::box(0);
 lean::inc(x_7);
 x_9 = x_8;
 x_10 = lean::array_fset(x_2, x_1, x_9);
-x_11 = l_Lean_IR_AltCore_body___main(x_7);
+x_11 = l_Lean_IR_AltCore_body(x_7);
 x_12 = l_Lean_IR_FnBody_freeIndices(x_11);
 x_13 = lean::mk_nat_obj(1u);
 x_14 = lean::nat_add(x_1, x_13);
@@ -671,7 +670,7 @@ x_2 = l_Lean_IR_FnBody_pushProj___main(x_1);
 return x_2;
 }
 }
-obj* l_Lean_IR_Decl_pushProj___main(obj* x_1) {
+obj* l_Lean_IR_Decl_pushProj(obj* x_1) {
 _start:
 {
 if (lean::obj_tag(x_1) == 0)
@@ -710,14 +709,6 @@ else
 {
 return x_1;
 }
-}
-}
-obj* l_Lean_IR_Decl_pushProj(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_Lean_IR_Decl_pushProj___main(x_1);
-return x_2;
 }
 }
 obj* initialize_init_lean_compiler_ir_basic(obj*);

@@ -21,15 +21,14 @@ obj* l_Lean_Message_toString___closed__1;
 obj* l_Lean_mkErrorStringWithPos___closed__1;
 obj* l_Lean_Message_Inhabited___closed__2;
 obj* l_Lean_MessageLog_append(obj*, obj*);
+extern obj* l_EState_Result_toString___rarg___closed__2;
 obj* l_List_reverse___rarg(obj*);
-uint8 l_List_isEmpty___main___rarg(obj*);
 obj* l_Lean_MessageLog_toList(obj*);
 obj* l_Lean_Message_toString___closed__3;
 obj* l_Lean_Message_HasToString;
 obj* l_Lean_Message_Inhabited;
 obj* l_Nat_repr(obj*);
 obj* l_List_foldr___main___at_Lean_MessageLog_hasErrors___spec__1___boxed(obj*, obj*);
-extern obj* l_EState_Result_toString___main___rarg___closed__2;
 uint8 l_Lean_MessageLog_hasErrors(obj*);
 uint8 l_Lean_MessageLog_isEmpty(obj*);
 obj* l_Lean_Message_toString___closed__4;
@@ -37,6 +36,7 @@ namespace lean {
 obj* string_append(obj*, obj*);
 }
 obj* l_List_append___rarg(obj*, obj*);
+uint8 l_List_isEmpty___rarg(obj*);
 extern obj* l_Lean_Format_flatten___main___closed__1;
 obj* l_Lean_Message_HasToString___closed__1;
 namespace lean {
@@ -129,7 +129,7 @@ obj* _init_l_Lean_Message_toString___closed__5() {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; 
-x_1 = l_EState_Result_toString___main___rarg___closed__2;
+x_1 = l_EState_Result_toString___rarg___closed__2;
 x_2 = l_String_splitAux___main___closed__1;
 x_3 = lean::string_append(x_1, x_2);
 return x_3;
@@ -231,7 +231,7 @@ lean::inc(x_31);
 lean::dec(x_1);
 x_32 = l_Lean_Message_toString___closed__1;
 x_33 = lean::string_append(x_7, x_32);
-x_34 = l_EState_Result_toString___main___rarg___closed__2;
+x_34 = l_EState_Result_toString___rarg___closed__2;
 x_35 = lean::string_append(x_34, x_33);
 lean::dec(x_33);
 x_36 = lean::string_append(x_35, x_31);
@@ -324,7 +324,7 @@ uint8 l_Lean_MessageLog_isEmpty(obj* x_1) {
 _start:
 {
 uint8 x_2; 
-x_2 = l_List_isEmpty___main___rarg(x_1);
+x_2 = l_List_isEmpty___rarg(x_1);
 return x_2;
 }
 }

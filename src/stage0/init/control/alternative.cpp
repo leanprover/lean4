@@ -19,17 +19,13 @@ obj* l_guardb___rarg___boxed(obj*, obj*);
 obj* l_alternativeHasOrelse___rarg(obj*);
 obj* l_failure___boxed(obj*);
 obj* l_guard(obj*);
-obj* l_guardb___main(obj*);
-obj* l_guardb___main___boxed(obj*);
 obj* l_assert___rarg(obj*, obj*, uint8);
-obj* l_guardb___main___rarg___boxed(obj*, obj*);
 obj* l_optional___rarg___lambda__1(obj*);
 obj* l_guard___rarg(obj*, obj*, uint8);
 obj* l_assert___boxed(obj*);
 obj* l_assert(obj*);
 obj* l_optional___boxed(obj*);
 obj* l_guard___rarg___boxed(obj*, obj*, obj*);
-obj* l_guardb___main___rarg(obj*, uint8);
 obj* l_assert___rarg___boxed(obj*, obj*, obj*);
 obj* l_guardb___boxed(obj*);
 obj* l_optional___rarg(obj*, obj*, obj*);
@@ -200,60 +196,6 @@ _start:
 {
 obj* x_2; 
 x_2 = l_assert(x_1);
-lean::dec(x_1);
-return x_2;
-}
-}
-obj* l_guardb___main___rarg(obj* x_1, uint8 x_2) {
-_start:
-{
-if (x_2 == 0)
-{
-obj* x_3; obj* x_4; 
-x_3 = lean::cnstr_get(x_1, 1);
-lean::inc(x_3);
-lean::dec(x_1);
-x_4 = lean::apply_1(x_3, lean::box(0));
-return x_4;
-}
-else
-{
-obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
-x_5 = lean::cnstr_get(x_1, 0);
-lean::inc(x_5);
-lean::dec(x_1);
-x_6 = lean::cnstr_get(x_5, 1);
-lean::inc(x_6);
-lean::dec(x_5);
-x_7 = lean::box(0);
-x_8 = lean::apply_2(x_6, lean::box(0), x_7);
-return x_8;
-}
-}
-}
-obj* l_guardb___main(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_guardb___main___rarg___boxed), 2, 0);
-return x_2;
-}
-}
-obj* l_guardb___main___rarg___boxed(obj* x_1, obj* x_2) {
-_start:
-{
-uint8 x_3; obj* x_4; 
-x_3 = lean::unbox(x_2);
-lean::dec(x_2);
-x_4 = l_guardb___main___rarg(x_1, x_3);
-return x_4;
-}
-}
-obj* l_guardb___main___boxed(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_guardb___main(x_1);
 lean::dec(x_1);
 return x_2;
 }

@@ -22,6 +22,7 @@ extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_Array_anyMAux___main___at_Lean_regScopeManagerExtension___spec__6___boxed(obj*, obj*, obj*);
 extern obj* l_Array_empty___closed__1;
 extern obj* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
+obj* l_List_tail___rarg(obj*);
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 obj* l_List_foldl___main___at_Lean_Environment_toValidNamespace___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_regScopeManagerExtension___closed__4;
@@ -37,7 +38,6 @@ obj* l_Lean_Environment_pushScopeCore___lambda__1(obj*, obj*, uint8, obj*);
 namespace lean {
 obj* get_namespaces_core(obj*);
 }
-uint8 l_List_isEmpty___main___rarg(obj*);
 namespace lean {
 obj* get_scope_header_core(obj*);
 }
@@ -89,6 +89,7 @@ uint8 is_namespace_core(obj*, obj*);
 }
 obj* l_Array_push(obj*, obj*, obj*);
 obj* l_Lean_regScopeManagerExtension___closed__5;
+uint8 l_List_isEmpty___rarg(obj*);
 uint8 l_Array_anyMAux___main___at_Lean_regScopeManagerExtension___spec__6(obj*, obj*, obj*);
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__1;
 extern obj* l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1;
@@ -117,7 +118,6 @@ obj* l_Lean_scopeManagerExt___elambda__1___boxed(obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Lean_Environment_registerNamespace___main(obj*, obj*);
 obj* l_Lean_regScopeManagerExtension___closed__2;
-obj* l_List_tail___main___rarg(obj*);
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 extern obj* l_Lean_Name_toString___closed__1;
 obj* l_Lean_Environment_pushScopeCore___boxed(obj*, obj*, obj*);
@@ -2471,7 +2471,7 @@ _start:
 {
 obj* x_2; uint8 x_3; 
 x_2 = lean::get_namespaces_core(x_1);
-x_3 = l_List_isEmpty___main___rarg(x_2);
+x_3 = l_List_isEmpty___rarg(x_2);
 lean::dec(x_2);
 if (x_3 == 0)
 {
@@ -2815,11 +2815,11 @@ obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8;
 x_3 = lean::cnstr_get(x_1, 1);
 x_4 = lean::cnstr_get(x_1, 2);
 x_5 = lean::cnstr_get(x_1, 3);
-x_6 = l_List_tail___main___rarg(x_3);
+x_6 = l_List_tail___rarg(x_3);
 lean::dec(x_3);
-x_7 = l_List_tail___main___rarg(x_4);
+x_7 = l_List_tail___rarg(x_4);
 lean::dec(x_4);
-x_8 = l_List_tail___main___rarg(x_5);
+x_8 = l_List_tail___rarg(x_5);
 lean::dec(x_5);
 lean::cnstr_set(x_1, 3, x_8);
 lean::cnstr_set(x_1, 2, x_7);
@@ -2838,11 +2838,11 @@ lean::inc(x_11);
 lean::inc(x_10);
 lean::inc(x_9);
 lean::dec(x_1);
-x_13 = l_List_tail___main___rarg(x_10);
+x_13 = l_List_tail___rarg(x_10);
 lean::dec(x_10);
-x_14 = l_List_tail___main___rarg(x_11);
+x_14 = l_List_tail___rarg(x_11);
 lean::dec(x_11);
-x_15 = l_List_tail___main___rarg(x_12);
+x_15 = l_List_tail___rarg(x_12);
 lean::dec(x_12);
 x_16 = lean::alloc_cnstr(0, 4, 0);
 lean::cnstr_set(x_16, 0, x_9);
@@ -2867,7 +2867,7 @@ _start:
 obj* x_2; uint8 x_3; 
 lean::inc(x_1);
 x_2 = lean::get_namespaces_core(x_1);
-x_3 = l_List_isEmpty___main___rarg(x_2);
+x_3 = l_List_isEmpty___rarg(x_2);
 lean::dec(x_2);
 if (x_3 == 0)
 {

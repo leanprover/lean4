@@ -18,26 +18,18 @@ obj* l_Lean_ConstantInfo_name(obj*);
 obj* l_Task_get(obj*, obj*);
 obj* l_Lean_ConstantInfo_name___boxed(obj*);
 obj* l_Lean_ConstantInfo_toConstantVal(obj*);
-obj* l_Lean_ConstantInfo_hints___main(obj*);
 obj* l_Lean_ConstantInfo_value___boxed(obj*);
-obj* l_Lean_ConstantInfo_hasValue___main___boxed(obj*);
-obj* l_Lean_ConstantInfo_value___main___boxed(obj*);
 obj* l_Lean_ConstantInfo_value(obj*);
 obj* l_Lean_ConstantInfo_lparams(obj*);
-obj* l_Lean_ConstantInfo_toConstantVal___main(obj*);
 uint8 l_Lean_ConstantInfo_hasValue(obj*);
 obj* l_Lean_ConstantInfo_hints___boxed(obj*);
-uint8 l_Lean_ConstantInfo_hasValue___main(obj*);
-obj* l_Lean_ConstantInfo_value___main(obj*);
 obj* l_Lean_ConstantInfo_hints(obj*);
-obj* l_Lean_ConstantInfo_hints___main___boxed(obj*);
 obj* l_Lean_ConstantInfo_toConstantVal___boxed(obj*);
 obj* l_Lean_ConstantInfo_type(obj*);
 obj* l_Lean_ConstantInfo_type___boxed(obj*);
 obj* l_Lean_ConstantInfo_lparams___boxed(obj*);
-obj* l_Lean_ConstantInfo_toConstantVal___main___boxed(obj*);
 obj* l_Lean_ConstantInfo_hasValue___boxed(obj*);
-obj* l_Lean_ConstantInfo_toConstantVal___main(obj* x_1) {
+obj* l_Lean_ConstantInfo_toConstantVal(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
@@ -45,23 +37,6 @@ x_2 = lean::cnstr_get(x_1, 0);
 x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 return x_3;
-}
-}
-obj* l_Lean_ConstantInfo_toConstantVal___main___boxed(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_Lean_ConstantInfo_toConstantVal___main(x_1);
-lean::dec(x_1);
-return x_2;
-}
-}
-obj* l_Lean_ConstantInfo_toConstantVal(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_Lean_ConstantInfo_toConstantVal___main(x_1);
-return x_2;
 }
 }
 obj* l_Lean_ConstantInfo_toConstantVal___boxed(obj* x_1) {
@@ -77,7 +52,7 @@ obj* l_Lean_ConstantInfo_name(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = l_Lean_ConstantInfo_toConstantVal___main(x_1);
+x_2 = l_Lean_ConstantInfo_toConstantVal(x_1);
 x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 lean::dec(x_2);
@@ -97,7 +72,7 @@ obj* l_Lean_ConstantInfo_lparams(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = l_Lean_ConstantInfo_toConstantVal___main(x_1);
+x_2 = l_Lean_ConstantInfo_toConstantVal(x_1);
 x_3 = lean::cnstr_get(x_2, 1);
 lean::inc(x_3);
 lean::dec(x_2);
@@ -117,7 +92,7 @@ obj* l_Lean_ConstantInfo_type(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = l_Lean_ConstantInfo_toConstantVal___main(x_1);
+x_2 = l_Lean_ConstantInfo_toConstantVal(x_1);
 x_3 = lean::cnstr_get(x_2, 2);
 lean::inc(x_3);
 lean::dec(x_2);
@@ -133,7 +108,7 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_Lean_ConstantInfo_value___main(obj* x_1) {
+obj* l_Lean_ConstantInfo_value(obj* x_1) {
 _start:
 {
 switch (lean::obj_tag(x_1)) {
@@ -166,23 +141,6 @@ return x_9;
 }
 }
 }
-obj* l_Lean_ConstantInfo_value___main___boxed(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_Lean_ConstantInfo_value___main(x_1);
-lean::dec(x_1);
-return x_2;
-}
-}
-obj* l_Lean_ConstantInfo_value(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_Lean_ConstantInfo_value___main(x_1);
-return x_2;
-}
-}
 obj* l_Lean_ConstantInfo_value___boxed(obj* x_1) {
 _start:
 {
@@ -192,7 +150,7 @@ lean::dec(x_1);
 return x_2;
 }
 }
-uint8 l_Lean_ConstantInfo_hasValue___main(obj* x_1) {
+uint8 l_Lean_ConstantInfo_hasValue(obj* x_1) {
 _start:
 {
 switch (lean::obj_tag(x_1)) {
@@ -217,24 +175,6 @@ return x_4;
 }
 }
 }
-obj* l_Lean_ConstantInfo_hasValue___main___boxed(obj* x_1) {
-_start:
-{
-uint8 x_2; obj* x_3; 
-x_2 = l_Lean_ConstantInfo_hasValue___main(x_1);
-lean::dec(x_1);
-x_3 = lean::box(x_2);
-return x_3;
-}
-}
-uint8 l_Lean_ConstantInfo_hasValue(obj* x_1) {
-_start:
-{
-uint8 x_2; 
-x_2 = l_Lean_ConstantInfo_hasValue___main(x_1);
-return x_2;
-}
-}
 obj* l_Lean_ConstantInfo_hasValue___boxed(obj* x_1) {
 _start:
 {
@@ -245,7 +185,7 @@ x_3 = lean::box(x_2);
 return x_3;
 }
 }
-obj* l_Lean_ConstantInfo_hints___main(obj* x_1) {
+obj* l_Lean_ConstantInfo_hints(obj* x_1) {
 _start:
 {
 if (lean::obj_tag(x_1) == 1)
@@ -262,23 +202,6 @@ obj* x_4;
 x_4 = lean::box(0);
 return x_4;
 }
-}
-}
-obj* l_Lean_ConstantInfo_hints___main___boxed(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_Lean_ConstantInfo_hints___main(x_1);
-lean::dec(x_1);
-return x_2;
-}
-}
-obj* l_Lean_ConstantInfo_hints(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_Lean_ConstantInfo_hints___main(x_1);
-return x_2;
 }
 }
 obj* l_Lean_ConstantInfo_hints___boxed(obj* x_1) {

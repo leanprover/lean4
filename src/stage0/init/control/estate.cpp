@@ -19,8 +19,6 @@ obj* l_EState_resultOk_mk___rarg(obj*, obj*);
 obj* l_EState_adaptState(obj*, obj*, obj*, obj*, obj*);
 obj* l_EState_HasRepr___rarg(obj*, obj*);
 obj* l_EState_Monad(obj*, obj*);
-obj* l_EState_Result_repr___main(obj*, obj*, obj*);
-obj* l_EState_Result_toString___main___rarg___closed__1;
 obj* l_EState_set(obj*, obj*);
 obj* l_EState_resultOk_mk(obj*, obj*, obj*);
 obj* l_EState_Monad___closed__6;
@@ -28,32 +26,30 @@ obj* l_EState_MonadState___closed__3;
 obj* l_EState_map___rarg(obj*, obj*, obj*);
 obj* l_EState_orelse(obj*, obj*, obj*);
 obj* l_EState_run_x27(obj*, obj*, obj*);
+obj* l_EState_Result_toString___rarg___closed__2;
 obj* l_EState_orelse_x27(obj*, obj*, obj*);
 obj* l_EState_unreachableError(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_EState_orelse_x27___rarg___boxed(obj*, obj*, obj*, obj*);
-obj* l_EState_Result_toString___main(obj*, obj*, obj*);
 obj* l_EState_run___rarg(obj*, obj*);
 obj* l_EState_MonadExcept___closed__2;
 obj* l_EState_adaptState___rarg(obj*, obj*, obj*, obj*);
-obj* l_EState_Result_toString___main___rarg(obj*, obj*, obj*);
 obj* l_EState_Monad___closed__5;
 obj* l_EState_throw___rarg(obj*, obj*);
 obj* l_EState_Result_toString(obj*, obj*, obj*);
 obj* l_EState_adaptExcept___rarg(obj*, obj*, obj*);
-obj* l_EState_Result_toString___main___rarg___closed__2;
+obj* l_EState_Result_toString___rarg___closed__1;
 obj* l_EState_bind(obj*, obj*, obj*, obj*);
+extern obj* l_Except_toString___rarg___closed__2;
 obj* l_EState_modify(obj*, obj*);
 obj* l_EState_unreachableError___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 namespace lean {
 obj* string_append(obj*, obj*);
 }
 obj* l_EState_Monad___closed__2;
-obj* l_EState_Result_repr___main___rarg(obj*, obj*, obj*);
 extern obj* l_Option_HasRepr___rarg___closed__3;
 obj* l_EState_HasOrelse___closed__1;
 obj* l_EState_pure(obj*, obj*, obj*);
 obj* l_EState_Monad___closed__4;
-extern obj* l_Except_toString___main___rarg___closed__2;
 obj* l_EState_HasOrelse(obj*, obj*, obj*);
 obj* l_EState_Monad___lambda__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_EState_MonadExcept___closed__3;
@@ -70,7 +66,6 @@ obj* l_EState_Monad___closed__9;
 obj* l_EState_bind___rarg(obj*, obj*, obj*);
 obj* l_EState_Monad___lambda__3(obj*, obj*, obj*, obj*, obj*);
 obj* l_EState_Monad___closed__8;
-extern obj* l_Except_toString___main___rarg___closed__1;
 obj* l_EState_run_x27___rarg(obj*, obj*);
 obj* l_EState_Result_repr___rarg(obj*, obj*, obj*);
 obj* l_EState_orelse___rarg(obj*, obj*, obj*);
@@ -93,6 +88,7 @@ obj* l_EState_Result_repr(obj*, obj*, obj*);
 obj* l_EState_run(obj*, obj*, obj*);
 obj* l_EState_set___rarg(obj*, obj*);
 obj* l_EState_Inhabited___rarg(obj*, obj*);
+extern obj* l_Except_toString___rarg___closed__1;
 obj* l_EState_throw(obj*, obj*, obj*);
 obj* l_EState_get___rarg(obj*);
 obj* l_EState_Result_toString___rarg(obj*, obj*, obj*);
@@ -130,7 +126,7 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_resultOk_mk___rarg), 
 return x_4;
 }
 }
-obj* _init_l_EState_Result_toString___main___rarg___closed__1() {
+obj* _init_l_EState_Result_toString___rarg___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -138,7 +134,7 @@ x_1 = lean::mk_string("ok: ");
 return x_1;
 }
 }
-obj* _init_l_EState_Result_toString___main___rarg___closed__2() {
+obj* _init_l_EState_Result_toString___rarg___closed__2() {
 _start:
 {
 obj* x_1; 
@@ -146,7 +142,7 @@ x_1 = lean::mk_string("error: ");
 return x_1;
 }
 }
-obj* l_EState_Result_toString___main___rarg(obj* x_1, obj* x_2, obj* x_3) {
+obj* l_EState_Result_toString___rarg(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 if (lean::obj_tag(x_3) == 0)
@@ -157,7 +153,7 @@ x_4 = lean::cnstr_get(x_3, 0);
 lean::inc(x_4);
 lean::dec(x_3);
 x_5 = lean::apply_1(x_2, x_4);
-x_6 = l_EState_Result_toString___main___rarg___closed__1;
+x_6 = l_EState_Result_toString___rarg___closed__1;
 x_7 = lean::string_append(x_6, x_5);
 lean::dec(x_5);
 return x_7;
@@ -170,27 +166,11 @@ x_8 = lean::cnstr_get(x_3, 0);
 lean::inc(x_8);
 lean::dec(x_3);
 x_9 = lean::apply_1(x_1, x_8);
-x_10 = l_EState_Result_toString___main___rarg___closed__2;
+x_10 = l_EState_Result_toString___rarg___closed__2;
 x_11 = lean::string_append(x_10, x_9);
 lean::dec(x_9);
 return x_11;
 }
-}
-}
-obj* l_EState_Result_toString___main(obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-obj* x_4; 
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_Result_toString___main___rarg), 3, 0);
-return x_4;
-}
-}
-obj* l_EState_Result_toString___rarg(obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-obj* x_4; 
-x_4 = l_EState_Result_toString___main___rarg(x_1, x_2, x_3);
-return x_4;
 }
 }
 obj* l_EState_Result_toString(obj* x_1, obj* x_2, obj* x_3) {
@@ -201,7 +181,7 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_Result_toString___rar
 return x_4;
 }
 }
-obj* l_EState_Result_repr___main___rarg(obj* x_1, obj* x_2, obj* x_3) {
+obj* l_EState_Result_repr___rarg(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 if (lean::obj_tag(x_3) == 0)
@@ -212,7 +192,7 @@ x_4 = lean::cnstr_get(x_3, 0);
 lean::inc(x_4);
 lean::dec(x_3);
 x_5 = lean::apply_1(x_2, x_4);
-x_6 = l_Except_toString___main___rarg___closed__2;
+x_6 = l_Except_toString___rarg___closed__2;
 x_7 = lean::string_append(x_6, x_5);
 lean::dec(x_5);
 x_8 = l_Option_HasRepr___rarg___closed__3;
@@ -227,29 +207,13 @@ x_10 = lean::cnstr_get(x_3, 0);
 lean::inc(x_10);
 lean::dec(x_3);
 x_11 = lean::apply_1(x_1, x_10);
-x_12 = l_Except_toString___main___rarg___closed__1;
+x_12 = l_Except_toString___rarg___closed__1;
 x_13 = lean::string_append(x_12, x_11);
 lean::dec(x_11);
 x_14 = l_Option_HasRepr___rarg___closed__3;
 x_15 = lean::string_append(x_13, x_14);
 return x_15;
 }
-}
-}
-obj* l_EState_Result_repr___main(obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-obj* x_4; 
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_Result_repr___main___rarg), 3, 0);
-return x_4;
-}
-}
-obj* l_EState_Result_repr___rarg(obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-obj* x_4; 
-x_4 = l_EState_Result_repr___main___rarg(x_1, x_2, x_3);
-return x_4;
 }
 }
 obj* l_EState_Result_repr(obj* x_1, obj* x_2, obj* x_3) {
@@ -1843,10 +1807,10 @@ w = initialize_init_control_state(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_control_except(w);
 if (io_result_is_error(w)) return w;
-l_EState_Result_toString___main___rarg___closed__1 = _init_l_EState_Result_toString___main___rarg___closed__1();
-lean::mark_persistent(l_EState_Result_toString___main___rarg___closed__1);
-l_EState_Result_toString___main___rarg___closed__2 = _init_l_EState_Result_toString___main___rarg___closed__2();
-lean::mark_persistent(l_EState_Result_toString___main___rarg___closed__2);
+l_EState_Result_toString___rarg___closed__1 = _init_l_EState_Result_toString___rarg___closed__1();
+lean::mark_persistent(l_EState_Result_toString___rarg___closed__1);
+l_EState_Result_toString___rarg___closed__2 = _init_l_EState_Result_toString___rarg___closed__2();
+lean::mark_persistent(l_EState_Result_toString___rarg___closed__2);
 l_EState_Monad___closed__1 = _init_l_EState_Monad___closed__1();
 lean::mark_persistent(l_EState_Monad___closed__1);
 l_EState_Monad___closed__2 = _init_l_EState_Monad___closed__2();

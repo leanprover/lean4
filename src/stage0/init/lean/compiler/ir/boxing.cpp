@@ -24,8 +24,9 @@ extern obj* l_Array_empty___closed__1;
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
+uint8 l_Lean_IR_IRType_beq(uint8, uint8);
+obj* l_Lean_IR_MaxIndex_collectDecl(obj*, obj*);
 obj* l_Array_anyMAux___main___at_Lean_IR_ExplicitBoxing_requiresBoxedVersion___spec__1___boxed(obj*, obj*, obj*);
-uint8 l_Lean_IR_IRType_beq___main(uint8, uint8);
 obj* l_Lean_IR_ExplicitBoxing_getResultType(obj*, obj*);
 obj* l_Lean_IR_LocalContext_addLocal(obj*, obj*, uint8, obj*);
 obj* l_Lean_IR_ExplicitBoxing_withJDecl(obj*);
@@ -33,20 +34,18 @@ uint8 l_Array_anyMAux___main___at_Lean_IR_ExplicitBoxing_getScrutineeType___spec
 obj* l_Lean_IR_explicitBoxing___boxed(obj*, obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_IR_ExplicitBoxing_visitFnBody___main___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_mkBoxedName(obj*);
-uint8 l_Lean_IR_Decl_resultType___main(obj*);
 obj* l_Nat_mfoldAux___main___at_Lean_IR_ExplicitBoxing_mkBoxedVersionAux___spec__2___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_unboxResultIfNeeded(obj*, uint8, obj*, obj*, obj*, obj*);
 obj* l_Nat_mfoldAux___main___at_Lean_IR_ExplicitBoxing_mkBoxedVersionAux___spec__2(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_getScrutineeType___boxed(obj*);
 obj* l_Lean_IR_ExplicitBoxing_mkBoxedVersionAux___closed__1;
-uint8 l_Lean_IR_ExplicitBoxing_isBoxedName___main(obj*);
 uint8 l_Lean_IR_ExplicitBoxing_isBoxedName(obj*);
 obj* l_Lean_IR_ExplicitBoxing_run(obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_mkBoxedVersion___boxed(obj*);
 obj* l_Lean_IR_ExplicitBoxing_withParams___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_addBoxedVersions___boxed(obj*, obj*);
-obj* l_Lean_IR_MaxIndex_collectDecl___main(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_ExplicitBoxing_castArgsIfNeeded___spec__2(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+uint8 l_Lean_IR_Decl_resultType(obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_ExplicitBoxing_visitVDeclExpr___spec__2(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_castArgIfNeeded___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_withVDecl(obj*);
@@ -79,7 +78,6 @@ uint8 l_Lean_IR_ExplicitBoxing_eqvTypes(uint8, uint8);
 obj* l_Array_fget(obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_getVarType(obj*, obj*, obj*);
 extern "C" obj* lean_name_mk_string(obj*, obj*);
-obj* l_Lean_IR_Decl_name___main(obj*);
 obj* l_Lean_IR_ExplicitBoxing_mkBoxedVersionAux(obj*, obj*);
 obj* l_Array_anyMAux___main___at_Lean_IR_ExplicitBoxing_getScrutineeType___spec__1___boxed(obj*, obj*);
 namespace lean {
@@ -92,7 +90,6 @@ uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_Lean_IR_ExplicitBoxing_withVDecl___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 extern obj* l_Lean_IR_paramInh;
-obj* l_Lean_IR_ExplicitBoxing_isBoxedName___main___boxed(obj*);
 obj* l_Array_push(obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___at_Lean_IR_ExplicitBoxing_visitFnBody___main___spec__2(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_LocalContext_getType(obj*, obj*);
@@ -107,19 +104,20 @@ obj* l_Lean_IR_LocalContext_getJPParams(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_ExplicitBoxing_boxArgsIfNeeded___spec__2___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___at_Lean_IR_ExplicitBoxing_visitFnBody___main___spec__2___boxed(obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_ExplicitBoxing_visitFnBody___main___spec__3___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_IR_Decl_params(obj*);
 obj* l_Lean_IR_ExplicitBoxing_castResultIfNeeded___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_getJPParams___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_getLocalContext(obj*, obj*);
 extern obj* l_Lean_closureMaxArgs;
 obj* l_Lean_IR_ExplicitBoxing_isBoxedName___boxed(obj*);
+obj* l_Lean_IR_Decl_name(obj*);
 obj* l_Lean_IR_ExplicitBoxing_mkFresh(obj*);
 obj* l_Lean_PersistentEnvExtension_addEntry___rarg(obj*, obj*, obj*);
 uint8 l_Lean_IR_ExplicitBoxing_requiresBoxedVersion(obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__1;
 obj* l_Lean_IR_getEnv___rarg(obj*);
 obj* l_Lean_IR_ExplicitBoxing_visitVDeclExpr(obj*, uint8, obj*, obj*, obj*, obj*);
-obj* l_Lean_IR_Decl_params___main(obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_castArgsIfNeeded(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___spec__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -130,6 +128,7 @@ obj* l_Array_fset(obj*, obj*, obj*, obj*);
 obj* l_Array_get(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_mkBoxedVersion(obj*);
 obj* l_Lean_IR_ExplicitBoxing_getEnv(obj*, obj*);
+uint8 l_Lean_IR_IRType_isScalar(uint8);
 obj* l_Lean_IR_ExplicitBoxing_getVarType___boxed(obj*, obj*, obj*);
 extern obj* l_Lean_IR_Decl_Inhabited___closed__1;
 obj* l_Lean_IR_ExplicitBoxing_getDecl___boxed(obj*, obj*, obj*);
@@ -158,7 +157,6 @@ obj* l_Lean_IR_ExplicitBoxing_castArgIfNeeded(obj*, uint8, obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_withVDecl___rarg(obj*, uint8, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_mkCast(obj*, uint8);
 obj* l_Lean_IR_ExplicitBoxing_withParams___rarg___boxed(obj*, obj*, obj*, obj*);
-uint8 l_Lean_IR_IRType_isScalar___main(uint8);
 obj* _init_l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__1() {
 _start:
 {
@@ -176,7 +174,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-uint8 l_Lean_IR_ExplicitBoxing_isBoxedName___main(obj* x_1) {
+uint8 l_Lean_IR_ExplicitBoxing_isBoxedName(obj* x_1) {
 _start:
 {
 if (lean::obj_tag(x_1) == 1)
@@ -204,24 +202,6 @@ uint8 x_7;
 x_7 = 0;
 return x_7;
 }
-}
-}
-obj* l_Lean_IR_ExplicitBoxing_isBoxedName___main___boxed(obj* x_1) {
-_start:
-{
-uint8 x_2; obj* x_3; 
-x_2 = l_Lean_IR_ExplicitBoxing_isBoxedName___main(x_1);
-lean::dec(x_1);
-x_3 = lean::box(x_2);
-return x_3;
-}
-}
-uint8 l_Lean_IR_ExplicitBoxing_isBoxedName(obj* x_1) {
-_start:
-{
-uint8 x_2; 
-x_2 = l_Lean_IR_ExplicitBoxing_isBoxedName___main(x_1);
-return x_2;
 }
 }
 obj* l_Lean_IR_ExplicitBoxing_isBoxedName___boxed(obj* x_1) {
@@ -265,7 +245,7 @@ else
 obj* x_7; uint8 x_8; uint8 x_9; 
 x_7 = lean::array_fget(x_2, x_3);
 x_8 = lean::cnstr_get_scalar<uint8>(x_7, sizeof(void*)*1 + 1);
-x_9 = l_Lean_IR_IRType_isScalar___main(x_8);
+x_9 = l_Lean_IR_IRType_isScalar(x_8);
 if (x_9 == 0)
 {
 uint8 x_10; 
@@ -311,7 +291,7 @@ uint8 l_Lean_IR_ExplicitBoxing_requiresBoxedVersion(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; obj* x_5; uint8 x_6; 
-x_3 = l_Lean_IR_Decl_params___main(x_2);
+x_3 = l_Lean_IR_Decl_params(x_2);
 x_4 = lean::array_get_size(x_3);
 x_5 = lean::mk_nat_obj(0u);
 x_6 = lean::nat_dec_lt(x_5, x_4);
@@ -327,8 +307,8 @@ return x_8;
 else
 {
 uint8 x_9; uint8 x_10; 
-x_9 = l_Lean_IR_Decl_resultType___main(x_2);
-x_10 = l_Lean_IR_IRType_isScalar___main(x_9);
+x_9 = l_Lean_IR_Decl_resultType(x_2);
+x_10 = l_Lean_IR_IRType_isScalar(x_9);
 if (x_10 == 0)
 {
 uint8 x_11; 
@@ -337,7 +317,7 @@ lean::dec(x_3);
 if (x_11 == 0)
 {
 obj* x_12; uint8 x_13; 
-x_12 = l_Lean_IR_Decl_name___main(x_2);
+x_12 = l_Lean_IR_Decl_name(x_2);
 x_13 = l_Lean_isExtern(x_1, x_12);
 if (x_13 == 0)
 {
@@ -474,7 +454,7 @@ x_18 = lean::array_get(x_16, x_2, x_12);
 lean::dec(x_12);
 x_19 = lean::cnstr_get_scalar<uint8>(x_17, sizeof(void*)*1 + 1);
 lean::dec(x_17);
-x_20 = l_Lean_IR_IRType_isScalar___main(x_19);
+x_20 = l_Lean_IR_IRType_isScalar(x_19);
 if (x_20 == 0)
 {
 obj* x_21; obj* x_22; obj* x_23; 
@@ -570,7 +550,7 @@ x_52 = lean::array_get(x_50, x_2, x_12);
 lean::dec(x_12);
 x_53 = lean::cnstr_get_scalar<uint8>(x_51, sizeof(void*)*1 + 1);
 lean::dec(x_51);
-x_54 = l_Lean_IR_IRType_isScalar___main(x_53);
+x_54 = l_Lean_IR_IRType_isScalar(x_53);
 if (x_54 == 0)
 {
 obj* x_55; obj* x_56; obj* x_57; obj* x_58; 
@@ -659,7 +639,7 @@ obj* l_Lean_IR_ExplicitBoxing_mkBoxedVersionAux(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; uint8 x_16; 
-x_3 = l_Lean_IR_Decl_params___main(x_1);
+x_3 = l_Lean_IR_Decl_params(x_1);
 x_4 = lean::mk_nat_obj(0u);
 lean::inc(x_3);
 x_5 = l_Array_ummapAux___main___at_Lean_IR_ExplicitBoxing_mkBoxedVersionAux___spec__1(x_4, x_3, x_2);
@@ -691,8 +671,8 @@ if (x_16 == 0)
 obj* x_17; obj* x_18; uint8 x_19; obj* x_20; obj* x_21; obj* x_22; obj* x_23; obj* x_24; uint8 x_25; 
 x_17 = lean::cnstr_get(x_15, 0);
 x_18 = lean::cnstr_get(x_15, 1);
-x_19 = l_Lean_IR_Decl_resultType___main(x_1);
-x_20 = l_Lean_IR_Decl_name___main(x_1);
+x_19 = l_Lean_IR_Decl_resultType(x_1);
+x_20 = l_Lean_IR_Decl_name(x_1);
 lean::inc(x_20);
 x_21 = lean::alloc_cnstr(6, 2, 0);
 lean::cnstr_set(x_21, 0, x_20);
@@ -705,7 +685,7 @@ lean::cnstr_set(x_23, 1, x_21);
 lean::cnstr_set(x_23, 2, x_22);
 lean::cnstr_set_scalar(x_23, sizeof(void*)*3, x_19);
 x_24 = lean::array_push(x_13, x_23);
-x_25 = l_Lean_IR_IRType_isScalar___main(x_19);
+x_25 = l_Lean_IR_IRType_isScalar(x_19);
 if (x_25 == 0)
 {
 obj* x_26; obj* x_27; obj* x_28; obj* x_29; obj* x_30; uint8 x_31; obj* x_32; 
@@ -807,8 +787,8 @@ x_60 = lean::cnstr_get(x_15, 1);
 lean::inc(x_60);
 lean::inc(x_59);
 lean::dec(x_15);
-x_61 = l_Lean_IR_Decl_resultType___main(x_1);
-x_62 = l_Lean_IR_Decl_name___main(x_1);
+x_61 = l_Lean_IR_Decl_resultType(x_1);
+x_62 = l_Lean_IR_Decl_name(x_1);
 lean::inc(x_62);
 x_63 = lean::alloc_cnstr(6, 2, 0);
 lean::cnstr_set(x_63, 0, x_62);
@@ -821,7 +801,7 @@ lean::cnstr_set(x_65, 1, x_63);
 lean::cnstr_set(x_65, 2, x_64);
 lean::cnstr_set_scalar(x_65, sizeof(void*)*3, x_61);
 x_66 = lean::array_push(x_13, x_65);
-x_67 = l_Lean_IR_IRType_isScalar___main(x_61);
+x_67 = l_Lean_IR_IRType_isScalar(x_61);
 if (x_67 == 0)
 {
 obj* x_68; obj* x_69; obj* x_70; obj* x_71; obj* x_72; uint8 x_73; obj* x_74; obj* x_75; 
@@ -1088,48 +1068,80 @@ return x_13;
 uint8 l_Lean_IR_ExplicitBoxing_getScrutineeType(obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; uint8 x_4; 
+obj* x_2; obj* x_3; uint8 x_4; uint8 x_5; 
 x_2 = lean::array_get_size(x_1);
 x_3 = lean::mk_nat_obj(1u);
 x_4 = lean::nat_dec_lt(x_3, x_2);
 if (x_4 == 0)
 {
-uint8 x_5; 
-lean::dec(x_2);
-x_5 = 7;
-return x_5;
+uint8 x_18; 
+x_18 = 0;
+x_5 = x_18;
+goto block_17;
 }
 else
 {
-obj* x_6; uint8 x_7; 
-x_6 = lean::mk_nat_obj(0u);
-x_7 = l_Array_anyMAux___main___at_Lean_IR_ExplicitBoxing_getScrutineeType___spec__1(x_1, x_6);
-if (x_7 == 0)
+obj* x_19; uint8 x_20; 
+x_19 = lean::mk_nat_obj(0u);
+x_20 = l_Array_anyMAux___main___at_Lean_IR_ExplicitBoxing_getScrutineeType___spec__1(x_1, x_19);
+if (x_20 == 0)
 {
-obj* x_8; uint8 x_9; 
-x_8 = lean::mk_nat_obj(256u);
-x_9 = lean::nat_dec_lt(x_2, x_8);
-if (x_9 == 0)
+uint8 x_21; 
+x_21 = 1;
+x_5 = x_21;
+goto block_17;
+}
+else
 {
-obj* x_10; uint8 x_11; 
-x_10 = lean::mk_nat_obj(65536u);
-x_11 = lean::nat_dec_lt(x_2, x_10);
-if (x_11 == 0)
+uint8 x_22; 
+x_22 = 0;
+x_5 = x_22;
+goto block_17;
+}
+}
+block_17:
 {
-obj* x_12; uint8 x_13; 
-x_12 = lean::mk_nat_obj(lean::mpz("4294967296"));
-x_13 = lean::nat_dec_lt(x_2, x_12);
+if (x_5 == 0)
+{
+uint8 x_6; 
 lean::dec(x_2);
-if (x_13 == 0)
+x_6 = 7;
+return x_6;
+}
+else
+{
+obj* x_7; uint8 x_8; 
+x_7 = lean::mk_nat_obj(256u);
+x_8 = lean::nat_dec_lt(x_2, x_7);
+if (x_8 == 0)
+{
+obj* x_9; uint8 x_10; 
+x_9 = lean::mk_nat_obj(65536u);
+x_10 = lean::nat_dec_lt(x_2, x_9);
+if (x_10 == 0)
+{
+obj* x_11; uint8 x_12; 
+x_11 = lean::mk_nat_obj(lean::mpz("4294967296"));
+x_12 = lean::nat_dec_lt(x_2, x_11);
+lean::dec(x_2);
+if (x_12 == 0)
+{
+uint8 x_13; 
+x_13 = 7;
+return x_13;
+}
+else
 {
 uint8 x_14; 
-x_14 = 7;
+x_14 = 3;
 return x_14;
+}
 }
 else
 {
 uint8 x_15; 
-x_15 = 3;
+lean::dec(x_2);
+x_15 = 2;
 return x_15;
 }
 }
@@ -1137,24 +1149,9 @@ else
 {
 uint8 x_16; 
 lean::dec(x_2);
-x_16 = 2;
+x_16 = 1;
 return x_16;
 }
-}
-else
-{
-uint8 x_17; 
-lean::dec(x_2);
-x_17 = 1;
-return x_17;
-}
-}
-else
-{
-uint8 x_18; 
-lean::dec(x_2);
-x_18 = 7;
-return x_18;
 }
 }
 }
@@ -1183,8 +1180,8 @@ uint8 l_Lean_IR_ExplicitBoxing_eqvTypes(uint8 x_1, uint8 x_2) {
 _start:
 {
 uint8 x_3; uint8 x_4; uint8 x_5; 
-x_3 = l_Lean_IR_IRType_isScalar___main(x_1);
-x_4 = l_Lean_IR_IRType_isScalar___main(x_2);
+x_3 = l_Lean_IR_IRType_isScalar(x_1);
+x_4 = l_Lean_IR_IRType_isScalar(x_2);
 if (x_3 == 0)
 {
 if (x_4 == 0)
@@ -1236,7 +1233,7 @@ return x_5;
 else
 {
 uint8 x_7; 
-x_7 = l_Lean_IR_IRType_beq___main(x_1, x_2);
+x_7 = l_Lean_IR_IRType_beq(x_1, x_2);
 return x_7;
 }
 }
@@ -1690,7 +1687,7 @@ obj* l_Lean_IR_ExplicitBoxing_mkCast(obj* x_1, uint8 x_2) {
 _start:
 {
 uint8 x_3; 
-x_3 = l_Lean_IR_IRType_isScalar___main(x_2);
+x_3 = l_Lean_IR_IRType_isScalar(x_2);
 if (x_3 == 0)
 {
 obj* x_4; 
@@ -3002,7 +2999,7 @@ obj* l_Lean_IR_ExplicitBoxing_unboxResultIfNeeded(obj* x_1, uint8 x_2, obj* x_3,
 _start:
 {
 uint8 x_7; 
-x_7 = l_Lean_IR_IRType_isScalar___main(x_2);
+x_7 = l_Lean_IR_IRType_isScalar(x_2);
 if (x_7 == 0)
 {
 obj* x_8; obj* x_9; 
@@ -3525,7 +3522,7 @@ return x_23;
 else
 {
 uint8 x_24; 
-x_24 = l_Lean_IR_IRType_isScalar___main(x_2);
+x_24 = l_Lean_IR_IRType_isScalar(x_2);
 if (x_24 == 0)
 {
 obj* x_25; obj* x_26; obj* x_27; uint8 x_28; 
@@ -3650,7 +3647,7 @@ return x_55;
 else
 {
 uint8 x_56; 
-x_56 = l_Lean_IR_IRType_isScalar___main(x_2);
+x_56 = l_Lean_IR_IRType_isScalar(x_2);
 if (x_56 == 0)
 {
 obj* x_57; obj* x_58; obj* x_59; obj* x_60; obj* x_61; obj* x_62; obj* x_63; obj* x_64; obj* x_65; obj* x_66; 
@@ -3834,7 +3831,7 @@ lean::inc(x_105);
 x_106 = lean::cnstr_get(x_104, 1);
 lean::inc(x_106);
 lean::dec(x_104);
-x_107 = l_Lean_IR_Decl_params___main(x_105);
+x_107 = l_Lean_IR_Decl_params(x_105);
 x_108 = l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___at_Lean_IR_ExplicitBoxing_visitVDeclExpr___spec__1(x_107, x_103, x_5, x_106);
 lean::dec(x_103);
 lean::dec(x_107);
@@ -3849,7 +3846,7 @@ x_112 = lean::cnstr_get(x_109, 1);
 lean::inc(x_112);
 lean::dec(x_109);
 lean::cnstr_set(x_3, 1, x_111);
-x_113 = l_Lean_IR_Decl_resultType___main(x_105);
+x_113 = l_Lean_IR_Decl_resultType(x_105);
 lean::dec(x_105);
 x_114 = l_Lean_IR_ExplicitBoxing_castResultIfNeeded(x_1, x_2, x_3, x_113, x_4, x_5, x_110);
 x_115 = !lean::is_exclusive(x_114);
@@ -3890,7 +3887,7 @@ lean::inc(x_125);
 x_126 = lean::cnstr_get(x_124, 1);
 lean::inc(x_126);
 lean::dec(x_124);
-x_127 = l_Lean_IR_Decl_params___main(x_125);
+x_127 = l_Lean_IR_Decl_params(x_125);
 x_128 = l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___at_Lean_IR_ExplicitBoxing_visitVDeclExpr___spec__1(x_127, x_123, x_5, x_126);
 lean::dec(x_123);
 lean::dec(x_127);
@@ -3907,7 +3904,7 @@ lean::dec(x_129);
 x_133 = lean::alloc_cnstr(6, 2, 0);
 lean::cnstr_set(x_133, 0, x_122);
 lean::cnstr_set(x_133, 1, x_131);
-x_134 = l_Lean_IR_Decl_resultType___main(x_125);
+x_134 = l_Lean_IR_Decl_resultType(x_125);
 lean::dec(x_125);
 x_135 = l_Lean_IR_ExplicitBoxing_castResultIfNeeded(x_1, x_2, x_133, x_134, x_4, x_5, x_130);
 x_136 = lean::cnstr_get(x_135, 0);
@@ -6302,7 +6299,7 @@ x_19 = lean::cnstr_get(x_10, 2);
 lean::inc(x_19);
 x_20 = lean::mk_nat_obj(0u);
 lean::inc(x_10);
-x_21 = l_Lean_IR_MaxIndex_collectDecl___main(x_10, x_20);
+x_21 = l_Lean_IR_MaxIndex_collectDecl(x_10, x_20);
 x_22 = lean::nat_add(x_21, x_14);
 lean::dec(x_21);
 lean::inc(x_3);

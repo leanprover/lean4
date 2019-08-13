@@ -16,7 +16,6 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #endif
 uint8 l_Lean_Position_lt(obj*, obj*);
 extern obj* l_Nat_Inhabited;
-obj* l_Lean_FileMap_toPosition___main(obj*, obj*);
 extern obj* l_Array_empty___closed__1;
 namespace lean {
 obj* nat_sub(obj*, obj*);
@@ -33,10 +32,8 @@ obj* l_Lean_Position_Lean_HasFormat___closed__1;
 obj* l_Lean_FileMap_Inhabited;
 obj* l___private_init_lean_position_3__toPositionAux(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_position_2__toColumnAux___main___boxed(obj*, obj*, obj*, obj*);
-obj* l_Lean_FileMap_toPosition___main___boxed(obj*, obj*);
 obj* l_Lean_Position_Inhabited;
 obj* l_Lean_Position_lt___boxed(obj*, obj*);
-obj* l_Lean_Position_lt___main___boxed(obj*, obj*);
 obj* l_Nat_repr(obj*);
 namespace lean {
 obj* string_append(obj*, obj*);
@@ -50,7 +47,6 @@ uint8 string_utf8_at_end(obj*, obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
-obj* l_Lean_Position_lt___main___closed__1;
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
@@ -70,7 +66,6 @@ extern obj* l_Sigma_HasRepr___rarg___closed__2;
 obj* l_Lean_Position_Inhabited___closed__1;
 obj* l_Nat_decLt___boxed(obj*, obj*);
 extern obj* l_Lean_formatKVMap___closed__1;
-uint8 l_Lean_Position_lt___main(obj*, obj*);
 obj* l___private_init_lean_position_1__ofStringAux(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Lean_FileMap_ofString___closed__1;
@@ -84,6 +79,7 @@ namespace lean {
 obj* nat_div(obj*, obj*);
 }
 extern obj* l_Nat_DecidableEq___closed__1;
+obj* l_Lean_Position_lt___closed__1;
 obj* l_Lean_FileMap_toPosition(obj*, obj*);
 obj* l___private_init_lean_position_3__toPositionAux___main___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_FileMap_ofString(obj*);
@@ -135,7 +131,7 @@ x_4 = lean::box(x_3);
 return x_4;
 }
 }
-obj* _init_l_Lean_Position_lt___main___closed__1() {
+obj* _init_l_Lean_Position_lt___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -143,7 +139,7 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_decLt___boxed), 2, 0);
 return x_1;
 }
 }
-uint8 l_Lean_Position_lt___main(obj* x_1, obj* x_2) {
+uint8 l_Lean_Position_lt(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; uint8 x_11; 
@@ -162,28 +158,9 @@ x_8 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_8, 0, x_5);
 lean::cnstr_set(x_8, 1, x_6);
 x_9 = l_Nat_DecidableEq___closed__1;
-x_10 = l_Lean_Position_lt___main___closed__1;
+x_10 = l_Lean_Position_lt___closed__1;
 x_11 = l_prodHasDecidableLt___rarg(x_9, x_9, x_10, x_10, x_7, x_8);
 return x_11;
-}
-}
-obj* l_Lean_Position_lt___main___boxed(obj* x_1, obj* x_2) {
-_start:
-{
-uint8 x_3; obj* x_4; 
-x_3 = l_Lean_Position_lt___main(x_1, x_2);
-lean::dec(x_2);
-lean::dec(x_1);
-x_4 = lean::box(x_3);
-return x_4;
-}
-}
-uint8 l_Lean_Position_lt(obj* x_1, obj* x_2) {
-_start:
-{
-uint8 x_3; 
-x_3 = l_Lean_Position_lt___main(x_1, x_2);
-return x_3;
 }
 }
 obj* l_Lean_Position_lt___boxed(obj* x_1, obj* x_2) {
@@ -576,7 +553,7 @@ lean::dec(x_1);
 return x_7;
 }
 }
-obj* l_Lean_FileMap_toPosition___main(obj* x_1, obj* x_2) {
+obj* l_Lean_FileMap_toPosition(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
@@ -590,24 +567,6 @@ lean::dec(x_6);
 x_9 = lean::mk_nat_obj(0u);
 x_10 = l___private_init_lean_position_3__toPositionAux___main(x_3, x_4, x_5, x_2, x_9, x_8);
 return x_10;
-}
-}
-obj* l_Lean_FileMap_toPosition___main___boxed(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_Lean_FileMap_toPosition___main(x_1, x_2);
-lean::dec(x_2);
-lean::dec(x_1);
-return x_3;
-}
-}
-obj* l_Lean_FileMap_toPosition(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_Lean_FileMap_toPosition___main(x_1, x_2);
-return x_3;
 }
 }
 obj* l_Lean_FileMap_toPosition___boxed(obj* x_1, obj* x_2) {
@@ -642,8 +601,8 @@ w = initialize_init_data_rbmap_default(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_format(w);
 if (io_result_is_error(w)) return w;
-l_Lean_Position_lt___main___closed__1 = _init_l_Lean_Position_lt___main___closed__1();
-lean::mark_persistent(l_Lean_Position_lt___main___closed__1);
+l_Lean_Position_lt___closed__1 = _init_l_Lean_Position_lt___closed__1();
+lean::mark_persistent(l_Lean_Position_lt___closed__1);
 l_Lean_Position_Lean_HasFormat___closed__1 = _init_l_Lean_Position_Lean_HasFormat___closed__1();
 lean::mark_persistent(l_Lean_Position_Lean_HasFormat___closed__1);
 l_Lean_Position_Lean_HasFormat___closed__2 = _init_l_Lean_Position_Lean_HasFormat___closed__2();

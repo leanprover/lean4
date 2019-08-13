@@ -20,7 +20,6 @@ obj* l_PersistentHashMap_find(obj*, obj*);
 obj* l_PersistentHashMap_mfoldlAux___main___at_PersistentHashMap_foldl___spec__2___rarg(obj*, obj*, obj*);
 obj* l_PersistentHashMap_mul2Shift___boxed(obj*, obj*);
 usize l_USize_mul(usize, usize);
-obj* l_PersistentHashMap_find___main___rarg___boxed(obj*, obj*, obj*, obj*);
 uint8 l_PersistentHashMap_containsAtAux___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_PersistentHashMap_foldl___spec__4(obj*, obj*, obj*);
 obj* l_PersistentHashMap_mfoldl___at_PersistentHashMap_toList___spec__1___rarg___boxed(obj*, obj*);
@@ -36,7 +35,6 @@ obj* l_PersistentHashMap_findAux___main___rarg(obj*, obj*, usize, obj*);
 obj* l_Array_mkArray(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_PersistentHashMap_collectStats___main___spec__1(obj*, obj*);
 obj* l_PersistentHashMap_isUnaryEntries___rarg___boxed(obj*, obj*, obj*);
-obj* l_PersistentHashMap_insert___main(obj*, obj*);
 obj* l_PersistentHashMap_isUnaryEntries(obj*, obj*);
 usize l_USize_shift__right(usize, usize);
 obj* l_PersistentHashMap_contains(obj*, obj*);
@@ -55,14 +53,11 @@ usize l_USize_sub(usize, usize);
 obj* l_PersistentHashMap_Stats_toString(obj*);
 obj* l_PersistentHashMap_mfoldl___at_PersistentHashMap_foldl___spec__1___rarg___boxed(obj*, obj*, obj*);
 obj* l_PersistentHashMap_insertAtCollisionNodeAux(obj*, obj*);
-obj* l_PersistentHashMap_isUnaryNode___main___rarg(obj*);
 obj* l_PersistentHashMap_toList___rarg___boxed(obj*);
 obj* l_PersistentHashMap_findAtAux___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_mkCollisionNode___rarg___closed__1;
-obj* l_PersistentHashMap_insert___main___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_mfoldlAux___main___at_PersistentHashMap_toList___spec__2___rarg(obj*, obj*);
 obj* l_PersistentHashMap_isUnaryEntries___rarg(obj*, obj*, obj*);
-obj* l_PersistentHashMap_getCollisionNodeSize___main(obj*, obj*);
 obj* l_PersistentHashMap_mfoldlAux___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_PersistentHashMap_mfoldlAux___main___spec__1___boxed(obj*, obj*, obj*);
 obj* l_PersistentHashMap_containsAtAux___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -72,7 +67,6 @@ obj* l_PersistentHashMap_getCollisionNodeSize(obj*, obj*);
 obj* l_PersistentHashMap_findAtAux(obj*, obj*);
 obj* l_PersistentHashMap_getCollisionNodeSize___rarg(obj*);
 obj* l_Array_miterateAux___main___at_PersistentHashMap_insertAux___main___spec__1___rarg(obj*, obj*, usize, obj*, obj*, obj*, obj*, obj*);
-obj* l_PersistentHashMap_contains___main___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_containsAux(obj*, obj*);
 usize l_PersistentHashMap_mod2Shift(usize, usize);
 obj* l_Array_mkEmpty(obj*, obj*);
@@ -85,7 +79,6 @@ obj* l_Array_miterateAux___main___at_PersistentHashMap_foldl___spec__3___rarg___
 obj* l_PersistentHashMap_containsAux___main___rarg(obj*, obj*, usize, obj*);
 obj* l_Array_miterateAux___main___at_PersistentHashMap_toList___spec__4___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_collectStats___main___rarg___boxed(obj*, obj*, obj*);
-obj* l_PersistentHashMap_find___main(obj*, obj*);
 obj* l_PersistentHashMap_toList___rarg(obj*);
 obj* l_Nat_repr(obj*);
 obj* l_PersistentHashMap_mkCollisionNode___rarg(obj*, obj*, obj*, obj*);
@@ -149,9 +142,7 @@ usize l_PersistentHashMap_insertAux___main___rarg___closed__2;
 obj* l_PersistentHashMap_mfoldlAux___main___at_PersistentHashMap_foldl___spec__2___rarg___boxed(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_PersistentHashMap_mfoldlAux___main___spec__2___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_stats(obj*, obj*);
-obj* l_PersistentHashMap_isUnaryNode___main(obj*, obj*);
 obj* l_PersistentHashMap_eraseAux___rarg___boxed(obj*, obj*, obj*, obj*);
-obj* l_PersistentHashMap_contains___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_Node_inhabited(obj*, obj*);
 obj* l_PersistentHashMap_eraseAux___main___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_Node_inhabited___closed__1;
@@ -160,11 +151,8 @@ obj* l_PersistentHashMap_mfoldl(obj*, obj*, obj*);
 obj* l_PersistentHashMap_stats___rarg___boxed(obj*);
 obj* l_PersistentHashMap_insertAux___rarg(obj*, obj*, obj*, usize, usize, obj*, obj*);
 obj* l_Array_miterateAux___main___at_PersistentHashMap_toList___spec__4(obj*, obj*);
-obj* l_PersistentHashMap_erase___main(obj*, obj*);
-obj* l_PersistentHashMap_contains___main(obj*, obj*);
 obj* l_PersistentHashMap_mfoldl___at_PersistentHashMap_toList___spec__1___rarg(obj*, obj*);
 obj* l_PersistentHashMap_find___rarg(obj*, obj*, obj*, obj*);
-obj* l_PersistentHashMap_getCollisionNodeSize___main___rarg___boxed(obj*);
 obj* l_PersistentHashMap_HasToString___closed__1;
 obj* l_PersistentHashMap_collectStats(obj*, obj*);
 obj* l_PersistentHashMap_mfoldlAux(obj*, obj*, obj*);
@@ -186,7 +174,6 @@ obj* l_PersistentHashMap_getCollisionNodeSize___rarg___boxed(obj*);
 obj* l_PersistentHashMap_empty___closed__1;
 obj* l_PersistentHashMap_collectStats___main___rarg(obj*, obj*, obj*);
 obj* l_PersistentHashMap_findAtAux___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_PersistentHashMap_getCollisionNodeSize___main___rarg(obj*);
 obj* l_PersistentHashMap_mfoldlAux___main(obj*, obj*, obj*);
 obj* l_PersistentHashMap_empty(obj*, obj*);
 obj* l_PersistentHashMap_isUnaryNode(obj*, obj*);
@@ -198,7 +185,6 @@ obj* l_PersistentHashMap_eraseAux___main(obj*, obj*);
 obj* l_PersistentHashMap_contains___rarg(obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_mfoldlAux___main___at_PersistentHashMap_toList___spec__2___rarg___boxed(obj*, obj*);
 obj* l_PersistentHashMap_insert(obj*, obj*);
-obj* l_PersistentHashMap_find___main___rarg(obj*, obj*, obj*, obj*);
 usize l_USize_shift__left(usize, usize);
 obj* l_PersistentHashMap_collectStats___main(obj*, obj*);
 obj* l_PersistentHashMap_erase___rarg(obj*, obj*, obj*, obj*);
@@ -211,7 +197,6 @@ usize l_PersistentHashMap_mul2Shift(usize, usize);
 usize l_PersistentHashMap_div2Shift(usize, usize);
 obj* l_PersistentHashMap_insertAtCollisionNodeAux___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Nat_max(obj*, obj*);
-obj* l_PersistentHashMap_erase___main___rarg(obj*, obj*, obj*, obj*);
 namespace lean {
 obj* usize_to_nat(usize);
 }
@@ -219,7 +204,6 @@ obj* l_PersistentHashMap_mfoldlAux___main___boxed(obj*, obj*, obj*);
 obj* l_PersistentHashMap_findAux___main___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_mkCollisionNode(obj*, obj*);
 obj* l_PersistentHashMap_insertAux(obj*, obj*);
-obj* l_PersistentHashMap_isUnaryNode___main___rarg___boxed(obj*);
 uint8 l_PersistentHashMap_isEmpty___rarg(obj*);
 uint8 l_PersistentHashMap_containsAtAux___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_findAux(obj*, obj*);
@@ -595,38 +579,13 @@ x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_PersistentHashMap_insertAtCo
 return x_3;
 }
 }
-obj* l_PersistentHashMap_getCollisionNodeSize___main___rarg(obj* x_1) {
+obj* l_PersistentHashMap_getCollisionNodeSize___rarg(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
 x_2 = lean::cnstr_get(x_1, 0);
 x_3 = lean::array_get_size(x_2);
 return x_3;
-}
-}
-obj* l_PersistentHashMap_getCollisionNodeSize___main(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_PersistentHashMap_getCollisionNodeSize___main___rarg___boxed), 1, 0);
-return x_3;
-}
-}
-obj* l_PersistentHashMap_getCollisionNodeSize___main___rarg___boxed(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_PersistentHashMap_getCollisionNodeSize___main___rarg(x_1);
-lean::dec(x_1);
-return x_2;
-}
-}
-obj* l_PersistentHashMap_getCollisionNodeSize___rarg(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_PersistentHashMap_getCollisionNodeSize___main___rarg(x_1);
-return x_2;
 }
 }
 obj* l_PersistentHashMap_getCollisionNodeSize(obj* x_1, obj* x_2) {
@@ -694,22 +653,22 @@ return x_8;
 }
 else
 {
-obj* x_11; usize x_12; usize x_13; usize x_14; usize x_15; obj* x_16; usize x_17; usize x_18; obj* x_19; obj* x_20; obj* x_21; obj* x_22; 
+obj* x_11; obj* x_12; obj* x_13; usize x_14; usize x_15; usize x_16; usize x_17; usize x_18; usize x_19; obj* x_20; obj* x_21; obj* x_22; 
 x_11 = lean::array_fget(x_6, x_7);
-x_12 = 1;
-x_13 = x_3 - x_12;
-x_14 = 5;
-x_15 = x_14 * x_13;
+x_12 = lean::array_fget(x_5, x_7);
 lean::inc(x_2);
 lean::inc(x_11);
-x_16 = lean::apply_1(x_2, x_11);
-x_17 = lean::unbox_size_t(x_16);
-lean::dec(x_16);
-x_18 = x_17 >> x_15;
-x_19 = lean::array_fget(x_5, x_7);
+x_13 = lean::apply_1(x_2, x_11);
+x_14 = lean::unbox_size_t(x_13);
+lean::dec(x_13);
+x_15 = 1;
+x_16 = x_3 - x_15;
+x_17 = 5;
+x_18 = x_17 * x_16;
+x_19 = x_14 >> x_18;
 lean::inc(x_2);
 lean::inc(x_1);
-x_20 = l_PersistentHashMap_insertAux___main___rarg(x_1, x_2, x_8, x_18, x_3, x_11, x_19);
+x_20 = l_PersistentHashMap_insertAux___main___rarg(x_1, x_2, x_8, x_19, x_3, x_11, x_12);
 x_21 = lean::mk_nat_obj(1u);
 x_22 = lean::nat_add(x_7, x_21);
 lean::dec(x_7);
@@ -1061,7 +1020,7 @@ x_90 = x_89 <= x_5;
 if (x_90 == 0)
 {
 obj* x_91; obj* x_92; uint8 x_93; 
-x_91 = l_PersistentHashMap_getCollisionNodeSize___main___rarg(x_88);
+x_91 = l_PersistentHashMap_getCollisionNodeSize___rarg(x_88);
 x_92 = lean::mk_nat_obj(4u);
 x_93 = lean::nat_dec_lt(x_91, x_92);
 lean::dec(x_91);
@@ -1156,7 +1115,7 @@ x_10 = l_PersistentHashMap_insertAux___rarg(x_1, x_2, x_3, x_8, x_9, x_6, x_7);
 return x_10;
 }
 }
-obj* l_PersistentHashMap_insert___main___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+obj* l_PersistentHashMap_insert___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
 uint8 x_6; 
@@ -1203,22 +1162,6 @@ lean::cnstr_set(x_23, 0, x_20);
 lean::cnstr_set(x_23, 1, x_22);
 return x_23;
 }
-}
-}
-obj* l_PersistentHashMap_insert___main(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_PersistentHashMap_insert___main___rarg), 5, 0);
-return x_3;
-}
-}
-obj* l_PersistentHashMap_insert___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
-_start:
-{
-obj* x_6; 
-x_6 = l_PersistentHashMap_insert___main___rarg(x_1, x_2, x_3, x_4, x_5);
-return x_6;
 }
 }
 obj* l_PersistentHashMap_insert(obj* x_1, obj* x_2) {
@@ -1441,7 +1384,7 @@ lean::dec(x_2);
 return x_6;
 }
 }
-obj* l_PersistentHashMap_find___main___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l_PersistentHashMap_find___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_5; obj* x_6; usize x_7; obj* x_8; 
@@ -1452,31 +1395,6 @@ x_7 = lean::unbox_size_t(x_6);
 lean::dec(x_6);
 x_8 = l_PersistentHashMap_findAux___main___rarg(x_1, x_5, x_7, x_4);
 return x_8;
-}
-}
-obj* l_PersistentHashMap_find___main(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_PersistentHashMap_find___main___rarg___boxed), 4, 0);
-return x_3;
-}
-}
-obj* l_PersistentHashMap_find___main___rarg___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; 
-x_5 = l_PersistentHashMap_find___main___rarg(x_1, x_2, x_3, x_4);
-lean::dec(x_3);
-return x_5;
-}
-}
-obj* l_PersistentHashMap_find___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; 
-x_5 = l_PersistentHashMap_find___main___rarg(x_1, x_2, x_3, x_4);
-return x_5;
 }
 }
 obj* l_PersistentHashMap_find(obj* x_1, obj* x_2) {
@@ -1690,7 +1608,7 @@ lean::dec(x_2);
 return x_6;
 }
 }
-obj* l_PersistentHashMap_contains___main___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l_PersistentHashMap_contains___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_5; obj* x_6; usize x_7; obj* x_8; 
@@ -1701,31 +1619,6 @@ x_7 = lean::unbox_size_t(x_6);
 lean::dec(x_6);
 x_8 = l_PersistentHashMap_containsAux___main___rarg(x_1, x_5, x_7, x_4);
 return x_8;
-}
-}
-obj* l_PersistentHashMap_contains___main(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_PersistentHashMap_contains___main___rarg___boxed), 4, 0);
-return x_3;
-}
-}
-obj* l_PersistentHashMap_contains___main___rarg___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; 
-x_5 = l_PersistentHashMap_contains___main___rarg(x_1, x_2, x_3, x_4);
-lean::dec(x_3);
-return x_5;
-}
-}
-obj* l_PersistentHashMap_contains___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; 
-x_5 = l_PersistentHashMap_contains___main___rarg(x_1, x_2, x_3, x_4);
-return x_5;
 }
 }
 obj* l_PersistentHashMap_contains(obj* x_1, obj* x_2) {
@@ -1858,7 +1751,7 @@ lean::dec(x_1);
 return x_4;
 }
 }
-obj* l_PersistentHashMap_isUnaryNode___main___rarg(obj* x_1) {
+obj* l_PersistentHashMap_isUnaryNode___rarg(obj* x_1) {
 _start:
 {
 if (lean::obj_tag(x_1) == 0)
@@ -1899,31 +1792,6 @@ lean::cnstr_set(x_16, 0, x_15);
 return x_16;
 }
 }
-}
-}
-obj* l_PersistentHashMap_isUnaryNode___main(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_PersistentHashMap_isUnaryNode___main___rarg___boxed), 1, 0);
-return x_3;
-}
-}
-obj* l_PersistentHashMap_isUnaryNode___main___rarg___boxed(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_PersistentHashMap_isUnaryNode___main___rarg(x_1);
-lean::dec(x_1);
-return x_2;
-}
-}
-obj* l_PersistentHashMap_isUnaryNode___rarg(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_PersistentHashMap_isUnaryNode___main___rarg(x_1);
-return x_2;
 }
 }
 obj* l_PersistentHashMap_isUnaryNode(obj* x_1, obj* x_2) {
@@ -2078,7 +1946,7 @@ obj* x_47; obj* x_48; obj* x_49;
 x_47 = lean::cnstr_get(x_33, 0);
 x_48 = lean::cnstr_get(x_33, 1);
 lean::dec(x_48);
-x_49 = l_PersistentHashMap_isUnaryNode___main___rarg(x_47);
+x_49 = l_PersistentHashMap_isUnaryNode___rarg(x_47);
 if (lean::obj_tag(x_49) == 0)
 {
 obj* x_50; uint8 x_51; obj* x_52; 
@@ -2148,7 +2016,7 @@ obj* x_68; obj* x_69;
 x_68 = lean::cnstr_get(x_33, 0);
 lean::inc(x_68);
 lean::dec(x_33);
-x_69 = l_PersistentHashMap_isUnaryNode___main___rarg(x_68);
+x_69 = l_PersistentHashMap_isUnaryNode___rarg(x_68);
 if (lean::obj_tag(x_69) == 0)
 {
 obj* x_70; uint8 x_71; obj* x_72; obj* x_73; 
@@ -2216,7 +2084,7 @@ if (lean::is_exclusive(x_33)) {
  lean::dec_ref(x_33);
  x_84 = lean::box(0);
 }
-x_85 = l_PersistentHashMap_isUnaryNode___main___rarg(x_83);
+x_85 = l_PersistentHashMap_isUnaryNode___rarg(x_83);
 if (lean::obj_tag(x_85) == 0)
 {
 obj* x_86; obj* x_87; uint8 x_88; obj* x_89; obj* x_90; 
@@ -2335,7 +2203,7 @@ if (lean::is_exclusive(x_104)) {
  lean::dec_ref(x_104);
  x_113 = lean::box(0);
 }
-x_114 = l_PersistentHashMap_isUnaryNode___main___rarg(x_112);
+x_114 = l_PersistentHashMap_isUnaryNode___rarg(x_112);
 if (lean::obj_tag(x_114) == 0)
 {
 obj* x_115; obj* x_116; obj* x_117; uint8 x_118; obj* x_119; obj* x_120; 
@@ -2536,7 +2404,7 @@ x_6 = l_PersistentHashMap_eraseAux___rarg(x_1, x_2, x_5, x_4);
 return x_6;
 }
 }
-obj* l_PersistentHashMap_erase___main___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l_PersistentHashMap_erase___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 uint8 x_5; 
@@ -2621,22 +2489,6 @@ lean::cnstr_set(x_29, 1, x_28);
 return x_29;
 }
 }
-}
-}
-obj* l_PersistentHashMap_erase___main(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_PersistentHashMap_erase___main___rarg), 4, 0);
-return x_3;
-}
-}
-obj* l_PersistentHashMap_erase___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; 
-x_5 = l_PersistentHashMap_erase___main___rarg(x_1, x_2, x_3, x_4);
-return x_5;
 }
 }
 obj* l_PersistentHashMap_erase(obj* x_1, obj* x_2) {

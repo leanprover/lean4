@@ -267,7 +267,6 @@ obj* l_RBNode_find___main___at_Lean_EnumAttributes_setValue___spec__1(obj*);
 obj* l_List_map___main___at_Lean_registerEnumAttributes___spec__10___rarg(obj*, obj*, obj*);
 obj* l_Lean_AttributeImpl_inhabited___closed__6;
 obj* l_Lean_registerParametricAttribute___rarg___lambda__2(obj*, obj*);
-uint8 l_Lean_Syntax_isMissing___main___rarg(obj*);
 obj* l_AssocList_mfoldl___main___at_Lean_getAttributeNames___spec__1(obj*, obj*);
 obj* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_registerParametricAttribute___spec__7(obj*);
 obj* l_Array_miterateAux___main___at_Lean_Environment_pushScope___spec__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -305,6 +304,7 @@ obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_register
 obj* l_Array_binSearchAux___main___at_Lean_TagAttribute_hasTag___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_registerParametricAttribute___rarg___lambda__3___closed__4;
 obj* l_List_map___main___at_Lean_registerEnumAttributes___spec__10___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+uint8 l_Lean_Syntax_isMissing___rarg(obj*);
 namespace lean {
 obj* nat_div(obj*, obj*);
 }
@@ -6133,7 +6133,7 @@ obj* l_Lean_registerTagAttribute___lambda__4(obj* x_1, obj* x_2, obj* x_3, obj* 
 _start:
 {
 uint8 x_9; 
-x_9 = l_Lean_Syntax_isMissing___main___rarg(x_6);
+x_9 = l_Lean_Syntax_isMissing___rarg(x_6);
 if (x_9 == 0)
 {
 uint8 x_10; 

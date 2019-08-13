@@ -28,24 +28,18 @@ obj* l_HashMap_numBuckets___rarg(obj*);
 obj* l_RBNode_depth___main___rarg(obj*, obj*);
 obj* l_Lean_SMap_stageSizes(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_foldStage2___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_Lean_SMap_find___main___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_Inhabited___rarg(obj*, obj*, obj*);
 obj* l_Lean_SMap_switch___rarg(obj*, obj*, obj*, obj*);
-obj* l_Lean_SMap_insert___main___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_insert(obj*, obj*);
-obj* l_Lean_SMap_insert___main(obj*, obj*);
 obj* l_Lean_SMap_find_x27___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_HasEmptyc(obj*, obj*);
 obj* l_Lean_SMap_size(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_size___rarg___boxed(obj*);
-obj* l_Lean_SMap_contains___main(obj*, obj*);
 obj* l_Lean_SMap_maxDepth___boxed(obj*, obj*, obj*, obj*, obj*);
-uint8 l_Lean_SMap_contains___main___rarg(obj*, obj*, obj*, obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
 extern obj* l_RBMap_maxDepth___rarg___closed__1;
-obj* l_Lean_SMap_find_x27___main(obj*, obj*);
 obj* l_HashMapImp_find___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_maxDepth___rarg(obj*);
 obj* l_HashMapImp_insert___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -61,7 +55,6 @@ obj* l_Lean_SMap_empty(obj*, obj*);
 uint8 l_Lean_SMap_contains___rarg(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_HashMap_Inhabited___closed__1;
 obj* l_Lean_SMap_numBuckets___boxed(obj*, obj*, obj*, obj*, obj*);
-obj* l_Lean_SMap_find___main(obj*, obj*);
 obj* l_Lean_SMap_stageSizes___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_HasEmptyc___rarg___boxed(obj*, obj*, obj*);
 obj* l_Lean_SMap_Inhabited___rarg___boxed(obj*, obj*, obj*);
@@ -71,8 +64,6 @@ obj* l_Lean_SMap_stageSizes___rarg(obj*);
 obj* l_Lean_SMap_foldStage2(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_maxDepth___rarg___boxed(obj*);
 obj* l_Lean_SMap_switch___rarg___boxed(obj*, obj*, obj*, obj*);
-obj* l_Lean_SMap_find_x27___main___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_Lean_SMap_contains___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_foldStage2___rarg(obj*, obj*, obj*);
 obj* l_Lean_SMap_numBuckets(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_empty___rarg___boxed(obj*, obj*, obj*);
@@ -170,7 +161,7 @@ lean::dec(x_1);
 return x_4;
 }
 }
-obj* l_Lean_SMap_insert___main___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
+obj* l_Lean_SMap_insert___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
 _start:
 {
 uint8 x_7; 
@@ -236,22 +227,6 @@ return x_21;
 }
 }
 }
-obj* l_Lean_SMap_insert___main(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_SMap_insert___main___rarg), 6, 0);
-return x_3;
-}
-}
-obj* l_Lean_SMap_insert___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
-_start:
-{
-obj* x_7; 
-x_7 = l_Lean_SMap_insert___main___rarg(x_1, x_2, x_3, x_4, x_5, x_6);
-return x_7;
-}
-}
 obj* l_Lean_SMap_insert(obj* x_1, obj* x_2) {
 _start:
 {
@@ -260,7 +235,7 @@ x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_SMap_insert___rarg), 6,
 return x_3;
 }
 }
-obj* l_Lean_SMap_find___main___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+obj* l_Lean_SMap_find___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
 uint8 x_6; 
@@ -304,22 +279,6 @@ return x_12;
 }
 }
 }
-obj* l_Lean_SMap_find___main(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_SMap_find___main___rarg), 5, 0);
-return x_3;
-}
-}
-obj* l_Lean_SMap_find___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
-_start:
-{
-obj* x_6; 
-x_6 = l_Lean_SMap_find___main___rarg(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
 obj* l_Lean_SMap_find(obj* x_1, obj* x_2) {
 _start:
 {
@@ -328,7 +287,7 @@ x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_SMap_find___rarg), 5, 0
 return x_3;
 }
 }
-uint8 l_Lean_SMap_contains___main___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+uint8 l_Lean_SMap_contains___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
 uint8 x_6; 
@@ -385,31 +344,6 @@ return x_15;
 }
 }
 }
-obj* l_Lean_SMap_contains___main(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_SMap_contains___main___rarg___boxed), 5, 0);
-return x_3;
-}
-}
-obj* l_Lean_SMap_contains___main___rarg___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
-_start:
-{
-uint8 x_6; obj* x_7; 
-x_6 = l_Lean_SMap_contains___main___rarg(x_1, x_2, x_3, x_4, x_5);
-x_7 = lean::box(x_6);
-return x_7;
-}
-}
-uint8 l_Lean_SMap_contains___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
-_start:
-{
-uint8 x_6; 
-x_6 = l_Lean_SMap_contains___main___rarg(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
 obj* l_Lean_SMap_contains(obj* x_1, obj* x_2) {
 _start:
 {
@@ -427,7 +361,7 @@ x_7 = lean::box(x_6);
 return x_7;
 }
 }
-obj* l_Lean_SMap_find_x27___main___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+obj* l_Lean_SMap_find_x27___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
 uint8 x_6; 
@@ -468,22 +402,6 @@ x_12 = l_HashMapImp_find___rarg(x_2, x_3, x_11, x_5);
 lean::dec(x_11);
 return x_12;
 }
-}
-}
-obj* l_Lean_SMap_find_x27___main(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_SMap_find_x27___main___rarg), 5, 0);
-return x_3;
-}
-}
-obj* l_Lean_SMap_find_x27___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
-_start:
-{
-obj* x_6; 
-x_6 = l_Lean_SMap_find_x27___main___rarg(x_1, x_2, x_3, x_4, x_5);
-return x_6;
 }
 }
 obj* l_Lean_SMap_find_x27(obj* x_1, obj* x_2) {

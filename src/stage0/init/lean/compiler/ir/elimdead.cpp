@@ -16,6 +16,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #endif
 obj* l_Array_ummapAux___main___at_Lean_IR_FnBody_elimDead___main___spec__2(obj*, obj*);
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
+obj* l_Lean_IR_FnBody_setBody(obj*, obj*);
 extern obj* l_Array_empty___closed__1;
 namespace lean {
 obj* nat_sub(obj*, obj*);
@@ -38,14 +39,12 @@ namespace lean {
 obj* nat_add(obj*, obj*);
 }
 uint8 l_Array_isEmpty___rarg(obj*);
-obj* l_Lean_IR_Decl_elimDead___main(obj*);
 obj* l_Lean_IR_FnBody_collectFreeIndices(obj*, obj*);
 obj* l_Array_pop(obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_IR_FnBody_elimDead___main___spec__1(obj*, obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Array_fset(obj*, obj*, obj*, obj*);
 obj* l_Array_get(obj*, obj*, obj*, obj*);
-obj* l_Lean_IR_FnBody_setBody___main(obj*, obj*);
 obj* l_Lean_IR_FnBody_elimDead(obj*);
 extern obj* l_Lean_IR_Inhabited;
 obj* l_Array_back___at_Lean_IR_reshapeWithoutDeadAux___main___spec__1(obj* x_1) {
@@ -103,7 +102,7 @@ obj* x_8; obj* x_9;
 lean::dec(x_7);
 lean::inc(x_5);
 x_8 = l_Lean_IR_FnBody_collectFreeIndices(x_5, x_3);
-x_9 = l_Lean_IR_FnBody_setBody___main(x_5, x_2);
+x_9 = l_Lean_IR_FnBody_setBody(x_5, x_2);
 x_1 = x_6;
 x_2 = x_9;
 x_3 = x_8;
@@ -350,7 +349,7 @@ x_2 = l_Lean_IR_FnBody_elimDead___main(x_1);
 return x_2;
 }
 }
-obj* l_Lean_IR_Decl_elimDead___main(obj* x_1) {
+obj* l_Lean_IR_Decl_elimDead(obj* x_1) {
 _start:
 {
 if (lean::obj_tag(x_1) == 0)
@@ -389,14 +388,6 @@ else
 {
 return x_1;
 }
-}
-}
-obj* l_Lean_IR_Decl_elimDead(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_Lean_IR_Decl_elimDead___main(x_1);
-return x_2;
 }
 }
 obj* initialize_init_lean_compiler_ir_basic(obj*);

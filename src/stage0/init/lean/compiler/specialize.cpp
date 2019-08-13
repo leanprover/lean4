@@ -14,7 +14,6 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-obj* l_RBNode_setBlack___main___rarg(obj*);
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
 obj* l_Lean_Compiler_specExtension___closed__5;
 extern "C" uint8 lean_expr_quick_lt(obj*, obj*);
@@ -22,10 +21,8 @@ obj* l_Lean_Compiler_specExtension___elambda__2___boxed(obj*);
 obj* l_Lean_Compiler_SpecializeAttributeKind_beq___boxed(obj*, obj*);
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_AssocList_replace___main___at_Lean_Compiler_SpecState_addEntry___spec__18(obj*, obj*, obj*);
-obj* l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___main___spec__2(obj*);
 obj* l___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux___main___boxed(obj*, obj*, obj*);
 obj* l_Array_binSearchAux___main___at___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux___main___spec__3___boxed(obj*, obj*, obj*, obj*);
-obj* l_Lean_SMap_find___main___at_Lean_Compiler_getSpecializationInfo___spec__1(obj*, obj*);
 obj* l_HashMapImp_insert___at_Lean_Compiler_SpecState_addEntry___spec__4(obj*, obj*, obj*);
 extern obj* l_Array_empty___closed__1;
 obj* l_RBNode_fold___main___at_Lean_Compiler_mkSpecializeAttrs___spec__2(obj*, obj*);
@@ -33,8 +30,8 @@ namespace lean {
 obj* nat_sub(obj*, obj*);
 }
 extern obj* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
-obj* l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___main___spec__1(obj*);
 obj* l_Lean_Compiler_mkSpecExtension___closed__2;
+obj* l_Lean_SMap_find___at_Lean_Compiler_getCachedSpecialization___spec__1(obj*, obj*);
 obj* l_Lean_Compiler_specExtension___closed__2;
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 obj* l_Array_miterateAux___main___at_Lean_Compiler_mkSpecExtension___spec__2(obj*, obj*, obj*, obj*);
@@ -45,7 +42,6 @@ obj* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__
 extern "C" usize lean_expr_hash(obj*);
 obj* l_RBNode_find___main___at_Lean_Compiler_getCachedSpecialization___spec__2(obj*, obj*);
 extern obj* l_Lean_EnvExtension_Inhabited___rarg___closed__1;
-obj* l_Lean_SMap_insert___main___at_Lean_Compiler_SpecState_addEntry___spec__1(obj*, obj*, obj*);
 obj* l_Lean_Compiler_SpecState_Inhabited___closed__2;
 extern obj* l_Lean_AttributeImpl_inhabited___closed__5;
 obj* l_Lean_Compiler_SpecializeAttributeKind_HasBeq;
@@ -78,7 +74,6 @@ obj* l_Lean_Compiler_SpecState_Inhabited___closed__1;
 extern obj* l_Lean_Inhabited;
 obj* l_Array_uset(obj*, obj*, usize, obj*, obj*);
 obj* l_IO_Prim_Ref_set(obj*, obj*, obj*, obj*);
-obj* l_Lean_Compiler_SpecializeAttributeKind_beq___main___boxed(obj*, obj*);
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(obj*, obj*, obj*);
 obj* l_Lean_Compiler_SpecState_Inhabited___closed__5;
 obj* l_Lean_Compiler_mkSpecializeAttrs(obj*);
@@ -102,8 +97,9 @@ obj* l_RBNode_insert___at_Lean_Compiler_SpecState_addEntry___spec__2(obj*, obj*,
 obj* l_Lean_registerTagAttribute___lambda__5___boxed(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_Lean_EnumAttributes_Inhabited___closed__1;
 obj* l_Lean_Compiler_SpecState_Inhabited___closed__6;
+obj* l_Lean_SMap_insert___at_Lean_Compiler_SpecState_addEntry___spec__10(obj*, obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_Compiler_getSpecializationInfo___spec__2___boxed(obj*, obj*);
-obj* l_Lean_SMap_find___main___at_Lean_Compiler_getCachedSpecialization___spec__1(obj*, obj*);
+obj* l_Lean_SMap_find___at_Lean_Compiler_getSpecializationInfo___spec__1(obj*, obj*);
 obj* l_Lean_Compiler_specExtension___elambda__4___boxed(obj*);
 namespace lean {
 obj* add_specialization_info_core(obj*, obj*, obj*);
@@ -123,6 +119,7 @@ obj* l_HashMapImp_expand___at_Lean_Compiler_SpecState_addEntry___spec__6(obj*, o
 obj* l_Lean_Environment_getModuleIdxFor(obj*, obj*);
 obj* l_Lean_Compiler_mkSpecializeAttrs___closed__11;
 obj* l_Lean_mkStateFromImportedEntries___at_Lean_Compiler_mkSpecExtension___spec__1(obj*, obj*);
+obj* l_Lean_SMap_find___at_Lean_Compiler_getSpecializationInfo___spec__1___boxed(obj*, obj*);
 obj* l_mkHashMap___at_Lean_Compiler_SpecState_Inhabited___spec__1(obj*);
 extern obj* l_Lean_registerTagAttribute___lambda__4___closed__1;
 namespace lean {
@@ -132,11 +129,10 @@ obj* l_RBNode_insert___at_Lean_Compiler_SpecState_addEntry___spec__11(obj*, obj*
 obj* l_Lean_Compiler_mkSpecializeAttrs___closed__1;
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_Lean_Compiler_mkSpecializeAttrs___closed__14;
+uint8 l_RBNode_isRed___rarg(obj*);
 namespace lean {
 uint8 has_specialize_attribute_core(obj*, obj*);
 }
-uint8 l_Lean_Compiler_SpecializeAttributeKind_beq___main(uint8, uint8);
-obj* l_Lean_Compiler_SpecState_switch___main(obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
@@ -147,7 +143,9 @@ uint8 l_Lean_Compiler_SpecializeAttributeKind_Inhabited;
 namespace lean {
 obj* cache_specialization_core(obj*, obj*, obj*);
 }
+obj* l_Lean_Name_getPrefix(obj*);
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_Compiler_mkSpecExtension___spec__7___closed__2;
+obj* l_Lean_SMap_insert___at_Lean_Compiler_SpecState_addEntry___spec__1(obj*, obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
 obj* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_Compiler_mkSpecializeAttrs___spec__5(obj*, obj*);
 extern "C" obj* lean_name_mk_string(obj*, obj*);
@@ -155,7 +153,6 @@ obj* l_Lean_registerSimplePersistentEnvExtension___at_Lean_Compiler_mkSpecExtens
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
-obj* l_Lean_SMap_find___main___at_Lean_Compiler_getSpecializationInfo___spec__1___boxed(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(obj*, obj*, obj*);
 obj* l_Lean_Compiler_SpecState_switch(obj*);
 obj* l_Lean_Compiler_mkSpecializeAttrs___closed__7;
@@ -166,7 +163,6 @@ uint8 nat_dec_eq(obj*, obj*);
 obj* l_HashMapImp_expand___at_Lean_Compiler_SpecState_addEntry___spec__15(obj*, obj*);
 obj* l_Lean_Compiler_specExtension___closed__6;
 obj* l_Array_push(obj*, obj*, obj*);
-uint8 l_RBNode_isRed___main___rarg(obj*);
 uint8 l_Lean_Compiler_SpecializeAttributeKind_beq(uint8, uint8);
 obj* l_RBNode_fold___main___at_Lean_Compiler_mkSpecializeAttrs___spec__2___boxed(obj*, obj*);
 obj* l_Lean_Compiler_specExtension___elambda__3(obj*, obj*);
@@ -177,6 +173,7 @@ obj* l_Lean_Compiler_mkSpecializeAttrs___closed__2;
 obj* l_HashMapImp_find___at_Lean_Compiler_getSpecializationInfo___spec__3(obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4(obj*, obj*, obj*, obj*, obj*);
 obj* l_AssocList_find___main___at_Lean_Compiler_getCachedSpecialization___spec__4___boxed(obj*, obj*);
+obj* l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___spec__1(obj*);
 obj* l_Array_anyMAux___main___at_Lean_Compiler_mkSpecExtension___spec__6___boxed(obj*, obj*, obj*);
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_Compiler_mkSpecExtension___spec__7___closed__4;
 obj* l_Lean_Compiler_mkSpecializeAttrs___closed__6;
@@ -204,24 +201,23 @@ uint8 l_AssocList_contains___main___at_Lean_Compiler_SpecState_addEntry___spec__
 obj* l_RBNode_ins___main___at_Lean_Compiler_SpecState_addEntry___spec__3(obj*, obj*, obj*);
 obj* l_Lean_Compiler_SpecializeAttributeKind_HasBeq___closed__1;
 obj* l_RBNode_ins___main___at_Lean_Compiler_SpecState_addEntry___spec__12(obj*, obj*, obj*);
-obj* l_Lean_SMap_find___main___at_Lean_Compiler_getCachedSpecialization___spec__1___boxed(obj*, obj*);
 obj* l_Lean_Compiler_SpecState_addEntry(obj*, obj*);
 extern obj* l_HashMap_Inhabited___closed__1;
 obj* l_Lean_Compiler_hasSpecializeAttribute___boxed(obj*, obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_Compiler_mkSpecExtension___spec__7___closed__1;
+obj* l_Lean_SMap_find___at_Lean_Compiler_getCachedSpecialization___spec__1___boxed(obj*, obj*);
 uint8 l___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux___main(obj*, uint8, obj*);
 obj* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_Compiler_mkSpecExtension___spec__5(obj*, obj*);
 obj* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__1___lambda__2(obj*);
 obj* l_Array_fset(obj*, obj*, obj*, obj*);
 obj* l_Array_get(obj*, obj*, obj*, obj*);
 obj* l_mkHashMapImp___rarg(obj*);
-obj* l_Lean_Name_getPrefix___main(obj*);
+obj* l_RBNode_setBlack___rarg(obj*);
 obj* l_Array_miterateAux___main___at_Lean_Compiler_mkSpecExtension___spec__3(obj*, obj*, obj*, obj*);
 obj* l_List_map___main___at_Lean_Compiler_mkSpecializeAttrs___spec__8___lambda__1(obj*, obj*, uint8, obj*, obj*, obj*, obj*, uint8, obj*);
 extern obj* l_Lean_registerTagAttribute___lambda__4___closed__5;
 obj* l_List_map___main___at_Lean_Compiler_mkSpecializeAttrs___spec__8(obj*, obj*, obj*);
-obj* l_Lean_SMap_insert___main___at_Lean_Compiler_SpecState_addEntry___spec__10(obj*, obj*, obj*);
 obj* l_AssocList_find___main___at_Lean_Compiler_getCachedSpecialization___spec__4(obj*, obj*);
 obj* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__1___lambda__2___boxed(obj*);
 uint8 l_Array_anyMAux___main___at_Lean_Compiler_mkSpecExtension___spec__6(obj*, obj*, obj*);
@@ -246,6 +242,7 @@ obj* nat_div(obj*, obj*);
 obj* l_AssocList_contains___main___at_Lean_Compiler_SpecState_addEntry___spec__14___boxed(obj*, obj*);
 obj* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__1___closed__2;
 obj* l_HashMapImp_find___at_Lean_Compiler_getSpecializationInfo___spec__3___boxed(obj*, obj*);
+obj* l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___spec__2(obj*);
 obj* l_Lean_Compiler_specExtension___elambda__3___boxed(obj*, obj*);
 extern obj* l___private_init_lean_environment_8__persistentEnvExtensionsRef;
 obj* l_Lean_Compiler_mkSpecExtension___closed__3;
@@ -281,7 +278,7 @@ x_1 = 0;
 return x_1;
 }
 }
-uint8 l_Lean_Compiler_SpecializeAttributeKind_beq___main(uint8 x_1, uint8 x_2) {
+uint8 l_Lean_Compiler_SpecializeAttributeKind_beq(uint8 x_1, uint8 x_2) {
 _start:
 {
 if (x_1 == 0)
@@ -314,27 +311,6 @@ x_6 = 1;
 return x_6;
 }
 }
-}
-}
-obj* l_Lean_Compiler_SpecializeAttributeKind_beq___main___boxed(obj* x_1, obj* x_2) {
-_start:
-{
-uint8 x_3; uint8 x_4; uint8 x_5; obj* x_6; 
-x_3 = lean::unbox(x_1);
-lean::dec(x_1);
-x_4 = lean::unbox(x_2);
-lean::dec(x_2);
-x_5 = l_Lean_Compiler_SpecializeAttributeKind_beq___main(x_3, x_4);
-x_6 = lean::box(x_5);
-return x_6;
-}
-}
-uint8 l_Lean_Compiler_SpecializeAttributeKind_beq(uint8 x_1, uint8 x_2) {
-_start:
-{
-uint8 x_3; 
-x_3 = l_Lean_Compiler_SpecializeAttributeKind_beq___main(x_1, x_2);
-return x_3;
 }
 }
 obj* l_Lean_Compiler_SpecializeAttributeKind_beq___boxed(obj* x_1, obj* x_2) {
@@ -3329,7 +3305,7 @@ return x_7;
 else
 {
 obj* x_8; 
-x_8 = l_Lean_Name_getPrefix___main(x_3);
+x_8 = l_Lean_Name_getPrefix(x_3);
 lean::dec(x_3);
 x_3 = x_8;
 goto _start;
@@ -3344,7 +3320,7 @@ lean::inc(x_10);
 lean::dec(x_5);
 x_11 = lean::unbox(x_10);
 lean::dec(x_10);
-x_12 = l_Lean_Compiler_SpecializeAttributeKind_beq___main(x_2, x_11);
+x_12 = l_Lean_Compiler_SpecializeAttributeKind_beq(x_2, x_11);
 return x_12;
 }
 }
@@ -3685,7 +3661,7 @@ return x_1;
 else
 {
 uint8 x_34; 
-x_34 = l_RBNode_isRed___main___rarg(x_31);
+x_34 = l_RBNode_isRed___rarg(x_31);
 if (x_34 == 0)
 {
 obj* x_35; 
@@ -4365,7 +4341,7 @@ return x_1;
 else
 {
 uint8 x_174; 
-x_174 = l_RBNode_isRed___main___rarg(x_28);
+x_174 = l_RBNode_isRed___rarg(x_28);
 if (x_174 == 0)
 {
 obj* x_175; 
@@ -5084,7 +5060,7 @@ return x_321;
 else
 {
 uint8 x_322; 
-x_322 = l_RBNode_isRed___main___rarg(x_318);
+x_322 = l_RBNode_isRed___rarg(x_318);
 if (x_322 == 0)
 {
 obj* x_323; obj* x_324; 
@@ -5528,7 +5504,7 @@ return x_399;
 else
 {
 uint8 x_400; 
-x_400 = l_RBNode_isRed___main___rarg(x_315);
+x_400 = l_RBNode_isRed___rarg(x_315);
 if (x_400 == 0)
 {
 obj* x_401; obj* x_402; 
@@ -5977,7 +5953,7 @@ obj* l_RBNode_insert___at_Lean_Compiler_SpecState_addEntry___spec__2(obj* x_1, o
 _start:
 {
 uint8 x_4; 
-x_4 = l_RBNode_isRed___main___rarg(x_1);
+x_4 = l_RBNode_isRed___rarg(x_1);
 if (x_4 == 0)
 {
 obj* x_5; 
@@ -5988,7 +5964,7 @@ else
 {
 obj* x_6; obj* x_7; 
 x_6 = l_RBNode_ins___main___at_Lean_Compiler_SpecState_addEntry___spec__3(x_1, x_2, x_3);
-x_7 = l_RBNode_setBlack___main___rarg(x_6);
+x_7 = l_RBNode_setBlack___rarg(x_6);
 return x_7;
 }
 }
@@ -6323,7 +6299,7 @@ return x_44;
 }
 }
 }
-obj* l_Lean_SMap_insert___main___at_Lean_Compiler_SpecState_addEntry___spec__1(obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Lean_SMap_insert___at_Lean_Compiler_SpecState_addEntry___spec__1(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 uint8 x_4; 
@@ -6529,7 +6505,7 @@ return x_1;
 else
 {
 uint8 x_34; 
-x_34 = l_RBNode_isRed___main___rarg(x_31);
+x_34 = l_RBNode_isRed___rarg(x_31);
 if (x_34 == 0)
 {
 obj* x_35; 
@@ -7209,7 +7185,7 @@ return x_1;
 else
 {
 uint8 x_174; 
-x_174 = l_RBNode_isRed___main___rarg(x_28);
+x_174 = l_RBNode_isRed___rarg(x_28);
 if (x_174 == 0)
 {
 obj* x_175; 
@@ -7928,7 +7904,7 @@ return x_321;
 else
 {
 uint8 x_322; 
-x_322 = l_RBNode_isRed___main___rarg(x_318);
+x_322 = l_RBNode_isRed___rarg(x_318);
 if (x_322 == 0)
 {
 obj* x_323; obj* x_324; 
@@ -8372,7 +8348,7 @@ return x_399;
 else
 {
 uint8 x_400; 
-x_400 = l_RBNode_isRed___main___rarg(x_315);
+x_400 = l_RBNode_isRed___rarg(x_315);
 if (x_400 == 0)
 {
 obj* x_401; obj* x_402; 
@@ -8821,7 +8797,7 @@ obj* l_RBNode_insert___at_Lean_Compiler_SpecState_addEntry___spec__11(obj* x_1, 
 _start:
 {
 uint8 x_4; 
-x_4 = l_RBNode_isRed___main___rarg(x_1);
+x_4 = l_RBNode_isRed___rarg(x_1);
 if (x_4 == 0)
 {
 obj* x_5; 
@@ -8832,7 +8808,7 @@ else
 {
 obj* x_6; obj* x_7; 
 x_6 = l_RBNode_ins___main___at_Lean_Compiler_SpecState_addEntry___spec__12(x_1, x_2, x_3);
-x_7 = l_RBNode_setBlack___main___rarg(x_6);
+x_7 = l_RBNode_setBlack___rarg(x_6);
 return x_7;
 }
 }
@@ -9167,7 +9143,7 @@ return x_44;
 }
 }
 }
-obj* l_Lean_SMap_insert___main___at_Lean_Compiler_SpecState_addEntry___spec__10(obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Lean_SMap_insert___at_Lean_Compiler_SpecState_addEntry___spec__10(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 uint8 x_4; 
@@ -9246,7 +9222,7 @@ if (x_5 == 0)
 {
 obj* x_6; obj* x_7; 
 x_6 = lean::cnstr_get(x_1, 0);
-x_7 = l_Lean_SMap_insert___main___at_Lean_Compiler_SpecState_addEntry___spec__1(x_6, x_3, x_4);
+x_7 = l_Lean_SMap_insert___at_Lean_Compiler_SpecState_addEntry___spec__1(x_6, x_3, x_4);
 lean::cnstr_set(x_1, 0, x_7);
 return x_1;
 }
@@ -9258,7 +9234,7 @@ x_9 = lean::cnstr_get(x_1, 1);
 lean::inc(x_9);
 lean::inc(x_8);
 lean::dec(x_1);
-x_10 = l_Lean_SMap_insert___main___at_Lean_Compiler_SpecState_addEntry___spec__1(x_8, x_3, x_4);
+x_10 = l_Lean_SMap_insert___at_Lean_Compiler_SpecState_addEntry___spec__1(x_8, x_3, x_4);
 x_11 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_11, 0, x_10);
 lean::cnstr_set(x_11, 1, x_9);
@@ -9278,7 +9254,7 @@ if (x_14 == 0)
 {
 obj* x_15; obj* x_16; 
 x_15 = lean::cnstr_get(x_1, 1);
-x_16 = l_Lean_SMap_insert___main___at_Lean_Compiler_SpecState_addEntry___spec__10(x_15, x_12, x_13);
+x_16 = l_Lean_SMap_insert___at_Lean_Compiler_SpecState_addEntry___spec__10(x_15, x_12, x_13);
 lean::cnstr_set(x_1, 1, x_16);
 return x_1;
 }
@@ -9290,7 +9266,7 @@ x_18 = lean::cnstr_get(x_1, 1);
 lean::inc(x_18);
 lean::inc(x_17);
 lean::dec(x_1);
-x_19 = l_Lean_SMap_insert___main___at_Lean_Compiler_SpecState_addEntry___spec__10(x_18, x_12, x_13);
+x_19 = l_Lean_SMap_insert___at_Lean_Compiler_SpecState_addEntry___spec__10(x_18, x_12, x_13);
 x_20 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_20, 0, x_17);
 lean::cnstr_set(x_20, 1, x_19);
@@ -9321,7 +9297,7 @@ x_4 = lean::box(x_3);
 return x_4;
 }
 }
-obj* l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___main___spec__1(obj* x_1) {
+obj* l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___spec__1(obj* x_1) {
 _start:
 {
 uint8 x_2; 
@@ -9359,7 +9335,7 @@ return x_8;
 }
 }
 }
-obj* l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___main___spec__2(obj* x_1) {
+obj* l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___spec__2(obj* x_1) {
 _start:
 {
 uint8 x_2; 
@@ -9397,7 +9373,7 @@ return x_8;
 }
 }
 }
-obj* l_Lean_Compiler_SpecState_switch___main(obj* x_1) {
+obj* l_Lean_Compiler_SpecState_switch(obj* x_1) {
 _start:
 {
 uint8 x_2; 
@@ -9407,8 +9383,8 @@ if (x_2 == 0)
 obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
 x_3 = lean::cnstr_get(x_1, 0);
 x_4 = lean::cnstr_get(x_1, 1);
-x_5 = l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___main___spec__1(x_3);
-x_6 = l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___main___spec__2(x_4);
+x_5 = l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___spec__1(x_3);
+x_6 = l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___spec__2(x_4);
 lean::cnstr_set(x_1, 1, x_6);
 lean::cnstr_set(x_1, 0, x_5);
 return x_1;
@@ -9421,21 +9397,13 @@ x_8 = lean::cnstr_get(x_1, 1);
 lean::inc(x_8);
 lean::inc(x_7);
 lean::dec(x_1);
-x_9 = l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___main___spec__1(x_7);
-x_10 = l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___main___spec__2(x_8);
+x_9 = l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___spec__1(x_7);
+x_10 = l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___spec__2(x_8);
 x_11 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_11, 0, x_9);
 lean::cnstr_set(x_11, 1, x_10);
 return x_11;
 }
-}
-}
-obj* l_Lean_Compiler_SpecState_switch(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_Lean_Compiler_SpecState_switch___main(x_1);
-return x_2;
 }
 }
 obj* l_Array_miterateAux___main___at_Lean_Compiler_mkSpecExtension___spec__2(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
@@ -11308,7 +11276,7 @@ obj* x_2; obj* x_3; obj* x_4; obj* x_5;
 x_2 = lean::mk_nat_obj(0u);
 x_3 = l_Lean_registerEnvExtensionUnsafe___at_Lean_Compiler_mkSpecExtension___spec__7___closed__3;
 x_4 = l_Array_miterateAux___main___at_Lean_Compiler_mkSpecExtension___spec__3(x_1, x_1, x_2, x_3);
-x_5 = l_Lean_Compiler_SpecState_switch___main(x_4);
+x_5 = l_Lean_Compiler_SpecState_switch(x_4);
 return x_5;
 }
 }
@@ -11672,7 +11640,7 @@ lean::dec(x_9);
 return x_10;
 }
 }
-obj* l_Lean_SMap_find___main___at_Lean_Compiler_getSpecializationInfo___spec__1(obj* x_1, obj* x_2) {
+obj* l_Lean_SMap_find___at_Lean_Compiler_getSpecializationInfo___spec__1(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; 
@@ -11714,7 +11682,7 @@ lean::dec(x_1);
 x_5 = lean::cnstr_get(x_4, 0);
 lean::inc(x_5);
 lean::dec(x_4);
-x_6 = l_Lean_SMap_find___main___at_Lean_Compiler_getSpecializationInfo___spec__1(x_5, x_2);
+x_6 = l_Lean_SMap_find___at_Lean_Compiler_getSpecializationInfo___spec__1(x_5, x_2);
 lean::dec(x_2);
 lean::dec(x_5);
 return x_6;
@@ -11751,11 +11719,11 @@ lean::dec(x_1);
 return x_3;
 }
 }
-obj* l_Lean_SMap_find___main___at_Lean_Compiler_getSpecializationInfo___spec__1___boxed(obj* x_1, obj* x_2) {
+obj* l_Lean_SMap_find___at_Lean_Compiler_getSpecializationInfo___spec__1___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_Lean_SMap_find___main___at_Lean_Compiler_getSpecializationInfo___spec__1(x_1, x_2);
+x_3 = l_Lean_SMap_find___at_Lean_Compiler_getSpecializationInfo___spec__1(x_1, x_2);
 lean::dec(x_2);
 lean::dec(x_1);
 return x_3;
@@ -11868,7 +11836,7 @@ lean::dec(x_9);
 return x_10;
 }
 }
-obj* l_Lean_SMap_find___main___at_Lean_Compiler_getCachedSpecialization___spec__1(obj* x_1, obj* x_2) {
+obj* l_Lean_SMap_find___at_Lean_Compiler_getCachedSpecialization___spec__1(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; 
@@ -11910,7 +11878,7 @@ lean::dec(x_1);
 x_5 = lean::cnstr_get(x_4, 1);
 lean::inc(x_5);
 lean::dec(x_4);
-x_6 = l_Lean_SMap_find___main___at_Lean_Compiler_getCachedSpecialization___spec__1(x_5, x_2);
+x_6 = l_Lean_SMap_find___at_Lean_Compiler_getCachedSpecialization___spec__1(x_5, x_2);
 lean::dec(x_2);
 lean::dec(x_5);
 return x_6;
@@ -11947,11 +11915,11 @@ lean::dec(x_1);
 return x_3;
 }
 }
-obj* l_Lean_SMap_find___main___at_Lean_Compiler_getCachedSpecialization___spec__1___boxed(obj* x_1, obj* x_2) {
+obj* l_Lean_SMap_find___at_Lean_Compiler_getCachedSpecialization___spec__1___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_Lean_SMap_find___main___at_Lean_Compiler_getCachedSpecialization___spec__1(x_1, x_2);
+x_3 = l_Lean_SMap_find___at_Lean_Compiler_getCachedSpecialization___spec__1(x_1, x_2);
 lean::dec(x_2);
 lean::dec(x_1);
 return x_3;

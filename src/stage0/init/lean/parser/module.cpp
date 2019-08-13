@@ -21,7 +21,6 @@ obj* l_Lean_Parser_Module_importPath___elambda__1___closed__2;
 obj* l_Lean_Parser_Module_prelude___elambda__1___rarg(obj*, obj*);
 obj* l_Lean_Parser_Module_importPath___elambda__1(obj*, obj*, obj*);
 extern "C" obj* lean_io_realpath(obj*, obj*);
-obj* l_Lean_FileMap_toPosition___main(obj*, obj*);
 extern obj* l_Array_empty___closed__1;
 obj* l_Lean_Parser_whitespace___main(obj*, obj*);
 obj* l_Lean_Format_pretty(obj*, obj*);
@@ -53,10 +52,10 @@ obj* l_Lean_Parser_initCacheForInput(obj*);
 obj* l_List_reverse___rarg(obj*);
 obj* l_Lean_Parser_Module_prelude___closed__1;
 obj* l_Lean_Parser_Module_prelude___elambda__1___rarg___closed__7;
-uint8 l_List_isEmpty___main___rarg(obj*);
 obj* l_Lean_Parser_Module_header___elambda__1___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_rawCh(uint8, uint32, uint8);
 extern "C" obj* lean_io_prim_put_str(obj*, obj*);
+extern obj* l_Substring_drop___closed__2;
 obj* l___private_init_lean_parser_module_2__mkEOI___closed__1;
 obj* l_Lean_Parser_isExitCommand___boxed(obj*);
 obj* l_Lean_Parser_Module_importPath___closed__2;
@@ -83,6 +82,7 @@ obj* string_append(obj*, obj*);
 }
 obj* l_IO_print___at___private_init_lean_parser_module_4__testModuleParserAux___main___spec__2(obj*, obj*);
 obj* l_Lean_Parser_Module_prelude___closed__3;
+uint8 l_Lean_Syntax_isOfKind___rarg(obj*, obj*);
 obj* l_Lean_Parser_Error_toString(obj*);
 namespace lean {
 uint8 string_utf8_at_end(obj*, obj*);
@@ -112,9 +112,9 @@ uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_Array_push(obj*, obj*, obj*);
 obj* l_Lean_Parser_Module_import___elambda__1___boxed(obj*, obj*, obj*);
+uint8 l_List_isEmpty___rarg(obj*);
 extern obj* l_Lean_Parser_ident___closed__1;
 obj* l_Lean_Parser_Module_header___closed__6;
-extern obj* l_Substring_drop___main___closed__2;
 namespace lean {
 uint8 string_dec_eq(obj*, obj*);
 }
@@ -130,7 +130,6 @@ obj* l_Lean_Parser_parseCommand___main(obj*, obj*, obj*, obj*);
 uint8 l_Lean_Parser_isEOI(obj*);
 obj* l_Lean_Parser_optionaInfo(obj*);
 obj* l_Lean_Parser_testModuleParser___boxed(obj*, obj*, obj*, obj*, obj*);
-uint8 l_Lean_Syntax_isOfKind___main___rarg(obj*, obj*);
 obj* l_Lean_Parser_Module_import___elambda__1___closed__2;
 obj* l_EState_bind___rarg(obj*, obj*, obj*);
 obj* l_Lean_Parser_Module_header___closed__3;
@@ -166,6 +165,7 @@ obj* l_Lean_Parser_Module_prelude;
 obj* l_Lean_Parser_Module_prelude___elambda__1___rarg___closed__1;
 obj* l_Lean_Parser_Module_import___elambda__1___closed__1;
 obj* l_Lean_Parser_Module_import___elambda__1___closed__7;
+obj* l_Lean_FileMap_toPosition(obj*, obj*);
 uint8 l_List_foldr___main___at_Lean_MessageLog_hasErrors___spec__1(uint8, obj*);
 extern "C" obj* lean_io_timeit(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_Module_import___closed__4;
@@ -1404,7 +1404,7 @@ _start:
 obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; uint8 x_9; obj* x_10; obj* x_11; 
 x_4 = lean::cnstr_get(x_1, 0);
 x_5 = lean::cnstr_get(x_4, 2);
-x_6 = l_Lean_FileMap_toPosition___main(x_5, x_2);
+x_6 = l_Lean_FileMap_toPosition(x_5, x_2);
 x_7 = lean::cnstr_get(x_4, 1);
 x_8 = lean::box(0);
 x_9 = 2;
@@ -1536,7 +1536,7 @@ obj* l___private_init_lean_parser_module_2__mkEOI(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
-x_2 = l_Substring_drop___main___closed__2;
+x_2 = l_Substring_drop___closed__2;
 x_3 = lean::alloc_cnstr(0, 3, 0);
 lean::cnstr_set(x_3, 0, x_2);
 lean::cnstr_set(x_3, 1, x_1);
@@ -1561,7 +1561,7 @@ _start:
 {
 obj* x_2; uint8 x_3; 
 x_2 = l___private_init_lean_parser_module_2__mkEOI___closed__2;
-x_3 = l_Lean_Syntax_isOfKind___main___rarg(x_1, x_2);
+x_3 = l_Lean_Syntax_isOfKind___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -1580,7 +1580,7 @@ _start:
 {
 obj* x_2; uint8 x_3; 
 x_2 = l_Lean_Parser_Command_exit___elambda__1___rarg___closed__2;
-x_3 = l_Lean_Syntax_isOfKind___main___rarg(x_1, x_2);
+x_3 = l_Lean_Syntax_isOfKind___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -1704,27 +1704,23 @@ else
 {
 if (x_6 == 0)
 {
-obj* x_26; obj* x_27; obj* x_28; uint8 x_29; obj* x_30; obj* x_31; obj* x_32; 
+obj* x_26; obj* x_27; obj* x_28; obj* x_29; obj* x_30; obj* x_31; uint8 x_32; 
 x_26 = lean::cnstr_get(x_19, 0);
 lean::inc(x_26);
 lean::dec(x_19);
 x_27 = lean::cnstr_get(x_18, 1);
 lean::inc(x_27);
 lean::dec(x_18);
-lean::inc(x_27);
-lean::inc(x_11);
-x_28 = l___private_init_lean_parser_module_3__consumeInput(x_11, x_27);
-x_29 = 1;
-lean::cnstr_set(x_3, 0, x_28);
-lean::cnstr_set_scalar(x_3, sizeof(void*)*1, x_29);
-x_30 = l_Lean_Parser_Error_toString(x_26);
-x_31 = l___private_init_lean_parser_module_1__mkErrorMessage(x_11, x_27, x_30);
-lean::dec(x_27);
-lean::dec(x_11);
-x_32 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_32, 0, x_31);
-lean::cnstr_set(x_32, 1, x_4);
-x_4 = x_32;
+x_28 = l_Lean_Parser_Error_toString(x_26);
+x_29 = l___private_init_lean_parser_module_1__mkErrorMessage(x_11, x_27, x_28);
+x_30 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_30, 0, x_29);
+lean::cnstr_set(x_30, 1, x_4);
+x_31 = l___private_init_lean_parser_module_3__consumeInput(x_11, x_27);
+x_32 = 1;
+lean::cnstr_set(x_3, 0, x_31);
+lean::cnstr_set_scalar(x_3, sizeof(void*)*1, x_32);
+x_4 = x_30;
 goto _start;
 }
 else
@@ -1795,29 +1791,25 @@ else
 {
 if (x_6 == 0)
 {
-obj* x_54; obj* x_55; obj* x_56; uint8 x_57; obj* x_58; obj* x_59; obj* x_60; obj* x_61; 
+obj* x_54; obj* x_55; obj* x_56; obj* x_57; obj* x_58; obj* x_59; uint8 x_60; obj* x_61; 
 x_54 = lean::cnstr_get(x_46, 0);
 lean::inc(x_54);
 lean::dec(x_46);
 x_55 = lean::cnstr_get(x_45, 1);
 lean::inc(x_55);
 lean::dec(x_45);
-lean::inc(x_55);
-lean::inc(x_38);
-x_56 = l___private_init_lean_parser_module_3__consumeInput(x_38, x_55);
-x_57 = 1;
-x_58 = lean::alloc_cnstr(0, 1, 1);
-lean::cnstr_set(x_58, 0, x_56);
-lean::cnstr_set_scalar(x_58, sizeof(void*)*1, x_57);
-x_59 = l_Lean_Parser_Error_toString(x_54);
-x_60 = l___private_init_lean_parser_module_1__mkErrorMessage(x_38, x_55, x_59);
-lean::dec(x_55);
-lean::dec(x_38);
-x_61 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_61, 0, x_60);
-lean::cnstr_set(x_61, 1, x_4);
-x_3 = x_58;
-x_4 = x_61;
+x_56 = l_Lean_Parser_Error_toString(x_54);
+x_57 = l___private_init_lean_parser_module_1__mkErrorMessage(x_38, x_55, x_56);
+x_58 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_58, 0, x_57);
+lean::cnstr_set(x_58, 1, x_4);
+x_59 = l___private_init_lean_parser_module_3__consumeInput(x_38, x_55);
+x_60 = 1;
+x_61 = lean::alloc_cnstr(0, 1, 1);
+lean::cnstr_set(x_61, 0, x_59);
+lean::cnstr_set_scalar(x_61, sizeof(void*)*1, x_60);
+x_3 = x_61;
+x_4 = x_58;
 goto _start;
 }
 else
@@ -2577,7 +2569,7 @@ lean::dec(x_10);
 lean::dec(x_9);
 lean::dec(x_2);
 lean::dec(x_1);
-x_15 = l_List_isEmpty___main___rarg(x_11);
+x_15 = l_List_isEmpty___rarg(x_11);
 if (x_15 == 0)
 {
 obj* x_16; obj* x_17; 

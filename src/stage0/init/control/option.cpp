@@ -20,7 +20,6 @@ obj* l_OptionT_bindCont___at_OptionT_Monad___spec__2___rarg(obj*, obj*, obj*, ob
 obj* l_OptionT_orelse___rarg(obj*, obj*, obj*, obj*);
 obj* l_OptionT_fail(obj*);
 obj* l_OptionT_bindCont___at_OptionT_Monad___spec__2(obj*);
-obj* l_OptionT_bindCont___main___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_OptionT_Monad___rarg___lambda__3(obj*, obj*, obj*);
 obj* l_OptionT_bindCont___at_OptionT_Monad___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_OptionT_monadMap___boxed(obj*, obj*, obj*, obj*, obj*);
@@ -43,7 +42,6 @@ obj* l_OptionT_MonadFunctor(obj*, obj*, obj*, obj*, obj*);
 obj* l_OptionT_bindCont___at_OptionT_Monad___spec__4___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_OptionT_bindCont___at_OptionT_Monad___spec__6(obj*);
 obj* l_OptionT_bindCont(obj*);
-obj* l_OptionT_bindCont___main___boxed(obj*);
 obj* l_OptionT_catch___boxed(obj*);
 obj* l_OptionT_HasMonadLift___rarg(obj*);
 obj* l_OptionT_run___boxed(obj*, obj*);
@@ -54,7 +52,6 @@ obj* l_OptionT_bindCont___at_OptionT_Monad___spec__2___boxed(obj*);
 obj* l_OptionT_orelse___rarg___lambda__1___boxed(obj*, obj*, obj*);
 obj* l_OptionT_lift___boxed(obj*);
 obj* l_OptionT_fail___boxed(obj*);
-obj* l_OptionT_bindCont___main(obj*);
 obj* l_ExceptT_Monad___rarg___lambda__8___boxed(obj*, obj*);
 obj* l_OptionT_MonadExcept___rarg(obj*);
 obj* l_OptionT_bindCont___at_OptionT_Monad___spec__6___boxed(obj*);
@@ -133,52 +130,6 @@ obj* x_3;
 x_3 = l_OptionT_run(x_1, x_2);
 lean::dec(x_1);
 return x_3;
-}
-}
-obj* l_OptionT_bindCont___main___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
-_start:
-{
-if (lean::obj_tag(x_5) == 0)
-{
-obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
-lean::dec(x_4);
-x_6 = lean::cnstr_get(x_1, 0);
-lean::inc(x_6);
-lean::dec(x_1);
-x_7 = lean::cnstr_get(x_6, 1);
-lean::inc(x_7);
-lean::dec(x_6);
-x_8 = lean::box(0);
-x_9 = lean::apply_2(x_7, lean::box(0), x_8);
-return x_9;
-}
-else
-{
-obj* x_10; obj* x_11; 
-lean::dec(x_1);
-x_10 = lean::cnstr_get(x_5, 0);
-lean::inc(x_10);
-lean::dec(x_5);
-x_11 = lean::apply_1(x_4, x_10);
-return x_11;
-}
-}
-}
-obj* l_OptionT_bindCont___main(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_OptionT_bindCont___main___rarg), 5, 0);
-return x_2;
-}
-}
-obj* l_OptionT_bindCont___main___boxed(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_OptionT_bindCont___main(x_1);
-lean::dec(x_1);
-return x_2;
 }
 }
 obj* l_OptionT_bindCont___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {

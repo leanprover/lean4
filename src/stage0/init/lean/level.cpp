@@ -15,7 +15,6 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_Lean_LevelToFormat_levelHasToString;
-obj* l_Lean_LevelToFormat_Result_succ___main(obj*);
 obj* l_Lean_Level_toOffset___main(obj*);
 obj* l_Lean_Level_hasParam___main___boxed(obj*);
 namespace lean {
@@ -24,7 +23,6 @@ obj* nat_sub(obj*, obj*);
 extern obj* l_Lean_Format_paren___closed__2;
 obj* l_Lean_Level_instantiate(obj*, obj*);
 obj* l_Lean_LevelToFormat_Result_format___main___closed__4;
-obj* l_Lean_Format_group___main(obj*);
 obj* l_Lean_LevelToFormat_parenIfFalse(obj*, uint8);
 obj* l___private_init_lean_level_1__formatLst___main___at_Lean_LevelToFormat_Result_format___main___spec__2(obj*);
 obj* l_Lean_LevelToFormat_Result_format___main___closed__3;
@@ -45,7 +43,6 @@ obj* l_Lean_Level_ofNat(obj*);
 obj* l_Lean_Level_toNat___main(obj*);
 obj* l_Lean_Level_Param___boxed(obj*);
 obj* l_Lean_Level_instantiate___main(obj*, obj*);
-obj* l_Lean_Level_hasMvar___main___boxed(obj*);
 obj* l_Nat_repr(obj*);
 extern "C" obj* level_mk_param(obj*);
 obj* l_Lean_Level_one;
@@ -56,7 +53,6 @@ obj* l_Lean_LevelToFormat_levelHasFormat___closed__1;
 obj* l_Lean_LevelToFormat_Result_succ(obj*);
 extern obj* l_Lean_Format_paren___closed__1;
 obj* l___private_init_lean_level_1__formatLst___main(obj*, obj*);
-obj* l_Lean_LevelToFormat_Result_imax___main(obj*, obj*);
 obj* l_Lean_Level_toOffset(obj*);
 obj* l_Lean_Level_ofNat___boxed(obj*);
 obj* l_Lean_fmt___at_Lean_LevelToFormat_Level_toResult___main___spec__1(obj*);
@@ -75,7 +71,6 @@ obj* l_Lean_Level_toNat___boxed(obj*);
 obj* l_Lean_fmt___at_Lean_LevelToFormat_Result_format___main___spec__1(obj*);
 uint8 l_Lean_Level_hasParam___main(obj*);
 obj* l_Lean_LevelToFormat_Result_format___main___boxed(obj*, obj*);
-obj* l_Lean_LevelToFormat_parenIfFalse___main___boxed(obj*, obj*);
 obj* l_Lean_Level_max___boxed(obj*, obj*);
 extern "C" obj* level_mk_imax(obj*, obj*);
 obj* l_Lean_Level_imax___boxed(obj*, obj*);
@@ -84,11 +79,13 @@ obj* l_Lean_Level_one___closed__1;
 obj* l_Lean_Level_toNat___main___boxed(obj*);
 extern "C" usize lean_level_hash(obj*);
 obj* l_Lean_Nat_imax___boxed(obj*, obj*);
-obj* l_Lean_LevelToFormat_parenIfFalse___main(obj*, uint8);
 obj* l_Lean_LevelToFormat_Level_toResult___main(obj*);
 extern "C" obj* level_mk_succ(obj*);
 extern obj* l_System_FilePath_dirName___closed__1;
 extern obj* l_Lean_HasRepr___closed__1;
+namespace lean {
+obj* format_group_core(obj*);
+}
 obj* l_Lean_LevelToFormat_Result_format___boxed(obj*, obj*);
 obj* l_Lean_Level_toNat___main___closed__1;
 obj* l_Lean_LevelToFormat_Result_imax(obj*, obj*);
@@ -98,8 +95,6 @@ obj* l_Lean_LevelToFormat_Result_format(obj*, uint8);
 obj* l_Lean_Level_hasMvar___boxed(obj*);
 obj* l_Lean_LevelToFormat_Result_format___main___closed__6;
 obj* l_Nat_max(obj*, obj*);
-uint8 l_Lean_Level_hasMvar___main(obj*);
-obj* l_Lean_LevelToFormat_Result_max___main(obj*, obj*);
 obj* l_Lean_Level_hash___boxed(obj*);
 extern "C" obj* level_mk_max(obj*, obj*);
 obj* l_Lean_levelIsInhabited;
@@ -259,7 +254,7 @@ x_3 = lean::box(x_2);
 return x_3;
 }
 }
-uint8 l_Lean_Level_hasMvar___main(obj* x_1) {
+uint8 l_Lean_Level_hasMvar(obj* x_1) {
 _start:
 {
 switch (lean::obj_tag(x_1)) {
@@ -321,24 +316,6 @@ x_15 = 0;
 return x_15;
 }
 }
-}
-}
-obj* l_Lean_Level_hasMvar___main___boxed(obj* x_1) {
-_start:
-{
-uint8 x_2; obj* x_3; 
-x_2 = l_Lean_Level_hasMvar___main(x_1);
-lean::dec(x_1);
-x_3 = lean::box(x_2);
-return x_3;
-}
-}
-uint8 l_Lean_Level_hasMvar(obj* x_1) {
-_start:
-{
-uint8 x_2; 
-x_2 = l_Lean_Level_hasMvar___main(x_1);
-return x_2;
 }
 }
 obj* l_Lean_Level_hasMvar___boxed(obj* x_1) {
@@ -782,7 +759,7 @@ x_3 = lean::box_size_t(x_2);
 return x_3;
 }
 }
-obj* l_Lean_LevelToFormat_Result_succ___main(obj* x_1) {
+obj* l_Lean_LevelToFormat_Result_succ(obj* x_1) {
 _start:
 {
 switch (lean::obj_tag(x_1)) {
@@ -857,15 +834,7 @@ return x_20;
 }
 }
 }
-obj* l_Lean_LevelToFormat_Result_succ(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_Lean_LevelToFormat_Result_succ___main(x_1);
-return x_2;
-}
-}
-obj* l_Lean_LevelToFormat_Result_max___main(obj* x_1, obj* x_2) {
+obj* l_Lean_LevelToFormat_Result_max(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
@@ -921,15 +890,7 @@ return x_7;
 }
 }
 }
-obj* l_Lean_LevelToFormat_Result_max(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_Lean_LevelToFormat_Result_max___main(x_1, x_2);
-return x_3;
-}
-}
-obj* l_Lean_LevelToFormat_Result_imax___main(obj* x_1, obj* x_2) {
+obj* l_Lean_LevelToFormat_Result_imax(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
@@ -985,15 +946,7 @@ return x_7;
 }
 }
 }
-obj* l_Lean_LevelToFormat_Result_imax(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_Lean_LevelToFormat_Result_imax___main(x_1, x_2);
-return x_3;
-}
-}
-obj* l_Lean_LevelToFormat_parenIfFalse___main(obj* x_1, uint8 x_2) {
+obj* l_Lean_LevelToFormat_parenIfFalse(obj* x_1, uint8 x_2) {
 _start:
 {
 if (x_2 == 0)
@@ -1014,31 +967,13 @@ x_8 = l_Lean_Format_paren___closed__1;
 x_9 = lean::alloc_cnstr(3, 2, 0);
 lean::cnstr_set(x_9, 0, x_8);
 lean::cnstr_set(x_9, 1, x_7);
-x_10 = l_Lean_Format_group___main(x_9);
+x_10 = lean::format_group_core(x_9);
 return x_10;
 }
 else
 {
 return x_1;
 }
-}
-}
-obj* l_Lean_LevelToFormat_parenIfFalse___main___boxed(obj* x_1, obj* x_2) {
-_start:
-{
-uint8 x_3; obj* x_4; 
-x_3 = lean::unbox(x_2);
-lean::dec(x_2);
-x_4 = l_Lean_LevelToFormat_parenIfFalse___main(x_1, x_3);
-return x_4;
-}
-}
-obj* l_Lean_LevelToFormat_parenIfFalse(obj* x_1, uint8 x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_Lean_LevelToFormat_parenIfFalse___main(x_1, x_2);
-return x_3;
 }
 }
 obj* l_Lean_LevelToFormat_parenIfFalse___boxed(obj* x_1, obj* x_2) {
@@ -1244,7 +1179,7 @@ x_19 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_19, 0, x_16);
 lean::cnstr_set(x_19, 1, x_18);
 lean::cnstr_set_scalar(x_19, sizeof(void*)*2, x_13);
-x_20 = l_Lean_LevelToFormat_parenIfFalse___main(x_19, x_2);
+x_20 = l_Lean_LevelToFormat_parenIfFalse(x_19, x_2);
 return x_20;
 }
 else
@@ -1267,8 +1202,8 @@ x_26 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_26, 0, x_25);
 lean::cnstr_set(x_26, 1, x_23);
 lean::cnstr_set_scalar(x_26, sizeof(void*)*2, x_24);
-x_27 = l_Lean_Format_group___main(x_26);
-x_28 = l_Lean_LevelToFormat_parenIfFalse___main(x_27, x_2);
+x_27 = lean::format_group_core(x_26);
+x_28 = l_Lean_LevelToFormat_parenIfFalse(x_27, x_2);
 return x_28;
 }
 default: 
@@ -1284,8 +1219,8 @@ x_33 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_33, 0, x_32);
 lean::cnstr_set(x_33, 1, x_30);
 lean::cnstr_set_scalar(x_33, sizeof(void*)*2, x_31);
-x_34 = l_Lean_Format_group___main(x_33);
-x_35 = l_Lean_LevelToFormat_parenIfFalse___main(x_34, x_2);
+x_34 = lean::format_group_core(x_33);
+x_35 = l_Lean_LevelToFormat_parenIfFalse(x_34, x_2);
 return x_35;
 }
 }
@@ -1357,7 +1292,7 @@ x_3 = lean::cnstr_get(x_1, 0);
 lean::inc(x_3);
 lean::dec(x_1);
 x_4 = l_Lean_LevelToFormat_Level_toResult___main(x_3);
-x_5 = l_Lean_LevelToFormat_Result_succ___main(x_4);
+x_5 = l_Lean_LevelToFormat_Result_succ(x_4);
 return x_5;
 }
 case 2:
@@ -1370,7 +1305,7 @@ lean::inc(x_7);
 lean::dec(x_1);
 x_8 = l_Lean_LevelToFormat_Level_toResult___main(x_6);
 x_9 = l_Lean_LevelToFormat_Level_toResult___main(x_7);
-x_10 = l_Lean_LevelToFormat_Result_max___main(x_8, x_9);
+x_10 = l_Lean_LevelToFormat_Result_max(x_8, x_9);
 return x_10;
 }
 case 3:
@@ -1383,7 +1318,7 @@ lean::inc(x_12);
 lean::dec(x_1);
 x_13 = l_Lean_LevelToFormat_Level_toResult___main(x_11);
 x_14 = l_Lean_LevelToFormat_Level_toResult___main(x_12);
-x_15 = l_Lean_LevelToFormat_Result_imax___main(x_13, x_14);
+x_15 = l_Lean_LevelToFormat_Result_imax(x_13, x_14);
 return x_15;
 }
 default: 

@@ -15,7 +15,6 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_RBNode_fold___main___at_Lean_mkExternAttr___spec__2___boxed(obj*, obj*);
-uint32 l_String_Iterator_curr___main(obj*);
 obj* l_Lean_getExternEntryForAux___boxed(obj*, obj*);
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
 obj* l_RBNode_fold___main___at_Lean_mkExternAttr___spec__2(obj*, obj*);
@@ -43,18 +42,16 @@ obj* l_Lean_expandExternPattern___boxed(obj*, obj*);
 obj* l_List_getOpt___main___rarg(obj*, obj*);
 obj* l_List_foldl___main___at_Lean_mkSimpleFnCall___spec__1___boxed(obj*, obj*);
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkExternAttr___spec__7(obj*, obj*);
-obj* l_Lean_ExternEntry_backend___main___boxed(obj*);
 obj* l_Lean_registerAttribute(obj*, obj*);
 obj* l_Lean_mkExternCall___boxed(obj*, obj*, obj*);
-obj* l_Lean_expandExternEntry___main(obj*, obj*);
 obj* l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__5;
 obj* l_Lean_mkExternAttr___closed__2;
 obj* l_Lean_mkExternCall(obj*, obj*, obj*);
 obj* l_Lean_registerParametricAttribute___at_Lean_mkExternAttr___spec__1___closed__1;
 obj* l_Lean_mkExternAttr___closed__3;
 obj* l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__10;
+obj* l_Lean_Syntax_isNatLitAux___rarg(obj*, obj*);
 obj* l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__7;
-obj* l_String_Iterator_remainingBytes___main(obj*);
 extern obj* l_Lean_numLitKind;
 obj* l_Lean_mkExternAttr___lambda__1___boxed(obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main___boxed(obj*, obj*, obj*);
@@ -62,6 +59,7 @@ obj* l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main__
 obj* l_Lean_isExtern___boxed(obj*, obj*);
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__4;
 obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
+uint8 l_String_Iterator_hasNext(obj*);
 extern obj* l_Lean_Inhabited;
 obj* l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main___closed__7;
 obj* l_IO_Prim_Ref_set(obj*, obj*, obj*, obj*);
@@ -77,6 +75,7 @@ obj* l_Array_swap(obj*, obj*, obj*, obj*);
 extern obj* l_Lean_AttributeImpl_inhabited___closed__4;
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkExternAttr___spec__4___closed__1;
 obj* l_Lean_registerTagAttribute___lambda__5___boxed(obj*, obj*, obj*, obj*, obj*);
+obj* l_String_Iterator_next(obj*);
 obj* l_RBNode_find___main___at_Lean_getExternAttrData___spec__2(obj*, obj*);
 obj* l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___boxed(obj*);
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
@@ -86,7 +85,6 @@ obj* l_Lean_expandExternPatternAux___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_registerParametricAttribute___at_Lean_mkExternAttr___spec__1___lambda__1(obj*);
 obj* l_Lean_expandExternPattern(obj*, obj*);
 obj* l_Lean_Environment_getModuleIdxFor(obj*, obj*);
-obj* l_String_Iterator_next___main(obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkExternAttr___spec__4___boxed(obj*, obj*, obj*, obj*, obj*);
 namespace lean {
 obj* get_extern_attr_data_core(obj*, obj*);
@@ -109,6 +107,7 @@ uint8 nat_dec_lt(obj*, obj*);
 }
 obj* l_Lean_registerParametricAttribute___at_Lean_mkExternAttr___spec__1(obj*, obj*, obj*, obj*, obj*);
 uint8 l_Lean_isExternC(obj*, obj*);
+obj* l_Lean_Syntax_isStrLit___rarg(obj*);
 extern obj* l_Lean_ParametricAttribute_Inhabited___closed__1;
 obj* l_Lean_expandExternPatternAux___main(obj*, obj*, obj*, obj*);
 uint8 l_Lean_Environment_isProjectionFn(obj*, obj*);
@@ -118,13 +117,11 @@ namespace lean {
 obj* nat_add(obj*, obj*);
 }
 obj* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(obj*, obj*, obj*);
-obj* l_Lean_Syntax_isStrLit___main___rarg(obj*);
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_Array_binSearchAux___main___at_Lean_getExternAttrData___spec__3(obj*, obj*, obj*, obj*);
 extern obj* l_Prod_HasRepr___rarg___closed__1;
-obj* l_Lean_Syntax_isIdOrAtom___main___rarg(obj*);
 obj* l_Array_push(obj*, obj*, obj*);
 obj* l_Lean_externAttr;
 obj* l_Array_binSearchAux___main___at_Lean_getExternAttrData___spec__3___boxed(obj*, obj*, obj*, obj*);
@@ -145,7 +142,9 @@ obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkExtern
 uint8 l_Lean_Name_quickLt(obj*, obj*);
 uint8 l_Array_anyMAux___main___at_Lean_mkExternAttr___spec__6(obj*, obj*, obj*);
 obj* l_Lean_mkExternAttr___lambda__2___boxed(obj*, obj*, obj*);
+obj* l_Lean_Syntax_isIdOrAtom___rarg(obj*);
 obj* l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__1;
+uint32 l_String_Iterator_curr(obj*);
 obj* l_Lean_mkExternAttr(obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Lean_getExternEntryForAux(obj*, obj*);
@@ -155,7 +154,6 @@ obj* l_Lean_ParametricAttribute_getParam___at_Lean_getExternAttrData___spec__1__
 obj* l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__3;
 obj* l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__9;
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
-uint8 l_String_Iterator_hasNext___main(obj*);
 namespace lean {
 uint8 nat_dec_le(obj*, obj*);
 }
@@ -176,7 +174,6 @@ obj* l_Lean_mkExternAttr___lambda__1(obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData(obj*);
 extern "C" obj* lean_add_extern(obj*, obj*);
 obj* l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___boxed(obj*, obj*, obj*);
-obj* l_Lean_Syntax_isNatLitAux___main___rarg(obj*, obj*);
 obj* l_Lean_registerParametricAttribute___at_Lean_mkExternAttr___spec__1___lambda__1___boxed(obj*);
 extern obj* l___private_init_lean_environment_8__persistentEnvExtensionsRef;
 extern obj* l_Lean_mkProjectionFnInfoExtension___closed__3;
@@ -186,7 +183,6 @@ obj* l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main__
 namespace lean {
 obj* nat_mul(obj*, obj*);
 }
-obj* l_Lean_ExternEntry_backend___main(obj*);
 obj* l_Array_qsortAux___main___at_Lean_mkExternAttr___spec__3(obj*, obj*, obj*);
 extern obj* l_Lean_registerTagAttribute___closed__1;
 extern obj* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
@@ -195,6 +191,7 @@ obj* l_IO_Prim_Ref_reset(obj*, obj*, obj*);
 extern obj* l___private_init_lean_environment_5__envExtensionsRef;
 obj* l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main___closed__4;
 obj* l_Lean_isExternC___boxed(obj*, obj*);
+obj* l_String_Iterator_remainingBytes(obj*);
 obj* l_Lean_registerTagAttribute___lambda__6___boxed(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_String_splitAux___main___closed__1;
 obj* l_Lean_ExternAttrData_inhabited;
@@ -318,11 +315,11 @@ if (x_11 == 0)
 {
 obj* x_12; obj* x_13; 
 x_12 = lean::array_get(x_6, x_1, x_10);
-x_13 = l_Lean_Syntax_isIdOrAtom___main___rarg(x_12);
+x_13 = l_Lean_Syntax_isIdOrAtom___rarg(x_12);
 if (lean::obj_tag(x_13) == 0)
 {
 obj* x_14; 
-x_14 = l_Lean_Syntax_isStrLit___main___rarg(x_12);
+x_14 = l_Lean_Syntax_isStrLit___rarg(x_12);
 lean::dec(x_12);
 if (lean::obj_tag(x_14) == 0)
 {
@@ -369,7 +366,7 @@ lean::dec(x_21);
 if (x_25 == 0)
 {
 obj* x_26; 
-x_26 = l_Lean_Syntax_isStrLit___main___rarg(x_12);
+x_26 = l_Lean_Syntax_isStrLit___rarg(x_12);
 lean::dec(x_12);
 if (lean::obj_tag(x_26) == 0)
 {
@@ -406,7 +403,7 @@ lean::dec(x_12);
 x_33 = lean::nat_add(x_10, x_9);
 lean::dec(x_10);
 x_34 = lean::array_get(x_6, x_1, x_33);
-x_35 = l_Lean_Syntax_isStrLit___main___rarg(x_34);
+x_35 = l_Lean_Syntax_isStrLit___rarg(x_34);
 lean::dec(x_34);
 if (lean::obj_tag(x_35) == 0)
 {
@@ -630,220 +627,152 @@ x_5 = lean::mk_nat_obj(0u);
 x_6 = lean::nat_dec_eq(x_4, x_5);
 if (x_6 == 0)
 {
-obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
-x_7 = lean::box(0);
-x_8 = lean::array_get(x_7, x_3, x_5);
-x_9 = l_Lean_numLitKind;
-x_10 = l_Lean_Syntax_isNatLitAux___main___rarg(x_9, x_8);
-if (lean::obj_tag(x_10) == 0)
-{
-obj* x_11; 
-x_11 = l_Lean_Syntax_isStrLit___main___rarg(x_8);
-lean::dec(x_8);
-if (lean::obj_tag(x_11) == 0)
-{
-obj* x_12; obj* x_13; 
-lean::dec(x_4);
-x_12 = lean::box(0);
-x_13 = l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main(x_3, x_5, x_12);
-if (lean::obj_tag(x_13) == 0)
-{
-uint8 x_14; 
-x_14 = !lean::is_exclusive(x_13);
-if (x_14 == 0)
-{
-return x_13;
-}
-else
-{
-obj* x_15; obj* x_16; 
-x_15 = lean::cnstr_get(x_13, 0);
-lean::inc(x_15);
-lean::dec(x_13);
-x_16 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_16, 0, x_15);
-return x_16;
-}
-}
-else
-{
-uint8 x_17; 
-x_17 = !lean::is_exclusive(x_13);
-if (x_17 == 0)
-{
-obj* x_18; obj* x_19; 
-x_18 = lean::cnstr_get(x_13, 0);
-x_19 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_19, 0, x_10);
-lean::cnstr_set(x_19, 1, x_18);
-lean::cnstr_set(x_13, 0, x_19);
-return x_13;
-}
-else
-{
-obj* x_20; obj* x_21; obj* x_22; 
-x_20 = lean::cnstr_get(x_13, 0);
-lean::inc(x_20);
-lean::dec(x_13);
-x_21 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_21, 0, x_10);
-lean::cnstr_set(x_21, 1, x_20);
-x_22 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_22, 0, x_21);
-return x_22;
-}
-}
-}
-else
-{
-obj* x_23; obj* x_24; uint8 x_25; 
-x_23 = lean::cnstr_get(x_11, 0);
-lean::inc(x_23);
-lean::dec(x_11);
-x_24 = lean::mk_nat_obj(1u);
-x_25 = lean::nat_dec_eq(x_4, x_24);
-lean::dec(x_4);
-if (x_25 == 0)
-{
-obj* x_26; 
-lean::dec(x_23);
-x_26 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__8;
-return x_26;
-}
-else
-{
-obj* x_27; obj* x_28; obj* x_29; obj* x_30; obj* x_31; obj* x_32; 
-x_27 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__2;
-x_28 = lean::alloc_cnstr(2, 2, 0);
-lean::cnstr_set(x_28, 0, x_27);
-lean::cnstr_set(x_28, 1, x_23);
-x_29 = lean::box(0);
-x_30 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_30, 0, x_28);
-lean::cnstr_set(x_30, 1, x_29);
-x_31 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_31, 0, x_10);
-lean::cnstr_set(x_31, 1, x_30);
-x_32 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_32, 0, x_31);
-return x_32;
-}
-}
-}
-else
-{
-obj* x_33; obj* x_34; obj* x_35; 
-lean::dec(x_8);
-x_33 = lean::mk_nat_obj(1u);
-x_34 = lean::array_get(x_7, x_3, x_33);
-x_35 = l_Lean_Syntax_isStrLit___main___rarg(x_34);
-lean::dec(x_34);
-if (lean::obj_tag(x_35) == 0)
-{
-obj* x_36; obj* x_37; 
-lean::dec(x_4);
+obj* x_7; obj* x_36; obj* x_37; obj* x_38; obj* x_39; 
 x_36 = lean::box(0);
-x_37 = l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main(x_3, x_33, x_36);
-if (lean::obj_tag(x_37) == 0)
-{
-uint8 x_38; 
-lean::dec(x_10);
-x_38 = !lean::is_exclusive(x_37);
-if (x_38 == 0)
-{
-return x_37;
-}
-else
-{
-obj* x_39; obj* x_40; 
-x_39 = lean::cnstr_get(x_37, 0);
-lean::inc(x_39);
+x_37 = lean::array_get(x_36, x_3, x_5);
+x_38 = l_Lean_numLitKind;
+x_39 = l_Lean_Syntax_isNatLitAux___rarg(x_38, x_37);
 lean::dec(x_37);
-x_40 = lean::alloc_cnstr(0, 1, 0);
+if (lean::obj_tag(x_39) == 0)
+{
+obj* x_40; 
+x_40 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_40, 0, x_39);
-return x_40;
-}
-}
-else
-{
-uint8 x_41; 
-x_41 = !lean::is_exclusive(x_37);
-if (x_41 == 0)
-{
-obj* x_42; obj* x_43; 
-x_42 = lean::cnstr_get(x_37, 0);
-x_43 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_43, 0, x_10);
-lean::cnstr_set(x_43, 1, x_42);
-lean::cnstr_set(x_37, 0, x_43);
-return x_37;
+lean::cnstr_set(x_40, 1, x_5);
+x_7 = x_40;
+goto block_35;
 }
 else
 {
-obj* x_44; obj* x_45; obj* x_46; 
-x_44 = lean::cnstr_get(x_37, 0);
-lean::inc(x_44);
-lean::dec(x_37);
-x_45 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_45, 0, x_10);
-lean::cnstr_set(x_45, 1, x_44);
-x_46 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_46, 0, x_45);
-return x_46;
+obj* x_41; obj* x_42; 
+x_41 = lean::mk_nat_obj(1u);
+x_42 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_42, 0, x_39);
+lean::cnstr_set(x_42, 1, x_41);
+x_7 = x_42;
+goto block_35;
 }
-}
-}
-else
+block_35:
 {
-obj* x_47; obj* x_48; uint8 x_49; 
-x_47 = lean::cnstr_get(x_35, 0);
-lean::inc(x_47);
-lean::dec(x_35);
-x_48 = lean::mk_nat_obj(2u);
-x_49 = lean::nat_dec_eq(x_4, x_48);
+obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; 
+x_8 = lean::cnstr_get(x_7, 0);
+lean::inc(x_8);
+x_9 = lean::cnstr_get(x_7, 1);
+lean::inc(x_9);
+lean::dec(x_7);
+x_10 = lean::box(0);
+x_11 = lean::array_get(x_10, x_3, x_9);
+x_12 = l_Lean_Syntax_isStrLit___rarg(x_11);
+lean::dec(x_11);
+if (lean::obj_tag(x_12) == 0)
+{
+obj* x_13; obj* x_14; 
 lean::dec(x_4);
-if (x_49 == 0)
+x_13 = lean::box(0);
+x_14 = l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main(x_3, x_9, x_13);
+if (lean::obj_tag(x_14) == 0)
 {
-obj* x_50; 
-lean::dec(x_47);
-lean::dec(x_10);
-x_50 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__8;
-return x_50;
+uint8 x_15; 
+lean::dec(x_8);
+x_15 = !lean::is_exclusive(x_14);
+if (x_15 == 0)
+{
+return x_14;
 }
 else
 {
-obj* x_51; obj* x_52; obj* x_53; obj* x_54; obj* x_55; obj* x_56; 
-x_51 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__2;
-x_52 = lean::alloc_cnstr(2, 2, 0);
-lean::cnstr_set(x_52, 0, x_51);
-lean::cnstr_set(x_52, 1, x_47);
-x_53 = lean::box(0);
-x_54 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_54, 0, x_52);
-lean::cnstr_set(x_54, 1, x_53);
-x_55 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_55, 0, x_10);
-lean::cnstr_set(x_55, 1, x_54);
-x_56 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_56, 0, x_55);
-return x_56;
-}
-}
+obj* x_16; obj* x_17; 
+x_16 = lean::cnstr_get(x_14, 0);
+lean::inc(x_16);
+lean::dec(x_14);
+x_17 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_17, 0, x_16);
+return x_17;
 }
 }
 else
 {
-obj* x_57; 
+uint8 x_18; 
+x_18 = !lean::is_exclusive(x_14);
+if (x_18 == 0)
+{
+obj* x_19; obj* x_20; 
+x_19 = lean::cnstr_get(x_14, 0);
+x_20 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_20, 0, x_8);
+lean::cnstr_set(x_20, 1, x_19);
+lean::cnstr_set(x_14, 0, x_20);
+return x_14;
+}
+else
+{
+obj* x_21; obj* x_22; obj* x_23; 
+x_21 = lean::cnstr_get(x_14, 0);
+lean::inc(x_21);
+lean::dec(x_14);
+x_22 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_22, 0, x_8);
+lean::cnstr_set(x_22, 1, x_21);
+x_23 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_23, 0, x_22);
+return x_23;
+}
+}
+}
+else
+{
+obj* x_24; obj* x_25; obj* x_26; uint8 x_27; 
+x_24 = lean::cnstr_get(x_12, 0);
+lean::inc(x_24);
+lean::dec(x_12);
+x_25 = lean::mk_nat_obj(1u);
+x_26 = lean::nat_add(x_9, x_25);
+lean::dec(x_9);
+x_27 = lean::nat_dec_eq(x_4, x_26);
+lean::dec(x_26);
 lean::dec(x_4);
-x_57 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__10;
-return x_57;
+if (x_27 == 0)
+{
+obj* x_28; 
+lean::dec(x_24);
+lean::dec(x_8);
+x_28 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__8;
+return x_28;
+}
+else
+{
+obj* x_29; obj* x_30; obj* x_31; obj* x_32; obj* x_33; obj* x_34; 
+x_29 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__2;
+x_30 = lean::alloc_cnstr(2, 2, 0);
+lean::cnstr_set(x_30, 0, x_29);
+lean::cnstr_set(x_30, 1, x_24);
+x_31 = lean::box(0);
+x_32 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_32, 0, x_30);
+lean::cnstr_set(x_32, 1, x_31);
+x_33 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_33, 0, x_8);
+lean::cnstr_set(x_33, 1, x_32);
+x_34 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_34, 0, x_33);
+return x_34;
+}
+}
+}
+}
+else
+{
+obj* x_43; 
+lean::dec(x_4);
+x_43 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__10;
+return x_43;
 }
 }
 default: 
 {
-obj* x_58; 
-x_58 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__10;
-return x_58;
+obj* x_44; 
+x_44 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__10;
+return x_44;
 }
 }
 }
@@ -3499,7 +3428,7 @@ obj* x_6; obj* x_7; uint8 x_8;
 x_6 = lean::mk_nat_obj(1u);
 x_7 = lean::nat_sub(x_1, x_6);
 lean::dec(x_1);
-x_8 = l_String_Iterator_hasNext___main(x_2);
+x_8 = l_String_Iterator_hasNext(x_2);
 if (x_8 == 0)
 {
 obj* x_9; 
@@ -3512,7 +3441,7 @@ return x_9;
 else
 {
 uint32 x_10; uint32 x_11; uint8 x_12; 
-x_10 = l_String_Iterator_curr___main(x_2);
+x_10 = l_String_Iterator_curr(x_2);
 x_11 = 48;
 x_12 = x_11 <= x_10;
 if (x_12 == 0)
@@ -3541,7 +3470,7 @@ return x_16;
 else
 {
 obj* x_17; obj* x_18; obj* x_19; obj* x_20; obj* x_21; obj* x_22; obj* x_23; 
-x_17 = l_String_Iterator_next___main(x_2);
+x_17 = l_String_Iterator_next(x_2);
 x_18 = lean::mk_nat_obj(10u);
 x_19 = lean::nat_mul(x_3, x_18);
 lean::dec(x_3);
@@ -3591,7 +3520,7 @@ obj* x_7; obj* x_8; uint8 x_9;
 x_7 = lean::mk_nat_obj(1u);
 x_8 = lean::nat_sub(x_2, x_7);
 lean::dec(x_2);
-x_9 = l_String_Iterator_hasNext___main(x_3);
+x_9 = l_String_Iterator_hasNext(x_3);
 if (x_9 == 0)
 {
 lean::dec(x_8);
@@ -3601,13 +3530,13 @@ return x_4;
 else
 {
 uint32 x_10; uint32 x_11; uint8 x_12; 
-x_10 = l_String_Iterator_curr___main(x_3);
+x_10 = l_String_Iterator_curr(x_3);
 x_11 = 35;
 x_12 = x_10 == x_11;
 if (x_12 == 0)
 {
 obj* x_13; obj* x_14; 
-x_13 = l_String_Iterator_next___main(x_3);
+x_13 = l_String_Iterator_next(x_3);
 x_14 = lean::string_push(x_4, x_10);
 x_2 = x_8;
 x_3 = x_13;
@@ -3617,8 +3546,8 @@ goto _start;
 else
 {
 obj* x_16; obj* x_17; obj* x_18; obj* x_19; obj* x_20; obj* x_21; obj* x_22; 
-x_16 = l_String_Iterator_next___main(x_3);
-x_17 = l_String_Iterator_remainingBytes___main(x_16);
+x_16 = l_String_Iterator_next(x_3);
+x_17 = l_String_Iterator_remainingBytes(x_16);
 x_18 = l___private_init_lean_compiler_externattr_3__parseOptNum___main(x_17, x_16, x_5);
 x_19 = lean::cnstr_get(x_18, 0);
 lean::inc(x_19);
@@ -3757,7 +3686,7 @@ lean::dec(x_2);
 return x_3;
 }
 }
-obj* l_Lean_expandExternEntry___main(obj* x_1, obj* x_2) {
+obj* l_Lean_expandExternEntry(obj* x_1, obj* x_2) {
 _start:
 {
 switch (lean::obj_tag(x_1)) {
@@ -3795,37 +3724,12 @@ return x_9;
 }
 }
 }
-obj* l_Lean_expandExternEntry(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_Lean_expandExternEntry___main(x_1, x_2);
-return x_3;
-}
-}
-obj* l_Lean_ExternEntry_backend___main(obj* x_1) {
+obj* l_Lean_ExternEntry_backend(obj* x_1) {
 _start:
 {
 obj* x_2; 
 x_2 = lean::cnstr_get(x_1, 0);
 lean::inc(x_2);
-return x_2;
-}
-}
-obj* l_Lean_ExternEntry_backend___main___boxed(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_Lean_ExternEntry_backend___main(x_1);
-lean::dec(x_1);
-return x_2;
-}
-}
-obj* l_Lean_ExternEntry_backend(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_Lean_ExternEntry_backend___main(x_1);
 return x_2;
 }
 }
@@ -3852,7 +3756,7 @@ else
 obj* x_4; obj* x_5; obj* x_6; obj* x_7; uint8 x_8; 
 x_4 = lean::cnstr_get(x_2, 0);
 x_5 = lean::cnstr_get(x_2, 1);
-x_6 = l_Lean_ExternEntry_backend___main(x_4);
+x_6 = l_Lean_ExternEntry_backend(x_4);
 x_7 = l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__2;
 x_8 = lean_name_dec_eq(x_6, x_7);
 if (x_8 == 0)
@@ -3951,7 +3855,7 @@ obj* x_6; obj* x_7;
 x_6 = lean::cnstr_get(x_4, 0);
 lean::inc(x_6);
 lean::dec(x_4);
-x_7 = l_Lean_expandExternEntry___main(x_6, x_3);
+x_7 = l_Lean_expandExternEntry(x_6, x_3);
 return x_7;
 }
 }

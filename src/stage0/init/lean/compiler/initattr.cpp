@@ -19,7 +19,6 @@ obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkInitAt
 uint8 l_Array_anyMAux___main___at_Lean_mkInitAttr___spec__6(obj*, obj*, obj*);
 obj* l_Lean_attrParamSyntaxToIdentifier(obj*);
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
-obj* l___private_init_lean_compiler_initattr_1__getIOTypeArg___main___boxed(obj*);
 obj* l_Array_binSearchAux___main___at_Lean_isIOUnitInitFn___spec__3___boxed(obj*, obj*, obj*, obj*);
 extern obj* l_Array_empty___closed__1;
 namespace lean {
@@ -32,6 +31,7 @@ obj* l_Lean_mkInitAttr___lambda__1___closed__7;
 obj* l_Lean_mkInitAttr___lambda__1___closed__2;
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 obj* l_Lean_registerParametricAttribute___at_Lean_mkInitAttr___spec__1___lambda__1(obj*);
+obj* l___private_init_lean_compiler_initattr_2__isUnitType___closed__2;
 extern obj* l_Lean_AttributeImpl_inhabited___closed__5;
 obj* l_Lean_registerParametricAttribute___at_Lean_mkInitAttr___spec__1___lambda__1___boxed(obj*);
 obj* l___private_init_lean_compiler_initattr_3__isIOUnit___boxed(obj*);
@@ -43,19 +43,18 @@ obj* l_Lean_hasInitAttr___boxed(obj*, obj*);
 obj* l_Lean_registerAttribute(obj*, obj*);
 obj* l_RBNode_fold___main___at_Lean_mkInitAttr___spec__2___boxed(obj*, obj*);
 uint8 l_Lean_isIOUnitInitFn(obj*, obj*);
-uint8 l___private_init_lean_compiler_initattr_2__isUnitType___main(obj*);
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__4;
 obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
 obj* l_Lean_mkInitAttr___lambda__1___closed__1;
 extern obj* l_Lean_Inhabited;
 obj* l_Array_qsortAux___main___at_Lean_mkInitAttr___spec__3(obj*, obj*, obj*);
+obj* l___private_init_lean_compiler_initattr_1__getIOTypeArg___closed__2;
 obj* l_Lean_mkInitAttr___lambda__1___closed__8;
 obj* l_IO_Prim_Ref_set(obj*, obj*, obj*, obj*);
 extern obj* l_Lean_registerParametricAttribute___rarg___closed__1;
-obj* l___private_init_lean_compiler_initattr_1__getIOTypeArg___main___closed__1;
+obj* l___private_init_lean_compiler_initattr_1__getIOTypeArg___closed__1;
 obj* l_Lean_mkInitAttr___lambda__1___closed__10;
 extern "C" obj* lean_io_initializing(obj*);
-obj* l___private_init_lean_compiler_initattr_1__getIOTypeArg___main(obj*);
 extern obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__6___closed__1;
 obj* l_Array_swap(obj*, obj*, obj*, obj*);
 extern obj* l_Lean_AttributeImpl_inhabited___closed__4;
@@ -72,10 +71,10 @@ obj* l_Lean_registerParametricAttribute___at_Lean_mkInitAttr___spec__1___closed_
 obj* l___private_init_lean_compiler_initattr_1__getIOTypeArg(obj*);
 obj* l___private_init_lean_compiler_initattr_2__isUnitType___boxed(obj*);
 obj* l_Lean_Environment_getModuleIdxFor(obj*, obj*);
+obj* l___private_init_lean_compiler_initattr_2__isUnitType___closed__1;
 namespace lean {
 obj* string_append(obj*, obj*);
 }
-obj* l___private_init_lean_compiler_initattr_1__getIOTypeArg___main___closed__2;
 extern obj* l_Lean_registerParametricAttribute___rarg___closed__2;
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
@@ -107,11 +106,8 @@ obj* l_Lean_mkInitAttr___closed__5;
 obj* l_Lean_registerParametricAttribute___rarg___lambda__4___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_registerParametricAttribute___at_Lean_mkInitAttr___spec__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_EState_bind___rarg(obj*, obj*, obj*);
-obj* l___private_init_lean_compiler_initattr_2__isUnitType___main___boxed(obj*);
-obj* l___private_init_lean_compiler_initattr_2__isUnitType___main___closed__2;
 obj* l_Lean_mkInitAttr___lambda__1___closed__6;
 obj* l_Lean_mkInitAttr___closed__4;
-obj* l___private_init_lean_compiler_initattr_2__isUnitType___main___closed__1;
 obj* l___private_init_lean_compiler_initattr_1__getIOTypeArg___boxed(obj*);
 obj* l_IO_Prim_Ref_get(obj*, obj*, obj*);
 uint8 l_Lean_Name_quickLt(obj*, obj*);
@@ -148,7 +144,7 @@ obj* l_IO_Prim_Ref_reset(obj*, obj*, obj*);
 extern obj* l___private_init_lean_environment_5__envExtensionsRef;
 obj* l_RBNode_find___main___at_Lean_isIOUnitInitFn___spec__2(obj*, obj*);
 obj* l_Lean_registerTagAttribute___lambda__6___boxed(obj*, obj*, obj*, obj*, obj*);
-obj* _init_l___private_init_lean_compiler_initattr_1__getIOTypeArg___main___closed__1() {
+obj* _init_l___private_init_lean_compiler_initattr_1__getIOTypeArg___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -156,17 +152,17 @@ x_1 = lean::mk_string("IO");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_initattr_1__getIOTypeArg___main___closed__2() {
+obj* _init_l___private_init_lean_compiler_initattr_1__getIOTypeArg___closed__2() {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::box(0);
-x_2 = l___private_init_lean_compiler_initattr_1__getIOTypeArg___main___closed__1;
+x_2 = l___private_init_lean_compiler_initattr_1__getIOTypeArg___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-obj* l___private_init_lean_compiler_initattr_1__getIOTypeArg___main(obj* x_1) {
+obj* l___private_init_lean_compiler_initattr_1__getIOTypeArg(obj* x_1) {
 _start:
 {
 if (lean::obj_tag(x_1) == 5)
@@ -178,7 +174,7 @@ if (lean::obj_tag(x_2) == 4)
 obj* x_3; obj* x_4; obj* x_5; uint8 x_6; 
 x_3 = lean::cnstr_get(x_1, 1);
 x_4 = lean::cnstr_get(x_2, 0);
-x_5 = l___private_init_lean_compiler_initattr_1__getIOTypeArg___main___closed__2;
+x_5 = l___private_init_lean_compiler_initattr_1__getIOTypeArg___closed__2;
 x_6 = lean_name_dec_eq(x_4, x_5);
 if (x_6 == 0)
 {
@@ -210,23 +206,6 @@ return x_10;
 }
 }
 }
-obj* l___private_init_lean_compiler_initattr_1__getIOTypeArg___main___boxed(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l___private_init_lean_compiler_initattr_1__getIOTypeArg___main(x_1);
-lean::dec(x_1);
-return x_2;
-}
-}
-obj* l___private_init_lean_compiler_initattr_1__getIOTypeArg(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l___private_init_lean_compiler_initattr_1__getIOTypeArg___main(x_1);
-return x_2;
-}
-}
 obj* l___private_init_lean_compiler_initattr_1__getIOTypeArg___boxed(obj* x_1) {
 _start:
 {
@@ -236,7 +215,7 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* _init_l___private_init_lean_compiler_initattr_2__isUnitType___main___closed__1() {
+obj* _init_l___private_init_lean_compiler_initattr_2__isUnitType___closed__1() {
 _start:
 {
 obj* x_1; 
@@ -244,24 +223,24 @@ x_1 = lean::mk_string("Unit");
 return x_1;
 }
 }
-obj* _init_l___private_init_lean_compiler_initattr_2__isUnitType___main___closed__2() {
+obj* _init_l___private_init_lean_compiler_initattr_2__isUnitType___closed__2() {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::box(0);
-x_2 = l___private_init_lean_compiler_initattr_2__isUnitType___main___closed__1;
+x_2 = l___private_init_lean_compiler_initattr_2__isUnitType___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-uint8 l___private_init_lean_compiler_initattr_2__isUnitType___main(obj* x_1) {
+uint8 l___private_init_lean_compiler_initattr_2__isUnitType(obj* x_1) {
 _start:
 {
 if (lean::obj_tag(x_1) == 4)
 {
 obj* x_2; obj* x_3; uint8 x_4; 
 x_2 = lean::cnstr_get(x_1, 0);
-x_3 = l___private_init_lean_compiler_initattr_2__isUnitType___main___closed__2;
+x_3 = l___private_init_lean_compiler_initattr_2__isUnitType___closed__2;
 x_4 = lean_name_dec_eq(x_2, x_3);
 if (x_4 == 0)
 {
@@ -284,24 +263,6 @@ return x_7;
 }
 }
 }
-obj* l___private_init_lean_compiler_initattr_2__isUnitType___main___boxed(obj* x_1) {
-_start:
-{
-uint8 x_2; obj* x_3; 
-x_2 = l___private_init_lean_compiler_initattr_2__isUnitType___main(x_1);
-lean::dec(x_1);
-x_3 = lean::box(x_2);
-return x_3;
-}
-}
-uint8 l___private_init_lean_compiler_initattr_2__isUnitType(obj* x_1) {
-_start:
-{
-uint8 x_2; 
-x_2 = l___private_init_lean_compiler_initattr_2__isUnitType___main(x_1);
-return x_2;
-}
-}
 obj* l___private_init_lean_compiler_initattr_2__isUnitType___boxed(obj* x_1) {
 _start:
 {
@@ -316,7 +277,7 @@ uint8 l___private_init_lean_compiler_initattr_3__isIOUnit(obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l___private_init_lean_compiler_initattr_1__getIOTypeArg___main(x_1);
+x_2 = l___private_init_lean_compiler_initattr_1__getIOTypeArg(x_1);
 if (lean::obj_tag(x_2) == 0)
 {
 uint8 x_3; 
@@ -329,7 +290,7 @@ obj* x_4; uint8 x_5;
 x_4 = lean::cnstr_get(x_2, 0);
 lean::inc(x_4);
 lean::dec(x_2);
-x_5 = l___private_init_lean_compiler_initattr_2__isUnitType___main(x_4);
+x_5 = l___private_init_lean_compiler_initattr_2__isUnitType(x_4);
 lean::dec(x_4);
 return x_5;
 }
@@ -2737,7 +2698,7 @@ lean::inc(x_22);
 lean::dec(x_14);
 x_23 = l_Lean_ConstantInfo_type(x_22);
 lean::dec(x_22);
-x_24 = l___private_init_lean_compiler_initattr_1__getIOTypeArg___main(x_23);
+x_24 = l___private_init_lean_compiler_initattr_1__getIOTypeArg(x_23);
 lean::dec(x_23);
 if (lean::obj_tag(x_24) == 0)
 {
@@ -3282,14 +3243,14 @@ w = initialize_init_lean_environment(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_attributes(w);
 if (io_result_is_error(w)) return w;
-l___private_init_lean_compiler_initattr_1__getIOTypeArg___main___closed__1 = _init_l___private_init_lean_compiler_initattr_1__getIOTypeArg___main___closed__1();
-lean::mark_persistent(l___private_init_lean_compiler_initattr_1__getIOTypeArg___main___closed__1);
-l___private_init_lean_compiler_initattr_1__getIOTypeArg___main___closed__2 = _init_l___private_init_lean_compiler_initattr_1__getIOTypeArg___main___closed__2();
-lean::mark_persistent(l___private_init_lean_compiler_initattr_1__getIOTypeArg___main___closed__2);
-l___private_init_lean_compiler_initattr_2__isUnitType___main___closed__1 = _init_l___private_init_lean_compiler_initattr_2__isUnitType___main___closed__1();
-lean::mark_persistent(l___private_init_lean_compiler_initattr_2__isUnitType___main___closed__1);
-l___private_init_lean_compiler_initattr_2__isUnitType___main___closed__2 = _init_l___private_init_lean_compiler_initattr_2__isUnitType___main___closed__2();
-lean::mark_persistent(l___private_init_lean_compiler_initattr_2__isUnitType___main___closed__2);
+l___private_init_lean_compiler_initattr_1__getIOTypeArg___closed__1 = _init_l___private_init_lean_compiler_initattr_1__getIOTypeArg___closed__1();
+lean::mark_persistent(l___private_init_lean_compiler_initattr_1__getIOTypeArg___closed__1);
+l___private_init_lean_compiler_initattr_1__getIOTypeArg___closed__2 = _init_l___private_init_lean_compiler_initattr_1__getIOTypeArg___closed__2();
+lean::mark_persistent(l___private_init_lean_compiler_initattr_1__getIOTypeArg___closed__2);
+l___private_init_lean_compiler_initattr_2__isUnitType___closed__1 = _init_l___private_init_lean_compiler_initattr_2__isUnitType___closed__1();
+lean::mark_persistent(l___private_init_lean_compiler_initattr_2__isUnitType___closed__1);
+l___private_init_lean_compiler_initattr_2__isUnitType___closed__2 = _init_l___private_init_lean_compiler_initattr_2__isUnitType___closed__2();
+lean::mark_persistent(l___private_init_lean_compiler_initattr_2__isUnitType___closed__2);
 l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkInitAttr___spec__4___closed__1 = _init_l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkInitAttr___spec__4___closed__1();
 lean::mark_persistent(l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkInitAttr___spec__4___closed__1);
 l_Lean_registerParametricAttribute___at_Lean_mkInitAttr___spec__1___closed__1 = _init_l_Lean_registerParametricAttribute___at_Lean_mkInitAttr___spec__1___closed__1();

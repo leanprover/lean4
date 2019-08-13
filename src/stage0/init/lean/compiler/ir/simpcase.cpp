@@ -34,6 +34,7 @@ obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_simpcase_2_
 obj* l_Array_back___at_Lean_IR_ensureHasDefault___spec__2___boxed(obj*);
 obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_simpcase_1__getOccsOf___spec__1___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_simpcase_4__mkSimpCase(obj*, obj*, obj*);
+obj* l_Lean_IR_AltCore_body(obj*);
 obj* l_Lean_IR_reshape(obj*, obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
@@ -51,23 +52,21 @@ uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_Array_push(obj*, obj*, obj*);
 extern obj* l_Lean_IR_altInh;
-uint8 l_Lean_IR_Alt_isDefault___main(obj*);
 obj* l_Lean_IR_Decl_simpCase(obj*);
 obj* l_Array_anyMAux___main___at_Lean_IR_ensureHasDefault___spec__1___boxed(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_simpcase_3__addDefault(obj*);
 obj* l_Array_ummapAux___main___at_Lean_IR_FnBody_simpCase___main___spec__2(obj*, obj*);
 obj* l_Array_shrink___main___rarg(obj*, obj*);
-obj* l_Lean_IR_AltCore_body___main(obj*);
 obj* l_Array_pop(obj*, obj*);
 uint8 l_Lean_IR_FnBody_beq(obj*, obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Array_fset(obj*, obj*, obj*, obj*);
 obj* l_Array_get(obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_simpcase_1__getOccsOf(obj*, obj*);
+uint8 l_Lean_IR_Alt_isDefault(obj*);
 namespace lean {
 uint8 nat_dec_le(obj*, obj*);
 }
-obj* l_Lean_IR_Decl_simpCase___main(obj*);
 obj* l_Array_back___at_Lean_IR_ensureHasDefault___spec__2(obj*);
 uint8 l_Array_anyMAux___main___at_Lean_IR_ensureHasDefault___spec__1(obj* x_1, obj* x_2) {
 _start:
@@ -87,7 +86,7 @@ else
 {
 obj* x_6; uint8 x_7; 
 x_6 = lean::array_fget(x_1, x_2);
-x_7 = l_Lean_IR_Alt_isDefault___main(x_6);
+x_7 = l_Lean_IR_Alt_isDefault(x_6);
 lean::dec(x_6);
 if (x_7 == 0)
 {
@@ -138,7 +137,7 @@ if (x_6 == 0)
 obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
 x_7 = l_Array_back___at_Lean_IR_ensureHasDefault___spec__2(x_1);
 x_8 = lean::array_pop(x_1);
-x_9 = l_Lean_IR_AltCore_body___main(x_7);
+x_9 = l_Lean_IR_AltCore_body(x_7);
 lean::dec(x_7);
 x_10 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_10, 0, x_9);
@@ -192,7 +191,7 @@ else
 {
 obj* x_8; obj* x_9; uint8 x_10; obj* x_11; obj* x_12; 
 x_8 = lean::array_fget(x_3, x_4);
-x_9 = l_Lean_IR_AltCore_body___main(x_8);
+x_9 = l_Lean_IR_AltCore_body(x_8);
 lean::dec(x_8);
 lean::inc(x_2);
 x_10 = l_Lean_IR_FnBody_beq(x_9, x_2);
@@ -222,7 +221,7 @@ _start:
 obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
 x_3 = l_Lean_IR_altInh;
 x_4 = lean::array_get(x_3, x_1, x_2);
-x_5 = l_Lean_IR_AltCore_body___main(x_4);
+x_5 = l_Lean_IR_AltCore_body(x_4);
 lean::dec(x_4);
 x_6 = lean::mk_nat_obj(1u);
 x_7 = lean::nat_add(x_2, x_6);
@@ -349,9 +348,9 @@ else
 {
 obj* x_8; obj* x_9; obj* x_10; uint8 x_11; 
 x_8 = lean::array_fget(x_2, x_3);
-x_9 = l_Lean_IR_AltCore_body___main(x_8);
+x_9 = l_Lean_IR_AltCore_body(x_8);
 lean::dec(x_8);
-x_10 = l_Lean_IR_AltCore_body___main(x_1);
+x_10 = l_Lean_IR_AltCore_body(x_1);
 x_11 = l_Lean_IR_FnBody_beq(x_9, x_10);
 if (x_11 == 0)
 {
@@ -424,7 +423,7 @@ if (x_10 == 0)
 {
 obj* x_11; obj* x_12; obj* x_13; obj* x_14; 
 x_11 = l_Array_filterAux___main___at___private_init_lean_compiler_ir_simpcase_3__addDefault___spec__1(x_8, x_1, x_5, x_5);
-x_12 = l_Lean_IR_AltCore_body___main(x_8);
+x_12 = l_Lean_IR_AltCore_body(x_8);
 lean::dec(x_8);
 x_13 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_13, 0, x_12);
@@ -476,7 +475,7 @@ else
 {
 obj* x_7; obj* x_8; obj* x_9; uint8 x_10; 
 x_7 = lean::array_fget(x_1, x_2);
-x_8 = l_Lean_IR_AltCore_body___main(x_7);
+x_8 = l_Lean_IR_AltCore_body(x_7);
 lean::dec(x_7);
 x_9 = lean::box(13);
 x_10 = l_Lean_IR_FnBody_beq(x_8, x_9);
@@ -555,7 +554,7 @@ lean::dec(x_1);
 x_12 = l_Lean_IR_altInh;
 x_13 = lean::array_get(x_12, x_6, x_4);
 lean::dec(x_6);
-x_14 = l_Lean_IR_AltCore_body___main(x_13);
+x_14 = l_Lean_IR_AltCore_body(x_13);
 lean::dec(x_13);
 return x_14;
 }
@@ -740,7 +739,7 @@ x_2 = l_Lean_IR_FnBody_simpCase___main(x_1);
 return x_2;
 }
 }
-obj* l_Lean_IR_Decl_simpCase___main(obj* x_1) {
+obj* l_Lean_IR_Decl_simpCase(obj* x_1) {
 _start:
 {
 if (lean::obj_tag(x_1) == 0)
@@ -779,14 +778,6 @@ else
 {
 return x_1;
 }
-}
-}
-obj* l_Lean_IR_Decl_simpCase(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_Lean_IR_Decl_simpCase___main(x_1);
-return x_2;
 }
 }
 obj* initialize_init_lean_compiler_ir_basic(obj*);

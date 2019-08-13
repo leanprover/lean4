@@ -41,10 +41,8 @@ obj* l_Lean_Level_ofNat___main(obj*);
 obj* l_Lean_LevelToFormat_Result_format___main___closed__1;
 obj* l_Lean_Level_ofNat(obj*);
 obj* l_Lean_Level_toNat___main(obj*);
-obj* l_Lean_Level_Param___boxed(obj*);
 obj* l_Lean_Level_instantiate___main(obj*, obj*);
 obj* l_Nat_repr(obj*);
-extern "C" obj* level_mk_param(obj*);
 obj* l_Lean_Level_one;
 obj* l_Lean_Level_hasParam___boxed(obj*);
 obj* l_Lean_LevelToFormat_Level_format(obj*);
@@ -80,6 +78,8 @@ obj* l_Lean_Level_one___closed__1;
 obj* l_Lean_Level_toNat___main___boxed(obj*);
 extern "C" usize lean_level_hash(obj*);
 obj* l_Lean_Nat_imax___boxed(obj*, obj*);
+extern "C" obj* level_mk_param(obj*);
+obj* l_Lean_Level_param___boxed(obj*);
 obj* l_Lean_LevelToFormat_Level_toResult___main(obj*);
 extern "C" obj* level_mk_succ(obj*);
 extern obj* l_System_FilePath_dirName___closed__1;
@@ -126,7 +126,7 @@ x_3 = level_mk_imax(x_1, x_2);
 return x_3;
 }
 }
-obj* l_Lean_Level_Param___boxed(obj* x_1) {
+obj* l_Lean_Level_param___boxed(obj* x_1) {
 _start:
 {
 obj* x_2; 

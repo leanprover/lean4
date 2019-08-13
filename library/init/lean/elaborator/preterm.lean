@@ -118,5 +118,18 @@ fun n => do
    else
      pure $ Expr.sort level
 
+@[builtinPreTermElab «arrow»] def convertArrow : PreTermElab :=
+fun n => do
+  id ← mkFreshName;
+  dom ← toPreTerm $ n.getArg 0;
+  rng ← toPreTerm $ n.getArg 2;
+  pure $ Expr.pi id BinderInfo.default dom rng
+
+@[builtinPreTermElab «hole»] def convertHole : PreTermElab :=
+fun _ => pure $ Expr.mvar Name.anonymous
+
+@[builtinPreTermElab «sorry»] def convertSorry : PreTermElab :=
+fun _ => pure $ Expr.app (Expr.const `sorryAx []) (Expr.mvar Name.anonymous)
+
 end Elab
 end Lean

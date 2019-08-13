@@ -406,6 +406,12 @@ namespace Elab
 instance {α} : Inhabited (Elab α) :=
 ⟨fun _ => default _⟩
 
+def mkFreshName : Elab Name :=
+do s ← get;
+   let n := s.ngen.curr;
+   modify $ fun s => { ngen := s.ngen.next, .. s };
+   pure n
+
 def getScope : Elab ElabScope :=
 do s ← get; pure s.scopes.head
 

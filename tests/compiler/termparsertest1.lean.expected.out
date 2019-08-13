@@ -1,20 +1,30 @@
 Prod.mk
 (Term.id `Prod.mk (null))
 x.{u, v+1}
-(Term.id `x (null (Term.explicitUniv ".{" (null `u "," (Level.addLit `v "+" (numLit "1"))) "}")))
+(Term.id
+ `x
+ (null (Term.explicitUniv ".{" (null (Level.ident `u) "," (Level.addLit (Level.ident `v) "+" (numLit "1"))) "}")))
 x.{u}
-(Term.id `x (null (Term.explicitUniv ".{" (null `u) "}")))
+(Term.id `x (null (Term.explicitUniv ".{" (null (Level.ident `u)) "}")))
 x
 (Term.id `x (null))
 x.{max u v}
-(Term.id `x (null (Term.explicitUniv ".{" (null (Level.max "max" (null `u `v))) "}")))
+(Term.id `x (null (Term.explicitUniv ".{" (null (Level.max "max" (null (Level.ident `u) (Level.ident `v)))) "}")))
 x.{max u v, 0}
-(Term.id `x (null (Term.explicitUniv ".{" (null (Level.max "max" (null `u `v)) "," (numLit "0")) "}")))
+(Term.id
+ `x
+ (null
+  (Term.explicitUniv
+   ".{"
+   (null (Level.max "max" (null (Level.ident `u) (Level.ident `v))) "," (Level.num (numLit "0")))
+   "}")))
 f 0 1
 (Term.app (Term.app (Term.id `f (null)) (numLit "0")) (numLit "1"))
 f.{u+1} "foo" x
 (Term.app
- (Term.app (Term.id `f (null (Term.explicitUniv ".{" (null (Level.addLit `u "+" (numLit "1"))) "}"))) (strLit "\"foo\""))
+ (Term.app
+  (Term.id `f (null (Term.explicitUniv ".{" (null (Level.addLit (Level.ident `u) "+" (numLit "1"))) "}")))
+  (strLit "\"foo\""))
  (Term.id `x (null)))
 (f x, 0, 1)
 (Term.paren
@@ -280,11 +290,11 @@ match x with
      (Term.matchAlt "|" (null (Term.id `none (null))) "=>" (numLit "1")))))
   (Term.matchAlt "|" (null (Term.id `none (null))) "=>" (numLit "0"))))
 Type u
-(Term.sortApp (Term.type "Type") `u)
+(Term.sortApp (Term.type "Type") (Level.ident `u))
 Sort v
-(Term.sortApp (Term.sort "Sort") `v)
+(Term.sortApp (Term.sort "Sort") (Level.ident `v))
 Type 1
-(Term.sortApp (Term.type "Type") (numLit "1"))
+(Term.sortApp (Term.type "Type") (Level.num (numLit "1")))
 f Type 1
 (Term.app (Term.app (Term.id `f (null)) (Term.type "Type")) (numLit "1"))
 let x := 0; x + 1
@@ -447,8 +457,8 @@ do { x ← f a; pure $ a + a }
     (Term.doExpr (Term.dollar (Term.id `pure (null)) "$" (Term.add (Term.id `a (null)) "+" (Term.id `a (null)))))))
   "}"))
 let f : Nat → Nat → Nat
-   | 0 a     := a + 10
-   | (n+1) b := n * b;
+   | 0, a   => a + 10
+   | n+1, b => n * b;
 f 20
 (Term.let
  "let"
@@ -458,11 +468,11 @@ f 20
   (null
    (Term.typeSpec ":" (Term.arrow (Term.id `Nat (null)) "→" (Term.arrow (Term.id `Nat (null)) "→" (Term.id `Nat (null))))))
   (null
-   (Term.equation3 "|" (null (numLit "0") (Term.id `a (null))) ":=" (Term.add (Term.id `a (null)) "+" (numLit "10")))
-   (Term.equation3
+   (Term.matchAlt "|" (null (numLit "0") "," (Term.id `a (null))) "=>" (Term.add (Term.id `a (null)) "+" (numLit "10")))
+   (Term.matchAlt
     "|"
-    (null (Term.paren "(" (null (Term.add (Term.id `n (null)) "+" (numLit "1")) (null)) ")") (Term.id `b (null)))
-    ":="
+    (null (Term.add (Term.id `n (null)) "+" (numLit "1")) "," (Term.id `b (null)))
+    "=>"
     (Term.mul (Term.id `n (null)) "*" (Term.id `b (null))))))
  ";"
  (Term.app (Term.id `f (null)) (numLit "20")))

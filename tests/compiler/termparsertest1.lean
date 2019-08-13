@@ -115,8 +115,8 @@ do
   pure (a + b)",
 "do { x ← f a; pure $ a + a }",
 "let f : Nat → Nat → Nat
-   | 0 a     := a + 10
-   | (n+1) b := n * b;
+   | 0, a   => a + 10
+   | n+1, b => n * b;
 f 20",
 "max a b"
 ];

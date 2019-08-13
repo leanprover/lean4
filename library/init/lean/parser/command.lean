@@ -82,6 +82,7 @@ declModifiers >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «
 @[builtinCommandParser] def check          := parser! "#check " >> termParser
 @[builtinCommandParser] def exit           := parser! "#exit"
 @[builtinCommandParser] def «resolve_name» := parser! "#resolve_name " >> ident
+@[builtinCommandParser] def «preterm»      := parser! "#preterm " >> termParser
 @[builtinCommandParser] def «init_quot»    := parser! "init_quot"
 @[builtinCommandParser] def «set_option»   := parser! "set_option " >> ident >> (symbolOrIdent "true" <|> symbolOrIdent "false" <|> strLit <|> numLit)
 @[builtinCommandParser] def «attribute»    := parser! optional "local " >> "attribute " >> "[" >> sepBy1 attrInstance ", " >> "]" >> many1 ident

@@ -7,6 +7,7 @@ prelude
 import init.lean.elaborator.alias
 import init.lean.elaborator.basic
 import init.lean.elaborator.resolvename
+import init.lean.elaborator.preterm
 
 namespace Lean
 namespace Elab
@@ -193,6 +194,13 @@ fun n => do
   resolvedIds ← resolveName id;
   pos ← getPosition;
   runIO (IO.println (toString pos ++ " " ++ toString resolvedIds));
+  pure ()
+
+@[builtinCommandElab «preterm»] def elabPreTerm : CommandElab :=
+fun n => do
+  let s := n.getArg 1;
+  pre ← toPreTerm s;
+  runIO (IO.println pre.dbgToString);
   pure ()
 
 /- We just ignore Lean3 notation declaration commands. -/

@@ -26,7 +26,7 @@ do m ← builtinPreTermElabTable.get;
    builtinPreTermElabTable.modify $ fun m => m.insert k elab
 
 def declareBuiltinPreTermElab (env : Environment) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
-declareBuiltinElab env `Lean.addBuiltinTermElab kind declName
+declareBuiltinElab env `Lean.addBuiltinPreTermElab kind declName
 
 @[init] def registerBuiltinPreTermElabAttr : IO Unit :=
 registerAttribute {
@@ -45,4 +45,29 @@ registerAttribute {
  applicationTime := AttributeApplicationTime.afterCompilation
 }
 
+def Expr.mkAnnotation (ann : Name) (e : Expr) :=
+Expr.mdata (MData.empty.setName `annotation ann) e
+
+private def dummy : Expr := Expr.const `Prop []
+
+namespace Elab
+
+def toPreTerm (stx : Syntax) : Elab PreTerm :=
+stx.ifNode
+  (fun n => do
+    s ← get;
+    table ← runIO builtinPreTermElabTable.get;
+    let k      := n.getKind;
+    match table.find k with
+    | some fn => fn n
+    | none    => logErrorAndThrow stx ("`toPreTerm` failed, no support for syntax '" ++ toString k ++ "'"))
+  (fun _ => throw "`toPreTerm` failed, unexpected syntax")
+
+@[builtinPreTermElab «type»] def convertType : PreTermElab :=
+fun _ => pure $ Expr.sort $ Level.succ Level.zero
+
+@[builtinPreTermElab «sort»] def convertSort : PreTermElab :=
+fun _ => pure $ Expr.sort Level.zero
+
+end Elab
 end Lean

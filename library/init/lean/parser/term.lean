@@ -98,8 +98,7 @@ def matchAlt := parser! " | " >> sepBy1 termParser ", " >> unicodeSymbol "⇒" "
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
 def letIdLhs : Parser := ident >> checkWsBefore "expected space before binders" >> many bracktedBinder >> optType
 def letIdDecl         := parser! try (letIdLhs >> " := ") >> termParser
-def equation3 := parser! try (" | " >> many1 (termParser appPrec) >> " := ") >> termParser -- Lean3 equation
-def equation  := equation3 <|> matchAlt
+def equation          := matchAlt
 def letEqns           := parser! try (letIdLhs >> lookahead " | ") >> many1Indent equation "equations must be indented"
 def letPatDecl        := parser! termParser >> optType >> " := " >> termParser
 def letDecl           := try letIdDecl <|> letEqns <|> letPatDecl

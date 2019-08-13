@@ -23,6 +23,7 @@ extern "C" obj* lean_name_mk_string(obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
+obj* l_Lean_NameGenerator_curr(obj*);
 extern "C" obj* lean_name_mk_numeral(obj*, obj*);
 obj* l_Lean_NameGenerator_Inhabited;
 obj* _init_l_Lean_NameGenerator_Inhabited___closed__1() {
@@ -63,6 +64,19 @@ x_1 = l_Lean_NameGenerator_Inhabited___closed__3;
 return x_1;
 }
 }
+obj* l_Lean_NameGenerator_curr(obj* x_1) {
+_start:
+{
+obj* x_2; obj* x_3; obj* x_4; 
+x_2 = lean::cnstr_get(x_1, 0);
+lean::inc(x_2);
+x_3 = lean::cnstr_get(x_1, 1);
+lean::inc(x_3);
+lean::dec(x_1);
+x_4 = lean_name_mk_numeral(x_2, x_3);
+return x_4;
+}
+}
 obj* l_Lean_NameGenerator_next(obj* x_1) {
 _start:
 {
@@ -70,42 +84,29 @@ uint8 x_2;
 x_2 = !lean::is_exclusive(x_1);
 if (x_2 == 0)
 {
-obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
-x_3 = lean::cnstr_get(x_1, 0);
-x_4 = lean::cnstr_get(x_1, 1);
-lean::inc(x_4);
-lean::inc(x_3);
-x_5 = lean_name_mk_numeral(x_3, x_4);
-x_6 = lean::mk_nat_obj(1u);
-x_7 = lean::nat_add(x_4, x_6);
-lean::dec(x_4);
-lean::cnstr_set(x_1, 1, x_7);
-x_8 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_8, 0, x_5);
-lean::cnstr_set(x_8, 1, x_1);
-return x_8;
+obj* x_3; obj* x_4; obj* x_5; 
+x_3 = lean::cnstr_get(x_1, 1);
+x_4 = lean::mk_nat_obj(1u);
+x_5 = lean::nat_add(x_3, x_4);
+lean::dec(x_3);
+lean::cnstr_set(x_1, 1, x_5);
+return x_1;
 }
 else
 {
-obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; 
-x_9 = lean::cnstr_get(x_1, 0);
-x_10 = lean::cnstr_get(x_1, 1);
-lean::inc(x_10);
-lean::inc(x_9);
+obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
+x_6 = lean::cnstr_get(x_1, 0);
+x_7 = lean::cnstr_get(x_1, 1);
+lean::inc(x_7);
+lean::inc(x_6);
 lean::dec(x_1);
-lean::inc(x_10);
-lean::inc(x_9);
-x_11 = lean_name_mk_numeral(x_9, x_10);
-x_12 = lean::mk_nat_obj(1u);
-x_13 = lean::nat_add(x_10, x_12);
-lean::dec(x_10);
-x_14 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_14, 0, x_9);
-lean::cnstr_set(x_14, 1, x_13);
-x_15 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_15, 0, x_11);
-lean::cnstr_set(x_15, 1, x_14);
-return x_15;
+x_8 = lean::mk_nat_obj(1u);
+x_9 = lean::nat_add(x_7, x_8);
+lean::dec(x_7);
+x_10 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_10, 0, x_6);
+lean::cnstr_set(x_10, 1, x_9);
+return x_10;
 }
 }
 }

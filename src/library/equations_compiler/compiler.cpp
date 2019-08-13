@@ -40,7 +40,7 @@ static eqn_compiler_result compile_equations_core(environment & env, elaborator 
     trace_compiler(tout() << "using_well_founded: " << is_wf_equations(eqns) << "\n";);
     equations_header const & header = get_equations_header(eqns);
     trace_compiler(tout() << "partial:            " << header.m_is_partial << "\n";);
-    lean_assert(header.m_is_unsafe || !has_nested_rec(eqns));
+    // lean_assert(header.m_is_unsafe || !has_nested_rec(eqns));
 
     if (header.m_is_unsafe) {
         if (is_wf_equations(eqns)) {
@@ -360,13 +360,15 @@ static expr compile_equations_main(environment & env, elaborator & elab,
     // all following code assumes that all recursive occurrences are applications
     type_context_old ctx(env, mctx, lctx, elab.get_cache(), transparency_mode::Semireducible);
     expr eqns = eta_expand_rec_apps_fn(ctx)(_eqns);
-    equations_header const & header = get_equations_header(eqns);
+    // tout() << "compile_equations_main\n" << eqns << "\n";
+    // equations_header const & header = get_equations_header(eqns);
     eqn_compiler_result r;
-    if (!header.m_is_unsafe && has_nested_rec(eqns)) {
-        r = pull_nested_rec_fn(env, elab, mctx, lctx)(eqns);
-    } else {
-        r = compile_equations_core(env, elab, mctx, lctx, eqns);
-    }
+    // if (!header.m_is_unsafe && has_nested_rec(eqns)) {
+    //    r = pull_nested_rec_fn(env, elab, mctx, lctx)(eqns);
+    //     tout() << "pull_nested_rec_fn\n" << head(r.m_fns) << "\n";
+    // } else {
+    r = compile_equations_core(env, elab, mctx, lctx, eqns);
+    // }
 
     if (report_cexs && r.m_counter_examples) {
         auto pp = mk_pp_ctx(env, elab.get_options(), mctx, lctx);

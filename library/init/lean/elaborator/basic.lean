@@ -56,6 +56,10 @@ inductive ElabException
 | msg    : Message → ElabException
 | kernel : KernelException → ElabException
 | other  : String → ElabException
+/- ElabException.silent is used when we log an error in `messages`, and then
+   want to interrupt the elaborator execution. We use it to make sure the
+   top-level handler does not record it again in `messages`. See `logErrorAndThrow` -/
+| silent : ElabException
 
 namespace ElabException
 
@@ -242,22 +246,22 @@ def logError (stx : Syntax) (errorMsg : String) : Elab Unit :=
 do pos ← getPos stx;
    logErrorAt pos errorMsg
 
-def toMessage : ElabException → Elab Message
-| ElabException.msg m    => pure m
-| ElabException.io e     => mkMessage (toString e)
-| ElabException.other e  => mkMessage e
+def logElabException (e : ElabException) : Elab Unit :=
+let log (msg : Message) : Elab Unit :=
+  modify $ fun s => { messages := s.messages.add msg, .. s };
+match e with
+| ElabException.silent   => pure () -- do nothing since message was already logged
+| ElabException.msg m    => log m
+| ElabException.io e     => mkMessage (toString e) >>= log
+| ElabException.other e  => mkMessage e >>= log
 | ElabException.kernel e =>
   match e with
-  | KernelException.other msg => mkMessage msg
-  | _                         => mkMessage "kernel exception" -- TODO(pretty print them)
-
-def logElabException (e : ElabException) : Elab Unit :=
-do msg ← toMessage e;
-   modify (fun s => { messages := s.messages.add msg, .. s })
+  | KernelException.other msg => mkMessage msg >>= log
+  | _                         => mkMessage "kernel exception" >>= log -- TODO(pretty print them)
 
 def logErrorAndThrow {α : Type} (stx : Syntax) (errorMsg : String) : Elab α :=
 do logError stx errorMsg;
-   throw errorMsg
+   throw ElabException.silent
 
 def logUnknownDecl (stx : Syntax) (declName : Name) : Elab Unit :=
 logError stx ("unknown declaration '" ++ toString declName ++ "'")

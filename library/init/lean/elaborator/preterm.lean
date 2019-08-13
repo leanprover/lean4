@@ -79,6 +79,16 @@ partial def toLevel : Syntax → Elab Level
      pure $ level.addOffset k
   | other => throw "unexpected universe level syntax"
 
+private def setPos (stx : Syntax) (p : PreTerm) : Elab PreTerm :=
+if stx.isOfKind `Lean.Parser.Term.app then pure p
+else do
+  cfg ← read;
+  match stx.getPos with
+  | none => pure p
+  | some pos =>
+    let pos := cfg.fileMap.toPosition pos;
+    pure $ Expr.mdata ((MData.empty.setNat `column pos.column).setNat `row pos.line) p
+
 def toPreTerm (stx : Syntax) : Elab PreTerm :=
 stx.ifNode
   (fun n => do
@@ -86,7 +96,7 @@ stx.ifNode
     table ← runIO builtinPreTermElabTable.get;
     let k      := n.getKind;
     match table.find k with
-    | some fn => fn n
+    | some fn => fn n >>= setPos stx
     | none    => logErrorAndThrow stx ("`toPreTerm` failed, no support for syntax '" ++ toString k ++ "'"))
   (fun _ => throw "`toPreTerm` failed, unexpected syntax")
 

@@ -251,7 +251,15 @@ expr const & lit_type(expr const & e) {
 // Constructors
 
 static expr * g_dummy = nullptr;
-expr::expr():expr(*g_dummy) {}
+
+static expr const & get_dummy() {
+    if (!g_dummy) {
+        g_dummy = new expr(mk_constant("__expr_for_default_constructor__"));
+    }
+    return *g_dummy;
+}
+
+expr::expr():expr(get_dummy()) {}
 
 extern "C" object * lean_expr_mk_lit(obj_arg l) {
     object * r = alloc_cnstr(static_cast<unsigned>(expr_kind::Lit), 1, expr_scalar_size(expr_kind::Lit));
@@ -322,8 +330,7 @@ static inline object * mk_local(obj_arg n, obj_arg pp_n, obj_arg t, binder_info 
 
 extern "C" object * lean_expr_mk_fvar(obj_arg n) {
     inc(n);
-    inc(g_dummy->raw());
-    return mk_local(n, n, g_dummy->raw(), mk_binder_info());
+    return mk_local(n, n, get_dummy().to_obj_arg(), mk_binder_info());
 }
 
 expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info bi) {
@@ -454,8 +461,7 @@ extern "C" object * lean_expr_mk_mvar_core(object * n, object * t) {
 }
 
 extern "C" object * lean_expr_mk_mvar(object * n) {
-    inc(g_dummy->raw());
-    return lean_expr_mk_mvar_core(n, g_dummy->raw());
+    return lean_expr_mk_mvar_core(n, get_dummy().to_obj_arg());
 }
 
 expr mk_mvar(name const & n, expr const & t) {
@@ -786,7 +792,7 @@ expr infer_implicit(expr const & t, bool strict) {
 // Initialization & Finalization
 
 void initialize_expr() {
-    g_dummy        = new expr(mk_constant("__expr_for_default_constructor__"));
+    get_dummy();
     g_default_name = new name("a");
     g_Type0        = new expr(mk_sort(mk_level_one()));
     g_Prop         = new expr(mk_sort(mk_level_zero()));

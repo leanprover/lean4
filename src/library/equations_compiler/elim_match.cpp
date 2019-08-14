@@ -1280,42 +1280,14 @@ elim_match_result elim_match(environment & env, elaborator & elab, metavar_conte
     return r;
 }
 
-static expr get_fn_type_from_eqns(expr const & eqns) {
-    /* TODO(Leo): implement more efficient version if needed */
-    buffer<expr> eqn_buffer;
-    to_equations(eqns, eqn_buffer);
-    return binding_domain(eqn_buffer[0]);
-}
-
 eqn_compiler_result mk_nonrec(environment & env, elaborator & elab, metavar_context & mctx,
                               local_context const & lctx, expr const & eqns) {
     equations_header header = get_equations_header(eqns);
     auto R = elim_match(env, elab, mctx, lctx, eqns);
-    if (true) { // header.m_is_unsafe || header.m_is_lemma) {
-        /* Do not generate auxiliary equation or equational lemmas */
-        auto fn = mk_constant(head(header.m_fn_names));
-        auto counter_examples = map2<expr>(R.m_counter_examples, [&] (list<expr> const & e) { return mk_app(fn, e); });
-        return { {R.m_fn}, counter_examples };
-    }
-    type_context_old ctx1(env, mctx, lctx, elab.get_cache(), transparency_mode::Semireducible);
-    /*
-       We should use the type specified at eqns instead of m_ctx.infer(R.m_fn).
-       These two types must be definitionally equal, but the shape of
-       m_ctx.infer(R.m_fn) may confuse automaton. For example,
-       it might be of the form (Pi (_a : nat), (fun x, nat) _a) which is
-       definitionally equal to (nat -> nat), but may confuse simplifier and
-       congruence closure modules make them "believe" that this is
-       a dependent function.
-    */
-    expr fn_type        = get_fn_type_from_eqns(eqns);
-    name fn_name        = head(header.m_fn_names);
-    name fn_actual_name = head(header.m_fn_actual_names);
-    expr fn;
-    std::tie(env, fn) = mk_aux_definition(env, elab.get_options(), mctx, lctx, header,
-                                          fn_name, fn_actual_name, fn_type, R.m_fn);
-    type_context_old ctx2(env, mctx, lctx, elab.get_cache(), transparency_mode::Semireducible);
+    /* Do not generate auxiliary equation or equational lemmas */
+    auto fn = mk_constant(head(header.m_fn_names));
     auto counter_examples = map2<expr>(R.m_counter_examples, [&] (list<expr> const & e) { return mk_app(fn, e); });
-    return { {fn}, counter_examples };
+    return { {R.m_fn}, counter_examples };
 }
 
 void initialize_elim_match() {

@@ -45,7 +45,6 @@ extern obj* l_Lean_Elab_rootNamespace;
 obj* l___private_init_lean_elaborator_resolvename_5__resolveNameAux___main(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_ummapAux___main___at___private_init_lean_elaborator_resolvename_6__preresolveNamesAux___main___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_elaborator_resolvename_5__resolveNameAux(obj*, obj*, obj*, obj*, obj*);
-obj* l_Lean_getEnv___rarg(obj*);
 obj* l_Lean_Elab_resolveName(obj*, obj*, obj*);
 obj* l___private_init_lean_elaborator_resolvename_5__resolveNameAux___main___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_elaborator_resolvename_3__resolveExact(obj*, obj*);
@@ -61,6 +60,7 @@ obj* l___private_init_lean_elaborator_resolvename_6__preresolveNamesAux(obj*);
 namespace lean {
 uint8 is_protected_core(obj*, obj*);
 }
+obj* l_Lean_Elab_getEnv___rarg(obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Array_fset(obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_elaborator_resolvename_1__resolveQualifiedName___boxed(obj*, obj*, obj*);
@@ -600,7 +600,7 @@ obj* l_Lean_Elab_resolveName(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = l_Lean_getEnv___rarg(x_3);
+x_4 = l_Lean_Elab_getEnv___rarg(x_3);
 if (lean::obj_tag(x_4) == 0)
 {
 uint8 x_5; 
@@ -1107,7 +1107,7 @@ obj* l_Lean_Elab_preresolveNames___rarg(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = l_Lean_getEnv___rarg(x_3);
+x_4 = l_Lean_Elab_getEnv___rarg(x_3);
 if (lean::obj_tag(x_4) == 0)
 {
 uint8 x_5; 

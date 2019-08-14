@@ -203,6 +203,13 @@ fun n => do
   runIO (IO.println pre.dbgToString);
   pure ()
 
+@[builtinCommandElab «elab»] def elabElab : CommandElab :=
+fun n => do
+  let s := n.getArg 1;
+  e ← oldElaborate (s.lift Expr);
+  runIO (IO.println e.dbgToString);
+  pure ()
+
 /- We just ignore Lean3 notation declaration commands. -/
 @[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()
 @[builtinCommandElab «reserve»] def elabReserve : CommandElab := fun _ => pure ()

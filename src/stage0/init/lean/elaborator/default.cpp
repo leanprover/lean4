@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.elaborator.default
-// Imports: init.lean.elaborator.basic init.lean.elaborator.elabstrategyattrs init.lean.elaborator.command init.lean.elaborator.preterm
+// Imports: init.lean.elaborator.basic init.lean.elaborator.elabstrategyattrs init.lean.elaborator.command init.lean.elaborator.preterm init.lean.elaborator.term
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -18,6 +18,7 @@ obj* initialize_init_lean_elaborator_basic(obj*);
 obj* initialize_init_lean_elaborator_elabstrategyattrs(obj*);
 obj* initialize_init_lean_elaborator_command(obj*);
 obj* initialize_init_lean_elaborator_preterm(obj*);
+obj* initialize_init_lean_elaborator_term(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_elaborator_default(obj* w) {
 if (_G_initialized) return w;
@@ -30,6 +31,8 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_elaborator_command(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_elaborator_preterm(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_elaborator_term(w);
 if (io_result_is_error(w)) return w;
 return w;
 }

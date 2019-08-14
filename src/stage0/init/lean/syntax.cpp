@@ -53,6 +53,7 @@ obj* l_Lean_Syntax_reprint___main___rarg(obj*);
 obj* l_Lean_Syntax_formatStx___main___rarg(obj*);
 obj* l_Lean_Syntax_asNode___rarg___boxed(obj*);
 obj* l_Lean_Syntax_isNatLitAux___rarg___boxed(obj*, obj*);
+obj* l_Lean_Syntax_lift___boxed(obj*, obj*);
 obj* l_Function_comp___rarg(obj*, obj*, obj*);
 obj* l_Lean_Syntax_reprint___main(obj*);
 obj* l_Lean_nullKind___closed__1;
@@ -97,6 +98,7 @@ obj* l_Array_mfindRevAux___main___at_Lean_Syntax_getTailInfo___main___spec__1(ob
 obj* l_Lean_SourceInfo_updateTrailing(obj*, obj*);
 obj* l_Lean_Syntax_getTailInfo___main___rarg(obj*);
 obj* l_Array_toList___rarg(obj*);
+obj* l_Lean_Syntax_lift(obj*, obj*);
 obj* l_Nat_repr(obj*);
 obj* l_Lean_Syntax_mreplace___main___rarg___lambda__3(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Syntax_formatStx___main___rarg___closed__3;
@@ -1051,6 +1053,14 @@ _start:
 obj* x_2; 
 x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_SyntaxNode_modifyArgs___rarg), 2, 0);
 return x_2;
+}
+}
+obj* l_Lean_Syntax_lift___boxed(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = x_2;
+return x_3;
 }
 }
 obj* l_Lean_Syntax_setAtomVal___rarg(obj* x_1, obj* x_2) {

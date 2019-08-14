@@ -620,12 +620,12 @@ level parser::parse_level(unsigned rbp) {
     return left;
 }
 
-pair<expr, names> parser::elaborate(name const & decl_name,
-                                                metavar_context & mctx, local_context_adapter const & adapter,
-                                                expr const & e, bool check_unassigned) {
+pair<expr, names> parser::elaborate(name const & /* decl_name */,
+                                    metavar_context & mctx, local_context_adapter const & adapter,
+                                    expr const & e, bool check_unassigned) {
     expr tmp_e  = adapter.translate_to(e);
     pair<expr, names> r =
-        ::lean::elaborate(m_env, get_options(), decl_name, mctx, adapter.lctx(), tmp_e, check_unassigned, m_error_recovery);
+        ::lean::elaborate(m_env, get_options(), mctx, adapter.lctx(), tmp_e, check_unassigned, m_error_recovery);
     expr new_e = r.first;
     new_e      = adapter.translate_from(new_e);
     return mk_pair(new_e, r.second);

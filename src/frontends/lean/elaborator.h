@@ -38,7 +38,6 @@ private:
     environment       m_env;
     options           m_opts;
     context_cache     m_cache;
-    name              m_decl_name;
     type_context_old  m_ctx;
     unsigned          m_aux_meta_idx = 1;
     bool              m_recover_from_errors;
@@ -284,10 +283,8 @@ private:
     expr mk_auto_param(expr const & name_lit, expr const & expected_type, expr const & ref);
     optional<expr> process_optional_and_auto_params(expr type, expr const & ref, buffer<expr> & eta_args, buffer<expr> & new_args);
 
-    expr mk_aux_meta_def(expr const & e, expr const & ref);
-
 public:
-    elaborator(environment const & env, options const & opts, name const & decl_name,
+    elaborator(environment const & env, options const & opts,
                metavar_context const & mctx, local_context const & lctx,
                bool recover_from_errors = true, bool in_pattern = false);
     ~elaborator();
@@ -355,7 +352,7 @@ expr elaborator::recover_expr_from_exception(optional<expr> const & expected_typ
     }
 }
 
-pair<expr, names> elaborate(environment & env, options const & opts, name const & decl_name,
+pair<expr, names> elaborate(environment & env, options const & opts,
                             metavar_context & mctx, local_context const & lctx,
                             expr const & e, bool check_unassigned, bool recover_from_errors);
 

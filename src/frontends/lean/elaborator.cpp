@@ -88,10 +88,10 @@ elaborator_strategy get_elaborator_strategy(environment const & env, name const 
 #define trace_elab_instances(CODE) lean_trace(name({"elaborator", "instances"}), scope_trace_env _scope(m_env, m_ctx); CODE)
 #define trace_elab_equation(CODE) lean_trace(name({"elaborator", "equation"}), scope_trace_env _scope(m_env, m_ctx); CODE)
 
-elaborator::elaborator(environment const & env, options const & opts, name const & decl_name,
+elaborator::elaborator(environment const & env, options const & opts,
                        metavar_context const & mctx, local_context const & lctx, bool recover_from_errors,
                        bool in_pattern):
-    m_env(env), m_opts(opts), m_cache(opts), m_decl_name(decl_name),
+    m_env(env), m_opts(opts), m_cache(opts),
     m_ctx(env, mctx, lctx, m_cache, transparency_mode::Semireducible),
     m_recover_from_errors(recover_from_errors),
     m_uses_infom(false /* get_global_info_manager() != nullptr */),
@@ -248,7 +248,7 @@ expr elaborator::mk_instance_core(local_context const & lctx, expr const & C, ex
         metavar_context mctx   = m_ctx.mctx();
         local_context new_lctx = lctx.instantiate_mvars(mctx);
         new_lctx = erase_inaccessible_annotations(new_lctx);
-        tactic_state s = ::lean::mk_tactic_state_for(m_env, m_opts, m_decl_name, mctx, new_lctx, C);
+        tactic_state s = ::lean::mk_tactic_state_for(m_env, m_opts, "<temporary>", mctx, new_lctx, C);
         return recoverable_error(some_expr(C), ref, elaborator_exception(
                 ref, format("failed to synthesize type class instance for") + line() + s.pp())
             .ignore_if(has_synth_sorry({C})));
@@ -2209,23 +2209,6 @@ bool elaborator::keep_do_failure_eq(expr const & first_eq) {
     return is_app(type) && is_monad_fail(app_fn(type));
 }
 
-expr elaborator::mk_aux_meta_def(expr const & e, expr const & ref) {
-    name aux_name(m_decl_name, "_aux_meta");
-    aux_name = aux_name.append_after(m_aux_meta_idx);
-    m_aux_meta_idx++;
-    expr new_c;
-    metavar_context mctx = m_ctx.mctx();
-    std::tie(m_env, new_c) = mk_aux_definition(m_env, mctx, local_context(),
-                                               aux_name, e, optional<bool>(true));
-    if (!is_constant(new_c)) {
-        throw elaborator_exception(ref, "failed to create auxiliary definition");
-    }
-    m_env = compile(m_env, m_opts, const_name(new_c));
-    m_ctx.set_env(m_env);
-    m_ctx.set_mctx(mctx);
-    return new_c;
-}
-
 static void mvar_dep_sort_aux(type_context_old & ctx, expr const & m,
                               name_set const & mvar_names, name_set & visited, buffer<expr> & result) {
     if (visited.contains(mvar_name(m)))
@@ -2565,12 +2548,15 @@ expr elaborator::visit_equations(expr const & e) {
     lean_assert(!eqs.empty());
 
     if (is_wf_equations(e)) {
+        /*
         expr type = mk_constant(get_well_founded_tactics_name());
         new_tacs  = visit(equations_wf_tactics(e), some_expr(type));
         new_tacs  = enforce_type(*new_tacs, type, "well_founded_tactics object expected", ref);
         if (!is_constant(*new_tacs)) {
             new_tacs = mk_aux_meta_def(*new_tacs, ref);
         }
+        */
+        lean_unreachable();
     }
 
     optional<expr> first_eq;
@@ -3556,7 +3542,7 @@ tactic_state elaborator::mk_tactic_state_for(expr const & mvar) {
     expr type            = mctx.instantiate_mvars(mdecl.get_type());
     type                 = erase_inaccessible_annotations(type);
     m_ctx.set_mctx(mctx);
-    return ::lean::mk_tactic_state_for(m_env, m_opts, m_decl_name, mctx, lctx, type);
+    return ::lean::mk_tactic_state_for(m_env, m_opts, "<temporary>", mctx, lctx, type);
 }
 
 void elaborator::synthesize() {
@@ -3813,10 +3799,10 @@ expr elaborator::finalize_theorem_proof(expr const & val, theorem_finalization_i
 }
 
 pair<expr, names>
-elaborate(environment & env, options const & opts, name const & decl_name,
+elaborate(environment & env, options const & opts,
           metavar_context & mctx, local_context const & lctx, expr const & e,
           bool check_unassigned, bool recover_from_errors) {
-    elaborator elab(env, opts, decl_name, mctx, lctx, recover_from_errors);
+    elaborator elab(env, opts, mctx, lctx, recover_from_errors);
     expr r = elab.elaborate(e);
     auto p = elab.finalize(r, check_unassigned, true);
     mctx = elab.mctx();

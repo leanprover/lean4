@@ -235,7 +235,7 @@ static environment elab_defs_core(parser & p, decl_cmd_kind kind, cmd_meta const
         return p.env();
 
     bool recover_from_errors = true;
-    elaborator elab(env, p.get_options(), get_namespace(env) + local_pp_name_p(fns[0]), metavar_context(), local_context(), recover_from_errors);
+    elaborator elab(env, p.get_options(), metavar_context(), local_context(), recover_from_errors);
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
     val = replace_locals_preserving_pos_info(val, params, new_params);
@@ -432,7 +432,7 @@ static expr elaborate_proof(
 
     try {
         bool recover_from_errors = true;
-        elaborator elab(decl_env, opts, get_namespace(decl_env) + local_pp_name_p(fn), mctx, lctx, recover_from_errors);
+        elaborator elab(decl_env, opts, mctx, lctx, recover_from_errors);
 
         expr val, type;
         {
@@ -469,7 +469,7 @@ static void check_example(environment const & decl_env, options const & opts,
 
     try {
         bool recover_from_errors = true;
-        elaborator elab(decl_env, opts, decl_name, mctx, lctx, recover_from_errors);
+        elaborator elab(decl_env, opts, mctx, lctx, recover_from_errors);
 
         expr val, type;
         std::tie(val, type) = elab.elaborate_with_type(val0, local_type_p(fn));
@@ -500,7 +500,7 @@ static environment elab_single_def(parser & p, decl_cmd_kind const & kind, cmd_m
                             name const & prv_name) {
     collect_implicit_locals(p, lp_names, params, {local_type_p(fn), val});
     bool recover_from_errors = true;
-    elaborator elab(p.env(), p.get_options(), get_namespace(p.env()) + local_pp_name_p(fn), metavar_context(), local_context(), recover_from_errors);
+    elaborator elab(p.env(), p.get_options(), metavar_context(), local_context(), recover_from_errors);
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
     replace_params(params, new_params, fn, val);

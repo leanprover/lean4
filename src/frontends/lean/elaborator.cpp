@@ -1332,32 +1332,32 @@ expr elaborator::second_pass(expr const & fn, buffer<expr> const & args,
         }
         expr ref_arg       = get_ref_for_child(args[i], ref);
         expr expected_type = info.args_expected_types[i];
-        info.new_args[info.new_args_size[i]] = recover_expr_from_exception(some_expr(expected_type), ref_arg, [&] {
-            if (is_metavar(info.args_mvars[i])) {
-                expr new_arg; expr new_arg_type; optional<expr> new_new_arg;
-                std::tie(new_arg, new_arg_type, new_new_arg) = elaborate_arg(args[i], expected_type, ref_arg);
-                if (!new_new_arg) {
-                    buffer<expr> tmp_args;
-                    tmp_args.append(info.new_args_size[i], info.new_args.data());
-                    tmp_args.push_back(new_arg);
-                    throw_app_type_mismatch_error(mk_app(fn, tmp_args), new_arg, new_arg_type,
-                                                  info.args_expected_types[i], ref);
-                }
-                if (!is_def_eq(info.args_mvars[i], *new_new_arg)) {
-                    buffer<expr> tmp_args;
-                    tmp_args.append(info.new_args_size[i], info.new_args.data());
-                    tmp_args.push_back(new_arg);
-                    format msg = mk_app_arg_mismatch_error(mk_app(fn, tmp_args),
-                                                           new_arg, info.args_mvars[i]);
-                    report_or_throw(elaborator_exception(ref, msg).
-                        ignore_if(has_synth_sorry({new_arg, instantiate_mvars(info.args_mvars[i])})));
-                }
-                return *new_new_arg;
-            } else {
-                return info.args_mvars[i];
+
+        if (is_metavar(info.args_mvars[i])) {
+            expr new_arg; expr new_arg_type; optional<expr> new_new_arg;
+            std::tie(new_arg, new_arg_type, new_new_arg) = elaborate_arg(args[i], expected_type, ref_arg);
+            if (!new_new_arg) {
+                buffer<expr> tmp_args;
+                tmp_args.append(info.new_args_size[i], info.new_args.data());
+                tmp_args.push_back(new_arg);
+                throw_app_type_mismatch_error(mk_app(fn, tmp_args), new_arg, new_arg_type,
+                                              info.args_expected_types[i], ref);
             }
-        });
+            if (!is_def_eq(info.args_mvars[i], *new_new_arg)) {
+                buffer<expr> tmp_args;
+                tmp_args.append(info.new_args_size[i], info.new_args.data());
+                tmp_args.push_back(new_arg);
+                format msg = mk_app_arg_mismatch_error(mk_app(fn, tmp_args),
+                                                       new_arg, info.args_mvars[i]);
+                report_or_throw(elaborator_exception(ref, msg).
+                                ignore_if(has_synth_sorry({new_arg, instantiate_mvars(info.args_mvars[i])})));
+            }
+            info.new_args[info.new_args_size[i]] = *new_new_arg;
+        } else {
+            info.new_args[info.new_args_size[i]] = info.args_mvars[i];
+        }
     }
+
     for (; j < info.new_instances.size(); j++) {
         expr const & mvar = info.new_instances[j];
         if (!try_synthesize_type_class_instance(mvar))
@@ -3405,61 +3405,58 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
     flet<unsigned> inc_depth(m_depth, m_depth+1);
     trace_elab_detail(tout() << "[" << m_depth << "] visiting\n" << e << "\n";
                       if (expected_type) tout() << "expected type:\n" << instantiate_mvars(*expected_type) << "\n";);
-    expr e2 = recover_expr_from_exception(expected_type, e, [&] () -> expr {
-        if (auto p = get_pos(e)) {
-            flet<optional<pos_info>> _(m_last_pos, p);
-            return visit(unwrap_pos(e), expected_type);
-        } else if (is_placeholder(e)) {
-            return visit_placeholder(e, expected_type);
-        } else if (is_typed_expr(e)) {
-            return visit_typed_expr(e);
-        } else if (is_have_expr(e)) {
-            return copy_pos(e, visit_have_expr(e, expected_type));
-        } else if (is_suffices_annotation(e)) {
-            return copy_pos(e, visit_suffices_expr(e, expected_type));
-        } else if (is_no_info(e)) {
-            flet<bool> set(m_no_info, true);
-            return visit(get_annotation_arg(e), expected_type);
-        } else if (is_emptyc_or_emptys(e)) {
-            return visit_emptyc_or_emptys(e, expected_type);
-        } else if (is_sort_wo_universe(e)) {
-            return visit(get_annotation_arg(e), expected_type);
-        } else {
-            switch (e.kind()) {
-                case expr_kind::BVar: lean_unreachable();  // LCOV_EXCL_LINE
-                case expr_kind::MVar:
-                    return e;
-                case expr_kind::Lit:
-                    switch (lit_value(e).kind()) {
-                    case literal_kind::Nat:
-                        return visit_prenum(e, expected_type);
-                    case literal_kind::String:
-                        return e;
-                    }
-                    lean_unreachable();
-                case expr_kind::MData:
-                    return visit_mdata(e, expected_type, false);
-                case expr_kind::Proj:
-                    throw elaborator_exception(e, "unexpected occurrence of proj constructor");
-                case expr_kind::Sort:
-                    return visit_sort(e);
-                case expr_kind::FVar:
-                    return visit_local(e, expected_type);
-                case expr_kind::Const:
-                    return visit_constant(e, expected_type);
-                case expr_kind::Lambda:
-                    return visit_lambda(e, expected_type);
-                case expr_kind::Pi:
-                    return visit_pi(e);
-                case expr_kind::App:
-                    return visit_app(e, expected_type);
-                case expr_kind::Let:
-                    return visit_let(e, expected_type);
+    if (auto p = get_pos(e)) {
+        flet<optional<pos_info>> _(m_last_pos, p);
+        return visit(unwrap_pos(e), expected_type);
+    } else if (is_placeholder(e)) {
+        return visit_placeholder(e, expected_type);
+    } else if (is_typed_expr(e)) {
+        return visit_typed_expr(e);
+    } else if (is_have_expr(e)) {
+        return copy_pos(e, visit_have_expr(e, expected_type));
+    } else if (is_suffices_annotation(e)) {
+        return copy_pos(e, visit_suffices_expr(e, expected_type));
+    } else if (is_no_info(e)) {
+        flet<bool> set(m_no_info, true);
+        return visit(get_annotation_arg(e), expected_type);
+    } else if (is_emptyc_or_emptys(e)) {
+        return visit_emptyc_or_emptys(e, expected_type);
+    } else if (is_sort_wo_universe(e)) {
+        return visit(get_annotation_arg(e), expected_type);
+    } else {
+        switch (e.kind()) {
+        case expr_kind::BVar: lean_unreachable();  // LCOV_EXCL_LINE
+        case expr_kind::MVar:
+            return e;
+        case expr_kind::Lit:
+            switch (lit_value(e).kind()) {
+            case literal_kind::Nat:
+                return visit_prenum(e, expected_type);
+            case literal_kind::String:
+                return e;
             }
-            lean_unreachable(); // LCOV_EXCL_LINE
+            lean_unreachable();
+        case expr_kind::MData:
+            return visit_mdata(e, expected_type, false);
+        case expr_kind::Proj:
+            throw elaborator_exception(e, "unexpected occurrence of proj constructor");
+        case expr_kind::Sort:
+            return visit_sort(e);
+        case expr_kind::FVar:
+            return visit_local(e, expected_type);
+        case expr_kind::Const:
+            return visit_constant(e, expected_type);
+        case expr_kind::Lambda:
+            return visit_lambda(e, expected_type);
+        case expr_kind::Pi:
+            return visit_pi(e);
+        case expr_kind::App:
+            return visit_app(e, expected_type);
+        case expr_kind::Let:
+            return visit_let(e, expected_type);
         }
-    });
-    return e2;
+        lean_unreachable(); // LCOV_EXCL_LINE
+    }
 }
 
 expr elaborator::get_default_numeral_type() {

@@ -53,6 +53,17 @@ Expr.mdata (MData.empty.setName `annotation ann) e
 
 private def dummy : Expr := Expr.const `Prop []
 
+def mkAsIs (e : Expr) : PreTerm :=
+e.mkAnnotation `as_is
+
+def mkPreTypeAscription (p : PreTerm) (expectedType : Expr) : PreTerm :=
+Expr.app (Expr.app (Expr.const `typedExpr []) expectedType) p
+
+def mkPreTypeAscriptionIfSome (p : PreTerm) (expectedType : Option Expr) : PreTerm :=
+match expectedType with
+| none => p
+| some expectedType => mkPreTypeAscription p expectedType
+
 namespace Elab
 
 partial def toLevel : Syntax Expr → Elab Level
@@ -134,12 +145,12 @@ fun _ => pure $ Expr.mvar Name.anonymous
 @[builtinPreTermElab «sorry»] def convertSorry : PreTermElab :=
 fun _ => pure $ Expr.app (Expr.const `sorryAx []) (Expr.mvar Name.anonymous)
 
-def oldElaborate : Syntax Expr → Elab Expr :=
-fun stx => do
+def oldElaborate (stx : Syntax Expr) (expectedType : Option Expr := none) : Elab Expr :=
+do
   p ← toPreTerm stx;
   scope ← getScope;
   s ← get;
-  match oldElaborateAux s.env scope.options s.mctx scope.lctx p with
+  match oldElaborateAux s.env scope.options s.mctx scope.lctx (mkPreTypeAscriptionIfSome p expectedType) with
   | Except.error (some pos, fmt) => do
     ctx ← read;
     logMessage { fileName := ctx.fileName, pos := pos, text := fmt.pretty scope.options };

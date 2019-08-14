@@ -10,16 +10,19 @@ import init.lean.elaborator.basic
 namespace Lean
 namespace Elab
 
-def elabTerm (stx : Syntax Expr) : Elab (Syntax Expr) :=
+def elabTerm (stx : Syntax Expr) (expectedType : Option Expr) : Elab (Syntax Expr) :=
 stx.ifNode
   (fun n => do
     s ← get;
     let tables := termElabAttribute.ext.getState s.env;
     let k      := n.getKind;
     match tables.find k with
-    | some elab => elab n
+    | some elab => elab n expectedType
     | none      => logErrorAndThrow stx ("term elaborator failed, no support for syntax '" ++ toString k ++ "'"))
-  (fun _ => throw "term elaborator failed, unexpected syntax")
+  (fun _=>
+    match stx with
+    | Syntax.other e => pure stx
+    | _              => throw "term elaborator failed, unexpected syntax")
 
 end Elab
 end Lean

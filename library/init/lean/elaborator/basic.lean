@@ -73,7 +73,7 @@ abbrev Elab := ReaderT ElabContext (EState ElabException ElabState)
 
 instance str2ElabException : HasCoe String ElabException := ⟨ElabException.other⟩
 
-abbrev TermElab    := SyntaxNode Expr → Elab (Syntax Expr)
+abbrev TermElab    := SyntaxNode Expr → Option Expr → Elab (Syntax Expr)
 abbrev CommandElab := SyntaxNode → Elab Unit
 
 abbrev TermElabTable : Type := SMap SyntaxNodeKind TermElab Name.quickLt

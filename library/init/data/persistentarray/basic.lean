@@ -11,8 +11,15 @@ inductive PersistentArrayNode (α : Type u)
 | node (cs : Array PersistentArrayNode) : PersistentArrayNode
 | leaf (vs : Array α)                   : PersistentArrayNode
 
-instance PersistentArrayNode.inhabited {α : Type u} : Inhabited (PersistentArrayNode α) :=
-⟨PersistentArrayNode.leaf Array.empty⟩
+namespace PersistentArrayNode
+
+instance {α : Type u} : Inhabited (PersistentArrayNode α) := ⟨leaf Array.empty⟩
+
+def isNode {α} : PersistentArrayNode α → Bool
+| node _ => true
+| leaf _ => false
+
+end PersistentArrayNode
 
 abbrev PersistentArray.initShift : USize := 5
 abbrev PersistentArray.branching : USize := USize.ofNat (2 ^ PersistentArray.initShift.toNat)
@@ -139,6 +146,7 @@ partial def popLeaf : PersistentArrayNode α → Option (Array α) × Array (Per
   if h : cs.size ≠ 0 then
     let idx : Fin cs.size := ⟨cs.size - 1, Nat.predLt h⟩;
     let last := cs.fget idx;
+    -- TODO reset position idx
     match popLeaf last with
     | (none,   _)       => (none, emptyArray)
     | (some l, newLast) =>
@@ -161,7 +169,7 @@ else
     let last       := last.pop;
     let newSize    := t.size - 1;
     let newTailOff := newSize - last.size;
-    if newRoots.size == 1 then
+    if newRoots.size == 1 && (newRoots.get 0).isNode then
       { root    := newRoots.get 0,
         shift   := t.shift - initShift,
         size    := newSize,

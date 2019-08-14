@@ -199,7 +199,7 @@ fun n => do
 @[builtinCommandElab «preterm»] def elabPreTerm : CommandElab :=
 fun n => do
   let s := n.getArg 1;
-  pre ← toPreTerm s;
+  pre ← toPreTerm (s.lift Expr);
   runIO (IO.println pre.dbgToString);
   pure ()
 

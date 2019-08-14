@@ -11,9 +11,9 @@ namespace Lean
 abbrev PreTerm := Expr
 
 @[extern "lean_old_elaborate"]
-constant oldElaborate : Environment → Options → MetavarContext → LocalContext → PreTerm → Except (Option Position × Format) (Environment × MetavarContext × Expr) := default _
+constant oldElaborateAux : Environment → Options → MetavarContext → LocalContext → PreTerm → Except (Option Position × Format) (Environment × MetavarContext × Expr) := default _
 
-abbrev PreTermElab := SyntaxNode → Elab PreTerm
+abbrev PreTermElab := SyntaxNode Expr → Elab PreTerm
 
 abbrev PreTermElabTable : Type := HashMap SyntaxNodeKind PreTermElab
 
@@ -55,7 +55,7 @@ private def dummy : Expr := Expr.const `Prop []
 
 namespace Elab
 
-partial def toLevel : Syntax → Elab Level
+partial def toLevel : Syntax Expr → Elab Level
 | stx => do
   match stx.getKind with
   | `Lean.Parser.Level.paren  => toLevel $ stx.getArg 1
@@ -82,7 +82,7 @@ partial def toLevel : Syntax → Elab Level
      pure $ level.addOffset k
   | other => throw "unexpected universe level syntax"
 
-private def setPos (stx : Syntax) (p : PreTerm) : Elab PreTerm :=
+private def setPos (stx : Syntax Expr) (p : PreTerm) : Elab PreTerm :=
 if stx.isOfKind `Lean.Parser.Term.app then pure p
 else do
   cfg ← read;
@@ -92,7 +92,7 @@ else do
     let pos := cfg.fileMap.toPosition pos;
     pure $ Expr.mdata ((MData.empty.setNat `column pos.column).setNat `row pos.line) p
 
-def toPreTerm (stx : Syntax) : Elab PreTerm :=
+def toPreTerm (stx : Syntax Expr) : Elab PreTerm :=
 stx.ifNode
   (fun n => do
     s ← get;
@@ -133,6 +133,21 @@ fun _ => pure $ Expr.mvar Name.anonymous
 
 @[builtinPreTermElab «sorry»] def convertSorry : PreTermElab :=
 fun _ => pure $ Expr.app (Expr.const `sorryAx []) (Expr.mvar Name.anonymous)
+
+def oldElaborate : Syntax Expr → Elab Expr :=
+fun stx => do
+  p ← toPreTerm stx;
+  scope ← getScope;
+  s ← get;
+  match oldElaborateAux s.env scope.options s.mctx scope.lctx p with
+  | Except.error (some pos, fmt) => do
+    ctx ← read;
+    logMessage { filename := ctx.fileName, pos := pos, text := fmt.pretty scope.options };
+    throw ElabException.silent
+  | Except.error (none, fmt)     => logErrorAndThrow stx (fmt.pretty scope.options)
+  | Except.ok (env, mctx, e)     => do
+    modify $ fun s => { env := env, mctx := mctx, .. s };
+    pure e
 
 end Elab
 end Lean

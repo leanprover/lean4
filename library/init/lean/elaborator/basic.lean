@@ -221,6 +221,8 @@ mkElabAttribute `commandTerm "command" builtinCommandElabTable
 constant commandElabAttribute : CommandElabAttribute := default _
 
 namespace Elab
+def logMessage (msg : Message) : Elab Unit :=
+modify $ fun s => { messages := s.messages.add msg, .. s }
 
 def getPosition (pos : Option String.Pos := none) : Elab Position :=
 do ctx ← read;
@@ -234,8 +236,7 @@ do ctx ← read;
    pure { filename := ctx.fileName, pos := pos, text := msg }
 
 def logErrorAt (pos : String.Pos) (errorMsg : String) : Elab Unit :=
-do msg ← mkMessage errorMsg pos;
-   modify (fun s => { messages := s.messages.add msg, .. s })
+mkMessage errorMsg pos >>= logMessage
 
 def logErrorUsingCmdPos (errorMsg : String) : Elab Unit :=
 do s ← get;

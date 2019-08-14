@@ -72,12 +72,12 @@ abbrev SyntaxNodeKindSet := HashMap SyntaxNodeKind Unit
 
 structure ParserContextCore :=
 (input    : String)
-(filename : String)
+(fileName : String)
 (fileMap  : FileMap)
 (tokens   : TokenTable)
 
 instance ParserContextCore.inhabited : Inhabited ParserContextCore :=
-⟨{ input := "", filename := "", fileMap := default _, tokens := {} }⟩
+⟨{ input := "", fileName := "", fileMap := default _, tokens := {} }⟩
 
 structure ParserContext extends ParserContextCore :=
 (env      : Environment)
@@ -153,7 +153,7 @@ match s.errorMsg with
 | none     => ""
 | some msg =>
   let pos := ctx.fileMap.toPosition s.pos;
-  mkErrorStringWithPos ctx.filename pos.line pos.column (toString msg)
+  mkErrorStringWithPos ctx.fileName pos.line pos.column (toString msg)
 
 def mkNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserState :=
 match s with
@@ -1381,17 +1381,17 @@ def getSyntaxNodeKinds : IO (List SyntaxNodeKind) :=
 do s ← syntaxNodeKindSetRef.get;
    pure $ s.fold (fun ks k _ => k::ks) []
 
-def mkParserContextCore (env : Environment) (input : String) (filename : String) : ParserContextCore :=
+def mkParserContextCore (env : Environment) (input : String) (fileName : String) : ParserContextCore :=
 { input    := input,
-  filename := filename,
+  fileName := fileName,
   fileMap  := input.toFileMap,
   tokens   := tokenTableAttribute.ext.getState env }
 
 @[inline] def ParserContextCore.toParserContext (env : Environment) (ctx : ParserContextCore) : ParserContext :=
 { env := env, toParserContextCore := ctx }
 
-def mkParserContext (env : Environment) (input : String) (filename : String) : ParserContext :=
-(mkParserContextCore env input filename).toParserContext env
+def mkParserContext (env : Environment) (input : String) (fileName : String) : ParserContext :=
+(mkParserContextCore env input fileName).toParserContext env
 
 def mkParserState (input : String) : ParserState :=
 { cache := initCacheForInput input }

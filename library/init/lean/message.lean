@@ -9,15 +9,15 @@ prelude
 import init.data.tostring init.lean.position
 
 namespace Lean
-def mkErrorStringWithPos (filename : String) (line col : Nat) (msg : String) : String :=
-filename ++ ":" ++ toString line ++ ":" ++ toString col ++ " " ++ toString msg
+def mkErrorStringWithPos (fileName : String) (line col : Nat) (msg : String) : String :=
+fileName ++ ":" ++ toString line ++ ":" ++ toString col ++ " " ++ toString msg
 
 inductive MessageSeverity
 | information | warning | error
 
 -- TODO: structured messages
 structure Message :=
-(filename : String)
+(fileName : String)
 (pos      : Position)
 (endPos   : Option Position  := none)
 (severity : MessageSeverity := MessageSeverity.error)
@@ -26,7 +26,7 @@ structure Message :=
 
 namespace Message
 protected def toString (msg : Message) : String :=
-mkErrorStringWithPos msg.filename msg.pos.line msg.pos.column
+mkErrorStringWithPos msg.fileName msg.pos.line msg.pos.column
  ((match msg.severity with
    | MessageSeverity.information => ""
    | MessageSeverity.warning => "warning: "
@@ -34,7 +34,7 @@ mkErrorStringWithPos msg.filename msg.pos.line msg.pos.column
   (if msg.caption == "" then "" else msg.caption ++ ":\n") ++ msg.text)
 
 instance : Inhabited Message :=
-⟨{ filename := "", pos := ⟨0, 1⟩, text := ""}⟩
+⟨{ fileName := "", pos := ⟨0, 1⟩, text := ""}⟩
 
 instance : HasToString Message :=
 ⟨Message.toString⟩

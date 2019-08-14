@@ -233,7 +233,7 @@ def mkMessage (msg : String) (pos : Option String.Pos := none) : Elab Message :=
 do ctx ← read;
    s ← get;
    let pos := ctx.fileMap.toPosition (pos.getOrElse s.cmdPos);
-   pure { filename := ctx.fileName, pos := pos, text := msg }
+   pure { fileName := ctx.fileName, pos := pos, text := msg }
 
 def logErrorAt (pos : String.Pos) (errorMsg : String) : Elab Unit :=
 mkMessage errorMsg pos >>= logMessage
@@ -296,7 +296,7 @@ abbrev Frontend := ReaderT Parser.ParserContextCore (EState ElabException Fronte
 
 def getElabContext : Frontend ElabContext :=
 do c ← read;
-   pure { fileName := c.filename, fileMap := c.fileMap }
+   pure { fileName := c.fileName, fileMap := c.fileMap }
 
 @[specialize] def runElab {α} (x : Elab α) : Frontend α :=
 do c ← getElabContext;
@@ -373,7 +373,7 @@ catch
      env ← mkEmptyEnvironment;
      let spos := header.getPos.getOrElse 0;
      let pos  := ctx.fileMap.toPosition spos;
-     pure (env, messages.add { filename := ctx.filename, text := toString e, pos := pos }))
+     pure (env, messages.add { fileName := ctx.fileName, text := toString e, pos := pos }))
 
 def toBaseDir (fileName : Option String) : IO (Option String) :=
 match fileName with

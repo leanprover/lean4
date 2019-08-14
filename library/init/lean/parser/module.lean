@@ -33,7 +33,7 @@ instance ModuleParserState.inhabited : Inhabited ModuleParserState :=
 
 private def mkErrorMessage (c : ParserContext) (pos : String.Pos) (errorMsg : String) : Message :=
 let pos := c.fileMap.toPosition pos;
-{ filename := c.filename, pos := pos, text := errorMsg }
+{ fileName := c.fileName, pos := pos, text := errorMsg }
 
 def parseHeader (env : Environment) (c : ParserContextCore) : Syntax × ModuleParserState × MessageLog :=
 let c   := c.toParserContext env;
@@ -98,9 +98,9 @@ private partial def testModuleParserAux (env : Environment) (c : ParserContextCo
       testModuleParserAux s messages
 
 @[export lean.test_module_parser_core]
-def testModuleParser (env : Environment) (input : String) (filename := "<input>") (displayStx := false) : IO Bool :=
-timeit (filename ++ " parser") $ do
-  let ctx                := mkParserContextCore env input filename;
+def testModuleParser (env : Environment) (input : String) (fileName := "<input>") (displayStx := false) : IO Bool :=
+timeit (fileName ++ " parser") $ do
+  let ctx                := mkParserContextCore env input fileName;
   let (stx, s, messages) := parseHeader env ctx;
   when displayStx (IO.println stx);
   testModuleParserAux env ctx displayStx s messages

@@ -142,7 +142,7 @@ fun stx => do
   match oldElaborateAux s.env scope.options s.mctx scope.lctx p with
   | Except.error (some pos, fmt) => do
     ctx ← read;
-    logMessage { filename := ctx.fileName, pos := pos, text := fmt.pretty scope.options };
+    logMessage { fileName := ctx.fileName, pos := pos, text := fmt.pretty scope.options };
     throw ElabException.silent
   | Except.error (none, fmt)     => logErrorAndThrow stx (fmt.pretty scope.options)
   | Except.ok (env, mctx, e)     => do

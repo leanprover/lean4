@@ -146,7 +146,7 @@ partial def popLeaf : PersistentArrayNode α → Option (Array α) × Array (Per
   if h : cs.size ≠ 0 then
     let idx : Fin cs.size := ⟨cs.size - 1, Nat.predLt h⟩;
     let last := cs.fget idx;
-    -- TODO reset position idx
+    let cs   := cs.fset idx (default _);
     match popLeaf last with
     | (none,   _)       => (none, emptyArray)
     | (some l, newLast) =>

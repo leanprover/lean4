@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import init.control.reader
+import init.lean.metavarcontext
 import init.lean.namegenerator
 import init.lean.scopes
 import init.lean.parser.module
@@ -49,6 +50,7 @@ structure ElabState :=
 (messages : MessageLog := {})
 (cmdPos   : String.Pos := 0)
 (ngen     : NameGenerator := {})
+(mctx     : MetavarContext := {})
 (scopes   : List ElabScope := [{ cmd := "root", header := Name.anonymous }])
 
 inductive ElabException

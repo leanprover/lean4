@@ -54,6 +54,8 @@ protected:
     template<bool is_lambda> expr mk_binding(unsigned num, expr const * fvars, expr const & b) const;
 public:
     local_ctx();
+    explicit local_ctx(obj_arg o):object_ref(o) {}
+    local_ctx(b_obj_arg o, bool):object_ref(o, true) {}
     local_ctx(local_ctx const & other):object_ref(other) {}
     local_ctx(local_ctx && other):object_ref(other) {}
     local_ctx & operator=(local_ctx const & other) { object_ref::operator=(other); return *this; }

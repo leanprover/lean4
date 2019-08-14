@@ -10,6 +10,9 @@ namespace Lean
 
 abbrev PreTerm := Expr
 
+@[extern "lean_old_elaborate"]
+constant oldElaborate : Environment → Options → MetavarContext → LocalContext → PreTerm → Except (Option Position × Format) (Environment × MetavarContext × Expr) := default _
+
 abbrev PreTermElab := SyntaxNode → Elab PreTerm
 
 abbrev PreTermElabTable : Type := HashMap SyntaxNodeKind PreTermElab

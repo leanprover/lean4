@@ -16,6 +16,7 @@ class options {
     options(kvmap const & v):m_value(v) {}
 public:
     options() {}
+    explicit options(obj_arg o):m_value(o) {}
     options(b_obj_arg o, bool v):m_value(o, v) {}
     options(options const & o):m_value(o.m_value) {}
     options(options && o):m_value(std::move(o.m_value)) {}

@@ -3810,6 +3810,27 @@ elaborate(environment & env, options const & opts,
     return p;
 }
 
+extern "C" object * lean_old_elaborate(object * env, object * opts, object * mctx, object * lctx, object * p) {
+    try {
+        elaborator elab(environment(env), options(opts), metavar_context(mctx), local_context(lctx), false, false);
+        expr e = elab.elaborate(expr(p));
+        pair_ref<environment, pair_ref<metavar_context, expr>> r(elab.env(), pair_ref<metavar_context, expr>(elab.mctx(), e));
+        return mk_cnstr(1, r).steal();
+    } catch (elaborator_exception & ex) {
+        option_ref<object_ref> pos;
+        if (optional<pos_info> p = ex.get_pos()) {
+            pos = option_ref<object_ref>(mk_cnstr(0, box(p->first), box(p->second)));
+        }
+        return mk_cnstr(0, pair_ref<option_ref<object_ref>, format>(pos, ex.pp())).steal();
+    } catch (exception & ex) {
+        option_ref<object_ref> pos;
+        return mk_cnstr(0, pair_ref<option_ref<object_ref>, format>(pos, format(ex.what()))).steal();
+    } catch (...) {
+        option_ref<object_ref> pos;
+        return mk_cnstr(0, pair_ref<option_ref<object_ref>, format>(pos, format("internal error"))).steal();
+    }
+}
+
 void initialize_elaborator() {
     register_trace_class("elaborator");
     register_trace_class(name({"elaborator", "numeral"}));

@@ -49,6 +49,8 @@ class local_context : public local_ctx {
     optional<local_decl> get_decl_at(unsigned idx) const;
 public:
     local_context() {}
+    explicit local_context(obj_arg o):local_ctx(o) {}
+    local_context(b_obj_arg o, bool):local_ctx(o, true) {}
 
     expr mk_local_decl(expr const & type, binder_info bi = mk_binder_info());
     expr mk_local_decl(expr const & type, expr const & value);

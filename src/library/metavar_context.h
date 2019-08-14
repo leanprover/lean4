@@ -48,6 +48,8 @@ class metavar_context : public object_ref {
     friend struct interface_impl;
 public:
     metavar_context();
+    explicit metavar_context(obj_arg o):object_ref(o) {}
+    metavar_context(b_obj_arg o, bool):object_ref(o, true) {}
     metavar_context(metavar_context const & other):object_ref(other) {}
     metavar_context(metavar_context && other):object_ref(other) {}
     metavar_context & operator=(metavar_context const & other) { object_ref::operator=(other); return *this; }

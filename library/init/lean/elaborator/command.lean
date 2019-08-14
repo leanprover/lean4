@@ -7,7 +7,7 @@ prelude
 import init.lean.elaborator.alias
 import init.lean.elaborator.basic
 import init.lean.elaborator.resolvename
-import init.lean.elaborator.preterm
+import init.lean.elaborator.term
 
 namespace Lean
 namespace Elab
@@ -206,9 +206,10 @@ fun n => do
 @[builtinCommandElab «elab»] def elabElab : CommandElab :=
 fun n => do
   let s := n.getArg 1;
-  e ← oldElaborate (s.lift Expr);
-  runIO (IO.println e.dbgToString);
-  pure ()
+  r ← elabTerm (s.lift Expr);
+  match r with
+  | Syntax.other e => runIO (IO.println e.dbgToString)
+  | _              => throw "failed to elaborate syntax"
 
 /- We just ignore Lean3 notation declaration commands. -/
 @[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()

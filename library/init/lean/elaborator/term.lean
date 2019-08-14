@@ -38,5 +38,10 @@ partial def elabTermAux : Syntax Expr → Option Expr → Bool → Elab (Syntax 
 def elabTerm (stx : Syntax Expr) (expectedType : Option Expr := none) : Elab (Syntax Expr) :=
 elabTermAux stx expectedType false
 
+@[builtinTermElab «list»] def elabList : TermElab :=
+fun stx _ => do
+  runIO (IO.println stx.val);
+  pure stx.val
+
 end Elab
 end Lean

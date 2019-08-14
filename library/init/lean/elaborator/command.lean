@@ -188,6 +188,11 @@ fun _ => do
   | Except.ok env   => setEnv env
   | Except.error ex => logElabException (ElabException.kernel ex)
 
+@[builtinCommandElab «variable»] def elabVariable : CommandElab :=
+fun n => do
+  runIO (IO.println n.val);
+  pure ()
+
 @[builtinCommandElab «resolve_name»] def elabResolveName : CommandElab :=
 fun n => do
   let id := n.getIdAt 1;

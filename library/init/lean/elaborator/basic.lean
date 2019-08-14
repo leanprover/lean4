@@ -71,7 +71,7 @@ abbrev Elab := ReaderT ElabContext (EState ElabException ElabState)
 
 instance str2ElabException : HasCoe String ElabException := ⟨ElabException.other⟩
 
-abbrev TermElab    := SyntaxNode → Elab Expr
+abbrev TermElab    := SyntaxNode Expr → Elab (Syntax Expr)
 abbrev CommandElab := SyntaxNode → Elab Unit
 
 abbrev TermElabTable : Type := SMap SyntaxNodeKind TermElab Name.quickLt
@@ -218,6 +218,8 @@ mkElabAttribute `commandTerm "command" builtinCommandElabTable
 @[init mkCommandElabAttribute]
 constant commandElabAttribute : CommandElabAttribute := default _
 
+namespace Elab
+
 def getPosition (pos : Option String.Pos := none) : Elab Position :=
 do ctx ← read;
    s ← get;
@@ -237,12 +239,12 @@ def logErrorUsingCmdPos (errorMsg : String) : Elab Unit :=
 do s ← get;
    logErrorAt s.cmdPos errorMsg
 
-def getPos (stx : Syntax) : Elab String.Pos :=
+def getPos {α} (stx : Syntax α) : Elab String.Pos :=
 match stx.getPos with
 | some p => pure p
 | none   => do s ← get; pure s.cmdPos
 
-def logError (stx : Syntax) (errorMsg : String) : Elab Unit :=
+def logError {α} (stx : Syntax α) (errorMsg : String) : Elab Unit :=
 do pos ← getPos stx;
    logErrorAt pos errorMsg
 
@@ -259,11 +261,11 @@ match e with
   | KernelException.other msg => mkMessage msg >>= log
   | _                         => mkMessage "kernel exception" >>= log -- TODO(pretty print them)
 
-def logErrorAndThrow {α : Type} (stx : Syntax) (errorMsg : String) : Elab α :=
+def logErrorAndThrow {α β : Type} (stx : Syntax β) (errorMsg : String) : Elab α :=
 do logError stx errorMsg;
    throw ElabException.silent
 
-def logUnknownDecl (stx : Syntax) (declName : Name) : Elab Unit :=
+def logUnknownDecl {α} (stx : Syntax α) (declName : Name) : Elab Unit :=
 logError stx ("unknown declaration '" ++ toString declName ++ "'")
 
 def getEnv : Elab Environment :=
@@ -271,17 +273,6 @@ do s ← get; pure s.env
 
 def setEnv (env : Environment) : Elab Unit :=
 modify $ fun s => { env := env, .. s }
-
-def elabTerm (stx : Syntax) : Elab Expr :=
-stx.ifNode
-  (fun n => do
-    s ← get;
-    let tables := termElabAttribute.ext.getState s.env;
-    let k      := n.getKind;
-    match tables.find k with
-    | some elab => elab n
-    | none      => logErrorAndThrow stx ("term elaborator failed, no support for syntax '" ++ toString k ++ "'"))
-  (fun _ => throw "term elaborator failed, unexpected syntax")
 
 def elabCommand (stx : Syntax) : Elab Unit :=
 stx.ifNode
@@ -400,8 +391,6 @@ do env ← mkEmptyEnvironment;
      match (processCommands ctx).run { elabState := elabState, parserState := parserState } with
        | EState.Result.ok _ s    => pure (s.elabState.env, s.elabState.messages)
        | EState.Result.error _ s => pure (s.elabState.env, s.elabState.messages)
-
-namespace Elab
 
 instance {α} : Inhabited (Elab α) :=
 ⟨fun _ => default _⟩

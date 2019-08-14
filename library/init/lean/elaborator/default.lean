@@ -8,3 +8,4 @@ import init.lean.elaborator.basic
 import init.lean.elaborator.elabstrategyattrs
 import init.lean.elaborator.command
 import init.lean.elaborator.preterm
+import init.lean.elaborator.term

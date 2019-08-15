@@ -425,47 +425,6 @@ void dealloc(void * o, size_t sz) {
     }
 }
 
-static void * alloc_small_slow(size_t sz, unsigned slot_idx) {
-    page * p = g_heap->m_curr_page[slot_idx];
-    if (g_heap->m_page_free_list[slot_idx] == nullptr) {
-        g_heap->import_objs();
-        p = alloc_page(g_heap, sz);
-    } else {
-        p = page_list_pop(g_heap->m_page_free_list[slot_idx]);
-        p->m_header.m_in_page_free_list = false;
-        page_list_insert(g_heap->m_curr_page[slot_idx], p);
-    }
-    void * r = p->m_header.m_free_list;
-    lean_assert(r);
-    p->m_header.m_free_list = get_next_obj(r);
-    p->m_header.m_num_free--;
-    return r;
-}
-
-void * alloc_small(size_t sz) {
-#ifdef LEAN_RUNTIME_STATS
-    return alloc(sz);
-#else
-    sz = allocator::align(sz, LEAN_OBJECT_SIZE_DELTA);
-    if (sz <= LEAN_MAX_SMALL_OBJECT_SIZE) {
-        lean_assert(allocator::g_curr_pages);
-        unsigned slot_idx = allocator::get_slot_idx(sz);
-        allocator::page * p = allocator::g_curr_pages[slot_idx];
-        void * r = p->m_header.m_free_list;
-        if (r != nullptr) {
-            p->m_header.m_free_list = allocator::get_next_obj(r);
-            p->m_header.m_num_free--;
-            return r;
-        }
-        return alloc_small_slow(sz, slot_idx);
-    } else {
-        void * r = malloc(sz);
-        if (r == nullptr) throw std::bad_alloc();
-        return r;
-    }
-#endif
-}
-
 void initialize_alloc() {
 #ifdef LEAN_SMALL_ALLOCATOR
     g_heap_manager = new heap_manager();

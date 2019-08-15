@@ -32,7 +32,6 @@ Author: Leonardo de Moura
 #include "library/app_builder.h"
 #include "library/fun_info.h"
 #include "library/check.h"
-#include "library/parray.h"
 #include "library/profiling.h"
 #include "library/time_task.h"
 #include "library/error_msgs.h"
@@ -88,13 +87,11 @@ void initialize_library_module() {
     initialize_abstract_context_cache();
     initialize_type_context();
     initialize_check();
-    initialize_parray();
     initialize_time_task();
 }
 
 void finalize_library_module() {
     finalize_time_task();
-    finalize_parray();
     finalize_check();
     finalize_type_context();
     finalize_abstract_context_cache();

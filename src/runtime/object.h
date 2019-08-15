@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "runtime/mpz.h"
 #include "runtime/int64.h"
 #include "runtime/thread.h"
-#include "runtime/alloc.h"
 
 #ifdef _MSC_VER
 #define LEAN_ALLOCA(s) ::_alloca(s)

@@ -10,7 +10,7 @@ import yaml
 import temci.utils.library_init
 from temci.report import stats, rundata
 from temci.utils import number, settings
-import numpy
+import scipy.stats as st
 
 def single(bench, cat, prop):
     f = f"bench/{bench}{cat}.bench"
@@ -28,7 +28,7 @@ def pp(bench, cat, prop, norm):
     if not open(f).read():
         return "-"
     s = single(bench, cat, prop)
-    norm = 1  #norm if prop == 'etime' else 1
+    norm = norm if prop == 'etime' else 1
     mean_by_cat[cat].append(s.mean() / norm)
     stddev_by_cat[cat].append(s.std_dev() / norm)
     number.FNumber.settings["min_decimal_places"] = 2 if prop == 'etime' else 0
@@ -36,8 +36,8 @@ def pp(bench, cat, prop, norm):
     return number.fnumber(s.mean() / norm, abs_deviation=s.std_dev() / norm) + ('%' if prop == 'gc' else '')
 
 def mean(cat, prop):
-    mean = numpy.mean(mean_by_cat[cat])
-    stddev = numpy.mean(stddev_by_cat[cat])
+    mean = st.gmean(mean_by_cat[cat])
+    stddev = st.gmean(stddev_by_cat[cat])
     number.FNumber.settings["min_decimal_places"] = 2 if prop == 'etime' else 0
     number.FNumber.settings["max_decimal_places"] = 2 if prop == 'etime' else 0
     return number.fnumber(mean, abs_deviation=stddev) + ('%' if prop == 'gc' else '')  #if prop == 'etime' else '-'
@@ -74,7 +74,7 @@ cats = os.environ['CATS'].split(':')
 print(";".join(["Benchmark"] + [CATBAG[cat][0] for cat in cats]))
 
 for bench in benches:
-    norm = single(bench, '.lean', 'etime').mean()
+    norm = single('rbmap' if bench.startswith('rbmap') else bench, '.lean', 'etime').mean()
     print(";".join([bench] + [pp(bench, cat, CATBAG[cat][1], norm) for cat in cats]))
 
-print(";".join(["mean"] + [mean(cat, CATBAG[cat][1]) for cat in cats]))
+print(";".join(["geom. mean"] + [mean(cat, CATBAG[cat][1]) for cat in cats]))

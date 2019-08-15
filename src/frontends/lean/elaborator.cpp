@@ -2538,7 +2538,6 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
 }
 
 expr elaborator::visit_equations(expr const & e) {
-    expr const & ref = e;
     buffer<expr> eqs;
     buffer<expr> new_eqs;
     optional<expr> new_tacs;
@@ -2849,7 +2848,7 @@ class visit_structure_instance_fn {
                     fval = mk_app(default_val, args);
                     fval = head_beta_reduce(fval);
                 }
-                reduce_and_check_deps(fval, full_S_fname);
+                reduce_and_check_deps(fval);
                 return fval;
             }
         });
@@ -2975,7 +2974,7 @@ class visit_structure_instance_fn {
      * Also reduce projections containing mvars, which may remove dependencies.
      * Example: `functor.map (functor.mk ?p1 ?m1 ?m2...) => ?m1`
      */
-    void reduce_and_check_deps(expr & e, name const & full_S_fname) {
+    void reduce_and_check_deps(expr & e) {
         if (m_use_subobjects)
             e = reduce_projections_visitor(m_ctx)(e);
         name_set deps;
@@ -3053,7 +3052,7 @@ class visit_structure_instance_fn {
                     expr val;
 
                     try {
-                        reduce_and_check_deps(reduced_expected_type, full_S_fname);
+                        reduce_and_check_deps(reduced_expected_type);
                         /* note: we pass the reduced, mvar-free expected type. Otherwise auto params may fail with
                          * "result contains meta-variables". */
                         val = (*m_field2elab.find(S_fname))(reduced_expected_type);

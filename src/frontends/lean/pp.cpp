@@ -463,13 +463,6 @@ auto pretty_fn::pp_child_core(expr const & e, unsigned bp, bool ignore_hide) -> 
     return add_paren_if_needed(pp(e, ignore_hide), bp);
 }
 
-static expr consume_ref_annotations(expr const & e) {
-    if (is_explicit(e))
-        return consume_ref_annotations(get_explicit_arg(e));
-    else
-        return e;
-}
-
 static bool is_coercion(expr const & e) {
     return is_app_of(e, get_coe_name()) && get_app_num_args(e) >= 4;
 }

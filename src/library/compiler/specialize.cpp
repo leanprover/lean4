@@ -460,7 +460,6 @@ class specialize_fn {
 
     /* Auxiliary class for collecting specialization dependencies. */
     class dep_collector {
-        type_checker::state & m_st;
         local_ctx             m_lctx;
         name_set              m_visited_not_in_binder;
         name_set              m_visited_in_binder;
@@ -572,8 +571,8 @@ class specialize_fn {
         }
 
     public:
-        dep_collector(type_checker::state & st, local_ctx const & lctx, spec_ctx & ctx):
-            m_st(st), m_lctx(lctx), m_ctx(ctx) {}
+        dep_collector(local_ctx const & lctx, spec_ctx & ctx):
+            m_lctx(lctx), m_ctx(ctx) {}
         void operator()(expr const & e) { return collect(e, false); }
     };
 
@@ -587,7 +586,7 @@ class specialize_fn {
         buffer<spec_arg_kind> kinds;
         get_arg_kinds(const_name(fn), kinds);
         bool has_attr   = has_specialize_attribute(env(), const_name(fn));
-        dep_collector collect(m_st, m_lctx, ctx);
+        dep_collector collect(m_lctx, ctx);
         unsigned sz     = std::min(kinds.size(), args.size());
         unsigned i      = sz;
         bool found_inst = false;

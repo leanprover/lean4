@@ -23,7 +23,7 @@
       bash -c "
       set -euxo pipefail &&
       echo -n 'lines: ' &&
-      find library -name '*.lean' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
+      find library -name '*.lean' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1"
     max_runs: 1
     runner: output
 #- attributes:

@@ -34,6 +34,8 @@ extern "C" {
 #define LEAN_ALWAYS_INLINE
 #endif
 
+ #define LEAN_BYTE(Var, Index) *(((uint8_t*)&Var)+Index)
+
 #define LeanMaxCtorTag  245
 #define LeanClosure     246
 #define LeanArray       247
@@ -294,7 +296,7 @@ void lean_dealloc(lean_object * o);
 
 static inline uint8_t lean_ptr_tag(lean_object * o) {
 #ifdef LEAN_COMPRESSED_OBJECT_HEADER
-    return o->m_header >> 56;
+    return LEAN_BYTE(o->m_header, 7);
 #else
     return o->m_tag;
 #endif
@@ -381,7 +383,7 @@ static inline void lean_set_header(lean_object * o, unsigned tag, unsigned other
 
 static inline unsigned lean_ctor_num_objs(lean_object * o) {
 #ifdef LEAN_COMPRESSED_OBJECT_HEADER
-    return (o->m_header >> 48) & 0xff;
+    return LEAN_BYTE(o->m_header, 6);
 #else
     return o->m_other;
 #endif
@@ -398,7 +400,7 @@ static inline uint8_t * lean_ctor_scalar_cptr(lean_object * o) {
 }
 
 static inline lean_object * lean_alloc_ctor(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
-    assert(tag < LeanMaxCtorTag && num_objs < 256 && scalar_sz < 1024);
+    assert(tag <= LeanMaxCtorTag && num_objs < 256 && scalar_sz < 1024);
     lean_object * o = (lean_object*)lean_alloc_heap_object(sizeof(lean_ctor_object) + sizeof(void*)*num_objs + scalar_sz);
     lean_set_header(o, tag, num_objs);
     return o;
@@ -414,11 +416,70 @@ static inline void lean_ctor_set(b_lean_obj_arg o, unsigned i, lean_obj_arg v) {
     lean_ctor_obj_cptr(o)[i] = v;
 }
 
+static inline void lean_ctor_set_tag(b_lean_obj_arg o, uint8_t new_tag) {
+    assert(new_tag <= LeanMaxCtorTag);
+#ifdef LEAN_COMPRESSED_OBJECT_HEADER
+    LEAN_BYTE(o->m_header, 7) = new_tag;
+#else
+    o->m_tag = new_tag;
+#endif
+}
+
 static inline void lean_ctor_release(b_lean_obj_arg o, unsigned i) {
     assert(i < lean_ctor_num_objs(o));
     lean_object ** objs = lean_ctor_obj_cptr(o);
     lean_dec(objs[i]);
     objs[i] = lean_box(0);
+}
+
+static inline size_t lean_ctor_usize(b_lean_obj_arg o, unsigned i) {
+    assert(i >= lean_ctor_num_objs(o));
+    return *((size_t*)(lean_ctor_obj_cptr(o) + i));
+}
+
+static inline uint8_t lean_ctor_get_uint8(b_lean_obj_arg o, unsigned offset) {
+    assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
+    return *((uint8_t*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset));
+}
+
+static inline uint16_t lean_ctor_get_uint16(b_lean_obj_arg o, unsigned offset) {
+    assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
+    return *((uint16_t*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset));
+}
+
+static inline uint32_t lean_ctor_get_uint32(b_lean_obj_arg o, unsigned offset) {
+    assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
+    return *((uint32_t*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset));
+}
+
+static inline uint64_t lean_ctor_get_uint64(b_lean_obj_arg o, unsigned offset) {
+    assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
+    return *((uint64_t*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset));
+}
+
+static inline void lean_ctor_set_usize(b_lean_obj_arg o, unsigned i, size_t v) {
+    assert(i >= lean_ctor_num_objs(o));
+    *((size_t*)(lean_ctor_obj_cptr(o) + i)) = v;
+}
+
+static inline void lean_ctor_set_uint8(b_lean_obj_arg o, unsigned offset, uint8_t v) {
+    assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
+    *((uint8_t*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset)) = v;
+}
+
+static inline void lean_ctor_set_uint16(b_lean_obj_arg o, unsigned offset, uint16_t v) {
+    assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
+    *((uint16_t*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset)) = v;
+}
+
+static inline void lean_ctor_set_uint32(b_lean_obj_arg o, unsigned offset, uint32_t v) {
+    assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
+    *((uint32_t*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset)) = v;
+}
+
+static inline void lean_ctor_set_uint64(b_lean_obj_arg o, unsigned offset, uint64_t v) {
+    assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
+    *((uint64_t*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset)) = v;
 }
 
 #ifdef __cplusplus

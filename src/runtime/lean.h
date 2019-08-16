@@ -46,11 +46,11 @@ extern "C" {
 #define LeanRef         254
 #define LeanExternal    255
 
-#define LEAN_CASSERT(predicate) LEAN_impl_CASSERT_LINE(predicate,__LINE__,__FILE__)
+#define LEAN_CASSERT(predicate) LEAN_impl_CASSERT_LINE(predicate, __LINE__, __FILE__)
 
-#define LEAN_impl_PASTE(a,b) a##b
+#define LEAN_impl_PASTE(a, b) a##b
 #define LEAN_impl_CASSERT_LINE(predicate, line, file) \
-    typedef char LEAN_impl_PASTE(assertion_failed_##file##_,line)[2*!!(predicate)-1];
+    typedef char LEAN_impl_PASTE(assertion_failed_##file##_, line)[2*!!(predicate)-1];
 
 LEAN_CASSERT(sizeof(size_t) == sizeof(void*));
 

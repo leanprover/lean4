@@ -381,7 +381,10 @@ static inline void lean_set_header(lean_object * o, unsigned tag, unsigned other
 #endif
 }
 
+/* Constructor objects */
+
 static inline unsigned lean_ctor_num_objs(lean_object * o) {
+    assert(lean_is_ctor(o));
 #ifdef LEAN_COMPRESSED_OBJECT_HEADER
     return LEAN_BYTE(o->m_header, 6);
 #else
@@ -481,6 +484,40 @@ static inline void lean_ctor_set_uint64(b_lean_obj_arg o, unsigned offset, uint6
     assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
     *((uint64_t*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset)) = v;
 }
+
+/* Closures */
+
+inline void * lean_closure_fun(lean_object * o) { return lean_to_closure(o)->m_fun; }
+inline unsigned lean_closure_arity(lean_object * o) { return lean_to_closure(o)->m_arity; }
+inline unsigned lean_closure_num_fixed(lean_object * o) { return lean_to_closure(o)->m_num_fixed; }
+inline lean_object ** lean_closure_arg_cptr(lean_object * o) { return lean_to_closure(o)->m_objs; }
+inline lean_obj_res lean_alloc_closure(void * fun, unsigned arity, unsigned num_fixed) {
+    assert(arity > 0);
+    assert(num_fixed < arity);
+    lean_closure_object * o = (lean_closure_object*)lean_alloc_heap_object(sizeof(lean_closure_object) + sizeof(void*)*num_fixed);
+    lean_set_header((lean_object*)o, LeanClosure, 0);
+    o->m_fun = fun;
+    o->m_arity = arity;
+    o->m_num_fixed = num_fixed;
+    return (lean_object*)o;
+}
+inline b_lean_obj_res lean_closure_get(b_lean_obj_arg o, unsigned i) {
+    assert(i < lean_closure_num_fixed(o));
+    return lean_to_closure(o)->m_objs[i];
+}
+inline void lean_closure_set(u_lean_obj_arg o, unsigned i, lean_obj_arg a) {
+    assert(i < lean_closure_num_fixed(o));
+    lean_to_closure(o)->m_objs[i] = a;
+}
+
+/* Fixpoint */
+
+lean_obj_res lean_fixpoint(lean_obj_arg rec, lean_obj_arg a);
+lean_obj_res lean_fixpoint2(lean_obj_arg rec, lean_obj_arg a1, lean_obj_arg a2);
+lean_obj_res lean_fixpoint3(lean_obj_arg rec, lean_obj_arg a1, lean_obj_arg a2, lean_obj_arg a3);
+lean_obj_res lean_fixpoint4(lean_obj_arg rec, lean_obj_arg a1, lean_obj_arg a2, lean_obj_arg a3, lean_obj_arg a4);
+lean_obj_res lean_fixpoint5(lean_obj_arg rec, lean_obj_arg a1, lean_obj_arg a2, lean_obj_arg a3, lean_obj_arg a4, lean_obj_arg a5);
+lean_obj_res lean_fixpoint6(lean_obj_arg rec, lean_obj_arg a1, lean_obj_arg a2, lean_obj_arg a3, lean_obj_arg a4, lean_obj_arg a5, lean_obj_arg a6);
 
 #ifdef __cplusplus
 }

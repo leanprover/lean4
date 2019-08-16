@@ -495,7 +495,7 @@ class specialize_fn {
                 /* Remark: we must not lambda abstract join points.
                    There is no risk of work duplication in this case, only code duplication. */
                 bool is_jp    = is_join_point_name(decl.get_user_name());
-                lean_assert(!v || !is_irrelevant_type(m_st, m_lctx, decl.get_type()));
+                // lean_assert(!v || !is_irrelevant_type(m_st, m_lctx, decl.get_type()));
                 if (m_visited_not_in_binder.contains(x_name)) {
                     /* If `x` was already visited in a context outside of
                        a binder, then it is already in `m_ctx.m_vars`.

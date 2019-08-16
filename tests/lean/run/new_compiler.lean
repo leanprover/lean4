@@ -41,8 +41,10 @@ def add' : Nat → Nat → Nat
 def aux (i : Nat) (h : i > 0) :=
 i
 
+axiom bad (α : Sort u) : α
+
 unsafe def foo2 : Nat :=
-@False.rec (fun _ => Nat) sorry
+@False.rec (fun _ => Nat) (bad _)
 
 set_option pp.notation false
 

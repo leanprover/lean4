@@ -172,9 +172,7 @@ obj* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_IR_mkDeclMapExtension
 namespace lean {
 usize usize_modn(usize, obj*);
 }
-namespace lean {
-obj* format_group_core(obj*);
-}
+extern "C" obj* lean_format_group(obj*);
 obj* l_AssocList_find___main___at_Lean_IR_findEnvDecl___spec__4___boxed(obj*, obj*);
 obj* l_Lean_IR_declMapExt___closed__6;
 extern obj* l_HashMap_Inhabited___closed__1;
@@ -306,7 +304,7 @@ x_12 = l_Lean_Format_sbracket___closed__1;
 x_13 = lean::alloc_cnstr(3, 2, 0);
 lean::cnstr_set(x_13, 0, x_12);
 lean::cnstr_set(x_13, 1, x_11);
-x_14 = lean::format_group_core(x_13);
+x_14 = lean_format_group(x_13);
 x_15 = lean::mk_nat_obj(0u);
 x_16 = lean::box(0);
 x_17 = l_Array_miterateAux___main___at_Lean_IR_LogEntry_fmt___spec__1(x_3, x_3, x_15, x_16);

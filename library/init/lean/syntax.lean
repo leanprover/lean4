@@ -328,15 +328,15 @@ end SyntaxNode
 
 /- Helper functions for creating Syntax objects using C++ -/
 
-@[export lean.mk_syntax_atom_core]
+@[export lean_mk_syntax_atom]
 def mkSimpleAtom (val : String) : Syntax :=
 Syntax.atom none val
 
-@[export lean.mk_syntax_ident_core]
+@[export lean_mk_syntax_ident]
 def mkSimpleIdent (val : Name) : Syntax :=
 Syntax.ident none (toString val).toSubstring val []
 
-@[export lean.mk_syntax_list_core]
+@[export lean_mk_syntax_list]
 def mkListNode (args : Array Syntax) : Syntax :=
 Syntax.node nullKind args
 
@@ -352,11 +352,11 @@ mkLit strLitKind val info
 def mkNumLit (val : String) (info : Option SourceInfo := none) : Syntax :=
 mkLit numLitKind val info
 
-@[export lean.mk_syntax_str_lit_core]
+@[export lean_mk_syntax_str_lit]
 def mkStrLitAux (val : String) : Syntax :=
 mkStrLit val
 
-@[export lean.mk_syntax_num_lit_core]
+@[export lean_mk_syntax_num_lit]
 def mkNumLitAux (val : Nat) : Syntax :=
 mkNumLit (toString val)
 

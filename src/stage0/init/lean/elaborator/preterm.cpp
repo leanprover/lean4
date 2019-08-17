@@ -182,9 +182,7 @@ obj* l_Lean_Elab_convertSorry___boxed(obj*, obj*);
 obj* l_Lean_ConstantInfo_type(obj*);
 obj* l_Lean_Expr_mkAnnotation(obj*, obj*);
 obj* l_Lean_mkBuiltinPreTermElabTable(obj*);
-namespace lean {
-obj* environment_find_core(obj*, obj*);
-}
+extern "C" obj* lean_environment_find(obj*, obj*);
 obj* l_Lean_Elab_convertSorry___rarg___closed__4;
 obj* l___regBuiltinTermElab_Lean_Elab_convertArrow___closed__3;
 obj* l___regBuiltinTermElab_Lean_Elab_convertSort___closed__1;
@@ -1155,7 +1153,7 @@ lean::cnstr_set(x_29, 0, x_14);
 lean::cnstr_set(x_29, 1, x_18);
 lean::inc(x_2);
 lean::inc(x_1);
-x_30 = lean::environment_find_core(x_1, x_2);
+x_30 = lean_environment_find(x_1, x_2);
 if (lean::obj_tag(x_30) == 0)
 {
 obj* x_31; obj* x_32; 
@@ -1295,7 +1293,7 @@ lean::cnstr_set(x_60, 0, x_44);
 lean::cnstr_set(x_60, 1, x_49);
 lean::inc(x_2);
 lean::inc(x_1);
-x_61 = lean::environment_find_core(x_1, x_2);
+x_61 = lean_environment_find(x_1, x_2);
 if (lean::obj_tag(x_61) == 0)
 {
 obj* x_62; obj* x_63; 

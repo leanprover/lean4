@@ -18,7 +18,7 @@ inductive Format
 | choice       : Format → Format → Format
 
 namespace Format
-@[export lean.format_append_core]
+@[export lean_format_append]
 protected def append (a b : Format) : Format :=
 compose false a b
 
@@ -42,7 +42,7 @@ def flatten : Format → Format
 | f@(compose true _ _)    => f
 | f@(compose false f₁ f₂) => compose true (flatten f₁) (flatten f₂)
 
-@[export lean.format_group_core]
+@[export lean_format_group]
 def group : Format → Format
 | nil                  => nil
 | f@(text _)           => f
@@ -110,7 +110,7 @@ registerOption `format.unicode { defValue := defUnicode, group := "format", desc
 @[init] def widthOption : IO Unit :=
 registerOption `format.width { defValue := defWidth, group := "format", descr := "line width" }
 
-@[export lean.format_pretty_core]
+@[export lean_format_pretty]
 def prettyAux (f : Format) (w : Nat := defWidth) : String :=
 be w 0 "" [(0, f)]
 

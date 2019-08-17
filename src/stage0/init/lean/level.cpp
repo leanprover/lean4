@@ -84,9 +84,7 @@ obj* l_Lean_LevelToFormat_Level_toResult___main(obj*);
 extern "C" obj* level_mk_succ(obj*);
 extern obj* l_System_FilePath_dirName___closed__1;
 extern obj* l_Lean_HasRepr___closed__1;
-namespace lean {
-obj* format_group_core(obj*);
-}
+extern "C" obj* lean_format_group(obj*);
 obj* l_Lean_LevelToFormat_Result_format___boxed(obj*, obj*);
 obj* l_Lean_Level_toNat___main___closed__1;
 obj* l_Lean_LevelToFormat_Result_imax(obj*, obj*);
@@ -1010,7 +1008,7 @@ x_8 = l_Lean_Format_paren___closed__1;
 x_9 = lean::alloc_cnstr(3, 2, 0);
 lean::cnstr_set(x_9, 0, x_8);
 lean::cnstr_set(x_9, 1, x_7);
-x_10 = lean::format_group_core(x_9);
+x_10 = lean_format_group(x_9);
 return x_10;
 }
 else
@@ -1245,7 +1243,7 @@ x_26 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_26, 0, x_25);
 lean::cnstr_set(x_26, 1, x_23);
 lean::cnstr_set_scalar(x_26, sizeof(void*)*2, x_24);
-x_27 = lean::format_group_core(x_26);
+x_27 = lean_format_group(x_26);
 x_28 = l_Lean_LevelToFormat_parenIfFalse(x_27, x_2);
 return x_28;
 }
@@ -1262,7 +1260,7 @@ x_33 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_33, 0, x_32);
 lean::cnstr_set(x_33, 1, x_30);
 lean::cnstr_set_scalar(x_33, sizeof(void*)*2, x_31);
-x_34 = lean::format_group_core(x_33);
+x_34 = lean_format_group(x_33);
 x_35 = l_Lean_LevelToFormat_parenIfFalse(x_34, x_2);
 return x_35;
 }

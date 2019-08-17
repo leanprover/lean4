@@ -31,58 +31,58 @@ structure MetavarContext :=
 
 namespace MetavarContext
 
-@[export lean.mk_metavar_ctx_core]
+@[export lean_mk_metavar_ctx]
 def mkMetavarContext : Unit → MetavarContext :=
 fun _ => {}
 
 /- Low level API for creating metavariable declarations.
    It is used to implement actions in the monads `Elab` and `Tactic`.
    It should not be used directly since the argument `(mvarId : Name)` is assumed to be "unique". -/
-@[export lean.metavar_ctx_mk_decl_core]
+@[export lean_metavar_ctx_mk_decl]
 def mkDecl (m : MetavarContext) (mvarId : Name) (userName : Name) (lctx : LocalContext) (type : Expr) : MetavarContext :=
 { decls := m.decls.insert mvarId { userName := userName, lctx := lctx, type := type }, .. m }
 
-@[export lean.metavar_ctx_find_decl_core]
+@[export lean_metavar_ctx_find_decl]
 def findDecl (m : MetavarContext) (mvarId : Name) : Option MetavarDecl :=
 m.decls.find mvarId
 
-@[export lean.metavar_ctx_assign_level_core]
+@[export lean_metavar_ctx_assign_level]
 def assignLevel (m : MetavarContext) (mvarId : Name) (val : Level) : MetavarContext :=
 { lAssignment := m.lAssignment.insert mvarId val, .. m }
 
-@[export lean.metavar_ctx_assign_expr_core]
+@[export lean_metavar_ctx_assign_expr]
 def assignExpr (m : MetavarContext) (mvarId : Name) (val : Expr) : MetavarContext :=
 { eAssignment := m.eAssignment.insert mvarId val, .. m }
 
-@[export lean.metavar_ctx_assign_delayed_core]
+@[export lean_metavar_ctx_assign_delayed]
 def assignDelayed (m : MetavarContext) (mvarId : Name) (lctx : LocalContext) (fvars : List Expr) (val : Expr) : MetavarContext :=
 { dAssignment := m.dAssignment.insert mvarId { lctx := lctx, fvars := fvars, val := val }, .. m }
 
-@[export lean.metavar_ctx_get_level_assignment_core]
+@[export lean_metavar_ctx_get_level_assignment]
 def getLevelAssignment (m : MetavarContext) (mvarId : Name) : Option Level :=
 m.lAssignment.find mvarId
 
-@[export lean.metavar_ctx_get_expr_assignment_core]
+@[export lean_metavar_ctx_get_expr_assignment]
 def getExprAssignment (m : MetavarContext) (mvarId : Name) : Option Expr :=
 m.eAssignment.find mvarId
 
-@[export lean.metavar_ctx_get_delayed_assignment_core]
+@[export lean_metavar_ctx_get_delayed_assignment]
 def getDelayedAssignment (m : MetavarContext) (mvarId : Name) : Option DelayedMetavarAssignment :=
 m.dAssignment.find mvarId
 
-@[export lean.metavar_ctx_is_level_assigned]
+@[export lean_metavar_ctx_is_level_assigned]
 def isLevelAssigned (m : MetavarContext) (mvarId : Name) : Bool :=
 m.lAssignment.contains mvarId
 
-@[export lean.metavar_ctx_is_expr_assigned]
+@[export lean_metavar_ctx_is_expr_assigned]
 def isExprAssigned (m : MetavarContext) (mvarId : Name) : Bool :=
 m.eAssignment.contains mvarId
 
-@[export lean.metavar_ctx_is_delayed_assigned]
+@[export lean_metavar_ctx_is_delayed_assigned]
 def isDelayedAssigned (m : MetavarContext) (mvarId : Name) : Bool :=
 m.dAssignment.contains mvarId
 
-@[export lean.metavar_ctx_erase_delayed_core]
+@[export lean_metavar_ctx_erase_delayed]
 def eraseDelayed (m : MetavarContext) (mvarId : Name) : MetavarContext :=
 { dAssignment := m.dAssignment.erase mvarId, .. m }
 

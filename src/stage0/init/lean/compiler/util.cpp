@@ -55,9 +55,7 @@ obj* l_Lean_Compiler_voidType;
 obj* l_Lean_Compiler_checkIsDefinition___closed__4;
 obj* l_Lean_Compiler_neutralExpr___closed__2;
 obj* l_Lean_Compiler_atMostOnce_skip(obj*);
-namespace lean {
-obj* environment_find_core(obj*, obj*);
-}
+extern "C" obj* lean_environment_find(obj*, obj*);
 namespace lean {
 obj* get_decl_names_for_code_gen_core(obj*);
 }
@@ -963,7 +961,7 @@ obj* l_Lean_Compiler_checkIsDefinition(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = lean::environment_find_core(x_1, x_2);
+x_3 = lean_environment_find(x_1, x_2);
 if (lean::obj_tag(x_3) == 0)
 {
 obj* x_4; 

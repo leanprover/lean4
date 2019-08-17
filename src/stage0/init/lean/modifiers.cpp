@@ -18,17 +18,13 @@ obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkProtec
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
 extern obj* l_Lean_namespacesExt___closed__1;
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
-namespace lean {
-obj* environment_main_module_core(obj*);
-}
+extern "C" obj* lean_environment_main_module(obj*);
 extern obj* l_Array_empty___closed__1;
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
 extern obj* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
-namespace lean {
-obj* private_prefix_core(obj*);
-}
+extern "C" obj* lean_private_prefix(obj*);
 obj* l_Lean_protectedExt___elambda__1___boxed(obj*);
 obj* l_Lean_protectedExt___closed__1;
 obj* l_Lean_mkProtectedExtension___lambda__2(obj*);
@@ -37,9 +33,7 @@ obj* l_Lean_EnvExtension_getStateUnsafe___rarg(obj*, obj*);
 uint8 l_Lean_isPrivateName(obj*);
 obj* l_Lean_protectedExt___elambda__3___boxed(obj*, obj*);
 obj* l___private_init_lean_modifiers_2__privatePrefixAux___main___boxed(obj*);
-namespace lean {
-obj* add_protected_core(obj*, obj*);
-}
+extern "C" obj* lean_add_protected(obj*, obj*);
 obj* l_List_toArrayAux___main___rarg(obj*, obj*);
 obj* l_Lean_mkProtectedExtension___lambda__1(obj*);
 obj* l_Lean_SimplePersistentEnvExtension_getState___rarg(obj*, obj*);
@@ -93,23 +87,17 @@ obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkProtec
 obj* l_Lean_protectedExt___elambda__2(obj*);
 obj* l_Lean_protectedExt___closed__4;
 obj* l_Lean_protectedExt___elambda__3(obj*, obj*);
-namespace lean {
-obj* mk_private_name_core(obj*, obj*);
-}
+extern "C" obj* lean_mk_private_name(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_addEntry___rarg(obj*, obj*, obj*);
 obj* l_IO_Prim_Ref_get(obj*, obj*, obj*);
 uint8 l_Lean_Name_quickLt(obj*, obj*);
 extern "C" obj* lean_name_mk_numeral(obj*, obj*);
 obj* l_Lean_privateExt___elambda__1(obj*);
-namespace lean {
-uint8 is_protected_core(obj*, obj*);
-}
+extern "C" uint8 lean_is_protected(obj*, obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Lean_isPrivateName___boxed(obj*);
 obj* l_EState_pure___rarg(obj*, obj*);
-namespace lean {
-obj* mk_private_prefix_core(obj*);
-}
+extern "C" obj* lean_mk_private_prefix(obj*);
 obj* l_Array_get(obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_modifiers_1__privateToUserNameAux___main(obj*);
 obj* l___private_init_lean_modifiers_2__privatePrefixAux___boxed(obj*);
@@ -125,9 +113,7 @@ obj* l_Lean_mkProtectedExtension(obj*);
 obj* l_Array_binSearchAux___main___at_Lean_isProtected___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkPrivateExtension___spec__1(obj*, obj*);
 obj* l_Lean_protectedExt___elambda__4(obj*);
-namespace lean {
-uint8 is_private_name_core(obj*);
-}
+extern "C" uint8 lean_is_private_name(obj*);
 obj* l_Lean_privateExt___closed__2;
 obj* l_Lean_Name_append___main(obj*, obj*);
 obj* l_Lean_privateExt;
@@ -136,9 +122,7 @@ obj* l_IO_Prim_Ref_reset(obj*, obj*, obj*);
 extern obj* l___private_init_lean_environment_5__envExtensionsRef;
 obj* l_Lean_protectedExt___elambda__4___boxed(obj*);
 obj* l_Lean_protectedExt___elambda__2___boxed(obj*);
-namespace lean {
-obj* private_to_user_name_core(obj*);
-}
+extern "C" obj* lean_private_to_user_name(obj*);
 obj* l_Lean_mkProtectedExtension___closed__3;
 obj* l_Lean_protectedExt___elambda__4___rarg(obj*);
 extern obj* l_String_splitAux___main___closed__1;
@@ -589,15 +573,13 @@ lean::dec(x_1);
 return x_2;
 }
 }
-namespace lean {
-obj* add_protected_core(obj* x_1, obj* x_2) {
+obj* lean_add_protected(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
 x_3 = l_Lean_protectedExt;
 x_4 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_3, x_1, x_2);
 return x_4;
-}
 }
 }
 uint8 l_Array_binSearchAux___main___at_Lean_isProtected___spec__1(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
@@ -675,8 +657,7 @@ goto _start;
 }
 }
 }
-namespace lean {
-uint8 is_protected_core(obj* x_1, obj* x_2) {
+uint8 lean_is_protected(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
@@ -714,7 +695,6 @@ return x_14;
 }
 }
 }
-}
 obj* l_Array_binSearchAux___main___at_Lean_isProtected___spec__1___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
@@ -730,7 +710,7 @@ obj* l_Lean_isProtected___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; obj* x_4; 
-x_3 = lean::is_protected_core(x_1, x_2);
+x_3 = lean_is_protected(x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
 }
@@ -1635,15 +1615,14 @@ x_1 = l_Lean_privateHeader___closed__2;
 return x_1;
 }
 }
-namespace lean {
-obj* mk_private_prefix_core(obj* x_1) {
+obj* lean_mk_private_prefix(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
 x_2 = l_Lean_privateExt;
 x_3 = l_Lean_EnvExtension_getStateUnsafe___rarg(x_2, x_1);
 lean::inc(x_1);
-x_4 = lean::environment_main_module_core(x_1);
+x_4 = lean_environment_main_module(x_1);
 x_5 = l_Lean_privateHeader;
 x_6 = l_Lean_Name_append___main(x_5, x_4);
 lean::inc(x_3);
@@ -1658,13 +1637,11 @@ lean::cnstr_set(x_11, 1, x_7);
 return x_11;
 }
 }
-}
-namespace lean {
-obj* mk_private_name_core(obj* x_1, obj* x_2) {
+obj* lean_mk_private_name(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; uint8 x_4; 
-x_3 = lean::mk_private_prefix_core(x_1);
+x_3 = lean_mk_private_prefix(x_1);
 x_4 = !lean::is_exclusive(x_3);
 if (x_4 == 0)
 {
@@ -1689,7 +1666,6 @@ x_10 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_10, 0, x_7);
 lean::cnstr_set(x_10, 1, x_9);
 return x_10;
-}
 }
 }
 }
@@ -1759,8 +1735,7 @@ x_3 = lean::box(x_2);
 return x_3;
 }
 }
-namespace lean {
-uint8 is_private_name_core(obj* x_1) {
+uint8 lean_is_private_name(obj* x_1) {
 _start:
 {
 uint8 x_2; 
@@ -1769,12 +1744,11 @@ lean::dec(x_1);
 return x_2;
 }
 }
-}
 obj* l_Lean_isPrivateNameExport___boxed(obj* x_1) {
 _start:
 {
 uint8 x_2; obj* x_3; 
-x_2 = lean::is_private_name_core(x_1);
+x_2 = lean_is_private_name(x_1);
 x_3 = lean::box(x_2);
 return x_3;
 }
@@ -1817,8 +1791,7 @@ x_2 = l___private_init_lean_modifiers_1__privateToUserNameAux___main(x_1);
 return x_2;
 }
 }
-namespace lean {
-obj* private_to_user_name_core(obj* x_1) {
+obj* lean_private_to_user_name(obj* x_1) {
 _start:
 {
 uint8 x_2; 
@@ -1837,7 +1810,6 @@ x_4 = l___private_init_lean_modifiers_1__privateToUserNameAux___main(x_1);
 x_5 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_5, 0, x_4);
 return x_5;
-}
 }
 }
 }
@@ -1884,8 +1856,7 @@ lean::dec(x_1);
 return x_2;
 }
 }
-namespace lean {
-obj* private_prefix_core(obj* x_1) {
+obj* lean_private_prefix(obj* x_1) {
 _start:
 {
 uint8 x_2; 
@@ -1905,7 +1876,6 @@ lean::dec(x_1);
 x_5 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_5, 0, x_4);
 return x_5;
-}
 }
 }
 }

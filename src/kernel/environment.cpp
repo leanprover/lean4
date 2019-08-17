@@ -17,20 +17,20 @@ Author: Leonardo de Moura
 #include "kernel/quot.h"
 
 namespace lean {
-object* environment_add_core(object*, object*);
-object* mk_empty_environment_core(uint32, object*);
-object* environment_find_core(object*, object*);
-uint32 environment_trust_level_core(object*);
-object* environment_mark_quot_init_core(object*);
-uint8 environment_quot_init_core(object*);
-object* register_extension_core(object*);
-object* get_extension_core(object*, object*);
-object* set_extension_core(object*, object*, object*);
-object* environment_set_main_module_core(object*, object*);
-object* environment_main_module_core(object*);
+extern "C" object* lean_environment_add(object*, object*);
+extern "C" object* lean_mk_empty_environment(uint32, object*);
+extern "C" object* lean_environment_find(object*, object*);
+extern "C" uint32 lean_environment_trust_level(object*);
+extern "C" object* lean_environment_mark_quot_init(object*);
+extern "C" uint8 lean_environment_quot_init(object*);
+extern "C" object* lean_register_extension(object*);
+extern "C" object* lean_get_extension(object*, object*);
+extern "C" object* lean_set_extension(object*, object*, object*);
+extern "C" object* lean_environment_set_main_module(object*, object*);
+extern "C" object* lean_environment_main_module(object*);
 
 environment mk_empty_environment(uint32 trust_lvl) {
-    return get_io_result<environment>(mk_empty_environment_core(trust_lvl, io_mk_world()));
+    return get_io_result<environment>(lean_mk_empty_environment(trust_lvl, io_mk_world()));
 }
 
 environment::environment(unsigned trust_lvl):
@@ -38,31 +38,31 @@ environment::environment(unsigned trust_lvl):
 }
 
 void environment::set_main_module(name const & n) {
-    m_obj = environment_set_main_module_core(m_obj, n.to_obj_arg());
+    m_obj = lean_environment_set_main_module(m_obj, n.to_obj_arg());
 }
 
 name environment::get_main_module() const {
-    return name(environment_main_module_core(to_obj_arg()), true);
+    return name(lean_environment_main_module(to_obj_arg()), true);
 }
 
 unsigned environment::trust_lvl() const {
-    return environment_trust_level_core(to_obj_arg());
+    return lean_environment_trust_level(to_obj_arg());
 }
 
 bool environment::is_quot_initialized() const {
-    return environment_quot_init_core(to_obj_arg()) != 0;
+    return lean_environment_quot_init(to_obj_arg()) != 0;
 }
 
 void environment::mark_quot_initialized() {
-    m_obj = environment_mark_quot_init_core(m_obj);
+    m_obj = lean_environment_mark_quot_init(m_obj);
 }
 
 optional<constant_info> environment::find(name const & n) const {
-    return to_optional<constant_info>(environment_find_core(to_obj_arg(), n.to_obj_arg()));
+    return to_optional<constant_info>(lean_environment_find(to_obj_arg(), n.to_obj_arg()));
 }
 
 constant_info environment::get(name const & n) const {
-    object * o = environment_find_core(to_obj_arg(), n.to_obj_arg());
+    object * o = lean_environment_find(to_obj_arg(), n.to_obj_arg());
     if (is_scalar(o))
         throw unknown_constant_exception(*this, n);
     constant_info r(cnstr_get(o, 0), true);
@@ -124,11 +124,11 @@ static void check_constant_val(environment const & env, constant_val const & v, 
 }
 
 void environment::add_core(constant_info const & info) {
-    m_obj = environment_add_core(m_obj, info.to_obj_arg());
+    m_obj = lean_environment_add(m_obj, info.to_obj_arg());
 }
 
 environment environment::add(constant_info const & info) const {
-    return environment(environment_add_core(to_obj_arg(), info.to_obj_arg()));
+    return environment(lean_environment_add(to_obj_arg(), info.to_obj_arg()));
 }
 
 environment environment::add_axiom(declaration const & d, bool check) const {
@@ -270,7 +270,7 @@ static obj_res to_object(environment_extension * ext) {
 }
 
 unsigned environment::register_extension(environment_extension * initial) {
-    object * r = register_extension_core(to_object(initial));
+    object * r = lean_register_extension(to_object(initial));
     if (is_scalar(r)) { throw exception("error creating empty environment"); }
     unsigned idx = unbox(cnstr_get(r, 0));
     dec(r);
@@ -278,7 +278,7 @@ unsigned environment::register_extension(environment_extension * initial) {
 }
 
 environment_extension const & environment::get_extension(unsigned id) const {
-    object * r = get_extension_core(to_obj_arg(), box(id));
+    object * r = lean_get_extension(to_obj_arg(), box(id));
     if (is_scalar(r)) { throw exception("invalid extension id"); }
     object * ext = cnstr_get(r, 0);
     dec(r);
@@ -286,7 +286,7 @@ environment_extension const & environment::get_extension(unsigned id) const {
 }
 
 environment environment::update(unsigned id, environment_extension * ext) const {
-    object * r = set_extension_core(to_obj_arg(), box(id), to_object(ext));
+    object * r = lean_set_extension(to_obj_arg(), box(id), to_object(ext));
     if (is_scalar(r)) { throw exception("invalid extension id"); }
     environment env(cnstr_get(r, 0), true);
     dec(r);
@@ -300,10 +300,10 @@ void environment::for_each_constant(std::function<void(constant_info const & d)>
         });
 }
 
-obj_res display_stats_core(obj_arg env, obj_arg w);
+extern "C" obj_res lean_display_stats(obj_arg env, obj_arg w);
 
 void environment::display_stats() const {
-    dec_ref(display_stats_core(to_obj_arg(), io_mk_world()));
+    dec_ref(lean_display_stats(to_obj_arg(), io_mk_world()));
 }
 
 void initialize_environment() {

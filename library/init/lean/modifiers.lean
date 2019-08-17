@@ -19,11 +19,11 @@ registerSimplePersistentEnvExtension {
 @[init mkProtectedExtension]
 constant protectedExt : SimplePersistentEnvExtension Name NameSet := default _
 
-@[export lean.add_protected_core]
+@[export lean_add_protected]
 def addProtected (env : Environment) (n : Name) : Environment :=
 protectedExt.addEntry env n
 
-@[export lean.is_protected_core]
+@[export lean_is_protected]
 def isProtected (env : Environment) (n : Name) : Bool :=
 match env.getModuleIdxFor n with
 | some modIdx => (protectedExt.getModuleEntries env modIdx).binSearchContains n Name.quickLt
@@ -49,14 +49,14 @@ constant privateExt : EnvExtension Nat := default _
 
 def privateHeader : Name := `_private
 
-@[export lean.mk_private_prefix_core]
+@[export lean_mk_private_prefix]
 def mkPrivatePrefix (env : Environment) : Environment × Name :=
 let idx := privateExt.getState env;
 let p   := Name.mkNumeral (privateHeader ++ env.mainModule) idx;
 let env := privateExt.setState env (idx+1);
 (env, p)
 
-@[export lean.mk_private_name_core]
+@[export lean_mk_private_name]
 def mkPrivateName (env : Environment) (n : Name) : Environment × Name :=
 let (env, p) := mkPrivatePrefix env;
 (env, p ++ n)
@@ -66,7 +66,7 @@ def isPrivateName : Name → Bool
 | Name.mkNumeral p _    => isPrivateName p
 | _                     => false
 
-@[export lean.is_private_name_core]
+@[export lean_is_private_name]
 def isPrivateNameExport (n : Name) : Bool :=
 isPrivateName n
 
@@ -74,7 +74,7 @@ private def privateToUserNameAux : Name → Name
 | Name.mkString p s => Name.mkString (privateToUserNameAux p) s
 | _                 => Name.anonymous
 
-@[export lean.private_to_user_name_core]
+@[export lean_private_to_user_name]
 def privateToUserName (n : Name) : Option Name :=
 if isPrivateName n then privateToUserNameAux n
 else none
@@ -83,7 +83,7 @@ private def privatePrefixAux : Name → Name
 | Name.mkString p _ => privatePrefixAux p
 | n                 => n
 
-@[export lean.private_prefix_core]
+@[export lean_private_prefix]
 def privatePrefix (n : Name) : Option Name :=
 if isPrivateName n then privatePrefixAux n
 else none

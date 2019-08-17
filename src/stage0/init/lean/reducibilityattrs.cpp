@@ -53,9 +53,7 @@ extern obj* l_Lean_registerEnumAttributes___rarg___closed__1;
 extern obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__6___closed__1;
 obj* l_Array_swap(obj*, obj*, obj*, obj*);
 extern obj* l_Lean_AttributeImpl_inhabited___closed__4;
-namespace lean {
-obj* set_reducibility_status_core(obj*, obj*, uint8);
-}
+extern "C" obj* lean_set_reducibility_status(obj*, obj*, uint8);
 obj* l_Lean_registerTagAttribute___lambda__5___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_List_map___main___at_Lean_mkReducibilityAttrs___spec__8___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 extern obj* l_Lean_EnumAttributes_Inhabited___closed__1;
@@ -121,9 +119,7 @@ obj* l_Lean_mkReducibilityAttrs___closed__10;
 namespace lean {
 obj* nat_div(obj*, obj*);
 }
-namespace lean {
-uint8 get_reducibility_status_core(obj*, obj*);
-}
+extern "C" uint8 lean_get_reducibility_status(obj*, obj*);
 obj* l_Lean_registerEnumAttributes___at_Lean_mkReducibilityAttrs___spec__1___lambda__2(obj*);
 obj* l_Lean_EnumAttributes_getValue___at_Lean_getReducibilityStatus___spec__1___boxed(obj*, obj*, obj*);
 obj* l_Lean_mkReducibilityAttrs___closed__13;
@@ -3139,8 +3135,7 @@ return x_25;
 }
 }
 }
-namespace lean {
-uint8 get_reducibility_status_core(obj* x_1, obj* x_2) {
+uint8 lean_get_reducibility_status(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
@@ -3162,7 +3157,6 @@ lean::dec(x_4);
 x_7 = lean::unbox(x_6);
 lean::dec(x_6);
 return x_7;
-}
 }
 }
 }
@@ -3199,13 +3193,12 @@ obj* l_Lean_getReducibilityStatus___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; obj* x_4; 
-x_3 = lean::get_reducibility_status_core(x_1, x_2);
+x_3 = lean_get_reducibility_status(x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
 }
 }
-namespace lean {
-obj* set_reducibility_status_core(obj* x_1, obj* x_2, uint8 x_3) {
+obj* lean_set_reducibility_status(obj* x_1, obj* x_2, uint8 x_3) {
 _start:
 {
 obj* x_4; obj* x_5; obj* x_6; 
@@ -3229,14 +3222,13 @@ return x_7;
 }
 }
 }
-}
 obj* l_Lean_setReducibilityStatus___boxed(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 uint8 x_4; obj* x_5; 
 x_4 = lean::unbox(x_3);
 lean::dec(x_3);
-x_5 = lean::set_reducibility_status_core(x_1, x_2, x_4);
+x_5 = lean_set_reducibility_status(x_1, x_2, x_4);
 return x_5;
 }
 }

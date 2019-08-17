@@ -88,9 +88,7 @@ obj* l_Lean_Parser_Trie_matchPrefix(obj*);
 obj* l_Lean_Parser_Trie_matchPrefix___rarg___boxed(obj*, obj*, obj*);
 obj* l___private_init_lean_parser_trie_3__findAux___rarg___boxed(obj*, obj*, obj*);
 obj* l_Lean_Format_joinSep___main___at___private_init_lean_parser_trie_6__toStringAux___main___spec__1(obj*, obj*);
-namespace lean {
-obj* format_group_core(obj*);
-}
+extern "C" obj* lean_format_group(obj*);
 obj* l___private_init_lean_parser_trie_1__insertEmptyAux(obj*);
 obj* l_RBNode_find___main___at___private_init_lean_parser_trie_5__matchPrefixAux___main___spec__1(obj*);
 obj* l_Lean_Parser_Trie_empty___closed__1;
@@ -10913,7 +10911,7 @@ x_17 = lean::mk_nat_obj(2u);
 x_18 = lean::alloc_cnstr(3, 2, 0);
 lean::cnstr_set(x_18, 0, x_17);
 lean::cnstr_set(x_18, 1, x_16);
-x_19 = lean::format_group_core(x_18);
+x_19 = lean_format_group(x_18);
 x_20 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_20, 0, x_19);
 lean::cnstr_set(x_20, 1, x_7);

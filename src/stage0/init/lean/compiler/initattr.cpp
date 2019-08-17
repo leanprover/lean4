@@ -115,9 +115,7 @@ obj* l_Lean_isIOUnitInitFn___boxed(obj*, obj*);
 obj* l_Lean_ParametricAttribute_setParam___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_ConstantInfo_type(obj*);
 obj* l_Lean_mkInitAttr___lambda__2___boxed(obj*, obj*, obj*);
-namespace lean {
-obj* environment_find_core(obj*, obj*);
-}
+extern "C" obj* lean_environment_find(obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_isIOUnitInitFn___spec__2___boxed(obj*, obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Lean_setInitAttr(obj*, obj*, obj*);
@@ -2621,7 +2619,7 @@ _start:
 {
 obj* x_4; 
 lean::inc(x_1);
-x_4 = lean::environment_find_core(x_1, x_2);
+x_4 = lean_environment_find(x_1, x_2);
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_5; 
@@ -2674,7 +2672,7 @@ x_13 = lean::cnstr_get(x_7, 0);
 lean::inc(x_13);
 lean::dec(x_7);
 lean::inc(x_13);
-x_14 = lean::environment_find_core(x_1, x_13);
+x_14 = lean_environment_find(x_1, x_13);
 if (lean::obj_tag(x_14) == 0)
 {
 obj* x_15; obj* x_16; obj* x_17; obj* x_18; obj* x_19; obj* x_20; obj* x_21; 

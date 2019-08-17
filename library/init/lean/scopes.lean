@@ -43,40 +43,40 @@ constant scopeManagerExt : SimplePersistentEnvExtension Name ScopeManagerState :
 
 namespace Environment
 
-@[export lean.get_namespaces_core]
+@[export lean_get_namespaces]
 def getNamespaces (env : Environment) : List Name :=
 (scopeManagerExt.getState env).namespaces
 
 def getNamespaceSet (env : Environment) : NameSet :=
 (scopeManagerExt.getState env).allNamespaces
 
-@[export lean.is_namespace_core]
+@[export lean_is_namespace]
 def isNamespace (env : Environment) (n : Name) : Bool :=
 env.getNamespaceSet.contains n
 
-@[export lean.in_section_core]
+@[export lean_in_section]
 def inSection (env : Environment) : Bool :=
 match (scopeManagerExt.getState env).isNamespace with
 | (b::_) => !b
 | _      => false
 
-@[export lean.has_open_scopes_core]
+@[export lean_has_open_scopes]
 def hasOpenScopes (env : Environment) : Bool :=
 !env.getNamespaces.isEmpty
 
-@[export lean.get_namespace_core]
+@[export lean_get_namespace]
 def getNamespace (env : Environment) : Name :=
 match env.getNamespaces with
 | (n::_) => n
 | _      => Name.anonymous
 
-@[export lean.get_scope_header_core]
+@[export lean_get_scope_header]
 def getScopeHeader (env : Environment) : Name :=
 match (scopeManagerExt.getState env).headers with
 | (n::_) => n
 | _      => Name.anonymous
 
-@[export lean.to_valid_namespace_core]
+@[export lean_to_valid_namespace]
 def toValidNamespace (env : Environment) (n : Name) : Option Name :=
 let s := scopeManagerExt.getState env;
 if s.allNamespaces.contains n then some n
@@ -91,7 +91,7 @@ else s.namespaces.foldl
 def registerNamespaceAux (env : Environment) (n : Name) : Environment :=
 if env.getNamespaceSet.contains n then env else scopeManagerExt.addEntry env n
 
-@[export lean.register_namespace_core]
+@[export lean_register_namespace]
 def registerNamespace : Environment → Name → Environment
 | env, n@(Name.mkString p _) => registerNamespace (registerNamespaceAux env n) p
 | env, _ => env

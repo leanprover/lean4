@@ -159,9 +159,7 @@ obj* l_Lean_IR_ctorInfoHasFormat;
 extern obj* l_Lean_formatKVMap___closed__1;
 obj* l___private_init_lean_compiler_ir_format_1__formatArg___closed__1;
 obj* l_Lean_IR_formatFnBody___main___closed__16;
-namespace lean {
-obj* format_group_core(obj*);
-}
+extern "C" obj* lean_format_group(obj*);
 obj* l_Lean_IR_formatFnBody___main___closed__26;
 obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__15;
 obj* l___private_init_lean_compiler_ir_format_2__formatArray___at_Lean_IR_formatParams___spec__1___boxed(obj*);
@@ -2826,7 +2824,7 @@ x_184 = l_Lean_Format_sbracket___closed__1;
 x_185 = lean::alloc_cnstr(3, 2, 0);
 lean::cnstr_set(x_185, 0, x_184);
 lean::cnstr_set(x_185, 1, x_183);
-x_186 = lean::format_group_core(x_185);
+x_186 = lean_format_group(x_185);
 x_187 = l_Lean_IR_formatFnBody___main___closed__20;
 x_188 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_188, 0, x_187);
@@ -2924,7 +2922,7 @@ x_222 = l_Lean_Format_sbracket___closed__1;
 x_223 = lean::alloc_cnstr(3, 2, 0);
 lean::cnstr_set(x_223, 0, x_222);
 lean::cnstr_set(x_223, 1, x_221);
-x_224 = lean::format_group_core(x_223);
+x_224 = lean_format_group(x_223);
 x_225 = l_Lean_IR_formatFnBody___main___closed__24;
 x_226 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_226, 0, x_225);

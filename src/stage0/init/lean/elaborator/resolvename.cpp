@@ -57,9 +57,7 @@ obj* l___private_init_lean_elaborator_resolvename_6__preresolveNamesAux___main__
 obj* l_List_map___main___at___private_init_lean_elaborator_resolvename_5__resolveNameAux___main___spec__1(obj*, obj*);
 obj* l_Lean_Elab_getOpenDecls___rarg(obj*);
 obj* l___private_init_lean_elaborator_resolvename_6__preresolveNamesAux(obj*);
-namespace lean {
-uint8 is_protected_core(obj*, obj*);
-}
+extern "C" uint8 lean_is_protected(obj*, obj*);
 obj* l_Lean_Elab_getEnv___rarg(obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Array_fset(obj*, obj*, obj*, obj*);
@@ -104,7 +102,7 @@ else
 {
 uint8 x_9; 
 lean::inc(x_4);
-x_9 = lean::is_protected_core(x_1, x_4);
+x_9 = lean_is_protected(x_1, x_4);
 if (x_9 == 0)
 {
 obj* x_10; 

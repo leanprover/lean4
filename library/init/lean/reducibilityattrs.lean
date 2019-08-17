@@ -22,13 +22,13 @@ registerEnumAttributes `reducibility
 @[init mkReducibilityAttrs]
 constant reducibilityAttrs : EnumAttributes ReducibilityStatus := default _
 
-@[export lean.get_reducibility_status_core]
+@[export lean_get_reducibility_status]
 def getReducibilityStatus (env : Environment) (n : Name) : ReducibilityStatus :=
 match reducibilityAttrs.getValue env n with
 | some s => s
 | none   => ReducibilityStatus.semireducible
 
-@[export lean.set_reducibility_status_core]
+@[export lean_set_reducibility_status]
 def setReducibilityStatus (env : Environment) (n : Name) (s : ReducibilityStatus) : Environment :=
 match reducibilityAttrs.setValue env n s with
 | Except.ok env => env

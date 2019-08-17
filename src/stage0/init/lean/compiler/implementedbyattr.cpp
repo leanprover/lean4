@@ -91,9 +91,7 @@ obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler
 obj* l_RBNode_fold___main___at_Lean_Compiler_mkImplementedByAttr___spec__2___boxed(obj*, obj*);
 uint8 l_Lean_Name_quickLt(obj*, obj*);
 obj* l_Lean_ConstantInfo_type(obj*);
-namespace lean {
-obj* environment_find_core(obj*, obj*);
-}
+extern "C" obj* lean_environment_find(obj*, obj*);
 obj* l_Lean_ParametricAttribute_getParam___at_Lean_Compiler_getImplementedBy___spec__1___boxed(obj*, obj*, obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Lean_Compiler_mkImplementedByAttr___lambda__1___boxed(obj*, obj*, obj*);
@@ -2403,7 +2401,7 @@ _start:
 {
 obj* x_4; 
 lean::inc(x_1);
-x_4 = lean::environment_find_core(x_1, x_2);
+x_4 = lean_environment_find(x_1, x_2);
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_5; 
@@ -2433,7 +2431,7 @@ x_9 = lean::cnstr_get(x_7, 0);
 lean::inc(x_9);
 lean::dec(x_7);
 lean::inc(x_9);
-x_10 = lean::environment_find_core(x_1, x_9);
+x_10 = lean_environment_find(x_1, x_9);
 if (lean::obj_tag(x_10) == 0)
 {
 obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; 

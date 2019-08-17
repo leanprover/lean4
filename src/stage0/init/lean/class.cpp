@@ -192,9 +192,7 @@ usize usize_modn(usize, obj*);
 }
 obj* l_Lean_registerClassAttr___closed__2;
 obj* l_Lean_ConstantInfo_type(obj*);
-namespace lean {
-obj* environment_find_core(obj*, obj*);
-}
+extern "C" obj* lean_environment_find(obj*, obj*);
 obj* l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__3___closed__2;
 extern "C" uint8 lean_is_class(obj*, obj*);
 obj* l_Lean_classExtension___closed__2;
@@ -9750,7 +9748,7 @@ if (x_3 == 0)
 obj* x_4; 
 lean::inc(x_2);
 lean::inc(x_1);
-x_4 = lean::environment_find_core(x_1, x_2);
+x_4 = lean_environment_find(x_1, x_2);
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
@@ -9872,7 +9870,7 @@ lean::inc(x_6);
 lean::dec(x_5);
 lean::inc(x_6);
 lean::inc(x_1);
-x_7 = lean::environment_find_core(x_1, x_6);
+x_7 = lean_environment_find(x_1, x_6);
 if (lean::obj_tag(x_7) == 0)
 {
 obj* x_8; 
@@ -10058,7 +10056,7 @@ _start:
 obj* x_3; 
 lean::inc(x_2);
 lean::inc(x_1);
-x_3 = lean::environment_find_core(x_1, x_2);
+x_3 = lean_environment_find(x_1, x_2);
 if (lean::obj_tag(x_3) == 0)
 {
 obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; 

@@ -49,7 +49,7 @@ do m ← attributeMapRef.get;
    attributeArrayRef.modify (fun attrs => attrs.push attr)
 
 /- Return true iff `n` is the name of a registered attribute. -/
-@[export lean.is_attribute_core]
+@[export lean_is_attribute]
 def isAttribute (n : Name) : IO Bool :=
 do m ← attributeMapRef.get; pure (m.contains n)
 
@@ -63,7 +63,7 @@ do m ← attributeMapRef.get;
    | some attr => pure attr
    | none      => throw (IO.userError ("unknown attribute '" ++ toString attrName ++ "'"))
 
-@[export lean.attribute_application_time_core]
+@[export lean_attribute_application_time]
 def attributeApplicationTime (n : Name) : IO AttributeApplicationTime :=
 do attr ← getAttributeImpl n;
    pure attr.applicationTime
@@ -75,7 +75,7 @@ namespace Environment
    - `attr` is not the name of an attribute registered in the system.
    - `attr` does not support `persistent == false`.
    - `args` is not valid for `attr`. -/
-@[export lean.add_attribute_core]
+@[export lean_add_attribute]
 def addAttribute (env : Environment) (decl : Name) (attrName : Name) (args : Syntax := Syntax.missing) (persistent := true) : IO Environment :=
 do attr ← getAttributeImpl attrName;
    attr.add env decl args persistent
@@ -88,7 +88,7 @@ do attr ← getAttributeImpl attrName;
    - `args` is not valid for `attr`.
 
    Remark: the attribute will not be activated if `decl` is not inside the current namespace `env.getNamespace`. -/
-@[export lean.add_scoped_attribute_core]
+@[export lean_add_scoped_attribute]
 def addScopedAttribute (env : Environment) (decl : Name) (attrName : Name) (args : Syntax := Syntax.missing) : IO Environment :=
 do attr ← getAttributeImpl attrName;
    attr.addScoped env decl args
@@ -98,27 +98,27 @@ do attr ← getAttributeImpl attrName;
    - `attr` is not the name of an attribute registered in the system.
    - `attr` does not support erasure.
    - `args` is not valid for `attr`. -/
-@[export lean.erase_attribute_core]
+@[export lean_erase_attribute]
 def eraseAttribute (env : Environment) (decl : Name) (attrName : Name) (persistent := true) : IO Environment :=
 do attr ← getAttributeImpl attrName;
    attr.erase env decl persistent
 
 /- Activate the scoped attribute `attr` for all declarations in scope `scope`.
    We use this function to implement the command `open foo`. -/
-@[export lean.activate_scoped_attribute_core]
+@[export lean_activate_scoped_attribute]
 def activateScopedAttribute (env : Environment) (attrName : Name) (scope : Name) : IO Environment :=
 do attr ← getAttributeImpl attrName;
    attr.activateScoped env scope
 
 /- Activate all scoped attributes at `scope` -/
-@[export lean.activate_scoped_attributes_core]
+@[export lean_activate_scoped_attributes]
 def activateScopedAttributes (env : Environment) (scope : Name) : IO Environment :=
 do attrs ← attributeArrayRef.get;
    attrs.mfoldl (fun env attr => attr.activateScoped env scope) env
 
 /- We use this function to implement commands `namespace foo` and `section foo`.
    It activates scoped attributes in the new resulting namespace. -/
-@[export lean.push_scope_core]
+@[export lean_push_scope]
 def pushScope (env : Environment) (header : Name) (isNamespace : Bool) : IO Environment :=
 do let env := env.pushScopeCore header isNamespace;
    let ns  := env.getNamespace;
@@ -126,7 +126,7 @@ do let env := env.pushScopeCore header isNamespace;
    attrs.mfoldl (fun env attr => do env ← attr.pushScope env; if isNamespace then attr.activateScoped env ns else pure env) env
 
 /- We use this function to implement commands `end foo` for closing namespaces and sections. -/
-@[export lean.pop_scope_core]
+@[export lean_pop_scope]
 def popScope (env : Environment) : IO Environment :=
 do let env := env.popScopeCore;
    attrs ← attributeArrayRef.get;

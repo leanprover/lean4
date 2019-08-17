@@ -672,9 +672,7 @@ obj* l_Lean_ConstantInfo_type(obj*);
 obj* l_Lean_Parser_registerParserAttribute___lambda__1(obj*, obj*, obj*);
 obj* l___private_init_lean_parser_parser_1__expectedToString___main___closed__1;
 obj* l_Lean_Parser_charLitFnAux(obj*, obj*, obj*);
-namespace lean {
-obj* environment_find_core(obj*, obj*);
-}
+extern "C" obj* lean_environment_find(obj*, obj*);
 obj* l_Lean_Parser_runBuiltinParserUnsafe___closed__2;
 extern obj* l_Lean_AttributeImpl_inhabited___closed__6;
 obj* l_Lean_Parser_unicodeSymbolCheckPrecFn(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -29650,7 +29648,7 @@ lean::cnstr_set(x_53, 0, x_52);
 lean::cnstr_set(x_53, 1, x_41);
 lean::inc(x_4);
 lean::inc(x_3);
-x_54 = lean::environment_find_core(x_3, x_4);
+x_54 = lean_environment_find(x_3, x_4);
 if (lean::obj_tag(x_54) == 0)
 {
 obj* x_55; obj* x_56; 

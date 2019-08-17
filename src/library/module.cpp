@@ -200,28 +200,28 @@ extern "C" object * lean_perform_serialized_modifications(object * env0, object 
 /*
 @[export lean.write_module_core]
 def writeModule (env : Environment) (fname : String) : IO Unit := */
-object * write_module_core(object * env, object * fname, object * w);
+extern "C" object * lean_write_module(object * env, object * fname, object * w);
 
 void write_module(environment const & env, std::string const & olean_fn) {
-    consume_io_result(write_module_core(env.to_obj_arg(), mk_string(olean_fn), io_mk_world()));
+    consume_io_result(lean_write_module(env.to_obj_arg(), mk_string(olean_fn), io_mk_world()));
 }
 
 /*
 @[export lean.import_modules_core]
 def importModules (modNames : List Name) (trustLevel : UInt32 := 0) : IO Environment :=
 */
-object * import_modules_core(object * mod_names, uint32 trust_level, object * w);
+extern "C" object * lean_import_modules(object * mod_names, uint32 trust_level, object * w);
 
 environment import_modules(unsigned trust_lvl, std::vector<module_name> const & imports) {
     names mods(imports.begin(), imports.end());
-    return get_io_result<environment>(import_modules_core(mods.steal(), trust_lvl, io_mk_world()));
+    return get_io_result<environment>(lean_import_modules(mods.steal(), trust_lvl, io_mk_world()));
 }
 
-object * environment_add_modification_core(object * env, object * mod);
+extern "C" object * lean_environment_add_modification(object * env, object * mod);
 
 namespace module {
 environment add(environment const & env, modification* modf) {
-    return environment(environment_add_modification_core(env.to_obj_arg(), to_object(modf)));
+    return environment(lean_environment_add_modification(env.to_obj_arg(), to_object(modf)));
 }
 
 environment add_and_perform(environment const & env, modification * modf) {

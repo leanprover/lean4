@@ -48,7 +48,7 @@ instance : Inhabited Environment :=
 def addAux (env : Environment) (cinfo : ConstantInfo) : Environment :=
 { constants := env.constants.insert cinfo.name cinfo, .. env }
 
-@[export lean.environment_find_core]
+@[export lean_environment_find]
 def find (env : Environment) (n : Name) : Option ConstantInfo :=
 /- It is safe to use `find'` because we never overwrite imported declarations. -/
 env.constants.find' n
@@ -59,23 +59,23 @@ env.constants.contains n
 def imports (env : Environment) : Array Name :=
 env.header.imports
 
-@[export lean.environment_set_main_module_core]
+@[export lean_environment_set_main_module]
 def setMainModule (env : Environment) (m : Name) : Environment :=
 { header := { mainModule := m, .. env.header }, .. env }
 
-@[export lean.environment_main_module_core]
+@[export lean_environment_main_module]
 def mainModule (env : Environment) : Name :=
 env.header.mainModule
 
-@[export lean.environment_mark_quot_init_core]
+@[export lean_environment_mark_quot_init]
 private def markQuotInit (env : Environment) : Environment :=
 { header := { quotInit := true, .. env.header } , .. env }
 
-@[export lean.environment_quot_init_core]
+@[export lean_environment_quot_init]
 private def isQuotInit (env : Environment) : Bool :=
 env.header.quotInit
 
-@[export lean.environment_trust_level_core]
+@[export lean_environment_trust_level]
 private def getTrustLevel (env : Environment) : UInt32 :=
 env.header.trustLevel
 
@@ -185,7 +185,7 @@ constant registerEnvExtension {σ : Type} [Inhabited σ] (mkInitial : IO σ) : I
 private def mkInitialExtensionStates : IO (Array EnvExtensionState) :=
 do exts ← envExtensionsRef.get; exts.mmap $ fun ext => ext.mkInitial
 
-@[export lean.mk_empty_environment_core]
+@[export lean_mk_empty_environment]
 def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment :=
 do
 initializing ← IO.initializing;
@@ -341,15 +341,15 @@ section
    If `compiler.extract_closed` is set to true, then the compiler will cache the result of
    `exts ← envExtensionsRef.get` during initialization which is incorrect. -/
 set_option compiler.extract_closed false
-@[export lean.register_extension_core]
+@[export lean_register_extension]
 unsafe def registerCPPExtension (initial : CPPExtensionState) : Option Nat :=
 (unsafeIO (do ext ← registerEnvExtension (pure initial); pure ext.idx)).toOption
 
-@[export lean.set_extension_core]
+@[export lean_set_extension]
 unsafe def setCPPExtensionState (env : Environment) (idx : Nat) (s : CPPExtensionState) : Option Environment :=
 (unsafeIO (do exts ← envExtensionsRef.get; pure $ (exts.get idx).setState env s)).toOption
 
-@[export lean.get_extension_core]
+@[export lean_get_extension]
 unsafe def getCPPExtensionState (env : Environment) (idx : Nat) : Option CPPExtensionState :=
 (unsafeIO (do exts ← envExtensionsRef.get; pure $ (exts.get idx).getState env)).toOption
 end
@@ -374,7 +374,7 @@ registerEnvExtension (pure [])
 constant modListExtension : EnvExtension (List Modification) := default _
 
 /- The C++ code uses this function to store the given modification object into the environment. -/
-@[export lean.environment_add_modification_core]
+@[export lean_environment_add_modification]
 def addModification (env : Environment) (mod : Modification) : Environment :=
 modListExtension.modifyState env $ fun mods => mod :: mods
 
@@ -420,7 +420,7 @@ entries    := entries,
 serialized := bytes
 }
 
-@[export lean.write_module_core]
+@[export lean_write_module]
 def writeModule (env : Environment) (fname : String) : IO Unit :=
 do modData ← mkModuleData env; saveModuleData fname modData
 
@@ -463,7 +463,7 @@ pExtDescrs.miterate env $ fun _ extDescr env => do
   newState ← extDescr.addImportedFn s.importedEntries;
   pure $ extDescr.toEnvExtension.setState env { state := newState, .. s }
 
-@[export lean.import_modules_core]
+@[export lean_import_modules]
 def importModules (modNames : List Name) (trustLevel : UInt32 := 0) : IO Environment :=
 do
 (_, mods) ← importModulesAux modNames ({}, Array.empty);
@@ -522,12 +522,12 @@ private def registerNamePrefixes : Environment → Name → Environment
 | env, Name.mkString p _ => if isNamespaceName p then registerNamePrefixes (registerNamespace env p) p else env
 | env, _                 => env
 
-@[export lean.environment_add_core]
+@[export lean_environment_add]
 def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
 let env := registerNamePrefixes env cinfo.name;
 env.addAux cinfo
 
-@[export lean.display_stats_core]
+@[export lean_display_stats]
 def displayStats (env : Environment) : IO Unit :=
 do
 pExtDescrs ← persistentEnvExtensionsRef.get;

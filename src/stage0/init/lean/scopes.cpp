@@ -30,17 +30,11 @@ extern obj* l_Lean_EnvExtension_Inhabited___rarg___closed__1;
 obj* l_Lean_scopeManagerExt___closed__3;
 obj* l_Lean_Environment_popScopeCore___lambda__1(obj*);
 obj* l_Lean_scopeManagerExt___elambda__1(obj*);
-namespace lean {
-uint8 has_open_scopes_core(obj*);
-}
+extern "C" uint8 lean_has_open_scopes(obj*);
 obj* l_Lean_Environment_popScopeCore___closed__1;
 obj* l_Lean_Environment_pushScopeCore___lambda__1(obj*, obj*, uint8, obj*);
-namespace lean {
-obj* get_namespaces_core(obj*);
-}
-namespace lean {
-obj* get_scope_header_core(obj*);
-}
+extern "C" obj* lean_get_namespaces(obj*);
+extern "C" obj* lean_get_scope_header(obj*);
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__4;
 obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
 obj* l_Lean_SimplePersistentEnvExtension_getState___rarg(obj*, obj*);
@@ -49,9 +43,7 @@ obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec
 obj* l_Lean_ScopeManagerState_Inhabited;
 obj* l_Lean_Environment_registerNamespaceAux(obj*, obj*);
 obj* l_IO_Prim_Ref_set(obj*, obj*, obj*, obj*);
-namespace lean {
-obj* get_namespace_core(obj*);
-}
+extern "C" obj* lean_get_namespace(obj*);
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(obj*, obj*, obj*);
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3(obj*, obj*);
 extern "C" obj* lean_io_initializing(obj*);
@@ -84,9 +76,7 @@ extern "C" obj* lean_name_mk_string(obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
-namespace lean {
-uint8 is_namespace_core(obj*, obj*);
-}
+extern "C" uint8 lean_is_namespace(obj*, obj*);
 obj* l_Array_push(obj*, obj*, obj*);
 obj* l_Lean_regScopeManagerExtension___closed__5;
 uint8 l_List_isEmpty___rarg(obj*);
@@ -96,9 +86,7 @@ extern obj* l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1;
 obj* l_Array_miterateAux___main___at_Lean_regScopeManagerExtension___spec__2___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_registerSimplePersistentEnvExtension___at_Lean_regScopeManagerExtension___spec__4(obj*, obj*);
 obj* l_Lean_mkStateFromImportedEntries___at_Lean_regScopeManagerExtension___spec__1(obj*, obj*);
-namespace lean {
-obj* register_namespace_core(obj*, obj*);
-}
+extern "C" obj* lean_register_namespace(obj*, obj*);
 obj* l_Lean_regScopeManagerExtension___lambda__2(obj*);
 obj* l_Lean_scopeManagerExt___elambda__2___boxed(obj*);
 obj* l_Lean_regScopeManagerExtension___closed__3;
@@ -122,9 +110,7 @@ extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 extern obj* l_Lean_Name_toString___closed__1;
 obj* l_Lean_Environment_pushScopeCore___boxed(obj*, obj*, obj*);
 obj* l_Lean_scopeManagerExt___elambda__2(obj*);
-namespace lean {
-uint8 in_section_core(obj*);
-}
+extern "C" uint8 lean_in_section(obj*);
 obj* l_Lean_scopeManagerExt___closed__5;
 obj* l_Lean_Environment_pushScopeCore(obj*, obj*, uint8);
 obj* l_Lean_Environment_isNamespace___boxed(obj*, obj*);
@@ -134,9 +120,7 @@ obj* l_Lean_Name_append___main(obj*, obj*);
 obj* l_Lean_Environment_pushScopeCore___lambda__1___boxed(obj*, obj*, obj*, obj*);
 extern obj* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
 extern obj* l_Lean_regNamespacesExtension___closed__5;
-namespace lean {
-obj* to_valid_namespace_core(obj*, obj*);
-}
+extern "C" obj* lean_to_valid_namespace(obj*, obj*);
 obj* l_IO_Prim_Ref_reset(obj*, obj*, obj*);
 extern obj* l___private_init_lean_environment_5__envExtensionsRef;
 obj* l_Lean_scopeManagerExt___elambda__4(obj*);
@@ -2356,8 +2340,7 @@ lean::dec(x_1);
 return x_2;
 }
 }
-namespace lean {
-obj* get_namespaces_core(obj* x_1) {
+obj* lean_get_namespaces(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; 
@@ -2368,7 +2351,6 @@ x_4 = lean::cnstr_get(x_3, 1);
 lean::inc(x_4);
 lean::dec(x_3);
 return x_4;
-}
 }
 }
 obj* l_Lean_Environment_getNamespaceSet(obj* x_1) {
@@ -2392,8 +2374,7 @@ lean::dec(x_1);
 return x_2;
 }
 }
-namespace lean {
-uint8 is_namespace_core(obj* x_1, obj* x_2) {
+uint8 lean_is_namespace(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; uint8 x_4; 
@@ -2405,18 +2386,16 @@ lean::dec(x_3);
 return x_4;
 }
 }
-}
 obj* l_Lean_Environment_isNamespace___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; obj* x_4; 
-x_3 = lean::is_namespace_core(x_1, x_2);
+x_3 = lean_is_namespace(x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
 }
 }
-namespace lean {
-uint8 in_section_core(obj* x_1) {
+uint8 lean_in_section(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; 
@@ -2455,22 +2434,20 @@ return x_9;
 }
 }
 }
-}
 obj* l_Lean_Environment_inSection___boxed(obj* x_1) {
 _start:
 {
 uint8 x_2; obj* x_3; 
-x_2 = lean::in_section_core(x_1);
+x_2 = lean_in_section(x_1);
 x_3 = lean::box(x_2);
 return x_3;
 }
 }
-namespace lean {
-uint8 has_open_scopes_core(obj* x_1) {
+uint8 lean_has_open_scopes(obj* x_1) {
 _start:
 {
 obj* x_2; uint8 x_3; 
-x_2 = lean::get_namespaces_core(x_1);
+x_2 = lean_get_namespaces(x_1);
 x_3 = l_List_isEmpty___rarg(x_2);
 lean::dec(x_2);
 if (x_3 == 0)
@@ -2487,22 +2464,20 @@ return x_5;
 }
 }
 }
-}
 obj* l_Lean_Environment_hasOpenScopes___boxed(obj* x_1) {
 _start:
 {
 uint8 x_2; obj* x_3; 
-x_2 = lean::has_open_scopes_core(x_1);
+x_2 = lean_has_open_scopes(x_1);
 x_3 = lean::box(x_2);
 return x_3;
 }
 }
-namespace lean {
-obj* get_namespace_core(obj* x_1) {
+obj* lean_get_namespace(obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::get_namespaces_core(x_1);
+x_2 = lean_get_namespaces(x_1);
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
@@ -2519,9 +2494,7 @@ return x_4;
 }
 }
 }
-}
-namespace lean {
-obj* get_scope_header_core(obj* x_1) {
+obj* lean_get_scope_header(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; 
@@ -2544,7 +2517,6 @@ x_6 = lean::cnstr_get(x_4, 0);
 lean::inc(x_6);
 lean::dec(x_4);
 return x_6;
-}
 }
 }
 }
@@ -2592,8 +2564,7 @@ goto _start;
 }
 }
 }
-namespace lean {
-obj* to_valid_namespace_core(obj* x_1, obj* x_2) {
+obj* lean_to_valid_namespace(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; obj* x_5; uint8 x_6; 
@@ -2623,7 +2594,6 @@ lean::dec(x_4);
 x_10 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_10, 0, x_2);
 return x_10;
-}
 }
 }
 }
@@ -2678,14 +2648,12 @@ return x_1;
 }
 }
 }
-namespace lean {
-obj* register_namespace_core(obj* x_1, obj* x_2) {
+obj* lean_register_namespace(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
 x_3 = l_Lean_Environment_registerNamespace___main(x_1, x_2);
 return x_3;
-}
 }
 }
 obj* l_Lean_Environment_pushScopeCore___lambda__1(obj* x_1, obj* x_2, uint8 x_3, obj* x_4) {
@@ -2750,7 +2718,7 @@ _start:
 {
 obj* x_4; 
 lean::inc(x_1);
-x_4 = lean::get_namespace_core(x_1);
+x_4 = lean_get_namespace(x_1);
 if (x_3 == 0)
 {
 obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
@@ -2866,7 +2834,7 @@ _start:
 {
 obj* x_2; uint8 x_3; 
 lean::inc(x_1);
-x_2 = lean::get_namespaces_core(x_1);
+x_2 = lean_get_namespaces(x_1);
 x_3 = l_List_isEmpty___rarg(x_2);
 lean::dec(x_2);
 if (x_3 == 0)

@@ -21,30 +21,30 @@ Author: Leonardo de Moura
 namespace lean {
 // ==========================================
 // New attribute manager API
-object* is_attribute_core(object* n, object* w);
-object* attribute_application_time_core(object* n, object* w);
-object* add_attribute_core(object* env, object* decl, object* attr, object* args, uint8 persistent, object *w);
-object* add_scoped_attribute_core(object* env, object* decl, object* attr, object* args, object *w);
-object* erase_attribute_core(object* env, object* decl, object* attr, uint8 persistent, object *w);
+extern "C" object* lean_is_attribute(object* n, object* w);
+extern "C" object* lean_attribute_application_time(object* n, object* w);
+extern "C" object* lean_add_attribute(object* env, object* decl, object* attr, object* args, uint8 persistent, object *w);
+extern "C" object* lean_add_scoped_attribute(object* env, object* decl, object* attr, object* args, object *w);
+extern "C" object* lean_erase_attribute(object* env, object* decl, object* attr, uint8 persistent, object *w);
 
 bool is_new_attribute(name const & n) {
-    return get_io_scalar_result<bool>(is_attribute_core(n.to_obj_arg(), io_mk_world()));
+    return get_io_scalar_result<bool>(lean_is_attribute(n.to_obj_arg(), io_mk_world()));
 }
 environment add_attribute(environment const & env, name const & decl, name const & attr, syntax const & args, bool persistent) {
-    return get_io_result<environment>(add_attribute_core(env.to_obj_arg(), decl.to_obj_arg(), attr.to_obj_arg(), args.to_obj_arg(), persistent, io_mk_world()));
+    return get_io_result<environment>(lean_add_attribute(env.to_obj_arg(), decl.to_obj_arg(), attr.to_obj_arg(), args.to_obj_arg(), persistent, io_mk_world()));
 }
 environment add_scoped_attribute(environment const & env, name const & decl, name const & attr, syntax const & args) {
-    return get_io_result<environment>(add_scoped_attribute_core(env.to_obj_arg(), decl.to_obj_arg(), attr.to_obj_arg(), args.to_obj_arg(), io_mk_world()));
+    return get_io_result<environment>(lean_add_scoped_attribute(env.to_obj_arg(), decl.to_obj_arg(), attr.to_obj_arg(), args.to_obj_arg(), io_mk_world()));
 }
 environment erase_attribute(environment const & env, name const & decl, name const & attr, bool persistent) {
-    return get_io_result<environment>(erase_attribute_core(env.to_obj_arg(), decl.to_obj_arg(), attr.to_obj_arg(), persistent, io_mk_world()));
+    return get_io_result<environment>(lean_erase_attribute(env.to_obj_arg(), decl.to_obj_arg(), attr.to_obj_arg(), persistent, io_mk_world()));
 }
 /*
 inductive AttributeApplicationTime
 | afterTypeChecking | afterCompilation
 */
 bool is_after_compilation_attribute(name const & n) {
-    return get_io_scalar_result<uint8>(attribute_application_time_core(n.to_obj_arg(), io_mk_world())) == 1;
+    return get_io_scalar_result<uint8>(lean_attribute_application_time(n.to_obj_arg(), io_mk_world())) == 1;
 }
 // ==========================================
 
@@ -65,17 +65,17 @@ expr decl_attributes::parse_attr_arg(parser & p, name const & attr_id) {
         });
 }
 
-object* mk_syntax_atom_core(object*);
-object* mk_syntax_ident_core(object*);
-object* mk_syntax_list_core(object*);
-object* mk_syntax_str_lit_core(object*);
-object* mk_syntax_num_lit_core(object*);
+extern "C" object* lean_mk_syntax_atom(object*);
+extern "C" object* lean_mk_syntax_ident(object*);
+extern "C" object* lean_mk_syntax_list(object*);
+extern "C" object* lean_mk_syntax_str_lit(object*);
+extern "C" object* lean_mk_syntax_num_lit(object*);
 
-syntax mk_syntax_atom(string_ref const & s) { return syntax(mk_syntax_atom_core(s.to_obj_arg())); }
-syntax mk_syntax_ident(name const & n) { return syntax(mk_syntax_ident_core(n.to_obj_arg())); }
-syntax mk_syntax_list(buffer<syntax> const & args) { return syntax(mk_syntax_list_core(to_array(args))); }
-syntax mk_syntax_str_lit(string_ref const & s) { return syntax(mk_syntax_str_lit_core(s.to_obj_arg())); }
-syntax mk_syntax_num_lit(nat const & n) { return syntax(mk_syntax_num_lit_core(n.to_obj_arg())); }
+syntax mk_syntax_atom(string_ref const & s) { return syntax(lean_mk_syntax_atom(s.to_obj_arg())); }
+syntax mk_syntax_ident(name const & n) { return syntax(lean_mk_syntax_ident(n.to_obj_arg())); }
+syntax mk_syntax_list(buffer<syntax> const & args) { return syntax(lean_mk_syntax_list(to_array(args))); }
+syntax mk_syntax_str_lit(string_ref const & s) { return syntax(lean_mk_syntax_str_lit(s.to_obj_arg())); }
+syntax mk_syntax_num_lit(nat const & n) { return syntax(lean_mk_syntax_num_lit(n.to_obj_arg())); }
 
 syntax decl_attributes::expr_to_syntax(expr const & e) {
     buffer<expr> args;

@@ -44,12 +44,12 @@ unsigned get_pp_width(options const & o) {
     return o.get_unsigned(*g_pp_width, LEAN_DEFAULT_PP_WIDTH);
 }
 
-object* format_append_core(object* f1, object* f2);
-object* format_group_core(object* f);
-object* format_pretty_core(object* f, object* w);
+extern "C" object* lean_format_append(object* f1, object* f2);
+extern "C" object* lean_format_group(object* f);
+extern "C" object* lean_format_pretty(object* f, object* w);
 
 format compose(format const & f1, format const & f2) {
-    return format(format_append_core(f1.to_obj_arg(), f2.to_obj_arg()));
+    return format(lean_format_append(f1.to_obj_arg(), f2.to_obj_arg()));
 }
 format nest(int i, format const & f) {
     return format(mk_cnstr(static_cast<unsigned>(format::format_kind::NEST), mk_nat_obj(static_cast<unsigned>(i)), f.to_obj_arg()));
@@ -60,7 +60,7 @@ static format * g_space = nullptr;
 format line() { return *g_line; }
 format space() { return *g_space; }
 format group(format const & f) {
-    return format(format_group_core(f.to_obj_arg()));
+    return format(lean_format_group(f.to_obj_arg()));
 }
 format bracket(std::string const & l, format const & x, std::string const & r) {
     return group(nest(l.size(), format(l) + x + format(r)));
@@ -73,7 +73,7 @@ format operator+(format const & f1, format const & f2) {
 }
 
 std::ostream & format::pretty(std::ostream & out, unsigned w, format const & f) {
-    string_ref s(format_pretty_core(f.to_obj_arg(), mk_nat_obj(w)));
+    string_ref s(lean_format_pretty(f.to_obj_arg(), mk_nat_obj(w)));
     out << s.data();
     return out;
 }

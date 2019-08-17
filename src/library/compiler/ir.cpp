@@ -15,9 +15,9 @@ Author: Leonardo de Moura
 #include "library/compiler/extern_attribute.h"
 
 namespace lean {
-object * lean_ir_mk_irrelevant_arg; // HACK @[export] with extern "C" does not work for constants
-object * lean_ir_mk_unreachable; // HACK @[export] with extern "C" does not work for constants
 namespace ir {
+object * irrelevant_arg;
+extern "C" object * lean_ir_mk_unreachable(object *);
 extern "C" object * lean_ir_mk_var_arg(object * id);
 extern "C" object * lean_ir_mk_param(object * x, uint8 borrowed, uint8 ty);
 extern "C" object * lean_ir_mk_ctor_expr(object * n, object * cidx, object * size, object * usize, object * ssize, object * ys);
@@ -61,7 +61,7 @@ typedef object_ref alt;
 typedef object_ref decl;
 
 arg mk_var_arg(var_id const & id) { inc(id.raw()); return arg(lean_ir_mk_var_arg(id.raw())); }
-arg mk_irrelevant_arg() { return arg(lean_ir_mk_irrelevant_arg); }
+arg mk_irrelevant_arg() { return arg(irrelevant_arg); }
 param mk_param(var_id const & x, type ty, bool borrowed = false) {
     return param(lean_ir_mk_param(x.to_obj_arg(), borrowed, static_cast<uint8>(ty)));
 }
@@ -90,7 +90,7 @@ fn_body mk_sset(var_id const & x, unsigned i, unsigned o, var_id const & y, type
     return fn_body(lean_ir_mk_sset(x.to_obj_arg(), mk_nat_obj(i), mk_nat_obj(o), y.to_obj_arg(), static_cast<uint8>(ty), b.to_obj_arg()));
 }
 fn_body mk_ret(arg const & x) { return fn_body(lean_ir_mk_ret(x.to_obj_arg())); }
-fn_body mk_unreachable() { return fn_body(lean_ir_mk_unreachable); }
+fn_body mk_unreachable() { return fn_body(lean_ir_mk_unreachable(box(0))); }
 alt mk_alt(name const & n, unsigned cidx, unsigned size, unsigned usize, unsigned ssize, fn_body const & b) {
     return alt(lean_ir_mk_alt(n.to_obj_arg(), mk_nat_obj(cidx), mk_nat_obj(size), mk_nat_obj(usize), mk_nat_obj(ssize), b.to_obj_arg()));
 }
@@ -566,8 +566,7 @@ string_ref emit_cpp(environment const & env, name const & mod_name) {
 }
 
 void initialize_ir() {
-    lean_ir_mk_irrelevant_arg = box(1);
-    lean_ir_mk_unreachable = box(13); // TOO HACKISH!!! It must be deleted in the future.
+    ir::irrelevant_arg = box(1);
 }
 
 void finalize_ir() {

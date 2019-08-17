@@ -125,7 +125,6 @@ instance : Inhabited Arg := ⟨irrelevant⟩
 end Arg
 
 @[export lean_ir_mk_var_arg] def mkVarArg (id : VarId) : Arg := Arg.var id
-@[export lean_ir_mk_irrelevant_arg] def mkIrrelevantArg : Arg := Arg.irrelevant
 
 inductive LitVal
 | num (v : Nat)
@@ -250,7 +249,7 @@ abbrev FnBody.nil := FnBody.unreachable
 @[export lean_ir_mk_case] def mkCase (tid : Name) (x : VarId) (cs : Array (AltCore FnBody)) : FnBody := FnBody.case tid x cs
 @[export lean_ir_mk_ret] def mkRet (x : Arg) : FnBody := FnBody.ret x
 @[export lean_ir_mk_jmp] def mkJmp (j : JoinPointId) (ys : Array Arg) : FnBody := FnBody.jmp j ys
-@[export lean_ir_mk_unreachable] def mkUnreachable : FnBody := FnBody.unreachable
+@[export lean_ir_mk_unreachable] def mkUnreachable : Unit → FnBody := fun _ => FnBody.unreachable
 
 abbrev Alt := AltCore FnBody
 @[matchPattern] abbrev Alt.ctor    := @AltCore.ctor FnBody

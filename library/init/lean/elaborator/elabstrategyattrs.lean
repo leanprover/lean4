@@ -27,7 +27,7 @@ registerEnumAttributes `elaboratorStrategy
 @[init mkElaboratorStrategyAttrs]
 constant elaboratorStrategyAttrs : EnumAttributes ElaboratorStrategy := default _
 
-@[export lean.get_elaborator_strategy_core]
+@[export lean_get_elaborator_strategy]
 def getElaboratorStrategy (env : Environment) (n : Name) : Option ElaboratorStrategy :=
 elaboratorStrategyAttrs.getValue env n
 

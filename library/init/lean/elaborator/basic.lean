@@ -334,7 +334,7 @@ partial def processCommandsAux : Unit → Frontend Unit
 def processCommands : Frontend Unit :=
 processCommandsAux ()
 
-@[export lean.absolutize_module_name_core]
+@[export lean_absolutize_module_name]
 def absolutizeModuleName (baseDir : Option String) (m : Name) (k : Option Nat) : IO Name :=
 match k, baseDir with
 | none,   _            => pure m

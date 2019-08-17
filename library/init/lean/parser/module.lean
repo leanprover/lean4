@@ -97,7 +97,7 @@ private partial def testModuleParserAux (env : Environment) (c : ParserContextCo
       when displayStx (IO.println stx);
       testModuleParserAux s messages
 
-@[export lean.test_module_parser_core]
+@[export lean_test_module_parser]
 def testModuleParser (env : Environment) (input : String) (fileName := "<input>") (displayStx := false) : IO Bool :=
 timeit (fileName ++ " parser") $ do
   let ctx                := mkParserContextCore env input fileName;

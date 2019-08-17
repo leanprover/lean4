@@ -31,9 +31,7 @@ obj* l___private_init_lean_parser_module_1__mkErrorMessage(obj*, obj*, obj*);
 obj* l_Lean_Parser_symbolInfo(obj*, obj*);
 obj* l_Lean_Parser_Module_prelude___elambda__1___rarg___closed__2;
 obj* l_Array_back___at___private_init_lean_parser_parser_6__updateCache___spec__1(obj*);
-namespace lean {
-obj* test_module_parser_core(obj*, obj*, obj*, uint8, obj*);
-}
+extern "C" obj* lean_test_module_parser(obj*, obj*, obj*, uint8, obj*);
 obj* l_Lean_Parser_manyAux___main___at_Lean_Parser_Module_header___elambda__1___spec__1(uint8, obj*, obj*, obj*);
 obj* l_Lean_Parser_andthenInfo(obj*, obj*);
 extern obj* l_Lean_Parser_declareLeadingBuiltinParser___closed__1;
@@ -2450,8 +2448,7 @@ lean::closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-namespace lean {
-obj* test_module_parser_core(obj* x_1, obj* x_2, obj* x_3, uint8 x_4, obj* x_5) {
+obj* lean_test_module_parser(obj* x_1, obj* x_2, obj* x_3, uint8 x_4, obj* x_5) {
 _start:
 {
 obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; 
@@ -2505,7 +2502,6 @@ return x_21;
 }
 }
 }
-}
 obj* l_Lean_Parser_testModuleParser___lambda__1___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7) {
 _start:
 {
@@ -2523,7 +2519,7 @@ _start:
 uint8 x_6; obj* x_7; 
 x_6 = lean::unbox(x_4);
 lean::dec(x_4);
-x_7 = lean::test_module_parser_core(x_1, x_2, x_3, x_6, x_5);
+x_7 = lean_test_module_parser(x_1, x_2, x_3, x_6, x_5);
 return x_7;
 }
 }

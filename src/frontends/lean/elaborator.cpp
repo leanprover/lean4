@@ -65,10 +65,10 @@ bool get_elaborator_coercions(options const & opts) {
     return opts.get_bool(*g_elaborator_coercions, LEAN_DEFAULT_ELABORATOR_COERCIONS);
 }
 
-object* get_elaborator_strategy_core(object* env, object *n);
+extern "C" object* lean_get_elaborator_strategy(object* env, object *n);
 
 elaborator_strategy get_elaborator_strategy(environment const & env, name const & n) {
-    optional<elaborator_strategy> st = to_optional_scalar<elaborator_strategy>(get_elaborator_strategy_core(env.to_obj_arg(), n.to_obj_arg()));
+    optional<elaborator_strategy> st = to_optional_scalar<elaborator_strategy>(lean_get_elaborator_strategy(env.to_obj_arg(), n.to_obj_arg()));
     if (st)
         return *st;
 

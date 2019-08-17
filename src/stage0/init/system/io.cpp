@@ -19,9 +19,7 @@ extern "C" obj* lean_io_prim_handle_get_line(obj*, obj*);
 obj* l_IO_println(obj*);
 obj* l_IO_Ref_set___boxed(obj*, obj*);
 obj* l_IO_Fs_handle_isEof___at_IO_Fs_handle_readToEnd___spec__1___boxed(obj*, obj*);
-namespace lean {
-obj* io_error_to_string_core(obj*);
-}
+extern "C" obj* lean_io_error_to_string(obj*);
 obj* l_IO_Ref_get___rarg(obj*, obj*, obj*);
 obj* l_EState_Monad(obj*, obj*);
 obj* l_IO_Ref_swap___boxed(obj*, obj*);
@@ -352,12 +350,10 @@ lean::dec(x_1);
 return x_2;
 }
 }
-namespace lean {
-obj* io_error_to_string_core(obj* x_1) {
+obj* lean_io_error_to_string(obj* x_1) {
 _start:
 {
 return x_1;
-}
 }
 }
 obj* l_unsafeIO___rarg(obj* x_1) {

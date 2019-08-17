@@ -86,9 +86,7 @@ obj* l_Lean_Elab_getElabContext___boxed(obj*, obj*);
 obj* l_Lean_SMap_find___at_Lean_Elab_elabCommand___spec__1(obj*, obj*);
 obj* l_Lean_Elab_logError___rarg(obj*, obj*, obj*, obj*);
 extern "C" obj* lean_import_modules(obj*, uint32, obj*);
-namespace lean {
-obj* absolutize_module_name_core(obj*, obj*, obj*, obj*);
-}
+extern "C" obj* lean_absolutize_module_name(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elab_logError(obj*);
 obj* l_List_reverse___rarg(obj*);
 obj* l_Lean_Elab_processCommandsAux___main(obj*);
@@ -188,9 +186,7 @@ uint8 nat_dec_lt(obj*, obj*);
 obj* l_Lean_Elab_runElab___rarg___boxed(obj*, obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_addBuiltinCommandElab___spec__4___boxed(obj*, obj*);
 obj* l_Lean_Elab_resolveNamespaceUsingScopes___boxed(obj*, obj*, obj*);
-namespace lean {
-obj* module_name_of_file_core(obj*, obj*);
-}
+extern "C" obj* lean_module_name_of_file(obj*, obj*);
 extern obj* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__1;
 obj* l_Lean_Syntax_getArgs___rarg(obj*);
 obj* l_Lean_Elab_processHeaderAux___boxed(obj*, obj*, obj*, obj*);
@@ -16712,8 +16708,7 @@ x_1 = lean::mk_string("invalid use of relative import, file name of main file is
 return x_1;
 }
 }
-namespace lean {
-obj* absolutize_module_name_core(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* lean_absolutize_module_name(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 if (lean::obj_tag(x_3) == 0)
@@ -16794,9 +16789,8 @@ x_22 = l_Array_mfindAux___main___at_Lean_findFile___spec__2___closed__1;
 x_23 = lean::string_append(x_21, x_22);
 x_24 = l_Lean_findOLean___closed__1;
 x_25 = lean::string_append(x_23, x_24);
-x_26 = lean::module_name_of_file_core(x_25, x_4);
+x_26 = lean_module_name_of_file(x_25, x_4);
 return x_26;
-}
 }
 }
 }
@@ -16866,7 +16860,7 @@ lean::dec(x_18);
 x_26 = l_Lean_Syntax_getId___rarg(x_25);
 lean::dec(x_25);
 lean::inc(x_1);
-x_27 = lean::absolutize_module_name_core(x_1, x_26, x_24, x_7);
+x_27 = lean_absolutize_module_name(x_1, x_26, x_24, x_7);
 if (lean::obj_tag(x_27) == 0)
 {
 uint8 x_28; 
@@ -16944,7 +16938,7 @@ lean::dec(x_18);
 x_45 = l_Lean_Syntax_getId___rarg(x_44);
 lean::dec(x_44);
 lean::inc(x_1);
-x_46 = lean::absolutize_module_name_core(x_1, x_45, x_43, x_7);
+x_46 = lean_absolutize_module_name(x_1, x_45, x_43, x_7);
 if (lean::obj_tag(x_46) == 0)
 {
 uint8 x_47; 

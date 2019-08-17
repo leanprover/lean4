@@ -55,7 +55,7 @@ do val ← IO.getEnv "LEAN_PATH";
    | none     => pure ["."] -- If LEAN_PATH is not defined, use current directory
    | some val => pure (val.split searchPathSep)
 
-@[export lean.init_search_path_core]
+@[export lean_init_search_path]
 def initSearchPath (path : Option String := "") : IO Unit :=
 match path with
 | some path => setSearchPathFromString path
@@ -97,7 +97,7 @@ realPathNormalized fname
 def findOLean (modName : Name) : IO String :=
 findLeanFile modName "olean"
 
-@[export lean.find_lean_core]
+@[export lean_find_lean]
 def findLean (modName : Name) : IO String :=
 findLeanFile modName "lean"
 
@@ -108,7 +108,7 @@ do fname ← realPathNormalized fname;
    | some r => pure r
    | none   => throw (IO.userError ("file '" ++ fname ++ "' not in the search path " ++ repr paths))
 
-@[export lean.module_name_of_file_core]
+@[export lean_module_name_of_file]
 def moduleNameOfFileName (fname : String) : IO Name :=
 do
 path  ← findAtSearchPath fname;

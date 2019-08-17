@@ -30,13 +30,13 @@ registerSimplePersistentEnvExtension {
 @[init mkProjectionFnInfoExtension]
 constant projectionFnInfoExt : SimplePersistentEnvExtension (Name × ProjectionFunctionInfo) (NameMap ProjectionFunctionInfo) := default _
 
-@[export lean.add_projection_info_core]
+@[export lean_add_projection_info]
 def addProjectionFnInfo (env : Environment) (projName : Name) (ctorName : Name) (nparams : Nat) (i : Nat) (fromClass : Bool) : Environment :=
 projectionFnInfoExt.addEntry env (projName, { ctorName := ctorName, nparams := nparams, i := i, fromClass := fromClass })
 
 namespace Environment
 
-@[export lean.get_projection_info_core]
+@[export lean_get_projection_info]
 def getProjectionFnInfo (env : Environment) (projName : Name) : Option ProjectionFunctionInfo :=
 match env.getModuleIdxFor projName with
 | some modIdx =>

@@ -41,7 +41,7 @@ instance : Inhabited IO.Error := inferInstanceAs (Inhabited String)
 def IO.userError (s : String) : IO.Error :=
 s
 
-@[export lean.io_error_to_string_core]
+@[export lean_io_error_to_string]
 def IO.Error.toString : IO.Error → String :=
 id
 

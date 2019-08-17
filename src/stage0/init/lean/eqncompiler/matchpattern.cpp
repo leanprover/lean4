@@ -14,9 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-namespace lean {
-uint8 has_match_pattern_attribute_core(obj*, obj*);
-}
+extern "C" uint8 lean_has_match_pattern_attribute(obj*, obj*);
 obj* l_Lean_EqnCompiler_matchPatternAttr;
 obj* l_Lean_EqnCompiler_mkMatchPatternAttr___closed__3;
 extern obj* l_Lean_TagAttribute_Inhabited___closed__3;
@@ -104,8 +102,7 @@ lean::dec(x_1);
 return x_3;
 }
 }
-namespace lean {
-uint8 has_match_pattern_attribute_core(obj* x_1, obj* x_2) {
+uint8 lean_has_match_pattern_attribute(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; uint8 x_4; 
@@ -116,12 +113,11 @@ lean::dec(x_1);
 return x_4;
 }
 }
-}
 obj* l_Lean_EqnCompiler_hasMatchPatternAttribute___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; obj* x_4; 
-x_3 = lean::has_match_pattern_attribute_core(x_1, x_2);
+x_3 = lean_has_match_pattern_attribute(x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
 }

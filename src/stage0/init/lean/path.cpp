@@ -74,9 +74,7 @@ obj* l_IO_appPath___at_Lean_getBuiltinSearchPath___spec__2(obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
-namespace lean {
-obj* module_name_of_file_core(obj*, obj*);
-}
+extern "C" obj* lean_module_name_of_file(obj*, obj*);
 obj* l_String_drop(obj*, obj*);
 extern obj* l_Char_HasRepr___closed__1;
 obj* l_List_reprAux___main___at_Lean_findAtSearchPath___spec__3___boxed(obj*, obj*);
@@ -126,9 +124,7 @@ obj* l___private_init_lean_path_1__pathSep;
 obj* l_Lean_findFile___boxed(obj*, obj*, obj*);
 obj* l_Array_mfindAux___main___at_Lean_findAtSearchPath___spec__1(obj*, obj*, obj*);
 obj* l_Lean_getSearchPathFromEnv(obj*);
-namespace lean {
-obj* init_search_path_core(obj*, obj*);
-}
+extern "C" obj* lean_init_search_path(obj*, obj*);
 extern uint32 l_System_FilePath_pathSeparator;
 extern obj* l_Lean_Name_toString___closed__1;
 obj* l_Array_mfindAux___main___at_Lean_findFile___spec__2___closed__2;
@@ -140,9 +136,7 @@ namespace lean {
 obj* string_utf8_byte_size(obj*);
 }
 obj* l_Array_mfindAux___main___at_Lean_findFile___spec__2(obj*, obj*, obj*, obj*, obj*);
-namespace lean {
-obj* find_lean_core(obj*, obj*);
-}
+extern "C" obj* lean_find_lean(obj*, obj*);
 obj* l_Lean_addRel(obj*, obj*);
 obj* l_String_quote(obj*);
 obj* l_Lean_mkSearchPathRef(obj*);
@@ -1797,8 +1791,7 @@ lean::dec(x_1);
 return x_3;
 }
 }
-namespace lean {
-obj* init_search_path_core(obj* x_1, obj* x_2) {
+obj* lean_init_search_path(obj* x_1, obj* x_2) {
 _start:
 {
 if (lean::obj_tag(x_1) == 0)
@@ -1966,7 +1959,6 @@ lean::inc(x_40);
 lean::dec(x_1);
 x_41 = l_Lean_setSearchPathFromString(x_40, x_2);
 return x_41;
-}
 }
 }
 }
@@ -2580,15 +2572,13 @@ x_4 = l_Lean_findLeanFile(x_1, x_3, x_2);
 return x_4;
 }
 }
-namespace lean {
-obj* find_lean_core(obj* x_1, obj* x_2) {
+obj* lean_find_lean(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
 x_3 = l_Lean_getBuiltinSearchPath___closed__4;
 x_4 = l_Lean_findLeanFile(x_1, x_3, x_2);
 return x_4;
-}
 }
 }
 obj* l_Array_mfindAux___main___at_Lean_findAtSearchPath___spec__1(obj* x_1, obj* x_2, obj* x_3) {
@@ -3053,8 +3043,7 @@ x_1 = lean::mk_string("' resolves to '");
 return x_1;
 }
 }
-namespace lean {
-obj* module_name_of_file_core(obj* x_1, obj* x_2) {
+obj* lean_module_name_of_file(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
@@ -3586,7 +3575,6 @@ x_162 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_162, 0, x_160);
 lean::cnstr_set(x_162, 1, x_161);
 return x_162;
-}
 }
 }
 }

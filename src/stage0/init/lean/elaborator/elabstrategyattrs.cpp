@@ -101,9 +101,7 @@ obj* l_Lean_PersistentEnvExtension_addEntry___rarg(obj*, obj*, obj*);
 obj* l_IO_Prim_Ref_get(obj*, obj*, obj*);
 uint8 l_Lean_Name_quickLt(obj*, obj*);
 obj* l_Lean_mkElaboratorStrategyAttrs___closed__1;
-namespace lean {
-obj* get_elaborator_strategy_core(obj*, obj*);
-}
+extern "C" obj* lean_get_elaborator_strategy(obj*, obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Lean_elaboratorStrategyAttrs;
 obj* l_Array_binSearchAux___main___at_Lean_getElaboratorStrategy___spec__3___boxed(obj*, obj*, obj*, obj*);
@@ -3160,8 +3158,7 @@ return x_25;
 }
 }
 }
-namespace lean {
-obj* get_elaborator_strategy_core(obj* x_1, obj* x_2) {
+obj* lean_get_elaborator_strategy(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
@@ -3169,7 +3166,6 @@ x_3 = l_Lean_elaboratorStrategyAttrs;
 x_4 = l_Lean_EnumAttributes_getValue___at_Lean_getElaboratorStrategy___spec__1(x_3, x_1, x_2);
 lean::dec(x_1);
 return x_4;
-}
 }
 }
 obj* l_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2___boxed(obj* x_1, obj* x_2) {

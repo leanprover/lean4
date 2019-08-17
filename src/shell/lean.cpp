@@ -296,28 +296,28 @@ public:
 };
 
 namespace lean {
-object* test_module_parser_core(object* env, object* input, object* filename, uint8 displayCtx, object* w);
+extern "C" object* lean_test_module_parser(object* env, object* input, object* filename, uint8 displayCtx, object* w);
 bool test_module_parser(environment const & env, std::string const & input, std::string const & filename) {
-    return get_io_scalar_result<bool>(test_module_parser_core(env.to_obj_arg(), mk_string(input), mk_string(filename), false, io_mk_world()));
+    return get_io_scalar_result<bool>(lean_test_module_parser(env.to_obj_arg(), mk_string(input), mk_string(filename), false, io_mk_world()));
 }
 
-object* init_search_path_core(object* opt_path, object* w);
+extern "C" object* lean_init_search_path(object* opt_path, object* w);
 
 void init_search_path() {
-    get_io_scalar_result<unsigned>(init_search_path_core(mk_option_none(), io_mk_world()));
+    get_io_scalar_result<unsigned>(lean_init_search_path(mk_option_none(), io_mk_world()));
 }
 
-object* find_lean_core(object* mod_name, object* w);
+extern "C" object* lean_find_lean(object* mod_name, object* w);
 
 std::string find_lean_file(name mod_name) {
-    string_ref fname = get_io_result<string_ref>(find_lean_core(mod_name.to_obj_arg(), io_mk_world()));
+    string_ref fname = get_io_result<string_ref>(lean_find_lean(mod_name.to_obj_arg(), io_mk_world()));
     return fname.to_std_string();
 }
 
-object* module_name_of_file_core(object* fname, object* w);
+extern "C" object* lean_module_name_of_file(object* fname, object* w);
 
 name module_name_of_file2(std::string const & fname) {
-    return get_io_result<name>(module_name_of_file_core(mk_string(fname), io_mk_world()));
+    return get_io_result<name>(lean_module_name_of_file(mk_string(fname), io_mk_world()));
 }
 }
 

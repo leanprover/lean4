@@ -15,7 +15,7 @@ registerTagAttribute `matchPattern "mark that a definition can be used in a patt
 @[init mkMatchPatternAttr]
 constant matchPatternAttr : TagAttribute := default _
 
-@[export lean.has_match_pattern_attribute_core]
+@[export lean_has_match_pattern_attribute]
 def hasMatchPatternAttribute (env : Environment) (n : Name) : Bool :=
 matchPatternAttr.hasTag env n
 

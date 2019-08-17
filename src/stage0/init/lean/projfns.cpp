@@ -90,16 +90,12 @@ obj* l_Lean_addProjectionFnInfo___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_EState_bind___rarg(obj*, obj*, obj*);
 obj* l_Array_binSearchAux___main___at_Lean_Environment_isProjectionFn___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_projectionFnInfoExt___closed__5;
-namespace lean {
-obj* add_projection_info_core(obj*, obj*, obj*, obj*, obj*, uint8);
-}
+extern "C" obj* lean_add_projection_info(obj*, obj*, obj*, obj*, obj*, uint8);
 obj* l_Lean_PersistentEnvExtension_addEntry___rarg(obj*, obj*, obj*);
 obj* l_IO_Prim_Ref_get(obj*, obj*, obj*);
 uint8 l_Lean_Name_quickLt(obj*, obj*);
 obj* l_Lean_registerSimplePersistentEnvExtension___at_Lean_mkProjectionFnInfoExtension___spec__3(obj*, obj*);
-namespace lean {
-obj* get_projection_info_core(obj*, obj*);
-}
+extern "C" obj* lean_get_projection_info(obj*, obj*);
 obj* l_Array_size(obj*, obj*);
 uint8 l_Array_anyMAux___main___at_Lean_mkProjectionFnInfoExtension___spec__5(obj*, obj*, obj*);
 obj* l_Array_get(obj*, obj*, obj*, obj*);
@@ -2406,8 +2402,7 @@ lean::dec(x_1);
 return x_2;
 }
 }
-namespace lean {
-obj* add_projection_info_core(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, uint8 x_6) {
+obj* lean_add_projection_info(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, uint8 x_6) {
 _start:
 {
 obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
@@ -2424,14 +2419,13 @@ x_10 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_9, x_1, x_8);
 return x_10;
 }
 }
-}
 obj* l_Lean_addProjectionFnInfo___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
 _start:
 {
 uint8 x_7; obj* x_8; 
 x_7 = lean::unbox(x_6);
 lean::dec(x_6);
-x_8 = lean::add_projection_info_core(x_1, x_2, x_3, x_4, x_5, x_7);
+x_8 = lean_add_projection_info(x_1, x_2, x_3, x_4, x_5, x_7);
 return x_8;
 }
 }
@@ -2559,8 +2553,7 @@ goto _start;
 }
 }
 }
-namespace lean {
-obj* get_projection_info_core(obj* x_1, obj* x_2) {
+obj* lean_get_projection_info(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
@@ -2630,7 +2623,6 @@ lean::dec(x_21);
 x_23 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_23, 0, x_22);
 return x_23;
-}
 }
 }
 }

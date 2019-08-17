@@ -18,15 +18,15 @@ projection_info::projection_info(name const & c, unsigned nparams, unsigned i, b
     cnstr_set_scalar<unsigned char>(raw(), 3*sizeof(object*), static_cast<unsigned char>(inst_implicit));
 }
 
-object* add_projection_info_core(object* env, object* p, object* ctor, object* nparams, object* i, uint8 fromClass);
-object* get_projection_info_core(object* env, object* p);
+extern "C" object* lean_add_projection_info(object* env, object* p, object* ctor, object* nparams, object* i, uint8 fromClass);
+extern "C" object* lean_get_projection_info(object* env, object* p);
 
 environment save_projection_info(environment const & env, name const & p, name const & mk, unsigned nparams, unsigned i, bool inst_implicit) {
-    return environment(add_projection_info_core(env.to_obj_arg(), p.to_obj_arg(), mk.to_obj_arg(), mk_nat_obj(nparams), mk_nat_obj(i), inst_implicit));
+    return environment(lean_add_projection_info(env.to_obj_arg(), p.to_obj_arg(), mk.to_obj_arg(), mk_nat_obj(nparams), mk_nat_obj(i), inst_implicit));
 }
 
 optional<projection_info> get_projection_info(environment const & env, name const & p) {
-    return to_optional<projection_info>(get_projection_info_core(env.to_obj_arg(), p.to_obj_arg()));
+    return to_optional<projection_info>(lean_get_projection_info(env.to_obj_arg(), p.to_obj_arg()));
 }
 
 /** \brief Return true iff the type named \c S can be viewed as

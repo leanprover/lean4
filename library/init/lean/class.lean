@@ -59,27 +59,27 @@ registerSimplePersistentEnvExtension {
 @[init mkClassExtension]
 constant classExtension : SimplePersistentEnvExtension ClassEntry ClassState := default _
 
-@[export lean.is_class_core]
+@[export lean_is_class]
 def isClass (env : Environment) (n : Name) : Bool :=
 (classExtension.getState env).hasOutParam.contains n
 
-@[export lean.is_instance_core]
+@[export lean_is_instance]
 def isInstance (env : Environment) (n : Name) : Bool :=
 (classExtension.getState env).instances.contains n
 
-@[export lean.get_class_instances_core]
+@[export lean_get_class_instances]
 def getClassInstances (env : Environment) (n : Name) : List Name :=
 match (classExtension.getState env).classToInstances.find n with
 | some insts => insts
 | none       => []
 
-@[export lean.has_out_params_core]
+@[export lean_has_out_params]
 def hasOutParams (env : Environment) (n : Name) : Bool :=
 match (classExtension.getState env).hasOutParam.find n with
 | some b => b
 | none   => false
 
-@[export lean.is_out_param_core]
+@[export lean_is_out_param]
 private def isOutParam (e : Expr) : Bool :=
 e.isAppOfArity `outParam 1
 
@@ -111,7 +111,7 @@ partial def getClassName (env : Environment) : Expr → Option Name
     if isClass env c then some c
     else none
 
-@[export lean.add_instance_core]
+@[export lean_add_instance]
 def addInstance (env : Environment) (instName : Name) : Except String Environment :=
 match env.find instName with
 | none      => Except.error ("unknown declaration '" ++ toString instName ++ "'")

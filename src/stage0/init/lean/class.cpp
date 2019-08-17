@@ -133,9 +133,7 @@ obj* l___private_init_lean_class_1__isOutParam___closed__1;
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1(obj*, obj*, obj*);
 uint8 l_RBNode_isRed___rarg(obj*);
 obj* l_HashMapImp_insert___at_Lean_ClassState_addEntry___spec__4(obj*, obj*, uint8);
-namespace lean {
-obj* add_instance_core(obj*, obj*);
-}
+extern "C" obj* lean_add_instance(obj*, obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
@@ -160,9 +158,7 @@ obj* l_HashMapImp_moveEntries___main___at_Lean_ClassState_addEntry___spec__18(ob
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
-namespace lean {
-uint8 has_out_params_core(obj*, obj*);
-}
+extern "C" uint8 lean_has_out_params(obj*, obj*);
 obj* l_HashMapImp_expand___at_Lean_ClassState_addEntry___spec__26(obj*, obj*);
 obj* l_Array_push(obj*, obj*, obj*);
 extern obj* l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1;
@@ -200,14 +196,10 @@ namespace lean {
 obj* environment_find_core(obj*, obj*);
 }
 obj* l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__3___closed__2;
-namespace lean {
-uint8 is_class_core(obj*, obj*);
-}
+extern "C" uint8 lean_is_class(obj*, obj*);
 obj* l_Lean_classExtension___closed__2;
 obj* l_RBNode_find___main___at_Lean_isClass___spec__3(obj*, obj*);
-namespace lean {
-obj* get_class_instances_core(obj*, obj*);
-}
+extern "C" obj* lean_get_class_instances(obj*, obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Lean_addClass___closed__1;
 obj* l_Lean_classExtension___elambda__2___boxed(obj*);
@@ -231,12 +223,8 @@ namespace lean {
 uint8 nat_dec_le(obj*, obj*);
 }
 obj* l_Lean_classExtension;
-namespace lean {
-uint8 is_out_param_core(obj*);
-}
-namespace lean {
-uint8 is_instance_core(obj*, obj*);
-}
+extern "C" uint8 lean_is_out_param(obj*);
+extern "C" uint8 lean_is_instance(obj*, obj*);
 obj* l_Lean_mkClassExtension(obj*);
 obj* l_AssocList_find___main___at_Lean_ClassState_addEntry___spec__13(obj*, obj*);
 uint8 l_Lean_Syntax_isMissing___rarg(obj*);
@@ -9289,8 +9277,7 @@ return x_12;
 }
 }
 }
-namespace lean {
-uint8 is_class_core(obj* x_1, obj* x_2) {
+uint8 lean_is_class(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; obj* x_5; uint8 x_6; 
@@ -9304,7 +9291,6 @@ x_6 = l_Lean_SMap_contains___at_Lean_isClass___spec__1(x_5, x_2);
 lean::dec(x_2);
 lean::dec(x_5);
 return x_6;
-}
 }
 }
 obj* l_HashMapImp_contains___at_Lean_isClass___spec__2___boxed(obj* x_1, obj* x_2) {
@@ -9343,7 +9329,7 @@ obj* l_Lean_isClass___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; obj* x_4; 
-x_3 = lean::is_class_core(x_1, x_2);
+x_3 = lean_is_class(x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
 }
@@ -9411,8 +9397,7 @@ return x_12;
 }
 }
 }
-namespace lean {
-uint8 is_instance_core(obj* x_1, obj* x_2) {
+uint8 lean_is_instance(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; obj* x_5; uint8 x_6; 
@@ -9426,7 +9411,6 @@ x_6 = l_Lean_SMap_contains___at_Lean_isInstance___spec__1(x_5, x_2);
 lean::dec(x_2);
 lean::dec(x_5);
 return x_6;
-}
 }
 }
 obj* l_HashMapImp_contains___at_Lean_isInstance___spec__2___boxed(obj* x_1, obj* x_2) {
@@ -9455,13 +9439,12 @@ obj* l_Lean_isInstance___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; obj* x_4; 
-x_3 = lean::is_instance_core(x_1, x_2);
+x_3 = lean_is_instance(x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
 }
 }
-namespace lean {
-obj* get_class_instances_core(obj* x_1, obj* x_2) {
+obj* lean_get_class_instances(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
@@ -9487,7 +9470,6 @@ x_8 = lean::cnstr_get(x_6, 0);
 lean::inc(x_8);
 lean::dec(x_6);
 return x_8;
-}
 }
 }
 }
@@ -9572,8 +9554,7 @@ return x_9;
 }
 }
 }
-namespace lean {
-uint8 has_out_params_core(obj* x_1, obj* x_2) {
+uint8 lean_has_out_params(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
@@ -9601,7 +9582,6 @@ lean::dec(x_6);
 x_9 = lean::unbox(x_8);
 lean::dec(x_8);
 return x_9;
-}
 }
 }
 }
@@ -9639,7 +9619,7 @@ obj* l_Lean_hasOutParams___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; obj* x_4; 
-x_3 = lean::has_out_params_core(x_1, x_2);
+x_3 = lean_has_out_params(x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
 }
@@ -9662,8 +9642,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-namespace lean {
-uint8 is_out_param_core(obj* x_1) {
+uint8 lean_is_out_param(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; uint8 x_4; 
@@ -9674,12 +9653,11 @@ lean::dec(x_1);
 return x_4;
 }
 }
-}
 obj* l___private_init_lean_class_1__isOutParam___boxed(obj* x_1) {
 _start:
 {
 uint8 x_2; obj* x_3; 
-x_2 = lean::is_out_param_core(x_1);
+x_2 = lean_is_out_param(x_1);
 x_3 = lean::box(x_2);
 return x_3;
 }
@@ -9695,7 +9673,7 @@ lean::inc(x_2);
 x_3 = lean::cnstr_get(x_1, 2);
 lean::inc(x_3);
 lean::dec(x_1);
-x_4 = lean::is_out_param_core(x_2);
+x_4 = lean_is_out_param(x_2);
 if (x_4 == 0)
 {
 x_1 = x_3;
@@ -9766,7 +9744,7 @@ _start:
 uint8 x_3; 
 lean::inc(x_2);
 lean::inc(x_1);
-x_3 = lean::is_class_core(x_1, x_2);
+x_3 = lean_is_class(x_1, x_2);
 if (x_3 == 0)
 {
 obj* x_4; 
@@ -9917,7 +9895,7 @@ if (lean::obj_tag(x_11) == 0)
 {
 uint8 x_12; 
 lean::inc(x_6);
-x_12 = lean::is_class_core(x_1, x_6);
+x_12 = lean_is_class(x_1, x_6);
 if (x_12 == 0)
 {
 obj* x_13; 
@@ -9974,7 +9952,7 @@ if (lean::obj_tag(x_22) == 0)
 {
 uint8 x_23; 
 lean::inc(x_6);
-x_23 = lean::is_class_core(x_1, x_6);
+x_23 = lean_is_class(x_1, x_6);
 if (x_23 == 0)
 {
 obj* x_24; 
@@ -10074,8 +10052,7 @@ x_1 = lean::mk_string("', failed to retrieve class");
 return x_1;
 }
 }
-namespace lean {
-obj* add_instance_core(obj* x_1, obj* x_2) {
+obj* lean_add_instance(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
@@ -10137,7 +10114,6 @@ x_24 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_23, x_1, x_22);
 x_25 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_25, 0, x_24);
 return x_25;
-}
 }
 }
 }
@@ -10520,7 +10496,7 @@ x_20 = lean::cnstr_get(x_5, 0);
 lean::dec(x_20);
 x_21 = lean::box(0);
 lean::cnstr_set(x_5, 0, x_21);
-x_22 = lean::add_instance_core(x_1, x_2);
+x_22 = lean_add_instance(x_1, x_2);
 x_23 = l_IO_ofExcept___at_Lean_registerClassAttr___spec__1(x_22, x_5);
 lean::dec(x_22);
 return x_23;
@@ -10535,7 +10511,7 @@ x_25 = lean::box(0);
 x_26 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_26, 0, x_25);
 lean::cnstr_set(x_26, 1, x_24);
-x_27 = lean::add_instance_core(x_1, x_2);
+x_27 = lean_add_instance(x_1, x_2);
 x_28 = l_IO_ofExcept___at_Lean_registerClassAttr___spec__1(x_27, x_26);
 lean::dec(x_27);
 return x_28;

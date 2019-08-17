@@ -34,7 +34,7 @@ extern "C" {
 #define LEAN_ALWAYS_INLINE
 #endif
 
- #define LEAN_BYTE(Var, Index) *(((uint8_t*)&Var)+Index)
+#define LEAN_BYTE(Var, Index) *(((uint8_t*)&Var)+Index)
 
 #define LeanMaxCtorTag  245
 #define LeanClosure     246

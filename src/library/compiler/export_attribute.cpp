@@ -8,8 +8,8 @@ Author: Leonardo de Moura
 #include "library/util.h"
 
 namespace lean {
-object* get_export_name_for_core(object* env, object *n);
+extern "C" object* lean_get_export_name_for(object* env, object *n);
 optional<name> get_export_name_for(environment const & env, name const & n) {
-    return to_optional<name>(get_export_name_for_core(env.to_obj_arg(), n.to_obj_arg()));
+    return to_optional<name>(lean_get_export_name_for(env.to_obj_arg(), n.to_obj_arg()));
 }
 }

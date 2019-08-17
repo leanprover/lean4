@@ -50,18 +50,18 @@ def visit (x : Name) : Expr → Visitor
 end atMostOnce
 
 /-- Return true iff the free variable with id `x` occurs at most once in `e` -/
-@[export lean.at_most_once_core]
+@[export lean_at_most_once]
 def atMostOnce (e : Expr) (x : Name) : Bool :=
 let {result := result, ..} := atMostOnce.visit x e {found := false, result := true};
 result
 
 /- Helper functions for creating auxiliary names used in compiler passes. -/
 
-@[export lean.mk_eager_lambda_lifting_name_core]
+@[export lean_mk_eager_lambda_lifting_name]
 def mkEagerLambdaLiftingName (n : Name) (idx : Nat) : Name :=
 Name.mkString n ("_elambda_" ++ toString idx)
 
-@[export lean.is_eager_lambda_lifting_name_core]
+@[export lean_is_eager_lambda_lifting_name]
 def isEagerLambdaLiftingName : Name → Bool
 | Name.mkString p s    => "_elambda".isPrefixOf s || isEagerLambdaLiftingName p
 | Name.mkNumeral p _   => isEagerLambdaLiftingName p
@@ -70,7 +70,7 @@ def isEagerLambdaLiftingName : Name → Bool
 /-- Return the name of new definitions in the a given declaration.
     Here we consider only declarations we generate code for.
     We use this definition to implement `add_and_compile`. -/
-@[export lean.get_decl_names_for_code_gen_core]
+@[export lean_get_decl_names_for_code_gen]
 private def getDeclNamesForCodeGen : Declaration → List Name
 | Declaration.defnDecl { name := n, .. } => [n]
 | Declaration.mutualDefnDecl defs        => defs.map $ fun d => d.name

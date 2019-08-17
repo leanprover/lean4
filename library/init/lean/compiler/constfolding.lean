@@ -46,7 +46,7 @@ def getInfoFromVal : Expr → Option NumScalarTypeInfo
 | Expr.app (Expr.const fn _) _   => getInfoFromFn fn numScalarTypes
 | _ => none
 
-@[export lean.get_num_lit_core]
+@[export lean_get_num_lit]
 def getNumLit : Expr → Option Nat
 | Expr.lit (Literal.natVal n)  => some n
 | Expr.app (Expr.const fn _) a => if isOfNat fn then getNumLit a else none
@@ -185,7 +185,7 @@ binFoldFns.lookup fn
 def findUnFoldFn (fn : Name) : Option UnFoldFn :=
 unFoldFns.lookup fn
 
-@[export lean.fold_bin_op_core]
+@[export lean_fold_bin_op]
 def foldBinOp (beforeErasure : Bool) (f : Expr) (a : Expr) (b : Expr) : Option Expr :=
 match f with
 | Expr.const fn _ => do
@@ -193,7 +193,7 @@ match f with
    foldFn beforeErasure a b
 | _ => none
 
-@[export lean.fold_un_op_core]
+@[export lean_fold_un_op]
 def foldUnOp (beforeErasure : Bool) (f : Expr) (a : Expr) : Option Expr :=
 match f with
 | Expr.const fn _ => do

@@ -27,9 +27,7 @@ obj* l_Lean_mkExportAttr___closed__2;
 obj* l_Lean_registerParametricAttribute___at_Lean_mkExportAttr___spec__1(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 obj* l_Lean_mkExportAttr___closed__4;
-namespace lean {
-obj* get_export_name_for_core(obj*, obj*);
-}
+extern "C" obj* lean_get_export_name_for(obj*, obj*);
 extern obj* l_Lean_AttributeImpl_inhabited___closed__5;
 obj* l_Lean_mkExportAttr___lambda__1(obj*, obj*, obj*);
 uint8 l_Lean_isExport(obj*, obj*);
@@ -3116,8 +3114,7 @@ return x_24;
 }
 }
 }
-namespace lean {
-obj* get_export_name_for_core(obj* x_1, obj* x_2) {
+obj* lean_get_export_name_for(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
@@ -3125,7 +3122,6 @@ x_3 = l_Lean_exportAttr;
 x_4 = l_Lean_ParametricAttribute_getParam___at_Lean_getExportNameFor___spec__1(x_3, x_1, x_2);
 lean::dec(x_1);
 return x_4;
-}
 }
 }
 obj* l_RBNode_find___main___at_Lean_getExportNameFor___spec__2___boxed(obj* x_1, obj* x_2) {

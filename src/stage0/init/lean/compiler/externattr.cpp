@@ -86,9 +86,7 @@ obj* l_Lean_registerParametricAttribute___at_Lean_mkExternAttr___spec__1___lambd
 obj* l_Lean_expandExternPattern(obj*, obj*);
 obj* l_Lean_Environment_getModuleIdxFor(obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkExternAttr___spec__4___boxed(obj*, obj*, obj*, obj*, obj*);
-namespace lean {
-obj* get_extern_attr_data_core(obj*, obj*);
-}
+extern "C" obj* lean_get_extern_attr_data(obj*, obj*);
 uint8 l_Lean_Environment_isConstructor(obj*, obj*);
 namespace lean {
 obj* string_append(obj*, obj*);
@@ -3375,8 +3373,7 @@ return x_24;
 }
 }
 }
-namespace lean {
-obj* get_extern_attr_data_core(obj* x_1, obj* x_2) {
+obj* lean_get_extern_attr_data(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
@@ -3384,7 +3381,6 @@ x_3 = l_Lean_externAttr;
 x_4 = l_Lean_ParametricAttribute_getParam___at_Lean_getExternAttrData___spec__1(x_3, x_1, x_2);
 lean::dec(x_1);
 return x_4;
-}
 }
 }
 obj* l_RBNode_find___main___at_Lean_getExternAttrData___spec__2___boxed(obj* x_1, obj* x_2) {

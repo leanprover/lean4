@@ -22,11 +22,11 @@ registerSimplePersistentEnvExtension {
 @[init mkClosedTermCacheExtension]
 constant closedTermCacheExt : SimplePersistentEnvExtension (Expr × Name) ClosedTermCache := default _
 
-@[export lean.cache_closed_term_name_core]
+@[export lean_cache_closed_term_name]
 def cacheClosedTermName (env : Environment) (e : Expr) (n : Name) : Environment :=
 closedTermCacheExt.addEntry env (e, n)
 
-@[export lean.get_closed_term_name_core]
+@[export lean_get_closed_term_name]
 def getClosedTermName (env : Environment) (e : Expr) : Option Name :=
 (closedTermCacheExt.getState env).find e
 

@@ -21,9 +21,7 @@ obj* l_Lean_Compiler_atMostOnce_seq(obj*, obj*, obj*);
 uint8 l_String_isPrefixOf(obj*, obj*);
 obj* l_Lean_Compiler_mkLcProof___closed__3;
 extern "C" obj* lean_expr_mk_app(obj*, obj*);
-namespace lean {
-uint8 at_most_once_core(obj*, obj*);
-}
+extern "C" uint8 lean_at_most_once(obj*, obj*);
 obj* l_Lean_Compiler_atMostOnce_HasAndthen___closed__1;
 obj* l_Lean_Compiler_atMostOnce_visit___boxed(obj*, obj*, obj*);
 obj* l_Lean_Compiler_unreachableExpr___closed__2;
@@ -56,14 +54,10 @@ obj* l_Lean_Compiler_checkIsDefinition___closed__4;
 obj* l_Lean_Compiler_neutralExpr___closed__2;
 obj* l_Lean_Compiler_atMostOnce_skip(obj*);
 extern "C" obj* lean_environment_find(obj*, obj*);
-namespace lean {
-obj* get_decl_names_for_code_gen_core(obj*);
-}
+extern "C" obj* lean_get_decl_names_for_code_gen(obj*);
 obj* l_Lean_Compiler_atMostOnce_skip___boxed(obj*);
 obj* l_Lean_Compiler_unreachableExpr___closed__1;
-namespace lean {
-uint8 is_eager_lambda_lifting_name_core(obj*);
-}
+extern "C" uint8 lean_is_eager_lambda_lifting_name(obj*);
 obj* l_Lean_Compiler_mkLcProof___closed__1;
 obj* l_Lean_Compiler_isEagerLambdaLiftingName___boxed(obj*);
 obj* l_Lean_Compiler_voidType___closed__2;
@@ -71,9 +65,7 @@ obj* l_Lean_Compiler_checkIsDefinition___closed__1;
 obj* l_Lean_Compiler_mkLcProof___closed__2;
 obj* l_Lean_Compiler_checkIsDefinition___closed__2;
 obj* l_Lean_Compiler_checkIsDefinition(obj*, obj*);
-namespace lean {
-obj* mk_eager_lambda_lifting_name_core(obj*, obj*);
-}
+extern "C" obj* lean_mk_eager_lambda_lifting_name(obj*, obj*);
 obj* l_Lean_Compiler_voidType___closed__1;
 obj* l_Lean_Compiler_neutralExpr;
 obj* l_Lean_Compiler_checkIsDefinition___closed__5;
@@ -695,8 +687,7 @@ lean::cnstr_set_scalar(x_3, 1, x_2);
 return x_3;
 }
 }
-namespace lean {
-uint8 at_most_once_core(obj* x_1, obj* x_2) {
+uint8 lean_at_most_once(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; uint8 x_5; 
@@ -709,12 +700,11 @@ lean::dec(x_4);
 return x_5;
 }
 }
-}
 obj* l_Lean_Compiler_atMostOnce___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; obj* x_4; 
-x_3 = lean::at_most_once_core(x_1, x_2);
+x_3 = lean_at_most_once(x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
 }
@@ -727,8 +717,7 @@ x_1 = lean::mk_string("_elambda_");
 return x_1;
 }
 }
-namespace lean {
-obj* mk_eager_lambda_lifting_name_core(obj* x_1, obj* x_2) {
+obj* lean_mk_eager_lambda_lifting_name(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
@@ -738,7 +727,6 @@ x_5 = lean::string_append(x_4, x_3);
 lean::dec(x_3);
 x_6 = lean_name_mk_string(x_1, x_5);
 return x_6;
-}
 }
 }
 obj* _init_l_Lean_Compiler_isEagerLambdaLiftingName___main___closed__1() {
@@ -798,8 +786,7 @@ x_3 = lean::box(x_2);
 return x_3;
 }
 }
-namespace lean {
-uint8 is_eager_lambda_lifting_name_core(obj* x_1) {
+uint8 lean_is_eager_lambda_lifting_name(obj* x_1) {
 _start:
 {
 uint8 x_2; 
@@ -808,12 +795,11 @@ lean::dec(x_1);
 return x_2;
 }
 }
-}
 obj* l_Lean_Compiler_isEagerLambdaLiftingName___boxed(obj* x_1) {
 _start:
 {
 uint8 x_2; obj* x_3; 
-x_2 = lean::is_eager_lambda_lifting_name_core(x_1);
+x_2 = lean_is_eager_lambda_lifting_name(x_1);
 x_3 = lean::box(x_2);
 return x_3;
 }
@@ -868,8 +854,7 @@ return x_13;
 }
 }
 }
-namespace lean {
-obj* get_decl_names_for_code_gen_core(obj* x_1) {
+obj* lean_get_decl_names_for_code_gen(obj* x_1) {
 _start:
 {
 switch (lean::obj_tag(x_1)) {
@@ -906,7 +891,6 @@ obj* x_9;
 lean::dec(x_1);
 x_9 = lean::box(0);
 return x_9;
-}
 }
 }
 }

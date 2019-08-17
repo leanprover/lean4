@@ -30,9 +30,7 @@ obj* l_Array_mkArray(obj*, obj*, obj*);
 obj* l_Lean_closedTermCacheExt___elambda__2(obj*);
 extern "C" usize lean_expr_hash(obj*);
 obj* l_Lean_closedTermCacheExt___elambda__4___boxed(obj*);
-namespace lean {
-obj* cache_closed_term_name_core(obj*, obj*, obj*);
-}
+extern "C" obj* lean_cache_closed_term_name(obj*, obj*, obj*);
 obj* l_Lean_mkClosedTermCacheExtension___closed__2;
 extern obj* l_Lean_EnvExtension_Inhabited___rarg___closed__1;
 obj* l_AssocList_replace___main___at_Lean_mkClosedTermCacheExtension___spec__9(obj*, obj*, obj*);
@@ -118,9 +116,7 @@ obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkClosedTermCacheExtension___sp
 obj* l_Array_fset(obj*, obj*, obj*, obj*);
 obj* l_Lean_closedTermCacheExt___closed__8;
 obj* l_mkHashMapImp___rarg(obj*);
-namespace lean {
-obj* get_closed_term_name_core(obj*, obj*);
-}
+extern "C" obj* lean_get_closed_term_name(obj*, obj*);
 obj* l_Lean_closedTermCacheExt___elambda__3(obj*, obj*);
 obj* l_RBNode_setBlack___rarg(obj*);
 obj* l_RBNode_find___main___at_Lean_getClosedTermName___spec__2(obj*, obj*);
@@ -5247,8 +5243,7 @@ lean::dec(x_1);
 return x_2;
 }
 }
-namespace lean {
-obj* cache_closed_term_name_core(obj* x_1, obj* x_2, obj* x_3) {
+obj* lean_cache_closed_term_name(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; obj* x_5; obj* x_6; 
@@ -5258,7 +5253,6 @@ lean::cnstr_set(x_4, 1, x_3);
 x_5 = l_Lean_closedTermCacheExt;
 x_6 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_5, x_1, x_4);
 return x_6;
-}
 }
 }
 obj* l_RBNode_find___main___at_Lean_getClosedTermName___spec__2(obj* x_1, obj* x_2) {
@@ -5385,8 +5379,7 @@ return x_9;
 }
 }
 }
-namespace lean {
-obj* get_closed_term_name_core(obj* x_1, obj* x_2) {
+obj* lean_get_closed_term_name(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; obj* x_5; 
@@ -5397,7 +5390,6 @@ x_5 = l_Lean_SMap_find___at_Lean_getClosedTermName___spec__1(x_4, x_2);
 lean::dec(x_2);
 lean::dec(x_4);
 return x_5;
-}
 }
 }
 obj* l_RBNode_find___main___at_Lean_getClosedTermName___spec__2___boxed(obj* x_1, obj* x_2) {

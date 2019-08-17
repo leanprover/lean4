@@ -17,15 +17,15 @@ Author: Leonardo de Moura
 #include "library/compiler/closed_term_cache.h"
 
 namespace lean {
-object* mk_eager_lambda_lifting_name_core(object* n, object* idx);
-uint8 is_eager_lambda_lifting_name_core(object* n);
+extern "C" object* lean_mk_eager_lambda_lifting_name(object* n, object* idx);
+extern "C" uint8 lean_is_eager_lambda_lifting_name(object* n);
 
 name mk_elambda_lifting_name(name const & fn, unsigned idx) {
-    return name(mk_eager_lambda_lifting_name_core(fn.to_obj_arg(), mk_nat_obj(idx)));
+    return name(lean_mk_eager_lambda_lifting_name(fn.to_obj_arg(), mk_nat_obj(idx)));
 }
 
 bool is_elambda_lifting_name(name fn) {
-    return is_eager_lambda_lifting_name_core(fn.to_obj_arg());
+    return lean_is_eager_lambda_lifting_name(fn.to_obj_arg());
 }
 
 /* Return true iff `e` contains a free variable that is not in `exception_set`. */

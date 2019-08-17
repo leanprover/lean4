@@ -17,10 +17,10 @@ Authors: Leonardo de Moura
 #include "library/compiler/extern_attribute.h"
 
 namespace lean {
-object* get_extern_attr_data_core(object* env, object* n);
+extern "C" object* lean_get_extern_attr_data(object* env, object* n);
 
 optional<extern_attr_data_value> get_extern_attr_data(environment const & env, name const & fn) {
-    return to_optional<extern_attr_data_value>(get_extern_attr_data_core(env.to_obj_arg(), fn.to_obj_arg()));
+    return to_optional<extern_attr_data_value>(lean_get_extern_attr_data(env.to_obj_arg(), fn.to_obj_arg()));
 }
 
 bool is_extern_constant(environment const & env, name const & c) {

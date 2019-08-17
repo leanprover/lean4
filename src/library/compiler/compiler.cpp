@@ -240,9 +240,9 @@ environment compile(environment const & env, options const & opts, names cs) {
     return compile_ir(new_env, opts, ds);
 }
 
-object* get_decl_names_for_code_gen_core(object *);
+extern "C" object* lean_get_decl_names_for_code_gen(object *);
 names get_decl_names_for_code_gen(declaration const & decl) {
-    return names(get_decl_names_for_code_gen_core(decl.to_obj_arg()));
+    return names(lean_get_decl_names_for_code_gen(decl.to_obj_arg()));
 }
 
 extern "C" object * lean_compile_decl(object * env, object * opts, object * decl) {

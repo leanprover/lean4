@@ -480,11 +480,11 @@ environment register_stage2_decl(environment const & env, name const & n, expr c
 
 /* @[export lean.get_num_lit_core]
    def get_num_lit : expr → option nat */
-object * get_num_lit_core(obj_arg o);
+extern "C" object * lean_get_num_lit(obj_arg o);
 
 optional<nat> get_num_lit_ext(expr const & e) {
     inc(e.raw());
-    return to_optional_nat(get_num_lit_core(e.raw()));
+    return to_optional_nat(lean_get_num_lit(e.raw()));
 }
 
 optional<unsigned> is_fix_core(name const & n) {

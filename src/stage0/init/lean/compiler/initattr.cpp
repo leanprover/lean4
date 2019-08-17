@@ -36,9 +36,7 @@ extern obj* l_Lean_AttributeImpl_inhabited___closed__5;
 obj* l_Lean_registerParametricAttribute___at_Lean_mkInitAttr___spec__1___lambda__1___boxed(obj*);
 obj* l___private_init_lean_compiler_initattr_3__isIOUnit___boxed(obj*);
 obj* l_Array_qsortAux___main___at_Lean_mkInitAttr___spec__3___boxed(obj*, obj*, obj*);
-namespace lean {
-obj* get_init_fn_name_for_core(obj*, obj*);
-}
+extern "C" obj* lean_get_init_fn_name_for(obj*, obj*);
 obj* l_Lean_hasInitAttr___boxed(obj*, obj*);
 obj* l_Lean_registerAttribute(obj*, obj*);
 obj* l_RBNode_fold___main___at_Lean_mkInitAttr___spec__2___boxed(obj*, obj*);
@@ -3157,8 +3155,7 @@ x_4 = lean::box(x_3);
 return x_4;
 }
 }
-namespace lean {
-obj* get_init_fn_name_for_core(obj* x_1, obj* x_2) {
+obj* lean_get_init_fn_name_for(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
@@ -3191,12 +3188,11 @@ return x_8;
 }
 }
 }
-}
 uint8 l_Lean_hasInitAttr(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = lean::get_init_fn_name_for_core(x_1, x_2);
+x_3 = lean_get_init_fn_name_for(x_1, x_2);
 if (lean::obj_tag(x_3) == 0)
 {
 uint8 x_4; 

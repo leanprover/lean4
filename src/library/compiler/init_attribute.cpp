@@ -8,9 +8,9 @@ Authors: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-object* get_init_fn_name_for_core(object* env, object* fn);
+extern "C" object* lean_get_init_fn_name_for(object* env, object* fn);
 
 optional<name> get_init_fn_name_for(environment const & env, name const & n) {
-    return to_optional<name>(get_init_fn_name_for_core(env.to_obj_arg(), n.to_obj_arg()));
+    return to_optional<name>(lean_get_init_fn_name_for(env.to_obj_arg(), n.to_obj_arg()));
 }
 }

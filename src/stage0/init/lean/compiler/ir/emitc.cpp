@@ -88,9 +88,7 @@ obj* l_Lean_IR_EmitC_emitFileHeader___closed__17;
 obj* l_Lean_IR_EmitC_emitSet___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_EmitC_emit(obj*);
 obj* l_Lean_IR_EmitC_declareParams(obj*, obj*, obj*);
-namespace lean {
-obj* get_init_fn_name_for_core(obj*, obj*);
-}
+extern "C" obj* lean_get_init_fn_name_for(obj*, obj*);
 obj* l_Lean_IR_Decl_normalizeIds(obj*);
 obj* l_Lean_IR_EmitC_emitUnbox___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_EmitC_emitMainFn___closed__38;
@@ -25920,7 +25918,7 @@ else
 {
 obj* x_16; 
 lean::inc(x_9);
-x_16 = lean::get_init_fn_name_for_core(x_6, x_9);
+x_16 = lean_get_init_fn_name_for(x_6, x_9);
 if (lean::obj_tag(x_16) == 0)
 {
 obj* x_17; 
@@ -26802,7 +26800,7 @@ else
 {
 obj* x_258; 
 lean::inc(x_251);
-x_258 = lean::get_init_fn_name_for_core(x_247, x_251);
+x_258 = lean_get_init_fn_name_for(x_247, x_251);
 if (lean::obj_tag(x_258) == 0)
 {
 obj* x_259; 

@@ -92,7 +92,7 @@ registerParametricAttribute `extern "builtin and foreign functions"
 @[init mkExternAttr]
 constant externAttr : ParametricAttribute ExternAttrData := default _
 
-@[export lean.get_extern_attr_data_core]
+@[export lean_get_extern_attr_data]
 def getExternAttrData (env : Environment) (n : Name) : Option ExternAttrData :=
 externAttr.getParam env n
 

@@ -22,9 +22,7 @@ obj* l_Lean_IR_mkVarJPMaps___closed__1;
 obj* l_Lean_IR_CollectUsedDecls_collect(obj*, obj*, obj*);
 obj* l_Lean_IR_mkVarJPMaps___closed__3;
 obj* l_Lean_IR_UsesLeanNamespace_visitFnBody(obj*, obj*, obj*);
-namespace lean {
-obj* get_init_fn_name_for_core(obj*, obj*);
-}
+extern "C" obj* lean_get_init_fn_name_for(obj*, obj*);
 obj* l_HashMapImp_expand___at_Lean_IR_CollectMaps_collectVar___spec__3(obj*, obj*);
 obj* l_AssocList_mfoldl___main___at_Lean_IR_CollectMaps_collectVar___spec__5(obj*, obj*);
 obj* l_AssocList_contains___main___at_Lean_IR_CollectMaps_collectVar___spec__2___boxed(obj*, obj*);
@@ -881,7 +879,7 @@ obj* l_Lean_IR_CollectUsedDecls_collectInitDecl(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = lean::get_init_fn_name_for_core(x_2, x_1);
+x_4 = lean_get_init_fn_name_for(x_2, x_1);
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_5; obj* x_6; 

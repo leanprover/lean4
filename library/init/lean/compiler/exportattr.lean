@@ -28,7 +28,7 @@ registerParametricAttribute `export "name to be used by code generators" $ fun _
 @[init mkExportAttr]
 constant exportAttr : ParametricAttribute Name := default _
 
-@[export lean.get_export_name_for_core]
+@[export lean_get_export_name_for]
 def getExportNameFor (env : Environment) (n : Name) : Option Name :=
 exportAttr.getParam env n
 

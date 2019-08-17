@@ -41,25 +41,25 @@ csimp_cfg::csimp_cfg() {
 }
 
 /*
-@[export lean.fold_un_op_core]
+@[export lean_fold_un_op]
 def fold_un_op (before_erasure : bool) (f : expr) (a : expr) : option expr :=
 */
-object * fold_un_op_core(uint8 before_erasure, object * f, object * a);
+extern "C" object * lean_fold_un_op(uint8 before_erasure, object * f, object * a);
 
 optional<expr> fold_un_op(bool before_erasure, expr const & f, expr const & a) {
     inc(f.raw()); inc(a.raw());
-    return to_optional_expr(fold_un_op_core(before_erasure, f.raw(), a.raw()));
+    return to_optional_expr(lean_fold_un_op(before_erasure, f.raw(), a.raw()));
 }
 
 /*
-@[export lean.fold_bin_op_core]
+@[export lean_fold_bin_op]
 def fold_bin_op (before_erasure : bool) (f : expr) (a : expr) (b : expr) : option expr :=
 */
-object * fold_bin_op_core(uint8 before_erasure, object * f, object * a, object * b);
+extern "C" object * lean_fold_bin_op(uint8 before_erasure, object * f, object * a, object * b);
 
 optional<expr> fold_bin_op(bool before_erasure, expr const & f, expr const & a, expr const & b) {
     inc(f.raw()); inc(a.raw()); inc(b.raw());
-    return to_optional_expr(fold_bin_op_core(before_erasure, f.raw(), a.raw(), b.raw()));
+    return to_optional_expr(lean_fold_bin_op(before_erasure, f.raw(), a.raw(), b.raw()));
 }
 
 class csimp_fn {
@@ -1882,11 +1882,11 @@ public:
     }
 };
 
-uint8 at_most_once_core(obj_arg e, obj_arg x);
+extern "C" uint8 lean_at_most_once(obj_arg e, obj_arg x);
 
 bool at_most_once(expr const & e, name const & x) {
     inc_ref(e.raw()); inc_ref(x.raw());
-    return at_most_once_core(e.raw(), x.raw());
+    return lean_at_most_once(e.raw(), x.raw());
 }
 
 /* Eliminate join-points that are used only once */

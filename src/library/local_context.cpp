@@ -164,15 +164,15 @@ expr local_context::mk_local_decl(name const & n, name const & un, expr const & 
     return mk_local_decl(n, un, type, some_expr(value), mk_binder_info());
 }
 
-object* local_ctx_num_indices_core(object* lctx);
-object* local_ctx_get_core(object* lctx, object* idx);
+extern "C" object* lean_local_ctx_num_indices(object* lctx);
+extern "C" object* lean_local_ctx_get(object* lctx, object* idx);
 
 unsigned local_context::num_indices() const {
-    return unbox(local_ctx_num_indices_core(to_obj_arg()));
+    return unbox(lean_local_ctx_num_indices(to_obj_arg()));
 }
 
 optional<local_decl> local_context::get_decl_at(unsigned idx) const {
-    return to_optional<local_decl>(local_ctx_get_core(to_obj_arg(), box(idx)));
+    return to_optional<local_decl>(lean_local_ctx_get(to_obj_arg(), box(idx)));
 }
 
 optional<local_decl> local_context::back_find_if(std::function<bool(local_decl const &)> const & pred) const { // NOLINT
@@ -230,10 +230,10 @@ void local_context::for_each_after(local_decl const & d, std::function<void(loca
     }
 }
 
-object* local_ctx_pop_core(object* lctx);
+extern "C" object* lean_local_ctx_pop(object* lctx);
 
 void local_context::pop_local_decl() {
-    m_obj = local_ctx_pop_core(m_obj);
+    m_obj = lean_local_ctx_pop(m_obj);
 }
 
 optional<local_decl> local_context::has_dependencies(local_decl const & d, metavar_context const & mctx) const {

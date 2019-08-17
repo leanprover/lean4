@@ -43,22 +43,22 @@ expr local_decl::mk_ref() const {
     return mk_local_ref(get_name(), get_user_name(), get_info());
 }
 
-object * mk_empty_local_ctx_core(object*);
-uint8 local_ctx_is_empty_core(object*);
-object * local_ctx_mk_local_decl_core(object * lctx, object * name, object * user_name, object * expr, uint8 bi);
-object * local_ctx_mk_let_decl_core(object * lctx, object * name, object * user_name, object * type, object * value);
-object * local_ctx_find_core(object * lctx, object * name);
-object * local_ctx_erase_core(object * lctx, object * name);
+extern "C" object * lean_mk_empty_local_ctx(object*);
+extern "C" uint8 lean_local_ctx_is_empty(object*);
+extern "C" object * lean_local_ctx_mk_local_decl(object * lctx, object * name, object * user_name, object * expr, uint8 bi);
+extern "C" object * lean_local_ctx_mk_let_decl(object * lctx, object * name, object * user_name, object * type, object * value);
+extern "C" object * lean_local_ctx_find(object * lctx, object * name);
+extern "C" object * lean_local_ctx_erase(object * lctx, object * name);
 
-local_ctx::local_ctx():object_ref(mk_empty_local_ctx_core(box(0))) {
+local_ctx::local_ctx():object_ref(lean_mk_empty_local_ctx(box(0))) {
 }
 
 bool local_ctx::empty() const {
-    return local_ctx_is_empty_core(to_obj_arg());
+    return lean_local_ctx_is_empty(to_obj_arg());
 }
 
 local_decl local_ctx::mk_local_decl(name const & n, name const & un, expr const & type, expr const & value) {
-    object * p = local_ctx_mk_let_decl_core(raw(), n.to_obj_arg(), un.to_obj_arg(), type.to_obj_arg(), value.to_obj_arg());
+    object * p = lean_local_ctx_mk_let_decl(raw(), n.to_obj_arg(), un.to_obj_arg(), type.to_obj_arg(), value.to_obj_arg());
     local_decl decl(cnstr_get(p, 0));
     m_obj = cnstr_get(p, 1);
     free_heap_obj(p);
@@ -66,7 +66,7 @@ local_decl local_ctx::mk_local_decl(name const & n, name const & un, expr const 
 }
 
 local_decl local_ctx::mk_local_decl(name const & n, name const & un, expr const & type, binder_info bi) {
-    object * p = local_ctx_mk_local_decl_core(raw(), n.to_obj_arg(), un.to_obj_arg(), type.to_obj_arg(), static_cast<uint8>(bi));
+    object * p = lean_local_ctx_mk_local_decl(raw(), n.to_obj_arg(), un.to_obj_arg(), type.to_obj_arg(), static_cast<uint8>(bi));
     local_decl decl(cnstr_get(p, 0));
     m_obj = cnstr_get(p, 1);
     free_heap_obj(p);
@@ -74,7 +74,7 @@ local_decl local_ctx::mk_local_decl(name const & n, name const & un, expr const 
 }
 
 optional<local_decl> local_ctx::find_local_decl(name const & n) const {
-    return to_optional<local_decl>(local_ctx_find_core(to_obj_arg(), n.to_obj_arg()));
+    return to_optional<local_decl>(lean_local_ctx_find(to_obj_arg(), n.to_obj_arg()));
 }
 
 local_decl local_ctx::get_local_decl(name const & n) const {
@@ -90,7 +90,7 @@ expr local_ctx::get_local(name const & n) const {
 }
 
 void local_ctx::clear(local_decl const & d) {
-    m_obj = local_ctx_erase_core(m_obj, d.get_name().to_obj_arg());
+    m_obj = lean_local_ctx_erase(m_obj, d.get_name().to_obj_arg());
 }
 
 template<bool is_lambda>

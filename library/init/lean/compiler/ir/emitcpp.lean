@@ -125,10 +125,20 @@ do env ← getEnv;
 def emitCppInitName (n : Name) : M Unit :=
 toCppInitName n >>= emit
 
+def isSimpleExportName (n : Name) : M Bool :=
+do env ← getEnv;
+   match getExportNameFor env n with
+   | some (Name.mkString Name.anonymous s) => pure true
+   | _ => pure false
+
 def emitFnDeclAux (decl : Decl) (cppBaseName : String) (addExternForConsts : Bool) : M Unit :=
 do
 let ps := decl.params;
-when (ps.isEmpty && addExternForConsts) (emit "extern ");
+if ps.isEmpty && addExternForConsts then
+  emit "extern "
+else
+  -- Temporary hack for transitioning to C
+  mwhen (isSimpleExportName decl.name) (emit "extern \"C\" ");
 emit (toCppType decl.resultType ++ " " ++ cppBaseName);
 unless (ps.isEmpty) $ do {
   emit "(";

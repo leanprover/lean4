@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.elaborator.resolvename
-// Imports: init.default init.lean.modifiers init.lean.elaborator.alias init.lean.elaborator.basic
+// Imports: init.lean.modifiers init.lean.elaborator.alias init.lean.elaborator.basic
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -1436,7 +1436,6 @@ lean::dec(x_2);
 return x_4;
 }
 }
-obj* initialize_init_default(obj*);
 obj* initialize_init_lean_modifiers(obj*);
 obj* initialize_init_lean_elaborator_alias(obj*);
 obj* initialize_init_lean_elaborator_basic(obj*);
@@ -1444,8 +1443,6 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_elaborator_resolvename(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (io_result_is_error(w)) return w;
-w = initialize_init_default(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_modifiers(w);
 if (io_result_is_error(w)) return w;

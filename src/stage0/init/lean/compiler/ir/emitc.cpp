@@ -125,11 +125,7 @@ obj* l_Lean_IR_EmitC_emitFileHeader___closed__2;
 obj* l_Lean_IR_EmitC_quoteString___boxed(obj*);
 obj* l_Lean_IR_EmitC_emitLns___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_EmitC_emitMainFn___closed__35;
-namespace lean {
-namespace ir {
-obj* decl_to_string_core(obj*);
-}
-}
+extern "C" obj* lean_ir_decl_to_string(obj*);
 obj* l_Array_mforAux___main___at_Lean_IR_EmitC_emitInitFn___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Nat_mforAux___main___at_Lean_IR_EmitC_emitDeclAux___spec__1___closed__1;
 obj* l_Lean_IR_EmitC_emitProj___boxed(obj*, obj*, obj*, obj*, obj*);
@@ -572,11 +568,7 @@ extern obj* l_String_splitAux___main___closed__1;
 obj* l_Lean_IR_EmitC_emitDel___closed__1;
 obj* l_Lean_IR_EmitC_emitDeclInit___closed__3;
 obj* l_Lean_IR_EmitC_openNamespacesAux___boxed(obj*, obj*, obj*);
-namespace lean {
-namespace ir {
-obj* emit_c_core(obj*, obj*);
-}
-}
+extern "C" obj* lean_ir_emit_c(obj*, obj*);
 obj* _init_l_Lean_IR_EmitC_leanMainFn___closed__1() {
 _start:
 {
@@ -25661,7 +25653,7 @@ obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11;
 x_7 = lean::cnstr_get(x_5, 0);
 x_8 = l_Lean_IR_EmitC_emitDecl___closed__1;
 x_9 = lean::string_append(x_7, x_8);
-x_10 = lean::ir::decl_to_string_core(x_4);
+x_10 = lean_ir_decl_to_string(x_4);
 x_11 = lean::string_append(x_9, x_10);
 lean::dec(x_10);
 lean::cnstr_set(x_5, 0, x_11);
@@ -25677,7 +25669,7 @@ lean::inc(x_12);
 lean::dec(x_5);
 x_14 = l_Lean_IR_EmitC_emitDecl___closed__1;
 x_15 = lean::string_append(x_12, x_14);
-x_16 = lean::ir::decl_to_string_core(x_4);
+x_16 = lean_ir_decl_to_string(x_4);
 x_17 = lean::string_append(x_15, x_16);
 lean::dec(x_16);
 x_18 = lean::alloc_cnstr(1, 2, 0);
@@ -29354,9 +29346,7 @@ lean::cnstr_set(x_3, 1, x_2);
 return x_3;
 }
 }
-namespace lean {
-namespace ir {
-obj* emit_c_core(obj* x_1, obj* x_2) {
+obj* lean_ir_emit_c(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
@@ -29391,8 +29381,6 @@ lean::dec(x_8);
 x_12 = lean::alloc_cnstr(0, 1, 0);
 lean::cnstr_set(x_12, 0, x_11);
 return x_12;
-}
-}
 }
 }
 }

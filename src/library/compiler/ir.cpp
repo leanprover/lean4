@@ -15,35 +15,34 @@ Author: Leonardo de Moura
 #include "library/compiler/extern_attribute.h"
 
 namespace lean {
+object * lean_ir_mk_irrelevant_arg; // HACK @[export] with extern "C" does not work for constants
+object * lean_ir_mk_unreachable; // HACK @[export] with extern "C" does not work for constants
 namespace ir {
-
-object * mk_var_arg_core(object * id);
-extern object * mk_irrelevant_arg_core;
-object * mk_param_core (object * x, uint8 borrowed, uint8 ty);
-object * mk_ctor_expr_core(object * n, object * cidx, object * size, object * usize, object * ssize, object * ys);
-object * mk_proj_expr_core(object * i, object * x);
-object * mk_uproj_expr_core(object * i, object * x);
-object * mk_sproj_expr_core(object * n, object * o, object * x);
-object * mk_fapp_expr_core(object * c, object * ys);
-object * mk_papp_expr_core(object * c, object * ys);
-object * mk_app_expr_core(object * x, object * ys);
-object * mk_num_expr_core(object * v);
-object * mk_str_expr_core(object * v);
-object * mk_vdecl_core(object * x, uint8 ty, object * e, object * b);
-object * mk_jdecl_core(object * j, object * xs, object * v, object * b);
-object * mk_uset_core(object * x, object * i, object * y, object * b);
-object * mk_sset_core(object * x, object * i, object * o, object * y, uint8 ty, object * b);
-object * mk_case_core(object * tid, object * x, object * cs);
-object * mk_ret_core(object * x);
-object * mk_jmp_core(object * j, object * ys);
-extern object * mk_unreachable_core;
-object * mk_alt_core(object * n, object * cidx, object * size, object * usize, object * ssize, object * b);
-object * mk_decl_core(object * f, object * xs, uint8 ty, object * b);
-object * mk_extern_decl_core(object * f, object * xs, uint8 ty, object * ext_entry);
-object * decl_to_string_core(object * d);
-object * compile_core(object * env, object * opts, object * decls);
-object * log_to_string_core(object * log);
-object * add_decl_core(object * env, object * decl);
+extern "C" object * lean_ir_mk_var_arg(object * id);
+extern "C" object * lean_ir_mk_param(object * x, uint8 borrowed, uint8 ty);
+extern "C" object * lean_ir_mk_ctor_expr(object * n, object * cidx, object * size, object * usize, object * ssize, object * ys);
+extern "C" object * lean_ir_mk_proj_expr(object * i, object * x);
+extern "C" object * lean_ir_mk_uproj_expr(object * i, object * x);
+extern "C" object * lean_ir_mk_sproj_expr(object * n, object * o, object * x);
+extern "C" object * lean_ir_mk_fapp_expr(object * c, object * ys);
+extern "C" object * lean_ir_mk_papp_expr(object * c, object * ys);
+extern "C" object * lean_ir_mk_app_expr(object * x, object * ys);
+extern "C" object * lean_ir_mk_num_expr(object * v);
+extern "C" object * lean_ir_mk_str_expr(object * v);
+extern "C" object * lean_ir_mk_vdecl(object * x, uint8 ty, object * e, object * b);
+extern "C" object * lean_ir_mk_jdecl(object * j, object * xs, object * v, object * b);
+extern "C" object * lean_ir_mk_uset(object * x, object * i, object * y, object * b);
+extern "C" object * lean_ir_mk_sset(object * x, object * i, object * o, object * y, uint8 ty, object * b);
+extern "C" object * lean_ir_mk_case(object * tid, object * x, object * cs);
+extern "C" object * lean_ir_mk_ret(object * x);
+extern "C" object * lean_ir_mk_jmp(object * j, object * ys);
+extern "C" object * lean_ir_mk_alt(object * n, object * cidx, object * size, object * usize, object * ssize, object * b);
+extern "C" object * lean_ir_mk_decl(object * f, object * xs, uint8 ty, object * b);
+extern "C" object * lean_ir_mk_extern_decl(object * f, object * xs, uint8 ty, object * ext_entry);
+extern "C" object * lean_ir_decl_to_string(object * d);
+extern "C" object * lean_ir_compile(object * env, object * opts, object * decls);
+extern "C" object * lean_ir_log_to_string(object * log);
+extern "C" object * lean_ir_add_decl(object * env, object * decl);
 /*
 inductive IRType
 | float | uint8 | uint16 | uint32 | uint64 | usize
@@ -61,58 +60,58 @@ typedef object_ref fn_body;
 typedef object_ref alt;
 typedef object_ref decl;
 
-arg mk_var_arg(var_id const & id) { inc(id.raw()); return arg(mk_var_arg_core(id.raw())); }
-arg mk_irrelevant_arg() { return arg(mk_irrelevant_arg_core); }
+arg mk_var_arg(var_id const & id) { inc(id.raw()); return arg(lean_ir_mk_var_arg(id.raw())); }
+arg mk_irrelevant_arg() { return arg(lean_ir_mk_irrelevant_arg); }
 param mk_param(var_id const & x, type ty, bool borrowed = false) {
-    return param(mk_param_core(x.to_obj_arg(), borrowed, static_cast<uint8>(ty)));
+    return param(lean_ir_mk_param(x.to_obj_arg(), borrowed, static_cast<uint8>(ty)));
 }
 expr mk_ctor(name const & n, unsigned cidx, unsigned size, unsigned usize, unsigned ssize, buffer<arg> const & ys) {
-    return expr(mk_ctor_expr_core(n.to_obj_arg(), mk_nat_obj(cidx), mk_nat_obj(size), mk_nat_obj(usize), mk_nat_obj(ssize), to_array(ys)));
+    return expr(lean_ir_mk_ctor_expr(n.to_obj_arg(), mk_nat_obj(cidx), mk_nat_obj(size), mk_nat_obj(usize), mk_nat_obj(ssize), to_array(ys)));
 }
-expr mk_proj(unsigned i, var_id const & x) { return expr(mk_proj_expr_core(mk_nat_obj(i), x.to_obj_arg())); }
-expr mk_uproj(unsigned i, var_id const & x) { return expr(mk_uproj_expr_core(mk_nat_obj(i), x.to_obj_arg())); }
-expr mk_sproj(unsigned i, unsigned o, var_id const & x) { return expr(mk_sproj_expr_core(mk_nat_obj(i), mk_nat_obj(o), x.to_obj_arg())); }
-expr mk_fapp(fun_id const & c, buffer<arg> const & ys) { return expr(mk_fapp_expr_core(c.to_obj_arg(), to_array(ys))); }
-expr mk_papp(fun_id const & c, buffer<arg> const & ys) { return expr(mk_papp_expr_core(c.to_obj_arg(), to_array(ys))); }
-expr mk_app(var_id const & x, buffer<arg> const & ys) { return expr(mk_app_expr_core(x.to_obj_arg(), to_array(ys))); }
-expr mk_num_lit(nat const & v) { return expr(mk_num_expr_core(v.to_obj_arg())); }
-expr mk_str_lit(string_ref const & v) { return expr(mk_str_expr_core(v.to_obj_arg())); }
+expr mk_proj(unsigned i, var_id const & x) { return expr(lean_ir_mk_proj_expr(mk_nat_obj(i), x.to_obj_arg())); }
+expr mk_uproj(unsigned i, var_id const & x) { return expr(lean_ir_mk_uproj_expr(mk_nat_obj(i), x.to_obj_arg())); }
+expr mk_sproj(unsigned i, unsigned o, var_id const & x) { return expr(lean_ir_mk_sproj_expr(mk_nat_obj(i), mk_nat_obj(o), x.to_obj_arg())); }
+expr mk_fapp(fun_id const & c, buffer<arg> const & ys) { return expr(lean_ir_mk_fapp_expr(c.to_obj_arg(), to_array(ys))); }
+expr mk_papp(fun_id const & c, buffer<arg> const & ys) { return expr(lean_ir_mk_papp_expr(c.to_obj_arg(), to_array(ys))); }
+expr mk_app(var_id const & x, buffer<arg> const & ys) { return expr(lean_ir_mk_app_expr(x.to_obj_arg(), to_array(ys))); }
+expr mk_num_lit(nat const & v) { return expr(lean_ir_mk_num_expr(v.to_obj_arg())); }
+expr mk_str_lit(string_ref const & v) { return expr(lean_ir_mk_str_expr(v.to_obj_arg())); }
 
 fn_body mk_vdecl(var_id const & x, type ty, expr const & e, fn_body const & b) {
-    return fn_body(mk_vdecl_core(x.to_obj_arg(), static_cast<uint8>(ty), e.to_obj_arg(), b.to_obj_arg()));
+    return fn_body(lean_ir_mk_vdecl(x.to_obj_arg(), static_cast<uint8>(ty), e.to_obj_arg(), b.to_obj_arg()));
 }
 fn_body mk_jdecl(jp_id const & j, buffer<param> const & xs, expr const & v, fn_body const & b) {
-    return fn_body(mk_jdecl_core(j.to_obj_arg(), to_array(xs), v.to_obj_arg(), b.to_obj_arg()));
+    return fn_body(lean_ir_mk_jdecl(j.to_obj_arg(), to_array(xs), v.to_obj_arg(), b.to_obj_arg()));
 }
 fn_body mk_uset(var_id const & x, unsigned i, var_id const & y, fn_body const & b) {
-    return fn_body(mk_uset_core(x.to_obj_arg(), mk_nat_obj(i), y.to_obj_arg(), b.to_obj_arg()));
+    return fn_body(lean_ir_mk_uset(x.to_obj_arg(), mk_nat_obj(i), y.to_obj_arg(), b.to_obj_arg()));
 }
 fn_body mk_sset(var_id const & x, unsigned i, unsigned o, var_id const & y, type ty, fn_body const & b) {
-    return fn_body(mk_sset_core(x.to_obj_arg(), mk_nat_obj(i), mk_nat_obj(o), y.to_obj_arg(), static_cast<uint8>(ty), b.to_obj_arg()));
+    return fn_body(lean_ir_mk_sset(x.to_obj_arg(), mk_nat_obj(i), mk_nat_obj(o), y.to_obj_arg(), static_cast<uint8>(ty), b.to_obj_arg()));
 }
-fn_body mk_ret(arg const & x) { return fn_body(mk_ret_core(x.to_obj_arg())); }
-fn_body mk_unreachable() { return fn_body(mk_unreachable_core); }
+fn_body mk_ret(arg const & x) { return fn_body(lean_ir_mk_ret(x.to_obj_arg())); }
+fn_body mk_unreachable() { return fn_body(lean_ir_mk_unreachable); }
 alt mk_alt(name const & n, unsigned cidx, unsigned size, unsigned usize, unsigned ssize, fn_body const & b) {
-    return alt(mk_alt_core(n.to_obj_arg(), mk_nat_obj(cidx), mk_nat_obj(size), mk_nat_obj(usize), mk_nat_obj(ssize), b.to_obj_arg()));
+    return alt(lean_ir_mk_alt(n.to_obj_arg(), mk_nat_obj(cidx), mk_nat_obj(size), mk_nat_obj(usize), mk_nat_obj(ssize), b.to_obj_arg()));
 }
 fn_body mk_case(name const & tid, var_id const & x, buffer<alt> const & alts) {
-    return fn_body(mk_case_core(tid.to_obj_arg(), x.to_obj_arg(), to_array(alts)));
+    return fn_body(lean_ir_mk_case(tid.to_obj_arg(), x.to_obj_arg(), to_array(alts)));
 }
 fn_body mk_jmp(jp_id const & j, buffer<arg> const & ys) {
-    return fn_body(mk_jmp_core(j.to_obj_arg(), to_array(ys)));
+    return fn_body(lean_ir_mk_jmp(j.to_obj_arg(), to_array(ys)));
 }
 decl mk_decl(fun_id const & f, buffer<param> const & xs, type ty, fn_body const & b) {
-    return decl(mk_decl_core(f.to_obj_arg(), to_array(xs), static_cast<uint8>(ty), b.to_obj_arg()));
+    return decl(lean_ir_mk_decl(f.to_obj_arg(), to_array(xs), static_cast<uint8>(ty), b.to_obj_arg()));
 }
 decl mk_extern_decl(fun_id const & f, buffer<param> const & xs, type ty, extern_attr_data_value const & v) {
-    return decl(mk_extern_decl_core(f.to_obj_arg(), to_array(xs), static_cast<uint8>(ty), v.to_obj_arg()));
+    return decl(lean_ir_mk_extern_decl(f.to_obj_arg(), to_array(xs), static_cast<uint8>(ty), v.to_obj_arg()));
 }
 std::string decl_to_string(decl const & d) {
-    string_ref r(decl_to_string_core(d.to_obj_arg()));
+    string_ref r(lean_ir_decl_to_string(d.to_obj_arg()));
     return r.to_std_string();
 }
 environment add_decl(environment const & env, decl const & d) {
-    return environment(add_decl_core(env.to_obj_arg(), d.to_obj_arg()));
+    return environment(lean_ir_add_decl(env.to_obj_arg(), d.to_obj_arg()));
 }
 }
 
@@ -502,11 +501,11 @@ environment compile(environment const & env, options const & opts, comp_decls co
     for (comp_decl const & decl : decls) {
         ir_decls.push_back(to_ir_decl(env, decl));
     }
-    object * r   = compile_core(env.to_obj_arg(), opts.to_obj_arg(), to_array(ir_decls));
+    object * r   = lean_ir_compile(env.to_obj_arg(), opts.to_obj_arg(), to_array(ir_decls));
     object * log = cnstr_get(r, 0);
     if (array_size(log) > 0) {
         inc(log);
-        object * str = log_to_string_core(log);
+        object * str = lean_ir_log_to_string(log);
         tout() << string_cstr(str);
         dec_ref(str);
     }
@@ -523,12 +522,12 @@ environment compile(environment const & env, options const & opts, comp_decls co
 }
 
 /*
-@[export lean.ir.add_boxed_version_core]
+@[export lean_ir_add_boxed_version]
 def addBoxedVersion (env : Environment) (decl : Decl) : Environment :=
 */
-object * add_boxed_version_core(object * env, object * decl);
+extern "C" object * lean_ir_add_boxed_version(object * env, object * decl);
 environment add_boxed_version(environment const & env, decl const & d) {
-    return environment(add_boxed_version_core(env.to_obj_arg(), d.to_obj_arg()));
+    return environment(lean_ir_add_boxed_version(env.to_obj_arg(), d.to_obj_arg()));
 }
 
 environment add_extern(environment const & env, name const & fn) {
@@ -551,10 +550,10 @@ extern "C" object* lean_add_extern(object * env, object * fn) {
 @[export lean.ir.emit_cpp_core]
 def emitCpp (env : Environment) (modName : Name) : Except String String :
 */
-object * emit_cpp_core(object * env, object * mod_name);
+extern "C" object * lean_ir_emit_cpp(object * env, object * mod_name);
 
 string_ref emit_cpp(environment const & env, name const & mod_name) {
-    object * r = emit_cpp_core(env.to_obj_arg(), mod_name.to_obj_arg());
+    object * r = lean_ir_emit_cpp(env.to_obj_arg(), mod_name.to_obj_arg());
     string_ref s(cnstr_get(r, 0), true);
     if (cnstr_tag(r) == 0) {
         dec_ref(r);
@@ -564,5 +563,13 @@ string_ref emit_cpp(environment const & env, name const & mod_name) {
         return s;
     }
 }
+}
+
+void initialize_ir() {
+    lean_ir_mk_irrelevant_arg = box(1);
+    lean_ir_mk_unreachable = box(13); // TOO HACKISH!!! It must be deleted in the future.
+}
+
+void finalize_ir() {
 }
 }

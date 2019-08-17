@@ -743,7 +743,7 @@ emitMainFnIfNeeded
 
 end EmitCpp
 
-@[export lean.ir.emit_cpp_core]
+@[export lean_ir_emit_cpp]
 def emitCpp (env : Environment) (modName : Name) : Except String String :=
 match (EmitCpp.main { env := env, modName := modName }).run "" with
 | EState.Result.ok    _   s => Except.ok s

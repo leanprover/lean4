@@ -33,9 +33,7 @@ obj* l_Lean_Compiler_mkInlineAttrs___closed__1;
 obj* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkInlineAttrs___spec__1___closed__2;
 obj* l_Lean_Compiler_mkInlineAttrs___closed__7;
 extern obj* l_Lean_AttributeImpl_inhabited___closed__5;
-namespace lean {
-uint8 has_noinline_attribute_core(obj*, obj*);
-}
+extern "C" uint8 lean_has_noinline_attribute(obj*, obj*);
 extern obj* l_Lean_registerTagAttribute___lambda__4___closed__4;
 obj* l_Lean_Compiler_InlineAttributeKind_HasBeq___closed__1;
 obj* l_Lean_Compiler_mkInlineAttrs___closed__10;
@@ -50,9 +48,7 @@ obj* l___private_init_lean_compiler_inlineattrs_1__hasInlineAttrAux___main___box
 extern obj* l_Lean_Inhabited;
 obj* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkInlineAttrs___spec__1___lambda__2(obj*);
 obj* l_IO_Prim_Ref_set(obj*, obj*, obj*, obj*);
-namespace lean {
-uint8 has_macro_inline_attribute_core(obj*, obj*);
-}
+extern "C" uint8 lean_has_macro_inline_attribute(obj*, obj*);
 uint8 l_Lean_Compiler_isEagerLambdaLiftingName___main(obj*);
 uint8 l_Lean_Compiler_InlineAttributeKind_Inhabited;
 uint8 l_Lean_Compiler_InlineAttributeKind_beq(uint8, uint8);
@@ -73,9 +69,7 @@ obj* l_Lean_PersistentEnvExtension_getState___rarg(obj*, obj*);
 obj* l_List_mfor___main___at_Lean_registerEnumAttributes___spec__11(obj*, obj*);
 obj* l_Lean_Environment_getModuleIdxFor(obj*, obj*);
 obj* l_Lean_Compiler_InlineAttributeKind_HasBeq;
-namespace lean {
-uint8 has_inline_if_reduce_attribute_core(obj*, obj*);
-}
+extern "C" uint8 lean_has_inline_if_reduce_attribute(obj*, obj*);
 extern obj* l_Lean_registerTagAttribute___lambda__4___closed__1;
 obj* l_Lean_Compiler_mkInlineAttrs___closed__18;
 namespace lean {
@@ -155,9 +149,7 @@ obj* l_Lean_Compiler_hasInlineIfReduceAttribute___boxed(obj*, obj*);
 uint8 l_Lean_Name_isInternal___main(obj*);
 obj* l_List_map___main___at_Lean_Compiler_mkInlineAttrs___spec__8(obj*, obj*, obj*);
 obj* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkInlineAttrs___spec__1(obj*, obj*, obj*, obj*);
-namespace lean {
-uint8 has_inline_attribute_core(obj*, obj*);
-}
+extern "C" uint8 lean_has_inline_attribute(obj*, obj*);
 extern obj* l_Lean_registerTagAttribute___closed__1;
 extern obj* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
 obj* l_IO_Prim_Ref_reset(obj*, obj*, obj*);
@@ -3463,8 +3455,7 @@ x_6 = lean::box(x_5);
 return x_6;
 }
 }
-namespace lean {
-uint8 has_inline_attribute_core(obj* x_1, obj* x_2) {
+uint8 lean_has_inline_attribute(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; uint8 x_4; 
@@ -3474,18 +3465,16 @@ lean::dec(x_1);
 return x_4;
 }
 }
-}
 obj* l_Lean_Compiler_hasInlineAttribute___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; obj* x_4; 
-x_3 = lean::has_inline_attribute_core(x_1, x_2);
+x_3 = lean_has_inline_attribute(x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
 }
 }
-namespace lean {
-uint8 has_inline_if_reduce_attribute_core(obj* x_1, obj* x_2) {
+uint8 lean_has_inline_if_reduce_attribute(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; uint8 x_4; 
@@ -3495,18 +3484,16 @@ lean::dec(x_1);
 return x_4;
 }
 }
-}
 obj* l_Lean_Compiler_hasInlineIfReduceAttribute___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; obj* x_4; 
-x_3 = lean::has_inline_if_reduce_attribute_core(x_1, x_2);
+x_3 = lean_has_inline_if_reduce_attribute(x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
 }
 }
-namespace lean {
-uint8 has_noinline_attribute_core(obj* x_1, obj* x_2) {
+uint8 lean_has_noinline_attribute(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; uint8 x_4; 
@@ -3516,18 +3503,16 @@ lean::dec(x_1);
 return x_4;
 }
 }
-}
 obj* l_Lean_Compiler_hasNoInlineAttribute___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; obj* x_4; 
-x_3 = lean::has_noinline_attribute_core(x_1, x_2);
+x_3 = lean_has_noinline_attribute(x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
 }
 }
-namespace lean {
-uint8 has_macro_inline_attribute_core(obj* x_1, obj* x_2) {
+uint8 lean_has_macro_inline_attribute(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; uint8 x_4; 
@@ -3537,12 +3522,11 @@ lean::dec(x_1);
 return x_4;
 }
 }
-}
 obj* l_Lean_Compiler_hasMacroInlineAttribute___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; obj* x_4; 
-x_3 = lean::has_macro_inline_attribute_core(x_1, x_2);
+x_3 = lean_has_macro_inline_attribute(x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
 }

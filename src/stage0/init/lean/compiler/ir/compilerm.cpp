@@ -100,11 +100,7 @@ obj* l___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___closed__1;
 obj* l_Lean_IR_addDecls(obj*, obj*, obj*);
 obj* l_Lean_IR_mkDeclMapExtension___lambda__2___boxed(obj*, obj*);
 uint8 l_Array_anyMAux___main___at_Lean_IR_mkDeclMapExtension___spec__11(obj*, obj*, obj*);
-namespace lean {
-namespace ir {
-obj* log_to_string_core(obj*);
-}
-}
+extern "C" obj* lean_ir_log_to_string(obj*);
 obj* l_Lean_IR_tracePrefixOptionName___closed__3;
 obj* l_Lean_IR_declMapExt___closed__1;
 obj* l_Lean_IR_tracePrefixOptionName___closed__1;
@@ -116,11 +112,7 @@ obj* l_Lean_IR_tracePrefixOptionName___closed__4;
 obj* l_Lean_IR_logDecls(obj*, obj*, obj*, obj*);
 obj* l_RBNode_insert___at_Lean_IR_mkDeclMapExtension___spec__2(obj*, obj*, obj*);
 extern obj* l_Char_HasRepr___closed__1;
-namespace lean {
-namespace ir {
-obj* add_decl_core(obj*, obj*);
-}
-}
+extern "C" obj* lean_ir_add_decl(obj*, obj*);
 obj* l_Lean_IR_mkDeclMapExtension___lambda__2(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_LogEntry_fmt___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_declMapExt;
@@ -416,9 +408,7 @@ lean::dec(x_1);
 return x_2;
 }
 }
-namespace lean {
-namespace ir {
-obj* log_to_string_core(obj* x_1) {
+obj* lean_ir_log_to_string(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
@@ -429,8 +419,6 @@ lean::dec(x_1);
 x_5 = l_Lean_Options_empty;
 x_6 = l_Lean_Format_pretty(x_4, x_5);
 return x_6;
-}
-}
 }
 }
 obj* l_Lean_IR_log(obj* x_1, obj* x_2, obj* x_3) {
@@ -6633,17 +6621,13 @@ lean::dec(x_2);
 return x_4;
 }
 }
-namespace lean {
-namespace ir {
-obj* add_decl_core(obj* x_1, obj* x_2) {
+obj* lean_ir_add_decl(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
 x_3 = l_Lean_IR_declMapExt;
 x_4 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_3, x_1, x_2);
 return x_4;
-}
-}
 }
 }
 obj* l_Lean_IR_getDecls(obj* x_1) {

@@ -29,7 +29,7 @@ abbrev Log := Array LogEntry
 def Log.format (log : Log) : Format :=
 log.foldl (fun fmt entry => fmt ++ Format.line ++ format entry) Format.nil
 
-@[export lean.ir.log_to_string_core]
+@[export lean_ir_log_to_string]
 def Log.toString (log : Log) : String :=
 log.format.pretty
 
@@ -106,7 +106,7 @@ def getDecl (n : Name) : CompilerM Decl :=
 do (some decl) ← findDecl n | throw ("unknown declaration '" ++ toString n ++ "'");
    pure decl
 
-@[export lean.ir.add_decl_core]
+@[export lean_ir_add_decl]
 def addDeclAux (env : Environment) (decl : Decl) : Environment :=
 declMapExt.addEntry env decl
 

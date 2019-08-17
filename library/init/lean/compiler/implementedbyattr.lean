@@ -26,7 +26,7 @@ registerParametricAttribute `implementedBy "name of the Lean (probably unsafe) f
 @[init mkImplementedByAttr]
 constant implementedByAttr : ParametricAttribute Name := default _
 
-@[export lean.get_implemented_by_core]
+@[export lean_get_implemented_by]
 def getImplementedBy (env : Environment) (n : Name) : Option Name :=
 implementedByAttr.getParam env n
 

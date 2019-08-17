@@ -47,19 +47,19 @@ private partial def hasInlineAttrAux (env : Environment) (kind : InlineAttribute
     | some k => kind == k
     | none   => if n.isInternal then hasInlineAttrAux n.getPrefix else false
 
-@[export lean.has_inline_attribute_core]
+@[export lean_has_inline_attribute]
 def hasInlineAttribute (env : Environment) (n : Name) : Bool :=
 hasInlineAttrAux env InlineAttributeKind.inline n
 
-@[export lean.has_inline_if_reduce_attribute_core]
+@[export lean_has_inline_if_reduce_attribute]
 def hasInlineIfReduceAttribute (env : Environment) (n : Name) : Bool :=
 hasInlineAttrAux env InlineAttributeKind.inlineIfReduce n
 
-@[export lean.has_noinline_attribute_core]
+@[export lean_has_noinline_attribute]
 def hasNoInlineAttribute (env : Environment) (n : Name) : Bool :=
 hasInlineAttrAux env InlineAttributeKind.noinline n
 
-@[export lean.has_macro_inline_attribute_core]
+@[export lean_has_macro_inline_attribute]
 def hasMacroInlineAttribute (env : Environment) (n : Name) : Bool :=
 hasInlineAttrAux env InlineAttributeKind.macroInline n
 

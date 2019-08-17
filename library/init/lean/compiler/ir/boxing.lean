@@ -84,7 +84,7 @@ let boxedDecls := decls.foldl
   Array.empty;
 decls ++ boxedDecls
 
-@[export lean.ir.add_boxed_version_core]
+@[export lean_ir_add_boxed_version]
 def addBoxedVersion (env : Environment) (decl : Decl) : Environment :=
 if requiresBoxedVersion env decl then
   addDeclAux env (mkBoxedVersion decl)

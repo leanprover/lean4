@@ -16,15 +16,15 @@ Author: Leonardo de Moura
 #include "library/compiler/csimp.h"
 
 namespace lean {
-uint8 has_specialize_attribute_core(object* env, object* n);
-uint8 has_nospecialize_attribute_core(object* env, object* n);
+extern "C" uint8 lean_has_specialize_attribute(object* env, object* n);
+extern "C" uint8 lean_has_nospecialize_attribute(object* env, object* n);
 
 bool has_specialize_attribute(environment const & env, name const & n) {
-    return has_specialize_attribute_core(env.to_obj_arg(), n.to_obj_arg());
+    return lean_has_specialize_attribute(env.to_obj_arg(), n.to_obj_arg());
 }
 
 bool has_nospecialize_attribute(environment const & env, name const & n) {
-    return has_nospecialize_attribute_core(env.to_obj_arg(), n.to_obj_arg());
+    return lean_has_nospecialize_attribute(env.to_obj_arg(), n.to_obj_arg());
 }
 
 /* IMPORTANT: We currently do NOT specialize Fixed arguments.
@@ -102,15 +102,15 @@ public:
     static spec_info deserialize(deserializer & d) { return spec_info(d.read_object(), true); }
 };
 
-object* add_specialization_info_core(object* env, object* fn, object* info);
-object* get_specialization_info_core(object* env, object* fn);
+extern "C" object* lean_add_specialization_info(object* env, object* fn, object* info);
+extern "C" object* lean_get_specialization_info(object* env, object* fn);
 
 static environment save_specialization_info(environment const & env, name const & fn, spec_info const & si) {
-    return environment(add_specialization_info_core(env.to_obj_arg(), fn.to_obj_arg(), si.to_obj_arg()));
+    return environment(lean_add_specialization_info(env.to_obj_arg(), fn.to_obj_arg(), si.to_obj_arg()));
 }
 
 static optional<spec_info> get_specialization_info(environment const & env, name const & fn) {
-    return to_optional<spec_info>(get_specialization_info_core(env.to_obj_arg(), fn.to_obj_arg()));
+    return to_optional<spec_info>(lean_get_specialization_info(env.to_obj_arg(), fn.to_obj_arg()));
 }
 
 typedef buffer<pair<name, buffer<spec_arg_kind>>> spec_info_buffer;
@@ -236,15 +236,15 @@ environment update_spec_info(environment const & env, comp_decls const & ds) {
     return new_env;
 }
 
-object* cache_specialization_core(object* env, object* e, object* fn);
-object* get_cached_specialization_core(object* env, object* e);
+extern "C" object* lean_cache_specialization(object* env, object* e, object* fn);
+extern "C" object* lean_get_cached_specialization(object* env, object* e);
 
 static environment cache_specialization(environment const & env, expr const & k, name const & fn) {
-    return environment(cache_specialization_core(env.to_obj_arg(), k.to_obj_arg(), fn.to_obj_arg()));
+    return environment(lean_cache_specialization(env.to_obj_arg(), k.to_obj_arg(), fn.to_obj_arg()));
 }
 
 static optional<name> get_cached_specialization(environment const & env, expr const & e) {
-    return to_optional<name>(get_cached_specialization_core(env.to_obj_arg(), e.to_obj_arg()));
+    return to_optional<name>(lean_get_cached_specialization(env.to_obj_arg(), e.to_obj_arg()));
 }
 
 class specialize_fn {

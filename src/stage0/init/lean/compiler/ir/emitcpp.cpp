@@ -140,11 +140,7 @@ obj* l_Lean_IR_EmitCpp_emitFileHeader___closed__11;
 obj* l_Nat_mforAux___main___at_Lean_IR_EmitCpp_emitJmp___spec__1___closed__1;
 uint8 l_List_foldr___main___at_Lean_IR_EmitCpp_hasMainFn___spec__1(uint8, obj*);
 obj* l_Lean_IR_EmitCpp_emitUnbox___closed__2;
-namespace lean {
-namespace ir {
-obj* decl_to_string_core(obj*);
-}
-}
+extern "C" obj* lean_ir_decl_to_string(obj*);
 obj* l_Lean_IR_EmitCpp_emitInitFn___closed__7;
 obj* l_Lean_IR_EmitCpp_emitDecl(obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitFileHeader___closed__28;
@@ -539,11 +535,7 @@ obj* l_Lean_IR_EmitCpp_emitMainFn___closed__10;
 obj* l_Lean_IR_EmitCpp_emitFnDecl___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_declareVars___main(obj*, uint8, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitDeclInit___closed__3;
-namespace lean {
-namespace ir {
-obj* emit_cpp_core(obj*, obj*);
-}
-}
+extern "C" obj* lean_ir_emit_cpp(obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitMainFn___closed__47;
 obj* l_Lean_IR_EmitCpp_throwInvalidExportName(obj*);
 obj* l_Lean_IR_EmitCpp_emitSSet(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -25998,7 +25990,7 @@ obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11;
 x_7 = lean::cnstr_get(x_5, 0);
 x_8 = l_Lean_IR_EmitCpp_emitDecl___closed__1;
 x_9 = lean::string_append(x_7, x_8);
-x_10 = lean::ir::decl_to_string_core(x_4);
+x_10 = lean_ir_decl_to_string(x_4);
 x_11 = lean::string_append(x_9, x_10);
 lean::dec(x_10);
 lean::cnstr_set(x_5, 0, x_11);
@@ -26014,7 +26006,7 @@ lean::inc(x_12);
 lean::dec(x_5);
 x_14 = l_Lean_IR_EmitCpp_emitDecl___closed__1;
 x_15 = lean::string_append(x_12, x_14);
-x_16 = lean::ir::decl_to_string_core(x_4);
+x_16 = lean_ir_decl_to_string(x_4);
 x_17 = lean::string_append(x_15, x_16);
 lean::dec(x_16);
 x_18 = lean::alloc_cnstr(1, 2, 0);
@@ -29691,9 +29683,7 @@ lean::cnstr_set(x_3, 1, x_2);
 return x_3;
 }
 }
-namespace lean {
-namespace ir {
-obj* emit_cpp_core(obj* x_1, obj* x_2) {
+obj* lean_ir_emit_cpp(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
@@ -29728,8 +29718,6 @@ lean::dec(x_8);
 x_12 = lean::alloc_cnstr(0, 1, 0);
 lean::cnstr_set(x_12, 0, x_11);
 return x_12;
-}
-}
 }
 }
 }

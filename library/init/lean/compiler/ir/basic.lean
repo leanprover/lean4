@@ -124,8 +124,8 @@ instance : HasBeq Arg := ⟨Arg.beq⟩
 instance : Inhabited Arg := ⟨irrelevant⟩
 end Arg
 
-@[export lean.ir.mk_var_arg_core] def mkVarArg (id : VarId) : Arg := Arg.var id
-@[export lean.ir.mk_irrelevant_arg_core] def mkIrrelevantArg : Arg := Arg.irrelevant
+@[export lean_ir_mk_var_arg] def mkVarArg (id : VarId) : Arg := Arg.var id
+@[export lean_ir_mk_irrelevant_arg] def mkIrrelevantArg : Arg := Arg.irrelevant
 
 inductive LitVal
 | num (v : Nat)
@@ -192,22 +192,22 @@ inductive Expr
 /- Return `1 : uint8` Iff `x : tobject` is a tagged pointer (storing a scalar value). -/
 | isTaggedPtr (x : VarId)
 
-@[export lean.ir.mk_ctor_expr_core]  def mkCtorExpr (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (ys : Array Arg) : Expr := Expr.ctor ⟨n, cidx, size, usize, ssize⟩ ys
-@[export lean.ir.mk_proj_expr_core]  def mkProjExpr (i : Nat) (x : VarId) : Expr := Expr.proj i x
-@[export lean.ir.mk_uproj_expr_core] def mkUProjExpr (i : Nat) (x : VarId) : Expr := Expr.uproj i x
-@[export lean.ir.mk_sproj_expr_core] def mkSProjExpr (n : Nat) (offset : Nat) (x : VarId) : Expr := Expr.sproj n offset x
-@[export lean.ir.mk_fapp_expr_core]  def mkFAppExpr (c : FunId) (ys : Array Arg) : Expr := Expr.fap c ys
-@[export lean.ir.mk_papp_expr_core]  def mkPAppExpr (c : FunId) (ys : Array Arg) : Expr := Expr.pap c ys
-@[export lean.ir.mk_app_expr_core]   def mkAppExpr (x : VarId) (ys : Array Arg) : Expr := Expr.ap x ys
-@[export lean.ir.mk_num_expr_core]   def mkNumExpr (v : Nat) : Expr := Expr.lit (LitVal.num v)
-@[export lean.ir.mk_str_expr_core]   def mkStrExpr (v : String) : Expr := Expr.lit (LitVal.str v)
+@[export lean_ir_mk_ctor_expr]  def mkCtorExpr (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (ys : Array Arg) : Expr := Expr.ctor ⟨n, cidx, size, usize, ssize⟩ ys
+@[export lean_ir_mk_proj_expr]  def mkProjExpr (i : Nat) (x : VarId) : Expr := Expr.proj i x
+@[export lean_ir_mk_uproj_expr] def mkUProjExpr (i : Nat) (x : VarId) : Expr := Expr.uproj i x
+@[export lean_ir_mk_sproj_expr] def mkSProjExpr (n : Nat) (offset : Nat) (x : VarId) : Expr := Expr.sproj n offset x
+@[export lean_ir_mk_fapp_expr]  def mkFAppExpr (c : FunId) (ys : Array Arg) : Expr := Expr.fap c ys
+@[export lean_ir_mk_papp_expr]  def mkPAppExpr (c : FunId) (ys : Array Arg) : Expr := Expr.pap c ys
+@[export lean_ir_mk_app_expr]   def mkAppExpr (x : VarId) (ys : Array Arg) : Expr := Expr.ap x ys
+@[export lean_ir_mk_num_expr]   def mkNumExpr (v : Nat) : Expr := Expr.lit (LitVal.num v)
+@[export lean_ir_mk_str_expr]   def mkStrExpr (v : String) : Expr := Expr.lit (LitVal.str v)
 
 structure Param :=
 (x : VarId) (borrow : Bool) (ty : IRType)
 
 instance paramInh : Inhabited Param := ⟨{ x := { idx := 0 }, borrow := false, ty := IRType.object }⟩
 
-@[export lean.ir.mk_param_core] def mkParam (x : VarId) (borrow : Bool) (ty : IRType) : Param := ⟨x, borrow, ty⟩
+@[export lean_ir_mk_param] def mkParam (x : VarId) (borrow : Bool) (ty : IRType) : Param := ⟨x, borrow, ty⟩
 
 inductive AltCore (FnBody : Type) : Type
 | ctor (info : CtorInfo) (b : FnBody) : AltCore
@@ -243,14 +243,14 @@ instance : Inhabited FnBody := ⟨FnBody.unreachable⟩
 
 abbrev FnBody.nil := FnBody.unreachable
 
-@[export lean.ir.mk_vdecl_core] def mkVDecl (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : FnBody := FnBody.vdecl x ty e b
-@[export lean.ir.mk_jdecl_core] def mkJDecl (j : JoinPointId) (xs : Array Param) (v : FnBody) (b : FnBody) : FnBody := FnBody.jdecl j xs v b
-@[export lean.ir.mk_uset_core] def mkUSet (x : VarId) (i : Nat) (y : VarId) (b : FnBody) : FnBody := FnBody.uset x i y b
-@[export lean.ir.mk_sset_core] def mkSSet (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody) : FnBody := FnBody.sset x i offset y ty b
-@[export lean.ir.mk_case_core] def mkCase (tid : Name) (x : VarId) (cs : Array (AltCore FnBody)) : FnBody := FnBody.case tid x cs
-@[export lean.ir.mk_ret_core] def mkRet (x : Arg) : FnBody := FnBody.ret x
-@[export lean.ir.mk_jmp_core] def mkJmp (j : JoinPointId) (ys : Array Arg) : FnBody := FnBody.jmp j ys
-@[export lean.ir.mk_unreachable_core] def mkUnreachable : FnBody := FnBody.unreachable
+@[export lean_ir_mk_vdecl] def mkVDecl (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : FnBody := FnBody.vdecl x ty e b
+@[export lean_ir_mk_jdecl] def mkJDecl (j : JoinPointId) (xs : Array Param) (v : FnBody) (b : FnBody) : FnBody := FnBody.jdecl j xs v b
+@[export lean_ir_mk_uset] def mkUSet (x : VarId) (i : Nat) (y : VarId) (b : FnBody) : FnBody := FnBody.uset x i y b
+@[export lean_ir_mk_sset] def mkSSet (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody) : FnBody := FnBody.sset x i offset y ty b
+@[export lean_ir_mk_case] def mkCase (tid : Name) (x : VarId) (cs : Array (AltCore FnBody)) : FnBody := FnBody.case tid x cs
+@[export lean_ir_mk_ret] def mkRet (x : Arg) : FnBody := FnBody.ret x
+@[export lean_ir_mk_jmp] def mkJmp (j : JoinPointId) (ys : Array Arg) : FnBody := FnBody.jmp j ys
+@[export lean_ir_mk_unreachable] def mkUnreachable : FnBody := FnBody.unreachable
 
 abbrev Alt := AltCore FnBody
 @[matchPattern] abbrev Alt.ctor    := @AltCore.ctor FnBody
@@ -356,7 +356,7 @@ bs.mmap $ fun b => match b with
   | FnBody.jdecl j xs v k => do v ← f v; pure $ FnBody.jdecl j xs v k
   | other                 => pure other
 
-@[export lean.ir.mk_alt_core] def mkAlt (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (b : FnBody) : Alt := Alt.ctor ⟨n, cidx, size, usize, ssize⟩ b
+@[export lean_ir_mk_alt] def mkAlt (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (b : FnBody) : Alt := Alt.ctor ⟨n, cidx, size, usize, ssize⟩ b
 
 inductive Decl
 | fdecl  (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody)
@@ -381,9 +381,9 @@ def resultType : Decl → IRType
 
 end Decl
 
-@[export lean.ir.mk_decl_core] def mkDecl (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody) : Decl := Decl.fdecl f xs ty b
+@[export lean_ir_mk_decl] def mkDecl (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody) : Decl := Decl.fdecl f xs ty b
 
-@[export lean.ir.mk_extern_decl_core] def mkExternDecl (f : FunId) (xs : Array Param) (ty : IRType) (e : ExternAttrData) : Decl :=
+@[export lean_ir_mk_extern_decl] def mkExternDecl (f : FunId) (xs : Array Param) (ty : IRType) (e : ExternAttrData) : Decl :=
 Decl.extern f xs ty e
 
 /-- Set of variable and join point names -/

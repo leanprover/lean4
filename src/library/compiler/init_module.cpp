@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/compiler/compiler.h"
 #include "library/compiler/borrowed_annotation.h"
 #include "library/compiler/ll_infer_type.h"
+#include "library/compiler/ir.h"
 
 namespace lean {
 void initialize_compiler_module() {
@@ -25,9 +26,11 @@ void initialize_compiler_module() {
     initialize_compiler();
     initialize_borrowed_annotation();
     initialize_ll_infer_type();
+    initialize_ir();
 }
 
 void finalize_compiler_module() {
+    finalize_ir();
     finalize_ll_infer_type();
     finalize_borrowed_annotation();
     finalize_compiler();

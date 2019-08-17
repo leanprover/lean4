@@ -64,11 +64,7 @@ obj* l___private_init_lean_compiler_ir_default_1__compileAux___closed__13;
 obj* l___private_init_lean_compiler_ir_default_1__compileAux___closed__26;
 obj* l_Array_size(obj*, obj*);
 obj* l_Array_fset(obj*, obj*, obj*, obj*);
-namespace lean {
-namespace ir {
-obj* compile_core(obj*, obj*, obj*);
-}
-}
+extern "C" obj* lean_ir_compile(obj*, obj*, obj*);
 obj* l_Array_ummapAux___main___at___private_init_lean_compiler_ir_default_1__compileAux___spec__3(obj*, obj*);
 obj* l_Array_ummapAux___main___at___private_init_lean_compiler_ir_default_1__compileAux___spec__2(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_default_1__compileAux___closed__10;
@@ -8073,9 +8069,7 @@ lean::dec(x_2);
 return x_4;
 }
 }
-namespace lean {
-namespace ir {
-obj* compile_core(obj* x_1, obj* x_2, obj* x_3) {
+obj* lean_ir_compile(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
@@ -8124,8 +8118,6 @@ x_18 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_18, 0, x_16);
 lean::cnstr_set(x_18, 1, x_17);
 return x_18;
-}
-}
 }
 }
 }

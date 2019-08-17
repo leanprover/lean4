@@ -87,15 +87,15 @@ unsigned get_num_nested_lambdas(expr e) {
     return r;
 }
 
-uint8 has_inline_attribute_core(object* env, object* n);
-uint8 has_inline_if_reduce_attribute_core(object* env, object* n);
-uint8 has_macro_inline_attribute_core(object* env, object* n);
-uint8 has_noinline_attribute_core(object* env, object* n);
+extern "C" uint8 lean_has_inline_attribute(object* env, object* n);
+extern "C" uint8 lean_has_inline_if_reduce_attribute(object* env, object* n);
+extern "C" uint8 lean_has_macro_inline_attribute(object* env, object* n);
+extern "C" uint8 lean_has_noinline_attribute(object* env, object* n);
 
-bool has_inline_attribute(environment const & env, name const & n) { return has_inline_attribute_core(env.to_obj_arg(), n.to_obj_arg()); }
-bool has_inline_if_reduce_attribute(environment const & env, name const & n) { return has_inline_if_reduce_attribute_core(env.to_obj_arg(), n.to_obj_arg()); }
-bool has_macro_inline_attribute(environment const & env, name const & n) { return has_macro_inline_attribute_core(env.to_obj_arg(), n.to_obj_arg()); }
-bool has_noinline_attribute(environment const & env, name const & n) { return has_noinline_attribute_core(env.to_obj_arg(), n.to_obj_arg()); }
+bool has_inline_attribute(environment const & env, name const & n) { return lean_has_inline_attribute(env.to_obj_arg(), n.to_obj_arg()); }
+bool has_inline_if_reduce_attribute(environment const & env, name const & n) { return lean_has_inline_if_reduce_attribute(env.to_obj_arg(), n.to_obj_arg()); }
+bool has_macro_inline_attribute(environment const & env, name const & n) { return lean_has_macro_inline_attribute(env.to_obj_arg(), n.to_obj_arg()); }
+bool has_noinline_attribute(environment const & env, name const & n) { return lean_has_noinline_attribute(env.to_obj_arg(), n.to_obj_arg()); }
 
 bool is_lcnf_atom(expr const & e) {
     switch (e.kind()) {

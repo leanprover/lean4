@@ -101,9 +101,7 @@ obj* l_Lean_SMap_insert___at_Lean_Compiler_SpecState_addEntry___spec__10(obj*, o
 obj* l_RBNode_find___main___at_Lean_Compiler_getSpecializationInfo___spec__2___boxed(obj*, obj*);
 obj* l_Lean_SMap_find___at_Lean_Compiler_getSpecializationInfo___spec__1(obj*, obj*);
 obj* l_Lean_Compiler_specExtension___elambda__4___boxed(obj*);
-namespace lean {
-obj* add_specialization_info_core(obj*, obj*, obj*);
-}
+extern "C" obj* lean_add_specialization_info(obj*, obj*, obj*);
 obj* l_Lean_Compiler_specExtension___elambda__2(obj*);
 obj* l_Lean_Compiler_specExtension;
 obj* l_Lean_Compiler_specExtension___closed__1;
@@ -130,9 +128,7 @@ obj* l_Lean_Compiler_mkSpecializeAttrs___closed__1;
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_Lean_Compiler_mkSpecializeAttrs___closed__14;
 uint8 l_RBNode_isRed___rarg(obj*);
-namespace lean {
-uint8 has_specialize_attribute_core(obj*, obj*);
-}
+extern "C" uint8 lean_has_specialize_attribute(obj*, obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
@@ -140,9 +136,7 @@ obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler
 obj* l_Lean_Compiler_specExtension___closed__3;
 obj* l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(obj*, obj*, obj*);
 uint8 l_Lean_Compiler_SpecializeAttributeKind_Inhabited;
-namespace lean {
-obj* cache_specialization_core(obj*, obj*, obj*);
-}
+extern "C" obj* lean_cache_specialization(obj*, obj*, obj*);
 obj* l_Lean_Name_getPrefix(obj*);
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_Compiler_mkSpecExtension___spec__7___closed__2;
 obj* l_Lean_SMap_insert___at_Lean_Compiler_SpecState_addEntry___spec__1(obj*, obj*, obj*);
@@ -182,9 +176,7 @@ uint8 l_Array_anyMAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__6(obj*
 obj* l_EState_bind___rarg(obj*, obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_Compiler_getSpecializationInfo___spec__2(obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_Compiler_getCachedSpecialization___spec__2___boxed(obj*, obj*);
-namespace lean {
-obj* get_specialization_info_core(obj*, obj*);
-}
+extern "C" obj* lean_get_specialization_info(obj*, obj*);
 obj* l_Lean_mkStateFromImportedEntries___at_Lean_Compiler_mkSpecExtension___spec__1___boxed(obj*, obj*);
 obj* l_Lean_Compiler_mkSpecializeAttrs___lambda__1(obj*, obj*, uint8);
 obj* l_Lean_PersistentEnvExtension_addEntry___rarg(obj*, obj*, obj*);
@@ -223,9 +215,7 @@ obj* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__
 uint8 l_Array_anyMAux___main___at_Lean_Compiler_mkSpecExtension___spec__6(obj*, obj*, obj*);
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 extern obj* l_Lean_Name_toString___closed__1;
-namespace lean {
-obj* get_cached_specialization_core(obj*, obj*);
-}
+extern "C" obj* lean_get_cached_specialization(obj*, obj*);
 obj* l_Lean_Compiler_mkSpecializeAttrs___closed__10;
 namespace lean {
 uint8 nat_dec_le(obj*, obj*);
@@ -260,9 +250,7 @@ obj* l_IO_Prim_Ref_reset(obj*, obj*, obj*);
 obj* l_Lean_Compiler_specExtension___elambda__1___boxed(obj*);
 extern obj* l___private_init_lean_environment_5__envExtensionsRef;
 obj* l_Lean_Compiler_mkSpecExtension___closed__1;
-namespace lean {
-uint8 has_nospecialize_attribute_core(obj*, obj*);
-}
+extern "C" uint8 lean_has_nospecialize_attribute(obj*, obj*);
 uint8 l___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux(obj*, uint8, obj*);
 obj* l_Lean_Compiler_mkSpecializeAttrs___closed__4;
 obj* l_Lean_Compiler_specExtension___elambda__4(obj*);
@@ -3386,8 +3374,7 @@ x_6 = lean::box(x_5);
 return x_6;
 }
 }
-namespace lean {
-uint8 has_specialize_attribute_core(obj* x_1, obj* x_2) {
+uint8 lean_has_specialize_attribute(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; uint8 x_4; 
@@ -3397,18 +3384,16 @@ lean::dec(x_1);
 return x_4;
 }
 }
-}
 obj* l_Lean_Compiler_hasSpecializeAttribute___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; obj* x_4; 
-x_3 = lean::has_specialize_attribute_core(x_1, x_2);
+x_3 = lean_has_specialize_attribute(x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
 }
 }
-namespace lean {
-uint8 has_nospecialize_attribute_core(obj* x_1, obj* x_2) {
+uint8 lean_has_nospecialize_attribute(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; uint8 x_4; 
@@ -3418,12 +3403,11 @@ lean::dec(x_1);
 return x_4;
 }
 }
-}
 obj* l_Lean_Compiler_hasNospecializeAttribute___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; obj* x_4; 
-x_3 = lean::has_nospecialize_attribute_core(x_1, x_2);
+x_3 = lean_has_nospecialize_attribute(x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
 }
@@ -11533,8 +11517,7 @@ lean::dec(x_1);
 return x_2;
 }
 }
-namespace lean {
-obj* add_specialization_info_core(obj* x_1, obj* x_2, obj* x_3) {
+obj* lean_add_specialization_info(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; obj* x_5; obj* x_6; 
@@ -11544,7 +11527,6 @@ lean::cnstr_set(x_4, 1, x_3);
 x_5 = l_Lean_Compiler_specExtension;
 x_6 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_5, x_1, x_4);
 return x_6;
-}
 }
 }
 obj* l_RBNode_find___main___at_Lean_Compiler_getSpecializationInfo___spec__2(obj* x_1, obj* x_2) {
@@ -11671,8 +11653,7 @@ return x_9;
 }
 }
 }
-namespace lean {
-obj* get_specialization_info_core(obj* x_1, obj* x_2) {
+obj* lean_get_specialization_info(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
@@ -11686,7 +11667,6 @@ x_6 = l_Lean_SMap_find___at_Lean_Compiler_getSpecializationInfo___spec__1(x_5, x
 lean::dec(x_2);
 lean::dec(x_5);
 return x_6;
-}
 }
 }
 obj* l_RBNode_find___main___at_Lean_Compiler_getSpecializationInfo___spec__2___boxed(obj* x_1, obj* x_2) {
@@ -11729,8 +11709,7 @@ lean::dec(x_1);
 return x_3;
 }
 }
-namespace lean {
-obj* cache_specialization_core(obj* x_1, obj* x_2, obj* x_3) {
+obj* lean_cache_specialization(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; obj* x_5; obj* x_6; 
@@ -11740,7 +11719,6 @@ lean::cnstr_set(x_4, 1, x_3);
 x_5 = l_Lean_Compiler_specExtension;
 x_6 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_5, x_1, x_4);
 return x_6;
-}
 }
 }
 obj* l_RBNode_find___main___at_Lean_Compiler_getCachedSpecialization___spec__2(obj* x_1, obj* x_2) {
@@ -11867,8 +11845,7 @@ return x_9;
 }
 }
 }
-namespace lean {
-obj* get_cached_specialization_core(obj* x_1, obj* x_2) {
+obj* lean_get_cached_specialization(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
@@ -11882,7 +11859,6 @@ x_6 = l_Lean_SMap_find___at_Lean_Compiler_getCachedSpecialization___spec__1(x_5,
 lean::dec(x_2);
 lean::dec(x_5);
 return x_6;
-}
 }
 }
 obj* l_RBNode_find___main___at_Lean_Compiler_getCachedSpecialization___spec__2___boxed(obj* x_1, obj* x_2) {

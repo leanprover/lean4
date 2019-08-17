@@ -102,7 +102,7 @@ def formatDecl (indent : Nat := 2) : Decl → Format
 
 instance declHasFormat : HasFormat Decl := ⟨formatDecl⟩
 
-@[export lean.ir.decl_to_string_core]
+@[export lean_ir_decl_to_string]
 def declToString (d : Decl) : String :=
 (format d).pretty
 

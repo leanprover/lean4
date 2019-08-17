@@ -50,11 +50,7 @@ obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__26;
 obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__29;
 obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__22;
 obj* l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__1;
-namespace lean {
-namespace ir {
-obj* decl_to_string_core(obj*);
-}
-}
+extern "C" obj* lean_ir_decl_to_string(obj*);
 obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__2;
 obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
 obj* l_Lean_IR_formatFnBody___main___closed__17;
@@ -3347,9 +3343,7 @@ x_1 = l_Lean_IR_declHasFormat___closed__1;
 return x_1;
 }
 }
-namespace lean {
-namespace ir {
-obj* decl_to_string_core(obj* x_1) {
+obj* lean_ir_decl_to_string(obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
@@ -3360,13 +3354,11 @@ x_5 = l_Lean_Format_pretty(x_3, x_4);
 return x_5;
 }
 }
-}
-}
 obj* _init_l_Lean_IR_declHasToString___closed__1() {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(lean::ir::decl_to_string_core), 1, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(lean_ir_decl_to_string), 1, 0);
 return x_1;
 }
 }

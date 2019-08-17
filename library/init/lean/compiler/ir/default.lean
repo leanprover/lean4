@@ -50,7 +50,7 @@ checkDecls decls;
 addDecls decls;
 pure ()
 
-@[export lean.ir.compile_core]
+@[export lean_ir_compile]
 def compile (env : Environment) (opts : Options) (decls : Array Decl) : Log × (Except String Environment) :=
 match (compileAux decls opts).run { env := env } with
 | EState.Result.ok     _  s => (s.log, Except.ok s.env)

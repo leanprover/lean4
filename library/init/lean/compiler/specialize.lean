@@ -40,11 +40,11 @@ private partial def hasSpecializeAttrAux (env : Environment) (kind : SpecializeA
   | some k => kind == k
   | none   => if n.isInternal then hasSpecializeAttrAux n.getPrefix else false
 
-@[export lean.has_specialize_attribute_core]
+@[export lean_has_specialize_attribute]
 def hasSpecializeAttribute (env : Environment) (n : Name) : Bool :=
 hasSpecializeAttrAux env SpecializeAttributeKind.specialize n
 
-@[export lean.has_nospecialize_attribute_core]
+@[export lean_has_nospecialize_attribute]
 def hasNospecializeAttribute (env : Environment) (n : Name) : Bool :=
 hasSpecializeAttrAux env SpecializeAttributeKind.nospecialize n
 
@@ -90,19 +90,19 @@ registerSimplePersistentEnvExtension {
 @[init mkSpecExtension]
 constant specExtension : SimplePersistentEnvExtension SpecEntry SpecState := default _
 
-@[export lean.add_specialization_info_core]
+@[export lean_add_specialization_info]
 def addSpecializationInfo (env : Environment) (fn : Name) (info : SpecInfo) : Environment :=
 specExtension.addEntry env (SpecEntry.info fn info)
 
-@[export lean.get_specialization_info_core]
+@[export lean_get_specialization_info]
 def getSpecializationInfo (env : Environment) (fn : Name) : Option SpecInfo :=
 (specExtension.getState env).specInfo.find fn
 
-@[export lean.cache_specialization_core]
+@[export lean_cache_specialization]
 def cacheSpecialization (env : Environment) (e : Expr) (fn : Name) : Environment :=
 specExtension.addEntry env (SpecEntry.cache e fn)
 
-@[export lean.get_cached_specialization_core]
+@[export lean_get_cached_specialization]
 def getCachedSpecialization (env : Environment) (e : Expr) : Option Name :=
 (specExtension.getState env).cache.find e
 

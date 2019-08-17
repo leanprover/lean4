@@ -60,11 +60,7 @@ obj* l_Array_miterateAux___main___at_Lean_IR_ExplicitBoxing_addBoxedVersions___s
 obj* l_Lean_IR_reshape(obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_castVarIfNeeded(obj*, uint8, obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_mkFresh___boxed(obj*);
-namespace lean {
-namespace ir {
-obj* add_boxed_version_core(obj*, obj*);
-}
-}
+extern "C" obj* lean_ir_add_boxed_version(obj*, obj*);
 uint8 l_Lean_isExtern(obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_mkCast___boxed(obj*, obj*);
 namespace lean {
@@ -986,9 +982,7 @@ lean::dec(x_1);
 return x_3;
 }
 }
-namespace lean {
-namespace ir {
-obj* add_boxed_version_core(obj* x_1, obj* x_2) {
+obj* lean_ir_add_boxed_version(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; 
@@ -1006,8 +1000,6 @@ lean::dec(x_2);
 x_5 = l_Lean_IR_declMapExt;
 x_6 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_5, x_1, x_4);
 return x_6;
-}
-}
 }
 }
 }

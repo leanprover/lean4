@@ -26,9 +26,7 @@ extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 obj* l_Lean_Compiler_mkImplementedByAttr___closed__4;
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_Compiler_mkImplementedByAttr___spec__7(obj*, obj*);
 extern obj* l_Lean_AttributeImpl_inhabited___closed__5;
-namespace lean {
-obj* get_implemented_by_core(obj*, obj*);
-}
+extern "C" obj* lean_get_implemented_by(obj*, obj*);
 obj* l_Lean_registerAttribute(obj*, obj*);
 obj* l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__7;
 obj* l_RBNode_find___main___at_Lean_Compiler_getImplementedBy___spec__2(obj*, obj*);
@@ -2817,8 +2815,7 @@ return x_24;
 }
 }
 }
-namespace lean {
-obj* get_implemented_by_core(obj* x_1, obj* x_2) {
+obj* lean_get_implemented_by(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
@@ -2826,7 +2823,6 @@ x_3 = l_Lean_Compiler_implementedByAttr;
 x_4 = l_Lean_ParametricAttribute_getParam___at_Lean_Compiler_getImplementedBy___spec__1(x_3, x_1, x_2);
 lean::dec(x_1);
 return x_4;
-}
 }
 }
 obj* l_RBNode_find___main___at_Lean_Compiler_getImplementedBy___spec__2___boxed(obj* x_1, obj* x_2) {

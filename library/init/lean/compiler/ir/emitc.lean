@@ -733,7 +733,7 @@ emitMainFnIfNeeded
 
 end EmitC
 
-@[export lean.ir.emit_c_core]
+@[export lean_ir_emit_c]
 def emitC (env : Environment) (modName : Name) : Except String String :=
 match (EmitC.main { env := env, modName := modName }).run "" with
 | EState.Result.ok    _   s => Except.ok s

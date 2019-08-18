@@ -206,6 +206,8 @@ static inline bool lean_is_scalar(lean_object * o) { return ((size_t)(o) & 1) ==
 static inline lean_object * lean_box(size_t n) { return (lean_object*)(((size_t)(n) << 1) | 1); }
 static inline size_t lean_unbox(lean_object * o) { return (size_t)(o) >> 1; }
 
+void lean_panic_out_of_memory();
+
 void * lean_alloc_heap_object(size_t sz);
 void lean_free_heap_obj(lean_object * o);
 
@@ -487,11 +489,11 @@ static inline void lean_ctor_set_uint64(b_lean_obj_arg o, unsigned offset, uint6
 
 /* Closures */
 
-inline void * lean_closure_fun(lean_object * o) { return lean_to_closure(o)->m_fun; }
-inline unsigned lean_closure_arity(lean_object * o) { return lean_to_closure(o)->m_arity; }
-inline unsigned lean_closure_num_fixed(lean_object * o) { return lean_to_closure(o)->m_num_fixed; }
-inline lean_object ** lean_closure_arg_cptr(lean_object * o) { return lean_to_closure(o)->m_objs; }
-inline lean_obj_res lean_alloc_closure(void * fun, unsigned arity, unsigned num_fixed) {
+static inline void * lean_closure_fun(lean_object * o) { return lean_to_closure(o)->m_fun; }
+static inline unsigned lean_closure_arity(lean_object * o) { return lean_to_closure(o)->m_arity; }
+static inline unsigned lean_closure_num_fixed(lean_object * o) { return lean_to_closure(o)->m_num_fixed; }
+static inline lean_object ** lean_closure_arg_cptr(lean_object * o) { return lean_to_closure(o)->m_objs; }
+static inline lean_obj_res lean_alloc_closure(void * fun, unsigned arity, unsigned num_fixed) {
     assert(arity > 0);
     assert(num_fixed < arity);
     lean_closure_object * o = (lean_closure_object*)lean_alloc_heap_object(sizeof(lean_closure_object) + sizeof(void*)*num_fixed);
@@ -501,11 +503,11 @@ inline lean_obj_res lean_alloc_closure(void * fun, unsigned arity, unsigned num_
     o->m_num_fixed = num_fixed;
     return (lean_object*)o;
 }
-inline b_lean_obj_res lean_closure_get(b_lean_obj_arg o, unsigned i) {
+static inline b_lean_obj_res lean_closure_get(b_lean_obj_arg o, unsigned i) {
     assert(i < lean_closure_num_fixed(o));
     return lean_to_closure(o)->m_objs[i];
 }
-inline void lean_closure_set(u_lean_obj_arg o, unsigned i, lean_obj_arg a) {
+static inline void lean_closure_set(u_lean_obj_arg o, unsigned i, lean_obj_arg a) {
     assert(i < lean_closure_num_fixed(o));
     lean_to_closure(o)->m_objs[i] = a;
 }
@@ -518,6 +520,179 @@ lean_obj_res lean_fixpoint3(lean_obj_arg rec, lean_obj_arg a1, lean_obj_arg a2, 
 lean_obj_res lean_fixpoint4(lean_obj_arg rec, lean_obj_arg a1, lean_obj_arg a2, lean_obj_arg a3, lean_obj_arg a4);
 lean_obj_res lean_fixpoint5(lean_obj_arg rec, lean_obj_arg a1, lean_obj_arg a2, lean_obj_arg a3, lean_obj_arg a4, lean_obj_arg a5);
 lean_obj_res lean_fixpoint6(lean_obj_arg rec, lean_obj_arg a1, lean_obj_arg a2, lean_obj_arg a3, lean_obj_arg a4, lean_obj_arg a5, lean_obj_arg a6);
+
+/* Arrays of objects (low level API) */
+
+static inline lean_obj_res lean_alloc_array(size_t size, size_t capacity) {
+    lean_array_object * o = (lean_array_object*)lean_alloc_heap_object(sizeof(lean_array_object) + sizeof(void*)*capacity);
+    lean_set_header((lean_object*)o, LeanArray, 0);
+    o->m_size = size;
+    o->m_capacity = capacity;
+    return (lean_object*)o;
+}
+static inline size_t lean_array_size(b_lean_obj_arg o) { return lean_to_array(o)->m_size; }
+static inline size_t lean_array_capacity(b_lean_obj_arg o) { return lean_to_array(o)->m_capacity; }
+static inline lean_object ** lean_array_cptr(lean_object * o) { return lean_to_array(o)->m_data; }
+static inline void lean_array_set_size(u_lean_obj_arg o, size_t sz) {
+    assert(lean_is_array(o));
+    assert(lean_is_exclusive(o));
+    assert(sz <= lean_array_capacity(o));
+    lean_to_array(o)->m_size = sz;
+}
+static inline b_lean_obj_res lean_array_get_core(b_lean_obj_arg o, size_t i) {
+    assert(i < lean_array_size(o));
+    return lean_to_array(o)->m_data[i];
+}
+static inline void lean_array_set_core(u_lean_obj_arg o, size_t i, lean_obj_arg v) {
+    assert(lean_is_exclusive(o));
+    assert(i < lean_array_size(o));
+    lean_to_array(o)->m_data[i] = v;
+}
+
+/* Arrays of objects (high level API) */
+
+static inline lean_object * lean_array_sz(lean_obj_arg a) {
+    lean_object * r = lean_box(lean_array_size(a));
+    lean_dec(a);
+    return r;
+}
+
+static inline lean_object * lean_array_get_size(b_lean_obj_arg a) {
+    return lean_box(lean_array_size(a));
+}
+
+static inline lean_object * lean_mk_empty_array() {
+    return lean_alloc_array(0, 0);
+}
+
+static inline lean_object * lean_mk_empty_array_with_capacity(b_lean_obj_arg capacity) {
+    if (!lean_is_scalar(capacity)) lean_panic_out_of_memory();
+    return lean_alloc_array(0, lean_unbox(capacity));
+}
+
+static inline lean_object * lean_array_uget(b_lean_obj_arg a, size_t i) {
+    lean_object * r = lean_array_get_core(a, i); lean_inc(r);
+    return r;
+}
+
+static inline lean_obj_res lean_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
+    return lean_array_uget(a, lean_unbox(i));
+}
+
+static inline lean_object * lean_array_get(lean_obj_arg def_val, b_lean_obj_arg a, b_lean_obj_arg i) {
+    if (lean_is_scalar(i)) {
+        size_t idx = lean_unbox(i);
+        if (idx < lean_array_size(a)) {
+            lean_dec(def_val);
+            return lean_array_uget(a, idx);
+        } else {
+            return def_val;
+        }
+    } else {
+        /* The index must be out of bounds because
+           i > LEAN_MAX_SMALL_NAT == MAX_UNSIGNED >> 1
+           but each array entry is 8 bytes in 64-bit machines and 4 in 32-bit ones.
+           In both cases, we would be out-of-memory. */
+        return def_val;
+    }
+}
+
+lean_obj_res lean_copy_expand_array(lean_obj_arg a, bool expand);
+
+static inline lean_obj_res lean_copy_array(lean_obj_arg a) {
+    return lean_copy_expand_array(a, false);
+}
+
+static inline lean_obj_res lean_ensure_exclusive_array(lean_obj_arg a) {
+    if (lean_is_exclusive(a)) return a;
+    return lean_copy_array(a);
+}
+
+static inline lean_object * lean_array_uset(lean_obj_arg a, size_t i, lean_obj_arg v) {
+    lean_object * r   = lean_ensure_exclusive_array(a);
+    lean_object ** it = lean_array_cptr(r) + i;
+    lean_dec(*it);
+    *it = v;
+    return r;
+}
+
+static inline lean_object * lean_array_fset(lean_obj_arg a, b_lean_obj_arg i, lean_obj_arg v) {
+    return lean_array_uset(a, lean_unbox(i), v);
+}
+
+static inline lean_object * lean_array_set(lean_obj_arg a, b_lean_obj_arg i, lean_obj_arg v) {
+    if (lean_is_scalar(i)) {
+        size_t idx = lean_unbox(i);
+        if (idx < lean_array_size(a))
+            return lean_array_uset(a, idx, v);
+    }
+    lean_dec(v);
+    return a;
+}
+
+static inline lean_object * lean_array_pop(lean_obj_arg a) {
+    lean_object * r  = lean_ensure_exclusive_array(a);
+    size_t sz = lean_to_array(r)->m_size;
+    lean_object ** last;
+    if (sz == 0) return r;
+    sz--;
+    last = lean_array_cptr(r) + sz;
+    lean_to_array(r)->m_size = sz;
+    lean_dec(*last);
+    return r;
+}
+
+static inline lean_object * lean_array_uswap(lean_obj_arg a, size_t i, size_t j) {
+    lean_object * r   = lean_ensure_exclusive_array(a);
+    lean_object ** it = lean_array_cptr(r);
+    lean_object * v1  = it[i];
+    it[i]        = it[j];
+    it[j]        = v1;
+    return r;
+}
+
+static inline lean_object * lean_array_fswap(lean_obj_arg a, b_lean_obj_arg i, b_lean_obj_arg j) {
+    return lean_array_uswap(a, lean_unbox(i), lean_unbox(j));
+}
+
+static inline lean_object * array_swap(lean_obj_arg a, b_lean_obj_arg i, b_lean_obj_arg j) {
+    if (!lean_is_scalar(i) || !lean_is_scalar(j)) return a;
+    size_t ui = lean_unbox(i);
+    size_t uj = lean_unbox(j);
+    size_t sz = lean_to_array(a)->m_size;
+    if (ui >= sz || uj >= sz) return a;
+    return lean_array_uswap(a, ui, uj);
+}
+
+lean_object * lean_array_push(lean_obj_arg a, lean_obj_arg v);
+lean_object * lean_mk_array(lean_obj_arg n, lean_obj_arg v);
+
+/* Array of scalars */
+
+inline lean_obj_res lean_alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
+    lean_sarray_object * o = (lean_sarray_object*)lean_alloc_heap_object(sizeof(lean_sarray_object) + elem_size*capacity);
+    lean_set_header((lean_object*)o, LeanScalarArray, elem_size);
+    o->m_size = size;
+    o->m_capacity = capacity;
+    return (lean_object*)o;
+}
+inline unsigned lean_sarray_elem_size(lean_object * o) {
+    assert(lean_is_sarray(o));
+#ifdef LEAN_COMPRESSED_OBJECT_HEADER
+    return LEAN_BYTE(o->m_header, 6);
+#else
+    return o->m_other;
+#endif
+}
+inline size_t lean_sarray_capacity(lean_object * o) { return lean_to_sarray(o)->m_capacity; }
+inline size_t lean_sarray_size(b_lean_obj_arg o) { return lean_to_sarray(o)->m_size; }
+inline void lean_sarray_set_size(u_lean_obj_arg o, size_t sz) {
+    assert(lean_is_exclusive(o));
+    assert(sz <= lean_sarray_capacity(o));
+    lean_to_sarray(o)->m_size = sz;
+}
+
+/* Remark: expand sarray API after we add better support in the compiler */
 
 #ifdef __cplusplus
 }

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <stdbool.h>
 #include <stdint.h>
 #include <assert.h>
+#include <string.h>
 #include <stdatomic.h>
 #if !defined(__APPLE__)
 #include <malloc.h>
@@ -144,7 +145,7 @@ typedef struct {
     size_t      m_size;
     size_t      m_capacity;
     size_t      m_length;   // UTF8 length
-    uint8_t     m_data[0];
+    char        m_data[0];
 } lean_string_object;
 
 typedef struct {
@@ -693,6 +694,50 @@ inline void lean_sarray_set_size(u_lean_obj_arg o, size_t sz) {
 }
 
 /* Remark: expand sarray API after we add better support in the compiler */
+
+/* Strings */
+
+static inline lean_obj_res lean_alloc_string(size_t size, size_t capacity, size_t len) {
+    lean_string_object * o = (lean_string_object*)lean_alloc_heap_object(sizeof(lean_string_object) + capacity);
+    lean_set_header((lean_object*)o, LeanString, 0);
+    o->m_size = size;
+    o->m_capacity = capacity;
+    o->m_length = len;
+    return (lean_object*)o;
+}
+static inline size_t lean_string_capacity(lean_object * o) { return lean_to_string(o)->m_capacity; }
+/* instance : inhabited char := ⟨'A'⟩ */
+static inline uint32_t lean_char_default_value() { return 'A'; }
+lean_obj_res lean_mk_string(char const * s);
+static inline char const * lean_string_cstr(b_lean_obj_arg o) {
+    assert(lean_is_string(o));
+    return lean_to_string(o)->m_data;
+}
+static inline size_t lean_string_size(b_lean_obj_arg o) { return lean_to_string(o)->m_size; }
+static inline size_t lean_string_len(b_lean_obj_arg o) { return lean_to_string(o)->m_length; }
+lean_obj_res lean_string_push(lean_obj_arg s, uint32_t c);
+lean_obj_res lean_string_append(lean_obj_arg s1, b_lean_obj_arg s2);
+static inline lean_obj_res lean_string_length(b_lean_obj_arg s) { return lean_box(lean_string_len(s)); }
+lean_obj_res lean_string_mk(lean_obj_arg cs);
+lean_obj_res lean_string_data(lean_obj_arg s);
+uint32_t  lean_string_utf8_get(b_lean_obj_arg s, b_lean_obj_arg i);
+lean_obj_res lean_string_utf8_next(b_lean_obj_arg s, b_lean_obj_arg i);
+lean_obj_res lean_string_utf8_prev(b_lean_obj_arg s, b_lean_obj_arg i);
+lean_obj_res lean_string_utf8_set(lean_obj_arg s, b_lean_obj_arg i, uint32_t c);
+static inline uint8_t lean_string_utf8_at_end(b_lean_obj_arg s, b_lean_obj_arg i) {
+    return !lean_is_scalar(i) || lean_unbox(i) >= lean_string_size(s) - 1;
+}
+lean_obj_res lean_string_utf8_extract(b_lean_obj_arg s, b_lean_obj_arg b, b_lean_obj_arg e);
+static inline lean_obj_res lean_string_utf8_byte_size(b_lean_obj_arg s) { return lean_box(lean_string_size(s) - 1); }
+static inline bool lean_string_eq(b_lean_obj_arg s1, b_lean_obj_arg s2) {
+    return s1 == s2 ||
+        (lean_string_size(s1) == lean_string_size(s2) && memcmp(lean_string_cstr(s1), lean_string_cstr(s2), lean_string_size(s1)) == 0);
+}
+static inline bool lean_string_ne(b_lean_obj_arg s1, b_lean_obj_arg s2) { return !lean_string_eq(s1, s2); }
+bool lean_string_lt(b_lean_obj_arg s1, b_lean_obj_arg s2);
+static inline uint8_t lean_string_dec_eq(b_lean_obj_arg s1, b_lean_obj_arg s2) { return lean_string_eq(s1, s2); }
+static inline uint8_t lean_string_dec_lt(b_lean_obj_arg s1, b_lean_obj_arg s2) { return lean_string_lt(s1, s2); }
+size_t lean_string_hash(b_lean_obj_arg);
 
 #ifdef __cplusplus
 }

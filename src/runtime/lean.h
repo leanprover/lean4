@@ -813,6 +813,176 @@ static inline void * lean_get_external_data(lean_object * o) {
     return lean_to_external(o)->m_data;
 }
 
+/* Natural numbers */
+
+#define LEAN_MAX_SMALL_NAT (SIZE_MAX >> 1)
+
+lean_object * lean_nat_big_succ(lean_object * a);
+lean_object * lean_nat_big_add(lean_object * a1, lean_object * a2);
+lean_object * lean_nat_big_sub(lean_object * a1, lean_object * a2);
+lean_object * lean_nat_big_mul(lean_object * a1, lean_object * a2);
+lean_object * lean_nat_overflow_mul(size_t a1, size_t a2);
+lean_object * lean_nat_big_div(lean_object * a1, lean_object * a2);
+lean_object * lean_nat_big_mod(lean_object * a1, lean_object * a2);
+bool lean_nat_big_eq(lean_object * a1, lean_object * a2);
+bool lean_nat_big_le(lean_object * a1, lean_object * a2);
+bool lean_nat_big_lt(lean_object * a1, lean_object * a2);
+lean_object * lean_nat_big_land(lean_object * a1, lean_object * a2);
+lean_object * lean_nat_big_lor(lean_object * a1, lean_object * a2);
+lean_object * lean_nat_big_xor(lean_object * a1, lean_object * a2);
+
+lean_obj_res lean_cstr_to_nat(char const * n);
+lean_obj_res lean_big_size_t_to_nat(size_t n);
+lean_obj_res lean_big_uint64_to_nat(size_t n);
+static inline lean_obj_res lean_size_t_to_nat(size_t n) {
+    if (LEAN_LIKELY(n <= LEAN_MAX_SMALL_NAT))
+        return lean_box(n);
+    else
+        return lean_big_size_t_to_nat(n);
+}
+static inline lean_obj_res lean_unsigned_to_nat(unsigned n) {
+    return lean_size_t_to_nat(n);
+}
+static inline lean_obj_res lean_uint64_to_nat(uint64_t n) {
+    if (LEAN_LIKELY(n <= LEAN_MAX_SMALL_NAT))
+        return lean_box(n);
+    else
+        return lean_big_uint64_to_nat(n);
+}
+
+static inline lean_obj_res lean_nat_succ(b_lean_obj_arg a) {
+    if (LEAN_LIKELY(lean_is_scalar(a)))
+        return lean_size_t_to_nat(lean_unbox(a) + 1);
+    else
+        return lean_nat_big_succ(a);
+}
+
+static inline lean_obj_res lean_nat_add(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2)))
+        return lean_size_t_to_nat(lean_unbox(a1) + lean_unbox(a2));
+    else
+        return lean_nat_big_add(a1, a2);
+}
+
+static inline lean_obj_res lean_nat_sub(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        size_t n1 = lean_unbox(a1);
+        size_t n2 = lean_unbox(a2);
+        if (n1 < n2)
+            return lean_box(0);
+        else
+            return lean_box(n1 - n2);
+    } else {
+        return lean_nat_big_sub(a1, a2);
+    }
+}
+
+static inline lean_obj_res lean_nat_mul(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        size_t n1 = lean_unbox(a1);
+        if (n1 == 0)
+            return a1;
+        size_t n2 = lean_unbox(a2);
+        size_t r  = n1*n2;
+        if (r <= LEAN_MAX_SMALL_NAT && r / n1 == n2)
+            return lean_box(r);
+        else
+            return lean_nat_overflow_mul(n1, n2);
+    } else {
+        return lean_nat_big_mul(a1, a2);
+    }
+}
+
+static inline lean_obj_res lean_nat_div(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        size_t n1 = lean_unbox(a1);
+        size_t n2 = lean_unbox(a2);
+        if (n2 == 0)
+            return lean_box(0);
+        else
+            return lean_box(n1 / n2);
+    } else {
+        return lean_nat_big_div(a1, a2);
+    }
+}
+
+static inline lean_obj_res lean_nat_mod(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        size_t n1 = lean_unbox(a1);
+        size_t n2 = lean_unbox(a2);
+        if (n2 == 0)
+            return lean_box(0);
+        else
+            return lean_box(n1 % n2);
+    } else {
+        return lean_nat_big_mod(a1, a2);
+    }
+}
+
+static inline bool lean_nat_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        return a1 == a2;
+    } else {
+        return lean_nat_big_eq(a1, a2);
+    }
+}
+
+static inline uint8_t lean_nat_dec_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    return lean_nat_eq(a1, a2);
+}
+
+static inline bool lean_nat_ne(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    return !lean_nat_eq(a1, a2);
+}
+
+static inline bool lean_nat_le(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        return a1 <= a2;
+    } else {
+        return lean_nat_big_le(a1, a2);
+    }
+}
+
+static inline uint8_t lean_nat_dec_le(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    return lean_nat_le(a1, a2);
+}
+
+static inline bool lean_nat_lt(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        return a1 < a2;
+    } else {
+        return lean_nat_big_lt(a1, a2);
+    }
+}
+
+static inline uint8_t lean_nat_dec_lt(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    return lean_nat_lt(a1, a2);
+}
+
+static inline lean_obj_res lean_nat_land(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        return (lean_object*)((size_t)(a1) & (size_t)(a2));
+    } else {
+        return lean_nat_big_land(a1, a2);
+    }
+}
+
+static inline lean_obj_res lean_nat_lor(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        return (lean_object*)((size_t)(a1) | (size_t)(a2));
+    } else {
+        return lean_nat_big_lor(a1, a2);
+    }
+}
+
+static inline lean_obj_res lean_nat_lxor(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        return lean_box(lean_unbox(a1) ^ lean_unbox(a2));
+    } else {
+        return lean_nat_big_xor(a1, a2);
+    }
+}
+
 #ifdef __cplusplus
 }
 #endif

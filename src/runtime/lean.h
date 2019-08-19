@@ -670,14 +670,14 @@ lean_object * lean_mk_array(lean_obj_arg n, lean_obj_arg v);
 
 /* Array of scalars */
 
-inline lean_obj_res lean_alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
+static inline lean_obj_res lean_alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
     lean_sarray_object * o = (lean_sarray_object*)lean_alloc_heap_object(sizeof(lean_sarray_object) + elem_size*capacity);
     lean_set_header((lean_object*)o, LeanScalarArray, elem_size);
     o->m_size = size;
     o->m_capacity = capacity;
     return (lean_object*)o;
 }
-inline unsigned lean_sarray_elem_size(lean_object * o) {
+static inline unsigned lean_sarray_elem_size(lean_object * o) {
     assert(lean_is_sarray(o));
 #ifdef LEAN_COMPRESSED_OBJECT_HEADER
     return LEAN_BYTE(o->m_header, 6);
@@ -685,15 +685,62 @@ inline unsigned lean_sarray_elem_size(lean_object * o) {
     return o->m_other;
 #endif
 }
-inline size_t lean_sarray_capacity(lean_object * o) { return lean_to_sarray(o)->m_capacity; }
-inline size_t lean_sarray_size(b_lean_obj_arg o) { return lean_to_sarray(o)->m_size; }
-inline void lean_sarray_set_size(u_lean_obj_arg o, size_t sz) {
+static inline size_t lean_sarray_capacity(lean_object * o) { return lean_to_sarray(o)->m_capacity; }
+static inline size_t lean_sarray_size(b_lean_obj_arg o) { return lean_to_sarray(o)->m_size; }
+static inline void lean_sarray_set_size(u_lean_obj_arg o, size_t sz) {
     assert(lean_is_exclusive(o));
     assert(sz <= lean_sarray_capacity(o));
     lean_to_sarray(o)->m_size = sz;
 }
+static inline uint8_t* lean_sarray_cptr(lean_object * o) { return lean_to_sarray(o)->m_data; }
 
 /* Remark: expand sarray API after we add better support in the compiler */
+
+/* ByteArray (special case of Array of Scalars) */
+
+lean_obj_res lean_byte_array_mk(lean_obj_arg a);
+lean_obj_res lean_byte_array_data(lean_obj_arg a);
+lean_obj_res lean_copy_byte_array(lean_obj_arg a);
+
+static inline lean_obj_res lean_mk_empty_byte_array(b_lean_obj_arg capacity) {
+    if (!lean_is_scalar(capacity)) lean_panic_out_of_memory();
+    return lean_alloc_sarray(1, 0, lean_unbox(capacity));
+}
+
+static inline lean_obj_res lean_byte_array_size(b_lean_obj_arg a) {
+    return lean_box(lean_sarray_size(a));
+}
+
+static inline uint8_t lean_byte_array_get(b_lean_obj_arg a, b_lean_obj_arg i) {
+    if (lean_is_scalar(i)) {
+        size_t idx = lean_unbox(i);
+        return idx < lean_sarray_size(a) ? lean_sarray_cptr(a)[idx] : 0;
+    } else {
+        /* The index must be out of bounds. Otherwise we would be out of memory. */
+        return 0;
+    }
+}
+
+lean_obj_res lean_byte_array_push(lean_obj_arg a, uint8_t b);
+
+static inline lean_obj_res lean_byte_array_set(lean_obj_arg a, b_lean_obj_arg i, uint8_t b) {
+    if (!lean_is_scalar(i)) {
+        return a;
+    } else {
+        size_t idx = lean_unbox(i);
+        if (idx >= lean_sarray_size(a)) {
+            return a;
+        } else {
+            lean_obj_res r;
+            if (lean_is_exclusive(a)) r = a;
+            else r = lean_copy_byte_array(a);
+            uint8_t * it = lean_sarray_cptr(r) + idx;
+            *it = b;
+            return r;
+        }
+    }
+}
+
 
 /* Strings */
 

@@ -162,9 +162,9 @@ typedef struct {
 } lean_ref_object;
 
 typedef struct {
-    lean_object           m_header;
-    _Atomic lean_object * m_value;
-    _Atomic lean_object * m_closure;
+    lean_object             m_header;
+    _Atomic (lean_object *) m_value;
+    _Atomic (lean_object *) m_closure;
 } lean_thunk_object;
 
 struct lean_task;
@@ -738,6 +738,43 @@ bool lean_string_lt(b_lean_obj_arg s1, b_lean_obj_arg s2);
 static inline uint8_t lean_string_dec_eq(b_lean_obj_arg s1, b_lean_obj_arg s2) { return lean_string_eq(s1, s2); }
 static inline uint8_t lean_string_dec_lt(b_lean_obj_arg s1, b_lean_obj_arg s2) { return lean_string_lt(s1, s2); }
 size_t lean_string_hash(b_lean_obj_arg);
+
+/* Thunks */
+
+static inline lean_obj_res lean_mk_thunk(lean_obj_arg c) {
+    lean_thunk_object * o = (lean_thunk_object*)lean_alloc_heap_object(sizeof(lean_thunk_object));
+    lean_set_header((lean_object*)o, LeanThunk, 0);
+    o->m_value   = NULL;
+    o->m_closure = c;
+    return (lean_object*)o;
+}
+
+/* Thunk.pure : A -> Thunk A */
+static inline lean_obj_res lean_thunk_pure(lean_obj_arg v) {
+    lean_thunk_object * o = (lean_thunk_object*)lean_alloc_heap_object(sizeof(lean_thunk_object));
+    lean_set_header((lean_object*)o, LeanThunk, 0);
+    o->m_value   = v;
+    o->m_closure = NULL;
+    return (lean_object*)o;
+}
+
+lean_object * lean_thunk_get_core(lean_object * t);
+
+static inline b_lean_obj_res lean_thunk_get(b_lean_obj_arg t) {
+    lean_object * r = lean_to_thunk(t)->m_value;
+    if (r) return r;
+    return lean_thunk_get_core(t);
+}
+
+/* Primitive for implementing the IR instruction for Thunk.get : Thunk A -> A */
+static inline lean_obj_res lean_thunk_get_own(b_lean_obj_arg t) {
+    lean_object * r = lean_thunk_get(t);
+    lean_inc(r);
+    return r;
+}
+
+lean_obj_res lean_thunk_map(lean_obj_arg f, lean_obj_arg t);
+lean_obj_res lean_thunk_bind(lean_obj_arg x, lean_obj_arg f);
 
 #ifdef __cplusplus
 }

@@ -181,9 +181,9 @@ typedef struct {
 } lean_task_imp;
 
 typedef struct lean_task {
-    lean_object           m_header;
-    _Atomic lean_object * m_value;
-    lean_task_imp *       m_imp;
+    lean_object             m_header;
+    _Atomic (lean_object *) m_value;
+    lean_task_imp *         m_imp;
 } lean_task_object;
 
 typedef void (*lean_external_finalize_proc)(void *);
@@ -198,9 +198,9 @@ lean_external_class * lean_register_external_class(lean_external_finalize_proc, 
 
 /* Object for wrapping external data. */
 typedef struct {
-    lean_object         m_header;
-    lean_external_class m_class;
-    void *              m_data;
+    lean_object           m_header;
+    lean_external_class * m_class;
+    void *                m_data;
 } lean_external_object;
 
 static inline bool lean_is_scalar(lean_object * o) { return ((size_t)(o) & 1) == 1; }
@@ -775,6 +775,43 @@ static inline lean_obj_res lean_thunk_get_own(b_lean_obj_arg t) {
 
 lean_obj_res lean_thunk_map(lean_obj_arg f, lean_obj_arg t);
 lean_obj_res lean_thunk_bind(lean_obj_arg x, lean_obj_arg f);
+
+/* Tasks */
+
+void lean_init_task_manager();
+void lean_init_task_manager_using(unsigned num_workers);
+
+lean_obj_res lean_mk_task_with_prio(lean_obj_arg c, unsigned prio);
+/* Convert a closure `Unit -> A` into a `Task A` */
+static inline lean_obj_res lean_mk_task(lean_obj_arg c) { return lean_mk_task_with_prio(c, 0); }
+/* Convert a value `a : A` into `Task A` */
+lean_obj_res lean_task_pure(lean_obj_arg a);
+lean_obj_res lean_task_bind_with_prio(lean_obj_arg x, lean_obj_arg f, unsigned prio);
+/* Task.bind (x : Task A) (f : A -> Task B) : Task B */
+static inline lean_obj_res lean_task_bind(lean_obj_arg x, lean_obj_arg f) { return lean_task_bind_with_prio(x, f, 0); }
+lean_obj_res lean_task_map_with_prio(lean_obj_arg f, lean_obj_arg t, unsigned prio);
+/* Task.map (f : A -> B) (t : Task A) : Task B */
+static inline lean_obj_res lean_task_map(lean_obj_arg f, lean_obj_arg t) { return lean_task_map_with_prio(f, t, 0); }
+/* Task.get (t : Task A) : A */
+b_lean_obj_res lean_task_get(b_lean_obj_arg t);
+
+/* External objects */
+
+static inline lean_object * alloc_external(lean_external_class * cls, void * data) {
+    lean_external_object * o = (lean_external_object*)lean_alloc_heap_object(sizeof(lean_external_object));
+    lean_set_header((lean_object*)o, LeanExternal, 0);
+    o->m_class   = cls;
+    o->m_data    = data;
+    return (lean_object*)o;
+}
+
+static inline lean_external_class * lena_get_external_class(lean_object * o) {
+    return lean_to_external(o)->m_class;
+}
+
+static inline void * lean_get_external_data(lean_object * o) {
+    return lean_to_external(o)->m_data;
+}
 
 #ifdef __cplusplus
 }

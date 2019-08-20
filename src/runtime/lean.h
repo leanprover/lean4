@@ -61,7 +61,7 @@ extern "C" {
 LEAN_CASSERT(sizeof(size_t) == sizeof(void*));
 
 #ifdef LEAN_COMPRESSED_OBJECT_HEADER
-// Compressed headers are only supported in 64-bit machines
+/* Compressed headers are only supported in 64-bit machines */
 LEAN_CASSERT(sizeof(void*) == 8);
 #endif
 
@@ -147,15 +147,15 @@ typedef struct {
     lean_object m_header;
     size_t      m_size;
     size_t      m_capacity;
-    size_t      m_length;   // UTF8 length
+    size_t      m_length;   /* UTF8 length */
     char        m_data[0];
 } lean_string_object;
 
 typedef struct {
     lean_object   m_header;
     void *        m_fun;
-    uint16_t      m_arity;     // number of arguments expected by m_fun.
-    uint16_t      m_num_fixed; // number of arguments that have been already fixed.
+    uint16_t      m_arity;     /* Number of arguments expected by m_fun. */
+    uint16_t      m_num_fixed; /* Number of arguments that have been already fixed. */
     lean_object * m_objs[0];
 } lean_closure_object;
 
@@ -1083,7 +1083,7 @@ static inline lean_obj_res lean_int_to_int(int n) {
 
 static inline lean_obj_res lean_int64_to_int(int64_t n) {
     if (LEAN_LIKELY(LEAN_MIN_SMALL_INT <= n && n <= LEAN_MAX_SMALL_INT))
-        return lean_box((unsigned)((int)n));
+        return lean_box((unsigned)((int)n)); /* NOLINT */
     else
         return lean_big_int64_to_int(n);
 }
@@ -1091,17 +1091,17 @@ static inline lean_obj_res lean_int64_to_int(int64_t n) {
 static inline int64_t lean_scalar_to_int64(b_lean_obj_arg a) {
     assert(lean_is_scalar(a));
     if (sizeof(void*) == 8)
-        return (int)((unsigned)lean_unbox(a));
+        return (int)((unsigned)lean_unbox(a)); /* NOLINT */
     else
-        return ((int)((size_t)a)) >> 1;
+        return ((int)((size_t)a)) >> 1; /* NOLINT */
 }
 
 static inline int lean_scalar_to_int(b_lean_obj_arg a) {
     assert(lean_is_scalar(a));
     if (sizeof(void*) == 8)
-        return (int)((unsigned)lean_unbox(a));
+        return (int)((unsigned)lean_unbox(a)); /* NOLINT */
     else
-        return ((int)((size_t)a)) >> 1;
+        return ((int)((size_t)a)) >> 1; /* NOLINT */
 }
 
 static inline lean_obj_res lean_nat_to_int(lean_obj_arg a) {
@@ -1292,10 +1292,10 @@ static inline uint32_t lean_uint32_modn(uint32_t a1, b_lean_obj_arg a2) {
         size_t n2 = lean_unbox(a2);
         return n2 == 0 ? 0 : a1 % n2;
     } else if (sizeof(void*) == 4) {
-        // 32-bit
+        /* 32-bit */
         return lean_uint32_big_modn(a1, a2);
     } else {
-        // 64-bit
+        /* 64-bit */
         return a1;
     }
 }
@@ -1352,22 +1352,22 @@ size_t lean_usize_mix_hash(size_t a1, size_t a2);
 
 static inline lean_obj_res lean_box_uint32(uint32_t v) {
     if (sizeof(void*) == 4) {
-        // 32-bit implementation
+        /* 32-bit implementation */
         lean_obj_res r = lean_alloc_ctor(0, 0, sizeof(uint32_t));
         lean_ctor_set_uint32(r, 0, v);
         return r;
     } else {
-        // 64-bit implementation
+        /* 64-bit implementation */
         return lean_box(v);
     }
 }
 
 static inline unsigned lean_unbox_uint32(b_lean_obj_arg o) {
     if (sizeof(void*) == 4) {
-        // 32-bit implementation
+        /* 32-bit implementation */
         return lean_ctor_get_uint32(o, 0);
     } else {
-        // 64-bit implementation
+        /* 64-bit implementation */
         return lean_unbox(o);
     }
 }

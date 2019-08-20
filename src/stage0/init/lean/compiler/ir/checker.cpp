@@ -1281,7 +1281,7 @@ return x_59;
 case 9:
 {
 uint8 x_60; obj* x_61; obj* x_62; 
-x_60 = lean::cnstr_get_scalar<uint8>(x_2, sizeof(void*)*1);
+x_60 = lean::cnstr_get_uint8(x_2, sizeof(void*)*1);
 x_61 = lean::cnstr_get(x_2, 0);
 lean::inc(x_61);
 lean::dec(x_2);
@@ -1958,7 +1958,7 @@ case 0:
 obj* x_3; uint8 x_4; obj* x_5; obj* x_6; obj* x_7; 
 x_3 = lean::cnstr_get(x_1, 0);
 lean::inc(x_3);
-x_4 = lean::cnstr_get_scalar<uint8>(x_1, sizeof(void*)*3);
+x_4 = lean::cnstr_get_uint8(x_1, sizeof(void*)*3);
 x_5 = lean::cnstr_get(x_1, 1);
 lean::inc(x_5);
 x_6 = lean::cnstr_get(x_1, 2);

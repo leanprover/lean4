@@ -78,7 +78,7 @@ x_6 = l_HashMap_Inhabited___closed__1;
 x_7 = lean::alloc_cnstr(0, 2, 1);
 lean::cnstr_set(x_7, 0, x_6);
 lean::cnstr_set(x_7, 1, x_4);
-lean::cnstr_set_scalar(x_7, sizeof(void*)*2, x_5);
+lean::cnstr_set_uint8(x_7, sizeof(void*)*2, x_5);
 return x_7;
 }
 }
@@ -111,7 +111,7 @@ x_6 = l_HashMap_Inhabited___closed__1;
 x_7 = lean::alloc_cnstr(0, 2, 1);
 lean::cnstr_set(x_7, 0, x_6);
 lean::cnstr_set(x_7, 1, x_4);
-lean::cnstr_set_scalar(x_7, sizeof(void*)*2, x_5);
+lean::cnstr_set_uint8(x_7, sizeof(void*)*2, x_5);
 return x_7;
 }
 }
@@ -165,7 +165,7 @@ obj* l_Lean_SMap_insert___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5,
 _start:
 {
 uint8 x_7; 
-x_7 = lean::cnstr_get_scalar<uint8>(x_4, sizeof(void*)*2);
+x_7 = lean::cnstr_get_uint8(x_4, sizeof(void*)*2);
 if (x_7 == 0)
 {
 uint8 x_8; 
@@ -192,7 +192,7 @@ x_13 = l_RBNode_insert___rarg(x_1, x_12, x_5, x_6);
 x_14 = lean::alloc_cnstr(0, 2, 1);
 lean::cnstr_set(x_14, 0, x_11);
 lean::cnstr_set(x_14, 1, x_13);
-lean::cnstr_set_scalar(x_14, sizeof(void*)*2, x_7);
+lean::cnstr_set_uint8(x_14, sizeof(void*)*2, x_7);
 return x_14;
 }
 }
@@ -221,7 +221,7 @@ x_20 = l_HashMapImp_insert___rarg(x_2, x_3, x_18, x_5, x_6);
 x_21 = lean::alloc_cnstr(0, 2, 1);
 lean::cnstr_set(x_21, 0, x_20);
 lean::cnstr_set(x_21, 1, x_19);
-lean::cnstr_set_scalar(x_21, sizeof(void*)*2, x_7);
+lean::cnstr_set_uint8(x_21, sizeof(void*)*2, x_7);
 return x_21;
 }
 }
@@ -239,7 +239,7 @@ obj* l_Lean_SMap_find___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
 uint8 x_6; 
-x_6 = lean::cnstr_get_scalar<uint8>(x_4, sizeof(void*)*2);
+x_6 = lean::cnstr_get_uint8(x_4, sizeof(void*)*2);
 if (x_6 == 0)
 {
 obj* x_7; obj* x_8; obj* x_9; 
@@ -291,7 +291,7 @@ uint8 l_Lean_SMap_contains___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x
 _start:
 {
 uint8 x_6; 
-x_6 = lean::cnstr_get_scalar<uint8>(x_4, sizeof(void*)*2);
+x_6 = lean::cnstr_get_uint8(x_4, sizeof(void*)*2);
 if (x_6 == 0)
 {
 obj* x_7; obj* x_8; uint8 x_9; 
@@ -365,7 +365,7 @@ obj* l_Lean_SMap_find_x27___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_
 _start:
 {
 uint8 x_6; 
-x_6 = lean::cnstr_get_scalar<uint8>(x_4, sizeof(void*)*2);
+x_6 = lean::cnstr_get_uint8(x_4, sizeof(void*)*2);
 if (x_6 == 0)
 {
 obj* x_7; obj* x_8; obj* x_9; 
@@ -416,7 +416,7 @@ obj* l_Lean_SMap_switch___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 uint8 x_5; 
-x_5 = lean::cnstr_get_scalar<uint8>(x_4, sizeof(void*)*2);
+x_5 = lean::cnstr_get_uint8(x_4, sizeof(void*)*2);
 if (x_5 == 0)
 {
 return x_4;
@@ -429,7 +429,7 @@ if (x_6 == 0)
 {
 uint8 x_7; 
 x_7 = 0;
-lean::cnstr_set_scalar(x_4, sizeof(void*)*2, x_7);
+lean::cnstr_set_uint8(x_4, sizeof(void*)*2, x_7);
 return x_4;
 }
 else
@@ -444,7 +444,7 @@ x_10 = 0;
 x_11 = lean::alloc_cnstr(0, 2, 1);
 lean::cnstr_set(x_11, 0, x_8);
 lean::cnstr_set(x_11, 1, x_9);
-lean::cnstr_set_scalar(x_11, sizeof(void*)*2, x_10);
+lean::cnstr_set_uint8(x_11, sizeof(void*)*2, x_10);
 return x_11;
 }
 }

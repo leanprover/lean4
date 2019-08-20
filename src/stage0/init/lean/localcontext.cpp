@@ -491,7 +491,7 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 uint8 x_2; 
-x_2 = lean::cnstr_get_scalar<uint8>(x_1, sizeof(void*)*4);
+x_2 = lean::cnstr_get_uint8(x_1, sizeof(void*)*4);
 return x_2;
 }
 else
@@ -589,7 +589,7 @@ obj* x_5; obj* x_6; obj* x_7; uint8 x_8; obj* x_9;
 x_5 = lean::cnstr_get(x_1, 0);
 x_6 = lean::cnstr_get(x_1, 1);
 x_7 = lean::cnstr_get(x_1, 3);
-x_8 = lean::cnstr_get_scalar<uint8>(x_1, sizeof(void*)*4);
+x_8 = lean::cnstr_get_uint8(x_1, sizeof(void*)*4);
 lean::inc(x_7);
 lean::inc(x_6);
 lean::inc(x_5);
@@ -599,7 +599,7 @@ lean::cnstr_set(x_9, 0, x_5);
 lean::cnstr_set(x_9, 1, x_6);
 lean::cnstr_set(x_9, 2, x_2);
 lean::cnstr_set(x_9, 3, x_7);
-lean::cnstr_set_scalar(x_9, sizeof(void*)*4, x_8);
+lean::cnstr_set_uint8(x_9, sizeof(void*)*4, x_8);
 return x_9;
 }
 }
@@ -1193,7 +1193,7 @@ lean::cnstr_set(x_10, 0, x_9);
 lean::cnstr_set(x_10, 1, x_2);
 lean::cnstr_set(x_10, 2, x_3);
 lean::cnstr_set(x_10, 3, x_4);
-lean::cnstr_set_scalar(x_10, sizeof(void*)*4, x_5);
+lean::cnstr_set_uint8(x_10, sizeof(void*)*4, x_5);
 lean::inc(x_10);
 x_11 = l_PersistentHashMap_insert___at_Lean_LocalContext_mkLocalDecl___spec__1(x_7, x_2, x_10);
 lean::inc(x_10);
@@ -1223,7 +1223,7 @@ lean::cnstr_set(x_18, 0, x_17);
 lean::cnstr_set(x_18, 1, x_2);
 lean::cnstr_set(x_18, 2, x_3);
 lean::cnstr_set(x_18, 3, x_4);
-lean::cnstr_set_scalar(x_18, sizeof(void*)*4, x_5);
+lean::cnstr_set_uint8(x_18, sizeof(void*)*4, x_5);
 lean::inc(x_18);
 x_19 = l_PersistentHashMap_insert___at_Lean_LocalContext_mkLocalDecl___spec__1(x_15, x_2, x_18);
 lean::inc(x_18);
@@ -1586,7 +1586,7 @@ lean::dec(x_4);
 x_6 = lean::cnstr_get(x_1, 0);
 lean::inc(x_6);
 x_7 = lean::usize_of_nat(x_2);
-x_8 = lean::cnstr_get_scalar<usize>(x_1, sizeof(void*)*4);
+x_8 = lean::cnstr_get_usize(x_1, 4);
 lean::dec(x_1);
 x_9 = l_PersistentArray_getAux___main___at___private_init_lean_localcontext_1__popTailNoneAux___main___spec__2(x_6, x_7, x_8);
 return x_9;
@@ -4839,7 +4839,7 @@ lean::inc(x_9);
 x_10 = lean::cnstr_get(x_3, 0);
 lean::inc(x_10);
 x_11 = lean::usize_of_nat(x_6);
-x_12 = lean::cnstr_get_scalar<usize>(x_3, sizeof(void*)*4);
+x_12 = lean::cnstr_get_usize(x_3, 4);
 lean::inc(x_4);
 lean::inc(x_1);
 x_13 = l_PersistentArray_mfoldlFromAux___main___rarg(x_1, lean::box(0), x_4, x_10, x_11, x_12, x_5);
@@ -6229,7 +6229,7 @@ if (x_6 == 0)
 obj* x_7; usize x_8; usize x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; 
 x_7 = lean::cnstr_get(x_1, 0);
 x_8 = lean::usize_of_nat(x_4);
-x_9 = lean::cnstr_get_scalar<usize>(x_1, sizeof(void*)*4);
+x_9 = lean::cnstr_get_usize(x_1, 4);
 lean::inc(x_2);
 x_10 = l_PersistentArray_mfoldlFromAux___main___at_Lean_LocalContext_foldlFrom___spec__3___rarg(x_2, x_7, x_8, x_9, x_3);
 x_11 = lean::cnstr_get(x_1, 1);

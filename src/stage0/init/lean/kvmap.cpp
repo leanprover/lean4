@@ -118,11 +118,11 @@ case 1:
 if (lean::obj_tag(x_2) == 1)
 {
 uint8 x_7; 
-x_7 = lean::cnstr_get_scalar<uint8>(x_1, 0);
+x_7 = lean::cnstr_get_uint8(x_1, 0);
 if (x_7 == 0)
 {
 uint8 x_8; 
-x_8 = lean::cnstr_get_scalar<uint8>(x_2, 0);
+x_8 = lean::cnstr_get_uint8(x_2, 0);
 if (x_8 == 0)
 {
 uint8 x_9; 
@@ -139,7 +139,7 @@ return x_10;
 else
 {
 uint8 x_11; 
-x_11 = lean::cnstr_get_scalar<uint8>(x_2, 0);
+x_11 = lean::cnstr_get_uint8(x_2, 0);
 if (x_11 == 0)
 {
 uint8 x_12; 
@@ -227,7 +227,7 @@ _start:
 {
 obj* x_2; 
 x_2 = lean::alloc_cnstr(1, 0, 1);
-lean::cnstr_set_scalar(x_2, 0, x_1);
+lean::cnstr_set_uint8(x_2, 0, x_1);
 return x_2;
 }
 }
@@ -654,7 +654,7 @@ lean::dec(x_4);
 if (lean::obj_tag(x_5) == 1)
 {
 uint8 x_6; 
-x_6 = lean::cnstr_get_scalar<uint8>(x_5, 0);
+x_6 = lean::cnstr_get_uint8(x_5, 0);
 lean::dec(x_5);
 return x_6;
 }
@@ -758,7 +758,7 @@ _start:
 {
 obj* x_4; obj* x_5; 
 x_4 = lean::alloc_cnstr(1, 0, 1);
-lean::cnstr_set_scalar(x_4, 0, x_3);
+lean::cnstr_set_uint8(x_4, 0, x_3);
 x_5 = l_Lean_KVMap_insertCore___main(x_1, x_2, x_4);
 return x_5;
 }

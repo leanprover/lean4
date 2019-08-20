@@ -1412,7 +1412,7 @@ obj* x_7; obj* x_8; uint8 x_9; obj* x_10; obj* x_11; uint8 x_12;
 x_7 = lean::array_fget(x_2, x_3);
 x_8 = lean::cnstr_get(x_7, 0);
 lean::inc(x_8);
-x_9 = lean::cnstr_get_scalar<uint8>(x_7, sizeof(void*)*1 + 1);
+x_9 = lean::cnstr_get_uint8(x_7, sizeof(void*)*1 + 1);
 lean::dec(x_7);
 x_10 = lean::mk_nat_obj(1u);
 x_11 = lean::nat_add(x_3, x_10);
@@ -1882,7 +1882,7 @@ case 0:
 obj* x_8; uint8 x_9; obj* x_10; obj* x_11; uint8 x_12; 
 x_8 = lean::cnstr_get(x_1, 0);
 lean::inc(x_8);
-x_9 = lean::cnstr_get_scalar<uint8>(x_1, sizeof(void*)*3);
+x_9 = lean::cnstr_get_uint8(x_1, sizeof(void*)*3);
 x_10 = lean::cnstr_get(x_1, 2);
 lean::inc(x_10);
 lean::dec(x_1);

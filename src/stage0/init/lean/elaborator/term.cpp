@@ -121,7 +121,7 @@ obj* l_Lean_SMap_find___at_Lean_Elab_elabTermAux___main___spec__1(obj* x_1, obj*
 _start:
 {
 uint8 x_3; 
-x_3 = lean::cnstr_get_scalar<uint8>(x_1, sizeof(void*)*2);
+x_3 = lean::cnstr_get_uint8(x_1, sizeof(void*)*2);
 if (x_3 == 0)
 {
 obj* x_4; obj* x_5; obj* x_6; 

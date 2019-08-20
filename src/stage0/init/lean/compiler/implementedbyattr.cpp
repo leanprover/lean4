@@ -2155,7 +2155,7 @@ lean::cnstr_set(x_21, 4, x_17);
 lean::cnstr_set(x_21, 5, x_18);
 lean::cnstr_set(x_21, 6, x_19);
 lean::cnstr_set(x_21, 7, x_19);
-lean::cnstr_set_scalar(x_21, sizeof(void*)*8, x_20);
+lean::cnstr_set_uint8(x_21, sizeof(void*)*8, x_20);
 lean::inc(x_21);
 x_22 = l_Lean_registerAttribute(x_21, x_11);
 if (lean::obj_tag(x_22) == 0)
@@ -2250,7 +2250,7 @@ lean::cnstr_set(x_43, 4, x_39);
 lean::cnstr_set(x_43, 5, x_40);
 lean::cnstr_set(x_43, 6, x_41);
 lean::cnstr_set(x_43, 7, x_41);
-lean::cnstr_set_scalar(x_43, sizeof(void*)*8, x_42);
+lean::cnstr_set_uint8(x_43, sizeof(void*)*8, x_42);
 lean::inc(x_43);
 x_44 = l_Lean_registerAttribute(x_43, x_36);
 if (lean::obj_tag(x_44) == 0)

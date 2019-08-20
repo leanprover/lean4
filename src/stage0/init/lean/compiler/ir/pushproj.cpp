@@ -255,7 +255,7 @@ case 3:
 obj* x_32; uint8 x_33; 
 x_32 = lean::cnstr_get(x_7, 0);
 lean::inc(x_32);
-x_33 = lean::cnstr_get_scalar<uint8>(x_7, sizeof(void*)*3);
+x_33 = lean::cnstr_get_uint8(x_7, sizeof(void*)*3);
 x_21 = x_32;
 x_22 = x_33;
 x_23 = x_31;
@@ -266,7 +266,7 @@ case 4:
 obj* x_34; uint8 x_35; 
 x_34 = lean::cnstr_get(x_7, 0);
 lean::inc(x_34);
-x_35 = lean::cnstr_get_scalar<uint8>(x_7, sizeof(void*)*3);
+x_35 = lean::cnstr_get_uint8(x_7, sizeof(void*)*3);
 x_21 = x_34;
 x_22 = x_35;
 x_23 = x_31;
@@ -277,7 +277,7 @@ case 5:
 obj* x_36; uint8 x_37; 
 x_36 = lean::cnstr_get(x_7, 0);
 lean::inc(x_36);
-x_37 = lean::cnstr_get_scalar<uint8>(x_7, sizeof(void*)*3);
+x_37 = lean::cnstr_get_uint8(x_7, sizeof(void*)*3);
 x_21 = x_36;
 x_22 = x_37;
 x_23 = x_31;
@@ -690,7 +690,7 @@ else
 obj* x_5; obj* x_6; uint8 x_7; obj* x_8; obj* x_9; obj* x_10; 
 x_5 = lean::cnstr_get(x_1, 0);
 x_6 = lean::cnstr_get(x_1, 1);
-x_7 = lean::cnstr_get_scalar<uint8>(x_1, sizeof(void*)*3);
+x_7 = lean::cnstr_get_uint8(x_1, sizeof(void*)*3);
 x_8 = lean::cnstr_get(x_1, 2);
 lean::inc(x_8);
 lean::inc(x_6);
@@ -701,7 +701,7 @@ x_10 = lean::alloc_cnstr(0, 3, 1);
 lean::cnstr_set(x_10, 0, x_5);
 lean::cnstr_set(x_10, 1, x_6);
 lean::cnstr_set(x_10, 2, x_9);
-lean::cnstr_set_scalar(x_10, sizeof(void*)*3, x_7);
+lean::cnstr_set_uint8(x_10, sizeof(void*)*3, x_7);
 return x_10;
 }
 }

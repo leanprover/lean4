@@ -219,22 +219,22 @@ x_6 = l_Lean_Position_Lean_HasFormat___closed__1;
 x_7 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_7, 0, x_6);
 lean::cnstr_set(x_7, 1, x_4);
-lean::cnstr_set_scalar(x_7, sizeof(void*)*2, x_5);
+lean::cnstr_set_uint8(x_7, sizeof(void*)*2, x_5);
 x_8 = l_Lean_formatKVMap___closed__1;
 x_9 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_9, 0, x_7);
 lean::cnstr_set(x_9, 1, x_8);
-lean::cnstr_set_scalar(x_9, sizeof(void*)*2, x_5);
+lean::cnstr_set_uint8(x_9, sizeof(void*)*2, x_5);
 x_10 = l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(x_3);
 x_11 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_11, 0, x_9);
 lean::cnstr_set(x_11, 1, x_10);
-lean::cnstr_set_scalar(x_11, sizeof(void*)*2, x_5);
+lean::cnstr_set_uint8(x_11, sizeof(void*)*2, x_5);
 x_12 = l_Lean_Position_Lean_HasFormat___closed__2;
 x_13 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_13, 0, x_11);
 lean::cnstr_set(x_13, 1, x_12);
-lean::cnstr_set_scalar(x_13, sizeof(void*)*2, x_5);
+lean::cnstr_set_uint8(x_13, sizeof(void*)*2, x_5);
 return x_13;
 }
 }

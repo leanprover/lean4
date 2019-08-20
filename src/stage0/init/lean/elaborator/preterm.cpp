@@ -1479,7 +1479,7 @@ lean::cnstr_set(x_9, 4, x_5);
 lean::cnstr_set(x_9, 5, x_6);
 lean::cnstr_set(x_9, 6, x_7);
 lean::cnstr_set(x_9, 7, x_7);
-lean::cnstr_set_scalar(x_9, sizeof(void*)*8, x_8);
+lean::cnstr_set_uint8(x_9, sizeof(void*)*8, x_8);
 return x_9;
 }
 }
@@ -4272,7 +4272,7 @@ lean::cnstr_set(x_36, 1, x_30);
 lean::cnstr_set(x_36, 2, x_32);
 lean::cnstr_set(x_36, 3, x_35);
 lean::cnstr_set(x_36, 4, x_33);
-lean::cnstr_set_scalar(x_36, sizeof(void*)*5, x_34);
+lean::cnstr_set_uint8(x_36, sizeof(void*)*5, x_34);
 x_37 = l_Lean_Elab_logMessage(x_36, x_3, x_9);
 lean::dec(x_3);
 if (lean::obj_tag(x_37) == 0)
@@ -4426,7 +4426,7 @@ lean::cnstr_set(x_76, 1, x_70);
 lean::cnstr_set(x_76, 2, x_72);
 lean::cnstr_set(x_76, 3, x_75);
 lean::cnstr_set(x_76, 4, x_73);
-lean::cnstr_set_scalar(x_76, sizeof(void*)*5, x_74);
+lean::cnstr_set_uint8(x_76, sizeof(void*)*5, x_74);
 x_77 = l_Lean_Elab_logMessage(x_76, x_3, x_9);
 lean::dec(x_3);
 if (lean::obj_tag(x_77) == 0)
@@ -4606,7 +4606,7 @@ lean::cnstr_set(x_119, 1, x_113);
 lean::cnstr_set(x_119, 2, x_115);
 lean::cnstr_set(x_119, 3, x_118);
 lean::cnstr_set(x_119, 4, x_116);
-lean::cnstr_set_scalar(x_119, sizeof(void*)*5, x_117);
+lean::cnstr_set_uint8(x_119, sizeof(void*)*5, x_117);
 x_120 = l_Lean_Elab_logMessage(x_119, x_3, x_95);
 lean::dec(x_3);
 if (lean::obj_tag(x_120) == 0)
@@ -4841,7 +4841,7 @@ lean::cnstr_set(x_172, 1, x_166);
 lean::cnstr_set(x_172, 2, x_168);
 lean::cnstr_set(x_172, 3, x_171);
 lean::cnstr_set(x_172, 4, x_169);
-lean::cnstr_set_scalar(x_172, sizeof(void*)*5, x_170);
+lean::cnstr_set_uint8(x_172, sizeof(void*)*5, x_170);
 x_173 = l_Lean_Elab_logMessage(x_172, x_3, x_148);
 lean::dec(x_3);
 if (lean::obj_tag(x_173) == 0)

@@ -148,7 +148,7 @@ lean::inc(x_4);
 x_5 = lean::cnstr_get(x_3, 1);
 lean::inc(x_5);
 lean::dec(x_3);
-x_6 = lean::cnstr_get_scalar<uint8>(x_1, sizeof(void*)*5);
+x_6 = lean::cnstr_get_uint8(x_1, sizeof(void*)*5);
 x_7 = lean::cnstr_get(x_1, 3);
 lean::inc(x_7);
 x_8 = l_String_splitAux___main___closed__1;
@@ -284,7 +284,7 @@ lean::cnstr_set(x_5, 1, x_3);
 lean::cnstr_set(x_5, 2, x_1);
 lean::cnstr_set(x_5, 3, x_2);
 lean::cnstr_set(x_5, 4, x_2);
-lean::cnstr_set_scalar(x_5, sizeof(void*)*5, x_4);
+lean::cnstr_set_uint8(x_5, sizeof(void*)*5, x_4);
 return x_5;
 }
 }
@@ -393,7 +393,7 @@ obj* x_3; obj* x_4; uint8 x_5; uint8 x_6; obj* x_7;
 x_3 = lean::cnstr_get(x_2, 0);
 x_4 = lean::cnstr_get(x_2, 1);
 x_5 = l_List_foldr___main___at_Lean_MessageLog_hasErrors___spec__1(x_1, x_4);
-x_6 = lean::cnstr_get_scalar<uint8>(x_3, sizeof(void*)*5);
+x_6 = lean::cnstr_get_uint8(x_3, sizeof(void*)*5);
 x_7 = lean::box(x_6);
 if (lean::obj_tag(x_7) == 2)
 {

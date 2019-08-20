@@ -452,7 +452,7 @@ match decl with
 | Decl.extern _ _ _ extData =>
   match mkExternCall extData `c (toStringArgs ys) with
   | some c => emit c *> emitLn ";"
-  | none   => throw "failed to emit extern application"
+  | none   => throw ("failed to emit extern application '" ++ toString f ++ "'")
 | _ => do emitCppName f; when (ys.size > 0) (do emit "("; emitArgs ys; emit ")"); emitLn ";"
 
 def emitPartialApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit :=

@@ -349,7 +349,7 @@ else
   emit offset
 
 def emitUSet (x : VarId) (n : Nat) (y : VarId) : M Unit :=
-do emit "lean_ctor_set_usize("; emit x; emit ", "; emitOffset n 0; emit ", "; emit y; emitLn ");"
+do emit "lean_ctor_set_usize("; emit x; emit ", "; emit n; emit ", "; emit y; emitLn ");"
 
 def emitSSet (x : VarId) (n : Nat) (offset : Nat) (y : VarId) (t : IRType) : M Unit :=
 do

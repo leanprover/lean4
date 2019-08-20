@@ -359,10 +359,18 @@ else
   emit offset
 
 def emitUSet (x : VarId) (n : Nat) (y : VarId) : M Unit :=
-do emit "lean::cnstr_set_scalar("; emit x; emit ", "; emitOffset n 0; emit ", "; emit y; emitLn ");"
+do emit "lean::cnstr_set_usize("; emit x; emit ", "; emit n; emit ", "; emit y; emitLn ");"
 
-def emitSSet (x : VarId) (n : Nat) (offset : Nat) (y : VarId) : M Unit :=
-do emit "lean::cnstr_set_scalar("; emit x; emit ", "; emitOffset n offset; emit ", "; emit y; emitLn ");"
+def emitSSet (x : VarId) (n : Nat) (offset : Nat) (y : VarId) (t : IRType) : M Unit :=
+do
+match t with
+| IRType.float  => throw "floats are not supported yet"
+| IRType.uint8  => emit "lean::cnstr_set_uint8"
+| IRType.uint16 => emit "lean::cnstr_set_uint16"
+| IRType.uint32 => emit "lean::cnstr_set_uint32"
+| IRType.uint64 => emit "lean::cnstr_set_uint64"
+| _             => throw "invalid instruction";
+emit "("; emit x; emit ", "; emitOffset n offset; emit ", "; emit y; emitLn ");"
 
 def emitJmp (j : JoinPointId) (xs : Array Arg) : M Unit :=
 do
@@ -431,10 +439,18 @@ def emitProj (z : VarId) (i : Nat) (x : VarId) : M Unit :=
 do emitLhs z; emit "lean::cnstr_get("; emit x; emit ", "; emit i; emitLn ");"
 
 def emitUProj (z : VarId) (i : Nat) (x : VarId) : M Unit :=
-do emitLhs z; emit "lean::cnstr_get_scalar<usize>("; emit x; emit ", sizeof(void*)*"; emit i; emitLn ");"
+do emitLhs z; emit "lean::cnstr_get_usize("; emit x; emit ", "; emit i; emitLn ");"
 
 def emitSProj (z : VarId) (t : IRType) (n offset : Nat) (x : VarId) : M Unit :=
-do emitLhs z; emit "lean::cnstr_get_scalar<"; emit (toCppType t); emit ">("; emit x; emit ", "; emitOffset n offset; emitLn ");"
+do emitLhs z;
+match t with
+| IRType.float  => throw "floats are not supported yet"
+| IRType.uint8  => emit "lean::cnstr_get_uint8"
+| IRType.uint16 => emit "lean::cnstr_get_uint16"
+| IRType.uint32 => emit "lean::cnstr_get_uint32"
+| IRType.uint64 => emit "lean::cnstr_get_uint64"
+| _             => throw "invalid instruction";
+emit "("; emit x; emit ", "; emitOffset n offset; emitLn ");"
 
 def toStringArgs (ys : Array Arg) : List String :=
 ys.toList.map argToCppString
@@ -619,7 +635,7 @@ partial def emitBlock (emitBody : FnBody → M Unit) : FnBody → M Unit
 | FnBody.setTag x i b      => emitSetTag x i *> emitBlock b
 | FnBody.set x i y b       => emitSet x i y *> emitBlock b
 | FnBody.uset x i y b      => emitUSet x i y *> emitBlock b
-| FnBody.sset x i o y _ b  => emitSSet x i o y *> emitBlock b
+| FnBody.sset x i o y t b  => emitSSet x i o y t *> emitBlock b
 | FnBody.mdata _ b         => emitBlock b
 | FnBody.ret x             => emit "return " *> emitArg x *> emitLn ";"
 | FnBody.case _ x alts     => emitCase emitBody x alts

@@ -581,12 +581,42 @@ inline void cnstr_release(u_obj_arg o, unsigned i) {
     dec(*field_ptr);
     *field_ptr = box(0);
 }
+inline usize cnstr_get_usize(b_obj_arg o, unsigned i) {
+    return obj_data<usize>(o, sizeof(constructor_object) + i*sizeof(void*));
+}
+inline void cnstr_set_usize(b_obj_arg o, unsigned i, usize v) {
+    obj_set_data(o, sizeof(constructor_object) + i*sizeof(void*), v);
+}
 /* Access scalar data at the given offset. */
-template<typename T> inline T cnstr_get_scalar(b_obj_arg o, size_t offset) {
+inline uint8 cnstr_get_uint8(b_obj_arg o, unsigned offset) {
+    return obj_data<uint8>(o, sizeof(constructor_object) + offset);
+}
+inline uint16 cnstr_get_uint16(b_obj_arg o, unsigned offset) {
+    return obj_data<uint16>(o, sizeof(constructor_object) + offset);
+}
+inline uint32 cnstr_get_uint32(b_obj_arg o, unsigned offset) {
+    return obj_data<uint32>(o, sizeof(constructor_object) + offset);
+}
+inline uint64 cnstr_get_uint64(b_obj_arg o, unsigned offset) {
+    return obj_data<uint32>(o, sizeof(constructor_object) + offset);
+}
+inline void cnstr_set_uint8(b_obj_arg o, unsigned offset, uint8 v) {
+    obj_set_data(o, sizeof(constructor_object) + offset, v);
+}
+inline void cnstr_set_uint16(b_obj_arg o, unsigned offset, uint16 v) {
+    obj_set_data(o, sizeof(constructor_object) + offset, v);
+}
+inline void cnstr_set_uint32(b_obj_arg o, unsigned offset, uint32 v) {
+    obj_set_data(o, sizeof(constructor_object) + offset, v);
+}
+inline void cnstr_set_uint64(b_obj_arg o, unsigned offset, uint64 v) {
+    obj_set_data(o, sizeof(constructor_object) + offset, v);
+}
+template<typename T> inline T cnstr_get_scalar(b_obj_arg o, unsigned offset) {
     return obj_data<T>(o, sizeof(constructor_object) + offset);
 }
-template<typename T> inline void cnstr_set_scalar(b_obj_arg o, unsigned i, T v) {
-    obj_set_data(o, sizeof(constructor_object) + i, v);
+template<typename T> inline void cnstr_set_scalar(b_obj_arg o, unsigned offset, T v) {
+    obj_set_data(o, sizeof(constructor_object) + offset, v);
 }
 
 inline unsigned obj_tag(b_obj_arg o) { if (is_scalar(o)) return unbox(o); else return cnstr_tag(o); }

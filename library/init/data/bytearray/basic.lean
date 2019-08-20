@@ -10,11 +10,11 @@ universes u
 structure ByteArray :=
 (data : Array UInt8)
 
-attribute [extern cpp "lean::byte_array_mk"] ByteArray.mk
-attribute [extern cpp "lean::byte_array_data"] ByteArray.data
+attribute [extern c "lean_byte_array_mk" cpp "lean::byte_array_mk"] ByteArray.mk
+attribute [extern c "lean_byte_array_data" cpp "lean::byte_array_data"] ByteArray.data
 
 namespace ByteArray
-@[extern cpp inline "lean::mk_empty_byte_array(#1)"]
+@[extern c inline "lean_mk_empty_byte_array(#1)" cpp inline "lean::mk_empty_byte_array(#1)"]
 def mkEmpty (c : @& Nat) : ByteArray :=
 { data := Array.empty }
 
@@ -24,19 +24,19 @@ mkEmpty 0
 instance : Inhabited ByteArray :=
 ⟨empty⟩
 
-@[extern cpp "lean::byte_array_push"]
+@[extern c "lean_byte_array_push" cpp "lean::byte_array_push"]
 def push : ByteArray → UInt8 → ByteArray
 | ⟨bs⟩, b => ⟨bs.push b⟩
 
-@[extern cpp "lean::byte_array_size"]
+@[extern c "lean_byte_array_size" cpp "lean::byte_array_size"]
 def size : (@& ByteArray) → Nat
 | ⟨bs⟩ => bs.size
 
-@[extern cpp "lean::byte_array_get"]
+@[extern c "lean_byte_array_get" cpp "lean::byte_array_get"]
 def get : (@& ByteArray) → (@& Nat) → UInt8
 | ⟨bs⟩, i => bs.get i
 
-@[extern cpp "lean::byte_array_set"]
+@[extern c "lean_byte_array_set" cpp "lean::byte_array_set"]
 def set : ByteArray → (@& Nat) → UInt8 → ByteArray
 | ⟨bs⟩, i, b => ⟨bs.set i b⟩
 

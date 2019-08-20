@@ -135,18 +135,18 @@ abbrev Unit : Type := PUnit
 structure Thunk (α : Type u) : Type u :=
 (fn : Unit → α)
 
-attribute [extern cpp inline "lean::mk_thunk(#2)"] Thunk.mk
+attribute [extern c inline "lean_mk_thunk(#2)" cpp inline "lean::mk_thunk(#2)"] Thunk.mk
 
-@[noinline, extern cpp inline "lean::thunk_pure(#2)"]
+@[noinline, extern c inline "lean_thunk_pure(#2)" cpp inline "lean::thunk_pure(#2)"]
 protected def Thunk.pure {α : Type u} (a : α) : Thunk α :=
 ⟨fun _ => a⟩
-@[noinline, extern cpp inline "lean::thunk_get_own(#2)"]
+@[noinline, extern c inline "lean_thunk_get_own(#2)" cpp inline "lean::thunk_get_own(#2)"]
 protected def Thunk.get {α : Type u} (x : @& Thunk α) : α :=
 x.fn ()
-@[noinline, extern cpp inline "lean::thunk_map(#3, #4)"]
+@[noinline, extern c inline "lean_thunk_map(#3, #4)" cpp inline "lean::thunk_map(#3, #4)"]
 protected def Thunk.map {α : Type u} {β : Type v} (f : α → β) (x : Thunk α) : Thunk β :=
 ⟨fun _ => f x.get⟩
-@[noinline, extern cpp inline "lean::thunk_bind(#3, #4)"]
+@[noinline, extern c inline "lean_thunk_bind(#3, #4)" cpp inline "lean::thunk_bind(#3, #4)"]
 protected def Thunk.bind {α : Type u} {β : Type v} (x : Thunk α) (f : α → Thunk β) : Thunk β :=
 ⟨fun _ => (f x.get).get⟩
 
@@ -154,18 +154,18 @@ protected def Thunk.bind {α : Type u} {β : Type v} (x : Thunk α) (f : α → 
 structure Task (α : Type u) : Type u :=
 (fn : Unit → α)
 
-attribute [extern cpp inline "lean::mk_task(#2)"] Task.mk
+attribute [extern c inline "lean_mk_task(#2)" cpp inline "lean::mk_task(#2)"] Task.mk
 
-@[noinline, extern cpp inline "lean::task_pure(#2)"]
+@[noinline, extern c inline "lean_task_pure(#2)" cpp inline "lean::task_pure(#2)"]
 protected def Task.pure {α : Type u} (a : α) : Task α :=
 ⟨fun _ => a⟩
-@[noinline, extern cpp inline "lean::task_get(#2)"]
+@[noinline, extern c inline "lean_task_get(#2)" cpp inline "lean::task_get(#2)"]
 protected def Task.get {α : Type u} (x : @& Task α) : α :=
 x.fn ()
-@[noinline, extern cpp inline "lean::task_map(#3, #4)"]
+@[noinline, extern c inline "lean_task_map(#3, #4)" cpp inline "lean::task_map(#3, #4)"]
 protected def Task.map {α : Type u} {β : Type v} (f : α → β) (x : Task α) : Task β :=
 ⟨fun _ => f x.get⟩
-@[noinline, extern cpp inline "lean::task_bind(#3, #4)"]
+@[noinline, extern c inline "lean_task_bind(#3, #4)" cpp inline "lean::task_bind(#3, #4)"]
 protected def Task.bind {α : Type u} {β : Type v} (x : Task α) (f : α → Task β) : Task β :=
 ⟨fun _ => (f x.get).get⟩
 
@@ -393,7 +393,7 @@ infix `>`        := Greater
 attribute [matchPattern] HasZero.zero HasOne.one bit0 bit1 HasAdd.add HasNeg.neg
 
 /- Nat basic instances -/
-@[extern cpp "lean::nat_add"]
+@[extern c "lean_nat_add" cpp "lean::nat_add"]
 protected def Nat.add : (@& Nat) → (@& Nat) → Nat
 | a, Nat.zero   => a
 | a, Nat.succ b => Nat.succ (Nat.add a b)
@@ -563,8 +563,8 @@ prefix `!` := not
 infix `||` := or
 infix `&&` := and
 
-@[extern cpp inline "#1 || #2"] def strictOr  (b₁ b₂ : Bool) := b₁ || b₂
-@[extern cpp inline "#1 && #2"] def strictAnd (b₁ b₂ : Bool) := b₁ && b₂
+@[extern c inline "#1 || #2" cpp inline "#1 || #2"] def strictOr  (b₁ b₂ : Bool) := b₁ || b₂
+@[extern c inline "#1 && #2" cpp inline "#1 && #2"] def strictAnd (b₁ b₂ : Bool) := b₁ && b₂
 
 @[inline] def bne {α : Type u} [HasBeq α] (a b : α) : Bool :=
 !(a == b)

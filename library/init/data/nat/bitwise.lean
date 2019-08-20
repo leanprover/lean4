@@ -18,9 +18,9 @@ else
   let r  := bitwise n' m';
   if f b₁ b₂ then bit1 r else bit0 r
 
-@[extern cpp "lean::nat_land"]
+@[extern c "lean_nat_land" cpp "lean::nat_land"]
 def land : Nat → Nat → Nat := bitwise and
-@[extern cpp "lean::nat_lor"]
+@[extern c "lean_nat_lor" cpp "lean::nat_lor"]
 def lor  : Nat → Nat → Nat := bitwise or
 
 end Nat

@@ -15,8 +15,8 @@ inductive Int : Type
 | ofNat   : Nat → Int
 | negSucc : Nat → Int
 
-attribute [extern cpp "lean::nat2int"] Int.ofNat
-attribute [extern cpp "lean::int_neg_succ_of_nat"] Int.negSucc
+attribute [extern c "lean_nat_to_int" cpp "lean::nat2int"] Int.ofNat
+attribute [extern c "lean_int_neg_succ_of_nat" cpp "lean::int_neg_succ_of_nat"] Int.negSucc
 
 instance : HasCoe Nat Int := ⟨Int.ofNat⟩
 
@@ -31,7 +31,7 @@ def negOfNat : Nat → Int
 | 0      => 0
 | succ m => negSucc m
 
-@[extern cpp "lean::int_neg"]
+@[extern c "lean_int_neg" cpp "lean::int_neg"]
 protected def neg (n : @& Int) : Int :=
 match n with
 | ofNat n   => negOfNat n
@@ -42,7 +42,7 @@ match (n - m : Nat) with
 | 0        => ofNat (m - n)  -- m ≥ n
 | (succ k) => negSucc k
 
-@[extern cpp "lean::int_add"]
+@[extern c "lean_int_add" cpp "lean::int_add"]
 protected def add (m n : @& Int) : Int :=
 match m, n with
 | ofNat m,   ofNat n   => ofNat (m + n)
@@ -50,7 +50,7 @@ match m, n with
 | negSucc m, ofNat n   => subNatNat n (succ m)
 | negSucc m, negSucc n => negSucc (m + n)
 
-@[extern cpp "lean::int_mul"]
+@[extern c "lean_int_mul" cpp "lean::int_mul"]
 protected def mul (m n : @& Int) : Int :=
 match m, n with
 | ofNat m,   ofNat n   => ofNat (m * n)
@@ -62,7 +62,7 @@ instance : HasNeg Int := ⟨Int.neg⟩
 instance : HasAdd Int := ⟨Int.add⟩
 instance : HasMul Int := ⟨Int.mul⟩
 
-@[extern cpp "lean::int_sub"]
+@[extern c "lean_int_sub" cpp "lean::int_sub"]
 protected def sub (m n : @& Int) : Int :=
 m + -n
 
@@ -79,7 +79,7 @@ protected def Less (a b : Int) : Prop := (a + 1) ≤ b
 
 instance : HasLess Int := ⟨Int.Less⟩
 
-@[extern cpp "lean::int_dec_eq"]
+@[extern c "lean_int_dec_eq" cpp "lean::int_dec_eq"]
 protected def decEq (a b : @& Int) : Decidable (a = b) :=
 match a, b with
  | ofNat a, ofNat b => match decEq a b with
@@ -94,21 +94,21 @@ match a, b with
 instance Int.DecidableEq : DecidableEq Int :=
 {decEq := Int.decEq}
 
-@[extern cpp "lean::int_dec_nonneg"]
+@[extern c "lean_int_dec_nonneg" cpp "lean::int_dec_nonneg"]
 private def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
 match m with
 | ofNat m   => isTrue $ NonNeg.mk m
 | negSucc m => isFalse $ fun h => nomatch h
 
-@[extern cpp "lean::int_dec_le"]
+@[extern c "lean_int_dec_le" cpp "lean::int_dec_le"]
 instance decLe (a b : @& Int) : Decidable (a ≤ b) :=
 decNonneg _
 
-@[extern cpp "lean::int_dec_lt"]
+@[extern c "lean_int_dec_lt" cpp "lean::int_dec_lt"]
 instance decLt (a b : @& Int) : Decidable (a < b) :=
 decNonneg _
 
-@[extern cpp "lean::nat_abs"]
+@[extern c "lean_nat_abs" cpp "lean::nat_abs"]
 def natAbs (m : @& Int) : Nat :=
 match m with
 | ofNat m   => m
@@ -124,14 +124,14 @@ instance : HasRepr Int :=
 instance : HasToString Int :=
 ⟨Int.repr⟩
 
-@[extern cpp "lean::int_div"]
+@[extern c "lean_int_div" cpp "lean::int_div"]
 def div : (@& Int) → (@& Int) → Int
 | ofNat m,   ofNat n   => ofNat (m / n)
 | ofNat m,   negSucc n => -ofNat (m / succ n)
 | negSucc m, ofNat n   => -ofNat (succ m / n)
 | negSucc m, negSucc n => ofNat (succ m / succ n)
 
-@[extern cpp "lean::int_mod"]
+@[extern c "lean_int_mod" cpp "lean::int_mod"]
 def mod : (@& Int) → (@& Int) → Int
 | ofNat m,   ofNat n   => ofNat (m % n)
 | ofNat m,   negSucc n => ofNat (m % succ n)

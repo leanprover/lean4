@@ -175,7 +175,7 @@ let usedDecls : NameSet := decls.foldl (fun s d => collectUsedDecls env d (s.ins
 let usedDecls := usedDecls.toList;
 usedDecls.mfor $ fun n => do
   decl ← getDecl n;
-  match getExternNameFor env `cpp decl.name with
+  match getExternNameFor env `c decl.name with
   | some cppName => emitExternDeclAux decl cppName
   | none         => emitFnDecl decl (!modDecls.contains n)
 
@@ -450,7 +450,7 @@ emitLhs z;
 decl ← getDecl f;
 match decl with
 | Decl.extern _ _ _ extData =>
-  match mkExternCall extData `cpp (toStringArgs ys) with
+  match mkExternCall extData `c (toStringArgs ys) with
   | some c => emit c *> emitLn ";"
   | none   => throw "failed to emit extern application"
 | _ => do emitCppName f; when (ys.size > 0) (do emit "("; emitArgs ys; emit ")"); emitLn ";"

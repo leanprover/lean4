@@ -20,6 +20,8 @@ Author: Leonardo de Moura
 extern "C" {
 #endif
 
+#define LEAN_CLOSURE_MAX_ARGS 16
+
 #ifdef _MSC_VER
 #define LEAN_ALLOCA(s) _alloca(s)
 #else
@@ -513,6 +515,26 @@ static inline void lean_closure_set(u_lean_obj_arg o, unsigned i, lean_obj_arg a
     assert(i < lean_closure_num_fixed(o));
     lean_to_closure(o)->m_objs[i] = a;
 }
+
+lean_object* lean_apply_1(lean_object* f, lean_object* a1);
+lean_object* lean_apply_2(lean_object* f, lean_object* a1, lean_object* a2);
+lean_object* lean_apply_3(lean_object* f, lean_object* a1, lean_object* a2, lean_object* a3);
+lean_object* lean_apply_4(lean_object* f, lean_object* a1, lean_object* a2, lean_object* a3, lean_object* a4);
+lean_object* lean_apply_5(lean_object* f, lean_object* a1, lean_object* a2, lean_object* a3, lean_object* a4, lean_object* a5);
+lean_object* lean_apply_6(lean_object* f, lean_object* a1, lean_object* a2, lean_object* a3, lean_object* a4, lean_object* a5, lean_object* a6);
+lean_object* lean_apply_7(lean_object* f, lean_object* a1, lean_object* a2, lean_object* a3, lean_object* a4, lean_object* a5, lean_object* a6, lean_object* a7);
+lean_object* lean_apply_8(lean_object* f, lean_object* a1, lean_object* a2, lean_object* a3, lean_object* a4, lean_object* a5, lean_object* a6, lean_object* a7, lean_object* a8);
+lean_object* lean_apply_9(lean_object* f, lean_object* a1, lean_object* a2, lean_object* a3, lean_object* a4, lean_object* a5, lean_object* a6, lean_object* a7, lean_object* a8, lean_object* a9);
+lean_object* lean_apply_10(lean_object* f, lean_object* a1, lean_object* a2, lean_object* a3, lean_object* a4, lean_object* a5, lean_object* a6, lean_object* a7, lean_object* a8, lean_object* a9, lean_object* a10);
+lean_object* lean_apply_11(lean_object* f, lean_object* a1, lean_object* a2, lean_object* a3, lean_object* a4, lean_object* a5, lean_object* a6, lean_object* a7, lean_object* a8, lean_object* a9, lean_object* a10, lean_object* a11);
+lean_object* lean_apply_12(lean_object* f, lean_object* a1, lean_object* a2, lean_object* a3, lean_object* a4, lean_object* a5, lean_object* a6, lean_object* a7, lean_object* a8, lean_object* a9, lean_object* a10, lean_object* a11, lean_object* a12);
+lean_object* lean_apply_13(lean_object* f, lean_object* a1, lean_object* a2, lean_object* a3, lean_object* a4, lean_object* a5, lean_object* a6, lean_object* a7, lean_object* a8, lean_object* a9, lean_object* a10, lean_object* a11, lean_object* a12, lean_object* a13);
+lean_object* lean_apply_14(lean_object* f, lean_object* a1, lean_object* a2, lean_object* a3, lean_object* a4, lean_object* a5, lean_object* a6, lean_object* a7, lean_object* a8, lean_object* a9, lean_object* a10, lean_object* a11, lean_object* a12, lean_object* a13, lean_object* a14);
+lean_object* lean_apply_15(lean_object* f, lean_object* a1, lean_object* a2, lean_object* a3, lean_object* a4, lean_object* a5, lean_object* a6, lean_object* a7, lean_object* a8, lean_object* a9, lean_object* a10, lean_object* a11, lean_object* a12, lean_object* a13, lean_object* a14, lean_object* a15);
+lean_object* lean_apply_16(lean_object* f, lean_object* a1, lean_object* a2, lean_object* a3, lean_object* a4, lean_object* a5, lean_object* a6, lean_object* a7, lean_object* a8, lean_object* a9, lean_object* a10, lean_object* a11, lean_object* a12, lean_object* a13, lean_object* a14, lean_object* a15, lean_object* a16);
+lean_object* lean_apply_n(lean_object* f, unsigned n, lean_object** args);
+/* Pre: n > 16 */
+lean_object* lean_apply_m(lean_object* f, unsigned n, lean_object** args);
 
 /* Fixpoint */
 

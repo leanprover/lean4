@@ -135,7 +135,7 @@ emit (toCType decl.resultType ++ " " ++ cppBaseName);
 unless (ps.isEmpty) $ do {
   emit "(";
   if ps.size > closureMaxArgs && isBoxedName decl.name then
-    emit "obj**"
+    emit "lean_object**"
   else
     ps.size.mfor $ fun i => do {
       when (i > 0) (emit ", ");
@@ -162,7 +162,6 @@ let qCppName := cppQualifiedNameToName cppName;
 openNamespaces qCppName;
 env ← getEnv;
 let extC := isExternC env decl.name;
-when extC (emit "extern \"C\" ");
 (Name.mkString _ qCppBaseName) ← pure qCppName | throw "invalid name";
 emitFnDeclAux decl qCppBaseName (!extC);
 closeNamespaces qCppName
@@ -188,24 +187,25 @@ match d with
   unless (xs.size == 2 || xs.size == 1) (throw "invalid main function, incorrect arity when generating code");
   env ← getEnv;
   let usesLeanAPI := usesLeanNamespace env d;
-  when usesLeanAPI (emitLn "namespace lean { void initialize(); }");
-  emitLn "int main(int argc, char ** argv) {";
+  when usesLeanAPI (emitLn "void lean_initialize();");
+  emitLn "int main(int argc, char ** argv) {\nlean_object* w; lean_object* in;";
   if usesLeanAPI then
     emitLn "lean_initialize();"
   else
     emitLn "lean_initialize_runtime_module();";
-  emitLn "lean_object* w = lean_io_mk_world();";
+  emitLn "w = lean_io_mk_world();";
   modName ← getModName;
   emitLn ("w = initialize_" ++ (modName.mangle "") ++ "(w);");
   emitLns ["lean_io_mark_end_initialization();",
            "if (lean_io_result_is_ok(w)) {",
            "lean_init_task_manager();"];
   if xs.size == 2 then do {
-    emitLns ["lean_object* in = lean_box(0);",
+    emitLns ["in = lean_box(0);",
              "int i = argc;",
              "while (i > 1) {",
+             " lean_object* n;",
              " i--;",
-             " obj* n = lean_alloc_ctor(1,2,0); lean_ctor_set(n, 0, lean_mk_string(argv[i])); lean_ctor_set(n, 1, in);",
+             " n = lean_alloc_ctor(1,2,0); lean_ctor_set(n, 0, lean_mk_string(argv[i])); lean_ctor_set(n, 1, in);",
              " in = n;",
              "}"];
     emitLn ("w = " ++ leanMainFn ++ "(in, w);")
@@ -243,8 +243,6 @@ emit "// Imports:";
 env.imports.mfor $ fun m => emit (" " ++ toString m);
 emitLn "";
 emitLn "#include \"runtime/lean.h\"";
-emitLn "#include \"runtime/apply.h\"";
-mwhen hasMainFn $ emitLn "#include \"runtime/init_module.h\"";
 emitLns [
  "#if defined(__clang__)",
  "#pragma clang diagnostic ignored \"-Wunused-parameter\"",
@@ -349,10 +347,18 @@ else
   emit offset
 
 def emitUSet (x : VarId) (n : Nat) (y : VarId) : M Unit :=
-do emit "lean_ctor_set_scalar("; emit x; emit ", "; emitOffset n 0; emit ", "; emit y; emitLn ");"
+do emit "lean_ctor_set_usize("; emit x; emit ", "; emitOffset n 0; emit ", "; emit y; emitLn ");"
 
-def emitSSet (x : VarId) (n : Nat) (offset : Nat) (y : VarId) : M Unit :=
-do emit "lean_ctor_set_scalar("; emit x; emit ", "; emitOffset n offset; emit ", "; emit y; emitLn ");"
+def emitSSet (x : VarId) (n : Nat) (offset : Nat) (y : VarId) (t : IRType) : M Unit :=
+do
+match t with
+| IRType.float  => throw "floats are not supported yet"
+| IRType.uint8  => emit "lean_ctor_set_uint8"
+| IRType.uint16 => emit "lean_ctor_set_uint16"
+| IRType.uint32 => emit "lean_ctor_set_uint32"
+| IRType.uint64 => emit "lean_ctor_set_uint64"
+| _             => throw "invalid instruction";
+emit "("; emit x; emit ", "; emitOffset n offset; emit ", "; emit y; emitLn ");"
 
 def emitJmp (j : JoinPointId) (xs : Array Arg) : M Unit :=
 do
@@ -421,10 +427,19 @@ def emitProj (z : VarId) (i : Nat) (x : VarId) : M Unit :=
 do emitLhs z; emit "lean_ctor_get("; emit x; emit ", "; emit i; emitLn ");"
 
 def emitUProj (z : VarId) (i : Nat) (x : VarId) : M Unit :=
-do emitLhs z; emit "lean_ctor_get_scalar_size_t("; emit x; emit ", sizeof(void*)*"; emit i; emitLn ");"
+do emitLhs z; emit "lean_ctor_get_usize("; emit x; emit ", "; emit i; emitLn ");"
 
 def emitSProj (z : VarId) (t : IRType) (n offset : Nat) (x : VarId) : M Unit :=
-do emitLhs z; emit "lean_ctor_get_scalar_"; emit (toCType t); emit "("; emit x; emit ", "; emitOffset n offset; emitLn ");"
+do
+emitLhs z;
+match t with
+| IRType.float  => throw "floats are not supported yet"
+| IRType.uint8  => emit "lean_ctor_get_uint8"
+| IRType.uint16 => emit "lean_ctor_get_uint16"
+| IRType.uint32 => emit "lean_ctor_get_uint32"
+| IRType.uint64 => emit "lean_ctor_get_uint64"
+| _             => throw "invalid instruction";
+emit "("; emit x; emit ", "; emitOffset n offset; emitLn ");"
 
 def toStringArgs (ys : Array Arg) : List String :=
 ys.toList.map argToCString
@@ -452,14 +467,14 @@ ys.size.mfor $ fun i => do {
 
 def emitApp (z : VarId) (f : VarId) (ys : Array Arg) : M Unit :=
 if ys.size > closureMaxArgs then do
-  emit "{ obj* _aargs[] = {"; emitArgs ys; emitLn "};";
+  emit "{ lean_object* _aargs[] = {"; emitArgs ys; emitLn "};";
   emitLhs z; emit "lean_apply_m("; emit f; emit ", "; emit ys.size; emitLn ", _aargs); }"
 else do
   emitLhs z; emit "lean_apply_"; emit ys.size; emit "("; emit f; emit ", "; emitArgs ys; emitLn ");"
 
 def emitBoxFn (xType : IRType) : M Unit :=
 match xType with
-| IRType.usize  => emit "lean_box_size_t"
+| IRType.usize  => emit "lean_box_usize"
 | IRType.uint32 => emit "lean_box_uint32"
 | IRType.uint64 => emit "lean_box_uint64"
 | IRType.float  => throw "floats are not supported yet"
@@ -472,7 +487,7 @@ def emitUnbox (z : VarId) (t : IRType) (x : VarId) : M Unit :=
 do
 emitLhs z;
 match t with
-| IRType.usize  => emit "lean_unbox_size_t"
+| IRType.usize  => emit "lean_unbox_usize"
 | IRType.uint32 => emit "lean_unbox_uint32"
 | IRType.uint64 => emit "lean_unbox_uint64"
 | IRType.float  => throw "floats are not supported yet"
@@ -505,10 +520,10 @@ q ++ "\""
 
 def emitNumLit (t : IRType) (v : Nat) : M Unit :=
 if t.isObj then do
-  emit "lean_mk_nat_obj(";
-  if v < uint32Sz then emit v *> emit "u"
-  else emit "lean_mpz(\"" *> emit v *> emit "\")";
-  emit ")"
+  if v < uint32Sz then
+    emit "lean_unsigned_to_nat(" *> emit v *> emit "u)"
+  else
+    emit "lean_cstr_to_nat(̈(\"" *> emit v *> emit "\")"
 else
   emit v
 
@@ -609,7 +624,7 @@ partial def emitBlock (emitBody : FnBody → M Unit) : FnBody → M Unit
 | FnBody.setTag x i b      => emitSetTag x i *> emitBlock b
 | FnBody.set x i y b       => emitSet x i y *> emitBlock b
 | FnBody.uset x i y b      => emitUSet x i y *> emitBlock b
-| FnBody.sset x i o y _ b  => emitSSet x i o y *> emitBlock b
+| FnBody.sset x i o y t b  => emitSSet x i o y t *> emitBlock b
 | FnBody.mdata _ b         => emitBlock b
 | FnBody.ret x             => emit "return " *> emitArg x *> emitLn ";"
 | FnBody.case _ x alts     => emitCase emitBody x alts
@@ -644,7 +659,7 @@ unless (hasInitAttr env d.name) $
       emit baseName;
       emit "(";
       if xs.size > closureMaxArgs && isBoxedName d.name then
-        emit "obj** _args"
+        emit "lean_object** _args"
       else
         xs.size.mfor $ fun i => do {
           when (i > 0) (emit ", ");
@@ -659,7 +674,7 @@ unless (hasInitAttr env d.name) $
     when (xs.size > closureMaxArgs && isBoxedName d.name) $
       xs.size.mfor $ fun i => do {
         let x := xs.get i;
-        emit "obj * "; emit x.x; emit " = _args["; emit i; emitLn "];"
+        emit "lean_object* "; emit x.x; emit " = _args["; emit i; emitLn "];"
       };
     emitLn "_start:";
     adaptReader (fun (ctx : Context) => { mainFn := f, mainParams := xs, .. ctx }) (emitFnBody b);
@@ -685,13 +700,13 @@ env ← getEnv;
 let n := d.name;
 if isIOUnitInitFn env n then do {
   emit "w = "; emitCppName n; emitLn "(w);";
-  emitLn "if (io_result_is_error(w)) return w;"
+  emitLn "if (lean_io_result_is_error(w)) return w;"
 } else when (d.params.size == 0) $ do {
   match getInitFnNameFor env d.name with
   | some initFn => do {
     emit "w = "; emitCppName initFn; emitLn "(w);";
-    emitLn "if (io_result_is_error(w)) return w;";
-    emitCppName n; emitLn " = io_result_get_value(w);"
+    emitLn "if (lean_io_result_is_error(w)) return w;";
+    emitCppName n; emitLn " = lean_io_result_get_value(w);"
   }
   | _ => do {
     emitCppName n; emit " = "; emitCppInitName n; emitLn "();"
@@ -705,17 +720,17 @@ def emitInitFn : M Unit :=
 do
 env ← getEnv;
 modName ← getModName;
-env.imports.mfor $ fun m => emitLn ("obj* initialize_" ++ m.mangle "" ++ "(obj*);");
+env.imports.mfor $ fun m => emitLn ("lean_object* initialize_" ++ m.mangle "" ++ "(lean_object*);");
 emitLns [
     "static bool _G_initialized = false;",
-    "obj* initialize_" ++ modName.mangle "" ++ "(obj* w) {",
+    "lean_object* initialize_" ++ modName.mangle "" ++ "(lean_object* w) {",
     "if (_G_initialized) return w;",
     "_G_initialized = true;",
-    "if (io_result_is_error(w)) return w;"
+    "if (lean_io_result_is_error(w)) return w;"
 ];
 env.imports.mfor $ fun m => emitLns [
   "w = initialize_" ++ m.mangle "" ++ "(w);",
-  "if (io_result_is_error(w)) return w;"
+  "if (lean_io_result_is_error(w)) return w;"
 ];
 let decls := getDecls env;
 decls.reverse.mfor emitDeclInit;

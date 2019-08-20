@@ -1382,13 +1382,13 @@ static inline uint64_t lean_unbox_uint64(b_lean_obj_arg o) {
     return lean_ctor_get_uint64(o, 0);
 }
 
-static inline lean_obj_res lean_box_size_t(size_t v) {
+static inline lean_obj_res lean_box_usize(size_t v) {
     lean_obj_res r = lean_alloc_ctor(0, 1, 0);
     lean_ctor_set_usize(r, 0, v);
     return r;
 }
 
-static inline size_t lean_unbox_size_t(b_lean_obj_arg o) {
+static inline size_t lean_unbox_usize(b_lean_obj_arg o) {
     return lean_ctor_get_usize(o, 0);
 }
 

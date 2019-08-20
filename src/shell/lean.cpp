@@ -186,7 +186,8 @@ static void display_help(std::ostream & out) {
     std::cout << "  --githash          display the git commit hash number used to build this binary\n";
     std::cout << "  --run              executes the 'main' definition\n";
     std::cout << "  --make             create olean file\n";
-    std::cout << "  --cpp=fname -c     name of the C++ output file\n";
+    std::cout << "  --cpp=fname -c     name of the C++ output file\n"; // TODO(Leo): delete
+    std::cout << "  --c=fname -C       name of the C output file\n";
     std::cout << "  --stdin            take input from stdin\n";
     std::cout << "  --trust=num -t     trust level (default: max) 0 means do not trust any macro,\n"
               << "                     and type check all imported modules\n";
@@ -229,6 +230,7 @@ static struct option g_long_options[] = {
     {"deps",         no_argument,       0, 'd'},
     {"timeout",      optional_argument, 0, 'T'},
     {"cpp",          optional_argument, 0, 'c'},
+    {"c",            optional_argument, 0, 'C'},
 #if defined(LEAN_JSON)
     {"json",         no_argument,       0, 'J'},
     {"server",       optional_argument, 0, 'S'},
@@ -244,7 +246,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:c:qgvht:012j:012rM:012T:012a"
+    "PdD:c:C:qgvht:012j:012rM:012T:012a"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -370,6 +372,7 @@ int main(int argc, char ** argv) {
     optional<std::string> server_in;
     std::string native_output;
     optional<std::string> cpp_output;
+    optional<std::string> c_output;
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
         if (c == -1)
@@ -389,6 +392,9 @@ int main(int argc, char ** argv) {
                 return 0;
             case 'c':
                 cpp_output = optarg;
+                break;
+            case 'C':
+                c_output = optarg;
                 break;
             case 's':
                 lean::lthread::set_thread_stack_size(
@@ -573,6 +579,7 @@ int main(int argc, char ** argv) {
         if (!json_output)
             display_cumulative_profiling_times(std::cerr);
 
+        // TODO(Leo): delete after C backend is working
         if (cpp_output && ok) {
             std::ofstream out(*cpp_output);
             if (out.fail()) {
@@ -581,6 +588,17 @@ int main(int argc, char ** argv) {
             }
             auto mod = module_name_of_file2(mod_fn);
             out << lean::ir::emit_cpp(env, mod).data();
+            out.close();
+        }
+
+        if (c_output && ok) {
+            std::ofstream out(*c_output);
+            if (out.fail()) {
+                std::cerr << "failed to create '" << *c_output << "'\n";
+                return 1;
+            }
+            auto mod = module_name_of_file2(mod_fn);
+            out << lean::ir::emit_c(env, mod).data();
             out.close();
         }
 

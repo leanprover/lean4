@@ -546,14 +546,23 @@ extern "C" object* lean_add_extern(object * env, object * fn) {
     }
 }
 
-/*
-@[export lean.ir.emit_cpp_core]
-def emitCpp (env : Environment) (modName : Name) : Except String String :
-*/
 extern "C" object * lean_ir_emit_cpp(object * env, object * mod_name);
+extern "C" object * lean_ir_emit_c(object * env, object * mod_name);
 
 string_ref emit_cpp(environment const & env, name const & mod_name) {
     object * r = lean_ir_emit_cpp(env.to_obj_arg(), mod_name.to_obj_arg());
+    string_ref s(cnstr_get(r, 0), true);
+    if (cnstr_tag(r) == 0) {
+        dec_ref(r);
+        throw exception(s.to_std_string());
+    } else {
+        dec_ref(r);
+        return s;
+    }
+}
+
+string_ref emit_c(environment const & env, name const & mod_name) {
+    object * r = lean_ir_emit_c(env.to_obj_arg(), mod_name.to_obj_arg());
     string_ref s(cnstr_get(r, 0), true);
     if (cnstr_tag(r) == 0) {
         dec_ref(r);

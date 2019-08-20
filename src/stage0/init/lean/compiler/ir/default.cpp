@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.ir.default
-// Imports: init.lean.compiler.ir.basic init.lean.compiler.ir.format init.lean.compiler.ir.compilerm init.lean.compiler.ir.pushproj init.lean.compiler.ir.elimdead init.lean.compiler.ir.simpcase init.lean.compiler.ir.resetreuse init.lean.compiler.ir.normids init.lean.compiler.ir.checker init.lean.compiler.ir.borrow init.lean.compiler.ir.boxing init.lean.compiler.ir.rc init.lean.compiler.ir.expandresetreuse init.lean.compiler.ir.emitcpp
+// Imports: init.lean.compiler.ir.basic init.lean.compiler.ir.format init.lean.compiler.ir.compilerm init.lean.compiler.ir.pushproj init.lean.compiler.ir.elimdead init.lean.compiler.ir.simpcase init.lean.compiler.ir.resetreuse init.lean.compiler.ir.normids init.lean.compiler.ir.checker init.lean.compiler.ir.borrow init.lean.compiler.ir.boxing init.lean.compiler.ir.rc init.lean.compiler.ir.expandresetreuse init.lean.compiler.ir.emitcpp init.lean.compiler.ir.emitc
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -8135,6 +8135,7 @@ obj* initialize_init_lean_compiler_ir_boxing(obj*);
 obj* initialize_init_lean_compiler_ir_rc(obj*);
 obj* initialize_init_lean_compiler_ir_expandresetreuse(obj*);
 obj* initialize_init_lean_compiler_ir_emitcpp(obj*);
+obj* initialize_init_lean_compiler_ir_emitc(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_ir_default(obj* w) {
 if (_G_initialized) return w;
@@ -8167,6 +8168,8 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_expandresetreuse(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_emitcpp(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_compiler_ir_emitc(w);
 if (io_result_is_error(w)) return w;
 l___private_init_lean_compiler_ir_default_1__compileAux___closed__1 = _init_l___private_init_lean_compiler_ir_default_1__compileAux___closed__1();
 lean::mark_persistent(l___private_init_lean_compiler_ir_default_1__compileAux___closed__1);

@@ -439,7 +439,7 @@ static inline void lean_ctor_release(b_lean_obj_arg o, unsigned i) {
     objs[i] = lean_box(0);
 }
 
-static inline size_t lean_ctor_usize(b_lean_obj_arg o, unsigned i) {
+static inline size_t lean_ctor_get_usize(b_lean_obj_arg o, unsigned i) {
     assert(i >= lean_ctor_num_objs(o));
     return *((size_t*)(lean_ctor_obj_cptr(o) + i));
 }
@@ -1325,6 +1325,79 @@ static inline uint8_t lean_usize_dec_eq(size_t a1, size_t a2) { return a1 == a2;
 static inline uint8_t lean_usize_dec_lt(size_t a1, size_t a2) { return a1 < a2; }
 static inline uint8_t lean_usize_dec_le(size_t a1, size_t a2) { return a1 <= a2; }
 size_t lean_usize_mix_hash(size_t a1, size_t a2);
+
+/* Boxing primitives */
+
+static inline lean_obj_res lean_box_uint32(uint32_t v) {
+    if (sizeof(void*) == 4) {
+        // 32-bit implementation
+        lean_obj_res r = lean_alloc_ctor(0, 0, sizeof(uint32_t));
+        lean_ctor_set_uint32(r, 0, v);
+        return r;
+    } else {
+        // 64-bit implementation
+        return lean_box(v);
+    }
+}
+
+static inline unsigned lean_unbox_uint32(b_lean_obj_arg o) {
+    if (sizeof(void*) == 4) {
+        // 32-bit implementation
+        return lean_ctor_get_uint32(o, 0);
+    } else {
+        // 64-bit implementation
+        return lean_unbox(o);
+    }
+}
+
+static inline lean_obj_res lean_box_uint64(uint64_t v) {
+    lean_obj_res r = lean_alloc_ctor(0, 0, sizeof(uint64_t));
+    lean_ctor_set_uint64(r, 0, v);
+    return r;
+}
+
+static inline uint64_t lean_unbox_uint64(b_lean_obj_arg o) {
+    return lean_ctor_get_uint64(o, 0);
+}
+
+static inline lean_obj_res lean_box_size_t(size_t v) {
+    lean_obj_res r = lean_alloc_ctor(0, 1, 0);
+    lean_ctor_set_usize(r, 0, v);
+    return r;
+}
+
+static inline size_t lean_unbox_size_t(b_lean_obj_arg o) {
+    return lean_ctor_get_usize(o, 0);
+}
+
+/* Debugging helper functions */
+
+lean_object * lean_dbg_trace(lean_obj_arg s, lean_obj_arg fn);
+lean_object * lean_dbg_sleep(uint32_t ms, lean_obj_arg fn);
+lean_object * lean_dbg_trace_if_shared(lean_obj_arg s, lean_obj_arg a);
+
+/* IO Helper functions */
+
+static inline lean_obj_res lean_io_mk_world() {
+    lean_object * r = lean_alloc_ctor(0, 2, 0);
+    lean_ctor_set(r, 0, lean_box(0));
+    lean_ctor_set(r, 1, lean_box(0));
+    return r;
+}
+static inline bool lean_io_result_is_ok(b_lean_obj_arg r) { return lean_ptr_tag(r) == 0; }
+static inline bool lean_io_result_is_error(b_lean_obj_arg r) { return lean_ptr_tag(r) == 1; }
+static inline b_lean_obj_res lean_io_result_get_value(b_lean_obj_arg r) { assert(lean_io_result_is_ok(r)); return lean_ctor_get(r, 0); }
+static inline b_lean_obj_res lean_io_result_get_error(b_lean_obj_arg r) { assert(lean_io_result_is_error(r)); return lean_ctor_get(r, 0); }
+void lean_io_result_show_error(b_lean_obj_arg r);
+void lean_io_mark_end_initialization();
+
+/* IO Ref primitives */
+
+lean_obj_res lean_io_mk_ref(lean_obj_arg, lean_obj_arg);
+lean_obj_res lean_io_ref_get(b_lean_obj_arg, lean_obj_arg);
+lean_obj_res lean_io_ref_set(b_lean_obj_arg, lean_obj_arg, lean_obj_arg);
+lean_obj_res lean_io_ref_reset(b_lean_obj_arg, lean_obj_arg);
+lean_obj_res lean_io_ref_swap(b_lean_obj_arg, lean_obj_arg, lean_obj_arg);
 
 #ifdef __cplusplus
 }

@@ -318,7 +318,9 @@ match isIf alts with
 
 def emitInc (x : VarId) (n : Nat) (checkRef : Bool) : M Unit :=
 do
-emit (if checkRef then "lean_inc" else "lean_inc_ref");
+emit $
+  if checkRef then (if n == 1 then "lean_inc" else "lean_inc_n")
+  else (if n == 1 then "lean_inc_ref" else "lean_inc_ref_n");
 emit "(" *> emit x;
 when (n != 1) (emit ", " *> emit n);
 emitLn ");"

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include <assert.h>
 #include <string.h>
 #include <stdatomic.h>
+#include <limits.h>
 #if !defined(__APPLE__)
 #include <malloc.h>
 #endif
@@ -741,7 +742,6 @@ static inline lean_obj_res lean_byte_array_set(lean_obj_arg a, b_lean_obj_arg i,
     }
 }
 
-
 /* Strings */
 
 static inline lean_obj_res lean_alloc_string(size_t size, size_t capacity, size_t len) {
@@ -791,7 +791,7 @@ size_t lean_string_hash(b_lean_obj_arg);
 static inline lean_obj_res lean_mk_thunk(lean_obj_arg c) {
     lean_thunk_object * o = (lean_thunk_object*)lean_alloc_heap_object(sizeof(lean_thunk_object));
     lean_set_header((lean_object*)o, LeanThunk, 0);
-    o->m_value   = NULL;
+    o->m_value   = (lean_object*)0;
     o->m_closure = c;
     return (lean_object*)o;
 }
@@ -801,7 +801,7 @@ static inline lean_obj_res lean_thunk_pure(lean_obj_arg v) {
     lean_thunk_object * o = (lean_thunk_object*)lean_alloc_heap_object(sizeof(lean_thunk_object));
     lean_set_header((lean_object*)o, LeanThunk, 0);
     o->m_value   = v;
-    o->m_closure = NULL;
+    o->m_closure = (lean_object*)0;
     return (lean_object*)o;
 }
 
@@ -1028,6 +1028,185 @@ static inline lean_obj_res lean_nat_lxor(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     } else {
         return lean_nat_big_xor(a1, a2);
     }
+}
+
+/* Integers */
+
+#define LEAN_MAX_SMALL_INT (sizeof(void*) == 8 ? INT_MAX : (1 << 30))
+#define LEAN_MIN_SMALL_INT (sizeof(void*) == 8 ? INT_MIN : -(1 << 30))
+lean_object * lean_int_big_neg(lean_object * a);
+lean_object * lean_int_big_add(lean_object * a1, lean_object * a2);
+lean_object * lean_int_big_sub(lean_object * a1, lean_object * a2);
+lean_object * lean_int_big_mul(lean_object * a1, lean_object * a2);
+lean_object * lean_int_big_div(lean_object * a1, lean_object * a2);
+lean_object * lean_int_big_mod(lean_object * a1, lean_object * a2);
+bool lean_int_big_eq(lean_object * a1, lean_object * a2);
+bool lean_int_big_le(lean_object * a1, lean_object * a2);
+bool lean_int_big_lt(lean_object * a1, lean_object * a2);
+bool lean_int_big_nonneg(lean_object * a);
+
+lean_object * lean_cstr_to_int(char const * n);
+lean_object * lean_big_int_to_int(int n);
+lean_object * lean_big_size_t_to_int(size_t n);
+lean_object * lean_big_int64_to_int(int64_t n);
+
+static inline lean_obj_res lean_int_to_int(int n) {
+    if (sizeof(void*) == 8)
+        return lean_box((unsigned)(n));
+    else if (LEAN_MIN_SMALL_INT <= n && n <= LEAN_MAX_SMALL_INT)
+        return lean_box((unsigned)(n));
+    else
+        return lean_big_int_to_int(n);
+}
+
+static inline lean_obj_res lean_int64_to_int(int64_t n) {
+    if (LEAN_LIKELY(LEAN_MIN_SMALL_INT <= n && n <= LEAN_MAX_SMALL_INT))
+        return lean_box((unsigned)((int)n));
+    else
+        return lean_big_int64_to_int(n);
+}
+
+static inline int64_t lean_scalar_to_int64(b_lean_obj_arg a) {
+    assert(lean_is_scalar(a));
+    if (sizeof(void*) == 8)
+        return (int)((unsigned)lean_unbox(a));
+    else
+        return ((int)((size_t)a)) >> 1;
+}
+
+static inline int lean_scalar_to_int(b_lean_obj_arg a) {
+    assert(lean_is_scalar(a));
+    if (sizeof(void*) == 8)
+        return (int)((unsigned)lean_unbox(a));
+    else
+        return ((int)((size_t)a)) >> 1;
+}
+
+static inline lean_obj_res lean_nat_to_int(lean_obj_arg a) {
+    if (lean_is_scalar(a)) {
+        size_t v = lean_unbox(a);
+        if (v <= LEAN_MAX_SMALL_INT)
+            return a;
+        else
+            return lean_big_size_t_to_int(v);
+    } else {
+        return a;
+    }
+}
+
+static inline lean_obj_res lean_int_neg(b_lean_obj_arg a) {
+    if (LEAN_LIKELY(lean_is_scalar(a))) {
+        return lean_int64_to_int(-lean_scalar_to_int64(a));
+    } else {
+        return lean_int_big_neg(a);
+    }
+}
+
+static inline lean_obj_res lean_int_neg_succ_of_nat(lean_obj_arg a) {
+    lean_obj_res s  = lean_nat_succ(a);    lean_dec(a);
+    lean_obj_res i  = lean_nat_to_int(s);  lean_dec(s);
+    lean_obj_res r  = lean_int_neg(i);     lean_dec(i);
+    return r;
+}
+
+static inline lean_obj_res lean_int_add(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        return lean_int64_to_int(lean_scalar_to_int64(a1) + lean_scalar_to_int64(a2));
+    } else {
+        return lean_int_big_add(a1, a2);
+    }
+}
+
+static inline lean_obj_res lean_int_sub(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        return lean_int64_to_int(lean_scalar_to_int64(a1) - lean_scalar_to_int64(a2));
+    } else {
+        return lean_int_big_sub(a1, a2);
+    }
+}
+
+static inline lean_obj_res lean_int_mul(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        return lean_int64_to_int(lean_scalar_to_int64(a1) * lean_scalar_to_int64(a2));
+    } else {
+        return lean_int_big_mul(a1, a2);
+    }
+}
+
+static inline lean_obj_res lean_int_div(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        int v1 = lean_scalar_to_int(a1);
+        int v2 = lean_scalar_to_int(a2);
+        if (v2 == 0)
+            return lean_box(0);
+        else
+            return lean_int_to_int(v1 / v2);
+    } else {
+        return lean_int_big_div(a1, a2);
+    }
+}
+
+static inline lean_obj_res lean_int_mod(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        int v1 = lean_scalar_to_int(a1);
+        int v2 = lean_scalar_to_int(a2);
+        if (v2 == 0)
+            return lean_box(0);
+        else
+            return lean_int_to_int(v1 % v2);
+    } else {
+        return lean_int_big_mod(a1, a2);
+    }
+}
+
+static inline bool lean_int_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        return a1 == a2;
+    } else {
+        return lean_int_big_eq(a1, a2);
+    }
+}
+
+static inline bool lean_int_ne(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    return !lean_int_eq(a1, a2);
+}
+
+static inline bool lean_int_le(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        return lean_scalar_to_int(a1) <= lean_scalar_to_int(a2);
+    } else {
+        return lean_int_big_le(a1, a2);
+    }
+}
+
+static inline bool lean_int_lt(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        return lean_scalar_to_int(a1) < lean_scalar_to_int(a2);
+    } else {
+        return lean_int_big_lt(a1, a2);
+    }
+}
+
+static inline lean_obj_res nat_abs(b_lean_obj_arg i) {
+    if (lean_int_lt(i, lean_box(0))) {
+        return lean_int_neg(i);
+    } else {
+        lean_inc(i);
+        return i;
+    }
+}
+
+static inline uint8_t lean_int_dec_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) { return lean_int_eq(a1, a2); }
+
+static inline uint8_t lean_int_dec_le(b_lean_obj_arg a1, b_lean_obj_arg a2) { return lean_int_le(a1, a2); }
+
+static inline uint8_t lean_int_dec_lt(b_lean_obj_arg a1, b_lean_obj_arg a2) { return lean_int_lt(a1, a2); }
+
+static inline uint8_t lean_int_dec_nonneg(b_lean_obj_arg a) {
+    if (LEAN_LIKELY(lean_is_scalar(a)))
+        return lean_scalar_to_int(a) >= 0;
+    else
+        return lean_int_big_nonneg(a);
 }
 
 #ifdef __cplusplus

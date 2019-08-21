@@ -45,17 +45,18 @@ extern "C" {
 
 #define LEAN_BYTE(Var, Index) *(((uint8_t*)&Var)+Index)
 
-#define LeanMaxCtorTag  245
-#define LeanClosure     246
-#define LeanArray       247
-#define LeanStructArray 248
-#define LeanScalarArray 249
-#define LeanString      250
-#define LeanMPZ         251
-#define LeanThunk       252
-#define LeanTask        253
-#define LeanRef         254
-#define LeanExternal    255
+#define LeanMaxCtorTag  244
+#define LeanClosure     245
+#define LeanArray       246
+#define LeanStructArray 247
+#define LeanScalarArray 248
+#define LeanString      249
+#define LeanMPZ         250
+#define LeanThunk       251
+#define LeanTask        252
+#define LeanRef         253
+#define LeanExternal    254
+#define LeanReserved    255
 
 #define LEAN_CASSERT(predicate) LEAN_impl_CASSERT_LINE(predicate, __LINE__, __FILE__)
 
@@ -219,6 +220,21 @@ void lean_panic_out_of_memory();
 
 void * lean_alloc_heap_object(size_t sz);
 void lean_free_heap_obj(lean_object * o);
+
+/* The object size may be slightly bigger for constructor objects.
+   The runtime does not track the size of the scalar size area.
+   All constructor objects are "small", and allocated into pages.
+   We retrieve their size by accessing the page header. The size of
+   small objects is a multiple of LEAN_OBJECT_SIZE_DELTA */
+size_t lean_object_byte_size(lean_object * o);
+
+static inline void lean_set_other_mem_kind(lean_object * o) {
+#ifdef LEAN_COMPRESSED_OBJECT_HEADER
+    o->m_header &= ~((1ull << LEAN_ST_BIT) | (1ull << LEAN_MT_BIT) | (1ull << LEAN_PERSISTENT_BIT));
+#else
+    o->m_mem_kind = LEAN_OTHER_MEM_KIND;
+#endif
+}
 
 static inline bool lean_is_mt(lean_object * o) {
 #ifdef LEAN_COMPRESSED_OBJECT_HEADER
@@ -396,16 +412,49 @@ static inline bool lean_is_shared(lean_object * o) {
 #endif
 }
 
+static inline bool lean_nonzero_rc(lean_object * o) {
+#ifdef LEAN_COMPRESSED_OBJECT_HEADER
+    if (LEAN_LIKELY(lean_is_st(o))) {
+        return ((o->m_header) & ((1ull << 45) - 1)) > 0;
+    } else if (lean_is_mt(o)) {
+        LEAN_USING_STD;
+        return (atomic_load_explicit(&(o->m_header), memory_order_acquire) & ((1ull << 45) - 1)) > 0;
+    } else {
+        return false;
+    }
+#else
+    if (LEAN_LIKELY(lean_is_st(o))) {
+        return o->m_rc > 0;
+    } else if (lean_is_mt(o)) {
+        LEAN_USING_STD;
+        return atomic_load_explicit(&(o->m_rc), memory_order_acquire) > 0;
+    } else {
+        return false;
+    }
+#endif
+}
+
 void lean_mark_mt(lean_object * o);
 void lean_mark_persistent(lean_object * o);
 
-static inline void lean_set_header(lean_object * o, unsigned tag, unsigned other) {
+static inline void lean_set_st_header(lean_object * o, unsigned tag, unsigned other) {
 #ifdef LEAN_COMPRESSED_OBJECT_HEADER
     o->m_header   = ((size_t)(tag) << 56) | ((size_t)(other) << 48) | (1ull << LEAN_ST_BIT) | 1;
 #else
     o->m_rc       = 1;
     o->m_tag      = tag;
     o->m_mem_kind = LEAN_ST_MEM_KIND;
+    o->m_other    = other;
+#endif
+}
+
+static inline void lean_set_other_header(lean_object * o, unsigned tag, unsigned other) {
+#ifdef LEAN_COMPRESSED_OBJECT_HEADER
+    o->m_header   = ((size_t)(tag) << 56) | ((size_t)(other) << 48) | 1;
+#else
+    o->m_rc       = 1;
+    o->m_tag      = tag;
+    o->m_mem_kind = LEAN_OTHER_MEM_KIND;
     o->m_other    = other;
 #endif
 }
@@ -421,6 +470,9 @@ static inline unsigned lean_ctor_num_objs(lean_object * o) {
 #endif
 }
 
+/* See comment at lean_object_byte_size */
+unsigned lean_ctor_byte_size(lean_object * o);
+
 static inline lean_object ** lean_ctor_obj_cptr(lean_object * o) {
     assert(lean_is_ctor(o));
     return lean_to_ctor(o)->m_objs;
@@ -434,7 +486,7 @@ static inline uint8_t * lean_ctor_scalar_cptr(lean_object * o) {
 static inline lean_object * lean_alloc_ctor(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
     assert(tag <= LeanMaxCtorTag && num_objs < 256 && scalar_sz < 1024);
     lean_object * o = (lean_object*)lean_alloc_heap_object(sizeof(lean_ctor_object) + sizeof(void*)*num_objs + scalar_sz);
-    lean_set_header(o, tag, num_objs);
+    lean_set_st_header(o, tag, num_objs);
     return o;
 }
 
@@ -524,7 +576,7 @@ static inline lean_obj_res lean_alloc_closure(void * fun, unsigned arity, unsign
     assert(arity > 0);
     assert(num_fixed < arity);
     lean_closure_object * o = (lean_closure_object*)lean_alloc_heap_object(sizeof(lean_closure_object) + sizeof(void*)*num_fixed);
-    lean_set_header((lean_object*)o, LeanClosure, 0);
+    lean_set_st_header((lean_object*)o, LeanClosure, 0);
     o->m_fun = fun;
     o->m_arity = arity;
     o->m_num_fixed = num_fixed;
@@ -569,16 +621,18 @@ lean_obj_res lean_fixpoint5(lean_obj_arg rec, lean_obj_arg a1, lean_obj_arg a2, 
 lean_obj_res lean_fixpoint6(lean_obj_arg rec, lean_obj_arg a1, lean_obj_arg a2, lean_obj_arg a3, lean_obj_arg a4, lean_obj_arg a5, lean_obj_arg a6);
 
 /* Arrays of objects (low level API) */
-
 static inline lean_obj_res lean_alloc_array(size_t size, size_t capacity) {
     lean_array_object * o = (lean_array_object*)lean_alloc_heap_object(sizeof(lean_array_object) + sizeof(void*)*capacity);
-    lean_set_header((lean_object*)o, LeanArray, 0);
+    lean_set_st_header((lean_object*)o, LeanArray, 0);
     o->m_size = size;
     o->m_capacity = capacity;
     return (lean_object*)o;
 }
 static inline size_t lean_array_size(b_lean_obj_arg o) { return lean_to_array(o)->m_size; }
 static inline size_t lean_array_capacity(b_lean_obj_arg o) { return lean_to_array(o)->m_capacity; }
+static inline size_t lean_array_byte_size(lean_object * o) {
+    return sizeof(lean_array_object) + sizeof(void*)*lean_array_capacity(o);
+}
 static inline lean_object ** lean_array_cptr(lean_object * o) { return lean_to_array(o)->m_data; }
 static inline void lean_array_set_size(u_lean_obj_arg o, size_t sz) {
     assert(lean_is_array(o));
@@ -718,7 +772,7 @@ lean_object * lean_mk_array(lean_obj_arg n, lean_obj_arg v);
 
 static inline lean_obj_res lean_alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
     lean_sarray_object * o = (lean_sarray_object*)lean_alloc_heap_object(sizeof(lean_sarray_object) + elem_size*capacity);
-    lean_set_header((lean_object*)o, LeanScalarArray, elem_size);
+    lean_set_st_header((lean_object*)o, LeanScalarArray, elem_size);
     o->m_size = size;
     o->m_capacity = capacity;
     return (lean_object*)o;
@@ -732,6 +786,9 @@ static inline unsigned lean_sarray_elem_size(lean_object * o) {
 #endif
 }
 static inline size_t lean_sarray_capacity(lean_object * o) { return lean_to_sarray(o)->m_capacity; }
+static inline size_t lean_sarray_byte_size(lean_object * o) {
+    return sizeof(lean_sarray_object) + lean_sarray_elem_size(o)*lean_sarray_capacity(o);
+}
 static inline size_t lean_sarray_size(b_lean_obj_arg o) { return lean_to_sarray(o)->m_size; }
 static inline void lean_sarray_set_size(u_lean_obj_arg o, size_t sz) {
     assert(lean_is_exclusive(o));
@@ -791,13 +848,14 @@ static inline lean_obj_res lean_byte_array_set(lean_obj_arg a, b_lean_obj_arg i,
 
 static inline lean_obj_res lean_alloc_string(size_t size, size_t capacity, size_t len) {
     lean_string_object * o = (lean_string_object*)lean_alloc_heap_object(sizeof(lean_string_object) + capacity);
-    lean_set_header((lean_object*)o, LeanString, 0);
+    lean_set_st_header((lean_object*)o, LeanString, 0);
     o->m_size = size;
     o->m_capacity = capacity;
     o->m_length = len;
     return (lean_object*)o;
 }
 static inline size_t lean_string_capacity(lean_object * o) { return lean_to_string(o)->m_capacity; }
+static inline size_t lean_string_byte_size(lean_object * o) { return sizeof(lean_string_object) + lean_string_capacity(o); }
 /* instance : inhabited char := ⟨'A'⟩ */
 static inline uint32_t lean_char_default_value() { return 'A'; }
 lean_obj_res lean_mk_string(char const * s);
@@ -835,7 +893,7 @@ size_t lean_string_hash(b_lean_obj_arg);
 
 static inline lean_obj_res lean_mk_thunk(lean_obj_arg c) {
     lean_thunk_object * o = (lean_thunk_object*)lean_alloc_heap_object(sizeof(lean_thunk_object));
-    lean_set_header((lean_object*)o, LeanThunk, 0);
+    lean_set_st_header((lean_object*)o, LeanThunk, 0);
     o->m_value   = (lean_object*)0;
     o->m_closure = c;
     return (lean_object*)o;
@@ -844,7 +902,7 @@ static inline lean_obj_res lean_mk_thunk(lean_obj_arg c) {
 /* Thunk.pure : A -> Thunk A */
 static inline lean_obj_res lean_thunk_pure(lean_obj_arg v) {
     lean_thunk_object * o = (lean_thunk_object*)lean_alloc_heap_object(sizeof(lean_thunk_object));
-    lean_set_header((lean_object*)o, LeanThunk, 0);
+    lean_set_st_header((lean_object*)o, LeanThunk, 0);
     o->m_value   = v;
     o->m_closure = (lean_object*)0;
     return (lean_object*)o;
@@ -887,11 +945,20 @@ static inline lean_obj_res lean_task_map(lean_obj_arg f, lean_obj_arg t) { retur
 /* Task.get (t : Task A) : A */
 b_lean_obj_res lean_task_get(b_lean_obj_arg t);
 
+/* primitive for implementing `IO.checkInterrupt : IO bool` */
+bool lean_io_check_interrupt_core();
+/* primitive for implementing `IO.requestInterrupt : Task a -> IO Unit` */
+void lean_io_request_interrupt_core(b_lean_obj_arg t);
+/* primitive for implementing `IO.hasFinished : Task a -> IO Unit` */
+bool lean_io_has_finished_core(b_lean_obj_arg t);
+/* primitive for implementing `IO.waitAny : List (Task a) -> IO (Task a) */
+b_lean_obj_res lean_io_wait_any_core(b_lean_obj_arg task_list);
+
 /* External objects */
 
 static inline lean_object * lean_alloc_external(lean_external_class * cls, void * data) {
     lean_external_object * o = (lean_external_object*)lean_alloc_heap_object(sizeof(lean_external_object));
-    lean_set_header((lean_object*)o, LeanExternal, 0);
+    lean_set_st_header((lean_object*)o, LeanExternal, 0);
     o->m_class   = cls;
     o->m_data    = data;
     return (lean_object*)o;

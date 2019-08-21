@@ -4979,7 +4979,7 @@ obj* _init_l_Lean_IR_EmitCpp_emitMainFn___closed__7() {
 _start:
 {
 obj* x_1; 
-x_1 = lean::mk_string("if (io_result_is_ok(w)) {");
+x_1 = lean::mk_string("if (lean::io_result_is_ok(w)) {");
 return x_1;
 }
 }
@@ -5171,7 +5171,7 @@ obj* _init_l_Lean_IR_EmitCpp_emitMainFn___closed__26() {
 _start:
 {
 obj* x_1; 
-x_1 = lean::mk_string("  int ret = lean::unbox(io_result_get_value(w));");
+x_1 = lean::mk_string("  int ret = lean::unbox(lean::io_result_get_value(w));");
 return x_1;
 }
 }
@@ -26213,7 +26213,7 @@ obj* _init_l_Lean_IR_EmitCpp_emitDeclInit___closed__3() {
 _start:
 {
 obj* x_1; 
-x_1 = lean::mk_string("if (io_result_is_error(w)) return w;");
+x_1 = lean::mk_string("if (lean::io_result_is_error(w)) return w;");
 return x_1;
 }
 }
@@ -26221,7 +26221,7 @@ obj* _init_l_Lean_IR_EmitCpp_emitDeclInit___closed__4() {
 _start:
 {
 obj* x_1; 
-x_1 = lean::mk_string(" = io_result_get_value(w);");
+x_1 = lean::mk_string(" = lean::io_result_get_value(w);");
 return x_1;
 }
 }

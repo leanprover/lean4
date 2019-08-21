@@ -205,7 +205,7 @@ match d with
   modName ← getModName;
   emitLn ("w = initialize_" ++ (modName.mangle "") ++ "(w);");
   emitLns ["lean::io_mark_end_initialization();",
-           "if (io_result_is_ok(w)) {",
+           "if (lean::io_result_is_ok(w)) {",
            "lean::scoped_task_manager tmanager(lean::hardware_concurrency());"];
   if xs.size == 2 then do {
     emitLns ["obj* in = lean::box(0);",
@@ -220,8 +220,8 @@ match d with
     emitLn ("w = " ++ leanMainFn ++ "(w);")
   };
   emitLn "}";
-  emitLns ["if (io_result_is_ok(w)) {",
-           "  int ret = lean::unbox(io_result_get_value(w));",
+  emitLns ["if (lean::io_result_is_ok(w)) {",
+           "  int ret = lean::unbox(lean::io_result_get_value(w));",
            "  lean::dec_ref(w);",
            "  return ret;",
            "} else {",
@@ -711,13 +711,13 @@ env ← getEnv;
 let n := d.name;
 if isIOUnitInitFn env n then do {
   emit "w = "; emitCppName n; emitLn "(w);";
-  emitLn "if (io_result_is_error(w)) return w;"
+  emitLn "if (lean::io_result_is_error(w)) return w;"
 } else when (d.params.size == 0) $ do {
   match getInitFnNameFor env d.name with
   | some initFn => do {
     emit "w = "; emitCppName initFn; emitLn "(w);";
-    emitLn "if (io_result_is_error(w)) return w;";
-    emitCppName n; emitLn " = io_result_get_value(w);"
+    emitLn "if (lean::io_result_is_error(w)) return w;";
+    emitCppName n; emitLn " = lean::io_result_get_value(w);"
   }
   | _ => do {
     emitCppName n; emit " = "; emitCppInitName n; emitLn "();"
@@ -737,11 +737,11 @@ emitLns [
     "obj* initialize_" ++ modName.mangle "" ++ "(obj* w) {",
     "if (_G_initialized) return w;",
     "_G_initialized = true;",
-    "if (io_result_is_error(w)) return w;"
+    "if (lean::io_result_is_error(w)) return w;"
 ];
 env.imports.mfor $ fun m => emitLns [
   "w = initialize_" ++ m.mangle "" ++ "(w);",
-  "if (io_result_is_error(w)) return w;"
+  "if (lean::io_result_is_error(w)) return w;"
 ];
 let decls := getDecls env;
 decls.reverse.mfor emitDeclInit;

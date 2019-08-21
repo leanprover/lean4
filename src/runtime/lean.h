@@ -10,14 +10,19 @@ Author: Leonardo de Moura
 #include <stdint.h>
 #include <assert.h>
 #include <string.h>
-#include <stdatomic.h>
 #include <limits.h>
 #if !defined(__APPLE__)
 #include <malloc.h>
 #endif
 
 #ifdef __cplusplus
+#include <atomic>
+#define _Atomic(t) std::atomic<t>
+#define LEAN_USING_STD using namespace std;
 extern "C" {
+#else
+#include <stdatomic.h>
+#define  LEAN_USING_STD
 #endif
 
 #define LEAN_CLOSURE_MAX_ARGS 16
@@ -74,15 +79,15 @@ typedef struct {
               1-bit   : multi-threaded
               1-bit   : persistent
        (low)  45-bits : RC */
-    _Atomic size_t m_header;
+    _Atomic(size_t) m_header;
 #define LEAN_PERSISTENT_BIT 45
 #define LEAN_MT_BIT 46
 #define LEAN_ST_BIT 47
 #else
-    _Atomic size_t m_rc;
-    uint8_t        m_tag;
-    uint8_t        m_mem_kind;
-    uint16_t       m_other;  /* num fields for constructors, element size for scalar arrays, etc. */
+    _Atomic(size_t) m_rc;
+    uint8_t         m_tag;
+    uint8_t         m_mem_kind;
+    uint16_t        m_other;  /* num fields for constructors, element size for scalar arrays, etc. */
 #define LEAN_ST_MEM_KIND 0
 #define LEAN_MT_MEM_KIND 1
 #define LEAN_PERSISTENT_MEM_KIND 2
@@ -165,9 +170,9 @@ typedef struct {
 } lean_ref_object;
 
 typedef struct {
-    lean_object             m_header;
-    _Atomic (lean_object *) m_value;
-    _Atomic (lean_object *) m_closure;
+    lean_object            m_header;
+    _Atomic(lean_object *) m_value;
+    _Atomic(lean_object *) m_closure;
 } lean_thunk_object;
 
 struct lean_task;
@@ -184,9 +189,9 @@ typedef struct {
 } lean_task_imp;
 
 typedef struct lean_task {
-    lean_object             m_header;
-    _Atomic (lean_object *) m_value;
-    lean_task_imp *         m_imp;
+    lean_object            m_header;
+    _Atomic(lean_object *) m_value;
+    lean_task_imp *        m_imp;
 } lean_task_object;
 
 typedef void (*lean_external_finalize_proc)(void *);
@@ -231,6 +236,14 @@ static inline bool lean_is_st(lean_object * o) {
 #endif
 }
 
+static inline bool lean_is_persistent(lean_object * o) {
+#ifdef LEAN_COMPRESSED_OBJECT_HEADER
+    return ((o->m_header >> LEAN_PERSISTENT_BIT) & 1) != 0;
+#else
+    return o->m_mem_kind == LEAN_PERSISTENT_MEM_KIND;
+#endif
+}
+
 static inline bool lean_is_heap_obj(lean_object * o) {
     return lean_is_st(o) || lean_is_mt(o);
 }
@@ -240,13 +253,15 @@ static inline void lean_inc_ref(lean_object * o) {
     if (LEAN_LIKELY(lean_is_st(o))) {
         o->m_header++;
     } else if (lean_is_mt(o)) {
-        atomic_fetch_add_explicit(&(o->m_header), 1, memory_order_relaxed);
+        LEAN_USING_STD;
+        atomic_fetch_add_explicit(&(o->m_header), (size_t)1, memory_order_relaxed);
     }
 #else
     if (LEAN_LIKELY(lean_is_st(o))) {
         o->m_rc++;
     } else if (lean_is_mt(o)) {
-        atomic_fetch_add_explicit(&(o->m_rc), 1, memory_order_relaxed);
+        LEAN_USING_STD;
+        atomic_fetch_add_explicit(&(o->m_rc), (size_t)1, memory_order_relaxed);
     }
 #endif
 }
@@ -256,12 +271,14 @@ static inline void lean_inc_ref_n(lean_object * o, size_t n) {
     if (LEAN_LIKELY(lean_is_st(o))) {
         o->m_header += n;
     } else if (lean_is_mt(o)) {
+        LEAN_USING_STD;
         atomic_fetch_add_explicit(&(o->m_header), n, memory_order_relaxed);
     }
 #else
     if (LEAN_LIKELY(lean_is_st(o))) {
         o->m_rc += n;
     } else if (lean_is_mt(o)) {
+        LEAN_USING_STD;
         atomic_fetch_add_explicit(&(o->m_rc), n, memory_order_relaxed);
     }
 #endif
@@ -273,7 +290,8 @@ static inline bool lean_dec_ref_core(lean_object * o) {
         o->m_header--;
         return ((o->m_header) & ((1ull << 45) - 1)) == 0;
     } else if (lean_is_mt(o)) {
-        return (atomic_fetch_sub_explicit(&(o->m_header), 1, memory_order_acq_rel) & ((1ull << 45) - 1)) == 1;
+        LEAN_USING_STD;
+        return (atomic_fetch_sub_explicit(&(o->m_header), (size_t)1, memory_order_acq_rel) & ((1ull << 45) - 1)) == 1;
     } else {
         return false;
     }
@@ -282,7 +300,8 @@ static inline bool lean_dec_ref_core(lean_object * o) {
         o->m_rc--;
         return o->m_rc == 0;
     } else if (lean_is_mt(o)) {
-        return atomic_fetch_sub_explicit(&(o->m_rc), 1, memory_order_acq_rel) == 1;
+        LEAN_USING_STD;
+        return atomic_fetch_sub_explicit(&(o->m_rc), (size_t)1, memory_order_acq_rel) == 1;
     } else {
         return false;
     }
@@ -338,6 +357,7 @@ static inline bool lean_is_exclusive(lean_object * o) {
     if (LEAN_LIKELY(lean_is_st(o))) {
         return ((o->m_header) & ((1ull << 45) - 1)) == 1;
     } else if (lean_is_mt(o)) {
+        LEAN_USING_STD;
         return (atomic_load_explicit(&(o->m_header), memory_order_acquire) & ((1ull << 45) - 1)) == 1;
     } else {
         return false;
@@ -346,6 +366,7 @@ static inline bool lean_is_exclusive(lean_object * o) {
     if (LEAN_LIKELY(lean_is_st(o))) {
         return o->m_rc == 1;
     } else if (lean_is_mt(o)) {
+        LEAN_USING_STD;
         return atomic_load_explicit(&(o->m_rc), memory_order_acquire) == 1;
     } else {
         return false;
@@ -358,6 +379,7 @@ static inline bool lean_is_shared(lean_object * o) {
     if (LEAN_LIKELY(lean_is_st(o))) {
         return ((o->m_header) & ((1ull << 45) - 1)) > 1;
     } else if (lean_is_mt(o)) {
+        LEAN_USING_STD;
         return (atomic_load_explicit(&(o->m_header), memory_order_acquire) & ((1ull << 45) - 1)) > 1;
     } else {
         return false;
@@ -366,6 +388,7 @@ static inline bool lean_is_shared(lean_object * o) {
     if (LEAN_LIKELY(lean_is_st(o))) {
         return o->m_rc > 1;
     } else if (lean_is_mt(o)) {
+        LEAN_USING_STD;
         return atomic_load_explicit(&(o->m_rc), memory_order_acquire) > 1;
     } else {
         return false;
@@ -679,7 +702,7 @@ static inline lean_object * lean_array_fswap(lean_obj_arg a, b_lean_obj_arg i, b
     return lean_array_uswap(a, lean_unbox(i), lean_unbox(j));
 }
 
-static inline lean_object * array_swap(lean_obj_arg a, b_lean_obj_arg i, b_lean_obj_arg j) {
+static inline lean_object * lean_array_swap(lean_obj_arg a, b_lean_obj_arg i, b_lean_obj_arg j) {
     if (!lean_is_scalar(i) || !lean_is_scalar(j)) return a;
     size_t ui = lean_unbox(i);
     size_t uj = lean_unbox(j);
@@ -866,7 +889,7 @@ b_lean_obj_res lean_task_get(b_lean_obj_arg t);
 
 /* External objects */
 
-static inline lean_object * alloc_external(lean_external_class * cls, void * data) {
+static inline lean_object * lean_alloc_external(lean_external_class * cls, void * data) {
     lean_external_object * o = (lean_external_object*)lean_alloc_heap_object(sizeof(lean_external_object));
     lean_set_header((lean_object*)o, LeanExternal, 0);
     o->m_class   = cls;
@@ -874,7 +897,7 @@ static inline lean_object * alloc_external(lean_external_class * cls, void * dat
     return (lean_object*)o;
 }
 
-static inline lean_external_class * lena_get_external_class(lean_object * o) {
+static inline lean_external_class * lean_get_external_class(lean_object * o) {
     return lean_to_external(o)->m_class;
 }
 
@@ -901,16 +924,16 @@ lean_object * lean_nat_big_lor(lean_object * a1, lean_object * a2);
 lean_object * lean_nat_big_xor(lean_object * a1, lean_object * a2);
 
 lean_obj_res lean_cstr_to_nat(char const * n);
-lean_obj_res lean_big_size_t_to_nat(size_t n);
+lean_obj_res lean_big_usize_to_nat(size_t n);
 lean_obj_res lean_big_uint64_to_nat(size_t n);
-static inline lean_obj_res lean_size_t_to_nat(size_t n) {
+static inline lean_obj_res lean_usize_to_nat(size_t n) {
     if (LEAN_LIKELY(n <= LEAN_MAX_SMALL_NAT))
         return lean_box(n);
     else
-        return lean_big_size_t_to_nat(n);
+        return lean_big_usize_to_nat(n);
 }
 static inline lean_obj_res lean_unsigned_to_nat(unsigned n) {
-    return lean_size_t_to_nat(n);
+    return lean_usize_to_nat(n);
 }
 static inline lean_obj_res lean_uint64_to_nat(uint64_t n) {
     if (LEAN_LIKELY(n <= LEAN_MAX_SMALL_NAT))
@@ -921,14 +944,14 @@ static inline lean_obj_res lean_uint64_to_nat(uint64_t n) {
 
 static inline lean_obj_res lean_nat_succ(b_lean_obj_arg a) {
     if (LEAN_LIKELY(lean_is_scalar(a)))
-        return lean_size_t_to_nat(lean_unbox(a) + 1);
+        return lean_usize_to_nat(lean_unbox(a) + 1);
     else
         return lean_nat_big_succ(a);
 }
 
 static inline lean_obj_res lean_nat_add(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2)))
-        return lean_size_t_to_nat(lean_unbox(a1) + lean_unbox(a2));
+        return lean_usize_to_nat(lean_unbox(a1) + lean_unbox(a2));
     else
         return lean_nat_big_add(a1, a2);
 }
@@ -1209,7 +1232,7 @@ static inline bool lean_int_lt(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     }
 }
 
-static inline lean_obj_res nat_abs(b_lean_obj_arg i) {
+static inline lean_obj_res lean_nat_abs(b_lean_obj_arg i) {
     if (lean_int_lt(i, lean_box(0))) {
         return lean_int_neg(i);
     } else {
@@ -1236,7 +1259,7 @@ static inline uint8_t lean_int_dec_nonneg(b_lean_obj_arg a) {
 
 uint8_t lean_uint8_of_big_nat(b_lean_obj_arg a);
 static inline uint8_t lean_uint8_of_nat(b_lean_obj_arg a) { return lean_is_scalar(a) ? (uint8_t)(lean_unbox(a)) : lean_uint8_of_big_nat(a); }
-static inline lean_obj_res lean_uint8_to_nat(uint8_t a) { return lean_size_t_to_nat((size_t)a); }
+static inline lean_obj_res lean_uint8_to_nat(uint8_t a) { return lean_usize_to_nat((size_t)a); }
 static inline uint8_t lean_uint8_add(uint8_t a1, uint8_t a2) { return a1+a2; }
 static inline uint8_t lean_uint8_sub(uint8_t a1, uint8_t a2) { return a1-a2; }
 static inline uint8_t lean_uint8_mul(uint8_t a1, uint8_t a2) { return a1*a2; }
@@ -1258,7 +1281,7 @@ static inline uint8_t lean_uint8_dec_le(uint8_t a1, uint8_t a2) { return a1 <= a
 
 uint16_t lean_uint16_of_big_nat(b_lean_obj_arg a);
 inline uint16_t lean_uint16_of_nat(b_lean_obj_arg a) { return lean_is_scalar(a) ? (int16_t)(lean_unbox(a)) : lean_uint16_of_big_nat(a); }
-inline lean_obj_res lean_uint16_to_nat(uint16_t a) { return lean_size_t_to_nat((size_t)a); }
+inline lean_obj_res lean_uint16_to_nat(uint16_t a) { return lean_usize_to_nat((size_t)a); }
 inline uint16_t lean_uint16_add(uint16_t a1, uint16_t a2) { return a1+a2; }
 inline uint16_t lean_uint16_sub(uint16_t a1, uint16_t a2) { return a1-a2; }
 inline uint16_t lean_uint16_mul(uint16_t a1, uint16_t a2) { return a1*a2; }
@@ -1280,7 +1303,7 @@ inline uint8_t lean_uint16_dec_le(uint16_t a1, uint16_t a2) { return a1 <= a2; }
 
 uint32_t lean_uint32_of_big_nat(b_lean_obj_arg a);
 static inline uint32_t lean_uint32_of_nat(b_lean_obj_arg a) { return lean_is_scalar(a) ? (uint32_t)(lean_unbox(a)) : lean_uint32_of_big_nat(a); }
-static inline lean_obj_res lean_uint32_to_nat(uint32_t a) { return lean_size_t_to_nat((size_t)a); }
+static inline lean_obj_res lean_uint32_to_nat(uint32_t a) { return lean_usize_to_nat((size_t)a); }
 static inline uint32_t lean_uint32_add(uint32_t a1, uint32_t a2) { return a1+a2; }
 static inline uint32_t lean_uint32_sub(uint32_t a1, uint32_t a2) { return a1-a2; }
 static inline uint32_t lean_uint32_mul(uint32_t a1, uint32_t a2) { return a1*a2; }

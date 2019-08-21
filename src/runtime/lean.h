@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 #ifdef __cplusplus
 #include <atomic>
 #define _Atomic(t) std::atomic<t>
-#define LEAN_USING_STD using namespace std;
+#define LEAN_USING_STD using namespace std; /* NOLINT */
 extern "C" {
 #else
 #include <stdatomic.h>

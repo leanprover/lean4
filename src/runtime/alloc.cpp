@@ -51,6 +51,7 @@ struct page_header {
     page *           m_next;
     page *           m_prev;
     void *           m_free_list;
+    unsigned         m_obj_size;
     unsigned         m_max_free;
     unsigned         m_num_free;
     unsigned         m_slot_idx;
@@ -312,6 +313,7 @@ static page * alloc_page(heap * h, unsigned obj_size) {
     p->m_header.m_heap       = h;
     page_list_insert(h->m_curr_page[slot_idx], p);
     p->m_header.m_slot_idx   = slot_idx;
+    p->m_header.m_obj_size   = obj_size;
     char * curr_free         = p->m_data;
     set_next_obj(curr_free, nullptr);
     char * end               = p->m_data + (LEAN_PAGE_SIZE - sizeof(page_header));
@@ -400,12 +402,7 @@ void * alloc(size_t sz) {
     return r;
 }
 
-void dealloc(void * o, size_t sz) {
-    LEAN_RUNTIME_STAT_CODE(g_num_dealloc++);
-    sz = align(sz, LEAN_OBJECT_SIZE_DELTA);
-    if (LEAN_UNLIKELY(sz > LEAN_MAX_SMALL_OBJECT_SIZE)) {
-        return free(o);
-    }
+static inline void dealloc_small_core(void * o) {
     LEAN_RUNTIME_STAT_CODE(g_num_small_dealloc++);
     if (LEAN_UNLIKELY(g_heap == nullptr)) {
         init_heap(false);
@@ -423,6 +420,24 @@ void dealloc(void * o, size_t sz) {
             g_heap->export_objs();
         }
     }
+}
+
+void dealloc(void * o, size_t sz) {
+    LEAN_RUNTIME_STAT_CODE(g_num_dealloc++);
+    sz = align(sz, LEAN_OBJECT_SIZE_DELTA);
+    if (LEAN_UNLIKELY(sz > LEAN_MAX_SMALL_OBJECT_SIZE)) {
+        return free(o);
+    }
+    dealloc_small_core(o);
+}
+
+void dealloc_small(void * o) {
+    dealloc_small_core(o);
+}
+
+unsigned get_small_object_size(void * o) {
+    page * p = get_page_of(o);
+    return p->m_header.m_obj_size;
 }
 
 void initialize_alloc() {

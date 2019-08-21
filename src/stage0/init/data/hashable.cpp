@@ -107,11 +107,11 @@ static bool _G_initialized = false;
 obj* initialize_init_data_hashable(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_data_uint(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_data_string_default(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 l_String_Hashable___closed__1 = _init_l_String_Hashable___closed__1();
 lean::mark_persistent(l_String_Hashable___closed__1);
 l_String_Hashable = _init_l_String_Hashable();

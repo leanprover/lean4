@@ -25,20 +25,20 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_default(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_inlineattrs(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_specialize(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_constfolding(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_closedtermcache(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_externattr(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_implementedbyattr(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_default(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 return w;
 }

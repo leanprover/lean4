@@ -20,10 +20,10 @@ static bool _G_initialized = false;
 obj* initialize_init_data_rbmap_default(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_data_rbtree_default(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_data_rbmap_basic(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 return w;
 }

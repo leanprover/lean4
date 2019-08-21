@@ -3537,11 +3537,11 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_inlineattrs(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_attributes(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_util(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 l_Lean_Compiler_InlineAttributeKind_Inhabited = _init_l_Lean_Compiler_InlineAttributeKind_Inhabited();
 l_Lean_Compiler_InlineAttributeKind_HasBeq___closed__1 = _init_l_Lean_Compiler_InlineAttributeKind_HasBeq___closed__1();
 lean::mark_persistent(l_Lean_Compiler_InlineAttributeKind_HasBeq___closed__1);
@@ -3608,8 +3608,8 @@ lean::mark_persistent(l_Lean_Compiler_mkInlineAttrs___closed__26);
 l_Lean_Compiler_mkInlineAttrs___closed__27 = _init_l_Lean_Compiler_mkInlineAttrs___closed__27();
 lean::mark_persistent(l_Lean_Compiler_mkInlineAttrs___closed__27);
 w = l_Lean_Compiler_mkInlineAttrs(w);
-if (io_result_is_error(w)) return w;
-l_Lean_Compiler_inlineAttrs = io_result_get_value(w);
+if (lean::io_result_is_error(w)) return w;
+l_Lean_Compiler_inlineAttrs = lean::io_result_get_value(w);
 lean::mark_persistent(l_Lean_Compiler_inlineAttrs);
 return w;
 }

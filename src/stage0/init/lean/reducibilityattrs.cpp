@@ -3237,9 +3237,9 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_reducibilityattrs(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_attributes(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 l_Lean_ReducibilityStatus_inhabited = _init_l_Lean_ReducibilityStatus_inhabited();
 l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4___closed__1 = _init_l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4___closed__1();
 lean::mark_persistent(l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4___closed__1);
@@ -3286,8 +3286,8 @@ lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__17);
 l_Lean_mkReducibilityAttrs___closed__18 = _init_l_Lean_mkReducibilityAttrs___closed__18();
 lean::mark_persistent(l_Lean_mkReducibilityAttrs___closed__18);
 w = l_Lean_mkReducibilityAttrs(w);
-if (io_result_is_error(w)) return w;
-l_Lean_reducibilityAttrs = io_result_get_value(w);
+if (lean::io_result_is_error(w)) return w;
+l_Lean_reducibilityAttrs = lean::io_result_get_value(w);
 lean::mark_persistent(l_Lean_reducibilityAttrs);
 return w;
 }

@@ -2072,11 +2072,11 @@ static bool _G_initialized = false;
 obj* initialize_init_data_uint(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_data_fin_basic(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_system_platform(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 l_uint8Sz = _init_l_uint8Sz();
 lean::mark_persistent(l_uint8Sz);
 l_UInt8_HasZero = _init_l_UInt8_HasZero();

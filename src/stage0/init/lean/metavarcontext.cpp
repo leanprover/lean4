@@ -4066,9 +4066,9 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_metavarcontext(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_localcontext(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 l_Lean_MetavarContext_mkMetavarContext___closed__1 = _init_l_Lean_MetavarContext_mkMetavarContext___closed__1();
 lean::mark_persistent(l_Lean_MetavarContext_mkMetavarContext___closed__1);
 return w;

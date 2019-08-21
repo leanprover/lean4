@@ -5437,9 +5437,9 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_closedtermcache(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_environment(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 l_Lean_SMap_insert___at_Lean_mkClosedTermCacheExtension___spec__1___closed__1 = _init_l_Lean_SMap_insert___at_Lean_mkClosedTermCacheExtension___spec__1___closed__1();
 lean::mark_persistent(l_Lean_SMap_insert___at_Lean_mkClosedTermCacheExtension___spec__1___closed__1);
 l_Lean_SMap_empty___at_Lean_mkClosedTermCacheExtension___spec__10___closed__1 = _init_l_Lean_SMap_empty___at_Lean_mkClosedTermCacheExtension___spec__10___closed__1();
@@ -5481,8 +5481,8 @@ lean::mark_persistent(l_Lean_closedTermCacheExt___closed__8);
 l_Lean_closedTermCacheExt___closed__9 = _init_l_Lean_closedTermCacheExt___closed__9();
 lean::mark_persistent(l_Lean_closedTermCacheExt___closed__9);
 w = l_Lean_mkClosedTermCacheExtension(w);
-if (io_result_is_error(w)) return w;
-l_Lean_closedTermCacheExt = io_result_get_value(w);
+if (lean::io_result_is_error(w)) return w;
+l_Lean_closedTermCacheExt = lean::io_result_get_value(w);
 lean::mark_persistent(l_Lean_closedTermCacheExt);
 return w;
 }

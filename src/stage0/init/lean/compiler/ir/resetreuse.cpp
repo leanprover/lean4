@@ -2051,16 +2051,16 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_ir_resetreuse(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_control_state(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_control_reader(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_basic(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_livevars(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_format(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 return w;
 }

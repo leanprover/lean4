@@ -1173,13 +1173,13 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_elaborator_term(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_elaborator_alias(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_elaborator_basic(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_elaborator_preterm(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 l_Lean_Elab_elabTermAux___main___closed__1 = _init_l_Lean_Elab_elabTermAux___main___closed__1();
 lean::mark_persistent(l_Lean_Elab_elabTermAux___main___closed__1);
 l_Lean_Elab_elabTermAux___main___closed__2 = _init_l_Lean_Elab_elabTermAux___main___closed__2();
@@ -1191,6 +1191,6 @@ lean::mark_persistent(l___regBuiltinTermElab_Lean_Elab_elabList___closed__2);
 l___regBuiltinTermElab_Lean_Elab_elabList___closed__3 = _init_l___regBuiltinTermElab_Lean_Elab_elabList___closed__3();
 lean::mark_persistent(l___regBuiltinTermElab_Lean_Elab_elabList___closed__3);
 w = l___regBuiltinTermElab_Lean_Elab_elabList(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 return w;
 }

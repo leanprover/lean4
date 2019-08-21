@@ -2793,9 +2793,9 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_projfns(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_environment(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 l_Lean_ProjectionFunctionInfo_inhabited___closed__1 = _init_l_Lean_ProjectionFunctionInfo_inhabited___closed__1();
 lean::mark_persistent(l_Lean_ProjectionFunctionInfo_inhabited___closed__1);
 l_Lean_ProjectionFunctionInfo_inhabited = _init_l_Lean_ProjectionFunctionInfo_inhabited();
@@ -2825,8 +2825,8 @@ lean::mark_persistent(l_Lean_projectionFnInfoExt___closed__4);
 l_Lean_projectionFnInfoExt___closed__5 = _init_l_Lean_projectionFnInfoExt___closed__5();
 lean::mark_persistent(l_Lean_projectionFnInfoExt___closed__5);
 w = l_Lean_mkProjectionFnInfoExtension(w);
-if (io_result_is_error(w)) return w;
-l_Lean_projectionFnInfoExt = io_result_get_value(w);
+if (lean::io_result_is_error(w)) return w;
+l_Lean_projectionFnInfoExt = lean::io_result_get_value(w);
 lean::mark_persistent(l_Lean_projectionFnInfoExt);
 return w;
 }

@@ -3608,11 +3608,11 @@ static bool _G_initialized = false;
 obj* initialize_init_data_persistenthashmap_basic(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_data_array_default(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_data_hashable(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 l_PersistentHashMap_Node_inhabited___closed__1 = _init_l_PersistentHashMap_Node_inhabited___closed__1();
 lean::mark_persistent(l_PersistentHashMap_Node_inhabited___closed__1);
 l_PersistentHashMap_shift = _init_l_PersistentHashMap_shift();

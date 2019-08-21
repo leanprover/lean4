@@ -62,10 +62,10 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_util(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_system_io(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_position(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 return w;
 }

@@ -3408,11 +3408,11 @@ static bool _G_initialized = false;
 obj* initialize_init_data_random(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_system_io(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_data_int_default(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 l_stdRange___closed__1 = _init_l_stdRange___closed__1();
 lean::mark_persistent(l_stdRange___closed__1);
 l_stdRange = _init_l_stdRange();
@@ -3776,8 +3776,8 @@ lean::mark_persistent(l_StdGen_RandomGen);
 l_IO_mkStdGenRef___closed__1 = _init_l_IO_mkStdGenRef___closed__1();
 lean::mark_persistent(l_IO_mkStdGenRef___closed__1);
 w = l_IO_mkStdGenRef(w);
-if (io_result_is_error(w)) return w;
-l_IO_stdGenRef = io_result_get_value(w);
+if (lean::io_result_is_error(w)) return w;
+l_IO_stdGenRef = lean::io_result_get_value(w);
 lean::mark_persistent(l_IO_stdGenRef);
 return w;
 }

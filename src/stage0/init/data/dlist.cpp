@@ -317,9 +317,9 @@ static bool _G_initialized = false;
 obj* initialize_init_data_dlist(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_data_list_basic(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 l_DList_empty___closed__1 = _init_l_DList_empty___closed__1();
 lean::mark_persistent(l_DList_empty___closed__1);
 l_DList_HasEmptyc___closed__1 = _init_l_DList_HasEmptyc___closed__1();

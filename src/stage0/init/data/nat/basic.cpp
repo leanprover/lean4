@@ -781,9 +781,9 @@ static bool _G_initialized = false;
 obj* initialize_init_data_nat_basic(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_core(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 l_Nat_DecidableEq___closed__1 = _init_l_Nat_DecidableEq___closed__1();
 lean::mark_persistent(l_Nat_DecidableEq___closed__1);
 l_Nat_DecidableEq = _init_l_Nat_DecidableEq();

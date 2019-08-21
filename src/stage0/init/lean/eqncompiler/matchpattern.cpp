@@ -127,9 +127,9 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_eqncompiler_matchpattern(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_attributes(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 l_Lean_EqnCompiler_mkMatchPatternAttr___lambda__1___closed__1 = _init_l_Lean_EqnCompiler_mkMatchPatternAttr___lambda__1___closed__1();
 lean::mark_persistent(l_Lean_EqnCompiler_mkMatchPatternAttr___lambda__1___closed__1);
 l_Lean_EqnCompiler_mkMatchPatternAttr___closed__1 = _init_l_Lean_EqnCompiler_mkMatchPatternAttr___closed__1();
@@ -141,8 +141,8 @@ lean::mark_persistent(l_Lean_EqnCompiler_mkMatchPatternAttr___closed__3);
 l_Lean_EqnCompiler_mkMatchPatternAttr___closed__4 = _init_l_Lean_EqnCompiler_mkMatchPatternAttr___closed__4();
 lean::mark_persistent(l_Lean_EqnCompiler_mkMatchPatternAttr___closed__4);
 w = l_Lean_EqnCompiler_mkMatchPatternAttr(w);
-if (io_result_is_error(w)) return w;
-l_Lean_EqnCompiler_matchPatternAttr = io_result_get_value(w);
+if (lean::io_result_is_error(w)) return w;
+l_Lean_EqnCompiler_matchPatternAttr = lean::io_result_get_value(w);
 lean::mark_persistent(l_Lean_EqnCompiler_matchPatternAttr);
 return w;
 }

@@ -2859,9 +2859,9 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_implementedbyattr(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_attributes(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkImplementedByAttr___spec__4___closed__1 = _init_l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkImplementedByAttr___spec__4___closed__1();
 lean::mark_persistent(l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkImplementedByAttr___spec__4___closed__1);
 l_Lean_registerParametricAttribute___at_Lean_Compiler_mkImplementedByAttr___spec__1___closed__1 = _init_l_Lean_registerParametricAttribute___at_Lean_Compiler_mkImplementedByAttr___spec__1___closed__1();
@@ -2891,8 +2891,8 @@ lean::mark_persistent(l_Lean_Compiler_mkImplementedByAttr___closed__4);
 l_Lean_Compiler_mkImplementedByAttr___closed__5 = _init_l_Lean_Compiler_mkImplementedByAttr___closed__5();
 lean::mark_persistent(l_Lean_Compiler_mkImplementedByAttr___closed__5);
 w = l_Lean_Compiler_mkImplementedByAttr(w);
-if (io_result_is_error(w)) return w;
-l_Lean_Compiler_implementedByAttr = io_result_get_value(w);
+if (lean::io_result_is_error(w)) return w;
+l_Lean_Compiler_implementedByAttr = lean::io_result_get_value(w);
 lean::mark_persistent(l_Lean_Compiler_implementedByAttr);
 return w;
 }

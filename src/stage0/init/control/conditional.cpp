@@ -311,11 +311,11 @@ static bool _G_initialized = false;
 obj* initialize_init_control_conditional(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_control_monad(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 w = initialize_init_data_option_basic(w);
-if (io_result_is_error(w)) return w;
+if (lean::io_result_is_error(w)) return w;
 l_Bool_HasToBool = _init_l_Bool_HasToBool();
 lean::mark_persistent(l_Bool_HasToBool);
 l_Option_HasToBool___closed__1 = _init_l_Option_HasToBool___closed__1();

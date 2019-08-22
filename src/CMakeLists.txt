@@ -530,7 +530,7 @@ function(add_exec_test name tgt)
     endif()
 endfunction()
 
-add_subdirectory(tests/util)
+# add_subdirectory(tests/util)
 
 # Include style check
 if (NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows") AND PYTHONINTERP_FOUND)

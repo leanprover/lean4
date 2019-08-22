@@ -526,7 +526,9 @@ static inline unsigned lean_ctor_num_objs(lean_object * o) {
 }
 
 /* See comment at lean_object_byte_size */
-unsigned lean_ctor_byte_size(lean_object * o);
+static inline unsigned lean_ctor_byte_size(lean_object * o) {
+    return lean_small_object_size(o);
+}
 
 static inline lean_object ** lean_ctor_obj_cptr(lean_object * o) {
     assert(lean_is_ctor(o));
@@ -1047,7 +1049,7 @@ lean_object * lean_nat_big_xor(lean_object * a1, lean_object * a2);
 
 lean_obj_res lean_cstr_to_nat(char const * n);
 lean_obj_res lean_big_usize_to_nat(size_t n);
-lean_obj_res lean_big_uint64_to_nat(size_t n);
+lean_obj_res lean_big_uint64_to_nat(uint64_t n);
 static inline lean_obj_res lean_usize_to_nat(size_t n) {
     if (LEAN_LIKELY(n <= LEAN_MAX_SMALL_NAT))
         return lean_box(n);

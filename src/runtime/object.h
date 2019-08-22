@@ -25,6 +25,8 @@ typedef object * b_obj_res;
 struct mpz_object {
     lean_object m_header;
     mpz         m_value;
+    mpz_object() {}
+    explicit mpz_object(mpz const & m):m_value(m) {}
 };
 
 typedef lean_external_class         external_object_class;
@@ -135,7 +137,49 @@ inline obj_res alloc_closure(object*(*fun)(object *, object *, object *, object 
 inline obj_res alloc_closure(object*(*fun)(object *, object *, object *, object *, object *, object *, object *, object *), unsigned num_fixed) {
     return alloc_closure(reinterpret_cast<void*>(fun), 8, num_fixed);
 }
-object * apply_1(object * f, object * a1) { return lean_apply_1(f, a1); }
+inline object* apply_1(object* f, object* a1) { return lean_apply_1(f, a1); }
+inline object* apply_2(object* f, object* a1, object* a2) { return lean_apply_2(f, a1, a2); }
+inline object* apply_3(object* f, object* a1, object* a2, object* a3) { return lean_apply_3(f, a1, a2, a3); }
+inline object* apply_4(object* f, object* a1, object* a2, object* a3, object* a4) { return lean_apply_4(f, a1, a2, a3, a4); }
+inline object* apply_5(object* f, object* a1, object* a2, object* a3, object* a4, object* a5) {
+    return lean_apply_5(f, a1, a2, a3, a4, a5);
+}
+inline object* apply_6(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6) {
+    return lean_apply_6(f, a1, a2, a3, a4, a5, a6);
+}
+inline object* apply_7(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7) {
+    return lean_apply_7(f, a1, a2, a3, a4, a5, a6, a7);
+}
+inline object* apply_8(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8) {
+    return lean_apply_8(f, a1, a2, a3, a4, a5, a6, a7, a8);
+}
+inline object* apply_9(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9) {
+    return lean_apply_9(f, a1, a2, a3, a4, a5, a6, a7, a8, a9);
+}
+inline object* apply_10(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10) {
+    return lean_apply_10(f, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
+}
+inline object* apply_11(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10, object* a11) {
+    return lean_apply_11(f, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+}
+inline object* apply_12(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10, object* a11, object* a12) {
+    return lean_apply_12(f, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
+}
+inline object* apply_13(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10, object* a11, object* a12, object* a13) {
+    return lean_apply_13(f, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
+}
+inline object* apply_14(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10, object* a11, object* a12, object* a13, object* a14) {
+    return lean_apply_14(f, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);
+}
+inline object* apply_15(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10, object* a11, object* a12, object* a13, object* a14, object* a15) {
+    return lean_apply_15(f, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15);
+}
+inline object* apply_16(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10, object* a11, object* a12, object* a13, object* a14, object* a15, object* a16) {
+    return lean_apply_16(f, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16);
+}
+inline object* apply_n(object* f, unsigned n, object** args) { return lean_apply_n(f, n, args); }
+// pre: n > 16
+inline object* apply_m(object* f, unsigned n, object** args) { return lean_apply_m(f, n, args); }
 
 // =======================================
 // Fixpoint
@@ -231,6 +275,7 @@ inline obj_res string_utf8_prev(b_obj_arg s, b_obj_arg i) { return lean_string_u
 inline obj_res string_utf8_set(obj_arg s, b_obj_arg i, uint32 c) { return lean_string_utf8_set(s, i, c); }
 inline uint8 string_utf8_at_end(b_obj_arg s, b_obj_arg i) { return lean_string_utf8_at_end(s, i); }
 inline obj_res string_utf8_extract(b_obj_arg s, b_obj_arg b, b_obj_arg e) { return lean_string_utf8_extract(s, b, e); }
+inline obj_res string_utf8_byte_size(b_lean_obj_arg s) { return lean_string_utf8_byte_size(s); }
 inline bool string_eq(b_obj_arg s1, b_obj_arg s2) { return lean_string_eq(s1, s2); }
 bool string_eq(b_obj_arg s1, char const * s2);
 inline bool string_ne(b_obj_arg s1, b_obj_arg s2) { return lean_string_ne(s1, s2); }
@@ -292,7 +337,8 @@ inline obj_res mk_option_some(obj_arg v) { obj_res r = alloc_cnstr(1, 1, 0); cns
 // Natural numbers
 
 inline mpz const & mpz_value(b_obj_arg o) { return ((mpz_object*)o)->m_value; }
-object * mk_nat_obj_core(mpz const & m);
+object * mpz_to_nat_core(mpz const & m);
+inline object * mk_nat_obj_core(mpz const & m) { return mpz_to_nat_core(m); }
 inline obj_res mk_nat_obj(mpz const & m) {
     if (m.is_size_t() && m.get_size_t() <= LEAN_MAX_SMALL_NAT)
         return box(m.get_size_t());
@@ -446,10 +492,10 @@ inline void io_mark_end_initialization() { return lean_io_mark_end_initializatio
 // =======================================
 // IO ref primitives
 inline obj_res io_mk_ref(obj_arg v, obj_arg w) { return lean_io_mk_ref(v, w); }
-obj_res io_ref_get(b_obj_arg r, obj_arg w) { return lean_io_ref_get(r, w); }
-obj_res io_ref_set(b_obj_arg r, obj_arg v, obj_arg w) { return lean_io_ref_set(r, v, w); }
-obj_res io_ref_reset(b_obj_arg r, obj_arg w) { return lean_io_ref_reset(r, w); }
-obj_res io_ref_swap(b_obj_arg r, obj_arg v, obj_arg w) { return lean_io_ref_swap(r, v, w); }
+inline obj_res io_ref_get(b_obj_arg r, obj_arg w) { return lean_io_ref_get(r, w); }
+inline obj_res io_ref_set(b_obj_arg r, obj_arg v, obj_arg w) { return lean_io_ref_set(r, v, w); }
+inline obj_res io_ref_reset(b_obj_arg r, obj_arg w) { return lean_io_ref_reset(r, w); }
+inline obj_res io_ref_swap(b_obj_arg r, obj_arg v, obj_arg w) { return lean_io_ref_swap(r, v, w); }
 
 // =======================================
 // Module initialization/finalization

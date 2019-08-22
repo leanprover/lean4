@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "util/name_set.h"
 #include "util/fresh_name.h"
-#include "util/shared_mutex.h"
 
 namespace lean {
 static name * g_fresh = nullptr;

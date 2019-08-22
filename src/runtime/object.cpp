@@ -4,273 +4,174 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <limits>
-#include <iostream>
-#include <string>
-#include <algorithm>
-#include <map>
-#include <vector>
-#include <utility>
-#include <unordered_set>
-#include <deque>
-#include "runtime/stackinfo.h"
 #include "runtime/object.h"
-#include "runtime/utf8.h"
-#include "runtime/apply.h"
-#include "runtime/flet.h"
-#include "runtime/interrupt.h"
-#include "runtime/hash.h"
+#include "runtime/thread.h"
 #include "runtime/alloc.h"
+#include "runtime/debug.h"
+#include "util/buffer.h" // move to runtime
 
 #define LEAN_MAX_PRIO 8
 
 namespace lean {
-// =======================================
-// External objects
-
-struct external_object_class {
-    external_object_finalize_proc m_finalize;
-    external_object_foreach_proc  m_foreach;
-};
-
-static std::vector<external_object_class*> * g_ext_classes;
-static mutex                               * g_ext_classes_mutex;
-
-external_object_class * register_external_object_class(external_object_finalize_proc p1, external_object_foreach_proc p2) {
-    unique_lock<mutex> lock(*g_ext_classes_mutex);
-    external_object_class * cls = new external_object_class{p1, p2};
-    g_ext_classes->push_back(cls);
-    return cls;
+extern "C" void lean_panic_out_of_memory() {
+    std::cerr << "out of memory\n";
+    std::exit(1);
 }
 
-// =======================================
-// Object
-
-size_t obj_byte_size(object * o) {
-    switch (get_kind(o)) {
-    case object_kind::Constructor:     return cnstr_byte_size(o);
-    case object_kind::Closure:         return closure_byte_size(o);
-    case object_kind::Array:           return array_byte_size(o);
-    case object_kind::ScalarArray:     return sarray_byte_size(o);
-    case object_kind::String:          return string_byte_size(o);
-    case object_kind::MPZ:             return sizeof(mpz_object);
-    case object_kind::Thunk:           return sizeof(thunk_object);
-    case object_kind::Task:            return sizeof(task_object);
-    case object_kind::Ref:             return sizeof(ref_object);
-    case object_kind::External:        lean_unreachable();
+extern "C" size_t lean_object_byte_size(lean_object * o) {
+    switch (lean_ptr_tag(o)) {
+    case LeanArray:       return lean_array_byte_size(o);
+    case LeanScalarArray: return lean_sarray_byte_size(o);
+    case LeanString:      return lean_string_byte_size(o);
+    default:              return lean_small_object_size(o);
     }
-    lean_unreachable();
 }
 
-size_t obj_header_size(object * o) {
-    switch (get_kind(o)) {
-    case object_kind::Constructor:     return sizeof(constructor_object);
-    case object_kind::Closure:         return sizeof(closure_object);
-    case object_kind::Array:           return sizeof(array_object);
-    case object_kind::ScalarArray:     return sizeof(sarray_object);
-    case object_kind::String:          return sizeof(string_object);
-    case object_kind::MPZ:             return sizeof(mpz_object);
-    case object_kind::Thunk:           return sizeof(thunk_object);
-    case object_kind::Task:            return sizeof(task_object);
-    case object_kind::Ref:             return sizeof(ref_object);
-    case object_kind::External:        lean_unreachable();
-    }
-    lean_unreachable();
+static inline lean_object * get_next(lean_object * o) {
+#ifdef LEAN_COMPRESSED_OBJECT_HEADER
+    size_t header = o->m_header;
+    LEAN_BYTE(header, 6) = 0;
+    LEAN_BYTE(header, 7) = 0;
+    return (lean_object*)(header);
+#else
+    return (lean_object*)(o->m_rc);
+#endif
 }
 
-/* We use the RC memory to implement a linked list of lean objects to be deleted.
-   This hack is safe because rc_type is uintptr_t. */
+static inline void set_next(lean_object * o, lean_object * n) {
+#ifdef LEAN_COMPRESSED_OBJECT_HEADER
+    size_t new_header = (size_t)n;
+    LEAN_BYTE(new_header, 6) = LEAN_BYTE(o->m_header, 6);
+    LEAN_BYTE(new_header, 7) = LEAN_BYTE(o->m_header, 7);
+    o->m_header = new_header;
+#else
+    *(lean_object*)(o->m_rc) = n;
+#endif
+}
 
-static_assert(sizeof(atomic<rc_type>) == sizeof(object*),  "unexpected atomic<rc_type> size, the object GC assumes these two types have the same size"); // NOLINT
+static inline void push_back(lean_object * & todo, lean_object * v) {
+    set_next(v, todo);
+    todo = v;
+}
+
+static inline lean_object * pop_back(lean_object * & todo) {
+    lean_object * r = todo;
+    todo = get_next(todo);
+    return r;
+}
+
+static inline void dec_ref(lean_object * o, lean_object* & todo) {
+    if (lean_dec_ref_core(o))
+        push_back(todo, o);
+}
+
+static inline void dec(lean_object * o, lean_object* & todo) {
+    if (!lean_is_scalar(o) && lean_dec_ref_core(o))
+        push_back(todo, o);
+}
 
 #ifdef LEAN_LAZY_RC
 LEAN_THREAD_PTR(object, g_to_free);
 #endif
 
-inline object * get_next(object * o) {
-    return *reinterpret_cast<object**>(st_rc_addr(o));
-}
+static void lean_del_core(object * o, object * & todo);
 
-inline void set_next(object * o, object * n) {
-    *reinterpret_cast<object**>(st_rc_addr(o)) = n;
-}
-
-inline void push_back(object * & todo, object * v) {
-    set_next(v, todo);
-    todo = v;
-}
-
-inline object * pop_back(object * & todo) {
-    object * r = todo;
-    todo = get_next(todo);
-    return r;
-}
-
-inline void dec_ref(object * o, object* & todo) {
-    if (dec_ref_core(o))
-        push_back(todo, o);
-}
-
-inline void dec(object * o, object* & todo) {
-    if (!is_scalar(o) && dec_ref_core(o))
-        push_back(todo, o);
-}
-
-void deactivate_task(task_object * t);
-
+extern "C" lean_object * lean_alloc_object(size_t sz) {
+#ifdef LEAN_LAZY_RC
+     if (g_to_free) {
+         object * o = pop_back(g_to_free);
+         lean_del_core(o, g_to_free);
+     }
+#endif
 #ifdef LEAN_SMALL_ALLOCATOR
-static inline void free_heap_obj_core(object * o, size_t sz) {
+    return (lean_object*)alloc(sz);
 #else
-static inline void free_heap_obj_core(object * o) {
-#endif
-#ifdef LEAN_FAKE_FREE
-    // Set kinds to invalid values, which should trap any further accesses in debug mode.
-    lean_always_assert(o->m_kind != 42);
-    o->m_kind = 42;
-    o->m_mem_kind = 42;
-#else
-#ifdef LEAN_SMALL_ALLOCATOR
-    dealloc(reinterpret_cast<char *>(o) - sizeof(rc_type), sz);
-#else
-    free(reinterpret_cast<char *>(o) - sizeof(rc_type));
-#endif
+    void * r = malloc(sz);
+    if (r == nullptr) lean_panic_out_of_memory();
+    return (lean_object*)r;
 #endif
 }
 
-#ifdef LEAN_SMALL_ALLOCATOR
-#define FREE_OBJ(o, sz) free_heap_obj_core(o, sz)
+static void deactivate_task(lean_task_object * t);
+
+static inline void lean_set_tag(b_lean_obj_arg o, uint8_t new_tag) {
+    assert(new_tag <= LeanMaxCtorTag);
+#ifdef LEAN_COMPRESSED_OBJECT_HEADER
+    LEAN_BYTE(o->m_header, 7) = new_tag;
 #else
-#define FREE_OBJ(o, sz) free_heap_obj_core(o)
+    o->m_tag = new_tag;
 #endif
-
-void free_heap_obj(object * o) {
-    FREE_OBJ(o, obj_byte_size(o) + sizeof(rc_type));
 }
 
-static inline void free_cnstr_obj(object * o) {
-    FREE_OBJ(o, cnstr_byte_size(o) + sizeof(rc_type));
-}
-
-static inline void free_closure_obj_core(object * o) {
-    FREE_OBJ(o, closure_byte_size(o) + sizeof(rc_type));
-}
-
-void free_closure_obj(object * o) {
-    return free_closure_obj_core(o);
-}
-
-static inline void free_array_obj(object * o) {
-    FREE_OBJ(o, array_byte_size(o) + sizeof(rc_type));
-}
-
-static inline void free_sarray_obj(object * o) {
-    FREE_OBJ(o, sarray_byte_size(o) + sizeof(rc_type));
-}
-
-static inline void free_string_obj(object * o) {
-    FREE_OBJ(o, string_byte_size(o) + sizeof(rc_type));
-}
-
-inline void free_mpz_obj(object * o) {
-    FREE_OBJ(o, sizeof(mpz_object) + sizeof(rc_type));
-}
-
-static inline void free_thunk_obj(object * o) {
-    FREE_OBJ(o, sizeof(thunk_object) + sizeof(rc_type));
-}
-
-static inline void free_ref_obj(object * o) {
-    FREE_OBJ(o, sizeof(ref_object) + sizeof(rc_type));
-}
-
-static inline void free_task_obj(object * o) {
-    FREE_OBJ(o, sizeof(task_object) + sizeof(rc_type));
-}
-
-static inline void free_external_obj(object * o) {
-    FREE_OBJ(o, sizeof(external_object) + sizeof(rc_type));
-}
-
-static void del_core(object * o, object * & todo) {
-    lean_assert(is_heap_obj(o));
-    LEAN_RUNTIME_STAT_CODE(g_num_del++);
-    switch (get_kind(o)) {
-    case object_kind::Constructor: {
-        object ** it  = cnstr_obj_cptr(o);
-        object ** end = it + cnstr_num_objs(o);
+static void lean_del_core(object * o, object * & todo) {
+    lean_assert(lean_is_heap_object(o));
+    uint8 tag = lean_ptr_tag(o);
+    if (tag <= LeanMaxCtorTag) {
+        object ** it  = lean_ctor_obj_cptr(o);
+        object ** end = it + lean_ctor_num_objs(o);
         for (; it != end; ++it) dec(*it, todo);
-        free_cnstr_obj(o);
-        break;
+        lean_free_small(o);
+        return;
     }
-    case object_kind::Closure: {
-        object ** it  = closure_arg_cptr(o);
-        object ** end = it + closure_num_fixed(o);
+    switch (tag) {
+    case LeanClosure: {
+        object ** it  = lean_closure_arg_cptr(o);
+        object ** end = it + lean_closure_num_fixed(o);
         for (; it != end; ++it) dec(*it, todo);
-        free_closure_obj_core(o);
+        lean_free_small(o);
         break;
     }
-    case object_kind::Array: {
-        object ** it  = array_cptr(o);
-        object ** end = it + array_size(o);
+    case LeanArray: {
+        object ** it  = lean_array_cptr(o);
+        object ** end = it + lean_array_size(o);
         for (; it != end; ++it) dec(*it, todo);
-        free_array_obj(o);
+        dealloc(o, lean_array_byte_size(o));
         break;
     }
-    case object_kind::ScalarArray:
-        free_sarray_obj(o); break;
-    case object_kind::String:
-        free_string_obj(o); break;
-    case object_kind::MPZ:
-        dealloc_mpz(o); break;
-    case object_kind::Thunk:
-        if (object * c = to_thunk(o)->m_closure) dec(c, todo);
-        if (object * v = to_thunk(o)->m_value) dec(v, todo);
-        free_thunk_obj(o);
+    case LeanScalarArray:
+        dealloc(o, lean_sarray_byte_size(o));
         break;
-    case object_kind::Ref:
-        if (object * v = to_ref(o)->m_value) dec(v, todo);
-        free_ref_obj(o);
+    case LeanString:
+        dealloc(o, lean_string_byte_size(o));
         break;
-    case object_kind::Task:
-        deactivate_task(to_task(o));
+    case LeanMPZ:
+        to_mpz(o)->m_value.~mpz();
+        lean_free_small(o);
         break;
-    case object_kind::External:
-        to_external(o)->m_class->m_finalize(to_external(o)->m_data);
-        free_external_obj(o);
+    case LeanThunk:
+        if (object * c = lean_to_thunk(o)->m_closure) dec(c, todo);
+        if (object * v = lean_to_thunk(o)->m_value) dec(v, todo);
+        lean_free_small(o);
         break;
+    case LeanRef:
+        if (object * v = lean_to_ref(o)->m_value) dec(v, todo);
+        lean_free_small(o);
+        break;
+    case LeanTask:
+        deactivate_task(lean_to_task(o));
+        break;
+    case LeanExternal:
+        lean_to_external(o)->m_class->m_finalize(lean_to_external(o)->m_data);
+        lean_free_small(o);
+        break;
+    default:
+        lean_unreachable();
     }
 }
 
-void del(object * o) {
+extern "C" void lean_del(object * o) {
 #ifdef LEAN_LAZY_RC
     push_back(g_to_free, o);
 #else
     object * todo = nullptr;
     while (true) {
-        lean_assert(is_heap_obj(o));
-        del_core(o, todo);
+        lean_assert(lean_is_heap_object(o));
+        lean_del_core(o, todo);
         if (todo == nullptr)
             return;
         o = pop_back(todo);
     }
 #endif
-}
-
-void * alloc_heap_object(size_t sz) {
-#ifdef LEAN_LAZY_RC
-    if (g_to_free) {
-        object * o = pop_back(g_to_free);
-        del_core(o, g_to_free);
-    }
-#endif
-#ifdef LEAN_SMALL_ALLOCATOR
-    void * r = alloc(sizeof(rc_type) + sz);
-#else
-    void * r = malloc(sizeof(rc_type) + sz);
-    if (r == nullptr) throw std::bad_alloc();
-#endif
-    *static_cast<rc_type *>(r) = 1;
-    return static_cast<char *>(r) + sizeof(rc_type);
 }
 
 // =======================================
@@ -281,6 +182,7 @@ object * array_mk_empty() {
     return g_array_empty;
 }
 
+
 // =======================================
 // Closures
 
@@ -288,15 +190,15 @@ typedef object * (*lean_cfun2)(object *, object *); // NOLINT
 typedef object * (*lean_cfun3)(object *, object *, object *); // NOLINT
 
 static obj_res mk_closure_2_1(lean_cfun2 fn, obj_arg a) {
-    object * c = alloc_closure(fn, 1);
-    closure_set(c, 0, a);
+    object * c = lean_alloc_closure((void*)fn, 2, 1);
+    lean_closure_set(c, 0, a);
     return c;
 }
 
 static obj_res mk_closure_3_2(lean_cfun3 fn, obj_arg a1, obj_arg a2) {
-    object * c = alloc_closure(fn, 2);
-    closure_set(c, 0, a1);
-    closure_set(c, 1, a2);
+    object * c = lean_alloc_closure((void*)fn, 3, 2);
+    lean_closure_set(c, 0, a1);
+    lean_closure_set(c, 1, a2);
     return c;
 }
 
@@ -304,11 +206,11 @@ static obj_res mk_closure_3_2(lean_cfun3 fn, obj_arg a1, obj_arg a2) {
 // Thunks
 
 static obj_res mk_thunk_3_2(lean_cfun3 fn, obj_arg a1, obj_arg a2) {
-    return mk_thunk(mk_closure_3_2(fn, a1, a2));
+    return lean_mk_thunk(mk_closure_3_2(fn, a1, a2));
 }
 
-b_obj_res thunk_get_core(b_obj_arg t) {
-    object * c = to_thunk(t)->m_closure.exchange(nullptr);
+extern "C" b_obj_res lean_thunk_get_core(b_obj_arg t) {
+    object * c = lean_to_thunk(t)->m_closure.exchange(nullptr);
     if (c != nullptr) {
         /* Recall that a closure uses the standard calling convention.
            `thunk_get` "consumes" the result `r` by storing it at `to_thunk(t)->m_value`.
@@ -317,47 +219,224 @@ b_obj_res thunk_get_core(b_obj_arg t) {
            to be object stored in the constructor object.
 
            Recall that `apply_1` also consumes `c`'s RC. */
-        object * r = apply_1(c, box(0));
+        object * r = lean_apply_1(c, lean_box(0));
         lean_assert(r != nullptr); /* Closure must return a valid lean object */
-        lean_assert(to_thunk(t)->m_value == nullptr);
-        to_thunk(t)->m_value = r;
+        lean_assert(lean_to_thunk(t)->m_value == nullptr);
+        lean_to_thunk(t)->m_value = r;
         return r;
     } else {
         lean_assert(c == nullptr);
         /* There is another thread executing the closure. We keep waiting for the m_value to be
            set by another thread. */
-        while (!to_thunk(t)->m_value) {
+        while (!lean_to_thunk(t)->m_value) {
             this_thread::yield();
         }
-        return to_thunk(t)->m_value;
+        return lean_to_thunk(t)->m_value;
     }
 }
 
 static obj_res thunk_map_fn_closure(obj_arg f, obj_arg t, obj_arg /* u */) {
-    b_obj_res v = thunk_get(t);
-    inc(v);
-    obj_res r = apply_1(f, v);
-    dec(v);
+    b_obj_res v = lean_thunk_get(t);
+    lean_inc(v);
+    obj_res r = lean_apply_1(f, v);
+    lean_dec(v);
     return r;
 }
 
-obj_res thunk_map(obj_arg f, obj_arg t) {
-    lean_assert(is_closure(f));
-    lean_assert(is_thunk(t));
+extern "C" obj_res lean_thunk_map(obj_arg f, obj_arg t) {
+    lean_assert(lean_is_closure(f));
+    lean_assert(lean_is_thunk(t));
     return mk_thunk_3_2(thunk_map_fn_closure, f, t);
 }
 
 static obj_res thunk_bind_fn_closure(obj_arg x, obj_arg f, obj_arg /* u */) {
-    b_obj_res v = thunk_get(x);
-    inc(v);
-    obj_res r = apply_1(f, v);
-    dec(x);
+    b_obj_res v = lean_thunk_get(x);
+    lean_inc(v);
+    obj_res r = lean_apply_1(f, v);
+    lean_dec(x);
     return r;
 }
 
-obj_res thunk_bind(obj_arg x, obj_arg f) {
+extern "C" obj_res lean_thunk_bind(obj_arg x, obj_arg f) {
     return mk_thunk_3_2(thunk_bind_fn_closure, x, f);
 }
+
+// =======================================
+// Fixpoint
+
+static inline object * ptr_to_weak_ptr(object * p) {
+    return reinterpret_cast<object*>(reinterpret_cast<uintptr_t>(p) | 1);
+}
+
+static inline object * weak_ptr_to_ptr(object * w) {
+    return reinterpret_cast<object*>((reinterpret_cast<uintptr_t>(w) >> 1) << 1);
+}
+
+obj_res fixpoint_aux(obj_arg rec, obj_arg weak_k, obj_arg a) {
+    object * k = weak_ptr_to_ptr(weak_k);
+    lean_inc(k);
+    return lean_apply_2(rec, k, a);
+}
+
+extern "C" obj_res lean_fixpoint(obj_arg rec, obj_arg a) {
+    object * k = lean_alloc_closure((void*)fixpoint_aux, 3, 2);
+    lean_inc(rec);
+    lean_closure_set(k, 0, rec);
+    lean_closure_set(k, 1, ptr_to_weak_ptr(k));
+    object * r = lean_apply_2(rec, k, a);
+    return r;
+}
+
+obj_res fixpoint_aux2(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2) {
+    object * k = weak_ptr_to_ptr(weak_k);
+    lean_inc(k);
+    return lean_apply_3(rec, k, a1, a2);
+}
+
+extern "C" obj_res lean_fixpoint2(obj_arg rec, obj_arg a1, obj_arg a2) {
+    object * k = lean_alloc_closure((void*)fixpoint_aux2, 4, 2);
+    lean_inc(rec);
+    lean_closure_set(k, 0, rec);
+    lean_closure_set(k, 1, ptr_to_weak_ptr(k));
+    object * r = lean_apply_3(rec, k, a1, a2);
+    return r;
+}
+
+obj_res fixpoint_aux3(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2, obj_arg a3) {
+    object * k = weak_ptr_to_ptr(weak_k);
+    lean_inc(k);
+    return lean_apply_4(rec, k, a1, a2, a3);
+}
+
+extern "C" obj_res lean_fixpoint3(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3) {
+    object * k = lean_alloc_closure((void*)fixpoint_aux3, 5, 2);
+    lean_inc(rec);
+    lean_closure_set(k, 0, rec);
+    lean_closure_set(k, 1, ptr_to_weak_ptr(k));
+    object * r = lean_apply_4(rec, k, a1, a2, a3);
+    return r;
+}
+
+obj_res fixpoint_aux4(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4) {
+    object * k = weak_ptr_to_ptr(weak_k);
+    lean_inc(k);
+    return lean_apply_5(rec, k, a1, a2, a3, a4);
+}
+
+extern "C" obj_res lean_fixpoint4(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4) {
+    object * k = lean_alloc_closure((void*)fixpoint_aux4, 6, 2);
+    lean_inc(rec);
+    lean_closure_set(k, 0, rec);
+    lean_closure_set(k, 1, ptr_to_weak_ptr(k));
+    object * r = lean_apply_5(rec, k, a1, a2, a3, a4);
+    return r;
+}
+
+obj_res fixpoint_aux5(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5) {
+    object * k = weak_ptr_to_ptr(weak_k);
+    lean_inc(k);
+    return lean_apply_6(rec, k, a1, a2, a3, a4, a5);
+}
+
+extern "C" obj_res lean_fixpoint5(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5) {
+    object * k = lean_alloc_closure((void*)fixpoint_aux5, 7, 2);
+    lean_inc(rec);
+    lean_closure_set(k, 0, rec);
+    lean_closure_set(k, 1, ptr_to_weak_ptr(k));
+    object * r = lean_apply_6(rec, k, a1, a2, a3, a4, a5);
+    return r;
+}
+
+obj_res fixpoint_aux6(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6) {
+    object * k = weak_ptr_to_ptr(weak_k);
+    lean_inc(k);
+    return lean_apply_7(rec, k, a1, a2, a3, a4, a5, a6);
+}
+
+extern "C" obj_res lean_fixpoint6(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6) {
+    object * k = lean_alloc_closure((void*)fixpoint_aux6, 8, 2);
+    lean_inc(rec);
+    lean_closure_set(k, 0, rec);
+    lean_closure_set(k, 1, ptr_to_weak_ptr(k));
+    object * r = lean_apply_7(rec, k, a1, a2, a3, a4, a5, a6);
+    return r;
+}
+
+// =======================================
+// Mark Persistent
+
+extern "C" void lean_mark_persistent(object * o);
+
+static obj_res mark_persistent_fn(obj_arg o) {
+    lean_mark_persistent(o);
+    return box(0);
+}
+
+extern "C" void lean_mark_persistent(object * o) {
+    buffer<object*> todo;
+    todo.push_back(o);
+    while (!todo.empty()) {
+        object * o = todo.back();
+        todo.pop_back();
+        if (!lean_is_scalar(o) && lean_is_heap_object(o)) {
+#ifdef LEAN_COMPRESSED_OBJECT_HEADER
+            o->m_header &= ~((1ull << LEAN_ST_BIT) | (1ull << LEAN_MT_BIT));
+            o->m_header |=  (1ull << LEAN_PERSISTENT_BIT);
+#else
+            o->m_mem_kind = LEAN_PERSISTENT_MEM_KIND;
+#endif
+            switch (lean_ptr_tag(o)) {
+            case LeanScalarArray:
+            case LeanString:
+            case LeanMPZ:
+                break;
+            case LeanExternal: {
+                object * fn = lean_alloc_closure(reinterpret_cast<void*>(mark_persistent_fn), 1, 0);
+                lean_to_external(o)->m_class->m_foreach(lean_to_external(o)->m_data, fn);
+                lean_dec(fn);
+                break;
+            }
+            case LeanTask:
+                todo.push_back(lean_task_get(o));
+                break;
+            case LeanClosure: {
+                object ** it  = lean_closure_arg_cptr(o);
+                object ** end = it + lean_closure_num_fixed(o);
+                for (; it != end; ++it) todo.push_back(*it);
+                break;
+            }
+            case LeanArray: {
+                object ** it  = lean_array_cptr(o);
+                object ** end = it + lean_array_size(o);
+                for (; it != end; ++it) todo.push_back(*it);
+                break;
+            }
+            case LeanThunk:
+                if (object * c = lean_to_thunk(o)->m_closure) todo.push_back(c);
+                if (object * v = lean_to_thunk(o)->m_value) todo.push_back(v);
+                break;
+            case LeanRef:
+                if (object * v = lean_to_ref(o)->m_value) todo.push_back(v);
+                break;
+            case LeanReserved:
+                lean_unreachable();
+                break;
+            default: {
+                object ** it  = lean_ctor_obj_cptr(o);
+                object ** end = it + lean_ctor_num_objs(o);
+                for (; it != end; ++it) todo.push_back(*it);
+                break;
+            }}
+        }
+    }
+}
+
+}
+
+#if 0
+namespace lean {
+
+
 
 // =======================================
 // Tasks
@@ -839,64 +918,6 @@ bool io_has_finished_core(b_obj_arg t) {
 
 b_obj_res io_wait_any_core(b_obj_arg task_list) {
     return g_task_manager->wait_any(task_list);
-}
-
-void mark_persistent(object * o);
-static obj_res mark_persistent_fn(obj_arg o) {
-    mark_persistent(o);
-    return box(0);
-}
-
-void mark_persistent(object * o) {
-    buffer<object*> todo;
-    todo.push_back(o);
-    while (!todo.empty()) {
-        object * o = todo.back();
-        todo.pop_back();
-        if (!is_scalar(o) && is_heap_obj(o)) {
-            o->m_mem_kind = static_cast<unsigned>(object_memory_kind::Persistent);
-            switch (get_kind(o)) {
-            case object_kind::ScalarArray:
-            case object_kind::String:
-            case object_kind::MPZ:
-                break;
-            case object_kind::External: {
-                object * fn = alloc_closure(reinterpret_cast<void*>(mark_persistent_fn), 1, 0);
-                to_external(o)->m_class->m_foreach(to_external(o)->m_data, fn);
-                dec(fn);
-                break;
-            }
-            case object_kind::Task:
-                todo.push_back(task_get(o));
-                break;
-            case object_kind::Constructor: {
-                object ** it  = cnstr_obj_cptr(o);
-                object ** end = it + cnstr_num_objs(o);
-                for (; it != end; ++it) todo.push_back(*it);
-                break;
-            }
-            case object_kind::Closure: {
-                object ** it  = closure_arg_cptr(o);
-                object ** end = it + closure_num_fixed(o);
-                for (; it != end; ++it) todo.push_back(*it);
-                break;
-            }
-            case object_kind::Array: {
-                object ** it  = array_cptr(o);
-                object ** end = it + array_size(o);
-                for (; it != end; ++it) todo.push_back(*it);
-                break;
-            }
-            case object_kind::Thunk:
-                if (object * c = to_thunk(o)->m_closure) todo.push_back(c);
-                if (object * v = to_thunk(o)->m_value) todo.push_back(v);
-                break;
-            case object_kind::Ref:
-                if (object * v = to_ref(o)->m_value) todo.push_back(v);
-                break;
-            }
-        }
-    }
 }
 
 // =======================================
@@ -1605,106 +1626,6 @@ object * array_push(obj_arg a, obj_arg v) {
     return r;
 }
 
-// =======================================
-// fixpoint
-
-static inline object * ptr_to_weak_ptr(object * p) {
-    return reinterpret_cast<object*>(reinterpret_cast<uintptr_t>(p) | 1);
-}
-
-static inline object * weak_ptr_to_ptr(object * w) {
-    return reinterpret_cast<object*>((reinterpret_cast<uintptr_t>(w) >> 1) << 1);
-}
-
-obj_res fixpoint_aux(obj_arg rec, obj_arg weak_k, obj_arg a) {
-    object * k = weak_ptr_to_ptr(weak_k);
-    inc(k);
-    return apply_2(rec, k, a);
-}
-
-obj_res fixpoint(obj_arg rec, obj_arg a) {
-    object * k = alloc_closure(fixpoint_aux, 2);
-    inc(rec);
-    closure_set(k, 0, rec);
-    closure_set(k, 1, ptr_to_weak_ptr(k));
-    object * r = apply_2(rec, k, a);
-    return r;
-}
-
-obj_res fixpoint_aux2(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2) {
-    object * k = weak_ptr_to_ptr(weak_k);
-    inc(k);
-    return apply_3(rec, k, a1, a2);
-}
-
-obj_res fixpoint2(obj_arg rec, obj_arg a1, obj_arg a2) {
-    object * k = alloc_closure(fixpoint_aux2, 2);
-    inc(rec);
-    closure_set(k, 0, rec);
-    closure_set(k, 1, ptr_to_weak_ptr(k));
-    object * r = apply_3(rec, k, a1, a2);
-    return r;
-}
-
-obj_res fixpoint_aux3(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2, obj_arg a3) {
-    object * k = weak_ptr_to_ptr(weak_k);
-    inc(k);
-    return apply_4(rec, k, a1, a2, a3);
-}
-
-obj_res fixpoint3(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3) {
-    object * k = alloc_closure(fixpoint_aux3, 2);
-    inc(rec);
-    closure_set(k, 0, rec);
-    closure_set(k, 1, ptr_to_weak_ptr(k));
-    object * r = apply_4(rec, k, a1, a2, a3);
-    return r;
-}
-
-obj_res fixpoint_aux4(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4) {
-    object * k = weak_ptr_to_ptr(weak_k);
-    inc(k);
-    return apply_5(rec, k, a1, a2, a3, a4);
-}
-
-obj_res fixpoint4(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4) {
-    object * k = alloc_closure(fixpoint_aux4, 2);
-    inc(rec);
-    closure_set(k, 0, rec);
-    closure_set(k, 1, ptr_to_weak_ptr(k));
-    object * r = apply_5(rec, k, a1, a2, a3, a4);
-    return r;
-}
-
-obj_res fixpoint_aux5(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5) {
-    object * k = weak_ptr_to_ptr(weak_k);
-    inc(k);
-    return apply_6(rec, k, a1, a2, a3, a4, a5);
-}
-
-obj_res fixpoint5(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5) {
-    object * k = alloc_closure(fixpoint_aux5, 2);
-    inc(rec);
-    closure_set(k, 0, rec);
-    closure_set(k, 1, ptr_to_weak_ptr(k));
-    object * r = apply_6(rec, k, a1, a2, a3, a4, a5);
-    return r;
-}
-
-obj_res fixpoint_aux6(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6) {
-    object * k = weak_ptr_to_ptr(weak_k);
-    inc(k);
-    return apply_7(rec, k, a1, a2, a3, a4, a5, a6);
-}
-
-obj_res fixpoint6(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6) {
-    object * k = alloc_closure(fixpoint_aux6, 2);
-    inc(rec);
-    closure_set(k, 0, rec);
-    closure_set(k, 1, ptr_to_weak_ptr(k));
-    object * r = apply_7(rec, k, a1, a2, a3, a4, a5, a6);
-    return r;
-}
 
 // =======================================
 // Runtime info
@@ -1812,3 +1733,4 @@ void finalize_object() {
 
 extern "C" void lean_dbg_print_str(lean::object* o) { lean::dbg_print_str(o); }
 extern "C" void lean_dbg_print_num(lean::object* o) { lean::dbg_print_num(o); }
+#endif

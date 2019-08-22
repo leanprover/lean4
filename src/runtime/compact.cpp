@@ -12,22 +12,17 @@ Author: Leonardo de Moura
 #define LEAN_COMPACTOR_INIT_SZ 1024*1024
 
 namespace lean {
-#define TERMINATOR_ID (static_cast<unsigned>(object_kind::External) + 1)
-
 /*
   Special object that terminates the data block constructing the object graph rooted in `m_value`.
   We use this object to ensure `m_value` is correctly aligned. In the past, we would allocate
   a chunk of memory `p` of size `sizeof(object) + sizeof(object*)`, and then write at `p + sizeof(object)`.
   This is incorrect because `sizeof(object)` is not a multiple of the word size.
 */
-struct terminator_object : public object {
-    object * m_value;
-
-    explicit terminator_object(object * value) : object(object_kind::External, object_memory_kind::Region), m_value(value) {
-        // not an actual `object_kind`, so write to the field directly
-        m_kind = TERMINATOR_ID;
-    }
+struct terminator_object {
+    lean_object   m_header;
+    lean_object * m_value;
 };
+
 
 object_compactor::object_compactor():
     m_begin(malloc(LEAN_COMPACTOR_INIT_SZ)),
@@ -75,16 +70,17 @@ object_offset object_compactor::to_offset(object * o) {
 }
 
 void object_compactor::insert_terminator(object * o) {
-    void * mem = alloc(sizeof(terminator_object));
-    new (mem) terminator_object(to_offset(o));
+    terminator_object * t = (terminator_object*) alloc(sizeof(terminator_object));
+    lean_set_other_header((lean_object*)t, LeanReserved, 0);
+    t->m_value = to_offset(o);
 }
 
 object * object_compactor::copy_object(object * o) {
-    size_t sz = obj_byte_size(o);
+    size_t sz  = lean_object_byte_size(o);
     void * mem = alloc(sz);
     memcpy(mem, o, sz);
     object * r = static_cast<object*>(mem);
-    r->m_mem_kind = static_cast<unsigned>(object_memory_kind::Region);
+    lean_set_other_mem_kind(r);
     save(o, r);
     return r;
 }
@@ -121,12 +117,15 @@ bool object_compactor::insert_array(object * o) {
     }
     if (missing_children)
         return false;
-    void * mem = alloc(sizeof(array_object) + sz * sizeof(object *));
-    object * new_o = new (mem) array_object(sz, sz, object_memory_kind::Region);
+
+    lean_array_object * new_o = (lean_array_object*)alloc(sizeof(lean_array_object) + sizeof(void*)*sz);
+    lean_set_other_header((lean_object*)new_o, LeanArray, 0);
+    new_o->m_size     = sz;
+    new_o->m_capacity = sz;
     for (size_t i = 0; i < sz; i++) {
-        array_set(new_o, i, offsets[i]);
+        array_set((lean_object*)new_o, i, offsets[i]);
     }
-    save(o, new_o);
+    save(o, (lean_object*)new_o);
     return true;
 }
 
@@ -136,17 +135,17 @@ bool object_compactor::insert_thunk(object * o) {
     if (c == g_null_offset)
         return false;
     object * r = copy_object(o);
-    to_thunk(r)->m_value = c;
+    lean_to_thunk(r)->m_value = c;
     return true;
 }
 
 bool object_compactor::insert_ref(object * o) {
-    object * v = to_ref(o)->m_value;
+    object * v = lean_to_ref(o)->m_value;
     object_offset c = to_offset(v);
     if (c == g_null_offset)
         return false;
     object * r = copy_object(o);
-    to_ref(r)->m_value = c;
+    lean_to_ref(r)->m_value = c;
     return true;
 }
 
@@ -164,9 +163,11 @@ bool object_compactor::insert_task(object * o) {
        To cope with this issue, we always save tasks as thunks,
        and rely on the fact that all task API accepts thunks as arguments
        even when multi-threading is enabled. */
-    void * mem     = alloc(sizeof(thunk_object));
-    object * new_o = new (mem) thunk_object(c, true, object_memory_kind::Region);
-    save(o, new_o);
+    lean_thunk_object * new_o = (lean_thunk_object*)alloc(sizeof(lean_thunk_object));
+    lean_set_other_header((lean_object*)new_o, LeanThunk, 0);
+    new_o->m_value   = c;
+    new_o->m_closure = (lean_object*)0;
+    save(o, (lean_object*)new_o);
     return true;
 }
 
@@ -177,8 +178,9 @@ void object_compactor::insert_mpz(object * o) {
        into an mpz number. So, we use std::max to make sure we have enough space for both. */
     size_t extra_space  = std::max(s.size() + 1, sizeof(mpz_object*));
     void * mem     = alloc(sizeof(mpz_object) + extra_space);
-    object * new_o = new (mem) object(object_kind::MPZ, object_memory_kind::Region);
-    save(o, new_o);
+    mpz_object * new_o = new (mem) mpz_object();
+    lean_set_other_header((lean_object*)new_o, LeanMPZ, 0);
+    save(o, (lean_object*)new_o);
     void * data    = reinterpret_cast<char*>(new_o) + sizeof(mpz_object);
     memcpy(data, s.c_str(), s.size() + 1);
 }
@@ -195,17 +197,18 @@ void object_compactor::operator()(object * o) {
             }
             lean_assert(!is_scalar(curr));
             bool r = true;
-            switch (get_kind(curr)) {
-            case object_kind::Constructor:     r = insert_constructor(curr); break;
-            case object_kind::Closure:         throw exception("closures cannot be compacted");
-            case object_kind::Array:           r = insert_array(curr); break;
-            case object_kind::ScalarArray:     copy_object(curr); break;
-            case object_kind::String:          copy_object(curr); break;
-            case object_kind::MPZ:             insert_mpz(curr); break;
-            case object_kind::Thunk:           r = insert_thunk(curr); break;
-            case object_kind::Task:            r = insert_task(curr); break;
-            case object_kind::Ref:             r = insert_ref(curr); break;
-            case object_kind::External:        throw exception("external objects cannot be compacted");
+            switch (lean_ptr_tag(curr)) {
+            case LeanClosure:         throw exception("closures cannot be compacted");
+            case LeanArray:           r = insert_array(curr); break;
+            case LeanScalarArray:     copy_object(curr); break;
+            case LeanString:          copy_object(curr); break;
+            case LeanMPZ:             insert_mpz(curr); break;
+            case LeanThunk:           r = insert_thunk(curr); break;
+            case LeanTask:            r = insert_task(curr); break;
+            case LeanRef:             r = insert_ref(curr); break;
+            case LeanExternal:        throw exception("external objects cannot be compacted");
+            case LeanReserved:        lean_unreachable();
+            default:                  r = insert_constructor(curr); break;
             }
             if (r) m_todo.pop_back();
         }
@@ -256,7 +259,7 @@ inline void compacted_region::fix_constructor(object * o) {
     for (; it != end; it++) {
         *it = fix_object_ptr(*it);
     }
-    move(cnstr_byte_size(o));
+    move(lean_ctor_byte_size(o));
 }
 
 inline void compacted_region::fix_array(object * o) {
@@ -265,17 +268,17 @@ inline void compacted_region::fix_array(object * o) {
     for (; it != end; it++) {
         *it = fix_object_ptr(*it);
     }
-    move(array_byte_size(o));
+    move(lean_array_byte_size(o));
 }
 
 inline void compacted_region::fix_thunk(object * o) {
-    to_thunk(o)->m_value = fix_object_ptr(to_thunk(o)->m_value);
-    move(sizeof(thunk_object));
+    lean_to_thunk(o)->m_value = fix_object_ptr(lean_to_thunk(o)->m_value);
+    move(sizeof(lean_thunk_object));
 }
 
 inline void compacted_region::fix_ref(object * o) {
-    to_ref(o)->m_value = fix_object_ptr(to_ref(o)->m_value);
-    move(sizeof(ref_object));
+    lean_to_ref(o)->m_value = fix_object_ptr(lean_to_ref(o)->m_value);
+    move(sizeof(lean_ref_object));
 }
 
 void compacted_region::fix_mpz(object * o) {
@@ -290,10 +293,10 @@ void compacted_region::fix_mpz(object * o) {
         sz++;
     }
     /* use string to initialize memory */
-    new (&(to_mpz(o)->m_value)) mpz(s.c_str());
+    new (&(((mpz_object*)o)->m_value)) mpz(s.c_str());
     /* update m_nested_mpzs list */
     *reinterpret_cast<mpz_object**>(m_next) = m_nested_mpzs;
-    m_nested_mpzs = to_mpz(o);
+    m_nested_mpzs = (mpz_object*)o;
     /* consume region after mpz_object */
     sz++; // string delimiter
     if (sz < sizeof(mpz_object*))
@@ -307,23 +310,23 @@ object * compacted_region::read() {
     while (true) {
         lean_assert(static_cast<char*>(m_next) + sizeof(object) <= m_end);
         object * curr = reinterpret_cast<object*>(m_next);
-        if (curr->m_kind == TERMINATOR_ID) {
+        switch (lean_ptr_tag(curr)) {
+        case LeanClosure:         lean_unreachable();
+        case LeanArray:           fix_array(curr); break;
+        case LeanScalarArray:     move(lean_sarray_byte_size(curr)); break;
+        case LeanString:          move(lean_string_byte_size(curr)); break;
+        case LeanMPZ:             fix_mpz(curr); break;
+        case LeanThunk:           fix_thunk(curr); break;
+        case LeanRef:             fix_ref(curr); break;
+        case LeanTask:            lean_unreachable();
+        case LeanExternal:        lean_unreachable();
+        case LeanReserved: {
             object * r = reinterpret_cast<terminator_object*>(m_next)->m_value;
             move(sizeof(terminator_object));
             return fix_object_ptr(r);
-        } else {
-            switch (get_kind(curr)) {
-            case object_kind::Constructor:     fix_constructor(curr); break;
-            case object_kind::Closure:         lean_unreachable();
-            case object_kind::Array:           fix_array(curr); break;
-            case object_kind::ScalarArray:     move(sarray_byte_size(curr)); break;
-            case object_kind::String:          move(string_byte_size(curr)); break;
-            case object_kind::MPZ:             fix_mpz(curr); break;
-            case object_kind::Thunk:           fix_thunk(curr); break;
-            case object_kind::Ref:             fix_ref(curr); break;
-            case object_kind::Task:            lean_unreachable();
-            case object_kind::External:        lean_unreachable();
-            }
+        }
+        default:
+            fix_constructor(curr); break;
         }
     }
 }

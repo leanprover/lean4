@@ -75,7 +75,10 @@ void serializer::write_blob(std::string const & s) {
 void serializer::write_constructor(object * o) {
     lean_assert(is_cnstr(o));
     unsigned num_objs  = cnstr_num_objs(o);
-    unsigned scalar_sz = cnstr_scalar_size(o);
+    unsigned obj_size  = lean_object_byte_size(o);
+    unsigned main_size = sizeof(lean_ctor_object) + sizeof(lean_object*)*num_objs;
+    lean_assert(obj_size >= main_size);
+    unsigned scalar_sz = obj_size - main_size;
     write_unsigned_short(cnstr_tag(o));
     write_unsigned_short(num_objs);
     write_unsigned_short(scalar_sz);
@@ -127,8 +130,8 @@ void serializer::write_scalar_array(object * o) {
     write_unsigned(esz);
     write_size_t(sz);
     size_t num_bytes = sz*esz;
-    unsigned char const * it  = sarray_cptr_core<unsigned char>(o);
-    unsigned char const * end = it + num_bytes;
+    uint8 const * it  = sarray_cptr(o);
+    uint8 const * end = it + num_bytes;
     for (; it != end; ++it)
         m_out.put(*it);
 }
@@ -167,19 +170,19 @@ void serializer::write_object(object * o) {
             m_out.put(1);
             write_unsigned(it->second);
         } else {
-            object_kind k = get_kind(o);
+            uint8 k = lean_ptr_tag(o);
             m_out.put(static_cast<unsigned>(k) + 2);
             switch (k) {
-            case object_kind::Constructor:  write_constructor(o); break;
-            case object_kind::Closure:      write_closure(o); break;
-            case object_kind::Task:         write_task(o); break;
-            case object_kind::Thunk:        write_thunk(o); break;
-            case object_kind::Array:        write_array(o); break;
-            case object_kind::ScalarArray:  write_scalar_array(o); break;
-            case object_kind::String:       write_string_object(o); break;
-            case object_kind::MPZ:          write_mpz(mpz_value(o)); break;
-            case object_kind::External:     write_external(o); break;
-            default: lean_unreachable();
+            case LeanClosure:      write_closure(o); break;
+            case LeanTask:         write_task(o); break;
+            case LeanThunk:        write_thunk(o); break;
+            case LeanArray:        write_array(o); break;
+            case LeanScalarArray:  write_scalar_array(o); break;
+            case LeanString:       write_string_object(o); break;
+            case LeanMPZ:          write_mpz(mpz_value(o)); break;
+            case LeanExternal:     write_external(o); break;
+            case LeanReserved:     lean_unreachable(); break;
+            default:               write_constructor(o); break;
             }
             inc_ref(o);
             m_obj_table.insert(std::make_pair(o, m_obj_table.size()));
@@ -320,11 +323,11 @@ object * deserializer::read_array() {
 }
 
 object * deserializer::read_scalar_array() {
-    unsigned esz         = read_unsigned();
-    size_t sz            = read_size_t();
-    object * r           = alloc_sarray(esz, sz, sz);
-    unsigned char * it   = sarray_cptr_core<unsigned char>(r);
-    unsigned char * end  = it + sz*esz;
+    unsigned esz   = read_unsigned();
+    size_t sz      = read_size_t();
+    object * r     = alloc_sarray(esz, sz, sz);
+    uint8 * it     = sarray_cptr(r);
+    uint8 * end    = it + sz*esz;
     for (; it != end; ++it)
         *it = m_in.get();
     return r;
@@ -355,19 +358,23 @@ object * deserializer::read_object() {
             throw corrupted_stream_exception();
         return m_objs[i];
     } else {
-        object_kind k = static_cast<object_kind>(c - 2);
         object * r;
-        switch (k) {
-        case object_kind::Constructor:  r = read_constructor(); break;
-        case object_kind::Closure:      r = read_closure(); break;
-        case object_kind::Thunk:        r = read_thunk(); break;
-        case object_kind::Task:         r = read_task(); break;
-        case object_kind::Array:        r = read_array(); break;
-        case object_kind::ScalarArray:  r = read_scalar_array(); break;
-        case object_kind::String:       r = read_string_object(); break;
-        case object_kind::MPZ:          r = alloc_mpz(read_mpz()); break;
-        case object_kind::External:     r = read_external(); break;
-        default: throw corrupted_stream_exception();
+        switch (c - 2) {
+        case LeanClosure:      r = read_closure(); break;
+        case LeanThunk:        r = read_thunk(); break;
+        case LeanTask:         r = read_task(); break;
+        case LeanArray:        r = read_array(); break;
+        case LeanScalarArray:  r = read_scalar_array(); break;
+        case LeanString:       r = read_string_object(); break;
+        case LeanMPZ:          r = alloc_mpz(read_mpz()); break;
+        case LeanExternal:     r = read_external(); break;
+        case LeanReserved:     throw corrupted_stream_exception();
+        default:
+            if (c - 2 < LeanMaxCtorTag)
+                r = read_constructor();
+            else
+                throw corrupted_stream_exception();
+            break;
         }
         m_objs.push_back(r);
         return r;

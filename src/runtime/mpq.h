@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "runtime/mpz.h"
+#include "runtime/serializer.h"
 
 namespace lean {
 /**

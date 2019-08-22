@@ -61,7 +61,7 @@ local_decl local_ctx::mk_local_decl(name const & n, name const & un, expr const 
     object * p = lean_local_ctx_mk_let_decl(raw(), n.to_obj_arg(), un.to_obj_arg(), type.to_obj_arg(), value.to_obj_arg());
     local_decl decl(cnstr_get(p, 0));
     m_obj = cnstr_get(p, 1);
-    free_heap_obj(p);
+    lean_free_heap_obj(p);
     return decl;
 }
 
@@ -69,7 +69,7 @@ local_decl local_ctx::mk_local_decl(name const & n, name const & un, expr const 
     object * p = lean_local_ctx_mk_local_decl(raw(), n.to_obj_arg(), un.to_obj_arg(), type.to_obj_arg(), static_cast<uint8>(bi));
     local_decl decl(cnstr_get(p, 0));
     m_obj = cnstr_get(p, 1);
-    free_heap_obj(p);
+    lean_free_heap_obj(p);
     return decl;
 }
 

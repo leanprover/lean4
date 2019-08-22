@@ -14,12 +14,14 @@ Author: Leonardo de Moura
 #endif
 #include <iostream>
 #include <chrono>
+#include <sstream>
 #include <fstream>
 #include <iomanip>
 #include <string>
 #include <cstdlib>
 #include <sys/stat.h>
 #include "runtime/object.h"
+#include "runtime/thread.h"
 #include "runtime/allocprof.h"
 
 #ifdef _MSC_VER
@@ -31,7 +33,7 @@ Author: Leonardo de Moura
 namespace lean {
 static obj_res const REAL_WORLD = box(0);
 
-void io_result_show_error(b_obj_arg r) {
+extern "C" void lean_io_result_show_error(b_obj_arg r) {
     std::cerr << "uncaught exception: " << string_cstr(io_result_get_error(r)) << std::endl;
 }
 
@@ -76,7 +78,7 @@ obj_res set_io_error(obj_arg r, std::string const & msg) {
 }
 
 static bool g_initializing = true;
-void io_mark_end_initialization() {
+extern "C" void lean_io_mark_end_initialization() {
     g_initializing = false;
 }
 
@@ -254,15 +256,17 @@ extern "C" obj_res lean_io_app_dir(obj_arg r) {
 
 // =======================================
 // IO ref primitives
-obj_res io_mk_ref(obj_arg a, obj_arg r) {
-    object * ref = new (alloc_heap_object(sizeof(ref_object))) ref_object(a);
-    return set_io_result(r, ref);
+extern "C" obj_res lean_io_mk_ref(obj_arg a, obj_arg r) {
+    lean_ref_object * o = (lean_ref_object*)lean_alloc_small_object(sizeof(lean_ref_object));
+    lean_set_st_header((lean_object*)o, LeanRef, 0);
+    o->m_value = a;
+    return set_io_result(r, (lean_object*)o);
 }
 
 static object * g_io_error_nullptr_read = nullptr;
 
 static inline atomic<object*> * mt_ref_val_addr(object * o) {
-    return reinterpret_cast<atomic<object*> *>(&(to_ref(o)->m_value));
+    return reinterpret_cast<atomic<object*> *>(&(lean_to_ref(o)->m_value));
 }
 
 /*
@@ -276,13 +280,9 @@ static inline atomic<object*> * mt_ref_val_addr(object * o) {
   object as we do for multi-threaded `IO.Ref`s. It makes sense since
   the global `IO.Ref` may be used to communicate data between threads.
 */
-static inline bool ref_maybe_mt(b_obj_arg ref) {
-    return
-        ref->m_mem_kind == static_cast<unsigned>(object_memory_kind::MTHeap) ||
-        ref->m_mem_kind == static_cast<unsigned>(object_memory_kind::Persistent);
-}
+static inline bool ref_maybe_mt(b_obj_arg ref) { return lean_is_mt(ref) || lean_is_persistent(ref); }
 
-obj_res io_ref_get(b_obj_arg ref, obj_arg r) {
+extern "C" obj_res lean_io_ref_get(b_obj_arg ref, obj_arg r) {
     if (ref_maybe_mt(ref)) {
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         object * val = val_addr->exchange(nullptr);
@@ -296,7 +296,7 @@ obj_res io_ref_get(b_obj_arg ref, obj_arg r) {
         }
         return set_io_result(r, val);
     } else {
-        object * val = to_ref(ref)->m_value;
+        object * val = lean_to_ref(ref)->m_value;
         if (val == nullptr)
             return set_io_error(r, g_io_error_nullptr_read);
         inc(val);
@@ -306,7 +306,7 @@ obj_res io_ref_get(b_obj_arg ref, obj_arg r) {
 
 static_assert(sizeof(atomic<unsigned short>) == sizeof(unsigned short), "`atomic<unsigned short>` and `unsigned short` must have the same size"); // NOLINT
 
-obj_res io_ref_reset(b_obj_arg ref, obj_arg r) {
+extern "C" obj_res lean_io_ref_reset(b_obj_arg ref, obj_arg r) {
     if (ref_maybe_mt(ref)) {
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         object * old_a = val_addr->exchange(nullptr);
@@ -314,14 +314,14 @@ obj_res io_ref_reset(b_obj_arg ref, obj_arg r) {
             dec(old_a);
         return r;
     } else {
-        if (to_ref(ref)->m_value != nullptr)
-            dec(to_ref(ref)->m_value);
-        to_ref(ref)->m_value = nullptr;
+        if (lean_to_ref(ref)->m_value != nullptr)
+            dec(lean_to_ref(ref)->m_value);
+        lean_to_ref(ref)->m_value = nullptr;
         return r;
     }
 }
 
-obj_res io_ref_set(b_obj_arg ref, obj_arg a, obj_arg r) {
+extern "C" obj_res lean_io_ref_set(b_obj_arg ref, obj_arg a, obj_arg r) {
     if (ref_maybe_mt(ref)) {
         /* We must mark `a` as multi-threaded if `ref` is marked as multi-threaded.
            Reason: our runtime relies on the fact that a single-threaded object
@@ -333,14 +333,14 @@ obj_res io_ref_set(b_obj_arg ref, obj_arg a, obj_arg r) {
             dec(old_a);
         return r;
     } else {
-        if (to_ref(ref)->m_value != nullptr)
-            dec(to_ref(ref)->m_value);
-        to_ref(ref)->m_value = a;
+        if (lean_to_ref(ref)->m_value != nullptr)
+            dec(lean_to_ref(ref)->m_value);
+        lean_to_ref(ref)->m_value = a;
         return r;
     }
 }
 
-obj_res io_ref_swap(b_obj_arg ref, obj_arg a, obj_arg r) {
+extern "C" obj_res lean_io_ref_swap(b_obj_arg ref, obj_arg a, obj_arg r) {
     if (ref_maybe_mt(ref)) {
         /* See io_ref_write */
         mark_mt(a);
@@ -350,10 +350,10 @@ obj_res io_ref_swap(b_obj_arg ref, obj_arg a, obj_arg r) {
             return set_io_error(r, g_io_error_nullptr_read);
         return set_io_result(r, old_a);
     } else {
-        object * old_a = to_ref(ref)->m_value;
+        object * old_a = lean_to_ref(ref)->m_value;
         if (old_a == nullptr)
             return set_io_error(r, g_io_error_nullptr_read);
-        to_ref(ref)->m_value = a;
+        lean_to_ref(ref)->m_value = a;
         return set_io_result(r, old_a);
     }
 }

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "runtime/object.h"
 #include "runtime/optional.h"
+#include "runtime/serializer.h"
 
 namespace lean {
 /* Smart point for Lean objects. It is useful for writing C++ code that manipulates Lean objects.  */
@@ -17,7 +18,7 @@ protected:
     object * m_obj;
 public:
     object_ref():m_obj(box(0)) {}
-    explicit object_ref(obj_arg o):m_obj(o) { lean_assert(is_scalar(o) || !is_heap_obj(o) || get_rc(o) > 0); }
+    explicit object_ref(obj_arg o):m_obj(o) { lean_assert(is_scalar(o) || !is_heap_obj(o) || lean_nonzero_rc(o)); }
     object_ref(b_obj_arg o, bool):m_obj(o) { inc(o); }
     object_ref(object_ref const & s):m_obj(s.m_obj) { inc(m_obj); }
     object_ref(object_ref && s):m_obj(s.m_obj) { s.m_obj = box(0); }
@@ -128,7 +129,7 @@ inline object_ref mk_cnstr(unsigned tag, object_ref const & o1, object_ref const
 inline object_ref const & cnstr_get_ref(object * o, unsigned i) {
     static_assert(sizeof(object_ref) == sizeof(object *), "unexpected object_ref size"); // NOLINT
     lean_assert(is_cnstr(o));
-    return reinterpret_cast<object_ref const *>(reinterpret_cast<char*>(o) + sizeof(constructor_object))[i];
+    return reinterpret_cast<object_ref const *>(lean_to_ctor(o)->m_objs)[i];
 }
 
 inline object_ref const & cnstr_get_ref(object_ref const & ref, unsigned i) {

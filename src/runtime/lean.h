@@ -15,6 +15,9 @@ Author: Leonardo de Moura
 #include <malloc.h>
 #endif
 
+#define LEAN_SMALL_ALLOCATOR
+#define LEAN_COMPRESSED_OBJECT_HEADER
+
 #ifdef __cplusplus
 #include <atomic>
 #define _Atomic(t) std::atomic<t>
@@ -25,7 +28,9 @@ extern "C" {
 #define  LEAN_USING_STD
 #endif
 
-#define LEAN_CLOSURE_MAX_ARGS 16
+#define LEAN_CLOSURE_MAX_ARGS      16
+#define LEAN_OBJECT_SIZE_DELTA     8
+#define LEAN_MAX_SMALL_OBJECT_SIZE 512
 
 #ifdef _MSC_VER
 #define LEAN_ALLOCA(s) _alloca(s)
@@ -41,6 +46,12 @@ extern "C" {
 #define LEAN_UNLIKELY(x) (x)
 #define LEAN_LIKELY(x) (x)
 #define LEAN_ALWAYS_INLINE
+#endif
+
+#ifdef LEAN_RUNTIME_STATS
+#define LEAN_RUNTIME_STAT_CODE(c) c
+#else
+#define LEAN_RUNTIME_STAT_CODE(c)
 #endif
 
 #define LEAN_BYTE(Var, Index) *(((uint8_t*)&Var)+Index)
@@ -218,8 +229,52 @@ static inline size_t lean_unbox(lean_object * o) { return (size_t)(o) >> 1; }
 
 void lean_panic_out_of_memory();
 
-void * lean_alloc_heap_object(size_t sz);
-void lean_free_heap_obj(lean_object * o);
+static inline size_t lean_align(size_t v, size_t a) {
+    return (v / a)*a + a * (v % a != 0);
+}
+
+static inline unsigned lean_get_slot_idx(unsigned sz) {
+    assert(sz > 0);
+    assert(lean_align(sz, LEAN_OBJECT_SIZE_DELTA) == sz);
+    return sz / LEAN_OBJECT_SIZE_DELTA - 1;
+}
+
+void * lean_alloc_small(unsigned sz, unsigned slot_idx);
+void lean_free_small(void * p);
+unsigned lean_small_mem_size(void * p);
+
+static inline lean_object * lean_alloc_small_object(unsigned sz) {
+#ifdef LEAN_SMALL_ALLOCATOR
+    sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
+    unsigned slot_idx = lean_get_slot_idx(sz);
+    assert(sz <= LEAN_MAX_SMALL_OBJECT_SIZE);
+    return (lean_object*)lean_alloc_small(sz, slot_idx);
+#else
+    void * mem = malloc(sizeof(size_t) + sz);
+    if (mem == 0) lean_panic_out_of_memory();
+    *(size_t*)mem = sz;
+    return (lean_object*)((size_t*)mem + 1);
+#endif
+}
+
+static inline unsigned lean_small_object_size(lean_object * o) {
+#ifdef LEAN_SMALL_ALLOCATOR
+    return lean_small_mem_size(o);
+#else
+    return *((size_t*)o - 1);
+#endif
+}
+
+static inline void lean_free_small_object(lean_object * o) {
+#ifdef LEAN_SMALL_ALLOCATOR
+    lean_free_small(o);
+#else
+    free((size_t*)o - 1);
+#endif
+}
+
+lean_object * lean_alloc_object(size_t sz);
+void lean_free_object(lean_object * o);
 
 /* The object size may be slightly bigger for constructor objects.
    The runtime does not track the size of the scalar size area.
@@ -260,7 +315,7 @@ static inline bool lean_is_persistent(lean_object * o) {
 #endif
 }
 
-static inline bool lean_is_heap_obj(lean_object * o) {
+static inline bool lean_is_heap_object(lean_object * o) {
     return lean_is_st(o) || lean_is_mt(o);
 }
 
@@ -485,7 +540,7 @@ static inline uint8_t * lean_ctor_scalar_cptr(lean_object * o) {
 
 static inline lean_object * lean_alloc_ctor(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
     assert(tag <= LeanMaxCtorTag && num_objs < 256 && scalar_sz < 1024);
-    lean_object * o = (lean_object*)lean_alloc_heap_object(sizeof(lean_ctor_object) + sizeof(void*)*num_objs + scalar_sz);
+    lean_object * o = lean_alloc_small_object(sizeof(lean_ctor_object) + sizeof(void*)*num_objs + scalar_sz);
     lean_set_st_header(o, tag, num_objs);
     return o;
 }
@@ -575,7 +630,7 @@ static inline lean_object ** lean_closure_arg_cptr(lean_object * o) { return lea
 static inline lean_obj_res lean_alloc_closure(void * fun, unsigned arity, unsigned num_fixed) {
     assert(arity > 0);
     assert(num_fixed < arity);
-    lean_closure_object * o = (lean_closure_object*)lean_alloc_heap_object(sizeof(lean_closure_object) + sizeof(void*)*num_fixed);
+    lean_closure_object * o = (lean_closure_object*)lean_alloc_small_object(sizeof(lean_closure_object) + sizeof(void*)*num_fixed);
     lean_set_st_header((lean_object*)o, LeanClosure, 0);
     o->m_fun = fun;
     o->m_arity = arity;
@@ -622,7 +677,7 @@ lean_obj_res lean_fixpoint6(lean_obj_arg rec, lean_obj_arg a1, lean_obj_arg a2, 
 
 /* Arrays of objects (low level API) */
 static inline lean_obj_res lean_alloc_array(size_t size, size_t capacity) {
-    lean_array_object * o = (lean_array_object*)lean_alloc_heap_object(sizeof(lean_array_object) + sizeof(void*)*capacity);
+    lean_array_object * o = (lean_array_object*)lean_alloc_object(sizeof(lean_array_object) + sizeof(void*)*capacity);
     lean_set_st_header((lean_object*)o, LeanArray, 0);
     o->m_size = size;
     o->m_capacity = capacity;
@@ -771,7 +826,7 @@ lean_object * lean_mk_array(lean_obj_arg n, lean_obj_arg v);
 /* Array of scalars */
 
 static inline lean_obj_res lean_alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
-    lean_sarray_object * o = (lean_sarray_object*)lean_alloc_heap_object(sizeof(lean_sarray_object) + elem_size*capacity);
+    lean_sarray_object * o = (lean_sarray_object*)lean_alloc_object(sizeof(lean_sarray_object) + elem_size*capacity);
     lean_set_st_header((lean_object*)o, LeanScalarArray, elem_size);
     o->m_size = size;
     o->m_capacity = capacity;
@@ -847,7 +902,7 @@ static inline lean_obj_res lean_byte_array_set(lean_obj_arg a, b_lean_obj_arg i,
 /* Strings */
 
 static inline lean_obj_res lean_alloc_string(size_t size, size_t capacity, size_t len) {
-    lean_string_object * o = (lean_string_object*)lean_alloc_heap_object(sizeof(lean_string_object) + capacity);
+    lean_string_object * o = (lean_string_object*)lean_alloc_object(sizeof(lean_string_object) + capacity);
     lean_set_st_header((lean_object*)o, LeanString, 0);
     o->m_size = size;
     o->m_capacity = capacity;
@@ -892,7 +947,7 @@ size_t lean_string_hash(b_lean_obj_arg);
 /* Thunks */
 
 static inline lean_obj_res lean_mk_thunk(lean_obj_arg c) {
-    lean_thunk_object * o = (lean_thunk_object*)lean_alloc_heap_object(sizeof(lean_thunk_object));
+    lean_thunk_object * o = (lean_thunk_object*)lean_alloc_small_object(sizeof(lean_thunk_object));
     lean_set_st_header((lean_object*)o, LeanThunk, 0);
     o->m_value   = (lean_object*)0;
     o->m_closure = c;
@@ -901,7 +956,7 @@ static inline lean_obj_res lean_mk_thunk(lean_obj_arg c) {
 
 /* Thunk.pure : A -> Thunk A */
 static inline lean_obj_res lean_thunk_pure(lean_obj_arg v) {
-    lean_thunk_object * o = (lean_thunk_object*)lean_alloc_heap_object(sizeof(lean_thunk_object));
+    lean_thunk_object * o = (lean_thunk_object*)lean_alloc_small_object(sizeof(lean_thunk_object));
     lean_set_st_header((lean_object*)o, LeanThunk, 0);
     o->m_value   = v;
     o->m_closure = (lean_object*)0;
@@ -957,7 +1012,7 @@ b_lean_obj_res lean_io_wait_any_core(b_lean_obj_arg task_list);
 /* External objects */
 
 static inline lean_object * lean_alloc_external(lean_external_class * cls, void * data) {
-    lean_external_object * o = (lean_external_object*)lean_alloc_heap_object(sizeof(lean_external_object));
+    lean_external_object * o = (lean_external_object*)lean_alloc_small_object(sizeof(lean_external_object));
     lean_set_st_header((lean_object*)o, LeanExternal, 0);
     o->m_class   = cls;
     o->m_data    = data;

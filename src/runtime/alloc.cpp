@@ -7,12 +7,9 @@ Author: Leonardo de Moura
 #include <vector>
 #include "runtime/thread.h"
 #include "runtime/debug.h"
-#include "runtime/compiler_hints.h"
-#include "runtime/object.h"
 #include "runtime/alloc.h"
+#include "runtime/lean.h"
 
-#define LEAN_OBJECT_SIZE_DELTA     8
-#define LEAN_MAX_SMALL_OBJECT_SIZE 512
 #define LEAN_PAGE_SIZE             8192        // 8 Kb
 #define LEAN_SEGMENT_SIZE          8*1024*1024 // 8 Mb
 #define LEAN_NUM_SLOTS             (LEAN_MAX_SMALL_OBJECT_SIZE / LEAN_OBJECT_SIZE_DELTA)
@@ -73,12 +70,8 @@ struct page {
     void push_free_obj(void * o);
 };
 
-inline size_t align(size_t v, size_t a) {
-    return (v / a)*a + a * (v % a != 0);
-}
-
 inline char * align_ptr(char * p, size_t a) {
-    return reinterpret_cast<char*>(align(reinterpret_cast<size_t>(p), a));
+    return reinterpret_cast<char*>(lean_align(reinterpret_cast<size_t>(p), a));
 }
 
 struct segment {
@@ -148,12 +141,6 @@ static inline page * get_page_of(void * o) {
 LEAN_THREAD_GLOBAL_PTR(page *, g_curr_pages);
 LEAN_THREAD_PTR(heap, g_heap);
 static heap_manager * g_heap_manager = nullptr;
-
-inline unsigned get_slot_idx(unsigned obj_size) {
-    lean_assert(obj_size > 0);
-    lean_assert(align(obj_size, LEAN_OBJECT_SIZE_DELTA) == obj_size);
-    return obj_size / LEAN_OBJECT_SIZE_DELTA - 1;
-}
 
 inline void set_next_obj(void * obj, void * next) {
     *reinterpret_cast<void**>(obj) = next;
@@ -300,7 +287,7 @@ void heap::alloc_segment() {
 }
 
 static page * alloc_page(heap * h, unsigned obj_size) {
-    lean_assert(align(obj_size, LEAN_OBJECT_SIZE_DELTA) == obj_size);
+    lean_assert(lean_align(obj_size, LEAN_OBJECT_SIZE_DELTA) == obj_size);
     segment * s = h->m_curr_segment;
     LEAN_RUNTIME_STAT_CODE(g_num_pages++);
     page * p    = new (s->m_next_page_mem) page();
@@ -309,7 +296,7 @@ static page * alloc_page(heap * h, unsigned obj_size) {
         /* s is full, we need to allocate a new one. */
         h->alloc_segment();
     }
-    unsigned slot_idx        = get_slot_idx(obj_size);
+    unsigned slot_idx        = lean_get_slot_idx(obj_size);
     p->m_header.m_heap       = h;
     page_list_insert(h->m_curr_page[slot_idx], p);
     p->m_header.m_slot_idx   = slot_idx;
@@ -372,17 +359,7 @@ void init_thread_heap() {
     init_heap(false);
 }
 
-void * alloc(size_t sz) {
-    sz = align(sz, LEAN_OBJECT_SIZE_DELTA);
-    LEAN_RUNTIME_STAT_CODE(g_num_alloc++);
-    if (LEAN_UNLIKELY(sz > LEAN_MAX_SMALL_OBJECT_SIZE)) {
-        void * r = malloc(sz);
-        if (r == nullptr) throw std::bad_alloc();
-        return r;
-    }
-    lean_assert(g_heap);
-    LEAN_RUNTIME_STAT_CODE(g_num_small_alloc++);
-    unsigned slot_idx = get_slot_idx(sz);
+extern "C" void * lean_alloc_small(unsigned sz, unsigned slot_idx) {
     page * p = g_heap->m_curr_page[slot_idx];
     void * r = p->m_header.m_free_list;
     if (LEAN_UNLIKELY(r == nullptr)) {
@@ -400,6 +377,20 @@ void * alloc(size_t sz) {
     p->m_header.m_free_list = get_next_obj(r);
     p->m_header.m_num_free--;
     return r;
+}
+
+void * alloc(size_t sz) {
+    sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
+    LEAN_RUNTIME_STAT_CODE(g_num_alloc++);
+    if (LEAN_UNLIKELY(sz > LEAN_MAX_SMALL_OBJECT_SIZE)) {
+        void * r = malloc(sz);
+        if (r == nullptr) lean_panic_out_of_memory();
+        return r;
+    }
+    lean_assert(g_heap);
+    LEAN_RUNTIME_STAT_CODE(g_num_small_alloc++);
+    unsigned slot_idx = lean_get_slot_idx(sz);
+    return lean_alloc_small(sz, slot_idx);
 }
 
 static inline void dealloc_small_core(void * o) {
@@ -424,18 +415,18 @@ static inline void dealloc_small_core(void * o) {
 
 void dealloc(void * o, size_t sz) {
     LEAN_RUNTIME_STAT_CODE(g_num_dealloc++);
-    sz = align(sz, LEAN_OBJECT_SIZE_DELTA);
+    sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
     if (LEAN_UNLIKELY(sz > LEAN_MAX_SMALL_OBJECT_SIZE)) {
         return free(o);
     }
     dealloc_small_core(o);
 }
 
-void dealloc_small(void * o) {
+extern "C" void lean_free_small(void * o) {
     dealloc_small_core(o);
 }
 
-unsigned get_small_object_size(void * o) {
+extern "C" unsigned lean_small_mem_size(void * o) {
     page * p = get_page_of(o);
     return p->m_header.m_obj_size;
 }

@@ -12,12 +12,10 @@ Author: Leonardo de Moura
 #include <functional>
 #include <unordered_map>
 #include <cstring>
-#include "runtime/int64.h"
+#include "runtime/object.h"
 #include "runtime/optional.h"
 
 namespace lean {
-struct object;
-class mpz;
 class serializer {
     std::ostream & m_out;
     std::unordered_map<object*, unsigned, std::hash<object*>, std::equal_to<object*>> m_obj_table;
@@ -138,4 +136,7 @@ deserializer & operator>>(deserializer & d, optional<T> & a) {
     a = read_optional<T>(d);
     return d;
 }
+
+inline serializer & operator<<(serializer & s, mpz const & n) { s.write_mpz(n); return s; }
+inline deserializer & operator>>(deserializer & d, mpz & n) { n = d.read_mpz(); return d; }
 }

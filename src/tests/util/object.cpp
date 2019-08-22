@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/test.h" // <<< comment this list for performance experiments
 #include "util/timeit.h"
 #include "runtime/stackinfo.h"
+#include "runtime/thread.h"
 #include "runtime/serializer.h"
 #include "runtime/sstream.h"
 #include "util/object_ref.h"
@@ -433,7 +434,7 @@ bool contains(object * l, object * v) {
         object * h = cnstr_get(l, 0);
         object * t = cnstr_get(l, 1);
         if (!is_shared(l)) {
-            free_heap_obj(l);
+            lean_free_object(l);
         } else {
             inc(h);
             inc(t);
@@ -482,7 +483,7 @@ bool contains_hybrid(object * l, object * v) {
         if (l_b) {
             t = mark_borrowed(t_obj);
         } else if (!is_shared(l_obj)) {
-            free_heap_obj(l_obj);
+            lean_free_object(l_obj);
             t = t_obj;
         } else {
             inc(h_obj);
@@ -511,7 +512,7 @@ bool contains_fast_hybrid(object * l, object * v) {
         object * t  = cnstr_get(l, 1);
         bool shared = is_shared(l);
         if (!shared) {
-            free_heap_obj(l);
+            lean_free_object(l);
         } else {
             inc(h);
             inc(t);

@@ -155,7 +155,7 @@ extern "C" object * lean_serialize_modifications(object * mod_list, object * w) 
         std::string bytes = out.str();
 
         object * r = alloc_sarray(1, bytes.size(), bytes.size());
-        memcpy(sarray_cptr<uint8>(r), bytes.data(), bytes.size());
+        memcpy(sarray_cptr(r), bytes.data(), bytes.size());
 
         return set_io_result(w, r);
     } catch (exception & ex) {
@@ -165,7 +165,7 @@ extern "C" object * lean_serialize_modifications(object * mod_list, object * w) 
 
 extern "C" object * lean_perform_serialized_modifications(object * env0, object * bytes, object * w) {
     environment env(env0);
-    std::string code(sarray_cptr<char>(bytes), sarray_size(bytes));
+    std::string code((char*)sarray_cptr(bytes), sarray_size(bytes));
     dec_ref(bytes);
     try {
         std::istringstream in(code, std::ios_base::binary);

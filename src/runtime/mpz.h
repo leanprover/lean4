@@ -10,9 +10,12 @@ Author: Leonardo de Moura
 #include <string>
 #include <iostream>
 #include <limits>
+#include "runtime/int64.h"
 #include "runtime/debug.h"
-#include "runtime/serializer.h"
+#include "runtime/lean.h"
+
 namespace lean {
+
 class mpq;
 /** \brief Wrapper for GMP integers */
 class mpz {
@@ -275,7 +278,4 @@ public:
 struct mpz_cmp_fn {
     int operator()(mpz const & v1, mpz const & v2) const { return cmp(v1, v2); }
 };
-
-inline serializer & operator<<(serializer & s, mpz const & n) { s.write_mpz(n); return s; }
-inline deserializer & operator>>(deserializer & d, mpz & n) { n = d.read_mpz(); return d; }
 }

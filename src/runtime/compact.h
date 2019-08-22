@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "runtime/object.h"
 
 namespace lean {
-typedef object * object_offset;
+typedef lean_object * object_offset;
 
 class object_compactor {
     std::unordered_map<object*, object_offset, std::hash<object*>, std::equal_to<object*>> m_obj_table;

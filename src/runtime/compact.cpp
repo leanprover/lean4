@@ -123,7 +123,7 @@ bool object_compactor::insert_array(object * o) {
     new_o->m_size     = sz;
     new_o->m_capacity = sz;
     for (size_t i = 0; i < sz; i++) {
-        array_set((lean_object*)new_o, i, offsets[i]);
+        lean_array_set_core((lean_object*)new_o, i, offsets[i]);
     }
     save(o, (lean_object*)new_o);
     return true;

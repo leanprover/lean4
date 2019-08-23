@@ -702,7 +702,9 @@ static inline b_lean_obj_res lean_array_get_core(b_lean_obj_arg o, size_t i) {
     return lean_to_array(o)->m_data[i];
 }
 static inline void lean_array_set_core(u_lean_obj_arg o, size_t i, lean_obj_arg v) {
-    assert(lean_is_exclusive(o));
+    /* Remark: we use this procedure to update non shared arrays in the heap,
+       and when copying objects to compact region at compact.cpp */
+    assert(!lean_is_heap_object(o) || lean_is_exclusive(o));
     assert(i < lean_array_size(o));
     lean_to_array(o)->m_data[i] = v;
 }

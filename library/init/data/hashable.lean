@@ -12,10 +12,10 @@ class Hashable (α : Type u) :=
 
 export Hashable (hash)
 
-@[extern c "lean_usize_mix_hash" cpp "lean::usize_mix_hash"]
+@[extern "lean_usize_mix_hash"]
 constant mixHash (u₁ u₂ : USize) : USize := default _
 
-@[extern c "lean_string_hash" cpp "lean::string_hash"]
+@[extern "lean_string_hash"]
 protected constant String.hash (s : String) : USize := default _
 instance : Hashable String := ⟨String.hash⟩
 

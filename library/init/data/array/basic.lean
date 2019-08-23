@@ -17,9 +17,9 @@ structure Array (α : Type u) :=
 (sz   : Nat)
 (data : Fin sz → α)
 
-attribute [extern c inline "lean_array_sz(#2)" cpp inline "lean::array_sz(#2)"] Array.sz
+attribute [extern c inline "lean_array_sz(#2)"] Array.sz
 
-@[reducible, extern c inline "lean_array_get_size(#2)" cpp inline "lean::array_get_size(#2)"]
+@[reducible, extern c inline "lean_array_get_size(#2)"]
 def Array.size {α : Type u} (a : @& Array α) : Nat :=
 a.sz
 
@@ -27,19 +27,19 @@ namespace Array
 variables {α : Type u}
 
 /- The parameter `c` is the initial capacity -/
-@[extern c inline "lean_mk_empty_array_with_capacity(#2)" cpp inline "lean::mk_empty_array(#2)"]
+@[extern c inline "lean_mk_empty_array_with_capacity(#2)"]
 def mkEmpty (c : @& Nat) : Array α :=
 { sz := 0,
   data := fun ⟨x, h⟩ => absurd h (Nat.notLtZero x) }
 
-@[extern c inline "lean_array_push(#2, #3)" cpp inline "lean::array_push(#2, #3)"]
+@[extern c inline "lean_array_push(#2, #3)"]
 def push (a : Array α) (v : α) : Array α :=
 { sz   := Nat.succ a.sz,
   data := fun ⟨j, h₁⟩ =>
     if h₂ : j = a.sz then v
     else a.data ⟨j, Nat.ltOfLeOfNe (Nat.leOfLtSucc h₁) h₂⟩ }
 
-@[extern c inline "lean_mk_array(#2, #3)" cpp inline "lean::mk_array(#2, #3)"]
+@[extern c inline "lean_mk_array(#2, #3)"]
 def mkArray {α : Type u} (n : Nat) (v : α) : Array α :=
 { sz   := n,
   data := fun _ => v}
@@ -62,19 +62,19 @@ a.size = 0
 def singleton (v : α) : Array α :=
 mkArray 1 v
 
-@[extern c inline "lean_array_fget(#2, #3)" cpp inline "lean::array_fget(#2, #3)"]
+@[extern c inline "lean_array_fget(#2, #3)"]
 def fget (a : @& Array α) (i : @& Fin a.size) : α :=
 a.data i
 
 /- Low-level version of `fget` which is as fast as a C array read.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `fget` may be slightly slower than `uget`. -/
-@[extern c inline "lean_array_uget(#2, #3)" cpp inline "lean::array_uget(#2, #3)"]
+@[extern c inline "lean_array_uget(#2, #3)"]
 def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
 a.fget ⟨i.toNat, h⟩
 
 /- "Comfortable" version of `fget`. It performs a bound check at runtime. -/
-@[extern c inline "lean_array_get(#2, #3, #4)" cpp inline "lean::array_get(#2, #3, #4)"]
+@[extern c inline "lean_array_get(#2, #3, #4)"]
 def get [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
 if h : i < a.size then a.fget ⟨i, h⟩ else default α
 
@@ -84,7 +84,7 @@ a.get (a.size - 1)
 def getOpt (a : Array α) (i : Nat) : Option α :=
 if h : i < a.size then some (a.fget ⟨i, h⟩) else none
 
-@[extern c inline "lean_array_fset(#2, #3, #4)" cpp inline "lean::array_fset(#2, #3, #4)"]
+@[extern c inline "lean_array_fset(#2, #3, #4)"]
 def fset (a : Array α) (i : @& Fin a.size) (v : α) : Array α :=
 { sz   := a.sz,
   data := fun j => if h : i = j then v else a.data j }
@@ -98,23 +98,23 @@ rfl
 /- Low-level version of `fset` which is as fast as a C array fset.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `fset` may be slightly slower than `uset`. -/
-@[extern c inline "lean_array_uset(#2, #3, #4)" cpp inline "lean::array_uset(#2, #3, #4)"]
+@[extern c inline "lean_array_uset(#2, #3, #4)"]
 def uset (a : Array α) (i : USize) (v : α) (h : i.toNat < a.size) : Array α :=
 a.fset ⟨i.toNat, h⟩ v
 
 /- "Comfortable" version of `fset`. It performs a bound check at runtime. -/
-@[extern c inline "lean_array_set(#2, #3, #4)" cpp inline "lean::array_set(#2, #3, #4)"]
+@[extern c inline "lean_array_set(#2, #3, #4)"]
 def set (a : Array α) (i : @& Nat) (v : α) : Array α :=
 if h : i < a.size then a.fset ⟨i, h⟩ v else a
 
-@[extern c inline "lean_array_fswap(#2, #3, #4)" cpp inline "lean::array_fswap(#2, #3, #4)"]
+@[extern c inline "lean_array_fswap(#2, #3, #4)"]
 def fswap (a : Array α) (i j : @& Fin a.size) : Array α :=
 let v₁ := a.fget i;
 let v₂ := a.fget j;
 let a  := a.fset i v₂;
 a.fset j v₁
 
-@[extern c inline "lean_array_swap(#2, #3, #4)" cpp inline "lean::array_swap(#2, #3, #4)"]
+@[extern c inline "lean_array_swap(#2, #3, #4)"]
 def swap (a : Array α) (i j : @& Nat) : Array α :=
 if h₁ : i < a.size then
 if h₂ : j < a.size then fswap a ⟨i, h₁⟩ ⟨j, h₂⟩
@@ -129,7 +129,7 @@ let a := a.fset i v;
 @[inline] def swapAt {α : Type} (a : Array α) (i : Nat) (v : α) : α × Array α :=
 if h : i < a.size then fswapAt a ⟨i, h⟩ v else (v, a)
 
-@[extern c inline "lean_array_pop(#2)" cpp inline "lean::array_pop(#2)"]
+@[extern c inline "lean_array_pop(#2)"]
 def pop (a : Array α) : Array α :=
 { sz   := Nat.pred a.size,
   data := fun ⟨j, h⟩ => a.fget ⟨j, Nat.ltOfLtOfLe h (Nat.predLe _)⟩ }

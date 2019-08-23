@@ -108,7 +108,7 @@ end SyntaxNode
 
 namespace Syntax
 /- TODO: remove `@[extern]` when compiler can perform the following optimization automatically -/
-@[extern c inline "#2" cpp inline "#2"]
+@[extern c inline "#2"]
 partial def lift (α) : Syntax → Syntax α
 | atom info val             => atom info val
 | node k args               => node k $ args.map lift

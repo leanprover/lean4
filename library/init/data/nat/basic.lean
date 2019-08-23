@@ -9,7 +9,7 @@ universes u
 
 namespace Nat
 
-@[extern c "lean_nat_dec_eq" cpp "lean::nat_dec_eq"]
+@[extern "lean_nat_dec_eq"]
 def beq : Nat → Nat → Bool
 | zero,   zero   => true
 | zero,   succ m => false
@@ -34,7 +34,7 @@ theorem neOfBeqEqFf : ∀ {n m : Nat}, beq n m = false → n ≠ m
   have n ≠ m from neOfBeqEqFf this;
   Nat.noConfusion h₂ (fun h₂ => absurd h₂ this)
 
-@[extern c "lean_nat_dec_eq" cpp "lean::nat_dec_eq"]
+@[extern "lean_nat_dec_eq"]
 protected def decEq (n m : @& Nat) : Decidable (n = m) :=
 if h : beq n m = true then isTrue (eqOfBeqEqTt h)
 else isFalse (neOfBeqEqFf (eqFalseOfNeTrue h))
@@ -42,7 +42,7 @@ else isFalse (neOfBeqEqFf (eqFalseOfNeTrue h))
 @[inline] instance : DecidableEq Nat :=
 {decEq := Nat.decEq}
 
-@[extern c "lean_nat_dec_le" cpp "lean::nat_dec_le"]
+@[extern "lean_nat_dec_le"]
 def ble : Nat → Nat → Bool
 | zero,   zero   => true
 | zero,   succ m => true
@@ -61,17 +61,17 @@ Nat.le (succ n) m
 instance : HasLess Nat :=
 ⟨Nat.lt⟩
 
-@[extern c inline "lean_nat_sub(#1, lean::box(1))" cpp inline "lean::nat_sub(#1, lean::box(1))"]
+@[extern c inline "lean_nat_sub(#1, lean_box(1))"]
 def pred : Nat → Nat
 | 0   => 0
 | a+1 => a
 
-@[extern c "lean_nat_sub" cpp "lean::nat_sub"]
+@[extern "lean_nat_sub"]
 protected def sub : (@& Nat) → (@& Nat) → Nat
 | a, 0   => a
 | a, b+1 => pred (sub a b)
 
-@[extern c "lean_nat_mul" cpp "lean::nat_mul"]
+@[extern "lean_nat_mul"]
 protected def mul : (@& Nat) → (@& Nat) → Nat
 | a, 0   => 0
 | a, b+1 => (mul a b) + a
@@ -273,11 +273,11 @@ theorem predLePred : ∀ {n m : Nat}, n ≤ m → pred n ≤ pred m
 theorem leOfSuccLeSucc {n m : Nat} : succ n ≤ succ m → n ≤ m :=
 predLePred
 
-@[extern c "lean_nat_dec_le" cpp "lean::nat_dec_le"]
+@[extern "lean_nat_dec_le"]
 instance decLe (n m : @& Nat) : Decidable (n ≤ m) :=
 decEq (ble n m) true
 
-@[extern c "lean_nat_dec_lt" cpp "lean::nat_dec_lt"]
+@[extern "lean_nat_dec_lt"]
 instance decLt (n m : @& Nat) : Decidable (n < m) :=
 Nat.decLe (succ n) m
 

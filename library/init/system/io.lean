@@ -240,15 +240,15 @@ def Ref (α : Type) : Type := (RefPointed α).type
 instance (α : Type) : Inhabited (Ref α) := ⟨(RefPointed α).val⟩
 
 namespace Prim
-@[extern 3 c inline "lean_io_mk_ref(#2, #3)" cpp inline "lean::io_mk_ref(#2, #3)"]
+@[extern 3 c inline "lean_io_mk_ref(#2, #3)"]
 constant mkRef {α : Type} (a : α) : IO (Ref α)                := default _
-@[extern 3 c inline "lean_io_ref_get(#2, #3)" cpp inline "lean::io_ref_get(#2, #3)"]
+@[extern 3 c inline "lean_io_ref_get(#2, #3)"]
 constant Ref.get {α : Type} (r : @& Ref α) : IO α             := default _
-@[extern 4 c inline "lean_io_ref_set(#2, #3, #4)" cpp inline "lean::io_ref_set(#2, #3, #4)"]
+@[extern 4 c inline "lean_io_ref_set(#2, #3, #4)"]
 constant Ref.set {α : Type} (r : @& Ref α) (a : α) : IO Unit  := default _
-@[extern 4 c inline "lean_io_ref_swap(#2, #3, #4)" cpp inline "lean::io_ref_swap(#2, #3, #4)"]
+@[extern 4 c inline "lean_io_ref_swap(#2, #3, #4)"]
 constant Ref.swap {α : Type} (r : @& Ref α) (a : α) : IO α     := default _
-@[extern 3 c inline "lean_io_ref_reset(#2, #3)" cpp inline "lean::io_ref_reset(#2, #3)"]
+@[extern 3 c inline "lean_io_ref_reset(#2, #3)"]
 constant Ref.reset {α : Type} (r : @& Ref α) : IO Unit         := default _
 end Prim
 

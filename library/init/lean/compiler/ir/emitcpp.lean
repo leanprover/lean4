@@ -137,8 +137,7 @@ let ps := decl.params;
 if ps.isEmpty && addExternForConsts then
   emit "extern "
 else
-  -- Temporary hack for transitioning to C
-  mwhen (isSimpleExportName decl.name) (emit "extern \"C\" ");
+  pure ();
 emit (toCppType decl.resultType ++ " " ++ cppBaseName);
 unless (ps.isEmpty) $ do {
   emit "(";
@@ -169,7 +168,7 @@ let qCppName := cppQualifiedNameToName cppName;
 openNamespaces qCppName;
 env ← getEnv;
 let extC := fromCBackend || isExternC env decl.name;
-when extC (emit "extern \"C\" ");
+-- when extC (emit "extern \"C\" ");
 (Name.mkString _ qCppBaseName) ← pure qCppName | throw "invalid name";
 emitFnDeclAux decl qCppBaseName (!extC);
 closeNamespaces qCppName
@@ -197,12 +196,15 @@ match d with
   unless (xs.size == 2 || xs.size == 1) (throw "invalid main function, incorrect arity when generating code");
   env ← getEnv;
   let usesLeanAPI := usesLeanNamespace env d;
-  when usesLeanAPI (emitLn "namespace lean { void initialize(); }");
+  if usesLeanAPI then
+    emitLn "void lean_initialize();"
+  else
+    emitLn "void lean_initialize_runtime_module();";
   emitLn "int main(int argc, char ** argv) {";
   if usesLeanAPI then
-    emitLn "lean::initialize();"
+    emitLn "lean_initialize();"
   else
-    emitLn "lean::initialize_runtime_module();";
+    emitLn "lean_initialize_runtime_module();";
   emitLn "obj * w = lean::io_mk_world();";
   modName ← getModName;
   emitLn ("w = initialize_" ++ (modName.mangle "") ++ "(w);");
@@ -265,7 +267,8 @@ emitLns [
  "#pragma GCC diagnostic ignored \"-Wunused-parameter\"",
  "#pragma GCC diagnostic ignored \"-Wunused-label\"",
  "#pragma GCC diagnostic ignored \"-Wunused-but-set-variable\"",
- "#endif"]
+ "#endif",
+ "extern \"C\" {"]
 
 def throwUnknownVar {α : Type} (x : VarId) : M α :=
 throw ("unknown variable '" ++ toString x ++ "'")
@@ -759,7 +762,8 @@ emitFileHeader;
 emitFnDecls;
 emitFns;
 emitInitFn;
-emitMainFnIfNeeded
+emitMainFnIfNeeded;
+emitLn "}"
 
 end EmitCpp
 

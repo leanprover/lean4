@@ -18,10 +18,10 @@ Author: Leonardo de Moura
 #include "frontends/lean/init_module.h"
 #include "init/init.h"
 
-lean::object* initialize_init_default(lean::object* w);
-lean::object* initialize_init_lean_default(lean::object* w);
-
 namespace lean {
+extern "C" object* initialize_init_default(object* w);
+extern "C" object* initialize_init_lean_default(object* w);
+
 object* sort_const_table_core(object * w);
 
 extern "C" void lean_initialize() {

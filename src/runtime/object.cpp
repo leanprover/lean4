@@ -117,7 +117,6 @@ extern "C" lean_object * lean_alloc_object(size_t sz) {
 static void deactivate_task(lean_task_object * t);
 
 static void lean_del_core(object * o, object * & todo) {
-    lean_assert(lean_has_rc(o));
     uint8 tag = lean_ptr_tag(o);
     if (tag <= LeanMaxCtorTag) {
         object ** it  = lean_ctor_obj_cptr(o);
@@ -178,7 +177,6 @@ extern "C" void lean_del(object * o) {
 #else
     object * todo = nullptr;
     while (true) {
-        lean_assert(lean_has_rc(o));
         lean_del_core(o, todo);
         if (todo == nullptr)
             return;

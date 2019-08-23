@@ -14,8 +14,9 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Lean_KVMap_HasBeq___closed__1;
-extern "C" uint8 lean_name_dec_eq(obj*, obj*);
+uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_Lean_KVMap_getNat(obj*, obj*, obj*);
 obj* l_Lean_KVMap_getName(obj*, obj*, obj*);
 obj* l_Lean_KVMap_setBool(obj*, obj*, uint8);
@@ -56,13 +57,13 @@ obj* l_Lean_bool2DataValue(uint8);
 obj* l_Lean_KVMap_stringVal___closed__1;
 obj* l_Lean_KVMap_stringVal___closed__3;
 obj* l_Lean_KVMap_setBool___boxed(obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Lean_string2DataValue(obj*);
 obj* l_Lean_KVMap_getInt___boxed(obj*, obj*, obj*);
 uint8 l_Lean_KVMap_eqv(obj*, obj*);
 obj* l_Lean_KVMap_find___boxed(obj*, obj*);
 obj* l_Lean_int2DataValue(obj*);
-extern "C" uint8 lean_string_dec_eq(obj*, obj*);
+uint8 lean_string_dec_eq(obj*, obj*);
 obj* l_Lean_KVMap_get___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_KVMap_eqv___boxed(obj*, obj*);
 obj* l_Lean_bool2DataValue___boxed(obj*);
@@ -1193,4 +1194,5 @@ lean::mark_persistent(l_Lean_KVMap_stringVal___closed__3);
 l_Lean_KVMap_stringVal = _init_l_Lean_KVMap_stringVal();
 lean::mark_persistent(l_Lean_KVMap_stringVal);
 return w;
+}
 }

@@ -14,9 +14,10 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_setBody(obj*, obj*);
-extern "C" uint8 lean_name_dec_eq(obj*, obj*);
+uint8 lean_name_dec_eq(obj*, obj*);
 extern obj* l_Array_empty___closed__1;
 obj* l_Lean_IR_ResetReuse_R___main(obj*, obj*, obj*);
 obj* l_Lean_IR_MaxIndex_collectDecl(obj*, obj*);
@@ -32,13 +33,13 @@ obj* l___private_init_lean_compiler_ir_resetreuse_2__S___main(obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_resetreuse_6__argsContainsVar___boxed(obj*, obj*);
 uint8 l___private_init_lean_compiler_ir_resetreuse_1__mayReuse(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_resetreuse_5__Dfinalize(obj*, obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_resetreuse_9__D(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Name_getPrefix(obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 uint8 l_Lean_IR_CtorInfo_isScalar(obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 uint8 l___private_init_lean_compiler_ir_resetreuse_6__argsContainsVar(obj*, obj*);
 uint8 l_Array_anyMAux___main___at___private_init_lean_compiler_ir_resetreuse_6__argsContainsVar___spec__1(obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_hasLiveVar(obj*, obj*, obj*);
@@ -2057,4 +2058,5 @@ if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_format(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

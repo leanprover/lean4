@@ -14,17 +14,18 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Nat_decLe___boxed(obj*, obj*);
 uint8 l_Prod_allI(obj*, obj*);
-extern "C" obj* lean_nat_sub(obj*, obj*);
+obj* lean_nat_sub(obj*, obj*);
 obj* l_Prod_foldI(obj*);
-extern "C" uint8 lean_nat_dec_le(obj*, obj*);
+uint8 lean_nat_dec_le(obj*, obj*);
 obj* l_Nat_anyAux___main___at_Nat_all___spec__1___boxed(obj*, obj*, obj*);
 obj* l_Nat_repeatAux(obj*);
 obj* l_Nat_HasPow;
 obj* l_Prod_foldI___rarg___boxed(obj*, obj*, obj*);
 obj* l_Nat_fold___rarg(obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Nat_fold(obj*);
 obj* l_Nat_anyAux___boxed(obj*, obj*, obj*);
 uint8 l_Prod_anyI(obj*, obj*);
@@ -41,11 +42,11 @@ obj* l_Nat_sub___boxed(obj*, obj*);
 obj* l_Nat_foldAux___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_Nat_mul___boxed(obj*, obj*);
 obj* l_Nat_all___boxed(obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_Nat_ble___boxed(obj*, obj*);
 uint8 l_Nat_anyAux___main___at_Prod_allI___spec__1(obj*, obj*, obj*);
 obj* l_Nat_HasSub___closed__1;
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 uint8 l_Nat_anyAux___main(obj*, obj*, obj*);
 uint8 l_Nat_anyAux(obj*, obj*, obj*);
 obj* l_Nat_HasPow___closed__1;
@@ -70,14 +71,14 @@ obj* l_Nat_HasMul;
 obj* l_Nat_repeatAux___rarg(obj*, obj*, obj*);
 obj* l_Nat_anyAux___main___at_Prod_allI___spec__1___boxed(obj*, obj*, obj*);
 obj* l_Nat_repeatAux___main___rarg(obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_le(obj*, obj*);
+uint8 lean_nat_dec_le(obj*, obj*);
 obj* l_Nat_anyAux___main___boxed(obj*, obj*, obj*);
 obj* l_Nat_repeat(obj*);
 obj* l_Nat_DecidableEq___closed__1;
 obj* l_Nat_max___boxed(obj*, obj*);
 obj* l_Nat_max(obj*, obj*);
 obj* l_Nat_DecidableEq;
-extern "C" obj* lean_nat_mul(obj*, obj*);
+obj* lean_nat_mul(obj*, obj*);
 obj* l_Nat_HasMul___closed__1;
 obj* l_Nat_beq___boxed(obj* x_1, obj* x_2) {
 _start:
@@ -791,4 +792,5 @@ lean::mark_persistent(l_Nat_HasPow___closed__1);
 l_Nat_HasPow = _init_l_Nat_HasPow();
 lean::mark_persistent(l_Nat_HasPow);
 return w;
+}
 }

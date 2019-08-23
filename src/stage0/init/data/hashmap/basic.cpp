@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Array_miterateAux___main___at_HashMapImp_mfoldBuckets___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_HashMap_size(obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_HashMapImp_mfold___spec__1___boxed(obj*, obj*, obj*, obj*);
@@ -26,7 +27,7 @@ uint8 l_HashMap_contains___rarg(obj*, obj*, obj*, obj*);
 obj* l_AssocList_mfoldl___main___at_HashMapImp_moveEntries___main___spec__1___rarg(obj*, obj*, obj*);
 obj* l_HashMap_size___rarg___boxed(obj*);
 obj* l_HashMapImp_fold(obj*, obj*, obj*);
-extern "C" obj* lean_nat_sub(obj*, obj*);
+obj* lean_nat_sub(obj*, obj*);
 obj* l_HashMap_find___rarg(obj*, obj*, obj*, obj*);
 obj* l_HashMapImp_find___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_HashMapImp_expand(obj*, obj*);
@@ -79,17 +80,17 @@ obj* l_HashMap_fold(obj*, obj*, obj*, obj*, obj*);
 obj* l_HashMapImp_erase(obj*, obj*);
 uint8 l_AssocList_contains___main___rarg(obj*, obj*, obj*);
 obj* l_HashMap_insert(obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_Array_miterateAux___main___at_HashMap_fold___spec__2___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_AssocList_mfoldl___main___at_HashMapImp_fold___spec__1(obj*, obj*, obj*);
 obj* l_HashMapBucket_update___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_HashMap_mfold___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
 obj* l_HashMapImp_erase___rarg(obj*, obj*, obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l_HashMapImp_find___rarg(obj*, obj*, obj*, obj*);
 obj* l_HashMapImp_insert___rarg(obj*, obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_HashMap_find(obj*, obj*);
 obj* l_HashMap_numBuckets___boxed(obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_HashMapImp_foldBuckets___spec__2(obj*, obj*, obj*);
@@ -103,7 +104,7 @@ obj* l_HashMapImp_moveEntries___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_HashMap_mfold(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_HashMap_mfold___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_HashMap_numBuckets(obj*, obj*, obj*, obj*);
-extern "C" usize lean_usize_modn(usize, obj*);
+usize lean_usize_modn(usize, obj*);
 obj* l_Array_miterateAux___main___at_HashMap_fold___spec__2(obj*, obj*, obj*);
 obj* l_HashMap_mfold___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_mkHashMap___rarg(obj*);
@@ -125,13 +126,13 @@ obj* l_HashMap_fold___rarg(obj*, obj*, obj*);
 obj* l_AssocList_mfoldl___main___at_HashMap_fold___spec__1___rarg(obj*, obj*, obj*);
 obj* l_HashMap_Inhabited(obj*, obj*, obj*, obj*);
 obj* l_AssocList_mfoldl___main___at_HashMapImp_foldBuckets___spec__1(obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_le(obj*, obj*);
+uint8 lean_nat_dec_le(obj*, obj*);
 obj* l_AssocList_mfoldl___main___at_HashMapImp_moveEntries___main___spec__1(obj*, obj*);
 obj* l_HashMapImp_mkIdx___boxed(obj*, obj*, obj*);
 obj* l_HashMapImp_find(obj*, obj*);
 obj* l_HashMap_find___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_HashMap_fold___rarg___boxed(obj*, obj*, obj*);
-extern "C" obj* lean_nat_mul(obj*, obj*);
+obj* lean_nat_mul(obj*, obj*);
 uint8 l_HashMap_empty___rarg(obj*);
 obj* l_HashMap_fold___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_HashMapImp_mfoldBuckets___rarg(obj*, obj*, obj*, obj*);
@@ -1647,4 +1648,5 @@ lean::mark_persistent(l_mkHashMapImp___rarg___closed__2);
 l_HashMap_Inhabited___closed__1 = _init_l_HashMap_Inhabited___closed__1();
 lean::mark_persistent(l_HashMap_Inhabited___closed__1);
 return w;
+}
 }

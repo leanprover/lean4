@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_RBNode_fold___main___at___private_init_lean_compiler_ir_livevars_6__accumulate___spec__1(obj*, obj*, obj*);
 obj* l_Lean_IR_IsLive_visitArgs___boxed(obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_livevars_4__collectArray___at_Lean_IR_LiveVars_collectFnBody___main___spec__3___boxed(obj*, obj*, obj*);
@@ -46,15 +47,15 @@ obj* l_RBNode_erase___at___private_init_lean_compiler_ir_livevars_8__bindVar___s
 obj* l___private_init_lean_compiler_ir_livevars_4__collectArray___rarg___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_LiveVarSet_inhabited;
 uint8 l_RBNode_isRed___rarg(obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_Lean_IR_LiveVars_updateJPLiveVarMap(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_collectLiveVars(obj*, obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
 obj* l_RBNode_appendTrees___main___rarg(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_livevars_6__accumulate___closed__1;
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_livevars_4__collectArray___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Lean_IR_updateLiveVars(obj*, obj*);
 obj* l_Lean_IR_IsLive_visitFnBody___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_hasLiveVar(obj*, obj*, obj*);
@@ -6586,4 +6587,5 @@ lean::mark_persistent(l_Lean_IR_LiveVarSet_inhabited);
 l___private_init_lean_compiler_ir_livevars_6__accumulate___closed__1 = _init_l___private_init_lean_compiler_ir_livevars_6__accumulate___closed__1();
 lean::mark_persistent(l___private_init_lean_compiler_ir_livevars_6__accumulate___closed__1);
 return w;
+}
 }

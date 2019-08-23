@@ -14,7 +14,8 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-extern "C" obj* lean_uint8_to_nat(uint8);
+extern "C" {
+obj* lean_uint8_to_nat(uint8);
 obj* l_List_toStringAux___rarg(obj*, uint8, obj*);
 extern obj* l_Sum_HasRepr___rarg___closed__1;
 extern obj* l_Sigma_HasRepr___rarg___closed__1;
@@ -28,7 +29,7 @@ obj* l_Nat_HasToString(obj*);
 obj* l_UInt8_HasToString(uint8);
 obj* l_List_toStringAux___main___rarg(obj*, uint8, obj*);
 obj* l_Subtype_HasToString___rarg(obj*, obj*);
-extern "C" obj* lean_uint16_to_nat(uint16);
+obj* lean_uint16_to_nat(uint16);
 obj* l_List_toString(obj*);
 obj* l_Fin_HasToString___rarg(obj*);
 obj* l_Bool_HasToString(uint8);
@@ -41,20 +42,20 @@ extern obj* l_Bool_HasRepr___closed__2;
 obj* l_id_HasToString(obj*);
 obj* l_Substring_HasToString___boxed(obj*);
 obj* l_UInt32_HasToString(uint32);
-extern "C" obj* lean_string_push(obj*, uint32);
+obj* lean_string_push(obj*, uint32);
 obj* l_Sigma_HasToString___rarg(obj*, obj*, obj*);
 obj* l_Nat_repr(obj*);
 extern obj* l_List_repr___rarg___closed__2;
 obj* l_Substring_HasToString(obj*);
 obj* l_List_HasToString(obj*);
 extern obj* l_Option_HasRepr___rarg___closed__1;
-extern "C" obj* lean_string_append(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
 obj* l_id_HasToString___rarg(obj*);
 extern obj* l_List_reprAux___main___rarg___closed__1;
 obj* l_USize_HasToString___boxed(obj*);
 obj* l_List_toString___rarg(obj*, obj*);
 extern obj* l_Option_HasRepr___rarg___closed__3;
-extern "C" obj* lean_uint64_to_nat(uint64);
+obj* lean_uint64_to_nat(uint64);
 obj* l_Subtype_HasToString___boxed(obj*, obj*);
 obj* l_String_HasToString___boxed(obj*);
 extern obj* l_Option_HasRepr___rarg___closed__2;
@@ -76,14 +77,14 @@ obj* l_Fin_HasToString(obj*);
 obj* l_Fin_HasToString___boxed(obj*);
 obj* l_String_HasToString(obj*);
 obj* l_Decidable_HasToString___rarg___boxed(obj*);
-extern "C" obj* lean_string_utf8_extract(obj*, obj*, obj*);
+obj* lean_string_utf8_extract(obj*, obj*, obj*);
 obj* l_id_HasToString___rarg___boxed(obj*);
 obj* l_Bool_HasToString___boxed(obj*);
 obj* l_Prod_HasToString(obj*, obj*);
-extern "C" obj* lean_uint32_to_nat(uint32);
+obj* lean_uint32_to_nat(uint32);
 obj* l_Unit_HasToString___boxed(obj*);
 obj* l_Char_HasToString___boxed(obj*);
-extern "C" obj* lean_usize_to_nat(usize);
+obj* lean_usize_to_nat(usize);
 obj* l_Decidable_HasToString(obj*);
 extern obj* l_Bool_HasRepr___closed__1;
 extern obj* l_List_repr___rarg___closed__1;
@@ -741,4 +742,5 @@ if (lean::io_result_is_error(w)) return w;
 w = initialize_init_data_repr(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

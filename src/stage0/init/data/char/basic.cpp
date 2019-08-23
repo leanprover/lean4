@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 uint8 l_Char_isAlphanum(uint32);
 obj* l_Char_toLower___boxed(obj*);
 obj* l_Char_isDigit___boxed(obj*);
@@ -31,7 +32,7 @@ obj* l_Char_toNat(uint32);
 uint8 l_UInt32_decLe(uint32, uint32);
 uint32 l_Char_ofNat(obj*);
 uint8 l_Char_isUpper(uint32);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 uint8 l_UInt32_decLt(uint32, uint32);
 uint8 l_UInt32_decEq(uint32, uint32);
 obj* l_Char_isWhitespace___boxed(obj*);
@@ -46,10 +47,10 @@ uint8 l_Char_isWhitespace(uint32);
 obj* l_Char_HasSizeof(uint32);
 obj* l_Char_isAlphanum___boxed(obj*);
 uint32 l_Char_utf8Size(uint32);
-extern "C" uint32 lean_uint32_of_nat(obj*);
-extern "C" uint8 lean_nat_dec_le(obj*, obj*);
+uint32 lean_uint32_of_nat(obj*);
+uint8 lean_nat_dec_le(obj*, obj*);
 uint32 l_Char_toLower(uint32);
-extern "C" obj* lean_uint32_to_nat(uint32);
+obj* lean_uint32_to_nat(uint32);
 obj* l_Char_isLower___boxed(obj*);
 obj* l_Char_HasSizeof___boxed(obj*);
 uint8 l_Char_DecidableEq(uint32, uint32);
@@ -634,4 +635,5 @@ l_Char_HasLessEq = _init_l_Char_HasLessEq();
 lean::mark_persistent(l_Char_HasLessEq);
 l_Char_Inhabited = _init_l_Char_Inhabited();
 return w;
+}
 }

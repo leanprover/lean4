@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_RBTree_min___boxed(obj*, obj*);
 obj* l_RBTree_HasEmptyc___boxed(obj*, obj*);
 obj* l_RBNode_any___main___at_RBTree_any___spec__1(obj*);
@@ -66,7 +67,7 @@ obj* l_mkRBTree(obj*, obj*);
 obj* l_RBTree_min(obj*, obj*);
 obj* l_RBTree_min___rarg___closed__1;
 uint8 l_RBNode_any___main___at_RBTree_any___spec__1___rarg(obj*, obj*);
-extern "C" obj* lean_string_append(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
 obj* l_RBTree_min___rarg___boxed(obj*);
 obj* l_RBNode_revFold___main___at_RBTree_toList___spec__1___rarg___boxed(obj*, obj*);
 obj* l_RBTree_contains___rarg___boxed(obj*, obj*, obj*);
@@ -1480,4 +1481,5 @@ lean::mark_persistent(l_RBTree_min___rarg___closed__1);
 l_RBTree_HasRepr___rarg___closed__1 = _init_l_RBTree_HasRepr___rarg___closed__1();
 lean::mark_persistent(l_RBTree_HasRepr___rarg___closed__1);
 return w;
+}
 }

@@ -14,10 +14,11 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Lean_LevelToFormat_levelHasToString;
 obj* l_Lean_Level_toOffset___main(obj*);
 obj* l_Lean_Level_hasParam___main___boxed(obj*);
-extern "C" obj* lean_nat_sub(obj*, obj*);
+obj* lean_nat_sub(obj*, obj*);
 extern obj* l_Lean_Format_paren___closed__2;
 obj* l_Lean_Level_instantiate(obj*, obj*);
 obj* l_Lean_LevelToFormat_Result_format___main___closed__4;
@@ -27,7 +28,7 @@ obj* l_Lean_LevelToFormat_Result_format___main___closed__3;
 obj* l_Lean_LevelToFormat_Result_max(obj*, obj*);
 obj* l_Lean_LevelToFormat_Result_format___main___closed__2;
 obj* l_Lean_LevelToFormat_Level_toResult(obj*);
-extern "C" obj* level_mk_mvar(obj*);
+obj* level_mk_mvar(obj*);
 obj* l_Function_comp___rarg(obj*, obj*, obj*);
 obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
 obj* l_Lean_LevelToFormat_Result_format___main(obj*, uint8);
@@ -52,33 +53,33 @@ obj* l___private_init_lean_level_1__formatLst___main(obj*, obj*);
 obj* l_Lean_Level_toOffset(obj*);
 obj* l_Lean_Level_ofNat___boxed(obj*);
 obj* l_Lean_fmt___at_Lean_LevelToFormat_Level_toResult___main___spec__1(obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 extern obj* l_Lean_Format_paren___closed__3;
 obj* l_Lean_Level_toNat(obj*);
 obj* l_Lean_Nat_imax(obj*, obj*);
 obj* l_Lean_LevelToFormat_Level_toResult___main___closed__1;
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 uint8 l_Lean_Level_hasParam(obj*);
 obj* l_Lean_Level_toNat___boxed(obj*);
 obj* l_Lean_fmt___at_Lean_LevelToFormat_Result_format___main___spec__1(obj*);
 uint8 l_Lean_Level_hasParam___main(obj*);
 obj* l_Lean_LevelToFormat_Result_format___main___boxed(obj*, obj*);
 obj* l_Lean_Level_max___boxed(obj*, obj*);
-extern "C" obj* level_mk_imax(obj*, obj*);
+obj* level_mk_imax(obj*, obj*);
 obj* l_Lean_Level_imax___boxed(obj*, obj*);
 obj* l_Lean_Level_addOffsetAux(obj*, obj*);
 obj* l_Lean_Level_ofNat___main___boxed(obj*);
 obj* l_Lean_Level_one___closed__1;
 obj* l_Lean_Level_toNat___main___boxed(obj*);
-extern "C" usize lean_level_hash(obj*);
+usize lean_level_hash(obj*);
 obj* l_Lean_Nat_imax___boxed(obj*, obj*);
-extern "C" obj* level_mk_param(obj*);
+obj* level_mk_param(obj*);
 obj* l_Lean_Level_param___boxed(obj*);
 obj* l_Lean_LevelToFormat_Level_toResult___main(obj*);
-extern "C" obj* level_mk_succ(obj*);
+obj* level_mk_succ(obj*);
 extern obj* l_System_FilePath_dirName___closed__1;
 extern obj* l_Lean_HasRepr___closed__1;
-extern "C" obj* lean_format_group(obj*);
+obj* lean_format_group(obj*);
 obj* l_Lean_LevelToFormat_Result_format___boxed(obj*, obj*);
 obj* l_Lean_Level_toNat___main___closed__1;
 obj* l_Lean_LevelToFormat_Result_imax(obj*, obj*);
@@ -91,7 +92,7 @@ obj* l_Lean_Level_hasMvar___boxed(obj*);
 obj* l_Lean_LevelToFormat_Result_format___main___closed__6;
 obj* l_Nat_max(obj*, obj*);
 obj* l_Lean_Level_hash___boxed(obj*);
-extern "C" obj* level_mk_max(obj*, obj*);
+obj* level_mk_max(obj*, obj*);
 obj* l_Lean_levelIsInhabited;
 uint8 l_Lean_Level_hasMvar(obj*);
 obj* l_Lean_Level_succ___boxed(obj* x_1) {
@@ -1469,4 +1470,5 @@ lean::mark_persistent(l_Lean_LevelToFormat_levelHasToString___closed__1);
 l_Lean_LevelToFormat_levelHasToString = _init_l_Lean_LevelToFormat_levelHasToString();
 lean::mark_persistent(l_Lean_LevelToFormat_levelHasToString);
 return w;
+}
 }

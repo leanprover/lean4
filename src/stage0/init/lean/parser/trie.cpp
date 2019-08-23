@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l___private_init_lean_parser_trie_6__toStringAux___rarg(obj*);
 obj* l_RBNode_fold___main___at___private_init_lean_parser_trie_6__toStringAux___main___spec__2(obj*);
 obj* l___private_init_lean_parser_trie_6__toStringAux(obj*);
@@ -42,11 +43,11 @@ obj* l___private_init_lean_parser_trie_5__matchPrefixAux___rarg(obj*, obj*, obj*
 obj* l___private_init_lean_parser_trie_1__insertEmptyAux___rarg(obj*, obj*, obj*);
 obj* l_RBNode_insert___at___private_init_lean_parser_trie_2__insertAux___main___spec__5___rarg___boxed(obj*, obj*, obj*);
 obj* l_RBNode_insert___at___private_init_lean_parser_trie_2__insertAux___main___spec__2(obj*);
-extern "C" obj* lean_string_append(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
 obj* l___private_init_lean_parser_trie_3__findAux___main___rarg(obj*, obj*, obj*);
 obj* l_RBNode_find___main___at___private_init_lean_parser_trie_3__findAux___main___spec__1(obj*);
 obj* l___private_init_lean_parser_trie_3__findAux(obj*);
-extern "C" uint8 lean_string_utf8_at_end(obj*, obj*);
+uint8 lean_string_utf8_at_end(obj*, obj*);
 uint8 l_RBNode_isRed___rarg(obj*);
 obj* l_RBNode_ins___main___at___private_init_lean_parser_trie_2__insertAux___main___spec__3(obj*);
 obj* l_RBNode_fold___main___at___private_init_lean_parser_trie_6__toStringAux___main___spec__2___rarg(obj*, obj*);
@@ -68,7 +69,7 @@ obj* l_RBNode_ins___main___at___private_init_lean_parser_trie_2__insertAux___mai
 obj* l___private_init_lean_parser_trie_3__findAux___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_RBNode_find___main___at___private_init_lean_parser_trie_2__insertAux___main___spec__1___rarg(obj*, uint32);
 obj* l___private_init_lean_parser_trie_1__insertEmptyAux___rarg___boxed(obj*, obj*, obj*);
-extern "C" uint32 lean_string_utf8_get(obj*, obj*);
+uint32 lean_string_utf8_get(obj*, obj*);
 obj* l___private_init_lean_parser_trie_4__updtAcc___rarg(obj*, obj*, obj*);
 obj* l_RBNode_ins___main___at___private_init_lean_parser_trie_2__insertAux___main___spec__3___rarg___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_Trie_find___rarg___boxed(obj*, obj*);
@@ -82,14 +83,14 @@ obj* l_Lean_Parser_Trie_matchPrefix(obj*);
 obj* l_Lean_Parser_Trie_matchPrefix___rarg___boxed(obj*, obj*, obj*);
 obj* l___private_init_lean_parser_trie_3__findAux___rarg___boxed(obj*, obj*, obj*);
 obj* l_Lean_Format_joinSep___main___at___private_init_lean_parser_trie_6__toStringAux___main___spec__1(obj*, obj*);
-extern "C" obj* lean_format_group(obj*);
+obj* lean_format_group(obj*);
 obj* l___private_init_lean_parser_trie_1__insertEmptyAux(obj*);
 obj* l_RBNode_find___main___at___private_init_lean_parser_trie_5__matchPrefixAux___main___spec__1(obj*);
 obj* l_Lean_Parser_Trie_empty___closed__1;
 obj* l_RBNode_ins___main___at___private_init_lean_parser_trie_2__insertAux___main___spec__7___rarg(obj*, uint32, obj*);
 obj* l_RBNode_setBlack___rarg(obj*);
 obj* l_RBNode_insert___at___private_init_lean_parser_trie_2__insertAux___main___spec__2___rarg(obj*, uint32, obj*);
-extern "C" obj* lean_string_utf8_next(obj*, obj*);
+obj* lean_string_utf8_next(obj*, obj*);
 obj* l___private_init_lean_parser_trie_6__toStringAux___main___rarg(obj*);
 obj* l_RBNode_insert___at___private_init_lean_parser_trie_2__insertAux___main___spec__5(obj*);
 obj* l___private_init_lean_parser_trie_5__matchPrefixAux___main(obj*);
@@ -11006,4 +11007,5 @@ lean::mark_persistent(l_Lean_Parser_Trie_empty___closed__1);
 l_Lean_Parser_Trie_HasEmptyc___closed__1 = _init_l_Lean_Parser_Trie_HasEmptyc___closed__1();
 lean::mark_persistent(l_Lean_Parser_Trie_HasEmptyc___closed__1);
 return w;
+}
 }

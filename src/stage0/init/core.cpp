@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 uint8 l_xor(uint8, uint8);
 obj* l_cast___rarg(obj*);
 obj* l_Or_Decidable___rarg___boxed(obj*, obj*);
@@ -193,7 +194,7 @@ obj* l_Quotient_rec___boxed(obj*, obj*, obj*);
 obj* l_Nat_prio___closed__1;
 obj* l_PUnit_sizeof(obj*);
 obj* l_False_elim(obj*, uint8);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 uint8 l_strictOr(uint8, uint8);
 obj* l_PSigma_sizeof___boxed(obj*, obj*);
 uint8 l_Or_Decidable___rarg(uint8, uint8);
@@ -3984,4 +3985,5 @@ lean::mark_persistent(l_PointedType_Inhabited);
 l_PUnit_Inhabited = _init_l_PUnit_Inhabited();
 lean::mark_persistent(l_PUnit_Inhabited);
 return w;
+}
 }

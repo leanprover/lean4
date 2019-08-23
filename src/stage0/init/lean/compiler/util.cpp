@@ -14,14 +14,15 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-extern "C" uint8 lean_name_dec_eq(obj*, obj*);
+extern "C" {
+uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_List_map___main___at___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___spec__1(obj*);
 obj* l_Lean_Compiler_atMostOnce_HasAndthen;
 obj* l_Lean_Compiler_atMostOnce_seq(obj*, obj*, obj*);
 uint8 l_String_isPrefixOf(obj*, obj*);
 obj* l_Lean_Compiler_mkLcProof___closed__3;
-extern "C" obj* lean_expr_mk_app(obj*, obj*);
-extern "C" uint8 lean_at_most_once(obj*, obj*);
+obj* lean_expr_mk_app(obj*, obj*);
+uint8 lean_at_most_once(obj*, obj*);
 obj* l_Lean_Compiler_atMostOnce_HasAndthen___closed__1;
 obj* l_Lean_Compiler_atMostOnce_visit___boxed(obj*, obj*, obj*);
 obj* l_Lean_Compiler_unreachableExpr___closed__2;
@@ -32,13 +33,13 @@ obj* l_Lean_Compiler_mkLcProof(obj*);
 obj* l_Lean_Compiler_objectType___closed__3;
 obj* l_Nat_repr(obj*);
 obj* l_Lean_Compiler_neutralExpr___closed__1;
-extern "C" obj* lean_expr_mk_const(obj*, obj*);
+obj* lean_expr_mk_const(obj*, obj*);
 obj* l_Lean_Compiler_objectType;
 obj* l_Lean_Compiler_neutralExpr___closed__3;
-extern "C" obj* lean_string_append(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
 obj* l_Lean_Compiler_atMostOnce___closed__1;
 obj* l_Lean_Compiler_objectType___closed__2;
-extern "C" obj* lean_name_mk_string(obj*, obj*);
+obj* lean_name_mk_string(obj*, obj*);
 obj* l_Lean_Compiler_atMostOnce_visit___main(obj*, obj*, obj*);
 obj* l_Lean_Compiler_atMostOnce___boxed(obj*, obj*);
 obj* l_Lean_Compiler_objectType___closed__1;
@@ -51,11 +52,11 @@ obj* l_Lean_Compiler_voidType;
 obj* l_Lean_Compiler_checkIsDefinition___closed__4;
 obj* l_Lean_Compiler_neutralExpr___closed__2;
 obj* l_Lean_Compiler_atMostOnce_skip(obj*);
-extern "C" obj* lean_environment_find(obj*, obj*);
-extern "C" obj* lean_get_decl_names_for_code_gen(obj*);
+obj* lean_environment_find(obj*, obj*);
+obj* lean_get_decl_names_for_code_gen(obj*);
 obj* l_Lean_Compiler_atMostOnce_skip___boxed(obj*);
 obj* l_Lean_Compiler_unreachableExpr___closed__1;
-extern "C" uint8 lean_is_eager_lambda_lifting_name(obj*);
+uint8 lean_is_eager_lambda_lifting_name(obj*);
 obj* l_Lean_Compiler_mkLcProof___closed__1;
 obj* l_Lean_Compiler_isEagerLambdaLiftingName___boxed(obj*);
 obj* l_Lean_Compiler_voidType___closed__2;
@@ -63,7 +64,7 @@ obj* l_Lean_Compiler_checkIsDefinition___closed__1;
 obj* l_Lean_Compiler_mkLcProof___closed__2;
 obj* l_Lean_Compiler_checkIsDefinition___closed__2;
 obj* l_Lean_Compiler_checkIsDefinition(obj*, obj*);
-extern "C" obj* lean_mk_eager_lambda_lifting_name(obj*, obj*);
+obj* lean_mk_eager_lambda_lifting_name(obj*, obj*);
 obj* l_Lean_Compiler_voidType___closed__1;
 obj* l_Lean_Compiler_neutralExpr;
 obj* l_Lean_Compiler_checkIsDefinition___closed__5;
@@ -1040,4 +1041,5 @@ lean::mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__4);
 l_Lean_Compiler_checkIsDefinition___closed__5 = _init_l_Lean_Compiler_checkIsDefinition___closed__5();
 lean::mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__5);
 return w;
+}
 }

@@ -14,8 +14,9 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Lean_profileit___boxed(obj*, obj*, obj*, obj*, obj*);
-extern "C" obj* lean_lean_profileit(obj*, obj*, obj*, obj*, obj*);
+obj* lean_lean_profileit(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_profileitPure(obj*);
 obj* l_Lean_profileitPure___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_profileitPure___rarg(obj*, obj*, obj*, obj*);
@@ -68,4 +69,5 @@ if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_position(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

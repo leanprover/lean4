@@ -14,8 +14,9 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_name_dec_eq(obj*, obj*);
+uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_Lean_Elab_preresolveNames___rarg(obj*, obj*, obj*);
 extern obj* l_Array_empty___closed__1;
 obj* l_Lean_Elab_preresolveNames(obj*);
@@ -30,11 +31,11 @@ obj* l___private_init_lean_elaborator_resolvename_4__resolveOpenDecls___main(obj
 obj* l_Lean_Elab_getNamespace___rarg(obj*);
 obj* l___private_init_lean_elaborator_resolvename_1__resolveQualifiedName(obj*, obj*, obj*);
 obj* l___private_init_lean_elaborator_resolvename_2__resolveUsingNamespace___main(obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_List_append___rarg(obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
 obj* l___private_init_lean_elaborator_resolvename_3__resolveExact___boxed(obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l___private_init_lean_elaborator_resolvename_2__resolveUsingNamespace___boxed(obj*, obj*, obj*);
 obj* l_Lean_Elab_resolveName___boxed(obj*, obj*, obj*);
 extern obj* l_Lean_Elab_rootNamespace;
@@ -53,7 +54,7 @@ obj* l___private_init_lean_elaborator_resolvename_6__preresolveNamesAux___main__
 obj* l_List_map___main___at___private_init_lean_elaborator_resolvename_5__resolveNameAux___main___spec__1(obj*, obj*);
 obj* l_Lean_Elab_getOpenDecls___rarg(obj*);
 obj* l___private_init_lean_elaborator_resolvename_6__preresolveNamesAux(obj*);
-extern "C" uint8 lean_is_protected(obj*, obj*);
+uint8 lean_is_protected(obj*, obj*);
 obj* l_Lean_Elab_getEnv___rarg(obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Array_fset(obj*, obj*, obj*, obj*);
@@ -1445,4 +1446,5 @@ if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_elaborator_basic(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

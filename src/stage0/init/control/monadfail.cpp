@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_monadFailLift(obj*, obj*);
 obj* l_matchFailed(obj*, obj*);
 obj* l_matchFailed___boxed(obj*, obj*);
@@ -106,4 +107,5 @@ if (lean::io_result_is_error(w)) return w;
 l_matchFailed___rarg___closed__1 = _init_l_matchFailed___rarg___closed__1();
 lean::mark_persistent(l_matchFailed___rarg___closed__1);
 return w;
+}
 }

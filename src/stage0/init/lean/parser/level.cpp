@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Lean_Parser_Level_max___closed__2;
 obj* l_Lean_Parser_Level_num___elambda__1___rarg___closed__2;
 obj* l_Lean_Parser_Level_addLit___elambda__1___closed__5;
@@ -87,7 +88,7 @@ obj* l_Lean_Parser_levelParser___lambda__1___boxed(obj*, obj*, obj*, obj*);
 extern obj* l_Lean_Parser_manyAux___main___closed__1;
 extern obj* l_Lean_Parser_Parser_inhabited___closed__1;
 obj* l_Lean_Parser_Level_num___elambda__1___rarg___closed__1;
-extern "C" obj* lean_string_append(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
 obj* l_Lean_Parser_symbolOrIdentFnAux(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_Level_addLit___elambda__1___closed__2;
 obj* l_Lean_Parser_levelParser___boxed(obj*, obj*);
@@ -98,7 +99,7 @@ extern obj* l_Char_HasRepr___closed__1;
 obj* l_Lean_Parser_levelParserAttribute;
 obj* l_Lean_Parser_mkLevelParserAttribute___closed__2;
 obj* l_Lean_Parser_Level_paren___closed__7;
-extern "C" obj* lean_name_mk_string(obj*, obj*);
+obj* lean_name_mk_string(obj*, obj*);
 obj* l_Lean_Parser_Level_imax___elambda__1___closed__2;
 obj* l_Lean_Parser_Level_num___elambda__1(obj*);
 obj* l_Lean_Parser_regBuiltinLevelParserAttr___closed__4;
@@ -109,7 +110,7 @@ obj* l_Lean_Parser_addBuiltinTrailingParser(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_Level_num___closed__2;
 obj* l_Lean_Parser_Level_max___elambda__1___closed__4;
 obj* l_Lean_Parser_Level_ident___closed__1;
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 extern obj* l_Prod_HasRepr___rarg___closed__1;
 obj* l_Lean_Parser_Level_ident___elambda__1___boxed(obj*);
 obj* l_Lean_Parser_Level_hole___elambda__1___rarg___closed__3;
@@ -118,7 +119,7 @@ obj* l_Lean_Parser_Level_paren___elambda__1___rarg___closed__3;
 obj* l_Lean_Parser_Level_hole___elambda__1___rarg___closed__1;
 obj* l_Lean_Parser_Level_ident___elambda__1(obj*);
 obj* l_Lean_Parser_Level_ident___closed__2;
-extern "C" uint8 lean_string_dec_eq(obj*, obj*);
+uint8 lean_string_dec_eq(obj*, obj*);
 obj* l_Lean_Parser_Level_paren___elambda__1___rarg___closed__4;
 obj* l_Lean_Parser_numLitFn___rarg(obj*, obj*);
 obj* l_Lean_Parser_Level_paren___closed__2;
@@ -2001,4 +2002,5 @@ lean::mark_persistent(l_Lean_Parser_Level_addLit);
 w = l___regBuiltinParser_Lean_Parser_Level_addLit(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

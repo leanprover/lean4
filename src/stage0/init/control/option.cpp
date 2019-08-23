@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_OptionT_MonadRun___boxed(obj*, obj*);
 obj* l_OptionT_pure(obj*);
 obj* l_OptionT_bindCont___at_OptionT_Monad___spec__2___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -1212,4 +1213,5 @@ if (lean::io_result_is_error(w)) return w;
 w = initialize_init_control_except(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

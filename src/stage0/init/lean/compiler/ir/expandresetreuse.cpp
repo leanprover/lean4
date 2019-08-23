@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_HashMapImp_expand___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__3(obj*, obj*);
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_setBody(obj*, obj*);
@@ -21,7 +22,7 @@ obj* l_Lean_IR_Decl_expandResetReuse(obj*);
 obj* l_Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody(obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_IR_ExpandResetReuse_reuseToSet___main___spec__1(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_Array_empty___closed__1;
-extern "C" obj* lean_nat_sub(obj*, obj*);
+obj* lean_nat_sub(obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_IR_ExpandResetReuse_searchAndExpand___main___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_MaxIndex_collectDecl(obj*, obj*);
 obj* l_Lean_IR_ExpandResetReuse_reuseToCtor___boxed(obj*, obj*);
@@ -63,7 +64,7 @@ uint8 l_Lean_IR_ExpandResetReuse_consumed(obj*, obj*);
 obj* l_Lean_IR_ExpandResetReuse_reuseToSet(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExpandResetReuse_consumed___boxed(obj*, obj*);
 obj* l_Lean_IR_ExpandResetReuse_eraseProjIncForAux___boxed(obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_Lean_IR_ExpandResetReuse_mkFastPath___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExpandResetReuse_reuseToSet___main(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExpandResetReuse_reuseToSet___boxed(obj*, obj*, obj*, obj*);
@@ -71,9 +72,9 @@ obj* l_Lean_IR_ExpandResetReuse_searchAndExpand(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExpandResetReuse_removeSelfSet___main___boxed(obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_ExpandResetReuse_mkSlowPath___spec__1(obj*, obj*, obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l_Lean_IR_mkIf(obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Lean_IR_ExpandResetReuse_removeSelfSet___boxed(obj*, obj*);
 obj* l_Array_push(obj*, obj*, obj*);
 obj* l_Nat_foldAux___main___at_Lean_IR_ExpandResetReuse_setFields___spec__1___boxed(obj*, obj*, obj*, obj*, obj*);
@@ -92,7 +93,7 @@ obj* l_Array_reverseAux___main___rarg(obj*, obj*);
 uint8 l_Lean_IR_ExpandResetReuse_isSelfSet(obj*, obj*, obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_IR_ExpandResetReuse_reuseToCtor___main___spec__1(obj*, obj*, obj*);
 obj* l_Array_pop(obj*, obj*);
-extern "C" usize lean_usize_modn(usize, obj*);
+usize lean_usize_modn(usize, obj*);
 obj* l_Nat_mfoldAux___main___at_Lean_IR_ExpandResetReuse_releaseUnreadFields___spec__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody___main(obj*, obj*);
 obj* l_Lean_IR_ExpandResetReuse_releaseUnreadFields___boxed(obj*, obj*, obj*, obj*, obj*);
@@ -107,8 +108,8 @@ obj* l_Lean_IR_ExpandResetReuse_reuseToCtor___main___boxed(obj*, obj*);
 obj* l_HashMapImp_find___at_Lean_IR_ExpandResetReuse_isSelfSet___spec__1___boxed(obj*, obj*);
 obj* l_Lean_IR_ExpandResetReuse_consumed___main___boxed(obj*, obj*);
 obj* l_Lean_IR_ExpandResetReuse_eraseProjIncForAux(obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_le(obj*, obj*);
-extern "C" usize lean_usize_of_nat(obj*);
+uint8 lean_nat_dec_le(obj*, obj*);
+usize lean_usize_of_nat(obj*);
 obj* l_Lean_IR_push(obj*, obj*);
 obj* l_Lean_IR_ExpandResetReuse_eraseProjIncFor___boxed(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody___main___spec__1(obj*, obj*, obj*, obj*);
@@ -124,7 +125,7 @@ obj* l_Array_ummapAux___main___at_Lean_IR_ExpandResetReuse_reuseToSet___main___s
 obj* l_Lean_IR_ExpandResetReuse_isSelfSet___boxed(obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Array_append___spec__1___rarg(obj*, obj*, obj*, obj*);
 obj* l_AssocList_replace___main___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__6(obj*, obj*, obj*);
-extern "C" obj* lean_nat_mul(obj*, obj*);
+obj* lean_nat_mul(obj*, obj*);
 obj* l_Nat_foldAux___main___at_Lean_IR_ExpandResetReuse_setFields___spec__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_HashMapImp_find___at_Lean_IR_ExpandResetReuse_isSelfSet___spec__1(obj*, obj*);
 obj* l_Lean_IR_ExpandResetReuse_setFields___boxed(obj*, obj*, obj*);
@@ -3417,4 +3418,5 @@ lean::mark_persistent(l_Lean_IR_ExpandResetReuse_mkProjMap___closed__1);
 l_Lean_IR_ExpandResetReuse_searchAndExpand___main___closed__1 = _init_l_Lean_IR_ExpandResetReuse_searchAndExpand___main___closed__1();
 lean::mark_persistent(l_Lean_IR_ExpandResetReuse_searchAndExpand___main___closed__1);
 return w;
+}
 }

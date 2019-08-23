@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Id_run___rarg(obj*);
 obj* l_Id_Monad___closed__5;
 obj* l_Id_pure___rarg(obj*);
@@ -310,4 +311,5 @@ lean::mark_persistent(l_Id_MonadRun___closed__1);
 l_Id_MonadRun = _init_l_Id_MonadRun();
 lean::mark_persistent(l_Id_MonadRun);
 return w;
+}
 }

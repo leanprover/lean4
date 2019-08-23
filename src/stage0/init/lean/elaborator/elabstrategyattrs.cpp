@@ -14,13 +14,14 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 uint8 l_Lean_ElaboratorStrategy_inhabited;
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_name_dec_eq(obj*, obj*);
+uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_Lean_mkElaboratorStrategyAttrs___closed__10;
 obj* l_Lean_mkElaboratorStrategyAttrs___closed__19;
 extern obj* l_Array_empty___closed__1;
-extern "C" obj* lean_nat_sub(obj*, obj*);
+obj* lean_nat_sub(obj*, obj*);
 extern obj* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 obj* l_Lean_mkElaboratorStrategyAttrs___closed__9;
@@ -46,7 +47,7 @@ obj* l_IO_Prim_Ref_set(obj*, obj*, obj*, obj*);
 obj* l_Lean_mkElaboratorStrategyAttrs___closed__14;
 obj* l_Lean_mkElaboratorStrategyAttrs___closed__12;
 obj* l_Lean_mkElaboratorStrategyAttrs___closed__7;
-extern "C" obj* lean_io_initializing(obj*);
+obj* lean_io_initializing(obj*);
 obj* l_RBNode_fold___main___at_Lean_mkElaboratorStrategyAttrs___spec__2(obj*, obj*);
 obj* l_Lean_mkElaboratorStrategyAttrs___closed__3;
 extern obj* l_Lean_registerEnumAttributes___rarg___closed__1;
@@ -63,21 +64,21 @@ uint8 l_Array_anyMAux___main___at_Lean_mkElaboratorStrategyAttrs___spec__6(obj*,
 obj* l_Array_qsortAux___main___at_Lean_mkElaboratorStrategyAttrs___spec__3(obj*, obj*, obj*);
 obj* l_Lean_Environment_getModuleIdxFor(obj*, obj*);
 extern obj* l_Lean_registerTagAttribute___lambda__4___closed__1;
-extern "C" obj* lean_string_append(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
 obj* l_Lean_mkElaboratorStrategyAttrs___closed__2;
 obj* l_Lean_mkElaboratorStrategyAttrs___closed__17;
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkElaboratorStrategyAttrs___spec__7(obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(obj*, obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
-extern "C" obj* lean_name_mk_string(obj*, obj*);
+obj* lean_name_mk_string(obj*, obj*);
 obj* l_Lean_mkElaboratorStrategyAttrs___lambda__1___closed__1;
 obj* l_Lean_mkElaboratorStrategyAttrs(obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(obj*, obj*, obj*);
 obj* l_List_map___main___at_Lean_mkElaboratorStrategyAttrs___spec__8___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 extern obj* l_Lean_registerTagAttribute___lambda__4___closed__3;
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Lean_registerEnumAttributes___at_Lean_mkElaboratorStrategyAttrs___spec__1___lambda__2(obj*);
 obj* l_Array_push(obj*, obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_getElaboratorStrategy___spec__2(obj*, obj*);
@@ -91,7 +92,7 @@ obj* l_Lean_PersistentEnvExtension_addEntry___rarg(obj*, obj*, obj*);
 obj* l_IO_Prim_Ref_get(obj*, obj*, obj*);
 uint8 l_Lean_Name_quickLt(obj*, obj*);
 obj* l_Lean_mkElaboratorStrategyAttrs___closed__1;
-extern "C" obj* lean_get_elaborator_strategy(obj*, obj*);
+obj* lean_get_elaborator_strategy(obj*, obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Lean_elaboratorStrategyAttrs;
 obj* l_Array_binSearchAux___main___at_Lean_getElaboratorStrategy___spec__3___boxed(obj*, obj*, obj*, obj*);
@@ -102,8 +103,8 @@ obj* l_Lean_mkElaboratorStrategyAttrs___closed__11;
 extern obj* l_Lean_registerTagAttribute___lambda__4___closed__5;
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 extern obj* l_Lean_Name_toString___closed__1;
-extern "C" uint8 lean_nat_dec_le(obj*, obj*);
-extern "C" obj* lean_nat_div(obj*, obj*);
+uint8 lean_nat_dec_le(obj*, obj*);
+obj* lean_nat_div(obj*, obj*);
 obj* l_Array_anyMAux___main___at_Lean_mkElaboratorStrategyAttrs___spec__6___boxed(obj*, obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkElaboratorStrategyAttrs___spec__4___closed__1;
 obj* l_Lean_registerEnumAttributes___at_Lean_mkElaboratorStrategyAttrs___spec__1___closed__1;
@@ -3247,4 +3248,5 @@ if (lean::io_result_is_error(w)) return w;
 l_Lean_elaboratorStrategyAttrs = lean::io_result_get_value(w);
 lean::mark_persistent(l_Lean_elaboratorStrategyAttrs);
 return w;
+}
 }

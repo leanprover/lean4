@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 uint8 l_Lean_isSubScriptAlnum(uint32);
 obj* l_Lean_isIdRest___boxed(obj*);
 uint8 l_Char_isAlphanum(uint32);
@@ -676,4 +677,5 @@ if (lean::io_result_is_error(w)) return w;
 l_Lean_idBeginEscape = _init_l_Lean_idBeginEscape();
 l_Lean_idEndEscape = _init_l_Lean_idEndEscape();
 return w;
+}
 }

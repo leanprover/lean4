@@ -14,20 +14,21 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l___private_init_data_nat_div_2__div_F___boxed(obj*, obj*, obj*);
-extern "C" obj* lean_nat_sub(obj*, obj*);
+obj* lean_nat_sub(obj*, obj*);
 obj* l___private_init_data_nat_div_5__mod_F___boxed(obj*, obj*, obj*);
 obj* l_Nat_div___boxed(obj*, obj*);
 obj* l_Nat_HasDiv___closed__1;
 obj* l_Nat_HasMod___closed__1;
 obj* l___private_init_data_nat_div_5__mod_F(obj*, obj*, obj*);
 obj* l___private_init_data_nat_div_2__div_F(obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
-extern "C" obj* lean_nat_mod(obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
-extern "C" uint8 lean_nat_dec_le(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
+obj* lean_nat_mod(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
+uint8 lean_nat_dec_le(obj*, obj*);
 obj* l_Nat_HasMod;
-extern "C" obj* lean_nat_div(obj*, obj*);
+obj* lean_nat_div(obj*, obj*);
 obj* l_Nat_mod___boxed(obj*, obj*);
 obj* l_Nat_HasDiv;
 obj* l___private_init_data_nat_div_2__div_F(obj* x_1, obj* x_2, obj* x_3) {
@@ -189,4 +190,5 @@ lean::mark_persistent(l_Nat_HasMod___closed__1);
 l_Nat_HasMod = _init_l_Nat_HasMod();
 lean::mark_persistent(l_Nat_HasMod);
 return w;
+}
 }

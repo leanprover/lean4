@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_bfix4___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix1(obj*, obj*);
 obj* l_bfix3___main(obj*, obj*, obj*, obj*);
@@ -23,7 +24,7 @@ obj* l_bfix3___main___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix5___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix1___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_bfix2___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
-extern "C" obj* lean_nat_sub(obj*, obj*);
+obj* lean_nat_sub(obj*, obj*);
 obj* l_fix1___rarg(obj*, obj*, obj*);
 obj* l_bfix6(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix2(obj*, obj*, obj*);
@@ -54,7 +55,7 @@ obj* l_fix___rarg(obj*, obj*, obj*);
 obj* l_fix6___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fix6___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fixCore2(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_fix5___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fix5(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fixCore___rarg(obj*, obj*, obj*);
@@ -840,4 +841,5 @@ if (lean::io_result_is_error(w)) return w;
 w = initialize_init_data_uint(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

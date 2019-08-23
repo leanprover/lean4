@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_PersistentHashMap_findAtAux___main___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_isUnaryEntries___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_PersistentHashMap_find(obj*, obj*);
@@ -24,7 +25,7 @@ uint8 l_PersistentHashMap_containsAtAux___rarg(obj*, obj*, obj*, obj*, obj*, obj
 obj* l_Array_miterateAux___main___at_PersistentHashMap_foldl___spec__4(obj*, obj*, obj*);
 obj* l_PersistentHashMap_mfoldl___at_PersistentHashMap_toList___spec__1___rarg___boxed(obj*, obj*);
 extern obj* l_Array_empty___closed__1;
-extern "C" obj* lean_nat_sub(obj*, obj*);
+obj* lean_nat_sub(obj*, obj*);
 usize l_PersistentHashMap_insertAux___main___rarg___closed__1;
 obj* l_PersistentHashMap_Stats_toString___closed__3;
 obj* l_Array_miterateAux___main___at_PersistentHashMap_mfoldlAux___main___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -89,7 +90,7 @@ obj* l_Array_miterateAux___main___at_PersistentHashMap_insertAux___main___spec__
 obj* l_PersistentHashMap_containsAux___rarg(obj*, obj*, usize, obj*);
 obj* l_PersistentHashMap_contains___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_foldl___rarg___boxed(obj*, obj*, obj*);
-extern "C" obj* lean_string_append(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
 obj* l_PersistentHashMap_isUnaryEntries___main(obj*, obj*);
 obj* l_PersistentHashMap_insertAtCollisionNodeAux___main___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_PersistentHashMap_insertAux___main___spec__1(obj*, obj*);
@@ -99,7 +100,7 @@ obj* l_PersistentHashMap_containsAtAux___main___rarg___boxed(obj*, obj*, obj*, o
 obj* l_PersistentHashMap_findAtAux___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_foldl(obj*, obj*, obj*);
 obj* l_PersistentHashMap_mfoldlAux___boxed(obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_PersistentHashMap_mfoldl___at_PersistentHashMap_toList___spec__1(obj*, obj*);
 obj* l_PersistentHashMap_isUnaryNode___rarg___boxed(obj*);
 obj* l_Array_miterateAux___main___at_PersistentHashMap_mfoldlAux___main___spec__2___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -111,13 +112,13 @@ obj* l_Array_fget(obj*, obj*, obj*);
 obj* l_PersistentHashMap_containsAux___main(obj*, obj*);
 obj* l_PersistentHashMap_isUnaryEntries___main___rarg(obj*, obj*, obj*);
 obj* l_PersistentHashMap_mkEmptyEntriesArray___closed__1;
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l_PersistentHashMap_foldl___rarg(obj*, obj*, obj*);
 obj* l_PersistentHashMap_collectStats___rarg(obj*, obj*, obj*);
 obj* l_PersistentHashMap_Stats_toString___closed__1;
 obj* l_Array_miterateAux___main___at_PersistentHashMap_mfoldlAux___main___spec__1(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_PersistentHashMap_mfoldlAux___main___spec__2___boxed(obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Array_miterateAux___main___at_PersistentHashMap_toList___spec__3___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_isEmpty___rarg___boxed(obj*);
 obj* l_PersistentHashMap_insertAux___main___rarg(obj*, obj*, obj*, usize, usize, obj*, obj*);
@@ -187,7 +188,7 @@ usize l_PersistentHashMap_mul2Shift(usize, usize);
 usize l_PersistentHashMap_div2Shift(usize, usize);
 obj* l_PersistentHashMap_insertAtCollisionNodeAux___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Nat_max(obj*, obj*);
-extern "C" obj* lean_usize_to_nat(usize);
+obj* lean_usize_to_nat(usize);
 obj* l_PersistentHashMap_mfoldlAux___main___boxed(obj*, obj*, obj*);
 obj* l_PersistentHashMap_findAux___main___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_PersistentHashMap_mkCollisionNode(obj*, obj*);
@@ -3639,4 +3640,5 @@ lean::mark_persistent(l_PersistentHashMap_HasToString___closed__1);
 l_PersistentHashMap_HasToString = _init_l_PersistentHashMap_HasToString();
 lean::mark_persistent(l_PersistentHashMap_HasToString);
 return w;
+}
 }

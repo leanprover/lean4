@@ -14,7 +14,8 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-extern "C" uint8 lean_has_match_pattern_attribute(obj*, obj*);
+extern "C" {
+uint8 lean_has_match_pattern_attribute(obj*, obj*);
 obj* l_Lean_EqnCompiler_matchPatternAttr;
 obj* l_Lean_EqnCompiler_mkMatchPatternAttr___closed__3;
 extern obj* l_Lean_TagAttribute_Inhabited___closed__3;
@@ -24,7 +25,7 @@ obj* l_Lean_EqnCompiler_mkMatchPatternAttr___lambda__1___boxed(obj*, obj*);
 obj* l_Lean_registerTagAttribute(obj*, obj*, obj*, obj*);
 obj* l_Lean_EqnCompiler_hasMatchPatternAttribute___boxed(obj*, obj*);
 obj* l_Lean_EqnCompiler_mkMatchPatternAttr___closed__4;
-extern "C" obj* lean_name_mk_string(obj*, obj*);
+obj* lean_name_mk_string(obj*, obj*);
 uint8 l_Lean_TagAttribute_hasTag(obj*, obj*, obj*);
 obj* l_Lean_EqnCompiler_mkMatchPatternAttr___closed__1;
 obj* l_Lean_EqnCompiler_mkMatchPatternAttr___lambda__1(obj*, obj*);
@@ -145,4 +146,5 @@ if (lean::io_result_is_error(w)) return w;
 l_Lean_EqnCompiler_matchPatternAttr = lean::io_result_get_value(w);
 lean::mark_persistent(l_Lean_EqnCompiler_matchPatternAttr);
 return w;
+}
 }

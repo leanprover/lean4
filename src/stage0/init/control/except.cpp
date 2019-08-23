@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Except_MonadExcept___closed__2;
 obj* l_ExceptT_HasMonadLift___boxed(obj*, obj*);
 obj* l_ExceptT_lift___rarg___closed__1;
@@ -77,7 +78,7 @@ obj* l_ExceptT_exceptTOfExcept___boxed(obj*, obj*);
 obj* l_ExceptT_bindCont(obj*, obj*);
 obj* l_ExceptT_catch___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_Except_map___rarg(obj*, obj*);
-extern "C" obj* lean_string_append(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
 obj* l_Except_HasRepr(obj*, obj*);
 obj* l_monadExceptAdapterTrans(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Except_bind(obj*, obj*, obj*);
@@ -2468,4 +2469,5 @@ lean::mark_persistent(l_Except_MonadExcept___closed__2);
 l_Except_MonadExcept___closed__3 = _init_l_Except_MonadExcept___closed__3();
 lean::mark_persistent(l_Except_MonadExcept___closed__3);
 return w;
+}
 }

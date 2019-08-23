@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Lean_mkErrorStringWithPos(obj*, obj*, obj*, obj*);
 obj* l_Lean_MessageLog_empty;
 obj* l_Lean_Message_toString___closed__2;
@@ -32,12 +33,12 @@ obj* l_List_foldr___main___at_Lean_MessageLog_hasErrors___spec__1___boxed(obj*, 
 uint8 l_Lean_MessageLog_hasErrors(obj*);
 uint8 l_Lean_MessageLog_isEmpty(obj*);
 obj* l_Lean_Message_toString___closed__4;
-extern "C" obj* lean_string_append(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
 obj* l_List_append___rarg(obj*, obj*);
 uint8 l_List_isEmpty___rarg(obj*);
 extern obj* l_Lean_Format_flatten___main___closed__1;
 obj* l_Lean_Message_HasToString___closed__1;
-extern "C" uint8 lean_string_dec_eq(obj*, obj*);
+uint8 lean_string_dec_eq(obj*, obj*);
 obj* l_Lean_mkErrorStringWithPos___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_MessageLog_HasAppend___closed__1;
 obj* l_Lean_MessageLog_add(obj*, obj*);
@@ -486,4 +487,5 @@ lean::mark_persistent(l_Lean_MessageLog_HasAppend___closed__1);
 l_Lean_MessageLog_HasAppend = _init_l_Lean_MessageLog_HasAppend();
 lean::mark_persistent(l_Lean_MessageLog_HasAppend);
 return w;
+}
 }

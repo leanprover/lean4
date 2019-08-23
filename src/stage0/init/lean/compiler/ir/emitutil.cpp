@@ -14,7 +14,8 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-extern "C" uint8 lean_name_dec_eq(obj*, obj*);
+extern "C" {
+uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_Lean_IR_CollectMaps_collectFnBody___main(obj*, obj*);
 obj* l_HashMapImp_moveEntries___main___at_Lean_IR_CollectMaps_collectJP___spec__4(obj*, obj*, obj*);
 obj* l_Array_mkArray(obj*, obj*, obj*);
@@ -22,7 +23,7 @@ obj* l_Lean_IR_mkVarJPMaps___closed__1;
 obj* l_Lean_IR_CollectUsedDecls_collect(obj*, obj*, obj*);
 obj* l_Lean_IR_mkVarJPMaps___closed__3;
 obj* l_Lean_IR_UsesLeanNamespace_visitFnBody(obj*, obj*, obj*);
-extern "C" obj* lean_get_init_fn_name_for(obj*, obj*);
+obj* lean_get_init_fn_name_for(obj*, obj*);
 obj* l_HashMapImp_expand___at_Lean_IR_CollectMaps_collectVar___spec__3(obj*, obj*);
 obj* l_AssocList_mfoldl___main___at_Lean_IR_CollectMaps_collectVar___spec__5(obj*, obj*);
 obj* l_AssocList_contains___main___at_Lean_IR_CollectMaps_collectVar___spec__2___boxed(obj*, obj*);
@@ -52,13 +53,13 @@ obj* l_AssocList_mfoldl___main___at_Lean_IR_CollectMaps_collectJP___spec__5(obj*
 obj* l_Lean_IR_UsesLeanNamespace_visitFnBody___boxed(obj*, obj*, obj*);
 obj* l_AssocList_contains___main___at_Lean_IR_CollectMaps_collectJP___spec__2___boxed(obj*, obj*);
 uint8 l_Lean_IR_isTailCallTo(obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 uint8 l_AssocList_contains___main___at_Lean_IR_CollectMaps_collectJP___spec__2(obj*, obj*);
 obj* l_HashMapImp_expand___at_Lean_IR_CollectMaps_collectJP___spec__3(obj*, obj*);
 obj* l_Array_anyMAux___main___at_Lean_IR_UsesLeanNamespace_visitFnBody___main___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Lean_IR_CollectMaps_collectJP(obj*, obj*, obj*);
 obj* l_Array_mforAux___main___at_Lean_IR_CollectUsedDecls_collectFnBody___main___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_CollectUsedDecls_collectFnBody___main(obj*, obj*, obj*);
@@ -75,7 +76,7 @@ obj* l_Lean_IR_usesLeanNamespace___boxed(obj*, obj*);
 obj* l_Lean_IR_CollectMaps_collectFnBody(obj*, obj*);
 obj* l_Lean_IR_usesLeanNamespace(obj*, obj*);
 obj* l_Lean_IR_findEnvDecl(obj*, obj*);
-extern "C" usize lean_usize_modn(usize, obj*);
+usize lean_usize_modn(usize, obj*);
 obj* l_Lean_IR_isTailCallTo___boxed(obj*, obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Array_fset(obj*, obj*, obj*, obj*);
@@ -84,12 +85,12 @@ obj* l_Lean_IR_mkVarJPMaps___closed__2;
 obj* l_Lean_IR_CollectUsedDecls_collectFnBody(obj*, obj*, obj*);
 obj* l_Lean_IR_CollectMaps_collectParams___boxed(obj*, obj*);
 obj* l_Array_mforAux___main___at_Lean_IR_CollectUsedDecls_collectFnBody___main___spec__1___boxed(obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_le(obj*, obj*);
-extern "C" usize lean_usize_of_nat(obj*);
+uint8 lean_nat_dec_le(obj*, obj*);
+usize lean_usize_of_nat(obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_CollectMaps_collectParams___spec__1(obj*, obj*, obj*, obj*);
 uint8 l_Lean_Name_isPrefixOf___main(obj*, obj*);
 obj* l_HashMapImp_insert___at_Lean_IR_CollectMaps_collectJP___spec__1(obj*, obj*, obj*);
-extern "C" obj* lean_nat_mul(obj*, obj*);
+obj* lean_nat_mul(obj*, obj*);
 obj* l_AssocList_replace___main___at_Lean_IR_CollectMaps_collectVar___spec__6(obj*, uint8, obj*);
 extern obj* l_Lean_Syntax_formatStx___main___rarg___closed__4;
 obj* l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix;
@@ -2097,4 +2098,5 @@ lean::mark_persistent(l_Lean_IR_mkVarJPMaps___closed__2);
 l_Lean_IR_mkVarJPMaps___closed__3 = _init_l_Lean_IR_mkVarJPMaps___closed__3();
 lean::mark_persistent(l_Lean_IR_mkVarJPMaps___closed__3);
 return w;
+}
 }

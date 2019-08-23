@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Lean_SMap_numBuckets___rarg(obj*);
 obj* l_Lean_SMap_find(obj*, obj*);
 obj* l_Lean_SMap_empty___rarg(obj*, obj*, obj*);
@@ -36,7 +37,7 @@ obj* l_Lean_SMap_HasEmptyc(obj*, obj*);
 obj* l_Lean_SMap_size(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_size___rarg___boxed(obj*);
 obj* l_Lean_SMap_maxDepth___boxed(obj*, obj*, obj*, obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 extern obj* l_RBMap_maxDepth___rarg___closed__1;
 obj* l_HashMapImp_find___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_maxDepth___rarg(obj*);
@@ -670,4 +671,5 @@ if (lean::io_result_is_error(w)) return w;
 w = initialize_init_data_rbmap_default(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

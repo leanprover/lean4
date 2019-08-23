@@ -14,9 +14,10 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-extern "C" uint8 lean_name_dec_eq(obj*, obj*);
+extern "C" {
+uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_Lean_Syntax_setTailInfo___rarg(obj*, obj*);
-extern "C" obj* lean_nat_sub(obj*, obj*);
+obj* lean_nat_sub(obj*, obj*);
 obj* l_Array_mkArray(obj*, obj*, obj*);
 obj* l_Array_back___at___private_init_lean_parser_parser_6__updateCache___spec__1(obj*);
 extern obj* l_Lean_Parser_declareLeadingBuiltinParser___closed__1;
@@ -24,26 +25,26 @@ obj* l_Lean_Syntax_removeParen___closed__1;
 obj* l_Lean_Syntax_getTailInfo___main___rarg(obj*);
 uint8 l_Lean_Syntax_isNone___rarg(obj*);
 obj* l_Lean_Syntax_getArg___rarg(obj*, obj*);
-extern "C" obj* lean_string_append(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
 extern obj* l_Option_HasRepr___rarg___closed__3;
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_Lean_SourceInfo_truncateTrailing(obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
-extern "C" obj* lean_name_mk_string(obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+obj* lean_name_mk_string(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Array_push(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_Syntax_manyToSepBy___spec__1___boxed(obj*, obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_string_dec_eq(obj*, obj*);
+uint8 lean_string_dec_eq(obj*, obj*);
 obj* l_Lean_Syntax_removeParen___closed__4;
 obj* l_Lean_Syntax_manyToSepBy(obj*, obj*);
 obj* l_Lean_Syntax_removeParen___boxed(obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Array_get(obj*, obj*, obj*, obj*);
 extern obj* l_Array_mforAux___main___at_Lean_Environment_displayStats___spec__10___closed__2;
-extern "C" obj* lean_string_utf8_extract(obj*, obj*, obj*);
+obj* lean_string_utf8_extract(obj*, obj*, obj*);
 obj* l_Lean_Syntax_removeParen___closed__3;
-extern "C" obj* lean_string_utf8_byte_size(obj*);
+obj* lean_string_utf8_byte_size(obj*);
 obj* l_Array_set(obj*, obj*, obj*, obj*);
 obj* l_Lean_Syntax_getNumArgs___rarg(obj*);
 obj* l_Lean_Syntax_removeParen___closed__2;
@@ -605,4 +606,5 @@ lean::mark_persistent(l_Lean_Syntax_removeParen___closed__3);
 l_Lean_Syntax_removeParen___closed__4 = _init_l_Lean_Syntax_removeParen___closed__4();
 lean::mark_persistent(l_Lean_Syntax_removeParen___closed__4);
 return w;
+}
 }

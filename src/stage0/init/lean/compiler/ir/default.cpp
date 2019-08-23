@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_default_1__compileAux___closed__25;
 extern obj* l_Array_empty___closed__1;
@@ -34,14 +35,14 @@ obj* l___private_init_lean_compiler_ir_default_1__compileAux___closed__23;
 obj* l_Array_ummapAux___main___at___private_init_lean_compiler_ir_default_1__compileAux___spec__1(obj*, obj*);
 obj* l_Array_ummapAux___main___at___private_init_lean_compiler_ir_default_1__compileAux___spec__4(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_default_1__compileAux___closed__27;
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_Lean_IR_inferBorrow(obj*, obj*, obj*);
 obj* l_Lean_IR_Decl_elimDead(obj*);
 obj* l_Array_ummapAux___main___at_Lean_IR_inferBorrow___spec__1(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_default_1__compileAux___closed__1;
 obj* l_Array_fget(obj*, obj*, obj*);
-extern "C" obj* lean_name_mk_string(obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_name_mk_string(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_default_1__compileAux(obj*, obj*, obj*);
 obj* l_Array_mforAux___main___at_Lean_IR_addDecls___spec__1(obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_default_1__compileAux___closed__8;
@@ -60,7 +61,7 @@ obj* l___private_init_lean_compiler_ir_default_1__compileAux___closed__13;
 obj* l___private_init_lean_compiler_ir_default_1__compileAux___closed__26;
 obj* l_Array_size(obj*, obj*);
 obj* l_Array_fset(obj*, obj*, obj*, obj*);
-extern "C" obj* lean_ir_compile(obj*, obj*, obj*);
+obj* lean_ir_compile(obj*, obj*, obj*);
 obj* l_Array_ummapAux___main___at___private_init_lean_compiler_ir_default_1__compileAux___spec__3(obj*, obj*);
 obj* l_Array_ummapAux___main___at___private_init_lean_compiler_ir_default_1__compileAux___spec__2(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_default_1__compileAux___closed__10;
@@ -8224,4 +8225,5 @@ lean::mark_persistent(l___private_init_lean_compiler_ir_default_1__compileAux___
 l___private_init_lean_compiler_ir_default_1__compileAux___closed__28 = _init_l___private_init_lean_compiler_ir_default_1__compileAux___closed__28();
 lean::mark_persistent(l___private_init_lean_compiler_ir_default_1__compileAux___closed__28);
 return w;
+}
 }

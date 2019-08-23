@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_List_toArrayAux___rarg(obj*, obj*);
 obj* l_Array_anyMAux___main___at_Array_any___spec__1(obj*);
 obj* l_Array_extractAux___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
@@ -32,7 +33,7 @@ obj* l_Array_findRev(obj*, obj*);
 obj* l_Array_toList___rarg___boxed(obj*);
 obj* l_Array_miterate_u2082Aux___main___at_Array_foldl_u2082___spec__1(obj*, obj*, obj*);
 obj* l_Array_empty___closed__1;
-extern "C" obj* lean_nat_sub(obj*, obj*);
+obj* lean_nat_sub(obj*, obj*);
 obj* l_Array_anyMAux___main___at_Array_all___spec__1___rarg___boxed(obj*, obj*, obj*);
 obj* l_Array_getOpt(obj*);
 obj* l_Array_miterateAux___main___at_Array_foldlFrom___spec__1(obj*, obj*);
@@ -172,7 +173,7 @@ obj* l_Array_miterate_u2082Aux(obj*, obj*);
 obj* l_Array_revFoldl___rarg___boxed(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Array_foldlFrom___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_swapAt___rarg___boxed(obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_Array_miterate_u2082(obj*, obj*);
 obj* l_Array_mfindRevAux___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main(obj*, obj*);
@@ -198,9 +199,9 @@ obj* l_Array_mmapIdx___boxed(obj*, obj*);
 obj* l___private_init_data_array_basic_2__revIterateAux___main___at_Array_toList___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 uint8 l_Array_anyMAux___main___at_Array_all___spec__1___rarg(obj*, obj*, obj*);
 obj* l_Array_filter___rarg(obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l_Array_findRev___rarg(obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 uint8 l_Array_isEmpty___rarg(obj*);
 uint8 l_Array_any___rarg(obj*, obj*);
 obj* l_Array_ummapAux___main___at_Array_mapIdx___spec__1(obj*, obj*);
@@ -312,7 +313,7 @@ obj* l_Array_isEqvAux___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_anyM(obj*, obj*);
 obj* l_Array_HasRepr___rarg(obj*);
 obj* l_Array_find___rarg(obj*, obj*);
-extern "C" uint8 lean_nat_dec_le(obj*, obj*);
+uint8 lean_nat_dec_le(obj*, obj*);
 obj* l_Array_iterate_u2082___rarg(obj*, obj*, obj*, obj*);
 obj* l_Array_mfoldlFrom(obj*, obj*);
 obj* l_Array_iterate_u2082(obj*, obj*, obj*);
@@ -325,7 +326,7 @@ obj* l_Array_shrink(obj*);
 obj* l_Array_miterateAux___main___at_Array_mmapIdx___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_anyM___rarg(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Array_append___spec__1___rarg___boxed(obj*, obj*, obj*, obj*);
-extern "C" obj* lean_nat_div(obj*, obj*);
+obj* lean_nat_div(obj*, obj*);
 obj* l_Array_isEqvAux___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Array_append___spec__1(obj*);
 obj* l_Array_mfindRevAux___main___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -4936,4 +4937,5 @@ lean::mark_persistent(l_Array_HasRepr___rarg___closed__1);
 l_Array_HasAppend___closed__1 = _init_l_Array_HasAppend___closed__1();
 lean::mark_persistent(l_Array_HasAppend___closed__1);
 return w;
+}
 }

@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_guard___boxed(obj*);
 obj* l_guardb___rarg___boxed(obj*, obj*);
 obj* l_alternativeHasOrelse___rarg(obj*);
@@ -327,4 +328,5 @@ if (lean::io_result_is_error(w)) return w;
 l_optional___rarg___closed__1 = _init_l_optional___rarg___closed__1();
 lean::mark_persistent(l_optional___rarg___closed__1);
 return w;
+}
 }

@@ -14,10 +14,11 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
 obj* l_Array_filterAux___main___at___private_init_lean_compiler_ir_simpcase_3__addDefault___spec__1___boxed(obj*, obj*, obj*, obj*);
 extern obj* l_Array_empty___closed__1;
-extern "C" obj* lean_nat_sub(obj*, obj*);
+obj* lean_nat_sub(obj*, obj*);
 obj* l_Array_filterAux___main___at___private_init_lean_compiler_ir_simpcase_3__addDefault___spec__1(obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_simpcase_1__getOccsOf___boxed(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_simpcase_2__maxOccs___boxed(obj*);
@@ -34,14 +35,14 @@ obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_simpcase_1_
 obj* l___private_init_lean_compiler_ir_simpcase_4__mkSimpCase(obj*, obj*, obj*);
 obj* l_Lean_IR_AltCore_body(obj*);
 obj* l_Lean_IR_reshape(obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_simpcase_2__maxOccs___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_IR_FnBody_simpCase___main___spec__1(obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_flatten(obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_simpcase_2__maxOccs(obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Array_push(obj*, obj*, obj*);
 extern obj* l_Lean_IR_altInh;
 obj* l_Lean_IR_Decl_simpCase(obj*);
@@ -56,7 +57,7 @@ obj* l_Array_fset(obj*, obj*, obj*, obj*);
 obj* l_Array_get(obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_simpcase_1__getOccsOf(obj*, obj*);
 uint8 l_Lean_IR_Alt_isDefault(obj*);
-extern "C" uint8 lean_nat_dec_le(obj*, obj*);
+uint8 lean_nat_dec_le(obj*, obj*);
 obj* l_Array_back___at_Lean_IR_ensureHasDefault___spec__2(obj*);
 uint8 l_Array_anyMAux___main___at_Lean_IR_ensureHasDefault___spec__1(obj* x_1, obj* x_2) {
 _start:
@@ -782,4 +783,5 @@ if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_format(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

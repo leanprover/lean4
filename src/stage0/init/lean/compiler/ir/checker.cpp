@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Lean_IR_Checker_getDecl(obj*, obj*);
 extern obj* l_Lean_IR_getDecl___closed__1;
 obj* l_Lean_IR_Checker_checkType(uint8, obj*, obj*);
@@ -55,9 +56,9 @@ obj* l_Lean_IR_LocalContext_addJP(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_AltCore_body(obj*);
 obj* l_Lean_IR_Checker_checkPartialApp___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_Checker_checkJP(obj*, obj*);
-extern "C" obj* lean_string_append(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
 obj* l_Array_mforAux___main___at_Lean_IR_Checker_checkArgs___spec__1(obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_Checker_checkDecl___spec__1___boxed(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_Char_HasRepr___closed__1;
 obj* l_Lean_IR_Checker_checkFnBody___main___closed__4;
@@ -65,8 +66,8 @@ obj* l_Lean_IR_Checker_checkFullApp(obj*, obj*, obj*);
 obj* l_Lean_IR_Checker_checkScalarVar___boxed(obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
 obj* l_Lean_IR_LocalContext_addParam(obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 uint8 l_Lean_IR_CtorInfo_isRef(obj*);
 obj* l_Lean_IR_LocalContext_getType(obj*, obj*);
 obj* l_Array_mforAux___main___at_Lean_IR_Checker_checkArgs___spec__1___boxed(obj*, obj*, obj*);
@@ -3289,4 +3290,5 @@ lean::mark_persistent(l_Lean_IR_checkDecl___closed__1);
 l_Lean_IR_checkDecl___closed__2 = _init_l_Lean_IR_checkDecl___closed__2();
 lean::mark_persistent(l_Lean_IR_checkDecl___closed__2);
 return w;
+}
 }

@@ -14,15 +14,16 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_String_Hashable___closed__1;
 obj* l_String_Hashable;
 usize l_Nat_hash(obj*);
-extern "C" usize lean_string_hash(obj*);
+usize lean_string_hash(obj*);
 obj* l_String_hash___boxed(obj*);
 obj* l_Nat_Hashable;
 obj* l_mixHash___boxed(obj*, obj*);
-extern "C" usize lean_usize_mix_hash(usize, usize);
-extern "C" usize lean_usize_of_nat(obj*);
+usize lean_usize_mix_hash(usize, usize);
+usize lean_usize_of_nat(obj*);
 obj* l_Nat_hash___boxed(obj*);
 obj* l_Nat_Hashable___closed__1;
 obj* l_mixHash___boxed(obj* x_1, obj* x_2) {
@@ -115,4 +116,5 @@ lean::mark_persistent(l_Nat_Hashable___closed__1);
 l_Nat_Hashable = _init_l_Nat_Hashable();
 lean::mark_persistent(l_Nat_Hashable);
 return w;
+}
 }

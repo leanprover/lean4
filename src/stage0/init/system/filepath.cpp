@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_String_revPosOf(obj*, uint32);
 uint32 l_System_FilePath_pathSeparator___closed__1;
 obj* l_List_foldr___main___at_System_FilePath_normalizePath___spec__1___boxed(obj*, obj*, obj*);
@@ -27,24 +28,24 @@ obj* l_System_FilePath_pathSeparators___closed__2;
 uint32 l_System_FilePath_searchPathSeparator;
 obj* l_System_FilePath_pathSeparators;
 obj* l_System_FilePath_pathSeparators___closed__1;
-extern "C" uint8 lean_string_utf8_at_end(obj*, obj*);
+uint8 lean_string_utf8_at_end(obj*, obj*);
 obj* l_System_FilePath_dirName(obj*);
 uint8 l_System_FilePath_isCaseInsensitive___closed__1;
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 uint32 l_System_FilePath_searchPathSeparator___closed__1;
-extern "C" uint32 lean_string_utf8_get(obj*, obj*);
+uint32 lean_string_utf8_get(obj*, obj*);
 uint8 l_UInt32_decEq(uint32, uint32);
 extern uint8 l_System_Platform_isOSX;
 obj* l_System_FilePath_dirName___closed__1;
 uint32 l_System_FilePath_extSeparator;
 uint32 l_System_FilePath_pathSeparator;
-extern "C" obj* lean_string_utf8_next(obj*, obj*);
-extern "C" obj* lean_string_utf8_extract(obj*, obj*, obj*);
+obj* lean_string_utf8_next(obj*, obj*);
+obj* lean_string_utf8_extract(obj*, obj*, obj*);
 uint32 l_Char_toLower(uint32);
 uint8 l_System_FilePath_normalizePath___closed__2;
 obj* l_System_FilePath_normalizePath___closed__1;
 uint8 l_List_foldr___main___at_System_FilePath_normalizePath___spec__1(uint32, uint8, obj*);
-extern "C" obj* lean_string_utf8_set(obj*, obj*, uint32);
+obj* lean_string_utf8_set(obj*, obj*, uint32);
 uint32 _init_l_System_FilePath_pathSeparator___closed__1() {
 _start:
 {
@@ -407,4 +408,5 @@ l_System_FilePath_normalizePath___closed__2 = _init_l_System_FilePath_normalizeP
 l_System_FilePath_dirName___closed__1 = _init_l_System_FilePath_dirName___closed__1();
 lean::mark_persistent(l_System_FilePath_dirName___closed__1);
 return w;
+}
 }

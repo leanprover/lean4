@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Lean_IR_formatDecl(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__8;
 obj* l_Lean_IR_formatAlt___closed__4;
@@ -23,7 +24,7 @@ obj* l_Lean_IR_formatAlt(obj*, obj*, obj*);
 obj* l_Lean_IR_formatFnBody___main___closed__32;
 obj* l_Lean_IR_formatFnBody___main___closed__1;
 obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__2;
-extern "C" uint8 lean_name_dec_eq(obj*, obj*);
+uint8 lean_name_dec_eq(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__12;
 obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__23;
 obj* l_Lean_formatKVMap(obj*);
@@ -50,7 +51,7 @@ obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__26;
 obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__29;
 obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__22;
 obj* l___private_init_lean_compiler_ir_format_4__formatCtorInfo___closed__1;
-extern "C" obj* lean_ir_decl_to_string(obj*);
+obj* lean_ir_decl_to_string(obj*);
 obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__2;
 obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
 obj* l_Lean_IR_formatFnBody___main___closed__17;
@@ -94,7 +95,7 @@ obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__27;
 obj* l___private_init_lean_compiler_ir_format_7__formatParam___closed__3;
 obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__18;
 obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__6;
-extern "C" obj* lean_string_append(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
 obj* l_Lean_IR_formatFnBody___main___closed__8;
 obj* l_Lean_IR_fnBodyHasFormat;
 obj* l_Lean_IR_formatDecl___closed__4;
@@ -103,7 +104,7 @@ obj* l___private_init_lean_compiler_ir_format_2__formatArray___at_Lean_IR_format
 obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__9;
 obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__1;
 obj* l_Lean_IR_formatFnBody___main___closed__3;
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_format_2__formatArray___at___private_init_lean_compiler_ir_format_5__formatExpr___spec__1___boxed(obj*);
 obj* l_Lean_IR_litValHasFormat___closed__1;
 obj* l_Array_miterateAux___main___at_Lean_IR_formatParams___spec__2(obj*, obj*, obj*, obj*);
@@ -114,12 +115,12 @@ obj* l_Array_fget(obj*, obj*, obj*);
 obj* l_Lean_IR_formatFnBody___main___closed__29;
 obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__17;
 obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__12;
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 extern obj* l_Lean_Format_paren___closed__3;
 obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__5;
 obj* l_Lean_IR_formatFnBody___main___closed__24;
 obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_5__formatExpr___spec__2___boxed(obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__28;
 obj* l_Lean_IR_formatFnBody___main___closed__37;
 obj* l_Lean_IR_declHasToString___closed__1;
@@ -147,7 +148,7 @@ obj* l_Lean_IR_ctorInfoHasFormat;
 extern obj* l_Lean_formatKVMap___closed__1;
 obj* l___private_init_lean_compiler_ir_format_1__formatArg___closed__1;
 obj* l_Lean_IR_formatFnBody___main___closed__16;
-extern "C" obj* lean_format_group(obj*);
+obj* lean_format_group(obj*);
 obj* l_Lean_IR_formatFnBody___main___closed__26;
 obj* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__15;
 obj* l___private_init_lean_compiler_ir_format_2__formatArray___at_Lean_IR_formatParams___spec__1___boxed(obj*);
@@ -3620,4 +3621,5 @@ lean::mark_persistent(l_Lean_IR_declHasToString___closed__1);
 l_Lean_IR_declHasToString = _init_l_Lean_IR_declHasToString();
 lean::mark_persistent(l_Lean_IR_declHasToString);
 return w;
+}
 }

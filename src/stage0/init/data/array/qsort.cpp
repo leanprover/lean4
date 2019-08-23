@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Array_partition___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux(obj*);
 obj* l_Array_qsortAux___main___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -24,17 +25,17 @@ obj* l_Array_swap(obj*, obj*, obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main(obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_qsortAux___rarg(obj*, obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l_Array_partition(obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_partition___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_qsortAux___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_qsortAux(obj*);
 obj* l_Array_get(obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_le(obj*, obj*);
+uint8 lean_nat_dec_le(obj*, obj*);
 obj* l_Array_qsortAux___main(obj*);
-extern "C" obj* lean_nat_div(obj*, obj*);
+obj* lean_nat_div(obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_qsort(obj*);
 obj* l_Array_qsort___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
@@ -500,4 +501,5 @@ if (lean::io_result_is_error(w)) return w;
 w = initialize_init_data_array_basic(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

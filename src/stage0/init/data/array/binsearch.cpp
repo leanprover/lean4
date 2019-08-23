@@ -14,8 +14,9 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Array_binSearch___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
-extern "C" obj* lean_nat_sub(obj*, obj*);
+obj* lean_nat_sub(obj*, obj*);
 uint8 l_Array_binSearchContains___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_binSearchAux___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_binSearchAux___main___at_Array_binSearchContains___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -26,15 +27,15 @@ obj* l_Array_binSearchAux___main___at_Array_binSearch___spec__1___rarg(obj*, obj
 obj* l_Array_binSearchContains___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_binSearch(obj*);
 obj* l_Array_binSearchAux___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Array_binSearchContains(obj*);
 obj* l_Array_binSearchAux___main___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_binSearchAux(obj*, obj*);
 obj* l_Array_get(obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_le(obj*, obj*);
+uint8 lean_nat_dec_le(obj*, obj*);
 obj* l_Array_binSearchAux___main___at_Array_binSearch___spec__1(obj*);
-extern "C" obj* lean_nat_div(obj*, obj*);
+obj* lean_nat_div(obj*, obj*);
 obj* l_Array_binSearchAux___main___at_Array_binSearchContains___spec__1(obj*);
 obj* l_Array_binSearchAux___main(obj*, obj*);
 obj* l_Array_binSearchAux___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -462,4 +463,5 @@ if (lean::io_result_is_error(w)) return w;
 w = initialize_init_data_array_basic(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

@@ -14,11 +14,12 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Fin_HasZero___boxed(obj*);
 obj* l_Fin_HasLess___boxed(obj*);
 obj* l_Fin_elim0___boxed(obj*, obj*);
 obj* l_Fin_decLt(obj*);
-extern "C" obj* lean_nat_sub(obj*, obj*);
+obj* lean_nat_sub(obj*, obj*);
 obj* l_Fin_land(obj*, obj*, obj*);
 uint8 l_Fin_decLe___rarg(obj*, obj*);
 uint8 l_Fin_DecidableEq___rarg(obj*, obj*);
@@ -37,14 +38,14 @@ obj* l_Fin_decLe___boxed(obj*);
 obj* l_Fin_div(obj*, obj*, obj*);
 obj* l_Fin_elim0(obj*, obj*);
 obj* l_Fin_sub(obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_Fin_HasLessEq(obj*);
 obj* l_Fin_DecidableEq___boxed(obj*);
-extern "C" obj* lean_nat_mod(obj*, obj*);
+obj* lean_nat_mod(obj*, obj*);
 obj* l_Fin_ofNat_x27(obj*, obj*, obj*);
 obj* l_Fin_DecidableEq(obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Fin_mod___boxed(obj*, obj*, obj*);
 obj* l_Fin_land___boxed(obj*, obj*, obj*);
 obj* l_Fin_mod(obj*, obj*, obj*);
@@ -59,19 +60,19 @@ obj* l_Fin_HasOne(obj*);
 obj* l_Fin_decLt___rarg___boxed(obj*, obj*);
 obj* l_Fin_ofNat(obj*, obj*);
 uint8 l_Fin_decLt___rarg(obj*, obj*);
-extern "C" obj* lean_nat_land(obj*, obj*);
+obj* lean_nat_land(obj*, obj*);
 obj* l_Fin_HasLessEq___boxed(obj*);
 obj* l_Fin_lor___boxed(obj*, obj*, obj*);
 obj* l_Fin_mul___boxed(obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_le(obj*, obj*);
-extern "C" obj* lean_nat_div(obj*, obj*);
+uint8 lean_nat_dec_le(obj*, obj*);
+obj* lean_nat_div(obj*, obj*);
 obj* l_Fin_ofNat___boxed(obj*, obj*);
 obj* l_Fin_HasZero(obj*);
 obj* l_Fin_add___boxed(obj*, obj*, obj*);
-extern "C" obj* lean_nat_mul(obj*, obj*);
+obj* lean_nat_mul(obj*, obj*);
 obj* l_Fin_HasOne___boxed(obj*);
 obj* l_Fin_HasLess(obj*);
-extern "C" obj* lean_nat_lor(obj*, obj*);
+obj* lean_nat_lor(obj*, obj*);
 obj* l_Fin_HasLess(obj* x_1) {
 _start:
 {
@@ -546,4 +547,5 @@ if (lean::io_result_is_error(w)) return w;
 w = initialize_init_data_nat_bitwise(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

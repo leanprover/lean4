@@ -14,12 +14,13 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
 obj* l_RBNode_ins___main___at_Lean_mkClosedTermCacheExtension___spec__3(obj*, obj*, obj*);
 obj* l_Lean_closedTermCacheExt;
-extern "C" uint8 lean_expr_quick_lt(obj*, obj*);
+uint8 lean_expr_quick_lt(obj*, obj*);
 obj* l_Lean_SMap_empty___at_Lean_mkClosedTermCacheExtension___spec__10___closed__2;
-extern "C" uint8 lean_name_dec_eq(obj*, obj*);
+uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_HashMapImp_find___at_Lean_getClosedTermName___spec__3___boxed(obj*, obj*);
 obj* l_Lean_closedTermCacheExt___closed__2;
 extern obj* l_Array_empty___closed__1;
@@ -28,9 +29,9 @@ obj* l_Lean_closedTermCacheExt___closed__7;
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 obj* l_Array_mkArray(obj*, obj*, obj*);
 obj* l_Lean_closedTermCacheExt___elambda__2(obj*);
-extern "C" usize lean_expr_hash(obj*);
+usize lean_expr_hash(obj*);
 obj* l_Lean_closedTermCacheExt___elambda__4___boxed(obj*);
-extern "C" obj* lean_cache_closed_term_name(obj*, obj*, obj*);
+obj* lean_cache_closed_term_name(obj*, obj*, obj*);
 obj* l_Lean_mkClosedTermCacheExtension___closed__2;
 extern obj* l_Lean_EnvExtension_Inhabited___rarg___closed__1;
 obj* l_AssocList_replace___main___at_Lean_mkClosedTermCacheExtension___spec__9(obj*, obj*, obj*);
@@ -53,7 +54,7 @@ obj* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(obj*, obj*, 
 obj* l_RBNode_insert___at_Lean_mkClosedTermCacheExtension___spec__2(obj*, obj*, obj*);
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3(obj*, obj*);
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkClosedTermCacheExtension___spec__19___closed__2;
-extern "C" obj* lean_io_initializing(obj*);
+obj* lean_io_initializing(obj*);
 obj* l_Lean_mkClosedTermCacheExtension___closed__3;
 obj* l_Lean_closedTermCacheExt___elambda__3___boxed(obj*, obj*);
 obj* l_Lean_mkClosedTermCacheExtension(obj*);
@@ -63,21 +64,21 @@ uint8 l_AssocList_contains___main___at_Lean_mkClosedTermCacheExtension___spec__5
 obj* l_Array_miterateAux___main___at_Lean_mkClosedTermCacheExtension___spec__13(obj*, obj*, obj*, obj*);
 obj* l_Lean_mkClosedTermCacheExtension___closed__5;
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
-extern "C" uint8 lean_expr_eqv(obj*, obj*);
+uint8 lean_expr_eqv(obj*, obj*);
 obj* l_mkHashMap___at_Lean_mkClosedTermCacheExtension___spec__11(obj*);
 obj* l_Lean_registerSimplePersistentEnvExtension___at_Lean_mkClosedTermCacheExtension___spec__16(obj*, obj*);
-extern "C" obj* lean_string_append(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
 obj* l_HashMapImp_moveEntries___main___at_Lean_mkClosedTermCacheExtension___spec__7(obj*, obj*, obj*);
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1(obj*, obj*, obj*);
 uint8 l_RBNode_isRed___rarg(obj*);
 obj* l_AssocList_find___main___at_Lean_getClosedTermName___spec__4(obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
 obj* l_Lean_mkClosedTermCacheExtension___closed__4;
-extern "C" obj* lean_name_mk_string(obj*, obj*);
+obj* lean_name_mk_string(obj*, obj*);
 obj* l_Lean_SMap_empty___at_Lean_mkClosedTermCacheExtension___spec__10___closed__1;
 obj* l_Array_miterateAux___main___at_Lean_mkClosedTermCacheExtension___spec__14(obj*, obj*, obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l_Lean_SMap_switch___at_Lean_mkClosedTermCacheExtension___spec__15(obj*);
 obj* l_Array_push(obj*, obj*, obj*);
 obj* l_Lean_SMap_insert___at_Lean_mkClosedTermCacheExtension___spec__1___closed__1;
@@ -97,7 +98,7 @@ obj* l_Lean_PersistentEnvExtension_addEntry___rarg(obj*, obj*, obj*);
 obj* l_IO_Prim_Ref_get(obj*, obj*, obj*);
 obj* l_Lean_closedTermCacheExt___elambda__2___boxed(obj*);
 obj* l_AssocList_find___main___at_Lean_getClosedTermName___spec__4___boxed(obj*, obj*);
-extern "C" usize lean_usize_modn(usize, obj*);
+usize lean_usize_modn(usize, obj*);
 obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkClosedTermCacheExtension___spec__19(obj*, obj*);
 obj* l_HashMapImp_expand___at_Lean_mkClosedTermCacheExtension___spec__6(obj*, obj*);
 extern obj* l_HashMap_Inhabited___closed__1;
@@ -108,13 +109,13 @@ obj* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkClosedTermCacheExtension___sp
 obj* l_Array_fset(obj*, obj*, obj*, obj*);
 obj* l_Lean_closedTermCacheExt___closed__8;
 obj* l_mkHashMapImp___rarg(obj*);
-extern "C" obj* lean_get_closed_term_name(obj*, obj*);
+obj* lean_get_closed_term_name(obj*, obj*);
 obj* l_Lean_closedTermCacheExt___elambda__3(obj*, obj*);
 obj* l_RBNode_setBlack___rarg(obj*);
 obj* l_RBNode_find___main___at_Lean_getClosedTermName___spec__2(obj*, obj*);
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 extern obj* l_Lean_Name_toString___closed__1;
-extern "C" uint8 lean_nat_dec_le(obj*, obj*);
+uint8 lean_nat_dec_le(obj*, obj*);
 obj* l_AssocList_contains___main___at_Lean_mkClosedTermCacheExtension___spec__5___boxed(obj*, obj*);
 obj* l_Lean_mkClosedTermCacheExtension___lambda__2___boxed(obj*);
 obj* l_Lean_closedTermCacheExt___elambda__4___rarg(obj*);
@@ -122,7 +123,7 @@ obj* l_RBNode_find___main___at_Lean_getClosedTermName___spec__2___boxed(obj*, ob
 obj* l_Lean_mkClosedTermCacheExtension___lambda__1(obj*, obj*);
 extern obj* l___private_init_lean_environment_8__persistentEnvExtensionsRef;
 obj* l_Lean_SMap_empty___at_Lean_mkClosedTermCacheExtension___spec__10;
-extern "C" obj* lean_nat_mul(obj*, obj*);
+obj* lean_nat_mul(obj*, obj*);
 obj* l_Lean_closedTermCacheExt___closed__5;
 extern obj* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
 extern obj* l_Lean_regNamespacesExtension___closed__5;
@@ -5473,4 +5474,5 @@ if (lean::io_result_is_error(w)) return w;
 l_Lean_closedTermCacheExt = lean::io_result_get_value(w);
 lean::mark_persistent(l_Lean_closedTermCacheExt);
 return w;
+}
 }

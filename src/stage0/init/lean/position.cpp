@@ -14,10 +14,11 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 uint8 l_Lean_Position_lt(obj*, obj*);
 extern obj* l_Nat_Inhabited;
 extern obj* l_Array_empty___closed__1;
-extern "C" obj* lean_nat_sub(obj*, obj*);
+obj* lean_nat_sub(obj*, obj*);
 extern obj* l_Sigma_HasRepr___rarg___closed__1;
 obj* l_Lean_Position_DecidableEq___boxed(obj*, obj*);
 obj* l_Lean_Position_Lean_HasFormat(obj*);
@@ -33,17 +34,17 @@ obj* l___private_init_lean_position_2__toColumnAux___main___boxed(obj*, obj*, ob
 obj* l_Lean_Position_Inhabited;
 obj* l_Lean_Position_lt___boxed(obj*, obj*);
 obj* l_Nat_repr(obj*);
-extern "C" obj* lean_string_append(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
 extern obj* l_List_reprAux___main___rarg___closed__1;
 obj* l_Lean_FileMap_Inhabited___closed__1;
 obj* l_Lean_Position_Lean_HasFormat___closed__2;
-extern "C" uint8 lean_string_utf8_at_end(obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+uint8 lean_string_utf8_at_end(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l___private_init_lean_position_3__toPositionAux___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Array_push(obj*, obj*, obj*);
-extern "C" uint32 lean_string_utf8_get(obj*, obj*);
+uint32 lean_string_utf8_get(obj*, obj*);
 obj* l___private_init_lean_position_3__toPositionAux___main(obj*, obj*, obj*, obj*, obj*, obj*);
 uint8 l_UInt32_decEq(uint32, uint32);
 uint8 l_Lean_Position_DecidableEq(obj*, obj*);
@@ -57,9 +58,9 @@ obj* l_Array_size(obj*, obj*);
 obj* l_Lean_FileMap_ofString___closed__1;
 obj* l_Array_get(obj*, obj*, obj*, obj*);
 obj* l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(obj*);
-extern "C" obj* lean_string_utf8_next(obj*, obj*);
+obj* lean_string_utf8_next(obj*, obj*);
 uint8 l_prodHasDecidableLt___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
-extern "C" obj* lean_nat_div(obj*, obj*);
+obj* lean_nat_div(obj*, obj*);
 extern obj* l_Nat_DecidableEq___closed__1;
 obj* l_Lean_Position_lt___closed__1;
 obj* l_Lean_FileMap_toPosition(obj*, obj*);
@@ -602,4 +603,5 @@ lean::mark_persistent(l_Lean_FileMap_ofString___closed__1);
 l_Lean_FileMap_ofString___closed__2 = _init_l_Lean_FileMap_ofString___closed__2();
 lean::mark_persistent(l_Lean_FileMap_ofString___closed__2);
 return w;
+}
 }

@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l___private_init_lean_options_1__initOptionDeclsRef(obj*);
 obj* l_Lean_setOptionFromString___closed__2;
 obj* l_Lean_KVMap_setBool(obj*, obj*, uint8);
@@ -32,17 +33,17 @@ extern obj* l_Bool_HasRepr___closed__2;
 obj* l_Lean_setOptionFromString___closed__1;
 obj* l_RBNode_find___main___at_Lean_getOptionDecl___spec__1(obj*, obj*);
 obj* l_Lean_KVMap_setInt(obj*, obj*, obj*);
-extern "C" obj* lean_string_append(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
 obj* l_Lean_KVMap_setName(obj*, obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_getOptionDecl___spec__1___boxed(obj*, obj*);
 extern obj* l_Char_HasRepr___closed__1;
 obj* l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(obj*, obj*, obj*);
-extern "C" obj* lean_name_mk_string(obj*, obj*);
+obj* lean_name_mk_string(obj*, obj*);
 obj* l_Lean_registerOption(obj*, obj*, obj*);
 uint8 l_Lean_NameMap_contains___rarg(obj*, obj*);
 obj* l_Lean_setOptionFromString___closed__4;
 uint8 l_String_isInt(obj*);
-extern "C" uint8 lean_string_dec_eq(obj*, obj*);
+uint8 lean_string_dec_eq(obj*, obj*);
 obj* l_IO_Prim_mkRef(obj*, obj*, obj*);
 obj* l_String_trim(obj*);
 extern obj* l_System_FilePath_dirName___closed__1;
@@ -1404,4 +1405,5 @@ lean::mark_persistent(l_Lean_setOptionFromString___closed__4);
 l_Lean_setOptionFromString___closed__5 = _init_l_Lean_setOptionFromString___closed__5();
 lean::mark_persistent(l_Lean_setOptionFromString___closed__5);
 return w;
+}
 }

@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 uint8 l_Lean_Position_lt(obj*, obj*);
 obj* l_Lean_Trace_Monad(obj*);
 obj* l_List_map___main___at_Lean_Trace_pp___main___spec__1(obj*);
@@ -3762,4 +3763,5 @@ if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_options(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

@@ -14,10 +14,11 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Lean_closureMaxArgs___closed__1;
 obj* l_Lean_maxSmallNatFn___boxed(obj*);
-extern "C" obj* lean_closure_max_args(obj*);
-extern "C" obj* lean_max_small_nat(obj*);
+obj* lean_closure_max_args(obj*);
+obj* lean_max_small_nat(obj*);
 obj* l_Lean_closureMaxArgs;
 obj* l_Lean_maxSmallNat;
 obj* l_Lean_closureMaxArgsFn___boxed(obj*);
@@ -89,4 +90,5 @@ lean::mark_persistent(l_Lean_maxSmallNat___closed__1);
 l_Lean_maxSmallNat = _init_l_Lean_maxSmallNat();
 lean::mark_persistent(l_Lean_maxSmallNat);
 return w;
+}
 }

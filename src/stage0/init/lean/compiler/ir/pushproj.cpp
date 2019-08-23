@@ -14,10 +14,11 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_setBody(obj*, obj*);
 extern obj* l_Array_empty___closed__1;
-extern "C" obj* lean_nat_sub(obj*, obj*);
+obj* lean_nat_sub(obj*, obj*);
 extern obj* l_Lean_IR_vsetInh;
 obj* l_Lean_IR_Decl_pushProj(obj*);
 obj* l_Array_ummapAux___main___at_Lean_IR_pushProjs___main___spec__3___boxed(obj*, obj*, obj*, obj*);
@@ -27,11 +28,11 @@ obj* l_Lean_IR_AltCore_body(obj*);
 obj* l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_14__collectIndex___spec__1(obj*, obj*);
 obj* l_Lean_IR_reshape(obj*, obj*);
 obj* l_Lean_IR_FnBody_pushProj(obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_IR_pushProjs___main___spec__2___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_flatten(obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 uint8 l_Array_isEmpty___rarg(obj*);
 obj* l_Array_push(obj*, obj*, obj*);
 obj* l_Lean_IR_pushProjs(obj*, obj*, obj*, obj*, obj*);
@@ -717,4 +718,5 @@ if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_freevars(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

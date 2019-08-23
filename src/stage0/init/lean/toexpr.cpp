@@ -14,15 +14,16 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Lean_strToExpr(obj*);
 extern obj* l_mjoin___rarg___closed__1;
 obj* l_Lean_nameToExprAux___main___closed__3;
 obj* l_Lean_nameToExprAux___main___closed__1;
-extern "C" obj* lean_expr_mk_const(obj*, obj*);
+obj* lean_expr_mk_const(obj*, obj*);
 obj* l_Lean_nameToExprAux___main___closed__7;
 obj* l_Lean_nameToExprAux___main___closed__8;
 obj* l_Lean_mkBinCApp(obj*, obj*, obj*);
-extern "C" obj* lean_name_mk_string(obj*, obj*);
+obj* lean_name_mk_string(obj*, obj*);
 obj* l_Lean_nameToExprAux___main(obj*);
 obj* l_Lean_nameToExprAux___main___closed__6;
 obj* l_Lean_nameToExprAux(obj*);
@@ -33,7 +34,7 @@ obj* l_Lean_exprToExpr;
 obj* l_Lean_nameToExpr;
 obj* l_Lean_natToExpr(obj*);
 obj* l_Lean_nameToExprAux___main___closed__2;
-extern "C" obj* lean_expr_mk_lit(obj*);
+obj* lean_expr_mk_lit(obj*);
 obj* l_Lean_nameToExpr___closed__1;
 obj* _init_l_Lean_exprToExpr() {
 _start:
@@ -252,4 +253,5 @@ lean::mark_persistent(l_Lean_nameToExpr___closed__1);
 l_Lean_nameToExpr = _init_l_Lean_nameToExpr();
 lean::mark_persistent(l_Lean_nameToExpr);
 return w;
+}
 }

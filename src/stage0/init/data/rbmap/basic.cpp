@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_RBNode_depth___rarg(obj*, obj*);
 obj* l_RBNode_min___boxed(obj*, obj*);
 obj* l_RBNode_max___main___boxed(obj*, obj*);
@@ -124,7 +125,7 @@ obj* l_RBNode_balance_u2083___rarg(obj*, obj*, obj*, obj*);
 obj* l_RBNode_findCore___boxed(obj*, obj*);
 obj* l_RBNode_balance2___rarg(obj*, obj*, obj*, obj*);
 obj* l_RBNode_mfold___rarg(obj*, obj*, obj*, obj*);
-extern "C" obj* lean_string_append(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
 obj* l_RBMap_contains___rarg___boxed(obj*, obj*, obj*);
 obj* l_RBNode_fold___rarg(obj*, obj*, obj*);
 obj* l_RBNode_appendTrees___main(obj*, obj*);
@@ -149,7 +150,7 @@ obj* l_RBNode_appendTrees___main___rarg(obj*, obj*);
 obj* l_RBMap_maxDepth___rarg___boxed(obj*);
 obj* l_RBNode_revFold___main___at_RBMap_toList___spec__1___rarg(obj*, obj*);
 obj* l_RBNode_max___boxed(obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l_RBNode_del___boxed(obj*, obj*);
 obj* l_RBMap_HasEmptyc___boxed(obj*, obj*, obj*);
 obj* l_RBMap_HasRepr___rarg___boxed(obj*, obj*, obj*);
@@ -24413,4 +24414,5 @@ lean::mark_persistent(l_RBMap_HasRepr___rarg___closed__1);
 l_RBMap_maxDepth___rarg___closed__1 = _init_l_RBMap_maxDepth___rarg___closed__1();
 lean::mark_persistent(l_RBMap_maxDepth___rarg___closed__1);
 return w;
+}
 }

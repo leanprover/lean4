@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_BinomialHeapImp_Inhabited(obj*);
 obj* l_mkBinomialHeap(obj*, obj*);
 obj* l_BinomialHeapImp_findMin___main___rarg(obj*, obj*, obj*, obj*);
@@ -43,16 +44,16 @@ obj* l_BinomialHeapImp_singleton(obj*);
 obj* l_BinomialHeap_head___rarg(obj*, obj*, obj*);
 obj* l_BinomialHeap_insert(obj*);
 obj* l_BinomialHeapImp_findMin(obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_BinomialHeapImp_mergeNodes___main(obj*);
 obj* l_List_foldl___main___at_BinomialHeapImp_tail___spec__1___rarg(obj*, obj*, obj*);
 obj* l_BinomialHeap_toList(obj*);
 obj* l_List_append___rarg(obj*, obj*);
 obj* l_BinomialHeapImp_toList(obj*);
 obj* l_BinomialHeap_empty(obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l_BinomialHeap_singleton(obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_BinomialHeap_merge___rarg(obj*, obj*, obj*);
 uint8 l_BinomialHeapImp_isEmpty___rarg(obj*);
 obj* l_List_foldl___main___at_BinomialHeapImp_tail___spec__2___rarg(obj*, obj*, obj*);
@@ -1503,4 +1504,5 @@ if (lean::io_result_is_error(w)) return w;
 w = initialize_init_coe(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

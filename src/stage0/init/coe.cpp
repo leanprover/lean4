@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_coe___rarg(obj*, obj*);
 obj* l_liftPair_u2081(obj*, obj*, obj*);
 obj* l_coe(obj*, obj*);
@@ -694,4 +695,5 @@ lean::mark_persistent(l_liftRefl___closed__1);
 l_coeBoolToProp = _init_l_coeBoolToProp();
 l_coeSortBool = _init_l_coeSortBool();
 return w;
+}
 }

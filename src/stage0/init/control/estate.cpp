@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_EState_seqRight___rarg(obj*, obj*, obj*);
 obj* l_EState_resultOk_mk___rarg(obj*, obj*);
 obj* l_EState_adaptState(obj*, obj*, obj*, obj*, obj*);
@@ -42,7 +43,7 @@ obj* l_EState_bind(obj*, obj*, obj*, obj*);
 extern obj* l_Except_toString___rarg___closed__2;
 obj* l_EState_modify(obj*, obj*);
 obj* l_EState_unreachableError___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-extern "C" obj* lean_string_append(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
 obj* l_EState_Monad___closed__2;
 extern obj* l_Option_HasRepr___rarg___closed__3;
 obj* l_EState_HasOrelse___closed__1;
@@ -1846,4 +1847,5 @@ lean::mark_persistent(l_EState_MonadExcept___closed__2);
 l_EState_MonadExcept___closed__3 = _init_l_EState_MonadExcept___closed__3();
 lean::mark_persistent(l_EState_MonadExcept___closed__3);
 return w;
+}
 }

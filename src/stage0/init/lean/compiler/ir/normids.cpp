@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Lean_IR_MapVars_mapExpr(obj*, obj*);
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_NormalizeIds_withVar___rarg(obj*, obj*, obj*, obj*);
@@ -63,14 +64,14 @@ obj* l_Lean_IR_UniqueIds_checkDecl(obj*, obj*);
 obj* l_Array_anyMAux___main___at_Lean_IR_UniqueIds_checkParams___spec__1(obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_replaceVar___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_NormalizeIds_normDecl(obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_Lean_IR_NormalizeIds_normJP___boxed(obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_IR_FnBody_replaceVar___spec__12(obj*, obj*, obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
 obj* l_Lean_IR_NormalizeIds_normJP(obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_IR_FnBody_replaceVar___spec__4___boxed(obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Lean_IR_NormalizeIds_normArgs(obj*, obj*);
 obj* l_Lean_IR_NormalizeIds_normExpr(obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_IR_FnBody_replaceVar___spec__10(obj*, obj*, obj*, obj*);
@@ -6568,4 +6569,5 @@ if (lean::io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_basic(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

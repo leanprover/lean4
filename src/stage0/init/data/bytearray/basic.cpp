@@ -14,7 +14,8 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-extern "C" obj* lean_uint8_to_nat(uint8);
+extern "C" {
+obj* lean_uint8_to_nat(uint8);
 obj* l_ByteArray_mk___boxed(obj*);
 obj* l_ByteArray_mkEmpty___boxed(obj*);
 obj* l_ByteArray_toList___boxed(obj*);
@@ -22,32 +23,32 @@ obj* l_ByteArray_toListAux___boxed(obj*, obj*, obj*);
 extern obj* l_List_repr___rarg___closed__3;
 obj* l_ByteArray_isEmpty___boxed(obj*);
 obj* l_List_toByteArrayAux(obj*, obj*);
-extern "C" obj* lean_byte_array_size(obj*);
+obj* lean_byte_array_size(obj*);
 obj* l_ByteArray_data___boxed(obj*);
 obj* l_List_reverse___rarg(obj*);
 obj* l_ByteArray_toList(obj*);
 obj* l_List_toStringAux___main___at_ByteArray_HasToString___spec__2___boxed(obj*, obj*);
 obj* l_ByteArray_toListAux___main___boxed(obj*, obj*, obj*);
-extern "C" obj* lean_byte_array_mk(obj*);
+obj* lean_byte_array_mk(obj*);
 obj* l_Nat_repr(obj*);
 extern obj* l_List_repr___rarg___closed__2;
 obj* l_ByteArray_HasToString(obj*);
-extern "C" obj* lean_string_append(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
 extern obj* l_List_reprAux___main___rarg___closed__1;
 obj* l_ByteArray_empty;
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_List_toString___at_ByteArray_HasToString___spec__1(obj*);
 obj* l_ByteArray_get___boxed(obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_ByteArray_mkEmpty(obj*);
-extern "C" obj* lean_byte_array_data(obj*);
+obj* lean_byte_array_data(obj*);
 obj* l_ByteArray_toListAux___main(obj*, obj*, obj*);
 obj* l_ByteArray_empty___closed__1;
 obj* l_List_toByteArray(obj*);
 obj* l_ByteArray_HasToString___boxed(obj*);
 obj* l_ByteArray_set___boxed(obj*, obj*, obj*);
-extern "C" uint8 lean_byte_array_get(obj*, obj*);
+uint8 lean_byte_array_get(obj*, obj*);
 obj* l_ByteArray_push___boxed(obj*, obj*);
 obj* l_List_toStringAux___main___at_ByteArray_HasToString___spec__2(uint8, obj*);
 obj* l_List_toByteArrayAux___main(obj*, obj*);
@@ -56,8 +57,8 @@ obj* l_ByteArray_toListAux(obj*, obj*, obj*);
 uint8 l_ByteArray_isEmpty(obj*);
 obj* l_ByteArray_size___boxed(obj*);
 extern obj* l_List_repr___rarg___closed__1;
-extern "C" obj* lean_byte_array_set(obj*, obj*, uint8);
-extern "C" obj* lean_byte_array_push(obj*, uint8);
+obj* lean_byte_array_set(obj*, obj*, uint8);
+obj* lean_byte_array_push(obj*, uint8);
 extern obj* l_String_splitAux___main___closed__1;
 obj* l_ByteArray_mk___boxed(obj* x_1) {
 _start:
@@ -414,4 +415,5 @@ lean::mark_persistent(l_ByteArray_empty);
 l_ByteArray_Inhabited = _init_l_ByteArray_Inhabited();
 lean::mark_persistent(l_ByteArray_Inhabited);
 return w;
+}
 }

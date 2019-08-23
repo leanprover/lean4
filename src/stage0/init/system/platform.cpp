@@ -14,17 +14,18 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_System_Platform_getNumBits___boxed(obj*);
 obj* l_System_Platform_numBits___closed__1;
 uint8 l_System_Platform_isWindows___closed__1;
 uint8 l_System_Platform_isWindows;
 obj* l_System_Platform_getIsOSX___boxed(obj*);
 uint8 l_System_Platform_isOSX___closed__1;
-extern "C" uint8 lean_system_platform_osx(obj*);
+uint8 lean_system_platform_osx(obj*);
 uint8 l_System_Platform_isOSX;
-extern "C" obj* lean_system_platform_nbits(obj*);
+obj* lean_system_platform_nbits(obj*);
 obj* l_System_Platform_numBits;
-extern "C" uint8 lean_system_platform_windows(obj*);
+uint8 lean_system_platform_windows(obj*);
 obj* l_System_Platform_getIsWindows___boxed(obj*);
 obj* l_System_Platform_getNumBits___boxed(obj* x_1) {
 _start:
@@ -120,4 +121,5 @@ l_System_Platform_isWindows = _init_l_System_Platform_isWindows();
 l_System_Platform_isOSX___closed__1 = _init_l_System_Platform_isOSX___closed__1();
 l_System_Platform_isOSX = _init_l_System_Platform_isOSX();
 return w;
+}
 }

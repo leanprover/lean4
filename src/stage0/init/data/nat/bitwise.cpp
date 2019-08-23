@@ -14,18 +14,19 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Nat_bitwise___boxed(obj*, obj*, obj*);
 obj* l_Nat_bitwise___main(obj*, obj*, obj*);
 obj* l_Nat_bitwise___main___boxed(obj*, obj*, obj*);
-extern "C" obj* lean_nat_mod(obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_mod(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l_Nat_land___boxed(obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Nat_bitwise(obj*, obj*, obj*);
-extern "C" obj* lean_nat_land(obj*, obj*);
+obj* lean_nat_land(obj*, obj*);
 obj* l_Nat_lor___boxed(obj*, obj*);
-extern "C" obj* lean_nat_div(obj*, obj*);
-extern "C" obj* lean_nat_lor(obj*, obj*);
+obj* lean_nat_div(obj*, obj*);
+obj* lean_nat_lor(obj*, obj*);
 obj* l_Nat_bitwise___main(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -181,4 +182,5 @@ if (lean::io_result_is_error(w)) return w;
 w = initialize_init_coe(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

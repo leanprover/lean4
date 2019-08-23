@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Option_Alternative___closed__1;
 obj* l_Option_Monad___lambda__4___boxed(obj*, obj*, obj*, obj*);
 obj* l_Option_Monad___closed__3;
@@ -1023,4 +1024,5 @@ lean::mark_persistent(l_Option_Alternative___closed__3);
 l_Option_Alternative = _init_l_Option_Alternative();
 lean::mark_persistent(l_Option_Alternative);
 return w;
+}
 }

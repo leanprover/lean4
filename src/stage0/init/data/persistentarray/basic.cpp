@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_PersistentArray_empty___closed__2;
 obj* l_Array_ummapAux___main___at_PersistentArray_map___spec__4___rarg(obj*, obj*, obj*);
 obj* l_PersistentArray_mmapAux___main___rarg___closed__1;
@@ -36,7 +37,7 @@ obj* l_Array_miterateAux___main___at_PersistentArray_collectStats___main___spec_
 obj* l_Array_miterateAux___main___at_PersistentArray_mfoldlFromAux___main___spec__1(obj*, obj*);
 obj* l_PersistentArray_mmap___rarg(obj*, obj*, obj*, obj*);
 extern obj* l_Array_empty___closed__1;
-extern "C" obj* lean_nat_sub(obj*, obj*);
+obj* lean_nat_sub(obj*, obj*);
 obj* l_PersistentArray_mfoldlFromAux___main___rarg(obj*, obj*, obj*, obj*, usize, usize, obj*);
 obj* l_PersistentArray_setAux___rarg(obj*, usize, usize, obj*);
 usize l_PersistentArray_mul2Shift(usize, usize);
@@ -173,7 +174,7 @@ obj* l_PersistentArray_empty___closed__1;
 obj* l_PersistentArray_mfindRevAux___main___boxed(obj*, obj*);
 obj* l_PersistentArray_mmapAux___main___at_PersistentArray_map___spec__2(obj*, obj*);
 obj* l_PersistentArray_Stats_toString(obj*);
-extern "C" obj* lean_string_append(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
 obj* l_PersistentArray_push___rarg(obj*, obj*);
 obj* l_PersistentArray_mfindRevAux(obj*, obj*);
 obj* l_Array_miterateAux___main___at_PersistentArray_mfoldlFromAux___main___spec__2___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -184,7 +185,7 @@ usize l_USize_add(usize, usize);
 obj* l_PersistentArray_toList(obj*);
 obj* l_PersistentArray_mforAux___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_PersistentArray_mkNewPath___main___rarg___boxed(obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_PersistentArray_collectStats___rarg___boxed(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_PersistentArray_toList___spec__4___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_PersistentArray_mfoldlAux___main___at_PersistentArray_foldl___spec__2___rarg___boxed(obj*, obj*, obj*);
@@ -206,10 +207,10 @@ obj* l_Array_fget(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_PersistentArray_mfoldlFromAux___main___spec__2___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_PersistentArray_collectStats___main___spec__1(obj*);
 obj* l_PersistentArray_mkNewPath___rarg(usize, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l_PersistentArray_setAux___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_PersistentArray_HasToString;
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_PersistentArray_mfoldlAux___main___at_PersistentArray_toList___spec__2___rarg(obj*, obj*);
 obj* l_PersistentArray_mfindRev___boxed(obj*, obj*);
 obj* l_PersistentArray_popLeaf___main___rarg(obj*);
@@ -326,15 +327,15 @@ obj* l_Array_ummapAux___main___at_PersistentArray_map___spec__3___rarg(obj*, obj
 obj* l_Array_miterateAux___main___at_PersistentArray_foldlFrom___spec__4___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_PersistentArray_foldlFrom___spec__6___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_PersistentArray_foldlFrom___spec__6___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_le(obj*, obj*);
+uint8 lean_nat_dec_le(obj*, obj*);
 extern obj* l_usizeSz;
 obj* l_Array_mfindAux___main___at_PersistentArray_find___spec__3(obj*, obj*);
-extern "C" usize lean_usize_of_nat(obj*);
+usize lean_usize_of_nat(obj*);
 obj* l_PersistentArray_mfoldlAux___main___at_PersistentArray_toList___spec__2___rarg___boxed(obj*, obj*);
 uint8 l_PersistentArrayNode_isNode___rarg(obj*);
 obj* l_Array_miterateAux___main___at_PersistentArray_mfoldlFrom___spec__1(obj*, obj*);
 obj* l_Array_mfindRevAux___main___at_PersistentArray_findRev___spec__2(obj*, obj*);
-extern "C" obj* lean_nat_div(obj*, obj*);
+obj* lean_nat_div(obj*, obj*);
 obj* l_PersistentArray_mfindRev___rarg(obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_PersistentArray_foldlFrom___spec__9___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_PersistentArray_mfoldlAux___main___spec__2___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -374,7 +375,7 @@ obj* l_Nat_max(obj*, obj*);
 obj* l_PersistentArray_mfoldlAux___main___at_PersistentArray_foldlFrom___spec__3(obj*, obj*);
 obj* l_PersistentArray_mfind___at_PersistentArray_find___spec__1___rarg___boxed(obj*, obj*);
 obj* l_PersistentArray_foldlFrom___rarg(obj*, obj*, obj*, obj*);
-extern "C" obj* lean_usize_to_nat(usize);
+obj* lean_usize_to_nat(usize);
 obj* l_PersistentArray_findRev___rarg(obj*, obj*);
 obj* l_PersistentArray_setAux___main___rarg(obj*, usize, usize, obj*);
 obj* l_List_toPersistentArray(obj*);
@@ -6469,4 +6470,5 @@ lean::mark_persistent(l_PersistentArray_HasToString___closed__1);
 l_PersistentArray_HasToString = _init_l_PersistentArray_HasToString();
 lean::mark_persistent(l_PersistentArray_HasToString);
 return w;
+}
 }

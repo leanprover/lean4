@@ -14,34 +14,35 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Lean_Name_mangle(obj*, obj*);
-extern "C" uint8 lean_name_dec_eq(obj*, obj*);
-extern "C" obj* lean_nat_sub(obj*, obj*);
+uint8 lean_name_dec_eq(obj*, obj*);
+obj* lean_nat_sub(obj*, obj*);
 obj* l___private_init_lean_compiler_namemangling_1__String_mangleAux___main(obj*, obj*, obj*);
 uint8 l_Char_isAlpha(uint32);
 extern obj* l_Lean_Name_appendIndexAfter___closed__1;
 obj* l___private_init_lean_compiler_namemangling_2__Name_mangleAux(obj*);
-extern "C" obj* lean_string_push(obj*, uint32);
+obj* lean_string_push(obj*, uint32);
 obj* l___private_init_lean_compiler_namemangling_2__Name_mangleAux___main(obj*);
 obj* l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__2;
 obj* l_Nat_repr(obj*);
 obj* l_String_Iterator_next(obj*);
 obj* l___private_init_lean_compiler_namemangling_1__String_mangleAux(obj*, obj*, obj*);
-extern "C" obj* lean_string_append(obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
-extern "C" obj* lean_nat_mod(obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
+obj* lean_nat_mod(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__3;
 obj* l_Lean_String_mangle(obj*);
 uint8 l_UInt32_decEq(uint32, uint32);
 uint8 l_Char_isDigit(uint32);
 obj* l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__1;
 uint32 l_String_Iterator_curr(obj*);
-extern "C" obj* lean_nat_div(obj*, obj*);
-extern "C" obj* lean_uint32_to_nat(uint32);
+obj* lean_nat_div(obj*, obj*);
+obj* lean_uint32_to_nat(uint32);
 uint32 l_Nat_digitChar(obj*);
 extern obj* l_String_splitAux___main___closed__1;
-extern "C" obj* lean_string_length(obj*);
+obj* lean_string_length(obj*);
 obj* _init_l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__1() {
 _start:
 {
@@ -306,4 +307,5 @@ lean::mark_persistent(l___private_init_lean_compiler_namemangling_1__String_mang
 l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__3 = _init_l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__3();
 lean::mark_persistent(l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__3);
 return w;
+}
 }

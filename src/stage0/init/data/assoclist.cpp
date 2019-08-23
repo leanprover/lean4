@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_AssocList_foldl___rarg(obj*, obj*, obj*);
 obj* l_AssocList_mfoldl___boxed(obj*, obj*, obj*, obj*);
 obj* l_AssocList_mfoldl___main___at_AssocList_foldl___spec__1(obj*, obj*, obj*);
@@ -556,4 +557,5 @@ if (lean::io_result_is_error(w)) return w;
 w = initialize_init_control_id(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

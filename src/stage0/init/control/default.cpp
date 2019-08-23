@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* initialize_init_control_applicative(obj*);
 obj* initialize_init_control_functor(obj*);
 obj* initialize_init_control_alternative(obj*);
@@ -56,4 +57,5 @@ if (lean::io_result_is_error(w)) return w;
 w = initialize_init_control_conditional(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

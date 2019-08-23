@@ -14,15 +14,16 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Lean_NameGenerator_mkChild(obj*);
 obj* l_Lean_NameGenerator_Inhabited___closed__1;
 obj* l_Lean_NameGenerator_next(obj*);
 obj* l_Lean_NameGenerator_Inhabited___closed__3;
 obj* l_Lean_NameGenerator_Inhabited___closed__2;
-extern "C" obj* lean_name_mk_string(obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_name_mk_string(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l_Lean_NameGenerator_curr(obj*);
-extern "C" obj* lean_name_mk_numeral(obj*, obj*);
+obj* lean_name_mk_numeral(obj*, obj*);
 obj* l_Lean_NameGenerator_Inhabited;
 obj* _init_l_Lean_NameGenerator_Inhabited___closed__1() {
 _start:
@@ -178,4 +179,5 @@ lean::mark_persistent(l_Lean_NameGenerator_Inhabited___closed__3);
 l_Lean_NameGenerator_Inhabited = _init_l_Lean_NameGenerator_Inhabited();
 lean::mark_persistent(l_Lean_NameGenerator_Inhabited);
 return w;
+}
 }

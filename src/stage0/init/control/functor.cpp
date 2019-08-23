@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Functor_mapRev___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Functor_mapConstRev___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Functor_mapConstRev(obj*);
@@ -85,4 +86,5 @@ if (lean::io_result_is_error(w)) return w;
 w = initialize_init_core(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

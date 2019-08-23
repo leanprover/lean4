@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 uint8 l_Lean_IR_Arg_hasFreeVar(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_freevars_3__collectVar___boxed(obj*, obj*);
 obj* l_Array_anyMAux___main___at_Lean_IR_HasIndex_visitArgs___spec__1___boxed(obj*, obj*, obj*);
@@ -72,14 +73,14 @@ obj* l_Lean_IR_FreeIndices_HasAndthen;
 obj* l_Lean_IR_Expr_hasFreeVar___boxed(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_freevars_16__collectJP(obj*, obj*, obj*);
 uint8 l_Lean_IR_HasIndex_visitArgs(obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_Lean_IR_FreeIndices_insertParams___boxed(obj*, obj*);
 obj* l_Array_anyMAux___main___at_Lean_IR_HasIndex_visitParams___spec__1___boxed(obj*, obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l_Lean_IR_MaxIndex_HasAndthen___closed__1;
 obj* l___private_init_lean_compiler_ir_freevars_23__collectArray___rarg(obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_freevars_13__skip___rarg(obj*);
 obj* l___private_init_lean_compiler_ir_freevars_12__collectAlts___boxed(obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_freevars_7__collectArray(obj*);
@@ -3067,4 +3068,5 @@ lean::mark_persistent(l_Lean_IR_FreeIndices_HasAndthen);
 l_Lean_IR_FreeIndices_collectFnBody___main___closed__1 = _init_l_Lean_IR_FreeIndices_collectFnBody___main___closed__1();
 lean::mark_persistent(l_Lean_IR_FreeIndices_collectFnBody___main___closed__1);
 return w;
+}
 }

@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_Lean_Parser_Command_precedenceLit___closed__3;
 obj* l_Lean_Parser_Command_visibility___elambda__1___boxed(obj*);
 obj* l_Lean_Parser_Command_openRenamingItem___elambda__1___rarg___closed__8;
@@ -547,7 +548,7 @@ obj* l_Lean_Parser_Command_preterm;
 obj* l_Lean_Parser_Command_resolve__name___elambda__1___rarg___closed__4;
 obj* l_Lean_Parser_Command_export___closed__1;
 obj* l_Lean_Parser_Command_exit___elambda__1___rarg___closed__6;
-extern "C" obj* lean_string_append(obj*, obj*);
+obj* lean_string_append(obj*, obj*);
 obj* l___regBuiltinParser_Lean_Parser_Command_declaration(obj*);
 obj* l_Lean_Parser_Command_mixfix___closed__2;
 obj* l_Lean_Parser_Command_noncomputable___elambda__1___rarg___closed__2;
@@ -642,7 +643,7 @@ obj* l_Lean_Parser_Command_symbol___closed__4;
 extern obj* l_Lean_Parser_Term_structInst___elambda__1___closed__4;
 obj* l_Lean_Parser_Command_private___elambda__1(obj*);
 obj* l_Lean_Parser_Command_init__quot___elambda__1___rarg(obj*, obj*);
-extern "C" obj* lean_name_mk_string(obj*, obj*);
+obj* lean_name_mk_string(obj*, obj*);
 obj* l_Lean_Parser_Command_example___closed__5;
 obj* l_Lean_Parser_Command_quotedSymbolPrec___elambda__1___closed__2;
 obj* l_Lean_Parser_Command_inferMod___closed__1;
@@ -685,7 +686,7 @@ obj* l_Lean_Parser_Command_openRenaming___elambda__1___closed__1;
 extern obj* l_Lean_Parser_Term_explicitBinder___closed__1;
 extern obj* l_Lean_Parser_Level_max___elambda__1___closed__4;
 obj* l_Lean_Parser_Command_axiom___elambda__1___closed__3;
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Lean_Parser_Command_postfix___closed__3;
 obj* l_Lean_Parser_Command_attribute___closed__4;
 obj* l_Lean_Parser_Command_namespace___elambda__1___rarg___closed__2;
@@ -754,7 +755,7 @@ obj* l_Lean_Parser_Command_postfix___elambda__1___rarg___closed__1;
 obj* l_Lean_Parser_mkCommandParserAttribute___closed__4;
 obj* l_Lean_Parser_Command_init__quot___elambda__1___rarg___closed__5;
 obj* l_Lean_Parser_Command_def___elambda__1___closed__6;
-extern "C" uint8 lean_string_dec_eq(obj*, obj*);
+uint8 lean_string_dec_eq(obj*, obj*);
 obj* l_Lean_Parser_Command_infixl___elambda__1(obj*);
 obj* l_Lean_Parser_Command_infixr___elambda__1___rarg___closed__4;
 obj* l_Lean_Parser_Command_init__quot___elambda__1___rarg___closed__4;
@@ -1076,7 +1077,7 @@ obj* l_Lean_Parser_Command_export___elambda__1___closed__4;
 obj* l_Lean_Parser_Command_universe___closed__4;
 obj* l_Lean_Parser_Command_noncomputable___closed__3;
 obj* l_Lean_Parser_Command_namespace___closed__2;
-extern "C" uint8 lean_nat_dec_le(obj*, obj*);
+uint8 lean_nat_dec_le(obj*, obj*);
 obj* l_Lean_Parser_Command_set__option___elambda__1(obj*);
 obj* l_Lean_Parser_Command_noncomputable___elambda__1___rarg___closed__4;
 obj* l___regBuiltinParser_Lean_Parser_Command_elab(obj*);
@@ -25334,4 +25335,5 @@ lean::mark_persistent(l_Lean_Parser_Command_notation);
 w = l___regBuiltinParser_Lean_Parser_Command_notation(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

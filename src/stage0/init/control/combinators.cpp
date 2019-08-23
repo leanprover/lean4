@@ -14,13 +14,14 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_List_mfoldl___main(obj*);
 obj* l_Nat_mforAux___main(obj*);
 obj* l_List_mmap(obj*);
 obj* l_Nat_mforAux___boxed(obj*);
 obj* l_List_mforall___main(obj*);
 obj* l_mcond___boxed(obj*);
-extern "C" obj* lean_nat_sub(obj*, obj*);
+obj* lean_nat_sub(obj*, obj*);
 obj* l_List_mexists___main(obj*);
 obj* l_unless___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_List_mfilter___main___rarg___lambda__2___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -62,7 +63,7 @@ obj* l_List_mforall___main___boxed(obj*);
 obj* l_List_mforall___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_unless___rarg(obj*, obj*, uint8, obj*);
 obj* l_List_mfoldr___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Nat_mfoldAux___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Nat_mfor(obj*);
 obj* l_List_mmap___main(obj*);
@@ -1454,4 +1455,5 @@ lean::mark_persistent(l_mjoin___rarg___closed__1);
 l_List_mmap___main___rarg___closed__1 = _init_l_List_mmap___main___rarg___closed__1();
 lean::mark_persistent(l_List_mmap___main___rarg___closed__1);
 return w;
+}
 }

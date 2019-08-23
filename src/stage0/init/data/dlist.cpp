@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_DList_append(obj*);
 obj* l_DList_singleton___elambda__1___rarg(obj*, obj*);
 obj* l_DList_push(obj*);
@@ -327,4 +328,5 @@ lean::mark_persistent(l_DList_HasEmptyc___closed__1);
 l_DList_HasAppend___closed__1 = _init_l_DList_HasAppend___closed__1();
 lean::mark_persistent(l_DList_HasAppend___closed__1);
 return w;
+}
 }

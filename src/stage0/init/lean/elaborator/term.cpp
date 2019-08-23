@@ -14,9 +14,10 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_Elab_elabTermAux___main___spec__4(obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_name_dec_eq(obj*, obj*);
+uint8 lean_name_dec_eq(obj*, obj*);
 extern obj* l_Array_empty___closed__1;
 obj* l_Lean_Elab_elabList___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Format_pretty(obj*, obj*);
@@ -26,25 +27,25 @@ obj* l_Lean_Elab_elabList(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elab_elabTermAux___main___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Syntax_formatStx___main___rarg(obj*);
 obj* l_Array_uget(obj*, obj*, usize, obj*);
-extern "C" obj* lean_io_prim_put_str(obj*, obj*);
+obj* lean_io_prim_put_str(obj*, obj*);
 extern obj* l_Lean_Options_empty;
 extern obj* l_Lean_termElabAttribute;
 obj* l_AssocList_find___main___at_Lean_Elab_elabTermAux___main___spec__3___boxed(obj*, obj*);
 obj* l_HashMapImp_find___at_Lean_Elab_elabTermAux___main___spec__2___boxed(obj*, obj*);
-extern "C" usize lean_name_hash_usize(obj*);
+usize lean_name_hash_usize(obj*);
 obj* l_Lean_PersistentEnvExtension_getState___rarg(obj*, obj*);
 obj* l_Lean_Elab_elabTermAux___main___closed__1;
 obj* l_RBNode_find___main___at_Lean_addBuiltinTermElab___spec__4(obj*, obj*);
 obj* l_IO_println___at_Lean_Elab_elabList___spec__1(obj*, obj*);
-extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
+uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_Lean_addBuiltinTermElab(obj*, obj*, obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
-extern "C" obj* lean_name_mk_string(obj*, obj*);
+obj* lean_name_mk_string(obj*, obj*);
 extern obj* l_Lean_Parser_Term_list___elambda__1___closed__2;
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l_Lean_Elab_elabTermAux___main___closed__2;
 obj* l_Lean_Elab_elabTermAux___main(obj*, obj*, uint8, obj*, obj*);
-extern "C" usize lean_usize_modn(usize, obj*);
+usize lean_usize_modn(usize, obj*);
 obj* l___regBuiltinTermElab_Lean_Elab_elabList(obj*);
 obj* l_IO_print___at_Lean_Elab_elabList___spec__2(obj*, obj*);
 obj* l_Array_size(obj*, obj*);
@@ -1187,4 +1188,5 @@ lean::mark_persistent(l___regBuiltinTermElab_Lean_Elab_elabList___closed__3);
 w = l___regBuiltinTermElab_Lean_Elab_elabList(w);
 if (lean::io_result_is_error(w)) return w;
 return w;
+}
 }

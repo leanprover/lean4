@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern "C" {
 obj* l_List_eraseDupsAux___rarg(obj*, obj*, obj*);
 obj* l_List_map_u2082___main(obj*, obj*, obj*);
 obj* l_List_dropWhile(obj*);
@@ -27,7 +28,7 @@ obj* l_List_foldr1Opt___rarg(obj*, obj*);
 obj* l_List_zipWith___main___rarg(obj*, obj*, obj*);
 uint8 l_List_any___rarg(obj*, obj*);
 obj* l_List_join(obj*);
-extern "C" obj* lean_nat_sub(obj*, obj*);
+obj* lean_nat_sub(obj*, obj*);
 obj* l_List_length___rarg(obj*);
 obj* l_List_eraseDupsAux(obj*);
 obj* l_List_getLastOfNonNil___rarg___boxed(obj*, obj*);
@@ -153,13 +154,13 @@ obj* l_List_isEmpty___rarg___boxed(obj*);
 obj* l_List_getOpt___rarg(obj*, obj*);
 obj* l_List_isPrefixOf(obj*);
 obj* l_List_isEmpty(obj*);
-extern "C" obj* lean_nat_add(obj*, obj*);
+obj* lean_nat_add(obj*, obj*);
 obj* l_List_eraseDups(obj*);
 obj* l_List_elem___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_foldr1(obj*);
 obj* l_List_isEqv___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_pure(obj*);
-extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
+uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_List_getLastOfNonNil___main___rarg(obj*, obj*);
 uint8 l_List_hasDecidableLt___main___at_List_hasDecidableLe___spec__1___rarg(obj*, obj*, obj*, obj*);
 obj* l_List_init___rarg(obj*);
@@ -4555,4 +4556,5 @@ lean::mark_persistent(l_List_partition___rarg___closed__1);
 l_List_zip___rarg___closed__1 = _init_l_List_zip___rarg___closed__1();
 lean::mark_persistent(l_List_zip___rarg___closed__1);
 return w;
+}
 }

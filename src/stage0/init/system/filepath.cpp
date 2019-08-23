@@ -27,36 +27,24 @@ obj* l_System_FilePath_pathSeparators___closed__2;
 uint32 l_System_FilePath_searchPathSeparator;
 obj* l_System_FilePath_pathSeparators;
 obj* l_System_FilePath_pathSeparators___closed__1;
-namespace lean {
-uint8 string_utf8_at_end(obj*, obj*);
-}
+extern "C" uint8 lean_string_utf8_at_end(obj*, obj*);
 obj* l_System_FilePath_dirName(obj*);
 uint8 l_System_FilePath_isCaseInsensitive___closed__1;
-namespace lean {
-uint8 nat_dec_eq(obj*, obj*);
-}
+extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
 uint32 l_System_FilePath_searchPathSeparator___closed__1;
-namespace lean {
-uint32 string_utf8_get(obj*, obj*);
-}
+extern "C" uint32 lean_string_utf8_get(obj*, obj*);
 uint8 l_UInt32_decEq(uint32, uint32);
 extern uint8 l_System_Platform_isOSX;
 obj* l_System_FilePath_dirName___closed__1;
 uint32 l_System_FilePath_extSeparator;
 uint32 l_System_FilePath_pathSeparator;
-namespace lean {
-obj* string_utf8_next(obj*, obj*);
-}
-namespace lean {
-obj* string_utf8_extract(obj*, obj*, obj*);
-}
+extern "C" obj* lean_string_utf8_next(obj*, obj*);
+extern "C" obj* lean_string_utf8_extract(obj*, obj*, obj*);
 uint32 l_Char_toLower(uint32);
 uint8 l_System_FilePath_normalizePath___closed__2;
 obj* l_System_FilePath_normalizePath___closed__1;
 uint8 l_List_foldr___main___at_System_FilePath_normalizePath___spec__1(uint32, uint8, obj*);
-namespace lean {
-obj* string_utf8_set(obj*, obj*, uint32);
-}
+extern "C" obj* lean_string_utf8_set(obj*, obj*, uint32);
 uint32 _init_l_System_FilePath_pathSeparator___closed__1() {
 _start:
 {
@@ -235,11 +223,11 @@ obj* l_String_mapAux___main___at_System_FilePath_normalizePath___spec__2(obj* x_
 _start:
 {
 uint8 x_3; 
-x_3 = lean::string_utf8_at_end(x_2, x_1);
+x_3 = lean_string_utf8_at_end(x_2, x_1);
 if (x_3 == 0)
 {
 uint32 x_4; uint8 x_5; obj* x_6; uint8 x_7; 
-x_4 = lean::string_utf8_get(x_2, x_1);
+x_4 = lean_string_utf8_get(x_2, x_1);
 x_5 = 0;
 x_6 = l_System_FilePath_pathSeparators;
 x_7 = l_List_foldr___main___at_System_FilePath_normalizePath___spec__1(x_4, x_5, x_6);
@@ -250,8 +238,8 @@ x_8 = l_System_FilePath_isCaseInsensitive;
 if (x_8 == 0)
 {
 obj* x_9; obj* x_10; 
-x_9 = lean::string_utf8_set(x_2, x_1, x_4);
-x_10 = lean::string_utf8_next(x_9, x_1);
+x_9 = lean_string_utf8_set(x_2, x_1, x_4);
+x_10 = lean_string_utf8_next(x_9, x_1);
 lean::dec(x_1);
 x_1 = x_10;
 x_2 = x_9;
@@ -261,8 +249,8 @@ else
 {
 uint32 x_12; obj* x_13; obj* x_14; 
 x_12 = l_Char_toLower(x_4);
-x_13 = lean::string_utf8_set(x_2, x_1, x_12);
-x_14 = lean::string_utf8_next(x_13, x_1);
+x_13 = lean_string_utf8_set(x_2, x_1, x_12);
+x_14 = lean_string_utf8_next(x_13, x_1);
 lean::dec(x_1);
 x_1 = x_14;
 x_2 = x_13;
@@ -273,8 +261,8 @@ else
 {
 uint32 x_16; obj* x_17; obj* x_18; 
 x_16 = l_System_FilePath_pathSeparator;
-x_17 = lean::string_utf8_set(x_2, x_1, x_16);
-x_18 = lean::string_utf8_next(x_17, x_1);
+x_17 = lean_string_utf8_set(x_2, x_1, x_16);
+x_18 = lean_string_utf8_next(x_17, x_1);
 lean::dec(x_1);
 x_1 = x_18;
 x_2 = x_17;
@@ -304,7 +292,7 @@ _start:
 obj* x_1; obj* x_2; uint8 x_3; 
 x_1 = l_System_FilePath_normalizePath___closed__1;
 x_2 = lean::mk_nat_obj(1u);
-x_3 = lean::nat_dec_eq(x_1, x_2);
+x_3 = lean_nat_dec_eq(x_1, x_2);
 return x_3;
 }
 }
@@ -380,7 +368,7 @@ x_6 = lean::cnstr_get(x_4, 0);
 lean::inc(x_6);
 lean::dec(x_4);
 x_7 = lean::mk_nat_obj(0u);
-x_8 = lean::string_utf8_extract(x_2, x_7, x_6);
+x_8 = lean_string_utf8_extract(x_2, x_7, x_6);
 lean::dec(x_6);
 lean::dec(x_2);
 return x_8;

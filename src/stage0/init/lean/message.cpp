@@ -32,16 +32,12 @@ obj* l_List_foldr___main___at_Lean_MessageLog_hasErrors___spec__1___boxed(obj*, 
 uint8 l_Lean_MessageLog_hasErrors(obj*);
 uint8 l_Lean_MessageLog_isEmpty(obj*);
 obj* l_Lean_Message_toString___closed__4;
-namespace lean {
-obj* string_append(obj*, obj*);
-}
+extern "C" obj* lean_string_append(obj*, obj*);
 obj* l_List_append___rarg(obj*, obj*);
 uint8 l_List_isEmpty___rarg(obj*);
 extern obj* l_Lean_Format_flatten___main___closed__1;
 obj* l_Lean_Message_HasToString___closed__1;
-namespace lean {
-uint8 string_dec_eq(obj*, obj*);
-}
+extern "C" uint8 lean_string_dec_eq(obj*, obj*);
 obj* l_Lean_mkErrorStringWithPos___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_MessageLog_HasAppend___closed__1;
 obj* l_Lean_MessageLog_add(obj*, obj*);
@@ -67,17 +63,17 @@ _start:
 {
 obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; 
 x_5 = l_Lean_mkErrorStringWithPos___closed__1;
-x_6 = lean::string_append(x_1, x_5);
+x_6 = lean_string_append(x_1, x_5);
 x_7 = l_Nat_repr(x_2);
-x_8 = lean::string_append(x_6, x_7);
+x_8 = lean_string_append(x_6, x_7);
 lean::dec(x_7);
-x_9 = lean::string_append(x_8, x_5);
+x_9 = lean_string_append(x_8, x_5);
 x_10 = l_Nat_repr(x_3);
-x_11 = lean::string_append(x_9, x_10);
+x_11 = lean_string_append(x_9, x_10);
 lean::dec(x_10);
 x_12 = l_Lean_Format_flatten___main___closed__1;
-x_13 = lean::string_append(x_11, x_12);
-x_14 = lean::string_append(x_13, x_4);
+x_13 = lean_string_append(x_11, x_12);
+x_14 = lean_string_append(x_13, x_4);
 return x_14;
 }
 }
@@ -103,7 +99,7 @@ _start:
 {
 obj* x_1; obj* x_2; 
 x_1 = l_String_splitAux___main___closed__1;
-x_2 = lean::string_append(x_1, x_1);
+x_2 = lean_string_append(x_1, x_1);
 return x_2;
 }
 }
@@ -121,7 +117,7 @@ _start:
 obj* x_1; obj* x_2; obj* x_3; 
 x_1 = l_Lean_Message_toString___closed__3;
 x_2 = l_String_splitAux___main___closed__1;
-x_3 = lean::string_append(x_1, x_2);
+x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
@@ -131,7 +127,7 @@ _start:
 obj* x_1; obj* x_2; obj* x_3; 
 x_1 = l_EState_Result_toString___rarg___closed__2;
 x_2 = l_String_splitAux___main___closed__1;
-x_3 = lean::string_append(x_1, x_2);
+x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
@@ -152,7 +148,7 @@ x_6 = lean::cnstr_get_uint8(x_1, sizeof(void*)*5);
 x_7 = lean::cnstr_get(x_1, 3);
 lean::inc(x_7);
 x_8 = l_String_splitAux___main___closed__1;
-x_9 = lean::string_dec_eq(x_7, x_8);
+x_9 = lean_string_dec_eq(x_7, x_8);
 switch (x_6) {
 case 0:
 {
@@ -163,10 +159,10 @@ x_10 = lean::cnstr_get(x_1, 4);
 lean::inc(x_10);
 lean::dec(x_1);
 x_11 = l_Lean_Message_toString___closed__1;
-x_12 = lean::string_append(x_7, x_11);
-x_13 = lean::string_append(x_8, x_12);
+x_12 = lean_string_append(x_7, x_11);
+x_13 = lean_string_append(x_8, x_12);
 lean::dec(x_12);
-x_14 = lean::string_append(x_13, x_10);
+x_14 = lean_string_append(x_13, x_10);
 lean::dec(x_10);
 x_15 = l_Lean_mkErrorStringWithPos(x_2, x_4, x_5, x_14);
 lean::dec(x_14);
@@ -180,7 +176,7 @@ x_16 = lean::cnstr_get(x_1, 4);
 lean::inc(x_16);
 lean::dec(x_1);
 x_17 = l_Lean_Message_toString___closed__2;
-x_18 = lean::string_append(x_17, x_16);
+x_18 = lean_string_append(x_17, x_16);
 lean::dec(x_16);
 x_19 = l_Lean_mkErrorStringWithPos(x_2, x_4, x_5, x_18);
 lean::dec(x_18);
@@ -196,11 +192,11 @@ x_20 = lean::cnstr_get(x_1, 4);
 lean::inc(x_20);
 lean::dec(x_1);
 x_21 = l_Lean_Message_toString___closed__1;
-x_22 = lean::string_append(x_7, x_21);
+x_22 = lean_string_append(x_7, x_21);
 x_23 = l_Lean_Message_toString___closed__3;
-x_24 = lean::string_append(x_23, x_22);
+x_24 = lean_string_append(x_23, x_22);
 lean::dec(x_22);
-x_25 = lean::string_append(x_24, x_20);
+x_25 = lean_string_append(x_24, x_20);
 lean::dec(x_20);
 x_26 = l_Lean_mkErrorStringWithPos(x_2, x_4, x_5, x_25);
 lean::dec(x_25);
@@ -214,7 +210,7 @@ x_27 = lean::cnstr_get(x_1, 4);
 lean::inc(x_27);
 lean::dec(x_1);
 x_28 = l_Lean_Message_toString___closed__4;
-x_29 = lean::string_append(x_28, x_27);
+x_29 = lean_string_append(x_28, x_27);
 lean::dec(x_27);
 x_30 = l_Lean_mkErrorStringWithPos(x_2, x_4, x_5, x_29);
 lean::dec(x_29);
@@ -230,11 +226,11 @@ x_31 = lean::cnstr_get(x_1, 4);
 lean::inc(x_31);
 lean::dec(x_1);
 x_32 = l_Lean_Message_toString___closed__1;
-x_33 = lean::string_append(x_7, x_32);
+x_33 = lean_string_append(x_7, x_32);
 x_34 = l_EState_Result_toString___rarg___closed__2;
-x_35 = lean::string_append(x_34, x_33);
+x_35 = lean_string_append(x_34, x_33);
 lean::dec(x_33);
-x_36 = lean::string_append(x_35, x_31);
+x_36 = lean_string_append(x_35, x_31);
 lean::dec(x_31);
 x_37 = l_Lean_mkErrorStringWithPos(x_2, x_4, x_5, x_36);
 lean::dec(x_36);
@@ -248,7 +244,7 @@ x_38 = lean::cnstr_get(x_1, 4);
 lean::inc(x_38);
 lean::dec(x_1);
 x_39 = l_Lean_Message_toString___closed__5;
-x_40 = lean::string_append(x_39, x_38);
+x_40 = lean_string_append(x_39, x_38);
 lean::dec(x_38);
 x_41 = l_Lean_mkErrorStringWithPos(x_2, x_4, x_5, x_40);
 lean::dec(x_40);

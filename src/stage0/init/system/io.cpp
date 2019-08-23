@@ -94,9 +94,7 @@ extern "C" obj* lean_io_file_exists(obj*, obj*);
 obj* l_IO_Ref_get(obj*, obj*);
 obj* l_IO_getEnv___boxed(obj*, obj*);
 obj* l_IO_Prim_liftIO___boxed(obj*, obj*);
-namespace lean {
-obj* string_append(obj*, obj*);
-}
+extern "C" obj* lean_string_append(obj*, obj*);
 obj* l_IO_Ref_modify___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_IO_Ref_set(obj*, obj*);
 obj* l_IO_Ref_reset(obj*, obj*);
@@ -1306,7 +1304,7 @@ if (x_11 == 0)
 {
 obj* x_12; obj* x_13; 
 x_12 = lean::cnstr_get(x_10, 0);
-x_13 = lean::string_append(x_2, x_12);
+x_13 = lean_string_append(x_2, x_12);
 lean::dec(x_12);
 lean::cnstr_set(x_10, 0, x_9);
 x_2 = x_13;
@@ -1321,7 +1319,7 @@ x_16 = lean::cnstr_get(x_10, 1);
 lean::inc(x_16);
 lean::inc(x_15);
 lean::dec(x_10);
-x_17 = lean::string_append(x_2, x_15);
+x_17 = lean_string_append(x_2, x_15);
 lean::dec(x_15);
 x_18 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_18, 0, x_9);
@@ -1381,7 +1379,7 @@ if (lean::is_exclusive(x_27)) {
  lean::dec_ref(x_27);
  x_30 = lean::box(0);
 }
-x_31 = lean::string_append(x_2, x_28);
+x_31 = lean_string_append(x_2, x_28);
 lean::dec(x_28);
 if (lean::is_scalar(x_30)) {
  x_32 = lean::alloc_cnstr(0, 2, 0);
@@ -1639,7 +1637,7 @@ obj* l_IO_Prim_mkRef___boxed(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = lean::io_mk_ref(x_2, x_3);
+x_4 = lean_io_mk_ref(x_2, x_3);
 return x_4;
 }
 }
@@ -1647,7 +1645,7 @@ obj* l_IO_Prim_Ref_get___boxed(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = lean::io_ref_get(x_2, x_3);
+x_4 = lean_io_ref_get(x_2, x_3);
 return x_4;
 }
 }
@@ -1655,7 +1653,7 @@ obj* l_IO_Prim_Ref_set___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_5; 
-x_5 = lean::io_ref_set(x_2, x_3, x_4);
+x_5 = lean_io_ref_set(x_2, x_3, x_4);
 return x_5;
 }
 }
@@ -1663,7 +1661,7 @@ obj* l_IO_Prim_Ref_swap___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_5; 
-x_5 = lean::io_ref_swap(x_2, x_3, x_4);
+x_5 = lean_io_ref_swap(x_2, x_3, x_4);
 return x_5;
 }
 }
@@ -1671,7 +1669,7 @@ obj* l_IO_Prim_Ref_reset___boxed(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = lean::io_ref_reset(x_2, x_3);
+x_4 = lean_io_ref_reset(x_2, x_3);
 return x_4;
 }
 }

@@ -23,9 +23,7 @@ obj* l_bfix3___main___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix5___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix1___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_bfix2___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
-namespace lean {
-obj* nat_sub(obj*, obj*);
-}
+extern "C" obj* lean_nat_sub(obj*, obj*);
 obj* l_fix1___rarg(obj*, obj*, obj*);
 obj* l_bfix6(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix2(obj*, obj*, obj*);
@@ -56,9 +54,7 @@ obj* l_fix___rarg(obj*, obj*, obj*);
 obj* l_fix6___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fix6___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fixCore2(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-namespace lean {
-uint8 nat_dec_eq(obj*, obj*);
-}
+extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_fix5___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fix5(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fixCore___rarg(obj*, obj*, obj*);
@@ -102,12 +98,12 @@ _start:
 {
 obj* x_5; uint8 x_6; 
 x_5 = lean::mk_nat_obj(0u);
-x_6 = lean::nat_dec_eq(x_3, x_5);
+x_6 = lean_nat_dec_eq(x_3, x_5);
 if (x_6 == 0)
 {
 obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
 x_7 = lean::mk_nat_obj(1u);
-x_8 = lean::nat_sub(x_3, x_7);
+x_8 = lean_nat_sub(x_3, x_7);
 lean::inc(x_2);
 x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_bfix1___main___rarg___boxed), 4, 3);
 lean::closure_set(x_9, 0, x_1);
@@ -171,7 +167,7 @@ obj* l_fixCore1___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
 obj* x_6; 
-x_6 = lean::fixpoint(x_4, x_5);
+x_6 = lean_fixpoint(x_4, x_5);
 return x_6;
 }
 }
@@ -179,7 +175,7 @@ obj* l_fixCore___rarg(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = lean::fixpoint(x_2, x_3);
+x_4 = lean_fixpoint(x_2, x_3);
 return x_4;
 }
 }
@@ -213,7 +209,7 @@ _start:
 obj* x_4; obj* x_5; 
 x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_fix1___rarg___lambda__1___boxed), 2, 1);
 lean::closure_set(x_4, 0, x_1);
-x_5 = lean::fixpoint(x_2, x_3);
+x_5 = lean_fixpoint(x_2, x_3);
 lean::dec(x_4);
 return x_5;
 }
@@ -242,7 +238,7 @@ _start:
 obj* x_4; obj* x_5; 
 x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_fix1___rarg___lambda__1___boxed), 2, 1);
 lean::closure_set(x_4, 0, x_1);
-x_5 = lean::fixpoint(x_2, x_3);
+x_5 = lean_fixpoint(x_2, x_3);
 lean::dec(x_4);
 return x_5;
 }
@@ -260,12 +256,12 @@ _start:
 {
 obj* x_6; uint8 x_7; 
 x_6 = lean::mk_nat_obj(0u);
-x_7 = lean::nat_dec_eq(x_3, x_6);
+x_7 = lean_nat_dec_eq(x_3, x_6);
 if (x_7 == 0)
 {
 obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
 x_8 = lean::mk_nat_obj(1u);
-x_9 = lean::nat_sub(x_3, x_8);
+x_9 = lean_nat_sub(x_3, x_8);
 lean::inc(x_2);
 x_10 = lean::alloc_closure(reinterpret_cast<void*>(l_bfix2___main___rarg___boxed), 5, 3);
 lean::closure_set(x_10, 0, x_1);
@@ -329,7 +325,7 @@ obj* l_fixCore2___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x
 _start:
 {
 obj* x_8; 
-x_8 = lean::fixpoint2(x_5, x_6, x_7);
+x_8 = lean_fixpoint2(x_5, x_6, x_7);
 return x_8;
 }
 }
@@ -346,7 +342,7 @@ _start:
 obj* x_5; obj* x_6; 
 x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_fix2___rarg___lambda__1___boxed), 3, 1);
 lean::closure_set(x_5, 0, x_1);
-x_6 = lean::fixpoint2(x_2, x_3, x_4);
+x_6 = lean_fixpoint2(x_2, x_3, x_4);
 return x_6;
 }
 }
@@ -374,12 +370,12 @@ _start:
 {
 obj* x_7; uint8 x_8; 
 x_7 = lean::mk_nat_obj(0u);
-x_8 = lean::nat_dec_eq(x_3, x_7);
+x_8 = lean_nat_dec_eq(x_3, x_7);
 if (x_8 == 0)
 {
 obj* x_9; obj* x_10; obj* x_11; obj* x_12; 
 x_9 = lean::mk_nat_obj(1u);
-x_10 = lean::nat_sub(x_3, x_9);
+x_10 = lean_nat_sub(x_3, x_9);
 lean::inc(x_2);
 x_11 = lean::alloc_closure(reinterpret_cast<void*>(l_bfix3___main___rarg___boxed), 6, 3);
 lean::closure_set(x_11, 0, x_1);
@@ -443,7 +439,7 @@ obj* l_fixCore3___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x
 _start:
 {
 obj* x_10; 
-x_10 = lean::fixpoint3(x_6, x_7, x_8, x_9);
+x_10 = lean_fixpoint3(x_6, x_7, x_8, x_9);
 return x_10;
 }
 }
@@ -460,7 +456,7 @@ _start:
 obj* x_6; obj* x_7; 
 x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_fix3___rarg___lambda__1___boxed), 4, 1);
 lean::closure_set(x_6, 0, x_1);
-x_7 = lean::fixpoint3(x_2, x_3, x_4, x_5);
+x_7 = lean_fixpoint3(x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
@@ -489,12 +485,12 @@ _start:
 {
 obj* x_8; uint8 x_9; 
 x_8 = lean::mk_nat_obj(0u);
-x_9 = lean::nat_dec_eq(x_3, x_8);
+x_9 = lean_nat_dec_eq(x_3, x_8);
 if (x_9 == 0)
 {
 obj* x_10; obj* x_11; obj* x_12; obj* x_13; 
 x_10 = lean::mk_nat_obj(1u);
-x_11 = lean::nat_sub(x_3, x_10);
+x_11 = lean_nat_sub(x_3, x_10);
 lean::inc(x_2);
 x_12 = lean::alloc_closure(reinterpret_cast<void*>(l_bfix4___main___rarg___boxed), 7, 3);
 lean::closure_set(x_12, 0, x_1);
@@ -558,7 +554,7 @@ obj* l_fixCore4___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x
 _start:
 {
 obj* x_12; 
-x_12 = lean::fixpoint4(x_7, x_8, x_9, x_10, x_11);
+x_12 = lean_fixpoint4(x_7, x_8, x_9, x_10, x_11);
 return x_12;
 }
 }
@@ -575,7 +571,7 @@ _start:
 obj* x_7; obj* x_8; 
 x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_fix4___rarg___lambda__1___boxed), 5, 1);
 lean::closure_set(x_7, 0, x_1);
-x_8 = lean::fixpoint4(x_2, x_3, x_4, x_5, x_6);
+x_8 = lean_fixpoint4(x_2, x_3, x_4, x_5, x_6);
 return x_8;
 }
 }
@@ -605,12 +601,12 @@ _start:
 {
 obj* x_9; uint8 x_10; 
 x_9 = lean::mk_nat_obj(0u);
-x_10 = lean::nat_dec_eq(x_3, x_9);
+x_10 = lean_nat_dec_eq(x_3, x_9);
 if (x_10 == 0)
 {
 obj* x_11; obj* x_12; obj* x_13; obj* x_14; 
 x_11 = lean::mk_nat_obj(1u);
-x_12 = lean::nat_sub(x_3, x_11);
+x_12 = lean_nat_sub(x_3, x_11);
 lean::inc(x_2);
 x_13 = lean::alloc_closure(reinterpret_cast<void*>(l_bfix5___main___rarg___boxed), 8, 3);
 lean::closure_set(x_13, 0, x_1);
@@ -674,7 +670,7 @@ obj* l_fixCore5___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x
 _start:
 {
 obj* x_14; 
-x_14 = lean::fixpoint5(x_8, x_9, x_10, x_11, x_12, x_13);
+x_14 = lean_fixpoint5(x_8, x_9, x_10, x_11, x_12, x_13);
 return x_14;
 }
 }
@@ -691,7 +687,7 @@ _start:
 obj* x_8; obj* x_9; 
 x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_fix5___rarg___lambda__1___boxed), 6, 1);
 lean::closure_set(x_8, 0, x_1);
-x_9 = lean::fixpoint5(x_2, x_3, x_4, x_5, x_6, x_7);
+x_9 = lean_fixpoint5(x_2, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }
 }
@@ -722,12 +718,12 @@ _start:
 {
 obj* x_10; uint8 x_11; 
 x_10 = lean::mk_nat_obj(0u);
-x_11 = lean::nat_dec_eq(x_3, x_10);
+x_11 = lean_nat_dec_eq(x_3, x_10);
 if (x_11 == 0)
 {
 obj* x_12; obj* x_13; obj* x_14; obj* x_15; 
 x_12 = lean::mk_nat_obj(1u);
-x_13 = lean::nat_sub(x_3, x_12);
+x_13 = lean_nat_sub(x_3, x_12);
 lean::inc(x_2);
 x_14 = lean::alloc_closure(reinterpret_cast<void*>(l_bfix6___main___rarg___boxed), 9, 3);
 lean::closure_set(x_14, 0, x_1);
@@ -791,7 +787,7 @@ obj* l_fixCore6___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x
 _start:
 {
 obj* x_16; 
-x_16 = lean::fixpoint6(x_9, x_10, x_11, x_12, x_13, x_14, x_15);
+x_16 = lean_fixpoint6(x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 return x_16;
 }
 }
@@ -808,7 +804,7 @@ _start:
 obj* x_9; obj* x_10; 
 x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_fix6___rarg___lambda__1___boxed), 7, 1);
 lean::closure_set(x_9, 0, x_1);
-x_10 = lean::fixpoint6(x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+x_10 = lean_fixpoint6(x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
 }

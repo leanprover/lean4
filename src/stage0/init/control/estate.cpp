@@ -42,9 +42,7 @@ obj* l_EState_bind(obj*, obj*, obj*, obj*);
 extern obj* l_Except_toString___rarg___closed__2;
 obj* l_EState_modify(obj*, obj*);
 obj* l_EState_unreachableError___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-namespace lean {
-obj* string_append(obj*, obj*);
-}
+extern "C" obj* lean_string_append(obj*, obj*);
 obj* l_EState_Monad___closed__2;
 extern obj* l_Option_HasRepr___rarg___closed__3;
 obj* l_EState_HasOrelse___closed__1;
@@ -154,7 +152,7 @@ lean::inc(x_4);
 lean::dec(x_3);
 x_5 = lean::apply_1(x_2, x_4);
 x_6 = l_EState_Result_toString___rarg___closed__1;
-x_7 = lean::string_append(x_6, x_5);
+x_7 = lean_string_append(x_6, x_5);
 lean::dec(x_5);
 return x_7;
 }
@@ -167,7 +165,7 @@ lean::inc(x_8);
 lean::dec(x_3);
 x_9 = lean::apply_1(x_1, x_8);
 x_10 = l_EState_Result_toString___rarg___closed__2;
-x_11 = lean::string_append(x_10, x_9);
+x_11 = lean_string_append(x_10, x_9);
 lean::dec(x_9);
 return x_11;
 }
@@ -193,10 +191,10 @@ lean::inc(x_4);
 lean::dec(x_3);
 x_5 = lean::apply_1(x_2, x_4);
 x_6 = l_Except_toString___rarg___closed__2;
-x_7 = lean::string_append(x_6, x_5);
+x_7 = lean_string_append(x_6, x_5);
 lean::dec(x_5);
 x_8 = l_Option_HasRepr___rarg___closed__3;
-x_9 = lean::string_append(x_7, x_8);
+x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
 else
@@ -208,10 +206,10 @@ lean::inc(x_10);
 lean::dec(x_3);
 x_11 = lean::apply_1(x_1, x_10);
 x_12 = l_Except_toString___rarg___closed__1;
-x_13 = lean::string_append(x_12, x_11);
+x_13 = lean_string_append(x_12, x_11);
 lean::dec(x_11);
 x_14 = l_Option_HasRepr___rarg___closed__3;
-x_15 = lean::string_append(x_13, x_14);
+x_15 = lean_string_append(x_13, x_14);
 return x_15;
 }
 }

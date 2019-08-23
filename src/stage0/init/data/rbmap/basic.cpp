@@ -124,9 +124,7 @@ obj* l_RBNode_balance_u2083___rarg(obj*, obj*, obj*, obj*);
 obj* l_RBNode_findCore___boxed(obj*, obj*);
 obj* l_RBNode_balance2___rarg(obj*, obj*, obj*, obj*);
 obj* l_RBNode_mfold___rarg(obj*, obj*, obj*, obj*);
-namespace lean {
-obj* string_append(obj*, obj*);
-}
+extern "C" obj* lean_string_append(obj*, obj*);
 obj* l_RBMap_contains___rarg___boxed(obj*, obj*, obj*);
 obj* l_RBNode_fold___rarg(obj*, obj*, obj*);
 obj* l_RBNode_appendTrees___main(obj*, obj*);
@@ -151,9 +149,7 @@ obj* l_RBNode_appendTrees___main___rarg(obj*, obj*);
 obj* l_RBMap_maxDepth___rarg___boxed(obj*);
 obj* l_RBNode_revFold___main___at_RBMap_toList___spec__1___rarg(obj*, obj*);
 obj* l_RBNode_max___boxed(obj*, obj*);
-namespace lean {
-obj* nat_add(obj*, obj*);
-}
+extern "C" obj* lean_nat_add(obj*, obj*);
 obj* l_RBNode_del___boxed(obj*, obj*);
 obj* l_RBMap_HasEmptyc___boxed(obj*, obj*, obj*);
 obj* l_RBMap_HasRepr___rarg___boxed(obj*, obj*, obj*);
@@ -283,7 +279,7 @@ lean::inc(x_1);
 x_7 = l_RBNode_depth___main___rarg(x_1, x_5);
 x_8 = lean::apply_2(x_1, x_6, x_7);
 x_9 = lean::mk_nat_obj(1u);
-x_10 = lean::nat_add(x_8, x_9);
+x_10 = lean_nat_add(x_8, x_9);
 lean::dec(x_8);
 return x_10;
 }
@@ -23778,18 +23774,18 @@ lean::inc(x_10);
 lean::dec(x_6);
 x_11 = lean::apply_1(x_1, x_9);
 x_12 = l_Prod_HasRepr___rarg___closed__1;
-x_13 = lean::string_append(x_12, x_11);
+x_13 = lean_string_append(x_12, x_11);
 lean::dec(x_11);
 x_14 = l_List_reprAux___main___rarg___closed__1;
-x_15 = lean::string_append(x_13, x_14);
+x_15 = lean_string_append(x_13, x_14);
 x_16 = lean::apply_1(x_2, x_10);
-x_17 = lean::string_append(x_15, x_16);
+x_17 = lean_string_append(x_15, x_16);
 lean::dec(x_16);
 x_18 = l_Option_HasRepr___rarg___closed__3;
-x_19 = lean::string_append(x_17, x_18);
-x_20 = lean::string_append(x_14, x_19);
+x_19 = lean_string_append(x_17, x_18);
+x_20 = lean_string_append(x_14, x_19);
 lean::dec(x_19);
-x_21 = lean::string_append(x_20, x_8);
+x_21 = lean_string_append(x_20, x_8);
 lean::dec(x_8);
 return x_21;
 }
@@ -23823,16 +23819,16 @@ lean::inc(x_28);
 lean::dec(x_23);
 x_29 = lean::apply_1(x_1, x_27);
 x_30 = l_Prod_HasRepr___rarg___closed__1;
-x_31 = lean::string_append(x_30, x_29);
+x_31 = lean_string_append(x_30, x_29);
 lean::dec(x_29);
 x_32 = l_List_reprAux___main___rarg___closed__1;
-x_33 = lean::string_append(x_31, x_32);
+x_33 = lean_string_append(x_31, x_32);
 x_34 = lean::apply_1(x_2, x_28);
-x_35 = lean::string_append(x_33, x_34);
+x_35 = lean_string_append(x_33, x_34);
 lean::dec(x_34);
 x_36 = l_Option_HasRepr___rarg___closed__3;
-x_37 = lean::string_append(x_35, x_36);
-x_38 = lean::string_append(x_37, x_26);
+x_37 = lean_string_append(x_35, x_36);
+x_38 = lean_string_append(x_37, x_26);
 lean::dec(x_26);
 return x_38;
 }
@@ -23864,10 +23860,10 @@ uint8 x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10;
 x_5 = 1;
 x_6 = l_List_reprAux___main___at_RBMap_HasRepr___spec__2___rarg(x_1, x_2, x_5, x_3);
 x_7 = l_List_repr___rarg___closed__2;
-x_8 = lean::string_append(x_7, x_6);
+x_8 = lean_string_append(x_7, x_6);
 lean::dec(x_6);
 x_9 = l_List_repr___rarg___closed__3;
-x_10 = lean::string_append(x_8, x_9);
+x_10 = lean_string_append(x_8, x_9);
 return x_10;
 }
 }
@@ -23895,7 +23891,7 @@ obj* x_4; obj* x_5; obj* x_6; obj* x_7;
 x_4 = l_RBMap_toList___rarg(x_3);
 x_5 = l_List_repr___at_RBMap_HasRepr___spec__1___rarg(x_1, x_2, x_4);
 x_6 = l_RBMap_HasRepr___rarg___closed__1;
-x_7 = lean::string_append(x_6, x_5);
+x_7 = lean_string_append(x_6, x_5);
 lean::dec(x_5);
 return x_7;
 }
@@ -24244,7 +24240,7 @@ x_3 = lean::cnstr_get(x_2, 0);
 x_4 = lean::cnstr_get(x_2, 3);
 x_5 = l_RBNode_fold___main___at_RBMap_size___spec__1___rarg(x_1, x_3);
 x_6 = lean::mk_nat_obj(1u);
-x_7 = lean::nat_add(x_5, x_6);
+x_7 = lean_nat_add(x_5, x_6);
 lean::dec(x_5);
 x_1 = x_7;
 x_2 = x_4;

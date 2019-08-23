@@ -17,18 +17,12 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 obj* l_String_Hashable___closed__1;
 obj* l_String_Hashable;
 usize l_Nat_hash(obj*);
-namespace lean {
-usize string_hash(obj*);
-}
+extern "C" usize lean_string_hash(obj*);
 obj* l_String_hash___boxed(obj*);
 obj* l_Nat_Hashable;
 obj* l_mixHash___boxed(obj*, obj*);
-namespace lean {
-usize usize_mix_hash(usize, usize);
-}
-namespace lean {
-usize usize_of_nat(obj*);
-}
+extern "C" usize lean_usize_mix_hash(usize, usize);
+extern "C" usize lean_usize_of_nat(obj*);
 obj* l_Nat_hash___boxed(obj*);
 obj* l_Nat_Hashable___closed__1;
 obj* l_mixHash___boxed(obj* x_1, obj* x_2) {
@@ -37,7 +31,7 @@ _start:
 usize x_3; usize x_4; usize x_5; obj* x_6; 
 x_3 = lean::unbox_size_t(x_1);
 x_4 = lean::unbox_size_t(x_2);
-x_5 = lean::usize_mix_hash(x_3, x_4);
+x_5 = lean_usize_mix_hash(x_3, x_4);
 x_6 = lean::box_size_t(x_5);
 return x_6;
 }
@@ -46,7 +40,7 @@ obj* l_String_hash___boxed(obj* x_1) {
 _start:
 {
 usize x_2; obj* x_3; 
-x_2 = lean::string_hash(x_1);
+x_2 = lean_string_hash(x_1);
 x_3 = lean::box_size_t(x_2);
 return x_3;
 }
@@ -71,7 +65,7 @@ usize l_Nat_hash(obj* x_1) {
 _start:
 {
 usize x_2; 
-x_2 = lean::usize_of_nat(x_1);
+x_2 = lean_usize_of_nat(x_1);
 return x_2;
 }
 }

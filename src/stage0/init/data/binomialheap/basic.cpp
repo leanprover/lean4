@@ -43,22 +43,16 @@ obj* l_BinomialHeapImp_singleton(obj*);
 obj* l_BinomialHeap_head___rarg(obj*, obj*, obj*);
 obj* l_BinomialHeap_insert(obj*);
 obj* l_BinomialHeapImp_findMin(obj*);
-namespace lean {
-uint8 nat_dec_lt(obj*, obj*);
-}
+extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_BinomialHeapImp_mergeNodes___main(obj*);
 obj* l_List_foldl___main___at_BinomialHeapImp_tail___spec__1___rarg(obj*, obj*, obj*);
 obj* l_BinomialHeap_toList(obj*);
 obj* l_List_append___rarg(obj*, obj*);
 obj* l_BinomialHeapImp_toList(obj*);
 obj* l_BinomialHeap_empty(obj*, obj*);
-namespace lean {
-obj* nat_add(obj*, obj*);
-}
+extern "C" obj* lean_nat_add(obj*, obj*);
 obj* l_BinomialHeap_singleton(obj*, obj*);
-namespace lean {
-uint8 nat_dec_eq(obj*, obj*);
-}
+extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_BinomialHeap_merge___rarg(obj*, obj*, obj*);
 uint8 l_BinomialHeapImp_isEmpty___rarg(obj*);
 obj* l_List_foldl___main___at_BinomialHeapImp_tail___spec__2___rarg(obj*, obj*, obj*);
@@ -232,7 +226,7 @@ lean::dec(x_14);
 x_15 = lean::cnstr_get(x_2, 0);
 lean::dec(x_15);
 x_16 = lean::mk_nat_obj(1u);
-x_17 = lean::nat_add(x_8, x_16);
+x_17 = lean_nat_add(x_8, x_16);
 lean::dec(x_8);
 x_18 = lean::box(0);
 x_19 = lean::alloc_cnstr(1, 2, 0);
@@ -253,7 +247,7 @@ else
 obj* x_23; obj* x_24; obj* x_25; obj* x_26; obj* x_27; obj* x_28; obj* x_29; obj* x_30; 
 lean::dec(x_2);
 x_23 = lean::mk_nat_obj(1u);
-x_24 = lean::nat_add(x_8, x_23);
+x_24 = lean_nat_add(x_8, x_23);
 lean::dec(x_8);
 x_25 = lean::box(0);
 x_26 = lean::alloc_cnstr(1, 2, 0);
@@ -289,7 +283,7 @@ lean::dec(x_33);
 x_34 = lean::cnstr_get(x_3, 0);
 lean::dec(x_34);
 x_35 = lean::mk_nat_obj(1u);
-x_36 = lean::nat_add(x_5, x_35);
+x_36 = lean_nat_add(x_5, x_35);
 lean::dec(x_5);
 x_37 = lean::box(0);
 x_38 = lean::alloc_cnstr(1, 2, 0);
@@ -310,7 +304,7 @@ else
 obj* x_42; obj* x_43; obj* x_44; obj* x_45; obj* x_46; obj* x_47; obj* x_48; obj* x_49; 
 lean::dec(x_3);
 x_42 = lean::mk_nat_obj(1u);
-x_43 = lean::nat_add(x_5, x_42);
+x_43 = lean_nat_add(x_5, x_42);
 lean::dec(x_5);
 x_44 = lean::box(0);
 x_45 = lean::alloc_cnstr(1, 2, 0);
@@ -369,7 +363,7 @@ x_8 = lean::cnstr_get(x_4, 1);
 lean::inc(x_8);
 x_9 = lean::cnstr_get(x_6, 1);
 lean::inc(x_9);
-x_10 = lean::nat_dec_lt(x_8, x_9);
+x_10 = lean_nat_dec_lt(x_8, x_9);
 if (x_10 == 0)
 {
 uint8 x_11; 
@@ -381,7 +375,7 @@ x_12 = lean::cnstr_get(x_3, 1);
 lean::dec(x_12);
 x_13 = lean::cnstr_get(x_3, 0);
 lean::dec(x_13);
-x_14 = lean::nat_dec_lt(x_9, x_8);
+x_14 = lean_nat_dec_lt(x_9, x_8);
 lean::dec(x_8);
 lean::dec(x_9);
 if (x_14 == 0)
@@ -393,13 +387,13 @@ x_15 = l_BinomialHeapImp_combine___rarg(x_1, x_4, x_6);
 x_16 = lean::cnstr_get(x_15, 1);
 lean::inc(x_16);
 x_17 = l_BinomialHeapImp_hRank___rarg(x_5);
-x_18 = lean::nat_dec_eq(x_16, x_17);
+x_18 = lean_nat_dec_eq(x_16, x_17);
 lean::dec(x_17);
 if (x_18 == 0)
 {
 obj* x_19; uint8 x_20; 
 x_19 = l_BinomialHeapImp_hRank___rarg(x_7);
-x_20 = lean::nat_dec_eq(x_16, x_19);
+x_20 = lean_nat_dec_eq(x_16, x_19);
 lean::dec(x_19);
 lean::dec(x_16);
 if (x_20 == 0)
@@ -423,7 +417,7 @@ else
 {
 obj* x_23; uint8 x_24; 
 x_23 = l_BinomialHeapImp_hRank___rarg(x_7);
-x_24 = lean::nat_dec_eq(x_16, x_23);
+x_24 = lean_nat_dec_eq(x_16, x_23);
 lean::dec(x_23);
 lean::dec(x_16);
 if (x_24 == 0)
@@ -456,7 +450,7 @@ else
 {
 uint8 x_28; 
 lean::dec(x_3);
-x_28 = lean::nat_dec_lt(x_9, x_8);
+x_28 = lean_nat_dec_lt(x_9, x_8);
 lean::dec(x_8);
 lean::dec(x_9);
 if (x_28 == 0)
@@ -468,13 +462,13 @@ x_29 = l_BinomialHeapImp_combine___rarg(x_1, x_4, x_6);
 x_30 = lean::cnstr_get(x_29, 1);
 lean::inc(x_30);
 x_31 = l_BinomialHeapImp_hRank___rarg(x_5);
-x_32 = lean::nat_dec_eq(x_30, x_31);
+x_32 = lean_nat_dec_eq(x_30, x_31);
 lean::dec(x_31);
 if (x_32 == 0)
 {
 obj* x_33; uint8 x_34; 
 x_33 = l_BinomialHeapImp_hRank___rarg(x_7);
-x_34 = lean::nat_dec_eq(x_30, x_33);
+x_34 = lean_nat_dec_eq(x_30, x_33);
 lean::dec(x_33);
 lean::dec(x_30);
 if (x_34 == 0)
@@ -501,7 +495,7 @@ else
 {
 obj* x_39; uint8 x_40; 
 x_39 = l_BinomialHeapImp_hRank___rarg(x_7);
-x_40 = lean::nat_dec_eq(x_30, x_39);
+x_40 = lean_nat_dec_eq(x_30, x_39);
 lean::dec(x_39);
 lean::dec(x_30);
 if (x_40 == 0)
@@ -929,7 +923,7 @@ if (x_11 == 0)
 obj* x_12; obj* x_13; 
 lean::dec(x_5);
 x_12 = lean::mk_nat_obj(1u);
-x_13 = lean::nat_add(x_3, x_12);
+x_13 = lean_nat_add(x_3, x_12);
 lean::dec(x_3);
 x_2 = x_6;
 x_3 = x_13;
@@ -947,7 +941,7 @@ lean::dec(x_16);
 x_17 = lean::cnstr_get(x_4, 0);
 lean::dec(x_17);
 x_18 = lean::mk_nat_obj(1u);
-x_19 = lean::nat_add(x_3, x_18);
+x_19 = lean_nat_add(x_3, x_18);
 lean::cnstr_set(x_4, 1, x_3);
 lean::cnstr_set(x_4, 0, x_5);
 x_2 = x_6;
@@ -959,7 +953,7 @@ else
 obj* x_21; obj* x_22; obj* x_23; 
 lean::dec(x_4);
 x_21 = lean::mk_nat_obj(1u);
-x_22 = lean::nat_add(x_3, x_21);
+x_22 = lean_nat_add(x_3, x_21);
 x_23 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_23, 0, x_5);
 lean::cnstr_set(x_23, 1, x_3);

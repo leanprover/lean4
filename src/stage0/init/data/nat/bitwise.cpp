@@ -17,53 +17,41 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 obj* l_Nat_bitwise___boxed(obj*, obj*, obj*);
 obj* l_Nat_bitwise___main(obj*, obj*, obj*);
 obj* l_Nat_bitwise___main___boxed(obj*, obj*, obj*);
-namespace lean {
-obj* nat_mod(obj*, obj*);
-}
-namespace lean {
-obj* nat_add(obj*, obj*);
-}
+extern "C" obj* lean_nat_mod(obj*, obj*);
+extern "C" obj* lean_nat_add(obj*, obj*);
 obj* l_Nat_land___boxed(obj*, obj*);
-namespace lean {
-uint8 nat_dec_eq(obj*, obj*);
-}
+extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Nat_bitwise(obj*, obj*, obj*);
-namespace lean {
-obj* nat_land(obj*, obj*);
-}
+extern "C" obj* lean_nat_land(obj*, obj*);
 obj* l_Nat_lor___boxed(obj*, obj*);
-namespace lean {
-obj* nat_div(obj*, obj*);
-}
-namespace lean {
-obj* nat_lor(obj*, obj*);
-}
+extern "C" obj* lean_nat_div(obj*, obj*);
+extern "C" obj* lean_nat_lor(obj*, obj*);
 obj* l_Nat_bitwise___main(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; uint8 x_5; 
 x_4 = lean::mk_nat_obj(0u);
-x_5 = lean::nat_dec_eq(x_2, x_4);
+x_5 = lean_nat_dec_eq(x_2, x_4);
 if (x_5 == 0)
 {
 uint8 x_6; 
-x_6 = lean::nat_dec_eq(x_3, x_4);
+x_6 = lean_nat_dec_eq(x_3, x_4);
 if (x_6 == 0)
 {
 obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; uint8 x_13; obj* x_14; uint8 x_15; obj* x_16; obj* x_17; obj* x_18; uint8 x_19; 
 x_7 = lean::mk_nat_obj(2u);
-x_8 = lean::nat_div(x_2, x_7);
-x_9 = lean::nat_div(x_3, x_7);
+x_8 = lean_nat_div(x_2, x_7);
+x_9 = lean_nat_div(x_3, x_7);
 lean::inc(x_1);
 x_10 = l_Nat_bitwise___main(x_1, x_8, x_9);
 lean::dec(x_9);
 lean::dec(x_8);
-x_11 = lean::nat_mod(x_2, x_7);
+x_11 = lean_nat_mod(x_2, x_7);
 x_12 = lean::mk_nat_obj(1u);
-x_13 = lean::nat_dec_eq(x_11, x_12);
+x_13 = lean_nat_dec_eq(x_11, x_12);
 lean::dec(x_11);
-x_14 = lean::nat_mod(x_3, x_7);
-x_15 = lean::nat_dec_eq(x_14, x_12);
+x_14 = lean_nat_mod(x_3, x_7);
+x_15 = lean_nat_dec_eq(x_14, x_12);
 lean::dec(x_14);
 x_16 = lean::box(x_13);
 x_17 = lean::box(x_15);
@@ -73,16 +61,16 @@ lean::dec(x_18);
 if (x_19 == 0)
 {
 obj* x_20; 
-x_20 = lean::nat_add(x_10, x_10);
+x_20 = lean_nat_add(x_10, x_10);
 lean::dec(x_10);
 return x_20;
 }
 else
 {
 obj* x_21; obj* x_22; 
-x_21 = lean::nat_add(x_10, x_10);
+x_21 = lean_nat_add(x_10, x_10);
 lean::dec(x_10);
-x_22 = lean::nat_add(x_21, x_12);
+x_22 = lean_nat_add(x_21, x_12);
 lean::dec(x_21);
 return x_22;
 }
@@ -166,7 +154,7 @@ obj* l_Nat_land___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = lean::nat_land(x_1, x_2);
+x_3 = lean_nat_land(x_1, x_2);
 return x_3;
 }
 }
@@ -174,7 +162,7 @@ obj* l_Nat_lor___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = lean::nat_lor(x_1, x_2);
+x_3 = lean_nat_lor(x_1, x_2);
 return x_3;
 }
 }

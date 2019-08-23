@@ -18,9 +18,7 @@ obj* l_Array_ummapAux___main___at_Lean_IR_FnBody_elimDead___main___spec__2(obj*,
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_setBody(obj*, obj*);
 extern obj* l_Array_empty___closed__1;
-namespace lean {
-obj* nat_sub(obj*, obj*);
-}
+extern "C" obj* lean_nat_sub(obj*, obj*);
 obj* l_Lean_IR_reshapeWithoutDead(obj*, obj*);
 obj* l_Lean_IR_FnBody_freeIndices(obj*);
 obj* l_Array_back___at_Lean_IR_reshapeWithoutDeadAux___main___spec__1(obj*);
@@ -29,15 +27,11 @@ obj* l_Array_back___at_Lean_IR_reshapeWithoutDeadAux___main___spec__1___boxed(ob
 obj* l_Lean_IR_FnBody_elimDead___main(obj*);
 obj* l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_14__collectIndex___spec__1(obj*, obj*);
 obj* l_Lean_IR_reshapeWithoutDeadAux___main(obj*, obj*, obj*);
-namespace lean {
-uint8 nat_dec_lt(obj*, obj*);
-}
+extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_Lean_IR_Decl_elimDead(obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_flatten(obj*);
-namespace lean {
-obj* nat_add(obj*, obj*);
-}
+extern "C" obj* lean_nat_add(obj*, obj*);
 uint8 l_Array_isEmpty___rarg(obj*);
 obj* l_Lean_IR_FnBody_collectFreeIndices(obj*, obj*);
 obj* l_Array_pop(obj*, obj*);
@@ -51,12 +45,12 @@ obj* l_Array_back___at_Lean_IR_reshapeWithoutDeadAux___main___spec__1(obj* x_1) 
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
-x_2 = lean::array_get_size(x_1);
+x_2 = lean_array_get_size(x_1);
 x_3 = lean::mk_nat_obj(1u);
-x_4 = lean::nat_sub(x_2, x_3);
+x_4 = lean_nat_sub(x_2, x_3);
 lean::dec(x_2);
 x_5 = l_Lean_IR_Inhabited;
-x_6 = lean::array_get(x_5, x_1, x_4);
+x_6 = lean_array_get(x_5, x_1, x_4);
 lean::dec(x_4);
 return x_6;
 }
@@ -70,7 +64,7 @@ if (x_4 == 0)
 {
 obj* x_5; obj* x_6; obj* x_7; obj* x_12; 
 x_5 = l_Array_back___at_Lean_IR_reshapeWithoutDeadAux___main___spec__1(x_1);
-x_6 = lean::array_pop(x_1);
+x_6 = lean_array_pop(x_1);
 switch (lean::obj_tag(x_5)) {
 case 0:
 {
@@ -168,8 +162,8 @@ obj* l_Array_ummapAux___main___at_Lean_IR_FnBody_elimDead___main___spec__1(obj* 
 _start:
 {
 obj* x_3; uint8 x_4; 
-x_3 = lean::array_get_size(x_2);
-x_4 = lean::nat_dec_lt(x_1, x_3);
+x_3 = lean_array_get_size(x_2);
+x_4 = lean_nat_dec_lt(x_1, x_3);
 lean::dec(x_3);
 if (x_4 == 0)
 {
@@ -182,13 +176,13 @@ return x_6;
 else
 {
 obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; 
-x_7 = lean::array_fget(x_2, x_1);
+x_7 = lean_array_fget(x_2, x_1);
 x_8 = lean::box(0);
 lean::inc(x_7);
 x_9 = x_8;
-x_10 = lean::array_fset(x_2, x_1, x_9);
+x_10 = lean_array_fset(x_2, x_1, x_9);
 x_11 = lean::mk_nat_obj(1u);
-x_12 = lean::nat_add(x_1, x_11);
+x_12 = lean_nat_add(x_1, x_11);
 if (lean::obj_tag(x_7) == 1)
 {
 obj* x_18; obj* x_19; obj* x_20; obj* x_21; obj* x_22; obj* x_23; 
@@ -219,7 +213,7 @@ block_17:
 {
 obj* x_14; obj* x_15; 
 x_14 = x_13;
-x_15 = lean::array_fset(x_10, x_1, x_14);
+x_15 = lean_array_fset(x_10, x_1, x_14);
 lean::dec(x_1);
 x_1 = x_12;
 x_2 = x_15;
@@ -232,8 +226,8 @@ obj* l_Array_ummapAux___main___at_Lean_IR_FnBody_elimDead___main___spec__2(obj* 
 _start:
 {
 obj* x_3; uint8 x_4; 
-x_3 = lean::array_get_size(x_2);
-x_4 = lean::nat_dec_lt(x_1, x_3);
+x_3 = lean_array_get_size(x_2);
+x_4 = lean_nat_dec_lt(x_1, x_3);
 lean::dec(x_3);
 if (x_4 == 0)
 {
@@ -246,13 +240,13 @@ return x_6;
 else
 {
 obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; 
-x_7 = lean::array_fget(x_2, x_1);
+x_7 = lean_array_fget(x_2, x_1);
 x_8 = lean::box(0);
 lean::inc(x_7);
 x_9 = x_8;
-x_10 = lean::array_fset(x_2, x_1, x_9);
+x_10 = lean_array_fset(x_2, x_1, x_9);
 x_11 = lean::mk_nat_obj(1u);
-x_12 = lean::nat_add(x_1, x_11);
+x_12 = lean_nat_add(x_1, x_11);
 if (lean::obj_tag(x_7) == 0)
 {
 obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; obj* x_18; 
@@ -265,7 +259,7 @@ x_16 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_16, 0, x_13);
 lean::cnstr_set(x_16, 1, x_15);
 x_17 = x_16;
-x_18 = lean::array_fset(x_10, x_1, x_17);
+x_18 = lean_array_fset(x_10, x_1, x_17);
 lean::dec(x_1);
 x_1 = x_12;
 x_2 = x_18;
@@ -280,7 +274,7 @@ x_21 = l_Lean_IR_FnBody_elimDead___main(x_20);
 x_22 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_22, 0, x_21);
 x_23 = x_22;
-x_24 = lean::array_fset(x_10, x_1, x_23);
+x_24 = lean_array_fset(x_10, x_1, x_23);
 lean::dec(x_1);
 x_1 = x_12;
 x_2 = x_24;

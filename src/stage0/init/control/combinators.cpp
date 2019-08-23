@@ -20,9 +20,7 @@ obj* l_List_mmap(obj*);
 obj* l_Nat_mforAux___boxed(obj*);
 obj* l_List_mforall___main(obj*);
 obj* l_mcond___boxed(obj*);
-namespace lean {
-obj* nat_sub(obj*, obj*);
-}
+extern "C" obj* lean_nat_sub(obj*, obj*);
 obj* l_List_mexists___main(obj*);
 obj* l_unless___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_List_mfilter___main___rarg___lambda__2___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -64,9 +62,7 @@ obj* l_List_mforall___main___boxed(obj*);
 obj* l_List_mforall___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_unless___rarg(obj*, obj*, uint8, obj*);
 obj* l_List_mfoldr___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
-namespace lean {
-uint8 nat_dec_eq(obj*, obj*);
-}
+extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Nat_mfoldAux___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Nat_mfor(obj*);
 obj* l_List_mmap___main(obj*);
@@ -388,16 +384,16 @@ _start:
 {
 obj* x_5; uint8 x_6; 
 x_5 = lean::mk_nat_obj(0u);
-x_6 = lean::nat_dec_eq(x_4, x_5);
+x_6 = lean_nat_dec_eq(x_4, x_5);
 if (x_6 == 0)
 {
 obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; 
 x_7 = lean::mk_nat_obj(1u);
-x_8 = lean::nat_sub(x_4, x_7);
+x_8 = lean_nat_sub(x_4, x_7);
 x_9 = lean::cnstr_get(x_1, 4);
 lean::inc(x_9);
-x_10 = lean::nat_sub(x_3, x_8);
-x_11 = lean::nat_sub(x_10, x_7);
+x_10 = lean_nat_sub(x_3, x_8);
+x_11 = lean_nat_sub(x_10, x_7);
 lean::dec(x_10);
 lean::inc(x_2);
 x_12 = lean::apply_1(x_2, x_11);
@@ -520,16 +516,16 @@ _start:
 {
 obj* x_6; uint8 x_7; 
 x_6 = lean::mk_nat_obj(0u);
-x_7 = lean::nat_dec_eq(x_4, x_6);
+x_7 = lean_nat_dec_eq(x_4, x_6);
 if (x_7 == 0)
 {
 obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; 
 x_8 = lean::mk_nat_obj(1u);
-x_9 = lean::nat_sub(x_4, x_8);
+x_9 = lean_nat_sub(x_4, x_8);
 x_10 = lean::cnstr_get(x_1, 1);
 lean::inc(x_10);
-x_11 = lean::nat_sub(x_3, x_9);
-x_12 = lean::nat_sub(x_11, x_8);
+x_11 = lean_nat_sub(x_3, x_9);
+x_12 = lean_nat_sub(x_11, x_8);
 lean::dec(x_11);
 lean::inc(x_2);
 x_13 = lean::apply_2(x_2, x_12, x_5);

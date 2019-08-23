@@ -31,9 +31,7 @@ obj* l_Char_toNat(uint32);
 uint8 l_UInt32_decLe(uint32, uint32);
 uint32 l_Char_ofNat(obj*);
 uint8 l_Char_isUpper(uint32);
-namespace lean {
-obj* nat_add(obj*, obj*);
-}
+extern "C" obj* lean_nat_add(obj*, obj*);
 uint8 l_UInt32_decLt(uint32, uint32);
 uint8 l_UInt32_decEq(uint32, uint32);
 obj* l_Char_isWhitespace___boxed(obj*);
@@ -48,16 +46,10 @@ uint8 l_Char_isWhitespace(uint32);
 obj* l_Char_HasSizeof(uint32);
 obj* l_Char_isAlphanum___boxed(obj*);
 uint32 l_Char_utf8Size(uint32);
-namespace lean {
-uint32 uint32_of_nat(obj*);
-}
-namespace lean {
-uint8 nat_dec_le(obj*, obj*);
-}
+extern "C" uint32 lean_uint32_of_nat(obj*);
+extern "C" uint8 lean_nat_dec_le(obj*, obj*);
 uint32 l_Char_toLower(uint32);
-namespace lean {
-obj* uint32_to_nat(uint32);
-}
+extern "C" obj* lean_uint32_to_nat(uint32);
 obj* l_Char_isLower___boxed(obj*);
 obj* l_Char_HasSizeof___boxed(obj*);
 uint8 l_Char_DecidableEq(uint32, uint32);
@@ -67,7 +59,7 @@ obj* l_Char_HasSizeof(uint32 x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::uint32_to_nat(x_1);
+x_2 = lean_uint32_to_nat(x_1);
 return x_2;
 }
 }
@@ -266,7 +258,7 @@ uint32 l_Char_ofNat(obj* x_1) {
 _start:
 {
 uint32 x_2; uint32 x_3; uint8 x_4; 
-x_2 = lean::uint32_of_nat(x_1);
+x_2 = lean_uint32_of_nat(x_1);
 x_3 = 55296;
 x_4 = x_2 < x_3;
 if (x_4 == 0)
@@ -317,7 +309,7 @@ obj* l_Char_toNat(uint32 x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::uint32_to_nat(x_1);
+x_2 = lean_uint32_to_nat(x_1);
 return x_2;
 }
 }
@@ -586,9 +578,9 @@ uint32 l_Char_toLower(uint32 x_1) {
 _start:
 {
 obj* x_2; obj* x_3; uint8 x_4; 
-x_2 = lean::uint32_to_nat(x_1);
+x_2 = lean_uint32_to_nat(x_1);
 x_3 = lean::mk_nat_obj(65u);
-x_4 = lean::nat_dec_le(x_3, x_2);
+x_4 = lean_nat_dec_le(x_3, x_2);
 if (x_4 == 0)
 {
 lean::dec(x_2);
@@ -598,7 +590,7 @@ else
 {
 obj* x_5; uint8 x_6; 
 x_5 = lean::mk_nat_obj(90u);
-x_6 = lean::nat_dec_le(x_2, x_5);
+x_6 = lean_nat_dec_le(x_2, x_5);
 if (x_6 == 0)
 {
 lean::dec(x_2);
@@ -608,7 +600,7 @@ else
 {
 obj* x_7; obj* x_8; uint32 x_9; 
 x_7 = lean::mk_nat_obj(32u);
-x_8 = lean::nat_add(x_2, x_7);
+x_8 = lean_nat_add(x_2, x_7);
 lean::dec(x_2);
 x_9 = l_Char_ofNat(x_8);
 lean::dec(x_8);

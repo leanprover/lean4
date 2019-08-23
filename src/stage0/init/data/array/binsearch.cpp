@@ -15,9 +15,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_Array_binSearch___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
-namespace lean {
-obj* nat_sub(obj*, obj*);
-}
+extern "C" obj* lean_nat_sub(obj*, obj*);
 uint8 l_Array_binSearchContains___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_binSearchAux___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_binSearchAux___main___at_Array_binSearchContains___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -28,23 +26,15 @@ obj* l_Array_binSearchAux___main___at_Array_binSearch___spec__1___rarg(obj*, obj
 obj* l_Array_binSearchContains___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_binSearch(obj*);
 obj* l_Array_binSearchAux___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-namespace lean {
-obj* nat_add(obj*, obj*);
-}
-namespace lean {
-uint8 nat_dec_eq(obj*, obj*);
-}
+extern "C" obj* lean_nat_add(obj*, obj*);
+extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Array_binSearchContains(obj*);
 obj* l_Array_binSearchAux___main___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_binSearchAux(obj*, obj*);
 obj* l_Array_get(obj*, obj*, obj*, obj*);
-namespace lean {
-uint8 nat_dec_le(obj*, obj*);
-}
+extern "C" uint8 lean_nat_dec_le(obj*, obj*);
 obj* l_Array_binSearchAux___main___at_Array_binSearch___spec__1(obj*);
-namespace lean {
-obj* nat_div(obj*, obj*);
-}
+extern "C" obj* lean_nat_div(obj*, obj*);
 obj* l_Array_binSearchAux___main___at_Array_binSearchContains___spec__1(obj*);
 obj* l_Array_binSearchAux___main(obj*, obj*);
 obj* l_Array_binSearchAux___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -52,7 +42,7 @@ obj* l_Array_binSearchAux___main___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, 
 _start:
 {
 uint8 x_9; 
-x_9 = lean::nat_dec_le(x_7, x_8);
+x_9 = lean_nat_dec_le(x_7, x_8);
 if (x_9 == 0)
 {
 obj* x_10; obj* x_11; 
@@ -68,12 +58,12 @@ return x_11;
 else
 {
 obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; uint8 x_17; 
-x_12 = lean::nat_add(x_7, x_8);
+x_12 = lean_nat_add(x_7, x_8);
 x_13 = lean::mk_nat_obj(2u);
-x_14 = lean::nat_div(x_12, x_13);
+x_14 = lean_nat_div(x_12, x_13);
 lean::dec(x_12);
 lean::inc(x_1);
-x_15 = lean::array_get(x_1, x_5, x_14);
+x_15 = lean_array_get(x_1, x_5, x_14);
 lean::inc(x_3);
 lean::inc(x_6);
 lean::inc(x_15);
@@ -108,12 +98,12 @@ else
 obj* x_22; uint8 x_23; 
 lean::dec(x_15);
 x_22 = lean::mk_nat_obj(0u);
-x_23 = lean::nat_dec_eq(x_14, x_22);
+x_23 = lean_nat_dec_eq(x_14, x_22);
 if (x_23 == 0)
 {
 obj* x_24; obj* x_25; 
 x_24 = lean::mk_nat_obj(1u);
-x_25 = lean::nat_sub(x_14, x_24);
+x_25 = lean_nat_sub(x_14, x_24);
 lean::dec(x_14);
 x_8 = x_25;
 goto _start;
@@ -138,7 +128,7 @@ obj* x_29; obj* x_30;
 lean::dec(x_15);
 lean::dec(x_7);
 x_29 = lean::mk_nat_obj(1u);
-x_30 = lean::nat_add(x_14, x_29);
+x_30 = lean_nat_add(x_14, x_29);
 lean::dec(x_14);
 x_7 = x_30;
 goto _start;
@@ -194,7 +184,7 @@ obj* l_Array_binSearchAux___main___at_Array_binSearch___spec__1___rarg(obj* x_1,
 _start:
 {
 uint8 x_7; 
-x_7 = lean::nat_dec_le(x_5, x_6);
+x_7 = lean_nat_dec_le(x_5, x_6);
 if (x_7 == 0)
 {
 obj* x_8; 
@@ -209,12 +199,12 @@ return x_8;
 else
 {
 obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; uint8 x_14; 
-x_9 = lean::nat_add(x_5, x_6);
+x_9 = lean_nat_add(x_5, x_6);
 x_10 = lean::mk_nat_obj(2u);
-x_11 = lean::nat_div(x_9, x_10);
+x_11 = lean_nat_div(x_9, x_10);
 lean::dec(x_9);
 lean::inc(x_1);
-x_12 = lean::array_get(x_1, x_3, x_11);
+x_12 = lean_array_get(x_1, x_3, x_11);
 lean::inc(x_2);
 lean::inc(x_4);
 lean::inc(x_12);
@@ -248,12 +238,12 @@ else
 obj* x_18; uint8 x_19; 
 lean::dec(x_12);
 x_18 = lean::mk_nat_obj(0u);
-x_19 = lean::nat_dec_eq(x_11, x_18);
+x_19 = lean_nat_dec_eq(x_11, x_18);
 if (x_19 == 0)
 {
 obj* x_20; obj* x_21; 
 x_20 = lean::mk_nat_obj(1u);
-x_21 = lean::nat_sub(x_11, x_20);
+x_21 = lean_nat_sub(x_11, x_20);
 lean::dec(x_11);
 x_6 = x_21;
 goto _start;
@@ -277,7 +267,7 @@ obj* x_24; obj* x_25;
 lean::dec(x_12);
 lean::dec(x_5);
 x_24 = lean::mk_nat_obj(1u);
-x_25 = lean::nat_add(x_11, x_24);
+x_25 = lean_nat_add(x_11, x_24);
 lean::dec(x_11);
 x_5 = x_25;
 goto _start;
@@ -331,7 +321,7 @@ uint8 l_Array_binSearchAux___main___at_Array_binSearchContains___spec__1___rarg(
 _start:
 {
 uint8 x_7; 
-x_7 = lean::nat_dec_le(x_5, x_6);
+x_7 = lean_nat_dec_le(x_5, x_6);
 if (x_7 == 0)
 {
 uint8 x_8; 
@@ -346,12 +336,12 @@ return x_8;
 else
 {
 obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; uint8 x_14; 
-x_9 = lean::nat_add(x_5, x_6);
+x_9 = lean_nat_add(x_5, x_6);
 x_10 = lean::mk_nat_obj(2u);
-x_11 = lean::nat_div(x_9, x_10);
+x_11 = lean_nat_div(x_9, x_10);
 lean::dec(x_9);
 lean::inc(x_1);
-x_12 = lean::array_get(x_1, x_3, x_11);
+x_12 = lean_array_get(x_1, x_3, x_11);
 lean::inc(x_2);
 lean::inc(x_4);
 lean::inc(x_12);
@@ -382,12 +372,12 @@ else
 {
 obj* x_18; uint8 x_19; 
 x_18 = lean::mk_nat_obj(0u);
-x_19 = lean::nat_dec_eq(x_11, x_18);
+x_19 = lean_nat_dec_eq(x_11, x_18);
 if (x_19 == 0)
 {
 obj* x_20; obj* x_21; 
 x_20 = lean::mk_nat_obj(1u);
-x_21 = lean::nat_sub(x_11, x_20);
+x_21 = lean_nat_sub(x_11, x_20);
 lean::dec(x_11);
 x_6 = x_21;
 goto _start;
@@ -411,7 +401,7 @@ obj* x_24; obj* x_25;
 lean::dec(x_12);
 lean::dec(x_5);
 x_24 = lean::mk_nat_obj(1u);
-x_25 = lean::nat_add(x_11, x_24);
+x_25 = lean_nat_add(x_11, x_24);
 lean::dec(x_11);
 x_5 = x_25;
 goto _start;

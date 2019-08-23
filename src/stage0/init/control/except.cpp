@@ -77,9 +77,7 @@ obj* l_ExceptT_exceptTOfExcept___boxed(obj*, obj*);
 obj* l_ExceptT_bindCont(obj*, obj*);
 obj* l_ExceptT_catch___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_Except_map___rarg(obj*, obj*);
-namespace lean {
-obj* string_append(obj*, obj*);
-}
+extern "C" obj* lean_string_append(obj*, obj*);
 obj* l_Except_HasRepr(obj*, obj*);
 obj* l_monadExceptAdapterTrans(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Except_bind(obj*, obj*, obj*);
@@ -211,10 +209,10 @@ lean::inc(x_4);
 lean::dec(x_3);
 x_5 = lean::apply_1(x_1, x_4);
 x_6 = l_Except_toString___rarg___closed__1;
-x_7 = lean::string_append(x_6, x_5);
+x_7 = lean_string_append(x_6, x_5);
 lean::dec(x_5);
 x_8 = l_Option_HasRepr___rarg___closed__3;
-x_9 = lean::string_append(x_7, x_8);
+x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
 else
@@ -226,10 +224,10 @@ lean::inc(x_10);
 lean::dec(x_3);
 x_11 = lean::apply_1(x_2, x_10);
 x_12 = l_Except_toString___rarg___closed__2;
-x_13 = lean::string_append(x_12, x_11);
+x_13 = lean_string_append(x_12, x_11);
 lean::dec(x_11);
 x_14 = l_Option_HasRepr___rarg___closed__3;
-x_15 = lean::string_append(x_13, x_14);
+x_15 = lean_string_append(x_13, x_14);
 return x_15;
 }
 }
@@ -254,10 +252,10 @@ lean::inc(x_4);
 lean::dec(x_3);
 x_5 = lean::apply_1(x_1, x_4);
 x_6 = l_Except_toString___rarg___closed__1;
-x_7 = lean::string_append(x_6, x_5);
+x_7 = lean_string_append(x_6, x_5);
 lean::dec(x_5);
 x_8 = l_Option_HasRepr___rarg___closed__3;
-x_9 = lean::string_append(x_7, x_8);
+x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
 else
@@ -269,10 +267,10 @@ lean::inc(x_10);
 lean::dec(x_3);
 x_11 = lean::apply_1(x_2, x_10);
 x_12 = l_Except_toString___rarg___closed__2;
-x_13 = lean::string_append(x_12, x_11);
+x_13 = lean_string_append(x_12, x_11);
 lean::dec(x_11);
 x_14 = l_Option_HasRepr___rarg___closed__3;
-x_15 = lean::string_append(x_13, x_14);
+x_15 = lean_string_append(x_13, x_14);
 return x_15;
 }
 }

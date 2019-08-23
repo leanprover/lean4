@@ -66,9 +66,7 @@ obj* l_mkRBTree(obj*, obj*);
 obj* l_RBTree_min(obj*, obj*);
 obj* l_RBTree_min___rarg___closed__1;
 uint8 l_RBNode_any___main___at_RBTree_any___spec__1___rarg(obj*, obj*);
-namespace lean {
-obj* string_append(obj*, obj*);
-}
+extern "C" obj* lean_string_append(obj*, obj*);
 obj* l_RBTree_min___rarg___boxed(obj*);
 obj* l_RBNode_revFold___main___at_RBTree_toList___spec__1___rarg___boxed(obj*, obj*);
 obj* l_RBTree_contains___rarg___boxed(obj*, obj*, obj*);
@@ -848,7 +846,7 @@ obj* x_3; obj* x_4; obj* x_5; obj* x_6;
 x_3 = l_RBTree_toList___rarg(x_2);
 x_4 = l_List_repr___rarg(x_1, x_3);
 x_5 = l_RBTree_HasRepr___rarg___closed__1;
-x_6 = lean::string_append(x_5, x_4);
+x_6 = lean_string_append(x_5, x_4);
 lean::dec(x_4);
 return x_6;
 }

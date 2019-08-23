@@ -27,9 +27,7 @@ obj* l_List_foldr1Opt___rarg(obj*, obj*);
 obj* l_List_zipWith___main___rarg(obj*, obj*, obj*);
 uint8 l_List_any___rarg(obj*, obj*);
 obj* l_List_join(obj*);
-namespace lean {
-obj* nat_sub(obj*, obj*);
-}
+extern "C" obj* lean_nat_sub(obj*, obj*);
 obj* l_List_length___rarg(obj*);
 obj* l_List_eraseDupsAux(obj*);
 obj* l_List_getLastOfNonNil___rarg___boxed(obj*, obj*);
@@ -155,17 +153,13 @@ obj* l_List_isEmpty___rarg___boxed(obj*);
 obj* l_List_getOpt___rarg(obj*, obj*);
 obj* l_List_isPrefixOf(obj*);
 obj* l_List_isEmpty(obj*);
-namespace lean {
-obj* nat_add(obj*, obj*);
-}
+extern "C" obj* lean_nat_add(obj*, obj*);
 obj* l_List_eraseDups(obj*);
 obj* l_List_elem___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_foldr1(obj*);
 obj* l_List_isEqv___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_pure(obj*);
-namespace lean {
-uint8 nat_dec_eq(obj*, obj*);
-}
+extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_List_getLastOfNonNil___main___rarg(obj*, obj*);
 uint8 l_List_hasDecidableLt___main___at_List_hasDecidableLe___spec__1___rarg(obj*, obj*, obj*, obj*);
 obj* l_List_init___rarg(obj*);
@@ -670,12 +664,12 @@ obj* x_4; obj* x_5; obj* x_6; uint8 x_7;
 x_4 = lean::cnstr_get(x_1, 0);
 x_5 = lean::cnstr_get(x_1, 1);
 x_6 = lean::mk_nat_obj(0u);
-x_7 = lean::nat_dec_eq(x_2, x_6);
+x_7 = lean_nat_dec_eq(x_2, x_6);
 if (x_7 == 0)
 {
 obj* x_8; obj* x_9; obj* x_10; 
 x_8 = lean::mk_nat_obj(1u);
-x_9 = lean::nat_sub(x_2, x_8);
+x_9 = lean_nat_sub(x_2, x_8);
 x_10 = l_List_eraseIdx___main___rarg(x_5, x_9);
 lean::dec(x_9);
 lean::cnstr_set(x_1, 1, x_10);
@@ -697,12 +691,12 @@ lean::inc(x_12);
 lean::inc(x_11);
 lean::dec(x_1);
 x_13 = lean::mk_nat_obj(0u);
-x_14 = lean::nat_dec_eq(x_2, x_13);
+x_14 = lean_nat_dec_eq(x_2, x_13);
 if (x_14 == 0)
 {
 obj* x_15; obj* x_16; obj* x_17; obj* x_18; 
 x_15 = lean::mk_nat_obj(1u);
-x_16 = lean::nat_sub(x_2, x_15);
+x_16 = lean_nat_sub(x_2, x_15);
 x_17 = l_List_eraseIdx___main___rarg(x_12, x_16);
 lean::dec(x_16);
 x_18 = lean::alloc_cnstr(1, 2, 0);
@@ -773,7 +767,7 @@ else
 obj* x_3; obj* x_4; obj* x_5; 
 x_3 = lean::cnstr_get(x_1, 1);
 x_4 = lean::mk_nat_obj(1u);
-x_5 = lean::nat_add(x_2, x_4);
+x_5 = lean_nat_add(x_2, x_4);
 lean::dec(x_2);
 x_1 = x_3;
 x_2 = x_5;
@@ -889,7 +883,7 @@ _start:
 {
 obj* x_4; uint8 x_5; 
 x_4 = lean::mk_nat_obj(0u);
-x_5 = lean::nat_dec_eq(x_2, x_4);
+x_5 = lean_nat_dec_eq(x_2, x_4);
 if (x_5 == 0)
 {
 if (lean::obj_tag(x_3) == 0)
@@ -903,7 +897,7 @@ else
 obj* x_6; obj* x_7; obj* x_8; 
 x_6 = lean::cnstr_get(x_3, 1);
 x_7 = lean::mk_nat_obj(1u);
-x_8 = lean::nat_sub(x_2, x_7);
+x_8 = lean_nat_sub(x_2, x_7);
 lean::dec(x_2);
 x_2 = x_8;
 x_3 = x_6;
@@ -977,7 +971,7 @@ _start:
 {
 obj* x_3; uint8 x_4; 
 x_3 = lean::mk_nat_obj(0u);
-x_4 = lean::nat_dec_eq(x_1, x_3);
+x_4 = lean_nat_dec_eq(x_1, x_3);
 if (x_4 == 0)
 {
 if (lean::obj_tag(x_2) == 0)
@@ -992,7 +986,7 @@ else
 obj* x_6; obj* x_7; obj* x_8; 
 x_6 = lean::cnstr_get(x_2, 1);
 x_7 = lean::mk_nat_obj(1u);
-x_8 = lean::nat_sub(x_1, x_7);
+x_8 = lean_nat_sub(x_1, x_7);
 lean::dec(x_1);
 x_1 = x_8;
 x_2 = x_6;
@@ -1080,12 +1074,12 @@ obj* x_5; obj* x_6; obj* x_7; uint8 x_8;
 x_5 = lean::cnstr_get(x_1, 0);
 x_6 = lean::cnstr_get(x_1, 1);
 x_7 = lean::mk_nat_obj(0u);
-x_8 = lean::nat_dec_eq(x_2, x_7);
+x_8 = lean_nat_dec_eq(x_2, x_7);
 if (x_8 == 0)
 {
 obj* x_9; obj* x_10; obj* x_11; 
 x_9 = lean::mk_nat_obj(1u);
-x_10 = lean::nat_sub(x_2, x_9);
+x_10 = lean_nat_sub(x_2, x_9);
 x_11 = l_List_set___main___rarg(x_6, x_10, x_3);
 lean::dec(x_10);
 lean::cnstr_set(x_1, 1, x_11);
@@ -1107,12 +1101,12 @@ lean::inc(x_13);
 lean::inc(x_12);
 lean::dec(x_1);
 x_14 = lean::mk_nat_obj(0u);
-x_15 = lean::nat_dec_eq(x_2, x_14);
+x_15 = lean_nat_dec_eq(x_2, x_14);
 if (x_15 == 0)
 {
 obj* x_16; obj* x_17; obj* x_18; obj* x_19; 
 x_16 = lean::mk_nat_obj(1u);
-x_17 = lean::nat_sub(x_2, x_16);
+x_17 = lean_nat_sub(x_2, x_16);
 x_18 = l_List_set___main___rarg(x_13, x_17, x_3);
 lean::dec(x_17);
 x_19 = lean::alloc_cnstr(1, 2, 0);
@@ -2527,7 +2521,7 @@ _start:
 {
 obj* x_3; uint8 x_4; 
 x_3 = lean::mk_nat_obj(0u);
-x_4 = lean::nat_dec_eq(x_1, x_3);
+x_4 = lean_nat_dec_eq(x_1, x_3);
 if (x_4 == 0)
 {
 if (lean::obj_tag(x_2) == 0)
@@ -2540,7 +2534,7 @@ else
 obj* x_5; obj* x_6; obj* x_7; 
 x_5 = lean::cnstr_get(x_2, 1);
 x_6 = lean::mk_nat_obj(1u);
-x_7 = lean::nat_sub(x_1, x_6);
+x_7 = lean_nat_sub(x_1, x_6);
 lean::dec(x_1);
 x_1 = x_7;
 x_2 = x_5;
@@ -2602,7 +2596,7 @@ _start:
 {
 obj* x_3; uint8 x_4; 
 x_3 = lean::mk_nat_obj(0u);
-x_4 = lean::nat_dec_eq(x_1, x_3);
+x_4 = lean_nat_dec_eq(x_1, x_3);
 if (x_4 == 0)
 {
 if (lean::obj_tag(x_2) == 0)
@@ -2618,7 +2612,7 @@ if (x_5 == 0)
 obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
 x_6 = lean::cnstr_get(x_2, 1);
 x_7 = lean::mk_nat_obj(1u);
-x_8 = lean::nat_sub(x_1, x_7);
+x_8 = lean_nat_sub(x_1, x_7);
 x_9 = l_List_take___main___rarg(x_8, x_6);
 lean::dec(x_8);
 lean::cnstr_set(x_2, 1, x_9);
@@ -2633,7 +2627,7 @@ lean::inc(x_11);
 lean::inc(x_10);
 lean::dec(x_2);
 x_12 = lean::mk_nat_obj(1u);
-x_13 = lean::nat_sub(x_1, x_12);
+x_13 = lean_nat_sub(x_1, x_12);
 x_14 = l_List_take___main___rarg(x_13, x_11);
 lean::dec(x_13);
 x_15 = lean::alloc_cnstr(1, 2, 0);
@@ -3416,12 +3410,12 @@ _start:
 {
 obj* x_4; uint8 x_5; 
 x_4 = lean::mk_nat_obj(0u);
-x_5 = lean::nat_dec_eq(x_2, x_4);
+x_5 = lean_nat_dec_eq(x_2, x_4);
 if (x_5 == 0)
 {
 obj* x_6; obj* x_7; obj* x_8; 
 x_6 = lean::mk_nat_obj(1u);
-x_7 = lean::nat_sub(x_2, x_6);
+x_7 = lean_nat_sub(x_2, x_6);
 lean::dec(x_2);
 lean::inc(x_1);
 x_8 = lean::alloc_cnstr(1, 2, 0);
@@ -3469,12 +3463,12 @@ _start:
 {
 obj* x_3; uint8 x_4; 
 x_3 = lean::mk_nat_obj(0u);
-x_4 = lean::nat_dec_eq(x_1, x_3);
+x_4 = lean_nat_dec_eq(x_1, x_3);
 if (x_4 == 0)
 {
 obj* x_5; obj* x_6; obj* x_7; 
 x_5 = lean::mk_nat_obj(1u);
-x_6 = lean::nat_sub(x_1, x_5);
+x_6 = lean_nat_sub(x_1, x_5);
 lean::dec(x_1);
 lean::inc(x_6);
 x_7 = lean::alloc_cnstr(1, 2, 0);
@@ -3513,13 +3507,13 @@ _start:
 {
 obj* x_2; uint8 x_3; 
 x_2 = lean::mk_nat_obj(0u);
-x_3 = lean::nat_dec_eq(x_1, x_2);
+x_3 = lean_nat_dec_eq(x_1, x_2);
 if (x_3 == 0)
 {
 obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
 x_4 = lean::mk_nat_obj(1u);
-x_5 = lean::nat_sub(x_1, x_4);
-x_6 = lean::nat_add(x_5, x_4);
+x_5 = lean_nat_sub(x_1, x_4);
+x_6 = lean_nat_add(x_5, x_4);
 x_7 = l_List_iota___main(x_5);
 lean::dec(x_5);
 x_8 = lean::alloc_cnstr(1, 2, 0);
@@ -3585,7 +3579,7 @@ x_7 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_7, 0, x_1);
 lean::cnstr_set(x_7, 1, x_5);
 x_8 = lean::mk_nat_obj(1u);
-x_9 = lean::nat_add(x_1, x_8);
+x_9 = lean_nat_add(x_1, x_8);
 lean::dec(x_1);
 x_10 = l_List_enumFrom___main___rarg(x_9, x_6);
 lean::cnstr_set(x_2, 1, x_10);
@@ -3605,7 +3599,7 @@ x_13 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_13, 0, x_1);
 lean::cnstr_set(x_13, 1, x_11);
 x_14 = lean::mk_nat_obj(1u);
-x_15 = lean::nat_add(x_1, x_14);
+x_15 = lean_nat_add(x_1, x_14);
 lean::dec(x_1);
 x_16 = l_List_enumFrom___main___rarg(x_15, x_12);
 x_17 = lean::alloc_cnstr(1, 2, 0);

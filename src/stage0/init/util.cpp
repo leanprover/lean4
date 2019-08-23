@@ -26,7 +26,7 @@ obj* l_dbgTrace___boxed(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = lean::dbg_trace(x_2, x_3);
+x_4 = lean_dbg_trace(x_2, x_3);
 return x_4;
 }
 }
@@ -34,7 +34,7 @@ obj* l_dbgTraceIfShared___boxed(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = lean::dbg_trace_if_shared(x_2, x_3);
+x_4 = lean_dbg_trace_if_shared(x_2, x_3);
 return x_4;
 }
 }
@@ -43,7 +43,7 @@ _start:
 {
 uint32 x_4; obj* x_5; 
 x_4 = lean::unbox_uint32(x_2);
-x_5 = lean::dbg_sleep(x_4, x_3);
+x_5 = lean_dbg_sleep(x_4, x_3);
 return x_5;
 }
 }

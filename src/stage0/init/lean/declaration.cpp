@@ -127,7 +127,7 @@ case 2:
 obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
 x_5 = lean::cnstr_get(x_1, 0);
 x_6 = lean::cnstr_get(x_5, 1);
-x_7 = lean::task_get(x_6);
+x_7 = lean_task_get(x_6);
 x_8 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_8, 0, x_7);
 return x_8;

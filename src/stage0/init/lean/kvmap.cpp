@@ -56,17 +56,13 @@ obj* l_Lean_bool2DataValue(uint8);
 obj* l_Lean_KVMap_stringVal___closed__1;
 obj* l_Lean_KVMap_stringVal___closed__3;
 obj* l_Lean_KVMap_setBool___boxed(obj*, obj*, obj*);
-namespace lean {
-uint8 nat_dec_eq(obj*, obj*);
-}
+extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Lean_string2DataValue(obj*);
 obj* l_Lean_KVMap_getInt___boxed(obj*, obj*, obj*);
 uint8 l_Lean_KVMap_eqv(obj*, obj*);
 obj* l_Lean_KVMap_find___boxed(obj*, obj*);
 obj* l_Lean_int2DataValue(obj*);
-namespace lean {
-uint8 string_dec_eq(obj*, obj*);
-}
+extern "C" uint8 lean_string_dec_eq(obj*, obj*);
 obj* l_Lean_KVMap_get___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_KVMap_eqv___boxed(obj*, obj*);
 obj* l_Lean_bool2DataValue___boxed(obj*);
@@ -103,7 +99,7 @@ if (lean::obj_tag(x_2) == 0)
 obj* x_3; obj* x_4; uint8 x_5; 
 x_3 = lean::cnstr_get(x_1, 0);
 x_4 = lean::cnstr_get(x_2, 0);
-x_5 = lean::string_dec_eq(x_3, x_4);
+x_5 = lean_string_dec_eq(x_3, x_4);
 return x_5;
 }
 else
@@ -167,7 +163,7 @@ if (lean::obj_tag(x_2) == 3)
 {
 obj* x_15; uint8 x_16; 
 x_15 = lean::cnstr_get(x_2, 0);
-x_16 = lean::nat_dec_eq(x_15, x_15);
+x_16 = lean_nat_dec_eq(x_15, x_15);
 return x_16;
 }
 else

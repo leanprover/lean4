@@ -36,9 +36,7 @@ obj* l_Lean_SMap_HasEmptyc(obj*, obj*);
 obj* l_Lean_SMap_size(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_size___rarg___boxed(obj*);
 obj* l_Lean_SMap_maxDepth___boxed(obj*, obj*, obj*, obj*, obj*);
-namespace lean {
-obj* nat_add(obj*, obj*);
-}
+extern "C" obj* lean_nat_add(obj*, obj*);
 extern obj* l_RBMap_maxDepth___rarg___closed__1;
 obj* l_HashMapImp_find___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_maxDepth___rarg(obj*);
@@ -508,7 +506,7 @@ x_3 = lean::cnstr_get(x_1, 1);
 x_4 = lean::mk_nat_obj(0u);
 x_5 = l_RBNode_fold___main___at_RBMap_size___spec__1___rarg(x_4, x_3);
 x_6 = lean::cnstr_get(x_2, 0);
-x_7 = lean::nat_add(x_6, x_5);
+x_7 = lean_nat_add(x_6, x_5);
 lean::dec(x_5);
 return x_7;
 }

@@ -25,9 +25,7 @@ obj* l_Lean_mkBinApp(obj*, obj*, obj*);
 obj* l_Lean_MData_empty;
 extern "C" obj* lean_expr_mk_sort(obj*);
 obj* l_Lean_Expr_pi___boxed(obj*, obj*, obj*, obj*);
-namespace lean {
-obj* nat_sub(obj*, obj*);
-}
+extern "C" obj* lean_nat_sub(obj*, obj*);
 obj* l_Lean_Expr_HasBeq___closed__1;
 obj* l_Lean_Expr_isAppOfArity___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_exprIsInhabited;
@@ -66,12 +64,8 @@ obj* l_Lean_mkBinCApp(obj*, obj*, obj*);
 obj* l_Lean_mkDecIsFalse(obj*, obj*);
 extern "C" obj* lean_name_mk_string(obj*, obj*);
 obj* l_Lean_Expr_lit___boxed(obj*);
-namespace lean {
-obj* nat_add(obj*, obj*);
-}
-namespace lean {
-uint8 nat_dec_eq(obj*, obj*);
-}
+extern "C" obj* lean_nat_add(obj*, obj*);
+extern "C" uint8 lean_nat_dec_eq(obj*, obj*);
 obj* l_Lean_Expr_app___boxed(obj*, obj*);
 obj* l_Lean_mkDecIsTrue___closed__2;
 obj* l_Lean_Expr_getAppFn___main___boxed(obj*);
@@ -409,7 +403,7 @@ if (lean::obj_tag(x_1) == 5)
 obj* x_3; obj* x_4; obj* x_5; 
 x_3 = lean::cnstr_get(x_1, 0);
 x_4 = lean::mk_nat_obj(1u);
-x_5 = lean::nat_add(x_2, x_4);
+x_5 = lean_nat_add(x_2, x_4);
 lean::dec(x_2);
 x_1 = x_3;
 x_2 = x_5;
@@ -509,7 +503,7 @@ case 4:
 obj* x_4; obj* x_5; uint8 x_6; 
 x_4 = lean::cnstr_get(x_1, 0);
 x_5 = lean::mk_nat_obj(0u);
-x_6 = lean::nat_dec_eq(x_3, x_5);
+x_6 = lean_nat_dec_eq(x_3, x_5);
 lean::dec(x_3);
 if (x_6 == 0)
 {
@@ -529,12 +523,12 @@ case 5:
 obj* x_9; obj* x_10; uint8 x_11; 
 x_9 = lean::cnstr_get(x_1, 0);
 x_10 = lean::mk_nat_obj(0u);
-x_11 = lean::nat_dec_eq(x_3, x_10);
+x_11 = lean_nat_dec_eq(x_3, x_10);
 if (x_11 == 0)
 {
 obj* x_12; obj* x_13; 
 x_12 = lean::mk_nat_obj(1u);
-x_13 = lean::nat_sub(x_3, x_12);
+x_13 = lean_nat_sub(x_3, x_12);
 lean::dec(x_3);
 x_1 = x_9;
 x_3 = x_13;

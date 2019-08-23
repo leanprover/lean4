@@ -30,15 +30,11 @@ obj* l___private_init_lean_elaborator_resolvename_4__resolveOpenDecls___main(obj
 obj* l_Lean_Elab_getNamespace___rarg(obj*);
 obj* l___private_init_lean_elaborator_resolvename_1__resolveQualifiedName(obj*, obj*, obj*);
 obj* l___private_init_lean_elaborator_resolvename_2__resolveUsingNamespace___main(obj*, obj*, obj*);
-namespace lean {
-uint8 nat_dec_lt(obj*, obj*);
-}
+extern "C" uint8 lean_nat_dec_lt(obj*, obj*);
 obj* l_List_append___rarg(obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
 obj* l___private_init_lean_elaborator_resolvename_3__resolveExact___boxed(obj*, obj*);
-namespace lean {
-obj* nat_add(obj*, obj*);
-}
+extern "C" obj* lean_nat_add(obj*, obj*);
 obj* l___private_init_lean_elaborator_resolvename_2__resolveUsingNamespace___boxed(obj*, obj*, obj*);
 obj* l_Lean_Elab_resolveName___boxed(obj*, obj*, obj*);
 extern obj* l_Lean_Elab_rootNamespace;
@@ -506,7 +502,7 @@ if (lean::obj_tag(x_11) == 0)
 {
 obj* x_12; obj* x_13; 
 x_12 = lean::mk_nat_obj(1u);
-x_13 = lean::nat_add(x_5, x_12);
+x_13 = lean_nat_add(x_5, x_12);
 lean::dec(x_5);
 x_4 = x_6;
 x_5 = x_13;
@@ -927,8 +923,8 @@ obj* l_Array_ummapAux___main___at___private_init_lean_elaborator_resolvename_6__
 _start:
 {
 obj* x_6; uint8 x_7; 
-x_6 = lean::array_get_size(x_5);
-x_7 = lean::nat_dec_lt(x_4, x_6);
+x_6 = lean_array_get_size(x_5);
+x_7 = lean_nat_dec_lt(x_4, x_6);
 lean::dec(x_6);
 if (x_7 == 0)
 {
@@ -943,19 +939,19 @@ return x_9;
 else
 {
 obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; obj* x_18; 
-x_10 = lean::array_fget(x_5, x_4);
+x_10 = lean_array_fget(x_5, x_4);
 x_11 = lean::box(0);
 lean::inc(x_10);
 x_12 = x_11;
-x_13 = lean::array_fset(x_5, x_4, x_12);
+x_13 = lean_array_fset(x_5, x_4, x_12);
 lean::inc(x_10);
 lean::inc(x_3);
 lean::inc(x_1);
 x_14 = l___private_init_lean_elaborator_resolvename_6__preresolveNamesAux___main___rarg(x_1, x_2, x_3, x_10);
 x_15 = lean::mk_nat_obj(1u);
-x_16 = lean::nat_add(x_4, x_15);
+x_16 = lean_nat_add(x_4, x_15);
 x_17 = x_14;
-x_18 = lean::array_fset(x_13, x_4, x_17);
+x_18 = lean_array_fset(x_13, x_4, x_17);
 lean::dec(x_4);
 x_4 = x_16;
 x_5 = x_18;

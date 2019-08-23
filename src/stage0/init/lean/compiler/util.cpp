@@ -35,9 +35,7 @@ obj* l_Lean_Compiler_neutralExpr___closed__1;
 extern "C" obj* lean_expr_mk_const(obj*, obj*);
 obj* l_Lean_Compiler_objectType;
 obj* l_Lean_Compiler_neutralExpr___closed__3;
-namespace lean {
-obj* string_append(obj*, obj*);
-}
+extern "C" obj* lean_string_append(obj*, obj*);
 obj* l_Lean_Compiler_atMostOnce___closed__1;
 obj* l_Lean_Compiler_objectType___closed__2;
 extern "C" obj* lean_name_mk_string(obj*, obj*);
@@ -723,7 +721,7 @@ _start:
 obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
 x_3 = l_Nat_repr(x_2);
 x_4 = l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1;
-x_5 = lean::string_append(x_4, x_3);
+x_5 = lean_string_append(x_4, x_3);
 lean::dec(x_3);
 x_6 = lean_name_mk_string(x_1, x_5);
 return x_6;

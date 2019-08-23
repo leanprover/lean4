@@ -14,9 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-namespace lean {
-obj* uint8_to_nat(uint8);
-}
+extern "C" obj* lean_uint8_to_nat(uint8);
 obj* l_List_toStringAux___rarg(obj*, uint8, obj*);
 extern obj* l_Sum_HasRepr___rarg___closed__1;
 extern obj* l_Sigma_HasRepr___rarg___closed__1;
@@ -30,9 +28,7 @@ obj* l_Nat_HasToString(obj*);
 obj* l_UInt8_HasToString(uint8);
 obj* l_List_toStringAux___main___rarg(obj*, uint8, obj*);
 obj* l_Subtype_HasToString___rarg(obj*, obj*);
-namespace lean {
-obj* uint16_to_nat(uint16);
-}
+extern "C" obj* lean_uint16_to_nat(uint16);
 obj* l_List_toString(obj*);
 obj* l_Fin_HasToString___rarg(obj*);
 obj* l_Bool_HasToString(uint8);
@@ -45,26 +41,20 @@ extern obj* l_Bool_HasRepr___closed__2;
 obj* l_id_HasToString(obj*);
 obj* l_Substring_HasToString___boxed(obj*);
 obj* l_UInt32_HasToString(uint32);
-namespace lean {
-obj* string_push(obj*, uint32);
-}
+extern "C" obj* lean_string_push(obj*, uint32);
 obj* l_Sigma_HasToString___rarg(obj*, obj*, obj*);
 obj* l_Nat_repr(obj*);
 extern obj* l_List_repr___rarg___closed__2;
 obj* l_Substring_HasToString(obj*);
 obj* l_List_HasToString(obj*);
 extern obj* l_Option_HasRepr___rarg___closed__1;
-namespace lean {
-obj* string_append(obj*, obj*);
-}
+extern "C" obj* lean_string_append(obj*, obj*);
 obj* l_id_HasToString___rarg(obj*);
 extern obj* l_List_reprAux___main___rarg___closed__1;
 obj* l_USize_HasToString___boxed(obj*);
 obj* l_List_toString___rarg(obj*, obj*);
 extern obj* l_Option_HasRepr___rarg___closed__3;
-namespace lean {
-obj* uint64_to_nat(uint64);
-}
+extern "C" obj* lean_uint64_to_nat(uint64);
 obj* l_Subtype_HasToString___boxed(obj*, obj*);
 obj* l_String_HasToString___boxed(obj*);
 extern obj* l_Option_HasRepr___rarg___closed__2;
@@ -86,20 +76,14 @@ obj* l_Fin_HasToString(obj*);
 obj* l_Fin_HasToString___boxed(obj*);
 obj* l_String_HasToString(obj*);
 obj* l_Decidable_HasToString___rarg___boxed(obj*);
-namespace lean {
-obj* string_utf8_extract(obj*, obj*, obj*);
-}
+extern "C" obj* lean_string_utf8_extract(obj*, obj*, obj*);
 obj* l_id_HasToString___rarg___boxed(obj*);
 obj* l_Bool_HasToString___boxed(obj*);
 obj* l_Prod_HasToString(obj*, obj*);
-namespace lean {
-obj* uint32_to_nat(uint32);
-}
+extern "C" obj* lean_uint32_to_nat(uint32);
 obj* l_Unit_HasToString___boxed(obj*);
 obj* l_Char_HasToString___boxed(obj*);
-namespace lean {
-obj* usize_to_nat(usize);
-}
+extern "C" obj* lean_usize_to_nat(usize);
 obj* l_Decidable_HasToString(obj*);
 extern obj* l_Bool_HasRepr___closed__1;
 extern obj* l_List_repr___rarg___closed__1;
@@ -157,7 +141,7 @@ obj* x_2; obj* x_3; obj* x_4; obj* x_5;
 x_2 = lean::cnstr_get(x_1, 0);
 x_3 = lean::cnstr_get(x_1, 1);
 x_4 = lean::cnstr_get(x_1, 2);
-x_5 = lean::string_utf8_extract(x_2, x_3, x_4);
+x_5 = lean_string_utf8_extract(x_2, x_3, x_4);
 return x_5;
 }
 }
@@ -272,10 +256,10 @@ lean::dec(x_3);
 lean::inc(x_1);
 x_7 = lean::apply_1(x_1, x_5);
 x_8 = l_List_reprAux___main___rarg___closed__1;
-x_9 = lean::string_append(x_8, x_7);
+x_9 = lean_string_append(x_8, x_7);
 lean::dec(x_7);
 x_10 = l_List_toStringAux___main___rarg(x_1, x_2, x_6);
-x_11 = lean::string_append(x_9, x_10);
+x_11 = lean_string_append(x_9, x_10);
 lean::dec(x_10);
 return x_11;
 }
@@ -301,7 +285,7 @@ lean::inc(x_1);
 x_15 = lean::apply_1(x_1, x_13);
 x_16 = 0;
 x_17 = l_List_toStringAux___main___rarg(x_1, x_16, x_14);
-x_18 = lean::string_append(x_15, x_17);
+x_18 = lean_string_append(x_15, x_17);
 lean::dec(x_17);
 return x_18;
 }
@@ -368,10 +352,10 @@ uint8 x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9;
 x_4 = 1;
 x_5 = l_List_toStringAux___main___rarg(x_1, x_4, x_2);
 x_6 = l_List_repr___rarg___closed__2;
-x_7 = lean::string_append(x_6, x_5);
+x_7 = lean_string_append(x_6, x_5);
 lean::dec(x_5);
 x_8 = l_List_repr___rarg___closed__3;
-x_9 = lean::string_append(x_7, x_8);
+x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
 }
@@ -431,7 +415,7 @@ _start:
 {
 obj* x_2; obj* x_3; 
 x_2 = l_String_splitAux___main___closed__1;
-x_3 = lean::string_push(x_2, x_1);
+x_3 = lean_string_push(x_2, x_1);
 return x_3;
 }
 }
@@ -474,7 +458,7 @@ obj* l_UInt8_HasToString(uint8 x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = lean::uint8_to_nat(x_1);
+x_2 = lean_uint8_to_nat(x_1);
 x_3 = l_Nat_repr(x_2);
 return x_3;
 }
@@ -493,7 +477,7 @@ obj* l_UInt16_HasToString(uint16 x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = lean::uint16_to_nat(x_1);
+x_2 = lean_uint16_to_nat(x_1);
 x_3 = l_Nat_repr(x_2);
 return x_3;
 }
@@ -512,7 +496,7 @@ obj* l_UInt32_HasToString(uint32 x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = lean::uint32_to_nat(x_1);
+x_2 = lean_uint32_to_nat(x_1);
 x_3 = l_Nat_repr(x_2);
 return x_3;
 }
@@ -531,7 +515,7 @@ obj* l_UInt64_HasToString(uint64 x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = lean::uint64_to_nat(x_1);
+x_2 = lean_uint64_to_nat(x_1);
 x_3 = l_Nat_repr(x_2);
 return x_3;
 }
@@ -550,7 +534,7 @@ obj* l_USize_HasToString(usize x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = lean::usize_to_nat(x_1);
+x_2 = lean_usize_to_nat(x_1);
 x_3 = l_Nat_repr(x_2);
 return x_3;
 }
@@ -583,10 +567,10 @@ lean::inc(x_4);
 lean::dec(x_2);
 x_5 = lean::apply_1(x_1, x_4);
 x_6 = l_Option_HasRepr___rarg___closed__2;
-x_7 = lean::string_append(x_6, x_5);
+x_7 = lean_string_append(x_6, x_5);
 lean::dec(x_5);
 x_8 = l_Option_HasRepr___rarg___closed__3;
-x_9 = lean::string_append(x_7, x_8);
+x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
 }
@@ -611,10 +595,10 @@ lean::inc(x_4);
 lean::dec(x_3);
 x_5 = lean::apply_1(x_1, x_4);
 x_6 = l_Sum_HasRepr___rarg___closed__1;
-x_7 = lean::string_append(x_6, x_5);
+x_7 = lean_string_append(x_6, x_5);
 lean::dec(x_5);
 x_8 = l_Option_HasRepr___rarg___closed__3;
-x_9 = lean::string_append(x_7, x_8);
+x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
 else
@@ -626,10 +610,10 @@ lean::inc(x_10);
 lean::dec(x_3);
 x_11 = lean::apply_1(x_2, x_10);
 x_12 = l_Sum_HasRepr___rarg___closed__2;
-x_13 = lean::string_append(x_12, x_11);
+x_13 = lean_string_append(x_12, x_11);
 lean::dec(x_11);
 x_14 = l_Option_HasRepr___rarg___closed__3;
-x_15 = lean::string_append(x_13, x_14);
+x_15 = lean_string_append(x_13, x_14);
 return x_15;
 }
 }
@@ -653,15 +637,15 @@ lean::inc(x_5);
 lean::dec(x_3);
 x_6 = lean::apply_1(x_1, x_4);
 x_7 = l_Prod_HasRepr___rarg___closed__1;
-x_8 = lean::string_append(x_7, x_6);
+x_8 = lean_string_append(x_7, x_6);
 lean::dec(x_6);
 x_9 = l_List_reprAux___main___rarg___closed__1;
-x_10 = lean::string_append(x_8, x_9);
+x_10 = lean_string_append(x_8, x_9);
 x_11 = lean::apply_1(x_2, x_5);
-x_12 = lean::string_append(x_10, x_11);
+x_12 = lean_string_append(x_10, x_11);
 lean::dec(x_11);
 x_13 = l_Option_HasRepr___rarg___closed__3;
-x_14 = lean::string_append(x_12, x_13);
+x_14 = lean_string_append(x_12, x_13);
 return x_14;
 }
 }
@@ -685,15 +669,15 @@ lean::dec(x_3);
 lean::inc(x_4);
 x_6 = lean::apply_1(x_1, x_4);
 x_7 = l_Sigma_HasRepr___rarg___closed__1;
-x_8 = lean::string_append(x_7, x_6);
+x_8 = lean_string_append(x_7, x_6);
 lean::dec(x_6);
 x_9 = l_List_reprAux___main___rarg___closed__1;
-x_10 = lean::string_append(x_8, x_9);
+x_10 = lean_string_append(x_8, x_9);
 x_11 = lean::apply_2(x_2, x_4, x_5);
-x_12 = lean::string_append(x_10, x_11);
+x_12 = lean_string_append(x_10, x_11);
 lean::dec(x_11);
 x_13 = l_Sigma_HasRepr___rarg___closed__2;
-x_14 = lean::string_append(x_12, x_13);
+x_14 = lean_string_append(x_12, x_13);
 return x_14;
 }
 }

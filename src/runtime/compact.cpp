@@ -69,8 +69,9 @@ object_offset object_compactor::to_offset(object * o) {
 }
 
 void object_compactor::insert_terminator(object * o) {
-    terminator_object * t = (terminator_object*) alloc(sizeof(terminator_object));
-    lean_set_other_header((lean_object*)t, LeanReserved, 0);
+    size_t sz = sizeof(terminator_object);
+    terminator_object * t = (terminator_object*) alloc(sz);
+    lean_set_non_heap_header((lean_object*)t, sz, LeanReserved, 0);
     t->m_value = to_offset(o);
 }
 
@@ -79,7 +80,11 @@ object * object_compactor::copy_object(object * o) {
     void * mem = alloc(sz);
     memcpy(mem, o, sz);
     object * r = static_cast<object*>(mem);
-    lean_set_other_mem_kind(r);
+    lean_set_non_heap_header(r, sz, lean_ptr_tag(o), lean_ptr_other(o));
+    lean_assert(!lean_has_rc(r));
+    lean_assert(lean_ptr_tag(r) == lean_ptr_tag(o));
+    lean_assert(lean_ptr_other(r) == lean_ptr_other(o));
+    lean_assert(lean_object_byte_size(r) == sz);
     save(o, r);
     return r;
 }
@@ -116,9 +121,9 @@ bool object_compactor::insert_array(object * o) {
     }
     if (missing_children)
         return false;
-
-    lean_array_object * new_o = (lean_array_object*)alloc(sizeof(lean_array_object) + sizeof(void*)*sz);
-    lean_set_other_header((lean_object*)new_o, LeanArray, 0);
+    size_t obj_sz = sizeof(lean_array_object) + sizeof(void*)*sz;
+    lean_array_object * new_o = (lean_array_object*)alloc(obj_sz);
+    lean_set_non_heap_header((lean_object*)new_o, obj_sz, LeanArray, 0);
     new_o->m_size     = sz;
     new_o->m_capacity = sz;
     for (size_t i = 0; i < sz; i++) {
@@ -162,8 +167,9 @@ bool object_compactor::insert_task(object * o) {
        To cope with this issue, we always save tasks as thunks,
        and rely on the fact that all task API accepts thunks as arguments
        even when multi-threading is enabled. */
-    lean_thunk_object * new_o = (lean_thunk_object*)alloc(sizeof(lean_thunk_object));
-    lean_set_other_header((lean_object*)new_o, LeanThunk, 0);
+    size_t sz = sizeof(lean_thunk_object);
+    lean_thunk_object * new_o = (lean_thunk_object*)alloc(sz);
+    lean_set_non_heap_header((lean_object*)new_o, sz, LeanThunk, 0);
     new_o->m_value   = c;
     new_o->m_closure = (lean_object*)0;
     save(o, (lean_object*)new_o);
@@ -176,9 +182,10 @@ void object_compactor::insert_mpz(object * o) {
        to store the next mpz_object in the region AFTER we convert the string back
        into an mpz number. So, we use std::max to make sure we have enough space for both. */
     size_t extra_space  = std::max(s.size() + 1, sizeof(mpz_object*));
-    void * mem     = alloc(sizeof(mpz_object) + extra_space);
+    size_t sz      = sizeof(mpz_object) + extra_space;
+    void * mem     = alloc(sz);
     mpz_object * new_o = new (mem) mpz_object();
-    lean_set_other_header((lean_object*)new_o, LeanMPZ, 0);
+    lean_set_non_heap_header((lean_object*)new_o, sz, LeanMPZ, 0);
     save(o, (lean_object*)new_o);
     void * data    = reinterpret_cast<char*>(new_o) + sizeof(mpz_object);
     memcpy(data, s.c_str(), s.size() + 1);
@@ -239,7 +246,13 @@ compacted_region::~compacted_region() {
     free(m_begin);
 }
 
+inline object * compacted_region::fix_object_ptr(object * o) {
+    if (lean_is_scalar(o)) return o;
+    return reinterpret_cast<object*>(static_cast<char*>(m_begin) + reinterpret_cast<size_t>(o));
+}
+
 inline void compacted_region::move(size_t d) {
+    // std::cout << "move: " << d << "\n";
     lean_assert(m_next < m_end);
     size_t rem = d % sizeof(void*);
     if (rem != 0)
@@ -247,18 +260,19 @@ inline void compacted_region::move(size_t d) {
     m_next = static_cast<char*>(m_next) + d;
 }
 
-inline object * compacted_region::fix_object_ptr(object * o) {
-    if (lean_is_scalar(o)) return o;
-    return reinterpret_cast<object*>(static_cast<char*>(m_begin) + reinterpret_cast<size_t>(o));
+inline void compacted_region::move(object * o) {
+    return move(lean_object_byte_size(o));
 }
 
 inline void compacted_region::fix_constructor(object * o) {
+    lean_assert(!lean_has_rc(o));
     object ** it  = lean_ctor_obj_cptr(o);
     object ** end = it + lean_ctor_num_objs(o);
     for (; it != end; it++) {
         *it = fix_object_ptr(*it);
     }
-    move(lean_ctor_byte_size(o));
+    lean_assert(lean_object_byte_size(o) < 4192);
+    move(o);
 }
 
 inline void compacted_region::fix_array(object * o) {
@@ -267,7 +281,7 @@ inline void compacted_region::fix_array(object * o) {
     for (; it != end; it++) {
         *it = fix_object_ptr(*it);
     }
-    move(lean_array_byte_size(o));
+    move(o);
 }
 
 inline void compacted_region::fix_thunk(object * o) {
@@ -310,6 +324,7 @@ object * compacted_region::read() {
         lean_assert(static_cast<char*>(m_next) + sizeof(object) <= m_end);
         object * curr = reinterpret_cast<object*>(m_next);
         uint8 tag = lean_ptr_tag(curr);
+        // std::cout << "Tag: " << (unsigned)tag << "\n";
         if (tag <= LeanMaxCtorTag) {
             fix_constructor(curr);
         } else {
@@ -317,7 +332,9 @@ object * compacted_region::read() {
             case LeanClosure:         lean_unreachable();
             case LeanArray:           fix_array(curr); break;
             case LeanScalarArray:     move(lean_sarray_byte_size(curr)); break;
-            case LeanString:          move(lean_string_byte_size(curr)); break;
+            case LeanString:
+                // std::cout << "String: " << string_cstr(curr) << "\n";
+                move(lean_string_byte_size(curr)); break;
             case LeanMPZ:             fix_mpz(curr); break;
             case LeanThunk:           fix_thunk(curr); break;
             case LeanRef:             fix_ref(curr); break;

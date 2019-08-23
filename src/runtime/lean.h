@@ -276,20 +276,28 @@ static inline void lean_free_small_object(lean_object * o) {
 lean_object * lean_alloc_object(size_t sz);
 void lean_free_object(lean_object * o);
 
+static inline uint8_t lean_ptr_tag(lean_object * o) {
+#ifdef LEAN_COMPRESSED_OBJECT_HEADER
+    return LEAN_BYTE(o->m_header, 7);
+#else
+    return o->m_tag;
+#endif
+}
+
+static inline unsigned lean_ptr_other(lean_object * o) {
+#ifdef LEAN_COMPRESSED_OBJECT_HEADER
+    return LEAN_BYTE(o->m_header, 6);
+#else
+    return o->m_other;
+#endif
+}
+
 /* The object size may be slightly bigger for constructor objects.
    The runtime does not track the size of the scalar size area.
    All constructor objects are "small", and allocated into pages.
    We retrieve their size by accessing the page header. The size of
    small objects is a multiple of LEAN_OBJECT_SIZE_DELTA */
 size_t lean_object_byte_size(lean_object * o);
-
-static inline void lean_set_other_mem_kind(lean_object * o) {
-#ifdef LEAN_COMPRESSED_OBJECT_HEADER
-    o->m_header &= ~((1ull << LEAN_ST_BIT) | (1ull << LEAN_MT_BIT) | (1ull << LEAN_PERSISTENT_BIT));
-#else
-    o->m_mem_kind = LEAN_OTHER_MEM_KIND;
-#endif
-}
 
 static inline bool lean_is_mt(lean_object * o) {
 #ifdef LEAN_COMPRESSED_OBJECT_HEADER
@@ -315,7 +323,7 @@ static inline bool lean_is_persistent(lean_object * o) {
 #endif
 }
 
-static inline bool lean_is_heap_object(lean_object * o) {
+static inline bool lean_has_rc(lean_object * o) {
     return lean_is_st(o) || lean_is_mt(o);
 }
 
@@ -389,14 +397,6 @@ static inline void lean_dec(lean_object * o) { if (!lean_is_scalar(o)) lean_dec_
 
 /* Just free memory */
 void lean_dealloc(lean_object * o);
-
-static inline uint8_t lean_ptr_tag(lean_object * o) {
-#ifdef LEAN_COMPRESSED_OBJECT_HEADER
-    return LEAN_BYTE(o->m_header, 7);
-#else
-    return o->m_tag;
-#endif
-}
 
 static inline bool lean_is_ctor(lean_object * o) { return lean_ptr_tag(o) <= LeanMaxCtorTag; }
 static inline bool lean_is_closure(lean_object * o) { return lean_ptr_tag(o) == LeanClosure; }
@@ -503,11 +503,15 @@ static inline void lean_set_st_header(lean_object * o, unsigned tag, unsigned ot
 #endif
 }
 
-static inline void lean_set_other_header(lean_object * o, unsigned tag, unsigned other) {
+/* Remark: we don't need a reference counter for objects that are not stored in the heap.
+   Thus, we use the area to store the object size. */
+static inline void lean_set_non_heap_header(lean_object * o, size_t sz, unsigned tag, unsigned other) {
+    assert(sz > 0);
+    assert(sz < (1ull << 45));
 #ifdef LEAN_COMPRESSED_OBJECT_HEADER
-    o->m_header   = ((size_t)(tag) << 56) | ((size_t)(other) << 48) | 1;
+    o->m_header   = ((size_t)(tag) << 56) | ((size_t)(other) << 48) | sz;
 #else
-    o->m_rc       = 1;
+    o->m_rc       = sz;
     o->m_tag      = tag;
     o->m_mem_kind = LEAN_OTHER_MEM_KIND;
     o->m_other    = other;
@@ -518,16 +522,7 @@ static inline void lean_set_other_header(lean_object * o, unsigned tag, unsigned
 
 static inline unsigned lean_ctor_num_objs(lean_object * o) {
     assert(lean_is_ctor(o));
-#ifdef LEAN_COMPRESSED_OBJECT_HEADER
-    return LEAN_BYTE(o->m_header, 6);
-#else
-    return o->m_other;
-#endif
-}
-
-/* See comment at lean_object_byte_size */
-static inline unsigned lean_ctor_byte_size(lean_object * o) {
-    return lean_small_object_size(o);
+    return lean_ptr_other(o);
 }
 
 static inline lean_object ** lean_ctor_obj_cptr(lean_object * o) {
@@ -704,7 +699,7 @@ static inline b_lean_obj_res lean_array_get_core(b_lean_obj_arg o, size_t i) {
 static inline void lean_array_set_core(u_lean_obj_arg o, size_t i, lean_obj_arg v) {
     /* Remark: we use this procedure to update non shared arrays in the heap,
        and when copying objects to compact region at compact.cpp */
-    assert(!lean_is_heap_object(o) || lean_is_exclusive(o));
+    assert(!lean_has_rc(o) || lean_is_exclusive(o));
     assert(i < lean_array_size(o));
     lean_to_array(o)->m_data[i] = v;
 }
@@ -838,11 +833,7 @@ static inline lean_obj_res lean_alloc_sarray(unsigned elem_size, size_t size, si
 }
 static inline unsigned lean_sarray_elem_size(lean_object * o) {
     assert(lean_is_sarray(o));
-#ifdef LEAN_COMPRESSED_OBJECT_HEADER
-    return LEAN_BYTE(o->m_header, 6);
-#else
-    return o->m_other;
-#endif
+    return lean_ptr_other(o);
 }
 static inline size_t lean_sarray_capacity(lean_object * o) { return lean_to_sarray(o)->m_capacity; }
 static inline size_t lean_sarray_byte_size(lean_object * o) {

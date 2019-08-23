@@ -25,11 +25,23 @@ extern "C" void lean_panic_out_of_memory() {
 }
 
 extern "C" size_t lean_object_byte_size(lean_object * o) {
-    switch (lean_ptr_tag(o)) {
-    case LeanArray:       return lean_array_byte_size(o);
-    case LeanScalarArray: return lean_sarray_byte_size(o);
-    case LeanString:      return lean_string_byte_size(o);
-    default:              return lean_small_object_size(o);
+    if (lean_is_mt(o) || lean_is_st(o) || lean_is_persistent(o)) {
+        /* Recall that multi-threaded, single-threaded and persistent objects are stored in the heap.
+           Persistent objects are multi-threaded and/or single-threaded that have been "promoted" to
+           a persistent status. */
+        switch (lean_ptr_tag(o)) {
+        case LeanArray:       return lean_array_byte_size(o);
+        case LeanScalarArray: return lean_sarray_byte_size(o);
+        case LeanString:      return lean_string_byte_size(o);
+        default:              return lean_small_object_size(o);
+        }
+    } else {
+        /* See comment at `lean_set_non_heap_header`, we store the object size in the RC field. */
+#ifdef LEAN_COMPRESSED_OBJECT_HEADER
+        return o->m_header & ((1ull << 45) - 1);
+#else
+        return o->m_rc;
+#endif
     }
 }
 
@@ -105,58 +117,58 @@ extern "C" lean_object * lean_alloc_object(size_t sz) {
 static void deactivate_task(lean_task_object * t);
 
 static void lean_del_core(object * o, object * & todo) {
-    lean_assert(lean_is_heap_object(o));
+    lean_assert(lean_has_rc(o));
     uint8 tag = lean_ptr_tag(o);
     if (tag <= LeanMaxCtorTag) {
         object ** it  = lean_ctor_obj_cptr(o);
         object ** end = it + lean_ctor_num_objs(o);
         for (; it != end; ++it) dec(*it, todo);
         lean_free_small(o);
-        return;
-    }
-    switch (tag) {
-    case LeanClosure: {
-        object ** it  = lean_closure_arg_cptr(o);
-        object ** end = it + lean_closure_num_fixed(o);
-        for (; it != end; ++it) dec(*it, todo);
-        lean_free_small(o);
-        break;
-    }
-    case LeanArray: {
-        object ** it  = lean_array_cptr(o);
-        object ** end = it + lean_array_size(o);
-        for (; it != end; ++it) dec(*it, todo);
-        dealloc(o, lean_array_byte_size(o));
-        break;
-    }
-    case LeanScalarArray:
-        dealloc(o, lean_sarray_byte_size(o));
-        break;
-    case LeanString:
-        dealloc(o, lean_string_byte_size(o));
-        break;
-    case LeanMPZ:
-        to_mpz(o)->m_value.~mpz();
-        lean_free_small(o);
-        break;
-    case LeanThunk:
-        if (object * c = lean_to_thunk(o)->m_closure) dec(c, todo);
-        if (object * v = lean_to_thunk(o)->m_value) dec(v, todo);
-        lean_free_small(o);
-        break;
-    case LeanRef:
-        if (object * v = lean_to_ref(o)->m_value) dec(v, todo);
-        lean_free_small(o);
-        break;
-    case LeanTask:
-        deactivate_task(lean_to_task(o));
-        break;
-    case LeanExternal:
-        lean_to_external(o)->m_class->m_finalize(lean_to_external(o)->m_data);
-        lean_free_small(o);
-        break;
-    default:
-        lean_unreachable();
+    } else {
+        switch (tag) {
+        case LeanClosure: {
+            object ** it  = lean_closure_arg_cptr(o);
+            object ** end = it + lean_closure_num_fixed(o);
+            for (; it != end; ++it) dec(*it, todo);
+            lean_free_small(o);
+            break;
+        }
+        case LeanArray: {
+            object ** it  = lean_array_cptr(o);
+            object ** end = it + lean_array_size(o);
+            for (; it != end; ++it) dec(*it, todo);
+            dealloc(o, lean_array_byte_size(o));
+            break;
+        }
+        case LeanScalarArray:
+            dealloc(o, lean_sarray_byte_size(o));
+            break;
+        case LeanString:
+            dealloc(o, lean_string_byte_size(o));
+            break;
+        case LeanMPZ:
+            to_mpz(o)->m_value.~mpz();
+            lean_free_small(o);
+            break;
+        case LeanThunk:
+            if (object * c = lean_to_thunk(o)->m_closure) dec(c, todo);
+            if (object * v = lean_to_thunk(o)->m_value) dec(v, todo);
+            lean_free_small(o);
+            break;
+        case LeanRef:
+            if (object * v = lean_to_ref(o)->m_value) dec(v, todo);
+            lean_free_small(o);
+            break;
+        case LeanTask:
+            deactivate_task(lean_to_task(o));
+            break;
+        case LeanExternal:
+            lean_to_external(o)->m_class->m_finalize(lean_to_external(o)->m_data);
+            lean_free_small(o);
+            break;
+        default:
+            lean_unreachable();
+        }
     }
 }
 
@@ -166,7 +178,7 @@ extern "C" void lean_del(object * o) {
 #else
     object * todo = nullptr;
     while (true) {
-        lean_assert(lean_is_heap_object(o));
+        lean_assert(lean_has_rc(o));
         lean_del_core(o, todo);
         if (todo == nullptr)
             return;
@@ -379,7 +391,7 @@ extern "C" void lean_mark_persistent(object * o) {
     while (!todo.empty()) {
         object * o = todo.back();
         todo.pop_back();
-        if (!lean_is_scalar(o) && lean_is_heap_object(o)) {
+        if (!lean_is_scalar(o) && lean_has_rc(o)) {
 #ifdef LEAN_COMPRESSED_OBJECT_HEADER
             o->m_header &= ~((1ull << LEAN_ST_BIT) | (1ull << LEAN_MT_BIT));
             o->m_header |=  (1ull << LEAN_PERSISTENT_BIT);
@@ -1809,7 +1821,7 @@ extern "C" object * lean_dbg_sleep(uint32 ms, obj_arg fn) {
 }
 
 extern "C" object * lean_dbg_trace_if_shared(obj_arg s, obj_arg a) {
-    if (lean_is_heap_object(a) && lean_is_shared(a)) {
+    if (lean_is_shared(a)) {
         unique_lock<mutex> lock(g_dbg_mutex);
         std::cout << "shared RC " << lean_string_cstr(s) << std::endl;
     }

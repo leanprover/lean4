@@ -15,9 +15,6 @@ Author: Leonardo de Moura
 #include <malloc.h>
 #endif
 
-#define LEAN_SMALL_ALLOCATOR
-// #define LEAN_COMPRESSED_OBJECT_HEADER
-
 #ifdef __cplusplus
 #include <atomic>
 #define _Atomic(t) std::atomic<t>
@@ -27,6 +24,7 @@ extern "C" {
 #include <stdatomic.h>
 #define  LEAN_USING_STD
 #endif
+#include "config.h"
 
 #define LEAN_CLOSURE_MAX_ARGS      16
 #define LEAN_OBJECT_SIZE_DELTA     8

@@ -7,3 +7,4 @@ Author: Leonardo de Moura
 #pragma once
 @LEAN_SMALL_ALLOCATOR@
 @LEAN_LAZY_RC@
+@LEAN_COMPRESSED_OBJECT_HEADER@

@@ -34,6 +34,7 @@ option(JEMALLOC           "JEMALLOC"           OFF)
 option(JSON               "JSON"               ON)
 # When OFF we disable LLVM support
 option(LLVM               "LLVM"               OFF)
+option(COMPRESSED_OBJECT_HEADER "COMPRESSED_OBJECT_HEARDER" ON)
 
 # When cross-compiling, we do not compile the standard library since
 # the executable will not work on the host machine
@@ -127,6 +128,25 @@ endif()
 
 if ("${SMALL_ALLOCATOR}" MATCHES "ON")
   set(LEAN_SMALL_ALLOCATOR "#define LEAN_SMALL_ALLOCATOR")
+endif()
+
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+  message(STATUS "64-bit machine detected")
+  set(NumBits 64)
+else()
+  message(STATUS "32-bit machine detected")
+  set(NumBits 32)
+endif()
+
+if ("${COMPRESSED_OBJECT_HEADER}" MATCHES "ON")
+  if (NumBits EQUAL "64")
+    set(LEAN_COMPRESSED_OBJECT_HEADER "#define LEAN_COMPRESSED_OBJECT_HEADER")
+    message(STATUS "Using compressed object headers, this feature assume the OS only uses memory addresses < 2^48")
+  else()
+    message(STATUS "Compressed object headers cannot be used in 32-bit machines")
+  endif()
+else()
+    message(STATUS "Using big object headers")
 endif()
 
 if ("${RUNTIME_STATS}" MATCHES "ON")

@@ -23,7 +23,6 @@ struct terminator_object {
     lean_object * m_value;
 };
 
-
 object_compactor::object_compactor():
     m_begin(malloc(LEAN_COMPACTOR_INIT_SZ)),
     m_end(m_begin),
@@ -56,7 +55,7 @@ void * object_compactor::alloc(size_t sz) {
 }
 
 object_offset object_compactor::to_offset(object * o) {
-    if (is_scalar(o)) {
+    if (lean_is_scalar(o)) {
         return o;
     } else {
         auto it = m_obj_table.find(o);
@@ -89,7 +88,7 @@ bool object_compactor::insert_constructor(object * o) {
     std::vector<object_offset> & offsets = m_tmp;
     offsets.clear();
     bool missing_children = false;
-    unsigned num_objs     = cnstr_num_objs(o);
+    unsigned num_objs     = lean_ctor_num_objs(o);
     for (unsigned i = 0; i < num_objs; i++) {
         object_offset c = to_offset(cnstr_get(o, i));
         if (c == g_null_offset)
@@ -99,8 +98,8 @@ bool object_compactor::insert_constructor(object * o) {
     if (missing_children)
         return false;
     object * new_o = copy_object(o);
-    for (unsigned i = 0; i < cnstr_num_objs(o); i++)
-        cnstr_set(new_o, i, offsets[i]);
+    for (unsigned i = 0; i < lean_ctor_num_objs(o); i++)
+        lean_ctor_set(new_o, i, offsets[i]);
     return true;
 }
 
@@ -130,7 +129,7 @@ bool object_compactor::insert_array(object * o) {
 }
 
 bool object_compactor::insert_thunk(object * o) {
-    object * v = thunk_get(o);
+    object * v = lean_thunk_get(o);
     object_offset c = to_offset(v);
     if (c == g_null_offset)
         return false;
@@ -150,7 +149,7 @@ bool object_compactor::insert_ref(object * o) {
 }
 
 bool object_compactor::insert_task(object * o) {
-    object * v = task_get(o);
+    object * v = lean_task_get(o);
     object_offset c = to_offset(v);
     if (c == g_null_offset)
         return false;
@@ -187,7 +186,7 @@ void object_compactor::insert_mpz(object * o) {
 
 void object_compactor::operator()(object * o) {
     lean_assert(m_todo.empty());
-    if (!is_scalar(o)) {
+    if (!lean_is_scalar(o)) {
         m_todo.push_back(o);
         while (!m_todo.empty()) {
             object * curr = m_todo.back();
@@ -195,7 +194,7 @@ void object_compactor::operator()(object * o) {
                 m_todo.pop_back();
                 continue;
             }
-            lean_assert(!is_scalar(curr));
+            lean_assert(!lean_is_scalar(curr));
             bool r = true;
             switch (lean_ptr_tag(curr)) {
             case LeanClosure:         throw exception("closures cannot be compacted");
@@ -249,13 +248,13 @@ inline void compacted_region::move(size_t d) {
 }
 
 inline object * compacted_region::fix_object_ptr(object * o) {
-    if (is_scalar(o)) return o;
+    if (lean_is_scalar(o)) return o;
     return reinterpret_cast<object*>(static_cast<char*>(m_begin) + reinterpret_cast<size_t>(o));
 }
 
 inline void compacted_region::fix_constructor(object * o) {
-    object ** it  = cnstr_obj_cptr(o);
-    object ** end = it + cnstr_num_objs(o);
+    object ** it  = lean_ctor_obj_cptr(o);
+    object ** end = it + lean_ctor_num_objs(o);
     for (; it != end; it++) {
         *it = fix_object_ptr(*it);
     }
@@ -263,8 +262,8 @@ inline void compacted_region::fix_constructor(object * o) {
 }
 
 inline void compacted_region::fix_array(object * o) {
-    object ** it  = array_cptr(o);
-    object ** end = it + array_size(o);
+    object ** it  = lean_array_cptr(o);
+    object ** end = it + lean_array_size(o);
     for (; it != end; it++) {
         *it = fix_object_ptr(*it);
     }
@@ -310,23 +309,27 @@ object * compacted_region::read() {
     while (true) {
         lean_assert(static_cast<char*>(m_next) + sizeof(object) <= m_end);
         object * curr = reinterpret_cast<object*>(m_next);
-        switch (lean_ptr_tag(curr)) {
-        case LeanClosure:         lean_unreachable();
-        case LeanArray:           fix_array(curr); break;
-        case LeanScalarArray:     move(lean_sarray_byte_size(curr)); break;
-        case LeanString:          move(lean_string_byte_size(curr)); break;
-        case LeanMPZ:             fix_mpz(curr); break;
-        case LeanThunk:           fix_thunk(curr); break;
-        case LeanRef:             fix_ref(curr); break;
-        case LeanTask:            lean_unreachable();
-        case LeanExternal:        lean_unreachable();
-        case LeanReserved: {
-            object * r = reinterpret_cast<terminator_object*>(m_next)->m_value;
-            move(sizeof(terminator_object));
-            return fix_object_ptr(r);
-        }
-        default:
-            fix_constructor(curr); break;
+        uint8 tag = lean_ptr_tag(curr);
+        if (tag <= LeanMaxCtorTag) {
+            fix_constructor(curr);
+        } else {
+            switch (tag) {
+            case LeanClosure:         lean_unreachable();
+            case LeanArray:           fix_array(curr); break;
+            case LeanScalarArray:     move(lean_sarray_byte_size(curr)); break;
+            case LeanString:          move(lean_string_byte_size(curr)); break;
+            case LeanMPZ:             fix_mpz(curr); break;
+            case LeanThunk:           fix_thunk(curr); break;
+            case LeanRef:             fix_ref(curr); break;
+            case LeanTask:            lean_unreachable();
+            case LeanExternal:        lean_unreachable();
+            case LeanReserved: {
+                object * r = reinterpret_cast<terminator_object*>(m_next)->m_value;
+                move(sizeof(terminator_object));
+                return fix_object_ptr(r);
+            }
+            default:                  lean_unreachable();
+            }
         }
     }
 }

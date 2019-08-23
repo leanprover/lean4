@@ -12,13 +12,16 @@ Author: Leonardo de Moura
 #include "runtime/io.h"
 
 namespace lean {
-void initialize_runtime_module() {
+extern "C" void lean_initialize_runtime_module() {
     initialize_alloc();
     initialize_debug();
     initialize_object();
     initialize_io();
     initialize_serializer();
     initialize_thread();
+}
+void initialize_runtime_module() {
+    lean_initialize_runtime_module();
 }
 void finalize_runtime_module() {
     finalize_thread();

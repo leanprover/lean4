@@ -187,7 +187,10 @@ match d with
   unless (xs.size == 2 || xs.size == 1) (throw "invalid main function, incorrect arity when generating code");
   env ← getEnv;
   let usesLeanAPI := usesLeanNamespace env d;
-  when usesLeanAPI (emitLn "void lean_initialize();");
+  if usesLeanAPI then
+    emitLn "void lean_initialize();"
+  else
+    emitLn "void lean_initialize_runtime_module();";
   emitLn "int main(int argc, char ** argv) {\nlean_object* w; lean_object* in;";
   if usesLeanAPI then
     emitLn "lean_initialize();"
@@ -251,7 +254,18 @@ emitLns [
  "#pragma GCC diagnostic ignored \"-Wunused-parameter\"",
  "#pragma GCC diagnostic ignored \"-Wunused-label\"",
  "#pragma GCC diagnostic ignored \"-Wunused-but-set-variable\"",
- "#endif"]
+ "#endif",
+ "#ifdef __cplusplus",
+ "extern \"C\" {",
+ "#endif"
+]
+
+def emitFileFooter : M Unit :=
+emitLns [
+ "#ifdef __cplusplus",
+ "}",
+ "#endif"
+]
 
 def throwUnknownVar {α : Type} (x : VarId) : M α :=
 throw ("unknown variable '" ++ toString x ++ "'")
@@ -746,7 +760,8 @@ emitFileHeader;
 emitFnDecls;
 emitFns;
 emitInitFn;
-emitMainFnIfNeeded
+emitMainFnIfNeeded;
+emitFileFooter
 
 end EmitC
 

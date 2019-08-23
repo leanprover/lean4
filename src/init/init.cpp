@@ -24,7 +24,7 @@ lean::object* initialize_init_lean_default(lean::object* w);
 namespace lean {
 object* sort_const_table_core(object * w);
 
-void initialize() {
+extern "C" void lean_initialize() {
     save_stack_info();
     initialize_util_module();
     object * w = initialize_init_default(io_mk_world());
@@ -46,6 +46,10 @@ void initialize() {
     initialize_constructions_module();
     initialize_equations_compiler_module();
     initialize_frontend_lean_module();
+}
+
+void initialize() {
+    lean_initialize();
 }
 
 void finalize() {

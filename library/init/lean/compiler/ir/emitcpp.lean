@@ -163,12 +163,12 @@ closeNamespacesFor decl.name
 def cppQualifiedNameToName (s : String) : Name :=
 (s.split "::").foldl Name.mkString Name.anonymous
 
-def emitExternDeclAux (decl : Decl) (cppName : String) : M Unit :=
+def emitExternDeclAux (decl : Decl) (cppName : String) (fromCBackend : Bool := false) : M Unit :=
 do
 let qCppName := cppQualifiedNameToName cppName;
 openNamespaces qCppName;
 env ← getEnv;
-let extC := isExternC env decl.name;
+let extC := fromCBackend || isExternC env decl.name;
 when extC (emit "extern \"C\" ");
 (Name.mkString _ qCppBaseName) ← pure qCppName | throw "invalid name";
 emitFnDeclAux decl qCppBaseName (!extC);
@@ -185,7 +185,9 @@ usedDecls.mfor $ fun n => do
   decl ← getDecl n;
   match getExternNameFor env `cpp decl.name with
   | some cppName => emitExternDeclAux decl cppName
-  | none         => emitFnDecl decl (!modDecls.contains n)
+  | none         => match getExternNameFor env `c decl.name with
+    | some cName => emitExternDeclAux decl cName true
+    | none       => emitFnDecl decl (!modDecls.contains n)
 
 def emitMainFn : M Unit :=
 do
@@ -463,7 +465,9 @@ match decl with
 | Decl.extern _ _ _ extData =>
   match mkExternCall extData `cpp (toStringArgs ys) with
   | some c => emit c *> emitLn ";"
-  | none   => throw "failed to emit extern application"
+  | none   => match mkExternCall extData `c (toStringArgs ys) with
+    | some c => emit c *> emitLn ";"
+    | none   => throw "failed to emit extern application"
 | _ => do emitCppName f; when (ys.size > 0) (do emit "("; emitArgs ys; emit ")"); emitLn ";"
 
 def emitPartialApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit :=

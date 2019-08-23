@@ -49,7 +49,7 @@ static inline lean_object * get_next(lean_object * o) {
     LEAN_BYTE(header, 7) = 0;
     return (lean_object*)(header);
 #else
-    return (lean_object*)(o->m_rc);
+    return (lean_object*)((size_t)(o->m_rc));
 #endif
 }
 
@@ -60,7 +60,7 @@ static inline void set_next(lean_object * o, lean_object * n) {
     LEAN_BYTE(new_header, 7) = LEAN_BYTE(o->m_header, 7);
     o->m_header = new_header;
 #else
-    *(lean_object*)(o->m_rc) = n;
+    o->m_rc = (size_t)n;
 #endif
 }
 

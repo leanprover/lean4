@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 #endif
 
 #define LEAN_SMALL_ALLOCATOR
-#define LEAN_COMPRESSED_OBJECT_HEADER
+// #define LEAN_COMPRESSED_OBJECT_HEADER
 
 #ifdef __cplusplus
 #include <atomic>
@@ -1530,7 +1530,7 @@ static inline uint64_t lean_unbox_uint64(b_lean_obj_arg o) {
 }
 
 static inline lean_obj_res lean_box_usize(size_t v) {
-    lean_obj_res r = lean_alloc_ctor(0, 1, 0);
+    lean_obj_res r = lean_alloc_ctor(0, 0, sizeof(size_t));
     lean_ctor_set_usize(r, 0, v);
     return r;
 }

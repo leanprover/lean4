@@ -60,6 +60,7 @@ extern "C" void lean_free_object(lean_object * o) {
     case LeanArray:       return dealloc(o, lean_array_byte_size(o));
     case LeanScalarArray: return dealloc(o, lean_sarray_byte_size(o));
     case LeanString:      return dealloc(o, lean_string_byte_size(o));
+    case LeanMPZ:         to_mpz(o)->m_value.~mpz(); return lean_free_small(o);
     default:              return lean_free_small(o);
     }
 }

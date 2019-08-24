@@ -1034,10 +1034,10 @@ extern "C" object * lean_nat_big_add(object * a1, object * a2) {
 extern "C" object * lean_nat_big_sub(object * a1, object * a2) {
     lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
     if (lean_is_scalar(a1)) {
-        lean_assert(lean_unbox(a1) < mpz_value(a2));
+        lean_assert(mpz::of_size_t(lean_unbox(a1)) < mpz_value(a2));
         return lean_box(0);
     } else if (lean_is_scalar(a2)) {
-        lean_assert(mpz_value(a1) > lean_unbox(a2));
+        lean_assert(mpz_value(a1) > mpz::of_size_t(lean_unbox(a2)));
         return mpz_to_nat(mpz_value(a1) - mpz::of_size_t(lean_unbox(a2)));
     } else {
         if (mpz_value(a1) < mpz_value(a2))
@@ -1092,10 +1092,10 @@ extern "C" object * lean_nat_big_mod(object * a1, object * a2) {
 
 extern "C" bool lean_nat_big_eq(object * a1, object * a2) {
     if (lean_is_scalar(a1)) {
-        lean_assert(lean_unbox(a1) != mpz_value(a2))
+        lean_assert(mpz::of_size_t(lean_unbox(a1)) != mpz_value(a2));
         return false;
     } else if (lean_is_scalar(a2)) {
-        lean_assert(mpz_value(a1) != lean_unbox(a2))
+        lean_assert(mpz_value(a1) != mpz::of_size_t(lean_unbox(a2)));
         return false;
     } else {
         return mpz_value(a1) == mpz_value(a2);
@@ -1104,10 +1104,10 @@ extern "C" bool lean_nat_big_eq(object * a1, object * a2) {
 
 extern "C" bool lean_nat_big_le(object * a1, object * a2) {
     if (lean_is_scalar(a1)) {
-        lean_assert(lean_unbox(a1) < mpz_value(a2))
+        lean_assert(mpz::of_size_t(lean_unbox(a1)) < mpz_value(a2))
         return true;
     } else if (lean_is_scalar(a2)) {
-        lean_assert(mpz_value(a1) > lean_unbox(a2));
+        lean_assert(mpz_value(a1) > mpz::of_size_t(lean_unbox(a2)));
         return false;
     } else {
         return mpz_value(a1) <= mpz_value(a2);
@@ -1116,10 +1116,10 @@ extern "C" bool lean_nat_big_le(object * a1, object * a2) {
 
 extern "C" bool lean_nat_big_lt(object * a1, object * a2) {
     if (lean_is_scalar(a1)) {
-        lean_assert(lean_unbox(a1) < mpz_value(a2));
+        lean_assert(mpz::of_size_t(lean_unbox(a1)) < mpz_value(a2));
         return true;
     } else if (lean_is_scalar(a2)) {
-        lean_assert(mpz_value(a1) > lean_unbox(a2));
+        lean_assert(mpz_value(a1) > mpz::of_size_t(lean_unbox(a2)));
         return false;
     } else {
         return mpz_value(a1) < mpz_value(a2);

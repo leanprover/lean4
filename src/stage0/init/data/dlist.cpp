@@ -1,11 +1,7 @@
 // Lean compiler output
 // Module: init.data.dlist
 // Imports: init.data.list.basic
-#include "runtime/object.h"
-#include "runtime/apply.h"
-typedef lean::object obj;    typedef lean::usize  usize;
-typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
-typedef lean::uint32 uint32; typedef lean::uint64 uint64;
+#include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -14,319 +10,323 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+#ifdef __cplusplus
 extern "C" {
-obj* l_DList_append(obj*);
-obj* l_DList_singleton___elambda__1___rarg(obj*, obj*);
-obj* l_DList_push(obj*);
-obj* l_DList_toList___rarg(obj*);
-obj* l_DList_cons___elambda__1(obj*);
-obj* l_DList_push___elambda__1(obj*);
-obj* l_DList_HasAppend___closed__1;
-obj* l_DList_append___elambda__1___rarg(obj*, obj*, obj*);
-obj* l_DList_HasEmptyc(obj*);
-obj* l_DList_cons___rarg(obj*, obj*);
-obj* l_DList_singleton(obj*);
-obj* l_DList_toList(obj*);
-obj* l_DList_push___elambda__1___rarg(obj*, obj*, obj*);
-obj* l_DList_append___rarg(obj*, obj*);
-obj* l_DList_HasEmptyc___closed__1;
-obj* l_DList_empty___elambda__1___rarg___boxed(obj*);
-obj* l_DList_HasAppend(obj*);
-obj* l_DList_empty___elambda__1(obj*);
-obj* l_List_append___rarg(obj*, obj*);
-obj* l_DList_cons(obj*);
-obj* l_DList_empty(obj*);
-obj* l_DList_cons___elambda__1___rarg(obj*, obj*, obj*);
-obj* l_DList_push___rarg(obj*, obj*);
-obj* l_DList_singleton___rarg(obj*);
-obj* l_DList_empty___closed__1;
-obj* l_DList_empty___elambda__1___rarg(obj*);
-obj* l_DList_ofList___elambda__1___rarg(obj*, obj*);
-obj* l_DList_ofList(obj*);
-obj* l_DList_singleton___elambda__1(obj*);
-obj* l_DList_ofList___elambda__1(obj*);
-obj* l_DList_ofList___rarg(obj*);
-obj* l_DList_append___elambda__1(obj*);
-obj* l_DList_ofList___elambda__1___rarg(obj* x_1, obj* x_2) {
+#endif
+lean_object* l_DList_append(lean_object*);
+lean_object* l_DList_singleton___elambda__1___rarg(lean_object*, lean_object*);
+lean_object* l_DList_push(lean_object*);
+lean_object* l_DList_toList___rarg(lean_object*);
+lean_object* l_DList_cons___elambda__1(lean_object*);
+lean_object* l_DList_push___elambda__1(lean_object*);
+lean_object* l_DList_HasAppend___closed__1;
+lean_object* l_DList_append___elambda__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_DList_HasEmptyc(lean_object*);
+lean_object* l_DList_cons___rarg(lean_object*, lean_object*);
+lean_object* l_DList_singleton(lean_object*);
+lean_object* l_DList_toList(lean_object*);
+lean_object* l_DList_push___elambda__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_DList_append___rarg(lean_object*, lean_object*);
+lean_object* l_DList_HasEmptyc___closed__1;
+lean_object* l_DList_empty___elambda__1___rarg___boxed(lean_object*);
+lean_object* l_DList_HasAppend(lean_object*);
+lean_object* l_DList_empty___elambda__1(lean_object*);
+lean_object* l_List_append___rarg(lean_object*, lean_object*);
+lean_object* l_DList_cons(lean_object*);
+lean_object* l_DList_empty(lean_object*);
+lean_object* l_DList_cons___elambda__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_DList_push___rarg(lean_object*, lean_object*);
+lean_object* l_DList_singleton___rarg(lean_object*);
+lean_object* l_DList_empty___closed__1;
+lean_object* l_DList_empty___elambda__1___rarg(lean_object*);
+lean_object* l_DList_ofList___elambda__1___rarg(lean_object*, lean_object*);
+lean_object* l_DList_ofList(lean_object*);
+lean_object* l_DList_singleton___elambda__1(lean_object*);
+lean_object* l_DList_ofList___elambda__1(lean_object*);
+lean_object* l_DList_ofList___rarg(lean_object*);
+lean_object* l_DList_append___elambda__1(lean_object*);
+lean_object* l_DList_ofList___elambda__1___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = l_List_append___rarg(x_1, x_2);
 return x_3;
 }
 }
-obj* l_DList_ofList___elambda__1(obj* x_1) {
+lean_object* l_DList_ofList___elambda__1(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_ofList___elambda__1___rarg), 2, 0);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_DList_ofList___elambda__1___rarg), 2, 0);
 return x_2;
 }
 }
-obj* l_DList_ofList___rarg(obj* x_1) {
+lean_object* l_DList_ofList___rarg(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_ofList___elambda__1___rarg), 2, 1);
-lean::closure_set(x_2, 0, x_1);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_DList_ofList___elambda__1___rarg), 2, 1);
+lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* l_DList_ofList(obj* x_1) {
+lean_object* l_DList_ofList(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_ofList___rarg), 1, 0);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_DList_ofList___rarg), 1, 0);
 return x_2;
 }
 }
-obj* l_DList_empty___elambda__1___rarg(obj* x_1) {
+lean_object* l_DList_empty___elambda__1___rarg(lean_object* x_1) {
 _start:
 {
-lean::inc(x_1);
+lean_inc(x_1);
 return x_1;
 }
 }
-obj* l_DList_empty___elambda__1(obj* x_1) {
+lean_object* l_DList_empty___elambda__1(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_empty___elambda__1___rarg___boxed), 1, 0);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_DList_empty___elambda__1___rarg___boxed), 1, 0);
 return x_2;
 }
 }
-obj* _init_l_DList_empty___closed__1() {
+lean_object* _init_l_DList_empty___closed__1() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_empty___elambda__1___rarg___boxed), 1, 0);
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_DList_empty___elambda__1___rarg___boxed), 1, 0);
 return x_1;
 }
 }
-obj* l_DList_empty(obj* x_1) {
+lean_object* l_DList_empty(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = l_DList_empty___closed__1;
 return x_2;
 }
 }
-obj* l_DList_empty___elambda__1___rarg___boxed(obj* x_1) {
+lean_object* l_DList_empty___elambda__1___rarg___boxed(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = l_DList_empty___elambda__1___rarg(x_1);
-lean::dec(x_1);
+lean_dec(x_1);
 return x_2;
 }
 }
-obj* _init_l_DList_HasEmptyc___closed__1() {
+lean_object* _init_l_DList_HasEmptyc___closed__1() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_empty___elambda__1___rarg___boxed), 1, 0);
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_DList_empty___elambda__1___rarg___boxed), 1, 0);
 return x_1;
 }
 }
-obj* l_DList_HasEmptyc(obj* x_1) {
+lean_object* l_DList_HasEmptyc(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = l_DList_HasEmptyc___closed__1;
 return x_2;
 }
 }
-obj* l_DList_toList___rarg(obj* x_1) {
+lean_object* l_DList_toList___rarg(lean_object* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; 
-x_2 = lean::box(0);
-x_3 = lean::apply_1(x_1, x_2);
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_box(0);
+x_3 = lean_apply_1(x_1, x_2);
 return x_3;
 }
 }
-obj* l_DList_toList(obj* x_1) {
+lean_object* l_DList_toList(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_toList___rarg), 1, 0);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_DList_toList___rarg), 1, 0);
 return x_2;
 }
 }
-obj* l_DList_singleton___elambda__1___rarg(obj* x_1, obj* x_2) {
+lean_object* l_DList_singleton___elambda__1___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_3, 0, x_1);
-lean::cnstr_set(x_3, 1, x_2);
+lean_object* x_3; 
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-obj* l_DList_singleton___elambda__1(obj* x_1) {
+lean_object* l_DList_singleton___elambda__1(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___elambda__1___rarg), 2, 0);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_DList_singleton___elambda__1___rarg), 2, 0);
 return x_2;
 }
 }
-obj* l_DList_singleton___rarg(obj* x_1) {
+lean_object* l_DList_singleton___rarg(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___elambda__1___rarg), 2, 1);
-lean::closure_set(x_2, 0, x_1);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_DList_singleton___elambda__1___rarg), 2, 1);
+lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* l_DList_singleton(obj* x_1) {
+lean_object* l_DList_singleton(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 1, 0);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_DList_singleton___rarg), 1, 0);
 return x_2;
 }
 }
-obj* l_DList_cons___elambda__1___rarg(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_DList_cons___elambda__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; obj* x_5; 
-x_4 = lean::apply_1(x_2, x_3);
-x_5 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_5, 0, x_1);
-lean::cnstr_set(x_5, 1, x_4);
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_apply_1(x_2, x_3);
+x_5 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_5, 0, x_1);
+lean_ctor_set(x_5, 1, x_4);
 return x_5;
 }
 }
-obj* l_DList_cons___elambda__1(obj* x_1) {
+lean_object* l_DList_cons___elambda__1(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_cons___elambda__1___rarg), 3, 0);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_DList_cons___elambda__1___rarg), 3, 0);
 return x_2;
 }
 }
-obj* l_DList_cons___rarg(obj* x_1, obj* x_2) {
+lean_object* l_DList_cons___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_cons___elambda__1___rarg), 3, 2);
-lean::closure_set(x_3, 0, x_1);
-lean::closure_set(x_3, 1, x_2);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_DList_cons___elambda__1___rarg), 3, 2);
+lean_closure_set(x_3, 0, x_1);
+lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-obj* l_DList_cons(obj* x_1) {
+lean_object* l_DList_cons(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_cons___rarg), 2, 0);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_DList_cons___rarg), 2, 0);
 return x_2;
 }
 }
-obj* l_DList_append___elambda__1___rarg(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_DList_append___elambda__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; obj* x_5; 
-x_4 = lean::apply_1(x_2, x_3);
-x_5 = lean::apply_1(x_1, x_4);
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_apply_1(x_2, x_3);
+x_5 = lean_apply_1(x_1, x_4);
 return x_5;
 }
 }
-obj* l_DList_append___elambda__1(obj* x_1) {
+lean_object* l_DList_append___elambda__1(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_append___elambda__1___rarg), 3, 0);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_DList_append___elambda__1___rarg), 3, 0);
 return x_2;
 }
 }
-obj* l_DList_append___rarg(obj* x_1, obj* x_2) {
+lean_object* l_DList_append___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_append___elambda__1___rarg), 3, 2);
-lean::closure_set(x_3, 0, x_1);
-lean::closure_set(x_3, 1, x_2);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_DList_append___elambda__1___rarg), 3, 2);
+lean_closure_set(x_3, 0, x_1);
+lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-obj* l_DList_append(obj* x_1) {
+lean_object* l_DList_append(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_append___rarg), 2, 0);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_DList_append___rarg), 2, 0);
 return x_2;
 }
 }
-obj* l_DList_push___elambda__1___rarg(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_DList_push___elambda__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; obj* x_5; 
-x_4 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_4, 0, x_1);
-lean::cnstr_set(x_4, 1, x_3);
-x_5 = lean::apply_1(x_2, x_4);
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_3);
+x_5 = lean_apply_1(x_2, x_4);
 return x_5;
 }
 }
-obj* l_DList_push___elambda__1(obj* x_1) {
+lean_object* l_DList_push___elambda__1(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_push___elambda__1___rarg), 3, 0);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_DList_push___elambda__1___rarg), 3, 0);
 return x_2;
 }
 }
-obj* l_DList_push___rarg(obj* x_1, obj* x_2) {
+lean_object* l_DList_push___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_push___elambda__1___rarg), 3, 2);
-lean::closure_set(x_3, 0, x_2);
-lean::closure_set(x_3, 1, x_1);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_DList_push___elambda__1___rarg), 3, 2);
+lean_closure_set(x_3, 0, x_2);
+lean_closure_set(x_3, 1, x_1);
 return x_3;
 }
 }
-obj* l_DList_push(obj* x_1) {
+lean_object* l_DList_push(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_push___rarg), 2, 0);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_DList_push___rarg), 2, 0);
 return x_2;
 }
 }
-obj* _init_l_DList_HasAppend___closed__1() {
+lean_object* _init_l_DList_HasAppend___closed__1() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_append___rarg), 2, 0);
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_DList_append___rarg), 2, 0);
 return x_1;
 }
 }
-obj* l_DList_HasAppend(obj* x_1) {
+lean_object* l_DList_HasAppend(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = l_DList_HasAppend___closed__1;
 return x_2;
 }
 }
-obj* initialize_init_data_list_basic(obj*);
+lean_object* initialize_init_data_list_basic(lean_object*);
 static bool _G_initialized = false;
-obj* initialize_init_data_dlist(obj* w) {
+lean_object* initialize_init_data_dlist(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_data_list_basic(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 l_DList_empty___closed__1 = _init_l_DList_empty___closed__1();
-lean::mark_persistent(l_DList_empty___closed__1);
+lean_mark_persistent(l_DList_empty___closed__1);
 l_DList_HasEmptyc___closed__1 = _init_l_DList_HasEmptyc___closed__1();
-lean::mark_persistent(l_DList_HasEmptyc___closed__1);
+lean_mark_persistent(l_DList_HasEmptyc___closed__1);
 l_DList_HasAppend___closed__1 = _init_l_DList_HasAppend___closed__1();
-lean::mark_persistent(l_DList_HasAppend___closed__1);
+lean_mark_persistent(l_DList_HasAppend___closed__1);
 return w;
 }
+#ifdef __cplusplus
 }
+#endif

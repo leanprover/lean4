@@ -1,11 +1,7 @@
 // Lean compiler output
 // Module: init.control.lift
 // Imports: init.coe init.control.monad
-#include "runtime/object.h"
-#include "runtime/apply.h"
-typedef lean::object obj;    typedef lean::usize  usize;
-typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
-typedef lean::uint32 uint32; typedef lean::uint64 uint64;
+#include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -14,219 +10,223 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+#ifdef __cplusplus
 extern "C" {
-obj* l_hasMonadLiftToHasCoe___elambda__1___rarg(obj*, obj*);
-obj* l_hasMonadLiftToHasCoe___elambda__1___boxed(obj*, obj*, obj*);
-obj* l_monadFunctorTTrans(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_hasMonadLiftTRefl___rarg(obj*);
-obj* l_hasMonadLiftToHasCoe___boxed(obj*, obj*);
-obj* l_hasMonadLiftTRefl___rarg___boxed(obj*);
-obj* l_monadFunctorTTrans___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_monadFunctorTRefl___boxed(obj*, obj*, obj*);
-obj* l_hasMonadLiftTTrans___rarg(obj*, obj*, obj*, obj*);
-obj* l_hasMonadLiftTRefl___boxed(obj*, obj*);
-obj* l_monadFunctorTRefl___rarg(obj*, obj*);
-obj* l_hasMonadLiftToHasCoe___elambda__1(obj*, obj*, obj*);
-obj* l_monadFunctorTRefl(obj*, obj*, obj*);
-obj* l_hasMonadLiftTRefl(obj*, obj*);
-obj* l_hasMonadLiftTTrans(obj*, obj*, obj*);
-obj* l_hasMonadLiftToHasCoe(obj*, obj*);
-obj* l_hasMonadLiftTTrans___boxed(obj*, obj*, obj*);
-obj* l_monadFunctorTTrans___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_hasMonadLiftToHasCoe___rarg(obj*, obj*);
-obj* l_monadFunctorTTrans___rarg___lambda__1(obj*, obj*, obj*, obj*);
-obj* l_hasMonadLiftToHasCoe___elambda__1___rarg(obj* x_1, obj* x_2) {
+#endif
+lean_object* l_hasMonadLiftToHasCoe___elambda__1___rarg(lean_object*, lean_object*);
+lean_object* l_hasMonadLiftToHasCoe___elambda__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_monadFunctorTTrans(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_hasMonadLiftTRefl___rarg(lean_object*);
+lean_object* l_hasMonadLiftToHasCoe___boxed(lean_object*, lean_object*);
+lean_object* l_hasMonadLiftTRefl___rarg___boxed(lean_object*);
+lean_object* l_monadFunctorTTrans___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_monadFunctorTRefl___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_hasMonadLiftTTrans___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_hasMonadLiftTRefl___boxed(lean_object*, lean_object*);
+lean_object* l_monadFunctorTRefl___rarg(lean_object*, lean_object*);
+lean_object* l_hasMonadLiftToHasCoe___elambda__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_monadFunctorTRefl(lean_object*, lean_object*, lean_object*);
+lean_object* l_hasMonadLiftTRefl(lean_object*, lean_object*);
+lean_object* l_hasMonadLiftTTrans(lean_object*, lean_object*, lean_object*);
+lean_object* l_hasMonadLiftToHasCoe(lean_object*, lean_object*);
+lean_object* l_hasMonadLiftTTrans___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_monadFunctorTTrans___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_hasMonadLiftToHasCoe___rarg(lean_object*, lean_object*);
+lean_object* l_monadFunctorTTrans___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_hasMonadLiftToHasCoe___elambda__1___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::apply_2(x_1, lean::box(0), x_2);
+lean_object* x_3; 
+x_3 = lean_apply_2(x_1, lean_box(0), x_2);
 return x_3;
 }
 }
-obj* l_hasMonadLiftToHasCoe___elambda__1(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_hasMonadLiftToHasCoe___elambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; 
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_hasMonadLiftToHasCoe___elambda__1___rarg), 2, 0);
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_hasMonadLiftToHasCoe___elambda__1___rarg), 2, 0);
 return x_4;
 }
 }
-obj* l_hasMonadLiftToHasCoe___rarg(obj* x_1, obj* x_2) {
+lean_object* l_hasMonadLiftToHasCoe___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_hasMonadLiftToHasCoe___elambda__1___rarg), 2, 1);
-lean::closure_set(x_3, 0, x_1);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_hasMonadLiftToHasCoe___elambda__1___rarg), 2, 1);
+lean_closure_set(x_3, 0, x_1);
 return x_3;
 }
 }
-obj* l_hasMonadLiftToHasCoe(obj* x_1, obj* x_2) {
+lean_object* l_hasMonadLiftToHasCoe(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_hasMonadLiftToHasCoe___rarg), 2, 0);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_hasMonadLiftToHasCoe___rarg), 2, 0);
 return x_3;
 }
 }
-obj* l_hasMonadLiftToHasCoe___elambda__1___boxed(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_hasMonadLiftToHasCoe___elambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; 
+lean_object* x_4; 
 x_4 = l_hasMonadLiftToHasCoe___elambda__1(x_1, x_2, x_3);
-lean::dec(x_2);
-lean::dec(x_1);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_4;
 }
 }
-obj* l_hasMonadLiftToHasCoe___boxed(obj* x_1, obj* x_2) {
+lean_object* l_hasMonadLiftToHasCoe___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = l_hasMonadLiftToHasCoe(x_1, x_2);
-lean::dec(x_2);
-lean::dec(x_1);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
-obj* l_hasMonadLiftTTrans___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_hasMonadLiftTTrans___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-obj* x_5; obj* x_6; 
-x_5 = lean::apply_2(x_2, lean::box(0), x_4);
-x_6 = lean::apply_2(x_1, lean::box(0), x_5);
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_apply_2(x_2, lean_box(0), x_4);
+x_6 = lean_apply_2(x_1, lean_box(0), x_5);
 return x_6;
 }
 }
-obj* l_hasMonadLiftTTrans(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_hasMonadLiftTTrans(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; 
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_hasMonadLiftTTrans___rarg), 4, 0);
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_hasMonadLiftTTrans___rarg), 4, 0);
 return x_4;
 }
 }
-obj* l_hasMonadLiftTTrans___boxed(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_hasMonadLiftTTrans___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; 
+lean_object* x_4; 
 x_4 = l_hasMonadLiftTTrans(x_1, x_2, x_3);
-lean::dec(x_3);
-lean::dec(x_2);
-lean::dec(x_1);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_4;
 }
 }
-obj* l_hasMonadLiftTRefl___rarg(obj* x_1) {
+lean_object* l_hasMonadLiftTRefl___rarg(lean_object* x_1) {
 _start:
 {
-lean::inc(x_1);
+lean_inc(x_1);
 return x_1;
 }
 }
-obj* l_hasMonadLiftTRefl(obj* x_1, obj* x_2) {
+lean_object* l_hasMonadLiftTRefl(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_hasMonadLiftTRefl___rarg___boxed), 1, 0);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_hasMonadLiftTRefl___rarg___boxed), 1, 0);
 return x_3;
 }
 }
-obj* l_hasMonadLiftTRefl___rarg___boxed(obj* x_1) {
+lean_object* l_hasMonadLiftTRefl___rarg___boxed(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = l_hasMonadLiftTRefl___rarg(x_1);
-lean::dec(x_1);
+lean_dec(x_1);
 return x_2;
 }
 }
-obj* l_hasMonadLiftTRefl___boxed(obj* x_1, obj* x_2) {
+lean_object* l_hasMonadLiftTRefl___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = l_hasMonadLiftTRefl(x_1, x_2);
-lean::dec(x_1);
+lean_dec(x_1);
 return x_3;
 }
 }
-obj* l_monadFunctorTTrans___rarg___lambda__1(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_monadFunctorTTrans___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-obj* x_5; 
-x_5 = lean::apply_3(x_1, lean::box(0), x_2, x_4);
+lean_object* x_5; 
+x_5 = lean_apply_3(x_1, lean_box(0), x_2, x_4);
 return x_5;
 }
 }
-obj* l_monadFunctorTTrans___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+lean_object* l_monadFunctorTTrans___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-obj* x_6; obj* x_7; 
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_monadFunctorTTrans___rarg___lambda__1), 4, 2);
-lean::closure_set(x_6, 0, x_2);
-lean::closure_set(x_6, 1, x_4);
-x_7 = lean::apply_3(x_1, lean::box(0), x_6, x_5);
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_alloc_closure((void*)(l_monadFunctorTTrans___rarg___lambda__1), 4, 2);
+lean_closure_set(x_6, 0, x_2);
+lean_closure_set(x_6, 1, x_4);
+x_7 = lean_apply_3(x_1, lean_box(0), x_6, x_5);
 return x_7;
 }
 }
-obj* l_monadFunctorTTrans(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
+lean_object* l_monadFunctorTTrans(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-obj* x_7; 
-x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_monadFunctorTTrans___rarg), 5, 0);
+lean_object* x_7; 
+x_7 = lean_alloc_closure((void*)(l_monadFunctorTTrans___rarg), 5, 0);
 return x_7;
 }
 }
-obj* l_monadFunctorTTrans___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
+lean_object* l_monadFunctorTTrans___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-obj* x_7; 
+lean_object* x_7; 
 x_7 = l_monadFunctorTTrans(x_1, x_2, x_3, x_4, x_5, x_6);
-lean::dec(x_6);
-lean::dec(x_5);
-lean::dec(x_4);
-lean::dec(x_3);
-lean::dec(x_2);
-lean::dec(x_1);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_7;
 }
 }
-obj* l_monadFunctorTRefl___rarg(obj* x_1, obj* x_2) {
+lean_object* l_monadFunctorTRefl___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::apply_2(x_1, lean::box(0), x_2);
+lean_object* x_3; 
+x_3 = lean_apply_2(x_1, lean_box(0), x_2);
 return x_3;
 }
 }
-obj* l_monadFunctorTRefl(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_monadFunctorTRefl(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; 
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_monadFunctorTRefl___rarg), 2, 0);
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_monadFunctorTRefl___rarg), 2, 0);
 return x_4;
 }
 }
-obj* l_monadFunctorTRefl___boxed(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_monadFunctorTRefl___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; 
+lean_object* x_4; 
 x_4 = l_monadFunctorTRefl(x_1, x_2, x_3);
-lean::dec(x_2);
-lean::dec(x_1);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_4;
 }
 }
-obj* initialize_init_coe(obj*);
-obj* initialize_init_control_monad(obj*);
+lean_object* initialize_init_coe(lean_object*);
+lean_object* initialize_init_control_monad(lean_object*);
 static bool _G_initialized = false;
-obj* initialize_init_control_lift(obj* w) {
+lean_object* initialize_init_control_lift(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_coe(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_control_monad(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 return w;
 }
+#ifdef __cplusplus
 }
+#endif

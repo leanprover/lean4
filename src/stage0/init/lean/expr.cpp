@@ -1,11 +1,7 @@
 // Lean compiler output
 // Module: init.lean.expr
 // Imports: init.lean.level init.lean.kvmap
-#include "runtime/object.h"
-#include "runtime/apply.h"
-typedef lean::object obj;    typedef lean::usize  usize;
-typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
-typedef lean::uint32 uint32; typedef lean::uint64 uint64;
+#include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -14,244 +10,246 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+#ifdef __cplusplus
 extern "C" {
-obj* lean_expr_mk_mdata(obj*, obj*);
-obj* l_Lean_Expr_getAppNumArgsAux___main___boxed(obj*, obj*);
-obj* l_Lean_Expr_lam___boxed(obj*, obj*, obj*, obj*);
-uint8 lean_expr_quick_lt(obj*, obj*);
-obj* l_Lean_Expr_hash___boxed(obj*);
-uint8 lean_name_dec_eq(obj*, obj*);
-obj* l_Lean_Expr_getAppFn(obj*);
-obj* l_Lean_mkBinApp(obj*, obj*, obj*);
-obj* l_Lean_MData_empty;
-obj* lean_expr_mk_sort(obj*);
-obj* l_Lean_Expr_pi___boxed(obj*, obj*, obj*, obj*);
-obj* lean_nat_sub(obj*, obj*);
-obj* l_Lean_Expr_HasBeq___closed__1;
-obj* l_Lean_Expr_isAppOfArity___main___boxed(obj*, obj*, obj*);
-obj* l_Lean_exprIsInhabited;
-usize lean_expr_hash(obj*);
-obj* lean_expr_dbg_to_string(obj*);
-obj* l_Lean_mkApp(obj*, obj*);
-obj* l_Lean_Expr_eqv___boxed(obj*, obj*);
-obj* l_Lean_mkDecIsTrue___closed__4;
-obj* lean_expr_mk_pi(obj*, uint8, obj*, obj*);
-obj* l_Lean_Expr_getAppNumArgsAux___boxed(obj*, obj*);
-obj* lean_expr_local(obj*, obj*, obj*, uint8);
-obj* lean_expr_mk_app(obj*, obj*);
-obj* l_Lean_Expr_quickLt___boxed(obj*, obj*);
-obj* l_Lean_Expr_isAppOf___boxed(obj*, obj*);
-obj* lean_expr_mk_let(obj*, obj*, obj*, obj*);
-obj* l_Lean_Expr_getAppFn___main(obj*);
-obj* l_Lean_mkDecIsFalse___closed__1;
-obj* l_Lean_Expr_isAppOfArity___boxed(obj*, obj*, obj*);
-obj* l_Lean_mkDecIsTrue___closed__3;
-obj* l_Lean_mkConst(obj*, obj*);
-obj* l_Lean_Expr_getAppNumArgsAux___main(obj*, obj*);
-obj* l_Lean_Expr_sort___boxed(obj*);
-obj* lean_expr_mk_fvar(obj*);
-obj* l_List_foldl___main___at_Lean_mkApp___spec__1(obj*, obj*);
-obj* lean_expr_mk_proj(obj*, obj*, obj*);
-obj* lean_expr_mk_const(obj*, obj*);
-obj* l_Lean_Expr_bvar___boxed(obj*);
-obj* l_Lean_Expr_Hashable___closed__1;
-uint8 lean_expr_eqv(obj*, obj*);
-obj* l_Lean_MData_HasEmptyc;
-obj* l_Lean_Expr_dbgToString___boxed(obj*);
-obj* l_Lean_Expr_elet___boxed(obj*, obj*, obj*, obj*);
-obj* l_Lean_Expr_getAppNumArgs(obj*);
-obj* l_Lean_mkDecIsTrue___closed__1;
-obj* l_Lean_mkBinCApp(obj*, obj*, obj*);
-obj* l_Lean_mkDecIsFalse(obj*, obj*);
-obj* lean_name_mk_string(obj*, obj*);
-obj* l_Lean_Expr_lit___boxed(obj*);
-obj* lean_nat_add(obj*, obj*);
-uint8 lean_nat_dec_eq(obj*, obj*);
-obj* l_Lean_Expr_app___boxed(obj*, obj*);
-obj* l_Lean_mkDecIsTrue___closed__2;
-obj* l_Lean_Expr_getAppFn___main___boxed(obj*);
-obj* l_Lean_mkCApp(obj*, obj*);
-obj* l_Lean_mkDecIsTrue___closed__5;
-uint8 l_Lean_Expr_isAppOfArity___main(obj*, obj*, obj*);
-obj* lean_expr_mk_mvar(obj*);
-obj* lean_expr_mk_bvar(obj*);
-obj* l_Lean_Expr_proj___boxed(obj*, obj*, obj*);
-uint8 lean_expr_lt(obj*, obj*);
-obj* l_Lean_mkDecIsTrue(obj*, obj*);
-uint8 l_Lean_Expr_isAppOf(obj*, obj*);
-obj* l_Lean_Expr_const___boxed(obj*, obj*);
-obj* l_Lean_Expr_fvar___boxed(obj*);
-obj* lean_expr_mk_lambda(obj*, uint8, obj*, obj*);
-obj* l_Lean_Expr_mdata___boxed(obj*, obj*);
-obj* l_Lean_Expr_HasBeq;
-obj* l_Lean_Expr_Hashable;
-obj* l_Lean_Expr_getAppNumArgs___boxed(obj*);
-obj* l_Lean_Expr_mvar___boxed(obj*);
-obj* l_Lean_Expr_local___boxed(obj*, obj*, obj*, obj*);
-obj* l_Lean_Expr_getAppFn___boxed(obj*);
-uint8 l_Lean_Expr_isAppOfArity(obj*, obj*, obj*);
-obj* l_Lean_Expr_getAppNumArgsAux(obj*, obj*);
-obj* l_Lean_mkDecIsFalse___closed__3;
-obj* l_Lean_exprIsInhabited___closed__1;
-obj* lean_expr_mk_lit(obj*);
-obj* l_Lean_mkDecIsFalse___closed__2;
-obj* l_Lean_Expr_lt___boxed(obj*, obj*);
-obj* _init_l_Lean_MData_empty() {
+#endif
+lean_object* lean_expr_mk_mdata(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_getAppNumArgsAux___main___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_lam___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_expr_quick_lt(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_hash___boxed(lean_object*);
+uint8_t lean_name_dec_eq(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_getAppFn(lean_object*);
+lean_object* l_Lean_mkBinApp(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MData_empty;
+lean_object* lean_expr_mk_sort(lean_object*);
+lean_object* l_Lean_Expr_pi___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_HasBeq___closed__1;
+lean_object* l_Lean_Expr_isAppOfArity___main___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_exprIsInhabited;
+size_t lean_expr_hash(lean_object*);
+lean_object* lean_expr_dbg_to_string(lean_object*);
+lean_object* l_Lean_mkApp(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_eqv___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_mkDecIsTrue___closed__4;
+lean_object* lean_expr_mk_pi(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_getAppNumArgsAux___boxed(lean_object*, lean_object*);
+lean_object* lean_expr_local(lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* lean_expr_mk_app(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_quickLt___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_isAppOf___boxed(lean_object*, lean_object*);
+lean_object* lean_expr_mk_let(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
+lean_object* l_Lean_mkDecIsFalse___closed__1;
+lean_object* l_Lean_Expr_isAppOfArity___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkDecIsTrue___closed__3;
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_getAppNumArgsAux___main(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_sort___boxed(lean_object*);
+lean_object* lean_expr_mk_fvar(lean_object*);
+lean_object* l_List_foldl___main___at_Lean_mkApp___spec__1(lean_object*, lean_object*);
+lean_object* lean_expr_mk_proj(lean_object*, lean_object*, lean_object*);
+lean_object* lean_expr_mk_const(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_bvar___boxed(lean_object*);
+lean_object* l_Lean_Expr_Hashable___closed__1;
+uint8_t lean_expr_eqv(lean_object*, lean_object*);
+lean_object* l_Lean_MData_HasEmptyc;
+lean_object* l_Lean_Expr_dbgToString___boxed(lean_object*);
+lean_object* l_Lean_Expr_elet___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
+lean_object* l_Lean_mkDecIsTrue___closed__1;
+lean_object* l_Lean_mkBinCApp(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkDecIsFalse(lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_lit___boxed(lean_object*);
+lean_object* lean_nat_add(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_app___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_mkDecIsTrue___closed__2;
+lean_object* l_Lean_Expr_getAppFn___main___boxed(lean_object*);
+lean_object* l_Lean_mkCApp(lean_object*, lean_object*);
+lean_object* l_Lean_mkDecIsTrue___closed__5;
+uint8_t l_Lean_Expr_isAppOfArity___main(lean_object*, lean_object*, lean_object*);
+lean_object* lean_expr_mk_mvar(lean_object*);
+lean_object* lean_expr_mk_bvar(lean_object*);
+lean_object* l_Lean_Expr_proj___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t lean_expr_lt(lean_object*, lean_object*);
+lean_object* l_Lean_mkDecIsTrue(lean_object*, lean_object*);
+uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_const___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_fvar___boxed(lean_object*);
+lean_object* lean_expr_mk_lambda(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_mdata___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_HasBeq;
+lean_object* l_Lean_Expr_Hashable;
+lean_object* l_Lean_Expr_getAppNumArgs___boxed(lean_object*);
+lean_object* l_Lean_Expr_mvar___boxed(lean_object*);
+lean_object* l_Lean_Expr_local___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_getAppFn___boxed(lean_object*);
+uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
+lean_object* l_Lean_mkDecIsFalse___closed__3;
+lean_object* l_Lean_exprIsInhabited___closed__1;
+lean_object* lean_expr_mk_lit(lean_object*);
+lean_object* l_Lean_mkDecIsFalse___closed__2;
+lean_object* l_Lean_Expr_lt___boxed(lean_object*, lean_object*);
+lean_object* _init_l_Lean_MData_empty() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::box(0);
+lean_object* x_1; 
+x_1 = lean_box(0);
 return x_1;
 }
 }
-obj* _init_l_Lean_MData_HasEmptyc() {
+lean_object* _init_l_Lean_MData_HasEmptyc() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::box(0);
+lean_object* x_1; 
+x_1 = lean_box(0);
 return x_1;
 }
 }
-obj* _init_l_Lean_exprIsInhabited___closed__1() {
+lean_object* _init_l_Lean_exprIsInhabited___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; 
-x_1 = lean::box(0);
-x_2 = lean::alloc_cnstr(3, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l_Lean_exprIsInhabited() {
+lean_object* _init_l_Lean_exprIsInhabited() {
 _start:
 {
-obj* x_1; 
+lean_object* x_1; 
 x_1 = l_Lean_exprIsInhabited___closed__1;
 return x_1;
 }
 }
-obj* l_Lean_Expr_bvar___boxed(obj* x_1) {
+lean_object* l_Lean_Expr_bvar___boxed(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = lean_expr_mk_bvar(x_1);
 return x_2;
 }
 }
-obj* l_Lean_Expr_fvar___boxed(obj* x_1) {
+lean_object* l_Lean_Expr_fvar___boxed(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = lean_expr_mk_fvar(x_1);
 return x_2;
 }
 }
-obj* l_Lean_Expr_mvar___boxed(obj* x_1) {
+lean_object* l_Lean_Expr_mvar___boxed(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = lean_expr_mk_mvar(x_1);
 return x_2;
 }
 }
-obj* l_Lean_Expr_sort___boxed(obj* x_1) {
+lean_object* l_Lean_Expr_sort___boxed(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = lean_expr_mk_sort(x_1);
 return x_2;
 }
 }
-obj* l_Lean_Expr_const___boxed(obj* x_1, obj* x_2) {
+lean_object* l_Lean_Expr_const___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = lean_expr_mk_const(x_1, x_2);
 return x_3;
 }
 }
-obj* l_Lean_Expr_app___boxed(obj* x_1, obj* x_2) {
+lean_object* l_Lean_Expr_app___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = lean_expr_mk_app(x_1, x_2);
 return x_3;
 }
 }
-obj* l_Lean_Expr_lam___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_Lean_Expr_lam___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-uint8 x_5; obj* x_6; 
-x_5 = lean::unbox(x_2);
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_2);
 x_6 = lean_expr_mk_lambda(x_1, x_5, x_3, x_4);
 return x_6;
 }
 }
-obj* l_Lean_Expr_pi___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_Lean_Expr_pi___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-uint8 x_5; obj* x_6; 
-x_5 = lean::unbox(x_2);
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_2);
 x_6 = lean_expr_mk_pi(x_1, x_5, x_3, x_4);
 return x_6;
 }
 }
-obj* l_Lean_Expr_elet___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_Lean_Expr_elet___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-obj* x_5; 
+lean_object* x_5; 
 x_5 = lean_expr_mk_let(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-obj* l_Lean_Expr_lit___boxed(obj* x_1) {
+lean_object* l_Lean_Expr_lit___boxed(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = lean_expr_mk_lit(x_1);
 return x_2;
 }
 }
-obj* l_Lean_Expr_mdata___boxed(obj* x_1, obj* x_2) {
+lean_object* l_Lean_Expr_mdata___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = lean_expr_mk_mdata(x_1, x_2);
 return x_3;
 }
 }
-obj* l_Lean_Expr_proj___boxed(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_Lean_Expr_proj___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; 
+lean_object* x_4; 
 x_4 = lean_expr_mk_proj(x_1, x_2, x_3);
 return x_4;
 }
 }
-obj* l_Lean_Expr_local___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_Lean_Expr_local___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-uint8 x_5; obj* x_6; 
-x_5 = lean::unbox(x_4);
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_4);
 x_6 = lean_expr_local(x_1, x_2, x_3, x_5);
 return x_6;
 }
 }
-obj* l_List_foldl___main___at_Lean_mkApp___spec__1(obj* x_1, obj* x_2) {
+lean_object* l_List_foldl___main___at_Lean_mkApp___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-if (lean::obj_tag(x_2) == 0)
+if (lean_obj_tag(x_2) == 0)
 {
 return x_1;
 }
 else
 {
-obj* x_3; obj* x_4; obj* x_5; 
-x_3 = lean::cnstr_get(x_2, 0);
-lean::inc(x_3);
-x_4 = lean::cnstr_get(x_2, 1);
-lean::inc(x_4);
-lean::dec(x_2);
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_2, 1);
+lean_inc(x_4);
+lean_dec(x_2);
 x_5 = lean_expr_mk_app(x_1, x_3);
 x_1 = x_5;
 x_2 = x_4;
@@ -259,153 +257,153 @@ goto _start;
 }
 }
 }
-obj* l_Lean_mkApp(obj* x_1, obj* x_2) {
+lean_object* l_Lean_mkApp(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = l_List_foldl___main___at_Lean_mkApp___spec__1(x_1, x_2);
 return x_3;
 }
 }
-obj* l_Lean_mkCApp(obj* x_1, obj* x_2) {
+lean_object* l_Lean_mkCApp(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; obj* x_4; obj* x_5; 
-x_3 = lean::box(0);
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_box(0);
 x_4 = lean_expr_mk_const(x_1, x_3);
 x_5 = l_List_foldl___main___at_Lean_mkApp___spec__1(x_4, x_2);
 return x_5;
 }
 }
-obj* l_Lean_Expr_hash___boxed(obj* x_1) {
+lean_object* l_Lean_Expr_hash___boxed(lean_object* x_1) {
 _start:
 {
-usize x_2; obj* x_3; 
+size_t x_2; lean_object* x_3; 
 x_2 = lean_expr_hash(x_1);
-x_3 = lean::box_size_t(x_2);
+x_3 = lean_box_usize(x_2);
 return x_3;
 }
 }
-obj* _init_l_Lean_Expr_Hashable___closed__1() {
+lean_object* _init_l_Lean_Expr_Hashable___closed__1() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Expr_hash___boxed), 1, 0);
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Expr_hash___boxed), 1, 0);
 return x_1;
 }
 }
-obj* _init_l_Lean_Expr_Hashable() {
+lean_object* _init_l_Lean_Expr_Hashable() {
 _start:
 {
-obj* x_1; 
+lean_object* x_1; 
 x_1 = l_Lean_Expr_Hashable___closed__1;
 return x_1;
 }
 }
-obj* l_Lean_Expr_dbgToString___boxed(obj* x_1) {
+lean_object* l_Lean_Expr_dbgToString___boxed(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = lean_expr_dbg_to_string(x_1);
 return x_2;
 }
 }
-obj* l_Lean_Expr_quickLt___boxed(obj* x_1, obj* x_2) {
+lean_object* l_Lean_Expr_quickLt___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8 x_3; obj* x_4; 
+uint8_t x_3; lean_object* x_4; 
 x_3 = lean_expr_quick_lt(x_1, x_2);
-x_4 = lean::box(x_3);
+x_4 = lean_box(x_3);
 return x_4;
 }
 }
-obj* l_Lean_Expr_lt___boxed(obj* x_1, obj* x_2) {
+lean_object* l_Lean_Expr_lt___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8 x_3; obj* x_4; 
+uint8_t x_3; lean_object* x_4; 
 x_3 = lean_expr_lt(x_1, x_2);
-x_4 = lean::box(x_3);
+x_4 = lean_box(x_3);
 return x_4;
 }
 }
-obj* l_Lean_Expr_eqv___boxed(obj* x_1, obj* x_2) {
+lean_object* l_Lean_Expr_eqv___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8 x_3; obj* x_4; 
+uint8_t x_3; lean_object* x_4; 
 x_3 = lean_expr_eqv(x_1, x_2);
-x_4 = lean::box(x_3);
+x_4 = lean_box(x_3);
 return x_4;
 }
 }
-obj* _init_l_Lean_Expr_HasBeq___closed__1() {
+lean_object* _init_l_Lean_Expr_HasBeq___closed__1() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Expr_eqv___boxed), 2, 0);
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Expr_eqv___boxed), 2, 0);
 return x_1;
 }
 }
-obj* _init_l_Lean_Expr_HasBeq() {
+lean_object* _init_l_Lean_Expr_HasBeq() {
 _start:
 {
-obj* x_1; 
+lean_object* x_1; 
 x_1 = l_Lean_Expr_HasBeq___closed__1;
 return x_1;
 }
 }
-obj* l_Lean_Expr_getAppFn___main(obj* x_1) {
+lean_object* l_Lean_Expr_getAppFn___main(lean_object* x_1) {
 _start:
 {
-if (lean::obj_tag(x_1) == 5)
+if (lean_obj_tag(x_1) == 5)
 {
-obj* x_2; 
-x_2 = lean::cnstr_get(x_1, 0);
+lean_object* x_2; 
+x_2 = lean_ctor_get(x_1, 0);
 x_1 = x_2;
 goto _start;
 }
 else
 {
-lean::inc(x_1);
+lean_inc(x_1);
 return x_1;
 }
 }
 }
-obj* l_Lean_Expr_getAppFn___main___boxed(obj* x_1) {
+lean_object* l_Lean_Expr_getAppFn___main___boxed(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = l_Lean_Expr_getAppFn___main(x_1);
-lean::dec(x_1);
+lean_dec(x_1);
 return x_2;
 }
 }
-obj* l_Lean_Expr_getAppFn(obj* x_1) {
+lean_object* l_Lean_Expr_getAppFn(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = l_Lean_Expr_getAppFn___main(x_1);
 return x_2;
 }
 }
-obj* l_Lean_Expr_getAppFn___boxed(obj* x_1) {
+lean_object* l_Lean_Expr_getAppFn___boxed(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = l_Lean_Expr_getAppFn(x_1);
-lean::dec(x_1);
+lean_dec(x_1);
 return x_2;
 }
 }
-obj* l_Lean_Expr_getAppNumArgsAux___main(obj* x_1, obj* x_2) {
+lean_object* l_Lean_Expr_getAppNumArgsAux___main(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-if (lean::obj_tag(x_1) == 5)
+if (lean_obj_tag(x_1) == 5)
 {
-obj* x_3; obj* x_4; obj* x_5; 
-x_3 = lean::cnstr_get(x_1, 0);
-x_4 = lean::mk_nat_obj(1u);
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_unsigned_to_nat(1u);
 x_5 = lean_nat_add(x_2, x_4);
-lean::dec(x_2);
+lean_dec(x_2);
 x_1 = x_3;
 x_2 = x_5;
 goto _start;
@@ -416,335 +414,337 @@ return x_2;
 }
 }
 }
-obj* l_Lean_Expr_getAppNumArgsAux___main___boxed(obj* x_1, obj* x_2) {
+lean_object* l_Lean_Expr_getAppNumArgsAux___main___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = l_Lean_Expr_getAppNumArgsAux___main(x_1, x_2);
-lean::dec(x_1);
+lean_dec(x_1);
 return x_3;
 }
 }
-obj* l_Lean_Expr_getAppNumArgsAux(obj* x_1, obj* x_2) {
+lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = l_Lean_Expr_getAppNumArgsAux___main(x_1, x_2);
 return x_3;
 }
 }
-obj* l_Lean_Expr_getAppNumArgsAux___boxed(obj* x_1, obj* x_2) {
+lean_object* l_Lean_Expr_getAppNumArgsAux___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = l_Lean_Expr_getAppNumArgsAux(x_1, x_2);
-lean::dec(x_1);
+lean_dec(x_1);
 return x_3;
 }
 }
-obj* l_Lean_Expr_getAppNumArgs(obj* x_1) {
+lean_object* l_Lean_Expr_getAppNumArgs(lean_object* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; 
-x_2 = lean::mk_nat_obj(0u);
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Expr_getAppNumArgsAux___main(x_1, x_2);
 return x_3;
 }
 }
-obj* l_Lean_Expr_getAppNumArgs___boxed(obj* x_1) {
+lean_object* l_Lean_Expr_getAppNumArgs___boxed(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = l_Lean_Expr_getAppNumArgs(x_1);
-lean::dec(x_1);
+lean_dec(x_1);
 return x_2;
 }
 }
-uint8 l_Lean_Expr_isAppOf(obj* x_1, obj* x_2) {
+uint8_t l_Lean_Expr_isAppOf(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = l_Lean_Expr_getAppFn___main(x_1);
-if (lean::obj_tag(x_3) == 4)
+if (lean_obj_tag(x_3) == 4)
 {
-obj* x_4; uint8 x_5; 
-x_4 = lean::cnstr_get(x_3, 0);
-lean::inc(x_4);
-lean::dec(x_3);
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_ctor_get(x_3, 0);
+lean_inc(x_4);
+lean_dec(x_3);
 x_5 = lean_name_dec_eq(x_4, x_2);
-lean::dec(x_4);
+lean_dec(x_4);
 return x_5;
 }
 else
 {
-uint8 x_6; 
-lean::dec(x_3);
+uint8_t x_6; 
+lean_dec(x_3);
 x_6 = 0;
 return x_6;
 }
 }
 }
-obj* l_Lean_Expr_isAppOf___boxed(obj* x_1, obj* x_2) {
+lean_object* l_Lean_Expr_isAppOf___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8 x_3; obj* x_4; 
+uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Expr_isAppOf(x_1, x_2);
-lean::dec(x_2);
-lean::dec(x_1);
-x_4 = lean::box(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
 return x_4;
 }
 }
-uint8 l_Lean_Expr_isAppOfArity___main(obj* x_1, obj* x_2, obj* x_3) {
+uint8_t l_Lean_Expr_isAppOfArity___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-switch (lean::obj_tag(x_1)) {
+switch (lean_obj_tag(x_1)) {
 case 4:
 {
-obj* x_4; obj* x_5; uint8 x_6; 
-x_4 = lean::cnstr_get(x_1, 0);
-x_5 = lean::mk_nat_obj(0u);
+lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_4 = lean_ctor_get(x_1, 0);
+x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_nat_dec_eq(x_3, x_5);
-lean::dec(x_3);
+lean_dec(x_3);
 if (x_6 == 0)
 {
-uint8 x_7; 
+uint8_t x_7; 
 x_7 = 0;
 return x_7;
 }
 else
 {
-uint8 x_8; 
+uint8_t x_8; 
 x_8 = lean_name_dec_eq(x_4, x_2);
 return x_8;
 }
 }
 case 5:
 {
-obj* x_9; obj* x_10; uint8 x_11; 
-x_9 = lean::cnstr_get(x_1, 0);
-x_10 = lean::mk_nat_obj(0u);
+lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+x_9 = lean_ctor_get(x_1, 0);
+x_10 = lean_unsigned_to_nat(0u);
 x_11 = lean_nat_dec_eq(x_3, x_10);
 if (x_11 == 0)
 {
-obj* x_12; obj* x_13; 
-x_12 = lean::mk_nat_obj(1u);
+lean_object* x_12; lean_object* x_13; 
+x_12 = lean_unsigned_to_nat(1u);
 x_13 = lean_nat_sub(x_3, x_12);
-lean::dec(x_3);
+lean_dec(x_3);
 x_1 = x_9;
 x_3 = x_13;
 goto _start;
 }
 else
 {
-uint8 x_15; 
-lean::dec(x_3);
+uint8_t x_15; 
+lean_dec(x_3);
 x_15 = 0;
 return x_15;
 }
 }
 default: 
 {
-uint8 x_16; 
-lean::dec(x_3);
+uint8_t x_16; 
+lean_dec(x_3);
 x_16 = 0;
 return x_16;
 }
 }
 }
 }
-obj* l_Lean_Expr_isAppOfArity___main___boxed(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_Lean_Expr_isAppOfArity___main___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8 x_4; obj* x_5; 
+uint8_t x_4; lean_object* x_5; 
 x_4 = l_Lean_Expr_isAppOfArity___main(x_1, x_2, x_3);
-lean::dec(x_2);
-lean::dec(x_1);
-x_5 = lean::box(x_4);
+lean_dec(x_2);
+lean_dec(x_1);
+x_5 = lean_box(x_4);
 return x_5;
 }
 }
-uint8 l_Lean_Expr_isAppOfArity(obj* x_1, obj* x_2, obj* x_3) {
+uint8_t l_Lean_Expr_isAppOfArity(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8 x_4; 
+uint8_t x_4; 
 x_4 = l_Lean_Expr_isAppOfArity___main(x_1, x_2, x_3);
 return x_4;
 }
 }
-obj* l_Lean_Expr_isAppOfArity___boxed(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_Lean_Expr_isAppOfArity___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8 x_4; obj* x_5; 
+uint8_t x_4; lean_object* x_5; 
 x_4 = l_Lean_Expr_isAppOfArity(x_1, x_2, x_3);
-lean::dec(x_2);
-lean::dec(x_1);
-x_5 = lean::box(x_4);
+lean_dec(x_2);
+lean_dec(x_1);
+x_5 = lean_box(x_4);
 return x_5;
 }
 }
-obj* l_Lean_mkConst(obj* x_1, obj* x_2) {
+lean_object* l_Lean_mkConst(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = lean_expr_mk_const(x_1, x_2);
 return x_3;
 }
 }
-obj* l_Lean_mkBinApp(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_Lean_mkBinApp(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; obj* x_5; 
+lean_object* x_4; lean_object* x_5; 
 x_4 = lean_expr_mk_app(x_1, x_2);
 x_5 = lean_expr_mk_app(x_4, x_3);
 return x_5;
 }
 }
-obj* l_Lean_mkBinCApp(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_Lean_mkBinCApp(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; obj* x_5; obj* x_6; 
-x_4 = lean::box(0);
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_4 = lean_box(0);
 x_5 = lean_expr_mk_const(x_1, x_4);
 x_6 = l_Lean_mkBinApp(x_5, x_2, x_3);
 return x_6;
 }
 }
-obj* _init_l_Lean_mkDecIsTrue___closed__1() {
+lean_object* _init_l_Lean_mkDecIsTrue___closed__1() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::mk_string("Decidable");
+lean_object* x_1; 
+x_1 = lean_mk_string("Decidable");
 return x_1;
 }
 }
-obj* _init_l_Lean_mkDecIsTrue___closed__2() {
+lean_object* _init_l_Lean_mkDecIsTrue___closed__2() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; 
-x_1 = lean::box(0);
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
 x_2 = l_Lean_mkDecIsTrue___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-obj* _init_l_Lean_mkDecIsTrue___closed__3() {
+lean_object* _init_l_Lean_mkDecIsTrue___closed__3() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::mk_string("isTrue");
+lean_object* x_1; 
+x_1 = lean_mk_string("isTrue");
 return x_1;
 }
 }
-obj* _init_l_Lean_mkDecIsTrue___closed__4() {
+lean_object* _init_l_Lean_mkDecIsTrue___closed__4() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_mkDecIsTrue___closed__2;
 x_2 = l_Lean_mkDecIsTrue___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-obj* _init_l_Lean_mkDecIsTrue___closed__5() {
+lean_object* _init_l_Lean_mkDecIsTrue___closed__5() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; 
-x_1 = lean::box(0);
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
 x_2 = l_Lean_mkDecIsTrue___closed__4;
 x_3 = lean_expr_mk_const(x_2, x_1);
 return x_3;
 }
 }
-obj* l_Lean_mkDecIsTrue(obj* x_1, obj* x_2) {
+lean_object* l_Lean_mkDecIsTrue(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; obj* x_4; 
+lean_object* x_3; lean_object* x_4; 
 x_3 = l_Lean_mkDecIsTrue___closed__5;
 x_4 = l_Lean_mkBinApp(x_3, x_1, x_2);
 return x_4;
 }
 }
-obj* _init_l_Lean_mkDecIsFalse___closed__1() {
+lean_object* _init_l_Lean_mkDecIsFalse___closed__1() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::mk_string("isFalse");
+lean_object* x_1; 
+x_1 = lean_mk_string("isFalse");
 return x_1;
 }
 }
-obj* _init_l_Lean_mkDecIsFalse___closed__2() {
+lean_object* _init_l_Lean_mkDecIsFalse___closed__2() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_mkDecIsTrue___closed__2;
 x_2 = l_Lean_mkDecIsFalse___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-obj* _init_l_Lean_mkDecIsFalse___closed__3() {
+lean_object* _init_l_Lean_mkDecIsFalse___closed__3() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; 
-x_1 = lean::box(0);
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
 x_2 = l_Lean_mkDecIsFalse___closed__2;
 x_3 = lean_expr_mk_const(x_2, x_1);
 return x_3;
 }
 }
-obj* l_Lean_mkDecIsFalse(obj* x_1, obj* x_2) {
+lean_object* l_Lean_mkDecIsFalse(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; obj* x_4; 
+lean_object* x_3; lean_object* x_4; 
 x_3 = l_Lean_mkDecIsFalse___closed__3;
 x_4 = l_Lean_mkBinApp(x_3, x_1, x_2);
 return x_4;
 }
 }
-obj* initialize_init_lean_level(obj*);
-obj* initialize_init_lean_kvmap(obj*);
+lean_object* initialize_init_lean_level(lean_object*);
+lean_object* initialize_init_lean_kvmap(lean_object*);
 static bool _G_initialized = false;
-obj* initialize_init_lean_expr(obj* w) {
+lean_object* initialize_init_lean_expr(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_lean_level(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_lean_kvmap(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 l_Lean_MData_empty = _init_l_Lean_MData_empty();
-lean::mark_persistent(l_Lean_MData_empty);
+lean_mark_persistent(l_Lean_MData_empty);
 l_Lean_MData_HasEmptyc = _init_l_Lean_MData_HasEmptyc();
-lean::mark_persistent(l_Lean_MData_HasEmptyc);
+lean_mark_persistent(l_Lean_MData_HasEmptyc);
 l_Lean_exprIsInhabited___closed__1 = _init_l_Lean_exprIsInhabited___closed__1();
-lean::mark_persistent(l_Lean_exprIsInhabited___closed__1);
+lean_mark_persistent(l_Lean_exprIsInhabited___closed__1);
 l_Lean_exprIsInhabited = _init_l_Lean_exprIsInhabited();
-lean::mark_persistent(l_Lean_exprIsInhabited);
+lean_mark_persistent(l_Lean_exprIsInhabited);
 l_Lean_Expr_Hashable___closed__1 = _init_l_Lean_Expr_Hashable___closed__1();
-lean::mark_persistent(l_Lean_Expr_Hashable___closed__1);
+lean_mark_persistent(l_Lean_Expr_Hashable___closed__1);
 l_Lean_Expr_Hashable = _init_l_Lean_Expr_Hashable();
-lean::mark_persistent(l_Lean_Expr_Hashable);
+lean_mark_persistent(l_Lean_Expr_Hashable);
 l_Lean_Expr_HasBeq___closed__1 = _init_l_Lean_Expr_HasBeq___closed__1();
-lean::mark_persistent(l_Lean_Expr_HasBeq___closed__1);
+lean_mark_persistent(l_Lean_Expr_HasBeq___closed__1);
 l_Lean_Expr_HasBeq = _init_l_Lean_Expr_HasBeq();
-lean::mark_persistent(l_Lean_Expr_HasBeq);
+lean_mark_persistent(l_Lean_Expr_HasBeq);
 l_Lean_mkDecIsTrue___closed__1 = _init_l_Lean_mkDecIsTrue___closed__1();
-lean::mark_persistent(l_Lean_mkDecIsTrue___closed__1);
+lean_mark_persistent(l_Lean_mkDecIsTrue___closed__1);
 l_Lean_mkDecIsTrue___closed__2 = _init_l_Lean_mkDecIsTrue___closed__2();
-lean::mark_persistent(l_Lean_mkDecIsTrue___closed__2);
+lean_mark_persistent(l_Lean_mkDecIsTrue___closed__2);
 l_Lean_mkDecIsTrue___closed__3 = _init_l_Lean_mkDecIsTrue___closed__3();
-lean::mark_persistent(l_Lean_mkDecIsTrue___closed__3);
+lean_mark_persistent(l_Lean_mkDecIsTrue___closed__3);
 l_Lean_mkDecIsTrue___closed__4 = _init_l_Lean_mkDecIsTrue___closed__4();
-lean::mark_persistent(l_Lean_mkDecIsTrue___closed__4);
+lean_mark_persistent(l_Lean_mkDecIsTrue___closed__4);
 l_Lean_mkDecIsTrue___closed__5 = _init_l_Lean_mkDecIsTrue___closed__5();
-lean::mark_persistent(l_Lean_mkDecIsTrue___closed__5);
+lean_mark_persistent(l_Lean_mkDecIsTrue___closed__5);
 l_Lean_mkDecIsFalse___closed__1 = _init_l_Lean_mkDecIsFalse___closed__1();
-lean::mark_persistent(l_Lean_mkDecIsFalse___closed__1);
+lean_mark_persistent(l_Lean_mkDecIsFalse___closed__1);
 l_Lean_mkDecIsFalse___closed__2 = _init_l_Lean_mkDecIsFalse___closed__2();
-lean::mark_persistent(l_Lean_mkDecIsFalse___closed__2);
+lean_mark_persistent(l_Lean_mkDecIsFalse___closed__2);
 l_Lean_mkDecIsFalse___closed__3 = _init_l_Lean_mkDecIsFalse___closed__3();
-lean::mark_persistent(l_Lean_mkDecIsFalse___closed__3);
+lean_mark_persistent(l_Lean_mkDecIsFalse___closed__3);
 return w;
 }
+#ifdef __cplusplus
 }
+#endif

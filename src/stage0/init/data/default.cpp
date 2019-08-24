@@ -1,11 +1,7 @@
 // Lean compiler output
 // Module: init.data.default
 // Imports: init.data.basic init.data.nat.default init.data.char.default init.data.string.default init.data.list.default init.data.int.default init.data.array.default init.data.bytearray.default init.data.fin.default init.data.uint init.data.rbtree.default init.data.rbmap.default init.data.option.basic init.data.option.instances init.data.hashmap.default init.data.random
-#include "runtime/object.h"
-#include "runtime/apply.h"
-typedef lean::object obj;    typedef lean::usize  usize;
-typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
-typedef lean::uint32 uint32; typedef lean::uint64 uint64;
+#include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -14,60 +10,64 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+#ifdef __cplusplus
 extern "C" {
-obj* initialize_init_data_basic(obj*);
-obj* initialize_init_data_nat_default(obj*);
-obj* initialize_init_data_char_default(obj*);
-obj* initialize_init_data_string_default(obj*);
-obj* initialize_init_data_list_default(obj*);
-obj* initialize_init_data_int_default(obj*);
-obj* initialize_init_data_array_default(obj*);
-obj* initialize_init_data_bytearray_default(obj*);
-obj* initialize_init_data_fin_default(obj*);
-obj* initialize_init_data_uint(obj*);
-obj* initialize_init_data_rbtree_default(obj*);
-obj* initialize_init_data_rbmap_default(obj*);
-obj* initialize_init_data_option_basic(obj*);
-obj* initialize_init_data_option_instances(obj*);
-obj* initialize_init_data_hashmap_default(obj*);
-obj* initialize_init_data_random(obj*);
+#endif
+lean_object* initialize_init_data_basic(lean_object*);
+lean_object* initialize_init_data_nat_default(lean_object*);
+lean_object* initialize_init_data_char_default(lean_object*);
+lean_object* initialize_init_data_string_default(lean_object*);
+lean_object* initialize_init_data_list_default(lean_object*);
+lean_object* initialize_init_data_int_default(lean_object*);
+lean_object* initialize_init_data_array_default(lean_object*);
+lean_object* initialize_init_data_bytearray_default(lean_object*);
+lean_object* initialize_init_data_fin_default(lean_object*);
+lean_object* initialize_init_data_uint(lean_object*);
+lean_object* initialize_init_data_rbtree_default(lean_object*);
+lean_object* initialize_init_data_rbmap_default(lean_object*);
+lean_object* initialize_init_data_option_basic(lean_object*);
+lean_object* initialize_init_data_option_instances(lean_object*);
+lean_object* initialize_init_data_hashmap_default(lean_object*);
+lean_object* initialize_init_data_random(lean_object*);
 static bool _G_initialized = false;
-obj* initialize_init_data_default(obj* w) {
+lean_object* initialize_init_data_default(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_data_basic(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_data_nat_default(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_data_char_default(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_data_string_default(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_data_list_default(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_data_int_default(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_data_array_default(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_data_bytearray_default(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_data_fin_default(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_data_uint(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_data_rbtree_default(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_data_rbmap_default(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_data_option_basic(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_data_option_instances(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_data_hashmap_default(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_data_random(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 return w;
 }
+#ifdef __cplusplus
 }
+#endif

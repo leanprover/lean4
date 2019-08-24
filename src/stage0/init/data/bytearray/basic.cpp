@@ -1,11 +1,7 @@
 // Lean compiler output
 // Module: init.data.bytearray.basic
 // Imports: init.data.array.basic init.data.uint init.data.option.basic
-#include "runtime/object.h"
-#include "runtime/apply.h"
-typedef lean::object obj;    typedef lean::usize  usize;
-typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
-typedef lean::uint32 uint32; typedef lean::uint64 uint64;
+#include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -14,250 +10,252 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+#ifdef __cplusplus
 extern "C" {
-obj* lean_uint8_to_nat(uint8);
-obj* l_ByteArray_mk___boxed(obj*);
-obj* l_ByteArray_mkEmpty___boxed(obj*);
-obj* l_ByteArray_toList___boxed(obj*);
-obj* l_ByteArray_toListAux___boxed(obj*, obj*, obj*);
-extern obj* l_List_repr___rarg___closed__3;
-obj* l_ByteArray_isEmpty___boxed(obj*);
-obj* l_List_toByteArrayAux(obj*, obj*);
-obj* lean_byte_array_size(obj*);
-obj* l_ByteArray_data___boxed(obj*);
-obj* l_List_reverse___rarg(obj*);
-obj* l_ByteArray_toList(obj*);
-obj* l_List_toStringAux___main___at_ByteArray_HasToString___spec__2___boxed(obj*, obj*);
-obj* l_ByteArray_toListAux___main___boxed(obj*, obj*, obj*);
-obj* lean_byte_array_mk(obj*);
-obj* l_Nat_repr(obj*);
-extern obj* l_List_repr___rarg___closed__2;
-obj* l_ByteArray_HasToString(obj*);
-obj* lean_string_append(obj*, obj*);
-extern obj* l_List_reprAux___main___rarg___closed__1;
-obj* l_ByteArray_empty;
-uint8 lean_nat_dec_lt(obj*, obj*);
-obj* l_List_toString___at_ByteArray_HasToString___spec__1(obj*);
-obj* l_ByteArray_get___boxed(obj*, obj*);
-obj* lean_nat_add(obj*, obj*);
-uint8 lean_nat_dec_eq(obj*, obj*);
-obj* l_ByteArray_mkEmpty(obj*);
-obj* lean_byte_array_data(obj*);
-obj* l_ByteArray_toListAux___main(obj*, obj*, obj*);
-obj* l_ByteArray_empty___closed__1;
-obj* l_List_toByteArray(obj*);
-obj* l_ByteArray_HasToString___boxed(obj*);
-obj* l_ByteArray_set___boxed(obj*, obj*, obj*);
-uint8 lean_byte_array_get(obj*, obj*);
-obj* l_ByteArray_push___boxed(obj*, obj*);
-obj* l_List_toStringAux___main___at_ByteArray_HasToString___spec__2(uint8, obj*);
-obj* l_List_toByteArrayAux___main(obj*, obj*);
-obj* l_ByteArray_Inhabited;
-obj* l_ByteArray_toListAux(obj*, obj*, obj*);
-uint8 l_ByteArray_isEmpty(obj*);
-obj* l_ByteArray_size___boxed(obj*);
-extern obj* l_List_repr___rarg___closed__1;
-obj* lean_byte_array_set(obj*, obj*, uint8);
-obj* lean_byte_array_push(obj*, uint8);
-extern obj* l_String_splitAux___main___closed__1;
-obj* l_ByteArray_mk___boxed(obj* x_1) {
+#endif
+lean_object* lean_uint8_to_nat(uint8_t);
+lean_object* l_ByteArray_mk___boxed(lean_object*);
+lean_object* l_ByteArray_mkEmpty___boxed(lean_object*);
+lean_object* l_ByteArray_toList___boxed(lean_object*);
+lean_object* l_ByteArray_toListAux___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_List_repr___rarg___closed__3;
+lean_object* l_ByteArray_isEmpty___boxed(lean_object*);
+lean_object* l_List_toByteArrayAux(lean_object*, lean_object*);
+lean_object* lean_byte_array_size(lean_object*);
+lean_object* l_ByteArray_data___boxed(lean_object*);
+lean_object* l_List_reverse___rarg(lean_object*);
+lean_object* l_ByteArray_toList(lean_object*);
+lean_object* l_List_toStringAux___main___at_ByteArray_HasToString___spec__2___boxed(lean_object*, lean_object*);
+lean_object* l_ByteArray_toListAux___main___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_byte_array_mk(lean_object*);
+lean_object* l_Nat_repr(lean_object*);
+extern lean_object* l_List_repr___rarg___closed__2;
+lean_object* l_ByteArray_HasToString(lean_object*);
+lean_object* lean_string_append(lean_object*, lean_object*);
+extern lean_object* l_List_reprAux___main___rarg___closed__1;
+lean_object* l_ByteArray_empty;
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* l_List_toString___at_ByteArray_HasToString___spec__1(lean_object*);
+lean_object* l_ByteArray_get___boxed(lean_object*, lean_object*);
+lean_object* lean_nat_add(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* l_ByteArray_mkEmpty(lean_object*);
+lean_object* lean_byte_array_data(lean_object*);
+lean_object* l_ByteArray_toListAux___main(lean_object*, lean_object*, lean_object*);
+lean_object* l_ByteArray_empty___closed__1;
+lean_object* l_List_toByteArray(lean_object*);
+lean_object* l_ByteArray_HasToString___boxed(lean_object*);
+lean_object* l_ByteArray_set___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t lean_byte_array_get(lean_object*, lean_object*);
+lean_object* l_ByteArray_push___boxed(lean_object*, lean_object*);
+lean_object* l_List_toStringAux___main___at_ByteArray_HasToString___spec__2(uint8_t, lean_object*);
+lean_object* l_List_toByteArrayAux___main(lean_object*, lean_object*);
+lean_object* l_ByteArray_Inhabited;
+lean_object* l_ByteArray_toListAux(lean_object*, lean_object*, lean_object*);
+uint8_t l_ByteArray_isEmpty(lean_object*);
+lean_object* l_ByteArray_size___boxed(lean_object*);
+extern lean_object* l_List_repr___rarg___closed__1;
+lean_object* lean_byte_array_set(lean_object*, lean_object*, uint8_t);
+lean_object* lean_byte_array_push(lean_object*, uint8_t);
+extern lean_object* l_String_splitAux___main___closed__1;
+lean_object* l_ByteArray_mk___boxed(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = lean_byte_array_mk(x_1);
 return x_2;
 }
 }
-obj* l_ByteArray_data___boxed(obj* x_1) {
+lean_object* l_ByteArray_data___boxed(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = lean_byte_array_data(x_1);
 return x_2;
 }
 }
-obj* l_ByteArray_mkEmpty___boxed(obj* x_1) {
+lean_object* l_ByteArray_mkEmpty___boxed(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = lean_mk_empty_byte_array(x_1);
 return x_2;
 }
 }
-obj* _init_l_ByteArray_empty___closed__1() {
+lean_object* _init_l_ByteArray_empty___closed__1() {
 _start:
 {
-obj* x_1; obj* x_2; 
-x_1 = lean::mk_nat_obj(0u);
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_mk_empty_byte_array(x_1);
 return x_2;
 }
 }
-obj* _init_l_ByteArray_empty() {
+lean_object* _init_l_ByteArray_empty() {
 _start:
 {
-obj* x_1; 
+lean_object* x_1; 
 x_1 = l_ByteArray_empty___closed__1;
 return x_1;
 }
 }
-obj* _init_l_ByteArray_Inhabited() {
+lean_object* _init_l_ByteArray_Inhabited() {
 _start:
 {
-obj* x_1; 
+lean_object* x_1; 
 x_1 = l_ByteArray_empty;
 return x_1;
 }
 }
-obj* l_ByteArray_push___boxed(obj* x_1, obj* x_2) {
+lean_object* l_ByteArray_push___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8 x_3; obj* x_4; 
-x_3 = lean::unbox(x_2);
+uint8_t x_3; lean_object* x_4; 
+x_3 = lean_unbox(x_2);
 x_4 = lean_byte_array_push(x_1, x_3);
 return x_4;
 }
 }
-obj* l_ByteArray_size___boxed(obj* x_1) {
+lean_object* l_ByteArray_size___boxed(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = lean_byte_array_size(x_1);
 return x_2;
 }
 }
-obj* l_ByteArray_get___boxed(obj* x_1, obj* x_2) {
+lean_object* l_ByteArray_get___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8 x_3; obj* x_4; 
+uint8_t x_3; lean_object* x_4; 
 x_3 = lean_byte_array_get(x_1, x_2);
-x_4 = lean::box(x_3);
+x_4 = lean_box(x_3);
 return x_4;
 }
 }
-obj* l_ByteArray_set___boxed(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_ByteArray_set___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8 x_4; obj* x_5; 
-x_4 = lean::unbox(x_3);
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_3);
 x_5 = lean_byte_array_set(x_1, x_2, x_4);
 return x_5;
 }
 }
-uint8 l_ByteArray_isEmpty(obj* x_1) {
+uint8_t l_ByteArray_isEmpty(lean_object* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; uint8 x_4; 
+lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 x_2 = lean_byte_array_size(x_1);
-x_3 = lean::mk_nat_obj(0u);
+x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_nat_dec_eq(x_2, x_3);
-lean::dec(x_2);
+lean_dec(x_2);
 return x_4;
 }
 }
-obj* l_ByteArray_isEmpty___boxed(obj* x_1) {
+lean_object* l_ByteArray_isEmpty___boxed(lean_object* x_1) {
 _start:
 {
-uint8 x_2; obj* x_3; 
+uint8_t x_2; lean_object* x_3; 
 x_2 = l_ByteArray_isEmpty(x_1);
-lean::dec(x_1);
-x_3 = lean::box(x_2);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
 return x_3;
 }
 }
-obj* l_ByteArray_toListAux___main(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_ByteArray_toListAux___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; uint8 x_5; 
+lean_object* x_4; uint8_t x_5; 
 x_4 = lean_byte_array_size(x_1);
 x_5 = lean_nat_dec_lt(x_2, x_4);
-lean::dec(x_4);
+lean_dec(x_4);
 if (x_5 == 0)
 {
-obj* x_6; 
-lean::dec(x_2);
+lean_object* x_6; 
+lean_dec(x_2);
 x_6 = l_List_reverse___rarg(x_3);
 return x_6;
 }
 else
 {
-obj* x_7; obj* x_8; uint8 x_9; obj* x_10; obj* x_11; 
-x_7 = lean::mk_nat_obj(1u);
+lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; 
+x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_add(x_2, x_7);
 x_9 = lean_byte_array_get(x_1, x_2);
-lean::dec(x_2);
-x_10 = lean::box(x_9);
-x_11 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_11, 0, x_10);
-lean::cnstr_set(x_11, 1, x_3);
+lean_dec(x_2);
+x_10 = lean_box(x_9);
+x_11 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_11, 0, x_10);
+lean_ctor_set(x_11, 1, x_3);
 x_2 = x_8;
 x_3 = x_11;
 goto _start;
 }
 }
 }
-obj* l_ByteArray_toListAux___main___boxed(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_ByteArray_toListAux___main___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; 
+lean_object* x_4; 
 x_4 = l_ByteArray_toListAux___main(x_1, x_2, x_3);
-lean::dec(x_1);
+lean_dec(x_1);
 return x_4;
 }
 }
-obj* l_ByteArray_toListAux(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_ByteArray_toListAux(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; 
+lean_object* x_4; 
 x_4 = l_ByteArray_toListAux___main(x_1, x_2, x_3);
 return x_4;
 }
 }
-obj* l_ByteArray_toListAux___boxed(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_ByteArray_toListAux___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; 
+lean_object* x_4; 
 x_4 = l_ByteArray_toListAux(x_1, x_2, x_3);
-lean::dec(x_1);
+lean_dec(x_1);
 return x_4;
 }
 }
-obj* l_ByteArray_toList(obj* x_1) {
+lean_object* l_ByteArray_toList(lean_object* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; obj* x_4; 
-x_2 = lean::box(0);
-x_3 = lean::mk_nat_obj(0u);
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = lean_box(0);
+x_3 = lean_unsigned_to_nat(0u);
 x_4 = l_ByteArray_toListAux___main(x_1, x_3, x_2);
 return x_4;
 }
 }
-obj* l_ByteArray_toList___boxed(obj* x_1) {
+lean_object* l_ByteArray_toList___boxed(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = l_ByteArray_toList(x_1);
-lean::dec(x_1);
+lean_dec(x_1);
 return x_2;
 }
 }
-obj* l_List_toByteArrayAux___main(obj* x_1, obj* x_2) {
+lean_object* l_List_toByteArrayAux___main(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-if (lean::obj_tag(x_1) == 0)
+if (lean_obj_tag(x_1) == 0)
 {
 return x_2;
 }
 else
 {
-obj* x_3; obj* x_4; uint8 x_5; obj* x_6; 
-x_3 = lean::cnstr_get(x_1, 0);
-lean::inc(x_3);
-x_4 = lean::cnstr_get(x_1, 1);
-lean::inc(x_4);
-lean::dec(x_1);
-x_5 = lean::unbox(x_3);
-lean::dec(x_3);
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_unbox(x_3);
+lean_dec(x_3);
 x_6 = lean_byte_array_push(x_2, x_5);
 x_1 = x_4;
 x_2 = x_6;
@@ -265,155 +263,157 @@ goto _start;
 }
 }
 }
-obj* l_List_toByteArrayAux(obj* x_1, obj* x_2) {
+lean_object* l_List_toByteArrayAux(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = l_List_toByteArrayAux___main(x_1, x_2);
 return x_3;
 }
 }
-obj* l_List_toByteArray(obj* x_1) {
+lean_object* l_List_toByteArray(lean_object* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; 
+lean_object* x_2; lean_object* x_3; 
 x_2 = l_ByteArray_empty;
 x_3 = l_List_toByteArrayAux___main(x_1, x_2);
 return x_3;
 }
 }
-obj* l_List_toStringAux___main___at_ByteArray_HasToString___spec__2(uint8 x_1, obj* x_2) {
+lean_object* l_List_toStringAux___main___at_ByteArray_HasToString___spec__2(uint8_t x_1, lean_object* x_2) {
 _start:
 {
 if (x_1 == 0)
 {
-if (lean::obj_tag(x_2) == 0)
+if (lean_obj_tag(x_2) == 0)
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = l_String_splitAux___main___closed__1;
 return x_3;
 }
 else
 {
-obj* x_4; obj* x_5; uint8 x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; 
-x_4 = lean::cnstr_get(x_2, 0);
-lean::inc(x_4);
-x_5 = lean::cnstr_get(x_2, 1);
-lean::inc(x_5);
-lean::dec(x_2);
-x_6 = lean::unbox(x_4);
-lean::dec(x_4);
+lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_4 = lean_ctor_get(x_2, 0);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_2, 1);
+lean_inc(x_5);
+lean_dec(x_2);
+x_6 = lean_unbox(x_4);
+lean_dec(x_4);
 x_7 = lean_uint8_to_nat(x_6);
 x_8 = l_Nat_repr(x_7);
 x_9 = l_List_reprAux___main___rarg___closed__1;
 x_10 = lean_string_append(x_9, x_8);
-lean::dec(x_8);
+lean_dec(x_8);
 x_11 = l_List_toStringAux___main___at_ByteArray_HasToString___spec__2(x_1, x_5);
 x_12 = lean_string_append(x_10, x_11);
-lean::dec(x_11);
+lean_dec(x_11);
 return x_12;
 }
 }
 else
 {
-if (lean::obj_tag(x_2) == 0)
+if (lean_obj_tag(x_2) == 0)
 {
-obj* x_13; 
+lean_object* x_13; 
 x_13 = l_String_splitAux___main___closed__1;
 return x_13;
 }
 else
 {
-obj* x_14; obj* x_15; uint8 x_16; obj* x_17; obj* x_18; uint8 x_19; obj* x_20; obj* x_21; 
-x_14 = lean::cnstr_get(x_2, 0);
-lean::inc(x_14);
-x_15 = lean::cnstr_get(x_2, 1);
-lean::inc(x_15);
-lean::dec(x_2);
-x_16 = lean::unbox(x_14);
-lean::dec(x_14);
+lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; 
+x_14 = lean_ctor_get(x_2, 0);
+lean_inc(x_14);
+x_15 = lean_ctor_get(x_2, 1);
+lean_inc(x_15);
+lean_dec(x_2);
+x_16 = lean_unbox(x_14);
+lean_dec(x_14);
 x_17 = lean_uint8_to_nat(x_16);
 x_18 = l_Nat_repr(x_17);
 x_19 = 0;
 x_20 = l_List_toStringAux___main___at_ByteArray_HasToString___spec__2(x_19, x_15);
 x_21 = lean_string_append(x_18, x_20);
-lean::dec(x_20);
+lean_dec(x_20);
 return x_21;
 }
 }
 }
 }
-obj* l_List_toString___at_ByteArray_HasToString___spec__1(obj* x_1) {
+lean_object* l_List_toString___at_ByteArray_HasToString___spec__1(lean_object* x_1) {
 _start:
 {
-if (lean::obj_tag(x_1) == 0)
+if (lean_obj_tag(x_1) == 0)
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = l_List_repr___rarg___closed__1;
 return x_2;
 }
 else
 {
-uint8 x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+uint8_t x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = 1;
 x_4 = l_List_toStringAux___main___at_ByteArray_HasToString___spec__2(x_3, x_1);
 x_5 = l_List_repr___rarg___closed__2;
 x_6 = lean_string_append(x_5, x_4);
-lean::dec(x_4);
+lean_dec(x_4);
 x_7 = l_List_repr___rarg___closed__3;
 x_8 = lean_string_append(x_6, x_7);
 return x_8;
 }
 }
 }
-obj* l_ByteArray_HasToString(obj* x_1) {
+lean_object* l_ByteArray_HasToString(lean_object* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; 
+lean_object* x_2; lean_object* x_3; 
 x_2 = l_ByteArray_toList(x_1);
 x_3 = l_List_toString___at_ByteArray_HasToString___spec__1(x_2);
 return x_3;
 }
 }
-obj* l_List_toStringAux___main___at_ByteArray_HasToString___spec__2___boxed(obj* x_1, obj* x_2) {
+lean_object* l_List_toStringAux___main___at_ByteArray_HasToString___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8 x_3; obj* x_4; 
-x_3 = lean::unbox(x_1);
-lean::dec(x_1);
+uint8_t x_3; lean_object* x_4; 
+x_3 = lean_unbox(x_1);
+lean_dec(x_1);
 x_4 = l_List_toStringAux___main___at_ByteArray_HasToString___spec__2(x_3, x_2);
 return x_4;
 }
 }
-obj* l_ByteArray_HasToString___boxed(obj* x_1) {
+lean_object* l_ByteArray_HasToString___boxed(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
+lean_object* x_2; 
 x_2 = l_ByteArray_HasToString(x_1);
-lean::dec(x_1);
+lean_dec(x_1);
 return x_2;
 }
 }
-obj* initialize_init_data_array_basic(obj*);
-obj* initialize_init_data_uint(obj*);
-obj* initialize_init_data_option_basic(obj*);
+lean_object* initialize_init_data_array_basic(lean_object*);
+lean_object* initialize_init_data_uint(lean_object*);
+lean_object* initialize_init_data_option_basic(lean_object*);
 static bool _G_initialized = false;
-obj* initialize_init_data_bytearray_basic(obj* w) {
+lean_object* initialize_init_data_bytearray_basic(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_data_array_basic(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_data_uint(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_data_option_basic(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 l_ByteArray_empty___closed__1 = _init_l_ByteArray_empty___closed__1();
-lean::mark_persistent(l_ByteArray_empty___closed__1);
+lean_mark_persistent(l_ByteArray_empty___closed__1);
 l_ByteArray_empty = _init_l_ByteArray_empty();
-lean::mark_persistent(l_ByteArray_empty);
+lean_mark_persistent(l_ByteArray_empty);
 l_ByteArray_Inhabited = _init_l_ByteArray_Inhabited();
-lean::mark_persistent(l_ByteArray_Inhabited);
+lean_mark_persistent(l_ByteArray_Inhabited);
 return w;
 }
+#ifdef __cplusplus
 }
+#endif

@@ -1,11 +1,7 @@
 // Lean compiler output
 // Module: init.data.option.basic
 // Imports: init.core init.control.monad init.control.alternative init.coe
-#include "runtime/object.h"
-#include "runtime/apply.h"
-typedef lean::object obj;    typedef lean::usize  usize;
-typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
-typedef lean::uint32 uint32; typedef lean::uint64 uint64;
+#include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -14,871 +10,873 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+#ifdef __cplusplus
 extern "C" {
-obj* l_Option_Alternative___closed__1;
-obj* l_Option_Monad___lambda__4___boxed(obj*, obj*, obj*, obj*);
-obj* l_Option_Monad___closed__3;
-obj* l_Option_Alternative;
-obj* l_Option_Monad___lambda__4(obj*, obj*, obj*, obj*);
-obj* l_Option_getOrElse___rarg___boxed(obj*, obj*);
-obj* l_Option_Monad___closed__6;
-obj* l_Option_Monad___closed__9;
-obj* l_Option_DecidableEq___rarg___boxed(obj*, obj*, obj*);
-obj* l_Option_Monad___closed__4;
-obj* l_Option_Monad;
-obj* l_Option_get___rarg___boxed(obj*, obj*);
-obj* l_Option_HasBeq(obj*);
-obj* l_Option_HasLess___boxed(obj*, obj*);
-obj* l_Option_Monad___lambda__5(obj*, obj*, obj*, obj*);
-obj* l_Option_decidableRelLt___boxed(obj*, obj*);
-obj* l_Option_Monad___lambda__2(obj*, obj*);
-obj* l_Option_bind___rarg(obj*, obj*);
-obj* l_Option_Monad___lambda__5___boxed(obj*, obj*, obj*, obj*);
-obj* l_Option_isNone___rarg___boxed(obj*);
-obj* l_Option_Monad___closed__1;
-obj* l_Option_toMonad___boxed(obj*, obj*);
-obj* l_Option_map___rarg(obj*, obj*);
-obj* l_Option_orelse___rarg___boxed(obj*, obj*);
-obj* l_Option_map(obj*, obj*);
-obj* l_Option_Monad___lambda__1(obj*, obj*, obj*, obj*);
-uint8 l_Option_toBool___rarg(obj*);
-obj* l_Option_HasBeq___rarg(obj*, obj*, obj*);
-obj* l_Option_toMonad___rarg(obj*, obj*, obj*);
-obj* l_Option_HasLess(obj*, obj*);
-obj* l_Option_Monad___closed__2;
-obj* l_Option_Alternative___lambda__1(obj*);
-uint8 l_Option_DecidableEq___rarg(obj*, obj*, obj*);
-obj* l_Option_Inhabited(obj*);
-obj* l_Option_toBool___rarg___boxed(obj*);
-obj* l_Option_Monad___closed__10;
-obj* l_Option_get(obj*);
-obj* l_Option_Alternative___lambda__2(obj*, obj*, obj*);
-obj* l_Option_Monad___closed__5;
-obj* l_Option_isSome___rarg___boxed(obj*);
-obj* l_Option_orelse(obj*);
-obj* l_Option_bind(obj*, obj*);
-obj* l_Option_Alternative___closed__3;
-obj* l_Option_getOrElse(obj*);
-obj* l_Option_decidableRelLt___rarg(obj*, obj*, obj*);
-obj* l_Option_isNone(obj*);
-obj* l_Option_orelse___rarg(obj*, obj*);
-obj* l_Option_isSome(obj*);
-obj* l_Option_Monad___lambda__3(obj*, obj*, obj*, obj*);
-obj* l_Option_Alternative___lambda__2___boxed(obj*, obj*, obj*);
-obj* l_Option_Monad___closed__8;
-obj* l_Option_toMonad(obj*, obj*);
-obj* l_Option_DecidableEq(obj*);
-obj* l_Option_decidableRelLt(obj*, obj*);
-obj* l_Option_getOrElse___rarg(obj*, obj*);
-obj* l_Option_get___rarg(obj*, obj*);
-obj* l_Option_Alternative___closed__2;
-uint8 l_Option_isSome___rarg(obj*);
-obj* l_Option_toBool(obj*);
-obj* l_Option_Monad___closed__7;
-uint8 l_Option_isNone___rarg(obj*);
-obj* l_Option_toMonad___rarg(obj* x_1, obj* x_2, obj* x_3) {
+#endif
+lean_object* l_Option_Alternative___closed__1;
+lean_object* l_Option_Monad___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Option_Monad___closed__3;
+lean_object* l_Option_Alternative;
+lean_object* l_Option_Monad___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Option_getOrElse___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_Option_Monad___closed__6;
+lean_object* l_Option_Monad___closed__9;
+lean_object* l_Option_DecidableEq___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Option_Monad___closed__4;
+lean_object* l_Option_Monad;
+lean_object* l_Option_get___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_Option_HasBeq(lean_object*);
+lean_object* l_Option_HasLess___boxed(lean_object*, lean_object*);
+lean_object* l_Option_Monad___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Option_decidableRelLt___boxed(lean_object*, lean_object*);
+lean_object* l_Option_Monad___lambda__2(lean_object*, lean_object*);
+lean_object* l_Option_bind___rarg(lean_object*, lean_object*);
+lean_object* l_Option_Monad___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Option_isNone___rarg___boxed(lean_object*);
+lean_object* l_Option_Monad___closed__1;
+lean_object* l_Option_toMonad___boxed(lean_object*, lean_object*);
+lean_object* l_Option_map___rarg(lean_object*, lean_object*);
+lean_object* l_Option_orelse___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_Option_map(lean_object*, lean_object*);
+lean_object* l_Option_Monad___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Option_toBool___rarg(lean_object*);
+lean_object* l_Option_HasBeq___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Option_toMonad___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Option_HasLess(lean_object*, lean_object*);
+lean_object* l_Option_Monad___closed__2;
+lean_object* l_Option_Alternative___lambda__1(lean_object*);
+uint8_t l_Option_DecidableEq___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Option_Inhabited(lean_object*);
+lean_object* l_Option_toBool___rarg___boxed(lean_object*);
+lean_object* l_Option_Monad___closed__10;
+lean_object* l_Option_get(lean_object*);
+lean_object* l_Option_Alternative___lambda__2(lean_object*, lean_object*, lean_object*);
+lean_object* l_Option_Monad___closed__5;
+lean_object* l_Option_isSome___rarg___boxed(lean_object*);
+lean_object* l_Option_orelse(lean_object*);
+lean_object* l_Option_bind(lean_object*, lean_object*);
+lean_object* l_Option_Alternative___closed__3;
+lean_object* l_Option_getOrElse(lean_object*);
+lean_object* l_Option_decidableRelLt___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Option_isNone(lean_object*);
+lean_object* l_Option_orelse___rarg(lean_object*, lean_object*);
+lean_object* l_Option_isSome(lean_object*);
+lean_object* l_Option_Monad___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Option_Alternative___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Option_Monad___closed__8;
+lean_object* l_Option_toMonad(lean_object*, lean_object*);
+lean_object* l_Option_DecidableEq(lean_object*);
+lean_object* l_Option_decidableRelLt(lean_object*, lean_object*);
+lean_object* l_Option_getOrElse___rarg(lean_object*, lean_object*);
+lean_object* l_Option_get___rarg(lean_object*, lean_object*);
+lean_object* l_Option_Alternative___closed__2;
+uint8_t l_Option_isSome___rarg(lean_object*);
+lean_object* l_Option_toBool(lean_object*);
+lean_object* l_Option_Monad___closed__7;
+uint8_t l_Option_isNone___rarg(lean_object*);
+lean_object* l_Option_toMonad___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-if (lean::obj_tag(x_3) == 0)
+if (lean_obj_tag(x_3) == 0)
 {
-obj* x_4; obj* x_5; 
-x_4 = lean::cnstr_get(x_1, 1);
-lean::inc(x_4);
-lean::dec(x_1);
-x_5 = lean::apply_1(x_4, lean::box(0));
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_apply_1(x_4, lean_box(0));
 return x_5;
 }
 else
 {
-obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
-x_6 = lean::cnstr_get(x_3, 0);
-lean::inc(x_6);
-lean::dec(x_3);
-x_7 = lean::cnstr_get(x_1, 0);
-lean::inc(x_7);
-lean::dec(x_1);
-x_8 = lean::cnstr_get(x_7, 1);
-lean::inc(x_8);
-lean::dec(x_7);
-x_9 = lean::apply_2(x_8, lean::box(0), x_6);
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_6 = lean_ctor_get(x_3, 0);
+lean_inc(x_6);
+lean_dec(x_3);
+x_7 = lean_ctor_get(x_1, 0);
+lean_inc(x_7);
+lean_dec(x_1);
+x_8 = lean_ctor_get(x_7, 1);
+lean_inc(x_8);
+lean_dec(x_7);
+x_9 = lean_apply_2(x_8, lean_box(0), x_6);
 return x_9;
 }
 }
 }
-obj* l_Option_toMonad(obj* x_1, obj* x_2) {
+lean_object* l_Option_toMonad(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_toMonad___rarg), 3, 0);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Option_toMonad___rarg), 3, 0);
 return x_3;
 }
 }
-obj* l_Option_toMonad___boxed(obj* x_1, obj* x_2) {
+lean_object* l_Option_toMonad___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = l_Option_toMonad(x_1, x_2);
-lean::dec(x_2);
-lean::dec(x_1);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
-obj* l_Option_getOrElse___rarg(obj* x_1, obj* x_2) {
+lean_object* l_Option_getOrElse___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-if (lean::obj_tag(x_1) == 0)
+if (lean_obj_tag(x_1) == 0)
 {
-lean::inc(x_2);
+lean_inc(x_2);
 return x_2;
 }
 else
 {
-obj* x_3; 
-x_3 = lean::cnstr_get(x_1, 0);
-lean::inc(x_3);
+lean_object* x_3; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
 return x_3;
 }
 }
 }
-obj* l_Option_getOrElse(obj* x_1) {
+lean_object* l_Option_getOrElse(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_getOrElse___rarg___boxed), 2, 0);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Option_getOrElse___rarg___boxed), 2, 0);
 return x_2;
 }
 }
-obj* l_Option_getOrElse___rarg___boxed(obj* x_1, obj* x_2) {
+lean_object* l_Option_getOrElse___rarg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = l_Option_getOrElse___rarg(x_1, x_2);
-lean::dec(x_2);
-lean::dec(x_1);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
-obj* l_Option_get___rarg(obj* x_1, obj* x_2) {
+lean_object* l_Option_get___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-if (lean::obj_tag(x_2) == 0)
+if (lean_obj_tag(x_2) == 0)
 {
-lean::inc(x_1);
+lean_inc(x_1);
 return x_1;
 }
 else
 {
-obj* x_3; 
-x_3 = lean::cnstr_get(x_2, 0);
-lean::inc(x_3);
+lean_object* x_3; 
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
 return x_3;
 }
 }
 }
-obj* l_Option_get(obj* x_1) {
+lean_object* l_Option_get(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_get___rarg___boxed), 2, 0);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Option_get___rarg___boxed), 2, 0);
 return x_2;
 }
 }
-obj* l_Option_get___rarg___boxed(obj* x_1, obj* x_2) {
+lean_object* l_Option_get___rarg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = l_Option_get___rarg(x_1, x_2);
-lean::dec(x_2);
-lean::dec(x_1);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
-uint8 l_Option_toBool___rarg(obj* x_1) {
+uint8_t l_Option_toBool___rarg(lean_object* x_1) {
 _start:
 {
-if (lean::obj_tag(x_1) == 0)
+if (lean_obj_tag(x_1) == 0)
 {
-uint8 x_2; 
+uint8_t x_2; 
 x_2 = 0;
 return x_2;
 }
 else
 {
-uint8 x_3; 
+uint8_t x_3; 
 x_3 = 1;
 return x_3;
 }
 }
 }
-obj* l_Option_toBool(obj* x_1) {
+lean_object* l_Option_toBool(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_toBool___rarg___boxed), 1, 0);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Option_toBool___rarg___boxed), 1, 0);
 return x_2;
 }
 }
-obj* l_Option_toBool___rarg___boxed(obj* x_1) {
+lean_object* l_Option_toBool___rarg___boxed(lean_object* x_1) {
 _start:
 {
-uint8 x_2; obj* x_3; 
+uint8_t x_2; lean_object* x_3; 
 x_2 = l_Option_toBool___rarg(x_1);
-lean::dec(x_1);
-x_3 = lean::box(x_2);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
 return x_3;
 }
 }
-uint8 l_Option_isSome___rarg(obj* x_1) {
+uint8_t l_Option_isSome___rarg(lean_object* x_1) {
 _start:
 {
-if (lean::obj_tag(x_1) == 0)
+if (lean_obj_tag(x_1) == 0)
 {
-uint8 x_2; 
+uint8_t x_2; 
 x_2 = 0;
 return x_2;
 }
 else
 {
-uint8 x_3; 
+uint8_t x_3; 
 x_3 = 1;
 return x_3;
 }
 }
 }
-obj* l_Option_isSome(obj* x_1) {
+lean_object* l_Option_isSome(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_isSome___rarg___boxed), 1, 0);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Option_isSome___rarg___boxed), 1, 0);
 return x_2;
 }
 }
-obj* l_Option_isSome___rarg___boxed(obj* x_1) {
+lean_object* l_Option_isSome___rarg___boxed(lean_object* x_1) {
 _start:
 {
-uint8 x_2; obj* x_3; 
+uint8_t x_2; lean_object* x_3; 
 x_2 = l_Option_isSome___rarg(x_1);
-lean::dec(x_1);
-x_3 = lean::box(x_2);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
 return x_3;
 }
 }
-uint8 l_Option_isNone___rarg(obj* x_1) {
+uint8_t l_Option_isNone___rarg(lean_object* x_1) {
 _start:
 {
-if (lean::obj_tag(x_1) == 0)
+if (lean_obj_tag(x_1) == 0)
 {
-uint8 x_2; 
+uint8_t x_2; 
 x_2 = 1;
 return x_2;
 }
 else
 {
-uint8 x_3; 
+uint8_t x_3; 
 x_3 = 0;
 return x_3;
 }
 }
 }
-obj* l_Option_isNone(obj* x_1) {
+lean_object* l_Option_isNone(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_isNone___rarg___boxed), 1, 0);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Option_isNone___rarg___boxed), 1, 0);
 return x_2;
 }
 }
-obj* l_Option_isNone___rarg___boxed(obj* x_1) {
+lean_object* l_Option_isNone___rarg___boxed(lean_object* x_1) {
 _start:
 {
-uint8 x_2; obj* x_3; 
+uint8_t x_2; lean_object* x_3; 
 x_2 = l_Option_isNone___rarg(x_1);
-lean::dec(x_1);
-x_3 = lean::box(x_2);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
 return x_3;
 }
 }
-obj* l_Option_bind___rarg(obj* x_1, obj* x_2) {
+lean_object* l_Option_bind___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-if (lean::obj_tag(x_1) == 0)
+if (lean_obj_tag(x_1) == 0)
 {
-obj* x_3; 
-lean::dec(x_2);
-x_3 = lean::box(0);
+lean_object* x_3; 
+lean_dec(x_2);
+x_3 = lean_box(0);
 return x_3;
 }
 else
 {
-obj* x_4; obj* x_5; 
-x_4 = lean::cnstr_get(x_1, 0);
-lean::inc(x_4);
-lean::dec(x_1);
-x_5 = lean::apply_1(x_2, x_4);
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_apply_1(x_2, x_4);
 return x_5;
 }
 }
 }
-obj* l_Option_bind(obj* x_1, obj* x_2) {
+lean_object* l_Option_bind(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_bind___rarg), 2, 0);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Option_bind___rarg), 2, 0);
 return x_3;
 }
 }
-obj* l_Option_map___rarg(obj* x_1, obj* x_2) {
+lean_object* l_Option_map___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-if (lean::obj_tag(x_2) == 0)
+if (lean_obj_tag(x_2) == 0)
 {
-obj* x_3; 
-lean::dec(x_1);
-x_3 = lean::box(0);
+lean_object* x_3; 
+lean_dec(x_1);
+x_3 = lean_box(0);
 return x_3;
 }
 else
 {
-uint8 x_4; 
-x_4 = !lean::is_exclusive(x_2);
+uint8_t x_4; 
+x_4 = !lean_is_exclusive(x_2);
 if (x_4 == 0)
 {
-obj* x_5; obj* x_6; 
-x_5 = lean::cnstr_get(x_2, 0);
-x_6 = lean::apply_1(x_1, x_5);
-lean::cnstr_set(x_2, 0, x_6);
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_ctor_get(x_2, 0);
+x_6 = lean_apply_1(x_1, x_5);
+lean_ctor_set(x_2, 0, x_6);
 return x_2;
 }
 else
 {
-obj* x_7; obj* x_8; obj* x_9; 
-x_7 = lean::cnstr_get(x_2, 0);
-lean::inc(x_7);
-lean::dec(x_2);
-x_8 = lean::apply_1(x_1, x_7);
-x_9 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_9, 0, x_8);
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_7 = lean_ctor_get(x_2, 0);
+lean_inc(x_7);
+lean_dec(x_2);
+x_8 = lean_apply_1(x_1, x_7);
+x_9 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_9, 0, x_8);
 return x_9;
 }
 }
 }
 }
-obj* l_Option_map(obj* x_1, obj* x_2) {
+lean_object* l_Option_map(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_map___rarg), 2, 0);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Option_map___rarg), 2, 0);
 return x_3;
 }
 }
-obj* l_Option_Monad___lambda__1(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_Option_Monad___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-if (lean::obj_tag(x_4) == 0)
+if (lean_obj_tag(x_4) == 0)
 {
-obj* x_5; 
-lean::dec(x_3);
-x_5 = lean::box(0);
+lean_object* x_5; 
+lean_dec(x_3);
+x_5 = lean_box(0);
 return x_5;
 }
 else
 {
-uint8 x_6; 
-x_6 = !lean::is_exclusive(x_4);
+uint8_t x_6; 
+x_6 = !lean_is_exclusive(x_4);
 if (x_6 == 0)
 {
-obj* x_7; 
-x_7 = lean::cnstr_get(x_4, 0);
-lean::dec(x_7);
-lean::cnstr_set(x_4, 0, x_3);
+lean_object* x_7; 
+x_7 = lean_ctor_get(x_4, 0);
+lean_dec(x_7);
+lean_ctor_set(x_4, 0, x_3);
 return x_4;
 }
 else
 {
-obj* x_8; 
-lean::dec(x_4);
-x_8 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_8, 0, x_3);
+lean_object* x_8; 
+lean_dec(x_4);
+x_8 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_8, 0, x_3);
 return x_8;
 }
 }
 }
 }
-obj* l_Option_Monad___lambda__2(obj* x_1, obj* x_2) {
+lean_object* l_Option_Monad___lambda__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_3, 0, x_2);
+lean_object* x_3; 
+x_3 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_3, 0, x_2);
 return x_3;
 }
 }
-obj* l_Option_Monad___lambda__3(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_Option_Monad___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-if (lean::obj_tag(x_3) == 0)
+if (lean_obj_tag(x_3) == 0)
 {
-obj* x_5; 
-lean::dec(x_4);
-x_5 = lean::box(0);
+lean_object* x_5; 
+lean_dec(x_4);
+x_5 = lean_box(0);
 return x_5;
 }
 else
 {
-if (lean::obj_tag(x_4) == 0)
+if (lean_obj_tag(x_4) == 0)
 {
-obj* x_6; 
-lean::dec(x_3);
-x_6 = lean::box(0);
+lean_object* x_6; 
+lean_dec(x_3);
+x_6 = lean_box(0);
 return x_6;
 }
 else
 {
-obj* x_7; uint8 x_8; 
-x_7 = lean::cnstr_get(x_3, 0);
-lean::inc(x_7);
-lean::dec(x_3);
-x_8 = !lean::is_exclusive(x_4);
+lean_object* x_7; uint8_t x_8; 
+x_7 = lean_ctor_get(x_3, 0);
+lean_inc(x_7);
+lean_dec(x_3);
+x_8 = !lean_is_exclusive(x_4);
 if (x_8 == 0)
 {
-obj* x_9; obj* x_10; 
-x_9 = lean::cnstr_get(x_4, 0);
-x_10 = lean::apply_1(x_7, x_9);
-lean::cnstr_set(x_4, 0, x_10);
+lean_object* x_9; lean_object* x_10; 
+x_9 = lean_ctor_get(x_4, 0);
+x_10 = lean_apply_1(x_7, x_9);
+lean_ctor_set(x_4, 0, x_10);
 return x_4;
 }
 else
 {
-obj* x_11; obj* x_12; obj* x_13; 
-x_11 = lean::cnstr_get(x_4, 0);
-lean::inc(x_11);
-lean::dec(x_4);
-x_12 = lean::apply_1(x_7, x_11);
-x_13 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_13, 0, x_12);
+lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_11 = lean_ctor_get(x_4, 0);
+lean_inc(x_11);
+lean_dec(x_4);
+x_12 = lean_apply_1(x_7, x_11);
+x_13 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_13, 0, x_12);
 return x_13;
 }
 }
 }
 }
 }
-obj* l_Option_Monad___lambda__4(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_Option_Monad___lambda__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-if (lean::obj_tag(x_3) == 0)
+if (lean_obj_tag(x_3) == 0)
 {
-obj* x_5; 
-lean::dec(x_4);
-x_5 = lean::box(0);
+lean_object* x_5; 
+lean_dec(x_4);
+x_5 = lean_box(0);
 return x_5;
 }
 else
 {
-if (lean::obj_tag(x_4) == 0)
+if (lean_obj_tag(x_4) == 0)
 {
-obj* x_6; 
-x_6 = lean::box(0);
+lean_object* x_6; 
+x_6 = lean_box(0);
 return x_6;
 }
 else
 {
-uint8 x_7; 
-x_7 = !lean::is_exclusive(x_4);
+uint8_t x_7; 
+x_7 = !lean_is_exclusive(x_4);
 if (x_7 == 0)
 {
-obj* x_8; obj* x_9; 
-x_8 = lean::cnstr_get(x_4, 0);
-lean::dec(x_8);
-x_9 = lean::cnstr_get(x_3, 0);
-lean::inc(x_9);
-lean::cnstr_set(x_4, 0, x_9);
+lean_object* x_8; lean_object* x_9; 
+x_8 = lean_ctor_get(x_4, 0);
+lean_dec(x_8);
+x_9 = lean_ctor_get(x_3, 0);
+lean_inc(x_9);
+lean_ctor_set(x_4, 0, x_9);
 return x_4;
 }
 else
 {
-obj* x_10; obj* x_11; 
-lean::dec(x_4);
-x_10 = lean::cnstr_get(x_3, 0);
-lean::inc(x_10);
-x_11 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_11, 0, x_10);
+lean_object* x_10; lean_object* x_11; 
+lean_dec(x_4);
+x_10 = lean_ctor_get(x_3, 0);
+lean_inc(x_10);
+x_11 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_11, 0, x_10);
 return x_11;
 }
 }
 }
 }
 }
-obj* l_Option_Monad___lambda__5(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_Option_Monad___lambda__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-if (lean::obj_tag(x_3) == 0)
+if (lean_obj_tag(x_3) == 0)
 {
-obj* x_5; 
-x_5 = lean::box(0);
+lean_object* x_5; 
+x_5 = lean_box(0);
 return x_5;
 }
 else
 {
-lean::inc(x_4);
+lean_inc(x_4);
 return x_4;
 }
 }
 }
-obj* _init_l_Option_Monad___closed__1() {
+lean_object* _init_l_Option_Monad___closed__1() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_map), 2, 0);
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Option_map), 2, 0);
 return x_1;
 }
 }
-obj* _init_l_Option_Monad___closed__2() {
+lean_object* _init_l_Option_Monad___closed__2() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_Monad___lambda__1), 4, 0);
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Option_Monad___lambda__1), 4, 0);
 return x_1;
 }
 }
-obj* _init_l_Option_Monad___closed__3() {
+lean_object* _init_l_Option_Monad___closed__3() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Option_Monad___closed__1;
 x_2 = l_Option_Monad___closed__2;
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_1);
-lean::cnstr_set(x_3, 1, x_2);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-obj* _init_l_Option_Monad___closed__4() {
+lean_object* _init_l_Option_Monad___closed__4() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_Monad___lambda__2), 2, 0);
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Option_Monad___lambda__2), 2, 0);
 return x_1;
 }
 }
-obj* _init_l_Option_Monad___closed__5() {
+lean_object* _init_l_Option_Monad___closed__5() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_Monad___lambda__3), 4, 0);
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Option_Monad___lambda__3), 4, 0);
 return x_1;
 }
 }
-obj* _init_l_Option_Monad___closed__6() {
+lean_object* _init_l_Option_Monad___closed__6() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_Monad___lambda__4___boxed), 4, 0);
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Option_Monad___lambda__4___boxed), 4, 0);
 return x_1;
 }
 }
-obj* _init_l_Option_Monad___closed__7() {
+lean_object* _init_l_Option_Monad___closed__7() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_Monad___lambda__5___boxed), 4, 0);
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Option_Monad___lambda__5___boxed), 4, 0);
 return x_1;
 }
 }
-obj* _init_l_Option_Monad___closed__8() {
+lean_object* _init_l_Option_Monad___closed__8() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Option_Monad___closed__3;
 x_2 = l_Option_Monad___closed__4;
 x_3 = l_Option_Monad___closed__5;
 x_4 = l_Option_Monad___closed__6;
 x_5 = l_Option_Monad___closed__7;
-x_6 = lean::alloc_cnstr(0, 5, 0);
-lean::cnstr_set(x_6, 0, x_1);
-lean::cnstr_set(x_6, 1, x_2);
-lean::cnstr_set(x_6, 2, x_3);
-lean::cnstr_set(x_6, 3, x_4);
-lean::cnstr_set(x_6, 4, x_5);
+x_6 = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_4);
+lean_ctor_set(x_6, 4, x_5);
 return x_6;
 }
 }
-obj* _init_l_Option_Monad___closed__9() {
+lean_object* _init_l_Option_Monad___closed__9() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_bind), 2, 0);
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Option_bind), 2, 0);
 return x_1;
 }
 }
-obj* _init_l_Option_Monad___closed__10() {
+lean_object* _init_l_Option_Monad___closed__10() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Option_Monad___closed__8;
 x_2 = l_Option_Monad___closed__9;
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_1);
-lean::cnstr_set(x_3, 1, x_2);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-obj* _init_l_Option_Monad() {
+lean_object* _init_l_Option_Monad() {
 _start:
 {
-obj* x_1; 
+lean_object* x_1; 
 x_1 = l_Option_Monad___closed__10;
 return x_1;
 }
 }
-obj* l_Option_Monad___lambda__4___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_Option_Monad___lambda__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-obj* x_5; 
+lean_object* x_5; 
 x_5 = l_Option_Monad___lambda__4(x_1, x_2, x_3, x_4);
-lean::dec(x_3);
+lean_dec(x_3);
 return x_5;
 }
 }
-obj* l_Option_Monad___lambda__5___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_Option_Monad___lambda__5___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-obj* x_5; 
+lean_object* x_5; 
 x_5 = l_Option_Monad___lambda__5(x_1, x_2, x_3, x_4);
-lean::dec(x_4);
-lean::dec(x_3);
+lean_dec(x_4);
+lean_dec(x_3);
 return x_5;
 }
 }
-obj* l_Option_orelse___rarg(obj* x_1, obj* x_2) {
+lean_object* l_Option_orelse___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-if (lean::obj_tag(x_1) == 0)
+if (lean_obj_tag(x_1) == 0)
 {
-lean::inc(x_2);
+lean_inc(x_2);
 return x_2;
 }
 else
 {
-lean::inc(x_1);
+lean_inc(x_1);
 return x_1;
 }
 }
 }
-obj* l_Option_orelse(obj* x_1) {
+lean_object* l_Option_orelse(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_orelse___rarg___boxed), 2, 0);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Option_orelse___rarg___boxed), 2, 0);
 return x_2;
 }
 }
-obj* l_Option_orelse___rarg___boxed(obj* x_1, obj* x_2) {
+lean_object* l_Option_orelse___rarg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = l_Option_orelse___rarg(x_1, x_2);
-lean::dec(x_2);
-lean::dec(x_1);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
-obj* l_Option_Alternative___lambda__1(obj* x_1) {
+lean_object* l_Option_Alternative___lambda__1(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::box(0);
+lean_object* x_2; 
+x_2 = lean_box(0);
 return x_2;
 }
 }
-obj* l_Option_Alternative___lambda__2(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_Option_Alternative___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-if (lean::obj_tag(x_2) == 0)
+if (lean_obj_tag(x_2) == 0)
 {
-lean::inc(x_3);
+lean_inc(x_3);
 return x_3;
 }
 else
 {
-lean::inc(x_2);
+lean_inc(x_2);
 return x_2;
 }
 }
 }
-obj* _init_l_Option_Alternative___closed__1() {
+lean_object* _init_l_Option_Alternative___closed__1() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_Alternative___lambda__1), 1, 0);
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Option_Alternative___lambda__1), 1, 0);
 return x_1;
 }
 }
-obj* _init_l_Option_Alternative___closed__2() {
+lean_object* _init_l_Option_Alternative___closed__2() {
 _start:
 {
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_Alternative___lambda__2___boxed), 3, 0);
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Option_Alternative___lambda__2___boxed), 3, 0);
 return x_1;
 }
 }
-obj* _init_l_Option_Alternative___closed__3() {
+lean_object* _init_l_Option_Alternative___closed__3() {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Option_Monad;
-x_2 = lean::cnstr_get(x_1, 0);
-lean::inc(x_2);
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
 x_3 = l_Option_Alternative___closed__1;
 x_4 = l_Option_Alternative___closed__2;
-x_5 = lean::alloc_cnstr(0, 3, 0);
-lean::cnstr_set(x_5, 0, x_2);
-lean::cnstr_set(x_5, 1, x_3);
-lean::cnstr_set(x_5, 2, x_4);
+x_5 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_5, 0, x_2);
+lean_ctor_set(x_5, 1, x_3);
+lean_ctor_set(x_5, 2, x_4);
 return x_5;
 }
 }
-obj* _init_l_Option_Alternative() {
+lean_object* _init_l_Option_Alternative() {
 _start:
 {
-obj* x_1; 
+lean_object* x_1; 
 x_1 = l_Option_Alternative___closed__3;
 return x_1;
 }
 }
-obj* l_Option_Alternative___lambda__2___boxed(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_Option_Alternative___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; 
+lean_object* x_4; 
 x_4 = l_Option_Alternative___lambda__2(x_1, x_2, x_3);
-lean::dec(x_3);
-lean::dec(x_2);
+lean_dec(x_3);
+lean_dec(x_2);
 return x_4;
 }
 }
-obj* l_Option_decidableRelLt___rarg(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_Option_decidableRelLt___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-if (lean::obj_tag(x_2) == 0)
+if (lean_obj_tag(x_2) == 0)
 {
-lean::dec(x_1);
-if (lean::obj_tag(x_3) == 0)
+lean_dec(x_1);
+if (lean_obj_tag(x_3) == 0)
 {
-uint8 x_4; obj* x_5; 
+uint8_t x_4; lean_object* x_5; 
 x_4 = 0;
-x_5 = lean::box(x_4);
+x_5 = lean_box(x_4);
 return x_5;
 }
 else
 {
-uint8 x_6; obj* x_7; 
-lean::dec(x_3);
+uint8_t x_6; lean_object* x_7; 
+lean_dec(x_3);
 x_6 = 1;
-x_7 = lean::box(x_6);
+x_7 = lean_box(x_6);
 return x_7;
 }
 }
 else
 {
-if (lean::obj_tag(x_3) == 0)
+if (lean_obj_tag(x_3) == 0)
 {
-uint8 x_8; obj* x_9; 
-lean::dec(x_2);
-lean::dec(x_1);
+uint8_t x_8; lean_object* x_9; 
+lean_dec(x_2);
+lean_dec(x_1);
 x_8 = 0;
-x_9 = lean::box(x_8);
+x_9 = lean_box(x_8);
 return x_9;
 }
 else
 {
-obj* x_10; obj* x_11; obj* x_12; 
-x_10 = lean::cnstr_get(x_2, 0);
-lean::inc(x_10);
-lean::dec(x_2);
-x_11 = lean::cnstr_get(x_3, 0);
-lean::inc(x_11);
-lean::dec(x_3);
-x_12 = lean::apply_2(x_1, x_10, x_11);
+lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_10 = lean_ctor_get(x_2, 0);
+lean_inc(x_10);
+lean_dec(x_2);
+x_11 = lean_ctor_get(x_3, 0);
+lean_inc(x_11);
+lean_dec(x_3);
+x_12 = lean_apply_2(x_1, x_10, x_11);
 return x_12;
 }
 }
 }
 }
-obj* l_Option_decidableRelLt(obj* x_1, obj* x_2) {
+lean_object* l_Option_decidableRelLt(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_decidableRelLt___rarg), 3, 0);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Option_decidableRelLt___rarg), 3, 0);
 return x_3;
 }
 }
-obj* l_Option_decidableRelLt___boxed(obj* x_1, obj* x_2) {
+lean_object* l_Option_decidableRelLt___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = l_Option_decidableRelLt(x_1, x_2);
-lean::dec(x_2);
+lean_dec(x_2);
 return x_3;
 }
 }
-obj* l_Option_Inhabited(obj* x_1) {
+lean_object* l_Option_Inhabited(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::box(0);
+lean_object* x_2; 
+x_2 = lean_box(0);
 return x_2;
 }
 }
-uint8 l_Option_DecidableEq___rarg(obj* x_1, obj* x_2, obj* x_3) {
+uint8_t l_Option_DecidableEq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-if (lean::obj_tag(x_2) == 0)
+if (lean_obj_tag(x_2) == 0)
 {
-lean::dec(x_1);
-if (lean::obj_tag(x_3) == 0)
+lean_dec(x_1);
+if (lean_obj_tag(x_3) == 0)
 {
-uint8 x_4; 
+uint8_t x_4; 
 x_4 = 1;
 return x_4;
 }
 else
 {
-uint8 x_5; 
-lean::dec(x_3);
+uint8_t x_5; 
+lean_dec(x_3);
 x_5 = 0;
 return x_5;
 }
 }
 else
 {
-if (lean::obj_tag(x_3) == 0)
+if (lean_obj_tag(x_3) == 0)
 {
-uint8 x_6; 
-lean::dec(x_2);
-lean::dec(x_1);
+uint8_t x_6; 
+lean_dec(x_2);
+lean_dec(x_1);
 x_6 = 0;
 return x_6;
 }
 else
 {
-obj* x_7; obj* x_8; obj* x_9; uint8 x_10; 
-x_7 = lean::cnstr_get(x_2, 0);
-lean::inc(x_7);
-lean::dec(x_2);
-x_8 = lean::cnstr_get(x_3, 0);
-lean::inc(x_8);
-lean::dec(x_3);
-x_9 = lean::apply_2(x_1, x_7, x_8);
-x_10 = lean::unbox(x_9);
-lean::dec(x_9);
+lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_7 = lean_ctor_get(x_2, 0);
+lean_inc(x_7);
+lean_dec(x_2);
+x_8 = lean_ctor_get(x_3, 0);
+lean_inc(x_8);
+lean_dec(x_3);
+x_9 = lean_apply_2(x_1, x_7, x_8);
+x_10 = lean_unbox(x_9);
+lean_dec(x_9);
 if (x_10 == 0)
 {
-uint8 x_11; 
+uint8_t x_11; 
 x_11 = 0;
 return x_11;
 }
 else
 {
-uint8 x_12; 
+uint8_t x_12; 
 x_12 = 1;
 return x_12;
 }
@@ -886,143 +884,145 @@ return x_12;
 }
 }
 }
-obj* l_Option_DecidableEq(obj* x_1) {
+lean_object* l_Option_DecidableEq(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_DecidableEq___rarg___boxed), 3, 0);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Option_DecidableEq___rarg___boxed), 3, 0);
 return x_2;
 }
 }
-obj* l_Option_DecidableEq___rarg___boxed(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_Option_DecidableEq___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8 x_4; obj* x_5; 
+uint8_t x_4; lean_object* x_5; 
 x_4 = l_Option_DecidableEq___rarg(x_1, x_2, x_3);
-x_5 = lean::box(x_4);
+x_5 = lean_box(x_4);
 return x_5;
 }
 }
-obj* l_Option_HasBeq___rarg(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_Option_HasBeq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-if (lean::obj_tag(x_2) == 0)
+if (lean_obj_tag(x_2) == 0)
 {
-lean::dec(x_1);
-if (lean::obj_tag(x_3) == 0)
+lean_dec(x_1);
+if (lean_obj_tag(x_3) == 0)
 {
-uint8 x_4; obj* x_5; 
+uint8_t x_4; lean_object* x_5; 
 x_4 = 1;
-x_5 = lean::box(x_4);
+x_5 = lean_box(x_4);
 return x_5;
 }
 else
 {
-uint8 x_6; obj* x_7; 
-lean::dec(x_3);
+uint8_t x_6; lean_object* x_7; 
+lean_dec(x_3);
 x_6 = 0;
-x_7 = lean::box(x_6);
+x_7 = lean_box(x_6);
 return x_7;
 }
 }
 else
 {
-if (lean::obj_tag(x_3) == 0)
+if (lean_obj_tag(x_3) == 0)
 {
-uint8 x_8; obj* x_9; 
-lean::dec(x_2);
-lean::dec(x_1);
+uint8_t x_8; lean_object* x_9; 
+lean_dec(x_2);
+lean_dec(x_1);
 x_8 = 0;
-x_9 = lean::box(x_8);
+x_9 = lean_box(x_8);
 return x_9;
 }
 else
 {
-obj* x_10; obj* x_11; obj* x_12; 
-x_10 = lean::cnstr_get(x_2, 0);
-lean::inc(x_10);
-lean::dec(x_2);
-x_11 = lean::cnstr_get(x_3, 0);
-lean::inc(x_11);
-lean::dec(x_3);
-x_12 = lean::apply_2(x_1, x_10, x_11);
+lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_10 = lean_ctor_get(x_2, 0);
+lean_inc(x_10);
+lean_dec(x_2);
+x_11 = lean_ctor_get(x_3, 0);
+lean_inc(x_11);
+lean_dec(x_3);
+x_12 = lean_apply_2(x_1, x_10, x_11);
 return x_12;
 }
 }
 }
 }
-obj* l_Option_HasBeq(obj* x_1) {
+lean_object* l_Option_HasBeq(lean_object* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_HasBeq___rarg), 3, 0);
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Option_HasBeq___rarg), 3, 0);
 return x_2;
 }
 }
-obj* l_Option_HasLess(obj* x_1, obj* x_2) {
+lean_object* l_Option_HasLess(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::box(0);
+lean_object* x_3; 
+x_3 = lean_box(0);
 return x_3;
 }
 }
-obj* l_Option_HasLess___boxed(obj* x_1, obj* x_2) {
+lean_object* l_Option_HasLess___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = l_Option_HasLess(x_1, x_2);
-lean::dec(x_2);
+lean_dec(x_2);
 return x_3;
 }
 }
-obj* initialize_init_core(obj*);
-obj* initialize_init_control_monad(obj*);
-obj* initialize_init_control_alternative(obj*);
-obj* initialize_init_coe(obj*);
+lean_object* initialize_init_core(lean_object*);
+lean_object* initialize_init_control_monad(lean_object*);
+lean_object* initialize_init_control_alternative(lean_object*);
+lean_object* initialize_init_coe(lean_object*);
 static bool _G_initialized = false;
-obj* initialize_init_data_option_basic(obj* w) {
+lean_object* initialize_init_data_option_basic(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_core(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_control_monad(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_control_alternative(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_coe(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 l_Option_Monad___closed__1 = _init_l_Option_Monad___closed__1();
-lean::mark_persistent(l_Option_Monad___closed__1);
+lean_mark_persistent(l_Option_Monad___closed__1);
 l_Option_Monad___closed__2 = _init_l_Option_Monad___closed__2();
-lean::mark_persistent(l_Option_Monad___closed__2);
+lean_mark_persistent(l_Option_Monad___closed__2);
 l_Option_Monad___closed__3 = _init_l_Option_Monad___closed__3();
-lean::mark_persistent(l_Option_Monad___closed__3);
+lean_mark_persistent(l_Option_Monad___closed__3);
 l_Option_Monad___closed__4 = _init_l_Option_Monad___closed__4();
-lean::mark_persistent(l_Option_Monad___closed__4);
+lean_mark_persistent(l_Option_Monad___closed__4);
 l_Option_Monad___closed__5 = _init_l_Option_Monad___closed__5();
-lean::mark_persistent(l_Option_Monad___closed__5);
+lean_mark_persistent(l_Option_Monad___closed__5);
 l_Option_Monad___closed__6 = _init_l_Option_Monad___closed__6();
-lean::mark_persistent(l_Option_Monad___closed__6);
+lean_mark_persistent(l_Option_Monad___closed__6);
 l_Option_Monad___closed__7 = _init_l_Option_Monad___closed__7();
-lean::mark_persistent(l_Option_Monad___closed__7);
+lean_mark_persistent(l_Option_Monad___closed__7);
 l_Option_Monad___closed__8 = _init_l_Option_Monad___closed__8();
-lean::mark_persistent(l_Option_Monad___closed__8);
+lean_mark_persistent(l_Option_Monad___closed__8);
 l_Option_Monad___closed__9 = _init_l_Option_Monad___closed__9();
-lean::mark_persistent(l_Option_Monad___closed__9);
+lean_mark_persistent(l_Option_Monad___closed__9);
 l_Option_Monad___closed__10 = _init_l_Option_Monad___closed__10();
-lean::mark_persistent(l_Option_Monad___closed__10);
+lean_mark_persistent(l_Option_Monad___closed__10);
 l_Option_Monad = _init_l_Option_Monad();
-lean::mark_persistent(l_Option_Monad);
+lean_mark_persistent(l_Option_Monad);
 l_Option_Alternative___closed__1 = _init_l_Option_Alternative___closed__1();
-lean::mark_persistent(l_Option_Alternative___closed__1);
+lean_mark_persistent(l_Option_Alternative___closed__1);
 l_Option_Alternative___closed__2 = _init_l_Option_Alternative___closed__2();
-lean::mark_persistent(l_Option_Alternative___closed__2);
+lean_mark_persistent(l_Option_Alternative___closed__2);
 l_Option_Alternative___closed__3 = _init_l_Option_Alternative___closed__3();
-lean::mark_persistent(l_Option_Alternative___closed__3);
+lean_mark_persistent(l_Option_Alternative___closed__3);
 l_Option_Alternative = _init_l_Option_Alternative();
-lean::mark_persistent(l_Option_Alternative);
+lean_mark_persistent(l_Option_Alternative);
 return w;
 }
+#ifdef __cplusplus
 }
+#endif

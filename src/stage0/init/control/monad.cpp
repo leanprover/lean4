@@ -1,11 +1,7 @@
 // Lean compiler output
 // Module: init.control.monad
 // Imports: init.control.applicative
-#include "runtime/object.h"
-#include "runtime/apply.h"
-typedef lean::object obj;    typedef lean::usize  usize;
-typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
-typedef lean::uint32 uint32; typedef lean::uint64 uint64;
+#include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -14,112 +10,116 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+#ifdef __cplusplus
 extern "C" {
-obj* l_mcomp___boxed(obj*, obj*, obj*, obj*);
-obj* l_monadInhabited_x27___rarg(obj*);
-obj* l_monadInhabited___rarg(obj*, obj*);
-obj* l_monadInhabited(obj*, obj*);
-obj* l_mcomp(obj*, obj*, obj*, obj*);
-obj* l_monadInhabited_x27___boxed(obj*, obj*);
-obj* l_mcomp___rarg(obj*, obj*, obj*, obj*);
-obj* l_monadInhabited___boxed(obj*, obj*);
-obj* l_monadInhabited_x27(obj*, obj*);
-obj* l_mcomp___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+#endif
+lean_object* l_mcomp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_monadInhabited_x27___rarg(lean_object*);
+lean_object* l_monadInhabited___rarg(lean_object*, lean_object*);
+lean_object* l_monadInhabited(lean_object*, lean_object*);
+lean_object* l_mcomp(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_monadInhabited_x27___boxed(lean_object*, lean_object*);
+lean_object* l_mcomp___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_monadInhabited___boxed(lean_object*, lean_object*);
+lean_object* l_monadInhabited_x27(lean_object*, lean_object*);
+lean_object* l_mcomp___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-obj* x_5; obj* x_6; 
-x_5 = lean::apply_1(x_2, x_4);
-x_6 = lean::apply_4(x_1, lean::box(0), lean::box(0), x_5, x_3);
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_apply_1(x_2, x_4);
+x_6 = lean_apply_4(x_1, lean_box(0), lean_box(0), x_5, x_3);
 return x_6;
 }
 }
-obj* l_mcomp(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_mcomp(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-obj* x_5; 
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_mcomp___rarg), 4, 0);
+lean_object* x_5; 
+x_5 = lean_alloc_closure((void*)(l_mcomp___rarg), 4, 0);
 return x_5;
 }
 }
-obj* l_mcomp___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_mcomp___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-obj* x_5; 
+lean_object* x_5; 
 x_5 = l_mcomp(x_1, x_2, x_3, x_4);
-lean::dec(x_4);
+lean_dec(x_4);
 return x_5;
 }
 }
-obj* l_monadInhabited_x27___rarg(obj* x_1) {
+lean_object* l_monadInhabited_x27___rarg(lean_object* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; obj* x_4; 
-x_2 = lean::cnstr_get(x_1, 0);
-lean::inc(x_2);
-lean::dec(x_1);
-x_3 = lean::cnstr_get(x_2, 1);
-lean::inc(x_3);
-lean::dec(x_2);
-x_4 = lean::apply_1(x_3, lean::box(0));
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+lean_dec(x_1);
+x_3 = lean_ctor_get(x_2, 1);
+lean_inc(x_3);
+lean_dec(x_2);
+x_4 = lean_apply_1(x_3, lean_box(0));
 return x_4;
 }
 }
-obj* l_monadInhabited_x27(obj* x_1, obj* x_2) {
+lean_object* l_monadInhabited_x27(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_monadInhabited_x27___rarg), 1, 0);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_monadInhabited_x27___rarg), 1, 0);
 return x_3;
 }
 }
-obj* l_monadInhabited_x27___boxed(obj* x_1, obj* x_2) {
+lean_object* l_monadInhabited_x27___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = l_monadInhabited_x27(x_1, x_2);
-lean::dec(x_2);
+lean_dec(x_2);
 return x_3;
 }
 }
-obj* l_monadInhabited___rarg(obj* x_1, obj* x_2) {
+lean_object* l_monadInhabited___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; obj* x_4; obj* x_5; 
-x_3 = lean::cnstr_get(x_1, 0);
-lean::inc(x_3);
-lean::dec(x_1);
-x_4 = lean::cnstr_get(x_3, 1);
-lean::inc(x_4);
-lean::dec(x_3);
-x_5 = lean::apply_2(x_4, lean::box(0), x_2);
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec(x_1);
+x_4 = lean_ctor_get(x_3, 1);
+lean_inc(x_4);
+lean_dec(x_3);
+x_5 = lean_apply_2(x_4, lean_box(0), x_2);
 return x_5;
 }
 }
-obj* l_monadInhabited(obj* x_1, obj* x_2) {
+lean_object* l_monadInhabited(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_monadInhabited___rarg), 2, 0);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_monadInhabited___rarg), 2, 0);
 return x_3;
 }
 }
-obj* l_monadInhabited___boxed(obj* x_1, obj* x_2) {
+lean_object* l_monadInhabited___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
+lean_object* x_3; 
 x_3 = l_monadInhabited(x_1, x_2);
-lean::dec(x_2);
+lean_dec(x_2);
 return x_3;
 }
 }
-obj* initialize_init_control_applicative(obj*);
+lean_object* initialize_init_control_applicative(lean_object*);
 static bool _G_initialized = false;
-obj* initialize_init_control_monad(obj* w) {
+lean_object* initialize_init_control_monad(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_control_applicative(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 return w;
 }
+#ifdef __cplusplus
 }
+#endif

@@ -1,11 +1,7 @@
 // Lean compiler output
 // Module: init.data.assoclist
 // Imports: init.control.id
-#include "runtime/object.h"
-#include "runtime/apply.h"
-typedef lean::object obj;    typedef lean::usize  usize;
-typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
-typedef lean::uint32 uint32; typedef lean::uint64 uint64;
+#include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -14,268 +10,270 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+#ifdef __cplusplus
 extern "C" {
-obj* l_AssocList_foldl___rarg(obj*, obj*, obj*);
-obj* l_AssocList_mfoldl___boxed(obj*, obj*, obj*, obj*);
-obj* l_AssocList_mfoldl___main___at_AssocList_foldl___spec__1(obj*, obj*, obj*);
-obj* l_AssocList_replace___main(obj*, obj*);
-obj* l_AssocList_erase___rarg(obj*, obj*, obj*);
-obj* l_AssocList_find___main(obj*, obj*);
-obj* l_AssocList_mfoldl(obj*, obj*, obj*, obj*);
-obj* l_AssocList_erase___main___rarg(obj*, obj*, obj*);
-obj* l_AssocList_contains___rarg___boxed(obj*, obj*, obj*);
-obj* l_AssocList_mfoldl___main___rarg(obj*, obj*, obj*, obj*);
-obj* l_AssocList_contains(obj*, obj*);
-obj* l_AssocList_find___rarg(obj*, obj*, obj*);
-obj* l_AssocList_find___main___rarg(obj*, obj*, obj*);
-uint8 l_AssocList_contains___rarg(obj*, obj*, obj*);
-obj* l_AssocList_contains___main___rarg___boxed(obj*, obj*, obj*);
-uint8 l_AssocList_contains___main___rarg(obj*, obj*, obj*);
-obj* l_AssocList_foldl(obj*, obj*, obj*);
-obj* l_AssocList_replace___main___rarg(obj*, obj*, obj*, obj*);
-obj* l_AssocList_replace(obj*, obj*);
-obj* l_AssocList_mfoldl___main(obj*, obj*, obj*, obj*);
-obj* l_AssocList_mfoldl___rarg(obj*, obj*, obj*, obj*);
-obj* l_AssocList_mfoldl___main___at_AssocList_foldl___spec__1___rarg(obj*, obj*, obj*);
-obj* l_AssocList_erase(obj*, obj*);
-obj* l_AssocList_find(obj*, obj*);
-obj* l_AssocList_mfoldl___main___rarg___lambda__1(obj*, obj*, obj*, obj*);
-obj* l_AssocList_mfoldl___main___boxed(obj*, obj*, obj*, obj*);
-obj* l_AssocList_erase___main(obj*, obj*);
-obj* l_AssocList_replace___rarg(obj*, obj*, obj*, obj*);
-obj* l_AssocList_contains___main(obj*, obj*);
-obj* l_AssocList_mfoldl___main___rarg___lambda__1(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+#endif
+lean_object* l_AssocList_foldl___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_mfoldl___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_mfoldl___main___at_AssocList_foldl___spec__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_replace___main(lean_object*, lean_object*);
+lean_object* l_AssocList_erase___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_find___main(lean_object*, lean_object*);
+lean_object* l_AssocList_mfoldl(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_erase___main___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_contains___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_mfoldl___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_contains(lean_object*, lean_object*);
+lean_object* l_AssocList_find___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_find___main___rarg(lean_object*, lean_object*, lean_object*);
+uint8_t l_AssocList_contains___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_contains___main___rarg___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t l_AssocList_contains___main___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_foldl(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_replace___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_replace(lean_object*, lean_object*);
+lean_object* l_AssocList_mfoldl___main(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_mfoldl___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_mfoldl___main___at_AssocList_foldl___spec__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_erase(lean_object*, lean_object*);
+lean_object* l_AssocList_find(lean_object*, lean_object*);
+lean_object* l_AssocList_mfoldl___main___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_mfoldl___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_erase___main(lean_object*, lean_object*);
+lean_object* l_AssocList_replace___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_contains___main(lean_object*, lean_object*);
+lean_object* l_AssocList_mfoldl___main___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-obj* x_5; 
+lean_object* x_5; 
 x_5 = l_AssocList_mfoldl___main___rarg(x_1, x_2, x_4, x_3);
 return x_5;
 }
 }
-obj* l_AssocList_mfoldl___main___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_AssocList_mfoldl___main___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-if (lean::obj_tag(x_4) == 0)
+if (lean_obj_tag(x_4) == 0)
 {
-obj* x_5; obj* x_6; obj* x_7; 
-lean::dec(x_2);
-x_5 = lean::cnstr_get(x_1, 0);
-lean::inc(x_5);
-lean::dec(x_1);
-x_6 = lean::cnstr_get(x_5, 1);
-lean::inc(x_6);
-lean::dec(x_5);
-x_7 = lean::apply_2(x_6, lean::box(0), x_3);
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_dec(x_2);
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = lean_ctor_get(x_5, 1);
+lean_inc(x_6);
+lean_dec(x_5);
+x_7 = lean_apply_2(x_6, lean_box(0), x_3);
 return x_7;
 }
 else
 {
-obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; 
-x_8 = lean::cnstr_get(x_4, 0);
-lean::inc(x_8);
-x_9 = lean::cnstr_get(x_4, 1);
-lean::inc(x_9);
-x_10 = lean::cnstr_get(x_4, 2);
-lean::inc(x_10);
-lean::dec(x_4);
-x_11 = lean::cnstr_get(x_1, 1);
-lean::inc(x_11);
-lean::inc(x_2);
-x_12 = lean::apply_3(x_2, x_3, x_8, x_9);
-x_13 = lean::alloc_closure(reinterpret_cast<void*>(l_AssocList_mfoldl___main___rarg___lambda__1), 4, 3);
-lean::closure_set(x_13, 0, x_1);
-lean::closure_set(x_13, 1, x_2);
-lean::closure_set(x_13, 2, x_10);
-x_14 = lean::apply_4(x_11, lean::box(0), lean::box(0), x_12, x_13);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_8 = lean_ctor_get(x_4, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_4, 1);
+lean_inc(x_9);
+x_10 = lean_ctor_get(x_4, 2);
+lean_inc(x_10);
+lean_dec(x_4);
+x_11 = lean_ctor_get(x_1, 1);
+lean_inc(x_11);
+lean_inc(x_2);
+x_12 = lean_apply_3(x_2, x_3, x_8, x_9);
+x_13 = lean_alloc_closure((void*)(l_AssocList_mfoldl___main___rarg___lambda__1), 4, 3);
+lean_closure_set(x_13, 0, x_1);
+lean_closure_set(x_13, 1, x_2);
+lean_closure_set(x_13, 2, x_10);
+x_14 = lean_apply_4(x_11, lean_box(0), lean_box(0), x_12, x_13);
 return x_14;
 }
 }
 }
-obj* l_AssocList_mfoldl___main(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_AssocList_mfoldl___main(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-obj* x_5; 
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_AssocList_mfoldl___main___rarg), 4, 0);
+lean_object* x_5; 
+x_5 = lean_alloc_closure((void*)(l_AssocList_mfoldl___main___rarg), 4, 0);
 return x_5;
 }
 }
-obj* l_AssocList_mfoldl___main___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_AssocList_mfoldl___main___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-obj* x_5; 
+lean_object* x_5; 
 x_5 = l_AssocList_mfoldl___main(x_1, x_2, x_3, x_4);
-lean::dec(x_4);
+lean_dec(x_4);
 return x_5;
 }
 }
-obj* l_AssocList_mfoldl___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_AssocList_mfoldl___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-obj* x_5; 
+lean_object* x_5; 
 x_5 = l_AssocList_mfoldl___main___rarg(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-obj* l_AssocList_mfoldl(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_AssocList_mfoldl(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-obj* x_5; 
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_AssocList_mfoldl___rarg), 4, 0);
+lean_object* x_5; 
+x_5 = lean_alloc_closure((void*)(l_AssocList_mfoldl___rarg), 4, 0);
 return x_5;
 }
 }
-obj* l_AssocList_mfoldl___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_AssocList_mfoldl___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-obj* x_5; 
+lean_object* x_5; 
 x_5 = l_AssocList_mfoldl(x_1, x_2, x_3, x_4);
-lean::dec(x_4);
+lean_dec(x_4);
 return x_5;
 }
 }
-obj* l_AssocList_mfoldl___main___at_AssocList_foldl___spec__1___rarg(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_AssocList_mfoldl___main___at_AssocList_foldl___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-if (lean::obj_tag(x_3) == 0)
+if (lean_obj_tag(x_3) == 0)
 {
-lean::dec(x_1);
+lean_dec(x_1);
 return x_2;
 }
 else
 {
-obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
-x_4 = lean::cnstr_get(x_3, 0);
-lean::inc(x_4);
-x_5 = lean::cnstr_get(x_3, 1);
-lean::inc(x_5);
-x_6 = lean::cnstr_get(x_3, 2);
-lean::inc(x_6);
-lean::dec(x_3);
-lean::inc(x_1);
-x_7 = lean::apply_3(x_1, x_2, x_4, x_5);
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_4 = lean_ctor_get(x_3, 0);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_3, 1);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_3, 2);
+lean_inc(x_6);
+lean_dec(x_3);
+lean_inc(x_1);
+x_7 = lean_apply_3(x_1, x_2, x_4, x_5);
 x_2 = x_7;
 x_3 = x_6;
 goto _start;
 }
 }
 }
-obj* l_AssocList_mfoldl___main___at_AssocList_foldl___spec__1(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_AssocList_mfoldl___main___at_AssocList_foldl___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; 
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_AssocList_mfoldl___main___at_AssocList_foldl___spec__1___rarg), 3, 0);
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_AssocList_mfoldl___main___at_AssocList_foldl___spec__1___rarg), 3, 0);
 return x_4;
 }
 }
-obj* l_AssocList_foldl___rarg(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_AssocList_foldl___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; 
+lean_object* x_4; 
 x_4 = l_AssocList_mfoldl___main___at_AssocList_foldl___spec__1___rarg(x_1, x_2, x_3);
 return x_4;
 }
 }
-obj* l_AssocList_foldl(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_AssocList_foldl(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; 
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_AssocList_foldl___rarg), 3, 0);
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_AssocList_foldl___rarg), 3, 0);
 return x_4;
 }
 }
-obj* l_AssocList_find___main___rarg(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_AssocList_find___main___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-if (lean::obj_tag(x_3) == 0)
+if (lean_obj_tag(x_3) == 0)
 {
-obj* x_4; 
-lean::dec(x_2);
-lean::dec(x_1);
-x_4 = lean::box(0);
+lean_object* x_4; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(0);
 return x_4;
 }
 else
 {
-obj* x_5; obj* x_6; obj* x_7; obj* x_8; uint8 x_9; 
-x_5 = lean::cnstr_get(x_3, 0);
-lean::inc(x_5);
-x_6 = lean::cnstr_get(x_3, 1);
-lean::inc(x_6);
-x_7 = lean::cnstr_get(x_3, 2);
-lean::inc(x_7);
-lean::dec(x_3);
-lean::inc(x_1);
-lean::inc(x_2);
-x_8 = lean::apply_2(x_1, x_5, x_2);
-x_9 = lean::unbox(x_8);
-lean::dec(x_8);
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_5 = lean_ctor_get(x_3, 0);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_3, 1);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_3, 2);
+lean_inc(x_7);
+lean_dec(x_3);
+lean_inc(x_1);
+lean_inc(x_2);
+x_8 = lean_apply_2(x_1, x_5, x_2);
+x_9 = lean_unbox(x_8);
+lean_dec(x_8);
 if (x_9 == 0)
 {
-lean::dec(x_6);
+lean_dec(x_6);
 x_3 = x_7;
 goto _start;
 }
 else
 {
-obj* x_11; 
-lean::dec(x_7);
-lean::dec(x_2);
-lean::dec(x_1);
-x_11 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_11, 0, x_6);
+lean_object* x_11; 
+lean_dec(x_7);
+lean_dec(x_2);
+lean_dec(x_1);
+x_11 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_11, 0, x_6);
 return x_11;
 }
 }
 }
 }
-obj* l_AssocList_find___main(obj* x_1, obj* x_2) {
+lean_object* l_AssocList_find___main(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_AssocList_find___main___rarg), 3, 0);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_AssocList_find___main___rarg), 3, 0);
 return x_3;
 }
 }
-obj* l_AssocList_find___rarg(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_AssocList_find___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; 
+lean_object* x_4; 
 x_4 = l_AssocList_find___main___rarg(x_1, x_2, x_3);
 return x_4;
 }
 }
-obj* l_AssocList_find(obj* x_1, obj* x_2) {
+lean_object* l_AssocList_find(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_AssocList_find___rarg), 3, 0);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_AssocList_find___rarg), 3, 0);
 return x_3;
 }
 }
-uint8 l_AssocList_contains___main___rarg(obj* x_1, obj* x_2, obj* x_3) {
+uint8_t l_AssocList_contains___main___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-if (lean::obj_tag(x_3) == 0)
+if (lean_obj_tag(x_3) == 0)
 {
-uint8 x_4; 
-lean::dec(x_2);
-lean::dec(x_1);
+uint8_t x_4; 
+lean_dec(x_2);
+lean_dec(x_1);
 x_4 = 0;
 return x_4;
 }
 else
 {
-obj* x_5; obj* x_6; obj* x_7; uint8 x_8; 
-x_5 = lean::cnstr_get(x_3, 0);
-lean::inc(x_5);
-x_6 = lean::cnstr_get(x_3, 2);
-lean::inc(x_6);
-lean::dec(x_3);
-lean::inc(x_1);
-lean::inc(x_2);
-x_7 = lean::apply_2(x_1, x_5, x_2);
-x_8 = lean::unbox(x_7);
-lean::dec(x_7);
+lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+x_5 = lean_ctor_get(x_3, 0);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_3, 2);
+lean_inc(x_6);
+lean_dec(x_3);
+lean_inc(x_1);
+lean_inc(x_2);
+x_7 = lean_apply_2(x_1, x_5, x_2);
+x_8 = lean_unbox(x_7);
+lean_dec(x_7);
 if (x_8 == 0)
 {
 x_3 = x_6;
@@ -283,279 +281,281 @@ goto _start;
 }
 else
 {
-uint8 x_10; 
-lean::dec(x_6);
-lean::dec(x_2);
-lean::dec(x_1);
+uint8_t x_10; 
+lean_dec(x_6);
+lean_dec(x_2);
+lean_dec(x_1);
 x_10 = 1;
 return x_10;
 }
 }
 }
 }
-obj* l_AssocList_contains___main(obj* x_1, obj* x_2) {
+lean_object* l_AssocList_contains___main(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_AssocList_contains___main___rarg___boxed), 3, 0);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_AssocList_contains___main___rarg___boxed), 3, 0);
 return x_3;
 }
 }
-obj* l_AssocList_contains___main___rarg___boxed(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_AssocList_contains___main___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8 x_4; obj* x_5; 
+uint8_t x_4; lean_object* x_5; 
 x_4 = l_AssocList_contains___main___rarg(x_1, x_2, x_3);
-x_5 = lean::box(x_4);
+x_5 = lean_box(x_4);
 return x_5;
 }
 }
-uint8 l_AssocList_contains___rarg(obj* x_1, obj* x_2, obj* x_3) {
+uint8_t l_AssocList_contains___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8 x_4; 
+uint8_t x_4; 
 x_4 = l_AssocList_contains___main___rarg(x_1, x_2, x_3);
 return x_4;
 }
 }
-obj* l_AssocList_contains(obj* x_1, obj* x_2) {
+lean_object* l_AssocList_contains(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_AssocList_contains___rarg___boxed), 3, 0);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_AssocList_contains___rarg___boxed), 3, 0);
 return x_3;
 }
 }
-obj* l_AssocList_contains___rarg___boxed(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_AssocList_contains___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8 x_4; obj* x_5; 
+uint8_t x_4; lean_object* x_5; 
 x_4 = l_AssocList_contains___rarg(x_1, x_2, x_3);
-x_5 = lean::box(x_4);
+x_5 = lean_box(x_4);
 return x_5;
 }
 }
-obj* l_AssocList_replace___main___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_AssocList_replace___main___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-if (lean::obj_tag(x_4) == 0)
+if (lean_obj_tag(x_4) == 0)
 {
-lean::dec(x_3);
-lean::dec(x_2);
-lean::dec(x_1);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_4;
 }
 else
 {
-uint8 x_5; 
-x_5 = !lean::is_exclusive(x_4);
+uint8_t x_5; 
+x_5 = !lean_is_exclusive(x_4);
 if (x_5 == 0)
 {
-obj* x_6; obj* x_7; obj* x_8; obj* x_9; uint8 x_10; 
-x_6 = lean::cnstr_get(x_4, 0);
-x_7 = lean::cnstr_get(x_4, 1);
-x_8 = lean::cnstr_get(x_4, 2);
-lean::inc(x_1);
-lean::inc(x_2);
-lean::inc(x_6);
-x_9 = lean::apply_2(x_1, x_6, x_2);
-x_10 = lean::unbox(x_9);
-lean::dec(x_9);
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_6 = lean_ctor_get(x_4, 0);
+x_7 = lean_ctor_get(x_4, 1);
+x_8 = lean_ctor_get(x_4, 2);
+lean_inc(x_1);
+lean_inc(x_2);
+lean_inc(x_6);
+x_9 = lean_apply_2(x_1, x_6, x_2);
+x_10 = lean_unbox(x_9);
+lean_dec(x_9);
 if (x_10 == 0)
 {
-obj* x_11; 
+lean_object* x_11; 
 x_11 = l_AssocList_replace___main___rarg(x_1, x_2, x_3, x_8);
-lean::cnstr_set(x_4, 2, x_11);
+lean_ctor_set(x_4, 2, x_11);
 return x_4;
 }
 else
 {
-lean::dec(x_7);
-lean::dec(x_6);
-lean::dec(x_1);
-lean::cnstr_set(x_4, 1, x_3);
-lean::cnstr_set(x_4, 0, x_2);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_1);
+lean_ctor_set(x_4, 1, x_3);
+lean_ctor_set(x_4, 0, x_2);
 return x_4;
 }
 }
 else
 {
-obj* x_12; obj* x_13; obj* x_14; obj* x_15; uint8 x_16; 
-x_12 = lean::cnstr_get(x_4, 0);
-x_13 = lean::cnstr_get(x_4, 1);
-x_14 = lean::cnstr_get(x_4, 2);
-lean::inc(x_14);
-lean::inc(x_13);
-lean::inc(x_12);
-lean::dec(x_4);
-lean::inc(x_1);
-lean::inc(x_2);
-lean::inc(x_12);
-x_15 = lean::apply_2(x_1, x_12, x_2);
-x_16 = lean::unbox(x_15);
-lean::dec(x_15);
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
+x_12 = lean_ctor_get(x_4, 0);
+x_13 = lean_ctor_get(x_4, 1);
+x_14 = lean_ctor_get(x_4, 2);
+lean_inc(x_14);
+lean_inc(x_13);
+lean_inc(x_12);
+lean_dec(x_4);
+lean_inc(x_1);
+lean_inc(x_2);
+lean_inc(x_12);
+x_15 = lean_apply_2(x_1, x_12, x_2);
+x_16 = lean_unbox(x_15);
+lean_dec(x_15);
 if (x_16 == 0)
 {
-obj* x_17; obj* x_18; 
+lean_object* x_17; lean_object* x_18; 
 x_17 = l_AssocList_replace___main___rarg(x_1, x_2, x_3, x_14);
-x_18 = lean::alloc_cnstr(1, 3, 0);
-lean::cnstr_set(x_18, 0, x_12);
-lean::cnstr_set(x_18, 1, x_13);
-lean::cnstr_set(x_18, 2, x_17);
+x_18 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_18, 0, x_12);
+lean_ctor_set(x_18, 1, x_13);
+lean_ctor_set(x_18, 2, x_17);
 return x_18;
 }
 else
 {
-obj* x_19; 
-lean::dec(x_13);
-lean::dec(x_12);
-lean::dec(x_1);
-x_19 = lean::alloc_cnstr(1, 3, 0);
-lean::cnstr_set(x_19, 0, x_2);
-lean::cnstr_set(x_19, 1, x_3);
-lean::cnstr_set(x_19, 2, x_14);
+lean_object* x_19; 
+lean_dec(x_13);
+lean_dec(x_12);
+lean_dec(x_1);
+x_19 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_19, 0, x_2);
+lean_ctor_set(x_19, 1, x_3);
+lean_ctor_set(x_19, 2, x_14);
 return x_19;
 }
 }
 }
 }
 }
-obj* l_AssocList_replace___main(obj* x_1, obj* x_2) {
+lean_object* l_AssocList_replace___main(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_AssocList_replace___main___rarg), 4, 0);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_AssocList_replace___main___rarg), 4, 0);
 return x_3;
 }
 }
-obj* l_AssocList_replace___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+lean_object* l_AssocList_replace___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-obj* x_5; 
+lean_object* x_5; 
 x_5 = l_AssocList_replace___main___rarg(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-obj* l_AssocList_replace(obj* x_1, obj* x_2) {
+lean_object* l_AssocList_replace(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_AssocList_replace___rarg), 4, 0);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_AssocList_replace___rarg), 4, 0);
 return x_3;
 }
 }
-obj* l_AssocList_erase___main___rarg(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_AssocList_erase___main___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-if (lean::obj_tag(x_3) == 0)
+if (lean_obj_tag(x_3) == 0)
 {
-lean::dec(x_2);
-lean::dec(x_1);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 else
 {
-uint8 x_4; 
-x_4 = !lean::is_exclusive(x_3);
+uint8_t x_4; 
+x_4 = !lean_is_exclusive(x_3);
 if (x_4 == 0)
 {
-obj* x_5; obj* x_6; obj* x_7; obj* x_8; uint8 x_9; 
-x_5 = lean::cnstr_get(x_3, 0);
-x_6 = lean::cnstr_get(x_3, 1);
-x_7 = lean::cnstr_get(x_3, 2);
-lean::inc(x_1);
-lean::inc(x_2);
-lean::inc(x_5);
-x_8 = lean::apply_2(x_1, x_5, x_2);
-x_9 = lean::unbox(x_8);
-lean::dec(x_8);
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_5 = lean_ctor_get(x_3, 0);
+x_6 = lean_ctor_get(x_3, 1);
+x_7 = lean_ctor_get(x_3, 2);
+lean_inc(x_1);
+lean_inc(x_2);
+lean_inc(x_5);
+x_8 = lean_apply_2(x_1, x_5, x_2);
+x_9 = lean_unbox(x_8);
+lean_dec(x_8);
 if (x_9 == 0)
 {
-obj* x_10; 
+lean_object* x_10; 
 x_10 = l_AssocList_erase___main___rarg(x_1, x_2, x_7);
-lean::cnstr_set(x_3, 2, x_10);
+lean_ctor_set(x_3, 2, x_10);
 return x_3;
 }
 else
 {
-lean::free_heap_obj(x_3);
-lean::dec(x_6);
-lean::dec(x_5);
-lean::dec(x_2);
-lean::dec(x_1);
+lean_free_object(x_3);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_7;
 }
 }
 else
 {
-obj* x_11; obj* x_12; obj* x_13; obj* x_14; uint8 x_15; 
-x_11 = lean::cnstr_get(x_3, 0);
-x_12 = lean::cnstr_get(x_3, 1);
-x_13 = lean::cnstr_get(x_3, 2);
-lean::inc(x_13);
-lean::inc(x_12);
-lean::inc(x_11);
-lean::dec(x_3);
-lean::inc(x_1);
-lean::inc(x_2);
-lean::inc(x_11);
-x_14 = lean::apply_2(x_1, x_11, x_2);
-x_15 = lean::unbox(x_14);
-lean::dec(x_14);
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_11 = lean_ctor_get(x_3, 0);
+x_12 = lean_ctor_get(x_3, 1);
+x_13 = lean_ctor_get(x_3, 2);
+lean_inc(x_13);
+lean_inc(x_12);
+lean_inc(x_11);
+lean_dec(x_3);
+lean_inc(x_1);
+lean_inc(x_2);
+lean_inc(x_11);
+x_14 = lean_apply_2(x_1, x_11, x_2);
+x_15 = lean_unbox(x_14);
+lean_dec(x_14);
 if (x_15 == 0)
 {
-obj* x_16; obj* x_17; 
+lean_object* x_16; lean_object* x_17; 
 x_16 = l_AssocList_erase___main___rarg(x_1, x_2, x_13);
-x_17 = lean::alloc_cnstr(1, 3, 0);
-lean::cnstr_set(x_17, 0, x_11);
-lean::cnstr_set(x_17, 1, x_12);
-lean::cnstr_set(x_17, 2, x_16);
+x_17 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_17, 0, x_11);
+lean_ctor_set(x_17, 1, x_12);
+lean_ctor_set(x_17, 2, x_16);
 return x_17;
 }
 else
 {
-lean::dec(x_12);
-lean::dec(x_11);
-lean::dec(x_2);
-lean::dec(x_1);
+lean_dec(x_12);
+lean_dec(x_11);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_13;
 }
 }
 }
 }
 }
-obj* l_AssocList_erase___main(obj* x_1, obj* x_2) {
+lean_object* l_AssocList_erase___main(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_AssocList_erase___main___rarg), 3, 0);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_AssocList_erase___main___rarg), 3, 0);
 return x_3;
 }
 }
-obj* l_AssocList_erase___rarg(obj* x_1, obj* x_2, obj* x_3) {
+lean_object* l_AssocList_erase___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-obj* x_4; 
+lean_object* x_4; 
 x_4 = l_AssocList_erase___main___rarg(x_1, x_2, x_3);
 return x_4;
 }
 }
-obj* l_AssocList_erase(obj* x_1, obj* x_2) {
+lean_object* l_AssocList_erase(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_AssocList_erase___rarg), 3, 0);
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_AssocList_erase___rarg), 3, 0);
 return x_3;
 }
 }
-obj* initialize_init_control_id(obj*);
+lean_object* initialize_init_control_id(lean_object*);
 static bool _G_initialized = false;
-obj* initialize_init_data_assoclist(obj* w) {
+lean_object* initialize_init_data_assoclist(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 w = initialize_init_control_id(w);
-if (lean::io_result_is_error(w)) return w;
+if (lean_io_result_is_error(w)) return w;
 return w;
 }
+#ifdef __cplusplus
 }
+#endif

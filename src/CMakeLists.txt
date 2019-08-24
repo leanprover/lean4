@@ -34,7 +34,7 @@ option(JEMALLOC           "JEMALLOC"           OFF)
 option(JSON               "JSON"               ON)
 # When OFF we disable LLVM support
 option(LLVM               "LLVM"               OFF)
-option(COMPRESSED_OBJECT_HEADER "COMPRESSED_OBJECT_HEARDER" ON)
+option(COMPRESSED_OBJECT_HEADER "COMPRESSED_OBJECT_HEARDER" OFF)
 
 # When cross-compiling, we do not compile the standard library since
 # the executable will not work on the host machine

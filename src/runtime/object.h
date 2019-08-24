@@ -68,8 +68,6 @@ inline bool is_task(object * o) { return lean_is_task(o); }
 inline bool is_external(object * o) { return lean_is_external(o); }
 inline bool is_ref(object * o) { return lean_is_ref(o); }
 
-inline void dealloc(object * o) { return lean_dealloc(o); }
-
 inline void mark_persistent(object * o) { return lean_mark_persistent(o); }
 
 inline unsigned obj_tag(b_obj_arg o) { return lean_obj_tag(o); }

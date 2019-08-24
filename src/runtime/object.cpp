@@ -55,11 +55,19 @@ extern "C" size_t lean_object_byte_size(lean_object * o) {
     }
 }
 
+static inline void lean_dealloc(lean_object * o, size_t sz) {
+#ifdef LEAN_SMALL_ALLOCATOR
+    dealloc(o, sz);
+#else
+    free(sz);
+#endif
+}
+
 extern "C" void lean_free_object(lean_object * o) {
     switch (lean_ptr_tag(o)) {
-    case LeanArray:       return dealloc(o, lean_array_byte_size(o));
-    case LeanScalarArray: return dealloc(o, lean_sarray_byte_size(o));
-    case LeanString:      return dealloc(o, lean_string_byte_size(o));
+    case LeanArray:       return lean_dealloc(o, lean_array_byte_size(o));
+    case LeanScalarArray: return lean_dealloc(o, lean_sarray_byte_size(o));
+    case LeanString:      return lean_dealloc(o, lean_string_byte_size(o));
     case LeanMPZ:         to_mpz(o)->m_value.~mpz(); return lean_free_small(o);
     default:              return lean_free_small(o);
     }
@@ -147,14 +155,14 @@ static void lean_del_core(object * o, object * & todo) {
             object ** it  = lean_array_cptr(o);
             object ** end = it + lean_array_size(o);
             for (; it != end; ++it) dec(*it, todo);
-            dealloc(o, lean_array_byte_size(o));
+            lean_dealloc(o, lean_array_byte_size(o));
             break;
         }
         case LeanScalarArray:
-            dealloc(o, lean_sarray_byte_size(o));
+            lean_dealloc(o, lean_sarray_byte_size(o));
             break;
         case LeanString:
-            dealloc(o, lean_string_byte_size(o));
+            lean_dealloc(o, lean_string_byte_size(o));
             break;
         case LeanMPZ:
             to_mpz(o)->m_value.~mpz();
@@ -1353,7 +1361,7 @@ static object * string_ensure_capacity(object * o, size_t extra) {
         object * new_o = alloc_string(sz, cap + sz + extra, string_len(o));
         lean_assert(string_capacity(new_o) >= sz + extra);
         memcpy(w_string_cstr(new_o), string_cstr(o), sz);
-        dealloc(o, lean_string_byte_size(o));
+        lean_dealloc(o, lean_string_byte_size(o));
         return new_o;
     } else {
         return o;

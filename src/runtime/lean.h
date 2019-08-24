@@ -1397,14 +1397,14 @@ static inline uint8_t lean_uint8_dec_le(uint8_t a1, uint8_t a2) { return a1 <= a
 /* UInt16 */
 
 uint16_t lean_uint16_of_big_nat(b_lean_obj_arg a);
-inline uint16_t lean_uint16_of_nat(b_lean_obj_arg a) { return lean_is_scalar(a) ? (int16_t)(lean_unbox(a)) : lean_uint16_of_big_nat(a); }
-inline lean_obj_res lean_uint16_to_nat(uint16_t a) { return lean_usize_to_nat((size_t)a); }
-inline uint16_t lean_uint16_add(uint16_t a1, uint16_t a2) { return a1+a2; }
-inline uint16_t lean_uint16_sub(uint16_t a1, uint16_t a2) { return a1-a2; }
-inline uint16_t lean_uint16_mul(uint16_t a1, uint16_t a2) { return a1*a2; }
-inline uint16_t lean_uint16_div(uint16_t a1, uint16_t a2) { return a2 == 0 ? 0 : a1/a2; }
-inline uint16_t lean_uint16_mod(uint16_t a1, uint16_t a2) { return a2 == 0 ? 0 : a1%a2; }
-inline uint16_t lean_uint16_modn(uint16_t a1, b_lean_obj_arg a2) {
+static inline uint16_t lean_uint16_of_nat(b_lean_obj_arg a) { return lean_is_scalar(a) ? (int16_t)(lean_unbox(a)) : lean_uint16_of_big_nat(a); }
+static inline lean_obj_res lean_uint16_to_nat(uint16_t a) { return lean_usize_to_nat((size_t)a); }
+static inline uint16_t lean_uint16_add(uint16_t a1, uint16_t a2) { return a1+a2; }
+static inline uint16_t lean_uint16_sub(uint16_t a1, uint16_t a2) { return a1-a2; }
+static inline uint16_t lean_uint16_mul(uint16_t a1, uint16_t a2) { return a1*a2; }
+static inline uint16_t lean_uint16_div(uint16_t a1, uint16_t a2) { return a2 == 0 ? 0 : a1/a2; }
+static inline uint16_t lean_uint16_mod(uint16_t a1, uint16_t a2) { return a2 == 0 ? 0 : a1%a2; }
+static inline uint16_t lean_uint16_modn(uint16_t a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a2))) {
         unsigned n2 = lean_unbox(a2);
         return n2 == 0 ? 0 : a1 % n2;
@@ -1412,9 +1412,9 @@ inline uint16_t lean_uint16_modn(uint16_t a1, b_lean_obj_arg a2) {
         return a1;
     }
 }
-inline uint8_t lean_uint16_dec_eq(uint16_t a1, uint16_t a2) { return a1 == a2; }
-inline uint8_t lean_uint16_dec_lt(uint16_t a1, uint16_t a2) { return a1 < a2; }
-inline uint8_t lean_uint16_dec_le(uint16_t a1, uint16_t a2) { return a1 <= a2; }
+static inline uint8_t lean_uint16_dec_eq(uint16_t a1, uint16_t a2) { return a1 == a2; }
+static inline uint8_t lean_uint16_dec_lt(uint16_t a1, uint16_t a2) { return a1 < a2; }
+static inline uint8_t lean_uint16_dec_le(uint16_t a1, uint16_t a2) { return a1 <= a2; }
 
 /* UInt32 */
 

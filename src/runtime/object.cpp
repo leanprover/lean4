@@ -415,48 +415,50 @@ extern "C" void lean_mark_persistent(object * o) {
 #else
             o->m_mem_kind = LEAN_PERSISTENT_MEM_KIND;
 #endif
-            switch (lean_ptr_tag(o)) {
-            case LeanScalarArray:
-            case LeanString:
-            case LeanMPZ:
-                break;
-            case LeanExternal: {
-                object * fn = lean_alloc_closure((void*)mark_persistent_fn, 1, 0);
-                lean_to_external(o)->m_class->m_foreach(lean_to_external(o)->m_data, fn);
-                lean_dec(fn);
-                break;
-            }
-            case LeanTask:
-                todo.push_back(lean_task_get(o));
-                break;
-            case LeanClosure: {
-                object ** it  = lean_closure_arg_cptr(o);
-                object ** end = it + lean_closure_num_fixed(o);
-                for (; it != end; ++it) todo.push_back(*it);
-                break;
-            }
-            case LeanArray: {
-                object ** it  = lean_array_cptr(o);
-                object ** end = it + lean_array_size(o);
-                for (; it != end; ++it) todo.push_back(*it);
-                break;
-            }
-            case LeanThunk:
-                if (object * c = lean_to_thunk(o)->m_closure) todo.push_back(c);
-                if (object * v = lean_to_thunk(o)->m_value) todo.push_back(v);
-                break;
-            case LeanRef:
-                if (object * v = lean_to_ref(o)->m_value) todo.push_back(v);
-                break;
-            case LeanReserved:
-                lean_unreachable();
-                break;
-            default: {
+            uint8_t tag = lean_ptr_tag(o);
+            if (tag <= LeanMaxCtorTag) {
                 object ** it  = lean_ctor_obj_cptr(o);
                 object ** end = it + lean_ctor_num_objs(o);
                 for (; it != end; ++it) todo.push_back(*it);
-                break;
-            }}
+            } else {
+                switch (tag) {
+                case LeanScalarArray:
+                case LeanString:
+                case LeanMPZ:
+                    break;
+                case LeanExternal: {
+                    object * fn = lean_alloc_closure((void*)mark_persistent_fn, 1, 0);
+                    lean_to_external(o)->m_class->m_foreach(lean_to_external(o)->m_data, fn);
+                    lean_dec(fn);
+                    break;
+                }
+                case LeanTask:
+                    todo.push_back(lean_task_get(o));
+                    break;
+                case LeanClosure: {
+                    object ** it  = lean_closure_arg_cptr(o);
+                    object ** end = it + lean_closure_num_fixed(o);
+                    for (; it != end; ++it) todo.push_back(*it);
+                    break;
+                }
+                case LeanArray: {
+                    object ** it  = lean_array_cptr(o);
+                    object ** end = it + lean_array_size(o);
+                    for (; it != end; ++it) todo.push_back(*it);
+                    break;
+                }
+                case LeanThunk:
+                    if (object * c = lean_to_thunk(o)->m_closure) todo.push_back(c);
+                    if (object * v = lean_to_thunk(o)->m_value) todo.push_back(v);
+                    break;
+                case LeanRef:
+                    if (object * v = lean_to_ref(o)->m_value) todo.push_back(v);
+                    break;
+                default:
+                    lean_unreachable();
+                    break;
+                }
+            }
         }
     }
 }
@@ -490,45 +492,50 @@ extern "C" void lean_mark_mt(object * o) {
 #else
             o->m_mem_kind = LEAN_MT_MEM_KIND;
 #endif
-            switch (lean_ptr_tag(o)) {
-            case LeanScalarArray:
-            case LeanString:
-            case LeanMPZ:
-                break;
-            case LeanExternal: {
-                object * fn = lean_alloc_closure((void*)mark_mt_fn, 1, 0);
-                lean_to_external(o)->m_class->m_foreach(lean_to_external(o)->m_data, fn);
-                lean_dec(fn);
-                break;
-            }
-            case LeanTask:
-                todo.push_back(lean_task_get(o));
-                break;
-            case LeanClosure: {
-                object ** it  = lean_closure_arg_cptr(o);
-                object ** end = it + lean_closure_num_fixed(o);
-                for (; it != end; ++it) todo.push_back(*it);
-                break;
-            }
-            case LeanArray: {
-                object ** it  = lean_array_cptr(o);
-                object ** end = it + lean_array_size(o);
-                for (; it != end; ++it) todo.push_back(*it);
-                break;
-            }
-            case LeanThunk:
-                if (object * c = lean_to_thunk(o)->m_closure) todo.push_back(c);
-                if (object * v = lean_to_thunk(o)->m_value) todo.push_back(v);
-                break;
-            case LeanRef:
-                if (object * v = lean_to_ref(o)->m_value) todo.push_back(v);
-                break;
-            default: {
+            uint8_t tag = lean_ptr_tag(o);
+            if (tag <= LeanMaxCtorTag) {
                 object ** it  = lean_ctor_obj_cptr(o);
                 object ** end = it + lean_ctor_num_objs(o);
                 for (; it != end; ++it) todo.push_back(*it);
-                break;
-            }}
+            } else {
+                switch (tag) {
+                case LeanScalarArray:
+                case LeanString:
+                case LeanMPZ:
+                    break;
+                case LeanExternal: {
+                    object * fn = lean_alloc_closure((void*)mark_mt_fn, 1, 0);
+                    lean_to_external(o)->m_class->m_foreach(lean_to_external(o)->m_data, fn);
+                    lean_dec(fn);
+                    break;
+                }
+                case LeanTask:
+                    todo.push_back(lean_task_get(o));
+                    break;
+                case LeanClosure: {
+                    object ** it  = lean_closure_arg_cptr(o);
+                    object ** end = it + lean_closure_num_fixed(o);
+                    for (; it != end; ++it) todo.push_back(*it);
+                    break;
+                }
+                case LeanArray: {
+                    object ** it  = lean_array_cptr(o);
+                    object ** end = it + lean_array_size(o);
+                    for (; it != end; ++it) todo.push_back(*it);
+                    break;
+                }
+                case LeanThunk:
+                    if (object * c = lean_to_thunk(o)->m_closure) todo.push_back(c);
+                    if (object * v = lean_to_thunk(o)->m_value) todo.push_back(v);
+                    break;
+                case LeanRef:
+                    if (object * v = lean_to_ref(o)->m_value) todo.push_back(v);
+                    break;
+                default:
+                    lean_unreachable();
+                    break;
+                }
+            }
         }
     }
 }

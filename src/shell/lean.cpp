@@ -371,7 +371,6 @@ int main(int argc, char ** argv) {
     options opts;
     optional<std::string> server_in;
     std::string native_output;
-    optional<std::string> cpp_output;
     optional<std::string> c_output;
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
@@ -391,7 +390,7 @@ int main(int argc, char ** argv) {
                 display_help(std::cout);
                 return 0;
             case 'c':
-                cpp_output = optarg;
+                c_output = optarg;
                 break;
             case 'C':
                 c_output = optarg;
@@ -578,18 +577,6 @@ int main(int argc, char ** argv) {
 
         if (!json_output)
             display_cumulative_profiling_times(std::cerr);
-
-        // TODO(Leo): delete after C backend is working
-        if (cpp_output && ok) {
-            std::ofstream out(*cpp_output);
-            if (out.fail()) {
-                std::cerr << "failed to create '" << *cpp_output << "'\n";
-                return 1;
-            }
-            auto mod = module_name_of_file2(mod_fn);
-            out << lean::ir::emit_cpp(env, mod).data();
-            out.close();
-        }
 
         if (c_output && ok) {
             std::ofstream out(*c_output);

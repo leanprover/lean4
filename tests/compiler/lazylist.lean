@@ -10,7 +10,7 @@ inductive LazyList (α : Type u)
 | cons (hd : α) (tl : LazyList) : LazyList
 | delayed (t : Thunk LazyList)  : LazyList
 
-@[extern cpp inline "#2"]
+@[extern c inline "#2"]
 def List.toLazy {α : Type u} : List α → LazyList α
 | []     => LazyList.nil
 | h::t   => LazyList.cons h (List.toLazy t)

@@ -29,7 +29,7 @@ depends: $(DEPS)
 
 %.olean: %.lean %.depend
 	@mkdir -p $(STAGE1_DIR)/$(@D)
-	$(LEAN) $(OPTS) --make --cpp="$(STAGE1_DIR)/$*.cpp.tmp" $<
+	$(LEAN) $(OPTS) --make --c="$(STAGE1_DIR)/$*.cpp.tmp" $<
 # create the .cpp file atomically
 	mv "$(STAGE1_DIR)/$*.cpp.tmp" "$(STAGE1_DIR)/$*.cpp"
 # make sure the .olean file is newer than the .depend file to prevent infinite make cycles

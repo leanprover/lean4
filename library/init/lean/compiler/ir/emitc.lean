@@ -68,63 +68,29 @@ def toCType : IRType → String
 | IRType.tobject    => "lean_object*"
 | IRType.irrelevant => "lean_object*"
 
-def openNamespacesAux : Name → M Unit
-| Name.anonymous    => pure ()
-| Name.mkString p s => openNamespacesAux p *> emitLn ("namespace " ++ s ++ " {")
-| n                 => throw ("invalid namespace '" ++ toString n ++ "'")
-
-def openNamespaces (n : Name) : M Unit :=
-openNamespacesAux n.getPrefix
-
-def openNamespacesFor (n : Name) : M Unit :=
-do env ← getEnv;
-   match getExportNameFor env n with
-   | none   => pure ()
-   | some n => openNamespaces n
-
-def closeNamespacesAux : Name → M Unit
-| Name.anonymous    => pure ()
-| Name.mkString p _ => emitLn "}" *> closeNamespacesAux p
-| n                 => throw ("invalid namespace '" ++ toString n ++ "'")
-
-def closeNamespaces (n : Name) : M Unit :=
-closeNamespacesAux n.getPrefix
-
-def closeNamespacesFor (n : Name) : M Unit :=
-do env ← getEnv;
-   match getExportNameFor env n with
-   | none   => pure ()
-   | some n => closeNamespaces n
-
 def throwInvalidExportName {α : Type} (n : Name) : M α :=
 throw ("invalid export name '" ++ toString n ++ "'")
-
-def toBaseCppName (n : Name) : M String :=
-do env ← getEnv;
-   match getExportNameFor env n with
-   | some (Name.mkString _ s) => pure s
-   | some _                   => throwInvalidExportName n
-   | none                     => if n == `main then pure leanMainFn else pure n.mangle
 
 def toCName (n : Name) : M String :=
 do env ← getEnv;
    -- TODO: we should support simple export names only
    match getExportNameFor env n with
-   | some s => pure (s.toStringWithSep "::")
-   | none   => if n == `main then pure leanMainFn else pure n.mangle
+   | some (Name.mkString Name.anonymous s) => pure s
+   | some _ => throwInvalidExportName n
+   | none => if n == `main then pure leanMainFn else pure n.mangle
 
-def emitCppName (n : Name) : M Unit :=
+def emitCName (n : Name) : M Unit :=
 toCName n >>= emit
 
 def toCInitName (n : Name) : M String :=
 do env ← getEnv;
    -- TODO: we should support simple export names only
    match getExportNameFor env n with
-   | some (Name.mkString p s) => pure $ (Name.mkString p ("_init_" ++ s)).toStringWithSep "::"
-   | some _                   => throwInvalidExportName n
-   | none                     => pure ("_init_" ++ n.mangle)
+   | some (Name.mkString Name.anonymous s) => pure $ "_init_" ++ s
+   | some _  => throwInvalidExportName n
+   | none    => pure ("_init_" ++ n.mangle)
 
-def emitCppInitName (n : Name) : M Unit :=
+def emitCInitName (n : Name) : M Unit :=
 toCInitName n >>= emit
 
 def emitFnDeclAux (decl : Decl) (cppBaseName : String) (addExternForConsts : Bool) : M Unit :=
@@ -147,24 +113,15 @@ emitLn ";"
 
 def emitFnDecl (decl : Decl) (addExternForConsts : Bool) : M Unit :=
 do
-openNamespacesFor decl.name;
-cppBaseName ← toBaseCppName decl.name;
-emitFnDeclAux decl cppBaseName addExternForConsts;
-closeNamespacesFor decl.name
+cppBaseName ← toCName decl.name;
+emitFnDeclAux decl cppBaseName addExternForConsts
 
--- TODO: simple extern names only?
-def cppQualifiedNameToName (s : String) : Name :=
-(s.split "::").foldl Name.mkString Name.anonymous
-
-def emitExternDeclAux (decl : Decl) (cppName : String) : M Unit :=
+def emitExternDeclAux (decl : Decl) (cNameStr : String) : M Unit :=
 do
-let qCppName := cppQualifiedNameToName cppName;
-openNamespaces qCppName;
+let cName := mkSimpleName cNameStr;
 env ← getEnv;
 let extC := isExternC env decl.name;
-(Name.mkString _ qCppBaseName) ← pure qCppName | throw "invalid name";
-emitFnDeclAux decl qCppBaseName (!extC);
-closeNamespaces qCppName
+emitFnDeclAux decl cNameStr (!extC)
 
 def emitFnDecls : M Unit :=
 do
@@ -176,8 +133,8 @@ let usedDecls := usedDecls.toList;
 usedDecls.mfor $ fun n => do
   decl ← getDecl n;
   match getExternNameFor env `c decl.name with
-  | some cppName => emitExternDeclAux decl cppName
-  | none         => emitFnDecl decl (!modDecls.contains n)
+  | some cName => emitExternDeclAux decl cName
+  | none       => emitFnDecl decl (!modDecls.contains n)
 
 def emitMainFn : M Unit :=
 do
@@ -347,7 +304,7 @@ when (n != 1) (do emit ", "; emit n);
 emitLn ");"
 
 def emitDel (x : VarId) : M Unit :=
-do emit "lean_free_heap_obj("; emit x; emitLn ");"
+do emit "lean_free_object("; emit x; emitLn ");"
 
 def emitSetTag (x : VarId) (i : Nat) : M Unit :=
 do emit "lean_ctor_set_tag("; emit x; emit ", "; emit i; emitLn ");"
@@ -469,13 +426,13 @@ match decl with
   match mkExternCall extData `c (toStringArgs ys) with
   | some c => emit c *> emitLn ";"
   | none   => throw ("failed to emit extern application '" ++ toString f ++ "'")
-| _ => do emitCppName f; when (ys.size > 0) (do emit "("; emitArgs ys; emit ")"); emitLn ";"
+| _ => do emitCName f; when (ys.size > 0) (do emit "("; emitArgs ys; emit ")"); emitLn ";"
 
 def emitPartialApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit :=
 do
 decl ← getDecl f;
 let arity := decl.params.size;
-emitLhs z; emit "lean_alloc_closure((void*)("; emitCppName f; emit "), "; emit arity; emit ", "; emit ys.size; emitLn ");";
+emitLhs z; emit "lean_alloc_closure((void*)("; emitCName f; emit "), "; emit arity; emit ", "; emit ys.size; emitLn ");";
 ys.size.mfor $ fun i => do {
    let y := ys.get i;
    emit "lean_closure_set("; emit z; emit ", "; emit i; emit ", "; emitArg y; emitLn ");"
@@ -668,8 +625,7 @@ adaptReader (fun (ctx : Context) => { varMap := vMap, jpMap := jpMap, .. ctx }) 
 unless (hasInitAttr env d.name) $
   match d with
   | Decl.fdecl f xs t b => do
-    openNamespacesFor f;
-    baseName ← toBaseCppName f;
+    baseName ← toCName f;
     emit (toCType t); emit " ";
     if xs.size > 0 then do {
       emit baseName;
@@ -694,8 +650,7 @@ unless (hasInitAttr env d.name) $
       };
     emitLn "_start:";
     adaptReader (fun (ctx : Context) => { mainFn := f, mainParams := xs, .. ctx }) (emitFnBody b);
-    emitLn "}";
-    closeNamespacesFor f
+    emitLn "}"
   | _ => pure ()
 
 def emitDecl (d : Decl) : M Unit :=
@@ -715,20 +670,20 @@ do
 env ← getEnv;
 let n := d.name;
 if isIOUnitInitFn env n then do {
-  emit "w = "; emitCppName n; emitLn "(w);";
+  emit "w = "; emitCName n; emitLn "(w);";
   emitLn "if (lean_io_result_is_error(w)) return w;"
 } else when (d.params.size == 0) $ do {
   match getInitFnNameFor env d.name with
   | some initFn => do {
-    emit "w = "; emitCppName initFn; emitLn "(w);";
+    emit "w = "; emitCName initFn; emitLn "(w);";
     emitLn "if (lean_io_result_is_error(w)) return w;";
-    emitCppName n; emitLn " = lean_io_result_get_value(w);"
+    emitCName n; emitLn " = lean_io_result_get_value(w);"
   }
   | _ => do {
-    emitCppName n; emit " = "; emitCppInitName n; emitLn "();"
+    emitCName n; emit " = "; emitCInitName n; emitLn "();"
   };
   when d.resultType.isObj $ do {
-    emit "lean_mark_persistent("; emitCppName n; emitLn ");"
+    emit "lean_mark_persistent("; emitCName n; emitLn ");"
   }
 }
 

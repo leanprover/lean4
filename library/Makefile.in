@@ -11,9 +11,9 @@ STAGE1_DIR = ../src/stage1
 ifndef STAGE1_OUT
 $(error "`STAGE1_OUT` must be set (use cmake)")
 endif
-CPPS = $(addprefix $(STAGE1_DIR)/,$(patsubst %.lean,%.cpp,$(SRCS)))
+CS = $(addprefix $(STAGE1_DIR)/,$(patsubst %.lean,%.c,$(SRCS)))
 # ensure deterministic ordering
-CPPS_CORE=$(sort $(patsubst %.lean,%.cpp,$(SRCS)))
+CS_CORE=$(sort $(patsubst %.lean,%.c,$(SRCS)))
 
 SHELL = /usr/bin/env bash -eo pipefail
 
@@ -29,9 +29,9 @@ depends: $(DEPS)
 
 %.olean: %.lean %.depend
 	@mkdir -p $(STAGE1_DIR)/$(@D)
-	$(LEAN) $(OPTS) --make --c="$(STAGE1_DIR)/$*.cpp.tmp" $<
-# create the .cpp file atomically
-	mv "$(STAGE1_DIR)/$*.cpp.tmp" "$(STAGE1_DIR)/$*.cpp"
+	$(LEAN) $(OPTS) --make --c="$(STAGE1_DIR)/$*.c.tmp" $<
+# create the .c file atomically
+	mv "$(STAGE1_DIR)/$*.c.tmp" "$(STAGE1_DIR)/$*.c"
 # make sure the .olean file is newer than the .depend file to prevent infinite make cycles
 	@touch $*.olean
 
@@ -40,10 +40,10 @@ clean:
 	find . -name *.depend -delete
 	-rm -r "$(STAGE1_DIR)" "$(STAGE1_OUT)"
 
-$(STAGE1_DIR)/%.cpp: %.olean
+$(STAGE1_DIR)/%.c: %.olean
 	@
 
-$(STAGE1_OUT)/%.o: $(STAGE1_DIR)/%.cpp
+$(STAGE1_OUT)/%.o: $(STAGE1_DIR)/%.c
 	@mkdir -p "$(@D)"
 	../bin/leanc -c -o $@ $< $(LEANC_OPTS)
 
@@ -54,8 +54,8 @@ $(STAGE1_OUT)/libleanstdlib.a: $(addprefix $(STAGE1_OUT)/,$(patsubst %.lean,%.o,
 update-stage0:
 	rm -r $(STAGE0_DIR)/init
 	cp -R $(STAGE1_DIR)/init $(STAGE0_DIR)/init
-	echo "add_library (stage0 OBJECT $(CPPS_CORE))" > $(STAGE0_DIR)/CMakeLists.txt
+	echo "add_library (stage0 OBJECT $(CS_CORE))" > $(STAGE0_DIR)/CMakeLists.txt
 
-.PRECIOUS: %.depend $(STAGE1_DIR)/%.cpp
+.PRECIOUS: %.depend $(STAGE1_DIR)/%.c
 
 include $(DEPS)

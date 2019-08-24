@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Lean compiler
 #
-# A simple wrapper around a C++ compiler. Defaults to the compiler Lean was built with,
-# which can be overridden with the environment variable `LEAN_CXX`. All parameters are passed
+# A simple wrapper around C and C++ compilers. Defaults to the compiler Lean was built with,
+# which can be overridden with the environment variables `LEAN_CC` and `LEAN_CXX`. All parameters are passed
 # as-is to the wrapped compiler.
 #
 # Interesting options:
@@ -10,12 +10,27 @@
 
 set -e
 bindir=$(dirname $0)
+
+# Check C compiler
+for cc in $LEAN_CC @CMAKE_C_COMPILER@ /usr/bin/gcc; do
+    if [ -f $cc ] || command -v $cc; then
+        export LEAN_CC=$cc && break
+    fi
+done
+[ -f $LEAN_CC ] || command -v $LEAN_CC || error "no suitable C compiler found!"
+
+# Check C++ compiler
 for cxx in $LEAN_CXX @CMAKE_CXX_COMPILER@ /usr/bin/g++; do
     if [ -f $cxx ] || command -v $cxx; then
         export LEAN_CXX=$cxx && break
     fi
 done
 [ -f $LEAN_CXX ] || command -v $LEAN_CXX || error "no suitable C++ compiler found!"
-# NOTE: leanstatic and leanstdlib are cyclically dependent
 
-$LEAN_CXX -std=c++14 -D LEAN_MULTI_THREAD "-I$bindir/../src" "-I$bindir/../include" "$@" "-L$bindir" "-L$bindir/../lib" -lleanstatic -lleanstdlib -lleanstatic -lleanstdlib -lgmp @LEANC_EXTRA_FLAGS@ -Wno-unused-command-line-argument
+# Use C++ compiler if input contains substring ".cpp"
+if [[ "$@" == *".cpp"* ]]; then
+    # NOTE: leanstatic and leanstdlib are cyclically dependent
+    $LEAN_CXX -std=c++14 -D LEAN_MULTI_THREAD "-I$bindir/../src" "-I$bindir/../include" "$@" "-L$bindir" "-L$bindir/../lib" -lleanstatic -lleanstdlib -lleanstatic -lleanstdlib -lgmp @LEANC_EXTRA_FLAGS@ -Wno-unused-command-line-argument
+else
+    $LEAN_CC -D LEAN_MULTI_THREAD "-I$bindir/../src" "-I$bindir/../include" "$@" "-L$bindir" "-L$bindir/../lib" -lleanstatic -lleanstdlib -lleanstatic -lleanstdlib -lgmp @LEANC_EXTRA_FLAGS@ -Wno-unused-command-line-argument
+fi

@@ -1005,7 +1005,7 @@ extern "C" object * lean_big_usize_to_nat(size_t n) {
     if (n <= LEAN_MAX_SMALL_NAT) {
         return lean_box(n);
     } else {
-        return mpz_to_nat_core(mpz(n));
+        return mpz_to_nat_core(mpz::of_size_t(n));
     }
 }
 
@@ -1024,9 +1024,9 @@ extern "C" object * lean_nat_big_succ(object * a) {
 extern "C" object * lean_nat_big_add(object * a1, object * a2) {
     lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
     if (lean_is_scalar(a1))
-        return mpz_to_nat_core(lean_unbox(a1) + mpz_value(a2));
+        return mpz_to_nat_core(mpz::of_size_t(lean_unbox(a1)) + mpz_value(a2));
     else if (lean_is_scalar(a2))
-        return mpz_to_nat_core(mpz_value(a1) + lean_unbox(a2));
+        return mpz_to_nat_core(mpz_value(a1) + mpz::of_size_t(lean_unbox(a2)));
     else
         return mpz_to_nat_core(mpz_value(a1) + mpz_value(a2));
 }
@@ -1038,7 +1038,7 @@ extern "C" object * lean_nat_big_sub(object * a1, object * a2) {
         return lean_box(0);
     } else if (lean_is_scalar(a2)) {
         lean_assert(mpz_value(a1) > lean_unbox(a2));
-        return mpz_to_nat(mpz_value(a1) - lean_unbox(a2));
+        return mpz_to_nat(mpz_value(a1) - mpz::of_size_t(lean_unbox(a2)));
     } else {
         if (mpz_value(a1) < mpz_value(a2))
             return lean_box(0);
@@ -1050,15 +1050,15 @@ extern "C" object * lean_nat_big_sub(object * a1, object * a2) {
 extern "C" object * lean_nat_big_mul(object * a1, object * a2) {
     lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
     if (lean_is_scalar(a1))
-        return mpz_to_nat_core(lean_unbox(a1) * mpz_value(a2));
+        return mpz_to_nat_core(mpz::of_size_t(lean_unbox(a1)) * mpz_value(a2));
     else if (lean_is_scalar(a2))
-        return mpz_to_nat_core(mpz_value(a1) * lean_unbox(a2));
+        return mpz_to_nat_core(mpz_value(a1) * mpz::of_size_t(lean_unbox(a2)));
     else
         return mpz_to_nat_core(mpz_value(a1) * mpz_value(a2));
 }
 
 extern "C" object * lean_nat_overflow_mul(size_t a1, size_t a2) {
-    return mpz_to_nat_core(mpz(a1) * mpz(a2));
+    return mpz_to_nat_core(mpz::of_size_t(a1) * mpz::of_size_t(a2));
 }
 
 extern "C" object * lean_nat_big_div(object * a1, object * a2) {
@@ -1069,7 +1069,7 @@ extern "C" object * lean_nat_big_div(object * a1, object * a2) {
         return lean_box(0);
     } else if (lean_is_scalar(a2)) {
         usize n2 = lean_unbox(a2);
-        return n2 == 0 ? a2 : mpz_to_nat(mpz_value(a1) / mpz(n2));
+        return n2 == 0 ? a2 : mpz_to_nat(mpz_value(a1) / mpz::of_size_t(n2));
     } else {
         lean_assert(mpz_value(a2) != 0);
         return mpz_to_nat(mpz_value(a1) / mpz_value(a2));
@@ -1083,7 +1083,7 @@ extern "C" object * lean_nat_big_mod(object * a1, object * a2) {
         return a1;
     } else if (lean_is_scalar(a2)) {
         usize n2 = lean_unbox(a2);
-        return n2 == 0 ? a2 : lean_box((mpz_value(a1) % mpz(n2)).get_unsigned_int());
+        return n2 == 0 ? a2 : lean_box((mpz_value(a1) % mpz::of_size_t(n2)).get_unsigned_int());
     } else {
         lean_assert(mpz_value(a2) != 0);
         return mpz_to_nat(mpz_value(a1) % mpz_value(a2));
@@ -1129,9 +1129,9 @@ extern "C" bool lean_nat_big_lt(object * a1, object * a2) {
 extern "C" object * lean_nat_big_land(object * a1, object * a2) {
     lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
     if (lean_is_scalar(a1))
-        return mpz_to_nat(mpz(lean_unbox(a1)) & mpz_value(a2));
+        return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)) & mpz_value(a2));
     else if (lean_is_scalar(a2))
-        return mpz_to_nat(mpz_value(a1) & mpz(lean_unbox(a2)));
+        return mpz_to_nat(mpz_value(a1) & mpz::of_size_t(lean_unbox(a2)));
     else
         return mpz_to_nat(mpz_value(a1) & mpz_value(a2));
 }
@@ -1139,9 +1139,9 @@ extern "C" object * lean_nat_big_land(object * a1, object * a2) {
 extern "C" object * lean_nat_big_lor(object * a1, object * a2) {
     lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
     if (lean_is_scalar(a1))
-        return mpz_to_nat(mpz(lean_unbox(a1)) | mpz_value(a2));
+        return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)) | mpz_value(a2));
     else if (lean_is_scalar(a2))
-        return mpz_to_nat(mpz_value(a1) | mpz(lean_unbox(a2)));
+        return mpz_to_nat(mpz_value(a1) | mpz::of_size_t(lean_unbox(a2)));
     else
         return mpz_to_nat(mpz_value(a1) | mpz_value(a2));
 }
@@ -1149,9 +1149,9 @@ extern "C" object * lean_nat_big_lor(object * a1, object * a2) {
 extern "C" object * lean_nat_big_lxor(object * a1, object * a2) {
     lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
     if (lean_is_scalar(a1))
-        return mpz_to_nat(mpz(lean_unbox(a1)) ^ mpz_value(a2));
+        return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)) ^ mpz_value(a2));
     else if (lean_is_scalar(a2))
-        return mpz_to_nat(mpz_value(a1) ^ mpz(lean_unbox(a2)));
+        return mpz_to_nat(mpz_value(a1) ^ mpz::of_size_t(lean_unbox(a2)));
     else
         return mpz_to_nat(mpz_value(a1) ^ mpz_value(a2));
 }
@@ -1180,7 +1180,7 @@ extern "C" object * lean_big_int_to_int(int n) {
 }
 
 extern "C" object * lean_big_size_t_to_int(size_t n) {
-    return alloc_mpz(mpz(n));
+    return alloc_mpz(mpz::of_size_t(n));
 }
 
 extern "C" object * lean_big_int64_to_int(int64_t n) {

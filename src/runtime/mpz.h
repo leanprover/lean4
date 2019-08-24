@@ -28,10 +28,14 @@ public:
     explicit mpz(char const * v) { mpz_init_set_str(m_val, const_cast<char*>(v), 10); }
     explicit mpz(unsigned int v) { mpz_init_set_ui(m_val, v); }
     explicit mpz(int v) { mpz_init_set_si(m_val, v); }
-    explicit mpz(size_t v) { mpz_init_set_ui(m_val, v); }
-    explicit mpz(long int v) { mpz_init_set_si(m_val, v); }
     explicit mpz(uint64 v);
     explicit mpz(int64 v);
+    static mpz of_size_t(size_t v) {
+        if (sizeof(size_t) == sizeof(uint64))
+            return mpz((uint64) v);
+        else
+            return mpz((unsigned) v);
+    }
     mpz(mpz const & s) { mpz_init_set(m_val, s.m_val); }
     mpz(mpz && s):mpz() { mpz_swap(m_val, s.m_val); }
     ~mpz() { mpz_clear(m_val); }
@@ -77,10 +81,8 @@ public:
     mpz & operator=(mpz const & v) { mpz_set(m_val, v.m_val); return *this; }
     mpz & operator=(mpz && v) { swap(*this, v); return *this; }
     mpz & operator=(char const * v) { mpz_set_str(m_val, v, 10); return *this; }
-    mpz & operator=(unsigned long int v) { mpz_set_ui(m_val, v); return *this; }
-    mpz & operator=(long int v) { mpz_set_si(m_val, v); return *this; }
-    mpz & operator=(unsigned int v) { return operator=(static_cast<unsigned long int>(v)); }
-    mpz & operator=(int v) { return operator=(static_cast<long int>(v)); }
+    mpz & operator=(unsigned int v) { mpz_set_ui(m_val, v); return *this; }
+    mpz & operator=(int v) { mpz_set_si(m_val, v); return *this; }
 
     friend int cmp(mpz const & a, mpz const & b) { return mpz_cmp(a.m_val, b.m_val); }
     friend int cmp(mpz const & a, unsigned b) { return mpz_cmp_ui(a.m_val, b); }
@@ -92,7 +94,6 @@ public:
     friend bool operator<(mpz const & a, unsigned long b) { return cmp(a, b) < 0; }
     friend bool operator<(mpz const & a, int b) { return cmp(a, b) < 0; }
     friend bool operator<(unsigned a, mpz const & b) { return cmp(b, a) > 0; }
-    friend bool operator<(unsigned long a, mpz const & b) { return cmp(b, a) > 0; }
     friend bool operator<(int a, mpz const & b) { return cmp(b, a) > 0; }
 
     friend bool operator>(mpz const & a, mpz const & b) { return cmp(a, b) > 0; }
@@ -100,7 +101,6 @@ public:
     friend bool operator>(mpz const & a, unsigned long b) { return cmp(a, b) > 0; }
     friend bool operator>(mpz const & a, int b) { return cmp(a, b) > 0; }
     friend bool operator>(unsigned a, mpz const & b) { return cmp(b, a) < 0; }
-    friend bool operator>(unsigned long a, mpz const & b) { return cmp(b, a) < 0; }
     friend bool operator>(int a, mpz const & b) { return cmp(b, a) < 0; }
 
     friend bool operator<=(mpz const & a, mpz const & b) { return cmp(a, b) <= 0; }
@@ -108,7 +108,6 @@ public:
     friend bool operator<=(mpz const & a, unsigned long b) { return cmp(a, b) <= 0; }
     friend bool operator<=(mpz const & a, int b) { return cmp(a, b) <= 0; }
     friend bool operator<=(unsigned a, mpz const & b) { return cmp(b, a) >= 0; }
-    friend bool operator<=(unsigned long a, mpz const & b) { return cmp(b, a) >= 0; }
     friend bool operator<=(int a, mpz const & b) { return cmp(b, a) >= 0; }
 
     friend bool operator>=(mpz const & a, mpz const & b) { return cmp(a, b) >= 0; }
@@ -116,7 +115,6 @@ public:
     friend bool operator>=(mpz const & a, unsigned long b) { return cmp(a, b) >= 0; }
     friend bool operator>=(mpz const & a, int b) { return cmp(a, b) >= 0; }
     friend bool operator>=(unsigned a, mpz const & b) { return cmp(b, a) <= 0; }
-    friend bool operator>=(unsigned long a, mpz const & b) { return cmp(b, a) <= 0; }
     friend bool operator>=(int a, mpz const & b) { return cmp(b, a) <= 0; }
 
     friend bool operator==(mpz const & a, mpz const & b) { return cmp(a, b) == 0; }
@@ -124,7 +122,6 @@ public:
     friend bool operator==(mpz const & a, unsigned long b) { return cmp(a, b) == 0; }
     friend bool operator==(mpz const & a, int b) { return cmp(a, b) == 0; }
     friend bool operator==(unsigned a, mpz const & b) { return cmp(b, a) == 0; }
-    friend bool operator==(unsigned long a, mpz const & b) { return cmp(b, a) == 0; }
     friend bool operator==(int a, mpz const & b) { return cmp(b, a) == 0; }
 
     friend bool operator!=(mpz const & a, mpz const & b) { return cmp(a, b) != 0; }
@@ -132,30 +129,25 @@ public:
     friend bool operator!=(mpz const & a, unsigned long b) { return cmp(a, b) != 0; }
     friend bool operator!=(mpz const & a, int b) { return cmp(a, b) != 0; }
     friend bool operator!=(unsigned a, mpz const & b) { return cmp(b, a) != 0; }
-    friend bool operator!=(unsigned long a, mpz const & b) { return cmp(b, a) != 0; }
     friend bool operator!=(int a, mpz const & b) { return cmp(b, a) != 0; }
 
     mpz & operator+=(mpz const & o) { mpz_add(m_val, m_val, o.m_val); return *this; }
     mpz & operator+=(unsigned u) { mpz_add_ui(m_val, m_val, u); return *this; }
-    mpz & operator+=(unsigned long u) { mpz_add_ui(m_val, m_val, u); return *this; }
     mpz & operator+=(uint64 u) { return u > std::numeric_limits<unsigned>::max() ? *this += mpz(u) : *this += static_cast<unsigned>(u); }
     mpz & operator+=(int u) { if (u >= 0) mpz_add_ui(m_val, m_val, u); else mpz_sub_ui(m_val, m_val, -u); return *this; }
 
     mpz & operator-=(mpz const & o) { mpz_sub(m_val, m_val, o.m_val); return *this; }
     mpz & operator-=(unsigned u) { mpz_sub_ui(m_val, m_val, u); return *this; }
-    mpz & operator-=(unsigned long u) { mpz_sub_ui(m_val, m_val, u); return *this; }
     mpz & operator-=(uint64 u) { return u > std::numeric_limits<unsigned>::max() ? *this -= mpz(u) : *this -= static_cast<unsigned>(u); }
     mpz & operator-=(int u) { if (u >= 0) mpz_sub_ui(m_val, m_val, u); else mpz_add_ui(m_val, m_val, -u); return *this; }
 
     mpz & operator*=(mpz const & o) { mpz_mul(m_val, m_val, o.m_val); return *this; }
     mpz & operator*=(unsigned u) { mpz_mul_ui(m_val, m_val, u); return *this; }
-    mpz & operator*=(unsigned long u) { mpz_mul_ui(m_val, m_val, u); return *this; }
     mpz & operator*=(uint64 u) { return u > std::numeric_limits<unsigned>::max() ? *this *= mpz(u) : *this *= static_cast<unsigned>(u); }
     mpz & operator*=(int u) { mpz_mul_si(m_val, m_val, u); return *this; }
 
     mpz & operator/=(mpz const & o) { mpz_tdiv_q(m_val, m_val, o.m_val); return *this; }
     mpz & operator/=(unsigned u) { mpz_tdiv_q_ui(m_val, m_val, u); return *this; }
-    mpz & operator/=(unsigned long u) { mpz_tdiv_q_ui(m_val, m_val, u); return *this; }
     mpz & operator/=(uint64 u) { return u > std::numeric_limits<unsigned>::max() ? *this /= mpz(u) : *this /= static_cast<unsigned>(u); }
     mpz & operator/=(int u) { return operator/=(mpz(u)); } // TODO(Leo): improve
 
@@ -164,37 +156,30 @@ public:
 
     friend mpz operator+(mpz a, mpz const & b) { return a += b; }
     friend mpz operator+(mpz a, unsigned b)  { return a += b; }
-    friend mpz operator+(mpz a, unsigned long b)  { return a += b; }
     friend mpz operator+(mpz a, uint64 b)  { return a += b; }
     friend mpz operator+(mpz a, int b)  { return a += b; }
     friend mpz operator+(unsigned a, mpz b) { return b += a; }
-    friend mpz operator+(unsigned long a, mpz b) { return b += a; }
     friend mpz operator+(uint64 a, mpz b) { return b += a; }
     friend mpz operator+(int a, mpz b) { return b += a; }
 
     friend mpz operator-(mpz a, mpz const & b) { return a -= b; }
     friend mpz operator-(mpz a, unsigned b) { return a -= b; }
-    friend mpz operator-(mpz a, unsigned long b) { return a -= b; }
     friend mpz operator-(mpz a, uint64 b) { return a -= b; }
     friend mpz operator-(mpz a, int b) { return a -= b; }
     friend mpz operator-(unsigned a, mpz b) { b.neg(); return b += a; }
-    friend mpz operator-(unsigned long a, mpz b) { b.neg(); return b += a; }
     friend mpz operator-(uint64 a, mpz b) { b.neg(); return b += a; }
     friend mpz operator-(int a, mpz b) { b.neg(); return b += a; }
 
     friend mpz operator*(mpz a, mpz const & b) { return a *= b; }
     friend mpz operator*(mpz a, unsigned b) { return a *= b; }
-    friend mpz operator*(mpz a, unsigned long b) { return a *= b; }
     friend mpz operator*(mpz a, uint64 b) { return a *= b; }
     friend mpz operator*(mpz a, int b) { return a *= b; }
     friend mpz operator*(unsigned a, mpz b) { return b *= a; }
-    friend mpz operator*(unsigned long a, mpz b) { return b *= a; }
     friend mpz operator*(uint64 a, mpz b) { return b *= a; }
     friend mpz operator*(int a, mpz b) { return b *= a; }
 
     friend mpz operator/(mpz a, mpz const & b) { return a /= b; }
     friend mpz operator/(mpz a, unsigned b) { return a /= b; }
-    friend mpz operator/(mpz a, unsigned long b) { return a /= b; }
     friend mpz operator/(mpz a, uint64 b) { return a /= b; }
     friend mpz operator/(mpz a, int b) { return a /= b; }
     friend mpz operator/(unsigned a, mpz const & b) { mpz r(a); return r /= b; }

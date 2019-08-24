@@ -26,10 +26,10 @@ class mpz {
 public:
     mpz() { mpz_init(m_val); }
     explicit mpz(char const * v) { mpz_init_set_str(m_val, const_cast<char*>(v), 10); }
-    explicit mpz(unsigned long int v) { mpz_init_set_ui(m_val, v); }
-    explicit mpz(long int v) { mpz_init_set_si(m_val, v); }
     explicit mpz(unsigned int v) { mpz_init_set_ui(m_val, v); }
     explicit mpz(int v) { mpz_init_set_si(m_val, v); }
+    explicit mpz(size_t v) { mpz_init_set_ui(m_val, v); }
+    explicit mpz(long int v) { mpz_init_set_si(m_val, v); }
     explicit mpz(uint64 v);
     explicit mpz(int64 v);
     mpz(mpz const & s) { mpz_init_set(m_val, s.m_val); }
@@ -198,7 +198,6 @@ public:
     friend mpz operator/(mpz a, uint64 b) { return a /= b; }
     friend mpz operator/(mpz a, int b) { return a /= b; }
     friend mpz operator/(unsigned a, mpz const & b) { mpz r(a); return r /= b; }
-    friend mpz operator/(unsigned long a, mpz const & b) { mpz r(a); return r /= b; }
     friend mpz operator/(uint64 a, mpz const & b) { mpz r(a); return r /= b; }
     friend mpz operator/(int a, mpz const & b) { mpz r(a); return r /= b; }
 

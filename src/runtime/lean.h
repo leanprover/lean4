@@ -225,7 +225,9 @@ static inline bool lean_is_scalar(lean_object * o) { return ((size_t)(o) & 1) ==
 static inline lean_object * lean_box(size_t n) { return (lean_object*)(((size_t)(n) << 1) | 1); }
 static inline size_t lean_unbox(lean_object * o) { return (size_t)(o) >> 1; }
 
-void lean_panic_out_of_memory();
+__attribute__((noreturn)) void lean_panic(char const * msg);
+__attribute__((noreturn)) void lean_panic_out_of_memory();
+__attribute__((noreturn)) void lean_panic_unreachable();
 
 static inline size_t lean_align(size_t v, size_t a) {
     return (v / a)*a + a * (v % a != 0);

@@ -204,7 +204,7 @@ void object_compactor::operator()(object * o) {
             lean_assert(!lean_is_scalar(curr));
             bool r = true;
             switch (lean_ptr_tag(curr)) {
-            case LeanClosure:         throw exception("closures cannot be compacted");
+            case LeanClosure:         lean_panic("closures cannot be compacted");
             case LeanArray:           r = insert_array(curr); break;
             case LeanScalarArray:     copy_object(curr); break;
             case LeanString:          copy_object(curr); break;
@@ -212,7 +212,7 @@ void object_compactor::operator()(object * o) {
             case LeanThunk:           r = insert_thunk(curr); break;
             case LeanTask:            r = insert_task(curr); break;
             case LeanRef:             r = insert_ref(curr); break;
-            case LeanExternal:        throw exception("external objects cannot be compacted");
+            case LeanExternal:        lean_panic("external objects cannot be compacted");
             case LeanReserved:        lean_unreachable();
             default:                  r = insert_constructor(curr); break;
             }
@@ -252,7 +252,6 @@ inline object * compacted_region::fix_object_ptr(object * o) {
 }
 
 inline void compacted_region::move(size_t d) {
-    // std::cout << "move: " << d << "\n";
     lean_assert(m_next < m_end);
     size_t rem = d % sizeof(void*);
     if (rem != 0)
@@ -324,7 +323,6 @@ object * compacted_region::read() {
         lean_assert(static_cast<char*>(m_next) + sizeof(object) <= m_end);
         object * curr = reinterpret_cast<object*>(m_next);
         uint8 tag = lean_ptr_tag(curr);
-        // std::cout << "Tag: " << (unsigned)tag << "\n";
         if (tag <= LeanMaxCtorTag) {
             fix_constructor(curr);
         } else {
@@ -332,9 +330,7 @@ object * compacted_region::read() {
             case LeanClosure:         lean_unreachable();
             case LeanArray:           fix_array(curr); break;
             case LeanScalarArray:     move(lean_sarray_byte_size(curr)); break;
-            case LeanString:
-                // std::cout << "String: " << string_cstr(curr) << "\n";
-                move(lean_string_byte_size(curr)); break;
+            case LeanString:          move(lean_string_byte_size(curr)); break;
             case LeanMPZ:             fix_mpz(curr); break;
             case LeanThunk:           fix_thunk(curr); break;
             case LeanRef:             fix_ref(curr); break;

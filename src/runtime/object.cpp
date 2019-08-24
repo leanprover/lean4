@@ -19,9 +19,17 @@ Author: Leonardo de Moura
 #define LEAN_MAX_PRIO 8
 
 namespace lean {
-extern "C" void lean_panic_out_of_memory() {
-    std::cerr << "out of memory\n";
+extern "C" void lean_panic(char const * msg) {
+    std::cerr << msg << "\n";
     std::exit(1);
+}
+
+extern "C" void lean_panic_out_of_memory() {
+    lean_panic("out of memory");
+}
+
+extern "C" void lean_panic_unreachable() {
+    lean_panic("unreachable code has been reached");
 }
 
 extern "C" size_t lean_object_byte_size(lean_object * o) {

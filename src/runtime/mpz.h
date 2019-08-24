@@ -31,10 +31,10 @@ public:
     explicit mpz(uint64 v);
     explicit mpz(int64 v);
     static mpz of_size_t(size_t v) {
-        if (sizeof(size_t) == sizeof(uint64))
-            return mpz((uint64) v);
+        if (sizeof(size_t) == sizeof(uint64)) // NOLINT
+            return mpz((uint64) v); // NOLINT
         else
-            return mpz((unsigned) v);
+            return mpz((unsigned) v); // NOLINT
     }
     mpz(mpz const & s) { mpz_init_set(m_val, s.m_val); }
     mpz(mpz && s):mpz() { mpz_swap(m_val, s.m_val); }

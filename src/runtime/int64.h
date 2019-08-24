@@ -8,6 +8,6 @@ Author: Leonardo de Moura
 namespace lean {
 typedef int64_t  int64;
 typedef uint64_t uint64;
-static_assert(sizeof(int64) == 8,  "unexpected int64 size");
-static_assert(sizeof(uint64) == 8, "unexpected uint64 size");
+static_assert(sizeof(int64) == 8,  "unexpected int64 size");  // NOLINT
+static_assert(sizeof(uint64) == 8, "unexpected uint64 size"); // NOLINT
 }

@@ -183,8 +183,7 @@ void object_compactor::insert_mpz(object * o) {
        into an mpz number. So, we use std::max to make sure we have enough space for both. */
     size_t extra_space  = std::max(s.size() + 1, sizeof(mpz_object*));
     size_t sz      = sizeof(mpz_object) + extra_space;
-    void * mem     = alloc(sz);
-    mpz_object * new_o = new (mem) mpz_object();
+    object * new_o = (lean_object*)alloc(sz);
     lean_set_non_heap_header((lean_object*)new_o, sz, LeanMPZ, 0);
     save(o, (lean_object*)new_o);
     void * data    = reinterpret_cast<char*>(new_o) + sizeof(mpz_object);

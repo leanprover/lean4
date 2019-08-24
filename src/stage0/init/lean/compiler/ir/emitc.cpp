@@ -16927,7 +16927,7 @@ obj* _init_l_Lean_IR_EmitC_emitNumLit___closed__1() {
 _start:
 {
 obj* x_1; 
-x_1 = lean::mk_string("lean_cstr_to_nat(̈(\"");
+x_1 = lean::mk_string("lean_cstr_to_nat(\"");
 return x_1;
 }
 }

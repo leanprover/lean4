@@ -496,7 +496,7 @@ if t.isObj then do
   if v < uint32Sz then
     emit "lean_unsigned_to_nat(" *> emit v *> emit "u)"
   else
-    emit "lean_cstr_to_nat(̈(\"" *> emit v *> emit "\")"
+    emit "lean_cstr_to_nat(\"" *> emit v *> emit "\")"
 else
   emit v
 

@@ -89,12 +89,12 @@ typedef struct {
               1-bit   : multi-threaded
               1-bit   : persistent
        (low)  45-bits : RC */
-    _Atomic(size_t) m_header;
+    size_t          m_header;
 #define LEAN_PERSISTENT_BIT 45
 #define LEAN_MT_BIT 46
 #define LEAN_ST_BIT 47
 #else
-    _Atomic(size_t) m_rc;
+    size_t          m_rc;
     uint8_t         m_tag;
     uint8_t         m_mem_kind;
     uint16_t        m_other;  /* num fields for constructors, element size for scalar arrays, etc. */
@@ -327,20 +327,28 @@ static inline bool lean_has_rc(lean_object * o) {
     return lean_is_st(o) || lean_is_mt(o);
 }
 
+static inline _Atomic(size_t) * lean_get_rc_mt_addr(lean_object* o) {
+#ifdef LEAN_COMPRESSED_OBJECT_HEADER
+    return (_Atomic(size_t)*)(&(o->m_header));
+#else
+    return (_Atomic(size_t)*)(&(o->m_rc));
+#endif
+}
+
 static inline void lean_inc_ref(lean_object * o) {
 #ifdef LEAN_COMPRESSED_OBJECT_HEADER
     if (LEAN_LIKELY(lean_is_st(o))) {
         o->m_header++;
     } else if (lean_is_mt(o)) {
         LEAN_USING_STD;
-        atomic_fetch_add_explicit(&(o->m_header), (size_t)1, memory_order_relaxed);
+        atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), (size_t)1, memory_order_relaxed);
     }
 #else
     if (LEAN_LIKELY(lean_is_st(o))) {
         o->m_rc++;
     } else if (lean_is_mt(o)) {
         LEAN_USING_STD;
-        atomic_fetch_add_explicit(&(o->m_rc), (size_t)1, memory_order_relaxed);
+        atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), (size_t)1, memory_order_relaxed);
     }
 #endif
 }
@@ -351,14 +359,14 @@ static inline void lean_inc_ref_n(lean_object * o, size_t n) {
         o->m_header += n;
     } else if (lean_is_mt(o)) {
         LEAN_USING_STD;
-        atomic_fetch_add_explicit(&(o->m_header), n, memory_order_relaxed);
+        atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), n, memory_order_relaxed);
     }
 #else
     if (LEAN_LIKELY(lean_is_st(o))) {
         o->m_rc += n;
     } else if (lean_is_mt(o)) {
         LEAN_USING_STD;
-        atomic_fetch_add_explicit(&(o->m_rc), n, memory_order_relaxed);
+        atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), n, memory_order_relaxed);
     }
 #endif
 }
@@ -370,7 +378,7 @@ static inline bool lean_dec_ref_core(lean_object * o) {
         return ((o->m_header) & ((1ull << 45) - 1)) == 0;
     } else if (lean_is_mt(o)) {
         LEAN_USING_STD;
-        return (atomic_fetch_sub_explicit(&(o->m_header), (size_t)1, memory_order_acq_rel) & ((1ull << 45) - 1)) == 1;
+        return (atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), (size_t)1, memory_order_acq_rel) & ((1ull << 45) - 1)) == 1;
     } else {
         return false;
     }
@@ -380,7 +388,7 @@ static inline bool lean_dec_ref_core(lean_object * o) {
         return o->m_rc == 0;
     } else if (lean_is_mt(o)) {
         LEAN_USING_STD;
-        return atomic_fetch_sub_explicit(&(o->m_rc), (size_t)1, memory_order_acq_rel) == 1;
+        return atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), (size_t)1, memory_order_acq_rel) == 1;
     } else {
         return false;
     }
@@ -429,7 +437,7 @@ static inline bool lean_is_exclusive(lean_object * o) {
         return ((o->m_header) & ((1ull << 45) - 1)) == 1;
     } else if (lean_is_mt(o)) {
         LEAN_USING_STD;
-        return (atomic_load_explicit(&(o->m_header), memory_order_acquire) & ((1ull << 45) - 1)) == 1;
+        return (atomic_load_explicit(lean_get_rc_mt_addr(o), memory_order_acquire) & ((1ull << 45) - 1)) == 1;
     } else {
         return false;
     }
@@ -438,7 +446,7 @@ static inline bool lean_is_exclusive(lean_object * o) {
         return o->m_rc == 1;
     } else if (lean_is_mt(o)) {
         LEAN_USING_STD;
-        return atomic_load_explicit(&(o->m_rc), memory_order_acquire) == 1;
+        return atomic_load_explicit(lean_get_rc_mt_addr(o), memory_order_acquire) == 1;
     } else {
         return false;
     }
@@ -451,7 +459,7 @@ static inline bool lean_is_shared(lean_object * o) {
         return ((o->m_header) & ((1ull << 45) - 1)) > 1;
     } else if (lean_is_mt(o)) {
         LEAN_USING_STD;
-        return (atomic_load_explicit(&(o->m_header), memory_order_acquire) & ((1ull << 45) - 1)) > 1;
+        return (atomic_load_explicit(lean_get_rc_mt_addr(o), memory_order_acquire) & ((1ull << 45) - 1)) > 1;
     } else {
         return false;
     }
@@ -460,7 +468,7 @@ static inline bool lean_is_shared(lean_object * o) {
         return o->m_rc > 1;
     } else if (lean_is_mt(o)) {
         LEAN_USING_STD;
-        return atomic_load_explicit(&(o->m_rc), memory_order_acquire) > 1;
+        return atomic_load_explicit(lean_get_rc_mt_addr(o), memory_order_acquire) > 1;
     } else {
         return false;
     }
@@ -473,7 +481,7 @@ static inline bool lean_nonzero_rc(lean_object * o) {
         return ((o->m_header) & ((1ull << 45) - 1)) > 0;
     } else if (lean_is_mt(o)) {
         LEAN_USING_STD;
-        return (atomic_load_explicit(&(o->m_header), memory_order_acquire) & ((1ull << 45) - 1)) > 0;
+        return (atomic_load_explicit(lean_get_rc_mt_addr(o), memory_order_acquire) & ((1ull << 45) - 1)) > 0;
     } else {
         return false;
     }
@@ -482,7 +490,7 @@ static inline bool lean_nonzero_rc(lean_object * o) {
         return o->m_rc > 0;
     } else if (lean_is_mt(o)) {
         LEAN_USING_STD;
-        return atomic_load_explicit(&(o->m_rc), memory_order_acquire) > 0;
+        return atomic_load_explicit(lean_get_rc_mt_addr(o), memory_order_acquire) > 0;
     } else {
         return false;
     }

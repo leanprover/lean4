@@ -305,7 +305,7 @@ void compacted_region::fix_mpz(object * o) {
         sz++;
     }
     /* use string to initialize memory */
-    new (&(((mpz_object*)o)->m_value)) mpz(s.c_str());
+    new (&(((mpz_object*)o)->m_value)) mpz(s.c_str()); // NOLINT
     /* update m_nested_mpzs list */
     *reinterpret_cast<mpz_object**>(m_next) = m_nested_mpzs;
     m_nested_mpzs = (mpz_object*)o;

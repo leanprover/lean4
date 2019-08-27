@@ -12,11 +12,7 @@ ADD_CUSTOM_TARGET(bin_lean_stage0
 )
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
-if(uppercase_CMAKE_BUILD_TYPE MATCHES "RELEASE")
-  set(LEANC_OPTS "-O3")
-else()
-  set(LEANC_OPTS "-g")
-endif()
+set(LEANC_OPTS "${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
 
 add_custom_target(make_stdlib
   # '-G Ninja' complains otherwise

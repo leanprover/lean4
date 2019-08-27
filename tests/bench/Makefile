@@ -9,7 +9,7 @@ CROSS_TIME_CATS = .lean .hs .ml .mlton .mlkit .swift
 RETIRED_CATS = .gcc.lean .llvm.hs .flambda.ml
 
 LEAN_FLAGS =
-LEANC_FLAGS = -O3
+LEANC_FLAGS = -O3 -DNDEBUG
 GHC_FLAGS = -O3
 OCAML_FLAGS = -O3
 MLTON_FLAGS =

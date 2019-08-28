@@ -582,7 +582,7 @@ static inline void lean_set_st_header(lean_object * o, unsigned tag, unsigned ot
 static inline void lean_set_non_heap_header(lean_object * o, size_t sz, unsigned tag, unsigned other) {
     assert(sz > 0);
     assert(sz < (1ull << 45));
-    assert(sz == 1 || lean_is_big_object_tag(tag));
+    assert(sz == 1 || !lean_is_big_object_tag(tag));
 #if defined(LEAN_COMPRESSED_OBJECT_HEADER)
     o->m_header   = ((size_t)(tag) << 56) | ((size_t)(other) << 48) | sz;
 #elif defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)

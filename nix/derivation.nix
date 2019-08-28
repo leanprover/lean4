@@ -1,14 +1,14 @@
-{ clangStdenv, cmake, llvm, python, gmp }:
+{ llvmPackages, cmake, python, gmp }:
 
-clangStdenv.mkDerivation rec {
+llvmPackages.stdenv.mkDerivation rec {
   name = "lean-${version}";
   version = "local";
 
   # I have way too many untracked files in my checkout
-  src = builtins.fetchGit { url = ./.; };
+  src = builtins.fetchGit { url = ../.; };
 
   nativeBuildInputs = [ cmake python ];
-  buildInputs = [ gmp llvm ];
+  buildInputs = [ gmp llvmPackages.llvm ];
   enableParallelBuilding = true;
 
   preConfigure = ''
@@ -18,7 +18,7 @@ clangStdenv.mkDerivation rec {
     patchShebangs ../../bin
   '';
 
-  meta = with clangStdenv.lib; {
+  meta = with llvmPackages.stdenv.lib; {
     description = "Automatic and interactive theorem prover";
     homepage    = https://leanprover.github.io/;
     license     = licenses.asl20;

@@ -1,3 +1,3 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ pkgs ? import ./nix/nixpkgs.nix, llvmPackages ? pkgs.llvmPackages_8 }:
 
-pkgs.callPackage ./derivation.nix {}
+pkgs.callPackage ./nix/derivation.nix { inherit llvmPackages; }

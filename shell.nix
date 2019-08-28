@@ -1,11 +1,11 @@
-{ pkgs ? import <nixpkgs> {}, clang ? pkgs.clang_7 }:
+{ pkgs ? import ./nix/nixpkgs.nix }:
 
 let
-  lean = pkgs.callPackage ./derivation.nix { llvm = clang.cc.llvm; };
+  lean = import ./default.nix { inherit pkgs; };
   temci = pkgs.callPackage (builtins.fetchGit { url = https://github.com/parttimenerd/temci.git; rev = "2facd7c78ab35722f34db1d42883ec02f8a0de23"; }) {};
-in pkgs.mkShell rec {
+in pkgs.mkShell.override { stdenv = lean.stdenv; } rec {
   inputsFrom = [ lean ];
-  buildInputs = with pkgs; [ temci clang ccache ninja ];
+  buildInputs = with pkgs; [ temci ccache ninja ];
   # https://github.com/NixOS/nixpkgs/issues/60919
   hardeningDisable = [ "all" ];
   # TODO: this should not be necessary when leanc starts statically linking binaries

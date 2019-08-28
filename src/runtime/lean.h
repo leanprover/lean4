@@ -245,6 +245,7 @@ static inline size_t lean_unbox(lean_object * o) { return (size_t)(o) >> 1; }
 __attribute__((noreturn)) void lean_panic(char const * msg);
 __attribute__((noreturn)) void lean_panic_out_of_memory();
 __attribute__((noreturn)) void lean_panic_unreachable();
+__attribute__((noreturn)) void lean_panic_rc_overflow();
 
 static inline size_t lean_align(size_t v, size_t a) {
     return (v / a)*a + a * (v % a != 0);
@@ -359,12 +360,32 @@ static inline _Atomic(size_t) * lean_get_rc_mt_addr(lean_object* o) {
 }
 
 static inline void lean_inc_ref(lean_object * o) {
-#if defined(LEAN_COMPRESSED_OBJECT_HEADER) || defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
+#if defined(LEAN_COMPRESSED_OBJECT_HEADER)
     if (LEAN_LIKELY(lean_is_st(o))) {
         o->m_header++;
     } else if (lean_is_mt(o)) {
         LEAN_USING_STD;
         atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), (size_t)1, memory_order_relaxed);
+    }
+#elif defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
+    if (LEAN_LIKELY(lean_is_st(o))) {
+        o->m_header++;
+        #ifdef LEAN_CHECK_RC_OVERFLOW
+        if (LEAN_UNLIKELY(((uint32_t)o->m_header) == 0)) {
+            lean_panic_rc_overflow();
+        }
+        #endif
+    } else if (lean_is_mt(o)) {
+        LEAN_USING_STD;
+        #ifdef LEAN_CHECK_RC_OVERFLOW
+        uint32_t old_rc = (uint32_t)
+        #endif
+        atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), (size_t)1, memory_order_relaxed);
+        #ifdef LEAN_CHECK_RC_OVERFLOW
+        if (LEAN_UNLIKELY(old_rc + 1 == 0)) {
+            lean_panic_rc_overflow();
+        }
+        #endif
     }
 #else
     if (LEAN_LIKELY(lean_is_st(o))) {
@@ -377,12 +398,32 @@ static inline void lean_inc_ref(lean_object * o) {
 }
 
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
-#if defined(LEAN_COMPRESSED_OBJECT_HEADER) || defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
+#if defined(LEAN_COMPRESSED_OBJECT_HEADER)
     if (LEAN_LIKELY(lean_is_st(o))) {
         o->m_header += n;
     } else if (lean_is_mt(o)) {
         LEAN_USING_STD;
         atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), n, memory_order_relaxed);
+    }
+#elif defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
+    if (LEAN_LIKELY(lean_is_st(o))) {
+        o->m_header += n;
+        #ifdef LEAN_CHECK_RC_OVERFLOW
+        if (LEAN_UNLIKELY(((uint32_t)o->m_header) < n)) {
+            lean_panic_rc_overflow();
+        }
+        #endif
+    } else if (lean_is_mt(o)) {
+        LEAN_USING_STD;
+        #ifdef LEAN_CHECK_RC_OVERFLOW
+        uint32_t old_rc = (uint32_t)
+        #endif
+        atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), n, memory_order_relaxed);
+        #ifdef LEAN_CHECK_RC_OVERFLOW
+        if (LEAN_UNLIKELY(old_rc + n < n)) {
+            lean_panic_rc_overflow();
+        }
+        #endif
     }
 #else
     if (LEAN_LIKELY(lean_is_st(o))) {

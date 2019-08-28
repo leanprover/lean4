@@ -36,6 +36,7 @@ option(JSON               "JSON"               ON)
 option(LLVM               "LLVM"               OFF)
 option(COMPRESSED_OBJECT_HEADER "Use compressed object headers in 64-bit machines, this option is ignored in 32-bit machines, and assumes the 64-bit OS can only address 2^48 bytes" ON)
 option(SMALL_RC "Use only 32-bits for RC, this option is only relevant when COMPRESSED_OBJECT_HEARDER is ON" ON)
+option(CHECK_RC_OVERFLOW "Check for RC overflows when SMALL_RC is ON" OFF)
 
 # When cross-compiling, we do not compile the standard library since
 # the executable will not work on the host machine
@@ -144,6 +145,10 @@ if ("${COMPRESSED_OBJECT_HEADER}" MATCHES "ON")
     if ("${SMALL_RC}" MATCHES "ON")
         set(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC "#define LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC")
         message(STATUS "Using compressed object headers and only 32-bits for reference counter, this feature assume the OS only uses memory addresses < 2^48")
+        if ("${CHECK_RC_OVERFLOW}" MATCHES "ON")
+           set(LEAN_CHECK_RC_OVERFLOW "#define LEAN_CHECK_RC_OVERFLOW")
+           message(STATUS "RC overflow checks are enabled")
+        endif()
     else()
         set(LEAN_COMPRESSED_OBJECT_HEADER "#define LEAN_COMPRESSED_OBJECT_HEADER")
         message(STATUS "Using compressed object headers, this feature assume the OS only uses memory addresses < 2^48")

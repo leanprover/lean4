@@ -46,12 +46,21 @@ extern "C" size_t lean_object_byte_size(lean_object * o) {
         default:              return lean_small_object_size(o);
         }
     } else {
-        /* See comment at `lean_set_non_heap_header`, we store the object size in the RC field. */
-#ifdef LEAN_COMPRESSED_OBJECT_HEADER
-        return o->m_header & ((1ull << 45) - 1);
+        /* See comment at `lean_set_non_heap_header`, for small objects we store the object size in the RC field. */
+        switch (lean_ptr_tag(o)) {
+        case LeanArray:       return lean_array_byte_size(o);
+        case LeanScalarArray: return lean_sarray_byte_size(o);
+        case LeanString:      return lean_string_byte_size(o);
+        default:
+            /* For potentially big objects, we cannot store the size in the RC field when `defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)`.
+               In this case, the RC is 32-bits, and it is not enough for big arrays/strings.
+               Thus, we compute them using the respective *_byte_size operations. */
+#if defined(LEAN_COMPRESSED_OBJECT_HEADER) || defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
+            return o->m_header & ((1ull << LEAN_RC_NBITS) - 1);
 #else
-        return o->m_rc;
+            return o->m_rc;
 #endif
+        }
     }
 }
 
@@ -74,7 +83,7 @@ extern "C" void lean_free_object(lean_object * o) {
 }
 
 static inline lean_object * get_next(lean_object * o) {
-#ifdef LEAN_COMPRESSED_OBJECT_HEADER
+#if defined(LEAN_COMPRESSED_OBJECT_HEADER) || defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
     size_t header = o->m_header;
     LEAN_BYTE(header, 6) = 0;
     LEAN_BYTE(header, 7) = 0;
@@ -85,7 +94,7 @@ static inline lean_object * get_next(lean_object * o) {
 }
 
 static inline void set_next(lean_object * o, lean_object * n) {
-#ifdef LEAN_COMPRESSED_OBJECT_HEADER
+#if defined(LEAN_COMPRESSED_OBJECT_HEADER) || defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
     size_t new_header = (size_t)n;
     LEAN_BYTE(new_header, 6) = LEAN_BYTE(o->m_header, 6);
     LEAN_BYTE(new_header, 7) = LEAN_BYTE(o->m_header, 7);
@@ -409,9 +418,11 @@ extern "C" void lean_mark_persistent(object * o) {
         object * o = todo.back();
         todo.pop_back();
         if (!lean_is_scalar(o) && lean_has_rc(o)) {
-#ifdef LEAN_COMPRESSED_OBJECT_HEADER
+#if defined(LEAN_COMPRESSED_OBJECT_HEADER)
             o->m_header &= ~((1ull << LEAN_ST_BIT) | (1ull << LEAN_MT_BIT));
             o->m_header |=  (1ull << LEAN_PERSISTENT_BIT);
+#elif defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
+            LEAN_BYTE(o->m_header, 5) = LEAN_PERSISTENT_MEM_KIND;
 #else
             o->m_mem_kind = LEAN_PERSISTENT_MEM_KIND;
 #endif
@@ -486,9 +497,11 @@ extern "C" void lean_mark_mt(object * o) {
         object * o = todo.back();
         todo.pop_back();
         if (!lean_is_scalar(o) && lean_is_st(o)) {
-#ifdef LEAN_COMPRESSED_OBJECT_HEADER
+#if defined(LEAN_COMPRESSED_OBJECT_HEADER)
             o->m_header &= ~(1ull << LEAN_ST_BIT);
             o->m_header |=  (1ull << LEAN_MT_BIT);
+#elif defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
+            LEAN_BYTE(o->m_header, 5) = LEAN_MT_MEM_KIND;
 #else
             o->m_mem_kind = LEAN_MT_MEM_KIND;
 #endif
@@ -839,8 +852,10 @@ void deactivate_task(lean_task_object * t) {
 }
 
 static inline void lean_set_task_header(lean_object * o) {
-#ifdef LEAN_COMPRESSED_OBJECT_HEADER
+#if defined(LEAN_COMPRESSED_OBJECT_HEADER)
     o->m_header   = ((size_t)(LeanTask) << 56) | (1ull << LEAN_MT_BIT) | 1;
+#elif defined(LEAN_COMPRESSED_OBJECT_HEADER_SMALL_RC)
+    o->m_header   = ((size_t)(LeanTask) << 56) | ((size_t)LEAN_MT_MEM_KIND << 40) | 1;
 #else
     o->m_rc       = 1;
     o->m_tag      = LeanTask;

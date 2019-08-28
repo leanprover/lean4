@@ -31,6 +31,8 @@ class object_compactor {
     object * copy_object(object * o);
     bool insert_constructor(object * o);
     bool insert_array(object * o);
+    void insert_sarray(object * o);
+    void insert_string(object * o);
     bool insert_thunk(object * o);
     bool insert_task(object * o);
     bool insert_ref(object * o);

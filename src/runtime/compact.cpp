@@ -89,6 +89,31 @@ object * object_compactor::copy_object(object * o) {
     return r;
 }
 
+void object_compactor::insert_sarray(object * o) {
+    size_t sz        = lean_sarray_size(o);
+    unsigned elem_sz = lean_sarray_elem_size(o);
+    size_t obj_sz = sizeof(lean_sarray_object) + elem_sz*sz;
+    lean_sarray_object * new_o = (lean_sarray_object*)alloc(obj_sz);
+    lean_set_non_heap_header_for_big((lean_object*)new_o, LeanScalarArray, elem_sz);
+    new_o->m_size     = sz;
+    new_o->m_capacity = sz;
+    memcpy(new_o->m_data, lean_to_sarray(o)->m_data, elem_sz*sz);
+    save(o, (lean_object*)new_o);
+}
+
+void object_compactor::insert_string(object * o) {
+    size_t sz        = lean_string_size(o);
+    size_t len       = lean_string_len(o);
+    size_t obj_sz = sizeof(lean_string_object) + sz;
+    lean_string_object * new_o = (lean_string_object*)alloc(obj_sz);
+    lean_set_non_heap_header_for_big((lean_object*)new_o, LeanString, 0);
+    new_o->m_size     = sz;
+    new_o->m_capacity = sz;
+    new_o->m_length   = len;
+    memcpy(new_o->m_data, lean_to_string(o)->m_data, sz);
+    save(o, (lean_object*)new_o);
+}
+
 bool object_compactor::insert_constructor(object * o) {
     std::vector<object_offset> & offsets = m_tmp;
     offsets.clear();
@@ -123,7 +148,7 @@ bool object_compactor::insert_array(object * o) {
         return false;
     size_t obj_sz = sizeof(lean_array_object) + sizeof(void*)*sz;
     lean_array_object * new_o = (lean_array_object*)alloc(obj_sz);
-    lean_set_non_heap_header((lean_object*)new_o, obj_sz, LeanArray, 0);
+    lean_set_non_heap_header_for_big((lean_object*)new_o, LeanArray, 0);
     new_o->m_size     = sz;
     new_o->m_capacity = sz;
     for (size_t i = 0; i < sz; i++) {
@@ -205,8 +230,8 @@ void object_compactor::operator()(object * o) {
             switch (lean_ptr_tag(curr)) {
             case LeanClosure:         lean_panic("closures cannot be compacted");
             case LeanArray:           r = insert_array(curr); break;
-            case LeanScalarArray:     copy_object(curr); break;
-            case LeanString:          copy_object(curr); break;
+            case LeanScalarArray:     insert_sarray(curr); break;
+            case LeanString:          insert_string(curr); break;
             case LeanMPZ:             insert_mpz(curr); break;
             case LeanThunk:           r = insert_thunk(curr); break;
             case LeanTask:            r = insert_task(curr); break;

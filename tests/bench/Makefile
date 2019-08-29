@@ -103,6 +103,10 @@ bench/frontend.%.bench: BENCH_PARAMS = --new-frontend frontend_test.lean
 
 bench/binarytrees.%.bench: BENCH_PARAMS = 21
 
+bench/deriv.%.bench: BENCH_PARAMS = 10
+
+bench/const_fold.%.bench: BENCH_PARAMS = 23
+
 bench/qsort.%.bench: BENCH_PARAMS = 400
 
 bench/rbmap.%.bench: BENCH_PARAMS = 2000000

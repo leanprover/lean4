@@ -65,9 +65,12 @@ def eval : Expr → Nat
 | Add l r   => eval l + eval r
 | Mul l r   => eval l * eval r
 
-def main : IO UInt32 :=
-let e  := (mkExpr 23 1);
-let v₁ := eval e;
-let v₂ := eval (constFolding (reassoc e));
-IO.println (toString v₁ ++ " " ++ toString v₂) *>
-pure 0
+unsafe def main : List String → IO UInt32
+| [s] => do
+  let n := s.toNat;
+  let e  := (mkExpr n 1);
+  let v₁ := eval e;
+  let v₂ := eval (constFolding (reassoc e));
+  IO.println (toString v₁ ++ " " ++ toString v₂);
+  pure 0
+| _ => pure 1

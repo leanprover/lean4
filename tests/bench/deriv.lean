@@ -89,8 +89,11 @@ do
   IO.println (toString (i+1) ++ " count: " ++ (toString $ count d));
   pure d
 
-def main (xs : List String) : IO UInt32 :=
-do let x := Var "x";
-   let f := pow x x;
-   nest deriv 10 f;
-   pure 0
+unsafe def main : List String → IO UInt32
+| [s] => do
+  let n := s.toNat;
+  let x := Var "x";
+  let f := pow x x;
+  nest deriv n f;
+  pure 0
+| _ => pure 1

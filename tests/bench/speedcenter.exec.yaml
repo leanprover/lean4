@@ -48,13 +48,13 @@
     <<: *time
     cmd: ./deriv.lean.out
   build_config:
-    cmd: ./compile.sh deriv.lean
+    cmd: ./compile.sh deriv.lean 10
 - attributes:
     description: const_fold
     tags: [fast, suite]
   run_config:
     <<: *time
-    cmd: bash -c "ulimit -s unlimited && ./const_fold.lean.out"
+    cmd: bash -c "ulimit -s unlimited && ./const_fold.lean.out 23"
   build_config:
     cmd: ./compile.sh const_fold.lean
 - attributes:

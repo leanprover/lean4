@@ -176,6 +176,17 @@ FOREACH(T ${LEANCOMPTESTS})
            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
 ENDFOREACH(T)
 
+# LEAN BENCHMARK TESTS
+# do not test all .lean files in bench/
+file(GLOB LEANBENCHTESTS "${LEAN_SOURCE_DIR}/../tests/bench/*.lean.expected.out")
+FOREACH(T_OUT ${LEANBENCHTESTS})
+  string(REPLACE ".expected.out" "" T ${T_OUT})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leanbenchtest_${T_NAME}"
+           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/bench"
+           COMMAND bash "./test_single.sh" ${T_NAME})
+ENDFOREACH(T_OUT)
+
 # LEANPKG TESTS
 # file(GLOB LEANPKGTESTS "${LEAN_SOURCE_DIR}/../tests/lean/leanpkg/*.sh")
 # FOREACH(T ${LEANPKGTESTS})

@@ -529,8 +529,6 @@ public:
     uint32 run_main(int argc, char * argv[]) {
         decl d = get_fdecl("main");
         array_ref<param> const & params = decl_params(d);
-        object * w = io_mk_world();
-        m_arg_stack.push_back(w);
         if (params.size() == 2) {
             lean_object * in = lean_box(0);
             int i = argc;
@@ -545,6 +543,8 @@ public:
         } else {
             lean_assert(params.size() == 1);
         }
+        object * w = io_mk_world();
+        m_arg_stack.push_back(w);
         push_frame("main", 0);
         w = eval_body(decl_fun_body(d));
         pop_frame();

@@ -43,6 +43,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "init/init.h"
 #include "frontends/lean/simple_pos_info_provider.h"
+#include "library/compiler/ir_interpreter.h"
 #ifdef _MSC_VER
 #include <io.h>
 #define STDOUT_FILENO 1
@@ -219,6 +220,7 @@ static struct option g_long_options[] = {
     {"version",      no_argument,       0, 'v'},
     {"help",         no_argument,       0, 'h'},
     {"githash",      no_argument,       0, 'g'},
+    {"run",          no_argument,       0, 'r'},
     {"make",         no_argument,       0, 'm'},
     {"stdin",        no_argument,       0, 'i'},
     {"memory",       required_argument, 0, 'M'},
@@ -346,6 +348,7 @@ int main(int argc, char ** argv) {
     auto init_start = std::chrono::steady_clock::now();
     ::initializer init;
     second_duration init_time = std::chrono::steady_clock::now() - init_start;
+    bool run = false;
     bool make_mode = false;
     bool use_stdin = false;
     unsigned trust_lvl = LEAN_BELIEVER_TRUST_LEVEL + 1;
@@ -401,6 +404,9 @@ int main(int argc, char ** argv) {
                 break;
             case 'i':
                 use_stdin = true;
+                break;
+            case 'r':
+                run = true;
                 break;
             case 'm':
                 make_mode = true;
@@ -496,12 +502,12 @@ int main(int argc, char ** argv) {
         contents = buf.str();
         main_module_name = name("_stdin");
     } else {
-        if (argc - optind != 1) {
+        if (!run && argc - optind != 1) {
             std::cerr << "Expected exactly one file name\n";
             display_help(std::cerr);
             return 1;
         }
-        mod_fn = lrealpath(argv[optind]);
+        mod_fn = lrealpath(argv[optind++]);
         contents = read_file(mod_fn);
         main_module_name = module_name_of_file2(mod_fn);
     }
@@ -567,6 +573,9 @@ int main(int argc, char ** argv) {
             env.display_stats();
         }
 
+        if (run && ok) {
+            return ir::run_main(env, argc - optind, argv + optind);
+        }
         if (make_mode && ok) {
             auto olean_fn = olean_of_lean(mod_fn);
             time_task t(".olean serialization",

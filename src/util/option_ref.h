@@ -11,9 +11,12 @@ namespace lean {
 /* Wrapper for manipulating Lean option values in C++ */
 template<typename T>
 class option_ref : public object_ref {
-    explicit option_ref(object * o):object_ref(o) { inc(o); }
 public:
+    explicit option_ref(obj_arg o):object_ref(o) {}
+    option_ref(b_obj_arg o, bool b):object_ref(o, b) {}
     option_ref():object_ref(box(0)) {}
+    option_ref(option_ref const & other):object_ref(other) {}
+    option_ref(option_ref && other):object_ref(other) {}
     explicit option_ref(T const & a):object_ref(mk_cnstr(1, a.raw())) { inc(a.raw()); }
     explicit option_ref(T const * a) { if (a) *this = option_ref(*a); }
     explicit option_ref(option_ref<T> const * o) { if (o) *this = *o; }

@@ -79,7 +79,7 @@ inline unsigned cnstr_num_objs(object * o) { return lean_ctor_num_objs(o); }
 inline object ** cnstr_obj_cptr(object * o) { return lean_ctor_obj_cptr(o); }
 inline uint8 * cnstr_scalar_cptr(object * o) { return lean_ctor_scalar_cptr(o); }
 inline obj_res alloc_cnstr(unsigned tag, unsigned num_objs, unsigned scalar_sz) { return lean_alloc_ctor(tag, num_objs, scalar_sz); }
-inline unsigned cnstr_tag(b_obj_arg o) { return lean_ptr_tag(o); }
+inline unsigned cnstr_tag(b_obj_arg o) { lean_assert(is_cnstr(o)); return lean_ptr_tag(o); }
 inline void cnstr_set_tag(b_obj_arg o, unsigned tag) { lean_ctor_set_tag(o, tag); }
 inline b_obj_res cnstr_get(b_obj_arg o, unsigned i) { return lean_ctor_get(o, i); }
 inline void cnstr_set(u_obj_arg o, unsigned i, obj_arg v) { lean_ctor_set(o, i, v); }

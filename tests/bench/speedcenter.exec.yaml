@@ -46,9 +46,9 @@
     tags: [fast, suite]
   run_config:
     <<: *time
-    cmd: ./deriv.lean.out
+    cmd: ./deriv.lean.out 10
   build_config:
-    cmd: ./compile.sh deriv.lean 10
+    cmd: ./compile.sh deriv.lean
 - attributes:
     description: const_fold
     tags: [fast, suite]

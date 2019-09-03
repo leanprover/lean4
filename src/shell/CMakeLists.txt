@@ -28,7 +28,7 @@ install(FILES "$<TARGET_FILE:leanstdlib>" DESTINATION lib)
 
 add_custom_target(update-stage0
   COMMAND make update-stage0 "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
-  DEPENDS lean
+  DEPENDS leanstdlib
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/../library")
 
 add_executable(lean lean.cpp)

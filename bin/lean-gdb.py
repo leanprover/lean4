@@ -13,77 +13,95 @@ def is_scalar(o):
     return o.cast(gdb.lookup_type('uintptr_t')) & 1 == 1
 
 def box(n):
-    return gdb.Value(n << 1 | 1).cast(gdb.lookup_type('lean::object').pointer())
+    return gdb.Value(n << 1 | 1).cast(gdb.lookup_type('lean_object').pointer())
 
 def unbox(o):
     return o.cast(gdb.lookup_type('uintptr_t')) >> 1
 
 def to_cnstr(o):
-    return o.cast(gdb.lookup_type('lean::constructor_object').pointer())
+    return o.cast(gdb.lookup_type('lean_ctor_object').pointer())
+
+def get_tag(header):
+    return header >> (32 + 8 + 8 + 8)
 
 def get_cnstr_tag(o):
-    return to_cnstr(o).dereference()['m_tag']
+    return get_tag(int(o.cast(gdb.lookup_type('lean_ctor_object').pointer()).dereference()['m_header']['m_header']))
+
+def get_num_objs(header):
+    return (header >> (32 + 8 + 8)) & 0xFF
+
+def get_mem_kind(header):
+    return (header >> (32 + 8)) & 0xFF
+
+def get_rc(header):
+    return header & 0xFFFFFFFF
 
 char_p = gdb.lookup_type('char').pointer()
 
 def get_cnstr_obj_arg(o, i):
-    return (o.cast(char_p) + gdb.lookup_type('lean::constructor_object').sizeof).cast(gdb.lookup_type('lean::object').pointer().pointer())[i]
+    return o.cast(gdb.lookup_type('lean_ctor_object').pointer()).dereference()['m_objs'][i]
 
 def get_closure_arg(o, i):
-    return (o.cast(char_p) + gdb.lookup_type('lean::closure_object').sizeof).cast(gdb.lookup_type('lean::object').pointer().pointer())[i]
+    return o.cast(gdb.lookup_type('lean_closure_object').pointer()).dereference()['m_objs'][i]
 
 def get_c_str(o):
-    return (o.cast(char_p) + gdb.lookup_type('lean::string_object').sizeof)
-
-def get_rc(o):
-    return (o.cast(gdb.lookup_type('uintptr_t').pointer()) - 1).dereference()
+    return o.cast(gdb.lookup_type('lean_string_object').pointer()).dereference()['m_data'].reference_value().cast(char_p)
 
 class LeanObjectPrinter:
-    """Print a lean::object object."""
+    """Print a lean_object object."""
 
     kinds = [
-        ('constructor', ['m_tag', 'm_scalar_size']),
-        ('closure', ['m_arity', 'm_fun']),
-        ('array', []),
-        ('sarray', []),
-        ('parray_root', []),
-        ('parray_set', []),
-        ('parray_push', []),
-        ('parray_pop', []),
+        # 244, ...
+        ('ctor', []),
+        ('closure', ['m_arity', 'm_fun', 'm_num_fixed']),
+        ('array', ['m_size', 'm_capacity']),
+        ('sarray', ['m_size', 'm_capacity']),
+        ('sarray', ['m_size', 'm_capacity']),
         ('string', ['m_size', 'm_capacity', 'm_length']),
         ('mpz', ['m_value']),
         ('thunk', ['m_value', 'm_closure']),
-        ('external', []),
+        ('task', ['m_value', 'm_imp']),
+        ('ref', ['m_value']),
+        ('external', ['m_class', 'm_data']),
     ]
+    lean_max_ctor_tag = 244
 
     def __init__(self, val):
         self.val = val.address
         if not is_scalar(self.val):
-            self.kind = int(self.val.dereference()['m_kind'])
+            self.header = int(self.val.dereference()['m_header'])
+            self.kind = max(0, get_tag(self.header) - LeanObjectPrinter.lean_max_ctor_tag)
 
     def to_string(self):
         if is_scalar(self.val):
             return unbox(self.val)
         else:
-            return "{} (RC {})".format(LeanObjectPrinter.kinds[self.kind][0], get_rc(self.val))
+            k = get_mem_kind(self.header)
+            return "{} ({})".format(LeanObjectPrinter.kinds[self.kind][0],
+                                    get_rc(self.header) if k == 0 else
+                                    get_rc(self.header) + "/MT" if k == 1 else
+                                    "PERSIST")
 
     def children(self):
         if is_scalar(self.val):
             return
-        yield ('RC', get_rc(self.val))
         if self.kind >= len(LeanObjectPrinter.kinds):
             return
         typ, fields = LeanObjectPrinter.kinds[self.kind]
-        if fields:
-            val = self.val.cast(gdb.lookup_type("lean::" + typ + "_object").pointer()).dereference()
-            for f in fields:
-                yield (f, val[f])
-            if typ == 'constructor':
-                for i in range(val['m_num_objs']):
-                    yield ('', get_cnstr_obj_arg(self.val, i))
-            elif typ == 'closure':
-                for i in range(val['m_num_fixed']):
-                    yield ('', get_closure_arg(self.val, i))
+        val = self.val.cast(gdb.lookup_type("lean_" + typ + "_object").pointer()).dereference()
+        for f in fields:
+            yield (f, val[f])
+        if typ == 'ctor':
+            for i in range(get_num_objs(self.header)):
+                yield ('', val['m_objs'][i].cast(gdb.lookup_type('lean_object').pointer()))
+        elif typ == 'array':
+            for i in range(val['m_size']):
+                yield ('', val['m_data'][i].cast(gdb.lookup_type('lean_object').pointer()))
+        elif typ == 'closure':
+            for i in range(val['m_num_fixed']):
+                yield ('', val['m_objs'][i].cast(gdb.lookup_type('lean_object').pointer()))
+        elif typ == 'string':
+            yield ('', val['m_data'].reference_value().cast(char_p))
 
 
 class LeanOptionalPrinter:
@@ -283,7 +301,7 @@ class LeanRBMapPrinter:
 
 def build_pretty_printer():
     pp = gdb.printing.RegexpCollectionPrettyPrinter("lean")
-    pp.add_printer('object', '^lean::object$', LeanObjectPrinter)
+    pp.add_printer('object', '^lean(_|::)object$', LeanObjectPrinter)
     pp.add_printer('optional', '^lean::optional', LeanOptionalPrinter)
     pp.add_printer('name', '^lean::name$', LeanNamePrinter)
     pp.add_printer('expr', '^lean::expr$', LeanExprPrinter)

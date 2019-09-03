@@ -148,6 +148,16 @@ string_ref name_mangle(name const & n, string_ref const & pre) {
     return string_ref(lean_name_mangle(n.to_obj_arg(), pre.to_obj_arg()));
 }
 
+void print_object(io_state_stream const & ios, object * o) {
+    if (is_scalar(o)) {
+        ios << unbox(o);
+    } else if (o == nullptr) {
+        ios << "0x0"; // confusingly printed as "0" by the default operator<<
+    } else {
+        ios.get_stream() << o;
+    }
+}
+
 class interpreter {
     std::vector<object *> m_arg_stack;
     std::vector<fn_body const *> m_jp_stack;
@@ -422,14 +432,30 @@ class interpreter {
         }
     }
 
-    void push_frame(name const & fn, size_t arg_sp) {
-        m_call_stack.push_back(frame { fn, arg_sp, m_jp_stack.size() });
+    void push_frame(name const & fn, size_t arg_bp) {
+        DEBUG_CODE({
+            lean_trace(name({"interpreter", "call"}),
+                       tout() << std::string(m_call_stack.size(), ' ')
+                              << fn;
+                       for (size_t i = arg_bp; i < m_arg_stack.size(); i++) {
+                           tout() << " "; print_object(tout(), m_arg_stack[i]);
+                       }
+                       tout() << "\n";);
+        });
+        m_call_stack.push_back(frame { fn, arg_bp, m_jp_stack.size() });
     }
 
-    void pop_frame() {
+    void pop_frame(object * DEBUG_CODE(r)) {
         m_arg_stack.resize(get_frame().m_arg_bp);
         m_jp_stack.resize(get_frame().m_jp_bp);
         m_call_stack.pop_back();
+        DEBUG_CODE({
+            lean_trace(name({"interpreter", "call"}),
+                       tout() << std::string(m_call_stack.size(), ' ')
+                              << "=> ";
+                       print_object(tout(), r);
+                       tout() << "\n";);
+       });
     }
 
     void * get_symbol_pointer(name const & fn, bool & boxed) {
@@ -520,7 +546,7 @@ class interpreter {
             }
             r = eval_body(decl_fun_body(d));
         }
-        pop_frame();
+        pop_frame(r);
         return r;
     }
 public:
@@ -547,7 +573,7 @@ public:
         m_arg_stack.push_back(w);
         push_frame("main", 0);
         w = eval_body(decl_fun_body(d));
-        pop_frame();
+        pop_frame(w);
         if (io_result_is_ok(w)) {
             int ret = unbox(io_result_get_value(w));
             dec_ref(w);
@@ -567,7 +593,7 @@ public:
         }
         push_frame(decl_fun_id(d), old_size);
         object * r = eval_body(decl_fun_body(d));
-        pop_frame();
+        pop_frame(r);
         return r;
     }
 
@@ -585,6 +611,10 @@ uint32 run_main(environment const & env, int argv, char * argc[]) {
 void initialize_ir_interpreter() {
     ir::g_mangle_prefix = new string_ref("l_");
     ir::g_boxed_mangled_suffix = new string_ref("___boxed");
+    DEBUG_CODE({
+        register_trace_class({"interpreter"});
+        register_trace_class({"interpreter", "call"});
+    });
 }
 
 void finalize_ir_interpreter() {

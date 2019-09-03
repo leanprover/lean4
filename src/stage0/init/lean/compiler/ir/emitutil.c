@@ -37,7 +37,6 @@ lean_object* l_Lean_IR_CollectMaps_collectDecl(lean_object*, lean_object*);
 lean_object* l_Lean_IR_CollectUsedDecls_collectFnBody___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_insert___at_Lean_IR_CollectMaps_collectVar___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
-lean_object* l_Lean_IR_UsesLeanNamespace_visitFnBody___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_CollectUsedDecls_collectDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_CollectUsedDecls_collectInitDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_UsesLeanNamespace_visitFnBody___main(lean_object*, lean_object*, lean_object*);
@@ -48,7 +47,6 @@ lean_object* l_Lean_IR_AltCore_body(lean_object*);
 lean_object* l_Lean_IR_CollectMaps_collectVar___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_Lean_IR_CollectMaps_collectFnBody___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_mfoldl___main___at_Lean_IR_CollectMaps_collectJP___spec__5(lean_object*, lean_object*);
-lean_object* l_Lean_IR_UsesLeanNamespace_visitFnBody___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_contains___main___at_Lean_IR_CollectMaps_collectJP___spec__2___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_IR_isTailCallTo(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -70,10 +68,9 @@ lean_object* l_Lean_IR_CollectUsedDecls_collectFnBody___main___boxed(lean_object
 lean_object* l_Lean_IR_CollectMaps_collectVar(lean_object*, uint8_t, lean_object*);
 lean_object* l_Array_miterateAux___main___at_Lean_IR_CollectMaps_collectParams___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_FnBody_isTerminal(lean_object*);
-lean_object* l_Lean_IR_usesLeanNamespace___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_CollectMaps_collectFnBody(lean_object*, lean_object*);
 lean_object* l_Lean_IR_usesLeanNamespace(lean_object*, lean_object*);
-lean_object* l_Lean_IR_findEnvDecl(lean_object*, lean_object*);
+lean_object* lean_ir_find_env_decl(lean_object*, lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_Lean_IR_isTailCallTo___boxed(lean_object*, lean_object*);
 lean_object* l_Array_size(lean_object*, lean_object*);
@@ -186,6 +183,7 @@ lean_dec(x_5);
 if (x_6 == 0)
 {
 uint8_t x_7; lean_object* x_8; lean_object* x_9; 
+lean_dec(x_3);
 lean_dec(x_2);
 x_7 = 0;
 x_8 = lean_box(x_7);
@@ -200,6 +198,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint
 x_10 = lean_array_fget(x_1, x_2);
 x_11 = l_Lean_IR_AltCore_body(x_10);
 lean_dec(x_10);
+lean_inc(x_3);
 x_12 = l_Lean_IR_UsesLeanNamespace_visitFnBody___main(x_11, x_3, x_4);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
@@ -221,6 +220,7 @@ goto _start;
 else
 {
 uint8_t x_19; 
+lean_dec(x_3);
 lean_dec(x_2);
 x_19 = !lean_is_exclusive(x_12);
 if (x_19 == 0)
@@ -277,8 +277,8 @@ lean_object* x_18; lean_object* x_19; lean_object* x_20;
 x_18 = lean_box(0);
 lean_inc(x_14);
 x_19 = l_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_3, x_14, x_18);
-x_20 = l_Lean_IR_findEnvDecl(x_2, x_14);
-lean_dec(x_14);
+lean_inc(x_2);
+x_20 = lean_ir_find_env_decl(x_2, x_14);
 if (lean_obj_tag(x_20) == 0)
 {
 x_1 = x_13;
@@ -297,6 +297,7 @@ lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26;
 x_23 = lean_ctor_get(x_22, 2);
 lean_inc(x_23);
 lean_dec(x_22);
+lean_inc(x_2);
 x_24 = l_Lean_IR_UsesLeanNamespace_visitFnBody___main(x_23, x_2, x_19);
 x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
@@ -316,6 +317,7 @@ else
 {
 uint8_t x_29; 
 lean_dec(x_13);
+lean_dec(x_2);
 x_29 = !lean_is_exclusive(x_24);
 if (x_29 == 0)
 {
@@ -358,6 +360,7 @@ else
 uint8_t x_35; lean_object* x_36; lean_object* x_37; 
 lean_dec(x_14);
 lean_dec(x_13);
+lean_dec(x_2);
 x_35 = 1;
 x_36 = lean_box(x_35);
 x_37 = lean_alloc_ctor(0, 2, 0);
@@ -387,8 +390,8 @@ lean_object* x_43; lean_object* x_44; lean_object* x_45;
 x_43 = lean_box(0);
 lean_inc(x_39);
 x_44 = l_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_3, x_39, x_43);
-x_45 = l_Lean_IR_findEnvDecl(x_2, x_39);
-lean_dec(x_39);
+lean_inc(x_2);
+x_45 = lean_ir_find_env_decl(x_2, x_39);
 if (lean_obj_tag(x_45) == 0)
 {
 x_1 = x_38;
@@ -407,6 +410,7 @@ lean_object* x_48; lean_object* x_49; lean_object* x_50; uint8_t x_51;
 x_48 = lean_ctor_get(x_47, 2);
 lean_inc(x_48);
 lean_dec(x_47);
+lean_inc(x_2);
 x_49 = l_Lean_IR_UsesLeanNamespace_visitFnBody___main(x_48, x_2, x_44);
 x_50 = lean_ctor_get(x_49, 0);
 lean_inc(x_50);
@@ -426,6 +430,7 @@ else
 {
 uint8_t x_54; 
 lean_dec(x_38);
+lean_dec(x_2);
 x_54 = !lean_is_exclusive(x_49);
 if (x_54 == 0)
 {
@@ -468,6 +473,7 @@ else
 uint8_t x_60; lean_object* x_61; lean_object* x_62; 
 lean_dec(x_39);
 lean_dec(x_38);
+lean_dec(x_2);
 x_60 = 1;
 x_61 = lean_box(x_60);
 x_62 = lean_alloc_ctor(0, 2, 0);
@@ -496,6 +502,7 @@ lean_inc(x_65);
 x_66 = lean_ctor_get(x_1, 3);
 lean_inc(x_66);
 lean_dec(x_1);
+lean_inc(x_2);
 x_67 = l_Lean_IR_UsesLeanNamespace_visitFnBody___main(x_65, x_2, x_3);
 x_68 = lean_ctor_get(x_67, 0);
 lean_inc(x_68);
@@ -515,6 +522,7 @@ else
 {
 uint8_t x_72; 
 lean_dec(x_66);
+lean_dec(x_2);
 x_72 = !lean_is_exclusive(x_67);
 if (x_72 == 0)
 {
@@ -571,6 +579,7 @@ goto _start;
 else
 {
 uint8_t x_8; lean_object* x_9; lean_object* x_10; 
+lean_dec(x_2);
 lean_dec(x_1);
 x_8 = 0;
 x_9 = lean_box(x_8);
@@ -587,18 +596,8 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Array_anyMAux___main___at_Lean_IR_UsesLeanNamespace_visitFnBody___main___spec__1(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
 lean_dec(x_1);
 return x_5;
-}
-}
-lean_object* l_Lean_IR_UsesLeanNamespace_visitFnBody___main___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_IR_UsesLeanNamespace_visitFnBody___main(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
 }
 }
 lean_object* l_Lean_IR_UsesLeanNamespace_visitFnBody(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -606,15 +605,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_IR_UsesLeanNamespace_visitFnBody___main(x_1, x_2, x_3);
-return x_4;
-}
-}
-lean_object* l_Lean_IR_UsesLeanNamespace_visitFnBody___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_IR_UsesLeanNamespace_visitFnBody(x_1, x_2, x_3);
-lean_dec(x_2);
 return x_4;
 }
 }
@@ -638,19 +628,11 @@ else
 {
 uint8_t x_7; lean_object* x_8; 
 lean_dec(x_2);
+lean_dec(x_1);
 x_7 = 0;
 x_8 = lean_box(x_7);
 return x_8;
 }
-}
-}
-lean_object* l_Lean_IR_usesLeanNamespace___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_IR_usesLeanNamespace(x_1, x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 lean_object* l_Lean_IR_CollectUsedDecls_collect(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

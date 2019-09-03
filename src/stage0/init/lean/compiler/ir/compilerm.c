@@ -24,7 +24,6 @@ uint8_t lean_name_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_findDecl_x27(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_containsDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_switch___at_Lean_IR_mkDeclMapExtension___spec__8(lean_object*);
-lean_object* l_Lean_IR_findEnvDecl___boxed(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
 lean_object* l_Lean_IR_LogEntry_Lean_HasFormat___closed__1;
@@ -152,7 +151,7 @@ lean_object* l_Lean_IR_getDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_Prim_Ref_get(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
-lean_object* l_Lean_IR_findEnvDecl(lean_object*, lean_object*);
+lean_object* lean_ir_find_env_decl(lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_IR_mkDeclMapExtension___spec__10(lean_object*, lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* lean_format_group(lean_object*);
@@ -6218,13 +6217,15 @@ return x_9;
 }
 }
 }
-lean_object* l_Lean_IR_findEnvDecl(lean_object* x_1, lean_object* x_2) {
+lean_object* lean_ir_find_env_decl(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = l_Lean_IR_declMapExt;
 x_4 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_3, x_1);
+lean_dec(x_1);
 x_5 = l_Lean_SMap_find___at_Lean_IR_findEnvDecl___spec__1(x_4, x_2);
+lean_dec(x_2);
 lean_dec(x_4);
 return x_5;
 }
@@ -6269,16 +6270,6 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_IR_findEnvDecl___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_IR_findEnvDecl(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
 lean_object* l_Lean_IR_findDecl(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -6292,8 +6283,7 @@ x_6 = lean_ctor_get(x_3, 0);
 lean_dec(x_6);
 x_7 = lean_ctor_get(x_5, 0);
 lean_inc(x_7);
-x_8 = l_Lean_IR_findEnvDecl(x_7, x_1);
-lean_dec(x_7);
+x_8 = lean_ir_find_env_decl(x_7, x_1);
 lean_ctor_set(x_3, 0, x_8);
 return x_3;
 }
@@ -6305,8 +6295,7 @@ lean_inc(x_9);
 lean_dec(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
-x_11 = l_Lean_IR_findEnvDecl(x_10, x_1);
-lean_dec(x_10);
+x_11 = lean_ir_find_env_decl(x_10, x_1);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
 lean_ctor_set(x_12, 1, x_9);
@@ -6320,7 +6309,6 @@ _start:
 lean_object* x_4; 
 x_4 = l_Lean_IR_findDecl(x_1, x_2, x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -6471,6 +6459,7 @@ lean_object* l_Lean_IR_getDecl(lean_object* x_1, lean_object* x_2, lean_object* 
 _start:
 {
 lean_object* x_4; 
+lean_inc(x_1);
 x_4 = l_Lean_IR_findDecl(x_1, x_2, x_3);
 if (lean_obj_tag(x_4) == 0)
 {

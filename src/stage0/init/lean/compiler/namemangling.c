@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Name_mangle(lean_object*, lean_object*);
+lean_object* lean_name_mangle(lean_object*, lean_object*);
 uint8_t lean_name_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_namemangling_1__String_mangleAux___main(lean_object*, lean_object*, lean_object*);
@@ -280,7 +280,7 @@ x_2 = l___private_init_lean_compiler_namemangling_2__Name_mangleAux___main(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_Name_mangle(lean_object* x_1, lean_object* x_2) {
+lean_object* lean_name_mangle(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 

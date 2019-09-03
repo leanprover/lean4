@@ -31,7 +31,7 @@ if [[ $use_c == yes ]]; then
     [ -f $LEAN_CC ] || command -v $LEAN_CC || error "no suitable C compiler found!"
 
     # NOTE: leanstatic and leanstdlib are cyclically dependent
-    $LEAN_CC -D LEAN_MULTI_THREAD "-I$bindir/../src" "-I$bindir/../include" "$@" "-L$bindir" "-L$bindir/../lib" -lleanstatic -lleanstdlib -lleanstatic -lleanstdlib -lgmp @LEANC_EXTRA_FLAGS@ -Wno-unused-command-line-argument
+    $LEAN_CC -D LEAN_MULTI_THREAD "-I$bindir/../src" "-I$bindir/../include" "$@" "-L$bindir" "-L$bindir/../lib" -lleanstatic -lleanstdlib -lleanstatic -lleanstdlib -lgmp -ldl @LEANC_EXTRA_FLAGS@ -Wno-unused-command-line-argument
 else
     # Check C++ compiler
     for cxx in $LEAN_CXX @CMAKE_CXX_COMPILER@ /usr/bin/g++; do
@@ -42,5 +42,5 @@ else
     [ -f $LEAN_CXX ] || command -v $LEAN_CXX || error "no suitable C++ compiler found!"
 
     # NOTE: leanstatic and leanstdlib are cyclically dependent
-    $LEAN_CXX -std=c++14 -D LEAN_MULTI_THREAD "-I$bindir/../src" "-I$bindir/../include" "$@" "-L$bindir" "-L$bindir/../lib" -lleanstatic -lleanstdlib -lleanstatic -lleanstdlib -lgmp @LEANC_EXTRA_FLAGS@ -Wno-unused-command-line-argument
+    $LEAN_CXX -std=c++14 -D LEAN_MULTI_THREAD "-I$bindir/../src" "-I$bindir/../include" "$@" "-L$bindir" "-L$bindir/../lib" -lleanstatic -lleanstdlib -lleanstatic -lleanstdlib -lgmp -ldl @LEANC_EXTRA_FLAGS@ -Wno-unused-command-line-argument
 fi

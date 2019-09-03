@@ -10,6 +10,23 @@ Author: Leonardo de Moura
 #include "library/compiler/util.h"
 namespace lean {
 namespace ir {
+/*
+inductive IRType
+| float | uint8 | uint16 | uint32 | uint64 | usize
+| irrelevant | object | tobject
+*/
+enum class type { Float, UInt8, UInt16, UInt32, UInt64, USize, Irrelevant, Object, TObject };
+
+typedef nat        var_id;
+typedef nat        jp_id;
+typedef name       fun_id;
+typedef object_ref arg;
+typedef object_ref expr;
+typedef object_ref param;
+typedef object_ref fn_body;
+typedef object_ref alt;
+typedef object_ref decl;
+
 typedef object_ref decl;
 std::string decl_to_string(decl const & d);
 void test(decl const & d);

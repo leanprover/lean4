@@ -74,7 +74,7 @@ typedef obj* (*fn16)(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*,
 #define FN16(f) reinterpret_cast<fn16>(lean_closure_fun(f))
 typedef obj* (*fnn)(obj**); // NOLINT
 #define FNN(f) reinterpret_cast<fnn>(lean_closure_fun(f))
-static obj* curry(obj* f, unsigned n, obj** as) {
+obj* curry(obj* f, unsigned n, obj** as) {
 switch (n) {
 case 0: lean_unreachable();
 case 1: return FN1(f)(as[0]);

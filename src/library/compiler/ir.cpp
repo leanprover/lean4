@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/compiler/util.h"
 #include "library/compiler/llnf.h"
 #include "library/compiler/extern_attribute.h"
+#include "library/compiler/ir.h"
 
 namespace lean {
 namespace ir {
@@ -43,22 +44,6 @@ extern "C" object * lean_ir_decl_to_string(object * d);
 extern "C" object * lean_ir_compile(object * env, object * opts, object * decls);
 extern "C" object * lean_ir_log_to_string(object * log);
 extern "C" object * lean_ir_add_decl(object * env, object * decl);
-/*
-inductive IRType
-| float | uint8 | uint16 | uint32 | uint64 | usize
-| irrelevant | object | tobject
-*/
-enum class type { Float, UInt8, UInt16, UInt32, UInt64, USize, Irrelevant, Object, TObject };
-
-typedef nat        var_id;
-typedef nat        jp_id;
-typedef name       fun_id;
-typedef object_ref arg;
-typedef object_ref expr;
-typedef object_ref param;
-typedef object_ref fn_body;
-typedef object_ref alt;
-typedef object_ref decl;
 
 arg mk_var_arg(var_id const & id) { inc(id.raw()); return arg(lean_ir_mk_var_arg(id.raw())); }
 arg mk_irrelevant_arg() { return arg(irrelevant_arg); }

@@ -22,11 +22,11 @@ inductive DataValue
 class data_value : public object_ref {
     data_value(b_obj_arg o, bool b):object_ref(o, b) {}
 public:
-    data_value(char const * v):object_ref(mk_cnstr(static_cast<unsigned>(data_value_kind::String), mk_string(v))) {}
-    data_value(string_ref const & v):object_ref(mk_cnstr(static_cast<unsigned>(data_value_kind::String), v.raw())) { inc(v.raw()); }
-    data_value(nat const & v):object_ref(mk_cnstr(static_cast<unsigned>(data_value_kind::Nat), v.raw())) { inc(v.raw()); }
-    data_value(bool v):object_ref(alloc_cnstr(static_cast<unsigned>(data_value_kind::Bool), 0, 1)) { cnstr_set_scalar<unsigned char>(raw(), 0, v); }
-    data_value(name const & v):object_ref(mk_cnstr(static_cast<unsigned>(data_value_kind::Name), v.raw())) { inc(v.raw()); }
+    explicit data_value(char const * v):object_ref(mk_cnstr(static_cast<unsigned>(data_value_kind::String), mk_string(v))) {}
+    explicit data_value(string_ref const & v):object_ref(mk_cnstr(static_cast<unsigned>(data_value_kind::String), v.raw())) { inc(v.raw()); }
+    explicit data_value(nat const & v):object_ref(mk_cnstr(static_cast<unsigned>(data_value_kind::Nat), v.raw())) { inc(v.raw()); }
+    explicit data_value(bool v):object_ref(alloc_cnstr(static_cast<unsigned>(data_value_kind::Bool), 0, 1)) { cnstr_set_scalar<unsigned char>(raw(), 0, v); }
+    explicit data_value(name const & v):object_ref(mk_cnstr(static_cast<unsigned>(data_value_kind::Name), v.raw())) { inc(v.raw()); }
     data_value():data_value(false) {}
     data_value(data_value const & other):object_ref(other) {}
     data_value(data_value && other):object_ref(other) {}

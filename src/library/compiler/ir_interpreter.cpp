@@ -173,6 +173,7 @@ class interpreter {
     };
     std::vector<frame> m_call_stack;
     environment const & m_env;
+    name_map<object *> m_constant_cache;
 
     inline frame & get_frame() {
         return m_call_stack.back();
@@ -255,13 +256,18 @@ class interpreter {
                 }
             }
             case expr_kind::FAp: {
-                // TODO(Sebastian): cache
                 if (expr_fap_args(e).size()) {
                     return call(expr_fap_fun(e), expr_fap_args(e));
                 } else {
-                    object * r = load(expr_fap_fun(e), t);
-                    mark_persistent(r);
-                    return r;
+                    object * const * cached = m_constant_cache.find(expr_fap_fun(e));
+                    if (cached) {
+                        return *cached;
+                    } else {
+                        object * r = load(expr_fap_fun(e), t);
+                        mark_persistent(r);
+                        m_constant_cache.insert(expr_fap_fun(e), r);
+                        return r;
+                    }
                 }
             }
             case expr_kind::PAp: {
@@ -522,7 +528,6 @@ class interpreter {
                     throw exception("invalid type");
             }
         } else {
-            // TODO(Sebastian): cache
             push_frame(fn, m_arg_stack.size());
             decl d = get_fdecl(fn);
             object * r = eval_body(decl_fun_body(d));

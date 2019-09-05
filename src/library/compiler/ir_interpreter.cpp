@@ -339,7 +339,33 @@ class interpreter {
             DEBUG_CODE(lean_trace(name({"interpreter", "step"}),
                     tout() << std::string(m_call_stack.size(), ' ') << format_fn_body_head(b) << "\n";);)
             switch (fn_body_tag(b)) {
-                case fn_body_kind::VDecl:
+                case fn_body_kind::VDecl: {
+                    expr const & e = fn_body_vdecl_expr(b);
+                    fn_body const & cont = fn_body_vdecl_cont(b);
+                    if (expr_tag(e) == expr_kind::FAp && expr_fap_fun(e) == get_frame().m_fn &&
+                        fn_body_tag(cont) == fn_body_kind::Ret && !arg_is_irrelevant(fn_body_ret_arg(cont)) &&
+                        arg_var_id(fn_body_ret_arg(cont)) == fn_body_vdecl_var(b)) {
+                        // tail recursion
+                        fun_id const & fn = expr_fap_fun(e);
+                        decl d = get_decl(fn);
+                        if (!get_symbol_pointer(fn)) {
+                            if (decl_tag(d) == decl_kind::Extern) {
+                                throw exception(sstream() << "unexpected external declaration '" << fn << "'");
+                            }
+                            array_ref<arg> const & args = expr_fap_args(e);
+                            // copy bla bla
+                            size_t old_size = m_arg_stack.size();
+                            for (const auto & arg : args) {
+                                m_arg_stack.push_back(eval_arg(arg));
+                            }
+                            for (size_t i = 0; i < args.size(); i++) {
+                                m_arg_stack[get_frame().m_arg_bp + i] = m_arg_stack[old_size + i];
+                            }
+                            m_arg_stack.resize(get_frame().m_arg_bp + args.size());
+                            b = decl_fun_body(d);
+                            break;
+                        }
+                    }
                     var(fn_body_vdecl_var(b)) = eval_expr(fn_body_vdecl_expr(b), fn_body_vdecl_type(b));
                     DEBUG_CODE(lean_trace(name({"interpreter", "step"}),
                                           tout() << std::string(m_call_stack.size(), ' ') << "=> x_";
@@ -348,6 +374,7 @@ class interpreter {
                                           tout() << "\n";);)
                     b = fn_body_vdecl_cont(b);
                     break;
+                }
                 case fn_body_kind::JDecl: {
                     size_t i = get_frame().m_jp_bp + fn_body_jdecl_id(b).get_small_value();
                     if (i >= m_jp_stack.size()) {

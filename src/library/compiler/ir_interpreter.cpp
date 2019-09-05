@@ -148,6 +148,11 @@ string_ref name_mangle(name const & n, string_ref const & pre) {
     return string_ref(lean_name_mangle(n.to_obj_arg(), pre.to_obj_arg()));
 }
 
+extern "C" object * lean_ir_format_fn_body_head(object * b);
+format format_fn_body_head(fn_body const & b) {
+    return format(lean_ir_format_fn_body_head(b.to_obj_arg()));
+}
+
 void print_object(io_state_stream const & ios, object * o) {
     if (is_scalar(o)) {
         ios << unbox(o);
@@ -325,9 +330,16 @@ class interpreter {
         // make reference reassignable...
         std::reference_wrapper<fn_body const> b(b0);
         while (true) {
+            DEBUG_CODE(lean_trace(name({"interpreter", "step"}),
+                    tout() << std::string(m_call_stack.size(), ' ') << format_fn_body_head(b) << "\n";);)
             switch (fn_body_tag(b)) {
                 case fn_body_kind::VDecl:
                     var(fn_body_vdecl_var(b)) = eval_expr(fn_body_vdecl_expr(b), fn_body_vdecl_type(b));
+                    DEBUG_CODE(lean_trace(name({"interpreter", "step"}),
+                                          tout() << std::string(m_call_stack.size(), ' ') << "=> x_";
+                                          tout() << fn_body_vdecl_var(b).get_small_value() << " = ";
+                                          print_object(tout(), var(fn_body_vdecl_var(b)));
+                                          tout() << "\n";);)
                     b = fn_body_vdecl_cont(b);
                     break;
                 case fn_body_kind::JDecl: {
@@ -614,6 +626,7 @@ void initialize_ir_interpreter() {
     DEBUG_CODE({
         register_trace_class({"interpreter"});
         register_trace_class({"interpreter", "call"});
+        register_trace_class({"interpreter", "step"});
     });
 }
 

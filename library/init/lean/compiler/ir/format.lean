@@ -77,6 +77,23 @@ def formatAlt (fmt : FnBody → Format) (indent : Nat) : Alt → Format
 def formatParams (ps : Array Param) : Format :=
 formatArray ps
 
+@[export lean_ir_format_fn_body_head]
+def formatFnBodyHead : FnBody → Format
+| FnBody.vdecl x ty e b      => "let " ++ format x ++ " : " ++ format ty ++ " := " ++ format e
+| FnBody.jdecl j xs v b      => format j ++ formatParams xs ++ " := ..."
+| FnBody.set x i y b         => "set " ++ format x ++ "[" ++ format i ++ "] := " ++ format y
+| FnBody.uset x i y b        => "uset " ++ format x ++ "[" ++ format i ++ "] := " ++ format y
+| FnBody.sset x i o y ty b   => "sset " ++ format x ++ "[" ++ format i ++ ", " ++ format o ++ "] : " ++ format ty ++ " := " ++ format y
+| FnBody.setTag x cidx b     => "setTag " ++ format x ++ " := " ++ format cidx
+| FnBody.inc x n c _ b       => "inc" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x
+| FnBody.dec x n c _ b       => "dec" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x
+| FnBody.del x b             => "del " ++ format x
+| FnBody.mdata d b           => "mdata " ++ format d
+| FnBody.case tid x xType cs => "case " ++ format x ++ " of ..."
+| FnBody.jmp j ys            => "jmp " ++ format j ++ formatArray ys
+| FnBody.ret x               => "ret " ++ format x
+| FnBody.unreachable         => "⊥"
+
 partial def formatFnBody (indent : Nat := 2) : FnBody → Format
 | FnBody.vdecl x ty e b      => "let " ++ format x ++ " : " ++ format ty ++ " := " ++ format e ++ ";" ++ Format.line ++ formatFnBody b
 | FnBody.jdecl j xs v b      => format j ++ formatParams xs ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody v) ++ ";" ++ Format.line ++ formatFnBody b

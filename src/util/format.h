@@ -30,12 +30,12 @@ inductive Format
 */
 class format : public object_ref {
     enum format_kind { NIL, LINE, TEXT, NEST, COMPOSE, CHOICE };
-    explicit format(object * o):object_ref(o) {}
-    explicit format(object_ref const & o):object_ref(o) {}
-    format(object * o, bool b):object_ref(o, b) {}
 public:
     // Constructors
     format():object_ref(box(static_cast<unsigned>(NIL))) {}
+    explicit format(object * o):object_ref(o) {}
+    explicit format(object_ref const & o):object_ref(o) {}
+    format(object * o, bool b):object_ref(o, b) {}
     explicit format(char const * v):object_ref(mk_cnstr(static_cast<unsigned>(TEXT), mk_string(v))) {}
     explicit format(std::string const & v):object_ref(mk_cnstr(static_cast<unsigned>(TEXT), mk_string(v))) {}
     explicit format(string_ref const & v):object_ref(mk_cnstr(static_cast<unsigned>(TEXT), v)) {}

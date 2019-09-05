@@ -3,6 +3,27 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Sebastian Ullrich
+
+A simple interpreter for evaluating λRC IR code.
+
+Motivation
+==========
+
+Even with a JIT compiler, we still have a need for a simpler interpreter on platforms LLVM JIT does not support (i.e.
+WebAssembly). Because this is mostly an edge case, we strive for simplicity instead of performance and thus reuse the
+existing compiler IR instead of inventing something like a new bytecode format.
+
+Implementation
+==============
+
+The interpreter mainly consists of a homogeneous stack of boxed `object *` values. IR variables are mapped to stack
+slots by adding the current base pointer to the variable index. Further stacks are used for storing join points and call
+stack metadata. The interpreted IR is taken directly from the environment. Whenever possible, we try to switch to native
+code by checking for the mangled symbol via dlsym/GetProcAddress, which is also how we can call external functions (but
+only if the file declaring them has already been compiled). We always call the "boxed" versions of native functions,
+which have a (relatively) homogeneous ABI that we can use without runtime code generation; see also `call/lookup_symbol`
+below.
+
 */
 #include <string>
 #include <vector>
@@ -17,9 +38,12 @@ Author: Sebastian Ullrich
 
 namespace lean {
 namespace ir {
+// C++ wrappers of Lean data types
+
 typedef object_ref lit_val;
 typedef object_ref ctor_info;
 
+// TODO(Sebastian): move
 template<class T>
 inline T const & cnstr_get_ref_t(object_ref const & o, unsigned i) {
     static_assert(sizeof(T) == sizeof(object_ref), "unexpected object wrapper size");
@@ -35,7 +59,7 @@ nat const & lit_val_num(lit_val const & l) { lean_assert(lit_val_tag(l) == lit_v
 string_ref const & lit_val_str(lit_val const & l) { lean_assert(lit_val_tag(l) == lit_val_kind::Str); return cnstr_get_ref_t<string_ref>(l, 0); }
 
 name const & ctor_info_name(ctor_info const & c) { return cnstr_get_ref_t<name>(c, 0); }
-nat const & ctor_info_idx(ctor_info const & c) { return cnstr_get_ref_t<nat>(c, 1); }
+nat const & ctor_info_tag(ctor_info const & c) { return cnstr_get_ref_t<nat>(c, 1); }
 nat const & ctor_info_size(ctor_info const & c) { return cnstr_get_ref_t<nat>(c, 2); }
 nat const & ctor_info_usize(ctor_info const & c) { return cnstr_get_ref_t<nat>(c, 3); }
 nat const & ctor_info_ssize(ctor_info const & c) { return cnstr_get_ref_t<nat>(c, 4); }
@@ -54,7 +78,7 @@ nat const & expr_proj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind
 var_id const & expr_proj_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Proj); return cnstr_get_ref_t<var_id>(e, 1); }
 nat const & expr_uproj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::UProj); return cnstr_get_ref_t<nat>(e, 0); }
 var_id const & expr_uproj_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::UProj); return cnstr_get_ref_t<var_id>(e, 1); }
-nat const & expr_sproj_num_objs(expr const & e) { lean_assert(expr_tag(e) == expr_kind::SProj); return cnstr_get_ref_t<nat>(e, 0); }
+nat const & expr_sproj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::SProj); return cnstr_get_ref_t<nat>(e, 0); }
 nat const & expr_sproj_offset(expr const & e) { lean_assert(expr_tag(e) == expr_kind::SProj); return cnstr_get_ref_t<nat>(e, 1); }
 var_id const & expr_sproj_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::SProj); return cnstr_get_ref_t<var_id>(e, 2); }
 fun_id const & expr_fap_fun(expr const & e) { lean_assert(expr_tag(e) == expr_kind::FAp); return cnstr_get_ref_t<fun_id>(e, 0); }
@@ -103,7 +127,7 @@ nat const & fn_body_uset_idx(fn_body const & b) { lean_assert(fn_body_tag(b) == 
 var_id const & fn_body_uset_arg(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::USet); return cnstr_get_ref_t<var_id>(b, 2); }
 fn_body const & fn_body_uset_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::USet); return cnstr_get_ref_t<fn_body>(b, 3); }
 var_id const & fn_body_sset_target(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<var_id>(b, 0); }
-nat const & fn_body_sset_num_objs(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<nat>(b, 1); }
+nat const & fn_body_sset_idx(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<nat>(b, 1); }
 nat const & fn_body_sset_offset(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<nat>(b, 2); }
 var_id const & fn_body_sset_source(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<var_id>(b, 3); }
 type fn_body_sset_type(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return static_cast<type>(cnstr_get_uint8(b.raw(), sizeof(void *) * 5)); }
@@ -143,6 +167,7 @@ option_ref<decl> find_env_decl(environment const & env, name const & n) {
 static string_ref * g_mangle_prefix = nullptr;
 static string_ref * g_boxed_mangled_suffix = nullptr;
 
+// reuse the compiler's name mangling to compute native symbol names
 extern "C" object * lean_name_mangle(object * n, object * pre);
 string_ref name_mangle(name const & n, string_ref const & pre) {
     return string_ref(lean_name_mangle(n.to_obj_arg(), pre.to_obj_arg()));
@@ -153,37 +178,52 @@ format format_fn_body_head(fn_body const & b) {
     return format(lean_ir_format_fn_body_head(b.to_obj_arg()));
 }
 
+/** \pre Very simple debug output of arbitrary objects, should be extended. */
 void print_object(io_state_stream const & ios, object * o) {
     if (is_scalar(o)) {
         ios << unbox(o);
     } else if (o == nullptr) {
         ios << "0x0"; // confusingly printed as "0" by the default operator<<
     } else {
+        // merely following the trace of object addresses is surprisingly helpful for debugging
         ios.get_stream() << o;
     }
 }
 
 class interpreter {
+    // stack of IR variable slots
     std::vector<object *> m_arg_stack;
+    // stack of join points
     std::vector<fn_body const *> m_jp_stack;
     struct frame {
         name m_fn;
+        // base pointers into the stack above
         size_t m_arg_bp;
         size_t m_jp_bp;
     };
     std::vector<frame> m_call_stack;
     environment const & m_env;
+    // caches values of nullary functions ("constants")
     name_map<object *> m_constant_cache;
-    struct symbol_cache_entry { void * m_addr; bool m_boxed; };
+    struct symbol_cache_entry {
+        // symbol address; `nullptr` if function does not have native code
+        void * m_addr;
+        // true iff we chose the boxed version of a function where the IR uses the unboxed version
+        bool m_boxed;
+    };
+    // caches symbol lookup successes _and_ failures
     name_map<symbol_cache_entry> m_symbol_cache;
 
+    /** \brief Get current stack frame */
     inline frame & get_frame() {
         return m_call_stack.back();
     }
 
+    /** \brief Get reference to stack slot of IR variable */
     inline object * & var(var_id const & v) {
         // variables are 1-indexed
         size_t i = get_frame().m_arg_bp + v.get_small_value() - 1;
+        // we don't know the frame size (unless we do an additional IR pass), so we extend it dynamically
         if (i >= m_arg_stack.size()) {
             m_arg_stack.resize(i + 1);
         }
@@ -191,18 +231,24 @@ class interpreter {
     }
 
     object * eval_arg(arg const & a) {
+        // an "irrelevant" argument is type- or proof-erased; we can use an arbitrary value for it
         return arg_is_irrelevant(a) ? box(0) : var(arg_var_id(a));
     }
 
+    /** \brief Allocate constructor object with given tag and arguments */
     object * alloc_ctor(ctor_info const & i, array_ref<arg> const & args) {
-        size_t idx = ctor_info_idx(i).get_small_value();
+        size_t tag = ctor_info_tag(i).get_small_value();
+        // number of boxed object fields
         size_t size = ctor_info_size(i).get_small_value();
+        // number of unboxed USize fields (whose byte size the IR is ignorant of)
         size_t usize = ctor_info_usize(i).get_small_value();
+        // byte size of all other unboxed fields
         size_t ssize = ctor_info_ssize(i).get_small_value();
         if (size == 0 && usize == 0 && ssize == 0) {
-            return box(idx);
+            // a constructor without data is optimized to a tagged pointer
+            return box(tag);
         } else {
-            object *o = alloc_cnstr(idx, size, usize * sizeof(void *) + ssize);
+            object *o = alloc_cnstr(tag, size, usize * sizeof(void *) + ssize);
             for (size_t i = 0; i < args.size(); i++) {
                 cnstr_set(o, i, eval_arg(args[i]));
             }
@@ -214,7 +260,7 @@ class interpreter {
         switch (expr_tag(e)) {
             case expr_kind::Ctor:
                 return alloc_ctor(expr_ctor_info(e), expr_ctor_args(e));
-            case expr_kind::Reset: {
+            case expr_kind::Reset: { // release fields if unique reference in preparation for `Reuse` below
                 object * o = var(expr_reset_obj(e));
                 if (is_exclusive(o)) {
                     for (size_t i = 0; i < expr_reset_num_objs(e).get_small_value(); i++) {
@@ -226,13 +272,16 @@ class interpreter {
                     return box(0);
                 }
             }
-            case expr_kind::Reuse: {
+            case expr_kind::Reuse: { // reuse dead allocation if possible
                 object * o = var(expr_reuse_obj(e));
+                // check if `Reset` above had a unique reference it consumed
                 if (is_scalar(o)) {
+                    // fall back to regular allocation
                     return alloc_ctor(expr_reuse_ctor(e), expr_reuse_args(e));
                 } else {
+                    // create new constructor object in-place
                     if (expr_reuse_update_header(e)) {
-                        cnstr_set_tag(o, ctor_info_idx(expr_reuse_ctor(e)).get_small_value());
+                        cnstr_set_tag(o, ctor_info_tag(expr_reuse_ctor(e)).get_small_value());
                     }
                     for (size_t i = 0; i < expr_reuse_args(e).size(); i++) {
                         cnstr_set(o, i, eval_arg(expr_reuse_args(e)[i]));
@@ -240,12 +289,12 @@ class interpreter {
                     return o;
                 }
             }
-            case expr_kind::Proj:
+            case expr_kind::Proj: // object field access
                 return cnstr_get(var(expr_proj_obj(e)), expr_proj_idx(e).get_small_value());
-            case expr_kind::UProj:
+            case expr_kind::UProj: // USize field access
                 return box_size_t(cnstr_get_usize(var(expr_uproj_obj(e)), expr_uproj_idx(e).get_small_value()));
-            case expr_kind::SProj: {
-                size_t offset = expr_sproj_num_objs(e).get_small_value() * sizeof(void *) +
+            case expr_kind::SProj: { // other unboxed field access
+                size_t offset = expr_sproj_idx(e).get_small_value() * sizeof(void *) +
                                 expr_sproj_offset(e).get_small_value();
                 object *o = var(expr_sproj_obj(e));
                 switch (t) {
@@ -257,29 +306,39 @@ class interpreter {
                     default: throw exception("invalid instruction");
                 }
             }
-            case expr_kind::FAp: {
+            case expr_kind::FAp: { // satured ("full") application of top-level function
                 if (expr_fap_args(e).size()) {
                     return call(expr_fap_fun(e), expr_fap_args(e));
                 } else {
+                    // nullary function ("constant"), cache
                     object * const * cached = m_constant_cache.find(expr_fap_fun(e));
                     if (cached) {
                         return *cached;
                     } else {
                         object * r = load(expr_fap_fun(e), t);
+                        // the IR expects constants to be persistent
+                        // TODO(Sebastian): because of this, we currently leak these objects
                         mark_persistent(r);
                         m_constant_cache.insert(expr_fap_fun(e), r);
                         return r;
                     }
                 }
             }
-            case expr_kind::PAp: {
+            case expr_kind::PAp: { // unsatured (partial) application of top-level function
                 decl d = get_fdecl(expr_pap_fun(e));
                 unsigned i = 0;
                 object * cls;
                 if (void * p = lookup_symbol(expr_pap_fun(e)).m_addr) {
+                    // point closure directly to native symbol
                     cls = alloc_closure(p, decl_params(d).size(), expr_pap_args(e).size());
                 } else {
+                    // point closure to interpreter stub taking interpreter data, declaration to be called, and partially
+                    // applied arguments
+                    // HACK: filling up closure to at least 16 arguments
+                    // Boxed functions of arity >= 16 use a single common signature, so we only need a single stub.
                     cls = alloc_closure(reinterpret_cast<void *>(stub_m_aux), 16 + decl_params(d).size(), 16 + expr_pap_args(e).size());
+                    // FIXME: sharing the same interpreter instance including stack etc.; needs to be fixed to support
+                    // multithreading
                     closure_set(cls, i++, box(reinterpret_cast<size_t>(this)));
                     closure_set(cls, i++, d.to_obj_arg());
                     for (; i < 16; i++) {
@@ -291,8 +350,9 @@ class interpreter {
                 }
                 return cls;
             }
-            case expr_kind::Ap: {
+            case expr_kind::Ap: { // (saturated or unsatured) application of closure; mostly handled by runtime
                 size_t old_size = m_arg_stack.size();
+                // optimization: use unused part of stack for temporarily storing evaluated arguments
                 for (const auto & arg : expr_ap_args(e)) {
                     m_arg_stack.push_back(eval_arg(arg));
                 }
@@ -300,11 +360,11 @@ class interpreter {
                 m_arg_stack.resize(old_size);
                 return r;
             }
-            case expr_kind::Box:
+            case expr_kind::Box: // box unboxed value; no-op in interpreter
                 return var(expr_box_obj(e));
-            case expr_kind::Unbox:
+            case expr_kind::Unbox: // unbox boxed value; no-op in interpreter
                 return var(expr_unbox_obj(e));
-            case expr_kind::Lit:
+            case expr_kind::Lit: // load numeric or string literal
                 switch (lit_val_tag(expr_lit_val(e))) {
                     case lit_val_kind::Num: {
                         nat const & n = lit_val_num(expr_lit_val(e));
@@ -312,9 +372,12 @@ class interpreter {
                             case type::Float: throw exception("floats are not supported yet");
                             case type::UInt8: return n.raw();
                             case type::UInt16: return n.raw();
+                            // the following types might *not* use the same boxed representation as `nat`, so unbox and
+                            // re-box
                             case type::UInt32: return box_uint32(n.get_small_value());
                             case type::UInt64: return box_uint64(n.get_small_value());
                             case type::USize: return box_size_t(n.get_small_value());
+                            // `nat` literal
                             case type::Object:
                             case type::TObject:
                                 return n.to_obj_arg();
@@ -339,34 +402,29 @@ class interpreter {
         std::reference_wrapper<fn_body const> b(b0);
         while (true) {
             DEBUG_CODE(lean_trace(name({"interpreter", "step"}),
-                    tout() << std::string(m_call_stack.size(), ' ') << format_fn_body_head(b) << "\n";);)
+                                  tout() << std::string(m_call_stack.size(), ' ') << format_fn_body_head(b) << "\n";);)
             switch (fn_body_tag(b)) {
-                case fn_body_kind::VDecl: {
+                case fn_body_kind::VDecl: { // variable declaration
                     expr const & e = fn_body_vdecl_expr(b);
                     fn_body const & cont = fn_body_vdecl_cont(b);
+                    // tail recursion?
                     if (expr_tag(e) == expr_kind::FAp && expr_fap_fun(e) == get_frame().m_fn &&
                         fn_body_tag(cont) == fn_body_kind::Ret && !arg_is_irrelevant(fn_body_ret_arg(cont)) &&
                         arg_var_id(fn_body_ret_arg(cont)) == fn_body_vdecl_var(b)) {
-                        // tail recursion
-                        fun_id const & fn = expr_fap_fun(e);
-                        decl d = get_decl(fn);
-                        if (!lookup_symbol(fn).m_addr) {
-                            if (decl_tag(d) == decl_kind::Extern) {
-                                throw exception(sstream() << "unexpected external declaration '" << fn << "'");
-                            }
-                            array_ref<arg> const & args = expr_fap_args(e);
-                            // copy bla bla
-                            size_t old_size = m_arg_stack.size();
-                            for (const auto & arg : args) {
-                                m_arg_stack.push_back(eval_arg(arg));
-                            }
-                            for (size_t i = 0; i < args.size(); i++) {
-                                m_arg_stack[get_frame().m_arg_bp + i] = m_arg_stack[old_size + i];
-                            }
-                            m_arg_stack.resize(get_frame().m_arg_bp + args.size());
-                            b = decl_fun_body(d);
-                            break;
+                        // tail recursion! copy argument values to parameter slots and reset `b`
+                        array_ref<arg> const & args = expr_fap_args(e);
+                        // argument and parameter slots may overlap, so first copy arguments to end of stack
+                        size_t old_size = m_arg_stack.size();
+                        for (const auto & arg : args) {
+                            m_arg_stack.push_back(eval_arg(arg));
                         }
+                        // now copy to parameter slots
+                        for (size_t i = 0; i < args.size(); i++) {
+                            m_arg_stack[get_frame().m_arg_bp + i] = m_arg_stack[old_size + i];
+                        }
+                        m_arg_stack.resize(get_frame().m_arg_bp + args.size());
+                        b = decl_fun_body(get_decl(expr_fap_fun(e)));
+                        break;
                     }
                     var(fn_body_vdecl_var(b)) = eval_expr(fn_body_vdecl_expr(b), fn_body_vdecl_type(b));
                     DEBUG_CODE(lean_trace(name({"interpreter", "step"}),
@@ -377,7 +435,7 @@ class interpreter {
                     b = fn_body_vdecl_cont(b);
                     break;
                 }
-                case fn_body_kind::JDecl: {
+                case fn_body_kind::JDecl: { // join-point declaration; store in stack slot just like variables
                     size_t i = get_frame().m_jp_bp + fn_body_jdecl_id(b).get_small_value();
                     if (i >= m_jp_stack.size()) {
                         m_jp_stack.resize(i + 1);
@@ -386,30 +444,30 @@ class interpreter {
                     b = fn_body_jdecl_cont(b);
                     break;
                 }
-                case fn_body_kind::Set: {
+                case fn_body_kind::Set: { // set boxed field of unique reference
                     object * o = var(fn_body_set_var(b));
                     lean_assert(is_exclusive(o));
                     cnstr_set(o, fn_body_set_idx(b).get_small_value(), eval_arg(fn_body_set_arg(b)));
                     b = fn_body_set_cont(b);
                     break;
                 }
-                case fn_body_kind::SetTag: {
+                case fn_body_kind::SetTag: { // set constructor tag of unique reference
                     object * o = var(fn_body_set_tag_var(b));
                     lean_assert(is_exclusive(o));
                     cnstr_set_tag(o, fn_body_set_tag_cidx(b).get_small_value());
                     b = fn_body_set_tag_cont(b);
                     break;
                 }
-                case fn_body_kind::USet: {
+                case fn_body_kind::USet: { // set USize field of unique reference
                     object * o = var(fn_body_uset_var(b));
                     lean_assert(is_exclusive(o));
                     cnstr_set_usize(o, fn_body_uset_idx(b).get_small_value(), unbox_size_t(eval_arg(fn_body_uset_arg(b))));
                     b = fn_body_uset_cont(b);
                     break;
                 }
-                case fn_body_kind::SSet: {
+                case fn_body_kind::SSet: { // set other unboxed field of unique reference
                     object * o = var(fn_body_sset_target(b));
-                    size_t offset = fn_body_sset_num_objs(b).get_small_value() * sizeof(void *) +
+                    size_t offset = fn_body_sset_idx(b).get_small_value() * sizeof(void *) +
                                     fn_body_sset_offset(b).get_small_value();
                     object * v = var(fn_body_sset_source(b));
                     lean_assert(is_exclusive(o));
@@ -424,11 +482,11 @@ class interpreter {
                     b = fn_body_sset_cont(b);
                     break;
                 }
-                case fn_body_kind::Inc:
+                case fn_body_kind::Inc: // increment reference counter
                     inc(var(fn_body_inc_var(b)), fn_body_inc_val(b).get_small_value());
                     b = fn_body_inc_cont(b);
                     break;
-                case fn_body_kind::Dec: {
+                case fn_body_kind::Dec: { // decrement reference counter
                     size_t n = fn_body_dec_val(b).get_small_value();
                     for (size_t i = 0; i < n; i++) {
                         dec(var(fn_body_dec_var(b)));
@@ -436,20 +494,20 @@ class interpreter {
                     b = fn_body_dec_cont(b);
                     break;
                 }
-                case fn_body_kind::Del:
+                case fn_body_kind::Del: // delete object of unique reference
                     lean_free_object(var(fn_body_del_var(b)));
                     b = fn_body_del_cont(b);
                     break;
-                case fn_body_kind::MData:
+                case fn_body_kind::MData: // metadata; no-op
                     b = fn_body_mdata_cont(b);
                     break;
-                case fn_body_kind::Case: {
+                case fn_body_kind::Case: { // branch according to constructor tag
                     object * o = var(fn_body_case_var(b));
                     size_t tag = is_scalar(o) ? unbox(o) : cnstr_tag(o);
                     for (alt_core const & a : fn_body_case_alts(b)) {
                         switch (alt_core_tag(a)) {
                             case alt_core_kind::Ctor:
-                                if (tag == ctor_info_idx(alt_core_ctor_info(a)).get_small_value()) {
+                                if (tag == ctor_info_tag(alt_core_ctor_info(a)).get_small_value()) {
                                     b = alt_core_ctor_cont(a);
                                     goto done;
                                 }
@@ -464,7 +522,7 @@ class interpreter {
                 }
                 case fn_body_kind::Ret:
                     return eval_arg(fn_body_ret_arg(b));
-                case fn_body_kind::Jmp: {
+                case fn_body_kind::Jmp: { // jump to join-point
                     fn_body const & jp = *m_jp_stack[get_frame().m_jp_bp + fn_body_jmp_jp(b).get_small_value()];
                     lean_assert(fn_body_jdecl_params(jp).size() == fn_body_jmp_args(b).size());
                     for (size_t i = 0; i < fn_body_jdecl_params(jp).size(); i++) {
@@ -479,6 +537,7 @@ class interpreter {
         }
     }
 
+    // specify argument base pointer explicitly because we've usually already pushed some function arguments
     void push_frame(name const & fn, size_t arg_bp) {
         DEBUG_CODE({
             lean_trace(name({"interpreter", "call"}),
@@ -505,6 +564,7 @@ class interpreter {
        });
     }
 
+    /** \brief Return cached lookup result for given unmangled function name in the current binary. */
     symbol_cache_entry lookup_symbol(name const & fn) {
         if (symbol_cache_entry const * e = m_symbol_cache.find(fn)) {
             return *e;
@@ -512,9 +572,11 @@ class interpreter {
             string_ref mangled = name_mangle(fn, *g_mangle_prefix);
             string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
             symbol_cache_entry e_new;
+            // check for boxed version first
             if (void *p_boxed = dlsym(RTLD_DEFAULT, boxed_mangled.data())) {
                 e_new = symbol_cache_entry { p_boxed, true };
             } else if (void *p = dlsym(RTLD_DEFAULT, mangled.data())) {
+                // if there is no boxed version, there are no unboxed parameters, so use default version
                 e_new = symbol_cache_entry { p, false };
             } else {
                 e_new = symbol_cache_entry { nullptr, false };
@@ -524,6 +586,7 @@ class interpreter {
         }
     }
 
+    /** \brief Retrieve Lean declaration from environment. */
     decl get_decl(name const & fn) {
         option_ref<decl> d = find_env_decl(m_env, fn);
         if (!d) {
@@ -532,6 +595,7 @@ class interpreter {
         return d.get().value();
     }
 
+    /** \brief Retrieve Lean definition from environment. */
     decl get_fdecl(name const & fn) {
         decl d = get_decl(fn);
         if (decl_tag(d) == decl_kind::Extern) {
@@ -540,9 +604,10 @@ class interpreter {
         return d;
     }
 
-    // evaluate 0-ary function
+    /** \brief Evaluate nullary function ("constant"). */
     object * load(name const & fn, type t) {
         if (void * p = lookup_symbol(fn).m_addr) {
+            // constants do not have boxed wrappers, but we'll survive
             switch (t) {
                 case type::Float: throw exception("floats are not supported yet");
                 case type::UInt8: return box(*static_cast<uint8 *>(p));
@@ -579,12 +644,17 @@ class interpreter {
         symbol_cache_entry e = lookup_symbol(fn);
         if (e.m_addr) {
             if (e.m_boxed) {
+                // NOTE: If we chose the boxed version where the IR chose the unboxed one, we need to manually increment
+                // originally borrowed parameters because the wrapper will decrement these after the call.
+                // Basically the wrapper is more homogeneous (removing both boxed and borrowed parameters) than we
+                // would need in this instance.
                 for (size_t i = 0; i < args.size(); i++) {
                     if (param_borrow(decl_params(d)[i])) {
                         inc(m_arg_stack[old_size + i]);
                     }
                 }
             }
+            // HACK: `curry` wants a closure object instead of just a function pointer
             object * cls = alloc_closure(e.m_addr, 2, 1);
             r = curry(cls, args.size(), &m_arg_stack[old_size]);
             free_heap_obj(cls);
@@ -603,7 +673,7 @@ public:
     uint32 run_main(int argc, char * argv[]) {
         decl d = get_fdecl("main");
         array_ref<param> const & params = decl_params(d);
-        if (params.size() == 2) {
+        if (params.size() == 2) { // List String -> IO UInt32
             lean_object * in = lean_box(0);
             int i = argc;
             while (i > 1) {
@@ -614,7 +684,7 @@ public:
                 in = n;
             }
             m_arg_stack.push_back(in);
-        } else {
+        } else { // IO UInt32
             lean_assert(params.size() == 1);
         }
         object * w = io_mk_world();
@@ -623,6 +693,8 @@ public:
         w = eval_body(decl_fun_body(d));
         pop_frame(w);
         if (io_result_is_ok(w)) {
+            // NOTE: in an awesome hack, `IO Unit` works just as well because `pure 0` and `pure ()` use the same
+            // representation
             int ret = unbox(io_result_get_value(w));
             dec_ref(w);
             return ret;
@@ -633,6 +705,7 @@ public:
         }
     }
 
+    // closure stub
     object * stub_m(object ** args) {
         decl d(args[1]);
         size_t old_size = m_arg_stack.size();
@@ -645,6 +718,7 @@ public:
         return r;
     }
 
+    // closure stub stub
     static object * stub_m_aux(object ** args) {
         interpreter * self = reinterpret_cast<interpreter *>(unbox(args[0]));
         return self->stub_m(args);

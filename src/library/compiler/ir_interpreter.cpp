@@ -174,6 +174,8 @@ class interpreter {
     std::vector<frame> m_call_stack;
     environment const & m_env;
     name_map<object *> m_constant_cache;
+    struct symbol_cache_entry { void * m_addr; bool m_boxed; };
+    name_map<symbol_cache_entry> m_symbol_cache;
 
     inline frame & get_frame() {
         return m_call_stack.back();
@@ -274,7 +276,7 @@ class interpreter {
                 decl d = get_fdecl(expr_pap_fun(e));
                 unsigned i = 0;
                 object * cls;
-                if (void * p = get_symbol_pointer(expr_pap_fun(e))) {
+                if (void * p = lookup_symbol(expr_pap_fun(e)).m_addr) {
                     cls = alloc_closure(p, decl_params(d).size(), expr_pap_args(e).size());
                 } else {
                     cls = alloc_closure(reinterpret_cast<void *>(stub_m_aux), 16 + decl_params(d).size(), 16 + expr_pap_args(e).size());
@@ -348,7 +350,7 @@ class interpreter {
                         // tail recursion
                         fun_id const & fn = expr_fap_fun(e);
                         decl d = get_decl(fn);
-                        if (!get_symbol_pointer(fn)) {
+                        if (!lookup_symbol(fn).m_addr) {
                             if (decl_tag(d) == decl_kind::Extern) {
                                 throw exception(sstream() << "unexpected external declaration '" << fn << "'");
                             }
@@ -503,23 +505,23 @@ class interpreter {
        });
     }
 
-    void * get_symbol_pointer(name const & fn, bool & boxed) {
-        string_ref mangled = name_mangle(fn, *g_mangle_prefix);
-        string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
-        if (void * p_boxed = dlsym(RTLD_DEFAULT, boxed_mangled.data())) {
-            boxed = true;
-            return p_boxed;
-        } else if (void * p = dlsym(RTLD_DEFAULT, mangled.data())) {
-            boxed = false;
-            return p;
+    symbol_cache_entry lookup_symbol(name const & fn) {
+        if (symbol_cache_entry const * e = m_symbol_cache.find(fn)) {
+            return *e;
         } else {
-            return nullptr;
+            string_ref mangled = name_mangle(fn, *g_mangle_prefix);
+            string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
+            symbol_cache_entry e_new;
+            if (void *p_boxed = dlsym(RTLD_DEFAULT, boxed_mangled.data())) {
+                e_new = symbol_cache_entry { p_boxed, true };
+            } else if (void *p = dlsym(RTLD_DEFAULT, mangled.data())) {
+                e_new = symbol_cache_entry { p, false };
+            } else {
+                e_new = symbol_cache_entry { nullptr, false };
+            }
+            m_symbol_cache.insert(fn, e_new);
+            return e_new;
         }
-    }
-
-    void * get_symbol_pointer(name const & fn) {
-        bool boxed;
-        return get_symbol_pointer(fn, boxed);
     }
 
     decl get_decl(name const & fn) {
@@ -540,7 +542,7 @@ class interpreter {
 
     // evaluate 0-ary function
     object * load(name const & fn, type t) {
-        if (void * p = get_symbol_pointer(fn)) {
+        if (void * p = lookup_symbol(fn).m_addr) {
             switch (t) {
                 case type::Float: throw exception("floats are not supported yet");
                 case type::UInt8: return box(*static_cast<uint8 *>(p));
@@ -574,14 +576,16 @@ class interpreter {
         decl d = get_decl(fn);
         push_frame(fn, old_size);
         object * r;
-        bool boxed;
-        if (void * p = get_symbol_pointer(fn, boxed)) {
-            for (size_t i = 0; i < args.size(); i++) {
-                if (param_borrow(decl_params(d)[i])) {
-                    inc(m_arg_stack[old_size + i]);
+        symbol_cache_entry e = lookup_symbol(fn);
+        if (e.m_addr) {
+            if (e.m_boxed) {
+                for (size_t i = 0; i < args.size(); i++) {
+                    if (param_borrow(decl_params(d)[i])) {
+                        inc(m_arg_stack[old_size + i]);
+                    }
                 }
             }
-            object * cls = alloc_closure(p, 2, 1);
+            object * cls = alloc_closure(e.m_addr, 2, 1);
             r = curry(cls, args.size(), &m_arg_stack[old_size]);
             free_heap_obj(cls);
         } else {

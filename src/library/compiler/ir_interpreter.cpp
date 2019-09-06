@@ -27,7 +27,11 @@ below.
 */
 #include <string>
 #include <vector>
+#ifdef LEAN_WINDOWS
+#include <windows.h>
+#else
 #include <dlfcn.h>
+#endif
 #include "runtime/flet.h"
 #include "runtime/apply.h"
 #include "library/trace.h"
@@ -188,6 +192,14 @@ void print_object(io_state_stream const & ios, object * o) {
         // merely following the trace of object addresses is surprisingly helpful for debugging
         ios.get_stream() << o;
     }
+}
+
+void * lookup_symbol_in_cur_exe(char const * sym) {
+#ifdef LEAN_WINDOWS
+    return reinterpret_cast<void *>(GetProcAddress(GetModuleHandle(nullptr), sym));
+#else
+    return dlsym(RTLD_DEFAULT, sym);
+#endif
 }
 
 class interpreter {
@@ -573,9 +585,9 @@ class interpreter {
             string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
             symbol_cache_entry e_new;
             // check for boxed version first
-            if (void *p_boxed = dlsym(RTLD_DEFAULT, boxed_mangled.data())) {
+            if (void *p_boxed = lookup_symbol_in_cur_exe(boxed_mangled.data())) {
                 e_new = symbol_cache_entry { p_boxed, true };
-            } else if (void *p = dlsym(RTLD_DEFAULT, mangled.data())) {
+            } else if (void *p = lookup_symbol_in_cur_exe(mangled.data())) {
                 // if there is no boxed version, there are no unboxed parameters, so use default version
                 e_new = symbol_cache_entry { p, false };
             } else {

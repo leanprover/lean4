@@ -92,7 +92,7 @@ registerSimplePersistentEnvExtension {
 constant declMapExt : SimplePersistentEnvExtension Decl DeclMap := default _
 
 @[export lean_ir_find_env_decl]
-def findEnvDecl (env : @& Environment) (n : @& Name) : Option Decl :=
+def findEnvDecl (env : Environment) (n : Name) : Option Decl :=
 (declMapExt.getState env).find n
 
 def findDecl (n : Name) : CompilerM (Option Decl) :=

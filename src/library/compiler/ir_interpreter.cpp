@@ -315,18 +315,8 @@ class interpreter {
                 if (expr_fap_args(e).size()) {
                     return call(expr_fap_fun(e), expr_fap_args(e));
                 } else {
-                    // nullary function ("constant"), cache
-                    object * const * cached = m_constant_cache.find(expr_fap_fun(e));
-                    if (cached) {
-                        return *cached;
-                    } else {
-                        object * r = load(expr_fap_fun(e), t);
-                        // the IR expects constants to be persistent
-                        // TODO(Sebastian): because of this, we currently leak these objects
-                        mark_persistent(r);
-                        m_constant_cache.insert(expr_fap_fun(e), r);
-                        return r;
-                    }
+                    // nullary function ("constant")
+                    return load(expr_fap_fun(e), t);
                 }
             }
             case expr_kind::PAp: { // unsatured (partial) application of top-level function
@@ -611,28 +601,39 @@ class interpreter {
 
     /** \brief Evaluate nullary function ("constant"). */
     object * load(name const & fn, type t) {
+        object * const * cached = m_constant_cache.find(fn);
+        if (cached) {
+            return *cached;
+        }
+
+        object * r;
         if (void * p = lookup_symbol(fn).m_addr) {
             // constants do not have boxed wrappers, but we'll survive
             switch (t) {
                 case type::Float: throw exception("floats are not supported yet");
-                case type::UInt8: return box(*static_cast<uint8 *>(p));
-                case type::UInt16: return box(*static_cast<uint16 *>(p));
-                case type::UInt32: return box_uint32(*static_cast<uint32 *>(p));
-                case type::UInt64: return box_uint64(*static_cast<uint64 *>(p));
-                case type::USize: return box_size_t(*static_cast<size_t *>(p));
+                case type::UInt8: r = box(*static_cast<uint8 *>(p)); break;
+                case type::UInt16: r = box(*static_cast<uint16 *>(p)); break;
+                case type::UInt32: r = box_uint32(*static_cast<uint32 *>(p)); break;
+                case type::UInt64: r = box_uint64(*static_cast<uint64 *>(p)); break;
+                case type::USize: r = box_size_t(*static_cast<size_t *>(p)); break;
                 case type::Object:
                 case type::TObject:
-                    return *static_cast<object **>(p);
+                    r = *static_cast<object **>(p);
+                    break;
                 default:
                     throw exception("invalid type");
             }
         } else {
             push_frame(fn, m_arg_stack.size());
             decl d = get_fdecl(fn);
-            object * r = eval_body(decl_fun_body(d));
+            r = eval_body(decl_fun_body(d));
             pop_frame(r);
-            return r;
         }
+        // the IR expects constants to be persistent
+        // TODO(Sebastian): because of this, we currently leak these objects
+        mark_persistent(r);
+        m_constant_cache.insert(fn, r);
+        return r;
     }
 
     object * call(name const & fn, array_ref<arg> const & args) {

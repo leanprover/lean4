@@ -47,13 +47,6 @@ namespace ir {
 typedef object_ref lit_val;
 typedef object_ref ctor_info;
 
-// TODO(Sebastian): move
-template<class T>
-inline T const & cnstr_get_ref_t(object_ref const & o, unsigned i) {
-    static_assert(sizeof(T) == sizeof(object_ref), "unexpected object wrapper size");
-    return *reinterpret_cast<T const *>(&cnstr_get_ref(o.raw(), i));
-}
-
 bool arg_is_irrelevant(arg const & a) { return is_scalar(a.raw()); }
 var_id const & arg_var_id(arg const & a) { lean_assert(!arg_is_irrelevant(a)); return cnstr_get_ref_t<var_id>(a, 0); }
 

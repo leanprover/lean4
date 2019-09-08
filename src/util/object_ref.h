@@ -137,6 +137,13 @@ inline object_ref const & cnstr_get_ref(object_ref const & ref, unsigned i) {
     return cnstr_get_ref(ref.raw(), i);
 }
 
+template<class T>
+inline T const & cnstr_get_ref_t(object_ref const & o, unsigned i) {
+    static_assert(sizeof(T) == sizeof(object_ref), "unexpected object wrapper size");
+    return static_cast<T const &>(cnstr_get_ref(o.raw(), i));
+}
+
+
 /* Given `T` which is a subclass of object_ref that wraps a Lean value of type `Ty`,
    convert a value `o` of `Option Ty` into `optional<T>` */
 template<typename T> optional<T> to_optional(obj_arg o) {

@@ -17,7 +17,6 @@ import init.lean.compiler.ir.borrow
 import init.lean.compiler.ir.boxing
 import init.lean.compiler.ir.rc
 import init.lean.compiler.ir.expandresetreuse
-import init.lean.compiler.ir.emitcpp
 import init.lean.compiler.ir.emitc
 
 namespace Lean

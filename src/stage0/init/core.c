@@ -528,6 +528,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_thunk_get_own(x_2);
+lean_dec(x_2);
 return x_3;
 }
 }
@@ -568,6 +569,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_task_get(x_2);
+lean_dec(x_2);
 return x_3;
 }
 }
@@ -714,6 +716,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_nat_add(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -1704,7 +1708,9 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
+lean_dec(x_1);
 x_4 = lean_unbox(x_2);
+lean_dec(x_2);
 x_5 = x_3 || x_4;
 x_6 = lean_box(x_5);
 return x_6;
@@ -1715,7 +1721,9 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
+lean_dec(x_1);
 x_4 = lean_unbox(x_2);
+lean_dec(x_2);
 x_5 = x_3 && x_4;
 x_6 = lean_box(x_5);
 return x_6;

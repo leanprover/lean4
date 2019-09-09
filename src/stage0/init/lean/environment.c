@@ -4090,6 +4090,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_add_decl(x_1, x_2);
+lean_dec(x_2);
 return x_3;
 }
 }
@@ -4098,6 +4099,8 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_compile_decl(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
 return x_4;
 }
 }
@@ -12613,6 +12616,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_save_module_data(x_1, x_2, x_3);
+lean_dec(x_1);
 return x_4;
 }
 }
@@ -12621,6 +12625,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_read_module_data(x_1, x_2);
+lean_dec(x_1);
 return x_3;
 }
 }

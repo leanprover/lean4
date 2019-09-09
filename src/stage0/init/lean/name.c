@@ -205,6 +205,7 @@ _start:
 {
 size_t x_2; lean_object* x_3; 
 x_2 = lean_name_hash_usize(x_1);
+lean_dec(x_1);
 x_3 = lean_box_usize(x_2);
 return x_3;
 }
@@ -394,6 +395,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_name_dec_eq(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }

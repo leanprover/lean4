@@ -181,6 +181,7 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
+lean_dec(x_2);
 x_6 = lean_expr_mk_lambda(x_1, x_5, x_3, x_4);
 return x_6;
 }
@@ -190,6 +191,7 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
+lean_dec(x_2);
 x_6 = lean_expr_mk_pi(x_1, x_5, x_3, x_4);
 return x_6;
 }
@@ -231,6 +233,7 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_4);
+lean_dec(x_4);
 x_6 = lean_expr_local(x_1, x_2, x_3, x_5);
 return x_6;
 }
@@ -280,6 +283,7 @@ _start:
 {
 size_t x_2; lean_object* x_3; 
 x_2 = lean_expr_hash(x_1);
+lean_dec(x_1);
 x_3 = lean_box_usize(x_2);
 return x_3;
 }
@@ -305,6 +309,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_expr_dbg_to_string(x_1);
+lean_dec(x_1);
 return x_2;
 }
 }
@@ -313,6 +318,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_expr_quick_lt(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -322,6 +329,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_expr_lt(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -331,6 +340,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_expr_eqv(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }

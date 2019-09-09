@@ -29,7 +29,9 @@ _start:
 {
 size_t x_3; size_t x_4; size_t x_5; lean_object* x_6; 
 x_3 = lean_unbox_usize(x_1);
+lean_dec(x_1);
 x_4 = lean_unbox_usize(x_2);
+lean_dec(x_2);
 x_5 = lean_usize_mix_hash(x_3, x_4);
 x_6 = lean_box_usize(x_5);
 return x_6;

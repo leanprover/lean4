@@ -397,6 +397,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = lean_io_timeit(x_1, x_2, x_3, x_4);
+lean_dec(x_2);
 return x_5;
 }
 }
@@ -405,6 +406,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = lean_io_allocprof(x_1, x_2, x_3, x_4);
+lean_dec(x_2);
 return x_5;
 }
 }
@@ -658,6 +660,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_io_prim_put_str(x_1, x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -666,6 +669,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_io_prim_read_text_file(x_1, x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -682,8 +686,11 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
+lean_dec(x_2);
 x_6 = lean_unbox(x_3);
+lean_dec(x_3);
 x_7 = lean_io_prim_handle_mk(x_1, x_5, x_6, x_4);
+lean_dec(x_1);
 return x_7;
 }
 }
@@ -692,6 +699,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_io_prim_handle_is_eof(x_1, x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -700,6 +708,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_io_prim_handle_flush(x_1, x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -708,6 +717,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_io_prim_handle_close(x_1, x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -716,6 +726,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_io_prim_handle_get_line(x_1, x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -724,6 +735,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_io_getenv(x_1, x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -740,6 +752,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_io_is_dir(x_1, x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -748,6 +761,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_io_file_exists(x_1, x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -1645,6 +1659,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_io_ref_get(x_2, x_3);
+lean_dec(x_2);
 return x_4;
 }
 }
@@ -1653,6 +1668,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = lean_io_ref_set(x_2, x_3, x_4);
+lean_dec(x_2);
 return x_5;
 }
 }
@@ -1661,6 +1677,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = lean_io_ref_swap(x_2, x_3, x_4);
+lean_dec(x_2);
 return x_5;
 }
 }
@@ -1669,6 +1686,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_io_ref_reset(x_2, x_3);
+lean_dec(x_2);
 return x_4;
 }
 }

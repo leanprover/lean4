@@ -24,6 +24,8 @@ _start:
 {
 lean_object* x_6; 
 x_6 = lean_lean_profileit(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_3);
+lean_dec(x_2);
 return x_6;
 }
 }

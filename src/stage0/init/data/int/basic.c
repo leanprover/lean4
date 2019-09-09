@@ -207,6 +207,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_int_neg(x_1);
+lean_dec(x_1);
 return x_2;
 }
 }
@@ -251,6 +252,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_int_add(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -259,6 +262,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_int_mul(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -315,6 +320,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_int_sub(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -355,6 +362,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_int_dec_eq(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -380,6 +389,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_int_dec_nonneg(x_1);
+lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -389,6 +399,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_int_dec_le(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -398,6 +410,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_int_dec_lt(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -407,6 +421,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_nat_abs(x_1);
+lean_dec(x_1);
 return x_2;
 }
 }
@@ -486,6 +501,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_int_div(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -494,6 +511,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_int_mod(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }

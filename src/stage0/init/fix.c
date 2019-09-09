@@ -167,6 +167,7 @@ _start:
 {
 lean_object* x_6; 
 x_6 = lean_fixpoint(x_4, x_5);
+lean_dec(x_3);
 return x_6;
 }
 }

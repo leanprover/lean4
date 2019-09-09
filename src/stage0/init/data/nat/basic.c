@@ -92,6 +92,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_nat_dec_eq(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -150,6 +152,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_nat_sub(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -158,6 +162,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_nat_mul(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -589,6 +595,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_nat_dec_le(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -598,6 +606,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_nat_dec_lt(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }

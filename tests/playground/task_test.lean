@@ -13,8 +13,8 @@ dbgTrace ("f2: " ++ toString x) $ fun  _ =>
   g x
 
 def main (xs : List String) : IO UInt32 :=
-let t1 := Task.mk $ (fun _ => f1 xs.head.toNat) in
-let t2 := Task.mk $ (fun _ => f2 xs.head.toNat) in
+let t1 := Task.mk $ (fun _ => f1 xs.head.toNat);
+let t2 := Task.mk $ (fun _ => f2 xs.head.toNat);
 dbgSleep 1000 $ fun _ =>
 IO.println (toString t1.get ++ " " ++ toString t2.get) *>
 pure 0

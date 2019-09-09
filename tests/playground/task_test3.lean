@@ -5,8 +5,8 @@ n.repeat (fun r =>
 0
 
 def main (xs : List String) : IO UInt32 :=
-let ys := (List.replicate xs.head.toNat 1) in
-let ts : List (Task Nat) := (List.iota 10).map (fun i => Task.mk $ fun _ => run1 (i+1) xs.head.toNat ys) in
-let ns : List Nat := ts.map Task.get in
+let ys := (List.replicate xs.head.toNat 1);
+let ts : List (Task Nat) := (List.iota 10).map (fun i => Task.mk $ fun _ => run1 (i+1) xs.head.toNat ys);
+let ns : List Nat := ts.map Task.get;
 IO.println (">> " ++ toString ns) *>
 pure 0

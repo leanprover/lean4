@@ -212,7 +212,7 @@ class interpreter {
     std::vector<frame> m_call_stack;
     environment const & m_env;
     // caches values of nullary functions ("constants")
-    name_map<object *> m_constant_cache;
+    name_map<object_ref> m_constant_cache;
     struct symbol_cache_entry {
         // symbol address; `nullptr` if function does not have native code
         void * m_addr;
@@ -602,9 +602,9 @@ class interpreter {
 
     /** \brief Evaluate nullary function ("constant"). */
     object * load(name const & fn, type t) {
-        object * const * cached = m_constant_cache.find(fn);
+        object_ref const * cached = m_constant_cache.find(fn);
         if (cached) {
-            return *cached;
+            return cached->to_obj_arg();
         }
 
         object * r;
@@ -630,10 +630,7 @@ class interpreter {
             r = eval_body(decl_fun_body(d));
             pop_frame(r);
         }
-        // the IR expects constants to be persistent
-        // TODO(Sebastian): because of this, we currently leak these objects
-        mark_persistent(r);
-        m_constant_cache.insert(fn, r);
+        m_constant_cache.insert(fn, object_ref(r, true));
         return r;
     }
 

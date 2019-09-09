@@ -56,12 +56,23 @@ match (compileAux decls opts).run { env := env } with
 | EState.Result.ok     _  s => (s.log, Except.ok s.env)
 | EState.Result.error msg s => (s.log, Except.error msg)
 
+def addBoxedVersionAux (decl : Decl) : CompilerM Unit :=
+do
+env ← getEnv;
+if !ExplicitBoxing.requiresBoxedVersion env decl then pure ()
+else do
+  let decl := ExplicitBoxing.mkBoxedVersion decl;
+  let decls : Array Decl := Array.singleton decl;
+  decls ← explicitRC decls;
+  decls.mfor $ fun decl => modifyEnv $ fun env => addDeclAux env decl;
+  pure ()
+
+-- Remark: we are ignoring the `Log` here. This should be fine.
 @[export lean_ir_add_boxed_version]
 def addBoxedVersion (env : Environment) (decl : Decl) : Except String Environment :=
-if ExplicitBoxing.requiresBoxedVersion env decl then
-  Except.ok (addDeclAux env (ExplicitBoxing.mkBoxedVersion decl))
-else
-  Except.ok env
+match (addBoxedVersionAux decl Options.empty).run { env := env } with
+| EState.Result.ok     _  s => Except.ok s.env
+| EState.Result.error msg s => Except.error msg
 
 end IR
 end Lean

@@ -682,7 +682,7 @@ public:
         if (params.size() == 2) { // List String -> IO UInt32
             lean_object * in = lean_box(0);
             int i = argc;
-            while (i > 1) {
+            while (i > 0) {
                 i--;
                 lean_object * n = lean_alloc_ctor(1, 2, 0);
                 lean_ctor_set(n, 0, lean_mk_string(argv[i]));

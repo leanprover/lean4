@@ -226,10 +226,12 @@ inductive FnBody
 /- Store `y : ty` at Position `sizeof(void*)*i + offset` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
    `ty` must not be `object`, `tobject`, `irrelevant` nor `Usize`. -/
 | sset (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody)
-/- RC increment for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not. -/
-| inc (x : VarId) (n : Nat) (c : Bool) (b : FnBody)
-/- RC decrement for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not. -/
-| dec (x : VarId) (n : Nat) (c : Bool) (b : FnBody)
+/- RC increment for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not.
+   If `persistent == true` then `x` is statically known to be a persistent object. -/
+| inc (x : VarId) (n : Nat) (c : Bool) (persistent : Bool) (b : FnBody)
+/- RC decrement for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not.
+   If `persistent == true` then `x` is statically known to be a persistent object. -/
+| dec (x : VarId) (n : Nat) (c : Bool) (persistent : Bool) (b : FnBody)
 | del (x : VarId) (b : FnBody)
 | mdata (d : MData) (b : FnBody)
 | case (tid : Name) (x : VarId) (cs : Array (AltCore FnBody))
@@ -272,8 +274,8 @@ def FnBody.body : FnBody → FnBody
 | FnBody.uset _ _ _ b     => b
 | FnBody.sset _ _ _ _ _ b => b
 | FnBody.setTag _ _ b     => b
-| FnBody.inc _ _ _ b      => b
-| FnBody.dec _ _ _ b      => b
+| FnBody.inc _ _ _ _ b    => b
+| FnBody.dec _ _ _ _ b    => b
 | FnBody.del _ b          => b
 | FnBody.mdata _ b        => b
 | other                   => other
@@ -285,8 +287,8 @@ def FnBody.setBody : FnBody → FnBody → FnBody
 | FnBody.uset x i y _,     b => FnBody.uset x i y b
 | FnBody.sset x i o y t _, b => FnBody.sset x i o y t b
 | FnBody.setTag x i _,     b => FnBody.setTag x i b
-| FnBody.inc x n c _,      b => FnBody.inc x n c b
-| FnBody.dec x n c _,      b => FnBody.dec x n c b
+| FnBody.inc x n c p _,    b => FnBody.inc x n c p b
+| FnBody.dec x n c p _,    b => FnBody.dec x n c p b
 | FnBody.del x _,          b => FnBody.del x b
 | FnBody.mdata d _,        b => FnBody.mdata d b
 | other,                   b => other
@@ -514,8 +516,8 @@ partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
 | ρ, FnBody.sset x₁ i₁ o₁ y₁ t₁ b₁, FnBody.sset x₂ i₂ o₂ y₂ t₂ b₂ =>
   aeqv ρ x₁ x₂ && i₁ = i₂ && o₁ = o₂ && aeqv ρ y₁ y₂ && t₁ == t₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ, FnBody.setTag x₁ i₁ b₁,        FnBody.setTag x₂ i₂ b₂        => aeqv ρ x₁ x₂ && i₁ == i₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ, FnBody.inc x₁ n₁ c₁ b₁,        FnBody.inc x₂ n₂ c₂ b₂        => aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ, FnBody.dec x₁ n₁ c₁ b₁,        FnBody.dec x₂ n₂ c₂ b₂        => aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ, FnBody.inc x₁ n₁ c₁ p₁ b₁,     FnBody.inc x₂ n₂ c₂ p₂ b₂     => aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && p₁ == p₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ, FnBody.dec x₁ n₁ c₁ p₁ b₁,     FnBody.dec x₂ n₂ c₂ p₂ b₂     => aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && p₁ == p₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ, FnBody.del x₁ b₁,              FnBody.del x₂ b₂              => aeqv ρ x₁ x₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ, FnBody.mdata m₁ b₁,            FnBody.mdata m₂ b₂            => m₁ == m₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ, FnBody.case n₁ x₁ alts₁,       FnBody.case n₂ x₂ alts₂       => n₁ == n₂ && aeqv ρ x₁ x₂ && Array.isEqv alts₁ alts₂ (fun alt₁ alt₂ =>

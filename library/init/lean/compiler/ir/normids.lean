@@ -106,8 +106,8 @@ partial def normFnBody : FnBody → N FnBody
 | FnBody.uset x i y b     => do x ← normVar x; y ← normVar y; FnBody.uset x i y <$> normFnBody b
 | FnBody.sset x i o y t b => do x ← normVar x; y ← normVar y; FnBody.sset x i o y t <$> normFnBody b
 | FnBody.setTag x i b     => do x ← normVar x; FnBody.setTag x i <$> normFnBody b
-| FnBody.inc x n c b      => do x ← normVar x; FnBody.inc x n c <$> normFnBody b
-| FnBody.dec x n c b      => do x ← normVar x; FnBody.dec x n c <$> normFnBody b
+| FnBody.inc x n c p b    => do x ← normVar x; FnBody.inc x n c p <$> normFnBody b
+| FnBody.dec x n c p b    => do x ← normVar x; FnBody.dec x n c p <$> normFnBody b
 | FnBody.del x b          => do x ← normVar x; FnBody.del x <$> normFnBody b
 | FnBody.mdata d b        => FnBody.mdata d <$> normFnBody b
 | FnBody.case tid x alts  => do
@@ -162,8 +162,8 @@ as.map (mapArg f)
 | FnBody.setTag x i b     => FnBody.setTag (f x) i (mapFnBody b)
 | FnBody.uset x i y b     => FnBody.uset (f x) i (f y) (mapFnBody b)
 | FnBody.sset x i o y t b => FnBody.sset (f x) i o (f y) t (mapFnBody b)
-| FnBody.inc x n c b      => FnBody.inc (f x) n c (mapFnBody b)
-| FnBody.dec x n c b      => FnBody.dec (f x) n c (mapFnBody b)
+| FnBody.inc x n c p b    => FnBody.inc (f x) n c p (mapFnBody b)
+| FnBody.dec x n c p b    => FnBody.dec (f x) n c p (mapFnBody b)
 | FnBody.del x b          => FnBody.del (f x) (mapFnBody b)
 | FnBody.mdata d b        => FnBody.mdata d (mapFnBody b)
 | FnBody.case tid x alts  => FnBody.case tid (f x) (alts.map (fun alt => alt.modifyBody mapFnBody))

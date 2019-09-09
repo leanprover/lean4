@@ -53,8 +53,8 @@ partial def visitFnBody (w : Index) : FnBody → M Bool
 | FnBody.uset x _ y b     => visitVar w x <||> visitVar w y <||> visitFnBody b
 | FnBody.sset x _ _ y _ b => visitVar w x <||> visitVar w y <||> visitFnBody b
 | FnBody.setTag x _ b     => visitVar w x <||> visitFnBody b
-| FnBody.inc x _ _ b      => visitVar w x <||> visitFnBody b
-| FnBody.dec x _ _ b      => visitVar w x <||> visitFnBody b
+| FnBody.inc x _ _ _ b    => visitVar w x <||> visitFnBody b
+| FnBody.dec x _ _ _ b    => visitVar w x <||> visitFnBody b
 | FnBody.del x b          => visitVar w x <||> visitFnBody b
 | FnBody.mdata _ b        => visitFnBody b
 | FnBody.jmp j ys         => visitArgs w ys <||> do {
@@ -141,8 +141,8 @@ partial def collectFnBody : FnBody → JPLiveVarMap → Collector
 | FnBody.setTag x _ b,     m => collectVar x ∘ collectFnBody b m
 | FnBody.uset x _ y b,     m => collectVar x ∘ collectVar y ∘ collectFnBody b m
 | FnBody.sset x _ _ y _ b, m => collectVar x ∘ collectVar y ∘ collectFnBody b m
-| FnBody.inc x _ _ b,      m => collectVar x ∘ collectFnBody b m
-| FnBody.dec x _ _ b,      m => collectVar x ∘ collectFnBody b m
+| FnBody.inc x _ _ _ b,    m => collectVar x ∘ collectFnBody b m
+| FnBody.dec x _ _ _ b,    m => collectVar x ∘ collectFnBody b m
 | FnBody.del x b,          m => collectVar x ∘ collectFnBody b m
 | FnBody.mdata _ b,        m => collectFnBody b m
 | FnBody.ret x,            m => collectArg x

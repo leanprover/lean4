@@ -48,7 +48,7 @@ partial def consumed (x : VarId) : FnBody → Bool
   match v with
   | Expr.reuse y _ _ _ => x == y || consumed b
   | _                  => consumed b
-| FnBody.dec y _ _ b     => x == y || consumed b
+| FnBody.dec y _ _ _ b   => x == y || consumed b
 | FnBody.case _ _ alts   => alts.all $ fun alt => consumed alt.body
 | e => !e.isTerminal && consumed e.body
 
@@ -65,7 +65,7 @@ partial def eraseProjIncForAux (y : VarId) : Array FnBody → Mask → Array FnB
     match b with
     | (FnBody.vdecl _ _ (Expr.sproj _ _ _) _) => keepInstr b
     | (FnBody.vdecl _ _ (Expr.uproj _ _) _)   => keepInstr b
-    | (FnBody.inc z n c _) =>
+    | (FnBody.inc z n c p _) =>
       if n == 0 then done () else
       let b' := bs.get (bs.size - 2);
       match b' with
@@ -81,7 +81,7 @@ partial def eraseProjIncForAux (y : VarId) : Array FnBody → Mask → Array FnB
           let bs   := bs.pop.pop;
           let mask := mask.set i (some z);
           let keep := keep.push b';
-          let keep := if n == 1 then keep else keep.push (FnBody.inc z (n-1) c FnBody.nil);
+          let keep := if n == 1 then keep else keep.push (FnBody.inc z (n-1) c p FnBody.nil);
           eraseProjIncForAux bs mask keep
         else done ()
       | other => done ()
@@ -94,9 +94,9 @@ eraseProjIncForAux y bs (mkArray n none) Array.empty
 
 /- Replace `reuse x ctor ...` with `ctor ...`, and remoce `dec x` -/
 partial def reuseToCtor (x : VarId) : FnBody → FnBody
-| FnBody.dec y n c b   =>
+| FnBody.dec y n c p b   =>
   if x == y then b -- n must be 1 since `x := reset ...`
-  else FnBody.dec y n c (reuseToCtor b)
+  else FnBody.dec y n c p (reuseToCtor b)
 | FnBody.vdecl z t v b   =>
   match v with
   | Expr.reuse y c u xs =>
@@ -128,10 +128,10 @@ and `b'` is `b` where we removed `dec x` and replaced `reuse x ctor_i ...` with 
 -/
 def mkSlowPath (x y : VarId) (mask : Mask) (b : FnBody) : FnBody :=
 let b := reuseToCtor x b;
-let b := FnBody.dec y 1 true b;
+let b := FnBody.dec y 1 true false b;
 mask.foldl
   (fun b m => match m with
-    | some z => FnBody.inc z 1 true b
+    | some z => FnBody.inc z 1 true false b
     | none   => b)
   b
 
@@ -146,7 +146,7 @@ mask.size.mfold
     | some _ => pure b -- code took ownership of this field
     | none   => do
       fld ← mkFresh;
-      pure (FnBody.vdecl fld IRType.object (Expr.proj i y) (FnBody.dec fld 1 true b)))
+      pure (FnBody.vdecl fld IRType.object (Expr.proj i y) (FnBody.dec fld 1 true false b)))
   b
 
 def setFields (y : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
@@ -197,9 +197,9 @@ partial def removeSelfSet (ctx : Context) : FnBody → FnBody
     instr.setBody b
 
 partial def reuseToSet (ctx : Context) (x y : VarId) : FnBody → FnBody
-| FnBody.dec z n c b   =>
+| FnBody.dec z n c p b   =>
   if x == z then FnBody.del y b
-  else FnBody.dec z n c (reuseToSet b)
+  else FnBody.dec z n c p (reuseToSet b)
 | FnBody.vdecl z t v b   =>
   match v with
   | Expr.reuse w c u zs =>

@@ -52,13 +52,15 @@ match ctx.jpLiveVarMap.find j with
 
 def mustConsume (ctx : Context) (x : VarId) : Bool :=
 let info := getVarInfo ctx x;
-info.ref && !info.persistent && info.consume
+info.ref && info.consume
 
-@[inline] def addInc (x : VarId) (b : FnBody) (n := 1) : FnBody :=
-if n == 0 then b else FnBody.inc x n true b
+@[inline] def addInc (ctx : Context) (x : VarId) (b : FnBody) (n := 1) : FnBody :=
+let info := getVarInfo ctx x;
+if n == 0 then b else FnBody.inc x n true info.persistent b
 
-@[inline] def addDec (x : VarId) (b : FnBody) : FnBody :=
-FnBody.dec x 1 true b
+@[inline] def addDec (ctx : Context) (x : VarId) (b : FnBody) : FnBody :=
+let info := getVarInfo ctx x;
+FnBody.dec x 1 true info.persistent b
 
 private def updateRefUsingCtorInfo (ctx : Context) (x : VarId) (c : CtorInfo) : Context :=
 if c.isRef then ctx
@@ -70,7 +72,7 @@ else let m := ctx.varMap;
 
 private def addDecForAlt (ctx : Context) (caseLiveVars altLiveVars : LiveVarSet) (b : FnBody) : FnBody :=
 caseLiveVars.fold
-  (fun b x => if !altLiveVars.contains x && mustConsume ctx x then addDec x b else b)
+  (fun b x => if !altLiveVars.contains x && mustConsume ctx x then addDec ctx x b else b)
   b
 
 /- `isFirstOcc xs x i = true` if `xs[i]` is the first occurrence of `xs[i]` in `xs` -/
@@ -115,7 +117,7 @@ xs.size.fold
     | Arg.irrelevant => b
     | Arg.var x =>
       let info := getVarInfo ctx x;
-      if !info.ref || info.persistent || !isFirstOcc xs i then b
+      if !info.ref || !isFirstOcc xs i then b
       else
         let numConsuptions := getNumConsumptions x xs consumeParamPred; -- number of times the argument is
         let numIncs :=
@@ -127,7 +129,7 @@ xs.size.fold
         -- dbgTrace ("addInc " ++ toString x ++ " nconsumptions: " ++ toString numConsuptions ++ " incs: " ++ toString numIncs
         --         ++ " consume: " ++ toString info.consume ++ " live: " ++ toString (liveVarsAfter.contains x)
         --         ++ " borrowParam : " ++ toString (isBorrowParamAux x xs consumeParamPred)) $ fun _ =>
-        addInc x b numIncs)
+        addInc ctx x b numIncs)
   b
 
 private def addIncBefore (ctx : Context) (xs : Array Arg) (ps : Array Param) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
@@ -145,7 +147,7 @@ xs.size.fold
          Remark: `x` may occur multiple times in the application (e.g., `f x y x`).
          This is why we check whether it is the first occurrence. -/
       if mustConsume ctx x && isFirstOcc xs i && isBorrowParam x xs ps && !bLiveVars.contains x then
-        addDec x b
+        addDec ctx x b
       else b)
   b
 
@@ -154,9 +156,9 @@ addIncBeforeAux ctx xs (fun i => true) b liveVarsAfter
 
 /- Add `dec` instructions for parameters that are references, are not alive in `b`, and are not borrow.
    That is, we must make sure these parameters are consumed. -/
-private def addDecForDeadParams (ps : Array Param) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody :=
+private def addDecForDeadParams (ctx : Context) (ps : Array Param) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody :=
 ps.foldl
-  (fun b p => if !p.borrow && p.ty.isObj && !bLiveVars.contains p.x then addDec p.x b else b)
+  (fun b p => if !p.borrow && p.ty.isObj && !bLiveVars.contains p.x then addDec ctx p.x b else b)
   b
 
 private def isPersistent : Expr → Bool
@@ -186,7 +188,7 @@ private def updateVarInfo (ctx : Context) (x : VarId) (t : IRType) (v : Expr) : 
   .. ctx }
 
 private def addDecIfNeeded (ctx : Context) (x : VarId) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody :=
-if mustConsume ctx x && !bLiveVars.contains x then addDec x b else b
+if mustConsume ctx x && !bLiveVars.contains x then addDec ctx x b else b
 
 private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody × LiveVarSet :=
 -- dbgTrace ("processVDecl " ++ toString z ++ " " ++ toString (format v)) $ fun _ =>
@@ -195,7 +197,7 @@ let b := match v with
   | (Expr.reuse _ _ _ ys)  => addIncBeforeConsumeAll ctx ys (FnBody.vdecl z t v b) bLiveVars
   | (Expr.proj _ x)        =>
     let b := addDecIfNeeded ctx x b bLiveVars;
-    let b := if (getVarInfo ctx x).consume then addInc z b else b;
+    let b := if (getVarInfo ctx x).consume then addInc ctx z b else b;
     (FnBody.vdecl z t v b)
   | (Expr.uproj _ x)       => FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
   | (Expr.sproj _ _ x)     => FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
@@ -226,7 +228,7 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
   processVDecl ctx x t v b bLiveVars
 | FnBody.jdecl j xs v b,     ctx =>
   let (v, vLiveVars) := visitFnBody v (updateVarInfoWithParams ctx xs);
-  let v   := addDecForDeadParams xs v vLiveVars;
+  let v   := addDecForDeadParams ctx xs v vLiveVars;
   let ctx := { jpLiveVarMap := updateJPLiveVarMap j xs v ctx.jpLiveVarMap, .. ctx };
   let (b, bLiveVars) := visitFnBody b ctx;
   (FnBody.jdecl j xs v b, bLiveVars)
@@ -260,7 +262,7 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
   match x with
   | Arg.var x =>
     let info := getVarInfo ctx x;
-    if info.ref && !info.persistent && !info.consume then (addInc x b, mkLiveVarSet x) else (b, mkLiveVarSet x)
+    if info.ref && !info.consume then (addInc ctx x b, mkLiveVarSet x) else (b, mkLiveVarSet x)
   | _         => (b, {})
 | b@(FnBody.jmp j xs), ctx =>
   let jLiveVars := getJPLiveVars ctx j;
@@ -276,7 +278,7 @@ partial def visitDecl (env : Environment) (decls : Array Decl) : Decl → Decl
   let ctx : Context  := { env := env, decls := decls };
   let ctx := updateVarInfoWithParams ctx xs;
   let (b, bLiveVars) := visitFnBody b ctx;
-  let b := addDecForDeadParams xs b bLiveVars;
+  let b := addDecForDeadParams ctx xs b bLiveVars;
   Decl.fdecl f xs t b
 | other => other
 

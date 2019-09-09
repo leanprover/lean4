@@ -64,8 +64,8 @@ partial def collectFnBody : FnBody → Collector
 | FnBody.uset x _ y b     => collectVar x >> collectVar y >> collectFnBody b
 | FnBody.sset x _ _ y _ b => collectVar x >> collectVar y >> collectFnBody b
 | FnBody.setTag x _ b     => collectVar x >> collectFnBody b
-| FnBody.inc x _ _ b      => collectVar x >> collectFnBody b
-| FnBody.dec x _ _ b      => collectVar x >> collectFnBody b
+| FnBody.inc x _ _ _ b    => collectVar x >> collectFnBody b
+| FnBody.dec x _ _ _ b    => collectVar x >> collectFnBody b
 | FnBody.del x b          => collectVar x >> collectFnBody b
 | FnBody.mdata _ b        => collectFnBody b
 | FnBody.case _ x alts    => collectVar x >> collectAlts collectFnBody alts
@@ -159,8 +159,8 @@ partial def collectFnBody : FnBody → Collector
 | FnBody.uset x _ y b     => collectVar x >> collectVar y >> collectFnBody b
 | FnBody.sset x _ _ y _ b => collectVar x >> collectVar y >> collectFnBody b
 | FnBody.setTag x _ b     => collectVar x >> collectFnBody b
-| FnBody.inc x _ _ b      => collectVar x >> collectFnBody b
-| FnBody.dec x _ _ b      => collectVar x >> collectFnBody b
+| FnBody.inc x _ _ _ b    => collectVar x >> collectFnBody b
+| FnBody.dec x _ _ _ b    => collectVar x >> collectFnBody b
 | FnBody.del x b          => collectVar x >> collectFnBody b
 | FnBody.mdata _ b        => collectFnBody b
 | FnBody.case _ x alts    => collectVar x >> collectAlts collectFnBody alts
@@ -217,8 +217,8 @@ partial def visitFnBody (w : Index) : FnBody → Bool
 | FnBody.uset x _ y b     => visitVar w x || visitVar w y || visitFnBody b
 | FnBody.sset x _ _ y _ b => visitVar w x || visitVar w y || visitFnBody b
 | FnBody.setTag x _ b     => visitVar w x || visitFnBody b
-| FnBody.inc x _ _ b      => visitVar w x || visitFnBody b
-| FnBody.dec x _ _ b      => visitVar w x || visitFnBody b
+| FnBody.inc x _ _ _ b    => visitVar w x || visitFnBody b
+| FnBody.dec x _ _ _ b    => visitVar w x || visitFnBody b
 | FnBody.del x b          => visitVar w x || visitFnBody b
 | FnBody.mdata _ b        => visitFnBody b
 | FnBody.jmp j ys         => visitJP w j || visitArgs w ys

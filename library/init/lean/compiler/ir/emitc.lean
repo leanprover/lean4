@@ -591,8 +591,8 @@ partial def emitBlock (emitBody : FnBody → M Unit) : FnBody → M Unit
 | FnBody.jdecl j xs v b    => emitBlock b
 | d@(FnBody.vdecl x t v b) =>
   do ctx ← read; if isTailCallTo ctx.mainFn d then emitTailCall v else emitVDecl x t v *> emitBlock b
-| FnBody.inc x n c b       => emitInc x n c *> emitBlock b
-| FnBody.dec x n c b       => emitDec x n c *> emitBlock b
+| FnBody.inc x n c p b     => unless p (emitInc x n c) *> emitBlock b
+| FnBody.dec x n c p b     => unless p (emitDec x n c) *> emitBlock b
 | FnBody.del x b           => emitDel x *> emitBlock b
 | FnBody.setTag x i b      => emitSetTag x i *> emitBlock b
 | FnBody.set x i y b       => emitSet x i y *> emitBlock b

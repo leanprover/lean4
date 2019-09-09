@@ -84,8 +84,8 @@ partial def formatFnBody (indent : Nat := 2) : FnBody → Format
 | FnBody.uset x i y b      => "uset " ++ format x ++ "[" ++ format i ++ "] := " ++ format y ++ ";" ++ Format.line ++ formatFnBody b
 | FnBody.sset x i o y ty b => "sset " ++ format x ++ "[" ++ format i ++ ", " ++ format o ++ "] : " ++ format ty ++ " := " ++ format y ++ ";" ++ Format.line ++ formatFnBody b
 | FnBody.setTag x cidx b   => "setTag " ++ format x ++ " := " ++ format cidx ++ ";" ++ Format.line ++ formatFnBody b
-| FnBody.inc x n c b       => "inc" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x ++ ";" ++ Format.line ++ formatFnBody b
-| FnBody.dec x n c b       => "dec" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x ++ ";" ++ Format.line ++ formatFnBody b
+| FnBody.inc x n c _ b     => "inc" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x ++ ";" ++ Format.line ++ formatFnBody b
+| FnBody.dec x n c _ b     => "dec" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x ++ ";" ++ Format.line ++ formatFnBody b
 | FnBody.del x b           => "del " ++ format x ++ ";" ++ Format.line ++ formatFnBody b
 | FnBody.mdata d b         => "mdata " ++ format d ++ ";" ++ Format.line ++ formatFnBody b
 | FnBody.case tid x cs     => "case " ++ format x ++ " of" ++ cs.foldl (fun r c => r ++ Format.line ++ formatAlt formatFnBody indent c) Format.nil

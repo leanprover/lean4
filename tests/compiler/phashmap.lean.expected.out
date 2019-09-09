@@ -1,6 +1,6 @@
-{ nodes := 33825, null := 548576, collisions := 0, depth := 4}
-{ nodes := 16913, null := 274304, collisions := 0, depth := 4}
-500
-{ nodes := 17, null := 28, collisions := 0, depth := 2}
+{ nodes := 18289, null := 0, collisions := 17232, depth := 4}
+{ nodes := 9145, null := 16, collisions := 8616, depth := 4}
 50
 { nodes := 17, null := 478, collisions := 0, depth := 2}
+5
+{ nodes := 1, null := 27, collisions := 0, depth := 1}

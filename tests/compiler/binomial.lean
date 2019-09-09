@@ -22,6 +22,6 @@ partial def display : Nat → Heap → IO Unit
 
 def main : IO Unit :=
 do
-let h := mkHeap 100 100;
+let h := mkHeap 50 100;
 display 0 h;
 IO.println h.toList.length

@@ -195,6 +195,9 @@ void * lookup_symbol_in_cur_exe(char const * sym) {
 #endif
 }
 
+class interpreter;
+LEAN_THREAD_PTR(interpreter, g_interpreter);
+
 class interpreter {
     // stack of IR variable slots
     std::vector<object *> m_arg_stack;
@@ -332,9 +335,7 @@ class interpreter {
                     // HACK: filling up closure to at least 16 arguments
                     // Boxed functions of arity >= 16 use a single common signature, so we only need a single stub.
                     cls = alloc_closure(reinterpret_cast<void *>(stub_m_aux), 16 + decl_params(d).size(), 16 + expr_pap_args(e).size());
-                    // FIXME: sharing the same interpreter instance including stack etc.; needs to be fixed to support
-                    // multithreading
-                    closure_set(cls, i++, box(reinterpret_cast<size_t>(this)));
+                    closure_set(cls, i++, m_env.to_obj_arg());
                     closure_set(cls, i++, d.to_obj_arg());
                     for (; i < 16; i++) {
                         closure_set(cls, i, box(0));
@@ -674,7 +675,14 @@ class interpreter {
         return r;
     }
 public:
-    explicit interpreter(environment const & env) : m_env(env) {}
+    explicit interpreter(environment const & env) : m_env(env) {
+        lean_assert(g_interpreter == nullptr);
+        g_interpreter = this;
+    }
+    ~interpreter() {
+        lean_assert(g_interpreter == this);
+        g_interpreter = nullptr;
+    }
 
     uint32 run_main(int argc, char * argv[]) {
         decl d = get_fdecl("main");
@@ -726,8 +734,14 @@ public:
 
     // closure stub stub
     static object * stub_m_aux(object ** args) {
-        interpreter * self = reinterpret_cast<interpreter *>(unbox(args[0]));
-        return self->stub_m(args);
+        environment env(args[0]);
+        if (g_interpreter) {
+            return g_interpreter->stub_m(args);
+        } else {
+            // We changed threads or the closure was stored and called after the original interpreter exited.
+            // Create new interpreter with new stacks.
+            return interpreter(env).stub_m(args);
+        }
     }
 };
 

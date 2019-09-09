@@ -332,14 +332,10 @@ class interpreter {
                 } else {
                     // point closure to interpreter stub taking interpreter data, declaration to be called, and partially
                     // applied arguments
-                    // HACK: filling up closure to at least 16 arguments
-                    // Boxed functions of arity >= 16 use a single common signature, so we only need a single stub.
-                    cls = alloc_closure(reinterpret_cast<void *>(stub_m_aux), 16 + decl_params(d).size(), 16 + expr_pap_args(e).size());
+                    unsigned cls_size = 2 + decl_params(d).size();
+                    cls = alloc_closure(get_stub(cls_size), cls_size, 2 + expr_pap_args(e).size());
                     closure_set(cls, i++, m_env.to_obj_arg());
                     closure_set(cls, i++, d.to_obj_arg());
-                    for (; i < 16; i++) {
-                        closure_set(cls, i, box(0));
-                    }
                 }
                 for (arg const & a : expr_pap_args(e)) {
                     closure_set(cls, i++, eval_arg(a));
@@ -718,7 +714,7 @@ public:
         decl d(args[1]);
         size_t old_size = m_arg_stack.size();
         for (size_t i = 0; i < decl_params(d).size(); i++) {
-            m_arg_stack.push_back(args[16 + i]);
+            m_arg_stack.push_back(args[2 + i]);
         }
         push_frame(decl_fun_id(d), old_size);
         object * r = eval_body(decl_fun_body(d));
@@ -735,6 +731,35 @@ public:
             // We changed threads or the closure was stored and called after the original interpreter exited.
             // Create new interpreter with new stacks.
             return interpreter(env).stub_m(args);
+        }
+    }
+
+    template <class ... Args>
+    static object * stub_N_aux(Args ... args) {
+        object * args2[] = { args... };
+        return interpreter::stub_m_aux(args2);
+    }
+
+    void * get_stub(unsigned params) {
+        switch (params) {
+            case 0: lean_unreachable();
+            case 1: return reinterpret_cast<void *>(stub_N_aux<object *>);
+            case 2: return reinterpret_cast<void *>(stub_N_aux<object *, object *>);
+            case 3: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *>);
+            case 4: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *>);
+            case 5: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *>);
+            case 6: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *>);
+            case 7: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *, object *>);
+            case 8: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *, object *, object *>);
+            case 9: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *, object *, object *, object *>);
+            case 10: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *, object *, object *, object *, object *>);
+            case 11: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *>);
+            case 12: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *>);
+            case 13: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *>);
+            case 14: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *>);
+            case 15: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *>);
+            case 16: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *>);
+            default: return reinterpret_cast<void *>(stub_m_aux);
         }
     }
 };

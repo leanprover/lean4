@@ -74,28 +74,29 @@ typedef obj* (*fn16)(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*,
 #define FN16(f) reinterpret_cast<fn16>(lean_closure_fun(f))
 typedef obj* (*fnn)(obj**); // NOLINT
 #define FNN(f) reinterpret_cast<fnn>(lean_closure_fun(f))
-obj* curry(obj* f, unsigned n, obj** as) {
+obj* curry(void* f, unsigned n, obj** as) {
 switch (n) {
 case 0: lean_unreachable();
-case 1: return FN1(f)(as[0]);
-case 2: return FN2(f)(as[0], as[1]);
-case 3: return FN3(f)(as[0], as[1], as[2]);
-case 4: return FN4(f)(as[0], as[1], as[2], as[3]);
-case 5: return FN5(f)(as[0], as[1], as[2], as[3], as[4]);
-case 6: return FN6(f)(as[0], as[1], as[2], as[3], as[4], as[5]);
-case 7: return FN7(f)(as[0], as[1], as[2], as[3], as[4], as[5], as[6]);
-case 8: return FN8(f)(as[0], as[1], as[2], as[3], as[4], as[5], as[6], as[7]);
-case 9: return FN9(f)(as[0], as[1], as[2], as[3], as[4], as[5], as[6], as[7], as[8]);
-case 10: return FN10(f)(as[0], as[1], as[2], as[3], as[4], as[5], as[6], as[7], as[8], as[9]);
-case 11: return FN11(f)(as[0], as[1], as[2], as[3], as[4], as[5], as[6], as[7], as[8], as[9], as[10]);
-case 12: return FN12(f)(as[0], as[1], as[2], as[3], as[4], as[5], as[6], as[7], as[8], as[9], as[10], as[11]);
-case 13: return FN13(f)(as[0], as[1], as[2], as[3], as[4], as[5], as[6], as[7], as[8], as[9], as[10], as[11], as[12]);
-case 14: return FN14(f)(as[0], as[1], as[2], as[3], as[4], as[5], as[6], as[7], as[8], as[9], as[10], as[11], as[12], as[13]);
-case 15: return FN15(f)(as[0], as[1], as[2], as[3], as[4], as[5], as[6], as[7], as[8], as[9], as[10], as[11], as[12], as[13], as[14]);
-case 16: return FN16(f)(as[0], as[1], as[2], as[3], as[4], as[5], as[6], as[7], as[8], as[9], as[10], as[11], as[12], as[13], as[14], as[15]);
-default: return FNN(f)(as);
+case 1: return reinterpret_cast<fn1>(f)(as[0]);
+case 2: return reinterpret_cast<fn2>(f)(as[0], as[1]);
+case 3: return reinterpret_cast<fn3>(f)(as[0], as[1], as[2]);
+case 4: return reinterpret_cast<fn4>(f)(as[0], as[1], as[2], as[3]);
+case 5: return reinterpret_cast<fn5>(f)(as[0], as[1], as[2], as[3], as[4]);
+case 6: return reinterpret_cast<fn6>(f)(as[0], as[1], as[2], as[3], as[4], as[5]);
+case 7: return reinterpret_cast<fn7>(f)(as[0], as[1], as[2], as[3], as[4], as[5], as[6]);
+case 8: return reinterpret_cast<fn8>(f)(as[0], as[1], as[2], as[3], as[4], as[5], as[6], as[7]);
+case 9: return reinterpret_cast<fn9>(f)(as[0], as[1], as[2], as[3], as[4], as[5], as[6], as[7], as[8]);
+case 10: return reinterpret_cast<fn10>(f)(as[0], as[1], as[2], as[3], as[4], as[5], as[6], as[7], as[8], as[9]);
+case 11: return reinterpret_cast<fn11>(f)(as[0], as[1], as[2], as[3], as[4], as[5], as[6], as[7], as[8], as[9], as[10]);
+case 12: return reinterpret_cast<fn12>(f)(as[0], as[1], as[2], as[3], as[4], as[5], as[6], as[7], as[8], as[9], as[10], as[11]);
+case 13: return reinterpret_cast<fn13>(f)(as[0], as[1], as[2], as[3], as[4], as[5], as[6], as[7], as[8], as[9], as[10], as[11], as[12]);
+case 14: return reinterpret_cast<fn14>(f)(as[0], as[1], as[2], as[3], as[4], as[5], as[6], as[7], as[8], as[9], as[10], as[11], as[12], as[13]);
+case 15: return reinterpret_cast<fn15>(f)(as[0], as[1], as[2], as[3], as[4], as[5], as[6], as[7], as[8], as[9], as[10], as[11], as[12], as[13], as[14]);
+case 16: return reinterpret_cast<fn16>(f)(as[0], as[1], as[2], as[3], as[4], as[5], as[6], as[7], as[8], as[9], as[10], as[11], as[12], as[13], as[14], as[15]);
+default: return reinterpret_cast<fnn>(f)(as);
 }
 }
+static obj* curry(obj* f, unsigned n, obj** as) { return curry(lean_closure_fun(f), n, as); }
 extern "C" obj* lean_apply_n(obj*, unsigned, obj**);
 extern "C" obj* lean_apply_1(obj* f, obj* a1) {
 unsigned arity = lean_closure_arity(f);

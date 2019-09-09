@@ -661,10 +661,7 @@ class interpreter {
                     }
                 }
             }
-            // HACK: `curry` wants a closure object instead of just a function pointer
-            object * cls = alloc_closure(e.m_addr, 2, 1);
-            r = curry(cls, args.size(), &m_arg_stack[old_size]);
-            free_heap_obj(cls);
+            r = curry(e.m_addr, args.size(), &m_arg_stack[old_size]);
         } else {
             if (decl_tag(d) == decl_kind::Extern) {
                 throw exception(sstream() << "unexpected external declaration '" << fn << "'");

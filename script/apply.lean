@@ -97,15 +97,16 @@ do emit $ sformat! "obj* apply_{n}(obj* f, {arg_decls}) {{\n",
    emit "}\n"
 
 def mk_curry (max : nat) : m unit :=
-do emit "static obj* curry(obj* f, unsigned n, obj** as) {\n",
+do emit "static obj* curry(void* f, unsigned n, obj** as) {\n",
    emit "switch (n) {\n",
    emit "case 0: lean_unreachable();\n",
    max.mrepeat $ λ i,
      let as := mk_as_args (i+1) in
-     emit $ sformat! "case {i+1}: return FN{i+1}(f)({as});\n",
-   emit "default: return FNN(f)(as);\n",
+     emit $ sformat! "case {i+1}: return reinterpret_cast<fn{i+1}>(f)({as});\n",
+   emit "default: return reinterpret_cast<fnn>(f)(as);\n",
    emit "}\n",
-   emit "}\n"
+   emit "}\n",
+   emit "static obj* curry(obj* f, unsigned n, obj** as) { return curry(closure_fun(f), n, as); }\n"
 
 def mk_apply_n (max : nat) : m unit :=
 do emit "obj* apply_n(obj* f, unsigned n, obj** as) {\n",

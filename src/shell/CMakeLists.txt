@@ -179,10 +179,12 @@ ENDFOREACH(T)
 # LEAN INTERPRETER TESTS
 file(GLOB LEANINTERPTESTS "${LEAN_SOURCE_DIR}/../tests/compiler/*.lean")
 FOREACH(T ${LEANINTERPTESTS})
-  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "leaninterptest_${T_NAME}"
-           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler"
-           COMMAND bash "./test_single_interpret.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
+  if(NOT EXISTS "${T}.no_interpreter")
+    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+    add_test(NAME "leaninterptest_${T_NAME}"
+             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler"
+             COMMAND bash "./test_single_interpret.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
+  endif()
 ENDFOREACH(T)
 
 # LEAN BENCHMARK TESTS

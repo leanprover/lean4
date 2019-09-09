@@ -57,14 +57,12 @@ lean_object* l_Array_miterateAux___main___at_Lean_IR_ExplicitBoxing_addBoxedVers
 lean_object* l_Lean_IR_reshape(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_castVarIfNeeded(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_mkFresh___boxed(lean_object*);
-lean_object* lean_ir_add_boxed_version(lean_object*, lean_object*);
 uint8_t l_Lean_isExtern(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_mkCast___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_getResultType___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_mkFresh___rarg(lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_castResultIfNeeded(lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_IR_declMapExt;
 uint8_t l_Lean_IR_ExplicitBoxing_eqvTypes(uint8_t, uint8_t);
 lean_object* l_Array_fget(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_getVarType(lean_object*, lean_object*, lean_object*);
@@ -98,7 +96,6 @@ extern lean_object* l_Lean_closureMaxArgs;
 lean_object* l_Lean_IR_ExplicitBoxing_isBoxedName___boxed(lean_object*);
 lean_object* l_Lean_IR_Decl_name(lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_mkFresh(lean_object*);
-lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_ExplicitBoxing_requiresBoxedVersion(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__1;
 lean_object* l_Lean_IR_getEnv___rarg(lean_object*);
@@ -969,27 +966,6 @@ lean_object* x_3;
 x_3 = l_Lean_IR_ExplicitBoxing_addBoxedVersions(x_1, x_2);
 lean_dec(x_1);
 return x_3;
-}
-}
-lean_object* lean_ir_add_boxed_version(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = l_Lean_IR_ExplicitBoxing_requiresBoxedVersion(x_1, x_2);
-if (x_3 == 0)
-{
-lean_dec(x_2);
-return x_1;
-}
-else
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = l_Lean_IR_ExplicitBoxing_mkBoxedVersion(x_2);
-lean_dec(x_2);
-x_5 = l_Lean_IR_declMapExt;
-x_6 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_5, x_1, x_4);
-return x_6;
-}
 }
 }
 uint8_t l_Array_anyMAux___main___at_Lean_IR_ExplicitBoxing_getScrutineeType___spec__1(lean_object* x_1, lean_object* x_2) {

@@ -56,5 +56,12 @@ match (compileAux decls opts).run { env := env } with
 | EState.Result.ok     _  s => (s.log, Except.ok s.env)
 | EState.Result.error msg s => (s.log, Except.error msg)
 
+@[export lean_ir_add_boxed_version]
+def addBoxedVersion (env : Environment) (decl : Decl) : Except String Environment :=
+if ExplicitBoxing.requiresBoxedVersion env decl then
+  Except.ok (addDeclAux env (ExplicitBoxing.mkBoxedVersion decl))
+else
+  Except.ok env
+
 end IR
 end Lean

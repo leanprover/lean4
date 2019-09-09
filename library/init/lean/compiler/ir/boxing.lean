@@ -84,13 +84,6 @@ let boxedDecls := decls.foldl
   Array.empty;
 decls ++ boxedDecls
 
-@[export lean_ir_add_boxed_version]
-def addBoxedVersion (env : Environment) (decl : Decl) : Environment :=
-if requiresBoxedVersion env decl then
-  addDeclAux env (mkBoxedVersion decl)
-else
-  env
-
 /- Infer scrutinee type using `case` alternatives.
    This can be done whenever `alts` does not contain an `Alt.default _` value. -/
 def getScrutineeType (alts : Array Alt) : IRType :=

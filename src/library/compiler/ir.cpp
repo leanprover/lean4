@@ -523,11 +523,20 @@ environment compile(environment const & env, options const & opts, comp_decls co
 
 /*
 @[export lean_ir_add_boxed_version]
-def addBoxedVersion (env : Environment) (decl : Decl) : Environment :=
+def addBoxedVersion (env : Environment) (decl : Decl) : Except String Environment :=
 */
 extern "C" object * lean_ir_add_boxed_version(object * env, object * decl);
 environment add_boxed_version(environment const & env, decl const & d) {
-    return environment(lean_ir_add_boxed_version(env.to_obj_arg(), d.to_obj_arg()));
+    object * v = lean_ir_add_boxed_version(env.to_obj_arg(), d.to_obj_arg());
+    if (cnstr_tag(v) == 0) {
+        string_ref error(cnstr_get(v, 0), true);
+        dec_ref(v);
+        throw exception(error.data());
+    } else {
+        environment new_env(cnstr_get(v, 0), true);
+        dec_ref(v);
+        return new_env;
+    }
 }
 
 environment add_extern(environment const & env, name const & fn) {

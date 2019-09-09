@@ -38,6 +38,7 @@ lean_object* l_Lean_IR_inferBorrow(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_elimDead(lean_object*);
 lean_object* l_Array_ummapAux___main___at_Lean_IR_inferBorrow___spec__1(lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_default_1__compileAux___closed__1;
+extern lean_object* l_Lean_IR_declMapExt;
 lean_object* l_Array_fget(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -51,19 +52,23 @@ lean_object* l_Lean_IR_Decl_insertResetReuse(lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_main(lean_object*);
 lean_object* l___private_init_lean_compiler_ir_default_1__compileAux___closed__4;
 lean_object* l___private_init_lean_compiler_ir_default_1__compileAux___closed__18;
+lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_default_1__compileAux___closed__9;
 lean_object* l___private_init_lean_compiler_ir_default_1__compileAux___closed__22;
+uint8_t l_Lean_IR_ExplicitBoxing_requiresBoxedVersion(lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_default_1__compileAux___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_ummapAux___main___at___private_init_lean_compiler_ir_default_1__compileAux___spec__5(lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_default_1__compileAux___closed__13;
 lean_object* l___private_init_lean_compiler_ir_default_1__compileAux___closed__26;
 lean_object* l_Array_size(lean_object*, lean_object*);
 lean_object* l_Array_fset(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_IR_ExplicitBoxing_mkBoxedVersion(lean_object*);
 lean_object* lean_ir_compile(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_ummapAux___main___at___private_init_lean_compiler_ir_default_1__compileAux___spec__3(lean_object*, lean_object*);
 lean_object* l_Array_ummapAux___main___at___private_init_lean_compiler_ir_default_1__compileAux___spec__2(lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_default_1__compileAux___closed__10;
 lean_object* l___private_init_lean_compiler_ir_default_1__compileAux___closed__17;
+lean_object* lean_ir_add_boxed_version(lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_default_1__compileAux___closed__24;
 extern lean_object* l_Lean_mkInitAttr___closed__2;
 lean_object* l___private_init_lean_compiler_ir_default_1__compileAux___closed__28;
@@ -8113,6 +8118,32 @@ x_18 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set(x_18, 1, x_17);
 return x_18;
+}
+}
+}
+lean_object* lean_ir_add_boxed_version(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = l_Lean_IR_ExplicitBoxing_requiresBoxedVersion(x_1, x_2);
+if (x_3 == 0)
+{
+lean_object* x_4; 
+lean_dec(x_2);
+x_4 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_4, 0, x_1);
+return x_4;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_5 = l_Lean_IR_ExplicitBoxing_mkBoxedVersion(x_2);
+lean_dec(x_2);
+x_6 = l_Lean_IR_declMapExt;
+x_7 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_6, x_1, x_5);
+x_8 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_8, 0, x_7);
+return x_8;
 }
 }
 }

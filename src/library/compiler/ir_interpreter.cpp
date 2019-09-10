@@ -734,31 +734,43 @@ public:
         }
     }
 
-    template <class ... Args>
-    static object * stub_N_aux(Args ... args) {
-        object * args2[] = { args... };
-        return interpreter::stub_m_aux(args2);
-    }
+    // python3 -c 'for i in range(1,17): print(f"    static object * stub_{i}_aux(" + ", ".join([f"object * x_{j}" for j in range(1,i+1)]) + ") { object * args[] = { " + ", ".join([f"x_{j}" for j in range(1,i+1)]) + " }; return interpreter::stub_m_aux(args); }")'
+    static object * stub_1_aux(object * x_1) { object * args[] = { x_1 }; return interpreter::stub_m_aux(args); }
+    static object * stub_2_aux(object * x_1, object * x_2) { object * args[] = { x_1, x_2 }; return interpreter::stub_m_aux(args); }
+    static object * stub_3_aux(object * x_1, object * x_2, object * x_3) { object * args[] = { x_1, x_2, x_3 }; return interpreter::stub_m_aux(args); }
+    static object * stub_4_aux(object * x_1, object * x_2, object * x_3, object * x_4) { object * args[] = { x_1, x_2, x_3, x_4 }; return interpreter::stub_m_aux(args); }
+    static object * stub_5_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5) { object * args[] = { x_1, x_2, x_3, x_4, x_5 }; return interpreter::stub_m_aux(args); }
+    static object * stub_6_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6 }; return interpreter::stub_m_aux(args); }
+    static object * stub_7_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7 }; return interpreter::stub_m_aux(args); }
+    static object * stub_8_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7, object * x_8) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8 }; return interpreter::stub_m_aux(args); }
+    static object * stub_9_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7, object * x_8, object * x_9) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9 }; return interpreter::stub_m_aux(args); }
+    static object * stub_10_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7, object * x_8, object * x_9, object * x_10) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10 }; return interpreter::stub_m_aux(args); }
+    static object * stub_11_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7, object * x_8, object * x_9, object * x_10, object * x_11) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11 }; return interpreter::stub_m_aux(args); }
+    static object * stub_12_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7, object * x_8, object * x_9, object * x_10, object * x_11, object * x_12) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12 }; return interpreter::stub_m_aux(args); }
+    static object * stub_13_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7, object * x_8, object * x_9, object * x_10, object * x_11, object * x_12, object * x_13) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13 }; return interpreter::stub_m_aux(args); }
+    static object * stub_14_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7, object * x_8, object * x_9, object * x_10, object * x_11, object * x_12, object * x_13, object * x_14) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14 }; return interpreter::stub_m_aux(args); }
+    static object * stub_15_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7, object * x_8, object * x_9, object * x_10, object * x_11, object * x_12, object * x_13, object * x_14, object * x_15) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15 }; return interpreter::stub_m_aux(args); }
+    static object * stub_16_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7, object * x_8, object * x_9, object * x_10, object * x_11, object * x_12, object * x_13, object * x_14, object * x_15, object * x_16) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16 }; return interpreter::stub_m_aux(args); }
 
     void * get_stub(unsigned params) {
         switch (params) {
             case 0: lean_unreachable();
-            case 1: return reinterpret_cast<void *>(stub_N_aux<object *>);
-            case 2: return reinterpret_cast<void *>(stub_N_aux<object *, object *>);
-            case 3: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *>);
-            case 4: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *>);
-            case 5: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *>);
-            case 6: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *>);
-            case 7: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *, object *>);
-            case 8: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *, object *, object *>);
-            case 9: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *, object *, object *, object *>);
-            case 10: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *, object *, object *, object *, object *>);
-            case 11: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *>);
-            case 12: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *>);
-            case 13: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *>);
-            case 14: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *>);
-            case 15: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *>);
-            case 16: return reinterpret_cast<void *>(stub_N_aux<object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *, object *>);
+            case 1: return reinterpret_cast<void *>(stub_1_aux);
+            case 2: return reinterpret_cast<void *>(stub_2_aux);
+            case 3: return reinterpret_cast<void *>(stub_3_aux);
+            case 4: return reinterpret_cast<void *>(stub_4_aux);
+            case 5: return reinterpret_cast<void *>(stub_5_aux);
+            case 6: return reinterpret_cast<void *>(stub_6_aux);
+            case 7: return reinterpret_cast<void *>(stub_7_aux);
+            case 8: return reinterpret_cast<void *>(stub_8_aux);
+            case 9: return reinterpret_cast<void *>(stub_9_aux);
+            case 10: return reinterpret_cast<void *>(stub_10_aux);
+            case 11: return reinterpret_cast<void *>(stub_11_aux);
+            case 12: return reinterpret_cast<void *>(stub_12_aux);
+            case 13: return reinterpret_cast<void *>(stub_13_aux);
+            case 14: return reinterpret_cast<void *>(stub_14_aux);
+            case 15: return reinterpret_cast<void *>(stub_15_aux);
+            case 16: return reinterpret_cast<void *>(stub_16_aux);
             default: return reinterpret_cast<void *>(stub_m_aux);
         }
     }

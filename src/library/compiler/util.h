@@ -134,6 +134,10 @@ bool is_enf_object_type(expr const & e);
 bool is_llnf_void_type(expr const & e);
 bool is_llnf_unboxed_type(expr const & type);
 
+/* Return (some idx) iff inductive datatype `I_name` is safe, has only one constructor,
+   and this constructor has only one relevant field, `idx` is the field position. */
+optional<unsigned> has_trivial_structure(environment const & env, name const & I_name);
+
 expr mk_runtime_type(type_checker::state & st, local_ctx const & lctx, expr e);
 
 // =======================================

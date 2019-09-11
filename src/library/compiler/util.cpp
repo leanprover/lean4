@@ -433,6 +433,31 @@ bool depends_on(expr const & e, name_hash_set const & s) {
     return found;
 }
 
+optional<unsigned> has_trivial_structure(environment const & env, name const & I_name) {
+    if (is_runtime_builtin_type(I_name))
+        return optional<unsigned>();
+    inductive_val I_val = env.get(I_name).to_inductive_val();
+    if (I_val.is_unsafe())
+        return optional<unsigned>();
+    if (I_val.get_ncnstrs() != 1)
+        return optional<unsigned>();
+    buffer<bool> rel_fields;
+    get_constructor_relevant_fields(env, head(I_val.get_cnstrs()), rel_fields);
+    /* The following #pragma is to disable a bogus g++ 4.9 warning at `optional<unsigned> r` */
+    #if defined(__GNUC__) && !defined(__CLANG__)
+    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+    #endif
+    optional<unsigned> result;
+    for (unsigned i = 0; i < rel_fields.size(); i++) {
+        if (rel_fields[i]) {
+            if (result)
+                return optional<unsigned>();
+            result = i;
+        }
+    }
+    return result;
+}
+
 expr mk_runtime_type(type_checker::state & st, local_ctx const & lctx, expr e) {
     try {
         type_checker tc(st, lctx);

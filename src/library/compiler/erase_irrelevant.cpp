@@ -18,7 +18,6 @@ class erase_irrelevant_fn {
     local_ctx            m_lctx;
     buffer<expr>         m_let_fvars;
     buffer<let_entry>    m_let_entries;
-    name_map<list<bool>> m_constructor_info;
     name                 m_x;
     unsigned             m_next_idx{1};
     expr_map<bool>       m_irrelevant_cache;
@@ -37,40 +36,8 @@ class erase_irrelevant_fn {
         return type_checker(m_st, m_lctx).infer(e);
     }
 
-    void get_constructor_info(name const & n, buffer<bool> & rel_fields) {
-        if (auto r = m_constructor_info.find(n)) {
-            to_buffer(*r, rel_fields);
-        } else {
-            get_constructor_relevant_fields(env(), n, rel_fields);
-            m_constructor_info.insert(n, to_list(rel_fields));
-        }
-    }
-
-    /* Return (some idx) iff inductive datatype `I_name` is safe, has only one constructor,
-       and this constructor has only one relevant field, `idx` is the field position. */
     optional<unsigned> has_trivial_structure(name const & I_name) {
-        if (is_runtime_builtin_type(I_name))
-            return optional<unsigned>();
-        inductive_val I_val = env().get(I_name).to_inductive_val();
-        if (I_val.is_unsafe())
-            return optional<unsigned>();
-        if (I_val.get_ncnstrs() != 1)
-            return optional<unsigned>();
-        buffer<bool> rel_fields;
-        get_constructor_info(head(I_val.get_cnstrs()), rel_fields);
-        /* The following #pragma is to disable a bogus g++ 4.9 warning at `optional<unsigned> r` */
-        #if defined(__GNUC__) && !defined(__CLANG__)
-        #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-        #endif
-        optional<unsigned> result;
-        for (unsigned i = 0; i < rel_fields.size(); i++) {
-            if (rel_fields[i]) {
-                if (result)
-                    return optional<unsigned>();
-                result = i;
-            }
-        }
-        return result;
+        return ::lean::has_trivial_structure(env(), I_name);
     }
 
     expr mk_runtime_type(expr e) {

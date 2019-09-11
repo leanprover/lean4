@@ -15,6 +15,9 @@ inductive AssocList (α : Type u) (β : Type v)
 namespace AssocList
 variables {α : Type u} {β : Type v} {δ : Type w} {m : Type w → Type w} [Monad m]
 
+def empty : AssocList α β :=
+nil
+
 @[specialize] def mfoldl (f : δ → α → β → m δ) : δ → AssocList α β → m δ
 | d, nil         => pure d
 | d, cons a b es => do d ← f d a b; mfoldl d es

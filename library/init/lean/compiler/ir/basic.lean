@@ -450,6 +450,11 @@ match ctx.find x.idx with
 | some (LocalContextEntry.localVar t _) => some t
 | other => none
 
+def LocalContext.getValue (ctx : LocalContext) (x : VarId) : Option Expr :=
+match ctx.find x.idx with
+| some (LocalContextEntry.localVar _ v) => some v
+| other => none
+
 abbrev IndexRenaming := RBMap Index Index Index.lt
 
 class HasAlphaEqv (α : Type) :=

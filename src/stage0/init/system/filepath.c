@@ -85,14 +85,13 @@ return x_2;
 lean_object* _init_l_System_FilePath_pathSeparators___closed__1() {
 _start:
 {
-uint32_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = 47;
-x_2 = lean_box(0);
-x_3 = l_System_FilePath_pathSeparators___closed__1___boxed__const__1;
-x_4 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-return x_4;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_System_FilePath_pathSeparators___closed__1___boxed__const__1;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
 }
 }
 lean_object* _init_l_System_FilePath_pathSeparators___closed__2___boxed__const__1() {
@@ -107,14 +106,13 @@ return x_2;
 lean_object* _init_l_System_FilePath_pathSeparators___closed__2() {
 _start:
 {
-uint32_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = 92;
-x_2 = l_System_FilePath_pathSeparators___closed__1;
-x_3 = l_System_FilePath_pathSeparators___closed__2___boxed__const__1;
-x_4 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-return x_4;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_System_FilePath_pathSeparators___closed__1;
+x_2 = l_System_FilePath_pathSeparators___closed__2___boxed__const__1;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
 }
 }
 lean_object* _init_l_System_FilePath_pathSeparators___closed__3() {

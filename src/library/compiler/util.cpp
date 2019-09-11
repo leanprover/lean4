@@ -462,6 +462,7 @@ expr mk_runtime_type(type_checker::state & st, local_ctx const & lctx, expr e) {
     try {
         type_checker tc(st, lctx);
         e = tc.whnf(e);
+
         if (is_constant(e)) {
             name const & c = const_name(e);
             if (is_runtime_scalar_type(c)) {
@@ -472,17 +473,51 @@ expr mk_runtime_type(type_checker::state & st, local_ctx const & lctx, expr e) {
                 return e;
             } else if (optional<unsigned> nbytes = is_enum_type(st.env(), c)) {
                 return *to_uint_type(*nbytes);
-            } else {
-                return mk_enf_object_type();
             }
-        } else if (is_app_of(e, get_decidable_name())) {
+        }
+
+        if (is_app_of(e, get_decidable_name())) {
             /* Recall that `decidable A` and `bool` have the same runtime representation. */
             return *to_uint_type(1);
-        } else if (is_sort(e) || tc.is_prop(e)) {
-            return mk_enf_neutral_type();
-        } else {
-            return mk_enf_object_type();
         }
+
+        if (is_sort(e) || tc.is_prop(e)) {
+            return mk_enf_neutral_type();
+        }
+
+        /* If `e` is a trivial structure such as `Subtype`, then convert the only relevant
+           field to a runtime type. */
+        if (is_app(e)) {
+            expr const & fn = get_app_fn(e);
+            if (is_constant(fn) && is_inductive(st.env(), const_name(fn))) {
+                name const & I_name = const_name(fn);
+                environment const & env = st.env();
+                if (optional<unsigned> fidx = has_trivial_structure(env, I_name)) {
+                    /* Retrieve field `fidx` type */
+                    inductive_val I_val = env.get(I_name).to_inductive_val();
+                    name K = head(I_val.get_cnstrs());
+                    unsigned nparams = I_val.get_nparams();
+                    buffer<expr> e_args;
+                    get_app_args(e, e_args);
+                    lean_assert(nparams <= e_args.size());
+                    expr k_app = mk_app(mk_constant(K, const_levels(fn)), nparams, e_args.data());
+                    expr type = tc.whnf(tc.infer(k_app));
+                    local_ctx aux_lctx = lctx;
+                    unsigned idx = 0;
+                    while (is_pi(type)) {
+                        if (idx == *fidx) {
+                            return mk_runtime_type(st, aux_lctx, binding_domain(type));
+                        }
+                        expr local = aux_lctx.mk_local_decl(st.ngen(), binding_name(type), binding_domain(type), binding_info(type));
+                        type       = instantiate(binding_body(type), local);
+                        type       = type_checker(st, aux_lctx).whnf(type);
+                        idx++;
+                    }
+                }
+            }
+        }
+
+        return mk_enf_object_type();
     } catch (kernel_exception &) {
         return mk_enf_object_type();
     }

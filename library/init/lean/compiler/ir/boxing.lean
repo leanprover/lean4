@@ -13,6 +13,7 @@ import init.lean.compiler.externattr
 import init.lean.compiler.ir.basic
 import init.lean.compiler.ir.compilerm
 import init.lean.compiler.ir.freevars
+import init.lean.compiler.ir.elimdead
 
 namespace Lean
 namespace IR
@@ -327,10 +328,12 @@ let ctx : BoxingContext := { decls := decls, env := env };
 let decls := decls.foldl (fun (newDecls : Array Decl) (decl : Decl) =>
   match decl with
   | Decl.fdecl f xs t b =>
-    let nextIdx := decl.maxIndex + 1;
-    let (b, s) := (withParams xs (visitFnBody b) { f := f, resultType := t, .. ctx }).run { nextIdx := nextIdx };
+    let nextIdx  := decl.maxIndex + 1;
+    let (b, s)   := (withParams xs (visitFnBody b) { f := f, resultType := t, .. ctx }).run { nextIdx := nextIdx };
     let newDecls := newDecls ++ s.auxDecls;
-    newDecls.push (Decl.fdecl f xs t b)
+    let newDecl  := Decl.fdecl f xs t b;
+    let newDecl  := newDecl.elimDead;
+    newDecls.push newDecl
   | d => newDecls.push d)
   Array.empty;
 addBoxedVersions env decls

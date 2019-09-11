@@ -161,51 +161,42 @@ adaptReader (fun (ctx : BoxingContext) => { localCtx := ctx.localCtx.addLocal x 
 @[inline] def withJDecl {α : Type} (j : JoinPointId) (xs : Array Param) (v : FnBody) (k : M α) : M α :=
 adaptReader (fun (ctx : BoxingContext) => { localCtx := ctx.localCtx.addJP j xs v, .. ctx }) k
 
-/- If `x` declaration is of the form `x := Expr.lit _` or `x := Expr.fap c Array.empty`, then
-   return its value. -/
-private def isConstantValue (x : VarId) : M (Option Expr) :=
-do localCtx ← getLocalContext;
-   match localCtx.getValue x with
-   | some val =>
-     match val with
-     | Expr.lit _ => pure $ some val
-     | Expr.fap _ args => pure $ if args.size == 0 then some val else none
-     | _ => pure none
-   | _ => pure none
+/- If `x` declaration is of the form `x := Expr.lit _` or `x := Expr.fap c Array.empty`,
+   and `x`'s type is not cheap to box (e.g., it is `UInt64), then return its value. -/
+private def isExpensiveConstantValueBoxing (x : VarId) (xType : IRType) : M (Option Expr) :=
+if !xType.isScalar then pure none -- We assume unboxing is always cheap
+else if xType != IRType.uint64 && xType != IRType.uint32 && xType != IRType.usize then pure none
+else do
+  localCtx ← getLocalContext;
+  match localCtx.getValue x with
+  | some val =>
+    match val with
+    | Expr.lit _ => pure $ some val
+    | Expr.fap _ args => pure $ if args.size == 0 then some val else none
+    | _ => pure none
+  | _ => pure none
 
 /- Auxiliary function used by castVarIfNeeded.
    It is used when the expected type does not match `xType`.
    If `xType` is scalar, then we need to "box" it. Otherwise, we need to "unbox" it. -/
 def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr :=
 do
-optVal ← isConstantValue x;
+optVal ← isExpensiveConstantValueBoxing x xType;
 match optVal with
 | some v => do
   ctx ← read;
+  s ← get;
   /- Create auxiliary FnBody
      ```
      let x_1 : xType := v;
      let x_2 : expectedType := Expr.box xType x_1;
      ret x_2
      ```
-     if `xType.isScalar`, and
-     ```
-     let x_1 : xType := v;
-     let x_2 : expectedType := Expr.unbox x_1;
-     ret x_2
-     ```
-     otherwise
-  -/
+   -/
   let body : FnBody :=
-    if xType.isScalar then
-      FnBody.vdecl { idx := 1 } xType v $
-      FnBody.vdecl { idx := 2 } expectedType (Expr.box xType { idx := 1 }) $
-      FnBody.ret (mkVarArg { idx := 2 })
-    else
-      FnBody.vdecl { idx := 1 } xType v $
-      FnBody.vdecl { idx := 2 } expectedType (Expr.unbox { idx := 1 }) $
-      FnBody.ret (mkVarArg { idx := 2 });
-  s ← get;
+    FnBody.vdecl { idx := 1 } xType v $
+    FnBody.vdecl { idx := 2 } expectedType (Expr.box xType { idx := 1 }) $
+    FnBody.ret (mkVarArg { idx := 2 });
   match s.auxDeclCache.find body with
   | some v => pure v
   | none   => do

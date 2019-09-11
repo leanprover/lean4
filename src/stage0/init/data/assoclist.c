@@ -19,6 +19,7 @@ lean_object* l_AssocList_mfoldl___main___at_AssocList_foldl___spec__1(lean_objec
 lean_object* l_AssocList_replace___main(lean_object*, lean_object*);
 lean_object* l_AssocList_erase___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_find___main(lean_object*, lean_object*);
+lean_object* l_AssocList_empty(lean_object*, lean_object*);
 lean_object* l_AssocList_mfoldl(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_erase___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_contains___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -42,6 +43,14 @@ lean_object* l_AssocList_mfoldl___main___boxed(lean_object*, lean_object*, lean_
 lean_object* l_AssocList_erase___main(lean_object*, lean_object*);
 lean_object* l_AssocList_replace___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_contains___main(lean_object*, lean_object*);
+lean_object* l_AssocList_empty(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_box(0);
+return x_3;
+}
+}
 lean_object* l_AssocList_mfoldl___main___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {

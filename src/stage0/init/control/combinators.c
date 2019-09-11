@@ -45,6 +45,7 @@ lean_object* l_List_mfor___main___boxed(lean_object*);
 lean_object* l_Nat_mfoldAux___main(lean_object*, lean_object*);
 lean_object* l_List_mfirst___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mfoldr(lean_object*);
+lean_object* l_List_mforall___main___rarg___boxed__const__1;
 lean_object* l_List_mfilter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_mcond___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_when___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
@@ -54,6 +55,7 @@ lean_object* l_Nat_mfoldAux___main___boxed(lean_object*, lean_object*);
 lean_object* l_List_mmap___main___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_List_mfoldl___main___boxed(lean_object*);
 lean_object* l_mwhen___rarg___lambda__1(lean_object*, lean_object*, uint8_t);
+lean_object* l_List_mexists___main___rarg___boxed__const__1;
 lean_object* l_List_mfoldr___main(lean_object*);
 lean_object* l_List_mfoldl___main___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mfirst___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1226,6 +1228,15 @@ return x_9;
 }
 }
 }
+lean_object* _init_l_List_mexists___main___rarg___boxed__const__1() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; 
+x_1 = 0;
+x_2 = lean_box(x_1);
+return x_2;
+}
+}
 lean_object* l_List_mexists___main___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1240,7 +1251,7 @@ x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
 lean_dec(x_5);
 x_7 = 0;
-x_8 = lean_box(x_7);
+x_8 = l_List_mexists___main___rarg___boxed__const__1;
 x_9 = lean_apply_2(x_6, lean_box(0), x_8);
 return x_9;
 }
@@ -1343,6 +1354,15 @@ return x_9;
 }
 }
 }
+lean_object* _init_l_List_mforall___main___rarg___boxed__const__1() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; 
+x_1 = 1;
+x_2 = lean_box(x_1);
+return x_2;
+}
+}
 lean_object* l_List_mforall___main___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1357,7 +1377,7 @@ x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
 lean_dec(x_5);
 x_7 = 1;
-x_8 = lean_box(x_7);
+x_8 = l_List_mforall___main___rarg___boxed__const__1;
 x_9 = lean_apply_2(x_6, lean_box(0), x_8);
 return x_9;
 }
@@ -1452,6 +1472,10 @@ l_mjoin___rarg___closed__1 = _init_l_mjoin___rarg___closed__1();
 lean_mark_persistent(l_mjoin___rarg___closed__1);
 l_List_mmap___main___rarg___closed__1 = _init_l_List_mmap___main___rarg___closed__1();
 lean_mark_persistent(l_List_mmap___main___rarg___closed__1);
+l_List_mexists___main___rarg___boxed__const__1 = _init_l_List_mexists___main___rarg___boxed__const__1();
+lean_mark_persistent(l_List_mexists___main___rarg___boxed__const__1);
+l_List_mforall___main___rarg___boxed__const__1 = _init_l_List_mforall___main___rarg___boxed__const__1();
+lean_mark_persistent(l_List_mforall___main___rarg___boxed__const__1);
 return w;
 }
 #ifdef __cplusplus

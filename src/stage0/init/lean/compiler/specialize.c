@@ -27,6 +27,7 @@ extern lean_object* l_Array_empty___closed__1;
 lean_object* l_RBNode_fold___main___at_Lean_Compiler_mkSpecializeAttrs___spec__2(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
+lean_object* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1___boxed__const__1;
 lean_object* l_Lean_Compiler_mkSpecExtension___closed__2;
 lean_object* l_Lean_SMap_find___at_Lean_Compiler_getCachedSpecialization___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_specExtension___closed__2;
@@ -129,6 +130,7 @@ lean_object* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_
 lean_object* l_Lean_Compiler_specExtension___closed__3;
 lean_object* l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Compiler_SpecializeAttributeKind_Inhabited;
+lean_object* l_Lean_Compiler_mkSpecializeAttrs___closed__6___boxed__const__1;
 lean_object* lean_cache_specialization(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_getPrefix(lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_Compiler_mkSpecExtension___spec__7___closed__2;
@@ -144,6 +146,7 @@ lean_object* l_Lean_Compiler_mkSpecializeAttrs___closed__7;
 extern lean_object* l_Lean_registerTagAttribute___lambda__4___closed__3;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_HashMapImp_expand___at_Lean_Compiler_SpecState_addEntry___spec__15(lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_mkSpecializeAttrs___closed__11___boxed__const__1;
 lean_object* l_Lean_Compiler_specExtension___closed__6;
 lean_object* l_Array_push(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Compiler_SpecializeAttributeKind_beq(uint8_t, uint8_t);
@@ -193,6 +196,7 @@ lean_object* l_Array_fset(lean_object*, lean_object*, lean_object*, lean_object*
 lean_object* l_Array_get(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_mkHashMapImp___rarg(lean_object*);
 lean_object* l_RBNode_setBlack___rarg(lean_object*);
+lean_object* l_Lean_EnumAttributes_getValue___at___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux___main___spec__1___boxed__const__1;
 lean_object* l_Array_miterateAux___main___at_Lean_Compiler_mkSpecExtension___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_Compiler_mkSpecializeAttrs___spec__8___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 extern lean_object* l_Lean_registerTagAttribute___lambda__4___closed__5;
@@ -338,13 +342,22 @@ goto _start;
 }
 }
 }
+lean_object* _init_l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1___boxed__const__1() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; 
+x_1 = l_Lean_Compiler_SpecializeAttributeKind_Inhabited;
+x_2 = lean_box(x_1);
+return x_2;
+}
+}
 lean_object* _init_l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Inhabited;
 x_2 = l_Lean_Compiler_SpecializeAttributeKind_Inhabited;
-x_3 = lean_box(x_2);
+x_3 = l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1___boxed__const__1;
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_3);
@@ -2861,13 +2874,22 @@ x_1 = lean_mk_string("mark definition to always be inlined");
 return x_1;
 }
 }
+lean_object* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__6___boxed__const__1() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; 
+x_1 = 0;
+x_2 = lean_box(x_1);
+return x_2;
+}
+}
 lean_object* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__6() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Compiler_mkSpecializeAttrs___closed__5;
 x_2 = 0;
-x_3 = lean_box(x_2);
+x_3 = l_Lean_Compiler_mkSpecializeAttrs___closed__6___boxed__const__1;
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_3);
@@ -2912,13 +2934,22 @@ x_1 = lean_mk_string("mark definition to never be inlined");
 return x_1;
 }
 }
+lean_object* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__11___boxed__const__1() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; 
+x_1 = 1;
+x_2 = lean_box(x_1);
+return x_2;
+}
+}
 lean_object* _init_l_Lean_Compiler_mkSpecializeAttrs___closed__11() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Compiler_mkSpecializeAttrs___closed__10;
 x_2 = 1;
-x_3 = lean_box(x_2);
+x_3 = l_Lean_Compiler_mkSpecializeAttrs___closed__11___boxed__const__1;
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_3);
@@ -3175,6 +3206,15 @@ goto _start;
 }
 }
 }
+lean_object* _init_l_Lean_EnumAttributes_getValue___at___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux___main___spec__1___boxed__const__1() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; 
+x_1 = 0;
+x_2 = lean_box(x_1);
+return x_2;
+}
+}
 lean_object* l_Lean_EnumAttributes_getValue___at___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux___main___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -3204,7 +3244,7 @@ lean_dec(x_1);
 x_10 = l_Lean_PersistentEnvExtension_getModuleEntries___rarg(x_9, x_2, x_8);
 lean_dec(x_8);
 x_11 = 0;
-x_12 = lean_box(x_11);
+x_12 = l_Lean_EnumAttributes_getValue___at___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux___main___spec__1___boxed__const__1;
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_3);
 lean_ctor_set(x_13, 1, x_12);
@@ -11898,6 +11938,8 @@ l_Lean_Compiler_SpecializeAttributeKind_HasBeq___closed__1 = _init_l_Lean_Compil
 lean_mark_persistent(l_Lean_Compiler_SpecializeAttributeKind_HasBeq___closed__1);
 l_Lean_Compiler_SpecializeAttributeKind_HasBeq = _init_l_Lean_Compiler_SpecializeAttributeKind_HasBeq();
 lean_mark_persistent(l_Lean_Compiler_SpecializeAttributeKind_HasBeq);
+l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1___boxed__const__1 = _init_l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1___boxed__const__1();
+lean_mark_persistent(l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1___boxed__const__1);
 l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1 = _init_l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1();
 lean_mark_persistent(l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkSpecializeAttrs___spec__4___closed__1);
 l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__1___closed__1 = _init_l_Lean_registerEnumAttributes___at_Lean_Compiler_mkSpecializeAttrs___spec__1___closed__1();
@@ -11914,6 +11956,8 @@ l_Lean_Compiler_mkSpecializeAttrs___closed__4 = _init_l_Lean_Compiler_mkSpeciali
 lean_mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__4);
 l_Lean_Compiler_mkSpecializeAttrs___closed__5 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__5();
 lean_mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__5);
+l_Lean_Compiler_mkSpecializeAttrs___closed__6___boxed__const__1 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__6___boxed__const__1();
+lean_mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__6___boxed__const__1);
 l_Lean_Compiler_mkSpecializeAttrs___closed__6 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__6();
 lean_mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__6);
 l_Lean_Compiler_mkSpecializeAttrs___closed__7 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__7();
@@ -11924,6 +11968,8 @@ l_Lean_Compiler_mkSpecializeAttrs___closed__9 = _init_l_Lean_Compiler_mkSpeciali
 lean_mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__9);
 l_Lean_Compiler_mkSpecializeAttrs___closed__10 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__10();
 lean_mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__10);
+l_Lean_Compiler_mkSpecializeAttrs___closed__11___boxed__const__1 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__11___boxed__const__1();
+lean_mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__11___boxed__const__1);
 l_Lean_Compiler_mkSpecializeAttrs___closed__11 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__11();
 lean_mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__11);
 l_Lean_Compiler_mkSpecializeAttrs___closed__12 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__12();
@@ -11938,6 +11984,8 @@ w = l_Lean_Compiler_mkSpecializeAttrs(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_Compiler_specializeAttrs = lean_io_result_get_value(w);
 lean_mark_persistent(l_Lean_Compiler_specializeAttrs);
+l_Lean_EnumAttributes_getValue___at___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux___main___spec__1___boxed__const__1 = _init_l_Lean_EnumAttributes_getValue___at___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux___main___spec__1___boxed__const__1();
+lean_mark_persistent(l_Lean_EnumAttributes_getValue___at___private_init_lean_compiler_specialize_1__hasSpecializeAttrAux___main___spec__1___boxed__const__1);
 l_Lean_Compiler_SpecState_Inhabited___closed__1 = _init_l_Lean_Compiler_SpecState_Inhabited___closed__1();
 lean_mark_persistent(l_Lean_Compiler_SpecState_Inhabited___closed__1);
 l_Lean_Compiler_SpecState_Inhabited___closed__2 = _init_l_Lean_Compiler_SpecState_Inhabited___closed__2();

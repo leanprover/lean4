@@ -187,6 +187,7 @@ lean_object* l_Lean_IR_mkIf___closed__6;
 lean_object* l_Lean_IR_mkIf___closed__5;
 lean_object* l_Lean_IR_mkDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_FnBody_beq(lean_object*, lean_object*);
+lean_object* l_Lean_IR_LocalContext_getValue___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_IR_args_alphaEqv(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_LocalContext_isLocalVar(lean_object*, lean_object*);
 lean_object* l_Lean_IR_VarId_HasToString___closed__1;
@@ -234,6 +235,7 @@ lean_object* l_Lean_IR_LitVal_HasBeq;
 lean_object* l_RBNode_find___main___at_Lean_IR_VarId_alphaEqv___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Arg_hasAeqv___closed__1;
 lean_object* l_Lean_IR_Arg_HasBeq;
+lean_object* l_Lean_IR_LocalContext_getValue(lean_object*, lean_object*);
 extern lean_object* l_Bool_HasRepr___closed__1;
 lean_object* l_Lean_IR_CtorInfo_beq___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_IR_IRType_isObj(uint8_t);
@@ -8232,6 +8234,80 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_IR_LocalContext_getType(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+lean_object* l_Lean_IR_LocalContext_getValue(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_RBNode_find___main___at_Lean_IR_LocalContext_isJP___spec__1(x_1, x_2);
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; 
+x_4 = lean_box(0);
+return x_4;
+}
+else
+{
+uint8_t x_5; 
+x_5 = !lean_is_exclusive(x_3);
+if (x_5 == 0)
+{
+lean_object* x_6; 
+x_6 = lean_ctor_get(x_3, 0);
+if (lean_obj_tag(x_6) == 1)
+{
+lean_object* x_7; 
+x_7 = lean_ctor_get(x_6, 0);
+lean_inc(x_7);
+lean_dec(x_6);
+lean_ctor_set(x_3, 0, x_7);
+return x_3;
+}
+else
+{
+lean_object* x_8; 
+lean_free_object(x_3);
+lean_dec(x_6);
+x_8 = lean_box(0);
+return x_8;
+}
+}
+else
+{
+lean_object* x_9; 
+x_9 = lean_ctor_get(x_3, 0);
+lean_inc(x_9);
+lean_dec(x_3);
+if (lean_obj_tag(x_9) == 1)
+{
+lean_object* x_10; lean_object* x_11; 
+x_10 = lean_ctor_get(x_9, 0);
+lean_inc(x_10);
+lean_dec(x_9);
+x_11 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_11, 0, x_10);
+return x_11;
+}
+else
+{
+lean_object* x_12; 
+lean_dec(x_9);
+x_12 = lean_box(0);
+return x_12;
+}
+}
+}
+}
+}
+lean_object* l_Lean_IR_LocalContext_getValue___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_IR_LocalContext_getValue(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

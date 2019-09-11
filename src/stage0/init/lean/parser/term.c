@@ -247,6 +247,7 @@ lean_object* l_Lean_Parser_Term_bnot;
 lean_object* l_Lean_Parser_orelseInfo(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_doPat___closed__5;
 lean_object* l_Lean_Parser_Term_leftArrow___elambda__1___rarg___closed__9;
+lean_object* l_Lean_Parser_Term_explicitBinder___closed__3___boxed__const__1;
 lean_object* l_Lean_Parser_Term_show___closed__3;
 lean_object* l_Lean_Parser_Term_dollar;
 lean_object* l_Lean_Parser_Term_sorry___elambda__1___rarg___closed__6;
@@ -13487,13 +13488,22 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
+lean_object* _init_l_Lean_Parser_Term_explicitBinder___closed__3___boxed__const__1() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; 
+x_1 = 0;
+x_2 = lean_box(x_1);
+return x_2;
+}
+}
 lean_object* _init_l_Lean_Parser_Term_explicitBinder___closed__3() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = 0;
 x_2 = l_Lean_Parser_Term_binderIdent___closed__2;
-x_3 = lean_box(x_1);
+x_3 = l_Lean_Parser_Term_explicitBinder___closed__3___boxed__const__1;
 x_4 = lean_alloc_closure((void*)(l_Lean_Parser_many1Fn___boxed), 5, 2);
 lean_closure_set(x_4, 0, x_3);
 lean_closure_set(x_4, 1, x_2);
@@ -29459,6 +29469,8 @@ l_Lean_Parser_Term_explicitBinder___closed__1 = _init_l_Lean_Parser_Term_explici
 lean_mark_persistent(l_Lean_Parser_Term_explicitBinder___closed__1);
 l_Lean_Parser_Term_explicitBinder___closed__2 = _init_l_Lean_Parser_Term_explicitBinder___closed__2();
 lean_mark_persistent(l_Lean_Parser_Term_explicitBinder___closed__2);
+l_Lean_Parser_Term_explicitBinder___closed__3___boxed__const__1 = _init_l_Lean_Parser_Term_explicitBinder___closed__3___boxed__const__1();
+lean_mark_persistent(l_Lean_Parser_Term_explicitBinder___closed__3___boxed__const__1);
 l_Lean_Parser_Term_explicitBinder___closed__3 = _init_l_Lean_Parser_Term_explicitBinder___closed__3();
 lean_mark_persistent(l_Lean_Parser_Term_explicitBinder___closed__3);
 l_Lean_Parser_Term_explicitBinder___closed__4 = _init_l_Lean_Parser_Term_explicitBinder___closed__4();

@@ -32,11 +32,8 @@ lean_object* l_Option_decidableRelLt___boxed(lean_object*, lean_object*);
 lean_object* l_Option_Monad___lambda__2(lean_object*, lean_object*);
 lean_object* l_Option_bind___rarg(lean_object*, lean_object*);
 lean_object* l_Option_Monad___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Option_HasBeq___rarg___boxed__const__1;
 lean_object* l_Option_isNone___rarg___boxed(lean_object*);
 lean_object* l_Option_Monad___closed__1;
-lean_object* l_Option_HasBeq___rarg___boxed__const__2;
-lean_object* l_Option_decidableRelLt___rarg___boxed__const__2;
 lean_object* l_Option_toMonad___boxed(lean_object*, lean_object*);
 lean_object* l_Option_map___rarg(lean_object*, lean_object*);
 lean_object* l_Option_orelse___rarg___boxed(lean_object*, lean_object*);
@@ -45,7 +42,6 @@ lean_object* l_Option_Monad___lambda__1(lean_object*, lean_object*, lean_object*
 uint8_t l_Option_toBool___rarg(lean_object*);
 lean_object* l_Option_HasBeq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_toMonad___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Option_decidableRelLt___rarg___boxed__const__1;
 lean_object* l_Option_HasLess(lean_object*, lean_object*);
 lean_object* l_Option_Monad___closed__2;
 lean_object* l_Option_Alternative___lambda__1(lean_object*);
@@ -757,24 +753,6 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Option_decidableRelLt___rarg___boxed__const__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
-lean_object* _init_l_Option_decidableRelLt___rarg___boxed__const__2() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 1;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
 lean_object* l_Option_decidableRelLt___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -785,7 +763,7 @@ if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = 0;
-x_5 = l_Option_decidableRelLt___rarg___boxed__const__1;
+x_5 = lean_box(x_4);
 return x_5;
 }
 else
@@ -793,7 +771,7 @@ else
 uint8_t x_6; lean_object* x_7; 
 lean_dec(x_3);
 x_6 = 1;
-x_7 = l_Option_decidableRelLt___rarg___boxed__const__2;
+x_7 = lean_box(x_6);
 return x_7;
 }
 }
@@ -805,7 +783,7 @@ uint8_t x_8; lean_object* x_9;
 lean_dec(x_2);
 lean_dec(x_1);
 x_8 = 0;
-x_9 = l_Option_decidableRelLt___rarg___boxed__const__1;
+x_9 = lean_box(x_8);
 return x_9;
 }
 else
@@ -923,24 +901,6 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
-lean_object* _init_l_Option_HasBeq___rarg___boxed__const__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 1;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
-lean_object* _init_l_Option_HasBeq___rarg___boxed__const__2() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
 lean_object* l_Option_HasBeq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -951,7 +911,7 @@ if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = 1;
-x_5 = l_Option_HasBeq___rarg___boxed__const__1;
+x_5 = lean_box(x_4);
 return x_5;
 }
 else
@@ -959,7 +919,7 @@ else
 uint8_t x_6; lean_object* x_7; 
 lean_dec(x_3);
 x_6 = 0;
-x_7 = l_Option_HasBeq___rarg___boxed__const__2;
+x_7 = lean_box(x_6);
 return x_7;
 }
 }
@@ -971,7 +931,7 @@ uint8_t x_8; lean_object* x_9;
 lean_dec(x_2);
 lean_dec(x_1);
 x_8 = 0;
-x_9 = l_Option_HasBeq___rarg___boxed__const__2;
+x_9 = lean_box(x_8);
 return x_9;
 }
 else
@@ -1061,14 +1021,6 @@ l_Option_Alternative___closed__3 = _init_l_Option_Alternative___closed__3();
 lean_mark_persistent(l_Option_Alternative___closed__3);
 l_Option_Alternative = _init_l_Option_Alternative();
 lean_mark_persistent(l_Option_Alternative);
-l_Option_decidableRelLt___rarg___boxed__const__1 = _init_l_Option_decidableRelLt___rarg___boxed__const__1();
-lean_mark_persistent(l_Option_decidableRelLt___rarg___boxed__const__1);
-l_Option_decidableRelLt___rarg___boxed__const__2 = _init_l_Option_decidableRelLt___rarg___boxed__const__2();
-lean_mark_persistent(l_Option_decidableRelLt___rarg___boxed__const__2);
-l_Option_HasBeq___rarg___boxed__const__1 = _init_l_Option_HasBeq___rarg___boxed__const__1();
-lean_mark_persistent(l_Option_HasBeq___rarg___boxed__const__1);
-l_Option_HasBeq___rarg___boxed__const__2 = _init_l_Option_HasBeq___rarg___boxed__const__2();
-lean_mark_persistent(l_Option_HasBeq___rarg___boxed__const__2);
 return w;
 }
 #ifdef __cplusplus

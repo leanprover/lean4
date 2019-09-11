@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_IR_UsesLeanNamespace_visitFnBody___main___boxed__const__2;
 uint8_t lean_name_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_CollectMaps_collectFnBody___main(lean_object*, lean_object*);
 lean_object* l_HashMapImp_moveEntries___main___at_Lean_IR_CollectMaps_collectJP___spec__4(lean_object*, lean_object*, lean_object*);
@@ -30,7 +29,6 @@ lean_object* l_Lean_IR_FnBody_body(lean_object*);
 lean_object* l_Array_miterateAux___main___at_Lean_IR_CollectMaps_collectFnBody___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_uget(lean_object*, lean_object*, size_t, lean_object*);
 lean_object* l_Lean_IR_CollectUsedDecls_collect___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_IR_usesLeanNamespace___boxed__const__1;
 lean_object* l_Array_uset(lean_object*, lean_object*, size_t, lean_object*, lean_object*);
 lean_object* l_AssocList_replace___main___at_Lean_IR_CollectMaps_collectJP___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_insert___at_Lean_IR_CollectMaps_collectVar___spec__1(lean_object*, lean_object*, uint8_t);
@@ -73,7 +71,6 @@ lean_object* l_Lean_IR_CollectMaps_collectVar(lean_object*, uint8_t, lean_object
 lean_object* l_Array_miterateAux___main___at_Lean_IR_CollectMaps_collectParams___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_FnBody_isTerminal(lean_object*);
 lean_object* l_Lean_IR_usesLeanNamespace___boxed(lean_object*, lean_object*);
-lean_object* l_Array_anyMAux___main___at_Lean_IR_UsesLeanNamespace_visitFnBody___main___spec__1___boxed__const__1;
 lean_object* l_Lean_IR_CollectMaps_collectFnBody(lean_object*, lean_object*);
 lean_object* l_Lean_IR_usesLeanNamespace(lean_object*, lean_object*);
 lean_object* l_Lean_IR_findEnvDecl(lean_object*, lean_object*);
@@ -93,7 +90,6 @@ uint8_t l_Lean_Name_isPrefixOf___main(lean_object*, lean_object*);
 lean_object* l_HashMapImp_insert___at_Lean_IR_CollectMaps_collectJP___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_AssocList_replace___main___at_Lean_IR_CollectMaps_collectVar___spec__6(lean_object*, uint8_t, lean_object*);
-lean_object* l_Lean_IR_UsesLeanNamespace_visitFnBody___main___boxed__const__1;
 extern lean_object* l_Lean_Syntax_formatStx___main___rarg___closed__4;
 lean_object* l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix;
 lean_object* l_Lean_IR_CollectMaps_collectParams(lean_object*, lean_object*);
@@ -180,15 +176,6 @@ x_1 = l_Lean_Syntax_formatStx___main___rarg___closed__4;
 return x_1;
 }
 }
-lean_object* _init_l_Array_anyMAux___main___at_Lean_IR_UsesLeanNamespace_visitFnBody___main___spec__1___boxed__const__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
 lean_object* l_Array_anyMAux___main___at_Lean_IR_UsesLeanNamespace_visitFnBody___main___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -201,7 +188,7 @@ if (x_6 == 0)
 uint8_t x_7; lean_object* x_8; lean_object* x_9; 
 lean_dec(x_2);
 x_7 = 0;
-x_8 = l_Array_anyMAux___main___at_Lean_IR_UsesLeanNamespace_visitFnBody___main___spec__1___boxed__const__1;
+x_8 = lean_box(x_7);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_8);
 lean_ctor_set(x_9, 1, x_4);
@@ -256,24 +243,6 @@ return x_22;
 }
 }
 }
-}
-}
-lean_object* _init_l_Lean_IR_UsesLeanNamespace_visitFnBody___main___boxed__const__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
-lean_object* _init_l_Lean_IR_UsesLeanNamespace_visitFnBody___main___boxed__const__2() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 1;
-x_2 = lean_box(x_1);
-return x_2;
 }
 }
 lean_object* l_Lean_IR_UsesLeanNamespace_visitFnBody___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -390,7 +359,7 @@ uint8_t x_35; lean_object* x_36; lean_object* x_37;
 lean_dec(x_14);
 lean_dec(x_13);
 x_35 = 1;
-x_36 = l_Lean_IR_UsesLeanNamespace_visitFnBody___main___boxed__const__2;
+x_36 = lean_box(x_35);
 x_37 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_37, 0, x_36);
 lean_ctor_set(x_37, 1, x_3);
@@ -500,7 +469,7 @@ uint8_t x_60; lean_object* x_61; lean_object* x_62;
 lean_dec(x_39);
 lean_dec(x_38);
 x_60 = 1;
-x_61 = l_Lean_IR_UsesLeanNamespace_visitFnBody___main___boxed__const__2;
+x_61 = lean_box(x_60);
 x_62 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_62, 0, x_61);
 lean_ctor_set(x_62, 1, x_3);
@@ -604,7 +573,7 @@ else
 uint8_t x_8; lean_object* x_9; lean_object* x_10; 
 lean_dec(x_1);
 x_8 = 0;
-x_9 = l_Lean_IR_UsesLeanNamespace_visitFnBody___main___boxed__const__1;
+x_9 = lean_box(x_8);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_3);
@@ -649,15 +618,6 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_IR_usesLeanNamespace___boxed__const__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
 lean_object* l_Lean_IR_usesLeanNamespace(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -679,7 +639,7 @@ else
 uint8_t x_7; lean_object* x_8; 
 lean_dec(x_2);
 x_7 = 0;
-x_8 = l_Lean_IR_usesLeanNamespace___boxed__const__1;
+x_8 = lean_box(x_7);
 return x_8;
 }
 }
@@ -2129,14 +2089,6 @@ w = initialize_init_lean_compiler_ir_compilerm(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix = _init_l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix();
 lean_mark_persistent(l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix);
-l_Array_anyMAux___main___at_Lean_IR_UsesLeanNamespace_visitFnBody___main___spec__1___boxed__const__1 = _init_l_Array_anyMAux___main___at_Lean_IR_UsesLeanNamespace_visitFnBody___main___spec__1___boxed__const__1();
-lean_mark_persistent(l_Array_anyMAux___main___at_Lean_IR_UsesLeanNamespace_visitFnBody___main___spec__1___boxed__const__1);
-l_Lean_IR_UsesLeanNamespace_visitFnBody___main___boxed__const__1 = _init_l_Lean_IR_UsesLeanNamespace_visitFnBody___main___boxed__const__1();
-lean_mark_persistent(l_Lean_IR_UsesLeanNamespace_visitFnBody___main___boxed__const__1);
-l_Lean_IR_UsesLeanNamespace_visitFnBody___main___boxed__const__2 = _init_l_Lean_IR_UsesLeanNamespace_visitFnBody___main___boxed__const__2();
-lean_mark_persistent(l_Lean_IR_UsesLeanNamespace_visitFnBody___main___boxed__const__2);
-l_Lean_IR_usesLeanNamespace___boxed__const__1 = _init_l_Lean_IR_usesLeanNamespace___boxed__const__1();
-lean_mark_persistent(l_Lean_IR_usesLeanNamespace___boxed__const__1);
 l_Lean_IR_mkVarJPMaps___closed__1 = _init_l_Lean_IR_mkVarJPMaps___closed__1();
 lean_mark_persistent(l_Lean_IR_mkVarJPMaps___closed__1);
 l_Lean_IR_mkVarJPMaps___closed__2 = _init_l_Lean_IR_mkVarJPMaps___closed__2();

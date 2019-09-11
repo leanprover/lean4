@@ -44,7 +44,6 @@ lean_object* l_Lean_IR_Borrow_preserveTailCall(lean_object*, lean_object*, lean_
 lean_object* l_Lean_IR_FnBody_body(lean_object*);
 lean_object* l_Lean_IR_Borrow_InitParamMap_visitDecls(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_Lean_HasFormat;
-lean_object* l_Lean_IR_Borrow_isOwned___boxed__const__1;
 lean_object* l_Array_miterateAux___main___at_Lean_IR_Borrow_updateParamSet___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_ParamMap_fmt___closed__1;
 lean_object* l_Lean_IR_Borrow_updateParamMap___boxed(lean_object*, lean_object*, lean_object*);
@@ -69,7 +68,6 @@ lean_object* l_Lean_IR_Borrow_ownArgsIfParam___boxed(lean_object*, lean_object*,
 lean_object* l_Lean_IR_Borrow_preserveTailCall___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_whileModifingOwnedAux___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_getParamInfo(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_IR_Borrow_isOwned___boxed__const__2;
 lean_object* l_Array_mforAux___main___at_Lean_IR_Borrow_InitParamMap_visitDecls___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_applyParamMap___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_isOwned___boxed(lean_object*, lean_object*, lean_object*);
@@ -1775,24 +1773,6 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* _init_l_Lean_IR_Borrow_isOwned___boxed__const__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
-lean_object* _init_l_Lean_IR_Borrow_isOwned___boxed__const__2() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 1;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
 lean_object* l_Lean_IR_Borrow_isOwned(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1805,7 +1785,7 @@ if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = 0;
-x_7 = l_Lean_IR_Borrow_isOwned___boxed__const__1;
+x_7 = lean_box(x_6);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
 lean_ctor_set(x_8, 1, x_3);
@@ -1816,7 +1796,7 @@ else
 uint8_t x_9; lean_object* x_10; lean_object* x_11; 
 lean_dec(x_5);
 x_9 = 1;
-x_10 = l_Lean_IR_Borrow_isOwned___boxed__const__2;
+x_10 = lean_box(x_9);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_3);
@@ -3930,10 +3910,6 @@ l_Lean_IR_Borrow_Lean_HasFormat = _init_l_Lean_IR_Borrow_Lean_HasFormat();
 lean_mark_persistent(l_Lean_IR_Borrow_Lean_HasFormat);
 l_Lean_IR_Borrow_mkInitParamMap___closed__1 = _init_l_Lean_IR_Borrow_mkInitParamMap___closed__1();
 lean_mark_persistent(l_Lean_IR_Borrow_mkInitParamMap___closed__1);
-l_Lean_IR_Borrow_isOwned___boxed__const__1 = _init_l_Lean_IR_Borrow_isOwned___boxed__const__1();
-lean_mark_persistent(l_Lean_IR_Borrow_isOwned___boxed__const__1);
-l_Lean_IR_Borrow_isOwned___boxed__const__2 = _init_l_Lean_IR_Borrow_isOwned___boxed__const__2();
-lean_mark_persistent(l_Lean_IR_Borrow_isOwned___boxed__const__2);
 return w;
 }
 #ifdef __cplusplus

@@ -32,7 +32,6 @@ lean_object* l_RBNode_del___main___at___private_init_lean_compiler_ir_livevars_8
 lean_object* l___private_init_lean_compiler_ir_livevars_4__collectArray___at_Lean_IR_LiveVars_collectFnBody___main___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_livevars_9__bindParams___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_livevars_5__collectArgs(lean_object*, lean_object*);
-lean_object* l_Lean_IR_IsLive_visitFnBody___main___boxed__const__1;
 lean_object* l___private_init_lean_compiler_ir_livevars_1__skip(lean_object*);
 lean_object* l_Lean_IR_IsLive_visitExpr___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_livevars_4__collectArray___rarg(lean_object*, lean_object*, lean_object*);
@@ -99,7 +98,6 @@ lean_object* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_liv
 lean_object* l_RBNode_erase___at___private_init_lean_compiler_ir_livevars_8__bindVar___spec__1___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_IR_HasIndex_visitArg(lean_object*, lean_object*);
 lean_object* l_Lean_IR_mkLiveVarSet(lean_object*);
-lean_object* l_Array_anyMAux___main___at_Lean_IR_IsLive_visitFnBody___main___spec__1___boxed__const__1;
 lean_object* l_RBNode_ins___main___at_Lean_IR_mkLiveVarSet___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_IsLive_visitArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_IsLive_visitVar(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -213,15 +211,6 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* _init_l_Array_anyMAux___main___at_Lean_IR_IsLive_visitFnBody___main___spec__1___boxed__const__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
 lean_object* l_Array_anyMAux___main___at_Lean_IR_IsLive_visitFnBody___main___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -234,7 +223,7 @@ if (x_6 == 0)
 uint8_t x_7; lean_object* x_8; lean_object* x_9; 
 lean_dec(x_3);
 x_7 = 0;
-x_8 = l_Array_anyMAux___main___at_Lean_IR_IsLive_visitFnBody___main___spec__1___boxed__const__1;
+x_8 = lean_box(x_7);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_8);
 lean_ctor_set(x_9, 1, x_4);
@@ -290,15 +279,6 @@ return x_22;
 }
 }
 }
-}
-}
-lean_object* _init_l_Lean_IR_IsLive_visitFnBody___main___boxed__const__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-return x_2;
 }
 }
 lean_object* l_Lean_IR_IsLive_visitFnBody___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -586,7 +566,7 @@ case 13:
 {
 uint8_t x_82; lean_object* x_83; lean_object* x_84; 
 x_82 = 0;
-x_83 = l_Lean_IR_IsLive_visitFnBody___main___boxed__const__1;
+x_83 = lean_box(x_82);
 x_84 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_84, 0, x_83);
 lean_ctor_set(x_84, 1, x_3);
@@ -6600,10 +6580,6 @@ w = initialize_init_control_reader(w);
 if (lean_io_result_is_error(w)) return w;
 w = initialize_init_control_conditional(w);
 if (lean_io_result_is_error(w)) return w;
-l_Array_anyMAux___main___at_Lean_IR_IsLive_visitFnBody___main___spec__1___boxed__const__1 = _init_l_Array_anyMAux___main___at_Lean_IR_IsLive_visitFnBody___main___spec__1___boxed__const__1();
-lean_mark_persistent(l_Array_anyMAux___main___at_Lean_IR_IsLive_visitFnBody___main___spec__1___boxed__const__1);
-l_Lean_IR_IsLive_visitFnBody___main___boxed__const__1 = _init_l_Lean_IR_IsLive_visitFnBody___main___boxed__const__1();
-lean_mark_persistent(l_Lean_IR_IsLive_visitFnBody___main___boxed__const__1);
 l_Lean_IR_LiveVarSet_inhabited = _init_l_Lean_IR_LiveVarSet_inhabited();
 lean_mark_persistent(l_Lean_IR_LiveVarSet_inhabited);
 l___private_init_lean_compiler_ir_livevars_6__accumulate___closed__1 = _init_l___private_init_lean_compiler_ir_livevars_6__accumulate___closed__1();

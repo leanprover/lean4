@@ -135,7 +135,6 @@ lean_object* l_Lean_Compiler_isOfNat___boxed(lean_object*);
 lean_object* l_Lean_Compiler_foldCharOfNat___closed__1;
 lean_object* l_Lean_Compiler_findUnFoldFn(lean_object*);
 lean_object* l_Lean_Compiler_foldNatAdd___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_Compiler_getBoolLit___closed__5___boxed__const__1;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__6;
 lean_object* l_Lean_Compiler_boolFoldFns___closed__7;
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -315,7 +314,6 @@ lean_object* l_Lean_Compiler_foldNatMul___rarg___boxed(lean_object*, lean_object
 lean_object* l_Lean_Compiler_mkNatEq___closed__7;
 lean_object* l_Lean_Compiler_numScalarTypes___closed__28;
 lean_object* l_Lean_Compiler_mkNatEq___closed__4;
-lean_object* l_Lean_Compiler_getBoolLit___closed__6___boxed__const__1;
 extern lean_object* l_Bool_HasRepr___closed__1;
 lean_object* l_Lean_Compiler_foldUIntSub(uint8_t, lean_object*, lean_object*);
 extern lean_object* l_Nat_HasAdd___closed__1;
@@ -3001,33 +2999,15 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Compiler_getBoolLit___closed__5___boxed__const__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
 lean_object* _init_l_Lean_Compiler_getBoolLit___closed__5() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = 0;
-x_2 = l_Lean_Compiler_getBoolLit___closed__5___boxed__const__1;
+x_2 = lean_box(x_1);
 x_3 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_3, 0, x_2);
 return x_3;
-}
-}
-lean_object* _init_l_Lean_Compiler_getBoolLit___closed__6___boxed__const__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 1;
-x_2 = lean_box(x_1);
-return x_2;
 }
 }
 lean_object* _init_l_Lean_Compiler_getBoolLit___closed__6() {
@@ -3035,7 +3015,7 @@ _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = 1;
-x_2 = l_Lean_Compiler_getBoolLit___closed__6___boxed__const__1;
+x_2 = lean_box(x_1);
 x_3 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_3, 0, x_2);
 return x_3;
@@ -4529,12 +4509,8 @@ l_Lean_Compiler_getBoolLit___closed__3 = _init_l_Lean_Compiler_getBoolLit___clos
 lean_mark_persistent(l_Lean_Compiler_getBoolLit___closed__3);
 l_Lean_Compiler_getBoolLit___closed__4 = _init_l_Lean_Compiler_getBoolLit___closed__4();
 lean_mark_persistent(l_Lean_Compiler_getBoolLit___closed__4);
-l_Lean_Compiler_getBoolLit___closed__5___boxed__const__1 = _init_l_Lean_Compiler_getBoolLit___closed__5___boxed__const__1();
-lean_mark_persistent(l_Lean_Compiler_getBoolLit___closed__5___boxed__const__1);
 l_Lean_Compiler_getBoolLit___closed__5 = _init_l_Lean_Compiler_getBoolLit___closed__5();
 lean_mark_persistent(l_Lean_Compiler_getBoolLit___closed__5);
-l_Lean_Compiler_getBoolLit___closed__6___boxed__const__1 = _init_l_Lean_Compiler_getBoolLit___closed__6___boxed__const__1();
-lean_mark_persistent(l_Lean_Compiler_getBoolLit___closed__6___boxed__const__1);
 l_Lean_Compiler_getBoolLit___closed__6 = _init_l_Lean_Compiler_getBoolLit___closed__6();
 lean_mark_persistent(l_Lean_Compiler_getBoolLit___closed__6);
 l_Lean_Compiler_boolFoldFns___closed__1 = _init_l_Lean_Compiler_boolFoldFns___closed__1();

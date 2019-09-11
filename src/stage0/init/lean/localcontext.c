@@ -218,7 +218,6 @@ lean_object* l_PersistentArray_mfoldlFromAux___main___at_Lean_LocalContext_foldl
 lean_object* l_Array_mfindRevAux___main___at_Lean_LocalContext_findFromUserName___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_mfoldlFromAux___main___at_Lean_LocalContext_foldlFrom___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_mfoldlFrom___at_Lean_LocalContext_foldlFrom___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__2;
 lean_object* l_Lean_LocalDecl_type(lean_object*);
 lean_object* l_Array_miterateAux___main___at_Lean_LocalContext_foldlFrom___spec__6(lean_object*);
 lean_object* l_Array_mfindRevAux___main___at_Lean_LocalContext_mfindDeclRev___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -229,7 +228,6 @@ lean_object* l_Lean_LocalContext_mfoldl___at_Lean_LocalContext_foldl___spec__1__
 lean_object* l_Array_miterateAux___main___at_Lean_LocalContext_mfoldlFrom___spec__2___boxed(lean_object*);
 lean_object* l_PersistentArray_mfor___at_Lean_LocalContext_mfor___spec__1(lean_object*);
 lean_object* l_PersistentArray_mfoldlFrom___at_Lean_LocalContext_mfoldlFrom___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__1;
 lean_object* l_Array_mforAux___main___at_Lean_LocalContext_mfor___spec__4___boxed(lean_object*);
 lean_object* l_Lean_LocalContext_mfoldl___boxed(lean_object*);
 lean_object* l_Array_mfindAux___main___at_Lean_LocalContext_mfindDecl___spec__4___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1698,24 +1696,6 @@ return x_12;
 }
 }
 }
-lean_object* _init_l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
-lean_object* _init_l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__2() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 1;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
 lean_object* l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2(lean_object* x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
@@ -1745,7 +1725,7 @@ uint8_t x_13; lean_object* x_14; lean_object* x_15;
 lean_dec(x_8);
 lean_dec(x_4);
 x_13 = 0;
-x_14 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__1;
+x_14 = lean_box(x_13);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_1);
 lean_ctor_set(x_15, 1, x_14);
@@ -1764,7 +1744,7 @@ x_18 = lean_array_set(x_4, x_8, x_9);
 lean_dec(x_8);
 lean_ctor_set(x_1, 0, x_18);
 x_19 = 1;
-x_20 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__2;
+x_20 = lean_box(x_19);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_1);
 lean_ctor_set(x_21, 1, x_20);
@@ -1779,7 +1759,7 @@ lean_dec(x_8);
 x_23 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_23, 0, x_22);
 x_24 = 1;
-x_25 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__2;
+x_25 = lean_box(x_24);
 x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_23);
 lean_ctor_set(x_26, 1, x_25);
@@ -1817,7 +1797,7 @@ lean_dec(x_35);
 x_36 = lean_ctor_get(x_31, 0);
 lean_dec(x_36);
 x_37 = 0;
-x_38 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__1;
+x_38 = lean_box(x_37);
 lean_ctor_set(x_31, 1, x_38);
 lean_ctor_set(x_31, 0, x_1);
 return x_31;
@@ -1827,7 +1807,7 @@ else
 uint8_t x_39; lean_object* x_40; lean_object* x_41; 
 lean_dec(x_31);
 x_39 = 0;
-x_40 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__1;
+x_40 = lean_box(x_39);
 x_41 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_41, 0, x_1);
 lean_ctor_set(x_41, 1, x_40);
@@ -1859,7 +1839,7 @@ x_48 = lean_array_set(x_29, x_8, x_10);
 lean_dec(x_8);
 lean_ctor_set(x_1, 0, x_48);
 x_49 = 1;
-x_50 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__2;
+x_50 = lean_box(x_49);
 lean_ctor_set(x_31, 1, x_50);
 lean_ctor_set(x_31, 0, x_1);
 return x_31;
@@ -1886,7 +1866,7 @@ x_56 = lean_array_set(x_29, x_8, x_55);
 lean_dec(x_8);
 lean_ctor_set(x_1, 0, x_56);
 x_57 = 1;
-x_58 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__2;
+x_58 = lean_box(x_57);
 lean_ctor_set(x_51, 1, x_58);
 lean_ctor_set(x_51, 0, x_1);
 return x_51;
@@ -1906,7 +1886,7 @@ x_62 = lean_array_set(x_29, x_8, x_61);
 lean_dec(x_8);
 lean_ctor_set(x_1, 0, x_62);
 x_63 = 1;
-x_64 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__2;
+x_64 = lean_box(x_63);
 x_65 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_65, 0, x_1);
 lean_ctor_set(x_65, 1, x_64);
@@ -1929,7 +1909,7 @@ x_68 = lean_array_set(x_29, x_8, x_10);
 lean_dec(x_8);
 lean_ctor_set(x_1, 0, x_68);
 x_69 = 1;
-x_70 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__2;
+x_70 = lean_box(x_69);
 x_71 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_71, 0, x_1);
 lean_ctor_set(x_71, 1, x_70);
@@ -1962,7 +1942,7 @@ x_77 = lean_array_set(x_29, x_8, x_76);
 lean_dec(x_8);
 lean_ctor_set(x_1, 0, x_77);
 x_78 = 1;
-x_79 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__2;
+x_79 = lean_box(x_78);
 if (lean_is_scalar(x_75)) {
  x_80 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -1998,7 +1978,7 @@ lean_dec(x_8);
 x_85 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_85, 0, x_84);
 x_86 = 1;
-x_87 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__2;
+x_87 = lean_box(x_86);
 if (lean_is_scalar(x_82)) {
  x_88 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -2037,7 +2017,7 @@ lean_dec(x_8);
 x_95 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_95, 0, x_94);
 x_96 = 1;
-x_97 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__2;
+x_97 = lean_box(x_96);
 if (lean_is_scalar(x_92)) {
  x_98 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -2077,7 +2057,7 @@ if (lean_is_exclusive(x_102)) {
  x_105 = lean_box(0);
 }
 x_106 = 0;
-x_107 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__1;
+x_107 = lean_box(x_106);
 if (lean_is_scalar(x_105)) {
  x_108 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -2122,7 +2102,7 @@ if (lean_is_scalar(x_109)) {
 }
 lean_ctor_set(x_115, 0, x_114);
 x_116 = 1;
-x_117 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__2;
+x_117 = lean_box(x_116);
 if (lean_is_scalar(x_111)) {
  x_118 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -2164,7 +2144,7 @@ if (lean_is_scalar(x_109)) {
 }
 lean_ctor_set(x_125, 0, x_124);
 x_126 = 1;
-x_127 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__2;
+x_127 = lean_box(x_126);
 if (lean_is_scalar(x_122)) {
  x_128 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -2183,7 +2163,7 @@ uint8_t x_129; lean_object* x_130; lean_object* x_131;
 lean_dec(x_8);
 lean_dec(x_4);
 x_129 = 0;
-x_130 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__1;
+x_130 = lean_box(x_129);
 x_131 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_131, 0, x_1);
 lean_ctor_set(x_131, 1, x_130);
@@ -2206,7 +2186,7 @@ uint8_t x_136; lean_object* x_137; lean_object* x_138;
 lean_dec(x_133);
 lean_dec(x_132);
 x_136 = 0;
-x_137 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__1;
+x_137 = lean_box(x_136);
 x_138 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_138, 0, x_1);
 lean_ctor_set(x_138, 1, x_137);
@@ -2232,7 +2212,7 @@ lean_dec(x_142);
 lean_ctor_set(x_1, 1, x_144);
 lean_ctor_set(x_1, 0, x_143);
 x_145 = 1;
-x_146 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__2;
+x_146 = lean_box(x_145);
 x_147 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_147, 0, x_1);
 lean_ctor_set(x_147, 1, x_146);
@@ -2252,7 +2232,7 @@ x_151 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_151, 0, x_149);
 lean_ctor_set(x_151, 1, x_150);
 x_152 = 1;
-x_153 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__2;
+x_153 = lean_box(x_152);
 x_154 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_154, 0, x_151);
 lean_ctor_set(x_154, 1, x_153);
@@ -6609,10 +6589,6 @@ l_Lean_LocalContext_Inhabited = _init_l_Lean_LocalContext_Inhabited();
 lean_mark_persistent(l_Lean_LocalContext_Inhabited);
 l_Lean_LocalContext_empty = _init_l_Lean_LocalContext_empty();
 lean_mark_persistent(l_Lean_LocalContext_empty);
-l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__1 = _init_l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__1();
-lean_mark_persistent(l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__1);
-l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__2 = _init_l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__2();
-lean_mark_persistent(l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2___boxed__const__2);
 return w;
 }
 #ifdef __cplusplus

@@ -15,9 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Nat_bitwise___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_bitwise___main(lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_bitwise___main___boxed__const__1;
 lean_object* l_Nat_bitwise___main___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_bitwise___main___boxed__const__2;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Nat_land___boxed(lean_object*, lean_object*);
@@ -27,24 +25,6 @@ lean_object* lean_nat_land(lean_object*, lean_object*);
 lean_object* l_Nat_lor___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* lean_nat_lor(lean_object*, lean_object*);
-lean_object* _init_l_Nat_bitwise___main___boxed__const__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 1;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
-lean_object* _init_l_Nat_bitwise___main___boxed__const__2() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
 lean_object* l_Nat_bitwise___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -99,8 +79,8 @@ else
 uint8_t x_23; uint8_t x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; 
 x_23 = 1;
 x_24 = 0;
-x_25 = l_Nat_bitwise___main___boxed__const__1;
-x_26 = l_Nat_bitwise___main___boxed__const__2;
+x_25 = lean_box(x_23);
+x_26 = lean_box(x_24);
 x_27 = lean_apply_2(x_1, x_25, x_26);
 x_28 = lean_unbox(x_27);
 lean_dec(x_27);
@@ -122,8 +102,8 @@ else
 uint8_t x_30; uint8_t x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; 
 x_30 = 0;
 x_31 = 1;
-x_32 = l_Nat_bitwise___main___boxed__const__2;
-x_33 = l_Nat_bitwise___main___boxed__const__1;
+x_32 = lean_box(x_30);
+x_33 = lean_box(x_31);
 x_34 = lean_apply_2(x_1, x_32, x_33);
 x_35 = lean_unbox(x_34);
 lean_dec(x_34);
@@ -199,10 +179,6 @@ w = initialize_init_data_nat_div(w);
 if (lean_io_result_is_error(w)) return w;
 w = initialize_init_coe(w);
 if (lean_io_result_is_error(w)) return w;
-l_Nat_bitwise___main___boxed__const__1 = _init_l_Nat_bitwise___main___boxed__const__1();
-lean_mark_persistent(l_Nat_bitwise___main___boxed__const__1);
-l_Nat_bitwise___main___boxed__const__2 = _init_l_Nat_bitwise___main___boxed__const__2();
-lean_mark_persistent(l_Nat_bitwise___main___boxed__const__2);
 return w;
 }
 #ifdef __cplusplus

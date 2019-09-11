@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_Array_anyMAux___main___at_Lean_Compiler_mkInlineAttrs___spec__6___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__23;
-lean_object* l_Lean_Compiler_mkInlineAttrs___closed__21___boxed__const__1;
 uint8_t lean_name_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__19;
 lean_object* l_Lean_EnumAttributes_getValue___at___private_init_lean_compiler_inlineattrs_1__hasInlineAttrAux___main___spec__1(lean_object*, lean_object*, lean_object*);
@@ -37,10 +36,8 @@ lean_object* l_Lean_Compiler_InlineAttributeKind_HasBeq___closed__1;
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__10;
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__12;
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__8;
-lean_object* l_Lean_Compiler_mkInlineAttrs___closed__6___boxed__const__1;
 lean_object* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkInlineAttrs___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__27;
-lean_object* l_Lean_Compiler_mkInlineAttrs___closed__16___boxed__const__1;
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__4;
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_hasNoInlineAttribute___boxed(lean_object*, lean_object*);
@@ -92,7 +89,6 @@ lean_object* l_Lean_Compiler_mkInlineAttrs___closed__4;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_fold___main___at_Lean_Compiler_mkInlineAttrs___spec__2(lean_object*, lean_object*);
-lean_object* l_Lean_Compiler_mkInlineAttrs___closed__11___boxed__const__1;
 lean_object* l_List_map___main___at_Lean_Compiler_mkInlineAttrs___spec__8___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerTagAttribute___lambda__4___closed__3;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -103,7 +99,6 @@ lean_object* l_Array_push(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__21;
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__22;
 lean_object* l_RBNode_find___main___at___private_init_lean_compiler_inlineattrs_1__hasInlineAttrAux___main___spec__2(lean_object*, lean_object*);
-lean_object* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkInlineAttrs___spec__4___closed__1___boxed__const__1;
 lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkInlineAttrs___spec__1___closed__1;
 lean_object* l_RBNode_find___main___at___private_init_lean_compiler_inlineattrs_1__hasInlineAttrAux___main___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_EState_bind___rarg(lean_object*, lean_object*, lean_object*);
@@ -142,7 +137,6 @@ lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkInlineAttrs___sp
 uint8_t lean_has_inline_attribute(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerTagAttribute___closed__1;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
-lean_object* l_Lean_EnumAttributes_getValue___at___private_init_lean_compiler_inlineattrs_1__hasInlineAttrAux___main___spec__1___boxed__const__1;
 lean_object* l_IO_Prim_Ref_reset(lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_init_lean_environment_5__envExtensionsRef;
 lean_object* l_Array_binSearchAux___main___at___private_init_lean_compiler_inlineattrs_1__hasInlineAttrAux___main___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -291,22 +285,13 @@ goto _start;
 }
 }
 }
-lean_object* _init_l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkInlineAttrs___spec__4___closed__1___boxed__const__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = l_Lean_Compiler_InlineAttributeKind_Inhabited;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
 lean_object* _init_l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkInlineAttrs___spec__4___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Inhabited;
 x_2 = l_Lean_Compiler_InlineAttributeKind_Inhabited;
-x_3 = l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkInlineAttrs___spec__4___closed__1___boxed__const__1;
+x_3 = lean_box(x_2);
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_3);
@@ -2823,22 +2808,13 @@ x_1 = lean_mk_string("mark definition to always be inlined");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__6___boxed__const__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
 lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__6() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Compiler_mkInlineAttrs___closed__5;
 x_2 = 0;
-x_3 = l_Lean_Compiler_mkInlineAttrs___closed__6___boxed__const__1;
+x_3 = lean_box(x_2);
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_3);
@@ -2883,22 +2859,13 @@ x_1 = lean_mk_string("mark definition to be inlined when resultant term after re
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__11___boxed__const__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 3;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
 lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__11() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Compiler_mkInlineAttrs___closed__10;
 x_2 = 3;
-x_3 = l_Lean_Compiler_mkInlineAttrs___closed__11___boxed__const__1;
+x_3 = lean_box(x_2);
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_3);
@@ -2943,22 +2910,13 @@ x_1 = lean_mk_string("mark definition to never be inlined");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__16___boxed__const__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 1;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
 lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__16() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Compiler_mkInlineAttrs___closed__15;
 x_2 = 1;
-x_3 = l_Lean_Compiler_mkInlineAttrs___closed__16___boxed__const__1;
+x_3 = lean_box(x_2);
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_3);
@@ -3003,22 +2961,13 @@ x_1 = lean_mk_string("mark definition to always be inlined before ANF conversion
 return x_1;
 }
 }
-lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__21___boxed__const__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 2;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
 lean_object* _init_l_Lean_Compiler_mkInlineAttrs___closed__21() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Compiler_mkInlineAttrs___closed__20;
 x_2 = 2;
-x_3 = l_Lean_Compiler_mkInlineAttrs___closed__21___boxed__const__1;
+x_3 = lean_box(x_2);
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_3);
@@ -3299,15 +3248,6 @@ goto _start;
 }
 }
 }
-lean_object* _init_l_Lean_EnumAttributes_getValue___at___private_init_lean_compiler_inlineattrs_1__hasInlineAttrAux___main___spec__1___boxed__const__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-return x_2;
-}
-}
 lean_object* l_Lean_EnumAttributes_getValue___at___private_init_lean_compiler_inlineattrs_1__hasInlineAttrAux___main___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -3337,7 +3277,7 @@ lean_dec(x_1);
 x_10 = l_Lean_PersistentEnvExtension_getModuleEntries___rarg(x_9, x_2, x_8);
 lean_dec(x_8);
 x_11 = 0;
-x_12 = l_Lean_EnumAttributes_getValue___at___private_init_lean_compiler_inlineattrs_1__hasInlineAttrAux___main___spec__1___boxed__const__1;
+x_12 = lean_box(x_11);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_3);
 lean_ctor_set(x_13, 1, x_12);
@@ -3592,8 +3532,6 @@ l_Lean_Compiler_InlineAttributeKind_HasBeq___closed__1 = _init_l_Lean_Compiler_I
 lean_mark_persistent(l_Lean_Compiler_InlineAttributeKind_HasBeq___closed__1);
 l_Lean_Compiler_InlineAttributeKind_HasBeq = _init_l_Lean_Compiler_InlineAttributeKind_HasBeq();
 lean_mark_persistent(l_Lean_Compiler_InlineAttributeKind_HasBeq);
-l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkInlineAttrs___spec__4___closed__1___boxed__const__1 = _init_l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkInlineAttrs___spec__4___closed__1___boxed__const__1();
-lean_mark_persistent(l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkInlineAttrs___spec__4___closed__1___boxed__const__1);
 l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkInlineAttrs___spec__4___closed__1 = _init_l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkInlineAttrs___spec__4___closed__1();
 lean_mark_persistent(l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_Compiler_mkInlineAttrs___spec__4___closed__1);
 l_Lean_registerEnumAttributes___at_Lean_Compiler_mkInlineAttrs___spec__1___closed__1 = _init_l_Lean_registerEnumAttributes___at_Lean_Compiler_mkInlineAttrs___spec__1___closed__1();
@@ -3610,8 +3548,6 @@ l_Lean_Compiler_mkInlineAttrs___closed__4 = _init_l_Lean_Compiler_mkInlineAttrs_
 lean_mark_persistent(l_Lean_Compiler_mkInlineAttrs___closed__4);
 l_Lean_Compiler_mkInlineAttrs___closed__5 = _init_l_Lean_Compiler_mkInlineAttrs___closed__5();
 lean_mark_persistent(l_Lean_Compiler_mkInlineAttrs___closed__5);
-l_Lean_Compiler_mkInlineAttrs___closed__6___boxed__const__1 = _init_l_Lean_Compiler_mkInlineAttrs___closed__6___boxed__const__1();
-lean_mark_persistent(l_Lean_Compiler_mkInlineAttrs___closed__6___boxed__const__1);
 l_Lean_Compiler_mkInlineAttrs___closed__6 = _init_l_Lean_Compiler_mkInlineAttrs___closed__6();
 lean_mark_persistent(l_Lean_Compiler_mkInlineAttrs___closed__6);
 l_Lean_Compiler_mkInlineAttrs___closed__7 = _init_l_Lean_Compiler_mkInlineAttrs___closed__7();
@@ -3622,8 +3558,6 @@ l_Lean_Compiler_mkInlineAttrs___closed__9 = _init_l_Lean_Compiler_mkInlineAttrs_
 lean_mark_persistent(l_Lean_Compiler_mkInlineAttrs___closed__9);
 l_Lean_Compiler_mkInlineAttrs___closed__10 = _init_l_Lean_Compiler_mkInlineAttrs___closed__10();
 lean_mark_persistent(l_Lean_Compiler_mkInlineAttrs___closed__10);
-l_Lean_Compiler_mkInlineAttrs___closed__11___boxed__const__1 = _init_l_Lean_Compiler_mkInlineAttrs___closed__11___boxed__const__1();
-lean_mark_persistent(l_Lean_Compiler_mkInlineAttrs___closed__11___boxed__const__1);
 l_Lean_Compiler_mkInlineAttrs___closed__11 = _init_l_Lean_Compiler_mkInlineAttrs___closed__11();
 lean_mark_persistent(l_Lean_Compiler_mkInlineAttrs___closed__11);
 l_Lean_Compiler_mkInlineAttrs___closed__12 = _init_l_Lean_Compiler_mkInlineAttrs___closed__12();
@@ -3634,8 +3568,6 @@ l_Lean_Compiler_mkInlineAttrs___closed__14 = _init_l_Lean_Compiler_mkInlineAttrs
 lean_mark_persistent(l_Lean_Compiler_mkInlineAttrs___closed__14);
 l_Lean_Compiler_mkInlineAttrs___closed__15 = _init_l_Lean_Compiler_mkInlineAttrs___closed__15();
 lean_mark_persistent(l_Lean_Compiler_mkInlineAttrs___closed__15);
-l_Lean_Compiler_mkInlineAttrs___closed__16___boxed__const__1 = _init_l_Lean_Compiler_mkInlineAttrs___closed__16___boxed__const__1();
-lean_mark_persistent(l_Lean_Compiler_mkInlineAttrs___closed__16___boxed__const__1);
 l_Lean_Compiler_mkInlineAttrs___closed__16 = _init_l_Lean_Compiler_mkInlineAttrs___closed__16();
 lean_mark_persistent(l_Lean_Compiler_mkInlineAttrs___closed__16);
 l_Lean_Compiler_mkInlineAttrs___closed__17 = _init_l_Lean_Compiler_mkInlineAttrs___closed__17();
@@ -3646,8 +3578,6 @@ l_Lean_Compiler_mkInlineAttrs___closed__19 = _init_l_Lean_Compiler_mkInlineAttrs
 lean_mark_persistent(l_Lean_Compiler_mkInlineAttrs___closed__19);
 l_Lean_Compiler_mkInlineAttrs___closed__20 = _init_l_Lean_Compiler_mkInlineAttrs___closed__20();
 lean_mark_persistent(l_Lean_Compiler_mkInlineAttrs___closed__20);
-l_Lean_Compiler_mkInlineAttrs___closed__21___boxed__const__1 = _init_l_Lean_Compiler_mkInlineAttrs___closed__21___boxed__const__1();
-lean_mark_persistent(l_Lean_Compiler_mkInlineAttrs___closed__21___boxed__const__1);
 l_Lean_Compiler_mkInlineAttrs___closed__21 = _init_l_Lean_Compiler_mkInlineAttrs___closed__21();
 lean_mark_persistent(l_Lean_Compiler_mkInlineAttrs___closed__21);
 l_Lean_Compiler_mkInlineAttrs___closed__22 = _init_l_Lean_Compiler_mkInlineAttrs___closed__22();
@@ -3666,8 +3596,6 @@ w = l_Lean_Compiler_mkInlineAttrs(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_Compiler_inlineAttrs = lean_io_result_get_value(w);
 lean_mark_persistent(l_Lean_Compiler_inlineAttrs);
-l_Lean_EnumAttributes_getValue___at___private_init_lean_compiler_inlineattrs_1__hasInlineAttrAux___main___spec__1___boxed__const__1 = _init_l_Lean_EnumAttributes_getValue___at___private_init_lean_compiler_inlineattrs_1__hasInlineAttrAux___main___spec__1___boxed__const__1();
-lean_mark_persistent(l_Lean_EnumAttributes_getValue___at___private_init_lean_compiler_inlineattrs_1__hasInlineAttrAux___main___spec__1___boxed__const__1);
 return w;
 }
 #ifdef __cplusplus

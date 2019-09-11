@@ -95,19 +95,16 @@ return x_9;
 lean_object* l_HashMapImp_find___at_Lean_Elab_elabTermAux___main___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; size_t x_8; lean_object* x_9; lean_object* x_10; 
+lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_array_get_size(x_3);
 x_5 = lean_name_hash_usize(x_2);
 x_6 = lean_usize_modn(x_5, x_4);
 lean_dec(x_4);
-x_7 = lean_box_usize(x_6);
-x_8 = lean_unbox_usize(x_7);
+x_7 = lean_array_uget(x_3, x_6);
+x_8 = l_AssocList_find___main___at_Lean_Elab_elabTermAux___main___spec__3(x_2, x_7);
 lean_dec(x_7);
-x_9 = lean_array_uget(x_3, x_8);
-x_10 = l_AssocList_find___main___at_Lean_Elab_elabTermAux___main___spec__3(x_2, x_9);
-lean_dec(x_9);
-return x_10;
+return x_8;
 }
 }
 lean_object* l_Lean_SMap_find___at_Lean_Elab_elabTermAux___main___spec__1(lean_object* x_1, lean_object* x_2) {

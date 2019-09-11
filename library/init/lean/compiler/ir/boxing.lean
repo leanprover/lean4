@@ -165,8 +165,10 @@ adaptReader (fun (ctx : BoxingContext) => { localCtx := ctx.localCtx.addJP j xs 
    and `x`'s type is not cheap to box (e.g., it is `UInt64), then return its value. -/
 private def isExpensiveConstantValueBoxing (x : VarId) (xType : IRType) : M (Option Expr) :=
 if !xType.isScalar then pure none -- We assume unboxing is always cheap
-else if xType != IRType.uint64 && xType != IRType.uint32 && xType != IRType.usize then pure none
-else do
+else match xType with
+| IRType.uint8  => pure none
+| IRType.uint16 => pure none
+| _ => do
   localCtx ← getLocalContext;
   match localCtx.getValue x with
   | some val =>

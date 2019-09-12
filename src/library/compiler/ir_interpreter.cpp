@@ -272,6 +272,7 @@ class interpreter {
     // caches values of nullary functions ("constants")
     name_map<constant_cache_entry> m_constant_cache;
     struct symbol_cache_entry {
+        decl m_decl;
         // symbol address; `nullptr` if function does not have native code
         void * m_addr;
         // true iff we chose the boxed version of a function where the IR uses the unboxed version
@@ -381,19 +382,19 @@ class interpreter {
                 }
             }
             case expr_kind::PAp: { // unsatured (partial) application of top-level function
-                decl d = get_fdecl(expr_pap_fun(e));
+                symbol_cache_entry sym = lookup_symbol(expr_pap_fun(e));
                 unsigned i = 0;
                 object * cls;
-                if (void * p = lookup_symbol(expr_pap_fun(e)).m_addr) {
+                if (sym.m_addr) {
                     // point closure directly to native symbol
-                    cls = alloc_closure(p, decl_params(d).size(), expr_pap_args(e).size());
+                    cls = alloc_closure(sym.m_addr, decl_params(sym.m_decl).size(), expr_pap_args(e).size());
                 } else {
                     // point closure to interpreter stub taking interpreter data, declaration to be called, and partially
                     // applied arguments
-                    unsigned cls_size = 2 + decl_params(d).size();
+                    unsigned cls_size = 2 + decl_params(sym.m_decl).size();
                     cls = alloc_closure(get_stub(cls_size), cls_size, 2 + expr_pap_args(e).size());
                     closure_set(cls, i++, m_env.to_obj_arg());
-                    closure_set(cls, i++, d.to_obj_arg());
+                    closure_set(cls, i++, sym.m_decl.to_obj_arg());
                 }
                 for (arg const & a : expr_pap_args(e)) {
                     closure_set(cls, i++, eval_arg(a).m_obj);
@@ -639,15 +640,14 @@ class interpreter {
         } else {
             string_ref mangled = name_mangle(fn, *g_mangle_prefix);
             string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
-            symbol_cache_entry e_new;
+            symbol_cache_entry e_new { get_decl(fn), nullptr, false };
             // check for boxed version first
             if (void *p_boxed = lookup_symbol_in_cur_exe(boxed_mangled.data())) {
-                e_new = symbol_cache_entry { p_boxed, true };
+                e_new.m_addr = p_boxed;
+                e_new.m_boxed = true;
             } else if (void *p = lookup_symbol_in_cur_exe(mangled.data())) {
                 // if there is no boxed version, there are no unboxed parameters, so use default version
-                e_new = symbol_cache_entry { p, false };
-            } else {
-                e_new = symbol_cache_entry { nullptr, false };
+                e_new.m_addr = p;
             }
             m_symbol_cache.insert(fn, e_new);
             return e_new;
@@ -682,26 +682,26 @@ class interpreter {
             return cached->m_val;
         }
 
-        if (void * p = lookup_symbol(fn).m_addr) {
+        symbol_cache_entry e = lookup_symbol(fn);
+        if (e.m_addr) {
             // constants do not have boxed wrappers, but we'll survive
             switch (t) {
                 case type::Float: throw exception("floats are not supported yet");
-                case type::UInt8: return *static_cast<uint8 *>(p);
-                case type::UInt16: return *static_cast<uint16 *>(p);
-                case type::UInt32: return *static_cast<uint32 *>(p);
-                case type::UInt64: return *static_cast<uint64 *>(p);
-                case type::USize: return *static_cast<size_t *>(p);
+                case type::UInt8: return *static_cast<uint8 *>(e.m_addr);
+                case type::UInt16: return *static_cast<uint16 *>(e.m_addr);
+                case type::UInt32: return *static_cast<uint32 *>(e.m_addr);
+                case type::UInt64: return *static_cast<uint64 *>(e.m_addr);
+                case type::USize: return *static_cast<size_t *>(e.m_addr);
                 case type::Object:
                 case type::TObject:
-                    return *static_cast<object **>(p);
+                    return *static_cast<object **>(e.m_addr);
                 default:
                     throw exception("invalid type");
             }
         } else {
-            decl d = get_fdecl(fn);
-            push_frame(d, m_arg_stack.size());
-            value r = eval_body(decl_fun_body(d));
-            pop_frame(r, decl_type(d));
+            push_frame(e.m_decl, m_arg_stack.size());
+            value r = eval_body(decl_fun_body(e.m_decl));
+            pop_frame(r, decl_type(e.m_decl));
             if (!type_is_scalar(t)) {
                 inc(r.m_obj);
             }
@@ -712,14 +712,13 @@ class interpreter {
 
     value call(name const & fn, array_ref<arg> const & args) {
         size_t old_size = m_arg_stack.size();
-        decl d = get_decl(fn);
         value r;
         symbol_cache_entry e = lookup_symbol(fn);
         if (e.m_addr) {
             object ** args2 = static_cast<object **>(LEAN_ALLOCA(args.size() * sizeof(object *))); // NOLINT
             for (size_t i = 0; i < args.size(); i++) {
                 value v = eval_arg(args[i]);
-                type t = param_type(decl_params(d)[i]);
+                type t = param_type(decl_params(e.m_decl)[i]);
                 switch (t) {
                     case type::Float:
                     case type::UInt8:
@@ -733,7 +732,7 @@ class interpreter {
                     case type::TObject:
                     case type::Irrelevant:
                         args2[i] = v.m_obj;
-                        if (e.m_boxed && param_borrow(decl_params(d)[i])) {
+                        if (e.m_boxed && param_borrow(decl_params(e.m_decl)[i])) {
                             // NOTE: If we chose the boxed version where the IR chose the unboxed one, we need to manually increment
                             // originally borrowed parameters because the wrapper will decrement these after the call.
                             // Basically the wrapper is more homogeneous (removing both unboxed and borrowed parameters) than we
@@ -743,16 +742,16 @@ class interpreter {
                         break;
                 }
             }
-            push_frame(d, old_size);
+            push_frame(e.m_decl, old_size);
             object * o = curry(e.m_addr, args.size(), args2);
-            switch (decl_type(d)) {
+            switch (decl_type(e.m_decl)) {
                 case type::Float:
                 case type::UInt8:
                 case type::UInt16:
                 case type::UInt32:
                 case type::UInt64:
                 case type::USize:
-                    r = unbox_t(o, decl_type(d));
+                    r = unbox_t(o, decl_type(e.m_decl));
                     break;
                 case type::Object:
                 case type::TObject:
@@ -761,17 +760,17 @@ class interpreter {
                 default: lean_unreachable();
             }
         } else {
-            if (decl_tag(d) == decl_kind::Extern) {
+            if (decl_tag(e.m_decl) == decl_kind::Extern) {
                 throw exception(sstream() << "unexpected external declaration '" << fn << "'");
             }
             // evaluate args in old stack frame
             for (const auto & arg : args) {
                 m_arg_stack.push_back(eval_arg(arg));
             }
-            push_frame(d, old_size);
-            r = eval_body(decl_fun_body(d));
+            push_frame(e.m_decl, old_size);
+            r = eval_body(decl_fun_body(e.m_decl));
         }
-        pop_frame(r, decl_type(d));
+        pop_frame(r, decl_type(e.m_decl));
         return r;
     }
 public:

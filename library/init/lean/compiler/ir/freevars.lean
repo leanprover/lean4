@@ -68,7 +68,7 @@ partial def collectFnBody : FnBody → Collector
 | FnBody.dec x _ _ _ b    => collectVar x >> collectFnBody b
 | FnBody.del x b          => collectVar x >> collectFnBody b
 | FnBody.mdata _ b        => collectFnBody b
-| FnBody.case _ x alts    => collectVar x >> collectAlts collectFnBody alts
+| FnBody.case _ x _ alts  => collectVar x >> collectAlts collectFnBody alts
 | FnBody.jmp j ys         => collectJP j >> collectArgs ys
 | FnBody.ret x            => collectArg x
 | FnBody.unreachable      => skip
@@ -163,7 +163,7 @@ partial def collectFnBody : FnBody → Collector
 | FnBody.dec x _ _ _ b    => collectVar x >> collectFnBody b
 | FnBody.del x b          => collectVar x >> collectFnBody b
 | FnBody.mdata _ b        => collectFnBody b
-| FnBody.case _ x alts    => collectVar x >> collectAlts collectFnBody alts
+| FnBody.case _ x _ alts  => collectVar x >> collectAlts collectFnBody alts
 | FnBody.jmp j ys         => collectJP j >> collectArgs ys
 | FnBody.ret x            => collectArg x
 | FnBody.unreachable      => skip
@@ -223,7 +223,7 @@ partial def visitFnBody (w : Index) : FnBody → Bool
 | FnBody.mdata _ b        => visitFnBody b
 | FnBody.jmp j ys         => visitJP w j || visitArgs w ys
 | FnBody.ret x            => visitArg w x
-| FnBody.case _ x alts    => visitVar w x || alts.any (fun alt => visitFnBody alt.body)
+| FnBody.case _ x _ alts  => visitVar w x || alts.any (fun alt => visitFnBody alt.body)
 | FnBody.unreachable      => false
 
 end HasIndex

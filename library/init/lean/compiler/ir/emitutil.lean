@@ -44,7 +44,7 @@ partial def visitFnBody : FnBody → M Bool
   | Expr.pap f _ => checkFn f
   | other        => visitFnBody b
 | FnBody.jdecl _ _ v b   => visitFnBody v <||> visitFnBody b
-| FnBody.case _ _ alts   => alts.anyM $ fun alt => visitFnBody alt.body
+| FnBody.case _ _ _ alts => alts.anyM $ fun alt => visitFnBody alt.body
 | e =>
   if e.isTerminal then pure false
   else visitFnBody e.body
@@ -70,7 +70,7 @@ partial def collectFnBody : FnBody → M Unit
   | Expr.pap f _ => collect f *> collectFnBody b
   | other        => collectFnBody b
 | FnBody.jdecl _ _ v b   => collectFnBody v *> collectFnBody b
-| FnBody.case _ _ alts   => alts.mfor $ fun alt => collectFnBody alt.body
+| FnBody.case _ _ _ alts => alts.mfor $ fun alt => collectFnBody alt.body
 | e => unless e.isTerminal $ collectFnBody e.body
 
 def collectInitDecl (fn : Name) : M Unit :=
@@ -102,10 +102,10 @@ fun s => ps.foldl (fun s p => collectVar p.x p.ty s) s
 
 /- `collectFnBody` assumes the variables in -/
 partial def collectFnBody : FnBody → Collector
-| FnBody.vdecl x t _ b  => collectVar x t ∘ collectFnBody b
-| FnBody.jdecl j xs v b => collectJP j xs ∘ collectParams xs ∘ collectFnBody v ∘ collectFnBody b
-| FnBody.case _ _ alts  => fun s => alts.foldl (fun s alt => collectFnBody alt.body s) s
-| e                     => if e.isTerminal then id else collectFnBody e.body
+| FnBody.vdecl x t _ b    => collectVar x t ∘ collectFnBody b
+| FnBody.jdecl j xs v b   => collectJP j xs ∘ collectParams xs ∘ collectFnBody v ∘ collectFnBody b
+| FnBody.case _ _ _ alts  => fun s => alts.foldl (fun s alt => collectFnBody alt.body s) s
+| e                       => if e.isTerminal then id else collectFnBody e.body
 
 def collectDecl : Decl → Collector
 | Decl.fdecl _ xs _ b   => collectParams xs ∘ collectFnBody b

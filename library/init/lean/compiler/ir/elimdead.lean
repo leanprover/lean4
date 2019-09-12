@@ -36,9 +36,9 @@ partial def FnBody.elimDead : FnBody → FnBody
   let (bs, term) := b.flatten;
   let bs         := modifyJPs bs FnBody.elimDead;
   let term       := match term with
-    | FnBody.case tid x alts =>
+    | FnBody.case tid x xType alts =>
       let alts := alts.map $ fun alt => alt.modifyBody FnBody.elimDead;
-      FnBody.case tid x alts
+      FnBody.case tid x xType alts
     | other => other;
   reshapeWithoutDead bs term
 

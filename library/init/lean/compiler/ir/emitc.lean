@@ -600,7 +600,7 @@ partial def emitBlock (emitBody : FnBody → M Unit) : FnBody → M Unit
 | FnBody.sset x i o y t b  => emitSSet x i o y t *> emitBlock b
 | FnBody.mdata _ b         => emitBlock b
 | FnBody.ret x             => emit "return " *> emitArg x *> emitLn ";"
-| FnBody.case _ x alts     => emitCase emitBody x alts
+| FnBody.case _ x _ alts   => emitCase emitBody x alts
 | FnBody.jmp j xs          => emitJmp j xs
 | FnBody.unreachable       => emitLn "lean_panic_unreachable();"
 

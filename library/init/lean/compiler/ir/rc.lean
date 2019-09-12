@@ -245,7 +245,7 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
 | FnBody.mdata m b,          ctx =>
   let (b, s) := visitFnBody b ctx;
   (FnBody.mdata m b, s)
-| b@(FnBody.case tid x alts), ctx =>
+| b@(FnBody.case tid x xType alts), ctx =>
   let caseLiveVars := collectLiveVars b ctx.jpLiveVarMap;
   let alts         := alts.map $ fun alt => match alt with
     | Alt.ctor c b  =>
@@ -257,7 +257,7 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
       let (b, altLiveVars) := visitFnBody b ctx;
       let b                := addDecForAlt ctx caseLiveVars altLiveVars b;
       Alt.default b;
-  (FnBody.case tid x alts, caseLiveVars)
+  (FnBody.case tid x xType alts, caseLiveVars)
 | b@(FnBody.ret x), ctx =>
   match x with
   | Arg.var x =>

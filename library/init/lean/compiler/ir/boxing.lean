@@ -309,11 +309,11 @@ partial def visitFnBody : FnBody → M FnBody
     pure $ FnBody.sset x i o y ty b
 | FnBody.mdata d b         =>
   FnBody.mdata d <$> visitFnBody b
-| FnBody.case tid x alts   => do
+| FnBody.case tid x xType alts   => do
   let expected := getScrutineeType alts;
   alts ← alts.mmap $ fun alt => alt.mmodifyBody visitFnBody;
   castVarIfNeeded x expected $ fun x =>
-    pure $ FnBody.case tid x alts
+    pure $ FnBody.case tid x xType alts
 | FnBody.ret x             => do
   expected ← getResultType;
   castArgIfNeeded x expected (fun x => pure $ FnBody.ret x)

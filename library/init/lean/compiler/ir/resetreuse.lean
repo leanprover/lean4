@@ -48,7 +48,7 @@ private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
   let v' := S v;
   if v == v' then FnBody.jdecl j ys v (S b)
   else FnBody.jdecl j ys v' b
-| FnBody.case tid x alts    => FnBody.case tid x $ alts.map $ fun alt => alt.modifyBody S
+| FnBody.case tid x xType alts    => FnBody.case tid x xType $ alts.map $ fun alt => alt.modifyBody S
 | b =>
   if b.isTerminal then b
   else let
@@ -89,12 +89,12 @@ match b with
    `D` checks whether `x` is live in `F` or not. This is great for clarity but it
    is expensive: `O(n^2)` where `n` is the size of the function body. -/
 private partial def Dmain (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × Bool)
-| e@(FnBody.case tid y alts) => do
+| e@(FnBody.case tid y yType alts) => do
   ctx ← read;
   if e.hasLiveVar ctx x then do
     /- If `x` is live in `e`, we recursively process each branch. -/
     alts ← alts.mmap $ fun alt => alt.mmodifyBody (fun b => Dmain b >>= Dfinalize x c);
-    pure (FnBody.case tid y alts, true)
+    pure (FnBody.case tid y yType alts, true)
   else pure (e, false)
 | FnBody.jdecl j ys v b   => do
   (b, found) ← adaptReader (fun (ctx : LocalContext) => ctx.addJP j ys v) (Dmain b);
@@ -129,7 +129,7 @@ private def D (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=
 Dmain x c b >>= Dfinalize x c
 
 partial def R : FnBody → M FnBody
-| FnBody.case tid x alts   => do
+| FnBody.case tid x xType alts   => do
     alts ← alts.mmap $ fun alt => do {
       alt ← alt.mmodifyBody R;
       match alt with
@@ -138,7 +138,7 @@ partial def R : FnBody → M FnBody
         else Alt.ctor c <$> D x c b
       | _            => pure alt
     };
-    pure $ FnBody.case tid x alts
+    pure $ FnBody.case tid x xType alts
 | FnBody.jdecl j ys v b   => do
   v ← R v;
   b ← adaptReader (fun (ctx : LocalContext) => ctx.addJP j ys v) (R b);

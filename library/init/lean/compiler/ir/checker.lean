@@ -114,7 +114,7 @@ partial def checkFnBody : FnBody → M Unit
 | FnBody.mdata _ b        => checkFnBody b
 | FnBody.jmp j ys         => checkJP j *> checkArgs ys
 | FnBody.ret x            => checkArg x
-| FnBody.case _ x alts    => checkVar x *> alts.mfor (fun alt => checkFnBody alt.body)
+| FnBody.case _ x _ alts  => checkVar x *> alts.mfor (fun alt => checkFnBody alt.body)
 | FnBody.unreachable      => pure ()
 
 def checkDecl : Decl → M Unit

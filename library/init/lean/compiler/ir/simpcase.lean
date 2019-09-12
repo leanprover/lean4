@@ -37,7 +37,7 @@ else
     let alts := alts.filter $ (fun alt => alt.body != max.body);
     alts.push (Alt.default max.body)
 
-private def mkSimpCase (tid : Name) (x : VarId) (alts : Array Alt) : FnBody :=
+private def mkSimpCase (tid : Name) (x : VarId) (xType : IRType) (alts : Array Alt) : FnBody :=
 let alts := alts.filter (fun alt => alt.body != FnBody.unreachable);
 let alts := addDefault alts;
 if alts.size == 0 then
@@ -45,16 +45,16 @@ if alts.size == 0 then
 else if alts.size == 1 then
   (alts.get 0).body
 else
-  FnBody.case tid x alts
+  FnBody.case tid x xType alts
 
 partial def FnBody.simpCase : FnBody → FnBody
 | b =>
   let (bs, term) := b.flatten;
   let bs         := modifyJPs bs FnBody.simpCase;
   match term with
-  | FnBody.case tid x alts =>
+  | FnBody.case tid x xType alts =>
     let alts := alts.map $ fun alt => alt.modifyBody FnBody.simpCase;
-    reshape bs (mkSimpCase tid x alts)
+    reshape bs (mkSimpCase tid x xType alts)
   | other => reshape bs term
 
 /-- Simplify `case`

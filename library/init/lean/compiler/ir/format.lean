@@ -88,7 +88,7 @@ partial def formatFnBody (indent : Nat := 2) : FnBody → Format
 | FnBody.dec x n c _ b     => "dec" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x ++ ";" ++ Format.line ++ formatFnBody b
 | FnBody.del x b           => "del " ++ format x ++ ";" ++ Format.line ++ formatFnBody b
 | FnBody.mdata d b         => "mdata " ++ format d ++ ";" ++ Format.line ++ formatFnBody b
-| FnBody.case tid x cs     => "case " ++ format x ++ " of" ++ cs.foldl (fun r c => r ++ Format.line ++ formatAlt formatFnBody indent c) Format.nil
+| FnBody.case tid x _ cs   => "case " ++ format x ++ " of" ++ cs.foldl (fun r c => r ++ Format.line ++ formatAlt formatFnBody indent c) Format.nil
 | FnBody.jmp j ys          => "jmp " ++ format j ++ formatArray ys
 | FnBody.ret x             => "ret " ++ format x
 | FnBody.unreachable       => "⊥"

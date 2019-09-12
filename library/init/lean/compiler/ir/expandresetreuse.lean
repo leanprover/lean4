@@ -25,10 +25,10 @@ fun m => match v with
  | _                => m
 
 partial def collectFnBody : FnBody → Collector
-| FnBody.vdecl x _ v b => collectVDecl x v ∘ collectFnBody b
-| FnBody.jdecl _ _ v b => collectFnBody v ∘ collectFnBody b
-| FnBody.case _ _ alts => fun s => alts.foldl (fun s alt => collectFnBody alt.body s) s
-| e                    => if e.isTerminal then id else collectFnBody e.body
+| FnBody.vdecl x _ v b   => collectVDecl x v ∘ collectFnBody b
+| FnBody.jdecl _ _ v b   => collectFnBody v ∘ collectFnBody b
+| FnBody.case _ _ _ alts => fun s => alts.foldl (fun s alt => collectFnBody alt.body s) s
+| e                      => if e.isTerminal then id else collectFnBody e.body
 end CollectProjMap
 
 /- Create a mapping from variables to projections.
@@ -49,7 +49,7 @@ partial def consumed (x : VarId) : FnBody → Bool
   | Expr.reuse y _ _ _ => x == y || consumed b
   | _                  => consumed b
 | FnBody.dec y _ _ _ b   => x == y || consumed b
-| FnBody.case _ _ alts   => alts.all $ fun alt => consumed alt.body
+| FnBody.case _ _ _ alts => alts.all $ fun alt => consumed alt.body
 | e => !e.isTerminal && consumed e.body
 
 abbrev Mask := Array (Option VarId)
@@ -104,9 +104,9 @@ partial def reuseToCtor (x : VarId) : FnBody → FnBody
     else FnBody.vdecl z t v (reuseToCtor b)
   | _ =>
     FnBody.vdecl z t v (reuseToCtor b)
-| FnBody.case tid y alts   =>
+| FnBody.case tid y yType alts   =>
   let alts := alts.map $ fun alt => alt.modifyBody reuseToCtor;
-  FnBody.case tid y alts
+  FnBody.case tid y yType alts
 | e =>
   if e.isTerminal then e
   else
@@ -186,9 +186,9 @@ partial def removeSelfSet (ctx : Context) : FnBody → FnBody
 | FnBody.sset x n i y t b   =>
   if isSelfSSet ctx x n i y then removeSelfSet b
   else FnBody.sset x n i y t (removeSelfSet b)
-| FnBody.case tid y alts   =>
+| FnBody.case tid y yType alts   =>
   let alts := alts.map $ fun alt => alt.modifyBody removeSelfSet;
-  FnBody.case tid y alts
+  FnBody.case tid y yType alts
 | e =>
   if e.isTerminal then e
   else
@@ -209,9 +209,9 @@ partial def reuseToSet (ctx : Context) (x y : VarId) : FnBody → FnBody
       removeSelfSet ctx b
     else FnBody.vdecl z t v (reuseToSet b)
   | _ => FnBody.vdecl z t v (reuseToSet b)
-| FnBody.case tid y alts   =>
+| FnBody.case tid y yType alts   =>
   let alts := alts.map $ fun alt => alt.modifyBody reuseToSet;
-  FnBody.case tid y alts
+  FnBody.case tid y yType alts
 | e =>
   if e.isTerminal then e
   else
@@ -267,9 +267,9 @@ partial def searchAndExpand : FnBody → Array FnBody → M FnBody
 | FnBody.jdecl j xs v b,   bs => do
   v ← searchAndExpand v Array.empty;
   searchAndExpand b (push bs (FnBody.jdecl j xs v FnBody.nil))
-| FnBody.case tid x alts,   bs => do
+| FnBody.case tid x xType alts,   bs => do
   alts ← alts.mmap $ fun alt => alt.mmodifyBody $ fun b => searchAndExpand b Array.empty;
-  pure $ reshape bs (FnBody.case tid x alts)
+  pure $ reshape bs (FnBody.case tid x xType alts)
 | b, bs =>
   if b.isTerminal then pure $ reshape bs b
   else searchAndExpand b.body (push bs b)

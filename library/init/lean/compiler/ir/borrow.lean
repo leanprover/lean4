@@ -262,8 +262,8 @@ partial def collectFnBody : FnBody → M Unit
   ps ← getParamInfo (Key.jp ctx.currFn j);
   ownArgsUsingParams ys ps; -- for making sure the join point can reuse
   ownParamsUsingArgs ys ps  -- for making sure the tail call is preserved
-| FnBody.case _ _ alts => alts.mfor $ fun alt => collectFnBody alt.body
-| e                    => unless (e.isTerminal) $ collectFnBody e.body
+| FnBody.case _ _ _ alts => alts.mfor $ fun alt => collectFnBody alt.body
+| e                      => unless (e.isTerminal) $ collectFnBody e.body
 
 @[specialize] partial def whileModifingOwnedAux (x : M Unit) : Unit → M Unit
 | _ => do

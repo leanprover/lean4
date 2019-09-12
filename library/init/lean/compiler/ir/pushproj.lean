@@ -43,11 +43,11 @@ partial def FnBody.pushProj : FnBody → FnBody
   let (bs, term) := b.flatten;
   let bs         := modifyJPs bs FnBody.pushProj;
   match term with
-  | FnBody.case tid x alts =>
+  | FnBody.case tid x xType alts =>
     let altsF      := alts.map $ fun alt => alt.body.freeIndices;
     let (bs, alts) := pushProjs bs alts altsF Array.empty (mkIndexSet x.idx);
     let alts       := alts.map $ fun alt => alt.modifyBody FnBody.pushProj;
-    let term       := FnBody.case tid x alts;
+    let term       := FnBody.case tid x xType alts;
     reshape bs term
   | other => reshape bs term
 

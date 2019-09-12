@@ -234,7 +234,7 @@ inductive FnBody
 | dec (x : VarId) (n : Nat) (c : Bool) (persistent : Bool) (b : FnBody)
 | del (x : VarId) (b : FnBody)
 | mdata (d : MData) (b : FnBody)
-| case (tid : Name) (x : VarId) (cs : Array (AltCore FnBody))
+| case (tid : Name) (x : VarId) (xType : IRType) (cs : Array (AltCore FnBody))
 | ret (x : Arg)
 /- Jump to join point `j` -/
 | jmp (j : JoinPointId) (ys : Array Arg)
@@ -248,7 +248,9 @@ abbrev FnBody.nil := FnBody.unreachable
 @[export lean_ir_mk_jdecl] def mkJDecl (j : JoinPointId) (xs : Array Param) (v : FnBody) (b : FnBody) : FnBody := FnBody.jdecl j xs v b
 @[export lean_ir_mk_uset] def mkUSet (x : VarId) (i : Nat) (y : VarId) (b : FnBody) : FnBody := FnBody.uset x i y b
 @[export lean_ir_mk_sset] def mkSSet (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody) : FnBody := FnBody.sset x i offset y ty b
-@[export lean_ir_mk_case] def mkCase (tid : Name) (x : VarId) (cs : Array (AltCore FnBody)) : FnBody := FnBody.case tid x cs
+@[export lean_ir_mk_case] def mkCaseOld (tid : Name) (x : VarId) (cs : Array (AltCore FnBody)) : FnBody := FnBody.case tid x IRType.object cs -- DEL
+@[export lean_ir_mk_case_new] def mkCase (tid : Name) (x : VarId) (xType : IRType) (cs : Array (AltCore FnBody)) : FnBody :=
+FnBody.case tid x xType cs
 @[export lean_ir_mk_ret] def mkRet (x : Arg) : FnBody := FnBody.ret x
 @[export lean_ir_mk_jmp] def mkJmp (j : JoinPointId) (ys : Array Arg) : FnBody := FnBody.jmp j ys
 @[export lean_ir_mk_unreachable] def mkUnreachable : Unit → FnBody := fun _ => FnBody.unreachable
@@ -261,11 +263,11 @@ instance altInh : Inhabited Alt :=
 ⟨Alt.default (default _)⟩
 
 def FnBody.isTerminal : FnBody → Bool
-| FnBody.case _ _ _  => true
-| FnBody.ret _       => true
-| FnBody.jmp _ _     => true
-| FnBody.unreachable => true
-| _                  => false
+| FnBody.case _ _ _ _  => true
+| FnBody.ret _         => true
+| FnBody.jmp _ _       => true
+| FnBody.unreachable   => true
+| _                    => false
 
 def FnBody.body : FnBody → FnBody
 | FnBody.vdecl _ _ _ b    => b
@@ -525,7 +527,7 @@ partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
 | ρ, FnBody.dec x₁ n₁ c₁ p₁ b₁,     FnBody.dec x₂ n₂ c₂ p₂ b₂     => aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && p₁ == p₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ, FnBody.del x₁ b₁,              FnBody.del x₂ b₂              => aeqv ρ x₁ x₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ, FnBody.mdata m₁ b₁,            FnBody.mdata m₂ b₂            => m₁ == m₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ, FnBody.case n₁ x₁ alts₁,       FnBody.case n₂ x₂ alts₂       => n₁ == n₂ && aeqv ρ x₁ x₂ && Array.isEqv alts₁ alts₂ (fun alt₁ alt₂ =>
+| ρ, FnBody.case n₁ x₁ _ alts₁,     FnBody.case n₂ x₂ _ alts₂     => n₁ == n₂ && aeqv ρ x₁ x₂ && Array.isEqv alts₁ alts₂ (fun alt₁ alt₂ =>
    match alt₁, alt₂ with
    | Alt.ctor i₁ b₁, Alt.ctor i₂ b₂ => i₁ == i₂ && FnBody.alphaEqv ρ b₁ b₂
    | Alt.default b₁, Alt.default b₂ => FnBody.alphaEqv ρ b₁ b₂
@@ -546,7 +548,7 @@ instance : Inhabited VarIdSet := ⟨{}⟩
 end VarIdSet
 
 def mkIf (x : VarId) (t e : FnBody) : FnBody :=
-FnBody.case `Bool x [
+FnBody.case `Bool x IRType.uint8 [
   Alt.ctor {name := `Bool.false, cidx := 0, size := 0, usize := 0, ssize := 0} e,
   Alt.ctor {name := `Bool.true, cidx := 1, size := 0, usize := 0, ssize := 0} t
 ].toArray

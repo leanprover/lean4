@@ -69,7 +69,7 @@ partial def visitFnBody (w : Index) : FnBody → M Bool
       pure false
   }
 | FnBody.ret x            => visitArg w x
-| FnBody.case _ x alts    => visitVar w x <||> alts.anyM (fun alt => visitFnBody alt.body)
+| FnBody.case _ x _ alts  => visitVar w x <||> alts.anyM (fun alt => visitFnBody alt.body)
 | FnBody.unreachable      => pure false
 
 end IsLive
@@ -146,7 +146,7 @@ partial def collectFnBody : FnBody → JPLiveVarMap → Collector
 | FnBody.del x b,          m => collectVar x ∘ collectFnBody b m
 | FnBody.mdata _ b,        m => collectFnBody b m
 | FnBody.ret x,            m => collectArg x
-| FnBody.case _ x alts,    m => collectVar x ∘ collectArray alts (fun alt => collectFnBody alt.body m)
+| FnBody.case _ x _ alts,  m => collectVar x ∘ collectArray alts (fun alt => collectFnBody alt.body m)
 | FnBody.unreachable,      m => skip
 | FnBody.jmp j xs,         m => collectJP m j ∘ collectArgs xs
 

@@ -34,6 +34,7 @@ below.
 #endif
 #include "runtime/flet.h"
 #include "runtime/apply.h"
+#include "runtime/interrupt.h"
 #include "library/trace.h"
 #include "library/compiler/ir.h"
 #include "util/option_ref.h"
@@ -445,6 +446,7 @@ class interpreter {
     }
 
     value eval_body(fn_body const & b0) {
+        check_system("interpreter");
         // make reference reassignable...
         std::reference_wrapper<fn_body const> b(b0);
         while (true) {
@@ -471,6 +473,7 @@ class interpreter {
                         }
                         m_arg_stack.resize(get_frame().m_arg_bp + args.size());
                         b = decl_fun_body(get_decl(expr_fap_fun(e)));
+                        check_system("interpreter");
                         break;
                     }
                     var(fn_body_vdecl_var(b)) = eval_expr(fn_body_vdecl_expr(b), fn_body_vdecl_type(b));

@@ -25,7 +25,6 @@ def leanMainFn := "_lean_main"
 structure Context :=
 (env        : Environment)
 (modName    : Name)
-(varMap     : VarTypeMap := {})
 (jpMap      : JPParamsMap := {})
 (mainFn     : FunId := default _)
 (mainParams : Array Param := Array.empty)
@@ -227,12 +226,6 @@ emitLns [
 def throwUnknownVar {α : Type} (x : VarId) : M α :=
 throw ("unknown variable '" ++ toString x ++ "'")
 
-def isObj (x : VarId) : M Bool :=
-do ctx ← read;
-   match ctx.varMap.find x with
-   | some t => pure t.isObj
-   | none   => throwUnknownVar x
-
 def getJPParams (j : JoinPointId) : M (Array Param) :=
 do ctx ← read;
    match ctx.jpMap.find j with
@@ -255,10 +248,9 @@ partial def declareVars : FnBody → Bool → M Bool
 | FnBody.jdecl j xs _ b,    d => declareParams xs *> declareVars b (d || xs.size > 0)
 | e,                        d => if e.isTerminal then pure d else declareVars e.body d
 
-def emitTag (x : VarId) : M Unit :=
+def emitTag (x : VarId) (xType : IRType) : M Unit :=
 do
-xIsObj ← isObj x;
-if xIsObj then do
+if xType.isObj then do
   emit "lean_obj_tag("; emit x; emit ")"
 else
   emit x
@@ -269,18 +261,18 @@ else match alts.get 0 with
   | Alt.ctor c b => some (c.cidx, b, (alts.get 1).body)
   | _            => none
 
-def emitIf (emitBody : FnBody → M Unit) (x : VarId) (tag : Nat) (t : FnBody) (e : FnBody) : M Unit :=
+def emitIf (emitBody : FnBody → M Unit) (x : VarId) (xType : IRType) (tag : Nat) (t : FnBody) (e : FnBody) : M Unit :=
 do
-emit "if ("; emitTag x; emit " == "; emit tag; emitLn ")";
+emit "if ("; emitTag x xType; emit " == "; emit tag; emitLn ")";
 emitBody t;
 emitLn "else";
 emitBody e
 
-def emitCase (emitBody : FnBody → M Unit) (x : VarId) (alts : Array Alt) : M Unit :=
+def emitCase (emitBody : FnBody → M Unit) (x : VarId) (xType : IRType) (alts : Array Alt) : M Unit :=
 match isIf alts with
-| some (tag, t, e) => emitIf emitBody x tag t e
+| some (tag, t, e) => emitIf emitBody x xType tag t e
 | _ => do
-  emit "switch ("; emitTag x; emitLn ") {";
+  emit "switch ("; emitTag x xType; emitLn ") {";
   let alts := ensureHasDefault alts;
   alts.mfor $ fun alt => match alt with
     | Alt.ctor c b  => emit "case " *> emit c.cidx *> emitLn ":" *> emitBody b
@@ -588,21 +580,21 @@ match v with
 | _ => throw "bug at emitTailCall"
 
 partial def emitBlock (emitBody : FnBody → M Unit) : FnBody → M Unit
-| FnBody.jdecl j xs v b    => emitBlock b
-| d@(FnBody.vdecl x t v b) =>
+| FnBody.jdecl j xs v b      => emitBlock b
+| d@(FnBody.vdecl x t v b)   =>
   do ctx ← read; if isTailCallTo ctx.mainFn d then emitTailCall v else emitVDecl x t v *> emitBlock b
-| FnBody.inc x n c p b     => unless p (emitInc x n c) *> emitBlock b
-| FnBody.dec x n c p b     => unless p (emitDec x n c) *> emitBlock b
-| FnBody.del x b           => emitDel x *> emitBlock b
-| FnBody.setTag x i b      => emitSetTag x i *> emitBlock b
-| FnBody.set x i y b       => emitSet x i y *> emitBlock b
-| FnBody.uset x i y b      => emitUSet x i y *> emitBlock b
-| FnBody.sset x i o y t b  => emitSSet x i o y t *> emitBlock b
-| FnBody.mdata _ b         => emitBlock b
-| FnBody.ret x             => emit "return " *> emitArg x *> emitLn ";"
-| FnBody.case _ x _ alts   => emitCase emitBody x alts
-| FnBody.jmp j xs          => emitJmp j xs
-| FnBody.unreachable       => emitLn "lean_panic_unreachable();"
+| FnBody.inc x n c p b       => unless p (emitInc x n c) *> emitBlock b
+| FnBody.dec x n c p b       => unless p (emitDec x n c) *> emitBlock b
+| FnBody.del x b             => emitDel x *> emitBlock b
+| FnBody.setTag x i b        => emitSetTag x i *> emitBlock b
+| FnBody.set x i y b         => emitSet x i y *> emitBlock b
+| FnBody.uset x i y b        => emitUSet x i y *> emitBlock b
+| FnBody.sset x i o y t b    => emitSSet x i o y t *> emitBlock b
+| FnBody.mdata _ b           => emitBlock b
+| FnBody.ret x               => emit "return " *> emitArg x *> emitLn ";"
+| FnBody.case _ x xType alts => emitCase emitBody x xType alts
+| FnBody.jmp j xs            => emitJmp j xs
+| FnBody.unreachable         => emitLn "lean_panic_unreachable();"
 
 partial def emitJPs (emitBody : FnBody → M Unit) : FnBody → M Unit
 | FnBody.jdecl j xs v b => do emit j; emitLn ":"; emitBody v; emitJPs b
@@ -621,7 +613,7 @@ def emitDeclAux (d : Decl) : M Unit :=
 do
 env ← getEnv;
 let (vMap, jpMap) := mkVarJPMaps d;
-adaptReader (fun (ctx : Context) => { varMap := vMap, jpMap := jpMap, .. ctx }) $ do
+adaptReader (fun (ctx : Context) => { jpMap := jpMap, .. ctx }) $ do
 unless (hasInitAttr env d.name) $
   match d with
   | Decl.fdecl f xs t b => do

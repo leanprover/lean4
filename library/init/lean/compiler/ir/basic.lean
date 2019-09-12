@@ -248,8 +248,7 @@ abbrev FnBody.nil := FnBody.unreachable
 @[export lean_ir_mk_jdecl] def mkJDecl (j : JoinPointId) (xs : Array Param) (v : FnBody) (b : FnBody) : FnBody := FnBody.jdecl j xs v b
 @[export lean_ir_mk_uset] def mkUSet (x : VarId) (i : Nat) (y : VarId) (b : FnBody) : FnBody := FnBody.uset x i y b
 @[export lean_ir_mk_sset] def mkSSet (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody) : FnBody := FnBody.sset x i offset y ty b
-@[export lean_ir_mk_case] def mkCaseOld (tid : Name) (x : VarId) (cs : Array (AltCore FnBody)) : FnBody := FnBody.case tid x IRType.object cs -- DEL
-@[export lean_ir_mk_case_new] def mkCase (tid : Name) (x : VarId) (xType : IRType) (cs : Array (AltCore FnBody)) : FnBody :=
+@[export lean_ir_mk_case] def mkCase (tid : Name) (x : VarId) (xType : IRType) (cs : Array (AltCore FnBody)) : FnBody :=
 FnBody.case tid x xType cs
 @[export lean_ir_mk_ret] def mkRet (x : Arg) : FnBody := FnBody.ret x
 @[export lean_ir_mk_jmp] def mkJmp (j : JoinPointId) (ys : Array Arg) : FnBody := FnBody.jmp j ys

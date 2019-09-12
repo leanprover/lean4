@@ -146,6 +146,7 @@ fn_body const & fn_body_mdata_cont(fn_body const & b) { lean_assert(fn_body_tag(
 name const & fn_body_case_tid(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Case); return cnstr_get_ref_t<name>(b, 0); }
 var_id const & fn_body_case_var(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Case); return cnstr_get_ref_t<var_id>(b, 1); }
 array_ref<alt_core> const & fn_body_case_alts(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Case); return cnstr_get_ref_t<array_ref<alt_core>>(b, 2); }
+type fn_body_case_var_type(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Case); return static_cast<type>(cnstr_get_uint8(b.raw(), sizeof(void *) * 3)); }
 arg const & fn_body_ret_arg(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Ret); return cnstr_get_ref_t<arg>(b, 0); }
 jp_id const & fn_body_jmp_jp(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Jmp); return cnstr_get_ref_t<jp_id>(b, 0); }
 array_ref<arg> const & fn_body_jmp_args(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Jmp); return cnstr_get_ref_t<array_ref<arg>>(b, 1); }
@@ -179,13 +180,6 @@ format format_fn_body_head(fn_body const & b) {
 
 static bool type_is_scalar(type t) {
     return t != type::Object && t != type::TObject && t != type::Irrelevant;
-}
-
-static bool ctor_info_is_scalar(ctor_info const & i) {
-    size_t size = ctor_info_size(i).get_small_value();
-    size_t usize = ctor_info_usize(i).get_small_value();
-    size_t ssize = ctor_info_ssize(i).get_small_value();
-    return size == 0 && usize == 0 && ssize == 0;
 }
 
 /** \brief Value stored in an interpreter variable slot */
@@ -556,39 +550,27 @@ class interpreter {
                     break;
                 case fn_body_kind::Case: { // branch according to constructor tag
                     array_ref<alt_core> const & alts = fn_body_case_alts(b);
-                    if (alt_core_tag(alts[0]) == alt_core_kind::Default) {
-                        b = alt_core_default_cont(alts[0]);
+                    unsigned tag;
+                    value v = var(fn_body_case_var(b));
+                    if (type_is_scalar(fn_body_case_var_type(b))) {
+                        tag = v.m_num;
                     } else {
-                        // we need to look at the cases to know the type of the scrutinee
-                        bool all_scalar = true;
-                        for (alt_core const & a : alts) {
-                            if (alt_core_tag(a) == alt_core_kind::Ctor &&
-                                !ctor_info_is_scalar(alt_core_ctor_info(a))) {
-                                all_scalar = false;
-                            }
-                        }
-                        unsigned tag;
-                        value v = var(fn_body_case_var(b));
-                        if (all_scalar) {
-                            tag = v.m_num;
-                        } else {
-                            tag = lean_obj_tag(v.m_obj);
-                        }
-                        for (alt_core const & a : alts) {
-                            switch (alt_core_tag(a)) {
-                                case alt_core_kind::Ctor:
-                                    if (tag == ctor_info_tag(alt_core_ctor_info(a)).get_small_value()) {
-                                        b = alt_core_ctor_cont(a);
-                                        goto done;
-                                    }
-                                    break;
-                                case alt_core_kind::Default:
-                                    b = alt_core_default_cont(a);
-                                    goto done;
-                            }
-                        }
-                        throw exception("incomplete case");
+                        tag = lean_obj_tag(v.m_obj);
                     }
+                    for (alt_core const & a : alts) {
+                        switch (alt_core_tag(a)) {
+                            case alt_core_kind::Ctor:
+                                if (tag == ctor_info_tag(alt_core_ctor_info(a)).get_small_value()) {
+                                    b = alt_core_ctor_cont(a);
+                                    goto done;
+                                }
+                                break;
+                            case alt_core_kind::Default:
+                                b = alt_core_default_cont(a);
+                                goto done;
+                        }
+                    }
+                    throw exception("incomplete case");
                     done: break;
                 }
                 case fn_body_kind::Ret:

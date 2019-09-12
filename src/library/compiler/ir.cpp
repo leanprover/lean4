@@ -33,7 +33,7 @@ extern "C" object * lean_ir_mk_vdecl(object * x, uint8 ty, object * e, object * 
 extern "C" object * lean_ir_mk_jdecl(object * j, object * xs, object * v, object * b);
 extern "C" object * lean_ir_mk_uset(object * x, object * i, object * y, object * b);
 extern "C" object * lean_ir_mk_sset(object * x, object * i, object * o, object * y, uint8 ty, object * b);
-extern "C" object * lean_ir_mk_case(object * tid, object * x, uint8 x_type, object * cs);
+extern "C" object * lean_ir_mk_case(object * tid, object * x, object * cs);
 extern "C" object * lean_ir_mk_ret(object * x);
 extern "C" object * lean_ir_mk_jmp(object * j, object * ys);
 extern "C" object * lean_ir_mk_alt(object * n, object * cidx, object * size, object * usize, object * ssize, object * b);
@@ -94,8 +94,8 @@ fn_body mk_unreachable() { return fn_body(lean_ir_mk_unreachable(box(0))); }
 alt mk_alt(name const & n, unsigned cidx, unsigned size, unsigned usize, unsigned ssize, fn_body const & b) {
     return alt(lean_ir_mk_alt(n.to_obj_arg(), mk_nat_obj(cidx), mk_nat_obj(size), mk_nat_obj(usize), mk_nat_obj(ssize), b.to_obj_arg()));
 }
-fn_body mk_case(name const & tid, var_id const & x, type x_type, buffer<alt> const & alts) {
-    return fn_body(lean_ir_mk_case(tid.to_obj_arg(), x.to_obj_arg(), static_cast<uint8>(x_type), to_array(alts)));
+fn_body mk_case(name const & tid, var_id const & x, buffer<alt> const & alts) {
+    return fn_body(lean_ir_mk_case(tid.to_obj_arg(), x.to_obj_arg(), to_array(alts)));
 }
 fn_body mk_jmp(jp_id const & j, buffer<arg> const & ys) {
     return fn_body(lean_ir_mk_jmp(j.to_obj_arg(), to_array(ys)));
@@ -231,15 +231,13 @@ class to_ir_fn {
         get_constructor_names(env(), I_name, cnames);
         lean_assert(args.size() == cnames.size() + 1);
         ir::var_id x      = to_var_id(args[0]);
-        local_decl x_decl = m_lctx.get_local_decl(args[0]);
-        ir::type x_type   = to_ir_type(x_decl.get_type());
         buffer<ir::alt> alts;
         for (unsigned i = 1; i < args.size(); i++) {
             cnstr_info cinfo = get_cnstr_info(m_st, cnames[i-1]);
             ir::fn_body body = to_ir_fn_body(args[i]);
             alts.push_back(ir::mk_alt(cnames[i-1], cinfo.m_cidx, cinfo.m_num_objs, cinfo.m_num_usizes, cinfo.m_scalar_sz, body));
         }
-        return ir::mk_case(I_name, x, x_type, alts);
+        return ir::mk_case(I_name, x, alts);
     }
 
     ir::fn_body visit_jmp(expr const & e) {

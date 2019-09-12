@@ -114,7 +114,7 @@ lean_object* l_Lean_IR_JoinPointId_Lean_HasFormat(lean_object*);
 uint8_t l_Array_isEqv___at_Lean_IR_args_alphaEqv___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_mkExternDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_AltCore_mmodifyBody___rarg___closed__1;
-lean_object* lean_ir_mk_case(lean_object*, lean_object*, uint8_t, lean_object*);
+lean_object* lean_ir_mk_case(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_JoinPointId_Hashable___boxed(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_IR_VarId_hasAeqv___closed__1;
@@ -159,7 +159,6 @@ uint8_t l_Lean_KVMap_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Expr_hasAeqv;
 lean_object* l_Lean_IR_LocalContext_addParams(lean_object*, lean_object*);
 lean_object* lean_ir_mk_uset(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_IR_mkCase___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_getType(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_body___boxed(lean_object*);
 lean_object* l_Lean_IR_VarId_Hashable___boxed(lean_object*);
@@ -1276,26 +1275,17 @@ x_8 = lean_ir_mk_sset(x_1, x_2, x_3, x_4, x_7, x_6);
 return x_8;
 }
 }
-lean_object* lean_ir_mk_case(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4) {
+lean_object* lean_ir_mk_case(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_5; 
+uint8_t x_4; lean_object* x_5; 
+x_4 = 7;
 x_5 = lean_alloc_ctor(10, 3, 1);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_3);
+lean_ctor_set(x_5, 2, x_3);
+lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_4);
 return x_5;
-}
-}
-lean_object* l_Lean_IR_mkCase___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; lean_object* x_6; 
-x_5 = lean_unbox(x_3);
-lean_dec(x_3);
-x_6 = lean_ir_mk_case(x_1, x_2, x_5, x_4);
-return x_6;
 }
 }
 lean_object* lean_ir_mk_ret(lean_object* x_1) {

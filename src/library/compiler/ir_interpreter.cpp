@@ -262,6 +262,8 @@ class interpreter {
         // base pointers into the stack above
         size_t m_arg_bp;
         size_t m_jp_bp;
+
+        frame(name const & mFn, size_t mArgBp, size_t mJpBp) : m_fn(mFn), m_arg_bp(mArgBp), m_jp_bp(mJpBp) {}
     };
     std::vector<frame> m_call_stack;
     environment const & m_env;
@@ -617,7 +619,7 @@ class interpreter {
                        }
                        tout() << "\n";);
         });
-        m_call_stack.push_back(frame { decl_fun_id(d), arg_bp, m_jp_stack.size() });
+        m_call_stack.emplace_back(decl_fun_id(d), arg_bp, m_jp_stack.size());
     }
 
     void pop_frame(value DEBUG_CODE(r), type DEBUG_CODE(t)) {

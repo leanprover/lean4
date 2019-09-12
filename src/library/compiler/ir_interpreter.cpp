@@ -473,7 +473,7 @@ class interpreter {
                             m_arg_stack[get_frame().m_arg_bp + i] = m_arg_stack[old_size + i];
                         }
                         m_arg_stack.resize(get_frame().m_arg_bp + args.size());
-                        b = decl_fun_body(get_decl(expr_fap_fun(e)));
+                        b = b0;
                         check_system("interpreter");
                         break;
                     }

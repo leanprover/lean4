@@ -13,6 +13,7 @@ ByteArray
 Bool
 Bool.false
 Bool.true
+Bool.casesOn
 cast
 Char
 Char.mk
@@ -25,7 +26,8 @@ congr
 congrArg
 congrFun
 Decidable
-Decidable.casesOn
+Decidable.isTrue
+Decidable.isFalse
 Decidable.decide
 dite
 Empty
@@ -91,7 +93,6 @@ Inhabited
 Inhabited.default
 Int
 Int.natAbs
-Int.lt
 Int.decLt
 Int.ofNat
 inline
@@ -129,7 +130,6 @@ ofEqTrue
 ofIffTrue
 optParam
 Or
-outParam
 PUnit
 PUnit.unit
 Prod.mk

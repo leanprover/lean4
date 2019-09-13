@@ -18,6 +18,7 @@ name const * g_byte_array = nullptr;
 name const * g_bool = nullptr;
 name const * g_bool_false = nullptr;
 name const * g_bool_true = nullptr;
+name const * g_bool_cases_on = nullptr;
 name const * g_cast = nullptr;
 name const * g_char = nullptr;
 name const * g_char_mk = nullptr;
@@ -30,7 +31,8 @@ name const * g_congr = nullptr;
 name const * g_congr_arg = nullptr;
 name const * g_congr_fun = nullptr;
 name const * g_decidable = nullptr;
-name const * g_decidable_cases_on = nullptr;
+name const * g_decidable_is_true = nullptr;
+name const * g_decidable_is_false = nullptr;
 name const * g_decidable_decide = nullptr;
 name const * g_dite = nullptr;
 name const * g_empty = nullptr;
@@ -96,7 +98,6 @@ name const * g_inhabited = nullptr;
 name const * g_inhabited_default = nullptr;
 name const * g_int = nullptr;
 name const * g_int_nat_abs = nullptr;
-name const * g_int_lt = nullptr;
 name const * g_int_dec_lt = nullptr;
 name const * g_int_of_nat = nullptr;
 name const * g_inline = nullptr;
@@ -134,7 +135,6 @@ name const * g_of_eq_true = nullptr;
 name const * g_of_iff_true = nullptr;
 name const * g_opt_param = nullptr;
 name const * g_or = nullptr;
-name const * g_out_param = nullptr;
 name const * g_punit = nullptr;
 name const * g_punit_unit = nullptr;
 name const * g_prod_mk = nullptr;
@@ -200,6 +200,7 @@ void initialize_constants() {
     g_bool = new name{"Bool"};
     g_bool_false = new name{"Bool", "false"};
     g_bool_true = new name{"Bool", "true"};
+    g_bool_cases_on = new name{"Bool", "casesOn"};
     g_cast = new name{"cast"};
     g_char = new name{"Char"};
     g_char_mk = new name{"Char", "mk"};
@@ -212,7 +213,8 @@ void initialize_constants() {
     g_congr_arg = new name{"congrArg"};
     g_congr_fun = new name{"congrFun"};
     g_decidable = new name{"Decidable"};
-    g_decidable_cases_on = new name{"Decidable", "casesOn"};
+    g_decidable_is_true = new name{"Decidable", "isTrue"};
+    g_decidable_is_false = new name{"Decidable", "isFalse"};
     g_decidable_decide = new name{"Decidable", "decide"};
     g_dite = new name{"dite"};
     g_empty = new name{"Empty"};
@@ -278,7 +280,6 @@ void initialize_constants() {
     g_inhabited_default = new name{"Inhabited", "default"};
     g_int = new name{"Int"};
     g_int_nat_abs = new name{"Int", "natAbs"};
-    g_int_lt = new name{"Int", "lt"};
     g_int_dec_lt = new name{"Int", "decLt"};
     g_int_of_nat = new name{"Int", "ofNat"};
     g_inline = new name{"inline"};
@@ -316,7 +317,6 @@ void initialize_constants() {
     g_of_iff_true = new name{"ofIffTrue"};
     g_opt_param = new name{"optParam"};
     g_or = new name{"Or"};
-    g_out_param = new name{"outParam"};
     g_punit = new name{"PUnit"};
     g_punit_unit = new name{"PUnit", "unit"};
     g_prod_mk = new name{"Prod", "mk"};
@@ -383,6 +383,7 @@ void finalize_constants() {
     delete g_bool;
     delete g_bool_false;
     delete g_bool_true;
+    delete g_bool_cases_on;
     delete g_cast;
     delete g_char;
     delete g_char_mk;
@@ -395,7 +396,8 @@ void finalize_constants() {
     delete g_congr_arg;
     delete g_congr_fun;
     delete g_decidable;
-    delete g_decidable_cases_on;
+    delete g_decidable_is_true;
+    delete g_decidable_is_false;
     delete g_decidable_decide;
     delete g_dite;
     delete g_empty;
@@ -461,7 +463,6 @@ void finalize_constants() {
     delete g_inhabited_default;
     delete g_int;
     delete g_int_nat_abs;
-    delete g_int_lt;
     delete g_int_dec_lt;
     delete g_int_of_nat;
     delete g_inline;
@@ -499,7 +500,6 @@ void finalize_constants() {
     delete g_of_iff_true;
     delete g_opt_param;
     delete g_or;
-    delete g_out_param;
     delete g_punit;
     delete g_punit_unit;
     delete g_prod_mk;
@@ -565,6 +565,7 @@ name const & get_byte_array_name() { return *g_byte_array; }
 name const & get_bool_name() { return *g_bool; }
 name const & get_bool_false_name() { return *g_bool_false; }
 name const & get_bool_true_name() { return *g_bool_true; }
+name const & get_bool_cases_on_name() { return *g_bool_cases_on; }
 name const & get_cast_name() { return *g_cast; }
 name const & get_char_name() { return *g_char; }
 name const & get_char_mk_name() { return *g_char_mk; }
@@ -577,7 +578,8 @@ name const & get_congr_name() { return *g_congr; }
 name const & get_congr_arg_name() { return *g_congr_arg; }
 name const & get_congr_fun_name() { return *g_congr_fun; }
 name const & get_decidable_name() { return *g_decidable; }
-name const & get_decidable_cases_on_name() { return *g_decidable_cases_on; }
+name const & get_decidable_is_true_name() { return *g_decidable_is_true; }
+name const & get_decidable_is_false_name() { return *g_decidable_is_false; }
 name const & get_decidable_decide_name() { return *g_decidable_decide; }
 name const & get_dite_name() { return *g_dite; }
 name const & get_empty_name() { return *g_empty; }
@@ -643,7 +645,6 @@ name const & get_inhabited_name() { return *g_inhabited; }
 name const & get_inhabited_default_name() { return *g_inhabited_default; }
 name const & get_int_name() { return *g_int; }
 name const & get_int_nat_abs_name() { return *g_int_nat_abs; }
-name const & get_int_lt_name() { return *g_int_lt; }
 name const & get_int_dec_lt_name() { return *g_int_dec_lt; }
 name const & get_int_of_nat_name() { return *g_int_of_nat; }
 name const & get_inline_name() { return *g_inline; }
@@ -681,7 +682,6 @@ name const & get_of_eq_true_name() { return *g_of_eq_true; }
 name const & get_of_iff_true_name() { return *g_of_iff_true; }
 name const & get_opt_param_name() { return *g_opt_param; }
 name const & get_or_name() { return *g_or; }
-name const & get_out_param_name() { return *g_out_param; }
 name const & get_punit_name() { return *g_punit; }
 name const & get_punit_unit_name() { return *g_punit_unit; }
 name const & get_prod_mk_name() { return *g_prod_mk; }

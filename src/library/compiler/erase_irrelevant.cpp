@@ -165,17 +165,16 @@ class erase_irrelevant_fn {
         expr zero        = mk_lit(literal(nat(0)));
         expr one         = mk_lit(literal(nat(1)));
         expr nat_type    = mk_constant(get_nat_name());
-        expr eq          = mk_app(mk_constant(get_eq_name(), {mk_level_one()}), nat_type, major, zero);
         expr dec_eq      = mk_app(mk_constant(get_nat_dec_eq_name()), major, zero);
-        expr dec_eq_type = mk_app(mk_constant(get_decidable_name(), {mk_level_one()}), eq);
+        expr dec_eq_type = mk_bool();
         expr c           = mk_simple_decl(dec_eq, dec_eq_type);
         expr minor_z     = args[2];
-        minor_z          = visit_minor(mk_lambda(next_name(), eq, minor_z));
+        minor_z          = visit_minor(minor_z);
         expr minor_s     = args[3];
         expr pred        = mk_app(mk_constant(get_nat_sub_name()), major, one);
         minor_s          = ::lean::mk_let(next_name(), nat_type, pred, binding_body(minor_s));
-        minor_s          = visit_minor(mk_lambda(next_name(), mk_not(eq), minor_s));
-        return mk_app(mk_constant(get_decidable_cases_on_name()), c, minor_s, minor_z);
+        minor_s          = visit_minor(minor_s);
+        return mk_app(mk_constant(get_bool_cases_on_name()), c, minor_s, minor_z);
     }
 
     expr elim_int_cases(buffer<expr> & args) {
@@ -185,21 +184,32 @@ class erase_irrelevant_fn {
         expr int_type    = mk_constant(get_int_name());
         expr nat_type    = mk_constant(get_nat_name());
         expr izero       = mk_simple_decl(mk_app(mk_constant(get_int_of_nat_name()), zero), int_type);
-        expr lt          = mk_app(mk_constant(get_int_lt_name()), major, izero);
         expr dec_lt      = mk_app(mk_constant(get_int_dec_lt_name()), major, izero);
-        expr dec_lt_type = mk_app(mk_constant(get_decidable_name(), {mk_level_one()}), lt);
+        expr dec_lt_type = mk_bool();
         expr c           = mk_simple_decl(dec_lt, dec_lt_type);
         expr abs         = mk_app(mk_constant(get_int_nat_abs_name()), major);
         expr minor_p     = args[2];
         minor_p          = ::lean::mk_let(next_name(), nat_type, abs, binding_body(minor_p));
-        minor_p          = visit_minor(mk_lambda(next_name(), mk_not(lt), minor_p));
+        minor_p          = visit_minor(minor_p);
         expr one         = mk_lit(literal(nat(1)));
         expr minor_n     = args[3];
         minor_n          = ::lean::mk_let(next_name(), nat_type, abs,
                            ::lean::mk_let(next_name(), nat_type, mk_app(mk_constant(get_nat_sub_name()), mk_bvar(0), one),
                                           binding_body(minor_n)));
-        minor_n          = visit_minor(mk_lambda(next_name(), lt, minor_n));
-        return mk_app(mk_constant(get_decidable_cases_on_name()), c, minor_p, minor_n);
+        minor_n          = visit_minor(minor_n);
+        return mk_app(mk_constant(get_bool_cases_on_name()), c, minor_p, minor_n);
+    }
+
+    expr decidable_to_bool_cases(buffer<expr> const & args) {
+        lean_assert(args.size() == 5);
+        expr const & major  = args[2];
+        expr minor1 = args[3];
+        expr minor2 = args[4];
+        lean_assert(is_lambda(minor1));
+        lean_assert(is_lambda(minor2));
+        minor1 = visit_minor(instantiate(binding_body(minor1), mk_enf_neutral()));
+        minor2 = visit_minor(instantiate(binding_body(minor2), mk_enf_neutral()));
+        return mk_app(mk_constant(get_bool_cases_on_name()), major, minor1, minor2);
     }
 
     /* Remark: we only keep major and minor premises. */
@@ -211,6 +221,8 @@ class erase_irrelevant_fn {
             return elim_nat_cases(args);
         } else if (I_name == get_int_name()) {
             return elim_int_cases(args);
+        } else if (I_name == get_decidable_name()) {
+            return decidable_to_bool_cases(args);
         } else {
             unsigned minors_begin; unsigned minors_end;
             std::tie(minors_begin, minors_end) = get_cases_on_minors_range(env(), const_name(c));
@@ -303,6 +315,10 @@ class erase_irrelevant_fn {
                 return mk_enf_neutral();
             } else if (fn == get_lc_unreachable_name()) {
                 return mk_enf_unreachable();
+            } else if (fn == get_decidable_is_true_name()) {
+                return mk_constant(get_bool_true_name());
+            } else if (fn == get_decidable_is_false_name()) {
+                return mk_constant(get_bool_false_name());
             } else if (is_constructor(env(), fn)) {
                 return visit_constructor(f, args);
             } else if (is_cases_on_recursor(env(), fn)) {

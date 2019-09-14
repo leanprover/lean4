@@ -204,6 +204,7 @@ fun n => do
 @[builtinCommandElab «preterm»] def elabPreTerm : CommandElab :=
 fun n => do
   let s := n.getArg 1;
+  runIO (IO.println s);
   pre ← toPreTerm (s.lift Expr);
   runIO (IO.println pre.dbgToString);
   pure ()
@@ -214,7 +215,9 @@ fun n => do
   r ← elabTerm (s.lift Expr);
   match r with
   | Syntax.other e => runIO (IO.println e.dbgToString)
-  | _              => throw "failed to elaborate syntax"
+  | other          => do
+    runIO (IO.println other);
+    throw "failed to elaborate syntax"
 
 /- We just ignore Lean3 notation declaration commands. -/
 @[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()

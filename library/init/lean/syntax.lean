@@ -457,5 +457,10 @@ match stx.isNatLit with
 | some val => val
 | none     => 0
 
+/-- Create an identifier using `SourceInfo` from `src` -/
+def mkIdent {α} (src : Syntax α) (val : Name) : Syntax α :=
+let info := src.getHeadInfo;
+Syntax.ident info (toString val).toSubstring val []
+
 end Syntax
 end Lean

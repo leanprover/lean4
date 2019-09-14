@@ -18,7 +18,11 @@ partial def elabTermAux : Syntax Expr → Option Expr → Bool → Elab (Syntax 
     let tables := termElabAttribute.ext.getState s.env;
     let k      := n.getKind;
     match tables.find k with
-    | some elab => elab n expectedType
+    | some elab => do
+      newStx ← elab n expectedType;
+      match newStx with
+      | Syntax.other _ => pure newStx
+      | _              => elabTermAux newStx expectedType expanding
     | none      => do
       -- recursively expand syntax
       let k := n.getKind;
@@ -38,10 +42,16 @@ partial def elabTermAux : Syntax Expr → Option Expr → Bool → Elab (Syntax 
 def elabTerm (stx : Syntax Expr) (expectedType : Option Expr := none) : Elab (Syntax Expr) :=
 elabTermAux stx expectedType false
 
+open Lean.Parser
+
 @[builtinTermElab «list»] def elabList : TermElab :=
 fun stx _ => do
-  runIO (IO.println stx.val);
-  pure stx.val
+  let openBkt  := stx.getArg 0;
+  let args     := stx.getArg 1;
+  let closeBkt := stx.getArg 2;
+  let consId   := openBkt.mkIdent `List.cons;
+  let nilId    := closeBkt.mkIdent `List.nil;
+  pure $ args.foldSepArgs (fun arg r => mkAppStx consId [arg, r]) nilId
 
 end Elab
 end Lean

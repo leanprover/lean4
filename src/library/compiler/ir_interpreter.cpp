@@ -473,7 +473,10 @@ class interpreter {
                         check_system("interpreter");
                         break;
                     }
-                    var(fn_body_vdecl_var(b)) = eval_expr(fn_body_vdecl_expr(b), fn_body_vdecl_type(b));
+                    value v = eval_expr(fn_body_vdecl_expr(b), fn_body_vdecl_type(b));
+                    // NOTE: `var` must be called *after* `eval_expr` because the stack may get resized and invalidate
+                    // the pointer
+                    var(fn_body_vdecl_var(b)) = v;
                     DEBUG_CODE(lean_trace(name({"interpreter", "step"}),
                                           tout() << std::string(m_call_stack.size(), ' ') << "=> x_";
                                           tout() << fn_body_vdecl_var(b).get_small_value() << " = ";

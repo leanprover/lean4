@@ -55,13 +55,12 @@ def usesLeanNamespace (env : Environment) : Decl → Bool
 | Decl.fdecl _ _ _ b => (UsesLeanNamespace.visitFnBody b env).run' {}
 | _                  => false
 
-
 namespace CollectUsedDecls
 
 abbrev M := ReaderT Environment (State NameSet)
 
 @[inline] def collect (f : FunId) : M Unit :=
-modify (fun s => s.insert f)
+modify $ fun s => s.insert f
 
 partial def collectFnBody : FnBody → M Unit
 | FnBody.vdecl _ _ v b   =>

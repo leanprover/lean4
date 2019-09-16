@@ -137,7 +137,7 @@ mask.foldl
 
 abbrev M := ReaderT Context (State Nat)
 def mkFresh : M VarId :=
-do idx ← get; modify (fun n => n + 1); pure { idx := idx }
+modifyGet $ fun n => ({ idx := n }, n + 1)
 
 def releaseUnreadFields (y : VarId) (mask : Mask) (b : FnBody) : M FnBody :=
 mask.size.mfold

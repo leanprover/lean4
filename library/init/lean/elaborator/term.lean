@@ -53,5 +53,11 @@ fun stx _ => do
   let nilId    := closeBkt.mkIdent `List.nil;
   pure $ args.foldSepArgs (fun arg r => mkAppStx consId [arg, r]) nilId
 
+@[builtinTermElab arrow] def elabArrow : TermElab :=
+fun stx _ => do
+  id ← mkFreshName;
+  runIO (IO.println stx.val);
+  pure $ Syntax.other $ Expr.sort (Level.zero)
+
 end Elab
 end Lean

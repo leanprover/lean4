@@ -114,6 +114,9 @@ stx.ifNode
     | none    => logErrorAndThrow stx ("`toPreTerm` failed, no support for syntax '" ++ toString k ++ "'"))
   (fun _ => throw "`toPreTerm` failed, unexpected syntax")
 
+private def mkHoleFor (stx : Syntax Expr) : Elab PreTerm :=
+setPos stx (Expr.mvar Name.anonymous)
+
 @[builtinPreTermElab «type»] def convertType : PreTermElab :=
 fun _ => pure $ Expr.sort $ Level.succ Level.zero
 
@@ -132,6 +135,42 @@ fun n => do
    else
      pure $ Expr.sort level
 
+private def mkLocal (decl : LocalDecl) : PreTerm :=
+Expr.local decl.name decl.userName decl.type decl.binderInfo
+
+private def processBinder (b : Syntax Expr) : Elab (List PreTerm) :=
+match b.getKind with
+| `Lean.Parser.Term.simpleBinder   => do
+   let args := (b.getArg 0).getArgs;
+   args.mfoldl (fun r arg => do
+     let id := arg.getId;
+     hole ← mkHoleFor arg;
+     decl ← mkLocalDecl id hole;
+     pure (mkLocal decl :: r))
+     []
+| `Lean.Parser.Term.explicitBinder => do runIO (IO.println $ ">> explicit " ++ (toString b)); pure []
+| `Lean.Parser.Term.implicitBinder => do runIO (IO.println $ ">> implict " ++ (toString b)); pure []
+| `Lean.Parser.Term.instBinder     => do runIO (IO.println $ ">> inst " ++ (toString b)); pure []
+| _ => throw "unknown binder kind"
+
+private def processBinders (bs : Array (Syntax Expr)) : Elab (List PreTerm) :=
+bs.mfoldl (fun r s => do xs ← processBinder s; pure (r ++ xs)) []
+
+@[builtinPreTermElab «forall»] def convertForall : PreTermElab :=
+fun n => do
+  let binders := n.getArg 1;
+  let body    := n.getArg 3;
+  withNewScope $ do
+    xs   ← processBinders binders.getArgs;
+    runIO (IO.println (xs.map Expr.dbgToString));
+    body ← toPreTerm body;
+    -- TODO
+    pure $ Expr.sort (Level.zero)
+--  dom ← toPreTerm $ n.getArg 0;
+--  rng ← toPreTerm $ n.getArg 2;
+--  pure $ Expr.pi id BinderInfo.default dom rng
+
+-- TODO: delete... arrow should be expanded at term.lean
 @[builtinPreTermElab «arrow»] def convertArrow : PreTermElab :=
 fun n => do
   id ← mkFreshName;

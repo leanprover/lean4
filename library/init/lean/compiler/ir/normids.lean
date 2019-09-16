@@ -15,9 +15,9 @@ namespace UniqueIds
 abbrev M := StateT IndexSet Id
 
 def checkId (id : Index) : M Bool :=
-do found ← get;
-   if found.contains id then pure false
-   else modify (fun s => s.insert id) *> pure true
+modifyGet $ fun s =>
+  if s.contains id then (false, s)
+  else (true, s.insert id)
 
 def checkParams (ps : Array Param) : M Bool :=
 ps.allM $ fun p => checkId p.x.idx

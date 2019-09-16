@@ -31,13 +31,14 @@ structure ElabContext :=
 (fileMap  : FileMap)
 
 structure ElabScope :=
-(cmd       : String)
-(header    : Name)
-(options   : Options := {})
-(ns        : Name := Name.anonymous) -- current namespace
-(openDecls : List OpenDecl := [])
-(univs     : List Name := [])
-(lctx      : LocalContext := {})
+(cmd         : String)
+(header      : Name)
+(options     : Options := {})
+(ns          : Name := Name.anonymous) -- current namespace
+(openDecls   : List OpenDecl := [])
+(univs       : List Name := [])
+(lctx        : LocalContext := {})
+(nextInstIdx : Nat := 1)
 
 namespace ElabScope
 
@@ -399,10 +400,7 @@ instance {α} : Inhabited (Elab α) :=
 ⟨fun _ => default _⟩
 
 def mkFreshName : Elab Name :=
-do s ← get;
-   let n := s.ngen.curr;
-   modify $ fun s => { ngen := s.ngen.next, .. s };
-   pure n
+modifyGet $ fun s => (s.ngen.curr, { ngen := s.ngen.next, .. s })
 
 def getScope : Elab ElabScope :=
 do s ← get; pure s.scopes.head
@@ -418,6 +416,37 @@ do s ← get;
    match s.scopes with
    | []      => pure Name.anonymous
    | (sc::_) => pure sc.ns
+
+@[specialize] def modifyScope (f : ElabScope → ElabScope) : Elab Unit :=
+modify $ fun s =>
+  { scopes := match s.scopes with
+    | h::t => f h :: t
+    | []   => [], -- unreachable
+    .. s }
+
+@[specialize] def modifyGetScope {α} [Inhabited α] (f : ElabScope → α × ElabScope) : Elab α :=
+modifyGet $ fun s =>
+  match s with
+  | { scopes := h::t, .. } =>
+    let (a, h) := f h;
+    (a, { scopes := h :: t, .. s })
+  | _ => (default _, s)
+
+def mkLocalDecl (userName : Name) (type : Expr) (bi : BinderInfo := BinderInfo.default) : Elab LocalDecl :=
+do
+idx ← mkFreshName;
+modifyGetScope $ fun scope =>
+   let (decl, lctx) := scope.lctx.mkLocalDecl idx userName type bi;
+   (decl, { lctx := lctx, .. scope })
+
+def anonymousInstNamePrefix := `_inst
+
+def mkAnonymousInstName : Elab Name :=
+do
+scope ← getScope;
+let n := anonymousInstNamePrefix.appendIndexAfter scope.nextInstIdx;
+modifyScope $ fun scope => { nextInstIdx := scope.nextInstIdx + 1, .. scope };
+pure n
 
 def rootNamespace := `_root_
 
@@ -452,6 +481,13 @@ do s ← get;
        match resolveNamespaceUsingOpenDecls s.env n openDecls with
        | some n => pure n
        | none   => throw (ElabException.other ("unknown namespace '" ++ toString n ++ "'"))
+
+@[inline] def withNewScope {α} (x : Elab α) : Elab α :=
+do
+modify $ fun s => { scopes := s.scopes.head :: s.scopes, .. s };
+a ← x;
+modify $ fun s => { scopes := s.scopes.tail, .. s};
+pure a
 
 /- Remark: in an ideal world where performance doesn't matter, we would define `Elab` as
    ```

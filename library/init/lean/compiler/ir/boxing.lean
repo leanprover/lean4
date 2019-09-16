@@ -43,9 +43,7 @@ def isBoxedName : Name → Bool
 abbrev N := State Nat
 
 private def mkFresh : N VarId :=
-do idx ← get;
-   modify (fun n => n + 1);
-   pure {idx := idx }
+modifyGet $ fun n => ({ idx := n }, n + 1)
 
 def requiresBoxedVersion (env : Environment) (decl : Decl) : Bool :=
 let ps := decl.params;

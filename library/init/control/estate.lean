@@ -72,9 +72,11 @@ fun r => match r with
   | ⟨Result.ok _ s, _⟩    => Result.ok s s
   | ⟨Result.error _ _, h⟩ => unreachableError h
 
-@[inline] protected def modify (f : σ → σ) : EState ε σ PUnit :=
+@[inline] protected def modifyGet (f : σ → α × σ) : EState ε σ α :=
 fun r => match r with
-  | ⟨Result.ok _ s, _⟩    => Result.ok ⟨⟩ (f s)
+  | ⟨Result.ok _ s, _⟩    =>
+    match f s with
+    | (a, s) => Result.ok a s
   | ⟨Result.error _ _, h⟩ => unreachableError h
 
 @[inline] protected def throw (e : ε) : EState ε σ α :=
@@ -129,7 +131,7 @@ instance : HasOrelse (EState ε σ α) :=
 { orelse := @EState.orelse _ _ _ }
 
 instance : MonadState σ (EState ε σ) :=
-{ set := @EState.set _ _, get := @EState.get _ _, modify := @EState.modify _ _ }
+{ set := @EState.set _ _, get := @EState.get _ _, modifyGet := @EState.modifyGet _ _ }
 
 instance : MonadExcept ε (EState ε σ) :=
 { throw := @EState.throw _ _, catch := @EState.catch _ _ }

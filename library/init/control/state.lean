@@ -55,8 +55,8 @@ fun s => pure (s, s)
 @[inline] protected def set : σ → StateT σ m PUnit :=
 fun s' s => pure (⟨⟩, s')
 
-@[inline] protected def modify (f : σ → σ) : StateT σ m PUnit :=
-fun s => pure (⟨⟩, f s)
+@[inline] protected def modifyGet (f : σ → α × σ) : StateT σ m α :=
+fun s => pure (f s)
 
 @[inline] protected def lift {α : Type u} (t : m α) : StateT σ m α :=
 fun s => do a ← t; pure (a, s)
@@ -90,14 +90,17 @@ class MonadState (σ : outParam (Type u)) (m : Type u → Type v) :=
 (set {} : σ → m PUnit)
 /- Map the top-most State of a Monad stack.
 
-   Note: `modify f` may be preferable to `f <$> get >>= put` because the latter
-   does not use the State linearly (without sufficient inlining). -/
-(modify {} : (σ → σ) → m PUnit)
+   Note: `modifyGet f` may be preferable to `do s <- get; let (a, s) := f s; put s; pure a`
+   because the latter does not use the State linearly (without sufficient inlining). -/
+(modifyGet {} {α : Type u} : (σ → α × σ) → m α)
 
-export MonadState (get set modify)
+export MonadState (get set modifyGet)
 
 section
 variables {σ : Type u} {m : Type u → Type v}
+
+@[inline] def modify [MonadState σ m] (f : σ → σ) : m PUnit :=
+modifyGet (fun s => (PUnit.unit, f s))
 
 @[inline] def getModify [MonadState σ m] [Monad m] (f : σ → σ) : m σ :=
 do s ← get; modify f; pure s
@@ -107,12 +110,13 @@ do s ← get; modify f; pure s
 instance monadStateTrans {n : Type u → Type w} [HasMonadLift m n] [MonadState σ m] : MonadState σ n :=
 { get := monadLift (MonadState.get : m _),
   set := fun st => monadLift (MonadState.set st : m _),
-  modify := fun f => monadLift (MonadState.modify f : m _) }
+  modifyGet := fun α f => monadLift (MonadState.modifyGet f : m _) }
 
 instance [Monad m] : MonadState σ (StateT σ m) :=
 { get := StateT.get,
   set := StateT.set,
-  modify := StateT.modify }
+  modifyGet := @StateT.modifyGet _ _ _ }
+
 end
 
 /-- Adapt a Monad stack, changing the Type of its top-most State.

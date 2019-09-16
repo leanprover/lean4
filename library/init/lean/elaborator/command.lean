@@ -88,13 +88,6 @@ fun n => do
     [];
   modify $ fun s => { env := aliases.foldl (fun env p => addAlias env p.1 p.2) s.env, .. s }
 
-@[specialize] def modifyScope (f : ElabScope → ElabScope) : Elab Unit :=
-modify $ fun s =>
-  { scopes := match s.scopes with
-    | h::t => f h :: t
-    | []   => [], -- unreachable
-    .. s }
-
 def addOpenDecl (d : OpenDecl) : Elab Unit :=
 modifyScope $ fun scope => { openDecls := d :: scope.openDecls, .. scope }
 

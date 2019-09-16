@@ -205,10 +205,12 @@ class erase_irrelevant_fn {
         expr const & major  = args[2];
         expr minor1 = args[3];
         expr minor2 = args[4];
+        minor1 = visit_minor(minor1);
+        minor2 = visit_minor(minor2);
         lean_assert(is_lambda(minor1));
         lean_assert(is_lambda(minor2));
-        minor1 = visit_minor(instantiate(binding_body(minor1), mk_enf_neutral()));
-        minor2 = visit_minor(instantiate(binding_body(minor2), mk_enf_neutral()));
+        minor1 = instantiate(binding_body(minor1), mk_enf_neutral());
+        minor2 = instantiate(binding_body(minor2), mk_enf_neutral());
         return mk_app(mk_constant(get_bool_cases_on_name()), major, minor1, minor2);
     }
 

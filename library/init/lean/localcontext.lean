@@ -234,5 +234,28 @@ partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) : Nat → N
 def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) : Bool :=
 isSubPrefixOfAux lctx₁.decls lctx₂.decls 0 0
 
+@[inline] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
+let b := b.abstract xs;
+xs.size.foldRev (fun i b =>
+  let x := xs.get i;
+  match lctx.findFVar x with
+  | some (LocalDecl.cdecl _ _ n ty bi)  =>
+    let ty := ty.abstractRange i xs;
+    if isLambda then
+      Expr.lam n bi ty b
+    else
+      Expr.pi n bi ty b
+  | some (LocalDecl.ldecl _ _ n ty val) =>
+    let ty  := ty.abstractRange i xs;
+    let val := val.abstractRange i xs;
+    Expr.elet n ty val b
+  | none => b) b
+
+def mkLambda (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
+mkBinding true lctx xs b
+
+def mkForall (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
+mkBinding false lctx xs b
+
 end LocalContext
 end Lean

@@ -266,29 +266,38 @@ Id.run $ anyM a p
 !any a (fun v => !p v)
 
 section
-variable {β:Type w}
+variables {m : Type v → Type w} [Monad m]
+variable {β : Type v}
 
-@[specialize] private def revIterateAux (a : Array α) (f : ∀ (i : Fin a.size), α → β → β) : ∀ (i : Nat), i ≤ a.size → β → β
-| 0,   h, b => b
-| j+1, h, b =>
+@[specialize] private def miterateRevAux (a : Array α) (f : ∀ (i : Fin a.size), α → β → m β) : ∀ (i : Nat), i ≤ a.size → β → m β
+| 0,   h, b => pure b
+| j+1, h, b => do
   let i : Fin a.size := ⟨j, h⟩;
-  revIterateAux j (Nat.leOfLt h) (f i (a.fget i) b)
+  b ← f i (a.fget i) b;
+  miterateRevAux j (Nat.leOfLt h) b
 
-@[inline] def revIterate (a : Array α) (b : β) (f : ∀ (i : Fin a.size), α → β → β) : β :=
-revIterateAux a f a.size (Nat.leRefl _) b
+@[inline] def miterateRev (a : Array α) (b : β) (f : ∀ (i : Fin a.size), α → β → m β) : m β :=
+miterateRevAux a f a.size (Nat.leRefl _) b
 
-@[inline] def revFoldl (a : Array α) (b : β) (f : α → β → β) : β :=
-revIterate a b (fun _ => f)
+@[inline] def mfoldr (f : α → β → m β) (b : β) (a : Array α) : m β :=
+miterateRev a b (fun _ => f)
+
+end
+
+@[inline] def iterateRev {β} (a : Array α) (b : β) (f : ∀ (i : Fin a.size), α → β → β) : β :=
+Id.run $ miterateRev a b f
+
+@[inline] def foldr {β} (f : α → β → β) (b : β) (a : Array α) : β :=
+Id.run $ mfoldr f b a
 
 def toList (a : Array α) : List α :=
-a.revFoldl [] List.cons
+a.foldr List.cons []
 
 instance [HasRepr α] : HasRepr (Array α) :=
 ⟨repr ∘ toList⟩
 
 instance [HasToString α] : HasToString (Array α) :=
 ⟨toString ∘ toList⟩
-end
 
 section
 variables {m : Type u → Type w} [Monad m]

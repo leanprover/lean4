@@ -102,14 +102,22 @@ def isAppOfArity : Expr → Name → Nat → Bool
 | Expr.app f _,   n, a+1 => isAppOfArity f n a
 | _,              _, _   => false
 
+/-- Instantiate the loose bound variables in `e` using `subst`.
+    That is, a loose `Expr.bvar i` is replaced with `subst[i]`. -/
 @[extern "lean_expr_instantiate"]
-constant instantiate : Expr → Array Expr → Expr := default _
+constant instantiate (e : Expr) (subst : Array Expr) : Expr := default _
 
+/-- Similar to instantiate, but `Expr.bvar i` is replaced with `subst[subst.size - i - 1]` -/
 @[extern "lean_expr_instantiate_rev"]
-constant instantiateRev : Expr → Array Expr → Expr := default _
+constant instantiateRev (e : Expr) (subst : Array Expr) : Expr := default _
 
+/-- Replace free variables `xs` with loose bound variables. -/
 @[extern "lean_expr_abstract"]
-constant abstract : Expr → Array Expr → Expr := default _
+constant abstract (e : Expr) (xs : Array Expr) : Expr := default _
+
+/-- Similar to `abstract`, but consider only the first `min n xs.size` entries in `xs`. -/
+@[extern "lean_expr_abstract_range"]
+constant abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : Expr := default _
 
 end Expr
 

@@ -158,7 +158,9 @@ struct expr_pair_eq {
 
 // =======================================
 // Testers
+static expr_kind expr_kind_core(object * o) { return static_cast<expr_kind>(cnstr_tag(o)); }
 inline bool is_bvar(expr const & e)        { return e.kind() == expr_kind::BVar; }
+inline bool is_fvar_core(object * o)       { return expr_kind_core(o) == expr_kind::FVar; }
 inline bool is_fvar(expr const & e)        { return e.kind() == expr_kind::FVar; }
 inline bool is_const(expr const & e)       { return e.kind() == expr_kind::Const; }
 inline bool is_mvar(expr const & e)        { return e.kind() == expr_kind::MVar; }
@@ -228,6 +230,7 @@ inline nat const &     proj_idx(expr const & e)              { lean_assert(is_pr
 inline expr const &    proj_expr(expr const & e)             { lean_assert(is_proj(e)); return static_cast<expr const &>(cnstr_get_ref(e, 2)); }
 inline nat const &     bvar_idx(expr const & e)              { lean_assert(is_bvar(e)); return static_cast<nat const &>(cnstr_get_ref(e, 0)); }
 inline bool            is_bvar(expr const & e, unsigned i)   { return is_bvar(e) && bvar_idx(e) == i; }
+inline name const &    fvar_name_core(object * o)            { lean_assert(is_fvar_core(o)); return static_cast<name const &>(cnstr_get_ref(o, 0)); }
 inline name const &    fvar_name(expr const & e)             { lean_assert(is_fvar(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
 inline level const &   sort_level(expr const & e)            { lean_assert(is_sort(e)); return static_cast<level const &>(cnstr_get_ref(e, 0)); }
 inline name const &    mvar_name(expr const & e)             { lean_assert(is_mvar(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }

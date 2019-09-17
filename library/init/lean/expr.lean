@@ -108,6 +108,9 @@ constant instantiate : Expr → Array Expr → Expr := default _
 @[extern "lean_expr_instantiate_rev"]
 constant instantiateRev : Expr → Array Expr → Expr := default _
 
+@[extern "lean_expr_abstract"]
+constant abstract : Expr → Array Expr → Expr := default _
+
 end Expr
 
 def mkConst (n : Name) (ls : List Level := []) : Expr :=

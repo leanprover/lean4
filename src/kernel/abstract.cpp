@@ -36,6 +36,31 @@ expr abstract(expr const & e, name const & n) {
     return abstract(e, 1, &fvar);
 }
 
+extern "C" object * lean_expr_abstract(object * e0, object * subst) {
+    expr const & e = reinterpret_cast<expr const &>(e0);
+    if (!has_fvar(e)) {
+        lean_inc(e0);
+        return e0;
+    }
+    size_t n = lean_array_size(subst);
+    expr r = replace(e, [=](expr const & m, unsigned offset) -> optional<expr> {
+            if (!has_fvar(m))
+                return some_expr(m); // expression m does not contain free variables
+            if (is_fvar(m)) {
+                size_t i = n;
+                while (i > 0) {
+                    --i;
+                    if (fvar_name_core(lean_array_get_core(subst, i)) == fvar_name(m))
+                        return some_expr(mk_bvar(offset + n - i - 1));
+                }
+                return none_expr();
+            }
+            return none_expr();
+        });
+    return r.steal();
+}
+
+
 /* ------ LEGACY CODE -------------
    The following API is to support legacy
    code where the type of a local constant (aka free variable)

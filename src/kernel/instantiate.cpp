@@ -45,6 +45,33 @@ expr instantiate(expr const & e, std::initializer_list<expr> const & l) {  retur
 expr instantiate(expr const & e, unsigned i, expr const & s) { return instantiate(e, i, 1, &s); }
 expr instantiate(expr const & e, expr const & s) { return instantiate(e, 0, s); }
 
+extern "C" object * lean_expr_instantiate(object * a0, object * subst) {
+    expr const & a = reinterpret_cast<expr const &>(a0);
+    if (!has_loose_bvars(a)) {
+        lean_inc(a0);
+        return a0;
+    }
+    size_t n = lean_array_size(subst);
+    expr r = replace(a, [=](expr const & m, unsigned offset) -> optional<expr> {
+            if (offset >= get_loose_bvar_range(m))
+                return some_expr(m); // expression m does not contain loose bound variables with idx >= offset
+            if (is_bvar(m)) {
+                nat const & vidx = bvar_idx(m);
+                if (vidx >= offset) {
+                    size_t h = offset + n;
+                    if (h < offset /* overflow, h is bigger than any vidx */ || vidx < h) {
+                        expr v(lean_array_get_core(subst, vidx.get_small_value() - offset), true);
+                        return some_expr(lift_loose_bvars(v, offset));
+                    } else {
+                        return some_expr(mk_bvar(vidx - nat(n)));
+                    }
+                }
+            }
+            return none_expr();
+        });
+    return r.steal();
+}
+
 expr instantiate_rev(expr const & a, unsigned n, expr const * subst) {
     if (!has_loose_bvars(a))
         return a;
@@ -54,7 +81,7 @@ expr instantiate_rev(expr const & a, unsigned n, expr const * subst) {
             if (is_bvar(m)) {
                 nat const & vidx = bvar_idx(m);
                 if (vidx >= offset) {
-                    unsigned h = offset + n;
+                    size_t h = offset + n;
                     if (h < offset /* overflow, h is bigger than any vidx */ || vidx < h) {
                         return some_expr(lift_loose_bvars(subst[n - (vidx.get_small_value() - offset) - 1], offset));
                     } else {
@@ -64,6 +91,33 @@ expr instantiate_rev(expr const & a, unsigned n, expr const * subst) {
             }
             return none_expr();
         });
+}
+
+extern "C" object * lean_expr_instantiate_rev(object * a0, object * subst) {
+    expr const & a = reinterpret_cast<expr const &>(a0);
+    if (!has_loose_bvars(a)) {
+        lean_inc(a0);
+        return a0;
+    }
+    size_t n = lean_array_size(subst);
+    expr r = replace(a, [=](expr const & m, unsigned offset) -> optional<expr> {
+            if (offset >= get_loose_bvar_range(m))
+                return some_expr(m); // expression m does not contain loose bound variables with idx >= offset
+            if (is_bvar(m)) {
+                nat const & vidx = bvar_idx(m);
+                if (vidx >= offset) {
+                    size_t h = offset + n;
+                    if (h < offset /* overflow, h is bigger than any vidx */ || vidx < h) {
+                        expr v(lean_array_get_core(subst, n - (vidx.get_small_value() - offset) - 1), true);
+                        return some_expr(lift_loose_bvars(v, offset));
+                    } else {
+                        return some_expr(mk_bvar(vidx - nat(n)));
+                    }
+                }
+            }
+            return none_expr();
+        });
+    return r.steal();
 }
 
 bool is_head_beta(expr const & t) {

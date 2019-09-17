@@ -102,6 +102,12 @@ def isAppOfArity : Expr → Name → Nat → Bool
 | Expr.app f _,   n, a+1 => isAppOfArity f n a
 | _,              _, _   => false
 
+@[extern "lean_expr_instantiate"]
+constant instantiate : Expr → Array Expr → Expr := default _
+
+@[extern "lean_expr_instantiate_rev"]
+constant instantiateRev : Expr → Array Expr → Expr := default _
+
 end Expr
 
 def mkConst (n : Name) (ls : List Level := []) : Expr :=

@@ -39,12 +39,26 @@ namespace Nat
 @[inline] def mfor {m} [Applicative m] (n : Nat) (f : Nat → m Unit) : m Unit :=
 mforAux f n n
 
+@[specialize] def mforRevAux {m} [Applicative m] (f : Nat → m Unit) : Nat → m Unit
+| 0   => pure ()
+| i+1 => f i *> mforRevAux i
+
+@[inline] def mforRev {m} [Applicative m] (n : Nat) (f : Nat → m Unit) : m Unit :=
+mforRevAux f n
+
 @[specialize] def mfoldAux {α : Type u} {m : Type u → Type v} [Monad m] (f : Nat → α → m α) (n : Nat) : Nat → α → m α
 | 0,   a => pure a
 | i+1, a => f (n-i-1) a >>= mfoldAux i
 
 @[inline] def mfold {α : Type u} {m : Type u → Type v} [Monad m] (f : Nat → α → m α) (a : α) (n : Nat) : m α :=
 mfoldAux f n n a
+
+@[specialize] def mfoldRevAux {α : Type u} {m : Type u → Type v} [Monad m] (f : Nat → α → m α) : Nat → α → m α
+| 0,   a => pure a
+| i+1, a => f i a >>= mfoldRevAux i
+
+@[inline] def mfoldRev {α : Type u} {m : Type u → Type v} [Monad m] (f : Nat → α → m α) (a : α) (n : Nat) : m α :=
+mfoldRevAux f n a
 
 -- TODO: enable after we have support for marking arguments that should be considered for specialization.
 /-

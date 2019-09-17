@@ -86,47 +86,47 @@ public:
 
     friend int cmp(mpz const & a, mpz const & b) { return mpz_cmp(a.m_val, b.m_val); }
     friend int cmp(mpz const & a, unsigned b) { return mpz_cmp_ui(a.m_val, b); }
-    friend int cmp(mpz const & a, unsigned long b) { return mpz_cmp_ui(a.m_val, b); }
+    friend int cmp(mpz const & a, uint64 b) { return b > std::numeric_limits<unsigned>::max() ? cmp(a, mpz(b)) : mpz_cmp_ui(a.m_val, static_cast<unsigned>(b)); }
     friend int cmp(mpz const & a, int b) { return mpz_cmp_si(a.m_val, b); }
 
     friend bool operator<(mpz const & a, mpz const & b) { return cmp(a, b) < 0; }
     friend bool operator<(mpz const & a, unsigned b) { return cmp(a, b) < 0; }
-    friend bool operator<(mpz const & a, unsigned long b) { return cmp(a, b) < 0; }
+    friend bool operator<(mpz const & a, uint64 b) { return cmp(a, b) < 0; }
     friend bool operator<(mpz const & a, int b) { return cmp(a, b) < 0; }
     friend bool operator<(unsigned a, mpz const & b) { return cmp(b, a) > 0; }
     friend bool operator<(int a, mpz const & b) { return cmp(b, a) > 0; }
 
     friend bool operator>(mpz const & a, mpz const & b) { return cmp(a, b) > 0; }
     friend bool operator>(mpz const & a, unsigned b) { return cmp(a, b) > 0; }
-    friend bool operator>(mpz const & a, unsigned long b) { return cmp(a, b) > 0; }
+    friend bool operator>(mpz const & a, uint64 b) { return cmp(a, b) > 0; }
     friend bool operator>(mpz const & a, int b) { return cmp(a, b) > 0; }
     friend bool operator>(unsigned a, mpz const & b) { return cmp(b, a) < 0; }
     friend bool operator>(int a, mpz const & b) { return cmp(b, a) < 0; }
 
     friend bool operator<=(mpz const & a, mpz const & b) { return cmp(a, b) <= 0; }
     friend bool operator<=(mpz const & a, unsigned b) { return cmp(a, b) <= 0; }
-    friend bool operator<=(mpz const & a, unsigned long b) { return cmp(a, b) <= 0; }
+    friend bool operator<=(mpz const & a, uint64 b) { return cmp(a, b) <= 0; }
     friend bool operator<=(mpz const & a, int b) { return cmp(a, b) <= 0; }
     friend bool operator<=(unsigned a, mpz const & b) { return cmp(b, a) >= 0; }
     friend bool operator<=(int a, mpz const & b) { return cmp(b, a) >= 0; }
 
     friend bool operator>=(mpz const & a, mpz const & b) { return cmp(a, b) >= 0; }
     friend bool operator>=(mpz const & a, unsigned b) { return cmp(a, b) >= 0; }
-    friend bool operator>=(mpz const & a, unsigned long b) { return cmp(a, b) >= 0; }
+    friend bool operator>=(mpz const & a, uint64 b) { return cmp(a, b) >= 0; }
     friend bool operator>=(mpz const & a, int b) { return cmp(a, b) >= 0; }
     friend bool operator>=(unsigned a, mpz const & b) { return cmp(b, a) <= 0; }
     friend bool operator>=(int a, mpz const & b) { return cmp(b, a) <= 0; }
 
     friend bool operator==(mpz const & a, mpz const & b) { return cmp(a, b) == 0; }
     friend bool operator==(mpz const & a, unsigned b) { return cmp(a, b) == 0; }
-    friend bool operator==(mpz const & a, unsigned long b) { return cmp(a, b) == 0; }
+    friend bool operator==(mpz const & a, uint64 b) { return cmp(a, b) == 0; }
     friend bool operator==(mpz const & a, int b) { return cmp(a, b) == 0; }
     friend bool operator==(unsigned a, mpz const & b) { return cmp(b, a) == 0; }
     friend bool operator==(int a, mpz const & b) { return cmp(b, a) == 0; }
 
     friend bool operator!=(mpz const & a, mpz const & b) { return cmp(a, b) != 0; }
     friend bool operator!=(mpz const & a, unsigned b) { return cmp(a, b) != 0; }
-    friend bool operator!=(mpz const & a, unsigned long b) { return cmp(a, b) != 0; }
+    friend bool operator!=(mpz const & a, uint64 b) { return cmp(a, b) != 0; }
     friend bool operator!=(mpz const & a, int b) { return cmp(a, b) != 0; }
     friend bool operator!=(unsigned a, mpz const & b) { return cmp(b, a) != 0; }
     friend bool operator!=(int a, mpz const & b) { return cmp(b, a) != 0; }

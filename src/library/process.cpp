@@ -12,7 +12,7 @@ Author: Jared Roesch
 
 #if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
 #include <windows.h>
-#include <Fcntl.h>
+#include <fcntl.h>
 #include <io.h>
 #include <tchar.h>
 #include <stdio.h>

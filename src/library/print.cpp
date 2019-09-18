@@ -153,7 +153,7 @@ struct print_expr_fn {
     void print_binding(char const * bname, expr e) {
         expr_kind k = e.kind();
         out() << bname;
-        while (e.kind() == k) {
+        while (e.kind() == k && !is_arrow(e)) {
             out() << " ";
             auto p = binding_body_fresh(e);
             expr const & n = p.second;
@@ -179,7 +179,7 @@ struct print_expr_fn {
             e = p.first;
         }
         out() << ", ";
-        print_child(e);
+        print(e);
     }
 
     void print_let(expr const & e) {
@@ -188,7 +188,7 @@ struct print_expr_fn {
         print(let_type(e));
         out() << " := ";
         print(let_value(e));
-        out() << " in ";
+        out() << "; ";
         print(p.first);
     }
 
@@ -259,7 +259,7 @@ struct print_expr_fn {
             break;
         case expr_kind::Pi:
             if (!is_arrow(a)) {
-                print_binding("Pi", a);
+                print_binding("forall", a);
             } else {
                 print_child(binding_domain(a));
                 out() << " -> ";

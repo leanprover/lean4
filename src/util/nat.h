@@ -32,7 +32,7 @@ public:
     nat & operator=(nat && other) { object_ref::operator=(other); return *this; }
 
     bool is_small() const { return is_scalar(raw()); }
-    unsigned get_small_value() const { lean_assert(is_small()); return unbox(raw()); }
+    size_t get_small_value() const { lean_assert(is_small()); return unbox(raw()); }
     mpz const & get_big_value() const { lean_assert(!is_small()); return mpz_value(raw()); }
     mpz to_mpz() const { return is_small() ? mpz(mpz::of_size_t(unbox(raw()))) : mpz_value(raw()); }
     std::string to_std_string() const { return to_mpz().to_string(); }

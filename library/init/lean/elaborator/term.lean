@@ -49,15 +49,20 @@ fun stx _ => do
   let openBkt  := stx.getArg 0;
   let args     := stx.getArg 1;
   let closeBkt := stx.getArg 2;
-  let consId   := openBkt.mkIdent `List.cons;
-  let nilId    := closeBkt.mkIdent `List.nil;
+  let consId   := mkIdentFrom openBkt `List.cons;
+  let nilId    := mkIdentFrom closeBkt `List.nil;
   pure $ args.foldSepArgs (fun arg r => mkAppStx consId [arg, r]) nilId
+
+def mkExplicitBinder {α} (n : Syntax α) (type : Syntax α) : Syntax α :=
+mkNode `Lean.Parser.Term.explicitBinder [mkAtom "(", mkNullNode [n], mkNullNode [mkAtom ":", type], mkNullNode [], mkAtom ")"]
 
 @[builtinTermElab arrow] def elabArrow : TermElab :=
 fun stx _ => do
-  id ← mkFreshName;
-  runIO (IO.println stx.val);
-  pure $ Syntax.other $ Expr.sort (Level.zero)
+  n ← mkFreshName;
+  let id  := mkIdentFrom stx.val n;
+  let dom := stx.getArg 0;
+  let rng := stx.getArg 2;
+  pure $ mkNode `Lean.Parser.Term.forall [mkAtom "forall", mkNullNode [mkExplicitBinder id dom], mkAtom ",", rng]
 
 end Elab
 end Lean

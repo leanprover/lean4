@@ -56,6 +56,9 @@ private def dummy : Expr := Expr.const `Prop []
 def mkAsIs (e : Expr) : PreTerm :=
 e.mkAnnotation `as_is
 
+def mkAsPattern (id : Name) (e : PreTerm) : PreTerm :=
+(Expr.app (Expr.fvar id) e).mkAnnotation `as_pattern
+
 def mkPreTypeAscription (p : PreTerm) (expectedType : Expr) : PreTerm :=
 Expr.app (Expr.app (Expr.const `typedExpr []) expectedType) p
 
@@ -138,23 +141,38 @@ fun n => do
 private def mkLocal (decl : LocalDecl) : PreTerm :=
 Expr.local decl.name decl.userName decl.type decl.binderInfo
 
-private def processBinder (b : Syntax Expr) : Elab (List PreTerm) :=
+private def processBinder (b : Syntax Expr) : Elab (Array PreTerm) :=
 match b.getKind with
 | `Lean.Parser.Term.simpleBinder   => do
    let args := (b.getArg 0).getArgs;
-   args.mfoldl (fun r arg => do
+   args.mmap $ fun arg => do
      let id := arg.getId;
      hole ← mkHoleFor arg;
      decl ← mkLocalDecl id hole;
-     pure (mkLocal decl :: r))
-     []
-| `Lean.Parser.Term.explicitBinder => do runIO (IO.println $ ">> explicit " ++ (toString b)); pure []
-| `Lean.Parser.Term.implicitBinder => do runIO (IO.println $ ">> implict " ++ (toString b)); pure []
-| `Lean.Parser.Term.instBinder     => do runIO (IO.println $ ">> inst " ++ (toString b)); pure []
+     pure (mkLocal decl)
+| `Lean.Parser.Term.explicitBinder =>
+   let ids     := (b.getArg 1).getArgs;
+   let optType := b.getArg 2;
+   let optDef  := b.getArg 3;
+   ids.mmap $ fun idStx => do
+     let id := idStx.getId;
+     type ← if optType.getNumArgs == 0 then mkHoleFor idStx else toPreTerm (optType.getArg 1);
+     type ← if optDef.getNumArgs == 0 then pure type else
+       let defInfo := optDef.getArg 0;
+       match defInfo.getKind with
+       | `Lean.Parser.Term.binderDefault => do
+          defVal ← toPreTerm (defInfo.getArg 1);
+          pure $ Expr.app (Expr.app (Expr.const `optParam []) type) defVal
+       | `Lean.Parser.Term.binderTactic => logErrorAndThrow optDef "old elaborator does not support tactics in parameters"
+       | _ => throw "unknown binder default value annotation";
+     decl ← mkLocalDecl id type;
+     pure (mkLocal decl)
+| `Lean.Parser.Term.implicitBinder => do runIO (IO.println $ ">> implict " ++ (toString b)); pure Array.empty
+| `Lean.Parser.Term.instBinder     => do runIO (IO.println $ ">> inst " ++ (toString b)); pure Array.empty
 | _ => throw "unknown binder kind"
 
-private def processBinders (bs : Array (Syntax Expr)) : Elab (List PreTerm) :=
-bs.mfoldl (fun r s => do xs ← processBinder s; pure (r ++ xs)) []
+private def processBinders (bs : Array (Syntax Expr)) : Elab (Array PreTerm) :=
+bs.mfoldl (fun r s => do xs ← processBinder s; pure (r ++ xs)) Array.empty
 
 @[builtinPreTermElab «forall»] def convertForall : PreTermElab :=
 fun n => do
@@ -162,27 +180,25 @@ fun n => do
   let body    := n.getArg 3;
   withNewScope $ do
     xs   ← processBinders binders.getArgs;
-    runIO (IO.println (xs.map Expr.dbgToString));
     body ← toPreTerm body;
-    -- TODO
-    pure $ Expr.sort (Level.zero)
---  dom ← toPreTerm $ n.getArg 0;
---  rng ← toPreTerm $ n.getArg 2;
---  pure $ Expr.pi id BinderInfo.default dom rng
-
--- TODO: delete... arrow should be expanded at term.lean
-@[builtinPreTermElab «arrow»] def convertArrow : PreTermElab :=
-fun n => do
-  id ← mkFreshName;
-  dom ← toPreTerm $ n.getArg 0;
-  rng ← toPreTerm $ n.getArg 2;
-  pure $ Expr.pi id BinderInfo.default dom rng
+    mkForall xs body
 
 @[builtinPreTermElab «hole»] def convertHole : PreTermElab :=
 fun _ => pure $ Expr.mvar Name.anonymous
 
 @[builtinPreTermElab «sorry»] def convertSorry : PreTermElab :=
 fun _ => pure $ Expr.app (Expr.const `sorryAx []) (Expr.mvar Name.anonymous)
+
+@[builtinPreTermElab «id»] def convertId : PreTermElab :=
+fun n => do
+  let id := n.getIdAt 0;
+  -- TODO add support for `explicitUniv` and `namedPattern`
+  lctx ← localContext;
+  match lctx.findFromUserName id with
+  | some decl => pure $ mkLocal decl
+  | none =>
+    -- TODO global name resolution
+    logErrorAndThrow n.val ("unknown identifier '" ++ toString id ++ "'")
 
 def oldElaborate (stx : Syntax Expr) (expectedType : Option Expr := none) : Elab Expr :=
 do

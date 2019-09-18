@@ -329,7 +329,7 @@ end SyntaxNode
 /- Helper functions for creating Syntax objects using C++ -/
 
 @[export lean_mk_syntax_atom]
-def mkSimpleAtom (val : String) : Syntax :=
+def mkSimpleAtomCore (val : String) : Syntax :=
 Syntax.atom none val
 
 @[export lean_mk_syntax_ident]
@@ -339,6 +339,20 @@ Syntax.ident none (toString val).toSubstring val []
 @[export lean_mk_syntax_list]
 def mkListNode (args : Array Syntax) : Syntax :=
 Syntax.node nullKind args
+
+def mkAtom {α} (val : String) : Syntax α :=
+Syntax.atom none val
+
+@[inline] def mkNode {α} (k : SyntaxNodeKind) (args : List (Syntax α)) : Syntax α :=
+Syntax.node k args.toArray
+
+@[inline] def mkNullNode {α} (args : List (Syntax α)) : Syntax α :=
+Syntax.node nullKind args.toArray
+
+def mkOptionalNode {α} (arg : Option (Syntax α)) : Syntax α :=
+match arg with
+| some arg => Syntax.node nullKind (Array.singleton arg)
+| none     => Syntax.node nullKind Array.empty
 
 /- Helper functions for creating string and numeric literals -/
 
@@ -457,10 +471,15 @@ match stx.isNatLit with
 | some val => val
 | none     => 0
 
+end Syntax
+
 /-- Create an identifier using `SourceInfo` from `src` -/
-def mkIdent {α} (src : Syntax α) (val : Name) : Syntax α :=
+def mkIdentFrom {α} (src : Syntax α) (val : Name) : Syntax α :=
 let info := src.getHeadInfo;
 Syntax.ident info (toString val).toSubstring val []
 
-end Syntax
+def mkAtomFrom {α} (src : Syntax α) (val : String) : Syntax α :=
+let info := src.getHeadInfo;
+Syntax.atom info val
+
 end Lean

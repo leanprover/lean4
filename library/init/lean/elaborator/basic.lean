@@ -39,6 +39,7 @@ structure ElabScope :=
 (univs       : List Name := [])
 (lctx        : LocalContext := {})
 (nextInstIdx : Nat := 1)
+(inPattern   : Bool := false)
 
 namespace ElabScope
 
@@ -432,12 +433,21 @@ modifyGet $ fun s =>
     (a, { scopes := h :: t, .. s })
   | _ => (default _, s)
 
+def localContext : Elab LocalContext :=
+do scope ← getScope; pure scope.lctx
+
 def mkLocalDecl (userName : Name) (type : Expr) (bi : BinderInfo := BinderInfo.default) : Elab LocalDecl :=
 do
 idx ← mkFreshName;
 modifyGetScope $ fun scope =>
    let (decl, lctx) := scope.lctx.mkLocalDecl idx userName type bi;
    (decl, { lctx := lctx, .. scope })
+
+def mkLambda (xs : Array Expr) (b : Expr) : Elab Expr :=
+do lctx ← localContext; pure $ lctx.mkLambda xs b
+
+def mkForall (xs : Array Expr) (b : Expr) : Elab Expr :=
+do lctx ← localContext; pure $ lctx.mkForall xs b
 
 def anonymousInstNamePrefix := `_inst
 
@@ -488,6 +498,14 @@ modify $ fun s => { scopes := s.scopes.head :: s.scopes, .. s };
 a ← x;
 modify $ fun s => { scopes := s.scopes.tail, .. s};
 pure a
+
+@[inline] def withInPattern {α} (x : Elab α) : Elab α :=
+withNewScope $ do
+  modifyScope $ fun scope => { inPattern := true, .. scope };
+  x
+
+def inPattern : Elab Bool :=
+do scope ← getScope; pure $ scope.inPattern
 
 /- Remark: in an ideal world where performance doesn't matter, we would define `Elab` as
    ```

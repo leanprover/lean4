@@ -6,6 +6,8 @@ And.intro
 And.rec
 And.casesOn
 Array
+Array.sz
+Array.data
 autoParam
 bit0
 bit1

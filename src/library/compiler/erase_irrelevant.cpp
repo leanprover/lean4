@@ -200,6 +200,17 @@ class erase_irrelevant_fn {
         return mk_app(mk_constant(get_bool_cases_on_name()), c, minor_p, minor_n);
     }
 
+    expr elim_array_cases(buffer<expr> & args) {
+        lean_assert(args.size() == 4);
+        expr major       = visit(args[2]);
+        expr minor       = visit_minor(args[3]);
+        lean_assert(is_lambda(minor));
+        return
+            ::lean::mk_let(next_name(), mk_enf_object_type(), mk_app(mk_constant(get_array_sz_name()), mk_enf_neutral(), major),
+            ::lean::mk_let(next_name(), mk_enf_object_type(), mk_app(mk_constant(get_array_data_name()), mk_enf_neutral(), major),
+                           binding_body(binding_body(minor))));
+    }
+
     expr decidable_to_bool_cases(buffer<expr> const & args) {
         lean_assert(args.size() == 5);
         expr const & major  = args[2];
@@ -223,6 +234,8 @@ class erase_irrelevant_fn {
             return elim_nat_cases(args);
         } else if (I_name == get_int_name()) {
             return elim_int_cases(args);
+        } else if (I_name == get_array_name()) {
+            return elim_array_cases(args);
         } else if (I_name == get_decidable_name()) {
             return decidable_to_bool_cases(args);
         } else {

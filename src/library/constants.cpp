@@ -11,6 +11,8 @@ name const * g_and_intro = nullptr;
 name const * g_and_rec = nullptr;
 name const * g_and_cases_on = nullptr;
 name const * g_array = nullptr;
+name const * g_array_sz = nullptr;
+name const * g_array_data = nullptr;
 name const * g_auto_param = nullptr;
 name const * g_bit0 = nullptr;
 name const * g_bit1 = nullptr;
@@ -193,6 +195,8 @@ void initialize_constants() {
     g_and_rec = new name{"And", "rec"};
     g_and_cases_on = new name{"And", "casesOn"};
     g_array = new name{"Array"};
+    g_array_sz = new name{"Array", "sz"};
+    g_array_data = new name{"Array", "data"};
     g_auto_param = new name{"autoParam"};
     g_bit0 = new name{"bit0"};
     g_bit1 = new name{"bit1"};
@@ -376,6 +380,8 @@ void finalize_constants() {
     delete g_and_rec;
     delete g_and_cases_on;
     delete g_array;
+    delete g_array_sz;
+    delete g_array_data;
     delete g_auto_param;
     delete g_bit0;
     delete g_bit1;
@@ -558,6 +564,8 @@ name const & get_and_intro_name() { return *g_and_intro; }
 name const & get_and_rec_name() { return *g_and_rec; }
 name const & get_and_cases_on_name() { return *g_and_cases_on; }
 name const & get_array_name() { return *g_array; }
+name const & get_array_sz_name() { return *g_array_sz; }
+name const & get_array_data_name() { return *g_array_data; }
 name const & get_auto_param_name() { return *g_auto_param; }
 name const & get_bit0_name() { return *g_bit0; }
 name const & get_bit1_name() { return *g_bit1; }

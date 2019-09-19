@@ -218,26 +218,6 @@ extern "C" void lean_del(object * o) {
 }
 
 // =======================================
-// Arrays
-static object * g_array_empty = nullptr;
-
-object * array_mk_empty() {
-    return g_array_empty;
-}
-
-extern "C" object * lean_array_mk(object * sz, object * fn) {
-    if (!lean_is_scalar(sz))
-        lean_panic_out_of_memory();
-    size_t n = lean_unbox(sz);
-    object * r = lean_alloc_array(n, n);
-    for (size_t i = 0; i < n; i++) {
-        lean_inc(fn);
-        lean_array_set_core(r, i, lean_apply_1(fn, lean_box(i)));
-    }
-    return r;
-}
-
-// =======================================
 // Closures
 
 typedef object * (*lean_cfun2)(object *, object *); // NOLINT
@@ -254,6 +234,36 @@ static obj_res mk_closure_3_2(lean_cfun3 fn, obj_arg a1, obj_arg a2) {
     lean_closure_set(c, 0, a1);
     lean_closure_set(c, 1, a2);
     return c;
+}
+
+// =======================================
+// Arrays
+static object * g_array_empty = nullptr;
+
+object * array_mk_empty() {
+    return g_array_empty;
+}
+
+extern "C" object * lean_array_mk(object * sz, object * fn) {
+    if (!lean_is_scalar(sz)) {
+        lean_dec_ref(sz);
+        lean_panic_out_of_memory();
+    }
+    size_t n = lean_unbox(sz);
+    object * r = lean_alloc_array(n, n);
+    for (size_t i = 0; i < n; i++) {
+        lean_inc_ref(fn);
+        lean_array_set_core(r, i, lean_apply_1(fn, lean_box(i)));
+    }
+    lean_dec_ref(fn);
+    return r;
+}
+
+extern "C" lean_object * lean_array_data(lean_obj_arg a, lean_obj_arg i) {
+    object * r = lean_array_fget(a, i);
+    lean_dec(a);
+    lean_dec(i);
+    return r;
 }
 
 // =======================================

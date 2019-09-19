@@ -1,1 +1,15 @@
-string_imp.lean:1:0: warning: using 'exit' to interrupt Lean
+6
+"cd"
+""
+2
+0
+2
+4
+(String.Iterator.mk "αacc" 2)
+6
+(3, 7)
+(3, 7)
+(3, 7)
+(3, 7)
+(3, 7)
+(3, 7)

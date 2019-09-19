@@ -1,1 +1,2 @@
-repr_issue.lean:12:0: warning: using 'exit' to interrupt Lean
+(ok 1000)
+(ok 33)

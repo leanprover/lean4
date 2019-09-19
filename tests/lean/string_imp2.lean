@@ -9,20 +9,6 @@ let it₁ := s.mkIterator;
 let it₂ := it₁.next;
 it₁.remainingToString ++ "-" ++ it₂.remainingToString
 
-
-#exit -- Disabled until we implement new VM
-
-def r (s : String) : String :=
-let it₁ := s.mkIterator.toEnd;
-let it₂ := it₁.prev;
-it₁.prevToString ++ "-" ++ it₂.prevToString
-
-def s (s : String) : String :=
-let it₁ := s.mkIterator.toEnd;
-let it₂ := it₁.prev;
-(it₁.insert "abc").toString ++ (it₂.insert "de").toString
-
-
 #eval "hello" ++ "hello"
 #eval f "hello"
 #eval (f "αβ").length
@@ -51,8 +37,6 @@ let it₂ := it₁.prev;
 #eval "abc".mkIterator.remainingToString
 #eval ("a".push (Char.ofNat 0)) ++ "bb"
 #eval (("a".push (Char.ofNat 0)) ++ "αb").length
-#eval r "abc"
-#eval "abc".mkIterator.toEnd.prevToString
 #eval "".mkIterator.hasNext
 #eval "a".mkIterator.hasNext
 #eval "a".mkIterator.next.hasNext
@@ -60,14 +44,5 @@ let it₂ := it₁.prev;
 #eval "a".mkIterator.next.hasPrev
 #eval "αβ".mkIterator.next.hasPrev
 #eval "αβ".mkIterator.next.prev.hasPrev
-#eval ("αβ".mkIterator.toEnd.insert "abc").toString
-#eval ("αβ".mkIterator.next.insert "abc").toString
-#eval s "αβ"
-#eval ("abcdef".mkIterator.next.remove 2).toString
-#eval ("abcdef".mkIterator.next.next.remove 2).toString
-#eval ("abcdef".mkIterator.next.remove 3).toString
-#eval (("abcdef".mkIterator.next.next.next.remove 100).prev.setCurr 'a').toString
-#eval ("abcdef".mkIterator.next.next.next.remove 100).hasNext
-#eval ("abcdef".mkIterator.next.next.next.remove 100).prev.hasNext
-#eval toBool $ "abc" = "abc"
-#eval toBool $ "abc" = "abd"
+#eval "abc" == "abc"
+#eval "abc" == "abd"

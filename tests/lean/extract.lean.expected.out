@@ -1,1 +1,12 @@
-extract.lean:1:0: warning: using 'exit' to interrupt Lean
+"abc"
+"a"
+""
+""
+"abc"
+"bcde"
+"abcde"
+"ab"
+""
+""
+"a"
+"a"

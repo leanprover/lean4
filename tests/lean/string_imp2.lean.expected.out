@@ -1,1 +1,37 @@
-string_imp2.lean:13:0: warning: using 'exit' to interrupt Lean
+"hellohello"
+"hello hello"
+5
+['h', 'e', 'l', 'l', 'o']
+['α', 'β']
+[]
+['α', 'β', 'γ']
+"αβγ"
+"αβγ"
+"αβγ"
+2
+['α', 'β']
+"αβa"
+"α α-"
+'A'
+"aβγ"
+"abγ"
+"abc"
+"cbγ"
+"0bc"
+"01c"
+"012"
+"21c"
+"λbc"
+"abc-bc"
+"abc"
+"a\x00bb"
+4
+false
+true
+false
+false
+true
+true
+false
+true
+false

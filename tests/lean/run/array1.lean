@@ -14,7 +14,7 @@ a.foldl Nat.add 0
 #exit
 
 #eval mkArray 4 1
-#eval Array.map (+10) v
+#eval Array.map (fun x => x+10) v
 #eval f ⟨1, sorry⟩
 #eval f ⟨9, sorry⟩
 #eval (((mkArray 1 1).push 2).push 3).foldl 0 (+)

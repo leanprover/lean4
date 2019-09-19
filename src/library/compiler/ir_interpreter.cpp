@@ -195,19 +195,22 @@ union value {
     value(object * o): m_obj(o) {}
 };
 
-object * box_t(uint64 v, type t) {
+object * box_t(value v, type t) {
     switch (t) {
         case type::Float: throw exception("floats are not supported yet");
-        case type::UInt8: return box(v);
-        case type::UInt16: return box(v);
-        case type::UInt32: return box_uint32(v);
-        case type::UInt64: return box_uint64(v);
-        case type::USize: return box_size_t(v);
-        default: lean_unreachable();
+        case type::UInt8: return box(v.m_num);
+        case type::UInt16: return box(v.m_num);
+        case type::UInt32: return box_uint32(v.m_num);
+        case type::UInt64: return box_uint64(v.m_num);
+        case type::USize: return box_size_t(v.m_num);
+        case type::Object:
+        case type::TObject:
+        case type::Irrelevant:
+            return v.m_obj;
     }
 }
 
-uint64 unbox_t(object * o, type t) {
+value unbox_t(object * o, type t) {
     switch (t) {
         case type::Float: throw exception("floats are not supported yet");
         case type::UInt8: return unbox(o);
@@ -215,7 +218,10 @@ uint64 unbox_t(object * o, type t) {
         case type::UInt32: return unbox_uint32(o);
         case type::UInt64: return unbox_uint64(o);
         case type::USize: return unbox_size_t(o);
-        default: lean_unreachable();
+        case type::Object:
+        case type::TObject:
+        case type::Irrelevant:
+            return o;
     }
 }
 
@@ -704,48 +710,19 @@ class interpreter {
         if (e.m_addr) {
             object ** args2 = static_cast<object **>(LEAN_ALLOCA(args.size() * sizeof(object *))); // NOLINT
             for (size_t i = 0; i < args.size(); i++) {
-                value v = eval_arg(args[i]);
                 type t = param_type(decl_params(e.m_decl)[i]);
-                switch (t) {
-                    case type::Float:
-                    case type::UInt8:
-                    case type::UInt16:
-                    case type::UInt32:
-                    case type::UInt64:
-                    case type::USize:
-                        args2[i] = box_t(v.m_num, t);
-                        break;
-                    case type::Object:
-                    case type::TObject:
-                    case type::Irrelevant:
-                        args2[i] = v.m_obj;
-                        if (e.m_boxed && param_borrow(decl_params(e.m_decl)[i])) {
-                            // NOTE: If we chose the boxed version where the IR chose the unboxed one, we need to manually increment
-                            // originally borrowed parameters because the wrapper will decrement these after the call.
-                            // Basically the wrapper is more homogeneous (removing both unboxed and borrowed parameters) than we
-                            // would need in this instance.
-                            inc(args2[i]);
-                        }
-                        break;
+                args2[i] = box_t(eval_arg(args[i]), t);
+                if (e.m_boxed && param_borrow(decl_params(e.m_decl)[i])) {
+                    // NOTE: If we chose the boxed version where the IR chose the unboxed one, we need to manually increment
+                    // originally borrowed parameters because the wrapper will decrement these after the call.
+                    // Basically the wrapper is more homogeneous (removing both unboxed and borrowed parameters) than we
+                    // would need in this instance.
+                    inc(args2[i]);
                 }
             }
             push_frame(e.m_decl, old_size);
             object * o = curry(e.m_addr, args.size(), args2);
-            switch (decl_type(e.m_decl)) {
-                case type::Float:
-                case type::UInt8:
-                case type::UInt16:
-                case type::UInt32:
-                case type::UInt64:
-                case type::USize:
-                    r = unbox_t(o, decl_type(e.m_decl));
-                    break;
-                case type::Object:
-                case type::TObject:
-                    r = o;
-                    break;
-                default: lean_unreachable();
-            }
+            r = unbox_t(o, decl_type(e.m_decl));
         } else {
             if (decl_tag(e.m_decl) == decl_kind::Extern) {
                 throw exception(sstream() << "unexpected external declaration '" << fn << "'");

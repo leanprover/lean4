@@ -25,6 +25,8 @@ public:
         if (m > 0)
             *this = nat(mk_nat_obj(m));
     }
+    static nat of_size_t(size_t v) { return nat(lean_usize_to_nat(v)); }
+
     nat(nat const & other):object_ref(other) {}
     nat(nat && other):object_ref(other) {}
 

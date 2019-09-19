@@ -59,11 +59,11 @@ extern "C" object * lean_expr_instantiate(object * a0, object * subst) {
                 nat const & vidx = bvar_idx(m);
                 if (vidx >= offset) {
                     size_t h = offset + n;
-                    if (h < offset /* overflow, h is bigger than any vidx */ || vidx < h) {
+                    if (h < offset /* overflow, h is bigger than any vidx */ || (vidx.is_small() && vidx.get_small_value() < h)) {
                         expr v(lean_array_get_core(subst, vidx.get_small_value() - offset), true);
                         return some_expr(lift_loose_bvars(v, offset));
                     } else {
-                        return some_expr(mk_bvar(vidx - nat(n)));
+                        return some_expr(mk_bvar(vidx - nat::of_size_t(n)));
                     }
                 }
             }
@@ -82,7 +82,7 @@ expr instantiate_rev(expr const & a, unsigned n, expr const * subst) {
                 nat const & vidx = bvar_idx(m);
                 if (vidx >= offset) {
                     size_t h = offset + n;
-                    if (h < offset /* overflow, h is bigger than any vidx */ || vidx < h) {
+                    if (h < offset /* overflow, h is bigger than any vidx */ || (vidx.is_small() && vidx.get_small_value() < h)) {
                         return some_expr(lift_loose_bvars(subst[n - (vidx.get_small_value() - offset) - 1], offset));
                     } else {
                         return some_expr(mk_bvar(vidx - nat(n)));
@@ -107,11 +107,11 @@ extern "C" object * lean_expr_instantiate_rev(object * a0, object * subst) {
                 nat const & vidx = bvar_idx(m);
                 if (vidx >= offset) {
                     size_t h = offset + n;
-                    if (h < offset /* overflow, h is bigger than any vidx */ || vidx < h) {
+                    if (h < offset /* overflow, h is bigger than any vidx */ || (vidx.is_small() && vidx.get_small_value() < h)) {
                         expr v(lean_array_get_core(subst, n - (vidx.get_small_value() - offset) - 1), true);
                         return some_expr(lift_loose_bvars(v, offset));
                     } else {
-                        return some_expr(mk_bvar(vidx - nat(n)));
+                        return some_expr(mk_bvar(vidx - nat::of_size_t(n)));
                     }
                 }
             }

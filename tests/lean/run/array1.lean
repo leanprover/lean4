@@ -11,14 +11,13 @@ Array.casesOn w (fun _ f => f)
 def arraySum (a : Array Nat) : Nat :=
 a.foldl Nat.add 0
 
-#exit
-
 #eval mkArray 4 1
 #eval Array.map (fun x => x+10) v
 #eval f ⟨1, sorry⟩
 #eval f ⟨9, sorry⟩
-#eval (((mkArray 1 1).push 2).push 3).foldl 0 (+)
+#eval (((mkArray 1 1).push 2).push 3).foldl (fun x y => x + y) 0
 #eval arraySum (mkArray 10 1)
-#eval (mkArray 10 1).data ⟨1, decTrivial⟩ + 20
-#eval (mkArray 10 1).data ⟨2, decTrivial⟩
-#eval (mkArray 10 3).data ⟨2, decTrivial⟩
+axiom axLt {a b : Nat} : a < b
+#eval (mkArray 10 1).data ⟨1, axLt⟩ + 20
+#eval (mkArray 10 1).data ⟨2, axLt⟩
+#eval (mkArray 10 3).data ⟨2, axLt⟩

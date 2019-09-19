@@ -1,0 +1,7 @@
+f x y (f x)
+f #1 #0 (f #1)
+f x y (f x)
+f a (f b) (f a)
+f #0 a (f #0)
+f #0 y (f #0)
+f #1 #0 (f #1)

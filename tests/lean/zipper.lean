@@ -8,30 +8,30 @@ variables {α : Type}
 namespace ListZipper
 
 def goForward : ListZipper α → ListZipper α
-| ⟨[], bs⟩    := ⟨[], bs⟩
-| ⟨x::xs, bs⟩ := ⟨xs, x::bs⟩
+| ⟨[], bs⟩    => ⟨[], bs⟩
+| ⟨x::xs, bs⟩ => ⟨xs, x::bs⟩
 
 def goBackward : ListZipper α → ListZipper α
-| ⟨xs, []⟩    := ⟨xs, []⟩
-| ⟨xs, b::bs⟩ := ⟨b::xs, bs⟩
+| ⟨xs, []⟩    => ⟨xs, []⟩
+| ⟨xs, b::bs⟩ => ⟨b::xs, bs⟩
 
 def insert : ListZipper α → α → ListZipper α
-| ⟨xs, bs⟩ x := ⟨xs, x::bs⟩
+| ⟨xs, bs⟩, x => ⟨xs, x::bs⟩
 
 def erase : ListZipper α → ListZipper α
-| ⟨[], bs⟩ := ⟨[], bs⟩
-| ⟨x::xs, bs⟩ := ⟨xs, bs⟩
+| ⟨[], bs⟩ => ⟨[], bs⟩
+| ⟨x::xs, bs⟩ => ⟨xs, bs⟩
 
 def curr [Inhabited α] : ListZipper α → α
-| ⟨[], bs⟩    := default _
-| ⟨x::xs, bs⟩ := x
+| ⟨[], bs⟩    => default _
+| ⟨x::xs, bs⟩ => x
 
 def currOpt : ListZipper α → Option α
-| ⟨[], bs⟩    := none
-| ⟨x::xs, bs⟩ := some x
+| ⟨[], bs⟩    => none
+| ⟨x::xs, bs⟩ => some x
 
 def toList : ListZipper α → List α
-| ⟨xs, bs⟩ := bs.reverse ++ xs
+| ⟨xs, bs⟩ => bs.reverse ++ xs
 
 def atEnd (z : ListZipper α) : Bool :=
 z.xs.isEmpty
@@ -42,7 +42,7 @@ def List.toListZipper (xs : List α) : ListZipper α :=
 ⟨xs, []⟩
 
 partial def testAux : ListZipper Nat → ListZipper Nat
-| z :=
+| z =>
   if z.atEnd then
     z
   else if z.curr % 2 == 0 then
@@ -55,7 +55,4 @@ partial def testAux : ListZipper Nat → ListZipper Nat
 def test (xs : List Nat) : List Nat :=
 (testAux xs.toListZipper).toList
 
-def main (xs : List String) : IO Unit :=
-do
-IO.println $ test [10, 11, 13, 20, 22, 40, 41, 11],
-IO.println $ test (xs.map String.toNat)
+#eval (IO.println (test [10, 11, 13, 20, 22, 40, 41, 11]) : IO Unit)

@@ -1,7 +1,7 @@
 import init.lean.expr
 open Lean
 
-def main (xs : List String) : IO Unit :=
+def tst : IO Unit :=
 do
 let f := mkConst `f;
 let x := Expr.bvar 0;
@@ -14,3 +14,5 @@ IO.println (t.instantiate [a, b].toArray).dbgToString;
 IO.println (t.instantiateRev [a, b].toArray).dbgToString;
 IO.println (t.instantiate [a].toArray).dbgToString;
 pure ()
+
+#eval tst

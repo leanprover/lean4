@@ -1,0 +1,21 @@
+[(9, false), (8, true), (7, false), (6, true), (5, false), (4, true), (3, false), (2, true), (1, false), (0, true)]
+>> 0 ==> (some (0, true))
+>> 1 ==> (some (1, false))
+>> 2 ==> (some (2, true))
+>> 3 ==> (some (3, false))
+>> 4 ==> (some (4, true))
+>> 5 ==> (some (5, false))
+>> 6 ==> (some (6, true))
+>> 7 ==> (some (7, false))
+>> 8 ==> (some (8, true))
+>> 9 ==> (some (9, false))
+>> 10 ==> none
+>> 11 ==> none
+>> 12 ==> none
+>> 13 ==> none
+>> 14 ==> none
+>> 15 ==> none
+>> 16 ==> none
+>> 17 ==> none
+>> 18 ==> none
+>> 19 ==> none

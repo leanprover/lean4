@@ -257,17 +257,6 @@ def prevn : Iterator → Nat → Iterator
 | it, i+1 => prevn it.prev i
 end Iterator
 
-private partial def lineColumnAux (s : String) : Pos → Nat × Nat → Nat × Nat
-| i, r@(line, col) =>
-  if atEnd s i then r
-  else
-    let c := s.get i;
-    if c = '\n' then lineColumnAux (s.next i) (line+1, 0)
-    else lineColumnAux (s.next i) (line, col+1)
-
-def lineColumn (s : String) (pos : Pos) : Nat × Nat :=
-lineColumnAux s 0 (1, 0)
-
 partial def offsetOfPosAux (s : String) (pos : Pos) : Pos → Nat → Nat
 | i, offset =>
   if i == pos || s.atEnd i then offset

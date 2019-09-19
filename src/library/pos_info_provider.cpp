@@ -43,7 +43,7 @@ optional<pos_info> get_pos(expr const & e) {
         auto const & column = get_nat(m, *g_column_name);
         auto const & row = get_nat(m, *g_row_name);
         if (column && row)
-            return some(mk_pair(row->get_small_value(), column->get_small_value()));
+            return some(pos_info(row->get_small_value(), column->get_small_value()));
     }
     return optional<pos_info>();
 }

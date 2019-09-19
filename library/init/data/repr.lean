@@ -129,7 +129,7 @@ instance : HasRepr Substring :=
 ⟨fun s => String.quote s.toString ++ ".toSubstring"⟩
 
 instance : HasRepr String.Iterator :=
-⟨fun it => it.remainingToString.quote ++ ".mkIterator"⟩
+⟨fun ⟨s, pos⟩ => "(String.Iterator.mk " ++ repr s ++ " " ++ repr pos ++ ")"⟩
 
 instance (n : Nat) : HasRepr (Fin n) :=
 ⟨fun f => repr (Fin.val f)⟩

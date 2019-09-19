@@ -34,6 +34,7 @@ lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_eqv___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsTrue___closed__4;
 lean_object* lean_expr_mk_pi(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* lean_expr_instantiate(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux___boxed(lean_object*, lean_object*);
 lean_object* lean_expr_local(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_expr_mk_app(lean_object*, lean_object*);
@@ -56,6 +57,8 @@ lean_object* l_Lean_Expr_Hashable___closed__1;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_MData_HasEmptyc;
 lean_object* l_Lean_Expr_dbgToString___boxed(lean_object*);
+lean_object* l_Lean_Expr_instantiateRev___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_instantiate___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_elet___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 lean_object* l_Lean_mkDecIsTrue___closed__1;
@@ -68,16 +71,20 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsTrue___closed__2;
 lean_object* l_Lean_Expr_getAppFn___main___boxed(lean_object*);
+lean_object* lean_expr_instantiate_rev(lean_object*, lean_object*);
 lean_object* l_Lean_mkCApp(lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsTrue___closed__5;
 uint8_t l_Lean_Expr_isAppOfArity___main(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_mk_mvar(lean_object*);
 lean_object* lean_expr_mk_bvar(lean_object*);
+lean_object* lean_expr_abstract_range(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_proj___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_lt(lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsTrue(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_abstract___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_abstractRange___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvar___boxed(lean_object*);
 lean_object* lean_expr_mk_lambda(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mdata___boxed(lean_object*, lean_object*);
@@ -85,6 +92,7 @@ lean_object* l_Lean_Expr_HasBeq;
 lean_object* l_Lean_Expr_Hashable;
 lean_object* l_Lean_Expr_getAppNumArgs___boxed(lean_object*);
 lean_object* l_Lean_Expr_mvar___boxed(lean_object*);
+lean_object* lean_expr_abstract(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_local___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn___boxed(lean_object*);
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
@@ -590,6 +598,38 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_5 = lean_box(x_4);
 return x_5;
+}
+}
+lean_object* l_Lean_Expr_instantiate___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_expr_instantiate(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_Expr_instantiateRev___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_expr_instantiate_rev(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_Expr_abstract___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_expr_abstract(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_Expr_abstractRange___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_expr_abstract_range(x_1, x_2, x_3);
+return x_4;
 }
 }
 lean_object* l_Lean_mkConst(lean_object* x_1, lean_object* x_2) {

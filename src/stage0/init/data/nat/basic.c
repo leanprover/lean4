@@ -39,20 +39,25 @@ lean_object* l_Nat_pred(lean_object*);
 lean_object* l_Nat_sub___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_foldAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_mul___boxed(lean_object*, lean_object*);
+lean_object* l_Nat_foldRev(lean_object*);
 lean_object* l_Nat_all___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Nat_ble___boxed(lean_object*, lean_object*);
 uint8_t l_Nat_anyAux___main___at_Prod_allI___spec__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_foldRevAux___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_HasSub___closed__1;
+lean_object* l_Nat_foldRev___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t l_Nat_anyAux___main(lean_object*, lean_object*, lean_object*);
 uint8_t l_Nat_anyAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_HasPow___closed__1;
+lean_object* l_Nat_foldRevAux(lean_object*);
 lean_object* l_Nat_repeat___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldAux(lean_object*);
 lean_object* l_Prod_anyI___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_pow___main(lean_object*, lean_object*);
 lean_object* l_Nat_HasSub;
+lean_object* l_Nat_foldRevAux___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_decLt___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_pow___main___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_beq___boxed(lean_object*, lean_object*);
@@ -73,6 +78,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Nat_anyAux___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repeat(lean_object*);
 lean_object* l_Nat_DecidableEq___closed__1;
+lean_object* l_Nat_foldRevAux___main(lean_object*);
 lean_object* l_Nat_max___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_max(lean_object*, lean_object*);
 lean_object* l_Nat_DecidableEq;
@@ -283,6 +289,73 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Nat_fold___rarg), 3, 0);
+return x_2;
+}
+}
+lean_object* l_Nat_foldRevAux___main___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = lean_nat_dec_eq(x_2, x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = lean_unsigned_to_nat(1u);
+x_7 = lean_nat_sub(x_2, x_6);
+lean_dec(x_2);
+lean_inc(x_1);
+lean_inc(x_7);
+x_8 = lean_apply_2(x_1, x_7, x_3);
+x_2 = x_7;
+x_3 = x_8;
+goto _start;
+}
+else
+{
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+}
+lean_object* l_Nat_foldRevAux___main(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Nat_foldRevAux___main___rarg), 3, 0);
+return x_2;
+}
+}
+lean_object* l_Nat_foldRevAux___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Nat_foldRevAux___main___rarg(x_1, x_2, x_3);
+return x_4;
+}
+}
+lean_object* l_Nat_foldRevAux(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Nat_foldRevAux___rarg), 3, 0);
+return x_2;
+}
+}
+lean_object* l_Nat_foldRev___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Nat_foldRevAux___main___rarg(x_1, x_2, x_3);
+return x_4;
+}
+}
+lean_object* l_Nat_foldRev(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Nat_foldRev___rarg), 3, 0);
 return x_2;
 }
 }

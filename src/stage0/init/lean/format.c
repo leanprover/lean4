@@ -117,6 +117,7 @@ lean_object* l_Lean_Format_paren___closed__3;
 lean_object* l_Lean_Format_repr___main___closed__10;
 lean_object* l_Lean_Format_Inhabited;
 lean_object* l_Lean_Format_getWidth___closed__4;
+extern lean_object* l_String_Iterator_HasRepr___closed__2;
 extern lean_object* l_Prod_HasRepr___rarg___closed__1;
 lean_object* l_Lean_Format_repr___main___closed__12;
 lean_object* l_Lean_Format_indentOption(lean_object*);
@@ -167,7 +168,6 @@ lean_object* l_Lean_Format_defWidth;
 lean_object* l_Lean_Format_unicodeOption(lean_object*);
 lean_object* l_Lean_formatEntry___closed__2;
 lean_object* l_Array_size(lean_object*, lean_object*);
-lean_object* l_Lean_Format_flatten___main___closed__2;
 lean_object* l_Lean_Format_repr___main___closed__9;
 lean_object* l_Lean_Format_widthOption___closed__2;
 lean_object* l_Lean_Format_prefixJoin(lean_object*);
@@ -347,16 +347,8 @@ return x_3;
 lean_object* _init_l_Lean_Format_flatten___main___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string(" ");
-return x_1;
-}
-}
-lean_object* _init_l_Lean_Format_flatten___main___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Format_flatten___main___closed__1;
+x_1 = l_String_Iterator_HasRepr___closed__2;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -369,7 +361,7 @@ switch (lean_obj_tag(x_1)) {
 case 1:
 {
 lean_object* x_2; 
-x_2 = l_Lean_Format_flatten___main___closed__2;
+x_2 = l_Lean_Format_flatten___main___closed__1;
 return x_2;
 }
 case 3:
@@ -3318,8 +3310,6 @@ l_Lean_Format_join___closed__1 = _init_l_Lean_Format_join___closed__1();
 lean_mark_persistent(l_Lean_Format_join___closed__1);
 l_Lean_Format_flatten___main___closed__1 = _init_l_Lean_Format_flatten___main___closed__1();
 lean_mark_persistent(l_Lean_Format_flatten___main___closed__1);
-l_Lean_Format_flatten___main___closed__2 = _init_l_Lean_Format_flatten___main___closed__2();
-lean_mark_persistent(l_Lean_Format_flatten___main___closed__2);
 l_Lean_Format_spaceUptoLine___main___closed__1 = _init_l_Lean_Format_spaceUptoLine___main___closed__1();
 lean_mark_persistent(l_Lean_Format_spaceUptoLine___main___closed__1);
 l_Lean_Format_spaceUptoLine___main___closed__2 = _init_l_Lean_Format_spaceUptoLine___main___closed__2();

@@ -225,6 +225,17 @@ object * array_mk_empty() {
     return g_array_empty;
 }
 
+extern "C" object * lean_array_mk(object * sz, object * fn) {
+    if (!lean_is_scalar(sz))
+        lean_panic_out_of_memory();
+    size_t n = lean_unbox(sz);
+    object * r = lean_alloc_array(n, n);
+    for (size_t i = 0; i < n; i++) {
+        lean_inc(fn);
+        lean_array_set_core(r, i, lean_apply_1(fn, lean_box(i)));
+    }
+    return r;
+}
 
 // =======================================
 // Closures

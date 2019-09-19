@@ -785,6 +785,7 @@ static inline void lean_array_set_core(u_lean_obj_arg o, size_t i, lean_obj_arg 
     assert(i < lean_array_size(o));
     lean_to_array(o)->m_data[i] = v;
 }
+lean_object * lean_array_mk(b_lean_obj_arg sz, b_lean_obj_arg fn);
 
 /* Arrays of objects (high level API) */
 

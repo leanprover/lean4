@@ -17,6 +17,7 @@ structure Array (α : Type u) :=
 (sz   : Nat)
 (data : Fin sz → α)
 
+attribute [extern c inline "lean_array_mk(#2, #3)"] Array.mk
 attribute [extern c inline "lean_array_sz(#2)"] Array.sz
 
 @[reducible, extern c inline "lean_array_get_size(#2)"]

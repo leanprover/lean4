@@ -10,6 +10,8 @@ Author: Sebastian Ullrich
 
 namespace lean {
 namespace ir {
+/** \brief Run `n` using the "boxed" ABI, i.e. with all-owned parameters. */
+object * run_boxed(environment const & env, name const & fn, object ** args);
 uint32 run_main(environment const & env, int argv, char * argc[]);
 }
 void initialize_ir_interpreter();

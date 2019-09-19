@@ -40,6 +40,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/parse_table.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/typed_expr.h"
+#include "library/compiler/ir_interpreter.h"
 
 namespace lean {
 environment section_cmd(parser & p) {
@@ -315,6 +316,62 @@ environment hide_cmd(parser & p) {
     return new_env;
 }
 
+static environment eval_cmd(parser & p) {
+    transient_cmd_scope cmd_scope(p);
+    auto pos = p.pos();
+    expr e; names ls;
+    std::tie(e, ls) = parse_local_expr(p, "_eval", /* relaxed */ false);
+    if (has_synthetic_sorry(e))
+        return p.env();
+
+    type_context_old tc(p.env(), transparency_mode::All);
+    auto type = tc.infer(e);
+
+    bool has_eval = false;
+
+    /* Check if resultant type has an instance of has_eval */
+    try {
+        expr has_eval_type = mk_app(tc, "HasEval", type);
+        optional<expr> eval_instance = tc.mk_class_instance(has_eval_type);
+        if (eval_instance) {
+            /* Modify the 'program' to (has_eval.eval e) */
+            e             = mk_app(tc, {"HasEval", "eval"}, 3, type, *eval_instance, e);
+            type          = tc.infer(e);
+            has_eval      = true;
+        }
+    } catch (exception &) {}
+
+    if (!has_eval) {
+        // NOTE: HasRepr implies HasEval
+        throw exception("result type does not have an instance of type class 'HasRepr' or 'HasEval'");
+    }
+
+    name fn_name = "_main";
+    auto new_env = compile_expr(p.env(), p.get_options(), fn_name, ls, type, e, pos);
+
+    auto out = p.mk_message(p.cmd_pos(), p.pos(), INFORMATION);
+    out.set_caption("eval result");
+    scope_traces_as_messages scope_traces(p.get_stream_name(), p.cmd_pos());
+    std::streambuf * saved_cout = std::cout.rdbuf(out.get_text_stream().get_stream().rdbuf());
+
+    // run `IO Unit`
+    object * args[] = { io_mk_world() };
+
+    if (p.profiling()) {
+        timeit timer(out.get_text_stream().get_stream(), "eval time");
+        // NOTE: no need to free `()`
+        ir::run_boxed(new_env, fn_name, &args[0]);
+    } else {
+        ir::run_boxed(new_env, fn_name, &args[0]);
+    }
+
+    std::cout.rdbuf(saved_cout);
+    out.report();
+    return p.env();
+}
+
+
+
 environment compact_tst_cmd(parser & p) {
     environment env = p.env();
     unsigned num_copies = 0;
@@ -410,6 +467,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("init_quot",         "initialize `quot` type computational rules", init_quot_cmd));
     add_cmd(r, cmd_info("import",            "import module(s)", import_cmd));
     add_cmd(r, cmd_info("hide",              "hide aliases in the current scope", hide_cmd));
+    add_cmd(r, cmd_info("#eval",             "evaluate given expression using interpreter/precompiled code", eval_cmd));
     register_decl_cmds(r);
     register_inductive_cmds(r);
     register_structure_cmd(r);

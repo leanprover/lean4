@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 namespace lean {
 /* Helper functions for iterating over Lean maps. */
 void rbmap_foreach(b_obj_arg m, std::function<void(b_obj_arg, b_obj_arg)> const & fn);
+void phashmap_foreach(b_obj_arg m, std::function<void(b_obj_arg, b_obj_arg)> const & fn);
 void hashmap_foreach(b_obj_arg m, std::function<void(b_obj_arg, b_obj_arg)> const & fn);
 void smap_foreach(b_obj_arg m, std::function<void(b_obj_arg, b_obj_arg)> const & fn);
 }

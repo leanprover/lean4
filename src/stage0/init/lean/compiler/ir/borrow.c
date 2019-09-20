@@ -76,6 +76,7 @@ lean_object* l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__
 lean_object* l_Lean_IR_Borrow_collectDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_IR_Borrow_Key_HasBeq;
+extern lean_object* l_PersistentArray_Stats_toString___closed__4;
 lean_object* l_Array_ummapAux___main___at_Lean_IR_Borrow_updateParamMap___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_whileModifingOwnedAux(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_name_hash_usize(lean_object*);
@@ -85,7 +86,6 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Nat_mforAux___main___at_Lean_IR_Borrow_ownParamsUsingArgs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mforAux___main___at_Lean_IR_Borrow_ownArgsIfParam___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_mfoldl___main___at_Lean_IR_Borrow_InitParamMap_visitFnBody___main___spec__5(lean_object*, lean_object*);
-extern lean_object* l_PersistentHashMap_Stats_toString___closed__5;
 lean_object* l_Lean_IR_Borrow_Key_Hashable___closed__1;
 lean_object* l_Lean_IR_inferBorrow___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_ummapAux___main___at_Lean_IR_Borrow_ApplyParamMap_visitDecls___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -488,7 +488,7 @@ lean_object* _init_l_Lean_IR_Borrow_ParamMap_fmt___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_PersistentHashMap_Stats_toString___closed__5;
+x_1 = l_PersistentArray_Stats_toString___closed__4;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

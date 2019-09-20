@@ -68,7 +68,7 @@ logMessageIfAux tracePrefixOptionName a
 @[inline] def modifyEnv (f : Environment → Environment) : CompilerM Unit :=
 modify $ fun s => { env := f s.env, .. s }
 
-abbrev DeclMap := SMap Name Decl Name.quickLt
+abbrev DeclMap := SMap Name Decl
 
 /- Create an array of decls to be saved on .olean file.
    `decls` may contain duplicate entries, but we assume the one that occurs last is the most recent one. -/

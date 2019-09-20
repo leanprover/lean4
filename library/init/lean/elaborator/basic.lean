@@ -78,8 +78,8 @@ instance str2ElabException : HasCoe String ElabException := ⟨ElabException.oth
 abbrev TermElab    := SyntaxNode Expr → Option Expr → Elab (Syntax Expr)
 abbrev CommandElab := SyntaxNode → Elab Unit
 
-abbrev TermElabTable : Type := SMap SyntaxNodeKind TermElab Name.quickLt
-abbrev CommandElabTable : Type := SMap SyntaxNodeKind CommandElab Name.quickLt
+abbrev TermElabTable : Type := SMap SyntaxNodeKind TermElab
+abbrev CommandElabTable : Type := SMap SyntaxNodeKind CommandElab
 def mkBuiltinTermElabTable : IO (IO.Ref TermElabTable) :=  IO.mkRef {}
 def mkBuiltinCommandElabTable : IO (IO.Ref CommandElabTable) := IO.mkRef {}
 @[init mkBuiltinTermElabTable]

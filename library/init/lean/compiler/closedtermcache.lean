@@ -8,7 +8,7 @@ import init.lean.environment
 
 namespace Lean
 
-abbrev ClosedTermCache := SMap Expr Name Expr.quickLt
+abbrev ClosedTermCache := SMap Expr Name
 
 def mkClosedTermCacheExtension : IO (SimplePersistentEnvExtension (Expr × Name) ClosedTermCache) :=
 registerSimplePersistentEnvExtension {

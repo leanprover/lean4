@@ -44,6 +44,8 @@ variables {α : Type u} {β : Type v}
 
 def empty : PersistentHashMap α β := {}
 
+instance : HasEmptyc (PersistentHashMap α β) := ⟨empty⟩
+
 def isEmpty (m : PersistentHashMap α β) : Bool :=
 m.size == 0
 

@@ -24,9 +24,9 @@ Name.quickLt a.getName b.getName
 end ClassEntry
 
 structure ClassState :=
-(classToInstances : SMap Name (List Name) Name.quickLt := SMap.empty)
-(hasOutParam      : SMap Name Bool Name.quickLt := SMap.empty)
-(instances        : SMap Name Unit Name.quickLt := SMap.empty)
+(classToInstances : SMap Name (List Name) := SMap.empty)
+(hasOutParam      : SMap Name Bool := SMap.empty)
+(instances        : SMap Name Unit := SMap.empty)
 
 namespace ClassState
 

@@ -10,7 +10,7 @@ namespace Lean
 
 /- We use aliases to implement the `export <id> (<id>+)` command. -/
 
-abbrev AliasState := SMap Name (List Name) Name.quickLt
+abbrev AliasState := SMap Name (List Name)
 abbrev AliasEntry := Name × Name
 
 def addAliasEntry (s : AliasState) (e : AliasEntry) : AliasState :=

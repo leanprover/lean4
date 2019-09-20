@@ -59,8 +59,8 @@ structure SpecInfo :=
 (mutualDecls : List Name) (argKinds : SpecArgKind)
 
 structure SpecState :=
-(specInfo : SMap Name SpecInfo Name.quickLt := {})
-(cache    : SMap Expr Name Expr.quickLt := {})
+(specInfo : SMap Name SpecInfo := {})
+(cache    : SMap Expr Name := {})
 
 inductive SpecEntry
 | info (name : Name) (info : SpecInfo)

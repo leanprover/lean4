@@ -24,7 +24,7 @@ def ModuleIdx := Nat
 
 instance ModuleIdx.inhabited : Inhabited ModuleIdx := inferInstanceAs (Inhabited Nat)
 
-abbrev ConstMap := SMap Name ConstantInfo Name.quickLt
+abbrev ConstMap := SMap Name ConstantInfo
 
 /- Environment fields that are not used often. -/
 structure EnvironmentHeader :=
@@ -538,7 +538,6 @@ IO.println ("number of consts:                      " ++ toString env.constants.
 IO.println ("number of imported consts:             " ++ toString env.constants.stageSizes.1);
 IO.println ("number of local consts:                " ++ toString env.constants.stageSizes.2);
 IO.println ("number of buckets for imported consts: " ++ toString env.constants.numBuckets);
-IO.println ("map depth for local consts:            " ++ toString env.constants.maxDepth);
 IO.println ("trust level:                           " ++ toString env.header.trustLevel);
 IO.println ("number of extensions:                  " ++ toString env.extensions.size);
 pExtDescrs.mfor $ fun extDescr => do {

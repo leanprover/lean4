@@ -16,13 +16,14 @@ existing compiler IR instead of inventing something like a new bytecode format.
 Implementation
 ==============
 
-The interpreter mainly consists of a homogeneous stack of boxed `object *` values. IR variables are mapped to stack
+The interpreter mainly consists of a homogeneous stack of `value`s, which are either unboxed values or pointers to boxed
+objects. The IR type system tells us which union member is active at any time. IR variables are mapped to stack
 slots by adding the current base pointer to the variable index. Further stacks are used for storing join points and call
 stack metadata. The interpreted IR is taken directly from the environment. Whenever possible, we try to switch to native
-code by checking for the mangled symbol via dlsym/GetProcAddress, which is also how we can call external functions (but
-only if the file declaring them has already been compiled). We always call the "boxed" versions of native functions,
-which have a (relatively) homogeneous ABI that we can use without runtime code generation; see also `call/lookup_symbol`
-below.
+code by checking for the mangled symbol via dlsym/GetProcAddress, which is also how we can call external functions
+(which only works if the file declaring them has already been compiled). We always call the "boxed" versions of native
+functions, which have a (relatively) homogeneous ABI that we can use without runtime code generation; see also
+`call/lookup_symbol` below.
 
 */
 #include <string>

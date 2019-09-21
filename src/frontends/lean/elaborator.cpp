@@ -3301,10 +3301,10 @@ expr elaborator::visit_let(expr const & e, optional<expr> const & expected_type)
     expr new_value = visit(let_value(e), some_expr(new_type));
     expr ref_value = get_ref_for_child(let_value(e), ref);
     new_value      = enforce_type(new_value, new_type, "invalid let-expression", ref_value);
-    synthesize();
+    // synthesize();
     new_type       = instantiate_mvars(new_type);
     new_value      = instantiate_mvars(new_value);
-    ensure_no_unassigned_metavars(new_value);
+    // ensure_no_unassigned_metavars(new_value);
     type_context_old::tmp_locals locals(m_ctx);
     expr l = push_let(locals, let_name(e), new_type, new_value, ref);
     expr body      = instantiate_rev_locals(let_body(e), locals);

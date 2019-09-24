@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.default
-// Imports: init.lean.path init.lean.compiler.default init.lean.environment init.lean.modifiers init.lean.projfns init.lean.runtime init.lean.attributes init.lean.parser.default init.lean.reducibilityattrs init.lean.elaborator.default init.lean.eqncompiler.default init.lean.class init.lean.localcontext init.lean.metavarcontext
+// Imports: init.lean.path init.lean.compiler.default init.lean.environment init.lean.modifiers init.lean.projfns init.lean.runtime init.lean.attributes init.lean.parser.default init.lean.reducibilityattrs init.lean.elaborator.default init.lean.eqncompiler.default init.lean.class init.lean.localcontext init.lean.metavarcontext init.lean.typeclass.default
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -27,6 +27,7 @@ lean_object* initialize_init_lean_eqncompiler_default(lean_object*);
 lean_object* initialize_init_lean_class(lean_object*);
 lean_object* initialize_init_lean_localcontext(lean_object*);
 lean_object* initialize_init_lean_metavarcontext(lean_object*);
+lean_object* initialize_init_lean_typeclass_default(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_init_lean_default(lean_object* w) {
 if (_G_initialized) return w;
@@ -59,6 +60,8 @@ if (lean_io_result_is_error(w)) return w;
 w = initialize_init_lean_localcontext(w);
 if (lean_io_result_is_error(w)) return w;
 w = initialize_init_lean_metavarcontext(w);
+if (lean_io_result_is_error(w)) return w;
+w = initialize_init_lean_typeclass_default(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

@@ -18,3 +18,4 @@ import init.lean.eqncompiler
 import init.lean.class
 import init.lean.localcontext
 import init.lean.metavarcontext
+import init.lean.typeclass

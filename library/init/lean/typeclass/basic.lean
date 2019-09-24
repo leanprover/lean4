@@ -13,6 +13,7 @@ namespace TypeClass
 @[export lean_typeclass_synth_command]
 def synth_command (env : Environment) (e : Expr) : ExceptT String Id Expr :=
 Except.error "not implemented yet"
+-- Except.ok $ Expr.sort Level.zero -- dummy result for testing
 
 end TypeClass
 end Lean

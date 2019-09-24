@@ -1,4 +1,4 @@
-{ llvmPackages, cmake, python, gmp }:
+{ llvmPackages, bash, cmake, python, gmp }:
 
 llvmPackages.stdenv.mkDerivation rec {
   name = "lean-${version}";
@@ -7,7 +7,7 @@ llvmPackages.stdenv.mkDerivation rec {
   # I have way too many untracked files in my checkout
   src = builtins.fetchGit { url = ../.; };
 
-  nativeBuildInputs = [ cmake python ];
+  nativeBuildInputs = [ bash cmake python ];
   buildInputs = [ gmp llvmPackages.llvm ];
   enableParallelBuilding = true;
 

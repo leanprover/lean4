@@ -1,11 +1,11 @@
 { pkgs ? import ./nixpkgs.nix }:
 
 let
-  lean = { stdenv ? pkgs.llvmPackages_7.stdenv }:
-    (pkgs.callPackage ../../default.nix { inherit stdenv; }).overrideAttrs (attrs: {
+  lean = {}:
+    (pkgs.callPackage ../../default.nix {}).overrideAttrs (attrs: {
      # pin Lean commit to avoid rebuilds
-     # 2019-05-27
-     src = builtins.fetchGit { url = ../../.; rev = "0e8abd81bba1b9c06ea7eab23001bbf08ff267dc"; };
+     # 2019-09-23
+     src = builtins.fetchGit { url = ../../.; rev = "345cc22f7935e4b83ed59b1a8fdf98a9241253ae"; };
     });
   # for binarytrees.hs
   ghcPackages = p: [ p.parallel ];
@@ -35,7 +35,7 @@ let
     '';
   };
   swift = pkgs.swift;
-  temci = import (builtins.fetchGit { url = http://github.com/parttimenerd/temci.git; rev = "e397ef9df168d581dcb46de4603088b7a5c6749c"; }) {};
+  temci = import (builtins.fetchGit { url = http://github.com/parttimenerd/temci.git; rev = "74086d20659731a16d0c04e9022c20fc63958322"; }) {};
 in pkgs.stdenv.mkDerivation rec {
   name = "bench";
   src = pkgs.lib.sourceFilesBySuffices ./. ["Makefile" "leanpkg.path" "temci.yaml" ".py" ".lean" ".hs" ".ml" ".sml"];

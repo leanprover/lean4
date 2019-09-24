@@ -12,6 +12,9 @@ from temci.report import stats, rundata
 from temci.utils import number, settings
 import scipy.stats as st
 
+settings.Settings().load_file("cross.yaml")
+number.FNumber.init_settings(settings.Settings()["report/number"])
+
 def single(bench, cat, prop):
     f = f"bench/{bench}{cat}.bench"
     with open(f, "r") as f:

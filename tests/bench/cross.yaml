@@ -2,9 +2,6 @@
 # Logging level
 log_level: info
 
-# Additional settings file
-settings_file: ''
-
 # Acquire sudo privileges and run benchmark programs with non-sudo user. Only supported on the command line.
 sudo: false
 

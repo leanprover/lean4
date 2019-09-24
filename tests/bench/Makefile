@@ -121,7 +121,7 @@ bench/unionfind.%.bench: BENCH_PARAMS = 3000000
 
 bench/%gc.lean.bench: %lean.out | bench
 	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS)\
-    -d $< "perf record -o $@.tmp ./$< $(BENCH_PARAMS) >/dev/null && perf report -i $@.tmp -t ';' --stdio -S 'lean::del,lean::dealloc' | ./lean-gc.py"\
+    -d $< "perf record -o $@.tmp ./$< $(BENCH_PARAMS) >/dev/null && perf report -i $@.tmp -t ';' --stdio -S 'lean_del,lean_dealloc' | ./lean-gc.py"\
 	  --runner output --out $@
 
 bench/%gc.hs.bench: %hs.out | bench

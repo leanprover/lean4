@@ -10,10 +10,10 @@ let
   # for binarytrees.hs
   ghcPackages = p: [ p.parallel ];
   ghc = (pkgs.haskellPackages.ghcWithPackages ghcPackages).override {
-    ghc = pkgs.haskell.compiler.ghc865;
+    ghc = pkgs.haskell.compiler.ghc881;
     withLLVM = true;
   };
-  ocaml = pkgs.ocaml-ng.ocamlPackages_4_07.ocaml;
+  ocaml = pkgs.ocaml-ng.ocamlPackages_4_08.ocaml;
   # note that this will need to be compiled from source
   ocamlFlambda = ocaml.override { flambdaSupport = true; };
   mlton = pkgs.mlton;

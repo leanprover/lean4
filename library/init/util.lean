@@ -23,3 +23,6 @@ f ()
 
 @[extern c inline "#4"]
 unsafe def unsafeCast {α : Type u} {β : Type v} [Inhabited β] (a : α) : β := default _
+
+@[effectful, extern c inline "lean_panic_fn(#3)"]
+constant panic {α : Type u} [Inhabited α] (msg : String) : α := default _

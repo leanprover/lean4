@@ -38,6 +38,10 @@ extern "C" void lean_panic_rc_overflow() {
     lean_panic("reference counter overflowed");
 }
 
+extern "C" object * lean_panic_fn(object * msg) {
+    lean_panic(lean_string_cstr(msg));
+}
+
 extern "C" size_t lean_object_byte_size(lean_object * o) {
     if (lean_is_mt(o) || lean_is_st(o) || lean_is_persistent(o)) {
         /* Recall that multi-threaded, single-threaded and persistent objects are stored in the heap.

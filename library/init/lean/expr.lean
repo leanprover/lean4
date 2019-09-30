@@ -107,6 +107,9 @@ def isAppOfArity : Expr → Name → Nat → Bool
 @[extern "lean_expr_instantiate"]
 constant instantiate (e : Expr) (subst : Array Expr) : Expr := default _
 
+@[extern "lean_expr_instantiate1"]
+constant instantiate1 (e : Expr) (subst : Expr) : Expr := default _
+
 /-- Similar to instantiate, but `Expr.bvar i` is replaced with `subst[subst.size - i - 1]` -/
 @[extern "lean_expr_instantiate_rev"]
 constant instantiateRev (e : Expr) (subst : Array Expr) : Expr := default _

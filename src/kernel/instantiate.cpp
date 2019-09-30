@@ -45,6 +45,17 @@ expr instantiate(expr const & e, std::initializer_list<expr> const & l) {  retur
 expr instantiate(expr const & e, unsigned i, expr const & s) { return instantiate(e, i, 1, &s); }
 expr instantiate(expr const & e, expr const & s) { return instantiate(e, 0, s); }
 
+extern "C" object * lean_expr_instantiate1(object * a0, object * e0) {
+    expr const & a = reinterpret_cast<expr const &>(a0);
+    if (!has_loose_bvars(a)) {
+        lean_inc(a0);
+        return a0;
+    }
+    expr const & e = reinterpret_cast<expr const &>(e0);
+    expr r = instantiate(a, 1, &e);
+    return r.steal();
+}
+
 extern "C" object * lean_expr_instantiate(object * a0, object * subst) {
     expr const & a = reinterpret_cast<expr const &>(a0);
     if (!has_loose_bvars(a)) {

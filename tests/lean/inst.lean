@@ -13,6 +13,7 @@ IO.println t.dbgToString;
 IO.println (t.instantiate [a, b].toArray).dbgToString;
 IO.println (t.instantiateRev [a, b].toArray).dbgToString;
 IO.println (t.instantiate [a].toArray).dbgToString;
+IO.println (t.instantiate1 a).dbgToString;
 pure ()
 
 #eval tst

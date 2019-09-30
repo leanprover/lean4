@@ -2,7 +2,9 @@ import init.lean.expr
 open Lean
 
 def main : IO UInt32 :=
-let e := Expr.app (Expr.const `f []) (Expr.const `a []);
-IO.println e.dbgToString *>
-IO.println ("hash: " ++ toString e.hash) *>
+do
+let e := Expr.app (Expr.app (Expr.const `f []) (Expr.const `a [])) (Expr.const `b []);
+IO.println e;
+IO.println ("hash: " ++ toString e.hash);
+IO.println e.getAppArgs;
 pure 0

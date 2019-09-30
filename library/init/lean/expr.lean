@@ -15,6 +15,24 @@ inductive Literal
 inductive BinderInfo
 | default | implicit | strictImplicit | instImplicit | auxDecl
 
+namespace BinderInfo
+
+def isInstImplicit : BinderInfo → Bool
+| instImplicit => true
+| _            => false
+
+protected def beq : BinderInfo → BinderInfo → Bool
+| default, default => true
+| implicit, implicit => true
+| strictImplicit, strictImplicit => true
+| instImplicit, instImplicit => true
+| auxDecl, auxDecl => true
+| _, _ => false
+
+instance : HasBeq BinderInfo := ⟨BinderInfo.beq⟩
+
+end BinderInfo
+
 abbrev MData := KVMap
 namespace MData
 abbrev empty : MData := {KVMap .}
@@ -67,6 +85,7 @@ constant hash (n : @& Expr) : USize := default USize
 
 instance : Hashable Expr := ⟨Expr.hash⟩
 
+-- TODO: implement it in Lean
 @[extern "lean_expr_dbg_to_string"]
 constant dbgToString (e : @& Expr) : String := default String
 
@@ -81,6 +100,35 @@ constant eqv (a : @& Expr) (b : @& Expr) : Bool := default _
 
 instance : HasBeq Expr := ⟨Expr.eqv⟩
 
+def isSort : Expr → Bool
+| Expr.sort _ => true
+| _ => false
+
+def isApp : Expr → Bool
+| app _ _ => true
+| _ => false
+
+def isConst : Expr → Bool
+| const _ _ => true
+| _ => false
+
+def isForall : Expr → Bool
+| Expr.pi _ _ _ _ => true
+| _ => false
+
+def isLambda : Expr → Bool
+| Expr.lam _ _ _ _ => true
+| _ => false
+
+def isBinding : Expr → Bool
+| Expr.lam _ _ _ _ => true
+| Expr.pi _ _ _ _ => true
+| _ => false
+
+def isLet : Expr → Bool
+| Expr.elet _ _ _ _ => true
+| _ => false
+
 def getAppFn : Expr → Expr
 | Expr.app f a => getAppFn f
 | e            => e
@@ -92,6 +140,13 @@ def getAppNumArgsAux : Expr → Nat → Nat
 def getAppNumArgs (e : Expr) : Nat :=
 getAppNumArgsAux e 0
 
+def getAppArgsAux : Expr → List Expr → List Expr
+| Expr.app f a, as => getAppArgsAux f (a::as)
+| e,            as => as
+
+@[inline] def getAppArgs (e : Expr) : List Expr :=
+getAppArgsAux e []
+
 def isAppOf (e : Expr) (n : Name) : Bool :=
 match e.getAppFn with
 | Expr.const c _ => c == n
@@ -101,6 +156,16 @@ def isAppOfArity : Expr → Name → Nat → Bool
 | Expr.const c _, n, 0   => c == n
 | Expr.app f _,   n, a+1 => isAppOfArity f n a
 | _,              _, _   => false
+
+def bindingDomain : Expr → Expr
+| Expr.pi  _ _ d _ => d
+| Expr.lam _ _ d _ => d
+| _ => default _
+
+def bindingBody : Expr → Expr
+| Expr.pi  _ _ _ b => b
+| Expr.lam _ _ _ b => b
+| _ => default _
 
 /-- Instantiate the loose bound variables in `e` using `subst`.
     That is, a loose `Expr.bvar i` is replaced with `subst[i]`. -/
@@ -121,6 +186,13 @@ constant abstract (e : Expr) (xs : Array Expr) : Expr := default _
 /-- Similar to `abstract`, but consider only the first `min n xs.size` entries in `xs`. -/
 @[extern "lean_expr_abstract_range"]
 constant abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : Expr := default _
+
+instance : HasToString Expr :=
+⟨Expr.dbgToString⟩
+
+-- TODO: should not use dbgToString, but constructors.
+instance : HasRepr Expr :=
+⟨Expr.dbgToString⟩
 
 end Expr
 

@@ -166,5 +166,11 @@ def hints : ConstantInfo → ReducibilityHints
 | defnInfo {hints := r, ..} => r
 | _                         => ReducibilityHints.opaque
 
+@[extern "lean_instantiate_type_lparams"]
+constant instantiateTypeUnivParams (c : ConstantInfo) (ls : List Level) : Expr := default _
+
+@[extern "lean_instantiate_value_lparams"]
+constant instantiateValueUnivParams (c : ConstantInfo) (ls : List Level) : Expr := default _
+
 end ConstantInfo
 end Lean

@@ -24,13 +24,17 @@ lean_object* l_Lean_mkBinApp(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MData_empty;
 lean_object* lean_expr_mk_sort(lean_object*);
 lean_object* l_Lean_Expr_pi___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_isLambda___boxed(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+uint8_t l_Lean_Expr_isSort(lean_object*);
+uint8_t l_Lean_Expr_isConst(lean_object*);
 lean_object* l_Lean_Expr_HasBeq___closed__1;
 lean_object* l_Lean_Expr_isAppOfArity___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_exprIsInhabited;
 size_t lean_expr_hash(lean_object*);
 lean_object* lean_expr_dbg_to_string(lean_object*);
 lean_object* l_Lean_mkApp(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_instantiate1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_eqv___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsTrue___closed__4;
 lean_object* lean_expr_mk_pi(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -39,8 +43,11 @@ lean_object* l_Lean_Expr_getAppNumArgsAux___boxed(lean_object*, lean_object*);
 lean_object* lean_expr_local(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_expr_mk_app(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_quickLt___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_bindingBody(lean_object*);
 lean_object* l_Lean_Expr_isAppOf___boxed(lean_object*, lean_object*);
 lean_object* lean_expr_mk_let(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_BinderInfo_isInstImplicit___boxed(lean_object*);
+lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 lean_object* l_Lean_mkDecIsFalse___closed__1;
 lean_object* l_Lean_Expr_isAppOfArity___boxed(lean_object*, lean_object*, lean_object*);
@@ -48,17 +55,26 @@ lean_object* l_Lean_mkDecIsTrue___closed__3;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux___main(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_sort___boxed(lean_object*);
+lean_object* l_Lean_Expr_HasToString___closed__1;
 lean_object* lean_expr_mk_fvar(lean_object*);
 lean_object* l_List_foldl___main___at_Lean_mkApp___spec__1(lean_object*, lean_object*);
+lean_object* l_Lean_BinderInfo_beq___boxed(lean_object*, lean_object*);
+uint8_t l_Lean_Expr_isLet(lean_object*);
+lean_object* l_Lean_Expr_getAppArgsAux(lean_object*, lean_object*);
 lean_object* lean_expr_mk_proj(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_mk_const(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bvar___boxed(lean_object*);
 lean_object* l_Lean_Expr_Hashable___closed__1;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_MData_HasEmptyc;
+lean_object* l_Lean_Expr_isApp___boxed(lean_object*);
+lean_object* l_Lean_Expr_bindingDomain(lean_object*);
+lean_object* l_Lean_BinderInfo_HasBeq;
 lean_object* l_Lean_Expr_dbgToString___boxed(lean_object*);
 lean_object* l_Lean_Expr_instantiateRev___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_getAppArgsAux___main___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_instantiate___boxed(lean_object*, lean_object*);
+uint8_t l_Lean_Expr_isForall(lean_object*);
 lean_object* l_Lean_Expr_elet___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 lean_object* l_Lean_mkDecIsTrue___closed__1;
@@ -66,20 +82,31 @@ lean_object* l_Lean_mkBinCApp(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsFalse(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_lit___boxed(lean_object*);
+lean_object* l_Lean_Expr_HasRepr;
 lean_object* lean_nat_add(lean_object*, lean_object*);
+uint8_t l_Lean_BinderInfo_beq(uint8_t, uint8_t);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsTrue___closed__2;
+lean_object* l_Lean_Expr_getAppArgs(lean_object*);
 lean_object* l_Lean_Expr_getAppFn___main___boxed(lean_object*);
+uint8_t l_Lean_BinderInfo_isInstImplicit(uint8_t);
+lean_object* l_Lean_Expr_getAppArgsAux___main(lean_object*, lean_object*);
 lean_object* lean_expr_instantiate_rev(lean_object*, lean_object*);
 lean_object* l_Lean_mkCApp(lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsTrue___closed__5;
+lean_object* l_Lean_Expr_HasToString;
 uint8_t l_Lean_Expr_isAppOfArity___main(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Expr_isBinding(lean_object*);
 lean_object* lean_expr_mk_mvar(lean_object*);
 lean_object* lean_expr_mk_bvar(lean_object*);
+lean_object* l_Lean_Expr_bindingDomain___boxed(lean_object*);
 lean_object* lean_expr_abstract_range(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_proj___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_BinderInfo_HasBeq___closed__1;
 uint8_t lean_expr_lt(lean_object*, lean_object*);
+uint8_t l_Lean_Expr_isApp(lean_object*);
+lean_object* l_Lean_Expr_getAppArgsAux___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsTrue(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_abstract___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
@@ -89,19 +116,184 @@ lean_object* l_Lean_Expr_fvar___boxed(lean_object*);
 lean_object* lean_expr_mk_lambda(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mdata___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_HasBeq;
+lean_object* l_Lean_Expr_isBinding___boxed(lean_object*);
 lean_object* l_Lean_Expr_Hashable;
 lean_object* l_Lean_Expr_getAppNumArgs___boxed(lean_object*);
+lean_object* l_Lean_Expr_bindingBody___boxed(lean_object*);
 lean_object* l_Lean_Expr_mvar___boxed(lean_object*);
 lean_object* lean_expr_abstract(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_isSort___boxed(lean_object*);
 lean_object* l_Lean_Expr_local___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_isLet___boxed(lean_object*);
 lean_object* l_Lean_Expr_getAppFn___boxed(lean_object*);
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_isForall___boxed(lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsFalse___closed__3;
 lean_object* l_Lean_exprIsInhabited___closed__1;
 lean_object* lean_expr_mk_lit(lean_object*);
 lean_object* l_Lean_mkDecIsFalse___closed__2;
+lean_object* l_Lean_Expr_getAppArgs___boxed(lean_object*);
+lean_object* l_Lean_Expr_isConst___boxed(lean_object*);
 lean_object* l_Lean_Expr_lt___boxed(lean_object*, lean_object*);
+uint8_t l_Lean_Expr_isLambda(lean_object*);
+uint8_t l_Lean_BinderInfo_isInstImplicit(uint8_t x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_box(x_1);
+if (lean_obj_tag(x_2) == 3)
+{
+uint8_t x_3; 
+x_3 = 1;
+return x_3;
+}
+else
+{
+uint8_t x_4; 
+lean_dec(x_2);
+x_4 = 0;
+return x_4;
+}
+}
+}
+lean_object* l_Lean_BinderInfo_isInstImplicit___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; uint8_t x_3; lean_object* x_4; 
+x_2 = lean_unbox(x_1);
+lean_dec(x_1);
+x_3 = l_Lean_BinderInfo_isInstImplicit(x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+uint8_t l_Lean_BinderInfo_beq(uint8_t x_1, uint8_t x_2) {
+_start:
+{
+switch (x_1) {
+case 0:
+{
+lean_object* x_3; 
+x_3 = lean_box(x_2);
+if (lean_obj_tag(x_3) == 0)
+{
+uint8_t x_4; 
+x_4 = 1;
+return x_4;
+}
+else
+{
+uint8_t x_5; 
+lean_dec(x_3);
+x_5 = 0;
+return x_5;
+}
+}
+case 1:
+{
+lean_object* x_6; 
+x_6 = lean_box(x_2);
+if (lean_obj_tag(x_6) == 1)
+{
+uint8_t x_7; 
+x_7 = 1;
+return x_7;
+}
+else
+{
+uint8_t x_8; 
+lean_dec(x_6);
+x_8 = 0;
+return x_8;
+}
+}
+case 2:
+{
+lean_object* x_9; 
+x_9 = lean_box(x_2);
+if (lean_obj_tag(x_9) == 2)
+{
+uint8_t x_10; 
+x_10 = 1;
+return x_10;
+}
+else
+{
+uint8_t x_11; 
+lean_dec(x_9);
+x_11 = 0;
+return x_11;
+}
+}
+case 3:
+{
+lean_object* x_12; 
+x_12 = lean_box(x_2);
+if (lean_obj_tag(x_12) == 3)
+{
+uint8_t x_13; 
+x_13 = 1;
+return x_13;
+}
+else
+{
+uint8_t x_14; 
+lean_dec(x_12);
+x_14 = 0;
+return x_14;
+}
+}
+default: 
+{
+lean_object* x_15; 
+x_15 = lean_box(x_2);
+if (lean_obj_tag(x_15) == 4)
+{
+uint8_t x_16; 
+x_16 = 1;
+return x_16;
+}
+else
+{
+uint8_t x_17; 
+lean_dec(x_15);
+x_17 = 0;
+return x_17;
+}
+}
+}
+}
+}
+lean_object* l_Lean_BinderInfo_beq___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = lean_unbox(x_1);
+lean_dec(x_1);
+x_4 = lean_unbox(x_2);
+lean_dec(x_2);
+x_5 = l_Lean_BinderInfo_beq(x_3, x_4);
+x_6 = lean_box(x_5);
+return x_6;
+}
+}
+lean_object* _init_l_Lean_BinderInfo_HasBeq___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_BinderInfo_beq___boxed), 2, 0);
+return x_1;
+}
+}
+lean_object* _init_l_Lean_BinderInfo_HasBeq() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_BinderInfo_HasBeq___closed__1;
+return x_1;
+}
+}
 lean_object* _init_l_Lean_MData_empty() {
 _start:
 {
@@ -370,6 +562,203 @@ x_1 = l_Lean_Expr_HasBeq___closed__1;
 return x_1;
 }
 }
+uint8_t l_Lean_Expr_isSort(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 3)
+{
+uint8_t x_2; 
+x_2 = 1;
+return x_2;
+}
+else
+{
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
+}
+}
+}
+lean_object* l_Lean_Expr_isSort___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Expr_isSort(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+uint8_t l_Lean_Expr_isApp(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 5)
+{
+uint8_t x_2; 
+x_2 = 1;
+return x_2;
+}
+else
+{
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
+}
+}
+}
+lean_object* l_Lean_Expr_isApp___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Expr_isApp(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+uint8_t l_Lean_Expr_isConst(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 4)
+{
+uint8_t x_2; 
+x_2 = 1;
+return x_2;
+}
+else
+{
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
+}
+}
+}
+lean_object* l_Lean_Expr_isConst___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Expr_isConst(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+uint8_t l_Lean_Expr_isForall(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 7)
+{
+uint8_t x_2; 
+x_2 = 1;
+return x_2;
+}
+else
+{
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
+}
+}
+}
+lean_object* l_Lean_Expr_isForall___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Expr_isForall(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+uint8_t l_Lean_Expr_isLambda(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 6)
+{
+uint8_t x_2; 
+x_2 = 1;
+return x_2;
+}
+else
+{
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
+}
+}
+}
+lean_object* l_Lean_Expr_isLambda___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Expr_isLambda(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+uint8_t l_Lean_Expr_isBinding(lean_object* x_1) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 6:
+{
+uint8_t x_2; 
+x_2 = 1;
+return x_2;
+}
+case 7:
+{
+uint8_t x_3; 
+x_3 = 1;
+return x_3;
+}
+default: 
+{
+uint8_t x_4; 
+x_4 = 0;
+return x_4;
+}
+}
+}
+}
+lean_object* l_Lean_Expr_isBinding___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Expr_isBinding(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+uint8_t l_Lean_Expr_isLet(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 8)
+{
+uint8_t x_2; 
+x_2 = 1;
+return x_2;
+}
+else
+{
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
+}
+}
+}
+lean_object* l_Lean_Expr_isLet___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Expr_isLet(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
 lean_object* l_Lean_Expr_getAppFn___main(lean_object* x_1) {
 _start:
 {
@@ -473,6 +862,72 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Expr_getAppNumArgs(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_Expr_getAppArgsAux___main(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 5)
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+x_5 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_5, 0, x_4);
+lean_ctor_set(x_5, 1, x_2);
+x_1 = x_3;
+x_2 = x_5;
+goto _start;
+}
+else
+{
+return x_2;
+}
+}
+}
+lean_object* l_Lean_Expr_getAppArgsAux___main___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Expr_getAppArgsAux___main(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+lean_object* l_Lean_Expr_getAppArgsAux(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Expr_getAppArgsAux___main(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_Expr_getAppArgsAux___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Expr_getAppArgsAux(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+lean_object* l_Lean_Expr_getAppArgs(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_box(0);
+x_3 = l_Lean_Expr_getAppArgsAux___main(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_Expr_getAppArgs___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Expr_getAppArgs(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -600,11 +1055,91 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
+lean_object* l_Lean_Expr_bindingDomain(lean_object* x_1) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 6:
+{
+lean_object* x_2; 
+x_2 = lean_ctor_get(x_1, 1);
+lean_inc(x_2);
+return x_2;
+}
+case 7:
+{
+lean_object* x_3; 
+x_3 = lean_ctor_get(x_1, 1);
+lean_inc(x_3);
+return x_3;
+}
+default: 
+{
+lean_object* x_4; 
+x_4 = l_Lean_exprIsInhabited___closed__1;
+return x_4;
+}
+}
+}
+}
+lean_object* l_Lean_Expr_bindingDomain___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Expr_bindingDomain(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_Expr_bindingBody(lean_object* x_1) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 6:
+{
+lean_object* x_2; 
+x_2 = lean_ctor_get(x_1, 2);
+lean_inc(x_2);
+return x_2;
+}
+case 7:
+{
+lean_object* x_3; 
+x_3 = lean_ctor_get(x_1, 2);
+lean_inc(x_3);
+return x_3;
+}
+default: 
+{
+lean_object* x_4; 
+x_4 = l_Lean_exprIsInhabited___closed__1;
+return x_4;
+}
+}
+}
+}
+lean_object* l_Lean_Expr_bindingBody___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Expr_bindingBody(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 lean_object* l_Lean_Expr_instantiate___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
 x_3 = lean_expr_instantiate(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_Expr_instantiate1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_expr_instantiate1(x_1, x_2);
 return x_3;
 }
 }
@@ -630,6 +1165,30 @@ _start:
 lean_object* x_4; 
 x_4 = lean_expr_abstract_range(x_1, x_2, x_3);
 return x_4;
+}
+}
+lean_object* _init_l_Lean_Expr_HasToString___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Expr_dbgToString___boxed), 1, 0);
+return x_1;
+}
+}
+lean_object* _init_l_Lean_Expr_HasToString() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Expr_HasToString___closed__1;
+return x_1;
+}
+}
+lean_object* _init_l_Lean_Expr_HasRepr() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Expr_HasToString___closed__1;
+return x_1;
 }
 }
 lean_object* l_Lean_mkConst(lean_object* x_1, lean_object* x_2) {
@@ -762,6 +1321,10 @@ w = initialize_init_lean_level(w);
 if (lean_io_result_is_error(w)) return w;
 w = initialize_init_lean_kvmap(w);
 if (lean_io_result_is_error(w)) return w;
+l_Lean_BinderInfo_HasBeq___closed__1 = _init_l_Lean_BinderInfo_HasBeq___closed__1();
+lean_mark_persistent(l_Lean_BinderInfo_HasBeq___closed__1);
+l_Lean_BinderInfo_HasBeq = _init_l_Lean_BinderInfo_HasBeq();
+lean_mark_persistent(l_Lean_BinderInfo_HasBeq);
 l_Lean_MData_empty = _init_l_Lean_MData_empty();
 lean_mark_persistent(l_Lean_MData_empty);
 l_Lean_MData_HasEmptyc = _init_l_Lean_MData_HasEmptyc();
@@ -778,6 +1341,12 @@ l_Lean_Expr_HasBeq___closed__1 = _init_l_Lean_Expr_HasBeq___closed__1();
 lean_mark_persistent(l_Lean_Expr_HasBeq___closed__1);
 l_Lean_Expr_HasBeq = _init_l_Lean_Expr_HasBeq();
 lean_mark_persistent(l_Lean_Expr_HasBeq);
+l_Lean_Expr_HasToString___closed__1 = _init_l_Lean_Expr_HasToString___closed__1();
+lean_mark_persistent(l_Lean_Expr_HasToString___closed__1);
+l_Lean_Expr_HasToString = _init_l_Lean_Expr_HasToString();
+lean_mark_persistent(l_Lean_Expr_HasToString);
+l_Lean_Expr_HasRepr = _init_l_Lean_Expr_HasRepr();
+lean_mark_persistent(l_Lean_Expr_HasRepr);
 l_Lean_mkDecIsTrue___closed__1 = _init_l_Lean_mkDecIsTrue___closed__1();
 lean_mark_persistent(l_Lean_mkDecIsTrue___closed__1);
 l_Lean_mkDecIsTrue___closed__2 = _init_l_Lean_mkDecIsTrue___closed__2();

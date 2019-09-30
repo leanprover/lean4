@@ -20,8 +20,12 @@ lean_object* l_Lean_ConstantInfo_toConstantVal(lean_object*);
 lean_object* l_Lean_ConstantInfo_value___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_value(lean_object*);
 lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
+lean_object* l_Lean_ConstantInfo_instantiateTypeUnivParams___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_ConstantInfo_hasValue(lean_object*);
 lean_object* l_Lean_ConstantInfo_hints___boxed(lean_object*);
+lean_object* lean_instantiate_type_lparams(lean_object*, lean_object*);
+lean_object* l_Lean_ConstantInfo_instantiateValueUnivParams___boxed(lean_object*, lean_object*);
+lean_object* lean_instantiate_value_lparams(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_hints(lean_object*);
 lean_object* l_Lean_ConstantInfo_toConstantVal___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
@@ -210,6 +214,22 @@ lean_object* x_2;
 x_2 = l_Lean_ConstantInfo_hints(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+lean_object* l_Lean_ConstantInfo_instantiateTypeUnivParams___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_instantiate_type_lparams(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_ConstantInfo_instantiateValueUnivParams___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_instantiate_value_lparams(x_1, x_2);
+return x_3;
 }
 }
 lean_object* initialize_init_lean_expr(lean_object*);

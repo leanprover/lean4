@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.default
-// Imports: init.lean.compiler.inlineattrs init.lean.compiler.specialize init.lean.compiler.constfolding init.lean.compiler.closedtermcache init.lean.compiler.externattr init.lean.compiler.implementedbyattr init.lean.compiler.ir.default
+// Imports: init.lean.compiler.inlineattrs init.lean.compiler.specialize init.lean.compiler.constfolding init.lean.compiler.closedtermcache init.lean.compiler.externattr init.lean.compiler.implementedbyattr init.lean.compiler.effectfulattr init.lean.compiler.ir.default
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,6 +19,7 @@ lean_object* initialize_init_lean_compiler_constfolding(lean_object*);
 lean_object* initialize_init_lean_compiler_closedtermcache(lean_object*);
 lean_object* initialize_init_lean_compiler_externattr(lean_object*);
 lean_object* initialize_init_lean_compiler_implementedbyattr(lean_object*);
+lean_object* initialize_init_lean_compiler_effectfulattr(lean_object*);
 lean_object* initialize_init_lean_compiler_ir_default(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_init_lean_compiler_default(lean_object* w) {
@@ -36,6 +37,8 @@ if (lean_io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_externattr(w);
 if (lean_io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_implementedbyattr(w);
+if (lean_io_result_is_error(w)) return w;
+w = initialize_init_lean_compiler_effectfulattr(w);
 if (lean_io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_default(w);
 if (lean_io_result_is_error(w)) return w;

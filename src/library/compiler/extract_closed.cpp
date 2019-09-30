@@ -88,10 +88,14 @@ class extract_closed_fn {
             if (!is_closed(fn)) {
                 r = false;
             } else {
-                for (expr const & arg : args) {
-                    if (!is_closed(arg)) {
-                        r = false;
-                        break;
+                if (is_constant(fn) && has_effectful_attribute(m_env, const_name(fn))) {
+                    r = false;
+                } else {
+                    for (expr const & arg : args) {
+                        if (!is_closed(arg)) {
+                            r = false;
+                            break;
+                        }
                     }
                 }
             }

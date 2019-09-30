@@ -501,8 +501,13 @@ public:
         return visit(instantiate_rev(e, let_fvars.size(), let_fvars.data()), root);
     }
 
+    bool is_effectful(expr const & e) {
+        expr const & fn = get_app_fn(e);
+        return is_constant(fn) && has_effectful_attribute(env(), const_name(fn));
+    }
+
     expr cache_result(expr const & e, expr const & r, bool shared) {
-        if (shared)
+        if (shared && !is_effectful(e))
             m_cache.insert(e, r);
         return r;
     }

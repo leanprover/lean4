@@ -15,8 +15,14 @@ registerTagAttribute `neverExtract "instruct the compiler that function applicat
 @[init mkNeverExtractAttr]
 constant neverExtractAttr : TagAttribute := default _
 
+private partial def hasNeverExtractAttributeAux (env : Environment) : Name → Bool
+| n =>
+  neverExtractAttr.hasTag env n
+  ||
+  (n.isInternal && hasNeverExtractAttributeAux n.getPrefix)
+
 @[export lean_has_never_extract_attribute]
 def hasNeverExtractAttribute (env : Environment) (n : Name) : Bool :=
-neverExtractAttr.hasTag env n
+hasNeverExtractAttributeAux env n
 
 end Lean

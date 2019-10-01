@@ -67,6 +67,7 @@ lean_object* l_RBNode_mfold___boxed(lean_object*, lean_object*, lean_object*, le
 lean_object* l_RBMap_revFold___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_RBMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_erase___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_RBMap_findD___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldl___main___at_rbmapOf___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_rbmapOf(lean_object*, lean_object*);
 lean_object* l_RBMap_erase___rarg(lean_object*, lean_object*, lean_object*);
@@ -143,6 +144,7 @@ lean_object* l_RBNode_all___boxed(lean_object*, lean_object*);
 lean_object* l_RBNode_find___main(lean_object*);
 lean_object* l_RBNode_del___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_singleton___rarg(lean_object*, lean_object*);
+lean_object* l_RBMap_findD(lean_object*, lean_object*);
 lean_object* l_RBNode_revFold___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_appendTrees___main___rarg(lean_object*, lean_object*);
 lean_object* l_RBMap_maxDepth___rarg___boxed(lean_object*);
@@ -153,6 +155,7 @@ lean_object* l_RBNode_del___boxed(lean_object*, lean_object*);
 lean_object* l_RBMap_HasEmptyc___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBMap_HasRepr___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBMap_maxDepth___rarg___closed__1;
+lean_object* l_RBMap_findD___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_RBMap_HasRepr___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Prod_HasRepr___rarg___closed__1;
 lean_object* l_RBNode_balLeft(lean_object*, lean_object*);
@@ -24047,6 +24050,43 @@ _start:
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_RBMap_find___rarg), 3, 0);
 return x_3;
+}
+}
+lean_object* l_RBMap_findD___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_RBNode_find___main___rarg(x_1, lean_box(0), x_2, x_3);
+if (lean_obj_tag(x_5) == 0)
+{
+lean_inc(x_4);
+return x_4;
+}
+else
+{
+lean_object* x_6; 
+x_6 = lean_ctor_get(x_5, 0);
+lean_inc(x_6);
+lean_dec(x_5);
+return x_6;
+}
+}
+}
+lean_object* l_RBMap_findD(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_RBMap_findD___rarg___boxed), 4, 0);
+return x_3;
+}
+}
+lean_object* l_RBMap_findD___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_RBMap_findD___rarg(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+return x_5;
 }
 }
 lean_object* l_RBMap_lowerBound___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

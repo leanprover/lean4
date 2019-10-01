@@ -800,6 +800,12 @@ static expr parse_tparser(parser & p, unsigned, expr const *, pos_info const & p
     return parse_parser(p, false, pos);
 }
 
+static expr parse_panic(parser & p, unsigned, expr const *, pos_info const & pos) {
+    expr e = p.parse_expr();
+    expr r = mk_app(mk_constant(get_panic_with_pos_name()), quote(p.get_file_name()), quote(pos.first), quote(pos.second), e);
+    return save_pos(r, pos);
+}
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -835,6 +841,7 @@ parse_table init_nud_table() {
     r = r.add({transition("do", mk_ext_action(parse_do_expr))}, x0);
     r = r.add({transition("parser!", mk_ext_action(parse_lparser))}, x0);
     r = r.add({transition("tparser!", mk_ext_action(parse_tparser))}, x0);
+    r = r.add({transition("panic!", mk_ext_action(parse_panic))}, x0);
     return r;
 }
 

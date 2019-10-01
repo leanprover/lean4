@@ -132,6 +132,7 @@ ofEqTrue
 ofIffTrue
 optParam
 Or
+panicWithPos
 PUnit
 PUnit.unit
 Prod.mk

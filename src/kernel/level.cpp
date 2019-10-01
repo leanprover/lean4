@@ -257,6 +257,12 @@ bool operator==(level const & l1, level const & l2) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
+extern "C" uint8 lean_level_eqv(object * l1, object * l2) {
+    level const & l1_ref = reinterpret_cast<level const &>(l1);
+    level const & l2_ref = reinterpret_cast<level const &>(l2);
+    return l1_ref == l2_ref;
+}
+
 bool is_not_zero(level const & l) {
     switch (kind(l)) {
     case level_kind::Zero: case level_kind::Param: case level_kind::MVar:

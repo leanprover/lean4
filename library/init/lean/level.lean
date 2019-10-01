@@ -81,6 +81,11 @@ def Level.instantiate (s : Name → Option Level) : Level → Level
 @[extern "lean_level_hash"]
 constant Level.hash (n : @& Level) : USize := default USize
 
+@[extern "lean_level_eqv"]
+constant Level.eqv (a : @& Level) (b : @& Level) : Bool := default _
+
+instance : HasBeq Level := ⟨Level.eqv⟩
+
 /- Level to Format -/
 namespace LevelToFormat
 inductive Result

@@ -102,28 +102,10 @@ def isEmpty : List α → Bool
 | []     => true
 | _ :: _ => false
 
-def get [Inhabited α] : Nat → List α → α
-| 0,   a::as => a
-| n+1, a::as => get n as
-| _,   _     => default α
-
-def getOpt : Nat → List α → Option α
-| 0,   a::as => some a
-| n+1, a::as => getOpt n as
-| _,   _     => none
-
 def set : List α → Nat → α → List α
 | a::as, 0,   b => b::as
 | a::as, n+1, b => a::(set as n b)
 | [],    _,   _ => []
-
-def head [Inhabited α] : List α → α
-| []   => default α
-| a::_ => a
-
-def tail : List α → List α
-| []    => []
-| a::as => as
 
 @[specialize] def map (f : α → β) : List α → List β
 | []    => []
@@ -279,15 +261,6 @@ def enumFrom : Nat → List α → List (Nat × α)
 | n, x :: xs   => (n, x) :: enumFrom (n + 1) xs
 
 def enum : List α → List (Nat × α) := enumFrom 0
-
-def getLastOfNonNil : ∀ (as : List α), as ≠ [] → α
-| [],       h => absurd rfl h
-| [a],      h => a
-| a::b::as, h => getLastOfNonNil (b::as) (fun h => List.noConfusion h)
-
-def getLast [Inhabited α] : List α → α
-| []    => arbitrary α
-| a::as => getLastOfNonNil (a::as) (fun h => List.noConfusion h)
 
 def init : List α → List α
 | []   => []

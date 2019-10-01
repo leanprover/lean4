@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 namespace lean {
 extern "C" void lean_panic(char const * msg) {
     std::cerr << msg << "\n";
+    lean_unreachable();
     std::exit(1);
 }
 

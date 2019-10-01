@@ -56,7 +56,7 @@ qsortAux lt as 0 (UInt32.ofNat (as.size - 1))
 
 def main (xs : List String) : IO Unit :=
 do
-let n := xs.head.toNat;
+let n := xs.head!.toNat;
 n.mfor $ fun _ =>
 n.mfor $ fun i => do
   let xs := mkRandomArray i (UInt32.ofNat i) Array.empty;

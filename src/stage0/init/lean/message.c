@@ -52,20 +52,21 @@ lean_object* l_Lean_Message_toString___closed__5;
 lean_object* l_Lean_mkErrorStringWithPos(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_5 = l_panicWithPos___rarg___closed__2;
 x_6 = lean_string_append(x_1, x_5);
 x_7 = l_Nat_repr(x_2);
 x_8 = lean_string_append(x_6, x_7);
 lean_dec(x_7);
-x_9 = lean_string_append(x_8, x_5);
-x_10 = l_Nat_repr(x_3);
-x_11 = lean_string_append(x_9, x_10);
-lean_dec(x_10);
-x_12 = l_String_Iterator_HasRepr___closed__2;
-x_13 = lean_string_append(x_11, x_12);
-x_14 = lean_string_append(x_13, x_4);
-return x_14;
+x_9 = l_panicWithPos___rarg___closed__2;
+x_10 = lean_string_append(x_8, x_9);
+x_11 = l_Nat_repr(x_3);
+x_12 = lean_string_append(x_10, x_11);
+lean_dec(x_11);
+x_13 = l_String_Iterator_HasRepr___closed__2;
+x_14 = lean_string_append(x_12, x_13);
+x_15 = lean_string_append(x_14, x_4);
+return x_15;
 }
 }
 lean_object* l_Lean_mkErrorStringWithPos___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

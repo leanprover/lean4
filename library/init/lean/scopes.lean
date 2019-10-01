@@ -110,9 +110,9 @@ env
 def popScopeCore (env : Environment) : Environment :=
 if env.getNamespaces.isEmpty then env
 else scopeManagerExt.modifyState env $ fun s =>
-  { headers     := s.headers.tail,
-    namespaces  := s.namespaces.tail,
-    isNamespace := s.isNamespace.tail,
+  { headers     := s.headers.tail!,
+    namespaces  := s.namespaces.tail!,
+    isNamespace := s.isNamespace.tail!,
     .. s }
 
 end Environment

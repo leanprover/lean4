@@ -18,9 +18,7 @@ lean_object* l_List_map_u2082___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_dropWhile(lean_object*);
 lean_object* l_List_hasDecidableLt___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_join___main(lean_object*);
-lean_object* l_List_getOpt___main___rarg___boxed(lean_object*, lean_object*);
 uint8_t l_List_elem___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_head___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_List_notElem(lean_object*);
 lean_object* l_List_foldr1Opt___rarg(lean_object*, lean_object*);
 lean_object* l_List_zipWith___main___rarg(lean_object*, lean_object*, lean_object*);
@@ -29,15 +27,11 @@ lean_object* l_List_join(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_List_length___rarg(lean_object*);
 lean_object* l_List_eraseDupsAux(lean_object*);
-lean_object* l_List_getLastOfNonNil___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_List_eraseIdx___rarg(lean_object*, lean_object*);
-lean_object* l_List_getLastOfNonNil___main(lean_object*);
 lean_object* l_List_range(lean_object*);
 lean_object* l_List_unzip(lean_object*, lean_object*);
-lean_object* l_List_get___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_length(lean_object*);
 uint8_t l_List_hasDecEq___main___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_tail___rarg(lean_object*);
 lean_object* l_List_foldr___main___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repeatAux___main___at_List_replicate___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_or___boxed(lean_object*);
@@ -47,13 +41,11 @@ lean_object* l_List_intersperse___main___rarg(lean_object*, lean_object*);
 lean_object* l_List_intersperse___main(lean_object*);
 lean_object* l_List_lengthAux___main(lean_object*);
 lean_object* l_List_and___boxed(lean_object*);
-lean_object* l_List_get___main___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_List_removeAll___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repeatAux___main___at_List_replicate___spec__1(lean_object*);
 uint8_t l_List_foldr___main___at_List_or___spec__1(uint8_t, lean_object*);
 lean_object* l_List_rangeAux(lean_object*, lean_object*);
-lean_object* l_List_getOpt___main___rarg(lean_object*, lean_object*);
 lean_object* l_List_partition___rarg(lean_object*, lean_object*);
 lean_object* l_List_foldr1Opt(lean_object*);
 lean_object* l_List_filterMap(lean_object*, lean_object*);
@@ -65,9 +57,7 @@ uint8_t l_List_hasDecidableLe___rarg(lean_object*, lean_object*, lean_object*, l
 lean_object* l_List_take___main___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_List_join___rarg(lean_object*);
 lean_object* l_List_hasDecEq___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_tail(lean_object*);
 lean_object* l_List_drop___rarg(lean_object*, lean_object*);
-lean_object* l_List_getOpt___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_List_pure___rarg(lean_object*);
 lean_object* l_List_take___main(lean_object*);
 lean_object* l_List_set___main(lean_object*);
@@ -87,7 +77,6 @@ lean_object* l_List_map___main___rarg(lean_object*, lean_object*);
 lean_object* l_List_HasLess___boxed(lean_object*, lean_object*);
 uint8_t l_List_notElem___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_drop(lean_object*);
-lean_object* l_List_tail___rarg___boxed(lean_object*);
 lean_object* l_List_filterAux___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_isPrefixOf___main(lean_object*);
 lean_object* l_List_isEqv___main___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -97,8 +86,6 @@ lean_object* l_List_init___main___rarg(lean_object*);
 lean_object* l_List_set___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_unzip___main___rarg(lean_object*);
 lean_object* l_List_foldr___main___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_getLastOfNonNil(lean_object*);
-lean_object* l_List_get___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterAux___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_append(lean_object*);
 lean_object* l_List_isSuffixOf___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -109,7 +96,6 @@ lean_object* l_List_init(lean_object*);
 uint8_t l_List_foldr___main___at_List_all___spec__1___rarg(lean_object*, uint8_t, lean_object*);
 lean_object* l_List_partitionAux___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_partitionAux___main(lean_object*);
-lean_object* l_List_getLastOfNonNil___rarg(lean_object*, lean_object*);
 lean_object* l_List_zipWith___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterAux(lean_object*);
 lean_object* l_List_isEqv(lean_object*);
@@ -122,9 +108,7 @@ uint8_t l_List_isSuffixOf___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_span___rarg(lean_object*, lean_object*);
 lean_object* l_List_elem(lean_object*);
 lean_object* l_List_join___main___rarg(lean_object*);
-lean_object* l_List_getOpt(lean_object*);
 lean_object* l_List_erase___main(lean_object*);
-lean_object* l_List_get(lean_object*);
 lean_object* l_List_HasLessEq___boxed(lean_object*, lean_object*);
 lean_object* l_List_intersperse___rarg(lean_object*, lean_object*);
 lean_object* l_List_lengthAux(lean_object*);
@@ -149,7 +133,6 @@ lean_object* l_List_erase___main___rarg(lean_object*, lean_object*, lean_object*
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l_List_enum___rarg(lean_object*);
 lean_object* l_List_isEmpty___rarg___boxed(lean_object*);
-lean_object* l_List_getOpt___rarg(lean_object*, lean_object*);
 lean_object* l_List_isPrefixOf(lean_object*);
 lean_object* l_List_isEmpty(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -159,7 +142,6 @@ lean_object* l_List_foldr1(lean_object*);
 lean_object* l_List_isEqv___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_pure(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* l_List_getLastOfNonNil___main___rarg(lean_object*, lean_object*);
 uint8_t l_List_hasDecidableLt___main___at_List_hasDecidableLe___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_init___rarg(lean_object*);
 lean_object* l_List_take___rarg___boxed(lean_object*, lean_object*);
@@ -172,7 +154,6 @@ lean_object* l_List_isPrefixOf___main___rarg___boxed(lean_object*, lean_object*,
 lean_object* l_List_set___main___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldr1___main(lean_object*);
 uint8_t l_List_isEqv___main___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_getLast___rarg(lean_object*, lean_object*);
 lean_object* l_List_lengthAux___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_List_HasAppend(lean_object*);
 lean_object* l_List_reverseAux___main(lean_object*);
@@ -184,8 +165,6 @@ lean_object* l_List_hasDecidableLt___main___at_List_hasDecidableLe___spec__1___r
 lean_object* l_List_foldr___main___at_List_all___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_set___main___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_and(lean_object*);
-lean_object* l_List_head(lean_object*);
-lean_object* l_List_getLast___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_List_map___main(lean_object*, lean_object*);
 lean_object* l_List_eraseDupsAux___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldr___main(lean_object*, lean_object*);
@@ -198,11 +177,9 @@ lean_object* l_List_lengthAux___rarg(lean_object*, lean_object*);
 lean_object* l_List_lengthAux___main___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_List_spanAux___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_elem___main___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_getLastOfNonNil___main___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_List_lookup(lean_object*, lean_object*);
 uint8_t l_List_foldr___main___at_List_any___spec__1___rarg(lean_object*, uint8_t, lean_object*);
 lean_object* l_List_filterMap___main___rarg(lean_object*, lean_object*);
-lean_object* l_List_getLast(lean_object*);
 lean_object* l_List_foldl___main(lean_object*, lean_object*);
 uint8_t l_List_all___rarg(lean_object*, lean_object*);
 lean_object* l_List_intercalate(lean_object*);
@@ -233,7 +210,6 @@ lean_object* l_List_any___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_List_reverseAux___rarg(lean_object*, lean_object*);
 lean_object* l_List_map(lean_object*, lean_object*);
 lean_object* l_List_foldr(lean_object*, lean_object*);
-lean_object* l_List_get___main(lean_object*);
 lean_object* l_List_lookup___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterAux___main(lean_object*);
 lean_object* l_List_find___main___rarg(lean_object*, lean_object*);
@@ -253,11 +229,9 @@ lean_object* l_List_hasDecidableLt(lean_object*);
 lean_object* l_List_erase(lean_object*);
 lean_object* l_List_Inhabited(lean_object*);
 lean_object* l_List_unzip___rarg(lean_object*);
-lean_object* l_List_getOpt___main(lean_object*);
 lean_object* l_List_lookup___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_drop___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_List_map_u2082___main___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_get___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_find___main(lean_object*);
 lean_object* l_List_eraseIdx___main___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_List_spanAux(lean_object*);
@@ -277,7 +251,6 @@ lean_object* l_List_filterMap___main(lean_object*, lean_object*);
 lean_object* l_List_eraseIdx(lean_object*);
 lean_object* l_List_hasDecidableLt___main___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_intersperse(lean_object*);
-lean_object* l_List_head___rarg(lean_object*, lean_object*);
 lean_object* l_List_replicate___rarg(lean_object*, lean_object*);
 lean_object* l_List_elem___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_Inhabited(lean_object* x_1) {
@@ -877,184 +850,6 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-lean_object* l_List_get___main___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = lean_nat_dec_eq(x_2, x_4);
-if (x_5 == 0)
-{
-if (lean_obj_tag(x_3) == 0)
-{
-lean_dec(x_2);
-lean_inc(x_1);
-return x_1;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = lean_ctor_get(x_3, 1);
-x_7 = lean_unsigned_to_nat(1u);
-x_8 = lean_nat_sub(x_2, x_7);
-lean_dec(x_2);
-x_2 = x_8;
-x_3 = x_6;
-goto _start;
-}
-}
-else
-{
-lean_dec(x_2);
-if (lean_obj_tag(x_3) == 0)
-{
-lean_inc(x_1);
-return x_1;
-}
-else
-{
-lean_object* x_10; 
-x_10 = lean_ctor_get(x_3, 0);
-lean_inc(x_10);
-return x_10;
-}
-}
-}
-}
-lean_object* l_List_get___main(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_get___main___rarg___boxed), 3, 0);
-return x_2;
-}
-}
-lean_object* l_List_get___main___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_List_get___main___rarg(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_1);
-return x_4;
-}
-}
-lean_object* l_List_get___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_List_get___main___rarg(x_1, x_2, x_3);
-return x_4;
-}
-}
-lean_object* l_List_get(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_get___rarg___boxed), 3, 0);
-return x_2;
-}
-}
-lean_object* l_List_get___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_List_get___rarg(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_1);
-return x_4;
-}
-}
-lean_object* l_List_getOpt___main___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; uint8_t x_4; 
-x_3 = lean_unsigned_to_nat(0u);
-x_4 = lean_nat_dec_eq(x_1, x_3);
-if (x_4 == 0)
-{
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_5; 
-lean_dec(x_1);
-x_5 = lean_box(0);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = lean_ctor_get(x_2, 1);
-x_7 = lean_unsigned_to_nat(1u);
-x_8 = lean_nat_sub(x_1, x_7);
-lean_dec(x_1);
-x_1 = x_8;
-x_2 = x_6;
-goto _start;
-}
-}
-else
-{
-lean_dec(x_1);
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_10; 
-x_10 = lean_box(0);
-return x_10;
-}
-else
-{
-lean_object* x_11; lean_object* x_12; 
-x_11 = lean_ctor_get(x_2, 0);
-lean_inc(x_11);
-x_12 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_12, 0, x_11);
-return x_12;
-}
-}
-}
-}
-lean_object* l_List_getOpt___main(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_getOpt___main___rarg___boxed), 2, 0);
-return x_2;
-}
-}
-lean_object* l_List_getOpt___main___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_getOpt___main___rarg(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-lean_object* l_List_getOpt___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_getOpt___main___rarg(x_1, x_2);
-return x_3;
-}
-}
-lean_object* l_List_getOpt(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_getOpt___rarg___boxed), 2, 0);
-return x_2;
-}
-}
-lean_object* l_List_getOpt___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_getOpt___rarg(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
 lean_object* l_List_set___main___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1166,74 +961,6 @@ lean_object* x_4;
 x_4 = l_List_set___rarg(x_1, x_2, x_3);
 lean_dec(x_2);
 return x_4;
-}
-}
-lean_object* l_List_head___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-if (lean_obj_tag(x_2) == 0)
-{
-lean_inc(x_1);
-return x_1;
-}
-else
-{
-lean_object* x_3; 
-x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
-return x_3;
-}
-}
-}
-lean_object* l_List_head(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_head___rarg___boxed), 2, 0);
-return x_2;
-}
-}
-lean_object* l_List_head___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_head___rarg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* l_List_tail___rarg(lean_object* x_1) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-return x_1;
-}
-else
-{
-lean_object* x_2; 
-x_2 = lean_ctor_get(x_1, 1);
-lean_inc(x_2);
-return x_2;
-}
-}
-}
-lean_object* l_List_tail(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_tail___rarg___boxed), 1, 0);
-return x_2;
-}
-}
-lean_object* l_List_tail___rarg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_List_tail___rarg(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* l_List_map___main___rarg(lean_object* x_1, lean_object* x_2) {
@@ -3648,102 +3375,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_List_enum___rarg), 1, 0);
 return x_2;
-}
-}
-lean_object* l_List_getLastOfNonNil___main___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_ctor_get(x_1, 1);
-if (lean_obj_tag(x_3) == 0)
-{
-lean_object* x_4; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-return x_4;
-}
-else
-{
-x_1 = x_3;
-x_2 = lean_box(0);
-goto _start;
-}
-}
-}
-lean_object* l_List_getLastOfNonNil___main(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_getLastOfNonNil___main___rarg___boxed), 2, 0);
-return x_2;
-}
-}
-lean_object* l_List_getLastOfNonNil___main___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_getLastOfNonNil___main___rarg(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* l_List_getLastOfNonNil___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_getLastOfNonNil___main___rarg(x_1, lean_box(0));
-return x_3;
-}
-}
-lean_object* l_List_getLastOfNonNil(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_getLastOfNonNil___rarg___boxed), 2, 0);
-return x_2;
-}
-}
-lean_object* l_List_getLastOfNonNil___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_getLastOfNonNil___rarg(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* l_List_getLast___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-if (lean_obj_tag(x_2) == 0)
-{
-lean_inc(x_1);
-return x_1;
-}
-else
-{
-lean_object* x_3; 
-x_3 = l_List_getLastOfNonNil___main___rarg(x_2, lean_box(0));
-return x_3;
-}
-}
-}
-lean_object* l_List_getLast(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_getLast___rarg___boxed), 2, 0);
-return x_2;
-}
-}
-lean_object* l_List_getLast___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_getLast___rarg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 lean_object* l_List_init___main___rarg(lean_object* x_1) {

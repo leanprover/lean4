@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.coe init.data.option.basic init.system.io
+import init.coe init.data.option.basic init.data.list.aux init.system.io
 
 universes u v w w'
 
@@ -70,7 +70,7 @@ def mkMap (n : Nat) :=
 mkMapAux n Leaf
 
 def main (xs : List String) : IO UInt32 :=
-let m := mkMap xs.head.toNat;
+let m := mkMap xs.head!.toNat;
 let v := fold (fun (k : Nat) (v : Bool) (r : Nat) => if v then r + 1 else r) m 0;
 IO.println (toString v) *>
 pure 0

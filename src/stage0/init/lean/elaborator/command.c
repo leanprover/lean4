@@ -75,7 +75,6 @@ lean_object* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Elab_elabUniverses___sp
 lean_object* l_Lean_addBuiltinCommandElab(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_asNode___rarg(lean_object*);
 lean_object* l_Lean_Elab_elabInitQuot(lean_object*);
-lean_object* l_List_head___at_Lean_Elab_getScope___spec__1(lean_object*);
 lean_object* l_Lean_Elab_elabElab(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltinTermElab_Lean_Elab_elabMixfix___closed__1;
 lean_object* l_Lean_Elab_modifyScope___at_Lean_Elab_addUniverse___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -157,6 +156,7 @@ extern lean_object* l_Lean_Parser_Command_section___elambda__1___rarg___closed__
 extern lean_object* l_Lean_Parser_Command_namespace___elambda__1___rarg___closed__1;
 lean_object* l_Lean_Elab_elabNamespace(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_print___at_Lean_Elab_elabElab___spec__2(lean_object*, lean_object*);
+lean_object* l_List_head_x21___at_Lean_Elab_getScope___spec__1(lean_object*);
 lean_object* l_Lean_Elab_elabOpenSimple___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_resolveName(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_getNumParts___main(lean_object*);
@@ -269,7 +269,7 @@ lean_inc(x_6);
 lean_dec(x_3);
 lean_inc(x_1);
 x_7 = l___private_init_lean_elaborator_command_1__addScopes___main(x_1, x_2, x_5, x_4);
-x_8 = l_List_head___at_Lean_Elab_getScope___spec__1(x_7);
+x_8 = l_List_head_x21___at_Lean_Elab_getScope___spec__1(x_7);
 x_9 = !lean_is_exclusive(x_8);
 if (x_9 == 0)
 {

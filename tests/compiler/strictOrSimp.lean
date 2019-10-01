@@ -8,4 +8,4 @@ if strictOr (C == 0) (spin b) then "hello"
 else "world"
 
 def main (xs : List String) : IO Unit :=
-IO.println (f xs.head.toNat)
+IO.println (f xs.head!.toNat)

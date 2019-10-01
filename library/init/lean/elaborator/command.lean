@@ -16,7 +16,7 @@ private def addScopes (cmd : String) (updateNamespace : Bool) : Name → List El
 | Name.anonymous,      scopes => scopes
 | Name.mkString p h,   scopes =>
   let scopes := addScopes p scopes;
-  let ns     := scopes.head.ns;
+  let ns     := scopes.head!.ns;
   let ns     := if updateNamespace then Name.mkString ns h else ns;
   { cmd := cmd, header := h, ns := ns } :: scopes
 | _, _ => [] -- unreachable

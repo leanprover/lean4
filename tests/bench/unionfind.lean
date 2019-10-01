@@ -120,7 +120,7 @@ else do
   numEqs
 
 def main (xs : List String) : IO UInt32 :=
-let n := xs.head.toNat;
+let n := xs.head!.toNat;
 match run (test n) with
 | (Except.ok v, s)    => IO.println ("ok " ++ toString v) *> pure 0
 | (Except.error e, s) => IO.println ("Error : " ++ e) *> pure 1

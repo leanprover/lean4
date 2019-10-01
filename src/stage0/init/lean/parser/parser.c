@@ -1134,7 +1134,7 @@ return x_17;
 }
 else
 {
-lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 x_18 = lean_ctor_get(x_1, 0);
 lean_inc(x_18);
 lean_dec(x_1);
@@ -1149,11 +1149,12 @@ x_22 = lean_string_append(x_18, x_21);
 x_23 = l_Nat_repr(x_19);
 x_24 = lean_string_append(x_22, x_23);
 lean_dec(x_23);
-x_25 = lean_string_append(x_24, x_21);
-x_26 = l_Nat_repr(x_20);
-x_27 = lean_string_append(x_25, x_26);
-lean_dec(x_26);
-return x_27;
+x_25 = l_panicWithPos___rarg___closed__2;
+x_26 = lean_string_append(x_24, x_25);
+x_27 = l_Nat_repr(x_20);
+x_28 = lean_string_append(x_26, x_27);
+lean_dec(x_27);
+return x_28;
 }
 }
 }

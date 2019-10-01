@@ -36,7 +36,6 @@ lean_object* l_List_intersperse___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_expandExternEntry(lean_object*, lean_object*);
 extern lean_object* l_Lean_AttributeImpl_inhabited___closed__5;
 lean_object* l_Lean_expandExternPattern___boxed(lean_object*, lean_object*);
-lean_object* l_List_getOpt___main___rarg(lean_object*, lean_object*);
 lean_object* l_List_foldl___main___at_Lean_mkSimpleFnCall___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkExternAttr___spec__7(lean_object*, lean_object*);
 lean_object* l_Lean_registerAttribute(lean_object*, lean_object*);
@@ -111,6 +110,7 @@ lean_object* l_Array_push(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_externAttr;
 lean_object* l_Array_binSearchAux___main___at_Lean_getExternAttrData___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__4;
+lean_object* l_List_getD___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMAux___main___at_Lean_mkExternAttr___spec__6___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_externattr_3__parseOptNum(lean_object*, lean_object*, lean_object*);
@@ -3516,7 +3516,7 @@ goto _start;
 }
 else
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_16 = l_String_Iterator_next(x_3);
 x_17 = l_String_Iterator_remainingBytes(x_16);
 x_18 = l___private_init_lean_compiler_externattr_3__parseOptNum___main(x_17, x_16, x_5);
@@ -3527,30 +3527,14 @@ lean_inc(x_20);
 lean_dec(x_18);
 x_21 = lean_nat_sub(x_20, x_7);
 lean_dec(x_20);
-x_22 = l_List_getOpt___main___rarg(x_21, x_1);
-if (lean_obj_tag(x_22) == 0)
-{
-lean_object* x_23; lean_object* x_24; 
-x_23 = l_String_splitAux___main___closed__1;
+x_22 = l_String_splitAux___main___closed__1;
+x_23 = l_List_getD___rarg(x_21, x_1, x_22);
 x_24 = lean_string_append(x_4, x_23);
+lean_dec(x_23);
 x_2 = x_8;
 x_3 = x_19;
 x_4 = x_24;
 goto _start;
-}
-else
-{
-lean_object* x_26; lean_object* x_27; 
-x_26 = lean_ctor_get(x_22, 0);
-lean_inc(x_26);
-lean_dec(x_22);
-x_27 = lean_string_append(x_4, x_26);
-lean_dec(x_26);
-x_2 = x_8;
-x_3 = x_19;
-x_4 = x_27;
-goto _start;
-}
 }
 }
 }

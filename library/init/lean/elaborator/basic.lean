@@ -404,7 +404,7 @@ def mkFreshName : Elab Name :=
 modifyGet $ fun s => (s.ngen.curr, { ngen := s.ngen.next, .. s })
 
 def getScope : Elab ElabScope :=
-do s ← get; pure s.scopes.head
+do s ← get; pure s.scopes.head!
 
 def getOpenDecls : Elab (List OpenDecl) :=
 ElabScope.openDecls <$> getScope
@@ -494,9 +494,9 @@ do s ← get;
 
 @[inline] def withNewScope {α} (x : Elab α) : Elab α :=
 do
-modify $ fun s => { scopes := s.scopes.head :: s.scopes, .. s };
+modify $ fun s => { scopes := s.scopes.head! :: s.scopes, .. s };
 a ← x;
-modify $ fun s => { scopes := s.scopes.tail, .. s};
+modify $ fun s => { scopes := s.scopes.tail!, .. s};
 pure a
 
 @[inline] def withInPattern {α} (x : Elab α) : Elab α :=

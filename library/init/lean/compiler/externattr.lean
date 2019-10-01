@@ -116,7 +116,7 @@ def expandExternPatternAux (args : List String) : Nat → String.Iterator → St
       let it      := it.next;
       let (it, j) := parseOptNum it.remainingBytes it 0;
       let j       := j-1;
-      expandExternPatternAux i it (r ++ (args.getOpt j).getOrElse "")
+      expandExternPatternAux i it (r ++ args.getD j "")
 
 def expandExternPattern (pattern : String) (args : List String) : String :=
 expandExternPatternAux args pattern.length pattern.mkIterator ""

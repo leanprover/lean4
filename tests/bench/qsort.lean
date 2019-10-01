@@ -10,7 +10,7 @@ def mkRandomArray : Nat → Elem → Array Elem → Array Elem
 partial def checkSortedAux (a : Array Elem) : Nat → IO Unit
 | i =>
   if i < a.size - 1 then do
-    unless (a.get i <= a.get (i+1)) $ throw (IO.userError "array is not sorted");
+    unless (a.get! i <= a.get! (i+1)) $ throw (IO.userError "array is not sorted");
     checkSortedAux (i+1)
   else
     pure ()
@@ -23,21 +23,21 @@ prefix `↑`:max := coe
 @[specialize] private partial def partitionAux {α : Type} [Inhabited α] (lt : α → α → Bool) (hi : Idx) (pivot : α) : Array α → Idx → Idx → Idx × Array α
 | as, i, j =>
   if j < hi then
-    if lt (as.get ↑j) pivot then
-      let as := as.swap ↑i ↑j;
+    if lt (as.get! ↑j) pivot then
+      let as := as.swap! ↑i ↑j;
       partitionAux as (i+1) (j+1)
     else
       partitionAux as i (j+1)
   else
-    let as := as.swap ↑i ↑hi;
+    let as := as.swap! ↑i ↑hi;
     (i, as)
 
 @[inline] def partition {α : Type} [Inhabited α] (as : Array α) (lt : α → α → Bool) (lo hi : Idx) : Idx × Array α :=
 let mid := (lo + hi) / 2;
-let as  := if lt (as.get ↑mid) (as.get ↑lo) then as.swap ↑lo ↑mid else as;
-let as  := if lt (as.get ↑hi)  (as.get ↑lo) then as.swap ↑lo ↑hi  else as;
-let as  := if lt (as.get ↑mid) (as.get ↑hi) then as.swap ↑mid ↑hi else as;
-let pivot := as.get ↑hi;
+let as  := if lt (as.get! ↑mid) (as.get! ↑lo) then as.swap! ↑lo ↑mid else as;
+let as  := if lt (as.get! ↑hi)  (as.get! ↑lo) then as.swap! ↑lo ↑hi  else as;
+let as  := if lt (as.get! ↑mid) (as.get! ↑hi) then as.swap! ↑mid ↑hi else as;
+let pivot := as.get! ↑hi;
 partitionAux lt hi pivot as lo lo
 
 @[specialize] partial def qsortAux {α : Type} [Inhabited α] (lt : α → α → Bool) : Array α → Idx → Idx → Array α

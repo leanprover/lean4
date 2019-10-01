@@ -33,12 +33,12 @@ def size : (@& ByteArray) → Nat
 | ⟨bs⟩ => bs.size
 
 @[extern "lean_byte_array_get"]
-def get : (@& ByteArray) → (@& Nat) → UInt8
-| ⟨bs⟩, i => bs.get i
+def get! : (@& ByteArray) → (@& Nat) → UInt8
+| ⟨bs⟩, i => bs.get! i
 
 @[extern "lean_byte_array_set"]
-def set : ByteArray → (@& Nat) → UInt8 → ByteArray
-| ⟨bs⟩, i, b => ⟨bs.set i b⟩
+def set! : ByteArray → (@& Nat) → UInt8 → ByteArray
+| ⟨bs⟩, i, b => ⟨bs.set! i b⟩
 
 def isEmpty (s : ByteArray) : Bool :=
 s.size == 0
@@ -46,7 +46,7 @@ s.size == 0
 partial def toListAux (bs : ByteArray) : Nat → List UInt8 → List UInt8
 | i, r =>
   if i < bs.size then
-    toListAux (i+1) (bs.get i :: r)
+    toListAux (i+1) (bs.get! i :: r)
   else
     r.reverse
 

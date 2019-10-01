@@ -1564,7 +1564,7 @@ variables {α β : Type} {m : Type → Type} [Monad m]
 @[specialize] partial def mfoldArgsAux (delta : Nat) (s : Array (Syntax α)) (f : Syntax α → β → m β) : Nat → β → m β
 | i, b =>
   if h : i < s.size then do
-    let curr := s.fget ⟨i, h⟩;
+    let curr := s.get ⟨i, h⟩;
     b ← f curr b;
     mfoldArgsAux (i+delta) b
   else

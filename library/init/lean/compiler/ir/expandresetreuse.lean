@@ -67,7 +67,7 @@ partial def eraseProjIncForAux (y : VarId) : Array FnBody → Mask → Array FnB
     | (FnBody.vdecl _ _ (Expr.uproj _ _) _)   => keepInstr b
     | (FnBody.inc z n c p _) =>
       if n == 0 then done () else
-      let b' := bs.get (bs.size - 2);
+      let b' := bs.get! (bs.size - 2);
       match b' with
       | (FnBody.vdecl w _ (Expr.proj i x) _) =>
         if w == z && y == x then
@@ -79,7 +79,7 @@ partial def eraseProjIncForAux (y : VarId) : Array FnBody → Mask → Array FnB
              We keep `proj`, and `inc` when `n > 1`
           -/
           let bs   := bs.pop.pop;
-          let mask := mask.set i (some z);
+          let mask := mask.set! i (some z);
           let keep := keep.push b';
           let keep := if n == 1 then keep else keep.push (FnBody.inc z (n-1) c p FnBody.nil);
           eraseProjIncForAux bs mask keep
@@ -142,7 +142,7 @@ modifyGet $ fun n => ({ idx := n }, n + 1)
 def releaseUnreadFields (y : VarId) (mask : Mask) (b : FnBody) : M FnBody :=
 mask.size.mfold
   (fun i b =>
-    match mask.get i with
+    match mask.get! i with
     | some _ => pure b -- code took ownership of this field
     | none   => do
       fld ← mkFresh;
@@ -151,7 +151,7 @@ mask.size.mfold
 
 def setFields (y : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
 zs.size.fold
-  (fun i b => FnBody.set y i (zs.get i) b)
+  (fun i b => FnBody.set y i (zs.get! i) b)
   b
 
 /- Given `set x[i] := y`, return true iff `y := proj[i] x` -/

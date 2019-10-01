@@ -77,21 +77,21 @@ caseLiveVars.fold
 
 /- `isFirstOcc xs x i = true` if `xs[i]` is the first occurrence of `xs[i]` in `xs` -/
 private def isFirstOcc (xs : Array Arg) (i : Nat) : Bool :=
-let x := xs.get i;
-i.all $ fun j => xs.get j != x
+let x := xs.get! i;
+i.all $ fun j => xs.get! j != x
 
 /- Return true if `x` also occurs in `ys` in a position that is not consumed.
    That is, it is also passed as a borrow reference. -/
 @[specialize]
 private def isBorrowParamAux (x : VarId) (ys : Array Arg) (consumeParamPred : Nat → Bool) : Bool :=
 ys.size.any $ fun i =>
-  let y := ys.get i;
+  let y := ys.get! i;
   match y with
   | Arg.irrelevant => false
   | Arg.var y      => x == y && !consumeParamPred i
 
 private def isBorrowParam (x : VarId) (ys : Array Arg) (ps : Array Param) : Bool :=
-isBorrowParamAux x ys (fun i => !(ps.get i).borrow)
+isBorrowParamAux x ys (fun i => not (ps.get! i).borrow)
 
 /-
 Return `n`, the number of times `x` is consumed.
@@ -102,7 +102,7 @@ Return `n`, the number of times `x` is consumed.
 private def getNumConsumptions (x : VarId) (ys : Array Arg) (consumeParamPred : Nat → Bool) : Nat :=
 ys.size.fold
   (fun i n =>
-    let y := ys.get i;
+    let y := ys.get! i;
     match y with
     | Arg.irrelevant => n
     | Arg.var y      => if x == y && consumeParamPred i then n+1 else n)
@@ -112,7 +112,7 @@ ys.size.fold
 private def addIncBeforeAux (ctx : Context) (xs : Array Arg) (consumeParamPred : Nat → Bool) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
 xs.size.fold
   (fun i b =>
-    let x := xs.get i;
+    let x := xs.get! i;
     match x with
     | Arg.irrelevant => b
     | Arg.var x =>
@@ -133,13 +133,13 @@ xs.size.fold
   b
 
 private def addIncBefore (ctx : Context) (xs : Array Arg) (ps : Array Param) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
-addIncBeforeAux ctx xs (fun i => !(ps.get i).borrow) b liveVarsAfter
+addIncBeforeAux ctx xs (fun i => not (ps.get! i).borrow) b liveVarsAfter
 
 /- See `addIncBeforeAux`/`addIncBefore` for the procedure that inserts `inc` operations before an application.  -/
 private def addDecAfterFullApp (ctx : Context) (xs : Array Arg) (ps : Array Param) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody :=
 xs.size.fold
   (fun i b =>
-    match xs.get i with
+    match xs.get! i with
     | Arg.irrelevant => b
     | Arg.var x      =>
       /- We must add a `dec` if `x` must be consumed, it is alive after the application,

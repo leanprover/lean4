@@ -57,8 +57,8 @@ qs ← ps.mmap (fun _ => do x ← mkFresh; pure { Param . x := x, ty := IRType.o
 (newVDecls, xs) ← qs.size.mfold
   (fun i (r : Array FnBody × Array Arg) =>
      let (newVDecls, xs) := r;
-     let p := ps.get i;
-     let q := qs.get i;
+     let p := ps.get! i;
+     let q := qs.get! i;
      if !p.ty.isScalar then pure (newVDecls, xs.push (Arg.var q.x))
      else do
        x ← mkFresh;
@@ -242,7 +242,7 @@ xs.miterate (Array.empty, Array.empty) $ fun i (x : Arg) (r : Array Arg × Array
       pure (xs.push (Arg.var y), bs.push b)
 
 @[inline] def castArgsIfNeeded (xs : Array Arg) (ps : Array Param) (k : Array Arg → M FnBody) : M FnBody :=
-do (ys, bs) ← castArgsIfNeededAux xs (fun i => (ps.get i).ty);
+do (ys, bs) ← castArgsIfNeededAux xs (fun i => (ps.get! i).ty);
    b ← k ys;
    pure (reshape bs b)
 

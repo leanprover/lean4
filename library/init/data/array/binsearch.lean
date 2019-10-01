@@ -15,7 +15,7 @@ namespace Array
 | lo, hi =>
   if lo <= hi then
     let m := (lo + hi)/2;
-    let a := as.get m;
+    let a := as.get! m;
     if lt a k then binSearchAux (m+1) hi
     else if lt k a then
       if m == 0 then found none

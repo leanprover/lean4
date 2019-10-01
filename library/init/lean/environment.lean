@@ -128,13 +128,13 @@ structure EnvExtension (σ : Type) :=
 
 namespace EnvExtension
 unsafe def setStateUnsafe {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment :=
-{ extensions := env.extensions.set ext.idx (unsafeCast s), .. env }
+{ extensions := env.extensions.set! ext.idx (unsafeCast s), .. env }
 
 @[implementedBy setStateUnsafe]
 constant setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment := default _
 
 unsafe def getStateUnsafe {σ : Type} (ext : EnvExtension σ) (env : Environment) : σ :=
-let s : EnvExtensionState := env.extensions.get ext.idx;
+let s : EnvExtensionState := env.extensions.get! ext.idx;
 @unsafeCast _ _ ⟨ext.stateInh⟩ s
 
 @[implementedBy getStateUnsafe]
@@ -232,7 +232,7 @@ instance PersistentEnvExtension.inhabited {α σ} [Inhabited σ] : Inhabited (Pe
 namespace PersistentEnvExtension
 
 def getModuleEntries {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) (m : ModuleIdx) : Array α :=
-(ext.toEnvExtension.getState env).importedEntries.get m
+(ext.toEnvExtension.getState env).importedEntries.get! m
 
 def addEntry {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) (a : α) : Environment :=
 ext.toEnvExtension.modifyState env $ fun s =>
@@ -347,11 +347,11 @@ unsafe def registerCPPExtension (initial : CPPExtensionState) : Option Nat :=
 
 @[export lean_set_extension]
 unsafe def setCPPExtensionState (env : Environment) (idx : Nat) (s : CPPExtensionState) : Option Environment :=
-(unsafeIO (do exts ← envExtensionsRef.get; pure $ (exts.get idx).setState env s)).toOption
+(unsafeIO (do exts ← envExtensionsRef.get; pure $ (exts.get! idx).setState env s)).toOption
 
 @[export lean_get_extension]
 unsafe def getCPPExtensionState (env : Environment) (idx : Nat) : Option CPPExtensionState :=
-(unsafeIO (do exts ← envExtensionsRef.get; pure $ (exts.get idx).getState env)).toOption
+(unsafeIO (do exts ← envExtensionsRef.get; pure $ (exts.get! idx).getState env)).toOption
 end
 
 /- Legacy support for Modification objects -/
@@ -407,9 +407,9 @@ do
 pExts ← persistentEnvExtensionsRef.get;
 let entries : Array (Name × Array EnvExtensionEntry) := pExts.size.fold
   (fun i result =>
-    let state  := (pExts.get i).getState env;
-    let exportEntriesFn := (pExts.get i).exportEntriesFn;
-    let extName    := (pExts.get i).name;
+    let state  := (pExts.get! i).getState env;
+    let exportEntriesFn := (pExts.get! i).exportEntriesFn;
+    let extName    := (pExts.get! i).name;
     result.push (extName, exportEntriesFn state))
   Array.empty;
 bytes ← serializeModifications (modListExtension.getState env);
@@ -440,7 +440,7 @@ partial def importModulesAux : List Name → (NameSet × Array ModuleData) → I
 private partial def getEntriesFor (mod : ModuleData) (extId : Name) : Nat → Array EnvExtensionState
 | i =>
   if i < mod.entries.size then
-    let curr := mod.entries.get i;
+    let curr := mod.entries.get! i;
     if curr.1 == extId then curr.2 else getEntriesFor (i+1)
   else
     Array.empty
@@ -531,7 +531,7 @@ env.addAux cinfo
 def displayStats (env : Environment) : IO Unit :=
 do
 pExtDescrs ← persistentEnvExtensionsRef.get;
-let numModules := ((pExtDescrs.get 0).toEnvExtension.getState env).importedEntries.size;
+let numModules := ((pExtDescrs.get! 0).toEnvExtension.getState env).importedEntries.size;
 IO.println ("direct imports:                        " ++ toString env.header.imports);
 IO.println ("number of imported modules:            " ++ toString numModules);
 IO.println ("number of consts:                      " ++ toString env.constants.size);

@@ -237,7 +237,7 @@ isSubPrefixOfAux lctx₁.decls lctx₂.decls 0 0
 @[inline] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
 let b := b.abstract xs;
 xs.size.foldRev (fun i b =>
-  let x := xs.get i;
+  let x := xs.get! i;
   match lctx.findFVar x with
   | some (LocalDecl.cdecl _ _ n ty bi)  =>
     let ty := ty.abstractRange i xs;

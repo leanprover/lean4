@@ -104,7 +104,7 @@ unless (ps.isEmpty) $ do {
   else
     ps.size.mfor $ fun i => do {
       when (i > 0) (emit ", ");
-      emit (toCType (ps.get i).ty)
+      emit (toCType (ps.get! i).ty)
     };
   emit ")"
 };
@@ -257,8 +257,8 @@ else
 
 def isIf (alts : Array Alt) : Option (Nat × FnBody × FnBody) :=
 if alts.size != 2 then none
-else match alts.get 0 with
-  | Alt.ctor c b => some (c.cidx, b, (alts.get 1).body)
+else match alts.get! 0 with
+  | Alt.ctor c b => some (c.cidx, b, (alts.get! 1).body)
   | _            => none
 
 def emitIf (emitBody : FnBody → M Unit) (x : VarId) (xType : IRType) (tag : Nat) (t : FnBody) (e : FnBody) : M Unit :=
@@ -330,8 +330,8 @@ do
   ps ← getJPParams j;
   unless (xs.size == ps.size) (throw "invalid goto");
   xs.size.mfor $ fun i => do {
-    let p := ps.get i;
-    let x := xs.get i;
+    let p := ps.get! i;
+    let x := xs.get! i;
     emit p.x; emit " = "; emitArg x; emitLn ";"
   };
   emit "goto "; emit j; emitLn ";"
@@ -342,7 +342,7 @@ do emit z; emit " = "
 def emitArgs (ys : Array Arg) : M Unit :=
 ys.size.mfor $ fun i => do
   when (i > 0) (emit ", ");
-  emitArg (ys.get i)
+  emitArg (ys.get! i)
 
 def emitCtorScalarSize (usize : Nat) (ssize : Nat) : M Unit :=
 if usize == 0 then emit ssize
@@ -356,7 +356,7 @@ emitCtorScalarSize c.usize c.ssize; emitLn ");"
 
 def emitCtorSetArgs (z : VarId) (ys : Array Arg) : M Unit :=
 ys.size.mfor $ fun i => do
-  emit "lean_ctor_set("; emit z; emit ", "; emit i; emit ", "; emitArg (ys.get i); emitLn ");"
+  emit "lean_ctor_set("; emit z; emit ", "; emit i; emit ", "; emitArg (ys.get! i); emitLn ");"
 
 def emitCtor (z : VarId) (c : CtorInfo) (ys : Array Arg) : M Unit :=
 do
@@ -426,7 +426,7 @@ decl ← getDecl f;
 let arity := decl.params.size;
 emitLhs z; emit "lean_alloc_closure((void*)("; emitCName f; emit "), "; emit arity; emit ", "; emit ys.size; emitLn ");";
 ys.size.mfor $ fun i => do {
-   let y := ys.get i;
+   let y := ys.get! i;
    emit "lean_closure_set("; emit z; emit ", "; emit i; emit ", "; emitArg y; emitLn ");"
 }
 
@@ -545,8 +545,8 @@ That is, we have
 def overwriteParam (ps : Array Param) (ys : Array Arg) : Bool :=
 let n := ps.size;
 n.any $ fun i =>
-  let p := ps.get i;
-  (i+1, n).anyI $ fun j => paramEqArg p (ys.get j)
+  let p := ps.get! i;
+  (i+1, n).anyI $ fun j => paramEqArg p (ys.get! j)
 
 def emitTailCall (v : Expr) : M Unit :=
 match v with
@@ -557,22 +557,22 @@ match v with
   if overwriteParam ps ys then do {
     emitLn "{";
     ps.size.mfor $ fun i => do {
-      let p := ps.get i;
-      let y := ys.get i;
+      let p := ps.get! i;
+      let y := ys.get! i;
       unless (paramEqArg p y) $ do {
         emit (toCType p.ty); emit " _tmp_"; emit i; emit " = "; emitArg y; emitLn ";"
       }
     };
     ps.size.mfor $ fun i => do {
-      let p := ps.get i;
-      let y := ys.get i;
+      let p := ps.get! i;
+      let y := ys.get! i;
       unless (paramEqArg p y) (do emit p.x; emit " = _tmp_"; emit i; emitLn ";")
     };
     emitLn "}"
   } else do {
     ys.size.mfor $ fun i => do {
-      let p := ps.get i;
-      let y := ys.get i;
+      let p := ps.get! i;
+      let y := ys.get! i;
       unless (paramEqArg p y) (do emit p.x; emit " = "; emitArg y; emitLn ";")
     }
   };
@@ -627,7 +627,7 @@ unless (hasInitAttr env d.name) $
       else
         xs.size.mfor $ fun i => do {
           when (i > 0) (emit ", ");
-          let x := xs.get i;
+          let x := xs.get! i;
           emit (toCType x.ty); emit " "; emit x.x
         };
       emit ")"
@@ -637,7 +637,7 @@ unless (hasInitAttr env d.name) $
     emitLn " {";
     when (xs.size > closureMaxArgs && isBoxedName d.name) $
       xs.size.mfor $ fun i => do {
-        let x := xs.get i;
+        let x := xs.get! i;
         emit "lean_object* "; emit x.x; emit " = _args["; emit i; emitLn "];"
       };
     emitLn "_start:";

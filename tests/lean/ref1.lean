@@ -9,7 +9,7 @@ n.mfor $ fun i => do
 
 def showArrayRef (r : IO.Ref (Array Nat)) : IO Unit :=
 do a ← r.swap ∅;
-   a.size.mfor (fun i => IO.println ("[" ++ toString i ++ "]: " ++ toString (a.get i)));
+   a.size.mfor (fun i => IO.println ("[" ++ toString i ++ "]: " ++ toString (a.get! i)));
    r.swap a;
    pure ()
 

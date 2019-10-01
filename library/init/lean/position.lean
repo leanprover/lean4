@@ -62,12 +62,12 @@ private partial def toColumnAux (str : String) (lineBeginPos : String.Pos) (pos 
 /- Remark: `pos` is in `[ps.get b, ps.get e]` and `b < e` -/
 private partial def toPositionAux (str : String) (ps : Array Nat) (lines : Array Nat) (pos : String.Pos) : Nat → Nat → Position
 | b, e =>
-  let posB := ps.get b;
-  if e == b + 1 then { line := lines.get b, column := toColumnAux str posB pos posB 0 }
+  let posB := ps.get! b;
+  if e == b + 1 then { line := lines.get! b, column := toColumnAux str posB pos posB 0 }
   else
     let m := (b + e) / 2;
-    let posM := ps.get m;
-    if pos == posM then { line := lines.get m, column := 0 }
+    let posM := ps.get! m;
+    if pos == posM then { line := lines.get! m, column := 0 }
     else if pos > posM then toPositionAux m e
     else toPositionAux b m
 

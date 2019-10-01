@@ -47,10 +47,10 @@ def findEntryAux : Nat → Node → M nodeData
 | i+1, n =>
   do s ← read;
      if h : n < s.size then
-       do { let e := s.fget ⟨n, h⟩;
+       do { let e := s.get ⟨n, h⟩;
             if e.find = n then pure e
             else do e₁ ← findEntryAux i e.find;
-                    updt (fun s => s.set n e₁);
+                    updt (fun s => s.set! n e₁);
                     pure e₁ }
      else error "invalid Node"
 
@@ -71,11 +71,11 @@ do r₁ ← findEntry n₁;
    r₂ ← findEntry n₂;
    if r₁.find = r₂.find then pure ()
    else updt $ fun s =>
-     if r₁.rank < r₂.rank then s.set r₁.find { find := r₂.find }
+     if r₁.rank < r₂.rank then s.set! r₁.find { find := r₂.find }
      else if r₁.rank = r₂.rank then
-        let s₁ := s.set r₁.find { find := r₂.find };
-        s₁.set r₂.find { rank := r₂.rank + 1, .. r₂}
-     else s.set r₂.find { find := r₁.find }
+        let s₁ := s.set! r₁.find { find := r₂.find };
+        s₁.set! r₂.find { rank := r₂.rank + 1, .. r₂}
+     else s.set! r₂.find { find := r₁.find }
 
 
 def mkNodes : Nat → M Unit

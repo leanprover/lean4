@@ -71,9 +71,9 @@ partial def moveEntries [Hashable α] : Nat → Array (AssocList α β) → Hash
 | i, source, target =>
   if h : i < source.size then
      let idx : Fin source.size := ⟨i, h⟩;
-     let es  : AssocList α β   := source.fget idx;
+     let es  : AssocList α β   := source.get idx;
      -- We remove `es` from `source` to make sure we can reuse its memory cells when performing es.foldl
-     let source                := source.fset idx AssocList.nil;
+     let source                := source.set idx AssocList.nil;
      let target                := es.foldl (reinsertAux hash) target;
      moveEntries (i+1) source target
   else target

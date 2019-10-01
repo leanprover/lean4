@@ -91,7 +91,7 @@ match n with
 withArgs n $ fun args => args.size
 
 @[inline] def getArg {α} (n : SyntaxNode α) (i : Nat) : Syntax α :=
-withArgs n $ fun args => args.get i
+withArgs n $ fun args => args.get! i
 
 @[inline] def getArgs {α} (n : SyntaxNode α) : Array (Syntax α) :=
 withArgs n $ fun args => args
@@ -167,7 +167,7 @@ match stx with
 
 def setArg {α} (stx : Syntax α) (i : Nat) (arg : Syntax α) : Syntax α :=
 match stx with
-| node k args => node k (args.set i arg)
+| node k args => node k (args.set! i arg)
 | stx         => stx
 
 @[inline] def modifyArg {α} (stx : Syntax α) (i : Nat) (fn : Syntax α → Syntax α) : Syntax α :=
@@ -239,8 +239,8 @@ partial def updateTrailing {α} (trailing : Substring) : Syntax α → Syntax α
   if args.size == 0 then n
   else
    let i    := args.size - 1;
-   let last := updateTrailing (args.get i);
-   let args := args.set i last;
+   let last := updateTrailing (args.get! i);
+   let args := args.set! i last;
    Syntax.node k args
 | s => s
 
@@ -265,9 +265,9 @@ partial def getTailInfo {α} : Syntax α → Option SourceInfo
   if i == 0 then none
   else
     let i := i - 1;
-    let v := a.get i;
+    let v := a.get! i;
     match f v with
-    | some v => some $ a.set i v
+    | some v => some $ a.set! i v
     | none   => updateLast i
 
 partial def setTailInfoAux {α} (info : Option SourceInfo) : Syntax α → Option (Syntax α)
@@ -295,7 +295,7 @@ partial def reprint {α} : Syntax α → Option String
   if kind == choiceKind then
     if args.size == 0 then failure
     else do
-      s ← reprint (args.get 0);
+      s ← reprint (args.get! 0);
       args.mfoldlFrom (fun s stx => do s' ← reprint stx; guard (s == s'); pure s) s 1
   else args.mfoldl (fun r stx => do s ← reprint stx; pure $ r ++ s) ""
 | _ => ""
@@ -379,7 +379,7 @@ namespace Syntax
 def isStrLit {α} : Syntax α → Option String
 | Syntax.node k args   =>
   if k == strLitKind && args.size == 1 then
-    match args.get 0 with
+    match args.get! 0 with
     | (Syntax.atom _ val) => some val
     | _ => none
   else
@@ -448,7 +448,7 @@ else
 def isNatLitAux {α} (nodeKind : SyntaxNodeKind) : Syntax α → Option Nat
 | Syntax.node k args   =>
   if k == nodeKind && args.size == 1 then
-    match args.get 0 with
+    match args.get! 0 with
     | (Syntax.atom _ val) => decodeNatLitVal val
     | _ => none
   else

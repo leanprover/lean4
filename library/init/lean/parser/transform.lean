@@ -16,13 +16,13 @@ match stx with
     match prevArg.getTailInfo with
     | some info =>
       let prevArg := prevArg.setTailInfo info.truncateTrailing;
-      let newArgs := newArgs.set (newArgs.size - 1) prevArg;
+      let newArgs := newArgs.set! (newArgs.size - 1) prevArg;
       let newArgs := newArgs.push (atom info sepTk);
       newArgs.push arg
     | none =>
       let newArgs := newArgs.push (atom none sepTk);
       newArgs.push arg)
-    (Array.singleton (args.get 0))
+    (Array.singleton (args.get! 0))
     1;
   node k args
 | stx => stx

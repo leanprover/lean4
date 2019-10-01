@@ -8,15 +8,15 @@ partial def formatMap : Node Nat Nat → Format
 | Node.collision keys vals _   => Format.sbracket $
   keys.size.fold
     (fun i fmt =>
-      let k := keys.get i;
-      let v := vals.get i;
+      let k := keys.get! i;
+      let v := vals.get! i;
       let p := if i > 0 then fmt ++ format "," ++ Format.line else fmt;
       p ++ "c@" ++ Format.paren (format k ++ " => " ++ format v))
     Format.nil
 | Node.entries entries        => Format.sbracket $
   entries.size.fold
     (fun i fmt =>
-      let entry := entries.get i;
+      let entry := entries.get! i;
       let p := if i > 0 then fmt ++ format "," ++ Format.line else fmt;
       p ++
       match entry with

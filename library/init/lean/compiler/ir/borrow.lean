@@ -190,8 +190,8 @@ match s.map.find k with
 /- For each ps[i], if ps[i] is owned, then mark xs[i] as owned. -/
 def ownArgsUsingParams (xs : Array Arg) (ps : Array Param) : M Unit :=
 xs.size.mfor $ fun i => do
-  let x := xs.get i;
-  let p := ps.get i;
+  let x := xs.get! i;
+  let p := ps.get! i;
   unless p.borrow $ ownArg x
 
 /- For each xs[i], if xs[i] is owned, then mark ps[i] as owned.
@@ -201,8 +201,8 @@ xs.size.mfor $ fun i => do
    "break" the tail call. -/
 def ownParamsUsingArgs (xs : Array Arg) (ps : Array Param) : M Unit :=
 xs.size.mfor $ fun i => do
-  let x := xs.get i;
-  let p := ps.get i;
+  let x := xs.get! i;
+  let p := ps.get! i;
   match x with
   | Arg.var x => mwhen (isOwned x) $ ownVar p.x
   | _         => pure ()

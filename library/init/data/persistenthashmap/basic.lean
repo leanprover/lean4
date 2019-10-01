@@ -68,10 +68,10 @@ inductive IsEntriesNode : Node α β → Prop
 
 abbrev EntriesNode (α β) := { n : Node α β // IsEntriesNode n }
 
-private theorem fsetSizeEq {ks : Array α} {vs : Array β} (h : ks.size = vs.size) (i : Fin ks.size) (j : Fin vs.size) (k : α) (v : β)
-                           : (ks.fset i k).size = (vs.fset j v).size :=
-have h₁ : (ks.fset i k).size = ks.size from Array.szFSetEq _ _ _;
-have h₂ : (vs.fset j v).size = vs.size from Array.szFSetEq _ _ _;
+private theorem setSizeEq {ks : Array α} {vs : Array β} (h : ks.size = vs.size) (i : Fin ks.size) (j : Fin vs.size) (k : α) (v : β)
+                           : (ks.set i k).size = (vs.set j v).size :=
+have h₁ : (ks.set i k).size = ks.size from Array.szFSetEq _ _ _;
+have h₂ : (vs.set j v).size = vs.size from Array.szFSetEq _ _ _;
 (h₁.trans h).trans h₂.symm
 
 private theorem pushSizeEq {ks : Array α} {vs : Array β} (h : ks.size = vs.size) (k : α) (v : β) : (ks.push k).size = (vs.push v).size :=
@@ -84,10 +84,10 @@ partial def insertAtCollisionNodeAux [HasBeq α] : CollisionNode α β → Nat �
 | n@⟨Node.collision keys vals heq, _⟩, i, k, v =>
   if h : i < keys.size then
     let idx : Fin keys.size := ⟨i, h⟩;
-    let k' := keys.fget idx;
+    let k' := keys.get idx;
     if k == k' then
        let j : Fin vals.size := ⟨i, heq ▸ h⟩;
-       ⟨Node.collision (keys.fset idx k) (vals.fset j v) (fsetSizeEq heq idx j k v), IsCollisionNode.mk _ _ _⟩
+       ⟨Node.collision (keys.set idx k) (vals.set j v) (setSizeEq heq idx j k v), IsCollisionNode.mk _ _ _⟩
     else insertAtCollisionNodeAux n (i+1) k v
   else
     ⟨Node.collision (keys.push k) (vals.push v) (pushSizeEq heq k v), IsCollisionNode.mk _ _ _⟩
@@ -116,7 +116,7 @@ partial def insertAux [HasBeq α] [Hashable α] : Node α β → USize → USize
     | ⟨Node.collision keys vals heq, _⟩ =>
       let entries : Node α β := mkEmptyEntries;
       keys.iterate entries $ fun i k entries =>
-        let v := vals.fget ⟨i.val, heq ▸ i.isLt⟩;
+        let v := vals.get ⟨i.val, heq ▸ i.isLt⟩;
         let h := hash k;
         -- dbgTrace ("toCollision " ++ toString i ++ ", h: " ++ toString h ++ ", depth: " ++ toString depth ++ ", h': " ++
         --          toString (div2Shift h (shift * (depth - 1)))) $ fun _ =>
@@ -138,15 +138,15 @@ def insert [HasBeq α] [Hashable α] : PersistentHashMap α β → α → β →
 partial def findAtAux [HasBeq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) : Nat → α → Option β
 | i, k =>
   if h : i < keys.size then
-    let k' := keys.fget ⟨i, h⟩;
-    if k == k' then some (vals.fget ⟨i, heq ▸ h⟩)
+    let k' := keys.get ⟨i, h⟩;
+    if k == k' then some (vals.get ⟨i, heq ▸ h⟩)
     else findAtAux (i+1) k
   else none
 
 partial def findAux [HasBeq α] : Node α β → USize → α → Option β
 | Node.entries entries, h, k =>
   let j     := (mod2Shift h shift).toNat;
-  match entries.get j with
+  match entries.get! j with
   | Entry.null       => none
   | Entry.ref node   => findAux node (div2Shift h shift) k
   | Entry.entry k' v => if k == k' then some v else none
@@ -161,7 +161,7 @@ def find [HasBeq α] [Hashable α] : PersistentHashMap α β → α → Option �
 partial def containsAtAux [HasBeq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) : Nat → α → Bool
 | i, k =>
   if h : i < keys.size then
-    let k' := keys.fget ⟨i, h⟩;
+    let k' := keys.get ⟨i, h⟩;
     if k == k' then true
     else containsAtAux (i+1) k
   else false
@@ -169,7 +169,7 @@ partial def containsAtAux [HasBeq α] (keys : Array α) (vals : Array β) (heq :
 partial def containsAux [HasBeq α] : Node α β → USize → α → Bool
 | Node.entries entries, h, k =>
   let j     := (mod2Shift h shift).toNat;
-  match entries.get j with
+  match entries.get! j with
   | Entry.null       => false
   | Entry.ref node   => containsAux node (div2Shift h shift) k
   | Entry.entry k' v => k == k'
@@ -181,7 +181,7 @@ def contains [HasBeq α] [Hashable α] : PersistentHashMap α β → α → Bool
 partial def isUnaryEntries (a : Array (Entry α β (Node α β))) : Nat → Option (α × β) → Option (α × β)
 | i, acc =>
   if h : i < a.size then
-    match a.fget ⟨i, h⟩ with
+    match a.get ⟨i, h⟩ with
     | Entry.null      => isUnaryEntries (i+1) acc
     | Entry.ref _     => none
     | Entry.entry k v =>
@@ -195,7 +195,7 @@ def isUnaryNode : Node α β → Option (α × β)
 | Node.collision keys vals heq =>
   if h : 1 = keys.size then
     have 0 < keys.size from h ▸ (Nat.zeroLtSucc _);
-    some (keys.fget ⟨0, this⟩, vals.fget ⟨0, heq ▸ this⟩)
+    some (keys.get ⟨0, this⟩, vals.get ⟨0, heq ▸ this⟩)
   else
     none
 
@@ -210,18 +210,18 @@ partial def eraseAux [HasBeq α] : Node α β → USize → α → Node α β ×
   | none     => (n, false)
 | n@(Node.entries entries), h, k =>
   let j       := (mod2Shift h shift).toNat;
-  let entry   := entries.get j;
+  let entry   := entries.get! j;
   match entry with
   | Entry.null       => (n, false)
   | Entry.entry k' v =>
-    if k == k' then (Node.entries (entries.set j Entry.null), true) else (n, false)
+    if k == k' then (Node.entries (entries.set! j Entry.null), true) else (n, false)
   | Entry.ref node   =>
-    let entries := entries.set j Entry.null;
+    let entries := entries.set! j Entry.null;
     let (newNode, deleted) := eraseAux node (div2Shift h shift) k;
     if !deleted then (n, false)
     else match isUnaryNode newNode with
-      | none        => (Node.entries (entries.set j (Entry.ref newNode)), true)
-      | some (k, v) => (Node.entries (entries.set j (Entry.entry k v)), true)
+      | none        => (Node.entries (entries.set! j (Entry.ref newNode)), true)
+      | some (k, v) => (Node.entries (entries.set! j (Entry.entry k v)), true)
 
 def erase [HasBeq α] [Hashable α] : PersistentHashMap α β → α → PersistentHashMap α β
 | { root := n, size := sz }, k =>
@@ -234,7 +234,7 @@ variables {m : Type w → Type w'} [Monad m]
 variables {σ : Type w}
 
 @[specialize] partial def mfoldlAux (f : σ → α → β → m σ) : Node α β → σ → m σ
-| Node.collision keys vals heq, acc => keys.miterate acc $ fun i k acc => f acc k (vals.fget ⟨i.val, heq ▸ i.isLt⟩)
+| Node.collision keys vals heq, acc => keys.miterate acc $ fun i k acc => f acc k (vals.get ⟨i.val, heq ▸ i.isLt⟩)
 | Node.entries entries, acc => entries.mfoldl (fun acc entry =>
   match entry with
   | Entry.null      => pure acc

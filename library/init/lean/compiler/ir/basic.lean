@@ -342,7 +342,7 @@ partial def reshapeAux : Array FnBody → Nat → FnBody → FnBody
   if i == 0 then b
   else
     let i         := i - 1;
-    let (curr, a) := a.swapAt i (default _);
+    let (curr, a) := a.swapAt! i (default _);
     let b         := curr.setBody b;
     reshapeAux a i b
 

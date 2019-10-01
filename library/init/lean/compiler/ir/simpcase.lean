@@ -19,14 +19,14 @@ else
   alts.push (Alt.default last.body)
 
 private def getOccsOf (alts : Array Alt) (i : Nat) : Nat :=
-let aBody := (alts.get i).body;
+let aBody := (alts.get! i).body;
 alts.iterateFrom 1 (i + 1) $ fun _ a' n =>
   if a'.body == aBody then n+1 else n
 
 private def maxOccs (alts : Array Alt) : Alt × Nat :=
-alts.iterateFrom (alts.get 0, getOccsOf alts 0) 1 $ fun i a p =>
+alts.iterateFrom (alts.get! 0, getOccsOf alts 0) 1 $ fun i a p =>
   let noccs := getOccsOf alts i.val;
-  if noccs > p.2 then (alts.fget i, noccs) else p
+  if noccs > p.2 then (alts.get i, noccs) else p
 
 private def addDefault (alts : Array Alt) : Array Alt :=
 if alts.size <= 1 || alts.any Alt.isDefault then alts
@@ -43,7 +43,7 @@ let alts := addDefault alts;
 if alts.size == 0 then
   FnBody.unreachable
 else if alts.size == 1 then
-  (alts.get 0).body
+  (alts.get! 0).body
 else
   FnBody.case tid x xType alts
 

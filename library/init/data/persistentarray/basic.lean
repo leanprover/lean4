@@ -58,12 +58,12 @@ abbrev div2Shift (i : USize) (shift : USize) : USize := USize.shift_right i shif
 abbrev mod2Shift (i : USize) (shift : USize) : USize := USize.land i ((USize.shift_left 1 shift) - 1)
 
 partial def getAux [Inhabited α] : PersistentArrayNode α → USize → USize → α
-| node cs, i, shift => getAux (cs.get (div2Shift i shift).toNat) (mod2Shift i shift) (shift - initShift)
-| leaf cs, i, _     => cs.get i.toNat
+| node cs, i, shift => getAux (cs.get! (div2Shift i shift).toNat) (mod2Shift i shift) (shift - initShift)
+| leaf cs, i, _     => cs.get! i.toNat
 
 def get [Inhabited α] (t : PersistentArray α) (i : Nat) : α :=
 if i >= t.tailOff then
-  t.tail.get (i - t.tailOff)
+  t.tail.get! (i - t.tailOff)
 else
   getAux t.root (USize.ofNat i) t.shift
 
@@ -73,11 +73,11 @@ partial def setAux : PersistentArrayNode α → USize → USize → α → Persi
   let i     := mod2Shift i shift;
   let shift := shift - initShift;
   node $ cs.modify j.toNat $ fun c => setAux c i shift a
-| leaf cs, i, _,     a => leaf (cs.set i.toNat a)
+| leaf cs, i, _,     a => leaf (cs.set! i.toNat a)
 
 def set (t : PersistentArray α) (i : Nat) (a : α) : PersistentArray α :=
 if i >= t.tailOff then
-  { tail := t.tail.set (i - t.tailOff) a, .. t }
+  { tail := t.tail.set! (i - t.tailOff) a, .. t }
 else
   { root := setAux t.root (USize.ofNat i) t.shift a, .. t }
 
@@ -145,8 +145,8 @@ partial def popLeaf : PersistentArrayNode α → Option (Array α) × Array (Per
 | n@(node cs) =>
   if h : cs.size ≠ 0 then
     let idx : Fin cs.size := ⟨cs.size - 1, Nat.predLt h⟩;
-    let last := cs.fget idx;
-    let cs   := cs.fset idx (default _);
+    let last := cs.get idx;
+    let cs   := cs.set idx (default _);
     match popLeaf last with
     | (none,   _)       => (none, emptyArray)
     | (some l, newLast) =>
@@ -154,7 +154,7 @@ partial def popLeaf : PersistentArrayNode α → Option (Array α) × Array (Per
         let cs := cs.pop;
         if cs.isEmpty then (some l, emptyArray) else (some l, cs)
       else
-        (some l, cs.fset idx (node newLast))
+        (some l, cs.set idx (node newLast))
   else
     (none, emptyArray)
 | leaf vs   => (some vs, emptyArray)
@@ -169,8 +169,8 @@ else
     let last       := last.pop;
     let newSize    := t.size - 1;
     let newTailOff := newSize - last.size;
-    if newRoots.size == 1 && (newRoots.get 0).isNode then
-      { root    := newRoots.get 0,
+    if newRoots.size == 1 && (newRoots.get! 0).isNode then
+      { root    := newRoots.get! 0,
         shift   := t.shift - initShift,
         size    := newSize,
         tail    := last,
@@ -216,7 +216,7 @@ do b ← t.tail.mfindRev f;
 partial def mfoldlFromAux (f : β → α → m β) : PersistentArrayNode α → USize → USize → β → m β
 | node cs, i, shift, b => do
   let j    := (div2Shift i shift).toNat;
-  b ← mfoldlFromAux (cs.get j) (mod2Shift i shift) (shift - initShift) b;
+  b ← mfoldlFromAux (cs.get! j) (mod2Shift i shift) (shift - initShift) b;
   cs.mfoldlFrom (fun b c => mfoldlAux f c b) b (j+1)
 | leaf vs, i, _, b => vs.mfoldlFrom f b i.toNat
 

@@ -75,11 +75,11 @@ partial def toLevel : Syntax Expr → Elab Level
   | `Lean.Parser.Level.paren  => toLevel $ stx.getArg 1
   | `Lean.Parser.Level.max    => do
      let args := (stx.getArg 1).getArgs;
-     first ← toLevel (args.get 0);
+     first ← toLevel (args.get! 0);
      args.mfoldlFrom (fun r arg => Level.max r <$> toLevel arg) first 1
   | `Lean.Parser.Level.imax   => do
      let args := (stx.getArg 1).getArgs;
-     first ← toLevel (args.get 0);
+     first ← toLevel (args.get! 0);
      args.mfoldlFrom (fun r arg => Level.imax r <$> toLevel arg) first 1
   | `Lean.Parser.Level.hole   => pure $ Level.mvar Name.anonymous
   | `Lean.Parser.Level.num    => pure $ Level.ofNat $ (stx.getArg 0).toNat

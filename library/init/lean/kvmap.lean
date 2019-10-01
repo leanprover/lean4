@@ -43,6 +43,9 @@ def findCore : List (Name × DataValue) → Name → Option DataValue
 def find : KVMap → Name → Option DataValue
 | ⟨m⟩, k => findCore m k
 
+def findD (m : KVMap) (k : Name) (d₀ : DataValue) : DataValue :=
+(m.find k).getOrElse d₀
+
 def insertCore : List (Name × DataValue) → Name → DataValue → List (Name × DataValue)
 | [],       k', v' => [(k',v')]
 | (k,v)::m, k', v' => if k = k' then (k, v') :: m else (k, v) :: insertCore m k' v'

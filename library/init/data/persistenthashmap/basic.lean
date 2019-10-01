@@ -155,6 +155,9 @@ partial def findAux [HasBeq α] : Node α β → USize → α → Option β
 def find [HasBeq α] [Hashable α] : PersistentHashMap α β → α → Option β
 | { root := n, .. }, k => findAux n (hash k) k
 
+@[inline] def findD [HasBeq α] [Hashable α] (m : PersistentHashMap α β) (a : α) (b₀ : β) : β :=
+(m.find a).getOrElse b₀
+
 partial def containsAtAux [HasBeq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) : Nat → α → Bool
 | i, k =>
   if h : i < keys.size then

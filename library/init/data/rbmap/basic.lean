@@ -276,6 +276,9 @@ instance [HasRepr α] [HasRepr β] : HasRepr (RBMap α β lt) :=
 @[inline] def find : RBMap α β lt → α → Option β
 | ⟨t, _⟩, x => t.find lt x
 
+@[inline] def findD (t : RBMap α β lt) (k : α) (v₀ : β) : β :=
+(t.find k).getOrElse v₀
+
 /-- (lowerBound k) retrieves the kv pair of the largest key smaller than or equal to `k`,
     if it exists. -/
 @[inline] def lowerBound : RBMap α β lt → α → Option (Sigma (fun (k : α) => β))

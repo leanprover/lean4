@@ -46,6 +46,9 @@ instance : HasEmptyc (SMap α β) := ⟨SMap.empty⟩
 | ⟨true, m₁, _⟩, k   => m₁.find k
 | ⟨false, m₁, m₂⟩, k => (m₂.find k).orelse (m₁.find k)
 
+@[inline] def findD (m : SMap α β) (a : α) (b₀ : β) : β :=
+(m.find a).getOrElse b₀
+
 @[specialize] def contains : SMap α β → α → Bool
 | ⟨true, m₁, _⟩, k   => m₁.contains k
 | ⟨false, m₁, m₂⟩, k => m₁.contains k || m₂.contains k

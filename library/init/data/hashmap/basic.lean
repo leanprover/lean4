@@ -144,6 +144,9 @@ match m with
 match m with
 | ⟨ m, _ ⟩ => m.find a
 
+@[inline] def findD (m : HashMap α β) (a : α) (b₀ : β) : β :=
+(m.find a).getOrElse b₀
+
 @[inline] def contains (m : HashMap α β) (a : α) : Bool :=
 match m with
 | ⟨ m, _ ⟩ => m.contains a

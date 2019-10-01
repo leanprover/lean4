@@ -9,12 +9,12 @@ import init.data.tostring
 
 universes u v
 /- debugging helper functions -/
-@[extern c inline "lean_dbg_trace(#2, #3)"]
+@[effectful, extern c inline "lean_dbg_trace(#2, #3)"]
 def dbgTrace {α : Type u} (s : String) (f : Unit → α) : α :=
 f ()
 
 /- Display the given message if `a` is shared, that is, RC(a) > 1 -/
-@[extern c inline "lean_dbg_trace_if_shared(#2, #3)"]
+@[effectful, extern c inline "lean_dbg_trace_if_shared(#2, #3)"]
 def dbgTraceIfShared {α : Type u} (s : String) (a : α) : α :=
 a
 

@@ -9,12 +9,12 @@ import init.data.tostring
 
 universes u v
 /- debugging helper functions -/
-@[effectful, extern c inline "lean_dbg_trace(#2, #3)"]
+@[neverExtract, extern c inline "lean_dbg_trace(#2, #3)"]
 def dbgTrace {α : Type u} (s : String) (f : Unit → α) : α :=
 f ()
 
 /- Display the given message if `a` is shared, that is, RC(a) > 1 -/
-@[effectful, extern c inline "lean_dbg_trace_if_shared(#2, #3)"]
+@[neverExtract, extern c inline "lean_dbg_trace_if_shared(#2, #3)"]
 def dbgTraceIfShared {α : Type u} (s : String) (a : α) : α :=
 a
 
@@ -25,9 +25,9 @@ f ()
 @[extern c inline "#4"]
 unsafe def unsafeCast {α : Type u} {β : Type v} [Inhabited β] (a : α) : β := default _
 
-@[effectful, extern c inline "lean_panic_fn(#3)"]
+@[neverExtract, extern c inline "lean_panic_fn(#3)"]
 constant panic {α : Type u} [Inhabited α] (msg : String) : α := default _
 
-@[effectful]
+@[neverExtract]
 def panicWithPos {α : Type u} [Inhabited α] (fname : String) (line col : Nat) (msg : String) : α :=
 panic ("PANIC at " ++ fname ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg)

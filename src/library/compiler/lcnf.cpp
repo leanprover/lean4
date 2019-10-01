@@ -501,13 +501,13 @@ public:
         return visit(instantiate_rev(e, let_fvars.size(), let_fvars.data()), root);
     }
 
-    bool is_effectful(expr const & e) {
+    bool has_never_extract(expr const & e) {
         expr const & fn = get_app_fn(e);
-        return is_constant(fn) && has_effectful_attribute(env(), const_name(fn));
+        return is_constant(fn) && has_never_extract_attribute(env(), const_name(fn));
     }
 
     expr cache_result(expr const & e, expr const & r, bool shared) {
-        if (shared && !is_effectful(e))
+        if (shared && !has_never_extract(e))
             m_cache.insert(e, r);
         return r;
     }

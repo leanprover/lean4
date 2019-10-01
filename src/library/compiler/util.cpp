@@ -97,8 +97,8 @@ bool has_inline_if_reduce_attribute(environment const & env, name const & n) { r
 bool has_macro_inline_attribute(environment const & env, name const & n) { return lean_has_macro_inline_attribute(env.to_obj_arg(), n.to_obj_arg()); }
 bool has_noinline_attribute(environment const & env, name const & n) { return lean_has_noinline_attribute(env.to_obj_arg(), n.to_obj_arg()); }
 
-extern "C" uint8 lean_has_effectful_attribute(object* env, object *n);
-bool has_effectful_attribute(environment const & env, name const & n) { return lean_has_effectful_attribute(env.to_obj_arg(), n.to_obj_arg()); }
+extern "C" uint8 lean_has_never_extract_attribute(object* env, object *n);
+bool has_never_extract_attribute(environment const & env, name const & n) { return lean_has_never_extract_attribute(env.to_obj_arg(), n.to_obj_arg()); }
 
 bool is_lcnf_atom(expr const & e) {
     switch (e.kind()) {

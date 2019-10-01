@@ -51,9 +51,9 @@ public:
         }
     }
 
-    bool is_effectful(expr const & e) {
+    bool has_never_extract(expr const & e) {
         expr const & fn = get_app_fn(e);
-        return is_constant(fn) && has_effectful_attribute(m_env, const_name(fn));
+        return is_constant(fn) && has_never_extract_attribute(m_env, const_name(fn));
     }
 
     expr visit_let(expr e) {
@@ -75,7 +75,7 @@ public:
                 fvars.push_back(fvar);
                 to_keep_fvars.push_back(fvar);
                 entries.emplace_back(let_name(e), type, new_value);
-                if (!is_cases_on_app(m_env, new_value) && !is_effectful(new_value)) {
+                if (!is_cases_on_app(m_env, new_value) && !has_never_extract(new_value)) {
                     expr new_key = mk_key(type, new_value);
                     m_map.insert(mk_pair(new_key, fvar));
                     m_keys.push_back(new_key);

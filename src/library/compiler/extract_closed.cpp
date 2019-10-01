@@ -88,7 +88,7 @@ class extract_closed_fn {
             if (!is_closed(fn)) {
                 r = false;
             } else {
-                if (is_constant(fn) && has_effectful_attribute(m_env, const_name(fn))) {
+                if (is_constant(fn) && has_never_extract_attribute(m_env, const_name(fn))) {
                     r = false;
                 } else {
                     for (expr const & arg : args) {

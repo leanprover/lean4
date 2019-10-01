@@ -22,6 +22,7 @@ lean_object* l_Array_ummapAux___main___at_Lean_IR_ExpandResetReuse_reuseToSet___
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Array_ummapAux___main___at_Lean_IR_ExpandResetReuse_searchAndExpand___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_get_x21(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_MaxIndex_collectDecl(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_reuseToCtor___boxed(lean_object*, lean_object*);
 lean_object* l_Array_mkArray(lean_object*, lean_object*, lean_object*);
@@ -68,7 +69,6 @@ lean_object* l_Lean_IR_ExpandResetReuse_reuseToSet___main(lean_object*, lean_obj
 lean_object* l_Lean_IR_ExpandResetReuse_reuseToSet___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_searchAndExpand(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_removeSelfSet___main___boxed(lean_object*, lean_object*);
-lean_object* l_Array_fget(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_Lean_IR_ExpandResetReuse_mkSlowPath___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_IR_mkIf(lean_object*, lean_object*, lean_object*);
@@ -79,6 +79,7 @@ lean_object* l_Nat_foldAux___main___at_Lean_IR_ExpandResetReuse_setFields___spec
 lean_object* l_Lean_IR_ExpandResetReuse_reuseToCtor___main(lean_object*, lean_object*);
 lean_object* l_AssocList_contains___main___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_removeSelfSet(lean_object*, lean_object*);
+lean_object* l_Array_set_x21(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_ExpandResetReuse_consumed___main(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_mkFresh___boxed(lean_object*);
@@ -98,9 +99,8 @@ lean_object* l_Lean_IR_ExpandResetReuse_releaseUnreadFields___boxed(lean_object*
 lean_object* l_Array_size(lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_Lean_IR_ExpandResetReuse_mkSlowPath___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMAux___main___at_Lean_IR_ExpandResetReuse_consumed___main___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_fset(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_expand___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_get(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_mkHashMapImp___rarg(lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_reuseToCtor___main___boxed(lean_object*, lean_object*);
 lean_object* l_HashMapImp_find___at_Lean_IR_ExpandResetReuse_isSelfSet___spec__1___boxed(lean_object*, lean_object*);

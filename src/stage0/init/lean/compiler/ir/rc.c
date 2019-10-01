@@ -21,6 +21,7 @@ lean_object* l_Lean_IR_explicitRC___boxed(lean_object*, lean_object*, lean_objec
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitRC_getJPParams(lean_object*, lean_object*);
+lean_object* l_Array_get_x21(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitRC_getVarInfo___boxed(lean_object*, lean_object*);
 lean_object* l_RBNode_find___main___at___private_init_lean_compiler_ir_livevars_7__collectJP___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitRC_addDec___boxed(lean_object*, lean_object*, lean_object*);
@@ -69,7 +70,6 @@ lean_object* l_Lean_IR_LiveVars_updateJPLiveVarMap(lean_object*, lean_object*, l
 lean_object* l_Nat_foldAux___main___at___private_init_lean_compiler_ir_rc_10__addIncBeforeConsumeAll___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_rc_4__isBorrowParamAux___at___private_init_lean_compiler_ir_rc_5__isBorrowParam___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitRC_getVarInfo___closed__1;
-lean_object* l_Array_fget(lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_init_lean_compiler_ir_livevars_6__accumulate___closed__1;
 lean_object* l___private_init_lean_compiler_ir_rc_10__addIncBeforeConsumeAll___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_rc_10__addIncBeforeConsumeAll(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -116,9 +116,8 @@ uint8_t l_Nat_anyAux___main___at___private_init_lean_compiler_ir_rc_3__isFirstOc
 lean_object* l_Array_size(lean_object*, lean_object*);
 lean_object* l_Nat_foldAux___main___at___private_init_lean_compiler_ir_rc_9__addDecAfterFullApp___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_findCore___main___at___private_init_lean_compiler_ir_rc_2__addDecForAlt___spec__1___boxed(lean_object*, lean_object*);
-lean_object* l_Array_fset(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldAux___main___at___private_init_lean_compiler_ir_rc_6__getNumConsumptions___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_get(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_Lean_IR_ExplicitRC_updateVarInfoWithParams___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_rc_9__addDecAfterFullApp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_rc_11__addDecForDeadParams___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -139,6 +138,7 @@ lean_object* l___private_init_lean_compiler_ir_rc_4__isBorrowParamAux___at___pri
 uint8_t l___private_init_lean_compiler_ir_rc_5__isBorrowParam(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_rc_1__updateRefUsingCtorInfo___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_insert___at___private_init_lean_compiler_ir_rc_1__updateRefUsingCtorInfo___spec__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_set(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldAux___main___at___private_init_lean_compiler_ir_rc_8__addIncBefore___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldAux___main___at___private_init_lean_compiler_ir_rc_10__addIncBeforeConsumeAll___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitRC_updateVarInfoWithParams___boxed(lean_object*, lean_object*);

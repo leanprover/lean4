@@ -25,6 +25,7 @@ lean_object* l_Lean_SMap_empty___at_Lean_mkClosedTermCacheExtension___spec__12;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
 lean_object* l_Lean_closedTermCacheExt___closed__7;
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_mkClosedTermCacheExtension___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_get_x21(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAtAux___main___at_Lean_getClosedTermName___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_mkClosedTermCacheExtension___spec__18(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
@@ -83,7 +84,6 @@ lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1(lean
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_empty___at_Lean_mkClosedTermCacheExtension___spec__12___closed__2;
 lean_object* l_HashMapImp_moveEntries___main___at_Lean_mkClosedTermCacheExtension___spec__9(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_fget(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkClosedTermCacheExtension___closed__4;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_Lean_mkClosedTermCacheExtension___spec__16___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -115,9 +115,8 @@ lean_object* l_AssocList_find___main___at_Lean_getClosedTermName___spec__6(lean_
 lean_object* l_Lean_closedTermCacheExt___elambda__4(lean_object*);
 extern lean_object* l_PersistentHashMap_insertAux___main___rarg___closed__3;
 lean_object* l_Array_size(lean_object*, lean_object*);
-lean_object* l_Array_fset(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkClosedTermCacheExtension___spec__21(lean_object*, lean_object*);
-lean_object* l_Array_get(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_closedTermCacheExt___closed__8;
 lean_object* l_mkHashMapImp___rarg(lean_object*);
 lean_object* lean_get_closed_term_name(lean_object*, lean_object*);
@@ -130,6 +129,7 @@ uint8_t l_Array_anyMAux___main___at_Lean_mkClosedTermCacheExtension___spec__20(l
 uint8_t l_USize_decLe(size_t, size_t);
 lean_object* l_Lean_mkClosedTermCacheExtension___lambda__2___boxed(lean_object*);
 lean_object* l_Lean_closedTermCacheExt___elambda__4___rarg(lean_object*);
+lean_object* l_Array_set(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkClosedTermCacheExtension___lambda__1(lean_object*, lean_object*);
 extern lean_object* l___private_init_lean_environment_8__persistentEnvExtensionsRef;
 size_t l_USize_land(size_t, size_t);

@@ -65,7 +65,6 @@ lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_regScopeManag
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_Lean_regScopeManagerExtension___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* l_Array_fget(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t lean_is_namespace(lean_object*, lean_object*);
@@ -96,6 +95,7 @@ lean_object* l_Lean_scopeManagerExt___elambda__3(lean_object*, lean_object*);
 lean_object* l_Lean_ScopeManagerState_Inhabited___closed__1;
 lean_object* l_Lean_scopeManagerExt___elambda__1___boxed(lean_object*);
 lean_object* l_Array_size(lean_object*, lean_object*);
+lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_registerNamespace___main(lean_object*, lean_object*);
 lean_object* l_Lean_regScopeManagerExtension___closed__2;
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;

@@ -31,7 +31,6 @@ lean_object* l___private_init_lean_elaborator_resolvename_1__resolveQualifiedNam
 lean_object* l___private_init_lean_elaborator_resolvename_2__resolveUsingNamespace___main(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
-lean_object* l_Array_fget(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_init_lean_elaborator_resolvename_3__resolveExact___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l___private_init_lean_elaborator_resolvename_2__resolveUsingNamespace___boxed(lean_object*, lean_object*, lean_object*);
@@ -55,12 +54,13 @@ lean_object* l___private_init_lean_elaborator_resolvename_6__preresolveNamesAux(
 uint8_t lean_is_protected(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getEnv___rarg(lean_object*);
 lean_object* l_Array_size(lean_object*, lean_object*);
-lean_object* l_Array_fset(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_init_lean_elaborator_resolvename_1__resolveQualifiedName___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at___private_init_lean_elaborator_resolvename_5__resolveNameAux___main___spec__2(lean_object*, lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
 lean_object* l_Array_ummapAux___main___at___private_init_lean_elaborator_resolvename_6__preresolveNamesAux___main___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_init_lean_elaborator_resolvename_2__resolveUsingNamespace___main___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_set(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_init_lean_elaborator_resolvename_5__resolveNameAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 lean_object* l_Array_ummapAux___main___at___private_init_lean_elaborator_resolvename_6__preresolveNamesAux___main___spec__1(lean_object*);

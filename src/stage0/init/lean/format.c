@@ -105,7 +105,6 @@ lean_object* l_Lean_Format_joinSuffix___rarg(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_Format_HasAppend;
 lean_object* l_List_foldl___main___at_Lean_Format_join___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_formatEntry(lean_object*);
-lean_object* l_Array_fget(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_natHasFormat(lean_object*);
 lean_object* l_Lean_Format_repr___main___closed__19;
@@ -169,6 +168,7 @@ lean_object* l_Lean_Format_unicodeOption(lean_object*);
 lean_object* l_Lean_formatEntry___closed__2;
 lean_object* l_Array_size(lean_object*, lean_object*);
 lean_object* l_Lean_Format_repr___main___closed__9;
+lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_widthOption___closed__2;
 lean_object* l_Lean_Format_prefixJoin(lean_object*);
 lean_object* l_Lean_HasRepr;

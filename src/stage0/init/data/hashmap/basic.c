@@ -83,7 +83,6 @@ lean_object* l_Array_miterateAux___main___at_HashMap_fold___spec__2___rarg(lean_
 lean_object* l_AssocList_mfoldl___main___at_HashMapImp_fold___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapBucket_update___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_HashMap_mfold___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_fget(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_erase___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_HashMapImp_find___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -116,8 +115,8 @@ lean_object* l_HashMap_findD(lean_object*, lean_object*);
 lean_object* l_HashMapImp_contains(lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_HashMapImp_mfold___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_HashMapImp_mfoldBuckets___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_fset(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_fold___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapBucket_update(lean_object*, lean_object*);
 lean_object* l_mkHashMapImp___rarg(lean_object*);
 lean_object* l_HashMapImp_insert(lean_object*, lean_object*);
@@ -131,6 +130,7 @@ lean_object* l_AssocList_mfoldl___main___at_HashMapImp_moveEntries___main___spec
 lean_object* l_HashMapImp_mkIdx___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_find(lean_object*, lean_object*);
 lean_object* l_HashMap_findD___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_set(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMap_find___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMap_fold___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);

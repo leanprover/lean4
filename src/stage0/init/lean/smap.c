@@ -40,7 +40,6 @@ lean_object* l_Lean_SMap_findD___rarg(lean_object*, lean_object*, lean_object*, 
 lean_object* l_Lean_SMap_size(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_size___rarg___boxed(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* l_Array_fget(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_HashMapImp_find___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -65,6 +64,7 @@ lean_object* l_Lean_SMap_HasEmptyc___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_Inhabited___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_stageSizes___rarg___boxed(lean_object*);
 lean_object* l_Lean_SMap_HasEmptyc___rarg(lean_object*, lean_object*);
+lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_stageSizes___rarg(lean_object*);
 lean_object* l_Lean_SMap_foldStage2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_switch___rarg___boxed(lean_object*, lean_object*, lean_object*);

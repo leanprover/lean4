@@ -118,7 +118,6 @@ lean_object* l_Array_miterateAux___main___at_Lean_IR_formatParams___spec__2(lean
 lean_object* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_format_2__formatArray___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_formatFnBodyHead___closed__10;
 lean_object* l___private_init_lean_compiler_ir_format_6__formatIRType___closed__16;
-lean_object* l_Array_fget(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__17;
 lean_object* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__12;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -169,6 +168,7 @@ extern lean_object* l_Lean_formatEntry___closed__2;
 lean_object* l_Array_size(lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_format_5__formatExpr___closed__19;
 lean_object* l_Lean_IR_exprHasFormat;
+lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_formatParams(lean_object*);
 lean_object* l___private_init_lean_compiler_ir_format_7__formatParam___closed__1;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__3;

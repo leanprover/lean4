@@ -34,7 +34,6 @@ lean_object* l___private_init_lean_compiler_ir_resetreuse_5__Dfinalize(lean_obje
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_resetreuse_9__D(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_getPrefix(lean_object*);
-lean_object* l_Array_fget(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t l_Lean_IR_CtorInfo_isScalar(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -52,12 +51,13 @@ lean_object* l___private_init_lean_compiler_ir_resetreuse_2__S___main___boxed(le
 lean_object* l_Array_size(lean_object*, lean_object*);
 uint8_t l___private_init_lean_compiler_ir_resetreuse_7__isCtorUsing(lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_resetreuse_4__tryS(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_fset(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMAux___main___at___private_init_lean_compiler_ir_resetreuse_6__argsContainsVar___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ResetReuse_R(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_resetreuse_3__mkFresh___rarg(lean_object*);
 lean_object* l___private_init_lean_compiler_ir_resetreuse_8__Dmain___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_resetreuse_3__mkFresh(lean_object*);
+lean_object* l_Array_set(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_ummapAux___main___at___private_init_lean_compiler_ir_resetreuse_2__S___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_resetreuse_9__D___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_resetreuse_5__Dfinalize___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

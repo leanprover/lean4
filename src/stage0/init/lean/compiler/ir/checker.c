@@ -62,7 +62,6 @@ extern lean_object* l_Char_HasRepr___closed__1;
 lean_object* l_Lean_IR_Checker_checkFnBody___main___closed__4;
 lean_object* l_Lean_IR_Checker_checkFullApp(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Checker_checkScalarVar___boxed(lean_object*, lean_object*);
-lean_object* l_Array_fget(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_addParam(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -93,6 +92,7 @@ lean_object* l_Array_miterateAux___main___at_Lean_IR_Checker_checkDecl___spec__2
 uint8_t l_Lean_IR_LocalContext_isLocalVar(lean_object*, lean_object*);
 extern lean_object* l_Lean_IR_VarId_HasToString___closed__1;
 lean_object* l_Array_size(lean_object*, lean_object*);
+lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_IRType_isScalar(uint8_t);
 lean_object* l_Lean_IR_Checker_checkVar___closed__1;
 lean_object* l_Array_mforAux___main___at_Lean_IR_Checker_checkFnBody___main___spec__2(lean_object*, lean_object*, lean_object*);

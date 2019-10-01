@@ -15,11 +15,11 @@ extern "C" {
 #endif
 lean_object* l_Array_partition___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_init_data_array_qsort_1__partitionAux(lean_object*);
+lean_object* l_Array_get_x21(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_qsortAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_init_data_array_qsort_1__partitionAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_qsort___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_qsortAux___main___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_swap(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_init_data_array_qsort_1__partitionAux___main(lean_object*);
 lean_object* l___private_init_data_array_qsort_1__partitionAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_qsortAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -30,7 +30,7 @@ lean_object* l___private_init_data_array_qsort_1__partitionAux___main___rarg___b
 lean_object* l_Array_partition___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_qsortAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_qsortAux(lean_object*);
-lean_object* l_Array_get(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_swap_x21(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Array_qsortAux___main(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);

@@ -74,7 +74,6 @@ uint8_t l_Lean_IR_HasIndex_visitArgs(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FreeIndices_insertParams___boxed(lean_object*, lean_object*);
 lean_object* l_Array_anyMAux___main___at_Lean_IR_HasIndex_visitParams___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_fget(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_IR_MaxIndex_HasAndthen___closed__1;
 lean_object* l___private_init_lean_compiler_ir_freevars_23__collectArray___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -119,6 +118,7 @@ lean_object* l___private_init_lean_compiler_ir_freevars_5__seq(lean_object*, lea
 uint8_t l_Lean_IR_HasIndex_visitExpr(lean_object*, lean_object*);
 lean_object* l_Array_size(lean_object*, lean_object*);
 lean_object* l___private_init_lean_compiler_ir_freevars_7__collectArray___at___private_init_lean_compiler_ir_freevars_12__collectAlts___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_freevars_7__collectArray___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_freevars_7__collectArray___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_14__collectIndex___spec__1___boxed(lean_object*, lean_object*);

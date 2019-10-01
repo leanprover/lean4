@@ -27,16 +27,18 @@ lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_ByteArray_toList(lean_object*);
 lean_object* l_List_toStringAux___main___at_ByteArray_HasToString___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_ByteArray_toListAux___main___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_byte_array_set(lean_object*, lean_object*, uint8_t);
 lean_object* lean_byte_array_mk(lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 extern lean_object* l_List_repr___rarg___closed__2;
+lean_object* l_ByteArray_get_x21___boxed(lean_object*, lean_object*);
 lean_object* l_ByteArray_HasToString(lean_object*);
+lean_object* l_ByteArray_set_x21___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 extern lean_object* l_List_reprAux___main___rarg___closed__1;
 lean_object* l_ByteArray_empty;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_List_toString___at_ByteArray_HasToString___spec__1(lean_object*);
-lean_object* l_ByteArray_get___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_ByteArray_mkEmpty(lean_object*);
@@ -45,8 +47,6 @@ lean_object* l_ByteArray_toListAux___main(lean_object*, lean_object*, lean_objec
 lean_object* l_ByteArray_empty___closed__1;
 lean_object* l_List_toByteArray(lean_object*);
 lean_object* l_ByteArray_HasToString___boxed(lean_object*);
-lean_object* l_ByteArray_set___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t lean_byte_array_get(lean_object*, lean_object*);
 lean_object* l_ByteArray_push___boxed(lean_object*, lean_object*);
 lean_object* l_List_toStringAux___main___at_ByteArray_HasToString___spec__2(uint8_t, lean_object*);
 lean_object* l_List_toByteArrayAux___main(lean_object*, lean_object*);
@@ -55,7 +55,7 @@ lean_object* l_ByteArray_toListAux(lean_object*, lean_object*, lean_object*);
 uint8_t l_ByteArray_isEmpty(lean_object*);
 lean_object* l_ByteArray_size___boxed(lean_object*);
 extern lean_object* l_List_repr___rarg___closed__1;
-lean_object* lean_byte_array_set(lean_object*, lean_object*, uint8_t);
+uint8_t lean_byte_array_get(lean_object*, lean_object*);
 lean_object* lean_byte_array_push(lean_object*, uint8_t);
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_ByteArray_mk___boxed(lean_object* x_1) {
@@ -127,7 +127,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* l_ByteArray_get___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_ByteArray_get_x21___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
@@ -138,7 +138,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* l_ByteArray_set___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_ByteArray_set_x21___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; lean_object* x_5; 

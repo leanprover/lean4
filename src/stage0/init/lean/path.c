@@ -72,7 +72,6 @@ lean_object* l_List_reprAux___main___at_Lean_findAtSearchPath___spec__3___boxed(
 lean_object* l_System_FilePath_dirName(lean_object*);
 lean_object* l_Lean_getBuiltinSearchPath___closed__1;
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
-lean_object* l_Array_fget(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_List_foldl___main___at_Lean_moduleNameOfFileName___spec__1(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -104,6 +103,7 @@ lean_object* l___private_init_lean_path_2__searchPathSep___closed__1;
 lean_object* l_Array_size(lean_object*, lean_object*);
 extern uint32_t l_System_FilePath_extSeparator;
 lean_object* l___private_init_lean_path_1__pathSep;
+lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_findFile___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mfindAux___main___at_Lean_findAtSearchPath___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getSearchPathFromEnv(lean_object*);

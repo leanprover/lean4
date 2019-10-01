@@ -106,7 +106,7 @@ bool is_id_first(unsigned char const * begin, unsigned char const * end) {
 }
 
 bool is_id_rest(unsigned char const * begin, unsigned char const * end) {
-    if (std::isalnum(*begin) || *begin == '_' || *begin == '\'')
+    if (std::isalnum(*begin) || *begin == '_' || *begin == '\'' || *begin == '?' || *begin == '!')
         return true;
     unsigned u = utf8_to_unicode(begin, end);
     return is_letter_like_unicode(u) || is_sub_script_alnum_unicode(u);

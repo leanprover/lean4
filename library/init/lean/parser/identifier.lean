@@ -28,7 +28,7 @@ def isIdFirst (c : Char) : Bool :=
 c.isAlpha || c = '_' || isLetterLike c
 
 def isIdRest (c : Char) : Bool :=
-c.isAlphanum || c = '_' || c = '\'' || isLetterLike c || isSubScriptAlnum c
+c.isAlphanum || c = '_' || c = '\'' || c == '!' || c == '?' || isLetterLike c || isSubScriptAlnum c
 
 def idBeginEscape := '«'
 def idEndEscape   := '»'

@@ -538,40 +538,64 @@ x_5 = 39;
 x_6 = x_1 == x_5;
 if (x_6 == 0)
 {
-uint8_t x_7; 
-x_7 = l_Lean_isLetterLike(x_1);
-if (x_7 == 0)
+uint32_t x_7; uint8_t x_8; 
+x_7 = 33;
+x_8 = x_1 == x_7;
+if (x_8 == 0)
 {
-uint8_t x_8; 
-x_8 = l_Lean_isSubScriptAlnum(x_1);
-return x_8;
-}
-else
-{
-uint8_t x_9; 
-x_9 = 1;
-return x_9;
-}
-}
-else
-{
-uint8_t x_10; 
-x_10 = 1;
-return x_10;
-}
-}
-else
+uint32_t x_9; uint8_t x_10; 
+x_9 = 63;
+x_10 = x_1 == x_9;
+if (x_10 == 0)
 {
 uint8_t x_11; 
-x_11 = 1;
-return x_11;
+x_11 = l_Lean_isLetterLike(x_1);
+if (x_11 == 0)
+{
+uint8_t x_12; 
+x_12 = l_Lean_isSubScriptAlnum(x_1);
+return x_12;
+}
+else
+{
+uint8_t x_13; 
+x_13 = 1;
+return x_13;
 }
 }
 else
 {
-uint8_t x_12; 
-x_12 = 1;
-return x_12;
+uint8_t x_14; 
+x_14 = 1;
+return x_14;
+}
+}
+else
+{
+uint8_t x_15; 
+x_15 = 1;
+return x_15;
+}
+}
+else
+{
+uint8_t x_16; 
+x_16 = 1;
+return x_16;
+}
+}
+else
+{
+uint8_t x_17; 
+x_17 = 1;
+return x_17;
+}
+}
+else
+{
+uint8_t x_18; 
+x_18 = 1;
+return x_18;
 }
 }
 }

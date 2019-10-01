@@ -17,7 +17,6 @@ lean_object* l_Lean_mkErrorStringWithPos(lean_object*, lean_object*, lean_object
 lean_object* l_Lean_MessageLog_empty;
 lean_object* l_Lean_Message_toString___closed__2;
 lean_object* l_Lean_Message_toString___closed__1;
-lean_object* l_Lean_mkErrorStringWithPos___closed__1;
 lean_object* l_Lean_Message_Inhabited___closed__2;
 lean_object* l_Lean_MessageLog_append(lean_object*, lean_object*);
 extern lean_object* l_EState_Result_toString___rarg___closed__2;
@@ -44,24 +43,17 @@ lean_object* l_Lean_Message_toString(lean_object*);
 lean_object* l_Lean_MessageLog_HasAppend;
 lean_object* l_Lean_MessageLog_isEmpty___boxed(lean_object*);
 lean_object* l_Lean_MessageLog_hasErrors___boxed(lean_object*);
+extern lean_object* l_panicWithPos___rarg___closed__2;
 lean_object* l_Lean_MessageLog_Inhabited;
 uint8_t l_List_foldr___main___at_Lean_MessageLog_hasErrors___spec__1(uint8_t, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_Lean_Message_Inhabited___closed__1;
 lean_object* l_Lean_Message_toString___closed__5;
-lean_object* _init_l_Lean_mkErrorStringWithPos___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string(":");
-return x_1;
-}
-}
 lean_object* l_Lean_mkErrorStringWithPos(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_5 = l_Lean_mkErrorStringWithPos___closed__1;
+x_5 = l_panicWithPos___rarg___closed__2;
 x_6 = lean_string_append(x_1, x_5);
 x_7 = l_Nat_repr(x_2);
 x_8 = lean_string_append(x_6, x_7);
@@ -454,8 +446,6 @@ w = initialize_init_data_tostring(w);
 if (lean_io_result_is_error(w)) return w;
 w = initialize_init_lean_position(w);
 if (lean_io_result_is_error(w)) return w;
-l_Lean_mkErrorStringWithPos___closed__1 = _init_l_Lean_mkErrorStringWithPos___closed__1();
-lean_mark_persistent(l_Lean_mkErrorStringWithPos___closed__1);
 l_Lean_Message_toString___closed__1 = _init_l_Lean_Message_toString___closed__1();
 lean_mark_persistent(l_Lean_Message_toString___closed__1);
 l_Lean_Message_toString___closed__2 = _init_l_Lean_Message_toString___closed__2();

@@ -30,7 +30,6 @@ lean_object* l_Lean_Elab_mkExplicitBinder___rarg___closed__4;
 lean_object* l_Lean_Elab_elabList(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabTermAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_shift__right(size_t, size_t);
-extern lean_object* l_Lean_mkErrorStringWithPos___closed__1;
 lean_object* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Elab_elabList___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_List_format___rarg___closed__2;
 lean_object* l_Lean_Elab_elabList___closed__3;
@@ -88,6 +87,7 @@ lean_object* l_Array_get(lean_object*, lean_object*, lean_object*, lean_object*)
 lean_object* l_Lean_Elab_elabTerm(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find___at_Lean_Elab_elabTermAux___main___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_forall___elambda__1___closed__2;
+extern lean_object* l_panicWithPos___rarg___closed__2;
 extern lean_object* l_Lean_Syntax_asNode___rarg___closed__1;
 lean_object* l_Lean_Elab_mkExplicitBinder___rarg___closed__2;
 lean_object* l_Lean_Elab_elabArrow(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1552,7 +1552,7 @@ lean_object* _init_l_Lean_Elab_mkExplicitBinder___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_mkErrorStringWithPos___closed__1;
+x_1 = l_panicWithPos___rarg___closed__2;
 x_2 = l_Lean_mkAtom___rarg(x_1);
 return x_2;
 }

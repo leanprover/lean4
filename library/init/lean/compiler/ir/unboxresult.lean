@@ -15,7 +15,9 @@ registerTagAttribute `unbox "compiler tries to unbox result values if their type
   match env.find declName with
   | none => Except.error "unknown declaration"
   | some cinfo => match cinfo with
-    | ConstantInfo.inductInfo _ => Except.ok ()
+    | ConstantInfo.inductInfo v =>
+      if v.isRec then Except.error "recursive inductive datatypes are not supported"
+      else Except.ok ()
     | _ => Except.error "constant must be an inductive type"
 
 @[init mkUnboxAttr]

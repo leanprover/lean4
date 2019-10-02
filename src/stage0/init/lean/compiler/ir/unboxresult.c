@@ -20,6 +20,8 @@ lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___closed__1;
 uint8_t l_Lean_IR_UnboxResult_hasUnboxAttr(lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__1;
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__5;
+lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__7;
+lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__6;
 lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
@@ -78,6 +80,24 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
+lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__6() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("recursive inductive datatypes are not supported");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__6;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -97,17 +117,31 @@ lean_inc(x_5);
 lean_dec(x_3);
 if (lean_obj_tag(x_5) == 5)
 {
-lean_object* x_6; 
+lean_object* x_6; uint8_t x_7; 
+x_6 = lean_ctor_get(x_5, 0);
+lean_inc(x_6);
 lean_dec(x_5);
-x_6 = l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__5;
-return x_6;
+x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*5);
+lean_dec(x_6);
+if (x_7 == 0)
+{
+lean_object* x_8; 
+x_8 = l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__5;
+return x_8;
 }
 else
 {
-lean_object* x_7; 
+lean_object* x_9; 
+x_9 = l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__7;
+return x_9;
+}
+}
+else
+{
+lean_object* x_10; 
 lean_dec(x_5);
-x_7 = l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__4;
-return x_7;
+x_10 = l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__4;
+return x_10;
 }
 }
 }
@@ -198,6 +232,10 @@ l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__4 = _init_l_Lean_IR_Unbo
 lean_mark_persistent(l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__4);
 l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__5 = _init_l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__5();
 lean_mark_persistent(l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__5);
+l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__6 = _init_l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__6();
+lean_mark_persistent(l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__6);
+l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__7 = _init_l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__7();
+lean_mark_persistent(l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__7);
 l_Lean_IR_UnboxResult_mkUnboxAttr___closed__1 = _init_l_Lean_IR_UnboxResult_mkUnboxAttr___closed__1();
 lean_mark_persistent(l_Lean_IR_UnboxResult_mkUnboxAttr___closed__1);
 l_Lean_IR_UnboxResult_mkUnboxAttr___closed__2 = _init_l_Lean_IR_UnboxResult_mkUnboxAttr___closed__2();

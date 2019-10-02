@@ -5,7 +5,7 @@ llvmPackages.stdenv.mkDerivation rec {
   version = "local";
 
   # I have way too many untracked files in my checkout
-  src = builtins.fetchGit { url = ../.; };
+  src = if builtins.pathExists ../.git then builtins.fetchGit { url = ../.; } else ../.;
 
   nativeBuildInputs = [ bash cmake python ];
   buildInputs = [ gmp llvmPackages.llvm ];

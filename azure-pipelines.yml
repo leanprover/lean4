@@ -21,12 +21,9 @@ jobs:
       Linux LLVM=ON:
         imageName: ubuntu-latest
         CMAKE_OPTIONS: -DLLVM=ON
-      Linux Clang 8 LLVM=ON:
-        imageName: ubuntu-latest
-        NIX_SHELL_OPTIONS: --arg clang '(import <nixpkgs> {}).clang_8'
-        CMAKE_OPTIONS: -DLLVM=ON
       macOS:
         imageName: macos-latest
+        NIX_SHELL_OPTIONS: --arg llvmPackages '(import ./nix/nixpkgs.nix).llvmPackages_8'
   pool:
     vmImage: $(imageName)
   steps:

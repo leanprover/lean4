@@ -14,6 +14,8 @@ inductive Except (ε : Type u) (α : Type v)
 | error {} : ε → Except
 | ok {} : α → Except
 
+attribute [unbox] Except
+
 instance {ε α : Type} [Inhabited ε] : Inhabited (Except ε α) :=
 ⟨Except.error (default ε)⟩
 

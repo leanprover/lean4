@@ -211,6 +211,8 @@ inductive Heq {α : Sort u} (a : α) : ∀ {β : Sort u}, β → Prop
 structure Prod (α : Type u) (β : Type v) :=
 (fst : α) (snd : β)
 
+attribute [unbox] Prod
+
 /-- Similar to `Prod`, but α and β can be propositions.
    We use this Type internally to automatically generate the brecOn recursor. -/
 structure PProd (α : Sort u) (β : Sort v) :=
@@ -272,6 +274,8 @@ Or.inr hb
 structure Sigma {α : Type u} (β : α → Type v) :=
 mk :: (fst : α) (snd : β fst)
 
+attribute [unbox] Sigma
+
 structure PSigma {α : Sort u} (β : α → Sort v) :=
 mk :: (fst : α) (snd : β fst)
 
@@ -307,6 +311,8 @@ decEq a b
 inductive Option (α : Type u)
 | none {} : Option
 | some (val : α) : Option
+
+attribute [unbox] Option
 
 export Option (none some)
 export Bool (false true)

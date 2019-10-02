@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.ir.default
-// Imports: init.lean.compiler.ir.basic init.lean.compiler.ir.format init.lean.compiler.ir.compilerm init.lean.compiler.ir.pushproj init.lean.compiler.ir.elimdead init.lean.compiler.ir.simpcase init.lean.compiler.ir.resetreuse init.lean.compiler.ir.normids init.lean.compiler.ir.checker init.lean.compiler.ir.borrow init.lean.compiler.ir.boxing init.lean.compiler.ir.rc init.lean.compiler.ir.expandresetreuse init.lean.compiler.ir.emitc
+// Imports: init.lean.compiler.ir.basic init.lean.compiler.ir.format init.lean.compiler.ir.compilerm init.lean.compiler.ir.pushproj init.lean.compiler.ir.elimdead init.lean.compiler.ir.simpcase init.lean.compiler.ir.resetreuse init.lean.compiler.ir.normids init.lean.compiler.ir.checker init.lean.compiler.ir.borrow init.lean.compiler.ir.boxing init.lean.compiler.ir.rc init.lean.compiler.ir.expandresetreuse init.lean.compiler.ir.unboxresult init.lean.compiler.ir.emitc
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -8660,6 +8660,7 @@ lean_object* initialize_init_lean_compiler_ir_borrow(lean_object*);
 lean_object* initialize_init_lean_compiler_ir_boxing(lean_object*);
 lean_object* initialize_init_lean_compiler_ir_rc(lean_object*);
 lean_object* initialize_init_lean_compiler_ir_expandresetreuse(lean_object*);
+lean_object* initialize_init_lean_compiler_ir_unboxresult(lean_object*);
 lean_object* initialize_init_lean_compiler_ir_emitc(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_init_lean_compiler_ir_default(lean_object* w) {
@@ -8691,6 +8692,8 @@ if (lean_io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_rc(w);
 if (lean_io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_expandresetreuse(w);
+if (lean_io_result_is_error(w)) return w;
+w = initialize_init_lean_compiler_ir_unboxresult(w);
 if (lean_io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_emitc(w);
 if (lean_io_result_is_error(w)) return w;

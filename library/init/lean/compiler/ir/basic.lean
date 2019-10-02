@@ -74,37 +74,54 @@ inductive IRType
 | float | uint8 | uint16 | uint32 | uint64 | usize
 | irrelevant | object | tobject
 
-def IRType.beq : IRType → IRType → Bool
-| IRType.float,      IRType.float      => true
-| IRType.uint8,      IRType.uint8      => true
-| IRType.uint16,     IRType.uint16     => true
-| IRType.uint32,     IRType.uint32     => true
-| IRType.uint64,     IRType.uint64     => true
-| IRType.usize,      IRType.usize      => true
-| IRType.irrelevant, IRType.irrelevant => true
-| IRType.object,     IRType.object     => true
-| IRType.tobject,    IRType.tobject    => true
+namespace IRType
+
+def toString : IRType → String
+| float      => "float"
+| uint8      => "uint8"
+| uint16     => "uint16"
+| uint32     => "uint32"
+| uint64     => "uint64"
+| usize      => "usize"
+| object     => "object"
+| tobject    => "tobject"
+| irrelevant => "irrelevant"
+
+instance : HasToString IRType := ⟨toString⟩
+
+def beq : IRType → IRType → Bool
+| float,      float      => true
+| uint8,      uint8      => true
+| uint16,     uint16     => true
+| uint32,     uint32     => true
+| uint64,     uint64     => true
+| usize,      usize      => true
+| irrelevant, irrelevant => true
+| object,     object     => true
+| tobject,    tobject    => true
 | _,               _                   => false
 
-instance IRType.HasBeq : HasBeq IRType := ⟨IRType.beq⟩
+instance HasBeq : HasBeq IRType := ⟨beq⟩
 
-def IRType.isScalar : IRType → Bool
-| IRType.float  => true
-| IRType.uint8  => true
-| IRType.uint16 => true
-| IRType.uint32 => true
-| IRType.uint64 => true
-| IRType.usize  => true
+def isScalar : IRType → Bool
+| float  => true
+| uint8  => true
+| uint16 => true
+| uint32 => true
+| uint64 => true
+| usize  => true
 | _             => false
 
-def IRType.isObj : IRType → Bool
-| IRType.object  => true
-| IRType.tobject => true
+def isObj : IRType → Bool
+| object  => true
+| tobject => true
 | _              => false
 
-def IRType.isIrrelevant : IRType → Bool
-| IRType.irrelevant => true
+def isIrrelevant : IRType → Bool
+| irrelevant => true
 | _ => false
+
+end IRType
 
 /- Arguments to applications, constructors, etc.
    We use `irrelevant` for Lean types, propositions and proofs that have been erased.

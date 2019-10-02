@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_expr_mk_mdata(lean_object*, lean_object*);
+uint8_t lean_expr_has_fvar(lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux___main___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_lam___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_quick_lt(lean_object*, lean_object*);
@@ -54,6 +55,7 @@ lean_object* l_Lean_Expr_isAppOfArity___boxed(lean_object*, lean_object*, lean_o
 lean_object* l_Lean_mkDecIsTrue___closed__3;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux___main(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_hasMVar___boxed(lean_object*);
 lean_object* l_Lean_Expr_sort___boxed(lean_object*);
 lean_object* l_Lean_Expr_HasToString___closed__1;
 lean_object* lean_expr_mk_fvar(lean_object*);
@@ -95,6 +97,7 @@ lean_object* l_Lean_Expr_getAppArgsAux___main(lean_object*, lean_object*);
 lean_object* lean_expr_instantiate_rev(lean_object*, lean_object*);
 lean_object* l_Lean_mkCApp(lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsTrue___closed__5;
+lean_object* l_Lean_Expr_hasFVar___boxed(lean_object*);
 lean_object* l_Lean_Expr_HasToString;
 uint8_t l_Lean_Expr_isAppOfArity___main(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isBinding(lean_object*);
@@ -111,6 +114,7 @@ lean_object* l_Lean_mkDecIsTrue(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_abstract___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___boxed(lean_object*, lean_object*);
+uint8_t lean_expr_has_mvar(lean_object*);
 lean_object* l_Lean_Expr_abstractRange___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvar___boxed(lean_object*);
 lean_object* lean_expr_mk_lambda(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -560,6 +564,26 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Expr_HasBeq___closed__1;
 return x_1;
+}
+}
+lean_object* l_Lean_Expr_hasMVar___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = lean_expr_has_mvar(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_Expr_hasFVar___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = lean_expr_has_fvar(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
 }
 }
 uint8_t l_Lean_Expr_isSort(lean_object* x_1) {

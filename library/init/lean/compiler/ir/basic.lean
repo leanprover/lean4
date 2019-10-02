@@ -76,19 +76,6 @@ inductive IRType
 
 namespace IRType
 
-def toString : IRType → String
-| float      => "float"
-| uint8      => "uint8"
-| uint16     => "uint16"
-| uint32     => "uint32"
-| uint64     => "uint64"
-| usize      => "usize"
-| object     => "object"
-| tobject    => "tobject"
-| irrelevant => "irrelevant"
-
-instance : HasToString IRType := ⟨toString⟩
-
 def beq : IRType → IRType → Bool
 | float,      float      => true
 | uint8,      uint8      => true
@@ -99,7 +86,7 @@ def beq : IRType → IRType → Bool
 | irrelevant, irrelevant => true
 | object,     object     => true
 | tobject,    tobject    => true
-| _,               _                   => false
+| _,          _          => false
 
 instance HasBeq : HasBeq IRType := ⟨beq⟩
 
@@ -110,12 +97,12 @@ def isScalar : IRType → Bool
 | uint32 => true
 | uint64 => true
 | usize  => true
-| _             => false
+| _      => false
 
 def isObj : IRType → Bool
 | object  => true
 | tobject => true
-| _              => false
+| _       => false
 
 def isIrrelevant : IRType → Bool
 | irrelevant => true

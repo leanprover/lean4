@@ -1,4 +1,4 @@
-{ pkgs ? import ./nix/nixpkgs.nix, ... } @ args:
+{ pkgs ? import ./nix/nixpkgs.nix, llvmPackages ?pkgs.llvmPackages_9 } @ args:
 
 let
   lean = import ./default.nix args;

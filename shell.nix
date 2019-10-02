@@ -2,7 +2,7 @@
 
 let
   lean = import ./default.nix { inherit pkgs; };
-  temci = pkgs.callPackage (builtins.fetchGit { url = https://github.com/parttimenerd/temci.git; rev = "2facd7c78ab35722f34db1d42883ec02f8a0de23"; }) {};
+  temci = import (builtins.fetchGit { url = http://github.com/parttimenerd/temci.git; rev = "ba1505a7c2de471a5821a2643b34de2d1c1af03e"; }) {};
 in pkgs.mkShell.override { stdenv = lean.stdenv; } rec {
   inputsFrom = [ lean ];
   buildInputs = with pkgs; [ temci ccache ninja ];

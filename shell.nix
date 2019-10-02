@@ -1,7 +1,7 @@
-{ pkgs ? import ./nix/nixpkgs.nix }:
+{ pkgs ? import ./nix/nixpkgs.nix, ... } @ args:
 
 let
-  lean = import ./default.nix { inherit pkgs; };
+  lean = import ./default.nix args;
   temci = import (builtins.fetchGit { url = http://github.com/parttimenerd/temci.git; rev = "ba1505a7c2de471a5821a2643b34de2d1c1af03e"; }) {};
 in pkgs.mkShell.override { stdenv = lean.stdenv; } rec {
   inputsFrom = [ lean ];

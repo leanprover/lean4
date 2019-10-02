@@ -100,6 +100,12 @@ constant eqv (a : @& Expr) (b : @& Expr) : Bool := default _
 
 instance : HasBeq Expr := ⟨Expr.eqv⟩
 
+@[extern "lean_expr_has_mvar"]
+constant hasMVar (a : @& Expr) : Bool := default _
+
+@[extern "lean_expr_has_fvar"]
+constant hasFVar (a : @& Expr) : Bool := default _
+
 def isSort : Expr → Bool
 | Expr.sort _ => true
 | _ => false

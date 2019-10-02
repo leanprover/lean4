@@ -789,6 +789,17 @@ expr infer_implicit(expr const & t, bool strict) {
 }
 
 // =======================================
+// Extra exports
+
+extern "C" uint8 lean_expr_has_mvar(b_obj_arg o) {
+    return has_mvar(TO_REF(expr, o));
+}
+
+extern "C" uint8 lean_expr_has_fvar(b_obj_arg o) {
+    return has_fvar(TO_REF(expr, o));
+}
+
+// =======================================
 // Initialization & Finalization
 
 void initialize_expr() {

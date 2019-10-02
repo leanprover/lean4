@@ -216,4 +216,7 @@ template<typename T> T get_except_value(obj_arg o) {
         throw exception(err);
     }
 }
+
+// Remark: `T` must be an `object_ref`.
+#define TO_REF(T, o) reinterpret_cast<T const &>(o)
 }

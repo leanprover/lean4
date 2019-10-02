@@ -4,4 +4,4 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.list.basic init.data.list.aux init.data.list.instances
+import init.data.list.basic init.data.list.basic_aux init.data.list.instances

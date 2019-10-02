@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: init.data.list.aux
+// Module: init.data.list.basic_aux
 // Imports: init.data.list.basic init.util
 #include "runtime/lean.h"
 #if defined(__clang__)
@@ -80,7 +80,7 @@ lean_object* _init_l_List_get_x21___main___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("/Users/leonardodemoura/projects/lean4/library/init/data/list/aux.lean");
+x_1 = lean_mk_string("/data1/ullrich/lean/lean/library/init/data/list/basic_aux.lean");
 return x_1;
 }
 }
@@ -764,7 +764,7 @@ return x_3;
 lean_object* initialize_init_data_list_basic(lean_object*);
 lean_object* initialize_init_util(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_list_aux(lean_object* w) {
+lean_object* initialize_init_data_list_basic__aux(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;

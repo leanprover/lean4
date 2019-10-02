@@ -797,7 +797,7 @@ lean_object* _init_l___private_init_data_array_basic_1__swapAtPanic_x21___rarg__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("/Users/leonardodemoura/projects/lean4/library/init/data/array/basic.lean");
+x_1 = lean_mk_string("/data1/ullrich/lean/lean/library/init/data/array/basic.lean");
 return x_1;
 }
 }

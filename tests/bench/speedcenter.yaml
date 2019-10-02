@@ -196,27 +196,6 @@ report:
         # Show zoomed out (x min = 0) figures in the extended summaries?
         show_zoomed_out: false
     
-    #   Reporter that produces a HTML bsaed report with lot's of graphics.
-    html_misc:
-        
-        # Run to to use as base run for relative values in comparison table
-        compare_against: 0
-        
-        # Properties to include in comparison table
-        compared_props: [all]
-        
-        # Name of the HTML file
-        html_filename: report.html
-        
-        # Output directory
-        out: report
-        
-        # Kind of plot to draw for pair plots (see searborn.joinplot)
-        pair_kind: kde
-        
-        # Width of the plots in centimeters
-        plot_size: 8
-    
     number:
         
         # Don't omit the minimum number of decimal places if insignificant?

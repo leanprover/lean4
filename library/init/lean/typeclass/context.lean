@@ -63,7 +63,7 @@ do ctx ← get; pure $ ctx.eTypes.get idx
 def eInfer (ctx : Context) (mvar : Expr) : Expr :=
 match eMetaIdx mvar with
 | some idx => ctx.eTypes.get idx
-| none     => panic "eInfer called on non-(tmp-)mvar"
+| none     => panic! "eInfer called on non-(tmp-)mvar"
 
 def eAssignIdx (idx : Nat) (e : Expr) : State Context Unit :=
 modify $ λ ctx => { eVals := ctx.eVals.set idx (some e) .. ctx }
@@ -71,7 +71,7 @@ modify $ λ ctx => { eVals := ctx.eVals.set idx (some e) .. ctx }
 def eAssign (mvar : Expr) (e : Expr) : State Context Unit :=
 match eMetaIdx mvar with
 | some idx => modify $ λ ctx => { eVals := ctx.eVals.set idx (some e) .. ctx }
-| _        => panic "eAssign called on non-(tmp-)mvar"
+| _        => panic! "eAssign called on non-(tmp-)mvar"
 
 partial def eFind (f : Expr → Bool) : Expr → Bool
 | e =>
@@ -117,7 +117,7 @@ modify $ λ ctx => { uVals := ctx.uVals.set idx (some l) .. ctx }
 def uAssign (umvar : Level) (l : Level) : State Context Unit :=
 match uMetaIdx umvar with
 | some idx => modify $ λ ctx => { uVals := ctx.uVals.set idx (some l) .. ctx }
-| _        => panic "uassign called on non-(tmp-)mvar"
+| _        => panic! "uassign called on non-(tmp-)mvar"
 
 partial def uFind (f : Level → Bool) : Level → Bool
 | l => if f l then true else
@@ -194,7 +194,7 @@ partial def eUnify : Expr → Expr → EState String Context Unit
   else if eIsMeta e₁ && not (eOccursIn e₂ e₁) then
     match eMetaIdx e₁ with
     | some idx => EState.fromState $ eAssignIdx idx e₂
-    | none     => panic "UNREACHABLE"
+    | none     => panic! "UNREACHABLE"
   else
     throw $ "eUnify: " ++ toString e₁ ++ " !=?= " ++ toString e₂
 

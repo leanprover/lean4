@@ -12,7 +12,7 @@ namespace TypeClass
 
 /- Entry point for the `#synth` command used for testing. -/
 @[export lean_typeclass_synth_command]
-def synth_command (env : Environment) (goalType : Expr) : ExceptT String Id Expr :=
+def synthCommand (env : Environment) (goalType : Expr) : ExceptT String Id Expr :=
 match (synth goalType).run { env := env } with
 | EState.Result.ok val _    => pure val
 | EState.Result.error msg _ => throw msg

@@ -49,6 +49,11 @@ instance : HasEmptyc (SMap α β) := ⟨SMap.empty⟩
 @[inline] def findD (m : SMap α β) (a : α) (b₀ : β) : β :=
 (m.find a).getOrElse b₀
 
+@[inline] def find! [Inhabited β] (m : SMap α β) (a : α) : β :=
+match m.find a with
+| some b => b
+| none   => panic! "key is not in the map"
+
 @[specialize] def contains : SMap α β → α → Bool
 | ⟨true, m₁, _⟩, k   => m₁.contains k
 | ⟨false, m₁, m₂⟩, k => m₁.contains k || m₂.contains k

@@ -4,8 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.array.basic init.data.assoclist
-import init.data.option.basic init.data.hashable
+import init.data.array.basic
+import init.data.assoclist
+import init.data.option.basic
+import init.data.hashable
 universes u v w
 
 def HashMapBucket (α : Type u) (β : Type v) :=
@@ -146,6 +148,11 @@ match m with
 
 @[inline] def findD (m : HashMap α β) (a : α) (b₀ : β) : β :=
 (m.find a).getOrElse b₀
+
+@[inline] def find! [Inhabited β] (m : HashMap α β) (a : α) : β :=
+match m.find a with
+| some b => b
+| none   => panic! "key is not in the map"
 
 @[inline] def contains (m : HashMap α β) (a : α) : Bool :=
 match m with

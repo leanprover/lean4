@@ -158,6 +158,11 @@ def find [HasBeq α] [Hashable α] : PersistentHashMap α β → α → Option �
 @[inline] def findD [HasBeq α] [Hashable α] (m : PersistentHashMap α β) (a : α) (b₀ : β) : β :=
 (m.find a).getOrElse b₀
 
+@[inline] def find! [HasBeq α] [Hashable α] [Inhabited β] (m : PersistentHashMap α β) (a : α) : β :=
+match m.find a with
+| some b => b
+| none   => panic! "key is not in the map"
+
 partial def containsAtAux [HasBeq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) : Nat → α → Bool
 | i, k =>
   if h : i < keys.size then

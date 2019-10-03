@@ -26,7 +26,7 @@ def get? : Nat → List α → Option α
 | _,   _     => none
 
 def getD (idx : Nat) (as : List α) (a₀ : α) : α :=
-(as.get? idx).getOrElse a₀
+(as.get? idx).getD a₀
 
 def head! [Inhabited α] : List α → α
 | []   => panic! "empty list"

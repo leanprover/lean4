@@ -187,7 +187,7 @@ stx.asNode.getKind
   match o with
   | some stx => pure stx
   | none     => do args ← args.mmap mreplace; pure (node kind args)
-| stx => do o ← fn stx; pure (o.getOrElse stx)
+| stx => do o ← fn stx; pure $ o.getD stx
 
 @[specialize] partial def mrewriteBottomUp {α} {m : Type → Type} [Monad m] (fn : Syntax α → m (Syntax α)) : Syntax α → m (Syntax α)
 | node kind args   => do

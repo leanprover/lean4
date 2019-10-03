@@ -47,7 +47,7 @@ instance : HasEmptyc (SMap α β) := ⟨SMap.empty⟩
 | ⟨false, m₁, m₂⟩, k => (m₂.find k).orelse (m₁.find k)
 
 @[inline] def findD (m : SMap α β) (a : α) (b₀ : β) : β :=
-(m.find a).getOrElse b₀
+(m.find a).getD b₀
 
 @[inline] def find! [Inhabited β] (m : SMap α β) (a : α) : β :=
 match m.find a with

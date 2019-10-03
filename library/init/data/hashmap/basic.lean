@@ -147,7 +147,7 @@ match m with
 | ⟨ m, _ ⟩ => m.find a
 
 @[inline] def findD (m : HashMap α β) (a : α) (b₀ : β) : β :=
-(m.find a).getOrElse b₀
+(m.find a).getD b₀
 
 @[inline] def find! [Inhabited β] (m : HashMap α β) (a : α) : β :=
 match m.find a with

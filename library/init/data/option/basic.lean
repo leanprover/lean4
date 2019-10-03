@@ -15,13 +15,9 @@ def toMonad {m : Type → Type} [Monad m] [Alternative m] {A} : Option A → m A
 | none => failure
 | some a   => pure a
 
-@[macroInline] def getOrElse {α : Type u} : Option α → α → α
+@[macroInline] def getD {α : Type u} : Option α → α → α
 | some x, _ => x
 | none,   e => e
-
-@[inline] def get {α : Type u} [Inhabited α] : Option α → α
-| some x => x
-| none   => default α
 
 @[inline] def toBool {α : Type u} : Option α → Bool
 | some _ => true

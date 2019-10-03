@@ -156,7 +156,7 @@ def find [HasBeq α] [Hashable α] : PersistentHashMap α β → α → Option �
 | { root := n, .. }, k => findAux n (hash k) k
 
 @[inline] def findD [HasBeq α] [Hashable α] (m : PersistentHashMap α β) (a : α) (b₀ : β) : β :=
-(m.find a).getOrElse b₀
+(m.find a).getD b₀
 
 @[inline] def find! [HasBeq α] [Hashable α] [Inhabited β] (m : PersistentHashMap α β) (a : α) : β :=
 match m.find a with

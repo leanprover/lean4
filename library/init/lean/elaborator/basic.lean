@@ -229,12 +229,12 @@ modify $ fun s => { messages := s.messages.add msg, .. s }
 def getPosition (pos : Option String.Pos := none) : Elab Position :=
 do ctx ← read;
    s ← get;
-   pure $ ctx.fileMap.toPosition (pos.getOrElse s.cmdPos)
+   pure $ ctx.fileMap.toPosition (pos.getD s.cmdPos)
 
 def mkMessage (msg : String) (pos : Option String.Pos := none) : Elab Message :=
 do ctx ← read;
    s ← get;
-   let pos := ctx.fileMap.toPosition (pos.getOrElse s.cmdPos);
+   let pos := ctx.fileMap.toPosition (pos.getD s.cmdPos);
    pure { fileName := ctx.fileName, pos := pos, text := msg }
 
 def logErrorAt (pos : String.Pos) (errorMsg : String) : Elab Unit :=
@@ -373,7 +373,7 @@ catch
       pure (env, messages))
   (fun e => do
      env ← mkEmptyEnvironment;
-     let spos := header.getPos.getOrElse 0;
+     let spos := header.getPos.getD 0;
      let pos  := ctx.fileMap.toPosition spos;
      pure (env, messages.add { fileName := ctx.fileName, text := toString e, pos := pos }))
 
@@ -387,7 +387,7 @@ match fileName with
 def testFrontend (input : String) (fileName : Option String := none) : IO (Environment × MessageLog) :=
 do env ← mkEmptyEnvironment;
    baseDir ← toBaseDir fileName;
-   let fileName := fileName.getOrElse "<input>";
+   let fileName := fileName.getD "<input>";
    let ctx := Parser.mkParserContextCore env input fileName;
    match Parser.parseHeader env ctx with
    | (header, parserState, messages) => do

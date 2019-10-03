@@ -102,7 +102,7 @@ match e with
 private partial def popTailNoneAux : PArray (Option LocalDecl) → PArray (Option LocalDecl)
 | a =>
   if a.size == 0 then a
-  else match a.get (a.size - 1) with
+  else match a.get! (a.size - 1) with
     | none   => popTailNoneAux a.pop
     | some _ => a
 
@@ -119,7 +119,7 @@ def pop (lctx : LocalContext): LocalContext :=
 match lctx with
 | { nameToDecl := map, decls := decls } =>
   if decls.size == 0 then lctx
-  else match decls.get (decls.size - 1) with
+  else match decls.get! (decls.size - 1) with
     | none      => lctx -- unreachable
     | some decl => { nameToDecl := map.erase decl.name, decls := popTailNoneAux decls.pop }
 
@@ -147,7 +147,7 @@ else suggestion
 
 @[export lean_local_ctx_last_decl]
 def lastDecl (lctx : LocalContext) : Option LocalDecl :=
-lctx.decls.get (lctx.decls.size - 1)
+lctx.decls.get! (lctx.decls.size - 1)
 
 @[export lean_local_ctx_rename_user_name]
 def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : LocalContext :=
@@ -165,8 +165,8 @@ def numIndices (lctx : LocalContext) : Nat :=
 lctx.decls.size
 
 @[export lean_local_ctx_get]
-def get (lctx : LocalContext) (i : Nat) : Option LocalDecl :=
-lctx.decls.get i
+def get! (lctx : LocalContext) (i : Nat) : Option LocalDecl :=
+lctx.decls.get! i
 
 section
 universes u v
@@ -218,10 +218,10 @@ partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) : Nat → N
 | i, j =>
   if i < a₁.size then
   if j < a₂.size then
-    match a₁.get i with
+    match a₁.get! i with
     | none       => isSubPrefixOfAux (i+1) j
     | some decl₁ =>
-      match a₂.get j with
+      match a₂.get! j with
       | none => isSubPrefixOfAux i (j+1)
       | some decl₂ =>
         if decl₁.name == decl₂.name then isSubPrefixOfAux (i+1) (j+1) else isSubPrefixOfAux i (j+1)

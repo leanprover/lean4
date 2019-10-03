@@ -61,7 +61,7 @@ partial def getAux [Inhabited α] : PersistentArrayNode α → USize → USize �
 | node cs, i, shift => getAux (cs.get! (div2Shift i shift).toNat) (mod2Shift i shift) (shift - initShift)
 | leaf cs, i, _     => cs.get! i.toNat
 
-def get [Inhabited α] (t : PersistentArray α) (i : Nat) : α :=
+def get! [Inhabited α] (t : PersistentArray α) (i : Nat) : α :=
 if i >= t.tailOff then
   t.tail.get! (i - t.tailOff)
 else

@@ -296,3 +296,15 @@ def List.toPersistentArrayAux {α : Type u} : List α → PersistentArray α →
 
 def List.toPersistentArray {α : Type u} (xs : List α) : PersistentArray α :=
 xs.toPersistentArrayAux {}
+
+def Array.toPersistentArray {α : Type u} (xs : Array α) : PersistentArray α :=
+xs.foldl (fun p x => p.push x) PersistentArray.empty
+
+@[inline] def Array.toPArray {α : Type u} (xs : Array α) : PersistentArray α :=
+xs.toPersistentArray
+
+def mkPersistentArray {α : Type u} (n : Nat) (v : α) : PArray α :=
+n.fold (fun i p => p.push v) PersistentArray.empty
+
+@[inline] def mkPArray {α : Type u} (n : Nat) (v : α) : PArray α :=
+mkPersistentArray n v

@@ -77,11 +77,12 @@ def quickIsClass (env : Environment) : Expr → Option (Option Name)
 | Expr.proj _ _ _   => none
 | Expr.mdata _ e    => quickIsClass e
 | Expr.const n _    => if isClass env n then some (some  n) else none
-| Expr.app e _      => let f := e.getAppFn;
-                       if f.isConst && isClass env f.constName then some (some f.constName) else
-                       if f.isLambda then none else
-                       some none
 | Expr.pi _ _ _ b   => quickIsClass b
+| Expr.app e _      =>
+  let f := e.getAppFn;
+  if f.isConst && isClass env f.constName then some (some f.constName)
+  else if f.isLambda then none
+  else some none
 | _            => some none
 
 def newSubgoal (waiter : Waiter) (ctx : Context) (mvar : Expr) : TCMethod Unit :=
@@ -230,10 +231,10 @@ do gNode ← get >>= λ ϕ => pure ϕ.generatorStack.back;
 
 def step : TCMethod Unit :=
 do ϕ ← get;
-   if !ϕ.resumeQueue.isEmpty then resume else
-   if !ϕ.consumerStack.isEmpty then consume else
-   if !ϕ.generatorStack.isEmpty then generate else
-   throw "FAILED TO SYNTHESIZE"
+   if !ϕ.resumeQueue.isEmpty then resume
+   else if !ϕ.consumerStack.isEmpty then consume
+   else if !ϕ.generatorStack.isEmpty then generate
+   else throw "FAILED TO SYNTHESIZE"
 
 partial def synthCoreFueled (ctx₀ : Context) (goalType : Expr) : Nat → TCMethod TypedExpr
 | 0   => throw "[synthCore] out of fuel"
@@ -253,6 +254,7 @@ do let ⟨mvar, ctx⟩ := (Context.eNewMeta goalType).run ctx₀;
 def collectUReplacements : List Level → Context → Array (Level × Level) → Array Level
                              → Context × Array (Level × Level) × Array Level
 | [],    ctx, uReplacements, fLevels => (ctx, uReplacements, fLevels)
+
 | l::ls, ctx, uReplacements, fLevels =>
   if l.hasMVar then
     let ⟨uMeta, ctx⟩ := Context.uNewMeta.run ctx;
@@ -264,6 +266,7 @@ def collectEReplacements (env : Environment) (lctx : LocalContext) (locals : Arr
   : Expr → List Expr → Context → Array (Expr × Expr) → Array Expr
     → Context × Array (Expr × Expr) × Array Expr
 | _,               [],        ctx, eReplacements, fArgs => (ctx, eReplacements, fArgs)
+
 | Expr.pi _ _ d b, arg::args, ctx, eReplacements, fArgs =>
   if isOutParam d then
     let ⟨eMeta, ctx⟩ := (Context.eNewMeta $ lctx.mkForall locals d).run ctx;
@@ -271,21 +274,27 @@ def collectEReplacements (env : Environment) (lctx : LocalContext) (locals : Arr
     collectEReplacements (b.instantiate1 fArg) args ctx (eReplacements.push (eMeta, arg)) (fArgs.push fArg)
   else
     collectEReplacements (b.instantiate1 arg) args ctx eReplacements (fArgs.push arg)
+
 | _, arg::args, _, _, _ => panic! "TODO(dselsam): this case not yet handled"
 
 def preprocessForOutParams (env : Environment) (goalType : Expr) : Context × Expr × Array (Level × Level) × Array (Expr × Expr) :=
-if !goalType.hasMVar && goalType.getAppFn.isConst && !hasOutParams env goalType.getAppFn.constName then ({}, goalType, Array.empty, Array.empty) else
-let ⟨lctx, bodyGoalType, locals⟩ := introduceLocals 0 {} Array.empty goalType;
-let f := goalType.getAppFn;
-let fArgs := goalType.getAppArgs;
-if not (f.isConst && isClass env f.constName) then ({}, goalType, Array.empty, Array.empty) else
-let ⟨ctx, uReplacements, CLevels⟩ := collectUReplacements f.constLevels {} Array.empty Array.empty;
-let f := if uReplacements.isEmpty then f else Expr.const f.constName CLevels.toList;
-let fType := match env.find f.constName with
-             | none => panic! "found constant not in the environment"
-             | some cInfo => cInfo.instantiateTypeUnivParams CLevels.toList;
-let (ctx, eReplacements, fArgs) := collectEReplacements env lctx locals fType fArgs ctx Array.empty Array.empty;
-(ctx, lctx.mkForall locals $ mkApp f fArgs.toList, uReplacements, eReplacements)
+if !goalType.hasMVar && goalType.getAppFn.isConst && !hasOutParams env goalType.getAppFn.constName
+then ({}, goalType, Array.empty, Array.empty)
+else
+  let ⟨lctx, bodyGoalType, locals⟩ := introduceLocals 0 {} Array.empty goalType;
+  let f := goalType.getAppFn;
+  let fArgs := goalType.getAppArgs;
+  if not (f.isConst && isClass env f.constName)
+  then ({}, goalType, Array.empty, Array.empty)
+  else
+    let ⟨ctx, uReplacements, CLevels⟩ := collectUReplacements f.constLevels {} Array.empty Array.empty;
+    let f := if uReplacements.isEmpty then f else Expr.const f.constName CLevels.toList;
+    let fType :=
+      match env.find f.constName with
+      | none => panic! "found constant not in the environment"
+      | some cInfo => cInfo.instantiateTypeUnivParams CLevels.toList;
+    let (ctx, eReplacements, fArgs) := collectEReplacements env lctx locals fType fArgs ctx Array.empty Array.empty;
+    (ctx, lctx.mkForall locals $ mkApp f fArgs.toList, uReplacements, eReplacements)
 
 def synth (goalType₀ : Expr) (fuel : Nat := 100000) : TCMethod Expr :=
 do env ← get >>= λ ϕ => pure ϕ.env;
@@ -294,9 +303,9 @@ do env ← get >>= λ ϕ => pure ϕ.env;
    match (Context.eUnify goalType₀ instType).run ctx with
    | EState.Result.error msg _ => throw $ "outParams do not match: " ++ toString goalType₀ ++ " ≠ " ++ toString instType
    | EState.Result.ok _ ctx => do
-   let instVal : Expr := ctx.eInstantiate instVal;
-   when (Context.eHasMVar instVal) $ throw "synthesized instance has mvar";
-   pure instVal
+     let instVal : Expr := ctx.eInstantiate instVal;
+     when (Context.eHasMVar instVal) $ throw "synthesized instance has mvar";
+     pure instVal
 
 end TypeClass
 end Lean

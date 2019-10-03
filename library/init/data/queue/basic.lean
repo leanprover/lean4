@@ -29,8 +29,9 @@ q.dList.isEmpty && q.eList.isEmpty
 def dequeue? (q : Queue α) : Option (α × Queue α) :=
 match q.dList with
 | d::ds => some (d, { dList := ds, .. q })
-| []    => match q.eList.reverse with
-           | []    => none
-           | d::ds => some (d, { eList := [], dList := ds })
+| []    =>
+  match q.eList.reverse with
+  | []    => none
+  | d::ds => some (d, { eList := [], dList := ds })
 
 end Queue

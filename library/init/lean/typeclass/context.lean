@@ -75,11 +75,13 @@ match eMetaIdx mvar with
 
 partial def eFind (f : Expr → Bool) : Expr → Bool
 | e =>
-  if f e then true else
-  match e with
-  | Expr.app f a => eFind f || eFind a
-  | Expr.pi _ _ d b => eFind d || eFind b
-  | _ => false
+  if f e
+  then true
+  else
+    match e with
+    | Expr.app f a => eFind f || eFind a
+    | Expr.pi _ _ d b => eFind d || eFind b
+    | _ => false
 
 def eOccursIn (t₀ : Expr) (e : Expr) : Bool :=
 eFind (λ t => t == t₀) e
@@ -120,12 +122,15 @@ match uMetaIdx umvar with
 | _        => panic! "uassign called on non-(tmp-)mvar"
 
 partial def uFind (f : Level → Bool) : Level → Bool
-| l => if f l then true else
-       match l with
-       | Level.succ l     => uFind l
-       | Level.max l₁ l₂  => uFind l₁ || uFind l₂
-       | Level.imax l₁ l₂ => uFind l₁ || uFind l₂
-       | _                => false
+| l =>
+  if f l
+  then true
+  else
+    match l with
+    | Level.succ l     => uFind l
+    | Level.max l₁ l₂  => uFind l₁ || uFind l₂
+    | Level.imax l₁ l₂ => uFind l₁ || uFind l₂
+    | _                => false
 
 def uOccursIn (l₀ : Level) (l : Level) : Bool :=
 uFind (λ l => l == l₀) l
@@ -137,32 +142,36 @@ partial def uUnify : Level → Level → EState String Context Unit
 | l₁, l₂ => do
   l₁ ← EState.fromState $ uShallowInstantiate l₁;
   l₂ ← EState.fromState $ uShallowInstantiate l₂;
-  if uIsMeta l₂ && !(uIsMeta l₁) then uUnify l₂ l₁ else
-  match l₁, l₂ with
-  | Level.zero,         Level.zero         => pure ()
-  | Level.param p₁,     Level.param p₂     => when (p₁ ≠ p₂) $ throw "Level.param clash"
-  | Level.succ  l₁,     Level.succ  l₂     => uUnify l₁ l₂
-  | Level.max l₁₁ l₁₂,  Level.max l₂₁ l₂₂  => uUnify l₁₁ l₂₁ *> uUnify l₁₂ l₂₂
-  | Level.imax l₁₁ l₁₂, Level.imax l₂₁ l₂₂ => uUnify l₁₁ l₂₁ *> uUnify l₁₂ l₂₂
-  | Level.mvar _,       _                  =>
-    match uMetaIdx l₁ with
-    | none     => when (not (l₁ == l₂)) $ throw "Level.mvar clash"
-    | some idx => do when (uOccursIn l₁ l₂) $ throw  "occurs";
-                     EState.fromState $ uAssignIdx idx l₂
-  | _, _ => throw $ "lUnify: " ++ toString l₁ ++ " !=?= " ++ toString l₂
+  if uIsMeta l₂ && !(uIsMeta l₁)
+  then uUnify l₂ l₁
+  else
+    match l₁, l₂ with
+    | Level.zero,         Level.zero         => pure ()
+    | Level.param p₁,     Level.param p₂     => when (p₁ ≠ p₂) $ throw "Level.param clash"
+    | Level.succ  l₁,     Level.succ  l₂     => uUnify l₁ l₂
+    | Level.max l₁₁ l₁₂,  Level.max l₂₁ l₂₂  => uUnify l₁₁ l₂₁ *> uUnify l₁₂ l₂₂
+    | Level.imax l₁₁ l₁₂, Level.imax l₂₁ l₂₂ => uUnify l₁₁ l₂₁ *> uUnify l₁₂ l₂₂
+    | Level.mvar _,       _                  =>
+      match uMetaIdx l₁ with
+      | none     => when (not (l₁ == l₂)) $ throw "Level.mvar clash"
+      | some idx => do when (uOccursIn l₁ l₂) $ throw  "occurs";
+                       EState.fromState $ uAssignIdx idx l₂
+    | _, _ => throw $ "lUnify: " ++ toString l₁ ++ " !=?= " ++ toString l₂
 
 partial def uInstantiate (ctx : Context) : Level → Level
-| l => if (not l.hasMVar) then l else
-       match uMetaIdx l with
-       | some idx => match (Context.uLookupIdx idx).run' ctx with
-                     | some t => uInstantiate t
-                     | none   => l
-       | none =>
-         match l with
-         | Level.succ l     => Level.succ $ uInstantiate l
-         | Level.max l₁ l₂  => Level.max (uInstantiate l₁) (uInstantiate l₂)
-         | Level.imax l₁ l₂ => Level.imax (uInstantiate l₁) (uInstantiate l₂)
-         | _ => l
+| l => if (not l.hasMVar)
+       then l
+       else
+         match uMetaIdx l with
+         | some idx => match (Context.uLookupIdx idx).run' ctx with
+                       | some t => uInstantiate t
+                       | none   => l
+         | none =>
+           match l with
+           | Level.succ l     => Level.succ $ uInstantiate l
+           | Level.max l₁ l₂  => Level.max (uInstantiate l₁) (uInstantiate l₂)
+           | Level.imax l₁ l₂ => Level.imax (uInstantiate l₁) (uInstantiate l₂)
+           | _ => l
 
 -- Expressions and Levels
 
@@ -246,9 +255,9 @@ partial def uAlphaNormalizeCore : Level → State AlphaNormData Level
 
 partial def eAlphaNormalizeCore : Expr → State AlphaNormData Expr
 | e =>
-  if e.isConst then pure e else
-  if e.isFVar then pure e else
-  if e.isApp then do
+  if e.isConst then pure e
+  else if e.isFVar then pure e
+  else if e.isApp then do
     newArgs ← e.getAppArgs.mmap eAlphaNormalizeCore;
     pure $ mkApp (e.getAppFn) newArgs
   else match e with

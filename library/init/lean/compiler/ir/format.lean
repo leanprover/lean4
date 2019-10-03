@@ -15,7 +15,7 @@ private def formatArg : Arg → Format
 
 instance argHasFormat : HasFormat Arg := ⟨formatArg⟩
 
-private def formatArray {α : Type} [HasFormat α] (args : Array α) : Format :=
+def formatArray {α : Type} [HasFormat α] (args : Array α) : Format :=
 args.foldl (fun r a => r ++ " " ++ format a) Format.nil
 
 private def formatLitVal : LitVal → Format

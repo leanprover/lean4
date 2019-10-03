@@ -86,6 +86,9 @@ a.get! (a.size - 1)
 def get? (a : Array α) (i : Nat) : Option α :=
 if h : i < a.size then some (a.get ⟨i, h⟩) else none
 
+def getD (a : Array α) (i : Nat) (v₀ : α) : α :=
+if h : i < a.size then a.get ⟨i, h⟩ else v₀
+
 @[extern c inline "lean_array_fset(#2, #3, #4)"]
 def set (a : Array α) (i : @& Fin a.size) (v : α) : Array α :=
 { sz   := a.sz,

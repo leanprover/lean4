@@ -153,13 +153,13 @@ partial def uUnify : Level → Level → EState String Context Unit
     | Level.imax l₁₁ l₁₂, Level.imax l₂₁ l₂₂ => uUnify l₁₁ l₂₁ *> uUnify l₁₂ l₂₂
     | Level.mvar _,       _                  =>
       match uMetaIdx l₁ with
-      | none     => when (not (l₁ == l₂)) $ throw "Level.mvar clash"
+      | none     => when (!(l₁ == l₂)) $ throw "Level.mvar clash"
       | some idx => do when (uOccursIn l₁ l₂) $ throw  "occurs";
                        EState.fromState $ uAssignIdx idx l₂
     | _, _ => throw $ "lUnify: " ++ toString l₁ ++ " !=?= " ++ toString l₂
 
 partial def uInstantiate (ctx : Context) : Level → Level
-| l => if (not l.hasMVar)
+| l => if (!l.hasMVar)
        then l
        else
          match uMetaIdx l with
@@ -176,7 +176,9 @@ partial def uInstantiate (ctx : Context) : Level → Level
 -- Expressions and Levels
 
 def eHasMVar (e : Expr) : Bool :=
-eFind (λ t => eIsMeta t || (t.isConst && t.constLevels.any uHasMVar)) e
+if e.hasMVar
+then eFind (λ t => eIsMeta t || (t.isConst && t.constLevels.any uHasMVar)) e
+else false
 
 partial def slowWhnfApp : Expr → List Expr → Expr
 | (Expr.lam _ _ d b), (arg::args) => slowWhnfApp (b.instantiate1 arg) args
@@ -200,7 +202,7 @@ partial def eUnify : Expr → Expr → EState String Context Unit
   else if e₁.isForall && e₂.isForall then do
     eUnify e₁.bindingDomain e₂.bindingDomain;
     eUnify e₁.bindingBody e₂.bindingBody
-  else if eIsMeta e₁ && not (eOccursIn e₂ e₁) then
+  else if eIsMeta e₁ && !(eOccursIn e₂ e₁) then
     match eMetaIdx e₁ with
     | some idx => EState.fromState $ eAssignIdx idx e₂
     | none     => panic! "UNREACHABLE"
@@ -209,18 +211,21 @@ partial def eUnify : Expr → Expr → EState String Context Unit
 
 partial def eInstantiate (ctx : Context) : Expr → Expr
 | e =>
-  match e with
-  | Expr.pi n i d b  => Expr.pi n i (eInstantiate d) (eInstantiate b)
-  | Expr.lam n i d b => Expr.lam n i (eInstantiate d) (eInstantiate b)
-  | Expr.const n ls  => Expr.const n (ls.map $ uInstantiate ctx)
-  | Expr.app e₁ e₂   => Expr.app (eInstantiate e₁) (eInstantiate e₂)
-  | _ =>
-    match eMetaIdx e with
-    | none     => e
-    | some idx => do
-      match (eLookupIdx idx).run' ctx with
-      | some t => eInstantiate t
-      | none   => e
+  if !e.hasMVar -- conservative check (includes regular mvars as well)
+  then e
+  else
+    match e with
+    | Expr.pi n i d b  => Expr.pi n i (eInstantiate d) (eInstantiate b)
+    | Expr.lam n i d b => Expr.lam n i (eInstantiate d) (eInstantiate b)
+    | Expr.const n ls  => Expr.const n (ls.map $ uInstantiate ctx)
+    | Expr.app e₁ e₂   => Expr.app (eInstantiate e₁) (eInstantiate e₂)
+    | _ =>
+      match eMetaIdx e with
+      | none     => e
+      | some idx => do
+        match (eLookupIdx idx).run' ctx with
+        | some t => eInstantiate t
+        | none   => e
 
 -- AlphaNormalization
 

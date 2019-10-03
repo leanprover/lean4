@@ -60,7 +60,7 @@ structure TableEntry : Type :=
 structure TCState : Type :=
 (env            : Environment)
 (finalAnswer    : Option TypedExpr                  := none)
-(mainMvar       : Expr                              := default _)
+(mainMVar       : Expr                              := default _)
 (generatorStack : Array GeneratorNode               := Array.empty)
 (consumerStack  : Array ConsumerNode                := Array.empty)
 (resumeQueue    : Queue (ConsumerNode × TypedExpr)  := {})
@@ -105,14 +105,14 @@ do let mvarType := ctx.eInfer mvar;
        .. ϕ
      }
 
-partial def introduceMvars (lctx : LocalContext) (locals : Array Expr) : Context → Expr → Expr → Array Expr → Context × Expr × Expr × Array Expr
+partial def introduceMVars (lctx : LocalContext) (locals : Array Expr) : Context → Expr → Expr → Array Expr → Context × Expr × Expr × Array Expr
 | ctx, instVal, Expr.pi _ info domain body, mvars => do
   let ⟨mvar, ctx⟩ := (Context.eNewMeta $ lctx.mkForall locals domain).run ctx;
   let arg := mkApp mvar locals.toList; -- TODO(dselsam): rm toList
   let instVal := Expr.app instVal arg;
   let instType := body.instantiate1 arg;
   let mvars := if info.isInstImplicit then mvars.push mvar else mvars;
-  introduceMvars ctx instVal instType mvars
+  introduceMVars ctx instVal instType mvars
 
 | ctx, instVal, instType, mvars => (ctx, instVal, instType, mvars)
 
@@ -129,13 +129,13 @@ def tryResolve (ctx : Context) (futureAnswer : TypedExpr) (instTE : TypedExpr) :
 do let ⟨mvar, mvarType⟩ := futureAnswer;
    let ⟨instVal, instType⟩ := instTE;
    let ⟨lctx, mvarType, locals⟩ := introduceLocals 0 {} Array.empty mvarType;
-   let ⟨ctx, instVal, instType, newMvars⟩ := introduceMvars lctx locals ctx instVal instType Array.empty;
+   let ⟨ctx, instVal, instType, newMVars⟩ := introduceMVars lctx locals ctx instVal instType Array.empty;
    match (Context.eUnify mvarType instType *> Context.eUnify mvar (lctx.mkLambda locals instVal)).run ctx with
    | EState.Result.error msg   _ => pure none
-   | EState.Result.ok    _   ctx => pure $ some $ (ctx, newMvars.toList) -- TODO(dselsam): rm toList
+   | EState.Result.ok    _   ctx => pure $ some $ (ctx, newMVars.toList) -- TODO(dselsam): rm toList
 
-def newConsumerNode (node : Node) (ctx : Context) (newMvars : List Expr) : TCMethod Unit :=
-let cNode : ConsumerNode := { remainingSubgoals := newMvars, ctx := ctx, .. node };
+def newConsumerNode (node : Node) (ctx : Context) (newMVars : List Expr) : TCMethod Unit :=
+let cNode : ConsumerNode := { remainingSubgoals := newMVars, ctx := ctx, .. node };
 modify $ λ ϕ => { consumerStack := ϕ.consumerStack.push cNode, .. ϕ }
 
 def resume : TCMethod Unit :=
@@ -151,7 +151,7 @@ do ((cNode, answer), resumeQueue) ← get >>= λ ϕ =>
      modify $ λ ϕ => { resumeQueue := resumeQueue, .. ϕ };
      match result with
      | none => pure ()
-     | some (ctx, newMvars) => newConsumerNode cNode.toNode ctx (newMvars ++ rest)
+     | some (ctx, newMVars) => newConsumerNode cNode.toNode ctx (newMVars ++ rest)
 
 def wakeUp (answer : TypedExpr) : Waiter → TCMethod Unit
 | Waiter.root               => modify $ λ ϕ => { finalAnswer := some answer .. ϕ }
@@ -175,7 +175,7 @@ do cNode ← get >>= λ ϕ => pure ϕ.consumerStack.back;
        val := cNode.ctx.eInstantiate cNode.futureAnswer.val,
        type := cNode.ctx.eInstantiate cNode.futureAnswer.type
      };
-     when (Context.eHasMvar answer.val || Context.eHasMvar answer.type) $
+     when (Context.eHasMVar answer.val || Context.eHasMVar answer.type) $
        throw $ "answer " ++ toString answer ++ " not fully instantiated";
      modify $ λ ϕ => { consumerStack := ϕ.consumerStack.pop .. ϕ };
      newAnswer cNode.anormSubgoal answer
@@ -226,7 +226,7 @@ do gNode ← get >>= λ ϕ => pure ϕ.generatorStack.back;
      modify $ λ ϕ => { generatorStack := nextGeneratorStack, .. ϕ };
      match result with
      | none => pure ()
-     | some (ctx, newMvars) => newConsumerNode gNode.toNode ctx newMvars
+     | some (ctx, newMVars) => newConsumerNode gNode.toNode ctx newMVars
 
 def step : TCMethod Unit :=
 do ϕ ← get;
@@ -247,14 +247,14 @@ partial def synthCoreFueled (ctx₀ : Context) (goalType : Expr) : Nat → TCMet
 def synthCore (ctx₀ : Context) (goalType : Expr) (fuel : Nat) : TCMethod TypedExpr :=
 do let ⟨mvar, ctx⟩ := (Context.eNewMeta goalType).run ctx₀;
    newSubgoal Waiter.root ctx mvar;
-   modify $ λ ϕ => { mainMvar := mvar .. ϕ };
+   modify $ λ ϕ => { mainMVar := mvar .. ϕ };
    synthCoreFueled ctx₀ goalType fuel
 
 def collectUReplacements : List Level → Context → Array (Level × Level) → Array Level
                              → Context × Array (Level × Level) × Array Level
 | [],    ctx, uReplacements, fLevels => (ctx, uReplacements, fLevels)
 | l::ls, ctx, uReplacements, fLevels =>
-  if l.hasMvar then
+  if l.hasMVar then
     let ⟨uMeta, ctx⟩ := Context.uNewMeta.run ctx;
     collectUReplacements ls ctx (uReplacements.push (uMeta,l)) (fLevels.push uMeta)
   else
@@ -295,7 +295,7 @@ do env ← get >>= λ ϕ => pure ϕ.env;
    | EState.Result.error msg _ => throw $ "outParams do not match: " ++ toString goalType₀ ++ " ≠ " ++ toString instType
    | EState.Result.ok _ ctx => do
    let instVal : Expr := ctx.eInstantiate instVal;
-   when (Context.eHasMvar instVal) $ throw "synthesized instance has mvar";
+   when (Context.eHasMVar instVal) $ throw "synthesized instance has mvar";
    pure instVal
 
 end TypeClass

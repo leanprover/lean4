@@ -110,15 +110,15 @@ def isSort : Expr → Bool
 | Expr.sort _ => true
 | _ => false
 
-def isBvar : Expr → Bool
+def isBVar : Expr → Bool
 | bvar _ => true
 | _ => false
 
-def isMvar : Expr → Bool
+def isMVar : Expr → Bool
 | mvar _ => true
 | _ => false
 
-def isFvar : Expr → Bool
+def isFVar : Expr → Bool
 | fvar _ => true
 | _ => false
 

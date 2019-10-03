@@ -86,7 +86,7 @@ partial def eFind (f : Expr → Bool) : Expr → Bool
 def eOccursIn (t₀ : Expr) (e : Expr) : Bool :=
 eFind (λ t => t == t₀) e
 
-def eHasEMVar (e : Expr) : Bool :=
+def eHasETmpMVar (e : Expr) : Bool :=
 eFind eIsMeta e
 
 -- Levels
@@ -135,7 +135,7 @@ partial def uFind (f : Level → Bool) : Level → Bool
 def uOccursIn (l₀ : Level) (l : Level) : Bool :=
 uFind (λ l => l == l₀) l
 
-def uHasMVar (l : Level) : Bool :=
+def uHasTmpMVar (l : Level) : Bool :=
 uFind uIsMeta l
 
 partial def uUnify : Level → Level → EState String Context Unit
@@ -175,9 +175,9 @@ partial def uInstantiate (ctx : Context) : Level → Level
 
 -- Expressions and Levels
 
-def eHasMVar (e : Expr) : Bool :=
+def eHasTmpMVar (e : Expr) : Bool :=
 if e.hasMVar
-then eFind (λ t => eIsMeta t || (t.isConst && t.constLevels.any uHasMVar)) e
+then eFind (λ t => eIsMeta t || (t.isConst && t.constLevels.any uHasTmpMVar)) e
 else false
 
 partial def slowWhnfApp : Expr → List Expr → Expr

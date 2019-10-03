@@ -26,7 +26,7 @@ def enqueueAll (vs : List α) (q : Queue α) : Queue α :=
 def isEmpty (q : Queue α) : Bool :=
 q.dList.isEmpty && q.eList.isEmpty
 
-def dequeue? (q : Queue α) [Inhabited α] : Option (α × Queue α) :=
+def dequeue? (q : Queue α) : Option (α × Queue α) :=
 match q.dList with
 | d::ds => some (d, { dList := ds, .. q })
 | []    => match q.eList.reverse with

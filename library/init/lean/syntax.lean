@@ -248,7 +248,7 @@ partial def updateTrailing {α} (trailing : Substring) : Syntax α → Syntax α
 partial def getHeadInfo {α} : Syntax α → Option SourceInfo
 | atom info _      => info
 | ident info _ _ _ => info
-| node _ args      => args.find getHeadInfo
+| node _ args      => args.find? getHeadInfo
 | _                => none
 
 def getPos {α} (stx : Syntax α) : Option String.Pos :=
@@ -257,7 +257,7 @@ SourceInfo.pos <$> stx.getHeadInfo
 partial def getTailInfo {α} : Syntax α → Option SourceInfo
 | atom info _      => info
 | ident info _ _ _ => info
-| node _ args      => args.findRev getTailInfo
+| node _ args      => args.findRev? getTailInfo
 | _                => none
 
 @[specialize] private partial def updateLast {α} [Inhabited α] (a : Array α) (f : α → Option α) : Nat → Option (Array α)

@@ -124,7 +124,7 @@ def addDecls (decls : Array Decl) : CompilerM Unit :=
 decls.mfor addDecl
 
 def findEnvDecl' (env : Environment) (n : Name) (decls : Array Decl) : Option Decl :=
-match decls.find (fun decl => if decl.name == n then some decl else none) with
+match decls.find? (fun decl => if decl.name == n then some decl else none) with
 | some decl => some decl
 | none      => (declMapExt.getState env).find n
 

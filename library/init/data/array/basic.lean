@@ -241,11 +241,38 @@ Id.run $ miterate₂Aux a₁ a₂ f 0 b
 @[inline] def foldl₂ (f : β → α → σ → β) (b : β) (a₁ : Array α) (a₂ : Array σ) : β :=
 iterate₂ a₁ a₂ b (fun _ a₁ a₂ b => f b a₁ a₂)
 
-@[inline] def find (a : Array α) (f : α → Option β) : Option β :=
+@[inline] def find? (a : Array α) (f : α → Option β) : Option β :=
 Id.run $ mfindAux a f 0
 
-@[inline] def findRev (a : Array α) (f : α → Option β) : Option β :=
+@[inline] def find! [Inhabited β] (a : Array α) (f : α → Option β) : β :=
+match find? a f with
+| some b => b
+| none   => panic! "failed to find element"
+
+@[inline] def findRev? (a : Array α) (f : α → Option β) : Option β :=
 Id.run $ mfindRevAux a f a.size (Nat.leRefl _)
+
+@[inline] def findRev! [Inhabited β] (a : Array α) (f : α → Option β) : β :=
+match findRev? a f with
+| some b => b
+| none   => panic! "failed to find element"
+
+@[specialize] partial def findIdxAux (a : Array α) (p : α → Bool) : Nat → Option Nat
+| i =>
+  if h : i < a.size then
+     let idx : Fin a.size := ⟨i, h⟩;
+     if p (a.get idx) then some i
+     else findIdxAux (i+1)
+  else none
+
+@[inline] def findIdx? (a : Array α) (p : α → Bool) : Option Nat :=
+findIdxAux a p 0
+
+@[inline] def findIdx! (a : Array α) (p : α → Bool) : Nat :=
+match findIdxAux a p 0 with
+| some i => i
+| none   => panic! "failed to find element"
+
 end
 
 section

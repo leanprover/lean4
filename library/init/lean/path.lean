@@ -104,7 +104,7 @@ findLeanFile modName "lean"
 def findAtSearchPath (fname : String) : IO String :=
 do fname ← realPathNormalized fname;
    paths ← searchPathRef.get;
-   match paths.find (fun path => if path.isPrefixOf fname then some path else none) with
+   match paths.find? (fun path => if path.isPrefixOf fname then some path else none) with
    | some r => pure r
    | none   => throw (IO.userError ("file '" ++ fname ++ "' not in the search path " ++ repr paths))
 

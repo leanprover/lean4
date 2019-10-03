@@ -39,10 +39,7 @@ def eMetaIdx : Expr → Option Nat
 | Expr.mvar (Name.mkNumeral n idx) => guard (n == metaPrefix) *> pure idx
 | _ => none
 
-def eIsMeta (e : Expr) : Bool :=
-match eMetaIdx e with
-| some _ => true
-| none => false
+def eIsMeta (e : Expr) : Bool := (eMetaIdx e).toBool
 
 def eNewMeta (type : Expr) : State Context Expr :=
 do ctx ← get;
@@ -96,10 +93,7 @@ def uMetaIdx : Level → Option Nat
 | Level.mvar (Name.mkNumeral n idx) => guard (n == metaPrefix) *> pure idx
 | _ => none
 
-def uIsMeta (l : Level) : Bool :=
-match uMetaIdx l with
-| some _ => true
-| none => false
+def uIsMeta (l : Level) : Bool := (uMetaIdx l).toBool
 
 def uNewMeta : State Context Level :=
 do ctx ← get;

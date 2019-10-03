@@ -176,7 +176,7 @@ do cNode ← get >>= λ ϕ => pure ϕ.consumerStack.back;
        val := cNode.ctx.eInstantiate cNode.futureAnswer.val,
        type := cNode.ctx.eInstantiate cNode.futureAnswer.type
      };
-     when (Context.eHasMVar answer.val || Context.eHasMVar answer.type) $
+     when (Context.eHasTmpMVar answer.val || Context.eHasTmpMVar answer.type) $
        throw $ "answer " ++ toString answer ++ " not fully instantiated";
      modify $ λ ϕ => { consumerStack := ϕ.consumerStack.pop .. ϕ };
      newAnswer cNode.anormSubgoal answer
@@ -304,7 +304,7 @@ do env ← get >>= λ ϕ => pure ϕ.env;
    | EState.Result.error msg _ => throw $ "outParams do not match: " ++ toString goalType₀ ++ " ≠ " ++ toString instType
    | EState.Result.ok _ ctx => do
      let instVal : Expr := ctx.eInstantiate instVal;
-     when (Context.eHasMVar instVal) $ throw "synthesized instance has mvar";
+     when (Context.eHasTmpMVar instVal) $ throw "synthesized instance has mvar";
      pure instVal
 
 end TypeClass

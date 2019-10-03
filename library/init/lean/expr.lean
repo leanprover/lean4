@@ -177,19 +177,19 @@ def isAppOfArity : Expr → Name → Nat → Bool
 
 def constName : Expr → Name
 | const n _ => n
-| _         => panic "constName called on non-const"
+| _         => panic! "constName called on non-const"
 
 def constLevels : Expr → List Level
 | const _ ls => ls
-| _          => panic "constLevels called on non-const"
+| _          => panic! "constLevels called on non-const"
 
 def bvarIdx : Expr → Nat
 | bvar idx => idx
-| _ => panic "bvarIdx called on non-bvar"
+| _ => panic! "bvarIdx called on non-bvar"
 
 def fvarName : Expr → Name
 | fvar n => n
-| _ => panic "fvarName called on non-fvar"
+| _ => panic! "fvarName called on non-fvar"
 
 def bindingDomain : Expr → Expr
 | Expr.pi  _ _ d _ => d

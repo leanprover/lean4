@@ -271,7 +271,7 @@ def collectEReplacements (env : Environment) (lctx : LocalContext) (locals : Arr
     collectEReplacements (b.instantiate1 fArg) args ctx (eReplacements.push (eMeta, arg)) (fArgs.push fArg)
   else
     collectEReplacements (b.instantiate1 arg) args ctx eReplacements (fArgs.push arg)
-| _, arg::args, _, _, _ => panic "TODO(dselsam): this case not yet handled"
+| _, arg::args, _, _, _ => panic! "TODO(dselsam): this case not yet handled"
 
 def preprocessForOutParams (env : Environment) (goalType : Expr) : Context × Expr × Array (Level × Level) × Array (Expr × Expr) :=
 if !goalType.hasMVar && goalType.getAppFn.isConst && !hasOutParams env goalType.getAppFn.constName then ({}, goalType, Array.empty, Array.empty) else
@@ -282,7 +282,7 @@ if not (f.isConst && isClass env f.constName) then ({}, goalType, Array.empty, A
 let ⟨ctx, uReplacements, CLevels⟩ := collectUReplacements f.constLevels {} Array.empty Array.empty;
 let f := if uReplacements.isEmpty then f else Expr.const f.constName CLevels.toList;
 let fType := match env.find f.constName with
-             | none => panic "found constant not in the environment"
+             | none => panic! "found constant not in the environment"
              | some cInfo => cInfo.instantiateTypeUnivParams CLevels.toList;
 let (ctx, eReplacements, fArgs) := collectEReplacements env lctx locals fType fArgs ctx Array.empty Array.empty;
 (ctx, lctx.mkForall locals $ mkApp f fArgs.toList, uReplacements, eReplacements)

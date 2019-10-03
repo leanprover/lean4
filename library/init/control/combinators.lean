@@ -9,7 +9,7 @@ prelude
 import init.control.monad init.control.alternative
 import init.data.list.basic
 
-universes u v w
+universes u v w u₁ u₂ u₃
 
 def mjoin {m : Type u → Type u} [Monad m] {α : Type u} (a : m (m α)) : m α :=
 bind a id
@@ -77,9 +77,19 @@ def mmap {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f 
 | a::as => List.cons <$> (f a) <*> mmap as
 
 @[specialize]
+def mmap₂ {m : Type u → Type v} [Applicative m] {α : Type u₁} {β : Type u₂} {γ : Type u} (f : α → β → m γ) : List α → List β → m (List γ)
+| a::as, b::bs => List.cons <$> (f a b) <*> mmap₂ as bs
+| _,     _     => pure []
+
+@[specialize]
 def mfor {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m PUnit
 | []     => pure ⟨⟩
 | h :: t => f h *> mfor t
+
+@[specialize]
+def mfor₂ {m : Type u → Type v} [Applicative m] {α : Type u₁} {β : Type u₂} {γ : Type u} (f : α → β → m γ) : List α → List β → m PUnit
+| a::as, b::bs => f a b *> mfor₂ as bs
+| _,     _     => pure ⟨⟩
 
 @[specialize]
 def mfilter {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) : List α → m (List α)

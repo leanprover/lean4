@@ -80,7 +80,7 @@ match (classExtension.getState env).hasOutParam.find n with
 | none   => false
 
 @[export lean_is_out_param]
-private def isOutParam (e : Expr) : Bool :=
+def isOutParam (e : Expr) : Bool :=
 e.isAppOfArity `outParam 1
 
 def Expr.hasOutParam : Expr → Bool

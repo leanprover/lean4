@@ -145,6 +145,14 @@ fun r => match r with
     | Result.ok a s₁    => Result.ok a (merge s₁ s₂)
     | Result.error e s₁ => Result.error e (merge s₁ s₂)
 
+def fromState {ε σ α : Type} (s : State σ α) : EState ε σ α :=
+λ (ok : EState.resultOk PUnit σ PUnit) =>
+  match ok with
+  | ⟨EState.Result.ok _ st₁, _⟩ =>
+    match s.run st₁ with
+    | ⟨val₂, st₂⟩ => EState.Result.ok val₂ st₂
+  | ⟨EState.Result.error _ _, H⟩ => False.elim $ EState.notIsOkError H
+
 @[inline] def run (x : EState ε σ α) (s : σ) : Result ε σ α :=
 x (resultOk.mk ⟨⟩ s)
 

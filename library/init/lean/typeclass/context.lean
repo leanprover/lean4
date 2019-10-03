@@ -84,7 +84,7 @@ partial def eFind (f : Expr → Bool) : Expr → Bool
 def eOccursIn (t₀ : Expr) (e : Expr) : Bool :=
 eFind (λ t => t == t₀) e
 
-def eHasEMvar (e : Expr) : Bool :=
+def eHasEMVar (e : Expr) : Bool :=
 eFind eIsMeta e
 
 -- Levels
@@ -130,7 +130,7 @@ partial def uFind (f : Level → Bool) : Level → Bool
 def uOccursIn (l₀ : Level) (l : Level) : Bool :=
 uFind (λ l => l == l₀) l
 
-def uHasMvar (l : Level) : Bool :=
+def uHasMVar (l : Level) : Bool :=
 uFind uIsMeta l
 
 partial def uUnify : Level → Level → EState String Context Unit
@@ -152,7 +152,7 @@ partial def uUnify : Level → Level → EState String Context Unit
   | _, _ => throw $ "lUnify: " ++ toString l₁ ++ " !=?= " ++ toString l₂
 
 partial def uInstantiate (ctx : Context) : Level → Level
-| l => if (not l.hasMvar) then l else
+| l => if (not l.hasMVar) then l else
        match uMetaIdx l with
        | some idx => match (Context.uLookupIdx idx).run' ctx with
                      | some t => uInstantiate t
@@ -166,8 +166,8 @@ partial def uInstantiate (ctx : Context) : Level → Level
 
 -- Expressions and Levels
 
-def eHasMvar (e : Expr) : Bool :=
-eFind (λ t => eIsMeta t || (t.isConst && t.constLevels.any uHasMvar)) e
+def eHasMVar (e : Expr) : Bool :=
+eFind (λ t => eIsMeta t || (t.isConst && t.constLevels.any uHasMVar)) e
 
 partial def slowWhnfApp : Expr → List Expr → Expr
 | (Expr.lam _ _ d b), (arg::args) => slowWhnfApp (b.instantiate1 arg) args
@@ -180,10 +180,10 @@ partial def eUnify : Expr → Expr → EState String Context Unit
 | e₁, e₂ => do
   e₁ ← slowWhnf <$> (EState.fromState $ eShallowInstantiate e₁);
   e₂ ← slowWhnf <$> (EState.fromState $ eShallowInstantiate e₂);
-  if e₁.isMvar && e₂.isMvar && e₁ == e₂ then pure ()
+  if e₁.isMVar && e₂.isMVar && e₁ == e₂ then pure ()
   else if eIsMeta e₂ && !(eIsMeta e₁) then eUnify e₂ e₁
-  else if e₁.isBvar && e₂.isBvar && e₁.bvarIdx == e₂.bvarIdx then pure ()
-  else if e₁.isFvar && e₂.isFvar && e₁.fvarName == e₂.fvarName then pure ()
+  else if e₁.isBVar && e₂.isBVar && e₁.bvarIdx == e₂.bvarIdx then pure ()
+  else if e₁.isFVar && e₂.isFVar && e₁.fvarName == e₂.fvarName then pure ()
   else if e₁.isConst && e₂.isConst && e₁.constName == e₂.constName then
     List.mfor₂ uUnify e₁.constLevels e₂.constLevels
   else if e₁.isApp && e₂.isApp && e₁.getAppArgs.length == e₂.getAppArgs.length then
@@ -247,7 +247,7 @@ partial def uAlphaNormalizeCore : Level → State AlphaNormData Level
 partial def eAlphaNormalizeCore : Expr → State AlphaNormData Expr
 | e =>
   if e.isConst then pure e else
-  if e.isFvar then pure e else
+  if e.isFVar then pure e else
   if e.isApp then do
     newArgs ← e.getAppArgs.mmap eAlphaNormalizeCore;
     pure $ mkApp (e.getAppFn) newArgs

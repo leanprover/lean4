@@ -34,11 +34,11 @@ def Level.hasParam : Level → Bool
 | Level.imax l₁ l₂ => Level.hasParam l₁ || Level.hasParam l₂
 | _                => false
 
-def Level.hasMvar : Level → Bool
+def Level.hasMVar : Level → Bool
 | Level.mvar _     => true
-| Level.succ l     => Level.hasParam l
-| Level.max l₁ l₂  => Level.hasParam l₁ || Level.hasParam l₂
-| Level.imax l₁ l₂ => Level.hasParam l₁ || Level.hasParam l₂
+| Level.succ l     => Level.hasMVar l
+| Level.max l₁ l₂  => Level.hasMVar l₁ || Level.hasMVar l₂
+| Level.imax l₁ l₂ => Level.hasMVar l₁ || Level.hasMVar l₂
 | _                => false
 
 def Level.ofNat : Nat → Level

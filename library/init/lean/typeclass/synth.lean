@@ -284,7 +284,7 @@ else
   let ⟨lctx, bodyGoalType, locals⟩ := introduceLocals 0 {} Array.empty goalType;
   let f := goalType.getAppFn;
   let fArgs := goalType.getAppArgs;
-  if not (f.isConst && isClass env f.constName)
+  if !(f.isConst && isClass env f.constName)
   then ({}, goalType, Array.empty, Array.empty)
   else
     let ⟨ctx, uReplacements, CLevels⟩ := collectUReplacements f.constLevels {} Array.empty Array.empty;

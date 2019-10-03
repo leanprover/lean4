@@ -110,6 +110,18 @@ def isSort : Expr → Bool
 | Expr.sort _ => true
 | _ => false
 
+def isBvar : Expr → Bool
+| bvar _ => true
+| _ => false
+
+def isMvar : Expr → Bool
+| mvar _ => true
+| _ => false
+
+def isFvar : Expr → Bool
+| fvar _ => true
+| _ => false
+
 def isApp : Expr → Bool
 | app _ _ => true
 | _ => false
@@ -162,6 +174,22 @@ def isAppOfArity : Expr → Name → Nat → Bool
 | Expr.const c _, n, 0   => c == n
 | Expr.app f _,   n, a+1 => isAppOfArity f n a
 | _,              _, _   => false
+
+def constName : Expr → Name
+| const n _ => n
+| _         => panic "constName called on non-const"
+
+def constLevels : Expr → List Level
+| const _ ls => ls
+| _          => panic "constLevels called on non-const"
+
+def bvarIdx : Expr → Nat
+| bvar idx => idx
+| _ => panic "bvarIdx called on non-bvar"
+
+def fvarName : Expr → Name
+| fvar n => n
+| _ => panic "fvarName called on non-fvar"
 
 def bindingDomain : Expr → Expr
 | Expr.pi  _ _ d _ => d

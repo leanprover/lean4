@@ -8,4 +8,4 @@ import init.data.basic init.data.nat init.data.char init.data.string
 import init.data.list init.data.int init.data.array init.data.bytearray
 import init.data.fin init.data.uint
 import init.data.rbtree init.data.rbmap init.data.option
-import init.data.hashmap init.data.random
+import init.data.hashmap init.data.random init.data.queue

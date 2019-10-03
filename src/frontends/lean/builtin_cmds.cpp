@@ -464,6 +464,14 @@ environment synth_cmd(parser & p) {
     transient_cmd_scope cmd_scope(p);
     std::tie(e, ls) = parse_local_expr(p, "_synth");
     expr inst = synth(p.env(), e);
+
+    type_context_old tc(p.env());
+    expr inst_type = tc.infer(inst);
+
+    if (!tc.is_def_eq(e, inst_type)) {
+        throw exception(sstream() << "synthesis returned instance of type '" << inst_type << "', expecting type '" << e);
+    }
+
     auto out              = p.mk_message(p.cmd_pos(), p.pos(), INFORMATION);
     formatter fmt         = out.get_formatter();
     unsigned indent       = get_pp_indent(p.get_options());

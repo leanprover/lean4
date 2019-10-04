@@ -48,21 +48,22 @@ do ctx ← get;
    pure $ Expr.mvar (mkNumName metaPrefix idx)
 
 def eLookupIdx (idx : Nat) : State Context (Option Expr) :=
-do ctx ← get; pure $ ctx.eVals.get idx
+do ctx ← get; pure $ ctx.eVals.get! idx
 
 partial def eShallowInstantiate (e : Expr) : State Context Expr :=
 match eMetaIdx e with
-| some idx => get >>= λ ctx => match ctx.eVals.get idx with
-                               | none => pure e
-                               | some v => pure v
+| some idx => get >>= λ ctx =>
+  match ctx.eVals.get! idx with
+  | none => pure e
+  | some v => pure v
 | none => pure e
 
 def eInferIdx (idx : Nat) : State Context Expr :=
-do ctx ← get; pure $ ctx.eTypes.get idx
+do ctx ← get; pure $ ctx.eTypes.get! idx
 
 def eInfer (ctx : Context) (mvar : Expr) : Expr :=
 match eMetaIdx mvar with
-| some idx => ctx.eTypes.get idx
+| some idx => ctx.eTypes.get! idx
 | none     => panic! "eInfer called on non-(tmp-)mvar"
 
 def eAssignIdx (idx : Nat) (e : Expr) : State Context Unit :=
@@ -104,13 +105,14 @@ do ctx ← get;
    pure $ Level.mvar (mkNumName metaPrefix idx)
 
 def uLookupIdx (idx : Nat) : State Context (Option Level) :=
-do ctx ← get; pure $ ctx.uVals.get idx
+do ctx ← get; pure $ ctx.uVals.get! idx
 
 partial def uShallowInstantiate (l : Level) : State Context Level :=
 match uMetaIdx l with
-| some idx => get >>= λ ctx => match ctx.uVals.get idx with
-                               | none => pure l
-                               | some v => pure v
+| some idx => get >>= λ ctx =>
+  match ctx.uVals.get! idx with
+  | none => pure l
+  | some v => pure v
 | none => pure l
 
 def uAssignIdx (idx : Nat) (l : Level) : State Context Unit :=

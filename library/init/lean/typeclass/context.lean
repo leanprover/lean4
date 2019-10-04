@@ -190,7 +190,7 @@ partial def slowWhnf : Expr → Expr
 partial def eUnify : Expr → Expr → EState String Context Unit
 | e₁, e₂ =>
   if !e₁.hasMVar && !e₂.hasMVar
-  then unless (e₁ == e₂) $ throw "fail"
+  then unless (e₁ == e₂) $ throw $ "eUnify: " ++ toString e₁ ++ " !=?= " ++ toString e₂
   else do
     e₁ ← slowWhnf <$> (EState.fromState $ eShallowInstantiate e₁);
     e₂ ← slowWhnf <$> (EState.fromState $ eShallowInstantiate e₂);

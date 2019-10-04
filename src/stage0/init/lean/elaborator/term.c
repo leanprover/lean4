@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.elaborator.term
-// Imports: init.lean.elaborator.alias init.lean.elaborator.basic init.lean.elaborator.preterm
+// Module: Init.Lean.Elaborator.Term
+// Imports: Init.Lean.Elaborator.Alias Init.Lean.Elaborator.Basic Init.Lean.Elaborator.PreTerm
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -86,6 +86,7 @@ lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabTerm(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find___at_Lean_Elab_elabTermAux___main___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_forall___elambda__1___closed__2;
+extern lean_object* l___private_Init_Lean_Parser_Module_2__mkEOI___closed__3;
 extern lean_object* l_panicWithPos___rarg___closed__2;
 extern lean_object* l_Lean_Syntax_asNode___rarg___closed__1;
 lean_object* l_Array_set(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -99,7 +100,6 @@ lean_object* l_Lean_Elab_elabTermAux(lean_object*, lean_object*, uint8_t, lean_o
 extern lean_object* l_Lean_Parser_Term_forall___elambda__1___closed__1;
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Lean_Elab_oldElaborate(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_init_lean_parser_module_2__mkEOI___closed__3;
 lean_object* l___regBuiltinTermElab_Lean_Elab_elabList___closed__2;
 extern lean_object* l___regBuiltinTermElab_Lean_Elab_convertType___closed__2;
 lean_object* l_Lean_Elab_mkFreshName___rarg(lean_object*);
@@ -1599,7 +1599,7 @@ lean_object* l_Lean_Elab_mkExplicitBinder___rarg(lean_object* x_1, lean_object* 
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_3 = l___private_init_lean_parser_module_2__mkEOI___closed__3;
+x_3 = l___private_Init_Lean_Parser_Module_2__mkEOI___closed__3;
 x_4 = lean_array_push(x_3, x_1);
 x_5 = l_Lean_nullKind;
 x_6 = lean_alloc_ctor(1, 2, 0);
@@ -1688,7 +1688,7 @@ x_13 = lean_box(0);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_get(x_13, x_8, x_14);
 x_16 = l_Lean_Elab_mkExplicitBinder___rarg(x_9, x_15);
-x_17 = l___private_init_lean_parser_module_2__mkEOI___closed__3;
+x_17 = l___private_Init_Lean_Parser_Module_2__mkEOI___closed__3;
 x_18 = lean_array_push(x_17, x_16);
 x_19 = l_Lean_nullKind;
 lean_ctor_set(x_1, 1, x_18);
@@ -1716,7 +1716,7 @@ x_29 = lean_box(0);
 x_30 = lean_unsigned_to_nat(0u);
 x_31 = lean_array_get(x_29, x_8, x_30);
 x_32 = l_Lean_Elab_mkExplicitBinder___rarg(x_9, x_31);
-x_33 = l___private_init_lean_parser_module_2__mkEOI___closed__3;
+x_33 = l___private_Init_Lean_Parser_Module_2__mkEOI___closed__3;
 x_34 = lean_array_push(x_33, x_32);
 x_35 = l_Lean_nullKind;
 x_36 = lean_alloc_ctor(1, 2, 0);
@@ -1761,7 +1761,7 @@ x_51 = lean_box(0);
 x_52 = lean_unsigned_to_nat(0u);
 x_53 = lean_array_get(x_51, x_48, x_52);
 x_54 = l_Lean_Elab_mkExplicitBinder___rarg(x_49, x_53);
-x_55 = l___private_init_lean_parser_module_2__mkEOI___closed__3;
+x_55 = l___private_Init_Lean_Parser_Module_2__mkEOI___closed__3;
 x_56 = lean_array_push(x_55, x_54);
 x_57 = l_Lean_nullKind;
 if (lean_is_scalar(x_50)) {
@@ -1861,19 +1861,19 @@ x_5 = l_Lean_addBuiltinTermElab(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* initialize_init_lean_elaborator_alias(lean_object*);
-lean_object* initialize_init_lean_elaborator_basic(lean_object*);
-lean_object* initialize_init_lean_elaborator_preterm(lean_object*);
+lean_object* initialize_Init_Lean_Elaborator_Alias(lean_object*);
+lean_object* initialize_Init_Lean_Elaborator_Basic(lean_object*);
+lean_object* initialize_Init_Lean_Elaborator_PreTerm(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_elaborator_term(lean_object* w) {
+lean_object* initialize_Init_Lean_Elaborator_Term(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_elaborator_alias(w);
+w = initialize_Init_Lean_Elaborator_Alias(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_elaborator_basic(w);
+w = initialize_Init_Lean_Elaborator_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_elaborator_preterm(w);
+w = initialize_Init_Lean_Elaborator_PreTerm(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_Elab_elabTermAux___main___closed__1 = _init_l_Lean_Elab_elabTermAux___main___closed__1();
 lean_mark_persistent(l_Lean_Elab_elabTermAux___main___closed__1);

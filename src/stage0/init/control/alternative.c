@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.control.alternative
-// Imports: init.core init.control.applicative
+// Module: Init.Control.Alternative
+// Imports: Init.Core Init.Control.Applicative
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -312,16 +312,16 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_init_core(lean_object*);
-lean_object* initialize_init_control_applicative(lean_object*);
+lean_object* initialize_Init_Core(lean_object*);
+lean_object* initialize_Init_Control_Applicative(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_control_alternative(lean_object* w) {
+lean_object* initialize_Init_Control_Alternative(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_core(w);
+w = initialize_Init_Core(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_applicative(w);
+w = initialize_Init_Control_Applicative(w);
 if (lean_io_result_is_error(w)) return w;
 l_optional___rarg___closed__1 = _init_l_optional___rarg___closed__1();
 lean_mark_persistent(l_optional___rarg___closed__1);

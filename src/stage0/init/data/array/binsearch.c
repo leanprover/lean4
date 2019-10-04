@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.array.binsearch
-// Imports: init.data.array.basic
+// Module: Init.Data.Array.BinSearch
+// Imports: Init.Data.Array.Basic
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -452,13 +452,13 @@ x_8 = lean_box(x_7);
 return x_8;
 }
 }
-lean_object* initialize_init_data_array_basic(lean_object*);
+lean_object* initialize_Init_Data_Array_Basic(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_array_binsearch(lean_object* w) {
+lean_object* initialize_Init_Data_Array_BinSearch(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_array_basic(w);
+w = initialize_Init_Data_Array_Basic(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

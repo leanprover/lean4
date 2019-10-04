@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.compiler.ir.elimdead
-// Imports: init.lean.compiler.ir.basic init.lean.compiler.ir.freevars
+// Module: Init.Lean.Compiler.IR.ElimDead
+// Imports: Init.Lean.Compiler.IR.Basic Init.Lean.Compiler.IR.FreeVars
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -25,7 +25,6 @@ lean_object* l_Array_back___at_Lean_IR_reshapeWithoutDeadAux___main___spec__1(le
 lean_object* l_Lean_IR_reshapeWithoutDeadAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_back___at_Lean_IR_reshapeWithoutDeadAux___main___spec__1___boxed(lean_object*);
 lean_object* l_Lean_IR_FnBody_elimDead___main(lean_object*);
-lean_object* l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_14__collectIndex___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_IR_reshapeWithoutDeadAux___main(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_elimDead(lean_object*);
@@ -33,6 +32,7 @@ lean_object* l_Lean_IR_FnBody_flatten(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_IR_FnBody_collectFreeIndices(lean_object*, lean_object*);
+lean_object* l_RBNode_findCore___main___at___private_Init_Lean_Compiler_IR_FreeVars_14__collectIndex___spec__1(lean_object*, lean_object*);
 lean_object* l_Array_pop(lean_object*, lean_object*);
 lean_object* l_Array_ummapAux___main___at_Lean_IR_FnBody_elimDead___main___spec__1(lean_object*, lean_object*);
 lean_object* l_Array_size(lean_object*, lean_object*);
@@ -104,7 +104,7 @@ goto _start;
 block_16:
 {
 lean_object* x_13; 
-x_13 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_14__collectIndex___spec__1(x_3, x_12);
+x_13 = l_RBNode_findCore___main___at___private_Init_Lean_Compiler_IR_FreeVars_14__collectIndex___spec__1(x_3, x_12);
 lean_dec(x_12);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -385,16 +385,16 @@ return x_1;
 }
 }
 }
-lean_object* initialize_init_lean_compiler_ir_basic(lean_object*);
-lean_object* initialize_init_lean_compiler_ir_freevars(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_IR_Basic(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_IR_FreeVars(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_compiler_ir_elimdead(lean_object* w) {
+lean_object* initialize_Init_Lean_Compiler_IR_ElimDead(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_ir_basic(w);
+w = initialize_Init_Lean_Compiler_IR_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_ir_freevars(w);
+w = initialize_Init_Lean_Compiler_IR_FreeVars(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

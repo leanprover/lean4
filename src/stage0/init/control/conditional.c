@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.control.conditional
-// Imports: init.control.monad init.data.option.basic
+// Module: Init.Control.Conditional
+// Imports: Init.Control.Monad Init.Data.Option.Basic
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -304,16 +304,16 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_init_control_monad(lean_object*);
-lean_object* initialize_init_data_option_basic(lean_object*);
+lean_object* initialize_Init_Control_Monad(lean_object*);
+lean_object* initialize_Init_Data_Option_Basic(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_control_conditional(lean_object* w) {
+lean_object* initialize_Init_Control_Conditional(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_monad(w);
+w = initialize_Init_Control_Monad(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_option_basic(w);
+w = initialize_Init_Data_Option_Basic(w);
 if (lean_io_result_is_error(w)) return w;
 l_Bool_HasToBool = _init_l_Bool_HasToBool();
 lean_mark_persistent(l_Bool_HasToBool);

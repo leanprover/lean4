@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.control.estate
-// Imports: init.control.state init.control.except
+// Module: Init.Control.Estate
+// Imports: Init.Control.State Init.Control.Except
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1853,16 +1853,16 @@ x_4 = lean_alloc_closure((void*)(l_EState_run_x27___rarg), 2, 0);
 return x_4;
 }
 }
-lean_object* initialize_init_control_state(lean_object*);
-lean_object* initialize_init_control_except(lean_object*);
+lean_object* initialize_Init_Control_State(lean_object*);
+lean_object* initialize_Init_Control_Except(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_control_estate(lean_object* w) {
+lean_object* initialize_Init_Control_Estate(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_state(w);
+w = initialize_Init_Control_State(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_except(w);
+w = initialize_Init_Control_Except(w);
 if (lean_io_result_is_error(w)) return w;
 l_EState_Result_toString___rarg___closed__1 = _init_l_EState_Result_toString___rarg___closed__1();
 lean_mark_persistent(l_EState_Result_toString___rarg___closed__1);

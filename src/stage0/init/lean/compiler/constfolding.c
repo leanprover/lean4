@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.compiler.constfolding
-// Imports: init.system.platform init.lean.expr init.lean.compiler.util
+// Module: Init.Lean.Compiler.ConstFolding
+// Imports: Init.System.Platform Init.Lean.Expr Init.Lean.Compiler.Util
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4217,19 +4217,19 @@ x_5 = lean_fold_un_op(x_4, x_2, x_3);
 return x_5;
 }
 }
-lean_object* initialize_init_system_platform(lean_object*);
-lean_object* initialize_init_lean_expr(lean_object*);
-lean_object* initialize_init_lean_compiler_util(lean_object*);
+lean_object* initialize_Init_System_Platform(lean_object*);
+lean_object* initialize_Init_Lean_Expr(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_Util(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_compiler_constfolding(lean_object* w) {
+lean_object* initialize_Init_Lean_Compiler_ConstFolding(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_system_platform(w);
+w = initialize_Init_System_Platform(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_expr(w);
+w = initialize_Init_Lean_Expr(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_util(w);
+w = initialize_Init_Lean_Compiler_Util(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_Compiler_mkUIntTypeName___closed__1 = _init_l_Lean_Compiler_mkUIntTypeName___closed__1();
 lean_mark_persistent(l_Lean_Compiler_mkUIntTypeName___closed__1);

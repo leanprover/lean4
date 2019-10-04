@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.persistentarray.basic
-// Imports: init.data.array.default
+// Module: Init.Data.PersistentArray.Basic
+// Imports: Init.Data.Array.Default
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -161,6 +161,7 @@ lean_object* l_PersistentArray_mfoldlFrom___at_PersistentArray_foldlFrom___spec_
 lean_object* l_PersistentArray_mfor(lean_object*, lean_object*);
 lean_object* l_PersistentArray_mmapAux___main(lean_object*, lean_object*);
 lean_object* l_Array_mfindRevAux___main___at_PersistentArray_findRev___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_PersistentArray_Basic_1__emptyArray(lean_object*);
 lean_object* l_PersistentArray_Stats_toString___closed__4;
 lean_object* l_PersistentArray_setAux___main___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_setAux(lean_object*);
@@ -312,7 +313,6 @@ lean_object* l_PersistentArray_mfoldlFrom___boxed(lean_object*, lean_object*);
 lean_object* l_PersistentArray_set___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_find(lean_object*, lean_object*);
 lean_object* l_PersistentArray_mfoldlFromAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_init_data_persistentarray_basic_1__emptyArray(lean_object*);
 lean_object* l_PersistentArray_modifyAux___main___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_PersistentArray_toList___spec__5(lean_object*);
 lean_object* l_Array_toPersistentArray___rarg___closed__1;
@@ -1851,7 +1851,7 @@ x_2 = lean_alloc_closure((void*)(l_PersistentArray_push___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* l___private_init_data_persistentarray_basic_1__emptyArray(lean_object* x_1) {
+lean_object* l___private_Init_Data_PersistentArray_Basic_1__emptyArray(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -6624,13 +6624,13 @@ x_2 = lean_alloc_closure((void*)(l_mkPArray___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* initialize_init_data_array_default(lean_object*);
+lean_object* initialize_Init_Data_Array_Default(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_persistentarray_basic(lean_object* w) {
+lean_object* initialize_Init_Data_PersistentArray_Basic(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_array_default(w);
+w = initialize_Init_Data_Array_Default(w);
 if (lean_io_result_is_error(w)) return w;
 l_PersistentArrayNode_Inhabited___closed__1 = _init_l_PersistentArrayNode_Inhabited___closed__1();
 lean_mark_persistent(l_PersistentArrayNode_Inhabited___closed__1);

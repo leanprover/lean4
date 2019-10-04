@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.compiler.ir.compilerm
-// Imports: init.control.reader init.lean.environment init.lean.compiler.ir.basic init.lean.compiler.ir.format
+// Module: Init.Lean.Compiler.IR.CompilerM
+// Imports: Init.Control.Reader Init.Lean.Environment Init.Lean.Compiler.IR.Basic Init.Lean.Compiler.IR.Format
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_Lean_IR_formatDecl(lean_object*, lean_object*);
 lean_object* l_Lean_IR_getDecl___closed__1;
 lean_object* l_Lean_IR_getDecl___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_init_lean_compiler_ir_compilerm_1__isLogEnabledFor___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_declMapExt___closed__4;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_logMessage___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -34,11 +33,11 @@ lean_object* l_Array_miterateAux___main___at_Lean_IR_mkDeclMapExtension___spec__
 lean_object* l_Lean_Format_pretty(lean_object*, lean_object*);
 lean_object* l_Array_get_x21(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_mkDeclMapExtension___closed__1;
+lean_object* l_HashMapImp_expand___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_switch___at_Lean_IR_mkDeclMapExtension___spec__10(lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 lean_object* l_Array_mkArray(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_IR_mkDeclMapExtension___spec__7___rarg(lean_object*, lean_object*);
-lean_object* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__10(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_getEnv___boxed(lean_object*);
 extern lean_object* l_Lean_EnvExtension_Inhabited___rarg___closed__1;
 lean_object* l_Array_miterateAux___main___at_Lean_IR_mkDeclMapExtension___spec__9(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -46,16 +45,17 @@ lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_IR_mkDeclMapExtension__
 extern lean_object* l_PersistentHashMap_HasEmptyc___closed__1;
 size_t l_USize_shift__right(size_t, size_t);
 lean_object* l_HashMapImp_contains___at_Lean_IR_containsDecl___spec__2___boxed(lean_object*, lean_object*);
+lean_object* l_AssocList_mfoldl___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__6(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_findCore___main(lean_object*, lean_object*);
-lean_object* l_HashMapImp_insert___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__2(lean_object*, lean_object*, lean_object*);
-lean_object* l_mkHashMap___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__1(lean_object*);
-lean_object* l___private_init_lean_compiler_ir_compilerm_2__logDeclsAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray(lean_object*);
 lean_object* l_Lean_IR_Log_format(lean_object*);
+extern lean_object* l___private_Init_Lean_Environment_5__envExtensionsRef;
 lean_object* l_Lean_IR_logMessage___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_sub(size_t, size_t);
 lean_object* l_PersistentHashMap_findAux___main___at_Lean_IR_findEnvDecl___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insertAtCollisionNodeAux___main___at_Lean_IR_mkDeclMapExtension___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_findDecl(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_foldl___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__8(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_logMessageIf(lean_object*);
 lean_object* l_Array_uget(lean_object*, lean_object*, size_t, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__4;
@@ -66,6 +66,7 @@ lean_object* l_Array_uset(lean_object*, lean_object*, size_t, lean_object*, lean
 lean_object* l_PersistentHashMap_findAux___main___at_Lean_IR_findEnvDecl___spec__3(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_IR_addDecls___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_Prim_Ref_set(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_Compiler_IR_CompilerM_3__logMessageIfAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_SMap_find___at_Lean_IR_findEnvDecl___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_logMessageIf___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -74,9 +75,10 @@ lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(lean
 lean_object* l_Array_miterateAux___main___at_Lean_IR_Log_format___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3(lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___closed__1;
 lean_object* lean_io_initializing(lean_object*);
 lean_object* l_Lean_IR_declMapExt___elambda__4(lean_object*);
-lean_object* l_HashMapImp_expand___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__4(lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_Compiler_IR_CompilerM_2__logDeclsAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_getDecls___boxed(lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getEntries___rarg(lean_object*, lean_object*);
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
@@ -98,14 +100,12 @@ extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed_
 uint8_t l_PersistentHashMap_contains___at_Lean_IR_containsDecl___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_IR_mkDeclMapExtension___spec__11(lean_object*, lean_object*);
 lean_object* l_Lean_IR_findEnvDecl_x27___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_HashMapImp_moveEntries___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__5(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_IR_findEnvDecl___spec__6(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-lean_object* l_AssocList_mfoldl___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__9(lean_object*, lean_object*);
+lean_object* l_Array_miterateAux___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_SMap_insert___at_Lean_IR_mkDeclMapExtension___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___closed__1;
 lean_object* l_Lean_IR_addDecls(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_mkDeclMapExtension___lambda__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_IR_mkDeclMapExtension___spec__12(lean_object*, lean_object*);
@@ -114,48 +114,48 @@ lean_object* l_Lean_IR_tracePrefixOptionName___closed__3;
 lean_object* l_Lean_IR_declMapExt___closed__1;
 lean_object* l_Lean_IR_tracePrefixOptionName___closed__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_tracePrefixOptionName___closed__4;
 lean_object* l_Lean_IR_logDecls(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Char_HasRepr___closed__1;
 lean_object* lean_ir_add_decl(lean_object*, lean_object*);
 lean_object* l_Lean_IR_mkDeclMapExtension___lambda__2(lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_Lean_IR_LogEntry_fmt___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_mfoldl___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__9(lean_object*, lean_object*);
 lean_object* l_Lean_IR_declMapExt;
-lean_object* l_AssocList_contains___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__3___boxed(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_IR_declMapExt___elambda__2(lean_object*);
 lean_object* l_Lean_IR_LogEntry_Lean_HasFormat;
 lean_object* l_Lean_IR_findDecl___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+extern lean_object* l___private_Init_Lean_Environment_8__persistentEnvExtensionsRef;
 lean_object* l_Lean_IR_logMessage(lean_object*);
-lean_object* l___private_init_lean_compiler_ir_compilerm_3__logMessageIfAux(lean_object*);
+lean_object* l___private_Init_Lean_Compiler_IR_CompilerM_1__isLogEnabledFor___boxed(lean_object*, lean_object*);
 lean_object* l_Array_push(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_SMap_contains___at_Lean_IR_containsDecl___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_IR_LogEntry_fmt(lean_object*);
 lean_object* l_Lean_IR_mkDeclMapExtension___closed__3;
-lean_object* l___private_init_lean_compiler_ir_compilerm_3__logMessageIfAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_AssocList_contains___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_contains___at_Lean_IR_containsDecl___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Array_mforAux___main___at_Lean_IR_addDecls___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_foldl___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__8___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1;
 lean_object* l_Lean_IR_tracePrefixOptionName___closed__2;
 lean_object* l_HashMapImp_find___at_Lean_IR_findEnvDecl___spec__5___boxed(lean_object*, lean_object*);
 extern size_t l_PersistentHashMap_insertAux___main___rarg___closed__2;
 lean_object* l_PersistentHashMap_contains___at_Lean_IR_containsDecl___spec__3___boxed(lean_object*, lean_object*);
-uint8_t l___private_init_lean_compiler_ir_compilerm_1__isLogEnabledFor(lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_Lean_IR_Log_format___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_declMapExt___elambda__1(lean_object*);
+lean_object* l_Array_miterateAux___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__10(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insert___at_Lean_IR_mkDeclMapExtension___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mfindAux___main___at_Lean_IR_findEnvDecl_x27___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_EState_bind___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_Lean_IR_mkDeclMapExtension___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_mkDeclMapExtension___closed__4;
+lean_object* l_AssocList_replace___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__7(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_getDecl_x27(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_contains___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_declMapExt___elambda__4___boxed(lean_object*);
-lean_object* l___private_init_lean_compiler_ir_compilerm_4__mkEntryArray(lean_object*);
 lean_object* l_Lean_SMap_empty___at_Lean_IR_mkDeclMapExtension___spec__6___closed__1;
-lean_object* l_AssocList_replace___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__7(lean_object*, lean_object*, lean_object*);
+uint8_t l_AssocList_contains___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__3(lean_object*, lean_object*);
 extern lean_object* l_Lean_Format_sbracket___closed__3;
 uint8_t l_PersistentHashMap_containsAtAux___main___at_Lean_Environment_contains___spec__5(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_name(lean_object*);
@@ -163,26 +163,26 @@ lean_object* l_Lean_IR_declMapExt___closed__2;
 lean_object* l_Lean_IR_getDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_Prim_Ref_get(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_Compiler_IR_CompilerM_2__logDeclsAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_ir_find_env_decl(lean_object*, lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* lean_format_group(lean_object*);
 lean_object* l_Lean_IR_declMapExt___closed__6;
 extern lean_object* l_HashMap_Inhabited___closed__1;
 lean_object* l_Lean_IR_getEnv___rarg(lean_object*);
+lean_object* l_HashMapImp_insert___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__2(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_PersistentHashMap_insertAux___main___rarg___closed__3;
 lean_object* l_Array_size(lean_object*, lean_object*);
 lean_object* l_Lean_IR_declMapExt___elambda__4___rarg(lean_object*);
 lean_object* l_Lean_IR_getDecl_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_init_lean_compiler_ir_compilerm_2__logDeclsAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_mkHashMapImp___rarg(lean_object*);
 lean_object* l_Lean_IR_modifyEnv(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_mkDeclMapExtension___closed__6;
-lean_object* l_AssocList_mfoldl___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__6(lean_object*, lean_object*);
+lean_object* l_mkHashMap___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__1(lean_object*);
 lean_object* l_Lean_IR_containsDecl_x27(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_IR_findEnvDecl___spec__6___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_containsDecl___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_init_lean_compiler_ir_compilerm_3__logMessageIfAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_Lean_IR_mkDeclMapExtension___spec__5(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_SMap_empty___at_Lean_Environment_Inhabited___spec__2___closed__1;
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_IR_mkDeclMapExtension___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -200,9 +200,10 @@ uint8_t l_Array_anyMAux___main___at_Lean_IR_mkDeclMapExtension___spec__13(lean_o
 lean_object* l_Lean_IR_declMapExt___closed__5;
 lean_object* l_Lean_IR_logMessageIf___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decLe(size_t, size_t);
+lean_object* l___private_Init_Lean_Compiler_IR_CompilerM_3__logMessageIfAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_PersistentHashMap_containsAux___main___at_Lean_IR_containsDecl___spec__4(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_IR_declMapExt___elambda__2___boxed(lean_object*);
-lean_object* l_List_foldl___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__8___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Init_Lean_Compiler_IR_CompilerM_1__isLogEnabledFor(lean_object*, lean_object*);
 lean_object* l_Lean_IR_findDecl_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_Lean_IR_mkDeclMapExtension___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyMAux___main___at_Lean_IR_containsDecl_x27___spec__1(lean_object*, lean_object*, lean_object*);
@@ -215,7 +216,6 @@ lean_object* l_Array_miterateAux___main___at_Lean_IR_mkDeclMapExtension___spec__
 lean_object* l_Lean_SMap_empty___at_Lean_IR_mkDeclMapExtension___spec__6;
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_IR_mkDeclMapExtension___spec__14(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_containsAux___main___at_Lean_IR_containsDecl___spec__4___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_init_lean_environment_8__persistentEnvExtensionsRef;
 size_t l_USize_land(size_t, size_t);
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Lean_IR_declMapExt___elambda__3(lean_object*, lean_object*);
@@ -224,16 +224,16 @@ lean_object* l_Lean_IR_addDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 lean_object* l_Lean_IR_declMapExt___closed__3;
 lean_object* lean_nat_mul(lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_Compiler_IR_CompilerM_3__logMessageIfAux(lean_object*);
 lean_object* l_Lean_IR_modifyEnv___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_mkDeclMapExtension___lambda__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
 lean_object* l_Array_mforAux___main___at_Lean_IR_addDecls___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_foldl___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__8(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_containsDecl_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_Prim_Ref_reset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_IR_mkDeclMapExtension___spec__7___boxed(lean_object*);
-extern lean_object* l___private_init_lean_environment_5__envExtensionsRef;
 lean_object* l_PersistentHashMap_find___at_Lean_IR_findEnvDecl___spec__2___boxed(lean_object*, lean_object*);
+lean_object* l_HashMapImp_moveEntries___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__5(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_logDecls___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_declMapExt___elambda__1___boxed(lean_object*);
 lean_object* l_Lean_IR_getDecls(lean_object*);
@@ -575,7 +575,7 @@ x_1 = l_Lean_IR_tracePrefixOptionName___closed__6;
 return x_1;
 }
 }
-uint8_t l___private_init_lean_compiler_ir_compilerm_1__isLogEnabledFor(lean_object* x_1, lean_object* x_2) {
+uint8_t l___private_Init_Lean_Compiler_IR_CompilerM_1__isLogEnabledFor(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -613,18 +613,18 @@ return x_11;
 }
 }
 }
-lean_object* l___private_init_lean_compiler_ir_compilerm_1__isLogEnabledFor___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_Lean_Compiler_IR_CompilerM_1__isLogEnabledFor___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_init_lean_compiler_ir_compilerm_1__isLogEnabledFor(x_1, x_2);
+x_3 = l___private_Init_Lean_Compiler_IR_CompilerM_1__isLogEnabledFor(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* l___private_init_lean_compiler_ir_compilerm_2__logDeclsAux(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Init_Lean_Compiler_IR_CompilerM_2__logDeclsAux(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; 
@@ -638,7 +638,7 @@ lean_dec(x_8);
 x_9 = lean_box(0);
 lean_inc(x_7);
 lean_ctor_set(x_5, 0, x_9);
-x_10 = l___private_init_lean_compiler_ir_compilerm_1__isLogEnabledFor(x_4, x_1);
+x_10 = l___private_Init_Lean_Compiler_IR_CompilerM_1__isLogEnabledFor(x_4, x_1);
 if (x_10 == 0)
 {
 lean_object* x_11; 
@@ -672,7 +672,7 @@ lean_inc(x_14);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_14);
-x_17 = l___private_init_lean_compiler_ir_compilerm_1__isLogEnabledFor(x_4, x_1);
+x_17 = l___private_Init_Lean_Compiler_IR_CompilerM_1__isLogEnabledFor(x_4, x_1);
 if (x_17 == 0)
 {
 lean_object* x_18; 
@@ -697,11 +697,11 @@ return x_20;
 }
 }
 }
-lean_object* l___private_init_lean_compiler_ir_compilerm_2__logDeclsAux___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Init_Lean_Compiler_IR_CompilerM_2__logDeclsAux___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l___private_init_lean_compiler_ir_compilerm_2__logDeclsAux(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Lean_Compiler_IR_CompilerM_2__logDeclsAux(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_1);
 return x_6;
@@ -714,7 +714,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7;
 x_5 = l_Lean_IR_tracePrefixOptionName;
 lean_inc(x_1);
 x_6 = l_Lean_Name_append___main(x_5, x_1);
-x_7 = l___private_init_lean_compiler_ir_compilerm_2__logDeclsAux(x_6, x_1, x_2, x_3, x_4);
+x_7 = l___private_Init_Lean_Compiler_IR_CompilerM_2__logDeclsAux(x_6, x_1, x_2, x_3, x_4);
 lean_dec(x_6);
 return x_7;
 }
@@ -728,7 +728,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-lean_object* l___private_init_lean_compiler_ir_compilerm_3__logMessageIfAux___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Init_Lean_Compiler_IR_CompilerM_3__logMessageIfAux___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; 
@@ -742,7 +742,7 @@ lean_dec(x_8);
 x_9 = lean_box(0);
 lean_inc(x_7);
 lean_ctor_set(x_5, 0, x_9);
-x_10 = l___private_init_lean_compiler_ir_compilerm_1__isLogEnabledFor(x_4, x_2);
+x_10 = l___private_Init_Lean_Compiler_IR_CompilerM_1__isLogEnabledFor(x_4, x_2);
 if (x_10 == 0)
 {
 lean_object* x_11; 
@@ -776,7 +776,7 @@ lean_inc(x_15);
 x_17 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_17, 0, x_16);
 lean_ctor_set(x_17, 1, x_15);
-x_18 = l___private_init_lean_compiler_ir_compilerm_1__isLogEnabledFor(x_4, x_2);
+x_18 = l___private_Init_Lean_Compiler_IR_CompilerM_1__isLogEnabledFor(x_4, x_2);
 if (x_18 == 0)
 {
 lean_object* x_19; 
@@ -801,19 +801,19 @@ return x_22;
 }
 }
 }
-lean_object* l___private_init_lean_compiler_ir_compilerm_3__logMessageIfAux(lean_object* x_1) {
+lean_object* l___private_Init_Lean_Compiler_IR_CompilerM_3__logMessageIfAux(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_init_lean_compiler_ir_compilerm_3__logMessageIfAux___rarg___boxed), 5, 0);
+x_2 = lean_alloc_closure((void*)(l___private_Init_Lean_Compiler_IR_CompilerM_3__logMessageIfAux___rarg___boxed), 5, 0);
 return x_2;
 }
 }
-lean_object* l___private_init_lean_compiler_ir_compilerm_3__logMessageIfAux___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Init_Lean_Compiler_IR_CompilerM_3__logMessageIfAux___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l___private_init_lean_compiler_ir_compilerm_3__logMessageIfAux___rarg(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Lean_Compiler_IR_CompilerM_3__logMessageIfAux___rarg(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_2);
 return x_6;
@@ -825,7 +825,7 @@ _start:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = l_Lean_IR_tracePrefixOptionName;
 x_7 = l_Lean_Name_append___main(x_6, x_2);
-x_8 = l___private_init_lean_compiler_ir_compilerm_3__logMessageIfAux___rarg(x_1, x_7, x_3, x_4, x_5);
+x_8 = l___private_Init_Lean_Compiler_IR_CompilerM_3__logMessageIfAux___rarg(x_1, x_7, x_3, x_4, x_5);
 lean_dec(x_7);
 return x_8;
 }
@@ -852,7 +852,7 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = l_Lean_IR_tracePrefixOptionName;
-x_7 = l___private_init_lean_compiler_ir_compilerm_3__logMessageIfAux___rarg(x_1, x_6, x_3, x_4, x_5);
+x_7 = l___private_Init_Lean_Compiler_IR_CompilerM_3__logMessageIfAux___rarg(x_1, x_6, x_3, x_4, x_5);
 return x_7;
 }
 }
@@ -957,7 +957,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* l_mkHashMap___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__1(lean_object* x_1) {
+lean_object* l_mkHashMap___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -965,7 +965,7 @@ x_2 = l_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-uint8_t l_AssocList_contains___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__3(lean_object* x_1, lean_object* x_2) {
+uint8_t l_AssocList_contains___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__3(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -994,7 +994,7 @@ return x_8;
 }
 }
 }
-lean_object* l_AssocList_mfoldl___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__6(lean_object* x_1, lean_object* x_2) {
+lean_object* l_AssocList_mfoldl___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__6(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -1048,7 +1048,7 @@ goto _start;
 }
 }
 }
-lean_object* l_HashMapImp_moveEntries___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__5(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_HashMapImp_moveEntries___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__5(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -1067,7 +1067,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_array_fget(x_2, x_1);
 x_7 = lean_box(0);
 x_8 = lean_array_fset(x_2, x_1, x_7);
-x_9 = l_AssocList_mfoldl___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__6(x_3, x_6);
+x_9 = l_AssocList_mfoldl___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__6(x_3, x_6);
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_add(x_1, x_10);
 lean_dec(x_1);
@@ -1078,7 +1078,7 @@ goto _start;
 }
 }
 }
-lean_object* l_HashMapImp_expand___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__4(lean_object* x_1, lean_object* x_2) {
+lean_object* l_HashMapImp_expand___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__4(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -1089,14 +1089,14 @@ lean_dec(x_3);
 x_6 = lean_box(0);
 x_7 = lean_mk_array(x_5, x_6);
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_HashMapImp_moveEntries___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__5(x_8, x_2, x_7);
+x_9 = l_HashMapImp_moveEntries___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__5(x_8, x_2, x_7);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_1);
 lean_ctor_set(x_10, 1, x_9);
 return x_10;
 }
 }
-lean_object* l_AssocList_replace___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__7(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_AssocList_replace___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__7(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_3) == 0)
@@ -1119,7 +1119,7 @@ x_8 = lean_name_dec_eq(x_5, x_1);
 if (x_8 == 0)
 {
 lean_object* x_9; 
-x_9 = l_AssocList_replace___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__7(x_1, x_2, x_7);
+x_9 = l_AssocList_replace___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__7(x_1, x_2, x_7);
 lean_ctor_set(x_3, 2, x_9);
 return x_3;
 }
@@ -1146,7 +1146,7 @@ x_13 = lean_name_dec_eq(x_10, x_1);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
-x_14 = l_AssocList_replace___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__7(x_1, x_2, x_12);
+x_14 = l_AssocList_replace___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__7(x_1, x_2, x_12);
 x_15 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_15, 0, x_10);
 lean_ctor_set(x_15, 1, x_11);
@@ -1168,7 +1168,7 @@ return x_16;
 }
 }
 }
-lean_object* l_HashMapImp_insert___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_HashMapImp_insert___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -1182,7 +1182,7 @@ x_7 = lean_array_get_size(x_6);
 x_8 = lean_name_hash_usize(x_2);
 x_9 = lean_usize_modn(x_8, x_7);
 x_10 = lean_array_uget(x_6, x_9);
-x_11 = l_AssocList_contains___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__3(x_2, x_10);
+x_11 = l_AssocList_contains___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__3(x_2, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
@@ -1200,7 +1200,7 @@ if (x_16 == 0)
 {
 lean_object* x_17; 
 lean_free_object(x_1);
-x_17 = l_HashMapImp_expand___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__4(x_13, x_15);
+x_17 = l_HashMapImp_expand___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__4(x_13, x_15);
 return x_17;
 }
 else
@@ -1214,7 +1214,7 @@ else
 {
 lean_object* x_18; lean_object* x_19; 
 lean_dec(x_7);
-x_18 = l_AssocList_replace___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__7(x_2, x_3, x_10);
+x_18 = l_AssocList_replace___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__7(x_2, x_3, x_10);
 x_19 = lean_array_uset(x_6, x_9, x_18);
 lean_ctor_set(x_1, 1, x_19);
 return x_1;
@@ -1232,7 +1232,7 @@ x_22 = lean_array_get_size(x_21);
 x_23 = lean_name_hash_usize(x_2);
 x_24 = lean_usize_modn(x_23, x_22);
 x_25 = lean_array_uget(x_21, x_24);
-x_26 = l_AssocList_contains___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__3(x_2, x_25);
+x_26 = l_AssocList_contains___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__3(x_2, x_25);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; 
@@ -1249,7 +1249,7 @@ lean_dec(x_22);
 if (x_31 == 0)
 {
 lean_object* x_32; 
-x_32 = l_HashMapImp_expand___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__4(x_28, x_30);
+x_32 = l_HashMapImp_expand___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__4(x_28, x_30);
 return x_32;
 }
 else
@@ -1265,7 +1265,7 @@ else
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 lean_dec(x_22);
-x_34 = l_AssocList_replace___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__7(x_2, x_3, x_25);
+x_34 = l_AssocList_replace___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__7(x_2, x_3, x_25);
 x_35 = lean_array_uset(x_21, x_24, x_34);
 x_36 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_36, 0, x_20);
@@ -1275,7 +1275,7 @@ return x_36;
 }
 }
 }
-lean_object* l_List_foldl___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__8(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_List_foldl___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__8(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_3) == 0)
@@ -1291,14 +1291,14 @@ x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec(x_3);
 x_6 = l_Lean_IR_Decl_name(x_4);
-x_7 = l_HashMapImp_insert___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__2(x_2, x_6, x_4);
+x_7 = l_HashMapImp_insert___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__2(x_2, x_6, x_4);
 x_2 = x_7;
 x_3 = x_5;
 goto _start;
 }
 }
 }
-lean_object* l_AssocList_mfoldl___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__9(lean_object* x_1, lean_object* x_2) {
+lean_object* l_AssocList_mfoldl___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__9(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -1320,7 +1320,7 @@ goto _start;
 }
 }
 }
-lean_object* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__10(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_miterateAux___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__10(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
@@ -1336,7 +1336,7 @@ else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_7 = lean_array_fget(x_2, x_3);
-x_8 = l_AssocList_mfoldl___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__9(x_4, x_7);
+x_8 = l_AssocList_mfoldl___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__9(x_4, x_7);
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_add(x_3, x_9);
 lean_dec(x_3);
@@ -1346,7 +1346,7 @@ goto _start;
 }
 }
 }
-lean_object* _init_l___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___closed__1() {
+lean_object* _init_l___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1355,48 +1355,48 @@ x_2 = l_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-lean_object* l___private_init_lean_compiler_ir_compilerm_4__mkEntryArray(lean_object* x_1) {
+lean_object* l___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_2 = l_Lean_SMap_empty___at_Lean_Environment_Inhabited___spec__2___closed__1;
-x_3 = l___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___closed__1;
-x_4 = l_List_foldl___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__8(x_2, x_3, x_1);
+x_3 = l___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___closed__1;
+x_4 = l_List_foldl___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__8(x_2, x_3, x_1);
 x_5 = lean_ctor_get(x_4, 1);
 lean_inc(x_5);
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = l_Array_empty___closed__1;
-x_8 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__10(x_4, x_5, x_6, x_7);
+x_8 = l_Array_miterateAux___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__10(x_4, x_5, x_6, x_7);
 lean_dec(x_5);
 lean_dec(x_4);
 return x_8;
 }
 }
-lean_object* l_AssocList_contains___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__3___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_AssocList_contains___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__3___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_AssocList_contains___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__3(x_1, x_2);
+x_3 = l_AssocList_contains___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__3(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* l_List_foldl___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__8___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_List_foldl___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__8___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_List_foldl___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__8(x_1, x_2, x_3);
+x_4 = l_List_foldl___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__8(x_1, x_2, x_3);
 lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__10___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_miterateAux___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__10___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__10(x_1, x_2, x_3, x_4);
+x_5 = l_Array_miterateAux___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__10(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
@@ -1922,7 +1922,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
 x_13 = lean_ctor_get(x_1, 0);
-x_14 = l_HashMapImp_insert___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__2(x_13, x_2, x_3);
+x_14 = l_HashMapImp_insert___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__2(x_13, x_2, x_3);
 lean_ctor_set(x_1, 0, x_14);
 return x_1;
 }
@@ -1934,7 +1934,7 @@ x_16 = lean_ctor_get(x_1, 1);
 lean_inc(x_16);
 lean_inc(x_15);
 lean_dec(x_1);
-x_17 = l_HashMapImp_insert___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__2(x_15, x_2, x_3);
+x_17 = l_HashMapImp_insert___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__2(x_15, x_2, x_3);
 x_18 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_16);
@@ -2192,7 +2192,7 @@ x_13 = lean_ctor_get(x_3, 0);
 lean_dec(x_13);
 x_14 = lean_box(0);
 lean_ctor_set(x_3, 0, x_14);
-x_15 = l___private_init_lean_environment_5__envExtensionsRef;
+x_15 = l___private_Init_Lean_Environment_5__envExtensionsRef;
 x_16 = lean_io_ref_get(x_15, x_3);
 if (lean_obj_tag(x_16) == 0)
 {
@@ -2712,7 +2712,7 @@ x_122 = lean_box(0);
 x_123 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_123, 0, x_122);
 lean_ctor_set(x_123, 1, x_121);
-x_124 = l___private_init_lean_environment_5__envExtensionsRef;
+x_124 = l___private_Init_Lean_Environment_5__envExtensionsRef;
 x_125 = lean_io_ref_get(x_124, x_123);
 if (lean_obj_tag(x_125) == 0)
 {
@@ -2950,7 +2950,7 @@ lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_IR_mkDeclMapE
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l___private_init_lean_environment_8__persistentEnvExtensionsRef;
+x_3 = l___private_Init_Lean_Environment_8__persistentEnvExtensionsRef;
 x_4 = lean_io_ref_get(x_3, x_2);
 if (lean_obj_tag(x_4) == 0)
 {
@@ -3896,7 +3896,7 @@ lean_object* _init_l_Lean_IR_mkDeclMapExtension___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_init_lean_compiler_ir_compilerm_4__mkEntryArray), 1, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray), 1, 0);
 return x_1;
 }
 }
@@ -4500,7 +4500,7 @@ x_5 = lean_name_hash_usize(x_2);
 x_6 = lean_usize_modn(x_5, x_4);
 lean_dec(x_4);
 x_7 = lean_array_uget(x_3, x_6);
-x_8 = l_AssocList_contains___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__3(x_2, x_7);
+x_8 = l_AssocList_contains___main___at___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___spec__3(x_2, x_7);
 lean_dec(x_7);
 return x_8;
 }
@@ -5497,22 +5497,22 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* initialize_init_control_reader(lean_object*);
-lean_object* initialize_init_lean_environment(lean_object*);
-lean_object* initialize_init_lean_compiler_ir_basic(lean_object*);
-lean_object* initialize_init_lean_compiler_ir_format(lean_object*);
+lean_object* initialize_Init_Control_Reader(lean_object*);
+lean_object* initialize_Init_Lean_Environment(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_IR_Basic(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_IR_Format(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_compiler_ir_compilerm(lean_object* w) {
+lean_object* initialize_Init_Lean_Compiler_IR_CompilerM(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_reader(w);
+w = initialize_Init_Control_Reader(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_environment(w);
+w = initialize_Init_Lean_Environment(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_ir_basic(w);
+w = initialize_Init_Lean_Compiler_IR_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_ir_format(w);
+w = initialize_Init_Lean_Compiler_IR_Format(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_IR_LogEntry_Lean_HasFormat___closed__1 = _init_l_Lean_IR_LogEntry_Lean_HasFormat___closed__1();
 lean_mark_persistent(l_Lean_IR_LogEntry_Lean_HasFormat___closed__1);
@@ -5532,8 +5532,8 @@ l_Lean_IR_tracePrefixOptionName___closed__6 = _init_l_Lean_IR_tracePrefixOptionN
 lean_mark_persistent(l_Lean_IR_tracePrefixOptionName___closed__6);
 l_Lean_IR_tracePrefixOptionName = _init_l_Lean_IR_tracePrefixOptionName();
 lean_mark_persistent(l_Lean_IR_tracePrefixOptionName);
-l___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___closed__1 = _init_l___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___closed__1();
-lean_mark_persistent(l___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___closed__1);
+l___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___closed__1 = _init_l___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___closed__1();
+lean_mark_persistent(l___private_Init_Lean_Compiler_IR_CompilerM_4__mkEntryArray___closed__1);
 l_Lean_SMap_empty___at_Lean_IR_mkDeclMapExtension___spec__6___closed__1 = _init_l_Lean_SMap_empty___at_Lean_IR_mkDeclMapExtension___spec__6___closed__1();
 lean_mark_persistent(l_Lean_SMap_empty___at_Lean_IR_mkDeclMapExtension___spec__6___closed__1);
 l_Lean_SMap_empty___at_Lean_IR_mkDeclMapExtension___spec__6 = _init_l_Lean_SMap_empty___at_Lean_IR_mkDeclMapExtension___spec__6();

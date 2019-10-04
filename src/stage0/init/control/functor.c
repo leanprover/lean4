@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.control.functor
-// Imports: init.core
+// Module: Init.Control.Functor
+// Imports: Init.Core
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -75,13 +75,13 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_init_core(lean_object*);
+lean_object* initialize_Init_Core(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_control_functor(lean_object* w) {
+lean_object* initialize_Init_Control_Functor(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_core(w);
+w = initialize_Init_Core(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

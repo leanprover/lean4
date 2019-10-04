@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.int.basic
-// Imports: init.data.nat.basic init.data.list.default init.coe init.data.repr init.data.tostring
+// Module: Init.Data.Int.Basic
+// Imports: Init.Data.Nat.Basic Init.Data.List.Default Init.Coe Init.Data.Repr Init.Data.ToString
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -25,7 +25,6 @@ lean_object* l_Int_HasRepr;
 lean_object* l_Int_negOfNat___boxed(lean_object*);
 lean_object* l_Int_natMod(lean_object*, lean_object*);
 lean_object* l_Int_repr___boxed(lean_object*);
-lean_object* l___private_init_data_int_basic_1__decNonneg___boxed(lean_object*);
 lean_object* l_Int_zero___closed__1;
 lean_object* l_Int_div___boxed(lean_object*, lean_object*);
 lean_object* lean_int_neg(lean_object*);
@@ -49,6 +48,7 @@ lean_object* l_Int_HasMul___closed__1;
 lean_object* l_Int_HasRepr___closed__1;
 lean_object* l_String_toInt___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
+uint8_t lean_int_dec_nonneg(lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 lean_object* l_Int_HasLess;
 lean_object* l_Int_repr(lean_object*);
@@ -61,10 +61,10 @@ lean_object* l_Int_HasSub;
 lean_object* l_Int_repr___closed__1;
 uint8_t l_String_isInt___closed__1;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
-uint8_t lean_int_dec_nonneg(lean_object*);
 lean_object* l_Int_HasMod___closed__1;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Int_HasSub___closed__1;
+lean_object* l___private_Init_Data_Int_Basic_1__decNonneg___boxed(lean_object*);
 lean_object* l_String_toInt___closed__2;
 lean_object* l_Int_decLt___boxed(lean_object*, lean_object*);
 lean_object* l_Int_HasNeg;
@@ -384,7 +384,7 @@ x_1 = l_Int_Int_DecidableEq___closed__1;
 return x_1;
 }
 }
-lean_object* l___private_init_data_int_basic_1__decNonneg___boxed(lean_object* x_1) {
+lean_object* l___private_Init_Data_Int_Basic_1__decNonneg___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; 
@@ -730,25 +730,25 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-lean_object* initialize_init_data_nat_basic(lean_object*);
-lean_object* initialize_init_data_list_default(lean_object*);
-lean_object* initialize_init_coe(lean_object*);
-lean_object* initialize_init_data_repr(lean_object*);
-lean_object* initialize_init_data_tostring(lean_object*);
+lean_object* initialize_Init_Data_Nat_Basic(lean_object*);
+lean_object* initialize_Init_Data_List_Default(lean_object*);
+lean_object* initialize_Init_Coe(lean_object*);
+lean_object* initialize_Init_Data_Repr(lean_object*);
+lean_object* initialize_Init_Data_ToString(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_int_basic(lean_object* w) {
+lean_object* initialize_Init_Data_Int_Basic(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_nat_basic(w);
+w = initialize_Init_Data_Nat_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_list_default(w);
+w = initialize_Init_Data_List_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_coe(w);
+w = initialize_Init_Coe(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_repr(w);
+w = initialize_Init_Data_Repr(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_tostring(w);
+w = initialize_Init_Data_ToString(w);
 if (lean_io_result_is_error(w)) return w;
 l_Int_zero___closed__1 = _init_l_Int_zero___closed__1();
 lean_mark_persistent(l_Int_zero___closed__1);

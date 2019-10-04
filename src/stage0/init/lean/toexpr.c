@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.toexpr
-// Imports: init.lean.expr
+// Module: Init.Lean.ToExpr
+// Imports: Init.Lean.Expr
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -218,13 +218,13 @@ x_1 = l_Lean_nameToExpr___closed__1;
 return x_1;
 }
 }
-lean_object* initialize_init_lean_expr(lean_object*);
+lean_object* initialize_Init_Lean_Expr(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_toexpr(lean_object* w) {
+lean_object* initialize_Init_Lean_ToExpr(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_expr(w);
+w = initialize_Init_Lean_Expr(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_exprToExpr = _init_l_Lean_exprToExpr();
 lean_mark_persistent(l_Lean_exprToExpr);

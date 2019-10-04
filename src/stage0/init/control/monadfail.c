@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.control.monadfail
-// Imports: init.control.lift init.data.string.basic
+// Module: Init.Control.Monadfail
+// Imports: Init.Control.Lift Init.Data.String.Basic
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -91,16 +91,16 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* initialize_init_control_lift(lean_object*);
-lean_object* initialize_init_data_string_basic(lean_object*);
+lean_object* initialize_Init_Control_Lift(lean_object*);
+lean_object* initialize_Init_Data_String_Basic(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_control_monadfail(lean_object* w) {
+lean_object* initialize_Init_Control_Monadfail(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_lift(w);
+w = initialize_Init_Control_Lift(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_string_basic(w);
+w = initialize_Init_Data_String_Basic(w);
 if (lean_io_result_is_error(w)) return w;
 l_matchFailed___rarg___closed__1 = _init_l_matchFailed___rarg___closed__1();
 lean_mark_persistent(l_matchFailed___rarg___closed__1);

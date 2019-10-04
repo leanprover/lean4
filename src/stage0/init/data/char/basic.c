@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.char.basic
-// Imports: init.data.uint
+// Module: Init.Data.Char.Basic
+// Imports: Init.Data.UInt
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -619,13 +619,13 @@ x_4 = lean_box_uint32(x_3);
 return x_4;
 }
 }
-lean_object* initialize_init_data_uint(lean_object*);
+lean_object* initialize_Init_Data_UInt(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_char_basic(lean_object* w) {
+lean_object* initialize_Init_Data_Char_Basic(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_uint(w);
+w = initialize_Init_Data_UInt(w);
 if (lean_io_result_is_error(w)) return w;
 l_Char_HasLess = _init_l_Char_HasLess();
 lean_mark_persistent(l_Char_HasLess);

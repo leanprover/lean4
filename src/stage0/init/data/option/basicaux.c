@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.option.basicaux
-// Imports: init.data.option.basic init.util
+// Module: Init.Data.Option.BasicAux
+// Imports: Init.Data.Option.Basic Init.Util
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23,7 +23,7 @@ lean_object* _init_l_Option_get_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("/Users/leonardodemoura/projects/lean4/library/init/data/option/basicaux.lean");
+x_1 = lean_mk_string("/Users/leonardodemoura/projects/lean4/library/Init/Data/Option/BasicAux.lean");
 return x_1;
 }
 }
@@ -75,16 +75,16 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* initialize_init_data_option_basic(lean_object*);
-lean_object* initialize_init_util(lean_object*);
+lean_object* initialize_Init_Data_Option_Basic(lean_object*);
+lean_object* initialize_Init_Util(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_option_basicaux(lean_object* w) {
+lean_object* initialize_Init_Data_Option_BasicAux(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_option_basic(w);
+w = initialize_Init_Data_Option_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_util(w);
+w = initialize_Init_Util(w);
 if (lean_io_result_is_error(w)) return w;
 l_Option_get_x21___rarg___closed__1 = _init_l_Option_get_x21___rarg___closed__1();
 lean_mark_persistent(l_Option_get_x21___rarg___closed__1);

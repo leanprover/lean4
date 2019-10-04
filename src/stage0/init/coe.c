@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.coe
-// Imports: init.data.list.basic
+// Module: Init.Coe
+// Imports: Init.Data.List.Basic
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -680,13 +680,13 @@ x_3 = lean_alloc_closure((void*)(l_liftList___rarg), 2, 0);
 return x_3;
 }
 }
-lean_object* initialize_init_data_list_basic(lean_object*);
+lean_object* initialize_Init_Data_List_Basic(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_coe(lean_object* w) {
+lean_object* initialize_Init_Coe(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_list_basic(w);
+w = initialize_Init_Data_List_Basic(w);
 if (lean_io_result_is_error(w)) return w;
 l_liftRefl___closed__1 = _init_l_liftRefl___closed__1();
 lean_mark_persistent(l_liftRefl___closed__1);

@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.basic
-// Imports: init.data.nat.basic init.data.fin.basic init.data.list.basic init.data.char.basic init.data.string.basic init.data.option.basic init.data.uint init.data.repr init.data.tostring
+// Module: Init.Data.Basic
+// Imports: Init.Data.Nat.Basic Init.Data.Fin.Basic Init.Data.List.Basic Init.Data.Char.Basic Init.Data.String.Basic Init.Data.Option.Basic Init.Data.UInt Init.Data.Repr Init.Data.ToString
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,37 +13,37 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_init_data_nat_basic(lean_object*);
-lean_object* initialize_init_data_fin_basic(lean_object*);
-lean_object* initialize_init_data_list_basic(lean_object*);
-lean_object* initialize_init_data_char_basic(lean_object*);
-lean_object* initialize_init_data_string_basic(lean_object*);
-lean_object* initialize_init_data_option_basic(lean_object*);
-lean_object* initialize_init_data_uint(lean_object*);
-lean_object* initialize_init_data_repr(lean_object*);
-lean_object* initialize_init_data_tostring(lean_object*);
+lean_object* initialize_Init_Data_Nat_Basic(lean_object*);
+lean_object* initialize_Init_Data_Fin_Basic(lean_object*);
+lean_object* initialize_Init_Data_List_Basic(lean_object*);
+lean_object* initialize_Init_Data_Char_Basic(lean_object*);
+lean_object* initialize_Init_Data_String_Basic(lean_object*);
+lean_object* initialize_Init_Data_Option_Basic(lean_object*);
+lean_object* initialize_Init_Data_UInt(lean_object*);
+lean_object* initialize_Init_Data_Repr(lean_object*);
+lean_object* initialize_Init_Data_ToString(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_basic(lean_object* w) {
+lean_object* initialize_Init_Data_Basic(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_nat_basic(w);
+w = initialize_Init_Data_Nat_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_fin_basic(w);
+w = initialize_Init_Data_Fin_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_list_basic(w);
+w = initialize_Init_Data_List_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_char_basic(w);
+w = initialize_Init_Data_Char_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_string_basic(w);
+w = initialize_Init_Data_String_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_option_basic(w);
+w = initialize_Init_Data_Option_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_uint(w);
+w = initialize_Init_Data_UInt(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_repr(w);
+w = initialize_Init_Data_Repr(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_tostring(w);
+w = initialize_Init_Data_ToString(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

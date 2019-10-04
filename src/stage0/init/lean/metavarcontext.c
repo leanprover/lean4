@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.metavarcontext
-// Imports: init.lean.localcontext
+// Module: Init.Lean.MetavarContext
+// Imports: Init.Lean.LocalContext
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4052,13 +4052,13 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* initialize_init_lean_localcontext(lean_object*);
+lean_object* initialize_Init_Lean_LocalContext(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_metavarcontext(lean_object* w) {
+lean_object* initialize_Init_Lean_MetavarContext(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_localcontext(w);
+w = initialize_Init_Lean_LocalContext(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_MetavarContext_mkMetavarContext___closed__1 = _init_l_Lean_MetavarContext_mkMetavarContext___closed__1();
 lean_mark_persistent(l_Lean_MetavarContext_mkMetavarContext___closed__1);

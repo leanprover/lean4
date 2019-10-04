@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.system.platform
-// Imports: init.data.nat.basic
+// Module: Init.System.Platform
+// Imports: Init.Data.Nat.Basic
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -102,13 +102,13 @@ x_1 = l_System_Platform_isOSX___closed__1;
 return x_1;
 }
 }
-lean_object* initialize_init_data_nat_basic(lean_object*);
+lean_object* initialize_Init_Data_Nat_Basic(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_system_platform(lean_object* w) {
+lean_object* initialize_Init_System_Platform(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_nat_basic(w);
+w = initialize_Init_Data_Nat_Basic(w);
 if (lean_io_result_is_error(w)) return w;
 l_System_Platform_numBits___closed__1 = _init_l_System_Platform_numBits___closed__1();
 lean_mark_persistent(l_System_Platform_numBits___closed__1);

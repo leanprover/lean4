@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.default
-// Imports: init.lean.path init.lean.compiler.default init.lean.environment init.lean.modifiers init.lean.projfns init.lean.runtime init.lean.attributes init.lean.parser.default init.lean.reducibilityattrs init.lean.elaborator.default init.lean.eqncompiler.default init.lean.class init.lean.localcontext init.lean.metavarcontext init.lean.typeclass.default
+// Module: Init.Lean.Default
+// Imports: Init.Lean.Path Init.Lean.Compiler.Default Init.Lean.Environment Init.Lean.Modifiers Init.Lean.Projfns Init.Lean.Runtime Init.Lean.Attributes Init.Lean.Parser.Default Init.Lean.ReducibilityAttrs Init.Lean.Elaborator.Default Init.Lean.EqnCompiler.Default Init.Lean.Class Init.Lean.LocalContext Init.Lean.MetavarContext Init.Lean.TypeClass.Default
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,55 +13,55 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_init_lean_path(lean_object*);
-lean_object* initialize_init_lean_compiler_default(lean_object*);
-lean_object* initialize_init_lean_environment(lean_object*);
-lean_object* initialize_init_lean_modifiers(lean_object*);
-lean_object* initialize_init_lean_projfns(lean_object*);
-lean_object* initialize_init_lean_runtime(lean_object*);
-lean_object* initialize_init_lean_attributes(lean_object*);
-lean_object* initialize_init_lean_parser_default(lean_object*);
-lean_object* initialize_init_lean_reducibilityattrs(lean_object*);
-lean_object* initialize_init_lean_elaborator_default(lean_object*);
-lean_object* initialize_init_lean_eqncompiler_default(lean_object*);
-lean_object* initialize_init_lean_class(lean_object*);
-lean_object* initialize_init_lean_localcontext(lean_object*);
-lean_object* initialize_init_lean_metavarcontext(lean_object*);
-lean_object* initialize_init_lean_typeclass_default(lean_object*);
+lean_object* initialize_Init_Lean_Path(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_Default(lean_object*);
+lean_object* initialize_Init_Lean_Environment(lean_object*);
+lean_object* initialize_Init_Lean_Modifiers(lean_object*);
+lean_object* initialize_Init_Lean_Projfns(lean_object*);
+lean_object* initialize_Init_Lean_Runtime(lean_object*);
+lean_object* initialize_Init_Lean_Attributes(lean_object*);
+lean_object* initialize_Init_Lean_Parser_Default(lean_object*);
+lean_object* initialize_Init_Lean_ReducibilityAttrs(lean_object*);
+lean_object* initialize_Init_Lean_Elaborator_Default(lean_object*);
+lean_object* initialize_Init_Lean_EqnCompiler_Default(lean_object*);
+lean_object* initialize_Init_Lean_Class(lean_object*);
+lean_object* initialize_Init_Lean_LocalContext(lean_object*);
+lean_object* initialize_Init_Lean_MetavarContext(lean_object*);
+lean_object* initialize_Init_Lean_TypeClass_Default(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_default(lean_object* w) {
+lean_object* initialize_Init_Lean_Default(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_path(w);
+w = initialize_Init_Lean_Path(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_default(w);
+w = initialize_Init_Lean_Compiler_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_environment(w);
+w = initialize_Init_Lean_Environment(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_modifiers(w);
+w = initialize_Init_Lean_Modifiers(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_projfns(w);
+w = initialize_Init_Lean_Projfns(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_runtime(w);
+w = initialize_Init_Lean_Runtime(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_attributes(w);
+w = initialize_Init_Lean_Attributes(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_parser_default(w);
+w = initialize_Init_Lean_Parser_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_reducibilityattrs(w);
+w = initialize_Init_Lean_ReducibilityAttrs(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_elaborator_default(w);
+w = initialize_Init_Lean_Elaborator_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_eqncompiler_default(w);
+w = initialize_Init_Lean_EqnCompiler_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_class(w);
+w = initialize_Init_Lean_Class(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_localcontext(w);
+w = initialize_Init_Lean_LocalContext(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_metavarcontext(w);
+w = initialize_Init_Lean_MetavarContext(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_typeclass_default(w);
+w = initialize_Init_Lean_TypeClass_Default(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

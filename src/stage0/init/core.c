@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: init.core
+// Module: Init.Core
 // Imports:
 #include "runtime/lean.h"
 #if defined(__clang__)
@@ -103,6 +103,7 @@ lean_object* l_Iff_Decidable___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Quotient_DecidableEq(lean_object*);
 lean_object* l_Eq_ndrec___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_idDelta___rarg(lean_object*);
+lean_object* l___private_Init_Core_21__extfunApp(lean_object*, lean_object*);
 lean_object* l_Sum_inhabitedRight(lean_object*, lean_object*);
 lean_object* l_Sigma_sizeof___at_Sigma_HasSizeof___spec__1(lean_object*, lean_object*);
 lean_object* l_Quotient_recOnSubsingleton_u2082___at_Quotient_DecidableEq___spec__1___boxed(lean_object*, lean_object*);
@@ -110,7 +111,6 @@ lean_object* l_Sigma_HasSizeof___boxed(lean_object*, lean_object*);
 lean_object* l_std_priority_default;
 lean_object* l_Bool_HasSizeof___closed__1;
 lean_object* l_Quotient_DecidableEq___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_init_core_20__funSetoid(lean_object*, lean_object*);
 lean_object* l_arbitrary___rarg(lean_object*);
 lean_object* l_Prod_HasSizeof(lean_object*, lean_object*);
 lean_object* l_Quot_recOnSubsingleton(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -128,7 +128,6 @@ lean_object* l_dite(lean_object*);
 lean_object* l_Thunk_mk(lean_object*, lean_object*);
 lean_object* l_Eq_ndrecOn___rarg___boxed(lean_object*);
 lean_object* l_Task_bind(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_init_core_21__extfunApp___rarg(lean_object*, lean_object*);
 lean_object* l_Thunk_map(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_dite___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_lift_u2082___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -163,7 +162,7 @@ lean_object* l_bit1(lean_object*);
 lean_object* l_Nat_sizeof(lean_object*);
 lean_object* l_Quot_indep___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_HasSizeof(lean_object*);
-lean_object* l___private_init_core_20__funSetoid___boxed(lean_object*, lean_object*);
+lean_object* l___private_Init_Core_20__funSetoid(lean_object*, lean_object*);
 lean_object* l_Quotient_hrecOn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_liftOn_u2082(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_False_elim___boxed(lean_object*, lean_object*);
@@ -181,6 +180,7 @@ lean_object* l_Sum_HasSizeof___rarg(lean_object*, lean_object*);
 lean_object* l_strictOr___boxed(lean_object*, lean_object*);
 lean_object* l_std_prec_arrow;
 lean_object* l_bit0___rarg(lean_object*, lean_object*);
+lean_object* l___private_Init_Core_21__extfunApp___rarg(lean_object*, lean_object*);
 lean_object* l_Nat_prio;
 lean_object* l_bit0(lean_object*);
 lean_object* l_Prod_DecidableEq___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -202,6 +202,7 @@ lean_object* l_default_sizeof(lean_object*, lean_object*);
 lean_object* l_ite___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Eq_ndrec___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_cast(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Core_21__extfunApp___boxed(lean_object*, lean_object*);
 lean_object* l_Quotient_liftOn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Subtype_Inhabited(lean_object*, lean_object*);
 lean_object* l_EqvGen_Setoid___boxed(lean_object*, lean_object*);
@@ -290,6 +291,7 @@ lean_object* l_Forall_Inhabited___boxed(lean_object*, lean_object*);
 lean_object* l_Decidable_decide(lean_object*);
 lean_object* l_idRhs___rarg___boxed(lean_object*);
 lean_object* l_Quotient_recOnSubsingleton_u2082___at_Quotient_DecidableEq___spec__1(lean_object*, lean_object*);
+lean_object* l___private_Init_Core_20__funSetoid___boxed(lean_object*, lean_object*);
 lean_object* l_Subtype_sizeof___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_default(lean_object*);
 lean_object* l_Quotient_recOn___boxed(lean_object*, lean_object*, lean_object*);
@@ -304,7 +306,6 @@ lean_object* l_Quotient_lift___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_idRhs(lean_object*);
 lean_object* l_Quot_hrecOn(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_sizeof___main___rarg(lean_object*, lean_object*);
-lean_object* l___private_init_core_21__extfunApp___boxed(lean_object*, lean_object*);
 lean_object* l_Quotient_mk___rarg___boxed(lean_object*);
 lean_object* l_Quot_rec___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_PointedType_Inhabited;
@@ -318,7 +319,6 @@ lean_object* l_Function_combine(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Nat_sizeof___boxed(lean_object*);
 lean_object* l_Quotient_recOnSubsingleton_u2082___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Decidable_recOnTrue(lean_object*);
-lean_object* l___private_init_core_21__extfunApp(lean_object*, lean_object*);
 lean_object* l_Nat_HasAdd;
 lean_object* l_Subtype_Inhabited___rarg(lean_object*, lean_object*);
 lean_object* l_PUnit_DecidableEq___boxed(lean_object*, lean_object*);
@@ -3782,7 +3782,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* l___private_init_core_20__funSetoid(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_Core_20__funSetoid(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -3790,16 +3790,16 @@ x_3 = lean_box(0);
 return x_3;
 }
 }
-lean_object* l___private_init_core_20__funSetoid___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_Core_20__funSetoid___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l___private_init_core_20__funSetoid(x_1, x_2);
+x_3 = l___private_Init_Core_20__funSetoid(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l___private_init_core_21__extfunApp___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_Core_21__extfunApp___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -3807,19 +3807,19 @@ x_3 = lean_apply_1(x_1, x_2);
 return x_3;
 }
 }
-lean_object* l___private_init_core_21__extfunApp(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_Core_21__extfunApp(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_init_core_21__extfunApp___rarg), 2, 0);
+x_3 = lean_alloc_closure((void*)(l___private_Init_Core_21__extfunApp___rarg), 2, 0);
 return x_3;
 }
 }
-lean_object* l___private_init_core_21__extfunApp___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_Core_21__extfunApp___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l___private_init_core_21__extfunApp(x_1, x_2);
+x_3 = l___private_Init_Core_21__extfunApp(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -3931,7 +3931,7 @@ return x_4;
 }
 }
 static bool _G_initialized = false;
-lean_object* initialize_init_core(lean_object* w) {
+lean_object* initialize_Init_Core(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;

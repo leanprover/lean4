@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.typeclass.basic
-// Imports: init.lean.environment init.lean.typeclass.synth
+// Module: Init.Lean.TypeClass.Basic
+// Imports: Init.Lean.Environment Init.Lean.TypeClass.Synth
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -75,16 +75,16 @@ return x_16;
 }
 }
 }
-lean_object* initialize_init_lean_environment(lean_object*);
-lean_object* initialize_init_lean_typeclass_synth(lean_object*);
+lean_object* initialize_Init_Lean_Environment(lean_object*);
+lean_object* initialize_Init_Lean_TypeClass_Synth(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_typeclass_basic(lean_object* w) {
+lean_object* initialize_Init_Lean_TypeClass_Basic(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_environment(w);
+w = initialize_Init_Lean_Environment(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_typeclass_synth(w);
+w = initialize_Init_Lean_TypeClass_Synth(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_TypeClass_synthCommand___closed__1 = _init_l_Lean_TypeClass_synthCommand___closed__1();
 lean_mark_persistent(l_Lean_TypeClass_synthCommand___closed__1);

@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.parser.default
-// Imports: init.lean.parser.parser init.lean.parser.level init.lean.parser.term init.lean.parser.command init.lean.parser.module
+// Module: Init.Lean.Parser.Default
+// Imports: Init.Lean.Parser.Parser Init.Lean.Parser.Level Init.Lean.Parser.Term Init.Lean.Parser.Command Init.Lean.Parser.Module
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,25 +13,25 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_init_lean_parser_parser(lean_object*);
-lean_object* initialize_init_lean_parser_level(lean_object*);
-lean_object* initialize_init_lean_parser_term(lean_object*);
-lean_object* initialize_init_lean_parser_command(lean_object*);
-lean_object* initialize_init_lean_parser_module(lean_object*);
+lean_object* initialize_Init_Lean_Parser_Parser(lean_object*);
+lean_object* initialize_Init_Lean_Parser_Level(lean_object*);
+lean_object* initialize_Init_Lean_Parser_Term(lean_object*);
+lean_object* initialize_Init_Lean_Parser_Command(lean_object*);
+lean_object* initialize_Init_Lean_Parser_Module(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_parser_default(lean_object* w) {
+lean_object* initialize_Init_Lean_Parser_Default(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_parser_parser(w);
+w = initialize_Init_Lean_Parser_Parser(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_parser_level(w);
+w = initialize_Init_Lean_Parser_Level(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_parser_term(w);
+w = initialize_Init_Lean_Parser_Term(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_parser_command(w);
+w = initialize_Init_Lean_Parser_Command(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_parser_module(w);
+w = initialize_Init_Lean_Parser_Module(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

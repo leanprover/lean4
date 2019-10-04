@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.scopes
-// Imports: init.lean.environment
+// Module: Init.Lean.Scopes
+// Imports: Init.Lean.Environment
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -31,6 +31,7 @@ lean_object* l_Lean_scopeManagerExt___elambda__1(lean_object*);
 uint8_t lean_has_open_scopes(lean_object*);
 lean_object* l_Lean_Environment_popScopeCore___closed__1;
 lean_object* l_Lean_Environment_pushScopeCore___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*);
+extern lean_object* l___private_Init_Lean_Environment_5__envExtensionsRef;
 lean_object* lean_get_namespaces(lean_object*);
 lean_object* lean_get_scope_header(lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__4;
@@ -67,6 +68,7 @@ lean_object* l_Array_miterateAux___main___at_Lean_regScopeManagerExtension___spe
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+extern lean_object* l___private_Init_Lean_Environment_8__persistentEnvExtensionsRef;
 uint8_t lean_is_namespace(lean_object*, lean_object*);
 lean_object* l_Array_push(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_regScopeManagerExtension___closed__5;
@@ -107,7 +109,6 @@ lean_object* l_Lean_scopeManagerExt___closed__5;
 lean_object* l_Lean_Environment_pushScopeCore(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Environment_isNamespace___boxed(lean_object*, lean_object*);
 lean_object* l_List_tail_x21___rarg(lean_object*);
-extern lean_object* l___private_init_lean_environment_8__persistentEnvExtensionsRef;
 lean_object* l_Lean_Environment_hasOpenScopes___boxed(lean_object*);
 lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_pushScopeCore___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -115,7 +116,6 @@ extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
 extern lean_object* l_Lean_regNamespacesExtension___closed__5;
 lean_object* lean_to_valid_namespace(lean_object*, lean_object*);
 lean_object* l_IO_Prim_Ref_reset(lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_init_lean_environment_5__envExtensionsRef;
 lean_object* l_Lean_scopeManagerExt___elambda__4(lean_object*);
 lean_object* l_Lean_scopeManagerExt___elambda__4___rarg(lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
@@ -371,7 +371,7 @@ x_13 = lean_ctor_get(x_3, 0);
 lean_dec(x_13);
 x_14 = lean_box(0);
 lean_ctor_set(x_3, 0, x_14);
-x_15 = l___private_init_lean_environment_5__envExtensionsRef;
+x_15 = l___private_Init_Lean_Environment_5__envExtensionsRef;
 x_16 = lean_io_ref_get(x_15, x_3);
 if (lean_obj_tag(x_16) == 0)
 {
@@ -891,7 +891,7 @@ x_122 = lean_box(0);
 x_123 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_123, 0, x_122);
 lean_ctor_set(x_123, 1, x_121);
-x_124 = l___private_init_lean_environment_5__envExtensionsRef;
+x_124 = l___private_Init_Lean_Environment_5__envExtensionsRef;
 x_125 = lean_io_ref_get(x_124, x_123);
 if (lean_obj_tag(x_125) == 0)
 {
@@ -1129,7 +1129,7 @@ lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_regScopeManag
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l___private_init_lean_environment_8__persistentEnvExtensionsRef;
+x_3 = l___private_Init_Lean_Environment_8__persistentEnvExtensionsRef;
 x_4 = lean_io_ref_get(x_3, x_2);
 if (lean_obj_tag(x_4) == 0)
 {
@@ -2844,13 +2844,13 @@ return x_1;
 }
 }
 }
-lean_object* initialize_init_lean_environment(lean_object*);
+lean_object* initialize_Init_Lean_Environment(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_scopes(lean_object* w) {
+lean_object* initialize_Init_Lean_Scopes(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_environment(w);
+w = initialize_Init_Lean_Environment(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_ScopeManagerState_Inhabited___closed__1 = _init_l_Lean_ScopeManagerState_Inhabited___closed__1();
 lean_mark_persistent(l_Lean_ScopeManagerState_Inhabited___closed__1);

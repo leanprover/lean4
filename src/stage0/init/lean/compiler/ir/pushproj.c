@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.compiler.ir.pushproj
-// Imports: init.lean.compiler.ir.basic init.lean.compiler.ir.freevars
+// Module: Init.Lean.Compiler.IR.PushProj
+// Imports: Init.Lean.Compiler.IR.Basic Init.Lean.Compiler.IR.FreeVars
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -24,7 +24,6 @@ lean_object* l_Array_ummapAux___main___at_Lean_IR_pushProjs___main___spec__3___b
 lean_object* l_Lean_IR_FnBody_freeIndices(lean_object*);
 lean_object* l_Array_ummapAux___main___at_Lean_IR_FnBody_pushProj___main___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_IR_AltCore_body(lean_object*);
-lean_object* l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_14__collectIndex___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_IR_reshape(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_pushProj(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -37,6 +36,7 @@ lean_object* l_Lean_IR_pushProjs(lean_object*, lean_object*, lean_object*, lean_
 lean_object* l_Lean_IR_FnBody_pushProj___main(lean_object*);
 lean_object* l_Lean_IR_FnBody_collectFreeIndices(lean_object*, lean_object*);
 lean_object* l_Array_ummapAux___main___at_Lean_IR_FnBody_pushProj___main___spec__2(lean_object*, lean_object*);
+lean_object* l_RBNode_findCore___main___at___private_Init_Lean_Compiler_IR_FreeVars_14__collectIndex___spec__1(lean_object*, lean_object*);
 lean_object* l_Array_ummapAux___main___at_Lean_IR_pushProjs___main___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_reverseAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_Array_pop(lean_object*, lean_object*);
@@ -100,7 +100,7 @@ x_17 = lean_ctor_get(x_10, 1);
 lean_inc(x_17);
 x_18 = l_Lean_IR_vsetInh;
 x_19 = lean_array_get(x_18, x_1, x_4);
-x_20 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_14__collectIndex___spec__1(x_19, x_3);
+x_20 = l_RBNode_findCore___main___at___private_Init_Lean_Compiler_IR_FreeVars_14__collectIndex___spec__1(x_19, x_3);
 lean_dec(x_19);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -139,7 +139,7 @@ x_30 = lean_ctor_get(x_10, 0);
 lean_inc(x_30);
 x_31 = l_Lean_IR_vsetInh;
 x_32 = lean_array_get(x_31, x_1, x_4);
-x_33 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_14__collectIndex___spec__1(x_32, x_3);
+x_33 = l_RBNode_findCore___main___at___private_Init_Lean_Compiler_IR_FreeVars_14__collectIndex___spec__1(x_32, x_3);
 lean_dec(x_32);
 if (lean_obj_tag(x_33) == 0)
 {
@@ -198,7 +198,7 @@ x_11 = x_10;
 x_12 = lean_array_fset(x_4, x_3, x_11);
 x_13 = lean_unsigned_to_nat(1u);
 x_14 = lean_nat_add(x_3, x_13);
-x_15 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_14__collectIndex___spec__1(x_9, x_2);
+x_15 = l_RBNode_findCore___main___at___private_Init_Lean_Compiler_IR_FreeVars_14__collectIndex___spec__1(x_9, x_2);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; 
@@ -343,7 +343,7 @@ block_30:
 {
 lean_object* x_24; 
 lean_dec(x_23);
-x_24 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_14__collectIndex___spec__1(x_5, x_21);
+x_24 = l_RBNode_findCore___main___at___private_Init_Lean_Compiler_IR_FreeVars_14__collectIndex___spec__1(x_5, x_21);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; 
@@ -706,16 +706,16 @@ return x_1;
 }
 }
 }
-lean_object* initialize_init_lean_compiler_ir_basic(lean_object*);
-lean_object* initialize_init_lean_compiler_ir_freevars(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_IR_Basic(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_IR_FreeVars(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_compiler_ir_pushproj(lean_object* w) {
+lean_object* initialize_Init_Lean_Compiler_IR_PushProj(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_ir_basic(w);
+w = initialize_Init_Lean_Compiler_IR_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_ir_freevars(w);
+w = initialize_Init_Lean_Compiler_IR_FreeVars(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

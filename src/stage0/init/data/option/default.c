@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.option.default
-// Imports: init.data.option.basic init.data.option.basicaux init.data.option.instances
+// Module: Init.Data.Option.Default
+// Imports: Init.Data.Option.Basic Init.Data.Option.BasicAux Init.Data.Option.Instances
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,19 +13,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_init_data_option_basic(lean_object*);
-lean_object* initialize_init_data_option_basicaux(lean_object*);
-lean_object* initialize_init_data_option_instances(lean_object*);
+lean_object* initialize_Init_Data_Option_Basic(lean_object*);
+lean_object* initialize_Init_Data_Option_BasicAux(lean_object*);
+lean_object* initialize_Init_Data_Option_Instances(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_option_default(lean_object* w) {
+lean_object* initialize_Init_Data_Option_Default(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_option_basic(w);
+w = initialize_Init_Data_Option_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_option_basicaux(w);
+w = initialize_Init_Data_Option_BasicAux(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_option_instances(w);
+w = initialize_Init_Data_Option_Instances(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

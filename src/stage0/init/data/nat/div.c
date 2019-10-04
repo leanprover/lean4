@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.nat.div
-// Imports: init.wf init.data.nat.basic
+// Module: Init.Data.Nat.Div
+// Imports: Init.Wf Init.Data.Nat.Basic
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,23 +13,23 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l___private_init_data_nat_div_2__div_F___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l___private_init_data_nat_div_5__mod_F___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_div___boxed(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Nat_Div_2__div_F___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_HasDiv___closed__1;
 lean_object* l_Nat_HasMod___closed__1;
-lean_object* l___private_init_data_nat_div_5__mod_F(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_init_data_nat_div_2__div_F(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Nat_Div_5__mod_F(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Nat_HasMod;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Nat_mod___boxed(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Nat_Div_2__div_F(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Nat_Div_5__mod_F___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_HasDiv;
-lean_object* l___private_init_data_nat_div_2__div_F(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_Data_Nat_Div_2__div_F(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -68,11 +68,11 @@ return x_12;
 }
 }
 }
-lean_object* l___private_init_data_nat_div_2__div_F___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_Data_Nat_Div_2__div_F___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l___private_init_data_nat_div_2__div_F(x_1, x_2, x_3);
+x_4 = l___private_Init_Data_Nat_Div_2__div_F(x_1, x_2, x_3);
 lean_dec(x_1);
 return x_4;
 }
@@ -103,7 +103,7 @@ x_1 = l_Nat_HasDiv___closed__1;
 return x_1;
 }
 }
-lean_object* l___private_init_data_nat_div_5__mod_F(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_Data_Nat_Div_5__mod_F(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -137,11 +137,11 @@ return x_8;
 }
 }
 }
-lean_object* l___private_init_data_nat_div_5__mod_F___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_Data_Nat_Div_5__mod_F___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l___private_init_data_nat_div_5__mod_F(x_1, x_2, x_3);
+x_4 = l___private_Init_Data_Nat_Div_5__mod_F(x_1, x_2, x_3);
 lean_dec(x_1);
 return x_4;
 }
@@ -172,16 +172,16 @@ x_1 = l_Nat_HasMod___closed__1;
 return x_1;
 }
 }
-lean_object* initialize_init_wf(lean_object*);
-lean_object* initialize_init_data_nat_basic(lean_object*);
+lean_object* initialize_Init_Wf(lean_object*);
+lean_object* initialize_Init_Data_Nat_Basic(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_nat_div(lean_object* w) {
+lean_object* initialize_Init_Data_Nat_Div(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_wf(w);
+w = initialize_Init_Wf(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_nat_basic(w);
+w = initialize_Init_Data_Nat_Basic(w);
 if (lean_io_result_is_error(w)) return w;
 l_Nat_HasDiv___closed__1 = _init_l_Nat_HasDiv___closed__1();
 lean_mark_persistent(l_Nat_HasDiv___closed__1);

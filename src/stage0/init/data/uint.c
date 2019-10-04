@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.uint
-// Imports: init.data.fin.basic init.system.platform
+// Module: Init.Data.UInt
+// Imports: Init.Data.Fin.Basic Init.System.Platform
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2161,16 +2161,16 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* initialize_init_data_fin_basic(lean_object*);
-lean_object* initialize_init_system_platform(lean_object*);
+lean_object* initialize_Init_Data_Fin_Basic(lean_object*);
+lean_object* initialize_Init_System_Platform(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_uint(lean_object* w) {
+lean_object* initialize_Init_Data_UInt(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_fin_basic(w);
+w = initialize_Init_Data_Fin_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_system_platform(w);
+w = initialize_Init_System_Platform(w);
 if (lean_io_result_is_error(w)) return w;
 l_uint8Sz = _init_l_uint8Sz();
 lean_mark_persistent(l_uint8Sz);

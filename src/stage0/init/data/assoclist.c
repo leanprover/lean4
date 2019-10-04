@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.assoclist
-// Imports: init.control.id
+// Module: Init.Data.AssocList
+// Imports: Init.Control.Id
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -555,13 +555,13 @@ x_3 = lean_alloc_closure((void*)(l_AssocList_erase___rarg), 3, 0);
 return x_3;
 }
 }
-lean_object* initialize_init_control_id(lean_object*);
+lean_object* initialize_Init_Control_Id(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_assoclist(lean_object* w) {
+lean_object* initialize_Init_Data_AssocList(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_id(w);
+w = initialize_Init_Control_Id(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

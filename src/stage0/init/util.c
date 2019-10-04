@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.util
-// Imports: init.data.string.basic init.data.tostring
+// Module: Init.Util
+// Imports: Init.Data.String.Basic Init.Data.ToString
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -138,16 +138,16 @@ lean_dec(x_2);
 return x_6;
 }
 }
-lean_object* initialize_init_data_string_basic(lean_object*);
-lean_object* initialize_init_data_tostring(lean_object*);
+lean_object* initialize_Init_Data_String_Basic(lean_object*);
+lean_object* initialize_Init_Data_ToString(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_util(lean_object* w) {
+lean_object* initialize_Init_Util(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_string_basic(w);
+w = initialize_Init_Data_String_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_tostring(w);
+w = initialize_Init_Data_ToString(w);
 if (lean_io_result_is_error(w)) return w;
 l_panicWithPos___rarg___closed__1 = _init_l_panicWithPos___rarg___closed__1();
 lean_mark_persistent(l_panicWithPos___rarg___closed__1);

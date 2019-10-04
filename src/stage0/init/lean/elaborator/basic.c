@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.elaborator.basic
-// Imports: init.control.reader init.lean.metavarcontext init.lean.namegenerator init.lean.scopes init.lean.parser.module
+// Module: Init.Lean.Elaborator.Basic
+// Imports: Init.Control.Reader Init.Lean.MetavarContext Init.Lean.NameGenerator Init.Lean.Scopes Init.Lean.Parser.Module
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -103,6 +103,7 @@ lean_object* l_Lean_SMap_find___at_Lean_Elab_elabCommand___spec__1(lean_object*,
 lean_object* l_Lean_Elab_logError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_import_modules(lean_object*, uint32_t, lean_object*);
 lean_object* lean_absolutize_module_name(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Init_Lean_Environment_5__envExtensionsRef;
 lean_object* l_Lean_Elab_logError(lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Lean_Elab_withInPattern(lean_object*);
@@ -256,6 +257,7 @@ lean_object* l_Lean_registerBuiltinCommandElabAttr___lambda__1___closed__2;
 lean_object* l_Lean_Elab_runElab___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_addAndCompile(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+extern lean_object* l___private_Init_Lean_Environment_8__persistentEnvExtensionsRef;
 lean_object* l_Lean_Elab_localContext(lean_object*);
 uint8_t l_AssocList_contains___main___at_Lean_addBuiltinCommandElab___spec__3(lean_object*, lean_object*);
 lean_object* l_List_hasDecEq___main___at_Lean_OpenDecl_HasToString___spec__1___boxed(lean_object*, lean_object*);
@@ -287,7 +289,6 @@ lean_object* l_Lean_SMap_insert___at_Lean_addBuiltinTermElab___spec__7(lean_obje
 lean_object* l_Lean_syntaxNodeKindOfAttrParam(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_contains___main___at_Lean_addBuiltinCommandElab___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_resolveNamespace___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_init_lean_path_1__pathSep___closed__1;
 lean_object* l_Lean_ElabException_Inhabited___closed__1;
 lean_object* l_mkHashMap___at_Lean_mkBuiltinTermElabTable___spec__2(lean_object*);
 lean_object* l_panicWithPos___at_Lean_Elab_getScope___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -389,6 +390,7 @@ lean_object* l_HashMapImp_moveEntries___main___at_Lean_addBuiltinCommandElab___s
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_mkTermElabAttribute___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_builtinCommandElabTable;
 lean_object* l_Lean_Elab_mkAnonymousInstName___boxed(lean_object*, lean_object*);
+extern lean_object* l___private_Init_Lean_Path_1__pathSep___closed__1;
 lean_object* l_Lean_Elab_getPosition(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 extern lean_object* l_Lean_nameToExprAux___main___closed__4;
@@ -431,7 +433,6 @@ lean_object* l_Lean_Syntax_getNumArgs___rarg(lean_object*);
 lean_object* l_Lean_Elab_testFrontend___closed__2;
 lean_object* l_Array_anyMAux___main___at_Lean_mkTermElabAttribute___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_init_lean_environment_8__persistentEnvExtensionsRef;
 size_t l_USize_land(size_t, size_t);
 lean_object* l_Lean_Elab_mkForall___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_addBuiltinTermElab___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -459,7 +460,6 @@ lean_object* l_IO_Prim_Ref_reset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_rootNamespace___closed__1;
 lean_object* l_Lean_Elab_mkFreshName___rarg(lean_object*);
 lean_object* l_Lean_LocalContext_mkForall(lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_init_lean_environment_5__envExtensionsRef;
 extern lean_object* l_Array_mfindAux___main___at_Lean_findFile___spec__2___closed__3;
 lean_object* l_Lean_Elab_processHeaderAux___closed__1;
 lean_object* l_Lean_Elab_runElab___at_Lean_Elab_processCommand___spec__1(lean_object*, lean_object*, lean_object*);
@@ -5635,7 +5635,7 @@ x_13 = lean_ctor_get(x_3, 0);
 lean_dec(x_13);
 x_14 = lean_box(0);
 lean_ctor_set(x_3, 0, x_14);
-x_15 = l___private_init_lean_environment_5__envExtensionsRef;
+x_15 = l___private_Init_Lean_Environment_5__envExtensionsRef;
 x_16 = lean_io_ref_get(x_15, x_3);
 if (lean_obj_tag(x_16) == 0)
 {
@@ -6155,7 +6155,7 @@ x_122 = lean_box(0);
 x_123 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_123, 0, x_122);
 lean_ctor_set(x_123, 1, x_121);
-x_124 = l___private_init_lean_environment_5__envExtensionsRef;
+x_124 = l___private_Init_Lean_Environment_5__envExtensionsRef;
 x_125 = lean_io_ref_get(x_124, x_123);
 if (lean_obj_tag(x_125) == 0)
 {
@@ -6393,7 +6393,7 @@ lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_mkTermElabAtt
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l___private_init_lean_environment_8__persistentEnvExtensionsRef;
+x_3 = l___private_Init_Lean_Environment_8__persistentEnvExtensionsRef;
 x_4 = lean_io_ref_get(x_3, x_2);
 if (lean_obj_tag(x_4) == 0)
 {
@@ -7558,7 +7558,7 @@ x_13 = lean_ctor_get(x_3, 0);
 lean_dec(x_13);
 x_14 = lean_box(0);
 lean_ctor_set(x_3, 0, x_14);
-x_15 = l___private_init_lean_environment_5__envExtensionsRef;
+x_15 = l___private_Init_Lean_Environment_5__envExtensionsRef;
 x_16 = lean_io_ref_get(x_15, x_3);
 if (lean_obj_tag(x_16) == 0)
 {
@@ -8078,7 +8078,7 @@ x_122 = lean_box(0);
 x_123 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_123, 0, x_122);
 lean_ctor_set(x_123, 1, x_121);
-x_124 = l___private_init_lean_environment_5__envExtensionsRef;
+x_124 = l___private_Init_Lean_Environment_5__envExtensionsRef;
 x_125 = lean_io_ref_get(x_124, x_123);
 if (lean_obj_tag(x_125) == 0)
 {
@@ -8316,7 +8316,7 @@ lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_mkCommandElab
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l___private_init_lean_environment_8__persistentEnvExtensionsRef;
+x_3 = l___private_Init_Lean_Environment_8__persistentEnvExtensionsRef;
 x_4 = lean_io_ref_get(x_3, x_2);
 if (lean_obj_tag(x_4) == 0)
 {
@@ -13154,7 +13154,7 @@ lean_dec(x_1);
 x_17 = l_Lean_addRel___main(x_16, x_15);
 lean_dec(x_15);
 lean_dec(x_16);
-x_18 = l___private_init_lean_path_1__pathSep___closed__1;
+x_18 = l___private_Init_Lean_Path_1__pathSep___closed__1;
 x_19 = lean_string_append(x_17, x_18);
 x_20 = l_Lean_modNameToFileName___main(x_2);
 lean_dec(x_2);
@@ -19672,25 +19672,25 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* initialize_init_control_reader(lean_object*);
-lean_object* initialize_init_lean_metavarcontext(lean_object*);
-lean_object* initialize_init_lean_namegenerator(lean_object*);
-lean_object* initialize_init_lean_scopes(lean_object*);
-lean_object* initialize_init_lean_parser_module(lean_object*);
+lean_object* initialize_Init_Control_Reader(lean_object*);
+lean_object* initialize_Init_Lean_MetavarContext(lean_object*);
+lean_object* initialize_Init_Lean_NameGenerator(lean_object*);
+lean_object* initialize_Init_Lean_Scopes(lean_object*);
+lean_object* initialize_Init_Lean_Parser_Module(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_elaborator_basic(lean_object* w) {
+lean_object* initialize_Init_Lean_Elaborator_Basic(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_reader(w);
+w = initialize_Init_Control_Reader(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_metavarcontext(w);
+w = initialize_Init_Lean_MetavarContext(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_namegenerator(w);
+w = initialize_Init_Lean_NameGenerator(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_scopes(w);
+w = initialize_Init_Lean_Scopes(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_parser_module(w);
+w = initialize_Init_Lean_Parser_Module(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_OpenDecl_Inhabited___closed__1 = _init_l_Lean_OpenDecl_Inhabited___closed__1();
 lean_mark_persistent(l_Lean_OpenDecl_Inhabited___closed__1);

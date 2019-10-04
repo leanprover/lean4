@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.typeclass.synth
-// Imports: init.lean.expr init.lean.environment init.lean.class init.lean.metavarcontext init.lean.typeclass.context init.data.persistenthashmap.default init.data.queue.default
+// Module: Init.Lean.TypeClass.Synth
+// Imports: Init.Lean.Expr Init.Lean.Environment Init.Lean.Class Init.Lean.MetavarContext Init.Lean.TypeClass.Context Init.Data.PersistentHashMap.Default Init.Data.Queue.Default
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5948,7 +5948,7 @@ lean_object* _init_l_Lean_TypeClass_collectEReplacements___main___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("/Users/leonardodemoura/projects/lean4/library/init/lean/typeclass/synth.lean");
+x_1 = lean_mk_string("/Users/leonardodemoura/projects/lean4/library/Init/Lean/TypeClass/Synth.lean");
 return x_1;
 }
 }
@@ -8083,31 +8083,31 @@ return x_218;
 }
 }
 }
-lean_object* initialize_init_lean_expr(lean_object*);
-lean_object* initialize_init_lean_environment(lean_object*);
-lean_object* initialize_init_lean_class(lean_object*);
-lean_object* initialize_init_lean_metavarcontext(lean_object*);
-lean_object* initialize_init_lean_typeclass_context(lean_object*);
-lean_object* initialize_init_data_persistenthashmap_default(lean_object*);
-lean_object* initialize_init_data_queue_default(lean_object*);
+lean_object* initialize_Init_Lean_Expr(lean_object*);
+lean_object* initialize_Init_Lean_Environment(lean_object*);
+lean_object* initialize_Init_Lean_Class(lean_object*);
+lean_object* initialize_Init_Lean_MetavarContext(lean_object*);
+lean_object* initialize_Init_Lean_TypeClass_Context(lean_object*);
+lean_object* initialize_Init_Data_PersistentHashMap_Default(lean_object*);
+lean_object* initialize_Init_Data_Queue_Default(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_typeclass_synth(lean_object* w) {
+lean_object* initialize_Init_Lean_TypeClass_Synth(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_expr(w);
+w = initialize_Init_Lean_Expr(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_environment(w);
+w = initialize_Init_Lean_Environment(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_class(w);
+w = initialize_Init_Lean_Class(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_metavarcontext(w);
+w = initialize_Init_Lean_MetavarContext(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_typeclass_context(w);
+w = initialize_Init_Lean_TypeClass_Context(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_persistenthashmap_default(w);
+w = initialize_Init_Data_PersistentHashMap_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_queue_default(w);
+w = initialize_Init_Data_Queue_Default(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_TypeClass_TypedExpr_HasToString___closed__1 = _init_l_Lean_TypeClass_TypedExpr_HasToString___closed__1();
 lean_mark_persistent(l_Lean_TypeClass_TypedExpr_HasToString___closed__1);

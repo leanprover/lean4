@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.system.io
-// Imports: init.control.estate init.data.string.basic init.system.filepath
+// Module: Init.System.IO
+// Imports: Init.Control.Estate Init.Data.String.Basic Init.System.Filepath
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_IO_Prim_handle_mk___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_prim_handle_get_line(lean_object*, lean_object*);
 lean_object* l_IO_println(lean_object*);
+lean_object* l___private_Init_System_IO_1__putStr___rarg(lean_object*, lean_object*);
 lean_object* l_IO_Ref_set___boxed(lean_object*, lean_object*);
 lean_object* l_IO_Fs_handle_isEof___at_IO_Fs_handle_readToEnd___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
@@ -54,6 +55,7 @@ lean_object* lean_io_is_dir(lean_object*, lean_object*);
 lean_object* l_IO_appDir___boxed(lean_object*);
 lean_object* lean_io_app_dir(lean_object*);
 lean_object* l_unsafeIO(lean_object*);
+lean_object* l___private_Init_System_IO_1__putStr___at_HasRepr_HasEval___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_IO_Prim_iterate___at_IO_Fs_handle_readToEnd___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_Prim_isDir___boxed(lean_object*, lean_object*);
 lean_object* l_EIO_Monad(lean_object*);
@@ -77,7 +79,6 @@ lean_object* l_IO_userError(lean_object*);
 lean_object* l_IO_Ref_swap___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_Fs_handle_flush(lean_object*, lean_object*);
 lean_object* l_IO_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_init_system_io_1__putStr___at_HasRepr_HasEval___spec__3___boxed(lean_object*, lean_object*);
 lean_object* lean_io_prim_get_line(lean_object*);
 lean_object* l_MonadExcept_orelse___at_EIO_HasOrelse___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_allocprof(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -90,6 +91,7 @@ lean_object* l_IO_userError___boxed(lean_object*);
 lean_object* l_IO_Prim_getLine___boxed(lean_object*);
 lean_object* l_IO_Prim_handle_isEof___boxed(lean_object*, lean_object*);
 lean_object* lean_io_file_exists(lean_object*, lean_object*);
+lean_object* l___private_Init_System_IO_1__putStr___at_HasRepr_HasEval___spec__3(lean_object*, lean_object*);
 lean_object* l_IO_Ref_get(lean_object*, lean_object*);
 lean_object* l_IO_getEnv___boxed(lean_object*, lean_object*);
 lean_object* l_IO_Prim_liftIO___boxed(lean_object*, lean_object*);
@@ -130,6 +132,7 @@ lean_object* l_IO_Fs_readFile___rarg(lean_object*, lean_object*, lean_object*, u
 lean_object* l_IO_Prim_readTextFile___boxed(lean_object*, lean_object*);
 lean_object* l_IO_Fs_handle_mk___boxed(lean_object*, lean_object*);
 lean_object* l_IO_mkRef___boxed(lean_object*, lean_object*);
+lean_object* l___private_Init_System_IO_1__putStr___boxed(lean_object*, lean_object*);
 lean_object* l_IO_Fs_readFile___boxed(lean_object*);
 lean_object* l_IO_Prim_fileExists___boxed(lean_object*, lean_object*);
 lean_object* l_IO_Ref_get___boxed(lean_object*, lean_object*);
@@ -152,7 +155,6 @@ lean_object* l_IO_Prim_Ref_set___boxed(lean_object*, lean_object*, lean_object*,
 lean_object* l_IO_initializing___boxed(lean_object*);
 lean_object* l_IO_appDir___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_IO_Fs_handle_close___boxed(lean_object*, lean_object*);
-lean_object* l___private_init_system_io_1__putStr(lean_object*, lean_object*);
 lean_object* l_IO_isDir___boxed(lean_object*, lean_object*);
 lean_object* l_IOUnit_HasEval(lean_object*, lean_object*);
 lean_object* l_EIO_Monad___closed__1;
@@ -161,6 +163,7 @@ lean_object* l_IO_Prim_Ref_reset___boxed(lean_object*, lean_object*, lean_object
 lean_object* l_IO_Fs_handle_isEof(lean_object*, lean_object*);
 lean_object* l_IO_getEnv(lean_object*, lean_object*);
 lean_object* l_IO_Prim_iterate___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_System_IO_1__putStr(lean_object*, lean_object*);
 lean_object* l_IO_Ref_reset___boxed(lean_object*, lean_object*);
 lean_object* l_IO_Fs_readFile___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_Fs_handle_readToEnd___rarg(lean_object*, lean_object*);
@@ -183,13 +186,10 @@ lean_object* l_IO_Fs_handle_close(lean_object*, lean_object*);
 lean_object* l_IO_Fs_handle_mk___rarg(lean_object*, lean_object*, uint8_t, uint8_t);
 lean_object* l_IO_Prim_liftIO___rarg(lean_object*, lean_object*);
 lean_object* l_IO_RefPointed(lean_object*);
-lean_object* l___private_init_system_io_1__putStr___at_HasRepr_HasEval___spec__3(lean_object*, lean_object*);
 lean_object* l_IO_println___rarg___closed__1;
-lean_object* l___private_init_system_io_1__putStr___rarg(lean_object*, lean_object*);
 lean_object* l_IO_Prim_mkRef___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_lazyPure___rarg(lean_object*, lean_object*);
 lean_object* l_IO_Fs_readFile(lean_object*);
-lean_object* l___private_init_system_io_1__putStr___boxed(lean_object*, lean_object*);
 lean_object* l_EState_Inhabited___rarg(lean_object*, lean_object*);
 lean_object* l_IO_Prim_Ref_reset(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
@@ -798,7 +798,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l___private_init_system_io_1__putStr___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_System_IO_1__putStr___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
@@ -808,19 +808,19 @@ x_4 = lean_apply_2(x_1, lean_box(0), x_3);
 return x_4;
 }
 }
-lean_object* l___private_init_system_io_1__putStr(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_System_IO_1__putStr(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_init_system_io_1__putStr___rarg), 2, 0);
+x_3 = lean_alloc_closure((void*)(l___private_Init_System_IO_1__putStr___rarg), 2, 0);
 return x_3;
 }
 }
-lean_object* l___private_init_system_io_1__putStr___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_System_IO_1__putStr___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l___private_init_system_io_1__putStr(x_1, x_2);
+x_3 = l___private_Init_System_IO_1__putStr(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
@@ -831,7 +831,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_apply_1(x_3, x_4);
-x_6 = l___private_init_system_io_1__putStr___rarg(x_1, x_5);
+x_6 = l___private_Init_System_IO_1__putStr___rarg(x_1, x_5);
 return x_6;
 }
 }
@@ -874,7 +874,7 @@ lean_dec(x_6);
 lean_inc(x_2);
 x_8 = l_IO_print___rarg(x_2, lean_box(0), x_4, x_5);
 x_9 = l_IO_println___rarg___closed__1;
-x_10 = l___private_init_system_io_1__putStr___rarg(x_2, x_9);
+x_10 = l___private_Init_System_IO_1__putStr___rarg(x_2, x_9);
 x_11 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_8, x_10);
 return x_11;
 }
@@ -1918,7 +1918,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* l___private_init_system_io_1__putStr___at_HasRepr_HasEval___spec__3(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_System_IO_1__putStr___at_HasRepr_HasEval___spec__3(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -2011,11 +2011,11 @@ x_2 = lean_alloc_closure((void*)(l_HasRepr_HasEval___rarg), 3, 0);
 return x_2;
 }
 }
-lean_object* l___private_init_system_io_1__putStr___at_HasRepr_HasEval___spec__3___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_System_IO_1__putStr___at_HasRepr_HasEval___spec__3___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l___private_init_system_io_1__putStr___at_HasRepr_HasEval___spec__3(x_1, x_2);
+x_3 = l___private_Init_System_IO_1__putStr___at_HasRepr_HasEval___spec__3(x_1, x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -2113,19 +2113,19 @@ x_3 = lean_apply_1(x_1, x_2);
 return x_3;
 }
 }
-lean_object* initialize_init_control_estate(lean_object*);
-lean_object* initialize_init_data_string_basic(lean_object*);
-lean_object* initialize_init_system_filepath(lean_object*);
+lean_object* initialize_Init_Control_Estate(lean_object*);
+lean_object* initialize_Init_Data_String_Basic(lean_object*);
+lean_object* initialize_Init_System_Filepath(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_system_io(lean_object* w) {
+lean_object* initialize_Init_System_IO(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_estate(w);
+w = initialize_Init_Control_Estate(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_string_basic(w);
+w = initialize_Init_Data_String_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_system_filepath(w);
+w = initialize_Init_System_Filepath(w);
 if (lean_io_result_is_error(w)) return w;
 l_EIO_Monad___closed__1 = _init_l_EIO_Monad___closed__1();
 lean_mark_persistent(l_EIO_Monad___closed__1);

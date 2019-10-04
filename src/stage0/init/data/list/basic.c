@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.list.basic
-// Imports: init.core init.data.nat.basic
+// Module: Init.Data.List.Basic
+// Imports: Init.Core Init.Data.Nat.Basic
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4167,16 +4167,16 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
-lean_object* initialize_init_core(lean_object*);
-lean_object* initialize_init_data_nat_basic(lean_object*);
+lean_object* initialize_Init_Core(lean_object*);
+lean_object* initialize_Init_Data_Nat_Basic(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_list_basic(lean_object* w) {
+lean_object* initialize_Init_Data_List_Basic(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_core(w);
+w = initialize_Init_Core(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_nat_basic(w);
+w = initialize_Init_Data_Nat_Basic(w);
 if (lean_io_result_is_error(w)) return w;
 l_List_HasAppend___closed__1 = _init_l_List_HasAppend___closed__1();
 lean_mark_persistent(l_List_HasAppend___closed__1);

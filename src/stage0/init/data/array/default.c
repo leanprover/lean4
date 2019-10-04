@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.array.default
-// Imports: init.data.array.basic init.data.array.qsort init.data.array.binsearch
+// Module: Init.Data.Array.Default
+// Imports: Init.Data.Array.Basic Init.Data.Array.QSort Init.Data.Array.BinSearch
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,19 +13,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_init_data_array_basic(lean_object*);
-lean_object* initialize_init_data_array_qsort(lean_object*);
-lean_object* initialize_init_data_array_binsearch(lean_object*);
+lean_object* initialize_Init_Data_Array_Basic(lean_object*);
+lean_object* initialize_Init_Data_Array_QSort(lean_object*);
+lean_object* initialize_Init_Data_Array_BinSearch(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_array_default(lean_object* w) {
+lean_object* initialize_Init_Data_Array_Default(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_array_basic(w);
+w = initialize_Init_Data_Array_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_array_qsort(w);
+w = initialize_Init_Data_Array_QSort(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_array_binsearch(w);
+w = initialize_Init_Data_Array_BinSearch(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.declaration
-// Imports: init.lean.expr
+// Module: Init.Lean.Declaration
+// Imports: Init.Lean.Expr
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -232,13 +232,13 @@ x_3 = lean_instantiate_value_lparams(x_1, x_2);
 return x_3;
 }
 }
-lean_object* initialize_init_lean_expr(lean_object*);
+lean_object* initialize_Init_Lean_Expr(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_declaration(lean_object* w) {
+lean_object* initialize_Init_Lean_Declaration(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_expr(w);
+w = initialize_Init_Lean_Expr(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

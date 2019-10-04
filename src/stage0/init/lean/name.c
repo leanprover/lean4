@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.name
-// Imports: init.data.string.basic init.coe init.data.uint init.data.tostring init.data.hashable init.data.rbmap.default init.data.rbtree.default
+// Module: Init.Lean.Name
+// Imports: Init.Data.String.Basic Init.Coe Init.Data.UInt Init.Data.ToString Init.Data.Hashable Init.Data.RBMap.Default Init.Data.RBTree.Default
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -8969,31 +8969,31 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* initialize_init_data_string_basic(lean_object*);
-lean_object* initialize_init_coe(lean_object*);
-lean_object* initialize_init_data_uint(lean_object*);
-lean_object* initialize_init_data_tostring(lean_object*);
-lean_object* initialize_init_data_hashable(lean_object*);
-lean_object* initialize_init_data_rbmap_default(lean_object*);
-lean_object* initialize_init_data_rbtree_default(lean_object*);
+lean_object* initialize_Init_Data_String_Basic(lean_object*);
+lean_object* initialize_Init_Coe(lean_object*);
+lean_object* initialize_Init_Data_UInt(lean_object*);
+lean_object* initialize_Init_Data_ToString(lean_object*);
+lean_object* initialize_Init_Data_Hashable(lean_object*);
+lean_object* initialize_Init_Data_RBMap_Default(lean_object*);
+lean_object* initialize_Init_Data_RBTree_Default(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_name(lean_object* w) {
+lean_object* initialize_Init_Lean_Name(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_string_basic(w);
+w = initialize_Init_Data_String_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_coe(w);
+w = initialize_Init_Coe(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_uint(w);
+w = initialize_Init_Data_UInt(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_tostring(w);
+w = initialize_Init_Data_ToString(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_hashable(w);
+w = initialize_Init_Data_Hashable(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_rbmap_default(w);
+w = initialize_Init_Data_RBMap_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_rbtree_default(w);
+w = initialize_Init_Data_RBTree_Default(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_Inhabited = _init_l_Lean_Inhabited();
 lean_mark_persistent(l_Lean_Inhabited);

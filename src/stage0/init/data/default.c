@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.default
-// Imports: init.data.basic init.data.nat.default init.data.char.default init.data.string.default init.data.list.default init.data.int.default init.data.array.default init.data.bytearray.default init.data.fin.default init.data.uint init.data.rbtree.default init.data.rbmap.default init.data.option.default init.data.hashmap.default init.data.random init.data.queue.default
+// Module: Init.Data.Default
+// Imports: Init.Data.Basic Init.Data.Nat.Default Init.Data.Char.Default Init.Data.String.Default Init.Data.List.Default Init.Data.Int.Default Init.Data.Array.Default Init.Data.ByteArray.Default Init.Data.Fin.Default Init.Data.UInt Init.Data.RBTree.Default Init.Data.RBMap.Default Init.Data.Option.Default Init.Data.HashMap.Default Init.Data.Random Init.Data.Queue.Default
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,58 +13,58 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_init_data_basic(lean_object*);
-lean_object* initialize_init_data_nat_default(lean_object*);
-lean_object* initialize_init_data_char_default(lean_object*);
-lean_object* initialize_init_data_string_default(lean_object*);
-lean_object* initialize_init_data_list_default(lean_object*);
-lean_object* initialize_init_data_int_default(lean_object*);
-lean_object* initialize_init_data_array_default(lean_object*);
-lean_object* initialize_init_data_bytearray_default(lean_object*);
-lean_object* initialize_init_data_fin_default(lean_object*);
-lean_object* initialize_init_data_uint(lean_object*);
-lean_object* initialize_init_data_rbtree_default(lean_object*);
-lean_object* initialize_init_data_rbmap_default(lean_object*);
-lean_object* initialize_init_data_option_default(lean_object*);
-lean_object* initialize_init_data_hashmap_default(lean_object*);
-lean_object* initialize_init_data_random(lean_object*);
-lean_object* initialize_init_data_queue_default(lean_object*);
+lean_object* initialize_Init_Data_Basic(lean_object*);
+lean_object* initialize_Init_Data_Nat_Default(lean_object*);
+lean_object* initialize_Init_Data_Char_Default(lean_object*);
+lean_object* initialize_Init_Data_String_Default(lean_object*);
+lean_object* initialize_Init_Data_List_Default(lean_object*);
+lean_object* initialize_Init_Data_Int_Default(lean_object*);
+lean_object* initialize_Init_Data_Array_Default(lean_object*);
+lean_object* initialize_Init_Data_ByteArray_Default(lean_object*);
+lean_object* initialize_Init_Data_Fin_Default(lean_object*);
+lean_object* initialize_Init_Data_UInt(lean_object*);
+lean_object* initialize_Init_Data_RBTree_Default(lean_object*);
+lean_object* initialize_Init_Data_RBMap_Default(lean_object*);
+lean_object* initialize_Init_Data_Option_Default(lean_object*);
+lean_object* initialize_Init_Data_HashMap_Default(lean_object*);
+lean_object* initialize_Init_Data_Random(lean_object*);
+lean_object* initialize_Init_Data_Queue_Default(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_default(lean_object* w) {
+lean_object* initialize_Init_Data_Default(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_basic(w);
+w = initialize_Init_Data_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_nat_default(w);
+w = initialize_Init_Data_Nat_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_char_default(w);
+w = initialize_Init_Data_Char_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_string_default(w);
+w = initialize_Init_Data_String_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_list_default(w);
+w = initialize_Init_Data_List_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_int_default(w);
+w = initialize_Init_Data_Int_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_array_default(w);
+w = initialize_Init_Data_Array_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_bytearray_default(w);
+w = initialize_Init_Data_ByteArray_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_fin_default(w);
+w = initialize_Init_Data_Fin_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_uint(w);
+w = initialize_Init_Data_UInt(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_rbtree_default(w);
+w = initialize_Init_Data_RBTree_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_rbmap_default(w);
+w = initialize_Init_Data_RBMap_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_option_default(w);
+w = initialize_Init_Data_Option_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_hashmap_default(w);
+w = initialize_Init_Data_HashMap_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_random(w);
+w = initialize_Init_Data_Random(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_queue_default(w);
+w = initialize_Init_Data_Queue_Default(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

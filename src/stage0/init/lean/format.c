@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.format
-// Imports: init.lean.options init.data.array.default
+// Module: Init.Lean.Format
+// Imports: Init.Lean.Options Init.Data.Array.Default
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -86,6 +86,7 @@ lean_object* l_Lean_uint64HasFormat(uint64_t);
 lean_object* l_Lean_toStringToFormat___rarg___lambda__1(lean_object*);
 lean_object* l_Lean_Format_repr___main___closed__17;
 lean_object* l_Lean_Format_repr___main___closed__18;
+lean_object* l___private_Init_Lean_Format_1__merge___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_be___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_kvMapHasFormat___closed__1;
@@ -131,7 +132,6 @@ lean_object* l_Lean_prodHasFormat(lean_object*, lean_object*);
 lean_object* l_Lean_Format_joinSep(lean_object*);
 lean_object* l_Lean_Format_joinArraySep___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_getIndent___closed__1;
-lean_object* l___private_init_lean_format_1__merge___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_widthOption___closed__1;
 lean_object* l_Lean_uint16HasFormat___boxed(lean_object*);
 lean_object* l_Lean_Format_spaceUptoLine___main(lean_object*, lean_object*);
@@ -160,7 +160,6 @@ lean_object* lean_format_group(lean_object*);
 lean_object* l_Lean_Format_bracket(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_listHasFormat(lean_object*);
 lean_object* l_Array_miterateAux___main___at_Lean_Format_joinArraySep___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_init_lean_format_1__merge(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_be___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_spaceUptoLine_x27___main___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Format_defWidth;
@@ -173,6 +172,7 @@ lean_object* l_Lean_Format_widthOption___closed__2;
 lean_object* l_Lean_Format_prefixJoin(lean_object*);
 lean_object* l_Lean_HasRepr;
 lean_object* l_Lean_Format_getWidth___closed__2;
+lean_object* l___private_Init_Lean_Format_1__merge(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_List_format(lean_object*);
 lean_object* l_Lean_usizeHasFormat___boxed(lean_object*);
 lean_object* l_Lean_Format_widthOption(lean_object*);
@@ -485,7 +485,7 @@ return x_6;
 }
 }
 }
-lean_object* l___private_init_lean_format_1__merge(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_Lean_Format_1__merge(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -543,11 +543,11 @@ return x_2;
 }
 }
 }
-lean_object* l___private_init_lean_format_1__merge___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_Lean_Format_1__merge___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l___private_init_lean_format_1__merge(x_1, x_2, x_3);
+x_4 = l___private_Init_Lean_Format_1__merge(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -3289,16 +3289,16 @@ x_1 = l_Lean_kvMapHasFormat___closed__1;
 return x_1;
 }
 }
-lean_object* initialize_init_lean_options(lean_object*);
-lean_object* initialize_init_data_array_default(lean_object*);
+lean_object* initialize_Init_Lean_Options(lean_object*);
+lean_object* initialize_Init_Data_Array_Default(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_format(lean_object* w) {
+lean_object* initialize_Init_Lean_Format(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_options(w);
+w = initialize_Init_Lean_Options(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_array_default(w);
+w = initialize_Init_Data_Array_Default(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_Format_HasAppend___closed__1 = _init_l_Lean_Format_HasAppend___closed__1();
 lean_mark_persistent(l_Lean_Format_HasAppend___closed__1);

@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.fin.basic
-// Imports: init.data.nat.div init.data.nat.bitwise
+// Module: Init.Data.Fin.Basic
+// Imports: Init.Data.Nat.Div Init.Data.Nat.Bitwise
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -533,16 +533,16 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_init_data_nat_div(lean_object*);
-lean_object* initialize_init_data_nat_bitwise(lean_object*);
+lean_object* initialize_Init_Data_Nat_Div(lean_object*);
+lean_object* initialize_Init_Data_Nat_Bitwise(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_fin_basic(lean_object* w) {
+lean_object* initialize_Init_Data_Fin_Basic(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_nat_div(w);
+w = initialize_Init_Data_Nat_Div(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_nat_bitwise(w);
+w = initialize_Init_Data_Nat_Bitwise(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

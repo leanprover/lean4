@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.queue.basic
-// Imports: init.data.array.default init.data.int.default
+// Module: Init.Data.Queue.Basic
+// Imports: Init.Data.Array.Default Init.Data.Int.Default
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -271,16 +271,16 @@ x_2 = lean_alloc_closure((void*)(l_Queue_dequeue_x3f___rarg), 1, 0);
 return x_2;
 }
 }
-lean_object* initialize_init_data_array_default(lean_object*);
-lean_object* initialize_init_data_int_default(lean_object*);
+lean_object* initialize_Init_Data_Array_Default(lean_object*);
+lean_object* initialize_Init_Data_Int_Default(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_queue_basic(lean_object* w) {
+lean_object* initialize_Init_Data_Queue_Basic(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_array_default(w);
+w = initialize_Init_Data_Array_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_int_default(w);
+w = initialize_Init_Data_Int_Default(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

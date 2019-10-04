@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.dlist
-// Imports: init.data.list.basic
+// Module: Init.Data.DList
+// Imports: Init.Data.List.Basic
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -311,13 +311,13 @@ x_2 = l_DList_HasAppend___closed__1;
 return x_2;
 }
 }
-lean_object* initialize_init_data_list_basic(lean_object*);
+lean_object* initialize_Init_Data_List_Basic(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_dlist(lean_object* w) {
+lean_object* initialize_Init_Data_DList(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_list_basic(w);
+w = initialize_Init_Data_List_Basic(w);
 if (lean_io_result_is_error(w)) return w;
 l_DList_empty___closed__1 = _init_l_DList_empty___closed__1();
 lean_mark_persistent(l_DList_empty___closed__1);

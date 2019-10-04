@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.option.basic
-// Imports: init.core init.control.monad init.control.alternative init.coe
+// Module: Init.Data.Option.Basic
+// Imports: Init.Core Init.Control.Monad Init.Control.Alternative Init.Coe
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -936,22 +936,22 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* initialize_init_core(lean_object*);
-lean_object* initialize_init_control_monad(lean_object*);
-lean_object* initialize_init_control_alternative(lean_object*);
-lean_object* initialize_init_coe(lean_object*);
+lean_object* initialize_Init_Core(lean_object*);
+lean_object* initialize_Init_Control_Monad(lean_object*);
+lean_object* initialize_Init_Control_Alternative(lean_object*);
+lean_object* initialize_Init_Coe(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_option_basic(lean_object* w) {
+lean_object* initialize_Init_Data_Option_Basic(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_core(w);
+w = initialize_Init_Core(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_monad(w);
+w = initialize_Init_Control_Monad(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_alternative(w);
+w = initialize_Init_Control_Alternative(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_coe(w);
+w = initialize_Init_Coe(w);
 if (lean_io_result_is_error(w)) return w;
 l_Option_Monad___closed__1 = _init_l_Option_Monad___closed__1();
 lean_mark_persistent(l_Option_Monad___closed__1);

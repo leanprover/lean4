@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.repr
-// Imports: init.data.string.basic init.data.uint init.data.nat.div
+// Module: Init.Data.Repr
+// Imports: Init.Data.String.Basic Init.Data.UInt Init.Data.Nat.Div
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1511,19 +1511,19 @@ x_3 = l_Char_repr(x_2);
 return x_3;
 }
 }
-lean_object* initialize_init_data_string_basic(lean_object*);
-lean_object* initialize_init_data_uint(lean_object*);
-lean_object* initialize_init_data_nat_div(lean_object*);
+lean_object* initialize_Init_Data_String_Basic(lean_object*);
+lean_object* initialize_Init_Data_UInt(lean_object*);
+lean_object* initialize_Init_Data_Nat_Div(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_repr(lean_object* w) {
+lean_object* initialize_Init_Data_Repr(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_string_basic(w);
+w = initialize_Init_Data_String_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_uint(w);
+w = initialize_Init_Data_UInt(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_nat_div(w);
+w = initialize_Init_Data_Nat_Div(w);
 if (lean_io_result_is_error(w)) return w;
 l_Bool_HasRepr___closed__1 = _init_l_Bool_HasRepr___closed__1();
 lean_mark_persistent(l_Bool_HasRepr___closed__1);

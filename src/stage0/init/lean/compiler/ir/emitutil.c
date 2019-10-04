@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.compiler.ir.emitutil
-// Imports: init.control.conditional init.lean.compiler.initattr init.lean.compiler.ir.compilerm
+// Module: Init.Lean.Compiler.IR.EmitUtil
+// Imports: Init.Control.Conditional Init.Lean.Compiler.InitAttr Init.Lean.Compiler.IR.CompilerM
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2015,19 +2015,19 @@ x_3 = l_Lean_IR_CollectMaps_collectDecl(x_1, x_2);
 return x_3;
 }
 }
-lean_object* initialize_init_control_conditional(lean_object*);
-lean_object* initialize_init_lean_compiler_initattr(lean_object*);
-lean_object* initialize_init_lean_compiler_ir_compilerm(lean_object*);
+lean_object* initialize_Init_Control_Conditional(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_InitAttr(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_IR_CompilerM(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_compiler_ir_emitutil(lean_object* w) {
+lean_object* initialize_Init_Lean_Compiler_IR_EmitUtil(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_conditional(w);
+w = initialize_Init_Control_Conditional(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_initattr(w);
+w = initialize_Init_Lean_Compiler_InitAttr(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_ir_compilerm(w);
+w = initialize_Init_Lean_Compiler_IR_CompilerM(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix = _init_l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix();
 lean_mark_persistent(l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix);

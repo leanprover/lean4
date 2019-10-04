@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.list.instances
-// Imports: init.data.list.basic init.control.alternative init.control.monad
+// Module: Init.Data.List.Instances
+// Imports: Init.Data.List.Basic Init.Control.Alternative Init.Control.Monad
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -504,19 +504,19 @@ x_1 = l_List_Alternative___closed__3;
 return x_1;
 }
 }
-lean_object* initialize_init_data_list_basic(lean_object*);
-lean_object* initialize_init_control_alternative(lean_object*);
-lean_object* initialize_init_control_monad(lean_object*);
+lean_object* initialize_Init_Data_List_Basic(lean_object*);
+lean_object* initialize_Init_Control_Alternative(lean_object*);
+lean_object* initialize_Init_Control_Monad(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_list_instances(lean_object* w) {
+lean_object* initialize_Init_Data_List_Instances(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_list_basic(w);
+w = initialize_Init_Data_List_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_alternative(w);
+w = initialize_Init_Control_Alternative(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_monad(w);
+w = initialize_Init_Control_Monad(w);
 if (lean_io_result_is_error(w)) return w;
 l_List_Monad___closed__1 = _init_l_List_Monad___closed__1();
 lean_mark_persistent(l_List_Monad___closed__1);

@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.compiler.ir.borrow
-// Imports: init.lean.compiler.exportattr init.lean.compiler.ir.compilerm init.lean.compiler.ir.normids
+// Module: Init.Lean.Compiler.IR.Borrow
+// Imports: Init.Lean.Compiler.ExportAttr Init.Lean.Compiler.IR.CompilerM Init.Lean.Compiler.IR.NormIds
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3840,19 +3840,19 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* initialize_init_lean_compiler_exportattr(lean_object*);
-lean_object* initialize_init_lean_compiler_ir_compilerm(lean_object*);
-lean_object* initialize_init_lean_compiler_ir_normids(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_ExportAttr(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_IR_CompilerM(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_IR_NormIds(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_compiler_ir_borrow(lean_object* w) {
+lean_object* initialize_Init_Lean_Compiler_IR_Borrow(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_exportattr(w);
+w = initialize_Init_Lean_Compiler_ExportAttr(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_ir_compilerm(w);
+w = initialize_Init_Lean_Compiler_IR_CompilerM(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_ir_normids(w);
+w = initialize_Init_Lean_Compiler_IR_NormIds(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_IR_Borrow_Key_HasBeq___closed__1 = _init_l_Lean_IR_Borrow_Key_HasBeq___closed__1();
 lean_mark_persistent(l_Lean_IR_Borrow_Key_HasBeq___closed__1);

@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.smap
-// Imports: init.data.hashmap.default init.data.persistenthashmap.default
+// Module: Init.Lean.SMap
+// Imports: Init.Data.HashMap.Default Init.Data.PersistentHashMap.Default
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -343,7 +343,7 @@ lean_object* _init_l_Lean_SMap_find_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("/Users/leonardodemoura/projects/lean4/library/init/lean/smap.lean");
+x_1 = lean_mk_string("/Users/leonardodemoura/projects/lean4/library/Init/Lean/SMap.lean");
 return x_1;
 }
 }
@@ -900,16 +900,16 @@ lean_dec(x_3);
 return x_5;
 }
 }
-lean_object* initialize_init_data_hashmap_default(lean_object*);
-lean_object* initialize_init_data_persistenthashmap_default(lean_object*);
+lean_object* initialize_Init_Data_HashMap_Default(lean_object*);
+lean_object* initialize_Init_Data_PersistentHashMap_Default(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_smap(lean_object* w) {
+lean_object* initialize_Init_Lean_SMap(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_hashmap_default(w);
+w = initialize_Init_Data_HashMap_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_persistenthashmap_default(w);
+w = initialize_Init_Data_PersistentHashMap_Default(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_SMap_find_x21___rarg___closed__1 = _init_l_Lean_SMap_find_x21___rarg___closed__1();
 lean_mark_persistent(l_Lean_SMap_find_x21___rarg___closed__1);

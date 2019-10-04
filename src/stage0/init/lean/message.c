@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.message
-// Imports: init.data.tostring init.lean.position
+// Module: Init.Lean.Message
+// Imports: Init.Data.ToString Init.Lean.Position
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -436,16 +436,16 @@ x_2 = l_List_reverse___rarg(x_1);
 return x_2;
 }
 }
-lean_object* initialize_init_data_tostring(lean_object*);
-lean_object* initialize_init_lean_position(lean_object*);
+lean_object* initialize_Init_Data_ToString(lean_object*);
+lean_object* initialize_Init_Lean_Position(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_message(lean_object* w) {
+lean_object* initialize_Init_Lean_Message(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_tostring(w);
+w = initialize_Init_Data_ToString(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_position(w);
+w = initialize_Init_Lean_Position(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_Message_toString___closed__1 = _init_l_Lean_Message_toString___closed__1();
 lean_mark_persistent(l_Lean_Message_toString___closed__1);

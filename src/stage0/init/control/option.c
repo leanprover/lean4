@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.control.option
-// Imports: init.control.alternative init.control.lift init.control.except
+// Module: Init.Control.Option
+// Imports: Init.Control.Alternative Init.Control.Lift Init.Control.Except
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1196,19 +1196,19 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* initialize_init_control_alternative(lean_object*);
-lean_object* initialize_init_control_lift(lean_object*);
-lean_object* initialize_init_control_except(lean_object*);
+lean_object* initialize_Init_Control_Alternative(lean_object*);
+lean_object* initialize_Init_Control_Lift(lean_object*);
+lean_object* initialize_Init_Control_Except(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_control_option(lean_object* w) {
+lean_object* initialize_Init_Control_Option(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_alternative(w);
+w = initialize_Init_Control_Alternative(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_lift(w);
+w = initialize_Init_Control_Lift(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_except(w);
+w = initialize_Init_Control_Except(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

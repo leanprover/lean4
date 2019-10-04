@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.persistenthashmap.basic
-// Imports: init.data.array.default init.data.hashable
+// Module: Init.Data.PersistentHashMap.Basic
+// Imports: Init.Data.Array.Default Init.Data.Hashable
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1470,7 +1470,7 @@ lean_object* _init_l_PersistentHashMap_find_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("/Users/leonardodemoura/projects/lean4/library/init/data/persistenthashmap/basic.lean");
+x_1 = lean_mk_string("/Users/leonardodemoura/projects/lean4/library/Init/Data/PersistentHashMap/Basic.lean");
 return x_1;
 }
 }
@@ -3713,16 +3713,16 @@ x_1 = l_PersistentHashMap_HasToString___closed__1;
 return x_1;
 }
 }
-lean_object* initialize_init_data_array_default(lean_object*);
-lean_object* initialize_init_data_hashable(lean_object*);
+lean_object* initialize_Init_Data_Array_Default(lean_object*);
+lean_object* initialize_Init_Data_Hashable(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_persistenthashmap_basic(lean_object* w) {
+lean_object* initialize_Init_Data_PersistentHashMap_Basic(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_array_default(w);
+w = initialize_Init_Data_Array_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_hashable(w);
+w = initialize_Init_Data_Hashable(w);
 if (lean_io_result_is_error(w)) return w;
 l_PersistentHashMap_Node_inhabited___closed__1 = _init_l_PersistentHashMap_Node_inhabited___closed__1();
 lean_mark_persistent(l_PersistentHashMap_Node_inhabited___closed__1);

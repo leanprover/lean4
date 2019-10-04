@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.rbmap.basicaux
-// Imports: init.data.rbmap.basic init.util
+// Module: Init.Data.RBMap.BasicAux
+// Imports: Init.Data.RBMap.Basic Init.Util
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -80,7 +80,7 @@ lean_object* _init_l_RBMap_min_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("/Users/leonardodemoura/projects/lean4/library/init/data/rbmap/basicaux.lean");
+x_1 = lean_mk_string("/Users/leonardodemoura/projects/lean4/library/Init/Data/RBMap/BasicAux.lean");
 return x_1;
 }
 }
@@ -394,16 +394,16 @@ x_3 = lean_alloc_closure((void*)(l_RBMap_find_x21___rarg), 4, 0);
 return x_3;
 }
 }
-lean_object* initialize_init_data_rbmap_basic(lean_object*);
-lean_object* initialize_init_util(lean_object*);
+lean_object* initialize_Init_Data_RBMap_Basic(lean_object*);
+lean_object* initialize_Init_Util(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_rbmap_basicaux(lean_object* w) {
+lean_object* initialize_Init_Data_RBMap_BasicAux(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_rbmap_basic(w);
+w = initialize_Init_Data_RBMap_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_util(w);
+w = initialize_Init_Util(w);
 if (lean_io_result_is_error(w)) return w;
 l_RBMap_min_x21___rarg___closed__1 = _init_l_RBMap_min_x21___rarg___closed__1();
 lean_mark_persistent(l_RBMap_min_x21___rarg___closed__1);

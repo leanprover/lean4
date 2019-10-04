@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.default
-// Imports: init.core init.control.default init.data.basic init.coe init.wf init.data.default init.system.default init.util init.fix
+// Module: Init.Default
+// Imports: Init.Core Init.Control.Default Init.Data.Basic Init.Coe Init.Wf Init.Data.Default Init.System.Default Init.Util Init.Fix
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,37 +13,37 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_init_core(lean_object*);
-lean_object* initialize_init_control_default(lean_object*);
-lean_object* initialize_init_data_basic(lean_object*);
-lean_object* initialize_init_coe(lean_object*);
-lean_object* initialize_init_wf(lean_object*);
-lean_object* initialize_init_data_default(lean_object*);
-lean_object* initialize_init_system_default(lean_object*);
-lean_object* initialize_init_util(lean_object*);
-lean_object* initialize_init_fix(lean_object*);
+lean_object* initialize_Init_Core(lean_object*);
+lean_object* initialize_Init_Control_Default(lean_object*);
+lean_object* initialize_Init_Data_Basic(lean_object*);
+lean_object* initialize_Init_Coe(lean_object*);
+lean_object* initialize_Init_Wf(lean_object*);
+lean_object* initialize_Init_Data_Default(lean_object*);
+lean_object* initialize_Init_System_Default(lean_object*);
+lean_object* initialize_Init_Util(lean_object*);
+lean_object* initialize_Init_Fix(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_default(lean_object* w) {
+lean_object* initialize_Init_Default(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_core(w);
+w = initialize_Init_Core(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_default(w);
+w = initialize_Init_Control_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_basic(w);
+w = initialize_Init_Data_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_coe(w);
+w = initialize_Init_Coe(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_wf(w);
+w = initialize_Init_Wf(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_default(w);
+w = initialize_Init_Data_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_system_default(w);
+w = initialize_Init_System_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_util(w);
+w = initialize_Init_Util(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_fix(w);
+w = initialize_Init_Fix(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.compiler.namemangling
-// Imports: init.lean.name
+// Module: Init.Lean.Compiler.NameMangling
+// Imports: Init.Lean.Name
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,33 +15,33 @@ extern "C" {
 #endif
 lean_object* lean_name_mangle(lean_object*, lean_object*);
 uint8_t lean_name_dec_eq(lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_Compiler_NameMangling_2__Name_mangleAux(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l___private_init_lean_compiler_namemangling_1__String_mangleAux___main(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__1;
+lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__3;
 uint8_t l_Char_isAlpha(uint32_t);
 extern lean_object* l_Lean_Name_appendIndexAfter___closed__1;
-lean_object* l___private_init_lean_compiler_namemangling_2__Name_mangleAux(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
-lean_object* l___private_init_lean_compiler_namemangling_2__Name_mangleAux___main(lean_object*);
-lean_object* l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__2;
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_String_Iterator_next(lean_object*);
-lean_object* l___private_init_lean_compiler_namemangling_1__String_mangleAux(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__2;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__3;
 lean_object* l_Lean_String_mangle(lean_object*);
+lean_object* l___private_Init_Lean_Compiler_NameMangling_2__Name_mangleAux___main(lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 uint8_t l_Char_isDigit(uint32_t);
-lean_object* l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__1;
+lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main(lean_object*, lean_object*, lean_object*);
 uint32_t l_String_Iterator_curr(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 uint32_t l_Nat_digitChar(lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* lean_string_length(lean_object*);
-lean_object* _init_l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__1() {
+lean_object* _init_l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -49,7 +49,7 @@ x_1 = lean_mk_string("_u");
 return x_1;
 }
 }
-lean_object* _init_l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__2() {
+lean_object* _init_l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -57,7 +57,7 @@ x_1 = lean_mk_string("_x");
 return x_1;
 }
 }
-lean_object* _init_l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__3() {
+lean_object* _init_l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -65,7 +65,7 @@ x_1 = lean_mk_string("__");
 return x_1;
 }
 }
-lean_object* l___private_init_lean_compiler_namemangling_1__String_mangleAux___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -97,7 +97,7 @@ x_15 = lean_nat_dec_lt(x_13, x_14);
 if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint32_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint32_t x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; uint32_t x_30; lean_object* x_31; lean_object* x_32; uint32_t x_33; lean_object* x_34; lean_object* x_35; 
-x_16 = l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__1;
+x_16 = l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__1;
 x_17 = lean_string_append(x_3, x_16);
 x_18 = lean_unsigned_to_nat(4096u);
 x_19 = lean_nat_div(x_13, x_18);
@@ -132,7 +132,7 @@ goto _start;
 else
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; uint32_t x_41; lean_object* x_42; lean_object* x_43; uint32_t x_44; lean_object* x_45; lean_object* x_46; 
-x_37 = l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__2;
+x_37 = l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__2;
 x_38 = lean_string_append(x_3, x_37);
 x_39 = lean_unsigned_to_nat(16u);
 x_40 = lean_nat_div(x_13, x_39);
@@ -155,7 +155,7 @@ else
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; 
 x_48 = l_String_Iterator_next(x_2);
-x_49 = l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__3;
+x_49 = l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__3;
 x_50 = lean_string_append(x_3, x_49);
 x_1 = x_7;
 x_2 = x_48;
@@ -193,11 +193,11 @@ return x_3;
 }
 }
 }
-lean_object* l___private_init_lean_compiler_namemangling_1__String_mangleAux(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l___private_init_lean_compiler_namemangling_1__String_mangleAux___main(x_1, x_2, x_3);
+x_4 = l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main(x_1, x_2, x_3);
 return x_4;
 }
 }
@@ -211,11 +211,11 @@ x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_3);
 x_5 = l_String_splitAux___main___closed__1;
-x_6 = l___private_init_lean_compiler_namemangling_1__String_mangleAux___main(x_2, x_4, x_5);
+x_6 = l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main(x_2, x_4, x_5);
 return x_6;
 }
 }
-lean_object* l___private_init_lean_compiler_namemangling_2__Name_mangleAux___main(lean_object* x_1) {
+lean_object* l___private_Init_Lean_Compiler_NameMangling_2__Name_mangleAux___main(lean_object* x_1) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -239,7 +239,7 @@ x_7 = lean_name_dec_eq(x_3, x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = l___private_init_lean_compiler_namemangling_2__Name_mangleAux___main(x_3);
+x_8 = l___private_Init_Lean_Compiler_NameMangling_2__Name_mangleAux___main(x_3);
 x_9 = l_Lean_Name_appendIndexAfter___closed__1;
 x_10 = lean_string_append(x_8, x_9);
 x_11 = lean_string_append(x_10, x_5);
@@ -260,7 +260,7 @@ lean_inc(x_12);
 x_13 = lean_ctor_get(x_1, 1);
 lean_inc(x_13);
 lean_dec(x_1);
-x_14 = l___private_init_lean_compiler_namemangling_2__Name_mangleAux___main(x_12);
+x_14 = l___private_Init_Lean_Compiler_NameMangling_2__Name_mangleAux___main(x_12);
 x_15 = l_Lean_Name_appendIndexAfter___closed__1;
 x_16 = lean_string_append(x_14, x_15);
 x_17 = l_Nat_repr(x_13);
@@ -272,11 +272,11 @@ return x_19;
 }
 }
 }
-lean_object* l___private_init_lean_compiler_namemangling_2__Name_mangleAux(lean_object* x_1) {
+lean_object* l___private_Init_Lean_Compiler_NameMangling_2__Name_mangleAux(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l___private_init_lean_compiler_namemangling_2__Name_mangleAux___main(x_1);
+x_2 = l___private_Init_Lean_Compiler_NameMangling_2__Name_mangleAux___main(x_1);
 return x_2;
 }
 }
@@ -284,26 +284,26 @@ lean_object* lean_name_mangle(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l___private_init_lean_compiler_namemangling_2__Name_mangleAux___main(x_1);
+x_3 = l___private_Init_Lean_Compiler_NameMangling_2__Name_mangleAux___main(x_1);
 x_4 = lean_string_append(x_2, x_3);
 lean_dec(x_3);
 return x_4;
 }
 }
-lean_object* initialize_init_lean_name(lean_object*);
+lean_object* initialize_Init_Lean_Name(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_compiler_namemangling(lean_object* w) {
+lean_object* initialize_Init_Lean_Compiler_NameMangling(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_name(w);
+w = initialize_Init_Lean_Name(w);
 if (lean_io_result_is_error(w)) return w;
-l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__1 = _init_l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__1();
-lean_mark_persistent(l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__1);
-l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__2 = _init_l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__2();
-lean_mark_persistent(l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__2);
-l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__3 = _init_l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__3();
-lean_mark_persistent(l___private_init_lean_compiler_namemangling_1__String_mangleAux___main___closed__3);
+l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__1 = _init_l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__1();
+lean_mark_persistent(l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__1);
+l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__2 = _init_l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__2();
+lean_mark_persistent(l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__2);
+l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__3 = _init_l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__3();
+lean_mark_persistent(l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__3);
 return w;
 }
 #ifdef __cplusplus

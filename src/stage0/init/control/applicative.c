@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.control.applicative
-// Imports: init.control.functor
+// Module: Init.Control.Applicative
+// Imports: Init.Control.Functor
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,13 +13,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_init_control_functor(lean_object*);
+lean_object* initialize_Init_Control_Functor(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_control_applicative(lean_object* w) {
+lean_object* initialize_Init_Control_Applicative(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_functor(w);
+w = initialize_Init_Control_Functor(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

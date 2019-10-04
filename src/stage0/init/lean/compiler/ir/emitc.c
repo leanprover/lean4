@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.compiler.ir.emitc
-// Imports: init.control.conditional init.lean.runtime init.lean.compiler.namemangling init.lean.compiler.exportattr init.lean.compiler.initattr init.lean.compiler.ir.compilerm init.lean.compiler.ir.emitutil init.lean.compiler.ir.normids init.lean.compiler.ir.simpcase init.lean.compiler.ir.boxing
+// Module: Init.Lean.Compiler.IR.EmitC
+// Imports: Init.Control.Conditional Init.Lean.Runtime Init.Lean.Compiler.NameMangling Init.Lean.Compiler.ExportAttr Init.Lean.Compiler.InitAttr Init.Lean.Compiler.IR.CompilerM Init.Lean.Compiler.IR.EmitUtil Init.Lean.Compiler.IR.NormIds Init.Lean.Compiler.IR.SimpCase Init.Lean.Compiler.IR.Boxing
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -27022,40 +27022,40 @@ return x_12;
 }
 }
 }
-lean_object* initialize_init_control_conditional(lean_object*);
-lean_object* initialize_init_lean_runtime(lean_object*);
-lean_object* initialize_init_lean_compiler_namemangling(lean_object*);
-lean_object* initialize_init_lean_compiler_exportattr(lean_object*);
-lean_object* initialize_init_lean_compiler_initattr(lean_object*);
-lean_object* initialize_init_lean_compiler_ir_compilerm(lean_object*);
-lean_object* initialize_init_lean_compiler_ir_emitutil(lean_object*);
-lean_object* initialize_init_lean_compiler_ir_normids(lean_object*);
-lean_object* initialize_init_lean_compiler_ir_simpcase(lean_object*);
-lean_object* initialize_init_lean_compiler_ir_boxing(lean_object*);
+lean_object* initialize_Init_Control_Conditional(lean_object*);
+lean_object* initialize_Init_Lean_Runtime(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_NameMangling(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_ExportAttr(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_InitAttr(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_IR_CompilerM(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_IR_EmitUtil(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_IR_NormIds(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_IR_SimpCase(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_IR_Boxing(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_compiler_ir_emitc(lean_object* w) {
+lean_object* initialize_Init_Lean_Compiler_IR_EmitC(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_conditional(w);
+w = initialize_Init_Control_Conditional(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_runtime(w);
+w = initialize_Init_Lean_Runtime(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_namemangling(w);
+w = initialize_Init_Lean_Compiler_NameMangling(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_exportattr(w);
+w = initialize_Init_Lean_Compiler_ExportAttr(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_initattr(w);
+w = initialize_Init_Lean_Compiler_InitAttr(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_ir_compilerm(w);
+w = initialize_Init_Lean_Compiler_IR_CompilerM(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_ir_emitutil(w);
+w = initialize_Init_Lean_Compiler_IR_EmitUtil(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_ir_normids(w);
+w = initialize_Init_Lean_Compiler_IR_NormIds(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_ir_simpcase(w);
+w = initialize_Init_Lean_Compiler_IR_SimpCase(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_ir_boxing(w);
+w = initialize_Init_Lean_Compiler_IR_Boxing(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_IR_EmitC_leanMainFn___closed__1 = _init_l_Lean_IR_EmitC_leanMainFn___closed__1();
 lean_mark_persistent(l_Lean_IR_EmitC_leanMainFn___closed__1);

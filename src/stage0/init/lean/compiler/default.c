@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.compiler.default
-// Imports: init.lean.compiler.inlineattrs init.lean.compiler.specialize init.lean.compiler.constfolding init.lean.compiler.closedtermcache init.lean.compiler.externattr init.lean.compiler.implementedbyattr init.lean.compiler.neverextractattr init.lean.compiler.ir.default
+// Module: Init.Lean.Compiler.Default
+// Imports: Init.Lean.Compiler.InlineAttrs Init.Lean.Compiler.Specialize Init.Lean.Compiler.ConstFolding Init.Lean.Compiler.ClosedTermCache Init.Lean.Compiler.ExternAttr Init.Lean.Compiler.ImplementedByAttr Init.Lean.Compiler.NeverExtractAttr Init.Lean.Compiler.IR.Default
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,34 +13,34 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_init_lean_compiler_inlineattrs(lean_object*);
-lean_object* initialize_init_lean_compiler_specialize(lean_object*);
-lean_object* initialize_init_lean_compiler_constfolding(lean_object*);
-lean_object* initialize_init_lean_compiler_closedtermcache(lean_object*);
-lean_object* initialize_init_lean_compiler_externattr(lean_object*);
-lean_object* initialize_init_lean_compiler_implementedbyattr(lean_object*);
-lean_object* initialize_init_lean_compiler_neverextractattr(lean_object*);
-lean_object* initialize_init_lean_compiler_ir_default(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_InlineAttrs(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_Specialize(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_ConstFolding(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_ClosedTermCache(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_ExternAttr(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_ImplementedByAttr(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_NeverExtractAttr(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_IR_Default(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_compiler_default(lean_object* w) {
+lean_object* initialize_Init_Lean_Compiler_Default(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_inlineattrs(w);
+w = initialize_Init_Lean_Compiler_InlineAttrs(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_specialize(w);
+w = initialize_Init_Lean_Compiler_Specialize(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_constfolding(w);
+w = initialize_Init_Lean_Compiler_ConstFolding(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_closedtermcache(w);
+w = initialize_Init_Lean_Compiler_ClosedTermCache(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_externattr(w);
+w = initialize_Init_Lean_Compiler_ExternAttr(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_implementedbyattr(w);
+w = initialize_Init_Lean_Compiler_ImplementedByAttr(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_neverextractattr(w);
+w = initialize_Init_Lean_Compiler_NeverExtractAttr(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_ir_default(w);
+w = initialize_Init_Lean_Compiler_IR_Default(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

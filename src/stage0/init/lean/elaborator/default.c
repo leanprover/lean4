@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.elaborator.default
-// Imports: init.lean.elaborator.basic init.lean.elaborator.elabstrategyattrs init.lean.elaborator.command init.lean.elaborator.preterm init.lean.elaborator.term
+// Module: Init.Lean.Elaborator.Default
+// Imports: Init.Lean.Elaborator.Basic Init.Lean.Elaborator.ElabStrategyAttrs Init.Lean.Elaborator.Command Init.Lean.Elaborator.PreTerm Init.Lean.Elaborator.Term
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,25 +13,25 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_init_lean_elaborator_basic(lean_object*);
-lean_object* initialize_init_lean_elaborator_elabstrategyattrs(lean_object*);
-lean_object* initialize_init_lean_elaborator_command(lean_object*);
-lean_object* initialize_init_lean_elaborator_preterm(lean_object*);
-lean_object* initialize_init_lean_elaborator_term(lean_object*);
+lean_object* initialize_Init_Lean_Elaborator_Basic(lean_object*);
+lean_object* initialize_Init_Lean_Elaborator_ElabStrategyAttrs(lean_object*);
+lean_object* initialize_Init_Lean_Elaborator_Command(lean_object*);
+lean_object* initialize_Init_Lean_Elaborator_PreTerm(lean_object*);
+lean_object* initialize_Init_Lean_Elaborator_Term(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_elaborator_default(lean_object* w) {
+lean_object* initialize_Init_Lean_Elaborator_Default(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_elaborator_basic(w);
+w = initialize_Init_Lean_Elaborator_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_elaborator_elabstrategyattrs(w);
+w = initialize_Init_Lean_Elaborator_ElabStrategyAttrs(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_elaborator_command(w);
+w = initialize_Init_Lean_Elaborator_Command(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_elaborator_preterm(w);
+w = initialize_Init_Lean_Elaborator_PreTerm(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_elaborator_term(w);
+w = initialize_Init_Lean_Elaborator_Term(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

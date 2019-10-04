@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.kvmap
-// Imports: init.lean.name init.data.option.basic init.data.int.default
+// Module: Init.Lean.KVMap
+// Imports: Init.Lean.Name Init.Data.Option.Basic Init.Data.Int.Default
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1162,19 +1162,19 @@ x_1 = l_Lean_KVMap_stringVal___closed__3;
 return x_1;
 }
 }
-lean_object* initialize_init_lean_name(lean_object*);
-lean_object* initialize_init_data_option_basic(lean_object*);
-lean_object* initialize_init_data_int_default(lean_object*);
+lean_object* initialize_Init_Lean_Name(lean_object*);
+lean_object* initialize_Init_Data_Option_Basic(lean_object*);
+lean_object* initialize_Init_Data_Int_Default(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_kvmap(lean_object* w) {
+lean_object* initialize_Init_Lean_KVMap(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_name(w);
+w = initialize_Init_Lean_Name(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_option_basic(w);
+w = initialize_Init_Data_Option_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_int_default(w);
+w = initialize_Init_Data_Int_Default(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_DataValue_HasBeq___closed__1 = _init_l_Lean_DataValue_HasBeq___closed__1();
 lean_mark_persistent(l_Lean_DataValue_HasBeq___closed__1);

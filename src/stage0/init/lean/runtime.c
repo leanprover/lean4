@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.runtime
-// Imports: init.core
+// Module: Init.Lean.Runtime
+// Imports: Init.Core
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -71,13 +71,13 @@ x_1 = l_Lean_maxSmallNat___closed__1;
 return x_1;
 }
 }
-lean_object* initialize_init_core(lean_object*);
+lean_object* initialize_Init_Core(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_runtime(lean_object* w) {
+lean_object* initialize_Init_Lean_Runtime(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_core(w);
+w = initialize_Init_Core(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_closureMaxArgs___closed__1 = _init_l_Lean_closureMaxArgs___closed__1();
 lean_mark_persistent(l_Lean_closureMaxArgs___closed__1);

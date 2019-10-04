@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.compiler.ir.expandresetreuse
-// Imports: init.control.state init.control.reader init.lean.compiler.ir.compilerm init.lean.compiler.ir.normids init.lean.compiler.ir.freevars
+// Module: Init.Lean.Compiler.IR.ExpandResetReuse
+// Imports: Init.Control.State Init.Control.Reader Init.Lean.Compiler.IR.CompilerM Init.Lean.Compiler.IR.NormIds Init.Lean.Compiler.IR.FreeVars
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3488,25 +3488,25 @@ x_2 = l_Lean_IR_ExpandResetReuse_main(x_1);
 return x_2;
 }
 }
-lean_object* initialize_init_control_state(lean_object*);
-lean_object* initialize_init_control_reader(lean_object*);
-lean_object* initialize_init_lean_compiler_ir_compilerm(lean_object*);
-lean_object* initialize_init_lean_compiler_ir_normids(lean_object*);
-lean_object* initialize_init_lean_compiler_ir_freevars(lean_object*);
+lean_object* initialize_Init_Control_State(lean_object*);
+lean_object* initialize_Init_Control_Reader(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_IR_CompilerM(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_IR_NormIds(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_IR_FreeVars(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_compiler_ir_expandresetreuse(lean_object* w) {
+lean_object* initialize_Init_Lean_Compiler_IR_ExpandResetReuse(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_state(w);
+w = initialize_Init_Control_State(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_reader(w);
+w = initialize_Init_Control_Reader(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_ir_compilerm(w);
+w = initialize_Init_Lean_Compiler_IR_CompilerM(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_ir_normids(w);
+w = initialize_Init_Lean_Compiler_IR_NormIds(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_ir_freevars(w);
+w = initialize_Init_Lean_Compiler_IR_FreeVars(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_IR_ExpandResetReuse_mkProjMap___closed__1 = _init_l_Lean_IR_ExpandResetReuse_mkProjMap___closed__1();
 lean_mark_persistent(l_Lean_IR_ExpandResetReuse_mkProjMap___closed__1);

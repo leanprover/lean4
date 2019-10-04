@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.parser.level
-// Imports: init.lean.parser.parser
+// Module: Init.Lean.Parser.Level
+// Imports: Init.Lean.Parser.Parser
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -31,7 +31,6 @@ lean_object* l_Lean_Parser_ParserState_restore(lean_object*, lean_object*, lean_
 lean_object* l_Lean_Parser_Level_hole___elambda__1___rarg___closed__6;
 lean_object* l_Lean_Parser_symbolInfo(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Level_max___elambda__1___closed__2;
-lean_object* l_Array_back___at___private_init_lean_parser_parser_6__updateCache___spec__1(lean_object*);
 lean_object* l_Lean_Parser_andthenInfo(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_declareLeadingBuiltinParser___closed__1;
 lean_object* l_Lean_Parser_Level_max;
@@ -158,6 +157,7 @@ lean_object* l___regBuiltinParser_Lean_Parser_Level_num(lean_object*);
 lean_object* l_Lean_Parser_Level_imax___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Level_hole;
 lean_object* l_Lean_Parser_Level_max___elambda__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_back___at___private_Init_Lean_Parser_Parser_6__updateCache___spec__1(lean_object*);
 lean_object* l___regBuiltinParser_Lean_Parser_Level_paren(lean_object*);
 lean_object* l_Lean_Parser_Level_addLit___closed__3;
 lean_object* l_Lean_Parser_Level_ident;
@@ -456,7 +456,7 @@ if (lean_obj_tag(x_40) == 0)
 lean_object* x_41; lean_object* x_42; 
 x_41 = lean_ctor_get(x_39, 0);
 lean_inc(x_41);
-x_42 = l_Array_back___at___private_init_lean_parser_parser_6__updateCache___spec__1(x_41);
+x_42 = l_Array_back___at___private_Init_Lean_Parser_Parser_6__updateCache___spec__1(x_41);
 lean_dec(x_41);
 if (lean_obj_tag(x_42) == 2)
 {
@@ -528,7 +528,7 @@ if (lean_obj_tag(x_13) == 0)
 lean_object* x_14; lean_object* x_15; 
 x_14 = lean_ctor_get(x_12, 0);
 lean_inc(x_14);
-x_15 = l_Array_back___at___private_init_lean_parser_parser_6__updateCache___spec__1(x_14);
+x_15 = l_Array_back___at___private_Init_Lean_Parser_Parser_6__updateCache___spec__1(x_14);
 lean_dec(x_14);
 if (lean_obj_tag(x_15) == 2)
 {
@@ -1223,7 +1223,7 @@ if (lean_obj_tag(x_7) == 0)
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_ctor_get(x_6, 0);
 lean_inc(x_8);
-x_9 = l_Array_back___at___private_init_lean_parser_parser_6__updateCache___spec__1(x_8);
+x_9 = l_Array_back___at___private_Init_Lean_Parser_Parser_6__updateCache___spec__1(x_8);
 lean_dec(x_8);
 if (lean_obj_tag(x_9) == 2)
 {
@@ -1625,7 +1625,7 @@ if (lean_obj_tag(x_18) == 0)
 lean_object* x_19; lean_object* x_20; 
 x_19 = lean_ctor_get(x_17, 0);
 lean_inc(x_19);
-x_20 = l_Array_back___at___private_init_lean_parser_parser_6__updateCache___spec__1(x_19);
+x_20 = l_Array_back___at___private_Init_Lean_Parser_Parser_6__updateCache___spec__1(x_19);
 lean_dec(x_19);
 if (lean_obj_tag(x_20) == 2)
 {
@@ -1795,13 +1795,13 @@ x_5 = l_Lean_Parser_addBuiltinTrailingParser(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* initialize_init_lean_parser_parser(lean_object*);
+lean_object* initialize_Init_Lean_Parser_Parser(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_parser_level(lean_object* w) {
+lean_object* initialize_Init_Lean_Parser_Level(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_parser_parser(w);
+w = initialize_Init_Lean_Parser_Parser(w);
 if (lean_io_result_is_error(w)) return w;
 w = l_Lean_Parser_mkBuiltinParsingTablesRef(w);
 if (lean_io_result_is_error(w)) return w;

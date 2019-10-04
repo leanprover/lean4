@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.elaborator.alias
-// Imports: init.lean.environment
+// Module: Init.Lean.Elaborator.Alias
+// Imports: Init.Lean.Environment
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -35,6 +35,7 @@ uint8_t l_List_elem___main___at_Lean_addAliasEntry___spec__18(lean_object*, lean
 size_t l_USize_shift__right(size_t, size_t);
 lean_object* l_Lean_aliasExtension___closed__9;
 lean_object* l_Array_miterateAux___main___at_Lean_mkAliasExtension___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Init_Lean_Environment_5__envExtensionsRef;
 lean_object* l_AssocList_find___main___at_Lean_addAliasEntry___spec__6(lean_object*, lean_object*);
 uint8_t l_AssocList_contains___main___at_Lean_addAliasEntry___spec__13(lean_object*, lean_object*);
 size_t l_USize_sub(size_t, size_t);
@@ -91,6 +92,7 @@ lean_object* l_Lean_aliasExtension___closed__1;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_HashMapImp_moveEntries___main___at_Lean_addAliasEntry___spec__15(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+extern lean_object* l___private_Init_Lean_Environment_8__persistentEnvExtensionsRef;
 lean_object* l_Array_miterateAux___main___at_Lean_addAliasEntry___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_push(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_aliasExtension___elambda__2(lean_object*);
@@ -133,7 +135,6 @@ lean_object* l_Array_set(lean_object*, lean_object*, lean_object*, lean_object*)
 lean_object* l_mkHashMap___at_Lean_mkAliasExtension___spec__2(lean_object*);
 lean_object* l_Array_anyMAux___main___at_Lean_mkAliasExtension___spec__9___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAliasExtension___closed__3;
-extern lean_object* l___private_init_lean_environment_8__persistentEnvExtensionsRef;
 size_t l_USize_land(size_t, size_t);
 lean_object* l_Lean_SMap_find___at_Lean_addAliasEntry___spec__1(lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
@@ -143,7 +144,6 @@ lean_object* l_Lean_mkAliasExtension___lambda__1___boxed(lean_object*);
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
 extern lean_object* l_Lean_regNamespacesExtension___closed__5;
 lean_object* l_IO_Prim_Ref_reset(lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_init_lean_environment_5__envExtensionsRef;
 lean_object* l_PersistentHashMap_find___at_Lean_addAliasEntry___spec__2___boxed(lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_PersistentHashMap_findAux___main___at_Lean_addAliasEntry___spec__3___boxed(lean_object*, lean_object*, lean_object*);
@@ -1643,7 +1643,7 @@ x_13 = lean_ctor_get(x_3, 0);
 lean_dec(x_13);
 x_14 = lean_box(0);
 lean_ctor_set(x_3, 0, x_14);
-x_15 = l___private_init_lean_environment_5__envExtensionsRef;
+x_15 = l___private_Init_Lean_Environment_5__envExtensionsRef;
 x_16 = lean_io_ref_get(x_15, x_3);
 if (lean_obj_tag(x_16) == 0)
 {
@@ -2163,7 +2163,7 @@ x_122 = lean_box(0);
 x_123 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_123, 0, x_122);
 lean_ctor_set(x_123, 1, x_121);
-x_124 = l___private_init_lean_environment_5__envExtensionsRef;
+x_124 = l___private_Init_Lean_Environment_5__envExtensionsRef;
 x_125 = lean_io_ref_get(x_124, x_123);
 if (lean_obj_tag(x_125) == 0)
 {
@@ -2401,7 +2401,7 @@ lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_mkAliasExtens
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l___private_init_lean_environment_8__persistentEnvExtensionsRef;
+x_3 = l___private_Init_Lean_Environment_8__persistentEnvExtensionsRef;
 x_4 = lean_io_ref_get(x_3, x_2);
 if (lean_obj_tag(x_4) == 0)
 {
@@ -3653,13 +3653,13 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* initialize_init_lean_environment(lean_object*);
+lean_object* initialize_Init_Lean_Environment(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_elaborator_alias(lean_object* w) {
+lean_object* initialize_Init_Lean_Elaborator_Alias(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_environment(w);
+w = initialize_Init_Lean_Environment(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_SMap_empty___at_Lean_mkAliasExtension___spec__1___closed__1 = _init_l_Lean_SMap_empty___at_Lean_mkAliasExtension___spec__1___closed__1();
 lean_mark_persistent(l_Lean_SMap_empty___at_Lean_mkAliasExtension___spec__1___closed__1);

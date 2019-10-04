@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.control.combinators
-// Imports: init.control.monad init.control.alternative init.data.list.basic
+// Module: Init.Control.Combinators
+// Imports: Init.Control.Monad Init.Control.Alternative Init.Data.List.Basic
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1933,19 +1933,19 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_init_control_monad(lean_object*);
-lean_object* initialize_init_control_alternative(lean_object*);
-lean_object* initialize_init_data_list_basic(lean_object*);
+lean_object* initialize_Init_Control_Monad(lean_object*);
+lean_object* initialize_Init_Control_Alternative(lean_object*);
+lean_object* initialize_Init_Data_List_Basic(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_control_combinators(lean_object* w) {
+lean_object* initialize_Init_Control_Combinators(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_monad(w);
+w = initialize_Init_Control_Monad(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_control_alternative(w);
+w = initialize_Init_Control_Alternative(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_list_basic(w);
+w = initialize_Init_Data_List_Basic(w);
 if (lean_io_result_is_error(w)) return w;
 l_mjoin___rarg___closed__1 = _init_l_mjoin___rarg___closed__1();
 lean_mark_persistent(l_mjoin___rarg___closed__1);

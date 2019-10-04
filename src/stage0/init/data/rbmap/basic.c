@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.rbmap.basic
-// Imports: init.data.repr init.data.option.basic
+// Module: Init.Data.RBMap.Basic
+// Imports: Init.Data.Repr Init.Data.Option.Basic
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -24436,16 +24436,16 @@ x_3 = lean_alloc_closure((void*)(l_rbmapOf___rarg), 2, 0);
 return x_3;
 }
 }
-lean_object* initialize_init_data_repr(lean_object*);
-lean_object* initialize_init_data_option_basic(lean_object*);
+lean_object* initialize_Init_Data_Repr(lean_object*);
+lean_object* initialize_Init_Data_Option_Basic(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_rbmap_basic(lean_object* w) {
+lean_object* initialize_Init_Data_RBMap_Basic(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_repr(w);
+w = initialize_Init_Data_Repr(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_option_basic(w);
+w = initialize_Init_Data_Option_Basic(w);
 if (lean_io_result_is_error(w)) return w;
 l_RBMap_HasRepr___rarg___closed__1 = _init_l_RBMap_HasRepr___rarg___closed__1();
 lean_mark_persistent(l_RBMap_HasRepr___rarg___closed__1);

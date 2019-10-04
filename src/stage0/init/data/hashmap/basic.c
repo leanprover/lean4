@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.hashmap.basic
-// Imports: init.data.array.basic init.data.assoclist init.data.option.basic init.data.hashable
+// Module: Init.Data.HashMap.Basic
+// Imports: Init.Data.Array.Basic Init.Data.AssocList Init.Data.Option.Basic Init.Data.Hashable
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1283,7 +1283,7 @@ lean_object* _init_l_HashMap_find_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("/Users/leonardodemoura/projects/lean4/library/init/data/hashmap/basic.lean");
+x_1 = lean_mk_string("/Users/leonardodemoura/projects/lean4/library/Init/Data/HashMap/Basic.lean");
 return x_1;
 }
 }
@@ -1691,22 +1691,22 @@ lean_dec(x_3);
 return x_5;
 }
 }
-lean_object* initialize_init_data_array_basic(lean_object*);
-lean_object* initialize_init_data_assoclist(lean_object*);
-lean_object* initialize_init_data_option_basic(lean_object*);
-lean_object* initialize_init_data_hashable(lean_object*);
+lean_object* initialize_Init_Data_Array_Basic(lean_object*);
+lean_object* initialize_Init_Data_AssocList(lean_object*);
+lean_object* initialize_Init_Data_Option_Basic(lean_object*);
+lean_object* initialize_Init_Data_Hashable(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_hashmap_basic(lean_object* w) {
+lean_object* initialize_Init_Data_HashMap_Basic(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_array_basic(w);
+w = initialize_Init_Data_Array_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_assoclist(w);
+w = initialize_Init_Data_AssocList(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_option_basic(w);
+w = initialize_Init_Data_Option_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_hashable(w);
+w = initialize_Init_Data_Hashable(w);
 if (lean_io_result_is_error(w)) return w;
 l_mkHashMapImp___rarg___closed__1 = _init_l_mkHashMapImp___rarg___closed__1();
 lean_mark_persistent(l_mkHashMapImp___rarg___closed__1);

@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.persistenthashmap.default
-// Imports: init.data.persistenthashmap.basic
+// Module: Init.Data.PersistentHashMap.Default
+// Imports: Init.Data.PersistentHashMap.Basic
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,13 +13,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_init_data_persistenthashmap_basic(lean_object*);
+lean_object* initialize_Init_Data_PersistentHashMap_Basic(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_persistenthashmap_default(lean_object* w) {
+lean_object* initialize_Init_Data_PersistentHashMap_Default(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_persistenthashmap_basic(w);
+w = initialize_Init_Data_PersistentHashMap_Basic(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

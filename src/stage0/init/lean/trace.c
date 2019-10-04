@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.trace
-// Imports: init.lean.format init.data.rbmap.default init.lean.position init.lean.name init.lean.options
+// Module: Init.Lean.Trace
+// Imports: Init.Lean.Format Init.Data.RBMap.Default Init.Lean.Position Init.Lean.Name Init.Lean.Options
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3740,25 +3740,25 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* initialize_init_lean_format(lean_object*);
-lean_object* initialize_init_data_rbmap_default(lean_object*);
-lean_object* initialize_init_lean_position(lean_object*);
-lean_object* initialize_init_lean_name(lean_object*);
-lean_object* initialize_init_lean_options(lean_object*);
+lean_object* initialize_Init_Lean_Format(lean_object*);
+lean_object* initialize_Init_Data_RBMap_Default(lean_object*);
+lean_object* initialize_Init_Lean_Position(lean_object*);
+lean_object* initialize_Init_Lean_Name(lean_object*);
+lean_object* initialize_Init_Lean_Options(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_trace(lean_object* w) {
+lean_object* initialize_Init_Lean_Trace(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_format(w);
+w = initialize_Init_Lean_Format(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_rbmap_default(w);
+w = initialize_Init_Data_RBMap_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_position(w);
+w = initialize_Init_Lean_Position(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_name(w);
+w = initialize_Init_Lean_Name(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_options(w);
+w = initialize_Init_Lean_Options(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

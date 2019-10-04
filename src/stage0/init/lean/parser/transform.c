@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.parser.transform
-// Imports: init.default init.lean.parser.parser
+// Module: Init.Lean.Parser.Transform
+// Imports: Init.Default Init.Lean.Parser.Parser
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,7 +18,6 @@ lean_object* l_Lean_Syntax_setTailInfo___rarg(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Array_get_x21(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mkArray(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_back___at___private_init_lean_parser_parser_6__updateCache___spec__1(lean_object*);
 extern lean_object* l_Lean_Parser_declareLeadingBuiltinParser___closed__1;
 lean_object* l_Lean_Syntax_removeParen___closed__1;
 extern lean_object* l_Array_mforAux___main___at_Lean_Environment_displayStats___spec__9___closed__2;
@@ -44,6 +43,7 @@ lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_removeParen___closed__3;
 lean_object* lean_string_utf8_byte_size(lean_object*);
+lean_object* l_Array_back___at___private_Init_Lean_Parser_Parser_6__updateCache___spec__1(lean_object*);
 lean_object* l_Lean_Syntax_getNumArgs___rarg(lean_object*);
 lean_object* l_Lean_Syntax_removeParen___closed__2;
 lean_object* l_Lean_Syntax_removeParen(lean_object*);
@@ -65,7 +65,7 @@ else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_8 = lean_array_fget(x_3, x_4);
-x_9 = l_Array_back___at___private_init_lean_parser_parser_6__updateCache___spec__1(x_5);
+x_9 = l_Array_back___at___private_Init_Lean_Parser_Parser_6__updateCache___spec__1(x_5);
 x_10 = l_Lean_Syntax_getTailInfo___main___rarg(x_9);
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_add(x_4, x_11);
@@ -584,16 +584,16 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_init_default(lean_object*);
-lean_object* initialize_init_lean_parser_parser(lean_object*);
+lean_object* initialize_Init_Default(lean_object*);
+lean_object* initialize_Init_Lean_Parser_Parser(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_parser_transform(lean_object* w) {
+lean_object* initialize_Init_Lean_Parser_Transform(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_default(w);
+w = initialize_Init_Default(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_parser_parser(w);
+w = initialize_Init_Lean_Parser_Parser(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_Syntax_removeParen___closed__1 = _init_l_Lean_Syntax_removeParen___closed__1();
 lean_mark_persistent(l_Lean_Syntax_removeParen___closed__1);

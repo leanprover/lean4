@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.system.filepath
-// Imports: init.system.platform init.data.string.basic
+// Module: Init.System.Filepath
+// Imports: Init.System.Platform Init.Data.String.Basic
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -375,16 +375,16 @@ return x_8;
 }
 }
 }
-lean_object* initialize_init_system_platform(lean_object*);
-lean_object* initialize_init_data_string_basic(lean_object*);
+lean_object* initialize_Init_System_Platform(lean_object*);
+lean_object* initialize_Init_Data_String_Basic(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_system_filepath(lean_object* w) {
+lean_object* initialize_Init_System_Filepath(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_system_platform(w);
+w = initialize_Init_System_Platform(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_string_basic(w);
+w = initialize_Init_Data_String_Basic(w);
 if (lean_io_result_is_error(w)) return w;
 l_System_FilePath_pathSeparator___closed__1 = _init_l_System_FilePath_pathSeparator___closed__1();
 l_System_FilePath_pathSeparator = _init_l_System_FilePath_pathSeparator();

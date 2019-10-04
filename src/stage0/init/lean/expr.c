@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.expr
-// Imports: init.lean.level init.lean.kvmap
+// Module: Init.Lean.Expr
+// Imports: Init.Lean.Level Init.Lean.KVMap
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1219,7 +1219,7 @@ lean_object* _init_l_Lean_Expr_constName___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("/Users/leonardodemoura/projects/lean4/library/init/lean/expr.lean");
+x_1 = lean_mk_string("/Users/leonardodemoura/projects/lean4/library/Init/Lean/Expr.lean");
 return x_1;
 }
 }
@@ -1678,16 +1678,16 @@ x_4 = l_Lean_mkBinApp(x_3, x_1, x_2);
 return x_4;
 }
 }
-lean_object* initialize_init_lean_level(lean_object*);
-lean_object* initialize_init_lean_kvmap(lean_object*);
+lean_object* initialize_Init_Lean_Level(lean_object*);
+lean_object* initialize_Init_Lean_KVMap(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_lean_expr(lean_object* w) {
+lean_object* initialize_Init_Lean_Expr(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_level(w);
+w = initialize_Init_Lean_Level(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_lean_kvmap(w);
+w = initialize_Init_Lean_KVMap(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_BinderInfo_HasBeq___closed__1 = _init_l_Lean_BinderInfo_HasBeq___closed__1();
 lean_mark_persistent(l_Lean_BinderInfo_HasBeq___closed__1);

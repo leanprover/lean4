@@ -11,7 +11,4 @@ for x in sys.stdin:
   x = re.sub(r"^(\w):", lambda m: "/" + m[1].lower(), x).replace('\\', '/').strip()
   curr = os.path.realpath(os.curdir)
   curr = os.path.normpath(curr)
-  if sys.platform == "darwin":
-    # HACK: macos paths are case insensitive, but Python's normalization does not convert characters to lowercase
-    curr = curr.lower()
   print(os.path.relpath(x, curr))

@@ -236,20 +236,14 @@ do ϕ ← get;
    else if !ϕ.generatorStack.isEmpty then generate
    else throw "FAILED TO SYNTHESIZE"
 
-partial def synthCoreFueled (ctx₀ : Context) (goalType : Expr) : Nat → TCMethod TypedExpr
+partial def synthCore (ctx₀ : Context) (goalType : Expr) : Nat → TCMethod TypedExpr
 | 0   => throw "[synthCore] out of fuel"
 | n+1 => do
   step;
   finalAnswer ← get >>= λ ϕ => pure ϕ.finalAnswer;
   match finalAnswer with
-  | none => synthCoreFueled n
+  | none => synthCore n
   | some ⟨answerVal, answerType⟩ => pure ⟨answerVal, answerType⟩
-
-def synthCore (ctx₀ : Context) (goalType : Expr) (fuel : Nat) : TCMethod TypedExpr :=
-do let ⟨mvar, ctx⟩ := (Context.eNewMeta goalType).run ctx₀;
-   newSubgoal Waiter.root ctx mvar;
-   modify $ λ ϕ => { mainMVar := mvar .. ϕ };
-   synthCoreFueled ctx₀ goalType fuel
 
 def collectUReplacements : List Level → Context → Array (Level × Level) → Array Level
                              → Context × Array (Level × Level) × Array Level
@@ -298,8 +292,11 @@ else
 
 def synth (goalType₀ : Expr) (fuel : Nat := 100000) : TCMethod Expr :=
 do env ← get >>= λ ϕ => pure ϕ.env;
-   let ⟨ctx, goalType, uReplacements, eReplacements⟩ := preprocessForOutParams env goalType₀;
-   ⟨instVal, instType⟩ ← synthCore ctx goalType fuel;
+   let ⟨ctx₀, goalType, uReplacements, eReplacements⟩ := preprocessForOutParams env goalType₀;
+   let ⟨mvar, ctx⟩ := (Context.eNewMeta goalType).run ctx₀;
+   newSubgoal Waiter.root ctx mvar;
+   modify $ λ ϕ => { mainMVar := mvar .. ϕ };
+   ⟨instVal, instType⟩ ← synthCore ctx₀ goalType fuel;
    match (Context.eUnify goalType₀ instType).run ctx with
    | EState.Result.error msg _ => throw $ "outParams do not match: " ++ toString goalType₀ ++ " ≠ " ++ toString instType
    | EState.Result.ok _ ctx => do

@@ -75,7 +75,11 @@ do let fname := System.FilePath.normalizePath fname;
      let curr := path ++ pathSep ++ fname;
      result ← checkFile (curr ++ toString extSeparator ++ ext);
      match result with
-     | none  => checkFile (curr ++ pathSep ++ "default" ++ toString extSeparator ++ ext)
+     | none  => do
+       result ← checkFile (curr ++ pathSep ++ "default" ++ toString extSeparator ++ ext);
+       match result with
+       | none => checkFile (curr ++ pathSep ++ "Default" ++ toString extSeparator ++ ext)
+       | other => pure other
      | other => pure other
 
 def modNameToFileName : Name → String

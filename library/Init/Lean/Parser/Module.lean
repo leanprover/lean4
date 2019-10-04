@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
-import init.lean.message
-import init.lean.parser.command
+import Init.Lean.Message
+import Init.Lean.Parser.Command
 
 namespace Lean
 namespace Parser

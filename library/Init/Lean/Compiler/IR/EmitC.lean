@@ -4,16 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.control.conditional
-import init.lean.runtime
-import init.lean.compiler.namemangling
-import init.lean.compiler.exportattr
-import init.lean.compiler.initattr
-import init.lean.compiler.ir.compilerm
-import init.lean.compiler.ir.emitutil
-import init.lean.compiler.ir.normids
-import init.lean.compiler.ir.simpcase
-import init.lean.compiler.ir.boxing
+import Init.Control.Conditional
+import Init.Lean.Runtime
+import Init.Lean.Compiler.Namemangling
+import Init.Lean.Compiler.Exportattr
+import Init.Lean.Compiler.Initattr
+import Init.Lean.Compiler.Ir.Compilerm
+import Init.Lean.Compiler.Ir.Emitutil
+import Init.Lean.Compiler.Ir.Normids
+import Init.Lean.Compiler.Ir.Simpcase
+import Init.Lean.Compiler.Ir.Boxing
 
 namespace Lean
 namespace IR

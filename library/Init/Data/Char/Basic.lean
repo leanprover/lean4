@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.uint
+import Init.Data.Uint
 @[inline, reducible] def isValidChar (n : UInt32) : Prop :=
 n < 0xd800 ∨ (0xdfff < n ∧ n < 0x110000)
 

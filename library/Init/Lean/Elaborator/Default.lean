@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.elaborator.basic
-import init.lean.elaborator.elabstrategyattrs
-import init.lean.elaborator.command
-import init.lean.elaborator.preterm
-import init.lean.elaborator.term
+import Init.Lean.Elaborator.Basic
+import Init.Lean.Elaborator.Elabstrategyattrs
+import Init.Lean.Elaborator.Command
+import Init.Lean.Elaborator.Preterm
+import Init.Lean.Elaborator.Term

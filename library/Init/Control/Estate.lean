@@ -8,8 +8,8 @@ of memory allocations using the approach described in the paper
 "Counting immutable beans" by Sebastian and Leo
 -/
 prelude
-import init.control.state
-import init.control.except
+import Init.Control.State
+import Init.Control.Except
 universes u v
 
 namespace EState

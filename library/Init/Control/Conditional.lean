@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.control.monad
-import init.data.option.basic
+import Init.Control.Monad
+import Init.Data.Option.Basic
 universes u v
 
 class HasToBool (α : Type u) :=

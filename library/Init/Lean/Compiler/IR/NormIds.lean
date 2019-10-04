@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.control.reader
-import init.control.conditional
-import init.lean.compiler.ir.basic
+import Init.Control.Reader
+import Init.Control.Conditional
+import Init.Lean.Compiler.Ir.Basic
 
 namespace Lean
 namespace IR

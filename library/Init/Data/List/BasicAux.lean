@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.list.basic
-import init.util
+import Init.Data.List.Basic
+import Init.Util
 
 universes u
 

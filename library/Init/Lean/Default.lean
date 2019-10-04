@@ -4,18 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.path
-import init.lean.compiler
-import init.lean.environment
-import init.lean.modifiers
-import init.lean.projfns
-import init.lean.runtime
-import init.lean.attributes
-import init.lean.parser
-import init.lean.reducibilityattrs
-import init.lean.elaborator
-import init.lean.eqncompiler
-import init.lean.class
-import init.lean.localcontext
-import init.lean.metavarcontext
-import init.lean.typeclass
+import Init.Lean.Path
+import Init.Lean.Compiler
+import Init.Lean.Environment
+import Init.Lean.Modifiers
+import Init.Lean.Projfns
+import Init.Lean.Runtime
+import Init.Lean.Attributes
+import Init.Lean.Parser
+import Init.Lean.Reducibilityattrs
+import Init.Lean.Elaborator
+import Init.Lean.Eqncompiler
+import Init.Lean.Class
+import Init.Lean.Localcontext
+import Init.Lean.Metavarcontext
+import Init.Lean.Typeclass

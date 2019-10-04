@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.option.basic
-import init.lean.expr
-import init.lean.environment
-import init.lean.attributes
-import init.lean.projfns
+import Init.Data.Option.Basic
+import Init.Lean.Expr
+import Init.Lean.Environment
+import Init.Lean.Attributes
+import Init.Lean.Projfns
 
 namespace Lean
 

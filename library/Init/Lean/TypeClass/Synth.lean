@@ -8,13 +8,13 @@ Typeclass synthesis using tabled resolution.
 Note: this file will be need to be updated once the unifier is implemented in Lean.
 -/
 prelude
-import init.lean.expr
-import init.lean.environment
-import init.lean.class
-import init.lean.metavarcontext
-import init.lean.typeclass.context
-import init.data.persistenthashmap
-import init.data.queue
+import Init.Lean.Expr
+import Init.Lean.Environment
+import Init.Lean.Class
+import Init.Lean.Metavarcontext
+import Init.Lean.Typeclass.Context
+import Init.Data.Persistenthashmap
+import Init.Data.Queue
 
 namespace Lean
 namespace TypeClass

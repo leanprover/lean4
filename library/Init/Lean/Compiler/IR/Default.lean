@@ -4,21 +4,21 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.compiler.ir.basic
-import init.lean.compiler.ir.format
-import init.lean.compiler.ir.compilerm
-import init.lean.compiler.ir.pushproj
-import init.lean.compiler.ir.elimdead
-import init.lean.compiler.ir.simpcase
-import init.lean.compiler.ir.resetreuse
-import init.lean.compiler.ir.normids
-import init.lean.compiler.ir.checker
-import init.lean.compiler.ir.borrow
-import init.lean.compiler.ir.boxing
-import init.lean.compiler.ir.rc
-import init.lean.compiler.ir.expandresetreuse
-import init.lean.compiler.ir.unboxresult
-import init.lean.compiler.ir.emitc
+import Init.Lean.Compiler.Ir.Basic
+import Init.Lean.Compiler.Ir.Format
+import Init.Lean.Compiler.Ir.Compilerm
+import Init.Lean.Compiler.Ir.Pushproj
+import Init.Lean.Compiler.Ir.Elimdead
+import Init.Lean.Compiler.Ir.Simpcase
+import Init.Lean.Compiler.Ir.Resetreuse
+import Init.Lean.Compiler.Ir.Normids
+import Init.Lean.Compiler.Ir.Checker
+import Init.Lean.Compiler.Ir.Borrow
+import Init.Lean.Compiler.Ir.Boxing
+import Init.Lean.Compiler.Ir.Rc
+import Init.Lean.Compiler.Ir.Expandresetreuse
+import Init.Lean.Compiler.Ir.Unboxresult
+import Init.Lean.Compiler.Ir.Emitc
 
 namespace Lean
 namespace IR

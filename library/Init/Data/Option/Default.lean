@@ -4,6 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.option.basic
-import init.data.option.basicaux
-import init.data.option.instances
+import Init.Data.Option.Basic
+import Init.Data.Option.Basicaux
+import Init.Data.Option.Instances

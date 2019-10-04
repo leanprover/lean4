@@ -4,13 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.system.io
-import init.util
-import init.data.bytearray
-import init.lean.declaration
-import init.lean.smap
-import init.lean.path
-import init.lean.localcontext
+import Init.System.Io
+import Init.Util
+import Init.Data.Bytearray
+import Init.Lean.Declaration
+import Init.Lean.Smap
+import Init.Lean.Path
+import Init.Lean.Localcontext
 
 namespace Lean
 /- Opaque environment extension state. It is essentially the Lean version of a C `void *`

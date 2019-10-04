@@ -12,7 +12,7 @@ Author: Leonardo de Moura, Gabriel Ebner
 #include "runtime/sstream.h"
 
 #ifndef LEAN_DEFAULT_MODULE_FILE_NAME
-#define LEAN_DEFAULT_MODULE_FILE_NAME "default"
+#define LEAN_DEFAULT_MODULE_FILE_NAME "Default"
 #endif
 
 namespace lean {

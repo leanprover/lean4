@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.runtime
-import init.lean.compiler.ir.compilerm
-import init.lean.compiler.ir.livevars
+import Init.Lean.Runtime
+import Init.Lean.Compiler.Ir.Compilerm
+import Init.Lean.Compiler.Ir.Livevars
 
 namespace Lean
 namespace IR

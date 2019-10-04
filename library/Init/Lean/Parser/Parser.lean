@@ -4,15 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
-import init.lean.position
-import init.lean.syntax
-import init.lean.toexpr
-import init.lean.message
-import init.lean.environment
-import init.lean.attributes
-import init.lean.parser.trie
-import init.lean.parser.identifier
-import init.lean.compiler.initattr
+import Init.Lean.Position
+import Init.Lean.Syntax
+import Init.Lean.Toexpr
+import Init.Lean.Message
+import Init.Lean.Environment
+import Init.Lean.Attributes
+import Init.Lean.Parser.Trie
+import Init.Lean.Parser.Identifier
+import Init.Lean.Compiler.Initattr
 
 namespace Lean
 namespace Parser

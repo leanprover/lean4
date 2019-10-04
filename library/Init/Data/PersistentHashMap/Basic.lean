@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.array
-import init.data.hashable
+import Init.Data.Array
+import Init.Data.Hashable
 universes u v w w'
 
 namespace PersistentHashMap

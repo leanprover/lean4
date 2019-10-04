@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.core
-import init.control.monad
-import init.control.alternative
-import init.coe
+import Init.Core
+import Init.Control.Monad
+import Init.Control.Alternative
+import Init.Coe
 open Decidable
 
 universes u v

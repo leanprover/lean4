@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.array.basic
-import init.data.uint
-import init.data.option.basic
+import Init.Data.Array.Basic
+import Init.Data.Uint
+import Init.Data.Option.Basic
 universes u
 
 structure ByteArray :=

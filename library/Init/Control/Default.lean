@@ -4,15 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.control.applicative
-import init.control.functor
-import init.control.alternative
-import init.control.monad
-import init.control.lift
-import init.control.state
-import init.control.id
-import init.control.except
-import init.control.reader
-import init.control.option
-import init.control.combinators
-import init.control.conditional
+import Init.Control.Applicative
+import Init.Control.Functor
+import Init.Control.Alternative
+import Init.Control.Monad
+import Init.Control.Lift
+import Init.Control.State
+import Init.Control.Id
+import Init.Control.Except
+import Init.Control.Reader
+import Init.Control.Option
+import Init.Control.Combinators
+import Init.Control.Conditional

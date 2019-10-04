@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.string.basic
-import init.data.tostring
+import Init.Data.String.Basic
+import Init.Data.Tostring
 
 universes u v
 /- debugging helper functions -/

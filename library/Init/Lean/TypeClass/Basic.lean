@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Daniel Selsam, Leonardo de Moura
 -/
 prelude
-import init.lean.environment
-import init.lean.typeclass.synth
+import Init.Lean.Environment
+import Init.Lean.Typeclass.Synth
 
 namespace Lean
 namespace TypeClass

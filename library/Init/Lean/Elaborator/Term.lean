@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.elaborator.alias
-import init.lean.elaborator.basic
-import init.lean.elaborator.preterm
+import Init.Lean.Elaborator.Alias
+import Init.Lean.Elaborator.Basic
+import Init.Lean.Elaborator.Preterm
 
 namespace Lean
 namespace Elab

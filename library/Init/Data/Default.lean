@@ -4,19 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.basic
-import init.data.nat
-import init.data.char
-import init.data.string
-import init.data.list
-import init.data.int
-import init.data.array
-import init.data.bytearray
-import init.data.fin
-import init.data.uint
-import init.data.rbtree
-import init.data.rbmap
-import init.data.option
-import init.data.hashmap
-import init.data.random
-import init.data.queue
+import Init.Data.Basic
+import Init.Data.Nat
+import Init.Data.Char
+import Init.Data.String
+import Init.Data.List
+import Init.Data.Int
+import Init.Data.Array
+import Init.Data.Bytearray
+import Init.Data.Fin
+import Init.Data.Uint
+import Init.Data.Rbtree
+import Init.Data.Rbmap
+import Init.Data.Option
+import Init.Data.Hashmap
+import Init.Data.Random
+import Init.Data.Queue

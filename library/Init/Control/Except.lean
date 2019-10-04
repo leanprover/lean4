@@ -6,10 +6,10 @@ Authors: Jared Roesch, Sebastian Ullrich
 The Except monad transformer.
 -/
 prelude
-import init.control.alternative
-import init.control.lift
-import init.data.tostring
-import init.control.monadfail
+import Init.Control.Alternative
+import Init.Control.Lift
+import Init.Data.Tostring
+import Init.Control.Monadfail
 universes u v w
 
 inductive Except (ε : Type u) (α : Type v)

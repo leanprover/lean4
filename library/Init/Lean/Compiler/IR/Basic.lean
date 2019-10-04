@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.array
-import init.lean.name
-import init.lean.kvmap
-import init.lean.format
-import init.lean.compiler.externattr
+import Init.Data.Array
+import Init.Lean.Name
+import Init.Lean.Kvmap
+import Init.Lean.Format
+import Init.Lean.Compiler.Externattr
 /-
 Implements (extended) λPure and λRc proposed in the article
 "Counting Immutable Beans", Sebastian Ullrich and Leonardo de Moura.

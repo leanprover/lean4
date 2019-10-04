@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.control.id
+import Init.Control.Id
 universes u v w
 
 /- List-like type to avoid extra level of indirection -/

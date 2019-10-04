@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.lean.options
-import init.data.array
+import Init.Lean.Options
+import Init.Data.Array
 universes u v
 
 namespace Lean

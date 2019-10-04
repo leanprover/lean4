@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
-import init.control.alternative
-import init.control.lift
-import init.control.except
+import Init.Control.Alternative
+import Init.Control.Lift
+import Init.Control.Except
 
 universes u v
 

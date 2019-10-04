@@ -4,13 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.nat.basic
-import init.data.fin.basic
-import init.data.uint
-import init.data.repr
-import init.data.tostring
-import init.control.id
-import init.util
+import Init.Data.Nat.Basic
+import Init.Data.Fin.Basic
+import Init.Data.Uint
+import Init.Data.Repr
+import Init.Data.Tostring
+import Init.Control.Id
+import Init.Util
 universes u v w
 
 /-

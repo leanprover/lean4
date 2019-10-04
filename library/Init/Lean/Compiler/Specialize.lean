@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.attributes
-import init.lean.compiler.util
+import Init.Lean.Attributes
+import Init.Lean.Compiler.Util
 
 namespace Lean
 namespace Compiler

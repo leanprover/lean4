@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
-import init.lean.parser.parser
-import init.lean.parser.level
-import init.lean.parser.term
-import init.lean.parser.command
-import init.lean.parser.module
+import Init.Lean.Parser.Parser
+import Init.Lean.Parser.Level
+import Init.Lean.Parser.Term
+import Init.Lean.Parser.Command
+import Init.Lean.Parser.Module

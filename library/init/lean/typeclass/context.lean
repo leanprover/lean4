@@ -188,26 +188,29 @@ partial def slowWhnf : Expr → Expr
 | e => if e.isApp then slowWhnfApp (slowWhnf e.getAppFn) e.getAppArgs else e
 
 partial def eUnify : Expr → Expr → EState String Context Unit
-| e₁, e₂ => do
-  e₁ ← slowWhnf <$> (EState.fromState $ eShallowInstantiate e₁);
-  e₂ ← slowWhnf <$> (EState.fromState $ eShallowInstantiate e₂);
-  if e₁.isMVar && e₂.isMVar && e₁ == e₂ then pure ()
-  else if eIsMeta e₂ && !(eIsMeta e₁) then eUnify e₂ e₁
-  else if e₁.isBVar && e₂.isBVar && e₁.bvarIdx == e₂.bvarIdx then pure ()
-  else if e₁.isFVar && e₂.isFVar && e₁.fvarName == e₂.fvarName then pure ()
-  else if e₁.isConst && e₂.isConst && e₁.constName == e₂.constName then
-    List.mfor₂ uUnify e₁.constLevels e₂.constLevels
-  else if e₁.isApp && e₂.isApp && e₁.getAppArgs.length == e₂.getAppArgs.length then
-    eUnify e₁.getAppFn e₂.getAppFn *> List.mfor₂ eUnify e₁.getAppArgs e₂.getAppArgs
-  else if e₁.isForall && e₂.isForall then do
-    eUnify e₁.bindingDomain e₂.bindingDomain;
-    eUnify e₁.bindingBody e₂.bindingBody
-  else if eIsMeta e₁ && !(eOccursIn e₂ e₁) then
-    match eMetaIdx e₁ with
-    | some idx => EState.fromState $ eAssignIdx idx e₂
-    | none     => panic! "UNREACHABLE"
-  else
-    throw $ "eUnify: " ++ toString e₁ ++ " !=?= " ++ toString e₂
+| e₁, e₂ =>
+  if !e₁.hasMVar && !e₂.hasMVar
+  then unless (e₁ == e₂) $ throw "fail"
+  else do
+    e₁ ← slowWhnf <$> (EState.fromState $ eShallowInstantiate e₁);
+    e₂ ← slowWhnf <$> (EState.fromState $ eShallowInstantiate e₂);
+    if e₁.isMVar && e₂.isMVar && e₁ == e₂ then pure ()
+    else if eIsMeta e₂ && !(eIsMeta e₁) then eUnify e₂ e₁
+    else if e₁.isBVar && e₂.isBVar && e₁.bvarIdx == e₂.bvarIdx then pure ()
+    else if e₁.isFVar && e₂.isFVar && e₁.fvarName == e₂.fvarName then pure ()
+    else if e₁.isConst && e₂.isConst && e₁.constName == e₂.constName then
+      List.mfor₂ uUnify e₁.constLevels e₂.constLevels
+    else if e₁.isApp && e₂.isApp && e₁.getAppArgs.length == e₂.getAppArgs.length then
+      eUnify e₁.getAppFn e₂.getAppFn *> List.mfor₂ eUnify e₁.getAppArgs e₂.getAppArgs
+    else if e₁.isForall && e₂.isForall then do
+      eUnify e₁.bindingDomain e₂.bindingDomain;
+      eUnify e₁.bindingBody e₂.bindingBody
+    else if eIsMeta e₁ && !(eOccursIn e₂ e₁) then
+      match eMetaIdx e₁ with
+      | some idx => EState.fromState $ eAssignIdx idx e₂
+      | none     => panic! "UNREACHABLE"
+    else
+      throw $ "eUnify: " ++ toString e₁ ++ " !=?= " ++ toString e₂
 
 partial def eInstantiate (ctx : Context) : Expr → Expr
 | e =>

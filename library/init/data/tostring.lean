@@ -4,7 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.string.basic init.data.uint init.data.nat.div init.data.repr
+import init.data.string.basic
+import init.data.uint
+import init.data.nat.div
+import init.data.repr
 open Sum Subtype Nat
 
 universes u v

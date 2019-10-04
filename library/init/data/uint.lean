@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.fin.basic init.system.platform
+import init.data.fin.basic
+import init.system.platform
 
 open Nat
 

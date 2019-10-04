@@ -2102,36 +2102,32 @@ void parser::parse_imports(std::vector<rel_module_name> & imports) {
     while (curr_is_token(get_import_tk())) {
         m_last_cmd_pos = pos();
         next();
+        bool k_init = false;
+        unsigned k  = 0;
         while (true) {
-            bool k_init = false;
-            unsigned k  = 0;
-            while (true) {
-                if (curr_is_token(get_period_tk()) || curr_is_token(get_dotdot_tk()) ||
-                    curr_is_token(get_ellipsis_tk())) {
-                    unsigned d = get_token_info().token().size();
-                    if (!k_init) {
-                        k = d - 1;
-                        k_init = true;
-                    } else {
-                        k = d;
-                    }
-                    next();
+            if (curr_is_token(get_period_tk()) || curr_is_token(get_dotdot_tk()) ||
+                curr_is_token(get_ellipsis_tk())) {
+                unsigned d = get_token_info().token().size();
+                if (!k_init) {
+                    k = d - 1;
+                    k_init = true;
                 } else {
-                    break;
+                    k = d;
                 }
-            }
-            if (!curr_is_identifier())
-                break;
-            name f = get_name_val();
-            if (k_init) {
-                rel_module_name m(k, f);
-                imports.push_back(m);
+                next();
             } else {
-                rel_module_name m(f);
-                imports.push_back(m);
+                break;
             }
-            next();
         }
+        name f = get_name_val();
+        if (k_init) {
+            rel_module_name m(k, f);
+            imports.push_back(m);
+        } else {
+            rel_module_name m(f);
+            imports.push_back(m);
+        }
+        next();
     }
 }
 

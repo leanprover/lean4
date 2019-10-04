@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.name init.data.option.basic init.data.int
+import init.lean.name
+import init.data.option.basic
+import init.data.int
 
 namespace Lean
 

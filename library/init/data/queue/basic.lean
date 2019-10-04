@@ -7,7 +7,8 @@ Simple queue implemented using two lists.
 Note: this is only a temporary placeholder.
 -/
 prelude
-import init.data.array init.data.int
+import init.data.array
+import init.data.int
 universes u v w
 
 structure Queue (α : Type u) :=

@@ -4,7 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
 prelude
-import init.lean.format init.data.rbmap init.lean.position init.lean.name init.lean.options
+import init.lean.format
+import init.data.rbmap
+import init.lean.position
+import init.lean.name
+import init.lean.options
 
 universe u
 

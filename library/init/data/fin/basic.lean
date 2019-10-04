@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.nat.div init.data.nat.bitwise
+import init.data.nat.div
+import init.data.nat.bitwise
+
 open Nat
 structure Fin (n : Nat) := (val : Nat) (isLt : val < n)
 

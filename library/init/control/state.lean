@@ -6,8 +6,10 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 The State monad transformer.
 -/
 prelude
-import init.control.alternative init.control.lift
-import init.control.id init.control.except
+import init.control.alternative
+import init.control.lift
+import init.control.id
+import init.control.except
 universes u v w
 
 def StateT (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=

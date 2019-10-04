@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.list init.coe
+import init.data.list
+import init.coe
 universes u
 
 namespace BinomialHeapImp

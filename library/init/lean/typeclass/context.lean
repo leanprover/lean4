@@ -8,7 +8,9 @@ Custom unifier for tabled typeclass resolution.
 Note: this file will be removed once the unifier is implemented in Lean.
 -/
 prelude
-import init.data.persistentarray init.lean.expr init.lean.metavarcontext
+import init.data.persistentarray
+import init.lean.expr
+import init.lean.metavarcontext
 
 namespace Lean
 namespace TypeClass

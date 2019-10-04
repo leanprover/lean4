@@ -4,6 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.core init.control init.data.basic
-import init.coe init.wf init.data init.system
-import init.util init.fix
+import init.core
+import init.control
+import init.data.basic
+import init.coe
+import init.wf
+import init.data
+import init.system
+import init.util
+import init.fix

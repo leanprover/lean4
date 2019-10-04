@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.list.basic init.data.char.basic init.data.option.basic
+import init.data.list.basic
+import init.data.char.basic
+import init.data.option.basic
 universes u
 
 structure String :=

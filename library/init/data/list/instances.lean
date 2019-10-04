@@ -5,7 +5,8 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.data.list.basic
-import init.control.alternative init.control.monad
+import init.control.alternative
+import init.control.monad
 open List
 
 universes u v

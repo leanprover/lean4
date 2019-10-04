@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.hashmap init.data.persistenthashmap
+import init.data.hashmap
+import init.data.persistenthashmap
 universes u v w w'
 
 namespace Lean

@@ -4,8 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.string.basic init.coe init.data.uint init.data.tostring
-import init.data.hashable init.data.rbmap init.data.rbtree
+import init.data.string.basic
+import init.coe
+import init.data.uint
+import init.data.tostring
+import init.data.hashable
+import init.data.rbmap
+import init.data.rbtree
 namespace Lean
 
 inductive Name

@@ -6,7 +6,9 @@ Authors: Jared Roesch, Sebastian Ullrich
 The Except monad transformer.
 -/
 prelude
-import init.control.alternative init.control.lift init.data.tostring
+import init.control.alternative
+import init.control.lift
+import init.data.tostring
 import init.control.monadfail
 universes u v w
 

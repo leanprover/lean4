@@ -6,7 +6,11 @@ Authors: Jeremy Avigad, Leonardo de Moura
 The integers, with addition, multiplication, and subtraction.
 -/
 prelude
-import init.data.nat.basic init.data.list init.coe init.data.repr init.data.tostring
+import init.data.nat.basic
+import init.data.list
+import init.coe
+import init.data.repr
+import init.data.tostring
 open Nat
 
 /- the Type, coercions, and notation -/

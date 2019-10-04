@@ -6,7 +6,8 @@ Author: Sebastian Ullrich
 Message Type used by the Lean frontend
 -/
 prelude
-import init.data.tostring init.lean.position
+import init.data.tostring
+import init.lean.position
 
 namespace Lean
 def mkErrorStringWithPos (fileName : String) (line col : Nat) (msg : String) : String :=

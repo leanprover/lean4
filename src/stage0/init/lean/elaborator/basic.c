@@ -395,7 +395,6 @@ extern lean_object* l_Lean_nameToExprAux___main___closed__4;
 lean_object* l_Lean_Elab_logMessage___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_HashMapImp_expand___at_Lean_addBuiltinCommandElab___spec__12(lean_object*, lean_object*);
-extern lean_object* l_Array_mfindAux___main___at_Lean_findFile___spec__2___closed__2;
 lean_object* l_AssocList_mfoldl___main___at_Lean_addBuiltinTermElab___spec__15(lean_object*, lean_object*);
 lean_object* l_Lean_ElabAttribute_Inhabited___rarg(lean_object*);
 lean_object* l_Lean_Elab_getScope___boxed(lean_object*);
@@ -461,6 +460,7 @@ lean_object* l_Lean_Elab_rootNamespace___closed__1;
 lean_object* l_Lean_Elab_mkFreshName___rarg(lean_object*);
 lean_object* l_Lean_LocalContext_mkForall(lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_init_lean_environment_5__envExtensionsRef;
+extern lean_object* l_Array_mfindAux___main___at_Lean_findFile___spec__2___closed__3;
 lean_object* l_Lean_Elab_processHeaderAux___closed__1;
 lean_object* l_Lean_Elab_runElab___at_Lean_Elab_processCommand___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insert___at_Lean_addBuiltinTermElab___spec__8(lean_object*, lean_object*, lean_object*);
@@ -13499,7 +13499,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_mkInitAttr___closed__2;
-x_2 = l_Array_mfindAux___main___at_Lean_findFile___spec__2___closed__2;
+x_2 = l_Array_mfindAux___main___at_Lean_findFile___spec__2___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.data.rbmap.default
-// Imports: init.data.rbmap.basic init.data.rbmap.basicaux
+// Module: init.data.option.default
+// Imports: init.data.option.basic init.data.option.basicaux init.data.option.instances
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,16 +13,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_init_data_rbmap_basic(lean_object*);
-lean_object* initialize_init_data_rbmap_basicaux(lean_object*);
+lean_object* initialize_init_data_option_basic(lean_object*);
+lean_object* initialize_init_data_option_basicaux(lean_object*);
+lean_object* initialize_init_data_option_instances(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_init_data_rbmap_default(lean_object* w) {
+lean_object* initialize_init_data_option_default(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_rbmap_basic(w);
+w = initialize_init_data_option_basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_init_data_rbmap_basicaux(w);
+w = initialize_init_data_option_basicaux(w);
+if (lean_io_result_is_error(w)) return w;
+w = initialize_init_data_option_instances(w);
 if (lean_io_result_is_error(w)) return w;
 return w;
 }

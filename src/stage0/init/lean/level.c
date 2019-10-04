@@ -21,12 +21,15 @@ extern lean_object* l_Lean_Format_paren___closed__2;
 lean_object* l_Lean_Level_instantiate(lean_object*, lean_object*);
 lean_object* l_Lean_LevelToFormat_Result_format___main___closed__4;
 lean_object* l_Lean_LevelToFormat_parenIfFalse(lean_object*, uint8_t);
+uint8_t l_Lean_Level_hasMVar(lean_object*);
 lean_object* l_Lean_Level_eqv___boxed(lean_object*, lean_object*);
 lean_object* l___private_init_lean_level_1__formatLst___main___at_Lean_LevelToFormat_Result_format___main___spec__2(lean_object*);
+lean_object* l_Lean_Level_hasMVar___boxed(lean_object*);
 lean_object* l_Lean_LevelToFormat_Result_format___main___closed__3;
 lean_object* l_Lean_LevelToFormat_Result_max(lean_object*, lean_object*);
 lean_object* l_Lean_LevelToFormat_Result_format___main___closed__2;
 lean_object* l_Lean_LevelToFormat_Level_toResult(lean_object*);
+uint8_t l_Lean_Level_hasMVar___main(lean_object*);
 lean_object* level_mk_mvar(lean_object*);
 lean_object* l_Function_comp___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_HasBeq___closed__1;
@@ -87,16 +90,15 @@ lean_object* l_Lean_Level_toNat___main___closed__1;
 lean_object* l_Lean_LevelToFormat_Result_imax(lean_object*, lean_object*);
 lean_object* l_Lean_Level_addOffsetAux___main(lean_object*, lean_object*);
 lean_object* l_Lean_Level_addOffset(lean_object*, lean_object*);
+lean_object* l_Lean_Level_hasMVar___main___boxed(lean_object*);
 lean_object* l_Lean_Level_succ___boxed(lean_object*);
 lean_object* l_Lean_LevelToFormat_levelHasFormat;
 lean_object* l_Lean_LevelToFormat_Result_format(lean_object*, uint8_t);
-lean_object* l_Lean_Level_hasMvar___boxed(lean_object*);
 lean_object* l_Lean_LevelToFormat_Result_format___main___closed__6;
 lean_object* l_Nat_max(lean_object*, lean_object*);
 lean_object* l_Lean_Level_hash___boxed(lean_object*);
 lean_object* level_mk_max(lean_object*, lean_object*);
 lean_object* l_Lean_levelIsInhabited;
-uint8_t l_Lean_Level_hasMvar(lean_object*);
 lean_object* l_Lean_Level_succ___boxed(lean_object* x_1) {
 _start:
 {
@@ -252,28 +254,27 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-uint8_t l_Lean_Level_hasMvar(lean_object* x_1) {
+uint8_t l_Lean_Level_hasMVar___main(lean_object* x_1) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
 case 1:
 {
-lean_object* x_2; uint8_t x_3; 
+lean_object* x_2; 
 x_2 = lean_ctor_get(x_1, 0);
-x_3 = l_Lean_Level_hasParam___main(x_2);
-return x_3;
+x_1 = x_2;
+goto _start;
 }
 case 2:
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_1, 1);
-x_6 = l_Lean_Level_hasParam___main(x_4);
+x_6 = l_Lean_Level_hasMVar___main(x_4);
 if (x_6 == 0)
 {
-uint8_t x_7; 
-x_7 = l_Lean_Level_hasParam___main(x_5);
-return x_7;
+x_1 = x_5;
+goto _start;
 }
 else
 {
@@ -287,12 +288,11 @@ case 3:
 lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_9 = lean_ctor_get(x_1, 0);
 x_10 = lean_ctor_get(x_1, 1);
-x_11 = l_Lean_Level_hasParam___main(x_9);
+x_11 = l_Lean_Level_hasMVar___main(x_9);
 if (x_11 == 0)
 {
-uint8_t x_12; 
-x_12 = l_Lean_Level_hasParam___main(x_10);
-return x_12;
+x_1 = x_10;
+goto _start;
 }
 else
 {
@@ -316,11 +316,29 @@ return x_15;
 }
 }
 }
-lean_object* l_Lean_Level_hasMvar___boxed(lean_object* x_1) {
+lean_object* l_Lean_Level_hasMVar___main___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lean_Level_hasMvar(x_1);
+x_2 = l_Lean_Level_hasMVar___main(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+uint8_t l_Lean_Level_hasMVar(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; 
+x_2 = l_Lean_Level_hasMVar___main(x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_Level_hasMVar___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Level_hasMVar(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;

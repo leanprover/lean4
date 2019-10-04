@@ -2152,7 +2152,7 @@ lean_dec(x_2);
 x_5 = l___private_init_data_array_basic_1__swapAtPanic_x21___rarg___closed__2;
 x_6 = lean_string_append(x_4, x_5);
 x_7 = l___private_init_data_array_basic_1__swapAtPanic_x21___rarg___closed__3;
-x_8 = lean_unsigned_to_nat(133u);
+x_8 = lean_unsigned_to_nat(140u);
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = l_panicWithPos___at_Lean_IR_reshapeAux___main___spec__2(x_7, x_8, x_9, x_6);
 lean_dec(x_6);

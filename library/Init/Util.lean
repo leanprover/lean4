@@ -29,5 +29,5 @@ unsafe def unsafeCast {α : Type u} {β : Type v} [Inhabited β] (a : α) : β :
 constant panic {α : Type u} [Inhabited α] (msg : String) : α := default _
 
 @[neverExtract]
-def panicWithPos {α : Type u} [Inhabited α] (fname : String) (line col : Nat) (msg : String) : α :=
-panic ("PANIC at " ++ fname ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg)
+def panicWithPos {α : Type u} [Inhabited α] (modName : String) (line col : Nat) (msg : String) : α :=
+panic ("PANIC at " ++ modName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg)

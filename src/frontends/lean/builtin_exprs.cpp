@@ -802,7 +802,8 @@ static expr parse_tparser(parser & p, unsigned, expr const *, pos_info const & p
 
 static expr parse_panic(parser & p, unsigned, expr const *, pos_info const & pos) {
     expr e = p.parse_expr();
-    expr r = mk_app(mk_constant(get_panic_with_pos_name()), quote(p.get_file_name()), quote(pos.first), quote(pos.second), e);
+    std::string mod = p.env().get_main_module().to_string();
+    expr r = mk_app(mk_constant(get_panic_with_pos_name()), quote(mod.c_str()), quote(pos.first), quote(pos.second), e);
     return save_pos(r, pos);
 }
 

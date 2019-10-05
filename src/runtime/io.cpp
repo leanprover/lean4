@@ -231,7 +231,7 @@ extern "C" obj_res lean_io_app_dir(obj_arg r) {
     std::wstring pathwstr(path);
     std::string pathstr(pathwstr.begin(), pathwstr.end());
     // Hack for making sure disk is lower case
-    // TODO: more robust solution
+    // TODO(Leo): more robust solution
     if (pathstr.size() >= 2 && pathstr[1] == ':') {
         pathstr[0] = tolower(pathstr[0]);
     }

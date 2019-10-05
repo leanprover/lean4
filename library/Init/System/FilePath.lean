@@ -35,6 +35,7 @@ def normalizePath (fname : String) : String :=
 if pathSeparators.length == 1 && !isCaseInsensitive then fname
 else fname.map (fun c =>
   if pathSeparators.any (fun c' => c == c') then pathSeparator
+  else if isWindows then c.toLower
   -- else if isCaseInsensitive then c.toLower
   else c)
 

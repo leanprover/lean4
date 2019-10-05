@@ -41,7 +41,6 @@ uint32_t l_System_FilePath_pathSeparator;
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_pathSeparators___closed__1___boxed__const__1;
-uint32_t l_Char_toLower(uint32_t);
 uint8_t l_System_FilePath_normalizePath___closed__2;
 lean_object* l_System_FilePath_normalizePath___closed__1;
 uint8_t l_List_foldr___main___at_System_FilePath_normalizePath___spec__1(uint32_t, uint8_t, lean_object*);
@@ -250,39 +249,23 @@ x_6 = l_System_FilePath_pathSeparators;
 x_7 = l_List_foldr___main___at_System_FilePath_normalizePath___spec__1(x_4, x_5, x_6);
 if (x_7 == 0)
 {
-uint8_t x_8; 
-x_8 = l_System_Platform_isWindows;
-if (x_8 == 0)
-{
-lean_object* x_9; lean_object* x_10; 
-x_9 = lean_string_utf8_set(x_2, x_1, x_4);
-x_10 = lean_string_utf8_next(x_9, x_1);
+lean_object* x_8; lean_object* x_9; 
+x_8 = lean_string_utf8_set(x_2, x_1, x_4);
+x_9 = lean_string_utf8_next(x_8, x_1);
 lean_dec(x_1);
-x_1 = x_10;
-x_2 = x_9;
+x_1 = x_9;
+x_2 = x_8;
 goto _start;
 }
 else
 {
-uint32_t x_12; lean_object* x_13; lean_object* x_14; 
-x_12 = l_Char_toLower(x_4);
-x_13 = lean_string_utf8_set(x_2, x_1, x_12);
-x_14 = lean_string_utf8_next(x_13, x_1);
+uint32_t x_11; lean_object* x_12; lean_object* x_13; 
+x_11 = l_System_FilePath_pathSeparator;
+x_12 = lean_string_utf8_set(x_2, x_1, x_11);
+x_13 = lean_string_utf8_next(x_12, x_1);
 lean_dec(x_1);
-x_1 = x_14;
-x_2 = x_13;
-goto _start;
-}
-}
-else
-{
-uint32_t x_16; lean_object* x_17; lean_object* x_18; 
-x_16 = l_System_FilePath_pathSeparator;
-x_17 = lean_string_utf8_set(x_2, x_1, x_16);
-x_18 = lean_string_utf8_next(x_17, x_1);
-lean_dec(x_1);
-x_1 = x_18;
-x_2 = x_17;
+x_1 = x_13;
+x_2 = x_12;
 goto _start;
 }
 }

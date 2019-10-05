@@ -1219,7 +1219,7 @@ lean_object* _init_l_Lean_Expr_constName___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("/home/leonardo/projects/lean4/library/Init/Lean/Expr.lean");
+x_1 = lean_mk_string("Init.Lean.Expr");
 return x_1;
 }
 }

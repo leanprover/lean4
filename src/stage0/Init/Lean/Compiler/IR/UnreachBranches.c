@@ -706,7 +706,7 @@ lean_object* _init_l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("/home/leonardo/projects/lean4/library/Init/Lean/Compiler/IR/UnreachBranches.lean");
+x_1 = lean_mk_string("Init.Lean.Compiler.IR.UnreachBranches");
 return x_1;
 }
 }

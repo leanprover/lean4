@@ -343,7 +343,7 @@ lean_object* _init_l_Lean_SMap_find_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("/home/leonardo/projects/lean4/library/Init/Lean/SMap.lean");
+x_1 = lean_mk_string("Init.Lean.SMap");
 return x_1;
 }
 }

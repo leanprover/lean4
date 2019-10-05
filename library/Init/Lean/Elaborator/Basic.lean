@@ -5,8 +5,8 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Init.Control.Reader
-import Init.Lean.Metavarcontext
-import Init.Lean.Namegenerator
+import Init.Lean.MetavarContext
+import Init.Lean.NameGenerator
 import Init.Lean.Scopes
 import Init.Lean.Parser.Module
 

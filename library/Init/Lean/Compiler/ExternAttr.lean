@@ -8,7 +8,7 @@ import Init.Data.Option.Basic
 import Init.Lean.Expr
 import Init.Lean.Environment
 import Init.Lean.Attributes
-import Init.Lean.Projfns
+import Init.Lean.ProjFns
 
 namespace Lean
 

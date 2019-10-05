@@ -11,12 +11,12 @@ import Init.Data.String
 import Init.Data.List
 import Init.Data.Int
 import Init.Data.Array
-import Init.Data.Bytearray
+import Init.Data.ByteArray
 import Init.Data.Fin
-import Init.Data.Uint
-import Init.Data.Rbtree
-import Init.Data.Rbmap
+import Init.Data.UInt
+import Init.Data.RBTree
+import Init.Data.RBMap
 import Init.Data.Option
-import Init.Data.Hashmap
+import Init.Data.HashMap
 import Init.Data.Random
 import Init.Data.Queue

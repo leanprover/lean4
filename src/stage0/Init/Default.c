@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Default
-// Imports: Init.Core Init.Control.Default Init.Data.Basic Init.Coe Init.Wf Init.Data.Default Init.System.Default Init.Util Init.Fix
+// Imports: Init.Core Init.Control.Default Init.Data.Basic Init.Coe Init.WF Init.Data.Default Init.System.Default Init.Util Init.Fix
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,7 +17,7 @@ lean_object* initialize_Init_Core(lean_object*);
 lean_object* initialize_Init_Control_Default(lean_object*);
 lean_object* initialize_Init_Data_Basic(lean_object*);
 lean_object* initialize_Init_Coe(lean_object*);
-lean_object* initialize_Init_Wf(lean_object*);
+lean_object* initialize_Init_WF(lean_object*);
 lean_object* initialize_Init_Data_Default(lean_object*);
 lean_object* initialize_Init_System_Default(lean_object*);
 lean_object* initialize_Init_Util(lean_object*);
@@ -35,7 +35,7 @@ w = initialize_Init_Data_Basic(w);
 if (lean_io_result_is_error(w)) return w;
 w = initialize_Init_Coe(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Wf(w);
+w = initialize_Init_WF(w);
 if (lean_io_result_is_error(w)) return w;
 w = initialize_Init_Data_Default(w);
 if (lean_io_result_is_error(w)) return w;

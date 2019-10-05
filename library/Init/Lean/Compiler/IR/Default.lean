@@ -4,21 +4,21 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Lean.Compiler.Ir.Basic
-import Init.Lean.Compiler.Ir.Format
-import Init.Lean.Compiler.Ir.Compilerm
-import Init.Lean.Compiler.Ir.Pushproj
-import Init.Lean.Compiler.Ir.Elimdead
-import Init.Lean.Compiler.Ir.Simpcase
-import Init.Lean.Compiler.Ir.Resetreuse
-import Init.Lean.Compiler.Ir.Normids
-import Init.Lean.Compiler.Ir.Checker
-import Init.Lean.Compiler.Ir.Borrow
-import Init.Lean.Compiler.Ir.Boxing
-import Init.Lean.Compiler.Ir.Rc
-import Init.Lean.Compiler.Ir.Expandresetreuse
-import Init.Lean.Compiler.Ir.Unboxresult
-import Init.Lean.Compiler.Ir.Emitc
+import Init.Lean.Compiler.IR.Basic
+import Init.Lean.Compiler.IR.Format
+import Init.Lean.Compiler.IR.CompilerM
+import Init.Lean.Compiler.IR.PushProj
+import Init.Lean.Compiler.IR.ElimDead
+import Init.Lean.Compiler.IR.SimpCase
+import Init.Lean.Compiler.IR.ResetReuse
+import Init.Lean.Compiler.IR.NormIds
+import Init.Lean.Compiler.IR.Checker
+import Init.Lean.Compiler.IR.Borrow
+import Init.Lean.Compiler.IR.Boxing
+import Init.Lean.Compiler.IR.RC
+import Init.Lean.Compiler.IR.ExpandResetReuse
+import Init.Lean.Compiler.IR.UnboxResult
+import Init.Lean.Compiler.IR.EmitC
 
 namespace Lean
 namespace IR

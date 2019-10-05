@@ -4,5 +4,5 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Data.Rbmap.Basic
-import Init.Data.Rbmap.Basicaux
+import Init.Data.RBMap.Basic
+import Init.Data.RBMap.BasicAux

@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich and Leonardo de Moura
 -/
 prelude
-import Init.Lean.Kvmap
-import Init.System.Io
+import Init.Lean.KVMap
+import Init.System.IO
 import Init.Control.Combinators
-import Init.Data.Tostring
+import Init.Data.ToString
 
 namespace Lean
 

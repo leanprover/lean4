@@ -10,7 +10,7 @@ import Init.Data.Nat.Basic
 import Init.Data.List
 import Init.Coe
 import Init.Data.Repr
-import Init.Data.Tostring
+import Init.Data.ToString
 open Nat
 
 /- the Type, coercions, and notation -/

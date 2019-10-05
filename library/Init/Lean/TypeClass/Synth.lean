@@ -11,9 +11,9 @@ prelude
 import Init.Lean.Expr
 import Init.Lean.Environment
 import Init.Lean.Class
-import Init.Lean.Metavarcontext
-import Init.Lean.Typeclass.Context
-import Init.Data.Persistenthashmap
+import Init.Lean.MetavarContext
+import Init.Lean.TypeClass.Context
+import Init.Data.PersistentHashMap
 import Init.Data.Queue
 
 namespace Lean

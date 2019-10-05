@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: Init.Control.Monadfail
+// Module: Init.Control.MonadFail
 // Imports: Init.Control.Lift Init.Data.String.Basic
 #include "runtime/lean.h"
 #if defined(__clang__)
@@ -94,7 +94,7 @@ return x_3;
 lean_object* initialize_Init_Control_Lift(lean_object*);
 lean_object* initialize_Init_Data_String_Basic(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Control_Monadfail(lean_object* w) {
+lean_object* initialize_Init_Control_MonadFail(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;

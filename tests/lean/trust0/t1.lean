@@ -1,2 +1,2 @@
-import init.system.io
+import Init.System.IO
 #print trust

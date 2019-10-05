@@ -1,4 +1,4 @@
-import init.lean.expr
+import Init.Lean.Expr
 open Lean
 
 def tst : IO Unit :=

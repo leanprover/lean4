@@ -6,9 +6,9 @@ Authors: Leonardo de Moura
 prelude
 import Init.Control.State
 import Init.Control.Reader
-import Init.Lean.Compiler.Ir.Compilerm
-import Init.Lean.Compiler.Ir.Normids
-import Init.Lean.Compiler.Ir.Freevars
+import Init.Lean.Compiler.IR.CompilerM
+import Init.Lean.Compiler.IR.NormIds
+import Init.Lean.Compiler.IR.FreeVars
 
 namespace Lean
 namespace IR

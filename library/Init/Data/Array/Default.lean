@@ -5,5 +5,5 @@ Authors: Gabriel Ebner
 -/
 prelude
 import Init.Data.Array.Basic
-import Init.Data.Array.Qsort
-import Init.Data.Array.Binsearch
+import Init.Data.Array.QSort
+import Init.Data.Array.BinSearch

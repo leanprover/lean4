@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Div
-// Imports: Init.Wf Init.Data.Nat.Basic
+// Imports: Init.WF Init.Data.Nat.Basic
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -172,14 +172,14 @@ x_1 = l_Nat_HasMod___closed__1;
 return x_1;
 }
 }
-lean_object* initialize_Init_Wf(lean_object*);
+lean_object* initialize_Init_WF(lean_object*);
 lean_object* initialize_Init_Data_Nat_Basic(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_Nat_Div(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Wf(w);
+w = initialize_Init_WF(w);
 if (lean_io_result_is_error(w)) return w;
 w = initialize_Init_Data_Nat_Basic(w);
 if (lean_io_result_is_error(w)) return w;

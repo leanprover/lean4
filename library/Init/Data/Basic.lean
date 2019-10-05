@@ -10,6 +10,6 @@ import Init.Data.List.Basic
 import Init.Data.Char.Basic
 import Init.Data.String.Basic
 import Init.Data.Option.Basic
-import Init.Data.Uint
+import Init.Data.UInt
 import Init.Data.Repr
-import Init.Data.Tostring
+import Init.Data.ToString

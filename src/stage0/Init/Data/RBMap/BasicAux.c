@@ -80,7 +80,7 @@ lean_object* _init_l_RBMap_min_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("/Users/leonardodemoura/projects/lean4/library/Init/Data/RBMap/BasicAux.lean");
+x_1 = lean_mk_string("/home/leonardo/projects/lean4/library/Init/Data/RBMap/BasicAux.lean");
 return x_1;
 }
 }

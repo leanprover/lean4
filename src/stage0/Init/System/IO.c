@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.System.IO
-// Imports: Init.Control.Estate Init.Data.String.Basic Init.System.Filepath
+// Imports: Init.Control.EState Init.Data.String.Basic Init.System.FilePath
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2113,19 +2113,19 @@ x_3 = lean_apply_1(x_1, x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Control_Estate(lean_object*);
+lean_object* initialize_Init_Control_EState(lean_object*);
 lean_object* initialize_Init_Data_String_Basic(lean_object*);
-lean_object* initialize_Init_System_Filepath(lean_object*);
+lean_object* initialize_Init_System_FilePath(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_System_IO(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Control_Estate(w);
+w = initialize_Init_Control_EState(w);
 if (lean_io_result_is_error(w)) return w;
 w = initialize_Init_Data_String_Basic(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_System_Filepath(w);
+w = initialize_Init_System_FilePath(w);
 if (lean_io_result_is_error(w)) return w;
 l_EIO_Monad___closed__1 = _init_l_EIO_Monad___closed__1();
 lean_mark_persistent(l_EIO_Monad___closed__1);

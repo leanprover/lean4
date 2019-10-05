@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Lean.Elaborator.Alias
 import Init.Lean.Elaborator.Basic
-import Init.Lean.Elaborator.Resolvename
+import Init.Lean.Elaborator.ResolveName
 import Init.Lean.Elaborator.Term
 
 namespace Lean

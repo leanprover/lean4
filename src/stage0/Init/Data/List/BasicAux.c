@@ -80,7 +80,7 @@ lean_object* _init_l_List_get_x21___main___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("/Users/leonardodemoura/projects/lean4/library/Init/Data/List/BasicAux.lean");
+x_1 = lean_mk_string("/home/leonardo/projects/lean4/library/Init/Data/List/BasicAux.lean");
 return x_1;
 }
 }

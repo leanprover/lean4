@@ -6,11 +6,11 @@ Author: Leonardo de Moura
 prelude
 import Init.Data.String.Basic
 import Init.Coe
-import Init.Data.Uint
-import Init.Data.Tostring
+import Init.Data.UInt
+import Init.Data.ToString
 import Init.Data.Hashable
-import Init.Data.Rbmap
-import Init.Data.Rbtree
+import Init.Data.RBMap
+import Init.Data.RBTree
 namespace Lean
 
 inductive Name

@@ -6,14 +6,14 @@ Authors: Leonardo de Moura
 prelude
 import Init.Control.Conditional
 import Init.Lean.Runtime
-import Init.Lean.Compiler.Namemangling
-import Init.Lean.Compiler.Exportattr
-import Init.Lean.Compiler.Initattr
-import Init.Lean.Compiler.Ir.Compilerm
-import Init.Lean.Compiler.Ir.Emitutil
-import Init.Lean.Compiler.Ir.Normids
-import Init.Lean.Compiler.Ir.Simpcase
-import Init.Lean.Compiler.Ir.Boxing
+import Init.Lean.Compiler.NameMangling
+import Init.Lean.Compiler.ExportAttr
+import Init.Lean.Compiler.InitAttr
+import Init.Lean.Compiler.IR.CompilerM
+import Init.Lean.Compiler.IR.EmitUtil
+import Init.Lean.Compiler.IR.NormIds
+import Init.Lean.Compiler.IR.SimpCase
+import Init.Lean.Compiler.IR.Boxing
 
 namespace Lean
 namespace IR

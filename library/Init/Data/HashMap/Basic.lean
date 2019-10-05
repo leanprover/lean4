@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.Array.Basic
-import Init.Data.Assoclist
+import Init.Data.AssocList
 import Init.Data.Option.Basic
 import Init.Data.Hashable
 universes u v w

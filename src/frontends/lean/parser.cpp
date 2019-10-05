@@ -2096,7 +2096,7 @@ void parser::parse_imports(std::vector<rel_module_name> & imports) {
         prelude = true;
     }
     if (!prelude) {
-        rel_module_name m("init");
+        rel_module_name m("Init");
         imports.push_back(m);
     }
     while (curr_is_token(get_import_tk())) {

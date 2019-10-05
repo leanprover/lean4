@@ -6,13 +6,13 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 prelude
 import Init.Lean.Position
 import Init.Lean.Syntax
-import Init.Lean.Toexpr
+import Init.Lean.ToExpr
 import Init.Lean.Message
 import Init.Lean.Environment
 import Init.Lean.Attributes
 import Init.Lean.Parser.Trie
 import Init.Lean.Parser.Identifier
-import Init.Lean.Compiler.Initattr
+import Init.Lean.Compiler.InitAttr
 
 namespace Lean
 namespace Parser

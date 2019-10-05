@@ -8,7 +8,7 @@ import Init.Core
 import Init.Control
 import Init.Data.Basic
 import Init.Coe
-import Init.Wf
+import Init.WF
 import Init.Data
 import Init.System
 import Init.Util

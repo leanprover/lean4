@@ -6,9 +6,9 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Nat.Basic
 import Init.Data.Fin.Basic
-import Init.Data.Uint
+import Init.Data.UInt
 import Init.Data.Repr
-import Init.Data.Tostring
+import Init.Data.ToString
 import Init.Control.Id
 import Init.Util
 universes u v w

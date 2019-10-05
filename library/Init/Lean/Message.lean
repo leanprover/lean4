@@ -6,7 +6,7 @@ Author: Sebastian Ullrich
 Message Type used by the Lean frontend
 -/
 prelude
-import Init.Data.Tostring
+import Init.Data.ToString
 import Init.Lean.Position
 
 namespace Lean

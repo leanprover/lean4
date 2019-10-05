@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Lean.Level
-import Init.Lean.Kvmap
+import Init.Lean.KVMap
 
 namespace Lean
 

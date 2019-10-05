@@ -6,8 +6,8 @@ Authors: Leonardo de Moura
 prelude
 import Init.Control.Reader
 import Init.Data.Option
-import Init.Lean.Compiler.Ir.Format
-import Init.Lean.Compiler.Ir.Basic
+import Init.Lean.Compiler.IR.Format
+import Init.Lean.Compiler.IR.Basic
 
 namespace Lean
 namespace IR

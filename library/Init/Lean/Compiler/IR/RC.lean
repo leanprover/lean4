@@ -5,8 +5,8 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Lean.Runtime
-import Init.Lean.Compiler.Ir.Compilerm
-import Init.Lean.Compiler.Ir.Livevars
+import Init.Lean.Compiler.IR.CompilerM
+import Init.Lean.Compiler.IR.LiveVars
 
 namespace Lean
 namespace IR

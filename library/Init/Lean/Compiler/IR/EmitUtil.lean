@@ -5,8 +5,8 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Control.Conditional
-import Init.Lean.Compiler.Initattr
-import Init.Lean.Compiler.Ir.Compilerm
+import Init.Lean.Compiler.InitAttr
+import Init.Lean.Compiler.IR.CompilerM
 
 /- Helper functions for backend code generators -/
 

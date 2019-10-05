@@ -1,4 +1,4 @@
-import init.system.io
+import Init.System.IO
 
 #exit
 

@@ -1,4 +1,4 @@
-import init.lean.parser.term
+import Init.Lean.Parser.Term
 open Lean
 open Lean.Parser
 

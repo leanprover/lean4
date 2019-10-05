@@ -232,6 +232,7 @@ extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__1;
 lean_object* l_Lean_Syntax_getArgs___rarg(lean_object*);
 lean_object* l_Lean_Elab_processHeaderAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logUnknownDecl___rarg___closed__1;
+lean_object* l_Lean_Elab_processHeaderAux___closed__3;
 lean_object* l_Lean_checkSyntaxNodeKindAtNamespaces___main___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Char_HasRepr___closed__1;
 extern lean_object* l_Lean_Parser_mkTermParserAttribute___closed__4;
@@ -460,7 +461,6 @@ lean_object* l_IO_Prim_Ref_reset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_rootNamespace___closed__1;
 lean_object* l_Lean_Elab_mkFreshName___rarg(lean_object*);
 lean_object* l_Lean_LocalContext_mkForall(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Array_mfindAux___main___at_Lean_findFile___spec__2___closed__3;
 lean_object* l_Lean_Elab_processHeaderAux___closed__1;
 lean_object* l_Lean_Elab_runElab___at_Lean_Elab_processCommand___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insert___at_Lean_addBuiltinTermElab___spec__8(lean_object*, lean_object*, lean_object*);
@@ -13497,19 +13497,27 @@ return x_33;
 lean_object* _init_l_Lean_Elab_processHeaderAux___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_mkInitAttr___closed__2;
-x_2 = l_Array_mfindAux___main___at_Lean_findFile___spec__2___closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
+lean_object* x_1; 
+x_1 = lean_mk_string("default");
+return x_1;
 }
 }
 lean_object* _init_l_Lean_Elab_processHeaderAux___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_mkInitAttr___closed__2;
 x_2 = l_Lean_Elab_processHeaderAux___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_Elab_processHeaderAux___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Elab_processHeaderAux___closed__2;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -13539,7 +13547,7 @@ goto block_29;
 else
 {
 lean_object* x_36; 
-x_36 = l_Lean_Elab_processHeaderAux___closed__2;
+x_36 = l_Lean_Elab_processHeaderAux___closed__3;
 x_6 = x_36;
 goto block_29;
 }
@@ -19852,6 +19860,8 @@ l_Lean_Elab_processHeaderAux___closed__1 = _init_l_Lean_Elab_processHeaderAux___
 lean_mark_persistent(l_Lean_Elab_processHeaderAux___closed__1);
 l_Lean_Elab_processHeaderAux___closed__2 = _init_l_Lean_Elab_processHeaderAux___closed__2();
 lean_mark_persistent(l_Lean_Elab_processHeaderAux___closed__2);
+l_Lean_Elab_processHeaderAux___closed__3 = _init_l_Lean_Elab_processHeaderAux___closed__3();
+lean_mark_persistent(l_Lean_Elab_processHeaderAux___closed__3);
 l_Lean_Elab_testFrontend___closed__1 = _init_l_Lean_Elab_testFrontend___closed__1();
 lean_mark_persistent(l_Lean_Elab_testFrontend___closed__1);
 l_Lean_Elab_testFrontend___closed__2 = _init_l_Lean_Elab_testFrontend___closed__2();

@@ -1283,7 +1283,7 @@ lean_object* _init_l_HashMap_find_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("/Users/leonardodemoura/projects/lean4/library/Init/Data/HashMap/Basic.lean");
+x_1 = lean_mk_string("/home/leonardo/projects/lean4/library/Init/Data/HashMap/Basic.lean");
 return x_1;
 }
 }

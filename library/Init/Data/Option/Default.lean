@@ -5,5 +5,5 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Option.Basic
-import Init.Data.Option.Basicaux
+import Init.Data.Option.BasicAux
 import Init.Data.Option.Instances

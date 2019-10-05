@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.String.Basic
-import Init.Data.Uint
+import Init.Data.UInt
 import Init.Data.Nat.Div
 import Init.Data.Repr
 open Sum Subtype Nat

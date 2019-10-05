@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: Init.System.Filepath
+// Module: Init.System.FilePath
 // Imports: Init.System.Platform Init.Data.String.Basic
 #include "runtime/lean.h"
 #if defined(__clang__)
@@ -378,7 +378,7 @@ return x_8;
 lean_object* initialize_Init_System_Platform(lean_object*);
 lean_object* initialize_Init_Data_String_Basic(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_System_Filepath(lean_object* w) {
+lean_object* initialize_Init_System_FilePath(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;

@@ -6,8 +6,8 @@ Authors: Daniel Selsam
 Basic tests for the custom first-order unifier used by tabled
 typeclass resolution.
 -/
-import init.lean
-import init.lean.typeclass.context
+import Init.Lean
+import Init.Lean.TypeClass.Context
 
 open Lean
 open Lean.TypeClass

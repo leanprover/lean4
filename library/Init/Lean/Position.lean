@@ -5,7 +5,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Init.Data.Nat
-import Init.Data.Rbmap
+import Init.Data.RBMap
 import Init.Lean.Format
 
 namespace Lean

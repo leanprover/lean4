@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Compiler.ExternAttr
-// Imports: Init.Data.Option.Basic Init.Lean.Expr Init.Lean.Environment Init.Lean.Attributes Init.Lean.Projfns
+// Imports: Init.Data.Option.Basic Init.Lean.Expr Init.Lean.Environment Init.Lean.Attributes Init.Lean.ProjFns
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4063,7 +4063,7 @@ lean_object* initialize_Init_Data_Option_Basic(lean_object*);
 lean_object* initialize_Init_Lean_Expr(lean_object*);
 lean_object* initialize_Init_Lean_Environment(lean_object*);
 lean_object* initialize_Init_Lean_Attributes(lean_object*);
-lean_object* initialize_Init_Lean_Projfns(lean_object*);
+lean_object* initialize_Init_Lean_ProjFns(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Compiler_ExternAttr(lean_object* w) {
 if (_G_initialized) return w;
@@ -4077,7 +4077,7 @@ w = initialize_Init_Lean_Environment(w);
 if (lean_io_result_is_error(w)) return w;
 w = initialize_Init_Lean_Attributes(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Lean_Projfns(w);
+w = initialize_Init_Lean_ProjFns(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_ExternAttrData_inhabited___closed__1 = _init_l_Lean_ExternAttrData_inhabited___closed__1();
 lean_mark_persistent(l_Lean_ExternAttrData_inhabited___closed__1);

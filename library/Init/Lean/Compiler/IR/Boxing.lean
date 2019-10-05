@@ -4,16 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Data.Assoclist
-import Init.Control.Estate
+import Init.Data.AssocList
+import Init.Control.EState
 import Init.Control.Reader
 import Init.Lean.Runtime
-import Init.Lean.Compiler.Closedtermcache
-import Init.Lean.Compiler.Externattr
-import Init.Lean.Compiler.Ir.Basic
-import Init.Lean.Compiler.Ir.Compilerm
-import Init.Lean.Compiler.Ir.Freevars
-import Init.Lean.Compiler.Ir.Elimdead
+import Init.Lean.Compiler.ClosedTermCache
+import Init.Lean.Compiler.ExternAttr
+import Init.Lean.Compiler.IR.Basic
+import Init.Lean.Compiler.IR.CompilerM
+import Init.Lean.Compiler.IR.FreeVars
+import Init.Lean.Compiler.IR.ElimDead
 
 namespace Lean
 namespace IR

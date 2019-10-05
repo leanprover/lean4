@@ -5,7 +5,7 @@ Authors: Daniel Selsam, Leonardo de Moura
 -/
 prelude
 import Init.Lean.Environment
-import Init.Lean.Typeclass.Synth
+import Init.Lean.TypeClass.Synth
 
 namespace Lean
 namespace TypeClass

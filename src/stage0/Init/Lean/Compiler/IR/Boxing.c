@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Compiler.IR.Boxing
-// Imports: Init.Data.AssocList Init.Control.Estate Init.Control.Reader Init.Lean.Runtime Init.Lean.Compiler.ClosedTermCache Init.Lean.Compiler.ExternAttr Init.Lean.Compiler.IR.Basic Init.Lean.Compiler.IR.CompilerM Init.Lean.Compiler.IR.FreeVars Init.Lean.Compiler.IR.ElimDead
+// Imports: Init.Data.AssocList Init.Control.EState Init.Control.Reader Init.Lean.Runtime Init.Lean.Compiler.ClosedTermCache Init.Lean.Compiler.ExternAttr Init.Lean.Compiler.IR.Basic Init.Lean.Compiler.IR.CompilerM Init.Lean.Compiler.IR.FreeVars Init.Lean.Compiler.IR.ElimDead
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -7246,7 +7246,7 @@ return x_4;
 }
 }
 lean_object* initialize_Init_Data_AssocList(lean_object*);
-lean_object* initialize_Init_Control_Estate(lean_object*);
+lean_object* initialize_Init_Control_EState(lean_object*);
 lean_object* initialize_Init_Control_Reader(lean_object*);
 lean_object* initialize_Init_Lean_Runtime(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_ClosedTermCache(lean_object*);
@@ -7262,7 +7262,7 @@ _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;
 w = initialize_Init_Data_AssocList(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Control_Estate(w);
+w = initialize_Init_Control_EState(w);
 if (lean_io_result_is_error(w)) return w;
 w = initialize_Init_Control_Reader(w);
 if (lean_io_result_is_error(w)) return w;

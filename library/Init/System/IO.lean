@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
-import Init.Control.Estate
+import Init.Control.EState
 import Init.Data.String.Basic
-import Init.System.Filepath
+import Init.System.FilePath
 
 /-- Like https://hackage.haskell.org/package/ghc-Prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld.
     Makes sure we never reorder `IO` operations.

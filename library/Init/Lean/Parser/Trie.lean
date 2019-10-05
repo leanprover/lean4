@@ -6,7 +6,7 @@ Author: Sebastian Ullrich, Leonardo de Moura
 Trie for tokenizing the Lean language
 -/
 prelude
-import Init.Data.Rbmap
+import Init.Data.RBMap
 import Init.Lean.Format
 
 namespace Lean

@@ -8,8 +8,8 @@ The Except monad transformer.
 prelude
 import Init.Control.Alternative
 import Init.Control.Lift
-import Init.Data.Tostring
-import Init.Control.Monadfail
+import Init.Data.ToString
+import Init.Control.MonadFail
 universes u v w
 
 inductive Except (ε : Type u) (α : Type v)

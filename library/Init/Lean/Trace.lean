@@ -5,7 +5,7 @@ Authors: Sebastian Ullrich
 -/
 prelude
 import Init.Lean.Format
-import Init.Data.Rbmap
+import Init.Data.RBMap
 import Init.Lean.Position
 import Init.Lean.Name
 import Init.Lean.Options

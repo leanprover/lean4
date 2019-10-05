@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Data.Persistentarray.Basic
-import Init.Data.Persistenthashmap.Basic
+import Init.Data.PersistentArray.Basic
+import Init.Data.PersistentHashMap.Basic
 import Init.Lean.Expr
 
 namespace Lean

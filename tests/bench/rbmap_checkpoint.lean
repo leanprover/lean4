@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.coe
-import init.data.option.basic
-import init.data.list.basicaux
-import init.system.io
+import Init.Coe
+import Init.Data.Option.Basic
+import Init.Data.List.BasicAux
+import Init.System.IO
 
 universes u v w w'
 

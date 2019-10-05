@@ -52,8 +52,8 @@ $(STAGE1_OUT)/libleanstdlib.a: $(addprefix $(STAGE1_OUT)/,$(patsubst %.lean,%.o,
 	@ar rcs $@ $^
 
 update-stage0:
-	rm -r $(STAGE0_DIR)/init
-	cp -R $(STAGE1_DIR)/init $(STAGE0_DIR)/init
+	rm -r $(STAGE0_DIR)/Init
+	cp -R $(STAGE1_DIR)/Init $(STAGE0_DIR)/Init
 	echo "add_library (stage0 OBJECT $(CS_CORE))" > $(STAGE0_DIR)/CMakeLists.txt
 
 .PRECIOUS: %.depend $(STAGE1_DIR)/%.c

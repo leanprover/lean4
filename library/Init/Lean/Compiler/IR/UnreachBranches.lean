@@ -222,8 +222,9 @@ def inferStep : M Bool :=
 do ctx ← read;
    ctx.decls.size.mfold (fun idx modified => do
      match ctx.decls.get! idx with
-     | Decl.fdecl _ ys _ b => do
+     | Decl.fdecl fid ys _ b => do
        s ← get;
+       -- dbgTrace (">> " ++ toString fid) $ fun _ =>
        let currVals := s.funVals.get! idx;
        adaptReader (fun (ctx : InterpContext) => { currFnIdx := idx, .. ctx }) $ do
          ys.mfor $ fun y => updateVarAssignment y.x top;

@@ -18,6 +18,7 @@ import Init.Lean.Compiler.IR.Boxing
 import Init.Lean.Compiler.IR.RC
 import Init.Lean.Compiler.IR.ExpandResetReuse
 import Init.Lean.Compiler.IR.UnboxResult
+import Init.Lean.Compiler.IR.UnreachBranches
 import Init.Lean.Compiler.IR.EmitC
 
 namespace Lean
@@ -27,6 +28,7 @@ private def compileAux (decls : Array Decl) : CompilerM Unit :=
 do
 logDecls `init decls;
 checkDecls decls;
+inferCtorSummaries decls;
 let decls := decls.map Decl.pushProj;
 logDecls `push_proj decls;
 let decls := decls.map Decl.insertResetReuse;

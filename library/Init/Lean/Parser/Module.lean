@@ -13,7 +13,7 @@ namespace Parser
 namespace Module
 def «prelude»  := parser! "prelude"
 def importPath := parser! many (rawCh '.' true) >> ident
-def «import»   := parser! "import " >> many1 importPath
+def «import»   := parser! "import " >> importPath
 def header     := parser! optional «prelude» >> many «import»
 
 def updateTokens (c : ParserContext) : ParserContext :=

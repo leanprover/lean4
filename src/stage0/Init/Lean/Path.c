@@ -24,7 +24,6 @@ lean_object* l_Lean_moduleNameOfFileName___closed__5;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_IO_isDir___at_Lean_getBuiltinSearchPath___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_getSearchPathFromEnv___closed__1;
-lean_object* l_Array_mkArray(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_List_repr___rarg___closed__3;
 lean_object* l_Lean_moduleNameOfFileName___closed__4;
 lean_object* l_Lean_findOLean(lean_object*, lean_object*);
@@ -79,12 +78,14 @@ lean_object* l_Lean_findLeanFile___closed__2;
 lean_object* l_IO_getEnv___at_Lean_getSearchPathFromEnv___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_findLeanFile(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* l_Array_push(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_findAtSearchPath___closed__2;
 lean_object* l_Lean_searchPathRef;
 lean_object* l_IO_getEnv___at_Lean_getSearchPathFromEnv___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_modNameToFileName___main(lean_object*);
 lean_object* l_IO_isDir___at_Lean_getBuiltinSearchPath___spec__3(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
+lean_object* l_Lean_mkSearchPathRef___closed__1;
 lean_object* l_IO_fileExists___at_Lean_findFile___spec__1___boxed(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_IO_Prim_mkRef(lean_object*, lean_object*, lean_object*);
@@ -225,6 +226,15 @@ return x_14;
 }
 }
 }
+lean_object* _init_l_Lean_mkSearchPathRef___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(1u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
+}
+}
 lean_object* l_Lean_mkSearchPathRef(lean_object* x_1) {
 _start:
 {
@@ -241,8 +251,8 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_ctor_get(x_3, 0);
 x_6 = lean_box(0);
 lean_ctor_set(x_3, 0, x_6);
-x_7 = lean_unsigned_to_nat(1u);
-x_8 = lean_mk_array(x_7, x_5);
+x_7 = l_Lean_mkSearchPathRef___closed__1;
+x_8 = lean_array_push(x_7, x_5);
 x_9 = lean_io_mk_ref(x_8, x_3);
 return x_9;
 }
@@ -258,8 +268,8 @@ x_12 = lean_box(0);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_11);
-x_14 = lean_unsigned_to_nat(1u);
-x_15 = lean_mk_array(x_14, x_10);
+x_14 = l_Lean_mkSearchPathRef___closed__1;
+x_15 = lean_array_push(x_14, x_10);
 x_16 = lean_io_mk_ref(x_15, x_13);
 return x_16;
 }
@@ -3584,6 +3594,8 @@ l___private_Init_Lean_Path_2__searchPathSep___closed__1 = _init_l___private_Init
 lean_mark_persistent(l___private_Init_Lean_Path_2__searchPathSep___closed__1);
 l___private_Init_Lean_Path_2__searchPathSep = _init_l___private_Init_Lean_Path_2__searchPathSep();
 lean_mark_persistent(l___private_Init_Lean_Path_2__searchPathSep);
+l_Lean_mkSearchPathRef___closed__1 = _init_l_Lean_mkSearchPathRef___closed__1();
+lean_mark_persistent(l_Lean_mkSearchPathRef___closed__1);
 w = l_Lean_mkSearchPathRef(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_searchPathRef = lean_io_result_get_value(w);

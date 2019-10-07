@@ -16,6 +16,7 @@ extern "C" {
 extern lean_object* l_Lean_Parser_Term_cons___elambda__1___closed__1;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_List_foldl___main___at_Lean_Parser_mkAppStx___spec__1___rarg___closed__1;
+lean_object* l___regBuiltinTermElab_Lean_Elab_elabList___closed__5;
 uint8_t lean_name_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Elab_elabList___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkExplicitBinder___rarg(lean_object*, lean_object*);
@@ -42,6 +43,7 @@ lean_object* l_Lean_Elab_elabList___closed__1;
 lean_object* l_Array_uget(lean_object*, lean_object*, size_t, lean_object*);
 extern lean_object* l_PersistentHashMap_mkCollisionNode___rarg___closed__1;
 extern lean_object* l_Lean_Parser_Term_explicitBinder___elambda__1___closed__2;
+lean_object* l___regBuiltinTermElab_Lean_Elab_elabList___closed__4;
 lean_object* l_Array_mkEmpty(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAux___main___at_Lean_Elab_elabTermAux___main___spec__3(lean_object*, size_t, lean_object*);
 extern lean_object* l_Lean_termElabAttribute;
@@ -52,6 +54,7 @@ lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_ob
 lean_object* l_Lean_Elab_elabTermAux___main___closed__1;
 lean_object* l___regBuiltinTermElab_Lean_Elab_elabArrow___closed__1;
 lean_object* l_PersistentHashMap_find___at_Lean_Elab_elabTermAux___main___spec__2(lean_object*, lean_object*);
+extern lean_object* l_Lean_mkOptionalNode___rarg___closed__1;
 lean_object* l_PersistentHashMap_findAtAux___main___at_Lean_Elab_elabTermAux___main___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAtAux___main___at_Lean_Elab_elabTermAux___main___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Option_HasRepr___rarg___closed__3;
@@ -62,10 +65,10 @@ lean_object* l_Lean_addBuiltinTermElab(lean_object*, lean_object*, lean_object*,
 lean_object* l___regBuiltinTermElab_Lean_Elab_elabArrow(lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_Elab_elabTermAux___main___spec__6___boxed(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Term_list___elambda__1___closed__2;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l_Lean_nullKind;
 extern lean_object* l_Prod_HasRepr___rarg___closed__1;
+extern lean_object* l_Lean_Parser_Term_explicitUniv___elambda__1___closed__2;
 lean_object* l_Array_push(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_find___at_Lean_Elab_elabTermAux___main___spec__5___boxed(lean_object*, lean_object*);
 extern size_t l_PersistentHashMap_insertAux___main___rarg___closed__2;
@@ -86,7 +89,6 @@ lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabTerm(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find___at_Lean_Elab_elabTermAux___main___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_forall___elambda__1___closed__2;
-extern lean_object* l___private_Init_Lean_Parser_Module_2__mkEOI___closed__3;
 extern lean_object* l_panicWithPos___rarg___closed__2;
 extern lean_object* l_Lean_Syntax_asNode___rarg___closed__1;
 lean_object* l_Array_set(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1506,7 +1508,7 @@ lean_object* _init_l___regBuiltinTermElab_Lean_Elab_elabList___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("elabList");
+x_1 = lean_mk_string("list");
 return x_1;
 }
 }
@@ -1514,13 +1516,31 @@ lean_object* _init_l___regBuiltinTermElab_Lean_Elab_elabList___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___regBuiltinTermElab_Lean_Elab_convertType___closed__2;
+x_1 = l_Lean_Parser_Term_explicitUniv___elambda__1___closed__2;
 x_2 = l___regBuiltinTermElab_Lean_Elab_elabList___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
 lean_object* _init_l___regBuiltinTermElab_Lean_Elab_elabList___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("elabList");
+return x_1;
+}
+}
+lean_object* _init_l___regBuiltinTermElab_Lean_Elab_elabList___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___regBuiltinTermElab_Lean_Elab_convertType___closed__2;
+x_2 = l___regBuiltinTermElab_Lean_Elab_elabList___closed__3;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+lean_object* _init_l___regBuiltinTermElab_Lean_Elab_elabList___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -1532,9 +1552,9 @@ lean_object* l___regBuiltinTermElab_Lean_Elab_elabList(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_Lean_Parser_Term_list___elambda__1___closed__2;
-x_3 = l___regBuiltinTermElab_Lean_Elab_elabList___closed__2;
-x_4 = l___regBuiltinTermElab_Lean_Elab_elabList___closed__3;
+x_2 = l___regBuiltinTermElab_Lean_Elab_elabList___closed__2;
+x_3 = l___regBuiltinTermElab_Lean_Elab_elabList___closed__4;
+x_4 = l___regBuiltinTermElab_Lean_Elab_elabList___closed__5;
 x_5 = l_Lean_addBuiltinTermElab(x_2, x_3, x_4, x_1);
 return x_5;
 }
@@ -1599,7 +1619,7 @@ lean_object* l_Lean_Elab_mkExplicitBinder___rarg(lean_object* x_1, lean_object* 
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_3 = l___private_Init_Lean_Parser_Module_2__mkEOI___closed__3;
+x_3 = l_Lean_mkOptionalNode___rarg___closed__1;
 x_4 = lean_array_push(x_3, x_1);
 x_5 = l_Lean_nullKind;
 x_6 = lean_alloc_ctor(1, 2, 0);
@@ -1685,7 +1705,7 @@ x_13 = lean_box(0);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_get(x_13, x_8, x_14);
 x_16 = l_Lean_Elab_mkExplicitBinder___rarg(x_9, x_15);
-x_17 = l___private_Init_Lean_Parser_Module_2__mkEOI___closed__3;
+x_17 = l_Lean_mkOptionalNode___rarg___closed__1;
 x_18 = lean_array_push(x_17, x_16);
 x_19 = l_Lean_nullKind;
 lean_ctor_set(x_1, 1, x_18);
@@ -1713,7 +1733,7 @@ x_29 = lean_box(0);
 x_30 = lean_unsigned_to_nat(0u);
 x_31 = lean_array_get(x_29, x_8, x_30);
 x_32 = l_Lean_Elab_mkExplicitBinder___rarg(x_9, x_31);
-x_33 = l___private_Init_Lean_Parser_Module_2__mkEOI___closed__3;
+x_33 = l_Lean_mkOptionalNode___rarg___closed__1;
 x_34 = lean_array_push(x_33, x_32);
 x_35 = l_Lean_nullKind;
 x_36 = lean_alloc_ctor(1, 2, 0);
@@ -1758,7 +1778,7 @@ x_51 = lean_box(0);
 x_52 = lean_unsigned_to_nat(0u);
 x_53 = lean_array_get(x_51, x_48, x_52);
 x_54 = l_Lean_Elab_mkExplicitBinder___rarg(x_49, x_53);
-x_55 = l___private_Init_Lean_Parser_Module_2__mkEOI___closed__3;
+x_55 = l_Lean_mkOptionalNode___rarg___closed__1;
 x_56 = lean_array_push(x_55, x_54);
 x_57 = l_Lean_nullKind;
 if (lean_is_scalar(x_50)) {
@@ -1868,6 +1888,10 @@ l___regBuiltinTermElab_Lean_Elab_elabList___closed__2 = _init_l___regBuiltinTerm
 lean_mark_persistent(l___regBuiltinTermElab_Lean_Elab_elabList___closed__2);
 l___regBuiltinTermElab_Lean_Elab_elabList___closed__3 = _init_l___regBuiltinTermElab_Lean_Elab_elabList___closed__3();
 lean_mark_persistent(l___regBuiltinTermElab_Lean_Elab_elabList___closed__3);
+l___regBuiltinTermElab_Lean_Elab_elabList___closed__4 = _init_l___regBuiltinTermElab_Lean_Elab_elabList___closed__4();
+lean_mark_persistent(l___regBuiltinTermElab_Lean_Elab_elabList___closed__4);
+l___regBuiltinTermElab_Lean_Elab_elabList___closed__5 = _init_l___regBuiltinTermElab_Lean_Elab_elabList___closed__5();
+lean_mark_persistent(l___regBuiltinTermElab_Lean_Elab_elabList___closed__5);
 w = l___regBuiltinTermElab_Lean_Elab_elabList(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_Elab_mkExplicitBinder___rarg___closed__1 = _init_l_Lean_Elab_mkExplicitBinder___rarg___closed__1();

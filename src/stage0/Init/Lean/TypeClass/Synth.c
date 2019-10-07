@@ -70,7 +70,6 @@ lean_object* l_Lean_TypeClass_constNameToTypedExpr___closed__1;
 lean_object* l_Lean_TypeClass_synthCore___boxed(lean_object*, lean_object*);
 lean_object* lean_expr_mk_fvar(lean_object*);
 lean_object* lean_local_ctx_mk_local_decl(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
-lean_object* l_Array_mkEmpty(lean_object*, lean_object*);
 lean_object* l_List_foldl___main___at_Lean_mkApp___spec__1(lean_object*, lean_object*);
 lean_object* l_Array_anyMAux___main___at_Lean_TypeClass_newAnswer___spec__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_mkLambda(lean_object*, lean_object*, lean_object*);
@@ -95,6 +94,7 @@ lean_object* l_Lean_TypeClass_resume___closed__1;
 lean_object* l_Lean_TypeClass_synth___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
 uint8_t l_Array_anyMAux___main___at_Lean_TypeClass_newAnswer___spec__4(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_mkOptionalNode___rarg___closed__1;
 extern lean_object* l_List_reprAux___main___rarg___closed__1;
 size_t l_USize_add(size_t, size_t);
 lean_object* l_Lean_TypeClass_introduceLocals___main(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -113,7 +113,6 @@ lean_object* l_Lean_TypeClass_generate___closed__2;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_has_out_params(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_generate(lean_object*);
-lean_object* l_Lean_TypeClass_newSubgoal___closed__4;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* lean_instantiate_type_lparams(lean_object*, lean_object*);
 lean_object* l_Array_push(lean_object*, lean_object*, lean_object*);
@@ -1010,15 +1009,6 @@ x_1 = lean_mk_string("found non-class goal `");
 return x_1;
 }
 }
-lean_object* _init_l_Lean_TypeClass_newSubgoal___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 lean_object* l_Lean_TypeClass_newSubgoal(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1145,7 +1135,7 @@ x_42 = l_List_map___main___at_Lean_TypeClass_newSubgoal___spec__1(x_41);
 x_43 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_43, 0, x_40);
 lean_ctor_set(x_43, 1, x_42);
-x_44 = l_Lean_TypeClass_newSubgoal___closed__4;
+x_44 = l_Lean_mkOptionalNode___rarg___closed__1;
 x_45 = lean_array_push(x_44, x_1);
 x_46 = l_Array_empty___closed__1;
 x_47 = lean_alloc_ctor(0, 2, 0);
@@ -1184,7 +1174,7 @@ x_57 = l_List_map___main___at_Lean_TypeClass_newSubgoal___spec__1(x_56);
 x_58 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_58, 0, x_55);
 lean_ctor_set(x_58, 1, x_57);
-x_59 = l_Lean_TypeClass_newSubgoal___closed__4;
+x_59 = l_Lean_mkOptionalNode___rarg___closed__1;
 x_60 = lean_array_push(x_59, x_1);
 x_61 = l_Array_empty___closed__1;
 x_62 = lean_alloc_ctor(0, 2, 0);
@@ -1326,7 +1316,7 @@ x_97 = l_List_map___main___at_Lean_TypeClass_newSubgoal___spec__1(x_96);
 x_98 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_98, 0, x_95);
 lean_ctor_set(x_98, 1, x_97);
-x_99 = l_Lean_TypeClass_newSubgoal___closed__4;
+x_99 = l_Lean_mkOptionalNode___rarg___closed__1;
 x_100 = lean_array_push(x_99, x_1);
 x_101 = l_Array_empty___closed__1;
 x_102 = lean_alloc_ctor(0, 2, 0);
@@ -7959,8 +7949,6 @@ l_Lean_TypeClass_newSubgoal___closed__2 = _init_l_Lean_TypeClass_newSubgoal___cl
 lean_mark_persistent(l_Lean_TypeClass_newSubgoal___closed__2);
 l_Lean_TypeClass_newSubgoal___closed__3 = _init_l_Lean_TypeClass_newSubgoal___closed__3();
 lean_mark_persistent(l_Lean_TypeClass_newSubgoal___closed__3);
-l_Lean_TypeClass_newSubgoal___closed__4 = _init_l_Lean_TypeClass_newSubgoal___closed__4();
-lean_mark_persistent(l_Lean_TypeClass_newSubgoal___closed__4);
 l_Lean_TypeClass_introduceLocals___main___closed__1 = _init_l_Lean_TypeClass_introduceLocals___main___closed__1();
 lean_mark_persistent(l_Lean_TypeClass_introduceLocals___main___closed__1);
 l_Lean_TypeClass_introduceLocals___main___closed__2 = _init_l_Lean_TypeClass_introduceLocals___main___closed__2();

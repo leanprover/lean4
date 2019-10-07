@@ -44,7 +44,7 @@ elabTermAux stx expectedType false
 
 open Lean.Parser
 
-@[builtinTermElab «list»] def elabList : TermElab :=
+@[builtinTermElab «listLit»] def elabListLit : TermElab :=
 fun stx _ => do
   let openBkt  := stx.getArg 0;
   let args     := stx.getArg 1;

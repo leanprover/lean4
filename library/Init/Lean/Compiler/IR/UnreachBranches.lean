@@ -59,7 +59,7 @@ protected partial def format : Value → Format
 | top => "top"
 | bot => "bot"
 | choice vs => fmt "@" ++ @List.format _ ⟨format⟩ vs
-| ctor i vs => fmt i.name ++ @formatArray _ ⟨format⟩ vs
+| ctor i vs => fmt "#" ++ fmt i.name ++ @formatArray _ ⟨format⟩ vs
 
 instance : HasFormat Value := ⟨Value.format⟩
 instance : HasToString Value := ⟨Format.pretty ∘ Value.format⟩
@@ -107,7 +107,7 @@ do ctx ← read;
    s ← get;
    match (s.assignments.get! ctx.currFnIdx).find x with
    | some v => pure v
-   | none   => pure top
+   | none   => pure bot
 
 def findArgValue (arg : Arg) : M Value :=
 match arg with
@@ -196,10 +196,11 @@ def inferStep : M Bool :=
 do ctx ← read;
    ctx.decls.size.mfold (fun idx modified => do
      match ctx.decls.get! idx with
-     | Decl.fdecl _ _ _ b => do
+     | Decl.fdecl _ ys _ b => do
        s ← get;
        let currVals := s.funVals.get! idx;
-       adaptReader (fun (ctx : InterpContext) => { currFnIdx := idx, .. ctx }) $
+       adaptReader (fun (ctx : InterpContext) => { currFnIdx := idx, .. ctx }) $ do
+         ys.mfor $ fun y => updateVarAssignment y.x top;
          interpFnBody b;
        s ← get;
        let newVals := s.funVals.get! idx;

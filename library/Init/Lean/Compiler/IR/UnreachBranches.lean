@@ -8,6 +8,7 @@ import Init.Control.Reader
 import Init.Data.Option
 import Init.Lean.Compiler.IR.Format
 import Init.Lean.Compiler.IR.Basic
+import Init.Lean.Compiler.IR.CompilerM
 
 namespace Lean
 namespace IR
@@ -59,10 +60,36 @@ protected partial def format : Value → Format
 | top => "top"
 | bot => "bot"
 | choice vs => fmt "@" ++ @List.format _ ⟨format⟩ vs
-| ctor i vs => fmt "#" ++ fmt i.name ++ @formatArray _ ⟨format⟩ vs
+| ctor i vs => fmt "#" ++ if vs.isEmpty then fmt i.name else Format.paren (fmt i.name ++ @formatArray _ ⟨format⟩ vs)
 
 instance : HasFormat Value := ⟨Value.format⟩
 instance : HasToString Value := ⟨Format.pretty ∘ Value.format⟩
+
+/- Make sure constructors of recursive inductive datatypes can only occur once in each path.
+   We use this function this function to implement a simple widening operation for our abstract
+   interpreter. -/
+partial def truncate (env : Environment) : Value → NameSet → Value
+| ctor i vs, found =>
+  let I := i.name.getPrefix;
+  if found.contains I then
+    top
+  else
+    let cont (found' : NameSet) : Value :=
+      ctor i (vs.map $ fun v => truncate v found');
+    match env.find I with
+    | some (ConstantInfo.inductInfo d) =>
+      if d.isRec then cont (found.insert I)
+      else cont found
+    | _ => cont found
+| choice vs, found =>
+  let newVs := vs.map $ fun v => truncate v found;
+  if newVs.elem top then top
+  else choice newVs
+| v, _ => v
+
+/- Widening operator that guarantees termination in our abstract interpreter. -/
+def widening (env : Environment) (v₁ v₂ : Value) : Value :=
+truncate env (merge v₁ v₂) {}
 
 end Value
 
@@ -147,9 +174,7 @@ partial def containsCtor : Value → CtorInfo → Bool
 def updateCurrFnSummary (v : Value) : M Unit :=
 do ctx ← read;
    let currFnIdx := ctx.currFnIdx;
-   s ← get;
-   modify $ fun s => { funVals := s.funVals.modify currFnIdx (fun v' => merge v v'), .. s }
-
+   modify $ fun s => { funVals := s.funVals.modify currFnIdx (fun v' => widening ctx.env v v'), .. s }
 
 /-- Return true if the assignment of at least one parameter has been updated. -/
 def updateJPParamsAssignment (ys : Array Param) (xs : Array Arg) : M Bool :=
@@ -183,6 +208,7 @@ partial def interpFnBody : FnBody → M Unit
     | Alt.default b => interpFnBody b
 | FnBody.ret x => do
   v ← findArgValue x;
+  -- dbgTrace ("ret " ++ toString v) $ fun _ =>
   updateCurrFnSummary v
 | FnBody.jmp j xs => do
   ctx ← read;
@@ -204,7 +230,6 @@ do ctx ← read;
          interpFnBody b;
        s ← get;
        let newVals := s.funVals.get! idx;
-       -- TODO: apply widening
        pure (modified || currVals != newVals)
      | Decl.extern _ _ _ _ => pure modified)
      false
@@ -221,8 +246,15 @@ let ctx : InterpContext := { decls := decls, env := env };
 let s : InterpState := { assignments := assignments, funVals := funVals };
 let (_, s) := (inferMain () ctx).run s;
 let funVals := s.funVals;
-decls.size.fold (fun i env => addFunctionSummary env (decls.get! i).name (funVals.get! i)) env
+decls.size.fold (fun i env =>
+  -- dbgTrace (">> " ++ toString (decls.get! i).name ++ " " ++ toString (funVals.get! i)) $ fun _ =>
+  addFunctionSummary env (decls.get! i).name (funVals.get! i))
+  env
 
 end UnreachableBranches
+
+def inferCtorSummaries (decls : Array Decl) : CompilerM Unit :=
+modify $ fun s => { env := UnreachableBranches.infer s.env decls, .. s }
+
 end IR
 end Lean

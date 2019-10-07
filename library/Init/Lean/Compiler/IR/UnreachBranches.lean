@@ -129,13 +129,11 @@ abbrev M := ReaderT InterpContext (State InterpState)
 
 open Value
 
-def findVarValueAux (assignment : Assignment) (x : VarId) : Value :=
-assignment.findD x bot
-
 def findVarValue (x : VarId) : M Value :=
 do ctx ← read;
    s ← get;
-   pure $ findVarValueAux (s.assignments.get! ctx.currFnIdx) x
+   let assignment := s.assignments.get! ctx.currFnIdx;
+   pure $ assignment.findD x bot
 
 def findArgValue (arg : Arg) : M Value :=
 match arg with
@@ -246,7 +244,7 @@ partial def elimDeadAux (assignment : Assignment) : FnBody → FnBody
 | FnBody.vdecl x t e b  => FnBody.vdecl x t e (elimDeadAux b)
 | FnBody.jdecl j ys v b => FnBody.jdecl j ys (elimDeadAux v) (elimDeadAux b)
 | FnBody.case tid x xType alts =>
-  let v := findVarValueAux assignment x;
+  let v := assignment.findD x bot;
   let alts := alts.map $ fun alt =>
     match alt with
     | Alt.ctor i b  => Alt.ctor i $ if containsCtor v i then elimDeadAux b else FnBody.unreachable

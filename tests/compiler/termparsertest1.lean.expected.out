@@ -166,11 +166,13 @@ fun (Prod.mk x y) => f y x
  (null (Term.structInstField `fst ":=" (numLit "10")) "," (Term.structInstSource ".." (null)))
  "}")
 a[i]
-(Term.array (Term.id `a (null)) "[" (Term.id `i (null)) "]")
+(Term.arrayRef (Term.id `a (null)) "[" (Term.id `i (null)) "]")
 f [10, 20]
-(Term.app (Term.id `f (null)) (Term.list "[" (null (numLit "10") "," (numLit "20")) "]"))
+(Term.app (Term.id `f (null)) (Term.listLit "[" (null (numLit "10") "," (numLit "20")) "]"))
 g a[x+2]
-(Term.app (Term.id `g (null)) (Term.array (Term.id `a (null)) "[" (Term.add (Term.id `x (null)) "+" (numLit "2")) "]"))
+(Term.app
+ (Term.id `g (null))
+ (Term.arrayRef (Term.id `a (null)) "[" (Term.add (Term.id `x (null)) "+" (numLit "2")) "]"))
 g f.a.1.2.bla x.1.a
 (Term.app
  (Term.app
@@ -384,7 +386,7 @@ let x[i].y := f 10; x
 (Term.let
  "let"
  (Term.letPatDecl
-  (Term.proj (Term.array (Term.id `x (null)) "[" (Term.id `i (null)) "]") "." `y)
+  (Term.proj (Term.arrayRef (Term.id `x (null)) "[" (Term.id `i (null)) "]") "." `y)
   (null)
   ":="
   (Term.app (Term.id `f (null)) (numLit "10")))
@@ -394,7 +396,7 @@ let x[i] := f 20; x
 (Term.let
  "let"
  (Term.letPatDecl
-  (Term.array (Term.id `x (null)) "[" (Term.id `i (null)) "]")
+  (Term.arrayRef (Term.id `x (null)) "[" (Term.id `i (null)) "]")
   (null)
   ":="
   (Term.app (Term.id `f (null)) (numLit "20")))

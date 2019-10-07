@@ -1,4 +1,4 @@
-[(9, false), (8, true), (7, false), (6, true), (5, false), (4, true), (3, false), (2, true), (1, false), (0, true)]
+#[(9, false), (8, true), (7, false), (6, true), (5, false), (4, true), (3, false), (2, true), (1, false), (0, true)]
 >> 0 ==> (some (0, true))
 >> 1 ==> (some (1, false))
 >> 2 ==> (some (2, true))

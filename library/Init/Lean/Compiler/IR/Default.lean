@@ -66,7 +66,7 @@ env ← getEnv;
 if !ExplicitBoxing.requiresBoxedVersion env decl then pure ()
 else do
   let decl := ExplicitBoxing.mkBoxedVersion decl;
-  let decls : Array Decl := Array.singleton decl;
+  let decls : Array Decl := #[decl];
   decls ← explicitRC decls;
   decls.mfor $ fun decl => modifyEnv $ fun env => addDeclAux env decl;
   pure ()

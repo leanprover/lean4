@@ -21,7 +21,7 @@ do fname ← IO.realPath fname;
 
 def mkSearchPathRef : IO (IO.Ref (Array String)) :=
 do curr ← realPathNormalized ".";
-   IO.mkRef (Array.singleton curr)
+   IO.mkRef #[curr]
 
 @[init mkSearchPathRef]
 constant searchPathRef : IO.Ref (Array String) := default _

@@ -103,7 +103,7 @@ do let mvarType := ctx.eInfer mvar;
        futureAnswer       := ⟨mvar, mvarType⟩,
        remainingInstances := (getClassInstances ϕ.env n).map Instance.const
      };
-     let tableEntry : TableEntry := { waiters := [waiter].toArray };
+     let tableEntry : TableEntry := { waiters := #[waiter] };
      modify $ λ ϕ => {
        generatorStack := ϕ.generatorStack.push gNode,
        tableEntries   := ϕ.tableEntries.insert gNode.anormSubgoal tableEntry,

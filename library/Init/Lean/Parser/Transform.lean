@@ -22,7 +22,7 @@ match stx with
     | none =>
       let newArgs := newArgs.push (atom none sepTk);
       newArgs.push arg)
-    (Array.singleton (args.get! 0))
+    #[args.get! 0]
     1;
   node k args
 | stx => stx

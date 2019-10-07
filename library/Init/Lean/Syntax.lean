@@ -353,14 +353,14 @@ Syntax.node nullKind args.toArray
 
 def mkOptionalNode {α} (arg : Option (Syntax α)) : Syntax α :=
 match arg with
-| some arg => Syntax.node nullKind (Array.singleton arg)
+| some arg => Syntax.node nullKind #[arg]
 | none     => Syntax.node nullKind Array.empty
 
 /- Helper functions for creating string and numeric literals -/
 
 def mkLit (kind : SyntaxNodeKind) (val : String) (info : Option SourceInfo := none) : Syntax :=
 let atom : Syntax := Syntax.atom info val;
-Syntax.node kind (Array.singleton atom)
+Syntax.node kind #[atom]
 
 def mkStrLit (val : String) (info : Option SourceInfo := none) : Syntax :=
 mkLit strLitKind val info

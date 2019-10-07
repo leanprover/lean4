@@ -51,7 +51,7 @@ match s.errorMsg with
 
 private def mkEOI (pos : String.Pos) : Syntax :=
 let atom := mkAtom { pos := pos, trailing := "".toSubstring, leading := "".toSubstring } "";
-Syntax.node `Lean.Parser.Module.eoi [atom].toArray
+Syntax.node `Lean.Parser.Module.eoi #[atom]
 
 def isEOI (s : Syntax) : Bool :=
 s.isOfKind `Lean.Parser.Module.eoi
@@ -125,7 +125,7 @@ fname ← IO.realPath fname;
 contents ← IO.readTextFile fname;
 let ctx := mkParserContextCore env contents fname;
 let (stx, state, messages) := parseHeader env ctx;
-parseFileAux env ctx state messages (Array.singleton stx)
+parseFileAux env ctx state messages #[stx]
 
 end Parser
 end Lean

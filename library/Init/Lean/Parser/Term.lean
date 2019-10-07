@@ -177,7 +177,7 @@ def checkIsSort := checkLeading (fun leading => leading.isOfKind `Lean.Parser.Te
 end Term
 
 def mkAppStx {α} (fn : Syntax α) (args : List (Syntax α)) : Syntax α :=
-args.foldl (fun fn arg => Syntax.node `Lean.Parser.Term.app [fn, arg].toArray) fn
+args.foldl (fun fn arg => Syntax.node `Lean.Parser.Term.app #[fn, arg]) fn
 
 end Parser
 end Lean

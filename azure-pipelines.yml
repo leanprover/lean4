@@ -23,7 +23,6 @@ jobs:
         CMAKE_OPTIONS: -DLLVM=ON
       macOS:
         imageName: macos-latest
-        NIX_SHELL_OPTIONS: --arg llvmPackages '(import ./nix/nixpkgs.nix).llvmPackages_8'
   pool:
     vmImage: $(imageName)
   steps:

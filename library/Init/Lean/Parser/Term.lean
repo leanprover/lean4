@@ -73,7 +73,8 @@ def structInstSource := parser! ".." >> optional termParser
 def typeSpec := parser! " : " >> termParser
 def optType : Parser := optional typeSpec
 @[builtinTermParser] def subtype := parser! "{" >> ident >> optType >> " // " >> termParser >> "}"
-@[builtinTermParser] def list := parser! symbol "[" appPrec >> sepBy termParser "," true >> "]"
+@[builtinTermParser] def listLit := parser! symbol "[" appPrec >> sepBy termParser "," true >> "]"
+@[builtinTermParser] def arrayLit := parser! symbol "#[" appPrec >> sepBy termParser "," true >> "]"
 @[builtinTermParser] def explicit := parser! symbol "@" appPrec >> id
 @[builtinTermParser] def inaccessible := parser! symbol ".(" appPrec >> termParser >> ")"
 def binderIdent : Parser  := ident <|> hole
@@ -123,7 +124,7 @@ def checkIsSort := checkLeading (fun leading => leading.isOfKind `Lean.Parser.Te
 @[builtinTermParser] def sortApp := tparser! checkIsSort >> pushLeading >> levelParser appPrec
 @[builtinTermParser] def proj    := tparser! pushLeading >> symbolNoWs "." (appPrec+1) >> (fieldIdx <|> ident)
 @[builtinTermParser] def arrow   := tparser! unicodeInfixR " → " " -> " 25
-@[builtinTermParser] def array   := tparser! pushLeading >> symbolNoWs "[" (appPrec+1) >> termParser >>"]"
+@[builtinTermParser] def arrayRef := tparser! pushLeading >> symbolNoWs "[" (appPrec+1) >> termParser >>"]"
 
 @[builtinTermParser] def dollar := tparser! infixR " $ " 1
 @[builtinTermParser] def fcomp  := tparser! infixR " ∘ " 90

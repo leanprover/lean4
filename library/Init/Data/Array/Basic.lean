@@ -225,7 +225,7 @@ mfindRevAux a f a.size (Nat.leRefl _)
 end
 
 section
-variables {β:Type w} {σ:Type u}
+variables {β : Type w} {σ : Type u}
 
 @[inline] def iterate (a : Array α) (b : β) (f : ∀ (i : Fin a.size), α → β → β) : β :=
 Id.run $ miterateAux a f 0 b
@@ -334,14 +334,14 @@ def toList (a : Array α) : List α :=
 a.foldr List.cons []
 
 instance [HasRepr α] : HasRepr (Array α) :=
-⟨repr ∘ toList⟩
+⟨fun a => "#" ++ repr a.toList⟩
 
 instance [HasToString α] : HasToString (Array α) :=
-⟨toString ∘ toList⟩
+⟨fun a => "#" ++ toString a.toList⟩
 
 section
 variables {m : Type u → Type w} [Monad m]
-variable {β:Type u}
+variable {β : Type u}
 
 @[specialize] unsafe partial def ummapAux (f : Nat → α → m β) : Nat → Array α → m (Array β)
 | i, a =>
@@ -367,7 +367,7 @@ as.miterate (mkEmpty as.size) (fun i a bs => do b ← f i.val a; pure (bs.push b
 end
 
 section
-variable {β:Type u}
+variable {β : Type u}
 
 @[inline] def modify [Inhabited α] (a : Array α) (i : Nat) (f : α → α) : Array α :=
 if h : i < a.size then

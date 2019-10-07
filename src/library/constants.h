@@ -112,6 +112,7 @@ name const & get_lc_unreachable_name();
 name const & get_list_name();
 name const & get_list_nil_name();
 name const & get_list_cons_name();
+name const & get_list_to_array_name();
 name const & get_match_failed_name();
 name const & get_monad_name();
 name const & get_monad_fail_name();

@@ -105,6 +105,7 @@ lcUnreachable
 List
 List.nil
 List.cons
+List.toArray
 matchFailed
 Monad
 MonadFail

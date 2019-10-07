@@ -28,7 +28,8 @@ private def compileAux (decls : Array Decl) : CompilerM Unit :=
 do
 logDecls `init decls;
 checkDecls decls;
-inferCtorSummaries decls;
+decls ← elimDeadBranches decls;
+logDecls `elim_dead_branches decls;
 let decls := decls.map Decl.pushProj;
 logDecls `push_proj decls;
 let decls := decls.map Decl.insertResetReuse;

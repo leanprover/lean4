@@ -129,12 +129,13 @@ abbrev M := ReaderT InterpContext (State InterpState)
 
 open Value
 
+def findVarValueAux (assignment : Assignment) (x : VarId) : Value :=
+assignment.findD x bot
+
 def findVarValue (x : VarId) : M Value :=
 do ctx ← read;
    s ← get;
-   match (s.assignments.get! ctx.currFnIdx).find x with
-   | some v => pure v
-   | none   => pure bot
+   pure $ findVarValueAux (s.assignments.get! ctx.currFnIdx) x
 
 def findArgValue (arg : Arg) : M Value :=
 match arg with
@@ -240,22 +241,48 @@ partial def inferMain : Unit → M Unit
   modified ← inferStep;
   if modified then inferMain () else pure ()
 
-def infer (env : Environment) (decls : Array Decl) : Environment :=
-let assignments : Array Assignment := decls.map $ fun _ => {};
-let funVals := mkPArray decls.size bot;
-let ctx : InterpContext := { decls := decls, env := env };
-let s : InterpState := { assignments := assignments, funVals := funVals };
-let (_, s) := (inferMain () ctx).run s;
-let funVals := s.funVals;
-decls.size.fold (fun i env =>
-  -- dbgTrace (">> " ++ toString (decls.get! i).name ++ " " ++ toString (funVals.get! i)) $ fun _ =>
-  addFunctionSummary env (decls.get! i).name (funVals.get! i))
-  env
+partial def elimDeadAux (assignment : Assignment) : FnBody → FnBody
+| FnBody.vdecl x t e b  => FnBody.vdecl x t e (elimDeadAux b)
+| FnBody.jdecl j ys v b => FnBody.jdecl j ys (elimDeadAux v) (elimDeadAux b)
+| FnBody.case tid x xType alts =>
+  let v := findVarValueAux assignment x;
+  let alts := alts.map $ fun alt =>
+    match alt with
+    | Alt.ctor i b  => Alt.ctor i $ if containsCtor v i then elimDeadAux b else FnBody.unreachable
+    | Alt.default b => Alt.default (elimDeadAux b);
+  FnBody.case tid x xType alts
+| e =>
+  if e.isTerminal then e
+  else
+    let (instr, b) := e.split;
+    let b := elimDeadAux b;
+    instr.setBody b
+
+partial def elimDead (assignment : Assignment) : Decl → Decl
+| Decl.fdecl fid ys t b => Decl.fdecl fid ys t $ elimDeadAux assignment b
+| other => other
 
 end UnreachableBranches
 
-def inferCtorSummaries (decls : Array Decl) : CompilerM Unit :=
-modify $ fun s => { env := UnreachableBranches.infer s.env decls, .. s }
+open UnreachableBranches
+
+def elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) :=
+do  s ← get;
+    let env := s.env;
+    let assignments : Array Assignment := decls.map $ fun _ => {};
+    let funVals := mkPArray decls.size Value.bot;
+    let ctx : InterpContext := { decls := decls, env := env };
+    let s : InterpState := { assignments := assignments, funVals := funVals };
+    let (_, s) := (inferMain () ctx).run s;
+    let funVals := s.funVals;
+    let assignments := s.assignments;
+    modify $ fun s =>
+      let env := decls.size.fold (fun i env =>
+        -- dbgTrace (">> " ++ toString (decls.get! i).name ++ " " ++ toString (funVals.get! i)) $ fun _ =>
+        addFunctionSummary env (decls.get! i).name (funVals.get! i))
+        s.env;
+      { env := env, .. s };
+    pure $ decls.mapIdx $ fun i decl => elimDead (assignments.get! i) decl
 
 end IR
 end Lean

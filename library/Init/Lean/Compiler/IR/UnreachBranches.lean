@@ -221,6 +221,7 @@ partial def interpFnBody : FnBody → M Unit
 
 def inferStep : M Bool :=
 do ctx ← read;
+   modify $ fun s => { assignments := ctx.decls.map $ fun _ => {}, .. s };
    ctx.decls.size.mfold (fun idx modified => do
      match ctx.decls.get! idx with
      | Decl.fdecl fid ys _ b => do

@@ -190,6 +190,11 @@ extern "C" obj_res lean_io_realpath(obj_arg fname, obj_arg r) {
         return set_io_result(r, fname);
     } else {
         dec_ref(fname);
+        // Hack for making sure disk is lower case
+        // TODO(Leo): more robust solution
+        if (strlen(buffer) >= 2 && buffer[1] == ':') {
+            buffer[0] = tolower(buffer[0]);
+        }
         return set_io_result(r, mk_string(buffer));
     }
 #else

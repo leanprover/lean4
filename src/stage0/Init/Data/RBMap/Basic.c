@@ -2813,19 +2813,8 @@ return x_2;
 }
 else
 {
-lean_object* x_43; 
+lean_object* x_43; lean_object* x_44; 
 x_43 = l_RBNode_ins___main___rarg(x_1, x_36, x_3, x_4);
-if (lean_obj_tag(x_43) == 0)
-{
-lean_free_object(x_2);
-lean_dec(x_35);
-lean_dec(x_34);
-lean_dec(x_33);
-return x_43;
-}
-else
-{
-lean_object* x_44; 
 x_44 = lean_ctor_get(x_43, 0);
 lean_inc(x_44);
 if (lean_obj_tag(x_44) == 0)
@@ -3479,7 +3468,6 @@ return x_2;
 }
 }
 }
-}
 else
 {
 uint8_t x_181; 
@@ -3493,19 +3481,8 @@ return x_2;
 }
 else
 {
-lean_object* x_183; 
+lean_object* x_183; lean_object* x_184; 
 x_183 = l_RBNode_ins___main___rarg(x_1, x_33, x_3, x_4);
-if (lean_obj_tag(x_183) == 0)
-{
-lean_free_object(x_2);
-lean_dec(x_36);
-lean_dec(x_35);
-lean_dec(x_34);
-return x_183;
-}
-else
-{
-lean_object* x_184; 
 x_184 = lean_ctor_get(x_183, 0);
 lean_inc(x_184);
 if (lean_obj_tag(x_184) == 0)
@@ -4168,7 +4145,6 @@ return x_2;
 }
 }
 }
-}
 else
 {
 lean_object* x_322; lean_object* x_323; lean_object* x_324; lean_object* x_325; lean_object* x_326; uint8_t x_327; 
@@ -4228,18 +4204,8 @@ return x_333;
 }
 else
 {
-lean_object* x_334; 
+lean_object* x_334; lean_object* x_335; 
 x_334 = l_RBNode_ins___main___rarg(x_1, x_325, x_3, x_4);
-if (lean_obj_tag(x_334) == 0)
-{
-lean_dec(x_324);
-lean_dec(x_323);
-lean_dec(x_322);
-return x_334;
-}
-else
-{
-lean_object* x_335; 
 x_335 = lean_ctor_get(x_334, 0);
 lean_inc(x_335);
 if (lean_obj_tag(x_335) == 0)
@@ -4653,7 +4619,6 @@ return x_408;
 }
 }
 }
-}
 else
 {
 uint8_t x_409; 
@@ -4672,18 +4637,8 @@ return x_411;
 }
 else
 {
-lean_object* x_412; 
+lean_object* x_412; lean_object* x_413; 
 x_412 = l_RBNode_ins___main___rarg(x_1, x_322, x_3, x_4);
-if (lean_obj_tag(x_412) == 0)
-{
-lean_dec(x_325);
-lean_dec(x_324);
-lean_dec(x_323);
-return x_412;
-}
-else
-{
-lean_object* x_413; 
 x_413 = lean_ctor_get(x_412, 0);
 lean_inc(x_413);
 if (lean_obj_tag(x_413) == 0)
@@ -5090,7 +5045,6 @@ lean_ctor_set(x_486, 2, x_324);
 lean_ctor_set(x_486, 3, x_325);
 lean_ctor_set_uint8(x_486, sizeof(void*)*4, x_462);
 return x_486;
-}
 }
 }
 }

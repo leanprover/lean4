@@ -400,19 +400,8 @@ return x_1;
 }
 else
 {
-lean_object* x_36; 
+lean_object* x_36; lean_object* x_37; 
 x_36 = l_RBNode_ins___main___at_Lean_Trace_Lean_Trace_MonadTracer___spec__2(x_31, x_2, x_3);
-if (lean_obj_tag(x_36) == 0)
-{
-lean_free_object(x_1);
-lean_dec(x_30);
-lean_dec(x_29);
-lean_dec(x_28);
-return x_36;
-}
-else
-{
-lean_object* x_37; 
 x_37 = lean_ctor_get(x_36, 0);
 lean_inc(x_37);
 if (lean_obj_tag(x_37) == 0)
@@ -1066,7 +1055,6 @@ return x_1;
 }
 }
 }
-}
 else
 {
 uint8_t x_174; 
@@ -1080,19 +1068,8 @@ return x_1;
 }
 else
 {
-lean_object* x_176; 
+lean_object* x_176; lean_object* x_177; 
 x_176 = l_RBNode_ins___main___at_Lean_Trace_Lean_Trace_MonadTracer___spec__2(x_28, x_2, x_3);
-if (lean_obj_tag(x_176) == 0)
-{
-lean_free_object(x_1);
-lean_dec(x_31);
-lean_dec(x_30);
-lean_dec(x_29);
-return x_176;
-}
-else
-{
-lean_object* x_177; 
 x_177 = lean_ctor_get(x_176, 0);
 lean_inc(x_177);
 if (lean_obj_tag(x_177) == 0)
@@ -1755,7 +1732,6 @@ return x_1;
 }
 }
 }
-}
 else
 {
 lean_object* x_315; lean_object* x_316; lean_object* x_317; lean_object* x_318; uint8_t x_319; 
@@ -1804,18 +1780,8 @@ return x_324;
 }
 else
 {
-lean_object* x_325; 
+lean_object* x_325; lean_object* x_326; 
 x_325 = l_RBNode_ins___main___at_Lean_Trace_Lean_Trace_MonadTracer___spec__2(x_318, x_2, x_3);
-if (lean_obj_tag(x_325) == 0)
-{
-lean_dec(x_317);
-lean_dec(x_316);
-lean_dec(x_315);
-return x_325;
-}
-else
-{
-lean_object* x_326; 
 x_326 = lean_ctor_get(x_325, 0);
 lean_inc(x_326);
 if (lean_obj_tag(x_326) == 0)
@@ -2229,7 +2195,6 @@ return x_399;
 }
 }
 }
-}
 else
 {
 uint8_t x_400; 
@@ -2248,18 +2213,8 @@ return x_402;
 }
 else
 {
-lean_object* x_403; 
+lean_object* x_403; lean_object* x_404; 
 x_403 = l_RBNode_ins___main___at_Lean_Trace_Lean_Trace_MonadTracer___spec__2(x_315, x_2, x_3);
-if (lean_obj_tag(x_403) == 0)
-{
-lean_dec(x_318);
-lean_dec(x_317);
-lean_dec(x_316);
-return x_403;
-}
-else
-{
-lean_object* x_404; 
 x_404 = lean_ctor_get(x_403, 0);
 lean_inc(x_404);
 if (lean_obj_tag(x_404) == 0)
@@ -2666,7 +2621,6 @@ lean_ctor_set(x_477, 2, x_317);
 lean_ctor_set(x_477, 3, x_318);
 lean_ctor_set_uint8(x_477, sizeof(void*)*4, x_453);
 return x_477;
-}
 }
 }
 }

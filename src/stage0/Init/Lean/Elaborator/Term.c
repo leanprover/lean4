@@ -1663,11 +1663,8 @@ return x_3;
 lean_object* l_Lean_Elab_elabArrow(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; 
+lean_object* x_5; uint8_t x_6; 
 x_5 = l_Lean_Elab_mkFreshName___rarg(x_4);
-if (lean_obj_tag(x_5) == 0)
-{
-uint8_t x_6; 
 x_6 = !lean_is_exclusive(x_5);
 if (x_6 == 0)
 {
@@ -1787,30 +1784,6 @@ x_68 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_68, 0, x_67);
 lean_ctor_set(x_68, 1, x_47);
 return x_68;
-}
-}
-else
-{
-uint8_t x_69; 
-lean_dec(x_1);
-x_69 = !lean_is_exclusive(x_5);
-if (x_69 == 0)
-{
-return x_5;
-}
-else
-{
-lean_object* x_70; lean_object* x_71; lean_object* x_72; 
-x_70 = lean_ctor_get(x_5, 0);
-x_71 = lean_ctor_get(x_5, 1);
-lean_inc(x_71);
-lean_inc(x_70);
-lean_dec(x_5);
-x_72 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_72, 0, x_70);
-lean_ctor_set(x_72, 1, x_71);
-return x_72;
-}
 }
 }
 }

@@ -7182,11 +7182,8 @@ return x_8;
 lean_object* l_Lean_IR_explicitBoxing(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; 
+lean_object* x_4; uint8_t x_5; 
 x_4 = l_Lean_IR_getEnv___rarg(x_3);
-if (lean_obj_tag(x_4) == 0)
-{
-uint8_t x_5; 
 x_5 = !lean_is_exclusive(x_4);
 if (x_5 == 0)
 {
@@ -7209,30 +7206,6 @@ x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_9);
 return x_11;
-}
-}
-else
-{
-uint8_t x_12; 
-lean_dec(x_1);
-x_12 = !lean_is_exclusive(x_4);
-if (x_12 == 0)
-{
-return x_4;
-}
-else
-{
-lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_13 = lean_ctor_get(x_4, 0);
-x_14 = lean_ctor_get(x_4, 1);
-lean_inc(x_14);
-lean_inc(x_13);
-lean_dec(x_4);
-x_15 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_15, 0, x_13);
-lean_ctor_set(x_15, 1, x_14);
-return x_15;
-}
 }
 }
 }

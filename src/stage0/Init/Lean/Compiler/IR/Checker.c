@@ -2977,11 +2977,8 @@ return x_1;
 lean_object* l_Lean_IR_checkDecl(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; 
+lean_object* x_5; uint8_t x_6; 
 x_5 = l_Lean_IR_getEnv___rarg(x_4);
-if (lean_obj_tag(x_5) == 0)
-{
-uint8_t x_6; 
 x_6 = !lean_is_exclusive(x_5);
 if (x_6 == 0)
 {
@@ -3072,31 +3069,6 @@ x_37 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_37, 0, x_36);
 lean_ctor_set(x_37, 1, x_22);
 return x_37;
-}
-}
-}
-else
-{
-uint8_t x_38; 
-lean_dec(x_2);
-lean_dec(x_1);
-x_38 = !lean_is_exclusive(x_5);
-if (x_38 == 0)
-{
-return x_5;
-}
-else
-{
-lean_object* x_39; lean_object* x_40; lean_object* x_41; 
-x_39 = lean_ctor_get(x_5, 0);
-x_40 = lean_ctor_get(x_5, 1);
-lean_inc(x_40);
-lean_inc(x_39);
-lean_dec(x_5);
-x_41 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_41, 0, x_39);
-lean_ctor_set(x_41, 1, x_40);
-return x_41;
 }
 }
 }

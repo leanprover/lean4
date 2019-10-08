@@ -14,6 +14,7 @@ import Init.Lean.Class
 import Init.Lean.MetavarContext
 import Init.Lean.TypeClass.Context
 import Init.Data.PersistentHashMap
+import Init.Data.Stack
 import Init.Data.Queue
 
 namespace Lean
@@ -65,9 +66,9 @@ structure TCState : Type :=
 (env            : Environment)
 (finalAnswer    : Option TypedExpr                  := none)
 (mainMVar       : Expr                              := default _)
-(generatorStack : Array GeneratorNode               := Array.empty)
-(consumerStack  : Array ConsumerNode                := Array.empty)
-(resumeQueue    : Queue (ConsumerNode × TypedExpr)  := {})
+(generatorStack : Stack GeneratorNode               := Stack.empty)
+(consumerStack  : Stack ConsumerNode                := Stack.empty)
+(resumeQueue    : Queue (ConsumerNode × TypedExpr)  := Queue.empty)
 (tableEntries   : PersistentHashMap Expr TableEntry := PersistentHashMap.empty)
 
 abbrev TCMethod : Type → Type := EState String TCState
@@ -173,7 +174,8 @@ do lookupStatus ← get >>= λ ϕ => pure $ ϕ.tableEntries.find anormSubgoal;
        entry.waiters.mfor (wakeUp answer)
 
 def consume : TCMethod Unit :=
-do cNode ← get >>= λ ϕ => pure ϕ.consumerStack.back;
+do cNode ← get >>= λ ϕ => pure ϕ.consumerStack.peek!;
+   modify $ λ ϕ => { consumerStack := ϕ.consumerStack.pop .. ϕ };
    match cNode.remainingSubgoals with
    | [] => do
      let answer : TypedExpr := {
@@ -182,7 +184,6 @@ do cNode ← get >>= λ ϕ => pure ϕ.consumerStack.back;
      };
      when (Context.eHasTmpMVar answer.val || Context.eHasTmpMVar answer.type) $
        throw $ "answer " ++ toString answer ++ " not fully instantiated";
-     modify $ λ ϕ => { consumerStack := ϕ.consumerStack.pop .. ϕ };
      newAnswer cNode.anormSubgoal answer
 
    | mvar::rest => do
@@ -190,11 +191,8 @@ do cNode ← get >>= λ ϕ => pure ϕ.consumerStack.back;
      let waiter : Waiter := Waiter.consumerNode cNode;
      lookupStatus ← get >>= λ ϕ => pure $ ϕ.tableEntries.find anormSubgoal;
      match lookupStatus with
-     | none => do
-       newSubgoal waiter cNode.ctx mvar;
-       modify $ λ ϕ => { consumerStack := ϕ.consumerStack.pop .. ϕ }
+     | none => newSubgoal waiter cNode.ctx mvar
      | some entry => modify $ λ ϕ => {
-                        consumerStack := ϕ.consumerStack.pop,
                         resumeQueue   := entry.answers.foldl (λ rq answer => rq.enqueue (cNode, answer)) ϕ.resumeQueue,
                         tableEntries  := ϕ.tableEntries.insert anormSubgoal { waiters := entry.waiters.push waiter, .. entry },
                         .. ϕ }
@@ -214,7 +212,7 @@ do lookupStatus ← get >>= λ ϕ => pure $ ϕ.env.find instName;
      pure ⟨⟨instVal, instType⟩, ctx⟩
 
 def generate : TCMethod Unit :=
-do gNode ← get >>= λ ϕ => pure ϕ.generatorStack.back;
+do gNode ← get >>= λ ϕ => pure ϕ.generatorStack.peek!;
    match gNode.remainingInstances with
    | []          => modify $ λ ϕ => { generatorStack := ϕ.generatorStack.pop, .. ϕ }
    | inst::insts => do
@@ -222,7 +220,7 @@ do gNode ← get >>= λ ϕ => pure ϕ.generatorStack.back;
                      | Instance.const n     => constNameToTypedExpr gNode.ctx n
                      | Instance.lDecl lDecl => throw "local instances not yet supported";
      result : Option (Context × List Expr) ← tryResolve ctx gNode.futureAnswer instTE;
-     modify $ λ ϕ => { generatorStack := ϕ.generatorStack.modify (ϕ.generatorStack.size-1) (λ gNode => { remainingInstances := insts .. gNode }) .. ϕ };
+     modify $ λ ϕ => { generatorStack := ϕ.generatorStack.modify (λ gNode => { remainingInstances := insts .. gNode }) .. ϕ };
      match result with
      | none => pure ()
      | some (ctx, newMVars) => newConsumerNode gNode.toNode ctx newMVars

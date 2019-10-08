@@ -216,19 +216,13 @@ do lookupStatus ← get >>= λ ϕ => pure $ ϕ.env.find instName;
 def generate : TCMethod Unit :=
 do gNode ← get >>= λ ϕ => pure ϕ.generatorStack.back;
    match gNode.remainingInstances with
-   | []                  => throw "[generate] gNode.remainingInstances.isEmpty"
+   | []          => modify $ λ ϕ => { generatorStack := ϕ.generatorStack.pop, .. ϕ }
    | inst::insts => do
      ⟨instTE, ctx⟩ ← match inst with
                      | Instance.const n     => constNameToTypedExpr gNode.ctx n
                      | Instance.lDecl lDecl => throw "local instances not yet supported";
      result : Option (Context × List Expr) ← tryResolve ctx gNode.futureAnswer instTE;
-     nextGeneratorStack ←
-       if insts.isEmpty
-       then get >>= λ ϕ => pure ϕ.generatorStack.pop
-       else get >>= λ ϕ => pure $ ϕ.generatorStack.modify
-                                  (ϕ.generatorStack.size-1)
-                                  (λ gNode => { remainingInstances := insts .. gNode });
-     modify $ λ ϕ => { generatorStack := nextGeneratorStack, .. ϕ };
+     modify $ λ ϕ => { generatorStack := ϕ.generatorStack.modify (ϕ.generatorStack.size-1) (λ gNode => { remainingInstances := insts .. gNode }) .. ϕ };
      match result with
      | none => pure ()
      | some (ctx, newMVars) => newConsumerNode gNode.toNode ctx newMVars

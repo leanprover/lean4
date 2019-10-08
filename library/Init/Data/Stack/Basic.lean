@@ -11,14 +11,14 @@ import Init.Data.Int
 universes u v w
 
 structure Stack (α : Type u) :=
-(vals : Array α := Array.empty)
+(vals : Array α := #[])
 
 namespace Stack
 
 variable {α : Type u}
 
 def empty : Stack α :=
-{ vals := Array.empty }
+{}
 
 def isEmpty (s : Stack α) : Bool :=
 s.vals.isEmpty

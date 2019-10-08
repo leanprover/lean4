@@ -60,7 +60,7 @@ instance GeneratorNode.Inhabited : Inhabited GeneratorNode :=
 
 structure TableEntry : Type :=
 (waiters    : Array Waiter)
-(answers    : Array TypedExpr := Array.empty)
+(answers    : Array TypedExpr := #[])
 
 structure TCState : Type :=
 (env            : Environment)
@@ -134,8 +134,8 @@ partial def introduceLocals : Nat → LocalContext → Array Expr → Expr → L
 def tryResolve (ctx : Context) (futureAnswer : TypedExpr) (instTE : TypedExpr) : TCMethod (Option (Context × List Expr)) :=
 do let ⟨mvar, mvarType⟩ := futureAnswer;
    let ⟨instVal, instType⟩ := instTE;
-   let ⟨lctx, mvarType, locals⟩ := introduceLocals 0 {} Array.empty mvarType;
-   let ⟨ctx, instVal, instType, newMVars⟩ := introduceMVars lctx locals ctx instVal instType Array.empty;
+   let ⟨lctx, mvarType, locals⟩ := introduceLocals 0 {} #[] mvarType;
+   let ⟨ctx, instVal, instType, newMVars⟩ := introduceMVars lctx locals ctx instVal instType #[];
    match (Context.eUnify mvarType instType *> Context.eUnify mvar (lctx.mkLambda locals instVal)).run ctx with
    | EState.Result.error msg   _ => pure none
    | EState.Result.ok    _   ctx => pure $ some $ (ctx, newMVars.toList) -- TODO(dselsam): rm toList
@@ -269,21 +269,21 @@ def collectEReplacements (env : Environment) (lctx : LocalContext) (locals : Arr
 
 def preprocessForOutParams (env : Environment) (goalType : Expr) : Context × Expr × Array (Level × Level) × Array (Expr × Expr) :=
 if !goalType.hasMVar && goalType.getAppFn.isConst && !hasOutParams env goalType.getAppFn.constName
-then ({}, goalType, Array.empty, Array.empty)
+then ({}, goalType, #[], #[])
 else
-  let ⟨lctx, bodyGoalType, locals⟩ := introduceLocals 0 {} Array.empty goalType;
+  let ⟨lctx, bodyGoalType, locals⟩ := introduceLocals 0 {} #[] goalType;
   let f := goalType.getAppFn;
   let fArgs := goalType.getAppArgs;
   if !(f.isConst && isClass env f.constName)
-  then ({}, goalType, Array.empty, Array.empty)
+  then ({}, goalType, #[], #[])
   else
-    let ⟨ctx, uReplacements, CLevels⟩ := collectUReplacements f.constLevels {} Array.empty Array.empty;
+    let ⟨ctx, uReplacements, CLevels⟩ := collectUReplacements f.constLevels {} #[] #[];
     let f := if uReplacements.isEmpty then f else Expr.const f.constName CLevels.toList;
     let fType :=
       match env.find f.constName with
       | none => panic! "found constant not in the environment"
       | some cInfo => cInfo.instantiateTypeUnivParams CLevels.toList;
-    let (ctx, eReplacements, fArgs) := collectEReplacements env lctx locals fType fArgs ctx Array.empty Array.empty;
+    let (ctx, eReplacements, fArgs) := collectEReplacements env lctx locals fType fArgs ctx #[] #[];
     (ctx, lctx.mkForall locals $ mkApp f fArgs.toList, uReplacements, eReplacements)
 
 def synth (goalType₀ : Expr) (fuel : Nat := 100000) : TCMethod Expr :=

@@ -35,7 +35,7 @@ IO.mkRef {}
 constant attributeMapRef : IO.Ref (HashMap Name AttributeImpl) := default _
 
 def mkAttributeArrayRef : IO (IO.Ref (Array AttributeImpl)) :=
-IO.mkRef Array.empty
+IO.mkRef #[]
 
 @[init mkAttributeArrayRef]
 constant attributeArrayRef : IO.Ref (Array AttributeImpl) := default _
@@ -153,7 +153,7 @@ do ext : PersistentEnvExtension Name NameSet ← registerPersistentEnvExtension 
      addImportedFn   := fun _ => pure {},
      addEntryFn      := fun (s : NameSet) n => s.insert n,
      exportEntriesFn := fun es =>
-       let r : Array Name := es.fold (fun a e => a.push e) Array.empty;
+       let r : Array Name := es.fold (fun a e => a.push e) #[];
        r.qsort Name.quickLt,
      statsFn         := fun s => "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
    };
@@ -201,7 +201,7 @@ do ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistent
      addImportedFn   := fun _ => pure {},
      addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2,
      exportEntriesFn := fun m =>
-       let r : Array (Name × α) := m.fold (fun a n p => a.push (n, p)) Array.empty;
+       let r : Array (Name × α) := m.fold (fun a n p => a.push (n, p)) #[];
        r.qsort (fun a b => Name.quickLt a.1 b.1),
      statsFn         := fun s => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
    };
@@ -259,7 +259,7 @@ do ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistent
      addImportedFn   := fun _ => pure {},
      addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2,
      exportEntriesFn := fun m =>
-       let r : Array (Name × α) := m.fold (fun a n p => a.push (n, p)) Array.empty;
+       let r : Array (Name × α) := m.fold (fun a n p => a.push (n, p)) #[];
        r.qsort (fun a b => Name.quickLt a.1 b.1),
      statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
    };

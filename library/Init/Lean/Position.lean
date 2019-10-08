@@ -42,7 +42,7 @@ structure FileMap :=
 namespace FileMap
 
 instance : Inhabited FileMap :=
-⟨{ source := "", positions := Array.empty, lines := Array.empty }⟩
+⟨{ source := "", positions := #[], lines := #[] }⟩
 
 private partial def ofStringAux (s : String) : String.Pos → Nat → Array String.Pos → Array Nat → FileMap
 | i, line, ps, lines =>
@@ -54,7 +54,7 @@ private partial def ofStringAux (s : String) : String.Pos → Nat → Array Stri
     else ofStringAux i line ps lines
 
 def ofString (s : String) : FileMap :=
-ofStringAux s 0 1 (Array.empty.push 0) (Array.empty.push 1)
+ofStringAux s 0 1 (#[0]) (#[1])
 
 private partial def toColumnAux (str : String) (lineBeginPos : String.Pos) (pos : String.Pos) : String.Pos → Nat → Nat
 | i, c =>

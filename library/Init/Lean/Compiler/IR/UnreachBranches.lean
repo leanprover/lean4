@@ -50,7 +50,7 @@ partial def merge : Value → Value → Value
 | top, _ => top
 | _, top => top
 | v₁@(ctor i₁ vs₁), v₂@(ctor i₂ vs₂) =>
-  if i₁ == i₂ then ctor i₁ $ vs₁.size.fold (fun i r => r.push (merge (vs₁.get! i) (vs₂.get! i))) Array.empty
+  if i₁ == i₂ then ctor i₁ $ vs₁.size.fold (fun i r => r.push (merge (vs₁.get! i) (vs₂.get! i))) #[]
   else choice [v₁, v₂]
 | choice vs₁, choice vs₂ => choice $ vs₁.foldl (addChoice merge) vs₂
 | choice vs, v => choice $ addChoice merge vs v

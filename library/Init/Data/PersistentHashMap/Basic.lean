@@ -21,7 +21,7 @@ inductive Node (α : Type u) (β : Type v) : Type (max u v)
 | entries   (es : Array (Entry α β Node)) : Node
 | collision (ks : Array α) (vs : Array β) (h : ks.size = vs.size) : Node
 
-instance Node.inhabited {α β} : Inhabited (Node α β) := ⟨Node.entries Array.empty⟩
+instance Node.inhabited {α β} : Inhabited (Node α β) := ⟨Node.entries #[]⟩
 
 abbrev shift         : USize  := 5
 abbrev branching     : USize  := USize.ofNat (2 ^ shift.toNat)

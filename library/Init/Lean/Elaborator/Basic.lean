@@ -199,7 +199,7 @@ do ext : PersistentEnvExtension ElabAttributeEntry σ ← registerPersistentEnvE
        -- TODO: populate table with `es`
        pure table,
      addEntryFn      := fun (s : σ) _ => s,                            -- TODO
-     exportEntriesFn := fun _ => Array.empty,                          -- TODO
+     exportEntriesFn := fun _ => #[],                                  -- TODO
      statsFn         := fun _ => fmt (kind ++ " elaborator attribute") -- TODO
    };
    let attrImpl : AttributeImpl := {

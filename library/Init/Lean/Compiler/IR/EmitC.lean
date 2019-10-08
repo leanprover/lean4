@@ -27,7 +27,7 @@ structure Context :=
 (modName    : Name)
 (jpMap      : JPParamsMap := {})
 (mainFn     : FunId := default _)
-(mainParams : Array Param := Array.empty)
+(mainParams : Array Param := #[])
 
 abbrev M := ReaderT Context (EState String String)
 

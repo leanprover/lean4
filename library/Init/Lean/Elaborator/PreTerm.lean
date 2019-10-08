@@ -167,12 +167,12 @@ match b.getKind with
        | _ => throw "unknown binder default value annotation";
      decl ← mkLocalDecl id type;
      pure (mkLocal decl)
-| `Lean.Parser.Term.implicitBinder => do runIO (IO.println $ ">> implict " ++ (toString b)); pure Array.empty
-| `Lean.Parser.Term.instBinder     => do runIO (IO.println $ ">> inst " ++ (toString b)); pure Array.empty
+| `Lean.Parser.Term.implicitBinder => do runIO (IO.println $ ">> implict " ++ (toString b)); pure #[]
+| `Lean.Parser.Term.instBinder     => do runIO (IO.println $ ">> inst " ++ (toString b)); pure #[]
 | _ => throw "unknown binder kind"
 
 private def processBinders (bs : Array (Syntax Expr)) : Elab (Array PreTerm) :=
-bs.mfoldl (fun r s => do xs ← processBinder s; pure (r ++ xs)) Array.empty
+bs.mfoldl (fun r s => do xs ← processBinder s; pure (r ++ xs)) #[]
 
 @[builtinPreTermElab «forall»] def convertForall : PreTermElab :=
 fun n => do

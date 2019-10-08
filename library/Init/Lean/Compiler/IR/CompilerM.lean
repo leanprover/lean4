@@ -34,7 +34,7 @@ def Log.toString (log : Log) : String :=
 log.format.pretty
 
 structure CompilerState :=
-(env : Environment) (log : Log := Array.empty)
+(env : Environment) (log : Log := #[])
 
 abbrev CompilerM := ReaderT Options (EState String CompilerState)
 
@@ -76,7 +76,7 @@ private def mkEntryArray (decls : List Decl) : Array Decl :=
 /- Remove duplicates by adding decls into a map -/
 let map : HashMap Name Decl := {};
 let map := decls.foldl (fun (map : HashMap Name Decl) decl => map.insert decl.name decl) map;
-map.fold (fun a k v => a.push v) Array.empty
+map.fold (fun a k v => a.push v) #[]
 
 def mkDeclMapExtension : IO (SimplePersistentEnvExtension Decl DeclMap) :=
 registerSimplePersistentEnvExtension {

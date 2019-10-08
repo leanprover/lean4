@@ -13,7 +13,7 @@ inductive PersistentArrayNode (α : Type u)
 
 namespace PersistentArrayNode
 
-instance {α : Type u} : Inhabited (PersistentArrayNode α) := ⟨leaf Array.empty⟩
+instance {α : Type u} : Inhabited (PersistentArrayNode α) := ⟨leaf #[]⟩
 
 def isNode {α} : PersistentArrayNode α → Bool
 | node _ => true
@@ -122,7 +122,7 @@ if t.size <= (mul2Shift 1 (t.shift + initShift)).toNat then
     tailOff := t.size,
     .. t }
 else
-  { tail := Array.empty,
+  { tail := #[],
     root := let n := mkEmptyArray.push t.root;
             node (n.push (mkNewPath t.shift t.tail)),
     shift   := t.shift + initShift,

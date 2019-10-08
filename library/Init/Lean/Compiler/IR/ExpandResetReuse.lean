@@ -90,7 +90,7 @@ partial def eraseProjIncForAux (y : VarId) : Array FnBody → Mask → Array FnB
 /- Try to erase `inc` instructions on projections of `y` occurring in the tail of `bs`.
    Return the updated `bs` and a bit mask specifying which `inc`s have been removed. -/
 def eraseProjIncFor (n : Nat) (y : VarId) (bs : Array FnBody) : Array FnBody × Mask :=
-eraseProjIncForAux y bs (mkArray n none) Array.empty
+eraseProjIncForAux y bs (mkArray n none) #[]
 
 /- Replace `reuse x ctor ...` with `ctor ...`, and remoce `dec x` -/
 partial def reuseToCtor (x : VarId) : FnBody → FnBody
@@ -251,7 +251,7 @@ do let bOld := FnBody.vdecl x IRType.object (Expr.reset n y) b;
    let bSlow      := mkSlowPath x y mask b;
    bFast ← mkFastPath x y mask b;
    /- We only optimize recursively the fast. -/
-   bFast ← mainFn bFast Array.empty;
+   bFast ← mainFn bFast #[];
    c ← mkFresh;
    let b := FnBody.vdecl c IRType.uint8 (Expr.isShared y) (mkIf c bSlow bFast);
    pure $ reshape bs b
@@ -263,10 +263,10 @@ partial def searchAndExpand : FnBody → Array FnBody → M FnBody
   else
     searchAndExpand b (push bs d)
 | FnBody.jdecl j xs v b,   bs => do
-  v ← searchAndExpand v Array.empty;
+  v ← searchAndExpand v #[];
   searchAndExpand b (push bs (FnBody.jdecl j xs v FnBody.nil))
 | FnBody.case tid x xType alts,   bs => do
-  alts ← alts.mmap $ fun alt => alt.mmodifyBody $ fun b => searchAndExpand b Array.empty;
+  alts ← alts.mmap $ fun alt => alt.mmodifyBody $ fun b => searchAndExpand b #[];
   pure $ reshape bs (FnBody.case tid x xType alts)
 | b, bs =>
   if b.isTerminal then pure $ reshape bs b
@@ -278,7 +278,7 @@ match d with
 | (Decl.fdecl f xs t b) =>
   let m := mkProjMap d;
   let nextIdx := d.maxIndex + 1;
-  let b := (searchAndExpand b Array.empty { projMap := m }).run' nextIdx;
+  let b := (searchAndExpand b #[] { projMap := m }).run' nextIdx;
   Decl.fdecl f xs t b
 | d => d
 

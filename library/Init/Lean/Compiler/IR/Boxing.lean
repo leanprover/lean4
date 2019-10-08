@@ -62,7 +62,7 @@ do let ps := decl.params;
         else do
           x ← mkFresh;
           pure (newVDecls.push (FnBody.vdecl x p.ty (Expr.unbox q.x) (default _)), xs.push (Arg.var x)))
-     (Array.empty, Array.empty);
+     (#[], #[]);
    r ← mkFresh;
    let newVDecls := newVDecls.push (FnBody.vdecl r decl.resultType (Expr.fap decl.name xs) (default _));
    body ←
@@ -81,7 +81,7 @@ def mkBoxedVersion (decl : Decl) : Decl :=
 def addBoxedVersions (env : Environment) (decls : Array Decl) : Array Decl :=
 let boxedDecls := decls.foldl
   (fun (newDecls : Array Decl) decl => if requiresBoxedVersion env decl then newDecls.push (mkBoxedVersion decl) else newDecls)
-  Array.empty;
+  #[];
 decls ++ boxedDecls
 
 /- Infer scrutinee type using `case` alternatives.
@@ -120,7 +120,7 @@ structure BoxingState :=
    we use auxDeclCache to avoid creating equivalent auxiliary declarations more than once when
    processing the same IR declaration.
 -/
-(auxDecls : Array Decl := Array.empty)
+(auxDecls : Array Decl := #[])
 (auxDeclCache : AssocList FnBody Expr := AssocList.empty)
 (nextAuxId : Nat := 1)
 
@@ -143,7 +143,7 @@ def getJPParams (j : JoinPointId) : M (Array Param) :=
 do localCtx ← getLocalContext;
    match localCtx.getJPParams j with
    | some ys => pure ys
-   | none    => pure Array.empty -- unreachable, we assume the code is well formed
+   | none    => pure #[] -- unreachable, we assume the code is well formed
 def getDecl (fid : FunId) : M Decl :=
 do ctx ← read;
    match findEnvDecl' ctx.env fid ctx.decls with
@@ -159,7 +159,7 @@ adaptReader (fun (ctx : BoxingContext) => { localCtx := ctx.localCtx.addLocal x 
 @[inline] def withJDecl {α : Type} (j : JoinPointId) (xs : Array Param) (v : FnBody) (k : M α) : M α :=
 adaptReader (fun (ctx : BoxingContext) => { localCtx := ctx.localCtx.addJP j xs v, .. ctx }) k
 
-/- If `x` declaration is of the form `x := Expr.lit _` or `x := Expr.fap c Array.empty`,
+/- If `x` declaration is of the form `x := Expr.lit _` or `x := Expr.fap c #[]`,
    and `x`'s type is not cheap to box (e.g., it is `UInt64), then return its value. -/
 private def isExpensiveConstantValueBoxing (x : VarId) (xType : IRType) : M (Option Expr) :=
 if !xType.isScalar then pure none -- We assume unboxing is always cheap
@@ -200,8 +200,8 @@ do optVal ← isExpensiveConstantValueBoxing x xType;
      | some v => pure v
      | none   => do
        let auxName  := ctx.f ++ ((`_boxed_const).appendIndexAfter s.nextAuxId);
-       let auxConst := Expr.fap auxName Array.empty;
-       let auxDecl  := Decl.fdecl auxName Array.empty expectedType body;
+       let auxConst := Expr.fap auxName #[];
+       let auxDecl  := Decl.fdecl auxName #[] expectedType body;
        modify $ fun s => {
         auxDecls     := s.auxDecls.push auxDecl,
         auxDeclCache := s.auxDeclCache.cons body auxConst,
@@ -225,7 +225,7 @@ match x with
 | _         => k x
 
 @[specialize] def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Array Arg × Array FnBody) :=
-xs.miterate (Array.empty, Array.empty) $ fun i (x : Arg) (r : Array Arg × Array FnBody) =>
+xs.miterate (#[], #[]) $ fun i (x : Arg) (r : Array Arg × Array FnBody) =>
   let expected := typeFromIdx i.val;
   let (xs, bs) := r;
   match x with
@@ -331,7 +331,7 @@ let decls := decls.foldl (fun (newDecls : Array Decl) (decl : Decl) =>
     let newDecl  := newDecl.elimDead;
     newDecls.push newDecl
   | d => newDecls.push d)
-  Array.empty;
+  #[];
 addBoxedVersions env decls
 
 end ExplicitBoxing

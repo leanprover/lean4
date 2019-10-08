@@ -114,7 +114,7 @@ match e₂ with
 end Error
 
 structure ParserState :=
-(stxStack : Array Syntax := Array.empty)
+(stxStack : Array Syntax := #[])
 (pos      : String.Pos := 0)
 (cache    : ParserCache := {})
 (errorMsg : Option Error := none)
@@ -1350,7 +1350,7 @@ do ext : PersistentEnvExtension TokenConfig TokenTable ← registerPersistentEnv
      name            := `_tokens_,
      addImportedFn   := fun es => mkImportedTokenTable es,
      addEntryFn      := fun (s : TokenTable) _ => s,         -- TODO
-     exportEntriesFn := fun _ => Array.empty,                -- TODO
+     exportEntriesFn := fun _ => #[],                        -- TODO
      statsFn         := fun _ => fmt "token table attribute" -- TODO
    };
    let attrImpl : AttributeImpl := {
@@ -1520,7 +1520,7 @@ do ext : PersistentEnvExtension ParserAttributeEntry ParsingTables ← registerP
     -- TODO: populate table with `es`
        pure table,
      addEntryFn      := fun (s : ParsingTables) _ => s, -- TODO
-     exportEntriesFn := fun _ => Array.empty,           -- TODO
+     exportEntriesFn := fun _ => #[],                   -- TODO
      statsFn         := fun _ => fmt "parser attribute" -- TODO
    };
    let attrImpl : AttributeImpl := {

@@ -339,7 +339,7 @@ partial def flattenAux : FnBody → Array FnBody → (Array FnBody) × FnBody
   else flattenAux b.body (push r b)
 
 def FnBody.flatten (b : FnBody) : (Array FnBody) × FnBody :=
-flattenAux b Array.empty
+flattenAux b #[]
 
 partial def reshapeAux : Array FnBody → Nat → FnBody → FnBody
 | a, i, b =>

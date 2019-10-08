@@ -45,7 +45,7 @@ partial def FnBody.pushProj : FnBody → FnBody
   match term with
   | FnBody.case tid x xType alts =>
     let altsF      := alts.map $ fun alt => alt.body.freeIndices;
-    let (bs, alts) := pushProjs bs alts altsF Array.empty (mkIndexSet x.idx);
+    let (bs, alts) := pushProjs bs alts altsF #[] (mkIndexSet x.idx);
     let alts       := alts.map $ fun alt => alt.modifyBody FnBody.pushProj;
     let term       := FnBody.case tid x xType alts;
     reshape bs term

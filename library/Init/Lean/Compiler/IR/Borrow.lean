@@ -182,8 +182,8 @@ do s ← get;
        ctx ← read;
        match findEnvDecl ctx.env fn with
        | some decl => pure decl.params
-       | none      => pure Array.empty   -- unreachable if well-formed input
-     | _ => pure Array.empty -- unreachable if well-formed input
+       | none      => pure #[]   -- unreachable if well-formed input
+     | _ => pure #[] -- unreachable if well-formed input
 
 /- For each ps[i], if ps[i] is owned, then mark xs[i] as owned. -/
 def ownArgsUsingParams (xs : Array Arg) (ps : Array Param) : M Unit :=

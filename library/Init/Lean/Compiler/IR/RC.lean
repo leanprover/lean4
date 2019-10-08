@@ -43,7 +43,7 @@ match ctx.varMap.find x with
 def getJPParams (ctx : Context) (j : JoinPointId) : Array Param :=
 match ctx.localCtx.getJPParams j with
 | some ps => ps
-| none    => Array.empty -- unreachable in well-formed code
+| none    => #[] -- unreachable in well-formed code
 
 def getJPLiveVars (ctx : Context) (j : JoinPointId) : LiveVarSet :=
 match ctx.jpLiveVarMap.find j with

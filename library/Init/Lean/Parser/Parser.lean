@@ -1346,20 +1346,19 @@ instance TokenTableAttribute.inhabited : Inhabited TokenTableAttribute := ⟨{ a
 section
 set_option compiler.extract_closed false
 def mkTokenTableAttribute : IO TokenTableAttribute :=
-do
-ext : PersistentEnvExtension TokenConfig TokenTable ← registerPersistentEnvExtension {
-  name            := `_tokens_,
-  addImportedFn   := fun es => mkImportedTokenTable es,
-  addEntryFn      := fun (s : TokenTable) _ => s,         -- TODO
-  exportEntriesFn := fun _ => Array.empty,                -- TODO
-  statsFn         := fun _ => fmt "token table attribute" -- TODO
-};
-let attrImpl : AttributeImpl := {
-  name  := `_tokens_,
-  descr := "internal token table attribute",
-  add   := fun env decl args persistent => pure env -- TODO
-};
-pure { ext := ext, attr := attrImpl }
+do ext : PersistentEnvExtension TokenConfig TokenTable ← registerPersistentEnvExtension {
+     name            := `_tokens_,
+     addImportedFn   := fun es => mkImportedTokenTable es,
+     addEntryFn      := fun (s : TokenTable) _ => s,         -- TODO
+     exportEntriesFn := fun _ => Array.empty,                -- TODO
+     statsFn         := fun _ => fmt "token table attribute" -- TODO
+   };
+   let attrImpl : AttributeImpl := {
+     name  := `_tokens_,
+     descr := "internal token table attribute",
+     add   := fun env decl args persistent => pure env -- TODO
+   };
+   pure { ext := ext, attr := attrImpl }
 end
 
 @[init mkTokenTableAttribute]
@@ -1512,25 +1511,24 @@ We still need to:
 - Add support for scoped parser extensions.
 -/
 def registerParserAttribute (attrName : Name) (kind : String) (descr : String) (builtinTable : Option (IO.Ref ParsingTables) := none) : IO ParserAttribute :=
-do
-ext : PersistentEnvExtension ParserAttributeEntry ParsingTables ← registerPersistentEnvExtension {
-  name            := attrName,
-  addImportedFn   := fun es => do
-    table ← match builtinTable with
-    | some table => table.get
-    | none       => pure {};
+do ext : PersistentEnvExtension ParserAttributeEntry ParsingTables ← registerPersistentEnvExtension {
+     name            := attrName,
+     addImportedFn   := fun es => do
+       table ← match builtinTable with
+       | some table => table.get
+       | none       => pure {};
     -- TODO: populate table with `es`
-    pure table,
-  addEntryFn      := fun (s : ParsingTables) _ => s, -- TODO
-  exportEntriesFn := fun _ => Array.empty,           -- TODO
-  statsFn         := fun _ => fmt "parser attribute" -- TODO
-};
-let attrImpl : AttributeImpl := {
-  name  := attrName,
-  descr := descr,
-  add   := fun env decl args persistent => pure env -- TODO
-};
-pure { ext := ext, attr := attrImpl, kind := kind }
+       pure table,
+     addEntryFn      := fun (s : ParsingTables) _ => s, -- TODO
+     exportEntriesFn := fun _ => Array.empty,           -- TODO
+     statsFn         := fun _ => fmt "parser attribute" -- TODO
+   };
+   let attrImpl : AttributeImpl := {
+     name  := attrName,
+     descr := descr,
+     add   := fun env decl args persistent => pure env -- TODO
+   };
+   pure { ext := ext, attr := attrImpl, kind := kind }
 
 namespace ParserAttribute
 

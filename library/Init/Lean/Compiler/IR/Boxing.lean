@@ -51,30 +51,29 @@ let ps := decl.params;
 || ps.size > closureMaxArgs
 
 def mkBoxedVersionAux (decl : Decl) : N Decl :=
-do
-let ps := decl.params;
-qs ← ps.mmap (fun _ => do x ← mkFresh; pure { Param . x := x, ty := IRType.object, borrow := false });
-(newVDecls, xs) ← qs.size.mfold
-  (fun i (r : Array FnBody × Array Arg) =>
-     let (newVDecls, xs) := r;
-     let p := ps.get! i;
-     let q := qs.get! i;
-     if !p.ty.isScalar then pure (newVDecls, xs.push (Arg.var q.x))
-     else do
-       x ← mkFresh;
-       pure (newVDecls.push (FnBody.vdecl x p.ty (Expr.unbox q.x) (default _)), xs.push (Arg.var x)))
-  (Array.empty, Array.empty);
-r ← mkFresh;
-let newVDecls := newVDecls.push (FnBody.vdecl r decl.resultType (Expr.fap decl.name xs) (default _));
-body ←
- if !decl.resultType.isScalar then do {
-   pure $ reshape newVDecls (FnBody.ret (Arg.var r))
- } else do {
-   newR ← mkFresh;
-   let newVDecls := newVDecls.push (FnBody.vdecl newR IRType.object (Expr.box decl.resultType r) (default _));
-   pure $ reshape newVDecls (FnBody.ret (Arg.var newR))
- };
-pure $ Decl.fdecl (mkBoxedName decl.name) qs IRType.object body
+do let ps := decl.params;
+   qs ← ps.mmap (fun _ => do x ← mkFresh; pure { Param . x := x, ty := IRType.object, borrow := false });
+   (newVDecls, xs) ← qs.size.mfold
+     (fun i (r : Array FnBody × Array Arg) =>
+        let (newVDecls, xs) := r;
+        let p := ps.get! i;
+        let q := qs.get! i;
+        if !p.ty.isScalar then pure (newVDecls, xs.push (Arg.var q.x))
+        else do
+          x ← mkFresh;
+          pure (newVDecls.push (FnBody.vdecl x p.ty (Expr.unbox q.x) (default _)), xs.push (Arg.var x)))
+     (Array.empty, Array.empty);
+   r ← mkFresh;
+   let newVDecls := newVDecls.push (FnBody.vdecl r decl.resultType (Expr.fap decl.name xs) (default _));
+   body ←
+     if !decl.resultType.isScalar then do {
+       pure $ reshape newVDecls (FnBody.ret (Arg.var r))
+     } else do {
+       newR ← mkFresh;
+       let newVDecls := newVDecls.push (FnBody.vdecl newR IRType.object (Expr.box decl.resultType r) (default _));
+       pure $ reshape newVDecls (FnBody.ret (Arg.var newR))
+     };
+   pure $ Decl.fdecl (mkBoxedName decl.name) qs IRType.object body
 
 def mkBoxedVersion (decl : Decl) : Decl :=
 (mkBoxedVersionAux decl).run' 1
@@ -181,37 +180,36 @@ else match xType with
    It is used when the expected type does not match `xType`.
    If `xType` is scalar, then we need to "box" it. Otherwise, we need to "unbox" it. -/
 def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr :=
-do
-optVal ← isExpensiveConstantValueBoxing x xType;
-match optVal with
-| some v => do
-  ctx ← read;
-  s ← get;
-  /- Create auxiliary FnBody
+do optVal ← isExpensiveConstantValueBoxing x xType;
+   match optVal with
+   | some v => do
+     ctx ← read;
+     s ← get;
+     /- Create auxiliary FnBody
      ```
      let x_1 : xType := v;
      let x_2 : expectedType := Expr.box xType x_1;
      ret x_2
      ```
-   -/
-  let body : FnBody :=
-    FnBody.vdecl { idx := 1 } xType v $
-    FnBody.vdecl { idx := 2 } expectedType (Expr.box xType { idx := 1 }) $
-    FnBody.ret (mkVarArg { idx := 2 });
-  match s.auxDeclCache.find body with
-  | some v => pure v
-  | none   => do
-    let auxName  := ctx.f ++ ((`_boxed_const).appendIndexAfter s.nextAuxId);
-    let auxConst := Expr.fap auxName Array.empty;
-    let auxDecl  := Decl.fdecl auxName Array.empty expectedType body;
-    modify $ fun s => {
-     auxDecls     := s.auxDecls.push auxDecl,
-     auxDeclCache := s.auxDeclCache.cons body auxConst,
-     nextAuxId    := s.nextAuxId + 1,
-     .. s
-    };
-    pure auxConst
-| none => pure $ if xType.isScalar then Expr.box xType x else Expr.unbox x
+     -/
+     let body : FnBody :=
+       FnBody.vdecl { idx := 1 } xType v $
+       FnBody.vdecl { idx := 2 } expectedType (Expr.box xType { idx := 1 }) $
+       FnBody.ret (mkVarArg { idx := 2 });
+     match s.auxDeclCache.find body with
+     | some v => pure v
+     | none   => do
+       let auxName  := ctx.f ++ ((`_boxed_const).appendIndexAfter s.nextAuxId);
+       let auxConst := Expr.fap auxName Array.empty;
+       let auxDecl  := Decl.fdecl auxName Array.empty expectedType body;
+       modify $ fun s => {
+        auxDecls     := s.auxDecls.push auxDecl,
+        auxDeclCache := s.auxDeclCache.cons body auxConst,
+        nextAuxId    := s.nextAuxId + 1,
+        .. s
+       };
+       pure auxConst
+   | none => pure $ if xType.isScalar then Expr.box xType x else Expr.unbox x
 
 @[inline] def castVarIfNeeded (x : VarId) (expected : IRType) (k : VarId → M FnBody) : M FnBody :=
 do xType ← getVarType x;

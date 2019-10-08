@@ -58,16 +58,14 @@ def checkScalarVar (x : VarId) : M Unit :=
 checkVarType x IRType.isScalar
 
 def checkFullApp (c : FunId) (ys : Array Arg) : M Unit :=
-do
-decl ← getDecl c;
-unless (ys.size == decl.params.size) (throw ("incorrect number of arguments to '" ++ toString c ++ "', " ++ toString ys.size ++ " provided, " ++ toString decl.params.size ++ " expected"));
-checkArgs ys
+do decl ← getDecl c;
+   unless (ys.size == decl.params.size) (throw ("incorrect number of arguments to '" ++ toString c ++ "', " ++ toString ys.size ++ " provided, " ++ toString decl.params.size ++ " expected"));
+   checkArgs ys
 
 def checkPartialApp (c : FunId) (ys : Array Arg) : M Unit :=
-do
-decl ← getDecl c;
-unless (ys.size < decl.params.size) (throw ("too many arguments too partial application '" ++ toString c ++ "', num. args: " ++ toString ys.size ++ ", arity: " ++ toString decl.params.size));
-checkArgs ys
+do decl ← getDecl c;
+   unless (ys.size < decl.params.size) (throw ("too many arguments too partial application '" ++ toString c ++ "', num. args: " ++ toString ys.size ++ ", arity: " ++ toString decl.params.size));
+   checkArgs ys
 
 def checkExpr (ty : IRType) : Expr → M Unit
 | Expr.pap f ys           => checkPartialApp f ys *> checkObjType ty -- partial applications should always produce a closure object
@@ -124,11 +122,10 @@ def checkDecl : Decl → M Unit
 end Checker
 
 def checkDecl (decls : Array Decl) (decl : Decl) : CompilerM Unit :=
-do
-env ← getEnv;
-match Checker.checkDecl decl { env := env, decls := decls } with
-| Except.error msg => throw ("IR check failed at '" ++ toString decl.name ++ "', error: " ++ msg)
-| other            => pure ()
+do env ← getEnv;
+   match Checker.checkDecl decl { env := env, decls := decls } with
+   | Except.error msg => throw ("IR check failed at '" ++ toString decl.name ++ "', error: " ++ msg)
+   | other            => pure ()
 
 def checkDecls (decls : Array Decl) : CompilerM Unit :=
 decls.mfor (checkDecl decls)

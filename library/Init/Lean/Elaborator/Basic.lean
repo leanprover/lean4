@@ -192,23 +192,22 @@ The state is initialized using `builtinTermElabTable`.
 The current implementation just uses the bultin elaborators.
 -/
 def mkElabAttribute {σ} [Inhabited σ] (attrName : Name) (kind : String) (builtinTable : IO.Ref σ) : IO (ElabAttribute σ) :=
-do
-ext : PersistentEnvExtension ElabAttributeEntry σ ← registerPersistentEnvExtension {
-  name            := attrName,
-  addImportedFn   := fun es => do
-    table ← builtinTable.get;
-    -- TODO: populate table with `es`
-    pure table,
-  addEntryFn      := fun (s : σ) _ => s,                            -- TODO
-  exportEntriesFn := fun _ => Array.empty,                          -- TODO
-  statsFn         := fun _ => fmt (kind ++ " elaborator attribute") -- TODO
-};
-let attrImpl : AttributeImpl := {
-  name  := attrName,
-  descr := kind ++ " elaborator",
-  add   := fun env decl args persistent => pure env -- TODO
-};
-pure { ext := ext, attr := attrImpl, kind := kind }
+do ext : PersistentEnvExtension ElabAttributeEntry σ ← registerPersistentEnvExtension {
+     name            := attrName,
+     addImportedFn   := fun es => do
+       table ← builtinTable.get;
+       -- TODO: populate table with `es`
+       pure table,
+     addEntryFn      := fun (s : σ) _ => s,                            -- TODO
+     exportEntriesFn := fun _ => Array.empty,                          -- TODO
+     statsFn         := fun _ => fmt (kind ++ " elaborator attribute") -- TODO
+   };
+   let attrImpl : AttributeImpl := {
+     name  := attrName,
+     descr := kind ++ " elaborator",
+     add   := fun env decl args persistent => pure env -- TODO
+   };
+   pure { ext := ext, attr := attrImpl, kind := kind }
 
 abbrev TermElabAttribute := ElabAttribute TermElabTable
 def mkTermElabAttribute : IO TermElabAttribute :=
@@ -437,11 +436,10 @@ def localContext : Elab LocalContext :=
 do scope ← getScope; pure scope.lctx
 
 def mkLocalDecl (userName : Name) (type : Expr) (bi : BinderInfo := BinderInfo.default) : Elab LocalDecl :=
-do
-idx ← mkFreshName;
-modifyGetScope $ fun scope =>
-   let (decl, lctx) := scope.lctx.mkLocalDecl idx userName type bi;
-   (decl, { lctx := lctx, .. scope })
+do idx ← mkFreshName;
+   modifyGetScope $ fun scope =>
+      let (decl, lctx) := scope.lctx.mkLocalDecl idx userName type bi;
+      (decl, { lctx := lctx, .. scope })
 
 def mkLambda (xs : Array Expr) (b : Expr) : Elab Expr :=
 do lctx ← localContext; pure $ lctx.mkLambda xs b
@@ -452,11 +450,10 @@ do lctx ← localContext; pure $ lctx.mkForall xs b
 def anonymousInstNamePrefix := `_inst
 
 def mkAnonymousInstName : Elab Name :=
-do
-scope ← getScope;
-let n := anonymousInstNamePrefix.appendIndexAfter scope.nextInstIdx;
-modifyScope $ fun scope => { nextInstIdx := scope.nextInstIdx + 1, .. scope };
-pure n
+do scope ← getScope;
+   let n := anonymousInstNamePrefix.appendIndexAfter scope.nextInstIdx;
+   modifyScope $ fun scope => { nextInstIdx := scope.nextInstIdx + 1, .. scope };
+   pure n
 
 def rootNamespace := `_root_
 
@@ -493,11 +490,10 @@ do s ← get;
        | none   => throw (ElabException.other ("unknown namespace '" ++ toString n ++ "'"))
 
 @[inline] def withNewScope {α} (x : Elab α) : Elab α :=
-do
-modify $ fun s => { scopes := s.scopes.head! :: s.scopes, .. s };
-a ← x;
-modify $ fun s => { scopes := s.scopes.tail!, .. s};
-pure a
+do modify $ fun s => { scopes := s.scopes.head! :: s.scopes, .. s };
+   a ← x;
+   modify $ fun s => { scopes := s.scopes.tail!, .. s};
+   pure a
 
 @[inline] def withInPattern {α} (x : Elab α) : Elab α :=
 withNewScope $ do

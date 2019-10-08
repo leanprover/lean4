@@ -260,10 +260,9 @@ variable {β : Type u}
 | leaf vs => leaf <$> vs.mmap f
 
 @[specialize] def mmap (f : α → m β) (t : PersistentArray α) : m (PersistentArray β) :=
-do
-  root ← mmapAux f t.root;
-  tail ← t.tail.mmap f;
-  pure { tail := tail, root := root, .. t }
+do root ← mmapAux f t.root;
+   tail ← t.tail.mmap f;
+   pure { tail := tail, root := root, .. t }
 
 end
 

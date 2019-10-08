@@ -98,50 +98,47 @@ nss.mforArgs $ fun ns => do
   addOpenDecl (OpenDecl.simple ns [])
 
 def elabOpenOnly (n : SyntaxNode) : Elab Unit :=
-do
-let ns  := n.getIdAt 0;
-ns ← resolveNamespace ns;
-let ids := n.getArg 2;
-ids.mforArgs $ fun idStx => do
-  let id := idStx.getId;
-  let declName := ns ++ id;
-  env ← getEnv;
-  if env.contains declName then
-    addOpenDecl (OpenDecl.explicit id declName)
-  else
-    logUnknownDecl idStx declName
+do let ns  := n.getIdAt 0;
+   ns ← resolveNamespace ns;
+   let ids := n.getArg 2;
+   ids.mforArgs $ fun idStx => do
+     let id := idStx.getId;
+     let declName := ns ++ id;
+     env ← getEnv;
+     if env.contains declName then
+       addOpenDecl (OpenDecl.explicit id declName)
+     else
+       logUnknownDecl idStx declName
 
 def elabOpenHiding (n : SyntaxNode) : Elab Unit :=
-do
-let ns := n.getIdAt 0;
-ns ← resolveNamespace ns;
-let idsStx := n.getArg 2;
-env ← getEnv;
-ids : List Name ← idsStx.mfoldArgs (fun idStx ids => do
-  let id := idStx.getId;
-  let declName := ns ++ id;
-  if env.contains declName then
-    pure (id::ids)
-  else do
-    logUnknownDecl idStx declName;
-    pure ids)
-  [];
-addOpenDecl (OpenDecl.simple ns ids)
+do let ns := n.getIdAt 0;
+   ns ← resolveNamespace ns;
+   let idsStx := n.getArg 2;
+   env ← getEnv;
+   ids : List Name ← idsStx.mfoldArgs (fun idStx ids => do
+     let id := idStx.getId;
+     let declName := ns ++ id;
+     if env.contains declName then
+       pure (id::ids)
+     else do
+       logUnknownDecl idStx declName;
+       pure ids)
+     [];
+   addOpenDecl (OpenDecl.simple ns ids)
 
 def elabOpenRenaming (n : SyntaxNode) : Elab Unit :=
-do
-let ns := n.getIdAt 0;
-ns ← resolveNamespace ns;
-let rs := (n.getArg 2);
-rs.mforSepArgs $ fun stx => do
-  let fromId   := stx.getIdAt 0;
-  let toId     := stx.getIdAt 2;
-  let declName := ns ++ fromId;
-  env ← getEnv;
-  if env.contains declName then
-    addOpenDecl (OpenDecl.explicit toId declName)
-  else
-    logUnknownDecl stx declName
+do let ns := n.getIdAt 0;
+   ns ← resolveNamespace ns;
+   let rs := (n.getArg 2);
+   rs.mforSepArgs $ fun stx => do
+     let fromId   := stx.getIdAt 0;
+     let toId     := stx.getIdAt 2;
+     let declName := ns ++ fromId;
+     env ← getEnv;
+     if env.contains declName then
+       addOpenDecl (OpenDecl.explicit toId declName)
+     else
+       logUnknownDecl stx declName
 
 @[builtinCommandElab «open»] def elabOpen : CommandElab :=
 fun n => do
@@ -157,13 +154,12 @@ fun n => do
     elabOpenRenaming body
 
 def addUniverse (idStx : Syntax) : Elab Unit :=
-do
-let id := idStx.getId;
-univs ← getUniverses;
-if univs.elem id then
-  logError idStx ("a universe named '" ++ toString id ++ "' has already been declared in this Scope")
-else
-  modifyScope $ fun scope => { univs := id :: scope.univs, .. scope }
+do let id := idStx.getId;
+   univs ← getUniverses;
+   if univs.elem id then
+     logError idStx ("a universe named '" ++ toString id ++ "' has already been declared in this Scope")
+   else
+     modifyScope $ fun scope => { univs := id :: scope.univs, .. scope }
 
 @[builtinCommandElab «universe»] def elabUniverse : CommandElab :=
 fun n => do

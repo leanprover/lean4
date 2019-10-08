@@ -120,12 +120,11 @@ partial def parseFileAux (env : Environment) (ctx : ParserContextCore) : ModuleP
       parseFileAux state msgs (stxs.push stx)
 
 def parseFile (env : Environment) (fname : String) : IO Syntax :=
-do
-fname ← IO.realPath fname;
-contents ← IO.readTextFile fname;
-let ctx := mkParserContextCore env contents fname;
-let (stx, state, messages) := parseHeader env ctx;
-parseFileAux env ctx state messages #[stx]
+do fname ← IO.realPath fname;
+   contents ← IO.readTextFile fname;
+   let ctx := mkParserContextCore env contents fname;
+   let (stx, state, messages) := parseHeader env ctx;
+   parseFileAux env ctx state messages #[stx]
 
 end Parser
 end Lean

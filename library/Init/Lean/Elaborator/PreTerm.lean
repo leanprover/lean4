@@ -201,19 +201,18 @@ fun n => do
     logErrorAndThrow n.val ("unknown identifier '" ++ toString id ++ "'")
 
 def oldElaborate (stx : Syntax Expr) (expectedType : Option Expr := none) : Elab Expr :=
-do
-  p ← toPreTerm stx;
-  scope ← getScope;
-  s ← get;
-  match oldElaborateAux s.env scope.options s.mctx scope.lctx (mkPreTypeAscriptionIfSome p expectedType) with
-  | Except.error (some pos, fmt) => do
-    ctx ← read;
-    logMessage { fileName := ctx.fileName, pos := pos, text := fmt.pretty scope.options };
-    throw ElabException.silent
-  | Except.error (none, fmt)     => logErrorAndThrow stx (fmt.pretty scope.options)
-  | Except.ok (env, mctx, e)     => do
-    modify $ fun s => { env := env, mctx := mctx, .. s };
-    pure e
+do p ← toPreTerm stx;
+   scope ← getScope;
+   s ← get;
+   match oldElaborateAux s.env scope.options s.mctx scope.lctx (mkPreTypeAscriptionIfSome p expectedType) with
+     | Except.error (some pos, fmt) => do
+       ctx ← read;
+       logMessage { fileName := ctx.fileName, pos := pos, text := fmt.pretty scope.options };
+       throw ElabException.silent
+     | Except.error (none, fmt)     => logErrorAndThrow stx (fmt.pretty scope.options)
+     | Except.ok (env, mctx, e)     => do
+       modify $ fun s => { env := env, mctx := mctx, .. s };
+       pure e
 
 end Elab
 end Lean

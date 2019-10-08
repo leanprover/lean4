@@ -161,31 +161,29 @@ do s ← get;
 
 /- Updates `map[k]` using the current set of `owned` variables. -/
 def updateParamMap (k : Key) : M Unit :=
-do
-s ← get;
-match s.map.find k with
-| some ps => do
-  ps ← ps.mmap $ fun (p : Param) =>
-   if p.borrow && s.owned.contains p.x.idx then do
-     markModifiedParamMap; pure { borrow := false, .. p }
-   else
-     pure p;
-  modify $ fun s => { map := s.map.insert k ps, .. s }
-| none    => pure ()
+do s ← get;
+   match s.map.find k with
+   | some ps => do
+     ps ← ps.mmap $ fun (p : Param) =>
+      if p.borrow && s.owned.contains p.x.idx then do
+        markModifiedParamMap; pure { borrow := false, .. p }
+      else
+        pure p;
+     modify $ fun s => { map := s.map.insert k ps, .. s }
+   | none    => pure ()
 
 def getParamInfo (k : Key) : M (Array Param) :=
-do
-s ← get;
-match s.map.find k with
-| some ps => pure ps
-| none    =>
-  match k with
-  | (Key.decl fn) => do
-    ctx ← read;
-    match findEnvDecl ctx.env fn with
-    | some decl => pure decl.params
-    | none      => pure Array.empty   -- unreachable if well-formed input
-  | _ => pure Array.empty -- unreachable if well-formed input
+do s ← get;
+   match s.map.find k with
+   | some ps => pure ps
+   | none    =>
+     match k with
+     | (Key.decl fn) => do
+       ctx ← read;
+       match findEnvDecl ctx.env fn with
+       | some decl => pure decl.params
+       | none      => pure Array.empty   -- unreachable if well-formed input
+     | _ => pure Array.empty -- unreachable if well-formed input
 
 /- For each ps[i], if ps[i] is owned, then mark xs[i] as owned. -/
 def ownArgsUsingParams (xs : Array Arg) (ps : Array Param) : M Unit :=
@@ -218,12 +216,11 @@ xs.size.mfor $ fun i => do
    ```
 -/
 def ownArgsIfParam (xs : Array Arg) : M Unit :=
-do
-ctx ← read;
-xs.mfor $ fun x =>
-  match x with
-  | Arg.var x => when (ctx.paramSet.contains x.idx) $ ownVar x
-  | _ => pure ()
+do ctx ← read;
+   xs.mfor $ fun x =>
+     match x with
+     | Arg.var x => when (ctx.paramSet.contains x.idx) $ ownVar x
+     | _ => pure ()
 
 def collectExpr (z : VarId) : Expr → M Unit
 | Expr.reset _ x      => ownVar z *> ownVar x
@@ -300,10 +297,9 @@ partial def collectDecl : Decl → M Unit
 whileModifingParamMapAux x ()
 
 def collectDecls (decls : Array Decl) : M ParamMap :=
-do
-whileModifingParamMap (decls.mfor collectDecl);
-s ← get;
-pure s.map
+do whileModifingParamMap (decls.mfor collectDecl);
+   s ← get;
+   pure s.map
 
 def infer (env : Environment) (decls : Array Decl) : ParamMap :=
 (collectDecls decls { env := env }).run' { map := mkInitParamMap env decls }
@@ -311,11 +307,10 @@ def infer (env : Environment) (decls : Array Decl) : ParamMap :=
 end Borrow
 
 def inferBorrow (decls : Array Decl) : CompilerM (Array Decl) :=
-do
-env ← getEnv;
-let decls    := decls.map Decl.normalizeIds;
-let paramMap := Borrow.infer env decls;
-pure (Borrow.applyParamMap decls paramMap)
+do env ← getEnv;
+   let decls    := decls.map Decl.normalizeIds;
+   let paramMap := Borrow.infer env decls;
+   pure (Borrow.applyParamMap decls paramMap)
 
 end IR
 end Lean

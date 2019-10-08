@@ -89,10 +89,9 @@ def addRel (baseDir : String) : Nat → String
 | n+1 => addRel n ++ pathSep ++ ".."
 
 def findLeanFile (modName : Name) (ext : String) : IO String :=
-do
-let fname := modNameToFileName modName;
-some fname ← findFile fname ext | throw (IO.userError ("module '" ++ toString modName ++ "' not found"));
-realPathNormalized fname
+do let fname := modNameToFileName modName;
+   some fname ← findFile fname ext | throw (IO.userError ("module '" ++ toString modName ++ "' not found"));
+   realPathNormalized fname
 
 def findOLean (modName : Name) : IO String :=
 findLeanFile modName "olean"
@@ -110,22 +109,21 @@ do fname ← realPathNormalized fname;
 
 @[export lean_module_name_of_file]
 def moduleNameOfFileName (fname : String) : IO Name :=
-do
-path  ← findAtSearchPath fname;
-fname ← realPathNormalized fname;
-let fnameSuffix := fname.drop path.length;
-let fnameSuffix := if fnameSuffix.get 0 == pathSeparator then fnameSuffix.drop 1 else fnameSuffix;
-if path ++ pathSep ++ fnameSuffix != fname then
-  throw (IO.userError ("failed to convert file '" ++ fname ++ "' to module name, path is not a prefix of the given file"))
-else do
-  some extPos ← pure (fnameSuffix.revPosOf '.')
-    | throw (IO.userError ("failed to convert file '" ++ fname ++ "' to module name, extension is missing"));
-  let modNameStr := fnameSuffix.extract 0 extPos;
-  let extStr     := fnameSuffix.extract (extPos + 1) fnameSuffix.bsize;
-  let parts      := modNameStr.split pathSep;
-  let modName    := parts.foldl Name.mkString Name.anonymous;
-  fname' ← findLeanFile modName extStr;
-  unless (fname == fname') $ throw (IO.userError ("failed to convert file '" ++ fname ++ "' to module name, module name '" ++ toString modName ++ "' resolves to '" ++ fname' ++ "'"));
-  pure modName
+do path  ← findAtSearchPath fname;
+   fname ← realPathNormalized fname;
+   let fnameSuffix := fname.drop path.length;
+   let fnameSuffix := if fnameSuffix.get 0 == pathSeparator then fnameSuffix.drop 1 else fnameSuffix;
+   if path ++ pathSep ++ fnameSuffix != fname then
+     throw (IO.userError ("failed to convert file '" ++ fname ++ "' to module name, path is not a prefix of the given file"))
+   else do
+     some extPos ← pure (fnameSuffix.revPosOf '.')
+       | throw (IO.userError ("failed to convert file '" ++ fname ++ "' to module name, extension is missing"));
+     let modNameStr := fnameSuffix.extract 0 extPos;
+     let extStr     := fnameSuffix.extract (extPos + 1) fnameSuffix.bsize;
+     let parts      := modNameStr.split pathSep;
+     let modName    := parts.foldl Name.mkString Name.anonymous;
+     fname' ← findLeanFile modName extStr;
+     unless (fname == fname') $ throw (IO.userError ("failed to convert file '" ++ fname ++ "' to module name, module name '" ++ toString modName ++ "' resolves to '" ++ fname' ++ "'"));
+     pure modName
 
 end Lean

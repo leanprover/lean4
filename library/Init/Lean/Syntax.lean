@@ -146,7 +146,7 @@ def isOfKind {α} : Syntax α → SyntaxNodeKind → Bool
 
 def asNode {α} : Syntax α → SyntaxNode α
 | Syntax.node kind args => ⟨Syntax.node kind args, IsNode.mk kind args⟩
-| _                     => ⟨Syntax.node nullKind Array.empty, IsNode.mk nullKind Array.empty⟩
+| _                     => ⟨Syntax.node nullKind #[], IsNode.mk nullKind #[]⟩
 
 def getNumArgs {α} (stx : Syntax α) : Nat :=
 stx.asNode.getNumArgs
@@ -354,7 +354,7 @@ Syntax.node nullKind args.toArray
 def mkOptionalNode {α} (arg : Option (Syntax α)) : Syntax α :=
 match arg with
 | some arg => Syntax.node nullKind #[arg]
-| none     => Syntax.node nullKind Array.empty
+| none     => Syntax.node nullKind #[]
 
 /- Helper functions for creating string and numeric literals -/
 

@@ -148,30 +148,29 @@ structure TagAttribute :=
 (ext  : PersistentEnvExtension Name NameSet)
 
 def registerTagAttribute (name : Name) (descr : String) (validate : Environment → Name → Except String Unit := fun _ _ => Except.ok ()) : IO TagAttribute :=
-do
-ext : PersistentEnvExtension Name NameSet ← registerPersistentEnvExtension {
-  name            := name,
-  addImportedFn   := fun _ => pure {},
-  addEntryFn      := fun (s : NameSet) n => s.insert n,
-  exportEntriesFn := fun es =>
-    let r : Array Name := es.fold (fun a e => a.push e) Array.empty;
-    r.qsort Name.quickLt,
-  statsFn         := fun s => "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
-};
-let attrImpl : AttributeImpl := {
-  name  := name,
-  descr := descr,
-  add   := fun env decl args persistent => do
-    unless args.isMissing $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', unexpected argument"));
-    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
-    unless (env.getModuleIdxFor decl).isNone $
-      throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
-    match validate env decl with
-    | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
-    | _                => pure $ ext.addEntry env decl
-};
-registerAttribute attrImpl;
-pure { attr := attrImpl, ext := ext }
+do ext : PersistentEnvExtension Name NameSet ← registerPersistentEnvExtension {
+     name            := name,
+     addImportedFn   := fun _ => pure {},
+     addEntryFn      := fun (s : NameSet) n => s.insert n,
+     exportEntriesFn := fun es =>
+       let r : Array Name := es.fold (fun a e => a.push e) Array.empty;
+       r.qsort Name.quickLt,
+     statsFn         := fun s => "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
+   };
+   let attrImpl : AttributeImpl := {
+     name  := name,
+     descr := descr,
+     add   := fun env decl args persistent => do
+       unless args.isMissing $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', unexpected argument"));
+       unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
+       unless (env.getModuleIdxFor decl).isNone $
+         throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
+       match validate env decl with
+       | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
+       | _                => pure $ ext.addEntry env decl
+   };
+   registerAttribute attrImpl;
+   pure { attr := attrImpl, ext := ext }
 
 namespace TagAttribute
 
@@ -197,33 +196,32 @@ structure ParametricAttribute (α : Type) :=
 def registerParametricAttribute {α : Type} [Inhabited α] (name : Name) (descr : String)
        (getParam : Environment → Name → Syntax → Except String α)
        (afterSet : Environment → Name → α → Except String Environment := fun env _ _ => Except.ok env) : IO (ParametricAttribute α) :=
-do
-ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistentEnvExtension {
-  name            := name,
-  addImportedFn   := fun _ => pure {},
-  addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2,
-  exportEntriesFn := fun m =>
-    let r : Array (Name × α) := m.fold (fun a n p => a.push (n, p)) Array.empty;
-    r.qsort (fun a b => Name.quickLt a.1 b.1),
-  statsFn         := fun s => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
-};
-let attrImpl : AttributeImpl := {
-  name  := name,
-  descr := descr,
-  add   := fun env decl args persistent => do
-    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
-    unless (env.getModuleIdxFor decl).isNone $
-      throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
-    match getParam env decl args with
-    | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
-    | Except.ok val    => do
-      let env := ext.addEntry env (decl, val);
-      match afterSet env decl val with
-      | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
-      | Except.ok env    => pure env
-};
-registerAttribute attrImpl;
-pure { attr := attrImpl, ext := ext }
+do ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistentEnvExtension {
+     name            := name,
+     addImportedFn   := fun _ => pure {},
+     addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2,
+     exportEntriesFn := fun m =>
+       let r : Array (Name × α) := m.fold (fun a n p => a.push (n, p)) Array.empty;
+       r.qsort (fun a b => Name.quickLt a.1 b.1),
+     statsFn         := fun s => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
+   };
+   let attrImpl : AttributeImpl := {
+     name  := name,
+     descr := descr,
+     add   := fun env decl args persistent => do
+       unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
+       unless (env.getModuleIdxFor decl).isNone $
+         throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
+       match getParam env decl args with
+       | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
+       | Except.ok val    => do
+         let env := ext.addEntry env (decl, val);
+         match afterSet env decl val with
+         | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
+         | Except.ok env    => pure env
+   };
+   registerAttribute attrImpl;
+   pure { attr := attrImpl, ext := ext }
 
 namespace ParametricAttribute
 
@@ -256,29 +254,28 @@ structure EnumAttributes (α : Type) :=
 (ext   : PersistentEnvExtension (Name × α) (NameMap α))
 
 def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDescrs : List (Name × String × α)) (validate : Environment → Name → α → Except String Unit := fun _ _ _ => Except.ok ()) : IO (EnumAttributes α) :=
-do
-ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistentEnvExtension {
-  name            := extName,
-  addImportedFn   := fun _ => pure {},
-  addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2,
-  exportEntriesFn := fun m =>
-    let r : Array (Name × α) := m.fold (fun a n p => a.push (n, p)) Array.empty;
-    r.qsort (fun a b => Name.quickLt a.1 b.1),
-  statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
-};
-let attrs := attrDescrs.map $ fun ⟨name, descr, val⟩ => { AttributeImpl .
-  name  := name,
-  descr := descr,
-  add   := fun env decl args persistent => do
-    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
-    unless (env.getModuleIdxFor decl).isNone $
-      throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
-    match validate env decl val with
-    | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
-    | _                => pure $ ext.addEntry env (decl, val)
-};
-attrs.mfor registerAttribute;
-pure { ext := ext, attrs := attrs }
+do ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistentEnvExtension {
+     name            := extName,
+     addImportedFn   := fun _ => pure {},
+     addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2,
+     exportEntriesFn := fun m =>
+       let r : Array (Name × α) := m.fold (fun a n p => a.push (n, p)) Array.empty;
+       r.qsort (fun a b => Name.quickLt a.1 b.1),
+     statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
+   };
+   let attrs := attrDescrs.map $ fun ⟨name, descr, val⟩ => { AttributeImpl .
+     name  := name,
+     descr := descr,
+     add   := fun env decl args persistent => do
+       unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
+       unless (env.getModuleIdxFor decl).isNone $
+         throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
+       match validate env decl val with
+       | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
+       | _                => pure $ ext.addEntry env (decl, val)
+   };
+   attrs.mfor registerAttribute;
+   pure { ext := ext, attrs := attrs }
 
 namespace EnumAttributes
 

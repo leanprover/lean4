@@ -248,8 +248,8 @@ static environment variable_cmd_core(parser & p, variable_kind k, cmd_meta const
             throw parser_error("invalid declaration, only axioms can be universe polymorphic", p.pos());
         if (k == variable_kind::Axiom)
             scope1.emplace(p);
-        parse_univ_params(p, ls_buffer);
         n = p.check_decl_id_next("invalid declaration, identifier expected");
+        parse_univ_params(p, ls_buffer);
         if (!p.curr_is_token(get_colon_tk())) {
             if (!curr_is_binder_annotation(p) && (k == variable_kind::Variable)) {
                 p.parse_close_binder_info(bi);

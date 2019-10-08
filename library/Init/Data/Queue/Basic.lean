@@ -18,14 +18,17 @@ namespace Queue
 
 variable {α : Type u}
 
+def empty : Queue α :=
+{ eList := [], dList := [] }
+
+def isEmpty (q : Queue α) : Bool :=
+q.dList.isEmpty && q.eList.isEmpty
+
 def enqueue (v : α) (q : Queue α) : Queue α :=
 { eList := v::q.eList .. q }
 
 def enqueueAll (vs : List α) (q : Queue α) : Queue α :=
 { eList := vs ++ q.eList .. q }
-
-def isEmpty (q : Queue α) : Bool :=
-q.dList.isEmpty && q.eList.isEmpty
 
 def dequeue? (q : Queue α) : Option (α × Queue α) :=
 match q.dList with

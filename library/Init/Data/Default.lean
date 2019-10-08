@@ -20,3 +20,4 @@ import Init.Data.Option
 import Init.Data.HashMap
 import Init.Data.Random
 import Init.Data.Queue
+import Init.Data.Stack

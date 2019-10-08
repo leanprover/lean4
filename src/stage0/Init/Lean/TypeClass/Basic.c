@@ -16,18 +16,16 @@ extern "C" {
 extern lean_object* l_Array_empty___closed__1;
 extern lean_object* l_PersistentHashMap_HasEmptyc___closed__1;
 lean_object* l_Lean_TypeClass_synthCommand___closed__1;
+lean_object* l_Queue_empty(lean_object*);
 lean_object* l_Lean_TypeClass_synth(lean_object*, lean_object*, lean_object*);
 lean_object* lean_typeclass_synth_command(lean_object*, lean_object*);
 extern lean_object* l_Lean_exprIsInhabited___closed__1;
 lean_object* _init_l_Lean_TypeClass_synthCommand___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_2, 0, x_1);
-lean_ctor_set(x_2, 1, x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = l_Queue_empty(lean_box(0));
+return x_1;
 }
 }
 lean_object* lean_typeclass_synth_command(lean_object* x_1, lean_object* x_2) {

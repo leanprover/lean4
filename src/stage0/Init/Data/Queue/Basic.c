@@ -18,13 +18,73 @@ lean_object* l_Queue_enqueue(lean_object*);
 lean_object* l_Queue_enqueue___rarg(lean_object*, lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Queue_dequeue_x3f(lean_object*);
+lean_object* l_Queue_empty___closed__1;
 lean_object* l_Queue_isEmpty___rarg___boxed(lean_object*);
+lean_object* l_Queue_empty(lean_object*);
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
 uint8_t l_Queue_isEmpty___rarg(lean_object*);
 lean_object* l_Queue_dequeue_x3f___rarg(lean_object*);
 lean_object* l_Queue_isEmpty(lean_object*);
 lean_object* l_Queue_enqueueAll(lean_object*);
+lean_object* _init_l_Queue_empty___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_2, 0, x_1);
+lean_ctor_set(x_2, 1, x_1);
+return x_2;
+}
+}
+lean_object* l_Queue_empty(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Queue_empty___closed__1;
+return x_2;
+}
+}
+uint8_t l_Queue_isEmpty___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; uint8_t x_3; 
+x_2 = lean_ctor_get(x_1, 1);
+x_3 = l_List_isEmpty___rarg(x_2);
+if (x_3 == 0)
+{
+uint8_t x_4; 
+x_4 = 0;
+return x_4;
+}
+else
+{
+lean_object* x_5; uint8_t x_6; 
+x_5 = lean_ctor_get(x_1, 0);
+x_6 = l_List_isEmpty___rarg(x_5);
+return x_6;
+}
+}
+}
+lean_object* l_Queue_isEmpty(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Queue_isEmpty___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+lean_object* l_Queue_isEmpty___rarg___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Queue_isEmpty___rarg(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
 lean_object* l_Queue_enqueue___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -101,45 +161,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Queue_enqueueAll___rarg), 2, 0);
 return x_2;
-}
-}
-uint8_t l_Queue_isEmpty___rarg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; uint8_t x_3; 
-x_2 = lean_ctor_get(x_1, 1);
-x_3 = l_List_isEmpty___rarg(x_2);
-if (x_3 == 0)
-{
-uint8_t x_4; 
-x_4 = 0;
-return x_4;
-}
-else
-{
-lean_object* x_5; uint8_t x_6; 
-x_5 = lean_ctor_get(x_1, 0);
-x_6 = l_List_isEmpty___rarg(x_5);
-return x_6;
-}
-}
-}
-lean_object* l_Queue_isEmpty(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Queue_isEmpty___rarg___boxed), 1, 0);
-return x_2;
-}
-}
-lean_object* l_Queue_isEmpty___rarg___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Queue_isEmpty___rarg(x_1);
-lean_dec(x_1);
-x_3 = lean_box(x_2);
-return x_3;
 }
 }
 lean_object* l_Queue_dequeue_x3f___rarg(lean_object* x_1) {
@@ -282,6 +303,8 @@ w = initialize_Init_Data_Array_Default(w);
 if (lean_io_result_is_error(w)) return w;
 w = initialize_Init_Data_Int_Default(w);
 if (lean_io_result_is_error(w)) return w;
+l_Queue_empty___closed__1 = _init_l_Queue_empty___closed__1();
+lean_mark_persistent(l_Queue_empty___closed__1);
 return w;
 }
 #ifdef __cplusplus

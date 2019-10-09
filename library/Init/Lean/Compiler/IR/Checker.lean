@@ -11,10 +11,24 @@ namespace IR
 
 namespace Checker
 
-structure Context :=
+structure CheckerContext :=
 (env : Environment) (localCtx : LocalContext := {}) (decls : Array Decl)
 
-abbrev M := ExceptT String (ReaderT Context Id)
+structure CheckerState :=
+(foundVars : IndexSet := {})
+
+abbrev M := ReaderT CheckerContext (ExceptT String (StateT CheckerState Id))
+
+def markIndex (i : Index) : M Unit :=
+do s ← get;
+   when (s.foundVars.contains i) $ throw ("variable / joinpoint index " ++ toString i ++ " has already been used");
+   modify $ fun s => { foundVars := s.foundVars.insert i, .. s }
+
+def markVar (x : VarId) : M Unit :=
+markIndex x.idx
+
+def markJP (j : JoinPointId) : M Unit :=
+markIndex j.idx
 
 def getDecl (c : Name) : M Decl :=
 do ctx ← read;
@@ -87,21 +101,21 @@ def checkExpr (ty : IRType) : Expr → M Unit
 @[inline] def withParams (ps : Array Param) (k : M Unit) : M Unit :=
 do ctx ← read;
    localCtx ← ps.mfoldl (fun (ctx : LocalContext) p => do
-      when (ctx.contains p.x.idx) $ throw ("invalid parameter declaration, shadowing is not allowed");
+      markVar p.x;
       pure $ ctx.addParam p) ctx.localCtx;
    adaptReader (fun _ => { localCtx := localCtx, .. ctx }) k
 
 partial def checkFnBody : FnBody → M Unit
 | FnBody.vdecl x t v b    => do
   checkExpr t v;
+  markVar x;
   ctx ← read;
-  when (ctx.localCtx.contains x.idx) $ throw ("invalid variable declaration, shadowing is not allowed");
-  adaptReader (fun (ctx : Context) => { localCtx := ctx.localCtx.addLocal x t v, .. ctx }) (checkFnBody b)
+  adaptReader (fun (ctx : CheckerContext) => { localCtx := ctx.localCtx.addLocal x t v, .. ctx }) (checkFnBody b)
 | FnBody.jdecl j ys v b => do
+  markJP j;
   withParams ys (checkFnBody v);
   ctx ← read;
-  when (ctx.localCtx.contains j.idx) $ throw ("invalid join point declaration, shadowing is not allowed");
-  adaptReader (fun (ctx : Context) => { localCtx := ctx.localCtx.addJP j ys v, .. ctx }) (checkFnBody b)
+  adaptReader (fun (ctx : CheckerContext) => { localCtx := ctx.localCtx.addJP j ys v, .. ctx }) (checkFnBody b)
 | FnBody.set x _ y b      => checkVar x *> checkArg y *> checkFnBody b
 | FnBody.uset x _ y b     => checkVar x *> checkVar y *> checkFnBody b
 | FnBody.sset x _ _ y _ b => checkVar x *> checkVar y *> checkFnBody b
@@ -123,7 +137,7 @@ end Checker
 
 def checkDecl (decls : Array Decl) (decl : Decl) : CompilerM Unit :=
 do env ← getEnv;
-   match Checker.checkDecl decl { env := env, decls := decls } with
+   match (Checker.checkDecl decl { env := env, decls := decls }).run' {} with
    | Except.error msg => throw ("IR check failed at '" ++ toString decl.name ++ "', error: " ++ msg)
    | other            => pure ()
 

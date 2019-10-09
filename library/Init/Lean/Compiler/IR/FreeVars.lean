@@ -58,8 +58,8 @@ private def collectAlts (f : FnBody → Collector) (alts : Array Alt) : Collecto
 collectArray alts $ fun alt => f alt.body
 
 partial def collectFnBody : FnBody → Collector
-| FnBody.vdecl x _ v b    => collectExpr v >> collectFnBody b
-| FnBody.jdecl j ys v b   => collectFnBody v >> collectParams ys >> collectFnBody b
+| FnBody.vdecl x _ v b    => collectVar x >> collectExpr v >> collectFnBody b
+| FnBody.jdecl j ys v b   => collectJP j >> collectFnBody v >> collectParams ys >> collectFnBody b
 | FnBody.set x _ y b      => collectVar x >> collectArg y >> collectFnBody b
 | FnBody.uset x _ y b     => collectVar x >> collectVar y >> collectFnBody b
 | FnBody.sset x _ _ y _ b => collectVar x >> collectVar y >> collectFnBody b

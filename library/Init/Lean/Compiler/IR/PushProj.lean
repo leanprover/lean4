@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Lean.Compiler.IR.Basic
 import Init.Lean.Compiler.IR.FreeVars
+import Init.Lean.Compiler.IR.NormIds
 
 namespace Lean
 namespace IR
@@ -53,7 +54,7 @@ partial def FnBody.pushProj : FnBody → FnBody
 
 /-- Push projections inside `case` branches. -/
 def Decl.pushProj : Decl → Decl
-| Decl.fdecl f xs t b => Decl.fdecl f xs t b.pushProj
+| Decl.fdecl f xs t b => (Decl.fdecl f xs t b.pushProj).normalizeIds
 | other               => other
 
 end IR

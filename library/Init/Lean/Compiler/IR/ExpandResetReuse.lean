@@ -248,6 +248,8 @@ partial def expand (mainFn : FnBody → Array FnBody → M FnBody)
             (bs : Array FnBody) (x : VarId) (n : Nat) (y : VarId) (b : FnBody) : M FnBody :=
 do let bOld := FnBody.vdecl x IRType.object (Expr.reset n y) b;
    let (bs, mask) := eraseProjIncFor n y bs;
+   /- Remark: we may be duplicting variable/JP indices. That is, `bSlow` and `bFast` may
+      have duplicate indices. We run `normalizeIds` to fix the ids after we have expand them. -/
    let bSlow      := mkSlowPath x y mask b;
    bFast ← mkFastPath x y mask b;
    /- We only optimize recursively the fast. -/
@@ -286,7 +288,7 @@ end ExpandResetReuse
 
 /-- (Try to) expand `reset` and `reuse` instructions. -/
 def Decl.expandResetReuse (d : Decl) : Decl :=
-ExpandResetReuse.main d
+(ExpandResetReuse.main d).normalizeIds
 
 end IR
 end Lean

@@ -3483,9 +3483,10 @@ return x_2;
 lean_object* l_Lean_IR_Decl_expandResetReuse(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
+lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_IR_ExpandResetReuse_main(x_1);
-return x_2;
+x_3 = l_Lean_IR_Decl_normalizeIds(x_2);
+return x_3;
 }
 }
 lean_object* initialize_Init_Control_State(lean_object*);

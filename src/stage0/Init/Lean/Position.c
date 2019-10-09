@@ -29,6 +29,7 @@ lean_object* l_Lean_Position_Lean_HasFormat___closed__1;
 lean_object* l_Lean_FileMap_Inhabited;
 lean_object* l___private_Init_Lean_Position_2__toColumnAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Position_1__ofStringAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_mkEmpty(lean_object*, lean_object*);
 lean_object* l_Lean_Position_Inhabited;
 lean_object* l___private_Init_Lean_Position_2__toColumnAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Position_lt___boxed(lean_object*, lean_object*);
@@ -57,6 +58,7 @@ lean_object* l_Array_size(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_ofString___closed__1;
 lean_object* l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
+lean_object* l_Lean_FileMap_ofString___closed__3;
 uint8_t l_prodHasDecidableLt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 extern lean_object* l_Nat_DecidableEq___closed__1;
@@ -342,18 +344,27 @@ return x_6;
 lean_object* _init_l_Lean_FileMap_ofString___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_empty___closed__1;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_array_push(x_1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(1u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 lean_object* _init_l_Lean_FileMap_ofString___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_empty___closed__1;
+x_1 = l_Lean_FileMap_ofString___closed__1;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_array_push(x_1, x_2);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_FileMap_ofString___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_FileMap_ofString___closed__1;
 x_2 = lean_unsigned_to_nat(1u);
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
@@ -365,8 +376,8 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_unsigned_to_nat(1u);
-x_4 = l_Lean_FileMap_ofString___closed__1;
-x_5 = l_Lean_FileMap_ofString___closed__2;
+x_4 = l_Lean_FileMap_ofString___closed__2;
+x_5 = l_Lean_FileMap_ofString___closed__3;
 x_6 = l___private_Init_Lean_Position_1__ofStringAux___main(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -600,6 +611,8 @@ l_Lean_FileMap_ofString___closed__1 = _init_l_Lean_FileMap_ofString___closed__1(
 lean_mark_persistent(l_Lean_FileMap_ofString___closed__1);
 l_Lean_FileMap_ofString___closed__2 = _init_l_Lean_FileMap_ofString___closed__2();
 lean_mark_persistent(l_Lean_FileMap_ofString___closed__2);
+l_Lean_FileMap_ofString___closed__3 = _init_l_Lean_FileMap_ofString___closed__3();
+lean_mark_persistent(l_Lean_FileMap_ofString___closed__3);
 return w;
 }
 #ifdef __cplusplus

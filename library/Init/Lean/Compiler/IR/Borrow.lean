@@ -308,7 +308,6 @@ end Borrow
 
 def inferBorrow (decls : Array Decl) : CompilerM (Array Decl) :=
 do env ← getEnv;
-   let decls    := decls.map Decl.normalizeIds;
    let paramMap := Borrow.infer env decls;
    pure (Borrow.applyParamMap decls paramMap)
 

@@ -624,7 +624,7 @@ do env ← getEnv;
      | _ => pure ()
 
 def emitDecl (d : Decl) : M Unit :=
-let d := d.normalizeIds;
+let d := d.normalizeIds; -- ensure we don't have gaps in the variable indices
 catch
   (emitDeclAux d)
   (fun err => throw (err ++ "\ncompiling:\n" ++ toString d))

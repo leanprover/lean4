@@ -275,7 +275,6 @@ partial def searchAndExpand : FnBody → Array FnBody → M FnBody
   else searchAndExpand b.body (push bs b)
 
 def main (d : Decl) : Decl :=
-let d := d.normalizeIds;
 match d with
 | (Decl.fdecl f xs t b) =>
   let m := mkProjMap d;

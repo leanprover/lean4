@@ -101,6 +101,29 @@ environment add_decl(environment const & env, decl const & d) {
 }
 }
 
+static ir::type to_ir_type(expr const & e) {
+    if (is_constant(e)) {
+        if (e == mk_enf_object_type()) {
+            return ir::type::Object;
+        } else if (e == mk_enf_neutral_type()) {
+            return ir::type::Irrelevant;
+        } else if (const_name(e) == get_uint8_name()) {
+            return ir::type::UInt8;
+        } else if (const_name(e) == get_uint16_name()) {
+            return ir::type::UInt16;
+        } else if (const_name(e) == get_uint32_name()) {
+            return ir::type::UInt32;
+        } else if (const_name(e) == get_uint64_name()) {
+            return ir::type::UInt64;
+        } else if (const_name(e) == get_usize_name()) {
+            return ir::type::USize;
+        }
+    } else if (is_pi(e)) {
+        return ir::type::Object;
+    }
+    throw exception("IR unsupported type");
+}
+
 class to_ir_fn {
     type_checker::state m_st;
     local_ctx           m_lctx;
@@ -146,29 +169,6 @@ class to_ir_fn {
             return ir::mk_var_arg(to_var_id(e));
         else
             return ir::mk_irrelevant_arg();
-    }
-
-    ir::type to_ir_type(expr const & e) {
-        if (is_constant(e)) {
-            if (e == mk_enf_object_type()) {
-                return ir::type::Object;
-            } else if (e == mk_enf_neutral_type()) {
-                return ir::type::Irrelevant;
-            } else if (const_name(e) == get_uint8_name()) {
-                return ir::type::UInt8;
-            } else if (const_name(e) == get_uint16_name()) {
-                return ir::type::UInt16;
-            } else if (const_name(e) == get_uint32_name()) {
-                return ir::type::UInt32;
-            } else if (const_name(e) == get_uint64_name()) {
-                return ir::type::UInt64;
-            } else if (const_name(e) == get_usize_name()) {
-                return ir::type::USize;
-            }
-        } else if (is_pi(e)) {
-            return ir::type::Object;
-        }
-        throw exception("IR unsupported type");
     }
 
     ir::type to_ir_result_type(expr e, unsigned arity) {
@@ -536,7 +536,7 @@ extern "C" object* lean_add_extern(object * env, object * fn) {
         environment new_env = add_extern(environment(env), name(fn));
         return mk_except_ok(new_env);
     } catch (exception & ex) {
-        throw;
+        // throw; // We use to uncomment this line when debugging weird bugs in the Lean/C++ interface.
         return mk_except_error_string(ex.what());
     }
 }
@@ -552,6 +552,53 @@ string_ref emit_c(environment const & env, name const & mod_name) {
     } else {
         dec_ref(r);
         return s;
+    }
+}
+
+/*
+inductive CtorFieldInfo
+| irrelevant
+| object (i : Nat)
+| usize  (i : Nat)
+| scalar (sz : Nat) (offset : Nat) (type : IRType)
+
+structure CtorLayout :=
+(cidx       : Nat)
+(fieldInfo  : List CtorFieldInfo)
+(numObjs    : Nat)
+(numUSize   : Nat)
+(scalarSize : Nat)
+*/
+object_ref to_object_ref(cnstr_info const & info) {
+    buffer<object_ref> fields;
+    for (field_info const & finfo : info.m_field_info) {
+        switch (finfo.m_kind) {
+        case field_info::Irrelevant:
+            fields.push_back(object_ref(box(0)));
+            break;
+        case field_info::Object:
+            fields.push_back(mk_cnstr(1, nat(finfo.m_idx)));
+            break;
+        case field_info::USize:
+            fields.push_back(mk_cnstr(2, nat(finfo.m_idx)));
+            break;
+        case field_info::Scalar:
+            fields.push_back(mk_cnstr(3, nat(finfo.m_size), nat(finfo.m_offset), object_ref(ir::box_type(to_ir_type(finfo.m_type)))));
+            break;
+        }
+    }
+    return mk_cnstr(0, nat(info.m_cidx), list_ref<object_ref>(fields), nat(info.m_num_objs), nat(info.m_num_usizes), nat(info.m_scalar_sz));
+}
+
+extern "C" object * lean_ir_get_ctor_layout(object * env0, object * ctor_name0) {
+    environment const & env = TO_REF(environment, env0);
+    name const & ctor_name  = TO_REF(name, ctor_name0);
+    type_checker::state st(env);
+    try {
+        cnstr_info info = get_cnstr_info(st, ctor_name);
+        return mk_except_ok(to_object_ref(info));
+    } catch (exception & ex) {
+        return mk_except_error_string(ex.what());
     }
 }
 }

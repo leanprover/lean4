@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Lean.Environment
-import Init.Lean.Compiler.IR.Basic
+import Init.Lean.Compiler.IR.Format
 
 namespace Lean
 namespace IR
@@ -15,6 +15,18 @@ inductive CtorFieldInfo
 | object (i : Nat)
 | usize  (i : Nat)
 | scalar (sz : Nat) (offset : Nat) (type : IRType)
+
+namespace CtorFieldInfo
+
+def format : CtorFieldInfo → Format
+| irrelevant => "◾"
+| object i   => "obj@" ++ fmt i
+| usize i    => "usize@" ++ fmt i
+| scalar sz offset type => "scalar#" ++ fmt sz ++ "@" ++ fmt offset ++ ":" ++ fmt type
+
+instance : HasFormat CtorFieldInfo := ⟨format⟩
+
+end CtorFieldInfo
 
 structure CtorLayout :=
 (cidx       : Nat)

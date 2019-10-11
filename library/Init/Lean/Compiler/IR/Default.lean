@@ -8,7 +8,7 @@ import Init.Lean.Compiler.IR.Basic
 import Init.Lean.Compiler.IR.Format
 import Init.Lean.Compiler.IR.CompilerM
 import Init.Lean.Compiler.IR.PushProj
-import Init.Lean.Compiler.IR.ElimDead
+import Init.Lean.Compiler.IR.ElimDeadVars
 import Init.Lean.Compiler.IR.SimpCase
 import Init.Lean.Compiler.IR.ResetReuse
 import Init.Lean.Compiler.IR.NormIds
@@ -18,7 +18,7 @@ import Init.Lean.Compiler.IR.Boxing
 import Init.Lean.Compiler.IR.RC
 import Init.Lean.Compiler.IR.ExpandResetReuse
 import Init.Lean.Compiler.IR.UnboxResult
-import Init.Lean.Compiler.IR.UnreachBranches
+import Init.Lean.Compiler.IR.ElimDeadBranches
 import Init.Lean.Compiler.IR.EmitC
 
 namespace Lean

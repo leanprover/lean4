@@ -13,7 +13,7 @@ import Init.Lean.Compiler.ExternAttr
 import Init.Lean.Compiler.IR.Basic
 import Init.Lean.Compiler.IR.CompilerM
 import Init.Lean.Compiler.IR.FreeVars
-import Init.Lean.Compiler.IR.ElimDead
+import Init.Lean.Compiler.IR.ElimDeadVars
 
 namespace Lean
 namespace IR

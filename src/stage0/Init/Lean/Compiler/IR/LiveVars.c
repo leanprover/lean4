@@ -288,8 +288,8 @@ switch (lean_obj_tag(x_2)) {
 case 0:
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_4 = lean_ctor_get(x_2, 1);
-x_5 = lean_ctor_get(x_2, 2);
+x_4 = lean_ctor_get(x_2, 2);
+x_5 = lean_ctor_get(x_2, 3);
 x_6 = l_Lean_IR_HasIndex_visitExpr(x_1, x_4);
 if (x_6 == 0)
 {
@@ -427,7 +427,7 @@ case 5:
 lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; 
 x_41 = lean_ctor_get(x_2, 0);
 x_42 = lean_ctor_get(x_2, 3);
-x_43 = lean_ctor_get(x_2, 4);
+x_43 = lean_ctor_get(x_2, 5);
 x_44 = lean_nat_dec_eq(x_1, x_41);
 if (x_44 == 0)
 {
@@ -490,7 +490,7 @@ case 10:
 {
 lean_object* x_59; lean_object* x_60; uint8_t x_61; 
 x_59 = lean_ctor_get(x_2, 1);
-x_60 = lean_ctor_get(x_2, 2);
+x_60 = lean_ctor_get(x_2, 3);
 x_61 = lean_nat_dec_eq(x_1, x_59);
 if (x_61 == 0)
 {
@@ -3677,107 +3677,107 @@ x_5 = l_Array_miterateAux___main___at___private_Init_Lean_Compiler_IR_LiveVars_5
 lean_dec(x_3);
 return x_5;
 }
-case 1:
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = lean_ctor_get(x_1, 1);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_box(0);
-x_8 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_2, x_6, x_7);
-return x_8;
-}
 case 2:
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_9 = lean_ctor_get(x_1, 0);
-lean_inc(x_9);
-x_10 = lean_ctor_get(x_1, 2);
-lean_inc(x_10);
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_1, 2);
+lean_inc(x_7);
 lean_dec(x_1);
-x_11 = lean_unsigned_to_nat(0u);
-x_12 = l_Array_miterateAux___main___at___private_Init_Lean_Compiler_IR_LiveVars_5__collectArgs___spec__2(x_10, x_10, x_11, x_2);
-lean_dec(x_10);
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = l_Array_miterateAux___main___at___private_Init_Lean_Compiler_IR_LiveVars_5__collectArgs___spec__2(x_7, x_7, x_8, x_2);
+lean_dec(x_7);
+x_10 = lean_box(0);
+x_11 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_9, x_6, x_10);
+return x_11;
+}
+case 5:
+{
+lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_12 = lean_ctor_get(x_1, 2);
+lean_inc(x_12);
+lean_dec(x_1);
 x_13 = lean_box(0);
-x_14 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_12, x_9, x_13);
+x_14 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_2, x_12, x_13);
 return x_14;
 }
-case 3:
+case 6:
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_15 = lean_ctor_get(x_1, 1);
 lean_inc(x_15);
 lean_dec(x_1);
-x_16 = lean_box(0);
-x_17 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_2, x_15, x_16);
+x_16 = lean_unsigned_to_nat(0u);
+x_17 = l_Array_miterateAux___main___at___private_Init_Lean_Compiler_IR_LiveVars_5__collectArgs___spec__2(x_15, x_15, x_16, x_2);
+lean_dec(x_15);
 return x_17;
 }
-case 4:
+case 7:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_18 = lean_ctor_get(x_1, 1);
 lean_inc(x_18);
 lean_dec(x_1);
-x_19 = lean_box(0);
-x_20 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_2, x_18, x_19);
+x_19 = lean_unsigned_to_nat(0u);
+x_20 = l_Array_miterateAux___main___at___private_Init_Lean_Compiler_IR_LiveVars_5__collectArgs___spec__2(x_18, x_18, x_19, x_2);
+lean_dec(x_18);
 return x_20;
-}
-case 5:
-{
-lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_21 = lean_ctor_get(x_1, 2);
-lean_inc(x_21);
-lean_dec(x_1);
-x_22 = lean_box(0);
-x_23 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_2, x_21, x_22);
-return x_23;
-}
-case 6:
-{
-lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-x_24 = lean_ctor_get(x_1, 1);
-lean_inc(x_24);
-lean_dec(x_1);
-x_25 = lean_unsigned_to_nat(0u);
-x_26 = l_Array_miterateAux___main___at___private_Init_Lean_Compiler_IR_LiveVars_5__collectArgs___spec__2(x_24, x_24, x_25, x_2);
-lean_dec(x_24);
-return x_26;
-}
-case 7:
-{
-lean_object* x_27; lean_object* x_28; lean_object* x_29; 
-x_27 = lean_ctor_get(x_1, 1);
-lean_inc(x_27);
-lean_dec(x_1);
-x_28 = lean_unsigned_to_nat(0u);
-x_29 = l_Array_miterateAux___main___at___private_Init_Lean_Compiler_IR_LiveVars_5__collectArgs___spec__2(x_27, x_27, x_28, x_2);
-lean_dec(x_27);
-return x_29;
 }
 case 8:
 {
-lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
-x_30 = lean_ctor_get(x_1, 0);
-lean_inc(x_30);
-x_31 = lean_ctor_get(x_1, 1);
-lean_inc(x_31);
+lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
+x_21 = lean_ctor_get(x_1, 0);
+lean_inc(x_21);
+x_22 = lean_ctor_get(x_1, 1);
+lean_inc(x_22);
 lean_dec(x_1);
-x_32 = lean_unsigned_to_nat(0u);
-x_33 = l_Array_miterateAux___main___at___private_Init_Lean_Compiler_IR_LiveVars_5__collectArgs___spec__2(x_31, x_31, x_32, x_2);
-lean_dec(x_31);
-x_34 = lean_box(0);
-x_35 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_33, x_30, x_34);
-return x_35;
+x_23 = lean_unsigned_to_nat(0u);
+x_24 = l_Array_miterateAux___main___at___private_Init_Lean_Compiler_IR_LiveVars_5__collectArgs___spec__2(x_22, x_22, x_23, x_2);
+lean_dec(x_22);
+x_25 = lean_box(0);
+x_26 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_24, x_21, x_25);
+return x_26;
+}
+case 10:
+{
+lean_object* x_27; lean_object* x_28; lean_object* x_29; 
+x_27 = lean_ctor_get(x_1, 0);
+lean_inc(x_27);
+lean_dec(x_1);
+x_28 = lean_box(0);
+x_29 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_2, x_27, x_28);
+return x_29;
 }
 case 11:
 {
 lean_dec(x_1);
 return x_2;
 }
+case 12:
+{
+lean_object* x_30; lean_object* x_31; lean_object* x_32; 
+x_30 = lean_ctor_get(x_1, 0);
+lean_inc(x_30);
+lean_dec(x_1);
+x_31 = lean_box(0);
+x_32 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_2, x_30, x_31);
+return x_32;
+}
+case 13:
+{
+lean_object* x_33; lean_object* x_34; lean_object* x_35; 
+x_33 = lean_ctor_get(x_1, 0);
+lean_inc(x_33);
+lean_dec(x_1);
+x_34 = lean_box(0);
+x_35 = l_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_2, x_33, x_34);
+return x_35;
+}
 default: 
 {
 lean_object* x_36; lean_object* x_37; lean_object* x_38; 
-x_36 = lean_ctor_get(x_1, 0);
+x_36 = lean_ctor_get(x_1, 1);
 lean_inc(x_36);
 lean_dec(x_1);
 x_37 = lean_box(0);
@@ -6240,9 +6240,9 @@ case 0:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 1);
+x_5 = lean_ctor_get(x_1, 2);
 lean_inc(x_5);
-x_6 = lean_ctor_get(x_1, 2);
+x_6 = lean_ctor_get(x_1, 3);
 lean_inc(x_6);
 lean_dec(x_1);
 x_7 = l_Lean_IR_LiveVars_collectFnBody___main(x_6, x_2, x_3);
@@ -6313,7 +6313,7 @@ x_34 = lean_ctor_get(x_1, 0);
 lean_inc(x_34);
 x_35 = lean_ctor_get(x_1, 3);
 lean_inc(x_35);
-x_36 = lean_ctor_get(x_1, 4);
+x_36 = lean_ctor_get(x_1, 5);
 lean_inc(x_36);
 lean_dec(x_1);
 x_37 = l_Lean_IR_LiveVars_collectFnBody___main(x_36, x_2, x_3);
@@ -6349,7 +6349,7 @@ case 10:
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; 
 x_48 = lean_ctor_get(x_1, 1);
 lean_inc(x_48);
-x_49 = lean_ctor_get(x_1, 2);
+x_49 = lean_ctor_get(x_1, 3);
 lean_inc(x_49);
 lean_dec(x_1);
 x_50 = lean_unsigned_to_nat(0u);

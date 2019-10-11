@@ -14,6 +14,10 @@ namespace ir {
 inductive IRType
 | float | uint8 | uint16 | uint32 | uint64 | usize
 | irrelevant | object | tobject
+| struct (leanTypeName : Option Name) (types : Array IRType) : IRType
+| union (leanTypeName : Name) (types : Array IRType) : IRType
+
+Remark: we don't create struct/union types from C++.
 */
 enum class type { Float, UInt8, UInt16, UInt32, UInt64, USize, Irrelevant, Object, TObject };
 

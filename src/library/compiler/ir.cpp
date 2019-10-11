@@ -20,7 +20,7 @@ namespace ir {
 object * irrelevant_arg;
 extern "C" object * lean_ir_mk_unreachable(object *);
 extern "C" object * lean_ir_mk_var_arg(object * id);
-extern "C" object * lean_ir_mk_param(object * x, uint8 borrowed, uint8 ty);
+extern "C" object * lean_ir_mk_param(object * x, uint8 borrowed, object * ty);
 extern "C" object * lean_ir_mk_ctor_expr(object * n, object * cidx, object * size, object * usize, object * ssize, object * ys);
 extern "C" object * lean_ir_mk_proj_expr(object * i, object * x);
 extern "C" object * lean_ir_mk_uproj_expr(object * i, object * x);
@@ -30,16 +30,16 @@ extern "C" object * lean_ir_mk_papp_expr(object * c, object * ys);
 extern "C" object * lean_ir_mk_app_expr(object * x, object * ys);
 extern "C" object * lean_ir_mk_num_expr(object * v);
 extern "C" object * lean_ir_mk_str_expr(object * v);
-extern "C" object * lean_ir_mk_vdecl(object * x, uint8 ty, object * e, object * b);
+extern "C" object * lean_ir_mk_vdecl(object * x, object * ty, object * e, object * b);
 extern "C" object * lean_ir_mk_jdecl(object * j, object * xs, object * v, object * b);
 extern "C" object * lean_ir_mk_uset(object * x, object * i, object * y, object * b);
-extern "C" object * lean_ir_mk_sset(object * x, object * i, object * o, object * y, uint8 ty, object * b);
+extern "C" object * lean_ir_mk_sset(object * x, object * i, object * o, object * y, object * ty, object * b);
 extern "C" object * lean_ir_mk_case(object * tid, object * x, object * cs);
 extern "C" object * lean_ir_mk_ret(object * x);
 extern "C" object * lean_ir_mk_jmp(object * j, object * ys);
 extern "C" object * lean_ir_mk_alt(object * n, object * cidx, object * size, object * usize, object * ssize, object * b);
-extern "C" object * lean_ir_mk_decl(object * f, object * xs, uint8 ty, object * b);
-extern "C" object * lean_ir_mk_extern_decl(object * f, object * xs, uint8 ty, object * ext_entry);
+extern "C" object * lean_ir_mk_decl(object * f, object * xs, object * ty, object * b);
+extern "C" object * lean_ir_mk_extern_decl(object * f, object * xs, object * ty, object * ext_entry);
 extern "C" object * lean_ir_decl_to_string(object * d);
 extern "C" object * lean_ir_compile(object * env, object * opts, object * decls);
 extern "C" object * lean_ir_log_to_string(object * log);
@@ -47,8 +47,9 @@ extern "C" object * lean_ir_add_decl(object * env, object * decl);
 
 arg mk_var_arg(var_id const & id) { inc(id.raw()); return arg(lean_ir_mk_var_arg(id.raw())); }
 arg mk_irrelevant_arg() { return arg(irrelevant_arg); }
+object * box_type(type ty) { return box(static_cast<size_t>(ty)); }
 param mk_param(var_id const & x, type ty, bool borrowed = false) {
-    return param(lean_ir_mk_param(x.to_obj_arg(), borrowed, static_cast<uint8>(ty)));
+    return param(lean_ir_mk_param(x.to_obj_arg(), borrowed, box_type(ty)));
 }
 expr mk_ctor(name const & n, unsigned cidx, unsigned size, unsigned usize, unsigned ssize, buffer<arg> const & ys) {
     return expr(lean_ir_mk_ctor_expr(n.to_obj_arg(), mk_nat_obj(cidx), mk_nat_obj(size), mk_nat_obj(usize), mk_nat_obj(ssize), to_array(ys)));
@@ -63,7 +64,7 @@ expr mk_num_lit(nat const & v) { return expr(lean_ir_mk_num_expr(v.to_obj_arg())
 expr mk_str_lit(string_ref const & v) { return expr(lean_ir_mk_str_expr(v.to_obj_arg())); }
 
 fn_body mk_vdecl(var_id const & x, type ty, expr const & e, fn_body const & b) {
-    return fn_body(lean_ir_mk_vdecl(x.to_obj_arg(), static_cast<uint8>(ty), e.to_obj_arg(), b.to_obj_arg()));
+    return fn_body(lean_ir_mk_vdecl(x.to_obj_arg(), box_type(ty), e.to_obj_arg(), b.to_obj_arg()));
 }
 fn_body mk_jdecl(jp_id const & j, buffer<param> const & xs, expr const & v, fn_body const & b) {
     return fn_body(lean_ir_mk_jdecl(j.to_obj_arg(), to_array(xs), v.to_obj_arg(), b.to_obj_arg()));
@@ -72,7 +73,7 @@ fn_body mk_uset(var_id const & x, unsigned i, var_id const & y, fn_body const & 
     return fn_body(lean_ir_mk_uset(x.to_obj_arg(), mk_nat_obj(i), y.to_obj_arg(), b.to_obj_arg()));
 }
 fn_body mk_sset(var_id const & x, unsigned i, unsigned o, var_id const & y, type ty, fn_body const & b) {
-    return fn_body(lean_ir_mk_sset(x.to_obj_arg(), mk_nat_obj(i), mk_nat_obj(o), y.to_obj_arg(), static_cast<uint8>(ty), b.to_obj_arg()));
+    return fn_body(lean_ir_mk_sset(x.to_obj_arg(), mk_nat_obj(i), mk_nat_obj(o), y.to_obj_arg(), box_type(ty), b.to_obj_arg()));
 }
 fn_body mk_ret(arg const & x) { return fn_body(lean_ir_mk_ret(x.to_obj_arg())); }
 fn_body mk_unreachable() { return fn_body(lean_ir_mk_unreachable(box(0))); }
@@ -86,10 +87,10 @@ fn_body mk_jmp(jp_id const & j, buffer<arg> const & ys) {
     return fn_body(lean_ir_mk_jmp(j.to_obj_arg(), to_array(ys)));
 }
 decl mk_decl(fun_id const & f, buffer<param> const & xs, type ty, fn_body const & b) {
-    return decl(lean_ir_mk_decl(f.to_obj_arg(), to_array(xs), static_cast<uint8>(ty), b.to_obj_arg()));
+    return decl(lean_ir_mk_decl(f.to_obj_arg(), to_array(xs), box_type(ty), b.to_obj_arg()));
 }
 decl mk_extern_decl(fun_id const & f, buffer<param> const & xs, type ty, extern_attr_data_value const & v) {
-    return decl(lean_ir_mk_extern_decl(f.to_obj_arg(), to_array(xs), static_cast<uint8>(ty), v.to_obj_arg()));
+    return decl(lean_ir_mk_extern_decl(f.to_obj_arg(), to_array(xs), box_type(ty), v.to_obj_arg()));
 }
 std::string decl_to_string(decl const & d) {
     string_ref r(lean_ir_decl_to_string(d.to_obj_arg()));

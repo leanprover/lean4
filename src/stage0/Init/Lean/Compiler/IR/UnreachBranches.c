@@ -7153,9 +7153,9 @@ case 0:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_11 = lean_ctor_get(x_1, 0);
 lean_inc(x_11);
-x_12 = lean_ctor_get(x_1, 1);
+x_12 = lean_ctor_get(x_1, 2);
 lean_inc(x_12);
-x_13 = lean_ctor_get(x_1, 2);
+x_13 = lean_ctor_get(x_1, 3);
 lean_inc(x_13);
 lean_dec(x_1);
 x_14 = l_Lean_IR_UnreachableBranches_interpExpr(x_12, x_2, x_3);
@@ -7222,7 +7222,7 @@ case 10:
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
 x_35 = lean_ctor_get(x_1, 1);
 lean_inc(x_35);
-x_36 = lean_ctor_get(x_1, 2);
+x_36 = lean_ctor_get(x_1, 3);
 lean_inc(x_36);
 lean_dec(x_1);
 x_37 = l_Lean_IR_UnreachableBranches_findVarValue(x_35, x_2, x_3);
@@ -7582,7 +7582,7 @@ if (lean_obj_tag(x_14) == 0)
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 x_15 = lean_ctor_get(x_14, 1);
 lean_inc(x_15);
-x_16 = lean_ctor_get(x_14, 2);
+x_16 = lean_ctor_get(x_14, 3);
 lean_inc(x_16);
 lean_dec(x_14);
 x_17 = lean_ctor_get(x_6, 1);
@@ -8006,28 +8006,29 @@ x_11 = !lean_is_exclusive(x_2);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
-x_12 = lean_ctor_get(x_2, 2);
+x_12 = lean_ctor_get(x_2, 3);
 x_13 = l_Lean_IR_UnreachableBranches_elimDeadAux___main(x_1, x_12);
-lean_ctor_set(x_2, 2, x_13);
+lean_ctor_set(x_2, 3, x_13);
 return x_2;
 }
 else
 {
-lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_14 = lean_ctor_get(x_2, 0);
-x_15 = lean_ctor_get_uint8(x_2, sizeof(void*)*3);
-x_16 = lean_ctor_get(x_2, 1);
-x_17 = lean_ctor_get(x_2, 2);
+x_15 = lean_ctor_get(x_2, 1);
+x_16 = lean_ctor_get(x_2, 2);
+x_17 = lean_ctor_get(x_2, 3);
 lean_inc(x_17);
 lean_inc(x_16);
+lean_inc(x_15);
 lean_inc(x_14);
 lean_dec(x_2);
 x_18 = l_Lean_IR_UnreachableBranches_elimDeadAux___main(x_1, x_17);
-x_19 = lean_alloc_ctor(0, 3, 1);
+x_19 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_19, 0, x_14);
-lean_ctor_set(x_19, 1, x_16);
-lean_ctor_set(x_19, 2, x_18);
-lean_ctor_set_uint8(x_19, sizeof(void*)*3, x_15);
+lean_ctor_set(x_19, 1, x_15);
+lean_ctor_set(x_19, 2, x_16);
+lean_ctor_set(x_19, 3, x_18);
 return x_19;
 }
 }
@@ -8076,14 +8077,14 @@ if (x_32 == 0)
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; 
 x_33 = lean_ctor_get(x_2, 1);
-x_34 = lean_ctor_get(x_2, 2);
+x_34 = lean_ctor_get(x_2, 3);
 x_35 = l_HashMapImp_find___at_Lean_IR_UnreachableBranches_findVarValue___spec__1(x_1, x_33);
 if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; lean_object* x_37; 
 x_36 = lean_unsigned_to_nat(0u);
 x_37 = l_Array_ummapAux___main___at_Lean_IR_UnreachableBranches_elimDeadAux___main___spec__1(x_1, x_36, x_34);
-lean_ctor_set(x_2, 2, x_37);
+lean_ctor_set(x_2, 3, x_37);
 return x_2;
 }
 else
@@ -8095,18 +8096,19 @@ lean_dec(x_35);
 x_39 = lean_unsigned_to_nat(0u);
 x_40 = l_Array_ummapAux___main___at_Lean_IR_UnreachableBranches_elimDeadAux___main___spec__2(x_1, x_38, x_39, x_34);
 lean_dec(x_38);
-lean_ctor_set(x_2, 2, x_40);
+lean_ctor_set(x_2, 3, x_40);
 return x_2;
 }
 }
 else
 {
-lean_object* x_41; lean_object* x_42; uint8_t x_43; lean_object* x_44; lean_object* x_45; 
+lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; 
 x_41 = lean_ctor_get(x_2, 0);
 x_42 = lean_ctor_get(x_2, 1);
-x_43 = lean_ctor_get_uint8(x_2, sizeof(void*)*3);
-x_44 = lean_ctor_get(x_2, 2);
+x_43 = lean_ctor_get(x_2, 2);
+x_44 = lean_ctor_get(x_2, 3);
 lean_inc(x_44);
+lean_inc(x_43);
 lean_inc(x_42);
 lean_inc(x_41);
 lean_dec(x_2);
@@ -8116,11 +8118,11 @@ if (lean_obj_tag(x_45) == 0)
 lean_object* x_46; lean_object* x_47; lean_object* x_48; 
 x_46 = lean_unsigned_to_nat(0u);
 x_47 = l_Array_ummapAux___main___at_Lean_IR_UnreachableBranches_elimDeadAux___main___spec__1(x_1, x_46, x_44);
-x_48 = lean_alloc_ctor(10, 3, 1);
+x_48 = lean_alloc_ctor(10, 4, 0);
 lean_ctor_set(x_48, 0, x_41);
 lean_ctor_set(x_48, 1, x_42);
-lean_ctor_set(x_48, 2, x_47);
-lean_ctor_set_uint8(x_48, sizeof(void*)*3, x_43);
+lean_ctor_set(x_48, 2, x_43);
+lean_ctor_set(x_48, 3, x_47);
 return x_48;
 }
 else
@@ -8132,11 +8134,11 @@ lean_dec(x_45);
 x_50 = lean_unsigned_to_nat(0u);
 x_51 = l_Array_ummapAux___main___at_Lean_IR_UnreachableBranches_elimDeadAux___main___spec__2(x_1, x_49, x_50, x_44);
 lean_dec(x_49);
-x_52 = lean_alloc_ctor(10, 3, 1);
+x_52 = lean_alloc_ctor(10, 4, 0);
 lean_ctor_set(x_52, 0, x_41);
 lean_ctor_set(x_52, 1, x_42);
-lean_ctor_set(x_52, 2, x_51);
-lean_ctor_set_uint8(x_52, sizeof(void*)*3, x_43);
+lean_ctor_set(x_52, 2, x_43);
+lean_ctor_set(x_52, 3, x_51);
 return x_52;
 }
 }
@@ -8226,28 +8228,29 @@ x_3 = !lean_is_exclusive(x_2);
 if (x_3 == 0)
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_ctor_get(x_2, 2);
+x_4 = lean_ctor_get(x_2, 3);
 x_5 = l_Lean_IR_UnreachableBranches_elimDeadAux___main(x_1, x_4);
-lean_ctor_set(x_2, 2, x_5);
+lean_ctor_set(x_2, 3, x_5);
 return x_2;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_6 = lean_ctor_get(x_2, 0);
 x_7 = lean_ctor_get(x_2, 1);
-x_8 = lean_ctor_get_uint8(x_2, sizeof(void*)*3);
-x_9 = lean_ctor_get(x_2, 2);
+x_8 = lean_ctor_get(x_2, 2);
+x_9 = lean_ctor_get(x_2, 3);
 lean_inc(x_9);
+lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_dec(x_2);
 x_10 = l_Lean_IR_UnreachableBranches_elimDeadAux___main(x_1, x_9);
-x_11 = lean_alloc_ctor(0, 3, 1);
+x_11 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_11, 0, x_6);
 lean_ctor_set(x_11, 1, x_7);
-lean_ctor_set(x_11, 2, x_10);
-lean_ctor_set_uint8(x_11, sizeof(void*)*3, x_8);
+lean_ctor_set(x_11, 2, x_8);
+lean_ctor_set(x_11, 3, x_10);
 return x_11;
 }
 }

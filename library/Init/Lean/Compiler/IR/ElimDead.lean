@@ -25,6 +25,7 @@ partial def reshapeWithoutDeadAux : Array FnBody → FnBody → IndexSet → FnB
       else reshapeWithoutDeadAux bs b used;
     match curr with
     | FnBody.vdecl x _ _ _  => keepIfUsed x.idx
+    -- TODO: we should keep all struct/union projections because they are used to ensure struct/union values are fully consumed.
     | FnBody.jdecl j _ _ _  => keepIfUsed j.idx
     | _                     => keep ()
 

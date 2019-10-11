@@ -65,28 +65,46 @@ end MData
    - `tobject` a pointer to a value in the heap or tagged pointer
       (i.e., the least significant bit is 1) storing a scalar value.
 
+   - `struct` and `union` are used to return small values (e.g., `Option`, `Prod`, `Except`)
+      on the stack.
+
 Remark: the RC operations for `tobject` are slightly more expensive because we
 first need to test whether the `tobject` is really a pointer or not.
 
 Remark: the Lean runtime assumes that sizeof(void*) == sizeof(sizeT).
-Lean cannot be compiled on old platforms where this is not True. -/
+Lean cannot be compiled on old platforms where this is not True.
+
+Since values of type `struct` and `union` are only used to return values,
+We assume they must be used/consumed "linearly". We use the term "linear" here
+to mean "exactly once" in each execution. That is, given `x : S`, where `S` is a struct,
+then one of the following must hold in each (execution) branch.
+1- `x` occurs only at a single `ret x` instruction. That is, it is being consumed by being returned.
+2- `x` occurs only at a single `ctor`. That is, it is being "consumed" by being stored into another `struct/union`.
+3- We extract (aka project) every single field of `x` exactly once. That is, we are consuming `x` by consuming each
+   of one of its components. Minor refinement: we don't need to consume scalar fields or struct/union
+   fields that do not contain object fields.
+-/
 inductive IRType
 | float | uint8 | uint16 | uint32 | uint64 | usize
 | irrelevant | object | tobject
+| struct (leanTypeName : Option Name) (types : Array IRType) : IRType
+| union (leanTypeName : Name) (types : Array IRType) : IRType
 
 namespace IRType
 
-def beq : IRType → IRType → Bool
-| float,      float      => true
-| uint8,      uint8      => true
-| uint16,     uint16     => true
-| uint32,     uint32     => true
-| uint64,     uint64     => true
-| usize,      usize      => true
-| irrelevant, irrelevant => true
-| object,     object     => true
-| tobject,    tobject    => true
-| _,          _          => false
+partial def beq : IRType → IRType → Bool
+| float,          float          => true
+| uint8,          uint8          => true
+| uint16,         uint16         => true
+| uint32,         uint32         => true
+| uint64,         uint64         => true
+| usize,          usize          => true
+| irrelevant,     irrelevant     => true
+| object,         object         => true
+| tobject,        tobject        => true
+| struct n₁ tys₁, struct n₂ tys₂ => n₁ == n₂ && Array.isEqv tys₁ tys₂ beq
+| union n₁ tys₁,  union n₂ tys₂  => n₁ == n₂ && Array.isEqv tys₁ tys₂ beq
+| _,              _              => false
 
 instance HasBeq : HasBeq IRType := ⟨beq⟩
 
@@ -106,6 +124,14 @@ def isObj : IRType → Bool
 
 def isIrrelevant : IRType → Bool
 | irrelevant => true
+| _ => false
+
+def isStruct : IRType → Bool
+| struct _ _ => true
+| _ => false
+
+def isUnion : IRType → Bool
+| union _ _ => true
 | _ => false
 
 end IRType
@@ -150,7 +176,7 @@ instance LitVal.HasBeq : HasBeq LitVal := ⟨LitVal.beq⟩
    - `ssize` is the number of bytes used to store scalar values.
 
 Recall that a Constructor object contains a header, then a sequence of
-pointers to other Lean objects, a sequence of `Usize` (i.e., `sizeT`)
+pointers to other Lean objects, a sequence of `USize` (i.e., `size_t`)
 scalar values, and a sequence of other scalar values. -/
 structure CtorInfo :=
 (name : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat)
@@ -168,11 +194,15 @@ def CtorInfo.isScalar (info : CtorInfo) : Bool :=
 !info.isRef
 
 inductive Expr
+/- We use `ctor` mainly for constructing Lean object/tobject values `lean_ctor_object` in the runtime.
+   This instruction is also used to creat `struct` and `union` return values.
+   For `union`, only `i.cidx` is relevant. For `struct`, `i` is irrelevant. -/
 | ctor (i : CtorInfo) (ys : Array Arg)
 | reset (n : Nat) (x : VarId)
 /- `reuse x in ctor_i ys` instruction in the paper. -/
 | reuse (x : VarId) (i : CtorInfo) (updtHeader : Bool) (ys : Array Arg)
-/- Extract the `tobject` value at Position `sizeof(void*)*i` from `x`. -/
+/- Extract the `tobject` value at Position `sizeof(void*)*i` from `x`.
+   We also use `proj` for extracting fields from `struct` return values, and casting `union` return values. -/
 | proj (i : Nat) (x : VarId)
 /- Extract the `Usize` value at Position `sizeof(void*)*i` from `x`. -/
 | uproj (i : Nat) (x : VarId)

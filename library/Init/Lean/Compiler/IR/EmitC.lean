@@ -66,6 +66,8 @@ def toCType : IRType → String
 | IRType.object     => "lean_object*"
 | IRType.tobject    => "lean_object*"
 | IRType.irrelevant => "lean_object*"
+| IRType.struct _ _ => panic! "not implemented yet"
+| IRType.union _ _  => panic! "not implemented yet"
 
 def throwInvalidExportName {α : Type} (n : Name) : M α :=
 throw ("invalid export name '" ++ toString n ++ "'")

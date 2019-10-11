@@ -53,16 +53,18 @@ private def formatExpr : Expr → Format
 instance exprHasFormat   : HasFormat Expr := ⟨formatExpr⟩
 instance exprHasToString : HasToString Expr := ⟨fun e => Format.pretty (format e)⟩
 
-private def formatIRType : IRType → Format
-| IRType.float      => "float"
-| IRType.uint8      => "u8"
-| IRType.uint16     => "u16"
-| IRType.uint32     => "u32"
-| IRType.uint64     => "u64"
-| IRType.usize      => "usize"
-| IRType.irrelevant => "◾"
-| IRType.object     => "obj"
-| IRType.tobject    => "tobj"
+private partial def formatIRType : IRType → Format
+| IRType.float        => "float"
+| IRType.uint8        => "u8"
+| IRType.uint16       => "u16"
+| IRType.uint32       => "u32"
+| IRType.uint64       => "u64"
+| IRType.usize        => "usize"
+| IRType.irrelevant   => "◾"
+| IRType.object       => "obj"
+| IRType.tobject      => "tobj"
+| IRType.struct _ tys => "struct " ++ Format.bracket "{" (@Format.joinSep _ ⟨formatIRType⟩ tys.toList ", ") "}"
+| IRType.union _ tys  => "union " ++ Format.bracket "{" (@Format.joinSep _ ⟨formatIRType⟩ tys.toList ", ") "}"
 
 instance typeHasFormat : HasFormat IRType := ⟨formatIRType⟩
 

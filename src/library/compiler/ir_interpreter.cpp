@@ -101,7 +101,7 @@ var_id const & expr_is_tagged_ptr_obj(expr const & e) { lean_assert(expr_tag(e) 
 
 typedef object_ref param;
 var_id const & param_var(param const & p) { return cnstr_get_ref_t<var_id>(p, 0); }
-bool param_borrow(param const & p) { return cnstr_get_uint8(p.raw(), sizeof(void *)); }
+bool param_borrow(param const & p) { return cnstr_get_uint8(p.raw(), 2*sizeof(void *)); }
 type param_type(param const & p) { return cnstr_get_type(p, 1); }
 
 typedef object_ref alt_core;

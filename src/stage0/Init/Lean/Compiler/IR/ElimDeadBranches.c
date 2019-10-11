@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: Init.Lean.Compiler.IR.UnreachBranches
+// Module: Init.Lean.Compiler.IR.ElimDeadBranches
 // Imports: Init.Control.Reader Init.Data.Option.Default Init.Lean.Compiler.IR.Format Init.Lean.Compiler.IR.Basic Init.Lean.Compiler.IR.CompilerM
 #include "runtime/lean.h"
 #if defined(__clang__)
@@ -731,7 +731,7 @@ lean_object* _init_l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Init.Lean.Compiler.IR.UnreachBranches");
+x_1 = lean_mk_string("Init.Lean.Compiler.IR.ElimDeadBranches");
 return x_1;
 }
 }
@@ -8539,7 +8539,7 @@ lean_object* initialize_Init_Lean_Compiler_IR_Format(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_IR_Basic(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_IR_CompilerM(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Lean_Compiler_IR_UnreachBranches(lean_object* w) {
+lean_object* initialize_Init_Lean_Compiler_IR_ElimDeadBranches(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;

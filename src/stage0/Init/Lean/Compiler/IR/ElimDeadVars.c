@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: Init.Lean.Compiler.IR.ElimDead
+// Module: Init.Lean.Compiler.IR.ElimDeadVars
 // Imports: Init.Lean.Compiler.IR.Basic Init.Lean.Compiler.IR.FreeVars
 #include "runtime/lean.h"
 #if defined(__clang__)
@@ -390,7 +390,7 @@ return x_1;
 lean_object* initialize_Init_Lean_Compiler_IR_Basic(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_IR_FreeVars(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Lean_Compiler_IR_ElimDead(lean_object* w) {
+lean_object* initialize_Init_Lean_Compiler_IR_ElimDeadVars(lean_object* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (lean_io_result_is_error(w)) return w;

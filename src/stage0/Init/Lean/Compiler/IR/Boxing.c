@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Compiler.IR.Boxing
-// Imports: Init.Data.AssocList Init.Control.EState Init.Control.Reader Init.Lean.Runtime Init.Lean.Compiler.ClosedTermCache Init.Lean.Compiler.ExternAttr Init.Lean.Compiler.IR.Basic Init.Lean.Compiler.IR.CompilerM Init.Lean.Compiler.IR.FreeVars Init.Lean.Compiler.IR.ElimDead
+// Imports: Init.Data.AssocList Init.Control.EState Init.Control.Reader Init.Lean.Runtime Init.Lean.Compiler.ClosedTermCache Init.Lean.Compiler.ExternAttr Init.Lean.Compiler.IR.Basic Init.Lean.Compiler.IR.CompilerM Init.Lean.Compiler.IR.FreeVars Init.Lean.Compiler.IR.ElimDeadVars
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -7157,7 +7157,7 @@ lean_object* initialize_Init_Lean_Compiler_ExternAttr(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_IR_Basic(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_IR_CompilerM(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_IR_FreeVars(lean_object*);
-lean_object* initialize_Init_Lean_Compiler_IR_ElimDead(lean_object*);
+lean_object* initialize_Init_Lean_Compiler_IR_ElimDeadVars(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Compiler_IR_Boxing(lean_object* w) {
 if (_G_initialized) return w;
@@ -7181,7 +7181,7 @@ w = initialize_Init_Lean_Compiler_IR_CompilerM(w);
 if (lean_io_result_is_error(w)) return w;
 w = initialize_Init_Lean_Compiler_IR_FreeVars(w);
 if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Lean_Compiler_IR_ElimDead(w);
+w = initialize_Init_Lean_Compiler_IR_ElimDeadVars(w);
 if (lean_io_result_is_error(w)) return w;
 l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__1 = _init_l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__1();
 lean_mark_persistent(l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__1);

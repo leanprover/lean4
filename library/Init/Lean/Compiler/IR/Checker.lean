@@ -52,6 +52,9 @@ match a with
 def checkArgs (as : Array Arg) : M Unit :=
 as.mfor checkArg
 
+@[inline] def checkEqTypes (ty₁ ty₂ : IRType) : M Unit :=
+unless (ty₁ == ty₂) $ throw ("unexpected type")
+
 @[inline] def checkType (ty : IRType) (p : IRType → Bool) : M Unit :=
 unless (p ty) $ throw ("unexpected type")
 
@@ -59,11 +62,14 @@ def checkObjType (ty : IRType) : M Unit := checkType ty IRType.isObj
 
 def checkScalarType (ty : IRType) : M Unit := checkType ty IRType.isScalar
 
-@[inline] def checkVarType (x : VarId) (p : IRType → Bool) : M Unit :=
+def getType (x : VarId) : M IRType :=
 do ctx ← read;
    match ctx.localCtx.getType x with
-   | some ty => checkType ty p
+   | some ty => pure ty
    | none    => throw ("unknown variable '" ++ toString x ++ "'")
+
+@[inline] def checkVarType (x : VarId) (p : IRType → Bool) : M Unit :=
+do ty ← getType x; checkType ty p
 
 def checkObjVar (x : VarId) : M Unit :=
 checkVarType x IRType.isObj
@@ -85,12 +91,18 @@ def checkExpr (ty : IRType) : Expr → M Unit
 | Expr.pap f ys           => checkPartialApp f ys *> checkObjType ty -- partial applications should always produce a closure object
 | Expr.ap x ys            => checkObjVar x *> checkArgs ys
 | Expr.fap f ys           => checkFullApp f ys
-| Expr.ctor c ys          => when c.isRef (checkObjType ty) *> checkArgs ys
+| Expr.ctor c ys          => when (!ty.isStruct && !ty.isUnion && c.isRef) (checkObjType ty) *> checkArgs ys
 | Expr.reset _ x          => checkObjVar x *> checkObjType ty
 | Expr.reuse x i u ys     => checkObjVar x *> checkArgs ys *> checkObjType ty
 | Expr.box xty x          => checkObjType ty *> checkScalarVar x *> checkVarType x (fun t => t == xty)
 | Expr.unbox x            => checkScalarType ty *> checkObjVar x
-| Expr.proj _ x           => checkObjVar x *> checkObjType ty
+| Expr.proj i x           => do xType ← getType x;
+  match xType with
+  | IRType.object       => checkObjType ty
+  | IRType.tobject      => checkObjType ty
+  | IRType.struct _ tys => if h : i < tys.size then checkEqTypes (tys.get ⟨i,h⟩) ty else throw "invalid proj index"
+  | IRType.union _ tys  => if h : i < tys.size then checkEqTypes (tys.get ⟨i,h⟩) ty else throw "invalid proj index"
+  | other               => throw "unexpected type"
 | Expr.uproj _ x          => checkObjVar x *> checkType ty (fun t => t == IRType.usize)
 | Expr.sproj _ _ x        => checkObjVar x *> checkScalarType ty
 | Expr.isShared x         => checkObjVar x *> checkType ty (fun t => t == IRType.uint8)

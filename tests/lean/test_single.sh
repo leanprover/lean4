@@ -26,7 +26,7 @@ if diff --color --help >/dev/null 2>&1; then
 fi
 
 echo "-- testing $f"
-"$LEAN" "$ff" | sed 's|does\\not\\exist|does/not/exist|' | sed "/warning: imported file uses 'sorry'/d" | sed "/warning: using 'sorry'/d" | sed "/failed to elaborate theorem/d" | sed "s|^$ff|$f|" > "$f.produced.out"
+"$LEAN" "$ff" | sed 's|does\\not\\exist|does/not/exist|' | sed "/warning: imported file uses 'sorry'/d" | sed "/warning: using 'sorry'/d" | sed "/failed to elaborate theorem/d" | sed "s|^$ff|$f|" &> "$f.produced.out"
 if test -f "$f.expected.out"; then
     if $DIFF -u --ignore-all-space -I "executing external script" "$f.expected.out" "$f.produced.out"; then
         echo "-- checked"

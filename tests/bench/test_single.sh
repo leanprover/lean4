@@ -19,7 +19,7 @@ fi
 ./compile.sh "$ff" || exit 1
 
 [ -f "$ff.args" ] && args=$(cat "$ff.args")
-"./$ff.out" $args > "$ff.produced.out"
+"./$ff.out" $args &> "$ff.produced.out"
 if [ $? -ne 0 ]; then
    echo "Failed to execute $ff.out"
    exit 1

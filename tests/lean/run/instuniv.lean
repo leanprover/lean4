@@ -2,7 +2,7 @@ import Init.Lean
 open Lean
 
 def tst : IO Unit :=
-do env ← importModules [`init.data.array.default];
+do env ← importModules [`Init.Data.Array.Default];
    match env.find `Array.foldl with
    | some info => do
      IO.println (info.instantiateTypeUnivParams [Level.zero, Level.zero]);

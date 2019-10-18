@@ -23,6 +23,13 @@ if isWindows then ['\\', '/'] else ['/']
 def searchPathSeparator : Char :=
 if isWindows then ';' else ':'
 
+/-- The list of all possible separators. -/
+def searchPathSeparators : List Char :=
+if isWindows then [';', ':'] else [':']
+
+def splitSearchPath (s : String) : List String :=
+s.split (fun c => searchPathSeparators.elem c)
+
 /-- File extension character -/
 def extSeparator : Char :=
 '.'

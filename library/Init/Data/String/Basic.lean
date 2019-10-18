@@ -155,7 +155,20 @@ private def utf8ExtractAux₁ : List Char → Pos → Pos → Pos → List Char
 def extract : (@& String) → (@& Pos) → (@& Pos) → String
 | ⟨s⟩, b, e => if b ≥ e then ⟨[]⟩ else ⟨utf8ExtractAux₁ s 0 b e⟩
 
-partial def splitAux (s sep : String) : Pos → Pos → Pos → List String → List String
+@[specialize] partial def splitAux (s : String) (p : Char → Bool) : Pos → Pos → List String → List String
+| b, i, r =>
+  if s.atEnd i then
+    let r := if p (s.get i) then ""::(s.extract b (i-1))::r else (s.extract b i)::r;
+    r.reverse
+  else if p (s.get i) then
+    let i := s.next i;
+    splitAux i i (s.extract b (i-1)::r)
+  else splitAux b (s.next i) r
+
+@[specialize] def split (s : String) (p : Char → Bool) : List String :=
+splitAux s p 0 0 []
+
+partial def splitOnAux (s sep : String) : Pos → Pos → Pos → List String → List String
 | b, i, j, r =>
   if s.atEnd i then
     let r := if sep.atEnd j then ""::(s.extract b (i-j))::r else (s.extract b i)::r;
@@ -163,12 +176,12 @@ partial def splitAux (s sep : String) : Pos → Pos → Pos → List String → 
   else if s.get i == sep.get j then
     let i := s.next i;
     let j := sep.next j;
-    if sep.atEnd j then splitAux i i 0 (s.extract b (i-j)::r)
-    else splitAux b i j r
-  else splitAux b (s.next i) 0 r
+    if sep.atEnd j then splitOnAux i i 0 (s.extract b (i-j)::r)
+    else splitOnAux b i j r
+  else splitOnAux b (s.next i) 0 r
 
-def split (s : String) (sep : String := " ") : List String :=
-if sep == "" then [s] else splitAux s sep 0 0 0 []
+def splitOn (s : String) (sep : String := " ") : List String :=
+if sep == "" then [s] else splitOnAux s sep 0 0 0 []
 
 instance : Inhabited String :=
 ⟨""⟩
@@ -382,7 +395,7 @@ match s with
 @[inline] def extract : Substring → String.Pos → String.Pos → Substring
 | ⟨s, b, _⟩, b', e' => if b' ≥ e' then ⟨"", 0, 1⟩ else ⟨s, b+b', b+e'⟩
 
-partial def splitAux (s sep : String) (stopPos : String.Pos) : String.Pos → String.Pos → String.Pos → List Substring → List Substring
+partial def splitOnAux (s sep : String) (stopPos : String.Pos) : String.Pos → String.Pos → String.Pos → List Substring → List Substring
 | b, i, j, r =>
   if i == stopPos then
     let r := if sep.atEnd j then "".toSubstring::{str := s, startPos := b, stopPos := i-j}::r else {str := s, startPos := b, stopPos := i}::r;
@@ -390,12 +403,12 @@ partial def splitAux (s sep : String) (stopPos : String.Pos) : String.Pos → St
   else if s.get i == sep.get j then
     let i := s.next i;
     let j := sep.next j;
-    if sep.atEnd j then splitAux i i 0 ({str := s, startPos := b, stopPos := i-j}::r)
-    else splitAux b i j r
-  else splitAux b (s.next i) 0 r
+    if sep.atEnd j then splitOnAux i i 0 ({str := s, startPos := b, stopPos := i-j}::r)
+    else splitOnAux b i j r
+  else splitOnAux b (s.next i) 0 r
 
-def split (s : Substring) (sep : String := " ") : List Substring :=
-if sep == "" then [s] else splitAux s.str sep s.stopPos s.startPos s.startPos 0 []
+def splitOn (s : Substring) (sep : String := " ") : List Substring :=
+if sep == "" then [s] else splitOnAux s.str sep s.stopPos s.startPos s.startPos 0 []
 
 @[inline] def foldl {α : Type u} (f : α → Char → α) (a : α) (s : Substring) : α :=
 match s with

@@ -11,9 +11,8 @@ import Init.Control.Combinators
 import Init.Lean.Name
 
 namespace Lean
-open System.FilePath (pathSeparator searchPathSeparator extSeparator)
+open System.FilePath (pathSeparator splitSearchPath extSeparator)
 private def pathSep : String := toString pathSeparator
-private def searchPathSep : String := toString searchPathSeparator
 
 def realPathNormalized (fname : String) : IO String :=
 do fname ← IO.realPath fname;
@@ -29,9 +28,6 @@ constant searchPathRef : IO.Ref (Array String) := default _
 def setSearchPath (s : List String) : IO Unit :=
 do s ← s.mmap realPathNormalized;
    searchPathRef.set s.toArray
-
-def setSearchPathFromString (s : String) : IO Unit :=
-setSearchPath (s.split searchPathSep)
 
 def getBuiltinSearchPath : IO (List String) :=
 do appDir ← IO.appDir;
@@ -53,12 +49,12 @@ def getSearchPathFromEnv : IO (List String) :=
 do val ← IO.getEnv "LEAN_PATH";
    match val with
    | none     => pure ["."] -- If LEAN_PATH is not defined, use current directory
-   | some val => pure (val.split searchPathSep)
+   | some val => pure (splitSearchPath val)
 
 @[export lean_init_search_path]
 def initSearchPath (path : Option String := "") : IO Unit :=
 match path with
-| some path => setSearchPathFromString path
+| some path => setSearchPath (splitSearchPath path)
 | none      => do
   pathEnv     ← getSearchPathFromEnv;
   builtinPath ← getBuiltinSearchPath;
@@ -120,7 +116,7 @@ do path  ← findAtSearchPath fname;
        | throw (IO.userError ("failed to convert file '" ++ fname ++ "' to module name, extension is missing"));
      let modNameStr := fnameSuffix.extract 0 extPos;
      let extStr     := fnameSuffix.extract (extPos + 1) fnameSuffix.bsize;
-     let parts      := modNameStr.split pathSep;
+     let parts      := modNameStr.splitOn pathSep;
      let modName    := parts.foldl Name.mkString Name.anonymous;
      fname' ← findLeanFile modName extStr;
      unless (fname == fname') $ throw (IO.userError ("failed to convert file '" ++ fname ++ "' to module name, module name '" ++ toString modName ++ "' resolves to '" ++ fname' ++ "'"));

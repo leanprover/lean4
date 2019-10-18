@@ -53,7 +53,7 @@ do decl ← getOptionDecl name;
    pure decl.descr
 
 def setOptionFromString (opts : Options) (entry : String) : IO Options :=
-do let ps := (entry.split "=").map String.trim;
+do let ps := (entry.splitOn "=").map String.trim;
    [key, val] ← pure ps | throw "invalid configuration option entry, it must be of the form '<key> = <value>'";
    defValue ← getOptionDefaulValue key.toName;
    match defValue with

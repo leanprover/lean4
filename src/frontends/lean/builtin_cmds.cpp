@@ -41,6 +41,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/typed_expr.h"
 #include "library/compiler/ir_interpreter.h"
+#include "library/time_task.h"
 
 namespace lean {
 environment section_cmd(parser & p) {
@@ -463,7 +464,12 @@ environment synth_cmd(parser & p) {
     expr e; names ls;
     transient_cmd_scope cmd_scope(p);
     std::tie(e, ls) = parse_local_expr(p, "_synth");
-    expr inst = synth(p.env(), e);
+    expr inst;
+    {
+        time_task t("#synth",
+                    message_builder(environment(), get_global_ios(), "foo", pos_info(), message_severity::INFORMATION));
+        inst = synth(p.env(), e);
+    }
 
     type_context_old tc(p.env());
     expr inst_type = tc.infer(inst);

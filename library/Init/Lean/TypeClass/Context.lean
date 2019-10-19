@@ -52,13 +52,14 @@ do ctx ← get;
 def eLookupIdx (idx : Nat) : State Context (Option Expr) :=
 do ctx ← get; pure $ ctx.eVals.get! idx
 
-partial def eShallowInstantiate (e : Expr) : State Context Expr :=
-match eMetaIdx e with
-| some idx => get >>= λ ctx =>
-  match ctx.eVals.get! idx with
+partial def eShallowInstantiate : Expr → State Context Expr
+| e =>
+  match eMetaIdx e with
+  | some idx => get >>= λ ctx =>
+    match ctx.eVals.get! idx with
+    | none => pure e
+    | some v => eShallowInstantiate v
   | none => pure e
-  | some v => pure v
-| none => pure e
 
 def eInferIdx (idx : Nat) : State Context Expr :=
 do ctx ← get; pure $ ctx.eTypes.get! idx
@@ -109,13 +110,14 @@ do ctx ← get;
 def uLookupIdx (idx : Nat) : State Context (Option Level) :=
 do ctx ← get; pure $ ctx.uVals.get! idx
 
-partial def uShallowInstantiate (l : Level) : State Context Level :=
-match uMetaIdx l with
-| some idx => get >>= λ ctx =>
-  match ctx.uVals.get! idx with
+partial def uShallowInstantiate : Level → State Context Level
+| l =>
+  match uMetaIdx l with
+  | some idx => get >>= λ ctx =>
+    match ctx.uVals.get! idx with
+    | none => pure l
+    | some v => uShallowInstantiate v
   | none => pure l
-  | some v => pure v
-| none => pure l
 
 def uAssignIdx (idx : Nat) (l : Level) : State Context Unit :=
 modify $ λ ctx => { uVals := ctx.uVals.set idx (some l) .. ctx }
@@ -242,28 +244,29 @@ structure AlphaNormData : Type :=
 
 partial def uAlphaNormalizeCore : Level → State AlphaNormData Level
 | l =>
-  match l with
-  | Level.zero        => pure l
-  | Level.param _     => pure l
-  | Level.succ l      => do l ← uAlphaNormalizeCore l;
-                           pure $ Level.succ l
-  | Level.max l₁ l₂   => do l₁ ← uAlphaNormalizeCore l₁;
-                           l₂ ← uAlphaNormalizeCore l₂;
-                           pure $ Level.max l₁ l₂
-  | Level.imax l₁ l₂  => do l₁ ← uAlphaNormalizeCore l₁;
-                            l₂ ← uAlphaNormalizeCore l₂;
-                            pure $ Level.imax l₁ l₂
-  | Level.mvar m      =>
-    match uMetaIdx l with
-    | none     => pure l
-    | some idx => do
-      lookupStatus ← get >>= λ ϕ => pure $ ϕ.uRenameMap.find idx;
-      match lookupStatus with
-      | none => do
-        l ← get >>= λ ϕ => pure $ Level.mvar (mkNumName alphaMetaPrefix ϕ.uRenameMap.size);
-        modify $ λ ϕ => { uRenameMap := ϕ.uRenameMap.insert idx ϕ.uRenameMap.size .. ϕ };
-        pure l
-      | some alphaIdx => pure $ Level.mvar (mkNumName alphaMetaPrefix alphaIdx)
+  if !l.hasMVar then pure l else
+    match l with
+    | Level.zero        => pure l
+    | Level.param _     => pure l
+    | Level.succ l      => do l ← uAlphaNormalizeCore l;
+                             pure $ Level.succ l
+    | Level.max l₁ l₂   => do l₁ ← uAlphaNormalizeCore l₁;
+                             l₂ ← uAlphaNormalizeCore l₂;
+                             pure $ Level.max l₁ l₂
+    | Level.imax l₁ l₂  => do l₁ ← uAlphaNormalizeCore l₁;
+                              l₂ ← uAlphaNormalizeCore l₂;
+                              pure $ Level.imax l₁ l₂
+    | Level.mvar m      =>
+      match uMetaIdx l with
+      | none     => pure l
+      | some idx => do
+        lookupStatus ← get >>= λ ϕ => pure $ ϕ.uRenameMap.find idx;
+        match lookupStatus with
+        | none => do
+          l ← get >>= λ ϕ => pure $ Level.mvar (mkNumName alphaMetaPrefix ϕ.uRenameMap.size);
+          modify $ λ ϕ => { uRenameMap := ϕ.uRenameMap.insert idx ϕ.uRenameMap.size .. ϕ };
+          pure l
+        | some alphaIdx => pure $ Level.mvar (mkNumName alphaMetaPrefix alphaIdx)
 
 partial def eAlphaNormalizeCore : Expr → State AlphaNormData Expr
 | e =>

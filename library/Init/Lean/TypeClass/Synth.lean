@@ -90,7 +90,7 @@ def quickIsClass (env : Environment) : Expr → Option (Option Name)
   else some none
 | _            => some none
 
-def newSubgoal (waiter : Waiter) (ctx : Context) (mvar : Expr) : TCMethod Unit :=
+def newSubgoal (waiter : Waiter) (ctx : Context) (anormSubgoal mvar : Expr) : TCMethod Unit :=
 do let mvarType := ctx.eInfer mvar;
    isClassStatus ← get >>= λ ϕ => pure $ quickIsClass ϕ.env mvarType;
    match isClassStatus with
@@ -100,7 +100,7 @@ do let mvarType := ctx.eInfer mvar;
      gNode ← get >>= λ ϕ => pure {
        GeneratorNode .
        ctx                := ctx,
-       anormSubgoal       := Context.αNorm $ ctx.eInstantiate mvarType,
+       anormSubgoal       := anormSubgoal,
        futureAnswer       := ⟨mvar, mvarType⟩,
        remainingInstances := (getClassInstances ϕ.env n).map Instance.const
      };
@@ -191,7 +191,7 @@ do cNode ← get >>= λ ϕ => pure ϕ.consumerStack.peek!;
      let waiter : Waiter := Waiter.consumerNode cNode;
      lookupStatus ← get >>= λ ϕ => pure $ ϕ.tableEntries.find anormSubgoal;
      match lookupStatus with
-     | none => newSubgoal waiter cNode.ctx mvar
+     | none => newSubgoal waiter cNode.ctx anormSubgoal mvar
      | some entry => modify $ λ ϕ => {
                         resumeQueue   := entry.answers.foldl (λ rq answer => rq.enqueue (cNode, answer)) ϕ.resumeQueue,
                         tableEntries  := ϕ.tableEntries.insert anormSubgoal { waiters := entry.waiters.push waiter, .. entry },
@@ -290,7 +290,8 @@ def synth (goalType₀ : Expr) (fuel : Nat := 100000) : TCMethod Expr :=
 do env ← get >>= λ ϕ => pure ϕ.env;
    let ⟨ctx₀, goalType, uReplacements, eReplacements⟩ := preprocessForOutParams env goalType₀;
    let ⟨mvar, ctx⟩ := (Context.eNewMeta goalType).run ctx₀;
-   newSubgoal Waiter.root ctx mvar;
+   let anormSubgoal : Expr := Context.αNorm goalType;
+   newSubgoal Waiter.root ctx anormSubgoal mvar;
    modify $ λ ϕ => { mainMVar := mvar .. ϕ };
    ⟨instVal, instType⟩ ← synthCore ctx₀ goalType fuel;
    match (Context.eUnify goalType₀ instType).run ctx with

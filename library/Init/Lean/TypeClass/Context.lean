@@ -269,10 +269,12 @@ partial def eAlphaNormalizeCore : Expr → State AlphaNormData Expr
 | e =>
   if e.isConst then pure e
   else if e.isFVar then pure e
-  else if e.isApp then do
-    newArgs ← e.getAppArgs.mmap eAlphaNormalizeCore;
-    pure $ mkApp (e.getAppFn) newArgs
+  else if !e.hasMVar then pure e
   else match e with
+       | Expr.app f a => do
+         f ← eAlphaNormalizeCore f;
+         a ← eAlphaNormalizeCore a;
+         pure $ Expr.app f a
        | Expr.pi n i d b => do
          d ← eAlphaNormalizeCore d;
          b ← eAlphaNormalizeCore b;

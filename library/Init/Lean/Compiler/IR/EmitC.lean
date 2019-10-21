@@ -144,16 +144,16 @@ do d ← getDecl `main;
        emitLn "void lean_initialize();"
      else
        emitLn "void lean_initialize_runtime_module();";
-     emitLn "int main(int argc, char ** argv) {\nlean_object* w; lean_object* in;";
+     emitLn "int main(int argc, char ** argv) {\nlean_object* in; lean_object* res;";
      if usesLeanAPI then
        emitLn "lean_initialize();"
      else
        emitLn "lean_initialize_runtime_module();";
-     emitLn "w = lean_io_mk_world();";
      modName ← getModName;
-     emitLn ("w = initialize_" ++ (modName.mangle "") ++ "(w);");
+     emitLn ("res = initialize_" ++ (modName.mangle "") ++ "(lean_io_mk_world());");
      emitLns ["lean_io_mark_end_initialization();",
-              "if (lean_io_result_is_ok(w)) {",
+              "if (lean_io_result_is_ok(res)) {",
+              "lean_dec_ref(res);",
               "lean_init_task_manager();"];
      if xs.size == 2 then do {
        emitLns ["in = lean_box(0);",
@@ -164,18 +164,18 @@ do d ← getDecl `main;
                 " n = lean_alloc_ctor(1,2,0); lean_ctor_set(n, 0, lean_mk_string(argv[i])); lean_ctor_set(n, 1, in);",
                 " in = n;",
                "}"];
-       emitLn ("w = " ++ leanMainFn ++ "(in, w);")
+       emitLn ("res = " ++ leanMainFn ++ "(in, lean_io_mk_world());")
      } else do {
-       emitLn ("w = " ++ leanMainFn ++ "(w);")
+       emitLn ("res = " ++ leanMainFn ++ "(lean_io_mk_world());")
      };
      emitLn "}";
-     emitLns ["if (lean_io_result_is_ok(w)) {",
-              "  int ret = lean_unbox(lean_io_result_get_value(w));",
-              "  lean_dec_ref(w);",
+     emitLns ["if (lean_io_result_is_ok(res)) {",
+              "  int ret = lean_unbox(lean_io_result_get_value(res));",
+              "  lean_dec_ref(res);",
               "  return ret;",
               "} else {",
-              "  lean_io_result_show_error(w);",
-              "  lean_dec_ref(w);",
+              "  lean_io_result_show_error(res);",
+              "  lean_dec_ref(res);",
               "  return 1;",
               "}"];
      emitLn "}"
@@ -636,24 +636,28 @@ do env ← getEnv;
    let decls := getDecls env;
    decls.reverse.mfor emitDecl
 
+def emitMarkPersistent (d : Decl) (n : Name) : M Unit :=
+when d.resultType.isObj $ do {
+  emit "lean_mark_persistent("; emitCName n; emitLn ");"
+}
+
 def emitDeclInit (d : Decl) : M Unit :=
 do env ← getEnv;
    let n := d.name;
    if isIOUnitInitFn env n then do {
-     emit "w = "; emitCName n; emitLn "(w);";
-     emitLn "if (lean_io_result_is_error(w)) return w;"
-   } else when (d.params.size == 0) $ do {
+     emit "res = "; emitCName n; emitLn "(lean_io_mk_world());";
+     emitLn "if (lean_io_result_is_error(res)) return res;";
+     emitLn "lean_dec_ref(res);"
+   } else when (d.params.size == 0) $
      match getInitFnNameFor env d.name with
      | some initFn => do {
-       emit "w = "; emitCName initFn; emitLn "(w);";
-       emitLn "if (lean_io_result_is_error(w)) return w;";
-       emitCName n; emitLn " = lean_io_result_get_value(w);"
+       emit "res = "; emitCName initFn; emitLn "(lean_io_mk_world());";
+       emitLn "if (lean_io_result_is_error(res)) return res;";
+       emitCName n; emitLn " = lean_io_result_get_value(res);";
+       emitMarkPersistent d n;
+       emitLn "lean_dec_ref(res);"
        }
-     | _ => do { emitCName n; emit " = "; emitCInitName n; emitLn "();" };
-     when d.resultType.isObj $ do {
-       emit "lean_mark_persistent("; emitCName n; emitLn ");"
-     }
-   }
+     | _ => do { emitCName n; emit " = "; emitCInitName n; emitLn "();"; emitMarkPersistent d n }
 
 def emitInitFn : M Unit :=
 do env ← getEnv;
@@ -662,15 +666,17 @@ do env ← getEnv;
    emitLns [
      "static bool _G_initialized = false;",
      "lean_object* initialize_" ++ modName.mangle "" ++ "(lean_object* w) {",
-     "if (_G_initialized) return w;",
-     "_G_initialized = true;",
-     "if (lean_io_result_is_error(w)) return w;"];
+     "lean_object * res;",
+     "if (_G_initialized) return lean_mk_io_result(lean_box(0));",
+     "_G_initialized = true;"
+   ];
    env.imports.mfor $ fun m => emitLns [
-     "w = initialize_" ++ m.mangle "" ++ "(w);",
-     "if (lean_io_result_is_error(w)) return w;"];
+     "res = initialize_" ++ m.mangle "" ++ "(lean_io_mk_world());",
+     "if (lean_io_result_is_error(res)) return res;",
+     "lean_dec_ref(res);"];
    let decls := getDecls env;
    decls.reverse.mfor emitDeclInit;
-   emitLns ["return w;", "}"]
+   emitLns ["return lean_mk_io_result(lean_box(0));", "}"]
 
 def main : M Unit :=
 do emitFileHeader;

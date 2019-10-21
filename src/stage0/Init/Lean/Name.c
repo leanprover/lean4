@@ -90,7 +90,6 @@ lean_object* l_RBNode_find___main___at_Lean_NameMap_contains___spec__1(lean_obje
 lean_object* l_String_trim(lean_object*);
 uint8_t l_Lean_Name_quickLtCore___main(lean_object*, lean_object*);
 lean_object* l_Lean_Name_replacePrefix___main(lean_object*, lean_object*, lean_object*);
-lean_object* l_String_split(lean_object*, lean_object*);
 lean_object* l_RBNode_find___main___at_Lean_NameSet_contains___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append___boxed(lean_object*, lean_object*);
@@ -114,6 +113,7 @@ lean_object* l_RBNode_find___main___at_Lean_NameMap_find___spec__1___rarg___boxe
 lean_object* l_Lean_Name_getNumParts(lean_object*);
 lean_object* l_Lean_stringToName___closed__1;
 lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*);
+lean_object* l_String_splitOn(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isPrefixOf___main(lean_object*, lean_object*);
 lean_object* l_List_foldl___main___at_String_toName___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_replacePrefix___main___boxed(lean_object*, lean_object*, lean_object*);
@@ -8815,7 +8815,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Name_toString___closed__1;
-x_3 = l_String_split(x_1, x_2);
+x_3 = l_String_splitOn(x_1, x_2);
 x_4 = lean_box(0);
 x_5 = l_List_foldl___main___at_String_toName___spec__1(x_4, x_3);
 lean_dec(x_3);

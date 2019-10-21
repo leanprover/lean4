@@ -45,7 +45,6 @@ uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_IO_Prim_mkRef(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_trim(lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
-lean_object* l_String_split(lean_object*, lean_object*);
 lean_object* l_IO_Prim_Ref_get(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Options_2__optionDeclsRef;
 lean_object* l_Lean_getOptionDescr(lean_object*, lean_object*);
@@ -55,6 +54,7 @@ uint8_t l_String_isNat(lean_object*);
 lean_object* l_String_toName(lean_object*);
 lean_object* l_Lean_KVMap_setString(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_setOptionFromString___closed__3;
+lean_object* l_String_splitOn(lean_object*, lean_object*);
 lean_object* l_Lean_getOptionDefaulValue(lean_object*, lean_object*);
 lean_object* l_Lean_registerOption___closed__2;
 lean_object* l_Lean_setOptionFromString(lean_object*, lean_object*, lean_object*);
@@ -597,7 +597,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_5 = lean_ctor_get(x_3, 0);
 lean_dec(x_5);
 x_6 = l_Lean_setOptionFromString___closed__1;
-x_7 = l_String_split(x_2, x_6);
+x_7 = l_String_splitOn(x_2, x_6);
 x_8 = l_List_map___main___at_Lean_setOptionFromString___spec__1(x_7);
 if (lean_obj_tag(x_8) == 0)
 {
@@ -1022,7 +1022,7 @@ x_130 = lean_ctor_get(x_3, 1);
 lean_inc(x_130);
 lean_dec(x_3);
 x_131 = l_Lean_setOptionFromString___closed__1;
-x_132 = l_String_split(x_2, x_131);
+x_132 = l_String_splitOn(x_2, x_131);
 x_133 = l_List_map___main___at_Lean_setOptionFromString___spec__1(x_132);
 if (lean_obj_tag(x_133) == 0)
 {

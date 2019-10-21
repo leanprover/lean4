@@ -42,8 +42,6 @@ lean_object* l_Lean_addRel___main(lean_object*, lean_object*);
 lean_object* l_List_redLength___main___rarg(lean_object*);
 lean_object* l_System_FilePath_normalizePath(lean_object*);
 lean_object* l_IO_Prim_Ref_set(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_setSearchPathFromString(lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_Path_2__searchPathSep___closed__1;
 lean_object* l_Lean_moduleNameOfFileName___closed__2;
 lean_object* l_Array_mkEmpty(lean_object*, lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
@@ -51,7 +49,6 @@ lean_object* l_Lean_findLeanFile___boxed(lean_object*, lean_object*, lean_object
 lean_object* l_Array_toList___rarg(lean_object*);
 lean_object* lean_io_getenv(lean_object*, lean_object*);
 extern lean_object* l_List_repr___rarg___closed__2;
-extern uint32_t l_System_FilePath_searchPathSeparator;
 lean_object* l_Lean_getSearchPathFromEnv___closed__2;
 lean_object* l_Array_mfindAux___main___at_Lean_findFile___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_findFile(lean_object*, lean_object*, lean_object*);
@@ -60,6 +57,7 @@ lean_object* l_Lean_realPathNormalized(lean_object*, lean_object*);
 lean_object* l_Lean_modNameToFileName___boxed(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_List_repr___at_Lean_findAtSearchPath___spec__2(lean_object*);
+lean_object* l_String_split___at_System_FilePath_splitSearchPath___spec__2(lean_object*);
 lean_object* l_Lean_findAtSearchPath___closed__1;
 extern lean_object* l_List_reprAux___main___rarg___closed__1;
 lean_object* l_IO_appPath___at_Lean_getBuiltinSearchPath___spec__2(lean_object*);
@@ -94,9 +92,7 @@ extern lean_object* l_Array_HasRepr___rarg___closed__1;
 lean_object* l_List_reprAux___main___at_Lean_findAtSearchPath___spec__3(uint8_t, lean_object*);
 lean_object* l_Lean_addRel___main___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_modNameToFileName___main___boxed(lean_object*);
-lean_object* l___private_Init_Lean_Path_2__searchPathSep;
 lean_object* l_Lean_moduleNameOfFileName___closed__1;
-lean_object* l_String_split(lean_object*, lean_object*);
 lean_object* l_IO_Prim_Ref_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_findAtSearchPath(lean_object*, lean_object*);
 lean_object* l_Array_mfindAux___main___at_Lean_findFile___spec__2___closed__1;
@@ -115,6 +111,7 @@ extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Array_mfindAux___main___at_Lean_findFile___spec__2___closed__2;
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_findLeanFile___closed__1;
+lean_object* l_String_splitOn(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Array_mfindAux___main___at_Lean_findFile___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_find_lean(lean_object*, lean_object*);
@@ -142,24 +139,6 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l___private_Init_Lean_Path_1__pathSep___closed__1;
-return x_1;
-}
-}
-lean_object* _init_l___private_Init_Lean_Path_2__searchPathSep___closed__1() {
-_start:
-{
-lean_object* x_1; uint32_t x_2; lean_object* x_3; 
-x_1 = l_String_splitAux___main___closed__1;
-x_2 = l_System_FilePath_searchPathSeparator;
-x_3 = lean_string_push(x_1, x_2);
-return x_3;
-}
-}
-lean_object* _init_l___private_Init_Lean_Path_2__searchPathSep() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l___private_Init_Lean_Path_2__searchPathSep___closed__1;
 return x_1;
 }
 }
@@ -676,16 +655,6 @@ lean_ctor_set(x_24, 1, x_23);
 return x_24;
 }
 }
-}
-}
-lean_object* l_Lean_setSearchPathFromString(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l___private_Init_Lean_Path_2__searchPathSep;
-x_4 = l_String_split(x_1, x_3);
-x_5 = l_Lean_setSearchPath(x_4, x_2);
-return x_5;
 }
 }
 lean_object* l_IO_appPath___at_Lean_getBuiltinSearchPath___spec__2(lean_object* x_1) {
@@ -1717,55 +1686,55 @@ uint8_t x_11;
 x_11 = !lean_is_exclusive(x_3);
 if (x_11 == 0)
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_12 = lean_ctor_get(x_3, 0);
 lean_dec(x_12);
 x_13 = lean_ctor_get(x_4, 0);
 lean_inc(x_13);
 lean_dec(x_4);
-x_14 = l___private_Init_Lean_Path_2__searchPathSep;
-x_15 = l_String_split(x_13, x_14);
-lean_ctor_set(x_3, 0, x_15);
+x_14 = l_String_split___at_System_FilePath_splitSearchPath___spec__2(x_13);
+lean_dec(x_13);
+lean_ctor_set(x_3, 0, x_14);
 return x_3;
 }
 else
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_16 = lean_ctor_get(x_3, 1);
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_15 = lean_ctor_get(x_3, 1);
+lean_inc(x_15);
+lean_dec(x_3);
+x_16 = lean_ctor_get(x_4, 0);
 lean_inc(x_16);
-lean_dec(x_3);
-x_17 = lean_ctor_get(x_4, 0);
-lean_inc(x_17);
 lean_dec(x_4);
-x_18 = l___private_Init_Lean_Path_2__searchPathSep;
-x_19 = l_String_split(x_17, x_18);
-x_20 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_20, 0, x_19);
-lean_ctor_set(x_20, 1, x_16);
-return x_20;
+x_17 = l_String_split___at_System_FilePath_splitSearchPath___spec__2(x_16);
+lean_dec(x_16);
+x_18 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_18, 0, x_17);
+lean_ctor_set(x_18, 1, x_15);
+return x_18;
 }
 }
 }
 else
 {
-uint8_t x_21; 
-x_21 = !lean_is_exclusive(x_3);
-if (x_21 == 0)
+uint8_t x_19; 
+x_19 = !lean_is_exclusive(x_3);
+if (x_19 == 0)
 {
 return x_3;
 }
 else
 {
-lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_22 = lean_ctor_get(x_3, 0);
-x_23 = lean_ctor_get(x_3, 1);
-lean_inc(x_23);
-lean_inc(x_22);
+lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+x_20 = lean_ctor_get(x_3, 0);
+x_21 = lean_ctor_get(x_3, 1);
+lean_inc(x_21);
+lean_inc(x_20);
 lean_dec(x_3);
-x_24 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_24, 0, x_22);
-lean_ctor_set(x_24, 1, x_23);
-return x_24;
+x_22 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_22, 0, x_20);
+lean_ctor_set(x_22, 1, x_21);
+return x_22;
 }
 }
 }
@@ -1941,12 +1910,14 @@ return x_39;
 }
 else
 {
-lean_object* x_40; lean_object* x_41; 
+lean_object* x_40; lean_object* x_41; lean_object* x_42; 
 x_40 = lean_ctor_get(x_1, 0);
 lean_inc(x_40);
 lean_dec(x_1);
-x_41 = l_Lean_setSearchPathFromString(x_40, x_2);
-return x_41;
+x_41 = l_String_split___at_System_FilePath_splitSearchPath___spec__2(x_40);
+lean_dec(x_40);
+x_42 = l_Lean_setSearchPath(x_41, x_2);
+return x_42;
 }
 }
 }
@@ -3166,7 +3137,7 @@ x_40 = lean_string_utf8_extract(x_19, x_38, x_39);
 lean_dec(x_39);
 lean_dec(x_38);
 lean_dec(x_19);
-x_41 = l_String_split(x_36, x_17);
+x_41 = l_String_splitOn(x_36, x_17);
 x_42 = lean_box(0);
 x_43 = l_List_foldl___main___at_Lean_moduleNameOfFileName___spec__1(x_42, x_41);
 lean_inc(x_43);
@@ -3429,7 +3400,7 @@ x_125 = lean_string_utf8_extract(x_104, x_123, x_124);
 lean_dec(x_124);
 lean_dec(x_123);
 lean_dec(x_104);
-x_126 = l_String_split(x_121, x_102);
+x_126 = l_String_splitOn(x_121, x_102);
 x_127 = lean_box(0);
 x_128 = l_List_foldl___main___at_Lean_moduleNameOfFileName___spec__1(x_127, x_126);
 lean_inc(x_128);
@@ -3600,10 +3571,6 @@ l___private_Init_Lean_Path_1__pathSep___closed__1 = _init_l___private_Init_Lean_
 lean_mark_persistent(l___private_Init_Lean_Path_1__pathSep___closed__1);
 l___private_Init_Lean_Path_1__pathSep = _init_l___private_Init_Lean_Path_1__pathSep();
 lean_mark_persistent(l___private_Init_Lean_Path_1__pathSep);
-l___private_Init_Lean_Path_2__searchPathSep___closed__1 = _init_l___private_Init_Lean_Path_2__searchPathSep___closed__1();
-lean_mark_persistent(l___private_Init_Lean_Path_2__searchPathSep___closed__1);
-l___private_Init_Lean_Path_2__searchPathSep = _init_l___private_Init_Lean_Path_2__searchPathSep();
-lean_mark_persistent(l___private_Init_Lean_Path_2__searchPathSep);
 l_Lean_mkSearchPathRef___closed__1 = _init_l_Lean_mkSearchPathRef___closed__1();
 lean_mark_persistent(l_Lean_mkSearchPathRef___closed__1);
 w = l_Lean_mkSearchPathRef(w);

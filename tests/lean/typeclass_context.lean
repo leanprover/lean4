@@ -15,12 +15,12 @@ open Lean.TypeClass.Context
 
 def testEUnify1 : EState String Context Expr := do
 t ← EState.fromState $ eNewMeta (mkConst "Term");
-eUnify (mkApp (mkConst "f") [mkConst "a"]) t;
+eUnify (mkApp (mkConst "f") #[mkConst "a"]) t;
 get >>= λ (ctx : Context) => pure $ ctx.eInstantiate t
 
 def testEUnify2 : EState String Context Expr := do
 t ← EState.fromState $ eNewMeta (mkConst "Term");
-eUnify (mkApp (mkConst "f") [mkConst "a"]) (mkApp (mkConst "f") [t]);
+eUnify (mkApp (mkConst "f") #[mkConst "a"]) (mkApp (mkConst "f") #[t]);
 get >>= λ (ctx : Context) => pure $ ctx.eInstantiate t
 
 def testEUnify3 : EState String Context Expr := do
@@ -58,7 +58,7 @@ get >>= λ (ctx : Context) => pure $ ctx.eInstantiate t₂
 
 def testEAssign1 : EState String Context Expr := do
 t ← EState.fromState $ eNewMeta (mkConst "Term");
-EState.fromState $ eAssign t $ mkApp (mkConst "f") [mkConst "a"];
+EState.fromState $ eAssign t $ mkApp (mkConst "f") #[mkConst "a"];
 get >>= λ (ctx : Context) => pure $ ctx.eInstantiate t
 
 def testClash1 : EState String Context Expr := do
@@ -66,15 +66,15 @@ eUnify (mkConst "f") (mkConst "g");
 pure $ default _
 
 def testClash2 : EState String Context Expr := do
-eUnify (mkApp (mkConst "f") [mkConst "a"]) (mkApp (mkConst "g") [mkConst "a"]);
+eUnify (mkApp (mkConst "f") #[mkConst "a"]) (mkApp (mkConst "g") #[mkConst "a"]);
 pure $ default _
 
 def testClash3 : EState String Context Expr := do
-eUnify (mkApp (mkConst "f") [mkConst "a"]) (mkApp (mkConst "f") [mkConst "b"]);
+eUnify (mkApp (mkConst "f") #[mkConst "a"]) (mkApp (mkConst "f") #[mkConst "b"]);
 pure $ default _
 
 def testClash4 : EState String Context Expr := do
-eUnify (mkApp (mkConst "f") [mkConst "a"]) (mkApp (mkConst "f") []);
+eUnify (mkApp (mkConst "f") #[mkConst "a"]) (mkApp (mkConst "f") #[]);
 pure $ default _
 
 def testChain1 : EState String Context Expr := do
@@ -87,12 +87,12 @@ get >>= λ (ctx : Context) => pure $ ctx.eInstantiate t₁
 def testAlphaNorm1 : EState String Context Expr := do
 t₁ ← EState.fromState $ eNewMeta (mkConst "Term");
 t₂ ← EState.fromState $ eNewMeta (mkConst "Term");
-pure $ αNorm $ mkApp (mkConst "f") [t₁, t₂]
+pure $ αNorm $ mkApp (mkConst "f") #[t₁, t₂]
 
 def testAlphaNorm2 : EState String Context Expr := do
 t₁ ← EState.fromState $ eNewMeta (mkConst "Term");
 t₂ ← EState.fromState $ eNewMeta (mkConst "Term");
-pure $ αNorm $ mkApp (mkConst "f") [t₂, t₁]
+pure $ αNorm $ mkApp (mkConst "f") #[t₂, t₁]
 
 def testAlphaNorm3 : EState String Context Expr := do
 pure $ αNorm (mkConst "f")
@@ -100,7 +100,7 @@ pure $ αNorm (mkConst "f")
 def testAlphaNorm4 : EState String Context Expr := do
 t₁ ← EState.fromState $ eNewMeta (mkConst "Term");
 t₂ ← EState.fromState $ eNewMeta (mkConst "Term");
-pure $ αNorm $ Expr.pi "foo" BinderInfo.default (mkApp (mkConst "f") [t₂]) (mkApp (mkConst "g") [t₁])
+pure $ αNorm $ Expr.pi "foo" BinderInfo.default (mkApp (mkConst "f") #[t₂]) (mkApp (mkConst "g") #[t₁])
 
 #eval testEUnify1.run {}
 #eval testEUnify2.run {}

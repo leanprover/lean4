@@ -444,7 +444,7 @@ else
 instance [HasBeq α] : HasBeq (Array α) :=
 ⟨fun a b => isEqv a b HasBeq.beq⟩
 
--- TODO(Leo): justify termination using wf-rec, and use `fswap`
+-- TODO(Leo): justify termination using wf-rec, and use `swap`
 partial def reverseAux : Array α → Nat → Array α
 | a, i =>
   let n := a.size;

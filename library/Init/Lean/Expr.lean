@@ -74,10 +74,10 @@ attribute [extern "lean_expr_mk_proj"]   Expr.proj
 @[extern "lean_expr_local"]
 constant Expr.local (n : Name) (pp : Name) (ty : Expr) (bi : BinderInfo) : Expr := default _
 
-def mkApp (fn : Expr) (args : List Expr) : Expr :=
+def mkApp (fn : Expr) (args : Array Expr) : Expr :=
 args.foldl Expr.app fn
 
-def mkCApp (fn : Name) (args : List Expr) : Expr :=
+def mkCApp (fn : Name) (args : Array Expr) : Expr :=
 mkApp (Expr.const fn []) args
 
 namespace Expr
@@ -159,12 +159,14 @@ def getAppNumArgsAux : Expr → Nat → Nat
 def getAppNumArgs (e : Expr) : Nat :=
 getAppNumArgsAux e 0
 
-def getAppArgsAux : Expr → List Expr → List Expr
-| Expr.app f a, as => getAppArgsAux f (a::as)
-| e,            as => as
+private def getAppArgsAux : Expr → Array Expr → Nat → Array Expr
+| Expr.app f a, as, i => getAppArgsAux f (as.set! i a) (i-1)
+| _,            as, _ => as
 
-@[inline] def getAppArgs (e : Expr) : List Expr :=
-getAppArgsAux e []
+@[inline] def getAppArgs (e : Expr) : Array Expr :=
+let dummy := Expr.sort Level.zero;
+let nargs := e.getAppNumArgs;
+getAppArgsAux e (mkArray nargs dummy) (nargs-1)
 
 def isAppOf (e : Expr) (n : Name) : Bool :=
 match e.getAppFn with

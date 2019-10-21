@@ -186,12 +186,20 @@ if e.hasMVar
 then eFind (λ t => eIsMeta t || (t.isConst && t.constLevels.any uHasTmpMVar)) e
 else false
 
-partial def slowWhnfApp : Expr → List Expr → Expr
-| (Expr.lam _ _ d b), (arg::args) => slowWhnfApp (b.instantiate1 arg) args
-| f, args => mkApp f args
+partial def slowWhnfApp (args : Array Expr) : Expr → Nat → Expr
+| f@(Expr.lam _ _ d b), i =>
+  if h : i < args.size then
+    slowWhnfApp (b.instantiate1 (args.get ⟨i, h⟩)) (i+1)
+  else
+    f
+| f, i =>
+  if h : i < args.size then
+    slowWhnfApp (Expr.app f (args.get ⟨i, h⟩)) (i+1)
+  else
+    f
 
 partial def slowWhnf : Expr → Expr
-| e => if e.isApp then slowWhnfApp (slowWhnf e.getAppFn) e.getAppArgs else e
+| e => if e.isApp then slowWhnfApp e.getAppArgs (slowWhnf e.getAppFn) 0 else e
 
 partial def eUnify : Expr → Expr → EState String Context Unit
 | e₁, e₂ =>
@@ -206,8 +214,11 @@ partial def eUnify : Expr → Expr → EState String Context Unit
     else if e₁.isFVar && e₂.isFVar && e₁.fvarName == e₂.fvarName then pure ()
     else if e₁.isConst && e₂.isConst && e₁.constName == e₂.constName then
       List.mfor₂ uUnify e₁.constLevels e₂.constLevels
-    else if e₁.isApp && e₂.isApp && e₁.getAppArgs.length == e₂.getAppArgs.length then
-      eUnify e₁.getAppFn e₂.getAppFn *> List.mfor₂ eUnify e₁.getAppArgs e₂.getAppArgs
+    else if e₁.isApp && e₂.isApp && e₁.getAppNumArgs == e₂.getAppNumArgs then do
+      let args₁ := e₁.getAppArgs;
+      let args₂ := e₂.getAppArgs;
+      eUnify e₁.getAppFn e₂.getAppFn;
+      args₁.size.mfor $ fun i => eUnify (args₁.get! i) (args₂.get! i)
     else if e₁.isForall && e₂.isForall then do
       eUnify e₁.bindingDomain e₂.bindingDomain;
       eUnify e₁.bindingBody e₂.bindingBody

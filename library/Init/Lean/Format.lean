@@ -159,6 +159,13 @@ def List.format {α : Type u} [HasFormat α] : List α → Format
 instance listHasFormat {α : Type u} [HasFormat α] : HasFormat (List α) :=
 ⟨List.format⟩
 
+def Option.format {α : Type u} [HasFormat α] : Option α → Format
+| none   => "none"
+| some a => "some " ++ fmt a
+
+instance optionHasFormat {α : Type u} [HasFormat α] : HasFormat (Option α) :=
+⟨Option.format⟩
+
 instance prodHasFormat {α : Type u} {β : Type v} [HasFormat α] [HasFormat β] : HasFormat (Prod α β) :=
 ⟨fun ⟨a, b⟩ => paren $ format a ++ "," ++ line ++ format b⟩
 

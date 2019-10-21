@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Sebastian Ullrich
+Authors: Sebastian Ullrich, Leonardo de Moura
 -/
 prelude
 import Init.Lean.Format
@@ -27,6 +27,8 @@ partial def Trace.pp : Trace → Format
 | Trace.mk (Message.fromFormat fmt) subtraces =>
 fmt ++ Format.nest 2 (Format.join $ subtraces.map (fun t => Format.line ++ t.pp))
 
+instance traceFormat : HasFormat Trace := ⟨Trace.pp⟩
+
 namespace Trace
 
 def TraceMap := RBMap Position Trace Position.lt
@@ -37,47 +39,61 @@ structure TraceState :=
 (curPos : Option Position)
 (curTraces : List Trace)
 
-abbrev TraceT (m : Type → Type u) := StateT TraceState m
+def TraceT (m : Type → Type u) := StateT TraceState m
 
 instance (m) [Monad m] : Monad (TraceT m) := inferInstanceAs (Monad (StateT TraceState m))
 
 class MonadTracer (m : Type → Type u) :=
-(traceRoot {α} : Position → Name → Message → Thunk (m α) → m α)
-(traceCtx {α} : Name → Message → Thunk (m α) → m α)
+(traceRoot {α} : Position → Name → Message → (Unit → m α) → m α)
+(traceCtx {α} : Name → Message → (Unit → m α) → m α)
 
 export MonadTracer (traceRoot traceCtx)
 
-def Trace {m} [Monad m] [MonadTracer m] (cls : Name) (msg : Message) : m Unit :=
-traceCtx cls msg (pure () : m Unit)
+def trace {m} [Monad m] [MonadTracer m] (cls : Name) (msg : Message) : m Unit :=
+traceCtx cls msg (fun _ => pure ())
 
-instance (m) [Monad m] : MonadTracer (TraceT m) :=
-{ traceRoot := fun α pos cls msg ctx => do {
-    st ← get;
-    if st.opts.getBool cls = true then do {
-      modify $ fun st => {curPos := pos, curTraces := [], ..st};
-      a ← ctx.get;
-      modify $ fun (st : TraceState) => {roots := st.roots.insert pos ⟨msg, st.curTraces⟩, ..st};
-      pure a
-    } else ctx.get
-  },
-  traceCtx := fun α cls msg ctx => do {
-    st ← get;
-    -- tracing enabled?
-    some _ ← pure st.curPos | ctx.get;
-    -- Trace class enabled?
-    if st.opts.getBool cls = true then do {
-      set {curTraces := [], ..st};
-      a ← ctx.get;
-      modify $ fun (st' : TraceState) => {curTraces := st.curTraces ++ [⟨msg, st'.curTraces⟩], ..st'};
-      pure a
-    } else
-      -- disable tracing inside 'ctx'
-      adaptState'
-        (fun _ => {curPos := none, ..st})
-        (fun st' => {curPos := st.curPos, ..st'})
-        ctx.get
-  }
-}
+namespace TraceT
+variables {α : Type} {m : Type → Type u} [Monad m]
+
+def traceRoot (pos : Position) (cls : Name) (msg : Message) (ctx : Unit → StateT TraceState m α) : StateT TraceState m α :=
+do s ← get;
+   if s.opts.getBool cls then do {
+     modify $ fun s => { curPos := pos, curTraces := [], ..s };
+     a ← ctx ();
+     modify $ fun s => { roots := s.roots.insert pos (Trace.mk msg s.curTraces), curTraces := [], ..s };
+     pure a
+   } else ctx ()
+
+def traceCtx (cls : Name) (msg : Message) (ctx : Unit → StateT TraceState m α) : StateT TraceState m α :=
+do s ← get;
+   -- tracing enabled?
+   match s.curPos with
+   | none   => ctx ()
+   | some _ =>
+     -- Trace class enabled?
+     if s.opts.getBool cls then do {
+       let curTraces := s.curTraces;
+       set { curTraces := [], .. s };
+       a ← ctx ();
+       modify $ fun s => { curTraces := curTraces ++ [Trace.mk msg s.curTraces], ..s };
+       pure a
+   } else do {
+     let curPos := s.curPos;
+     modify $ fun s => { curPos := none, .. s };
+     a ← ctx ();
+     modify $ fun s => { curPos := curPos, .. s };
+     pure a
+   }
+
+end TraceT
+
+instance tracerTraceT (m) [Monad m] : MonadTracer (TraceT m) :=
+{ traceRoot := fun α => @TraceT.traceRoot α _ _,
+  traceCtx  := fun α => @TraceT.traceCtx α _ _ }
+
+instance tracerEx (m) {ε} [Monad m] [MonadTracer m] : MonadTracer (ExceptT ε m) :=
+{ traceRoot := fun α pos cls msg ctx => (MonadTracer.traceRoot pos cls msg ctx : m (Except ε α)),
+  traceCtx  := fun α cls msg ctx => (MonadTracer.traceCtx cls msg ctx : m (Except ε α)) }
 
 def TraceT.run {m α} [Monad m] (opts : Options) (x : TraceT m α) : m (α × TraceMap) :=
 do (a, st) ← StateT.run x {opts := opts, roots := RBMap.empty, curPos := none, curTraces := []};

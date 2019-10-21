@@ -168,6 +168,13 @@ let dummy := Expr.sort Level.zero;
 let nargs := e.getAppNumArgs;
 getAppArgsAux e (mkArray nargs dummy) (nargs-1)
 
+private def getAppRevArgsAux : Expr → Array Expr → Array Expr
+| Expr.app f a, as => getAppRevArgsAux f (as.push a)
+| _,            as => as
+
+@[inline] def getAppRevArgs (e : Expr) : Array Expr :=
+getAppRevArgsAux e (Array.mkEmpty e.getAppNumArgs)
+
 def isAppOf (e : Expr) (n : Name) : Bool :=
 match e.getAppFn with
 | Expr.const c _ => c == n

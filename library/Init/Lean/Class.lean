@@ -102,14 +102,13 @@ partial def getClassName (env : Environment) : Expr → Option Name
 | Expr.pi _ _ _ d => getClassName d
 | e               => do
   Expr.const c _ ← pure e.getAppFn | none;
-  info ← env.find c;
-  match info.value with
-  | some val => do
-    body ← consumeNLambdas e.getAppNumArgs val;
-    getClassName body
-  | none =>
-    if isClass env c then some c
-    else none
+  if isClass env c then some c else do
+    info ← env.find c;
+    match info.value with
+    | some val => do
+      body ← consumeNLambdas e.getAppNumArgs val;
+      getClassName body
+    | none => none
 
 @[export lean_add_instance]
 def addInstance (env : Environment) (instName : Name) : Except String Environment :=

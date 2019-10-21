@@ -83,10 +83,16 @@ def Level.instantiate (s : Name → Option Level) : Level → Level
 @[extern "lean_level_hash"]
 constant Level.hash (n : @& Level) : USize := default USize
 
-@[extern "lean_level_eqv"]
-constant Level.eqv (a : @& Level) (b : @& Level) : Bool := default _
+@[extern "lean_level_eq"]
+constant Level.beq (a : @& Level) (b : @& Level) : Bool := default _
 
-instance : HasBeq Level := ⟨Level.eqv⟩
+instance : HasBeq Level := ⟨Level.beq⟩
+
+/- Return true if `a` and `b` denote the same level.
+   Check is currently incomplete.
+   TODO: implement in Lean. -/
+@[extern "lean_level_eqv"]
+constant Level.isEquiv (a : @& Level) (b : @& Level) : Bool := default _
 
 /- Level to Format -/
 namespace LevelToFormat

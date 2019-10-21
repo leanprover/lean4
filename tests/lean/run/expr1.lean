@@ -14,3 +14,13 @@ do let f   := Expr.const `f [];
    pure ()
 
 #eval tst1
+
+def tst2 : IO Unit :=
+do let l1 := Level.max (Level.param `a) (Level.param `b);
+   let l2 := Level.max (Level.param `b) (Level.param `a);
+   IO.println l1;
+   IO.println l2;
+   unless (Level.isEquiv l1 l2) $ throw "not equiv";
+   pure ()
+
+#eval tst2

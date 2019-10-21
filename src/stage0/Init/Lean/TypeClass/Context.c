@@ -95,7 +95,6 @@ extern lean_object* l_panicWithPos___rarg___closed__3;
 uint8_t l_Lean_TypeClass_Context_eFind___main(lean_object*, lean_object*);
 lean_object* lean_expr_mk_const(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_eIsMeta___boxed(lean_object*);
-uint8_t lean_level_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_uIsMeta___boxed(lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_uInstantiate___main___boxed(lean_object*, lean_object*);
@@ -188,6 +187,7 @@ uint8_t lean_expr_has_mvar(lean_object*);
 uint8_t l_Lean_TypeClass_Context_eOccursIn___lambda__1(lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_TypeClass_Context_eAssign___spec__1___closed__1;
 size_t lean_usize_of_nat(lean_object*);
+uint8_t lean_level_eq(lean_object*, lean_object*);
 lean_object* lean_expr_mk_lambda(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_eNewMeta(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_uHasTmpMVar___boxed(lean_object*);
@@ -1803,7 +1803,7 @@ uint8_t l_Lean_TypeClass_Context_uOccursIn___lambda__1(lean_object* x_1, lean_ob
 _start:
 {
 uint8_t x_3; 
-x_3 = lean_level_eqv(x_2, x_1);
+x_3 = lean_level_eq(x_2, x_1);
 return x_3;
 }
 }
@@ -2277,7 +2277,7 @@ if (lean_obj_tag(x_110) == 0)
 {
 uint8_t x_111; 
 lean_dec(x_10);
-x_111 = lean_level_eqv(x_7, x_12);
+x_111 = lean_level_eq(x_7, x_12);
 lean_dec(x_12);
 lean_dec(x_7);
 if (x_111 == 0)
@@ -2688,7 +2688,7 @@ if (lean_obj_tag(x_220) == 0)
 {
 uint8_t x_221; 
 lean_dec(x_127);
-x_221 = lean_level_eqv(x_7, x_125);
+x_221 = lean_level_eq(x_7, x_125);
 lean_dec(x_125);
 lean_dec(x_7);
 if (x_221 == 0)
@@ -3123,7 +3123,7 @@ if (lean_obj_tag(x_337) == 0)
 {
 uint8_t x_338; 
 lean_dec(x_244);
-x_338 = lean_level_eqv(x_235, x_241);
+x_338 = lean_level_eq(x_235, x_241);
 lean_dec(x_241);
 lean_dec(x_235);
 if (x_338 == 0)

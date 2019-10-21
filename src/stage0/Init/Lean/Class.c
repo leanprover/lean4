@@ -7547,11 +7547,12 @@ return x_7;
 lean_object* initialize_Init_Lean_Attributes(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Class(lean_object* w) {
-if (_G_initialized) return w;
+lean_object * res;
+if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Lean_Attributes(w);
-if (lean_io_result_is_error(w)) return w;
+res = initialize_Init_Lean_Attributes(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__1___closed__1 = _init_l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__1___closed__1();
 lean_mark_persistent(l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__1___closed__1);
 l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__1___closed__2 = _init_l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__1___closed__2();
@@ -7600,10 +7601,11 @@ l_Lean_classExtension___closed__5 = _init_l_Lean_classExtension___closed__5();
 lean_mark_persistent(l_Lean_classExtension___closed__5);
 l_Lean_classExtension___closed__6 = _init_l_Lean_classExtension___closed__6();
 lean_mark_persistent(l_Lean_classExtension___closed__6);
-w = l_Lean_mkClassExtension(w);
-if (lean_io_result_is_error(w)) return w;
-l_Lean_classExtension = lean_io_result_get_value(w);
+res = l_Lean_mkClassExtension(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+l_Lean_classExtension = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_classExtension);
+lean_dec_ref(res);
 l_Lean_isOutParam___closed__1 = _init_l_Lean_isOutParam___closed__1();
 lean_mark_persistent(l_Lean_isOutParam___closed__1);
 l_Lean_isOutParam___closed__2 = _init_l_Lean_isOutParam___closed__2();
@@ -7634,8 +7636,9 @@ l_Lean_registerClassAttr___closed__6 = _init_l_Lean_registerClassAttr___closed__
 lean_mark_persistent(l_Lean_registerClassAttr___closed__6);
 l_Lean_registerClassAttr___closed__7 = _init_l_Lean_registerClassAttr___closed__7();
 lean_mark_persistent(l_Lean_registerClassAttr___closed__7);
-w = l_Lean_registerClassAttr(w);
-if (lean_io_result_is_error(w)) return w;
+res = l_Lean_registerClassAttr(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Lean_registerInstanceAttr___lambda__1___closed__1 = _init_l_Lean_registerInstanceAttr___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_registerInstanceAttr___lambda__1___closed__1);
 l_Lean_registerInstanceAttr___lambda__1___closed__2 = _init_l_Lean_registerInstanceAttr___lambda__1___closed__2();
@@ -7654,9 +7657,10 @@ l_Lean_registerInstanceAttr___closed__6 = _init_l_Lean_registerInstanceAttr___cl
 lean_mark_persistent(l_Lean_registerInstanceAttr___closed__6);
 l_Lean_registerInstanceAttr___closed__7 = _init_l_Lean_registerInstanceAttr___closed__7();
 lean_mark_persistent(l_Lean_registerInstanceAttr___closed__7);
-w = l_Lean_registerInstanceAttr(w);
-if (lean_io_result_is_error(w)) return w;
-return w;
+res = l_Lean_registerInstanceAttr(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus
 }

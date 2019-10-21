@@ -316,16 +316,18 @@ lean_object* initialize_Init_Core(lean_object*);
 lean_object* initialize_Init_Control_Applicative(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Control_Alternative(lean_object* w) {
-if (_G_initialized) return w;
+lean_object * res;
+if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Core(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Control_Applicative(w);
-if (lean_io_result_is_error(w)) return w;
+res = initialize_Init_Core(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_Applicative(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_optional___rarg___closed__1 = _init_l_optional___rarg___closed__1();
 lean_mark_persistent(l_optional___rarg___closed__1);
-return w;
+return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus
 }

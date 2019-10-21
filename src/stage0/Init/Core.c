@@ -3932,9 +3932,9 @@ return x_4;
 }
 static bool _G_initialized = false;
 lean_object* initialize_Init_Core(lean_object* w) {
-if (_G_initialized) return w;
+lean_object * res;
+if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-if (lean_io_result_is_error(w)) return w;
 l_Unit_unit = _init_l_Unit_unit();
 lean_mark_persistent(l_Unit_unit);
 l_Nat_HasZero = _init_l_Nat_HasZero();
@@ -3990,7 +3990,7 @@ l_PointedType_Inhabited = _init_l_PointedType_Inhabited();
 lean_mark_persistent(l_PointedType_Inhabited);
 l_PUnit_Inhabited = _init_l_PUnit_Inhabited();
 lean_mark_persistent(l_PUnit_Inhabited);
-return w;
+return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus
 }

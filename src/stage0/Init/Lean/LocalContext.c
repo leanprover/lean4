@@ -6877,15 +6877,18 @@ lean_object* initialize_Init_Data_PersistentHashMap_Basic(lean_object*);
 lean_object* initialize_Init_Lean_Expr(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_LocalContext(lean_object* w) {
-if (_G_initialized) return w;
+lean_object * res;
+if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Data_PersistentArray_Basic(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Data_PersistentHashMap_Basic(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Lean_Expr(w);
-if (lean_io_result_is_error(w)) return w;
+res = initialize_Init_Data_PersistentArray_Basic(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_PersistentHashMap_Basic(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Lean_Expr(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Lean_LocalDecl_Inhabited___closed__1 = _init_l_Lean_LocalDecl_Inhabited___closed__1();
 lean_mark_persistent(l_Lean_LocalDecl_Inhabited___closed__1);
 l_Lean_LocalDecl_Inhabited = _init_l_Lean_LocalDecl_Inhabited();
@@ -6896,7 +6899,7 @@ l_Lean_LocalContext_Inhabited = _init_l_Lean_LocalContext_Inhabited();
 lean_mark_persistent(l_Lean_LocalContext_Inhabited);
 l_Lean_LocalContext_empty = _init_l_Lean_LocalContext_empty();
 lean_mark_persistent(l_Lean_LocalContext_empty);
-return w;
+return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus
 }

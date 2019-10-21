@@ -18,16 +18,19 @@ lean_object* initialize_Init_Data_Array_QSort(lean_object*);
 lean_object* initialize_Init_Data_Array_BinSearch(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_Array_Default(lean_object* w) {
-if (_G_initialized) return w;
+lean_object * res;
+if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Data_Array_Basic(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Data_Array_QSort(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Data_Array_BinSearch(w);
-if (lean_io_result_is_error(w)) return w;
-return w;
+res = initialize_Init_Data_Array_Basic(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_QSort(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_BinSearch(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus
 }

@@ -4856,15 +4856,18 @@ lean_object* initialize_Init_Data_Char_Basic(lean_object*);
 lean_object* initialize_Init_Data_Option_Basic(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_String_Basic(lean_object* w) {
-if (_G_initialized) return w;
+lean_object * res;
+if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Data_List_Basic(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Data_Char_Basic(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Data_Option_Basic(w);
-if (lean_io_result_is_error(w)) return w;
+res = initialize_Init_Data_List_Basic(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Char_Basic(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Option_Basic(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_String_DecidableEq___closed__1 = _init_l_String_DecidableEq___closed__1();
 lean_mark_persistent(l_String_DecidableEq___closed__1);
 l_String_DecidableEq = _init_l_String_DecidableEq();
@@ -4891,7 +4894,7 @@ l_Substring_extract___closed__1 = _init_l_Substring_extract___closed__1();
 lean_mark_persistent(l_Substring_extract___closed__1);
 l_String_drop___closed__1 = _init_l_String_drop___closed__1();
 lean_mark_persistent(l_String_drop___closed__1);
-return w;
+return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus
 }

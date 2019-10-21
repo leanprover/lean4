@@ -13797,13 +13797,15 @@ lean_object* initialize_Init_Lean_Scopes(lean_object*);
 lean_object* initialize_Init_Lean_Syntax(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Attributes(lean_object* w) {
-if (_G_initialized) return w;
+lean_object * res;
+if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Lean_Scopes(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Lean_Syntax(w);
-if (lean_io_result_is_error(w)) return w;
+res = initialize_Init_Lean_Scopes(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Lean_Syntax(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Lean_AttributeImpl_inhabited___lambda__2___closed__1 = _init_l_Lean_AttributeImpl_inhabited___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_AttributeImpl_inhabited___lambda__2___closed__1);
 l_Lean_AttributeImpl_inhabited___lambda__2___closed__2 = _init_l_Lean_AttributeImpl_inhabited___lambda__2___closed__2();
@@ -13834,14 +13836,16 @@ l_Lean_AttributeImpl_inhabited = _init_l_Lean_AttributeImpl_inhabited();
 lean_mark_persistent(l_Lean_AttributeImpl_inhabited);
 l_Lean_mkAttributeMapRef___closed__1 = _init_l_Lean_mkAttributeMapRef___closed__1();
 lean_mark_persistent(l_Lean_mkAttributeMapRef___closed__1);
-w = l_Lean_mkAttributeMapRef(w);
-if (lean_io_result_is_error(w)) return w;
-l_Lean_attributeMapRef = lean_io_result_get_value(w);
+res = l_Lean_mkAttributeMapRef(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+l_Lean_attributeMapRef = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_attributeMapRef);
-w = l_Lean_mkAttributeArrayRef(w);
-if (lean_io_result_is_error(w)) return w;
-l_Lean_attributeArrayRef = lean_io_result_get_value(w);
+lean_dec_ref(res);
+res = l_Lean_mkAttributeArrayRef(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+l_Lean_attributeArrayRef = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_attributeArrayRef);
+lean_dec_ref(res);
 l_Lean_registerAttribute___closed__1 = _init_l_Lean_registerAttribute___closed__1();
 lean_mark_persistent(l_Lean_registerAttribute___closed__1);
 l_Lean_registerAttribute___closed__2 = _init_l_Lean_registerAttribute___closed__2();
@@ -13918,7 +13922,7 @@ l_Lean_EnumAttributes_setValue___rarg___closed__1 = _init_l_Lean_EnumAttributes_
 lean_mark_persistent(l_Lean_EnumAttributes_setValue___rarg___closed__1);
 l_Lean_EnumAttributes_setValue___rarg___closed__2 = _init_l_Lean_EnumAttributes_setValue___rarg___closed__2();
 lean_mark_persistent(l_Lean_EnumAttributes_setValue___rarg___closed__2);
-return w;
+return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus
 }

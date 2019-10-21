@@ -6477,22 +6477,26 @@ lean_object* initialize_Init_Control_Reader(lean_object*);
 lean_object* initialize_Init_Control_Conditional(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Compiler_IR_LiveVars(lean_object* w) {
-if (_G_initialized) return w;
+lean_object * res;
+if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Lean_Compiler_IR_Basic(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Lean_Compiler_IR_FreeVars(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Control_Reader(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Control_Conditional(w);
-if (lean_io_result_is_error(w)) return w;
+res = initialize_Init_Lean_Compiler_IR_Basic(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Lean_Compiler_IR_FreeVars(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_Reader(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_Conditional(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Lean_IR_LiveVarSet_inhabited = _init_l_Lean_IR_LiveVarSet_inhabited();
 lean_mark_persistent(l_Lean_IR_LiveVarSet_inhabited);
 l___private_Init_Lean_Compiler_IR_LiveVars_6__accumulate___closed__1 = _init_l___private_Init_Lean_Compiler_IR_LiveVars_6__accumulate___closed__1();
 lean_mark_persistent(l___private_Init_Lean_Compiler_IR_LiveVars_6__accumulate___closed__1);
-return w;
+return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus
 }

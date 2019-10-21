@@ -1167,15 +1167,18 @@ lean_object* initialize_Init_Data_Option_Basic(lean_object*);
 lean_object* initialize_Init_Data_Int_Default(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_KVMap(lean_object* w) {
-if (_G_initialized) return w;
+lean_object * res;
+if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Lean_Name(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Data_Option_Basic(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Data_Int_Default(w);
-if (lean_io_result_is_error(w)) return w;
+res = initialize_Init_Lean_Name(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Option_Basic(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Default(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Lean_DataValue_HasBeq___closed__1 = _init_l_Lean_DataValue_HasBeq___closed__1();
 lean_mark_persistent(l_Lean_DataValue_HasBeq___closed__1);
 l_Lean_DataValue_HasBeq = _init_l_Lean_DataValue_HasBeq();
@@ -1224,7 +1227,7 @@ l_Lean_KVMap_stringVal___closed__3 = _init_l_Lean_KVMap_stringVal___closed__3();
 lean_mark_persistent(l_Lean_KVMap_stringVal___closed__3);
 l_Lean_KVMap_stringVal = _init_l_Lean_KVMap_stringVal();
 lean_mark_persistent(l_Lean_KVMap_stringVal);
-return w;
+return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus
 }

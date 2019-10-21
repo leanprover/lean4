@@ -4181,13 +4181,15 @@ lean_object* initialize_Init_Lean_Compiler_IR_Basic(lean_object*);
 lean_object* initialize_Init_Lean_Format(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Compiler_IR_Format(lean_object* w) {
-if (_G_initialized) return w;
+lean_object * res;
+if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Lean_Compiler_IR_Basic(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Lean_Format(w);
-if (lean_io_result_is_error(w)) return w;
+res = initialize_Init_Lean_Compiler_IR_Basic(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Lean_Format(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l___private_Init_Lean_Compiler_IR_Format_1__formatArg___closed__1 = _init_l___private_Init_Lean_Compiler_IR_Format_1__formatArg___closed__1();
 lean_mark_persistent(l___private_Init_Lean_Compiler_IR_Format_1__formatArg___closed__1);
 l___private_Init_Lean_Compiler_IR_Format_1__formatArg___closed__2 = _init_l___private_Init_Lean_Compiler_IR_Format_1__formatArg___closed__2();
@@ -4458,7 +4460,7 @@ l_Lean_IR_declHasToString___closed__1 = _init_l_Lean_IR_declHasToString___closed
 lean_mark_persistent(l_Lean_IR_declHasToString___closed__1);
 l_Lean_IR_declHasToString = _init_l_Lean_IR_declHasToString();
 lean_mark_persistent(l_Lean_IR_declHasToString);
-return w;
+return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus
 }

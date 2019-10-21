@@ -176,13 +176,15 @@ lean_object* initialize_Init_WF(lean_object*);
 lean_object* initialize_Init_Data_Nat_Basic(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_Nat_Div(lean_object* w) {
-if (_G_initialized) return w;
+lean_object * res;
+if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_WF(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Data_Nat_Basic(w);
-if (lean_io_result_is_error(w)) return w;
+res = initialize_Init_WF(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Basic(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Nat_HasDiv___closed__1 = _init_l_Nat_HasDiv___closed__1();
 lean_mark_persistent(l_Nat_HasDiv___closed__1);
 l_Nat_HasDiv = _init_l_Nat_HasDiv();
@@ -191,7 +193,7 @@ l_Nat_HasMod___closed__1 = _init_l_Nat_HasMod___closed__1();
 lean_mark_persistent(l_Nat_HasMod___closed__1);
 l_Nat_HasMod = _init_l_Nat_HasMod();
 lean_mark_persistent(l_Nat_HasMod);
-return w;
+return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus
 }

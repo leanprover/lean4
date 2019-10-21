@@ -737,19 +737,24 @@ lean_object* initialize_Init_Data_Repr(lean_object*);
 lean_object* initialize_Init_Data_ToString(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_Int_Basic(lean_object* w) {
-if (_G_initialized) return w;
+lean_object * res;
+if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Data_Nat_Basic(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Data_List_Default(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Coe(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Data_Repr(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Data_ToString(w);
-if (lean_io_result_is_error(w)) return w;
+res = initialize_Init_Data_Nat_Basic(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Default(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Coe(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Repr(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ToString(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Int_zero___closed__1 = _init_l_Int_zero___closed__1();
 lean_mark_persistent(l_Int_zero___closed__1);
 l_Int_zero = _init_l_Int_zero();
@@ -809,7 +814,7 @@ lean_mark_persistent(l_String_toInt___closed__2);
 l_String_toInt___closed__3 = _init_l_String_toInt___closed__3();
 lean_mark_persistent(l_String_toInt___closed__3);
 l_String_isInt___closed__1 = _init_l_String_isInt___closed__1();
-return w;
+return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus
 }

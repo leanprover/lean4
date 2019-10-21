@@ -2847,11 +2847,12 @@ return x_1;
 lean_object* initialize_Init_Lean_Environment(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Scopes(lean_object* w) {
-if (_G_initialized) return w;
+lean_object * res;
+if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Lean_Environment(w);
-if (lean_io_result_is_error(w)) return w;
+res = initialize_Init_Lean_Environment(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Lean_ScopeManagerState_Inhabited___closed__1 = _init_l_Lean_ScopeManagerState_Inhabited___closed__1();
 lean_mark_persistent(l_Lean_ScopeManagerState_Inhabited___closed__1);
 l_Lean_ScopeManagerState_Inhabited = _init_l_Lean_ScopeManagerState_Inhabited();
@@ -2884,13 +2885,14 @@ l_Lean_scopeManagerExt___closed__5 = _init_l_Lean_scopeManagerExt___closed__5();
 lean_mark_persistent(l_Lean_scopeManagerExt___closed__5);
 l_Lean_scopeManagerExt___closed__6 = _init_l_Lean_scopeManagerExt___closed__6();
 lean_mark_persistent(l_Lean_scopeManagerExt___closed__6);
-w = l_Lean_regScopeManagerExtension(w);
-if (lean_io_result_is_error(w)) return w;
-l_Lean_scopeManagerExt = lean_io_result_get_value(w);
+res = l_Lean_regScopeManagerExtension(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+l_Lean_scopeManagerExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_scopeManagerExt);
+lean_dec_ref(res);
 l_Lean_Environment_popScopeCore___closed__1 = _init_l_Lean_Environment_popScopeCore___closed__1();
 lean_mark_persistent(l_Lean_Environment_popScopeCore___closed__1);
-return w;
+return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus
 }

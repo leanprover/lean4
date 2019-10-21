@@ -2058,20 +2058,25 @@ lean_object* initialize_Init_Lean_Compiler_IR_LiveVars(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_IR_Format(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Compiler_IR_ResetReuse(lean_object* w) {
-if (_G_initialized) return w;
+lean_object * res;
+if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Control_State(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Control_Reader(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Lean_Compiler_IR_Basic(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Lean_Compiler_IR_LiveVars(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Lean_Compiler_IR_Format(w);
-if (lean_io_result_is_error(w)) return w;
-return w;
+res = initialize_Init_Control_State(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_Reader(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Lean_Compiler_IR_Basic(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Lean_Compiler_IR_LiveVars(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Lean_Compiler_IR_Format(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus
 }

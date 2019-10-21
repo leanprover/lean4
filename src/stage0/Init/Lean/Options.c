@@ -1367,25 +1367,30 @@ lean_object* initialize_Init_Control_Combinators(lean_object*);
 lean_object* initialize_Init_Data_ToString(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Options(lean_object* w) {
-if (_G_initialized) return w;
+lean_object * res;
+if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Lean_KVMap(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_System_IO(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Control_Combinators(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Data_ToString(w);
-if (lean_io_result_is_error(w)) return w;
+res = initialize_Init_Lean_KVMap(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_System_IO(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_Combinators(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ToString(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Lean_Options_empty = _init_l_Lean_Options_empty();
 lean_mark_persistent(l_Lean_Options_empty);
 l_Lean_Options_HasEmptyc = _init_l_Lean_Options_HasEmptyc();
 lean_mark_persistent(l_Lean_Options_HasEmptyc);
-w = l___private_Init_Lean_Options_1__initOptionDeclsRef(w);
-if (lean_io_result_is_error(w)) return w;
-l___private_Init_Lean_Options_2__optionDeclsRef = lean_io_result_get_value(w);
+res = l___private_Init_Lean_Options_1__initOptionDeclsRef(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+l___private_Init_Lean_Options_2__optionDeclsRef = lean_io_result_get_value(res);
 lean_mark_persistent(l___private_Init_Lean_Options_2__optionDeclsRef);
+lean_dec_ref(res);
 l_Lean_registerOption___closed__1 = _init_l_Lean_registerOption___closed__1();
 lean_mark_persistent(l_Lean_registerOption___closed__1);
 l_Lean_registerOption___closed__2 = _init_l_Lean_registerOption___closed__2();
@@ -1402,7 +1407,7 @@ l_Lean_setOptionFromString___closed__4 = _init_l_Lean_setOptionFromString___clos
 lean_mark_persistent(l_Lean_setOptionFromString___closed__4);
 l_Lean_setOptionFromString___closed__5 = _init_l_Lean_setOptionFromString___closed__5();
 lean_mark_persistent(l_Lean_setOptionFromString___closed__5);
-return w;
+return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus
 }

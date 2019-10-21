@@ -8165,13 +8165,15 @@ lean_object* initialize_Init_Lean_Attributes(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_Util(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Compiler_Specialize(lean_object* w) {
-if (_G_initialized) return w;
+lean_object * res;
+if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Lean_Attributes(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Lean_Compiler_Util(w);
-if (lean_io_result_is_error(w)) return w;
+res = initialize_Init_Lean_Attributes(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Lean_Compiler_Util(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Lean_Compiler_SpecializeAttributeKind_Inhabited = _init_l_Lean_Compiler_SpecializeAttributeKind_Inhabited();
 l_Lean_Compiler_SpecializeAttributeKind_HasBeq___closed__1 = _init_l_Lean_Compiler_SpecializeAttributeKind_HasBeq___closed__1();
 lean_mark_persistent(l_Lean_Compiler_SpecializeAttributeKind_HasBeq___closed__1);
@@ -8213,10 +8215,11 @@ l_Lean_Compiler_mkSpecializeAttrs___closed__14 = _init_l_Lean_Compiler_mkSpecial
 lean_mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__14);
 l_Lean_Compiler_mkSpecializeAttrs___closed__15 = _init_l_Lean_Compiler_mkSpecializeAttrs___closed__15();
 lean_mark_persistent(l_Lean_Compiler_mkSpecializeAttrs___closed__15);
-w = l_Lean_Compiler_mkSpecializeAttrs(w);
-if (lean_io_result_is_error(w)) return w;
-l_Lean_Compiler_specializeAttrs = lean_io_result_get_value(w);
+res = l_Lean_Compiler_mkSpecializeAttrs(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Compiler_specializeAttrs = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Compiler_specializeAttrs);
+lean_dec_ref(res);
 l_Lean_Compiler_SpecState_Inhabited___closed__1 = _init_l_Lean_Compiler_SpecState_Inhabited___closed__1();
 lean_mark_persistent(l_Lean_Compiler_SpecState_Inhabited___closed__1);
 l_Lean_Compiler_SpecState_Inhabited___closed__2 = _init_l_Lean_Compiler_SpecState_Inhabited___closed__2();
@@ -8257,11 +8260,12 @@ l_Lean_Compiler_specExtension___closed__5 = _init_l_Lean_Compiler_specExtension_
 lean_mark_persistent(l_Lean_Compiler_specExtension___closed__5);
 l_Lean_Compiler_specExtension___closed__6 = _init_l_Lean_Compiler_specExtension___closed__6();
 lean_mark_persistent(l_Lean_Compiler_specExtension___closed__6);
-w = l_Lean_Compiler_mkSpecExtension(w);
-if (lean_io_result_is_error(w)) return w;
-l_Lean_Compiler_specExtension = lean_io_result_get_value(w);
+res = l_Lean_Compiler_mkSpecExtension(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Compiler_specExtension = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Compiler_specExtension);
-return w;
+lean_dec_ref(res);
+return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus
 }

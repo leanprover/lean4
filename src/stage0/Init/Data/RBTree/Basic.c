@@ -1469,16 +1469,17 @@ return x_2;
 lean_object* initialize_Init_Data_RBMap_Basic(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_RBTree_Basic(lean_object* w) {
-if (_G_initialized) return w;
+lean_object * res;
+if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Data_RBMap_Basic(w);
-if (lean_io_result_is_error(w)) return w;
+res = initialize_Init_Data_RBMap_Basic(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_RBTree_min___rarg___closed__1 = _init_l_RBTree_min___rarg___closed__1();
 lean_mark_persistent(l_RBTree_min___rarg___closed__1);
 l_RBTree_HasRepr___rarg___closed__1 = _init_l_RBTree_HasRepr___rarg___closed__1();
 lean_mark_persistent(l_RBTree_HasRepr___rarg___closed__1);
-return w;
+return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus
 }

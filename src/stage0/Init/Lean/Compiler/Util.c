@@ -975,11 +975,12 @@ return x_7;
 lean_object* initialize_Init_Lean_Environment(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Compiler_Util(lean_object* w) {
-if (_G_initialized) return w;
+lean_object * res;
+if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Lean_Environment(w);
-if (lean_io_result_is_error(w)) return w;
+res = initialize_Init_Lean_Environment(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Lean_Compiler_neutralExpr___closed__1 = _init_l_Lean_Compiler_neutralExpr___closed__1();
 lean_mark_persistent(l_Lean_Compiler_neutralExpr___closed__1);
 l_Lean_Compiler_neutralExpr___closed__2 = _init_l_Lean_Compiler_neutralExpr___closed__2();
@@ -1038,7 +1039,7 @@ l_Lean_Compiler_checkIsDefinition___closed__4 = _init_l_Lean_Compiler_checkIsDef
 lean_mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__4);
 l_Lean_Compiler_checkIsDefinition___closed__5 = _init_l_Lean_Compiler_checkIsDefinition___closed__5();
 lean_mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__5);
-return w;
+return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus
 }

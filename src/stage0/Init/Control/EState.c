@@ -1857,13 +1857,15 @@ lean_object* initialize_Init_Control_State(lean_object*);
 lean_object* initialize_Init_Control_Except(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Control_EState(lean_object* w) {
-if (_G_initialized) return w;
+lean_object * res;
+if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Control_State(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Control_Except(w);
-if (lean_io_result_is_error(w)) return w;
+res = initialize_Init_Control_State(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_Except(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_EState_Result_toString___rarg___closed__1 = _init_l_EState_Result_toString___rarg___closed__1();
 lean_mark_persistent(l_EState_Result_toString___rarg___closed__1);
 l_EState_Result_toString___rarg___closed__2 = _init_l_EState_Result_toString___rarg___closed__2();
@@ -1904,7 +1906,7 @@ l_EState_MonadExcept___closed__2 = _init_l_EState_MonadExcept___closed__2();
 lean_mark_persistent(l_EState_MonadExcept___closed__2);
 l_EState_MonadExcept___closed__3 = _init_l_EState_MonadExcept___closed__3();
 lean_mark_persistent(l_EState_MonadExcept___closed__3);
-return w;
+return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus
 }

@@ -1516,15 +1516,18 @@ lean_object* initialize_Init_Data_UInt(lean_object*);
 lean_object* initialize_Init_Data_Nat_Div(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_Repr(lean_object* w) {
-if (_G_initialized) return w;
+lean_object * res;
+if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Data_String_Basic(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Data_UInt(w);
-if (lean_io_result_is_error(w)) return w;
-w = initialize_Init_Data_Nat_Div(w);
-if (lean_io_result_is_error(w)) return w;
+res = initialize_Init_Data_String_Basic(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_UInt(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Div(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Bool_HasRepr___closed__1 = _init_l_Bool_HasRepr___closed__1();
 lean_mark_persistent(l_Bool_HasRepr___closed__1);
 l_Bool_HasRepr___closed__2 = _init_l_Bool_HasRepr___closed__2();
@@ -1585,7 +1588,7 @@ l_String_Iterator_HasRepr___closed__1 = _init_l_String_Iterator_HasRepr___closed
 lean_mark_persistent(l_String_Iterator_HasRepr___closed__1);
 l_String_Iterator_HasRepr___closed__2 = _init_l_String_Iterator_HasRepr___closed__2();
 lean_mark_persistent(l_String_Iterator_HasRepr___closed__2);
-return w;
+return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus
 }

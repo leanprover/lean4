@@ -476,8 +476,11 @@ name mk_smart_unfolding_name_for(name const & n) {
 }
 
 static bool is_smart_unfolding_target(environment const & env, name const & fn_name) {
-    if (is_aux_match(fn_name))
-        return true;
+    if (is_aux_match(fn_name)) {
+        // We don't use `_match` auxiliary definitions anymore.
+        // Remark: this file will be deleted.
+        lean_unreachable();
+    }
     bool r = static_cast<bool>(env.find(mk_smart_unfolding_name_for(fn_name)));
     return r;
 }

@@ -61,7 +61,7 @@ variables {α : Type}
 /- Version of `traceCtx` with exception handling support. -/
 @[inline] protected def traceCtxExcept (cls : Name) (ctx : Unit → m α) : m α :=
 do b ← isTracingEnabledFor cls;
-   if !b then ctx ()
+   if !b then do disableTracing; ctx ()
    else do
      oldCurrTraces ← getResetTraces;
      catch
@@ -71,7 +71,7 @@ end
 
 end MonadTracerAdapter
 
-instance monadTracerAdapter {ε : Type} {m : Type → Type} [Monad m] [MonadTracerAdapter m] : MonadTracer m :=
+instance monadTracerAdapter {m : Type → Type} [Monad m] [MonadTracerAdapter m] : MonadTracer m :=
 { traceCtx := @MonadTracerAdapter.traceCtx _ _ _,
   trace    := @MonadTracerAdapter.trace _ _ _ }
 

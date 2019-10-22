@@ -42,7 +42,7 @@ instance [Inhabited ε] : Inhabited (EState ε σ α) :=
 fun s => Result.ok a s
 
 @[inline] protected def set (s : σ) : EState ε σ PUnit :=
-fun s => Result.ok ⟨⟩ s
+fun _ => Result.ok ⟨⟩ s
 
 @[inline] protected def get : EState ε σ σ :=
 fun s => Result.ok s s
@@ -115,7 +115,7 @@ fun s =>
   | Result.ok a s₁    => Result.ok a (merge s₁ s₂)
   | Result.error e s₁ => Result.error e (merge s₁ s₂)
 
-def fromState {ε σ α : Type} (x : State σ α) : EState ε σ α :=
+@[inline] def fromState {ε σ α : Type} (x : State σ α) : EState ε σ α :=
 fun s =>
   match x.run s with
   | (a, s') => EState.Result.ok a s'

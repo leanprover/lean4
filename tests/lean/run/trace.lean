@@ -19,7 +19,7 @@ do trace! `module ("hello" ++ MessageData.nest 9 (Format.line ++ "world"));
    pure ()
 
 def tst2 (b : Bool) : M Unit :=
-traceCtx `module $ fun _ => do
+traceCtx `module $ do
   tst1;
   trace! `bughunt "at test2";
   when b $ throw "error";
@@ -27,9 +27,11 @@ traceCtx `module $ fun _ => do
   pure ()
 
 def tst3 (b : Bool) : M Unit :=
-traceCtx `module $ fun _ => do
-  tst2 b;
-  tst1
+do traceCtx `module $ do {
+     tst2 b;
+     tst1
+   };
+   trace! `bughunt "at end of tst3"
 
 def runM (x : M Unit) : IO Unit :=
 let opts := Options.empty;

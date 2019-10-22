@@ -31,17 +31,15 @@ traceCtx `module $ fun _ => do
   tst2 b;
   tst1
 
-def displayTrace (s : MyState) : IO Unit :=
-s.traceState.traces.mfor $ fun m => IO.println (format m)
-
 def runM (x : M Unit) : IO Unit :=
 let opts := Options.empty;
+-- Try commeting/uncommeting the following `setBool`s
 let opts := opts.setBool `trace.module true;
 -- let opts := opts.setBool `trace.module.aux false;
 let opts := opts.setBool `trace.bughunt true;
 match x.run opts {} with
-| EState.Result.ok _ s    => displayTrace s
-| EState.Result.error _ s => do IO.println "Error"; displayTrace s
+| EState.Result.ok _ s    => IO.println s.traceState
+| EState.Result.error _ s => do IO.println "Error"; IO.println s.traceState
 
 def main : IO Unit :=
 do IO.println "----";

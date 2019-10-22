@@ -83,6 +83,16 @@ structure TraceState :=
 (enabled : Bool := true)
 (traces  : Array MessageData := #[])
 
+namespace TraceState
+
+instance : Inhabited TraceState := ⟨{}⟩
+
+instance : HasFormat TraceState := ⟨fun s => Format.joinArraySep s.traces Format.line⟩
+
+instance : HasToString TraceState := ⟨toString ∘ fmt⟩
+
+end TraceState
+
 class SimpleMonadTracerAdapter (m : Type → Type) :=
 (getOptions {}       : m Options)
 (modifyTraceState {} : (TraceState → TraceState) → m Unit)

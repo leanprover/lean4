@@ -4,100 +4,118 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Leonardo de Moura
 -/
 prelude
-import Init.Lean.Format
-import Init.Data.RBMap
-import Init.Lean.Position
-import Init.Lean.Name
-import Init.Lean.Options
-
+import Init.Lean.Message
 universe u
 
 namespace Lean
 
-inductive Message
-| fromFormat (fmt : Format)
+class MonadTracer (m : Type → Type u) :=
+(traceCtx {α} : Name → (Unit → m α) → m α)
+(trace : Name → Thunk MessageData → m PUnit)
 
-instance : HasCoe Format Message :=
-⟨Message.fromFormat⟩
+class MonadTracerAdapter (m : Type → Type) :=
+(isTracingEnabledFor {} : Name → m Bool)
+(disableTracing {} : m Unit)
+(getTraces {} : m (Array MessageData))
+(modifyTraces {} : (Array MessageData → Array MessageData) → m Unit)
 
-inductive Trace
-| mk (msg : Message) (subtraces : List Trace)
+namespace MonadTracerAdapter
 
-partial def Trace.pp : Trace → Format
-| Trace.mk (Message.fromFormat fmt) subtraces =>
-fmt ++ Format.nest 2 (Format.join $ subtraces.map (fun t => Format.line ++ t.pp))
+section
+variables {m : Type → Type}
+variables [Monad m] [MonadTracerAdapter m]
+variables {α : Type}
 
-instance traceFormat : HasFormat Trace := ⟨Trace.pp⟩
+private def addNode (oldTraces : Array MessageData) (cls : Name) : m Unit :=
+do ctxTraces ← getTraces;
+   let d := MessageData.tagged cls (MessageData.node ctxTraces);
+   modifyTraces $ fun _ => oldTraces.push d;
+   pure ()
 
-namespace Trace
+private def getResetTraces : m (Array MessageData) :=
+do oldTraces ← getTraces;
+   modifyTraces $ fun _ => #[];
+   pure oldTraces
 
-def TraceMap := RBMap Position Trace Position.lt
+private def addTrace (cls : Name) (msg : MessageData) : m Unit :=
+modifyTraces $ fun traces => traces.push (MessageData.tagged cls msg)
+
+@[inline] protected def trace (cls : Name) (msg : Thunk MessageData) : m Unit :=
+mwhen (isTracingEnabledFor cls) (addTrace cls msg.get)
+
+@[inline] def traceCtx (cls : Name) (ctx : Unit → m α) : m α :=
+do b ← isTracingEnabledFor cls;
+   if !b then do disableTracing; ctx ()
+   else do
+     oldCurrTraces ← getResetTraces;
+     a ← ctx ();
+     addNode oldCurrTraces cls;
+     pure a
+
+end
+
+section
+variables {ε : Type} {m : Type → Type}
+variables [MonadExcept ε m] [Monad m] [MonadTracerAdapter m]
+variables {α : Type}
+
+/- Version of `traceCtx` with exception handling support. -/
+@[inline] protected def traceCtxExcept (cls : Name) (ctx : Unit → m α) : m α :=
+do b ← isTracingEnabledFor cls;
+   if !b then ctx ()
+   else do
+     oldCurrTraces ← getResetTraces;
+     catch
+       (do a ← ctx (); addNode oldCurrTraces cls; pure a)
+       (fun e => do addNode oldCurrTraces cls; throw e)
+end
+
+end MonadTracerAdapter
+
+instance monadTracerAdapter {ε : Type} {m : Type → Type} [Monad m] [MonadTracerAdapter m] : MonadTracer m :=
+{ traceCtx := @MonadTracerAdapter.traceCtx _ _ _,
+  trace    := @MonadTracerAdapter.trace _ _ _ }
+
+instance monadTracerAdapterExcept {ε : Type} {m : Type → Type} [Monad m] [MonadExcept ε m] [MonadTracerAdapter m] : MonadTracer m :=
+{ traceCtx := @MonadTracerAdapter.traceCtxExcept _ _ _ _ _,
+  trace    := @MonadTracerAdapter.trace _ _ _ }
 
 structure TraceState :=
-(opts : Options)
-(roots : TraceMap)
-(curPos : Option Position)
-(curTraces : List Trace)
+(enabled : Bool)
+(traces  : Array MessageData)
 
-def TraceT (m : Type → Type u) := StateT TraceState m
+class SimpleMonadTracerAdapter (m : Type → Type) :=
+(getOptions {}       : m Options)
+(modifyTraceState {} : (TraceState → TraceState) → m Unit)
+(getTraceState {}    : m TraceState)
 
-instance (m) [Monad m] : Monad (TraceT m) := inferInstanceAs (Monad (StateT TraceState m))
+namespace SimpleMonadTracerAdapter
+variables {m : Type → Type} [Monad m] [SimpleMonadTracerAdapter m]
 
-class MonadTracer (m : Type → Type u) :=
-(traceRoot {α} : Position → Name → Message → (Unit → m α) → m α)
-(traceCtx {α} : Name → Message → (Unit → m α) → m α)
+@[inline] def isTracingEnabledFor (cls : Name) : m Bool :=
+do s ← getTraceState;
+   if !s.enabled then pure false
+   else do
+     opts ← getOptions;
+     pure $ opts.getBool cls
 
-export MonadTracer (traceRoot traceCtx)
+@[inline] def disableTracing : m Unit :=
+modifyTraceState $ fun s => { enabled := false, .. s }
 
-def trace {m} [Monad m] [MonadTracer m] (cls : Name) (msg : Message) : m Unit :=
-traceCtx cls msg (fun _ => pure ())
+@[inline] def getTraces : m (Array MessageData) :=
+do s ← getTraceState; pure s.traces
 
-namespace TraceT
-variables {α : Type} {m : Type → Type u} [Monad m]
+@[inline] def modifyTraces (f : Array MessageData → Array MessageData) : m Unit :=
+modifyTraceState $ fun s => { traces := f s.traces, .. s }
 
-def traceRoot (pos : Position) (cls : Name) (msg : Message) (ctx : Unit → StateT TraceState m α) : StateT TraceState m α :=
-do s ← get;
-   if s.opts.getBool cls then do {
-     modify $ fun s => { curPos := pos, curTraces := [], ..s };
-     a ← ctx ();
-     modify $ fun s => { roots := s.roots.insert pos (Trace.mk msg s.curTraces), curTraces := [], ..s };
-     pure a
-   } else ctx ()
+end SimpleMonadTracerAdapter
 
-def traceCtx (cls : Name) (msg : Message) (ctx : Unit → StateT TraceState m α) : StateT TraceState m α :=
-do s ← get;
-   -- tracing enabled?
-   match s.curPos with
-   | none   => ctx ()
-   | some _ =>
-     -- Trace class enabled?
-     if s.opts.getBool cls then do {
-       let curTraces := s.curTraces;
-       set { curTraces := [], .. s };
-       a ← ctx ();
-       modify $ fun s => { curTraces := curTraces ++ [Trace.mk msg s.curTraces], ..s };
-       pure a
-   } else do {
-     let curPos := s.curPos;
-     modify $ fun s => { curPos := none, .. s };
-     a ← ctx ();
-     modify $ fun s => { curPos := curPos, .. s };
-     pure a
-   }
+instance simpleMonadTracerAdapter {m : Type → Type} [SimpleMonadTracerAdapter m] [Monad m] : MonadTracerAdapter m :=
+{ isTracingEnabledFor := @SimpleMonadTracerAdapter.isTracingEnabledFor _ _ _,
+  disableTracing      := @SimpleMonadTracerAdapter.disableTracing _ _ _,
+  getTraces           := @SimpleMonadTracerAdapter.getTraces _ _ _,
+  modifyTraces        := @SimpleMonadTracerAdapter.modifyTraces _ _ _ }
 
-end TraceT
+export MonadTracer (traceCtx trace)
 
-instance tracerTraceT (m) [Monad m] : MonadTracer (TraceT m) :=
-{ traceRoot := fun α => @TraceT.traceRoot α _ _,
-  traceCtx  := fun α => @TraceT.traceCtx α _ _ }
-
-instance tracerEx (m) {ε} [Monad m] [MonadTracer m] : MonadTracer (ExceptT ε m) :=
-{ traceRoot := fun α pos cls msg ctx => (MonadTracer.traceRoot pos cls msg ctx : m (Except ε α)),
-  traceCtx  := fun α cls msg ctx => (MonadTracer.traceCtx cls msg ctx : m (Except ε α)) }
-
-def TraceT.run {m α} [Monad m] (opts : Options) (x : TraceT m α) : m (α × TraceMap) :=
-do (a, st) ← StateT.run x {opts := opts, roots := RBMap.empty, curPos := none, curTraces := []};
-   pure (a, st.roots)
-
-end Trace
 end Lean

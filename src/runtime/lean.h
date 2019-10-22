@@ -1625,12 +1625,7 @@ lean_object * lean_dbg_trace_if_shared(lean_obj_arg s, lean_obj_arg a);
 
 /* IO Helper functions */
 
-static inline lean_obj_res lean_io_mk_world() {
-    lean_object * r = lean_alloc_ctor(0, 2, 0);
-    lean_ctor_set(r, 0, lean_box(0));
-    lean_ctor_set(r, 1, lean_box(0));
-    return r;
-}
+static inline lean_obj_res lean_io_mk_world() { return lean_box(0); }
 static inline bool lean_io_result_is_ok(b_lean_obj_arg r) { return lean_ptr_tag(r) == 0; }
 static inline bool lean_io_result_is_error(b_lean_obj_arg r) { return lean_ptr_tag(r) == 1; }
 static inline b_lean_obj_res lean_io_result_get_value(b_lean_obj_arg r) { assert(lean_io_result_is_ok(r)); return lean_ctor_get(r, 0); }

@@ -32,37 +32,22 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-static obj_res const REAL_WORLD = box(0);
-
 extern "C" void lean_io_result_show_error(b_obj_arg r) {
     std::cerr << "uncaught exception: " << string_cstr(io_result_get_error(r)) << std::endl;
 }
 
-obj_res set_io_result(obj_arg r, obj_arg a) {
-    if (is_exclusive(r)) {
-        cnstr_set(r, 0, a);
-        return r;
-    } else {
-        dec_ref(r);
-        object * new_r = alloc_cnstr(0, 2, 0);
-        cnstr_set(new_r, 0, a);
-        cnstr_set(new_r, 1, REAL_WORLD);
-        return new_r;
-    }
+obj_res set_io_result(obj_arg a) {
+    object * new_r = alloc_cnstr(0, 2, 0);
+    cnstr_set(new_r, 0, a);
+    cnstr_set(new_r, 1, box(0));
+    return new_r;
 }
 
-obj_res set_io_error(obj_arg r, obj_arg e) {
-    if (is_exclusive(r)) {
-        cnstr_set_tag(r, 1);
-        cnstr_set(r, 0, e);
-        return r;
-    } else {
-        dec_ref(r);
-        object * new_r = alloc_cnstr(1, 2, 0);
-        cnstr_set(new_r, 0, e);
-        cnstr_set(new_r, 1, REAL_WORLD);
-        return new_r;
-    }
+obj_res set_io_error(obj_arg e) {
+    object * new_r = alloc_cnstr(1, 2, 0);
+    cnstr_set(new_r, 0, e);
+    cnstr_set(new_r, 1, box(0));
+    return new_r;
 }
 
 object * mk_io_user_error(object * str) {
@@ -70,12 +55,12 @@ object * mk_io_user_error(object * str) {
     return str;
 }
 
-obj_res set_io_error(obj_arg r, char const * msg) {
-    return set_io_error(r, mk_io_user_error(mk_string(msg)));
+obj_res set_io_error(char const * msg) {
+    return set_io_error(mk_io_user_error(mk_string(msg)));
 }
 
-obj_res set_io_error(obj_arg r, std::string const & msg) {
-    return set_io_error(r, mk_io_user_error(mk_string(msg)));
+obj_res set_io_error(std::string const & msg) {
+    return set_io_error(mk_io_user_error(mk_string(msg)));
 }
 
 static bool g_initializing = true;
@@ -83,33 +68,33 @@ extern "C" void lean_io_mark_end_initialization() {
     g_initializing = false;
 }
 
-static obj_res mk_file_not_found_error(obj_arg w, b_obj_arg fname) {
+static obj_res mk_file_not_found_error(b_obj_arg fname) {
     object * err = mk_string("file '");
     err = string_append(err, fname);
     object * tmp = mk_string("' not found");
     err = string_append(err, tmp);
     dec_ref(tmp);
-    return set_io_error(w, err);
+    return set_io_error(err);
 }
 
-extern "C" obj_res lean_io_prim_read_text_file(b_obj_arg fname, obj_arg w) {
+extern "C" obj_res lean_io_prim_read_text_file(b_obj_arg fname, obj_arg) {
     std::ifstream in(string_cstr(fname), std::ifstream::binary);
     if (!in.good()) {
-        return mk_file_not_found_error(w, fname);
+        return mk_file_not_found_error(fname);
     } else {
         std::stringstream buf;
         buf << in.rdbuf();
-        return set_io_result(w, mk_string(buf.str()));
+        return set_io_result(mk_string(buf.str()));
     }
 }
 
-extern "C" obj_res lean_io_initializing(obj_arg r) {
-    return set_io_result(r, box(g_initializing));
+extern "C" obj_res lean_io_initializing(obj_arg) {
+    return set_io_result(box(g_initializing));
 }
 
-extern "C" obj_res lean_io_prim_put_str(b_obj_arg s, obj_arg r) {
+extern "C" obj_res lean_io_prim_put_str(b_obj_arg s, obj_arg) {
     std::cout << string_to_std(s); // TODO(Leo): use out handle
-    return set_io_result(r, box(0));
+    return set_io_result(box(0));
 }
 
 extern "C" obj_res lean_io_prim_get_line(obj_arg /* w */) {
@@ -148,9 +133,9 @@ extern "C" obj_res lean_io_prim_handle_get_line(b_obj_arg /* h */, obj_arg /* w 
 }
 
 /* timeit {α : Type} (msg : @& string) (fn : io α) : io α */
-extern "C" obj_res lean_io_timeit(obj_arg, b_obj_arg msg, obj_arg fn, obj_arg r) {
+extern "C" obj_res lean_io_timeit(obj_arg, b_obj_arg msg, obj_arg fn, obj_arg w) {
     auto start = std::chrono::steady_clock::now();
-    r = apply_1(fn, r);
+    w = apply_1(fn, w);
     auto end   = std::chrono::steady_clock::now();
     auto diff  = std::chrono::duration<double>(end - start);
     std::ostream & out = std::cerr; // TODO(Leo): replace?
@@ -160,34 +145,34 @@ extern "C" obj_res lean_io_timeit(obj_arg, b_obj_arg msg, obj_arg fn, obj_arg r)
     } else {
         out << string_cstr(msg) << " " << diff.count() << "s\n";
     }
-    return r;
+    return w;
 }
 
 /* allocprof {α : Type} (msg : string) (fn : io α) : io α */
-extern "C" obj_res lean_io_allocprof(obj_arg, b_obj_arg msg, obj_arg fn, obj_arg r) {
+extern "C" obj_res lean_io_allocprof(obj_arg, b_obj_arg msg, obj_arg fn, obj_arg w) {
     std::ostream & out = std::cerr; // TODO(Leo): replace?
     allocprof prof(out, string_cstr(msg));
-    return apply_1(fn, r);
+    return apply_1(fn, w);
 }
 
-extern "C" obj_res lean_io_getenv(b_obj_arg env_var, obj_arg r) {
+extern "C" obj_res lean_io_getenv(b_obj_arg env_var, obj_arg) {
     char * val = std::getenv(string_cstr(env_var));
     if (val) {
-        return set_io_result(r, mk_option_some(mk_string(val)));
+        return set_io_result(mk_option_some(mk_string(val)));
     } else {
-        return set_io_result(r, mk_option_none());
+        return set_io_result(mk_option_none());
     }
 }
 
-extern "C" obj_res lean_io_realpath(obj_arg fname, obj_arg r) {
+extern "C" obj_res lean_io_realpath(obj_arg fname, obj_arg) {
 #if defined(LEAN_EMSCRIPTEN)
-    return set_io_result(r, fname);
+    return set_io_result(fname);
 #elif defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
     constexpr unsigned BufferSize = 8192;
     char buffer[BufferSize];
     DWORD retval = GetFullPathName(string_cstr(fname), BufferSize, buffer, nullptr);
     if (retval == 0 || retval > BufferSize) {
-        return set_io_result(r, fname);
+        return set_io_result(fname);
     } else {
         dec_ref(fname);
         // Hack for making sure disk is lower case
@@ -195,7 +180,7 @@ extern "C" obj_res lean_io_realpath(obj_arg fname, obj_arg r) {
         if (strlen(buffer) >= 2 && buffer[1] == ':') {
             buffer[0] = tolower(buffer[0]);
         }
-        return set_io_result(r, mk_string(buffer));
+        return set_io_result(mk_string(buffer));
     }
 #else
     constexpr unsigned BufferSize = 8192;
@@ -204,31 +189,31 @@ extern "C" obj_res lean_io_realpath(obj_arg fname, obj_arg r) {
     if (tmp) {
         obj_res s = mk_string(tmp);
         dec_ref(fname);
-        return set_io_result(r, s);
+        return set_io_result(s);
     } else {
-        obj_res res = mk_file_not_found_error(r, fname);
+        obj_res res = mk_file_not_found_error(fname);
         dec_ref(fname);
         return res;
     }
 #endif
 }
 
-extern "C" obj_res lean_io_is_dir(b_obj_arg fname, obj_arg r) {
+extern "C" obj_res lean_io_is_dir(b_obj_arg fname, obj_arg) {
     struct stat st;
     if (stat(string_cstr(fname), &st) == 0) {
         bool b = S_ISDIR(st.st_mode);
-        return set_io_result(r, box(b));
+        return set_io_result(box(b));
     } else {
-        return set_io_result(r, box(0));
+        return set_io_result(box(0));
     }
 }
 
-extern "C" obj_res lean_io_file_exists(b_obj_arg fname, obj_arg r) {
+extern "C" obj_res lean_io_file_exists(b_obj_arg fname, obj_arg) {
     bool b = !!std::ifstream(string_cstr(fname));
-    return set_io_result(r, box(b));
+    return set_io_result(box(b));
 }
 
-extern "C" obj_res lean_io_app_dir(obj_arg r) {
+extern "C" obj_res lean_io_app_dir(obj_arg) {
 #if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
     HMODULE hModule = GetModuleHandleW(NULL);
     WCHAR path[MAX_PATH];
@@ -240,16 +225,16 @@ extern "C" obj_res lean_io_app_dir(obj_arg r) {
     if (pathstr.size() >= 2 && pathstr[1] == ':') {
         pathstr[0] = tolower(pathstr[0]);
     }
-    return set_io_result(r, mk_string(pathstr));
+    return set_io_result(mk_string(pathstr));
 #elif defined(__APPLE__)
     char buf1[PATH_MAX];
     char buf2[PATH_MAX];
     uint32_t bufsize = PATH_MAX;
     if (_NSGetExecutablePath(buf1, &bufsize) != 0)
-        return set_io_error(r, mk_string("failed to locate application"));
+        return set_io_error(mk_string("failed to locate application"));
     if (!realpath(buf1, buf2))
-        return set_io_error(r, mk_string("failed to resolve symbolic links when locating application"));
-    return set_io_result(r, mk_string(buf2));
+        return set_io_error(mk_string("failed to resolve symbolic links when locating application"));
+    return set_io_result(mk_string(buf2));
 #else
     // Linux version
     char path[PATH_MAX];
@@ -258,20 +243,20 @@ extern "C" obj_res lean_io_app_dir(obj_arg r) {
     pid_t pid = getpid();
     snprintf(path, PATH_MAX, "/proc/%d/exe", pid);
     if (readlink(path, dest, PATH_MAX) == -1) {
-        return set_io_error(r, mk_string("failed to locate application"));
+        return set_io_error(mk_string("failed to locate application"));
     } else {
-        return set_io_result(r, mk_string(dest));
+        return set_io_result(mk_string(dest));
     }
 #endif
 }
 
 // =======================================
 // IO ref primitives
-extern "C" obj_res lean_io_mk_ref(obj_arg a, obj_arg r) {
+extern "C" obj_res lean_io_mk_ref(obj_arg a, obj_arg) {
     lean_ref_object * o = (lean_ref_object*)lean_alloc_small_object(sizeof(lean_ref_object));
     lean_set_st_header((lean_object*)o, LeanRef, 0);
     o->m_value = a;
-    return set_io_result(r, (lean_object*)o);
+    return set_io_result((lean_object*)o);
 }
 
 static object * g_io_error_nullptr_read = nullptr;
@@ -293,46 +278,46 @@ static inline atomic<object*> * mt_ref_val_addr(object * o) {
 */
 static inline bool ref_maybe_mt(b_obj_arg ref) { return lean_is_mt(ref) || lean_is_persistent(ref); }
 
-extern "C" obj_res lean_io_ref_get(b_obj_arg ref, obj_arg r) {
+extern "C" obj_res lean_io_ref_get(b_obj_arg ref, obj_arg) {
     if (ref_maybe_mt(ref)) {
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         object * val = val_addr->exchange(nullptr);
         if (val == nullptr)
-            return set_io_error(r, g_io_error_nullptr_read);
+            return set_io_error(g_io_error_nullptr_read);
         inc(val);
         object * tmp = val_addr->exchange(val);
         if (tmp != nullptr) {
             /* this may happen if another thread wrote `ref` */
             dec(tmp);
         }
-        return set_io_result(r, val);
+        return set_io_result(val);
     } else {
         object * val = lean_to_ref(ref)->m_value;
         if (val == nullptr)
-            return set_io_error(r, g_io_error_nullptr_read);
+            return set_io_error(g_io_error_nullptr_read);
         inc(val);
-        return set_io_result(r, val);
+        return set_io_result(val);
     }
 }
 
 static_assert(sizeof(atomic<unsigned short>) == sizeof(unsigned short), "`atomic<unsigned short>` and `unsigned short` must have the same size"); // NOLINT
 
-extern "C" obj_res lean_io_ref_reset(b_obj_arg ref, obj_arg r) {
+extern "C" obj_res lean_io_ref_reset(b_obj_arg ref, obj_arg) {
     if (ref_maybe_mt(ref)) {
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         object * old_a = val_addr->exchange(nullptr);
         if (old_a != nullptr)
             dec(old_a);
-        return r;
+        return set_io_result(box(0));
     } else {
         if (lean_to_ref(ref)->m_value != nullptr)
             dec(lean_to_ref(ref)->m_value);
         lean_to_ref(ref)->m_value = nullptr;
-        return r;
+        return set_io_result(box(0));
     }
 }
 
-extern "C" obj_res lean_io_ref_set(b_obj_arg ref, obj_arg a, obj_arg r) {
+extern "C" obj_res lean_io_ref_set(b_obj_arg ref, obj_arg a, obj_arg) {
     if (ref_maybe_mt(ref)) {
         /* We must mark `a` as multi-threaded if `ref` is marked as multi-threaded.
            Reason: our runtime relies on the fact that a single-threaded object
@@ -342,30 +327,30 @@ extern "C" obj_res lean_io_ref_set(b_obj_arg ref, obj_arg a, obj_arg r) {
         object * old_a = val_addr->exchange(a);
         if (old_a != nullptr)
             dec(old_a);
-        return r;
+        return set_io_result(box(0));
     } else {
         if (lean_to_ref(ref)->m_value != nullptr)
             dec(lean_to_ref(ref)->m_value);
         lean_to_ref(ref)->m_value = a;
-        return r;
+        return set_io_result(box(0));
     }
 }
 
-extern "C" obj_res lean_io_ref_swap(b_obj_arg ref, obj_arg a, obj_arg r) {
+extern "C" obj_res lean_io_ref_swap(b_obj_arg ref, obj_arg a, obj_arg) {
     if (ref_maybe_mt(ref)) {
         /* See io_ref_write */
         mark_mt(a);
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         object * old_a = val_addr->exchange(a);
         if (old_a == nullptr)
-            return set_io_error(r, g_io_error_nullptr_read);
-        return set_io_result(r, old_a);
+            return set_io_error(g_io_error_nullptr_read);
+        return set_io_result(old_a);
     } else {
         object * old_a = lean_to_ref(ref)->m_value;
         if (old_a == nullptr)
-            return set_io_error(r, g_io_error_nullptr_read);
+            return set_io_error(g_io_error_nullptr_read);
         lean_to_ref(ref)->m_value = a;
-        return set_io_result(r, old_a);
+        return set_io_result(old_a);
     }
 }
 

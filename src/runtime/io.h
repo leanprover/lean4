@@ -8,10 +8,10 @@ Author: Leonardo de Moura
 #include <string>
 #include "runtime/object.h"
 namespace lean {
-obj_res set_io_result(obj_arg r, obj_arg a);
-obj_res set_io_error(obj_arg r, obj_arg e);
-obj_res set_io_error(obj_arg r, char const * msg);
-obj_res set_io_error(obj_arg r, std::string const & msg);
+obj_res set_io_result(obj_arg a);
+obj_res set_io_error(obj_arg e);
+obj_res set_io_error(char const * msg);
+obj_res set_io_error(std::string const & msg);
 void initialize_io();
 void finalize_io();
 }

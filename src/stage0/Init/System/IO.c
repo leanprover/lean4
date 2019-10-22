@@ -48,7 +48,6 @@ lean_object* l_IO_ofExcept(lean_object*, lean_object*);
 lean_object* l_IO_print___at_HasRepr_HasEval___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_IO_Error_HasToString___closed__1;
 lean_object* l_IO_Prim_iterate___at_IO_Fs_handle_readToEnd___spec__3___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_EState_nonBacktrackable___closed__3;
 lean_object* l_IO_Ref_reset___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_Error_Inhabited;
 lean_object* l_EIO_Inhabited(lean_object*, lean_object*);
@@ -88,6 +87,7 @@ lean_object* lean_io_getenv(lean_object*, lean_object*);
 lean_object* l_IO_Error_HasToString;
 lean_object* l_IO_appPath(lean_object*, lean_object*);
 lean_object* l_IO_print___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_EIO_MonadExcept___closed__2;
 lean_object* l_IO_userError___boxed(lean_object*);
 lean_object* l_IO_Prim_getLine___boxed(lean_object*);
 lean_object* l_IO_Prim_handle_isEof___boxed(lean_object*, lean_object*);
@@ -136,6 +136,7 @@ lean_object* l_IO_Fs_handle_mk___boxed(lean_object*, lean_object*);
 lean_object* l_IO_mkRef___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_System_IO_1__putStr___boxed(lean_object*, lean_object*);
 lean_object* l_IO_Fs_readFile___boxed(lean_object*);
+lean_object* l_EState_nonBacktrackable(lean_object*);
 lean_object* l_IO_Prim_fileExists___boxed(lean_object*, lean_object*);
 lean_object* l_IO_Ref_get___boxed(lean_object*, lean_object*);
 lean_object* l_IO_Fs_handle_getLine___at_IO_Fs_handle_readToEnd___spec__2(lean_object*, lean_object*);
@@ -213,8 +214,16 @@ return x_2;
 lean_object* _init_l_EIO_MonadExcept___closed__1() {
 _start:
 {
+lean_object* x_1; 
+x_1 = l_EState_nonBacktrackable(lean_box(0));
+return x_1;
+}
+}
+lean_object* _init_l_EIO_MonadExcept___closed__2() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_EState_nonBacktrackable___closed__3;
+x_1 = l_EIO_MonadExcept___closed__1;
 x_2 = l_EState_MonadExcept___rarg(x_1);
 return x_2;
 }
@@ -223,7 +232,7 @@ lean_object* l_EIO_MonadExcept(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_EIO_MonadExcept___closed__1;
+x_2 = l_EIO_MonadExcept___closed__2;
 return x_2;
 }
 }
@@ -1910,6 +1919,8 @@ l_EIO_Monad___closed__1 = _init_l_EIO_Monad___closed__1();
 lean_mark_persistent(l_EIO_Monad___closed__1);
 l_EIO_MonadExcept___closed__1 = _init_l_EIO_MonadExcept___closed__1();
 lean_mark_persistent(l_EIO_MonadExcept___closed__1);
+l_EIO_MonadExcept___closed__2 = _init_l_EIO_MonadExcept___closed__2();
+lean_mark_persistent(l_EIO_MonadExcept___closed__2);
 l_EIO_HasOrelse___closed__1 = _init_l_EIO_HasOrelse___closed__1();
 lean_mark_persistent(l_EIO_HasOrelse___closed__1);
 l_IO_Error_HasToString___closed__1 = _init_l_IO_Error_HasToString___closed__1();

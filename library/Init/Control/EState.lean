@@ -138,9 +138,15 @@ match run x s with
 | Result.ok v _    => some v
 | Result.error _ _ => none
 
+@[inline] def dummySave : σ → PUnit :=
+fun _ => ⟨⟩
+
+@[inline] def dummyRestore : σ → PUnit → σ :=
+fun s _ => s
+
 /- Dummy default instance -/
 instance nonBacktrackable : Backtrackable PUnit σ :=
-{ save    := fun _ => ⟨⟩,
-  restore := fun s _ => s }
+{ save    := dummySave,
+  restore := dummyRestore }
 
 end EState

@@ -20,13 +20,13 @@ lean_object* l_EState_Monad(lean_object*, lean_object*);
 lean_object* l_EState_set(lean_object*, lean_object*);
 lean_object* l_EState_Monad___closed__6;
 lean_object* l_EState_MonadState___closed__3;
-lean_object* l_EState_nonBacktrackable___lambda__1___boxed(lean_object*);
 lean_object* l_EState_map___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_EState_nonBacktrackable___closed__3;
 lean_object* l_EState_orelse(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EState_run_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_EState_Result_toString___rarg___closed__2;
 lean_object* l_EState_orelse_x27(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_EState_dummySave___boxed(lean_object*, lean_object*);
 lean_object* l_EState_orelse_x27___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EState_run___rarg(lean_object*, lean_object*);
 lean_object* l_EState_adaptState___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -48,8 +48,8 @@ lean_object* l_EState_pure(lean_object*, lean_object*, lean_object*);
 lean_object* l_EState_Monad___closed__4;
 lean_object* l_EState_HasOrelse(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EState_fromState(lean_object*, lean_object*, lean_object*);
+lean_object* l_EState_dummyRestore(lean_object*);
 lean_object* l_EState_Monad___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ExceptT_Monad___rarg___lambda__8___boxed(lean_object*, lean_object*);
 lean_object* l_EState_MonadExcept___rarg(lean_object*);
 lean_object* l_EState_set___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_EState_Monad___closed__10;
@@ -71,19 +71,21 @@ lean_object* l_EState_Result_repr___rarg(lean_object*, lean_object*, lean_object
 lean_object* l_EState_orelse___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EState_MonadState___closed__4;
 lean_object* l_EState_seqRight(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_EState_dummyRestore___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_EState_MonadState(lean_object*, lean_object*);
 lean_object* l_EState_pure___rarg(lean_object*, lean_object*);
 lean_object* l_EState_HasToString(lean_object*, lean_object*, lean_object*);
 lean_object* l_EState_Monad___closed__1;
 lean_object* l_EState_HasToString___rarg(lean_object*, lean_object*);
 lean_object* l_EState_map(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_EState_nonBacktrackable___lambda__1(lean_object*);
 lean_object* l_EState_orelse_x27___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
+lean_object* l_EState_dummySave(lean_object*, lean_object*);
 lean_object* l_EState_Inhabited(lean_object*, lean_object*, lean_object*);
 lean_object* l_EState_modifyGet(lean_object*, lean_object*, lean_object*);
 lean_object* l_EState_MonadExcept(lean_object*, lean_object*, lean_object*);
 lean_object* l_EState_catch(lean_object*, lean_object*, lean_object*);
 lean_object* l_EState_MonadState___closed__1;
+lean_object* l_EState_dummyRestore___rarg(lean_object*, lean_object*);
 lean_object* l_EState_Monad___closed__7;
 lean_object* l_EState_nonBacktrackable___closed__2;
 lean_object* l_EState_Result_repr(lean_object*, lean_object*, lean_object*);
@@ -1352,19 +1354,54 @@ x_4 = lean_alloc_closure((void*)(l_EState_run_x27___rarg), 2, 0);
 return x_4;
 }
 }
-lean_object* l_EState_nonBacktrackable___lambda__1(lean_object* x_1) {
+lean_object* l_EState_dummySave(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_box(0);
+return x_3;
+}
+}
+lean_object* l_EState_dummySave___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_EState_dummySave(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+lean_object* l_EState_dummyRestore___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+lean_object* l_EState_dummyRestore(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_box(0);
+x_2 = lean_alloc_closure((void*)(l_EState_dummyRestore___rarg___boxed), 2, 0);
 return x_2;
+}
+}
+lean_object* l_EState_dummyRestore___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_EState_dummyRestore___rarg(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 lean_object* _init_l_EState_nonBacktrackable___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_EState_nonBacktrackable___lambda__1___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_EState_dummySave___boxed), 2, 1);
+lean_closure_set(x_1, 0, lean_box(0));
 return x_1;
 }
 }
@@ -1372,7 +1409,7 @@ lean_object* _init_l_EState_nonBacktrackable___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_ExceptT_Monad___rarg___lambda__8___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_EState_dummyRestore___rarg___boxed), 2, 0);
 return x_1;
 }
 }
@@ -1393,15 +1430,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_EState_nonBacktrackable___closed__3;
-return x_2;
-}
-}
-lean_object* l_EState_nonBacktrackable___lambda__1___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_EState_nonBacktrackable___lambda__1(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }

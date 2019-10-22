@@ -24,6 +24,7 @@ lean_object* l_Lean_namespacesExt___closed__1;
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_inhabited(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Environment_9__getEntriesFor___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4;
 lean_object* lean_write_module(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_displayStats___closed__7;
 lean_object* l_Lean_Environment_displayStats___closed__6;
@@ -271,6 +272,7 @@ lean_object* l_Lean_SimplePersistentEnvExtension_modifyState___rarg___lambda__1(
 lean_object* l_Lean_SMap_numBuckets___at_Lean_Environment_displayStats___spec__5(lean_object*);
 lean_object* l_Lean_EnvExtension_setStateUnsafe___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_mfoldl___main___at_Lean_Environment_addAux___spec__10(lean_object*, lean_object*);
+lean_object* l_ExceptT_Monad___rarg___lambda__8___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_saveModuleData___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_regNamespacesExtension___closed__4;
 lean_object* l_Array_push(lean_object*, lean_object*, lean_object*);
@@ -415,7 +417,6 @@ lean_object* l_Lean_registerEnvExtension___rarg(lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_Environment_addAux___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtension___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_EState_nonBacktrackable___closed__2;
 size_t l_USize_land(size_t, size_t);
 lean_object* l_Lean_Modification_inhabited;
 lean_object* l_Lean_Environment_displayStats___closed__8;
@@ -3383,11 +3384,19 @@ lean_object* _init_l_Lean_PersistentEnvExtension_inhabited___rarg___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_PersistentEnvExtension_inhabited___rarg___lambda__2___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_ExceptT_Monad___rarg___lambda__8___boxed), 2, 0);
 return x_1;
 }
 }
 lean_object* _init_l_Lean_PersistentEnvExtension_inhabited___rarg___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_PersistentEnvExtension_inhabited___rarg___lambda__2___boxed), 1, 0);
+return x_1;
+}
+}
+lean_object* _init_l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -3411,9 +3420,9 @@ lean_ctor_set(x_6, 1, x_5);
 lean_ctor_set(x_6, 2, x_3);
 x_7 = lean_box(0);
 x_8 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__1;
-x_9 = l_EState_nonBacktrackable___closed__2;
-x_10 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__2;
-x_11 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__3;
+x_9 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__2;
+x_10 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__3;
+x_11 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4;
 x_12 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_12, 0, x_6);
 lean_ctor_set(x_12, 1, x_7);
@@ -11718,6 +11727,8 @@ l_Lean_PersistentEnvExtension_inhabited___rarg___closed__2 = _init_l_Lean_Persis
 lean_mark_persistent(l_Lean_PersistentEnvExtension_inhabited___rarg___closed__2);
 l_Lean_PersistentEnvExtension_inhabited___rarg___closed__3 = _init_l_Lean_PersistentEnvExtension_inhabited___rarg___closed__3();
 lean_mark_persistent(l_Lean_PersistentEnvExtension_inhabited___rarg___closed__3);
+l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4 = _init_l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4();
+lean_mark_persistent(l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4);
 res = l___private_Init_Lean_Environment_7__mkPersistentEnvExtensionsRef(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l___private_Init_Lean_Environment_8__persistentEnvExtensionsRef = lean_io_result_get_value(res);

@@ -41,16 +41,14 @@ eUnify (Expr.pi "foo" BinderInfo.default t₁ t₂) (Expr.pi "foo" BinderInfo.de
 get >>= λ (ctx : Context) => pure $ ctx.eInstantiate t₂
 
 def testEUnify6 : EState String Context Expr := do
-(u, ctx) ← get >>= λ ctx => pure $ Context.uNewMeta.run ctx;
-set ctx;
+u ← EState.fromState Context.uNewMeta;
 let t₁ := Expr.const "foo" [Level.zero];
 let t₂ := Expr.const "foo" [u];
 eUnify t₁ t₂;
 get >>= λ (ctx : Context) => pure $ ctx.eInstantiate t₂
 
 def testEUnify7 : EState String Context Expr := do
-(e, ctx) ← get >>= λ ctx => pure $ (Context.eNewMeta $ Expr.sort Level.zero).run ctx;
-set ctx;
+e ← EState.fromState $ Context.eNewMeta $ Expr.sort Level.zero;
 let t₁ := Expr.fvar "foo";
 let t₂ := e;
 eUnify t₁ t₂;

@@ -96,7 +96,7 @@ do s ← getTraceState;
    if !s.enabled then pure false
    else do
      opts ← getOptions;
-     pure $ opts.getBool cls
+     pure $ opts.getBool (`trace ++ cls)
 
 @[inline] def disableTracing : m Unit :=
 modifyTraceState $ fun s => { enabled := false, .. s }

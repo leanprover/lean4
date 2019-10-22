@@ -14,19 +14,19 @@ instance : SimpleMonadTracerAdapter M :=
     modify $ fun s => { traceState := f s.traceState, .. s } }
 
 def tst1 : M Unit :=
-do trace `trace.module (fun _ => ("hello" : MessageData));
-   trace `trace.module (fun _ => ("world" : MessageData));
+do trace `module (fun _ => ("hello" : MessageData));
+   trace `module (fun _ => ("world" : MessageData));
    pure ()
 
 def tst2 (b : Bool) : M Unit :=
-traceCtx `trace.module $ fun _ => do
+traceCtx `module $ fun _ => do
   tst1;
   when b $ throw "error";
   tst1;
   pure ()
 
 def tst3 (b : Bool) : M Unit :=
-traceCtx `trace.module $ fun _ => do
+traceCtx `module $ fun _ => do
   tst2 b;
   tst1
 
@@ -41,7 +41,8 @@ match x.run opts {} with
 | EState.Result.error _ s => do IO.println "Error"; displayTrace s
 
 def main : IO Unit :=
-do runM (tst3 true);
+do IO.println "----";
+   runM (tst3 true);
    IO.println "----";
    runM (tst3 false)
 

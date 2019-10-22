@@ -91,7 +91,8 @@ def addClass (env : Environment) (clsName : Name) : Except String Environment :=
 if isClass env clsName then Except.error ("class has already been declared '" ++ toString clsName ++ "'")
 else match env.find clsName with
   | none      => Except.error ("unknown declaration '" ++ toString clsName ++ "'")
-  | some decl => Except.ok (classExtension.addEntry env (ClassEntry.«class» clsName decl.type.hasOutParam))
+  | some decl@(ConstantInfo.inductInfo _) => Except.ok (classExtension.addEntry env (ClassEntry.«class» clsName decl.type.hasOutParam))
+  | some _    => Except.error ("invalid 'class', declaration '" ++ toString clsName ++ "' must be inductive datatype or structure")
 
 private def consumeNLambdas : Nat → Expr → Option Expr
 | 0,   e                => some e

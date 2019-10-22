@@ -1,5 +1,5 @@
-@[class] axiom OPClass (α : outParam Type) (β : Type) : Type
+class OPClass (α : outParam Type) (β : Type) : Type := (u : Unit := ())
 
-@[instance] axiom op₁ : OPClass Nat Nat
+instance op₁ : OPClass Nat Nat := {}
 
 #synth OPClass Nat Nat

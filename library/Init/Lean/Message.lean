@@ -31,6 +31,8 @@ inductive MessageData
 | nest     : Nat → MessageData → MessageData
 /- Lifted `Format.group` -/
 | group    : MessageData → MessageData
+/- Lifted `Format.compose` -/
+| compose  : MessageData → MessageData → MessageData
 /- Tagged sections. `Name` should be viewed as a "kind", and is used by `MessageData` inspector functions.
    Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
 | tagged   : Name → MessageData → MessageData
@@ -47,10 +49,13 @@ partial def formatAux : Option (Environment × MetavarContext × LocalContext) �
 | none, ofExpr e                   => "<expr>"
 | some (env, mctx, lctx), ofExpr e => "<expr>" -- TODO: invoke pretty printer
 | _, context env mctx lctx d       => formatAux (some (env, mctx, lctx)) d
-| ctx, tagged cls d                => Format.sbracket (format cls) ++ Format.nest 2 (formatAux ctx d)
+| ctx, tagged cls d                => Format.sbracket (format cls) ++ " " ++ Format.nest 2 (formatAux ctx d)
 | ctx, nest n d                    => Format.nest n (formatAux ctx d)
+| ctx, compose d₁ d₂               => formatAux ctx d₁ ++ formatAux ctx d₂
 | ctx, group d                     => Format.group (formatAux ctx d)
-| ctx, node ds                     => ds.foldl (fun (r : Format) (d : MessageData) => formatAux ctx d) Format.nil
+| ctx, node ds                     => ds.foldl (fun r d => r ++ Format.line ++ formatAux ctx d) Format.nil
+
+instance : HasAppend MessageData := ⟨compose⟩
 
 instance : HasFormat MessageData := ⟨fun d => formatAux none d⟩
 

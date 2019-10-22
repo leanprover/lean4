@@ -159,6 +159,9 @@ def List.format {α : Type u} [HasFormat α] : List α → Format
 instance listHasFormat {α : Type u} [HasFormat α] : HasFormat (List α) :=
 ⟨List.format⟩
 
+instance arrayHasFormat {α : Type u} [HasFormat α] : HasFormat (Array α) :=
+⟨fun a => "#" ++ fmt a.toList⟩
+
 def Option.format {α : Type u} [HasFormat α] : Option α → Format
 | none   => "none"
 | some a => "some " ++ fmt a

@@ -11,7 +11,7 @@ namespace Lean
 
 class MonadTracer (m : Type → Type u) :=
 (traceCtx {α} : Name → (Unit → m α) → m α)
-(trace : Name → Thunk MessageData → m PUnit)
+(trace {} : Name → (Unit → MessageData) → m PUnit)
 
 class MonadTracerAdapter (m : Type → Type) :=
 (isTracingEnabledFor {} : Name → m Bool)
@@ -27,10 +27,9 @@ variables [Monad m] [MonadTracerAdapter m]
 variables {α : Type}
 
 private def addNode (oldTraces : Array MessageData) (cls : Name) : m Unit :=
-do ctxTraces ← getTraces;
-   let d := MessageData.tagged cls (MessageData.node ctxTraces);
-   modifyTraces $ fun _ => oldTraces.push d;
-   pure ()
+modifyTraces $ fun traces =>
+  let d := MessageData.tagged cls (MessageData.node traces);
+  oldTraces.push d
 
 private def getResetTraces : m (Array MessageData) :=
 do oldTraces ← getTraces;
@@ -40,8 +39,8 @@ do oldTraces ← getTraces;
 private def addTrace (cls : Name) (msg : MessageData) : m Unit :=
 modifyTraces $ fun traces => traces.push (MessageData.tagged cls msg)
 
-@[inline] protected def trace (cls : Name) (msg : Thunk MessageData) : m Unit :=
-mwhen (isTracingEnabledFor cls) (addTrace cls msg.get)
+@[inline] protected def trace (cls : Name) (msg : Unit → MessageData) : m Unit :=
+mwhen (isTracingEnabledFor cls) (addTrace cls (msg ()))
 
 @[inline] def traceCtx (cls : Name) (ctx : Unit → m α) : m α :=
 do b ← isTracingEnabledFor cls;
@@ -81,8 +80,8 @@ instance monadTracerAdapterExcept {ε : Type} {m : Type → Type} [Monad m] [Mon
   trace    := @MonadTracerAdapter.trace _ _ _ }
 
 structure TraceState :=
-(enabled : Bool)
-(traces  : Array MessageData)
+(enabled : Bool := true)
+(traces  : Array MessageData := #[])
 
 class SimpleMonadTracerAdapter (m : Type → Type) :=
 (getOptions {}       : m Options)

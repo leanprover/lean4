@@ -207,7 +207,7 @@ do p ← toPreTerm stx;
    match oldElaborateAux s.env scope.options s.mctx scope.lctx (mkPreTypeAscriptionIfSome p expectedType) with
      | Except.error (some pos, fmt) => do
        ctx ← read;
-       logMessage { fileName := ctx.fileName, pos := pos, text := fmt.pretty scope.options };
+       logMessage { fileName := ctx.fileName, pos := pos, data := MessageData.ofFormat fmt };
        throw ElabException.silent
      | Except.error (none, fmt)     => logErrorAndThrow stx (fmt.pretty scope.options)
      | Except.ok (env, mctx, e)     => do

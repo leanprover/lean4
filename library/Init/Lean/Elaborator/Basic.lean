@@ -234,7 +234,7 @@ def mkMessage (msg : String) (pos : Option String.Pos := none) : Elab Message :=
 do ctx ← read;
    s ← get;
    let pos := ctx.fileMap.toPosition (pos.getD s.cmdPos);
-   pure { fileName := ctx.fileName, pos := pos, text := msg }
+   pure { fileName := ctx.fileName, pos := pos, data := msg }
 
 def logErrorAt (pos : String.Pos) (errorMsg : String) : Elab Unit :=
 mkMessage errorMsg pos >>= logMessage
@@ -374,7 +374,7 @@ catch
      env ← mkEmptyEnvironment;
      let spos := header.getPos.getD 0;
      let pos  := ctx.fileMap.toPosition spos;
-     pure (env, messages.add { fileName := ctx.fileName, text := toString e, pos := pos }))
+     pure (env, messages.add { fileName := ctx.fileName, data := toString e, pos := pos }))
 
 def toBaseDir (fileName : Option String) : IO (Option String) :=
 match fileName with

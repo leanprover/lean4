@@ -33,7 +33,7 @@ instance ModuleParserState.inhabited : Inhabited ModuleParserState :=
 
 private def mkErrorMessage (c : ParserContext) (pos : String.Pos) (errorMsg : String) : Message :=
 let pos := c.fileMap.toPosition pos;
-{ fileName := c.fileName, pos := pos, text := errorMsg }
+{ fileName := c.fileName, pos := pos, data := errorMsg }
 
 def parseHeader (env : Environment) (c : ParserContextCore) : Syntax × ModuleParserState × MessageLog :=
 let c   := c.toParserContext env;

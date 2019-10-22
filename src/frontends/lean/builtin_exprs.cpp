@@ -812,6 +812,15 @@ static expr parse_panic(parser & p, unsigned, expr const *, pos_info const & pos
     return save_pos(r, pos);
 }
 
+static expr parse_trace(parser & p, unsigned, expr const *, pos_info const & pos) {
+    expr k = p.parse_expr(get_max_prec());
+    expr e = p.parse_expr(get_max_prec());
+    expr m = mk_constant(get_lean_message_data_name());
+    e = mk_typed_expr(m, e);
+    expr r = mk_app(mk_constant(get_lean_monad_tracer_trace_name()), k, mk_lambda("_", mk_unit(), e, binder_info()));
+    return save_pos(r, pos);
+}
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -849,6 +858,7 @@ parse_table init_nud_table() {
     r = r.add({transition("parser!", mk_ext_action(parse_lparser))}, x0);
     r = r.add({transition("tparser!", mk_ext_action(parse_tparser))}, x0);
     r = r.add({transition("panic!", mk_ext_action(parse_panic))}, x0);
+    r = r.add({transition("trace!", mk_ext_action(parse_trace))}, x0);
     return r;
 }
 

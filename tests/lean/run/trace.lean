@@ -14,14 +14,14 @@ instance : SimpleMonadTracerAdapter M :=
   modifyTraceState := fun f => modify $ fun s => { traceState := f s.traceState, .. s } }
 
 def tst1 : M Unit :=
-do trace `module (fun _ => ("hello" ++ MessageData.nest 9 (Format.line ++ "world" : MessageData)));
-   trace `module.aux (fun _ => ("another message" : MessageData));
+do trace! `module ("hello" ++ MessageData.nest 9 (Format.line ++ "world"));
+   trace! `module.aux "another message";
    pure ()
 
 def tst2 (b : Bool) : M Unit :=
 traceCtx `module $ fun _ => do
   tst1;
-  trace `bughunt (fun _ => ("at test2" : MessageData));
+  trace! `bughunt "at test2";
   when b $ throw "error";
   tst1;
   pure ()

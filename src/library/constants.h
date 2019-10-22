@@ -58,6 +58,8 @@ name const & get_eq_false_intro_name();
 name const & get_eq_self_iff_true_name();
 name const & get_lean_level_name();
 name const & get_lean_expr_name();
+name const & get_lean_message_data_name();
+name const & get_lean_monad_tracer_trace_name();
 name const & get_false_name();
 name const & get_false_of_true_iff_false_name();
 name const & get_false_of_true_eq_false_name();

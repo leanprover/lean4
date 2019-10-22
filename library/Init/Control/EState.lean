@@ -55,23 +55,33 @@ fun s =>
 @[inline] protected def throw (e : ε) : EState ε σ α :=
 fun s => Result.error e s
 
-@[inline] protected def catch (x : EState ε σ α) (handle : ε → EState ε σ α) : EState ε σ α :=
+/-- Auxiliary instance for saving/restoring the "backtrackable" part of the state. -/
+class Backtrackable (δ : outParam $ Type u) (σ : Type u) :=
+(save    : σ → δ)
+(restore : σ → δ → σ)
+
+@[inline] protected def catch {δ} [Backtrackable δ σ] {α} (x : EState ε σ α) (handle : ε → EState ε σ α) : EState ε σ α :=
 fun s =>
+  let d := Backtrackable.save s;
   match x s with
-  | Result.error e s => handle e s
+  | Result.error e s => handle e (Backtrackable.restore s d)
   | ok               => ok
 
-@[inline] protected def orelse (x₁ x₂ : EState ε σ α) : EState ε σ α :=
-fun s => match x₁ s with
-  | Result.error _ s => x₂ s
+@[inline] protected def orelse {δ} [Backtrackable δ σ] (x₁ x₂ : EState ε σ α) : EState ε σ α :=
+fun s =>
+  let d := Backtrackable.save s;
+  match x₁ s with
+  | Result.error _ s => x₂ (Backtrackable.restore s d)
   | ok               => ok
 
 /-- Alternative orelse operator that allows to select which exception should be used.
     The default is to use the first exception since the standard `orelse` uses the second. -/
-@[inline] protected def orelse' (x₁ x₂ : EState ε σ α) (useFirstEx := true) : EState ε σ α :=
-fun s => match x₁ s with
+@[inline] protected def orelse' {δ} [Backtrackable δ σ] (x₁ x₂ : EState ε σ α) (useFirstEx := true) : EState ε σ α :=
+fun s =>
+  let d := Backtrackable.save s;
+  match x₁ s with
   | Result.error e₁ s₁ =>
-    match x₂ s₁ with
+    match x₂ (Backtrackable.restore s₁ d) with
     | Result.error e₂ s₂ => Result.error (if useFirstEx then e₁ else e₂) s₂
     | ok                 => ok
   | ok                 => ok
@@ -99,14 +109,14 @@ fun s => match x s with
 instance : Monad (EState ε σ) :=
 { bind := @EState.bind _ _, pure := @EState.pure _ _, map := @EState.map _ _, seqRight := @EState.seqRight _ _ }
 
-instance : HasOrelse (EState ε σ α) :=
-{ orelse := @EState.orelse _ _ _ }
+instance {δ} [Backtrackable δ σ] : HasOrelse (EState ε σ α) :=
+{ orelse := @EState.orelse _ _ _ _ _ }
 
 instance : MonadState σ (EState ε σ) :=
 { set := @EState.set _ _, get := @EState.get _ _, modifyGet := @EState.modifyGet _ _ }
 
-instance : MonadExcept ε (EState ε σ) :=
-{ throw := @EState.throw _ _, catch := @EState.catch _ _ }
+instance {δ} [Backtrackable δ σ] : MonadExcept ε (EState ε σ) :=
+{ throw := @EState.throw _ _, catch := @EState.catch _ _ _ _ }
 
 @[inline] def adaptState {σ₁ σ₂} (x : EState ε σ₁ α) (split : σ → σ₁ × σ₂) (merge : σ₁ → σ₂ → σ) : EState ε σ α :=
 fun s =>
@@ -127,5 +137,10 @@ x s
 match run x s with
 | Result.ok v _    => some v
 | Result.error _ _ => none
+
+/- Dummy default instance -/
+instance nonBacktrackable : Backtrackable PUnit σ :=
+{ save    := fun _ => ⟨⟩,
+  restore := fun s _ => s }
 
 end EState

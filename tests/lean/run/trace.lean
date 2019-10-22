@@ -7,15 +7,15 @@ structure MyState :=
 
 abbrev M := ReaderT Options (EState String MyState)
 
+/- We can enable tracing for a monad M by adding an instance of `SimpleMonadTracerAdapter M` -/
 instance : SimpleMonadTracerAdapter M :=
 { getOptions       := read,
-  getTraceState    := do { s ← get; pure s.traceState },
-  modifyTraceState := fun f =>
-    modify $ fun s => { traceState := f s.traceState, .. s } }
+  getTraceState    := MyState.traceState <$> get,
+  modifyTraceState := fun f => modify $ fun s => { traceState := f s.traceState, .. s } }
 
 def tst1 : M Unit :=
-do trace `module (fun _ => ("hello" : MessageData));
-   trace `module (fun _ => ("world" : MessageData));
+do trace `module (fun _ => ("hello" ++ MessageData.nest 9 (Format.line ++ "world" : MessageData)));
+   trace `module (fun _ => ("another message" : MessageData));
    pure ()
 
 def tst2 (b : Bool) : M Unit :=

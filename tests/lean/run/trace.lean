@@ -15,13 +15,13 @@ instance : SimpleMonadTracerAdapter M :=
 
 def tst1 : M Unit :=
 do trace `module (fun _ => ("hello" ++ MessageData.nest 9 (Format.line ++ "world" : MessageData)));
-   trace `module (fun _ => ("another message" : MessageData));
+   trace `module.aux (fun _ => ("another message" : MessageData));
    pure ()
 
 def tst2 (b : Bool) : M Unit :=
 traceCtx `module $ fun _ => do
   tst1;
-  trace `module_detail (fun _ => ("at test2" : MessageData));
+  trace `bughunt (fun _ => ("at test2" : MessageData));
   when b $ throw "error";
   tst1;
   pure ()
@@ -37,7 +37,8 @@ s.traceState.traces.mfor $ fun m => IO.println (format m)
 def runM (x : M Unit) : IO Unit :=
 let opts := Options.empty;
 let opts := opts.setBool `trace.module true;
-let opts := opts.setBool `trace.module_detail true;
+-- let opts := opts.setBool `trace.module.aux false;
+let opts := opts.setBool `trace.bughunt true;
 match x.run opts {} with
 | EState.Result.ok _ s    => displayTrace s
 | EState.Result.error _ s => do IO.println "Error"; displayTrace s

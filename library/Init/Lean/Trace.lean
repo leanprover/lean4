@@ -91,12 +91,19 @@ class SimpleMonadTracerAdapter (m : Type → Type) :=
 namespace SimpleMonadTracerAdapter
 variables {m : Type → Type} [Monad m] [SimpleMonadTracerAdapter m]
 
+private def checkTraceOptionAux (opts : Options) : Name → Bool
+| n@(Name.mkString p _) => opts.getBool n || (!opts.contains n && checkTraceOptionAux p)
+| _                     => false
+
+private def checkTraceOption (optName : Name) : m Bool :=
+do opts ← getOptions;
+   if opts.isEmpty then pure false
+   else pure $ checkTraceOptionAux opts optName
+
 @[inline] def isTracingEnabledFor (cls : Name) : m Bool :=
 do s ← getTraceState;
    if !s.enabled then pure false
-   else do
-     opts ← getOptions;
-     pure $ opts.getBool (`trace ++ cls)
+   else checkTraceOption (`trace ++ cls)
 
 @[inline] def disableTracing : m Unit :=
 modifyTraceState $ fun s => { enabled := false, .. s }

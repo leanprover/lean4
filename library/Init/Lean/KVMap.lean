@@ -38,6 +38,12 @@ structure KVMap :=
 (entries : List (Name × DataValue) := [])
 
 namespace KVMap
+def empty : KVMap :=
+{}
+
+def isEmpty : KVMap → Bool
+| ⟨m⟩ => m.isEmpty
+
 def findCore : List (Name × DataValue) → Name → Option DataValue
 | [],       k' => none
 | (k,v)::m, k' => if k = k' then some v else findCore m k'

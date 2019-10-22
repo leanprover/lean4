@@ -48,6 +48,7 @@ lean_object* l_IO_ofExcept(lean_object*, lean_object*);
 lean_object* l_IO_print___at_HasRepr_HasEval___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_IO_Error_HasToString___closed__1;
 lean_object* l_IO_Prim_iterate___at_IO_Fs_handle_readToEnd___spec__3___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_EState_nonBacktrackable___closed__3;
 lean_object* l_IO_Ref_reset___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_Error_Inhabited;
 lean_object* l_EIO_Inhabited(lean_object*, lean_object*);
@@ -119,6 +120,7 @@ lean_object* l_IO_Prim_handle_close___boxed(lean_object*, lean_object*);
 lean_object* l_IO_Prim_handle_flush___boxed(lean_object*, lean_object*);
 lean_object* l_IO_readTextFile(lean_object*, lean_object*);
 lean_object* l_IO_println___boxed(lean_object*);
+lean_object* l_EState_MonadExcept___rarg(lean_object*);
 lean_object* l_IO_Fs_handle_flush___boxed(lean_object*, lean_object*);
 lean_object* l_IO_appPath___rarg___closed__1;
 lean_object* lean_io_prim_handle_close(lean_object*, lean_object*);
@@ -168,7 +170,6 @@ lean_object* l_IO_Ref_reset___boxed(lean_object*, lean_object*);
 lean_object* l_IO_Fs_readFile___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_Fs_handle_readToEnd___rarg(lean_object*, lean_object*);
 lean_object* l_HasRepr_HasEval(lean_object*);
-lean_object* l_EState_MonadExcept(lean_object*, lean_object*);
 lean_object* l_timeit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_isDir___rarg(lean_object*, lean_object*);
 lean_object* l_IO_Fs_handle_isEof___boxed(lean_object*, lean_object*);
@@ -212,9 +213,10 @@ return x_2;
 lean_object* _init_l_EIO_MonadExcept___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_EState_MonadExcept(lean_box(0), lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_EState_nonBacktrackable___closed__3;
+x_2 = l_EState_MonadExcept___rarg(x_1);
+return x_2;
 }
 }
 lean_object* l_EIO_MonadExcept(lean_object* x_1) {

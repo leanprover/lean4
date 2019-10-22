@@ -21,7 +21,6 @@ lean_object* l_RBNode_fold___main___at_Lean_registerEnumAttributes___spec__1(lea
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_registerEnumAttributes___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_attributeArrayRef;
-extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4;
 lean_object* l_List_map___main___at_Lean_registerEnumAttributes___spec__10___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_ParametricAttribute_getParam(lean_object*);
 lean_object* l_Lean_attrParamSyntaxToIdentifier(lean_object*);
@@ -286,6 +285,7 @@ lean_object* l_RBNode_find___main___at_Lean_ParametricAttribute_setParam___spec_
 lean_object* l_Array_miterateAux___main___at_Lean_getAttributeNames___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_pushScopeCore(lean_object*, lean_object*, uint8_t);
 lean_object* l_AssocList_replace___main___at_Lean_registerAttribute___spec__7(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_EState_nonBacktrackable___closed__2;
 lean_object* l_RBNode_fold___main___at_Lean_registerTagAttribute___spec__1(lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___main___at_Lean_EnumAttributes_getValue___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_attributeMapRef;
@@ -4098,9 +4098,9 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_TagAttribute_Inhabited___closed__1;
 x_2 = lean_box(0);
 x_3 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__1;
-x_4 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__2;
-x_5 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__3;
-x_6 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4;
+x_4 = l_EState_nonBacktrackable___closed__2;
+x_5 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__2;
+x_6 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__3;
 x_7 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_7, 0, x_1);
 lean_ctor_set(x_7, 1, x_2);

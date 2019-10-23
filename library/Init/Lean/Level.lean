@@ -7,6 +7,8 @@ prelude
 import Init.Data.Option.Basic
 import Init.Lean.Name
 import Init.Lean.Format
+import Init.Data.HashMap
+import Init.Data.PersistentHashMap
 
 namespace Lean
 
@@ -83,6 +85,8 @@ def Level.instantiate (s : Name → Option Level) : Level → Level
 @[extern "lean_level_hash"]
 constant Level.hash (n : @& Level) : USize := default USize
 
+instance Level.hashable : Hashable Level := ⟨Level.hash⟩
+
 @[extern "lean_level_eq"]
 constant Level.beq (a : @& Level) (b : @& Level) : Bool := default _
 
@@ -148,5 +152,8 @@ def Level.format (l : Level) : Format :=
 instance levelHasFormat : HasFormat Level := ⟨Level.format⟩
 instance levelHasToString : HasToString Level := ⟨Format.pretty ∘ Level.format⟩
 end LevelToFormat
+
+abbrev LevelMap (α : Type)  := HashMap Level α
+abbrev PersistentLevelMap (α : Type) := PHashMap Level α
 
 end Lean

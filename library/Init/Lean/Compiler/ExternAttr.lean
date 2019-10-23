@@ -124,12 +124,6 @@ expandExternPatternAux args pattern.length pattern.mkIterator ""
 def mkSimpleFnCall (fn : String) (args : List String) : String :=
 fn ++ "(" ++ ((args.intersperse ", ").foldl HasAppend.append "") ++ ")"
 
-def expandExternEntry : ExternEntry → List String → Option String
-| ExternEntry.adhoc _, args       => none -- backend must expand it
-| ExternEntry.standard _ fn, args => some (mkSimpleFnCall fn args)
-| ExternEntry.inline _ pat, args  => some (expandExternPattern pat args)
-| ExternEntry.foreign _ fn, args  => some (mkSimpleFnCall fn args)
-
 def ExternEntry.backend : ExternEntry → Name
 | ExternEntry.adhoc n      => n
 | ExternEntry.inline n _   => n
@@ -145,10 +139,6 @@ def getExternEntryForAux (backend : Name) : List ExternEntry → Option ExternEn
 
 def getExternEntryFor (d : ExternAttrData) (backend : Name) : Option ExternEntry :=
 getExternEntryForAux backend d.entries
-
-def mkExternCall (d : ExternAttrData) (backend : Name) (args : List String) : Option String :=
-do e ← getExternEntryFor d backend;
-   expandExternEntry e args
 
 def isExtern (env : Environment) (fn : Name) : Bool :=
 (getExternAttrData env fn).isSome

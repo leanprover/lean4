@@ -96,10 +96,13 @@ toCInitName n >>= emit
 
 def emitFnDeclAux (decl : Decl) (cppBaseName : String) (addExternForConsts : Bool) : M Unit :=
 do let ps := decl.params;
+   env ← getEnv;
    when (ps.isEmpty && addExternForConsts) (emit "extern ");
    emit (toCType decl.resultType ++ " " ++ cppBaseName);
    unless (ps.isEmpty) $ do {
      emit "(";
+     -- We omit irrelevant parameters for extern constants
+     let ps := if isExternC env decl.name then ps.filter (fun p => !p.ty.isIrrelevant) else ps;
      if ps.size > closureMaxArgs && isBoxedName decl.name then
        emit "lean_object**"
      else
@@ -394,14 +397,33 @@ do emitLhs z;
 def toStringArgs (ys : Array Arg) : List String :=
 ys.toList.map argToCString
 
+def emitSimpleExternalCall (f : String) (ps : Array Param) (ys : Array Arg) : M Unit :=
+do emit f; emit "(";
+   -- We must remove irrelevant arguments to extern calls.
+   ys.size.mfold
+     (fun i (first : Bool) =>
+       if (ps.get! i).ty.isIrrelevant then
+         pure first
+       else do
+         unless first (emit ", ");
+         emitArg (ys.get! i);
+         pure false)
+     true;
+   emitLn ");";
+   pure ()
+
+def emitExternCall (f : FunId) (ps : Array Param) (extData : ExternAttrData) (ys : Array Arg) : M Unit :=
+match getExternEntryFor extData `c with
+| some (ExternEntry.standard _ extFn) => emitSimpleExternalCall extFn ps ys
+| some (ExternEntry.inline _ pat)     => emit (expandExternPattern pat (toStringArgs ys))
+| some (ExternEntry.foreign _ extFn)  => emitSimpleExternalCall extFn ps ys
+| _ => throw ("failed to emit extern application '" ++ toString f ++ "'")
+
 def emitFullApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit :=
 do emitLhs z;
    decl ← getDecl f;
    match decl with
-   | Decl.extern _ _ _ extData =>
-     match mkExternCall extData `c (toStringArgs ys) with
-     | some c => emit c *> emitLn ";"
-     | none   => throw ("failed to emit extern application '" ++ toString f ++ "'")
+   | Decl.extern _ ps _ extData => emitExternCall f ps extData ys
    | _ => do emitCName f; when (ys.size > 0) (do emit "("; emitArgs ys; emit ")"); emitLn ";"
 
 def emitPartialApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit :=

@@ -416,6 +416,10 @@ def resultType : Decl → IRType
 | Decl.fdecl _ _ t _  => t
 | Decl.extern _ _ t _ => t
 
+def isExtern : Decl → Bool
+| Decl.extern _ _ _ _ => true
+| _ => false
+
 end Decl
 
 @[export lean_ir_mk_decl] def mkDecl (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody) : Decl := Decl.fdecl f xs ty b

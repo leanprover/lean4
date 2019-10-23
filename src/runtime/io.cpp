@@ -133,7 +133,7 @@ extern "C" obj_res lean_io_prim_handle_get_line(b_obj_arg /* h */, obj_arg /* w 
 }
 
 /* timeit {α : Type} (msg : @& string) (fn : io α) : io α */
-extern "C" obj_res lean_io_timeit(obj_arg, b_obj_arg msg, obj_arg fn, obj_arg w) {
+extern "C" obj_res lean_io_timeit(b_obj_arg msg, obj_arg fn, obj_arg w) {
     auto start = std::chrono::steady_clock::now();
     w = apply_1(fn, w);
     auto end   = std::chrono::steady_clock::now();
@@ -149,7 +149,7 @@ extern "C" obj_res lean_io_timeit(obj_arg, b_obj_arg msg, obj_arg fn, obj_arg w)
 }
 
 /* allocprof {α : Type} (msg : string) (fn : io α) : io α */
-extern "C" obj_res lean_io_allocprof(obj_arg, b_obj_arg msg, obj_arg fn, obj_arg w) {
+extern "C" obj_res lean_io_allocprof(b_obj_arg msg, obj_arg fn, obj_arg w) {
     std::ostream & out = std::cerr; // TODO(Leo): replace?
     allocprof prof(out, string_cstr(msg));
     return apply_1(fn, w);

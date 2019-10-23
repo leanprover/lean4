@@ -135,18 +135,18 @@ abbrev Unit : Type := PUnit
 structure Thunk (α : Type u) : Type u :=
 (fn : Unit → α)
 
-attribute [extern c inline "lean_mk_thunk(#2)"] Thunk.mk
+attribute [extern "lean_mk_thunk"] Thunk.mk
 
-@[noinline, extern c inline "lean_thunk_pure(#2)"]
+@[noinline, extern "lean_thunk_pure"]
 protected def Thunk.pure {α : Type u} (a : α) : Thunk α :=
 ⟨fun _ => a⟩
-@[noinline, extern c inline "lean_thunk_get_own(#2)"]
+@[noinline, extern "lean_thunk_get_own"]
 protected def Thunk.get {α : Type u} (x : @& Thunk α) : α :=
 x.fn ()
-@[noinline, extern c inline "lean_thunk_map(#3, #4)"]
+@[noinline, extern "lean_thunk_map"]
 protected def Thunk.map {α : Type u} {β : Type v} (f : α → β) (x : Thunk α) : Thunk β :=
 ⟨fun _ => f x.get⟩
-@[noinline, extern c inline "lean_thunk_bind(#3, #4)"]
+@[noinline, extern "lean_thunk_bind"]
 protected def Thunk.bind {α : Type u} {β : Type v} (x : Thunk α) (f : α → Thunk β) : Thunk β :=
 ⟨fun _ => (f x.get).get⟩
 
@@ -154,18 +154,18 @@ protected def Thunk.bind {α : Type u} {β : Type v} (x : Thunk α) (f : α → 
 structure Task (α : Type u) : Type u :=
 (fn : Unit → α)
 
-attribute [extern c inline "lean_mk_task(#2)"] Task.mk
+attribute [extern "lean_mk_task"] Task.mk
 
-@[noinline, extern c inline "lean_task_pure(#2)"]
+@[noinline, extern "lean_task_pure"]
 protected def Task.pure {α : Type u} (a : α) : Task α :=
 ⟨fun _ => a⟩
-@[noinline, extern c inline "lean_task_get(#2)"]
+@[noinline, extern "lean_task_get"]
 protected def Task.get {α : Type u} (x : @& Task α) : α :=
 x.fn ()
-@[noinline, extern c inline "lean_task_map(#3, #4)"]
+@[noinline, extern "lean_task_map"]
 protected def Task.map {α : Type u} {β : Type v} (f : α → β) (x : Task α) : Task β :=
 ⟨fun _ => f x.get⟩
-@[noinline, extern c inline "lean_task_bind(#3, #4)"]
+@[noinline, extern "lean_task_bind"]
 protected def Task.bind {α : Type u} {β : Type v} (x : Task α) (f : α → Task β) : Task β :=
 ⟨fun _ => (f x.get).get⟩
 

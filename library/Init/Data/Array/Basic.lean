@@ -21,11 +21,11 @@ structure Array (α : Type u) :=
 (sz   : Nat)
 (data : Fin sz → α)
 
-attribute [extern c inline "lean_array_mk(#2, #3)"] Array.mk
-attribute [extern c inline "lean_array_data(#2, #3)"] Array.data
-attribute [extern c inline "lean_array_sz(#2)"] Array.sz
+attribute [extern "lean_array_mk"] Array.mk
+attribute [extern "lean_array_data"] Array.data
+attribute [extern "lean_array_sz"] Array.sz
 
-@[reducible, extern c inline "lean_array_get_size(#2)"]
+@[reducible, extern "lean_array_get_size"]
 def Array.size {α : Type u} (a : @& Array α) : Nat :=
 a.sz
 
@@ -33,19 +33,19 @@ namespace Array
 variables {α : Type u}
 
 /- The parameter `c` is the initial capacity -/
-@[extern c inline "lean_mk_empty_array_with_capacity(#2)"]
+@[extern "lean_mk_empty_array_with_capacity"]
 def mkEmpty (c : @& Nat) : Array α :=
 { sz := 0,
   data := fun ⟨x, h⟩ => absurd h (Nat.notLtZero x) }
 
-@[extern c inline "lean_array_push(#2, #3)"]
+@[extern "lean_array_push"]
 def push (a : Array α) (v : α) : Array α :=
 { sz   := Nat.succ a.sz,
   data := fun ⟨j, h₁⟩ =>
     if h₂ : j = a.sz then v
     else a.data ⟨j, Nat.ltOfLeOfNe (Nat.leOfLtSucc h₁) h₂⟩ }
 
-@[extern c inline "lean_mk_array(#2, #3)"]
+@[extern "lean_mk_array"]
 def mkArray {α : Type u} (n : Nat) (v : α) : Array α :=
 { sz   := n,
   data := fun _ => v}
@@ -68,19 +68,19 @@ a.size = 0
 def singleton (v : α) : Array α :=
 mkArray 1 v
 
-@[extern c inline "lean_array_fget(#2, #3)"]
+@[extern "lean_array_fget"]
 def get (a : @& Array α) (i : @& Fin a.size) : α :=
 a.data i
 
 /- Low-level version of `fget` which is as fast as a C array read.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `fget` may be slightly slower than `uget`. -/
-@[extern c inline "lean_array_uget(#2, #3)"]
+@[extern "lean_array_uget"]
 def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
 a.get ⟨i.toNat, h⟩
 
 /- "Comfortable" version of `fget`. It performs a bound check at runtime. -/
-@[extern c inline "lean_array_get(#2, #3, #4)"]
+@[extern "lean_array_get"]
 def get! [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
 if h : i < a.size then a.get ⟨i, h⟩ else default α
 
@@ -93,7 +93,7 @@ if h : i < a.size then some (a.get ⟨i, h⟩) else none
 def getD (a : Array α) (i : Nat) (v₀ : α) : α :=
 if h : i < a.size then a.get ⟨i, h⟩ else v₀
 
-@[extern c inline "lean_array_fset(#2, #3, #4)"]
+@[extern "lean_array_fset"]
 def set (a : Array α) (i : @& Fin a.size) (v : α) : Array α :=
 { sz   := a.sz,
   data := fun j => if h : i = j then v else a.data j }
@@ -107,23 +107,23 @@ rfl
 /- Low-level version of `fset` which is as fast as a C array fset.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `fset` may be slightly slower than `uset`. -/
-@[extern c inline "lean_array_uset(#2, #3, #4)"]
+@[extern "lean_array_uset"]
 def uset (a : Array α) (i : USize) (v : α) (h : i.toNat < a.size) : Array α :=
 a.set ⟨i.toNat, h⟩ v
 
 /- "Comfortable" version of `fset`. It performs a bound check at runtime. -/
-@[extern c inline "lean_array_set(#2, #3, #4)"]
+@[extern "lean_array_set"]
 def set! (a : Array α) (i : @& Nat) (v : α) : Array α :=
 if h : i < a.size then a.set ⟨i, h⟩ v else panic! "index out of bounds"
 
-@[extern c inline "lean_array_fswap(#2, #3, #4)"]
+@[extern "lean_array_fswap"]
 def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
 let v₁ := a.get i;
 let v₂ := a.get j;
 let a  := a.set i v₂;
 a.set j v₁
 
-@[extern c inline "lean_array_swap(#2, #3, #4)"]
+@[extern "lean_array_swap"]
 def swap! (a : Array α) (i j : @& Nat) : Array α :=
 if h₁ : i < a.size then
 if h₂ : j < a.size then swap a ⟨i, h₁⟩ ⟨j, h₂⟩
@@ -142,7 +142,7 @@ panic! ("index " ++ toString i ++ " out of bounds")
 @[inline] def swapAt! {α : Type} (a : Array α) (i : Nat) (v : α) : α × Array α :=
 if h : i < a.size then swapAt a ⟨i, h⟩ v else @swapAtPanic! _ ⟨v⟩ i
 
-@[extern c inline "lean_array_pop(#2)"]
+@[extern "lean_array_pop"]
 def pop (a : Array α) : Array α :=
 { sz   := Nat.pred a.size,
   data := fun ⟨j, h⟩ => a.get ⟨j, Nat.ltOfLtOfLe h (Nat.predLe _)⟩ }

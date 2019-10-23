@@ -292,4 +292,17 @@ end ExprStructEq
 abbrev ExprStructMap (α : Type) := HashMap ExprStructEq α
 abbrev PersistentExprStructMap (α : Type) := PHashMap ExprStructEq α
 
+namespace Expr
+
+@[extern "lean_expr_update_app"]
+def updateApp (e : Expr) (newFn : Expr) (newArg : Expr) (h : e.isApp = true) : Expr :=
+Expr.app newFn newArg
+
+@[inline] def updateApp! (e : Expr) (newFn : Expr) (newArg : Expr) : Expr :=
+match e with
+| Expr.app fn arg => updateApp (Expr.app fn arg) newFn newArg rfl
+| _ => panic! "application expected"
+
+end Expr
+
 end Lean

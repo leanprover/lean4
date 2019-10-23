@@ -415,7 +415,7 @@ do emit f; emit "(";
 def emitExternCall (f : FunId) (ps : Array Param) (extData : ExternAttrData) (ys : Array Arg) : M Unit :=
 match getExternEntryFor extData `c with
 | some (ExternEntry.standard _ extFn) => emitSimpleExternalCall extFn ps ys
-| some (ExternEntry.inline _ pat)     => emit (expandExternPattern pat (toStringArgs ys))
+| some (ExternEntry.inline _ pat)     => do emit (expandExternPattern pat (toStringArgs ys)); emitLn ";"
 | some (ExternEntry.foreign _ extFn)  => emitSimpleExternalCall extFn ps ys
 | _ => throw ("failed to emit extern application '" ++ toString f ++ "'")
 

@@ -684,6 +684,16 @@ expr update_local(expr const & e, expr const & new_type) {
         return mk_local(local_name(e), local_pp_name(e), new_type, local_info(e));
 }
 
+extern "C" object * lean_expr_update_app(obj_arg e, obj_arg new_fn, obj_arg new_arg) {
+    if (app_fn(TO_REF(expr, e)).raw() != new_fn || app_arg(TO_REF(expr, e)).raw() != new_arg) {
+        lean_dec(e);
+        return lean_expr_mk_app(new_fn, new_arg);
+    } else {
+        lean_dec(new_fn); lean_dec(new_arg);
+        return e;
+    }
+}
+
 // =======================================
 // Loose bound variable management
 

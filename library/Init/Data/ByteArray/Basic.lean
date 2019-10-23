@@ -16,7 +16,7 @@ attribute [extern "lean_byte_array_mk"] ByteArray.mk
 attribute [extern "lean_byte_array_data"] ByteArray.data
 
 namespace ByteArray
-@[extern c inline "lean_mk_empty_byte_array(#1)"]
+@[extern "lean_mk_empty_byte_array"]
 def mkEmpty (c : @& Nat) : ByteArray :=
 { data := #[] }
 

@@ -19,3 +19,4 @@ import Init.Lean.Class
 import Init.Lean.LocalContext
 import Init.Lean.MetavarContext
 import Init.Lean.TypeClass
+import Init.Lean.Trace

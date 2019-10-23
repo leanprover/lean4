@@ -26,12 +26,23 @@ traceCtx `module $ do
   tst1;
   pure ()
 
+partial def ack : Nat → Nat → Nat
+| 0,   n   => n+1
+| m+1, 0   => ack m 1
+| m+1, n+1 => ack m (ack (m+1) n)
+
+def slow (b : Bool) : Nat :=
+ack 4 (cond b 0 1)
+
 def tst3 (b : Bool) : M Unit :=
 do traceCtx `module $ do {
      tst2 b;
      tst1
    };
-   trace! `bughunt "at end of tst3"
+   trace! `bughunt "at end of tst3";
+   -- Messages are computed lazily. The following message will only be computed
+   -- if `trace.slow is active.
+   trace! `slow ("slow message: " ++ toString (slow b))
 
 def runM (x : M Unit) : IO Unit :=
 let opts := Options.empty;
@@ -39,6 +50,7 @@ let opts := Options.empty;
 let opts := opts.setBool `trace.module true;
 -- let opts := opts.setBool `trace.module.aux false;
 let opts := opts.setBool `trace.bughunt true;
+-- let opts := opts.setBool `trace.slow true;
 match x.run opts {} with
 | EState.Result.ok _ s    => IO.println s.traceState
 | EState.Result.error _ s => do IO.println "Error"; IO.println s.traceState
@@ -47,6 +59,7 @@ def main : IO Unit :=
 do IO.println "----";
    runM (tst3 true);
    IO.println "----";
-   runM (tst3 false)
+   runM (tst3 false);
+   pure ()
 
 #eval main

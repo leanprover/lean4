@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
-lean_object* l_Task_get(lean_object*, lean_object*);
+lean_object* lean_task_get(lean_object*);
 lean_object* l_Lean_ConstantInfo_name___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_toConstantVal(lean_object*);
 lean_object* l_Lean_ConstantInfo_value___boxed(lean_object*);

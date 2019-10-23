@@ -33,7 +33,7 @@ lean_object* l_AssocList_mfoldl___main___at_HashMapImp_fold___spec__1___rarg(lea
 lean_object* l_mkHashMap(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_HashMapImp_mfoldBuckets___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_mfold___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_mkArray(lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_AssocList_mfoldl___main___at_HashMap_fold___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_HashMap_fold___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_mkHashMapImp___rarg___closed__2;
@@ -48,11 +48,11 @@ uint8_t l_HashMapImp_contains___rarg(lean_object*, lean_object*, lean_object*, l
 lean_object* l_AssocList_mfoldl___main___at_HashMapImp_foldBuckets___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMap_Inhabited___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMap_HasEmptyc___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_uget(lean_object*, lean_object*, size_t, lean_object*);
+lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_HashMapImp_mfoldBuckets___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMap_find_x21(lean_object*, lean_object*);
 lean_object* l_HashMap_size___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_uset(lean_object*, lean_object*, size_t, lean_object*, lean_object*);
+lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_HashMap_erase___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapBucket_update___rarg(lean_object*, size_t, lean_object*, lean_object*);
 lean_object* l_HashMap_numBuckets___rarg(lean_object*);
@@ -114,13 +114,13 @@ lean_object* l_HashMapImp_foldBuckets___rarg(lean_object*, lean_object*, lean_ob
 lean_object* l_HashMapImp_moveEntries(lean_object*, lean_object*);
 lean_object* l_HashMap_empty(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMap_Inhabited___closed__1;
-lean_object* l_Array_size(lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
 lean_object* l_HashMap_findD(lean_object*, lean_object*);
 lean_object* l_HashMapImp_contains(lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_HashMapImp_mfold___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_HashMapImp_mfoldBuckets___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_fold___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_HashMapBucket_update(lean_object*, lean_object*);
 lean_object* l_mkHashMapImp___rarg(lean_object*);
 lean_object* l_HashMapImp_insert(lean_object*, lean_object*);
@@ -134,7 +134,7 @@ lean_object* l_AssocList_mfoldl___main___at_HashMapImp_moveEntries___main___spec
 lean_object* l_HashMapImp_mkIdx___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_find(lean_object*, lean_object*);
 lean_object* l_HashMap_findD___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_set(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMap_find___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMap_fold___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMap_find_x21___rarg___closed__2;

@@ -143,7 +143,7 @@ lean_object* l_Lean_Parser_symbolOrIdentInfo(lean_object*);
 lean_object* l_Lean_Parser_Level_paren___elambda__1___rarg___closed__10;
 lean_object* l_Lean_Parser_nodeInfo(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Level_addLit___elambda__1___closed__6;
-lean_object* l_Array_size(lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Parser_mkLevelParserAttribute___closed__3;
 lean_object* l_Lean_Parser_Level_max___closed__5;
 lean_object* l_Lean_Parser_Level_paren___elambda__1___rarg___closed__5;

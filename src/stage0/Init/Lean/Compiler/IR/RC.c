@@ -23,7 +23,7 @@ lean_object* l_Lean_IR_explicitRC___boxed(lean_object*, lean_object*, lean_objec
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitRC_getJPParams(lean_object*, lean_object*);
-lean_object* l_Array_get_x21(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitRC_getVarInfo___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitRC_addDec___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_RC_11__addDecForDeadParams___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -84,7 +84,7 @@ lean_object* l_RBNode_find___main___at_Lean_IR_ExplicitRC_getVarInfo___spec__1(l
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 extern lean_object* l_Lean_IR_paramInh;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
-lean_object* l_Array_push(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t l_Lean_IR_CtorInfo_isRef(lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_RC_14__isScalarBoxedInTaggedPtr___boxed(lean_object*);
 lean_object* l_Nat_anyAux___main___at___private_Init_Lean_Compiler_IR_RC_3__isFirstOcc___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -112,13 +112,13 @@ uint8_t l___private_Init_Lean_Compiler_IR_RC_4__isBorrowParamAux___at___private_
 lean_object* l_RBNode_erase___at___private_Init_Lean_Compiler_IR_LiveVars_8__bindVar___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_RC_17__processVDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_getEnv___rarg(lean_object*);
-lean_object* l_Array_size(lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_RC_7__addIncBeforeAux___at___private_Init_Lean_Compiler_IR_RC_10__addIncBeforeConsumeAll___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_RC_15__updateVarInfo___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldAux___main___at___private_Init_Lean_Compiler_IR_RC_7__addIncBeforeAux___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_RC_7__addIncBeforeAux___at___private_Init_Lean_Compiler_IR_RC_10__addIncBeforeConsumeAll___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_RC_15__updateVarInfo(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_RC_1__updateRefUsingCtorInfo(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_Lean_IR_ExplicitRC_updateVarInfoWithParams___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Nat_anyAux___main___at___private_Init_Lean_Compiler_IR_RC_4__isBorrowParamAux___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -132,7 +132,7 @@ lean_object* l_RBNode_findCore___main___at___private_Init_Lean_Compiler_IR_RC_2_
 lean_object* l___private_Init_Lean_Compiler_IR_RC_17__processVDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldAux___main___at___private_Init_Lean_Compiler_IR_RC_8__addIncBefore___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_RC_2__addDecForAlt___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_set(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Init_Lean_Compiler_IR_RC_13__consumeExpr(lean_object*, lean_object*);
 lean_object* l_Nat_foldAux___main___at___private_Init_Lean_Compiler_IR_RC_10__addIncBeforeConsumeAll___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_RC_10__addIncBeforeConsumeAll(lean_object*, lean_object*, lean_object*, lean_object*);

@@ -41,7 +41,7 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_List_toString___at_ByteArray_HasToString___spec__1(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* l_ByteArray_mkEmpty(lean_object*);
+lean_object* lean_mk_empty_byte_array(lean_object*);
 lean_object* lean_byte_array_data(lean_object*);
 lean_object* l_ByteArray_toListAux___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_ByteArray_empty___closed__1;

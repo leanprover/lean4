@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_profileit___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_lean_profileit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_lean_profileit(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_profileitPure(lean_object*);
 lean_object* l_Lean_profileitPure___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_profileitPure___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -23,7 +23,7 @@ lean_object* l_Lean_profileit___boxed(lean_object* x_1, lean_object* x_2, lean_o
 _start:
 {
 lean_object* x_6; 
-x_6 = lean_lean_profileit(x_1, x_2, x_3, x_4, x_5);
+x_6 = lean_lean_profileit(x_2, x_3, x_4, x_5);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_6;
@@ -35,7 +35,7 @@ _start:
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_alloc_closure((void*)(l_IO_lazyPure___rarg), 2, 1);
 lean_closure_set(x_5, 0, x_3);
-x_6 = lean_lean_profileit(lean_box(0), x_1, x_2, x_5, x_4);
+x_6 = lean_lean_profileit(x_1, x_2, x_5, x_4);
 return x_6;
 }
 }

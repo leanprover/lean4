@@ -91,10 +91,10 @@ lean_object* l_Lean_IR_MapVars_mapArgs___at_Lean_IR_FnBody_replaceVar___spec__5(
 lean_object* l_Lean_IR_MapVars_mapArgs___at_Lean_IR_FnBody_replaceVar___spec__11(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_ummapAux___main___at_Lean_IR_FnBody_replaceVar___spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_MapVars_mapArgs___at_Lean_IR_FnBody_replaceVar___spec__9(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_size(lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_IR_NormalizeIds_withJP(lean_object*);
 lean_object* l_Lean_IR_NormalizeIds_MtoN___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_Lean_IR_NormalizeIds_normDecl___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_NormalizeIds_normIndex(lean_object*, lean_object*);
 lean_object* l_Array_anyMAux___main___at_Lean_IR_UniqueIds_checkFnBody___main___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -102,7 +102,7 @@ lean_object* l_Array_miterateAux___main___at_Lean_IR_NormalizeIds_normDecl___spe
 lean_object* l_Lean_IR_MapVars_mapFnBody(lean_object*, lean_object*);
 lean_object* l_Array_ummapAux___main___at_Lean_IR_MapVars_mapArgs___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_NormalizeIds_normExpr___boxed(lean_object*, lean_object*);
-lean_object* l_Array_set(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_MapVars_mapArgs___at_Lean_IR_FnBody_replaceVar___spec__7(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_ummapAux___main___at_Lean_IR_FnBody_replaceVar___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_ummapAux___main___at_Lean_IR_NormalizeIds_withParams___spec__2___boxed(lean_object*, lean_object*, lean_object*);

@@ -51,13 +51,13 @@ lean_object* l___private_Init_Lean_Elaborator_ResolveName_2__resolveUsingNamespa
 lean_object* l_Lean_Elab_getOpenDecls___rarg(lean_object*);
 uint8_t lean_is_protected(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getEnv___rarg(lean_object*);
-lean_object* l_Array_size(lean_object*, lean_object*);
-lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_ResolveName_5__resolveNameAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_ResolveName_4__resolveOpenDecls___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_set(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at___private_Init_Lean_Elaborator_ResolveName_5__resolveNameAux___main___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux(lean_object*);
 lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);

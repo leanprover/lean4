@@ -97,8 +97,8 @@ lean_object* l_Array_miterateAux___main___at_Lean_IR_Checker_checkDecl___spec__2
 uint8_t l_Lean_IR_LocalContext_isLocalVar(lean_object*, lean_object*);
 extern lean_object* l_Lean_IR_VarId_HasToString___closed__1;
 uint8_t l_Lean_IR_IRType_isUnion(lean_object*);
-lean_object* l_Array_size(lean_object*, lean_object*);
-lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t l_Lean_IR_IRType_isScalar(lean_object*);
 lean_object* l_Lean_IR_Checker_checkVar___closed__1;
 lean_object* l_Array_mforAux___main___at_Lean_IR_Checker_checkFnBody___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);

@@ -57,14 +57,14 @@ lean_object* l_Lean_IR_Decl_insertResetReuse(lean_object*);
 uint8_t l_Lean_IR_FnBody_isTerminal(lean_object*);
 uint8_t l_Lean_IR_HasIndex_visitFnBody___main(lean_object*, lean_object*);
 uint8_t l_Lean_IR_FnBody_beq(lean_object*, lean_object*);
-lean_object* l_Array_size(lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_ResetReuse_8__Dmain___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_ResetReuse_5__Dfinalize___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ResetReuse_R(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_ResetReuse_2__S___main(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_ResetReuse_9__D___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_set(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Init_Lean_Compiler_IR_ResetReuse_1__mayReuse(lean_object* x_1, lean_object* x_2) {
 _start:
 {

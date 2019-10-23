@@ -73,9 +73,9 @@ lean_object* l_RBNode_erase___at___private_Init_Lean_Compiler_IR_LiveVars_8__bin
 lean_object* l___private_Init_Lean_Compiler_IR_LiveVars_1__skip(lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_LiveVars_7__collectJP___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_HasIndex_visitExpr(lean_object*, lean_object*);
-lean_object* l_Array_size(lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_IR_IsLive_visitArgs(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_RBNode_del___main___at___private_Init_Lean_Compiler_IR_LiveVars_8__bindVar___spec__2(lean_object*, lean_object*);
 lean_object* l_Array_anyMAux___main___at_Lean_IR_IsLive_visitFnBody___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_setBlack___rarg(lean_object*);

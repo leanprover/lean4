@@ -63,12 +63,12 @@ lean_object* l_Lean_SMap_contains___rarg(lean_object*, lean_object*, lean_object
 extern lean_object* l_HashMap_Inhabited___closed__1;
 lean_object* l_Lean_SMap_numBuckets___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_stageSizes___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_size(lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_SMap_HasEmptyc___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_Inhabited___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_stageSizes___rarg___boxed(lean_object*);
 lean_object* l_Lean_SMap_HasEmptyc___rarg(lean_object*, lean_object*);
-lean_object* l_Array_get(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_stageSizes___rarg(lean_object*);
 lean_object* l_Lean_SMap_foldStage2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_switch___rarg___boxed(lean_object*, lean_object*, lean_object*);

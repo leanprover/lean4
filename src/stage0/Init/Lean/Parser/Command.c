@@ -977,7 +977,7 @@ lean_object* l_Lean_Parser_Command_declValSimple___closed__3;
 lean_object* l_Lean_Parser_Command_universe___elambda__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_infixr___closed__2;
 lean_object* l_Lean_Parser_Command_declSig___closed__3;
-lean_object* l_Array_size(lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Parser_Command_end___closed__4;
 lean_object* l_Lean_Parser_Command_inferMod___elambda__1___boxed(lean_object*);
 lean_object* l_Lean_Parser_Command_declaration;

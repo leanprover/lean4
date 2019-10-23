@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_panicWithPos___at_Lean_TypeClass_Context_eInfer___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_slowWhnf(lean_object*);
 uint8_t l_Lean_TypeClass_Context_eHasETmpMVar(lean_object*);
 lean_object* l_Lean_TypeClass_Context_eHasTmpMVar___closed__1;
@@ -53,7 +52,6 @@ lean_object* level_mk_mvar(lean_object*);
 lean_object* l_Lean_TypeClass_Context_eFind___main___boxed(lean_object*, lean_object*);
 lean_object* lean_expr_mk_app(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_eInferIdx(lean_object*, lean_object*);
-lean_object* l_panicWithPos___at_Lean_TypeClass_Context_eInfer___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bindingBody(lean_object*);
 lean_object* l_Lean_TypeClass_Context_uInstantiate___boxed(lean_object*, lean_object*);
 size_t l_USize_sub(size_t, size_t);
@@ -123,6 +121,7 @@ lean_object* l_Lean_TypeClass_Context_eAssignIdx___boxed(lean_object*, lean_obje
 lean_object* l_Nat_mforAux___main___at_Lean_TypeClass_Context_eUnify___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t l_List_foldr___main___at_Lean_TypeClass_Context_eHasTmpMVar___spec__1(uint8_t, lean_object*);
+lean_object* l_panicWithPos___at_Lean_Expr_updateApp_x21___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_getAux___main___at_Lean_TypeClass_Context_eInferIdx___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_slowWhnfApp___main___boxed(lean_object*, lean_object*, lean_object*);
@@ -713,30 +712,6 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_panicWithPos___at_Lean_TypeClass_Context_eInfer___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_5 = l_panicWithPos___rarg___closed__1;
-x_6 = lean_string_append(x_5, x_1);
-x_7 = l_panicWithPos___rarg___closed__2;
-x_8 = lean_string_append(x_6, x_7);
-x_9 = l_Nat_repr(x_2);
-x_10 = lean_string_append(x_8, x_9);
-lean_dec(x_9);
-x_11 = l_panicWithPos___rarg___closed__2;
-x_12 = lean_string_append(x_10, x_11);
-x_13 = l_Nat_repr(x_3);
-x_14 = lean_string_append(x_12, x_13);
-lean_dec(x_13);
-x_15 = l_panicWithPos___rarg___closed__3;
-x_16 = lean_string_append(x_14, x_15);
-x_17 = lean_string_append(x_16, x_4);
-x_18 = l_Lean_exprIsInhabited;
-x_19 = lean_panic_fn(x_17);
-return x_19;
-}
-}
 lean_object* _init_l_Lean_TypeClass_Context_eInfer___closed__1() {
 _start:
 {
@@ -766,7 +741,7 @@ x_4 = l_Lean_TypeClass_Context_eInfer___closed__1;
 x_5 = lean_unsigned_to_nat(70u);
 x_6 = lean_unsigned_to_nat(14u);
 x_7 = l_Lean_TypeClass_Context_eInfer___closed__2;
-x_8 = l_panicWithPos___at_Lean_TypeClass_Context_eInfer___spec__1(x_4, x_5, x_6, x_7);
+x_8 = l_panicWithPos___at_Lean_Expr_updateApp_x21___spec__1(x_4, x_5, x_6, x_7);
 return x_8;
 }
 else
@@ -782,16 +757,6 @@ x_11 = l_PersistentArray_get_x21___at_Lean_TypeClass_Context_eInferIdx___spec__1
 lean_dec(x_9);
 return x_11;
 }
-}
-}
-lean_object* l_panicWithPos___at_Lean_TypeClass_Context_eInfer___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_panicWithPos___at_Lean_TypeClass_Context_eInfer___spec__1(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_1);
-return x_5;
 }
 }
 lean_object* l_Lean_TypeClass_Context_eInfer___boxed(lean_object* x_1, lean_object* x_2) {

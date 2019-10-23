@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Level
-// Imports: Init.Data.Option.Basic Init.Lean.Name Init.Lean.Format
+// Imports: Init.Data.Option.Basic Init.Lean.Name Init.Lean.Format Init.Data.HashMap.Default Init.Data.PersistentHashMap.Default
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -88,6 +88,8 @@ lean_object* l_Lean_LevelToFormat_Result_format___boxed(lean_object*, lean_objec
 lean_object* l_Lean_Level_toNat___main___closed__1;
 lean_object* l_Lean_LevelToFormat_Result_imax(lean_object*, lean_object*);
 lean_object* l_Lean_Level_addOffsetAux___main(lean_object*, lean_object*);
+lean_object* l_Lean_Level_hashable___closed__1;
+lean_object* l_Lean_Level_hashable;
 lean_object* l_Lean_Level_addOffset(lean_object*, lean_object*);
 lean_object* l_Lean_Level_hasMVar___main___boxed(lean_object*);
 lean_object* l_Lean_Level_succ___boxed(lean_object*);
@@ -818,6 +820,22 @@ x_3 = lean_box_usize(x_2);
 return x_3;
 }
 }
+lean_object* _init_l_Lean_Level_hashable___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Level_hash___boxed), 1, 0);
+return x_1;
+}
+}
+lean_object* _init_l_Lean_Level_hashable() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Level_hashable___closed__1;
+return x_1;
+}
+}
 lean_object* l_Lean_Level_beq___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1489,6 +1507,8 @@ return x_1;
 lean_object* initialize_Init_Data_Option_Basic(lean_object*);
 lean_object* initialize_Init_Lean_Name(lean_object*);
 lean_object* initialize_Init_Lean_Format(lean_object*);
+lean_object* initialize_Init_Data_HashMap_Default(lean_object*);
+lean_object* initialize_Init_Data_PersistentHashMap_Default(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Level(lean_object* w) {
 lean_object * res;
@@ -1503,6 +1523,12 @@ lean_dec_ref(res);
 res = initialize_Init_Lean_Format(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_HashMap_Default(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_PersistentHashMap_Default(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Lean_levelIsInhabited = _init_l_Lean_levelIsInhabited();
 lean_mark_persistent(l_Lean_levelIsInhabited);
 l_Lean_Level_one___closed__1 = _init_l_Lean_Level_one___closed__1();
@@ -1511,6 +1537,10 @@ l_Lean_Level_one = _init_l_Lean_Level_one();
 lean_mark_persistent(l_Lean_Level_one);
 l_Lean_Level_toNat___main___closed__1 = _init_l_Lean_Level_toNat___main___closed__1();
 lean_mark_persistent(l_Lean_Level_toNat___main___closed__1);
+l_Lean_Level_hashable___closed__1 = _init_l_Lean_Level_hashable___closed__1();
+lean_mark_persistent(l_Lean_Level_hashable___closed__1);
+l_Lean_Level_hashable = _init_l_Lean_Level_hashable();
+lean_mark_persistent(l_Lean_Level_hashable);
 l_Lean_HasBeq___closed__1 = _init_l_Lean_HasBeq___closed__1();
 lean_mark_persistent(l_Lean_HasBeq___closed__1);
 l_Lean_HasBeq = _init_l_Lean_HasBeq();

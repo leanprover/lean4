@@ -97,7 +97,9 @@ lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_IR_FnBody_alphaEqv___main___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_FnBody_alphaEqv___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_IRType_isScalar___boxed(lean_object*);
+uint8_t l_Lean_IR_Decl_isExtern(lean_object*);
 lean_object* l_Lean_IR_paramInh___closed__1;
+lean_object* l_Lean_IR_Decl_isExtern___boxed(lean_object*);
 lean_object* l_Lean_IR_Arg_alphaEqv___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_ins___main___at_Lean_IR_LocalContext_addLocal___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_addJP(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2750,6 +2752,33 @@ lean_object* x_2;
 x_2 = l_Lean_IR_Decl_resultType(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+uint8_t l_Lean_IR_Decl_isExtern(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+uint8_t x_2; 
+x_2 = 0;
+return x_2;
+}
+else
+{
+uint8_t x_3; 
+x_3 = 1;
+return x_3;
+}
+}
+}
+lean_object* l_Lean_IR_Decl_isExtern___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_IR_Decl_isExtern(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
 }
 }
 lean_object* lean_ir_mk_decl(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

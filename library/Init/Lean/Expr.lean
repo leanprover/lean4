@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 prelude
 import Init.Lean.Level
 import Init.Lean.KVMap
+import Init.Data.HashMap
+import Init.Data.PersistentHashMap
 
 namespace Lean
 
@@ -96,10 +98,17 @@ constant quickLt (a : @& Expr) (b : @& Expr) : Bool := default _
 @[extern "lean_expr_lt"]
 constant lt (a : @& Expr) (b : @& Expr) : Bool := default _
 
+/- Return true iff `a` and `b` are alpha equivalent.
+   Binder annotations are ignored. -/
 @[extern "lean_expr_eqv"]
 constant eqv (a : @& Expr) (b : @& Expr) : Bool := default _
 
 instance : HasBeq Expr := ⟨Expr.eqv⟩
+
+/- Return true iff `a` and `b` are equal.
+   Binder names and annotations are taking into account. -/
+@[extern "lean_expr_equal"]
+constant equal (a : @& Expr) (b : @& Expr) : Bool := default _
 
 @[extern "lean_expr_has_mvar"]
 constant hasMVar (a : @& Expr) : Bool := default _
@@ -254,5 +263,33 @@ mkBinApp (Expr.const `Decidable.isTrue []) pred proof
 
 def mkDecIsFalse (pred proof : Expr) :=
 mkBinApp (Expr.const `Decidable.isFalse []) pred proof
+
+abbrev ExprMap (α : Type)  := HashMap Expr α
+abbrev PersistentExprMap (α : Type) := PHashMap Expr α
+
+/- Auxiliary type for forcing `==` to be structural equality for `Expr` -/
+structure ExprStructEq :=
+(val : Expr)
+
+instance exprToExprStructEq : HasCoe Expr ExprStructEq := ⟨ExprStructEq.mk⟩
+
+namespace ExprStructEq
+
+protected def beq : ExprStructEq → ExprStructEq → Bool
+| ⟨e₁⟩, ⟨e₂⟩ => Expr.equal e₁ e₂
+
+protected def hash : ExprStructEq → USize
+| ⟨e⟩ => e.hash
+
+instance : Inhabited ExprStructEq := ⟨{ val := default _ }⟩
+instance : HasBeq ExprStructEq := ⟨ExprStructEq.beq⟩
+instance : Hashable ExprStructEq := ⟨ExprStructEq.hash⟩
+instance : HasToString ExprStructEq := ⟨fun e => toString e.val⟩
+instance : HasRepr ExprStructEq := ⟨fun e => repr e.val⟩
+
+end ExprStructEq
+
+abbrev ExprStructMap (α : Type) := HashMap ExprStructEq α
+abbrev PersistentExprStructMap (α : Type) := PHashMap ExprStructEq α
 
 end Lean

@@ -1285,23 +1285,27 @@ return x_1;
 lean_object* l___private_Init_Lean_Parser_Module_1__mkErrorMessage(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; 
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_4, 2);
 x_6 = l_Lean_FileMap_toPosition(x_5, x_2);
 x_7 = lean_ctor_get(x_4, 1);
 x_8 = lean_box(0);
-x_9 = 2;
-x_10 = l_String_splitAux___main___closed__1;
+x_9 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_9, 0, x_3);
+x_10 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_10, 0, x_9);
+x_11 = 2;
+x_12 = l_String_splitAux___main___closed__1;
 lean_inc(x_7);
-x_11 = lean_alloc_ctor(0, 5, 1);
-lean_ctor_set(x_11, 0, x_7);
-lean_ctor_set(x_11, 1, x_6);
-lean_ctor_set(x_11, 2, x_8);
-lean_ctor_set(x_11, 3, x_10);
-lean_ctor_set(x_11, 4, x_3);
-lean_ctor_set_uint8(x_11, sizeof(void*)*5, x_9);
-return x_11;
+x_13 = lean_alloc_ctor(0, 5, 1);
+lean_ctor_set(x_13, 0, x_7);
+lean_ctor_set(x_13, 1, x_6);
+lean_ctor_set(x_13, 2, x_8);
+lean_ctor_set(x_13, 3, x_12);
+lean_ctor_set(x_13, 4, x_10);
+lean_ctor_set_uint8(x_13, sizeof(void*)*5, x_11);
+return x_13;
 }
 }
 lean_object* l___private_Init_Lean_Parser_Module_1__mkErrorMessage___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

@@ -4244,6 +4244,7 @@ return x_26;
 else
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; uint8_t x_36; 
+lean_dec(x_18);
 lean_dec(x_1);
 x_27 = lean_ctor_get(x_22, 1);
 lean_inc(x_27);
@@ -4254,8 +4255,8 @@ lean_dec(x_23);
 x_29 = lean_ctor_get(x_3, 0);
 lean_inc(x_29);
 x_30 = lean_box(0);
-x_31 = l_Lean_Format_pretty(x_27, x_18);
-lean_dec(x_18);
+x_31 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_31, 0, x_27);
 x_32 = 2;
 x_33 = l_String_splitAux___main___closed__1;
 x_34 = lean_alloc_ctor(0, 5, 1);
@@ -4418,6 +4419,7 @@ return x_76;
 else
 {
 lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; uint8_t x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; 
+lean_dec(x_68);
 lean_dec(x_1);
 x_77 = lean_ctor_get(x_72, 1);
 lean_inc(x_77);
@@ -4428,8 +4430,8 @@ lean_dec(x_73);
 x_79 = lean_ctor_get(x_3, 0);
 lean_inc(x_79);
 x_80 = lean_box(0);
-x_81 = l_Lean_Format_pretty(x_77, x_68);
-lean_dec(x_68);
+x_81 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_81, 0, x_77);
 x_82 = 2;
 x_83 = l_String_splitAux___main___closed__1;
 x_84 = lean_alloc_ctor(0, 5, 1);

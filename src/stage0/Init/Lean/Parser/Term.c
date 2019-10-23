@@ -655,7 +655,6 @@ lean_object* l_Lean_Parser_Term_subtype___elambda__1___rarg___closed__5;
 lean_object* l_Lean_Parser_Term_structInstField___closed__4;
 lean_object* l_Lean_Parser_Term_forall___closed__4;
 lean_object* l_Lean_Parser_Term_bind___elambda__1___closed__1;
-extern lean_object* l_PersistentArray_Stats_toString___closed__4;
 lean_object* l_Lean_Parser_Term_mapConst___closed__1;
 lean_object* l_Lean_Parser_Term_uminus___elambda__1(lean_object*);
 lean_object* l_Lean_Parser_Term_app___closed__2;
@@ -781,6 +780,7 @@ lean_object* l_Lean_Parser_Term_typeAscription___elambda__1(lean_object*);
 lean_object* l_Lean_Parser_Term_type___elambda__1___rarg___closed__2;
 lean_object* l_Lean_Parser_Term_binderType___closed__3;
 lean_object* l_Lean_Parser_Term_fun___elambda__1___closed__5;
+extern lean_object* l_PersistentHashMap_Stats_toString___closed__5;
 lean_object* l_Lean_Parser_Term_letIdDecl___closed__1;
 lean_object* l_Lean_Parser_Term_doPat;
 lean_object* l_Lean_Parser_Term_emptyC___elambda__1___boxed(lean_object*);
@@ -2407,7 +2407,7 @@ lean_object* _init_l_Lean_Parser_Term_explicitUniv___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_PersistentArray_Stats_toString___closed__4;
+x_1 = l_PersistentHashMap_Stats_toString___closed__5;
 x_2 = l_String_trim(x_1);
 return x_2;
 }

@@ -47,6 +47,7 @@ lean_object* l_Lean_isClass___boxed(lean_object*, lean_object*);
 lean_object* l_Array_mkArray(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ClassEntry_lt___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_EnvExtension_Inhabited___rarg___closed__1;
+lean_object* l_Lean_addClass___closed__4;
 extern lean_object* l_PersistentHashMap_HasEmptyc___closed__1;
 size_t l_USize_shift__right(size_t, size_t);
 extern lean_object* l_Lean_AttributeImpl_inhabited___closed__5;
@@ -156,6 +157,7 @@ lean_object* l_PersistentHashMap_insertAux___main___at_Lean_ClassState_addEntry_
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 extern lean_object* l_Char_HasRepr___closed__1;
 uint8_t l_Lean_SMap_contains___at_Lean_isInstance___spec__1(lean_object*, lean_object*);
+lean_object* l_Lean_addClass___closed__3;
 lean_object* l_Lean_classExtension___elambda__3___boxed(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__5___closed__1;
@@ -5661,6 +5663,22 @@ lean_object* _init_l_Lean_addClass___closed__2() {
 _start:
 {
 lean_object* x_1; 
+x_1 = lean_mk_string("invalid 'class', declaration '");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_addClass___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("' must be inductive datatype or structure");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_addClass___closed__4() {
+_start:
+{
+lean_object* x_1; 
 x_1 = lean_mk_string("class has already been declared '");
 return x_1;
 }
@@ -5695,10 +5713,13 @@ return x_11;
 }
 else
 {
-lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_object* x_12; 
 x_12 = lean_ctor_get(x_4, 0);
 lean_inc(x_12);
 lean_dec(x_4);
+if (lean_obj_tag(x_12) == 5)
+{
+lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_13 = l_Lean_ConstantInfo_type(x_12);
 lean_dec(x_12);
 x_14 = l_Lean_Expr_hasOutParam___main(x_13);
@@ -5711,21 +5732,38 @@ x_18 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_18, 0, x_17);
 return x_18;
 }
-}
 else
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+lean_dec(x_12);
 lean_dec(x_1);
 x_19 = l_Lean_Name_toString___closed__1;
 x_20 = l_Lean_Name_toStringWithSep___main(x_19, x_2);
 x_21 = l_Lean_addClass___closed__2;
 x_22 = lean_string_append(x_21, x_20);
 lean_dec(x_20);
-x_23 = l_Char_HasRepr___closed__1;
+x_23 = l_Lean_addClass___closed__3;
 x_24 = lean_string_append(x_22, x_23);
 x_25 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_25, 0, x_24);
 return x_25;
+}
+}
+}
+else
+{
+lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
+lean_dec(x_1);
+x_26 = l_Lean_Name_toString___closed__1;
+x_27 = l_Lean_Name_toStringWithSep___main(x_26, x_2);
+x_28 = l_Lean_addClass___closed__4;
+x_29 = lean_string_append(x_28, x_27);
+lean_dec(x_27);
+x_30 = l_Char_HasRepr___closed__1;
+x_31 = lean_string_append(x_29, x_30);
+x_32 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_32, 0, x_31);
+return x_32;
 }
 }
 }
@@ -6459,6 +6497,10 @@ l_Lean_addClass___closed__1 = _init_l_Lean_addClass___closed__1();
 lean_mark_persistent(l_Lean_addClass___closed__1);
 l_Lean_addClass___closed__2 = _init_l_Lean_addClass___closed__2();
 lean_mark_persistent(l_Lean_addClass___closed__2);
+l_Lean_addClass___closed__3 = _init_l_Lean_addClass___closed__3();
+lean_mark_persistent(l_Lean_addClass___closed__3);
+l_Lean_addClass___closed__4 = _init_l_Lean_addClass___closed__4();
+lean_mark_persistent(l_Lean_addClass___closed__4);
 l_Lean_addInstance___closed__1 = _init_l_Lean_addInstance___closed__1();
 lean_mark_persistent(l_Lean_addInstance___closed__1);
 l_Lean_addInstance___closed__2 = _init_l_Lean_addInstance___closed__2();

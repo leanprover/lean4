@@ -60,6 +60,7 @@ lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_Format_sbracket___closed__1;
 lean_object* l_Lean_Format_be(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_getIndent___closed__2;
+lean_object* l_Lean_arrayHasFormat___rarg___closed__1;
 lean_object* l_Lean_fmt(lean_object*);
 lean_object* l_Lean_formatDataValue___closed__1;
 lean_object* l_Lean_entryHasFormat;
@@ -74,6 +75,7 @@ lean_object* l_Lean_uint64HasFormat___boxed(lean_object*);
 lean_object* l_Lean_Format_join___closed__1;
 lean_object* l_Lean_Format_joinSuffix(lean_object*);
 lean_object* l_Lean_Format_repr___main___closed__3;
+lean_object* l_Array_toList___rarg(lean_object*);
 lean_object* l_Lean_Format_getUnicode___boxed(lean_object*);
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
 lean_object* l_Nat_repr(lean_object*);
@@ -84,6 +86,7 @@ lean_object* l_Lean_Format_repr___main___closed__16;
 lean_object* l_Lean_Format_getUnicode___closed__1;
 lean_object* l_Lean_Format_joinArraySep(lean_object*);
 lean_object* l_Lean_toStringToFormat___rarg___closed__1;
+lean_object* l_Lean_fmt___at_Lean_arrayHasFormat___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_uint64HasFormat(uint64_t);
 lean_object* l_Lean_toStringToFormat___rarg___lambda__1(lean_object*);
 lean_object* l_Lean_Format_repr___main___closed__17;
@@ -109,6 +112,7 @@ lean_object* l_Lean_List_format___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Format_joinSuffix___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_HasAppend;
 lean_object* l_List_foldl___main___at_Lean_Format_join___spec__1___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_arrayHasFormat___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_formatEntry(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_natHasFormat(lean_object*);
@@ -144,6 +148,7 @@ lean_object* l_Lean_formatHasFormat;
 uint8_t l_Lean_Format_getUnicode(lean_object*);
 lean_object* l_Lean_Format_prefixJoin___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_spaceUptoLine_x27___main(lean_object*, lean_object*);
+extern lean_object* l_Array_HasRepr___rarg___closed__1;
 lean_object* l_Lean_Format_joinSuffix___main(lean_object*);
 lean_object* l_Lean_prodHasFormat___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_widthOption___closed__3;
@@ -185,6 +190,7 @@ lean_object* l_Lean_List_format(lean_object*);
 lean_object* l_Lean_usizeHasFormat___boxed(lean_object*);
 lean_object* l_Lean_Format_widthOption(lean_object*);
 lean_object* l_Lean_Format_prefixJoin___main___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_arrayHasFormat(lean_object*);
 lean_object* l_Lean_Format_joinSuffix___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_isNil___boxed(lean_object*);
 lean_object* l_Lean_Format_pretty___boxed(lean_object*, lean_object*);
@@ -197,8 +203,10 @@ lean_object* l_Lean_formatEntry___closed__1;
 uint8_t l_Lean_Format_isNil(lean_object*);
 lean_object* l_Lean_Format_joinSep___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_repr___main___closed__11;
+lean_object* l_Lean_fmt___at_Lean_arrayHasFormat___spec__1(lean_object*);
 lean_object* l_String_quote(lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* l_Lean_arrayHasFormat___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Format_HasAppend___closed__1;
 lean_object* l_Lean_Format_join___boxed(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
@@ -2053,6 +2061,64 @@ x_2 = lean_alloc_closure((void*)(l_Lean_listHasFormat___rarg), 1, 0);
 return x_2;
 }
 }
+lean_object* l_Lean_fmt___at_Lean_arrayHasFormat___spec__1___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_List_format___rarg(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_fmt___at_Lean_arrayHasFormat___spec__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_fmt___at_Lean_arrayHasFormat___spec__1___rarg), 2, 0);
+return x_2;
+}
+}
+lean_object* _init_l_Lean_arrayHasFormat___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Array_HasRepr___rarg___closed__1;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_arrayHasFormat___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; 
+x_3 = l_Array_toList___rarg(x_2);
+x_4 = l_Lean_List_format___rarg(x_1, x_3);
+x_5 = 0;
+x_6 = l_Lean_arrayHasFormat___rarg___closed__1;
+x_7 = lean_alloc_ctor(4, 2, 1);
+lean_ctor_set(x_7, 0, x_6);
+lean_ctor_set(x_7, 1, x_4);
+lean_ctor_set_uint8(x_7, sizeof(void*)*2, x_5);
+return x_7;
+}
+}
+lean_object* l_Lean_arrayHasFormat(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_arrayHasFormat___rarg___boxed), 2, 0);
+return x_2;
+}
+}
+lean_object* l_Lean_arrayHasFormat___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_arrayHasFormat___rarg(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
 lean_object* _init_l_Lean_Option_format___rarg___closed__1() {
 _start:
 {
@@ -3476,6 +3542,8 @@ l_Lean_List_format___rarg___closed__3 = _init_l_Lean_List_format___rarg___closed
 lean_mark_persistent(l_Lean_List_format___rarg___closed__3);
 l_Lean_List_format___rarg___closed__4 = _init_l_Lean_List_format___rarg___closed__4();
 lean_mark_persistent(l_Lean_List_format___rarg___closed__4);
+l_Lean_arrayHasFormat___rarg___closed__1 = _init_l_Lean_arrayHasFormat___rarg___closed__1();
+lean_mark_persistent(l_Lean_arrayHasFormat___rarg___closed__1);
 l_Lean_Option_format___rarg___closed__1 = _init_l_Lean_Option_format___rarg___closed__1();
 lean_mark_persistent(l_Lean_Option_format___rarg___closed__1);
 l_Lean_Option_format___rarg___closed__2 = _init_l_Lean_Option_format___rarg___closed__2();

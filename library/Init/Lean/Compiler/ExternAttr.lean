@@ -57,7 +57,7 @@ private partial def syntaxToExternEntries (a : Array Syntax) : Nat → List Exte
           | none => Except.error "string literal expected"
     | _ => Except.error "identifier expected"
 
-private def syntaxToExternAttrData (s : Syntax) : ExceptT String Id  ExternAttrData :=
+private def syntaxToExternAttrData (s : Syntax) : ExceptT String Id ExternAttrData :=
 match s with
 | Syntax.missing => Except.ok { entries := [ ExternEntry.adhoc `all ] }
 | Syntax.node _ args =>

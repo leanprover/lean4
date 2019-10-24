@@ -16,13 +16,13 @@ namespace NameGenerator
 
 instance : Inhabited NameGenerator := ⟨{}⟩
 
-def curr (g : NameGenerator) : Name :=
+@[inline] def curr (g : NameGenerator) : Name :=
 Name.mkNumeral g.namePrefix g.idx
 
-def next (g : NameGenerator) : NameGenerator :=
+@[inline] def next (g : NameGenerator) : NameGenerator :=
 { idx := g.idx + 1, .. g }
 
-def mkChild (g : NameGenerator) : NameGenerator × NameGenerator :=
+@[inline] def mkChild (g : NameGenerator) : NameGenerator × NameGenerator :=
 ({ namePrefix := Name.mkNumeral g.namePrefix g.idx, idx := 1 },
  { idx := g.idx + 1, .. g })
 

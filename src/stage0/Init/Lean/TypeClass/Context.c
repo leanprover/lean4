@@ -18,6 +18,7 @@ uint8_t l_Lean_TypeClass_Context_eHasETmpMVar(lean_object*);
 lean_object* l_Lean_TypeClass_Context_eHasTmpMVar___closed__1;
 uint8_t lean_name_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_uMetaIdx(lean_object*);
+lean_object* lean_expr_mk_forall(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_constName(lean_object*);
 lean_object* l_Lean_TypeClass_Context_eOccursIn___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -43,7 +44,6 @@ lean_object* l_Lean_TypeClass_Context_alphaMetaPrefix___closed__1;
 lean_object* l_Lean_TypeClass_Context_slowWhnfApp(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_uLookupIdx(lean_object*, lean_object*);
 lean_object* l_StateT_Monad___rarg(lean_object*);
-lean_object* lean_expr_mk_pi(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_uUnify___main___closed__4;
 uint8_t l_Lean_TypeClass_Context_eFind(lean_object*, lean_object*);
 lean_object* l_PersistentArray_get_x21___at_Lean_TypeClass_Context_uLookupIdx___spec__1___boxed(lean_object*, lean_object*);
@@ -121,7 +121,6 @@ lean_object* l_Lean_TypeClass_Context_eAssignIdx___boxed(lean_object*, lean_obje
 lean_object* l_Nat_mforAux___main___at_Lean_TypeClass_Context_eUnify___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t l_List_foldr___main___at_Lean_TypeClass_Context_eHasTmpMVar___spec__1(uint8_t, lean_object*);
-lean_object* l_panicWithPos___at_Lean_Expr_updateApp_x21___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_getAux___main___at_Lean_TypeClass_Context_eInferIdx___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_slowWhnfApp___main___boxed(lean_object*, lean_object*, lean_object*);
@@ -198,6 +197,7 @@ size_t l_USize_shift__left(size_t, size_t);
 uint8_t l_Lean_Expr_isBVar(lean_object*);
 lean_object* l_Lean_TypeClass_Context_uAlphaNormalizeCore(lean_object*, lean_object*);
 lean_object* l_PersistentArray_getAux___main___at_Lean_TypeClass_Context_uLookupIdx___spec__2___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_panicWithPos___at_Lean_Expr_bindingDomain___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_uUnify___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarName(lean_object*);
 size_t l_USize_land(size_t, size_t);
@@ -741,7 +741,7 @@ x_4 = l_Lean_TypeClass_Context_eInfer___closed__1;
 x_5 = lean_unsigned_to_nat(70u);
 x_6 = lean_unsigned_to_nat(14u);
 x_7 = l_Lean_TypeClass_Context_eInfer___closed__2;
-x_8 = l_panicWithPos___at_Lean_Expr_updateApp_x21___spec__1(x_4, x_5, x_6, x_7);
+x_8 = l_panicWithPos___at_Lean_Expr_bindingDomain___spec__1(x_4, x_5, x_6, x_7);
 return x_8;
 }
 else
@@ -3772,7 +3772,7 @@ lean_dec(x_2);
 lean_inc(x_1);
 x_24 = l_Lean_TypeClass_Context_eInstantiate___main(x_1, x_22);
 x_25 = l_Lean_TypeClass_Context_eInstantiate___main(x_1, x_23);
-x_26 = lean_expr_mk_pi(x_20, x_21, x_24, x_25);
+x_26 = lean_expr_mk_forall(x_20, x_21, x_24, x_25);
 return x_26;
 }
 default: 
@@ -6601,7 +6601,7 @@ if (x_28 == 0)
 {
 lean_object* x_29; lean_object* x_30; 
 x_29 = lean_ctor_get(x_27, 0);
-x_30 = lean_expr_mk_pi(x_20, x_21, x_25, x_29);
+x_30 = lean_expr_mk_forall(x_20, x_21, x_25, x_29);
 lean_ctor_set(x_27, 0, x_30);
 return x_27;
 }
@@ -6613,7 +6613,7 @@ x_32 = lean_ctor_get(x_27, 1);
 lean_inc(x_32);
 lean_inc(x_31);
 lean_dec(x_27);
-x_33 = lean_expr_mk_pi(x_20, x_21, x_25, x_31);
+x_33 = lean_expr_mk_forall(x_20, x_21, x_25, x_31);
 x_34 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_34, 0, x_33);
 lean_ctor_set(x_34, 1, x_32);

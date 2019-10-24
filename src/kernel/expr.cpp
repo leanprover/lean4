@@ -414,10 +414,6 @@ expr mk_lambda(name const & n, expr const & t, expr const & e, binder_info bi) {
     return expr(mk_binding<expr_kind::Lambda>(n.raw(), t.raw(), e.raw(), bi));
 }
 
-extern "C" object * lean_expr_mk_pi(obj_arg n, uint8 bi, obj_arg t, obj_arg e) {
-    return mk_binding<expr_kind::Pi>(n, t, e, static_cast<binder_info>(bi));
-}
-
 extern "C" object * lean_expr_mk_forall(obj_arg n, uint8 bi, obj_arg t, obj_arg e) {
     return mk_binding<expr_kind::Pi>(n, t, e, static_cast<binder_info>(bi));
 }

@@ -244,11 +244,11 @@ xs.size.foldRev (fun i b =>
     if isLambda then
       Expr.lam n bi ty b
     else
-      Expr.pi n bi ty b
+      Expr.forallE n bi ty b
   | some (LocalDecl.ldecl _ _ n ty val) =>
     let ty  := ty.abstractRange i xs;
     let val := val.abstractRange i xs;
-    Expr.elet n ty val b
+    Expr.letE n ty val b
   | none => b) b
 
 def mkLambda (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=

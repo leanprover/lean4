@@ -84,8 +84,8 @@ def isOutParam (e : Expr) : Bool :=
 e.isAppOfArity `outParam 1
 
 def Expr.hasOutParam : Expr → Bool
-| Expr.pi _ _ d b => isOutParam d || Expr.hasOutParam b
-| _               => false
+| Expr.forallE _ _ d b => isOutParam d || Expr.hasOutParam b
+| _                    => false
 
 def addClass (env : Environment) (clsName : Name) : Except String Environment :=
 if isClass env clsName then Except.error ("class has already been declared '" ++ toString clsName ++ "'")
@@ -100,8 +100,8 @@ private def consumeNLambdas : Nat → Expr → Option Expr
 | _,   _                => none
 
 partial def getClassName (env : Environment) : Expr → Option Name
-| Expr.pi _ _ _ d => getClassName d
-| e               => do
+| Expr.forallE _ _ _ d => getClassName d
+| e                    => do
   Expr.const c _ ← pure e.getAppFn | none;
   info ← env.find c;
   match info.value with

@@ -84,7 +84,7 @@ partial def eFind (f : Expr → Bool) : Expr → Bool
   else
     match e with
     | Expr.app f a => eFind f || eFind a
-    | Expr.pi _ _ d b => eFind d || eFind b
+    | Expr.forallE _ _ d b => eFind d || eFind b
     | _ => false
 
 def eOccursIn (t₀ : Expr) (e : Expr) : Bool :=
@@ -235,10 +235,10 @@ partial def eInstantiate (ctx : Context) : Expr → Expr
   then e
   else
     match e with
-    | Expr.pi n i d b  => Expr.pi n i (eInstantiate d) (eInstantiate b)
-    | Expr.lam n i d b => Expr.lam n i (eInstantiate d) (eInstantiate b)
-    | Expr.const n ls  => Expr.const n (ls.map $ uInstantiate ctx)
-    | Expr.app e₁ e₂   => Expr.app (eInstantiate e₁) (eInstantiate e₂)
+    | Expr.forallE n i d b => Expr.forallE n i (eInstantiate d) (eInstantiate b)
+    | Expr.lam n i d b     => Expr.lam n i (eInstantiate d) (eInstantiate b)
+    | Expr.const n ls      => Expr.const n (ls.map $ uInstantiate ctx)
+    | Expr.app e₁ e₂       => Expr.app (eInstantiate e₁) (eInstantiate e₂)
     | _ =>
       match eMetaIdx e with
       | none     => e
@@ -289,10 +289,10 @@ partial def eAlphaNormalizeCore : Expr → State AlphaNormData Expr
          f ← eAlphaNormalizeCore f;
          a ← eAlphaNormalizeCore a;
          pure $ Expr.app f a
-       | Expr.pi n i d b => do
+       | Expr.forallE n i d b => do
          d ← eAlphaNormalizeCore d;
          b ← eAlphaNormalizeCore b;
-         pure $ Expr.pi n i d b
+         pure $ Expr.forallE n i d b
        | _ =>
          match eMetaIdx e with
          | none     => pure e

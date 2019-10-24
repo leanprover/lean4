@@ -5,9 +5,9 @@ def exprType : Expr := Expr.sort Level.one
 def biDef           := BinderInfo.default
 def exprNat         := Expr.const `Nat []
 -- Type -> Type
-def TypeArrowType   := Expr.pi `α biDef exprType exprType
+def TypeArrowType   := Expr.forallE `α biDef exprType exprType
 -- Type -> Type
-def TypeArrowType2  := Expr.pi `β biDef exprType exprType
+def TypeArrowType2  := Expr.forallE `β biDef exprType exprType
 -- fun (x : Nat), x
 def exprT1          := Expr.lam `x biDef exprNat (Expr.bvar 0)
 -- fun (y : Nat), x

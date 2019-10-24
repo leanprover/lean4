@@ -42,19 +42,21 @@ abbrev empty : MData := {KVMap .}
 instance : HasEmptyc MData := ⟨empty⟩
 end MData
 
+/- We use the `E` suffix (short for `Expr`) to avoid collision with keywords.
+   We considered using «...», but it is too inconvenient to use. -/
 inductive Expr
-| bvar  : Nat → Expr                                -- bound variables
-| fvar  : Name → Expr                               -- free variables
-| mvar  : Name → Expr                               -- meta variables
-| sort  : Level → Expr                              -- Sort
-| const : Name → List Level → Expr                  -- constants
-| app   : Expr → Expr → Expr                        -- application
-| lam   : Name → BinderInfo → Expr → Expr → Expr    -- lambda abstraction
-| pi    : Name → BinderInfo → Expr → Expr → Expr    -- Pi
-| elet  : Name → Expr → Expr → Expr → Expr          -- let expressions
-| lit   : Literal → Expr                            -- literals
-| mdata : MData → Expr → Expr                       -- metadata
-| proj  : Name → Nat → Expr → Expr                  -- projection
+| bvar    : Nat → Expr                                -- bound variables
+| fvar    : Name → Expr                               -- free variables
+| mvar    : Name → Expr                               -- meta variables
+| sort    : Level → Expr                              -- Sort
+| const   : Name → List Level → Expr                  -- constants
+| app     : Expr → Expr → Expr                        -- application
+| lam     : Name → BinderInfo → Expr → Expr → Expr    -- lambda abstraction
+| forallE : Name → BinderInfo → Expr → Expr → Expr    -- (dependent) arrow
+| letE    : Name → Expr → Expr → Expr → Expr          -- let expressions
+| lit     : Literal → Expr                            -- literals
+| mdata   : MData → Expr → Expr                       -- metadata
+| proj    : Name → Nat → Expr → Expr                  -- projection
 
 instance exprIsInhabited : Inhabited Expr :=
 ⟨Expr.sort Level.zero⟩
@@ -66,8 +68,8 @@ attribute [extern "lean_expr_mk_sort"]   Expr.sort
 attribute [extern "lean_expr_mk_const"]  Expr.const
 attribute [extern "lean_expr_mk_app"]    Expr.app
 attribute [extern "lean_expr_mk_lambda"] Expr.lam
-attribute [extern "lean_expr_mk_pi"]     Expr.pi
-attribute [extern "lean_expr_mk_let"]    Expr.elet
+attribute [extern "lean_expr_mk_pi"]     Expr.forallE
+attribute [extern "lean_expr_mk_let"]    Expr.letE
 attribute [extern "lean_expr_mk_lit"]    Expr.lit
 attribute [extern "lean_expr_mk_mdata"]  Expr.mdata
 attribute [extern "lean_expr_mk_proj"]   Expr.proj
@@ -141,20 +143,20 @@ def isConst : Expr → Bool
 | _ => false
 
 def isForall : Expr → Bool
-| Expr.pi _ _ _ _ => true
+| forallE _ _ _ _ => true
 | _ => false
 
 def isLambda : Expr → Bool
-| Expr.lam _ _ _ _ => true
+| lam _ _ _ _ => true
 | _ => false
 
 def isBinding : Expr → Bool
 | Expr.lam _ _ _ _ => true
-| Expr.pi _ _ _ _ => true
+| Expr.forallE _ _ _ _ => true
 | _ => false
 
 def isLet : Expr → Bool
-| Expr.elet _ _ _ _ => true
+| Expr.letE _ _ _ _ => true
 | _ => false
 
 def getAppFn : Expr → Expr
@@ -211,14 +213,14 @@ def fvarName : Expr → Name
 | _ => panic! "fvarName called on non-fvar"
 
 def bindingDomain : Expr → Expr
-| Expr.pi  _ _ d _ => d
+| Expr.forallE _ _ d _ => d
 | Expr.lam _ _ d _ => d
-| _ => default _
+| _ => panic! "binding expected"
 
 def bindingBody : Expr → Expr
-| Expr.pi  _ _ _ b => b
+| Expr.forallE _ _ _ b => b
 | Expr.lam _ _ _ b => b
-| _ => default _
+| _ => panic! "binding expected"
 
 /-- Instantiate the loose bound variables in `e` using `subst`.
     That is, a loose `Expr.bvar i` is replaced with `subst[i]`. -/

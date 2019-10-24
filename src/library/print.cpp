@@ -150,7 +150,7 @@ struct print_expr_fn {
             return print_child(a);
     }
 
-    void print_binding(char const * bname, expr e) {
+    void print_binding(char const * bname, expr e, bool is_lambda) {
         expr_kind k = e.kind();
         out() << bname;
         while (e.kind() == k && !is_arrow(e)) {
@@ -178,7 +178,8 @@ struct print_expr_fn {
                 out() << ")";
             e = p.first;
         }
-        out() << ", ";
+        if (is_lambda) out() << " => ";
+        else out() << ", ";
         print(e);
     }
 
@@ -255,11 +256,11 @@ struct print_expr_fn {
             print_let(a);
             break;
         case expr_kind::Lambda:
-            print_binding("fun", a);
+            print_binding("fun", a, true);
             break;
         case expr_kind::Pi:
             if (!is_arrow(a)) {
-                print_binding("forall", a);
+                print_binding("forall", a, false);
             } else {
                 print_child(binding_domain(a));
                 out() << " -> ";

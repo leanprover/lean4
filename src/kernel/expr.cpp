@@ -418,6 +418,10 @@ extern "C" object * lean_expr_mk_pi(obj_arg n, uint8 bi, obj_arg t, obj_arg e) {
     return mk_binding<expr_kind::Pi>(n, t, e, static_cast<binder_info>(bi));
 }
 
+extern "C" object * lean_expr_mk_forall(obj_arg n, uint8 bi, obj_arg t, obj_arg e) {
+    return mk_binding<expr_kind::Pi>(n, t, e, static_cast<binder_info>(bi));
+}
+
 expr mk_pi(name const & n, expr const & t, expr const & e, binder_info bi) {
     inc(n.raw()); inc(t.raw()); inc(e.raw());
     return expr(mk_binding<expr_kind::Pi>(n.raw(), t.raw(), e.raw(), bi));
@@ -684,15 +688,81 @@ expr update_local(expr const & e, expr const & new_type) {
         return mk_local(local_name(e), local_pp_name(e), new_type, local_info(e));
 }
 
-extern "C" object * lean_expr_update_app(obj_arg e, obj_arg new_fn, obj_arg new_arg) {
-    if (app_fn(TO_REF(expr, e)).raw() != new_fn || app_arg(TO_REF(expr, e)).raw() != new_arg) {
-        lean_dec(e);
-        return lean_expr_mk_app(new_fn, new_arg);
+extern "C" object * lean_expr_update_const(obj_arg e, obj_arg new_levels) {
+    if (const_levels(TO_REF(expr, e)).raw() != new_levels) {
+        lean_dec_ref(e);
+        return lean_expr_mk_const(const_name(TO_REF(expr, e)).to_obj_arg(), new_levels);
     } else {
-        lean_dec(new_fn); lean_dec(new_arg);
+        lean_dec(new_levels);
         return e;
     }
 }
+
+extern "C" object * lean_expr_update_sort(obj_arg e, obj_arg new_level) {
+    if (sort_level(TO_REF(expr, e)).raw() != new_level) {
+        lean_dec_ref(e);
+        return lean_expr_mk_sort(new_level);
+    } else {
+        lean_dec(new_level);
+        return e;
+    }
+}
+
+extern "C" object * lean_expr_update_proj(obj_arg e, obj_arg new_expr) {
+    if (proj_expr(TO_REF(expr, e)).raw() != new_expr) {
+        lean_dec_ref(e);
+        return lean_expr_mk_proj(proj_sname(TO_REF(expr, e)).to_obj_arg(), proj_idx(TO_REF(expr, e)).to_obj_arg(), new_expr);
+    } else {
+        lean_dec_ref(new_expr);
+        return e;
+    }
+}
+
+extern "C" object * lean_expr_update_app(obj_arg e, obj_arg new_fn, obj_arg new_arg) {
+    if (app_fn(TO_REF(expr, e)).raw() != new_fn || app_arg(TO_REF(expr, e)).raw() != new_arg) {
+        lean_dec_ref(e);
+        return lean_expr_mk_app(new_fn, new_arg);
+    } else {
+        lean_dec_ref(new_fn); lean_dec_ref(new_arg);
+        return e;
+    }
+}
+
+extern "C" object * lean_expr_update_forall(obj_arg e, uint8 new_binfo, obj_arg new_domain, obj_arg new_body) {
+    if (binding_domain(TO_REF(expr, e)).raw() != new_domain || binding_body(TO_REF(expr, e)).raw() != new_body ||
+        binding_info(TO_REF(expr, e)) != static_cast<binder_info>(new_binfo)) {
+        lean_dec_ref(e);
+        return lean_expr_mk_forall(binding_name(TO_REF(expr, e)).to_obj_arg(),
+                                   new_binfo, new_domain, new_body);
+    } else {
+        lean_dec_ref(new_domain); lean_dec_ref(new_body);
+        return e;
+    }
+}
+
+extern "C" object * lean_expr_update_lambda(obj_arg e, uint8 new_binfo, obj_arg new_domain, obj_arg new_body) {
+    if (binding_domain(TO_REF(expr, e)).raw() != new_domain || binding_body(TO_REF(expr, e)).raw() != new_body ||
+        binding_info(TO_REF(expr, e)) != static_cast<binder_info>(new_binfo)) {
+        lean_dec_ref(e);
+        return lean_expr_mk_lambda(binding_name(TO_REF(expr, e)).to_obj_arg(),
+                                   new_binfo, new_domain, new_body);
+    } else {
+        lean_dec_ref(new_domain); lean_dec_ref(new_body);
+        return e;
+    }
+}
+
+extern "C" object * lean_expr_update_let(obj_arg e, obj_arg new_type, obj_arg new_val, obj_arg new_body) {
+    if (let_type(TO_REF(expr, e)).raw() != new_type || let_value(TO_REF(expr, e)).raw() != new_val ||
+        let_body(TO_REF(expr, e)).raw() != new_body) {
+        lean_dec_ref(e);
+        return lean_expr_mk_let(let_name(TO_REF(expr, e)).to_obj_arg(), new_type, new_val, new_body);
+    } else {
+        lean_dec_ref(new_type); lean_dec_ref(new_val); lean_dec_ref(new_body);
+        return e;
+    }
+}
+
 
 // =======================================
 // Loose bound variable management

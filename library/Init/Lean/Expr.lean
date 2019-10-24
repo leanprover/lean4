@@ -25,12 +25,12 @@ def isInstImplicit : BinderInfo → Bool
 | _            => false
 
 protected def beq : BinderInfo → BinderInfo → Bool
-| default, default => true
-| implicit, implicit => true
+| default,        default        => true
+| implicit,       implicit       => true
 | strictImplicit, strictImplicit => true
-| instImplicit, instImplicit => true
-| auxDecl, auxDecl => true
-| _, _ => false
+| instImplicit,   instImplicit   => true
+| auxDecl,        auxDecl        => true
+| _,              _              => false
 
 instance : HasBeq BinderInfo := ⟨BinderInfo.beq⟩
 
@@ -68,7 +68,7 @@ attribute [extern "lean_expr_mk_sort"]   Expr.sort
 attribute [extern "lean_expr_mk_const"]  Expr.const
 attribute [extern "lean_expr_mk_app"]    Expr.app
 attribute [extern "lean_expr_mk_lambda"] Expr.lam
-attribute [extern "lean_expr_mk_pi"]     Expr.forallE
+attribute [extern "lean_expr_mk_forall"] Expr.forallE
 attribute [extern "lean_expr_mk_let"]    Expr.letE
 attribute [extern "lean_expr_mk_lit"]    Expr.lit
 attribute [extern "lean_expr_mk_mdata"]  Expr.mdata
@@ -119,60 +119,64 @@ constant hasMVar (a : @& Expr) : Bool := default _
 constant hasFVar (a : @& Expr) : Bool := default _
 
 def isSort : Expr → Bool
-| Expr.sort _ => true
-| _ => false
+| sort _ => true
+| _      => false
 
 def isBVar : Expr → Bool
 | bvar _ => true
-| _ => false
+| _      => false
 
 def isMVar : Expr → Bool
 | mvar _ => true
-| _ => false
+| _      => false
 
 def isFVar : Expr → Bool
 | fvar _ => true
-| _ => false
+| _      => false
 
 def isApp : Expr → Bool
 | app _ _ => true
-| _ => false
+| _       => false
+
+def isProj : Expr → Bool
+| proj _ _ _ => true
+| _          => false
 
 def isConst : Expr → Bool
 | const _ _ => true
-| _ => false
+| _         => false
 
 def isForall : Expr → Bool
 | forallE _ _ _ _ => true
-| _ => false
+| _               => false
 
 def isLambda : Expr → Bool
 | lam _ _ _ _ => true
-| _ => false
+| _           => false
 
 def isBinding : Expr → Bool
-| Expr.lam _ _ _ _ => true
-| Expr.forallE _ _ _ _ => true
-| _ => false
+| lam _ _ _ _     => true
+| forallE _ _ _ _ => true
+| _               => false
 
 def isLet : Expr → Bool
-| Expr.letE _ _ _ _ => true
-| _ => false
+| letE _ _ _ _ => true
+| _            => false
 
 def getAppFn : Expr → Expr
-| Expr.app f a => getAppFn f
-| e            => e
+| app f a => getAppFn f
+| e       => e
 
 def getAppNumArgsAux : Expr → Nat → Nat
-| Expr.app f a, n => getAppNumArgsAux f (n+1)
-| e,            n => n
+| app f a, n => getAppNumArgsAux f (n+1)
+| e,       n => n
 
 def getAppNumArgs (e : Expr) : Nat :=
 getAppNumArgsAux e 0
 
 private def getAppArgsAux : Expr → Array Expr → Nat → Array Expr
-| Expr.app f a, as, i => getAppArgsAux f (as.set! i a) (i-1)
-| _,            as, _ => as
+| app f a, as, i => getAppArgsAux f (as.set! i a) (i-1)
+| _,       as, _ => as
 
 @[inline] def getAppArgs (e : Expr) : Array Expr :=
 let dummy := Expr.sort Level.zero;
@@ -180,47 +184,56 @@ let nargs := e.getAppNumArgs;
 getAppArgsAux e (mkArray nargs dummy) (nargs-1)
 
 private def getAppRevArgsAux : Expr → Array Expr → Array Expr
-| Expr.app f a, as => getAppRevArgsAux f (as.push a)
-| _,            as => as
+| app f a, as => getAppRevArgsAux f (as.push a)
+| _,       as => as
 
 @[inline] def getAppRevArgs (e : Expr) : Array Expr :=
 getAppRevArgsAux e (Array.mkEmpty e.getAppNumArgs)
 
 def isAppOf (e : Expr) (n : Name) : Bool :=
 match e.getAppFn with
-| Expr.const c _ => c == n
-| _ => false
+| const c _ => c == n
+| _         => false
 
 def isAppOfArity : Expr → Name → Nat → Bool
-| Expr.const c _, n, 0   => c == n
-| Expr.app f _,   n, a+1 => isAppOfArity f n a
-| _,              _, _   => false
+| const c _, n, 0   => c == n
+| app f _,   n, a+1 => isAppOfArity f n a
+| _,         _, _   => false
 
 def constName : Expr → Name
 | const n _ => n
-| _         => panic! "constName called on non-const"
+| _         => panic! "constant expected"
 
 def constLevels : Expr → List Level
 | const _ ls => ls
-| _          => panic! "constLevels called on non-const"
+| _          => panic! "constant expected"
 
 def bvarIdx : Expr → Nat
 | bvar idx => idx
-| _ => panic! "bvarIdx called on non-bvar"
+| _        => panic! "bvar expected"
 
 def fvarName : Expr → Name
 | fvar n => n
-| _ => panic! "fvarName called on non-fvar"
+| _      => panic! "fvar expected"
+
+def bindingName : Expr → Name
+| forallE n _ _ _ => n
+| lam n _ _ _     => n
+| _               => panic! "binding expected"
 
 def bindingDomain : Expr → Expr
-| Expr.forallE _ _ d _ => d
-| Expr.lam _ _ d _ => d
-| _ => panic! "binding expected"
+| forallE _ _ d _ => d
+| lam _ _ d _     => d
+| _               => panic! "binding expected"
 
 def bindingBody : Expr → Expr
-| Expr.forallE _ _ _ b => b
-| Expr.lam _ _ _ b => b
-| _ => panic! "binding expected"
+| forallE _ _ _ b => b
+| lam _ _ _ b     => b
+| _               => panic! "binding expected"
+
+def letName : Expr → Name
+| letE n _ _ _ => n
+| _            => panic! "let expression expected"
 
 /-- Instantiate the loose bound variables in `e` using `subst`.
     That is, a loose `Expr.bvar i` is replaced with `subst[i]`. -/
@@ -295,16 +308,79 @@ abbrev ExprStructMap (α : Type) := HashMap ExprStructEq α
 abbrev PersistentExprStructMap (α : Type) := PHashMap ExprStructEq α
 
 namespace Expr
+/- The update functions here are defined using C code. They will try to avoid
+   allocating new values using pointer equality.
+   The hypotheses `(h : e.is... = true)` are used to ensure Lean will not crash
+   at runtime.
+   The `update*!` functions are inlined and provide a convenient way of using the
+   update proofs without providing proofs.
+   Note that if they are used under a match-expression, the compiler will eliminate
+   the double-match. -/
 
 @[extern "lean_expr_update_app"]
 def updateApp (e : Expr) (newFn : Expr) (newArg : Expr) (h : e.isApp = true) : Expr :=
-Expr.app newFn newArg
+app newFn newArg
 
 @[inline] def updateApp! (e : Expr) (newFn : Expr) (newArg : Expr) : Expr :=
 match e with
-| Expr.app fn arg => updateApp (Expr.app fn arg) newFn newArg rfl
-| _ => panic! "application expected"
+| app fn arg => updateApp (app fn arg) newFn newArg rfl
+| _          => panic! "application expected"
+
+@[extern "lean_expr_update_const"]
+def updateConst (e : Expr) (newLevels : List Level) (h : e.isConst = true) : Expr :=
+const e.constName newLevels
+
+@[inline] def updateConst! (e : Expr) (newLevels : List Level) : Expr :=
+match e with
+| const n ls => updateConst (const n ls) newLevels rfl
+| _          => panic! "constant expected"
+
+@[extern "lean_expr_update_sort"]
+def updateSort (e : Expr) (newLevel : Level) (h : e.isSort = true) : Expr :=
+sort newLevel
+
+@[inline] def updateSort! (e : Expr) (newLevel : Level) : Expr :=
+match e with
+| sort l => updateSort (sort l) newLevel rfl
+| _      => panic! "level expected"
+
+@[extern "lean_expr_update_proj"]
+def updateProj (e : Expr) (newExpr : Expr) (h : e.isProj = true) : Expr :=
+match e with
+| proj s i _ => proj s i newExpr
+| _          => e -- unreachable because of `h`
+
+@[inline] def updateProj! (e : Expr) (newExpr : Expr) : Expr :=
+match e with
+| proj s i e => updateProj (proj s i e) newExpr rfl
+| _          => panic! "proj expected"
+
+@[extern "lean_expr_update_forall"]
+def updateForall (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) (h : e.isForall = true) : Expr :=
+forallE e.bindingName newBinfo newDomain newBody
+
+@[inline] def updateForall! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) : Expr :=
+match e with
+| forallE n bi d b => updateForall (forallE n bi d b) newBinfo newDomain newBody rfl
+| _                => panic! "forall expected"
+
+@[extern "lean_expr_update_lambda"]
+def updateLambda (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) (h : e.isLambda = true) : Expr :=
+lam e.bindingName newBinfo newDomain newBody
+
+@[inline] def updateLambda! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) : Expr :=
+match e with
+| lam n bi d b => updateLambda (lam n bi d b) newBinfo newDomain newBody rfl
+| _            => panic! "lambda expected"
+
+@[extern "lean_expr_update_let"]
+def updateLet (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) (h : e.isLet = true) : Expr :=
+letE e.letName newType newVal newBody
+
+@[inline] def updateLet! (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : Expr :=
+match e with
+| letE n t v b => updateLet (letE n t v b) newType newVal newBody rfl
+| _            => panic! "let expression expected"
 
 end Expr
-
 end Lean

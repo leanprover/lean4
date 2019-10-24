@@ -38,13 +38,36 @@ static optional<unsigned> get_given_arity(environment const & env, name const & 
     return optional<unsigned>(); // ignore big nums
 }
 
+
+/*
+  Similar to lean::get_arity, but adds `1` if resultant type is of the form `IO a`.
+  Motivation: we want to correctly guess the IO extern primitive without user help.
+  By user help, we mean a definition such as
+  ```
+  @[extern 2 "lean_io_getenv"]
+  constant getEnv (var : @& String) : IO (Option String) := default _
+  ```
+  were we explicitly say `getEnv` has arity 2.
+*/
+static unsigned get_arity_for_extern(expr type) {
+    unsigned r = 0;
+    while (is_pi(type)) {
+        type = binding_body(type);
+        r++;
+    }
+    if (is_app_of(type, get_io_name())) {
+        r++;
+    }
+    return r;
+}
+
 optional<unsigned> get_extern_constant_arity(environment const & env, name const & c) {
     if (is_extern_constant(env, c)) {
         if (optional<unsigned> given_arity = get_given_arity(env, c)) {
             return given_arity;
         }
         /* Infer arity from type */
-        return optional<unsigned>(get_arity(env.get(c).get_type()));
+        return optional<unsigned>(get_arity_for_extern(env.get(c).get_type()));
     }
     return optional<unsigned>();
 }
@@ -69,6 +92,10 @@ bool get_extern_borrowed_info(environment const & env, name const & c, buffer<bo
                 borrowed_args.resize(*given_arity, false);
                 return true;
             }
+        } else if (is_app_of(type, get_io_name())) {
+            /* See: `get_arity_for_extern`. We have special code for guessing
+               the arity for external IO primitives. */
+            borrowed_args.push_back(false);
         }
         borrowed_res = is_borrowed(type);
         return true;
@@ -107,6 +134,12 @@ optional<expr> get_extern_constant_ll_type(environment const & env, name const &
             } else {
                 ll_type = mk_runtime_type(st, lctx, type);
             }
+        } else if (is_app_of(type, get_io_name())) {
+            /* Add "world".
+               See: `get_arity_for_extern`. We have special code for guessing
+               the arity for external IO primitives. */
+            arg_ll_types.push_back(mk_enf_object_type());
+            ll_type = mk_enf_object_type();
         } else {
             ll_type = mk_runtime_type(st, lctx, type);
         }

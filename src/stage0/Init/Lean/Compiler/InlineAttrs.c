@@ -47,7 +47,7 @@ lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_hasNoInlineAttribute___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_Inhabited;
 lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkInlineAttrs___spec__1___lambda__2(lean_object*);
-lean_object* l_IO_Prim_Ref_set(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 uint8_t lean_has_macro_inline_attribute(lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___main___at___private_Init_Lean_Compiler_InlineAttrs_1__hasInlineAttrAux___main___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Compiler_isEagerLambdaLiftingName___main(lean_object*);
@@ -105,7 +105,7 @@ lean_object* l_EState_bind___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_InlineAttrs_1__hasInlineAttrAux___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_Prim_Ref_get(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__3;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkInlineAttrs___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -140,7 +140,7 @@ lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkInlineAttrs___sp
 uint8_t lean_has_inline_attribute(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerTagAttribute___closed__1;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
-lean_object* l_IO_Prim_Ref_reset(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_reset(lean_object*, lean_object*);
 lean_object* l_Lean_registerTagAttribute___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t _init_l_Lean_Compiler_InlineAttributeKind_Inhabited() {
 _start:

@@ -132,7 +132,7 @@ lean_object* l_Array_miterateAux___main___at___private_Init_Lean_Environment_10_
 lean_object* l_List_redLength___main___rarg(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_find___at_Lean_Environment_find___spec__4___boxed(lean_object*, lean_object*);
-lean_object* l_IO_Prim_Ref_set(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_Environment_find___spec__3(lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_Lean_importModules___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerSimplePersistentEnvExtension___spec__3(lean_object*, lean_object*);
@@ -297,7 +297,7 @@ extern size_t l_PersistentHashMap_insertAux___main___rarg___closed__2;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe(lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_Environment_getModuleIdxFor___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_mkModuleData(lean_object*, lean_object*);
-lean_object* l_IO_Prim_mkRef(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Environment_2__isQuotInit___boxed(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_setState(lean_object*, lean_object*);
@@ -337,7 +337,7 @@ lean_object* l_PersistentHashMap_mfoldlAux___main___at_Lean_mkModuleData___spec_
 lean_object* l_Lean_Environment_Inhabited___closed__1;
 lean_object* l_Lean_Environment_addAndCompile___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_Prim_Ref_get(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_mkModuleData___boxed(lean_object*, lean_object*);
 lean_object* l_HashMapImp_expand___at_Lean_Environment_addAux___spec__8(lean_object*, lean_object*);
 lean_object* l_Lean_registerNamespace(lean_object*, lean_object*);
@@ -431,7 +431,7 @@ lean_object* l_Lean_mkStateFromImportedEntries___rarg___boxed(lean_object*, lean
 lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
 lean_object* l_Lean_regNamespacesExtension___closed__5;
 lean_object* l_HashMapImp_moveEntries___main___at_Lean_Environment_addAux___spec__9(lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_Prim_Ref_reset(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_reset(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAtAux___main___at_Lean_Environment_find___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_expand___at_Lean_importModules___spec__3(lean_object*, lean_object*);
 extern lean_object* l_List_repr___rarg___closed__1;

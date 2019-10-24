@@ -46,7 +46,7 @@ lean_object* l_Lean_mkReducibilityAttrs___lambda__1___closed__1;
 extern lean_object* l_Lean_Inhabited;
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnumAttributes_getValue___at_Lean_getReducibilityStatus___spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_Prim_Ref_set(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_initializing(lean_object*);
 lean_object* l_Lean_mkReducibilityAttrs___closed__15;
 extern lean_object* l_Lean_registerEnumAttributes___rarg___closed__1;
@@ -91,7 +91,7 @@ lean_object* l_EState_bind___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkReducibilityAttrs___closed__18;
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_Prim_Ref_get(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_mkReducibilityAttrs___closed__6;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkReducibilityAttrs___spec__7(lean_object*, lean_object*);
@@ -116,7 +116,7 @@ lean_object* l_Lean_registerEnumAttributes___at_Lean_mkReducibilityAttrs___spec_
 lean_object* l_Lean_mkReducibilityAttrs___closed__14;
 extern lean_object* l_Lean_registerTagAttribute___closed__1;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
-lean_object* l_IO_Prim_Ref_reset(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_reset(lean_object*, lean_object*);
 lean_object* l_Lean_registerTagAttribute___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4___closed__1;
 uint8_t _init_l_Lean_ReducibilityStatus_inhabited() {

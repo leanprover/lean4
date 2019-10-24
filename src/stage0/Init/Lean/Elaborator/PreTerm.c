@@ -89,7 +89,7 @@ uint8_t l_AssocList_contains___main___at_Lean_addBuiltinPreTermElab___spec__2(le
 lean_object* l___regBuiltinTermElab_Lean_Elab_convertProp___closed__1;
 lean_object* l___regBuiltinTermElab_Lean_Elab_convertForall___closed__1;
 extern lean_object* l_Lean_Parser_Term_sorry___elambda__1___rarg___closed__2;
-lean_object* l_IO_Prim_Ref_set(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinPreTermElabAttr___closed__4;
 lean_object* l___regBuiltinTermElab_Lean_Elab_convertSortApp___closed__3;
 lean_object* l_Array_miterateAux___main___at_Lean_Elab_toLevel___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -183,7 +183,7 @@ lean_object* l___private_Init_Lean_Elaborator_PreTerm_6__processBinders(lean_obj
 lean_object* l___regBuiltinTermElab_Lean_Elab_convertSorry___closed__3;
 lean_object* l_Lean_registerBuiltinPreTermElabAttr___closed__6;
 lean_object* l___regBuiltinTermElab_Lean_Elab_convertForall___closed__2;
-lean_object* l_IO_Prim_mkRef(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* l___regBuiltinTermElab_Lean_Elab_convertForall(lean_object*);
 extern lean_object* l_Lean_Parser_Level_paren___elambda__1___rarg___closed__4;
 lean_object* l_Lean_Elab_convertId___boxed(lean_object*, lean_object*, lean_object*);
@@ -208,7 +208,7 @@ extern lean_object* l_Lean_Parser_Term_id___elambda__1___closed__2;
 lean_object* l_Array_ummapAux___main___at___private_Init_Lean_Elaborator_PreTerm_5__processBinder___spec__1___closed__1;
 lean_object* l___private_Init_Lean_Elaborator_PreTerm_3__mkHoleFor___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_toLevel___main___closed__1;
-lean_object* l_IO_Prim_Ref_get(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mkAnnotation___closed__1;
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l___regBuiltinTermElab_Lean_Elab_convertId___closed__1;
@@ -280,7 +280,7 @@ lean_object* l_Array_ummapAux___main___at___private_Init_Lean_Elaborator_PreTerm
 lean_object* l_Lean_Elab_convertSorry___rarg___closed__1;
 extern lean_object* l_Lean_Parser_Term_simpleBinder___elambda__1___closed__2;
 lean_object* l___regBuiltinTermElab_Lean_Elab_convertType___closed__2;
-lean_object* l_IO_Prim_Ref_reset(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_reset(lean_object*, lean_object*);
 lean_object* l_Lean_mkAsIs(lean_object*);
 lean_object* l_Lean_Elab_convertType___rarg___closed__1;
 extern lean_object* l_Lean_exprIsInhabited___closed__1;

@@ -33,7 +33,7 @@ lean_object* l_Array_qsortAux___main___at_Lean_Compiler_mkImplementedByAttr___sp
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__4;
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 extern lean_object* l_Lean_Inhabited;
-lean_object* l_IO_Prim_Ref_set(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__1;
 lean_object* lean_io_initializing(lean_object*);
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__6___closed__1;
@@ -76,7 +76,7 @@ lean_object* l_Lean_registerParametricAttribute___rarg___lambda__4___boxed(lean_
 lean_object* l_EState_bind___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkImplementedByAttr___closed__2;
-lean_object* l_IO_Prim_Ref_get(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_RBNode_fold___main___at_Lean_Compiler_mkImplementedByAttr___spec__2___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
@@ -100,7 +100,7 @@ uint8_t l_Array_anyMAux___main___at_Lean_Compiler_mkImplementedByAttr___spec__6(
 extern lean_object* l_Lean_registerTagAttribute___closed__1;
 lean_object* l_RBNode_fold___main___at_Lean_Compiler_mkImplementedByAttr___spec__2(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
-lean_object* l_IO_Prim_Ref_reset(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_reset(lean_object*, lean_object*);
 lean_object* l_RBNode_find___main___at_Lean_Compiler_getImplementedBy___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__4;
 lean_object* l_Lean_Compiler_mkImplementedByAttr___closed__1;

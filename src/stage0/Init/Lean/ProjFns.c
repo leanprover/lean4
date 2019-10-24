@@ -39,7 +39,7 @@ lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, l
 extern lean_object* l_Lean_Inhabited;
 lean_object* l_Lean_mkProjectionFnInfoExtension___closed__2;
 lean_object* l_List_redLength___main___rarg(lean_object*);
-lean_object* l_IO_Prim_Ref_set(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_projectionFnInfoExt___closed__3;
 lean_object* l_Lean_projectionFnInfoExt___closed__2;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
@@ -83,7 +83,7 @@ lean_object* l_Lean_projectionFnInfoExt___closed__5;
 lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
 lean_object* lean_add_projection_info(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_Prim_Ref_get(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_get(lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_mkProjectionFnInfoExtension___spec__3(lean_object*, lean_object*);
 lean_object* lean_get_projection_info(lean_object*, lean_object*);
@@ -106,7 +106,7 @@ lean_object* l_Array_qsortAux___main___at_Lean_mkProjectionFnInfoExtension___spe
 lean_object* l_Lean_ProjectionFunctionInfo_inhabited;
 lean_object* l_Lean_mkProjectionFnInfoExtension___closed__6;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
-lean_object* l_IO_Prim_Ref_reset(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_reset(lean_object*, lean_object*);
 lean_object* l_RBNode_find___main___at_Lean_Environment_getProjectionFnInfo___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_regNamespacesExtension___spec__7___closed__2;
 lean_object* l_Lean_projectionFnInfoExt___elambda__1(lean_object*);

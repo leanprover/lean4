@@ -54,7 +54,7 @@ lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, l
 lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_mkClosedTermCacheExtension___spec__14(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find___at_Lean_getClosedTermName___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-lean_object* l_IO_Prim_Ref_set(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__3(lean_object*, lean_object*);
@@ -105,7 +105,7 @@ lean_object* l_AssocList_replace___main___at_Lean_mkClosedTermCacheExtension___s
 lean_object* l_EState_bind___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_empty___at_Lean_mkClosedTermCacheExtension___spec__12___closed__1;
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_Prim_Ref_get(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_closedTermCacheExt___elambda__2___boxed(lean_object*);
 lean_object* l_PersistentHashMap_findAux___main___at_Lean_getClosedTermName___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
@@ -141,7 +141,7 @@ lean_object* l_Lean_closedTermCacheExt___closed__5;
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkClosedTermCacheExtension___spec__21___closed__1;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
 extern lean_object* l_Lean_regNamespacesExtension___closed__5;
-lean_object* l_IO_Prim_Ref_reset(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_ref_reset(lean_object*, lean_object*);
 lean_object* l_Array_anyMAux___main___at_Lean_mkClosedTermCacheExtension___spec__20___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_closedTermCacheExt___elambda__1___boxed(lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;

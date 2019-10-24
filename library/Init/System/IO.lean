@@ -59,10 +59,10 @@ match fn.run () with
 
 end
 
-@[extern 4 "lean_io_timeit"]
+@[extern "lean_io_timeit"]
 constant timeit {α : Type} (msg : @& String) (fn : IO α) : IO α := default _
 
-@[extern 4 "lean_io_allocprof"]
+@[extern "lean_io_allocprof"]
 constant allocprof {α : Type} (msg : @& String) (fn : IO α) : IO α := default _
 
 /- Programs can execute IO actions during initialization that occurs before
@@ -70,7 +70,7 @@ constant allocprof {α : Type} (msg : @& String) (fn : IO α) : IO α := default
    which IO action is executed to set the value of an opaque constant.
 
    The action `initializing` returns `true` iff it is invoked during initialization. -/
-@[extern 1 "lean_io_initializing"]
+@[extern "lean_io_initializing"]
 constant IO.initializing : IO Bool := default _
 
 abbrev monadIO (m : Type → Type) := HasMonadLiftT IO m
@@ -100,35 +100,35 @@ open Fs
   | Sum.inl a => iterate a f
   | Sum.inr b => pure b
 
-@[extern 2 "lean_io_prim_put_str"]
+@[extern "lean_io_prim_put_str"]
 constant putStr (s: @& String) : IO Unit := default _
-@[extern 2 "lean_io_prim_read_text_file"]
+@[extern "lean_io_prim_read_text_file"]
 constant readTextFile (s : @& String) : IO String := default _
-@[extern 1 "lean_io_prim_get_line"]
+@[extern "lean_io_prim_get_line"]
 constant getLine : IO String := default _
-@[extern 4 "lean_io_prim_handle_mk"]
+@[extern "lean_io_prim_handle_mk"]
 constant handle.mk (s : @& String) (m : Mode) (bin : Bool := false) : IO handle := default _
-@[extern 2 "lean_io_prim_handle_is_eof"]
+@[extern "lean_io_prim_handle_is_eof"]
 constant handle.isEof (h : @& handle) : IO Bool := default _
-@[extern 2 "lean_io_prim_handle_flush"]
+@[extern "lean_io_prim_handle_flush"]
 constant handle.flush (h : @& handle) : IO Unit := default _
-@[extern 2 "lean_io_prim_handle_close"]
+@[extern "lean_io_prim_handle_close"]
 constant handle.close (h : @& handle) : IO Unit := default _
 -- TODO: replace `String` with byte buffer
 -- constant handle.read : handle → Nat → EIO String
 -- constant handle.write : handle → String → EIO Unit
-@[extern 2 "lean_io_prim_handle_get_line"]
+@[extern "lean_io_prim_handle_get_line"]
 constant handle.getLine (h : @& handle) : IO String := default _
 
-@[extern 2 "lean_io_getenv"]
+@[extern "lean_io_getenv"]
 constant getEnv (var : @& String) : IO (Option String) := default _
-@[extern 2 "lean_io_realpath"]
+@[extern "lean_io_realpath"]
 constant realPath (fname : String) : IO String := default _
-@[extern 2 "lean_io_is_dir"]
+@[extern "lean_io_is_dir"]
 constant isDir (fname : @& String) : IO Bool := default _
-@[extern 2 "lean_io_file_exists"]
+@[extern "lean_io_file_exists"]
 constant fileExists (fname : @& String) : IO Bool := default _
-@[extern 1 "lean_io_app_dir"]
+@[extern "lean_io_app_dir"]
 constant appPath : IO String := default _
 
 @[inline] def liftIO {m : Type → Type} {α : Type} [monadIO m] (x : IO α) : m α :=
@@ -240,15 +240,15 @@ def Ref (α : Type) : Type := (RefPointed α).type
 instance (α : Type) : Inhabited (Ref α) := ⟨(RefPointed α).val⟩
 
 namespace Prim
-@[extern 3 c inline "lean_io_mk_ref(#2, #3)"]
+@[extern "lean_io_mk_ref"]
 constant mkRef {α : Type} (a : α) : IO (Ref α)                := default _
-@[extern 3 c inline "lean_io_ref_get(#2, #3)"]
+@[extern "lean_io_ref_get"]
 constant Ref.get {α : Type} (r : @& Ref α) : IO α             := default _
-@[extern 4 c inline "lean_io_ref_set(#2, #3, #4)"]
+@[extern "lean_io_ref_set"]
 constant Ref.set {α : Type} (r : @& Ref α) (a : α) : IO Unit  := default _
-@[extern 4 c inline "lean_io_ref_swap(#2, #3, #4)"]
+@[extern "lean_io_ref_swap"]
 constant Ref.swap {α : Type} (r : @& Ref α) (a : α) : IO α     := default _
-@[extern 3 c inline "lean_io_ref_reset(#2, #3)"]
+@[extern "lean_io_ref_reset"]
 constant Ref.reset {α : Type} (r : @& Ref α) : IO Unit         := default _
 end Prim
 

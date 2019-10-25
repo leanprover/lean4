@@ -21,7 +21,7 @@ uint8_t l_Lean_TypeContext_isLevelAssigned___rarg(lean_object*, lean_object*, le
 uint8_t l_Lean_TypeContext_hasAssignedLevelMVar___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TypeContext_isLevelAssigned(lean_object*);
 lean_object* l_Lean_TypeContext_tracer(lean_object*, lean_object*);
-uint8_t l_Lean_Level_hasMVar___main(lean_object*);
+uint8_t lean_level_has_mvar(lean_object*);
 lean_object* l_Lean_TCState_backtrackable___lambda__2(lean_object*, lean_object*);
 lean_object* l_Lean_TCState_backtrackable___lambda__1___boxed(lean_object*);
 uint8_t l_Lean_TypeContext_hasAssignedMVar___rarg(lean_object*, lean_object*, lean_object*);
@@ -238,7 +238,8 @@ lean_object* x_4; uint8_t x_5;
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 lean_dec(x_3);
-x_5 = l_Lean_Level_hasMVar___main(x_4);
+lean_inc(x_4);
+x_5 = lean_level_has_mvar(x_4);
 if (x_5 == 0)
 {
 uint8_t x_6; 
@@ -262,12 +263,14 @@ lean_inc(x_8);
 x_9 = lean_ctor_get(x_3, 1);
 lean_inc(x_9);
 lean_dec(x_3);
-x_10 = l_Lean_Level_hasMVar___main(x_8);
+lean_inc(x_8);
+x_10 = lean_level_has_mvar(x_8);
 if (x_10 == 0)
 {
 uint8_t x_11; 
 lean_dec(x_8);
-x_11 = l_Lean_Level_hasMVar___main(x_9);
+lean_inc(x_9);
+x_11 = lean_level_has_mvar(x_9);
 if (x_11 == 0)
 {
 uint8_t x_12; 
@@ -292,7 +295,8 @@ x_14 = l_Lean_TypeContext_hasAssignedLevelMVar___main___rarg(x_1, x_2, x_8);
 if (x_14 == 0)
 {
 uint8_t x_15; 
-x_15 = l_Lean_Level_hasMVar___main(x_9);
+lean_inc(x_9);
+x_15 = lean_level_has_mvar(x_9);
 if (x_15 == 0)
 {
 lean_dec(x_9);
@@ -325,12 +329,14 @@ lean_inc(x_18);
 x_19 = lean_ctor_get(x_3, 1);
 lean_inc(x_19);
 lean_dec(x_3);
-x_20 = l_Lean_Level_hasMVar___main(x_18);
+lean_inc(x_18);
+x_20 = lean_level_has_mvar(x_18);
 if (x_20 == 0)
 {
 uint8_t x_21; 
 lean_dec(x_18);
-x_21 = l_Lean_Level_hasMVar___main(x_19);
+lean_inc(x_19);
+x_21 = lean_level_has_mvar(x_19);
 if (x_21 == 0)
 {
 uint8_t x_22; 
@@ -355,7 +361,8 @@ x_24 = l_Lean_TypeContext_hasAssignedLevelMVar___main___rarg(x_1, x_2, x_18);
 if (x_24 == 0)
 {
 uint8_t x_25; 
-x_25 = l_Lean_Level_hasMVar___main(x_19);
+lean_inc(x_19);
+x_25 = lean_level_has_mvar(x_19);
 if (x_25 == 0)
 {
 lean_dec(x_19);

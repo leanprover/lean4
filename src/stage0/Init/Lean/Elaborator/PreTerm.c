@@ -65,7 +65,7 @@ lean_object* l___regBuiltinTermElab_Lean_Elab_convertSort___closed__3;
 lean_object* l_Lean_registerAttribute(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltinTermElab_Lean_Elab_convertSortApp___closed__2;
-lean_object* level_mk_mvar(lean_object*);
+lean_object* lean_level_mk_mvar(lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_PreTerm_5__processBinder(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltinTermElab_Lean_Elab_convertSortApp___closed__1;
 lean_object* l_Lean_registerBuiltinPreTermElabAttr___closed__7;
@@ -177,7 +177,7 @@ extern lean_object* l_Lean_Parser_Term_instBinder___elambda__1___rarg___closed__
 lean_object* l_List_head_x21___at_Lean_Elab_getScope___spec__1(lean_object*);
 lean_object* l_Lean_addBuiltinPreTermElab___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_Elab_toPreTerm___spec__2___boxed(lean_object*, lean_object*);
-lean_object* level_mk_imax(lean_object*, lean_object*);
+lean_object* lean_level_mk_imax(lean_object*, lean_object*);
 lean_object* l_Lean_syntaxNodeKindOfAttrParam(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_PreTerm_6__processBinders(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltinTermElab_Lean_Elab_convertSorry___closed__3;
@@ -199,9 +199,9 @@ lean_object* l_Lean_Elab_convertSorry___rarg___closed__2;
 lean_object* lean_expr_mk_mvar(lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_PreTerm_1__dummy___closed__1;
 lean_object* l_Lean_Elab_toPreTerm___closed__3;
-lean_object* level_mk_param(lean_object*);
+lean_object* lean_level_mk_param(lean_object*);
 extern lean_object* l_Lean_Parser_Term_app___elambda__1___closed__2;
-lean_object* level_mk_succ(lean_object*);
+lean_object* lean_level_mk_succ(lean_object*);
 lean_object* l_Lean_mkAsIs___closed__1;
 extern lean_object* l_System_FilePath_dirName___closed__1;
 extern lean_object* l_Lean_Parser_Term_id___elambda__1___closed__2;
@@ -285,7 +285,7 @@ lean_object* l_Lean_mkAsIs(lean_object*);
 lean_object* l_Lean_Elab_convertType___rarg___closed__1;
 extern lean_object* l_Lean_exprIsInhabited___closed__1;
 lean_object* l_Lean_Elab_convertForall___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* level_mk_max(lean_object*, lean_object*);
+lean_object* lean_level_mk_max(lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinPreTermElabAttr___lambda__1___closed__5;
 lean_object* l___regBuiltinTermElab_Lean_Elab_convertProp___closed__3;
 lean_object* l_Lean_declareBuiltinPreTermElab(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1438,7 +1438,7 @@ lean_inc(x_14);
 x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
 lean_dec(x_13);
-x_16 = level_mk_imax(x_4, x_14);
+x_16 = lean_level_mk_imax(x_4, x_14);
 x_3 = x_12;
 x_4 = x_16;
 x_6 = x_15;
@@ -1503,7 +1503,7 @@ lean_inc(x_14);
 x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
 lean_dec(x_13);
-x_16 = level_mk_max(x_4, x_14);
+x_16 = lean_level_mk_max(x_4, x_14);
 x_3 = x_12;
 x_4 = x_16;
 x_6 = x_15;
@@ -1567,7 +1567,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_box(0);
-x_2 = level_mk_mvar(x_1);
+x_2 = lean_level_mk_mvar(x_1);
 return x_2;
 }
 }
@@ -1742,7 +1742,7 @@ else
 {
 lean_object* x_61; 
 lean_dec(x_1);
-x_61 = level_mk_param(x_42);
+x_61 = lean_level_mk_param(x_42);
 lean_ctor_set(x_43, 0, x_61);
 return x_43;
 }
@@ -1793,7 +1793,7 @@ else
 {
 lean_object* x_76; lean_object* x_77; 
 lean_dec(x_1);
-x_76 = level_mk_param(x_42);
+x_76 = lean_level_mk_param(x_42);
 x_77 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_77, 0, x_76);
 lean_ctor_set(x_77, 1, x_63);
@@ -2605,7 +2605,7 @@ return x_10;
 else
 {
 lean_object* x_16; lean_object* x_17; 
-x_16 = level_mk_succ(x_12);
+x_16 = lean_level_mk_succ(x_12);
 x_17 = lean_expr_mk_sort(x_16);
 lean_ctor_set(x_10, 0, x_17);
 return x_10;
@@ -2634,7 +2634,7 @@ return x_23;
 else
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-x_24 = level_mk_succ(x_18);
+x_24 = lean_level_mk_succ(x_18);
 x_25 = lean_expr_mk_sort(x_24);
 x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_25);

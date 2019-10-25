@@ -34,13 +34,13 @@ lean_object* l_Array_back___at_Lean_TypeClass_consume___spec__2___boxed(lean_obj
 size_t l_USize_shift__right(size_t, size_t);
 lean_object* l_PersistentHashMap_find___at_Lean_TypeClass_newAnswer___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_ConsumerNode_Inhabited;
+uint8_t lean_level_has_mvar(lean_object*);
 lean_object* l_Lean_TypeClass_Context__u03b1Norm(lean_object*);
 lean_object* lean_expr_dbg_to_string(lean_object*);
 lean_object* l_Queue_enqueue___rarg(lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_TypeClass_collectEReplacements___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_Inhabited___closed__1;
 lean_object* l_Lean_TypeClass_introduceLocals___main___closed__2;
-uint8_t l_Lean_Level_hasMVar___main(lean_object*);
 lean_object* l_Lean_TypeClass_newAnswer(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_synthCore___main___closed__1;
 lean_object* lean_expr_mk_app(lean_object*, lean_object*);
@@ -4021,7 +4021,8 @@ lean_inc(x_7);
 x_8 = lean_ctor_get(x_1, 1);
 lean_inc(x_8);
 lean_dec(x_1);
-x_9 = l_Lean_Level_hasMVar___main(x_7);
+lean_inc(x_7);
+x_9 = lean_level_has_mvar(x_7);
 if (x_9 == 0)
 {
 lean_object* x_10; 

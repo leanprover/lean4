@@ -23,11 +23,11 @@ inductive Level
 | param  : Name → Level
 | mvar   : Name → Level
 
-attribute [extern "level_mk_succ"]  Level.succ
-attribute [extern "level_mk_max"]   Level.max
-attribute [extern "level_mk_imax"]  Level.imax
-attribute [extern "level_mk_param"] Level.param
-attribute [extern "level_mk_mvar"]  Level.mvar
+attribute [extern "lean_level_mk_succ"]  Level.succ
+attribute [extern "lean_level_mk_max"]   Level.max
+attribute [extern "lean_level_mk_imax"]  Level.imax
+attribute [extern "lean_level_mk_param"] Level.param
+attribute [extern "lean_level_mk_mvar"]  Level.mvar
 
 namespace Level
 

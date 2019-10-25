@@ -91,7 +91,7 @@ extern "C" uint8 lean_level_has_mvar(b_obj_arg l) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-extern "C" object * level_mk_succ(obj_arg l) {
+extern "C" object * lean_level_mk_succ(obj_arg l) {
     object * r = alloc_cnstr(static_cast<unsigned>(level_kind::Succ), 1, g_level_num_scalars);
     cnstr_set(r, 0, l);
     set_level_scalar_fields(r, 1, hash(level::hash(l), 17u), level_depth(l)+1, lean_level_has_param(l), lean_level_has_mvar(l));
@@ -110,21 +110,21 @@ template<level_kind k> object * level_mk_max_imax(obj_arg l1, obj_arg l2) {
     return r;
 }
 
-extern "C" object * level_mk_max(obj_arg l1, obj_arg l2) {
+extern "C" object * lean_level_mk_max(obj_arg l1, obj_arg l2) {
     return level_mk_max_imax<level_kind::Max>(l1, l2);
 }
 
-extern "C" object * level_mk_imax(obj_arg l1, obj_arg l2) {
+extern "C" object * lean_level_mk_imax(obj_arg l1, obj_arg l2) {
     return level_mk_max_imax<level_kind::IMax>(l1, l2);
 }
 
-extern "C" object * level_mk_param(obj_arg n) {
+extern "C" object * lean_level_mk_param(obj_arg n) {
     object * r = alloc_cnstr(static_cast<unsigned>(level_kind::Param), 1, 0);
     cnstr_set(r, 0, n);
     return r;
 }
 
-extern "C" object * level_mk_mvar(obj_arg n) {
+extern "C" object * lean_level_mk_mvar(obj_arg n) {
     object * r = alloc_cnstr(static_cast<unsigned>(level_kind::MVar), 1, 0);
     cnstr_set(r, 0, n);
     return r;
@@ -132,27 +132,27 @@ extern "C" object * level_mk_mvar(obj_arg n) {
 
 level mk_succ(level const & l) {
     inc(l.raw());
-    return level(level_mk_succ(l.raw()));
+    return level(lean_level_mk_succ(l.raw()));
 }
 
 level mk_max_core(level const & l1, level const & l2) {
     inc(l1.raw()); inc(l2.raw());
-    return level(level_mk_max(l1.raw(), l2.raw()));
+    return level(lean_level_mk_max(l1.raw(), l2.raw()));
 }
 
 level mk_imax_core(level const & l1, level const & l2) {
     inc(l1.raw()); inc(l2.raw());
-    return level(level_mk_imax(l1.raw(), l2.raw()));
+    return level(lean_level_mk_imax(l1.raw(), l2.raw()));
 }
 
 level mk_univ_param(name const & n) {
     inc(n.raw());
-    return level(level_mk_param(n.raw()));
+    return level(lean_level_mk_param(n.raw()));
 }
 
 level mk_univ_mvar(name const & n) {
     inc(n.raw());
-    return level(level_mk_mvar(n.raw()));
+    return level(lean_level_mk_mvar(n.raw()));
 }
 
 unsigned get_depth(level const & l) { return level_depth(l.raw()); }
@@ -413,7 +413,7 @@ extern "C" object * lean_level_update_succ(obj_arg l, obj_arg new_arg) {
         return l;
     } else {
         lean_dec_ref(l);
-        return level_mk_succ(new_arg);
+        return lean_level_mk_succ(new_arg);
     }
 }
 
@@ -423,7 +423,7 @@ extern "C" object * lean_level_update_max(obj_arg l, obj_arg new_lhs, obj_arg ne
         return l;
     } else {
         lean_dec_ref(l);
-        return level_mk_max(new_lhs, new_rhs);
+        return lean_level_mk_max(new_lhs, new_rhs);
     }
 }
 
@@ -433,7 +433,7 @@ extern "C" object * lean_level_update_imax(obj_arg l, obj_arg new_lhs, obj_arg n
         return l;
     } else {
         lean_dec_ref(l);
-        return level_mk_imax(new_lhs, new_rhs);
+        return lean_level_mk_imax(new_lhs, new_rhs);
     }
 }
 

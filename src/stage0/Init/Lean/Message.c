@@ -31,6 +31,7 @@ extern lean_object* l_Lean_Format_sbracket___closed__1;
 lean_object* l_Lean_Message_toString___closed__3;
 extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_Message_HasToString;
+lean_object* l_Lean_Level_format(lean_object*);
 lean_object* l_Lean_MessageData_Inhabited___closed__1;
 lean_object* l_Array_miterateAux___main___at_Lean_MessageData_formatAux___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_formatAux___main(lean_object*, lean_object*);
@@ -41,7 +42,6 @@ extern lean_object* l_Lean_Format_sbracket___closed__2;
 uint8_t l_Lean_MessageLog_hasErrors(lean_object*);
 lean_object* l_Lean_MessageData_formatAux___main___closed__1;
 uint8_t l_Lean_MessageLog_isEmpty(lean_object*);
-lean_object* l_Lean_LevelToFormat_Level_format(lean_object*);
 lean_object* l_Lean_Message_toString___closed__4;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_Lean_HasFormat(lean_object*);
@@ -128,7 +128,7 @@ lean_object* l_Lean_fmt___at_Lean_MessageData_formatAux___main___spec__1(lean_ob
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_LevelToFormat_Level_format(x_1);
+x_2 = l_Lean_Level_format(x_1);
 return x_2;
 }
 }
@@ -226,7 +226,7 @@ lean_dec(x_1);
 x_7 = lean_ctor_get(x_2, 0);
 lean_inc(x_7);
 lean_dec(x_2);
-x_8 = l_Lean_LevelToFormat_Level_format(x_7);
+x_8 = l_Lean_Level_format(x_7);
 return x_8;
 }
 case 4:

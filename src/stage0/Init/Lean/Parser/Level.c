@@ -37,7 +37,6 @@ lean_object* l_Lean_Parser_Level_max;
 lean_object* l_Lean_Parser_ParserAttribute_runParser(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Level_ident___elambda__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Level_max___elambda__1___closed__1;
-extern lean_object* l_Lean_LevelToFormat_Result_format___main___closed__3;
 lean_object* l_Lean_Parser_Level_addLit___elambda__1___closed__1;
 lean_object* l_Lean_Parser_Level_num___closed__3;
 lean_object* l_Lean_Parser_Level_paren___elambda__1___rarg___closed__1;
@@ -54,11 +53,9 @@ lean_object* l_Lean_Parser_Level_hole___elambda__1___rarg___closed__2;
 lean_object* l_Lean_Parser_registerBuiltinParserAttribute(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Level_addLit;
 lean_object* l_Lean_Parser_Level_paren___closed__3;
-extern lean_object* l_Lean_LevelToFormat_Result_format___main___closed__5;
 lean_object* l_Lean_Parser_registerParserAttribute(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Level_max___elambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Level_imax___elambda__1___closed__3;
-extern lean_object* l_Lean_LevelToFormat_Result_format___main___closed__1;
 lean_object* l_Lean_Parser_levelParser(uint8_t, lean_object*);
 lean_object* l_Lean_Parser_Level_num;
 lean_object* l_Lean_Parser_Level_paren___closed__4;
@@ -88,6 +85,7 @@ lean_object* l_Lean_Parser_Level_num___elambda__1___rarg___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_symbolOrIdentFnAux(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Level_addLit___elambda__1___closed__2;
+extern lean_object* l_Lean_Level_LevelToFormat_Result_format___main___closed__5;
 lean_object* l_Lean_Parser_levelParser___boxed(lean_object*, lean_object*);
 extern lean_object* l_Option_HasRepr___rarg___closed__3;
 lean_object* l_Lean_Parser_Level_imax___elambda__1___closed__4;
@@ -124,7 +122,9 @@ lean_object* l_Lean_Parser_ParserState_pushSyntax(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Level_paren___elambda__1___rarg___closed__7;
 lean_object* l_Lean_Parser_Level_imax;
 lean_object* l_Lean_Parser_Level_imax___closed__5;
+extern lean_object* l_Lean_Level_LevelToFormat_Result_format___main___closed__1;
 lean_object* l_Lean_Parser_Level_hole___elambda__1___rarg___closed__4;
+extern lean_object* l_Lean_Level_LevelToFormat_Result_format___main___closed__3;
 extern lean_object* l_Lean_Parser_numLit___closed__1;
 lean_object* l_Lean_Parser_regBuiltinLevelParserAttr(lean_object*);
 lean_object* l_Lean_Parser_Level_imax___closed__4;
@@ -786,7 +786,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__2;
-x_2 = l_Lean_LevelToFormat_Result_format___main___closed__3;
+x_2 = l_Lean_Level_LevelToFormat_Result_format___main___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -795,7 +795,7 @@ lean_object* _init_l_Lean_Parser_Level_max___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_LevelToFormat_Result_format___main___closed__3;
+x_1 = l_Lean_Level_LevelToFormat_Result_format___main___closed__3;
 x_2 = l_String_trim(x_1);
 return x_2;
 }
@@ -974,7 +974,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Level_paren___elambda__1___rarg___closed__2;
-x_2 = l_Lean_LevelToFormat_Result_format___main___closed__5;
+x_2 = l_Lean_Level_LevelToFormat_Result_format___main___closed__5;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -983,7 +983,7 @@ lean_object* _init_l_Lean_Parser_Level_imax___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_LevelToFormat_Result_format___main___closed__5;
+x_1 = l_Lean_Level_LevelToFormat_Result_format___main___closed__5;
 x_2 = l_String_trim(x_1);
 return x_2;
 }
@@ -1561,7 +1561,7 @@ lean_object* _init_l_Lean_Parser_Level_addLit___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_LevelToFormat_Result_format___main___closed__1;
+x_1 = l_Lean_Level_LevelToFormat_Result_format___main___closed__1;
 x_2 = l_String_trim(x_1);
 return x_2;
 }

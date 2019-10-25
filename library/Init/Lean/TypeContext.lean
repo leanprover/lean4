@@ -87,6 +87,41 @@ namespace TypeContext
 
 variables {σ ϕ : Type}
 
+@[inline] def isLevelAssigned {σ} [AbstractMetavarContext σ] (mctx : σ) (mvarId : Name) : Bool :=
+(AbstractMetavarContext.getLevelAssignment mctx mvarId).isSome
+
+@[inline] def isExprAssigned {σ} [AbstractMetavarContext σ] (mctx : σ) (mvarId : Name) : Bool :=
+(AbstractMetavarContext.getExprAssignment mctx mvarId).isSome
+
+def hasAssignedLevelMVar {σ} [AbstractMetavarContext σ] (mctx : σ) : Level → Bool
+| Level.zero           => false
+| Level.param _        => false
+| Level.succ lvl       => lvl.hasMVar && hasAssignedLevelMVar lvl
+| Level.max lvl₁ lvl₂  => (lvl₁.hasMVar && hasAssignedLevelMVar lvl₁) || (lvl₂.hasMVar && hasAssignedLevelMVar lvl₂)
+| Level.imax lvl₁ lvl₂ => (lvl₁.hasMVar && hasAssignedLevelMVar lvl₁) || (lvl₂.hasMVar && hasAssignedLevelMVar lvl₂)
+| Level.mvar mvarId    => isLevelAssigned mctx mvarId
+
+/-- Return `true` iff expression contains assigned (level/expr) metavariables -/
+def hasAssignedMVar {σ} [AbstractMetavarContext σ] (mctx : σ) : Expr → Bool
+| Expr.const _ lvls    => lvls.any (hasAssignedLevelMVar mctx)
+| Expr.sort lvl        => hasAssignedLevelMVar mctx lvl
+| Expr.app f a         => (f.hasMVar && hasAssignedMVar f) || (a.hasMVar && hasAssignedMVar a)
+| Expr.letE _ t v b    => (t.hasMVar && hasAssignedMVar t) || (v.hasMVar && hasAssignedMVar v) || (b.hasMVar && hasAssignedMVar b)
+| Expr.forallE _ _ d b => (d.hasMVar && hasAssignedMVar d) || (b.hasMVar && hasAssignedMVar b)
+| Expr.lam _ _ d b     => (d.hasMVar && hasAssignedMVar d) || (b.hasMVar && hasAssignedMVar b)
+| Expr.fvar _          => false
+| Expr.bvar _          => false
+| Expr.lit _           => false
+| Expr.mdata _ e       => e.hasMVar && hasAssignedMVar e
+| Expr.proj _ _ e      => e.hasMVar && hasAssignedMVar e
+| Expr.mvar mvarId     => isExprAssigned mctx mvarId
+
+/-
+def instantiateLevelMVars {σ} [AbstractMetavarContext σ] : Level → State σ Level
+| Level.succ lvl =>
+| e => pure e
+-/
+
 private def getOptions : TypeContextM σ ϕ Options :=
 do ctx ← read; pure ctx.config.opts
 
@@ -97,6 +132,7 @@ instance tracer : SimpleMonadTracerAdapter (TypeContextM σ ϕ) :=
 { getOptions       := getOptions,
   getTraceState    := getTraceState,
   modifyTraceState := fun f => modify $ fun s => { traceState := f s.traceState, .. s } }
+
 
 end TypeContext
 

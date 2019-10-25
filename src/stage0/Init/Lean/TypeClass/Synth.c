@@ -164,7 +164,6 @@ lean_object* l_Array_miterateAux___main___at_Lean_TypeClass_newSubgoal___spec__5
 lean_object* l_Lean_Expr_constLevels(lean_object*);
 lean_object* l_Stack_modify___at_Lean_TypeClass_generate___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_introduceMVars___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_expr_has_mvar(lean_object*);
 lean_object* l_Array_miterateAux___main___at_Lean_TypeClass_consume___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Stack_pop___at_Lean_TypeClass_generate___spec__3(lean_object*);
 lean_object* l_Lean_TypeClass_generate___lambda__1(lean_object*, lean_object*);
@@ -175,6 +174,7 @@ lean_object* l_Lean_TypeClass_resume(lean_object*);
 extern lean_object* l_panicWithPos___rarg___closed__2;
 lean_object* l_Lean_TypeClass_collectUReplacements___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_newAnswer___closed__1;
+uint8_t lean_expr_has_expr_mvar(lean_object*);
 lean_object* l_List_foldl___main___at_Lean_TypeClass_constNameToTypedExpr___spec__1(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_back___at_Lean_TypeClass_consume___spec__2(lean_object*);
@@ -194,6 +194,7 @@ extern lean_object* l_Lean_exprIsInhabited___closed__1;
 lean_object* l_Array_back___at_Lean_TypeClass_generate___spec__2___boxed(lean_object*);
 lean_object* l_Lean_TypeClass_synth___closed__3;
 lean_object* l_Lean_TypeClass_constNameToTypedExpr___closed__2;
+uint8_t lean_expr_has_level_mvar(lean_object*);
 uint8_t l_Lean_Expr_isLambda(lean_object*);
 lean_object* _init_l_Lean_TypeClass_TypedExpr_HasToString___closed__1() {
 _start:
@@ -4326,55 +4327,67 @@ lean_object* l_Lean_TypeClass_preprocessForOutParams(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_3; uint8_t x_279; 
-x_279 = lean_expr_has_mvar(x_2);
+x_279 = lean_expr_has_expr_mvar(x_2);
 if (x_279 == 0)
 {
-lean_object* x_280; uint8_t x_281; 
-x_280 = l_Lean_Expr_getAppFn___main(x_2);
-x_281 = l_Lean_Expr_isConst(x_280);
-if (x_281 == 0)
+uint8_t x_280; 
+x_280 = lean_expr_has_level_mvar(x_2);
+if (x_280 == 0)
 {
-lean_object* x_282; 
-lean_dec(x_280);
-x_282 = lean_box(0);
-x_3 = x_282;
+lean_object* x_281; uint8_t x_282; 
+x_281 = l_Lean_Expr_getAppFn___main(x_2);
+x_282 = l_Lean_Expr_isConst(x_281);
+if (x_282 == 0)
+{
+lean_object* x_283; 
+lean_dec(x_281);
+x_283 = lean_box(0);
+x_3 = x_283;
 goto block_278;
 }
 else
 {
-lean_object* x_283; uint8_t x_284; 
-x_283 = l_Lean_Expr_constName(x_280);
-lean_dec(x_280);
+lean_object* x_284; uint8_t x_285; 
+x_284 = l_Lean_Expr_constName(x_281);
+lean_dec(x_281);
 lean_inc(x_1);
-x_284 = lean_has_out_params(x_1, x_283);
-if (x_284 == 0)
+x_285 = lean_has_out_params(x_1, x_284);
+if (x_285 == 0)
 {
-lean_object* x_285; lean_object* x_286; lean_object* x_287; lean_object* x_288; 
+lean_object* x_286; lean_object* x_287; lean_object* x_288; lean_object* x_289; 
 lean_dec(x_1);
-x_285 = l_panicWithPos___at_Lean_TypeClass_collectEReplacements___main___spec__1___closed__1;
-x_286 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_286, 0, x_2);
-lean_ctor_set(x_286, 1, x_285);
-x_287 = l_Lean_TypeClass_Context_Inhabited___closed__1;
-x_288 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_288, 0, x_287);
-lean_ctor_set(x_288, 1, x_286);
-return x_288;
-}
-else
-{
-lean_object* x_289; 
-x_289 = lean_box(0);
-x_3 = x_289;
-goto block_278;
-}
-}
+x_286 = l_panicWithPos___at_Lean_TypeClass_collectEReplacements___main___spec__1___closed__1;
+x_287 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_287, 0, x_2);
+lean_ctor_set(x_287, 1, x_286);
+x_288 = l_Lean_TypeClass_Context_Inhabited___closed__1;
+x_289 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_289, 0, x_288);
+lean_ctor_set(x_289, 1, x_287);
+return x_289;
 }
 else
 {
 lean_object* x_290; 
 x_290 = lean_box(0);
 x_3 = x_290;
+goto block_278;
+}
+}
+}
+else
+{
+lean_object* x_291; 
+x_291 = lean_box(0);
+x_3 = x_291;
+goto block_278;
+}
+}
+else
+{
+lean_object* x_292; 
+x_292 = lean_box(0);
+x_3 = x_292;
 goto block_278;
 }
 block_278:

@@ -84,6 +84,9 @@ args.foldl Expr.app fn
 def mkCApp (fn : Name) (args : Array Expr) : Expr :=
 mkApp (Expr.const fn []) args
 
+def mkAppRev (fn : Expr) (revArgs : Array Expr) : Expr :=
+revArgs.foldr (fun a r => Expr.app r a) fn
+
 namespace Expr
 @[extern "lean_expr_hash"]
 constant hash (n : @& Expr) : USize := default USize
@@ -200,6 +203,15 @@ private def getAppRevArgsAux : Expr → Array Expr → Array Expr
 @[inline] def getAppRevArgs (e : Expr) : Array Expr :=
 getAppRevArgsAux e (Array.mkEmpty e.getAppNumArgs)
 
+@[specialize] def withAppAux {α} (k : Expr → Array Expr → α) : Expr → Array Expr → Nat → α
+| app f a, as, i => withAppAux f (as.set! i a) (i-1)
+| f, as, i       => k f as
+
+@[inline] def withApp {α} (e : Expr) (k : Expr → Array Expr → α) : α :=
+let dummy := Expr.sort Level.zero;
+let nargs := e.getAppNumArgs;
+withAppAux k e (mkArray nargs dummy) (nargs-1)
+
 def isAppOf (e : Expr) (n : Name) : Bool :=
 match e.getAppFn with
 | const c _ => c == n
@@ -248,22 +260,27 @@ def letName : Expr → Name
 /-- Instantiate the loose bound variables in `e` using `subst`.
     That is, a loose `Expr.bvar i` is replaced with `subst[i]`. -/
 @[extern "lean_expr_instantiate"]
-constant instantiate (e : Expr) (subst : Array Expr) : Expr := default _
+constant instantiate (e : @& Expr) (subst : @& Array Expr) : Expr := default _
 
 @[extern "lean_expr_instantiate1"]
-constant instantiate1 (e : Expr) (subst : Expr) : Expr := default _
+constant instantiate1 (e : @& Expr) (subst : @& Expr) : Expr := default _
 
 /-- Similar to instantiate, but `Expr.bvar i` is replaced with `subst[subst.size - i - 1]` -/
 @[extern "lean_expr_instantiate_rev"]
-constant instantiateRev (e : Expr) (subst : Array Expr) : Expr := default _
+constant instantiateRev (e : @& Expr) (subst : @& Array Expr) : Expr := default _
+
+/-- Similar to `instantiate`, but consider only the variables `xs` in the range `[beginIdx, endIdx)`.
+    Function panics if `beginIdx <= endIdx <= xs.size` does not hold. -/
+@[extern "lean_expr_instantiate_range"]
+constant instantiateRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : Array Expr) : Expr := default _
 
 /-- Replace free variables `xs` with loose bound variables. -/
 @[extern "lean_expr_abstract"]
-constant abstract (e : Expr) (xs : Array Expr) : Expr := default _
+constant abstract (e : @& Expr) (xs : @& Array Expr) : Expr := default _
 
 /-- Similar to `abstract`, but consider only the first `min n xs.size` entries in `xs`. -/
 @[extern "lean_expr_abstract_range"]
-constant abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : Expr := default _
+constant abstractRange (e : @& Expr) (n : @& Nat) (xs : @& Array Expr) : Expr := default _
 
 instance : HasToString Expr :=
 ⟨Expr.dbgToString⟩

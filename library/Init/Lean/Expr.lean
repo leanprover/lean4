@@ -112,8 +112,14 @@ instance : HasBeq Expr := ⟨Expr.eqv⟩
 @[extern "lean_expr_equal"]
 constant equal (a : @& Expr) (b : @& Expr) : Bool := default _
 
-@[extern "lean_expr_has_mvar"]
-constant hasMVar (a : @& Expr) : Bool := default _
+@[extern "lean_expr_has_expr_mvar"]
+constant hasExprMVar (a : @& Expr) : Bool := default _
+
+@[extern "lean_expr_has_level_mvar"]
+constant hasLevelMVar (a : @& Expr) : Bool := default _
+
+@[inline] def hasMVar (a : Expr) : Bool :=
+a.hasExprMVar || a.hasLevelMVar
 
 @[extern "lean_expr_has_fvar"]
 constant hasFVar (a : @& Expr) : Bool := default _

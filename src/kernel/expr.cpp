@@ -871,6 +871,14 @@ extern "C" uint8 lean_expr_has_mvar(b_obj_arg o) {
     return has_mvar(TO_REF(expr, o));
 }
 
+extern "C" uint8 lean_expr_has_expr_mvar(b_obj_arg o) {
+    return has_expr_mvar(TO_REF(expr, o));
+}
+
+extern "C" uint8 lean_expr_has_level_mvar(b_obj_arg o) {
+    return has_univ_mvar(TO_REF(expr, o));
+}
+
 extern "C" uint8 lean_expr_has_fvar(b_obj_arg o) {
     return has_fvar(TO_REF(expr, o));
 }

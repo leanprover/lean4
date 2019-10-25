@@ -99,7 +99,7 @@ public:
 
       \pre is_metavar_decl_ref(e)
     */
-    void assign(expr const & e, local_context const & lctx, exprs const & locals, expr const & v);
+    void assign_delayed(expr const & e, local_context const & lctx, exprs const & locals, expr const & v);
 
     level instantiate_mvars(level const & l);
     expr instantiate_mvars(expr const & e);

@@ -139,7 +139,7 @@ void metavar_context::assign(expr const & e, expr const & v) {
     lean_assert(is_assigned(e));
 }
 
-void metavar_context::assign(expr const & e, local_context const & lctx, exprs const & locals, expr const & v) {
+void metavar_context::assign_delayed(expr const & e, local_context const & lctx, exprs const & locals, expr const & v) {
     m_obj = lean_metavar_ctx_assign_delayed(m_obj, mvar_name(e).to_obj_arg(), lctx.to_obj_arg(), locals.to_obj_arg(), v.to_obj_arg());
     lean_assert(is_delayed_assigned(e));
 }
@@ -187,7 +187,7 @@ struct metavar_context::interface_impl {
         if (has_expr_metavar(new_v)) {
             m_delayed_found.insert(mvar_name(e));
             if (!is_eqp(new_v, d->get_val()))
-                m_ctx.assign(e, d->get_lctx(), d->get_locals(), new_v);
+                m_ctx.assign_delayed(e, d->get_lctx(), d->get_locals(), new_v);
             return none_expr();
         } else {
             m_ctx.m_obj = lean_metavar_ctx_erase_delayed(m_ctx.m_obj, mvar_name(e).to_obj_arg());

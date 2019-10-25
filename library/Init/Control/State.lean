@@ -161,7 +161,7 @@ export MonadStateAdapter (adaptState)
 section
 variables {σ σ' : Type u} {m m' : Type u → Type v}
 
-def MonadStateAdapter.adaptState' [MonadStateAdapter σ σ' m m'] {α : Type u} (toSigma : σ' → σ) (fromSigma : σ → σ') : m α → m' α :=
+@[inline] def MonadStateAdapter.adaptState' [MonadStateAdapter σ σ' m m'] {α : Type u} (toSigma : σ' → σ) (fromSigma : σ → σ') : m α → m' α :=
 adaptState (fun st => (toSigma st, PUnit.unit)) (fun st _ => fromSigma st)
 export MonadStateAdapter (adaptState')
 

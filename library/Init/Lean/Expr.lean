@@ -169,6 +169,10 @@ def isLet : Expr → Bool
 | letE _ _ _ _ => true
 | _            => false
 
+def isMData : Expr → Bool
+| mdata _ _ => true
+| _         => false
+
 def getAppFn : Expr → Expr
 | app f a => getAppFn f
 | e       => e
@@ -355,6 +359,17 @@ def updateProj (e : Expr) (newExpr : Expr) (h : e.isProj = true) : Expr :=
 match e with
 | proj s i _ => proj s i newExpr
 | _          => e -- unreachable because of `h`
+
+@[extern "lean_expr_update_mdata"]
+def updateMData (e : Expr) (newExpr : Expr) (h : e.isMData = true) : Expr :=
+match e with
+| mdata d _ => mdata d newExpr
+| _         => e -- unreachable because of `h`
+
+@[inline] def updateMData! (e : Expr) (newExpr : Expr) : Expr :=
+match e with
+| mdata d e => updateMData (mdata d e) newExpr rfl
+| _         => panic! "mdata expected"
 
 @[inline] def updateProj! (e : Expr) (newExpr : Expr) : Expr :=
 match e with

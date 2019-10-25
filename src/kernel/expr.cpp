@@ -684,6 +684,16 @@ expr update_local(expr const & e, expr const & new_type) {
         return mk_local(local_name(e), local_pp_name(e), new_type, local_info(e));
 }
 
+extern "C" object * lean_expr_update_mdata(obj_arg e, obj_arg new_expr) {
+    if (mdata_expr(TO_REF(expr, e)).raw() != new_expr) {
+        lean_dec_ref(e);
+        return lean_expr_mk_mdata(mdata_data(TO_REF(expr, e)).to_obj_arg(), new_expr);
+    } else {
+        lean_dec_ref(new_expr);
+        return e;
+    }
+}
+
 extern "C" object * lean_expr_update_const(obj_arg e, obj_arg new_levels) {
     if (const_levels(TO_REF(expr, e)).raw() != new_levels) {
         lean_dec_ref(e);

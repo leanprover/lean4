@@ -18,7 +18,7 @@ A delayed assignment for a metavariable `?m`. It represents an assignment of the
 `?m := (fun fvars => val)`. The local context `lctx` provides the declarations for `fvars`.
 Note that `fvars` may not be defined in the local context for `?m`.
 -/
-structure DelayedMetavarAssignment :=
+structure DelayedMVarAssignment :=
 (lctx     : LocalContext)
 (fvars    : List Expr)
 (val      : Expr)
@@ -27,7 +27,7 @@ structure MetavarContext :=
 (decls       : PersistentHashMap Name MetavarDecl := {})
 (lAssignment : PersistentHashMap Name Level := {})
 (eAssignment : PersistentHashMap Name Expr := {})
-(dAssignment : PersistentHashMap Name DelayedMetavarAssignment := {})
+(dAssignment : PersistentHashMap Name DelayedMVarAssignment := {})
 
 namespace MetavarContext
 
@@ -73,7 +73,7 @@ def getExprAssignment (m : MetavarContext) (mvarId : Name) : Option Expr :=
 m.eAssignment.find mvarId
 
 @[export lean_metavar_ctx_get_delayed_assignment]
-def getDelayedAssignment (m : MetavarContext) (mvarId : Name) : Option DelayedMetavarAssignment :=
+def getDelayedAssignment (m : MetavarContext) (mvarId : Name) : Option DelayedMVarAssignment :=
 m.dAssignment.find mvarId
 
 @[export lean_metavar_ctx_is_level_assigned]

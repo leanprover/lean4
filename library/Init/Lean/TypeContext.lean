@@ -121,9 +121,9 @@ def hasAssignedMVar {σ} [AbstractMetavarContext σ] (mctx : σ) : Expr → Bool
 | Expr.mvar mvarId     => isExprAssigned mctx mvarId
 
 partial def instantiateLevelMVars {σ} [AbstractMetavarContext σ] : Level → State σ Level
-| lvl@(Level.succ lvl₁)       => Level.updateSucc! lvl <$> instantiateLevelMVars lvl₁
-| lvl@(Level.max lvl₁ lvl₂)   => Level.updateMax! lvl <$> instantiateLevelMVars lvl₁ <*> instantiateLevelMVars lvl₂
-| lvl@(Level.imax lvl₁ lvl₂)  => Level.updateIMax! lvl <$> instantiateLevelMVars lvl₁ <*> instantiateLevelMVars lvl₂
+| lvl@(Level.succ lvl₁)       => do lvl₁ ← instantiateLevelMVars lvl₁; pure (Level.updateSucc! lvl lvl₁)
+| lvl@(Level.max lvl₁ lvl₂)   => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateMax! lvl lvl₁ lvl₂)
+| lvl@(Level.imax lvl₁ lvl₂)  => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateIMax! lvl lvl₁ lvl₂)
 | lvl@(Level.mvar mvarId) => do
   mctx ← get;
   match AbstractMetavarContext.getLevelAssignment mctx mvarId with
@@ -165,18 +165,68 @@ if !e.hasMVar then pure e else checkCache e f
 @[inline] def getMCtx {σ} : M σ σ :=
 do s ← get; pure s.mctx
 
+/--
+  Auxiliary function for `instantiateDelayed`.
+  `instantiateDelayed main lctx fvars i body` is used to create `fun fvars[0, i) => body`.
+  It fails if one of variable declarations in `fvars` still contains unassigned metavariables.
+
+  Pre: all expressions in `fvars` are `Expr.fvar`, and `lctx` contains their declarations. -/
+@[specialize] def instantiateDelayedAux {σ} [AbstractMetavarContext σ] (main : Expr → M σ Expr) (lctx : LocalContext) (fvars : Array Expr) : Nat → Expr → M σ (Option Expr)
+| 0,   b => pure b
+| i+1, b => do
+  let fvar := fvars.get! i;
+  match lctx.findFVar fvar with
+  | none => panic! "unknown local declaration"
+  | some (LocalDecl.cdecl _ _ n ty bi)  => do
+    ty ← visit main ty;
+    if ty.hasMVar then pure none
+    else instantiateDelayedAux i (Expr.lam n bi (ty.abstractRange i fvars) b)
+  | some (LocalDecl.ldecl _ _ n ty val) => do
+    ty  ← visit main ty;
+    if ty.hasMVar then pure none
+    else do
+      val ← visit main val;
+      if val.hasMVar then pure none
+      else
+        let ty  := ty.abstractRange i fvars;
+        let val := val.abstractRange i fvars;
+        instantiateDelayedAux i (Expr.letE n ty val b)
+
+/-- Try to instantiate a delayed assignment. Return `none` (i.e., fail) if assignment still contains variables. -/
+@[inline] def instantiateDelayed {σ} [AbstractMetavarContext σ] (main : Expr → M σ Expr) (mvarId : Name) : DelayedMVarAssignment → M σ (Option Expr)
+| { lctx := lctx, fvars := fvars, val := val } => do
+  newVal ← visit main val;
+  let fail : M σ (Option Expr) := do {
+     /- Join point for updating delayed assignment and failing -/
+     modify $ fun s => { mctx := AbstractMetavarContext.assignDelayed s.mctx mvarId lctx fvars newVal, .. s };
+     pure none
+  };
+  if newVal.hasMVar then fail
+  else do
+    /- Create `fun fvars => newVal`.
+       It fails if there is a one of the variable declarations in `fvars` still contain metavariables. -/
+    newE ← instantiateDelayedAux main lctx fvars fvars.size (newVal.abstract fvars);
+    match newE with
+    | none      => fail
+    | some newE => do
+      /- Succeeded. Thus, replace delayed assignment with a regular assignment. -/
+      modify $ fun s =>
+        let mctx := AbstractMetavarContext.eraseDelayed s.mctx mvarId;
+        { mctx := AbstractMetavarContext.assignExpr mctx mvarId newE, .. s };
+      pure (some newE)
+
 /-- instantiateExprMVars main function -/
 partial def main {σ} [AbstractMetavarContext σ] : Expr → M σ Expr
-| e@(Expr.proj _ _ s)      => e.updateProj! <$> visit main s
-| e@(Expr.forallE _ _ d b) => e.updateForallE! <$> visit main d <*> visit main b
-| e@(Expr.lam _ _ d b)     => e.updateLambdaE! <$> visit main d <*> visit main b
-| e@(Expr.letE _ t v b)    => e.updateLet! <$> visit main t <*> visit main v <*> visit main b
-| e@(Expr.const _ lvls)    => e.updateConst! <$> lvls.mmap instantiateLevelMVars
-| e@(Expr.sort lvl)        => e.updateSort! <$> instantiateLevelMVars lvl
-| e@(Expr.mdata _ b)       => e.updateMData! <$> visit main b
+| e@(Expr.proj _ _ s)      => do s ← visit main s; pure (e.updateProj! s)
+| e@(Expr.forallE _ _ d b) => do d ← visit main d; b ← visit main b; pure (e.updateForallE! d b)
+| e@(Expr.lam _ _ d b)     => do d ← visit main d; b ← visit main b; pure (e.updateLambdaE! d b)
+| e@(Expr.letE _ t v b)    => do t ← visit main t; v ← visit main v; b ← visit main b; pure (e.updateLet! t v b)
+| e@(Expr.const _ lvls)    => do lvls ← lvls.mmap instantiateLevelMVars; pure (e.updateConst! lvls)
+| e@(Expr.sort lvl)        => do lvl ← instantiateLevelMVars lvl; pure (e.updateSort! lvl)
+| e@(Expr.mdata _ b)       => do b ← visit main b; pure (e.updateMData! b)
 | e@(Expr.app f a)         =>
   -- TODO apply beta
-  e.updateApp! <$> visit main f <*> visit main a
+  do f ← visit main f; a ← visit main a; pure (e.updateApp! f a)
 | e@(Expr.mvar mvarId)     => checkCache e $ fun e => do
   mctx ← getMCtx;
   match AbstractMetavarContext.getExprAssignment mctx mvarId with
@@ -189,14 +239,9 @@ partial def main {σ} [AbstractMetavarContext σ] : Expr → M σ Expr
        as soon as all metavariables occurring in the assigned value have
        been assigned. -/
     match AbstractMetavarContext.getDelayedAssignment mctx mvarId with
-    | some { lctx := lctx, fvars := fvars, val := val } => do
-      newVal ← visit main val;
-      if newVal.hasMVar then do
-        modify $ fun s => { mctx := AbstractMetavarContext.assignDelayed s.mctx mvarId lctx fvars newVal, .. s };
-        pure e
-      else
-        -- TODO: abstract newVal and ensure fvars decls do not contain metavars
-        pure e
+    | some d => do
+       newE ← instantiateDelayed main mvarId d;
+       pure $ newE.getD e
     | none   => pure e
 | e => pure e
 
@@ -237,5 +282,20 @@ instance metavarContextIsAbstractMetavarContext : AbstractMetavarContext Metavar
   getDelayedAssignment := MetavarContext.getDelayedAssignment,
   eraseDelayed         := MetavarContext.eraseDelayed
 }
+
+inductive TypeContextNoCache
+| mk
+
+instance typeContextNoCacheIsAbstractTCCache : AbstractTCCache TypeContextNoCache :=
+{ getWHNF := fun _ _ _ => none,
+  setWHNF := fun s _ _ _ => s
+}
+
+namespace TypeContext
+
+@[inline] def instantiateExprMVars (e : Expr) : State MetavarContext Expr :=
+AbstractTypeContext.instantiateExprMVars e
+
+end TypeContext
 
 end Lean

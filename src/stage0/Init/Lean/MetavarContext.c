@@ -29,6 +29,7 @@ lean_object* l_PersistentHashMap_findAux___main___at_Lean_MetavarContext_findDec
 size_t l_USize_shift__right(size_t, size_t);
 lean_object* l_PersistentHashMap_containsAux___main___at_Lean_MetavarContext_isDelayedAssigned___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_Lean_MetavarContext_mkDecl___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MetavarContext_getExprMVarLCtx(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAtAux___main___at_Lean_MetavarContext_getDelayedAssignment___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_metavar_ctx_erase_delayed(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_containsAtAux___main___at_Lean_MetavarContext_isLevelAssigned___spec__3___boxed(lean_object*, lean_object*, lean_object*);
@@ -44,6 +45,7 @@ uint8_t l_PersistentHashMap_contains___at_Lean_MetavarContext_isLevelAssigned___
 lean_object* l_PersistentHashMap_find___at_Lean_MetavarContext_findDecl___spec__1(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_find___at_Lean_MetavarContext_getDelayedAssignment___spec__1(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
+lean_object* l_Lean_MetavarContext_getExprMVarType(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_MetavarContext_assignDelayed___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAtAux___main___at_Lean_MetavarContext_getLevelAssignment___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -857,6 +859,88 @@ x_3 = l_PersistentHashMap_find___at_Lean_MetavarContext_findDecl___spec__1(x_1, 
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
+}
+}
+lean_object* l_Lean_MetavarContext_getExprMVarLCtx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_metavar_ctx_find_decl(x_1, x_2);
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; 
+x_4 = lean_box(0);
+return x_4;
+}
+else
+{
+uint8_t x_5; 
+x_5 = !lean_is_exclusive(x_3);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_ctor_get(x_3, 0);
+x_7 = lean_ctor_get(x_6, 1);
+lean_inc(x_7);
+lean_dec(x_6);
+lean_ctor_set(x_3, 0, x_7);
+return x_3;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_ctor_get(x_3, 0);
+lean_inc(x_8);
+lean_dec(x_3);
+x_9 = lean_ctor_get(x_8, 1);
+lean_inc(x_9);
+lean_dec(x_8);
+x_10 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_10, 0, x_9);
+return x_10;
+}
+}
+}
+}
+lean_object* l_Lean_MetavarContext_getExprMVarType(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_metavar_ctx_find_decl(x_1, x_2);
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; 
+x_4 = lean_box(0);
+return x_4;
+}
+else
+{
+uint8_t x_5; 
+x_5 = !lean_is_exclusive(x_3);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_ctor_get(x_3, 0);
+x_7 = lean_ctor_get(x_6, 2);
+lean_inc(x_7);
+lean_dec(x_6);
+lean_ctor_set(x_3, 0, x_7);
+return x_3;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_ctor_get(x_3, 0);
+lean_inc(x_8);
+lean_dec(x_3);
+x_9 = lean_ctor_get(x_8, 2);
+lean_inc(x_9);
+lean_dec(x_8);
+x_10 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_10, 0, x_9);
+return x_10;
+}
+}
 }
 }
 lean_object* l_PersistentHashMap_insertAtCollisionNodeAux___main___at_Lean_MetavarContext_assignLevel___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

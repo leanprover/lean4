@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/fresh_name.h"
+#include "util/array_ref.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
 #include "library/metavar_util.h"
@@ -43,12 +44,35 @@ name get_metavar_decl_ref_suffix(expr const & e) {
     return mvar_name(e).replace_prefix(*g_meta_prefix, name());
 }
 
+// Hack for interfacing with new DelayedMVarAssignment
+typedef array_ref<expr> array_expr;
+static inline array_expr to_array_expr(exprs const & locals) {
+    buffer<expr> tmp;
+    to_buffer(locals, tmp);
+    return array_expr(tmp);
+}
+
+// Hack for interfacing with new DelayedMVarAssignment
+static inline exprs to_exprs(array_expr const & locals) {
+    exprs r;
+    size_t i = locals.size();
+    while (i > 0) {
+        --i;
+        r = cons(locals[i], r);
+    }
+    return r;
+}
+
 metavar_context::delayed_assignment::delayed_assignment(local_context const & lctx, exprs const & locals, expr const & v):
-    object_ref(mk_cnstr(0, lctx, locals, v)) {
+    object_ref(mk_cnstr(0, lctx, to_array_expr(locals), v)) {
 }
 
 metavar_context::delayed_assignment::delayed_assignment():
     delayed_assignment(local_context(), exprs(), expr()) {
+}
+
+exprs metavar_context::delayed_assignment::get_locals() const {
+    return to_exprs(static_cast<array_expr const &>(cnstr_get_ref(raw(), 1)));
 }
 
 // TODO(Leo): fix this
@@ -140,7 +164,7 @@ void metavar_context::assign(expr const & e, expr const & v) {
 }
 
 void metavar_context::assign_delayed(expr const & e, local_context const & lctx, exprs const & locals, expr const & v) {
-    m_obj = lean_metavar_ctx_assign_delayed(m_obj, mvar_name(e).to_obj_arg(), lctx.to_obj_arg(), locals.to_obj_arg(), v.to_obj_arg());
+    m_obj = lean_metavar_ctx_assign_delayed(m_obj, mvar_name(e).to_obj_arg(), lctx.to_obj_arg(), to_array_expr(locals).steal(), v.to_obj_arg());
     lean_assert(is_delayed_assigned(e));
 }
 

@@ -52,7 +52,7 @@ class AbstractMetavarContext (σ : Type) :=
 (getExprMVarLCtx      (mctx : σ) (mvarId : Name) : Option LocalContext)
 (getExprMVarType      (mctx : σ) (mvarId : Name) : Option Expr)
 (sharedContext        : Bool)
-(assignDelayed        (mctx : σ) (mvarId : Name) (lctx : LocalContext) (fvars : List Expr) (val : Expr) : σ)
+(assignDelayed        (mctx : σ) (mvarId : Name) (lctx : LocalContext) (fvars : Array Expr) (val : Expr) : σ)
 (getDelayedAssignment (mctx : σ) (mvarId : Name) : Option DelayedMVarAssignment)
 (eraseDelayed         (mctx : σ) (mvarId : Name) : σ)
 

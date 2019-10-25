@@ -41,7 +41,7 @@ class metavar_context : public object_ref {
         delayed_assignment & operator=(delayed_assignment const & other) { object_ref::operator=(other); return *this; }
         delayed_assignment & operator=(delayed_assignment && other) { object_ref::operator=(other); return *this; }
         local_context const & get_lctx() const { return static_cast<local_context const &>(cnstr_get_ref(raw(), 0)); }
-        exprs const & get_locals() const { return static_cast<exprs const &>(cnstr_get_ref(raw(), 1)); }
+        exprs get_locals() const;
         expr const & get_val() const { return static_cast<expr const &>(cnstr_get_ref(raw(), 2)); }
     };
     struct interface_impl;

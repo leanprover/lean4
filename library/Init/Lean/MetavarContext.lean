@@ -20,7 +20,7 @@ Note that `fvars` may not be defined in the local context for `?m`.
 -/
 structure DelayedMVarAssignment :=
 (lctx     : LocalContext)
-(fvars    : List Expr)
+(fvars    : Array Expr)
 (val      : Expr)
 
 structure MetavarContext :=
@@ -61,7 +61,7 @@ def assignExpr (m : MetavarContext) (mvarId : Name) (val : Expr) : MetavarContex
 { eAssignment := m.eAssignment.insert mvarId val, .. m }
 
 @[export lean_metavar_ctx_assign_delayed]
-def assignDelayed (m : MetavarContext) (mvarId : Name) (lctx : LocalContext) (fvars : List Expr) (val : Expr) : MetavarContext :=
+def assignDelayed (m : MetavarContext) (mvarId : Name) (lctx : LocalContext) (fvars : Array Expr) (val : Expr) : MetavarContext :=
 { dAssignment := m.dAssignment.insert mvarId { lctx := lctx, fvars := fvars, val := val }, .. m }
 
 @[export lean_metavar_ctx_get_level_assignment]

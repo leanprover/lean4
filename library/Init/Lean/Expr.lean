@@ -370,6 +370,11 @@ match e with
 | forallE n bi d b => updateForall (forallE n bi d b) newBinfo newDomain newBody rfl
 | _                => panic! "forall expected"
 
+@[inline] def updateForallE! (e : Expr) (newDomain : Expr) (newBody : Expr) : Expr :=
+match e with
+| forallE n bi d b => updateForall (forallE n bi d b) bi newDomain newBody rfl
+| _                => panic! "forall expected"
+
 @[extern "lean_expr_update_lambda"]
 def updateLambda (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) (h : e.isLambda = true) : Expr :=
 lam e.bindingName newBinfo newDomain newBody
@@ -377,6 +382,11 @@ lam e.bindingName newBinfo newDomain newBody
 @[inline] def updateLambda! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) : Expr :=
 match e with
 | lam n bi d b => updateLambda (lam n bi d b) newBinfo newDomain newBody rfl
+| _            => panic! "lambda expected"
+
+@[inline] def updateLambdaE! (e : Expr) (newDomain : Expr) (newBody : Expr) : Expr :=
+match e with
+| lam n bi d b => updateLambda (lam n bi d b) bi newDomain newBody rfl
 | _            => panic! "lambda expected"
 
 @[extern "lean_expr_update_let"]

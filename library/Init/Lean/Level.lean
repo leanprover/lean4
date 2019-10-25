@@ -10,6 +10,9 @@ import Init.Lean.Format
 import Init.Data.HashMap
 import Init.Data.PersistentHashMap
 
+def Nat.imax (n m : Nat) : Nat :=
+if m = 0 then 0 else Nat.max n m
+
 namespace Lean
 
 inductive Level
@@ -26,69 +29,93 @@ attribute [extern "level_mk_imax"]  Level.imax
 attribute [extern "level_mk_param"] Level.param
 attribute [extern "level_mk_mvar"]  Level.mvar
 
-instance levelIsInhabited : Inhabited Level :=
-⟨Level.zero⟩
+namespace Level
 
-def Level.one : Level := Level.succ Level.zero
+instance : Inhabited Level := ⟨zero⟩
 
-def Level.hasParam : Level → Bool
-| Level.param _    => true
-| Level.succ l     => Level.hasParam l
-| Level.max l₁ l₂  => Level.hasParam l₁ || Level.hasParam l₂
-| Level.imax l₁ l₂ => Level.hasParam l₁ || Level.hasParam l₂
-| _                => false
+def isZero : Level → Bool
+| zero => true
+| _    => false
 
-def Level.hasMVar : Level → Bool
-| Level.mvar _     => true
-| Level.succ l     => Level.hasMVar l
-| Level.max l₁ l₂  => Level.hasMVar l₁ || Level.hasMVar l₂
-| Level.imax l₁ l₂ => Level.hasMVar l₁ || Level.hasMVar l₂
-| _                => false
+def isSucc : Level → Bool
+| succ _ => true
+| _      => false
 
-def Level.ofNat : Nat → Level
-| 0   => Level.zero
-| n+1 => Level.succ (Level.ofNat n)
+def isMax : Level → Bool
+| max _ _ => true
+| _       => false
 
-def Level.addOffsetAux : Nat → Level → Level
+def isIMax : Level → Bool
+| imax _ _ => true
+| _        => false
+
+def isParam : Level → Bool
+| param _ => true
+| _       => false
+
+def isMVar : Level → Bool
+| mvar _ => true
+| _      => false
+
+def one : Level := succ zero
+
+@[extern "lean_level_has_param"]
+def hasParam : Level → Bool
+| param _    => true
+| succ l     => hasParam l
+| max l₁ l₂  => hasParam l₁ || hasParam l₂
+| imax l₁ l₂ => hasParam l₁ || hasParam l₂
+| _          => false
+
+@[extern "lean_level_has_mvar"]
+def hasMVar : Level → Bool
+| mvar _     => true
+| succ l     => hasMVar l
+| max l₁ l₂  => hasMVar l₁ || hasMVar l₂
+| imax l₁ l₂ => hasMVar l₁ || hasMVar l₂
+| _          => false
+
+def ofNat : Nat → Level
+| 0   => zero
+| n+1 => succ (ofNat n)
+
+def addOffsetAux : Nat → Level → Level
 | 0,     l => l
-| (n+1), l => Level.addOffsetAux n (Level.succ l)
+| (n+1), l => addOffsetAux n (Level.succ l)
 
-def Level.addOffset (l : Level) (n : Nat) : Level :=
+def addOffset (l : Level) (n : Nat) : Level :=
 l.addOffsetAux n
 
-def Nat.imax (n m : Nat) : Nat :=
-if m = 0 then 0 else Nat.max n m
+def toNat : Level → Option Nat
+| zero       => some 0
+| succ l     => Nat.succ <$> toNat l
+| max l₁ l₂  => Nat.max  <$> toNat l₁ <*> toNat l₂
+| imax l₁ l₂ => Nat.imax <$> toNat l₁ <*> toNat l₂
+| _          => none
 
-def Level.toNat : Level → Option Nat
-| Level.zero       => some 0
-| Level.succ l     => Nat.succ <$> Level.toNat l
-| Level.max l₁ l₂  => Nat.max  <$> Level.toNat l₁ <*> Level.toNat l₂
-| Level.imax l₁ l₂ => Nat.imax <$> Level.toNat l₁ <*> Level.toNat l₂
-| _                => none
+def toOffset : Level → Level × Nat
+| zero   => (zero, 0)
+| succ l => let (l', k) := toOffset l; (l', k+1)
+| l      => (l, 0)
 
-def Level.toOffset : Level → Level × Nat
-| Level.zero   => (Level.zero, 0)
-| Level.succ l => let (l', k) := Level.toOffset l; (l', k+1)
-| l            => (l, 0)
-
-def Level.instantiate (s : Name → Option Level) : Level → Level
-| Level.zero        => Level.zero
-| Level.succ l      => Level.succ (Level.instantiate l)
-| Level.max l₁ l₂   => Level.max (Level.instantiate l₁) (Level.instantiate l₂)
-| Level.imax l₁ l₂  => Level.imax (Level.instantiate l₁) (Level.instantiate l₂)
-| l@(Level.param n) =>
+def instantiate (s : Name → Option Level) : Level → Level
+| zero        => zero
+| succ l      => succ (instantiate l)
+| max l₁ l₂   => max (instantiate l₁) (instantiate l₂)
+| imax l₁ l₂  => imax (instantiate l₁) (instantiate l₂)
+| l@(param n) =>
   match s n with
   | some l' => l'
   | none    => l
-| l                 => l
+| l           => l
 
 @[extern "lean_level_hash"]
-constant Level.hash (n : @& Level) : USize := default USize
+protected constant hash (n : @& Level) : USize := default USize
 
-instance Level.hashable : Hashable Level := ⟨Level.hash⟩
+instance hashable : Hashable Level := ⟨Level.hash⟩
 
 @[extern "lean_level_eq"]
-constant Level.beq (a : @& Level) (b : @& Level) : Bool := default _
+protected constant beq (a : @& Level) (b : @& Level) : Bool := default _
 
 instance : HasBeq Level := ⟨Level.beq⟩
 
@@ -96,7 +123,7 @@ instance : HasBeq Level := ⟨Level.beq⟩
    Check is currently incomplete.
    TODO: implement in Lean. -/
 @[extern "lean_level_eqv"]
-constant Level.isEquiv (a : @& Level) (b : @& Level) : Bool := default _
+constant isEquiv (a : @& Level) (b : @& Level) : Bool := default _
 
 /- Level to Format -/
 namespace LevelToFormat
@@ -138,20 +165,59 @@ partial def Result.format : Result → Bool → Format
 | Result.maxNode fs,    r => parenIfFalse (Format.group $ "max"  ++ formatLst (fun r => Result.format r false) fs) r
 | Result.imaxNode fs,   r => parenIfFalse (Format.group $ "imax" ++ formatLst (fun r => Result.format r false) fs) r
 
-def Level.toResult : Level → Result
-| Level.zero       => Result.num 0
-| Level.succ l     => Result.succ (Level.toResult l)
-| Level.max l₁ l₂  => Result.max (Level.toResult l₁) (Level.toResult l₂)
-| Level.imax l₁ l₂ => Result.imax (Level.toResult l₁) (Level.toResult l₂)
-| Level.param n    => Result.leaf (fmt n)
-| Level.mvar n     => Result.leaf (fmt n)
+def toResult : Level → Result
+| zero       => Result.num 0
+| succ l     => Result.succ (toResult l)
+| max l₁ l₂  => Result.max (toResult l₁) (toResult l₂)
+| imax l₁ l₂ => Result.imax (toResult l₁) (toResult l₂)
+| param n    => Result.leaf (fmt n)
+| mvar n     => Result.leaf (fmt n)
 
-def Level.format (l : Level) : Format :=
-(Level.toResult l).format true
-
-instance levelHasFormat : HasFormat Level := ⟨Level.format⟩
-instance levelHasToString : HasToString Level := ⟨Format.pretty ∘ Level.format⟩
 end LevelToFormat
+
+protected def format (l : Level) : Format :=
+(LevelToFormat.toResult l).format true
+
+instance : HasFormat Level := ⟨Level.format⟩
+instance : HasToString Level := ⟨Format.pretty ∘ Level.format⟩
+
+/- The update functions here are defined using C code. They will try to avoid
+   allocating new values using pointer equality.
+   The hypotheses `(h : e.is... = true)` are used to ensure Lean will not crash
+   at runtime.
+   The `update*!` functions are inlined and provide a convenient way of using the
+   update proofs without providing proofs.
+   Note that if they are used under a match-expression, the compiler will eliminate
+   the double-match. -/
+
+@[extern "lean_level_update_succ"]
+def updateSucc (lvl : Level) (newLvl : Level) (h : lvl.isSucc = true) : Level :=
+succ newLvl
+
+@[inline] def updateSucc! (lvl : Level) (newLvl : Level) : Level :=
+match lvl with
+| succ lvl => updateSucc (succ lvl) newLvl rfl
+| _        => panic! "succ level expected"
+
+@[extern "lean_level_update_max"]
+def updateMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isMax = true) : Level :=
+max newLhs newRhs
+
+@[inline] def updateMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
+match lvl with
+| max lhs rhs => updateMax (max lhs rhs) newLhs newRhs rfl
+| _           => panic! "max level expected"
+
+@[extern "lean_level_update_imax"]
+def updateIMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isIMax = true) : Level :=
+imax newLhs newRhs
+
+@[inline] def updateIMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
+match lvl with
+| max lhs rhs => updateIMax (imax lhs rhs) newLhs newRhs rfl
+| _           => panic! "imax level expected"
+
+end Level
 
 abbrev LevelMap (α : Type)  := HashMap Level α
 abbrev PersistentLevelMap (α : Type) := PHashMap Level α

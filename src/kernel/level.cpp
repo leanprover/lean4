@@ -63,7 +63,7 @@ unsigned level_depth(b_obj_arg l) {
 
 extern "C" object * lean_level_depth(b_obj_arg l) { return mk_nat_obj(level_depth(l)); }
 
-bool level_has_param(b_obj_arg l) {
+extern "C" uint8 lean_level_has_param(b_obj_arg l) {
     switch (get_level_kind(l)) {
     case level_kind::Zero: case level_kind::MVar:
         return false;
@@ -77,7 +77,7 @@ bool level_has_param(b_obj_arg l) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-bool level_has_mvar(b_obj_arg l) {
+extern "C" uint8 lean_level_has_mvar(b_obj_arg l) {
     switch (get_level_kind(l)) {
     case level_kind::Zero: case level_kind::Param:
         return false;
@@ -94,7 +94,7 @@ bool level_has_mvar(b_obj_arg l) {
 extern "C" object * level_mk_succ(obj_arg l) {
     object * r = alloc_cnstr(static_cast<unsigned>(level_kind::Succ), 1, g_level_num_scalars);
     cnstr_set(r, 0, l);
-    set_level_scalar_fields(r, 1, hash(level::hash(l), 17u), level_depth(l)+1, level_has_param(l), level_has_mvar(l));
+    set_level_scalar_fields(r, 1, hash(level::hash(l), 17u), level_depth(l)+1, lean_level_has_param(l), lean_level_has_mvar(l));
     return r;
 }
 
@@ -105,8 +105,8 @@ template<level_kind k> object * level_mk_max_imax(obj_arg l1, obj_arg l2) {
     set_level_scalar_fields(r, 2,
                             hash(level::hash(l1), level::hash(l2)),
                             std::max(level_depth(l1), level_depth(l2)) + 1,
-                            level_has_param(l1) || level_has_param(l2),
-                            level_has_mvar(l1) || level_has_mvar(l2));
+                            lean_level_has_param(l1) || lean_level_has_param(l2),
+                            lean_level_has_mvar(l1) || lean_level_has_mvar(l2));
     return r;
 }
 
@@ -156,8 +156,8 @@ level mk_univ_mvar(name const & n) {
 }
 
 unsigned get_depth(level const & l) { return level_depth(l.raw()); }
-bool has_param(level const & l) { return level_has_param(l.raw()); }
-bool has_mvar(level const & l) { return level_has_mvar(l.raw()); }
+bool has_param(level const & l) { return lean_level_has_param(l.raw()); }
+bool has_mvar(level const & l) { return lean_level_has_mvar(l.raw()); }
 
 bool is_explicit(level const & l) {
     switch (kind(l)) {
@@ -320,7 +320,7 @@ bool is_lt(levels const & as, levels const & bs, bool use_hash) {
 
 bool levels_has_param(b_obj_arg ls) {
     while (!is_scalar(ls)) {
-        if (level_has_param(cnstr_get(ls, 0))) return true;
+        if (lean_level_has_param(cnstr_get(ls, 0))) return true;
         ls = cnstr_get(ls, 1);
     }
     return false;
@@ -328,7 +328,7 @@ bool levels_has_param(b_obj_arg ls) {
 
 bool levels_has_mvar(b_obj_arg ls) {
     while (!is_scalar(ls)) {
-        if (level_has_mvar(cnstr_get(ls, 0))) return true;
+        if (lean_level_has_mvar(cnstr_get(ls, 0))) return true;
         ls = cnstr_get(ls, 1);
     }
     return false;
@@ -405,6 +405,36 @@ level update_max(level const & l, level const & new_lhs, level const & new_rhs) 
         return mk_max(new_lhs, new_rhs);
     else
         return mk_imax(new_lhs, new_rhs);
+}
+
+extern "C" object * lean_level_update_succ(obj_arg l, obj_arg new_arg) {
+    if (succ_of(TO_REF(level, l)).raw() == new_arg) {
+        lean_dec(new_arg);
+        return l;
+    } else {
+        lean_dec_ref(l);
+        return level_mk_succ(new_arg);
+    }
+}
+
+extern "C" object * lean_level_update_max(obj_arg l, obj_arg new_lhs, obj_arg new_rhs) {
+    if (max_lhs(TO_REF(level, l)).raw() == new_lhs && max_rhs(TO_REF(level, l)).raw() == new_rhs) {
+        lean_dec(new_lhs); lean_dec(new_rhs);
+        return l;
+    } else {
+        lean_dec_ref(l);
+        return level_mk_max(new_lhs, new_rhs);
+    }
+}
+
+extern "C" object * lean_level_update_imax(obj_arg l, obj_arg new_lhs, obj_arg new_rhs) {
+    if (imax_lhs(TO_REF(level, l)).raw() == new_lhs && imax_rhs(TO_REF(level, l)).raw() == new_rhs) {
+        lean_dec(new_lhs); lean_dec(new_rhs);
+        return l;
+    } else {
+        lean_dec_ref(l);
+        return level_mk_imax(new_lhs, new_rhs);
+    }
 }
 
 level instantiate(level const & l, names const & ps, levels const & ls) {

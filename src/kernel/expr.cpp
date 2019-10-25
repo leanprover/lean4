@@ -377,7 +377,7 @@ expr mk_app(expr const & f, expr const & a) {
 extern "C" object * lean_expr_mk_sort(obj_arg l) {
     object * r = alloc_cnstr(static_cast<unsigned>(expr_kind::Sort), 1, expr_scalar_size(expr_kind::Sort));
     cnstr_set(r, 0, l);
-    set_scalar<expr_kind::Sort>(r, level::hash(l), false, level_has_mvar(l), false, level_has_param(l));
+    set_scalar<expr_kind::Sort>(r, level::hash(l), false, lean_level_has_mvar(l), false, lean_level_has_param(l));
     return r;
 }
 

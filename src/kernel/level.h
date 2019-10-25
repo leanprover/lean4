@@ -129,10 +129,8 @@ bool is_explicit(level const & l);
 unsigned to_explicit(level const & l);
 /** \brief Return true iff \c l contains placeholder (aka meta parameters). */
 bool has_mvar(level const & l);
-bool level_has_mvar(b_obj_arg l);
 /** \brief Return true iff \c l contains parameters */
 bool has_param(level const & l);
-bool level_has_param(b_obj_arg l);
 
 /** \brief Return a new level expression based on <tt>l == succ(arg)</tt>, where \c arg is replaced with
     \c new_arg.
@@ -162,6 +160,8 @@ bool levels_has_mvar(object * ls);
 bool has_mvar(levels const & ls);
 bool levels_has_param(object * ls);
 bool has_param(levels const & ls);
+extern "C" uint8 lean_level_has_mvar(b_obj_arg l);
+extern "C" uint8 lean_level_has_param(b_obj_arg l);
 
 /** \brief An arbitrary (monotonic) total order on universe level terms. */
 bool is_lt(level const & l1, level const & l2, bool use_hash);

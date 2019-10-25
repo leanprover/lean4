@@ -46,6 +46,12 @@ def mkDecl (m : MetavarContext) (mvarId : Name) (userName : Name) (lctx : LocalC
 def findDecl (m : MetavarContext) (mvarId : Name) : Option MetavarDecl :=
 m.decls.find mvarId
 
+@[inline] def getExprMVarLCtx (m : MetavarContext) (mvarId : Name) : Option LocalContext :=
+MetavarDecl.lctx <$> findDecl m mvarId
+
+@[inline] def getExprMVarType (m : MetavarContext) (mvarId : Name) : Option Expr :=
+MetavarDecl.type <$> findDecl m mvarId
+
 @[export lean_metavar_ctx_assign_level]
 def assignLevel (m : MetavarContext) (mvarId : Name) (val : Level) : MetavarContext :=
 { lAssignment := m.lAssignment.insert mvarId val, .. m }

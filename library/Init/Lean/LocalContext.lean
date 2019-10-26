@@ -46,7 +46,7 @@ def valueOpt : LocalDecl → Option Expr
 | ldecl _ _ _ _ v => some v
 
 def value : LocalDecl → Expr
-| cdecl _ _ _ _ _ => default _
+| cdecl _ _ _ _ _ => panic! "let declaration expected"
 | ldecl _ _ _ _ v => v
 
 def updateUserName : LocalDecl → Name → LocalDecl

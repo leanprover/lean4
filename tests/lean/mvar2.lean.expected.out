@@ -1,0 +1,6 @@
+
+fun (α : Type) (x : ?m1) (y : Nat -> (?m3 α x)) => f (?m3 α x) x
+fun (α : Type) (x : ?m1) (y : Nat -> (?m3 α x)) => f (?m3 α x) x
+fun (α : Type) (x : Nat) (y : Nat -> α -> α) => f (α -> α) x
+none
+(some fun (α : Type) (x : Nat) => α -> α)

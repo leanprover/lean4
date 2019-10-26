@@ -1,0 +1,21 @@
+
+fun (α : Type) (x : Nat) (y : α) => f α (g x y) (fun (z : Vec.{0} x) => f z)
+
+fun (α : Type) (x : Nat) (y : α) => f (?m4 α x y) x
+fun (α : Type) (x : Nat) (y : α) => f (?m4 α x y) x
+
+
+fun (α : Type) (x : Nat) (y : α) => f (g x y) x
+
+fun (α : Type) (x : Nat) (y : α) => f ?m3 x
+f (f (f ?m1 ?m1) (f ?m1 ?m1)) (f (f ?m1 ?m1) (f ?m1 ?m1))
+f (f (f a a) (f a a)) (f (f a a) (f a a))
+f
+f
+fun (α : Type) (x : Nat) (y : α) (w : Nat -> (?m6 α x y)) => f (?m4 α x y) x
+fun (α : Type) (x : Nat) (y : α) (w : Nat -> (?m6 α x y)) => f (g x y) x
+fun (α : Type) (x : Nat) (y : α) (w : Nat -> α -> α) => f (g x y) x
+
+
+
+

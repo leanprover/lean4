@@ -110,8 +110,8 @@ AbstractMetavarContext.hasAssignedMVar m e
 @[inline] def instantiateLevelMVars (m : MetavarContext) (lvl : Level) : Level × MetavarContext :=
 AbstractMetavarContext.instantiateLevelMVars lvl m
 
-@[inline] def instantiateExprMVars (m : MetavarContext) (e : Expr) : Expr × MetavarContext :=
-AbstractMetavarContext.instantiateExprMVars e m
+@[inline] def instantiateMVars (m : MetavarContext) (e : Expr) : Expr × MetavarContext :=
+AbstractMetavarContext.instantiateMVars e m
 
 end MetavarContext
 end Lean

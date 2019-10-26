@@ -207,7 +207,7 @@ partial def main [AbstractMetavarContext σ] : Expr → M σ Expr
 
 end InstantiateExprMVars
 
-def instantiateExprMVars [AbstractMetavarContext σ] (e : Expr) : State σ Expr :=
+def instantiateMVars [AbstractMetavarContext σ] (e : Expr) : State σ Expr :=
 if !e.hasMVar then pure e
 else
   adaptState'

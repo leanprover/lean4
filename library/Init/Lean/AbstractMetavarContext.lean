@@ -6,6 +6,67 @@ Authors: Leonardo de Moura
 prelude
 import Init.Lean.LocalContext
 
+/-
+- We have two kinds of metavariables in Lean: regular and temporary.
+
+- We use temporary metavariables during type class resolution,
+  matching the left-hand side of equations, etc.
+
+- During type class resolution and simplifier,
+  we use temporary metavariables which are cheaper to create and
+  dispose. Moreover, given a particular task using temporary
+  metavariables (e.g., matching the left-hand side of an equation),
+  we assume all metavariables share the same local context.
+
+- Each regular metavariable has a unique id, a user-facing name, a
+  local context, and a type. The term assigned to a metavariable must
+  only contain free variables in the local context.
+
+- A regular metavariable may be marked a synthetic. Synthetic
+  metavariables cannot be assigned by the unifier. The tactic
+  framework and elaborator are some of the modules responsible for
+  assigning synthetic metavariables.
+
+- When creating lambda/forall expressions, we need to convert/abstract
+  free variables and convert them to bound variables. Now, suppose we
+  a trying to create a lambda/forall expression by abstracting free
+  variables `xs` and a term `t[?m]` which contains a metavariable
+  `?m`, and the local context of `?m` contains `xs`. The term
+  `fun xs => t[?m]` will be ill-formed if we later assign a term `s` to `?m`,
+  and `s` contains free variables in `xs`. We address this issue by changing the free
+  variable abstraction procedure. We consider two cases: `?m` is not
+  synthetic, `?m` is synthetic. Assume the type of `?m` is `A`. Then,
+  in both cases we create an auxiliary metavariable `?n` with type
+  `forall xs => A`, and local context := local context of `?m` - `xs`.
+  In both cases, we produce the term `fun xs => t[?n xs]`
+
+  1- If `?m` is not synthetic, then we assign `?m := ?n xs`, and we produce the term
+     `fun xs => t[?n xs]`
+
+  2- If `?m` is synthetic, then we mark `?n` as a synthetic variable. However,
+     `?n` is managed by the metavariable context itself.
+     We say we have a "delayed assignment" `?n xs := ?m`
+     That is, after a term `s` is assigned to `?m`, and `s` does not
+     contain metavariables, we assign `fun xs => s` to `?n`.
+
+Gruesome details
+
+- When we create the type `forall xs => A` for `?n`, we may encounter
+  the same issue if `A` contains metavariables. So, the process above
+  is recursive. We claim it terminates because we keep creating new
+  metavariables with smaller local contexts.
+
+- The type of variables `xs` may contain metavariables, and we must
+  recursively apply the process above. Again, we claim the process
+  terminates because the metavariables is ocurring in the types of
+  `xs`, they must have smaller local contexts.
+
+- We can only assign `fun xs => s` to `?n` in case 2, the types
+  of `xs` must also not contain metavariables. To be precise, it is
+  sufficient they do not contain metavariables with local contexts
+  containing any of the `xs`s.
+-/
+
 namespace Lean
 /--
   A delayed assignment for a metavariable `?m`. It represents an assignment of the form
@@ -17,15 +78,11 @@ structure DelayedMVarAssignment :=
 (val      : Expr)
 
 /--
-  We can `TypeContext` functions with different implementations of
-  metavariable contexts.  For elaboration and tactic framework, we
-  use `MetavarContext`.  During type class resolution and simplifier,
-  we use temporary metavariables which are cheaper to create and
-  dispose. Moreover, given a particular task using temporary
-  metavariables (e.g., matching the left-hand side of an equation),
-  we assume all metavariables share the same local context.
-  If `sharedContext == false`, then support for "delayed assignments" is
-  required. -/
+  Abstract interface for metavariable context objects.  The
+  `MetavarContext` is the main implementation and is used in the
+  elaborator and tactic framework.
+  The `TemporaryMetavariableContext` is used to implement the
+  type class resolution procedures and matching for rewriting rules.  -/
 class AbstractMetavarContext (σ : Type) :=
 (empty                : σ)
 (isLevelMVar {}       : Level → Bool)

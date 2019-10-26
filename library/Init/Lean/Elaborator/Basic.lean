@@ -435,11 +435,10 @@ modifyGet $ fun s =>
 def localContext : Elab LocalContext :=
 do scope ← getScope; pure scope.lctx
 
-def mkLocalDecl (userName : Name) (type : Expr) (bi : BinderInfo := BinderInfo.default) : Elab LocalDecl :=
+def mkLocalDecl (userName : Name) (type : Expr) (bi : BinderInfo := BinderInfo.default) : Elab Expr :=
 do idx ← mkFreshName;
-   modifyGetScope $ fun scope =>
-      let (decl, lctx) := scope.lctx.mkLocalDecl idx userName type bi;
-      (decl, { lctx := lctx, .. scope })
+   modifyScope $ fun scope => { lctx := scope.lctx.mkLocalDecl idx userName type bi, .. scope };
+   pure (Expr.fvar idx)
 
 def mkLambda (xs : Array Expr) (b : Expr) : Elab Expr :=
 do lctx ← localContext; pure $ lctx.mkLambda xs b

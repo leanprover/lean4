@@ -148,8 +148,9 @@ match b.getKind with
    args.mmap $ fun arg => do
      let id := arg.getId;
      hole ← mkHoleFor arg;
-     decl ← mkLocalDecl id hole;
-     pure (mkLocal decl)
+     -- decl ← mkLocalDecl id hole;  -- HACK: this file will be deleted
+     -- pure (mkLocal decl)
+     mkLocalDecl id hole
 | `Lean.Parser.Term.explicitBinder =>
    let ids     := (b.getArg 1).getArgs;
    let optType := b.getArg 2;
@@ -165,8 +166,9 @@ match b.getKind with
           pure $ Expr.app (Expr.app (Expr.const `optParam []) type) defVal
        | `Lean.Parser.Term.binderTactic => logErrorAndThrow optDef "old elaborator does not support tactics in parameters"
        | _ => throw "unknown binder default value annotation";
-     decl ← mkLocalDecl id type;
-     pure (mkLocal decl)
+     -- decl ← mkLocalDecl id type;   -- HACK: this file will be deleted
+     -- pure (mkLocal decl)
+     mkLocalDecl id type
 | `Lean.Parser.Term.implicitBinder => do runIO (IO.println $ ">> implict " ++ (toString b)); pure #[]
 | `Lean.Parser.Term.instBinder     => do runIO (IO.println $ ">> inst " ++ (toString b)); pure #[]
 | _ => throw "unknown binder kind"

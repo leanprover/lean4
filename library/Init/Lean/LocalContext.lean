@@ -75,20 +75,20 @@ lctx.nameToDecl.isEmpty
 
 /- Low level API for creating local declarations. It is used to implement actions in the monads `Elab` and `Tactic`. It should not be used directly since the argument `(name : Name)` is assumed to be "unique". -/
 @[export lean_local_ctx_mk_local_decl]
-def mkLocalDecl (lctx : LocalContext) (name : Name) (userName : Name) (type : Expr) (bi : BinderInfo := BinderInfo.default) : LocalDecl × LocalContext :=
+def mkLocalDecl (lctx : LocalContext) (name : Name) (userName : Name) (type : Expr) (bi : BinderInfo := BinderInfo.default) : LocalContext :=
 match lctx with
 | { nameToDecl := map, decls := decls } =>
   let idx  := decls.size;
   let decl := LocalDecl.cdecl idx name userName type bi;
-  (decl, { nameToDecl := map.insert name decl, decls := decls.push decl })
+  { nameToDecl := map.insert name decl, decls := decls.push decl }
 
 @[export lean_local_ctx_mk_let_decl]
-def mkLetDecl (lctx : LocalContext) (name : Name) (userName : Name) (type : Expr) (value : Expr) : LocalDecl × LocalContext :=
+def mkLetDecl (lctx : LocalContext) (name : Name) (userName : Name) (type : Expr) (value : Expr) : LocalContext :=
 match lctx with
 | { nameToDecl := map, decls := decls } =>
   let idx  := decls.size;
   let decl := LocalDecl.ldecl idx name userName type value;
-  (decl, { nameToDecl := map.insert name decl, decls := decls.push decl })
+  { nameToDecl := map.insert name decl, decls := decls.push decl }
 
 @[export lean_local_ctx_find]
 def find (lctx : LocalContext) (name : Name) : Option LocalDecl :=

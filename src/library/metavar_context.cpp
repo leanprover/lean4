@@ -16,7 +16,8 @@ static name *       g_meta_prefix;
 static expr *       g_dummy_type;
 
 metavar_decl::metavar_decl(name const & user_name, local_context const & lctx, expr const & type):
-    object_ref(mk_cnstr(0, user_name, lctx, type)) {
+    object_ref(mk_cnstr(0, user_name, lctx, type, 1)) {
+    cnstr_set_scalar<uint8>(raw(), 3*sizeof(object*), false);
 }
 
 metavar_decl::metavar_decl():

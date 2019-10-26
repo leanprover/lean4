@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Lean.LocalContext
+import Init.Lean.AbstractMetavarContext
 
 namespace Lean
 
@@ -12,16 +12,6 @@ structure MetavarDecl :=
 (userName : Name)
 (lctx     : LocalContext)
 (type     : Expr)
-
-/-
-A delayed assignment for a metavariable `?m`. It represents an assignment of the form
-`?m := (fun fvars => val)`. The local context `lctx` provides the declarations for `fvars`.
-Note that `fvars` may not be defined in the local context for `?m`.
--/
-structure DelayedMVarAssignment :=
-(lctx     : LocalContext)
-(fvars    : Array Expr)
-(val      : Expr)
 
 structure MetavarContext :=
 (decls       : PersistentHashMap Name MetavarDecl := {})
@@ -91,6 +81,37 @@ m.dAssignment.contains mvarId
 @[export lean_metavar_ctx_erase_delayed]
 def eraseDelayed (m : MetavarContext) (mvarId : Name) : MetavarContext :=
 { dAssignment := m.dAssignment.erase mvarId, .. m }
+
+/- Remark: the following instance assumes all metavariables are treated as metavariables. -/
+instance metavarContextIsAbstractMetavarContext : AbstractMetavarContext MetavarContext :=
+{ empty                := {},
+  isLevelMVar          := fun _ => true,
+  getLevelAssignment   := MetavarContext.getLevelAssignment,
+  assignLevel          := MetavarContext.assignLevel,
+  isExprMVar           := fun _ => true,
+  getExprAssignment    := MetavarContext.getExprAssignment,
+  assignExpr           := MetavarContext.assignExpr,
+  getExprMVarLCtx      := MetavarContext.getExprMVarLCtx,
+  getExprMVarType      := MetavarContext.getExprMVarType,
+  sharedContext        := false,
+  assignDelayed        := MetavarContext.assignDelayed,
+  getDelayedAssignment := MetavarContext.getDelayedAssignment,
+  eraseDelayed         := MetavarContext.eraseDelayed
+}
+
+/-- Return `true` iff `lvl` contains assigned level metavariables -/
+@[inline] def hasAssignedLevelMVar (m : MetavarContext) (lvl : Level) : Bool :=
+AbstractMetavarContext.hasAssignedLevelMVar m lvl
+
+/-- Return `true` iff `e` contains assigned (level/expr) metavariables -/
+@[inline] def hasAssignedMVar (m : MetavarContext) (e : Expr) : Bool :=
+AbstractMetavarContext.hasAssignedMVar m e
+
+@[inline] def instantiateLevelMVars (m : MetavarContext) (lvl : Level) : Level × MetavarContext :=
+AbstractMetavarContext.instantiateLevelMVars lvl m
+
+@[inline] def instantiateExprMVars (m : MetavarContext) (e : Expr) : Expr × MetavarContext :=
+AbstractMetavarContext.instantiateExprMVars e m
 
 end MetavarContext
 end Lean

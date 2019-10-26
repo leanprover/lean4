@@ -212,6 +212,13 @@ let dummy := Expr.sort Level.zero;
 let nargs := e.getAppNumArgs;
 withAppAux k e (mkArray nargs dummy) (nargs-1)
 
+@[specialize] private def withAppRevAux {α} (k : Expr → Array Expr → α) : Expr → Array Expr → α
+| app f a, as => withAppRevAux f (as.push a)
+| f,       as => k f as
+
+@[inline] def withAppRev {α} (e : Expr) (k : Expr → Array Expr → α) : α :=
+withAppRevAux k e (Array.mkEmpty e.getAppNumArgs)
+
 def isAppOf (e : Expr) (n : Name) : Bool :=
 match e.getAppFn with
 | const c _ => c == n
@@ -335,6 +342,43 @@ abbrev ExprStructMap (α : Type) := HashMap ExprStructEq α
 abbrev PersistentExprStructMap (α : Type) := PHashMap ExprStructEq α
 
 namespace Expr
+
+private partial def mkAppRevRangeAux (revArgs : Array Expr) (start : Nat) : Expr → Nat → Expr
+| b, i =>
+  if i == start then b
+  else
+    let i := i - 1;
+    mkAppRevRangeAux (Expr.app b (revArgs.get! i)) i
+
+/-- `mkAppRevRange f b e args == mkAppRev f (revArgs.extract b e)` -/
+def mkAppRevRange (f : Expr) (beginIdx endIdx : Nat) (revArgs : Array Expr) : Expr :=
+mkAppRevRangeAux revArgs beginIdx f endIdx
+
+private def betaRevAux (revArgs : Array Expr) (sz : Nat) : Expr → Nat → Expr
+| Expr.lam _ _ _ b, i =>
+  if i + 1 < sz then
+    betaRevAux b (i+1)
+  else
+    let n := sz - (i + 1);
+    mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
+| b, i =>
+  let n := sz - i;
+  mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
+
+/-- If `f` is a lambda expression, than "beta-reduce" it using `revArgs`.
+    This function is often used with `getAppRev` or `withAppRev`.
+    Examples:
+    - `betaRev (fun x y => t x y) #[]` ==> `fun x y => t x y`
+    - `betaRev (fun x y => t x y) #[a]` ==> `fun y => t a y`
+    - `betaRev (fun x y => t x y) #[a, b]` ==> t b a`
+    - `betaRev (fun x y => t x y) #[a, b, c, d]` ==> t d c b a`
+    Suppose `t` is `(fun x y => t x y) a b c d`, then
+    `args := t.getAppRev` is `#[d, c, b, a]`,
+    and `betaRev (fun x y => t x y) #[d, c, b, a]` is `t a b c d`. -/
+def betaRev (f : Expr) (revArgs : Array Expr) : Expr :=
+if revArgs.size == 0 then f
+else betaRevAux revArgs revArgs.size f 0
+
 /- The update functions here are defined using C code. They will try to avoid
    allocating new values using pointer equality.
    The hypotheses `(h : e.is... = true)` are used to ensure Lean will not crash

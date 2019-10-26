@@ -224,9 +224,15 @@ partial def main {σ} [AbstractMetavarContext σ] : Expr → M σ Expr
 | e@(Expr.const _ lvls)    => do lvls ← lvls.mmap instantiateLevelMVars; pure (e.updateConst! lvls)
 | e@(Expr.sort lvl)        => do lvl ← instantiateLevelMVars lvl; pure (e.updateSort! lvl)
 | e@(Expr.mdata _ b)       => do b ← visit main b; pure (e.updateMData! b)
-| e@(Expr.app f a)         =>
-  -- TODO apply beta
-  do f ← visit main f; a ← visit main a; pure (e.updateApp! f a)
+| e@(Expr.app _ _)         => e.withAppRev $ fun f revArgs => do
+  let wasMVar := f.isMVar;
+  f ← visit main f;
+  if wasMVar && f.isLambda then
+    -- Some of the arguments in revArgs are irrelevant after we beta reduce.
+    visit main (f.betaRev revArgs)
+  else do
+    revArgs ← revArgs.mmap (visit main);
+    pure (mkAppRev f revArgs)
 | e@(Expr.mvar mvarId)     => checkCache e $ fun e => do
   mctx ← getMCtx;
   match AbstractMetavarContext.getExprAssignment mctx mvarId with
@@ -248,10 +254,12 @@ partial def main {σ} [AbstractMetavarContext σ] : Expr → M σ Expr
 end InstantiateExprMVars
 
 def instantiateExprMVars {σ} [AbstractMetavarContext σ] (e : Expr) : State σ Expr :=
-adaptState'
-  (fun mctx => ({ mctx := mctx } : InstantiateExprMVars.InstState σ))
-  (fun s    => s.mctx)
-  (InstantiateExprMVars.main e : InstantiateExprMVars.M σ Expr)
+if !e.hasMVar then pure e
+else
+  adaptState'
+    (fun mctx => ({ mctx := mctx } : InstantiateExprMVars.InstState σ))
+    (fun s    => s.mctx)
+    (InstantiateExprMVars.main e : InstantiateExprMVars.M σ Expr)
 
 private def getOptions : ATCM σ ϕ Options :=
 do ctx ← read; pure ctx.config.opts
@@ -292,6 +300,8 @@ instance typeContextNoCacheIsAbstractTCCache : AbstractTCCache TypeContextNoCach
 }
 
 namespace TypeContext
+
+-- set_option trace.compiler.ir.simp_case true
 
 @[inline] def instantiateExprMVars (e : Expr) : State MetavarContext Expr :=
 AbstractTypeContext.instantiateExprMVars e

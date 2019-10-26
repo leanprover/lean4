@@ -100,15 +100,15 @@ class AbstractMetavarContext (σ : Type) :=
 
 namespace AbstractMetavarContext
 
-variables {σ : Type}
+variables {σ : Type} [AbstractMetavarContext σ]
 
-@[inline] def isLevelAssigned [AbstractMetavarContext σ] (mctx : σ) (mvarId : Name) : Bool :=
+@[inline] def isLevelAssigned (mctx : σ) (mvarId : Name) : Bool :=
 (getLevelAssignment mctx mvarId).isSome
 
-@[inline] def isExprAssigned [AbstractMetavarContext σ] (mctx : σ) (mvarId : Name) : Bool :=
+@[inline] def isExprAssigned (mctx : σ) (mvarId : Name) : Bool :=
 (getExprAssignment mctx mvarId).isSome
 
-def hasAssignedLevelMVar [AbstractMetavarContext σ] (mctx : σ) : Level → Bool
+def hasAssignedLevelMVar (mctx : σ) : Level → Bool
 | Level.succ lvl       => lvl.hasMVar && hasAssignedLevelMVar lvl
 | Level.max lvl₁ lvl₂  => (lvl₁.hasMVar && hasAssignedLevelMVar lvl₁) || (lvl₂.hasMVar && hasAssignedLevelMVar lvl₂)
 | Level.imax lvl₁ lvl₂ => (lvl₁.hasMVar && hasAssignedLevelMVar lvl₁) || (lvl₂.hasMVar && hasAssignedLevelMVar lvl₂)
@@ -117,7 +117,7 @@ def hasAssignedLevelMVar [AbstractMetavarContext σ] (mctx : σ) : Level → Boo
 | Level.param _        => false
 
 /-- Return `true` iff expression contains assigned (level/expr) metavariables -/
-def hasAssignedMVar [AbstractMetavarContext σ] (mctx : σ) : Expr → Bool
+def hasAssignedMVar (mctx : σ) : Expr → Bool
 | Expr.const _ lvls    => lvls.any (hasAssignedLevelMVar mctx)
 | Expr.sort lvl        => hasAssignedLevelMVar mctx lvl
 | Expr.app f a         => (f.hasMVar && hasAssignedMVar f) || (a.hasMVar && hasAssignedMVar a)
@@ -131,7 +131,7 @@ def hasAssignedMVar [AbstractMetavarContext σ] (mctx : σ) : Expr → Bool
 | Expr.proj _ _ e      => e.hasMVar && hasAssignedMVar e
 | Expr.mvar mvarId     => isExprAssigned mctx mvarId
 
-partial def instantiateLevelMVars [AbstractMetavarContext σ] : Level → State σ Level
+partial def instantiateLevelMVars : Level → State σ Level
 | lvl@(Level.succ lvl₁)       => do lvl₁ ← instantiateLevelMVars lvl₁; pure (Level.updateSucc! lvl lvl₁)
 | lvl@(Level.max lvl₁ lvl₂)   => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateMax! lvl lvl₁ lvl₂)
 | lvl@(Level.imax lvl₁ lvl₂)  => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateIMax! lvl lvl₁ lvl₂)
@@ -155,7 +155,7 @@ structure InstState (σ : Type) :=
 
 abbrev M (σ : Type) := State (InstState σ)
 
-@[inline] def instantiateLevelMVars [AbstractMetavarContext σ] (lvl : Level) : M σ Level :=
+@[inline] def instantiateLevelMVars (lvl : Level) : M σ Level :=
 adaptState
   (fun (s : InstState σ) => (s.mctx, { mctx := empty σ, .. s }))
   (fun (mctx : σ) (s : InstState σ) => { mctx := mctx, .. s })
@@ -182,8 +182,7 @@ do s ← get; pure s.mctx
   It fails if one of variable declarations in `fvars` still contains unassigned metavariables.
 
   Pre: all expressions in `fvars` are `Expr.fvar`, and `lctx` contains their declarations. -/
-@[specialize] def instantiateDelayedAux [AbstractMetavarContext σ] (main : Expr → M σ Expr) (lctx : LocalContext) (fvars : Array Expr)
-                  : Nat → Expr → M σ (Option Expr)
+@[specialize] def instantiateDelayedAux (main : Expr → M σ Expr) (lctx : LocalContext) (fvars : Array Expr) : Nat → Expr → M σ (Option Expr)
 | 0,   b => pure b
 | i+1, b => do
   let fvar := fvars.get! i;
@@ -205,7 +204,7 @@ do s ← get; pure s.mctx
         instantiateDelayedAux i (Expr.letE n ty val b)
 
 /-- Try to instantiate a delayed assignment. Return `none` (i.e., fail) if assignment still contains variables. -/
-@[inline] def instantiateDelayed [AbstractMetavarContext σ] (main : Expr → M σ Expr) (mvarId : Name) : DelayedMVarAssignment → M σ (Option Expr)
+@[inline] def instantiateDelayed (main : Expr → M σ Expr) (mvarId : Name) : DelayedMVarAssignment → M σ (Option Expr)
 | { lctx := lctx, fvars := fvars, val := val } => do
   newVal ← visit main val;
   let fail : M σ (Option Expr) := do {
@@ -227,7 +226,7 @@ do s ← get; pure s.mctx
       pure (some newE)
 
 /-- instantiateExprMVars main function -/
-partial def main [AbstractMetavarContext σ] : Expr → M σ Expr
+partial def main : Expr → M σ Expr
 | e@(Expr.proj _ _ s)      => do s ← visit main s; pure (e.updateProj! s)
 | e@(Expr.forallE _ _ d b) => do d ← visit main d; b ← visit main b; pure (e.updateForallE! d b)
 | e@(Expr.lam _ _ d b)     => do d ← visit main d; b ← visit main b; pure (e.updateLambdaE! d b)
@@ -264,7 +263,7 @@ partial def main [AbstractMetavarContext σ] : Expr → M σ Expr
 
 end InstantiateExprMVars
 
-def instantiateMVars [AbstractMetavarContext σ] (e : Expr) : State σ Expr :=
+def instantiateMVars (e : Expr) : State σ Expr :=
 if !e.hasMVar then pure e
 else
   adaptState'

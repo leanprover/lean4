@@ -9,9 +9,10 @@ import Init.Lean.AbstractMetavarContext
 namespace Lean
 
 structure MetavarDecl :=
-(userName : Name)
-(lctx     : LocalContext)
-(type     : Expr)
+(userName  : Name)
+(lctx      : LocalContext)
+(type      : Expr)
+(synthetic : Bool)
 
 structure MetavarContext :=
 (decls       : PersistentHashMap Name MetavarDecl := {})
@@ -29,8 +30,8 @@ fun _ => {}
    It is used to implement actions in the monads `Elab` and `Tactic`.
    It should not be used directly since the argument `(mvarId : Name)` is assumed to be "unique". -/
 @[export lean_metavar_ctx_mk_decl]
-def mkDecl (m : MetavarContext) (mvarId : Name) (userName : Name) (lctx : LocalContext) (type : Expr) : MetavarContext :=
-{ decls := m.decls.insert mvarId { userName := userName, lctx := lctx, type := type }, .. m }
+def mkDecl (m : MetavarContext) (mvarId : Name) (userName : Name) (lctx : LocalContext) (type : Expr) (synthetic : Bool := false) : MetavarContext :=
+{ decls := m.decls.insert mvarId { userName := userName, lctx := lctx, type := type, synthetic := synthetic }, .. m }
 
 @[export lean_metavar_ctx_find_decl]
 def findDecl (m : MetavarContext) (mvarId : Name) : Option MetavarDecl :=

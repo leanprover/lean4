@@ -170,8 +170,11 @@ match m with
 match m with
 | ⟨ {size := sz, ..}, _ ⟩ => sz
 
-@[inline] def empty (m : HashMap α β) : Bool :=
+@[inline] def isEmpty (m : HashMap α β) : Bool :=
 m.size = 0
+
+@[inline] def empty : HashMap α β :=
+mkHashMap
 
 def numBuckets (m : HashMap α β) : Nat :=
 m.val.buckets.val.size

@@ -21,6 +21,7 @@ lean_object* l_HashMapImp_fold___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_mfoldBuckets(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_HashMapImp_fold___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMap_mfold___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_HashMap_isEmpty(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_HashMap_contains___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_mfoldl___main___at_HashMapImp_moveEntries___main___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMap_size___rarg___boxed(lean_object*);
@@ -65,7 +66,6 @@ lean_object* l_HashMap_insert___rarg(lean_object*, lean_object*, lean_object*, l
 lean_object* l_AssocList_erase___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_moveEntries___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMap_find_x21___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_HashMap_empty___rarg___boxed(lean_object*);
 lean_object* l_HashMap_contains(lean_object*, lean_object*);
 lean_object* l_HashMapImp_moveEntries___main(lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_HashMapImp_foldBuckets___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -76,6 +76,7 @@ lean_object* l_Array_miterateAux___main___at_HashMap_mfold___spec__1(lean_object
 lean_object* l_Array_miterateAux___main___at_HashMapImp_fold___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_reinsertAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_HashMap_isEmpty___rarg___boxed(lean_object*);
 lean_object* l_HashMap_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_erase(lean_object*, lean_object*);
 uint8_t l_AssocList_contains___main___rarg(lean_object*, lean_object*, lean_object*);
@@ -85,6 +86,7 @@ lean_object* l_Array_miterateAux___main___at_HashMap_fold___spec__2___rarg(lean_
 lean_object* l_AssocList_mfoldl___main___at_HashMapImp_fold___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapBucket_update___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_miterateAux___main___at_HashMap_mfold___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_HashMap_isEmpty___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_erase___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMap_find_x21___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -111,6 +113,7 @@ lean_object* l_Array_miterateAux___main___at_HashMap_fold___spec__2(lean_object*
 lean_object* l_HashMap_mfold___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_mkHashMap___rarg(lean_object*);
 lean_object* l_HashMapImp_foldBuckets___rarg(lean_object*, lean_object*, lean_object*);
+uint8_t l_HashMap_isEmpty___rarg(lean_object*);
 lean_object* l_HashMapImp_moveEntries(lean_object*, lean_object*);
 lean_object* l_HashMap_empty(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMap_Inhabited___closed__1;
@@ -139,7 +142,6 @@ lean_object* l_HashMap_find___rarg___boxed(lean_object*, lean_object*, lean_obje
 lean_object* l_HashMap_fold___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMap_find_x21___rarg___closed__2;
 lean_object* lean_nat_mul(lean_object*, lean_object*);
-uint8_t l_HashMap_empty___rarg(lean_object*);
 lean_object* l_HashMap_fold___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_mfoldBuckets___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMap_HasEmptyc(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1617,7 +1619,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-uint8_t l_HashMap_empty___rarg(lean_object* x_1) {
+uint8_t l_HashMap_isEmpty___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
@@ -1627,22 +1629,40 @@ x_4 = lean_nat_dec_eq(x_2, x_3);
 return x_4;
 }
 }
+lean_object* l_HashMap_isEmpty(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = lean_alloc_closure((void*)(l_HashMap_isEmpty___rarg___boxed), 1, 0);
+return x_5;
+}
+}
+lean_object* l_HashMap_isEmpty___rarg___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_HashMap_isEmpty___rarg(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+lean_object* l_HashMap_isEmpty___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_HashMap_isEmpty(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+return x_5;
+}
+}
 lean_object* l_HashMap_empty(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_HashMap_empty___rarg___boxed), 1, 0);
+x_5 = l_HashMap_Inhabited___closed__1;
 return x_5;
-}
-}
-lean_object* l_HashMap_empty___rarg___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_HashMap_empty___rarg(x_1);
-lean_dec(x_1);
-x_3 = lean_box(x_2);
-return x_3;
 }
 }
 lean_object* l_HashMap_empty___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

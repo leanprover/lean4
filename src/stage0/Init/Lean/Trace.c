@@ -17,11 +17,11 @@ lean_object* l_Lean_SimpleMonadTracerAdapter_isTracingEnabledFor___rarg___lambda
 lean_object* l_Lean_MonadTracerAdapter_traceCtxExcept___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadTracerAdapter_traceCtx___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Trace_3__addTrace___boxed(lean_object*, lean_object*);
-lean_object* l_getModify___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_joinArraySep___at_Lean_TraceState_Lean_HasFormat___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_MonadTracerAdapter_traceCtx___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_SimpleMonadTracerAdapter_modifyTraces___rarg___lambda__1(lean_object*, lean_object*);
+lean_object* l_ReaderT_Monad___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Trace_2__getResetTraces(lean_object*);
 lean_object* l_Lean_MonadTracerAdapter_trace___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_SimpleMonadTracerAdapter_isTracingEnabledFor(lean_object*);
@@ -174,7 +174,7 @@ lean_inc(x_5);
 lean_dec(x_1);
 x_6 = l_Lean_PersistentEnvExtension_inhabited___rarg___closed__3;
 x_7 = lean_apply_1(x_5, x_6);
-x_8 = lean_alloc_closure((void*)(l_getModify___rarg___lambda__1___boxed), 3, 2);
+x_8 = lean_alloc_closure((void*)(l_ReaderT_Monad___rarg___lambda__4___boxed), 3, 2);
 lean_closure_set(x_8, 0, x_2);
 lean_closure_set(x_8, 1, x_4);
 x_9 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_7, x_8);
@@ -341,7 +341,7 @@ uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* 
 x_5 = 0;
 x_6 = lean_box(x_5);
 x_7 = lean_apply_1(x_1, x_6);
-x_8 = lean_alloc_closure((void*)(l_getModify___rarg___lambda__1___boxed), 3, 2);
+x_8 = lean_alloc_closure((void*)(l_ReaderT_Monad___rarg___lambda__4___boxed), 3, 2);
 lean_closure_set(x_8, 0, x_2);
 lean_closure_set(x_8, 1, x_4);
 x_9 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_7, x_8);
@@ -366,7 +366,7 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_7 = l___private_Init_Lean_Trace_1__addNode___rarg(x_1, x_2, x_3);
-x_8 = lean_alloc_closure((void*)(l_getModify___rarg___lambda__1___boxed), 3, 2);
+x_8 = lean_alloc_closure((void*)(l_ReaderT_Monad___rarg___lambda__4___boxed), 3, 2);
 lean_closure_set(x_8, 0, x_4);
 lean_closure_set(x_8, 1, x_6);
 x_9 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_7, x_8);

@@ -301,9 +301,10 @@ do c ← read;
 
 @[specialize] def runElab {α} (x : Elab α) : Frontend α :=
 do c ← getElabContext;
-   monadLift $ EState.adaptState (x c)
+   monadLift $ EState.adaptState
       (fun (s : FrontendState) => (s.elabState, s.parserState))
       (fun es ps => { elabState := es, parserState := ps })
+      (x c)
 
 def elabCommandAtFrontend (stx : Syntax) : Frontend Unit :=
 runElab (elabCommand stx)

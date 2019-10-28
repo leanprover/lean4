@@ -53,6 +53,9 @@ def updateUserName : LocalDecl → Name → LocalDecl
 | cdecl index name _ type bi,  userName => cdecl index name userName type bi
 | ldecl index name _ type val, userName => ldecl index name userName type val
 
+def toExpr (decl : LocalDecl) : Expr :=
+Expr.fvar decl.name
+
 end LocalDecl
 
 structure LocalContext :=

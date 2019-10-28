@@ -118,12 +118,15 @@ instance : MonadState σ (EState ε σ) :=
 instance {δ} [Backtrackable δ σ] : MonadExcept ε (EState ε σ) :=
 { throw := @EState.throw _ _, catch := @EState.catch _ _ _ _ }
 
-@[inline] def adaptState {σ₁ σ₂} (x : EState ε σ₁ α) (split : σ → σ₁ × σ₂) (merge : σ₁ → σ₂ → σ) : EState ε σ α :=
+@[inline] def adaptState {σ₁ σ₂} (split : σ → σ₁ × σ₂) (merge : σ₁ → σ₂ → σ) (x : EState ε σ₁ α) : EState ε σ α :=
 fun s =>
   let (s₁, s₂) := split s;
   match x s₁ with
   | Result.ok a s₁    => Result.ok a (merge s₁ s₂)
   | Result.error e s₁ => Result.error e (merge s₁ s₂)
+
+instance {ε σ σ'} : MonadStateAdapter σ σ' (EState ε σ) (EState ε σ') :=
+⟨fun σ'' α => EState.adaptState⟩
 
 @[inline] def fromState {ε σ α : Type} (x : State σ α) : EState ε σ α :=
 fun s =>

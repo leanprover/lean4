@@ -7,7 +7,7 @@ prelude
 import Init.System.IO
 import Init.System.FilePath
 import Init.Data.Array
-import Init.Control.Combinators
+import Init.Data.List.Control
 import Init.Lean.Name
 
 namespace Lean

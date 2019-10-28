@@ -7,6 +7,7 @@ prelude
 import Init.Control.Reader
 import Init.Control.Conditional
 import Init.Data.Option
+import Init.Data.List
 import Init.Lean.LocalContext
 
 /-

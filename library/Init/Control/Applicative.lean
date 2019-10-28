@@ -32,3 +32,11 @@ class Applicative (f : Type u → Type v) extends Functor f, HasPure f, HasSeq f
 (map      := fun _ _ x y => pure x <*> y)
 (seqLeft  := fun α β a b => const β <$> a <*> b)
 (seqRight := fun α β a b => const α id <$> a <*> b)
+
+@[macroInline]
+def when {m : Type → Type u} [Applicative m] (c : Prop) [h : Decidable c] (t : m Unit) : m Unit :=
+if c then t else pure ()
+
+@[macroInline]
+def unless {m : Type → Type u} [Applicative m] (c : Prop) [h : Decidable c] (e : m Unit) : m Unit :=
+if c then pure () else e

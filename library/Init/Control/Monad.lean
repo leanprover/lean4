@@ -32,3 +32,14 @@ instance monadInhabited' {α : Type u} {m : Type u → Type v} [Monad m] : Inhab
 
 instance monadInhabited {α : Type u} {m : Type u → Type v} [Monad m] [Inhabited α] : Inhabited (m α) :=
 ⟨pure $ default _⟩
+
+def joinM {m : Type u → Type u} [Monad m] {α : Type u} (a : m (m α)) : m α :=
+bind a id
+
+@[macroInline]
+def condM {m : Type → Type u} [Monad m] {α : Type} (mbool : m Bool) (tm fm : m α) : m α :=
+do b ← mbool; cond b tm fm
+
+@[macroInline]
+def whenM {m : Type → Type u} [Monad m] (c : m Bool) (t : m Unit) : m Unit :=
+condM c t (pure ())

@@ -8,6 +8,7 @@ Custom unifier for tabled typeclass resolution.
 Note: this file will be removed once the unifier is implemented in Lean.
 -/
 prelude
+import Init.Data.Nat
 import Init.Data.PersistentArray
 import Init.Lean.Expr
 import Init.Lean.MetavarContext

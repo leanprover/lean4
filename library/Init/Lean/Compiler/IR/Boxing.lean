@@ -4,9 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Data.AssocList
 import Init.Control.EState
 import Init.Control.Reader
+import Init.Data.AssocList
+import Init.Data.Nat
 import Init.Lean.Runtime
 import Init.Lean.Compiler.ClosedTermCache
 import Init.Lean.Compiler.ExternAttr

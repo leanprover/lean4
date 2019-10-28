@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Control.State
 import Init.Control.Reader
+import Init.Data.Nat
 import Init.Lean.Compiler.IR.CompilerM
 import Init.Lean.Compiler.IR.NormIds
 import Init.Lean.Compiler.IR.FreeVars

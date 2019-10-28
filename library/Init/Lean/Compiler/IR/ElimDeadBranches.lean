@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Control.Reader
 import Init.Data.Option
+import Init.Data.Nat
 import Init.Lean.Compiler.IR.Format
 import Init.Lean.Compiler.IR.Basic
 import Init.Lean.Compiler.IR.CompilerM

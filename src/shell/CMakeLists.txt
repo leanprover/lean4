@@ -7,7 +7,7 @@ else()
 endif()
 
 ADD_CUSTOM_TARGET(bin_lean_stage0
-  COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean_stage0>" "${LEAN_SOURCE_DIR}/../bin/lean"
+  COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean_stage0>" "${LEAN_SOURCE_DIR}/../bin/lean_stage0"
   DEPENDS lean_stage0
 )
 
@@ -72,12 +72,12 @@ else()
   if (MSVC)
     ADD_CUSTOM_TARGET(bin_lean ALL
       COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean>" "$<TARGET_FILE_DIR:lean>/mpir.dll" "${LEAN_SOURCE_DIR}/../bin/"
-      DEPENDS lean
+      DEPENDS bin_lean_stage0 lean
     )
   else()
     ADD_CUSTOM_TARGET(bin_lean ALL
       COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean>" "${LEAN_SOURCE_DIR}/../bin/"
-      DEPENDS lean
+      DEPENDS bin_lean_stage0 lean
     )
   endif()
 endif()

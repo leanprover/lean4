@@ -7,7 +7,9 @@ prelude
 import Init.Lean.Level
 import Init.Lean.KVMap
 import Init.Data.HashMap
+import Init.Data.HashSet
 import Init.Data.PersistentHashMap
+import Init.Data.PersistentHashSet
 
 namespace Lean
 
@@ -315,6 +317,9 @@ mkBinApp (Expr.const `Decidable.isFalse []) pred proof
 
 abbrev ExprMap (α : Type)  := HashMap Expr α
 abbrev PersistentExprMap (α : Type) := PHashMap Expr α
+abbrev ExprSet := HashSet Expr
+abbrev PersistentExprSet := PHashSet Expr
+abbrev PExprSet := PersistentExprSet
 
 /- Auxiliary type for forcing `==` to be structural equality for `Expr` -/
 structure ExprStructEq :=

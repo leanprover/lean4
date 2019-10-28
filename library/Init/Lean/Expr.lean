@@ -26,6 +26,10 @@ def isInstImplicit : BinderInfo → Bool
 | instImplicit => true
 | _            => false
 
+def isAuxDecl : BinderInfo → Bool
+| auxDecl => true
+| _       => false
+
 protected def beq : BinderInfo → BinderInfo → Bool
 | default,        default        => true
 | implicit,       implicit       => true

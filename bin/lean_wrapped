@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Call `lean_stage0` when in library/Init; otherwise call `lean`.
+
+bin=$(dirname $(realpath $0))
+lib=$(dirname $bin)/library/Init
+# use dir of input file, or pwd if stdin
+if [[ "$*" == *--stdin* ]]; then
+    dir=$(pwd)
+else
+    dir=$(dirname $(realpath ${@:$#}))
+fi
+# check if `dir` starts with `lib`
+if [[ ${dir##$lib} != $dir ]]; then
+    $bin/lean_stage0 $*
+else
+    $bin/lean $*
+fi

@@ -8,7 +8,10 @@ import Init.Control.Reader
 import Init.Control.Conditional
 import Init.Data.Option
 import Init.Data.List
+import Init.Data.Nat
 import Init.Lean.LocalContext
+import Init.Lean.MonadCache
+import Init.Lean.NameGenerator
 
 /-
 - We have two kinds of metavariables in Lean: regular and temporary.
@@ -72,11 +75,25 @@ Gruesome details
 -/
 
 namespace Lean
+
+structure MetavarDecl :=
+(userName  : Name)
+(lctx      : LocalContext)
+(type      : Expr)
+(synthetic : Bool)
+
+namespace MetavarDecl
+
+instance : Inhabited MetavarDecl :=
+⟨⟨default _, default _, default _, false⟩⟩
+
+end MetavarDecl
+
 /--
   A delayed assignment for a metavariable `?m`. It represents an assignment of the form
   `?m := (fun fvars => val)`. The local context `lctx` provides the declarations for `fvars`.
   Note that `fvars` may not be defined in the local context for `?m`. -/
-structure DelayedMVarAssignment :=
+structure DelayedMetavarAssignment :=
 (lctx     : LocalContext)
 (fvars    : Array Expr)
 (val      : Expr)
@@ -89,18 +106,18 @@ structure DelayedMVarAssignment :=
   type class resolution procedures and matching for rewriting rules.  -/
 class AbstractMetavarContext (σ : Type) :=
 (empty                : σ)
-(isLevelMVar {}       : Level → Bool)
+(isReadOnlyLevelMVar  (mctx : σ) (mvarId : Name) : Bool)
 (getLevelAssignment   (mctx : σ) (mvarId : Name) : Option Level)
 (assignLevel          (mctx : σ) (mvarId : Name) (val : Level) : σ)
-(isExprMVar {}        : Expr → Bool)
+(isReadOnlyExprMVar   (mctx : σ) (mvarId : Name) : Bool)
 (getExprAssignment    (mctx : σ) (mvarId : Name) : Option Expr)
 (assignExpr           (mctx : σ) (mvarId : Name) (val : Expr) : σ)
-(getExprMVarLCtx      (mctx : σ) (mvarId : Name) : Option LocalContext)
-(getExprMVarType      (mctx : σ) (mvarId : Name) : Option Expr)
-(sharedContext        : Bool)
+(getDecl              (mctx : σ) (mvarId : Name) : MetavarDecl)
 (assignDelayed        (mctx : σ) (mvarId : Name) (lctx : LocalContext) (fvars : Array Expr) (val : Expr) : σ)
-(getDelayedAssignment (mctx : σ) (mvarId : Name) : Option DelayedMVarAssignment)
+(getDelayedAssignment (mctx : σ) (mvarId : Name) : Option DelayedMetavarAssignment)
 (eraseDelayed         (mctx : σ) (mvarId : Name) : σ)
+/- Return `none` in case of failure, or if implementation does not support the creation of auxiliary metavariables. -/
+(mkAuxMVar            (mctx : σ) (mvarId : Name) (lctx : LocalContext) (type : Expr) (synthetic : Bool) : Option σ)
 
 namespace AbstractMetavarContext
 
@@ -152,33 +169,19 @@ partial def instantiateLevelMVars : Level → State σ Level
 | lvl => pure lvl
 
 namespace InstantiateExprMVars
-/-- Auxiliary structure for instantiating metavariables in `Expr`s. -/
-structure InstState (σ : Type) :=
-(mctx  : σ)
-(cache : ExprMap Expr := {})
-
-abbrev M (σ : Type) := State (InstState σ)
+abbrev M (σ : Type) := State (WithHashMapCache Expr Expr σ)
 
 @[inline] def instantiateLevelMVars (lvl : Level) : M σ Level :=
-adaptState
-  (fun (s : InstState σ) => (s.mctx, { mctx := empty σ, .. s }))
-  (fun (mctx : σ) (s : InstState σ) => { mctx := mctx, .. s })
-  (AbstractMetavarContext.instantiateLevelMVars lvl : State σ Level)
-
-@[inline] def checkCache (e : Expr) (f : Expr → M σ Expr) : M σ Expr :=
-do s ← get;
-   match s.cache.find e with
-   | some r => pure r
-   | none => do
-     r ← f e;
-     modify $ fun s => { cache := s.cache.insert e r, .. s };
-     pure r
+WithHashMapCache.fromState $ AbstractMetavarContext.instantiateLevelMVars lvl
 
 @[inline] def visit (f : Expr → M σ Expr) (e : Expr) : M σ Expr :=
 if !e.hasMVar then pure e else checkCache e f
 
 @[inline] def getMCtx : M σ σ :=
-do s ← get; pure s.mctx
+do s ← get; pure s.state
+
+@[inline] def modifyCtx (f : σ → σ) : M σ Unit :=
+modify $ fun s => { state := f s.state, .. s }
 
 /--
   Auxiliary function for `instantiateDelayed`.
@@ -208,12 +211,12 @@ do s ← get; pure s.mctx
         instantiateDelayedAux i (Expr.letE n ty val b)
 
 /-- Try to instantiate a delayed assignment. Return `none` (i.e., fail) if assignment still contains variables. -/
-@[inline] def instantiateDelayed (main : Expr → M σ Expr) (mvarId : Name) : DelayedMVarAssignment → M σ (Option Expr)
+@[inline] def instantiateDelayed (main : Expr → M σ Expr) (mvarId : Name) : DelayedMetavarAssignment → M σ (Option Expr)
 | { lctx := lctx, fvars := fvars, val := val } => do
   newVal ← visit main val;
   let fail : M σ (Option Expr) := do {
      /- Join point for updating delayed assignment and failing -/
-     modify $ fun s => { mctx := assignDelayed s.mctx mvarId lctx fvars newVal, .. s };
+     modifyCtx $ fun mctx => assignDelayed mctx mvarId lctx fvars newVal;
      pure none
   };
   if newVal.hasMVar then fail
@@ -225,8 +228,7 @@ do s ← get; pure s.mctx
     | none      => fail
     | some newE => do
       /- Succeeded. Thus, replace delayed assignment with a regular assignment. -/
-      modify $ fun s =>
-        { mctx := assignExpr (eraseDelayed s.mctx mvarId) mvarId newE, .. s };
+      modifyCtx $ fun mctx => assignExpr (eraseDelayed mctx mvarId) mvarId newE;
       pure (some newE)
 
 /-- instantiateExprMVars main function -/
@@ -252,7 +254,7 @@ partial def main : Expr → M σ Expr
   match getExprAssignment mctx mvarId with
   | some newE => do
     newE' ← visit main newE;
-    modify $ fun s => { mctx := assignExpr s.mctx mvarId newE', .. s };
+    modifyCtx $ fun mctx => assignExpr mctx mvarId newE';
     pure newE'
   | none =>
     /- A delayed assignment can be transformed into a regular assignment
@@ -269,11 +271,7 @@ end InstantiateExprMVars
 
 def instantiateMVars (e : Expr) : State σ Expr :=
 if !e.hasMVar then pure e
-else
-  adaptState'
-    (fun mctx => ({ mctx := mctx } : InstantiateExprMVars.InstState σ))
-    (fun s    => s.mctx)
-    (InstantiateExprMVars.main e : InstantiateExprMVars.M σ Expr)
+else WithHashMapCache.toState $ InstantiateExprMVars.main e
 
 namespace DependsOn
 
@@ -300,9 +298,9 @@ else do
 | e@(Expr.mvar mvarId)     =>
   match getExprAssignment mctx mvarId with
   | some a => visit dep a
-  | none   => match getExprMVarLCtx mctx mvarId with
-    | some lctx => pure $ lctx.any $ fun decl => p decl.name
-    | none      => panic! "unknown metavariable"
+  | none   =>
+    let lctx := (getDecl mctx mvarId).lctx;
+    pure $ lctx.any $ fun decl => p decl.name
 | e@(Expr.fvar fvarId)     => pure $ p fvarId
 | e                        => pure false
 
@@ -327,5 +325,207 @@ end DependsOn
 | LocalDecl.cdecl _ _ _ type _     => exprDependsOn mctx p type
 | LocalDecl.ldecl _ _ _ type value => (DependsOn.main mctx p type <||> DependsOn.main mctx p value).run' {}
 
+inductive MkBindingException
+| revertFailure (lctx : LocalContext) (toRevert : Array Expr) (decl : LocalDecl)
+| readOnlyMVar (mvarId : Name)
+| mkAuxMVarFailed
+
+namespace MkBindingException
+def toStr : MkBindingException → String
+| revertFailure lctx toRevert decl =>
+  "failed to revert "
+  ++ toString (toRevert.map (fun x => "'" ++ toString (lctx.findFVar x).get!.userName ++ "'"))
+  ++ ", '" ++ toString decl.userName ++ "' depends on them, and it is an auxiliary declaration created by the elaborator"
+  ++ " (possible solution: use tactic 'clear' to remove '" ++ toString decl.userName ++ "' from local context)"
+| readOnlyMVar _  => "failed to create binding due to read only metavariable"
+| mkAuxMVarFailed => "failed to create auxiliary metavariable"
+
+instance : HasToString MkBindingException := ⟨toStr⟩
+end MkBindingException
+
+namespace MkBinding
+
+structure MkBindingState (σ : Type) :=
+(mctx  : σ)
+(ngen  : NameGenerator)
+(cache : HashMap Expr Expr := {}) -- cache for elimDepsCache
+
+abbrev M (σ : Type) := EState MkBindingException (MkBindingState σ)
+
+instance (σ) : MonadHashMapCacheAdapter Expr Expr (M σ) :=
+{ getCache    := do s ← get; pure s.cache,
+  modifyCache := fun f => modify $ fun s => { cache := f s.cache, .. s } }
+
+@[inline] def abstractRange (elimMVarDeps : Array Expr → Expr → M σ Expr) (lctx : LocalContext) (xs : Array Expr) (i : Nat) (e : Expr) : M σ Expr :=
+do e ← elimMVarDeps xs e;
+   pure (e.abstractRange i xs)
+
+@[specialize] def mkBinding (isLambda : Bool) (elimMVarDeps : Array Expr → Expr → M σ Expr)
+                            (lctx : LocalContext) (xs : Array Expr) (e : Expr) : M σ Expr :=
+do e ← abstractRange elimMVarDeps lctx xs xs.size e;
+   xs.size.foldRevM
+    (fun i e =>
+      let x := xs.get! i;
+      match lctx.findFVar x with
+      | some (LocalDecl.cdecl _ _ n type bi) => do
+        type ← abstractRange elimMVarDeps lctx xs i type;
+        if isLambda then
+          pure $ Expr.lam n bi type e
+        else
+          pure $ Expr.forallE n bi type e
+      | some (LocalDecl.ldecl _ _ n type value) => do
+        type  ← abstractRange elimMVarDeps lctx xs i type;
+        value ← abstractRange elimMVarDeps lctx xs i value;
+        pure $ Expr.letE n type value e
+      | none => panic! "unknown free variable")
+   e
+
+@[inline] def mkLambda (elimMVarDeps : Array Expr → Expr → M σ Expr) (lctx : LocalContext) (xs : Array Expr) (b : Expr) : M σ Expr :=
+mkBinding true elimMVarDeps lctx xs b
+
+@[inline] def mkForall (elimMVarDeps : Array Expr → Expr → M σ Expr) (lctx : LocalContext) (xs : Array Expr) (b : Expr) : M σ Expr :=
+mkBinding false elimMVarDeps lctx xs b
+
+/-- Return the local declaration of the free variable `x` in `xs` with the smallest index -/
+def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) : LocalDecl :=
+let d : LocalDecl := (lctx.findFVar $ xs.get! 0).get!;
+xs.foldlFrom
+  (fun d x =>
+    let decl := (lctx.findFVar x).get!;
+    if decl.index < d.index then decl else d)
+  d 1
+
+/-- Given `toRevert` an array of free variables s.t. `lctx` contains their declarations,
+    return a new array of free variables that contains `toRevert` and all free variables
+    in `lctx` that may depend on `toRevert`.
+
+    Remark: the result is sorted by `LocalDecl` indices. -/
+def collectDeps (mctx : σ) (lctx : LocalContext) (toRevert : Array Expr) : Except MkBindingException (Array Expr) :=
+if toRevert.size == 0 then pure toRevert
+else
+  let minDecl := getLocalDeclWithSmallestIdx lctx toRevert;
+  lctx.foldlFromM
+    (fun newToRevert decl =>
+      if toRevert.any (fun x => decl.name == x.fvarId!) then
+        pure (newToRevert.push decl.toExpr)
+      else if localDeclDependsOn mctx (fun fvarId => newToRevert.any $ fun x => x.fvarId! == fvarId) decl then
+        if decl.binderInfo.isAuxDecl then
+          throw (MkBindingException.revertFailure lctx toRevert decl)
+        else
+          pure (newToRevert.push decl.toExpr)
+      else
+        pure newToRevert)
+    (Array.mkEmpty toRevert.size)
+    minDecl
+
+def reduceLocalContext (lctx : LocalContext) (toRevert : Array Expr) : LocalContext :=
+toRevert.foldr
+  (fun x lctx => lctx.erase x.fvarId!)
+  lctx
+
+@[inline] def visit (f : Expr → M σ Expr) (e : Expr) : M σ Expr :=
+if !e.hasMVar then pure e else checkCache e f
+
+@[inline] def getMCtx : M σ σ :=
+do s ← get; pure s.mctx
+
+@[inline] def mkFreshId : M σ Name :=
+modifyGet $ fun s => (s.ngen.curr, { ngen := s.ngen.next, .. s})
+
+/-- Return free variables in `xs` that are in the local context `lctx` -/
+def getInScope (lctx : LocalContext) (xs : Array Expr) : Array Expr :=
+xs.foldl
+  (fun scope x =>
+    if lctx.contains x.fvarId! then
+      scope.push x
+    else
+      scope)
+  #[]
+
+@[inline] def withFreshCache {α} (x : M σ α) : M σ α :=
+do cache ← modifyGet $ fun s => (s.cache, { cache := {}, .. s });
+   a ← x;
+   modify $ fun s => { cache := cache, .. s };
+   pure a
+
+@[inline] def mkForallAux (elimMVarDepsAux : Array Expr → Expr → M σ Expr) (lctx : LocalContext) (xs : Array Expr) (b : Expr) : M σ Expr :=
+mkForall
+  (fun xs e =>
+    if !e.hasMVar then
+      pure e
+    else
+      -- The cached results at `elimMVarDepsAux` depend on `xs`. So, we must reset the cache.
+      withFreshCache $ elimMVarDepsAux xs e)
+  lctx xs b
+
+/-- Create an application `mvar ys` where `ys` are the free variables `xs` which are not let-declarations.
+    All free variables in `xs` are in the context `lctx`. -/
+def mkMVarApp (lctx : LocalContext) (mvar : Expr) (xs : Array Expr) : Expr :=
+xs.foldl (fun e x => if (lctx.findFVar x).get!.isLet then e else Expr.app e x) mvar
+
+partial def elimMVarDepsAux : Array Expr → Expr → M σ Expr
+| xs, e@(Expr.proj _ _ s)      => do s ← visit (elimMVarDepsAux xs) s; pure (e.updateProj! s)
+| xs, e@(Expr.forallE _ _ d b) => do d ← visit (elimMVarDepsAux xs) d; b ← visit (elimMVarDepsAux xs) b; pure (e.updateForallE! d b)
+| xs, e@(Expr.lam _ _ d b)     => do d ← visit (elimMVarDepsAux xs) d; b ← visit (elimMVarDepsAux xs) b; pure (e.updateLambdaE! d b)
+| xs, e@(Expr.letE _ t v b)    => do t ← visit (elimMVarDepsAux xs) t; v ← visit (elimMVarDepsAux xs) v; b ← visit (elimMVarDepsAux xs) b; pure (e.updateLet! t v b)
+| xs, e@(Expr.mdata _ b)       => do b ← visit (elimMVarDepsAux xs) b; pure (e.updateMData! b)
+| xs, e@(Expr.app _ _)         => e.withAppRev $ fun f revArgs => do
+  f ← visit (elimMVarDepsAux xs) f;
+  revArgs ← revArgs.mapM (visit (elimMVarDepsAux xs));
+  pure (mkAppRev f revArgs)
+| xs, e@(Expr.mvar mvarId) => do
+  mctx ← getMCtx;
+  match getExprAssignment mctx mvarId with
+  | some a => visit (elimMVarDepsAux xs) a
+  | none   =>
+    let mvarDecl := getDecl mctx mvarId;
+    let mvarLCtx := mvarDecl.lctx;
+    let toRevert := getInScope mvarLCtx xs;
+    if toRevert.size == 0 then
+      pure e
+    else if isReadOnlyExprMVar mctx mvarId then
+      throw $ MkBindingException.readOnlyMVar mvarId
+    else
+      match collectDeps mctx mvarLCtx toRevert with
+      | Except.error ex    => throw ex
+      | Except.ok toRevert => do
+        let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert;
+        newMVarType ← mkForallAux (fun xs e => elimMVarDepsAux xs e) mvarLCtx toRevert mvarDecl.type;
+        newMVarId   ← mkFreshId;
+        match mkAuxMVar mctx newMVarId newMVarLCtx newMVarType mvarDecl.synthetic with
+        | none      => throw MkBindingException.mkAuxMVarFailed
+        | some mctx => do
+          modify $ fun s => { mctx := mctx, .. s };
+          let newMVar := Expr.mvar newMVarId;
+          let result  := mkMVarApp mvarLCtx newMVar toRevert;
+          if mvarDecl.synthetic then
+             modify (fun s => { mctx := assignDelayed s.mctx newMVarId mvarLCtx toRevert e, .. s })
+          else
+             modify (fun s => { mctx := assignExpr s.mctx mvarId result, .. s });
+          pure result
+| xs, e => pure e
+
+partial def elimMVarDeps (xs : Array Expr) (e : Expr) : M σ Expr :=
+if !e.hasMVar then
+  pure e
+else
+  withFreshCache $ elimMVarDepsAux xs e
+
+end MkBinding
+
+def mkBinding (isLambda : Bool) (mctx : σ) (ngen : NameGenerator) (lctx : LocalContext) (xs : Array Expr) (e : Expr) : Except MkBindingException (σ × NameGenerator × Expr) :=
+match (MkBinding.mkBinding isLambda MkBinding.elimMVarDeps lctx xs e).run { mctx := mctx, ngen := ngen } with
+| EState.Result.ok e s      => Except.ok (s.mctx, s.ngen, e)
+| EState.Result.error err _ => Except.error err
+
+@[inline] def mkLambda (mctx : σ) (ngen : NameGenerator) (lctx : LocalContext) (xs : Array Expr) (e : Expr) : Except MkBindingException (σ × NameGenerator × Expr) :=
+mkBinding true mctx ngen lctx xs e
+
+@[inline] def mkForall (mctx : σ) (ngen : NameGenerator) (lctx : LocalContext) (xs : Array Expr) (e : Expr) : Except MkBindingException (σ × NameGenerator × Expr) :=
+mkBinding false mctx ngen lctx xs e
+
 end AbstractMetavarContext
+
+export AbstractMetavarContext (MkBindingException)
+
 end Lean

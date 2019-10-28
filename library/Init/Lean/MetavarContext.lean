@@ -8,17 +8,11 @@ import Init.Lean.AbstractMetavarContext
 
 namespace Lean
 
-structure MetavarDecl :=
-(userName  : Name)
-(lctx      : LocalContext)
-(type      : Expr)
-(synthetic : Bool)
-
 structure MetavarContext :=
 (decls       : PersistentHashMap Name MetavarDecl := {})
 (lAssignment : PersistentHashMap Name Level := {})
 (eAssignment : PersistentHashMap Name Expr := {})
-(dAssignment : PersistentHashMap Name DelayedMVarAssignment := {})
+(dAssignment : PersistentHashMap Name DelayedMetavarAssignment := {})
 
 namespace MetavarContext
 
@@ -37,11 +31,10 @@ def mkDecl (m : MetavarContext) (mvarId : Name) (userName : Name) (lctx : LocalC
 def findDecl (m : MetavarContext) (mvarId : Name) : Option MetavarDecl :=
 m.decls.find mvarId
 
-@[inline] def getExprMVarLCtx (m : MetavarContext) (mvarId : Name) : Option LocalContext :=
-MetavarDecl.lctx <$> findDecl m mvarId
-
-@[inline] def getExprMVarType (m : MetavarContext) (mvarId : Name) : Option Expr :=
-MetavarDecl.type <$> findDecl m mvarId
+def getDecl (m : MetavarContext) (mvarId : Name) : MetavarDecl :=
+match m.decls.find mvarId with
+| some decl => decl
+| none      => panic! "unknown metavariable"
 
 @[export lean_metavar_ctx_assign_level]
 def assignLevel (m : MetavarContext) (mvarId : Name) (val : Level) : MetavarContext :=
@@ -64,7 +57,7 @@ def getExprAssignment (m : MetavarContext) (mvarId : Name) : Option Expr :=
 m.eAssignment.find mvarId
 
 @[export lean_metavar_ctx_get_delayed_assignment]
-def getDelayedAssignment (m : MetavarContext) (mvarId : Name) : Option DelayedMVarAssignment :=
+def getDelayedAssignment (m : MetavarContext) (mvarId : Name) : Option DelayedMetavarAssignment :=
 m.dAssignment.find mvarId
 
 @[export lean_metavar_ctx_is_level_assigned]
@@ -83,21 +76,20 @@ m.dAssignment.contains mvarId
 def eraseDelayed (m : MetavarContext) (mvarId : Name) : MetavarContext :=
 { dAssignment := m.dAssignment.erase mvarId, .. m }
 
-/- Remark: the following instance assumes all metavariables are treated as metavariables. -/
+/- Remark: the following instance assumes all metavariables can be updated. -/
 instance metavarContextIsAbstractMetavarContext : AbstractMetavarContext MetavarContext :=
 { empty                := {},
-  isLevelMVar          := fun _ => true,
+  isReadOnlyLevelMVar  := fun _ _ => false,
   getLevelAssignment   := MetavarContext.getLevelAssignment,
   assignLevel          := MetavarContext.assignLevel,
-  isExprMVar           := fun _ => true,
+  isReadOnlyExprMVar   := fun _ _ => false,
   getExprAssignment    := MetavarContext.getExprAssignment,
   assignExpr           := MetavarContext.assignExpr,
-  getExprMVarLCtx      := MetavarContext.getExprMVarLCtx,
-  getExprMVarType      := MetavarContext.getExprMVarType,
-  sharedContext        := false,
+  getDecl              := MetavarContext.getDecl,
   assignDelayed        := MetavarContext.assignDelayed,
   getDelayedAssignment := MetavarContext.getDelayedAssignment,
-  eraseDelayed         := MetavarContext.eraseDelayed
+  eraseDelayed         := MetavarContext.eraseDelayed,
+  mkAuxMVar            := fun mctx mvarId lctx type synthetic => some (MetavarContext.mkDecl mctx mvarId Name.anonymous lctx type synthetic)
 }
 
 /-- Return `true` iff `lvl` contains assigned level metavariables -/
@@ -113,6 +105,14 @@ AbstractMetavarContext.instantiateLevelMVars lvl m
 
 @[inline] def instantiateMVars (m : MetavarContext) (e : Expr) : Expr × MetavarContext :=
 AbstractMetavarContext.instantiateMVars e m
+
+@[inline] def mkLambda (m : MetavarContext) (ngen : NameGenerator) (lctx : LocalContext) (xs : Array Expr) (e : Expr)
+                       : Except MkBindingException (MetavarContext × NameGenerator × Expr) :=
+AbstractMetavarContext.mkLambda m ngen lctx xs e
+
+@[inline] def mkForall (m : MetavarContext) (ngen : NameGenerator) (lctx : LocalContext) (xs : Array Expr) (e : Expr)
+                       : Except MkBindingException (MetavarContext × NameGenerator × Expr) :=
+AbstractMetavarContext.mkForall m ngen lctx xs e
 
 end MetavarContext
 end Lean

@@ -55,7 +55,7 @@ do IO.setRandSeed seed;
    IO.println ("tst3 size: " ++ toString a.size);
    let m := a.iterate m (fun i ⟨k, v⟩ m => if i.val % 2 == 0 then m.erase k else m);
    check (sz m == a.size / 2);
-   a.miterate () (fun i ⟨k, v⟩ _ => when (i.val % 2 == 1) (check (m.find k == some v)));
+   a.iterateM () (fun i ⟨k, v⟩ _ => when (i.val % 2 == 1) (check (m.find k == some v)));
    IO.println ("tst3 after, depth: " ++ toString (depth m) ++ ", size: " ++ toString (sz m));
    pure ()
 

@@ -10,7 +10,7 @@ stx ← IO.ofExcept $ runParser env termPTables input "<input>" "expr";
 IO.println stx
 
 def test (is : List String) : IO Unit :=
-is.mfor $ fun input => do
+is.forM $ fun input => do
   IO.println input;
   testParser input
 
@@ -23,7 +23,7 @@ match runParser env termPTables input "<input>" "expr" with
 | Except.error msg => IO.println ("failed as expected, error: " ++ msg)
 
 def testFailures (is : List String) : IO Unit :=
-is.mfor $ fun input => do
+is.forM $ fun input => do
   IO.println input;
   testParserFailure input
 

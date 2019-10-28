@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Path
-// Imports: Init.System.IO Init.System.FilePath Init.Data.Array.Default Init.Control.Combinators Init.Lean.Name
+// Imports: Init.System.IO Init.System.FilePath Init.Data.Array.Default Init.Data.List.Control Init.Lean.Name
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2317,7 +2317,7 @@ return x_89;
 lean_object* initialize_Init_System_IO(lean_object*);
 lean_object* initialize_Init_System_FilePath(lean_object*);
 lean_object* initialize_Init_Data_Array_Default(lean_object*);
-lean_object* initialize_Init_Control_Combinators(lean_object*);
+lean_object* initialize_Init_Data_List_Control(lean_object*);
 lean_object* initialize_Init_Lean_Name(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Path(lean_object* w) {
@@ -2333,7 +2333,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Array_Default(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Combinators(lean_io_mk_world());
+res = initialize_Init_Data_List_Control(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Name(lean_io_mk_world());

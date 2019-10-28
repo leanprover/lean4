@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Default
-// Imports: Init.Control.Applicative Init.Control.Functor Init.Control.Alternative Init.Control.Monad Init.Control.Lift Init.Control.State Init.Control.Id Init.Control.Except Init.Control.Reader Init.Control.Option Init.Control.Combinators Init.Control.Conditional
+// Imports: Init.Control.Applicative Init.Control.Functor Init.Control.Alternative Init.Control.Monad Init.Control.Lift Init.Control.State Init.Control.Id Init.Control.Except Init.Control.Reader Init.Control.Option Init.Control.Conditional
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23,7 +23,6 @@ lean_object* initialize_Init_Control_Id(lean_object*);
 lean_object* initialize_Init_Control_Except(lean_object*);
 lean_object* initialize_Init_Control_Reader(lean_object*);
 lean_object* initialize_Init_Control_Option(lean_object*);
-lean_object* initialize_Init_Control_Combinators(lean_object*);
 lean_object* initialize_Init_Control_Conditional(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Control_Default(lean_object* w) {
@@ -58,9 +57,6 @@ res = initialize_Init_Control_Reader(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control_Option(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_Combinators(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control_Conditional(lean_io_mk_world());

@@ -1194,7 +1194,6 @@ lean_object* l_Lean_Parser_regBuiltinTermParserAttr___closed__4;
 lean_object* l_Lean_Parser_Term_ne___elambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_andM___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Term_bor___elambda__1___closed__2;
-extern lean_object* l_System_FilePath_dirName___closed__1;
 extern lean_object* l_Lean_Parser_symbolNoWsFn___closed__1;
 lean_object* l_Array_shrink___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_borrowed___elambda__1(lean_object*);
@@ -1431,6 +1430,7 @@ lean_object* l_Lean_Parser_Term_bor___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Term_match___elambda__1___closed__9;
 lean_object* l_Lean_Parser_Term_structInstSource___elambda__1___rarg___closed__4;
 lean_object* l_Lean_Parser_Term_optType___elambda__1(lean_object*);
+extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Parser_Term_namedPattern___closed__1;
 lean_object* l_Lean_Parser_Term_fun___elambda__1___closed__9;
 lean_object* l_Lean_Parser_Term_forall___elambda__1___closed__2;
@@ -23735,7 +23735,7 @@ lean_object* _init_l_Lean_Parser_Term_proj___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_System_FilePath_dirName___closed__1;
+x_1 = l_Lean_Name_toString___closed__1;
 x_2 = l_String_trim(x_1);
 return x_2;
 }

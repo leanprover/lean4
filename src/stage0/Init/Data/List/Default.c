@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Default
-// Imports: Init.Data.List.Basic Init.Data.List.BasicAux Init.Data.List.Instances
+// Imports: Init.Data.List.Basic Init.Data.List.BasicAux Init.Data.List.Instances Init.Data.List.Control
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 lean_object* initialize_Init_Data_List_Basic(lean_object*);
 lean_object* initialize_Init_Data_List_BasicAux(lean_object*);
 lean_object* initialize_Init_Data_List_Instances(lean_object*);
+lean_object* initialize_Init_Data_List_Control(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_List_Default(lean_object* w) {
 lean_object * res;
@@ -28,6 +29,9 @@ res = initialize_Init_Data_List_BasicAux(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Instances(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Control(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_mk_io_result(lean_box(0));

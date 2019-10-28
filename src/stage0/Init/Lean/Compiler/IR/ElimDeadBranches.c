@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Compiler.IR.ElimDeadBranches
-// Imports: Init.Control.Reader Init.Data.Option.Default Init.Lean.Compiler.IR.Format Init.Lean.Compiler.IR.Basic Init.Lean.Compiler.IR.CompilerM
+// Imports: Init.Control.Reader Init.Data.Option.Default Init.Data.Nat.Default Init.Lean.Compiler.IR.Format Init.Lean.Compiler.IR.Basic Init.Lean.Compiler.IR.CompilerM
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -835,7 +835,7 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_22 = l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__1;
-x_23 = lean_unsigned_to_nat(45u);
+x_23 = lean_unsigned_to_nat(46u);
 x_24 = lean_unsigned_to_nat(10u);
 x_25 = l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__2;
 x_26 = l_panicWithPos___at_Lean_IR_UnreachableBranches_Value_addChoice___main___spec__1(x_22, x_23, x_24, x_25);
@@ -850,7 +850,7 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_27 = l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__1;
-x_28 = lean_unsigned_to_nat(45u);
+x_28 = lean_unsigned_to_nat(46u);
 x_29 = lean_unsigned_to_nat(10u);
 x_30 = l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__2;
 x_31 = l_panicWithPos___at_Lean_IR_UnreachableBranches_Value_addChoice___main___spec__1(x_27, x_28, x_29, x_30);
@@ -7470,6 +7470,7 @@ return x_4;
 }
 lean_object* initialize_Init_Control_Reader(lean_object*);
 lean_object* initialize_Init_Data_Option_Default(lean_object*);
+lean_object* initialize_Init_Data_Nat_Default(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_IR_Format(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_IR_Basic(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_IR_CompilerM(lean_object*);
@@ -7482,6 +7483,9 @@ res = initialize_Init_Control_Reader(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Option_Default(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Default(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Compiler_IR_Format(lean_io_mk_world());

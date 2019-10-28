@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Options
-// Imports: Init.Lean.KVMap Init.System.IO Init.Control.Combinators Init.Data.ToString
+// Imports: Init.System.IO Init.Data.ToString Init.Lean.KVMap
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -44,7 +44,6 @@ uint8_t l_String_isInt(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* l_String_trim(lean_object*);
-extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Options_2__optionDeclsRef;
 lean_object* l_Lean_getOptionDescr(lean_object*, lean_object*);
@@ -54,6 +53,7 @@ uint8_t l_String_isNat(lean_object*);
 lean_object* l_String_toName(lean_object*);
 lean_object* l_Lean_KVMap_setString(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_setOptionFromString___closed__3;
+extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_String_splitOn(lean_object*, lean_object*);
 lean_object* l_Lean_getOptionDefaulValue(lean_object*, lean_object*);
 lean_object* l_Lean_registerOption___closed__2;
@@ -130,7 +130,7 @@ else
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 lean_dec(x_7);
 lean_dec(x_2);
-x_12 = l_System_FilePath_dirName___closed__1;
+x_12 = l_Lean_Name_toString___closed__1;
 x_13 = l_Lean_Name_toStringWithSep___main(x_12, x_1);
 x_14 = l_Lean_registerOption___closed__1;
 x_15 = lean_string_append(x_14, x_13);
@@ -163,7 +163,7 @@ else
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 lean_dec(x_18);
 lean_dec(x_2);
-x_23 = l_System_FilePath_dirName___closed__1;
+x_23 = l_Lean_Name_toString___closed__1;
 x_24 = l_Lean_Name_toStringWithSep___main(x_23, x_1);
 x_25 = l_Lean_registerOption___closed__1;
 x_26 = lean_string_append(x_25, x_24);
@@ -282,7 +282,7 @@ lean_dec(x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_8 = l_System_FilePath_dirName___closed__1;
+x_8 = l_Lean_Name_toString___closed__1;
 x_9 = l_Lean_Name_toStringWithSep___main(x_8, x_1);
 x_10 = l_Lean_getOptionDecl___closed__1;
 x_11 = lean_string_append(x_10, x_9);
@@ -317,7 +317,7 @@ lean_dec(x_15);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_18 = l_System_FilePath_dirName___closed__1;
+x_18 = l_Lean_Name_toString___closed__1;
 x_19 = l_Lean_Name_toStringWithSep___main(x_18, x_1);
 x_20 = l_Lean_getOptionDecl___closed__1;
 x_21 = lean_string_append(x_20, x_19);
@@ -1007,25 +1007,21 @@ return x_129;
 }
 }
 }
-lean_object* initialize_Init_Lean_KVMap(lean_object*);
 lean_object* initialize_Init_System_IO(lean_object*);
-lean_object* initialize_Init_Control_Combinators(lean_object*);
 lean_object* initialize_Init_Data_ToString(lean_object*);
+lean_object* initialize_Init_Lean_KVMap(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Options(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Lean_KVMap(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_System_IO(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Combinators(lean_io_mk_world());
+res = initialize_Init_Data_ToString(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ToString(lean_io_mk_world());
+res = initialize_Init_Lean_KVMap(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Options_empty = _init_l_Lean_Options_empty();

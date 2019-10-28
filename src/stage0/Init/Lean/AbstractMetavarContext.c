@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.AbstractMetavarContext
-// Imports: Init.Control.Reader Init.Control.Conditional Init.Data.Option.Default Init.Lean.LocalContext
+// Imports: Init.Control.Reader Init.Control.Conditional Init.Data.Option.Default Init.Data.List.Default Init.Lean.LocalContext
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2486,7 +2486,7 @@ lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_2);
 x_15 = l_Lean_AbstractMetavarContext_InstantiateExprMVars_instantiateDelayedAux___main___rarg___closed__1;
-x_16 = lean_unsigned_to_nat(193u);
+x_16 = lean_unsigned_to_nat(194u);
 x_17 = lean_unsigned_to_nat(12u);
 x_18 = l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
 x_19 = l_panicWithPos___at_Lean_AbstractMetavarContext_InstantiateExprMVars_instantiateDelayedAux___main___spec__1___rarg(x_15, x_16, x_17, x_18, x_7);
@@ -3614,7 +3614,7 @@ lean_dec(x_5);
 lean_dec(x_2);
 lean_dec(x_1);
 x_14 = l_Lean_AbstractMetavarContext_InstantiateExprMVars_instantiateDelayedAux___main___rarg___closed__1;
-x_15 = lean_unsigned_to_nat(193u);
+x_15 = lean_unsigned_to_nat(194u);
 x_16 = lean_unsigned_to_nat(12u);
 x_17 = l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
 x_18 = l_panicWithPos___at_Lean_AbstractMetavarContext_InstantiateExprMVars_main___main___spec__2___rarg(x_14, x_15, x_16, x_17, x_6);
@@ -12051,7 +12051,7 @@ if (lean_obj_tag(x_15) == 0)
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 lean_dec(x_3);
 x_16 = l_Lean_AbstractMetavarContext_InstantiateExprMVars_instantiateDelayedAux___main___rarg___closed__1;
-x_17 = lean_unsigned_to_nat(304u);
+x_17 = lean_unsigned_to_nat(305u);
 x_18 = lean_unsigned_to_nat(19u);
 x_19 = l_Lean_AbstractMetavarContext_DependsOn_dep___main___rarg___closed__1;
 x_20 = l_panicWithPos___at_Lean_AbstractMetavarContext_DependsOn_dep___main___spec__1(x_16, x_17, x_18, x_19, x_5);
@@ -13638,6 +13638,7 @@ return x_2;
 lean_object* initialize_Init_Control_Reader(lean_object*);
 lean_object* initialize_Init_Control_Conditional(lean_object*);
 lean_object* initialize_Init_Data_Option_Default(lean_object*);
+lean_object* initialize_Init_Data_List_Default(lean_object*);
 lean_object* initialize_Init_Lean_LocalContext(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_AbstractMetavarContext(lean_object* w) {
@@ -13651,6 +13652,9 @@ res = initialize_Init_Control_Conditional(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Option_Default(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Default(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_LocalContext(lean_io_mk_world());

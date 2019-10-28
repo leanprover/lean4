@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.TypeClass.Context
-// Imports: Init.Data.PersistentArray.Default Init.Lean.Expr Init.Lean.MetavarContext
+// Imports: Init.Data.Nat.Default Init.Data.PersistentArray.Default Init.Lean.Expr Init.Lean.MetavarContext
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -735,7 +735,7 @@ if (lean_obj_tag(x_3) == 0)
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 lean_dec(x_1);
 x_4 = l_Lean_TypeClass_Context_eInfer___closed__1;
-x_5 = lean_unsigned_to_nat(70u);
+x_5 = lean_unsigned_to_nat(71u);
 x_6 = lean_unsigned_to_nat(14u);
 x_7 = l_Lean_TypeClass_Context_eInfer___closed__2;
 x_8 = l_panicWithPos___at_Lean_Expr_bindingDomain___spec__1(x_4, x_5, x_6, x_7);
@@ -871,7 +871,7 @@ if (lean_obj_tag(x_4) == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 lean_dec(x_2);
 x_5 = l_Lean_TypeClass_Context_eInfer___closed__1;
-x_6 = lean_unsigned_to_nat(78u);
+x_6 = lean_unsigned_to_nat(79u);
 x_7 = lean_unsigned_to_nat(14u);
 x_8 = l_Lean_TypeClass_Context_eAssign___closed__1;
 x_9 = l_panicWithPos___at_Lean_TypeClass_Context_eAssign___spec__1(x_5, x_6, x_7, x_8, x_3);
@@ -1531,7 +1531,7 @@ if (lean_obj_tag(x_4) == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 lean_dec(x_2);
 x_5 = l_Lean_TypeClass_Context_eInfer___closed__1;
-x_6 = lean_unsigned_to_nat(128u);
+x_6 = lean_unsigned_to_nat(129u);
 x_7 = lean_unsigned_to_nat(14u);
 x_8 = l_Lean_TypeClass_Context_uAssign___closed__1;
 x_9 = l_panicWithPos___at_Lean_TypeClass_Context_eAssign___spec__1(x_5, x_6, x_7, x_8, x_3);
@@ -3066,7 +3066,7 @@ if (lean_obj_tag(x_24) == 0)
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 lean_dec(x_12);
 x_25 = l_Lean_TypeClass_Context_eInfer___closed__1;
-x_26 = lean_unsigned_to_nat(228u);
+x_26 = lean_unsigned_to_nat(229u);
 x_27 = lean_unsigned_to_nat(20u);
 x_28 = l_Lean_TypeClass_Context_eUnify___main___closed__2;
 x_29 = l_panicWithPos___at_Lean_TypeClass_Context_eUnify___main___spec__1(x_25, x_26, x_27, x_28, x_11);
@@ -6813,6 +6813,7 @@ lean_dec(x_3);
 return x_4;
 }
 }
+lean_object* initialize_Init_Data_Nat_Default(lean_object*);
 lean_object* initialize_Init_Data_PersistentArray_Default(lean_object*);
 lean_object* initialize_Init_Lean_Expr(lean_object*);
 lean_object* initialize_Init_Lean_MetavarContext(lean_object*);
@@ -6821,6 +6822,9 @@ lean_object* initialize_Init_Lean_TypeClass_Context(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Data_Nat_Default(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_PersistentArray_Default(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -22,7 +22,7 @@
   (cl-case system-type
     ('windows-nt   "lean.exe")
     ('cygwin       "lean.exe")
-    (t             "lean"))
+    (t             "lean_wrapped"))
   "Default executable name of Lean")
 
 (defcustom lean4-rootdir nil

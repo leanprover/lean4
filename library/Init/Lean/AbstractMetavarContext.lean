@@ -234,7 +234,7 @@ partial def main : Expr → M σ Expr
 | e@(Expr.forallE _ _ d b) => do d ← visit main d; b ← visit main b; pure (e.updateForallE! d b)
 | e@(Expr.lam _ _ d b)     => do d ← visit main d; b ← visit main b; pure (e.updateLambdaE! d b)
 | e@(Expr.letE _ t v b)    => do t ← visit main t; v ← visit main v; b ← visit main b; pure (e.updateLet! t v b)
-| e@(Expr.const _ lvls)    => do lvls ← lvls.mmap instantiateLevelMVars; pure (e.updateConst! lvls)
+| e@(Expr.const _ lvls)    => do lvls ← lvls.mapM instantiateLevelMVars; pure (e.updateConst! lvls)
 | e@(Expr.sort lvl)        => do lvl ← instantiateLevelMVars lvl; pure (e.updateSort! lvl)
 | e@(Expr.mdata _ b)       => do b ← visit main b; pure (e.updateMData! b)
 | e@(Expr.app _ _)         => e.withAppRev $ fun f revArgs => do
@@ -244,7 +244,7 @@ partial def main : Expr → M σ Expr
     -- Some of the arguments in revArgs are irrelevant after we beta reduce.
     visit main (f.betaRev revArgs)
   else do
-    revArgs ← revArgs.mmap (visit main);
+    revArgs ← revArgs.mapM (visit main);
     pure (mkAppRev f revArgs)
 | e@(Expr.mvar mvarId)     => checkCache e $ fun e => do
   mctx ← getMCtx;

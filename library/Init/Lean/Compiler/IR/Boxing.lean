@@ -52,8 +52,8 @@ let ps := decl.params;
 
 def mkBoxedVersionAux (decl : Decl) : N Decl :=
 do let ps := decl.params;
-   qs ← ps.mmap (fun _ => do x ← mkFresh; pure { Param . x := x, ty := IRType.object, borrow := false });
-   (newVDecls, xs) ← qs.size.mfold
+   qs ← ps.mapM (fun _ => do x ← mkFresh; pure { Param . x := x, ty := IRType.object, borrow := false });
+   (newVDecls, xs) ← qs.size.foldM
      (fun i (r : Array FnBody × Array Arg) =>
         let (newVDecls, xs) := r;
         let p := ps.get! i;
@@ -225,7 +225,7 @@ match x with
 | _         => k x
 
 @[specialize] def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Array Arg × Array FnBody) :=
-xs.miterate (#[], #[]) $ fun i (x : Arg) (r : Array Arg × Array FnBody) =>
+xs.iterateM (#[], #[]) $ fun i (x : Arg) (r : Array Arg × Array FnBody) =>
   let expected := typeFromIdx i.val;
   let (xs, bs) := r;
   match x with
@@ -307,7 +307,7 @@ partial def visitFnBody : FnBody → M FnBody
   FnBody.mdata d <$> visitFnBody b
 | FnBody.case tid x _ alts   => do
   let expected := getScrutineeType alts;
-  alts ← alts.mmap $ fun alt => alt.mmodifyBody visitFnBody;
+  alts ← alts.mapM $ fun alt => alt.mmodifyBody visitFnBody;
   castVarIfNeeded x expected $ fun x => do
     pure $ FnBody.case tid x expected alts
 | FnBody.ret x             => do

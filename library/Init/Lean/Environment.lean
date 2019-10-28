@@ -182,7 +182,7 @@ do initializing ← IO.initializing;
 constant registerEnvExtension {σ : Type} [Inhabited σ] (mkInitial : IO σ) : IO (EnvExtension σ) := default _
 
 private def mkInitialExtensionStates : IO (Array EnvExtensionState) :=
-do exts ← envExtensionsRef.get; exts.mmap $ fun ext => ext.mkInitial
+do exts ← envExtensionsRef.get; exts.mapM $ fun ext => ext.mkInitial
 
 @[export lean_mk_empty_environment]
 def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment :=
@@ -452,7 +452,7 @@ do pExtDescrs ← persistentEnvExtensionsRef.get;
 
 private def finalizePersistentExtensions (env : Environment) : IO Environment :=
 do pExtDescrs ← persistentEnvExtensionsRef.get;
-   pExtDescrs.miterate env $ fun _ extDescr env => do
+   pExtDescrs.iterateM env $ fun _ extDescr env => do
      let s := extDescr.toEnvExtension.getState env;
      newState ← extDescr.addImportedFn s.importedEntries;
      pure $ extDescr.toEnvExtension.setState env { state := newState, .. s }
@@ -463,8 +463,8 @@ do (_, mods) ← importModulesAux modNames ({}, #[]);
    let const2ModIdx := mods.iterate {} $ fun (modIdx) (mod : ModuleData) (m : HashMap Name ModuleIdx) =>
      mod.constants.iterate m $ fun _ cinfo m =>
        m.insert cinfo.name modIdx.val;
-   constants ← mods.miterate SMap.empty $ fun _ (mod : ModuleData) (cs : ConstMap) =>
-     mod.constants.miterate cs $ fun _ cinfo cs => do {
+   constants ← mods.iterateM SMap.empty $ fun _ (mod : ModuleData) (cs : ConstMap) =>
+     mod.constants.iterateM cs $ fun _ cinfo cs => do {
        when (cs.contains cinfo.name) $ throw (IO.userError ("import failed, environment already contains '" ++ toString cinfo.name ++ "'"));
        pure $ cs.insert cinfo.name cinfo
      };
@@ -482,7 +482,7 @@ do (_, mods) ← importModulesAux modNames ({}, #[]);
    };
    env ← setImportedEntries env mods;
    env ← finalizePersistentExtensions env;
-   env ← mods.miterate env $ fun _ mod env => performModifications env mod.serialized;
+   env ← mods.iterateM env $ fun _ mod env => performModifications env mod.serialized;
    pure env
 
 def regNamespacesExtension : IO (SimplePersistentEnvExtension Name NameSet) :=
@@ -532,7 +532,7 @@ do pExtDescrs ← persistentEnvExtensionsRef.get;
    IO.println ("number of buckets for imported consts: " ++ toString env.constants.numBuckets);
    IO.println ("trust level:                           " ++ toString env.header.trustLevel);
    IO.println ("number of extensions:                  " ++ toString env.extensions.size);
-   pExtDescrs.mfor $ fun extDescr => do {
+   pExtDescrs.forM $ fun extDescr => do {
      IO.println ("extension '" ++ toString extDescr.name ++ "'");
      let s := extDescr.toEnvExtension.getState env;
      let fmt := extDescr.statsFn s.state;

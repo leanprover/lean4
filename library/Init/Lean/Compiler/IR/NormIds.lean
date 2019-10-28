@@ -90,7 +90,7 @@ fun m => do
 
 @[inline] def withParams {α : Type} (ps : Array Param) (k : Array Param → N α) : N α :=
 fun m => do
-  m ← ps.mfoldl (fun (m : IndexRenaming) p => do n ← getModify (fun n => n + 1); pure $ m.insert p.x.idx n) m;
+  m ← ps.foldlM (fun (m : IndexRenaming) p => do n ← getModify (fun n => n + 1); pure $ m.insert p.x.idx n) m;
   let ps := ps.map $ fun p => { x := normVar p.x m, .. p };
   k ps m
 
@@ -112,7 +112,7 @@ partial def normFnBody : FnBody → N FnBody
 | FnBody.mdata d b        => FnBody.mdata d <$> normFnBody b
 | FnBody.case tid x xType alts => do
   x ← normVar x;
-  alts ← alts.mmap $ fun alt => alt.mmodifyBody normFnBody;
+  alts ← alts.mapM $ fun alt => alt.mmodifyBody normFnBody;
   pure $ FnBody.case tid x xType alts
 | FnBody.jmp j ys        => FnBody.jmp <$> normJP j <*> normArgs ys
 | FnBody.ret x           => FnBody.ret <$> normArg x

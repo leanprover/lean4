@@ -213,12 +213,12 @@ partial def eUnify : Expr → Expr → EState String Context Unit
     else if e₁.isBVar && e₂.isBVar && e₁.bvarIdx == e₂.bvarIdx then pure ()
     else if e₁.isFVar && e₂.isFVar && e₁.fvarName == e₂.fvarName then pure ()
     else if e₁.isConst && e₂.isConst && e₁.constName == e₂.constName then
-      List.mfor₂ uUnify e₁.constLevels e₂.constLevels
+      List.forM₂ uUnify e₁.constLevels e₂.constLevels
     else if e₁.isApp && e₂.isApp && e₁.getAppNumArgs == e₂.getAppNumArgs then do
       let args₁ := e₁.getAppArgs;
       let args₂ := e₂.getAppArgs;
       eUnify e₁.getAppFn e₂.getAppFn;
-      args₁.size.mfor $ fun i => eUnify (args₁.get! i) (args₂.get! i)
+      args₁.size.forM $ fun i => eUnify (args₁.get! i) (args₂.get! i)
     else if e₁.isForall && e₂.isForall then do
       eUnify e₁.bindingDomain e₂.bindingDomain;
       eUnify e₁.bindingBody e₂.bindingBody

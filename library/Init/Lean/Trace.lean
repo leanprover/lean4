@@ -40,7 +40,7 @@ private def addTrace (cls : Name) (msg : MessageData) : m Unit :=
 modifyTraces $ fun traces => traces.push (MessageData.tagged cls msg)
 
 @[inline] protected def trace (cls : Name) (msg : Unit → MessageData) : m Unit :=
-mwhen (isTracingEnabledFor cls) (addTrace cls (msg ()))
+whenM (isTracingEnabledFor cls) (addTrace cls (msg ()))
 
 @[inline] def traceCtx (cls : Name) (ctx : m α) : m α :=
 do b ← isTracingEnabledFor cls;

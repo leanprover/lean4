@@ -76,7 +76,7 @@ fun n => do
   when (ns == currNs) $ throw "invalid 'export', self export";
   env ← getEnv;
   let ids := (n.getArg 3).getArgs;
-  aliases ← ids.mfoldl (fun (aliases : List (Name × Name)) (idStx : Syntax) => do {
+  aliases ← ids.foldlM (fun (aliases : List (Name × Name)) (idStx : Syntax) => do {
     let id := idStx.getId;
     let declName := ns ++ id;
     if env.contains declName then

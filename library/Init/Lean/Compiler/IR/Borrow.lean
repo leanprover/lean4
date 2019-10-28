@@ -79,7 +79,7 @@ partial def visitFnBody (fnid : FunId) : FnBody → State ParamMap Unit
     visitFnBody b
 
 def visitDecls (env : Environment) (decls : Array Decl) : State ParamMap Unit :=
-decls.mfor $ fun decl => match decl with
+decls.forM $ fun decl => match decl with
   | Decl.fdecl f xs _ b => do
     let exported := isExport env f;
     modify $ fun m => m.insert (Key.decl f) (initBorrowIfNotExported exported xs);
@@ -153,7 +153,7 @@ match x with
 | _           => pure ()
 
 def ownArgs (xs : Array Arg) : M Unit :=
-xs.mfor ownArg
+xs.forM ownArg
 
 def isOwned (x : VarId) : M Bool :=
 do s ← get;
@@ -164,7 +164,7 @@ def updateParamMap (k : Key) : M Unit :=
 do s ← get;
    match s.map.find k with
    | some ps => do
-     ps ← ps.mmap $ fun (p : Param) =>
+     ps ← ps.mapM $ fun (p : Param) =>
       if p.borrow && s.owned.contains p.x.idx then do
         markModifiedParamMap; pure { borrow := false, .. p }
       else
@@ -187,7 +187,7 @@ do s ← get;
 
 /- For each ps[i], if ps[i] is owned, then mark xs[i] as owned. -/
 def ownArgsUsingParams (xs : Array Arg) (ps : Array Param) : M Unit :=
-xs.size.mfor $ fun i => do
+xs.size.forM $ fun i => do
   let x := xs.get! i;
   let p := ps.get! i;
   unless p.borrow $ ownArg x
@@ -198,11 +198,11 @@ xs.size.mfor $ fun i => do
    we would have to insert a `dec xs[i]` after `f xs` and consequently
    "break" the tail call. -/
 def ownParamsUsingArgs (xs : Array Arg) (ps : Array Param) : M Unit :=
-xs.size.mfor $ fun i => do
+xs.size.forM $ fun i => do
   let x := xs.get! i;
   let p := ps.get! i;
   match x with
-  | Arg.var x => mwhen (isOwned x) $ ownVar p.x
+  | Arg.var x => whenM (isOwned x) $ ownVar p.x
   | _         => pure ()
 
 /- Mark `xs[i]` as owned if it is one of the parameters `ps`.
@@ -217,7 +217,7 @@ xs.size.mfor $ fun i => do
 -/
 def ownArgsIfParam (xs : Array Arg) : M Unit :=
 do ctx ← read;
-   xs.mfor $ fun x =>
+   xs.forM $ fun x =>
      match x with
      | Arg.var x => when (ctx.paramSet.contains x.idx) $ ownVar x
      | _ => pure ()
@@ -226,7 +226,7 @@ def collectExpr (z : VarId) : Expr → M Unit
 | Expr.reset _ x      => ownVar z *> ownVar x
 | Expr.reuse x _ _ ys => ownVar z *> ownVar x *> ownArgsIfParam ys
 | Expr.ctor _ xs      => ownVar z *> ownArgsIfParam xs
-| Expr.proj _ x       => mwhen (isOwned z) $ ownVar x
+| Expr.proj _ x       => whenM (isOwned z) $ ownVar x
 | Expr.fap g xs       => do ps ← getParamInfo (Key.decl g);
   -- dbgTrace ("collectExpr: " ++ toString g ++ " " ++ toString (formatParams ps)) $ fun _ =>
   ownVar z *> ownArgsUsingParams xs ps
@@ -259,7 +259,7 @@ partial def collectFnBody : FnBody → M Unit
   ps ← getParamInfo (Key.jp ctx.currFn j);
   ownArgsUsingParams ys ps; -- for making sure the join point can reuse
   ownParamsUsingArgs ys ps  -- for making sure the tail call is preserved
-| FnBody.case _ _ _ alts => alts.mfor $ fun alt => collectFnBody alt.body
+| FnBody.case _ _ _ alts => alts.forM $ fun alt => collectFnBody alt.body
 | e                      => unless (e.isTerminal) $ collectFnBody e.body
 
 @[specialize] partial def whileModifingOwnedAux (x : M Unit) : Unit → M Unit
@@ -297,7 +297,7 @@ partial def collectDecl : Decl → M Unit
 whileModifingParamMapAux x ()
 
 def collectDecls (decls : Array Decl) : M ParamMap :=
-do whileModifingParamMap (decls.mfor collectDecl);
+do whileModifingParamMap (decls.forM collectDecl);
    s ← get;
    pure s.map
 

@@ -26,7 +26,7 @@ do curr ← realPathNormalized ".";
 constant searchPathRef : IO.Ref (Array String) := default _
 
 def setSearchPath (s : List String) : IO Unit :=
-do s ← s.mmap realPathNormalized;
+do s ← s.mapM realPathNormalized;
    searchPathRef.set s.toArray
 
 def getBuiltinSearchPath : IO (List String) :=
@@ -67,7 +67,7 @@ let checkFile (curr : String) : IO (Option String) := do {
 };
 do let fname := System.FilePath.normalizePath fname;
    paths ← searchPathRef.get;
-   paths.mfind $ fun path => do
+   paths.findM $ fun path => do
      let curr := path ++ pathSep ++ fname;
      result ← checkFile (curr ++ toString extSeparator ++ ext);
      match result with

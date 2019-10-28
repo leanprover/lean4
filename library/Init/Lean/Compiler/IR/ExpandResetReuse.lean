@@ -140,7 +140,7 @@ def mkFresh : M VarId :=
 modifyGet $ fun n => ({ idx := n }, n + 1)
 
 def releaseUnreadFields (y : VarId) (mask : Mask) (b : FnBody) : M FnBody :=
-mask.size.mfold
+mask.size.foldM
   (fun i b =>
     match mask.get! i with
     | some _ => pure b -- code took ownership of this field
@@ -268,7 +268,7 @@ partial def searchAndExpand : FnBody → Array FnBody → M FnBody
   v ← searchAndExpand v #[];
   searchAndExpand b (push bs (FnBody.jdecl j xs v FnBody.nil))
 | FnBody.case tid x xType alts,   bs => do
-  alts ← alts.mmap $ fun alt => alt.mmodifyBody $ fun b => searchAndExpand b #[];
+  alts ← alts.mapM $ fun alt => alt.mmodifyBody $ fun b => searchAndExpand b #[];
   pure $ reshape bs (FnBody.case tid x xType alts)
 | b, bs =>
   if b.isTerminal then pure $ reshape bs b

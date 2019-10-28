@@ -389,7 +389,7 @@ bs.map $ fun b => match b with
   | other                 => other
 
 @[inline] def mmodifyJPs {m : Type → Type} [Monad m] (bs : Array FnBody) (f : FnBody → m FnBody) : m (Array FnBody) :=
-bs.mmap $ fun b => match b with
+bs.mapM $ fun b => match b with
   | FnBody.jdecl j xs v k => do v ← f v; pure $ FnBody.jdecl j xs v k
   | other                 => pure other
 

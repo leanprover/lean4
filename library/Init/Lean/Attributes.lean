@@ -115,7 +115,7 @@ do attr ← getAttributeImpl attrName;
 @[export lean_activate_scoped_attributes]
 def activateScopedAttributes (env : Environment) (scope : Name) : IO Environment :=
 do attrs ← attributeArrayRef.get;
-   attrs.mfoldl (fun env attr => attr.activateScoped env scope) env
+   attrs.foldlM (fun env attr => attr.activateScoped env scope) env
 
 /- We use this function to implement commands `namespace foo` and `section foo`.
    It activates scoped attributes in the new resulting namespace. -/
@@ -124,14 +124,14 @@ def pushScope (env : Environment) (header : Name) (isNamespace : Bool) : IO Envi
 do let env := env.pushScopeCore header isNamespace;
    let ns  := env.getNamespace;
    attrs ← attributeArrayRef.get;
-   attrs.mfoldl (fun env attr => do env ← attr.pushScope env; if isNamespace then attr.activateScoped env ns else pure env) env
+   attrs.foldlM (fun env attr => do env ← attr.pushScope env; if isNamespace then attr.activateScoped env ns else pure env) env
 
 /- We use this function to implement commands `end foo` for closing namespaces and sections. -/
 @[export lean_pop_scope]
 def popScope (env : Environment) : IO Environment :=
 do let env := env.popScopeCore;
    attrs ← attributeArrayRef.get;
-   attrs.mfoldl (fun env attr => attr.popScope env) env
+   attrs.foldlM (fun env attr => attr.popScope env) env
 
 end Environment
 
@@ -274,7 +274,7 @@ do ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistent
        | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
        | _                => pure $ ext.addEntry env (decl, val)
    };
-   attrs.mfor registerAttribute;
+   attrs.forM registerAttribute;
    pure { ext := ext, attrs := attrs }
 
 namespace EnumAttributes

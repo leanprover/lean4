@@ -44,14 +44,14 @@ def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
 let ⟨i, h⟩ := mkIdx data.property (hashFn a);
 data.update i (AssocList.cons a b (data.val.uget i h)) h
 
-@[inline] def mfoldBuckets {δ : Type w} {m : Type w → Type w} [Monad m] (data : HashMapBucket α β) (d : δ) (f : δ → α → β → m δ) : m δ :=
-data.val.mfoldl (fun d b => b.mfoldl f d) d
+@[inline] def foldBucketsM {δ : Type w} {m : Type w → Type w} [Monad m] (data : HashMapBucket α β) (d : δ) (f : δ → α → β → m δ) : m δ :=
+data.val.foldlM (fun d b => b.foldlM f d) d
 
 @[inline] def foldBuckets {δ : Type w} (data : HashMapBucket α β) (d : δ) (f : δ → α → β → δ) : δ :=
-Id.run $ mfoldBuckets data d f
+Id.run $ foldBucketsM data d f
 
-@[inline] def mfold {δ : Type w} {m : Type w → Type w} [Monad m] (f : δ → α → β → m δ) (d : δ) (h : HashMapImp α β) : m δ :=
-mfoldBuckets h.buckets d f
+@[inline] def foldM {δ : Type w} {m : Type w → Type w} [Monad m] (f : δ → α → β → m δ) (d : δ) (h : HashMapImp α β) : m δ :=
+foldBucketsM h.buckets d f
 
 @[inline] def fold {δ : Type w} (f : δ → α → β → δ) (d : δ) (m : HashMapImp α β) : δ :=
 foldBuckets m.buckets d f
@@ -158,9 +158,9 @@ match m.find a with
 match m with
 | ⟨ m, _ ⟩ => m.contains a
 
-@[inline] def mfold {δ : Type w} {m : Type w → Type w} [Monad m] (f : δ → α → β → m δ) (d : δ) (h : HashMap α β) : m δ :=
+@[inline] def foldM {δ : Type w} {m : Type w → Type w} [Monad m] (f : δ → α → β → m δ) (d : δ) (h : HashMap α β) : m δ :=
 match h with
-| ⟨ h, _ ⟩ => h.mfold f d
+| ⟨ h, _ ⟩ => h.foldM f d
 
 @[inline] def fold {δ : Type w} (f : δ → α → β → δ) (d : δ) (m : HashMap α β) : δ :=
 match m with

@@ -350,10 +350,10 @@ def processHeaderAux (baseDir : Option String) (header : Syntax) (trustLevel : U
 do let header     := header.asNode;
    let imports    := if (header.getArg 0).isNone then [`init.default] else [];
    let modImports := (header.getArg 1).getArgs;
-   imports ← modImports.mfoldl (fun imports stx =>
+   imports ← modImports.foldlM (fun imports stx =>
      -- `stx` is of the form `(Module.import "import" (null ...))
      let importPaths := (stx.getArg 1).getArgs; -- .asNode.getArgs;
-     importPaths.mfoldl (fun imports stx => do
+     importPaths.foldlM (fun imports stx => do
        -- `stx` is of the form `(Module.importPath (null "*"*) <id>)
        let stx := stx.asNode;
        let rel := stx.getArg 0;

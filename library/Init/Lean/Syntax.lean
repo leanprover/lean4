@@ -188,12 +188,12 @@ stx.asNode.getKind
   o ← fn stx;
   match o with
   | some stx => pure stx
-  | none     => do args ← args.mmap mreplace; pure (node kind args)
+  | none     => do args ← args.mapM mreplace; pure (node kind args)
 | stx => do o ← fn stx; pure $ o.getD stx
 
 @[specialize] partial def mrewriteBottomUp {α} {m : Type → Type} [Monad m] (fn : Syntax α → m (Syntax α)) : Syntax α → m (Syntax α)
 | node kind args   => do
-  args ← args.mmap mrewriteBottomUp;
+  args ← args.mapM mrewriteBottomUp;
   fn (node kind args)
 | stx => fn stx
 
@@ -298,8 +298,8 @@ partial def reprint {α} : Syntax α → Option String
     if args.size == 0 then failure
     else do
       s ← reprint (args.get! 0);
-      args.mfoldlFrom (fun s stx => do s' ← reprint stx; guard (s == s'); pure s) s 1
-  else args.mfoldl (fun r stx => do s ← reprint stx; pure $ r ++ s) ""
+      args.foldlFromM (fun s stx => do s' ← reprint stx; guard (s == s'); pure s) s 1
+  else args.foldlM (fun r stx => do s ← reprint stx; pure $ r ++ s) ""
 | _ => ""
 
 open Lean.Format

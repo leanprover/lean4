@@ -238,20 +238,20 @@ section
 variables {m : Type w → Type w'} [Monad m]
 variables {σ : Type w}
 
-@[specialize] partial def mfoldlAux (f : σ → α → β → m σ) : Node α β → σ → m σ
-| Node.collision keys vals heq, acc => keys.miterate acc $ fun i k acc => f acc k (vals.get ⟨i.val, heq ▸ i.isLt⟩)
-| Node.entries entries, acc => entries.mfoldl (fun acc entry =>
+@[specialize] partial def foldlMAux (f : σ → α → β → m σ) : Node α β → σ → m σ
+| Node.collision keys vals heq, acc => keys.iterateM acc $ fun i k acc => f acc k (vals.get ⟨i.val, heq ▸ i.isLt⟩)
+| Node.entries entries, acc => entries.foldlM (fun acc entry =>
   match entry with
   | Entry.null      => pure acc
   | Entry.entry k v => f acc k v
-  | Entry.ref node  => mfoldlAux node acc)
+  | Entry.ref node  => foldlMAux node acc)
   acc
 
-@[specialize] def mfoldl (map : PersistentHashMap α β) (f : σ → α → β → m σ) (acc : σ) : m σ :=
-mfoldlAux f map.root acc
+@[specialize] def foldlM (map : PersistentHashMap α β) (f : σ → α → β → m σ) (acc : σ) : m σ :=
+foldlMAux f map.root acc
 
 @[specialize] def foldl (map : PersistentHashMap α β) (f : σ → α → β → σ) (acc : σ) : σ :=
-Id.run $ map.mfoldl f acc
+Id.run $ map.foldlM f acc
 end
 
 def toList (m : PersistentHashMap α β) : List (α × β) :=

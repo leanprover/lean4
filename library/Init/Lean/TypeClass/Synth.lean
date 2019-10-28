@@ -171,7 +171,7 @@ do lookupStatus ← get >>= λ ϕ => pure $ ϕ.tableEntries.find anormSubgoal;
      if entry.answers.any (λ answer₁ => answer₁.type == answer.type) then pure() else do
        let newEntry : TableEntry := { answers := entry.answers.push answer .. entry };
        modify $ λ ϕ => { tableEntries := ϕ.tableEntries.insert anormSubgoal newEntry .. ϕ };
-       entry.waiters.mfor (wakeUp answer)
+       entry.waiters.forM (wakeUp answer)
 
 def consume : TCMethod Unit :=
 do cNode ← get >>= λ ϕ => pure ϕ.consumerStack.peek!;

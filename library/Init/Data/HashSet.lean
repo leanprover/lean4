@@ -42,10 +42,10 @@ s.set.isEmpty
 @[inline] def empty : HashSet α :=
 mkHashSet
 
-@[inline] def mfold {β : Type v} {m : Type v → Type v} [Monad m] (f : β → α → m β) (d : β) (s : HashSet α) : m β :=
-s.set.mfold (fun d a _ => f d a) d
+@[inline] def foldM {β : Type v} {m : Type v → Type v} [Monad m] (f : β → α → m β) (d : β) (s : HashSet α) : m β :=
+s.set.foldM (fun d a _ => f d a) d
 
 @[inline] def fold {β : Type v} (f : β → α → β) (d : β) (s : HashSet α) : β :=
-Id.run $ s.mfold f d
+Id.run $ s.foldM f d
 
 end HashSet

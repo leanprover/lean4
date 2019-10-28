@@ -50,7 +50,7 @@ match a with
 | other     => pure ()
 
 def checkArgs (as : Array Arg) : M Unit :=
-as.mfor checkArg
+as.forM checkArg
 
 @[inline] def checkEqTypes (ty₁ ty₂ : IRType) : M Unit :=
 unless (ty₁ == ty₂) $ throw ("unexpected type")
@@ -112,7 +112,7 @@ def checkExpr (ty : IRType) : Expr → M Unit
 
 @[inline] def withParams (ps : Array Param) (k : M Unit) : M Unit :=
 do ctx ← read;
-   localCtx ← ps.mfoldl (fun (ctx : LocalContext) p => do
+   localCtx ← ps.foldlM (fun (ctx : LocalContext) p => do
       markVar p.x;
       pure $ ctx.addParam p) ctx.localCtx;
    adaptReader (fun _ => { localCtx := localCtx, .. ctx }) k
@@ -138,7 +138,7 @@ partial def checkFnBody : FnBody → M Unit
 | FnBody.mdata _ b        => checkFnBody b
 | FnBody.jmp j ys         => checkJP j *> checkArgs ys
 | FnBody.ret x            => checkArg x
-| FnBody.case _ x _ alts  => checkVar x *> alts.mfor (fun alt => checkFnBody alt.body)
+| FnBody.case _ x _ alts  => checkVar x *> alts.forM (fun alt => checkFnBody alt.body)
 | FnBody.unreachable      => pure ()
 
 def checkDecl : Decl → M Unit
@@ -154,7 +154,7 @@ do env ← getEnv;
    | other            => pure ()
 
 def checkDecls (decls : Array Decl) : CompilerM Unit :=
-decls.mfor (checkDecl decls)
+decls.forM (checkDecl decls)
 
 end IR
 end Lean

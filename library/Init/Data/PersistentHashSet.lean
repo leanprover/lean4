@@ -41,10 +41,10 @@ s.set.contains a
 @[inline] def size (s : PersistentHashSet α) : Nat :=
 s.set.size
 
-@[inline] def mfold {β : Type v} {m : Type v → Type v} [Monad m] (f : β → α → m β) (d : β) (s : PersistentHashSet α) : m β :=
-s.set.mfoldl (fun d a _ => f d a) d
+@[inline] def foldM {β : Type v} {m : Type v → Type v} [Monad m] (f : β → α → m β) (d : β) (s : PersistentHashSet α) : m β :=
+s.set.foldlM (fun d a _ => f d a) d
 
 @[inline] def fold {β : Type v} (f : β → α → β) (d : β) (s : PersistentHashSet α) : β :=
-Id.run $ s.mfold f d
+Id.run $ s.foldM f d
 
 end PersistentHashSet

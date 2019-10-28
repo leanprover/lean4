@@ -46,7 +46,7 @@ modify (fun out => out ++ toString a)
 emit a *> emit "\n"
 
 def emitLns {α : Type} [HasToString α] (as : List α) : M Unit :=
-as.mfor $ fun a => emitLn a
+as.forM $ fun a => emitLn a
 
 def argToCString (x : Arg) : String :=
 match x with
@@ -106,7 +106,7 @@ do let ps := decl.params;
      if ps.size > closureMaxArgs && isBoxedName decl.name then
        emit "lean_object**"
      else
-       ps.size.mfor $ fun i => do {
+       ps.size.forM $ fun i => do {
          when (i > 0) (emit ", ");
          emit (toCType (ps.get! i).ty)
        };
@@ -130,7 +130,7 @@ do env ← getEnv;
    let modDecls  : NameSet := decls.foldl (fun s d => s.insert d.name) {};
    let usedDecls : NameSet := decls.foldl (fun s d => collectUsedDecls env d (s.insert d.name)) {};
    let usedDecls := usedDecls.toList;
-   usedDecls.mfor $ fun n => do
+   usedDecls.forM $ fun n => do
      decl ← getDecl n;
      match getExternNameFor env `c decl.name with
      | some cName => emitExternDeclAux decl cName
@@ -190,7 +190,7 @@ do env ← getEnv;
    pure $ decls.any (fun d => d.name == `main)
 
 def emitMainFnIfNeeded : M Unit :=
-mwhen hasMainFn emitMainFn
+whenM hasMainFn emitMainFn
 
 def emitFileHeader : M Unit :=
 do env ← getEnv;
@@ -198,7 +198,7 @@ do env ← getEnv;
    emitLn "// Lean compiler output";
    emitLn ("// Module: " ++ toString modName);
    emit "// Imports:";
-   env.imports.mfor $ fun m => emit (" " ++ toString m);
+   env.imports.forM $ fun m => emit (" " ++ toString m);
    emitLn "";
    emitLn "#include \"runtime/lean.h\"";
    emitLns [
@@ -235,7 +235,7 @@ def declareVar (x : VarId) (t : IRType) : M Unit :=
 do emit (toCType t); emit " "; emit x; emit "; "
 
 def declareParams (ps : Array Param) : M Unit :=
-ps.mfor $ fun p => declareVar p.x p.ty
+ps.forM $ fun p => declareVar p.x p.ty
 
 partial def declareVars : FnBody → Bool → M Bool
 | e@(FnBody.vdecl x t _ b), d => do
@@ -271,7 +271,7 @@ match isIf alts with
 | _ => do
   emit "switch ("; emitTag x xType; emitLn ") {";
   let alts := ensureHasDefault alts;
-  alts.mfor $ fun alt => match alt with
+  alts.forM $ fun alt => match alt with
     | Alt.ctor c b  => emit "case " *> emit c.cidx *> emitLn ":" *> emitBody b
     | Alt.default b => emitLn "default: " *> emitBody b;
   emitLn "}"
@@ -322,7 +322,7 @@ do match t with
 def emitJmp (j : JoinPointId) (xs : Array Arg) : M Unit :=
 do ps ← getJPParams j;
    unless (xs.size == ps.size) (throw "invalid goto");
-    xs.size.mfor $ fun i => do {
+    xs.size.forM $ fun i => do {
       let p := ps.get! i;
       let x := xs.get! i;
       emit p.x; emit " = "; emitArg x; emitLn ";"
@@ -333,7 +333,7 @@ def emitLhs (z : VarId) : M Unit :=
 do emit z; emit " = "
 
 def emitArgs (ys : Array Arg) : M Unit :=
-ys.size.mfor $ fun i => do
+ys.size.forM $ fun i => do
   when (i > 0) (emit ", ");
   emitArg (ys.get! i)
 
@@ -347,7 +347,7 @@ do emit "lean_alloc_ctor("; emit c.cidx; emit ", "; emit c.size; emit ", ";
    emitCtorScalarSize c.usize c.ssize; emitLn ");"
 
 def emitCtorSetArgs (z : VarId) (ys : Array Arg) : M Unit :=
-ys.size.mfor $ fun i => do
+ys.size.forM $ fun i => do
   emit "lean_ctor_set("; emit z; emit ", "; emit i; emit ", "; emitArg (ys.get! i); emitLn ");"
 
 def emitCtor (z : VarId) (c : CtorInfo) (ys : Array Arg) : M Unit :=
@@ -359,7 +359,7 @@ do emitLhs z;
 
 def emitReset (z : VarId) (n : Nat) (x : VarId) : M Unit :=
 do emit "if (lean_is_exclusive("; emit x; emitLn ")) {";
-   n.mfor $ fun i => do {
+   n.forM $ fun i => do {
      emit " lean_ctor_release("; emit x; emit ", "; emit i; emitLn ");"
    };
    emit " "; emitLhs z; emit x; emitLn ";";
@@ -400,7 +400,7 @@ ys.toList.map argToCString
 def emitSimpleExternalCall (f : String) (ps : Array Param) (ys : Array Arg) : M Unit :=
 do emit f; emit "(";
    -- We must remove irrelevant arguments to extern calls.
-   ys.size.mfold
+   ys.size.foldM
      (fun i (first : Bool) =>
        if (ps.get! i).ty.isIrrelevant then
          pure first
@@ -430,7 +430,7 @@ def emitPartialApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit :=
 do decl ← getDecl f;
    let arity := decl.params.size;
    emitLhs z; emit "lean_alloc_closure((void*)("; emitCName f; emit "), "; emit arity; emit ", "; emit ys.size; emitLn ");";
-   ys.size.mfor $ fun i => do {
+   ys.size.forM $ fun i => do {
      let y := ys.get! i;
      emit "lean_closure_set("; emit z; emit ", "; emit i; emit ", "; emitArg y; emitLn ");"
    }
@@ -559,21 +559,21 @@ match v with
   unless (ps.size == ys.size) (throw "invalid tail call");
   if overwriteParam ps ys then do {
     emitLn "{";
-    ps.size.mfor $ fun i => do {
+    ps.size.forM $ fun i => do {
       let p := ps.get! i;
       let y := ys.get! i;
       unless (paramEqArg p y) $ do {
         emit (toCType p.ty); emit " _tmp_"; emit i; emit " = "; emitArg y; emitLn ";"
       }
     };
-    ps.size.mfor $ fun i => do {
+    ps.size.forM $ fun i => do {
       let p := ps.get! i;
       let y := ys.get! i;
       unless (paramEqArg p y) (do emit p.x; emit " = _tmp_"; emit i; emitLn ";")
     };
     emitLn "}"
   } else do {
-    ys.size.mfor $ fun i => do {
+    ys.size.forM $ fun i => do {
       let p := ps.get! i;
       let y := ys.get! i;
       unless (paramEqArg p y) (do emit p.x; emit " = "; emitArg y; emitLn ";")
@@ -627,7 +627,7 @@ do env ← getEnv;
          if xs.size > closureMaxArgs && isBoxedName d.name then
            emit "lean_object** _args"
          else
-           xs.size.mfor $ fun i => do {
+           xs.size.forM $ fun i => do {
              when (i > 0) (emit ", ");
              let x := xs.get! i;
              emit (toCType x.ty); emit " "; emit x.x
@@ -638,7 +638,7 @@ do env ← getEnv;
        };
        emitLn " {";
        when (xs.size > closureMaxArgs && isBoxedName d.name) $
-         xs.size.mfor $ fun i => do {
+         xs.size.forM $ fun i => do {
            let x := xs.get! i;
            emit "lean_object* "; emit x.x; emit " = _args["; emit i; emitLn "];"
          };
@@ -656,7 +656,7 @@ catch
 def emitFns : M Unit :=
 do env ← getEnv;
    let decls := getDecls env;
-   decls.reverse.mfor emitDecl
+   decls.reverse.forM emitDecl
 
 def emitMarkPersistent (d : Decl) (n : Name) : M Unit :=
 when d.resultType.isObj $ do {
@@ -684,7 +684,7 @@ do env ← getEnv;
 def emitInitFn : M Unit :=
 do env ← getEnv;
    modName ← getModName;
-   env.imports.mfor $ fun m => emitLn ("lean_object* initialize_" ++ m.mangle "" ++ "(lean_object*);");
+   env.imports.forM $ fun m => emitLn ("lean_object* initialize_" ++ m.mangle "" ++ "(lean_object*);");
    emitLns [
      "static bool _G_initialized = false;",
      "lean_object* initialize_" ++ modName.mangle "" ++ "(lean_object* w) {",
@@ -692,12 +692,12 @@ do env ← getEnv;
      "if (_G_initialized) return lean_mk_io_result(lean_box(0));",
      "_G_initialized = true;"
    ];
-   env.imports.mfor $ fun m => emitLns [
+   env.imports.forM $ fun m => emitLns [
      "res = initialize_" ++ m.mangle "" ++ "(lean_io_mk_world());",
      "if (lean_io_result_is_error(res)) return res;",
      "lean_dec_ref(res);"];
    let decls := getDecls env;
-   decls.reverse.mfor emitDeclInit;
+   decls.reverse.forM emitDeclInit;
    emitLns ["return lean_mk_io_result(lean_box(0));", "}"]
 
 def main : M Unit :=

@@ -26,7 +26,7 @@ partial def elabTermAux : Syntax Expr → Option Expr → Bool → Elab (Syntax 
     | none      => do
       -- recursively expand syntax
       let k := n.getKind;
-      args ← n.getArgs.mmap $ fun arg => elabTermAux arg none true;
+      args ← n.getArgs.mapM $ fun arg => elabTermAux arg none true;
       let newStx := Syntax.node k args;
       -- if it was already expanding just return new node, otherwise invoke old elaborator
       if expanding then

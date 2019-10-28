@@ -151,7 +151,7 @@ partial def projValue : Value → Nat → Value
 | v, _         => v
 
 def interpExpr : Expr → M Value
-| Expr.ctor i ys => ctor i <$> ys.mmap (fun y => findArgValue y)
+| Expr.ctor i ys => ctor i <$> ys.mapM (fun y => findArgValue y)
 | Expr.proj i x  => do v ← findVarValue x; pure $ projValue v i
 | Expr.fap fid ys => do
   ctx ← read;
@@ -179,7 +179,7 @@ do ctx ← read;
 def updateJPParamsAssignment (ys : Array Param) (xs : Array Arg) : M Bool :=
 do ctx ← read;
    let currFnIdx := ctx.currFnIdx;
-   ys.size.mfold (fun i r => do
+   ys.size.foldM (fun i r => do
      let y := ys.get! i;
      let x := xs.get! i;
      yVal ← findVarValue y.x;
@@ -201,7 +201,7 @@ partial def interpFnBody : FnBody → M Unit
     interpFnBody b
 | FnBody.case _ x _ alts => do
   v ← findVarValue x;
-  alts.mfor $ fun alt =>
+  alts.forM $ fun alt =>
     match alt with
     | Alt.ctor i b  => when (containsCtor v i) $ interpFnBody b
     | Alt.default b => interpFnBody b
@@ -220,14 +220,14 @@ partial def interpFnBody : FnBody → M Unit
 def inferStep : M Bool :=
 do ctx ← read;
    modify $ fun s => { assignments := ctx.decls.map $ fun _ => {}, .. s };
-   ctx.decls.size.mfold (fun idx modified => do
+   ctx.decls.size.foldM (fun idx modified => do
      match ctx.decls.get! idx with
      | Decl.fdecl fid ys _ b => do
        s ← get;
        -- dbgTrace (">> " ++ toString fid) $ fun _ =>
        let currVals := s.funVals.get! idx;
        adaptReader (fun (ctx : InterpContext) => { currFnIdx := idx, .. ctx }) $ do
-         ys.mfor $ fun y => updateVarAssignment y.x top;
+         ys.forM $ fun y => updateVarAssignment y.x top;
          interpFnBody b;
        s ← get;
        let newVals := s.funVals.get! idx;

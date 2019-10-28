@@ -93,7 +93,7 @@ private partial def Dmain (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × B
   ctx ← read;
   if e.hasLiveVar ctx x then do
     /- If `x` is live in `e`, we recursively process each branch. -/
-    alts ← alts.mmap $ fun alt => alt.mmodifyBody (fun b => Dmain b >>= Dfinalize x c);
+    alts ← alts.mapM $ fun alt => alt.mmodifyBody (fun b => Dmain b >>= Dfinalize x c);
     pure (FnBody.case tid y yType alts, true)
   else pure (e, false)
 | FnBody.jdecl j ys v b   => do
@@ -130,7 +130,7 @@ Dmain x c b >>= Dfinalize x c
 
 partial def R : FnBody → M FnBody
 | FnBody.case tid x xType alts   => do
-    alts ← alts.mmap $ fun alt => do {
+    alts ← alts.mapM $ fun alt => do {
       alt ← alt.mmodifyBody R;
       match alt with
       | Alt.ctor c b =>

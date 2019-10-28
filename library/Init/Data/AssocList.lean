@@ -18,12 +18,12 @@ variables {α : Type u} {β : Type v} {δ : Type w} {m : Type w → Type w} [Mon
 def empty : AssocList α β :=
 nil
 
-@[specialize] def mfoldl (f : δ → α → β → m δ) : δ → AssocList α β → m δ
+@[specialize] def foldlM (f : δ → α → β → m δ) : δ → AssocList α β → m δ
 | d, nil         => pure d
-| d, cons a b es => do d ← f d a b; mfoldl d es
+| d, cons a b es => do d ← f d a b; foldlM d es
 
 @[inline] def foldl (f : δ → α → β → δ) (d : δ) (as : AssocList α β) : δ :=
-Id.run (mfoldl f d as)
+Id.run (foldlM f d as)
 
 def find [HasBeq α] (a : α) : AssocList α β → Option β
 | nil         => none

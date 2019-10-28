@@ -76,11 +76,11 @@ partial def toLevel : Syntax Expr → Elab Level
   | `Lean.Parser.Level.max    => do
      let args := (stx.getArg 1).getArgs;
      first ← toLevel (args.get! 0);
-     args.mfoldlFrom (fun r arg => Level.max r <$> toLevel arg) first 1
+     args.foldlFromM (fun r arg => Level.max r <$> toLevel arg) first 1
   | `Lean.Parser.Level.imax   => do
      let args := (stx.getArg 1).getArgs;
      first ← toLevel (args.get! 0);
-     args.mfoldlFrom (fun r arg => Level.imax r <$> toLevel arg) first 1
+     args.foldlFromM (fun r arg => Level.imax r <$> toLevel arg) first 1
   | `Lean.Parser.Level.hole   => pure $ Level.mvar Name.anonymous
   | `Lean.Parser.Level.num    => pure $ Level.ofNat $ (stx.getArg 0).toNat
   | `Lean.Parser.Level.ident  => do
@@ -145,7 +145,7 @@ private def processBinder (b : Syntax Expr) : Elab (Array PreTerm) :=
 match b.getKind with
 | `Lean.Parser.Term.simpleBinder   => do
    let args := (b.getArg 0).getArgs;
-   args.mmap $ fun arg => do
+   args.mapM $ fun arg => do
      let id := arg.getId;
      hole ← mkHoleFor arg;
      -- decl ← mkLocalDecl id hole;  -- HACK: this file will be deleted
@@ -155,7 +155,7 @@ match b.getKind with
    let ids     := (b.getArg 1).getArgs;
    let optType := b.getArg 2;
    let optDef  := b.getArg 3;
-   ids.mmap $ fun idStx => do
+   ids.mapM $ fun idStx => do
      let id := idStx.getId;
      type ← if optType.getNumArgs == 0 then mkHoleFor idStx else toPreTerm (optType.getArg 1);
      type ← if optDef.getNumArgs == 0 then pure type else
@@ -174,7 +174,7 @@ match b.getKind with
 | _ => throw "unknown binder kind"
 
 private def processBinders (bs : Array (Syntax Expr)) : Elab (Array PreTerm) :=
-bs.mfoldl (fun r s => do xs ← processBinder s; pure (r ++ xs)) #[]
+bs.foldlM (fun r s => do xs ← processBinder s; pure (r ++ xs)) #[]
 
 @[builtinPreTermElab «forall»] def convertForall : PreTermElab :=
 fun n => do

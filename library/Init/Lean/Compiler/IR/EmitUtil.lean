@@ -69,7 +69,7 @@ partial def collectFnBody : FnBody → M Unit
   | Expr.pap f _ => collect f *> collectFnBody b
   | other        => collectFnBody b
 | FnBody.jdecl _ _ v b   => collectFnBody v *> collectFnBody b
-| FnBody.case _ _ _ alts => alts.mfor $ fun alt => collectFnBody alt.body
+| FnBody.case _ _ _ alts => alts.forM $ fun alt => collectFnBody alt.body
 | e => unless e.isTerminal $ collectFnBody e.body
 
 def collectInitDecl (fn : Name) : M Unit :=

@@ -184,7 +184,7 @@ partial def uInstantiate (ctx : Context) : Level → Level
 
 def eHasTmpMVar (e : Expr) : Bool :=
 if e.hasMVar
-then eFind (λ t => eIsMeta t || (t.isConst && t.constLevels.any uHasTmpMVar)) e
+then eFind (λ t => eIsMeta t || (t.isConst && t.constLevels!.any uHasTmpMVar)) e
 else false
 
 partial def slowWhnfApp (args : Array Expr) : Expr → Nat → Expr
@@ -211,18 +211,18 @@ partial def eUnify : Expr → Expr → EState String Context Unit
     e₂ ← slowWhnf <$> (EState.fromState $ eShallowInstantiate e₂);
     if e₁.isMVar && e₂.isMVar && e₁ == e₂ then pure ()
     else if eIsMeta e₂ && !(eIsMeta e₁) then eUnify e₂ e₁
-    else if e₁.isBVar && e₂.isBVar && e₁.bvarIdx == e₂.bvarIdx then pure ()
-    else if e₁.isFVar && e₂.isFVar && e₁.fvarName == e₂.fvarName then pure ()
-    else if e₁.isConst && e₂.isConst && e₁.constName == e₂.constName then
-      List.forM₂ uUnify e₁.constLevels e₂.constLevels
+    else if e₁.isBVar && e₂.isBVar && e₁.bvarIdx! == e₂.bvarIdx! then pure ()
+    else if e₁.isFVar && e₂.isFVar && e₁.fvarName! == e₂.fvarName! then pure ()
+    else if e₁.isConst && e₂.isConst && e₁.constName! == e₂.constName! then
+      List.forM₂ uUnify e₁.constLevels! e₂.constLevels!
     else if e₁.isApp && e₂.isApp && e₁.getAppNumArgs == e₂.getAppNumArgs then do
       let args₁ := e₁.getAppArgs;
       let args₂ := e₂.getAppArgs;
       eUnify e₁.getAppFn e₂.getAppFn;
       args₁.size.forM $ fun i => eUnify (args₁.get! i) (args₂.get! i)
     else if e₁.isForall && e₂.isForall then do
-      eUnify e₁.bindingDomain e₂.bindingDomain;
-      eUnify e₁.bindingBody e₂.bindingBody
+      eUnify e₁.bindingDomain! e₂.bindingDomain!;
+      eUnify e₁.bindingBody! e₂.bindingBody!
     else if eIsMeta e₁ && !(eOccursIn e₂ e₁) then
       match eMetaIdx e₁ with
       | some idx => EState.fromState $ eAssignIdx idx e₂

@@ -231,38 +231,38 @@ def isAppOfArity : Expr → Name → Nat → Bool
 | app f _,   n, a+1 => isAppOfArity f n a
 | _,         _, _   => false
 
-def constName : Expr → Name
+def constName! : Expr → Name
 | const n _ => n
 | _         => panic! "constant expected"
 
-def constLevels : Expr → List Level
+def constLevels! : Expr → List Level
 | const _ ls => ls
 | _          => panic! "constant expected"
 
-def bvarIdx : Expr → Nat
+def bvarIdx! : Expr → Nat
 | bvar idx => idx
 | _        => panic! "bvar expected"
 
-def fvarName : Expr → Name
+def fvarName! : Expr → Name
 | fvar n => n
 | _      => panic! "fvar expected"
 
-def bindingName : Expr → Name
+def bindingName! : Expr → Name
 | forallE n _ _ _ => n
 | lam n _ _ _     => n
 | _               => panic! "binding expected"
 
-def bindingDomain : Expr → Expr
+def bindingDomain! : Expr → Expr
 | forallE _ _ d _ => d
 | lam _ _ d _     => d
 | _               => panic! "binding expected"
 
-def bindingBody : Expr → Expr
+def bindingBody! : Expr → Expr
 | forallE _ _ _ b => b
 | lam _ _ _ b     => b
 | _               => panic! "binding expected"
 
-def letName : Expr → Name
+def letName! : Expr → Name
 | letE n _ _ _ => n
 | _            => panic! "let expression expected"
 
@@ -404,7 +404,7 @@ match e with
 
 @[extern "lean_expr_update_const"]
 def updateConst (e : Expr) (newLevels : List Level) (h : e.isConst = true) : Expr :=
-const e.constName newLevels
+const e.constName! newLevels
 
 @[inline] def updateConst! (e : Expr) (newLevels : List Level) : Expr :=
 match e with
@@ -444,7 +444,7 @@ match e with
 
 @[extern "lean_expr_update_forall"]
 def updateForall (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) (h : e.isForall = true) : Expr :=
-forallE e.bindingName newBinfo newDomain newBody
+forallE e.bindingName! newBinfo newDomain newBody
 
 @[inline] def updateForall! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) : Expr :=
 match e with
@@ -458,7 +458,7 @@ match e with
 
 @[extern "lean_expr_update_lambda"]
 def updateLambda (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) (h : e.isLambda = true) : Expr :=
-lam e.bindingName newBinfo newDomain newBody
+lam e.bindingName! newBinfo newDomain newBody
 
 @[inline] def updateLambda! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) : Expr :=
 match e with
@@ -472,7 +472,7 @@ match e with
 
 @[extern "lean_expr_update_let"]
 def updateLet (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) (h : e.isLet = true) : Expr :=
-letE e.letName newType newVal newBody
+letE e.letName! newType newVal newBody
 
 @[inline] def updateLet! (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : Expr :=
 match e with

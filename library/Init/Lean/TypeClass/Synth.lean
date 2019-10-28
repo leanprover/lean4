@@ -85,7 +85,7 @@ def quickIsClass (env : Environment) : Expr → Option (Option Name)
 | Expr.forallE _ _ _ b => quickIsClass b
 | Expr.app e _         =>
   let f := e.getAppFn;
-  if f.isConst && isClass env f.constName then some (some f.constName)
+  if f.isConst && isClass env f.constName! then some (some f.constName!)
   else if f.isLambda then none
   else some none
 | _            => some none
@@ -268,19 +268,19 @@ def collectEReplacements (env : Environment) (lctx : LocalContext) (locals : Arr
 | _, arg::args, _, _, _ => panic! "TODO(dselsam): this case not yet handled"
 
 def preprocessForOutParams (env : Environment) (goalType : Expr) : Context × Expr × Array (Level × Level) × Array (Expr × Expr) :=
-if !goalType.hasMVar && goalType.getAppFn.isConst && !hasOutParams env goalType.getAppFn.constName
+if !goalType.hasMVar && goalType.getAppFn.isConst && !hasOutParams env goalType.getAppFn.constName!
 then ({}, goalType, #[], #[])
 else
   let ⟨lctx, bodyGoalType, locals⟩ := introduceLocals 0 {} #[] goalType;
   let f := goalType.getAppFn;
   let fArgs := goalType.getAppArgs;
-  if !(f.isConst && isClass env f.constName)
+  if !(f.isConst && isClass env f.constName!)
   then ({}, goalType, #[], #[])
   else
-    let ⟨ctx, uReplacements, CLevels⟩ := collectUReplacements f.constLevels {} #[] #[];
-    let f := if uReplacements.isEmpty then f else Expr.const f.constName CLevels.toList;
+    let ⟨ctx, uReplacements, CLevels⟩ := collectUReplacements f.constLevels! {} #[] #[];
+    let f := if uReplacements.isEmpty then f else Expr.const f.constName! CLevels.toList;
     let fType :=
-      match env.find f.constName with
+      match env.find f.constName! with
       | none => panic! "found constant not in the environment"
       | some cInfo => cInfo.instantiateTypeUnivParams CLevels.toList;
     let (ctx, eReplacements, fArgs) := collectEReplacements env lctx locals fType fArgs.toList ctx #[] #[]; -- TODO: avoid fArgs.toList

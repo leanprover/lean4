@@ -34,7 +34,6 @@ lean_object* l_Nat_repeatAux___main___at_String_pushn___spec__1(uint32_t, lean_o
 lean_object* l_Lean_Option_format___rarg___closed__1;
 lean_object* l_Lean_Format_prefixJoin___main(lean_object*);
 lean_object* l_Lean_stringHasFormat(lean_object*);
-extern lean_object* l_mjoin___rarg___closed__1;
 lean_object* l_Lean_HasRepr___closed__2;
 lean_object* l_Lean_Format_spaceUptoLine_x27___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Format_repr___main___closed__13;
@@ -113,7 +112,9 @@ lean_object* l_Lean_Format_joinSuffix___rarg(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_Format_HasAppend;
 lean_object* l_List_foldl___main___at_Lean_Format_join___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_arrayHasFormat___rarg(lean_object*, lean_object*);
+lean_object* l_Array_iterateMAux___main___at_Lean_Format_joinArraySep___spec__1(lean_object*);
 lean_object* l_Lean_formatEntry(lean_object*);
+lean_object* l_Array_iterateMAux___main___at_Lean_Format_joinArraySep___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_natHasFormat(lean_object*);
 lean_object* l_Lean_Format_repr___main___closed__19;
@@ -131,6 +132,7 @@ extern lean_object* l_Prod_HasRepr___rarg___closed__1;
 lean_object* l_Lean_Format_repr___main___closed__12;
 lean_object* l_Lean_Format_indentOption(lean_object*);
 lean_object* l_Lean_Format_spaceUptoLine___boxed(lean_object*, lean_object*);
+lean_object* l_Array_iterateMAux___main___at_Lean_Format_joinArraySep___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_getIndent(lean_object*);
 lean_object* l_Lean_Format_flatten___main___closed__1;
 lean_object* l_Lean_dataValueHasFormat___closed__1;
@@ -163,14 +165,12 @@ lean_object* l_Lean_formatKVMap___closed__1;
 lean_object* l_Lean_Format_repr___main___closed__7;
 lean_object* l_Lean_Format_repr___main___closed__5;
 lean_object* l_Lean_formatDataValue___closed__2;
-lean_object* l_Array_miterateAux___main___at_Lean_Format_joinArraySep___spec__1(lean_object*);
 lean_object* l_Lean_Format_paren(lean_object*);
 lean_object* l_Lean_usizeHasFormat(size_t);
 lean_object* lean_format_group(lean_object*);
 lean_object* l_Lean_Option_format___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Format_bracket(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_listHasFormat(lean_object*);
-lean_object* l_Array_miterateAux___main___at_Lean_Format_joinArraySep___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_be___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_spaceUptoLine_x27___main___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Format_defWidth;
@@ -217,12 +217,12 @@ lean_object* l_Lean_Format_repr___main___closed__21;
 lean_object* l_Lean_Format_spaceUptoLine(lean_object*, lean_object*);
 extern lean_object* l_Bool_HasRepr___closed__1;
 lean_object* l_Lean_kvMapHasFormat;
-lean_object* l_Array_miterateAux___main___at_Lean_Format_joinArraySep___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_repr___main___closed__1;
 lean_object* l_Lean_uint16HasFormat(uint16_t);
 lean_object* l_Lean_Format_join(lean_object*);
 extern lean_object* l_List_repr___rarg___closed__1;
 lean_object* l_Lean_Format_repr___main___closed__6;
+extern lean_object* l_joinM___rarg___closed__1;
 lean_object* l_Lean_Format_unicodeOption___closed__2;
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* lean_string_length(lean_object*);
@@ -1752,7 +1752,7 @@ lean_object* _init_l_Lean_formatHasFormat() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_mjoin___rarg___closed__1;
+x_1 = l_joinM___rarg___closed__1;
 return x_1;
 }
 }
@@ -2251,7 +2251,7 @@ x_3 = lean_alloc_closure((void*)(l_Lean_prodHasFormat___rarg), 3, 0);
 return x_3;
 }
 }
-lean_object* l_Array_miterateAux___main___at_Lean_Format_joinArraySep___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+lean_object* l_Array_iterateMAux___main___at_Lean_Format_joinArraySep___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; uint8_t x_8; 
@@ -2310,11 +2310,11 @@ goto _start;
 }
 }
 }
-lean_object* l_Array_miterateAux___main___at_Lean_Format_joinArraySep___spec__1(lean_object* x_1) {
+lean_object* l_Array_iterateMAux___main___at_Lean_Format_joinArraySep___spec__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Array_miterateAux___main___at_Lean_Format_joinArraySep___spec__1___rarg___boxed), 6, 0);
+x_2 = lean_alloc_closure((void*)(l_Array_iterateMAux___main___at_Lean_Format_joinArraySep___spec__1___rarg___boxed), 6, 0);
 return x_2;
 }
 }
@@ -2324,7 +2324,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_box(0);
-x_6 = l_Array_miterateAux___main___at_Lean_Format_joinArraySep___spec__1___rarg(x_1, x_2, x_3, x_2, x_4, x_5);
+x_6 = l_Array_iterateMAux___main___at_Lean_Format_joinArraySep___spec__1___rarg(x_1, x_2, x_3, x_2, x_4, x_5);
 return x_6;
 }
 }
@@ -2336,11 +2336,11 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Format_joinArraySep___rarg___boxed), 3, 
 return x_2;
 }
 }
-lean_object* l_Array_miterateAux___main___at_Lean_Format_joinArraySep___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+lean_object* l_Array_iterateMAux___main___at_Lean_Format_joinArraySep___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
-x_7 = l_Array_miterateAux___main___at_Lean_Format_joinArraySep___spec__1___rarg(x_1, x_2, x_3, x_4, x_5, x_6);
+x_7 = l_Array_iterateMAux___main___at_Lean_Format_joinArraySep___spec__1___rarg(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_4);
 lean_dec(x_2);
 return x_7;

@@ -21,7 +21,6 @@ uint8_t lean_name_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkExplicitBinder___rarg(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_ummapAux___main___at_Lean_Elab_elabTermAux___main___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldl___main___at_Lean_Parser_mkAppStx___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_find___at_Lean_Elab_elabTermAux___main___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkExplicitBinder___rarg___closed__4;
@@ -59,6 +58,7 @@ lean_object* l_Lean_addBuiltinTermElab(lean_object*, lean_object*, lean_object*,
 lean_object* l___regBuiltinTermElab_Lean_Elab_elabArrow(lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_Elab_elabTermAux___main___spec__6___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabListLit___closed__3;
+lean_object* l_Array_umapMAux___main___at_Lean_Elab_elabTermAux___main___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabListLit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -307,7 +307,7 @@ return x_9;
 }
 }
 }
-lean_object* l_Array_ummapAux___main___at_Lean_Elab_elabTermAux___main___spec__7(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_umapMAux___main___at_Lean_Elab_elabTermAux___main___spec__7(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
@@ -437,7 +437,7 @@ x_15 = lean_ctor_get(x_1, 0);
 lean_dec(x_15);
 x_16 = lean_unsigned_to_nat(0u);
 lean_inc(x_4);
-x_17 = l_Array_ummapAux___main___at_Lean_Elab_elabTermAux___main___spec__7(x_16, x_7, x_4, x_5);
+x_17 = l_Array_umapMAux___main___at_Lean_Elab_elabTermAux___main___spec__7(x_16, x_7, x_4, x_5);
 if (lean_obj_tag(x_17) == 0)
 {
 uint8_t x_18; 
@@ -622,7 +622,7 @@ lean_object* x_50; lean_object* x_51;
 lean_dec(x_1);
 x_50 = lean_unsigned_to_nat(0u);
 lean_inc(x_4);
-x_51 = l_Array_ummapAux___main___at_Lean_Elab_elabTermAux___main___spec__7(x_50, x_7, x_4, x_5);
+x_51 = l_Array_umapMAux___main___at_Lean_Elab_elabTermAux___main___spec__7(x_50, x_7, x_4, x_5);
 if (lean_obj_tag(x_51) == 0)
 {
 lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; 

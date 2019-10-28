@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Array_ummapAux___main___at_Lean_IR_FnBody_elimDead___main___spec__2(lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_setBody(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
@@ -23,6 +22,7 @@ lean_object* l_Lean_IR_reshapeWithoutDead(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_freeIndices(lean_object*);
 lean_object* l_Array_back___at_Lean_IR_reshapeWithoutDeadAux___main___spec__1(lean_object*);
 lean_object* l_Lean_IR_reshapeWithoutDeadAux(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_umapMAux___main___at_Lean_IR_FnBody_elimDead___main___spec__2(lean_object*, lean_object*);
 lean_object* l_Array_back___at_Lean_IR_reshapeWithoutDeadAux___main___spec__1___boxed(lean_object*);
 lean_object* l_Lean_IR_FnBody_elimDead___main(lean_object*);
 lean_object* l_Lean_IR_reshapeWithoutDeadAux___main(lean_object*, lean_object*, lean_object*);
@@ -34,7 +34,7 @@ uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_IR_FnBody_collectFreeIndices(lean_object*, lean_object*);
 lean_object* l_RBNode_findCore___main___at___private_Init_Lean_Compiler_IR_FreeVars_14__collectIndex___spec__1(lean_object*, lean_object*);
 lean_object* lean_array_pop(lean_object*);
-lean_object* l_Array_ummapAux___main___at_Lean_IR_FnBody_elimDead___main___spec__1(lean_object*, lean_object*);
+lean_object* l_Array_umapMAux___main___at_Lean_IR_FnBody_elimDead___main___spec__1(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
@@ -157,7 +157,7 @@ x_4 = l_Lean_IR_reshapeWithoutDeadAux___main(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* l_Array_ummapAux___main___at_Lean_IR_FnBody_elimDead___main___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Array_umapMAux___main___at_Lean_IR_FnBody_elimDead___main___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
@@ -221,7 +221,7 @@ goto _start;
 }
 }
 }
-lean_object* l_Array_ummapAux___main___at_Lean_IR_FnBody_elimDead___main___spec__2(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Array_umapMAux___main___at_Lean_IR_FnBody_elimDead___main___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
@@ -293,7 +293,7 @@ x_4 = lean_ctor_get(x_2, 1);
 lean_inc(x_4);
 lean_dec(x_2);
 x_5 = lean_unsigned_to_nat(0u);
-x_6 = l_Array_ummapAux___main___at_Lean_IR_FnBody_elimDead___main___spec__1(x_5, x_3);
+x_6 = l_Array_umapMAux___main___at_Lean_IR_FnBody_elimDead___main___spec__1(x_5, x_3);
 if (lean_obj_tag(x_4) == 10)
 {
 uint8_t x_7; 
@@ -302,7 +302,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = lean_ctor_get(x_4, 3);
-x_9 = l_Array_ummapAux___main___at_Lean_IR_FnBody_elimDead___main___spec__2(x_5, x_8);
+x_9 = l_Array_umapMAux___main___at_Lean_IR_FnBody_elimDead___main___spec__2(x_5, x_8);
 lean_ctor_set(x_4, 3, x_9);
 x_10 = l_Lean_IR_reshapeWithoutDead(x_6, x_4);
 return x_10;
@@ -319,7 +319,7 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_dec(x_4);
-x_15 = l_Array_ummapAux___main___at_Lean_IR_FnBody_elimDead___main___spec__2(x_5, x_14);
+x_15 = l_Array_umapMAux___main___at_Lean_IR_FnBody_elimDead___main___spec__2(x_5, x_14);
 x_16 = lean_alloc_ctor(10, 4, 0);
 lean_ctor_set(x_16, 0, x_11);
 lean_ctor_set(x_16, 1, x_12);

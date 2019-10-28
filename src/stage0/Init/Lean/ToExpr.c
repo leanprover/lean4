@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_strToExpr(lean_object*);
-extern lean_object* l_mjoin___rarg___closed__1;
 lean_object* l_Lean_nameToExprAux___main___closed__3;
 lean_object* l_Lean_nameToExprAux___main___closed__1;
 lean_object* lean_expr_mk_const(lean_object*, lean_object*);
@@ -33,12 +32,13 @@ lean_object* l_Lean_nameToExpr;
 lean_object* l_Lean_natToExpr(lean_object*);
 lean_object* l_Lean_nameToExprAux___main___closed__2;
 lean_object* lean_expr_mk_lit(lean_object*);
+extern lean_object* l_joinM___rarg___closed__1;
 lean_object* l_Lean_nameToExpr___closed__1;
 lean_object* _init_l_Lean_exprToExpr() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_mjoin___rarg___closed__1;
+x_1 = l_joinM___rarg___closed__1;
 return x_1;
 }
 }

@@ -41,6 +41,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isSort(lean_object*);
 uint8_t l_Lean_Expr_isConst(lean_object*);
 lean_object* l_Lean_Expr_forallE___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lean_mkAppRev___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_withAppAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bvarIdx(lean_object*);
@@ -88,13 +89,11 @@ lean_object* l_Lean_mkDecIsFalse___closed__1;
 lean_object* l_Lean_Expr_isAppOfArity___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Expr_5__betaRevAux___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_Expr_constLevels___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_miterateAux___main___at_Lean_mkApp___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsTrue___closed__3;
 lean_object* l_Lean_Expr_isProj___boxed(lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux___main(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_equal___boxed(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Array_Basic_3__miterateRevAux___main___at_Lean_mkAppRev___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hasMVar___boxed(lean_object*);
 lean_object* l_Lean_Expr_sort___boxed(lean_object*);
 lean_object* l_Lean_Expr_HasToString___closed__1;
@@ -104,7 +103,6 @@ lean_object* l_Lean_Expr_updateMData_x21(lean_object*, lean_object*);
 lean_object* lean_expr_mk_fvar(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Expr_withAppAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_miterateAux___main___at_Lean_mkApp___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Expr_4__mkAppRevRangeAux(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Expr_3__withAppRevAux___rarg(lean_object*, lean_object*, lean_object*);
@@ -119,6 +117,7 @@ lean_object* l_Lean_Expr_isMData___boxed(lean_object*);
 extern lean_object* l_panicWithPos___rarg___closed__3;
 lean_object* lean_expr_mk_const(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_constName___closed__1;
+lean_object* l_Array_iterateMAux___main___at_Lean_mkApp___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bvar___boxed(lean_object*);
 lean_object* l_Lean_Expr_updateForall_x21___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_Hashable___closed__1;
@@ -164,6 +163,7 @@ lean_object* l_Lean_Expr_updateLet___boxed(lean_object*, lean_object*, lean_obje
 lean_object* l_Lean_Expr_app___boxed(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsTrue___closed__2;
+lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lean_mkAppRev___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_proj(lean_object*, lean_object*);
 extern lean_object* l_panicWithPos___rarg___closed__1;
 lean_object* l_Lean_Expr_getAppArgs(lean_object*);
@@ -185,7 +185,6 @@ uint8_t l_Lean_ExprStructEq_beq(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateLambda___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkCApp(lean_object*, lean_object*);
 lean_object* l_Lean_mkDecIsTrue___closed__5;
-lean_object* l___private_Init_Data_Array_Basic_3__miterateRevAux___main___at_Lean_mkAppRev___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hasFVar___boxed(lean_object*);
 lean_object* l___private_Init_Lean_Expr_3__withAppRevAux(lean_object*);
 lean_object* l___private_Init_Lean_Expr_1__getAppArgsAux(lean_object*, lean_object*, lean_object*);
@@ -206,6 +205,7 @@ lean_object* l_Lean_Expr_proj___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateConst_x21(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateLambda_x21___closed__1;
 lean_object* l_Lean_BinderInfo_HasBeq___closed__1;
+lean_object* l_Array_iterateMAux___main___at_Lean_mkApp___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateApp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_betaRev___boxed(lean_object*, lean_object*);
@@ -580,7 +580,7 @@ x_6 = lean_expr_local(x_1, x_2, x_3, x_5);
 return x_6;
 }
 }
-lean_object* l_Array_miterateAux___main___at_Lean_mkApp___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_iterateMAux___main___at_Lean_mkApp___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
@@ -611,15 +611,15 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_Array_miterateAux___main___at_Lean_mkApp___spec__1(x_2, x_2, x_3, x_1);
+x_4 = l_Array_iterateMAux___main___at_Lean_mkApp___spec__1(x_2, x_2, x_3, x_1);
 return x_4;
 }
 }
-lean_object* l_Array_miterateAux___main___at_Lean_mkApp___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_iterateMAux___main___at_Lean_mkApp___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Array_miterateAux___main___at_Lean_mkApp___spec__1(x_1, x_2, x_3, x_4);
+x_5 = l_Array_iterateMAux___main___at_Lean_mkApp___spec__1(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
@@ -641,7 +641,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6;
 x_3 = lean_box(0);
 x_4 = lean_expr_mk_const(x_1, x_3);
 x_5 = lean_unsigned_to_nat(0u);
-x_6 = l_Array_miterateAux___main___at_Lean_mkApp___spec__1(x_2, x_2, x_5, x_4);
+x_6 = l_Array_iterateMAux___main___at_Lean_mkApp___spec__1(x_2, x_2, x_5, x_4);
 return x_6;
 }
 }
@@ -654,7 +654,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l___private_Init_Data_Array_Basic_3__miterateRevAux___main___at_Lean_mkAppRev___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lean_mkAppRev___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; uint8_t x_7; 
@@ -685,15 +685,15 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_array_get_size(x_2);
-x_4 = l___private_Init_Data_Array_Basic_3__miterateRevAux___main___at_Lean_mkAppRev___spec__1(x_2, x_2, x_3, lean_box(0), x_1);
+x_4 = l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lean_mkAppRev___spec__1(x_2, x_2, x_3, lean_box(0), x_1);
 return x_4;
 }
 }
-lean_object* l___private_Init_Data_Array_Basic_3__miterateRevAux___main___at_Lean_mkAppRev___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lean_mkAppRev___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l___private_Init_Data_Array_Basic_3__miterateRevAux___main___at_Lean_mkAppRev___spec__1(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lean_mkAppRev___spec__1(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_6;

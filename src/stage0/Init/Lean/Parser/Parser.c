@@ -93,7 +93,6 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_Parser_registerParserAttribute___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_andthenFn___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_unicodeSymbolCheckPrecFn___closed__2;
-lean_object* l_Array_miterateAux___main___at_Lean_Parser_getSyntaxNodeKinds___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_Parser_addBuiltinLeadingParser___spec__1(lean_object*);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 extern lean_object* l_List_repr___rarg___closed__3;
@@ -114,7 +113,6 @@ lean_object* l_Lean_Parser_andthenInfo(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_declareLeadingBuiltinParser___closed__1;
 lean_object* l_Lean_Parser_quotedSymbolFn___rarg___closed__1;
 lean_object* l_Lean_Parser_orelseInfo(lean_object*, lean_object*);
-extern lean_object* l_mjoin___rarg___closed__1;
 lean_object* l_Lean_Parser_mkTokenAndFixPos___closed__1;
 extern lean_object* l_Lean_AttributeImpl_inhabited___closed__5;
 lean_object* l_Lean_Syntax_mfoldArgsAux___boxed(lean_object*, lean_object*, lean_object*);
@@ -140,7 +138,6 @@ lean_object* l_Lean_Parser_quotedSymbol___elambda__1(uint8_t);
 lean_object* l_Lean_Parser_mkParserContext(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_ins___main___at_Lean_Parser_TokenMap_insert___spec__4___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_strLitKind___closed__1;
-lean_object* l_AssocList_mfoldl___main___at_Lean_Parser_nodeInfo___elambda__1___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_symbolNoWsFn(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_runBuiltinParserUnsafe___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_satisfyFn___at_Lean_Parser_quotedSymbolFn___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -344,6 +341,7 @@ size_t lean_name_hash_usize(lean_object*);
 lean_object* l_Array_extract___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 lean_object* l_Lean_Parser_ParserState_next___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_foldlM___main___at_Lean_Parser_getSyntaxNodeKinds___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_binNumberFn___closed__1;
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_fieldIdx___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -421,6 +419,7 @@ lean_object* l_Lean_Syntax_getArgs___rarg(lean_object*);
 lean_object* l_Lean_Parser_ident(uint8_t);
 lean_object* l_Lean_Parser_tokenFn(lean_object*, lean_object*);
 extern lean_object* l_Char_HasRepr___closed__1;
+lean_object* l_AssocList_foldlM___main___at_Lean_Parser_getSyntaxNodeKinds___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_tryFn___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_ins___main___at_Lean_Parser_TokenMap_insert___spec__7___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_AttributeImpl_inhabited___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -499,11 +498,11 @@ lean_object* l_Lean_Parser_ident___closed__1;
 lean_object* l_Lean_Syntax_foldSepArgs___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Parser_inhabited___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMAux___main___at_Lean_Parser_mkTokenTableAttribute___spec__3___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_miterateAux___main___at_Lean_Parser_getSyntaxNodeKinds___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_symbolOrIdent___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_quotedSymbol(uint8_t);
 lean_object* l_Lean_Parser_TokenMap_insert(lean_object*);
 lean_object* l_Lean_Parser_takeUntilFn___main___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_iterateMAux___main___at_Lean_Parser_getSyntaxNodeKinds___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_manyAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_registerParserAttribute___lambda__2___boxed(lean_object*);
 lean_object* l_Lean_Parser_takeWhileFn___at_Lean_Parser_identFnAux___main___spec__1(lean_object*, lean_object*);
@@ -520,6 +519,7 @@ lean_object* l_Lean_Parser_longestMatchFn___boxed(lean_object*, lean_object*, le
 uint8_t l_Lean_Parser_checkTailWs(lean_object*);
 lean_object* l_Lean_Parser_TokenTableAttribute_inhabited___closed__1;
 lean_object* l_Lean_Parser_unicodeSymbolCheckPrecFnAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_iterateMAux___main___at_Lean_Parser_getSyntaxNodeKinds___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_symbolNoWsInfo___elambda__1(lean_object*);
 lean_object* l_Lean_Parser_strAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserAttribute_inhabited___closed__1;
@@ -683,7 +683,6 @@ lean_object* l_Lean_Parser_many1Indent___lambda__1(lean_object*, lean_object*, u
 lean_object* l_Lean_Parser_unquotedSymbolFn___rarg___closed__1;
 extern lean_object* l_Lean_fieldIdxKind___closed__1;
 lean_object* l_Lean_Parser_satisfySymbolFn(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_mfoldl___main___at_Lean_Parser_getSyntaxNodeKinds___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Trie_empty___closed__1;
 uint8_t l_Char_isWhitespace(uint32_t);
 lean_object* l_Lean_Parser_Error_toString___closed__1;
@@ -709,7 +708,6 @@ lean_object* l_mkHashMapImp___rarg(lean_object*);
 lean_object* l_Lean_Parser_registerBuiltinParserAttribute___lambda__1___closed__6;
 lean_object* l_Lean_Parser_strLit___closed__1;
 lean_object* l_Lean_Syntax_mforSepArgs___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_mfoldl___main___at_Lean_Parser_getSyntaxNodeKinds___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Parser_Parser_4__isToken___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_takeUntilFn___main___at_Lean_Parser_quotedSymbolFn___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Error_toString___closed__4;
@@ -764,6 +762,7 @@ lean_object* l_Lean_Parser_strLit___boxed(lean_object*);
 lean_object* l_Lean_Parser_orelseFn___boxed(lean_object*);
 lean_object* l___private_Init_Lean_Parser_Parser_2__sepByFnAux(uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Error_HasBeq;
+lean_object* l_AssocList_foldlM___main___at_Lean_Parser_nodeInfo___elambda__1___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_declareTrailingBuiltinParser___closed__2;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 uint8_t l_Lean_Syntax_isMissing___rarg(lean_object*);
@@ -884,6 +883,7 @@ lean_object* l_Lean_Parser_hashAndthen___boxed(lean_object*);
 lean_object* l_Lean_Parser_trailingLoop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_fieldIdxKind;
 lean_object* l_Lean_Parser_ParserState_mkLongestNodeAlt(lean_object*, lean_object*);
+extern lean_object* l_joinM___rarg___closed__1;
 lean_object* l_Lean_Parser_anyOfFn(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_longestMatchStep___boxed(lean_object*);
 lean_object* l_Lean_Parser_unquotedSymbolFn___rarg(lean_object*, lean_object*);
@@ -2861,7 +2861,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_ExceptT_lift___rarg___closed__1;
-x_2 = l_mjoin___rarg___closed__1;
+x_2 = l_joinM___rarg___closed__1;
 x_3 = lean_box(1);
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
@@ -3330,7 +3330,7 @@ return x_8;
 }
 }
 }
-lean_object* l_AssocList_mfoldl___main___at_Lean_Parser_nodeInfo___elambda__1___spec__5(lean_object* x_1, lean_object* x_2) {
+lean_object* l_AssocList_foldlM___main___at_Lean_Parser_nodeInfo___elambda__1___spec__5(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -3403,7 +3403,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_array_fget(x_2, x_1);
 x_7 = lean_box(0);
 x_8 = lean_array_fset(x_2, x_1, x_7);
-x_9 = l_AssocList_mfoldl___main___at_Lean_Parser_nodeInfo___elambda__1___spec__5(x_3, x_6);
+x_9 = l_AssocList_foldlM___main___at_Lean_Parser_nodeInfo___elambda__1___spec__5(x_3, x_6);
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_add(x_1, x_10);
 lean_dec(x_1);
@@ -25379,7 +25379,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_AssocList_mfoldl___main___at_Lean_Parser_getSyntaxNodeKinds___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_AssocList_foldlM___main___at_Lean_Parser_getSyntaxNodeKinds___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -25401,7 +25401,7 @@ goto _start;
 }
 }
 }
-lean_object* l_Array_miterateAux___main___at_Lean_Parser_getSyntaxNodeKinds___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_iterateMAux___main___at_Lean_Parser_getSyntaxNodeKinds___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
@@ -25417,7 +25417,7 @@ else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_7 = lean_array_fget(x_2, x_3);
-x_8 = l_AssocList_mfoldl___main___at_Lean_Parser_getSyntaxNodeKinds___spec__1(x_4, x_7);
+x_8 = l_AssocList_foldlM___main___at_Lean_Parser_getSyntaxNodeKinds___spec__1(x_4, x_7);
 lean_dec(x_7);
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_add(x_3, x_9);
@@ -25446,7 +25446,7 @@ x_6 = lean_box(0);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
 x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Array_miterateAux___main___at_Lean_Parser_getSyntaxNodeKinds___spec__2(x_5, x_7, x_8, x_6);
+x_9 = l_Array_iterateMAux___main___at_Lean_Parser_getSyntaxNodeKinds___spec__2(x_5, x_7, x_8, x_6);
 lean_dec(x_7);
 lean_dec(x_5);
 lean_ctor_set(x_3, 0, x_9);
@@ -25464,7 +25464,7 @@ x_12 = lean_box(0);
 x_13 = lean_ctor_get(x_10, 1);
 lean_inc(x_13);
 x_14 = lean_unsigned_to_nat(0u);
-x_15 = l_Array_miterateAux___main___at_Lean_Parser_getSyntaxNodeKinds___spec__2(x_10, x_13, x_14, x_12);
+x_15 = l_Array_iterateMAux___main___at_Lean_Parser_getSyntaxNodeKinds___spec__2(x_10, x_13, x_14, x_12);
 lean_dec(x_13);
 lean_dec(x_10);
 x_16 = lean_alloc_ctor(0, 2, 0);
@@ -25497,20 +25497,20 @@ return x_20;
 }
 }
 }
-lean_object* l_AssocList_mfoldl___main___at_Lean_Parser_getSyntaxNodeKinds___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_AssocList_foldlM___main___at_Lean_Parser_getSyntaxNodeKinds___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_AssocList_mfoldl___main___at_Lean_Parser_getSyntaxNodeKinds___spec__1(x_1, x_2);
+x_3 = l_AssocList_foldlM___main___at_Lean_Parser_getSyntaxNodeKinds___spec__1(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l_Array_miterateAux___main___at_Lean_Parser_getSyntaxNodeKinds___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Array_iterateMAux___main___at_Lean_Parser_getSyntaxNodeKinds___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Array_miterateAux___main___at_Lean_Parser_getSyntaxNodeKinds___spec__2(x_1, x_2, x_3, x_4);
+x_5 = l_Array_iterateMAux___main___at_Lean_Parser_getSyntaxNodeKinds___spec__2(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;

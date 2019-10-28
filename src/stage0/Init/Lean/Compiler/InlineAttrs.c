@@ -63,9 +63,9 @@ extern lean_object* l_Lean_EnumAttributes_Inhabited___closed__1;
 lean_object* l_Lean_Compiler_mkInlineAttrs___lambda__1(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__17;
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkInlineAttrs___spec__4___closed__1;
+lean_object* l_List_forM___main___at_Lean_registerEnumAttributes___spec__11(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
-lean_object* l_List_mfor___main___at_Lean_registerEnumAttributes___spec__11(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_getModuleIdxFor(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_InlineAttributeKind_HasBeq;
 uint8_t lean_has_inline_if_reduce_attribute(lean_object*, lean_object*);
@@ -1522,7 +1522,7 @@ lean_dec(x_10);
 lean_inc(x_11);
 x_13 = l_List_map___main___at_Lean_Compiler_mkInlineAttrs___spec__8(x_3, x_11, x_2);
 lean_inc(x_13);
-x_14 = l_List_mfor___main___at_Lean_registerEnumAttributes___spec__11(x_13, x_12);
+x_14 = l_List_forM___main___at_Lean_registerEnumAttributes___spec__11(x_13, x_12);
 if (lean_obj_tag(x_14) == 0)
 {
 uint8_t x_15; 

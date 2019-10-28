@@ -15,6 +15,8 @@ extern "C" {
 #endif
 lean_object* l_Lean_mkErrorStringWithPos(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageLog_empty;
+lean_object* l_Array_iterateMAux___main___at_Lean_MessageData_formatAux___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_iterateMAux___main___at_Lean_MessageData_formatAux___main___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Message_toString___closed__2;
 lean_object* l_Lean_Format_pretty(lean_object*, lean_object*);
 lean_object* l_Lean_Message_toString___closed__1;
@@ -33,7 +35,6 @@ extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_Message_HasToString;
 lean_object* l_Lean_Level_format(lean_object*);
 lean_object* l_Lean_MessageData_Inhabited___closed__1;
-lean_object* l_Array_miterateAux___main___at_Lean_MessageData_formatAux___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_formatAux___main(lean_object*, lean_object*);
 lean_object* l_Lean_Message_Inhabited;
 lean_object* l_Nat_repr(lean_object*);
@@ -46,7 +47,6 @@ lean_object* l_Lean_Message_toString___closed__4;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_Lean_HasFormat(lean_object*);
 lean_object* l_Lean_fmt___at_Lean_MessageData_formatAux___main___spec__1(lean_object*);
-lean_object* l_Array_miterateAux___main___at_Lean_MessageData_formatAux___main___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -132,7 +132,7 @@ x_2 = l_Lean_Level_format(x_1);
 return x_2;
 }
 }
-lean_object* l_Array_miterateAux___main___at_Lean_MessageData_formatAux___main___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Array_iterateMAux___main___at_Lean_MessageData_formatAux___main___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; uint8_t x_7; 
@@ -344,7 +344,7 @@ lean_inc(x_47);
 lean_dec(x_2);
 x_48 = lean_unsigned_to_nat(0u);
 x_49 = lean_box(0);
-x_50 = l_Array_miterateAux___main___at_Lean_MessageData_formatAux___main___spec__2(x_1, x_47, x_47, x_48, x_49);
+x_50 = l_Array_iterateMAux___main___at_Lean_MessageData_formatAux___main___spec__2(x_1, x_47, x_47, x_48, x_49);
 lean_dec(x_47);
 x_51 = lean_unsigned_to_nat(2u);
 x_52 = lean_alloc_ctor(3, 2, 0);
@@ -355,11 +355,11 @@ return x_52;
 }
 }
 }
-lean_object* l_Array_miterateAux___main___at_Lean_MessageData_formatAux___main___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Array_iterateMAux___main___at_Lean_MessageData_formatAux___main___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Array_miterateAux___main___at_Lean_MessageData_formatAux___main___spec__2(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_Array_iterateMAux___main___at_Lean_MessageData_formatAux___main___spec__2(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_6;

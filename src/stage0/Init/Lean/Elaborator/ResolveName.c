@@ -20,10 +20,10 @@ lean_object* l_Lean_Elab_preresolveNames___rarg(lean_object*, lean_object*, lean
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Elab_preresolveNames(lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_ResolveName_2__resolveUsingNamespace___main___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_umapMAux___main___at___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_preresolveNames___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_ResolveName_2__resolveUsingNamespace___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_ummapAux___main___at___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_ResolveName_1__resolveQualifiedName(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_ResolveName_5__resolveNameAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -32,7 +32,9 @@ uint8_t l_Lean_Name_isAtomic(lean_object*);
 lean_object* l_Lean_getAliases(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_ResolveName_2__resolveUsingNamespace___main(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main(lean_object*);
+lean_object* l_Array_umapMAux___main___at___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___spec__1(lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_ResolveName_3__resolveExact___boxed(lean_object*, lean_object*);
+lean_object* l_Array_umapMAux___main___at___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getNamespace___rarg(lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_ResolveName_1__resolveQualifiedName___boxed(lean_object*, lean_object*, lean_object*);
@@ -45,7 +47,6 @@ extern lean_object* l_Lean_Elab_rootNamespace;
 lean_object* l_Lean_Elab_resolveName(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_elem___main___at_Lean_Parser_addBuiltinLeadingParser___spec__4(lean_object*, lean_object*);
 lean_object* l_List_eraseDups___at_Lean_Parser_addBuiltinLeadingParser___spec__2(lean_object*);
-lean_object* l_Array_ummapAux___main___at___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_replacePrefix___main(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_ResolveName_2__resolveUsingNamespace(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getOpenDecls___rarg(lean_object*);
@@ -61,7 +62,6 @@ lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at___private_Init_Lean_Elaborator_ResolveName_5__resolveNameAux___main___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux(lean_object*);
 lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
-lean_object* l_Array_ummapAux___main___at___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___spec__1(lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_ResolveName_4__resolveOpenDecls(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at___private_Init_Lean_Elaborator_ResolveName_5__resolveNameAux___main___spec__2(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_ResolveName_1__resolveQualifiedName(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -644,7 +644,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* l_Array_ummapAux___main___at___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Array_umapMAux___main___at___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; uint8_t x_7; 
@@ -684,11 +684,11 @@ goto _start;
 }
 }
 }
-lean_object* l_Array_ummapAux___main___at___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___spec__1(lean_object* x_1) {
+lean_object* l_Array_umapMAux___main___at___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___spec__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Array_ummapAux___main___at___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___spec__1___rarg___boxed), 5, 0);
+x_2 = lean_alloc_closure((void*)(l_Array_umapMAux___main___at___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___spec__1___rarg___boxed), 5, 0);
 return x_2;
 }
 }
@@ -705,7 +705,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = lean_ctor_get(x_4, 1);
 x_7 = lean_unsigned_to_nat(0u);
-x_8 = l_Array_ummapAux___main___at___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___spec__1___rarg(x_1, x_2, x_3, x_7, x_6);
+x_8 = l_Array_umapMAux___main___at___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___spec__1___rarg(x_1, x_2, x_3, x_7, x_6);
 lean_ctor_set(x_4, 1, x_8);
 return x_4;
 }
@@ -718,7 +718,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_dec(x_4);
 x_11 = lean_unsigned_to_nat(0u);
-x_12 = l_Array_ummapAux___main___at___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___spec__1___rarg(x_1, x_2, x_3, x_11, x_10);
+x_12 = l_Array_umapMAux___main___at___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___spec__1___rarg(x_1, x_2, x_3, x_11, x_10);
 x_13 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_13, 0, x_9);
 lean_ctor_set(x_13, 1, x_12);
@@ -779,11 +779,11 @@ x_2 = lean_alloc_closure((void*)(l___private_Init_Lean_Elaborator_ResolveName_6_
 return x_2;
 }
 }
-lean_object* l_Array_ummapAux___main___at___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Array_umapMAux___main___at___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Array_ummapAux___main___at___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___spec__1___rarg(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_Array_umapMAux___main___at___private_Init_Lean_Elaborator_ResolveName_6__preresolveNamesAux___main___spec__1___rarg(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_2);
 return x_6;
 }

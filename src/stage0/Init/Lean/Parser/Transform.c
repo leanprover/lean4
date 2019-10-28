@@ -13,13 +13,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_Array_forMAux___main___at_Lean_Environment_displayStats___spec__9___closed__2;
 uint8_t lean_name_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_setTailInfo___rarg(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_declareLeadingBuiltinParser___closed__1;
 lean_object* l_Lean_Syntax_removeParen___closed__1;
-extern lean_object* l_Array_mforAux___main___at_Lean_Environment_displayStats___spec__9___closed__2;
 lean_object* l_Lean_Syntax_getTailInfo___main___rarg(lean_object*);
 uint8_t l_Lean_Syntax_isNone___rarg(lean_object*);
 lean_object* l_Lean_Syntax_getArg___rarg(lean_object*, lean_object*);
@@ -29,9 +29,9 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_truncateTrailing(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Array_iterateMAux___main___at_Lean_Syntax_manyToSepBy___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* l_Array_miterateAux___main___at_Lean_Syntax_manyToSepBy___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_mkSearchPathRef___closed__1;
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
@@ -39,6 +39,7 @@ lean_object* l_Lean_Syntax_removeParen___closed__4;
 lean_object* l_Lean_Syntax_manyToSepBy(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_removeParen___boxed(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+lean_object* l_Array_iterateMAux___main___at_Lean_Syntax_manyToSepBy___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_removeParen___closed__3;
@@ -47,8 +48,7 @@ lean_object* l_Array_back___at___private_Init_Lean_Parser_Parser_6__updateCache_
 lean_object* l_Lean_Syntax_getNumArgs___rarg(lean_object*);
 lean_object* l_Lean_Syntax_removeParen___closed__2;
 lean_object* l_Lean_Syntax_removeParen(lean_object*);
-lean_object* l_Array_miterateAux___main___at_Lean_Syntax_manyToSepBy___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_miterateAux___main___at_Lean_Syntax_manyToSepBy___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Array_iterateMAux___main___at_Lean_Syntax_manyToSepBy___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; uint8_t x_7; 
@@ -162,7 +162,7 @@ x_7 = lean_array_get(x_5, x_4, x_6);
 x_8 = l_Lean_mkSearchPathRef___closed__1;
 x_9 = lean_array_push(x_8, x_7);
 x_10 = lean_unsigned_to_nat(1u);
-x_11 = l_Array_miterateAux___main___at_Lean_Syntax_manyToSepBy___spec__1(x_2, x_4, x_4, x_10, x_9);
+x_11 = l_Array_iterateMAux___main___at_Lean_Syntax_manyToSepBy___spec__1(x_2, x_4, x_4, x_10, x_9);
 lean_dec(x_4);
 lean_ctor_set(x_1, 1, x_11);
 return x_1;
@@ -181,7 +181,7 @@ x_16 = lean_array_get(x_14, x_13, x_15);
 x_17 = l_Lean_mkSearchPathRef___closed__1;
 x_18 = lean_array_push(x_17, x_16);
 x_19 = lean_unsigned_to_nat(1u);
-x_20 = l_Array_miterateAux___main___at_Lean_Syntax_manyToSepBy___spec__1(x_2, x_13, x_13, x_19, x_18);
+x_20 = l_Array_iterateMAux___main___at_Lean_Syntax_manyToSepBy___spec__1(x_2, x_13, x_13, x_19, x_18);
 lean_dec(x_13);
 x_21 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_21, 0, x_12);
@@ -196,11 +196,11 @@ return x_1;
 }
 }
 }
-lean_object* l_Array_miterateAux___main___at_Lean_Syntax_manyToSepBy___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Array_iterateMAux___main___at_Lean_Syntax_manyToSepBy___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Array_miterateAux___main___at_Lean_Syntax_manyToSepBy___spec__1(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_Array_iterateMAux___main___at_Lean_Syntax_manyToSepBy___spec__1(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_6;
@@ -361,7 +361,7 @@ x_31 = lean_string_utf8_extract(x_28, x_29, x_30);
 lean_dec(x_30);
 lean_dec(x_29);
 lean_dec(x_28);
-x_32 = l_Array_mforAux___main___at_Lean_Environment_displayStats___spec__9___closed__2;
+x_32 = l_Array_forMAux___main___at_Lean_Environment_displayStats___spec__9___closed__2;
 x_33 = lean_string_append(x_31, x_32);
 x_34 = !lean_is_exclusive(x_27);
 if (x_34 == 0)
@@ -434,7 +434,7 @@ x_57 = lean_string_utf8_extract(x_54, x_55, x_56);
 lean_dec(x_56);
 lean_dec(x_55);
 lean_dec(x_54);
-x_58 = l_Array_mforAux___main___at_Lean_Environment_displayStats___spec__9___closed__2;
+x_58 = l_Array_forMAux___main___at_Lean_Environment_displayStats___spec__9___closed__2;
 x_59 = lean_string_append(x_57, x_58);
 x_60 = lean_ctor_get(x_53, 0);
 lean_inc(x_60);
@@ -510,7 +510,7 @@ x_79 = lean_string_utf8_extract(x_76, x_77, x_78);
 lean_dec(x_78);
 lean_dec(x_77);
 lean_dec(x_76);
-x_80 = l_Array_mforAux___main___at_Lean_Environment_displayStats___spec__9___closed__2;
+x_80 = l_Array_forMAux___main___at_Lean_Environment_displayStats___spec__9___closed__2;
 x_81 = lean_string_append(x_79, x_80);
 x_82 = lean_ctor_get(x_75, 0);
 lean_inc(x_82);

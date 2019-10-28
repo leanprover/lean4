@@ -36,7 +36,7 @@ foldMAux f n n a
 | 0,   a => pure a
 | i+1, a => f i a >>= foldRevMAux i
 
-@[inline] def mfoldRev {α : Type u} {m : Type u → Type v} [Monad m] (f : Nat → α → m α) (a : α) (n : Nat) : m α :=
+@[inline] def foldRevM {α : Type u} {m : Type u → Type v} [Monad m] (f : Nat → α → m α) (a : α) (n : Nat) : m α :=
 foldRevMAux f n a
 
 end Nat

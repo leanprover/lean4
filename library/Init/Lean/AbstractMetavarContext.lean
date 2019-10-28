@@ -4,6 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Control.Reader
+import Init.Control.Conditional
+import Init.Data.Option
 import Init.Lean.LocalContext
 
 /-
@@ -187,7 +190,7 @@ do s ← get; pure s.mctx
 | i+1, b => do
   let fvar := fvars.get! i;
   match lctx.findFVar fvar with
-  | none => panic! "unknown local declaration"
+  | none => panic! "unknown free variable"
   | some (LocalDecl.cdecl _ _ n ty bi)  => do
     ty ← visit main ty;
     if ty.hasMVar then pure none
@@ -271,6 +274,57 @@ else
     (fun s    => s.mctx)
     (InstantiateExprMVars.main e : InstantiateExprMVars.M σ Expr)
 
-end AbstractMetavarContext
+namespace DependsOn
 
+abbrev M := State ExprSet
+
+@[inline] def visit (main : Expr → M Bool) (e : Expr) : M Bool :=
+if !e.hasMVar && !e.hasFVar then
+  pure false
+else do
+  s ← get;
+  if s.contains e then
+    pure false
+  else do
+    modify $ fun s => s.insert e;
+    main e
+
+@[specialize] partial def dep (mctx : σ) (p : Name → Bool) : Expr → M Bool
+| e@(Expr.proj _ _ s)      => visit dep s
+| e@(Expr.forallE _ _ d b) => visit dep d <||> visit dep b
+| e@(Expr.lam _ _ d b)     => visit dep d <||> visit dep b
+| e@(Expr.letE _ t v b)    => visit dep t <||> visit dep v <||> visit dep b
+| e@(Expr.mdata _ b)       => visit dep b
+| e@(Expr.app f a)         => visit dep a <||> if f.isApp then dep f else visit dep f
+| e@(Expr.mvar mvarId)     =>
+  match getExprAssignment mctx mvarId with
+  | some a => visit dep a
+  | none   => match getExprMVarLCtx mctx mvarId with
+    | some lctx => pure $ lctx.any $ fun decl => p decl.name
+    | none      => panic! "unknown metavariable"
+| e@(Expr.fvar fvarId)     => pure $ p fvarId
+| e                        => pure false
+
+@[inline] partial def main (mctx : σ) (p : Name → Bool) (e : Expr) : M Bool :=
+if !e.hasFVar && !e.hasMVar then pure false else dep mctx p e
+
+end DependsOn
+
+/--
+  Return `true` iff `e` depends on a free variable `x` s.t. `p x` is `true`.
+  For each metavariable `?m` occurring in `x`
+  1- If `?m := t`, then we visit `t` looking for `x`
+  2- If `?m` is unassigned, then we consider the worst case and check whether `x` is in the local context of `?m`.
+     This case is a "may dependency". That is, we may assign a term `t` to `?m` s.t. `t` contains `x`. -/
+@[inline] def exprDependsOn (mctx : σ) (p : Name → Bool) (e : Expr) : Bool :=
+(DependsOn.main mctx p e).run' {}
+
+/--
+  Similar to `exprDependsOn`, but checks the expressions in the given local declaration
+  depends on a free variable `x` s.t. `p x` is `true`. -/
+@[inline] def localDeclDependsOn (mctx : σ) (p : Name → Bool) : LocalDecl → Bool
+| LocalDecl.cdecl _ _ _ type _     => exprDependsOn mctx p type
+| LocalDecl.ldecl _ _ _ type value => (DependsOn.main mctx p type <||> DependsOn.main mctx p value).run' {}
+
+end AbstractMetavarContext
 end Lean

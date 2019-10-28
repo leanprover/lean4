@@ -257,5 +257,27 @@ mkBinding true lctx xs b
 def mkForall (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
 mkBinding false lctx xs b
 
+section
+universes u
+variables {m : Type → Type u} [Monad m]
+
+@[inline] def anyM (lctx : LocalContext) (p : LocalDecl → m Bool) : m Bool :=
+lctx.decls.anyM $ fun d => match d with
+  | some decl => p decl
+  | none      => pure false
+
+@[inline] def allM (lctx : LocalContext) (p : LocalDecl → m Bool) : m Bool :=
+lctx.decls.allM $ fun d => match d with
+  | some decl => p decl
+  | none      => pure true
+
+end
+
+@[inline] def any (lctx : LocalContext) (p : LocalDecl → Bool) : Bool :=
+Id.run $ lctx.anyM p
+
+@[inline] def all (lctx : LocalContext) (p : LocalDecl → Bool) : Bool :=
+Id.run $ lctx.allM p
+
 end LocalContext
 end Lean

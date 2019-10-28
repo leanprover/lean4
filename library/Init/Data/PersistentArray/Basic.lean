@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Control.Conditional
 import Init.Data.Array
 universes u v w
 
@@ -250,6 +251,26 @@ Id.run (t.mfoldlFrom f b ini)
 
 def toList (t : PersistentArray α) : List α :=
 (t.foldl (fun xs x => x :: xs) []).reverse
+
+section
+variables {m : Type → Type w} [Monad m]
+@[specialize] partial def anyMAux (p : α → m Bool) : PersistentArrayNode α → m Bool
+| node cs => cs.anyM (fun c => anyMAux c)
+| leaf vs => vs.anyM p
+
+@[specialize] def anyM (t : PersistentArray α) (p : α → m Bool) : m Bool :=
+anyMAux p t.root <||> t.tail.anyM p
+
+@[inline] def allM (a : PersistentArray α) (p : α → m Bool) : m Bool :=
+do b ← anyM a (fun v => do b ← p v; pure (not b)); pure (not b)
+
+end
+
+@[inline] def any (a : PersistentArray α) (p : α → Bool) : Bool :=
+Id.run $ anyM a p
+
+@[inline] def all (a : PersistentArray α) (p : α → Bool) : Bool :=
+!any a (fun v => !p v)
 
 section
 variables {m : Type u → Type v} [Monad m]

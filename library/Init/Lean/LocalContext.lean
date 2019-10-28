@@ -78,29 +78,30 @@ lctx.nameToDecl.isEmpty
 
 /- Low level API for creating local declarations. It is used to implement actions in the monads `Elab` and `Tactic`. It should not be used directly since the argument `(name : Name)` is assumed to be "unique". -/
 @[export lean_local_ctx_mk_local_decl]
-def mkLocalDecl (lctx : LocalContext) (name : Name) (userName : Name) (type : Expr) (bi : BinderInfo := BinderInfo.default) : LocalContext :=
+def mkLocalDecl (lctx : LocalContext) (fvarId : Name) (userName : Name) (type : Expr) (bi : BinderInfo := BinderInfo.default) : LocalContext :=
 match lctx with
 | { nameToDecl := map, decls := decls } =>
   let idx  := decls.size;
-  let decl := LocalDecl.cdecl idx name userName type bi;
-  { nameToDecl := map.insert name decl, decls := decls.push decl }
+  let decl := LocalDecl.cdecl idx fvarId userName type bi;
+  { nameToDecl := map.insert fvarId decl, decls := decls.push decl }
 
 @[export lean_local_ctx_mk_let_decl]
-def mkLetDecl (lctx : LocalContext) (name : Name) (userName : Name) (type : Expr) (value : Expr) : LocalContext :=
+def mkLetDecl (lctx : LocalContext) (fvarId : Name) (userName : Name) (type : Expr) (value : Expr) : LocalContext :=
 match lctx with
 | { nameToDecl := map, decls := decls } =>
   let idx  := decls.size;
-  let decl := LocalDecl.ldecl idx name userName type value;
-  { nameToDecl := map.insert name decl, decls := decls.push decl }
+  let decl := LocalDecl.ldecl idx fvarId userName type value;
+  { nameToDecl := map.insert fvarId decl, decls := decls.push decl }
 
 @[export lean_local_ctx_find]
-def find (lctx : LocalContext) (name : Name) : Option LocalDecl :=
-lctx.nameToDecl.find name
+def find (lctx : LocalContext) (fvarId : Name) : Option LocalDecl :=
+lctx.nameToDecl.find fvarId
 
 def findFVar (lctx : LocalContext) (e : Expr) : Option LocalDecl :=
-match e with
-| Expr.fvar n => lctx.find n
-| _           => none
+lctx.find e.fvarId!
+
+def contains (lctx : LocalContext) (fvarId : Name) : Bool :=
+lctx.nameToDecl.contains fvarId
 
 private partial def popTailNoneAux : PArray (Option LocalDecl) → PArray (Option LocalDecl)
 | a =>
@@ -110,12 +111,12 @@ private partial def popTailNoneAux : PArray (Option LocalDecl) → PArray (Optio
     | some _ => a
 
 @[export lean_local_ctx_erase]
-def erase (lctx : LocalContext) (name : Name) : LocalContext :=
+def erase (lctx : LocalContext) (fvarId : Name) : LocalContext :=
 match lctx with
 | { nameToDecl := map, decls := decls } =>
-  match map.find name with
+  match map.find fvarId with
   | none      => lctx
-  | some decl => { nameToDecl := map.erase name, decls := popTailNoneAux (decls.set decl.index none) }
+  | some decl => { nameToDecl := map.erase fvarId, decls := popTailNoneAux (decls.set decl.index none) }
 
 @[export lean_local_ctx_pop]
 def pop (lctx : LocalContext): LocalContext :=

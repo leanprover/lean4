@@ -247,7 +247,7 @@ def bvarIdx! : Expr → Nat
 | bvar idx => idx
 | _        => panic! "bvar expected"
 
-def fvarName! : Expr → Name
+def fvarId! : Expr → Name
 | fvar n => n
 | _      => panic! "fvar expected"
 

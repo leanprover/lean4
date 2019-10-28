@@ -212,7 +212,7 @@ partial def eUnify : Expr → Expr → EState String Context Unit
     if e₁.isMVar && e₂.isMVar && e₁ == e₂ then pure ()
     else if eIsMeta e₂ && !(eIsMeta e₁) then eUnify e₂ e₁
     else if e₁.isBVar && e₂.isBVar && e₁.bvarIdx! == e₂.bvarIdx! then pure ()
-    else if e₁.isFVar && e₂.isFVar && e₁.fvarName! == e₂.fvarName! then pure ()
+    else if e₁.isFVar && e₂.isFVar && e₁.fvarId! == e₂.fvarId! then pure ()
     else if e₁.isConst && e₂.isConst && e₁.constName! == e₂.constName! then
       List.forM₂ uUnify e₁.constLevels! e₂.constLevels!
     else if e₁.isApp && e₂.isApp && e₁.getAppNumArgs == e₂.getAppNumArgs then do

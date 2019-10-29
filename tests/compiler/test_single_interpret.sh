@@ -25,7 +25,7 @@ if diff --color --help >/dev/null 2>&1; then
   DIFF="diff --color";
 fi
 
-$LEAN --run "$ff" &> "$ff.produced.out"
+$LEAN --run "$ff" > "$ff.produced.out"
 if [ $? -ne 0 ]; then
    echo "Failed to execute $ff"
    exit 1

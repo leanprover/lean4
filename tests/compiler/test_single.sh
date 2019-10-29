@@ -37,7 +37,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-"./$ff.out" &> "$ff.produced.out"
+"./$ff.out" > "$ff.produced.out"
 if [ $? -ne 0 ]; then
    echo "Failed to execute $ff.out"
    exit 1

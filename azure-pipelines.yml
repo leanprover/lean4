@@ -52,7 +52,7 @@ jobs:
   steps:
   - script: |
       choco install -y msys2
-      C:\tools\msys64\usr\bin\bash -lc "pacman --noconfirm -S make python mingw-w64-x86_64-cmake git diffutils && pacman -U http://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-llvm-8.0.1-3-any.pkg.tar.xz http://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-clang-8.0.1-3-any.pkg.tar.xz"
+      C:\tools\msys64\usr\bin\bash -lc "pacman --noconfirm -S make python mingw-w64-x86_64-cmake git diffutils && pacman --noconfirm -U http://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-llvm-8.0.1-3-any.pkg.tar.xz http://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-clang-8.0.1-3-any.pkg.tar.xz"
     displayName: Setup
   - script: |
       C:\tools\msys64\usr\bin\bash -l ./script/ci.sh

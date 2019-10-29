@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #else
 #include <pthread.h>
 #endif
-#include "config.h"
+#include "config.h" // NOLINT
 #include "runtime/thread.h"
 #include "runtime/interrupt.h"
 #include "runtime/exception.h"

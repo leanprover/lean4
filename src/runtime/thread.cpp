@@ -45,7 +45,9 @@ void reset_thread_local() {
 using runnable = std::function<void()>;
 
 static void thread_main(void * p) {
+#ifdef LEAN_SMALL_ALLOCATOR
     init_thread_heap();
+#endif
     std::unique_ptr<runnable> f;
     f.reset(reinterpret_cast<runnable *>(p));
 

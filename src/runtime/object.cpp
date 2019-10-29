@@ -86,8 +86,8 @@ extern "C" void lean_free_object(lean_object * o) {
     case LeanArray:       return lean_dealloc(o, lean_array_byte_size(o));
     case LeanScalarArray: return lean_dealloc(o, lean_sarray_byte_size(o));
     case LeanString:      return lean_dealloc(o, lean_string_byte_size(o));
-    case LeanMPZ:         to_mpz(o)->m_value.~mpz(); return lean_free_small(o);
-    default:              return lean_free_small(o);
+    case LeanMPZ:         to_mpz(o)->m_value.~mpz(); return lean_free_small_object(o);
+    default:              return lean_free_small_object(o);
     }
 }
 
@@ -159,14 +159,14 @@ static void lean_del_core(object * o, object * & todo) {
         object ** it  = lean_ctor_obj_cptr(o);
         object ** end = it + lean_ctor_num_objs(o);
         for (; it != end; ++it) dec(*it, todo);
-        lean_free_small(o);
+        lean_free_small_object(o);
     } else {
         switch (tag) {
         case LeanClosure: {
             object ** it  = lean_closure_arg_cptr(o);
             object ** end = it + lean_closure_num_fixed(o);
             for (; it != end; ++it) dec(*it, todo);
-            lean_free_small(o);
+            lean_free_small_object(o);
             break;
         }
         case LeanArray: {
@@ -184,23 +184,23 @@ static void lean_del_core(object * o, object * & todo) {
             break;
         case LeanMPZ:
             to_mpz(o)->m_value.~mpz();
-            lean_free_small(o);
+            lean_free_small_object(o);
             break;
         case LeanThunk:
             if (object * c = lean_to_thunk(o)->m_closure) dec(c, todo);
             if (object * v = lean_to_thunk(o)->m_value) dec(v, todo);
-            lean_free_small(o);
+            lean_free_small_object(o);
             break;
         case LeanRef:
             if (object * v = lean_to_ref(o)->m_value) dec(v, todo);
-            lean_free_small(o);
+            lean_free_small_object(o);
             break;
         case LeanTask:
             deactivate_task(lean_to_task(o));
             break;
         case LeanExternal:
             lean_to_external(o)->m_class->m_finalize(lean_to_external(o)->m_data);
-            lean_free_small(o);
+            lean_free_small_object(o);
             break;
         default:
             lean_unreachable();

@@ -345,10 +345,16 @@ end MkBindingException
 
 namespace MkBinding
 
+/--
+ `MkBinding` and `elimMVarDepsAux` are mutually recursive, but `cache` is only used at `elimMVarDepsAux`.
+  We use a single state object for convenience.
+
+  We have a `NameGenerator` because we need to generate fresh auxiliary metavariables.
+-/
 structure MkBindingState (σ : Type) :=
 (mctx  : σ)
 (ngen  : NameGenerator)
-(cache : HashMap Expr Expr := {}) -- cache for elimDepsCache
+(cache : HashMap Expr Expr := {}) --
 
 abbrev M (σ : Type) := EState MkBindingException (MkBindingState σ)
 
@@ -356,10 +362,16 @@ instance (σ) : MonadHashMapCacheAdapter Expr Expr (M σ) :=
 { getCache    := do s ← get; pure s.cache,
   modifyCache := fun f => modify $ fun s => { cache := f s.cache, .. s } }
 
+/-- Similar to `Expr.abstractRange`, but handles metavariables correctly.
+    It uses `elimMVarDeps` to ensure `e` and the type of the free variables `xs` do not
+    contain a metavariable `?m` s.t. local context of `?m` contains a free variable in `xs`.
+
+    `elimMVarDeps` is defined later in this file. -/
 @[inline] def abstractRange (elimMVarDeps : Array Expr → Expr → M σ Expr) (lctx : LocalContext) (xs : Array Expr) (i : Nat) (e : Expr) : M σ Expr :=
 do e ← elimMVarDeps xs e;
    pure (e.abstractRange i xs)
 
+/-- Similar to `LocalContext.mkBinding`, but handles metavariables correctly. -/
 @[specialize] def mkBinding (isLambda : Bool) (elimMVarDeps : Array Expr → Expr → M σ Expr)
                             (lctx : LocalContext) (xs : Array Expr) (e : Expr) : M σ Expr :=
 do e ← abstractRange elimMVarDeps lctx xs xs.size e;
@@ -418,6 +430,8 @@ else
     (Array.mkEmpty toRevert.size)
     minDecl
 
+/-- Create a new `LocalContext` by removing the free variables in `toRevert` from `lctx`.
+    We use this function when we create auxiliary metavariables at `elimMVarDepsAux`. -/
 def reduceLocalContext (lctx : LocalContext) (toRevert : Array Expr) : LocalContext :=
 toRevert.foldr
   (fun x lctx => lctx.erase x.fvarId!)
@@ -442,6 +456,7 @@ xs.foldl
       scope)
   #[]
 
+/-- Execute `x` with an empty cache, and then restore the original cache. -/
 @[inline] def withFreshCache {α} (x : M σ α) : M σ α :=
 do cache ← modifyGet $ fun s => (s.cache, { cache := {}, .. s });
    a ← x;

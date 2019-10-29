@@ -198,7 +198,6 @@ lean_object* l_AssocList_foldlM___main___at_Lean_ClassState_addEntry___spec__10(
 lean_object* l_Lean_mkClassExtension___closed__4;
 lean_object* l_Array_iterateMAux___main___at_Lean_ClassState_addEntry___spec__22___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_moveEntries___main___at_Lean_ClassState_addEntry___spec__37(lean_object*, lean_object*, lean_object*);
-uint8_t l_PersistentHashMap_containsAtAux___main___at_Lean_Environment_contains___spec__5(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_ClassState_addEntry___spec__31(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getClassName___boxed(lean_object*, lean_object*);
@@ -277,6 +276,7 @@ lean_object* l_Lean_registerInstanceAttr___lambda__1___closed__1;
 lean_object* l_Lean_registerInstanceAttr___closed__3;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
 extern lean_object* l_Lean_regNamespacesExtension___closed__5;
+uint8_t l_PersistentHashMap_containsAtAux___main___at_Lean_LocalContext_contains___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAtAux___main___at_Lean_ClassState_addEntry___spec__15(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_ref_reset(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insert___at_Lean_ClassState_addEntry___spec__19(lean_object*, lean_object*, lean_object*);
@@ -4916,7 +4916,7 @@ else
 lean_object* x_17; lean_object* x_18; uint8_t x_19; 
 x_17 = lean_ctor_get(x_1, 0);
 x_18 = lean_unsigned_to_nat(0u);
-x_19 = l_PersistentHashMap_containsAtAux___main___at_Lean_Environment_contains___spec__5(x_17, x_18, x_3);
+x_19 = l_PersistentHashMap_containsAtAux___main___at_Lean_LocalContext_contains___spec__3(x_17, x_18, x_3);
 return x_19;
 }
 }
@@ -5099,7 +5099,7 @@ else
 lean_object* x_17; lean_object* x_18; uint8_t x_19; 
 x_17 = lean_ctor_get(x_1, 0);
 x_18 = lean_unsigned_to_nat(0u);
-x_19 = l_PersistentHashMap_containsAtAux___main___at_Lean_Environment_contains___spec__5(x_17, x_18, x_3);
+x_19 = l_PersistentHashMap_containsAtAux___main___at_Lean_LocalContext_contains___spec__3(x_17, x_18, x_3);
 return x_19;
 }
 }

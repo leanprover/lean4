@@ -15,13 +15,14 @@ extern "C" {
 #endif
 lean_object* l_Lean_TypeClass_Context_slowWhnf(lean_object*);
 uint8_t l_Lean_TypeClass_Context_eHasETmpMVar(lean_object*);
+lean_object* l_Lean_Expr_bindingBody_x21(lean_object*);
 lean_object* l_Lean_TypeClass_Context_eHasTmpMVar___closed__1;
 uint8_t lean_name_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_uMetaIdx(lean_object*);
 lean_object* lean_expr_mk_forall(lean_object*, uint8_t, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_constName(lean_object*);
 lean_object* l_Lean_TypeClass_Context_eOccursIn___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_bvarIdx_x21(lean_object*);
 uint8_t l_Lean_Expr_isConst(lean_object*);
 lean_object* l_RBNode_insert___at_Lean_TypeClass_Context_uAlphaNormalizeCore___main___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_eLookupIdx___boxed(lean_object*, lean_object*);
@@ -29,7 +30,6 @@ lean_object* l_Lean_TypeClass_Context__u03b1Norm___closed__1;
 lean_object* l_Lean_Format_pretty(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_eInfer(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_bvarIdx(lean_object*);
 lean_object* l_Lean_TypeClass_Context_eMetaIdx(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 extern lean_object* l_Lean_exprIsInhabited;
@@ -51,10 +51,10 @@ lean_object* lean_level_mk_mvar(lean_object*);
 lean_object* l_Lean_TypeClass_Context_eFind___main___boxed(lean_object*, lean_object*);
 lean_object* lean_expr_mk_app(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_eInferIdx(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_bindingBody(lean_object*);
 size_t l_USize_sub(size_t, size_t);
 lean_object* l_Lean_TypeClass_Context_eShallowInstantiate(lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
+lean_object* l_panicWithPos___at_Lean_Expr_bindingDomain_x21___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_metaPrefix___closed__1;
 uint8_t l_Lean_TypeClass_Context_uFind(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
@@ -72,10 +72,12 @@ extern lean_object* l_String_Inhabited;
 lean_object* l_Lean_TypeClass_Context_uShallowInstantiate(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_Inhabited___closed__1;
 lean_object* l_Lean_TypeClass_Context_eAssign___closed__1;
+lean_object* l_Lean_Expr_constLevels_x21(lean_object*);
 lean_object* l_Lean_Level_format(lean_object*);
 lean_object* l_PersistentArray_set___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_uLookupIdx___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_eUnify___main___closed__1;
+lean_object* l_Lean_Expr_constName_x21(lean_object*);
 lean_object* l_Lean_TypeClass_Context_uFind___main___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_eAlphaNormalizeCore(lean_object*, lean_object*);
 lean_object* l_PersistentArray_get_x21___at_Lean_TypeClass_Context_eLookupIdx___spec__1___boxed(lean_object*, lean_object*);
@@ -87,6 +89,7 @@ uint8_t l_Lean_TypeClass_Context_uIsMeta(lean_object*);
 lean_object* l_List_forM_u2082___main___at_Lean_TypeClass_Context_eUnify___main___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_Inhabited;
 uint8_t l_Lean_TypeClass_Context_uFind___main(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_bindingDomain_x21(lean_object*);
 extern lean_object* l_panicWithPos___rarg___closed__3;
 uint8_t l_Lean_TypeClass_Context_eFind___main(lean_object*, lean_object*);
 lean_object* lean_expr_mk_const(lean_object*, lean_object*);
@@ -95,7 +98,6 @@ lean_object* l_Lean_TypeClass_Context_uIsMeta___boxed(lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_TypeClass_Context_eInstantiate___main___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_uUnify___main___closed__1;
-lean_object* l_Lean_Expr_bindingDomain(lean_object*);
 lean_object* l_Lean_TypeClass_Context_uShallowInstantiate___main(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_uHasTmpMVar___closed__1;
 lean_object* l_Lean_TypeClass_Context_alphaMetaPrefix;
@@ -135,6 +137,7 @@ lean_object* l_panicWithPos___at_Lean_TypeClass_Context_eAssign___spec__1___boxe
 extern lean_object* l_PersistentArray_getAux___main___rarg___closed__1;
 lean_object* l_Lean_TypeClass_Context_slowWhnfApp___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_uOccursIn___lambda__1___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 lean_object* lean_expr_mk_mvar(lean_object*);
 lean_object* l_Lean_TypeClass_Context_eHasETmpMVar___boxed(lean_object*);
 uint8_t l_Lean_Expr_isMVar(lean_object*);
@@ -171,7 +174,6 @@ lean_object* l_RBNode_setBlack___rarg(lean_object*);
 lean_object* l_List_foldr___main___at_Lean_TypeClass_Context_eHasTmpMVar___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_eLookupIdx(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_uFind___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_constLevels(lean_object*);
 lean_object* l_Lean_TypeClass_Context_eInferIdx___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_metaPrefix___closed__2;
@@ -193,9 +195,7 @@ uint8_t l_Lean_Expr_isBVar(lean_object*);
 uint8_t lean_expr_has_expr_mvar(lean_object*);
 lean_object* l_Lean_TypeClass_Context_uAlphaNormalizeCore(lean_object*, lean_object*);
 lean_object* l_PersistentArray_getAux___main___at_Lean_TypeClass_Context_uLookupIdx___spec__2___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_panicWithPos___at_Lean_Expr_bindingDomain___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_uUnify___main(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_fvarName(lean_object*);
 size_t l_USize_land(size_t, size_t);
 lean_object* l_Lean_TypeClass_Context_slowWhnf___main(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
@@ -738,7 +738,7 @@ x_4 = l_Lean_TypeClass_Context_eInfer___closed__1;
 x_5 = lean_unsigned_to_nat(71u);
 x_6 = lean_unsigned_to_nat(14u);
 x_7 = l_Lean_TypeClass_Context_eInfer___closed__2;
-x_8 = l_panicWithPos___at_Lean_Expr_bindingDomain___spec__1(x_4, x_5, x_6, x_7);
+x_8 = l_panicWithPos___at_Lean_Expr_bindingDomain_x21___spec__1(x_4, x_5, x_6, x_7);
 return x_8;
 }
 else
@@ -2397,7 +2397,7 @@ return x_2;
 else
 {
 lean_object* x_4; uint8_t x_5; uint8_t x_6; 
-x_4 = l_Lean_Expr_constLevels(x_1);
+x_4 = l_Lean_Expr_constLevels_x21(x_1);
 x_5 = 0;
 x_6 = l_List_foldr___main___at_Lean_TypeClass_Context_eHasTmpMVar___spec__1(x_5, x_4);
 return x_6;
@@ -3142,8 +3142,8 @@ goto block_43;
 else
 {
 lean_object* x_50; lean_object* x_51; lean_object* x_52; 
-x_50 = l_Lean_Expr_bindingDomain(x_8);
-x_51 = l_Lean_Expr_bindingDomain(x_12);
+x_50 = l_Lean_Expr_bindingDomain_x21(x_8);
+x_51 = l_Lean_Expr_bindingDomain_x21(x_12);
 x_52 = l_Lean_TypeClass_Context_eUnify___main(x_50, x_51, x_11);
 if (lean_obj_tag(x_52) == 0)
 {
@@ -3151,9 +3151,9 @@ lean_object* x_53; lean_object* x_54; lean_object* x_55;
 x_53 = lean_ctor_get(x_52, 1);
 lean_inc(x_53);
 lean_dec(x_52);
-x_54 = l_Lean_Expr_bindingBody(x_8);
+x_54 = l_Lean_Expr_bindingBody_x21(x_8);
 lean_dec(x_8);
-x_55 = l_Lean_Expr_bindingBody(x_12);
+x_55 = l_Lean_Expr_bindingBody_x21(x_12);
 lean_dec(x_12);
 x_1 = x_54;
 x_2 = x_55;
@@ -3216,8 +3216,8 @@ goto block_43;
 else
 {
 lean_object* x_66; lean_object* x_67; lean_object* x_68; 
-x_66 = l_Lean_Expr_bindingDomain(x_8);
-x_67 = l_Lean_Expr_bindingDomain(x_12);
+x_66 = l_Lean_Expr_bindingDomain_x21(x_8);
+x_67 = l_Lean_Expr_bindingDomain_x21(x_12);
 x_68 = l_Lean_TypeClass_Context_eUnify___main(x_66, x_67, x_11);
 if (lean_obj_tag(x_68) == 0)
 {
@@ -3225,9 +3225,9 @@ lean_object* x_69; lean_object* x_70; lean_object* x_71;
 x_69 = lean_ctor_get(x_68, 1);
 lean_inc(x_69);
 lean_dec(x_68);
-x_70 = l_Lean_Expr_bindingBody(x_8);
+x_70 = l_Lean_Expr_bindingBody_x21(x_8);
 lean_dec(x_8);
-x_71 = l_Lean_Expr_bindingBody(x_12);
+x_71 = l_Lean_Expr_bindingBody_x21(x_12);
 lean_dec(x_12);
 x_1 = x_70;
 x_2 = x_71;
@@ -3295,8 +3295,8 @@ goto block_43;
 else
 {
 lean_object* x_85; lean_object* x_86; lean_object* x_87; 
-x_85 = l_Lean_Expr_bindingDomain(x_8);
-x_86 = l_Lean_Expr_bindingDomain(x_12);
+x_85 = l_Lean_Expr_bindingDomain_x21(x_8);
+x_86 = l_Lean_Expr_bindingDomain_x21(x_12);
 x_87 = l_Lean_TypeClass_Context_eUnify___main(x_85, x_86, x_11);
 if (lean_obj_tag(x_87) == 0)
 {
@@ -3304,9 +3304,9 @@ lean_object* x_88; lean_object* x_89; lean_object* x_90;
 x_88 = lean_ctor_get(x_87, 1);
 lean_inc(x_88);
 lean_dec(x_87);
-x_89 = l_Lean_Expr_bindingBody(x_8);
+x_89 = l_Lean_Expr_bindingBody_x21(x_8);
 lean_dec(x_8);
-x_90 = l_Lean_Expr_bindingBody(x_12);
+x_90 = l_Lean_Expr_bindingBody_x21(x_12);
 lean_dec(x_12);
 x_1 = x_89;
 x_2 = x_90;
@@ -3434,8 +3434,8 @@ goto block_114;
 else
 {
 lean_object* x_121; lean_object* x_122; uint8_t x_123; 
-x_121 = l_Lean_Expr_constName(x_8);
-x_122 = l_Lean_Expr_constName(x_12);
+x_121 = l_Lean_Expr_constName_x21(x_8);
+x_122 = l_Lean_Expr_constName_x21(x_12);
 x_123 = lean_name_dec_eq(x_121, x_122);
 lean_dec(x_122);
 lean_dec(x_121);
@@ -3449,9 +3449,9 @@ goto block_114;
 else
 {
 lean_object* x_125; lean_object* x_126; lean_object* x_127; 
-x_125 = l_Lean_Expr_constLevels(x_8);
+x_125 = l_Lean_Expr_constLevels_x21(x_8);
 lean_dec(x_8);
-x_126 = l_Lean_Expr_constLevels(x_12);
+x_126 = l_Lean_Expr_constLevels_x21(x_12);
 lean_dec(x_12);
 x_127 = l_List_forM_u2082___main___at_Lean_TypeClass_Context_eUnify___main___spec__3(x_125, x_126, x_11);
 return x_127;
@@ -3488,8 +3488,8 @@ goto block_114;
 else
 {
 lean_object* x_133; lean_object* x_134; uint8_t x_135; 
-x_133 = l_Lean_Expr_constName(x_8);
-x_134 = l_Lean_Expr_constName(x_12);
+x_133 = l_Lean_Expr_constName_x21(x_8);
+x_134 = l_Lean_Expr_constName_x21(x_12);
 x_135 = lean_name_dec_eq(x_133, x_134);
 lean_dec(x_134);
 lean_dec(x_133);
@@ -3503,9 +3503,9 @@ goto block_114;
 else
 {
 lean_object* x_137; lean_object* x_138; lean_object* x_139; 
-x_137 = l_Lean_Expr_constLevels(x_8);
+x_137 = l_Lean_Expr_constLevels_x21(x_8);
 lean_dec(x_8);
-x_138 = l_Lean_Expr_constLevels(x_12);
+x_138 = l_Lean_Expr_constLevels_x21(x_12);
 lean_dec(x_12);
 x_139 = l_List_forM_u2082___main___at_Lean_TypeClass_Context_eUnify___main___spec__3(x_137, x_138, x_11);
 return x_139;
@@ -3516,8 +3516,8 @@ return x_139;
 else
 {
 lean_object* x_140; lean_object* x_141; uint8_t x_142; 
-x_140 = l_Lean_Expr_fvarName(x_8);
-x_141 = l_Lean_Expr_fvarName(x_12);
+x_140 = l_Lean_Expr_fvarId_x21(x_8);
+x_141 = l_Lean_Expr_fvarId_x21(x_12);
 x_142 = lean_name_dec_eq(x_140, x_141);
 lean_dec(x_141);
 lean_dec(x_140);
@@ -3546,8 +3546,8 @@ goto block_114;
 else
 {
 lean_object* x_147; lean_object* x_148; uint8_t x_149; 
-x_147 = l_Lean_Expr_constName(x_8);
-x_148 = l_Lean_Expr_constName(x_12);
+x_147 = l_Lean_Expr_constName_x21(x_8);
+x_148 = l_Lean_Expr_constName_x21(x_12);
 x_149 = lean_name_dec_eq(x_147, x_148);
 lean_dec(x_148);
 lean_dec(x_147);
@@ -3561,9 +3561,9 @@ goto block_114;
 else
 {
 lean_object* x_151; lean_object* x_152; lean_object* x_153; 
-x_151 = l_Lean_Expr_constLevels(x_8);
+x_151 = l_Lean_Expr_constLevels_x21(x_8);
 lean_dec(x_8);
-x_152 = l_Lean_Expr_constLevels(x_12);
+x_152 = l_Lean_Expr_constLevels_x21(x_12);
 lean_dec(x_12);
 x_153 = l_List_forM_u2082___main___at_Lean_TypeClass_Context_eUnify___main___spec__3(x_151, x_152, x_11);
 return x_153;
@@ -3611,8 +3611,8 @@ goto block_156;
 else
 {
 lean_object* x_162; lean_object* x_163; uint8_t x_164; 
-x_162 = l_Lean_Expr_bvarIdx(x_8);
-x_163 = l_Lean_Expr_bvarIdx(x_12);
+x_162 = l_Lean_Expr_bvarIdx_x21(x_8);
+x_163 = l_Lean_Expr_bvarIdx_x21(x_12);
 x_164 = lean_nat_dec_eq(x_162, x_163);
 lean_dec(x_163);
 lean_dec(x_162);

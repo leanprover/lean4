@@ -17,6 +17,7 @@ lean_object* l_EState_seqRight___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_EState_adaptState(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EState_HasRepr___rarg(lean_object*, lean_object*);
 lean_object* l_EState_Monad(lean_object*, lean_object*);
+lean_object* l_EState_MonadStateAdapter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EState_set(lean_object*, lean_object*);
 lean_object* l_EState_Monad___closed__6;
 lean_object* l_EState_MonadState___closed__3;
@@ -42,6 +43,7 @@ lean_object* l_EState_HasOrelse___rarg(lean_object*);
 extern lean_object* l_Except_toString___rarg___closed__2;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_EState_Monad___closed__2;
+lean_object* l_EState_MonadStateAdapter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Option_HasRepr___rarg___closed__3;
 lean_object* l_EState_MonadExcept___rarg___closed__1;
 lean_object* l_EState_pure(lean_object*, lean_object*, lean_object*);
@@ -1211,13 +1213,13 @@ lean_object* l_EState_adaptState___rarg(lean_object* x_1, lean_object* x_2, lean
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = lean_apply_1(x_2, x_4);
+x_5 = lean_apply_1(x_1, x_4);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
 lean_dec(x_5);
-x_8 = lean_apply_1(x_1, x_6);
+x_8 = lean_apply_1(x_3, x_6);
 if (lean_obj_tag(x_8) == 0)
 {
 uint8_t x_9; 
@@ -1226,7 +1228,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_ctor_get(x_8, 1);
-x_11 = lean_apply_2(x_3, x_10, x_7);
+x_11 = lean_apply_2(x_2, x_10, x_7);
 lean_ctor_set(x_8, 1, x_11);
 return x_8;
 }
@@ -1238,7 +1240,7 @@ x_13 = lean_ctor_get(x_8, 1);
 lean_inc(x_13);
 lean_inc(x_12);
 lean_dec(x_8);
-x_14 = lean_apply_2(x_3, x_13, x_7);
+x_14 = lean_apply_2(x_2, x_13, x_7);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_12);
 lean_ctor_set(x_15, 1, x_14);
@@ -1253,7 +1255,7 @@ if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; 
 x_17 = lean_ctor_get(x_8, 1);
-x_18 = lean_apply_2(x_3, x_17, x_7);
+x_18 = lean_apply_2(x_2, x_17, x_7);
 lean_ctor_set(x_8, 1, x_18);
 return x_8;
 }
@@ -1265,7 +1267,7 @@ x_20 = lean_ctor_get(x_8, 1);
 lean_inc(x_20);
 lean_inc(x_19);
 lean_dec(x_8);
-x_21 = lean_apply_2(x_3, x_20, x_7);
+x_21 = lean_apply_2(x_2, x_20, x_7);
 x_22 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_22, 0, x_19);
 lean_ctor_set(x_22, 1, x_21);
@@ -1279,6 +1281,81 @@ _start:
 {
 lean_object* x_6; 
 x_6 = lean_alloc_closure((void*)(l_EState_adaptState___rarg), 4, 0);
+return x_6;
+}
+}
+lean_object* l_EState_MonadStateAdapter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_5 = lean_apply_1(x_1, x_4);
+x_6 = lean_ctor_get(x_5, 0);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_5, 1);
+lean_inc(x_7);
+lean_dec(x_5);
+x_8 = lean_apply_1(x_3, x_6);
+if (lean_obj_tag(x_8) == 0)
+{
+uint8_t x_9; 
+x_9 = !lean_is_exclusive(x_8);
+if (x_9 == 0)
+{
+lean_object* x_10; lean_object* x_11; 
+x_10 = lean_ctor_get(x_8, 1);
+x_11 = lean_apply_2(x_2, x_10, x_7);
+lean_ctor_set(x_8, 1, x_11);
+return x_8;
+}
+else
+{
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_12 = lean_ctor_get(x_8, 0);
+x_13 = lean_ctor_get(x_8, 1);
+lean_inc(x_13);
+lean_inc(x_12);
+lean_dec(x_8);
+x_14 = lean_apply_2(x_2, x_13, x_7);
+x_15 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_15, 0, x_12);
+lean_ctor_set(x_15, 1, x_14);
+return x_15;
+}
+}
+else
+{
+uint8_t x_16; 
+x_16 = !lean_is_exclusive(x_8);
+if (x_16 == 0)
+{
+lean_object* x_17; lean_object* x_18; 
+x_17 = lean_ctor_get(x_8, 1);
+x_18 = lean_apply_2(x_2, x_17, x_7);
+lean_ctor_set(x_8, 1, x_18);
+return x_8;
+}
+else
+{
+lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+x_19 = lean_ctor_get(x_8, 0);
+x_20 = lean_ctor_get(x_8, 1);
+lean_inc(x_20);
+lean_inc(x_19);
+lean_dec(x_8);
+x_21 = lean_apply_2(x_2, x_20, x_7);
+x_22 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_22, 0, x_19);
+lean_ctor_set(x_22, 1, x_21);
+return x_22;
+}
+}
+}
+}
+lean_object* l_EState_MonadStateAdapter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = lean_alloc_closure((void*)(l_EState_MonadStateAdapter___rarg), 4, 0);
 return x_6;
 }
 }

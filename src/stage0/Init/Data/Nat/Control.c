@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Nat_foldRevM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldMAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldRevMAux___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_forRevMAux(lean_object*);
@@ -31,9 +32,11 @@ lean_object* l_Nat_foldMAux___rarg___boxed(lean_object*, lean_object*, lean_obje
 lean_object* l_Nat_forMAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forRevMAux___boxed(lean_object*);
 lean_object* l_Nat_foldMAux___main___boxed(lean_object*, lean_object*);
+lean_object* l_Nat_foldRevM___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_forRevM___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Nat_forRevM(lean_object*);
+lean_object* l_Nat_foldRevM(lean_object*, lean_object*);
 lean_object* l_Nat_foldRevMAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldM(lean_object*, lean_object*);
 lean_object* l_Nat_forRevMAux___main___rarg(lean_object*, lean_object*, lean_object*);
@@ -42,7 +45,6 @@ lean_object* l_Nat_foldRevMAux___main___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_foldRevMAux___main(lean_object*, lean_object*);
 lean_object* l_Nat_foldMAux(lean_object*, lean_object*);
 lean_object* l_Nat_forMAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_mfoldRev___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_forMAux___main___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forRevMAux___main(lean_object*);
 lean_object* l_Nat_forRevMAux___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -50,17 +52,15 @@ lean_object* l_Nat_foldMAux___main___rarg___boxed(lean_object*, lean_object*, le
 lean_object* l_Nat_forMAux___boxed(lean_object*);
 lean_object* l_Nat_forMAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forRevMAux___main___boxed(lean_object*);
-lean_object* l_Nat_mfoldRev(lean_object*, lean_object*);
 lean_object* l_Nat_foldRevMAux___main___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_foldRevM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forMAux(lean_object*);
-lean_object* l_Nat_mfoldRev___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forMAux___main___boxed(lean_object*);
 lean_object* l_Nat_foldMAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forRevMAux___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldRevMAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forMAux___main(lean_object*);
-lean_object* l_Nat_mfoldRev___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forRevM___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forMAux___main___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
@@ -549,7 +549,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l_Nat_mfoldRev___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Nat_foldRevM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
@@ -557,28 +557,28 @@ x_5 = l_Nat_foldRevMAux___main___rarg(x_1, x_2, x_4, x_3);
 return x_5;
 }
 }
-lean_object* l_Nat_mfoldRev(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Nat_foldRevM(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Nat_mfoldRev___rarg___boxed), 4, 0);
+x_3 = lean_alloc_closure((void*)(l_Nat_foldRevM___rarg___boxed), 4, 0);
 return x_3;
 }
 }
-lean_object* l_Nat_mfoldRev___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Nat_foldRevM___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Nat_mfoldRev___rarg(x_1, x_2, x_3, x_4);
+x_5 = l_Nat_foldRevM___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 return x_5;
 }
 }
-lean_object* l_Nat_mfoldRev___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Nat_foldRevM___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Nat_mfoldRev(x_1, x_2);
+x_3 = l_Nat_foldRevM(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }

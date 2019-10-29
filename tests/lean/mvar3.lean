@@ -58,7 +58,7 @@ def mctx5 := R1.1
 #eval check (!e1.hasFVar)
 
 def R2 :=
-match mctx4'.mkLambda {namePrefix := `n} lctx4 #[α, x, y] $ mkApp f #[m3, x] with
+match mctx4'.mkLambda {namePrefix := `n} lctx4 #[α, x, y] $ mkApp f #[m3, y] with
 | Except.ok s    => s
 | Except.error e => panic! (toString e)
 def e2    := R2.2.2
@@ -69,3 +69,16 @@ def mctx6 := R2.1
 -- ?n.2 was delayed assigned because ?m.3 is synthetic
 #eval toString $ mctx6.dAssignment.toList.map Prod.fst
 #eval e2
+
+#print "assigning ?m1 and ?n.1"
+def R3 :=
+let mctx := mctx6.assignExpr `m3 x;
+let mctx := mctx.assignExpr (Name.mkNumeral `n 1) (Expr.lam `_ bi typeE natE);
+-- ?n.2 is instantiated because we have the delayed assignment `?n.2 α x := ?m1`
+(mctx.instantiateMVars e2)
+def e3    := R3.1
+def mctx7 := R3.2
+#eval e3
+-- The delayed assignment became a regular one.
+#eval mctx7.getExprAssignment (Name.mkNumeral `n 2)
+#eval toString $ mctx7.dAssignment.toList.map Prod.fst

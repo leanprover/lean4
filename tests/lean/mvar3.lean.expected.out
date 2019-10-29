@@ -5,4 +5,8 @@ fun (α : Type) (x : ?n.1 α) (y : Nat -> (?n.3 α x)) => f (?n.2 α x) x
 "[m1, m2, n.1, n.2, m3, n.3]"
 "[(m1, ?n.1 α), (m2, ?n.3 α x)]"
 "[n.2]"
-fun (α : Type) (x : ?n.1 α) (y : Nat -> (?n.3 α x)) => f (?n.2 α x) x
+fun (α : Type) (x : ?n.1 α) (y : Nat -> (?n.3 α x)) => f (?n.2 α x) y
+assigning ?m1 and ?n.1
+fun (α : Type) (x : Nat) (y : Nat -> (?n.3 α x)) => f x y
+(some fun (α : Type) (x : Nat) => x)
+"[]"

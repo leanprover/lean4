@@ -506,6 +506,7 @@ partial def elimMVarDepsAux : Array Expr → Expr → M σ Expr
       | Except.ok toRevert => do
         let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert;
         newMVarType ← mkForallAux (fun xs e => elimMVarDepsAux xs e) mvarLCtx toRevert mvarDecl.type;
+        mctx        ← getMCtx;
         newMVarId   ← mkFreshId;
         match mkAuxMVar mctx newMVarId newMVarLCtx newMVarType mvarDecl.synthetic with
         | none      => throw MkBindingException.mkAuxMVarFailed

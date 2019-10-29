@@ -16,6 +16,8 @@ structure MetavarContext :=
 
 namespace MetavarContext
 
+instance : Inhabited MetavarContext := ⟨{}⟩
+
 @[export lean_mk_metavar_ctx]
 def mkMetavarContext : Unit → MetavarContext :=
 fun _ => {}

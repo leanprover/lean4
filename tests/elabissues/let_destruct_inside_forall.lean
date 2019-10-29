@@ -7,6 +7,12 @@ def works : Prop :=
 let ⟨foo₁, foo₂⟩ := (foo, foo);
 false
 
+/-
+The following tests fail because the elaborator fails to propagate the expected type. The main issue is that the elaborator is missing the following case:
+
+If the expected type is `Prop` for an expression `Forall (x : A), t`, then we should also elaborate `t` with expected type `Prop`. Note that every single example works if we write them as `Forall (x : A), (t : Prop)`.
+-/
+
 /- Uncommenting breaks it -/
 def fails₁ : Prop :=
 ∀ (x : Foo),

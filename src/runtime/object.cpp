@@ -77,7 +77,7 @@ static inline void lean_dealloc(lean_object * o, size_t sz) {
 #ifdef LEAN_SMALL_ALLOCATOR
     dealloc(o, sz);
 #else
-    free(sz);
+    free(o);
 #endif
 }
 

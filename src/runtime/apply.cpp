@@ -212,7 +212,7 @@ if (arity == fixed + 2) {
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   obj * new_f = curry(f, arity, args);
   lean_dec_ref(f);
-  return lean_apply_n(new_f, 2+fixed-arity, as+arity-fixed);
+  return lean_apply_n(new_f, 2+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2});
 }
@@ -271,7 +271,7 @@ if (arity == fixed + 3) {
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   obj * new_f = curry(f, arity, args);
   lean_dec_ref(f);
-  return lean_apply_n(new_f, 3+fixed-arity, as+arity-fixed);
+  return lean_apply_n(new_f, 3+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3});
 }
@@ -328,7 +328,7 @@ if (arity == fixed + 4) {
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   obj * new_f = curry(f, arity, args);
   lean_dec_ref(f);
-  return lean_apply_n(new_f, 4+fixed-arity, as+arity-fixed);
+  return lean_apply_n(new_f, 4+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4});
 }
@@ -383,7 +383,7 @@ if (arity == fixed + 5) {
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   obj * new_f = curry(f, arity, args);
   lean_dec_ref(f);
-  return lean_apply_n(new_f, 5+fixed-arity, as+arity-fixed);
+  return lean_apply_n(new_f, 5+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5});
 }
@@ -436,7 +436,7 @@ if (arity == fixed + 6) {
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   obj * new_f = curry(f, arity, args);
   lean_dec_ref(f);
-  return lean_apply_n(new_f, 6+fixed-arity, as+arity-fixed);
+  return lean_apply_n(new_f, 6+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6});
 }
@@ -487,7 +487,7 @@ if (arity == fixed + 7) {
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   obj * new_f = curry(f, arity, args);
   lean_dec_ref(f);
-  return lean_apply_n(new_f, 7+fixed-arity, as+arity-fixed);
+  return lean_apply_n(new_f, 7+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7});
 }
@@ -536,7 +536,7 @@ if (arity == fixed + 8) {
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   obj * new_f = curry(f, arity, args);
   lean_dec_ref(f);
-  return lean_apply_n(new_f, 8+fixed-arity, as+arity-fixed);
+  return lean_apply_n(new_f, 8+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8});
 }
@@ -583,7 +583,7 @@ if (arity == fixed + 9) {
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   obj * new_f = curry(f, arity, args);
   lean_dec_ref(f);
-  return lean_apply_n(new_f, 9+fixed-arity, as+arity-fixed);
+  return lean_apply_n(new_f, 9+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9});
 }
@@ -628,7 +628,7 @@ if (arity == fixed + 10) {
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   obj * new_f = curry(f, arity, args);
   lean_dec_ref(f);
-  return lean_apply_n(new_f, 10+fixed-arity, as+arity-fixed);
+  return lean_apply_n(new_f, 10+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10});
 }
@@ -671,7 +671,7 @@ if (arity == fixed + 11) {
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   obj * new_f = curry(f, arity, args);
   lean_dec_ref(f);
-  return lean_apply_n(new_f, 11+fixed-arity, as+arity-fixed);
+  return lean_apply_n(new_f, 11+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11});
 }
@@ -712,7 +712,7 @@ if (arity == fixed + 12) {
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   obj * new_f = curry(f, arity, args);
   lean_dec_ref(f);
-  return lean_apply_n(new_f, 12+fixed-arity, as+arity-fixed);
+  return lean_apply_n(new_f, 12+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12});
 }
@@ -751,7 +751,7 @@ if (arity == fixed + 13) {
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   obj * new_f = curry(f, arity, args);
   lean_dec_ref(f);
-  return lean_apply_n(new_f, 13+fixed-arity, as+arity-fixed);
+  return lean_apply_n(new_f, 13+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13});
 }
@@ -788,7 +788,7 @@ if (arity == fixed + 14) {
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   obj * new_f = curry(f, arity, args);
   lean_dec_ref(f);
-  return lean_apply_n(new_f, 14+fixed-arity, as+arity-fixed);
+  return lean_apply_n(new_f, 14+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14});
 }
@@ -823,7 +823,7 @@ if (arity == fixed + 15) {
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   obj * new_f = curry(f, arity, args);
   lean_dec_ref(f);
-  return lean_apply_n(new_f, 15+fixed-arity, as+arity-fixed);
+  return lean_apply_n(new_f, 15+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15});
 }
@@ -856,7 +856,7 @@ if (arity == fixed + 16) {
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   obj * new_f = curry(f, arity, args);
   lean_dec_ref(f);
-  return lean_apply_n(new_f, 16+fixed-arity, as+arity-fixed);
+  return lean_apply_n(new_f, 16+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16});
 }
@@ -878,7 +878,7 @@ if (arity == fixed + n) {
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   obj * new_f = FNN(f)(args);
   lean_dec_ref(f);
-  return lean_apply_n(new_f, n+fixed-arity, as+arity-fixed);
+  return lean_apply_n(new_f, n+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, n, as);
 }

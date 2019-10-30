@@ -121,7 +121,8 @@ instance isAbstractMetavarContext : AbstractMetavarContext TmpMetavarContext :=
   assignExpr           := TmpMetavarContext.assignExpr,
   getDecl              := TmpMetavarContext.getDecl,
   -- TmpMetavarContext does not support delayed assignments or the creation of auxiliary metavariables.
-  mkAuxMVar            := fun _ _ _ _ _ => none,
+  auxMVarSupport       := false,
+  mkAuxMVar            := fun _ _ _ _ _ => panic! "TmpMetavarContex does not support the creation of auxiliary metavariables",
   assignDelayed        := fun _ _ _ _ _ => panic! "TmpMetavarContex does not support delayed assignments",
   eraseDelayed         := fun _ _ => panic! "TmpMetavarContex does not support delayed assignments",
   getDelayedAssignment := fun _ _ => none }

@@ -116,8 +116,10 @@ class AbstractMetavarContext (σ : Type) :=
 (assignDelayed        (mctx : σ) (mvarId : Name) (lctx : LocalContext) (fvars : Array Expr) (val : Expr) : σ)
 (getDelayedAssignment (mctx : σ) (mvarId : Name) : Option DelayedMetavarAssignment)
 (eraseDelayed         (mctx : σ) (mvarId : Name) : σ)
+/- Supports auxiliary metavariables -/
+(auxMVarSupport       : Bool)
 /- Return `none` in case of failure, or if implementation does not support the creation of auxiliary metavariables. -/
-(mkAuxMVar            (mctx : σ) (mvarId : Name) (lctx : LocalContext) (type : Expr) (synthetic : Bool) : Option σ)
+(mkAuxMVar            (mctx : σ) (mvarId : Name) (lctx : LocalContext) (type : Expr) (synthetic : Bool) : σ)
 
 namespace AbstractMetavarContext
 
@@ -328,7 +330,7 @@ end DependsOn
 inductive MkBindingException
 | revertFailure (lctx : LocalContext) (toRevert : Array Expr) (decl : LocalDecl)
 | readOnlyMVar (mvarId : Name)
-| mkAuxMVarFailed
+| mkAuxMVarNotSupported
 
 namespace MkBindingException
 def toStr : MkBindingException → String
@@ -338,7 +340,7 @@ def toStr : MkBindingException → String
   ++ ", '" ++ toString decl.userName ++ "' depends on them, and it is an auxiliary declaration created by the elaborator"
   ++ " (possible solution: use tactic 'clear' to remove '" ++ toString decl.userName ++ "' from local context)"
 | readOnlyMVar _  => "failed to create binding due to read only metavariable"
-| mkAuxMVarFailed => "failed to create auxiliary metavariable"
+| mkAuxMVarNotSupported => "auxiliary metavariables are not supported"
 
 instance : HasToString MkBindingException := ⟨toStr⟩
 end MkBindingException
@@ -500,6 +502,8 @@ partial def elimMVarDepsAux : Array Expr → Expr → M σ Expr
       pure e
     else if isReadOnlyExprMVar mctx mvarId then
       throw $ MkBindingException.readOnlyMVar mvarId
+    else if !auxMVarSupport σ then
+      throw MkBindingException.mkAuxMVarNotSupported
     else
       match collectDeps mctx mvarLCtx toRevert with
       | Except.error ex    => throw ex
@@ -508,17 +512,15 @@ partial def elimMVarDepsAux : Array Expr → Expr → M σ Expr
         newMVarType ← mkForallAux (fun xs e => elimMVarDepsAux xs e) mvarLCtx toRevert mvarDecl.type;
         mctx        ← getMCtx;
         newMVarId   ← mkFreshId;
-        match mkAuxMVar mctx newMVarId newMVarLCtx newMVarType mvarDecl.synthetic with
-        | none      => throw MkBindingException.mkAuxMVarFailed
-        | some mctx => do
-          modify $ fun s => { mctx := mctx, .. s };
-          let newMVar := Expr.mvar newMVarId;
-          let result  := mkMVarApp mvarLCtx newMVar toRevert;
-          if mvarDecl.synthetic then
-             modify (fun s => { mctx := assignDelayed s.mctx newMVarId mvarLCtx toRevert e, .. s })
-          else
-             modify (fun s => { mctx := assignExpr s.mctx mvarId result, .. s });
-          pure result
+        let mctx := mkAuxMVar mctx newMVarId newMVarLCtx newMVarType mvarDecl.synthetic;
+        modify $ fun s => { mctx := mctx, .. s };
+        let newMVar := Expr.mvar newMVarId;
+        let result  := mkMVarApp mvarLCtx newMVar toRevert;
+        if mvarDecl.synthetic then
+          modify (fun s => { mctx := assignDelayed s.mctx newMVarId mvarLCtx toRevert e, .. s })
+        else
+          modify (fun s => { mctx := assignExpr s.mctx mvarId result, .. s });
+        pure result
 | xs, e => pure e
 
 partial def elimMVarDeps (xs : Array Expr) (e : Expr) : M σ Expr :=

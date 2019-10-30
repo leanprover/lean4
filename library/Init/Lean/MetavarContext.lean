@@ -91,7 +91,8 @@ instance metavarContextIsAbstractMetavarContext : AbstractMetavarContext Metavar
   assignDelayed        := MetavarContext.assignDelayed,
   getDelayedAssignment := MetavarContext.getDelayedAssignment,
   eraseDelayed         := MetavarContext.eraseDelayed,
-  mkAuxMVar            := fun mctx mvarId lctx type synthetic => some (MetavarContext.mkDecl mctx mvarId Name.anonymous lctx type synthetic)
+  auxMVarSupport       := true,
+  mkAuxMVar            := fun mctx mvarId lctx type synthetic => MetavarContext.mkDecl mctx mvarId Name.anonymous lctx type synthetic
 }
 
 /-- Return `true` iff `lvl` contains assigned level metavariables -/

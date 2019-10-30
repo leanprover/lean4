@@ -49,6 +49,11 @@ def isIMax : Level → Bool
 | imax _ _ => true
 | _        => false
 
+def isMaxIMax : Level → Bool
+| max _ _  => true
+| imax _ _ => true
+| _        => false
+
 def isParam : Level → Bool
 | param _ => true
 | _       => false
@@ -143,12 +148,6 @@ instance hashable : Hashable Level := ⟨Level.hash⟩
 protected constant beq (a : @& Level) (b : @& Level) : Bool := default _
 
 instance : HasBeq Level := ⟨Level.beq⟩
-
-/- Return true if `a` and `b` denote the same level.
-   Check is currently incomplete.
-   TODO: implement in Lean. -/
-@[extern "lean_level_eqv"]
-constant isEquiv (a : @& Level) (b : @& Level) : Bool := default _
 
 /-- `occurs u l` return `true` iff `u` occurs in `l`. -/
 def occurs : Level → Level → Bool
@@ -258,6 +257,12 @@ partial def normalize : Level → Level
         let l₂ := normalize l₂;
         addOffset (mkIMaxAux l₁ l₂) k
     | _ => unreachable!
+
+
+/- Return true if `u` and `v` denote the same level.
+   Check is currently incomplete. -/
+def isEquiv (u v : Level) : Bool :=
+u == v || u.normalize == v.normalize
 
 /- Level to Format -/
 namespace LevelToFormat

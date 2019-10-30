@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: Init.Lean.TypeContext
+// Module: Init.Lean.TypeInference
 // Imports: Init.Control.Reader Init.Lean.NameGenerator Init.Lean.Environment Init.Lean.AbstractMetavarContext Init.Lean.Trace
 #include "runtime/lean.h"
 #if defined(__clang__)
@@ -14,34 +14,34 @@
 extern "C" {
 #endif
 lean_object* l_Lean_typeContextNoCacheIsAbstractTCCache___closed__1;
-lean_object* l___private_Init_Lean_TypeContext_1__getOptions(lean_object*, lean_object*);
-lean_object* l_Lean_AbstractTypeContext_tracer___closed__3;
+lean_object* l_Lean_TypeInferenceState_backtrackable___lambda__1(lean_object*);
+lean_object* l___private_Init_Lean_TypeInference_1__getOptions___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_TypeInference_tracer___closed__3;
+lean_object* l_Lean_TypeInference_tracer___closed__1;
+lean_object* l_Lean_TypeInferenceState_backtrackable___closed__2;
 lean_object* l_Lean_typeContextNoCacheIsAbstractTCCache___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_TypeInference_2__getTraceState___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_typeContextNoCacheIsAbstractTCCache___lambda__1(lean_object*, uint8_t, lean_object*);
-lean_object* l_Lean_TCState_backtrackable___lambda__2(lean_object*, lean_object*);
-lean_object* l_Lean_TCState_backtrackable___lambda__1___boxed(lean_object*);
-lean_object* l___private_Init_Lean_TypeContext_2__getTraceState(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_TypeContext_2__getTraceState___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_TypeContext_1__getOptions___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_TCState_backtrackable___closed__3;
-lean_object* l_Lean_TCState_backtrackable___lambda__1(lean_object*);
-lean_object* l___private_Init_Lean_TypeContext_1__getOptions___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_TCState_backtrackable___closed__2;
-lean_object* l_Lean_AbstractTypeContext_tracer___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_TypeInference_tracer___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_TypeInference_1__getOptions(lean_object*, lean_object*);
+lean_object* l_Lean_TypeInferenceState_backtrackable___closed__3;
 lean_object* l_Lean_typeContextNoCacheIsAbstractTCCache___closed__2;
-lean_object* l_Lean_AbstractTypeContext_tracer___closed__2;
-lean_object* l_Lean_AbstractTypeContext_tracer___closed__1;
-lean_object* l_Lean_AbstractTypeContext_tracer___lambda__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_TCState_backtrackable___closed__1;
-lean_object* l_Lean_TCState_backtrackable(lean_object*, lean_object*);
-lean_object* l_Lean_AbstractTypeContext_tracer(lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_TypeContext_2__getTraceState___rarg(lean_object*);
-lean_object* l_Lean_AbstractTypeContext_tracer___closed__4;
+lean_object* l_Lean_TypeInference_tracer(lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_TypeInference_1__getOptions___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_TypeInferenceState_backtrackable(lean_object*, lean_object*);
+lean_object* l_Lean_TypeInferenceState_backtrackable___lambda__2(lean_object*, lean_object*);
+lean_object* l_Lean_TypeInference_tracer___closed__4;
+lean_object* l_Lean_TypeInference_tracer___lambda__1(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_TypeInference_2__getTraceState___rarg(lean_object*);
 lean_object* l_Lean_typeContextNoCacheIsAbstractTCCache___lambda__2(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_typeContextNoCacheIsAbstractTCCache___closed__3;
 lean_object* l_Lean_typeContextNoCacheIsAbstractTCCache;
+lean_object* l_Lean_TypeInferenceState_backtrackable___lambda__1___boxed(lean_object*);
+lean_object* l_Lean_TypeInference_tracer___closed__2;
 lean_object* l_Lean_typeContextNoCacheIsAbstractTCCache___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_TCState_backtrackable___lambda__1(lean_object* x_1) {
+lean_object* l___private_Init_Lean_TypeInference_2__getTraceState(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_TypeInferenceState_backtrackable___closed__1;
+lean_object* l_Lean_TypeInferenceState_backtrackable___lambda__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -50,7 +50,7 @@ lean_inc(x_2);
 return x_2;
 }
 }
-lean_object* l_Lean_TCState_backtrackable___lambda__2(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_TypeInferenceState_backtrackable___lambda__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -87,52 +87,52 @@ return x_10;
 }
 }
 }
-lean_object* _init_l_Lean_TCState_backtrackable___closed__1() {
+lean_object* _init_l_Lean_TypeInferenceState_backtrackable___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_TCState_backtrackable___lambda__1___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_TypeInferenceState_backtrackable___lambda__1___boxed), 1, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_TCState_backtrackable___closed__2() {
+lean_object* _init_l_Lean_TypeInferenceState_backtrackable___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_TCState_backtrackable___lambda__2), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_TypeInferenceState_backtrackable___lambda__2), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_TCState_backtrackable___closed__3() {
+lean_object* _init_l_Lean_TypeInferenceState_backtrackable___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_TCState_backtrackable___closed__1;
-x_2 = l_Lean_TCState_backtrackable___closed__2;
+x_1 = l_Lean_TypeInferenceState_backtrackable___closed__1;
+x_2 = l_Lean_TypeInferenceState_backtrackable___closed__2;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* l_Lean_TCState_backtrackable(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_TypeInferenceState_backtrackable(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_TCState_backtrackable___closed__3;
+x_3 = l_Lean_TypeInferenceState_backtrackable___closed__3;
 return x_3;
 }
 }
-lean_object* l_Lean_TCState_backtrackable___lambda__1___boxed(lean_object* x_1) {
+lean_object* l_Lean_TypeInferenceState_backtrackable___lambda__1___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_TCState_backtrackable___lambda__1(x_1);
+x_2 = l_Lean_TypeInferenceState_backtrackable___lambda__1(x_1);
 lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* l___private_Init_Lean_TypeContext_1__getOptions___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_Lean_TypeInference_1__getOptions___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -145,24 +145,24 @@ lean_ctor_set(x_5, 1, x_2);
 return x_5;
 }
 }
-lean_object* l___private_Init_Lean_TypeContext_1__getOptions(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_Lean_TypeInference_1__getOptions(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_Init_Lean_TypeContext_1__getOptions___rarg___boxed), 2, 0);
+x_3 = lean_alloc_closure((void*)(l___private_Init_Lean_TypeInference_1__getOptions___rarg___boxed), 2, 0);
 return x_3;
 }
 }
-lean_object* l___private_Init_Lean_TypeContext_1__getOptions___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_Lean_TypeInference_1__getOptions___rarg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l___private_Init_Lean_TypeContext_1__getOptions___rarg(x_1, x_2);
+x_3 = l___private_Init_Lean_TypeInference_1__getOptions___rarg(x_1, x_2);
 lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l___private_Init_Lean_TypeContext_2__getTraceState___rarg(lean_object* x_1) {
+lean_object* l___private_Init_Lean_TypeInference_2__getTraceState___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -174,24 +174,24 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* l___private_Init_Lean_TypeContext_2__getTraceState(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_Lean_TypeInference_2__getTraceState(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l___private_Init_Lean_TypeContext_2__getTraceState___rarg), 1, 0);
+x_4 = lean_alloc_closure((void*)(l___private_Init_Lean_TypeInference_2__getTraceState___rarg), 1, 0);
 return x_4;
 }
 }
-lean_object* l___private_Init_Lean_TypeContext_2__getTraceState___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_Lean_TypeInference_2__getTraceState___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l___private_Init_Lean_TypeContext_2__getTraceState(x_1, x_2, x_3);
+x_4 = l___private_Init_Lean_TypeInference_2__getTraceState(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
 }
 }
-lean_object* l_Lean_AbstractTypeContext_tracer___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_TypeInference_tracer___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -239,39 +239,39 @@ return x_18;
 }
 }
 }
-lean_object* _init_l_Lean_AbstractTypeContext_tracer___closed__1() {
+lean_object* _init_l_Lean_TypeInference_tracer___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Init_Lean_TypeContext_2__getTraceState___boxed), 3, 2);
+x_1 = lean_alloc_closure((void*)(l___private_Init_Lean_TypeInference_2__getTraceState___boxed), 3, 2);
 lean_closure_set(x_1, 0, lean_box(0));
 lean_closure_set(x_1, 1, lean_box(0));
 return x_1;
 }
 }
-lean_object* _init_l_Lean_AbstractTypeContext_tracer___closed__2() {
+lean_object* _init_l_Lean_TypeInference_tracer___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Init_Lean_TypeContext_1__getOptions___rarg___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Init_Lean_TypeInference_1__getOptions___rarg___boxed), 2, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_AbstractTypeContext_tracer___closed__3() {
+lean_object* _init_l_Lean_TypeInference_tracer___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_AbstractTypeContext_tracer___lambda__1___boxed), 3, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_TypeInference_tracer___lambda__1___boxed), 3, 0);
 return x_1;
 }
 }
-lean_object* _init_l_Lean_AbstractTypeContext_tracer___closed__4() {
+lean_object* _init_l_Lean_TypeInference_tracer___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_AbstractTypeContext_tracer___closed__2;
-x_2 = l_Lean_AbstractTypeContext_tracer___closed__3;
-x_3 = l_Lean_AbstractTypeContext_tracer___closed__1;
+x_1 = l_Lean_TypeInference_tracer___closed__2;
+x_2 = l_Lean_TypeInference_tracer___closed__3;
+x_3 = l_Lean_TypeInference_tracer___closed__1;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -279,19 +279,19 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-lean_object* l_Lean_AbstractTypeContext_tracer(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_TypeInference_tracer(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_AbstractTypeContext_tracer___closed__4;
+x_3 = l_Lean_TypeInference_tracer___closed__4;
 return x_3;
 }
 }
-lean_object* l_Lean_AbstractTypeContext_tracer___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_TypeInference_tracer___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lean_AbstractTypeContext_tracer___lambda__1(x_1, x_2, x_3);
+x_4 = l_Lean_TypeInference_tracer___lambda__1(x_1, x_2, x_3);
 lean_dec(x_2);
 return x_4;
 }
@@ -378,7 +378,7 @@ lean_object* initialize_Init_Lean_Environment(lean_object*);
 lean_object* initialize_Init_Lean_AbstractMetavarContext(lean_object*);
 lean_object* initialize_Init_Lean_Trace(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Lean_TypeContext(lean_object* w) {
+lean_object* initialize_Init_Lean_TypeInference(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
@@ -397,20 +397,20 @@ lean_dec_ref(res);
 res = initialize_Init_Lean_Trace(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_TCState_backtrackable___closed__1 = _init_l_Lean_TCState_backtrackable___closed__1();
-lean_mark_persistent(l_Lean_TCState_backtrackable___closed__1);
-l_Lean_TCState_backtrackable___closed__2 = _init_l_Lean_TCState_backtrackable___closed__2();
-lean_mark_persistent(l_Lean_TCState_backtrackable___closed__2);
-l_Lean_TCState_backtrackable___closed__3 = _init_l_Lean_TCState_backtrackable___closed__3();
-lean_mark_persistent(l_Lean_TCState_backtrackable___closed__3);
-l_Lean_AbstractTypeContext_tracer___closed__1 = _init_l_Lean_AbstractTypeContext_tracer___closed__1();
-lean_mark_persistent(l_Lean_AbstractTypeContext_tracer___closed__1);
-l_Lean_AbstractTypeContext_tracer___closed__2 = _init_l_Lean_AbstractTypeContext_tracer___closed__2();
-lean_mark_persistent(l_Lean_AbstractTypeContext_tracer___closed__2);
-l_Lean_AbstractTypeContext_tracer___closed__3 = _init_l_Lean_AbstractTypeContext_tracer___closed__3();
-lean_mark_persistent(l_Lean_AbstractTypeContext_tracer___closed__3);
-l_Lean_AbstractTypeContext_tracer___closed__4 = _init_l_Lean_AbstractTypeContext_tracer___closed__4();
-lean_mark_persistent(l_Lean_AbstractTypeContext_tracer___closed__4);
+l_Lean_TypeInferenceState_backtrackable___closed__1 = _init_l_Lean_TypeInferenceState_backtrackable___closed__1();
+lean_mark_persistent(l_Lean_TypeInferenceState_backtrackable___closed__1);
+l_Lean_TypeInferenceState_backtrackable___closed__2 = _init_l_Lean_TypeInferenceState_backtrackable___closed__2();
+lean_mark_persistent(l_Lean_TypeInferenceState_backtrackable___closed__2);
+l_Lean_TypeInferenceState_backtrackable___closed__3 = _init_l_Lean_TypeInferenceState_backtrackable___closed__3();
+lean_mark_persistent(l_Lean_TypeInferenceState_backtrackable___closed__3);
+l_Lean_TypeInference_tracer___closed__1 = _init_l_Lean_TypeInference_tracer___closed__1();
+lean_mark_persistent(l_Lean_TypeInference_tracer___closed__1);
+l_Lean_TypeInference_tracer___closed__2 = _init_l_Lean_TypeInference_tracer___closed__2();
+lean_mark_persistent(l_Lean_TypeInference_tracer___closed__2);
+l_Lean_TypeInference_tracer___closed__3 = _init_l_Lean_TypeInference_tracer___closed__3();
+lean_mark_persistent(l_Lean_TypeInference_tracer___closed__3);
+l_Lean_TypeInference_tracer___closed__4 = _init_l_Lean_TypeInference_tracer___closed__4();
+lean_mark_persistent(l_Lean_TypeInference_tracer___closed__4);
 l_Lean_typeContextNoCacheIsAbstractTCCache___closed__1 = _init_l_Lean_typeContextNoCacheIsAbstractTCCache___closed__1();
 lean_mark_persistent(l_Lean_typeContextNoCacheIsAbstractTCCache___closed__1);
 l_Lean_typeContextNoCacheIsAbstractTCCache___closed__2 = _init_l_Lean_typeContextNoCacheIsAbstractTCCache___closed__2();

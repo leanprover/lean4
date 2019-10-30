@@ -19,16 +19,20 @@ lean_object* lean_dbg_trace(lean_object*, lean_object*);
 lean_object* l_panic___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_panicWithPos___rarg___closed__3;
+lean_object* l_unreachable_x21___rarg___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
+lean_object* l_unreachable_x21(lean_object*);
 lean_object* l_dbgSleep___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos(lean_object*);
 lean_object* l_panicWithPos___rarg___closed__1;
+lean_object* l_unreachable_x21___rarg___closed__2;
 lean_object* l_dbgTraceIfShared___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_dbg_sleep(uint32_t, lean_object*);
 lean_object* l_panic(lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_dbgTrace___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___rarg___closed__2;
+lean_object* l_unreachable_x21___rarg(lean_object*);
 lean_object* lean_dbg_trace_if_shared(lean_object*, lean_object*);
 lean_object* l_panicWithPos___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_dbgTrace___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -138,6 +142,42 @@ lean_dec(x_2);
 return x_6;
 }
 }
+lean_object* _init_l_unreachable_x21___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("Init.Util");
+return x_1;
+}
+}
+lean_object* _init_l_unreachable_x21___rarg___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("unreachable");
+return x_1;
+}
+}
+lean_object* l_unreachable_x21___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_2 = l_unreachable_x21___rarg___closed__1;
+x_3 = lean_unsigned_to_nat(37u);
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = l_unreachable_x21___rarg___closed__2;
+x_6 = l_panicWithPos___rarg(x_1, x_2, x_3, x_4, x_5);
+return x_6;
+}
+}
+lean_object* l_unreachable_x21(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_unreachable_x21___rarg), 1, 0);
+return x_2;
+}
+}
 lean_object* initialize_Init_Data_String_Basic(lean_object*);
 lean_object* initialize_Init_Data_ToString(lean_object*);
 static bool _G_initialized = false;
@@ -157,6 +197,10 @@ l_panicWithPos___rarg___closed__2 = _init_l_panicWithPos___rarg___closed__2();
 lean_mark_persistent(l_panicWithPos___rarg___closed__2);
 l_panicWithPos___rarg___closed__3 = _init_l_panicWithPos___rarg___closed__3();
 lean_mark_persistent(l_panicWithPos___rarg___closed__3);
+l_unreachable_x21___rarg___closed__1 = _init_l_unreachable_x21___rarg___closed__1();
+lean_mark_persistent(l_unreachable_x21___rarg___closed__1);
+l_unreachable_x21___rarg___closed__2 = _init_l_unreachable_x21___rarg___closed__2();
+lean_mark_persistent(l_unreachable_x21___rarg___closed__2);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

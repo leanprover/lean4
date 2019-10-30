@@ -124,18 +124,26 @@ def isPrefixOf : Name → Name → Bool
 | p, n@(mkNumeral p' _) => p == n || isPrefixOf p p'
 | p, n@(mkString p' _)  => p == n || isPrefixOf p p'
 
-def quickLtCore : Name → Name → Bool
-| anonymous,      anonymous      => false
-| anonymous,      _              => true
-| mkNumeral n v, mkNumeral n' v' => v < v' || (v = v' && n.quickLtCore n')
+def lt : Name → Name → Bool
+| anonymous,       anonymous       => false
+| anonymous,       _               => true
+| mkNumeral p₁ i₁, mkNumeral p₂ i₂ => lt p₁ p₂ || (p₁ == p₂ && i₁ < i₂)
+| mkNumeral _ _,   mkString _ _    => true
+| mkString p₁ n₁,  mkString p₂ n₂  => lt p₁ p₂ || (p₁ == p₂ && n₁ < n₂)
+| _,               _               => false
+
+def quickLtAux : Name → Name → Bool
+| anonymous,     anonymous       => false
+| anonymous,     _               => true
+| mkNumeral n v, mkNumeral n' v' => v < v' || (v = v' && n.quickLtAux n')
 | mkNumeral _ _, mkString _ _    => true
-| mkString n s,  mkString n' s'  => s < s' || (s = s' && n.quickLtCore n')
+| mkString n s,  mkString n' s'  => s < s' || (s = s' && n.quickLtAux n')
 | _,              _              => false
 
 def quickLt (n₁ n₂ : Name) : Bool :=
 if n₁.hash < n₂.hash then true
 else if n₁.hash > n₂.hash then false
-else quickLtCore n₁ n₂
+else quickLtAux n₁ n₂
 
 /- Alternative HasLt instance. -/
 @[inline] protected def hasLtQuick : HasLess Name :=

@@ -31,3 +31,7 @@ constant panic {α : Type u} [Inhabited α] (msg : String) : α := default _
 @[neverExtract]
 def panicWithPos {α : Type u} [Inhabited α] (modName : String) (line col : Nat) (msg : String) : α :=
 panic ("PANIC at " ++ modName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg)
+
+-- TODO: should be a macro
+def unreachable! {α : Type u} [Inhabited α] : α :=
+panic! "unreachable"

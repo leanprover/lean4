@@ -5,10 +5,10 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Option.Basic
-import Init.Lean.Name
-import Init.Lean.Format
 import Init.Data.HashMap
 import Init.Data.PersistentHashMap
+import Init.Lean.Name
+import Init.Lean.Format
 
 def Nat.imax (n m : Nat) : Nat :=
 if m = 0 then 0 else Nat.max n m
@@ -57,6 +57,16 @@ def isMVar : Level → Bool
 | mvar _ => true
 | _      => false
 
+/-- If result is true, then forall assignments `A` which assigns all parameters and metavariables occuring
+    in `l`, `l[A] != zero` -/
+def isNeverZero : Level → Bool
+| zero       => false
+| param _    => false
+| mvar _     => false
+| succ _     => true
+| max l₁ l₂  => isNeverZero l₁ || isNeverZero l₂
+| imax l₁ l₂ => isNeverZero l₂
+
 def one : Level := succ zero
 
 @[extern "lean_level_has_param"]
@@ -86,17 +96,32 @@ def addOffsetAux : Nat → Level → Level
 def addOffset (l : Level) (n : Nat) : Level :=
 l.addOffsetAux n
 
-def toNat : Level → Option Nat
-| zero       => some 0
-| succ l     => Nat.succ <$> toNat l
-| max l₁ l₂  => Nat.max  <$> toNat l₁ <*> toNat l₂
-| imax l₁ l₂ => Nat.imax <$> toNat l₁ <*> toNat l₂
-| _          => none
+def isExplicit : Level → Bool
+| zero   => true
+| succ l => isExplicit l
+| _      => false
 
-def toOffset : Level → Level × Nat
-| zero   => (zero, 0)
-| succ l => let (l', k) := toOffset l; (l', k+1)
-| l      => (l, 0)
+def getOffsetAux : Level → Nat → Nat
+| succ l, r => getOffsetAux l (r+1)
+| l,      r => r
+
+def getOffset (lvl : Level) : Nat :=
+ getOffsetAux lvl 0
+
+def getLevelOffset : Level → Level
+| succ l => getLevelOffset l
+| l      => l
+
+def toNat (lvl : Level) : Option Nat :=
+match lvl.getLevelOffset with
+| zero => lvl.getOffset
+| _    => none
+
+def getDepth : Level → Nat
+| succ l     => getDepth l + 1
+| max l₁ l₂  => (Nat.max (getDepth l₁) (getDepth l₂)) + 1
+| imax l₁ l₂ => (Nat.max (getDepth l₁) (getDepth l₂)) + 1
+| _          => 0
 
 def instantiate (s : Name → Option Level) : Level → Level
 | zero        => zero
@@ -124,6 +149,115 @@ instance : HasBeq Level := ⟨Level.beq⟩
    TODO: implement in Lean. -/
 @[extern "lean_level_eqv"]
 constant isEquiv (a : @& Level) (b : @& Level) : Bool := default _
+
+/-- `occurs u l` return `true` iff `u` occurs in `l`. -/
+def occurs : Level → Level → Bool
+| u, l@(succ l₁)     => u == l || occurs u l₁
+| u, l@(max l₁ l₂)   => u == l || occurs u l₁ || occurs u l₂
+| u, l@(imax l₁ l₂)  => u == l || occurs u l₁ || occurs u l₂
+| u, l               => u == l
+
+def ctorToNat : Level → Nat
+| zero     => 0
+| param _  => 1
+| mvar _   => 2
+| succ _   => 3
+| max _ _  => 4
+| imax _ _ => 5
+
+/- TODO: use well founded recursion. -/
+partial def normLtAux : Level → Nat → Level → Nat → Bool
+| succ l₁, k₁, l₂, k₂ => normLtAux l₁ (k₁+1) l₂ k₂
+| l₁, k₁, succ l₂, k₂ => normLtAux l₁ k₁ l₂ (k₂+1)
+| l₁@(max l₁₁ l₁₂), k₁, l₂@(max l₂₁ l₂₂), k₂ =>
+  if l₁ == l₂ then k₁ < k₂
+  else if l₁₁ == l₂₁ then normLtAux l₁₁ 0 l₂₁ 0
+  else normLtAux l₁₂ 0 l₂₂ 0
+| l₁@(imax l₁₁ l₁₂), k₁, l₂@(imax l₂₁ l₂₂), k₂ =>
+  if l₁ == l₂ then k₁ < k₂
+  else if l₁₁ == l₂₁ then normLtAux l₁₁ 0 l₂₁ 0
+  else normLtAux l₁₂ 0 l₂₂ 0
+| param n₁, k₁, param n₂, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.lt n₁ n₂     -- use Name.lt because it is lexicographical
+| mvar n₁, k₁, mvar n₂, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.quickLt n₁ n₂  -- metavariables are temporary, the actual order doesn't matter
+| l₁, k₁, l₂, k₂ => if l₁ == l₂ then k₁ < k₂ else ctorToNat l₁ < ctorToNat l₂
+
+/--
+  A total order on level expressions that has the following properties
+  - `succ l` is an immediate successor of `l`.
+  - `zero` is the minimal element.
+ This total order is used in the normalization procedure. -/
+def normLt (l₁ l₂ : Level) : Bool :=
+normLtAux l₁ 0 l₂ 0
+
+private def isAlreadyNormalizedCheap : Level → Bool
+| zero    => true
+| param _ => true
+| mvar _  => true
+| succ l  => isAlreadyNormalizedCheap l
+| _       => false
+
+/- Auxiliary function used at `normalize` -/
+private def mkIMaxAux : Level → Level → Level
+| _,    zero => zero
+| zero, l₂   => l₂
+| l₁,   l₂   =>
+  if l₁ == l₂ then l₁
+  else imax l₁ l₂
+
+/- Auxiliary function used at `normalize` -/
+@[specialize] private partial def getMaxArgsAux (normalize : Level → Level) : Level → Bool → Array Level → Array Level
+| max l₁ l₂, alreadyNormalized, lvls => getMaxArgsAux l₂ alreadyNormalized (getMaxArgsAux l₁ alreadyNormalized lvls)
+| l,         false,             lvls => getMaxArgsAux (normalize l) true lvls
+| l,         true,              lvls => lvls.push l
+
+
+private def accMax (result : Level) (prev : Level) (offset : Nat) : Level :=
+if result.isZero then prev.addOffset offset
+else max result (prev.addOffset offset)
+
+/- Auxiliary function used at `normalize`.
+   Remarks:
+   - `lvls` are sorted using `normLt`
+   - `extraK` is the outter offset of the `max` term. We will push it inside.
+   - `i` is the current array index
+   - `prev + prevK` is the "previous" level that has not been added to `result` yet.
+   - `result` is the accumulator
+ -/
+private partial def mkMaxAux (lvls : Array Level) (extraK : Nat) : Nat → Level → Nat → Level → Level
+| i, prev, prevK, result =>
+  if h : i < lvls.size then
+    let lvl   := lvls.get ⟨i, h⟩;
+    let curr  := lvl.getLevelOffset;
+    let currK := lvl.getOffset;
+    if curr == prev then
+       mkMaxAux (i+1) curr currK result
+    else
+       mkMaxAux (i+1) curr currK (accMax result prev (extraK + prevK))
+  else
+    accMax result prev (extraK + prevK)
+
+partial def normalize : Level → Level
+| l =>
+  if isAlreadyNormalizedCheap l then l
+  else
+    let k := l.getOffset;
+    let u := l.getLevelOffset;
+    match u with
+    | max l₁ l₂  =>
+      let lvls  := getMaxArgsAux normalize l₁ false #[];
+      let lvls  := getMaxArgsAux normalize l₂ false lvls;
+      let lvls  := lvls.qsort normLt;
+      let lvl₁  := lvls.get! 0;
+      let prev  := lvl₁.getLevelOffset;
+      let prevK := lvl₁.getOffset;
+      mkMaxAux lvls k 1 prev prevK zero
+    | imax l₁ l₂ =>
+      if l₂.isNeverZero then addOffset (normalize (max l₁ l₂)) k
+      else
+        let l₁ := normalize l₁;
+        let l₂ := normalize l₂;
+        addOffset (mkIMaxAux l₁ l₂) k
+    | _ => unreachable!
 
 /- Level to Format -/
 namespace LevelToFormat

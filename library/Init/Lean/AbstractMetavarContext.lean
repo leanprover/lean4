@@ -131,6 +131,16 @@ variables {σ : Type} [AbstractMetavarContext σ]
 @[inline] def isExprAssigned (mctx : σ) (mvarId : Name) : Bool :=
 (getExprAssignment mctx mvarId).isSome
 
+/-- Return true iff the given level contains a non-readonly metavariable. -/
+def hasAssignableLevelMVar (mctx : σ) : Level → Bool
+| Level.succ lvl       => lvl.hasMVar && hasAssignableLevelMVar lvl
+| Level.max lvl₁ lvl₂  => (lvl₁.hasMVar && hasAssignableLevelMVar lvl₁) || (lvl₂.hasMVar && hasAssignableLevelMVar lvl₂)
+| Level.imax lvl₁ lvl₂ => (lvl₁.hasMVar && hasAssignableLevelMVar lvl₁) || (lvl₂.hasMVar && hasAssignableLevelMVar lvl₂)
+| Level.mvar mvarId    => !isReadOnlyLevelMVar mctx mvarId
+| Level.zero           => false
+| Level.param _        => false
+
+/-- Return true iff the given level contains an assigned metavariable. -/
 def hasAssignedLevelMVar (mctx : σ) : Level → Bool
 | Level.succ lvl       => lvl.hasMVar && hasAssignedLevelMVar lvl
 | Level.max lvl₁ lvl₂  => (lvl₁.hasMVar && hasAssignedLevelMVar lvl₁) || (lvl₂.hasMVar && hasAssignedLevelMVar lvl₂)

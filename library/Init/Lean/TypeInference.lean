@@ -51,8 +51,8 @@ inductive TypeInferenceException
 
 structure TypeInferenceContext :=
 (env            : Environment)
-(lctx           : LocalContext)
-(localInstances : LocalInstances)
+(lctx           : LocalContext        := {})
+(localInstances : LocalInstances      := #[])
 (config         : TypeInferenceConfig := {})
 
 structure PostponedEntry :=
@@ -64,14 +64,9 @@ structure PostponedEntry :=
 structure TypeInferenceState (σ ϕ : Type) :=
 (mctx           : σ)
 (cache          : ϕ)
-(ngen           : NameGenerator)
-(traceState     : TraceState)
-(usedAssignment : Bool := false)
+(ngen           : NameGenerator        := {})
+(traceState     : TraceState           := {})
 (postponed      : Array PostponedEntry := #[])
-
-instance TypeInferenceState.backtrackable {σ ϕ} : EState.Backtrackable σ (TypeInferenceState σ ϕ) :=
-{ save    := fun s => s.mctx,
-  restore := fun s mctx => { mctx := mctx, .. s } }
 
 /-- Type Context Monad -/
 abbrev TypeInferenceM (σ ϕ : Type) := ReaderT TypeInferenceContext (EState TypeInferenceException (TypeInferenceState σ ϕ))
@@ -134,14 +129,14 @@ do n ← mkFreshLevelMVar;
    let lhs := mkMaxArgsDiff mvarId v n;
    assignLevel mvarId lhs
 
-private def postponeIsLevelDefEq (postpone : Bool) (lhs : Level) (updateLhs : Bool) (rhs : Level) (updateRhs : Bool) : TypeInferenceM σ ϕ Bool :=
-if postpone then do
+private def postponeIsLevelDefEq (mayPostpone : Bool) (lhs : Level) (updateLhs : Bool) (rhs : Level) (updateRhs : Bool) : TypeInferenceM σ ϕ Bool :=
+if mayPostpone then do
   modify $ fun s => { postponed := s.postponed.push { lhs := lhs, updateLhs := updateLhs, rhs := rhs, updateRhs := updateRhs }, .. s };
   pure true
 else
   pure false
 
-private partial def isLevelDefEqAux [AbstractMetavarContext σ] (updateLhs updateRhs postpone : Bool) : Level → Level → TypeInferenceM σ ϕ Bool
+private partial def isLevelDefEqAux [AbstractMetavarContext σ] (updateLhs updateRhs mayPostpone : Bool) : Level → Level → TypeInferenceM σ ϕ Bool
 | Level.succ lhs, Level.succ rhs => isLevelDefEqAux lhs rhs
 | lhs, rhs =>
   if lhs == rhs then
@@ -177,9 +172,75 @@ private partial def isLevelDefEqAux [AbstractMetavarContext σ] (updateLhs updat
         if lhs.isSucc || rhs.isSucc then
           match lhs.dec, rhs.dec with
           | some lhs', some rhs' => isLevelDefEqAux lhs' rhs'
-          | _,         _         => postponeIsLevelDefEq postpone lhs updateLhs rhs updateRhs
+          | _,         _         => postponeIsLevelDefEq mayPostpone lhs updateLhs rhs updateRhs
         else
-          postponeIsLevelDefEq postpone lhs updateLhs rhs updateRhs
+          postponeIsLevelDefEq mayPostpone lhs updateLhs rhs updateRhs
+
+private def getNumPostponed : TypeInferenceM σ ϕ Nat :=
+do s ← get;
+   pure s.postponed.size
+
+private def getResetPostponed : TypeInferenceM σ ϕ (Array PostponedEntry) :=
+do s ← get;
+   let ps := s.postponed;
+   modify $ fun s => { postponed := #[], .. s };
+   pure ps
+
+private def processPostponedStep [AbstractMetavarContext σ] : TypeInferenceM σ ϕ Bool :=
+traceCtx `type_context.level_is_def_eq.postponed_step $ do
+  ps ← getResetPostponed;
+  ps.foldlM
+    (fun (r : Bool) (p : PostponedEntry) =>
+      if r then
+        isLevelDefEqAux true p.updateLhs p.updateRhs p.lhs p.rhs
+      else
+        pure false)
+    true
+
+private partial def processPostponedAux [AbstractMetavarContext σ] : Bool → TypeInferenceM σ ϕ Bool
+| mayPostpone => do
+  numPostponed ← getNumPostponed;
+  if numPostponed == 0 then
+    pure true
+  else do
+    trace! `type_context.level_is_def_eq ("processing #" ++ toString numPostponed ++ " postponed is-def-eq level constraints");
+    r ← processPostponedStep;
+    if !r then
+      pure r
+    else do
+      numPostponed' ← getNumPostponed;
+      if numPostponed' == 0 then
+        pure true
+      else if numPostponed' < numPostponed then
+        processPostponedAux mayPostpone
+      else do
+        trace! `type_context.level_is_def_eq ("no progress solving pending is-def-eq level constraints");
+        pure mayPostpone
+
+private def processPostponed [AbstractMetavarContext σ] (mayPostpone : Bool) : TypeInferenceM σ ϕ Bool :=
+do numPostponed ← getNumPostponed;
+   if numPostponed == 0 then pure true
+   else traceCtx `type_context.level_is_def_eq.postponed $ processPostponedAux mayPostpone
+
+@[inline] private def restoreIfFalse (x : TypeInferenceM σ ϕ Bool) : TypeInferenceM σ ϕ Bool :=
+do s ← get;
+   let mctx      := s.mctx;
+   let postponed := s.postponed;
+   catch
+     (do b ← x;
+       unless b $ modify $ fun s => { mctx := mctx, postponed := postponed, .. s };
+       pure b)
+     (fun e => do
+       modify $ fun s => { mctx := mctx, postponed := postponed, .. s };
+       throw e)
+
+/- Public interface -/
+
+def isLevelDefEq [AbstractMetavarContext σ] (u v : Level) (mayPostpone : Bool := false) : TypeInferenceM σ ϕ Bool :=
+restoreIfFalse $ do
+  r ← isLevelDefEqAux true true true u v;
+  if !r then pure false
+  else processPostponed false
 
 end TypeInference
 

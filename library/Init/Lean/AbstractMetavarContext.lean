@@ -165,10 +165,10 @@ def hasAssignedMVar (mctx : σ) : Expr → Bool
 | Expr.mvar mvarId     => isExprAssigned mctx mvarId
 
 partial def instantiateLevelMVars : Level → State σ Level
-| lvl@(Level.succ lvl₁)       => do lvl₁ ← instantiateLevelMVars lvl₁; pure (Level.updateSucc! lvl lvl₁)
-| lvl@(Level.max lvl₁ lvl₂)   => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateMax! lvl lvl₁ lvl₂)
-| lvl@(Level.imax lvl₁ lvl₂)  => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateIMax! lvl lvl₁ lvl₂)
-| lvl@(Level.mvar mvarId) => do
+| lvl@(Level.succ lvl₁)      => do lvl₁ ← instantiateLevelMVars lvl₁; pure (Level.updateSucc! lvl lvl₁)
+| lvl@(Level.max lvl₁ lvl₂)  => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateMax! lvl lvl₁ lvl₂)
+| lvl@(Level.imax lvl₁ lvl₂) => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateIMax! lvl lvl₁ lvl₂)
+| lvl@(Level.mvar mvarId)    => do
   mctx ← get;
   match getLevelAssignment mctx mvarId with
   | some newLvl =>

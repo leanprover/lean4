@@ -60,6 +60,8 @@ instance : HasAppend MessageData := ⟨compose⟩
 instance : HasFormat MessageData := ⟨fun d => formatAux none d⟩
 
 instance coeOfFormat : HasCoe Format MessageData := ⟨ofFormat⟩
+instance coeOfLevel  : HasCoe Level MessageData := ⟨ofLevel⟩
+instance coeOfExpr   : HasCoe Expr MessageData := ⟨ofExpr⟩
 
 end MessageData
 

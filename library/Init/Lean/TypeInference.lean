@@ -79,10 +79,99 @@ do ctx ← read; pure ctx.config.opts
 private def getTraceState : TypeInferenceM σ ϕ TraceState :=
 do s ← get; pure s.traceState
 
+private def getMCtx : TypeInferenceM σ ϕ σ :=
+do s ← get; pure s.mctx
+
 instance tracer : SimpleMonadTracerAdapter (TypeInferenceM σ ϕ) :=
 { getOptions       := getOptions,
   getTraceState    := getTraceState,
   modifyTraceState := fun f => modify $ fun s => { traceState := f s.traceState, .. s } }
+
+@[inline] private def liftStateMCtx {α} (x : State σ α) : TypeInferenceM σ ϕ α :=
+fun _ s =>
+  let (a, mctx) := x.run s.mctx;
+  EState.Result.ok a { mctx := mctx, .. s }
+
+private def instantiateLevelMVars [AbstractMetavarContext σ] (lvl : Level) : TypeInferenceM σ ϕ Level :=
+liftStateMCtx $ AbstractMetavarContext.instantiateLevelMVars lvl
+
+private def assignLevel [AbstractMetavarContext σ] (mvarId : Name) (lvl : Level) : TypeInferenceM σ ϕ Unit :=
+modify $ fun s => { mctx := AbstractMetavarContext.assignLevel s.mctx mvarId lvl, .. s }
+
+export AbstractMetavarContext (hasAssignableLevelMVar isReadOnlyLevelMVar auxMVarSupport)
+
+private def mkFreshLevelMVar [AbstractMetavarContext σ] : TypeInferenceM σ ϕ Level :=
+modifyGet $ fun s => (Level.mvar s.ngen.curr, { ngen := s.ngen.next, .. s })
+
+private def strictOccursMaxAux (lvl : Level) : Level → Bool
+| Level.max u v => strictOccursMaxAux u || strictOccursMaxAux v
+| u             => u != lvl && lvl.occurs u
+
+/--
+  Return true iff `lvl` occurs in `max u_1 ... u_n` and `lvl != u_i` for all `i in [1, n]`.
+  That is, `lvl` is a proper level subterm of some `u_i`. -/
+private def strictOccursMax (lvl : Level) : Level → Bool
+| Level.max u v => strictOccursMaxAux lvl u || strictOccursMaxAux lvl v
+| _             => false
+
+/-- `mkMaxArgsDiff mvarId (max u_1 ... (mvar mvarId) ... u_n) v` => `max v u_1 ... u_n` -/
+private def mkMaxArgsDiff (mvarId : Name) : Level → Level → Level
+| Level.max u v,     acc => mkMaxArgsDiff v $ mkMaxArgsDiff u acc
+| l@(Level.mvar id), acc => if id != mvarId then Level.max acc l else acc
+| l,                 acc => Level.max acc l
+
+/--
+  Solve `?m =?= max ?m v` by creating a fresh metavariable `?n`
+  and assigning `?m := max ?n v` -/
+private def solveSelfMax [AbstractMetavarContext σ] (mvarId : Name) (v : Level) : TypeInferenceM σ ϕ Unit :=
+do n ← mkFreshLevelMVar;
+   let lhs := mkMaxArgsDiff mvarId v n;
+   assignLevel mvarId lhs
+
+private def postponeIsLevelDefEq (u v : Level) : TypeInferenceM σ ϕ Unit :=
+modify $ fun s => { postponed := s.postponed.push (u, v), .. s }
+
+private partial def isLevelDefEqAux [AbstractMetavarContext σ] (updateLeft updateRight postpone : Bool) : Level → Level → TypeInferenceM σ ϕ Bool
+| Level.succ u, Level.succ v => isLevelDefEqAux u v
+| u, v =>
+  if u == v then
+    pure true
+  else do
+    trace! `type_context.level_is_def_eq (u ++ " =?= " ++ v);
+    u' ← instantiateLevelMVars u;
+    let u' := u'.normalize;
+    v' ← instantiateLevelMVars v;
+    let v' := v'.normalize;
+    if u != u' || v != v' then
+      isLevelDefEqAux u' v'
+    else do
+      mctx ← getMCtx;
+      if (!updateLeft  || !hasAssignableLevelMVar mctx u) &&
+         (!updateRight || !hasAssignableLevelMVar mctx v) then
+        pure false
+      else if updateLeft && u.isMVar && !isReadOnlyLevelMVar mctx u.mvarId! && !u.occurs v then do
+        assignLevel u.mvarId! v;
+        pure true
+      else if auxMVarSupport σ && updateLeft && u.isMVar && !isReadOnlyLevelMVar mctx u.mvarId! && !strictOccursMax u v then do
+        solveSelfMax u.mvarId! v;
+        pure true
+      else if updateRight && v.isMVar && !isReadOnlyLevelMVar mctx v.mvarId! && !v.occurs u then do
+        assignLevel v.mvarId! u;
+        pure true
+      else if auxMVarSupport σ && updateRight && v.isMVar && !isReadOnlyLevelMVar mctx v.mvarId! && !strictOccursMax v u then do
+        solveSelfMax v.mvarId! u;
+        pure true
+      else if u.isMVar || v.isMVar then
+        pure false
+      else
+        match u.dec, v.dec with
+        | some u₁, some v₁ => isLevelDefEqAux u₁ v₁
+        | _,       _       =>
+          if postpone then do
+            postponeIsLevelDefEq u v;
+            pure true
+          else
+            pure false
 
 end TypeInference
 

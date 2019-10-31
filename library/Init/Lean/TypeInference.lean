@@ -129,14 +129,10 @@ do n ← mkFreshLevelMVar;
    let lhs := mkMaxArgsDiff mvarId v n;
    assignLevel mvarId lhs
 
-private def postponeIsLevelDefEq (mayPostpone : Bool) (lhs : Level) (updateLhs : Bool) (rhs : Level) (updateRhs : Bool) : TypeInferenceM σ ϕ Bool :=
-if mayPostpone then do
-  modify $ fun s => { postponed := s.postponed.push { lhs := lhs, updateLhs := updateLhs, rhs := rhs, updateRhs := updateRhs }, .. s };
-  pure true
-else
-  pure false
+private def postponeIsLevelDefEq (lhs : Level) (updateLhs : Bool) (rhs : Level) (updateRhs : Bool) : TypeInferenceM σ ϕ Unit :=
+modify $ fun s => { postponed := s.postponed.push { lhs := lhs, updateLhs := updateLhs, rhs := rhs, updateRhs := updateRhs }, .. s }
 
-private partial def isLevelDefEqAux [AbstractMetavarContext σ] (updateLhs updateRhs mayPostpone : Bool) : Level → Level → TypeInferenceM σ ϕ Bool
+private partial def isLevelDefEqAux [AbstractMetavarContext σ] (updateLhs updateRhs : Bool) : Level → Level → TypeInferenceM σ ϕ Bool
 | Level.succ lhs, Level.succ rhs => isLevelDefEqAux lhs rhs
 | lhs, rhs =>
   if lhs == rhs then
@@ -172,9 +168,12 @@ private partial def isLevelDefEqAux [AbstractMetavarContext σ] (updateLhs updat
         if lhs.isSucc || rhs.isSucc then
           match lhs.dec, rhs.dec with
           | some lhs', some rhs' => isLevelDefEqAux lhs' rhs'
-          | _,         _         => postponeIsLevelDefEq mayPostpone lhs updateLhs rhs updateRhs
-        else
-          postponeIsLevelDefEq mayPostpone lhs updateLhs rhs updateRhs
+          | _,         _         => do
+            postponeIsLevelDefEq lhs updateLhs rhs updateRhs;
+            pure true
+        else do
+          postponeIsLevelDefEq lhs updateLhs rhs updateRhs;
+          pure true
 
 private def getNumPostponed : TypeInferenceM σ ϕ Nat :=
 do s ← get;
@@ -192,7 +191,7 @@ traceCtx `type_context.level_is_def_eq.postponed_step $ do
   ps.foldlM
     (fun (r : Bool) (p : PostponedEntry) =>
       if r then
-        isLevelDefEqAux true p.updateLhs p.updateRhs p.lhs p.rhs
+        isLevelDefEqAux p.updateLhs p.updateRhs p.lhs p.rhs
       else
         pure false)
     true
@@ -238,9 +237,9 @@ do s ← get;
 
 def isLevelDefEq [AbstractMetavarContext σ] (u v : Level) (mayPostpone : Bool := false) : TypeInferenceM σ ϕ Bool :=
 restoreIfFalse $ do
-  r ← isLevelDefEqAux true true true u v;
+  r ← isLevelDefEqAux true true u v;
   if !r then pure false
-  else processPostponed false
+  else processPostponed mayPostpone
 
 end TypeInference
 

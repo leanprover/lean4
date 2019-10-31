@@ -62,6 +62,10 @@ def isMVar : Level → Bool
 | mvar _ => true
 | _      => false
 
+def mvarId! : Level → Name
+| mvar mvarId => mvarId
+| _           => panic! "metavariable expected"
+
 /-- If result is true, then forall assignments `A` which assigns all parameters and metavariables occuring
     in `l`, `l[A] != zero` -/
 def isNeverZero : Level → Bool
@@ -263,6 +267,17 @@ partial def normalize : Level → Level
    Check is currently incomplete. -/
 def isEquiv (u v : Level) : Bool :=
 u == v || u.normalize == v.normalize
+
+/-- Reduce (if possible) universe level by 1 -/
+def dec : Level → Option Level
+| zero       => none
+| param _    => none
+| mvar _     => none
+| succ l     => l
+| max l₁ l₂  => max <$> dec l₁ <*> dec l₂
+/- Remark: `max` in the following line is not a typo.
+   If `dec l₂` succeeds, then `imax l₁ l₂` is equivalent to `max l₁ l₂`. -/
+| imax l₁ l₂ => max <$> dec l₁ <*> dec l₂
 
 /- Level to Format -/
 namespace LevelToFormat

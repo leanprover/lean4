@@ -169,16 +169,8 @@ export AbstractMetavarContext (hasAssignableLevelMVar isReadOnlyLevelMVar auxMVa
       env ← getEnv;
       matchConst env f' done $ fun cinfo lvls =>
         match cinfo with
-        | ConstantInfo.recInfo rec => do
-          r ← reduceRecAux whnf inferType isDefEq env rec lvls e.getAppArgs;
-          match r with
-          | some newE => whnfCore newE
-          | none      => done ()
-        | ConstantInfo.quotInfo rec => do
-          r ← reduceQuotRecAux whnf env rec lvls e.getAppArgs;
-          match r with
-          | some newE => whnfCore newE
-          | none      => done ()
+        | ConstantInfo.recInfo rec  => reduceRecAux whnf inferType isDefEq env rec lvls e.getAppArgs done whnfCore
+        | ConstantInfo.quotInfo rec => reduceQuotRecAux whnf env rec lvls e.getAppArgs done whnfCore
         | _ =>
          -- TODO: auxiliary recursors
          done ()
@@ -187,7 +179,7 @@ export AbstractMetavarContext (hasAssignableLevelMVar isReadOnlyLevelMVar auxMVa
     let f := m.getAppFn;
     -- TODO check if `f` is constructor and reduce
     pure e
-  | _                     => unreachable!
+  | _ => unreachable!
 
 /- ===========================
    isDefEq for universe levels
@@ -330,8 +322,6 @@ do s ← get;
      (fun e => do
        modify $ fun s => { mctx := mctx, postponed := postponed, .. s };
        throw e)
-
-
 
 /- Public interface -/
 

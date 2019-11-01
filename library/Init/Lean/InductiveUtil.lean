@@ -53,12 +53,14 @@ do majorType ← inferType major;
        pure $ if defeq then newCtorApp else none
 
 /-- Auxiliary function for reducing recursor applications. -/
-@[specialize] def reduceRecAux {m : Type → Type} [Monad m]
+@[specialize] def reduceRecAux {α} {m : Type → Type} [Monad m]
     (whnf : Expr → m Expr)
     (inferType : Expr → m Expr)
     (isDefEq : Expr → Expr → m Bool)
     (env : Environment)
-    (rec : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) : m (Option Expr) :=
+    (rec : RecursorVal) (recLvls : List Level) (recArgs : Array Expr)
+    (failK : Unit → m α)
+    (successK : Expr → m α) : m α :=
 let majorIdx := rec.getMajorIdx;
 if h : majorIdx < recArgs.size then do
   let major := recArgs.get ⟨majorIdx, h⟩;
@@ -75,7 +77,7 @@ if h : majorIdx < recArgs.size then do
   | some rule =>
     let majorArgs := major.getAppArgs;
     if recLvls.length != rec.lparams.length then
-      pure none
+      failK ()
     else
       let rhs := rule.rhs.instantiateLevelParams rec.lparams recLvls;
       -- Apply parameters, motives and minor premises from recursor application.
@@ -86,31 +88,33 @@ if h : majorIdx < recArgs.size then do
       let nparams := majorArgs.size - rule.nfields;
       let rhs := mkAppRange rhs nparams majorArgs.size majorArgs;
       let rhs := mkAppRange rhs (majorIdx + 1) recArgs.size recArgs;
-      pure rhs
-  | none => pure none
+      successK rhs
+  | none => failK ()
 else
-  pure none
+  failK ()
 
 @[inline] private def matchRecApp {α} {m : Type → Type} [Monad m] (env : Environment)
-   (e : Expr) (k : RecursorVal → List Level → Array Expr → m (Option α)) : m (Option α) :=
-matchConst env e.getAppFn (fun _ => pure none) $ fun cinfo recLvls =>
+   (e : Expr) (failK : Unit → m α) (k : RecursorVal → List Level → Array Expr → m α) : m α :=
+matchConst env e.getAppFn failK $ fun cinfo recLvls =>
   match cinfo with
   | ConstantInfo.recInfo rec => k rec recLvls e.getAppArgs
-  | _ => pure none
+  | _ => failK ()
 
 /-- Reduce recursor applications. -/
-@[specialize] def reduceRec {m : Type → Type} [Monad m]
+@[specialize] def reduceRec {α} {m : Type → Type} [Monad m]
     (whnf : Expr → m Expr)
     (inferType : Expr → m Expr)
     (isDefEq : Expr → Expr → m Bool)
-    (env : Environment) (e : Expr) : m (Option Expr) :=
-matchRecApp env e $ reduceRecAux whnf inferType isDefEq env
+    (env : Environment) (e : Expr)
+    (failK : Unit → m α)
+    (successK : Expr → m α) : m α :=
+matchRecApp env e failK $ fun rec recLvls recArgs => reduceRecAux whnf inferType isDefEq env rec recLvls recArgs failK successK
 
 @[specialize] def isRecStuck {m : Type → Type} [Monad m]
     (whnf : Expr → m Expr)
     (isStuck : Expr → m (Option Expr))
     (env : Environment) (e : Expr) : m (Option Expr) :=
-matchRecApp env e $ fun rec recLvls recArgs =>
+matchRecApp env e (fun _ => pure none) $ fun rec recLvls recArgs =>
   if rec.k then
     -- TODO: improve this case
     pure none

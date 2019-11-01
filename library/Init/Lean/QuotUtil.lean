@@ -9,11 +9,13 @@ import Init.Lean.Environment
 namespace Lean
 
 /-- Auxiliary function for reducing `Quot.lift` and `Quot.ind` applications. -/
-@[specialize] def reduceQuotRecAux {m : Type → Type} [Monad m]
+@[specialize] def reduceQuotRecAux {α} {m : Type → Type} [Monad m]
     (whnf : Expr → m Expr)
     (env : Environment)
-    (rec : QuotVal) (recLvls : List Level) (recArgs : Array Expr) : m (Option Expr) :=
-let process (majorPos argPos : Nat) : m (Option Expr) :=
+    (rec : QuotVal) (recLvls : List Level) (recArgs : Array Expr)
+    (failK : Unit → m α)
+    (successK : Expr → m α) : m α :=
+let process (majorPos argPos : Nat) : m α :=
   if h : majorPos < recArgs.size then do
     let major := recArgs.get ⟨majorPos, h⟩;
     major ← whnf major;
@@ -24,33 +26,35 @@ let process (majorPos argPos : Nat) : m (Option Expr) :=
         let f := recArgs.get! argPos;
         let r := Expr.app f majorArg;
         let recArity := majorPos + 1;
-        pure $ mkAppRange r recArity recArgs.size recArgs
-      | _ => pure none
-    | _ => pure none
+        successK $ mkAppRange r recArity recArgs.size recArgs
+      | _ => failK ()
+    | _ => failK ()
   else
-    pure none;
+    failK ();
 match rec.kind with
 | QuotKind.lift => process 5 3
 | QuotKind.ind  => process 4 3
-| _             => pure none
+| _             => failK ()
 
 @[inline] private def matchQuotRecApp {α} {m : Type → Type} [Monad m] (env : Environment)
-   (e : Expr) (k : QuotVal → List Level → Array Expr → m (Option α)) : m (Option α) :=
-matchConst env e.getAppFn (fun _ => pure none) $ fun cinfo recLvls =>
+   (e : Expr) (failK : Unit → m α) (k : QuotVal → List Level → Array Expr → m α) : m α :=
+matchConst env e.getAppFn failK $ fun cinfo recLvls =>
   match cinfo with
   | ConstantInfo.quotInfo rec => k rec recLvls e.getAppArgs
-  | _ => pure none
+  | _ => failK ()
 
-@[specialize] def reduceQuotRec {m : Type → Type} [Monad m]
+@[specialize] def reduceQuotRec {α} {m : Type → Type} [Monad m]
     (whnf : Expr → m Expr)
-    (env : Environment) (e : Expr) : m (Option Expr) :=
-matchQuotRecApp env e $ reduceQuotRecAux whnf env
+    (env : Environment) (e : Expr)
+    (failK : Unit → m α)
+    (successK : Expr → m α) : m α :=
+matchQuotRecApp env e failK $ fun rec recLvls recArg => reduceQuotRecAux whnf env rec recLvls recArg failK successK
 
 @[specialize] def isQuotRecStuck {m : Type → Type} [Monad m]
     (whnf : Expr → m Expr)
     (isStuck : Expr → m (Option Expr))
     (env : Environment) (e : Expr) : m (Option Expr) :=
-matchQuotRecApp env e $ fun rec recLvls recArgs =>
+matchQuotRecApp env e (fun _ => pure none) $ fun rec recLvls recArgs =>
   let process (majorPos : Nat) : m (Option Expr) :=
     if h : majorPos < recArgs.size then do
       let major := recArgs.get ⟨majorPos, h⟩;

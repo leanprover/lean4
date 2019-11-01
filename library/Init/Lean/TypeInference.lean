@@ -9,6 +9,8 @@ import Init.Lean.NameGenerator
 import Init.Lean.Environment
 import Init.Lean.AbstractMetavarContext
 import Init.Lean.Trace
+import Init.Lean.InductiveUtil
+import Init.Lean.QuotUtil
 
 /-
 This module provides three (mutually dependent) goodies:
@@ -82,6 +84,9 @@ do s ← get; pure s.traceState
 
 private def getMCtx : TypeInferenceM σ ϕ σ :=
 do s ← get; pure s.mctx
+
+private def getEnv : TypeInferenceM σ ϕ Environment :=
+do ctx ← read; pure ctx.env
 
 private def useZeta : TypeInferenceM σ ϕ Bool :=
 do ctx ← read; pure ctx.config.useZeta
@@ -158,12 +163,25 @@ export AbstractMetavarContext (hasAssignableLevelMVar isReadOnlyLevelMVar auxMVa
     if f'.isLambda then
       let revArgs := e.getAppRevArgs;
       whnfCore $ f.betaRev revArgs
-    else if f'.isConst then
-      pure e -- TODO reduce recursors
-    else if f == f' then
-      pure e
-    else
-      pure $ e.updateFn f'
+    else do
+      let done : Unit → TypeInferenceM σ ϕ Expr := fun _ =>
+        if f == f' then pure e else pure $ e.updateFn f';
+      env ← getEnv;
+      matchConst env f' done $ fun cinfo lvls =>
+        match cinfo with
+        | ConstantInfo.recInfo rec => do
+          r ← reduceRecAux whnf inferType isDefEq env rec lvls e.getAppArgs;
+          match r with
+          | some newE => whnfCore newE
+          | none      => done ()
+        | ConstantInfo.quotInfo rec => do
+          r ← reduceQuotRecAux whnf env rec lvls e.getAppArgs;
+          match r with
+          | some newE => whnfCore newE
+          | none      => done ()
+        | _ =>
+         -- TODO: auxiliary recursors
+         done ()
   | e@(Expr.proj _ i m) => do
     m ← whnf m;
     let f := m.getAppFn;

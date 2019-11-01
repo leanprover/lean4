@@ -543,4 +543,16 @@ do pExtDescrs ← persistentEnvExtensionsRef.get;
    pure ()
 
 end Environment
+
+/- Helper functions for accessing environment -/
+
+@[inline]
+def matchConst {α : Type} {m : Type → Type} [Monad m] (env : Environment) (e : Expr) (m₁ : Unit → m α) (m₂ : ConstantInfo → List Level → m α) : m α :=
+match e with
+| Expr.const n lvls =>
+  match env.find n with
+  | some cinfo => m₂ cinfo lvls
+  | _          => m₁ ()
+| _ => m₁ ()
+
 end Lean

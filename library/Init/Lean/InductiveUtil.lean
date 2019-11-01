@@ -91,14 +91,12 @@ if h : majorIdx < recArgs.size then do
 else
   pure none
 
-@[inline] private def withRec {α} {m : Type → Type} [Monad m] (env : Environment)
+@[inline] private def matchRecApp {α} {m : Type → Type} [Monad m] (env : Environment)
    (e : Expr) (k : RecursorVal → List Level → Array Expr → m (Option α)) : m (Option α) :=
-match e.getAppFn with
-| Expr.const recFn recLvls =>
-  match env.find recFn with
-  | some (ConstantInfo.recInfo rec) => k rec recLvls e.getAppArgs
+matchConst env e.getAppFn (fun _ => pure none) $ fun cinfo recLvls =>
+  match cinfo with
+  | ConstantInfo.recInfo rec => k rec recLvls e.getAppArgs
   | _ => pure none
-| _ => pure none
 
 /-- Reduce recursor applications. -/
 @[specialize] def reduceRec {m : Type → Type} [Monad m]
@@ -106,13 +104,13 @@ match e.getAppFn with
     (inferType : Expr → m Expr)
     (isDefEq : Expr → Expr → m Bool)
     (env : Environment) (e : Expr) : m (Option Expr) :=
-withRec env e $ reduceRecAux whnf inferType isDefEq env
+matchRecApp env e $ reduceRecAux whnf inferType isDefEq env
 
 @[specialize] def isRecStuck {m : Type → Type} [Monad m]
     (whnf : Expr → m Expr)
     (isStuck : Expr → m (Option Expr))
     (env : Environment) (e : Expr) : m (Option Expr) :=
-withRec env e $ fun rec recLvls recArgs =>
+matchRecApp env e $ fun rec recLvls recArgs =>
   if rec.k then
     -- TODO: improve this case
     pure none

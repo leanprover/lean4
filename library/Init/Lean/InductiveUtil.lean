@@ -91,4 +91,17 @@ if h : majorIdx < recArgs.size then do
 else
   pure none
 
+/-- Reduce recursor applications. -/
+@[specialize] def reduceRec {m : Type → Type} [Monad m]
+    (whnf : Expr → m Expr)
+    (inferType : Expr → m Expr)
+    (isDefEq : Expr → Expr → m Bool)
+    (env : Environment) (e : Expr) : m (Option Expr) :=
+match e.getAppFn with
+| Expr.const recFn recLvls =>
+  match env.find recFn with
+  | some (ConstantInfo.recInfo rec) => reduceRecAux whnf inferType isDefEq env rec recLvls e.getAppArgs
+  | _ => pure none
+| _ => pure none
+
 end Lean

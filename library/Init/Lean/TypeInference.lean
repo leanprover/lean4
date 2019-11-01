@@ -145,7 +145,7 @@ export AbstractMetavarContext (hasAssignableLevelMVar isReadOnlyLevelMVar auxMVa
 @[specialize] private partial def whnfCore
     [AbstractMetavarContext σ]
     (whnf : Expr → TypeInferenceM σ ϕ Expr)
-    (infer : Expr → TypeInferenceM σ ϕ Expr)
+    (inferType : Expr → TypeInferenceM σ ϕ Expr)
     (isDefEq : Expr → Expr → TypeInferenceM σ ϕ Bool)
     (reduceAuxRec : Bool) : Expr → TypeInferenceM σ ϕ Expr
 | e => whnfEasyCases e $ fun e =>

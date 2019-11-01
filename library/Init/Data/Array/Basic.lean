@@ -301,6 +301,9 @@ end
 @[inline] def any (a : Array α) (p : α → Bool) : Bool :=
 Id.run $ anyM a p
 
+@[inline] def anyFrom (a : Array α) (p : α → Bool) (init : Nat := 0) : Bool :=
+Id.run $ anyMAux a p init
+
 @[inline] def all (a : Array α) (p : α → Bool) : Bool :=
 !any a (fun v => !p v)
 

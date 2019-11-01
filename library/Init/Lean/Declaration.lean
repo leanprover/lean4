@@ -111,8 +111,14 @@ structure RecursorVal extends ConstantVal :=
 (k : Bool)                   -- It supports K-like reduction
 (isUnsafe : Bool)
 
-def RecursorVal.getMajorIdx (v : RecursorVal) : Nat :=
+namespace RecursorVal
+def getMajorIdx (v : RecursorVal) : Nat :=
 v.nparams + v.nmotives + v.nminors + v.nindices
+
+def getInduct (v : RecursorVal) : Name :=
+v.name.getPrefix
+
+end RecursorVal
 
 inductive QuotKind
 | type  -- `Quot`

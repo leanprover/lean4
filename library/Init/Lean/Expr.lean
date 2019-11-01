@@ -84,8 +84,15 @@ attribute [extern "lean_expr_mk_proj"]   Expr.proj
 @[extern "lean_expr_local"]
 constant Expr.local (n : Name) (pp : Name) (ty : Expr) (bi : BinderInfo) : Expr := default _
 
-def mkApp (fn : Expr) (args : Array Expr) : Expr :=
-args.foldl Expr.app fn
+def mkApp (f : Expr) (args : Array Expr) : Expr :=
+args.foldl Expr.app f
+
+private partial def mkAppRangeAux (n : Nat) (args : Array Expr) : Nat → Expr → Expr
+| i, e => if i < n then mkAppRangeAux (i+1) (Expr.app e (args.get! i)) else e
+
+/-- `mkAppRange f i j #[a_1, ..., a_i, ..., a_j, ... ]` ==> the expression `f a_i ... a_{j-1}` -/
+def mkAppRange (f : Expr) (i j : Nat) (args : Array Expr) : Expr :=
+mkAppRangeAux j args i f
 
 def mkCApp (fn : Name) (args : Array Expr) : Expr :=
 mkApp (Expr.const fn []) args
@@ -160,6 +167,10 @@ def isProj : Expr → Bool
 def isConst : Expr → Bool
 | const _ _ => true
 | _         => false
+
+def isConstOf : Expr → Name → Bool
+| const n _, m => n == m
+| _,         _ => false
 
 def isForall : Expr → Bool
 | forallE _ _ _ _ => true

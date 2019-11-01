@@ -83,6 +83,9 @@ do s ← get; pure s.traceState
 private def getMCtx : TypeInferenceM σ ϕ σ :=
 do s ← get; pure s.mctx
 
+private def useZeta : TypeInferenceM σ ϕ Bool :=
+do ctx ← read; pure ctx.config.useZeta
+
 instance tracer : SimpleMonadTracerAdapter (TypeInferenceM σ ϕ) :=
 { getOptions       := getOptions,
   getTraceState    := getTraceState,
@@ -93,13 +96,90 @@ fun _ s =>
   let (a, mctx) := x.run s.mctx;
   EState.Result.ok a { mctx := mctx, .. s }
 
+export AbstractMetavarContext (hasAssignableLevelMVar isReadOnlyLevelMVar auxMVarSupport getExprAssignment)
+
+/- ===========================
+   Weak Head Normal Form
+   =========================== -/
+
+/-- Auxiliary combinator for handling easy WHNF cases. It takes a function for handling the "hard" cases as an argument -/
+@[specialize] private partial def whnfEasyCases [AbstractMetavarContext σ] : Expr → (Expr → TypeInferenceM σ ϕ Expr) → TypeInferenceM σ ϕ Expr
+| e@(Expr.forallE _ _ _ _), _ => pure e
+| e@(Expr.lam _ _ _ _),     _ => pure e
+| e@(Expr.sort _),          _ => pure e
+| e@(Expr.lit _),           _ => pure e
+| e@(Expr.bvar _),          _ => unreachable!
+| Expr.mdata _ e,           k => whnfEasyCases e k
+| e@(Expr.letE _ _ _ _),    k => do
+  c ← useZeta;
+  if c then k e else pure e
+| e@(Expr.fvar fvarId),     k => do
+  ctx ← read;
+  let ldecl := (ctx.lctx.find fvarId).get!;
+  match ldecl.valueOpt with
+  | none   => pure e
+  | some v => do
+    c ← useZeta;
+    if c then
+      whnfEasyCases v k
+    else
+      pure e
+| e@(Expr.mvar mvarId),     k => do
+  mctx ← getMCtx;
+  match getExprAssignment mctx mvarId with
+  | some v => whnfEasyCases v k
+  | none   => pure e
+| e@(Expr.const _ _),       k => k e
+| e@(Expr.app _ _),         k => k e
+| e@(Expr.proj _ _ _),      k => k e
+
+/--
+  Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
+  expand let-expressions, expand assigned meta-variables.
+
+  This method does *not* apply delta-reduction at the head.
+  Reason: we want to perform these reductions lazily at isDefEq.
+
+  Remark: this method delta-reduce (transparent) aux-recursors (e.g., casesOn, recOon) IF
+  `reduceAuxRec == true` -/
+@[specialize] private partial def whnfCore
+    [AbstractMetavarContext σ]
+    (whnf : Expr → TypeInferenceM σ ϕ Expr)
+    (infer : Expr → TypeInferenceM σ ϕ Expr)
+    (isDefEq : Expr → Expr → TypeInferenceM σ ϕ Bool)
+    (reduceAuxRec : Bool) : Expr → TypeInferenceM σ ϕ Expr
+| e => whnfEasyCases e $ fun e =>
+  match e with
+  | e@(Expr.const _ _)    => pure e
+  | e@(Expr.letE _ _ v b) => whnfCore $ b.instantiate1 v
+  | e@(Expr.app f _)      => do
+    let f := f.getAppFn;
+    f' ← whnfCore f;
+    if f'.isLambda then
+      let revArgs := e.getAppRevArgs;
+      whnfCore $ f.betaRev revArgs
+    else if f'.isConst then
+      pure e -- TODO reduce recursors
+    else if f == f' then
+      pure e
+    else
+      pure $ e.updateFn f'
+  | e@(Expr.proj _ i m) => do
+    m ← whnf m;
+    let f := m.getAppFn;
+    -- TODO check if `f` is constructor and reduce
+    pure e
+  | _                     => unreachable!
+
+/- ===========================
+   isDefEq for universe levels
+   =========================== -/
+
 private def instantiateLevelMVars [AbstractMetavarContext σ] (lvl : Level) : TypeInferenceM σ ϕ Level :=
 liftStateMCtx $ AbstractMetavarContext.instantiateLevelMVars lvl
 
 private def assignLevel [AbstractMetavarContext σ] (mvarId : Name) (lvl : Level) : TypeInferenceM σ ϕ Unit :=
 modify $ fun s => { mctx := AbstractMetavarContext.assignLevel s.mctx mvarId lvl, .. s }
-
-export AbstractMetavarContext (hasAssignableLevelMVar isReadOnlyLevelMVar auxMVarSupport)
 
 private def mkFreshLevelMVar [AbstractMetavarContext σ] : TypeInferenceM σ ϕ Level :=
 modifyGet $ fun s => (Level.mvar s.ngen.curr, { ngen := s.ngen.next, .. s })
@@ -232,6 +312,8 @@ do s ← get;
      (fun e => do
        modify $ fun s => { mctx := mctx, postponed := postponed, .. s };
        throw e)
+
+
 
 /- Public interface -/
 

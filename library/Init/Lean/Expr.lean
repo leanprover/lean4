@@ -483,5 +483,9 @@ match e with
 | letE n t v b => updateLet (letE n t v b) newType newVal newBody rfl
 | _            => panic! "let expression expected"
 
+def updateFn : Expr → Expr → Expr
+| app f a, g => app (updateFn f g) a
+| _,       g => g
+
 end Expr
 end Lean

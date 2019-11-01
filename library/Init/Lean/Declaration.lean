@@ -106,10 +106,13 @@ structure RecursorVal extends ConstantVal :=
 (nparams : Nat)              -- Number of parameters
 (nindices : Nat)             -- Number of indices
 (nmotives : Nat)             -- Number of motives
-(nminor : Nat)               -- Number of minor premises
+(nminors : Nat)              -- Number of minor premises
 (rules : List RecursorRule)  -- A reduction for each Constructor
 (k : Bool)                   -- It supports K-like reduction
 (isUnsafe : Bool)
+
+def RecursorVal.getMajorIdx (v : RecursorVal) : Nat :=
+v.nparams + v.nmotives + v.nminors + v.nindices
 
 inductive QuotKind
 | type  -- `Quot`

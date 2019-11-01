@@ -208,7 +208,7 @@ do lookupStatus ← get >>= λ ϕ => pure $ ϕ.env.find instName;
                               ⟨uMeta::uMetas, ctx⟩)
                             ([], ctx);
      let instVal          := Expr.const instName uMetas;
-     let instType      := cInfo.instantiateTypeUnivParams uMetas;
+     let instType      := cInfo.instantiateTypeLevelParams uMetas;
      pure ⟨⟨instVal, instType⟩, ctx⟩
 
 def generate : TCMethod Unit :=
@@ -282,7 +282,7 @@ else
     let fType :=
       match env.find f.constName! with
       | none => panic! "found constant not in the environment"
-      | some cInfo => cInfo.instantiateTypeUnivParams CLevels.toList;
+      | some cInfo => cInfo.instantiateTypeLevelParams CLevels.toList;
     let (ctx, eReplacements, fArgs) := collectEReplacements env lctx locals fType fArgs.toList ctx #[] #[]; -- TODO: avoid fArgs.toList
     (ctx, lctx.mkForall locals $ mkApp f fArgs, uReplacements, eReplacements)
 

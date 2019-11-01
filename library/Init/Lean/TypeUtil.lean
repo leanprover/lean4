@@ -34,28 +34,28 @@ structure UnifierConfig :=
 (ctxApprox          : Bool := false)
 (quasiPatternApprox : Bool := false)
 
-structure TypeInferenceConfig :=
+structure TypeUtilConfig :=
 (opts           : Options          := {})
 (unifierConfig  : UnifierConfig    := {})
 (transparency   : TransparencyMode := TransparencyMode.Semireducible)
 (smartUnfolding : Bool             := true)
 (useZeta        : Bool             := true)
 
-/- Abstract cache interfact for `TypeInference` functions.
+/- Abstract cache interfact for `TypeUtil` functions.
    TODO: add missing methods. -/
-class AbstractTypeInferenceCache (ϕ : Type) :=
+class AbstractTypeUtilCache (ϕ : Type) :=
 (getWHNF : ϕ → TransparencyMode → Expr → Option Expr)
 (setWHNF : ϕ → TransparencyMode → Expr → Expr → ϕ)
 
 -- TODO: add special cases
-inductive TypeInferenceException
-| other : String → TypeInferenceException
+inductive TypeUtilException
+| other : String → TypeUtilException
 
-structure TypeInferenceContext :=
+structure TypeUtilContext :=
 (env            : Environment)
 (lctx           : LocalContext        := {})
 (localInstances : LocalInstances      := #[])
-(config         : TypeInferenceConfig := {})
+(config         : TypeUtilConfig := {})
 
 structure PostponedEntry :=
 (lhs       : Level)
@@ -63,7 +63,7 @@ structure PostponedEntry :=
 (rhs       : Level)
 (updateRhs : Bool)
 
-structure TypeInferenceState (σ ϕ : Type) :=
+structure TypeUtilState (σ ϕ : Type) :=
 (mctx           : σ)
 (cache          : ϕ)
 (ngen           : NameGenerator        := {})
@@ -71,32 +71,32 @@ structure TypeInferenceState (σ ϕ : Type) :=
 (postponed      : Array PostponedEntry := #[])
 
 /-- Type Context Monad -/
-abbrev TypeInferenceM (σ ϕ : Type) := ReaderT TypeInferenceContext (EState TypeInferenceException (TypeInferenceState σ ϕ))
+abbrev TypeUtilM (σ ϕ : Type) := ReaderT TypeUtilContext (EState TypeUtilException (TypeUtilState σ ϕ))
 
-namespace TypeInference
+namespace TypeUtil
 variables {σ ϕ : Type}
 
-private def getOptions : TypeInferenceM σ ϕ Options :=
+private def getOptions : TypeUtilM σ ϕ Options :=
 do ctx ← read; pure ctx.config.opts
 
-private def getTraceState : TypeInferenceM σ ϕ TraceState :=
+private def getTraceState : TypeUtilM σ ϕ TraceState :=
 do s ← get; pure s.traceState
 
-private def getMCtx : TypeInferenceM σ ϕ σ :=
+private def getMCtx : TypeUtilM σ ϕ σ :=
 do s ← get; pure s.mctx
 
-private def getEnv : TypeInferenceM σ ϕ Environment :=
+private def getEnv : TypeUtilM σ ϕ Environment :=
 do ctx ← read; pure ctx.env
 
-private def useZeta : TypeInferenceM σ ϕ Bool :=
+private def useZeta : TypeUtilM σ ϕ Bool :=
 do ctx ← read; pure ctx.config.useZeta
 
-instance tracer : SimpleMonadTracerAdapter (TypeInferenceM σ ϕ) :=
+instance tracer : SimpleMonadTracerAdapter (TypeUtilM σ ϕ) :=
 { getOptions       := getOptions,
   getTraceState    := getTraceState,
   modifyTraceState := fun f => modify $ fun s => { traceState := f s.traceState, .. s } }
 
-@[inline] private def liftStateMCtx {α} (x : State σ α) : TypeInferenceM σ ϕ α :=
+@[inline] private def liftStateMCtx {α} (x : State σ α) : TypeUtilM σ ϕ α :=
 fun _ s =>
   let (a, mctx) := x.run s.mctx;
   EState.Result.ok a { mctx := mctx, .. s }
@@ -108,7 +108,7 @@ export AbstractMetavarContext (hasAssignableLevelMVar isReadOnlyLevelMVar auxMVa
    =========================== -/
 
 /-- Auxiliary combinator for handling easy WHNF cases. It takes a function for handling the "hard" cases as an argument -/
-@[specialize] private partial def whnfEasyCases [AbstractMetavarContext σ] : Expr → (Expr → TypeInferenceM σ ϕ Expr) → TypeInferenceM σ ϕ Expr
+@[specialize] private partial def whnfEasyCases [AbstractMetavarContext σ] : Expr → (Expr → TypeUtilM σ ϕ Expr) → TypeUtilM σ ϕ Expr
 | e@(Expr.forallE _ _ _ _), _ => pure e
 | e@(Expr.lam _ _ _ _),     _ => pure e
 | e@(Expr.sort _),          _ => pure e
@@ -149,10 +149,10 @@ export AbstractMetavarContext (hasAssignableLevelMVar isReadOnlyLevelMVar auxMVa
   `reduceAuxRec == true` -/
 @[specialize] private partial def whnfCore
     [AbstractMetavarContext σ]
-    (whnf : Expr → TypeInferenceM σ ϕ Expr)
-    (inferType : Expr → TypeInferenceM σ ϕ Expr)
-    (isDefEq : Expr → Expr → TypeInferenceM σ ϕ Bool)
-    (reduceAuxRec : Bool) : Expr → TypeInferenceM σ ϕ Expr
+    (whnf : Expr → TypeUtilM σ ϕ Expr)
+    (inferType : Expr → TypeUtilM σ ϕ Expr)
+    (isDefEq : Expr → Expr → TypeUtilM σ ϕ Bool)
+    (reduceAuxRec : Bool) : Expr → TypeUtilM σ ϕ Expr
 | e => whnfEasyCases e $ fun e =>
   match e with
   | e@(Expr.const _ _)    => pure e
@@ -164,7 +164,7 @@ export AbstractMetavarContext (hasAssignableLevelMVar isReadOnlyLevelMVar auxMVa
       let revArgs := e.getAppRevArgs;
       whnfCore $ f.betaRev revArgs
     else do
-      let done : Unit → TypeInferenceM σ ϕ Expr := fun _ =>
+      let done : Unit → TypeUtilM σ ϕ Expr := fun _ =>
         if f == f' then pure e else pure $ e.updateFn f';
       env ← getEnv;
       matchConst env f' done $ fun cinfo lvls =>
@@ -185,13 +185,13 @@ export AbstractMetavarContext (hasAssignableLevelMVar isReadOnlyLevelMVar auxMVa
    isDefEq for universe levels
    =========================== -/
 
-private def instantiateLevelMVars [AbstractMetavarContext σ] (lvl : Level) : TypeInferenceM σ ϕ Level :=
+private def instantiateLevelMVars [AbstractMetavarContext σ] (lvl : Level) : TypeUtilM σ ϕ Level :=
 liftStateMCtx $ AbstractMetavarContext.instantiateLevelMVars lvl
 
-private def assignLevel [AbstractMetavarContext σ] (mvarId : Name) (lvl : Level) : TypeInferenceM σ ϕ Unit :=
+private def assignLevel [AbstractMetavarContext σ] (mvarId : Name) (lvl : Level) : TypeUtilM σ ϕ Unit :=
 modify $ fun s => { mctx := AbstractMetavarContext.assignLevel s.mctx mvarId lvl, .. s }
 
-private def mkFreshLevelMVar [AbstractMetavarContext σ] : TypeInferenceM σ ϕ Level :=
+private def mkFreshLevelMVar [AbstractMetavarContext σ] : TypeUtilM σ ϕ Level :=
 modifyGet $ fun s => (Level.mvar s.ngen.curr, { ngen := s.ngen.next, .. s })
 
 private def strictOccursMaxAux (lvl : Level) : Level → Bool
@@ -214,15 +214,15 @@ private def mkMaxArgsDiff (mvarId : Name) : Level → Level → Level
 /--
   Solve `?m =?= max ?m v` by creating a fresh metavariable `?n`
   and assigning `?m := max ?n v` -/
-private def solveSelfMax [AbstractMetavarContext σ] (mvarId : Name) (v : Level) : TypeInferenceM σ ϕ Unit :=
+private def solveSelfMax [AbstractMetavarContext σ] (mvarId : Name) (v : Level) : TypeUtilM σ ϕ Unit :=
 do n ← mkFreshLevelMVar;
    let lhs := mkMaxArgsDiff mvarId v n;
    assignLevel mvarId lhs
 
-private def postponeIsLevelDefEq (lhs : Level) (updateLhs : Bool) (rhs : Level) (updateRhs : Bool) : TypeInferenceM σ ϕ Unit :=
+private def postponeIsLevelDefEq (lhs : Level) (updateLhs : Bool) (rhs : Level) (updateRhs : Bool) : TypeUtilM σ ϕ Unit :=
 modify $ fun s => { postponed := s.postponed.push { lhs := lhs, updateLhs := updateLhs, rhs := rhs, updateRhs := updateRhs }, .. s }
 
-private partial def isLevelDefEqAux [AbstractMetavarContext σ] (updateLhs updateRhs : Bool) : Level → Level → TypeInferenceM σ ϕ Bool
+private partial def isLevelDefEqAux [AbstractMetavarContext σ] (updateLhs updateRhs : Bool) : Level → Level → TypeUtilM σ ϕ Bool
 | Level.succ lhs, Level.succ rhs => isLevelDefEqAux lhs rhs
 | lhs, rhs =>
   if lhs == rhs then
@@ -265,17 +265,17 @@ private partial def isLevelDefEqAux [AbstractMetavarContext σ] (updateLhs updat
           postponeIsLevelDefEq lhs updateLhs rhs updateRhs;
           pure true
 
-private def getNumPostponed : TypeInferenceM σ ϕ Nat :=
+private def getNumPostponed : TypeUtilM σ ϕ Nat :=
 do s ← get;
    pure s.postponed.size
 
-private def getResetPostponed : TypeInferenceM σ ϕ (Array PostponedEntry) :=
+private def getResetPostponed : TypeUtilM σ ϕ (Array PostponedEntry) :=
 do s ← get;
    let ps := s.postponed;
    modify $ fun s => { postponed := #[], .. s };
    pure ps
 
-private def processPostponedStep [AbstractMetavarContext σ] : TypeInferenceM σ ϕ Bool :=
+private def processPostponedStep [AbstractMetavarContext σ] : TypeUtilM σ ϕ Bool :=
 traceCtx `type_context.level_is_def_eq.postponed_step $ do
   ps ← getResetPostponed;
   ps.foldlM
@@ -286,7 +286,7 @@ traceCtx `type_context.level_is_def_eq.postponed_step $ do
         pure false)
     true
 
-private partial def processPostponedAux [AbstractMetavarContext σ] : Bool → TypeInferenceM σ ϕ Bool
+private partial def processPostponedAux [AbstractMetavarContext σ] : Bool → TypeUtilM σ ϕ Bool
 | mayPostpone => do
   numPostponed ← getNumPostponed;
   if numPostponed == 0 then
@@ -306,12 +306,12 @@ private partial def processPostponedAux [AbstractMetavarContext σ] : Bool → T
         trace! `type_context.level_is_def_eq ("no progress solving pending is-def-eq level constraints");
         pure mayPostpone
 
-private def processPostponed [AbstractMetavarContext σ] (mayPostpone : Bool) : TypeInferenceM σ ϕ Bool :=
+private def processPostponed [AbstractMetavarContext σ] (mayPostpone : Bool) : TypeUtilM σ ϕ Bool :=
 do numPostponed ← getNumPostponed;
    if numPostponed == 0 then pure true
    else traceCtx `type_context.level_is_def_eq.postponed $ processPostponedAux mayPostpone
 
-@[inline] private def restoreIfFalse (x : TypeInferenceM σ ϕ Bool) : TypeInferenceM σ ϕ Bool :=
+@[inline] private def restoreIfFalse (x : TypeUtilM σ ϕ Bool) : TypeUtilM σ ϕ Bool :=
 do s ← get;
    let mctx      := s.mctx;
    let postponed := s.postponed;
@@ -325,18 +325,18 @@ do s ← get;
 
 /- Public interface -/
 
-def isLevelDefEq [AbstractMetavarContext σ] (u v : Level) (mayPostpone : Bool := false) : TypeInferenceM σ ϕ Bool :=
+def isLevelDefEq [AbstractMetavarContext σ] (u v : Level) (mayPostpone : Bool := false) : TypeUtilM σ ϕ Bool :=
 restoreIfFalse $ do
   r ← isLevelDefEqAux true true u v;
   if !r then pure false
   else processPostponed mayPostpone
 
-end TypeInference
+end TypeUtil
 
-inductive TypeInferenceNoCache
+inductive TypeUtilNoCache
 | mk
 
-instance typeContextNoCacheIsAbstractTCCache : AbstractTypeInferenceCache TypeInferenceNoCache :=
+instance typeContextNoCacheIsAbstractTCCache : AbstractTypeUtilCache TypeUtilNoCache :=
 { getWHNF := fun _ _ _ => none,
   setWHNF := fun s _ _ _ => s }
 

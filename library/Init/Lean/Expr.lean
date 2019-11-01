@@ -295,6 +295,9 @@ constant abstract (e : @& Expr) (xs : @& Array Expr) : Expr := default _
 @[extern "lean_expr_abstract_range"]
 constant abstractRange (e : @& Expr) (n : @& Nat) (xs : @& Array Expr) : Expr := default _
 
+@[extern "lean_instantiate_lparams"]
+constant instantiateLevelParams (e : Expr) (paramNames : List Name) (lvls : List Level) : Expr := default _
+
 instance : HasToString Expr :=
 ⟨Expr.dbgToString⟩
 

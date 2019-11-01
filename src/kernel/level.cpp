@@ -444,9 +444,12 @@ level instantiate(level const & l, names const & ps, levels const & ls) {
                 return some_level(l);
             } else if (is_param(l)) {
                 name const & id = param_id(l);
-                names const *it1 = &ps;
-                levels const * it2 = &ls;
-                while (!is_nil(*it1)) {
+                names const *it1  = &ps;
+                levels const *it2 = &ls;
+                /* The assertion above ensures that !is_nil(*it2) is unnecessay, but we
+                   we keep it here to ensure the lean_instantiate_lparams does not crash
+                   at runtime when misused. */
+                while (!is_nil(*it1) && !is_nil(*it2)) {
                     if (head(*it1) == id)
                         return some_level(head(*it2));
                     it1 = &tail(*it1);

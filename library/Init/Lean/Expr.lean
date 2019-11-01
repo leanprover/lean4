@@ -246,6 +246,14 @@ def isAppOfArity : Expr → Name → Nat → Bool
 | app f _,   n, a+1 => isAppOfArity f n a
 | _,         _, _   => false
 
+def appFn! : Expr → Expr
+| app f _ => f
+| _       => panic! "application expected"
+
+def appArg! : Expr → Expr
+| app _ a => a
+| _       => panic! "application expected"
+
 def constName! : Expr → Name
 | const n _ => n
 | _         => panic! "constant expected"

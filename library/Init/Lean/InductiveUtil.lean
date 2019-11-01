@@ -106,7 +106,7 @@ match e.getAppFn with
     (inferType : Expr → m Expr)
     (isDefEq : Expr → Expr → m Bool)
     (env : Environment) (e : Expr) : m (Option Expr) :=
-withRec env e $ fun rec recLvls recArgs => reduceRecAux whnf inferType isDefEq env rec recLvls recArgs
+withRec env e $ reduceRecAux whnf inferType isDefEq env
 
 @[specialize] def isRecStuck {m : Type → Type} [Monad m]
     (whnf : Expr → m Expr)

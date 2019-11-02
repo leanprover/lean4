@@ -327,6 +327,33 @@ PersistentEnvExtension.modifyState ext env (fun ⟨entries, s⟩ => (entries, f 
 
 end SimplePersistentEnvExtension
 
+/-- Environment extension for tagging declarations.
+    Declarations must only be tagged in the module where they were declared. -/
+def TagDeclarationExtension := SimplePersistentEnvExtension Name NameSet
+
+def mkTagDeclarationExtension (name : Name) : IO TagDeclarationExtension :=
+registerSimplePersistentEnvExtension {
+  name          := name,
+  addImportedFn := fun as => {},
+  addEntryFn    := fun s n => s.insert n,
+  toArrayFn     := fun es => es.toArray.qsort Name.quickLt
+}
+
+namespace TagDeclarationExtension
+
+instance : Inhabited TagDeclarationExtension :=
+inferInstanceAs (Inhabited (SimplePersistentEnvExtension Name NameSet))
+
+def tag (ext : TagDeclarationExtension) (env : Environment) (n : Name) : Environment :=
+ext.addEntry env n
+
+def isTagged (ext : TagDeclarationExtension) (env : Environment) (n : Name) : Bool :=
+match env.getModuleIdxFor n with
+| some modIdx => (ext.getModuleEntries env modIdx).binSearchContains n Name.quickLt
+| none        => (ext.getState env).contains n
+
+end TagDeclarationExtension
+
 /- API for creating extensions in C++.
    This API will eventually be deleted. -/
 def CPPExtensionState := NonScalar

@@ -8,26 +8,19 @@ import Init.Lean.Environment
 
 namespace Lean
 
-def mkProtectedExtension : IO (SimplePersistentEnvExtension Name NameSet) :=
-registerSimplePersistentEnvExtension {
-  name          := `protected,
-  addImportedFn := fun as => {},
-  addEntryFn    := fun s n => s.insert n,
-  toArrayFn     := fun es => es.toArray.qsort Name.quickLt
-}
+def mkProtectedExtension : IO TagDeclarationExtension :=
+mkTagDeclarationExtension `protected
 
 @[init mkProtectedExtension]
-constant protectedExt : SimplePersistentEnvExtension Name NameSet := default _
+constant protectedExt : TagDeclarationExtension := default _
 
 @[export lean_add_protected]
 def addProtected (env : Environment) (n : Name) : Environment :=
-protectedExt.addEntry env n
+protectedExt.tag env n
 
 @[export lean_is_protected]
 def isProtected (env : Environment) (n : Name) : Bool :=
-match env.getModuleIdxFor n with
-| some modIdx => (protectedExt.getModuleEntries env modIdx).binSearchContains n Name.quickLt
-| none        => (protectedExt.getState env).contains n
+protectedExt.isTagged env n
 
 def mkPrivateExtension : IO (EnvExtension Nat) :=
 registerEnvExtension (pure 1)

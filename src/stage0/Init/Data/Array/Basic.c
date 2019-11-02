@@ -104,6 +104,7 @@ lean_object* l_Array_uset___boxed(lean_object*, lean_object*, lean_object*, lean
 lean_object* l_Array_findRevM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findIdxAux___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_anyMAux___main___at_Array_anyFrom___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toArrayAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Array_swapAt_x21___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_isEqv___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -172,6 +173,7 @@ lean_object* l_Array_findRevMAux___rarg___boxed(lean_object*, lean_object*, lean
 lean_object* l_Array_HasEmptyc(lean_object*);
 lean_object* l_Array_extractAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_redLength___main___rarg___boxed(lean_object*);
+lean_object* l_Array_anyFrom(lean_object*);
 lean_object* l_Array_mapIdx(lean_object*, lean_object*);
 lean_object* l_Array_toList___rarg(lean_object*);
 lean_object* l_Array_uget___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -256,6 +258,7 @@ lean_object* l_Array_iterateFrom(lean_object*, lean_object*);
 lean_object* l_Array_HasRepr___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Array_foldr(lean_object*, lean_object*);
 lean_object* l_Array_anyMAux___main(lean_object*, lean_object*);
+uint8_t l_Array_anyFrom___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findRevMAux___main___at_Array_findRev_x21___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_eraseIdxAux___main(lean_object*);
 extern lean_object* l_panicWithPos___rarg___closed__1;
@@ -272,6 +275,7 @@ lean_object* l_Array_anyMAux___main___at_Array_allM___spec__1___rarg(lean_object
 lean_object* l_Array_foldlM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEqv___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_map(lean_object*, lean_object*);
+lean_object* l_Array_anyMAux___main___at_Array_anyFrom___spec__1(lean_object*);
 lean_object* l_Array_foldlM___boxed(lean_object*, lean_object*);
 lean_object* l_Array_findRevMAux___main___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMAux___main___at_Array_any___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -293,6 +297,7 @@ lean_object* l_List_toArray(lean_object*);
 lean_object* l_Array_findRevMAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_reverseAux___main(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Array_append___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Array_anyMAux___main___at_Array_anyFrom___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findMAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___boxed(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Array_foldlM___spec__1___boxed(lean_object*, lean_object*);
@@ -337,6 +342,7 @@ lean_object* l_Array_findMAux___main___boxed(lean_object*, lean_object*);
 lean_object* lean_array_sz(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Array_iterateFrom___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Array_foldrM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_anyFrom___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_extractAux___main(lean_object*);
 lean_object* l_Array_foldlM_u2082___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateM_u2082Aux___main(lean_object*, lean_object*);
@@ -3407,6 +3413,91 @@ x_3 = l_Array_any___rarg(x_1, x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+uint8_t l_Array_anyMAux___main___at_Array_anyFrom___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_array_get_size(x_2);
+x_5 = lean_nat_dec_lt(x_3, x_4);
+lean_dec(x_4);
+if (x_5 == 0)
+{
+uint8_t x_6; 
+lean_dec(x_3);
+lean_dec(x_1);
+x_6 = 0;
+return x_6;
+}
+else
+{
+lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_7 = lean_array_fget(x_2, x_3);
+lean_inc(x_1);
+x_8 = lean_apply_1(x_1, x_7);
+x_9 = lean_unbox(x_8);
+lean_dec(x_8);
+if (x_9 == 0)
+{
+lean_object* x_10; lean_object* x_11; 
+x_10 = lean_unsigned_to_nat(1u);
+x_11 = lean_nat_add(x_3, x_10);
+lean_dec(x_3);
+x_3 = x_11;
+goto _start;
+}
+else
+{
+lean_dec(x_3);
+lean_dec(x_1);
+return x_9;
+}
+}
+}
+}
+lean_object* l_Array_anyMAux___main___at_Array_anyFrom___spec__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Array_anyMAux___main___at_Array_anyFrom___spec__1___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+uint8_t l_Array_anyFrom___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; 
+x_4 = l_Array_anyMAux___main___at_Array_anyFrom___spec__1___rarg(x_2, x_1, x_3);
+return x_4;
+}
+}
+lean_object* l_Array_anyFrom(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Array_anyFrom___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+lean_object* l_Array_anyMAux___main___at_Array_anyFrom___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Array_anyMAux___main___at_Array_anyFrom___spec__1___rarg(x_1, x_2, x_3);
+lean_dec(x_2);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
+lean_object* l_Array_anyFrom___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Array_anyFrom___rarg(x_1, x_2, x_3);
+lean_dec(x_1);
+x_5 = lean_box(x_4);
+return x_5;
 }
 }
 uint8_t l_Array_anyMAux___main___at_Array_all___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

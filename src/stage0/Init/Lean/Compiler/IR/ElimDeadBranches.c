@@ -185,6 +185,7 @@ lean_object* l_Array_iterateMAux___main___at_Lean_IR_UnreachableBranches_Value_f
 extern lean_object* l_Lean_IR_paramInh;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l_HashMapImp_expand___at_Lean_IR_UnreachableBranches_updateVarAssignment___spec__4(lean_object*, lean_object*);
+extern lean_object* l_Lean_regNamespacesExtension___closed__4;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_find___at_Lean_IR_UnreachableBranches_getFunctionSummary___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_IR_UnreachableBranches_interpExpr___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -318,7 +319,6 @@ lean_object* l_PersistentHashMap_findAux___main___at_Lean_IR_UnreachableBranches
 lean_object* l_Lean_IR_UnreachableBranches_elimDead(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_IR_UnreachableBranches_mkFunctionSummariesExtension___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
-extern lean_object* l_Lean_regNamespacesExtension___closed__5;
 lean_object* l_Lean_IR_UnreachableBranches_updateVarAssignment___closed__1;
 lean_object* l_Lean_IR_UnreachableBranches_Value_format___main___closed__7;
 lean_object* l_List_foldl___main___at_Lean_IR_UnreachableBranches_Value_merge___main___spec__2(lean_object*, lean_object*);
@@ -3764,7 +3764,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_IR_UnreachableBranches_mkFunctionSummariesExtension___closed__2;
 x_2 = l_Lean_IR_UnreachableBranches_mkFunctionSummariesExtension___closed__4;
 x_3 = l_Lean_IR_UnreachableBranches_mkFunctionSummariesExtension___closed__3;
-x_4 = l_Lean_regNamespacesExtension___closed__5;
+x_4 = l_Lean_regNamespacesExtension___closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

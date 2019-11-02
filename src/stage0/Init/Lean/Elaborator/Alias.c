@@ -94,6 +94,7 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_HashMapImp_moveEntries___main___at_Lean_addAliasEntry___spec__15(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l___private_Init_Lean_Environment_8__persistentEnvExtensionsRef;
+extern lean_object* l_Lean_regNamespacesExtension___closed__4;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_mkAliasExtension___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_aliasExtension___elambda__2(lean_object*);
@@ -141,7 +142,6 @@ lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkAliasExtension___spec
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Lean_mkAliasExtension___lambda__1___boxed(lean_object*);
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
-extern lean_object* l_Lean_regNamespacesExtension___closed__5;
 lean_object* lean_io_ref_reset(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_find___at_Lean_addAliasEntry___spec__2___boxed(lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
@@ -2359,7 +2359,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_mkAliasExtension___closed__2;
 x_2 = l_Lean_mkAliasExtension___closed__3;
 x_3 = l_Lean_mkAliasExtension___closed__4;
-x_4 = l_Lean_regNamespacesExtension___closed__5;
+x_4 = l_Lean_regNamespacesExtension___closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

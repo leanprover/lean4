@@ -54,7 +54,6 @@ lean_object* l_Lean_TypeClass_Context_eInferIdx(lean_object*, lean_object*);
 size_t l_USize_sub(size_t, size_t);
 lean_object* l_Lean_TypeClass_Context_eShallowInstantiate(lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
-lean_object* l_panicWithPos___at_Lean_Expr_bindingDomain_x21___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_metaPrefix___closed__1;
 uint8_t l_Lean_TypeClass_Context_uFind(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
@@ -121,6 +120,7 @@ uint8_t l_List_foldr___main___at_Lean_TypeClass_Context_eHasTmpMVar___spec__1(ui
 lean_object* l_PersistentArray_getAux___main___at_Lean_TypeClass_Context_eInferIdx___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_slowWhnfApp___main___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_Expr_2__getAppArgsAux___main(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_uUnify(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_eUnify___main___closed__2;
@@ -145,7 +145,6 @@ lean_object* l_Lean_TypeClass_Context_eUnify(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_TypeClass_Context_eInfer___closed__1;
 lean_object* lean_level_mk_succ(lean_object*);
 lean_object* l_panic(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_Expr_1__getAppArgsAux___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_forMAux___main___at_Lean_TypeClass_Context_eUnify___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_eInstantiate___main(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_eAlphaNormalizeCore___main(lean_object*, lean_object*);
@@ -210,6 +209,7 @@ lean_object* lean_level_mk_max(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_uAssign___closed__1;
 lean_object* l_Lean_TypeClass_Context_uUnify___main___closed__5;
 uint8_t lean_expr_has_level_mvar(lean_object*);
+lean_object* l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* _init_l_Lean_TypeClass_Context_Inhabited___closed__1() {
 _start:
 {
@@ -738,7 +738,7 @@ x_4 = l_Lean_TypeClass_Context_eInfer___closed__1;
 x_5 = lean_unsigned_to_nat(71u);
 x_6 = lean_unsigned_to_nat(14u);
 x_7 = l_Lean_TypeClass_Context_eInfer___closed__2;
-x_8 = l_panicWithPos___at_Lean_Expr_bindingDomain_x21___spec__1(x_4, x_5, x_6, x_7);
+x_8 = l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(x_4, x_5, x_6, x_7);
 return x_8;
 }
 else
@@ -2597,7 +2597,7 @@ x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_sub(x_4, x_7);
 lean_dec(x_4);
 lean_inc(x_1);
-x_9 = l___private_Init_Lean_Expr_1__getAppArgsAux___main(x_1, x_6, x_8);
+x_9 = l___private_Init_Lean_Expr_2__getAppArgsAux___main(x_1, x_6, x_8);
 x_10 = l_Lean_Expr_getAppFn___main(x_1);
 lean_dec(x_1);
 x_11 = l_Lean_TypeClass_Context_slowWhnf___main(x_10);
@@ -3350,13 +3350,13 @@ x_98 = lean_unsigned_to_nat(1u);
 x_99 = lean_nat_sub(x_78, x_98);
 lean_dec(x_78);
 lean_inc(x_8);
-x_100 = l___private_Init_Lean_Expr_1__getAppArgsAux___main(x_8, x_97, x_99);
+x_100 = l___private_Init_Lean_Expr_2__getAppArgsAux___main(x_8, x_97, x_99);
 lean_inc(x_79);
 x_101 = lean_mk_array(x_79, x_96);
 x_102 = lean_nat_sub(x_79, x_98);
 lean_dec(x_79);
 lean_inc(x_12);
-x_103 = l___private_Init_Lean_Expr_1__getAppArgsAux___main(x_12, x_101, x_102);
+x_103 = l___private_Init_Lean_Expr_2__getAppArgsAux___main(x_12, x_101, x_102);
 x_104 = l_Lean_Expr_getAppFn___main(x_8);
 lean_dec(x_8);
 x_105 = l_Lean_Expr_getAppFn___main(x_12);

@@ -108,7 +108,6 @@ size_t l_USize_sub(size_t, size_t);
 lean_object* l_Array_iterateMAux___main___at_Lean_LocalContext_foldlFrom___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_findDeclM___at_Lean_LocalContext_findDecl___spec__1(lean_object*);
 lean_object* l_PersistentArray_anyM___at_Lean_LocalContext_anyM___spec__1___boxed(lean_object*);
-lean_object* l_panicWithPos___at_Lean_Expr_bindingDomain_x21___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findRevMAux___main___at_Lean_LocalContext_findDeclRevM___spec__4___boxed(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_LocalContext_foldlFrom___spec__10(lean_object*);
 lean_object* l_Array_anyMAux___main___at_Lean_LocalContext_allM___spec__3___boxed(lean_object*);
@@ -460,6 +459,7 @@ lean_object* l_Array_anyMAux___main___at_Lean_LocalContext_anyM___spec__4___rarg
 lean_object* l_Lean_LocalContext_foldlFromM___at_Lean_LocalContext_foldlFrom___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_findDeclRevM___at_Lean_LocalContext_findDeclRev___spec__1(lean_object*);
 lean_object* l_Array_anyMAux___main___at_Lean_LocalContext_anyM___spec__3(lean_object*);
+lean_object* l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* _init_l_Lean_LocalDecl_Inhabited___closed__1() {
 _start:
 {
@@ -665,7 +665,7 @@ x_2 = l_Lean_LocalDecl_value___closed__1;
 x_3 = lean_unsigned_to_nat(49u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_LocalDecl_value___closed__2;
-x_6 = l_panicWithPos___at_Lean_Expr_bindingDomain_x21___spec__1(x_2, x_3, x_4, x_5);
+x_6 = l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(x_2, x_3, x_4, x_5);
 return x_6;
 }
 else
@@ -6887,7 +6887,7 @@ x_13 = l_Lean_LocalDecl_value___closed__1;
 x_14 = lean_unsigned_to_nat(256u);
 x_15 = lean_unsigned_to_nat(12u);
 x_16 = l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
-x_17 = l_panicWithPos___at_Lean_Expr_bindingDomain_x21___spec__1(x_13, x_14, x_15, x_16);
+x_17 = l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(x_13, x_14, x_15, x_16);
 x_4 = x_9;
 x_5 = x_17;
 goto _start;
@@ -7013,7 +7013,7 @@ x_12 = l_Lean_LocalDecl_value___closed__1;
 x_13 = lean_unsigned_to_nat(256u);
 x_14 = lean_unsigned_to_nat(12u);
 x_15 = l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
-x_16 = l_panicWithPos___at_Lean_Expr_bindingDomain_x21___spec__1(x_12, x_13, x_14, x_15);
+x_16 = l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(x_12, x_13, x_14, x_15);
 x_3 = x_8;
 x_4 = x_16;
 goto _start;
@@ -7123,7 +7123,7 @@ x_12 = l_Lean_LocalDecl_value___closed__1;
 x_13 = lean_unsigned_to_nat(256u);
 x_14 = lean_unsigned_to_nat(12u);
 x_15 = l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
-x_16 = l_panicWithPos___at_Lean_Expr_bindingDomain_x21___spec__1(x_12, x_13, x_14, x_15);
+x_16 = l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(x_12, x_13, x_14, x_15);
 x_3 = x_8;
 x_4 = x_16;
 goto _start;

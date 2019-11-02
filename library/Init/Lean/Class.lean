@@ -104,7 +104,7 @@ partial def getClassName (env : Environment) : Expr → Option Name
 | e                    => do
   Expr.const c _ ← pure e.getAppFn | none;
   info ← env.find c;
-  match info.value with
+  match info.value? with
   | some val => do
     body ← consumeNLambdas e.getAppNumArgs val;
     getClassName body

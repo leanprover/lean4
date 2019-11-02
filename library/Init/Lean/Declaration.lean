@@ -161,7 +161,7 @@ d.toConstantVal.lparams
 def type (d : ConstantInfo) : Expr :=
 d.toConstantVal.type
 
-def value : ConstantInfo → Option Expr
+def value? : ConstantInfo → Option Expr
 | defnInfo {value := r, ..} => some r
 | thmInfo  {value := r, ..} => some r.get
 | _                         => none
@@ -170,6 +170,11 @@ def hasValue : ConstantInfo → Bool
 | defnInfo {value := r, ..} => true
 | thmInfo  {value := r, ..} => true
 | _                         => false
+
+def value! : ConstantInfo → Expr
+| defnInfo {value := r, ..} => r
+| thmInfo  {value := r, ..} => r.get
+| _                         => panic! "declaration with value expected"
 
 def hints : ConstantInfo → ReducibilityHints
 | defnInfo {hints := r, ..} => r

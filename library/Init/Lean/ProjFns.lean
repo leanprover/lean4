@@ -50,6 +50,8 @@ match env.getModuleIdxFor n with
 | some modIdx => (projectionFnInfoExt.getModuleEntries env modIdx).binSearchContains (n, default _) (fun a b => Name.quickLt a.1 b.1)
 | none        => (projectionFnInfoExt.getState env).contains n
 
+end Environment
+
 @[specialize] def reduceProjectionFnAux {α} {m : Type → Type} [Monad m]
     (whnf : Expr → m Expr)
     (env : Environment) (projInfo : ProjectionFunctionInfo) (projArgs : Array Expr)
@@ -74,9 +76,8 @@ else
     (failK : Unit → m α)
     (successK : Expr → m α) : m α :=
 matchConst env e.getAppFn failK $ fun cinfo _ =>
-  match getProjectionFnInfo env cinfo.name with
+  match env.getProjectionFnInfo cinfo.name with
   | some projInfo => reduceProjectionFnAux whnf env projInfo e.getAppArgs failK successK
   | none => failK ()
 
-end Environment
 end Lean

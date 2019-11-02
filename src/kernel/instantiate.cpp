@@ -268,7 +268,7 @@ MK_THREAD_LOCAL_GET(instantiate_univ_cache, get_value_univ_cache, LEAN_INST_UNIV
 
 expr instantiate_type_lparams(constant_info const & info, levels const & ls) {
     if (info.get_num_lparams() != length(ls))
-        lean_panic("#universes mismatch at instantiateTypeUnivParams");
+        lean_panic("#universes mismatch at instantiateTypeLevelParams");
     if (is_nil(ls) || !has_param_univ(info.get_type()))
         return info.get_type();
     instantiate_univ_cache & cache = get_type_univ_cache();
@@ -281,7 +281,9 @@ expr instantiate_type_lparams(constant_info const & info, levels const & ls) {
 
 expr instantiate_value_lparams(constant_info const & info, levels const & ls) {
     if (info.get_num_lparams() != length(ls))
-        lean_panic("#universes mismatch at instantiateValueUnivParams");
+        lean_panic("#universes mismatch at instantiateValueLevelParams");
+    if (!info.has_value())
+        lean_panic("definition/theorem expected at instantiateValueLevelParams");
     if (is_nil(ls) || !has_param_univ(info.get_value()))
         return info.get_value();
     instantiate_univ_cache & cache = get_value_univ_cache();
@@ -292,16 +294,12 @@ expr instantiate_value_lparams(constant_info const & info, levels const & ls) {
     return r;
 }
 
-extern "C" object * lean_instantiate_type_lparams(object * info0, object * ls0) {
-    constant_info const & a = reinterpret_cast<constant_info const &>(info0);
-    levels const & ls = reinterpret_cast<levels const &>(ls0);
-    return instantiate_type_lparams(a, ls).steal();
+extern "C" object * lean_instantiate_type_lparams(object * info, object * ls) {
+    return instantiate_type_lparams(TO_REF(constant_info, info), TO_REF(levels, ls)).steal();
 }
 
-extern "C" object * lean_instantiate_value_lparams(object * info0, object * ls0) {
-    constant_info const & a = reinterpret_cast<constant_info const &>(info0);
-    levels const & ls = reinterpret_cast<levels const &>(ls0);
-    return instantiate_value_lparams(a, ls).steal();
+extern "C" object * lean_instantiate_value_lparams(object * info, object * ls) {
+    return instantiate_value_lparams(TO_REF(constant_info, info), TO_REF(levels, ls)).steal();
 }
 
 void clear_instantiate_cache() {

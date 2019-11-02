@@ -11,6 +11,8 @@ import Init.Lean.AbstractMetavarContext
 import Init.Lean.Trace
 import Init.Lean.InductiveUtil
 import Init.Lean.QuotUtil
+import Init.Lean.AuxRecursor
+import Init.Lean.ProjFns
 
 /-
 This module provides three (mutually dependent) goodies:
@@ -138,6 +140,65 @@ export AbstractMetavarContext (hasAssignableLevelMVar isReadOnlyLevelMVar auxMVa
 | e@(Expr.app _ _),         k => k e
 | e@(Expr.proj _ _ _),      k => k e
 
+/-- Return true iff term is of the form `idRhs ...` -/
+private def isIdRhsApp (e : Expr) : Bool :=
+e.isAppOf `idRhs
+
+/-- (@idRhs T f a_1 ... a_n) ==> (f a_1 ... a_n) -/
+private def extractIdRhs (e : Expr) : Expr :=
+if !isIdRhsApp e then e
+else
+  let args := e.getAppArgs;
+  if args.size < 2 then e
+  else mkAppRange (args.get! 1) 2 args.size args
+
+private def deltaBetaDefinition {α} (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr) (failK : Unit → α) (successK : Expr → α) : α :=
+if c.lparams.length != lvls.length then failK ()
+else
+  let val := c.instantiateValueLevelParams lvls;
+  let val := val.betaRev revArgs;
+  successK (extractIdRhs val)
+
+private def reduceAuxRec
+    (whnf : Expr → TypeUtilM σ ϕ Expr)
+    (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr)
+    (failK : Unit → TypeUtilM σ ϕ Expr) (successK : Expr → TypeUtilM σ ϕ Expr) : TypeUtilM σ ϕ Expr :=
+deltaBetaDefinition c lvls revArgs failK $ fun e =>
+  /- Remark:
+
+     `brecOn ...` unfolds to a term of the form (PProd.fst (rec ...))
+     `whnfCore` does not unfold projection functions because of lazy delta reduction at `isDefEq`.
+     For example, when solving constraints such as `(PProd.fst ?m) =?= (PProd.fst (1, 2))`
+
+     That being said, we observed a negative performance impact on
+     constraints containing `brecOn` that come from the equation compiler.
+     For example, consider the following definition
+
+     ```
+     def nastySize : list nat → nat
+     | []      := 1000000
+     | (a::as) := nastySize as + 1000000
+     ```
+
+     We will get a constraint of the form
+     ```
+     (list.brecOn [] ...) =?= bit0 ...
+     ```
+     The isDefEq method reduces this constraint using whnfCore. So, we obtain
+     ```
+     PProd.fst ... =?= bit0 ...
+     ```
+     This constraint is then handled by isDefEqDelta, which decides to unfold `bit0` which is a poor decision.
+     The key problem here is that we morally did not reduce `brecOn`.
+     Thus, we fix the issue by reducing the projection function if the auxiliary recursor is a brecOn.
+     This fix is a little non modular because `brecOn` auxiliary recursors are defined in
+     a completely different module, and `TypeUtil` should not be aware of them. -/
+  match c.name with
+  | Name.mkString _ "brecOn" => do
+    env ← getEnv;
+    reduceProjectionFn whnf env e (fun _ => successK e) successK
+  | _ => successK e
+
 /--
   Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
   expand let-expressions, expand assigned meta-variables.
@@ -152,7 +213,7 @@ export AbstractMetavarContext (hasAssignableLevelMVar isReadOnlyLevelMVar auxMVa
     (whnf : Expr → TypeUtilM σ ϕ Expr)
     (inferType : Expr → TypeUtilM σ ϕ Expr)
     (isDefEq : Expr → Expr → TypeUtilM σ ϕ Bool)
-    (reduceAuxRec : Bool) : Expr → TypeUtilM σ ϕ Expr
+    (reduceAuxRec? : Bool) : Expr → TypeUtilM σ ϕ Expr
 | e => whnfEasyCases e $ fun e =>
   match e with
   | e@(Expr.const _ _)    => pure e
@@ -169,11 +230,14 @@ export AbstractMetavarContext (hasAssignableLevelMVar isReadOnlyLevelMVar auxMVa
       env ← getEnv;
       matchConst env f' done $ fun cinfo lvls =>
         match cinfo with
-        | ConstantInfo.recInfo rec  => reduceRecAux whnf inferType isDefEq env rec lvls e.getAppArgs done whnfCore
-        | ConstantInfo.quotInfo rec => reduceQuotRecAux whnf env rec lvls e.getAppArgs done whnfCore
-        | _ =>
-         -- TODO: auxiliary recursors
-         done ()
+        | ConstantInfo.recInfo rec    => reduceRecAux whnf inferType isDefEq env rec lvls e.getAppArgs done whnfCore
+        | ConstantInfo.quotInfo rec   => reduceQuotRecAux whnf env rec lvls e.getAppArgs done whnfCore
+        | c@(ConstantInfo.defnInfo _) =>
+          if reduceAuxRec? && isAuxRecursor env c.name then
+            reduceAuxRec whnf c lvls e.getAppRevArgs done whnfCore
+          else
+            done()
+        | _ => done ()
   | e@(Expr.proj _ i c) => do
     c   ← whnf c;
     env ← getEnv;

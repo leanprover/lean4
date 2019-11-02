@@ -174,11 +174,13 @@ export AbstractMetavarContext (hasAssignableLevelMVar isReadOnlyLevelMVar auxMVa
         | _ =>
          -- TODO: auxiliary recursors
          done ()
-  | e@(Expr.proj _ i m) => do
-    m ← whnf m;
-    let f := m.getAppFn;
-    -- TODO check if `f` is constructor and reduce
-    pure e
+  | e@(Expr.proj _ i c) => do
+    c   ← whnf c;
+    env ← getEnv;
+    matchConst env c.getAppFn (fun _ => pure e) $ fun cinfo lvls =>
+      match cinfo with
+      | ConstantInfo.ctorInfo ctorVal => pure $ c.getArgD (ctorVal.nparams + i) e
+      | _ => pure e
   | _ => unreachable!
 
 /- ===========================

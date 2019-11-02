@@ -24,3 +24,16 @@ do let l1 := Level.max (Level.param `a) (Level.param `b);
    pure ()
 
 #eval tst2
+
+def tst3 : IO Unit :=
+do let f   := Expr.const `f [];
+   let a   := Expr.const `a [];
+   let b   := Expr.const `b [];
+   let c   := Expr.const `c [];
+   let t   := mkApp f #[a, b, c];
+   IO.println $ t.getArg! 0;
+   IO.println $ t.getArg! 1;
+   IO.println $ t.getArg! 2;
+   pure ()
+
+#eval tst3

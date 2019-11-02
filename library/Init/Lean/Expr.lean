@@ -236,6 +236,22 @@ withAppAux k e (mkArray nargs dummy) (nargs-1)
 @[inline] def withAppRev {α} (e : Expr) (k : Expr → Array Expr → α) : α :=
 withAppRevAux k e (Array.mkEmpty e.getAppNumArgs)
 
+def getRevArgD : Expr → Nat → Expr → Expr
+| app f a, 0,   _ => a
+| app f _, i+1, v => getRevArgD f i v
+| _      , _,   v => v
+
+def getRevArg! : Expr → Nat → Expr
+| app f a, 0   => a
+| app f _, i+1 => getRevArg! f i
+| _      , _   => panic! "invalid index"
+
+@[inline] def getArg! (e : Expr) (i : Nat) (n := e.getAppNumArgs) : Expr :=
+getRevArg! e (n - i - 1)
+
+@[inline] def getArgD (e : Expr) (i : Nat) (v₀ : Expr) (n := e.getAppNumArgs) : Expr :=
+getRevArgD e (n - i - 1) v₀
+
 def isAppOf (e : Expr) (n : Name) : Bool :=
 match e.getAppFn with
 | const c _ => c == n

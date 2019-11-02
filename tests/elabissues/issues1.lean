@@ -5,14 +5,7 @@ f [1, 2, 3]  -- Works
 
 def ex2 : Bool :=
 let xs := [1, 2, 3];
-/- The following application fails.
-   In the Lean3 elaborator, the `;` after `have` and `let` expressions is a "check-point".
-   The elaborator will resolve type class instances and force pending numeral types to `Nat` if they
-   have not been assigned yet.
-   So, `xs` will have type `List Nat`.
-   Solution: remove "check-point" from `let`, but keep the one on `have`. We use `have` expressions
-   when proving, and it is nice to make sure the proposition does not have meta-variables before continuing. -/
-f xs
+f xs -- Works
 
 def ex3 : IO Bool :=
 do

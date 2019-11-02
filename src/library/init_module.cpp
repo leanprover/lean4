@@ -24,7 +24,6 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/pp_options.h"
 #include "library/user_recursors.h"
-#include "library/aux_recursors.h"
 #include "library/abstract_context_cache.h"
 #include "library/type_context.h"
 #include "library/local_context.h"
@@ -81,7 +80,6 @@ void initialize_library_module() {
     initialize_library_util();
     initialize_pp_options();
     initialize_user_recursors();
-    initialize_aux_recursors();
     initialize_app_builder();
     initialize_fun_info();
     initialize_abstract_context_cache();
@@ -97,7 +95,6 @@ void finalize_library_module() {
     finalize_abstract_context_cache();
     finalize_fun_info();
     finalize_app_builder();
-    finalize_aux_recursors();
     finalize_user_recursors();
     finalize_pp_options();
     finalize_library_util();

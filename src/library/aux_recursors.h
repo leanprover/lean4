@@ -16,7 +16,4 @@ environment add_no_confusion(environment const & env, name const & r);
     \see add_aux_recursor */
 bool is_aux_recursor(environment const & env, name const & n);
 bool is_no_confusion(environment const & env, name const & n);
-
-void initialize_aux_recursors();
-void finalize_aux_recursors();
 }

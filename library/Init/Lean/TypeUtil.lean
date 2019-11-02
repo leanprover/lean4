@@ -175,14 +175,14 @@ deltaBetaDefinition c lvls revArgs failK $ fun e =>
      For example, consider the following definition
 
      ```
-     def nastySize : list nat → nat
+     def nastySize : List Nat → Nat
      | []      := 1000000
      | (a::as) := nastySize as + 1000000
      ```
 
      We will get a constraint of the form
      ```
-     (list.brecOn [] ...) =?= bit0 ...
+     (List.brecOn [] ...) =?= bit0 ...
      ```
      The isDefEq method reduces this constraint using whnfCore. So, we obtain
      ```

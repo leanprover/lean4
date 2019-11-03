@@ -94,7 +94,6 @@ extern "C" obj_res lean_io_initializing(obj_arg) {
 
 extern "C" obj_res lean_io_prim_put_str(b_obj_arg s, obj_arg) {
     std::cout << string_to_std(s); // TODO(Leo): use out handle
-    std::cout.flush();     // TODO(Leo): remove following line. Added for chasing bug
     return set_io_result(box(0));
 }
 

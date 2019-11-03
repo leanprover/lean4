@@ -247,6 +247,28 @@ deltaBetaDefinition c lvls revArgs failK $ fun e =>
       | _ => pure e
   | _ => unreachable!
 
+private def whnfAux
+    [AbstractMetavarContext σ]
+    [AbstractTypeUtilCache ϕ]
+    (whnf : Expr → TypeUtilM σ ϕ Expr)
+    (inferType : Expr → TypeUtilM σ ϕ Expr)
+    (isDefEq : Expr → Expr → TypeUtilM σ ϕ Bool)
+    : Expr → TypeUtilM σ ϕ Expr :=
+-- TODO
+whnfCore whnf inferType isDefEq true
+
+/- ===========================
+   inferType
+   =========================== -/
+@[specialize] private def inferTypeAux
+    [AbstractMetavarContext σ]
+    [AbstractTypeUtilCache ϕ]
+    (whnf : Expr → TypeUtilM σ ϕ Expr)
+    (inferType : Expr → TypeUtilM σ ϕ Expr)
+    (isDefEq : Expr → Expr → TypeUtilM σ ϕ Bool)
+    : Expr → TypeUtilM σ ϕ Expr :=
+fun _ => throw $ TypeUtilException.other "not implemented yet"
+
 /- ===========================
    isDefEq for universe levels
    =========================== -/
@@ -389,6 +411,18 @@ do s ← get;
        modify $ fun s => { mctx := mctx, postponed := postponed, .. s };
        throw e)
 
+/- ===========================
+   isDefEq for Expr
+   =========================== -/
+@[specialize] private def isDefEqAux
+    [AbstractMetavarContext σ]
+    [AbstractTypeUtilCache ϕ]
+    (whnf : Expr → TypeUtilM σ ϕ Expr)
+    (inferType : Expr → TypeUtilM σ ϕ Expr)
+    (isDefEq : Expr → Expr → TypeUtilM σ ϕ Bool)
+    : Expr → Expr → TypeUtilM σ ϕ Bool :=
+fun _ _ => throw $ TypeUtilException.other "not implemented yet"
+
 /- Public interface -/
 
 def isLevelDefEq [AbstractMetavarContext σ] (u v : Level) (mayPostpone : Bool := false) : TypeUtilM σ ϕ Bool :=
@@ -396,6 +430,41 @@ restoreIfFalse $ do
   r ← isLevelDefEqAux true true u v;
   if !r then pure false
   else processPostponed mayPostpone
+
+/- =========================================== -/
+/- BIG HACK until we add `mutual` keyword back -/
+/- =========================================== -/
+inductive TypeUtilOp
+| whnfOp | inferTypeOp | isDefEqOp
+open TypeUtilOp
+private def exprToBool : Expr → Bool
+| Expr.sort Level.zero => false
+| _                    => true
+private def boolToExpr : Bool → Expr
+| false => Expr.sort Level.zero
+| true  => Expr.bvar 0
+
+private partial def auxFixpoint [AbstractMetavarContext σ] [AbstractTypeUtilCache ϕ] : TypeUtilOp → Expr → Expr → TypeUtilM σ ϕ Expr
+| op, e₁, e₂ =>
+  let whnf      := fun e => auxFixpoint whnfOp e e;
+  let inferType := fun e => auxFixpoint inferTypeOp e e;
+  let isDefEq   := fun e₁ e₂ => exprToBool <$> auxFixpoint isDefEqOp e₁ e₂;
+  match op with
+  | whnfOp      => whnfAux whnf inferType isDefEq e₁
+  | inferTypeOp => inferTypeAux whnf inferType isDefEq e₁
+  | isDefEqOp   => boolToExpr <$> isDefEqAux whnf inferType isDefEq e₁ e₂
+
+def whnf [AbstractMetavarContext σ] [AbstractTypeUtilCache ϕ] (e : Expr) : TypeUtilM σ ϕ Expr :=
+auxFixpoint whnfOp e e
+
+def inferType [AbstractMetavarContext σ] [AbstractTypeUtilCache ϕ] (e : Expr) : TypeUtilM σ ϕ Expr :=
+auxFixpoint inferTypeOp e e
+
+def isDefEq [AbstractMetavarContext σ] [AbstractTypeUtilCache ϕ] (e₁ e₂ : Expr) : TypeUtilM σ ϕ Bool :=
+exprToBool <$> auxFixpoint isDefEqOp e₁ e₂
+/- =========================================== -/
+/-          END OF BIG HACK                    -/
+/- =========================================== -/
 
 end TypeUtil
 

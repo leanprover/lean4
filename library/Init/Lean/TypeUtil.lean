@@ -152,7 +152,7 @@ else
   if args.size < 2 then e
   else mkAppRange (args.get! 1) 2 args.size args
 
-private def deltaBetaDefinition {α} (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr) (failK : Unit → α) (successK : Expr → α) : α :=
+@[specialize] private def deltaBetaDefinition {α} (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr) (failK : Unit → α) (successK : Expr → α) : α :=
 if c.lparams.length != lvls.length then failK ()
 else
   let val := c.instantiateValueLevelParams lvls;

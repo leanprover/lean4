@@ -40,7 +40,6 @@ structure TypeUtilConfig :=
 (opts           : Options          := {})
 (unifierConfig  : UnifierConfig    := {})
 (transparency   : TransparencyMode := TransparencyMode.Semireducible)
-(smartUnfolding : Bool             := true)
 (useZeta        : Bool             := true)
 
 /- Abstract cache interfact for `TypeUtil` functions.
@@ -55,8 +54,8 @@ inductive TypeUtilException
 
 structure TypeUtilContext :=
 (env            : Environment)
-(lctx           : LocalContext        := {})
-(localInstances : LocalInstances      := #[])
+(lctx           : LocalContext   := {})
+(localInstances : LocalInstances := #[])
 (config         : TypeUtilConfig := {})
 
 structure PostponedEntry :=

@@ -635,9 +635,23 @@ optional<expr> type_context_old::reduce_projection(expr const & e) {
     return reduce_projection_core(info, e);
 }
 
-optional<expr> type_context_old::reduce_proj(expr const & /* e */) {
-    // TODO(Leo)
-    throw exception("projection reduction is only implemented in the kernel.");
+optional<expr> type_context_old::reduce_proj(expr const & e) {
+    if (!proj_idx(e).is_small())
+        return none_expr();
+    unsigned idx = proj_idx(e).get_small_value();
+    expr c = whnf(proj_expr(e));
+    buffer<expr> args;
+    expr const & mk = get_app_args(c, args);
+    if (!is_constant(mk))
+        return none_expr();
+    constant_info mk_info = env().get(const_name(mk));
+    if (!mk_info.is_constructor())
+        return none_expr();
+    unsigned nparams = mk_info.to_constructor_val().get_nparams();
+    if (nparams + idx < args.size())
+        return some_expr(args[nparams + idx]);
+    else
+        return none_expr();
 }
 
 optional<expr> type_context_old::reduce_aux_recursor(expr const & e) {

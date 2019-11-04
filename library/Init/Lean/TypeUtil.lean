@@ -159,46 +159,6 @@ else
   let val := val.betaRev revArgs;
   successK (extractIdRhs val)
 
-private def reduceAuxRec
-    (whnf : Expr → TypeUtilM σ ϕ Expr)
-    (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr)
-    (failK : Unit → TypeUtilM σ ϕ Expr) (successK : Expr → TypeUtilM σ ϕ Expr) : TypeUtilM σ ϕ Expr :=
-deltaBetaDefinition c lvls revArgs failK $ fun e =>
-  /- Remark:
-
-     `brecOn ...` unfolds to a term of the form (PProd.fst (rec ...))
-     `whnfCore` does not unfold projection functions because of lazy delta reduction at `isDefEq`.
-     For example, when solving constraints such as `(PProd.fst ?m) =?= (PProd.fst (1, 2))`
-
-     That being said, we observed a negative performance impact on
-     constraints containing `brecOn` that come from the equation compiler.
-     For example, consider the following definition
-
-     ```
-     def nastySize : List Nat → Nat
-     | []      := 1000000
-     | (a::as) := nastySize as + 1000000
-     ```
-
-     We will get a constraint of the form
-     ```
-     (List.brecOn [] ...) =?= bit0 ...
-     ```
-     The isDefEq method reduces this constraint using whnfCore. So, we obtain
-     ```
-     PProd.fst ... =?= bit0 ...
-     ```
-     This constraint is then handled by isDefEqDelta, which decides to unfold `bit0` which is a poor decision.
-     The key problem here is that we morally did not reduce `brecOn`.
-     Thus, we fix the issue by reducing the projection function if the auxiliary recursor is a brecOn.
-     This fix is a little non modular because `brecOn` auxiliary recursors are defined in
-     a completely different module, and `TypeUtil` should not be aware of them. -/
-  match c.name with
-  | Name.mkString _ "brecOn" => do
-    env ← getEnv;
-    reduceProjectionFn whnf env e (fun _ => successK e) successK
-  | _ => successK e
-
 /--
   Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
   expand let-expressions, expand assigned meta-variables.
@@ -234,7 +194,7 @@ deltaBetaDefinition c lvls revArgs failK $ fun e =>
         | ConstantInfo.quotInfo rec   => reduceQuotRecAux whnf env rec lvls e.getAppArgs done whnfCore
         | c@(ConstantInfo.defnInfo _) =>
           if reduceAuxRec? && isAuxRecursor env c.name then
-            reduceAuxRec whnf c lvls e.getAppRevArgs done whnfCore
+            deltaBetaDefinition c lvls e.getAppArgs done whnfCore
           else
             done()
         | _ => done ()

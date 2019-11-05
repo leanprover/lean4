@@ -2411,8 +2411,13 @@ expr type_context_old::complete_instance(expr const & e) {
                 expr const & m = new_arg;
                 expr m_type    = instantiate_mvars(infer(m));
                 if (!has_expr_metavar(m_type) && is_class(m_type)) {
+                    lean_trace(name({"type_context", "complete_instance"}), tout() << "about to synth: " << m_type << "\n";);
                     if (mk_nested_instance(m, m_type)) {
                         new_arg = instantiate_mvars(new_arg);
+                    }
+                } else if (is_class(m_type)) {
+                    if (is_class(m_type)) {
+                        lean_trace(name({"type_context", "complete_instance"}), tout() << "would have synthed: " << m_type << "\n";);
                     }
                 }
             } else {
@@ -3943,6 +3948,7 @@ mk_pp_ctx(type_context_old const & ctx) {
 
 void initialize_type_context() {
     register_trace_class("class_instances");
+    register_trace_class(name({"type_context", "complete_instance"}));
     register_trace_class(name({"type_context", "is_def_eq"}));
     register_trace_class(name({"type_context", "mvar_deps"}));
     register_trace_class(name({"type_context", "is_def_eq_detail"}));

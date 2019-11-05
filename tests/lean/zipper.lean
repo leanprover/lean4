@@ -23,7 +23,7 @@ def erase : ListZipper α → ListZipper α
 | ⟨x::xs, bs⟩ => ⟨xs, bs⟩
 
 def curr [Inhabited α] : ListZipper α → α
-| ⟨[], bs⟩    => default _
+| ⟨[], bs⟩    => arbitrary _
 | ⟨x::xs, bs⟩ => x
 
 def currOpt : ListZipper α → Option α

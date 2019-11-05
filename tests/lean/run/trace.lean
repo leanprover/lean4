@@ -5,7 +5,7 @@ structure MyState :=
 (traceState : TraceState := {})
 (s          : Nat := 0)
 
-abbrev M := ReaderT Options (EState String MyState)
+abbrev M := ReaderT Options (EStateM String MyState)
 
 /- We can enable tracing for a monad M by adding an instance of `SimpleMonadTracerAdapter M` -/
 instance : SimpleMonadTracerAdapter M :=
@@ -52,8 +52,8 @@ let opts := opts.setBool `trace.module true;
 let opts := opts.setBool `trace.bughunt true;
 -- let opts := opts.setBool `trace.slow true;
 match x.run opts {} with
-| EState.Result.ok _ s    => IO.println s.traceState
-| EState.Result.error _ s => do IO.println "Error"; IO.println s.traceState
+| EStateM.Result.ok _ s    => IO.println s.traceState
+| EStateM.Result.error _ s => do IO.println "Error"; IO.println s.traceState
 
 def main : IO Unit :=
 do IO.println "----";

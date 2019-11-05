@@ -11,11 +11,11 @@ end Term
 open Term
 
 structure MyState : Type := (ts : List Term)
-def emit (t : Term) : State MyState Unit := modify (λ ms => ⟨t::ms.ts⟩)
+def emit (t : Term) : StateM MyState Unit := modify (λ ms => ⟨t::ms.ts⟩)
 
 partial def foo : MyState -> Term -> Term -> List Term
 | ms₀, t, u =>
-  let stateT : State MyState Unit := do {
+  let stateT : StateM MyState Unit := do {
 
     match t with
     | const _  => pure ()

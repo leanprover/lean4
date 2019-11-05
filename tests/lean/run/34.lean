@@ -1,4 +1,4 @@
-partial def foo : ∀ (n : Nat), State Unit Unit
+partial def foo : ∀ (n : Nat), StateM Unit Unit
 | n =>
   if n == 0 then pure () else
   match n with

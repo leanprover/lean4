@@ -7,11 +7,11 @@ structure MyState :=
 instance : HasRepr MyState :=
 ⟨fun s => repr (s.bs, s.ps)⟩
 
-instance : EState.Backtrackable Nat MyState :=
+instance : EStateM.Backtrackable Nat MyState :=
 { save    := fun s => s.bs,
   restore := fun s d => { bs := d, .. s }  }
 
-abbrev M := EState String MyState
+abbrev M := EStateM String MyState
 
 def bInc : M Unit := -- increment backtrackble counter
 modify $ fun s => { bs := s.bs + 1, .. s }

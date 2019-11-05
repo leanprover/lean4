@@ -85,7 +85,7 @@ structure MetavarDecl :=
 namespace MetavarDecl
 
 instance : Inhabited MetavarDecl :=
-⟨⟨default _, default _, default _, false⟩⟩
+⟨⟨arbitrary _, arbitrary _, arbitrary _, false⟩⟩
 
 end MetavarDecl
 

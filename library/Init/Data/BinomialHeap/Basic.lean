@@ -68,8 +68,8 @@ else
 
 /- O(log n) -/
 @[specialize] def head [Inhabited α] (lt : α → α → Bool) : Heap α → α
-| Heap.empty        => default α
-| Heap.heap []      => default α
+| Heap.empty        => arbitrary α
+| Heap.heap []      => arbitrary α
 | Heap.heap (h::hs) => hs.foldl (fun r n => if lt r n.val then r else n.val) h.val
 
 @[specialize] def findMin (lt : α → α → Bool) : List (HeapNode α) → Nat → HeapNode α × Nat → HeapNode α × Nat

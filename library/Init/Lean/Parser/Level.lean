@@ -10,7 +10,7 @@ namespace Lean
 namespace Parser
 
 @[init mkBuiltinParsingTablesRef]
-constant builtinLevelParsingTable : IO.Ref ParsingTables := default _
+constant builtinLevelParsingTable : IO.Ref ParsingTables := arbitrary _
 
 @[init] def regBuiltinLevelParserAttr : IO Unit :=
 registerBuiltinParserAttribute `builtinLevelParser `Lean.Parser.builtinLevelParsingTable
@@ -19,7 +19,7 @@ def mkLevelParserAttribute : IO ParserAttribute :=
 registerParserAttribute `levelParser "level" "universe level parser" (some builtinLevelParsingTable)
 
 @[init mkLevelParserAttribute]
-constant levelParserAttribute : ParserAttribute := default _
+constant levelParserAttribute : ParserAttribute := arbitrary _
 
 @[inline] def levelParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
 { fn := fun _ => levelParserAttribute.runParser rbp }

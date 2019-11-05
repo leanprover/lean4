@@ -38,7 +38,7 @@ instance stringToName : HasCoe String Name :=
 
 namespace Name
 @[extern "lean_name_hash_usize"]
-constant hash (n : @& Name) : USize := default _
+constant hash (n : @& Name) : USize := arbitrary _
 
 instance : Hashable Name :=
 ⟨Name.hash⟩

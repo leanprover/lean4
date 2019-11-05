@@ -274,9 +274,9 @@ def USize.ofUInt32 (a : UInt32) : USize := USize.ofNat (UInt32.toNat a)
 def USize.ofUInt64 (a : UInt64) : USize := USize.ofNat (UInt64.toNat a)
 -- TODO(Leo): give reference implementation for shift_left and shift_right, and define them for other UInt types
 @[extern c inline "#1 << #2"]
-constant USize.shift_left (a b : USize) : USize := USize.ofNat (default _)
+constant USize.shift_left (a b : USize) : USize := USize.ofNat (arbitrary _)
 @[extern c inline "#1 >> #2"]
-constant USize.shift_right (a b : USize) : USize := USize.ofNat (default _)
+constant USize.shift_right (a b : USize) : USize := USize.ofNat (arbitrary _)
 def USize.lt (a b : USize) : Prop := a.val < b.val
 def USize.le (a b : USize) : Prop := a.val ≤ b.val
 

@@ -39,7 +39,7 @@ registerSimplePersistentEnvExtension {
 }
 
 @[init regScopeManagerExtension]
-constant scopeManagerExt : SimplePersistentEnvExtension Name ScopeManagerState := default _
+constant scopeManagerExt : SimplePersistentEnvExtension Name ScopeManagerState := arbitrary _
 
 namespace Environment
 

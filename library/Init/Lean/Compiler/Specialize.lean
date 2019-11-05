@@ -33,7 +33,7 @@ registerEnumAttributes `specializeAttrs
   (fun env declName _ => checkIsDefinition env declName)
 
 @[init mkSpecializeAttrs]
-constant specializeAttrs : EnumAttributes SpecializeAttributeKind := default _
+constant specializeAttrs : EnumAttributes SpecializeAttributeKind := arbitrary _
 
 private partial def hasSpecializeAttrAux (env : Environment) (kind : SpecializeAttributeKind) : Name → Bool
 | n => match specializeAttrs.getValue env n with
@@ -88,7 +88,7 @@ registerSimplePersistentEnvExtension {
 }
 
 @[init mkSpecExtension]
-constant specExtension : SimplePersistentEnvExtension SpecEntry SpecState := default _
+constant specExtension : SimplePersistentEnvExtension SpecEntry SpecState := arbitrary _
 
 @[export lean_add_specialization_info]
 def addSpecializationInfo (env : Environment) (fn : Name) (info : SpecInfo) : Environment :=

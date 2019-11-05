@@ -30,7 +30,7 @@ abbrev ConstMap := SMap Name ConstantInfo
 structure EnvironmentHeader :=
 (trustLevel   : UInt32     := 0)
 (quotInit     : Bool       := false)
-(mainModule   : Name       := default _)
+(mainModule   : Name       := arbitrary _)
 (imports      : Array Name := #[])
 
 /- TODO: mark opaque. -/
@@ -107,11 +107,11 @@ namespace Environment
 
 /- Type check given declaration and add it to the environment -/
 @[extern "lean_add_decl"]
-constant addDecl (env : Environment) (decl : @& Declaration) : Except KernelException Environment := default _
+constant addDecl (env : Environment) (decl : @& Declaration) : Except KernelException Environment := arbitrary _
 
 /- Compile the given declaration, it assumes the declaration has already been added to the environment using `addDecl`. -/
 @[extern "lean_compile_decl"]
-constant compileDecl (env : Environment) (opt : @& Options) (decl : @& Declaration) : Except KernelException Environment := default _
+constant compileDecl (env : Environment) (opt : @& Options) (decl : @& Declaration) : Except KernelException Environment := arbitrary _
 
 def addAndCompile (env : Environment) (opt : Options) (decl : Declaration) : Except KernelException Environment :=
 do env ← addDecl env decl;
@@ -131,7 +131,7 @@ unsafe def setStateUnsafe {σ : Type} (ext : EnvExtension σ) (env : Environment
 { extensions := env.extensions.set! ext.idx (unsafeCast s), .. env }
 
 @[implementedBy setStateUnsafe]
-constant setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment := default _
+constant setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment := arbitrary _
 
 unsafe def getStateUnsafe {σ : Type} (ext : EnvExtension σ) (env : Environment) : σ :=
 let s : EnvExtensionState := env.extensions.get! ext.idx;
@@ -148,7 +148,7 @@ constant getState {σ : Type} (ext : EnvExtension σ) (env : Environment) : σ :
   .. env }
 
 @[implementedBy modifyStateUnsafe]
-constant modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment := default _
+constant modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment := arbitrary _
 
 end EnvExtension
 
@@ -156,10 +156,10 @@ private def mkEnvExtensionsRef : IO (IO.Ref (Array (EnvExtension EnvExtensionSta
 IO.mkRef #[]
 
 @[init mkEnvExtensionsRef]
-private constant envExtensionsRef : IO.Ref (Array (EnvExtension EnvExtensionState)) := default _
+private constant envExtensionsRef : IO.Ref (Array (EnvExtension EnvExtensionState)) := arbitrary _
 
 instance EnvExtension.Inhabited (σ : Type) [Inhabited σ] : Inhabited (EnvExtension σ) :=
-⟨{ idx := 0, stateInh := default _, mkInitial := default _ }⟩
+⟨{ idx := 0, stateInh := arbitrary _, mkInitial := arbitrary _ }⟩
 
 unsafe def registerEnvExtensionUnsafe {σ : Type} [Inhabited σ] (mkInitial : IO σ) : IO (EnvExtension σ) :=
 do initializing ← IO.initializing;
@@ -169,7 +169,7 @@ do initializing ← IO.initializing;
    let ext : EnvExtension σ := {
       idx        := idx,
       mkInitial  := mkInitial,
-      stateInh   := default _
+      stateInh   := arbitrary _
    };
    envExtensionsRef.modify (fun exts => exts.push (unsafeCast ext));
    pure ext
@@ -179,7 +179,7 @@ do initializing ← IO.initializing;
    1- Our implementation assumes the number of extensions does not change after an environment object is created.
    2- We do not use any synchronization primitive to access `envExtensionsRef`. -/
 @[implementedBy registerEnvExtensionUnsafe]
-constant registerEnvExtension {σ : Type} [Inhabited σ] (mkInitial : IO σ) : IO (EnvExtension σ) := default _
+constant registerEnvExtension {σ : Type} [Inhabited σ] (mkInitial : IO σ) : IO (EnvExtension σ) := arbitrary _
 
 private def mkInitialExtensionStates : IO (Array EnvExtensionState) :=
 do exts ← envExtensionsRef.get; exts.mapM $ fun ext => ext.mkInitial
@@ -217,12 +217,12 @@ def EnvExtensionEntry := NonScalar
 instance EnvExtensionEntry.inhabited : Inhabited EnvExtensionEntry := inferInstanceAs (Inhabited NonScalar)
 
 instance PersistentEnvExtensionState.inhabited {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtensionState α σ) :=
-⟨{importedEntries := #[], state := default _ }⟩
+⟨{importedEntries := #[], state := arbitrary _ }⟩
 
 instance PersistentEnvExtension.inhabited {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α σ) :=
-⟨{ toEnvExtension := { idx := 0, stateInh := default _, mkInitial := default _ },
-   name := default _,
-   addImportedFn := fun _ => default _,
+⟨{ toEnvExtension := { idx := 0, stateInh := arbitrary _, mkInitial := arbitrary _ },
+   name := arbitrary _,
+   addImportedFn := fun _ => arbitrary _,
    addEntryFn := fun s _ => s,
    exportEntriesFn := fun _ => #[],
    statsFn := fun _ => Format.nil }⟩
@@ -252,7 +252,7 @@ private def mkPersistentEnvExtensionsRef : IO (IO.Ref (Array (PersistentEnvExten
 IO.mkRef #[]
 
 @[init mkPersistentEnvExtensionsRef]
-private constant persistentEnvExtensionsRef : IO.Ref (Array (PersistentEnvExtension EnvExtensionEntry EnvExtensionState)) := default _
+private constant persistentEnvExtensionsRef : IO.Ref (Array (PersistentEnvExtension EnvExtensionEntry EnvExtensionState)) := arbitrary _
 
 structure PersistentEnvExtensionDescr (α σ : Type) :=
 (name            : Name)
@@ -283,7 +283,7 @@ do pExts ← persistentEnvExtensionsRef.get;
    pure pExt
 
 @[implementedBy registerPersistentEnvExtensionUnsafe]
-constant registerPersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α σ) : IO (PersistentEnvExtension α σ) := default _
+constant registerPersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α σ) : IO (PersistentEnvExtension α σ) := arbitrary _
 
 /- Simple PersistentEnvExtension that implements exportEntriesFn using a list of entries. -/
 
@@ -395,7 +395,7 @@ def regModListExtension : IO (EnvExtension (List Modification)) :=
 registerEnvExtension (pure [])
 
 @[init regModListExtension]
-constant modListExtension : EnvExtension (List Modification) := default _
+constant modListExtension : EnvExtension (List Modification) := arbitrary _
 
 /- The C++ code uses this function to store the given modification object into the environment. -/
 @[export lean_environment_add_modification]
@@ -405,10 +405,10 @@ modListExtension.modifyState env $ fun mods => mod :: mods
 /- mkModuleData invokes this function to convert a list of modification objects into
    a serialized byte array. -/
 @[extern 2 "lean_serialize_modifications"]
-constant serializeModifications : List Modification → IO ByteArray := default _
+constant serializeModifications : List Modification → IO ByteArray := arbitrary _
 
 @[extern 3 "lean_perform_serialized_modifications"]
-constant performModifications : Environment → ByteArray → IO Environment := default _
+constant performModifications : Environment → ByteArray → IO Environment := arbitrary _
 
 /- Content of a .olean file.
    We use `compact.cpp` to generate the image of this object in disk. -/
@@ -419,12 +419,12 @@ structure ModuleData :=
 (serialized : ByteArray) -- Legacy support: serialized modification objects
 
 instance ModuleData.inhabited : Inhabited ModuleData :=
-⟨{imports := default _, constants := default _, entries := default _, serialized := default _}⟩
+⟨{imports := arbitrary _, constants := arbitrary _, entries := arbitrary _, serialized := arbitrary _}⟩
 
 @[extern 3 "lean_save_module_data"]
-constant saveModuleData (fname : @& String) (m : ModuleData) : IO Unit := default _
+constant saveModuleData (fname : @& String) (m : ModuleData) : IO Unit := arbitrary _
 @[extern 2 "lean_read_module_data"]
-constant readModuleData (fname : @& String) : IO ModuleData := default _
+constant readModuleData (fname : @& String) : IO ModuleData := arbitrary _
 
 def mkModuleData (env : Environment) : IO ModuleData :=
 do pExts ← persistentEnvExtensionsRef.get;
@@ -520,7 +520,7 @@ registerSimplePersistentEnvExtension {
 }
 
 @[init regNamespacesExtension]
-constant namespacesExt : SimplePersistentEnvExtension Name NameSet := default _
+constant namespacesExt : SimplePersistentEnvExtension Name NameSet := arbitrary _
 
 def registerNamespace (env : Environment) (n : Name) : Environment :=
 if (namespacesExt.getState env).contains n then env else namespacesExt.addEntry env n

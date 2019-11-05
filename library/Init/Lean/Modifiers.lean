@@ -12,7 +12,7 @@ def mkProtectedExtension : IO TagDeclarationExtension :=
 mkTagDeclarationExtension `protected
 
 @[init mkProtectedExtension]
-constant protectedExt : TagDeclarationExtension := default _
+constant protectedExt : TagDeclarationExtension := arbitrary _
 
 @[export lean_add_protected]
 def addProtected (env : Environment) (n : Name) : Environment :=
@@ -26,7 +26,7 @@ def mkPrivateExtension : IO (EnvExtension Nat) :=
 registerEnvExtension (pure 1)
 
 @[init mkPrivateExtension]
-constant privateExt : EnvExtension Nat := default _
+constant privateExt : EnvExtension Nat := arbitrary _
 
 /- Private name support.
 

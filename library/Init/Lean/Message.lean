@@ -40,7 +40,7 @@ inductive MessageData
 
 namespace MessageData
 
-instance : Inhabited MessageData := ⟨MessageData.ofFormat (default _)⟩
+instance : Inhabited MessageData := ⟨MessageData.ofFormat (arbitrary _)⟩
 
 partial def formatAux : Option (Environment × MetavarContext × LocalContext) → MessageData → Format
 | _, ofFormat fmt                  => fmt
@@ -84,7 +84,7 @@ mkErrorStringWithPos msg.fileName msg.pos.line msg.pos.column
   (if msg.caption == "" then "" else msg.caption ++ ":\n") ++ toString (fmt msg.data))
 
 instance : Inhabited Message :=
-⟨{ fileName := "", pos := ⟨0, 1⟩, data := default _}⟩
+⟨{ fileName := "", pos := ⟨0, 1⟩, data := arbitrary _}⟩
 
 instance : HasToString Message :=
 ⟨Message.toString⟩

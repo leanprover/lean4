@@ -43,7 +43,7 @@ structure ElabScope :=
 
 namespace ElabScope
 
-instance : Inhabited ElabScope := ⟨{ cmd := "", header := default _ }⟩
+instance : Inhabited ElabScope := ⟨{ cmd := "", header := arbitrary _ }⟩
 
 end ElabScope
 
@@ -83,9 +83,9 @@ abbrev CommandElabTable : Type := SMap SyntaxNodeKind CommandElab
 def mkBuiltinTermElabTable : IO (IO.Ref TermElabTable) :=  IO.mkRef {}
 def mkBuiltinCommandElabTable : IO (IO.Ref CommandElabTable) := IO.mkRef {}
 @[init mkBuiltinTermElabTable]
-constant builtinTermElabTable : IO.Ref TermElabTable := default _
+constant builtinTermElabTable : IO.Ref TermElabTable := arbitrary _
 @[init mkBuiltinCommandElabTable]
-constant builtinCommandElabTable : IO.Ref CommandElabTable := default _
+constant builtinCommandElabTable : IO.Ref CommandElabTable := arbitrary _
 
 def addBuiltinTermElab (k : SyntaxNodeKind) (declName : Name) (elab : TermElab) : IO Unit :=
 do m ← builtinTermElabTable.get;
@@ -181,7 +181,7 @@ structure ElabAttribute (σ : Type) :=
 
 namespace ElabAttribute
 
-instance {σ} [Inhabited σ] : Inhabited (ElabAttribute σ) := ⟨{ attr := default _, ext := default _, kind := "" }⟩
+instance {σ} [Inhabited σ] : Inhabited (ElabAttribute σ) := ⟨{ attr := arbitrary _, ext := arbitrary _, kind := "" }⟩
 
 end ElabAttribute
 
@@ -213,13 +213,13 @@ abbrev TermElabAttribute := ElabAttribute TermElabTable
 def mkTermElabAttribute : IO TermElabAttribute :=
 mkElabAttribute `elabTerm "term" builtinTermElabTable
 @[init mkTermElabAttribute]
-constant termElabAttribute : TermElabAttribute := default _
+constant termElabAttribute : TermElabAttribute := arbitrary _
 
 abbrev CommandElabAttribute := ElabAttribute CommandElabTable
 def mkCommandElabAttribute : IO CommandElabAttribute :=
 mkElabAttribute `commandTerm "command" builtinCommandElabTable
 @[init mkCommandElabAttribute]
-constant commandElabAttribute : CommandElabAttribute := default _
+constant commandElabAttribute : CommandElabAttribute := arbitrary _
 
 namespace Elab
 def logMessage (msg : Message) : Elab Unit :=
@@ -398,7 +398,7 @@ do env ← mkEmptyEnvironment;
        | EStateM.Result.error _ s => pure (s.elabState.env, s.elabState.messages)
 
 instance {α} : Inhabited (Elab α) :=
-⟨fun _ => default _⟩
+⟨fun _ => arbitrary _⟩
 
 def mkFreshName : Elab Name :=
 modifyGet $ fun s => (s.ngen.curr, { ngen := s.ngen.next, .. s })
@@ -431,7 +431,7 @@ modifyGet $ fun s =>
   | { scopes := h::t, .. } =>
     let (a, h) := f h;
     (a, { scopes := h :: t, .. s })
-  | _ => (default _, s)
+  | _ => (arbitrary _, s)
 
 def localContext : Elab LocalContext :=
 do scope ← getScope; pure scope.lctx
@@ -515,7 +515,7 @@ match unsafeIO x with
 | Except.error e => throw (ElabException.io e)
 
 @[implementedBy runIOUnsafe]
-constant runIO {α : Type} (x : IO α) : Elab α := default _
+constant runIO {α : Type} (x : IO α) : Elab α := arbitrary _
 
 end Elab
 

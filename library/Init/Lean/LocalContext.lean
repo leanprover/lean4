@@ -15,7 +15,7 @@ inductive LocalDecl
 | ldecl (index : Nat) (name : Name) (userName : Name) (type : Expr) (value : Expr)
 
 namespace LocalDecl
-instance : Inhabited LocalDecl := ⟨ldecl (default _) (default _) (default _) (default _) (default _)⟩
+instance : Inhabited LocalDecl := ⟨ldecl (arbitrary _) (arbitrary _) (arbitrary _) (arbitrary _) (arbitrary _)⟩
 
 def isLet : LocalDecl → Bool
 | cdecl _ _ _ _ _ => false

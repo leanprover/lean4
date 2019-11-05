@@ -27,7 +27,7 @@ instance TypedExpr.HasToString : HasToString TypedExpr :=
 ⟨λ ⟨val, type⟩ => "TypedExpr(" ++ toString val ++ ", " ++ toString type ++ ")"⟩
 
 instance TypedExpr.Inhabited : Inhabited TypedExpr :=
-⟨⟨default _, default _⟩⟩
+⟨⟨arbitrary _, arbitrary _⟩⟩
 
 structure Node : Type :=
 (anormSubgoal : Expr)
@@ -35,13 +35,13 @@ structure Node : Type :=
 (futureAnswer : TypedExpr)
 
 instance Node.Inhabited : Inhabited Node :=
-⟨⟨default _, {}, default _⟩⟩
+⟨⟨arbitrary _, {}, arbitrary _⟩⟩
 
 structure ConsumerNode extends Node :=
 (remainingSubgoals : List Expr)
 
 instance ConsumerNode.Inhabited : Inhabited ConsumerNode :=
-⟨⟨default _, default _⟩⟩
+⟨⟨arbitrary _, arbitrary _⟩⟩
 
 inductive Waiter : Type
 | consumerNode : ConsumerNode → Waiter
@@ -56,7 +56,7 @@ structure GeneratorNode extends Node :=
 (remainingInstances : List Instance)
 
 instance GeneratorNode.Inhabited : Inhabited GeneratorNode :=
-⟨⟨default _, default _⟩⟩
+⟨⟨arbitrary _, arbitrary _⟩⟩
 
 structure TableEntry : Type :=
 (waiters    : Array Waiter)
@@ -65,7 +65,7 @@ structure TableEntry : Type :=
 structure TCState : Type :=
 (env            : Environment)
 (finalAnswer    : Option TypedExpr                  := none)
-(mainMVar       : Expr                              := default _)
+(mainMVar       : Expr                              := arbitrary _)
 (generatorStack : Stack GeneratorNode               := Stack.empty)
 (consumerStack  : Stack ConsumerNode                := Stack.empty)
 (resumeQueue    : Queue (ConsumerNode × TypedExpr)  := Queue.empty)

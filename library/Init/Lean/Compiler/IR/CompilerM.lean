@@ -89,7 +89,7 @@ registerSimplePersistentEnvExtension {
 }
 
 @[init mkDeclMapExtension]
-constant declMapExt : SimplePersistentEnvExtension Decl DeclMap := default _
+constant declMapExt : SimplePersistentEnvExtension Decl DeclMap := arbitrary _
 
 @[export lean_ir_find_env_decl]
 def findEnvDecl (env : Environment) (n : Name) : Option Decl :=

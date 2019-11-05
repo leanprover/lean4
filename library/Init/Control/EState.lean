@@ -36,7 +36,7 @@ namespace EStateM
 variables {ε σ α β : Type u}
 
 instance [Inhabited ε] : Inhabited (EStateM ε σ α) :=
-⟨fun s => Result.error (default ε) s⟩
+⟨fun s => Result.error (arbitrary ε) s⟩
 
 @[inline] protected def pure (a : α) : EStateM ε σ α :=
 fun s => Result.ok a s

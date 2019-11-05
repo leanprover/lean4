@@ -26,7 +26,7 @@ registerSimplePersistentEnvExtension {
 }
 
 @[init mkAliasExtension]
-constant aliasExtension : SimplePersistentEnvExtension AliasEntry AliasState := default _
+constant aliasExtension : SimplePersistentEnvExtension AliasEntry AliasState := arbitrary _
 
 /- Add alias `a` for `e` -/
 def addAlias (env : Environment) (a : Name) (e : Name) : Environment :=

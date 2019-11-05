@@ -9,10 +9,10 @@ import Init.Core
 namespace Lean
 
 @[extern "lean_closure_max_args"]
-constant closureMaxArgsFn : Unit → Nat := default _
+constant closureMaxArgsFn : Unit → Nat := arbitrary _
 
 @[extern "lean_max_small_nat"]
-constant maxSmallNatFn : Unit → Nat := default _
+constant maxSmallNatFn : Unit → Nat := arbitrary _
 
 def closureMaxArgs : Nat :=
 closureMaxArgsFn ()

@@ -79,7 +79,7 @@ utf8ByteSize s
 {str := s, startPos := 0, stopPos := s.bsize}
 
 private def utf8GetAux : List Char → Pos → Pos → Char
-| [],    i, p => default Char
+| [],    i, p => arbitrary Char
 | c::cs, i, p => if i = p then c else utf8GetAux cs (i + csize c) p
 
 @[extern "lean_string_utf8_get"]

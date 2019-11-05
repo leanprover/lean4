@@ -11,7 +11,7 @@ namespace Lean
 abbrev PreTerm := Expr
 
 @[extern "lean_old_elaborate"]
-constant oldElaborateAux : Environment → Options → MetavarContext → LocalContext → PreTerm → Except (Option Position × Format) (Environment × MetavarContext × Expr) := default _
+constant oldElaborateAux : Environment → Options → MetavarContext → LocalContext → PreTerm → Except (Option Position × Format) (Environment × MetavarContext × Expr) := arbitrary _
 
 abbrev PreTermElab := SyntaxNode Expr → Elab PreTerm
 
@@ -20,7 +20,7 @@ abbrev PreTermElabTable : Type := HashMap SyntaxNodeKind PreTermElab
 def mkBuiltinPreTermElabTable : IO (IO.Ref PreTermElabTable) :=  IO.mkRef {}
 
 @[init mkBuiltinPreTermElabTable]
-constant builtinPreTermElabTable : IO.Ref PreTermElabTable := default _
+constant builtinPreTermElabTable : IO.Ref PreTermElabTable := arbitrary _
 
 def addBuiltinPreTermElab (k : SyntaxNodeKind) (declName : Name) (elab : PreTermElab) : IO Unit :=
 do m ← builtinPreTermElabTable.get;

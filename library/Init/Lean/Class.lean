@@ -57,7 +57,7 @@ registerSimplePersistentEnvExtension {
 }
 
 @[init mkClassExtension]
-constant classExtension : SimplePersistentEnvExtension ClassEntry ClassState := default _
+constant classExtension : SimplePersistentEnvExtension ClassEntry ClassState := arbitrary _
 
 @[export lean_is_class]
 def isClass (env : Environment) (n : Name) : Bool :=

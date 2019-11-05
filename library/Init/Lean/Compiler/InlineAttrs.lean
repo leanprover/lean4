@@ -37,7 +37,7 @@ registerEnumAttributes `inlineAttrs
   (fun env declName _ => checkIsDefinition env declName)
 
 @[init mkInlineAttrs]
-constant inlineAttrs : EnumAttributes InlineAttributeKind := default _
+constant inlineAttrs : EnumAttributes InlineAttributeKind := arbitrary _
 
 private partial def hasInlineAttrAux (env : Environment) (kind : InlineAttributeKind) : Name → Bool
 | n =>

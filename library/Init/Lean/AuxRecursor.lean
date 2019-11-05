@@ -12,7 +12,7 @@ def mkAuxRecursorExtension : IO TagDeclarationExtension :=
 mkTagDeclarationExtension `auxRec
 
 @[init mkAuxRecursorExtension]
-constant auxRecExt : TagDeclarationExtension := default _
+constant auxRecExt : TagDeclarationExtension := arbitrary _
 
 @[export lean_mark_aux_recursor]
 def markAuxRecursor (env : Environment) (n : Name) : Environment :=
@@ -26,7 +26,7 @@ def mkNoConfusionExtension : IO TagDeclarationExtension :=
 mkTagDeclarationExtension `noConf
 
 @[init mkNoConfusionExtension]
-constant noConfusionExt : TagDeclarationExtension := default _
+constant noConfusionExt : TagDeclarationExtension := arbitrary _
 
 @[export lean_mark_no_confusion]
 def markNoConfusion (env : Environment) (n : Name) : Environment :=

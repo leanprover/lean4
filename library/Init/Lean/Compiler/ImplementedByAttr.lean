@@ -24,7 +24,7 @@ registerParametricAttribute `implementedBy "name of the Lean (probably unsafe) f
     | _ => Except.error "expected identifier"
 
 @[init mkImplementedByAttr]
-constant implementedByAttr : ParametricAttribute Name := default _
+constant implementedByAttr : ParametricAttribute Name := arbitrary _
 
 @[export lean_get_implemented_by]
 def getImplementedBy (env : Environment) (n : Name) : Option Name :=

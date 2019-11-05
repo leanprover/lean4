@@ -78,7 +78,7 @@ match s with
 | _ => Except.error "unexpected kind of argument"
 
 @[extern "lean_add_extern"]
-constant addExtern (env : Environment) (n : Name) : ExceptT String Id Environment := default _
+constant addExtern (env : Environment) (n : Name) : ExceptT String Id Environment := arbitrary _
 
 def mkExternAttr : IO (ParametricAttribute ExternAttrData) :=
 registerParametricAttribute `extern "builtin and foreign functions"
@@ -90,7 +90,7 @@ registerParametricAttribute `extern "builtin and foreign functions"
       pure env)
 
 @[init mkExternAttr]
-constant externAttr : ParametricAttribute ExternAttrData := default _
+constant externAttr : ParametricAttribute ExternAttrData := arbitrary _
 
 @[export lean_get_extern_attr_data]
 def getExternAttrData (env : Environment) (n : Name) : Option ExternAttrData :=

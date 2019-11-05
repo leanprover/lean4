@@ -82,7 +82,7 @@ a.get ⟨i.toNat, h⟩
 /- "Comfortable" version of `fget`. It performs a bound check at runtime. -/
 @[extern "lean_array_get"]
 def get! [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
-if h : i < a.size then a.get ⟨i, h⟩ else default α
+if h : i < a.size then a.get ⟨i, h⟩ else arbitrary α
 
 def back [Inhabited α] (a : Array α) : α :=
 a.get! (a.size - 1)

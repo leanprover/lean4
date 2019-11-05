@@ -25,7 +25,7 @@ registerEnumAttributes `elaboratorStrategy
    (`elabAsEliminator, "instructs elaborator that the arguments of the function application (f ...) should be elaborated as f were an eliminator", ElaboratorStrategy.asEliminator)]
 
 @[init mkElaboratorStrategyAttrs]
-constant elaboratorStrategyAttrs : EnumAttributes ElaboratorStrategy := default _
+constant elaboratorStrategyAttrs : EnumAttributes ElaboratorStrategy := arbitrary _
 
 @[export lean_get_elaborator_strategy]
 def getElaboratorStrategy (env : Environment) (n : Name) : Option ElaboratorStrategy :=

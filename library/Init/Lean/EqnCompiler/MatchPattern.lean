@@ -13,7 +13,7 @@ def mkMatchPatternAttr : IO TagAttribute :=
 registerTagAttribute `matchPattern "mark that a definition can be used in a pattern (remark: the dependent pattern matching compiler will unfold the definition)"
 
 @[init mkMatchPatternAttr]
-constant matchPatternAttr : TagAttribute := default _
+constant matchPatternAttr : TagAttribute := arbitrary _
 
 @[export lean_has_match_pattern_attribute]
 def hasMatchPatternAttribute (env : Environment) (n : Name) : Bool :=

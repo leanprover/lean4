@@ -10,13 +10,13 @@ namespace System
 namespace Platform
 
 @[extern "lean_system_platform_nbits"]
-constant getNumBits : Unit → Nat := default _
+constant getNumBits : Unit → Nat := arbitrary _
 
 @[extern "lean_system_platform_windows"]
-constant getIsWindows : Unit → Bool := default _
+constant getIsWindows : Unit → Bool := arbitrary _
 
 @[extern "lean_system_platform_osx"]
-constant getIsOSX : Unit → Bool := default _
+constant getIsOSX : Unit → Bool := arbitrary _
 
 def numBits : Nat := getNumBits ()
 def isWindows : Bool := getIsWindows ()

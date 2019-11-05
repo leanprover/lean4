@@ -14,10 +14,10 @@ class Hashable (α : Type u) :=
 export Hashable (hash)
 
 @[extern "lean_usize_mix_hash"]
-constant mixHash (u₁ u₂ : USize) : USize := default _
+constant mixHash (u₁ u₂ : USize) : USize := arbitrary _
 
 @[extern "lean_string_hash"]
-protected constant String.hash (s : String) : USize := default _
+protected constant String.hash (s : String) : USize := arbitrary _
 instance : Hashable String := ⟨String.hash⟩
 
 protected def Nat.hash (n : Nat) : USize :=

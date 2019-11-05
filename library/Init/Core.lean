@@ -1020,11 +1020,8 @@ structure PointedType :=
 class Inhabited (α : Sort u) :=
 (default : α)
 
-constant default (α : Sort u) [Inhabited α] : α :=
+constant arbitrary (α : Sort u) [Inhabited α] : α :=
 Inhabited.default α
-
-@[inline, irreducible] def arbitrary (α : Sort u) [Inhabited α] : α :=
-default α
 
 instance Prop.Inhabited : Inhabited Prop :=
 ⟨True⟩
@@ -1033,7 +1030,7 @@ instance Fun.Inhabited (α : Sort u) {β : Sort v} [h : Inhabited β] : Inhabite
 Inhabited.casesOn h (fun b => ⟨fun a => b⟩)
 
 instance Forall.Inhabited (α : Sort u) {β : α → Sort v} [∀ x, Inhabited (β x)] : Inhabited (∀ x, β x) :=
-⟨fun a => default (β a)⟩
+⟨fun a => arbitrary (β a)⟩
 
 instance : Inhabited Bool := ⟨false⟩
 
@@ -1041,7 +1038,7 @@ instance : Inhabited True := ⟨trivial⟩
 
 instance : Inhabited Nat := ⟨0⟩
 
-instance : Inhabited NonScalar := ⟨⟨default _⟩⟩
+instance : Inhabited NonScalar := ⟨⟨arbitrary _⟩⟩
 
 instance : Inhabited PointedType := ⟨{type := PUnit, val := ⟨⟩}⟩
 
@@ -1052,7 +1049,7 @@ protected def Nonempty.elim {α : Sort u} {p : Prop} (h₁ : Nonempty α) (h₂ 
 Nonempty.rec h₂ h₁
 
 instance nonemptyOfInhabited {α : Sort u} [Inhabited α] : Nonempty α :=
-⟨default α⟩
+⟨arbitrary α⟩
 
 theorem nonemptyOfExists {α : Sort u} {p : α → Prop} : Exists (fun x => p x) → Nonempty α
 | ⟨w, h⟩ => ⟨w⟩
@@ -1195,10 +1192,10 @@ section
 variables {α : Type u} {β : Type v}
 
 instance Sum.inhabitedLeft [h : Inhabited α] : Inhabited (Sum α β) :=
-⟨Sum.inl (default α)⟩
+⟨Sum.inl (arbitrary α)⟩
 
 instance Sum.inhabitedRight [h : Inhabited β] : Inhabited (Sum α β) :=
-⟨Sum.inr (default β)⟩
+⟨Sum.inr (arbitrary β)⟩
 
 instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : DecidableEq (Sum α β) :=
 {decEq := fun a b =>
@@ -1219,7 +1216,7 @@ section
 variables {α : Type u} {β : Type v}
 
 instance [Inhabited α] [Inhabited β] : Inhabited (Prod α β) :=
-⟨(default α, default β)⟩
+⟨(arbitrary α, arbitrary β)⟩
 
 instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
 {decEq := fun ⟨a, b⟩ ⟨a', b'⟩ =>
@@ -1710,7 +1707,7 @@ noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α :=
 
 noncomputable def typeDecidable (α : Sort u) : PSum α (α → False) :=
 match (propDecidable (Nonempty α)) with
-| (isTrue hp)  => PSum.inl (@Inhabited.default _ (inhabitedOfNonempty hp))
+| (isTrue hp)  => PSum.inl (@arbitrary _ (inhabitedOfNonempty hp))
 | (isFalse hn) => PSum.inr (fun a => absurd (Nonempty.intro a) hn)
 
 noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop)

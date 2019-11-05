@@ -26,19 +26,19 @@ structure AttributeImpl :=
 (applicationTime := AttributeApplicationTime.afterTypeChecking)
 
 instance AttributeImpl.inhabited : Inhabited AttributeImpl :=
-⟨{ name := default _, descr := default _, add := fun env _ _ _ => pure env }⟩
+⟨{ name := arbitrary _, descr := arbitrary _, add := fun env _ _ _ => pure env }⟩
 
 def mkAttributeMapRef : IO (IO.Ref (HashMap Name AttributeImpl)) :=
 IO.mkRef {}
 
 @[init mkAttributeMapRef]
-constant attributeMapRef : IO.Ref (HashMap Name AttributeImpl) := default _
+constant attributeMapRef : IO.Ref (HashMap Name AttributeImpl) := arbitrary _
 
 def mkAttributeArrayRef : IO (IO.Ref (Array AttributeImpl)) :=
 IO.mkRef #[]
 
 @[init mkAttributeArrayRef]
-constant attributeArrayRef : IO.Ref (Array AttributeImpl) := default _
+constant attributeArrayRef : IO.Ref (Array AttributeImpl) := arbitrary _
 
 /- Low level attribute registration function. -/
 def registerAttribute (attr : AttributeImpl) : IO Unit :=
@@ -174,7 +174,7 @@ do ext : PersistentEnvExtension Name NameSet ← registerPersistentEnvExtension 
 
 namespace TagAttribute
 
-instance : Inhabited TagAttribute := ⟨{attr := default _, ext := default _}⟩
+instance : Inhabited TagAttribute := ⟨{attr := arbitrary _, ext := arbitrary _}⟩
 
 def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
 match env.getModuleIdxFor decl with
@@ -225,12 +225,12 @@ do ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistent
 
 namespace ParametricAttribute
 
-instance {α : Type} : Inhabited (ParametricAttribute α) := ⟨{attr := default _, ext := default _}⟩
+instance {α : Type} : Inhabited (ParametricAttribute α) := ⟨{attr := arbitrary _, ext := arbitrary _}⟩
 
 def getParam {α : Type} [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) : Option α :=
 match env.getModuleIdxFor decl with
 | some modIdx =>
-  match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default _) (fun a b => Name.quickLt a.1 b.1) with
+  match (attr.ext.getModuleEntries env modIdx).binSearch (decl, arbitrary _) (fun a b => Name.quickLt a.1 b.1) with
   | some (_, val) => some val
   | none          => none
 | none        => (attr.ext.getState env).find decl
@@ -279,12 +279,12 @@ do ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistent
 
 namespace EnumAttributes
 
-instance {α : Type} : Inhabited (EnumAttributes α) := ⟨{attrs := [], ext := default _}⟩
+instance {α : Type} : Inhabited (EnumAttributes α) := ⟨{attrs := [], ext := arbitrary _}⟩
 
 def getValue {α : Type} [Inhabited α] (attr : EnumAttributes α) (env : Environment) (decl : Name) : Option α :=
 match env.getModuleIdxFor decl with
 | some modIdx =>
-  match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default _) (fun a b => Name.quickLt a.1 b.1) with
+  match (attr.ext.getModuleEntries env modIdx).binSearch (decl, arbitrary _) (fun a b => Name.quickLt a.1 b.1) with
   | some (_, val) => some val
   | none          => none
 | none        => (attr.ext.getState env).find decl

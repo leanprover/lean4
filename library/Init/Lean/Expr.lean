@@ -82,7 +82,7 @@ attribute [extern "lean_expr_mk_proj"]   Expr.proj
 
 -- deprecated Constructor
 @[extern "lean_expr_local"]
-constant Expr.local (n : Name) (pp : Name) (ty : Expr) (bi : BinderInfo) : Expr := default _
+constant Expr.local (n : Name) (pp : Name) (ty : Expr) (bi : BinderInfo) : Expr := arbitrary _
 
 def mkApp (f : Expr) (args : Array Expr) : Expr :=
 args.foldl Expr.app f
@@ -102,43 +102,43 @@ revArgs.foldr (fun a r => Expr.app r a) fn
 
 namespace Expr
 @[extern "lean_expr_hash"]
-constant hash (n : @& Expr) : USize := default USize
+constant hash (n : @& Expr) : USize := arbitrary USize
 
 instance : Hashable Expr := ⟨Expr.hash⟩
 
 -- TODO: implement it in Lean
 @[extern "lean_expr_dbg_to_string"]
-constant dbgToString (e : @& Expr) : String := default String
+constant dbgToString (e : @& Expr) : String := arbitrary String
 
 @[extern "lean_expr_quick_lt"]
-constant quickLt (a : @& Expr) (b : @& Expr) : Bool := default _
+constant quickLt (a : @& Expr) (b : @& Expr) : Bool := arbitrary _
 
 @[extern "lean_expr_lt"]
-constant lt (a : @& Expr) (b : @& Expr) : Bool := default _
+constant lt (a : @& Expr) (b : @& Expr) : Bool := arbitrary _
 
 /- Return true iff `a` and `b` are alpha equivalent.
    Binder annotations are ignored. -/
 @[extern "lean_expr_eqv"]
-constant eqv (a : @& Expr) (b : @& Expr) : Bool := default _
+constant eqv (a : @& Expr) (b : @& Expr) : Bool := arbitrary _
 
 instance : HasBeq Expr := ⟨Expr.eqv⟩
 
 /- Return true iff `a` and `b` are equal.
    Binder names and annotations are taking into account. -/
 @[extern "lean_expr_equal"]
-constant equal (a : @& Expr) (b : @& Expr) : Bool := default _
+constant equal (a : @& Expr) (b : @& Expr) : Bool := arbitrary _
 
 @[extern "lean_expr_has_expr_mvar"]
-constant hasExprMVar (a : @& Expr) : Bool := default _
+constant hasExprMVar (a : @& Expr) : Bool := arbitrary _
 
 @[extern "lean_expr_has_level_mvar"]
-constant hasLevelMVar (a : @& Expr) : Bool := default _
+constant hasLevelMVar (a : @& Expr) : Bool := arbitrary _
 
 @[inline] def hasMVar (a : Expr) : Bool :=
 a.hasExprMVar || a.hasLevelMVar
 
 @[extern "lean_expr_has_fvar"]
-constant hasFVar (a : @& Expr) : Bool := default _
+constant hasFVar (a : @& Expr) : Bool := arbitrary _
 
 def isSort : Expr → Bool
 | sort _ => true
@@ -308,30 +308,30 @@ def letName! : Expr → Name
 /-- Instantiate the loose bound variables in `e` using `subst`.
     That is, a loose `Expr.bvar i` is replaced with `subst[i]`. -/
 @[extern "lean_expr_instantiate"]
-constant instantiate (e : @& Expr) (subst : @& Array Expr) : Expr := default _
+constant instantiate (e : @& Expr) (subst : @& Array Expr) : Expr := arbitrary _
 
 @[extern "lean_expr_instantiate1"]
-constant instantiate1 (e : @& Expr) (subst : @& Expr) : Expr := default _
+constant instantiate1 (e : @& Expr) (subst : @& Expr) : Expr := arbitrary _
 
 /-- Similar to instantiate, but `Expr.bvar i` is replaced with `subst[subst.size - i - 1]` -/
 @[extern "lean_expr_instantiate_rev"]
-constant instantiateRev (e : @& Expr) (subst : @& Array Expr) : Expr := default _
+constant instantiateRev (e : @& Expr) (subst : @& Array Expr) : Expr := arbitrary _
 
 /-- Similar to `instantiate`, but consider only the variables `xs` in the range `[beginIdx, endIdx)`.
     Function panics if `beginIdx <= endIdx <= xs.size` does not hold. -/
 @[extern "lean_expr_instantiate_range"]
-constant instantiateRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : Array Expr) : Expr := default _
+constant instantiateRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : Array Expr) : Expr := arbitrary _
 
 /-- Replace free variables `xs` with loose bound variables. -/
 @[extern "lean_expr_abstract"]
-constant abstract (e : @& Expr) (xs : @& Array Expr) : Expr := default _
+constant abstract (e : @& Expr) (xs : @& Array Expr) : Expr := arbitrary _
 
 /-- Similar to `abstract`, but consider only the first `min n xs.size` entries in `xs`. -/
 @[extern "lean_expr_abstract_range"]
-constant abstractRange (e : @& Expr) (n : @& Nat) (xs : @& Array Expr) : Expr := default _
+constant abstractRange (e : @& Expr) (n : @& Nat) (xs : @& Array Expr) : Expr := arbitrary _
 
 @[extern "lean_instantiate_lparams"]
-constant instantiateLevelParams (e : Expr) (paramNames : List Name) (lvls : List Level) : Expr := default _
+constant instantiateLevelParams (e : Expr) (paramNames : List Name) (lvls : List Level) : Expr := arbitrary _
 
 instance : HasToString Expr :=
 ⟨Expr.dbgToString⟩
@@ -377,7 +377,7 @@ protected def beq : ExprStructEq → ExprStructEq → Bool
 protected def hash : ExprStructEq → USize
 | ⟨e⟩ => e.hash
 
-instance : Inhabited ExprStructEq := ⟨{ val := default _ }⟩
+instance : Inhabited ExprStructEq := ⟨{ val := arbitrary _ }⟩
 instance : HasBeq ExprStructEq := ⟨ExprStructEq.beq⟩
 instance : Hashable ExprStructEq := ⟨ExprStructEq.hash⟩
 instance : HasToString ExprStructEq := ⟨fun e => toString e.val⟩

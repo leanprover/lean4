@@ -110,7 +110,7 @@ def IO.mkStdGenRef : IO (IO.Ref StdGen) :=
 IO.mkRef mkStdGen
 
 @[init IO.mkStdGenRef]
-constant IO.stdGenRef : IO.Ref StdGen := default _
+constant IO.stdGenRef : IO.Ref StdGen := arbitrary _
 
 def IO.setRandSeed (n : Nat) : IO Unit :=
 IO.stdGenRef.set (mkStdGen n)

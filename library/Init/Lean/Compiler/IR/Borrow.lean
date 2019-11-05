@@ -126,7 +126,7 @@ ApplyParamMap.visitDecls decls map
 
 structure BorrowInfCtx :=
 (env : Environment)
-(currFn : FunId := default _) -- Function being analyzed.
+(currFn : FunId := arbitrary _) -- Function being analyzed.
 (paramSet : IndexSet := {}) -- Set of all function parameters in scope. This is used to implement the heuristic at `ownArgsUsingParams`
 
 structure BorrowInfState :=

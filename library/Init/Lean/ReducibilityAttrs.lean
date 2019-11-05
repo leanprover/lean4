@@ -20,7 +20,7 @@ registerEnumAttributes `reducibility
    (`irreducible, "irreducible", ReducibilityStatus.irreducible)]
 
 @[init mkReducibilityAttrs]
-constant reducibilityAttrs : EnumAttributes ReducibilityStatus := default _
+constant reducibilityAttrs : EnumAttributes ReducibilityStatus := arbitrary _
 
 @[export lean_get_reducibility_status]
 def getReducibilityStatus (env : Environment) (n : Name) : ReducibilityStatus :=

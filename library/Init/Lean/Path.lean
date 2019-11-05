@@ -23,7 +23,7 @@ do curr ← realPathNormalized ".";
    IO.mkRef #[curr]
 
 @[init mkSearchPathRef]
-constant searchPathRef : IO.Ref (Array String) := default _
+constant searchPathRef : IO.Ref (Array String) := arbitrary _
 
 def setSearchPath (s : List String) : IO Unit :=
 do s ← s.mapM realPathNormalized;

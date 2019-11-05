@@ -13,7 +13,7 @@ def mkNeverExtractAttr : IO TagAttribute :=
 registerTagAttribute `neverExtract "instruct the compiler that function applications using the tagged declaration should not be extracted when they are closed terms, nor common subexpression should be performed. This is useful for declarations that have implicit effects."
 
 @[init mkNeverExtractAttr]
-constant neverExtractAttr : TagAttribute := default _
+constant neverExtractAttr : TagAttribute := arbitrary _
 
 private partial def hasNeverExtractAttributeAux (env : Environment) : Name → Bool
 | n =>

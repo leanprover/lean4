@@ -26,7 +26,7 @@ registerParametricAttribute `export "name to be used by code generators" $ fun _
   | _ => Except.error "unexpected kind of argument"
 
 @[init mkExportAttr]
-constant exportAttr : ParametricAttribute Name := default _
+constant exportAttr : ParametricAttribute Name := arbitrary _
 
 @[export lean_get_export_name_for]
 def getExportNameFor (env : Environment) (n : Name) : Option Name :=

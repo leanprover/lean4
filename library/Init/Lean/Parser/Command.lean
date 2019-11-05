@@ -10,7 +10,7 @@ namespace Lean
 namespace Parser
 
 @[init mkBuiltinParsingTablesRef]
-constant builtinCommandParsingTable : IO.Ref ParsingTables := default _
+constant builtinCommandParsingTable : IO.Ref ParsingTables := arbitrary _
 
 @[init] def regBuiltinCommandParserAttr : IO Unit :=
 registerBuiltinParserAttribute `builtinCommandParser `Lean.Parser.builtinCommandParsingTable
@@ -19,7 +19,7 @@ def mkCommandParserAttribute : IO ParserAttribute :=
 registerParserAttribute `commandParser "command" "command parser" (some builtinCommandParsingTable)
 
 @[init mkCommandParserAttribute]
-constant commandParserAttribute : ParserAttribute := default _
+constant commandParserAttribute : ParserAttribute := arbitrary _
 
 @[inline] def commandParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
 { fn := fun _ => commandParserAttribute.runParser rbp }

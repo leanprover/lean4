@@ -23,7 +23,7 @@ registerTagAttribute `unbox "compiler tries to unbox result values if their type
     | _ => Except.error "constant must be an inductive type"
 
 @[init mkUnboxAttr]
-constant unboxAttr : TagAttribute := default _
+constant unboxAttr : TagAttribute := arbitrary _
 
 def hasUnboxAttr (env : Environment) (n : Name) : Bool :=
 unboxAttr.hasTag env n

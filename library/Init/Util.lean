@@ -23,10 +23,10 @@ def dbgSleep {α : Type u} (ms : UInt32) (f : Unit → α) : α :=
 f ()
 
 @[extern c inline "#4"]
-unsafe def unsafeCast {α : Type u} {β : Type v} [Inhabited β] (a : α) : β := default _
+unsafe def unsafeCast {α : Type u} {β : Type v} [Inhabited β] (a : α) : β := arbitrary _
 
 @[neverExtract, extern c inline "lean_panic_fn(#3)"]
-constant panic {α : Type u} [Inhabited α] (msg : String) : α := default _
+constant panic {α : Type u} [Inhabited α] (msg : String) : α := arbitrary _
 
 @[neverExtract]
 def panicWithPos {α : Type u} [Inhabited α] (modName : String) (line col : Nat) (msg : String) : α :=

@@ -60,10 +60,10 @@ match fn.run () with
 end
 
 @[extern "lean_io_timeit"]
-constant timeit {α : Type} (msg : @& String) (fn : IO α) : IO α := default _
+constant timeit {α : Type} (msg : @& String) (fn : IO α) : IO α := arbitrary _
 
 @[extern "lean_io_allocprof"]
-constant allocprof {α : Type} (msg : @& String) (fn : IO α) : IO α := default _
+constant allocprof {α : Type} (msg : @& String) (fn : IO α) : IO α := arbitrary _
 
 /- Programs can execute IO actions during initialization that occurs before
    the `main` function is executed. The attribute `[init <action>]` specifies
@@ -71,7 +71,7 @@ constant allocprof {α : Type} (msg : @& String) (fn : IO α) : IO α := default
 
    The action `initializing` returns `true` iff it is invoked during initialization. -/
 @[extern "lean_io_initializing"]
-constant IO.initializing : IO Bool := default _
+constant IO.initializing : IO Bool := arbitrary _
 
 abbrev monadIO (m : Type → Type) := HasMonadLiftT IO m
 
@@ -101,35 +101,35 @@ open Fs
   | Sum.inr b => pure b
 
 @[extern "lean_io_prim_put_str"]
-constant putStr (s: @& String) : IO Unit := default _
+constant putStr (s: @& String) : IO Unit := arbitrary _
 @[extern "lean_io_prim_read_text_file"]
-constant readTextFile (s : @& String) : IO String := default _
+constant readTextFile (s : @& String) : IO String := arbitrary _
 @[extern "lean_io_prim_get_line"]
-constant getLine : IO String := default _
+constant getLine : IO String := arbitrary _
 @[extern "lean_io_prim_handle_mk"]
-constant handle.mk (s : @& String) (m : Mode) (bin : Bool := false) : IO handle := default _
+constant handle.mk (s : @& String) (m : Mode) (bin : Bool := false) : IO handle := arbitrary _
 @[extern "lean_io_prim_handle_is_eof"]
-constant handle.isEof (h : @& handle) : IO Bool := default _
+constant handle.isEof (h : @& handle) : IO Bool := arbitrary _
 @[extern "lean_io_prim_handle_flush"]
-constant handle.flush (h : @& handle) : IO Unit := default _
+constant handle.flush (h : @& handle) : IO Unit := arbitrary _
 @[extern "lean_io_prim_handle_close"]
-constant handle.close (h : @& handle) : IO Unit := default _
+constant handle.close (h : @& handle) : IO Unit := arbitrary _
 -- TODO: replace `String` with byte buffer
 -- constant handle.read : handle → Nat → EIO String
 -- constant handle.write : handle → String → EIO Unit
 @[extern "lean_io_prim_handle_get_line"]
-constant handle.getLine (h : @& handle) : IO String := default _
+constant handle.getLine (h : @& handle) : IO String := arbitrary _
 
 @[extern "lean_io_getenv"]
-constant getEnv (var : @& String) : IO (Option String) := default _
+constant getEnv (var : @& String) : IO (Option String) := arbitrary _
 @[extern "lean_io_realpath"]
-constant realPath (fname : String) : IO String := default _
+constant realPath (fname : String) : IO String := arbitrary _
 @[extern "lean_io_is_dir"]
-constant isDir (fname : @& String) : IO Bool := default _
+constant isDir (fname : @& String) : IO Bool := arbitrary _
 @[extern "lean_io_file_exists"]
-constant fileExists (fname : @& String) : IO Bool := default _
+constant fileExists (fname : @& String) : IO Bool := arbitrary _
 @[extern "lean_io_app_dir"]
-constant appPath : IO String := default _
+constant appPath : IO String := arbitrary _
 
 @[inline] def liftIO {m : Type → Type} {α : Type} [monadIO m] (x : IO α) : m α :=
 monadLift x
@@ -235,21 +235,21 @@ end Proc
 
 
 /- References -/
-constant RefPointed (α : Type) : PointedType := default _
+constant RefPointed (α : Type) : PointedType := arbitrary _
 def Ref (α : Type) : Type := (RefPointed α).type
 instance (α : Type) : Inhabited (Ref α) := ⟨(RefPointed α).val⟩
 
 namespace Prim
 @[extern "lean_io_mk_ref"]
-constant mkRef {α : Type} (a : α) : IO (Ref α)                := default _
+constant mkRef {α : Type} (a : α) : IO (Ref α)                := arbitrary _
 @[extern "lean_io_ref_get"]
-constant Ref.get {α : Type} (r : @& Ref α) : IO α             := default _
+constant Ref.get {α : Type} (r : @& Ref α) : IO α             := arbitrary _
 @[extern "lean_io_ref_set"]
-constant Ref.set {α : Type} (r : @& Ref α) (a : α) : IO Unit  := default _
+constant Ref.set {α : Type} (r : @& Ref α) (a : α) : IO Unit  := arbitrary _
 @[extern "lean_io_ref_swap"]
-constant Ref.swap {α : Type} (r : @& Ref α) (a : α) : IO α     := default _
+constant Ref.swap {α : Type} (r : @& Ref α) (a : α) : IO α    := arbitrary _
 @[extern "lean_io_ref_reset"]
-constant Ref.reset {α : Type} (r : @& Ref α) : IO Unit         := default _
+constant Ref.reset {α : Type} (r : @& Ref α) : IO Unit        := arbitrary _
 end Prim
 
 section

@@ -106,7 +106,7 @@ registerSimplePersistentEnvExtension {
 }
 
 @[init mkFunctionSummariesExtension]
-constant functionSummariesExt : SimplePersistentEnvExtension (FunId × Value) FunctionSummaries := default _
+constant functionSummariesExt : SimplePersistentEnvExtension (FunId × Value) FunctionSummaries := arbitrary _
 
 def addFunctionSummary (env : Environment) (fid : FunId) (v : Value) : Environment :=
 functionSummariesExt.addEntry env (fid, v)

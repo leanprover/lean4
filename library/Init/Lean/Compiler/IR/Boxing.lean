@@ -62,16 +62,16 @@ do let ps := decl.params;
         if !p.ty.isScalar then pure (newVDecls, xs.push (Arg.var q.x))
         else do
           x ← mkFresh;
-          pure (newVDecls.push (FnBody.vdecl x p.ty (Expr.unbox q.x) (default _)), xs.push (Arg.var x)))
+          pure (newVDecls.push (FnBody.vdecl x p.ty (Expr.unbox q.x) (arbitrary _)), xs.push (Arg.var x)))
      (#[], #[]);
    r ← mkFresh;
-   let newVDecls := newVDecls.push (FnBody.vdecl r decl.resultType (Expr.fap decl.name xs) (default _));
+   let newVDecls := newVDecls.push (FnBody.vdecl r decl.resultType (Expr.fap decl.name xs) (arbitrary _));
    body ←
      if !decl.resultType.isScalar then do {
        pure $ reshape newVDecls (FnBody.ret (Arg.var r))
      } else do {
        newR ← mkFresh;
-       let newVDecls := newVDecls.push (FnBody.vdecl newR IRType.object (Expr.box decl.resultType r) (default _));
+       let newVDecls := newVDecls.push (FnBody.vdecl newR IRType.object (Expr.box decl.resultType r) (arbitrary _));
        pure $ reshape newVDecls (FnBody.ret (Arg.var newR))
      };
    pure $ Decl.fdecl (mkBoxedName decl.name) qs IRType.object body
@@ -106,7 +106,7 @@ def eqvTypes (t₁ t₂ : IRType) : Bool :=
 (t₁.isScalar == t₂.isScalar) && (!t₁.isScalar || t₁ == t₂)
 
 structure BoxingContext :=
-(f : FunId := default _) (localCtx : LocalContext := {}) (resultType : IRType := IRType.irrelevant) (decls : Array Decl) (env : Environment)
+(f : FunId := arbitrary _) (localCtx : LocalContext := {}) (resultType : IRType := IRType.irrelevant) (decls : Array Decl) (env : Environment)
 
 structure BoxingState :=
 (nextIdx : Index)
@@ -149,7 +149,7 @@ def getDecl (fid : FunId) : M Decl :=
 do ctx ← read;
    match findEnvDecl' ctx.env fid ctx.decls with
    | some decl => pure decl
-   | none      => pure (default _) -- unreachable if well-formed
+   | none      => pure (arbitrary _) -- unreachable if well-formed
 
 @[inline] def withParams {α : Type} (xs : Array Param) (k : M α) : M α :=
 adaptReader (fun (ctx : BoxingContext) => { localCtx := ctx.localCtx.addParams xs, .. ctx }) k

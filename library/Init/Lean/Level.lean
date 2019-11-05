@@ -144,12 +144,12 @@ def instantiate (s : Name → Option Level) : Level → Level
 | l           => l
 
 @[extern "lean_level_hash"]
-protected constant hash (n : @& Level) : USize := default USize
+protected constant hash (n : @& Level) : USize := arbitrary USize
 
 instance hashable : Hashable Level := ⟨Level.hash⟩
 
 @[extern "lean_level_eq"]
-protected constant beq (a : @& Level) (b : @& Level) : Bool := default _
+protected constant beq (a : @& Level) (b : @& Level) : Bool := arbitrary _
 
 instance : HasBeq Level := ⟨Level.beq⟩
 

@@ -77,7 +77,7 @@ structure ParserContextCore :=
 (tokens   : TokenTable)
 
 instance ParserContextCore.inhabited : Inhabited ParserContextCore :=
-⟨{ input := "", fileName := "", fileMap := default _, tokens := {} }⟩
+⟨{ input := "", fileName := "", fileMap := arbitrary _, tokens := {} }⟩
 
 structure ParserContext extends ParserContextCore :=
 (env      : Environment)
@@ -1327,7 +1327,7 @@ def mkBuiltinTokenTable : IO (IO.Ref TokenTable) :=
 IO.mkRef {}
 
 @[init mkBuiltinTokenTable]
-constant builtinTokenTable : IO.Ref TokenTable := default _
+constant builtinTokenTable : IO.Ref TokenTable := arbitrary _
 
 def mkImportedTokenTable (es : Array (Array TokenConfig)) : IO TokenTable :=
 do table ← builtinTokenTable.get;
@@ -1341,7 +1341,7 @@ structure TokenTableAttribute :=
 (attr : AttributeImpl)
 (ext  : PersistentEnvExtension TokenConfig TokenTable)
 
-instance TokenTableAttribute.inhabited : Inhabited TokenTableAttribute := ⟨{ attr := default _, ext := default _ }⟩
+instance TokenTableAttribute.inhabited : Inhabited TokenTableAttribute := ⟨{ attr := arbitrary _, ext := arbitrary _ }⟩
 
 section
 set_option compiler.extract_closed false
@@ -1362,12 +1362,12 @@ do ext : PersistentEnvExtension TokenConfig TokenTable ← registerPersistentEnv
 end
 
 @[init mkTokenTableAttribute]
-constant tokenTableAttribute : TokenTableAttribute := default _
+constant tokenTableAttribute : TokenTableAttribute := arbitrary _
 
 /- Global table with all SyntaxNodeKind's -/
 def mkSyntaxNodeKindSetRef : IO (IO.Ref SyntaxNodeKindSet) := IO.mkRef {}
 @[init mkSyntaxNodeKindSetRef]
-constant syntaxNodeKindSetRef : IO.Ref SyntaxNodeKindSet := default _
+constant syntaxNodeKindSetRef : IO.Ref SyntaxNodeKindSet := arbitrary _
 
 def updateSyntaxNodeKinds (pinfo : ParserInfo) : IO Unit :=
 syntaxNodeKindSetRef.modify pinfo.updateKindSet
@@ -1487,7 +1487,7 @@ match unsafeIO (do tables ← ref.get; pure $ prattParser kind tables a c s) wit
 | _           => s.mkError "failed to access builtin reference"
 
 @[implementedBy runBuiltinParserUnsafe]
-constant runBuiltinParser (kind : String) (ref : IO.Ref ParsingTables) : ParserFn leading := default _
+constant runBuiltinParser (kind : String) (ref : IO.Ref ParsingTables) : ParserFn leading := arbitrary _
 
 inductive ParserAttributeEntry
 | leading (n : Name)
@@ -1498,7 +1498,7 @@ structure ParserAttribute :=
 (ext  : PersistentEnvExtension ParserAttributeEntry ParsingTables)
 (kind : String)
 
-instance ParserAttribute.inhabited : Inhabited ParserAttribute := ⟨{ attr := default _, ext := default _, kind := "" }⟩
+instance ParserAttribute.inhabited : Inhabited ParserAttribute := ⟨{ attr := arbitrary _, ext := arbitrary _, kind := "" }⟩
 
 /-
 This is just the basic skeleton where we create an

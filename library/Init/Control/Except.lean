@@ -19,7 +19,7 @@ inductive Except (ε : Type u) (α : Type v)
 attribute [unbox] Except
 
 instance {ε α : Type} [Inhabited ε] : Inhabited (Except ε α) :=
-⟨Except.error (default ε)⟩
+⟨Except.error (arbitrary ε)⟩
 
 section
 variables {ε : Type u} {α : Type v}

@@ -44,7 +44,7 @@ registerParametricAttribute `init "initialization procedure for global reference
       | _ => Except.error "unexpected kind of argument"
 
 @[init mkInitAttr]
-constant initAttr : ParametricAttribute Name := default _
+constant initAttr : ParametricAttribute Name := arbitrary _
 
 def isIOUnitInitFn (env : Environment) (fn : Name) : Bool :=
 match initAttr.getParam env fn with

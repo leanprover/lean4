@@ -368,7 +368,7 @@ structure MkBindingState (σ : Type) :=
 (ngen  : NameGenerator)
 (cache : HashMap Expr Expr := {}) --
 
-abbrev M (σ : Type) := EState MkBindingException (MkBindingState σ)
+abbrev M (σ : Type) := EStateM MkBindingException (MkBindingState σ)
 
 instance (σ) : MonadHashMapCacheAdapter Expr Expr (M σ) :=
 { getCache    := do s ← get; pure s.cache,
@@ -543,8 +543,8 @@ end MkBinding
 
 def mkBinding (isLambda : Bool) (mctx : σ) (ngen : NameGenerator) (lctx : LocalContext) (xs : Array Expr) (e : Expr) : Except MkBindingException (σ × NameGenerator × Expr) :=
 match (MkBinding.mkBinding isLambda MkBinding.elimMVarDeps lctx xs e).run { mctx := mctx, ngen := ngen } with
-| EState.Result.ok e s      => Except.ok (s.mctx, s.ngen, e)
-| EState.Result.error err _ => Except.error err
+| EStateM.Result.ok e s      => Except.ok (s.mctx, s.ngen, e)
+| EStateM.Result.error err _ => Except.error err
 
 @[inline] def mkLambda (mctx : σ) (ngen : NameGenerator) (lctx : LocalContext) (xs : Array Expr) (e : Expr) : Except MkBindingException (σ × NameGenerator × Expr) :=
 mkBinding true mctx ngen lctx xs e

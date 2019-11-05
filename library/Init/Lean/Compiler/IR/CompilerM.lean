@@ -36,7 +36,7 @@ log.format.pretty
 structure CompilerState :=
 (env : Environment) (log : Log := #[])
 
-abbrev CompilerM := ReaderT Options (EState String CompilerState)
+abbrev CompilerM := ReaderT Options (EStateM String CompilerState)
 
 def log (entry : LogEntry) : CompilerM Unit :=
 modify $ fun s => { log := s.log.push entry, .. s }

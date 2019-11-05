@@ -72,7 +72,7 @@ structure TypeUtilState (σ ϕ : Type) :=
 (postponed      : Array PostponedEntry := #[])
 
 /-- Type Context Monad -/
-abbrev TypeUtilM (σ ϕ : Type) := ReaderT TypeUtilContext (EState TypeUtilException (TypeUtilState σ ϕ))
+abbrev TypeUtilM (σ ϕ : Type) := ReaderT TypeUtilContext (EStateM TypeUtilException (TypeUtilState σ ϕ))
 
 namespace TypeUtil
 variables {σ ϕ : Type}
@@ -100,7 +100,7 @@ instance tracer : SimpleMonadTracerAdapter (TypeUtilM σ ϕ) :=
 @[inline] private def liftStateMCtx {α} (x : StateM σ α) : TypeUtilM σ ϕ α :=
 fun _ s =>
   let (a, mctx) := x.run s.mctx;
-  EState.Result.ok a { mctx := mctx, .. s }
+  EStateM.Result.ok a { mctx := mctx, .. s }
 
 export AbstractMetavarContext (hasAssignableLevelMVar isReadOnlyLevelMVar auxMVarSupport getExprAssignment)
 

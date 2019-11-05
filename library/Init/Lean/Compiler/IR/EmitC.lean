@@ -29,7 +29,7 @@ structure Context :=
 (mainFn     : FunId := default _)
 (mainParams : Array Param := #[])
 
-abbrev M := ReaderT Context (EState String String)
+abbrev M := ReaderT Context (EStateM String String)
 
 def getEnv : M Environment := Context.env <$> read
 def getModName : M Name := Context.modName <$> read
@@ -713,8 +713,8 @@ end EmitC
 @[export lean_ir_emit_c]
 def emitC (env : Environment) (modName : Name) : Except String String :=
 match (EmitC.main { env := env, modName := modName }).run "" with
-| EState.Result.ok    _   s => Except.ok s
-| EState.Result.error err _ => Except.error err
+| EStateM.Result.ok    _   s => Except.ok s
+| EStateM.Result.error err _ => Except.error err
 
 end IR
 end Lean

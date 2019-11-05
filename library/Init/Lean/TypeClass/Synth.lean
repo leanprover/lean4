@@ -71,7 +71,7 @@ structure TCState : Type :=
 (resumeQueue    : Queue (ConsumerNode × TypedExpr)  := Queue.empty)
 (tableEntries   : PersistentHashMap Expr TableEntry := PersistentHashMap.empty)
 
-abbrev TCMethod : Type → Type := EState String TCState
+abbrev TCMethod : Type → Type := EStateM String TCState
 
 -- TODO(dselsam): once `whnf` is ready, need a more expensive pass as a backup,
 -- that creates locals and calls `whnf` on every recursion.
@@ -137,8 +137,8 @@ do let ⟨mvar, mvarType⟩ := futureAnswer;
    let ⟨lctx, mvarType, locals⟩ := introduceLocals 0 {} #[] mvarType;
    let ⟨ctx, instVal, instType, newMVars⟩ := introduceMVars lctx locals ctx instVal instType #[];
    match (Context.eUnify mvarType instType *> Context.eUnify mvar (lctx.mkLambda locals instVal)).run ctx with
-   | EState.Result.error msg   _ => pure none
-   | EState.Result.ok    _   ctx => pure $ some $ (ctx, newMVars.toList) -- TODO(dselsam): rm toList
+   | EStateM.Result.error msg   _ => pure none
+   | EStateM.Result.ok    _   ctx => pure $ some $ (ctx, newMVars.toList) -- TODO(dselsam): rm toList
 
 def newConsumerNode (node : Node) (ctx : Context) (newMVars : List Expr) : TCMethod Unit :=
 let cNode : ConsumerNode := { remainingSubgoals := newMVars, ctx := ctx, .. node };
@@ -295,8 +295,8 @@ do env ← get >>= λ ϕ => pure ϕ.env;
    modify $ λ ϕ => { mainMVar := mvar .. ϕ };
    ⟨instVal, instType⟩ ← synthCore ctx₀ goalType fuel;
    match (Context.eUnify goalType₀ instType).run ctx with
-   | EState.Result.error msg _ => throw $ "outParams do not match: " ++ toString goalType₀ ++ " ≠ " ++ toString instType
-   | EState.Result.ok _ ctx => do
+   | EStateM.Result.error msg _ => throw $ "outParams do not match: " ++ toString goalType₀ ++ " ≠ " ++ toString instType
+   | EStateM.Result.ok _ ctx => do
      let instVal : Expr := ctx.eInstantiate instVal;
      when (Context.eHasTmpMVar instVal) $ throw "synthesized instance has mvar";
      pure instVal

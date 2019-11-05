@@ -71,13 +71,13 @@ instance stateAdapter (α β σ : Type) [HasBeq α] [Hashable α] : MonadHashMap
 { getCache    := WithHashMapCache.getCache,
   modifyCache := WithHashMapCache.modifyCache }
 
-@[inline] def getCacheE {α β ε σ : Type} [HasBeq α] [Hashable α] : EState ε (WithHashMapCache α β σ) (HashMap α β) :=
+@[inline] def getCacheE {α β ε σ : Type} [HasBeq α] [Hashable α] : EStateM ε (WithHashMapCache α β σ) (HashMap α β) :=
 do s ← get; pure s.cache
 
-@[inline] def modifyCacheE {α β ε σ : Type} [HasBeq α] [Hashable α] (f : HashMap α β → HashMap α β) : EState ε (WithHashMapCache α β σ) Unit :=
+@[inline] def modifyCacheE {α β ε σ : Type} [HasBeq α] [Hashable α] (f : HashMap α β → HashMap α β) : EStateM ε (WithHashMapCache α β σ) Unit :=
 modify $ fun s => { cache := f s.cache, .. s }
 
-instance estateAdapter (α β ε σ : Type) [HasBeq α] [Hashable α] : MonadHashMapCacheAdapter α β (EState ε (WithHashMapCache α β σ)) :=
+instance estateAdapter (α β ε σ : Type) [HasBeq α] [Hashable α] : MonadHashMapCacheAdapter α β (EStateM ε (WithHashMapCache α β σ)) :=
 { getCache    := WithHashMapCache.getCacheE,
   modifyCache := WithHashMapCache.modifyCacheE }
 
@@ -93,13 +93,13 @@ adaptState'
   (fun (s : WithHashMapCache α β σ) => s.state)
   x
 
-@[inline] def fromEState {α β σ ε δ : Type} [HasBeq α] [Hashable α] (x : EState ε σ δ) : EState ε (WithHashMapCache α β σ) δ :=
+@[inline] def fromEState {α β σ ε δ : Type} [HasBeq α] [Hashable α] (x : EStateM ε σ δ) : EStateM ε (WithHashMapCache α β σ) δ :=
 adaptState
   (fun (s : WithHashMapCache α β σ)  => (s.state, s.cache))
   (fun (s : σ) (cache : HashMap α β) => { state := s, cache := cache })
   x
 
-@[inline] def toEState {α β σ ε δ : Type} [HasBeq α] [Hashable α] (x : EState ε (WithHashMapCache α β σ) δ) : EState ε σ δ :=
+@[inline] def toEState {α β σ ε δ : Type} [HasBeq α] [Hashable α] (x : EStateM ε (WithHashMapCache α β σ) δ) : EStateM ε σ δ :=
 adaptState'
   (fun (s : σ) => ({ state := s } : WithHashMapCache α β σ))
   (fun (s : WithHashMapCache α β σ) => s.state)

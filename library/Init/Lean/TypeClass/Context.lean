@@ -26,7 +26,7 @@ instance Context.Inhabited : Inhabited Context := ⟨{}⟩
 structure ContextFail : Type :=
 (msg : String)
 
-abbrev ContextFn : Type → Type := EState ContextFail Context
+abbrev ContextFn : Type → Type := EStateM ContextFail Context
 
 namespace Context
 
@@ -145,10 +145,10 @@ uFind (λ l => l == l₀) l
 def uHasTmpMVar (l : Level) : Bool :=
 uFind uIsMeta l
 
-partial def uUnify : Level → Level → EState String Context Unit
+partial def uUnify : Level → Level → EStateM String Context Unit
 | l₁, l₂ => do
-  l₁ ← EState.fromStateM $ uShallowInstantiate l₁;
-  l₂ ← EState.fromStateM $ uShallowInstantiate l₂;
+  l₁ ← EStateM.fromStateM $ uShallowInstantiate l₁;
+  l₂ ← EStateM.fromStateM $ uShallowInstantiate l₂;
   if uIsMeta l₂ && !(uIsMeta l₁)
   then uUnify l₂ l₁
   else
@@ -162,7 +162,7 @@ partial def uUnify : Level → Level → EState String Context Unit
       match uMetaIdx l₁ with
       | none     => when (!(l₁ == l₂)) $ throw "Level.mvar clash"
       | some idx => do when (uOccursIn l₁ l₂) $ throw  "occurs";
-                       EState.fromStateM $ uAssignIdx idx l₂
+                       EStateM.fromStateM $ uAssignIdx idx l₂
     | _, _ => throw $ "lUnify: " ++ toString l₁ ++ " !=?= " ++ toString l₂
 
 partial def uInstantiate (ctx : Context) : Level → Level
@@ -202,13 +202,13 @@ partial def slowWhnfApp (args : Array Expr) : Expr → Nat → Expr
 partial def slowWhnf : Expr → Expr
 | e => if e.isApp then slowWhnfApp e.getAppArgs (slowWhnf e.getAppFn) 0 else e
 
-partial def eUnify : Expr → Expr → EState String Context Unit
+partial def eUnify : Expr → Expr → EStateM String Context Unit
 | e₁, e₂ =>
   if !e₁.hasMVar && !e₂.hasMVar
   then unless (e₁ == e₂) $ throw $ "eUnify: " ++ toString e₁ ++ " !=?= " ++ toString e₂
   else do
-    e₁ ← slowWhnf <$> (EState.fromStateM $ eShallowInstantiate e₁);
-    e₂ ← slowWhnf <$> (EState.fromStateM $ eShallowInstantiate e₂);
+    e₁ ← slowWhnf <$> (EStateM.fromStateM $ eShallowInstantiate e₁);
+    e₂ ← slowWhnf <$> (EStateM.fromStateM $ eShallowInstantiate e₂);
     if e₁.isMVar && e₂.isMVar && e₁ == e₂ then pure ()
     else if eIsMeta e₂ && !(eIsMeta e₁) then eUnify e₂ e₁
     else if e₁.isBVar && e₂.isBVar && e₁.bvarIdx! == e₂.bvarIdx! then pure ()
@@ -225,7 +225,7 @@ partial def eUnify : Expr → Expr → EState String Context Unit
       eUnify e₁.bindingBody! e₂.bindingBody!
     else if eIsMeta e₁ && !(eOccursIn e₂ e₁) then
       match eMetaIdx e₁ with
-      | some idx => EState.fromStateM $ eAssignIdx idx e₂
+      | some idx => EStateM.fromStateM $ eAssignIdx idx e₂
       | none     => panic! "UNREACHABLE"
     else
       throw $ "eUnify: " ++ toString e₁ ++ " !=?= " ++ toString e₂

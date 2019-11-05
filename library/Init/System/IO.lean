@@ -21,13 +21,13 @@ def IO.RealWorld : Type := Unit
    def getWorld : IO (IO.RealWorld) := get
    ```
 -/
-def EIO (ε : Type) : Type → Type := EState ε IO.RealWorld
+def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
 
-instance (ε : Type) : Monad (EIO ε) := inferInstanceAs (Monad (EState ε IO.RealWorld))
-instance (ε : Type) : MonadExcept ε (EIO ε) := inferInstanceAs (MonadExcept ε (EState ε IO.RealWorld))
+instance (ε : Type) : Monad (EIO ε) := inferInstanceAs (Monad (EStateM ε IO.RealWorld))
+instance (ε : Type) : MonadExcept ε (EIO ε) := inferInstanceAs (MonadExcept ε (EStateM ε IO.RealWorld))
 instance (α ε : Type) : HasOrelse (EIO ε α) := ⟨MonadExcept.orelse⟩
 instance {ε : Type} {α : Type} [Inhabited ε] : Inhabited (EIO ε α) :=
-inferInstanceAs (Inhabited (EState ε IO.RealWorld α))
+inferInstanceAs (Inhabited (EStateM ε IO.RealWorld α))
 
 /-
 In the future, we may want to give more concrete data
@@ -54,8 +54,8 @@ section
 set_option compiler.extract_closed false
 @[inline] unsafe def unsafeIO {α : Type} (fn : IO α) : Except IO.Error α :=
 match fn.run () with
-| EState.Result.ok a _    => Except.ok a
-| EState.Result.error e _ => Except.error e
+| EStateM.Result.ok a _    => Except.ok a
+| EStateM.Result.error e _ => Except.error e
 
 end
 

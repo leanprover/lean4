@@ -71,7 +71,7 @@ instance : Inhabited ElabException := ⟨other "error"⟩
 
 end ElabException
 
-abbrev Elab := ReaderT ElabContext (EState ElabException ElabState)
+abbrev Elab := ReaderT ElabContext (EStateM ElabException ElabState)
 
 instance str2ElabException : HasCoe String ElabException := ⟨ElabException.other⟩
 
@@ -293,7 +293,7 @@ structure FrontendState :=
 (elabState   : ElabState)
 (parserState : Parser.ModuleParserState)
 
-abbrev Frontend := ReaderT Parser.ParserContextCore (EState ElabException FrontendState)
+abbrev Frontend := ReaderT Parser.ParserContextCore (EStateM ElabException FrontendState)
 
 def getElabContext : Frontend ElabContext :=
 do c ← read;
@@ -301,7 +301,7 @@ do c ← read;
 
 @[specialize] def runElab {α} (x : Elab α) : Frontend α :=
 do c ← getElabContext;
-   monadLift $ EState.adaptState
+   monadLift $ EStateM.adaptState
       (fun (s : FrontendState) => (s.elabState, s.parserState))
       (fun es ps => { elabState := es, parserState := ps })
       (x c)
@@ -394,8 +394,8 @@ do env ← mkEmptyEnvironment;
      (env, messages) ← processHeader baseDir header messages ctx;
      let elabState := { ElabState . env := env, messages := messages };
      match (processCommands ctx).run { elabState := elabState, parserState := parserState } with
-       | EState.Result.ok _ s    => pure (s.elabState.env, s.elabState.messages)
-       | EState.Result.error _ s => pure (s.elabState.env, s.elabState.messages)
+       | EStateM.Result.ok _ s    => pure (s.elabState.env, s.elabState.messages)
+       | EStateM.Result.error _ s => pure (s.elabState.env, s.elabState.messages)
 
 instance {α} : Inhabited (Elab α) :=
 ⟨fun _ => default _⟩

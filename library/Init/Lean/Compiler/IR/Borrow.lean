@@ -69,7 +69,7 @@ ps.map $ fun p => { borrow := p.ty.isObj, .. p }
 def initBorrowIfNotExported (exported : Bool) (ps : Array Param) : Array Param :=
 if exported then ps else initBorrow ps
 
-partial def visitFnBody (fnid : FunId) : FnBody → State ParamMap Unit
+partial def visitFnBody (fnid : FunId) : FnBody → StateM ParamMap Unit
 | FnBody.jdecl j xs v b   => do
   modify $ fun m => m.insert (Key.jp fnid j) (initBorrow xs);
   visitFnBody v;
@@ -79,7 +79,7 @@ partial def visitFnBody (fnid : FunId) : FnBody → State ParamMap Unit
     let (instr, b) := e.split;
     visitFnBody b
 
-def visitDecls (env : Environment) (decls : Array Decl) : State ParamMap Unit :=
+def visitDecls (env : Environment) (decls : Array Decl) : StateM ParamMap Unit :=
 decls.forM $ fun decl => match decl with
   | Decl.fdecl f xs _ b => do
     let exported := isExport env f;
@@ -137,7 +137,7 @@ structure BorrowInfState :=
 (modifiedOwned : Bool := false)
 (modifiedParamMap : Bool := false)
 
-abbrev M := ReaderT BorrowInfCtx (State BorrowInfState)
+abbrev M := ReaderT BorrowInfCtx (StateM BorrowInfState)
 
 def markModifiedParamMap : M Unit :=
 modify $ fun s => { modifiedParamMap := true, .. s }

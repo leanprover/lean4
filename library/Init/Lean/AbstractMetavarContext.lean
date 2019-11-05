@@ -164,7 +164,7 @@ def hasAssignedMVar (mctx : σ) : Expr → Bool
 | Expr.proj _ _ e      => e.hasMVar && hasAssignedMVar e
 | Expr.mvar mvarId     => isExprAssigned mctx mvarId
 
-partial def instantiateLevelMVars : Level → State σ Level
+partial def instantiateLevelMVars : Level → StateM σ Level
 | lvl@(Level.succ lvl₁)      => do lvl₁ ← instantiateLevelMVars lvl₁; pure (Level.updateSucc! lvl lvl₁)
 | lvl@(Level.max lvl₁ lvl₂)  => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateMax! lvl lvl₁ lvl₂)
 | lvl@(Level.imax lvl₁ lvl₂) => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateIMax! lvl lvl₁ lvl₂)
@@ -181,7 +181,7 @@ partial def instantiateLevelMVars : Level → State σ Level
 | lvl => pure lvl
 
 namespace InstantiateExprMVars
-abbrev M (σ : Type) := State (WithHashMapCache Expr Expr σ)
+abbrev M (σ : Type) := StateM (WithHashMapCache Expr Expr σ)
 
 @[inline] def instantiateLevelMVars (lvl : Level) : M σ Level :=
 WithHashMapCache.fromState $ AbstractMetavarContext.instantiateLevelMVars lvl
@@ -281,13 +281,13 @@ partial def main : Expr → M σ Expr
 
 end InstantiateExprMVars
 
-def instantiateMVars (e : Expr) : State σ Expr :=
+def instantiateMVars (e : Expr) : StateM σ Expr :=
 if !e.hasMVar then pure e
 else WithHashMapCache.toState $ InstantiateExprMVars.main e
 
 namespace DependsOn
 
-abbrev M := State ExprSet
+abbrev M := StateM ExprSet
 
 @[inline] def visit (main : Expr → M Bool) (e : Expr) : M Bool :=
 if !e.hasMVar && !e.hasFVar then

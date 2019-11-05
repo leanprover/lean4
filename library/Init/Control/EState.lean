@@ -128,7 +128,7 @@ fun s =>
 instance {ε σ σ'} : MonadStateAdapter σ σ' (EState ε σ) (EState ε σ') :=
 ⟨fun σ'' α => EState.adaptState⟩
 
-@[inline] def fromState {ε σ α : Type} (x : State σ α) : EState ε σ α :=
+@[inline] def fromStateM {ε σ α : Type} (x : StateM σ α) : EState ε σ α :=
 fun s =>
   match x.run s with
   | (a, s') => EState.Result.ok a s'

@@ -41,7 +41,7 @@ def isBoxedName : Name → Bool
 | Name.mkString _ "_boxed"   => true
 | _ => false
 
-abbrev N := State Nat
+abbrev N := StateM Nat
 
 private def mkFresh : N VarId :=
 modifyGet $ fun n => ({ idx := n }, n + 1)

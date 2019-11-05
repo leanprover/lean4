@@ -76,7 +76,7 @@ def normExpr : Expr → M Expr
 | Expr.isTaggedPtr x,  m => Expr.isTaggedPtr (normVar x m)
 | e@(Expr.lit v),      m =>  e
 
-abbrev N := ReaderT IndexRenaming (State Nat)
+abbrev N := ReaderT IndexRenaming (StateM Nat)
 
 @[inline] def withVar {α : Type} (x : VarId) (k : VarId → N α) : N α :=
 fun m => do

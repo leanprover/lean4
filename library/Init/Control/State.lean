@@ -21,7 +21,7 @@ x s
 @[inline] def StateT.run' {σ : Type u} {m : Type u → Type v} [Functor m] {α : Type u} (x : StateT σ m α) (s : σ) : m α :=
 Prod.fst <$> x s
 
-@[reducible] def State (σ α : Type u) : Type u := StateT σ Id α
+@[reducible] def StateM (σ α : Type u) : Type u := StateT σ Id α
 
 namespace StateT
 section

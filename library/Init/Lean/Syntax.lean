@@ -207,7 +207,7 @@ private def updateInfo : SourceInfo → String.Pos → SourceInfo
 /- Remark: the State `String.Pos` is the `SourceInfo.trailing.stopPos` of the previous token,
    or the beginning of the String. -/
 @[inline]
-private def updateLeadingAux {α} : Syntax α → State String.Pos (Option (Syntax α))
+private def updateLeadingAux {α} : Syntax α → StateM String.Pos (Option (Syntax α))
 | atom (some info) val   => do
   last ← get;
   set info.trailing.stopPos;

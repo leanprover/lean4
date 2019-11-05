@@ -136,7 +136,7 @@ mask.foldl
     | none   => b)
   b
 
-abbrev M := ReaderT Context (State Nat)
+abbrev M := ReaderT Context (StateM Nat)
 def mkFresh : M VarId :=
 modifyGet $ fun n => ({ idx := n }, n + 1)
 

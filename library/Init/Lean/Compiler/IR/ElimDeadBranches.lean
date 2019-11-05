@@ -126,7 +126,7 @@ structure InterpState :=
 (assignments : Array Assignment)
 (funVals     : PArray Value) -- we take snapshots during fixpoint computations
 
-abbrev M := ReaderT InterpContext (State InterpState)
+abbrev M := ReaderT InterpContext (StateM InterpState)
 
 open Value
 

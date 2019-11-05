@@ -38,7 +38,7 @@ namespace IsLive
   Remark: we don't need to track local join points because we assume there is
   no variable or join point shadowing in our IR.
 -/
-abbrev M := State LocalContext
+abbrev M := StateM LocalContext
 
 @[inline] def visitVar (w : Index) (x : VarId) : M Bool := pure (HasIndex.visitVar w x)
 @[inline] def visitJP (w : Index) (x : JoinPointId) : M Bool := pure (HasIndex.visitJP w x)

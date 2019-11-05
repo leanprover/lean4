@@ -44,16 +44,16 @@ def eMetaIdx : Expr → Option Nat
 
 def eIsMeta (e : Expr) : Bool := (eMetaIdx e).toBool
 
-def eNewMeta (type : Expr) : State Context Expr :=
+def eNewMeta (type : Expr) : StateM Context Expr :=
 do ctx ← get;
    let idx := ctx.eTypes.size;
    set { eTypes := ctx.eTypes.push type, eVals := ctx.eVals.push none, .. ctx };
    pure $ Expr.mvar (mkNumName metaPrefix idx)
 
-def eLookupIdx (idx : Nat) : State Context (Option Expr) :=
+def eLookupIdx (idx : Nat) : StateM Context (Option Expr) :=
 do ctx ← get; pure $ ctx.eVals.get! idx
 
-partial def eShallowInstantiate : Expr → State Context Expr
+partial def eShallowInstantiate : Expr → StateM Context Expr
 | e =>
   match eMetaIdx e with
   | some idx => get >>= λ ctx =>
@@ -62,7 +62,7 @@ partial def eShallowInstantiate : Expr → State Context Expr
     | some v => eShallowInstantiate v
   | none => pure e
 
-def eInferIdx (idx : Nat) : State Context Expr :=
+def eInferIdx (idx : Nat) : StateM Context Expr :=
 do ctx ← get; pure $ ctx.eTypes.get! idx
 
 def eInfer (ctx : Context) (mvar : Expr) : Expr :=
@@ -70,10 +70,10 @@ match eMetaIdx mvar with
 | some idx => ctx.eTypes.get! idx
 | none     => panic! "eInfer called on non-(tmp-)mvar"
 
-def eAssignIdx (idx : Nat) (e : Expr) : State Context Unit :=
+def eAssignIdx (idx : Nat) (e : Expr) : StateM Context Unit :=
 modify $ λ ctx => { eVals := ctx.eVals.set idx (some e) .. ctx }
 
-def eAssign (mvar : Expr) (e : Expr) : State Context Unit :=
+def eAssign (mvar : Expr) (e : Expr) : StateM Context Unit :=
 match eMetaIdx mvar with
 | some idx => modify $ λ ctx => { eVals := ctx.eVals.set idx (some e) .. ctx }
 | _        => panic! "eAssign called on non-(tmp-)mvar"
@@ -102,16 +102,16 @@ def uMetaIdx : Level → Option Nat
 
 def uIsMeta (l : Level) : Bool := (uMetaIdx l).toBool
 
-def uNewMeta : State Context Level :=
+def uNewMeta : StateM Context Level :=
 do ctx ← get;
    let idx := ctx.uVals.size;
    set { uVals := ctx.uVals.push none, .. ctx };
    pure $ Level.mvar (mkNumName metaPrefix idx)
 
-def uLookupIdx (idx : Nat) : State Context (Option Level) :=
+def uLookupIdx (idx : Nat) : StateM Context (Option Level) :=
 do ctx ← get; pure $ ctx.uVals.get! idx
 
-partial def uShallowInstantiate : Level → State Context Level
+partial def uShallowInstantiate : Level → StateM Context Level
 | l =>
   match uMetaIdx l with
   | some idx => get >>= λ ctx =>
@@ -120,10 +120,10 @@ partial def uShallowInstantiate : Level → State Context Level
     | some v => uShallowInstantiate v
   | none => pure l
 
-def uAssignIdx (idx : Nat) (l : Level) : State Context Unit :=
+def uAssignIdx (idx : Nat) (l : Level) : StateM Context Unit :=
 modify $ λ ctx => { uVals := ctx.uVals.set idx (some l) .. ctx }
 
-def uAssign (umvar : Level) (l : Level) : State Context Unit :=
+def uAssign (umvar : Level) (l : Level) : StateM Context Unit :=
 match uMetaIdx umvar with
 | some idx => modify $ λ ctx => { uVals := ctx.uVals.set idx (some l) .. ctx }
 | _        => panic! "uassign called on non-(tmp-)mvar"
@@ -147,8 +147,8 @@ uFind uIsMeta l
 
 partial def uUnify : Level → Level → EState String Context Unit
 | l₁, l₂ => do
-  l₁ ← EState.fromState $ uShallowInstantiate l₁;
-  l₂ ← EState.fromState $ uShallowInstantiate l₂;
+  l₁ ← EState.fromStateM $ uShallowInstantiate l₁;
+  l₂ ← EState.fromStateM $ uShallowInstantiate l₂;
   if uIsMeta l₂ && !(uIsMeta l₁)
   then uUnify l₂ l₁
   else
@@ -162,7 +162,7 @@ partial def uUnify : Level → Level → EState String Context Unit
       match uMetaIdx l₁ with
       | none     => when (!(l₁ == l₂)) $ throw "Level.mvar clash"
       | some idx => do when (uOccursIn l₁ l₂) $ throw  "occurs";
-                       EState.fromState $ uAssignIdx idx l₂
+                       EState.fromStateM $ uAssignIdx idx l₂
     | _, _ => throw $ "lUnify: " ++ toString l₁ ++ " !=?= " ++ toString l₂
 
 partial def uInstantiate (ctx : Context) : Level → Level
@@ -207,8 +207,8 @@ partial def eUnify : Expr → Expr → EState String Context Unit
   if !e₁.hasMVar && !e₂.hasMVar
   then unless (e₁ == e₂) $ throw $ "eUnify: " ++ toString e₁ ++ " !=?= " ++ toString e₂
   else do
-    e₁ ← slowWhnf <$> (EState.fromState $ eShallowInstantiate e₁);
-    e₂ ← slowWhnf <$> (EState.fromState $ eShallowInstantiate e₂);
+    e₁ ← slowWhnf <$> (EState.fromStateM $ eShallowInstantiate e₁);
+    e₂ ← slowWhnf <$> (EState.fromStateM $ eShallowInstantiate e₂);
     if e₁.isMVar && e₂.isMVar && e₁ == e₂ then pure ()
     else if eIsMeta e₂ && !(eIsMeta e₁) then eUnify e₂ e₁
     else if e₁.isBVar && e₂.isBVar && e₁.bvarIdx! == e₂.bvarIdx! then pure ()
@@ -225,7 +225,7 @@ partial def eUnify : Expr → Expr → EState String Context Unit
       eUnify e₁.bindingBody! e₂.bindingBody!
     else if eIsMeta e₁ && !(eOccursIn e₂ e₁) then
       match eMetaIdx e₁ with
-      | some idx => EState.fromState $ eAssignIdx idx e₂
+      | some idx => EState.fromStateM $ eAssignIdx idx e₂
       | none     => panic! "UNREACHABLE"
     else
       throw $ "eUnify: " ++ toString e₁ ++ " !=?= " ++ toString e₂
@@ -254,7 +254,7 @@ structure AlphaNormData : Type :=
 (eRenameMap : RBMap Nat Nat (λ n₁ n₂ => n₁ < n₂) := mkRBMap _ _ _)
 (uRenameMap : RBMap Nat Nat (λ n₁ n₂ => n₁ < n₂) := mkRBMap _ _ _)
 
-partial def uAlphaNormalizeCore : Level → State AlphaNormData Level
+partial def uAlphaNormalizeCore : Level → StateM AlphaNormData Level
 | l =>
   if !l.hasMVar then pure l else
     match l with
@@ -280,7 +280,7 @@ partial def uAlphaNormalizeCore : Level → State AlphaNormData Level
           pure l
         | some alphaIdx => pure $ Level.mvar (mkNumName alphaMetaPrefix alphaIdx)
 
-partial def eAlphaNormalizeCore : Expr → State AlphaNormData Expr
+partial def eAlphaNormalizeCore : Expr → StateM AlphaNormData Expr
 | e =>
   if e.isConst then pure e
   else if e.isFVar then pure e

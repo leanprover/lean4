@@ -97,7 +97,7 @@ instance tracer : SimpleMonadTracerAdapter (TypeUtilM σ ϕ) :=
   getTraceState    := getTraceState,
   modifyTraceState := fun f => modify $ fun s => { traceState := f s.traceState, .. s } }
 
-@[inline] private def liftStateMCtx {α} (x : State σ α) : TypeUtilM σ ϕ α :=
+@[inline] private def liftStateMCtx {α} (x : StateM σ α) : TypeUtilM σ ϕ α :=
 fun _ s =>
   let (a, mctx) := x.run s.mctx;
   EState.Result.ok a { mctx := mctx, .. s }

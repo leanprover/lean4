@@ -20,7 +20,7 @@ match b with
 
 namespace UsesLeanNamespace
 
-abbrev M := ReaderT Environment (State NameSet)
+abbrev M := ReaderT Environment (StateM NameSet)
 
 def leanNameSpacePrefix := `Lean
 
@@ -57,7 +57,7 @@ def usesLeanNamespace (env : Environment) : Decl → Bool
 
 namespace CollectUsedDecls
 
-abbrev M := ReaderT Environment (State NameSet)
+abbrev M := ReaderT Environment (StateM NameSet)
 
 @[inline] def collect (f : FunId) : M Unit :=
 modify $ fun s => s.insert f

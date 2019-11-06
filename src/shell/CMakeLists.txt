@@ -204,6 +204,15 @@ FOREACH(T_OUT ${LEANBENCHTESTS})
            COMMAND bash "./test_single.sh" ${T_NAME})
 ENDFOREACH(T_OUT)
 
+# LEAN PLUGIN TESTS
+file(GLOB LEANINTERPTESTS "${LEAN_SOURCE_DIR}/../tests/plugin/*.lean")
+FOREACH(T ${LEANINTERPTESTS})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leanplugintest_${T_NAME}"
+           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/plugin"
+           COMMAND bash "./test_single.sh" ${T_NAME})
+ENDFOREACH(T)
+
 # LEANPKG TESTS
 # file(GLOB LEANPKGTESTS "${LEAN_SOURCE_DIR}/../tests/lean/leanpkg/*.sh")
 # FOREACH(T ${LEANPKGTESTS})

@@ -65,11 +65,11 @@ lean_object* l_Lean_privateExt___elambda__1(lean_object*);
 uint8_t lean_is_protected(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_isPrivateName___boxed(lean_object*);
-lean_object* l_EState_pure___rarg(lean_object*, lean_object*);
 lean_object* lean_mk_private_prefix(lean_object*);
 lean_object* l_Lean_privateHeader___closed__2;
 lean_object* l_Lean_mkPrivateExtension(lean_object*);
 lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
+lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_mkProtectedExtension(lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkPrivateExtension___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt___elambda__4(lean_object*);
@@ -508,7 +508,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_alloc_closure((void*)(l_EState_pure___rarg), 2, 1);
+x_2 = lean_alloc_closure((void*)(l_EStateM_pure___rarg), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }

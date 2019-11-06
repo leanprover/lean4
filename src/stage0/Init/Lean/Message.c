@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_Lean_mkErrorStringWithPos(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_coeOfLevel(lean_object*);
 lean_object* l_Lean_MessageLog_empty;
+extern lean_object* l_EStateM_Result_toString___rarg___closed__2;
 lean_object* l_Array_iterateMAux___main___at_Lean_MessageData_formatAux___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_MessageData_formatAux___main___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Message_toString___closed__2;
@@ -26,7 +27,6 @@ lean_object* l_Lean_Message_Inhabited___closed__2;
 lean_object* l_Lean_fmt___at_Lean_Message_toString___spec__1(lean_object*);
 lean_object* l_Lean_Syntax_formatStx___main___rarg(lean_object*);
 lean_object* l_Lean_MessageLog_append(lean_object*, lean_object*);
-extern lean_object* l_EState_Result_toString___rarg___closed__2;
 lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_MessageLog_toList(lean_object*);
@@ -469,7 +469,7 @@ lean_object* _init_l_Lean_Message_toString___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_EState_Result_toString___rarg___closed__2;
+x_1 = l_EStateM_Result_toString___rarg___closed__2;
 x_2 = l_String_splitAux___main___closed__1;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
@@ -562,7 +562,7 @@ if (x_9 == 0)
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 x_31 = l_Lean_Message_toString___closed__1;
 x_32 = lean_string_append(x_7, x_31);
-x_33 = l_EState_Result_toString___rarg___closed__2;
+x_33 = l_EStateM_Result_toString___rarg___closed__2;
 x_34 = lean_string_append(x_33, x_32);
 lean_dec(x_32);
 x_35 = lean_string_append(x_34, x_13);

@@ -138,6 +138,7 @@ extern lean_object* l_PersistentArray_getAux___main___rarg___closed__1;
 lean_object* l_Lean_TypeClass_Context_slowWhnfApp___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_uOccursIn___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
+extern lean_object* l_panicWithPos___at___private_Init_Lean_MetavarContext_7__instantiateDelayedAux___main___spec__1___closed__1;
 lean_object* lean_expr_mk_mvar(lean_object*);
 lean_object* l_Lean_TypeClass_Context_eHasETmpMVar___boxed(lean_object*);
 uint8_t l_Lean_Expr_isMVar(lean_object*);
@@ -168,6 +169,7 @@ lean_object* l_PersistentArray_get_x21___at_Lean_TypeClass_Context_uLookupIdx___
 lean_object* l_Lean_TypeClass_Context_eInfer___boxed(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_metaPrefix;
+lean_object* l_EStateM_Inhabited___rarg(lean_object*, lean_object*);
 uint8_t l_Lean_TypeClass_Context_eIsMeta(lean_object*);
 lean_object* l_RBNode_setBlack___rarg(lean_object*);
 lean_object* l_List_foldr___main___at_Lean_TypeClass_Context_eHasTmpMVar___spec__1___boxed(lean_object*, lean_object*);
@@ -186,7 +188,6 @@ lean_object* l_Lean_TypeClass_Context_eNewMeta(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_uHasTmpMVar___boxed(lean_object*);
 lean_object* l_panicWithPos___at_Lean_TypeClass_Context_eUnify___main___spec__1___closed__1;
 extern lean_object* l_panicWithPos___rarg___closed__2;
-extern lean_object* l_panicWithPos___at_Lean_AbstractMetavarContext_InstantiateExprMVars_instantiateDelayedAux___main___spec__1___rarg___closed__1;
 lean_object* l_PersistentArray_getAux___main___at_Lean_TypeClass_Context_uLookupIdx___spec__2(lean_object*, size_t, size_t);
 lean_object* l_Lean_TypeClass_Context_uAssign(lean_object*, lean_object*, lean_object*);
 size_t l_USize_shift__left(size_t, size_t);
@@ -202,7 +203,6 @@ lean_object* l_Lean_TypeClass_Context_uOccursIn___boxed(lean_object*, lean_objec
 lean_object* l_Lean_TypeClass_Context_uInstantiate(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_uUnify___main___closed__2;
 uint8_t l_Lean_TypeClass_Context_eHasTmpMVar___lambda__1(lean_object*);
-lean_object* l_EState_Inhabited___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_eHasTmpMVar___lambda__1___boxed(lean_object*);
 extern lean_object* l_Lean_exprIsInhabited___closed__1;
 lean_object* lean_level_mk_max(lean_object*, lean_object*);
@@ -822,7 +822,7 @@ lean_object* _init_l_panicWithPos___at_Lean_TypeClass_Context_eAssign___spec__1_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_panicWithPos___at_Lean_AbstractMetavarContext_InstantiateExprMVars_instantiateDelayedAux___main___spec__1___rarg___closed__1;
+x_1 = l_panicWithPos___at___private_Init_Lean_MetavarContext_7__instantiateDelayedAux___main___spec__1___closed__1;
 x_2 = l_PUnit_Inhabited;
 x_3 = l_monadInhabited___rarg(x_1, x_2);
 return x_3;
@@ -2620,7 +2620,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_String_Inhabited;
-x_2 = lean_alloc_closure((void*)(l_EState_Inhabited___rarg), 2, 1);
+x_2 = lean_alloc_closure((void*)(l_EStateM_Inhabited___rarg), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }

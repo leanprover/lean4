@@ -32,6 +32,7 @@ lean_object* l_AssocList_find___main___at_Lean_hasOutParams___spec__6(lean_objec
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_registerInstanceAttr___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* l_Lean_ConstantInfo_value_x3f(lean_object*);
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkClassExtension___spec__7___closed__2;
 lean_object* l_Lean_isInstance___boxed(lean_object*, lean_object*);
@@ -110,7 +111,6 @@ lean_object* l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__1___closed
 lean_object* lean_io_initializing(lean_object*);
 lean_object* l_Lean_SMap_switch___at_Lean_ClassState_switch___spec__2(lean_object*);
 lean_object* l_AssocList_contains___main___at_Lean_ClassState_addEntry___spec__7___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_ConstantInfo_value(lean_object*);
 lean_object* l_Lean_classExtension___closed__3;
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_ClassState_addEntry___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkClassExtension___closed__5;
@@ -194,7 +194,6 @@ lean_object* l_mkHashMap___at_Lean_ClassState_Inhabited___spec__2(lean_object*);
 lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_mkClassExtension___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkClassExtension___lambda__1___boxed(lean_object*);
 lean_object* l_Lean_SMap_find___at_Lean_ClassState_addEntry___spec__12(lean_object*, lean_object*);
-lean_object* l_EState_bind___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_foldlM___main___at_Lean_ClassState_addEntry___spec__10(lean_object*, lean_object*);
 lean_object* l_Lean_mkClassExtension___closed__4;
 lean_object* l_Array_iterateMAux___main___at_Lean_ClassState_addEntry___spec__22___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -239,6 +238,7 @@ lean_object* l_Array_iterateMAux___main___at_Lean_mkClassExtension___spec__3(lea
 lean_object* l_HashMapImp_insert___at_Lean_ClassState_addEntry___spec__6___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_replace___main___at_Lean_ClassState_addEntry___spec__39(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerClassAttr___closed__1;
+lean_object* l_EStateM_bind___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_classExtension___elambda__4___rarg(lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 extern lean_object* l_Lean_Name_toString___closed__1;
@@ -4132,7 +4132,7 @@ x_11 = l_Array_empty___closed__1;
 lean_inc(x_10);
 x_12 = lean_apply_1(x_10, x_11);
 x_13 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
-x_14 = lean_alloc_closure((void*)(l_EState_bind___rarg), 3, 2);
+x_14 = lean_alloc_closure((void*)(l_EStateM_bind___rarg), 3, 2);
 lean_closure_set(x_14, 0, x_12);
 lean_closure_set(x_14, 1, x_13);
 x_15 = l_Lean_registerEnvExtensionUnsafe___at_Lean_mkClassExtension___spec__7(x_14, x_7);
@@ -4341,7 +4341,7 @@ x_64 = l_Array_empty___closed__1;
 lean_inc(x_63);
 x_65 = lean_apply_1(x_63, x_64);
 x_66 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
-x_67 = lean_alloc_closure((void*)(l_EState_bind___rarg), 3, 2);
+x_67 = lean_alloc_closure((void*)(l_EStateM_bind___rarg), 3, 2);
 lean_closure_set(x_67, 0, x_65);
 lean_closure_set(x_67, 1, x_66);
 x_68 = l_Lean_registerEnvExtensionUnsafe___at_Lean_mkClassExtension___spec__7(x_67, x_60);
@@ -5854,7 +5854,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_ctor_get(x_7, 0);
-x_11 = l_Lean_ConstantInfo_value(x_10);
+x_11 = l_Lean_ConstantInfo_value_x3f(x_10);
 lean_dec(x_10);
 if (lean_obj_tag(x_11) == 0)
 {
@@ -5911,7 +5911,7 @@ lean_object* x_21; lean_object* x_22;
 x_21 = lean_ctor_get(x_7, 0);
 lean_inc(x_21);
 lean_dec(x_7);
-x_22 = l_Lean_ConstantInfo_value(x_21);
+x_22 = l_Lean_ConstantInfo_value_x3f(x_21);
 lean_dec(x_21);
 if (lean_obj_tag(x_22) == 0)
 {

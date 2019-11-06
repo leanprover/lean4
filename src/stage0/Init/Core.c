@@ -154,7 +154,6 @@ lean_object* l_List_HasSizeof___rarg(lean_object*);
 lean_object* l_ite_Decidable___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_decidableOfDecidableEq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_beqOfEq___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_default___rarg(lean_object*);
 lean_object* l_Thunk_mk___boxed(lean_object*, lean_object*);
 lean_object* l_Subtype_HasSizeof___rarg(lean_object*, lean_object*);
 lean_object* l_Bool_sizeof___boxed(lean_object*);
@@ -237,7 +236,6 @@ lean_object* l_Task_pure___boxed(lean_object*, lean_object*);
 lean_object* l_Function_const___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Subtype_HasSizeof(lean_object*);
 lean_object* l_Sum_DecidableEq(lean_object*, lean_object*);
-lean_object* l_default___rarg___boxed(lean_object*);
 lean_object* l_dite___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Quot_recOnSubsingleton___rarg(lean_object*, lean_object*);
 lean_object* l_dite_Decidable(lean_object*, lean_object*, lean_object*);
@@ -293,7 +291,6 @@ lean_object* l_idRhs___rarg___boxed(lean_object*);
 lean_object* l_Quotient_recOnSubsingleton_u2082___at_Quotient_DecidableEq___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Init_Core_20__funSetoid___boxed(lean_object*, lean_object*);
 lean_object* l_Subtype_sizeof___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_default(lean_object*);
 lean_object* l_Quotient_recOn___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Ne_Decidable___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_and___boxed(lean_object*, lean_object*);
@@ -2622,30 +2619,6 @@ x_4 = l_dite_Decidable(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_4;
-}
-}
-lean_object* l_default___rarg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-lean_object* l_default(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_default___rarg___boxed), 1, 0);
-return x_2;
-}
-}
-lean_object* l_default___rarg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_default___rarg(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* l_arbitrary___rarg(lean_object* x_1) {

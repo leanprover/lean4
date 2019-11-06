@@ -15,12 +15,13 @@ extern "C" {
 #endif
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
 lean_object* lean_task_get(lean_object*);
+lean_object* l_Lean_ConstantInfo_value_x21___closed__2;
+lean_object* l_Lean_ConstantInfo_value_x21___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_name___boxed(lean_object*);
+lean_object* l_Lean_ConstantInfo_value_x3f(lean_object*);
 lean_object* l_Lean_ConstantInfo_toConstantVal(lean_object*);
-lean_object* l_Lean_ConstantInfo_value___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_instantiateValueLevelParams___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_RecursorVal_getInduct___boxed(lean_object*);
-lean_object* l_Lean_ConstantInfo_value(lean_object*);
 lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
 uint8_t l_Lean_ConstantInfo_hasValue(lean_object*);
 lean_object* l_Lean_Name_getPrefix(lean_object*);
@@ -31,13 +32,17 @@ lean_object* l_Lean_RecursorVal_getMajorIdx___boxed(lean_object*);
 lean_object* l_Lean_RecursorVal_getInduct(lean_object*);
 lean_object* l_Lean_ConstantInfo_instantiateTypeLevelParams___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_RecursorVal_getMajorIdx(lean_object*);
+lean_object* l_Lean_ConstantInfo_value_x3f___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_hints(lean_object*);
+lean_object* l_Lean_ConstantInfo_value_x21___closed__1;
 lean_object* l_Lean_ConstantInfo_toConstantVal___boxed(lean_object*);
 lean_object* lean_instantiate_type_lparams(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* l_Lean_ConstantInfo_type___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_lparams___boxed(lean_object*);
+lean_object* l_Lean_ConstantInfo_value_x21(lean_object*);
 lean_object* l_Lean_ConstantInfo_hasValue___boxed(lean_object*);
+lean_object* l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RecursorVal_getMajorIdx(lean_object* x_1) {
 _start:
 {
@@ -161,7 +166,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_ConstantInfo_value(lean_object* x_1) {
+lean_object* l_Lean_ConstantInfo_value_x3f(lean_object* x_1) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -194,11 +199,11 @@ return x_9;
 }
 }
 }
-lean_object* l_Lean_ConstantInfo_value___boxed(lean_object* x_1) {
+lean_object* l_Lean_ConstantInfo_value_x3f___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_ConstantInfo_value(x_1);
+x_2 = l_Lean_ConstantInfo_value_x3f(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -236,6 +241,64 @@ x_2 = l_Lean_ConstantInfo_hasValue(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
+}
+}
+lean_object* _init_l_Lean_ConstantInfo_value_x21___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("Init.Lean.Declaration");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_ConstantInfo_value_x21___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("declaration with value expected");
+return x_1;
+}
+}
+lean_object* l_Lean_ConstantInfo_value_x21(lean_object* x_1) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 1:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_ctor_get(x_1, 0);
+x_3 = lean_ctor_get(x_2, 1);
+lean_inc(x_3);
+return x_3;
+}
+case 2:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_4 = lean_ctor_get(x_1, 0);
+x_5 = lean_ctor_get(x_4, 1);
+x_6 = lean_task_get(x_5);
+return x_6;
+}
+default: 
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_7 = l_Lean_ConstantInfo_value_x21___closed__1;
+x_8 = lean_unsigned_to_nat(177u);
+x_9 = lean_unsigned_to_nat(31u);
+x_10 = l_Lean_ConstantInfo_value_x21___closed__2;
+x_11 = l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(x_7, x_8, x_9, x_10);
+return x_11;
+}
+}
+}
+}
+lean_object* l_Lean_ConstantInfo_value_x21___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_ConstantInfo_value_x21(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* l_Lean_ConstantInfo_hints(lean_object* x_1) {
@@ -291,6 +354,10 @@ _G_initialized = true;
 res = initialize_Init_Lean_Expr(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lean_ConstantInfo_value_x21___closed__1 = _init_l_Lean_ConstantInfo_value_x21___closed__1();
+lean_mark_persistent(l_Lean_ConstantInfo_value_x21___closed__1);
+l_Lean_ConstantInfo_value_x21___closed__2 = _init_l_Lean_ConstantInfo_value_x21___closed__2();
+lean_mark_persistent(l_Lean_ConstantInfo_value_x21___closed__2);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

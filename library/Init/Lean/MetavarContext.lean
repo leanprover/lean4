@@ -4,16 +4,194 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Control.Reader
-import Init.Control.Conditional
-import Init.Data.Option
-import Init.Data.List
 import Init.Data.Nat
+import Init.Data.Option
+import Init.Control.Reader
 import Init.Lean.LocalContext
 import Init.Lean.MonadCache
 import Init.Lean.NameGenerator
 
 namespace Lean
+
+/-
+The metavariable context stores metavariable declarations and their
+assignments. It is used in the elaborator, tactic framework, unifier
+(aka `isDefEq`), and type class resolution (TC). First, we list all
+the requirements imposed by these modules.
+
+- We may invoke TC while executing `isDefEq`. We need this feature to
+be able to solve unification problems such as:
+```
+f ?a (ringHasAdd ?s) ?x ?y =?= f Int intHasAdd n m
+```
+where `(?a : Type) (?s : Ring ?a) (?x ?y : ?a)`
+During `isDefEq` (i.e., unification), it will need to solve the constrain
+```
+ringHasAdd ?s =?= intHasAdd
+```
+We say `ringHasAdd ?s` is stuck because it cannot be reduced until we
+synthesize the term `?s : Ring ?a` using TC. This can be done since we
+have assigned `?a := Int` when solving `?a =?= Int`.
+
+- TC uses `isDefEq`, and `isDefEq` may create TC problems as shown
+aaa. Thus, we may have nested TC problems.
+
+- `isDefEq` extends the local context when going inside binders. Thus,
+the local context for nested TC may be an extension of the local
+context for outer TC.
+
+- TC should not assign metavariables created by the elaborator, simp,
+tactic framework, and outer TC problems. Reason: TC commits to the
+first solution it finds. Consider the TC problem `HasCoe Nat ?x`,
+where `?x` is a metavariable created by the caller. There are many
+solutions to this problem (e.g., `?x := Int`, `?x := Real`, ...),
+and it doesn’t make sense to commit to the first one since TC does
+not know the the constraints the caller may impose on `?x` after the
+TC problem is solved.
+Remark: we claim it is not feasible to make the whole system backtrackable,
+and allow the caller to backtrack back to TC and ask it for another solution
+if the first one found did not work. We claim it would be too inefficient.
+
+- TC metavariables should not leak outside of TC. Reason: we want to
+get rid of them after we synthesize the instance.
+
+- `simp` invokes `isDefEq` for matching the left-hand-side of
+equations to terms in our goal. Thus, it may invoke TC indirectly.
+
+- In Lean3, we didn’t have to create a fresh pattern for trying to
+match the left-hand-side of equations when executing `simp`. We had a
+mechanism called tmp metavariables. It avoided this overhead, but it
+created many problems since `simp` may indirectly call TC which may
+recursively call TC. Moreover, we want to allow TC to invoke
+tactics. Thus, when `simp` invokes `isDefEq`, it may indirectly invoke
+a tactic and `simp` itself.  The Lean3 approach assumed that
+metavariables were short-lived, this is not true in Lean4, and to some
+extent was also not true in Lean3 since `simp`, in principle, could
+trigger an arbitrary number of nested TC problems.
+
+- Here are some possible call stack traces we could have in Lean3 (and Lean4).
+```
+Elaborator (-> TC -> isDefEq)+
+Elaborator -> isDefEq (-> TC -> isDefEq)*
+Elaborator -> simp -> isDefEq (-> TC -> isDefEq)*
+```
+In Lean4, TC may also invoke tactics.
+
+- In Lean3 and Lean4, TC metavariables are not really short-lived. We
+solve an arbitrary number of unification problems, and we may have
+nested TC invocations.
+
+- TC metavariables do not share the same local context even in the
+same invocation. In the C++ and Lean implementations we use a trick to
+ensure they do:
+https://github.com/leanprover/lean/blob/92826917a252a6092cffaf5fc5f1acb1f8cef379/src/library/type_context.cpp#L3583-L3594
+
+- Metavariables may be natural or synthetic. Natural metavariables may
+be assigned by the unification (i.e., `isDefEq`). Synthetic
+metavariables are assigned by procedures (e.g., TC, tactic, or
+elaborator). This distinction was not precise in Lean3 and produced
+counterintuitive behavior. For example, the following hack was added
+in Lean3 to work around one of these issues:
+https://github.com/leanprover/lean/blob/92826917a252a6092cffaf5fc5f1acb1f8cef379/src/library/type_context.cpp#L2751
+`isDefEq` should not assign synthetic metavariables, but it must
+accumulate the constraints imposed on them by unification.
+
+- When creating lambda/forall expressions, we need to convert/abstract
+free variables and convert them to bound variables. Now, suppose we a
+trying to create a lambda/forall expression by abstracting free
+variables `xs` and a term `t[?m]` which contains a metavariable `?m`,
+and the local context of `?m` contains `xs`. The term
+```
+fun xs => t[?m]
+```
+will be ill-formed if we later assign a term `s` to `?m`, and
+`s` contains free variables in `xs`. We address this issue by changing
+the free variable abstraction procedure. We consider two cases: `?m`
+is natural, `?m` is synthetic. Assume the type of `?m` is
+`A`. Then, in both cases we create an auxiliary metavariable `?n` with
+type `forall xs => A`, and local context := local context of `?m` - `xs`.
+In both cases, we produce the term `fun xs => t[?n xs]`
+
+  1- If `?m` is natural, then we assign `?m := ?n xs`, and we produce
+  the term `fun xs => t[?n xs]`
+
+  2- If `?m` is synthetic, then we mark `?n` as a synthetic variable.
+  However, `?n` is managed by the metavariable context itself.
+  We say we have a "delayed assignment" `?n xs := ?m`.
+  That is, after a term `s` is assigned to `?m`, and `s`
+  does not contain metavariables, we assign `fun xs => s` to `?n`.
+
+Gruesome details:
+
+  - When we create the type `forall xs => A` for `?n`, we may
+  encounter the same issue if `A` contains metavariables. So, the
+  process above is recursive. We claim it terminates because we keep
+  creating new metavariables with smaller local contexts.
+
+  - The type of variables `xs` may contain metavariables, and we must
+  recursively apply the process above. Again, we claim the process
+  terminates because the metavariables is ocurring in the types of
+  `xs`, they must have smaller local contexts.
+
+  - We can only assign `fun xs => s` to `?n` in case 2, the types of
+  `xs` must also not contain metavariables. To be precise, it is
+  sufficient they do not contain metavariables with local contexts
+  containing any of the `xs`s.
+
+- We use TC for implementing coercions. Both Joe Hendrix and Reid Barton
+reported a nasty limitation. In Lean3, TC will not be used if there are
+metavariables in the TC problem. For example, the elaborator will not try
+to synthesize `HasCoe Nat ?x`. This is good, but this constraint is too
+strict for problems such as `HasCoe (Vector Bool ?n) (BV ?n)`. The coercion
+exists independently of `?n`. Thus, during TC, we want `isDefEq` to throw
+an exception instead of return `false` whenever it tries to assign
+a metavariable owned by its caller. The idea is to sign to the caller that
+it cannot solve the TC problem at this point, and more information is needed.
+That is, the caller must make progress an assign its metavariables before
+trying to invoke TC again.
+
+In Lean4, we are using a simpler design for the `MetavarContext`.
+
+- No distinction betwen temporary and regular metavariables.
+
+- Metavariables have a `depth` Nat field.
+
+- MetavarContext also has a `depth` field.
+
+- We bump the `MetavarContext` depth when we create a nested problem.
+  Example: Elaborator (depth = 0) -> Simplifier matcher (depth = 1) -> TC (level = 2) -> TC (level = 3) -> ...
+
+- When `MetavarContext` is at depth N, `isDefEq` does not assign variables from `depth < N`.
+
+- Metavariables from depth N+1 must be fully assigned before we return to level N.
+
+- New design even allows us to invoke tactics from TC.
+
+* Main concern
+We don't have tmp metavariables anymore in Lean4. Thus, before trying to match
+the left-hand-side of an equation in `simp`. We first must bump the level of the `MetavarContext`,
+create fresh metavariables, then create a new pattern by replacing the free variable on the left-hand-side with
+these metavariables. We are hoping to minimize this overhead by
+
+  - Using better indexing data structures in `simp`. They should reduce the number of time `simp` must invoke `isDefEq`.
+
+  - Implementing `isDefEqApprox` which ignores metavariables and returns only `false` or `undef`.
+    It is a quick filter that allows us to fail quickly and avoid the creation of new fresh metavariables,
+    and a new pattern.
+
+  - Adding built-in support for arithmetic, Logical connectives, etc. Thus, we avoid a bunch of lemmas in the simp set.
+
+  - Adding support for AC-rewriting. In Lean3, users use AC lemmas as
+    rewriting rules for "sorting" terms. This is inefficient, requires
+    a quadratic number of rewrite steps, and does not preserve the
+    structure of the goal.
+
+The temporary metavariables were also used in the "app builder" module used in Lean3. The app builder uses
+`isDefEq`. So, it could, in principle, invoke an arbitrary number of nested TC problems. However, in Lean3,
+all app builder uses are controlled. That is, it is mainly used to synthesize implicit arguments using
+very simple unification and/or non-nested TC. So, if the "app builder" becomes a bottleneck without tmp metavars,
+we may solve the issue by implementing `isDefEqCheap` that never invokes TC and uses tmp metavars.
+-/
 
 structure MetavarDecl :=
 (userName  : Name := Name.anonymous)
@@ -26,6 +204,10 @@ namespace MetavarDecl
 instance : Inhabited MetavarDecl := ⟨{ lctx := arbitrary _, type := arbitrary _, depth := 0, synthetic := false }⟩
 end MetavarDecl
 
+/--
+  A delayed assignment for a metavariable `?m`. It represents an assignment of the form
+  `?m := (fun fvars => val)`. The local context `lctx` provides the declarations for `fvars`.
+  Note that `fvars` may not be defined in the local context for `?m`. -/
 structure DelayedMetavarAssignment :=
 (lctx     : LocalContext)
 (fvars    : Array Expr)

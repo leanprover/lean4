@@ -67,7 +67,7 @@ do majorType ← inferType major;
        pure $ if defeq then newCtorApp else none
 
 /-- Auxiliary function for reducing recursor applications. -/
-@[specialize] def reduceRecAux {α} {m : Type → Type} [Monad m]
+@[specialize] def reduceRec {α} {m : Type → Type} [Monad m]
     (whnf      : Expr → m Expr)
     (inferType : Expr → m Expr)
     (isDefEq   : Expr → Expr → m Bool)
@@ -105,26 +105,10 @@ if h : majorIdx < recArgs.size then do
 else
   failK ()
 
-@[inline] private def matchRecApp {α} {m : Type → Type} [Monad m] (env : Environment)
-   (e : Expr) (failK : Unit → m α) (k : RecursorVal → List Level → Array Expr → m α) : m α :=
-matchConst env e.getAppFn failK $ fun cinfo recLvls =>
-  match cinfo with
-  | ConstantInfo.recInfo rec => k rec recLvls e.getAppArgs
-  | _ => failK ()
-
-/-- Reduce recursor applications. -/
-@[specialize] def reduceRec {α} {m : Type → Type} [Monad m]
-    (whnf      : Expr → m Expr)
-    (inferType : Expr → m Expr)
-    (isDefEq   : Expr → Expr → m Bool)
-    (env : Environment) (e : Expr)
-    (failK : Unit → m α) (successK : Expr → m α) : m α :=
-matchRecApp env e failK $ fun rec recLvls recArgs => reduceRecAux whnf inferType isDefEq env rec recLvls recArgs failK successK
-
 @[specialize] def isRecStuck {m : Type → Type} [Monad m]
     (whnf    : Expr → m Expr)
     (isStuck : Expr → m (Option Expr))
-    (env : Environment) (rec : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) : m (Option Expr) :=
+    (rec : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) : m (Option Expr) :=
 if rec.k then
   -- TODO: improve this case
   pure none
@@ -142,7 +126,7 @@ else do
    =========================== -/
 
 /-- Auxiliary function for reducing `Quot.lift` and `Quot.ind` applications. -/
-@[specialize] def reduceQuotRecAux {α} {m : Type → Type} [Monad m]
+@[specialize] def reduceQuotRec {α} {m : Type → Type} [Monad m]
     (whnf : Expr → m Expr)
     (env  : Environment)
     (rec  : QuotVal) (recLvls : List Level) (recArgs : Array Expr)
@@ -168,23 +152,10 @@ match rec.kind with
 | QuotKind.ind  => process 4 3
 | _             => failK ()
 
-@[inline] private def matchQuotRecApp {α} {m : Type → Type} [Monad m] (env : Environment)
-   (e : Expr) (failK : Unit → m α) (k : QuotVal → List Level → Array Expr → m α) : m α :=
-matchConst env e.getAppFn failK $ fun cinfo recLvls =>
-  match cinfo with
-  | ConstantInfo.quotInfo rec => k rec recLvls e.getAppArgs
-  | _ => failK ()
-
-@[specialize] def reduceQuotRec {α} {m : Type → Type} [Monad m]
-    (whnf : Expr → m Expr)
-    (env : Environment) (e : Expr)
-    (failK : Unit → m α) (successK : Expr → m α) : m α :=
-matchQuotRecApp env e failK $ fun rec recLvls recArg => reduceQuotRecAux whnf env rec recLvls recArg failK successK
-
 @[specialize] def isQuotRecStuck {m : Type → Type} [Monad m]
     (whnf : Expr → m Expr)
     (isStuck : Expr → m (Option Expr))
-    (env : Environment) (rec : QuotVal) (recLvls : List Level) (recArgs : Array Expr) : m (Option Expr) :=
+    (rec : QuotVal) (recLvls : List Level) (recArgs : Array Expr) : m (Option Expr) :=
 let process (majorPos : Nat) : m (Option Expr) :=
   if h : majorPos < recArgs.size then do
     let major := recArgs.get ⟨majorPos, h⟩;
@@ -201,7 +172,7 @@ match rec.kind with
    Helper functions for reducing user-facing projection functions
    =========================== -/
 
-@[specialize] def reduceProjectionFnAux {α} {m : Type → Type} [Monad m]
+@[specialize] def reduceProjectionFn {α} {m : Type → Type} [Monad m]
     (whnf : Expr → m Expr)
     (env : Environment) (projInfo : ProjectionFunctionInfo) (projArgs : Array Expr)
     (failK : Unit → m α) (successK : Expr → m α) : m α :=
@@ -217,15 +188,6 @@ if h : majorIdx < projArgs.size then do
       failK ()
 else
   failK ()
-
-@[specialize] def reduceProjectionFn {α} {m : Type → Type} [Monad m]
-    (whnf : Expr → m Expr)
-    (env : Environment) (e : Expr)
-    (failK : Unit → m α) (successK : Expr → m α) : m α :=
-matchConst env e.getAppFn failK $ fun cinfo _ =>
-  match env.getProjectionFnInfo cinfo.name with
-  | some projInfo => reduceProjectionFnAux whnf env projInfo e.getAppArgs failK successK
-  | none => failK ()
 
 def isProjectionFnStuck {m : Type → Type} [Monad m]
     (whnf    : Expr → m Expr)
@@ -256,8 +218,8 @@ else
   | Expr.mvar _            => pure (some f)
   | Expr.const fName fLvls =>
     match env.find fName with
-    | some $ ConstantInfo.recInfo rec  => isRecStuck whnf getStuckMVar env rec fLvls e.getAppArgs
-    | some $ ConstantInfo.quotInfo rec => isQuotRecStuck whnf getStuckMVar env rec fLvls e.getAppArgs
+    | some $ ConstantInfo.recInfo rec  => isRecStuck whnf getStuckMVar rec fLvls e.getAppArgs
+    | some $ ConstantInfo.quotInfo rec => isQuotRecStuck whnf getStuckMVar rec fLvls e.getAppArgs
     | some $ cinfo@(ConstantInfo.defnInfo _) =>
       match env.getProjectionFnInfo cinfo.name with
       | some projInfo => isProjectionFnStuck whnf getStuckMVar env projInfo e.getAppArgs
@@ -355,14 +317,14 @@ else
         if f == f' then pure e else pure $ e.updateFn f';
       matchConst env f' done $ fun cinfo lvls =>
         match cinfo with
-        | ConstantInfo.recInfo rec    => reduceRecAux whnf inferType isDefEq env rec lvls e.getAppArgs done whnfCore
-        | ConstantInfo.quotInfo rec   => reduceQuotRecAux whnf env rec lvls e.getAppArgs done whnfCore
+        | ConstantInfo.recInfo rec    => reduceRec whnf inferType isDefEq env rec lvls e.getAppArgs done whnfCore
+        | ConstantInfo.quotInfo rec   => reduceQuotRec whnf env rec lvls e.getAppArgs done whnfCore
         | c@(ConstantInfo.defnInfo _) =>
           if reduceAuxRec? && isAuxRecursor env c.name then
             deltaBetaDefinition c lvls e.getAppArgs done whnfCore
           else if reduceProjFn? then
             match env.getProjectionFnInfo cinfo.name with
-            | some projInfo => reduceProjectionFnAux whnf env projInfo e.getAppArgs done whnfCore
+            | some projInfo => reduceProjectionFn whnf env projInfo e.getAppArgs done whnfCore
             | none          => done ()
           else
             done ()

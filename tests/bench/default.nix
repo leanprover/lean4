@@ -4,8 +4,8 @@ let
   lean = {}:
     (pkgs.callPackage ../../default.nix {}).overrideAttrs (attrs: {
      # pin Lean commit to avoid rebuilds
-     # 2019-09-23
-     src = builtins.fetchGit { url = ../../.; rev = "345cc22f7935e4b83ed59b1a8fdf98a9241253ae"; };
+     # 2019-11-07
+     src = builtins.fetchGit { url = ../../.; rev = "3b6755dea1acf0a1a3196131dc3bf9cb7d1ea5c8"; };
     });
   # for binarytrees.hs
   ghcPackages = p: [ p.parallel ];
@@ -13,7 +13,7 @@ let
     ghc = pkgs.haskell.compiler.ghc881;
     withLLVM = true;
   };
-  ocaml = pkgs.ocaml-ng.ocamlPackages_4_08.ocaml;
+  ocaml = pkgs.ocaml-ng.ocamlPackages_latest.ocaml;
   # note that this will need to be compiled from source
   ocamlFlambda = ocaml.override { flambdaSupport = true; };
   mlton = pkgs.mlton;
@@ -35,7 +35,7 @@ let
     '';
   };
   swift = pkgs.swift;
-  temci = import (builtins.fetchGit { url = http://github.com/parttimenerd/temci.git; rev = "74086d20659731a16d0c04e9022c20fc63958322"; }) {};
+  temci = import (builtins.fetchGit { url = http://github.com/parttimenerd/temci.git; rev = "ba1505a7c2de471a5821a2643b34de2d1c1af03e"; }) {};
 in pkgs.stdenv.mkDerivation rec {
   name = "bench";
   src = pkgs.lib.sourceFilesBySuffices ./. ["Makefile" "leanpkg.path" "temci.yaml" ".py" ".lean" ".hs" ".ml" ".sml"];

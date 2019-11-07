@@ -8,8 +8,6 @@ import Init.Control.Reader
 import Init.Lean.NameGenerator
 import Init.Lean.Environment
 import Init.Lean.Trace
-import Init.Lean.InductiveUtil
-import Init.Lean.QuotUtil
 import Init.Lean.AuxRecursor
 import Init.Lean.ProjFns
 
@@ -105,107 +103,6 @@ fun _ s =>
 
 export AbstractMetavarContext (hasAssignableLevelMVar isReadOnlyLevelMVar auxMVarSupport getExprAssignment)
 
-/- ===========================
-   Weak Head Normal Form
-   =========================== -/
-
-/-- Auxiliary combinator for handling easy WHNF cases. It takes a function for handling the "hard" cases as an argument -/
-@[specialize] private partial def whnfEasyCases [AbstractMetavarContext σ] : Expr → (Expr → TypeUtilM σ ϕ Expr) → TypeUtilM σ ϕ Expr
-| e@(Expr.forallE _ _ _ _), _ => pure e
-| e@(Expr.lam _ _ _ _),     _ => pure e
-| e@(Expr.sort _),          _ => pure e
-| e@(Expr.lit _),           _ => pure e
-| e@(Expr.bvar _),          _ => unreachable!
-| Expr.mdata _ e,           k => whnfEasyCases e k
-| e@(Expr.letE _ _ _ _),    k => do
-  c ← useZeta;
-  if c then k e else pure e
-| e@(Expr.fvar fvarId),     k => do
-  ctx ← read;
-  let ldecl := (ctx.lctx.find fvarId).get!;
-  match ldecl.valueOpt with
-  | none   => pure e
-  | some v => do
-    c ← useZeta;
-    if c then
-      whnfEasyCases v k
-    else
-      pure e
-| e@(Expr.mvar mvarId),     k => do
-  mctx ← getMCtx;
-  match getExprAssignment mctx mvarId with
-  | some v => whnfEasyCases v k
-  | none   => pure e
-| e@(Expr.const _ _),       k => k e
-| e@(Expr.app _ _),         k => k e
-| e@(Expr.proj _ _ _),      k => k e
-
-/-- Return true iff term is of the form `idRhs ...` -/
-private def isIdRhsApp (e : Expr) : Bool :=
-e.isAppOf `idRhs
-
-/-- (@idRhs T f a_1 ... a_n) ==> (f a_1 ... a_n) -/
-private def extractIdRhs (e : Expr) : Expr :=
-if !isIdRhsApp e then e
-else
-  let args := e.getAppArgs;
-  if args.size < 2 then e
-  else mkAppRange (args.get! 1) 2 args.size args
-
-@[specialize] private def deltaBetaDefinition {α} (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr) (failK : Unit → α) (successK : Expr → α) : α :=
-if c.lparams.length != lvls.length then failK ()
-else
-  let val := c.instantiateValueLevelParams lvls;
-  let val := val.betaRev revArgs;
-  successK (extractIdRhs val)
-
-/--
-  Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
-  expand let-expressions, expand assigned meta-variables.
-
-  This method does *not* apply delta-reduction at the head.
-  Reason: we want to perform these reductions lazily at isDefEq.
-
-  Remark: this method delta-reduce (transparent) aux-recursors (e.g., casesOn, recOon) IF
-  `reduceAuxRec == true` -/
-@[specialize] private partial def whnfCore
-    [AbstractMetavarContext σ]
-    (whnf : Expr → TypeUtilM σ ϕ Expr)
-    (inferType : Expr → TypeUtilM σ ϕ Expr)
-    (isDefEq : Expr → Expr → TypeUtilM σ ϕ Bool)
-    (reduceAuxRec? : Bool) : Expr → TypeUtilM σ ϕ Expr
-| e => whnfEasyCases e $ fun e =>
-  match e with
-  | e@(Expr.const _ _)    => pure e
-  | e@(Expr.letE _ _ v b) => whnfCore $ b.instantiate1 v
-  | e@(Expr.app f _)      => do
-    let f := f.getAppFn;
-    f' ← whnfCore f;
-    if f'.isLambda then
-      let revArgs := e.getAppRevArgs;
-      whnfCore $ f.betaRev revArgs
-    else do
-      let done : Unit → TypeUtilM σ ϕ Expr := fun _ =>
-        if f == f' then pure e else pure $ e.updateFn f';
-      env ← getEnv;
-      matchConst env f' done $ fun cinfo lvls =>
-        match cinfo with
-        | ConstantInfo.recInfo rec    => reduceRecAux whnf inferType isDefEq env rec lvls e.getAppArgs done whnfCore
-        | ConstantInfo.quotInfo rec   => reduceQuotRecAux whnf env rec lvls e.getAppArgs done whnfCore
-        | c@(ConstantInfo.defnInfo _) =>
-          if reduceAuxRec? && isAuxRecursor env c.name then
-            deltaBetaDefinition c lvls e.getAppArgs done whnfCore
-          else
-            done()
-        | _ => done ()
-  | e@(Expr.proj _ i c) => do
-    c   ← whnf c;
-    env ← getEnv;
-    matchConst env c.getAppFn (fun _ => pure e) $ fun cinfo lvls =>
-      match cinfo with
-      | ConstantInfo.ctorInfo ctorVal => pure $ c.getArgD (ctorVal.nparams + i) e
-      | _ => pure e
-  | _ => unreachable!
 
 private def whnfAux
     [AbstractMetavarContext σ]

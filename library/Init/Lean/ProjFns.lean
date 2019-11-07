@@ -51,33 +51,4 @@ match env.getModuleIdxFor n with
 | none        => (projectionFnInfoExt.getState env).contains n
 
 end Environment
-
-@[specialize] def reduceProjectionFnAux {α} {m : Type → Type} [Monad m]
-    (whnf : Expr → m Expr)
-    (env : Environment) (projInfo : ProjectionFunctionInfo) (projArgs : Array Expr)
-    (failK : Unit → m α)
-    (successK : Expr → m α) : m α :=
-let majorIdx := projInfo.nparams;
-if h : majorIdx < projArgs.size then do
-  let major := projArgs.get ⟨majorIdx, h⟩;
-  major ← whnf major;
-  matchConst env major.getAppFn failK $ fun majorInfo majorLvls =>
-    let i := projInfo.nparams + projInfo.i;
-    if i < major.getAppNumArgs then
-      successK $ mkAppRange (major.getArg! i) (majorIdx + 1) projArgs.size projArgs
-    else
-      failK ()
-else
-  failK ()
-
-@[specialize] def reduceProjectionFn {α} {m : Type → Type} [Monad m]
-    (whnf : Expr → m Expr)
-    (env : Environment) (e : Expr)
-    (failK : Unit → m α)
-    (successK : Expr → m α) : m α :=
-matchConst env e.getAppFn failK $ fun cinfo _ =>
-  match env.getProjectionFnInfo cinfo.name with
-  | some projInfo => reduceProjectionFnAux whnf env projInfo e.getAppArgs failK successK
-  | none => failK ()
-
 end Lean

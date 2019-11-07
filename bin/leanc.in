@@ -18,7 +18,8 @@ bindir=$(dirname $0)
 use_c=maybe
 for arg in "$@"; do
     [[ $use_c == maybe && $arg == "-c" ]] && use_c=yes
-    [[ $arg == "*.cpp" ]] && use_c=no
+    [[ $arg == *.c ]] && use_c=yes
+    [[ $arg == *.cpp ]] && use_c=no
 done
 
 if [[ $use_c == yes ]]; then

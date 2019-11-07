@@ -282,7 +282,9 @@ partial def uAlphaNormalizeCore : Level → StateM AlphaNormData Level
 
 partial def eAlphaNormalizeCore : Expr → StateM AlphaNormData Expr
 | e =>
-  if e.isConst then pure e
+  if e.isConst then do
+    ls ← e.constLevels!.mapM uAlphaNormalizeCore;
+    pure $ Expr.updateConst! e ls
   else if e.isFVar then pure e
   else if !e.hasMVar then pure e
   else match e with

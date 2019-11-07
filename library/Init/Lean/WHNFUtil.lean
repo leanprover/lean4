@@ -9,6 +9,14 @@ import Init.Lean.AuxRecursor
 import Init.Lean.ProjFns
 
 namespace Lean
+/- ===========================
+   Smart unfolding support
+   =========================== -/
+
+def smartUnfoldingSuffix := "_sunfold"
+
+@[inline] def mkSmartUnfoldingNameFor (n : Name) : Name :=
+Name.mkString n smartUnfoldingSuffix
 
 /- ===========================
    Helper functions for reducing recursors
@@ -300,6 +308,13 @@ else
   if args.size < 2 then e
   else mkAppRange (args.get! 1) 2 args.size args
 
+@[specialize] private def deltaDefinition {α} (c : ConstantInfo) (lvls : List Level)
+    (failK : Unit → α) (successK : Expr → α) : α :=
+if c.lparams.length != lvls.length then failK ()
+else
+  let val := c.instantiateValueLevelParams lvls;
+  successK (extractIdRhs val)
+
 @[specialize] private def deltaBetaDefinition {α} (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr)
     (failK : Unit → α) (successK : Expr → α) : α :=
 if c.lparams.length != lvls.length then failK ()
@@ -359,5 +374,53 @@ else
       | ConstantInfo.ctorInfo ctorVal => pure $ c.getArgD (ctorVal.nparams + i) e
       | _ => pure e
   | _ => unreachable!
+
+/--
+  Similar to `whnfCore`, but uses `synthesizePending` to (try to) synthesize metavariables
+  that are blocking reduction. -/
+@[specialize] private partial def whnfCoreUnstuck {m : Type → Type} [Monad m]
+    (whnf              : Expr → m Expr)
+    (inferType         : Expr → m Expr)
+    (isDefEq           : Expr → Expr → m Bool)
+    (synthesizePending : Expr → m Bool)
+    (getLocalDecl      : Name → m LocalDecl)
+    (getMVarAssignment : Name → m (Option Expr))
+    (env : Environment)
+    : Expr → m Expr
+| e => do
+  e ← whnfCore whnf inferType isDefEq getLocalDecl getMVarAssignment env true true e;
+  (some mvar) ← getStuckMVar whnf env e | pure e;
+  succeeded   ← synthesizePending mvar;
+  if succeeded then whnfCoreUnstuck e else pure e
+
+/-- Unfold definition using "smart unfolding" if possible. -/
+def unfoldDefinition {α} {m : Type → Type} [Monad m]
+    (whnf              : Expr → m Expr)
+    (inferType         : Expr → m Expr)
+    (isDefEq           : Expr → Expr → m Bool)
+    (synthesizePending : Expr → m Bool)
+    (getLocalDecl      : Name → m LocalDecl)
+    (getMVarAssignment : Name → m (Option Expr))
+    (env : Environment) (e : Expr)
+    (failK : Unit → m α) (successK : Expr → m α) : m α :=
+match e with
+| Expr.app f _ =>
+  matchConst env f.getAppFn failK $ fun fInfo fLvls =>
+    if fInfo.lparams.length != fLvls.length then failK ()
+    else
+      match env.find $ mkSmartUnfoldingNameFor fInfo.name with
+      | some $ fAuxInfo@(ConstantInfo.defnInfo _) =>
+        deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs failK $ fun e₁ => do
+          e₂ ← whnfCoreUnstuck whnf inferType isDefEq synthesizePending getLocalDecl getMVarAssignment env e₁;
+          if isIdRhsApp e₂ then
+            successK $ extractIdRhs e₂
+          else
+            failK ()
+      | _ => deltaBetaDefinition fInfo fLvls e.getAppRevArgs failK successK
+| Expr.const c lvls =>
+  match env.find c with
+  | some $ cinfo@(ConstantInfo.defnInfo _) => deltaDefinition cinfo lvls failK successK
+  | _ => failK ()
+| _ => failK ()
 
 end Lean

@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 prelude
 import Init.Lean.Environment
 import Init.Lean.AuxRecursor
-import Init.Lean.ProjFns
 
 namespace Lean
 /- ===========================
@@ -169,39 +168,6 @@ match rec.kind with
 | _             => pure none
 
 /- ===========================
-   Helper functions for reducing user-facing projection functions
-   =========================== -/
-
-@[specialize] def reduceProjectionFn {α} {m : Type → Type} [Monad m]
-    (whnf : Expr → m Expr)
-    (env : Environment) (projInfo : ProjectionFunctionInfo) (projArgs : Array Expr)
-    (failK : Unit → m α) (successK : Expr → m α) : m α :=
-let majorIdx := projInfo.nparams;
-if h : majorIdx < projArgs.size then do
-  let major := projArgs.get ⟨majorIdx, h⟩;
-  major ← whnf major;
-  matchConst env major.getAppFn failK $ fun majorInfo majorLvls =>
-    let i := projInfo.nparams + projInfo.i;
-    if i < major.getAppNumArgs && majorInfo.isCtor then
-      successK $ mkAppRange (major.getArg! i) (majorIdx + 1) projArgs.size projArgs
-    else
-      failK ()
-else
-  failK ()
-
-def isProjectionFnStuck {m : Type → Type} [Monad m]
-    (whnf    : Expr → m Expr)
-    (isStuck : Expr → m (Option Expr))
-    (env : Environment) (projInfo : ProjectionFunctionInfo) (projArgs : Array Expr) : m (Option Expr) :=
-let majorIdx := projInfo.nparams;
-if h : majorIdx < projArgs.size then do
-  let major := projArgs.get ⟨majorIdx, h⟩;
-  major ← whnf major;
-  isStuck major
-else
-  pure none
-
-/- ===========================
    Helper function for extracting "stuck term"
    =========================== -/
 
@@ -220,11 +186,7 @@ else
     match env.find fName with
     | some $ ConstantInfo.recInfo rec  => isRecStuck whnf getStuckMVar rec fLvls e.getAppArgs
     | some $ ConstantInfo.quotInfo rec => isQuotRecStuck whnf getStuckMVar rec fLvls e.getAppArgs
-    | some $ cinfo@(ConstantInfo.defnInfo _) =>
-      match env.getProjectionFnInfo cinfo.name with
-      | some projInfo => isProjectionFnStuck whnf getStuckMVar env projInfo e.getAppArgs
-      | none          => pure none
-    | _ => pure none
+    | _                                => pure none
   | _ => pure none
 | _ => pure none
 
@@ -293,7 +255,7 @@ else
   Reason: we want to perform these reductions lazily at isDefEq.
 
   Remark: this method delta-reduce (transparent) aux-recursors (e.g., casesOn, recOon) IF
-  `reduceAuxRec? == true`, and user-facing projection functions if `reduceProjFn? == true` -/
+  `reduceAuxRec? == true` -/
 @[specialize] private partial def whnfCore {m : Type → Type} [Monad m]
     (whnf              : Expr → m Expr)
     (inferType         : Expr → m Expr)
@@ -301,7 +263,7 @@ else
     (getLocalDecl      : Name → m LocalDecl)
     (getMVarAssignment : Name → m (Option Expr))
     (env : Environment)
-    (reduceAuxRec? : Bool) (reduceProjFn? : Bool) : Expr → m Expr
+    (reduceAuxRec? : Bool) : Expr → m Expr
 | e => whnfEasyCases getLocalDecl getMVarAssignment e $ fun e =>
   match e with
   | e@(Expr.const _ _)    => pure e
@@ -322,10 +284,6 @@ else
         | c@(ConstantInfo.defnInfo _) =>
           if reduceAuxRec? && isAuxRecursor env c.name then
             deltaBetaDefinition c lvls e.getAppArgs done whnfCore
-          else if reduceProjFn? then
-            match env.getProjectionFnInfo cinfo.name with
-            | some projInfo => reduceProjectionFn whnf env projInfo e.getAppArgs done whnfCore
-            | none          => done ()
           else
             done ()
         | _ => done ()
@@ -350,7 +308,7 @@ else
     (env : Environment)
     : Expr → m Expr
 | e => do
-  e ← whnfCore whnf inferType isDefEq getLocalDecl getMVarAssignment env true true e;
+  e ← whnfCore whnf inferType isDefEq getLocalDecl getMVarAssignment env true e;
   (some mvar) ← getStuckMVar whnf env e | pure e;
   succeeded   ← synthesizePending mvar;
   if succeeded then whnfCoreUnstuck e else pure e

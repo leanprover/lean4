@@ -180,6 +180,10 @@ def hints : ConstantInfo → ReducibilityHints
 | defnInfo {hints := r, ..} => r
 | _                         => ReducibilityHints.opaque
 
+def isCtor : ConstantInfo → Bool
+| ctorInfo _ => true
+| _          => false
+
 @[extern "lean_instantiate_type_lparams"]
 constant instantiateTypeLevelParams (c : ConstantInfo) (ls : List Level) : Expr := arbitrary _
 

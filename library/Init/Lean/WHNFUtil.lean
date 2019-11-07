@@ -116,19 +116,18 @@ matchRecApp env e failK $ fun rec recLvls recArgs => reduceRecAux whnf inferType
 @[specialize] def isRecStuck {m : Type → Type} [Monad m]
     (whnf    : Expr → m Expr)
     (isStuck : Expr → m (Option Expr))
-    (env : Environment) (e : Expr) : m (Option Expr) :=
-matchRecApp env e (fun _ => pure none) $ fun rec recLvls recArgs =>
-  if rec.k then
-    -- TODO: improve this case
+    (env : Environment) (rec : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) : m (Option Expr) :=
+if rec.k then
+  -- TODO: improve this case
+  pure none
+else do
+  let majorIdx := rec.getMajorIdx;
+  if h : majorIdx < recArgs.size then do
+    let major := recArgs.get ⟨majorIdx, h⟩;
+    major ← whnf major;
+    isStuck major
+  else
     pure none
-  else do
-    let majorIdx := rec.getMajorIdx;
-    if h : majorIdx < recArgs.size then do
-      let major := recArgs.get ⟨majorIdx, h⟩;
-      major ← whnf major;
-      isStuck major
-    else
-      pure none
 
 /- ===========================
    Helper functions for reducing Quot.lift and Quot.ind
@@ -177,19 +176,18 @@ matchQuotRecApp env e failK $ fun rec recLvls recArg => reduceQuotRecAux whnf en
 @[specialize] def isQuotRecStuck {m : Type → Type} [Monad m]
     (whnf : Expr → m Expr)
     (isStuck : Expr → m (Option Expr))
-    (env : Environment) (e : Expr) : m (Option Expr) :=
-matchQuotRecApp env e (fun _ => pure none) $ fun rec recLvls recArgs =>
-  let process (majorPos : Nat) : m (Option Expr) :=
-    if h : majorPos < recArgs.size then do
-      let major := recArgs.get ⟨majorPos, h⟩;
-      major ← whnf major;
-      isStuck major
-    else
-      pure none;
-  match rec.kind with
-  | QuotKind.lift => process 5
-  | QuotKind.ind  => process 4
-  | _             => pure none
+    (env : Environment) (rec : QuotVal) (recLvls : List Level) (recArgs : Array Expr) : m (Option Expr) :=
+let process (majorPos : Nat) : m (Option Expr) :=
+  if h : majorPos < recArgs.size then do
+    let major := recArgs.get ⟨majorPos, h⟩;
+    major ← whnf major;
+    isStuck major
+  else
+    pure none;
+match rec.kind with
+| QuotKind.lift => process 5
+| QuotKind.ind  => process 4
+| _             => pure none
 
 /- ===========================
    Helper functions for reducing user-facing projection functions
@@ -205,7 +203,7 @@ if h : majorIdx < projArgs.size then do
   major ← whnf major;
   matchConst env major.getAppFn failK $ fun majorInfo majorLvls =>
     let i := projInfo.nparams + projInfo.i;
-    if i < major.getAppNumArgs then
+    if i < major.getAppNumArgs && majorInfo.isCtor then
       successK $ mkAppRange (major.getArg! i) (majorIdx + 1) projArgs.size projArgs
     else
       failK ()
@@ -220,6 +218,45 @@ matchConst env e.getAppFn failK $ fun cinfo _ =>
   match env.getProjectionFnInfo cinfo.name with
   | some projInfo => reduceProjectionFnAux whnf env projInfo e.getAppArgs failK successK
   | none => failK ()
+
+def isProjectionFnStuck {m : Type → Type} [Monad m]
+    (whnf    : Expr → m Expr)
+    (isStuck : Expr → m (Option Expr))
+    (env : Environment) (projInfo : ProjectionFunctionInfo) (projArgs : Array Expr) : m (Option Expr) :=
+let majorIdx := projInfo.nparams;
+if h : majorIdx < projArgs.size then do
+  let major := projArgs.get ⟨majorIdx, h⟩;
+  major ← whnf major;
+  isStuck major
+else
+  pure none
+
+/- ===========================
+   Helper function for extracting "stuck term"
+   =========================== -/
+
+/-- Return `some (Expr.mvar mvarId)` if metavariable `mvarId` is blocking reduction. -/
+@[specialize] partial def getStuckMVar {m : Type → Type} [Monad m]
+    (whnf : Expr → m Expr)
+    (env : Environment) : Expr → m (Option Expr)
+| Expr.mdata _ e   => getStuckMVar e
+| Expr.proj _ _ e  => do e ← whnf e; getStuckMVar e
+| e@(Expr.mvar _)  => pure (some e)
+| e@(Expr.app f _) =>
+  let f := f.getAppFn;
+  match f with
+  | Expr.mvar _            => pure (some f)
+  | Expr.const fName fLvls =>
+    match env.find fName with
+    | some $ ConstantInfo.recInfo rec  => isRecStuck whnf getStuckMVar env rec fLvls e.getAppArgs
+    | some $ ConstantInfo.quotInfo rec => isQuotRecStuck whnf getStuckMVar env rec fLvls e.getAppArgs
+    | some $ cinfo@(ConstantInfo.defnInfo _) =>
+      match env.getProjectionFnInfo cinfo.name with
+      | some projInfo => isProjectionFnStuck whnf getStuckMVar env projInfo e.getAppArgs
+      | none          => pure none
+    | _ => pure none
+  | _ => pure none
+| _ => pure none
 
 /- ===========================
    Weak Head Normal Form auxiliary combinators

@@ -285,13 +285,6 @@ set(CPACK_BUNDLE_NAME "Lean-${LEAN_VERSION_STRING}")
 set(CPACK_PACKAGE_ICON "${LEAN_SOURCE_DIR}/../images/lean.png")
 ##################
 
-# Set a consistent MACOSX_RPATH default across all CMake versions.
-# When CMake 2.8.12 is required, change this default to 1.
-# When CMake 3.0.0 is required, remove this block (see CMP0042).
-if (NOT DEFINED CMAKE_MACOSX_RPATH)
-  set(CMAKE_MACOSX_RPATH 0)
-endif()
-
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   # The following options is needed to generate a shared library
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.MetavarContext
-// Imports: Init.Control.Reader Init.Control.Conditional Init.Data.Option.Default Init.Data.List.Default Init.Data.Nat.Default Init.Lean.LocalContext Init.Lean.MonadCache Init.Lean.NameGenerator
+// Imports: Init.Data.Nat.Default Init.Data.Option.Default Init.Control.Reader Init.Lean.LocalContext Init.Lean.MonadCache Init.Lean.NameGenerator
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1401,7 +1401,7 @@ if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_5 = l_Lean_MetavarContext_getDecl___closed__1;
-x_6 = lean_unsigned_to_nat(70u);
+x_6 = lean_unsigned_to_nat(252u);
 x_7 = lean_unsigned_to_nat(15u);
 x_8 = l_Lean_MetavarContext_getDecl___closed__2;
 x_9 = l_panicWithPos___at_Lean_MetavarContext_getDecl___spec__1(x_5, x_6, x_7, x_8);
@@ -4769,7 +4769,7 @@ if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_5 = l_Lean_MetavarContext_getDecl___closed__1;
-x_6 = lean_unsigned_to_nat(115u);
+x_6 = lean_unsigned_to_nat(297u);
 x_7 = lean_unsigned_to_nat(12u);
 x_8 = l_Lean_MetavarContext_isLevelAssignable___closed__1;
 x_9 = l_panicWithPos___at_Lean_MetavarContext_isLevelAssignable___spec__4(x_5, x_6, x_7, x_8);
@@ -6992,7 +6992,7 @@ lean_dec(x_5);
 lean_dec(x_2);
 lean_dec(x_1);
 x_14 = l_Lean_MetavarContext_getDecl___closed__1;
-x_15 = lean_unsigned_to_nat(196u);
+x_15 = lean_unsigned_to_nat(378u);
 x_16 = lean_unsigned_to_nat(12u);
 x_17 = l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
 x_18 = l_panicWithPos___at___private_Init_Lean_MetavarContext_7__instantiateDelayedAux___main___spec__1(x_14, x_15, x_16, x_17, x_6);
@@ -8039,7 +8039,7 @@ lean_dec(x_9);
 lean_dec(x_4);
 lean_dec(x_1);
 x_13 = l_Lean_MetavarContext_getDecl___closed__1;
-x_14 = lean_unsigned_to_nat(196u);
+x_14 = lean_unsigned_to_nat(378u);
 x_15 = lean_unsigned_to_nat(12u);
 x_16 = l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
 x_17 = l_panicWithPos___at___private_Init_Lean_MetavarContext_7__instantiateDelayedAux___main___spec__1(x_13, x_14, x_15, x_16, x_5);
@@ -18373,7 +18373,7 @@ lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_1);
 x_11 = l_Lean_MetavarContext_getDecl___closed__1;
-x_12 = lean_unsigned_to_nat(391u);
+x_12 = lean_unsigned_to_nat(573u);
 x_13 = lean_unsigned_to_nat(16u);
 x_14 = l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
 x_15 = l_panicWithPos___at_Lean_MetavarContext_MkBinding_mkBinding___spec__1(x_11, x_12, x_13, x_14, x_7);
@@ -32933,7 +32933,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_1);
 x_11 = l_Lean_MetavarContext_getDecl___closed__1;
-x_12 = lean_unsigned_to_nat(391u);
+x_12 = lean_unsigned_to_nat(573u);
 x_13 = lean_unsigned_to_nat(16u);
 x_14 = l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
 x_15 = l_panicWithPos___at_Lean_MetavarContext_MkBinding_mkBinding___spec__1(x_11, x_12, x_13, x_14, x_7);
@@ -34805,7 +34805,7 @@ if (lean_obj_tag(x_9) == 0)
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 lean_dec(x_5);
 x_10 = l_Lean_MetavarContext_getDecl___closed__1;
-x_11 = lean_unsigned_to_nat(391u);
+x_11 = lean_unsigned_to_nat(573u);
 x_12 = lean_unsigned_to_nat(16u);
 x_13 = l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
 x_14 = l_panicWithPos___at_Lean_MetavarContext_MkBinding_mkBinding___spec__1(x_10, x_11, x_12, x_13, x_6);
@@ -42444,7 +42444,7 @@ if (lean_obj_tag(x_9) == 0)
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 lean_dec(x_5);
 x_10 = l_Lean_MetavarContext_getDecl___closed__1;
-x_11 = lean_unsigned_to_nat(391u);
+x_11 = lean_unsigned_to_nat(573u);
 x_12 = lean_unsigned_to_nat(16u);
 x_13 = l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
 x_14 = l_panicWithPos___at_Lean_MetavarContext_MkBinding_mkBinding___spec__1(x_10, x_11, x_12, x_13, x_6);
@@ -42857,11 +42857,9 @@ x_7 = l_Lean_MetavarContext_mkBinding(x_6, x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-lean_object* initialize_Init_Control_Reader(lean_object*);
-lean_object* initialize_Init_Control_Conditional(lean_object*);
-lean_object* initialize_Init_Data_Option_Default(lean_object*);
-lean_object* initialize_Init_Data_List_Default(lean_object*);
 lean_object* initialize_Init_Data_Nat_Default(lean_object*);
+lean_object* initialize_Init_Data_Option_Default(lean_object*);
+lean_object* initialize_Init_Control_Reader(lean_object*);
 lean_object* initialize_Init_Lean_LocalContext(lean_object*);
 lean_object* initialize_Init_Lean_MonadCache(lean_object*);
 lean_object* initialize_Init_Lean_NameGenerator(lean_object*);
@@ -42870,19 +42868,13 @@ lean_object* initialize_Init_Lean_MetavarContext(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Reader(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_Conditional(lean_io_mk_world());
+res = initialize_Init_Data_Nat_Default(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Option_Default(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Default(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Default(lean_io_mk_world());
+res = initialize_Init_Control_Reader(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_LocalContext(lean_io_mk_world());

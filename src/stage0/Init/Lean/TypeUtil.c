@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.TypeUtil
-// Imports: Init.Control.Reader Init.Lean.NameGenerator Init.Lean.Environment Init.Lean.Trace Init.Lean.InductiveUtil Init.Lean.QuotUtil Init.Lean.AuxRecursor Init.Lean.ProjFns
+// Imports: Init.Control.Reader Init.Lean.NameGenerator Init.Lean.Environment Init.Lean.Trace Init.Lean.AuxRecursor Init.Lean.ProjFns
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,8 +17,6 @@ lean_object* initialize_Init_Control_Reader(lean_object*);
 lean_object* initialize_Init_Lean_NameGenerator(lean_object*);
 lean_object* initialize_Init_Lean_Environment(lean_object*);
 lean_object* initialize_Init_Lean_Trace(lean_object*);
-lean_object* initialize_Init_Lean_InductiveUtil(lean_object*);
-lean_object* initialize_Init_Lean_QuotUtil(lean_object*);
 lean_object* initialize_Init_Lean_AuxRecursor(lean_object*);
 lean_object* initialize_Init_Lean_ProjFns(lean_object*);
 static bool _G_initialized = false;
@@ -36,12 +34,6 @@ res = initialize_Init_Lean_Environment(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Trace(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Lean_InductiveUtil(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Lean_QuotUtil(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_AuxRecursor(lean_io_mk_world());

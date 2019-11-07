@@ -23,8 +23,10 @@ lean_object* l_Lean_ConstantInfo_toConstantVal(lean_object*);
 lean_object* l_Lean_ConstantInfo_instantiateValueLevelParams___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_RecursorVal_getInduct___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
+lean_object* l_Lean_ConstantInfo_isCtor___boxed(lean_object*);
 uint8_t l_Lean_ConstantInfo_hasValue(lean_object*);
 lean_object* l_Lean_Name_getPrefix(lean_object*);
+uint8_t l_Lean_ConstantInfo_isCtor(lean_object*);
 lean_object* lean_instantiate_value_lparams(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_hints___boxed(lean_object*);
@@ -327,6 +329,33 @@ lean_object* x_2;
 x_2 = l_Lean_ConstantInfo_hints(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+uint8_t l_Lean_ConstantInfo_isCtor(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 6)
+{
+uint8_t x_2; 
+x_2 = 1;
+return x_2;
+}
+else
+{
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
+}
+}
+}
+lean_object* l_Lean_ConstantInfo_isCtor___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_ConstantInfo_isCtor(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
 }
 }
 lean_object* l_Lean_ConstantInfo_instantiateTypeLevelParams___boxed(lean_object* x_1, lean_object* x_2) {

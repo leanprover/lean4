@@ -59,7 +59,7 @@ else
 | h,             Heap.empty  => h
 | Heap.heap h₁, Heap.heap h₂ => Heap.heap (mergeNodes lt h₁ h₂)
 
-@[specialize] def headOpt (lt : α → α → Bool) : Heap α → Option α
+@[specialize] def head? (lt : α → α → Bool) : Heap α → Option α
 | Heap.empty  => none
 | Heap.heap h => h.foldl
   (fun r n => match r with
@@ -90,7 +90,7 @@ def tail (lt : α → α → Bool) : Heap α → Heap α
 
 partial def toList (lt : α → α → Bool) : Heap α → List α
 | Heap.empty => []
-| h          => match headOpt lt h with
+| h          => match head? lt h with
   | none   => []
   | some a => a :: toList (tail lt h)
 
@@ -131,8 +131,8 @@ mkBinomialHeap α lt
 | ⟨b, _⟩ => BinomialHeapImp.head lt b
 
 /- O(log n) -/
-@[inline] def headOpt : BinomialHeap α lt → Option α
-| ⟨b, _⟩ => BinomialHeapImp.headOpt lt b
+@[inline] def head? : BinomialHeap α lt → Option α
+| ⟨b, _⟩ => BinomialHeapImp.head? lt b
 
 /- O(log n) -/
 @[inline] def tail : BinomialHeap α lt → BinomialHeap α lt

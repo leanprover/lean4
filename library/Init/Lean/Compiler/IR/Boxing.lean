@@ -181,8 +181,8 @@ else match xType with
    It is used when the expected type does not match `xType`.
    If `xType` is scalar, then we need to "box" it. Otherwise, we need to "unbox" it. -/
 def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr :=
-do optVal ← isExpensiveConstantValueBoxing x xType;
-   match optVal with
+do opt? ← isExpensiveConstantValueBoxing x xType;
+   match opt? with
    | some v => do
      ctx ← read;
      s ← get;

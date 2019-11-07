@@ -17,8 +17,8 @@ class MonadCache (α β : Type) (m : Type → Type) :=
 /-- If entry `a := b` is already in the cache, then return `b`.
     Otherwise, execute `b ← f a`, store `a := b` in the cache and return `b`. -/
 @[inline] def checkCache {α β : Type} {m : Type → Type} [MonadCache α β m] [Monad m] (a : α) (f : α → m β) : m β :=
-do optB ← MonadCache.findCached a;
-   match optB with
+do b? ← MonadCache.findCached a;
+   match b? with
    | some b => pure b
    | none   => do
      b ← f a;

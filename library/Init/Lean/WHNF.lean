@@ -228,8 +228,8 @@ match rec.kind with
   | none   => pure e
   | some v => whnfEasyCases v k
 | e@(Expr.mvar mvarId),     k => do
-  optV ← getMVarAssignment mvarId;
-  match optV with
+  v? ← getMVarAssignment mvarId;
+  match v? with
   | some v => whnfEasyCases v k
   | none   => pure e
 | e@(Expr.const _ _),       k => k e

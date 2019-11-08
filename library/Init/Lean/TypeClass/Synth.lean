@@ -29,6 +29,15 @@ instance TypedExpr.HasToString : HasToString TypedExpr :=
 instance TypedExpr.Inhabited : Inhabited TypedExpr :=
 ⟨⟨arbitrary _, arbitrary _⟩⟩
 
+structure Answer : Type :=
+(ctx : Context) (typedExpr : TypedExpr)
+
+instance Answer.HasToString : HasToString Answer :=
+⟨λ ⟨_, ⟨val, type⟩⟩ => "Answer(" ++ toString val ++ ", " ++ toString type ++ ")"⟩
+
+instance Answer.Inhabited : Inhabited TypedExpr :=
+⟨⟨arbitrary _, arbitrary _⟩⟩
+
 structure Node : Type :=
 (anormSubgoal : Expr)
 (ctx          : Context)
@@ -60,7 +69,7 @@ instance GeneratorNode.Inhabited : Inhabited GeneratorNode :=
 
 structure TableEntry : Type :=
 (waiters    : Array Waiter)
-(answers    : Array TypedExpr := #[])
+(answers    : Array Answer := #[])
 
 structure TCState : Type :=
 (env            : Environment)
@@ -68,7 +77,7 @@ structure TCState : Type :=
 (mainMVar       : Expr                              := arbitrary _)
 (generatorStack : Stack GeneratorNode               := Stack.empty)
 (consumerStack  : Stack ConsumerNode                := Stack.empty)
-(resumeQueue    : Queue (ConsumerNode × TypedExpr)  := Queue.empty)
+(resumeQueue    : Queue (ConsumerNode × Answer)     := Queue.empty)
 (tableEntries   : PersistentHashMap Expr TableEntry := PersistentHashMap.empty)
 
 abbrev TCMethod : Type → Type := EStateM String TCState
@@ -152,23 +161,28 @@ do ((cNode, answer), resumeQueue) ← get >>= λ ϕ =>
    match cNode.remainingSubgoals with
    | []           => throw "resume found no remaining subgoals"
    | (mvar::rest) => do
+     let newCtx : Context := cNode.ctx;
+     let ⟨newVal, newType, newCtx⟩ : Expr × Expr × Context := Context.internalize answer.ctx answer.typedExpr.val answer.typedExpr.type newCtx;
      result : Option (Context × List Expr) ←
-       tryResolve cNode.ctx ⟨mvar, cNode.ctx.eInfer mvar⟩ answer;
+       tryResolve newCtx ⟨mvar, newCtx.eInfer mvar⟩ ⟨newVal, newType⟩;
      modify $ λ ϕ => { resumeQueue := resumeQueue, .. ϕ };
      match result with
      | none => pure ()
-     | some (ctx, newMVars) => newConsumerNode cNode.toNode ctx (newMVars ++ rest)
+     | some (newCtx, newMVars) => newConsumerNode cNode.toNode newCtx (newMVars ++ rest)
 
-def wakeUp (answer : TypedExpr) : Waiter → TCMethod Unit
-| Waiter.root               => modify $ λ ϕ => { finalAnswer := some answer .. ϕ }
+def wakeUp (answer : Answer) : Waiter → TCMethod Unit
+| Waiter.root               => modify $ λ ϕ => { finalAnswer := some answer.typedExpr .. ϕ }
 | Waiter.consumerNode cNode => modify $ λ ϕ => { resumeQueue := ϕ.resumeQueue.enqueue (cNode, answer), .. ϕ }
 
-def newAnswer (anormSubgoal : Expr) (answer : TypedExpr) : TCMethod Unit :=
+def newAnswer (anormSubgoal : Expr) (answer : Answer) : TCMethod Unit :=
 do lookupStatus ← get >>= λ ϕ => pure $ ϕ.tableEntries.find anormSubgoal;
    match lookupStatus with
    | none       => throw $ "[newAnswer]: " ++ toString anormSubgoal ++ " not found in table!"
    | some entry => do
-     if entry.answers.any (λ answer₁ => answer₁.type == answer.type) then pure() else do
+     -- TODO(dselsam): avoid alpha-normalizing the value (type is okay)
+     -- Could check if Waiter.root is in the queue, and if so reject the answer if it contains metavars.
+     if entry.answers.any (λ answer₁ => Context.αNorm (answer₁.typedExpr.type) == Context.αNorm (answer.typedExpr.type)
+                                     && Context.αNorm (answer₁.typedExpr.val) == Context.αNorm (answer.typedExpr.val)) then pure() else do
        let newEntry : TableEntry := { answers := entry.answers.push answer .. entry };
        modify $ λ ϕ => { tableEntries := ϕ.tableEntries.insert anormSubgoal newEntry .. ϕ };
        entry.waiters.forM (wakeUp answer)
@@ -178,12 +192,12 @@ do cNode ← get >>= λ ϕ => pure ϕ.consumerStack.peek!;
    modify $ λ ϕ => { consumerStack := ϕ.consumerStack.pop .. ϕ };
    match cNode.remainingSubgoals with
    | [] => do
-     let answer : TypedExpr := {
-       val := cNode.ctx.eInstantiate cNode.futureAnswer.val,
-       type := cNode.ctx.eInstantiate cNode.futureAnswer.type
-     };
-     when (Context.eHasTmpMVar answer.val || Context.eHasTmpMVar answer.type) $
-       throw $ "answer " ++ toString answer ++ " not fully instantiated";
+     let answer : Answer := {
+       ctx := cNode.ctx,
+       typedExpr := {
+         val  := cNode.ctx.eInstantiate cNode.futureAnswer.val,
+         type := cNode.ctx.eInstantiate cNode.futureAnswer.type
+     }};
      newAnswer cNode.anormSubgoal answer
 
    | mvar::rest => do
@@ -239,7 +253,12 @@ partial def synthCore (ctx₀ : Context) (goalType : Expr) : Nat → TCMethod Ty
   finalAnswer ← get >>= λ ϕ => pure ϕ.finalAnswer;
   match finalAnswer with
   | none => synthCore n
-  | some ⟨answerVal, answerType⟩ => pure ⟨answerVal, answerType⟩
+  | some ⟨answerVal, answerType⟩ =>
+    if Context.eHasTmpMVar answerVal || Context.eHasTmpMVar answerType then do
+      modify $ λ ϕ => { finalAnswer := none, .. ϕ };
+      synthCore n
+    else
+      pure ⟨answerVal, answerType⟩
 
 def collectUReplacements : List Level → Context → Array (Level × Level) → Array Level
                              → Context × Array (Level × Level) × Array Level

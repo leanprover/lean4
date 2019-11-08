@@ -63,3 +63,7 @@ instance bad (K E : Type) [Field K] [VectorSpace K E] [CompleteSpace K] : Comple
 -- Warning: argument #3 is a class that occurs in downstream arguments and not the return type.
 -- You may want to replace [Field K] with {Field K} so typeclass resolution infers this instance after solving downstream instances.
 -/
+
+/-
+The syntax `[Field K]` is ambiguous. It can be interpreted also as {Field K : _}. Note that we use this version all the time (e.g., {α β}).
+-/

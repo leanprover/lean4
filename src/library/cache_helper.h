@@ -28,7 +28,7 @@ public:
     }
 
     void clear() {
-        for (unsigned i = 0; i < 4; i++) m_cache_ptr[i].reset();
+        for (unsigned i = 0; i < LEAN_NUM_TRANSPARENCY_MODES; i++) m_cache_ptr[i].reset();
     }
 };
 }

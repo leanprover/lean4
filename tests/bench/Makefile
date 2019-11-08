@@ -1,6 +1,6 @@
 ## CONFIG
 
-LEAN_BENCHES = binarytrees deriv const_fold frontend qsort rbmap rbmap_10 rbmap_1 unionfind
+LEAN_BENCHES = binarytrees deriv const_fold parser qsort rbmap rbmap_10 rbmap_1 unionfind
 CROSS_BENCHES = binarytrees deriv const_fold qsort rbmap rbmap_10 rbmap_1
 
 LEAN_CATS = .lean .no_reuse.lean .no_borrow.lean .no_st.lean
@@ -26,6 +26,8 @@ MLTON_BIN ?= /usr/bin
 MLKIT ?= mlkit
 SWIFTC ?= swiftc
 
+PARSER_TEST_FILE ?= ../../library/Init/Core.lean
+
 ## IMPLEMENTATION
 
 LEAN_INPUTS = $(foreach bench,$(LEAN_BENCHES), $(foreach cat, $(LEAN_CATS), $(bench)$(cat)))
@@ -44,8 +46,6 @@ all: report_lean.tex report_cross.tex report
 	$(LEAN_BIN)/lean --cpp=$@ $(LEAN_FLAGS) $<
 %.lean.out: %.lean.cpp
 	$(LEAN_BIN)/leanc $(LEANC_FLAGS) -o $@ $<
-frontend%lean.out:
-	ln -sf $(LEAN_BIN)/lean $@
 # Binaries x.lean.out and x.gcc.lean.out etc. are produced by the
 # same rules and x.lean source file by copying the latter to
 # x.gcc.lean. This also avoids conflicts between intermediate
@@ -99,7 +99,7 @@ bench:
 bench/%.bench: %.out | bench
 	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS) -d $< "./$< $(BENCH_PARAMS)" --out $@
 
-bench/frontend.%.bench: BENCH_PARAMS = --new-frontend frontend_test.lean
+bench/parser.%.bench: BENCH_PARAMS = $(PARSER_TEST_FILE) 100
 
 bench/binarytrees.%.bench: BENCH_PARAMS = 21
 

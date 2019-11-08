@@ -54,6 +54,7 @@ in pkgs.stdenv.mkDerivation rec {
   LEAN_NO_ST_BIN = "${lean.overrideAttrs (attrs: { prePatch = ''
     substituteInPlace src/runtime/object.h --replace "c_init_mem_kind = object_memory_kind::STHeap" "c_init_mem_kind = object_memory_kind::MTHeap"
   ''; })}/bin";
+  PARSER_TEST_FILE = lean.src + "/library/Init/Core.lean";
   GHC = "${ghc}/bin/ghc";
   OCAML = "${ocaml}/bin/ocamlopt.opt";
   #OCAML_FLAMBDA = "${ocamlFlambda}/bin/ocamlopt.opt";

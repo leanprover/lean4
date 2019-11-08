@@ -33,23 +33,23 @@ def mkEmptyEntriesArray {α β} : Array (Entry α β (Node α β)) :=
 
 end PersistentHashMap
 
-structure PersistentHashMap (α : Type u) (β : Type v) :=
+structure PersistentHashMap (α : Type u) (β : Type v) [Hashable α] [HasBeq α] :=
 (root    : PersistentHashMap.Node α β := PersistentHashMap.Node.entries PersistentHashMap.mkEmptyEntriesArray)
 (size    : Nat                        := 0)
 
-abbrev PHashMap (α : Type u) (β : Type v) := PersistentHashMap α β
+abbrev PHashMap (α : Type u) (β : Type v) [Hashable α] [HasBeq α] := PersistentHashMap α β
 
 namespace PersistentHashMap
 variables {α : Type u} {β : Type v}
 
-def empty : PersistentHashMap α β := {}
+def empty [Hashable α] [HasBeq α] : PersistentHashMap α β := {}
 
-instance : HasEmptyc (PersistentHashMap α β) := ⟨empty⟩
+instance [Hashable α] [HasBeq α] : HasEmptyc (PersistentHashMap α β) := ⟨empty⟩
 
-def isEmpty (m : PersistentHashMap α β) : Bool :=
+def isEmpty [Hashable α] [HasBeq α] (m : PersistentHashMap α β) : Bool :=
 m.size == 0
 
-instance : Inhabited (PersistentHashMap α β) := ⟨{}⟩
+instance [Hashable α] [HasBeq α] : Inhabited (PersistentHashMap α β) := ⟨{}⟩
 
 def mkEmptyEntries {α β} : Node α β :=
 Node.entries mkEmptyEntriesArray
@@ -247,14 +247,14 @@ variables {σ : Type w}
   | Entry.ref node  => foldlMAux node acc)
   acc
 
-@[specialize] def foldlM (map : PersistentHashMap α β) (f : σ → α → β → m σ) (acc : σ) : m σ :=
+@[specialize] def foldlM [Hashable α] [HasBeq α] (map : PersistentHashMap α β) (f : σ → α → β → m σ) (acc : σ) : m σ :=
 foldlMAux f map.root acc
 
-@[specialize] def foldl (map : PersistentHashMap α β) (f : σ → α → β → σ) (acc : σ) : σ :=
+@[specialize] def foldl [Hashable α] [HasBeq α] (map : PersistentHashMap α β) (f : σ → α → β → σ) (acc : σ) : σ :=
 Id.run $ map.foldlM f acc
 end
 
-def toList (m : PersistentHashMap α β) : List (α × β) :=
+def toList [Hashable α] [HasBeq α] (m : PersistentHashMap α β) : List (α × β) :=
 m.foldl (fun ps k v => (k, v) :: ps) []
 
 structure Stats :=
@@ -281,7 +281,7 @@ partial def collectStats : Node α β → Stats → Nat → Stats
     | Entry.entry _ _ => stats)
     stats
 
-def stats (m : PersistentHashMap α β) : Stats :=
+def stats [Hashable α] [HasBeq α] (m : PersistentHashMap α β) : Stats :=
 collectStats m.root {} 1
 
 def Stats.toString (s : Stats) : String :=

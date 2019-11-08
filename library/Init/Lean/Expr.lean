@@ -64,7 +64,7 @@ inductive Expr
 | mdata   : MData → Expr → Expr                       -- metadata
 | proj    : Name → Nat → Expr → Expr                  -- projection
 
-instance exprIsInhabited : Inhabited Expr :=
+instance Expr.inhabited : Inhabited Expr :=
 ⟨Expr.sort Level.zero⟩
 
 attribute [extern "lean_expr_mk_bvar"]   Expr.bvar
@@ -83,6 +83,13 @@ attribute [extern "lean_expr_mk_proj"]   Expr.proj
 -- deprecated Constructor
 @[extern "lean_expr_local"]
 constant Expr.local (n : Name) (pp : Name) (ty : Expr) (bi : BinderInfo) : Expr := arbitrary _
+
+namespace Literal
+instance : Inhabited Literal := ⟨natVal 0⟩
+def type : Literal → Expr
+| natVal _ => Expr.const `Nat []
+| strVal _ => Expr.const `String []
+end Literal
 
 def mkApp (f : Expr) (args : Array Expr) : Expr :=
 args.foldl Expr.app f

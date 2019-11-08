@@ -250,51 +250,55 @@ partial def eInstantiate (ctx : Context) : Expr → Expr
 
 -- AlphaNormalization
 
-structure AlphaNormData : Type :=
+structure MetaNormData (α : Type) : Type :=
+(ctx        : α)
 (eRenameMap : RBMap Nat Nat (λ n₁ n₂ => n₁ < n₂) := mkRBMap _ _ _)
 (uRenameMap : RBMap Nat Nat (λ n₁ n₂ => n₁ < n₂) := mkRBMap _ _ _)
 
-partial def uAlphaNormalizeCore : Level → StateM AlphaNormData Level
+structure MetaNormFuncs (α : Type) : Type :=
+(uNewMeta   : Nat → StateM (MetaNormData α) Level)
+(uMkMeta    : Nat → StateM (MetaNormData α) Level)
+(eNewMeta   : Nat → StateM (MetaNormData α) Expr)
+(eMkMeta    : Nat → StateM (MetaNormData α) Expr)
+
+partial def uMetaNormalizeCore {α : Type} (fs : MetaNormFuncs α) : Level → StateM (MetaNormData α) Level
 | l =>
   if !l.hasMVar then pure l else
     match l with
     | Level.zero        => pure l
     | Level.param _     => pure l
-    | Level.succ l      => do l ← uAlphaNormalizeCore l;
+    | Level.succ l      => do l ← uMetaNormalizeCore l;
                              pure $ Level.succ l
-    | Level.max l₁ l₂   => do l₁ ← uAlphaNormalizeCore l₁;
-                             l₂ ← uAlphaNormalizeCore l₂;
+    | Level.max l₁ l₂   => do l₁ ← uMetaNormalizeCore l₁;
+                             l₂ ← uMetaNormalizeCore l₂;
                              pure $ Level.max l₁ l₂
-    | Level.imax l₁ l₂  => do l₁ ← uAlphaNormalizeCore l₁;
-                              l₂ ← uAlphaNormalizeCore l₂;
+    | Level.imax l₁ l₂  => do l₁ ← uMetaNormalizeCore l₁;
+                              l₂ ← uMetaNormalizeCore l₂;
                               pure $ Level.imax l₁ l₂
     | Level.mvar m      =>
       match uMetaIdx l with
       | none     => pure l
-      | some idx => do
+      | some idx =>  do
         lookupStatus ← get >>= λ ϕ => pure $ ϕ.uRenameMap.find idx;
         match lookupStatus with
-        | none => do
-          l ← get >>= λ ϕ => pure $ Level.mvar (mkNumName alphaMetaPrefix ϕ.uRenameMap.size);
-          modify $ λ ϕ => { uRenameMap := ϕ.uRenameMap.insert idx ϕ.uRenameMap.size .. ϕ };
-          pure l
-        | some alphaIdx => pure $ Level.mvar (mkNumName alphaMetaPrefix alphaIdx)
+        | none => fs.uNewMeta idx
+        | some idx => fs.uMkMeta idx
 
-partial def eAlphaNormalizeCore : Expr → StateM AlphaNormData Expr
+partial def eMetaNormalizeCore {α : Type} (fs : MetaNormFuncs α) : Expr → StateM (MetaNormData α) Expr
 | e =>
   if e.isConst then do
-    ls ← e.constLevels!.mapM uAlphaNormalizeCore;
+    ls ← e.constLevels!.mapM (uMetaNormalizeCore fs);
     pure $ Expr.updateConst! e ls
   else if e.isFVar then pure e
   else if !e.hasMVar then pure e
   else match e with
        | Expr.app f a => do
-         f ← eAlphaNormalizeCore f;
-         a ← eAlphaNormalizeCore a;
+         f ← eMetaNormalizeCore f;
+         a ← eMetaNormalizeCore a;
          pure $ Expr.app f a
        | Expr.forallE n i d b => do
-         d ← eAlphaNormalizeCore d;
-         b ← eAlphaNormalizeCore b;
+         d ← eMetaNormalizeCore d;
+         b ← eMetaNormalizeCore b;
          pure $ Expr.forallE n i d b
        | _ =>
          match eMetaIdx e with
@@ -302,14 +306,45 @@ partial def eAlphaNormalizeCore : Expr → StateM AlphaNormData Expr
          | some idx => do
            lookupStatus ← get >>= λ ϕ => pure $ ϕ.eRenameMap.find idx;
            match lookupStatus with
-           | none => do
-             e ← get >>= λ ϕ => pure $ Expr.mvar (mkNumName alphaMetaPrefix ϕ.eRenameMap.size);
-             modify $ λ ϕ => { eRenameMap := ϕ.eRenameMap.insert idx ϕ.eRenameMap.size .. ϕ };
-             pure e
-           | some alphaIdx => pure $ Expr.mvar (mkNumName alphaMetaPrefix alphaIdx)
+           | none => fs.eNewMeta idx
+           | some idx => fs.eMkMeta idx
 
 def αNorm (e : Expr) : Expr :=
-(eAlphaNormalizeCore e).run' {}
+let fs : MetaNormFuncs Unit := {
+  uNewMeta := λ idx => do {
+    l ← get >>= λ ϕ => pure $ Level.mvar (mkNumName alphaMetaPrefix ϕ.uRenameMap.size);
+    modify $ λ ϕ => { uRenameMap := ϕ.uRenameMap.insert idx ϕ.uRenameMap.size .. ϕ };
+    pure l },
+  uMkMeta := λ idx => pure $ Level.mvar (mkNumName alphaMetaPrefix idx),
+  eNewMeta := λ idx => do {
+    e ← get >>= λ ϕ => pure $ Expr.mvar (mkNumName alphaMetaPrefix ϕ.eRenameMap.size);
+    modify $ λ ϕ => { eRenameMap := ϕ.eRenameMap.insert idx ϕ.eRenameMap.size .. ϕ };
+    pure e },
+  eMkMeta := λ idx => pure $ Expr.mvar (mkNumName alphaMetaPrefix idx)
+};
+(eMetaNormalizeCore fs e).run' { ctx := () }
+
+def internalize (oldCtx : Context) (val type : Expr) (newCtx : Context) : Expr × Expr × Context :=
+let fs : MetaNormFuncs (Context × Context) := {
+  uNewMeta := λ idx => do {
+    (oldCtx, newCtx) ← get >>= λ ϕ => pure ϕ.ctx;
+    (l, newCtx) ← pure $ StateT.run Context.uNewMeta newCtx;
+    match Context.uMetaIdx l with
+    | some newIdx => modify $ λ ϕ => { ctx := (oldCtx, newCtx), uRenameMap := ϕ.uRenameMap.insert idx newIdx, .. ϕ }
+    | none => panic "unreachable";
+    pure l },
+  uMkMeta := λ idx => pure $ Level.mvar (mkNumName metaPrefix idx),
+  eNewMeta := λ idx => do {
+    (oldCtx, newCtx) ← get >>= λ ϕ => pure ϕ.ctx;
+    (e, newCtx) ← pure $ StateT.run (Context.eNewMeta $ oldCtx.eTypes.get! idx) newCtx;
+    match Context.eMetaIdx e with
+    | some newIdx => modify $ λ ϕ => { ctx := (oldCtx, newCtx), eRenameMap := ϕ.eRenameMap.insert idx newIdx, .. ϕ }
+    | none => panic "unreachable";
+    pure e },
+  eMkMeta := λ idx => pure $ Expr.mvar (mkNumName metaPrefix idx)
+};
+match (do newType ← eMetaNormalizeCore fs type; newVal ← eMetaNormalizeCore fs val; pure (newVal, newType)).run { ctx := (oldCtx, newCtx) } with
+| ((newVal, newType), ϕ) => (newVal, newType, ϕ.ctx.2)
 
 end Context
 end TypeClass

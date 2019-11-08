@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 #define LEAN_NUM_TRANSPARENCY_MODES 5
-enum class transparency_mode { All = 0, Semireducible, Instances, Reducible, None };
+enum class transparency_mode { All = 0, Semireducible, Reducible, None };
 
 class type_context_old;
 

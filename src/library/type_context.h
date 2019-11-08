@@ -33,7 +33,6 @@ bool is_at_least_semireducible(transparency_mode m);
 bool is_at_least_instances(transparency_mode m);
 
 transparency_mode ensure_semireducible_mode(transparency_mode m);
-transparency_mode ensure_instances_mode(transparency_mode m);
 
 /* Approximation configuration object. */
 struct unifier_config {

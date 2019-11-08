@@ -82,10 +82,10 @@ bool context_cacheless::is_transparent(type_context_old & ctx, transparency_mode
         return true;
     if (info.is_theorem() && !get_unfold_lemmas())
         return false;
-    if (m == transparency_mode::Instances && is_instance(ctx.env(), info.get_name()))
+    if (m == transparency_mode::Reducible && is_instance(ctx.env(), info.get_name()))
         return true;
     auto s = get_reducible_status(ctx.env(), info.get_name());
-    if (s == reducible_status::Reducible && (m == transparency_mode::Reducible || m == transparency_mode::Instances))
+    if (s == reducible_status::Reducible && m == transparency_mode::Reducible)
         return true;
     if (s != reducible_status::Irreducible && m == transparency_mode::Semireducible)
         return true;

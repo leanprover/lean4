@@ -40,15 +40,11 @@ bool is_at_least_semireducible(transparency_mode m) {
 }
 
 bool is_at_least_instances(transparency_mode m) {
-    return m == transparency_mode::All || m == transparency_mode::Semireducible || m == transparency_mode::Instances;
+    return m == transparency_mode::All || m == transparency_mode::Semireducible;
 }
 
 transparency_mode ensure_semireducible_mode(transparency_mode m) {
     return is_at_least_semireducible(m) ? m : transparency_mode::Semireducible;
-}
-
-transparency_mode ensure_instances_mode(transparency_mode m) {
-    return is_at_least_instances(m) ? m : transparency_mode::Instances;
 }
 
 /* =====================
@@ -3081,8 +3077,8 @@ lbool type_context_old::is_def_eq_delta(expr const & t, expr const & s) {
                    Remark: this can only happen if transparency_mode
                    is Semireducible or All
                 */
-                auto rt_info = get_decl(transparency_mode::Instances, t_info->get_name());
-                auto rs_info = get_decl(transparency_mode::Instances, s_info->get_name());
+                auto rt_info = get_decl(transparency_mode::Reducible, t_info->get_name());
+                auto rs_info = get_decl(transparency_mode::Reducible, s_info->get_name());
                 if (rt_info && !rs_info) {
                     lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold (reducible) left: " << t_info->get_name() << "\n";);
                     if (auto new_t = unfold_definition(t))
@@ -3398,7 +3394,7 @@ struct instance_synthesizer {
         m_old_transparency_mode(m_ctx.m_transparency_mode),
         m_old_zeta(m_ctx.m_zeta) {
         lean_assert(m_ctx.in_tmp_mode());
-        m_ctx.m_transparency_mode = transparency_mode::Instances;
+        m_ctx.m_transparency_mode = transparency_mode::Reducible;
         m_ctx.m_zeta              = true;
     }
 

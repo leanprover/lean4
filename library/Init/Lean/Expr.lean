@@ -305,6 +305,13 @@ def letName! : Expr → Name
 | letE n _ _ _ => n
 | _            => panic! "let expression expected"
 
+
+@[extern "lean_expr_get_loose_bvar_range"]
+constant getLooseBVarRange (e : @& Expr) : Nat := arbitrary _
+
+def hasLooseBVars (e : Expr) : Bool :=
+getLooseBVarRange e > 0
+
 /-- Instantiate the loose bound variables in `e` using `subst`.
     That is, a loose `Expr.bvar i` is replaced with `subst[i]`. -/
 @[extern "lean_expr_instantiate"]

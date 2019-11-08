@@ -104,17 +104,18 @@ def quickIsClass (env : Environment) : Expr → Option (Option Name)
 | _            => some none
 
 def newSubgoal (waiter : Waiter) (ctx : Context) (anormSubgoal mvar : Expr) : TCMethod Unit :=
-do let mvarType := ctx.eInfer mvar;
+do let mvarType := ctx.eInstantiate (ctx.eInfer mvar);
    isClassStatus ← get >>= λ ϕ => pure $ quickIsClass ϕ.env mvarType;
    match isClassStatus with
    | none      => throw $ "quickIsClass not sufficient to show `" ++ toString mvarType ++ "` is a class"
    | some none => throw $ "found non-class goal `" ++ toString mvarType ++ "`"
    | some (some n) => do
+     let ⟨newVal, newType, newCtx⟩ := Context.internalize ctx mvar mvarType {};
      gNode ← get >>= λ ϕ => pure {
        GeneratorNode .
-       ctx                := ctx,
+       ctx                := newCtx,
        anormSubgoal       := anormSubgoal,
-       futureAnswer       := ⟨mvar, mvarType⟩,
+       futureAnswer       := ⟨newVal, newType⟩,
        remainingInstances := (getClassInstances ϕ.env n).map Instance.const
      };
      let tableEntry : TableEntry := { waiters := #[waiter] };

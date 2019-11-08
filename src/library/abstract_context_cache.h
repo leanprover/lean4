@@ -12,8 +12,8 @@ Author: Leonardo de Moura
 #include "library/fun_info.h"
 
 namespace lean {
-#define LEAN_NUM_TRANSPARENCY_MODES 5
-enum class transparency_mode { All = 0, Semireducible, Reducible, None };
+#define LEAN_NUM_TRANSPARENCY_MODES 3
+enum class transparency_mode { All = 0, Semireducible, Reducible };
 
 class type_context_old;
 

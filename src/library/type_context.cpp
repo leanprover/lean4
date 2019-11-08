@@ -2995,9 +2995,6 @@ lbool type_context_old::try_numeral_eq_numeral(expr const & t, expr const & s) {
 
 /* Solve offset constraints. See discussion at issue #1226 */
 lbool type_context_old::try_nat_offset_cnstrs(expr const & t, expr const & s) {
-    /* We should not use this feature when transparency_mode is none.
-       See issue #1295 */
-    if (m_transparency_mode == transparency_mode::None) return l_undef;
     lbool r;
     r = try_offset_eq_offset(t, s);
     if (r != l_undef) return r;

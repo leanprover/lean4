@@ -2267,7 +2267,7 @@ class validate_and_collect_lhs_mvars : public replace_visitor {
            of definitions compiled using the equation compiler */
         {
             /* Try without use delta reduction */
-            type_context_old::transparency_scope scope(ctx(), transparency_mode::None);
+            type_context_old::transparency_scope scope(ctx(), transparency_mode::Reducible); // it was None
             expr new_e = ctx().whnf(e);
             if (new_e != e) return some_expr(new_e);
         }

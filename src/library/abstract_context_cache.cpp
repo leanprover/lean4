@@ -73,8 +73,6 @@ context_cacheless::context_cacheless(abstract_context_cache const & c, bool):
 }
 
 bool context_cacheless::is_transparent(type_context_old & ctx, transparency_mode m, constant_info const & info) {
-    if (m == transparency_mode::None)
-        return false;
     name const & n = info.get_name();
     if (get_proj_info(ctx, n))
         return false;

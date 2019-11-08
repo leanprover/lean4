@@ -136,7 +136,6 @@ type_context_old::type_context_old(type_context_old && src):
     m_local_instances(src.m_local_instances),
     m_transparency_mode(src.m_transparency_mode),
     m_unifier_cfg(src.m_unifier_cfg),
-    m_zeta(src.m_zeta),
     m_smart_unfolding(src.m_smart_unfolding) {
     lean_assert(!src.m_tmp_data);
     lean_assert(!src.m_used_assignment);
@@ -699,10 +698,6 @@ optional<expr> type_context_old::reduce_aux_recursor(expr const & e) {
     }
 }
 
-bool type_context_old::use_zeta() const {
-    return m_zeta;
-}
-
 optional<expr> type_context_old::reduce_recursor(expr const & e) {
     if (env().is_quot_initialized()) {
         if (optional<expr> r = quot_reduce_rec(e, [&](expr const & e) { return whnf(e); })) {
@@ -739,7 +734,7 @@ expr type_context_old::whnf_core(expr const & e0, bool proj_reduce, bool aux_rec
         /* Remark: we do not unfold Constants eagerly in this method */
         return e;
     case expr_kind::FVar:
-        if (use_zeta() && is_local_decl_ref(e)) {
+        if (is_local_decl_ref(e)) {
             if (auto d = m_lctx.find_local_decl(e)) {
                 if (auto v = d->get_value()) {
                     /* zeta-reduction */
@@ -770,12 +765,8 @@ expr type_context_old::whnf_core(expr const & e0, bool proj_reduce, bool aux_rec
         return e;
     case expr_kind::Let:
         check_system("whnf");
-        if (use_zeta()) {
-            e = ::lean::instantiate(let_body(e), let_value(e));
-            continue;
-        } else {
-            return e;
-        }
+        e = ::lean::instantiate(let_body(e), let_value(e));
+        continue;
     case expr_kind::App: {
         check_system("whnf");
         buffer<expr> args;
@@ -3388,11 +3379,9 @@ struct instance_synthesizer {
     instance_synthesizer(type_context_old & ctx):
         m_ctx(ctx),
         m_displayed_trace_header(false),
-        m_old_transparency_mode(m_ctx.m_transparency_mode),
-        m_old_zeta(m_ctx.m_zeta) {
+        m_old_transparency_mode(m_ctx.m_transparency_mode) {
         lean_assert(m_ctx.in_tmp_mode());
         m_ctx.m_transparency_mode = transparency_mode::Reducible;
-        m_ctx.m_zeta              = true;
     }
 
     ~instance_synthesizer() {
@@ -3400,7 +3389,6 @@ struct instance_synthesizer {
             m_ctx.pop_scope();
         }
         m_ctx.m_transparency_mode = m_old_transparency_mode;
-        m_ctx.m_zeta              = m_old_zeta;
     }
 
     environment const & env() const { return m_ctx.env(); }

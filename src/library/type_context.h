@@ -405,9 +405,6 @@ private:
        - apply and rewrite tactics use it by default (it can be disabled). */
     unifier_config     m_unifier_cfg;
 
-    /* If m_zeta, then use zeta-reduction (i.e., expand let-expressions at whnf) */
-    bool               m_zeta{true};
-
     /* If m_update_left, then when processing `is_def_eq(t, s)`, metavariables
        occurring in `t` can be assigned. */
     bool               m_update_left{true};
@@ -759,15 +756,6 @@ public:
             flet<bool>(ctx.m_unifier_cfg.m_quasi_pattern_approx, approx) {}
     };
 
-    struct zeta_scope : public flet<bool> {
-        zeta_scope(type_context_old & ctx, bool val):
-            flet<bool>(ctx.m_zeta, val) {}
-    };
-
-    struct nozeta_scope : public zeta_scope {
-        nozeta_scope(type_context_old & ctx):zeta_scope(ctx, false) {}
-    };
-
     struct full_postponed_scope : public flet<bool> {
         full_postponed_scope(type_context_old & ctx, bool full = true):
             flet<bool>(ctx.m_full_postponed, full) {}
@@ -780,10 +768,9 @@ public:
 
     struct relaxed_scope {
         transparency_scope m_transparency_scope;
-        zeta_scope         m_zeta_scope;
         relaxed_scope(type_context_old & ctx, transparency_mode m = transparency_mode::All):
-            m_transparency_scope(ctx, m),
-            m_zeta_scope(ctx, true) {}
+            m_transparency_scope(ctx, m) {
+        }
     };
 
     /* --------------------------
@@ -855,7 +842,6 @@ private:
     expr whnf_core(expr const & e, bool proj_reduce, bool aux_rec_reduce);
     optional<constant_info> get_decl(transparency_mode m, name const & n);
     optional<constant_info> get_decl(name const & n);
-    bool use_zeta() const;
 
 private:
     pair<local_context, expr> revert_core(buffer<expr> & to_revert, local_context const & ctx,

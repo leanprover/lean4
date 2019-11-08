@@ -1,0 +1,8 @@
+phashmap_inst_coherence.lean:11:0: error: type mismatch at application
+  PersistentHashMap.find m
+term
+  m
+has type
+  @PersistentHashMap Nat Nat Nat.Hashable (@beqOfEq Nat Nat.DecidableEq)
+but is expected to have type
+  @PersistentHashMap Nat Nat natDiffHash (@beqOfEq Nat Nat.DecidableEq)

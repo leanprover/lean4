@@ -173,7 +173,6 @@ public:
 
     /* Cached configuration options */
     virtual options const & get_options() const = 0;
-    virtual bool get_unfold_lemmas() const = 0;
     virtual unsigned get_nat_offset_cnstr_threshold() const = 0;
     virtual unsigned get_smart_unfolding() const = 0;
     virtual unsigned get_class_instance_max_depth() const = 0;
@@ -234,7 +233,6 @@ protected:
     bool is_transparent(type_context_old & ctx, transparency_mode m, constant_info const & info);
 private:
     options                   m_options;
-    bool                      m_unfold_lemmas;
     unsigned                  m_nat_offset_cnstr_threshold;
     unsigned                  m_smart_unfolding;
     unsigned                  m_class_instance_max_depth;
@@ -253,7 +251,6 @@ public:
     context_cacheless & operator=(context_cacheless &&) = default;
 
     virtual options const & get_options() const override { return m_options; }
-    virtual bool get_unfold_lemmas() const override { return m_unfold_lemmas; }
     virtual unsigned get_nat_offset_cnstr_threshold() const override  { return m_nat_offset_cnstr_threshold; }
     virtual unsigned get_smart_unfolding() const override  { return m_smart_unfolding; }
     virtual unsigned get_class_instance_max_depth() const override  { return m_class_instance_max_depth; }

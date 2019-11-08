@@ -11,10 +11,6 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/aux_recursors.h"
 
-#ifndef LEAN_DEFAULT_UNFOLD_LEMMAS
-#define LEAN_DEFAULT_UNFOLD_LEMMAS false
-#endif
-
 #ifndef LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD
 #define LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD 1024
 #endif
@@ -41,16 +37,11 @@ unsigned get_nat_offset_cnstr_threshold(options const & o) {
     return o.get_unsigned(*g_nat_offset_threshold, LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD);
 }
 
-bool get_unfold_lemmas(options const & o) {
-    return o.get_bool(*g_unfold_lemmas, LEAN_DEFAULT_UNFOLD_LEMMAS);
-}
-
 bool get_smart_unfolding(options const & o) {
     return o.get_bool(*g_smart_unfolding, LEAN_DEFAULT_SMART_UNFOLDING);
 }
 
 context_cacheless::context_cacheless():
-    m_unfold_lemmas(LEAN_DEFAULT_UNFOLD_LEMMAS),
     m_nat_offset_cnstr_threshold(LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD),
     m_smart_unfolding(LEAN_DEFAULT_SMART_UNFOLDING),
     m_class_instance_max_depth(LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH) {
@@ -58,7 +49,6 @@ context_cacheless::context_cacheless():
 
 context_cacheless::context_cacheless(options const & o):
     m_options(o),
-    m_unfold_lemmas(::lean::get_unfold_lemmas(o)),
     m_nat_offset_cnstr_threshold(::lean::get_nat_offset_cnstr_threshold(o)),
     m_smart_unfolding(::lean::get_smart_unfolding(o)),
     m_class_instance_max_depth(::lean::get_class_instance_max_depth(o)) {
@@ -66,7 +56,6 @@ context_cacheless::context_cacheless(options const & o):
 
 context_cacheless::context_cacheless(abstract_context_cache const & c, bool):
     m_options(c.get_options()),
-    m_unfold_lemmas(c.get_unfold_lemmas()),
     m_nat_offset_cnstr_threshold(c.get_nat_offset_cnstr_threshold()),
     m_smart_unfolding(c.get_smart_unfolding()),
     m_class_instance_max_depth(c.get_class_instance_max_depth()) {
@@ -78,8 +67,6 @@ bool context_cacheless::is_transparent(type_context_old & ctx, transparency_mode
         return false;
     if (m == transparency_mode::All)
         return true;
-    if (info.is_theorem() && !get_unfold_lemmas())
-        return false;
     if (m == transparency_mode::Reducible && is_instance(ctx.env(), info.get_name()))
         return true;
     auto s = get_reducible_status(ctx.env(), info.get_name());

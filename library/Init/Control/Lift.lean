@@ -62,7 +62,7 @@ class MonadFunctorT (m m' : Type u → Type v) (n n' : Type u → Type w) :=
 
 export MonadFunctorT (monadMap)
 
-instance monadFunctorTTrans (m m' n n' o o') [MonadFunctor n n' o o'] [MonadFunctorT m m' n n'] :
+instance monadFunctorTTrans (m m' n n' o o') [MonadFunctorT m m' n n'] [MonadFunctor n n' o o'] :
   MonadFunctorT m m' o o' :=
 ⟨fun α f => MonadFunctor.monadMap (fun β => (monadMap @f : n β → n' β))⟩
 

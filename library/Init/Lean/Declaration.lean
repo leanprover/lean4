@@ -88,6 +88,10 @@ structure InductiveVal extends ConstantVal :=
 (isUnsafe : Bool)
 (isReflexive : Bool)
 
+namespace InductiveVal
+def nctors (v : InductiveVal) : Nat := v.ctors.length
+end InductiveVal
+
 structure ConstructorVal extends ConstantVal :=
 (induct  : Name)  -- Inductive Type this Constructor is a member of
 (cidx    : Nat)   -- Constructor index (i.e., Position in the inductive declaration)

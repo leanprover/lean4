@@ -574,7 +574,7 @@ end Environment
 /- Helper functions for accessing environment -/
 
 @[inline]
-def matchConst {α : Type} {m : Type → Type} [Monad m] (env : Environment) (e : Expr) (failK : Unit → m α) (k : ConstantInfo → List Level → m α) : m α :=
+def matchConst {α : Type} (env : Environment) (e : Expr) (failK : Unit → α) (k : ConstantInfo → List Level → α) : α :=
 match e with
 | Expr.const n lvls =>
   match env.find n with

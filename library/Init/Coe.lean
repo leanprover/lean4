@@ -79,13 +79,13 @@ universes u₁ u₂ u₃
 
 /- Transitive closure for HasLift, HasCoe, HasCoeToFun -/
 
-instance liftTrans {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [HasLift a b] [HasLiftT b c] : HasLiftT a c :=
+instance liftTrans {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [HasLiftT b c] [HasLift a b] : HasLiftT a c :=
 ⟨fun x => liftT (lift x : b)⟩
 
 instance liftRefl {a : Sort u} : HasLiftT a a :=
 ⟨id⟩
 
-instance coeTrans {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [HasCoe a b] [HasCoeT b c] : HasCoeT a c :=
+instance coeTrans {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [HasCoeT b c] [HasCoe a b] : HasCoeT a c :=
 ⟨fun x => coeT (coeB x : b)⟩
 
 instance coeBase {a : Sort u} {b : Sort v} [HasCoe a b] : HasCoeT a b :=
@@ -116,17 +116,17 @@ instance coeOption {a : Type u} : HasCoeT a (Option a) :=
 class HasCoeTAux (a : Sort u) (b : Sort v) :=
 (coe : a → b)
 
-instance coeTransAux {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [HasCoe a b] [HasCoeTAux b c] : HasCoeTAux a c :=
+instance coeTransAux {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [HasCoeTAux b c] [HasCoe a b] : HasCoeTAux a c :=
 ⟨fun x => @HasCoeTAux.coe b c _ (coeB x)⟩
 
 instance coeBaseAux {a : Sort u} {b : Sort v} [HasCoe a b] : HasCoeTAux a b :=
 ⟨coeB⟩
 
-instance coeFnTrans {a : Sort u₁} {b : Sort u₂} [HasCoeTAux a b] [HasCoeToFun.{u₂, u₃} b] : HasCoeToFun.{u₁, u₃} a :=
+instance coeFnTrans {a : Sort u₁} {b : Sort u₂} [HasCoeToFun.{u₂, u₃} b] [HasCoeTAux a b] : HasCoeToFun.{u₁, u₃} a :=
 { F   := fun x => @HasCoeToFun.F.{u₂, u₃} b _ (@HasCoeTAux.coe a b _ x),
   coe := fun x => coeFn (@HasCoeTAux.coe a b _ x) }
 
-instance coeSortTrans {a : Sort u₁} {b : Sort u₂} [HasCoeTAux a b] [HasCoeToSort.{u₂, u₃} b] : HasCoeToSort.{u₁, u₃} a :=
+instance coeSortTrans {a : Sort u₁} {b : Sort u₂} [HasCoeToSort.{u₂, u₃} b] [HasCoeTAux a b] : HasCoeToSort.{u₁, u₃} a :=
 { S   := HasCoeToSort.S.{u₂, u₃} b,
   coe := fun x => coeSort (@HasCoeTAux.coe a b _ x) }
 
@@ -160,7 +160,7 @@ universes ua ua₁ ua₂ ub ub₁ ub₂
 
 /- Remark: we can't use [HasLiftT a₂ a₁] since it will produce non-termination whenever a type class resolution
    problem does not have a solution. -/
-instance liftFn {a₁ : Sort ua₁} {a₂ : Sort ua₂} {b₁ : Sort ub₁} {b₂ : Sort ub₂} [HasLift a₂ a₁] [HasLiftT b₁ b₂] : HasLift (a₁ → b₁) (a₂ → b₂) :=
+instance liftFn {a₁ : Sort ua₁} {a₂ : Sort ua₂} {b₁ : Sort ub₁} {b₂ : Sort ub₂} [HasLiftT b₁ b₂] [HasLift a₂ a₁] : HasLift (a₁ → b₁) (a₂ → b₂) :=
 ⟨fun f x => coe (f (coe x))⟩
 
 instance liftFnRange {a : Sort ua} {b₁ : Sort ub₁} {b₂ : Sort ub₂} [HasLiftT b₁ b₂] : HasLift (a → b₁) (a → b₂) :=

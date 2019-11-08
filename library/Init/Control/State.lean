@@ -109,7 +109,7 @@ do s ← get; modify f; pure s
 
 -- NOTE: The Ordering of the following two instances determines that the top-most `StateT` Monad layer
 -- will be picked first
-instance monadStateTrans {n : Type u → Type w} [HasMonadLift m n] [MonadState σ m] : MonadState σ n :=
+instance monadStateTrans {n : Type u → Type w} [MonadState σ m] [HasMonadLift m n] : MonadState σ n :=
 { get := monadLift (MonadState.get : m _),
   set := fun st => monadLift (MonadState.set st : m _),
   modifyGet := fun α f => monadLift (MonadState.modifyGet f : m _) }
@@ -165,14 +165,14 @@ variables {σ σ' : Type u} {m m' : Type u → Type v}
 adaptState (fun st => (toSigma st, PUnit.unit)) (fun st _ => fromSigma st)
 export MonadStateAdapter (adaptState')
 
-instance monadStateAdapterTrans {n n' : Type u → Type v} [MonadFunctor m m' n n'] [MonadStateAdapter σ σ' m m'] : MonadStateAdapter σ σ' n n' :=
+instance monadStateAdapterTrans {n n' : Type u → Type v} [MonadStateAdapter σ σ' m m'] [MonadFunctor m m' n n'] : MonadStateAdapter σ σ' n n' :=
 ⟨fun σ'' α split join => monadMap (fun α => (adaptState split join : m α → m' α))⟩
 
 instance [Monad m] : MonadStateAdapter σ σ' (StateT σ m) (StateT σ' m) :=
 ⟨fun σ'' α => StateT.adapt⟩
 end
 
-instance (σ : Type u) (m out : Type u → Type v) [Functor m] [MonadRun out m] : MonadRun (fun α => σ → out α) (StateT σ m) :=
+instance (σ : Type u) (m out : Type u → Type v) [MonadRun out m] [Functor m] : MonadRun (fun α => σ → out α) (StateT σ m) :=
 ⟨fun α x => run ∘ StateT.run' x⟩
 
 class MonadStateRunner (σ : Type u) (m m' : Type u → Type u) :=
@@ -182,7 +182,7 @@ export MonadStateRunner (runState)
 section
 variables {σ σ' : Type u} {m m' : Type u → Type u}
 
-instance monadStateRunnerTrans {n n' : Type u → Type u} [MonadFunctor m m' n n'] [MonadStateRunner σ m m'] : MonadStateRunner σ n n' :=
+instance monadStateRunnerTrans {n n' : Type u → Type u} [MonadStateRunner σ m m'] [MonadFunctor m m' n n'] : MonadStateRunner σ n n' :=
 ⟨fun α x s => monadMap (fun (α) (y : m α) => (runState y s : m' α)) x⟩
 
 instance StateT.MonadStateRunner [Monad m] : MonadStateRunner σ (StateT σ m) m :=

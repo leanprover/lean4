@@ -139,7 +139,7 @@ instance (α : Type u) (δ : Type v) : monadCoroutine α δ (coroutine α δ) :=
 { yield  := coroutine.yield }
 
 instance monadCoroutineTrans (α : Type u) (δ : Type v) (m : Type w → Type r) (n : Type w → Type s)
-                               [HasMonadLift m n] [monadCoroutine α δ m] : monadCoroutine α δ n :=
+                               [monadCoroutine α δ m] [HasMonadLift m n] : monadCoroutine α δ n :=
 { yield := fun d => monadLift (monadCoroutine.yield d : m _) }
 
 export monadCoroutine (yield)

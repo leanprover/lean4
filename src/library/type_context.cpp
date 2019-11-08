@@ -3458,10 +3458,8 @@ struct instance_synthesizer {
             r = locals.mk_lambda(r);
             m_ctx.assign(mvar, r);
             // copy new_inst_mvars to stack
-            unsigned i = new_inst_mvars.size();
-            while (i > 0) {
-                --i;
-                m_state.m_stack = cons(stack_entry(new_inst_mvars[i], e.m_depth+1), m_state.m_stack);
+            for (expr const & new_inst_mvar : new_inst_mvars) {
+                m_state.m_stack = cons(stack_entry(new_inst_mvar, e.m_depth+1), m_state.m_stack);
             }
             return true;
         } catch (exception & ex) {

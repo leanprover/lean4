@@ -121,14 +121,12 @@ expr instantiate_rev(expr const & a, unsigned n, expr const * subst) {
         });
 }
 
-extern "C" object * lean_expr_instantiate_rev(object * a0, object * subst0) {
+static object * lean_expr_instantiate_rev_core(object * a0, size_t n, object ** subst) {
     expr const & a = reinterpret_cast<expr const &>(a0);
     if (!has_loose_bvars(a)) {
         lean_inc(a0);
         return a0;
     }
-    size_t n = lean_array_size(subst0);
-    object ** subst = lean_array_cptr(subst0);
     expr r = replace(a, [=](expr const & m, unsigned offset) -> optional<expr> {
             if (offset >= get_loose_bvar_range(m))
                 return some_expr(m); // expression m does not contain loose bound variables with idx >= offset
@@ -147,6 +145,24 @@ extern "C" object * lean_expr_instantiate_rev(object * a0, object * subst0) {
             return none_expr();
         });
     return r.steal();
+}
+
+extern "C" object * lean_expr_instantiate_rev(object * a, object * subst) {
+    return lean_expr_instantiate_rev_core(a, lean_array_size(subst), lean_array_cptr(subst));
+}
+
+extern "C" object * lean_expr_instantiate_rev_range(object * a, object * begin, object * end, object * subst) {
+    if (!lean_is_scalar(begin) || !lean_is_scalar(end)) {
+        lean_panic("invalid range for Expr.instantiateRevRange");
+    } else {
+        usize sz = lean_array_size(subst);
+        usize b  = lean_unbox(begin);
+        usize e  = lean_unbox(end);
+        if (b > e || e > sz) {
+            lean_panic("invalid range for Expr.instantiateRevRange");
+        }
+        return lean_expr_instantiate_rev_core(a, e - b, lean_array_cptr(subst) + b);
+    }
 }
 
 bool is_head_beta(expr const & t) {

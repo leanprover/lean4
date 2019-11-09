@@ -19,9 +19,11 @@ lean_object* l_Lean_ConstantInfo_value_x21___closed__2;
 lean_object* l_Lean_ConstantInfo_value_x21___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_name___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x3f(lean_object*);
+lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_toConstantVal(lean_object*);
 lean_object* l_Lean_ConstantInfo_instantiateValueLevelParams___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_RecursorVal_getInduct___boxed(lean_object*);
+lean_object* l_Lean_InductiveVal_nctors___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
 lean_object* l_Lean_ConstantInfo_isCtor___boxed(lean_object*);
 uint8_t l_Lean_ConstantInfo_hasValue(lean_object*);
@@ -33,6 +35,7 @@ lean_object* l_Lean_ConstantInfo_hints___boxed(lean_object*);
 lean_object* l_Lean_RecursorVal_getMajorIdx___boxed(lean_object*);
 lean_object* l_Lean_RecursorVal_getInduct(lean_object*);
 lean_object* l_Lean_ConstantInfo_instantiateTypeLevelParams___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_InductiveVal_nctors(lean_object*);
 lean_object* l_Lean_RecursorVal_getMajorIdx(lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x3f___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_hints(lean_object*);
@@ -45,6 +48,25 @@ lean_object* l_Lean_ConstantInfo_lparams___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x21(lean_object*);
 lean_object* l_Lean_ConstantInfo_hasValue___boxed(lean_object*);
 lean_object* l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_InductiveVal_nctors(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = lean_ctor_get(x_1, 4);
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l_List_lengthAux___main___rarg(x_2, x_3);
+return x_4;
+}
+}
+lean_object* l_Lean_InductiveVal_nctors___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_InductiveVal_nctors(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 lean_object* l_Lean_RecursorVal_getMajorIdx(lean_object* x_1) {
 _start:
 {
@@ -285,7 +307,7 @@ default:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = l_Lean_ConstantInfo_value_x21___closed__1;
-x_8 = lean_unsigned_to_nat(177u);
+x_8 = lean_unsigned_to_nat(181u);
 x_9 = lean_unsigned_to_nat(31u);
 x_10 = l_Lean_ConstantInfo_value_x21___closed__2;
 x_11 = l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(x_7, x_8, x_9, x_10);

@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+uint8_t l_Lean_isReducible(lean_object*, lean_object*);
 lean_object* l_Lean_mkReducibilityAttrs___closed__4;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnumAttributes___at_Lean_mkReducibilityAttrs___spec__1___lambda__2___boxed(lean_object*);
@@ -53,6 +54,7 @@ extern lean_object* l_Lean_registerEnumAttributes___rarg___closed__1;
 extern lean_object* l_Lean_AttributeImpl_inhabited___closed__4;
 lean_object* lean_set_reducibility_status(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_registerTagAttribute___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_isReducible___boxed(lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_mkReducibilityAttrs___spec__8___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_EnumAttributes_Inhabited___closed__1;
 lean_object* l_Lean_mkReducibilityAttrs___closed__8;
@@ -2063,6 +2065,36 @@ x_4 = lean_unbox(x_3);
 lean_dec(x_3);
 x_5 = lean_set_reducibility_status(x_1, x_2, x_4);
 return x_5;
+}
+}
+uint8_t l_Lean_isReducible(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = lean_get_reducibility_status(x_1, x_2);
+x_4 = lean_box(x_3);
+if (lean_obj_tag(x_4) == 0)
+{
+uint8_t x_5; 
+x_5 = 1;
+return x_5;
+}
+else
+{
+uint8_t x_6; 
+lean_dec(x_4);
+x_6 = 0;
+return x_6;
+}
+}
+}
+lean_object* l_Lean_isReducible___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Lean_isReducible(x_1, x_2);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 lean_object* initialize_Init_Lean_Attributes(lean_object*);

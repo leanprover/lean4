@@ -245,6 +245,7 @@ extern lean_object* l_Lean_Parser_Term_binderTactic___elambda__1___rarg___closed
 lean_object* l___regBuiltinTermElab_Lean_Elab_convertSortApp(lean_object*);
 extern lean_object* l_Lean_Parser_Level_ident___elambda__1___rarg___closed__1;
 lean_object* l_Lean_registerBuiltinPreTermElabAttr___lambda__1___closed__2;
+extern lean_object* l_Lean_Expr_inhabited___closed__1;
 extern lean_object* l_Lean_nameToExprAux___main___closed__4;
 extern lean_object* l_Lean_Parser_Term_forall___elambda__1___closed__2;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -284,7 +285,6 @@ lean_object* l___regBuiltinTermElab_Lean_Elab_convertType___closed__2;
 lean_object* lean_io_ref_reset(lean_object*, lean_object*);
 lean_object* l_Lean_mkAsIs(lean_object*);
 lean_object* l_Lean_Elab_convertType___rarg___closed__1;
-extern lean_object* l_Lean_exprIsInhabited___closed__1;
 lean_object* l_Lean_Elab_convertForall___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_level_mk_max(lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinPreTermElabAttr___lambda__1___closed__5;
@@ -2445,7 +2445,7 @@ lean_object* l_Lean_Elab_convertSort___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_exprIsInhabited___closed__1;
+x_2 = l_Lean_Expr_inhabited___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -2511,7 +2511,7 @@ lean_object* l_Lean_Elab_convertProp___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_exprIsInhabited___closed__1;
+x_2 = l_Lean_Expr_inhabited___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

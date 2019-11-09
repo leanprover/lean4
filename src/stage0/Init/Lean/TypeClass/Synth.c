@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_panicWithPos___at_Lean_TypeClass_collectEReplacements___main___spec__1___closed__2;
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_TypeClass_newSubgoal___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_introduceLocals(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_LocalContext_Inhabited___closed__3;
 size_t l_USize_mul(size_t, size_t);
 lean_object* l_Lean_TypeClass_synth___closed__2;
 extern lean_object* l_Array_empty___closed__1;
@@ -40,7 +41,6 @@ lean_object* lean_expr_dbg_to_string(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_TypeClass_consume___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Queue_enqueue___rarg(lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_TypeClass_collectEReplacements___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_LocalContext_Inhabited___closed__1;
 lean_object* l_Lean_TypeClass_introduceLocals___main___closed__2;
 lean_object* l_Lean_TypeClass_newAnswer(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_synthCore___main___closed__1;
@@ -167,6 +167,7 @@ lean_object* l_Lean_TypeClass_synth(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_TypedExpr_HasToString(lean_object*);
 lean_object* l_Stack_peek_x21___at_Lean_TypeClass_consume___spec__1___boxed(lean_object*);
+extern lean_object* l_Lean_Expr_inhabited___closed__1;
 lean_object* l_Stack_modify___at_Lean_TypeClass_generate___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_introduceMVars___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Stack_pop___at_Lean_TypeClass_generate___spec__3(lean_object*);
@@ -193,7 +194,6 @@ lean_object* l_Lean_TypeClass_tryResolve(lean_object*, lean_object*, lean_object
 lean_object* l_Lean_TypeClass_collectEReplacements___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_newSubgoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_mkForall(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_exprIsInhabited___closed__1;
 lean_object* l_Array_back___at_Lean_TypeClass_generate___spec__2___boxed(lean_object*);
 lean_object* l_Lean_TypeClass_synth___closed__3;
 lean_object* l_Lean_TypeClass_constNameToTypedExpr___closed__2;
@@ -241,7 +241,7 @@ lean_object* _init_l_Lean_TypeClass_TypedExpr_Inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_exprIsInhabited___closed__1;
+x_1 = l_Lean_Expr_inhabited___closed__1;
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -260,7 +260,7 @@ lean_object* _init_l_Lean_TypeClass_Node_Inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_exprIsInhabited___closed__1;
+x_1 = l_Lean_Expr_inhabited___closed__1;
 x_2 = l_Lean_TypeClass_Context_Inhabited___closed__1;
 x_3 = l_Lean_TypeClass_TypedExpr_Inhabited___closed__1;
 x_4 = lean_alloc_ctor(0, 3, 0);
@@ -1419,7 +1419,7 @@ x_8 = lean_ctor_get(x_3, 1);
 lean_inc(x_8);
 lean_dec(x_3);
 x_9 = lean_unsigned_to_nat(0u);
-x_10 = l_Lean_LocalContext_Inhabited___closed__1;
+x_10 = l_Lean_LocalContext_Inhabited___closed__3;
 x_11 = l_Array_empty___closed__1;
 x_12 = l_Lean_TypeClass_introduceLocals___main(x_9, x_10, x_11, x_6);
 x_13 = lean_ctor_get(x_12, 1);
@@ -4437,7 +4437,7 @@ block_278:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 lean_dec(x_3);
 x_4 = lean_unsigned_to_nat(0u);
-x_5 = l_Lean_LocalContext_Inhabited___closed__1;
+x_5 = l_Lean_LocalContext_Inhabited___closed__3;
 x_6 = l_Array_empty___closed__1;
 lean_inc(x_2);
 x_7 = l_Lean_TypeClass_introduceLocals___main(x_4, x_5, x_6, x_2);
@@ -4456,7 +4456,7 @@ x_13 = lean_ctor_get(x_9, 0);
 lean_dec(x_13);
 x_14 = l_Lean_Expr_getAppFn___main(x_2);
 x_15 = l_Lean_Expr_getAppNumArgsAux___main(x_2, x_4);
-x_16 = l_Lean_exprIsInhabited___closed__1;
+x_16 = l_Lean_Expr_inhabited___closed__1;
 lean_inc(x_15);
 x_17 = lean_mk_array(x_15, x_16);
 x_18 = lean_unsigned_to_nat(1u);
@@ -4826,7 +4826,7 @@ lean_inc(x_119);
 lean_dec(x_9);
 x_120 = l_Lean_Expr_getAppFn___main(x_2);
 x_121 = l_Lean_Expr_getAppNumArgsAux___main(x_2, x_4);
-x_122 = l_Lean_exprIsInhabited___closed__1;
+x_122 = l_Lean_Expr_inhabited___closed__1;
 lean_inc(x_121);
 x_123 = lean_mk_array(x_121, x_122);
 x_124 = lean_unsigned_to_nat(1u);
@@ -5109,7 +5109,7 @@ if (lean_is_exclusive(x_196)) {
 }
 x_200 = l_Lean_Expr_getAppFn___main(x_2);
 x_201 = l_Lean_Expr_getAppNumArgsAux___main(x_2, x_4);
-x_202 = l_Lean_exprIsInhabited___closed__1;
+x_202 = l_Lean_Expr_inhabited___closed__1;
 lean_inc(x_201);
 x_203 = lean_mk_array(x_201, x_202);
 x_204 = lean_unsigned_to_nat(1u);

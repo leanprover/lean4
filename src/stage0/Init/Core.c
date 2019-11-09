@@ -87,6 +87,7 @@ lean_object* l_Option_HasSizeof___rarg(lean_object*);
 lean_object* l_bne(lean_object*);
 lean_object* l_Not_Decidable___rarg___boxed(lean_object*);
 lean_object* l_id___rarg___boxed(lean_object*);
+lean_object* l_Prod_HasBeq(lean_object*, lean_object*);
 lean_object* l_setoidHasEquiv(lean_object*, lean_object*);
 lean_object* l_Sigma_sizeof___at_Sigma_HasSizeof___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Task_get___boxed(lean_object*, lean_object*);
@@ -323,6 +324,7 @@ lean_object* l_PUnit_HasSizeof;
 uint8_t l_Sum_DecidableEq___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Bool_Inhabited;
 lean_object* l_Task_mk___boxed(lean_object*, lean_object*);
+lean_object* l_Prod_HasBeq___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Quot_liftOn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_recOnSubsingleton_u2082(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PSigma_HasSizeof___rarg(lean_object*, lean_object*);
@@ -3031,6 +3033,49 @@ uint8_t x_5; lean_object* x_6;
 x_5 = l_Prod_DecidableEq___rarg(x_1, x_2, x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
+}
+}
+lean_object* l_Prod_HasBeq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_5 = lean_ctor_get(x_3, 0);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_3, 1);
+lean_inc(x_6);
+lean_dec(x_3);
+x_7 = lean_ctor_get(x_4, 0);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_4, 1);
+lean_inc(x_8);
+lean_dec(x_4);
+x_9 = lean_apply_2(x_1, x_5, x_7);
+x_10 = lean_unbox(x_9);
+lean_dec(x_9);
+if (x_10 == 0)
+{
+uint8_t x_11; lean_object* x_12; 
+lean_dec(x_8);
+lean_dec(x_6);
+lean_dec(x_2);
+x_11 = 0;
+x_12 = lean_box(x_11);
+return x_12;
+}
+else
+{
+lean_object* x_13; 
+x_13 = lean_apply_2(x_2, x_6, x_8);
+return x_13;
+}
+}
+}
+lean_object* l_Prod_HasBeq(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Prod_HasBeq___rarg), 4, 0);
+return x_3;
 }
 }
 lean_object* l_Prod_HasLess(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

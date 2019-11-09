@@ -805,6 +805,12 @@ bool has_loose_bvar(expr const & e, unsigned i) {
     return found;
 }
 
+extern "C" uint8 lean_expr_has_loose_bvar(b_obj_arg e, b_obj_arg i) {
+    if (!lean_is_scalar(i))
+        return false;
+    return has_loose_bvar(TO_REF(expr, e), lean_unbox(i));
+}
+
 expr lower_loose_bvars(expr const & e, unsigned s, unsigned d) {
     if (d == 0 || s >= get_loose_bvar_range(e))
         return e;

@@ -319,6 +319,9 @@ constant getLooseBVarRange (e : @& Expr) : Nat := arbitrary _
 def hasLooseBVars (e : Expr) : Bool :=
 getLooseBVarRange e > 0
 
+@[extern "lean_expr_has_loose_bvar"]
+constant hasLooseBVar (e : @& Expr) (bvarIdx : @& Nat) : Bool := arbitrary _
+
 /-- Instantiate the loose bound variables in `e` using `subst`.
     That is, a loose `Expr.bvar i` is replaced with `subst[i]`. -/
 @[extern "lean_expr_instantiate"]

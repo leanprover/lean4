@@ -37,3 +37,24 @@ do let f   := Expr.const `f [];
    pure ()
 
 #eval tst3
+
+
+def tst4 : IO Unit :=
+do let f   := Expr.const `f [];
+   let a   := Expr.const `a [];
+   let b   := Expr.const `b [];
+   let x0   := Expr.bvar 0;
+   let x1   := Expr.bvar 1;
+   let t1   := mkApp f #[a, b];
+   let t2   := mkApp f #[a, x0];
+   let t3   := Expr.lam `x BinderInfo.default (Expr.sort Level.zero) (mkApp f #[a, x0]);
+   let t4   := Expr.lam `x BinderInfo.default (Expr.sort Level.zero) (mkApp f #[a, x1]);
+   unless (!t1.hasLooseBVar 0) $ throw "failed-1";
+   unless (t2.hasLooseBVar 0) $ throw "failed-2";
+   unless (!t3.hasLooseBVar 0) $ throw "failed-3";
+   unless (t4.hasLooseBVar 0) $ throw "failed-4";
+   unless (!t4.hasLooseBVar 1) $ throw "failed-4";
+   unless (!t2.hasLooseBVar 1) $ throw "failed-5";
+   pure ()
+
+#eval tst4

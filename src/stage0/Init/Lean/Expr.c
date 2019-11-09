@@ -65,6 +65,7 @@ size_t lean_expr_hash(lean_object*);
 lean_object* l_Lean_Expr_appFn_x21___boxed(lean_object*);
 extern lean_object* l_List_get_x21___main___rarg___closed__2;
 lean_object* l_Lean_Expr_updateLambda_x21___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_hasLooseBVar___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Expr_5__mkAppRevRangeAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_Expr_constLevels_x21___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ExprStructEq_Hashable;
@@ -117,6 +118,7 @@ lean_object* l___private_Init_Lean_Expr_4__withAppRevAux___main(lean_object*);
 lean_object* l_Lean_ExprStructEq_HasToString(lean_object*);
 lean_object* l_Lean_mkAppRev(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_constLevels_x21(lean_object*);
+uint8_t lean_expr_has_loose_bvar(lean_object*, lean_object*);
 lean_object* l_Lean_mkAppRange___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateMData_x21(lean_object*, lean_object*);
 lean_object* lean_expr_mk_fvar(lean_object*);
@@ -2609,6 +2611,17 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
+lean_object* l_Lean_Expr_hasLooseBVar___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = lean_expr_has_loose_bvar(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
 lean_object* l_Lean_Expr_instantiate___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -3168,7 +3181,7 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_5 = l_Lean_Expr_getRevArg_x21___main___closed__1;
-x_6 = lean_unsigned_to_nat(464u);
+x_6 = lean_unsigned_to_nat(467u);
 x_7 = lean_unsigned_to_nat(16u);
 x_8 = l_Lean_Expr_appFn_x21___closed__1;
 x_9 = l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(x_5, x_6, x_7, x_8);
@@ -3199,7 +3212,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = l_Lean_Expr_getRevArg_x21___main___closed__1;
-x_5 = lean_unsigned_to_nat(473u);
+x_5 = lean_unsigned_to_nat(476u);
 x_6 = lean_unsigned_to_nat(16u);
 x_7 = l_Lean_Expr_constName_x21___closed__1;
 x_8 = l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(x_4, x_5, x_6, x_7);
@@ -3238,7 +3251,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = l_Lean_Expr_getRevArg_x21___main___closed__1;
-x_5 = lean_unsigned_to_nat(482u);
+x_5 = lean_unsigned_to_nat(485u);
 x_6 = lean_unsigned_to_nat(12u);
 x_7 = l_Lean_Expr_updateSort_x21___closed__1;
 x_8 = l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(x_4, x_5, x_6, x_7);
@@ -3285,7 +3298,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = l_Lean_Expr_getRevArg_x21___main___closed__1;
-x_5 = lean_unsigned_to_nat(499u);
+x_5 = lean_unsigned_to_nat(502u);
 x_6 = lean_unsigned_to_nat(15u);
 x_7 = l_Lean_Expr_updateMData_x21___closed__1;
 x_8 = l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(x_4, x_5, x_6, x_7);
@@ -3316,7 +3329,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = l_Lean_Expr_getRevArg_x21___main___closed__1;
-x_5 = lean_unsigned_to_nat(504u);
+x_5 = lean_unsigned_to_nat(507u);
 x_6 = lean_unsigned_to_nat(16u);
 x_7 = l_Lean_Expr_updateProj_x21___closed__1;
 x_8 = l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(x_4, x_5, x_6, x_7);
@@ -3358,7 +3371,7 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
 x_6 = l_Lean_Expr_getRevArg_x21___main___closed__1;
-x_7 = lean_unsigned_to_nat(513u);
+x_7 = lean_unsigned_to_nat(516u);
 x_8 = lean_unsigned_to_nat(22u);
 x_9 = l_Lean_Expr_updateForall_x21___closed__1;
 x_10 = l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(x_6, x_7, x_8, x_9);
@@ -3393,7 +3406,7 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_6 = l_Lean_Expr_getRevArg_x21___main___closed__1;
-x_7 = lean_unsigned_to_nat(518u);
+x_7 = lean_unsigned_to_nat(521u);
 x_8 = lean_unsigned_to_nat(22u);
 x_9 = l_Lean_Expr_updateForall_x21___closed__1;
 x_10 = l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(x_6, x_7, x_8, x_9);
@@ -3435,7 +3448,7 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
 x_6 = l_Lean_Expr_getRevArg_x21___main___closed__1;
-x_7 = lean_unsigned_to_nat(527u);
+x_7 = lean_unsigned_to_nat(530u);
 x_8 = lean_unsigned_to_nat(18u);
 x_9 = l_Lean_Expr_updateLambda_x21___closed__1;
 x_10 = l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(x_6, x_7, x_8, x_9);
@@ -3470,7 +3483,7 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_6 = l_Lean_Expr_getRevArg_x21___main___closed__1;
-x_7 = lean_unsigned_to_nat(532u);
+x_7 = lean_unsigned_to_nat(535u);
 x_8 = lean_unsigned_to_nat(18u);
 x_9 = l_Lean_Expr_updateLambda_x21___closed__1;
 x_10 = l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(x_6, x_7, x_8, x_9);
@@ -3503,7 +3516,7 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_6 = l_Lean_Expr_getRevArg_x21___main___closed__1;
-x_7 = lean_unsigned_to_nat(541u);
+x_7 = lean_unsigned_to_nat(544u);
 x_8 = lean_unsigned_to_nat(18u);
 x_9 = l_Lean_Expr_letName_x21___closed__1;
 x_10 = l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(x_6, x_7, x_8, x_9);

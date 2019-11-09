@@ -21,3 +21,4 @@ import Init.Lean.MetavarContext
 import Init.Lean.TypeClass
 import Init.Lean.Trace
 import Init.Lean.AuxRecursor
+import Init.Lean.Linter

@@ -260,6 +260,7 @@ do s ← get;
   forallTelescopeAux lctx (fvars.push fvar) j b
 | lctx, fvars, j, type =>
   let type := type.instantiateRevRange j fvars.size fvars;
+  -- TODO: must check whether fvars[j] ... fvars.back are new local instances. If there are new local instances, we must flush type class cache
   adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $ do
     newType ← whnf type;
     if newType.isForall then

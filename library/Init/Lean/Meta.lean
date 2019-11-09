@@ -240,48 +240,6 @@ do s ← get;
    let savedCache := s.cache;
    finally x (modify $ fun s => { cache := savedCache, .. s })
 
-/--
-  `forallTelescopeAux whnf k lctx fvars j type`
-  Remarks:
-  - `lctx` is the `MetaM` local context exteded with the declaration for `fvars`.
-  - `type` is the type we are computing the telescope for. It contains only
-    dangling bound variables in the range `[j, fvars.size)`
-  - when `type` is not a `forallE` nor it can't be reduced to one, we
-    excute the continuation `k`. -/
-@[specialize] private partial def forallTelescopeAux {α}
-    (whnf : Expr → MetaM Expr)
-    (k : Array Expr → Expr → MetaM α)
-    : LocalContext → Array Expr → Nat → Expr → MetaM α
-| lctx, fvars, j, Expr.forallE n bi d b => do
-  let d := d.instantiateRevRange j fvars.size fvars;
-  fvarId ← mkFreshId;
-  let lctx := lctx.mkLocalDecl fvarId n d bi;
-  let fvar := Expr.fvar fvarId;
-  forallTelescopeAux lctx (fvars.push fvar) j b
-| lctx, fvars, j, type =>
-  let type := type.instantiateRevRange j fvars.size fvars;
-  -- TODO: must check whether fvars[j] ... fvars.back are new local instances. If there are new local instances, we must flush type class cache
-  adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $ do
-    newType ← whnf type;
-    if newType.isForall then
-      forallTelescopeAux lctx fvars fvars.size type
-    else
-      k fvars type
-
-/-- Given `type` of the form `forall xs, A`, execute `k xs A`.
-    This combinator will declare local declarations, create free variables for them,
-    execute `k` with updated local context, and make sure the cache is restored after executing `k`. -/
-@[specialize] def forallTelescope {α}
-    (whnf : Expr → MetaM Expr)
-    (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
-do newType ← whnf type;
-   if newType.isForall then
-     savingCache $ do
-       lctx ← getLCtx;
-       forallTelescopeAux whnf k lctx #[] 0 newType
-   else do
-     k #[] type
-
 def isClassQuickConst (constName : Name) : MetaM (LOption Name) :=
 do env ← getEnv;
    if isClass env constName then
@@ -314,15 +272,106 @@ private partial def isClassQuick : Expr → MetaM (LOption Name)
   | Expr.lam _ _ _ _ => pure LOption.undef
   | _                => pure LOption.none
 
+/-- Reset type class cache, execute `x`, and restore cache -/
+@[inline] private def resettingTypeClassCache {α} (x : MetaM α) : MetaM α :=
+x -- TODO
+
+/--
+  `updateLocalInstances isClassExpensive fvars j k` updates the vector or local instances
+  using free variables `fvars[j] ... fvars.back`, and execute `k`.
+
+  - `isClassExpensive` is defined later.
+  - The type class chache is reset whenever a new local instance is found.
+  - `isClassExpensive` uses `whnf` which depends (indirectly) on the set of local instances.
+    Thus, each new local instance requires a new `resettingTypeClassCache`. -/
+@[specialize] private partial def updateLocalInstances {α}
+    (isClassExpensive : Expr → MetaM (Option Name))
+    (fvars : Array Expr) : Nat → MetaM α → MetaM α
+| i, k =>
+  if h : i < fvars.size then do
+    let fvar := fvars.get ⟨i, h⟩;
+    decl ← getLocalDecl fvar.fvarId!;
+    c?   ← isClassQuick decl.type;
+    let addLocalInstance (className : Name) : MetaM α :=
+      resettingTypeClassCache $
+        adaptReader
+          (fun (ctx : Context) => {
+            localInstances := ctx.localInstances.push { className := className, fvar := fvar },
+            .. ctx })
+          (updateLocalInstances (i+1) k);
+    match c? with
+    | LOption.none   => updateLocalInstances (i+1) k
+    | LOption.undef  => do
+      c? ← isClassExpensive decl.type;
+      match c? with
+      | none   => updateLocalInstances (i+1) k
+      | some c => addLocalInstance c
+    | LOption.some c => addLocalInstance c
+  else
+    k
+
+/--
+  `forallTelescopeAux whnf k lctx fvars j type`
+  Remarks:
+  - `lctx` is the `MetaM` local context exteded with the declaration for `fvars`.
+  - `type` is the type we are computing the telescope for. It contains only
+    dangling bound variables in the range `[j, fvars.size)`
+  - when `type` is not a `forallE` nor it can't be reduced to one, we
+    excute the continuation `k`. -/
+@[specialize] private partial def forallTelescopeAuxAux {α}
+    (whnf             : Expr → MetaM Expr)
+    (isClassExpensive : Expr → MetaM (Option Name))
+    (k                : Array Expr → Expr → MetaM α)
+    : LocalContext → Array Expr → Nat → Expr → MetaM α
+| lctx, fvars, j, Expr.forallE n bi d b => do
+  let d := d.instantiateRevRange j fvars.size fvars;
+  fvarId ← mkFreshId;
+  let lctx := lctx.mkLocalDecl fvarId n d bi;
+  let fvar := Expr.fvar fvarId;
+  forallTelescopeAuxAux lctx (fvars.push fvar) j b
+| lctx, fvars, j, type =>
+  let type := type.instantiateRevRange j fvars.size fvars;
+  adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
+    updateLocalInstances isClassExpensive fvars j $ do
+      newType ← whnf type;
+      if newType.isForall then
+        forallTelescopeAuxAux lctx fvars fvars.size newType
+      else
+        k fvars type
+
+/- We need this auxiliary definition because it depends on `isClassExpensive`,
+   and `isClassExpensive` depends on it. -/
+@[specialize] private def forallTelescopeAux {α}
+    (whnf             : Expr → MetaM Expr)
+    (isClassExpensive : Expr → MetaM (Option Name))
+    (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+do newType ← whnf type;
+   if newType.isForall then
+     savingCache $ do
+       lctx ← getLCtx;
+       forallTelescopeAuxAux whnf isClassExpensive k lctx #[] 0 newType
+   else do
+     k #[] type
+
 @[specialize] private partial def isClassExpensive
     (whnf : Expr → MetaM Expr)
-    (type : Expr) : MetaM (Option Name) :=
-do forallTelescope whnf type $ fun xs type => do
-   match type.getAppFn with
-   | Expr.const c _ => do
-     env ← getEnv;
-     pure $ if isClass env c then some c else none
-   | _ => pure none
+    : Expr → MetaM (Option Name)
+| type => do
+  forallTelescopeAux whnf isClassExpensive type $ fun xs type => do
+    match type.getAppFn with
+    | Expr.const c _ => do
+      env ← getEnv;
+      pure $ if isClass env c then some c else none
+    | _ => pure none
+
+/--
+  Given `type` of the form `forall xs, A`, execute `k xs A`.
+  This combinator will declare local declarations, create free variables for them,
+  execute `k` with updated local context, and make sure the cache is restored after executing `k`. -/
+@[inline] def forallTelescope {α}
+    (whnf : Expr → MetaM Expr)
+    (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+forallTelescopeAux whnf (isClassExpensive whnf) type k
 
 @[specialize] def isClass
     (whnf : Expr → MetaM Expr)

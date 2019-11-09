@@ -562,41 +562,45 @@ int main(int argc, char ** argv) {
             scope_traces_as_messages scope_trace_msgs(mod_fn, {1, 0});
             simple_pos_info_provider pip(mod_fn.c_str());
             scope_pos_info_provider scope_pip(pip);
-
-            // TODO(Sebastian): parse imports using new frontend
+            message_log l;
+            scope_message_log scope_log(l);
             std::vector<rel_module_name> rel_imports;
             std::istringstream in(contents);
             parser p(env, ios, in, mod_fn);
-            p.parse_imports(rel_imports);
 
-            std::vector<module_name> imports;
-            auto dir = dirname(mod_fn);
-            for (auto const & rel : rel_imports)
-                imports.push_back(absolutize_module_name(path, dir, rel));
+            try {
+                p.parse_imports(rel_imports);
 
-            if (only_deps) {
-                for (auto const & import : imports) {
-                    std::string m_name = find_lean_file(import);
-                    auto last_idx = m_name.find_last_of(".");
-                    std::string rawname = m_name.substr(0, last_idx);
-                    std::string ext = m_name.substr(last_idx);
-                    m_name = rawname + ".olean";
-                    std::cout << m_name << "\n";
+                std::vector<module_name> imports;
+                auto dir = dirname(mod_fn);
+                for (auto const & rel : rel_imports)
+                    imports.push_back(absolutize_module_name(path, dir, rel));
+
+                if (only_deps) {
+                    for (auto const & import : imports) {
+                        std::string m_name = find_lean_file(import);
+                        auto last_idx = m_name.find_last_of(".");
+                        std::string rawname = m_name.substr(0, last_idx);
+                        std::string ext = m_name.substr(last_idx);
+                        m_name = rawname + ".olean";
+                        std::cout << m_name << "\n";
+                    }
+                    return 0;
                 }
-                return 0;
-            }
 
-            message_log l;
-            scope_message_log scope_log(l);
-            if (stats) {
-                timeit timer(std::cout, "import");
-                env = import_modules(trust_lvl, imports);
-            } else {
-                env = import_modules(trust_lvl, imports);
+                if (stats) {
+                    timeit timer(std::cout, "import");
+                    env = import_modules(trust_lvl, imports);
+                } else {
+                    env = import_modules(trust_lvl, imports);
+                }
+                env.set_main_module(main_module_name);
+                p.set_env(env);
+                p.parse_commands();
+            } catch (lean::throwable & ex) {
+                report_message(lean::message_builder(env, ios, mod_fn, lean::pos_info(1, 1), lean::ERROR)
+                                       .set_exception(ex).build());
             }
-            env.set_main_module(main_module_name);
-            p.set_env(env);
-            p.parse_commands();
 
             if (json_output) {
 #if defined(LEAN_JSON)

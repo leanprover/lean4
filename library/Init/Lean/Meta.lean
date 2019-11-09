@@ -156,6 +156,12 @@ do ctx ← read; pure ctx.config.opts
 @[inline] def isReducible (constName : Name) : MetaM Bool :=
 do env ← getEnv; pure $ isReducible env constName
 
+/-- While executing `x`, Ensure only constants tagged as [reducible] are unfolded. -/
+@[inline] def byUnfoldingReducibleOnly {α} (x : MetaM α) : MetaM α :=
+adaptReader
+  (fun (ctx : Context) => { config := { transparency := TransparencyMode.reducible, .. ctx.config }, .. ctx })
+  x
+
 private def isReadOnlyOrSyntheticMVar (mvarId : Name) : MetaM Bool :=
 do mctx ← getMCtx;
    match mctx.findDecl mvarId with
@@ -277,14 +283,14 @@ private partial def isClassQuick : Expr → MetaM (LOption Name)
 x -- TODO
 
 /--
-  `updateLocalInstances isClassExpensive fvars j k` updates the vector or local instances
+  `withNewLocalInstances isClassExpensive fvars j k` updates the vector or local instances
   using free variables `fvars[j] ... fvars.back`, and execute `k`.
 
   - `isClassExpensive` is defined later.
   - The type class chache is reset whenever a new local instance is found.
   - `isClassExpensive` uses `whnf` which depends (indirectly) on the set of local instances.
     Thus, each new local instance requires a new `resettingTypeClassCache`. -/
-@[specialize] private partial def updateLocalInstances {α}
+@[specialize] private partial def withNewLocalInstances {α}
     (isClassExpensive : Expr → MetaM (Option Name))
     (fvars : Array Expr) : Nat → MetaM α → MetaM α
 | i, k =>
@@ -298,13 +304,13 @@ x -- TODO
           (fun (ctx : Context) => {
             localInstances := ctx.localInstances.push { className := className, fvar := fvar },
             .. ctx })
-          (updateLocalInstances (i+1) k);
+          (withNewLocalInstances (i+1) k);
     match c? with
-    | LOption.none   => updateLocalInstances (i+1) k
+    | LOption.none   => withNewLocalInstances (i+1) k
     | LOption.undef  => do
       c? ← isClassExpensive decl.type;
       match c? with
-      | none   => updateLocalInstances (i+1) k
+      | none   => withNewLocalInstances (i+1) k
       | some c => addLocalInstance c
     | LOption.some c => addLocalInstance c
   else
@@ -332,7 +338,7 @@ x -- TODO
 | lctx, fvars, j, type =>
   let type := type.instantiateRevRange j fvars.size fvars;
   adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
-    updateLocalInstances isClassExpensive fvars j $ do
+    withNewLocalInstances isClassExpensive fvars j $ do
       newType ← whnf type;
       if newType.isForall then
         forallTelescopeAuxAux lctx fvars fvars.size newType
@@ -356,7 +362,7 @@ do newType ← whnf type;
 @[specialize] private partial def isClassExpensive
     (whnf : Expr → MetaM Expr)
     : Expr → MetaM (Option Name)
-| type => do
+| type => byUnfoldingReducibleOnly $ -- when testing whether a type is a type class, we only unfold reducible constants.
   forallTelescopeAux whnf isClassExpensive type $ fun xs type => do
     match type.getAppFn with
     | Expr.const c _ => do

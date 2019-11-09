@@ -56,6 +56,13 @@ Author: Leonardo de Moura
 #endif
 #include "githash.h" // NOLINT
 
+#ifdef LEAN_WINDOWS
+#include <windows.h>
+#undef ERROR // thanks, wingdi.h
+#else
+#include <dlfcn.h>
+#endif
+
 #if defined(LEAN_LLVM)
 #include <llvm/Support/TargetSelect.h>
 #endif
@@ -201,6 +208,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --threads=num -j   number of threads used to process lean files\n";
     std::cout << "  --tstack=num -s    thread stack size in Kb\n";
 #endif
+    std::cout << "  --plugin=file      load and initialize shared library for registering linters etc.";
     std::cout << "  --deps             just print dependencies of a Lean input\n";
 #if defined(LEAN_JSON)
     std::cout << "  --json             print JSON-formatted structured error messages\n";
@@ -241,6 +249,7 @@ static struct option g_long_options[] = {
 #if defined(LEAN_MULTI_THREAD)
     {"tstack",       required_argument, 0, 's'},
 #endif
+    {"plugin",       required_argument, 0, 'p'},
 #ifdef LEAN_DEBUG
     {"debug",        required_argument, 0, 'B'},
 #endif
@@ -248,7 +257,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:c:C:qgvht:012j:012rM:012T:012a"
+    "PdD:c:C:qgvht:012j:012rM:012T:012ap:"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -287,6 +296,32 @@ options set_config_option(options const & opts, char const * in) {
     } else {
         throw lean::exception(lean::sstream() << "invalid -D parameter, unknown configuration option '" << opt << "'");
     }
+}
+
+void load_plugin(std::string path) {
+    void * init;
+    // we never want to look up plugins using the system library search
+    path = lrealpath(path);
+#ifdef LEAN_WINDOWS
+    HMODULE h = LoadLibrary(path.c_str());
+    if (!h) {
+        throw exception(sstream() << "error loading plugin " << path);
+    }
+    init = reinterpret_cast<void *>(GetProcAddress(h, "initialize_Default"));
+#else
+    void *handle = dlopen(path.c_str(), RTLD_LAZY);
+    if (!handle) {
+        throw exception(sstream() << "error loading plugin, " << dlerror());
+    }
+    init = dlsym(handle, "initialize_Default");
+#endif
+    if (!init) {
+        throw exception(sstream() << "error, plugin " << path << " does not seem to contain a module 'Default'");
+    }
+    auto init_fn = reinterpret_cast<object *(*)(object *)>(init);
+    object *r = init_fn(io_mk_world());
+    consume_io_result(r);
+    // NOTE: we never unload plugins
 }
 
 class initializer {
@@ -344,6 +379,10 @@ int main(int argc, char ** argv) {
         } catch (e) {
             console.log(e);
         });
+#endif
+#if LEAN_WINDOWS
+    // "best practice" according to https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-seterrormode
+    SetErrorMode(SEM_FAILCRITICALERRORS);
 #endif
     auto init_start = std::chrono::steady_clock::now();
     ::initializer init;
@@ -453,6 +492,9 @@ int main(int argc, char ** argv) {
 #endif
             case 'n':
                 new_frontend = true;
+                break;
+            case 'p':
+                load_plugin(optarg);
                 break;
             default:
                 std::cerr << "Unknown command line option\n";

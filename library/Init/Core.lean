@@ -1227,6 +1227,9 @@ instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
     | (isFalse n₂) => isFalse (fun h => Prod.noConfusion h (fun e₁' e₂' => absurd e₂' n₂))
   | (isFalse n₁) => isFalse (fun h => Prod.noConfusion h (fun e₁' e₂' => absurd e₁' n₁))}
 
+instance [HasBeq α] [HasBeq β] : HasBeq (α × β) :=
+⟨fun ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ => a₁ == a₂ && b₁ == b₂⟩
+
 instance [HasLess α] [HasLess β] : HasLess (α × β) :=
 ⟨fun s t => s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)⟩
 

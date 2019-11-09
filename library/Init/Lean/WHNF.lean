@@ -211,7 +211,7 @@ match rec.kind with
    =========================== -/
 
 /-- Auxiliary combinator for handling easy WHNF cases. It takes a function for handling the "hard" cases as an argument -/
-@[specialize] private partial def whnfEasyCases {m : Type → Type} [Monad m]
+@[specialize] partial def whnfEasyCases {m : Type → Type} [Monad m]
     (getLocalDecl      : Name → m LocalDecl)
     (getMVarAssignment : Name → m (Option Expr))
     : Expr → (Expr → m Expr) → m Expr
@@ -269,7 +269,7 @@ else
 
   This method does *not* apply delta-reduction at the head symbol `f` unless `isAuxDef? f` returns true.
   Reason: we want to perform these reductions lazily at `isDefEq`. -/
-@[specialize] private partial def whnfCore {m : Type → Type} [Monad m]
+@[specialize] partial def whnfCore {m : Type → Type} [Monad m]
     (getConst          : Name → m (Option ConstantInfo))
     (isAuxDef?         : Name → m Bool)
     (whnf              : Expr → m Expr)

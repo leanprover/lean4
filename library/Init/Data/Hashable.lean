@@ -24,3 +24,6 @@ protected def Nat.hash (n : Nat) : USize :=
 USize.ofNat n
 
 instance : Hashable Nat := ⟨Nat.hash⟩
+
+instance {α β} [Hashable α] [Hashable β] : Hashable (α × β) :=
+⟨fun ⟨a, b⟩ => mixHash (hash a) (hash b)⟩

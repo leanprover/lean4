@@ -34,4 +34,9 @@ match reducibilityAttrs.setValue env n s with
 | Except.ok env => env
 | _ => env -- TODO(Leo): we should extend EnumAttributes.setValue in the future and ensure it never fails
 
+def isReducible (env : Environment) (n : Name) : Bool :=
+match getReducibilityStatus env n with
+| ReducibilityStatus.reducible => true
+| _ => false
+
 end Lean

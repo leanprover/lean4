@@ -35,6 +35,9 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/definition_cmds.h"
 #include "frontends/lean/typed_expr.h"
+#include "library/compiler/ir_interpreter.h"
+#include "util/array_ref.h"
+#include "util/io.h"
 
 namespace lean {
 environment ensure_decl_namespaces(environment const & env, name const & full_n) {
@@ -495,6 +498,8 @@ static bool is_rfl_preexpr(expr const & e) {
     return is_constant(e, get_rfl_name());
 }
 
+extern "C" object * lean_linters_ref;
+
 static environment elab_single_def(parser & p, decl_cmd_kind const & kind, cmd_meta meta, buffer <name> lp_names,
                             buffer <expr> params, expr fn, expr val, pos_info const & header_pos,
                             name const & prv_name) {
@@ -580,6 +585,16 @@ static environment elab_single_def(parser & p, decl_cmd_kind const & kind, cmd_m
             new_env = compile_decl(p, new_env, c_name, c_real_name, header_pos);
         }
         new_env = meta.m_attrs.apply_after_comp(new_env, c_real_name);
+
+        // temporary code that should soon be removed together with the whole C++ frontend
+        object_ref r(io_ref_get(lean_linters_ref, io_mk_world()));
+        lean_assert(io_result_is_ok(r.raw()));
+        array_ref<object *> linters(io_result_get_value(r.raw()), true);
+        for (object * const & linter : linters) {
+            object * r2 = apply_3(linter, new_env.to_obj_arg(), local_name_p(fn).to_obj_arg(), io_mk_world());
+            consume_io_result(r2);
+        }
+
         return new_env;
     };
 

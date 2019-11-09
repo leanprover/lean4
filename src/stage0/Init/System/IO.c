@@ -27,7 +27,6 @@ lean_object* l_IO_HasEval(lean_object*);
 lean_object* l_IO_Ref_modify(lean_object*);
 lean_object* l_IO_fileExists(lean_object*, lean_object*);
 lean_object* l_IO_Fs_handle_isEof___rarg(lean_object*, lean_object*);
-lean_object* l_getModify___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_MonadExcept_orelse___at_EIO_HasOrelse___spec__1(lean_object*, lean_object*);
 lean_object* l_IO_Fs_handle_close___rarg(lean_object*, lean_object*);
 lean_object* l_IO_Ref_swap(lean_object*, lean_object*);
@@ -101,6 +100,7 @@ lean_object* l_IO_Ref_set(lean_object*, lean_object*);
 lean_object* l_IO_Ref_reset(lean_object*, lean_object*);
 lean_object* l_IO_appDir(lean_object*);
 lean_object* lean_io_ref_swap(lean_object*, lean_object*, lean_object*);
+lean_object* l_finally___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_mkRef___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_getEnv___rarg(lean_object*, lean_object*);
 lean_object* l_IO_Fs_handle_mk___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1384,7 +1384,7 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = l_IO_Fs_handle_close___rarg(x_1, x_2);
-x_7 = lean_alloc_closure((void*)(l_getModify___rarg___lambda__1___boxed), 3, 2);
+x_7 = lean_alloc_closure((void*)(l_finally___rarg___lambda__1___boxed), 3, 2);
 lean_closure_set(x_7, 0, x_3);
 lean_closure_set(x_7, 1, x_5);
 x_8 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_6, x_7);

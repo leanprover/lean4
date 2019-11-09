@@ -13,11 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_ReaderT_Monad___rarg___lambda__7(lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_Monad___rarg___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_map___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_HasMonadLift(lean_object*, lean_object*);
-lean_object* l_ReaderT_Monad___rarg___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_Monad___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_Monad___rarg___lambda__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadRun(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad(lean_object*, lean_object*);
 lean_object* l_ReaderT_HasMonadLift___rarg(lean_object*);
@@ -25,6 +24,7 @@ lean_object* l_ReaderT_lift___rarg(lean_object*, lean_object*);
 lean_object* l_ReaderT_pure(lean_object*, lean_object*);
 lean_object* l_monadReaderTrans(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_failure(lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_Monad___rarg___lambda__6___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadReader___boxed(lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadExcept___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadStateRunner___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -41,7 +41,6 @@ lean_object* l_monadReaderTrans___boxed(lean_object*, lean_object*, lean_object*
 lean_object* l_ReaderT_read(lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadStateRunner(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_monadReaderTrans___rarg(lean_object*, lean_object*);
-lean_object* l_ReaderT_Monad___rarg___lambda__7___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_run___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Alternative___boxed(lean_object*, lean_object*);
 lean_object* l_monadReaderAdapterTrans___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -51,13 +50,13 @@ lean_object* l_ReaderT_pure___rarg(lean_object*, lean_object*, lean_object*, lea
 lean_object* l_monadReaderAdapterTrans(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_lift___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_ReaderT_failure___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_Monad___rarg___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad___rarg(lean_object*);
 lean_object* l_ReaderT_bind(lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_pure___boxed(lean_object*, lean_object*);
 lean_object* l_ReaderT_HasMonadLift___boxed(lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadExcept___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_finally___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_monadReaderRunnerTrans___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadRun___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_monadReaderRunnerTrans___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -70,7 +69,7 @@ lean_object* l_ReaderT_MonadStateRunner___rarg(lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadFunctor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_Monad___rarg___lambda__4(lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_Monad___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadReaderAdapter___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Function_const___rarg___boxed(lean_object*, lean_object*);
@@ -82,7 +81,7 @@ lean_object* l_ReaderT_failure___rarg___boxed(lean_object*, lean_object*, lean_o
 lean_object* l_ReaderT_Monad___boxed(lean_object*, lean_object*);
 lean_object* l_monadReaderAdapterTrans___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_monadReaderRunnerTrans___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_Monad___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_Monad___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_adapt___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Alternative___rarg(lean_object*, lean_object*);
 lean_object* l_ReaderT_MonadExcept(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -322,33 +321,19 @@ x_10 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_8, x_9);
 return x_10;
 }
 }
-lean_object* l_ReaderT_Monad___rarg___lambda__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_ctor_get(x_4, 1);
-lean_inc(x_5);
-lean_dec(x_4);
-x_6 = lean_apply_2(x_5, lean_box(0), x_2);
-return x_6;
-}
-}
-lean_object* l_ReaderT_Monad___rarg___lambda__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_ReaderT_Monad___rarg___lambda__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = lean_apply_1(x_1, x_2);
-x_7 = lean_alloc_closure((void*)(l_ReaderT_Monad___rarg___lambda__4___boxed), 3, 2);
+x_7 = lean_alloc_closure((void*)(l_finally___rarg___lambda__1___boxed), 3, 2);
 lean_closure_set(x_7, 0, x_3);
 lean_closure_set(x_7, 1, x_5);
 x_8 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_6, x_7);
 return x_8;
 }
 }
-lean_object* l_ReaderT_Monad___rarg___lambda__6(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+lean_object* l_ReaderT_Monad___rarg___lambda__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -357,7 +342,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 x_8 = lean_apply_1(x_4, x_6);
 lean_inc(x_7);
-x_9 = lean_alloc_closure((void*)(l_ReaderT_Monad___rarg___lambda__5), 5, 4);
+x_9 = lean_alloc_closure((void*)(l_ReaderT_Monad___rarg___lambda__4), 5, 4);
 lean_closure_set(x_9, 0, x_5);
 lean_closure_set(x_9, 1, x_6);
 lean_closure_set(x_9, 2, x_1);
@@ -366,7 +351,7 @@ x_10 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_8, x_9);
 return x_10;
 }
 }
-lean_object* l_ReaderT_Monad___rarg___lambda__7(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_ReaderT_Monad___rarg___lambda__6(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -374,7 +359,7 @@ x_4 = lean_apply_1(x_1, x_2);
 return x_4;
 }
 }
-lean_object* l_ReaderT_Monad___rarg___lambda__8(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+lean_object* l_ReaderT_Monad___rarg___lambda__7(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -383,7 +368,7 @@ lean_inc(x_7);
 lean_dec(x_1);
 lean_inc(x_6);
 x_8 = lean_apply_1(x_4, x_6);
-x_9 = lean_alloc_closure((void*)(l_ReaderT_Monad___rarg___lambda__7___boxed), 3, 2);
+x_9 = lean_alloc_closure((void*)(l_ReaderT_Monad___rarg___lambda__6___boxed), 3, 2);
 lean_closure_set(x_9, 0, x_5);
 lean_closure_set(x_9, 1, x_6);
 x_10 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_8, x_9);
@@ -410,10 +395,10 @@ lean_inc(x_1);
 x_6 = lean_alloc_closure((void*)(l_ReaderT_Monad___rarg___lambda__3), 6, 1);
 lean_closure_set(x_6, 0, x_1);
 lean_inc(x_1);
-x_7 = lean_alloc_closure((void*)(l_ReaderT_Monad___rarg___lambda__6), 6, 1);
+x_7 = lean_alloc_closure((void*)(l_ReaderT_Monad___rarg___lambda__5), 6, 1);
 lean_closure_set(x_7, 0, x_1);
 lean_inc(x_1);
-x_8 = lean_alloc_closure((void*)(l_ReaderT_Monad___rarg___lambda__8), 6, 1);
+x_8 = lean_alloc_closure((void*)(l_ReaderT_Monad___rarg___lambda__7), 6, 1);
 lean_closure_set(x_8, 0, x_1);
 x_9 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_9, 0, x_4);
@@ -437,20 +422,11 @@ x_3 = lean_alloc_closure((void*)(l_ReaderT_Monad___rarg), 1, 0);
 return x_3;
 }
 }
-lean_object* l_ReaderT_Monad___rarg___lambda__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_ReaderT_Monad___rarg___lambda__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_ReaderT_Monad___rarg___lambda__4(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
-lean_object* l_ReaderT_Monad___rarg___lambda__7___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_ReaderT_Monad___rarg___lambda__7(x_1, x_2, x_3);
+x_4 = l_ReaderT_Monad___rarg___lambda__6(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
 }

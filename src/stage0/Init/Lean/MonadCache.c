@@ -17,7 +17,6 @@ lean_object* l_Lean_WithHashMapCache_modifyCache___rarg(lean_object*, lean_objec
 extern lean_object* l_ExceptT_lift___rarg___closed__1;
 lean_object* l_Lean_exceptLift___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_readerLift___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_getModify___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_fromState(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadHashMapCacheAdapter_findCached___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_modifyCacheE(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -50,6 +49,7 @@ lean_object* l_Lean_MonadHashMapCacheAdapter_cache___rarg(lean_object*, lean_obj
 lean_object* l_Lean_WithHashMapCache_toEState___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadHashMapCacheAdapter_Lean_MonadCache___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_readerLift___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_finally___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WithHashMapCache_modifyCache(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_checkCache___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_find___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -86,7 +86,7 @@ lean_inc(x_6);
 lean_dec(x_1);
 lean_inc(x_5);
 x_7 = lean_apply_2(x_6, x_2, x_5);
-x_8 = lean_alloc_closure((void*)(l_getModify___rarg___lambda__1___boxed), 3, 2);
+x_8 = lean_alloc_closure((void*)(l_finally___rarg___lambda__1___boxed), 3, 2);
 lean_closure_set(x_8, 0, x_3);
 lean_closure_set(x_8, 1, x_5);
 x_9 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_7, x_8);

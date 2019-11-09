@@ -33,6 +33,12 @@ add_custom_target(update-stage0
 
 add_executable(lean lean.cpp)
 target_link_libraries(lean leanstatic)
+# create import library on Windows to link plugins against
+set_target_properties(lean PROPERTIES ENABLE_EXPORTS ON)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  # https://github.com/msys2/MINGW-packages/issues/5952
+  target_link_options(lean PRIVATE "-Wl,--out-implib,$<TARGET_LINKER_FILE:lean>")
+endif()
 install(TARGETS lean DESTINATION bin)
 
 if(${EMSCRIPTEN})
@@ -76,7 +82,7 @@ else()
     )
   else()
     ADD_CUSTOM_TARGET(bin_lean ALL
-      COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean>" "${LEAN_SOURCE_DIR}/../bin/"
+      COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean>" "$<TARGET_LINKER_FILE:lean>" "${LEAN_SOURCE_DIR}/../bin/"
       DEPENDS bin_lean_stage0 lean
     )
   endif()

@@ -427,18 +427,28 @@ include_directories(${LEAN_SOURCE_DIR})
 # export all symbols for the interpreter
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LEAN_EXTRA_LINKER_FLAGS} -Wl,--export-all")
+  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-all")
+  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -Wl,--export-all")
 else()
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LEAN_EXTRA_LINKER_FLAGS} -rdynamic")
   set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -ldl")
 endif()
 
+# Allow `lean` symbols in plugins without linking directly against it. If we linked against the
+# executable or `leanshared`, plugins would try to look them up at load time (even though they
+# are already loaded) and probably fail unless we set up LD_LIBRARY_PATH.
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  # import library created by the `lean` target (and copied by `bin_lean`)
+  set(LEANC_SHARED_LINKER_FLAGS "$bindir/liblean.dll.a")
+elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
+  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_EXTRA_FLAGS} -Wl,-undefined,dynamic_lookup")
+endif()
+# Linux ignores undefined symbols in shared libraries by default
+
 if(MULTI_THREAD AND NOT MSVC AND (NOT ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")))
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
 endif()
 set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
-if ((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-all")
-endif()
 
 # Git HASH
 set(LEAN_PACKAGE_VERSION "NOT-FOUND")

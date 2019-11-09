@@ -418,6 +418,21 @@ do typeType ← inferType type;
            pure lvl)
    | _ => throwEx $ Exception.typeExpected type
 
+@[specialize] private def inferForallType
+    (whnf      : Expr → MetaM Expr)
+    (inferType : Expr → MetaM Expr)
+    (e : Expr) : MetaM Expr :=
+forallTelescope whnf e $ fun xs e => do
+  type ← inferType e;
+  lvl  ← getLevel whnf inferType type;
+  lvl  ← xs.foldrM
+    (fun x lvl => do
+      xType    ← inferType x;
+      xTypeLvl ← getLevel whnf inferType xType;
+      pure $ Level.imax xTypeLvl lvl)
+    lvl;
+  pure $ Expr.sort lvl
+
 @[inline] private def withLocalDecl {α} (name : Name) (bi : BinderInfo) (type : Expr) (x : Expr → MetaM α) : MetaM α :=
 withCacheScope $ do
   fvarId ← mkFreshId;
@@ -448,18 +463,18 @@ do s ← get;
 @[specialize] private partial def inferTypeAux
     (whnf      : Expr → MetaM Expr)
     : Expr → MetaM Expr
-| Expr.const c lvls     => inferConstType c lvls
-| e@(Expr.proj n i s)   => checkInferTypeCache e (inferProjType whnf inferTypeAux n i s)
-| e@(Expr.app f _)      => checkInferTypeCache e (inferAppType whnf inferTypeAux f e.getAppArgs)
-| Expr.mvar mvarId      => inferMVarType mvarId
-| Expr.fvar fvarId      => inferFVarType fvarId
-| Expr.bvar _           => unreachable!
-| Expr.mdata _ e        => inferTypeAux e
-| Expr.lit v            => pure v.type
-| Expr.sort lvl         => pure $ Expr.sort (Level.succ lvl)
-| Expr.lam n bi d b     => throw $ Exception.other "not implemented yet"
-| Expr.forallE n bi d b => throw $ Exception.other "not implemented yet"
-| Expr.letE n t v b     => throw $ Exception.other "not implemented yet"
+| Expr.const c lvls        => inferConstType c lvls
+| e@(Expr.proj n i s)      => checkInferTypeCache e (inferProjType whnf inferTypeAux n i s)
+| e@(Expr.app f _)         => checkInferTypeCache e (inferAppType whnf inferTypeAux f e.getAppArgs)
+| Expr.mvar mvarId         => inferMVarType mvarId
+| Expr.fvar fvarId         => inferFVarType fvarId
+| Expr.bvar _              => unreachable!
+| Expr.mdata _ e           => inferTypeAux e
+| Expr.lit v               => pure v.type
+| Expr.sort lvl            => pure $ Expr.sort (Level.succ lvl)
+| e@(Expr.forallE _ _ _ _) => inferForallType whnf inferTypeAux e
+| Expr.lam n bi d b        => throw $ Exception.other "not implemented yet"
+| Expr.letE n t v b        => throw $ Exception.other "not implemented yet"
 
 #exit
 

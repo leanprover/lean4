@@ -235,7 +235,7 @@ else
     pure r
 
 /-- Save cache, execute `x`, restore cache -/
-@[inline] private def withCacheScope {α} (x : MetaM α) : MetaM α :=
+@[inline] private def savingCache {α} (x : MetaM α) : MetaM α :=
 do s ← get;
    let savedCache := s.cache;
    finally x (modify $ fun s => { cache := savedCache, .. s })
@@ -276,7 +276,7 @@ do s ← get;
     (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
 do newType ← whnf type;
    if newType.isForall then
-     withCacheScope $ do
+     savingCache $ do
        lctx ← getLCtx;
        forallTelescopeAux whnf k lctx #[] 0 newType
    else do
@@ -435,7 +435,7 @@ forallTelescope whnf e $ fun xs e => do
   pure $ Expr.sort lvl
 
 @[inline] private def withLocalDecl {α} (name : Name) (bi : BinderInfo) (type : Expr) (x : Expr → MetaM α) : MetaM α :=
-withCacheScope $ do
+savingCache $ do
   fvarId ← mkFreshId;
   adaptReader (fun (ctx : Context) => { lctx := ctx.lctx.mkLocalDecl fvarId name type bi, .. ctx }) $
     x (Expr.fvar fvarId)

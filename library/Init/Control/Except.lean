@@ -184,3 +184,9 @@ instance (ε m out) [MonadRun out m] : MonadRun (fun α => out (Except ε α)) (
 -- useful for implicit failures in do-notation
 instance (m : Type → Type) [Monad m] : MonadFail (ExceptT String m) :=
 ⟨fun _ => throw⟩
+
+/-- Execute `x` and then execute `finalizer` even if `x` threw an exception -/
+@[inline] def finally {ε α β : Type u} {m : Type u → Type v} [Monad m] [MonadExcept ε m] (x : m α) (finalizer : m β) : m α :=
+catch
+  (do a ← x; finalizer; pure a)
+  (fun e => do finalizer; throw e)

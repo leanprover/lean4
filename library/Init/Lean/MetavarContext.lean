@@ -567,9 +567,12 @@ do e ← abstractRange elimMVarDeps lctx xs xs.size e;
         else
           pure $ Expr.forallE n bi type e
       | some (LocalDecl.ldecl _ _ n type value) => do
-        type  ← abstractRange elimMVarDeps lctx xs i type;
-        value ← abstractRange elimMVarDeps lctx xs i value;
-        pure $ Expr.letE n type value e
+        if e.hasLooseBVar 0 then do
+          type  ← abstractRange elimMVarDeps lctx xs i type;
+          value ← abstractRange elimMVarDeps lctx xs i value;
+          pure $ Expr.letE n type value e
+        else
+          pure e
       | none => panic! "unknown free variable")
    e
 

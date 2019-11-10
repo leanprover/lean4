@@ -388,6 +388,39 @@ do c? ← isClassQuick type;
    | LOption.some c => pure (some c)
    | LOption.undef  => isClassExpensive whnf type
 
+/-- Similar to `forallTelescopeAuxAux` but for lambda expressions. -/
+@[specialize] private partial def lambdaTelescopeAux {α}
+    (whnf             : Expr → MetaM Expr)
+    (k                : Array Expr → Expr → MetaM α)
+    : LocalContext → Array Expr → Nat → Expr → MetaM α
+| lctx, fvars, j, Expr.lam n bi d b => do
+  let d := d.instantiateRevRange j fvars.size fvars;
+  fvarId ← mkFreshId;
+  let lctx := lctx.mkLocalDecl fvarId n d bi;
+  let fvar := Expr.fvar fvarId;
+  lambdaTelescopeAux lctx (fvars.push fvar) j b
+| lctx, fvars, j, type =>
+  let type := type.instantiateRevRange j fvars.size fvars;
+  adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
+    withNewLocalInstances (isClassExpensive whnf) fvars j $ do
+      newType ← whnf type;
+      if newType.isForall then
+        lambdaTelescopeAux lctx fvars fvars.size newType
+      else
+        k fvars type
+
+/-- Similar to `forallTelescope` but for lambda expressions. -/
+@[specialize] private def lambdaTelescope {α}
+    (whnf             : Expr → MetaM Expr)
+    (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+do newType ← whnf type;
+   if newType.isLambda then
+     savingCache $ do
+       lctx ← getLCtx;
+       lambdaTelescopeAux whnf k lctx #[] 0 newType
+   else do
+     k #[] type
+
 @[specialize] private def getForallResultType
     (whnf      : Expr → MetaM Expr)
     (fType : Expr) (args : Array Expr) : MetaM Expr :=

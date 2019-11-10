@@ -544,6 +544,14 @@ forallTelescope whnf e $ fun xs e => do
     lvl;
   pure $ Expr.sort lvl
 
+@[specialize] private def inferLambdaType
+    (whnf      : Expr → MetaM Expr)
+    (inferType : Expr → MetaM Expr)
+    (e : Expr) : MetaM Expr :=
+lambdaTelescope whnf e $ fun xs e => do
+  type ← inferType e;
+  mkForall xs type
+
 @[inline] private def withLocalDecl {α} (name : Name) (bi : BinderInfo) (type : Expr) (x : Expr → MetaM α) : MetaM α :=
 savingCache $ do
   fvarId ← mkFreshId;
@@ -583,8 +591,8 @@ do s ← get;
 | Expr.mdata _ e           => inferTypeAux e
 | Expr.lit v               => pure v.type
 | Expr.sort lvl            => pure $ Expr.sort (Level.succ lvl)
-| e@(Expr.forallE _ _ _ _) => inferForallType whnf inferTypeAux e
-| Expr.lam n bi d b        => throw $ Exception.other "not implemented yet"
+| e@(Expr.forallE _ _ _ _) => checkInferTypeCache e (inferForallType whnf inferTypeAux e)
+| e@(Expr.lam _ _ _ _)     => checkInferTypeCache e (inferLambdaType whnf inferTypeAux e)
 | Expr.letE n t v b        => throw $ Exception.other "not implemented yet"
 
 #exit

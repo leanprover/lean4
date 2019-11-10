@@ -13,7 +13,7 @@ class HasCoerce (a b : Type) :=
 def coerce {a b : Type} [HasCoerce a b] : a → b :=
 @HasCoerce.coerce a b _
 
-instance coerceTrans {a b c : Type} [HasCoerce a b] [HasCoerce b c] : HasCoerce a c :=
+instance coerceTrans {a b c : Type} [HasCoerce b c] [HasCoerce a b] : HasCoerce a c :=
 ⟨fun x => coerce (coerce x : b)⟩
 
 instance coerceBoolToProp : HasCoerce Bool Prop :=

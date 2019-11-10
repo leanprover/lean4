@@ -125,13 +125,13 @@ do let mvarType := ctx.eInstantiate (ctx.eInfer mvar);
        .. ϕ
      }
 
-partial def introduceMVars (lctx : LocalContext) (locals : Array Expr) : Context → Expr → Expr → Array Expr → Context × Expr × Expr × Array Expr
+partial def introduceMVars (lctx : LocalContext) (locals : Array Expr) : Context → Expr → Expr → List Expr → Context × Expr × Expr × List Expr
 | ctx, instVal, Expr.forallE _ info domain body, mvars => do
   let ⟨mvar, ctx⟩ := (Context.eNewMeta $ lctx.mkForall locals domain).run ctx;
   let arg := mkApp mvar locals;
   let instVal := Expr.app instVal arg;
   let instType := body.instantiate1 arg;
-  let mvars := if info.isInstImplicit then mvars.push mvar else mvars;
+  let mvars := if info.isInstImplicit then mvar::mvars else mvars;
   introduceMVars ctx instVal instType mvars
 
 | ctx, instVal, instType, mvars => (ctx, instVal, instType, mvars)
@@ -149,10 +149,10 @@ def tryResolve (ctx : Context) (futureAnswer : TypedExpr) (instTE : TypedExpr) :
 do let ⟨mvar, mvarType⟩ := futureAnswer;
    let ⟨instVal, instType⟩ := instTE;
    let ⟨lctx, mvarType, locals⟩ := introduceLocals 0 {} #[] mvarType;
-   let ⟨ctx, instVal, instType, newMVars⟩ := introduceMVars lctx locals ctx instVal instType #[];
+   let ⟨ctx, instVal, instType, newMVars⟩ := introduceMVars lctx locals ctx instVal instType [];
    match (Context.eUnify mvarType instType *> Context.eUnify mvar (lctx.mkLambda locals instVal)).run ctx with
    | EStateM.Result.error msg   _ => pure none
-   | EStateM.Result.ok    _   ctx => pure $ some $ (ctx, newMVars.toList) -- TODO(dselsam): rm toList
+   | EStateM.Result.ok    _   ctx => pure $ some $ (ctx, newMVars)
 
 def newConsumerNode (node : Node) (ctx : Context) (newMVars : List Expr) : TCMethod Unit :=
 let cNode : ConsumerNode := { remainingSubgoals := newMVars, ctx := ctx, .. node };

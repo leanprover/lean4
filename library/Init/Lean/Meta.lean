@@ -410,7 +410,7 @@ do c? ← isClassQuick type;
    | LOption.some c => pure (some c)
    | LOption.undef  => isClassExpensive whnf type
 
-/-- Similar to `forallTelescopeAuxAux` but for lambda expressions. -/
+/-- Similar to `forallTelescopeAuxAux` but for lambda and let expressions. -/
 @[specialize] private partial def lambdaTelescopeAux {α}
     (whnf             : Expr → MetaM Expr)
     (k                : Array Expr → Expr → MetaM α)
@@ -421,27 +421,26 @@ do c? ← isClassQuick type;
   let lctx := lctx.mkLocalDecl fvarId n d bi;
   let fvar := Expr.fvar fvarId;
   lambdaTelescopeAux lctx (fvars.push fvar) j b
-| lctx, fvars, j, type =>
-  let type := type.instantiateRevRange j fvars.size fvars;
+| lctx, fvars, j, Expr.letE n t v b => do
+  let t := t.instantiateRevRange j fvars.size fvars;
+  let v := v.instantiateRevRange j fvars.size fvars;
+  fvarId ← mkFreshId;
+  let lctx := lctx.mkLetDecl fvarId n t v;
+  let fvar := Expr.fvar fvarId;
+  lambdaTelescopeAux lctx (fvars.push fvar) j b
+| lctx, fvars, j, e =>
+  let e := e.instantiateRevRange j fvars.size fvars;
   adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
     withNewLocalInstances (isClassExpensive whnf) fvars j $ do
-      newType ← whnf type;
-      if newType.isForall then
-        lambdaTelescopeAux lctx fvars fvars.size newType
-      else
-        k fvars type
+      k fvars e
 
-/-- Similar to `forallTelescope` but for lambda expressions. -/
+/-- Similar to `forallTelescope` but for lambda and let expressions. -/
 @[specialize] private def lambdaTelescope {α}
     (whnf             : Expr → MetaM Expr)
-    (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
-do newType ← whnf type;
-   if newType.isLambda then
-     savingCache $ do
-       lctx ← getLCtx;
-       lambdaTelescopeAux whnf k lctx #[] 0 newType
-   else do
-     k #[] type
+    (e : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+savingCache $ do
+  lctx ← getLCtx;
+  lambdaTelescopeAux whnf k lctx #[] 0 e
 
 @[specialize] private def getForallResultType
     (whnf      : Expr → MetaM Expr)
@@ -544,6 +543,7 @@ forallTelescope whnf e $ fun xs e => do
     lvl;
   pure $ Expr.sort lvl
 
+/- Infer type of lambda and let expressions -/
 @[specialize] private def inferLambdaType
     (whnf      : Expr → MetaM Expr)
     (inferType : Expr → MetaM Expr)
@@ -593,7 +593,7 @@ do s ← get;
 | Expr.sort lvl            => pure $ Expr.sort (Level.succ lvl)
 | e@(Expr.forallE _ _ _ _) => checkInferTypeCache e (inferForallType whnf inferTypeAux e)
 | e@(Expr.lam _ _ _ _)     => checkInferTypeCache e (inferLambdaType whnf inferTypeAux e)
-| Expr.letE n t v b        => throw $ Exception.other "not implemented yet"
+| e@(Expr.letE _ _ _ _)    => checkInferTypeCache e (inferLambdaType whnf inferTypeAux e)
 
 #exit
 

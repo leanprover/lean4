@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 if ((${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.1) OR (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} EQUAL 3.1))
   cmake_policy(SET CMP0054 NEW)
 endif()
+include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
 set(LEAN_VERSION_MINOR 0)
@@ -68,7 +69,6 @@ option(RUNTIME_STATS       "RUNTIME_STATS" OFF)
 
 # development-specific options
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" ON)
-option(REBUILD_STAGE0      "Automatically rebuild lean_stage0 when out of date. Can be temporarily be disabled while re-bootstrapping." ON)
 
 # library dir
 set(LIBRARY_DIR           "lib/lean"                   CACHE STRING "library dir")
@@ -349,7 +349,6 @@ elseif (MULTI_THREAD)
 endif ()
 
 if (EMSCRIPTEN)
-    include(ExternalProject)
     set(gmp_install_prefix ${CMAKE_CURRENT_BINARY_DIR}/gmp-root)
     # The plethory of configure arguments only makes sure that gmp thinks sizeof(mp_limb_t) == sizeof(long) == 4
     ExternalProject_Add(
@@ -486,7 +485,9 @@ configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
 # For example, it uses binary files located in the `bin` directory.
 configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_SOURCE_DIR}/config.h")
 install(FILES "${LEAN_SOURCE_DIR}/config.h" DESTINATION "${INCLUDE_DIR}")
-configure_file("${LEAN_SOURCE_DIR}/../library/Makefile.in" "${LEAN_SOURCE_DIR}/../library/Makefile")
+if(NOT STAGE0)
+  configure_file("${LEAN_SOURCE_DIR}/../library/Makefile.in" "${LEAN_SOURCE_DIR}/../library/Makefile")
+endif()
 
 include_directories("${LEAN_BINARY_DIR}")
 add_subdirectory(runtime)
@@ -509,44 +510,62 @@ add_subdirectory(frontends/lean)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:lean_frontend>)
 add_subdirectory(init)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:init>)
-add_subdirectory(stage0)
+if(STAGE0)
+  add_subdirectory(../library stdlib)
+  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:stage0>)
+endif()
 if(EMSCRIPTEN)
     set(LEAN_LIBRARY_TYPE SHARED)
 else()
    set(LEAN_LIBRARY_TYPE STATIC)
 endif()
 
-add_library(leanstatic_stage0 ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS} $<TARGET_OBJECTS:stage0>)
-target_link_libraries(leanstatic_stage0 ${EXTRA_LIBS})
+if(NOT STAGE0)
+  ExternalProject_add(stage0
+    SOURCE_DIR "${LEAN_SOURCE_DIR}/../stage0"
+    SOURCE_SUBDIR src
+    BINARY_DIR stage0
+    CMAKE_ARGS
+      -DSTAGE0=ON
+      -DCHECK_OLEAN_VERSION=${CHECK_OLEAN_VERSION}
+      "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
+      "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
+    BUILD_COMMAND "${CMAKE_COMMAND}" --build . -t lean  # build executable only
+    BUILD_ALWAYS ON  # cmake doesn't auto-detect changes without a download method
+    INSTALL_COMMAND ""  # skip install
+  )
+endif()
 
 # `leanstatic` and `leanstdlib` are cyclically dependent static libraries.
 # We use the approach described at
 # https://cmake.org/cmake/help/v3.3/command/target_link_libraries.html#cyclic-dependencies-of-static-libraries
 add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
-add_library(leanstdlib STATIC IMPORTED)
-target_link_libraries(leanstatic leanstdlib ${EXTRA_LIBS})
+target_link_libraries(leanstatic ${EXTRA_LIBS})
 
 if(LLVM)
-  target_link_libraries(leanstatic_stage0 ${llvm_libs})
   target_link_libraries(leanstatic ${llvm_libs})
 endif()
 
-ADD_CUSTOM_TARGET(bin_lib ALL
-   COMMAND "${CMAKE_COMMAND}" -E make_directory "${LEAN_SOURCE_DIR}/../bin"
-   COMMAND "${CMAKE_COMMAND}" -E copy ${COPY_LIBS} "$<TARGET_FILE:leanstdlib>" "$<TARGET_FILE:leanstatic>" "${LEAN_SOURCE_DIR}/../bin"
-   DEPENDS leanstatic leanstdlib
-)
-# Configure leanc
-configure_file("${LEAN_SOURCE_DIR}/../bin/leanc.in" "${CMAKE_CURRENT_BINARY_DIR}/tmp/leanc")
-file(COPY "${CMAKE_CURRENT_BINARY_DIR}/tmp/leanc"
-  DESTINATION "${LEAN_SOURCE_DIR}/../bin"
-  FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-install(FILES "${LEAN_SOURCE_DIR}/../bin/leanc"
-  DESTINATION bin
-  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+if(NOT STAGE0)
+  add_library(leanstdlib STATIC IMPORTED)
+  target_link_libraries(leanstatic leanstdlib)
+  ADD_CUSTOM_TARGET(bin_lib ALL
+     COMMAND "${CMAKE_COMMAND}" -E make_directory "${LEAN_SOURCE_DIR}/../bin"
+     COMMAND "${CMAKE_COMMAND}" -E copy ${COPY_LIBS} "$<TARGET_FILE:leanstdlib>" "$<TARGET_FILE:leanstatic>" "${LEAN_SOURCE_DIR}/../bin"
+     DEPENDS leanstatic leanstdlib
+  )
+  # Configure leanc
+  configure_file("${LEAN_SOURCE_DIR}/../bin/leanc.in" "${CMAKE_CURRENT_BINARY_DIR}/tmp/leanc")
+  file(COPY "${CMAKE_CURRENT_BINARY_DIR}/tmp/leanc"
+    DESTINATION "${LEAN_SOURCE_DIR}/../bin"
+    FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+  install(FILES "${LEAN_SOURCE_DIR}/../bin/leanc"
+    DESTINATION bin
+    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
-add_custom_target(bin ALL)
-add_dependencies(bin bin_lib bin_lean)
+  add_custom_target(bin ALL)
+  add_dependencies(bin bin_lib bin_lean)
+endif()
 
 # The DLL (shared library) is not being generated correctly when we use cross-compilation (i.e., generate the Windows DLL using Linux).
 # For some strange reason, it contains a copy of pthread_equal.

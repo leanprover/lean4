@@ -512,6 +512,16 @@ inductive Exception
 | revertFailure (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array Expr) (decl : LocalDecl)
 | readOnlyMVar (mctx : MetavarContext) (mvarId : Name)
 
+def Exception.toString : Exception → String
+| Exception.revertFailure _ lctx toRevert decl =>
+  "failed to revert "
+  ++ toString (toRevert.map (fun x => "'" ++ toString (lctx.findFVar x).get!.userName ++ "'"))
+  ++ ", '" ++ toString decl.userName ++ "' depends on them, and it is an auxiliary declaration created by the elaborator"
+  ++ " (possible solution: use tactic 'clear' to remove '" ++ toString decl.userName ++ "' from local context)"
+| Exception.readOnlyMVar _ mvarId => "failed to create binding due to read only metavariable " ++ toString mvarId
+
+instance Exception.hasToString : HasToString Exception := ⟨Exception.toString⟩
+
 /--
  `MkBinding` and `elimMVarDepsAux` are mutually recursive, but `cache` is only used at `elimMVarDepsAux`.
   We use a single state object for convenience.

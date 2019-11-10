@@ -1,6 +1,12 @@
 import Init.Lean.MetavarContext
 open Lean
 
+def mkLambda (mctx : MetavarContext) (ngen : NameGenerator) (lctx : LocalContext) (xs : Array Expr) (e : Expr)
+    : Except MetavarContext.MkBinding.Exception (MetavarContext × NameGenerator × Expr) :=
+match MetavarContext.mkLambda xs e lctx { mctx := mctx, ngen := ngen } with
+| EStateM.Result.ok e s    => Except.ok (s.mctx, s.ngen, e)
+| EStateM.Result.error e s => Except.error e
+
 def check (b : Bool) : IO Unit :=
 unless b (throw "error")
 
@@ -46,7 +52,7 @@ def mctx4  := mctx3.mkDecl `m3 `m3 lctx3 natE
 def mctx4' := mctx3.mkDecl `m3 `m3 lctx3 natE true
 
 def R1 :=
-match mctx4.mkLambda {namePrefix := `n} lctx4 #[α, x, y] $ mkApp f #[m3, x] with
+match mkLambda mctx4 {namePrefix := `n} lctx4 #[α, x, y] $ mkApp f #[m3, x] with
 | Except.ok s    => s
 | Except.error e => panic! (toString e)
 def e1    := R1.2.2
@@ -58,7 +64,7 @@ def mctx5 := R1.1
 #eval check (!e1.hasFVar)
 
 def R2 :=
-match mctx4'.mkLambda {namePrefix := `n} lctx4 #[α, x, y] $ mkApp f #[m3, y] with
+match mkLambda mctx4' {namePrefix := `n} lctx4 #[α, x, y] $ mkApp f #[m3, y] with
 | Except.ok s    => s
 | Except.error e => panic! (toString e)
 def e2    := R2.2.2

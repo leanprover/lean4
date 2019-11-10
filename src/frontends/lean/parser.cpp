@@ -181,8 +181,11 @@ void parser::updt_options() {
 
 void parser::sync_command() {
     // Keep consuming tokens until we find a Command or End-of-file
-    while (curr() != token_kind::CommandKeyword && curr() != token_kind::Eof)
-        next();
+    while (curr() != token_kind::CommandKeyword && curr() != token_kind::Eof) {
+        try {
+            next();
+        } catch (parser_exception const &) {}
+    }
 }
 
 name parser::mk_anonymous_inst_name() {

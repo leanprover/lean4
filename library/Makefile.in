@@ -6,7 +6,7 @@ SRCS = $(shell find . -name '*.lean')
 OBJS = $(SRCS:.lean=.olean)
 DEPS = $(SRCS:.lean=.depend)
 OPTS = @LEAN_EXTRA_MAKE_OPTS@
-STAGE0_DIR = ../src/stage0
+STAGE0_DIR = ../stage0
 STAGE1_DIR = ../src/stage1
 ifndef STAGE1_OUT
 $(error "`STAGE1_OUT` must be set (use cmake)")
@@ -52,9 +52,12 @@ $(STAGE1_OUT)/libleanstdlib.a: $(addprefix $(STAGE1_OUT)/,$(patsubst %.lean,%.o,
 	@ar rcs $@ $^
 
 update-stage0:
-	rm -r $(STAGE0_DIR)/Init
-	cp -R $(STAGE1_DIR)/Init $(STAGE0_DIR)/Init
-	echo "add_library (stage0 OBJECT $(CS_CORE))" > $(STAGE0_DIR)/CMakeLists.txt
+	-rm -r $(STAGE0_DIR)/src $(STAGE0_DIR)/library
+	-mkdir $(STAGE0_DIR)
+# don't copy untracked crap
+	git ls-files -z ../src | xargs -0 -I '{}' bash -c 'mkdir -p `dirname ../stage0/src/{}` && cp {} ../stage0/src/{}'
+	cp -R $(STAGE1_DIR) $(STAGE0_DIR)/library
+	echo "add_library (stage0 OBJECT $(CS_CORE))" > $(STAGE0_DIR)/library/CMakeLists.txt
 	-git add $(STAGE0_DIR)
 
 .PRECIOUS: %.depend $(STAGE1_DIR)/%.c

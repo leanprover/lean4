@@ -1,35 +1,32 @@
-if(REBUILD_STAGE0)
-  add_executable(lean_stage0 lean.cpp)
-  target_link_libraries(lean_stage0 leanstatic_stage0)
-else()
+if(NOT STAGE0)
   add_executable(lean_stage0 IMPORTED)
-  set_target_properties(lean_stage0 PROPERTIES IMPORTED_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/lean_stage0")
+  set_target_properties(lean_stage0 PROPERTIES IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/stage0/shell/lean")
+
+  ADD_CUSTOM_TARGET(bin_lean_stage0
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean_stage0>" "${LEAN_SOURCE_DIR}/../bin/lean_stage0"
+    DEPENDS stage0
+  )
+
+  string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
+  set(LEANC_OPTS "${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
+
+  add_custom_target(make_stdlib
+    # '-G Ninja' complains otherwise
+    BYPRODUCTS "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"
+    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
+    COMMAND ${CMAKE_COMMAND} -E env "LEAN_PATH=." make -j8 "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" "LEAN=$<TARGET_FILE:lean_stage0>" "LEANC_OPTS=${LEANC_OPTS}" "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
+    DEPENDS stage0)
+  set_target_properties(leanstdlib PROPERTIES
+    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"
+    IMPORTED_LINK_INTERFACE_LIBRARIES leanstatic)
+  add_dependencies(leanstdlib make_stdlib)
+  install(FILES "$<TARGET_FILE:leanstdlib>" DESTINATION lib)
+
+  add_custom_target(update-stage0
+    COMMAND make update-stage0 "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
+    DEPENDS leanstdlib
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/../library")
 endif()
-
-ADD_CUSTOM_TARGET(bin_lean_stage0
-  COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean_stage0>" "${LEAN_SOURCE_DIR}/../bin/lean_stage0"
-  DEPENDS lean_stage0
-)
-
-string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
-set(LEANC_OPTS "${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
-
-add_custom_target(make_stdlib
-  # '-G Ninja' complains otherwise
-  BYPRODUCTS "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"
-  WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
-  COMMAND ${CMAKE_COMMAND} -E env "LEAN_PATH=." make -j8 "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" "LEAN=$<TARGET_FILE:lean_stage0>" "LEANC_OPTS=${LEANC_OPTS}" "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
-  DEPENDS lean_stage0)
-set_target_properties(leanstdlib PROPERTIES
-  IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"
-  IMPORTED_LINK_INTERFACE_LIBRARIES leanstatic)
-add_dependencies(leanstdlib make_stdlib)
-install(FILES "$<TARGET_FILE:leanstdlib>" DESTINATION lib)
-
-add_custom_target(update-stage0
-  COMMAND make update-stage0 "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
-  DEPENDS leanstdlib
-  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/../library")
 
 add_executable(lean lean.cpp)
 target_link_libraries(lean leanstatic)
@@ -41,50 +38,52 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 endif()
 install(TARGETS lean DESTINATION bin)
 
-if(${EMSCRIPTEN})
-    set(NODE_JS "node --stack_size=8192")
+if(NOT STAGE0)
+  if(${EMSCRIPTEN})
+      set(NODE_JS "node --stack_size=8192")
 
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/lean_with_path
-            "#!/bin/sh\nLEAN_PATH=${CMAKE_CURRENT_SOURCE_DIR}/../../library ${NODE_JS} ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
-    execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/lean_with_path)
+      file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/lean_with_path
+              "#!/bin/sh\nLEAN_PATH=${CMAKE_CURRENT_SOURCE_DIR}/../../library ${NODE_JS} ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
+      execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/lean_with_path)
 
-    ADD_CUSTOM_TARGET(bin_lean ALL
-        COMMAND "${CMAKE_COMMAND}" -E make_directory "${LEAN_SOURCE_DIR}/../bin"
-        COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_BINARY_DIR}/lean_with_path" "${LEAN_SOURCE_DIR}/../bin/lean"
-        DEPENDS lean
-        )
+      ADD_CUSTOM_TARGET(bin_lean ALL
+          COMMAND "${CMAKE_COMMAND}" -E make_directory "${LEAN_SOURCE_DIR}/../bin"
+          COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_BINARY_DIR}/lean_with_path" "${LEAN_SOURCE_DIR}/../bin/lean"
+          DEPENDS lean
+          )
 
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/lean
-            "#!/bin/sh\n${NODE_JS} ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
-    execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/lean)
+      file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/lean
+              "#!/bin/sh\n${NODE_JS} ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
+      execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/lean)
 
-    # legacy code for mkleanbook
-    # copy olean files from the library into build/emscripten/shell/library/...
-    add_custom_target(lean_js_library
-        COMMAND "${CMAKE_COMMAND}" -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/library
-        COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/library
-        COMMAND bash -c "(cd ${LEAN_JS_LIBRARY}; tar c `find -name '*.olean'`) | (cd ${CMAKE_CURRENT_BINARY_DIR}/library; tar x)"
-        VERBATIM)
-    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lean_js.html DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-    target_link_libraries(lean_js
-            "--embed-file library
-             --bind
-             -s WASM=0
-             -s \"BINARYEN_METHOD='native-wasm,asmjs'\"")
-    add_dependencies(lean_js lean_js_library)
-    set_target_properties(lean_js PROPERTIES COMPILE_FLAGS --bind -s NO_EXIT_RUNTIME=1)
+      # legacy code for mkleanbook
+      # copy olean files from the library into build/emscripten/shell/library/...
+      add_custom_target(lean_js_library
+          COMMAND "${CMAKE_COMMAND}" -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/library
+          COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/library
+          COMMAND bash -c "(cd ${LEAN_JS_LIBRARY}; tar c `find -name '*.olean'`) | (cd ${CMAKE_CURRENT_BINARY_DIR}/library; tar x)"
+          VERBATIM)
+      file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lean_js.html DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+      target_link_libraries(lean_js
+              "--embed-file library
+               --bind
+               -s WASM=0
+               -s \"BINARYEN_METHOD='native-wasm,asmjs'\"")
+      add_dependencies(lean_js lean_js_library)
+      set_target_properties(lean_js PROPERTIES COMPILE_FLAGS --bind -s NO_EXIT_RUNTIME=1)
 
-else()
-  if (MSVC)
-    ADD_CUSTOM_TARGET(bin_lean ALL
-      COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean>" "$<TARGET_FILE_DIR:lean>/mpir.dll" "${LEAN_SOURCE_DIR}/../bin/"
-      DEPENDS bin_lean_stage0 lean
-    )
   else()
-    ADD_CUSTOM_TARGET(bin_lean ALL
-      COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean>" "$<TARGET_LINKER_FILE:lean>" "${LEAN_SOURCE_DIR}/../bin/"
-      DEPENDS bin_lean_stage0 lean
-    )
+    if (MSVC)
+      ADD_CUSTOM_TARGET(bin_lean ALL
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean>" "$<TARGET_FILE_DIR:lean>/mpir.dll" "${LEAN_SOURCE_DIR}/../bin/"
+        DEPENDS bin_lean_stage0 lean
+      )
+    else()
+      ADD_CUSTOM_TARGET(bin_lean ALL
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean>" "$<TARGET_LINKER_FILE:lean>" "${LEAN_SOURCE_DIR}/../bin/"
+        DEPENDS bin_lean_stage0 lean
+      )
+    endif()
   endif()
 endif()
 

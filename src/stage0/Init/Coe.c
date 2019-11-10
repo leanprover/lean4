@@ -206,8 +206,8 @@ lean_object* l_liftTrans___rarg(lean_object* x_1, lean_object* x_2, lean_object*
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_apply_1(x_1, x_3);
-x_5 = lean_apply_1(x_2, x_4);
+x_4 = lean_apply_1(x_2, x_3);
+x_5 = lean_apply_1(x_1, x_4);
 return x_5;
 }
 }
@@ -239,8 +239,8 @@ lean_object* l_coeTrans___rarg(lean_object* x_1, lean_object* x_2, lean_object* 
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_apply_1(x_1, x_3);
-x_5 = lean_apply_1(x_2, x_4);
+x_4 = lean_apply_1(x_2, x_3);
+x_5 = lean_apply_1(x_1, x_4);
 return x_5;
 }
 }
@@ -290,8 +290,8 @@ lean_object* l_coeTransAux___rarg(lean_object* x_1, lean_object* x_2, lean_objec
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_apply_1(x_1, x_3);
-x_5 = lean_apply_1(x_2, x_4);
+x_4 = lean_apply_1(x_2, x_3);
+x_5 = lean_apply_1(x_1, x_4);
 return x_5;
 }
 }
@@ -324,8 +324,8 @@ lean_object* l_coeFnTrans___rarg(lean_object* x_1, lean_object* x_2, lean_object
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_apply_1(x_1, x_3);
-x_5 = lean_apply_1(x_2, x_4);
+x_4 = lean_apply_1(x_2, x_3);
+x_5 = lean_apply_1(x_1, x_4);
 return x_5;
 }
 }
@@ -341,8 +341,8 @@ lean_object* l_coeSortTrans___rarg(lean_object* x_1, lean_object* x_2, lean_obje
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_apply_1(x_1, x_3);
-x_5 = lean_apply_1(x_2, x_4);
+x_4 = lean_apply_1(x_2, x_3);
+x_5 = lean_apply_1(x_1, x_4);
 return x_5;
 }
 }
@@ -448,9 +448,9 @@ lean_object* l_liftFn___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_apply_1(x_1, x_4);
+x_5 = lean_apply_1(x_2, x_4);
 x_6 = lean_apply_1(x_3, x_5);
-x_7 = lean_apply_1(x_2, x_6);
+x_7 = lean_apply_1(x_1, x_6);
 return x_7;
 }
 }

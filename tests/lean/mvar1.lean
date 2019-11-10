@@ -49,12 +49,12 @@ def t1 := lctx5.mkLambda #[α, x, y] $ mkApp f #[α, mkApp g #[x, y], lctx5.mkLa
 #eval t1
 
 def mctx1 : MetavarContext := {}
-def mctx2  := mctx1.mkDecl `m1 `m1 lctx3 natE
-def mctx3  := mctx2.mkDecl `m2 `m2 lctx4 α
-def mctx4  := mctx3.mkDecl `m3 `m3 lctx4 natE
-def mctx5  := mctx4.mkDecl `m4 `m4 lctx1 (arrow typeE (arrow natE (arrow α natE)))
-def mctx6  := mctx5.mkDecl `m5 `m5 lctx5 typeE
-def mctx7  := mctx5.mkDecl `m6 `m6 lctx5 (arrow typeE (arrow natE (arrow α natE)))
+def mctx2  := mctx1.addExprMVarDecl `m1 `m1 lctx3 natE
+def mctx3  := mctx2.addExprMVarDecl `m2 `m2 lctx4 α
+def mctx4  := mctx3.addExprMVarDecl `m3 `m3 lctx4 natE
+def mctx5  := mctx4.addExprMVarDecl `m4 `m4 lctx1 (arrow typeE (arrow natE (arrow α natE)))
+def mctx6  := mctx5.addExprMVarDecl `m5 `m5 lctx5 typeE
+def mctx7  := mctx5.addExprMVarDecl `m6 `m6 lctx5 (arrow typeE (arrow natE (arrow α natE)))
 def mctx8  := mctx7.assignDelayed `m4 lctx4 #[α, x, y] m3
 def mctx9  := mctx8.assignExpr `m3 (mkApp g #[x, y])
 def mctx10 := mctx9.assignExpr `m1 a

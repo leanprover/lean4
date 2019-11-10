@@ -46,10 +46,10 @@ def lctx3 := lctx2.mkLocalDecl `x `x m1
 def lctx4 := lctx3.mkLocalDecl `y `y (arrow natE m2)
 
 def mctx1 : MetavarContext := {}
-def mctx2  := mctx1.mkDecl `m1 `m1 lctx2 typeE
-def mctx3  := mctx2.mkDecl `m2 `m2 lctx3 natE
-def mctx4  := mctx3.mkDecl `m3 `m3 lctx3 natE
-def mctx4' := mctx3.mkDecl `m3 `m3 lctx3 natE true
+def mctx2  := mctx1.addExprMVarDecl `m1 `m1 lctx2 typeE
+def mctx3  := mctx2.addExprMVarDecl `m2 `m2 lctx3 natE
+def mctx4  := mctx3.addExprMVarDecl `m3 `m3 lctx3 natE
+def mctx4' := mctx3.addExprMVarDecl `m3 `m3 lctx3 natE true
 
 def R1 :=
 match mkLambda mctx4 {namePrefix := `n} lctx4 #[α, x, y] $ mkApp f #[m3, x] with

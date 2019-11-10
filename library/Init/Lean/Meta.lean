@@ -344,11 +344,26 @@ x -- TODO
   - `lctx` is the `MetaM` local context exteded with the declaration for `fvars`.
   - `type` is the type we are computing the telescope for. It contains only
     dangling bound variables in the range `[j, fvars.size)`
+  - if `reducing? == true` and `type` is not `forallE`, we use `whnf`.
   - when `type` is not a `forallE` nor it can't be reduced to one, we
-    excute the continuation `k`. -/
-@[specialize] private partial def forallTelescopeAuxAux {α}
+    excute the continuation `k`.
+
+  Here is an example that demonstrates the `reducing?`.
+  Suppose we have
+  ```
+  abbrev StateM s a := s -> Prod a s
+  ```
+  Now, assume we are trying to build the telescope for
+  ```
+  forall (x : Nat), StateM Int Bool
+  ```
+  if `reducing? == true`, the function executes `k #[(x : Nat) (s : Int)] Bool`.
+  if `reducing? == false`, the function executes `k #[(x : Nat)] (StateM Int Bool)`
+-/
+@[specialize] private partial def forallTelescopeReducingAuxAux {α}
     (whnf             : Expr → MetaM Expr)
     (isClassExpensive : Expr → MetaM (Option Name))
+    (reducing?        : Bool)
     (k                : Array Expr → Expr → MetaM α)
     : LocalContext → Array Expr → Nat → Expr → MetaM α
 | lctx, fvars, j, Expr.forallE n bi d b => do
@@ -356,20 +371,23 @@ x -- TODO
   fvarId ← mkFreshId;
   let lctx := lctx.mkLocalDecl fvarId n d bi;
   let fvar := Expr.fvar fvarId;
-  forallTelescopeAuxAux lctx (fvars.push fvar) j b
+  forallTelescopeReducingAuxAux lctx (fvars.push fvar) j b
 | lctx, fvars, j, type =>
   let type := type.instantiateRevRange j fvars.size fvars;
   adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
-    withNewLocalInstances isClassExpensive fvars j $ do
-      newType ← whnf type;
-      if newType.isForall then
-        forallTelescopeAuxAux lctx fvars fvars.size newType
+    withNewLocalInstances isClassExpensive fvars j $
+      if reducing? then do
+        newType ← whnf type;
+        if newType.isForall then
+          forallTelescopeReducingAuxAux lctx fvars fvars.size newType
+        else
+          k fvars type
       else
         k fvars type
 
 /- We need this auxiliary definition because it depends on `isClassExpensive`,
    and `isClassExpensive` depends on it. -/
-@[specialize] private def forallTelescopeAux {α}
+@[specialize] private def forallTelescopeReducingAux {α}
     (whnf             : Expr → MetaM Expr)
     (isClassExpensive : Expr → MetaM (Option Name))
     (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
@@ -377,15 +395,15 @@ do newType ← whnf type;
    if newType.isForall then
      savingCache $ do
        lctx ← getLCtx;
-       forallTelescopeAuxAux whnf isClassExpensive k lctx #[] 0 newType
-   else do
+       forallTelescopeReducingAuxAux whnf isClassExpensive true k lctx #[] 0 newType
+   else
      k #[] type
 
 @[specialize] private partial def isClassExpensive
     (whnf : Expr → MetaM Expr)
     : Expr → MetaM (Option Name)
 | type => byUnfoldingReducibleOnly $ -- when testing whether a type is a type class, we only unfold reducible constants.
-  forallTelescopeAux whnf isClassExpensive type $ fun xs type => do
+  forallTelescopeReducingAux whnf isClassExpensive type $ fun xs type => do
     match type.getAppFn with
     | Expr.const c _ => do
       env ← getEnv;
@@ -399,7 +417,17 @@ do newType ← whnf type;
 @[inline] def forallTelescope {α}
     (whnf : Expr → MetaM Expr)
     (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
-forallTelescopeAux whnf (isClassExpensive whnf) type k
+savingCache $ do
+  lctx ← getLCtx;
+  forallTelescopeReducingAuxAux whnf (isClassExpensive whnf) false k lctx #[] 0 type
+
+/--
+  Similar to `forallTelescope`, but given `type` of the form `forall xs, A`,
+  it reduces `A` and continues bulding the telescope if it is a `forall`. -/
+@[specialize] def forallTelescopeReducing {α}
+    (whnf             : Expr → MetaM Expr)
+    (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+forallTelescopeReducingAux whnf (isClassExpensive whnf) type k
 
 @[specialize] def isClass
     (whnf : Expr → MetaM Expr)

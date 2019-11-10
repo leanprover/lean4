@@ -87,7 +87,7 @@ do typeType ← inferType type;
    match typeType with
    | Expr.sort lvl    => pure lvl
    | Expr.mvar mvarId =>
-     condM (isReadOnlyOrSyntheticMVar mvarId)
+     condM (isReadOnlyOrSyntheticExprMVar mvarId)
        (throwEx $ Exception.typeExpected type)
        (do levelMVarId ← mkFreshId;
            let lvl := Level.mvar levelMVarId;
@@ -129,7 +129,7 @@ private def inferMVarType (mvarId : Name) : MetaM Expr :=
 do mctx ← getMCtx;
    match mctx.findDecl mvarId with
    | some d => pure d.type
-   | none   => throwEx $ Exception.unknownMVar mvarId
+   | none   => throwEx $ Exception.unknownExprMVar mvarId
 
 private def inferFVarType (fvarId : Name) : MetaM Expr :=
 do lctx ← getLCtx;
@@ -161,7 +161,6 @@ do s ← get;
 | e@(Expr.forallE _ _ _ _) => checkInferTypeCache e (inferForallType whnf inferTypeAux e)
 | e@(Expr.lam _ _ _ _)     => checkInferTypeCache e (inferLambdaType whnf inferTypeAux e)
 | e@(Expr.letE _ _ _ _)    => checkInferTypeCache e (inferLambdaType whnf inferTypeAux e)
-
 
 end Meta
 end Lean

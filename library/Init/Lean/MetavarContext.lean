@@ -229,11 +229,11 @@ instance : Inhabited MetavarContext := ⟨{}⟩
 def mkMetavarContext : Unit → MetavarContext :=
 fun _ => {}
 
-/- Low level API for creating metavariable declarations.
-   It is used to implement actions in the monads `Elab` and `Tactic`.
+/- Low level API for adding/declaring metavariable declarations.
+   It is used to implement actions in the monads `MetaM`, `ElabM` and `TacticM`.
    It should not be used directly since the argument `(mvarId : Name)` is assumed to be "unique". -/
 @[export lean_metavar_ctx_mk_decl]
-def mkDecl (mctx : MetavarContext) (mvarId : Name) (userName : Name) (lctx : LocalContext) (type : Expr) (synthetic : Bool := false) : MetavarContext :=
+def addExprMVarDecl (mctx : MetavarContext) (mvarId : Name) (userName : Name) (lctx : LocalContext) (type : Expr) (synthetic : Bool := false) : MetavarContext :=
 { decls := mctx.decls.insert mvarId {
     userName  := userName,
     lctx      := lctx,
@@ -242,14 +242,24 @@ def mkDecl (mctx : MetavarContext) (mvarId : Name) (userName : Name) (lctx : Loc
     synthetic := synthetic },
   .. mctx }
 
-@[export lean_metavar_ctx_find_decl]
-def findDecl (m : MetavarContext) (mvarId : Name) : Option MetavarDecl :=
-m.decls.find mvarId
+/- Low level API for adding/declaring universe level metavariable declarations.
+   It is used to implement actions in the monads `MetaM`, `ElabM` and `TacticM`.
+   It should not be used directly since the argument `(mvarId : Name)` is assumed to be "unique". -/
+def addLevelMVarDecl (mctx : MetavarContext) (mvarId : Name) : MetavarContext :=
+{ lDepth := mctx.lDepth.insert mvarId mctx.depth,
+  .. mctx }
 
-def getDecl (m : MetavarContext) (mvarId : Name) : MetavarDecl :=
-match m.decls.find mvarId with
+@[export lean_metavar_ctx_find_decl]
+def findDecl (mctx : MetavarContext) (mvarId : Name) : Option MetavarDecl :=
+mctx.decls.find mvarId
+
+def getDecl (mctx : MetavarContext) (mvarId : Name) : MetavarDecl :=
+match mctx.decls.find mvarId with
 | some decl => decl
 | none      => panic! "unknown metavariable"
+
+def findLevelDepth (mctx : MetavarContext) (mvarId : Name) : Option Nat :=
+mctx.lDepth.find mvarId
 
 @[export lean_metavar_ctx_assign_level]
 def assignLevel (m : MetavarContext) (mvarId : Name) (val : Level) : MetavarContext :=
@@ -333,17 +343,17 @@ def hasAssignableLevelMVar (mctx : MetavarContext) : Level → Bool
 | Level.zero           => false
 | Level.param _        => false
 
-private partial def instantiateLevelMVarsAux : Level → StateM MetavarContext Level
-| lvl@(Level.succ lvl₁)      => do lvl₁ ← instantiateLevelMVarsAux lvl₁; pure (Level.updateSucc! lvl lvl₁)
-| lvl@(Level.max lvl₁ lvl₂)  => do lvl₁ ← instantiateLevelMVarsAux lvl₁; lvl₂ ← instantiateLevelMVarsAux lvl₂; pure (Level.updateMax! lvl lvl₁ lvl₂)
-| lvl@(Level.imax lvl₁ lvl₂) => do lvl₁ ← instantiateLevelMVarsAux lvl₁; lvl₂ ← instantiateLevelMVarsAux lvl₂; pure (Level.updateIMax! lvl lvl₁ lvl₂)
+partial def instantiateLevelMVars : Level → StateM MetavarContext Level
+| lvl@(Level.succ lvl₁)      => do lvl₁ ← instantiateLevelMVars lvl₁; pure (Level.updateSucc! lvl lvl₁)
+| lvl@(Level.max lvl₁ lvl₂)  => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateMax! lvl lvl₁ lvl₂)
+| lvl@(Level.imax lvl₁ lvl₂) => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateIMax! lvl lvl₁ lvl₂)
 | lvl@(Level.mvar mvarId)    => do
   mctx ← get;
   match getLevelAssignment mctx mvarId with
   | some newLvl =>
     if !newLvl.hasMVar then pure newLvl
     else do
-      newLvl' ← instantiateLevelMVarsAux newLvl;
+      newLvl' ← instantiateLevelMVars newLvl;
       modify $ fun mctx => mctx.assignLevel mvarId newLvl';
       pure newLvl'
   | none        => pure lvl
@@ -352,8 +362,8 @@ private partial def instantiateLevelMVarsAux : Level → StateM MetavarContext L
 namespace InstantiateExprMVars
 private abbrev M := StateM (WithHashMapCache Expr Expr MetavarContext)
 
-@[inline] private def instantiateLevelMVars (lvl : Level) : M Level :=
-WithHashMapCache.fromState $ instantiateLevelMVarsAux lvl
+@[inline] def instantiateLevelMVars (lvl : Level) : M Level :=
+WithHashMapCache.fromState $ MetavarContext.instantiateLevelMVars lvl
 
 @[inline] private def visit (f : Expr → M Expr) (e : Expr) : M Expr :=
 if !e.hasMVar then pure e else checkCache e f
@@ -657,7 +667,7 @@ xs.foldl (fun e x => if (lctx.findFVar x).get!.isLet then e else Expr.app e x) m
 private def mkAuxMVar (lctx : LocalContext) (type : Expr) (synthetic : Bool) : M Name :=
 do s ← get;
    let mvarId := s.ngen.curr;
-   modify $ fun s => { mctx := s.mctx.mkDecl mvarId Name.anonymous lctx type synthetic, ngen := s.ngen.next, .. s };
+   modify $ fun s => { mctx := s.mctx.addExprMVarDecl mvarId Name.anonymous lctx type synthetic, ngen := s.ngen.next, .. s };
    pure mvarId
 
 private partial def elimMVarDepsAux : Array Expr → Expr → M Expr

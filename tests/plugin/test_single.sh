@@ -37,7 +37,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-$BIN_DIR/lean --plugin="$ff.so" "$ff" | sed "s|^$ff|$f|" > "$f.produced.out"
+$BIN_DIR/lean --plugin="$ff.so" "$ff" 2>&1 | sed "s|^$ff|$f|" > "$f.produced.out"
 if test -f "$f.expected.out"; then
     if $DIFF -u --ignore-all-space -I "executing external script" "$f.expected.out" "$f.produced.out"; then
         echo "-- checked"

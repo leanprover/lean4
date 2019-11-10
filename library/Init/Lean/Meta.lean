@@ -82,6 +82,8 @@ inductive Exception
 | typeExpected         (type : Expr) (ctx : ExceptionContext)
 | incorrectNumOfLevels (constName : Name) (constLvls : List Level) (ctx : ExceptionContext)
 | invalidProjection    (structName : Name) (idx : Nat) (s : Expr) (ctx : ExceptionContext)
+| revertFailure        (toRevert : Array Expr) (decl : LocalDecl) (ctx : ExceptionContext)
+| readOnlyMVar         (mvarId : Name) (ctx : ExceptionContext)
 | bug                  (b : Bug) (ctx : ExceptionContext)
 | other                (msg : String)
 
@@ -239,6 +241,26 @@ else
     r ← unfoldDefinition getConst isAuxDef? whnfAux inferType isDefEq synthesizePending getLocalDecl getMVarAssignment e (fun _ => pure e) whnfAux;
     cacheWHNF e r;
     pure r
+
+@[inline] private def liftMkBindingM {α} (x : MetavarContext.MkBindingM α) : MetaM α :=
+fun ctx s =>
+  match x ctx.lctx { mctx := s.mctx, ngen := s.ngen } with
+  | EStateM.Result.ok e newS      =>
+    EStateM.Result.ok e { mctx := newS.mctx, ngen := newS.ngen, .. s}
+  | EStateM.Result.error (MetavarContext.MkBinding.Exception.readOnlyMVar mctx mvarId) newS =>
+    EStateM.Result.error
+      (Exception.readOnlyMVar mvarId { lctx := ctx.lctx, mctx := newS.mctx, env := s.env })
+      { mctx := newS.mctx, ngen := newS.ngen, .. s }
+  | EStateM.Result.error (MetavarContext.MkBinding.Exception.revertFailure mctx lctx toRevert decl) newS =>
+    EStateM.Result.error
+      (Exception.revertFailure toRevert decl { lctx := lctx, mctx := mctx, env := s.env })
+      { mctx := newS.mctx, ngen := newS.ngen, .. s }
+
+def mkForall (xs : Array Expr) (e : Expr) : MetaM Expr :=
+liftMkBindingM $ MetavarContext.mkForall xs e
+
+def mkLambda (xs : Array Expr) (e : Expr) : MetaM Expr :=
+liftMkBindingM $ MetavarContext.mkLambda xs e
 
 /-- Save cache, execute `x`, restore cache -/
 @[inline] private def savingCache {α} (x : MetaM α) : MetaM α :=

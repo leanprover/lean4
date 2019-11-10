@@ -506,38 +506,23 @@ end DependsOn
 | LocalDecl.cdecl _ _ _ type _     => exprDependsOn mctx p type
 | LocalDecl.ldecl _ _ _ type value => (DependsOn.main mctx p type <||> DependsOn.main mctx p value).run' {}
 
-inductive MkBindingException
-| revertFailure (lctx : LocalContext) (toRevert : Array Expr) (decl : LocalDecl)
-| readOnlyMVar (mvarId : Name)
-| mkAuxMVarNotSupported
-
-namespace MkBindingException
-def toStr : MkBindingException → String
-| revertFailure lctx toRevert decl =>
-  "failed to revert "
-  ++ toString (toRevert.map (fun x => "'" ++ toString (lctx.findFVar x).get!.userName ++ "'"))
-  ++ ", '" ++ toString decl.userName ++ "' depends on them, and it is an auxiliary declaration created by the elaborator"
-  ++ " (possible solution: use tactic 'clear' to remove '" ++ toString decl.userName ++ "' from local context)"
-| readOnlyMVar mvarId   => "failed to create binding due to read only metavariable " ++ toString mvarId
-| mkAuxMVarNotSupported => "auxiliary metavariables are not supported"
-
-instance : HasToString MkBindingException := ⟨toStr⟩
-end MkBindingException
-
 namespace MkBinding
+
+inductive Exception
+| revertFailure (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array Expr) (decl : LocalDecl)
+| readOnlyMVar (mctx : MetavarContext) (mvarId : Name)
 
 /--
  `MkBinding` and `elimMVarDepsAux` are mutually recursive, but `cache` is only used at `elimMVarDepsAux`.
   We use a single state object for convenience.
 
-  We have a `NameGenerator` because we need to generate fresh auxiliary metavariables.
--/
-structure MkBindingState :=
+  We have a `NameGenerator` because we need to generate fresh auxiliary metavariables. -/
+structure State :=
 (mctx  : MetavarContext)
 (ngen  : NameGenerator)
 (cache : HashMap Expr Expr := {}) --
 
-private abbrev M := EStateM MkBindingException MkBindingState
+abbrev M := EStateM Exception State
 
 instance : MonadHashMapCacheAdapter Expr Expr M :=
 { getCache    := do s ← get; pure s.cache,
@@ -596,7 +581,7 @@ xs.foldlFrom
     in `lctx` that may depend on `toRevert`.
 
     Remark: the result is sorted by `LocalDecl` indices. -/
-private def collectDeps (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array Expr) : Except MkBindingException (Array Expr) :=
+private def collectDeps (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array Expr) : Except Exception (Array Expr) :=
 if toRevert.size == 0 then pure toRevert
 else
   let minDecl := getLocalDeclWithSmallestIdx lctx toRevert;
@@ -606,7 +591,7 @@ else
         pure (newToRevert.push decl.toExpr)
       else if localDeclDependsOn mctx (fun fvarId => newToRevert.any $ fun x => x.fvarId! == fvarId) decl then
         if decl.binderInfo.isAuxDecl then
-          throw (MkBindingException.revertFailure lctx toRevert decl)
+          throw (Exception.revertFailure mctx lctx toRevert decl)
         else
           pure (newToRevert.push decl.toExpr)
       else
@@ -686,7 +671,7 @@ private partial def elimMVarDepsAux : Array Expr → Expr → M Expr
     if toRevert.size == 0 then
       pure e
     else if !mctx.isExprAssignable mvarId then
-      throw $ MkBindingException.readOnlyMVar mvarId
+      throw $ Exception.readOnlyMVar mctx mvarId
     else
       match collectDeps mctx mvarLCtx toRevert with
       | Except.error ex    => throw ex
@@ -711,19 +696,16 @@ else
 
 end MkBinding
 
-def mkBinding (isLambda : Bool) (mctx : MetavarContext) (ngen : NameGenerator) (lctx : LocalContext) (xs : Array Expr) (e : Expr)
-    : Except MkBindingException (MetavarContext × NameGenerator × Expr) :=
-match (MkBinding.mkBinding isLambda MkBinding.elimMVarDeps lctx xs e).run { mctx := mctx, ngen := ngen } with
-| EStateM.Result.ok e s      => Except.ok (s.mctx, s.ngen, e)
-| EStateM.Result.error err _ => Except.error err
+abbrev MkBindingM := ReaderT LocalContext MkBinding.M
 
-@[inline] def mkLambda (mctx : MetavarContext) (ngen : NameGenerator) (lctx : LocalContext) (xs : Array Expr) (e : Expr)
-    : Except MkBindingException (MetavarContext × NameGenerator × Expr) :=
-mkBinding true mctx ngen lctx xs e
+def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) : MkBindingM Expr :=
+fun lctx => MkBinding.mkBinding isLambda MkBinding.elimMVarDeps lctx xs e
 
-@[inline] def mkForall (mctx : MetavarContext) (ngen : NameGenerator) (lctx : LocalContext) (xs : Array Expr) (e : Expr)
-    : Except MkBindingException (MetavarContext × NameGenerator × Expr) :=
-mkBinding false mctx ngen lctx xs e
+@[inline] def mkLambda (xs : Array Expr) (e : Expr) : MkBindingM Expr :=
+mkBinding true xs e
+
+@[inline] def mkForall (xs : Array Expr) (e : Expr) : MkBindingM Expr :=
+mkBinding false xs e
 
 end MetavarContext
 end Lean

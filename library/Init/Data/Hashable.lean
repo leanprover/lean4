@@ -27,3 +27,9 @@ instance : Hashable Nat := ⟨Nat.hash⟩
 
 instance {α β} [Hashable α] [Hashable β] : Hashable (α × β) :=
 ⟨fun ⟨a, b⟩ => mixHash (hash a) (hash b)⟩
+
+def Option.hash {α} [Hashable α] : Option α → USize
+| none   => 11
+| some a => mixHash (hash a) 13
+
+instance {α} [Hashable α] : Hashable (Option α) := ⟨Option.hash⟩

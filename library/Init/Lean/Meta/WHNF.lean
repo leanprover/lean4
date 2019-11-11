@@ -23,7 +23,7 @@ do t ← getTransparency;
 do t ← getTransparency;
    modify $ fun s => { cache := { whnf := s.cache.whnf.insert (t, e) r, .. s.cache }, .. s }
 
-@[specialize] private partial def whnfAux
+@[specialize] partial def whnfAux
     (inferType         : Expr → MetaM Expr)
     (isDefEq           : Expr → Expr → MetaM Bool)
     (synthesizePending : Expr → MetaM Bool)

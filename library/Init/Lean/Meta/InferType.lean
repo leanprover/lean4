@@ -100,8 +100,7 @@ do typeType ← inferType type;
     (inferType : Expr → MetaM Expr)
     (e : Expr) : MetaM Expr :=
 forallTelescope whnf e $ fun xs e => do
-  type ← inferType e;
-  lvl  ← getLevel whnf inferType type;
+  lvl  ← getLevel whnf inferType e;
   lvl  ← xs.foldrM
     (fun x lvl => do
       xType    ← inferType x;

@@ -195,6 +195,9 @@ def assignExprMVar (mvarId : Name) (val : Expr) : MetaM Unit :=
 do whenDebugging $ whenM (isExprAssigned mvarId) $ throwBug $ Bug.overwritingExprMVar mvarId;
    modify $ fun s => { mctx := s.mctx.assignExpr mvarId val, .. s }
 
+def dbgTrace {α} [HasToString α] (a : α) : MetaM Unit :=
+_root_.dbgTrace (toString a) $ fun _ => pure ()
+
 @[inline] private def getTraceState : MetaM TraceState :=
 do s ← get; pure s.traceState
 

@@ -58,6 +58,14 @@
   build_config:
     cmd: ./compile.sh const_fold.lean
 - attributes:
+    description: new parser Core.lean
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./parser.lean.out ../../library/Init/Core.lean 100
+  build_config:
+    cmd: ./compile.sh parser.lean
+- attributes:
     description: qsort
     tags: [fast, suite]
   run_config:

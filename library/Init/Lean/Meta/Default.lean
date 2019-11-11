@@ -53,5 +53,14 @@ exprToBool <$> auxFixpoint isDefEqOp e₁ e₂
 /-          END OF BIG HACK                    -/
 /- =========================================== -/
 
+def isProp (e : Expr) : MetaM Bool :=
+isPropAux whnf e
+
+def getFunInfo (fn : Expr) : MetaM FunInfo :=
+getFunInfoAux whnf fn
+
+def getFunInfoNArgs (fn : Expr) (nargs : Nat) : MetaM FunInfo :=
+getFunInfoNArgsAux whnf fn nargs
+
 end Meta
 end Lean

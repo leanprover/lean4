@@ -359,11 +359,17 @@ static environment eval_cmd(parser & p) {
     object * args[] = { io_mk_world() };
     object_ref r;
 
-    if (p.profiling()) {
-        timeit timer(out.get_text_stream().get_stream(), "eval time");
-        r = object_ref(ir::run_boxed(new_env, fn_name, &args[0]));
-    } else {
-        r = object_ref(ir::run_boxed(new_env, fn_name, &args[0]));
+    try {
+        if (p.profiling()) {
+            timeit timer(out.get_text_stream().get_stream(), "eval time");
+            r = object_ref(ir::run_boxed(new_env, fn_name, &args[0]));
+        } else {
+            r = object_ref(ir::run_boxed(new_env, fn_name, &args[0]));
+        }
+    } catch (exception & ex) {
+        std::cout.rdbuf(saved_cout);
+        out.report();
+        throw ex;
     }
 
     std::cout.rdbuf(saved_cout);
@@ -373,11 +379,8 @@ static environment eval_cmd(parser & p) {
         msg << string_to_std(io_result_get_error(r.raw()));
         msg.report();
     }
-
     return p.env();
 }
-
-
 
 environment compact_tst_cmd(parser & p) {
     environment env = p.env();

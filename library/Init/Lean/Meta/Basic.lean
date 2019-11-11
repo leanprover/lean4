@@ -94,7 +94,7 @@ end NArgsCacheKey
 
 structure Cache :=
 (whnf         : PersistentHashMap (TransparencyMode × Expr) Expr := {})
-(inferType    : PersistentHashMap Expr Expr := {})
+(inferType    : PersistentExprStructMap Expr := {})
 (funInfo      : PersistentHashMap (TransparencyMode × Expr) FunInfo := {})
 (funInfoNArgs : PersistentHashMap NArgsCacheKey FunInfo := {})
 (ssInfo       : PersistentHashMap (TransparencyMode × Expr) SubsingletonParamsInfo := {})

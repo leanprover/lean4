@@ -206,7 +206,7 @@ instance tracer : SimpleMonadTracerAdapter MetaM :=
   getTraceState    := getTraceState,
   modifyTraceState := fun f => modify $ fun s => { traceState := f s.traceState, .. s } }
 
-def getConst (constName : Name) : MetaM (Option ConstantInfo) :=
+def getConstAux (constName : Name) (exception? : Bool) : MetaM (Option ConstantInfo) :=
 do env ← getEnv;
    match env.find constName with
    | some (info@(ConstantInfo.thmInfo _)) =>
@@ -216,7 +216,14 @@ do env ← getEnv;
        (condM (isReducible constName) (pure (some info)) (pure none))
        (pure (some info))
    | none                                 =>
-     throwEx $ Exception.unknownConst constName
+     if exception? then throwEx $ Exception.unknownConst constName
+     else pure none
+
+@[inline] def getConst (constName : Name) : MetaM (Option ConstantInfo) :=
+getConstAux constName true
+
+@[inline] def getConstNoEx (constName : Name) : MetaM (Option ConstantInfo) :=
+getConstAux constName false
 
 def getLocalDecl (fvarId : Name) : MetaM LocalDecl :=
 do lctx ← getLCtx;

@@ -33,8 +33,8 @@ do t ← getTransparency;
   match cached? with
   | some r => pure r
   | none   => do
-    e ← whnfCore getConst isAuxDef? whnfAux inferType isDefEq getLocalDecl getExprMVarAssignment e;
-    r ← unfoldDefinition getConst isAuxDef? whnfAux inferType isDefEq synthesizePending getLocalDecl
+    e ← whnfCore getConstNoEx isAuxDef? whnfAux inferType isDefEq getLocalDecl getExprMVarAssignment e;
+    r ← unfoldDefinition getConstNoEx isAuxDef? whnfAux inferType isDefEq synthesizePending getLocalDecl
       getExprMVarAssignment e (fun _ => pure e) whnfAux;
     cacheWHNF e r;
     pure r

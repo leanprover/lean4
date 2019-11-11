@@ -37,9 +37,9 @@ do env ← getEnv;
    match env.find c with
    | some cinfo =>
      if cinfo.lparams.length == lvls.length then
-       throwEx $ Exception.incorrectNumOfLevels c lvls
-     else
        pure $ cinfo.instantiateTypeLevelParams lvls
+     else
+       throwEx $ Exception.incorrectNumOfLevels c lvls
    | none =>
      throwEx $ Exception.unknownConst c
 

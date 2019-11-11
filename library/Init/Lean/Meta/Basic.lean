@@ -70,8 +70,8 @@ structure ParamInfo :=
 (backDeps     : Array Nat := #[])
 
 structure FunInfo :=
-(paramInfo : Array ParamInfo := #[])
-(resutDeps : Array Nat       := #[])
+(paramInfo  : Array ParamInfo := #[])
+(resultDeps : Array Nat       := #[])
 
 structure SubsingletonParamInfo :=
 (specialized  : Bool := false)
@@ -446,7 +446,7 @@ savingCache $ do
   Similar to `forallTelescope`, but given `type` of the form `forall xs, A`,
   it reduces `A` and continues bulding the telescope if it is a `forall`. -/
 @[specialize] def forallTelescopeReducing {α}
-    (whnf             : Expr → MetaM Expr)
+    (whnf : Expr → MetaM Expr)
     (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
 forallTelescopeReducingAux whnf (isClassExpensive whnf) type none k
 
@@ -454,9 +454,9 @@ forallTelescopeReducingAux whnf (isClassExpensive whnf) type none k
   Similar to `forallTelescopeReducing`, stops constructing the telescope when
   it reaches size `maxFVars`. -/
 @[specialize] def forallBoundedTelescope {α}
-    (whnf             : Expr → MetaM Expr)
-    (type : Expr) (maxFVars : Nat) (k : Array Expr → Expr → MetaM α) : MetaM α :=
-forallTelescopeReducingAux whnf (isClassExpensive whnf) type (some maxFVars) k
+    (whnf : Expr → MetaM Expr)
+    (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+forallTelescopeReducingAux whnf (isClassExpensive whnf) type maxFVars? k
 
 @[specialize] def isClass
     (whnf : Expr → MetaM Expr)

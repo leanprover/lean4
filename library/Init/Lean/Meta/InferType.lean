@@ -167,7 +167,7 @@ do s ← get;
     (e : Expr) : MetaM Expr :=
 inferTypeAuxAux (fun e => usingTransparency TransparencyMode.all $ whnf e) e
 
-@[specialize] def isPropAux (e : Expr)
+@[specialize] def isPropAux
     (whnf : Expr → MetaM Expr)
     (e : Expr) : MetaM Bool :=
 do type ← inferTypeAux whnf e;

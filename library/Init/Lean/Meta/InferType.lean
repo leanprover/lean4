@@ -151,7 +151,7 @@ do s ← get;
     : Expr → MetaM Expr
 | Expr.const c lvls        => inferConstType c lvls
 | e@(Expr.proj n i s)      => checkInferTypeCache e (inferProjType whnf inferTypeAuxAux n i s)
-| e@(Expr.app f _)         => checkInferTypeCache e (inferAppType whnf inferTypeAuxAux f e.getAppArgs)
+| e@(Expr.app f _)         => checkInferTypeCache e (inferAppType whnf inferTypeAuxAux f.getAppFn e.getAppArgs)
 | Expr.mvar mvarId         => inferMVarType mvarId
 | Expr.fvar fvarId         => inferFVarType fvarId
 | Expr.bvar _              => unreachable!

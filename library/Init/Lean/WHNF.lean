@@ -354,7 +354,7 @@ match e with
             successK $ extractIdRhs e₂
           else
             failK ()
-      | _ => deltaBetaDefinition fInfo fLvls e.getAppRevArgs failK successK
+      | _ => if fInfo.hasValue then deltaBetaDefinition fInfo fLvls e.getAppRevArgs failK successK else failK ()
 | Expr.const name lvls => do
   (some (cinfo@(ConstantInfo.defnInfo _))) ← getConst name | failK ();
   deltaDefinition cinfo lvls failK successK

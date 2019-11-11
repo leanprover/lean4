@@ -107,7 +107,7 @@ forallTelescope whnf e $ fun xs e => do
       xTypeLvl ← getLevel whnf inferType xType;
       pure $ Level.imax xTypeLvl lvl)
     lvl;
-  pure $ Expr.sort lvl
+  pure $ Expr.sort lvl.normalize
 
 /- Infer type of lambda and let expressions -/
 @[specialize] private def inferLambdaType

@@ -11,6 +11,7 @@ import Init.Lean.LOption
 import Init.Lean.Trace
 import Init.Lean.Class
 import Init.Lean.ReducibilityAttrs
+import Init.Lean.Meta.Exception
 
 /-
 This module provides four (mutually dependent) goodies that are needed for building the elaborator and tactic frameworks.
@@ -97,28 +98,6 @@ structure Cache :=
 (inferType : PersistentExprStructMap Expr := {})
 (funInfo   : PersistentHashMap InfoCacheKey FunInfo := {})
 (ssInfo    : PersistentHashMap InfoCacheKey SubsingletonParamsInfo := {})
-
-structure ExceptionContext :=
-(env : Environment) (mctx : MetavarContext) (lctx : LocalContext)
-
-inductive Bug
-| overwritingExprMVar (mvarId : Name)
-
-inductive Exception
-| unknownConst         (constName : Name) (ctx : ExceptionContext)
-| unknownFVar          (fvarId : Name) (ctx : ExceptionContext)
-| unknownExprMVar      (mvarId : Name) (ctx : ExceptionContext)
-| unknownLevelMVar     (mvarId : Name) (ctx : ExceptionContext)
-| functionExpected     (fType : Expr) (args : Array Expr) (ctx : ExceptionContext)
-| typeExpected         (type : Expr) (ctx : ExceptionContext)
-| incorrectNumOfLevels (constName : Name) (constLvls : List Level) (ctx : ExceptionContext)
-| invalidProjection    (structName : Name) (idx : Nat) (s : Expr) (ctx : ExceptionContext)
-| revertFailure        (toRevert : Array Expr) (decl : LocalDecl) (ctx : ExceptionContext)
-| readOnlyMVar         (mvarId : Name) (ctx : ExceptionContext)
-| bug                  (b : Bug) (ctx : ExceptionContext)
-| other                (msg : String)
-
-instance Exception.inhabited : Inhabited Exception := ⟨Exception.other ""⟩
 
 structure Context :=
 (config         : Config         := {})

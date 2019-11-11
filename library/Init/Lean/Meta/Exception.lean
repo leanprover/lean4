@@ -21,6 +21,7 @@ inductive Exception
 | unknownFVar          (fvarId : Name) (ctx : ExceptionContext)
 | unknownExprMVar      (mvarId : Name) (ctx : ExceptionContext)
 | unknownLevelMVar     (mvarId : Name) (ctx : ExceptionContext)
+| unexpectedBVar       (bvarIdx : Nat)
 | functionExpected     (fType : Expr) (args : Array Expr) (ctx : ExceptionContext)
 | typeExpected         (type : Expr) (ctx : ExceptionContext)
 | incorrectNumOfLevels (constName : Name) (constLvls : List Level) (ctx : ExceptionContext)
@@ -35,10 +36,11 @@ instance : Inhabited Exception := ⟨other ""⟩
 
 -- TODO: improve, use (to be implemented) pretty printer
 def toStr : Exception → String
-| unknownConst c _               => "unknown constant '" ++ toString c ++ "'"
+| unknownConst c _              => "unknown constant '" ++ toString c ++ "'"
 | unknownFVar fvarId _          => "unknown free variable '" ++ toString fvarId ++ "'"
 | unknownExprMVar mvarId _      => "unknown metavariable '" ++ toString mvarId ++ "'"
 | unknownLevelMVar mvarId _     => "unknown universe level metavariable '" ++ toString mvarId ++ "'"
+| unexpectedBVar bvarIdx        => "unexpected loose bound variable #" ++ toString bvarIdx
 | functionExpected fType args _ => "function expected"
 | typeExpected _ _              => "type expected"
 | incorrectNumOfLevels c lvls _ => "incorrect number of universe levels for '" ++ toString c ++ "' " ++ toString lvls

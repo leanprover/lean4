@@ -153,7 +153,7 @@ do s ← get;
 | e@(Expr.app f _)         => checkInferTypeCache e (inferAppType whnf inferTypeAuxAux f.getAppFn e.getAppArgs)
 | Expr.mvar mvarId         => inferMVarType mvarId
 | Expr.fvar fvarId         => inferFVarType fvarId
-| Expr.bvar _              => unreachable!
+| Expr.bvar bidx           => throw $ Exception.unexpectedBVar bidx
 | Expr.mdata _ e           => inferTypeAuxAux e
 | Expr.lit v               => pure v.type
 | Expr.sort lvl            => pure $ Expr.sort (Level.succ lvl)

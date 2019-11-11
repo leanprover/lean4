@@ -62,9 +62,43 @@ structure Config :=
 (debug              : Bool    := false)
 (transparency       : TransparencyMode := TransparencyMode.default)
 
+structure ParamInfo :=
+(implicit     : Bool      := false)
+(instImplicit : Bool      := false)
+(prop         : Bool      := false)
+(hasFwdDeps   : Bool      := false)
+(backDeps     : Array Nat := #[])
+
+structure FunInfo :=
+(paramInfo : Array ParamInfo := #[])
+(resutDeps : Array Nat       := #[])
+
+structure SubsingletonParamInfo :=
+(specialized  : Bool := false)
+(subsingleton : Bool := false)
+
+abbrev SubsingletonParamsInfo := Array SubsingletonParamInfo
+
+structure NArgsCacheKey :=
+(transparency : TransparencyMode)
+(expr         : Expr)
+(nargs        : Nat)
+
+namespace NArgsCacheKey
+instance : Inhabited NArgsCacheKey := ⟨⟨arbitrary _, arbitrary _, arbitrary _⟩⟩
+instance : Hashable NArgsCacheKey :=
+⟨fun ⟨transparency, expr, nargs⟩ => mixHash (hash transparency) $ mixHash (hash expr) (hash nargs)⟩
+instance : HasBeq NArgsCacheKey :=
+⟨fun ⟨t₁, e₁, n₁⟩ ⟨t₂, e₂, n₂⟩ => t₁ == t₂ && n₁ == n₂ && e₁ == e₂⟩
+end NArgsCacheKey
+
 structure Cache :=
-(whnf      : PersistentHashMap (TransparencyMode × Expr) Expr := {})
-(inferType : PersistentHashMap Expr Expr := {})
+(whnf         : PersistentHashMap (TransparencyMode × Expr) Expr := {})
+(inferType    : PersistentHashMap Expr Expr := {})
+(funInfo      : PersistentHashMap (TransparencyMode × Expr) FunInfo := {})
+(funInfoNArgs : PersistentHashMap NArgsCacheKey FunInfo := {})
+(ssInfo       : PersistentHashMap (TransparencyMode × Expr) SubsingletonParamsInfo := {})
+(ssInfoNArgs  : PersistentHashMap NArgsCacheKey SubsingletonParamsInfo := {})
 
 structure ExceptionContext :=
 (env : Environment) (mctx : MetavarContext) (lctx : LocalContext)
@@ -155,10 +189,10 @@ do ctx ← read; pure ctx.config.opts
 @[inline] def isReducible (constName : Name) : MetaM Bool :=
 do env ← getEnv; pure $ isReducible env constName
 
-/-- While executing `x`, Ensure only constants tagged as [reducible] are unfolded. -/
-@[inline] def byUnfoldingReducibleOnly {α} (x : MetaM α) : MetaM α :=
+/-- While executing `x`, ensure the given transparency mode is used. -/
+@[inline] def usingTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
 adaptReader
-  (fun (ctx : Context) => { config := { transparency := TransparencyMode.reducible, .. ctx.config }, .. ctx })
+  (fun (ctx : Context) => { config := { transparency := mode, .. ctx.config }, .. ctx })
   x
 
 def isReadOnlyOrSyntheticExprMVar (mvarId : Name) : MetaM Bool :=
@@ -378,7 +412,7 @@ do newType ← whnf type;
 @[specialize] private partial def isClassExpensive
     (whnf : Expr → MetaM Expr)
     : Expr → MetaM (Option Name)
-| type => byUnfoldingReducibleOnly $ -- when testing whether a type is a type class, we only unfold reducible constants.
+| type => usingTransparency TransparencyMode.reducible $ -- when testing whether a type is a type class, we only unfold reducible constants.
   forallTelescopeReducingAux whnf isClassExpensive type $ fun xs type => do
     match type.getAppFn with
     | Expr.const c _ => do

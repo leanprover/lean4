@@ -146,21 +146,35 @@ do s ← get;
      modify $ fun s => { cache := { inferType := s.cache.inferType.insert e type, .. s.cache }, .. s };
      pure type
 
-@[specialize] private partial def inferTypeAux
-    (whnf      : Expr → MetaM Expr)
+@[specialize] partial def inferTypeAuxAux
+    (whnf : Expr → MetaM Expr)
     : Expr → MetaM Expr
 | Expr.const c lvls        => inferConstType c lvls
-| e@(Expr.proj n i s)      => checkInferTypeCache e (inferProjType whnf inferTypeAux n i s)
-| e@(Expr.app f _)         => checkInferTypeCache e (inferAppType whnf inferTypeAux f e.getAppArgs)
+| e@(Expr.proj n i s)      => checkInferTypeCache e (inferProjType whnf inferTypeAuxAux n i s)
+| e@(Expr.app f _)         => checkInferTypeCache e (inferAppType whnf inferTypeAuxAux f e.getAppArgs)
 | Expr.mvar mvarId         => inferMVarType mvarId
 | Expr.fvar fvarId         => inferFVarType fvarId
 | Expr.bvar _              => unreachable!
-| Expr.mdata _ e           => inferTypeAux e
+| Expr.mdata _ e           => inferTypeAuxAux e
 | Expr.lit v               => pure v.type
 | Expr.sort lvl            => pure $ Expr.sort (Level.succ lvl)
-| e@(Expr.forallE _ _ _ _) => checkInferTypeCache e (inferForallType whnf inferTypeAux e)
-| e@(Expr.lam _ _ _ _)     => checkInferTypeCache e (inferLambdaType whnf inferTypeAux e)
-| e@(Expr.letE _ _ _ _)    => checkInferTypeCache e (inferLambdaType whnf inferTypeAux e)
+| e@(Expr.forallE _ _ _ _) => checkInferTypeCache e (inferForallType whnf inferTypeAuxAux e)
+| e@(Expr.lam _ _ _ _)     => checkInferTypeCache e (inferLambdaType whnf inferTypeAuxAux e)
+| e@(Expr.letE _ _ _ _)    => checkInferTypeCache e (inferLambdaType whnf inferTypeAuxAux e)
+
+@[inline] def inferTypeAux
+    (whnf : Expr → MetaM Expr)
+    (e : Expr) : MetaM Expr :=
+inferTypeAuxAux (fun e => usingTransparency TransparencyMode.all $ whnf e) e
+
+@[specialize] def isPropAux (e : Expr)
+    (whnf : Expr → MetaM Expr)
+    (e : Expr) : MetaM Bool :=
+do type ← inferTypeAux whnf e;
+   type ← whnf type;
+   match type with
+   | Expr.sort Level.zero => pure true
+   | _                    => pure false
 
 end Meta
 end Lean

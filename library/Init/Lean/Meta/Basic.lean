@@ -79,26 +79,24 @@ structure SubsingletonParamInfo :=
 
 abbrev SubsingletonParamsInfo := Array SubsingletonParamInfo
 
-structure NArgsCacheKey :=
+structure InfoCacheKey :=
 (transparency : TransparencyMode)
 (expr         : Expr)
-(nargs        : Nat)
+(nargs?       : Option Nat)
 
-namespace NArgsCacheKey
-instance : Inhabited NArgsCacheKey := ⟨⟨arbitrary _, arbitrary _, arbitrary _⟩⟩
-instance : Hashable NArgsCacheKey :=
+namespace InfoCacheKey
+instance : Inhabited InfoCacheKey := ⟨⟨arbitrary _, arbitrary _, arbitrary _⟩⟩
+instance : Hashable InfoCacheKey :=
 ⟨fun ⟨transparency, expr, nargs⟩ => mixHash (hash transparency) $ mixHash (hash expr) (hash nargs)⟩
-instance : HasBeq NArgsCacheKey :=
+instance : HasBeq InfoCacheKey :=
 ⟨fun ⟨t₁, e₁, n₁⟩ ⟨t₂, e₂, n₂⟩ => t₁ == t₂ && n₁ == n₂ && e₁ == e₂⟩
-end NArgsCacheKey
+end InfoCacheKey
 
 structure Cache :=
-(whnf         : PersistentHashMap (TransparencyMode × Expr) Expr := {})
-(inferType    : PersistentExprStructMap Expr := {})
-(funInfo      : PersistentHashMap (TransparencyMode × Expr) FunInfo := {})
-(funInfoNArgs : PersistentHashMap NArgsCacheKey FunInfo := {})
-(ssInfo       : PersistentHashMap (TransparencyMode × Expr) SubsingletonParamsInfo := {})
-(ssInfoNArgs  : PersistentHashMap NArgsCacheKey SubsingletonParamsInfo := {})
+(whnf      : PersistentHashMap (TransparencyMode × Expr) Expr := {})
+(inferType : PersistentExprStructMap Expr := {})
+(funInfo   : PersistentHashMap InfoCacheKey FunInfo := {})
+(ssInfo    : PersistentHashMap InfoCacheKey SubsingletonParamsInfo := {})
 
 structure ExceptionContext :=
 (env : Environment) (mctx : MetavarContext) (lctx : LocalContext)

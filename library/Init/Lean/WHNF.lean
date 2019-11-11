@@ -297,7 +297,7 @@ else
         | c@(ConstantInfo.defnInfo _) => do
           unfold? ← isAuxDef? c.name;
           if unfold? then
-            deltaBetaDefinition c lvls e.getAppArgs done whnfCore
+            deltaBetaDefinition c lvls e.getAppRevArgs done whnfCore
           else
             done ()
         | _ => done ()

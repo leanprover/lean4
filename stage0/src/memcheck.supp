@@ -1,0 +1,193 @@
+# Suppress warnings produced by Valgrind.
+# http://wiki.wxwidgets.org/Valgrind_Suppression_File_Howto
+{
+   # This warning is due to a memory-leak bug in the g++ compiler.
+   # Soonho reported the problem. Gcc team said this a known problem, and will be fixed
+   # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=58142
+   Suppress_GCC-4.8_Memory_Leak_Bug_in_Thread1
+   Memcheck:Leak
+   fun:*nothrow_t
+   fun:*_thread_atexit
+   fun:*
+   fun:*
+   fun:*_Bind_simple*_invoke*_Index_tuple*
+   fun:*_Bind_simple*
+   fun:*_Bind_simple*
+   obj:*/libstdc++.so*
+   fun:start_thread
+   fun:clone
+}
+
+{
+   # This warning is due to a memory-leak bug in the g++ compiler.
+   # Soonho reported the problem. Gcc team said this a known problem, and will be fixed
+   # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=58142
+   Suppress_GCC-4.8_Memory_Leak_Bug_in_Thread2
+   Memcheck:Leak
+   fun:*nothrow_t
+   fun:*_thread_atexit
+   fun:*
+   obj:*/libstdc++.so*
+   fun:start_thread
+   fun:clone
+}
+
+{
+   # This warning is due to a memory-leak bug in the g++ compiler.
+   # Soonho reported the problem. Gcc team said this a known problem, and will be fixed
+   # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=58142
+   Suppress_GCC-4.8_Memory_Leak_Bug_in_Thread3
+   Memcheck:Leak
+   fun:*nothrow_t
+   fun:*_thread_atexit
+   fun:*
+   fun:*_Bind_simple*
+   obj:*/libstdc++.so*
+   fun:start_thread
+   fun:clone
+}
+
+{
+   # This warning is due to a memory-leak bug in the g++ compiler.
+   # Soonho reported the problem. Gcc team said this a known problem, and will be fixed
+   # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=58142
+   Suppress_GCC-4.8_Memory_Leak_Bug_in_Thread_32Bit_Ubuntu
+   Memcheck:Leak
+   fun:*nothrow_t
+   fun:*_thread_atexit
+   fun:*
+   fun:*_Bind_simple*
+   fun:*_Bind_simple*
+   fun:*_Bind_simple*
+   obj:*/libstdc++.so*
+   fun:clone
+}
+
+{
+   Suppress_Bash_Memory_Leak_on_Fedora19
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   fun:make_if_command
+   fun:yyparse
+   fun:parse_command
+   fun:read_command
+   fun:reader_loop
+   fun:main
+}
+
+{
+   # This entry suppresses the warning caused by a bug in tcmalloc
+   TCMalloc_Bug1
+   Memcheck:Param
+   msync(start)
+   fun:__msync_nocancel
+   obj:*/libunwind.so.*
+   ...
+   fun:_UL*_step
+   fun:*GetStackTrace*
+   fun:*PageHeap*GrowHeap*
+   fun:*PageHeap*New*
+   fun:*CentralFreeList*Populate*
+   fun:*CentralFreeList*FetchFromSpansSafe*
+   fun:*CentralFreeList*RemoveRange*
+   fun:*ThreadCache*FetchFromCentralCache*
+   fun:malloc
+   ...
+}
+
+{
+   # This entry suppresses the warning caused by a bug in tcmalloc
+   TCMalloc_Bug2
+   Memcheck:Param
+   msync(start)
+   obj:*/libpthread-2.*.*
+   obj:*/libunwind.so.*
+   ...
+   fun:_UL*_step
+   fun:*GetStackTrace*
+   fun:*PageHeap*GrowHeap*
+   fun:*PageHeap*New*
+   fun:*CentralFreeList*Populate*
+   fun:*CentralFreeList*FetchFromSpansSafe*
+   fun:*CentralFreeList*RemoveRange*
+   fun:*ThreadCache*FetchFromCentralCache*
+   fun:malloc
+   ...
+}
+
+{
+   # This entry suppresses the warning caused by a bug in tcmalloc
+   # It is the equivalent of TCMalloc_Bug2 for realloc
+   TCMalloc_Bug3
+   Memcheck:Param
+   msync(start)
+   obj:*/libpthread-2.*.*
+   obj:*/libunwind.so.*
+   ...
+   fun:_UL*_step
+   fun:*GetStackTrace*
+   fun:*PageHeap*GrowHeap*
+   fun:*PageHeap*New*
+   fun:*CentralFreeList*Populate*
+   fun:*CentralFreeList*FetchFromSpansSafe*
+   fun:*CentralFreeList*RemoveRange*
+   fun:*ThreadCache*FetchFromCentralCache*
+   fun:realloc
+   ...
+}
+
+{
+   # This entry suppresses the warning caused by a bug in luajit 2.0
+   LuaJIT_Bug1
+   Memcheck:Cond
+   obj:*luajit-5.1*
+   ...
+   fun:lua_pcall
+   ...
+}
+
+{
+   # This entry suppresses the warning caused by a bug in luajit 2.0
+   LuaJIT_Bug2
+   Memcheck:Cond
+   obj:*luajit-5.1*
+   ...
+   fun:luaL_checklstring
+   ...
+}
+
+{
+   # This entry suppresses a false positive in luajit 2.0
+   LuaJIT_Bug3
+   Memcheck:Addr4
+   obj:*luajit-5.1*
+   ...
+}
+
+{
+   # This entry Suppresses memory leaks at awk. We use awk at doc/lua/test.sh and doc/lua/test_single.sh
+   AWK_Bug1
+   Memcheck:Leak
+   fun:malloc
+   obj:*/bin/mawk
+   ...
+}
+
+{
+   # This entry Suppresses memory leaks at awk. We use awk at doc/lua/test.sh and doc/lua/test_single.sh
+   AWK_Bug2
+   Memcheck:Leak
+   fun:realloc
+   obj:*/bin/mawk
+   ...
+}
+
+{
+   readline_suppress_1
+   Memcheck:Param
+   sendmsg(msg.msg_name)
+   fun:__sendmsg_nocancel
+   fun:readline
+   ...
+}

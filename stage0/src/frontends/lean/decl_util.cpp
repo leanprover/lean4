@@ -1,0 +1,538 @@
+/*
+Copyright (c) 2016 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura
+*/
+#include <algorithm>
+#include "kernel/instantiate.h"
+#include "kernel/abstract.h"
+#include "kernel/for_each_fn.h"
+#include "kernel/replace_fn.h"
+#include "library/locals.h"
+#include "library/class.h"
+#include "library/trace.h"
+#include "library/placeholder.h"
+#include "library/protected.h"
+#include "library/private.h"
+#include "library/aliases.h"
+#include "library/explicit.h"
+#include "library/reducible.h"
+#include "library/aux_match.h"
+#include "frontends/lean/util.h"
+#include "frontends/lean/decl_util.h"
+#include "frontends/lean/tokens.h"
+#include "frontends/lean/decl_attributes.h"
+#include "frontends/lean/parser.h"
+#include "frontends/lean/elaborator.h"
+
+namespace lean {
+bool parse_univ_params(parser & p, buffer<name> & lp_names) {
+    if (p.curr_is_token(get_llevel_curly_tk())) {
+        p.next();
+        while (true) {
+            name l = p.check_atomic_id_next("invalid declaration, identifier expected");
+            lp_names.push_back(l);
+            p.add_local_level(l, mk_univ_param(l));
+            if (!p.curr_is_token(get_comma_tk()))
+                break;
+            else
+                p.next();
+        }
+        p.check_token_next(get_rcurly_tk(), "expected '}'");
+        return true;
+    } else {
+        return false;
+    }
+}
+
+name synthesize_instance_name(parser & p, expr const & type, declaration_name_scope & scope, pos_info const & c_pos) {
+    name c_name;
+    expr it = type;
+    while (is_pi(it)) it = binding_body(it);
+    expr const & C = unwrap_pos(get_app_fn(it));
+    name ns = get_namespace(p.env());
+    if (is_constant(C) && !ns.is_anonymous()) {
+        c_name = const_name(C);
+        scope.set_name(c_name);
+    } else if (is_constant(C) && is_app(it) && is_constant(unwrap_pos(get_app_fn(app_arg(it))))) {
+        c_name = const_name(unwrap_pos(get_app_fn(app_arg(it)))) + const_name(C);
+        scope.set_name(c_name);
+    } else {
+        p.maybe_throw_error({"failed to synthesize instance name, name should be provided explicitly", c_pos});
+        c_name = mk_unused_name(p.env(), "_inst");
+    }
+    return c_name;
+}
+
+expr parse_single_header(parser & p, declaration_name_scope & scope, buffer <name> & lp_names, buffer <expr> & params,
+                         bool is_example, bool is_instance) {
+    auto c_pos  = p.pos();
+    name c_name;
+    if (is_example) {
+        c_name = "_example";
+        scope.set_name(c_name);
+    } else {
+        if (!is_instance || p.curr_is_identifier()) {
+            c_name = p.check_decl_id_next("invalid declaration, identifier expected");
+            parse_univ_params(p, lp_names);
+            scope.set_name(c_name);
+        }
+    }
+    p.parse_optional_binders(params, /* allow_default */ true, /* explicit delimiters */ true);
+    for (expr const & param : params)
+        p.add_local(param);
+    expr type;
+    if (p.curr_is_token(get_colon_tk())) {
+        p.next();
+        type = p.parse_expr();
+    } else {
+        type = p.save_pos(mk_expr_placeholder(), c_pos);
+    }
+    if (is_instance && c_name.is_anonymous()) {
+        if (used_match_idx())
+            throw parser_error("invalid instance, pattern matching cannot be used in the type of anonymous instance declarations", c_pos);
+        c_name = synthesize_instance_name(p, type, scope, c_pos);
+    }
+    lean_assert(!c_name.is_anonymous());
+    return p.save_pos(mk_local(c_name, type), c_pos);
+}
+
+void parse_mutual_header(parser & p, buffer <name> & /* lp_names */, buffer <expr> & cs, buffer <expr> & params) {
+    while (true) {
+        auto c_pos  = p.pos();
+        name c_name = p.check_decl_id_next("invalid mutual declaration, identifier expected");
+        cs.push_back(p.save_pos(mk_local(c_name, mk_expr_placeholder()), c_pos));
+        if (!p.curr_is_token(get_comma_tk()))
+            break;
+        p.next();
+    }
+    if (cs.size() < 2) {
+        throw parser_error("invalid mutual declaration, must provide more than one identifier (separated by commas)", p.pos());
+    }
+    p.parse_optional_binders(params, /* allow_default */ true, /* explicit delimiters */ true);
+    for (expr const & param : params)
+        p.add_local(param);
+    for (expr const & c : cs)
+        p.add_local(c);
+}
+
+pair<expr, decl_attributes> parse_inner_header(parser & p, name const & c_expected) {
+    decl_attributes attrs;
+    p.check_token_next(get_with_tk(), "invalid mutual declaration, 'with' expected");
+    attrs.parse(p);
+    auto id_pos = p.pos();
+    name n = p.check_decl_id_next("invalid mutual declaration, identifier expected");
+    if (c_expected != n)
+        throw parser_error(sstream() << "invalid mutual declaration, '" << c_expected << "' expected",
+                           id_pos);
+    /* Remark: if this is a private definition, the private prefix must have been set
+       before invoking this procedure. */
+    declaration_name_scope scope(n);
+    p.check_token_next(get_colon_tk(), "invalid mutual declaration, ':' expected");
+    return mk_pair(p.parse_expr(), attrs);
+}
+
+/** \brief Version of collect_locals(expr const & e, collected_locals & ls) that ignores local constants occurring in
+    tactics. */
+void collect_locals_ignoring_tactics(expr const & e, collected_locals & ls) {
+    if (!has_local(e)) return;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (!has_local(e)) return false;
+            if (is_local(e))   ls.insert(e);
+            return true;
+        });
+}
+
+name_set collect_univ_params_ignoring_tactics(expr const & e, name_set const & ls) {
+    if (!has_param_univ(e)) return ls;
+    name_set r = ls;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (!has_param_univ(e)) {
+                return false;
+            } else if (is_sort(e)) {
+                collect_univ_params_core(sort_level(e), r);
+            } else if (is_constant(e)) {
+                for (auto const & l : const_levels(e))
+                    collect_univ_params_core(l, r);
+            }
+            return true;
+        });
+    return r;
+}
+
+/** \brief Collect annonymous instances in section/namespace declarations such as:
+
+        variable [decidable_eq A]
+
+    Instances are included only if all section variables/parameters they reference have already
+    been included. For variables in out_param position, the logic is inverted: If the instance is
+    included, we also include those arguments.
+*/
+void collect_annonymous_inst_implicit(parser const & p, collected_locals & locals) {
+    buffer<pair<name, expr>> entries;
+    to_buffer(p.get_local_entries(), entries);
+    type_context_old ctx(p.env());
+    unsigned i = entries.size();
+    while (i > 0) {
+        --i;
+        auto const & entry = entries[i];
+        expr l = unwrap_pos(entry.second);
+        if (is_local(l) && !locals.contains(l) && is_inst_implicit(local_info_p(l)) &&
+            // remark: remove the following condition condition, if we want to auto inclusion also for non anonymous ones.
+            is_anonymous_inst_name(entry.first)) {
+            expr type = local_type_p(l);
+            buffer<expr> C_args;
+            expr C = get_app_args(type, C_args);
+            if (!is_const(C))
+                continue;
+            expr it2 = ctx.infer(C);
+            collected_locals new_locals;
+            bool ok = true;
+            for (expr & C_arg : C_args) {
+                it2  = ctx.relaxed_whnf(it2);
+                lean_assert(is_pi(it2));
+                expr const & d = binding_domain(it2);
+                if (is_local_p(C_arg) && is_class_out_param(d)) {
+                    new_locals.insert(unwrap_pos(C_arg));
+                } else {
+                    for_each(C_arg, [&](expr const & e, unsigned) {
+                        if (!ok) return false; // stop
+                        if (is_local(e) && !(locals.contains(e) || new_locals.contains(e)))
+                            ok = false;
+                        return true;
+                    });
+                }
+                it2 = instantiate(binding_body(it2), C_arg);
+            }
+            if (ok) {
+                for (auto & l : new_locals.get_collected()) {
+                    locals.insert(l);
+                }
+                locals.insert(l);
+            }
+        }
+    }
+}
+
+/** \brief Sort local names by order of occurrence, and copy the associated parameters to ps */
+void sort_locals(buffer<expr> const & locals, parser const & p, buffer<expr> & ps) {
+    buffer<expr> extra;
+    name_set     explicit_param_names;
+    for (expr const & p : ps) {
+        explicit_param_names.insert(local_name_p(p));
+    }
+    for (expr const & l : locals) {
+        // we only copy the locals that are in p's local context
+        if (p.is_local_decl_user_name(l) && !explicit_param_names.contains(local_name_p(l)))
+            extra.push_back(l);
+    }
+    std::sort(extra.begin(), extra.end(), [&](expr const & p1, expr const & p2) {
+            bool is_var1 = p.is_local_variable(p1);
+            bool is_var2 = p.is_local_variable(p2);
+            if (!is_var1 && is_var2)
+                return true;
+            else if (is_var1 && !is_var2)
+                return false;
+            else
+                return p.get_local_index(p1) < p.get_local_index(p2);
+        });
+    buffer<expr> new_ps;
+    new_ps.append(extra);
+    new_ps.append(ps);
+    ps.clear();
+    ps.append(new_ps);
+}
+
+/** TODO(Leo): mark as static */
+void update_univ_parameters(parser & p, buffer<name> & lp_names, name_set const & found) {
+    unsigned old_sz = lp_names.size();
+    found.for_each([&](name const & n) {
+            if (std::find(lp_names.begin(), lp_names.begin() + old_sz, n) == lp_names.begin() + old_sz)
+                lp_names.push_back(n);
+        });
+    std::sort(lp_names.begin(), lp_names.end(), [&](name const & n1, name const & n2) {
+            return p.get_local_level_index(n1) < p.get_local_level_index(n2);
+        });
+}
+
+expr replace_locals_preserving_pos_info(expr const & e, unsigned sz, expr const * from, expr const * to) {
+    return replace_locals(e, sz, from, to);
+}
+
+expr replace_locals_preserving_pos_info(expr const & e, buffer<expr> const & from, buffer<expr> const & to) {
+    lean_assert(from.size() == to.size());
+    return replace_locals_preserving_pos_info(e, from.size(), from.data(), to.data());
+}
+
+expr replace_local_preserving_pos_info(expr const & e, expr const & from, expr const & to) {
+    return replace_locals_preserving_pos_info(e, 1, &from, &to);
+}
+
+void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> & params, buffer<expr> const & all_exprs) {
+    collected_locals locals;
+    buffer<expr> include_vars;
+    name_set lp_found;
+    name_set given_params;
+    /* Process variables included using the 'include' command */
+    p.get_include_variables(include_vars);
+    for (expr const & param : include_vars) {
+        expr up = unwrap_pos(param);
+        if (is_local(up)) {
+            collect_locals_ignoring_tactics(local_type(up), locals);
+            lp_found = collect_univ_params_ignoring_tactics(local_type(up), lp_found);
+            locals.insert(up);
+        }
+    }
+    /* Process explicit parameters */
+    for (expr const & param : params) {
+        collect_locals_ignoring_tactics(local_type_p(param), locals);
+        lp_found = collect_univ_params_ignoring_tactics(local_type_p(param), lp_found);
+        locals.insert(param);
+        given_params.insert(local_name_p(param));
+    }
+    /* Process expressions used to define declaration. */
+    for (expr const & e : all_exprs) {
+        collect_locals_ignoring_tactics(e, locals);
+        lp_found = collect_univ_params_ignoring_tactics(e, lp_found);
+    }
+    collect_annonymous_inst_implicit(p, locals);
+    sort_locals(locals.get_collected(), p, params);
+    update_univ_parameters(p, lp_names, lp_found);
+    /* Add as_is annotation to section variables and parameters */
+    buffer<expr> old_params;
+    for (unsigned i = 0; i < params.size(); i++) {
+        expr & param = params[i];
+        old_params.push_back(param);
+        expr type          = local_type_p(param);
+        expr new_type      = replace_locals_preserving_pos_info(type, i, old_params.data(), params.data());
+        if (!given_params.contains(local_name_p(param))) {
+            new_type = copy_pos(type, mk_as_is(new_type));
+        }
+        param = copy_pos(param, update_local_p(param, new_type));
+    }
+}
+
+void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> & params, std::initializer_list<expr> const & all_exprs) {
+    buffer<expr> tmp; tmp.append(all_exprs.size(), all_exprs.begin());
+    collect_implicit_locals(p, lp_names, params, tmp);
+}
+
+void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> & params, expr const & e) {
+    buffer<expr> all_exprs; all_exprs.push_back(e);
+    collect_implicit_locals(p, lp_names, params, all_exprs);
+}
+
+void elaborate_params(elaborator & elab, buffer<expr> const & params, buffer<expr> & new_params) {
+    for (unsigned i = 0; i < params.size(); i++) {
+        expr const & param = params[i];
+        expr type          = replace_locals_preserving_pos_info(local_type_p(param), i, params.data(), new_params.data());
+        expr new_type      = elab.elaborate_type(type);
+        expr new_param     = elab.push_local(local_pp_name_p(param), new_type, local_info_p(param));
+        new_params.push_back(new_param);
+    }
+}
+
+environment add_alias(environment const & env, bool is_protected, name const & c_name, name const & c_real_name) {
+    if (c_name != c_real_name) {
+        if (is_protected)
+            return add_expr_alias_rec(env, get_protected_shortest_name(c_real_name), c_real_name);
+        else
+            return add_expr_alias_rec(env, c_name, c_real_name);
+    } else {
+        return env;
+    }
+}
+
+struct definition_info {
+    name     m_prefix; // prefix for local names
+    name     m_actual_prefix; // actual prefix used to create kernel declaration names. m_prefix and m_actual_prefix are different for scoped/private declarations.
+    bool     m_is_private{true}; // pattern matching outside of definitions should generate private names
+    /* m_is_unsafe_decl == true iff declaration uses `unsafe` keyword */
+    bool     m_is_unsafe_decl{false};
+    /* m_is_unsafe == true iff the current subexpression can use unsafe declarations and code.
+       Remark: a regular (i.e., safe) declaration provided by the user may contain a unsafe subexpression (e.g., tactic).
+    */
+    bool     m_is_unsafe{false};      // true iff current block
+    bool     m_is_partial{false};
+    bool     m_is_noncomputable{false};
+    bool     m_is_lemma{false};
+    bool     m_aux_lemmas{false};
+    bool     m_gen_code{true};
+    unsigned m_next_match_idx{1};
+};
+
+MK_THREAD_LOCAL_GET_DEF(definition_info, get_definition_info);
+
+name get_curr_declaration_name() {
+    return get_definition_info().m_actual_prefix;
+}
+
+declaration_info_scope::declaration_info_scope(name const & ns, decl_cmd_kind kind, decl_modifiers const & modifiers, bool is_extern) {
+    definition_info & info = get_definition_info();
+    lean_assert(info.m_prefix.is_anonymous());
+    info.m_prefix           = name(); // prefix is used to create local name
+    /* Remark: if info.m_actual_prefix is not `anonymous`, then it has already been set using private_name_scope */
+    if (info.m_actual_prefix.is_anonymous()) {
+        info.m_actual_prefix = ns;
+    }
+    info.m_is_private       = modifiers.m_is_private;
+    info.m_is_unsafe_decl   = modifiers.m_is_unsafe;
+    info.m_is_unsafe        = modifiers.m_is_unsafe;
+    info.m_is_partial       = modifiers.m_is_partial;
+    info.m_is_noncomputable = modifiers.m_is_noncomputable;
+    info.m_is_lemma         = kind == decl_cmd_kind::Theorem;
+    info.m_aux_lemmas       = kind != decl_cmd_kind::Theorem && !modifiers.m_is_unsafe;
+    info.m_gen_code         = !is_extern;
+    info.m_next_match_idx   = 1;
+}
+
+declaration_info_scope::declaration_info_scope(parser const & p, decl_cmd_kind kind, decl_modifiers const & modifiers, bool is_extern):
+    declaration_info_scope(get_namespace(p.env()), kind, modifiers, is_extern) {}
+
+declaration_info_scope::declaration_info_scope(parser const & p, decl_cmd_kind kind, cmd_meta const & meta):
+    declaration_info_scope(p, kind, meta.m_modifiers, meta.m_attrs.has_attribute(p.env(), "extern")) {}
+
+declaration_info_scope::~declaration_info_scope() {
+    get_definition_info() = definition_info();
+}
+
+bool declaration_info_scope::gen_aux_lemmas() const {
+    return get_definition_info().m_aux_lemmas;
+}
+
+equations_header mk_equations_header(names const & ns, names const & actual_ns) {
+    equations_header h;
+    h.m_num_fns          = length(ns);
+    h.m_fn_names         = ns;
+    h.m_fn_actual_names  = actual_ns;
+    h.m_is_private       = get_definition_info().m_is_private;
+    h.m_is_unsafe        = get_definition_info().m_is_unsafe;
+    h.m_is_partial       = get_definition_info().m_is_partial;
+    h.m_is_noncomputable = get_definition_info().m_is_noncomputable;
+    h.m_is_lemma         = get_definition_info().m_is_lemma;
+    h.m_aux_lemmas       = get_definition_info().m_aux_lemmas;
+    h.m_gen_code         = get_definition_info().m_gen_code;
+    return h;
+}
+
+equations_header mk_equations_header(name const & n, name const & actual_n) {
+    return mk_equations_header(names(n), names(actual_n));
+}
+
+equations_header mk_match_header(name const & n, name const & actual_n) {
+    equations_header h = mk_equations_header(names(n), names(actual_n));
+    h.m_gen_code = false;
+    return h;
+}
+
+/* Auxiliary function for creating names for auxiliary declarations.
+   We avoid propagating the suffix `_main` used by the top-level equations
+   to the nested declarations. */
+static name mk_decl_name(name const & prefix, name const & n) {
+    if (!prefix.is_atomic() && prefix.is_string() && prefix.get_string() == "_main") {
+        return prefix.get_prefix() + n;
+    } else {
+        return prefix + n;
+    }
+}
+
+bool used_match_idx() {
+    return get_definition_info().m_next_match_idx > 1;
+}
+
+declaration_name_scope::declaration_name_scope() {
+    definition_info & info = get_definition_info();
+    m_old_prefix          = info.m_prefix;
+    m_old_actual_prefix   = info.m_actual_prefix;
+    m_old_next_match_idx  = info.m_next_match_idx;
+    info.m_next_match_idx = 1;
+}
+
+void declaration_name_scope::set_name(name const & n) {
+    lean_assert(m_name.is_anonymous());
+    definition_info & info    = get_definition_info();
+    info.m_prefix             = mk_decl_name(info.m_prefix, n);
+    info.m_actual_prefix      = mk_decl_name(info.m_actual_prefix, n);
+    m_name                    = info.m_prefix;
+    m_actual_name             = info.m_actual_prefix;
+}
+
+declaration_name_scope::declaration_name_scope(name const & n) {
+    definition_info & info = get_definition_info();
+    m_old_prefix          = info.m_prefix;
+    m_old_actual_prefix   = info.m_actual_prefix;
+    m_old_next_match_idx  = info.m_next_match_idx;
+    info.m_prefix         = mk_decl_name(info.m_prefix, n);
+    info.m_actual_prefix  = mk_decl_name(info.m_actual_prefix, n);
+    info.m_next_match_idx = 1;
+    m_name                = info.m_prefix;
+    m_actual_name         = info.m_actual_prefix;
+}
+
+declaration_name_scope::~declaration_name_scope() {
+    definition_info & info = get_definition_info();
+    info.m_prefix          = m_old_prefix;
+    info.m_actual_prefix  = m_old_actual_prefix;
+    info.m_next_match_idx  = m_old_next_match_idx;
+}
+
+private_name_scope::private_name_scope(bool is_private, environment & env) {
+    definition_info & info = get_definition_info();
+    m_old_actual_prefix    = info.m_prefix;
+    m_old_is_private       = info.m_is_private;
+    if (is_private) {
+        name prv_prefix;
+        std::tie(env, prv_prefix) = mk_private_prefix(env);
+        info.m_is_private     = true;
+        info.m_actual_prefix = prv_prefix;
+    }
+}
+
+private_name_scope::~private_name_scope() {
+    definition_info & info = get_definition_info();
+    info.m_actual_prefix   = m_old_actual_prefix;
+    info.m_is_private      = m_old_is_private;
+}
+
+match_definition_scope::match_definition_scope(environment const & env) {
+    definition_info & info = get_definition_info();
+    while (true) {
+        m_name        = mk_decl_name(info.m_prefix, mk_aux_match_suffix(info.m_next_match_idx));
+        m_actual_name = mk_decl_name(info.m_actual_prefix, mk_aux_match_suffix(info.m_next_match_idx));
+        info.m_next_match_idx++;
+        if (empty(get_expr_aliases(env, m_name))) {
+            /* Make sure we don't introduce aliases.
+               This is important when match-expressions are used in several parameters in a section.
+               Example:
+
+                  parameter P : match ... end
+                  parameter Q : match ... end
+            */
+            break;
+        }
+    }
+}
+
+unsafe_definition_scope::unsafe_definition_scope() {
+    definition_info & info = get_definition_info();
+    m_old_is_unsafe  = info.m_is_unsafe;
+    info.m_is_unsafe = true;
+}
+
+unsafe_definition_scope::~unsafe_definition_scope() {
+    definition_info & info = get_definition_info();
+    info.m_is_unsafe = m_old_is_unsafe;
+}
+
+restore_decl_unsafe_scope::restore_decl_unsafe_scope() {
+    definition_info & info = get_definition_info();
+    m_old_is_unsafe  = info.m_is_unsafe;
+    info.m_is_unsafe = info.m_is_unsafe_decl;
+}
+
+restore_decl_unsafe_scope::~restore_decl_unsafe_scope() {
+    definition_info & info = get_definition_info();
+    info.m_is_unsafe = m_old_is_unsafe;
+}
+}

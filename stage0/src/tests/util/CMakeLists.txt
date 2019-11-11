@@ -1,0 +1,10 @@
+add_executable(object object.cpp $<TARGET_OBJECTS:util> $<TARGET_OBJECTS:runtime>)
+target_link_libraries(object ${EXTRA_LIBS})
+add_exec_test(object "object")
+add_executable(compact compact.cpp $<TARGET_OBJECTS:util> $<TARGET_OBJECTS:runtime>)
+target_link_libraries(compact ${EXTRA_LIBS})
+add_exec_test(compact "compact")
+add_executable(testruntime runtime.cpp ${LEAN_SOURCE_DIR}/runtime/object.cpp ${LEAN_SOURCE_DIR}/runtime/alloc.cpp ${LEAN_SOURCE_DIR}/runtime/thread.cpp
+${LEAN_SOURCE_DIR}/runtime/exception.cpp ${LEAN_SOURCE_DIR}/runtime/interrupt.cpp ${LEAN_SOURCE_DIR}/runtime/stackinfo.cpp ${LEAN_SOURCE_DIR}/runtime/memory.cpp ${LEAN_SOURCE_DIR}/runtime/debug.cpp ${LEAN_SOURCE_DIR}/runtime/apply.cpp)
+target_link_libraries(testruntime ${EXTRA_LIBS})
+add_exec_test(testruntime "runtime")

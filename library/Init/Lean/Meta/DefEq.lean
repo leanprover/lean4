@@ -153,11 +153,11 @@ do s ← get;
 
 /- Public interface -/
 
-def isLevelDefEq (u v : Level) (mayPostpone : Bool := false) : MetaM Bool :=
+def isLevelDefEq (u v : Level) : MetaM Bool :=
 restoreIfFalse $ do
   r ← isLevelDefEqAux u v;
   if !r then pure false
-  else processPostponed mayPostpone
+  else processPostponed false
 
 end Meta
 end Lean

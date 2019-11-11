@@ -37,9 +37,9 @@ private partial def auxFixpoint : MetaOp → Expr → Expr → MetaM Expr
   let synthPending := fun e => pure false;     -- TODO
   match op with
   | whnfOp         => whnfAux inferType isDefEq synthPending e₁
-  | inferTypeOp    => inferType e₁
-  | synthPendingOp => boolToExpr <$> synthPending e₁
-  | isDefEqOp      => boolToExpr <$> isDefEq e₁ e₂
+  | inferTypeOp    => inferTypeAux whnf e₁
+  | synthPendingOp => boolToExpr <$> pure false
+  | isDefEqOp      => boolToExpr <$> pure false
 
 def whnf (e : Expr) : MetaM Expr :=
 auxFixpoint whnfOp e e

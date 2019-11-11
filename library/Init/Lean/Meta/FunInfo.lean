@@ -55,11 +55,10 @@ else
 
 @[specialize] def getFunInfoAuxAux
     (whnf      : Expr → MetaM Expr)
-    (inferType : Expr → MetaM Expr)
     (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
 checkFunInfoCache fn maxArgs? $ do
-  fnType ← inferType fn;
-  forallBoundedTelescope whnf fnType maxArgs? $ fun fvars type => do
+  fnType ← inferTypeAux whnf fn;
+  forallBoundedTelescope (fun e => usingTransparency TransparencyMode.all $ whnf e) fnType maxArgs? $ fun fvars type => do
     pinfo ← fvars.size.foldM
       (fun (i : Nat) (pinfo : Array ParamInfo) => do
         let fvar := fvars.get! i;
@@ -79,15 +78,13 @@ checkFunInfoCache fn maxArgs? $ do
 
 @[inline] def getFunInfoAux
     (whnf      : Expr → MetaM Expr)
-    (inferType : Expr → MetaM Expr)
     (fn : Expr) : MetaM FunInfo :=
-getFunInfoAuxAux whnf inferType fn none
+getFunInfoAuxAux whnf fn none
 
 @[inline] def getFunInfoNArgsAux
     (whnf      : Expr → MetaM Expr)
-    (inferType : Expr → MetaM Expr)
     (fn : Expr) (nargs : Nat) : MetaM FunInfo :=
-getFunInfoAuxAux whnf inferType fn (some nargs)
+getFunInfoAuxAux whnf fn (some nargs)
 
 end Meta
 end Lean

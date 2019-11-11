@@ -74,12 +74,6 @@ structure FunInfo :=
 (paramInfo  : Array ParamInfo := #[])
 (resultDeps : Array Nat       := #[])
 
-structure SubsingletonParamInfo :=
-(specialized  : Bool := false)
-(subsingleton : Bool := false)
-
-abbrev SubsingletonParamsInfo := Array SubsingletonParamInfo
-
 structure InfoCacheKey :=
 (transparency : TransparencyMode)
 (expr         : Expr)
@@ -97,7 +91,6 @@ structure Cache :=
 (whnf      : PersistentHashMap (TransparencyMode × Expr) Expr := {})
 (inferType : PersistentExprStructMap Expr := {})
 (funInfo   : PersistentHashMap InfoCacheKey FunInfo := {})
-(ssInfo    : PersistentHashMap InfoCacheKey SubsingletonParamsInfo := {})
 
 structure Context :=
 (config         : Config         := {})

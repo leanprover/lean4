@@ -1,6 +1,6 @@
-{ llvmPackages, bash, cmake, python, gmp }:
+{ stdenv, llvmPackages, bash, cmake, python, gmp }:
 
-llvmPackages.stdenv.mkDerivation rec {
+stdenv.mkDerivation rec {
   name = "lean-${version}";
   version = "local";
 
@@ -18,7 +18,7 @@ llvmPackages.stdenv.mkDerivation rec {
     patchShebangs ../../bin
   '';
 
-  meta = with llvmPackages.stdenv.lib; {
+  meta = with stdenv.lib; {
     description = "Automatic and interactive theorem prover";
     homepage    = https://leanprover.github.io/;
     license     = licenses.asl20;

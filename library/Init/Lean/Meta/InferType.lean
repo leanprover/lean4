@@ -169,16 +169,13 @@ inferTypeAuxAux (fun e => usingTransparency TransparencyMode.all $ whnf e) e
 
 /--
   Return `LBool.true` if given level is always equivalent to universe level zero.
-  If the given level contains a metavariable, the result may be `LBool.undef` since
-  it depends on metavariable assignment.
-
   It is used to implement `isProp`. -/
-private def isAlwaysZero : Level → LBool
-| Level.zero     => LBool.true
-| Level.mvar _   => LBool.undef
-| Level.param _  => LBool.false
-| Level.succ _   => LBool.false
-| Level.max u v  => (isAlwaysZero u).and (isAlwaysZero v)
+private def isAlwaysZero : Level → Bool
+| Level.zero     => true
+| Level.mvar _   => false
+| Level.param _  => false
+| Level.succ _   => false
+| Level.max u v  => isAlwaysZero u && isAlwaysZero v
 | Level.imax _ u => isAlwaysZero u
 
 /--
@@ -186,7 +183,7 @@ private def isAlwaysZero : Level → LBool
    if `type` is of the form `A_1 -> ... -> A_n -> Prop`.
    Remark: `type` can be a dependent arrow. -/
 @[specialize] private partial def isArrowProp : Expr → Nat → MetaM LBool
-| Expr.sort u,          0   => do u ← instantiateLevelMVars u; pure $ isAlwaysZero u
+| Expr.sort u,          0   => do u ← instantiateLevelMVars u; pure $ (isAlwaysZero u).toLBool
 | Expr.forallE _ _ _ _, 0   => pure LBool.false
 | Expr.forallE _ _ _ b, n+1 => isArrowProp b n
 | Expr.letE _ _ _ b,    n   => isArrowProp b n
@@ -224,18 +221,24 @@ private def isAlwaysZero : Level → LBool
 | Expr.mvar mvarId      => do mvarType  ← inferMVarType mvarId;  isArrowProp mvarType 0
 | Expr.app f _          => isPropQuickApp f 1
 
-@[specialize] def isPropAux (whnf : Expr → MetaM Expr) (e : Expr) : MetaM LBool :=
+/-- `isProp whnf e` return `true` if `e` is a proposition.
+
+     If `e` contains metavariables, it may not be possible
+     to decide whether is a proposition or not. We return `false` in this
+     case. We considered using `LBool` and retuning `LBool.undef`, but
+     we have no applications for it. -/
+@[specialize] def isPropAux (whnf : Expr → MetaM Expr) (e : Expr) : MetaM Bool :=
 do r ← isPropQuick e;
    match r with
-   | LBool.true  => pure LBool.true
-   | LBool.false => pure LBool.false
+   | LBool.true  => pure true
+   | LBool.false => pure false
    | LBool.undef => do
      -- dbgTrace ("PropQuick failed " ++ toString e);
      type ← inferTypeAux whnf e;
      type ← (fun e => usingTransparency TransparencyMode.all $ whnf e) type;
      match type with
      | Expr.sort u => do u ← instantiateLevelMVars u; pure $ isAlwaysZero u
-     | _           => pure LBool.false
+     | _           => pure false
 
 end Meta
 end Lean

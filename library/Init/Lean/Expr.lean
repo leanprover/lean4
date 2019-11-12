@@ -448,6 +448,22 @@ def betaRev (f : Expr) (revArgs : Array Expr) : Expr :=
 if revArgs.size == 0 then f
 else betaRevAux revArgs revArgs.size f 0
 
+private def etaExpandedBody : Expr → Nat → Nat → Option Expr
+| app f (bvar j), n+1, i => if j == i then etaExpandedBody f n (i+1) else none
+| _,              n+1, _ => none
+| f,              0,   _ => if f.hasLooseBVars then none else some f
+
+private def etaExpandedAux : Expr → Nat → Option Expr
+| lam _ _ _ b, n => etaExpandedAux b (n+1)
+| e,           n => etaExpandedBody e n 0
+
+/- If `e` is of the form `(fun x₁ ... xₙ => f x₁ ... xₙ)` and `f` does not contain `x₁`, ..., `xₙ`,
+   then return `some f`. Otherwise, return `none`.
+
+   It assumes `e` does not have loose bound variables. -/
+def etaExpanded? (e : Expr) : Option Expr :=
+etaExpandedAux e 0
+
 /- The update functions here are defined using C code. They will try to avoid
    allocating new values using pointer equality.
    The hypotheses `(h : e.is... = true)` are used to ensure Lean will not crash

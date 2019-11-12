@@ -8,7 +8,7 @@ import Init.Lean.Meta.Basic
 import Init.Lean.Meta.WHNF
 import Init.Lean.Meta.InferType
 import Init.Lean.Meta.FunInfo
-import Init.Lean.Meta.DefEq
+import Init.Lean.Meta.LevelDefEq
 
 namespace Lean
 namespace Meta

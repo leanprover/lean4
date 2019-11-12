@@ -9,10 +9,6 @@ import Init.Lean.Meta.Basic
 namespace Lean
 namespace Meta
 
-/- ===========================
-   isDefEq for universe levels
-   =========================== -/
-
 private def strictOccursMaxAux (lvl : Level) : Level → Bool
 | Level.max u v => strictOccursMaxAux u || strictOccursMaxAux v
 | u             => u != lvl && lvl.occurs u

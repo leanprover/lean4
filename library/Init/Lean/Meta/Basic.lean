@@ -47,6 +47,12 @@ def hash : TransparencyMode → USize
 
 instance : Hashable TransparencyMode := ⟨hash⟩
 
+def lt : TransparencyMode → TransparencyMode → Bool
+| reducible, default => true
+| reducible, all     => true
+| default,   all     => true
+| _,         _       => false
+
 end TransparencyMode
 
 structure LocalInstance :=
@@ -69,6 +75,8 @@ structure ParamInfo :=
 (prop         : Bool      := false)
 (hasFwdDeps   : Bool      := false)
 (backDeps     : Array Nat := #[])
+
+instance ParamInfo.inhabited : Inhabited ParamInfo := ⟨{}⟩
 
 structure FunInfo :=
 (paramInfo  : Array ParamInfo := #[])
@@ -164,6 +172,14 @@ adaptReader
   (fun (ctx : Context) => { config := { transparency := mode, .. ctx.config }, .. ctx })
   x
 
+@[inline] def usingAtLeastTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
+adaptReader
+  (fun (ctx : Context) =>
+    let oldMode := ctx.config.transparency;
+    let mode    := if oldMode.lt mode then mode else oldMode;
+    { config := { transparency := mode, .. ctx.config }, .. ctx })
+  x
+
 def isReadOnlyOrSyntheticExprMVar (mvarId : Name) : MetaM Bool :=
 do mctx ← getMCtx;
    match mctx.findDecl mvarId with
@@ -176,7 +192,7 @@ do mctx ← getMCtx;
    | some depth => pure $ depth != mctx.depth
    | _          => throwEx $ Exception.unknownLevelMVar mvarId
 
-@[inline] private def isExprAssigned (mvarId : Name) : MetaM Bool :=
+@[inline] def isExprMVarAssigned (mvarId : Name) : MetaM Bool :=
 do mctx ← getMCtx;
    pure $ mctx.isExprAssigned mvarId
 
@@ -184,7 +200,7 @@ do mctx ← getMCtx;
 do mctx ← getMCtx; pure (mctx.getExprAssignment mvarId)
 
 def assignExprMVar (mvarId : Name) (val : Expr) : MetaM Unit :=
-do whenDebugging $ whenM (isExprAssigned mvarId) $ throwBug $ Bug.overwritingExprMVar mvarId;
+do whenDebugging $ whenM (isExprMVarAssigned mvarId) $ throwBug $ Bug.overwritingExprMVar mvarId;
    modify $ fun s => { mctx := s.mctx.assignExpr mvarId val, .. s }
 
 def dbgTrace {α} [HasToString α] (a : α) : MetaM Unit :=

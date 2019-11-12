@@ -58,7 +58,7 @@ else
     (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
 checkFunInfoCache fn maxArgs? $ do
   fnType ← inferTypeAux whnf fn;
-  forallBoundedTelescope (fun e => usingTransparency TransparencyMode.all $ whnf e) fnType maxArgs? $ fun fvars type => do
+  forallBoundedTelescope (usingDefault whnf) fnType maxArgs? $ fun fvars type => do
     pinfo ← fvars.size.foldM
       (fun (i : Nat) (pinfo : Array ParamInfo) => do
         let fvar := fvars.get! i;

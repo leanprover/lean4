@@ -497,5 +497,8 @@ do mvarId ← mkFreshId;
    modify $ fun s => { mctx := s.mctx.addLevelMVarDecl mvarId, .. s };
    pure mvarId
 
+@[inline] def usingDefault (whnf : Expr → MetaM Expr) : Expr → MetaM Expr :=
+fun e => usingTransparency TransparencyMode.default $ whnf e
+
 end Meta
 end Lean

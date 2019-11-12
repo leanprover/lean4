@@ -165,7 +165,7 @@ do s ← get;
 @[inline] def inferTypeAux
     (whnf : Expr → MetaM Expr)
     (e : Expr) : MetaM Expr :=
-inferTypeAuxAux (fun e => usingTransparency TransparencyMode.all $ whnf e) e
+inferTypeAuxAux (usingDefault whnf) e
 
 /--
   Return `LBool.true` if given level is always equivalent to universe level zero.
@@ -235,7 +235,7 @@ do r ← isPropQuick e;
    | LBool.undef => do
      -- dbgTrace ("PropQuick failed " ++ toString e);
      type ← inferTypeAux whnf e;
-     type ← (fun e => usingTransparency TransparencyMode.all $ whnf e) type;
+     type ← usingDefault whnf type;
      match type with
      | Expr.sort u => do u ← instantiateLevelMVars u; pure $ isAlwaysZero u
      | _           => pure false

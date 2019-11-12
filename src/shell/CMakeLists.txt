@@ -1,9 +1,9 @@
 if(NOT STAGE0)
   add_executable(lean_stage0 IMPORTED)
-  set_target_properties(lean_stage0 PROPERTIES IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/stage0/shell/lean")
+  set_target_properties(lean_stage0 PROPERTIES IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/stage0/shell/lean${CMAKE_EXECUTABLE_SUFFIX}")
 
   ADD_CUSTOM_TARGET(bin_lean_stage0
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean_stage0>" "${LEAN_SOURCE_DIR}/../bin/lean_stage0"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean_stage0>" "${LEAN_SOURCE_DIR}/../bin/lean_stage0${CMAKE_EXECUTABLE_SUFFIX}"
     DEPENDS stage0
   )
 

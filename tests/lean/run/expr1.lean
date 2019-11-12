@@ -87,6 +87,8 @@ do let f   := Expr.const `f [];
    IO.println t;
    unless (t.etaExpanded? == some (Expr.app f a)) $ throw "failed-8";
    IO.println t.etaExpanded?;
+   let t   := Expr.app f a;
+   unless (t.etaExpanded? == some (Expr.app f a)) $ throw "failed-9";
    pure ()
 
 #eval tst5

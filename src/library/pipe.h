@@ -9,15 +9,13 @@ Author: Jared Roesch
 #include <iostream>
 #include <string>
 
-#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
+#if defined(LEAN_WINDOWS)
 typedef void* HANDLE;
-#else
 #endif
 
 namespace lean  {
 
-#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
-
+#if defined(LEAN_WINDOWS)
 struct pipe {
     HANDLE m_read_fd;
     HANDLE m_write_fd;
@@ -37,7 +35,6 @@ struct pipe {
     pipe(pipe const & p) :
         m_read_fd(p.m_read_fd), m_write_fd(p.m_write_fd) {}
 };
-
 #endif
 
 }

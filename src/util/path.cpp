@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura, Gabriel Ebner
 */
 #include "util/path.h"
-#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
+#if defined(LEAN_WINDOWS)
 #include <windows.h>
 #endif
 #include <string>
@@ -36,7 +36,7 @@ static char g_path_sep     = ':';
 static constexpr char g_sep          = '/';
 static char g_bad_sep      = '\\';
 bool is_path_sep(char c) { return c == g_path_sep; }
-#elif defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
+#elif defined(LEAN_WINDOWS)
 // Windows version
 static char g_path_sep     = ';';
 static constexpr char g_sep          = '\\';
@@ -223,7 +223,7 @@ std::vector<std::string> read_dir(std::string const &dirname) {
 std::string lrealpath(std::string const & fname) {
 #if defined(LEAN_EMSCRIPTEN)
     return fname;
-#elif defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
+#elif defined(LEAN_WINDOWS)
     constexpr unsigned BufferSize = 8192;
     char buffer[BufferSize];
     DWORD retval = GetFullPathName(fname.c_str(), BufferSize, buffer, nullptr);

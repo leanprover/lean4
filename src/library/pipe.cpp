@@ -7,16 +7,14 @@ Author: Jared Roesch
 #include "runtime/exception.h"
 #include "library/pipe.h"
 
-#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
-#else
+#if !defined(LEAN_WINDOWS)
 #include <unistd.h>
 #endif
 
 namespace lean {
 
 pipe::pipe() {
-    #if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
-    #else
+    #if !defined(LEAN_WINDOWS)
     int fds[2];
     if (::pipe(fds) == -1) {
         throw exception("unable to create pipe");

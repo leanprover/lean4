@@ -21,7 +21,6 @@
 (defvar-local lean4-default-executable-name
   (cl-case system-type
     ('windows-nt   "lean.exe")
-    ('cygwin       "lean.exe")
     (t             "lean_wrapped"))
   "Default executable name of Lean")
 

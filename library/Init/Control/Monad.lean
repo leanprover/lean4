@@ -43,3 +43,7 @@ do b ← mbool; cond b tm fm
 @[macroInline]
 def whenM {m : Type → Type u} [Monad m] (c : m Bool) (t : m Unit) : m Unit :=
 condM c t (pure ())
+
+@[macroInline]
+def unlessM {m : Type → Type u} [Monad m] (c : m Bool) (t : m Unit) : m Unit :=
+condM c (pure ()) t

@@ -135,22 +135,34 @@ do numPostponed ← getNumPostponed;
    if numPostponed == 0 then pure true
    else traceCtx `type_context.level_is_def_eq.postponed $ processPostponedAux mayPostpone
 
-@[inline] private def restoreIfFalse (x : MetaM Bool) : MetaM Bool :=
+
+private def restore (env : Environment) (mctx : MetavarContext) (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
+modify $ fun s => { env := env, mctx := mctx, postponed := postponed, .. s }
+
+/--
+  `try x` executes `x` and process all postponed universe level constraints produced by `x`.
+  We keep the modifications only if both return `true`.
+
+  Remark: postponed universe level constraints must be solved before returning. Otherwise,
+  we don't know whether `x` really succeeded. -/
+@[inline] def try (x : MetaM Bool) : MetaM Bool :=
 do s ← get;
+   let env       := s.env;
    let mctx      := s.mctx;
    let postponed := s.postponed;
+   modify $ fun s => { postponed := {}, .. s };
    catch
-     (do b ← x;
-       unless b $ modify $ fun s => { mctx := mctx, postponed := postponed, .. s };
-       pure b)
-     (fun e => do
-       modify $ fun s => { mctx := mctx, postponed := postponed, .. s };
-       throw e)
+     (condM x
+       (condM (processPostponed false)
+         (pure true)
+         (do restore env mctx postponed; pure false))
+       (do restore env mctx postponed; pure false))
+     (fun ex => do restore env mctx postponed; throw ex)
 
 /- Public interface -/
 
 def isLevelDefEq (u v : Level) : MetaM Bool :=
-restoreIfFalse $ do
+try $ do
   r ← isLevelDefEqAux u v;
   if !r then pure false
   else processPostponed false

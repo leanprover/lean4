@@ -68,7 +68,7 @@ checkFunInfoCache fn maxArgs? $ do
         let pinfo    := updateHasFwdDeps pinfo backDeps;
         pure $ pinfo.push {
           backDeps     := backDeps,
-          prop         := prop,
+          prop         := prop == LBool.true,
           implicit     := decl.binderInfo == BinderInfo.implicit,
           instImplicit := decl.binderInfo == BinderInfo.instImplicit })
       #[];

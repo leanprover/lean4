@@ -22,6 +22,18 @@ def neg : LBool → LBool
 | false => true
 | undef => undef
 
+def and : LBool → LBool → LBool
+| true,  b  => b
+| a,     _  => a
+
+def beq : LBool → LBool → Bool
+| true,  true  => Bool.true
+| false, false => Bool.true
+| undef, undef => Bool.true
+| _,     _     => Bool.false
+
+instance : HasBeq LBool := ⟨beq⟩
+
 def toString : LBool → String
 | true  => "true"
 | false => "false"

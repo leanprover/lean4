@@ -14,6 +14,12 @@ do env ← importModules mods;
    | EStateM.Result.ok type s   => IO.println (toString e ++ " ==> " ++ toString type)
    | EStateM.Result.error err _ => throw (IO.userError (toString err))
 
+def tstIsProp (mods : List Name) (e : Expr) : IO Unit :=
+do env ← importModules mods;
+   match isProp e {} { env := env } with
+   | EStateM.Result.ok b s      => IO.println (toString e ++ ", isProp: " ++ toString b)
+   | EStateM.Result.error err _ => throw (IO.userError (toString err))
+
 def t1 : Expr :=
 let map  := Expr.const `List.map [Level.one, Level.one];
 let nat  := Expr.const `Nat [];
@@ -105,3 +111,31 @@ Expr.letE `a (Expr.sort Level.one) nat (Expr.forallE `x BinderInfo.default (Expr
 #eval tstInferType [`Init.Lean.Trace] (Expr.proj `Lean.TraceState 0 (Expr.proj `Inhabited 0 (Expr.const `Lean.TraceState.Inhabited [])))
 #eval tstWHNF [`Init.Lean.Trace] (Expr.proj `Inhabited 0 (Expr.const `Lean.TraceState.Inhabited []))
 #eval tstWHNF [`Init.Lean.Trace] (Expr.proj `Lean.TraceState 0 (Expr.proj `Inhabited 0 (Expr.const `Lean.TraceState.Inhabited [])))
+
+def t10 : Expr :=
+let nat  := Expr.const `Nat [];
+let refl := Expr.app (Expr.const `Eq.refl [Level.one]) nat;
+Expr.lam `a BinderInfo.default nat (Expr.app refl (Expr.bvar 0))
+
+#eval tstInferType [`Init.Core] t10
+#eval tstIsProp [`Init.Core] t10
+
+#eval tstIsProp [`Init.Core] (mkApp (Expr.const `And []) #[Expr.const `True [], Expr.const `True []])
+
+#eval tstIsProp [`Init.Core] (Expr.const `And [])
+
+-- Example where isPropQuick fails
+#eval tstIsProp [`Init.Core] (mkApp (Expr.const `id [Level.zero]) #[Expr.sort Level.zero, mkApp (Expr.const `And []) #[Expr.const `True [], Expr.const
+ `True []]])
+
+#eval tstIsProp [`Init.Core] (mkApp (Expr.const `Eq [Level.one]) #[Expr.const `Nat [], Expr.lit (Literal.natVal 0), Expr.lit (Literal.natVal 1)])
+
+#eval tstIsProp [`Init.Core] $
+  Expr.forallE `x BinderInfo.default (Expr.const `Nat [])
+    (mkApp (Expr.const `Eq [Level.one]) #[Expr.const `Nat [], Expr.bvar 0, Expr.lit (Literal.natVal 1)])
+
+#eval tstIsProp [`Init.Core] $
+  Expr.app
+    (Expr.lam `x BinderInfo.default (Expr.const `Nat [])
+      (mkApp (Expr.const `Eq [Level.one]) #[Expr.const `Nat [], Expr.bvar 0, Expr.lit (Literal.natVal 1)]))
+    (Expr.lit (Literal.natVal 0))

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Lean.LBool
 import Init.Lean.Meta.Basic
 
 namespace Lean
@@ -166,14 +167,75 @@ do s ← get;
     (e : Expr) : MetaM Expr :=
 inferTypeAuxAux (fun e => usingTransparency TransparencyMode.all $ whnf e) e
 
-@[specialize] def isPropAux
-    (whnf : Expr → MetaM Expr)
-    (e : Expr) : MetaM Bool :=
-do type ← inferTypeAux whnf e;
-   type ← whnf type;
-   match type with
-   | Expr.sort Level.zero => pure true
-   | _                    => pure false
+/--
+  Return `LBool.true` if given level is always equivalent to universe level zero.
+  If the given level contains a metavariable, the result may be `LBool.undef` since
+  it depends on metavariable assignment.
+
+  It is used to implement `isProp`. -/
+private def isAlwaysZero : Level → LBool
+| Level.zero     => LBool.true
+| Level.mvar _   => LBool.undef
+| Level.param _  => LBool.false
+| Level.succ _   => LBool.false
+| Level.max u v  => (isAlwaysZero u).and (isAlwaysZero v)
+| Level.imax _ u => isAlwaysZero u
+
+/--
+  `isArrowProp type n` is an "approximate" predicate which returns `LBool.true`
+   if `type` is of the form `A_1 -> ... -> A_n -> Prop`.
+   Remark: `type` can be a dependent arrow. -/
+@[specialize] private partial def isArrowProp : Expr → Nat → MetaM LBool
+| Expr.sort u,          0   => do u ← instantiateLevelMVars u; pure $ isAlwaysZero u
+| Expr.forallE _ _ _ _, 0   => pure LBool.false
+| Expr.forallE _ _ _ b, n+1 => isArrowProp b n
+| Expr.letE _ _ _ b,    n   => isArrowProp b n
+| Expr.mdata _ e,       n   => isArrowProp e n
+| _,                    _   => pure LBool.undef
+
+/--
+  `isPropQuickApp f n` is an "approximate" predicate which returns `LBool.true`
+   if `f` applied to `n` arguments is a proposition. -/
+@[specialize] private partial def isPropQuickApp : Expr → Nat → MetaM LBool
+| Expr.const c lvls, arity   => do constType ← inferConstType c lvls; isArrowProp constType arity
+| Expr.fvar fvarId,  arity   => do fvarType  ← inferFVarType fvarId;  isArrowProp fvarType arity
+| Expr.mvar mvarId,  arity   => do mvarType  ← inferMVarType mvarId;  isArrowProp mvarType arity
+| Expr.app f _,      arity   => isPropQuickApp f (arity+1)
+| Expr.mdata _ e,    arity   => isPropQuickApp e arity
+| Expr.letE _ _ _ b, arity   => isPropQuickApp b arity
+| Expr.lam _ _ _ _,  0       => pure LBool.false
+| Expr.lam _ _ _ b,  arity+1 => isPropQuickApp b arity
+| _,                 _       => pure LBool.undef
+
+/--
+  `isPropQuick e` is an "approximate" predicate which returns `LBool.true`
+  if `e` is a proposition. -/
+@[specialize] private partial def isPropQuick : Expr → MetaM LBool
+| Expr.bvar _           => pure LBool.undef
+| Expr.lit _            => pure LBool.false
+| Expr.sort _           => pure LBool.false
+| Expr.lam _ _ _ _      => pure LBool.false
+| Expr.letE _ _ _ b     => isPropQuick b
+| Expr.proj _ _ _       => pure LBool.undef
+| Expr.forallE _ _ _ b  => isPropQuick b
+| Expr.mdata _ e        => isPropQuick e
+| Expr.const c lvls     => do constType ← inferConstType c lvls; isArrowProp constType 0
+| Expr.fvar fvarId      => do fvarType  ← inferFVarType fvarId;  isArrowProp fvarType 0
+| Expr.mvar mvarId      => do mvarType  ← inferMVarType mvarId;  isArrowProp mvarType 0
+| Expr.app f _          => isPropQuickApp f 1
+
+@[specialize] def isPropAux (whnf : Expr → MetaM Expr) (e : Expr) : MetaM LBool :=
+do r ← isPropQuick e;
+   match r with
+   | LBool.true  => pure LBool.true
+   | LBool.false => pure LBool.false
+   | LBool.undef => do
+     -- dbgTrace ("PropQuick failed " ++ toString e);
+     type ← inferTypeAux whnf e;
+     type ← (fun e => usingTransparency TransparencyMode.all $ whnf e) type;
+     match type with
+     | Expr.sort u => do u ← instantiateLevelMVars u; pure $ isAlwaysZero u
+     | _           => pure LBool.false
 
 end Meta
 end Lean

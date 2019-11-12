@@ -675,8 +675,10 @@ bool type_checker::is_def_eq_app(expr const & t, expr const & s) {
 bool type_checker::is_def_eq_proof_irrel(expr const & t, expr const & s) {
     // Proof irrelevance support for Prop (aka Type.{0})
     expr t_type = infer_type(t);
+    if (!is_prop(t_type))
+        return false;
     expr s_type = infer_type(s);
-    return is_prop(t_type) && is_def_eq(t_type, s_type);
+    return is_def_eq(t_type, s_type);
 }
 
 bool type_checker::failed_before(expr const & t, expr const & s) const {

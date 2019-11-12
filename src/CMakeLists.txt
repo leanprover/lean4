@@ -194,7 +194,7 @@ configure_file("${LEAN_SOURCE_DIR}/CTestCustom.cmake.in"
   "${LEAN_BINARY_DIR}/CTestCustom.cmake" @ONLY)
 
 # Windows does not support ulimit -s unlimited. So, we reserve a lot of stack space: 100Mb
-if((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   message(STATUS "Windows detected")
   set(LEAN_WIN_STACK_SIZE "104857600")
   if (MSVC)
@@ -208,10 +208,6 @@ if((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
 else()
   # Windows does not support pthread or fPIC
   set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -pthread -fPIC")
-endif()
-
-if("${CYGWIN}" EQUAL "1")
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_CYGWIN -D _GNU_SOURCE")
 endif()
 
 if(JSON)
@@ -370,15 +366,8 @@ else()
     find_package(GMP 5.0.5 REQUIRED)
     include_directories(${GMP_INCLUDE_DIR})
     set(COPY_LIBS ${COPY_LIBS} ${GMP_LIBRARIES})
-endif()
-
-# DL
-if (EMSCRIPTEN)
-    # no dlopen
-elseif((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
-  # TODO(Jared): config dlopen windows support
-else()
-  set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_DL_LIBS})
+    # dlopen
+    set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_DL_LIBS})
 endif()
 
 # TRACK_MEMORY_USAGE

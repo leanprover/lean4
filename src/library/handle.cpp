@@ -11,7 +11,7 @@ Author:  Leonardo de Moura & Jared Roesch
 #include <utility>
 #include <stdio.h>
 
-#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
+#if defined(LEAN_WINDOWS)
 #include <windows.h>
 #include <tchar.h>
 #include <strsafe.h>

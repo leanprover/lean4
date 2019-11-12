@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
+#if defined(LEAN_WINDOWS)
 #include <windows.h>
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>
@@ -167,7 +167,7 @@ extern "C" obj_res lean_io_getenv(b_obj_arg env_var, obj_arg) {
 extern "C" obj_res lean_io_realpath(obj_arg fname, obj_arg) {
 #if defined(LEAN_EMSCRIPTEN)
     return set_io_result(fname);
-#elif defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
+#elif defined(LEAN_WINDOWS)
     constexpr unsigned BufferSize = 8192;
     char buffer[BufferSize];
     DWORD retval = GetFullPathName(string_cstr(fname), BufferSize, buffer, nullptr);
@@ -214,7 +214,7 @@ extern "C" obj_res lean_io_file_exists(b_obj_arg fname, obj_arg) {
 }
 
 extern "C" obj_res lean_io_app_dir(obj_arg) {
-#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
+#if defined(LEAN_WINDOWS)
     HMODULE hModule = GetModuleHandleW(NULL);
     WCHAR path[MAX_PATH];
     GetModuleFileNameW(hModule, path, MAX_PATH);

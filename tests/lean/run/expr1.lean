@@ -53,8 +53,40 @@ do let f   := Expr.const `f [];
    unless (t2.hasLooseBVar 0) $ throw "failed-2";
    unless (!t3.hasLooseBVar 0) $ throw "failed-3";
    unless (t4.hasLooseBVar 0) $ throw "failed-4";
-   unless (!t4.hasLooseBVar 1) $ throw "failed-4";
-   unless (!t2.hasLooseBVar 1) $ throw "failed-5";
+   unless (!t4.hasLooseBVar 1) $ throw "failed-5";
+   unless (!t2.hasLooseBVar 1) $ throw "failed-6";
    pure ()
 
 #eval tst4
+
+def tst5 : IO Unit :=
+do let f   := Expr.const `f [];
+   let a   := Expr.const `a [];
+   let nat := Expr.const `Nat [];
+   let x0  := Expr.bvar 0;
+   let x1  := Expr.bvar 1;
+   let x2  := Expr.bvar 2;
+   let t   := Expr.lam `x BinderInfo.default nat (Expr.app f x0);
+   IO.println t.etaExpanded?;
+   unless (t.etaExpanded? == some f) $ throw "failed-1";
+   let t   := Expr.lam `x BinderInfo.default nat (Expr.app f x1);
+   unless (t.etaExpanded? == none) $ throw "failed-2";
+   let t   := Expr.lam `x BinderInfo.default nat (mkApp f #[a, x0]);
+   unless (t.etaExpanded? == some (Expr.app f a)) $ throw "failed-3";
+   let t   := Expr.lam `x BinderInfo.default nat (mkApp f #[x0, x0]);
+   unless (t.etaExpanded? == none) $ throw "failed-4";
+   let t   := Expr.lam `x BinderInfo.default nat (Expr.lam `y BinderInfo.default nat (Expr.app f x0));
+   unless (t.etaExpanded? == none) $ throw "failed-5";
+   let t   := Expr.lam `x BinderInfo.default nat (Expr.lam `y BinderInfo.default nat (mkApp f #[x1, x0]));
+   IO.println t;
+   unless (t.etaExpanded? == some f) $ throw "failed-6";
+   let t   := Expr.lam `x BinderInfo.default nat (Expr.lam `y BinderInfo.default nat (Expr.lam `z BinderInfo.default nat (mkApp f #[x2, x1, x0])));
+   IO.println t;
+   unless (t.etaExpanded? == some f) $ throw "failed-7";
+   let t   := Expr.lam `x BinderInfo.default nat (Expr.lam `y BinderInfo.default nat (Expr.lam `z BinderInfo.default nat (mkApp f #[a, x2, x1, x0])));
+   IO.println t;
+   unless (t.etaExpanded? == some (Expr.app f a)) $ throw "failed-8";
+   IO.println t.etaExpanded?;
+   pure ()
+
+#eval tst5

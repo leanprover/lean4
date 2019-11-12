@@ -14,30 +14,15 @@ namespace Meta
 private def isAuxDef? (constName : Name) : MetaM Bool :=
 do env ← getEnv; pure (isAuxRecursor env constName || isNoConfusion env constName)
 
-@[inline] private def getCachedWHNF (e : Expr) : MetaM (Option Expr) :=
-do t ← getTransparency;
-   s ← get;
-   pure $ s.cache.whnf.find (t, e)
-
-@[inline] private def cacheWHNF (e : Expr) (r : Expr) : MetaM Unit :=
-do t ← getTransparency;
-   modify $ fun s => { cache := { whnf := s.cache.whnf.insert (t, e) r, .. s.cache }, .. s }
-
 @[specialize] partial def whnfAux
     (inferType         : Expr → MetaM Expr)
     (isDefEq           : Expr → Expr → MetaM Bool)
     (synthesizePending : Expr → MetaM Bool)
     : Expr → MetaM Expr
 | e => whnfEasyCases getLocalDecl getExprMVarAssignment e $ fun e => do
-  cached? ← getCachedWHNF e;
-  match cached? with
-  | some r => pure r
-  | none   => do
-    e ← whnfCore getConstNoEx isAuxDef? whnfAux inferType isDefEq getLocalDecl getExprMVarAssignment e;
-    r ← unfoldDefinition getConstNoEx isAuxDef? whnfAux inferType isDefEq synthesizePending getLocalDecl
-      getExprMVarAssignment e (fun _ => pure e) whnfAux;
-    cacheWHNF e r;
-    pure r
+  e ← whnfCore getConstNoEx isAuxDef? whnfAux inferType isDefEq getLocalDecl getExprMVarAssignment e;
+  unfoldDefinition getConstNoEx isAuxDef? whnfAux inferType isDefEq synthesizePending getLocalDecl
+    getExprMVarAssignment e (fun _ => pure e) whnfAux
 
 end Meta
 end Lean

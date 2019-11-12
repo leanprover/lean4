@@ -88,7 +88,6 @@ instance : HasBeq InfoCacheKey :=
 end InfoCacheKey
 
 structure Cache :=
-(whnf      : PersistentHashMap (TransparencyMode × Expr) Expr := {})
 (inferType : PersistentExprStructMap Expr := {})
 (funInfo   : PersistentHashMap InfoCacheKey FunInfo := {})
 

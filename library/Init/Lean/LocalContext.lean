@@ -103,6 +103,9 @@ lctx.find e.fvarId!
 def contains (lctx : LocalContext) (fvarId : Name) : Bool :=
 lctx.nameToDecl.contains fvarId
 
+def containsFVar (lctx : LocalContext) (e : Expr) : Bool :=
+lctx.contains e.fvarId!
+
 private partial def popTailNoneAux : PArray (Option LocalDecl) → PArray (Option LocalDecl)
 | a =>
   if a.size == 0 then a

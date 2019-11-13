@@ -293,6 +293,10 @@ def fvarId! : Expr → Name
 | fvar n => n
 | _      => panic! "fvar expected"
 
+def mvarId! : Expr → Name
+| mvar n => n
+| _      => panic! "mvar expected"
+
 def bindingName! : Expr → Name
 | forallE n _ _ _ => n
 | lam n _ _ _     => n

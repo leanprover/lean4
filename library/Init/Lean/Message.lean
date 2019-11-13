@@ -59,9 +59,10 @@ instance : HasAppend MessageData := ⟨compose⟩
 
 instance : HasFormat MessageData := ⟨fun d => formatAux none d⟩
 
-instance coeOfFormat : HasCoe Format MessageData := ⟨ofFormat⟩
-instance coeOfLevel  : HasCoe Level MessageData := ⟨ofLevel⟩
-instance coeOfExpr   : HasCoe Expr MessageData := ⟨ofExpr⟩
+instance coeOfFormat    : HasCoe Format MessageData := ⟨ofFormat⟩
+instance coeOfLevel     : HasCoe Level MessageData := ⟨ofLevel⟩
+instance coeOfExpr      : HasCoe Expr MessageData := ⟨ofExpr⟩
+instance coeOfArrayExpr : HasCoe (Array Expr) MessageData := ⟨fun es => node $ es.map $ fun e => ofExpr e⟩
 
 end MessageData
 

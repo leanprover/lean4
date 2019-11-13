@@ -539,6 +539,30 @@ partial def check : Expr → CheckAssignmentM Expr
 
 end CheckAssignment
 
+private def checkAssignmentFailure (mvarId : Name) (fvars : Array Expr) (v : Expr) (ex : CheckAssignment.Exception) : MetaM (Option Expr) :=
+match ex with
+| CheckAssignment.Exception.occursCheck => do
+  trace! `Meta.isDefEq.checkAssignment.occursCheck
+    (Expr.mvar mvarId ++ fvars ++ " := " ++ v);
+  pure none
+| CheckAssignment.Exception.useFOApprox =>
+  pure none
+| CheckAssignment.Exception.outOfScopeFVar fvarId => do
+  trace! `Meta.isDefEq.checkAssignment.outOfScopeFVar
+    (Expr.fvar fvarId ++ " @ " ++ Expr.mvar mvarId ++ fvars ++ " := " ++ v);
+  pure none
+| CheckAssignment.Exception.readOnlyMVarWithBiggerLCtx nestedMVarId => do
+  trace! `Meta.isDefEq.checkAssignment.readOnlyMVarWithBiggerLCtx
+    (Expr.mvar nestedMVarId ++ " @ " ++ Expr.mvar mvarId ++ fvars ++ " := " ++ v);
+  pure none
+| CheckAssignment.Exception.mvarTypeNotWellFormedInSmallerLCtx nestedMVarId => do
+  trace! `Meta.isDefEq.checkAssignment.mvarTypeNotWellFormedInSmallerLCtx
+    (Expr.mvar nestedMVarId ++ " @ " ++ Expr.mvar mvarId ++ fvars ++ " := " ++ v);
+  pure none
+| CheckAssignment.Exception.unknownExprMVar mvarId =>
+  -- This case can only happen if the MetaM API is being misused
+  throwEx $ Exception.unknownExprMVar mvarId
+
 /--
   Auxiliary function for handling constraints of the form `?m a₁ ... aₙ =?= v`.
   It will check whether we can perform the assignment
@@ -561,14 +585,8 @@ fun ctx s => if !v.hasExprMVar && !v.hasFVar then EStateM.Result.ok (some v) s e
     hasCtxLocals := hasCtxLocals
   };
   match (CheckAssignment.check v checkCtx).run { mctx := s.mctx, ngen := s.ngen } with
-  | EStateM.Result.ok e newS =>
-    EStateM.Result.ok (some e) { mctx := newS.mctx, ngen := newS.ngen, .. s }
-  | EStateM.Result.error (CheckAssignment.Exception.unknownExprMVar mvarId) newS =>
-    -- This case can only happen if the MetaM API is being misused
-    EStateM.Result.error (Exception.unknownExprMVar mvarId { env := s.env, mctx := s.mctx, lctx := ctx.lctx }) { ngen := newS.ngen, .. s }
-  | EStateM.Result.error ex newS =>
-    -- TODO: save other exceptions as trace message
-    EStateM.Result.ok none { ngen := newS.ngen, .. s }
+  | EStateM.Result.ok e newS     => EStateM.Result.ok (some e) { mctx := newS.mctx, ngen := newS.ngen, .. s }
+  | EStateM.Result.error ex newS => checkAssignmentFailure mvarId fvars v ex ctx { ngen := newS.ngen, .. s }
 
 end Meta
 end Lean

@@ -468,7 +468,7 @@ namespace DependsOn
 
 private abbrev M := StateM ExprSet
 
-@[inline] private def visit (main : Expr → M Bool) (e : Expr) : M Bool :=
+private def visit? (e : Expr) : M Bool :=
 if !e.hasMVar && !e.hasFVar then
   pure false
 else do
@@ -477,7 +477,10 @@ else do
     pure false
   else do
     modify $ fun s => s.insert e;
-    main e
+    pure true
+
+@[inline] private def visit (main : Expr → M Bool) (e : Expr) : M Bool :=
+condM (visit? e) (main e) (pure false)
 
 @[specialize] private partial def dep (mctx : MetavarContext) (p : Name → Bool) : Expr → M Bool
 | e@(Expr.proj _ _ s)      => visit dep s

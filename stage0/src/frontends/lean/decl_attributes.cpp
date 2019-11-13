@@ -41,11 +41,15 @@ environment erase_attribute(environment const & env, name const & decl, name con
 }
 /*
 inductive AttributeApplicationTime
-| afterTypeChecking | afterCompilation
+| afterTypeChecking | afterCompilation | beforeElaboration
 */
 bool is_after_compilation_attribute(name const & n) {
     return get_io_scalar_result<uint8>(lean_attribute_application_time(n.to_obj_arg(), io_mk_world())) == 1;
 }
+bool is_before_elaboration_attribute(name const & n) {
+    return get_io_scalar_result<uint8>(lean_attribute_application_time(n.to_obj_arg(), io_mk_world())) == 2;
+}
+
 // ==========================================
 
 expr decl_attributes::parse_attr_arg(parser & p, name const & attr_id) {
@@ -139,6 +143,8 @@ void decl_attributes::parse_core(parser & p, bool compact) {
             }
             if (is_after_compilation_attribute(id)) {
                 m_after_comp_entries = cons({id, deleted, scoped, args}, m_after_comp_entries);
+            } else if (is_before_elaboration_attribute(id)) {
+                m_before_elab_entries = cons({id, deleted, scoped, args}, m_before_elab_entries);
             } else {
                 m_after_tc_entries = cons({id, deleted, scoped, args}, m_after_tc_entries);
             }
@@ -176,6 +182,8 @@ void decl_attributes::set_attribute(environment const & /* env */, name const & 
         syntax args(box(0));
         if (is_after_compilation_attribute(attr_name)) {
             m_after_comp_entries = cons({attr_name, false, false, args}, m_after_comp_entries);
+        } else if (is_before_elaboration_attribute(attr_name)) {
+            m_before_elab_entries = cons({attr_name, false, false, args}, m_before_elab_entries);
         } else {
             m_after_tc_entries = cons({attr_name, false, false, args}, m_after_tc_entries);
         }
@@ -194,7 +202,7 @@ bool decl_attributes::has_attribute(list<new_entry> const & entries, name const 
 
 bool decl_attributes::has_attribute(environment const & /* env */, name const & attr_name) const {
     if (is_new_attribute(attr_name)) {
-        return has_attribute(m_after_tc_entries, attr_name) || has_attribute(m_after_comp_entries, attr_name);
+        return has_attribute(m_after_tc_entries, attr_name) || has_attribute(m_after_comp_entries, attr_name) || has_attribute(m_before_elab_entries, attr_name);
     } else {
         throw exception(sstream() << "unknown attribute [" << attr_name << "]");
     }
@@ -226,8 +234,13 @@ environment decl_attributes::apply_after_comp(environment env, name const & d) c
     return apply_new_entries(env, m_after_comp_entries, d);
 }
 
+environment decl_attributes::apply_before_elab(environment env, io_state const & /* ios */, name const & d) const {
+    return apply_new_entries(env, m_before_elab_entries, d);
+}
+
 environment decl_attributes::apply_all(environment env, io_state const & ios, name const & d) const {
-    environment new_env = apply_after_tc(env, ios, d);
+    environment new_env = apply_before_elab(env, ios, d);
+    new_env = apply_after_tc(env, ios, d);
     return apply_after_comp(new_env, d);
 }
 

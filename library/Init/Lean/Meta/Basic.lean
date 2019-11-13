@@ -135,7 +135,7 @@ do ctx ← read;
    s ← get;
    throw (f {env := s.env, mctx := s.mctx, lctx := ctx.lctx })
 
-@[inline] def throwBug {α} (b : Bug) : MetaM α :=
+def throwBug {α} (b : Bug) : MetaM α :=
 throwEx $ Exception.bug b
 
 /-- Execute `x` only in debugging mode. -/

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Lean.Meta.WHNF
 import Init.Lean.Meta.InferType
 import Init.Lean.Meta.FunInfo
 import Init.Lean.Meta.LevelDefEq
@@ -198,6 +199,97 @@ else
   (a b : Expr) : MetaM Bool :=
 do lctx ← getLCtx;
    isDefEqBindingAux whnf isDefEq lctx #[] a b #[]
+
+/-
+  We try to unify arguments before we try to unify the functions.
+  The motivation is the following: the universe constraints in
+  the arguments propagate to the function. -/
+@[specialize] private partial def isDefEqFOApprox
+    (isDefEq : Expr → Expr → MetaM Bool)
+    (f₁ f₂ : Expr) (args₁ args₂ : Array Expr) : Nat → Nat → MetaM Bool
+| i₁, i₂ =>
+  if h : i₂ < args₂.size then
+    let arg₁ := args₁.get! i₁;
+    let arg₂ := args₂.get ⟨i₂, h⟩;
+    condM (isDefEq arg₁ arg₂)
+      (isDefEqFOApprox (i₁+1) (i₂+1))
+      (pure false)
+  else
+    isDefEq f₁ f₂
+
+@[specialize] private def processAssignmentFOApproxAux
+  (isDefEq : Expr → Expr → MetaM Bool)
+  (mvar : Expr) (args : Array Expr) (v : Expr) : MetaM Bool :=
+let vArgs := v.getAppArgs;
+if vArgs.isEmpty then
+  /- ?m a_1 ... a_k =?= t,  where t is not an application -/
+  pure false
+else if args.size > vArgs.size then
+  /-
+    ?m a_1 ... a_i a_{i+1} ... a_{i+k} =?= f b_1 ... b_k
+
+    reduces to
+
+    ?m a_1 ... a_i =?= f
+    a_{i+1}        =?= b_1
+    ...
+    a_{i+k}        =?= b_k
+  -/
+  let f₁ := mkAppRange mvar 0 (args.size - vArgs.size) args;
+  let i₁ := args.size - vArgs.size;
+  isDefEqFOApprox isDefEq f₁ v.getAppFn args vArgs i₁ 0
+else if args.size < vArgs.size then
+  /-
+    ?m a_1 ... a_k =?= f b_1 ... b_i b_{i+1} ... b_{i+k}
+
+    reduces to
+
+    ?m  =?= f b_1 ... b_i
+    a_1 =?= b_{i+1}
+    ...
+    a_k =?= b_{i+k}
+  -/
+  let vFn := mkAppRange v.getAppFn 0 (vArgs.size - args.size) vArgs;
+  let i₂  := vArgs.size - args.size;
+  isDefEqFOApprox isDefEq mvar vFn args vArgs 0 i₂
+else
+  /-
+    ?m a_1 ... a_k =?= f b_1 ... b_k
+
+    reduces to
+
+    ?m  =?= f
+    a_1 =?= b_1
+    ...
+    a_k =?= b_k
+  -/
+  isDefEqFOApprox isDefEq mvar v.getAppFn args vArgs 0 0
+
+/-
+  Auxiliary method for applying first-order unification. It is an approximation.
+  Remark: this method is trying to solve the unification constraint:
+
+      ?m a₁ ... aₙ =?= v
+
+   It is uses processAssignmentFOApproxAux, if it fails, it tries to unfold `v`.
+
+   We have added support for unfolding here because we want to be able to solve unification problems such as
+
+      ?m Unit =?= ITactic
+
+   where `ITactic` is defined as
+
+   def ITactic := Tactic Unit
+-/
+@[specialize] private partial def processAssignmentFOApprox
+  (whnf              : Expr → MetaM Expr)
+  (isDefEq           : Expr → Expr → MetaM Bool)
+  (synthesizePending : Expr → MetaM Bool)
+  (mvar : Expr) (args : Array Expr) : Expr → MetaM Bool
+| v =>
+  condM (try $ processAssignmentFOApproxAux isDefEq mvar args v)
+    (pure true)
+    (unfoldDefinitionAux whnf (inferTypeAux whnf) isDefEq synthesizePending v (pure false) processAssignmentFOApprox)
 
 end Meta
 end Lean

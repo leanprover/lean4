@@ -329,7 +329,7 @@ else
   if succeeded then whnfCoreUnstuck e else pure e
 
 /-- Unfold definition using "smart unfolding" if possible. -/
-@[specialize] def unfoldDefinition {α} {m : Type → Type} [Monad m]
+@[specialize] def unfoldDefinitionAux {α} {m : Type → Type} [Monad m]
     (getConst          : Name → m (Option ConstantInfo))
     (isAuxDef?         : Name → m Bool)
     (whnf              : Expr → m Expr)
@@ -380,6 +380,6 @@ match e with
     : Expr → m Expr
 | e => do
   e ← whnfCore getConst isAuxDef? whnfMain inferType isDefEq getLocalDecl getMVarAssignment e;
-  unfoldDefinition getConst isAuxDef? whnfMain inferType isDefEq synthesizePending getLocalDecl getMVarAssignment e (fun _ => pure e) whnfMain
+  unfoldDefinitionAux getConst isAuxDef? whnfMain inferType isDefEq synthesizePending getLocalDecl getMVarAssignment e (fun _ => pure e) whnfMain
 
 end Lean

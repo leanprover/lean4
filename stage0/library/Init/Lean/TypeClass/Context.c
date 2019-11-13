@@ -67,7 +67,6 @@ lean_object* l_Lean_TypeClass_Context_uNewMeta(lean_object*);
 lean_object* l_Lean_TypeClass_Context_uUnify___main___closed__3;
 lean_object* l_Lean_TypeClass_Context_eAssign(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context__u03b1Norm___closed__5;
-extern lean_object* l_panicWithPos___at___private_Init_Lean_MetavarContext_5__instantiateDelayedAux___main___spec__1___closed__1;
 lean_object* l_Lean_Expr_getAppNumArgsAux___main(lean_object*, lean_object*);
 extern lean_object* l_Lean_Options_empty;
 lean_object* l_RBNode_fold___main___at_RBMap_size___spec__1___rarg(lean_object*, lean_object*);
@@ -131,6 +130,7 @@ lean_object* l_Lean_TypeClass_Context_eMetaIdx___boxed(lean_object*);
 lean_object* l_Lean_TypeClass_Context_eAssignIdx___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t l_List_foldr___main___at_Lean_TypeClass_Context_eHasTmpMVar___spec__1(uint8_t, lean_object*);
+extern lean_object* l___private_Init_Lean_MetavarContext_5__instantiateDelayedAux___main___closed__1;
 lean_object* l_PersistentArray_getAux___main___at_Lean_TypeClass_Context_eInferIdx___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context_slowWhnfApp___main___boxed(lean_object*, lean_object*, lean_object*);
@@ -851,7 +851,7 @@ lean_object* _init_l_panicWithPos___at_Lean_TypeClass_Context_eAssign___spec__1_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_panicWithPos___at___private_Init_Lean_MetavarContext_5__instantiateDelayedAux___main___spec__1___closed__1;
+x_1 = l___private_Init_Lean_MetavarContext_5__instantiateDelayedAux___main___closed__1;
 x_2 = l_PUnit_Inhabited;
 x_3 = l_monadInhabited___rarg(x_1, x_2);
 return x_3;

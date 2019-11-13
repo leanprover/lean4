@@ -440,5 +440,135 @@ else
      then we use first-order unification (if `config.foApprox` is set to true)
 -/
 
+namespace CheckAssignment
+
+structure Context :=
+(lctx         : LocalContext)
+(mvarId       : Name)
+(mvarDecl     : MetavarDecl)
+(fvars        : Array Expr)
+(ctxApprox    : Bool)
+(hasCtxLocals : Bool)
+
+inductive Exception
+| occursCheck
+| useFOApprox
+| outOfScopeFVar                     (fvarId : Name)
+| readOnlyMVarWithBiggerLCtx         (mvarId : Name)
+| mvarTypeNotWellFormedInSmallerLCtx (mvarId : Name)
+| unknownExprMVar                    (mvarId : Name)
+
+structure State :=
+(mctx  : MetavarContext)
+(ngen  : NameGenerator)
+(cache : ExprStructMap Expr := {})
+
+abbrev CheckAssignmentM := ReaderT Context (EStateM Exception State)
+
+def findCached (e : Expr) : CheckAssignmentM (Option Expr) :=
+do s ← get; pure $ s.cache.find e
+
+def cache (e r : Expr) : CheckAssignmentM Unit :=
+modify $ fun s => { cache := s.cache.insert e r, .. s }
+
+instance : MonadCache Expr Expr CheckAssignmentM :=
+{ findCached := findCached, cache := cache }
+
+@[inline] private def visit (f : Expr → CheckAssignmentM Expr) (e : Expr) : CheckAssignmentM Expr :=
+if !e.hasExprMVar && !e.hasFVar then pure e else checkCache e f
+
+@[inline] def checkFVar (check : Expr → CheckAssignmentM Expr) (fvar : Expr) : CheckAssignmentM Expr :=
+do ctx ← read;
+   if ctx.mvarDecl.lctx.containsFVar fvar then pure fvar
+   else do
+     let lctx := ctx.lctx;
+     match lctx.findFVar fvar with
+     | some (LocalDecl.ldecl _ _ _ _ v) => visit check v
+     | _ =>
+       if ctx.fvars.any (fun x => x == fvar) then pure fvar
+       else throw $ Exception.outOfScopeFVar fvar.fvarId!
+
+@[inline] def getMCtx : CheckAssignmentM MetavarContext :=
+do s ← get; pure s.mctx
+
+def mkAuxMVar (lctx : LocalContext) (type : Expr) : CheckAssignmentM Expr :=
+do s ← get;
+   let mvarId := s.ngen.curr;
+   modify $ fun s => { ngen := s.ngen.next, mctx := s.mctx.addExprMVarDecl mvarId Name.anonymous lctx type, .. s };
+   pure (Expr.mvar mvarId)
+
+@[inline] def checkMVar (check : Expr → CheckAssignmentM Expr) (mvar : Expr) : CheckAssignmentM Expr :=
+do let mvarId := mvar.mvarId!;
+   ctx  ← read;
+   mctx ← getMCtx;
+   match mctx.getExprAssignment mvarId with
+   | some v => visit check v
+   | none   =>
+     if mvarId == ctx.mvarId then throw Exception.occursCheck
+     else match mctx.findDecl mvarId with
+       | none          => throw $ Exception.unknownExprMVar mvarId
+       | some mvarDecl =>
+         if ctx.hasCtxLocals then throw $ Exception.useFOApprox -- we use option c) described at workaround A2
+         else if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx then pure mvar
+         else if mvarDecl.depth != mctx.depth || mvarDecl.synthetic then throw $ Exception.readOnlyMVarWithBiggerLCtx mvarId
+         else if ctx.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx then
+           let mvarType := mvarDecl.type;
+           if mctx.isWellFormed ctx.mvarDecl.lctx mvarType then do
+             /- Create an auxiliary metavariable with a smaller context. -/
+             newMVar ← mkAuxMVar ctx.mvarDecl.lctx mvarType;
+             modify $ fun s => { mctx := s.mctx.assignExpr mvarId newMVar, .. s };
+             pure newMVar
+           else
+             throw $ Exception.mvarTypeNotWellFormedInSmallerLCtx mvarId
+         else
+           pure mvar
+
+partial def check : Expr → CheckAssignmentM Expr
+| e@(Expr.mdata _ b)       => do b ← visit check b; pure $ e.updateMData! b
+| e@(Expr.proj _ _ s)      => do s ← visit check s; pure $ e.updateProj! s
+| e@(Expr.app f a)         => do f ← visit check f; a ← visit check a; pure $ e.updateApp! f a
+| e@(Expr.lam _ _ d b)     => do d ← visit check d; b ← visit check b; pure $ e.updateLambdaE! d b
+| e@(Expr.forallE _ _ d b) => do d ← visit check d; b ← visit check b; pure $ e.updateForallE! d b
+| e@(Expr.letE _ t v b)    => do t ← visit check t; v ← visit check v; b ← visit check b; pure $ e.updateLet! t v b
+| e@(Expr.bvar _)          => pure e
+| e@(Expr.sort _)          => pure e
+| e@(Expr.const _ _)       => pure e
+| e@(Expr.lit _)           => pure e
+| e@(Expr.fvar _)          => visit (checkFVar check) e
+| e@(Expr.mvar _)          => visit (checkMVar check) e
+
+end CheckAssignment
+
+/--
+  Auxiliary function for handling constraints of the form `?m a₁ ... aₙ =?= v`.
+  It will check whether we can perform the assignment
+  ```
+  ?m := fun fvars => t
+  ```
+  The result is `none` if the assignment can't be performed.
+  The result is `some newV` where `newV` is a possibly updated `v`. This method may need
+  to unfold let-declarations. -/
+def checkAssignment (mvarId : Name) (fvars : Array Expr) (v : Expr) : MetaM (Option Expr) :=
+fun ctx s => if !v.hasExprMVar && !v.hasFVar then EStateM.Result.ok (some v) s else
+  let mvarDecl     := s.mctx.getDecl mvarId;
+  let hasCtxLocals := fvars.any $ fun fvar => mvarDecl.lctx.containsFVar fvar;
+  let checkCtx : CheckAssignment.Context := {
+    lctx         := ctx.lctx,
+    mvarId       := mvarId,
+    mvarDecl     := s.mctx.getDecl mvarId,
+    fvars        := fvars,
+    ctxApprox    := ctx.config.ctxApprox,
+    hasCtxLocals := hasCtxLocals
+  };
+  match (CheckAssignment.check v checkCtx).run { mctx := s.mctx, ngen := s.ngen } with
+  | EStateM.Result.ok e newS =>
+    EStateM.Result.ok (some e) { mctx := newS.mctx, ngen := newS.ngen, .. s }
+  | EStateM.Result.error (CheckAssignment.Exception.unknownExprMVar mvarId) newS =>
+    -- This case can only happen if the MetaM API is being misused
+    EStateM.Result.error (Exception.unknownExprMVar mvarId { env := s.env, mctx := s.mctx, lctx := ctx.lctx }) { ngen := newS.ngen, .. s }
+  | EStateM.Result.error ex newS =>
+    -- TODO: save other exceptions as trace message
+    EStateM.Result.ok none { ngen := newS.ngen, .. s }
+
 end Meta
 end Lean

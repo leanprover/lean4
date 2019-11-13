@@ -80,7 +80,6 @@ lean_object* l_Array_anyMAux___main___at_PersistentArray_anyMAux___main___spec__
 lean_object* l_PersistentArray_mkNewPath___main(lean_object*);
 lean_object* l_PersistentArray_anyM___at_PersistentArray_all___spec__1(lean_object*);
 uint8_t l_Array_anyMAux___main___at_PersistentArray_any___spec__3___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_umapMAux___main___at_PersistentArray_mapM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_PersistentArray_anyM___at_PersistentArray_all___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_PersistentArray_insertNewLeaf___rarg(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Array_anyMAux___main___at_PersistentArray_any___spec__4(lean_object*);
@@ -100,11 +99,12 @@ lean_object* l_PersistentArray_insertNewLeaf___main___rarg(lean_object*, size_t,
 lean_object* l_Nat_foldAux___main___at_mkPersistentArray___spec__1(lean_object*);
 lean_object* l_PersistentArray_findMAux___main___at_PersistentArray_find___spec__2(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_PersistentArray_toList___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_iterateMAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Array_findRevMAux___main___at_PersistentArray_findRev___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toPersistentArrayAux(lean_object*);
 lean_object* l_PersistentArray_findRevM___at_PersistentArray_findRev___spec__1(lean_object*, lean_object*);
-lean_object* l_PersistentArray_mapM___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_PersistentArray_mapM___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findMAux___main___at_PersistentArray_find___spec__3(lean_object*, lean_object*);
 lean_object* l_PersistentArray_Stats_toString___closed__2;
 lean_object* l_PersistentArray_getAux(lean_object*);
@@ -112,7 +112,7 @@ lean_object* l_Array_anyMAux___main___at_PersistentArray_allM___spec__3___rarg(l
 lean_object* l_PersistentArray_isEmpty___rarg___boxed(lean_object*);
 size_t l_USize_sub(size_t, size_t);
 lean_object* l_Array_anyMAux___main___at_PersistentArray_allM___spec__5___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
-lean_object* l_PersistentArray_mapM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_PersistentArray_mapM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_PersistentArray_foldl___spec__5(lean_object*, lean_object*);
 lean_object* l_PersistentArray_foldlFrom(lean_object*, lean_object*);
 lean_object* l_Array_anyMAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -138,6 +138,7 @@ lean_object* l_PersistentArray_push(lean_object*);
 lean_object* l_PersistentArray_mkNewTail___rarg(lean_object*);
 lean_object* l_PersistentArray_modifyAux___main___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Array_anyMAux___main___at_PersistentArray_allM___spec__4___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* l_PersistentArray_mapM___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_anyMAux___main___at_PersistentArray_any___spec__2___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Array_toPArray___rarg___boxed(lean_object*);
 lean_object* l_Array_anyMAux___main___at_PersistentArray_any___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -150,7 +151,6 @@ lean_object* l_Array_iterateMAux___main___at_PersistentArray_foldlFrom___spec__5
 lean_object* l_Array_findMAux___main___at_PersistentArray_find___spec__5___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_findM___boxed(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_PersistentArray_foldlFromM___spec__1___boxed(lean_object*, lean_object*);
-lean_object* l_Array_umapMAux___main___at_PersistentArray_mapM___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_PersistentArray_foldlFrom___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_allM(lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_PersistentArray_mapMAux___main___spec__1(lean_object*, lean_object*);
@@ -222,8 +222,6 @@ uint8_t l_PersistentArray_any___rarg(lean_object*, lean_object*);
 lean_object* l_PersistentArray_empty___closed__1;
 lean_object* l_PersistentArray_Stats_toString(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-lean_object* l_Array_umapMAux___main___at_PersistentArray_mapM___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_umapMAux___main___at_PersistentArray_mapM___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_PersistentArray_push___rarg(lean_object*, lean_object*);
 lean_object* l_Array_anyMAux___main___at_PersistentArray_all___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_PersistentArray_foldlFromM___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -263,6 +261,7 @@ lean_object* l_PersistentArray_anyM___at_PersistentArray_allM___spec__1___boxed(
 lean_object* l_Array_forMAux___main___at_PersistentArray_forMAux___main___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Array_anyMAux___main___at_PersistentArray_anyMAux___main___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_PersistentArray_anyMAux___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_PersistentArray_foldlM___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_PersistentArray_foldl___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_findRevMAux___main(lean_object*, lean_object*);
 lean_object* l_PersistentArray_mapM___boxed(lean_object*, lean_object*);
@@ -290,7 +289,6 @@ lean_object* l_Array_iterateMAux___main___at_PersistentArray_foldlFrom___spec__9
 lean_object* l_Array_anyMAux___main___at_PersistentArray_anyMAux___main___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMAux___main___at_PersistentArray_allM___spec__5___boxed(lean_object*, lean_object*);
 uint8_t l_Array_anyMAux___main___at_PersistentArray_all___spec__5___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_iterateMAux___main___at_PersistentArray_foldlM___spec__1(lean_object*, lean_object*);
 lean_object* l_Array_findRevMAux___main___at_PersistentArray_findRevMAux___main___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_forMAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_foldlFromM(lean_object*, lean_object*);
@@ -300,6 +298,7 @@ uint8_t l_Array_anyMAux___main___at_PersistentArray_all___spec__4___rarg(lean_ob
 lean_object* l_PersistentArray_foldlFromMAux___main___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findRevMAux___main___at_PersistentArray_findRev___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_foldlMAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_PersistentArray_mapM___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_foldlFromMAux___main___at_PersistentArray_foldlFrom___spec__2(lean_object*, lean_object*);
 lean_object* l_Array_toPersistentArray___rarg___boxed(lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
@@ -334,7 +333,6 @@ lean_object* l_Array_toPersistentArray(lean_object*);
 lean_object* l_PersistentArray_get_x21(lean_object*);
 lean_object* l_PersistentArray_mapMAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMAux___main___at_PersistentArray_all___spec__5(lean_object*);
-lean_object* l_Array_umapMAux___main___at_PersistentArray_mapM___spec__1(lean_object*, lean_object*);
 lean_object* l_PersistentArrayNode_Inhabited___closed__1;
 lean_object* l_PersistentArray_foldlFromMAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_forMAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -409,10 +407,12 @@ lean_object* l_PersistentArray_modify(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_PersistentArray_foldl___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_PersistentArray_foldlFromMAux___main___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_PersistentArray_foldlM___at_PersistentArray_toList___spec__1___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_PersistentArray_foldlM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_PersistentArray_toList___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 extern lean_object* l_usizeSz;
 lean_object* l_PersistentArray_foldlM___boxed(lean_object*, lean_object*);
+lean_object* l_Array_umapMAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_PersistentArray_foldlFromMAux___main___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_PersistentArray_anyM___at_PersistentArray_any___spec__1___rarg(lean_object*, lean_object*);
@@ -423,20 +423,17 @@ lean_object* l_PersistentArray_findRevMAux___main___at_PersistentArray_findRev__
 uint8_t l_PersistentArrayNode_isNode___rarg(lean_object*);
 lean_object* l_PersistentArray_findMAux___main(lean_object*, lean_object*);
 lean_object* l_PersistentArray_findRevM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_iterateMAux___main___at_PersistentArray_foldlM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Array_findMAux___main___at_PersistentArray_findMAux___main___spec__1(lean_object*, lean_object*);
 lean_object* l_PersistentArray_pop(lean_object*);
-lean_object* l_Array_iterateMAux___main___at_PersistentArray_foldlM___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_PersistentArray_findMAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_PersistentArray_mapM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_PersistentArray_mapM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findRevMAux___main___at_PersistentArray_findRev___spec__4(lean_object*, lean_object*);
 lean_object* l_PersistentArray_foldlFromM___boxed(lean_object*, lean_object*);
 lean_object* l_PersistentArray_modifyAux___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t);
 size_t l_USize_shift__left(size_t, size_t);
 lean_object* l_Array_findMAux___main___at_PersistentArray_find___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_PersistentArray_toList___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_iterateMAux___main___at_PersistentArray_foldlM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMAux___main___at_PersistentArray_any___spec__3(lean_object*);
 lean_object* l_PersistentArray_mapM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
@@ -2711,67 +2708,26 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l_Array_iterateMAux___main___at_PersistentArray_foldlM___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; uint8_t x_9; 
-x_8 = lean_array_get_size(x_5);
-x_9 = lean_nat_dec_lt(x_6, x_8);
-lean_dec(x_8);
-if (x_9 == 0)
-{
-lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-x_10 = lean_ctor_get(x_1, 0);
-lean_inc(x_10);
-lean_dec(x_1);
-x_11 = lean_ctor_get(x_10, 1);
-lean_inc(x_11);
-lean_dec(x_10);
-x_12 = lean_apply_2(x_11, lean_box(0), x_7);
-return x_12;
-}
-else
-{
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_13 = lean_ctor_get(x_1, 1);
-lean_inc(x_13);
-x_14 = lean_array_fget(x_5, x_6);
-lean_inc(x_4);
-x_15 = lean_apply_2(x_4, x_7, x_14);
-x_16 = lean_unsigned_to_nat(1u);
-x_17 = lean_nat_add(x_6, x_16);
-x_18 = lean_alloc_closure((void*)(l_Array_iterateMAux___main___at_PersistentArray_foldlM___spec__1___rarg___boxed), 7, 6);
-lean_closure_set(x_18, 0, x_1);
-lean_closure_set(x_18, 1, lean_box(0));
-lean_closure_set(x_18, 2, x_3);
-lean_closure_set(x_18, 3, x_4);
-lean_closure_set(x_18, 4, x_5);
-lean_closure_set(x_18, 5, x_17);
-x_19 = lean_apply_4(x_13, lean_box(0), lean_box(0), x_15, x_18);
-return x_19;
-}
-}
-}
-lean_object* l_Array_iterateMAux___main___at_PersistentArray_foldlM___spec__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Array_iterateMAux___main___at_PersistentArray_foldlM___spec__1___rarg___boxed), 7, 0);
-return x_3;
-}
-}
 lean_object* l_PersistentArray_foldlM___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_5; 
+x_5 = lean_apply_2(x_1, x_4, x_3);
+return x_5;
+}
+}
+lean_object* l_PersistentArray_foldlM___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
-x_6 = lean_unsigned_to_nat(0u);
-x_7 = l_Array_iterateMAux___main___at_PersistentArray_foldlM___spec__1___rarg(x_2, lean_box(0), x_1, x_3, x_5, x_6, x_4);
-return x_7;
+lean_dec(x_1);
+x_6 = lean_alloc_closure((void*)(l_PersistentArray_foldlM___rarg___lambda__1___boxed), 4, 1);
+lean_closure_set(x_6, 0, x_2);
+x_7 = lean_unsigned_to_nat(0u);
+x_8 = l_Array_iterateMAux___main___rarg(x_3, lean_box(0), x_5, x_6, x_7, x_4);
+return x_8;
 }
 }
 lean_object* l_PersistentArray_foldlM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -2785,10 +2741,10 @@ lean_inc(x_7);
 lean_inc(x_4);
 lean_inc(x_1);
 x_8 = l_PersistentArray_foldlMAux___main___rarg(x_1, lean_box(0), x_4, x_7, x_5);
-x_9 = lean_alloc_closure((void*)(l_PersistentArray_foldlM___rarg___lambda__1), 4, 3);
+x_9 = lean_alloc_closure((void*)(l_PersistentArray_foldlM___rarg___lambda__2), 4, 3);
 lean_closure_set(x_9, 0, x_3);
-lean_closure_set(x_9, 1, x_1);
-lean_closure_set(x_9, 2, x_4);
+lean_closure_set(x_9, 1, x_4);
+lean_closure_set(x_9, 2, x_1);
 x_10 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_8, x_9);
 return x_10;
 }
@@ -2801,22 +2757,13 @@ x_3 = lean_alloc_closure((void*)(l_PersistentArray_foldlM___rarg), 5, 0);
 return x_3;
 }
 }
-lean_object* l_Array_iterateMAux___main___at_PersistentArray_foldlM___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+lean_object* l_PersistentArray_foldlM___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_8; 
-x_8 = l_Array_iterateMAux___main___at_PersistentArray_foldlM___spec__1___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_6);
-return x_8;
-}
-}
-lean_object* l_Array_iterateMAux___main___at_PersistentArray_foldlM___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Array_iterateMAux___main___at_PersistentArray_foldlM___spec__1(x_1, x_2);
+lean_object* x_5; 
+x_5 = l_PersistentArray_foldlM___rarg___lambda__1(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
-return x_3;
+return x_5;
 }
 }
 lean_object* l_PersistentArray_foldlM___boxed(lean_object* x_1, lean_object* x_2) {
@@ -7050,74 +6997,15 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l_Array_umapMAux___main___at_PersistentArray_mapM___spec__1___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+lean_object* l_PersistentArray_mapM___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_7 = lean_unsigned_to_nat(1u);
-x_8 = lean_nat_add(x_1, x_7);
-x_9 = x_6;
-x_10 = lean_array_fset(x_3, x_1, x_9);
-x_11 = l_Array_umapMAux___main___at_PersistentArray_mapM___spec__1___rarg(x_4, lean_box(0), x_5, x_8, x_10);
-return x_11;
+lean_object* x_4; 
+x_4 = lean_apply_1(x_1, x_3);
+return x_4;
 }
 }
-lean_object* l_Array_umapMAux___main___at_PersistentArray_mapM___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; uint8_t x_7; 
-x_6 = lean_array_get_size(x_5);
-x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
-if (x_7 == 0)
-{
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-lean_dec(x_4);
-lean_dec(x_3);
-x_8 = lean_ctor_get(x_1, 0);
-lean_inc(x_8);
-lean_dec(x_1);
-x_9 = lean_ctor_get(x_8, 1);
-lean_inc(x_9);
-lean_dec(x_8);
-x_10 = l_Array_empty___closed__1;
-x_11 = x_5;
-x_12 = lean_apply_2(x_9, lean_box(0), x_11);
-return x_12;
-}
-else
-{
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_13 = lean_array_fget(x_5, x_4);
-x_14 = lean_box(0);
-lean_inc(x_13);
-x_15 = x_14;
-x_16 = lean_array_fset(x_5, x_4, x_15);
-x_17 = lean_ctor_get(x_1, 1);
-lean_inc(x_17);
-lean_inc(x_3);
-lean_inc(x_13);
-x_18 = lean_apply_1(x_3, x_13);
-x_19 = lean_alloc_closure((void*)(l_Array_umapMAux___main___at_PersistentArray_mapM___spec__1___rarg___lambda__1___boxed), 6, 5);
-lean_closure_set(x_19, 0, x_4);
-lean_closure_set(x_19, 1, x_13);
-lean_closure_set(x_19, 2, x_16);
-lean_closure_set(x_19, 3, x_1);
-lean_closure_set(x_19, 4, x_3);
-x_20 = lean_apply_4(x_17, lean_box(0), lean_box(0), x_18, x_19);
-return x_20;
-}
-}
-}
-lean_object* l_Array_umapMAux___main___at_PersistentArray_mapM___spec__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Array_umapMAux___main___at_PersistentArray_mapM___spec__1___rarg), 5, 0);
-return x_3;
-}
-}
-lean_object* l_PersistentArray_mapM___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_PersistentArray_mapM___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -7142,21 +7030,23 @@ x_11 = lean_apply_2(x_6, lean_box(0), x_10);
 return x_11;
 }
 }
-lean_object* l_PersistentArray_mapM___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_PersistentArray_mapM___rarg___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_6 = lean_ctor_get(x_1, 1);
 lean_inc(x_6);
-x_7 = lean_unsigned_to_nat(0u);
-lean_inc(x_2);
-x_8 = l_Array_umapMAux___main___at_PersistentArray_mapM___spec__1___rarg(x_2, lean_box(0), x_3, x_7, x_6);
-x_9 = lean_alloc_closure((void*)(l_PersistentArray_mapM___rarg___lambda__1___boxed), 4, 3);
-lean_closure_set(x_9, 0, x_2);
-lean_closure_set(x_9, 1, x_1);
-lean_closure_set(x_9, 2, x_5);
-x_10 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_8, x_9);
-return x_10;
+x_7 = lean_alloc_closure((void*)(l_PersistentArray_mapM___rarg___lambda__1___boxed), 3, 1);
+lean_closure_set(x_7, 0, x_2);
+x_8 = lean_unsigned_to_nat(0u);
+lean_inc(x_3);
+x_9 = l_Array_umapMAux___main___rarg(x_3, lean_box(0), x_7, x_8, x_6);
+x_10 = lean_alloc_closure((void*)(l_PersistentArray_mapM___rarg___lambda__2___boxed), 4, 3);
+lean_closure_set(x_10, 0, x_3);
+lean_closure_set(x_10, 1, x_1);
+lean_closure_set(x_10, 2, x_5);
+x_11 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_9, x_10);
+return x_11;
 }
 }
 lean_object* l_PersistentArray_mapM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -7171,10 +7061,10 @@ lean_inc(x_3);
 lean_inc(x_1);
 x_7 = l_PersistentArray_mapMAux___main___rarg(x_1, lean_box(0), x_3, x_6);
 lean_inc(x_5);
-x_8 = lean_alloc_closure((void*)(l_PersistentArray_mapM___rarg___lambda__2), 5, 4);
+x_8 = lean_alloc_closure((void*)(l_PersistentArray_mapM___rarg___lambda__3), 5, 4);
 lean_closure_set(x_8, 0, x_4);
-lean_closure_set(x_8, 1, x_1);
-lean_closure_set(x_8, 2, x_3);
+lean_closure_set(x_8, 1, x_3);
+lean_closure_set(x_8, 2, x_1);
 lean_closure_set(x_8, 3, x_5);
 x_9 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_7, x_8);
 return x_9;
@@ -7188,29 +7078,20 @@ x_3 = lean_alloc_closure((void*)(l_PersistentArray_mapM___rarg), 4, 0);
 return x_3;
 }
 }
-lean_object* l_Array_umapMAux___main___at_PersistentArray_mapM___spec__1___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+lean_object* l_PersistentArray_mapM___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_7; 
-x_7 = l_Array_umapMAux___main___at_PersistentArray_mapM___spec__1___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_1);
-return x_7;
-}
-}
-lean_object* l_Array_umapMAux___main___at_PersistentArray_mapM___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Array_umapMAux___main___at_PersistentArray_mapM___spec__1(x_1, x_2);
+lean_object* x_4; 
+x_4 = l_PersistentArray_mapM___rarg___lambda__1(x_1, x_2, x_3);
 lean_dec(x_2);
-return x_3;
+return x_4;
 }
 }
-lean_object* l_PersistentArray_mapM___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_PersistentArray_mapM___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_PersistentArray_mapM___rarg___lambda__1(x_1, x_2, x_3, x_4);
+x_5 = l_PersistentArray_mapM___rarg___lambda__2(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 return x_5;
 }

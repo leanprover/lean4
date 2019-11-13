@@ -23,6 +23,7 @@ public:
     };
 private:
     bool               m_persistent;
+    list<new_entry>    m_before_elab_entries;
     list<new_entry>    m_after_tc_entries;
     list<new_entry>    m_after_comp_entries;
     void parse_core(parser & p, bool compact);
@@ -38,6 +39,7 @@ public:
     /* Parse attributes after `@[` ... ] */
     void parse_compact(parser & p);
     void set_attribute(environment const & env, name const & attr_name);
+    environment apply_before_elab(environment env, io_state const & ios, name const & d) const;
     environment apply_after_tc(environment env, io_state const & ios, name const & d) const;
     environment apply_after_comp(environment env, name const & d) const;
     environment apply_all(environment env, io_state const & ios, name const & d) const;

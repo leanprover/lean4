@@ -10,7 +10,7 @@ import Init.Lean.Syntax
 namespace Lean
 
 inductive AttributeApplicationTime
-| afterTypeChecking | afterCompilation
+| afterTypeChecking | afterCompilation | beforeElaboration
 
 structure AttributeImpl :=
 (name : Name)

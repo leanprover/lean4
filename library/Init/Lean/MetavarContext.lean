@@ -727,5 +727,28 @@ mkBinding true xs e
 @[inline] def mkForall (xs : Array Expr) (e : Expr) : MkBindingM Expr :=
 mkBinding false xs e
 
+/--
+  `isWellFormed mctx lctx e` return true if
+  - All locals in `e` are declared in `lctx`
+  - All metavariables `?m` in `e` have a local context which is a subprefix of `lctx` or are assigned, and the assignment is well-formed. -/
+partial def isWellFormed (mctx : MetavarContext) (lctx : LocalContext) : Expr → Bool
+| Expr.mdata _ e           => isWellFormed e
+| Expr.proj _ _ e          => isWellFormed e
+| e@(Expr.app f a)         => (e.hasExprMVar || e.hasFVar) && isWellFormed f && isWellFormed a
+| e@(Expr.lam _ _ d b)     => (e.hasExprMVar || e.hasFVar) && isWellFormed d && isWellFormed b
+| e@(Expr.forallE _ _ d b) => (e.hasExprMVar || e.hasFVar) && isWellFormed d && isWellFormed b
+| e@(Expr.letE _ t v b)    => (e.hasExprMVar || e.hasFVar) && isWellFormed t && isWellFormed v && isWellFormed b
+| Expr.const _ _           => true
+| Expr.bvar _              => true
+| Expr.sort _              => true
+| Expr.lit _               => true
+| Expr.mvar mvarId         =>
+  let mvarDecl := mctx.getDecl mvarId;
+  if mvarDecl.lctx.isSubPrefixOf lctx then true
+  else match mctx.getExprAssignment mvarId with
+    | none   => false
+    | some v => isWellFormed v
+| Expr.fvar fvarId         => lctx.contains fvarId
+
 end MetavarContext
 end Lean

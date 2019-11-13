@@ -283,7 +283,7 @@ do env ← getEnv;
      | some _ => pure LOption.undef
      | none   => pure LOption.none
 
-private partial def isClassQuick : Expr → MetaM (LOption Name)
+partial def isClassQuick : Expr → MetaM (LOption Name)
 | Expr.bvar _          => pure LOption.none
 | Expr.lit _           => pure LOption.none
 | Expr.fvar _          => pure LOption.none
@@ -306,8 +306,19 @@ private partial def isClassQuick : Expr → MetaM (LOption Name)
   | _                => pure LOption.none
 
 /-- Reset type class cache, execute `x`, and restore cache -/
-@[inline] private def resettingTypeClassCache {α} (x : MetaM α) : MetaM α :=
+@[inline] def resettingTypeClassCache {α} (x : MetaM α) : MetaM α :=
 x -- TODO
+
+/-- Add entry `{ className := className, fvar := fvar }` to localInstances,
+    and then execute continuation `k`.
+    It resets the type class cache using `resettingTypeClassCache`. -/
+@[inline] def withNewLocalInstance {α} (className : Name) (fvar : Expr) (k : MetaM α) : MetaM α :=
+resettingTypeClassCache $
+  adaptReader
+    (fun (ctx : Context) => {
+      localInstances := ctx.localInstances.push { className := className, fvar := fvar },
+      .. ctx })
+    k
 
 /--
   `withNewLocalInstances isClassExpensive fvars j k` updates the vector or local instances
@@ -317,7 +328,7 @@ x -- TODO
   - The type class chache is reset whenever a new local instance is found.
   - `isClassExpensive` uses `whnf` which depends (indirectly) on the set of local instances.
     Thus, each new local instance requires a new `resettingTypeClassCache`. -/
-@[specialize] private partial def withNewLocalInstances {α}
+@[specialize] partial def withNewLocalInstances {α}
     (isClassExpensive : Expr → MetaM (Option Name))
     (fvars : Array Expr) : Nat → MetaM α → MetaM α
 | i, k =>
@@ -325,21 +336,14 @@ x -- TODO
     let fvar := fvars.get ⟨i, h⟩;
     decl ← getLocalDecl fvar.fvarId!;
     c?   ← isClassQuick decl.type;
-    let addLocalInstance (className : Name) : MetaM α :=
-      resettingTypeClassCache $
-        adaptReader
-          (fun (ctx : Context) => {
-            localInstances := ctx.localInstances.push { className := className, fvar := fvar },
-            .. ctx })
-          (withNewLocalInstances (i+1) k);
     match c? with
     | LOption.none   => withNewLocalInstances (i+1) k
     | LOption.undef  => do
       c? ← isClassExpensive decl.type;
       match c? with
       | none   => withNewLocalInstances (i+1) k
-      | some c => addLocalInstance c
-    | LOption.some c => addLocalInstance c
+      | some c => withNewLocalInstance c fvar $ withNewLocalInstances (i+1) k
+    | LOption.some c => withNewLocalInstance c fvar $ withNewLocalInstances (i+1) k
   else
     k
 
@@ -417,7 +421,7 @@ do newType ← whnf type;
    else
      k #[] type
 
-@[specialize] private partial def isClassExpensive
+@[specialize] partial def isClassExpensive
     (whnf : Expr → MetaM Expr)
     : Expr → MetaM (Option Name)
 | type => usingTransparency TransparencyMode.reducible $ -- when testing whether a type is a type class, we only unfold reducible constants.

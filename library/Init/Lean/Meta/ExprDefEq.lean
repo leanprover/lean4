@@ -137,5 +137,67 @@ if h : args₁.size = args₂.size then do
 else
   pure false
 
+/--
+  Check whether the types of the free variables at `fvars` are
+  definitionally equal to the types at `ds₂`.
+
+  Pre: `fvars.size == ds₂.size`
+
+  This method also updates the set of local instances, and invokes
+  the continuation `k` with the updated set.
+
+  We can't use `withNewLocalInstances` because the `isDeq fvarType d₂`
+  may use local instances. -/
+@[specialize] partial def isDefEqBindingDomain
+    (whnf    : Expr → MetaM Expr)
+    (isDefEq : Expr → Expr → MetaM Bool)
+    (fvars : Array Expr) (ds₂ : Array Expr) : Nat → MetaM Bool → MetaM Bool
+| i, k =>
+  if h : i < fvars.size then do
+    let fvar := fvars.get ⟨i, h⟩;
+    fvarDecl ← getLocalDecl fvar.fvarId!;
+    let fvarType := fvarDecl.type;
+    let d₂       := ds₂.get! i;
+    condM (isDefEq fvarType d₂)
+      (do c? ← isClass whnf fvarType;
+          match c? with
+          | some className => withNewLocalInstance className fvar $ isDefEqBindingDomain (i+1) k
+          | none           => isDefEqBindingDomain (i+1) k)
+      (pure false)
+  else
+    k
+
+/- Auxiliary function for `isDefEqBinding` for handling binders `forall/fun`.
+   It accumulates the new free variables in `fvars`, and declare them at `lctx`.
+   We use the domain types of `e₁` to create the new free variables.
+   We store the domain types of `e₂` at `ds₂`. -/
+@[specialize] private partial def isDefEqBindingAux
+  (whnf    : Expr → MetaM Expr)
+  (isDefEq : Expr → Expr → MetaM Bool)
+  : LocalContext → Array Expr → Expr → Expr → Array Expr → MetaM Bool
+| lctx, fvars, e₁, e₂, ds₂ =>
+  let process (n : Name) (d₁ d₂ b₁ b₂ : Expr) : MetaM Bool := do {
+    let d₁    := d₁.instantiateRev fvars;
+    let d₂    := d₂.instantiateRev fvars;
+    fvarId    ← mkFreshId;
+    let lctx  := lctx.mkLocalDecl fvarId n d₁;
+    let fvars := fvars.push (Expr.fvar fvarId);
+    isDefEqBindingAux lctx fvars b₁ b₂ (ds₂.push d₂)
+  };
+  match e₁, e₂ with
+  | Expr.forallE n _ d₁ b₁, Expr.forallE _ _ d₂ b₂ => process n d₁ d₂ b₁ b₂
+  | Expr.lam     n _ d₁ b₁, Expr.lam     _ _ d₂ b₂ => process n d₁ d₂ b₁ b₂
+  | _,                      _                      =>
+    adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
+      isDefEqBindingDomain whnf isDefEq fvars ds₂ 0 $
+        isDefEq (e₁.instantiateRev fvars) (e₂.instantiateRev fvars)
+
+@[inline] private def isDefEqBinding
+  (whnf    : Expr → MetaM Expr)
+  (isDefEq : Expr → Expr → MetaM Bool)
+  (a b : Expr) : MetaM Bool :=
+do lctx ← getLCtx;
+   isDefEqBindingAux whnf isDefEq lctx #[] a b #[]
+
 end Meta
 end Lean

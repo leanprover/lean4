@@ -28,6 +28,7 @@ depends: $(DEPS)
 	@deps=`$(LEAN) --deps $< | python relative.py`; echo $(<:.lean=.olean): $$deps > $@
 
 %.olean: %.lean %.depend
+	@echo -e "[    ] \033[0;32mBuilding $<\033[0m"
 	@mkdir -p $(STAGE1_DIR)/$(@D)
 	$(LEAN) $(OPTS) --make --c="$(STAGE1_DIR)/$*.c.tmp" $<
 # create the .c file atomically
@@ -44,6 +45,7 @@ $(STAGE1_DIR)/%.c: %.olean
 	@
 
 $(STAGE1_OUT)/%.o: $(STAGE1_DIR)/%.c
+	@echo -e "[    ] \033[0;32mBuilding $<\033[0m"
 	@mkdir -p "$(@D)"
 	../bin/leanc -c -o $@ $< $(LEANC_OPTS)
 

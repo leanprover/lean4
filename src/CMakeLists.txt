@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.10)
 if ((${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.1) OR (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} EQUAL 3.1))
   cmake_policy(SET CMP0054 NEW)
 endif()
+if(NOT (${CMAKE_GENERATOR} MATCHES "Unix Makefiles"))
+  message(FATAL_ERROR "The only supported CMake generator at the moment is 'Unix Makefiles'")
+endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
@@ -519,7 +522,7 @@ if(NOT STAGE0)
       -DCHECK_OLEAN_VERSION=${CHECK_OLEAN_VERSION}
       "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
       "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
-    BUILD_COMMAND "${CMAKE_COMMAND}" --build . -t lean  # build executable only
+    BUILD_COMMAND $(MAKE) lean  # build executable only
     BUILD_ALWAYS ON  # cmake doesn't auto-detect changes without a download method
     INSTALL_COMMAND ""  # skip install
   )

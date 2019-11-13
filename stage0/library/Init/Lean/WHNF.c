@@ -58,7 +58,6 @@ lean_object* l_Lean_isQuotRecStuck___at_Lean_whnfMain___main___spec__37___rarg(l
 lean_object* l_Lean_whnfEasyCases___main___boxed(lean_object*);
 lean_object* l_Lean_reduceQuotRec___at_Lean_whnfCore___main___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_whnfMain___main(lean_object*);
-lean_object* l_Lean_unfoldDefinition___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_whnfEasyCases___main___at_Lean_whnfCore___main___spec__12___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__2___boxed(lean_object*);
@@ -89,6 +88,8 @@ lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_whnfMai
 lean_object* l_panicWithPos___at_Lean_whnfCore___main___spec__3___boxed(lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfCore___main___spec__10___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__2(lean_object*);
+lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinitionAux___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_unfoldDefinitionAux___at_Lean_whnfMain___main___spec__16___boxed(lean_object*);
 lean_object* l_Lean_reduceQuotRec___at_Lean_whnfMain___main___spec__27___rarg___lambda__1___boxed(lean_object**);
 lean_object* l___private_Init_Lean_WHNF_1__getFirstCtor(lean_object*);
 lean_object* l_Lean_whnfEasyCases___main___at_Lean_whnfMain___main___spec__34___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -112,10 +113,10 @@ lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__35___rarg___boxed(
 lean_object* l___private_Init_Lean_WHNF_2__mkNullaryCtor___boxed(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_whnfMain___main___spec__44___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_5__toCtorWhenK___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_unfoldDefinitionAux___at_Lean_whnfMain___main___spec__16___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_whnfCore___main___spec__5___boxed(lean_object*);
 lean_object* l_Lean_whnfCore(lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
-lean_object* l_Lean_unfoldDefinition___at_Lean_whnfMain___main___spec__16___boxed(lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfCore___main___spec__8___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_whnfEasyCases___main___at_Lean_whnfMain___main___spec__14___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_whnfMain___main___spec__42___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -124,9 +125,11 @@ lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_4__getRecRuleFor___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_whnfCore___main___at_Lean_whnfMain___main___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_5__toCtorWhenK___at_Lean_whnfMain___main___spec__29___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_unfoldDefinitionAux___at_Lean_whnfMain___main___spec__16___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_6__isIdRhsApp___closed__1;
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__35___boxed(lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__25___boxed(lean_object*);
+lean_object* l_Lean_unfoldDefinitionAux___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isRecStuck___at_Lean_getStuckMVar___main___spec__2___boxed(lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfCore___main___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_3__toCtorIfLit___closed__5;
@@ -135,6 +138,7 @@ lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__12___boxed(lean_ob
 lean_object* l_Lean_whnfEasyCases___main___at_Lean_whnfMain___main___spec__34___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__33___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_reduceQuotRec___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_unfoldDefinitionAux(lean_object*, lean_object*);
 uint8_t l___private_Init_Lean_WHNF_6__isIdRhsApp(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_4__getRecRuleFor(lean_object*, lean_object*);
 lean_object* l_Lean_whnfEasyCases___main___at_Lean_whnfMain___main___spec__34___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -147,7 +151,6 @@ lean_object* l_panicWithPos___at_Lean_whnfCore___main___spec__10(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_5__toCtorWhenK___at_Lean_whnfMain___main___spec__9(lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isRecStuck___at_Lean_getStuckMVar___main___spec__2(lean_object*);
-lean_object* l_Lean_unfoldDefinition___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_whnfEasyCases___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_5__toCtorWhenK___at_Lean_whnfMain___main___spec__9___boxed(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_10__whnfCoreUnstuck___main___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
@@ -169,6 +172,7 @@ lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_whnfMain___main___spec__18___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfCore___main___spec__8(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_7__extractIdRhs(lean_object*);
+lean_object* l_Lean_unfoldDefinitionAux___boxed(lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfCore___main___spec__13___boxed(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_whnfMain___main___spec__42(lean_object*);
 lean_object* l_Lean_whnfEasyCases___main___at_Lean_whnfMain___main___spec__14___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
@@ -177,6 +181,7 @@ lean_object* l_Lean_reduceRec___at_Lean_whnfCore___main___spec__7___rarg(lean_ob
 lean_object* l_Lean_isQuotRecStuck___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
 lean_object* l_Lean_matchConstAux(lean_object*, lean_object*);
+lean_object* l_Lean_unfoldDefinitionAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_whnfCore___boxed(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_3__toCtorIfLit___closed__1;
 lean_object* l_Lean_reduceQuotRec___at_Lean_whnfMain___main___spec__27___boxed(lean_object*);
@@ -209,7 +214,6 @@ lean_object* l_Lean_whnfEasyCases___main___at_Lean_whnfCore___main___spec__12___
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__11___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__10(lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__23___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinition___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_reduceRec___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_whnfMain___main___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__12___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -227,7 +231,6 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_whnfEasyCases___main___at_Lean_whnfCore___main___spec__12___boxed(lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfCore___main___spec__9___boxed(lean_object*);
 lean_object* l_Lean_isQuotRecStuck___boxed(lean_object*);
-lean_object* l_Lean_unfoldDefinition___at_Lean_whnfMain___main___spec__16___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_whnfMain___main___spec__43___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__13___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__35(lean_object*);
@@ -240,11 +243,11 @@ lean_object* l_Lean_reduceRec___rarg___lambda__3(lean_object*, lean_object*, lea
 lean_object* l_panicWithPos___at_Lean_whnfCore___main___spec__9(lean_object*);
 lean_object* l_Lean_whnfMain___boxed(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_3__toCtorIfLit___closed__4;
-lean_object* l_Lean_unfoldDefinition___at_Lean_whnfMain___main___spec__16___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_10__whnfCoreUnstuck___main___at_Lean_whnfMain___main___spec__20___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getStuckMVar___main___at_Lean_whnfMain___main___spec__36___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfCore___main___spec__1___boxed(lean_object*);
+lean_object* l_Lean_unfoldDefinitionAux___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_whnfEasyCases___main___at_Lean_whnfMain___main___spec__34___boxed(lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__25___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__24___boxed(lean_object*);
@@ -259,6 +262,7 @@ lean_object* l___private_Init_Lean_WHNF_2__mkNullaryCtor___rarg___lambda__1(lean
 lean_object* l___private_Init_Lean_Expr_2__getAppArgsAux___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_reduceRec___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinitionAux___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_10__whnfCoreUnstuck___main___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__33(lean_object*);
 lean_object* l_Lean_RecursorVal_getInduct(lean_object*);
@@ -271,6 +275,7 @@ lean_object* l_Lean_getStuckMVar___main___rarg(lean_object*, lean_object*, lean_
 extern lean_object* l_panicWithPos___rarg___closed__1;
 extern lean_object* l_unreachable_x21___rarg___closed__2;
 lean_object* l_Lean_reduceRec___at_Lean_whnfCore___main___spec__7(lean_object*);
+lean_object* l_Lean_unfoldDefinitionAux___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_5__toCtorWhenK___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__31___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isRecStuck(lean_object*);
@@ -294,11 +299,9 @@ lean_object* l_Lean_RecursorVal_getMajorIdx(lean_object*);
 lean_object* l_Lean_reduceQuotRec___at_Lean_whnfMain___main___spec__7___rarg___lambda__2___boxed(lean_object**);
 lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_whnfMain___main___spec__43(lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfCore___main___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_unfoldDefinition___at_Lean_whnfMain___main___spec__16(lean_object*);
 lean_object* l_Lean_whnfEasyCases___main___at_Lean_whnfMain___main___spec__14___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_reduceQuotRec___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_reduceQuotRec___at_Lean_whnfMain___main___spec__7___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_unfoldDefinition___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__24___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_4__getRecRuleFor___lambda__1___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_inhabited;
@@ -310,9 +313,7 @@ lean_object* l_Lean_getStuckMVar___main___boxed(lean_object*);
 lean_object* l_Lean_isRecStuck___at_Lean_whnfMain___main___spec__38___boxed(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_3__toCtorIfLit___closed__2;
 lean_object* l_Lean_isQuotRecStuck(lean_object*);
-lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinition___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_reduceRec___at_Lean_whnfMain___main___spec__28___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_unfoldDefinition___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_whnfMain___main___spec__6(lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfCore___main___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_whnfEasyCases___main___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -335,8 +336,10 @@ lean_object* l___private_Init_Lean_WHNF_2__mkNullaryCtor___rarg___lambda__1___bo
 lean_object* l_Array_shrink___main___rarg(lean_object*, lean_object*);
 lean_object* l_panic(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_whnfMain(lean_object*);
+lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinitionAux___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_reduceQuotRec___at_Lean_whnfCore___main___spec__6___rarg___lambda__1___boxed(lean_object**);
 lean_object* l_Lean_whnfEasyCases___main___at_Lean_whnfCore___main___spec__12___rarg___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_unfoldDefinitionAux___at_Lean_whnfMain___main___spec__16___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_8__deltaDefinition___at_Lean_whnfMain___main___spec__17___boxed(lean_object*);
 lean_object* l_Lean_whnfEasyCases___boxed(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_whnfMain___main___spec__18___boxed(lean_object*);
@@ -362,11 +365,11 @@ lean_object* l_Lean_whnfCore___main___at_Lean_whnfMain___main___spec__21(lean_ob
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_LocalDecl_valueOpt(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_whnfMain___main___spec__19(lean_object*);
+lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinitionAux___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_10__whnfCoreUnstuck___main(lean_object*);
 lean_object* l_Lean_isQuotRecStuck___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__12___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__22___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_unfoldDefinition(lean_object*, lean_object*);
 lean_object* l_Lean_isRecStuck___at_Lean_whnfMain___main___spec__38___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_whnfEasyCases___main___at_Lean_whnfCore___main___spec__12___rarg___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -380,7 +383,6 @@ uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_whnfMain___main___spec__41___boxed(lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__12(lean_object*);
-lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinition___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getRevArgD___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isRecStuck___boxed(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_whnfMain___main___spec__26___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -400,19 +402,19 @@ lean_object* l___private_Init_Lean_WHNF_6__isIdRhsApp___boxed(lean_object*);
 lean_object* l_List_find___main___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_whnfMain___main___spec__39(lean_object*);
 lean_object* l_Lean_reduceQuotRec___at_Lean_whnfMain___main___spec__7___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_unfoldDefinition___at_Lean_whnfMain___main___spec__16___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_reduceRec___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_whnfEasyCases___main___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateFn___main(lean_object*, lean_object*);
 lean_object* l_Lean_whnfEasyCases___main___at_Lean_whnfMain___main___spec__14___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_unfoldDefinition___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_whnfCore___main___boxed(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_whnfMain___main___spec__44(lean_object*);
 extern lean_object* l_panicWithPos___rarg___closed__2;
 lean_object* l_Lean_reduceRec___at_Lean_whnfCore___main___spec__7___boxed(lean_object*);
 lean_object* l_Lean_whnfEasyCases___main___at_Lean_whnfCore___main___spec__12___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_whnfEasyCases___main___at_Lean_whnfMain___main___spec__14___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_unfoldDefinitionAux___at_Lean_whnfMain___main___spec__16(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_whnfMain___main___spec__44___boxed(lean_object*);
+lean_object* l_Lean_unfoldDefinitionAux___at_Lean_whnfMain___main___spec__16___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_has_expr_mvar(lean_object*);
 lean_object* l_Lean_isQuotRecStuck___at_Lean_getStuckMVar___main___spec__1___boxed(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_1__getFirstCtor___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -442,7 +444,6 @@ lean_object* l_Lean_isQuotRecStuck___at_Lean_whnfMain___main___spec__37(lean_obj
 lean_object* l_Lean_isRecStuck___at_Lean_whnfMain___main___spec__38___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfCore___main___spec__1(lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfCore___main___spec__8___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinition___spec__1(lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__5(lean_object*);
 lean_object* l_Lean_whnfEasyCases___main___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_reduceRec___at_Lean_whnfMain___main___spec__8___rarg___lambda__1___boxed(lean_object**);
@@ -451,7 +452,6 @@ lean_object* l_Lean_matchConstAux___rarg___lambda__1(lean_object*, lean_object*,
 lean_object* l_Lean_reduceQuotRec___at_Lean_whnfMain___main___spec__7___rarg___lambda__1___boxed(lean_object**);
 lean_object* l_panicWithPos___at_Lean_whnfMain___main___spec__25___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___at_Lean_whnfCore___main___spec__10___boxed(lean_object*);
-lean_object* l_Lean_unfoldDefinition___at_Lean_whnfMain___main___spec__16___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_reduceQuotRec___at_Lean_whnfCore___main___spec__6___rarg___lambda__2___boxed(lean_object**);
 lean_object* l_Lean_reduceQuotRec___at_Lean_whnfMain___main___spec__27___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_reduceRec___boxed(lean_object*, lean_object*);
@@ -5656,7 +5656,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinition___spec__1___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinitionAux___spec__1___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -5680,7 +5680,7 @@ return x_8;
 }
 }
 }
-lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinition___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15) {
+lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinitionAux___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15) {
 _start:
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
@@ -5721,7 +5721,7 @@ x_24 = l_Lean_Expr_betaRev(x_23, x_15);
 lean_dec(x_23);
 x_25 = l___private_Init_Lean_WHNF_7__extractIdRhs(x_24);
 x_26 = l___private_Init_Lean_WHNF_10__whnfCoreUnstuck___main___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_25);
-x_27 = lean_alloc_closure((void*)(l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinition___spec__1___rarg___lambda__1), 3, 2);
+x_27 = lean_alloc_closure((void*)(l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinitionAux___spec__1___rarg___lambda__1), 3, 2);
 lean_closure_set(x_27, 0, x_10);
 lean_closure_set(x_27, 1, x_11);
 x_28 = lean_apply_4(x_12, lean_box(0), lean_box(0), x_26, x_27);
@@ -5729,15 +5729,15 @@ return x_28;
 }
 }
 }
-lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinition___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinitionAux___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinition___spec__1___rarg), 15, 0);
+x_3 = lean_alloc_closure((void*)(l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinitionAux___spec__1___rarg), 15, 0);
 return x_3;
 }
 }
-lean_object* l_Lean_unfoldDefinition___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_unfoldDefinitionAux___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 if (lean_obj_tag(x_4) == 0)
@@ -5774,7 +5774,7 @@ return x_10;
 }
 }
 }
-lean_object* l_Lean_unfoldDefinition___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15, lean_object* x_16) {
+lean_object* l_Lean_unfoldDefinitionAux___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15, lean_object* x_16) {
 _start:
 {
 if (lean_obj_tag(x_16) == 0)
@@ -5829,7 +5829,7 @@ x_27 = l_Lean_Expr_getAppNumArgsAux___main(x_3, x_26);
 x_28 = lean_mk_empty_array_with_capacity(x_27);
 lean_dec(x_27);
 x_29 = l___private_Init_Lean_Expr_3__getAppRevArgsAux___main(x_3, x_28);
-x_30 = l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinition___spec__1___rarg(x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_2, x_5, x_15, x_25, x_4, x_29);
+x_30 = l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinitionAux___spec__1___rarg(x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_2, x_5, x_15, x_25, x_4, x_29);
 return x_30;
 }
 else
@@ -5873,7 +5873,7 @@ return x_38;
 }
 }
 }
-lean_object* l_Lean_unfoldDefinition___rarg___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15) {
+lean_object* l_Lean_unfoldDefinitionAux___rarg___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15) {
 _start:
 {
 if (lean_obj_tag(x_15) == 0)
@@ -5940,7 +5940,7 @@ x_28 = lean_name_mk_string(x_26, x_27);
 lean_inc(x_3);
 x_29 = lean_apply_1(x_3, x_28);
 lean_inc(x_14);
-x_30 = lean_alloc_closure((void*)(l_Lean_unfoldDefinition___rarg___lambda__2), 16, 15);
+x_30 = lean_alloc_closure((void*)(l_Lean_unfoldDefinitionAux___rarg___lambda__2), 16, 15);
 lean_closure_set(x_30, 0, x_18);
 lean_closure_set(x_30, 1, x_1);
 lean_closure_set(x_30, 2, x_4);
@@ -5962,7 +5962,7 @@ return x_31;
 }
 }
 }
-lean_object* l_Lean_unfoldDefinition___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
+lean_object* l_Lean_unfoldDefinitionAux___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
 switch (lean_obj_tag(x_10)) {
@@ -5985,7 +5985,7 @@ x_15 = lean_ctor_get(x_1, 1);
 lean_inc(x_15);
 lean_dec(x_1);
 x_16 = lean_apply_1(x_2, x_13);
-x_17 = lean_alloc_closure((void*)(l_Lean_unfoldDefinition___rarg___lambda__1), 4, 3);
+x_17 = lean_alloc_closure((void*)(l_Lean_unfoldDefinitionAux___rarg___lambda__1), 4, 3);
 lean_closure_set(x_17, 0, x_11);
 lean_closure_set(x_17, 1, x_14);
 lean_closure_set(x_17, 2, x_12);
@@ -6012,7 +6012,7 @@ lean_inc(x_23);
 lean_inc(x_2);
 x_24 = lean_apply_1(x_2, x_21);
 lean_inc(x_23);
-x_25 = lean_alloc_closure((void*)(l_Lean_unfoldDefinition___rarg___lambda__3), 15, 14);
+x_25 = lean_alloc_closure((void*)(l_Lean_unfoldDefinitionAux___rarg___lambda__3), 15, 14);
 lean_closure_set(x_25, 0, x_11);
 lean_closure_set(x_25, 1, x_22);
 lean_closure_set(x_25, 2, x_2);
@@ -6071,28 +6071,28 @@ return x_30;
 }
 }
 }
-lean_object* l_Lean_unfoldDefinition(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_unfoldDefinitionAux(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_unfoldDefinition___rarg), 12, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_unfoldDefinitionAux___rarg), 12, 0);
 return x_3;
 }
 }
-lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinition___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinitionAux___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinition___spec__1(x_1, x_2);
+x_3 = l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at_Lean_unfoldDefinitionAux___spec__1(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l_Lean_unfoldDefinition___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_unfoldDefinitionAux___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_unfoldDefinition(x_1, x_2);
+x_3 = l_Lean_unfoldDefinitionAux(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -11127,7 +11127,7 @@ x_2 = lean_alloc_closure((void*)(l___private_Init_Lean_WHNF_9__deltaBetaDefiniti
 return x_2;
 }
 }
-lean_object* l_Lean_unfoldDefinition___at_Lean_whnfMain___main___spec__16___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
+lean_object* l_Lean_unfoldDefinitionAux___at_Lean_whnfMain___main___spec__16___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
 if (lean_obj_tag(x_11) == 0)
@@ -11186,7 +11186,7 @@ return x_19;
 }
 }
 }
-lean_object* l_Lean_unfoldDefinition___at_Lean_whnfMain___main___spec__16___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14) {
+lean_object* l_Lean_unfoldDefinitionAux___at_Lean_whnfMain___main___spec__16___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14) {
 _start:
 {
 if (lean_obj_tag(x_14) == 0)
@@ -11531,7 +11531,7 @@ return x_92;
 }
 }
 }
-lean_object* l_Lean_unfoldDefinition___at_Lean_whnfMain___main___spec__16___rarg___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
+lean_object* l_Lean_unfoldDefinitionAux___at_Lean_whnfMain___main___spec__16___rarg___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
 _start:
 {
 if (lean_obj_tag(x_13) == 0)
@@ -11602,7 +11602,7 @@ x_28 = lean_name_mk_string(x_26, x_27);
 lean_inc(x_4);
 x_29 = lean_apply_1(x_4, x_28);
 lean_inc(x_12);
-x_30 = lean_alloc_closure((void*)(l_Lean_unfoldDefinition___at_Lean_whnfMain___main___spec__16___rarg___lambda__2), 14, 13);
+x_30 = lean_alloc_closure((void*)(l_Lean_unfoldDefinitionAux___at_Lean_whnfMain___main___spec__16___rarg___lambda__2), 14, 13);
 lean_closure_set(x_30, 0, x_17);
 lean_closure_set(x_30, 1, x_1);
 lean_closure_set(x_30, 2, x_2);
@@ -11622,7 +11622,7 @@ return x_31;
 }
 }
 }
-lean_object* l_Lean_unfoldDefinition___at_Lean_whnfMain___main___spec__16___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+lean_object* l_Lean_unfoldDefinitionAux___at_Lean_whnfMain___main___spec__16___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
 switch (lean_obj_tag(x_10)) {
@@ -11638,7 +11638,7 @@ x_13 = lean_ctor_get(x_1, 1);
 lean_inc(x_13);
 lean_inc(x_2);
 x_14 = lean_apply_1(x_2, x_11);
-x_15 = lean_alloc_closure((void*)(l_Lean_unfoldDefinition___at_Lean_whnfMain___main___spec__16___rarg___lambda__1), 11, 10);
+x_15 = lean_alloc_closure((void*)(l_Lean_unfoldDefinitionAux___at_Lean_whnfMain___main___spec__16___rarg___lambda__1), 11, 10);
 lean_closure_set(x_15, 0, x_1);
 lean_closure_set(x_15, 1, x_9);
 lean_closure_set(x_15, 2, x_2);
@@ -11672,7 +11672,7 @@ lean_inc(x_21);
 lean_inc(x_2);
 x_22 = lean_apply_1(x_2, x_19);
 lean_inc(x_21);
-x_23 = lean_alloc_closure((void*)(l_Lean_unfoldDefinition___at_Lean_whnfMain___main___spec__16___rarg___lambda__3), 13, 12);
+x_23 = lean_alloc_closure((void*)(l_Lean_unfoldDefinitionAux___at_Lean_whnfMain___main___spec__16___rarg___lambda__3), 13, 12);
 lean_closure_set(x_23, 0, x_1);
 lean_closure_set(x_23, 1, x_9);
 lean_closure_set(x_23, 2, x_20);
@@ -11733,11 +11733,11 @@ return x_30;
 }
 }
 }
-lean_object* l_Lean_unfoldDefinition___at_Lean_whnfMain___main___spec__16(lean_object* x_1) {
+lean_object* l_Lean_unfoldDefinitionAux___at_Lean_whnfMain___main___spec__16(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_unfoldDefinition___at_Lean_whnfMain___main___spec__16___rarg), 10, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_unfoldDefinitionAux___at_Lean_whnfMain___main___spec__16___rarg), 10, 0);
 return x_2;
 }
 }
@@ -11746,7 +11746,7 @@ _start:
 {
 lean_object* x_10; 
 lean_inc(x_9);
-x_10 = l_Lean_unfoldDefinition___at_Lean_whnfMain___main___spec__16___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_9);
+x_10 = l_Lean_unfoldDefinitionAux___at_Lean_whnfMain___main___spec__16___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_9);
 return x_10;
 }
 }
@@ -12733,11 +12733,11 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_unfoldDefinition___at_Lean_whnfMain___main___spec__16___boxed(lean_object* x_1) {
+lean_object* l_Lean_unfoldDefinitionAux___at_Lean_whnfMain___main___spec__16___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_unfoldDefinition___at_Lean_whnfMain___main___spec__16(x_1);
+x_2 = l_Lean_unfoldDefinitionAux___at_Lean_whnfMain___main___spec__16(x_1);
 lean_dec(x_1);
 return x_2;
 }

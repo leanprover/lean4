@@ -10,7 +10,7 @@ Author: Jared Roesch
 #include <iomanip>
 #include <utility>
 
-#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
+#if defined(LEAN_WINDOWS)
 #include <windows.h>
 #include <Fcntl.h>
 #include <io.h>
@@ -48,7 +48,7 @@ process & process::set_env(std::string const & var, optional<std::string> const 
     return *this;
 }
 
-#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
+#if defined(LEAN_WINDOWS)
 
 struct windows_child : public child {
     handle_ref m_stdin;

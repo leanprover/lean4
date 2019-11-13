@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_LocalContext_containsFVar___boxed(lean_object*, lean_object*);
 lean_object* l_PersistentArray_foldlM___at_Lean_LocalContext_foldl___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyMAux___main___at_Lean_LocalContext_allM___spec__3___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_local_ctx_get_unused_name(lean_object*, lean_object*);
@@ -156,6 +157,7 @@ lean_object* l_PersistentArray_get_x21___at___private_Init_Lean_LocalContext_1__
 lean_object* l_Lean_LocalContext_findDecl___rarg(lean_object*, lean_object*);
 lean_object* l_PersistentArray_anyM___at_Lean_LocalContext_allM___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 extern lean_object* l_Lean_Name_DecidableEq;
+uint8_t l_Lean_LocalContext_containsFVar(lean_object*, lean_object*);
 lean_object* l_Array_findMAux___main___at_Lean_LocalContext_findDecl___spec__4___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_mkLocalDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_mkLambda(lean_object*, lean_object*, lean_object*);
@@ -1846,6 +1848,27 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_LocalContext_contains(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+uint8_t l_Lean_LocalContext_containsFVar(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; uint8_t x_4; 
+x_3 = l_Lean_Expr_fvarId_x21(x_2);
+x_4 = l_Lean_LocalContext_contains(x_1, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
+lean_object* l_Lean_LocalContext_containsFVar___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Lean_LocalContext_containsFVar(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -6932,7 +6955,7 @@ if (lean_obj_tag(x_12) == 0)
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 lean_dec(x_5);
 x_13 = l_Lean_LocalDecl_value___closed__1;
-x_14 = lean_unsigned_to_nat(259u);
+x_14 = lean_unsigned_to_nat(262u);
 x_15 = lean_unsigned_to_nat(12u);
 x_16 = l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
 x_17 = l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(x_13, x_14, x_15, x_16);
@@ -7071,7 +7094,7 @@ if (lean_obj_tag(x_11) == 0)
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 lean_dec(x_4);
 x_12 = l_Lean_LocalDecl_value___closed__1;
-x_13 = lean_unsigned_to_nat(259u);
+x_13 = lean_unsigned_to_nat(262u);
 x_14 = lean_unsigned_to_nat(12u);
 x_15 = l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
 x_16 = l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(x_12, x_13, x_14, x_15);
@@ -7194,7 +7217,7 @@ if (lean_obj_tag(x_11) == 0)
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 lean_dec(x_4);
 x_12 = l_Lean_LocalDecl_value___closed__1;
-x_13 = lean_unsigned_to_nat(259u);
+x_13 = lean_unsigned_to_nat(262u);
 x_14 = lean_unsigned_to_nat(12u);
 x_15 = l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
 x_16 = l_panicWithPos___at_Lean_Expr_getRevArg_x21___main___spec__1(x_12, x_13, x_14, x_15);

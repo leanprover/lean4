@@ -1,9 +1,9 @@
 if(NOT STAGE0)
   add_executable(lean_stage0 IMPORTED)
-  set_target_properties(lean_stage0 PROPERTIES IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/stage0/shell/lean")
+  set_target_properties(lean_stage0 PROPERTIES IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/stage0/shell/lean${CMAKE_EXECUTABLE_SUFFIX}")
 
   ADD_CUSTOM_TARGET(bin_lean_stage0
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean_stage0>" "${LEAN_SOURCE_DIR}/../bin/lean_stage0"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean_stage0>" "${LEAN_SOURCE_DIR}/../bin/lean_stage0${CMAKE_EXECUTABLE_SUFFIX}"
     DEPENDS stage0
   )
 
@@ -14,7 +14,7 @@ if(NOT STAGE0)
     # '-G Ninja' complains otherwise
     BYPRODUCTS "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
-    COMMAND ${CMAKE_COMMAND} -E env "LEAN_PATH=." make -j8 "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" "LEAN=$<TARGET_FILE:lean_stage0>" "LEANC_OPTS=${LEANC_OPTS}" "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
+    COMMAND ${CMAKE_COMMAND} -E env "LEAN_PATH=." $(MAKE) "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" "LEAN=$<TARGET_FILE:lean_stage0>" "LEANC_OPTS=${LEANC_OPTS}" "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
     DEPENDS stage0)
   set_target_properties(leanstdlib PROPERTIES
     IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"

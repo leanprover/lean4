@@ -140,7 +140,6 @@ lean_object* l_List_forM___main___at_Lean_IR_EmitC_emitLns___spec__1___rarg(lean
 lean_object* l_Lean_IR_EmitC_emitInc___closed__1;
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
-extern lean_object* l___private_Init_Lean_Compiler_IR_Format_5__formatIRType___main___closed__19;
 lean_object* l_Lean_IR_EmitC_emitIsShared___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_IR_EmitC_emitCase___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitMainFn___closed__24;
@@ -276,6 +275,7 @@ lean_object* l_Lean_IR_EmitC_emitExternCall___closed__1;
 lean_object* l_Lean_IR_EmitC_emitSSet___closed__3;
 lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__11;
 extern lean_object* l_Char_HasRepr___closed__1;
+extern lean_object* l_addParenHeuristic___closed__1;
 lean_object* l_List_forM___main___at_Lean_IR_EmitC_emitFnDecls___spec__5___closed__2;
 lean_object* l_Lean_IR_EmitC_emitMainFn___closed__34;
 lean_object* l_Lean_IR_EmitC_emitMainFn___closed__4;
@@ -9867,7 +9867,7 @@ else
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; 
 lean_dec(x_7);
-x_28 = l___private_Init_Lean_Compiler_IR_Format_5__formatIRType___main___closed__19;
+x_28 = l_addParenHeuristic___closed__1;
 x_29 = lean_string_append(x_3, x_28);
 x_30 = l_IO_println___rarg___closed__1;
 x_31 = lean_string_append(x_29, x_30);
@@ -10493,7 +10493,7 @@ lean_object* l_Lean_IR_EmitC_emitFnBody___main(lean_object* x_1, lean_object* x_
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_4 = l___private_Init_Lean_Compiler_IR_Format_5__formatIRType___main___closed__19;
+x_4 = l_addParenHeuristic___closed__1;
 x_5 = lean_string_append(x_3, x_4);
 x_6 = l_IO_println___rarg___closed__1;
 x_7 = lean_string_append(x_5, x_6);

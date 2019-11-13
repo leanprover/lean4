@@ -1020,8 +1020,12 @@ pair<environment, comp_decls> specialize(environment env, comp_decls const & ds,
     comp_decls r;
     for (comp_decl const & d : ds) {
         comp_decls new_ds;
-        std::tie(env, new_ds) = specialize_core(env, d, cfg);
-        r = append(r, new_ds);
+        if (has_specialize_attribute(env, d.fst())) {
+            r = append(r, comp_decls(d));
+        } else {
+            std::tie(env, new_ds) = specialize_core(env, d, cfg);
+            r = append(r, new_ds);
+        }
     }
     return mk_pair(env, r);
 }

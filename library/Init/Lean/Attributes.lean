@@ -253,7 +253,7 @@ structure EnumAttributes (α : Type) :=
 (attrs : List AttributeImpl)
 (ext   : PersistentEnvExtension (Name × α) (NameMap α))
 
-def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDescrs : List (Name × String × α)) (validate : Environment → Name → α → Except String Unit := fun _ _ _ => Except.ok ()) : IO (EnumAttributes α) :=
+def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDescrs : List (Name × String × α)) (validate : Environment → Name → α → Except String Unit := fun _ _ _ => Except.ok ()) (applicationTime := AttributeApplicationTime.afterTypeChecking) : IO (EnumAttributes α) :=
 do ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistentEnvExtension {
      name            := extName,
      addImportedFn   := fun _ => pure {},
@@ -264,9 +264,10 @@ do ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistent
      statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
    };
    let attrs := attrDescrs.map $ fun ⟨name, descr, val⟩ => { AttributeImpl .
-     name  := name,
-     descr := descr,
-     add   := fun env decl args persistent => do
+     name            := name,
+     descr           := descr,
+     applicationTime := applicationTime,
+     add             := fun env decl args persistent => do
        unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
        unless (env.getModuleIdxFor decl).isNone $
          throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));

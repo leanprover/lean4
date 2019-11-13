@@ -30,7 +30,17 @@ def mkSpecializeAttrs : IO (EnumAttributes SpecializeAttributeKind) :=
 registerEnumAttributes `specializeAttrs
   [(`specialize, "mark definition to always be inlined", SpecializeAttributeKind.specialize),
    (`nospecialize, "mark definition to never be inlined", SpecializeAttributeKind.nospecialize) ]
-  (fun env declName _ => checkIsDefinition env declName)
+  /- TODO: fix the following hack.
+     We need to use the following hack because the equation compiler generates auxiliary
+     definitions that are compiled before we even finish the elaboration of the current command.
+     So, if the current command is a `@[specialize] def foo ...`, we must set the attribute `[specialize]`
+     before we start elaboration, otherwise when we compile the auxiliary definitions we will not be
+     able to test whether `@[specialize]` has been set or not.
+     In the new equation compiler we should pass all attributes and allow it to apply them to auxiliary definitions.
+     In the current implementation, we workaround this issue by using functions such as `hasSpecializeAttrAux`.
+   -/
+  (fun env declName _ => Except.ok ())
+  AttributeApplicationTime.beforeElaboration
 
 @[init mkSpecializeAttrs]
 constant specializeAttrs : EnumAttributes SpecializeAttributeKind := arbitrary _

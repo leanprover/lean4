@@ -291,5 +291,154 @@ else
     (pure true)
     (unfoldDefinitionAux whnf (inferTypeAux whnf) isDefEq synthesizePending v (pure false) processAssignmentFOApprox)
 
+
+/-
+  Each metavariable is declared in a particular local context.
+  We use the notation `C |- ?m : t` to denote a metavariable `?m` that
+  was declared at the local context `C` with type `t` (see `MetavarDecl`).
+  We also use `?m@C` as a shorthand for `C |- ?m : t` where `t` is the type of `?m`.
+
+  The following method process the unification constraint
+
+       ?m@C a₁ ... aₙ =?= t
+
+  We say the unification constraint is a pattern IFF
+
+    1) `a₁ ... aₙ` are pairwise distinct free variables that are ​*not*​ let-variables.
+    2) `a₁ ... aₙ` are not in `C`
+    3) `t` only contains free variables in `C` and/or `{a₁, ..., aₙ}`
+    4) For every metavariable `?m'@C'` occurring in `t`, `C'` is a subprefix of `C`
+    5) `?m` does not occur in `t`
+
+  Claim: we don't have to check free variable declarations. That is,
+  if `t` contains a reference to `x : A := v`, we don't need to check `v`.
+  Reason: The reference to `x` is a free variable, and it must be in `C` (by 1 and 3).
+  If `x` is in `C`, then any metavariable occurring in `v` must have been defined in a strict subprefix of `C`.
+  So, condition 4 and 5 are satisfied.
+
+  If the conditions above have been satisfied, then the
+  solution for the unification constrain is
+
+    ?m := fun a₁ ... aₙ => t
+
+  Now, we consider some workarounds/approximations.
+
+ A1) Suppose `t` contains a reference to `x : A := v` and `x` is not in `C` (failed condition 3)
+     (precise) solution: unfold `x` in `t`.
+
+ A2) Suppose some `aᵢ` is in `C` (failed condition 2)
+     (approximated) solution (when `config.foApprox` is set to true) :
+     ignore condition and also use
+
+        ?m := fun a₁ ... aₙ => t
+
+   Here is an example where this approximation fails:
+   Given `C` containing `a : nat`, consider the following two constraints
+         ?m@C a =?= a
+         ?m@C b =?= a
+
+   If we use the approximation in the first constraint, we get
+         ?m := fun x => x
+   when we apply this solution to the second one we get a failure.
+
+   IMPORTANT: When applying this approximation we need to make sure the
+   abstracted term `fun a₁ ... aₙ => t` is type correct. The check
+   can only be skipped in the pattern case described above. Consider
+   the following example. Given the local context
+
+      (α : Type) (a : α)
+
+   we try to solve
+
+     ?m α =?= @id α a
+
+   If we use the approximation above we obtain:
+
+     ?m := (fun α' => @id α' a)
+
+   which is a type incorrect term. `a` has type `α` but it is expected to have
+   type `α'`.
+
+   The problem occurs because the right hand side contains a free variable
+   `a` that depends on the free variable `α` being abstracted. Note that
+   this dependency cannot occur in patterns.
+
+   Here is another example in the same local context
+
+      ?m_1 α =?= id ?m_2
+
+   If we use the approximation above we obtain:
+
+      ?m_1 := (fun α' => id (?m_2' α'))
+
+   where `?m_2'` is a new metavariable, and `?m_2 := ?m_2 α`
+
+   Now, suppose we assign `?m_2'`.
+
+     ?m_2 := (fun α => @id α a)
+
+   Then, we have
+
+      ?m_1 := (fun α' => id (@id α' a))
+
+   which is again type incorrect.
+
+   We can address the issue on the first example by type checking
+   the term after abstraction. This is not a significant performance
+   bottleneck because this case doesn't happen very often in practice
+   (262 times when compiling stdlib on Jan 2018). The second example
+   is trickier, but it also occurs less frequently (8 times when compiling
+   stdlib on Jan 2018, and all occurrences were at Init/Control when
+   we define monads and auxiliary combinators for them).
+   We considered three options for the addressing the issue on the second example:
+
+    a) For each metavariable that may contain a free variable
+       that depends on a term being abstracted, we create a fresh metavariable
+       with a smaller local context. In the example above, when we perform
+       the assignment
+
+         ?m_1 := (fun α' => id (?m_2' α'))
+
+    b) If we find a metavariable with this kind of dependency, we just
+       fail and fallback to first-order unification.
+
+    c) If we find a metavariable on the term after abstraction, we just
+       fail and fallback to first-order unification.
+
+   The first two options are incomparable, each one of them can solve
+   problems where the other fails. The third one is weaker than the second,
+   but we didn't find any example in the stdlib where the second option
+   applies. The first and third options are also incomparable.
+
+   So, we decide to use the third option since it is the simplest to implement,
+   and all examples we have identified are in Init/Control.
+
+ A3) `a₁ ... aₙ` are not pairwise distinct (failed condition 1).
+   We can approximate again, but the limitations are very similar to the previous one.
+
+ A4) `t` contains a metavariable `?m'@C'` where `C'` is not a subprefix of `C`.
+   (approximated) solution: restrict the context of `?m'`
+   If `?m'` is assigned, the workaround is precise, and we just unfold `?m'`.
+
+ A5) If some `aᵢ` is not a free variable,
+     then we use first-order unification (if `config.foApprox` is set to true)
+
+       ?m a_1 ... a_i a_{i+1} ... a_{i+k} =?= f b_1 ... b_k
+
+   reduces to
+
+       ?M a_1 ... a_i =?= f
+       a_{i+1}        =?= b_1
+       ...
+       a_{i+k}        =?= b_k
+
+
+ A6) If (m =?= v) is of the form
+
+        ?m a_1 ... a_n =?= ?m b_1 ... b_k
+
+     then we use first-order unification (if `config.foApprox` is set to true)
+-/
+
 end Meta
 end Lean

@@ -124,6 +124,9 @@ instance MetaM.inhabited {α} : Inhabited (MetaM α) :=
 @[inline] def getLCtx : MetaM LocalContext :=
 do ctx ← read; pure ctx.lctx
 
+@[inline] def getConfig : MetaM Config :=
+do ctx ← read; pure ctx.config
+
 @[inline] def getMCtx : MetaM MetavarContext :=
 do s ← get; pure s.mctx
 

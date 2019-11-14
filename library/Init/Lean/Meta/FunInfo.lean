@@ -33,7 +33,7 @@ def collectDepsAux (fvars : Array Expr) : Expr → Array Nat → Array Nat
 | e@(Expr.fvar _),          deps =>
   match fvars.indexOf e with
   | none   => deps
-  | some i => if deps.any (fun j => j == i.val) then deps else deps.push i.val
+  | some i => if deps.contains i.val then deps else deps.push i.val
 | _,                        deps => deps
 
 def collectDeps (fvars : Array Expr) (e : Expr) : Array Nat :=
@@ -48,7 +48,7 @@ else
   -- update hasFwdDeps fields
   pinfo.mapIdx $ fun i info =>
     if info.hasFwdDeps then info
-    else if backDeps.any (fun b => b == i) then
+    else if backDeps.contains i then
       { hasFwdDeps := true, .. info }
     else
       info

@@ -393,7 +393,7 @@ do ctx ← read;
      match lctx.findFVar fvar with
      | some (LocalDecl.ldecl _ _ _ _ v) => visit check v
      | _ =>
-       if ctx.fvars.any (fun x => x == fvar) then pure fvar
+       if ctx.fvars.contains fvar then pure fvar
        else throw $ Exception.outOfScopeFVar fvar.fvarId!
 
 @[inline] def getMCtx : CheckAssignmentM MetavarContext :=

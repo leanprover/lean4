@@ -322,7 +322,9 @@ do lctx ← getLCtx;
    and all examples we have identified are in Init/Control.
 
  A3) `a₁ ... aₙ` are not pairwise distinct (failed condition 1).
-   We can approximate again, but the limitations are very similar to the previous one.
+   In Lean3, we would try to approximate this case using an approach similar to A2.
+   However, this approximation complicates the code, and is never used in the
+   Lean3 stdlib and mathlib.
 
  A4) `t` contains a metavariable `?m'@C'` where `C'` is not a subprefix of `C`.
    (approximated) solution: restrict the context of `?m'`

@@ -47,7 +47,7 @@ private def mkNullaryCtor {m : Type → Type} [Monad m]
 match type.getAppFn with
 | Expr.const d lvls => do
   (some ctor) ← getFirstCtor getConst d | pure none;
-  pure $ mkApp (Expr.const ctor lvls) (type.getAppArgs.shrink nparams)
+  pure $ mkAppN (Expr.const ctor lvls) (type.getAppArgs.shrink nparams)
 | _ => pure none
 
 private def toCtorIfLit : Expr → Expr

@@ -128,7 +128,7 @@ do let mvarType := ctx.eInstantiate (ctx.eInfer mvar);
 partial def introduceMVars (lctx : LocalContext) (locals : Array Expr) : Context → Expr → Expr → List Expr → Context × Expr × Expr × List Expr
 | ctx, instVal, Expr.forallE _ info domain body, mvars => do
   let ⟨mvar, ctx⟩ := (Context.eNewMeta $ lctx.mkForall locals domain).run ctx;
-  let arg := mkApp mvar locals;
+  let arg := mkAppN mvar locals;
   let instVal := Expr.app instVal arg;
   let instType := body.instantiate1 arg;
   let mvars := if info.isInstImplicit then mvar::mvars else mvars;
@@ -279,7 +279,7 @@ def collectEReplacements (env : Environment) (lctx : LocalContext) (locals : Arr
 | Expr.forallE _ _ d b, arg::args, ctx, eReplacements, fArgs =>
   if isOutParam d then
     let ⟨eMeta, ctx⟩ := (Context.eNewMeta $ lctx.mkForall locals d).run ctx;
-    let fArg : Expr  := mkApp eMeta locals;
+    let fArg : Expr  := mkAppN eMeta locals;
     collectEReplacements (b.instantiate1 fArg) args ctx (eReplacements.push (eMeta, arg)) (fArgs.push fArg)
   else
     collectEReplacements (b.instantiate1 arg) args ctx eReplacements (fArgs.push arg)
@@ -303,7 +303,7 @@ else
       | none => panic! "found constant not in the environment"
       | some cInfo => cInfo.instantiateTypeLevelParams CLevels.toList;
     let (ctx, eReplacements, fArgs) := collectEReplacements env lctx locals fType fArgs.toList ctx #[] #[]; -- TODO: avoid fArgs.toList
-    (ctx, lctx.mkForall locals $ mkApp f fArgs, uReplacements, eReplacements)
+    (ctx, lctx.mkForall locals $ mkAppN f fArgs, uReplacements, eReplacements)
 
 def synth (goalType₀ : Expr) (fuel : Nat := 100000) : TCMethod Expr :=
 do env ← get >>= λ ϕ => pure ϕ.env;

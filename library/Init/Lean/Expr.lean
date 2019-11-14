@@ -87,7 +87,22 @@ def type : Literal → Expr
 | strVal _ => Expr.const `String []
 end Literal
 
-def mkApp (f : Expr) (args : Array Expr) : Expr :=
+def mkConst (n : Name) (ls : List Level := []) : Expr :=
+Expr.const n ls
+
+def mkBVar (idx : Nat) : Expr :=
+Expr.bvar idx
+
+def mkSort (lvl : Level) : Expr :=
+Expr.sort lvl
+
+def mkFVar (fvarId : Name) : Expr :=
+Expr.fvar fvarId
+
+def mkMVar (fvarId : Name) : Expr :=
+Expr.mvar fvarId
+
+def mkAppN (f : Expr) (args : Array Expr) : Expr :=
 args.foldl Expr.app f
 
 private partial def mkAppRangeAux (n : Nat) (args : Array Expr) : Nat → Expr → Expr
@@ -96,9 +111,6 @@ private partial def mkAppRangeAux (n : Nat) (args : Array Expr) : Nat → Expr �
 /-- `mkAppRange f i j #[a_1, ..., a_i, ..., a_j, ... ]` ==> the expression `f a_i ... a_{j-1}` -/
 def mkAppRange (f : Expr) (i j : Nat) (args : Array Expr) : Expr :=
 mkAppRangeAux j args i f
-
-def mkCApp (fn : Name) (args : Array Expr) : Expr :=
-mkApp (Expr.const fn []) args
 
 def mkAppRev (fn : Expr) (revArgs : Array Expr) : Expr :=
 revArgs.foldr (fun a r => Expr.app r a) fn
@@ -364,20 +376,20 @@ instance : HasRepr Expr :=
 
 end Expr
 
-def mkConst (n : Name) (ls : List Level := []) : Expr :=
-Expr.const n ls
+def mkCAppN (n : Name) (args : Array Expr) : Expr :=
+mkAppN (mkConst n) args
 
-def mkBinApp (f a b : Expr) :=
+def mkAppB (f a b : Expr) :=
 Expr.app (Expr.app f a) b
 
-def mkBinCApp (f : Name) (a b : Expr) :=
-mkBinApp (mkConst f) a b
+def mkCAppB (n : Name) (a b : Expr) :=
+Expr.app (Expr.app (mkConst n) a) b
 
 def mkDecIsTrue (pred proof : Expr) :=
-mkBinApp (Expr.const `Decidable.isTrue []) pred proof
+mkAppB (Expr.const `Decidable.isTrue []) pred proof
 
 def mkDecIsFalse (pred proof : Expr) :=
-mkBinApp (Expr.const `Decidable.isFalse []) pred proof
+mkAppB (Expr.const `Decidable.isFalse []) pred proof
 
 abbrev ExprMap (α : Type)  := HashMap Expr α
 abbrev PersistentExprMap (α : Type) := PHashMap Expr α

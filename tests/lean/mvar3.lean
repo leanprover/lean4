@@ -10,28 +10,28 @@ match MetavarContext.mkLambda xs e lctx { mctx := mctx, ngen := ngen } with
 def check (b : Bool) : IO Unit :=
 unless b (throw "error")
 
-def f := Expr.const `f []
-def g := Expr.const `g []
-def a := Expr.const `a []
-def b := Expr.const `b []
-def c := Expr.const `c []
+def f := mkConst `f
+def g := mkConst `g
+def a := mkConst `a
+def b := mkConst `b
+def c := mkConst `c
 
-def b0 := Expr.bvar 0
-def b1 := Expr.bvar 1
-def b2 := Expr.bvar 2
+def b0 := mkBVar 0
+def b1 := mkBVar 1
+def b2 := mkBVar 2
 
 def u := Level.param `u
 
 def typeE := Expr.sort Level.one
-def natE  := Expr.const `Nat []
-def boolE := Expr.const `Bool []
-def vecE  := Expr.const `Vec [Level.zero]
+def natE  := mkConst `Nat
+def boolE := mkConst `Bool
+def vecE  := mkConst `Vec [Level.zero]
 
-def α := Expr.fvar `α
-def x := Expr.fvar `x
-def y := Expr.fvar `y
-def z := Expr.fvar `z
-def w := Expr.fvar `w
+def α := mkFVar `α
+def x := mkFVar `x
+def y := mkFVar `y
+def z := mkFVar `z
+def w := mkFVar `w
 
 def m1 := Expr.mvar `m1
 def m2 := Expr.mvar `m2
@@ -52,7 +52,7 @@ def mctx4  := mctx3.addExprMVarDecl `m3 `m3 lctx3 natE
 def mctx4' := mctx3.addExprMVarDecl `m3 `m3 lctx3 natE true
 
 def R1 :=
-match mkLambda mctx4 {namePrefix := `n} lctx4 #[α, x, y] $ mkApp f #[m3, x] with
+match mkLambda mctx4 {namePrefix := `n} lctx4 #[α, x, y] $ mkAppN f #[m3, x] with
 | Except.ok s    => s
 | Except.error e => panic! (toString e)
 def e1    := R1.2.2
@@ -64,7 +64,7 @@ def mctx5 := R1.1
 #eval check (!e1.hasFVar)
 
 def R2 :=
-match mkLambda mctx4' {namePrefix := `n} lctx4 #[α, x, y] $ mkApp f #[m3, y] with
+match mkLambda mctx4' {namePrefix := `n} lctx4 #[α, x, y] $ mkAppN f #[m3, y] with
 | Except.ok s    => s
 | Except.error e => panic! (toString e)
 def e2    := R2.2.2

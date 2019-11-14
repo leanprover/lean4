@@ -4,32 +4,32 @@ open Lean
 def check (b : Bool) : IO Unit :=
 unless b (throw "error")
 
-def f := Expr.const `f []
-def g := Expr.const `g []
-def a := Expr.const `a []
-def b := Expr.const `b []
-def c := Expr.const `c []
+def f := mkConst `f []
+def g := mkConst `g []
+def a := mkConst `a []
+def b := mkConst `b []
+def c := mkConst `c []
 
-def b0 := Expr.bvar 0
-def b1 := Expr.bvar 1
-def b2 := Expr.bvar 2
+def b0 := mkBVar 0
+def b1 := mkBVar 1
+def b2 := mkBVar 2
 
 def u := Level.param `u
 
 def typeE := Expr.sort Level.one
-def natE  := Expr.const `Nat []
-def boolE := Expr.const `Bool []
-def vecE  := Expr.const `Vec [Level.zero]
+def natE  := mkConst `Nat []
+def boolE := mkConst `Bool []
+def vecE  := mkConst `Vec [Level.zero]
 
-def α := Expr.fvar `α
-def x := Expr.fvar `x
-def y := Expr.fvar `y
-def z := Expr.fvar `z
-def w := Expr.fvar `w
+def α := mkFVar `α
+def x := mkFVar `x
+def y := mkFVar `y
+def z := mkFVar `z
+def w := mkFVar `w
 
-def m1 := Expr.mvar `m1
-def m2 := Expr.mvar `m2
-def m3 := Expr.mvar `m3
+def m1 := mkMVar `m1
+def m2 := mkMVar `m2
+def m3 := mkMVar `m3
 
 def bi := BinderInfo.default
 def arrow (d b : Expr) := Expr.forallE `_ bi d b
@@ -37,7 +37,7 @@ def arrow (d b : Expr) := Expr.forallE `_ bi d b
 def lctx1 : LocalContext := {}
 def lctx2 := lctx1.mkLocalDecl `α `α typeE
 def lctx3 := lctx2.mkLocalDecl `x `x m1
-def lctx4 := lctx3.mkLocalDecl `y `y (arrow natE (mkApp m3 #[α, x]))
+def lctx4 := lctx3.mkLocalDecl `y `y (arrow natE (mkAppN m3 #[α, x]))
 
 def mctx1 : MetavarContext := {}
 def mctx2  := mctx1.addExprMVarDecl `m1 `m1 lctx1 typeE
@@ -47,7 +47,7 @@ def mctx5  := mctx4.assignDelayed `m3 lctx3 #[α, x] m2
 def mctx6  := mctx5.assignExpr `m2 (arrow α α)
 def mctx7  := mctx6.assignExpr `m1 natE
 
-def t2 := lctx4.mkLambda #[α, x, y] $ mkApp f #[mkApp m3 #[α, x], x]
+def t2 := lctx4.mkLambda #[α, x, y] $ mkAppN f #[mkAppN m3 #[α, x], x]
 
 #eval check (!t2.hasFVar)
 #eval t2

@@ -1443,7 +1443,7 @@ do tables ← tablesRef.get;
 def declareBuiltinParser (env : Environment) (addFnName : Name) (refDeclName : Name) (declName : Name) : IO Environment :=
 let name := `_regBuiltinParser ++ declName;
 let type := Expr.app (mkConst `IO) (mkConst `Unit);
-let val  := mkCApp addFnName #[mkConst refDeclName, toExpr declName, mkConst declName];
+let val  := mkCAppN addFnName #[mkConst refDeclName, toExpr declName, mkConst declName];
 let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
 match env.addAndCompile {} decl with
 -- TODO: pretty print error

@@ -452,21 +452,21 @@ end CheckAssignment
 private def checkAssignmentFailure (mvarId : Name) (fvars : Array Expr) (v : Expr) (ex : CheckAssignment.Exception) : MetaM (Option Expr) :=
 match ex with
 | CheckAssignment.Exception.occursCheck => do
-  trace! `Meta.isDefEq.checkAssignment.occursCheck
+  trace! `Meta.isDefEq.assignment.occursCheck
     (Expr.mvar mvarId ++ fvars ++ " := " ++ v);
   pure none
 | CheckAssignment.Exception.useFOApprox =>
   pure none
 | CheckAssignment.Exception.outOfScopeFVar fvarId => do
-  trace! `Meta.isDefEq.checkAssignment.outOfScopeFVar
+  trace! `Meta.isDefEq.assignment.outOfScopeFVar
     (Expr.fvar fvarId ++ " @ " ++ Expr.mvar mvarId ++ fvars ++ " := " ++ v);
   pure none
 | CheckAssignment.Exception.readOnlyMVarWithBiggerLCtx nestedMVarId => do
-  trace! `Meta.isDefEq.checkAssignment.readOnlyMVarWithBiggerLCtx
+  trace! `Meta.isDefEq.assignment.readOnlyMVarWithBiggerLCtx
     (Expr.mvar nestedMVarId ++ " @ " ++ Expr.mvar mvarId ++ fvars ++ " := " ++ v);
   pure none
 | CheckAssignment.Exception.mvarTypeNotWellFormedInSmallerLCtx nestedMVarId => do
-  trace! `Meta.isDefEq.checkAssignment.mvarTypeNotWellFormedInSmallerLCtx
+  trace! `Meta.isDefEq.assignment.mvarTypeNotWellFormedInSmallerLCtx
     (Expr.mvar nestedMVarId ++ " @ " ++ Expr.mvar mvarId ++ fvars ++ " := " ++ v);
   pure none
 | CheckAssignment.Exception.unknownExprMVar mvarId =>
@@ -516,8 +516,8 @@ fun ctx s => if !v.hasExprMVar && !v.hasFVar then EStateM.Result.ok (some v) s e
     isDefEq f₁ f₂
 
 @[specialize] private def processAssignmentFOApproxAux
-  (isDefEq : Expr → Expr → MetaM Bool)
-  (mvar : Expr) (args : Array Expr) (v : Expr) : MetaM Bool :=
+    (isDefEq : Expr → Expr → MetaM Bool)
+    (mvar : Expr) (args : Array Expr) (v : Expr) : MetaM Bool :=
 let vArgs := v.getAppArgs;
 if vArgs.isEmpty then
   /- ?m a_1 ... a_k =?= t,  where t is not an application -/
@@ -580,14 +580,110 @@ else
    def ITactic := Tactic Unit
 -/
 @[specialize] private partial def processAssignmentFOApprox
-  (whnf              : Expr → MetaM Expr)
-  (isDefEq           : Expr → Expr → MetaM Bool)
-  (synthesizePending : Expr → MetaM Bool)
-  (mvar : Expr) (args : Array Expr) : Expr → MetaM Bool
+    (whnf              : Expr → MetaM Expr)
+    (isDefEq           : Expr → Expr → MetaM Bool)
+    (synthesizePending : Expr → MetaM Bool)
+    (mvar : Expr) (args : Array Expr) : Expr → MetaM Bool
 | v =>
   condM (try $ processAssignmentFOApproxAux isDefEq mvar args v)
     (pure true)
     (unfoldDefinitionAux whnf (inferTypeAux whnf) isDefEq synthesizePending v (pure false) processAssignmentFOApprox)
+
+private partial def simpAssignmentArgAux : Expr → MetaM Expr
+| Expr.mdata _ e       => simpAssignmentArgAux e
+| e@(Expr.fvar fvarId) => do
+  decl ← getLocalDecl fvarId;
+  match decl.value? with
+  | some value => simpAssignmentArgAux value
+  | _          => pure e
+| e => pure e
+
+/- Auxiliary procedure for processing `?m a₁ ... aₙ =?= v`.
+   We apply it to each `aᵢ`. It instantiates assigned metavariables if `aᵢ` is of the form `f[?n] b₁ ... bₘ`,
+   and then removes metadata, and zeta-expand let-decls. -/
+private def simpAssignmentArg (arg : Expr) : MetaM Expr :=
+do arg ← if arg.getAppFn.hasExprMVar then instantiateMVars arg else pure arg;
+   simpAssignmentArgAux arg
+
+/- TODO: type check `e`, move to different file -/
+def isTypeCorrect
+    (whnf              : Expr → MetaM Expr)
+    (isDefEq           : Expr → Expr → MetaM Bool)
+    (synthesizePending : Expr → MetaM Bool)
+    (e : Expr) : MetaM Bool :=
+pure true
+
+@[specialize] private partial def processAssignmentAux
+    (whnf              : Expr → MetaM Expr)
+    (isDefEq           : Expr → Expr → MetaM Bool)
+    (synthesizePending : Expr → MetaM Bool)
+    (mvar     : Expr)
+    (mvarDecl : MetavarDecl)
+    (v : Expr)
+    : Nat → Array Expr → MetaM Bool
+| i, args =>
+  if h : i < args.size then do
+    cfg ← getConfig;
+    let arg := args.get ⟨i, h⟩;
+    arg ← simpAssignmentArg arg;
+    let args := args.set ⟨i, h⟩ arg;
+    let useFOApprox : Unit → MetaM Bool := fun _ =>
+      if cfg.foApprox then
+        processAssignmentFOApprox whnf isDefEq synthesizePending mvar args v
+      else
+        pure false;
+    match arg with
+    | Expr.fvar fvarId =>
+      if args.anyRange 0 i (fun prevArg => prevArg == arg) then
+        useFOApprox ()
+      else if mvarDecl.lctx.contains fvarId && !cfg.quasiPatternApprox then
+        useFOApprox ()
+      else
+        processAssignmentAux (i+1) args
+    | _ =>
+      useFOApprox ()
+  else do
+    cfg ← getConfig;
+    v ← instantiateMVars v; -- enforce A4
+    if cfg.foApprox && args.isEmpty && v.getAppFn == mvar then
+      processAssignmentFOApprox whnf isDefEq synthesizePending mvar args v
+    else do
+      let useFOApprox : Unit → MetaM Bool := fun _ =>
+        if cfg.foApprox then processAssignmentFOApprox whnf isDefEq synthesizePending mvar args v
+        else pure false;
+      let mvarId := mvar.mvarId!;
+      v? ← checkAssignment mvarId args v;
+      match v? with
+      | none => useFOApprox ()
+      | some v => do
+        v ← mkLambda args v;
+        let finalize : Unit → MetaM Bool := fun _ => do {
+           -- must check whether types are definitionally equal or not, before assigning and returning true
+           mvarType ← inferTypeAux whnf mvar;
+           vType    ← inferTypeAux whnf v;
+           condM (usingTransparency TransparencyMode.default $ isDefEq mvarType vType)
+             (do assignExprMVar mvarId v; pure true)
+             (do trace! `Meta.isDefEq.assignment.typeMismatch (mvar ++ " : " ++ mvarType ++ " := " ++ v ++ " : " ++ vType);
+                 pure false)
+        };
+        if args.any (fun arg => mvarDecl.lctx.containsFVar arg) then
+          /- We need to type check `v` because abstraction using `mkLambda` may have produced
+             a type incorrect term. See discussion at A2 -/
+          condM (isTypeCorrect whnf isDefEq synthesizePending v)
+            (finalize ())
+            (useFOApprox ())
+        else
+          finalize ()
+
+ /-- Tries to solve `?m a_1 ... a_k =?= v` by assigning `?m`.
+     It assumes `?m` is unassigned. -/
+@[specialize] private def processAssignment
+    (whnf              : Expr → MetaM Expr)
+    (isDefEq           : Expr → Expr → MetaM Bool)
+    (synthesizePending : Expr → MetaM Bool)
+    (mvar : Expr) (args : Array Expr) (v : Expr) : MetaM Bool :=
+do mvarDecl ← getMVarDecl mvar.mvarId!;
+   processAssignmentAux whnf isDefEq synthesizePending mvar mvarDecl v 0 args
 
 end Meta
 end Lean

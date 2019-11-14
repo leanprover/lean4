@@ -242,6 +242,12 @@ do lctx ← getLCtx;
    | some d => pure d
    | none   => throwEx $ Exception.unknownFVar fvarId
 
+def getMVarDecl (mvarId : Name) : MetaM MetavarDecl :=
+do mctx ← getMCtx;
+   match mctx.findDecl mvarId with
+   | some d => pure d
+   | none   => throwEx $ Exception.unknownExprMVar mvarId
+
 def instantiateMVars (e : Expr) : MetaM Expr :=
 if e.hasMVar then
   modifyGet $ fun s =>
@@ -265,10 +271,10 @@ fun ctx s =>
       { mctx := newS.mctx, ngen := newS.ngen, .. s }
 
 def mkForall (xs : Array Expr) (e : Expr) : MetaM Expr :=
-liftMkBindingM $ MetavarContext.mkForall xs e
+if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.mkForall xs e
 
 def mkLambda (xs : Array Expr) (e : Expr) : MetaM Expr :=
-liftMkBindingM $ MetavarContext.mkLambda xs e
+if xs.isEmpty then pure e else liftMkBindingM $ MetavarContext.mkLambda xs e
 
 /-- Save cache, execute `x`, restore cache -/
 @[inline] def savingCache {α} (x : MetaM α) : MetaM α :=

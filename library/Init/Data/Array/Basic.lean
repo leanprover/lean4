@@ -526,6 +526,9 @@ end
 def eraseIdx' {α} (a : Array α) (i : Fin a.size) : { r : Array α // r.size = a.size - 1 } :=
 eraseIdxSzAux a (i.val + 1) a rfl
 
+def contains [HasBeq α] (as : Array α) (a : α) : Bool :=
+as.any $ fun b => a == b
+
 end Array
 
 export Array (mkArray)

@@ -168,6 +168,9 @@ def elem [HasBeq α] (a : α) : List α → Bool
 def notElem [HasBeq α] (a : α) (as : List α) : Bool :=
 !(as.elem a)
 
+abbrev contains [HasBeq α] (as : List α) (a : α) : Bool :=
+elem a as
+
 def eraseDupsAux {α} [HasBeq α] : List α → List α → List α
 | [],    bs => bs.reverse
 | a::as, bs => match bs.elem a with

@@ -281,31 +281,47 @@ end
 section
 variables {m : Type → Type w} [Monad m]
 
-@[specialize] partial def anyMAux (a : Array α) (p : α → m Bool) : Nat → m Bool
+@[specialize] partial def anyRangeMAux (a : Array α) (endIdx : Nat) (hlt : endIdx ≤ a.size) (p : α → m Bool) : Nat → m Bool
 | i =>
-  if h : i < a.size then
-     let idx : Fin a.size := ⟨i, h⟩;
+  if h : i < endIdx then
+     let idx : Fin a.size := ⟨i, Nat.ltOfLtOfLe h hlt⟩;
      do b ← p (a.get idx);
      match b with
      | true  => pure true
-     | false => anyMAux (i+1)
+     | false => anyRangeMAux (i+1)
   else pure false
 
 @[inline] def anyM (a : Array α) (p : α → m Bool) : m Bool :=
-anyMAux a p 0
+anyRangeMAux a a.size (Nat.leRefl _) p 0
 
 @[inline] def allM (a : Array α) (p : α → m Bool) : m Bool :=
-not <$> anyM a (fun v => not <$> p v)
+do b ← anyM a (fun v => do b ← p v; pure b); pure (!b)
+
+@[inline] def anyRangeM (a : Array α) (beginIdx endIdx : Nat) (p : α → m Bool) : m Bool :=
+if h : endIdx ≤ a.size then
+  anyRangeMAux a endIdx h p beginIdx
+else
+  anyRangeMAux a a.size (Nat.leRefl _) p beginIdx
+
+@[inline] def allRangeM (a : Array α) (beginIdx endIdx : Nat) (p : α → m Bool) : m Bool :=
+do b ← anyRangeM a beginIdx endIdx (fun v => do b ← p v; pure b); pure (!b)
+
 end
 
 @[inline] def any (a : Array α) (p : α → Bool) : Bool :=
 Id.run $ anyM a p
 
-@[inline] def anyFrom (a : Array α) (p : α → Bool) (init : Nat := 0) : Bool :=
-Id.run $ anyMAux a p init
+@[inline] def anyRange (a : Array α) (beginIdx endIdx : Nat) (p : α → Bool) : Bool :=
+Id.run $ anyRangeM a beginIdx endIdx p
+
+@[inline] def anyFrom (a : Array α) (beginIdx : Nat) (p : α → Bool) : Bool :=
+Id.run $ anyRangeM a beginIdx a.size p
 
 @[inline] def all (a : Array α) (p : α → Bool) : Bool :=
 !any a (fun v => !p v)
+
+@[inline] def allRange (a : Array α) (beginIdx endIdx : Nat) (p : α → Bool) : Bool :=
+!anyRange a beginIdx endIdx (fun v => !p v)
 
 section
 variables {m : Type v → Type w} [Monad m]

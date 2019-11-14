@@ -72,7 +72,7 @@ do majorType ← inferType major;
    let majorTypeI := majorType.getAppFn;
    if !majorTypeI.isConstOf rec.getInduct then
      pure none
-   else if majorType.hasExprMVar && majorType.getAppArgs.anyFrom Expr.hasExprMVar rec.nparams then
+   else if majorType.hasExprMVar && majorType.getAppArgs.anyFrom rec.nparams Expr.hasExprMVar then
      pure none
    else do
      (some newCtorApp) ← mkNullaryCtor getConst majorType rec.nparams | pure none;

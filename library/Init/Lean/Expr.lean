@@ -80,10 +80,6 @@ attribute [extern "lean_expr_mk_lit"]    Expr.lit
 attribute [extern "lean_expr_mk_mdata"]  Expr.mdata
 attribute [extern "lean_expr_mk_proj"]   Expr.proj
 
--- deprecated Constructor
-@[extern "lean_expr_local"]
-constant Expr.local (n : Name) (pp : Name) (ty : Expr) (bi : BinderInfo) : Expr := arbitrary _
-
 namespace Literal
 instance : Inhabited Literal := ⟨natVal 0⟩
 def type : Literal → Expr

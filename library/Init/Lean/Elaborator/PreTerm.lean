@@ -138,8 +138,9 @@ fun n => do
    else
      pure $ Expr.sort level
 
+-- This file will be deleted in the future
 private def mkLocal (decl : LocalDecl) : PreTerm :=
-Expr.local decl.name decl.userName decl.type decl.binderInfo
+panic! "to be deleted"
 
 private def processBinder (b : Syntax Expr) : Elab (Array PreTerm) :=
 match b.getKind with

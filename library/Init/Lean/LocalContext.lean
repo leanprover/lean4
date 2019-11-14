@@ -41,7 +41,7 @@ def binderInfo : LocalDecl → BinderInfo
 | cdecl _ _ _ _ bi => bi
 | ldecl _ _ _ _ _  => BinderInfo.default
 
-def valueOpt : LocalDecl → Option Expr
+def value? : LocalDecl → Option Expr
 | cdecl _ _ _ _ _ => none
 | ldecl _ _ _ _ v => some v
 

@@ -224,7 +224,7 @@ match rec.kind with
 | e@(Expr.letE _ _ _ _),    k => k e
 | e@(Expr.fvar fvarId),     k => do
   decl ← getLocalDecl fvarId;
-  match decl.valueOpt with
+  match decl.value? with
   | none   => pure e
   | some v => whnfEasyCases v k
 | e@(Expr.mvar mvarId),     k => do

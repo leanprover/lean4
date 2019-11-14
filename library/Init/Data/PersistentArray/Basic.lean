@@ -54,9 +54,9 @@ instance : Inhabited (PersistentArray α) := ⟨{}⟩
 
 def mkEmptyArray : Array α := Array.mkEmpty branching.toNat
 
-abbrev mul2Shift (i : USize) (shift : USize) : USize := USize.shift_left i shift
-abbrev div2Shift (i : USize) (shift : USize) : USize := USize.shift_right i shift
-abbrev mod2Shift (i : USize) (shift : USize) : USize := USize.land i ((USize.shift_left 1 shift) - 1)
+abbrev mul2Shift (i : USize) (shift : USize) : USize := i.shiftLeft shift
+abbrev div2Shift (i : USize) (shift : USize) : USize := i.shiftRight shift
+abbrev mod2Shift (i : USize) (shift : USize) : USize := USize.land i ((USize.shiftLeft 1 shift) - 1)
 
 partial def getAux [Inhabited α] : PersistentArrayNode α → USize → USize → α
 | node cs, i, shift => getAux (cs.get! (div2Shift i shift).toNat) (mod2Shift i shift) (shift - initShift)

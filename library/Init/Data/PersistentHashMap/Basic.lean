@@ -54,9 +54,9 @@ instance [Hashable α] [HasBeq α] : Inhabited (PersistentHashMap α β) := ⟨{
 def mkEmptyEntries {α β} : Node α β :=
 Node.entries mkEmptyEntriesArray
 
-abbrev mul2Shift (i : USize) (shift : USize) : USize := USize.shift_left i shift
-abbrev div2Shift (i : USize) (shift : USize) : USize := USize.shift_right i shift
-abbrev mod2Shift (i : USize) (shift : USize) : USize := USize.land i ((USize.shift_left 1 shift) - 1)
+abbrev mul2Shift (i : USize) (shift : USize) : USize := i.shiftLeft shift
+abbrev div2Shift (i : USize) (shift : USize) : USize := i.shiftRight shift
+abbrev mod2Shift (i : USize) (shift : USize) : USize := USize.land i ((USize.shiftLeft 1 shift) - 1)
 
 inductive IsCollisionNode : Node α β → Prop
 | mk (keys : Array α) (vals : Array β) (h : keys.size = vals.size) : IsCollisionNode (Node.collision keys vals h)

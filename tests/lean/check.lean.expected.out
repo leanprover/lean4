@@ -1,4 +1,0 @@
-And.intro : ?M_1 → ?M_2 → ?M_1 ∧ ?M_2
-Or.elim : ?M_1 ∨ ?M_2 → (?M_1 → ?M_3) → (?M_2 → ?M_3) → ?M_3
-Eq : ?M_1 → ?M_1 → Prop
-Eq.rec : ?M_3 ?M_2 _ → Π {a : ?M_1} (t : ?M_2 = a), ?M_3 a t

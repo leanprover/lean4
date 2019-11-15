@@ -77,7 +77,7 @@ inline deserializer & operator>>(deserializer & d, literal & l) { l = read_liter
 inductive expr
 | bvar  : nat → expr          -- bound variables
 | fvar  : name → expr         -- free variables
-| mvar  : name → expr → expr  -- meta variables
+| mvar  : name → expr         -- meta variables
 | sort  : level → expr
 | const : name → list level → expr
 | app   : expr → expr → expr
@@ -96,7 +96,7 @@ class expr : public object_ref {
     friend expr mk_mdata(kvmap const & d, expr const & e);
     friend expr mk_proj(name const & s, nat const & idx, expr const & e);
     friend expr mk_bvar(nat const & idx);
-    friend expr mk_mvar(name const & n, expr const & t);
+    friend expr mk_mvar(name const & n);
     friend expr mk_const(name const & n, levels const & ls);
     friend expr mk_app(expr const & f, expr const & a);
     friend expr mk_sort(level const & l);
@@ -190,7 +190,7 @@ inline expr mk_bvar(unsigned idx) { return mk_bvar(nat(idx)); }
 expr mk_fvar(name const & n);
 expr mk_const(name const & n, levels const & ls);
 inline expr mk_const(name const & n) { return mk_const(n, levels()); }
-expr mk_mvar(name const & n, expr const & t);
+expr mk_mvar(name const & n);
 expr mk_app(expr const & f, expr const & a);
 expr mk_app(expr const & f, unsigned num_args, expr const * args);
 expr mk_app(unsigned num_args, expr const * args);
@@ -234,7 +234,6 @@ inline name const &    fvar_name_core(object * o)            { lean_assert(is_fv
 inline name const &    fvar_name(expr const & e)             { lean_assert(is_fvar(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
 inline level const &   sort_level(expr const & e)            { lean_assert(is_sort(e)); return static_cast<level const &>(cnstr_get_ref(e, 0)); }
 inline name const &    mvar_name(expr const & e)             { lean_assert(is_mvar(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
-inline expr const &    mvar_type(expr const & e)             { lean_assert(is_mvar(e)); return static_cast<expr const &>(cnstr_get_ref(e, 1)); }
 inline name const &    const_name(expr const & e)            { lean_assert(is_const(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
 inline levels const &  const_levels(expr const & e)          { lean_assert(is_const(e)); return static_cast<levels const &>(cnstr_get_ref(e, 1)); }
 inline bool is_const(expr const & e, name const & n)         { return is_const(e) && const_name(e) == n; }
@@ -261,7 +260,6 @@ expr update_const(expr const & e, levels const & new_levels);
 expr update_let(expr const & e, expr const & new_type, expr const & new_value, expr const & new_body);
 expr update_mdata(expr const & e, expr const & new_e);
 expr update_proj(expr const & e, expr const & new_e);
-expr update_mvar(expr const & e, expr const & new_type);
 // =======================================
 
 
@@ -342,7 +340,7 @@ inline bool is_var(expr const & e) { return is_bvar(e); }
 inline bool is_var(expr const & e, unsigned idx) { return is_bvar(e, idx); }
 inline bool is_metavar(expr const & e) { return is_mvar(e); }
 inline bool is_metavar_app(expr const & e) { return is_mvar_app(e); }
-inline expr mk_metavar(name const & n, expr const & t) { return mk_mvar(n, t); }
+inline expr mk_metavar(name const & n) { return mk_mvar(n); }
 expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info bi);
 inline expr mk_local(name const & n, expr const & t) { return mk_local(n, n, t, mk_binder_info()); }
 inline expr mk_local(name const & n, expr const & t, binder_info bi) { return mk_local(n, n, t, bi); }

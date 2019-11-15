@@ -75,6 +75,7 @@ void collect_locals(expr const & e, collected_locals & ls, bool restricted) {
         switch (e.kind()) {
         case expr_kind::BVar: case expr_kind::Const:
         case expr_kind::Sort: case expr_kind::Lit:
+        case expr_kind::MVar:
             break; // do nothing
         case expr_kind::MData:
             visit(mdata_expr(e));
@@ -86,10 +87,6 @@ void collect_locals(expr const & e, collected_locals & ls, bool restricted) {
             if (!restricted)
                 visit(local_type(e));
             ls.insert(e);
-            break;
-        case expr_kind::MVar:
-            lean_assert(!restricted);
-            visit(mvar_type(e));
             break;
         case expr_kind::App:
             visit(app_fn(e));

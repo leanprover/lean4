@@ -395,7 +395,6 @@ static void check_no_metavars(name const & n, expr const & e) {
                 format r("failed to add declaration '");
                 r += format(n);
                 r += format("' to local context, type has metavariables");
-                r += pp_until_meta_visible(fmt, mvar_type(e));
                 return r;
             });
     }

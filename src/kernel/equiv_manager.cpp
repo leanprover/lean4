@@ -75,9 +75,7 @@ bool equiv_manager::is_equiv_core(expr const & a, expr const & b) {
             compare(const_levels(a), const_levels(b), [](level const & l1, level const & l2) { return l1 == l2; });
         break;
     case expr_kind::MVar:
-        result =
-            mvar_name(a) == mvar_name(b) &&
-            is_equiv_core(mvar_type(a), mvar_type(b));
+        result = mvar_name(a) == mvar_name(b);
         break;
     case expr_kind::FVar:
         result =

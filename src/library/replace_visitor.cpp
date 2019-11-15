@@ -17,10 +17,7 @@ expr replace_visitor::visit_sort(expr const & e) { lean_assert(is_sort(e)); retu
 expr replace_visitor::visit_var(expr const & e) { lean_assert(is_var(e)); return e; }
 expr replace_visitor::visit_lit(expr const & e) { lean_assert(is_lit(e)); return e; }
 expr replace_visitor::visit_constant(expr const & e) { lean_assert(is_constant(e)); return e; }
-expr replace_visitor::visit_meta(expr const & e) {
-    lean_assert(is_mvar(e));
-    return update_mvar(e, visit(mvar_type(e)));
-}
+expr replace_visitor::visit_meta(expr const & e) { lean_assert(is_mvar(e)); return e; }
 expr replace_visitor::visit_local(expr const & e) {
     lean_assert(is_local(e));
     return update_local(e, visit(local_type(e)));

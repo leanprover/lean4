@@ -22,7 +22,7 @@ unsigned to_meta_idx(level const & l);
     \remark The index \c i is encoded in the hierarchical name, and can be quickly accessed.
     In the match procedure the substitution is also efficiently represented as an array (aka buffer).
 */
-expr mk_idx_metavar(unsigned i, expr const & type);
+expr mk_idx_metavar(unsigned i);
 /** \brief Return true iff \c l is a metavariable created using \c mk_idx_metavar */
 bool is_idx_metavar(expr const & l);
 unsigned to_meta_idx(expr const & e);
@@ -33,10 +33,6 @@ bool has_idx_expr_metavar(expr const & e);
 bool has_idx_metauniv(level const & l);
 
 class metavar_context;
-
-/** \brief Convert metavariables occurring in \c e into indexed/temporary metavariables.
-    New metavariables are added to new_us and new_ms. */
-expr to_idx_metavars(metavar_context const & mctx, expr const & e, buffer<level> & new_us, buffer<expr> & new_ms);
 
 void initialize_idx_metavar();
 void finalize_idx_metavar();

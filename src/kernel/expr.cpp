@@ -187,7 +187,7 @@ template<expr_kind k> unsigned get_loose_bvar_range_core(object * e) { return cn
 unsigned expr_get_loose_bvar_range(object * e) {
     switch (expr::kind(e)) {
     case expr_kind::Const: case expr_kind::Sort:
-    case expr_kind::Lit:
+    case expr_kind::Lit:   case expr_kind::MVar:
         return 0;
     case expr_kind::BVar:    {
         object * idx = cnstr_get(e, 0);
@@ -196,7 +196,6 @@ unsigned expr_get_loose_bvar_range(object * e) {
         else
             return std::numeric_limits<unsigned>::max();
     }
-    case expr_kind::MVar:    return get_loose_bvar_range_core<expr_kind::MVar>(e);
     case expr_kind::FVar:    return get_loose_bvar_range_core<expr_kind::FVar>(e);
     case expr_kind::Lambda:  return get_loose_bvar_range_core<expr_kind::Lambda>(e);
     case expr_kind::Pi:      return get_loose_bvar_range_core<expr_kind::Pi>(e);
@@ -214,8 +213,9 @@ bool is_atomic(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Const: case expr_kind::Sort:
     case expr_kind::BVar:  case expr_kind::Lit:
+    case expr_kind::MVar:
         return true;
-    case expr_kind::App:   case expr_kind::MVar:
+    case expr_kind::App:
     case expr_kind::FVar:  case expr_kind::Lambda:
     case expr_kind::Pi:    case expr_kind::Let:
     case expr_kind::MData: case expr_kind::Proj:
@@ -909,21 +909,4 @@ void finalize_expr() {
     delete g_nat_type;
     delete g_string_type;
 }
-
-#if 0
-// Expr metavariables and local variables
-expr_mlocal::expr_mlocal(bool is_meta, name const & n, name const & pp_n, expr const & t):
-    expr_composite(is_meta ? expr_kind::MVar : expr_kind::FVar, n.hash(), is_meta || t.has_expr_metavar(), t.has_univ_metavar(),
-                   !is_meta || t.has_fvar(), t.has_param_univ(),
-                   1, get_loose_bvar_range(t)),
-    m_name(n),
-    m_pp_name(pp_n),
-    m_type(t) {}
-
-void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
-    dec_ref(m_type, todelete);
-    delete this;
-}
-
-#endif
 }

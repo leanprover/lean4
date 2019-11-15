@@ -4,12 +4,12 @@ DIR="$( cd "$( dirname "$0" )" && pwd )"
 CHECKER=$DIR/../../src/cmake/Modules/cpplint.py
 while read local_ref local_sha remote_ref remote_sha;
 do
-    CHANGED_FILES=`git diff --name-only $local_sha $remote_sha | grep '\(cpp\|h\)$' | grep -v 'src/stage0/'`
+    CHANGED_FILES=`git diff --name-only $local_sha $remote_sha | grep '\(cpp\|h\)$' | grep -v 'stage0/'`
     if [ ! -z "$CHANGED_FILES" -a "$CHANGED_FILES" != " " ]; then
         echo $CHANGED_FILES | xargs $CHECKER
         RET=$?
         if [ $RET -ne 0 ]; then
-            echo "There is error(s) from style-check. Please fix them before push to the repo."
+            echo "There are error(s) from style-check. Please fix them before pushing to the repo."
             exit $RET
         fi
     fi

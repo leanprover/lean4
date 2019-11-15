@@ -21,7 +21,7 @@ expr copy(expr const & a) {
     case expr_kind::App:    return mk_app(app_fn(a), app_arg(a));
     case expr_kind::Lambda: return mk_lambda(binding_name(a), binding_domain(a), binding_body(a), binding_info(a));
     case expr_kind::Pi:     return mk_pi(binding_name(a), binding_domain(a), binding_body(a), binding_info(a));
-    case expr_kind::MVar:   return mk_mvar(mvar_name(a), mvar_type(a));
+    case expr_kind::MVar:   return mk_mvar(mvar_name(a));
     case expr_kind::Let:    return mk_let(let_name(a), let_type(a), let_value(a), let_body(a));
     }
     lean_unreachable(); // LCOV_EXCL_LINE

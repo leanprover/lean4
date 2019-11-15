@@ -105,7 +105,7 @@ inline constexpr unsigned num_obj_fields(expr_kind k) {
         k == expr_kind::Pi      ?  3 :
         k == expr_kind::BVar    ?  1 :
         k == expr_kind::Let     ?  4 :
-        k == expr_kind::MVar    ?  2 :
+        k == expr_kind::MVar    ?  1 :
         k == expr_kind::Sort    ?  1 :
         k == expr_kind::Lit     ?  1 :
         k == expr_kind::MData   ?  2 :
@@ -451,22 +451,21 @@ expr mk_let(name const & n, expr const & t, expr const & v, expr const & b) {
     return expr(lean_expr_mk_let(n.raw(), t.raw(), v.raw(), b.raw()));
 }
 
-extern "C" object * lean_expr_mk_mvar_core(object * n, object * t) {
-    object * r = alloc_cnstr(static_cast<unsigned>(expr_kind::MVar), 2, rec_expr_scalar_size(expr_kind::MVar));
+extern "C" object * lean_expr_mk_mvar_core(object * n) {
+    object * r = alloc_cnstr(static_cast<unsigned>(expr_kind::MVar), 1, rec_expr_scalar_size(expr_kind::MVar));
     cnstr_set(r, 0, n);
-    cnstr_set(r, 1, t);
-    set_scalar<expr_kind::MVar>(r, name::hash(n), true, has_univ_mvar(t), has_fvar(t), has_univ_param(t));
-    set_rec_scalar<expr_kind::MVar>(r, expr_get_loose_bvar_range(t));
+    set_scalar<expr_kind::MVar>(r, name::hash(n), true, false, false, false);
+    set_rec_scalar<expr_kind::MVar>(r, 0);
     return r;
 }
 
 extern "C" object * lean_expr_mk_mvar(object * n) {
-    return lean_expr_mk_mvar_core(n, get_dummy().to_obj_arg());
+    return lean_expr_mk_mvar_core(n);
 }
 
-expr mk_mvar(name const & n, expr const & t) {
-    inc(n.raw()); inc(t.raw());
-    return expr(lean_expr_mk_mvar_core(n.raw(), t.raw()));
+expr mk_mvar(name const & n) {
+    inc(n.raw());
+    return expr(lean_expr_mk_mvar_core(n.raw()));
 }
 
 static expr * g_Prop  = nullptr;
@@ -647,13 +646,6 @@ expr update_const(expr const & e, levels const & new_levels) {
         return mk_const(const_name(e), new_levels);
     else
         return e;
-}
-
-expr update_mvar(expr const & e, expr const & new_type) {
-    if (is_eqp(mvar_type(e), new_type))
-        return e;
-    else
-        return mk_mvar(mvar_name(e), new_type);
 }
 
 expr update_let(expr const & e, expr const & new_type, expr const & new_value, expr const & new_body) {

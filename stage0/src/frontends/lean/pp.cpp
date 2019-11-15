@@ -268,9 +268,9 @@ expr pretty_fn::purify(expr const & e) {
             if (!has_expr_metavar(e) && !has_local(e) && (!m_universes || !has_univ_metavar(e))) {
                 return some_expr(e);
             } else if (m_purify_metavars && is_metavar_decl_ref(e)) {
-                return some_expr(mk_metavar(mk_metavar_name(mvar_name(e), "m"), infer_type(e)));
+                return some_expr(mk_metavar(mk_metavar_name(mvar_name(e), "m")));
             } else if (m_purify_metavars && is_metavar(e) && !is_idx_metavar(e)) {
-                return some_expr(mk_metavar(mk_metavar_name(mvar_name(e)), infer_type(e)));
+                return some_expr(mk_metavar(mk_metavar_name(mvar_name(e))));
             } else if (is_local(e)) {
                 return some_expr(mk_local(local_name(e), mk_local_name(local_name(e), local_pp_name(e)),
                                           infer_type(e), local_info(e)));

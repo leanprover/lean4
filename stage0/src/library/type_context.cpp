@@ -1061,7 +1061,7 @@ expr type_context_old::infer_metavar(expr const & e) {
         /* tmp metavariables should only occur in tmp_mode.
            The following assertion was commented because the pretty printer may violate it. */
         // lean_assert(!is_idx_metavar(e) || in_tmp_mode());
-        return mvar_type(e);
+        return get_tmp_mvar_type(e);
     }
 }
 
@@ -1223,14 +1223,6 @@ bool type_context_old::is_proof(expr const & e) {
 /* -------------------------------
    Temporary assignment mode support
    ------------------------------- */
-void type_context_old::ensure_num_tmp_mvars(unsigned num_uvars, unsigned num_mvars) {
-    lean_assert(in_tmp_mode());
-    if (m_tmp_data->m_uassignment.size() < num_uvars)
-        m_tmp_data->m_uassignment.resize(num_uvars, none_level());
-    if (m_tmp_data->m_eassignment.size() < num_mvars)
-        m_tmp_data->m_eassignment.resize(num_mvars, none_expr());
-}
-
 optional<level> type_context_old::get_tmp_uvar_assignment(unsigned idx) const {
     lean_assert(in_tmp_mode());
     lean_assert(idx < m_tmp_data->m_uassignment.size());
@@ -1287,12 +1279,18 @@ level type_context_old::mk_tmp_univ_mvar() {
 expr type_context_old::mk_tmp_mvar(expr const & type) {
     lean_assert(in_tmp_mode());
     unsigned idx = m_tmp_data->m_eassignment.size();
+    m_tmp_data->m_etype.push_back(type);
     m_tmp_data->m_eassignment.push_back(none_expr());
-    return mk_idx_metavar(idx, type);
+    return mk_idx_metavar(idx);
+}
+
+expr type_context_old::get_tmp_mvar_type(expr const & mvar) const {
+    return m_tmp_data->m_etype[to_meta_idx(mvar)];
 }
 
 void type_context_old::resize_tmp_mvars(unsigned sz) {
     lean_assert(in_tmp_mode());
+    m_tmp_data->m_etype.resize(sz, expr());
     m_tmp_data->m_eassignment.resize(sz, optional<expr>());
 }
 
@@ -1415,6 +1413,7 @@ void type_context_old::pop_scope() {
         }
         lean_assert(old_sz == m_tmp_data->m_trail.size());
         m_tmp_data->m_uassignment.shrink(s.m_tmp_uassignment_sz);
+        m_tmp_data->m_etype.shrink(s.m_tmp_eassignment_sz);
         m_tmp_data->m_eassignment.shrink(s.m_tmp_eassignment_sz);
     }
     m_scopes.pop_back();
@@ -3504,7 +3503,7 @@ struct instance_synthesizer {
         // When it is used, it creates a subproblem for
         //    is_nsubg : @is_normal_subgroup A s ?N
         // where ?N is not known. Actually, we can only find the value for ?N by constructing the instance is_nsubg.
-        expr mvar_ty       = m_ctx.instantiate_mvars(mvar_type(mvar));
+        expr mvar_ty       = m_ctx.instantiate_mvars(m_ctx.get_tmp_mvar_type(mvar));
         m_choices.push_back(choice());
         push_scope();
         choice & r = m_choices.back();

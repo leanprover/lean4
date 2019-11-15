@@ -23,7 +23,7 @@ void finalize_placeholder() {
 level mk_level_placeholder() { return mk_univ_mvar(name()); }
 
 expr mk_expr_placeholder() {
-    return mk_mvar(name(), mk_Prop());
+    return mk_mvar(name());
 }
 static bool is_placeholder(name const & n) {
     return n.is_anonymous();

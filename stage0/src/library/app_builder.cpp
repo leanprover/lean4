@@ -175,27 +175,21 @@ class app_builder {
     optional<entry> get_entry(name const & c, unsigned nargs) {
         key k(c, nargs);
         lean_assert(k.check_invariant());
-        auto it = m_cache.m_map.find(k);
-        if (it == m_cache.m_map.end()) {
-            if (optional<constant_info> info = env().find(c)) {
-                buffer<expr> mvars;
-                buffer<optional<expr>> inst_args;
-                levels lvls = mk_metavars(*info, mvars, inst_args);
-                if (nargs > mvars.size())
-                    return optional<entry>(); // insufficient number of arguments
-                entry e;
-                e.m_num_umeta = info->get_num_lparams();
-                e.m_num_emeta = mvars.size();
-                e.m_app       = ::lean::mk_app(mk_constant(c, lvls), mvars);
-                e.m_inst_args = reverse_to_list(inst_args.begin(), inst_args.end());
-                e.m_expl_args = reverse_to_list(mvars.begin() + mvars.size() - nargs, mvars.end());
-                m_cache.m_map.insert(mk_pair(k, e));
-                return optional<entry>(e);
-            } else {
-                return optional<entry>(); // unknown decl
-            }
+        if (optional<constant_info> info = env().find(c)) {
+            buffer<expr> mvars;
+            buffer<optional<expr>> inst_args;
+            levels lvls = mk_metavars(*info, mvars, inst_args);
+            if (nargs > mvars.size())
+                return optional<entry>(); // insufficient number of arguments
+            entry e;
+            e.m_num_umeta = info->get_num_lparams();
+            e.m_num_emeta = mvars.size();
+            e.m_app       = ::lean::mk_app(mk_constant(c, lvls), mvars);
+            e.m_inst_args = reverse_to_list(inst_args.begin(), inst_args.end());
+            e.m_expl_args = reverse_to_list(mvars.begin() + mvars.size() - nargs, mvars.end());
+            return optional<entry>(e);
         } else {
-            return optional<entry>(it->second);
+            return optional<entry>(); // unknown decl
         }
     }
 
@@ -227,30 +221,24 @@ class app_builder {
     optional<entry> get_entry(name const & c, unsigned mask_sz, bool const * mask) {
         key k(c, to_list(mask, mask+mask_sz));
         lean_assert(k.check_invariant());
-        auto it = m_cache.m_map.find(k);
-        if (it == m_cache.m_map.end()) {
-            if (auto d = env().find(c)) {
-                buffer<expr> mvars;
-                buffer<optional<expr>> inst_args;
-                levels lvls = mk_metavars(*d, mask_sz, mvars, inst_args);
-                entry e;
-                e.m_num_umeta = d->get_num_lparams();
-                e.m_num_emeta = mvars.size();
-                e.m_app       = ::lean::mk_app(mk_constant(c, lvls), mvars);
-                e.m_inst_args = reverse_to_list(inst_args.begin(), inst_args.end());
-                list<expr> expl_args;
-                for (unsigned i = 0; i < mask_sz; i++) {
-                    if (mask[i])
-                        expl_args = cons(mvars[i], expl_args);
-                }
-                e.m_expl_args = expl_args;
-                m_cache.m_map.insert(mk_pair(k, e));
-                return optional<entry>(e);
-            } else {
-                return optional<entry>(); // unknown decl
+        if (auto d = env().find(c)) {
+            buffer<expr> mvars;
+            buffer<optional<expr>> inst_args;
+            levels lvls = mk_metavars(*d, mask_sz, mvars, inst_args);
+            entry e;
+            e.m_num_umeta = d->get_num_lparams();
+            e.m_num_emeta = mvars.size();
+            e.m_app       = ::lean::mk_app(mk_constant(c, lvls), mvars);
+            e.m_inst_args = reverse_to_list(inst_args.begin(), inst_args.end());
+            list<expr> expl_args;
+            for (unsigned i = 0; i < mask_sz; i++) {
+                if (mask[i])
+                    expl_args = cons(mvars[i], expl_args);
             }
+            e.m_expl_args = expl_args;
+            return optional<entry>(e);
         } else {
-            return optional<entry>(it->second);
+            return optional<entry>(); // unknown decl
         }
     }
 
@@ -265,7 +253,7 @@ class app_builder {
             --i;
             if (!m_ctx.get_tmp_mvar_assignment(i)) {
                 if (inst_arg) {
-                    expr type = m_ctx.instantiate_mvars(mvar_type(*inst_arg));
+                    expr type = m_ctx.instantiate_mvars(m_ctx.get_tmp_mvar_type(*inst_arg));
                     if (auto v = m_ctx.mk_class_instance(type)) {
                         if (!m_ctx.is_def_eq(*inst_arg, *v)) {
                             // failed to assign instance
@@ -286,10 +274,6 @@ class app_builder {
                 return false;
         }
         return true;
-    }
-
-    void init_ctx_for(entry const & e) {
-        m_ctx.ensure_num_tmp_mvars(e.m_num_umeta, e.m_num_emeta);
     }
 
     void trace_unify_failure(name const & n, unsigned i, expr const & m, expr const & v) {
@@ -319,7 +303,6 @@ public:
             trace_failure(c, "failed to retrieve declaration");
             throw app_builder_exception();
         }
-        init_ctx_for(*e);
         unsigned i = nargs;
         for (auto m : e->m_expl_args) {
             if (i == 0) {
@@ -363,7 +346,6 @@ public:
             trace_failure(c, "failed to retrieve declaration");
             throw app_builder_exception();
         }
-        init_ctx_for(*e);
         unsigned i    = mask_sz;
         unsigned j    = nargs;
         list<expr> it = e->m_expl_args;

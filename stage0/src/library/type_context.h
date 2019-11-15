@@ -46,6 +46,7 @@ struct unifier_config {
 
 class type_context_old : public abstract_type_context {
     typedef buffer<optional<level>> tmp_uassignment;
+    typedef buffer<expr>            tmp_etype;
     typedef buffer<optional<expr>>  tmp_eassignment;
     typedef buffer<metavar_context> mctx_stack;
     enum class tmp_trail_kind { Level, Expr };
@@ -369,14 +370,15 @@ public:
        They are nullptr if type_context_old is not in tmp_mode. */
     struct tmp_data {
         tmp_uassignment & m_uassignment;
+        tmp_etype       & m_etype;
         tmp_eassignment & m_eassignment;
         /* m_tmp_mvar_local_context contains m_lctx when tmp mode is activated.
            This is the context for all temporary meta-variables. */
         local_context     m_mvar_lctx;
         /* undo/trail stack for m_tmp_uassignment/m_tmp_eassignment */
         tmp_trail         m_trail;
-        tmp_data(tmp_uassignment & uassignment, tmp_eassignment & eassignment, local_context const & lctx):
-            m_uassignment(uassignment), m_eassignment(eassignment), m_mvar_lctx(lctx) {}
+        tmp_data(tmp_uassignment & uassignment, tmp_etype & etype, tmp_eassignment & eassignment, local_context const & lctx):
+            m_uassignment(uassignment), m_etype(etype), m_eassignment(eassignment), m_mvar_lctx(lctx) {}
     };
 private:
     typedef buffer<scope_data> scopes;
@@ -781,13 +783,12 @@ public:
     struct tmp_mode_scope {
         type_context_old &      m_ctx;
         buffer<optional<level>> m_tmp_uassignment;
+        buffer<expr>            m_tmp_etype;
         buffer<optional<expr>>  m_tmp_eassignment;
         tmp_data *              m_old_data;
         tmp_data                m_data;
-        tmp_mode_scope(type_context_old & ctx, unsigned next_uidx = 0, unsigned next_midx = 0):
-            m_ctx(ctx), m_old_data(ctx.m_tmp_data), m_data(m_tmp_uassignment, m_tmp_eassignment, ctx.lctx()) {
-            m_tmp_uassignment.resize(next_uidx, none_level());
-            m_tmp_eassignment.resize(next_midx, none_expr());
+        tmp_mode_scope(type_context_old & ctx):
+            m_ctx(ctx), m_old_data(ctx.m_tmp_data), m_data(m_tmp_uassignment, m_tmp_etype, m_tmp_eassignment, ctx.lctx()) {
             m_ctx.m_tmp_data = &m_data;
         }
         ~tmp_mode_scope() {
@@ -806,13 +807,13 @@ public:
         }
     };
     bool in_tmp_mode() const { return m_tmp_data != nullptr; }
-    void ensure_num_tmp_mvars(unsigned num_uvars, unsigned num_mvars);
     optional<level> get_tmp_uvar_assignment(unsigned idx) const;
     optional<expr> get_tmp_mvar_assignment(unsigned idx) const;
     optional<level> get_tmp_assignment(level const & l) const;
     optional<expr> get_tmp_assignment(expr const & e) const;
     level mk_tmp_univ_mvar();
     expr mk_tmp_mvar(expr const & type);
+    expr get_tmp_mvar_type(expr const & mvar) const;
 
     /* Helper class to reset m_used_assignment flag */
     class reset_used_assignment {

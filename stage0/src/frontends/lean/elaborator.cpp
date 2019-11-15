@@ -3846,26 +3846,9 @@ struct sanitize_param_names_fn : public replace_visitor {
 
 /** When the output of the elaborator may contain meta-variables, we convert the type_context_old level meta-variables
     into regular kernel meta-variables. */
-static expr replace_with_simple_metavars(metavar_context mctx, name_map<expr> & cache, expr const & e) {
-    if (!has_expr_metavar(e)) return e;
-    return replace(e, [&](expr const & e, unsigned) {
-            if (is_metavar(e)) {
-                if (auto r = cache.find(mvar_name(e))) {
-                    return some_expr(*r);
-                } else if (auto decl = mctx.find_metavar_decl(e)) {
-                    expr new_type = replace_with_simple_metavars(mctx, cache, mctx.instantiate_mvars(decl->get_type()));
-                    expr new_mvar = mk_metavar(mvar_name(e), new_type);
-                    cache.insert(mvar_name(e), new_mvar);
-                    return some_expr(new_mvar);
-                } else if (is_metavar_decl_ref(e)) {
-                    throw exception("unexpected occurrence of internal elaboration metavariable");
-                } else {
-                    return none_expr();
-                }
-            } else {
-                return none_expr();
-            }
-        });
+static expr replace_with_simple_metavars(metavar_context /* mctx */, name_map<expr> & /* cache */, expr const & e) {
+    // Disabled this code
+    return e;
 }
 
 expr elaborator::elaborate(expr const & e) {

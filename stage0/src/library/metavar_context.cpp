@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "library/metavar_util.h"
 #include "library/metavar_context.h"
+#include "library/idx_metavar.h"
 
 namespace lean {
 static name *       g_meta_prefix;
@@ -24,7 +25,7 @@ metavar_decl::metavar_decl():
     metavar_decl(name(), local_context(), expr()) {}
 
 static expr mk_meta_ref(name const & n) {
-    return mk_metavar(n, *g_dummy_type);
+    return mk_metavar(n);
 }
 
 bool is_metavar_decl_ref(level const & u) {
@@ -32,7 +33,7 @@ bool is_metavar_decl_ref(level const & u) {
 }
 
 bool is_metavar_decl_ref(expr const & e) {
-    return is_mvar(e) && mvar_type(e) == *g_dummy_type;
+    return is_mvar(e) && !is_idx_metavar(e);
 }
 
 name get_metavar_decl_ref_suffix(level const & u) {

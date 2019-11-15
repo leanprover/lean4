@@ -87,6 +87,7 @@ class for_each_fn {
             switch (e.kind()) {
             case expr_kind::Const: case expr_kind::BVar:
             case expr_kind::Sort:  case expr_kind::Lit:
+            case expr_kind::MVar:
                 goto begin_loop;
             case expr_kind::MData:
                 todo.emplace_back(mdata_expr(e), offset);
@@ -97,9 +98,6 @@ class for_each_fn {
             case expr_kind::FVar:
                 // TODO(Leo): delete after refactoring
                 todo.emplace_back(local_type(e), offset);
-                goto begin_loop;
-            case expr_kind::MVar:
-                todo.emplace_back(mvar_type(e), offset);
                 goto begin_loop;
             case expr_kind::App:
                 todo.emplace_back(app_arg(e), offset);

@@ -29,8 +29,8 @@ level mk_idx_metauniv(unsigned i) {
     return mk_univ_mvar(name(*g_tmp_prefix, i));
 }
 
-expr mk_idx_metavar(unsigned i, expr const & type) {
-    return mk_metavar(name(*g_tmp_prefix, i), type);
+expr mk_idx_metavar(unsigned i) {
+    return mk_metavar(name(*g_tmp_prefix, i));
 }
 
 bool is_idx_metauniv(level const & l) {
@@ -99,67 +99,5 @@ bool has_idx_expr_metavar(expr const & e) {
             return true;
         });
     return found;
-}
-
-struct to_idx_metavars_fn : public replace_visitor {
-    metavar_context const & m_mctx;
-    buffer<level> &         m_new_us;
-    buffer<expr> &          m_new_ms;
-    name_map<level>         m_lvl_cache;
-
-    to_idx_metavars_fn(metavar_context const & mctx, buffer<level> & new_us, buffer<expr> & new_ms):
-        m_mctx(mctx), m_new_us(new_us), m_new_ms(new_ms) {}
-
-    level visit(level const & l) {
-        if (!has_mvar(l)) return l;
-        return replace(l, [&](level const & l) {
-                if (is_mvar(l) && !is_idx_metauniv(l)) {
-                    if (auto it = m_lvl_cache.find(mvar_id(l)))
-                        return some_level(*it);
-                    level new_l = mk_idx_metauniv(m_new_us.size());
-                    m_lvl_cache.insert(mvar_id(l), new_l);
-                    m_new_us.push_back(new_l);
-                    return some_level(new_l);
-                }
-                return none_level();
-            });
-    }
-
-    levels visit(levels const & ls) {
-        return map_reuse(ls, [&](level const & l) { return visit(l); });
-    }
-
-    virtual expr visit_meta(expr const & m) override {
-        if (is_idx_metavar(m)) {
-            return m;
-        } else if (auto decl = m_mctx.find_metavar_decl(m)) {
-            expr new_type = visit(decl->get_type());
-            unsigned i    = m_new_ms.size();
-            expr new_m    = mk_idx_metavar(i, new_type);
-            m_new_ms.push_back(new_m);
-            return new_m;
-        } else {
-            throw exception("unexpected occurrence of metavariable");
-        }
-    }
-
-    virtual expr visit_constant(expr const & e) override {
-        return update_constant(e, visit(const_levels(e)));
-    }
-
-    virtual expr visit_sort(expr const & e) override {
-        return update_sort(e, visit(sort_level(e)));
-    }
-
-    virtual expr visit(expr const & e) override {
-        if (!has_metavar(e)) return e;
-        return replace_visitor::visit(e);
-    }
-};
-
-expr to_idx_metavars(metavar_context const & mctx, expr const & e, buffer<level> & new_us, buffer<expr> & new_ms) {
-    if (!has_metavar(e))
-        return e;
-    return to_idx_metavars_fn(mctx, new_us, new_ms)(e);
 }
 }

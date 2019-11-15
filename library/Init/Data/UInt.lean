@@ -15,6 +15,7 @@ structure UInt8 :=
 
 @[extern "lean_uint8_of_nat"]
 def UInt8.ofNat (n : @& Nat) : UInt8 := ⟨Fin.ofNat n⟩
+abbrev Nat.toUInt8 := UInt8.ofNat
 @[extern "lean_uint8_to_nat"]
 def UInt8.toNat (n : UInt8) : Nat := n.val.val
 @[extern c inline "#1 + #2"]
@@ -73,6 +74,7 @@ structure UInt16 :=
 
 @[extern "lean_uint16_of_nat"]
 def UInt16.ofNat (n : @& Nat) : UInt16 := ⟨Fin.ofNat n⟩
+abbrev Nat.toUInt16 := UInt16.ofNat
 @[extern "lean_uint16_to_nat"]
 def UInt16.toNat (n : UInt16) : Nat := n.val.val
 @[extern c inline "#1 + #2"]
@@ -131,6 +133,7 @@ structure UInt32 :=
 
 @[extern "lean_uint32_of_nat"]
 def UInt32.ofNat (n : @& Nat) : UInt32 := ⟨Fin.ofNat n⟩
+abbrev Nat.toUInt32 := UInt32.ofNat
 @[extern "lean_uint32_to_nat"]
 def UInt32.toNat (n : UInt32) : Nat := n.val.val
 @[extern c inline "#1 + #2"]
@@ -189,6 +192,7 @@ structure UInt64 :=
 
 @[extern "lean_uint64_of_nat"]
 def UInt64.ofNat (n : @& Nat) : UInt64 := ⟨Fin.ofNat n⟩
+abbrev Nat.toUInt64 := UInt64.ofNat
 @[extern "lean_uint64_to_nat"]
 def UInt64.toNat (n : UInt64) : Nat := n.val.val
 @[extern c inline "#1 + #2"]
@@ -210,16 +214,16 @@ def UInt64.lor (a b : UInt64) : UInt64 := ⟨Fin.lor a.val b.val⟩
 def UInt64.lt (a b : UInt64) : Prop := a.val < b.val
 def UInt64.le (a b : UInt64) : Prop := a.val ≤ b.val
 @[extern c inline "((uint8_t)#1)"]
-def UInt64.toUInt8 (a : UInt64) : UInt8 := UInt8.ofNat a.toNat
+def UInt64.toUInt8 (a : UInt64) : UInt8 := a.toNat.toUInt8
 @[extern c inline "((uint16_t)#1)"]
-def UInt64.toUInt16 (a : UInt64) : UInt16 := UInt16.ofNat a.toNat
+def UInt64.toUInt16 (a : UInt64) : UInt16 := a.toNat.toUInt16
 @[extern c inline "((uint32_t)#1)"]
-def UInt64.toUInt32 (a : UInt64) : UInt32 := UInt32.ofNat a.toNat
+def UInt64.toUInt32 (a : UInt64) : UInt32 := a.toNat.toUInt32
 -- TODO(Leo): give reference implementation for shiftLeft and shiftRight, and define them for other UInt types
 @[extern c inline "#1 << #2"]
-constant UInt64.shiftLeft (a b : UInt64) : UInt64 := UInt64.ofNat (arbitrary _)
+constant UInt64.shiftLeft (a b : UInt64) : UInt64 := (arbitrary Nat).toUInt64
 @[extern c inline "#1 >> #2"]
-constant UInt64.shiftRight (a b : UInt64) : UInt64 := UInt64.ofNat (arbitrary _)
+constant UInt64.shiftRight (a b : UInt64) : UInt64 := (arbitrary Nat).toUInt64
 
 instance : HasZero UInt64     := ⟨UInt64.ofNat 0⟩
 instance : HasOne UInt64      := ⟨UInt64.ofNat 1⟩
@@ -261,6 +265,7 @@ Nat.posPowOfPos System.Platform.numBits (Nat.zeroLtSucc _)
 
 @[extern "lean_usize_of_nat"]
 def USize.ofNat (n : @& Nat) : USize := ⟨Fin.ofNat' n usizeSzGt0⟩
+abbrev Nat.toUSize := USize.ofNat
 @[extern "lean_usize_to_nat"]
 def USize.toNat (n : USize) : Nat := n.val.val
 @[extern c inline "#1 + #2"]
@@ -280,14 +285,14 @@ def USize.land (a b : USize) : USize := ⟨Fin.land a.val b.val⟩
 @[extern c inline "#1 | #2"]
 def USize.lor (a b : USize) : USize := ⟨Fin.lor a.val b.val⟩
 @[extern c inline "#1"]
-def USize.ofUInt32 (a : UInt32) : USize := USize.ofNat (UInt32.toNat a)
+def UInt32.toUSize (a : UInt32) : USize := a.toNat.toUSize
 @[extern c inline "((size_t)#1)"]
-def USize.ofUInt64 (a : UInt64) : USize := USize.ofNat (UInt64.toNat a)
+def UInt64.toUSize (a : UInt64) : USize := a.toNat.toUSize
 -- TODO(Leo): give reference implementation for shiftLeft and shiftRight, and define them for other UInt types
 @[extern c inline "#1 << #2"]
-constant USize.shiftLeft (a b : USize) : USize := USize.ofNat (arbitrary _)
+constant USize.shiftLeft (a b : USize) : USize := (arbitrary Nat).toUSize
 @[extern c inline "#1 >> #2"]
-constant USize.shiftRight (a b : USize) : USize := USize.ofNat (arbitrary _)
+constant USize.shiftRight (a b : USize) : USize := (arbitrary Nat).toUSize
 def USize.lt (a b : USize) : Prop := a.val < b.val
 def USize.le (a b : USize) : Prop := a.val ≤ b.val
 

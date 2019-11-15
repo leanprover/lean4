@@ -164,7 +164,7 @@ def foldCharOfNat (beforeErasure : Bool) (a : Expr) : Option Expr :=
 do guard (!beforeErasure);
    n ← getNumLit a;
    pure $
-     if isValidChar (UInt32.ofNat n) then mkUInt32Lit n
+     if isValidChar n.toUInt32 then mkUInt32Lit n
      else mkUInt32Lit 0
 
 def foldToNat (_ : Bool) (a : Expr) : Option Expr :=

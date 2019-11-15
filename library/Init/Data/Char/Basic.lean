@@ -45,7 +45,7 @@ UInt32.decLe _ _
 axiom isValidChar0 : isValidChar 0
 
 @[noinline, matchPattern] def ofNat (n : Nat) : Char :=
-if h : isValidChar (UInt32.ofNat n) then {val := UInt32.ofNat n, valid := h} else {val := 0, valid := isValidChar0}
+if h : isValidChar n.toUInt32 then {val := n.toUInt32, valid := h} else {val := 0, valid := isValidChar0}
 
 @[inline] def toNat (c : Char) : Nat :=
 c.val.toNat

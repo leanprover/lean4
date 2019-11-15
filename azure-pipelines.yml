@@ -35,7 +35,7 @@ jobs:
     displayName: Setup
   - script: |
       . ~/.nix-profile/etc/profile.d/nix.sh
-      export CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ $CMAKE_OPTIONS"
+      export CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Release $CMAKE_OPTIONS"
       eval nix-shell $NIX_SHELL_OPTIONS --run ./script/ci.sh
     displayName: Build
   - task: PublishTestResults@2

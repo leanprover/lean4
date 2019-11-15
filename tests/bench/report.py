@@ -57,6 +57,7 @@ CATBAG = {
     '.gc.hs': ("GC [%]", "gc"),
     '.hs.perf': ("CM", "cache-misses"),
     '.llvm.hs': ("GHC -fllvm", "etime"),
+    '.strict.hs': ("GHC -XStrict", "etime"),
     '.ml': ("OCaml", "etime"),
     '.gc.ml': ("GC", "gc"),
     '.ml.perf': ("CM", "cache-misses"),

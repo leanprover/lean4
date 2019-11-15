@@ -6,7 +6,7 @@ CROSS_BENCHES = binarytrees deriv const_fold qsort rbmap rbmap_10 rbmap_1
 LEAN_CATS = .lean .no_reuse.lean .no_borrow.lean .no_st.lean
 CROSS_CATS = .lean .gc.lean .lean.perf .hs .gc.hs .hs.perf .ml .gc.ml .ml.perf .mlton .gc.mlton .mlton.perf .mlkit .gc.mlkit .mlkit.perf .swift .gc.swift .swift.perf
 CROSS_TIME_CATS = .lean .hs .ml .mlton .mlkit .swift
-RETIRED_CATS = .gcc.lean .llvm.hs .flambda.ml
+RETIRED_CATS = .gcc.lean .llvm.hs .strict.hs .flambda.ml
 
 LEAN_FLAGS =
 LEANC_FLAGS = -O3 -DNDEBUG
@@ -65,6 +65,8 @@ all: report_lean.tex report_cross.tex report
 	$(GHC) $(GHC_FLAGS) -rtsopts $< -o $@
 %.llvm.hs.out: GHC_FLAGS += -fllvm
 %.llvm.hs: %.hs; ln -f $< $@
+%.strict.hs.out: GHC_FLAGS += -XStrict
+%.strict.hs: %.hs; ln -f $< $@
 
 binarytrees.hs: binarytrees.ghc-6.hs; ln -f $< $@
 # NOTE: changed `-N4` rtsopt to `-N` to be less system-dependent

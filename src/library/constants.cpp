@@ -140,6 +140,7 @@ name const * g_of_eq_true = nullptr;
 name const * g_of_iff_true = nullptr;
 name const * g_opt_param = nullptr;
 name const * g_or = nullptr;
+name const * g_panic = nullptr;
 name const * g_panic_with_pos = nullptr;
 name const * g_punit = nullptr;
 name const * g_punit_unit = nullptr;
@@ -328,6 +329,7 @@ void initialize_constants() {
     g_of_iff_true = new name{"ofIffTrue"};
     g_opt_param = new name{"optParam"};
     g_or = new name{"Or"};
+    g_panic = new name{"panic"};
     g_panic_with_pos = new name{"panicWithPos"};
     g_punit = new name{"PUnit"};
     g_punit_unit = new name{"PUnit", "unit"};
@@ -517,6 +519,7 @@ void finalize_constants() {
     delete g_of_iff_true;
     delete g_opt_param;
     delete g_or;
+    delete g_panic;
     delete g_panic_with_pos;
     delete g_punit;
     delete g_punit_unit;
@@ -705,6 +708,7 @@ name const & get_of_eq_true_name() { return *g_of_eq_true; }
 name const & get_of_iff_true_name() { return *g_of_iff_true; }
 name const & get_opt_param_name() { return *g_opt_param; }
 name const & get_or_name() { return *g_or; }
+name const & get_panic_name() { return *g_panic; }
 name const & get_panic_with_pos_name() { return *g_panic_with_pos; }
 name const & get_punit_name() { return *g_punit; }
 name const & get_punit_unit_name() { return *g_punit_unit; }

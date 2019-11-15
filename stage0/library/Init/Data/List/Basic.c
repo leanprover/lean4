@@ -44,6 +44,7 @@ lean_object* l_List_and___boxed(lean_object*);
 lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_List_removeAll___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repeatAux___main___at_List_replicate___spec__1(lean_object*);
+lean_object* l_List_contains(lean_object*);
 uint8_t l_List_foldr___main___at_List_or___spec__1(uint8_t, lean_object*);
 lean_object* l_List_rangeAux(lean_object*, lean_object*);
 lean_object* l_List_partition___rarg(lean_object*, lean_object*);
@@ -124,6 +125,7 @@ lean_object* l_List_spanAux___main___rarg(lean_object*, lean_object*, lean_objec
 lean_object* l_List_rangeAux___main(lean_object*, lean_object*);
 lean_object* l_List_HasLessEq(lean_object*, lean_object*);
 lean_object* l_List_foldr1___main___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_contains___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterAux___main___at_List_removeAll___spec__1(lean_object*);
 uint8_t l_List_isPrefixOf___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_DecidableEq(lean_object*);
@@ -158,6 +160,7 @@ lean_object* l_List_lengthAux___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_List_HasAppend(lean_object*);
 lean_object* l_List_reverseAux___main(lean_object*);
 lean_object* l_List_removeAll(lean_object*);
+uint8_t l_List_contains___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_dropWhile___main___rarg(lean_object*, lean_object*);
 lean_object* l_List_dropWhile___rarg(lean_object*, lean_object*);
 lean_object* l_List_set___rarg(lean_object*, lean_object*, lean_object*);
@@ -1838,6 +1841,31 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_List_notElem___rarg(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
+uint8_t l_List_contains___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; 
+x_4 = l_List_elem___main___rarg(x_1, x_3, x_2);
+return x_4;
+}
+}
+lean_object* l_List_contains(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_contains___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+lean_object* l_List_contains___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_List_contains___rarg(x_1, x_2, x_3);
 x_5 = lean_box(x_4);
 return x_5;
 }

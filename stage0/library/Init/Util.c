@@ -14,25 +14,28 @@
 extern "C" {
 #endif
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_unreachable_x21___rarg___closed__3;
 lean_object* l_panicWithPos___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_dbg_trace(lean_object*, lean_object*);
 lean_object* l_panic___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Util_1__mkPanicMessage___closed__3;
 lean_object* l_Nat_repr(lean_object*);
-lean_object* l_panicWithPos___rarg___closed__3;
 lean_object* l_unreachable_x21___rarg___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_unreachable_x21(lean_object*);
 lean_object* l_dbgSleep___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos(lean_object*);
-lean_object* l_panicWithPos___rarg___closed__1;
 lean_object* l_unreachable_x21___rarg___closed__2;
+lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_dbgTraceIfShared___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_dbg_sleep(uint32_t, lean_object*);
 lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Util_1__mkPanicMessage___closed__2;
+lean_object* l___private_Init_Util_1__mkPanicMessage___closed__1;
 lean_object* l_unsafeCast___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_dbgTrace___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_panicWithPos___rarg___closed__2;
 lean_object* l_unreachable_x21___rarg(lean_object*);
+lean_object* l___private_Init_Util_1__mkPanicMessage___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_dbg_trace_if_shared(lean_object*, lean_object*);
 lean_object* l_panicWithPos___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_dbgTrace___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -77,7 +80,7 @@ x_4 = lean_panic_fn(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_panicWithPos___rarg___closed__1() {
+lean_object* _init_l___private_Init_Util_1__mkPanicMessage___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -85,7 +88,7 @@ x_1 = lean_mk_string("PANIC at ");
 return x_1;
 }
 }
-lean_object* _init_l_panicWithPos___rarg___closed__2() {
+lean_object* _init_l___private_Init_Util_1__mkPanicMessage___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -93,7 +96,7 @@ x_1 = lean_mk_string(":");
 return x_1;
 }
 }
-lean_object* _init_l_panicWithPos___rarg___closed__3() {
+lean_object* _init_l___private_Init_Util_1__mkPanicMessage___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -101,27 +104,44 @@ x_1 = lean_mk_string(": ");
 return x_1;
 }
 }
+lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+x_5 = l___private_Init_Util_1__mkPanicMessage___closed__1;
+x_6 = lean_string_append(x_5, x_1);
+x_7 = l___private_Init_Util_1__mkPanicMessage___closed__2;
+x_8 = lean_string_append(x_6, x_7);
+x_9 = l_Nat_repr(x_2);
+x_10 = lean_string_append(x_8, x_9);
+lean_dec(x_9);
+x_11 = lean_string_append(x_10, x_7);
+x_12 = l_Nat_repr(x_3);
+x_13 = lean_string_append(x_11, x_12);
+lean_dec(x_12);
+x_14 = l___private_Init_Util_1__mkPanicMessage___closed__3;
+x_15 = lean_string_append(x_13, x_14);
+x_16 = lean_string_append(x_15, x_4);
+return x_16;
+}
+}
+lean_object* l___private_Init_Util_1__mkPanicMessage___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_1);
+return x_5;
+}
+}
 lean_object* l_panicWithPos___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_6 = l_panicWithPos___rarg___closed__1;
-x_7 = lean_string_append(x_6, x_2);
-x_8 = l_panicWithPos___rarg___closed__2;
-x_9 = lean_string_append(x_7, x_8);
-x_10 = l_Nat_repr(x_3);
-x_11 = lean_string_append(x_9, x_10);
-lean_dec(x_10);
-x_12 = l_panicWithPos___rarg___closed__2;
-x_13 = lean_string_append(x_11, x_12);
-x_14 = l_Nat_repr(x_4);
-x_15 = lean_string_append(x_13, x_14);
-lean_dec(x_14);
-x_16 = l_panicWithPos___rarg___closed__3;
-x_17 = lean_string_append(x_15, x_16);
-x_18 = lean_string_append(x_17, x_5);
-x_19 = lean_panic_fn(x_18);
-return x_19;
+lean_object* x_6; lean_object* x_7; 
+x_6 = l___private_Init_Util_1__mkPanicMessage(x_2, x_3, x_4, x_5);
+x_7 = lean_panic_fn(x_6);
+return x_7;
 }
 }
 lean_object* l_panicWithPos(lean_object* x_1) {
@@ -158,16 +178,25 @@ x_1 = lean_mk_string("unreachable");
 return x_1;
 }
 }
+lean_object* _init_l_unreachable_x21___rarg___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_unreachable_x21___rarg___closed__1;
+x_2 = lean_unsigned_to_nat(39u);
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l_unreachable_x21___rarg___closed__2;
+x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
 lean_object* l_unreachable_x21___rarg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l_unreachable_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(37u);
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = l_unreachable_x21___rarg___closed__2;
-x_6 = l_panicWithPos___rarg(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_unreachable_x21___rarg___closed__3;
+x_3 = lean_panic_fn(x_2);
+return x_3;
 }
 }
 lean_object* l_unreachable_x21(lean_object* x_1) {
@@ -191,16 +220,18 @@ lean_dec_ref(res);
 res = initialize_Init_Data_ToString(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_panicWithPos___rarg___closed__1 = _init_l_panicWithPos___rarg___closed__1();
-lean_mark_persistent(l_panicWithPos___rarg___closed__1);
-l_panicWithPos___rarg___closed__2 = _init_l_panicWithPos___rarg___closed__2();
-lean_mark_persistent(l_panicWithPos___rarg___closed__2);
-l_panicWithPos___rarg___closed__3 = _init_l_panicWithPos___rarg___closed__3();
-lean_mark_persistent(l_panicWithPos___rarg___closed__3);
+l___private_Init_Util_1__mkPanicMessage___closed__1 = _init_l___private_Init_Util_1__mkPanicMessage___closed__1();
+lean_mark_persistent(l___private_Init_Util_1__mkPanicMessage___closed__1);
+l___private_Init_Util_1__mkPanicMessage___closed__2 = _init_l___private_Init_Util_1__mkPanicMessage___closed__2();
+lean_mark_persistent(l___private_Init_Util_1__mkPanicMessage___closed__2);
+l___private_Init_Util_1__mkPanicMessage___closed__3 = _init_l___private_Init_Util_1__mkPanicMessage___closed__3();
+lean_mark_persistent(l___private_Init_Util_1__mkPanicMessage___closed__3);
 l_unreachable_x21___rarg___closed__1 = _init_l_unreachable_x21___rarg___closed__1();
 lean_mark_persistent(l_unreachable_x21___rarg___closed__1);
 l_unreachable_x21___rarg___closed__2 = _init_l_unreachable_x21___rarg___closed__2();
 lean_mark_persistent(l_unreachable_x21___rarg___closed__2);
+l_unreachable_x21___rarg___closed__3 = _init_l_unreachable_x21___rarg___closed__3();
+lean_mark_persistent(l_unreachable_x21___rarg___closed__3);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

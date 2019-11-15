@@ -106,6 +106,23 @@ class ll_infer_type_fn {
             return infer_cases(e);
         } else if (is_constructor_app(env(), e)) {
             return infer_constructor_type(e);
+        } else if (is_app_of(e, get_panic_name())) {
+            /*
+               We should treat `panic` as `unreachable`.
+               Otherwise, we will not infer the correct type IRType for
+               ```
+               def f (n : UInt32) : UInt32 :=
+               if n == 0 then panic! "foo"
+               else n+1
+               ```
+               Reason: `panic! "foo"` is expanded into
+               ```
+               let _x_1 : String := mkPanicMessage "<file-name>" 2 15 "foo" in @panic.{0} UInt32 UInt32.Inhabited _x_1
+               ```
+               and `panic` can't be specialize because it is a primitive implemented in C++, and if we don't
+               do anything it will assume `panic` returns an `_obj`.
+             */
+            return may_use_bot() ? *g_bot : mk_enf_object_type();
         } else {
             expr const & fn = get_app_fn(e);
             expr fn_type    = infer(fn);

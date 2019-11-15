@@ -71,6 +71,7 @@ lean_object* l_Lean_IR_ExpandResetReuse_reuseToSet___main(lean_object*, lean_obj
 lean_object* l_Lean_IR_ExpandResetReuse_reuseToSet___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_searchAndExpand(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_removeSelfSet___main___boxed(lean_object*, lean_object*);
+lean_object* l_Array_anyRangeMAux___main___at_Lean_IR_ExpandResetReuse_consumed___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_IR_mkIf(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -99,7 +100,7 @@ size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody___main(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_releaseUnreadFields___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-lean_object* l_Array_anyMAux___main___at_Lean_IR_ExpandResetReuse_consumed___main___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t l_Array_anyRangeMAux___main___at_Lean_IR_ExpandResetReuse_consumed___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_expand___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_mkHashMapImp___rarg(lean_object*);
@@ -116,7 +117,6 @@ lean_object* l_Lean_IR_ExpandResetReuse_searchAndExpand___main___closed__1;
 uint8_t l_Lean_IR_ExpandResetReuse_isSelfSSet(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_IR_ExpandResetReuse_reuseToCtor___main___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_IR_ExpandResetReuse_reuseToCtor___main___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t l_Array_anyMAux___main___at_Lean_IR_ExpandResetReuse_consumed___main___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_isSelfSSet___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExpandResetReuse_releaseUnreadFields(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -663,41 +663,39 @@ return x_5;
 }
 }
 }
-uint8_t l_Array_anyMAux___main___at_Lean_IR_ExpandResetReuse_consumed___main___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+uint8_t l_Array_anyRangeMAux___main___at_Lean_IR_ExpandResetReuse_consumed___main___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_array_get_size(x_2);
-x_5 = lean_nat_dec_lt(x_3, x_4);
-lean_dec(x_4);
-if (x_5 == 0)
-{
 uint8_t x_6; 
-lean_dec(x_3);
-x_6 = 0;
-return x_6;
+x_6 = lean_nat_dec_lt(x_5, x_4);
+if (x_6 == 0)
+{
+uint8_t x_7; 
+lean_dec(x_5);
+x_7 = 0;
+return x_7;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_7 = lean_array_fget(x_2, x_3);
-x_8 = l_Lean_IR_AltCore_body(x_7);
-lean_dec(x_7);
-x_9 = l_Lean_IR_ExpandResetReuse_consumed___main(x_1, x_8);
-if (x_9 == 0)
+lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_8 = lean_array_fget(x_3, x_5);
+x_9 = l_Lean_IR_AltCore_body(x_8);
+lean_dec(x_8);
+x_10 = l_Lean_IR_ExpandResetReuse_consumed___main(x_1, x_9);
+if (x_10 == 0)
 {
-uint8_t x_10; 
-lean_dec(x_3);
-x_10 = 1;
-return x_10;
+uint8_t x_11; 
+lean_dec(x_5);
+x_11 = 1;
+return x_11;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; 
-x_11 = lean_unsigned_to_nat(1u);
-x_12 = lean_nat_add(x_3, x_11);
-lean_dec(x_3);
-x_3 = x_12;
+lean_object* x_12; lean_object* x_13; 
+x_12 = lean_unsigned_to_nat(1u);
+x_13 = lean_nat_add(x_5, x_12);
+lean_dec(x_5);
+x_5 = x_13;
 goto _start;
 }
 }
@@ -773,31 +771,33 @@ return x_21;
 }
 case 10:
 {
-lean_object* x_22; lean_object* x_23; uint8_t x_24; 
+lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
 x_22 = lean_ctor_get(x_2, 3);
 lean_inc(x_22);
 lean_dec(x_2);
-x_23 = lean_unsigned_to_nat(0u);
-x_24 = l_Array_anyMAux___main___at_Lean_IR_ExpandResetReuse_consumed___main___spec__1(x_1, x_22, x_23);
+x_23 = lean_array_get_size(x_22);
+x_24 = lean_unsigned_to_nat(0u);
+x_25 = l_Array_anyRangeMAux___main___at_Lean_IR_ExpandResetReuse_consumed___main___spec__1(x_1, x_22, x_22, x_23, x_24);
+lean_dec(x_23);
 lean_dec(x_22);
-if (x_24 == 0)
+if (x_25 == 0)
 {
-uint8_t x_25; 
-x_25 = 1;
-return x_25;
+uint8_t x_26; 
+x_26 = 1;
+return x_26;
 }
 else
 {
-uint8_t x_26; 
-x_26 = 0;
-return x_26;
+uint8_t x_27; 
+x_27 = 0;
+return x_27;
 }
 }
 default: 
 {
-lean_object* x_27; 
-x_27 = lean_box(0);
-x_3 = x_27;
+lean_object* x_28; 
+x_28 = lean_box(0);
+x_3 = x_28;
 goto block_8;
 }
 }
@@ -824,15 +824,17 @@ return x_7;
 }
 }
 }
-lean_object* l_Array_anyMAux___main___at_Lean_IR_ExpandResetReuse_consumed___main___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Array_anyRangeMAux___main___at_Lean_IR_ExpandResetReuse_consumed___main___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Array_anyMAux___main___at_Lean_IR_ExpandResetReuse_consumed___main___spec__1(x_1, x_2, x_3);
+uint8_t x_6; lean_object* x_7; 
+x_6 = l_Array_anyRangeMAux___main___at_Lean_IR_ExpandResetReuse_consumed___main___spec__1(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_5 = lean_box(x_4);
-return x_5;
+x_7 = lean_box(x_6);
+return x_7;
 }
 }
 lean_object* l_Lean_IR_ExpandResetReuse_consumed___main___boxed(lean_object* x_1, lean_object* x_2) {

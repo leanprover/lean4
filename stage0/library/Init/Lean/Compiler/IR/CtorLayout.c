@@ -28,10 +28,10 @@ lean_object* l_Lean_IR_CtorFieldInfo_format___closed__1;
 lean_object* l_Lean_fmt___at_Lean_IR_CtorFieldInfo_format___spec__1___boxed(lean_object*);
 lean_object* lean_ir_get_ctor_layout(lean_object*, lean_object*);
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__3;
+extern lean_object* l___private_Init_Util_1__mkPanicMessage___closed__2;
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__7;
 lean_object* l_Lean_IR_getCtorLayout___boxed(lean_object*, lean_object*);
 extern lean_object* l___private_Init_Lean_Compiler_IR_Format_1__formatArg___closed__2;
-extern lean_object* l_panicWithPos___rarg___closed__2;
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__5;
 lean_object* l_Lean_fmt___at_Lean_IR_CtorFieldInfo_format___spec__1(lean_object* x_1) {
 _start:
@@ -117,7 +117,7 @@ lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_panicWithPos___rarg___closed__2;
+x_1 = l___private_Init_Util_1__mkPanicMessage___closed__2;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

@@ -61,6 +61,162 @@ Author: Leonardo de Moura
 namespace lean {
 static name * g_elaborator_coercions = nullptr;
 
+expr const & get_arg_names(expr const & e, buffer<name> & ns) {
+    buffer<expr> args;
+    auto const & fn = get_app_args(e, args);
+    for (auto const & e : args)
+        ns.push_back(const_name(e));
+    return fn;
+}
+
+decl_attributes to_decl_attributes(environment const & /* env */, expr const & e, bool local) {
+    decl_attributes attributes(!local);
+    buffer<expr> attrs;
+    get_app_args(e, attrs);
+    for (auto const & e : attrs) {
+        buffer<expr> args;
+        auto attr = get_app_args(e, args);
+        auto n = const_name(attr);
+        // attributes.set_attribute(env, n, get_attribute(env, n).parse_data(e));
+    }
+    return attributes;
+}
+
+cmd_meta to_cmd_meta(environment const & env, expr const & e) {
+    auto const & data = mdata_data(e);
+    cmd_meta m(to_decl_attributes(env, mdata_expr(e), false));
+    m.m_modifiers.m_is_unsafe = get_bool(data, "unsafe").value_or(false);
+    m.m_modifiers.m_is_mutual = get_bool(data, "mutual").value_or(false);
+    m.m_modifiers.m_is_noncomputable = get_bool(data, "noncomputable").value_or(false);
+    m.m_modifiers.m_is_private = get_bool(data, "private").value_or(false);
+    m.m_modifiers.m_is_protected = get_bool(data, "protected").value_or(false);
+    if (auto s = get_string(data, "docString"))
+        m.m_doc_string = s->to_std_string();
+    return m;
+}
+
+struct resolve_names_fn : public replace_visitor {
+    parser &         m_p;
+    names            m_locals;
+    bool             m_assume_local = false;
+
+    resolve_names_fn(parser & p) : m_p(p) {}
+
+    virtual expr visit_constant(expr const &) override {
+        lean_unreachable();
+    }
+
+    virtual expr visit_local(expr const & e) override {
+        if (m_assume_local)
+            return e;
+        lean_unreachable();
+    }
+
+    virtual expr visit_binding(expr const & e) override {
+        expr new_d = visit(binding_domain(e));
+        flet<names> set(m_locals, cons(binding_name(e), m_locals));
+        expr new_b = visit(binding_body(e));
+        return update_binding(e, new_d, new_b);
+    }
+
+    virtual expr visit_let(expr const & e) override {
+        expr new_type = visit(let_type(e));
+        expr new_val  = visit(let_value(e));
+        flet<names> set(m_locals, cons(let_name(e), m_locals));
+        expr new_body = visit(let_body(e));
+        return update_let(e, new_type, new_val, new_body);
+    }
+
+    expr visit_pre_equations(expr const & e) {
+        equations_header header;
+        bool is_match = get_bool(mdata_data(e), "match").value_or(false);
+        if (is_match) {
+            parser::local_scope scope1(m_p);
+            match_definition_scope scope2(m_p.env());
+            header = mk_match_header(scope2.get_name(), scope2.get_actual_name());
+        } else {
+            header = mk_match_header("dummy", "dummy");
+        }
+        buffer<expr> eqns;
+        get_app_args(get_annotation_arg(e), eqns);
+        if (eqns.empty()) {
+            eqns.push_back(copy_pos(e, mk_no_equation()));
+        } else {
+            for (auto & eqn : eqns) {
+                expr lhs = app_fn(eqn);
+                expr rhs = app_arg(eqn);
+                {
+                    flet<bool> _(m_assume_local, true);
+                    lhs = visit(lhs);
+                }
+                buffer<expr> new_locals;
+                bool skip_main_fn = true;
+                lhs = m_p.patexpr_to_pattern(lhs, skip_main_fn, new_locals);
+                if (is_match)
+                    new_locals.insert(0, mk_local("_matchFn", mk_expr_placeholder()));
+                names locals = m_locals;
+                // NOTE: appends `new_locals` to `locals` in reverse
+                for (auto const & l : new_locals)
+                    locals = cons(local_name_p(l), locals);
+                flet<names> _(m_locals, locals);
+                rhs = visit(rhs);
+                eqn = Fun(new_locals, mk_equation(lhs, rhs), m_p);
+            }
+        }
+        return mk_equations(header, eqns.size(), eqns.data());
+    }
+
+    virtual expr visit(expr const & e) override {
+        if (is_placeholder(e) || is_as_is(e) || is_emptyc_or_emptys(e) || is_as_atomic(e)) {
+            return e;
+        } else if (is_annotation(e, "preEquations")) {
+            return visit_pre_equations(e);
+        } else if (is_annotation(e, "preresolved")) {
+            expr e2 = unwrap_pos(e);
+            auto m = mdata_data(e2);
+            expr id = mdata_expr(e2);
+            if (!m_assume_local) {
+                if (auto l = m_p.resolve_local(const_name(id), m_p.pos_of(e), m_locals)) {
+                    return copy_pos(e, *l);
+                }
+            }
+            buffer<expr> new_args;
+            for (unsigned i = 0;; i++) {
+                if (auto n = get_name(m, name(name(), i))) {
+                    if (is_internal_name(*n)) {
+                        if (m_assume_local)
+                            continue;  // never resolve to section variables in patterns
+                        // section variable
+                        for (pair<name, expr> const & p : m_p.m_local_decls.get_entries())
+                            if (local_name_p(p.second) == *n)
+                                return p.second;
+                        throw elaborator_exception(e, format("invalid reference to section variable '") + format(const_name(id).escape()) +
+                                                      format("' outside of section"));
+                    }
+                    new_args.push_back(copy_pos(e, mk_const(*n, const_levels(id))));
+                } else {
+                    break;
+                }
+            }
+            if (new_args.empty()) {
+                if (m_assume_local)
+                    return mk_local(const_name(id), mk_expr_placeholder());
+                auto const & pip = *get_pos_info_provider();
+                report_message(message(pip.get_file_name(), pip.get_pos_info_or_some(e), message_severity::ERROR,
+                                       "unknown identifier '" + const_name(id).escape() + "'"));
+                return m_p.mk_sorry(pip.get_pos_info_or_some(e));
+            }
+            return mk_choice(new_args.size(), new_args.data());
+        } else {
+            return replace_visitor::visit(e);
+        }
+    }
+};
+
+expr resolve_names(parser & p, expr const & e) {
+    return resolve_names_fn(p)(e);
+}
+
 bool get_elaborator_coercions(options const & opts) {
     return opts.get_bool(*g_elaborator_coercions, LEAN_DEFAULT_ELABORATOR_COERCIONS);
 }

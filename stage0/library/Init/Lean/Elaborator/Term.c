@@ -25,7 +25,6 @@ lean_object* l_List_foldl___main___at_Lean_Parser_mkAppStx___spec__1___rarg(lean
 lean_object* l_PersistentHashMap_find___at_Lean_Elab_elabTermAux___main___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkExplicitBinder___rarg___closed__4;
 lean_object* l_Lean_Elab_elabTermAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-size_t l_USize_shift__right(size_t, size_t);
 extern lean_object* l_Lean_List_format___rarg___closed__2;
 lean_object* l_Lean_Elab_elabArrow___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltinTermElab_Lean_Elab_elabArrow___closed__3;
@@ -64,6 +63,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabListLit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_nullKind;
 extern lean_object* l_Prod_HasRepr___rarg___closed__1;
+size_t l_USize_shiftRight(size_t, size_t);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_HashMapImp_find___at_Lean_Elab_elabTermAux___main___spec__5___boxed(lean_object*, lean_object*);
 extern size_t l_PersistentHashMap_insertAux___main___rarg___closed__2;
@@ -84,10 +84,10 @@ lean_object* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Elab_elabListLit___spec
 lean_object* l___regBuiltinTermElab_Lean_Elab_elabListLit___closed__2;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabTerm(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Init_Util_1__mkPanicMessage___closed__2;
 lean_object* l_Lean_SMap_find___at_Lean_Elab_elabTermAux___main___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabListLit___closed__2;
 extern lean_object* l_Lean_Parser_Term_forall___elambda__1___closed__2;
-extern lean_object* l_panicWithPos___rarg___closed__2;
 extern lean_object* l_Lean_Syntax_asNode___rarg___closed__1;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkExplicitBinder___rarg___closed__2;
@@ -1134,7 +1134,7 @@ lean_object* _init_l_Lean_Elab_mkExplicitBinder___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_panicWithPos___rarg___closed__2;
+x_1 = l___private_Init_Util_1__mkPanicMessage___closed__2;
 x_2 = l_Lean_mkAtom___rarg(x_1);
 return x_2;
 }

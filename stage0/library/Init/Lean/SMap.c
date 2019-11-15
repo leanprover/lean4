@@ -19,6 +19,7 @@ lean_object* l_Lean_SMap_numBuckets___rarg(lean_object*);
 lean_object* l_Lean_SMap_find(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x21___rarg___closed__1;
 lean_object* l_Lean_SMap_foldStage2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_SMap_find_x21___rarg___closed__2;
 extern lean_object* l_PersistentHashMap_find_x21___rarg___closed__2;
 lean_object* l_PersistentHashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_empty___rarg(lean_object*, lean_object*);
@@ -50,6 +51,7 @@ lean_object* l_Lean_SMap_switch(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x27(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_empty___rarg(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_foldlM___at_Lean_SMap_foldStage2___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_contains___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x21___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_findD___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -57,6 +59,7 @@ lean_object* l_Lean_SMap_size___rarg(lean_object*);
 lean_object* l_Lean_SMap_numBuckets___rarg___boxed(lean_object*);
 lean_object* l_PersistentHashMap_foldlM___at_Lean_SMap_foldStage2___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x27___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_panic(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_empty(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_SMap_foldStage2___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_foldlMAux___main___at_Lean_SMap_foldStage2___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -85,7 +88,6 @@ lean_object* l_PersistentHashMap_foldlMAux___main___at_Lean_SMap_foldStage2___sp
 lean_object* l_Lean_SMap_empty___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_size___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_SMap_foldStage2___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panicWithPos___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_Inhabited___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -347,6 +349,18 @@ x_1 = lean_mk_string("Init.Lean.SMap");
 return x_1;
 }
 }
+lean_object* _init_l_Lean_SMap_find_x21___rarg___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_SMap_find_x21___rarg___closed__1;
+x_2 = lean_unsigned_to_nat(56u);
+x_3 = lean_unsigned_to_nat(12u);
+x_4 = l_PersistentHashMap_find_x21___rarg___closed__2;
+x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
 lean_object* l_Lean_SMap_find_x21___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -354,22 +368,19 @@ lean_object* x_6;
 x_6 = l_Lean_SMap_find___rarg(x_1, x_2, x_4, x_5);
 if (lean_obj_tag(x_6) == 0)
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_7 = l_Lean_SMap_find_x21___rarg___closed__1;
-x_8 = lean_unsigned_to_nat(56u);
-x_9 = lean_unsigned_to_nat(12u);
-x_10 = l_PersistentHashMap_find_x21___rarg___closed__2;
-x_11 = l_panicWithPos___rarg(x_3, x_7, x_8, x_9, x_10);
-return x_11;
+lean_object* x_7; lean_object* x_8; 
+x_7 = l_Lean_SMap_find_x21___rarg___closed__2;
+x_8 = lean_panic_fn(x_7);
+return x_8;
 }
 else
 {
-lean_object* x_12; 
+lean_object* x_9; 
 lean_dec(x_3);
-x_12 = lean_ctor_get(x_6, 0);
-lean_inc(x_12);
+x_9 = lean_ctor_get(x_6, 0);
+lean_inc(x_9);
 lean_dec(x_6);
-return x_12;
+return x_9;
 }
 }
 }
@@ -917,6 +928,8 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_SMap_find_x21___rarg___closed__1 = _init_l_Lean_SMap_find_x21___rarg___closed__1();
 lean_mark_persistent(l_Lean_SMap_find_x21___rarg___closed__1);
+l_Lean_SMap_find_x21___rarg___closed__2 = _init_l_Lean_SMap_find_x21___rarg___closed__2();
+lean_mark_persistent(l_Lean_SMap_find_x21___rarg___closed__2);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

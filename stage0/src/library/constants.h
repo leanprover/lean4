@@ -142,6 +142,7 @@ name const & get_of_eq_true_name();
 name const & get_of_iff_true_name();
 name const & get_opt_param_name();
 name const & get_or_name();
+name const & get_panic_name();
 name const & get_panic_with_pos_name();
 name const & get_punit_name();
 name const & get_punit_unit_name();

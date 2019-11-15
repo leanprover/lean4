@@ -135,6 +135,7 @@ ofEqTrue
 ofIffTrue
 optParam
 Or
+panic
 panicWithPos
 PUnit
 PUnit.unit

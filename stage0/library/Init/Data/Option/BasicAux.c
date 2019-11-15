@@ -15,10 +15,12 @@ extern "C" {
 #endif
 lean_object* l_Option_get_x21___rarg(lean_object*, lean_object*);
 lean_object* l_Option_get_x21(lean_object*);
+lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Option_get_x21___rarg___closed__3;
+lean_object* l_panic(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_get_x21___rarg___closed__2;
 lean_object* l_Option_get_x21___rarg___closed__1;
 lean_object* l_Option_get_x21___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_panicWithPos___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* _init_l_Option_get_x21___rarg___closed__1() {
 _start:
 {
@@ -35,26 +37,35 @@ x_1 = lean_mk_string("value is none");
 return x_1;
 }
 }
+lean_object* _init_l_Option_get_x21___rarg___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Option_get_x21___rarg___closed__1;
+x_2 = lean_unsigned_to_nat(16u);
+x_3 = lean_unsigned_to_nat(12u);
+x_4 = l_Option_get_x21___rarg___closed__2;
+x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
 lean_object* l_Option_get_x21___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_3 = l_Option_get_x21___rarg___closed__1;
-x_4 = lean_unsigned_to_nat(16u);
-x_5 = lean_unsigned_to_nat(12u);
-x_6 = l_Option_get_x21___rarg___closed__2;
-x_7 = l_panicWithPos___rarg(x_1, x_3, x_4, x_5, x_6);
-return x_7;
+lean_object* x_3; lean_object* x_4; 
+x_3 = l_Option_get_x21___rarg___closed__3;
+x_4 = lean_panic_fn(x_3);
+return x_4;
 }
 else
 {
-lean_object* x_8; 
+lean_object* x_5; 
 lean_dec(x_1);
-x_8 = lean_ctor_get(x_2, 0);
-lean_inc(x_8);
-return x_8;
+x_5 = lean_ctor_get(x_2, 0);
+lean_inc(x_5);
+return x_5;
 }
 }
 }
@@ -92,6 +103,8 @@ l_Option_get_x21___rarg___closed__1 = _init_l_Option_get_x21___rarg___closed__1(
 lean_mark_persistent(l_Option_get_x21___rarg___closed__1);
 l_Option_get_x21___rarg___closed__2 = _init_l_Option_get_x21___rarg___closed__2();
 lean_mark_persistent(l_Option_get_x21___rarg___closed__2);
+l_Option_get_x21___rarg___closed__3 = _init_l_Option_get_x21___rarg___closed__3();
+lean_mark_persistent(l_Option_get_x21___rarg___closed__3);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

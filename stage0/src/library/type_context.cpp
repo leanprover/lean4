@@ -1869,11 +1869,7 @@ bool type_context_old::process_assignment(expr const & m, expr const & v) {
         } else {
             if (std::any_of(locals.begin(), locals.end(),
                             [&](expr const & local) { return local_name(local) == local_name(arg); })) {
-                /* m is of the form (?M ... l ... l ...) where l is a local constant. */
-                if (quasi_pattern_unif_approx()) {
-                    /* workaround A3 */
-                    add_locals = false;
-                } else if (fo_unif_approx()) {
+                if (fo_unif_approx()) {
                     use_fo     = true;
                     add_locals = false;
                 } else {

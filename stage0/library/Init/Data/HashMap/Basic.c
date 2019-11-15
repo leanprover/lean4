@@ -75,6 +75,7 @@ lean_object* l_HashMap_fold(lean_object*, lean_object*, lean_object*, lean_objec
 lean_object* l_HashMapImp_erase(lean_object*, lean_object*);
 uint8_t l_AssocList_contains___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMap_insert(lean_object*, lean_object*);
+lean_object* l_HashMap_find_x21___rarg___closed__3;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_AssocList_foldlM___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapBucket_update___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -92,6 +93,7 @@ lean_object* l_HashMap_find(lean_object*, lean_object*);
 lean_object* l_HashMap_numBuckets___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_mkHashMap___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_HashMapImp_foldM___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_replace___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_foldlM___main___at_HashMap_fold___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_foldlM___main___at_HashMapImp_moveEntries___main___spec__1(lean_object*, lean_object*);
@@ -102,6 +104,7 @@ lean_object* l_HashMap_find_x21___rarg___closed__1;
 lean_object* l_HashMapImp_reinsertAux(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_HashMapImp_foldBucketsM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_moveEntries___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_panic(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMap_numBuckets(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_foldlM___main___at_HashMapImp_foldBuckets___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
@@ -145,7 +148,6 @@ lean_object* l_HashMap_find_x21___rarg___closed__2;
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_HashMap_fold___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMap_HasEmptyc(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panicWithPos___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_expand___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapBucket_update___rarg(lean_object* x_1, size_t x_2, lean_object* x_3, lean_object* x_4) {
 _start:
@@ -1297,6 +1299,18 @@ x_1 = lean_mk_string("key is not in the map");
 return x_1;
 }
 }
+lean_object* _init_l_HashMap_find_x21___rarg___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_HashMap_find_x21___rarg___closed__1;
+x_2 = lean_unsigned_to_nat(155u);
+x_3 = lean_unsigned_to_nat(12u);
+x_4 = l_HashMap_find_x21___rarg___closed__2;
+x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
 lean_object* l_HashMap_find_x21___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -1304,22 +1318,19 @@ lean_object* x_6;
 x_6 = l_HashMapImp_find___rarg(x_1, x_2, x_4, x_5);
 if (lean_obj_tag(x_6) == 0)
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_7 = l_HashMap_find_x21___rarg___closed__1;
-x_8 = lean_unsigned_to_nat(155u);
-x_9 = lean_unsigned_to_nat(12u);
-x_10 = l_HashMap_find_x21___rarg___closed__2;
-x_11 = l_panicWithPos___rarg(x_3, x_7, x_8, x_9, x_10);
-return x_11;
+lean_object* x_7; lean_object* x_8; 
+x_7 = l_HashMap_find_x21___rarg___closed__3;
+x_8 = lean_panic_fn(x_7);
+return x_8;
 }
 else
 {
-lean_object* x_12; 
+lean_object* x_9; 
 lean_dec(x_3);
-x_12 = lean_ctor_get(x_6, 0);
-lean_inc(x_12);
+x_9 = lean_ctor_get(x_6, 0);
+lean_inc(x_9);
 lean_dec(x_6);
-return x_12;
+return x_9;
 }
 }
 }
@@ -1742,6 +1753,8 @@ l_HashMap_find_x21___rarg___closed__1 = _init_l_HashMap_find_x21___rarg___closed
 lean_mark_persistent(l_HashMap_find_x21___rarg___closed__1);
 l_HashMap_find_x21___rarg___closed__2 = _init_l_HashMap_find_x21___rarg___closed__2();
 lean_mark_persistent(l_HashMap_find_x21___rarg___closed__2);
+l_HashMap_find_x21___rarg___closed__3 = _init_l_HashMap_find_x21___rarg___closed__3();
+lean_mark_persistent(l_HashMap_find_x21___rarg___closed__3);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

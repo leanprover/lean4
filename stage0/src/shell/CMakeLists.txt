@@ -241,6 +241,22 @@ FOREACH(T ${LEANT0TESTS})
            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME} "-t 10")
 ENDFOREACH(T)
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  # Skip stdlib tests on Windows
+  message(STATUS "skipping stdlib tests")
+else()
+  file(GLOB_RECURSE STDLIBFILES "${LEAN_SOURCE_DIR}/../library/*.lean")
+  set(STDIDX 0)
+  FOREACH(T ${STDLIBFILES})
+    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+    GET_FILENAME_COMPONENT(T_DIR ${T} DIRECTORY)
+    MATH(EXPR STDIDX "${STDIDX}+1")
+    add_test(NAME "stdlib_${STDIDX}"
+           WORKING_DIRECTORY "${T_DIR}"
+           COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" ${T_NAME})
+  ENDFOREACH(T)
+endif()
+
 if("${MULTI_THREAD}" MATCHES "ON")
 # LEAN INTERACTIVE TESTS
 file(GLOB LEANITTESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/*.input" "${LEAN_SOURCE_DIR}/../tests/lean/interactive/*.lean")

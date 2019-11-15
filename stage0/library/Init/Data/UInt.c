@@ -15,10 +15,13 @@ extern "C" {
 #endif
 uint64_t l_UInt64_div(uint64_t, uint64_t);
 lean_object* l_UInt8_hasDecidableLt___boxed(lean_object*, lean_object*);
+uint64_t l_Nat_toUInt64(lean_object*);
 uint8_t l_UInt8_Inhabited;
 lean_object* lean_uint8_to_nat(uint8_t);
 lean_object* l_UInt32_mul___boxed(lean_object*, lean_object*);
 uint16_t lean_uint16_modn(uint16_t, lean_object*);
+uint64_t l_UInt32_toUInt64(uint32_t);
+lean_object* l_UInt64_toUInt16___boxed(lean_object*);
 uint8_t l_UInt8_mul(uint8_t, uint8_t);
 lean_object* l_UInt8_land___boxed(lean_object*, lean_object*);
 lean_object* l_UInt64_HasMod;
@@ -35,13 +38,12 @@ lean_object* l_UInt64_ofNat___boxed(lean_object*);
 lean_object* l_USize_HasLess;
 lean_object* l_UInt16_modn___boxed(lean_object*, lean_object*);
 uint8_t lean_uint8_modn(uint8_t, lean_object*);
-size_t l_USize_ofUInt64(uint64_t);
 size_t l_USize_div(size_t, size_t);
 lean_object* l_UInt64_HasMod___closed__1;
 lean_object* l_UInt32_hasDecidableLt___boxed(lean_object*, lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_UInt64_HasModn___closed__1;
-size_t l_USize_shift__right(size_t, size_t);
+lean_object* l_Nat_toUInt16___boxed(lean_object*);
 lean_object* l_UInt8_decLe___boxed(lean_object*, lean_object*);
 lean_object* l_UInt64_HasModn;
 lean_object* l_UInt64_hasDecidableLe___boxed(lean_object*, lean_object*);
@@ -49,11 +51,11 @@ uint8_t lean_uint8_of_nat(lean_object*);
 uint8_t l_UInt64_decEq(uint64_t, uint64_t);
 lean_object* l_UInt32_HasDiv___closed__1;
 lean_object* l_UInt64_div___boxed(lean_object*, lean_object*);
+lean_object* l_Nat_toUInt8___boxed(lean_object*);
 uint16_t lean_uint16_of_nat(lean_object*);
 lean_object* l_UInt32_HasAdd;
 uint32_t l_UInt32_land(uint32_t, uint32_t);
 lean_object* l_UInt64_HasSub___closed__1;
-lean_object* l_USize_shift__left___boxed(lean_object*, lean_object*);
 lean_object* lean_uint16_to_nat(uint16_t);
 lean_object* l_UInt16_lor___boxed(lean_object*, lean_object*);
 uint32_t l_UInt32_sub(uint32_t, uint32_t);
@@ -67,7 +69,9 @@ uint8_t l_UInt8_add(uint8_t, uint8_t);
 lean_object* l_UInt32_lor___boxed(lean_object*, lean_object*);
 lean_object* l_USize_mul___boxed(lean_object*, lean_object*);
 lean_object* l_USize_HasMod___closed__1;
+lean_object* l_Nat_toUInt64___boxed(lean_object*);
 lean_object* l_UInt32_DecidableEq___closed__1;
+size_t l_UInt64_toUSize(uint64_t);
 lean_object* l_USize_decLe___boxed(lean_object*, lean_object*);
 lean_object* l_UInt8_HasSub___closed__1;
 uint64_t l_UInt64_add(uint64_t, uint64_t);
@@ -76,8 +80,11 @@ lean_object* l_uint32Sz;
 lean_object* l_UInt64_HasDiv;
 lean_object* l_USize_HasDiv;
 lean_object* l_uint64Sz;
+lean_object* l_Nat_toUSize___boxed(lean_object*);
+uint64_t l_Bool_toUInt64(uint8_t);
 size_t l_USize_HasZero;
 size_t l_USize_mod(size_t, size_t);
+lean_object* l_UInt64_shiftRight___boxed(lean_object*, lean_object*);
 lean_object* l_UInt8_DecidableEq___closed__1;
 lean_object* l_UInt64_HasMul;
 lean_object* l_UInt16_HasAdd___closed__1;
@@ -86,27 +93,33 @@ lean_object* l_USize_HasLessEq;
 lean_object* l_UInt32_HasModn___closed__1;
 uint32_t l_UInt32_mul(uint32_t, uint32_t);
 uint32_t l_UInt32_div(uint32_t, uint32_t);
+uint16_t l_Nat_toUInt16(lean_object*);
 lean_object* l_UInt16_toNat___boxed(lean_object*);
 lean_object* l_UInt32_decLt___boxed(lean_object*, lean_object*);
 lean_object* l_UInt8_HasLessEq;
 lean_object* l_UInt64_HasMul___closed__1;
+lean_object* l_UInt32_toUSize___boxed(lean_object*);
 lean_object* l_UInt64_decLt___boxed(lean_object*, lean_object*);
-lean_object* l_USize_shift__right___boxed(lean_object*, lean_object*);
+lean_object* l_USize_shiftLeft___boxed(lean_object*, lean_object*);
+uint64_t l_UInt64_shiftRight(uint64_t, uint64_t);
 lean_object* l_USize_hasDecidableLe___boxed(lean_object*, lean_object*);
 lean_object* l_UInt32_div___boxed(lean_object*, lean_object*);
 uint64_t l_UInt64_Inhabited;
 uint16_t l_UInt16_div(uint16_t, uint16_t);
 uint8_t l_UInt8_hasDecidableLt(uint8_t, uint8_t);
+uint32_t l_UInt64_toUInt32(uint64_t);
 lean_object* l_UInt8_HasMul___closed__1;
 lean_object* l_UInt32_HasMod___closed__1;
 lean_object* l_UInt16_land___boxed(lean_object*, lean_object*);
+lean_object* l_USize_toUInt32___boxed(lean_object*);
 lean_object* l_USize_modn___boxed(lean_object*, lean_object*);
+lean_object* l_Nat_toUInt32___boxed(lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
+uint64_t l_UInt64_shiftLeft(uint64_t, uint64_t);
 lean_object* l_UInt16_hasDecidableLe___boxed(lean_object*, lean_object*);
 size_t l_USize_lor(size_t, size_t);
 lean_object* l_UInt8_modn___boxed(lean_object*, lean_object*);
 lean_object* l_USize_sub___boxed(lean_object*, lean_object*);
-lean_object* l_USize_ofUInt64___boxed(lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 lean_object* l_USize_HasMod;
 lean_object* l_UInt16_decLe___boxed(lean_object*, lean_object*);
@@ -128,8 +141,10 @@ lean_object* l_UInt16_DecidableEq___closed__1;
 uint8_t l_UInt8_HasZero;
 lean_object* l_UInt8_hasDecidableLe___boxed(lean_object*, lean_object*);
 lean_object* l_UInt16_div___boxed(lean_object*, lean_object*);
+uint8_t l_UInt64_toUInt8(uint64_t);
 lean_object* l_UInt32_modn___boxed(lean_object*, lean_object*);
 lean_object* l_USize_add___boxed(lean_object*, lean_object*);
+lean_object* l_UInt64_toUInt32___boxed(lean_object*);
 lean_object* l_UInt32_add___boxed(lean_object*, lean_object*);
 uint8_t l_UInt32_hasDecidableLe(uint32_t, uint32_t);
 uint64_t l_UInt64_mul(uint64_t, uint64_t);
@@ -137,6 +152,7 @@ lean_object* l_USize_DecidableEq;
 lean_object* l_UInt8_sub___boxed(lean_object*, lean_object*);
 lean_object* l_UInt64_sub___boxed(lean_object*, lean_object*);
 lean_object* l_UInt32_HasMul;
+uint8_t l_Nat_toUInt8(lean_object*);
 lean_object* l_UInt16_HasDiv___closed__1;
 uint8_t l_UInt64_hasDecidableLe(uint64_t, uint64_t);
 lean_object* l_UInt32_HasMod;
@@ -149,9 +165,11 @@ lean_object* l_UInt32_ofNat___boxed(lean_object*);
 lean_object* l_UInt8_DecidableEq;
 lean_object* l_UInt8_ofNat___boxed(lean_object*);
 lean_object* l_USize_HasModn___closed__1;
+size_t l_USize_shiftRight(size_t, size_t);
 uint8_t l_UInt32_decLt(uint32_t, uint32_t);
 lean_object* l_UInt16_mul___boxed(lean_object*, lean_object*);
 lean_object* l_uint8Sz;
+size_t l_UInt32_toUSize(uint32_t);
 lean_object* l_UInt64_decLe___boxed(lean_object*, lean_object*);
 lean_object* l_USize_HasMul___closed__1;
 uint16_t l_UInt16_mul(uint16_t, uint16_t);
@@ -168,13 +186,13 @@ lean_object* l_USize_DecidableEq___closed__1;
 lean_object* l_UInt64_HasAdd___closed__1;
 lean_object* l_UInt8_toNat___boxed(lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
+lean_object* l_UInt64_shiftLeft___boxed(lean_object*, lean_object*);
 lean_object* l_USize_hasDecidableLt___boxed(lean_object*, lean_object*);
 uint8_t l_UInt32_hasDecidableLt(uint32_t, uint32_t);
 lean_object* l_UInt64_HasAdd;
 uint64_t l_UInt64_sub(uint64_t, uint64_t);
 lean_object* l_UInt8_HasLess;
 uint8_t l_UInt16_decLt(uint16_t, uint16_t);
-lean_object* l_USize_ofUInt32___boxed(lean_object*);
 lean_object* l_USize_lor___boxed(lean_object*, lean_object*);
 lean_object* l_UInt16_HasMod___closed__1;
 lean_object* l_UInt8_HasDiv___closed__1;
@@ -193,7 +211,9 @@ lean_object* l_UInt16_HasMod;
 lean_object* l_UInt32_land___boxed(lean_object*, lean_object*);
 lean_object* l_UInt16_HasMul;
 lean_object* l_USize_decEq___boxed(lean_object*, lean_object*);
+lean_object* l_USize_shiftRight___boxed(lean_object*, lean_object*);
 lean_object* l_UInt8_decEq___boxed(lean_object*, lean_object*);
+lean_object* l_UInt64_toUSize___boxed(lean_object*);
 lean_object* l_UInt64_hasDecidableLt___boxed(lean_object*, lean_object*);
 lean_object* l_UInt64_HasLessEq;
 lean_object* l_UInt16_HasAdd;
@@ -212,15 +232,18 @@ uint16_t l_UInt16_mod(uint16_t, uint16_t);
 uint16_t l_UInt16_add(uint16_t, uint16_t);
 lean_object* l_UInt32_DecidableEq;
 lean_object* l_UInt8_mul___boxed(lean_object*, lean_object*);
+size_t l_Nat_toUSize(lean_object*);
 lean_object* l_UInt32_decLe___boxed(lean_object*, lean_object*);
+lean_object* l_Bool_toUInt64___boxed(lean_object*);
 extern lean_object* l_System_Platform_numBits;
 lean_object* l_UInt64_modn___boxed(lean_object*, lean_object*);
 lean_object* l_UInt64_mul___boxed(lean_object*, lean_object*);
 lean_object* l_USize_HasModn;
+size_t l_USize_shiftLeft(size_t, size_t);
 lean_object* l_UInt16_ofNat___boxed(lean_object*);
 uint8_t l_UInt8_decLt(uint8_t, uint8_t);
+uint32_t l_Nat_toUInt32(lean_object*);
 lean_object* l_UInt8_HasModn;
-size_t l_USize_ofUInt32(uint32_t);
 lean_object* l_uint16Sz;
 lean_object* l_UInt32_hasDecidableLe___boxed(lean_object*, lean_object*);
 lean_object* l_UInt16_HasSub___closed__1;
@@ -230,14 +253,16 @@ uint16_t l_UInt16_HasOne;
 lean_object* l_UInt8_HasMod;
 lean_object* l_UInt32_HasSub___closed__1;
 lean_object* l_usizeSz;
+uint16_t l_UInt64_toUInt16(uint64_t);
 size_t lean_usize_of_nat(lean_object*);
+uint32_t l_USize_toUInt32(size_t);
+lean_object* l_UInt64_toUInt8___boxed(lean_object*);
 lean_object* l_USize_HasDiv___closed__1;
 lean_object* l_UInt64_mod___boxed(lean_object*, lean_object*);
 lean_object* l_USize_HasSub___closed__1;
 uint8_t l_USize_decLe(size_t, size_t);
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l_UInt8_div___boxed(lean_object*, lean_object*);
-size_t l_USize_shift__left(size_t, size_t);
 uint8_t l_UInt16_decLe(uint16_t, uint16_t);
 lean_object* l_UInt32_toNat___boxed(lean_object*);
 lean_object* l_UInt16_HasLess;
@@ -255,6 +280,7 @@ lean_object* lean_usize_to_nat(size_t);
 lean_object* l_UInt8_HasAdd___closed__1;
 lean_object* l_UInt16_HasDiv;
 size_t l_USize_Inhabited;
+lean_object* l_UInt32_toUInt64___boxed(lean_object*);
 lean_object* l_UInt16_decEq___boxed(lean_object*, lean_object*);
 uint64_t l_UInt64_land(uint64_t, uint64_t);
 uint8_t l_UInt64_decLe(uint64_t, uint64_t);
@@ -288,6 +314,24 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_uint8_of_nat(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+uint8_t l_Nat_toUInt8(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; 
+x_2 = lean_uint8_of_nat(x_1);
+return x_2;
+}
+}
+lean_object* l_Nat_toUInt8___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Nat_toUInt8(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
@@ -657,6 +701,24 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
+uint16_t l_Nat_toUInt16(lean_object* x_1) {
+_start:
+{
+uint16_t x_2; 
+x_2 = lean_uint16_of_nat(x_1);
+return x_2;
+}
+}
+lean_object* l_Nat_toUInt16___boxed(lean_object* x_1) {
+_start:
+{
+uint16_t x_2; lean_object* x_3; 
+x_2 = l_Nat_toUInt16(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
 lean_object* l_UInt16_toNat___boxed(lean_object* x_1) {
 _start:
 {
@@ -1016,6 +1078,24 @@ _start:
 {
 uint32_t x_2; lean_object* x_3; 
 x_2 = lean_uint32_of_nat(x_1);
+lean_dec(x_1);
+x_3 = lean_box_uint32(x_2);
+return x_3;
+}
+}
+uint32_t l_Nat_toUInt32(lean_object* x_1) {
+_start:
+{
+uint32_t x_2; 
+x_2 = lean_uint32_of_nat(x_1);
+return x_2;
+}
+}
+lean_object* l_Nat_toUInt32___boxed(lean_object* x_1) {
+_start:
+{
+uint32_t x_2; lean_object* x_3; 
+x_2 = l_Nat_toUInt32(x_1);
 lean_dec(x_1);
 x_3 = lean_box_uint32(x_2);
 return x_3;
@@ -1393,6 +1473,24 @@ x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
+uint64_t l_Nat_toUInt64(lean_object* x_1) {
+_start:
+{
+uint64_t x_2; 
+x_2 = lean_uint64_of_nat(x_1);
+return x_2;
+}
+}
+lean_object* l_Nat_toUInt64___boxed(lean_object* x_1) {
+_start:
+{
+uint64_t x_2; lean_object* x_3; 
+x_2 = l_Nat_toUInt64(x_1);
+lean_dec(x_1);
+x_3 = lean_box_uint64(x_2);
+return x_3;
+}
+}
 lean_object* l_UInt64_toNat___boxed(lean_object* x_1) {
 _start:
 {
@@ -1502,6 +1600,76 @@ lean_dec(x_1);
 x_4 = lean_unbox_uint64(x_2);
 lean_dec(x_2);
 x_5 = x_3 | x_4;
+x_6 = lean_box_uint64(x_5);
+return x_6;
+}
+}
+lean_object* l_UInt64_toUInt8___boxed(lean_object* x_1) {
+_start:
+{
+uint64_t x_2; uint8_t x_3; lean_object* x_4; 
+x_2 = lean_unbox_uint64(x_1);
+lean_dec(x_1);
+x_3 = ((uint8_t)x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+lean_object* l_UInt64_toUInt16___boxed(lean_object* x_1) {
+_start:
+{
+uint64_t x_2; uint16_t x_3; lean_object* x_4; 
+x_2 = lean_unbox_uint64(x_1);
+lean_dec(x_1);
+x_3 = ((uint16_t)x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+lean_object* l_UInt64_toUInt32___boxed(lean_object* x_1) {
+_start:
+{
+uint64_t x_2; uint32_t x_3; lean_object* x_4; 
+x_2 = lean_unbox_uint64(x_1);
+lean_dec(x_1);
+x_3 = ((uint32_t)x_2);
+x_4 = lean_box_uint32(x_3);
+return x_4;
+}
+}
+lean_object* l_UInt32_toUInt64___boxed(lean_object* x_1) {
+_start:
+{
+uint32_t x_2; uint64_t x_3; lean_object* x_4; 
+x_2 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_3 = ((uint64_t)x_2);
+x_4 = lean_box_uint64(x_3);
+return x_4;
+}
+}
+lean_object* l_UInt64_shiftLeft___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint64_t x_3; uint64_t x_4; uint64_t x_5; lean_object* x_6; 
+x_3 = lean_unbox_uint64(x_1);
+lean_dec(x_1);
+x_4 = lean_unbox_uint64(x_2);
+lean_dec(x_2);
+x_5 = x_3 << x_4;
+x_6 = lean_box_uint64(x_5);
+return x_6;
+}
+}
+lean_object* l_UInt64_shiftRight___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint64_t x_3; uint64_t x_4; uint64_t x_5; lean_object* x_6; 
+x_3 = lean_unbox_uint64(x_1);
+lean_dec(x_1);
+x_4 = lean_unbox_uint64(x_2);
+lean_dec(x_2);
+x_5 = x_3 >> x_4;
 x_6 = lean_box_uint64(x_5);
 return x_6;
 }
@@ -1642,6 +1810,17 @@ x_1 = 0;
 return x_1;
 }
 }
+lean_object* l_Bool_toUInt64___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; uint64_t x_3; lean_object* x_4; 
+x_2 = lean_unbox(x_1);
+lean_dec(x_1);
+x_3 = (uint64_t)x_2;
+x_4 = lean_box_uint64(x_3);
+return x_4;
+}
+}
 lean_object* l_UInt64_decEq___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1767,6 +1946,24 @@ x_3 = lean_box_usize(x_2);
 return x_3;
 }
 }
+size_t l_Nat_toUSize(lean_object* x_1) {
+_start:
+{
+size_t x_2; 
+x_2 = lean_usize_of_nat(x_1);
+return x_2;
+}
+}
+lean_object* l_Nat_toUSize___boxed(lean_object* x_1) {
+_start:
+{
+size_t x_2; lean_object* x_3; 
+x_2 = l_Nat_toUSize(x_1);
+lean_dec(x_1);
+x_3 = lean_box_usize(x_2);
+return x_3;
+}
+}
 lean_object* l_USize_toNat___boxed(lean_object* x_1) {
 _start:
 {
@@ -1880,7 +2077,7 @@ x_6 = lean_box_usize(x_5);
 return x_6;
 }
 }
-lean_object* l_USize_ofUInt32___boxed(lean_object* x_1) {
+lean_object* l_UInt32_toUSize___boxed(lean_object* x_1) {
 _start:
 {
 uint32_t x_2; size_t x_3; lean_object* x_4; 
@@ -1891,7 +2088,7 @@ x_4 = lean_box_usize(x_3);
 return x_4;
 }
 }
-lean_object* l_USize_ofUInt64___boxed(lean_object* x_1) {
+lean_object* l_UInt64_toUSize___boxed(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; size_t x_3; lean_object* x_4; 
@@ -1902,7 +2099,18 @@ x_4 = lean_box_usize(x_3);
 return x_4;
 }
 }
-lean_object* l_USize_shift__left___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_USize_toUInt32___boxed(lean_object* x_1) {
+_start:
+{
+size_t x_2; uint32_t x_3; lean_object* x_4; 
+x_2 = lean_unbox_usize(x_1);
+lean_dec(x_1);
+x_3 = (uint32_t)x_2;
+x_4 = lean_box_uint32(x_3);
+return x_4;
+}
+}
+lean_object* l_USize_shiftLeft___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 size_t x_3; size_t x_4; size_t x_5; lean_object* x_6; 
@@ -1915,7 +2123,7 @@ x_6 = lean_box_usize(x_5);
 return x_6;
 }
 }
-lean_object* l_USize_shift__right___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_USize_shiftRight___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 size_t x_3; size_t x_4; size_t x_5; lean_object* x_6; 

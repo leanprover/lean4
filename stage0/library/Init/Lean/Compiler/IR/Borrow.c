@@ -142,6 +142,7 @@ lean_object* l_Lean_IR_Borrow_Key_Hashable;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_whileModifingParamMap(lean_object*, lean_object*, lean_object*);
 lean_object* l_mkHashMapImp___rarg(lean_object*);
+extern lean_object* l___private_Init_Util_1__mkPanicMessage___closed__2;
 lean_object* l_Lean_IR_Borrow_updateParamSet(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_whileModifingParamMapAux___main___at_Lean_IR_Borrow_collectDecls___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_markModifiedParamMap(lean_object*);
@@ -153,7 +154,6 @@ size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_IR_Borrow_mkInitParamMap___closed__1;
 lean_object* l_Array_forMAux___main___at_Lean_IR_Borrow_collectFnBody___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_IR_Borrow_ownArgsIfParam___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_panicWithPos___rarg___closed__2;
 lean_object* l_Lean_IR_Borrow_whileModifingOwnedAux___main___at_Lean_IR_Borrow_collectDecl___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_collectDecls___boxed(lean_object*, lean_object*, lean_object*);
@@ -321,7 +321,7 @@ lean_object* _init_l_AssocList_foldlM___main___at_Lean_IR_Borrow_ParamMap_fmt___
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_panicWithPos___rarg___closed__2;
+x_1 = l___private_Init_Util_1__mkPanicMessage___closed__2;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

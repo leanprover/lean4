@@ -2039,6 +2039,7 @@ public:
     virtual expr check(expr const & e) override { return ctx().check(e); }
     virtual optional<expr> is_stuck(expr const & e) override { return ctx().is_stuck(e); }
     virtual name next_name() override { return ctx().next_name(); }
+    virtual optional<name> get_local_pp_name(expr const & e) override { return ctx().get_local_pp_name(e); }
 };
 
 void parser::parse_command(cmd_meta const & meta) {

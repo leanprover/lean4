@@ -36,7 +36,7 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
 
     lean_subst_trace_state(mvar, "initial:\n");
     lean_assert(mctx.find_metavar_decl(mvar));
-    lean_assert(is_local(H));
+    lean_assert(is_fvar(H));
     metavar_decl g      = mctx.get_metavar_decl(mvar);
     type_context_old ctx    = mk_type_context_for(env, opts, mctx, g.get_context(), m);
     expr H_type         = ctx.instantiate_mvars(ctx.infer(H));
@@ -107,11 +107,11 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
         local_context lctx = mctx.get_metavar_decl(*mvar6).get_context();
         hsubstitution new_subst;
         for (unsigned i = 0; i < to_revert.size() - 2; i++) {
-            lean_assert(check_hypothesis_in_context(mctx, mvar, local_name(to_revert[i+2])));
+            lean_assert(check_hypothesis_in_context(mctx, mvar, fvar_name(to_revert[i+2])));
             lean_assert(check_hypothesis_in_context(mctx, *mvar6, new_Hnames[i]));
-            new_subst.insert(local_name(to_revert[i+2]), lctx.get_local(new_Hnames[i]));
+            new_subst.insert(fvar_name(to_revert[i+2]), lctx.get_local(new_Hnames[i]));
         }
-        new_subst.insert(local_name(init_lhs), apply(rhs, new_subst));
+        new_subst.insert(fvar_name(init_lhs), apply(rhs, new_subst));
         *subst = new_subst;
     }
     lean_subst_trace_state(*mvar6, "after intro remaining reverted hypotheses:\n");

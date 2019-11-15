@@ -107,6 +107,7 @@ struct check_fn {
         case expr_kind::MVar:
         case expr_kind::Sort:
         case expr_kind::Lit:
+        case expr_kind::Local:
             break; /* do nothing */
         case expr_kind::Const:
             return visit_constant(e);

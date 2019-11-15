@@ -22,6 +22,7 @@ protected:
     virtual expr visit_constant(expr const &);
     virtual expr visit_var(expr const &);
     virtual expr visit_meta(expr const &);
+    virtual expr visit_fvar(expr const &);
     virtual expr visit_local(expr const &);
     virtual expr visit_app(expr const &);
     virtual expr visit_binding(expr const &);

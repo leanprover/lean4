@@ -566,6 +566,7 @@ class specialize_fn {
                 case expr_kind::Proj:
                     e = proj_expr(e);
                     break;
+                case expr_kind::Local: lean_unreachable();
                 }
             }
         }
@@ -899,6 +900,7 @@ class specialize_fn {
             if (!body) return none_expr();
             return some_expr(update_let(e, *type, *val, *body));
         }
+        case expr_kind::Local: lean_unreachable();
         }
         lean_unreachable();
     }

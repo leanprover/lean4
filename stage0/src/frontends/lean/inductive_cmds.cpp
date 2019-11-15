@@ -60,19 +60,29 @@ static level mk_succn(level const & l, unsigned offset) {
     return result;
 }
 
-static void convert_params_to_kernel(elaborator & elab, buffer<expr> const & lctx_params, buffer<expr> & kernel_params) {
-    for (unsigned i = 0; i < lctx_params.size(); ++i) {
-        expr new_type = replace_locals(elab.infer_type(lctx_params[i]), i, lctx_params.data(), kernel_params.data());
-        kernel_params.push_back(update_local_p(lctx_params[i], new_type));
+expr to_kernel_param(elaborator const & elab, expr const & fvar, expr const & type) {
+    if (is_fvar(fvar)) {
+        local_decl d = elab.lctx().get_local_decl(fvar);
+        return mk_local(d.get_name(), d.get_user_name(), type, d.get_info());
+    } else {
+        return update_local(fvar, type);
     }
 }
 
-static void replace_params(buffer<expr> const & params, buffer<expr> const & new_params, buffer<expr> const & inds, buffer<expr> const & new_inds,
+static void convert_params_to_kernel(elaborator & elab, buffer<expr> const & lctx_params, buffer<expr> & kernel_params) {
+    for (unsigned i = 0; i < lctx_params.size(); ++i) {
+        expr new_type = replace_locals(elab.infer_type(lctx_params[i]), i, lctx_params.data(), kernel_params.data());
+        kernel_params.push_back(to_kernel_param(elab, lctx_params[i], new_type));
+    }
+}
+
+static void replace_params(elaborator & elab,
+                           buffer<expr> const & params, buffer<expr> const & new_params, buffer<expr> const & inds, buffer<expr> const & new_inds,
                            buffer<expr> const & intro_rules, buffer<expr> & new_intro_rules) {
     for (expr const & ir : intro_rules) {
         expr new_type = replace_locals(local_type_p(ir), params, new_params);
         new_type = replace_locals(new_type, inds, new_inds);
-        new_intro_rules.push_back(update_local_p(ir, new_type));
+        new_intro_rules.push_back(to_kernel_param(elab, ir, new_type));
     }
 }
 
@@ -456,7 +466,7 @@ struct inductive_cmd_fn {
 
         for (buffer<expr> const & irs : intro_rules) {
             new_intro_rules.emplace_back();
-            replace_params(params_no_inds, new_params, inds, new_inds, irs, new_intro_rules.back());
+            replace_params(elab, params_no_inds, new_params, inds, new_inds, irs, new_intro_rules.back());
             for (expr & new_ir : new_intro_rules.back()) {
                 expr new_ir_type = elab.elaborate(local_type_p(new_ir));
                 new_ir_type      = normalize(new_ir_type);

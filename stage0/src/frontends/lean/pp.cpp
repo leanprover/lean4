@@ -643,6 +643,18 @@ auto pretty_fn::pp_meta(expr const & e) -> result {
     }
 }
 
+auto pretty_fn::pp_fvar(expr const & e) -> result {
+    if (optional<name> n0 = m_ctx.get_local_pp_name(e)) {
+        name n = sanitize_if_fresh(*n0);
+        n = sanitize_name_generator_name(n);
+        if (m_locals_full_names)
+            return result(format("<") + format(n + local_name(e)) + format(">"));
+        else
+            return format(escape(n));
+    }
+    return format(fvar_name(e));
+}
+
 auto pretty_fn::pp_local(expr const & e) -> result {
     name n = sanitize_if_fresh(local_pp_name(e));
     n = sanitize_name_generator_name(n);
@@ -1626,7 +1638,8 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
             return format(*k);
     switch (e.kind()) {
     case expr_kind::BVar:      return pp_var(e);
-    case expr_kind::FVar:      return pp_local(e);
+    case expr_kind::FVar:      return pp_fvar(e);
+    case expr_kind::Local:     return pp_local(e);
     case expr_kind::Sort:      return pp_sort(e);
     case expr_kind::MData:     return pp_mdata(e);
     case expr_kind::Proj:      return pp_proj(e);
@@ -1653,6 +1666,7 @@ pretty_fn::pretty_fn(environment const & env, options const & o, abstract_type_c
 class pp_beta_reduce_fn : public replace_visitor {
     virtual expr visit_meta(expr const & e) override { return e; }
     virtual expr visit_local(expr const & e) override { return e; }
+    virtual expr visit_fvar(expr const & e) override { return e; }
 
     virtual expr visit_mdata(expr const & e) override {
         if (is_show_annotation(e) && is_app(get_annotation_arg(e))) {

@@ -28,7 +28,8 @@ static local_context split_rec_fns(environment const & env, metavar_context & mc
     local_context new_lctx = lctx;
     for (unsigned fidx = 0; fidx < ues1.get_num_fns(); fidx++) {
         expr const & fn = ues1.get_fn(fidx);
-        expr aux_rec_fn = new_lctx.mk_local_decl(name(local_pp_name(fn), "_rec"), ctx1.infer(fn), local_info(fn));
+        local_decl decl = ctx1.lctx().get_local_decl(fn);
+        expr aux_rec_fn = new_lctx.mk_local_decl(name(decl.get_user_name(), "_rec"), ctx1.infer(fn), decl.get_info());
         aux_rec_fns.push_back(aux_rec_fn);
     }
 
@@ -66,8 +67,8 @@ static local_context split_rec_fns(environment const & env, metavar_context & mc
 static expr fix_rec_apps(expr const & e, name_map<name> const & aux_rec_name2actual_name,
                          levels const & closure_levels, buffer<expr> const & closure_params) {
     return replace(e, [&](expr const & t) {
-            if (is_local(t)) {
-                if (name const * actual_name = aux_rec_name2actual_name.find(local_name(t))) {
+            if (is_fvar(t)) {
+                if (name const * actual_name = aux_rec_name2actual_name.find(fvar_name(t))) {
                     return some_expr(mk_app(mk_constant(*actual_name, closure_levels), closure_params));
                 } else {
                     return none_expr();
@@ -94,8 +95,8 @@ eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
     name_map<name> aux_rec_fn_name2actual_name;
     names fn_actual_names = header.m_fn_actual_names;
     for (expr const & aux_rec_fn : aux_rec_fns) {
-        aux_rec_fn_names.insert(local_name(aux_rec_fn));
-        aux_rec_fn_name2actual_name.insert(local_name(aux_rec_fn), head(fn_actual_names));
+        aux_rec_fn_names.insert(fvar_name(aux_rec_fn));
+        aux_rec_fn_name2actual_name.insert(fvar_name(aux_rec_fn), head(fn_actual_names));
         fn_actual_names = tail(fn_actual_names);
     }
 

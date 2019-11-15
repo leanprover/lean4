@@ -100,7 +100,7 @@ inline constexpr unsigned num_obj_fields(expr_kind k) {
     return
         k == expr_kind::App     ?  2 :
         k == expr_kind::Const   ?  2 :
-        k == expr_kind::FVar    ?  3 : // TODO(Leo): it should be 1 after we remove support for legacy code
+        k == expr_kind::FVar    ?  1 : // TODO(Leo): it should be 1 after we remove support for legacy code
         k == expr_kind::Lambda  ?  3 :
         k == expr_kind::Pi      ?  3 :
         k == expr_kind::BVar    ?  1 :
@@ -110,6 +110,7 @@ inline constexpr unsigned num_obj_fields(expr_kind k) {
         k == expr_kind::Lit     ?  1 :
         k == expr_kind::MData   ?  2 :
         k == expr_kind::Proj    ?  3 :
+        k == expr_kind::Local   ?  3 : // TODO(Leo): delete we remove support for legacy code
         /* k == expr_kind::Quote */ 1;
 }
 
@@ -117,7 +118,7 @@ inline constexpr unsigned num_obj_fields(expr_kind k) {
 inline constexpr unsigned scalar_offset(expr_kind k) { return num_obj_fields(k) * sizeof(object*); }
 
 inline constexpr unsigned binder_info_offset(expr_kind k) {
-    // Only for: k == expr_kind::Pi || k == expr_kind::Lambda || k == expr_kind::FVar
+    // Only for: k == expr_kind::Pi || k == expr_kind::Lambda || k == expr_kind::Local
     return scalar_offset(k);
 }
 
@@ -129,7 +130,7 @@ inline constexpr unsigned reflected_offset(expr_kind k) {
 
 inline constexpr unsigned hash_offset(expr_kind k) {
     return
-        k == expr_kind::FVar   ? scalar_offset(k) + sizeof(unsigned) : // for binder_info, TODO(Leo): delete after we remove support for legacy code
+        k == expr_kind::Local  ? scalar_offset(k) + sizeof(unsigned) : // for binder_info, TODO(Leo): delete after we remove support for legacy code
         k == expr_kind::Lambda ? scalar_offset(k) + sizeof(unsigned) : // for binder_info
         k == expr_kind::Pi     ? scalar_offset(k) + sizeof(unsigned) : // for binder_info
         scalar_offset(k);
@@ -187,7 +188,8 @@ template<expr_kind k> unsigned get_loose_bvar_range_core(object * e) { return cn
 unsigned expr_get_loose_bvar_range(object * e) {
     switch (expr::kind(e)) {
     case expr_kind::Const: case expr_kind::Sort:
-    case expr_kind::Lit:
+    case expr_kind::Lit:   case expr_kind::MVar:
+    case expr_kind::FVar:
         return 0;
     case expr_kind::BVar:    {
         object * idx = cnstr_get(e, 0);
@@ -196,8 +198,7 @@ unsigned expr_get_loose_bvar_range(object * e) {
         else
             return std::numeric_limits<unsigned>::max();
     }
-    case expr_kind::MVar:    return get_loose_bvar_range_core<expr_kind::MVar>(e);
-    case expr_kind::FVar:    return get_loose_bvar_range_core<expr_kind::FVar>(e);
+    case expr_kind::Local:   return get_loose_bvar_range_core<expr_kind::Local>(e);
     case expr_kind::Lambda:  return get_loose_bvar_range_core<expr_kind::Lambda>(e);
     case expr_kind::Pi:      return get_loose_bvar_range_core<expr_kind::Pi>(e);
     case expr_kind::App:     return get_loose_bvar_range_core<expr_kind::App>(e);
@@ -214,11 +215,13 @@ bool is_atomic(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Const: case expr_kind::Sort:
     case expr_kind::BVar:  case expr_kind::Lit:
+    case expr_kind::MVar:  case expr_kind::FVar:
         return true;
-    case expr_kind::App:   case expr_kind::MVar:
-    case expr_kind::FVar:  case expr_kind::Lambda:
+    case expr_kind::App:
+    case expr_kind::Lambda:
     case expr_kind::Pi:    case expr_kind::Let:
     case expr_kind::MData: case expr_kind::Proj:
+    case expr_kind::Local:
         return false;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
@@ -233,7 +236,7 @@ binder_info binding_info(expr const & e) {
 /* Legacy */
 binder_info local_info(expr const & e) {
     lean_assert(is_local(e));
-    return static_cast<binder_info>(cnstr_get_scalar<unsigned char>(e.raw(), binder_info_offset(expr_kind::FVar)));
+    return static_cast<binder_info>(cnstr_get_scalar<unsigned char>(e.raw(), binder_info_offset(expr_kind::Local)));
 }
 
 static expr * g_nat_type    = nullptr;
@@ -316,30 +319,15 @@ expr mk_bvar(nat const & idx) {
     return expr(lean_expr_mk_bvar(idx.raw()));
 }
 
-/* Legacy */
-static inline object * mk_local(obj_arg n, obj_arg pp_n, obj_arg t, binder_info bi) {
-    object * r = alloc_cnstr(static_cast<unsigned>(expr_kind::FVar), 3, rec_expr_scalar_size(expr_kind::FVar));
+extern "C" object * lean_expr_mk_fvar(obj_arg n) {
+    object * r = alloc_cnstr(static_cast<unsigned>(expr_kind::FVar), 1, rec_expr_scalar_size(expr_kind::FVar));
     cnstr_set(r, 0, n);
-    cnstr_set(r, 1, pp_n);
-    cnstr_set(r, 2, t);
-    set_binder_info<expr_kind::FVar>(r, bi);
-    set_scalar<expr_kind::FVar>(r, name::hash(n), has_expr_mvar(t), has_univ_mvar(t), true, has_univ_param(t));
-    set_rec_scalar<expr_kind::FVar>(r, expr_get_loose_bvar_range(t));
+    set_scalar<expr_kind::FVar>(r, name::hash(n), false, false, true, false);
     return r;
 }
 
-extern "C" object * lean_expr_mk_fvar(obj_arg n) {
-    inc(n);
-    return mk_local(n, n, get_dummy().to_obj_arg(), mk_binder_info());
-}
-
-expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info bi) {
-    inc(n.raw()); inc(pp_n.raw()); inc(t.raw());
-    return expr(mk_local(n.raw(), pp_n.raw(), t.raw(), bi));
-}
-
 expr mk_fvar(name const & n) {
-    return mk_local(n, n, expr(), mk_binder_info());
+    return expr(lean_expr_mk_fvar(n.to_obj_arg()));
 }
 
 extern "C" object * lean_expr_mk_const(obj_arg n, obj_arg ls) {
@@ -656,6 +644,24 @@ expr update_let(expr const & e, expr const & new_type, expr const & new_value, e
 }
 
 /* Legacy */
+static inline object * mk_local(obj_arg n, obj_arg pp_n, obj_arg t, binder_info bi) {
+    object * r = alloc_cnstr(static_cast<unsigned>(expr_kind::Local), 3, rec_expr_scalar_size(expr_kind::Local));
+    cnstr_set(r, 0, n);
+    cnstr_set(r, 1, pp_n);
+    cnstr_set(r, 2, t);
+    set_binder_info<expr_kind::Local>(r, bi);
+    set_scalar<expr_kind::Local>(r, name::hash(n), has_expr_mvar(t), has_univ_mvar(t), true, has_univ_param(t));
+    set_rec_scalar<expr_kind::Local>(r, expr_get_loose_bvar_range(t));
+    return r;
+}
+
+/* Legacy */
+expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info bi) {
+    inc(n.raw()); inc(pp_n.raw()); inc(t.raw());
+    return expr(mk_local(n.raw(), pp_n.raw(), t.raw(), bi));
+}
+
+/* Legacy */
 expr update_local(expr const & e, expr const & new_type, binder_info bi) {
     if (is_eqp(local_type(e), new_type) && local_info(e) == bi)
         return e;
@@ -909,21 +915,4 @@ void finalize_expr() {
     delete g_nat_type;
     delete g_string_type;
 }
-
-#if 0
-// Expr metavariables and local variables
-expr_mlocal::expr_mlocal(bool is_meta, name const & n, name const & pp_n, expr const & t):
-    expr_composite(is_meta ? expr_kind::MVar : expr_kind::FVar, n.hash(), is_meta || t.has_expr_metavar(), t.has_univ_metavar(),
-                   !is_meta || t.has_fvar(), t.has_param_univ(),
-                   1, get_loose_bvar_range(t)),
-    m_name(n),
-    m_pp_name(pp_n),
-    m_type(t) {}
-
-void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
-    dec_ref(m_type, todelete);
-    delete this;
-}
-
-#endif
 }

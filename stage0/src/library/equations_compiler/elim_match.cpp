@@ -141,7 +141,7 @@ struct elim_match_fn {
        in `e` are defined in `lctx` */
     bool check_locals_decl_at(expr const & e, local_context const & lctx) {
         for_each(e, [&](expr const & e, unsigned) {
-                if (is_local(e) && !lctx.find_local_decl(e)) {
+                if (is_fvar(e) && !lctx.find_local_decl(e)) {
                     lean_unreachable();
                 }
                 return true;
@@ -465,7 +465,7 @@ struct elim_match_fn {
     bool is_next_var(problem const & P) {
         lean_assert(P.m_var_stack);
         expr const & x = head(P.m_var_stack);
-        return is_local(x);
+        return is_fvar(x);
     }
 
     template<typename Pred>
@@ -487,7 +487,7 @@ struct elim_match_fn {
 
     /* Return true iff the next pattern in all equations is a variable. */
     bool is_variable_transition(problem const & P) const {
-        return all_next_pattern(P, is_local);
+        return all_next_pattern(P, is_fvar);
     }
 
     /* Return true iff the next pattern in all equations is a constructor. */
@@ -509,7 +509,7 @@ struct elim_match_fn {
         bool has_constructor = false;
         bool r = all_equations(P, [&](equation const & eqn) {
                 expr const & p = head(eqn.m_patterns);
-                if (is_local(p)) {
+                if (is_fvar(p)) {
                     has_variable = true; return true;
                 }
                 type_context_old ctx = mk_type_context(eqn.m_lctx);
@@ -537,7 +537,7 @@ struct elim_match_fn {
         bool has_finite_value = false;
         bool r = all_equations(P, [&](equation const & eqn) {
                 expr const & p = head(eqn.m_patterns);
-                if (is_local(p)) {
+                if (is_fvar(p)) {
                     has_variable = true; return true;
                 } else {
                     type_context_old ctx = mk_type_context(eqn.m_lctx);
@@ -599,17 +599,6 @@ struct elim_match_fn {
         return some_inaccessible(P);
     }
 
-    /** Replace local `x` in `e` with `renaming.find(x)` */
-    expr apply_renaming(expr const & e, name_map<expr> const & renaming) {
-        return replace(e, [&](expr const & e, unsigned) {
-                if (is_local(e)) {
-                    if (auto new_e = renaming.find(local_name(e)))
-                        return some_expr(*new_e);
-                }
-                return none_expr();
-            });
-    }
-
     expr get_next_pattern_of(list<equation> const & eqns, unsigned eqn_idx) {
         for (equation const & eqn : eqns) {
             lean_assert(eqn.m_patterns);
@@ -620,9 +609,9 @@ struct elim_match_fn {
     }
 
     hsubstitution add_subst(hsubstitution subst, expr const & src, expr const & target) {
-        lean_assert(is_local(src));
-        if (!subst.contains(local_name(src)))
-            subst.insert(local_name(src), target);
+        lean_assert(is_fvar(src));
+        if (!subst.contains(fvar_name(src)))
+            subst.insert(fvar_name(src), target);
         return subst;
     }
 
@@ -639,7 +628,7 @@ struct elim_match_fn {
         for (equation const & eqn : P.m_equations) {
             equation new_eqn   = eqn;
             new_eqn.m_patterns = tail(eqn.m_patterns);
-            if (is_var_transition || is_local(head(eqn.m_patterns))) {
+            if (is_var_transition || is_fvar(head(eqn.m_patterns))) {
                 new_eqn.m_subst  = add_subst(eqn.m_subst, head(eqn.m_patterns), head(P.m_var_stack));
             }
             new_eqns.push_back(new_eqn);
@@ -799,9 +788,9 @@ struct elim_match_fn {
         buffer<expr> eqs;
         for (equation const & eqn : P.m_equations) {
             expr const & p = head(eqn.m_patterns);
-            if (is_last && is_local(p))
+            if (is_last && is_fvar(p))
                 break;
-            if (!is_local(p) &&
+            if (!is_fvar(p) &&
                 std::find(values.begin(), values.end(), p) == values.end()) {
                 values.push_back(p);
                 value_goals.push_back(ctx.mk_metavar_decl(lctx, goal_type));
@@ -834,7 +823,7 @@ struct elim_match_fn {
                     new_eqn.m_patterns  = tail(new_eqn.m_patterns);
                     new_eqns.push_back(new_eqn);
                     if (is_last) break;
-                } else if (is_local(p)) {
+                } else if (is_fvar(p)) {
                     /* Replace variable `p` with `val` in this equation */
                     type_context_old ctx   = mk_type_context(eqn.m_lctx);
                     buffer<expr> from;
@@ -850,7 +839,7 @@ struct elim_match_fn {
                             if (curr_type == new_curr_type) {
                                 new_vars.push_back(curr);
                             } else {
-                                expr new_curr = ctx.push_local(local_pp_name(curr), new_curr_type);
+                                expr new_curr = ctx.push_local(*ctx.get_local_pp_name(curr), new_curr_type);
                                 from.push_back(curr);
                                 to.push_back(new_curr);
                                 new_vars.push_back(new_curr);
@@ -882,7 +871,7 @@ struct elim_match_fn {
             buffer<equation> new_eqns;
             for (equation const & eqn : P.m_equations) {
                 expr const & p = head(eqn.m_patterns);
-                if (is_local(p)) {
+                if (is_fvar(p)) {
                     equation new_eqn = eqn;
                     new_eqn.m_patterns = tail(new_eqn.m_patterns);
                     new_eqn.m_subst    = add_subst(eqn.m_subst, p, x);
@@ -916,7 +905,7 @@ struct elim_match_fn {
         buffer<equation> new_eqns;
         for (equation const & eqn : P.m_equations) {
             expr const & pattern = head(eqn.m_patterns);
-            if (is_local(pattern)) {
+            if (is_fvar(pattern)) {
                 type_context_old ctx  = mk_type_context(eqn.m_lctx);
                 for_each_compatible_constructor(ctx, pattern,
                     [&](expr const & c, buffer<expr> const & new_c_vars) {
@@ -982,7 +971,7 @@ struct elim_match_fn {
 
     list<lemma> process_non_variable(problem const & P) {
         expr p = head(P.m_var_stack);
-        lean_assert(!is_local(p));
+        lean_assert(!is_fvar(p));
         type_context_old ctx = mk_type_context(P);
         if (all_inaccessible(P)) {
             trace_match(tout() << "step: skip inaccessible patterns\n";);
@@ -1214,8 +1203,8 @@ struct elim_match_fn {
         for (auto & P : m_unsolved) {
             counter_examples.push_back(map(P.m_example, [&] (expr const & e) {
                 return replace(e, [&] (expr const & e, unsigned) {
-                    if (!has_local(e)) return some_expr(e);
-                    if (is_local(e)) return some_expr(underscore);
+                    if (!has_fvar(e)) return some_expr(e);
+                    if (is_fvar(e)) return some_expr(underscore);
                     return none_expr();
                 });
             }));

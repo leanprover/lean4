@@ -41,7 +41,7 @@ void finalize_fun_info() {
 static list<unsigned> collect_deps(expr const & type, buffer<expr> const & locals, buffer<param_info> & pinfos) {
     buffer<unsigned> deps;
     for_each(type, [&](expr const & e, unsigned) {
-            if (is_local(e)) {
+            if (is_local_or_fvar(e)) {
                 unsigned idx;
                 for (idx = 0; idx < locals.size(); idx++)
                     if (locals[idx] == e)

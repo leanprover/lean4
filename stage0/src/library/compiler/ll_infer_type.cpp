@@ -217,6 +217,7 @@ class ll_infer_type_fn {
         case expr_kind::Pi:     return mk_enf_neutral_type();
         case expr_kind::BVar:   lean_unreachable();
         case expr_kind::MVar:   lean_unreachable();
+        case expr_kind::Local:  lean_unreachable();
         }
         lean_unreachable();
     }

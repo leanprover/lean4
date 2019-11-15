@@ -165,6 +165,7 @@ void type_context_old::update_local_instances(expr const & new_local, expr const
 
 expr type_context_old::push_local(name const & pp_name, expr const & type, binder_info bi) {
     expr local = m_lctx.mk_local_decl(pp_name, type, bi);
+    lean_assert(is_fvar(local));
     update_local_instances(local, type);
     return local;
 }
@@ -178,7 +179,7 @@ expr type_context_old::push_let(name const & ppn, expr const & type, expr const 
 void type_context_old::pop_local() {
     if (m_local_instances) {
         optional<local_decl> decl = m_lctx.find_last_local_decl();
-        if (decl && decl->get_name() == local_name(head(m_local_instances).get_local())) {
+        if (decl && decl->get_name() == fvar_name(head(m_local_instances).get_local())) {
             m_local_instances = tail(m_local_instances);
         }
     }
@@ -207,7 +208,7 @@ Moreover, if must_sort == false, d is at to_revert[i] and there is j > i s.t. d 
 static bool process_to_revert(metavar_context const & mctx, buffer<expr> & to_revert, unsigned num,
                               local_decl const & d, bool preserve_to_revert_order, bool & must_sort) {
     for (unsigned i = 0; i < num; i++) {
-        if (local_name(to_revert[i]) == d.get_name()) {
+        if (fvar_name(to_revert[i]) == d.get_name()) {
             if (!must_sort &&
                 depends_on(d, mctx, to_revert.size() - i - 1, to_revert.data() + i + 1)) {
                 /* to_revert[i] depends on to_revert[j] for j > i.
@@ -733,8 +734,10 @@ expr type_context_old::whnf_core(expr const & e0, bool proj_reduce, bool aux_rec
     case expr_kind::Const: case expr_kind::Lit:
         /* Remark: we do not unfold Constants eagerly in this method */
         return e;
+    case expr_kind::Local:
+        return e;
     case expr_kind::FVar:
-        if (is_local_decl_ref(e)) {
+        if (is_fvar(e)) {
             if (auto d = m_lctx.find_local_decl(e)) {
                 if (auto v = d->get_value()) {
                     /* zeta-reduction */
@@ -985,7 +988,10 @@ expr type_context_old::infer_core(expr const & e) {
     expr r;
     switch (e.kind()) {
     case expr_kind::FVar:
-        r = infer_local(e);
+        r = infer_fvar(e);
+        break;
+    case expr_kind::Local:
+        r = local_type(e);
         break;
     case expr_kind::Lit:
         r = lit_type(e);
@@ -1028,22 +1034,16 @@ expr type_context_old::infer_core(expr const & e) {
     return r;
 }
 
-expr type_context_old::infer_local(expr const & e) {
-    lean_assert(is_local(e));
-    if (is_local_decl_ref(e)) {
-        optional<local_decl> d = m_lctx.find_local_decl(e);
-        if (!d) {
-            throw generic_exception(e, [=](formatter const & fmt) {
-                    return format("infer type failed, unknown variable") + pp_indent_expr(fmt, e);
-                });
-        }
-        lean_assert(d);
-        return d->get_type();
-    } else {
-        /* Remark: depending on how we re-organize the parser, we may be able
-           to remove this branch. */
-        return local_type(e);
+expr type_context_old::infer_fvar(expr const & e) {
+    lean_assert(is_fvar(e));
+    optional<local_decl> d = m_lctx.find_local_decl(e);
+    if (!d) {
+        throw generic_exception(e, [=](formatter const & fmt) {
+                                       return format("infer type failed, unknown variable") + pp_indent_expr(fmt, e);
+                                   });
     }
+    lean_assert(d);
+    return d->get_type();
 }
 
 static void throw_unknown_metavar(expr const & e) {
@@ -1656,7 +1656,7 @@ optional<constant_info> type_context_old::is_delta(expr const & e) {
 
 /* If \c e is a let local-decl, then unfold it, otherwise return e. */
 expr type_context_old::try_zeta(expr const & e) {
-    if (!is_local_decl_ref(e))
+    if (!is_fvar(e))
         return e;
     if (auto d = m_lctx.find_local_decl(e)) {
         if (auto v = d->get_value())
@@ -1667,7 +1667,7 @@ expr type_context_old::try_zeta(expr const & e) {
 
 expr type_context_old::expand_let_decls(expr const & e) {
     return replace(e, [&](expr const & e, unsigned) {
-            if (is_local_decl_ref(e)) {
+            if (is_fvar(e)) {
                 if (auto d = m_lctx.find_local_decl(e)) {
                     if (auto v = d->get_value())
                         return some_expr(*v);
@@ -1856,7 +1856,8 @@ bool type_context_old::process_assignment(expr const & m, expr const & v) {
             arg = instantiate_mvars(arg);
         arg = try_zeta(arg); /* unfold let-constant if needed. */
         args[i] = arg;
-        if (!is_local_decl_ref(arg)) {
+        lean_assert(!is_local(arg));
+        if (!is_fvar(arg)) {
             /* m is of the form (?M ... t ...) where t is not a local constant. */
             if (fo_unif_approx()) {
                 /* workaround A5 */
@@ -1867,7 +1868,7 @@ bool type_context_old::process_assignment(expr const & m, expr const & v) {
             }
         } else {
             if (std::any_of(locals.begin(), locals.end(),
-                            [&](expr const & local) { return local_name(local) == local_name(arg); })) {
+                            [&](expr const & local) { return fvar_name(local) == fvar_name(arg); })) {
                 if (fo_unif_approx()) {
                     use_fo     = true;
                     add_locals = false;
@@ -2129,9 +2130,7 @@ struct check_assignment_fn : public replace_visitor {
         }
     }
 
-    expr visit_local(expr const & e) override {
-        if (!is_local_decl_ref(e)) return e;
-
+    expr visit_fvar(expr const & e) override {
         bool in_ctx;
         if (m_ctx.in_tmp_mode()) {
             in_ctx = static_cast<bool>(m_ctx.m_tmp_data->m_mvar_lctx.find_local_decl(e));
@@ -2147,7 +2146,7 @@ struct check_assignment_fn : public replace_visitor {
                 }
             }
             if (std::all_of(m_locals.begin(), m_locals.end(), [&](expr const & a) {
-                        return local_name(a) != local_name(e); })) {
+                        return fvar_name(a) != fvar_name(e); })) {
                 lean_trace(name({"type_context", "is_def_eq_detail"}),
                            scope_trace_env scope(m_ctx.env(), m_ctx);
                            tout() << "failed to assign " << m_mvar << " to\n" << m_value << "\n" <<
@@ -2687,6 +2686,7 @@ lbool type_context_old::quick_is_def_eq(expr const & e1, expr const & e2) {
         case expr_kind::FVar:  case expr_kind::App:
         case expr_kind::Const: case expr_kind::Proj:
         case expr_kind::Let:
+        case expr_kind::Local:
             // We do not handle these cases in this method.
             break;
         }
@@ -3192,7 +3192,7 @@ bool type_context_old::is_def_eq_core_core(expr t, expr s) {
         return is_def_eq(const_levels(t), const_levels(s));
     }
 
-    if (is_local(t) && is_local(s) && local_name(t) == local_name(s))
+    if (is_local_or_fvar(t) && is_local_or_fvar(s) && local_or_fvar_name(t) == local_or_fvar_name(s))
         return true;
 
     r = is_def_eq_proj(t, s);
@@ -3291,6 +3291,7 @@ lbool type_context_old::is_quick_class(expr const & type, name & result) {
         switch (it->kind()) {
         case expr_kind::BVar: case expr_kind::Sort:   case expr_kind::FVar:
         case expr_kind::MVar: case expr_kind::Lambda: case expr_kind::Lit:
+        case expr_kind::Local:
             return l_false;
         case expr_kind::Let:
             return l_undef;

@@ -287,6 +287,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
     case expr_kind::Pi:       r = infer_pi(e, infer_only);             break;
     case expr_kind::App:      r = infer_app(e, infer_only);            break;
     case expr_kind::Let:      r = infer_let(e, infer_only);            break;
+    case expr_kind::Local:    lean_unreachable();
     }
 
     m_st->m_infer_type[infer_only].insert(mk_pair(e, r));
@@ -402,6 +403,7 @@ expr type_checker::whnf_core(expr const & e, bool cheap) {
     case expr_kind::App: case expr_kind::Let:
     case expr_kind::Proj:
         break;
+    case expr_kind::Local: lean_unreachable();
     }
 
     // check cache
@@ -455,6 +457,7 @@ expr type_checker::whnf_core(expr const & e, bool cheap) {
     case expr_kind::Let:
         r = whnf_core(instantiate(let_body(e), let_value(e)), cheap);
         break;
+    case expr_kind::Local: lean_unreachable();
     }
 
     if (!cheap) {
@@ -518,6 +521,7 @@ expr type_checker::whnf(expr const & e) {
     case expr_kind::Lambda: case expr_kind::App:
     case expr_kind::Const:  case expr_kind::Let: case expr_kind::Proj:
         break;
+    case expr_kind::Local: lean_unreachable();
     }
 
     // check cache
@@ -615,6 +619,7 @@ lbool type_checker::quick_is_def_eq(expr const & t, expr const & s, bool use_has
             break;
         case expr_kind::Lit:
             return to_lbool(lit_value(t) == lit_value(s));
+        case expr_kind::Local: lean_unreachable();
         }
     }
     return l_undef; // This is not an "easy case"

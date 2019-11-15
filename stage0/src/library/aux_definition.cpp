@@ -67,12 +67,12 @@ expr closure_helper::collect(expr const & e, name_set const & except_locals) {
                     expr type  = m_ctx.infer(e);
                     expr x     = m_ctx.push_local("_x", type);
                     m_meta_to_param.insert(id, x);
-                    m_meta_to_param_inv.insert(local_name(x), e);
+                    m_meta_to_param_inv.insert(mvar_name(x), e);
                     m_params.push_back(x);
                     return some_expr(x);
                 }
-            } else if (is_local(e)) {
-                name const & id = local_name(e);
+            } else if (is_fvar(e)) {
+                name const & id = fvar_name(e);
                 if (!m_found_local.contains(id) && !except_locals.contains(id)) {
                     m_found_local.insert(id);
                     m_params.push_back(e);
@@ -93,7 +93,7 @@ void closure_helper::finalize_collection() {
     for (unsigned i = 0; i < m_params.size(); i++) {
         expr x = m_params[i];
         expr new_type = collect(zeta_expand(m_ctx.lctx(), m_ctx.instantiate_mvars(m_ctx.infer(x))));
-        new_types.insert(local_name(x), new_type);
+        new_types.insert(fvar_name(x), new_type);
     }
     local_context const & lctx = m_ctx.lctx();
     std::sort(m_params.begin(), m_params.end(), [&](expr const & l1, expr const & l2) {
@@ -101,9 +101,10 @@ void closure_helper::finalize_collection() {
         });
     for (unsigned i = 0; i < m_params.size(); i++) {
         expr x         = m_params[i];
-        expr type      = *new_types.find(local_name(x));
+        expr type      = *new_types.find(fvar_name(x));
         expr new_type  = replace_locals(type, i, m_params.data(), m_norm_params.data());
-        expr new_param = m_ctx.push_local(local_pp_name(x), new_type, local_info(x));
+        local_decl d   = m_ctx.lctx().get_local_decl(x);
+        expr new_param = m_ctx.push_local(d.get_user_name(), new_type, d.get_info());
         m_norm_params.push_back(new_param);
     }
     m_finalized_collection = true;
@@ -134,7 +135,7 @@ void closure_helper::get_level_closure(buffer<level> & ls) {
 void closure_helper::get_expr_closure(buffer<expr> & ps) {
     lean_assert(m_finalized_collection);
     for (expr const & x : m_params) {
-        if (expr const * m = m_meta_to_param_inv.find(local_name(x)))
+        if (expr const * m = m_meta_to_param_inv.find(fvar_name(x)))
             ps.push_back(*m);
         else
             ps.push_back(x);
@@ -161,6 +162,7 @@ struct mk_aux_definition_fn : public closure_helper {
         if (!is_unsafe)
             is_unsafe = use_unsafe(env, def_type) || use_unsafe(env, def_value);
         declaration d;
+        // std::cout << ">>> " << def_value << "\n";
         if (is_lemma) {
             d = mk_theorem(c, get_norm_level_names(), def_type, def_value);
         } else {
@@ -209,7 +211,7 @@ struct abstract_nested_proofs_fn : public replace_visitor_with_tc {
     }
 
     static bool is_atomic(expr const & e) {
-        return is_constant(e) || is_local(e);
+        return is_constant(e) || is_fvar(e);
     }
 
     name mk_name() {
@@ -248,6 +250,10 @@ struct abstract_nested_proofs_fn : public replace_visitor_with_tc {
     }
 
     virtual expr visit_local(expr const & e) override {
+        return e;
+    }
+
+    virtual expr visit_fvar(expr const & e) override {
         return e;
     }
 

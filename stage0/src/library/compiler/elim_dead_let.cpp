@@ -115,6 +115,7 @@ class elim_dead_let_fn {
         case expr_kind::Lit:    return e;
         case expr_kind::BVar:   return e;
         case expr_kind::MVar:   lean_unreachable();
+        case expr_kind::Local:  lean_unreachable();
         }
         lean_unreachable();
     }

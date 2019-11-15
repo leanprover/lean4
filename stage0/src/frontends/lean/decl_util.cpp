@@ -329,6 +329,7 @@ void elaborate_params(elaborator & elab, buffer<expr> const & params, buffer<exp
         expr type          = replace_locals_preserving_pos_info(local_type_p(param), i, params.data(), new_params.data());
         expr new_type      = elab.elaborate_type(type);
         expr new_param     = elab.push_local(local_pp_name_p(param), new_type, local_info_p(param));
+        lean_assert(is_fvar(new_param));
         new_params.push_back(new_param);
     }
 }

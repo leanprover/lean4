@@ -315,6 +315,7 @@ unsigned get_lcnf_size(environment const & env, expr e) {
             e = let_body(e);
         }
         return r + get_lcnf_size(env, e);
+    case expr_kind::Local: lean_unreachable();
     }
     lean_unreachable();
 }

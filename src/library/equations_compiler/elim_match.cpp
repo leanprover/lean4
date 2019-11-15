@@ -599,17 +599,6 @@ struct elim_match_fn {
         return some_inaccessible(P);
     }
 
-    /** Replace local `x` in `e` with `renaming.find(x)` */
-    expr apply_renaming(expr const & e, name_map<expr> const & renaming) {
-        return replace(e, [&](expr const & e, unsigned) {
-                if (is_local(e)) {
-                    if (auto new_e = renaming.find(local_name(e)))
-                        return some_expr(*new_e);
-                }
-                return none_expr();
-            });
-    }
-
     expr get_next_pattern_of(list<equation> const & eqns, unsigned eqn_idx) {
         for (equation const & eqn : eqns) {
             lean_assert(eqn.m_patterns);

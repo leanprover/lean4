@@ -245,15 +245,11 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   # Skip stdlib tests on Windows
   message(STATUS "skipping stdlib tests")
 else()
-  file(GLOB_RECURSE STDLIBFILES "${LEAN_SOURCE_DIR}/../library/*.lean")
-  set(STDIDX 0)
+  file(GLOB_RECURSE STDLIBFILES RELATIVE "${LEAN_SOURCE_DIR}/../library" "${LEAN_SOURCE_DIR}/../library/*.lean")
   FOREACH(T ${STDLIBFILES})
-    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-    GET_FILENAME_COMPONENT(T_DIR ${T} DIRECTORY)
-    MATH(EXPR STDIDX "${STDIDX}+1")
-    add_test(NAME "stdlib_${STDIDX}"
-           WORKING_DIRECTORY "${T_DIR}"
-           COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" ${T_NAME})
+    add_test(NAME "stdlib_${T}"
+             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
+             COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" "${T}")
   ENDFOREACH(T)
 endif()
 

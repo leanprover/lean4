@@ -9,7 +9,7 @@ separate benchmark suites based on the
 * The heavy-weight "Cross" suite benchmarks multiple Lean configurations and
   other functional compilers against each other and generates CSV and HTML
   reports from that. It was created for the paper "Counting Immutable Beans -
-  Reference Counting Optimized for Purely Functional Programming" (to appear).
+  Reference Counting Optimized for Purely Functional Programming" (IFL19).
 
 ## Speedcenter Suite
 
@@ -25,7 +25,7 @@ temci exec --config speedcenter.yaml --out base.yaml
 ```
 Other interesting `exec` flags:
 * use `--runs N` to modify the default number of 10 runs per benchmark
-* use `--included_blocks fast` to excluded slow benchmarks like the frontend
+* use `--included_blocks fast` to excluded slow benchmarks like the stdlib
   benchmark. You can replace `fast` with any benchmark name or label in
   `speedcenter.exec.yaml`.
 
@@ -40,10 +40,10 @@ We recommend using [Nix](https://nixos.org/nix/) for building/obtaining all Lean
 compilers in a reproducible way. After installing Nix, running the benchmarks is as easy as
 
 ```
-nix-shell --run make
+nix-shell cross.nix --pure --run make
 ```
 
-This will record 50 runs for each benchmark configuration (this can be changed with `min_runs` in `temci.yaml`),
+This will record 50 runs for each benchmark configuration (this can be changed with `runs` in `cross.yaml`),
 generate results in `report_lean.csv` and `report_cross.csv`, and print them to stdout in a tabulated format.
 It will also generate HTML reports in `report/` comparing the time-based benchmarks.
 
@@ -51,7 +51,7 @@ In order to reduce noise in the benchmarking data, you may instead want to try c
 temci shell:
 
 ```
-nix-shell --run "temci short shell --sudo --preset usable --cpuset_active make"
+nix-shell cross.nix --pure --run "temci short shell --sudo --preset usable --cpuset_active make"
 ```
 
 Using root powers, this will temporarily configure your machine similarly to the

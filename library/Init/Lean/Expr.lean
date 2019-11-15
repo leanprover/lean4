@@ -48,6 +48,85 @@ abbrev empty : MData := {KVMap .}
 instance : HasEmptyc MData := ⟨empty⟩
 end MData
 
+/--
+ Cached data for `Expr`.
+   hash           : 32-bits
+   hasFVar        : 1-bit
+   hasExprMVar    : 1-bit
+   hasLevelMVar   : 1-bit
+   hasLevelParam  : 1-bit
+   nonDepLet      : 1-bit
+   binderInfo     : 3-bits
+   looseBVarRange : 24-bits -/
+private def ExprCachedData := UInt64
+
+instance ExprCachedData.inhabited : Inhabited ExprCachedData :=
+inferInstanceAs (Inhabited UInt64)
+
+def ExprCachedData.hash (c : ExprCachedData) : USize :=
+c.toUInt32.toUSize
+
+def ExprCachedData.looseBVarRange (c : ExprCachedData) : UInt32 :=
+(c.shiftRight 40).toUInt32
+
+def ExprCachedData.hasFVar (c : ExprCachedData) : Bool :=
+((c.shiftRight 32).land 1) == 1
+
+def ExprCachedData.hasExprMVar (c : ExprCachedData) : Bool :=
+((c.shiftRight 33).land 1) == 1
+
+def ExprCachedData.hasLevelMVar (c : ExprCachedData) : Bool :=
+((c.shiftRight 34).land 1) == 1
+
+def ExprCachedData.hasLevelParam (c : ExprCachedData) : Bool :=
+((c.shiftRight 35).land 1) == 1
+
+def ExprCachedData.nonDepLet (c : ExprCachedData) : Bool :=
+((c.shiftRight 36).land 1) == 1
+
+@[extern c inline "(uint8_t)((#1 << 24) >> 61)"]
+def ExprCachedData.binderInfo (c : ExprCachedData) : BinderInfo :=
+let bi := (c.shiftLeft 24).shiftRight 61;
+if bi == 0 then BinderInfo.default
+else if bi == 1 then BinderInfo.implicit
+else if bi == 2 then BinderInfo.strictImplicit
+else if bi == 3 then BinderInfo.instImplicit
+else BinderInfo.auxDecl
+
+@[extern c inline "(uint64_t)#1"]
+def BinderInfo.toUInt64 : BinderInfo → UInt64
+| BinderInfo.default        => 0
+| BinderInfo.implicit       => 1
+| BinderInfo.strictImplicit => 2
+| BinderInfo.instImplicit   => 3
+| BinderInfo.auxDecl        => 4
+
+@[inline] private def mkExprCachedDataCore
+    (h : USize) (looseBVarRange : Nat)
+    (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) (bi : BinderInfo)
+    : ExprCachedData :=
+if looseBVarRange > Nat.pow 2 24 - 1 then panic! "bound variable index is too big"
+else
+  let r : UInt64 :=
+    h.toUInt32.toUInt64 +
+    hasFVar.toUInt64.shiftLeft 32 +
+    hasExprMVar.toUInt64.shiftLeft 33 +
+    hasLevelMVar.toUInt64.shiftLeft 34 +
+    hasLevelParam.toUInt64.shiftLeft 35 +
+    nonDepLet.toUInt64.shiftLeft 36 +
+    bi.toUInt64.shiftLeft 37 +
+    looseBVarRange.toUInt64.shiftLeft 40;
+  r
+
+def mkExprCachedData (h : USize) (looseBVarRange : Nat) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) : ExprCachedData :=
+mkExprCachedDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam false BinderInfo.default
+
+def mkExprCachedDataForBinder (h : USize) (looseBVarRange : Nat) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : ExprCachedData :=
+mkExprCachedDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam false bi
+
+def mkExprCachedDataForLet (h : USize) (looseBVarRange : Nat) (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) : ExprCachedData :=
+mkExprCachedDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet BinderInfo.default
+
 /- We use the `E` suffix (short for `Expr`) to avoid collision with keywords.
    We considered using «...», but it is too inconvenient to use. -/
 inductive Expr
@@ -350,7 +429,6 @@ def bindingBody! : Expr → Expr
 def letName! : Expr → Name
 | letE n _ _ _ => n
 | _            => panic! "let expression expected"
-
 
 @[extern "lean_expr_get_loose_bvar_range"]
 constant getLooseBVarRange (e : @& Expr) : Nat := arbitrary _

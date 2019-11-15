@@ -173,11 +173,11 @@ report/cross: ; -@mkdir -p $@
 
 report/lean/%: $(foreach cat, $(LEAN_CATS), bench/%$(cat).bench) | report/lean
 	cat $^ > $@.tmp
-	$(TEMCI) report $@.tmp --reporter html2 --html2_out $@ --html2_force_override --properties etime
+	$(TEMCI) report $@.tmp --settings cross.yaml --reporter html2 --html2_out $@ --html2_force_override --properties etime
 
 report/cross/%: $(foreach cat, $(CROSS_TIME_CATS), bench/%$(cat).bench) | report/cross
 	cat $^ > $@.tmp
-	$(TEMCI) report $@.tmp --reporter html2 --html2_out $@ --html2_force_override --properties etime
+	$(TEMCI) report $@.tmp --settings cross.yaml --reporter html2 --html2_out $@ --html2_force_override --properties etime
 
 report/index.html: $(LEAN_BENCHES:%=report/lean/%) $(CROSS_BENCHES:%=report/cross/%)
 	echo "<html><h1>Lean variant benchmarks</h1><ul>"> $@
@@ -203,7 +203,7 @@ report_cross.csv: bench_cross
 	BENCHES=$(subst $(space),:,$(CROSS_BENCHES)) CATS=$(subst $(space),:,$(CROSS_CATS)) ./report.py > $@
 	column -s';' -t < $@
 
-TO_TEX = 's/-/---/g;s/%/\\%/g;s/\.$$//g;s/(\([0-9]\)\([0-9]\))//g;s/(\([0-9]\))//g;s/;/ \& /g;s/$$/\\\\/'
+TO_TEX = 's/-/---/g;s/%/\\%/g;s/\.$$//g;s/(\([0-9]\)\([0-9]\))/\\ensuremath{\\tilde{\1}\\tilde{\2}}/g;s/(\([0-9]\))/\\ensuremath{\\tilde{\1}}/g;s/;/ \& /g;s/$$/\\\\/'
 report_%.tex: report_%.csv
 	tail -n +2 $< | head -n -1 | sed 's/^\([^;]\+\)/\\verb!\1!/;'$(TO_TEX) > $@
 	echo -n '\midrule ' >> $@

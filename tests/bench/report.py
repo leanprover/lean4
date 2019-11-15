@@ -13,7 +13,6 @@ from temci.utils import number, settings
 import scipy.stats as st
 
 settings.Settings().load_file("cross.yaml")
-number.FNumber.init_settings(settings.Settings()["report/number"])
 
 def single(bench, cat, prop):
     f = f"bench/{bench}{cat}.bench"
@@ -34,16 +33,18 @@ def pp(bench, cat, prop, norm):
     norm = norm if prop == 'etime' else 1
     mean_by_cat[cat].append(s.mean() / norm)
     stddev_by_cat[cat].append(s.std_dev() / norm)
-    number.FNumber.settings["min_decimal_places"] = 2 if prop == 'etime' else 0
-    number.FNumber.settings["max_decimal_places"] = 2 if prop == 'etime' else 0
-    return number.fnumber(s.mean() / norm, abs_deviation=s.std_dev() / norm) + ('%' if prop == 'gc' else '')
+    num = number.FNumber(s.mean() / norm, abs_deviation=s.std_dev() / norm)
+    num.settings["min_decimal_places"] = 2 if prop == 'etime' else 0
+    num.settings["max_decimal_places"] = 2 if prop == 'etime' else 0
+    return num.format() + ('%' if prop == 'gc' else '')
 
 def mean(cat, prop):
     mean = st.gmean(mean_by_cat[cat])
     stddev = st.gmean(stddev_by_cat[cat])
-    number.FNumber.settings["min_decimal_places"] = 2 if prop == 'etime' else 0
-    number.FNumber.settings["max_decimal_places"] = 2 if prop == 'etime' else 0
-    return number.fnumber(mean, abs_deviation=stddev) + ('%' if prop == 'gc' else '')  #if prop == 'etime' else '-'
+    num = number.FNumber(mean, abs_deviation=stddev)
+    num.settings["min_decimal_places"] = 2 if prop == 'etime' else 0
+    num.settings["max_decimal_places"] = 2 if prop == 'etime' else 0
+    return num.format() + ('%' if prop == 'gc' else '')  #if prop == 'etime' else '-'
 
 CATBAG = {
     '.lean': ("Lean [s]", "etime"),

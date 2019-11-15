@@ -16,7 +16,7 @@ def b2 := mkBVar 2
 
 def u := Level.param `u
 
-def typeE := Expr.sort Level.one
+def typeE := mkSort Level.one
 def natE  := mkConst `Nat []
 def boolE := mkConst `Bool []
 def vecE  := mkConst `Vec [Level.zero]
@@ -32,7 +32,7 @@ def m2 := mkMVar `m2
 def m3 := mkMVar `m3
 
 def bi := BinderInfo.default
-def arrow (d b : Expr) := Expr.forallE `_ bi d b
+def arrow (d b : Expr) := mkForall `_ bi d b
 
 def lctx1 : LocalContext := {}
 def lctx2 := lctx1.mkLocalDecl `α `α typeE

@@ -1,21 +1,21 @@
 import Init.Lean.Expr
 open Lean
 
-def exprType : Expr := Expr.sort Level.one
+def exprType : Expr := mkSort Level.one
 def biDef           := BinderInfo.default
-def exprNat         := Expr.const `Nat []
+def exprNat         := mkConst `Nat []
 -- Type -> Type
-def TypeArrowType   := Expr.forallE `α biDef exprType exprType
+def TypeArrowType   := mkForall `α biDef exprType exprType
 -- Type -> Type
-def TypeArrowType2  := Expr.forallE `β biDef exprType exprType
--- fun (x : Nat), x
-def exprT1          := Expr.lam `x biDef exprNat (Expr.bvar 0)
--- fun (y : Nat), x
-def exprT2          := Expr.lam `y biDef exprNat (Expr.bvar 0)
--- fun (x : Nat), (f x)
-def exprT3          := Expr.lam `x biDef exprNat (Expr.app (Expr.const `f []) (Expr.bvar 0))
--- fun (x : Nat), (f x)
-def exprT4          := Expr.lam `x BinderInfo.implicit exprNat (Expr.app (Expr.const `f []) (Expr.bvar 0))
+def TypeArrowType2  := mkForall `β biDef exprType exprType
+-- fun (x : Nat) => x
+def exprT1          := mkLambda `x biDef exprNat (mkBVar 0)
+-- fun (y : Nat) => x
+def exprT2          := mkLambda `y biDef exprNat (mkBVar 0)
+-- fun (x : Nat) => (f x)
+def exprT3          := mkLambda `x biDef exprNat (mkApp (mkConst `f []) (mkBVar 0))
+-- fun (x : Nat) => (f x)
+def exprT4          := mkLambda `x BinderInfo.implicit exprNat (mkApp (mkConst `f []) (mkBVar 0))
 
 def check (b : Bool) : IO Unit :=
 unless b (throw "failed")

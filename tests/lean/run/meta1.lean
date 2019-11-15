@@ -29,30 +29,30 @@ mkAppN map #[nat, bool]
 #eval tstInferType [`Init.Data.List] t1
 
 def t2 : Expr :=
-let prop := Expr.sort Level.zero;
-Expr.forallE `x BinderInfo.default prop prop
+let prop := mkSort Level.zero;
+mkForall `x BinderInfo.default prop prop
 
 #eval tstInferType [`Init.Core] t2
 
 def t3 : Expr :=
 let nat   := mkConst `Nat [];
 let natLe := mkConst `Nat.le [];
-let zero  := Expr.lit (Literal.natVal 0);
-let p     := mkAppN natLe #[Expr.bvar 0, zero];
-Expr.forallE `x BinderInfo.default nat p
+let zero  := mkLit (Literal.natVal 0);
+let p     := mkAppN natLe #[mkBVar 0, zero];
+mkForall `x BinderInfo.default nat p
 
 #eval tstInferType [`Init.Data.Nat] t3
 
 def t4 : Expr :=
 let nat   := mkConst `Nat [];
-let p     := mkAppN (mkConst `Nat.succ []) #[Expr.bvar 0];
-Expr.lam `x BinderInfo.default nat p
+let p     := mkAppN (mkConst `Nat.succ []) #[mkBVar 0];
+mkLambda `x BinderInfo.default nat p
 
 #eval tstInferType [`Init.Core] t4
 
 def t5 : Expr :=
 let add   := mkConst `Nat.add [];
-mkAppN add #[Expr.lit (Literal.natVal 3), Expr.lit (Literal.natVal 5)]
+mkAppN add #[mkLit (Literal.natVal 3), mkLit (Literal.natVal 5)]
 
 #eval tstWHNF [`Init.Data.Nat] t5
 #eval tstWHNF [`Init.Data.Nat] t5 TransparencyMode.reducible
@@ -64,58 +64,58 @@ def t6 : Expr :=
 let map  := mkConst `List.map [Level.one, Level.one];
 let nat  := mkConst `Nat [];
 let add  := mkConst `Nat.add [];
-let f    := Expr.lam `x BinderInfo.default nat (mkAppN add #[Expr.bvar 0, Expr.lit (Literal.natVal 1)]);
-let cons := Expr.app (mkConst `List.cons [Level.zero]) nat;
-let nil  := Expr.app (mkConst `List.nil [Level.zero]) nat;
-let one  := Expr.lit (Literal.natVal 1);
-let four := Expr.lit (Literal.natVal 4);
-let xs   := Expr.app (Expr.app cons one) (Expr.app (Expr.app cons four) nil);
+let f    := mkLambda `x BinderInfo.default nat (mkAppN add #[mkBVar 0, mkLit (Literal.natVal 1)]);
+let cons := mkApp (mkConst `List.cons [Level.zero]) nat;
+let nil  := mkApp (mkConst `List.nil [Level.zero]) nat;
+let one  := mkLit (Literal.natVal 1);
+let four := mkLit (Literal.natVal 4);
+let xs   := mkApp (mkApp cons one) (mkApp (mkApp cons four) nil);
 mkAppN map #[nat, nat, f, xs]
 
 #eval tstInferType [`Init.Data.List] t6
 #eval tstWHNF [`Init.Data.List] t6
 
-#eval tstInferType [] $ Expr.sort Level.zero
+#eval tstInferType [] $ mkSort Level.zero
 
-#eval tstInferType [`Init.Data.List] $ Expr.lam `a BinderInfo.implicit (Expr.sort Level.one) (Expr.lam `x BinderInfo.default (Expr.bvar 0) (Expr.lam `xs BinderInfo.default (Expr.app (mkConst `List [Level.zero]) (Expr.bvar 1)) (Expr.bvar 0)))
+#eval tstInferType [`Init.Data.List] $ mkLambda `a BinderInfo.implicit (mkSort Level.one) (mkLambda `x BinderInfo.default (mkBVar 0) (mkLambda `xs BinderInfo.default (mkApp (mkConst `List [Level.zero]) (mkBVar 1)) (mkBVar 0)))
 
 def t7 : Expr :=
 let nat  := mkConst `Nat [];
-let one  := Expr.lit (Literal.natVal 1);
-Expr.letE `x nat one one
+let one  := mkLit (Literal.natVal 1);
+mkLet `x nat one one
 
 #eval tstInferType [`Init.Core] $ t7
 #eval tstWHNF [`Init.Core] $ t7
 
 def t8 : Expr :=
 let nat  := mkConst `Nat [];
-let one  := Expr.lit (Literal.natVal 1);
+let one  := mkLit (Literal.natVal 1);
 let add  := mkConst `Nat.add [];
-Expr.letE `x nat one (mkAppN add #[one, Expr.bvar 0])
+mkLet `x nat one (mkAppN add #[one, mkBVar 0])
 
 #eval tstInferType [`Init.Core] $ t8
 #eval tstWHNF [`Init.Core] $ t8
 
 def t9 : Expr :=
 let nat  := mkConst `Nat [];
-Expr.letE `a (Expr.sort Level.one) nat (Expr.forallE `x BinderInfo.default (Expr.bvar 0) (Expr.bvar 1))
+mkLet `a (mkSort Level.one) nat (mkForall `x BinderInfo.default (mkBVar 0) (mkBVar 1))
 
 #eval tstInferType [`Init.Core] $ t9
 #eval tstWHNF [`Init.Core] $ t9
 
-#eval tstInferType [`Init.Core] $ Expr.lit (Literal.natVal 10)
-#eval tstInferType [`Init.Core] $ Expr.lit (Literal.strVal "hello")
-#eval tstInferType [`Init.Core] $ Expr.mdata {} $ Expr.lit (Literal.natVal 10)
+#eval tstInferType [`Init.Core] $ mkLit (Literal.natVal 10)
+#eval tstInferType [`Init.Core] $ mkLit (Literal.strVal "hello")
+#eval tstInferType [`Init.Core] $ mkMData {} $ mkLit (Literal.natVal 10)
 
-#eval tstInferType [`Init.Lean.Trace] (Expr.proj `Inhabited 0 (mkConst `Lean.TraceState.Inhabited []))
-#eval tstInferType [`Init.Lean.Trace] (Expr.proj `Lean.TraceState 0 (Expr.proj `Inhabited 0 (mkConst `Lean.TraceState.Inhabited [])))
-#eval tstWHNF [`Init.Lean.Trace] (Expr.proj `Inhabited 0 (mkConst `Lean.TraceState.Inhabited []))
-#eval tstWHNF [`Init.Lean.Trace] (Expr.proj `Lean.TraceState 0 (Expr.proj `Inhabited 0 (mkConst `Lean.TraceState.Inhabited [])))
+#eval tstInferType [`Init.Lean.Trace] (mkProj `Inhabited 0 (mkConst `Lean.TraceState.Inhabited []))
+#eval tstInferType [`Init.Lean.Trace] (mkProj `Lean.TraceState 0 (mkProj `Inhabited 0 (mkConst `Lean.TraceState.Inhabited [])))
+#eval tstWHNF [`Init.Lean.Trace] (mkProj `Inhabited 0 (mkConst `Lean.TraceState.Inhabited []))
+#eval tstWHNF [`Init.Lean.Trace] (mkProj `Lean.TraceState 0 (mkProj `Inhabited 0 (mkConst `Lean.TraceState.Inhabited [])))
 
 def t10 : Expr :=
 let nat  := mkConst `Nat [];
-let refl := Expr.app (mkConst `Eq.refl [Level.one]) nat;
-Expr.lam `a BinderInfo.default nat (Expr.app refl (Expr.bvar 0))
+let refl := mkApp (mkConst `Eq.refl [Level.one]) nat;
+mkLambda `a BinderInfo.default nat (mkApp refl (mkBVar 0))
 
 #eval tstInferType [`Init.Core] t10
 #eval tstIsProp [`Init.Core] t10
@@ -125,17 +125,17 @@ Expr.lam `a BinderInfo.default nat (Expr.app refl (Expr.bvar 0))
 #eval tstIsProp [`Init.Core] (mkConst `And [])
 
 -- Example where isPropQuick fails
-#eval tstIsProp [`Init.Core] (mkAppN (mkConst `id [Level.zero]) #[Expr.sort Level.zero, mkAppN (mkConst `And []) #[mkConst `True [], mkConst
+#eval tstIsProp [`Init.Core] (mkAppN (mkConst `id [Level.zero]) #[mkSort Level.zero, mkAppN (mkConst `And []) #[mkConst `True [], mkConst
  `True []]])
 
-#eval tstIsProp [`Init.Core] (mkAppN (mkConst `Eq [Level.one]) #[mkConst `Nat [], Expr.lit (Literal.natVal 0), Expr.lit (Literal.natVal 1)])
+#eval tstIsProp [`Init.Core] (mkAppN (mkConst `Eq [Level.one]) #[mkConst `Nat [], mkLit (Literal.natVal 0), mkLit (Literal.natVal 1)])
 
 #eval tstIsProp [`Init.Core] $
-  Expr.forallE `x BinderInfo.default (mkConst `Nat [])
-    (mkAppN (mkConst `Eq [Level.one]) #[mkConst `Nat [], Expr.bvar 0, Expr.lit (Literal.natVal 1)])
+  mkForall `x BinderInfo.default (mkConst `Nat [])
+    (mkAppN (mkConst `Eq [Level.one]) #[mkConst `Nat [], mkBVar 0, mkLit (Literal.natVal 1)])
 
 #eval tstIsProp [`Init.Core] $
-  Expr.app
-    (Expr.lam `x BinderInfo.default (mkConst `Nat [])
-      (mkAppN (mkConst `Eq [Level.one]) #[mkConst `Nat [], Expr.bvar 0, Expr.lit (Literal.natVal 1)]))
-    (Expr.lit (Literal.natVal 0))
+  mkApp
+    (mkLambda `x BinderInfo.default (mkConst `Nat [])
+      (mkAppN (mkConst `Eq [Level.one]) #[mkConst `Nat [], mkBVar 0, mkLit (Literal.natVal 1)]))
+    (mkLit (Literal.natVal 0))

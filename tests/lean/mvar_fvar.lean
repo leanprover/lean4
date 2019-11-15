@@ -1,10 +1,10 @@
 import Init.Lean
 open Lean
 
-#eval (Expr.fvar `a).hasFVar
-#eval (Expr.app (Expr.const `foo []) (Expr.fvar `a)).hasFVar
-#eval (Expr.app (Expr.const `foo []) (Expr.const `a [])).hasFVar
+#eval (mkFVar `a).hasFVar
+#eval (mkApp (mkConst `foo) (mkFVar `a)).hasFVar
+#eval (mkApp (mkConst `foo) (mkConst `a)).hasFVar
 
-#eval (Expr.mvar `a).hasMVar
-#eval (Expr.app (Expr.const `foo []) (Expr.mvar `a)).hasMVar
-#eval (Expr.app (Expr.const `foo []) (Expr.const `a [])).hasMVar
+#eval (mkMVar `a).hasMVar
+#eval (mkApp (mkConst `foo) (mkMVar `a)).hasMVar
+#eval (mkApp (mkConst `foo) (mkConst `a)).hasMVar

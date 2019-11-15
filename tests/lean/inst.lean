@@ -4,11 +4,11 @@ open Lean
 def tst : IO Unit :=
 do
 let f := mkConst `f;
-let x := Expr.bvar 0;
-let y := Expr.bvar 1;
-let t := Expr.app (Expr.app (Expr.app f x) y) x;
+let x := mkBVar 0;
+let y := mkBVar 1;
+let t := mkApp (mkApp (mkApp f x) y) x;
 let a := mkConst `a;
-let b := Expr.app f (mkConst `b);
+let b := mkApp f (mkConst `b);
 let c := mkConst `c;
 IO.println t;
 IO.println (t.instantiate #[a, b]);

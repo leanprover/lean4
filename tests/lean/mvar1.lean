@@ -35,8 +35,7 @@ def m5 := mkMVar `m5
 def m6 := mkMVar `m6
 
 def bi := BinderInfo.default
-def arrow (d b : Expr) := Expr.forallE `_ bi d b
-
+def arrow (d b : Expr) := mkForall `_ bi d b
 def lctx1 : LocalContext := {}
 def lctx2 := lctx1.mkLocalDecl `α `α typeE
 def lctx3 := lctx2.mkLocalDecl `x `x natE
@@ -44,7 +43,7 @@ def lctx4 := lctx3.mkLocalDecl `y `y α
 def lctx5 := lctx4.mkLocalDecl `z `z (mkAppN vecE #[x])
 def lctx6 := lctx5.mkLocalDecl `w `w (arrow natE (mkAppN m6 #[α, x, y]))
 
-def t1 := lctx5.mkLambda #[α, x, y] $ mkAppN f #[α, mkAppN g #[x, y], lctx5.mkLambda #[z] (Expr.app f z)]
+def t1 := lctx5.mkLambda #[α, x, y] $ mkAppN f #[α, mkAppN g #[x, y], lctx5.mkLambda #[z] (mkApp f z)]
 #eval check (!t1.hasFVar)
 #eval t1
 

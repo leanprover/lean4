@@ -1,7 +1,7 @@
 import Init.Lean.MetavarContext
 open Lean
 
-def mkLambda (mctx : MetavarContext) (ngen : NameGenerator) (lctx : LocalContext) (xs : Array Expr) (e : Expr)
+def mkLambdaTest (mctx : MetavarContext) (ngen : NameGenerator) (lctx : LocalContext) (xs : Array Expr) (e : Expr)
     : Except MetavarContext.MkBinding.Exception (MetavarContext × NameGenerator × Expr) :=
 match MetavarContext.mkLambda xs e lctx { mctx := mctx, ngen := ngen } with
 | EStateM.Result.ok e s    => Except.ok (s.mctx, s.ngen, e)
@@ -22,7 +22,7 @@ def b2 := mkBVar 2
 
 def u := Level.param `u
 
-def typeE := Expr.sort Level.one
+def typeE := mkSort Level.one
 def natE  := mkConst `Nat
 def boolE := mkConst `Bool
 def vecE  := mkConst `Vec [Level.zero]
@@ -33,12 +33,12 @@ def y := mkFVar `y
 def z := mkFVar `z
 def w := mkFVar `w
 
-def m1 := Expr.mvar `m1
-def m2 := Expr.mvar `m2
-def m3 := Expr.mvar `m3
+def m1 := mkMVar `m1
+def m2 := mkMVar `m2
+def m3 := mkMVar `m3
 
 def bi := BinderInfo.default
-def arrow (d b : Expr) := Expr.forallE `_ bi d b
+def arrow (d b : Expr) := mkForall `_ bi d b
 
 def lctx1 : LocalContext := {}
 def lctx2 := lctx1.mkLocalDecl `α `α typeE
@@ -52,7 +52,7 @@ def mctx4  := mctx3.addExprMVarDecl `m3 `m3 lctx3 natE
 def mctx4' := mctx3.addExprMVarDecl `m3 `m3 lctx3 natE true
 
 def R1 :=
-match mkLambda mctx4 {namePrefix := `n} lctx4 #[α, x, y] $ mkAppN f #[m3, x] with
+match mkLambdaTest mctx4 {namePrefix := `n} lctx4 #[α, x, y] $ mkAppN f #[m3, x] with
 | Except.ok s    => s
 | Except.error e => panic! (toString e)
 def e1    := R1.2.2
@@ -64,7 +64,7 @@ def mctx5 := R1.1
 #eval check (!e1.hasFVar)
 
 def R2 :=
-match mkLambda mctx4' {namePrefix := `n} lctx4 #[α, x, y] $ mkAppN f #[m3, y] with
+match mkLambdaTest mctx4' {namePrefix := `n} lctx4 #[α, x, y] $ mkAppN f #[m3, y] with
 | Except.ok s    => s
 | Except.error e => panic! (toString e)
 def e2    := R2.2.2
@@ -79,7 +79,7 @@ def mctx6 := R2.1
 #print "assigning ?m1 and ?n.1"
 def R3 :=
 let mctx := mctx6.assignExpr `m3 x;
-let mctx := mctx.assignExpr (Name.mkNumeral `n 1) (Expr.lam `_ bi typeE natE);
+let mctx := mctx.assignExpr (Name.mkNumeral `n 1) (mkLambda `_ bi typeE natE);
 -- ?n.2 is instantiated because we have the delayed assignment `?n.2 α x := ?m1`
 (mctx.instantiateMVars e2)
 def e3    := R3.1

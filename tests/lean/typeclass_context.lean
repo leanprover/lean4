@@ -31,25 +31,25 @@ get >>= λ (ctx : Context) => pure $ ctx.eInstantiate t
 def testEUnify4 : EStateM String Context Expr := do
 t₁ ← EStateM.fromStateM $ eNewMeta (mkConst "Term");
 t₂ ← EStateM.fromStateM $ eNewMeta (mkConst "Term");
-eUnify (Expr.forallE "foo" BinderInfo.default t₂ t₁) (Expr.forallE "foo" BinderInfo.default t₁ t₂);
+eUnify (mkForall "foo" BinderInfo.default t₂ t₁) (mkForall "foo" BinderInfo.default t₁ t₂);
 get >>= λ (ctx : Context) => pure $ ctx.eInstantiate t₂
 
 def testEUnify5 : EStateM String Context Expr := do
 t₁ ← EStateM.fromStateM $ eNewMeta (mkConst "Term");
 t₂ ← EStateM.fromStateM $ eNewMeta (mkConst "Term");
-eUnify (Expr.forallE "foo" BinderInfo.default t₁ t₂) (Expr.forallE "foo" BinderInfo.default t₂ t₁);
+eUnify (mkForall "foo" BinderInfo.default t₁ t₂) (mkForall "foo" BinderInfo.default t₂ t₁);
 get >>= λ (ctx : Context) => pure $ ctx.eInstantiate t₂
 
 def testEUnify6 : EStateM String Context Expr := do
 u ← EStateM.fromStateM Context.uNewMeta;
-let t₁ := Expr.const "foo" [Level.zero];
-let t₂ := Expr.const "foo" [u];
+let t₁ := mkConst "foo" [Level.zero];
+let t₂ := mkConst "foo" [u];
 eUnify t₁ t₂;
 get >>= λ (ctx : Context) => pure $ ctx.eInstantiate t₂
 
 def testEUnify7 : EStateM String Context Expr := do
-e ← EStateM.fromStateM $ Context.eNewMeta $ Expr.sort Level.zero;
-let t₁ := Expr.fvar "foo";
+e ← EStateM.fromStateM $ Context.eNewMeta $ mkSort Level.zero;
+let t₁ := mkFVar "foo";
 let t₂ := e;
 eUnify t₁ t₂;
 get >>= λ (ctx : Context) => pure $ ctx.eInstantiate t₂
@@ -98,7 +98,7 @@ pure $ αNorm (mkConst "f")
 def testAlphaNorm4 : EStateM String Context Expr := do
 t₁ ← EStateM.fromStateM $ eNewMeta (mkConst "Term");
 t₂ ← EStateM.fromStateM $ eNewMeta (mkConst "Term");
-pure $ αNorm $ Expr.forallE "foo" BinderInfo.default (mkAppN (mkConst "f") #[t₂]) (mkAppN (mkConst "g") #[t₁])
+pure $ αNorm $ mkForall "foo" BinderInfo.default (mkAppN (mkConst "f") #[t₂]) (mkAppN (mkConst "g") #[t₁])
 
 #eval testEUnify1.run {}
 #eval testEUnify2.run {}

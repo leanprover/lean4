@@ -100,7 +100,7 @@ inline constexpr unsigned num_obj_fields(expr_kind k) {
     return
         k == expr_kind::App     ?  2 :
         k == expr_kind::Const   ?  2 :
-        k == expr_kind::FVar    ?  1 : // TODO(Leo): it should be 1 after we remove support for legacy code
+        k == expr_kind::FVar    ?  1 :
         k == expr_kind::Lambda  ?  3 :
         k == expr_kind::Pi      ?  3 :
         k == expr_kind::BVar    ?  1 :

@@ -1,4 +1,4 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE BangPatterns #-}
 import System.Environment
 
 data Color =
@@ -59,8 +59,12 @@ mk_Map_aux :: Int -> Int -> Map -> [Map] -> [Map]
 mk_Map_aux freq 0 m r = m:r
 mk_Map_aux freq n m r =
   let n' = n-1 in
-  let m' = (insert m n' (n' `mod` 10 == 0)) in
-  let r' = if (n' `mod` freq == 0) then (m':r) else r in
+  -- We try to stay away from language-specific optimizations,
+  -- but in this instance strictness is imperative to ensure
+  -- that `freq` is indeed respected instead of keeping all
+  -- binary trees alive in thunks.
+  let !m' = (insert m n' (n' `mod` 10 == 0)) in
+  let !r' = if (n' `mod` freq == 0) then (m':r) else r in
   mk_Map_aux freq n' m' r'
 
 mk_Map n freq = mk_Map_aux freq n Leaf []
@@ -73,5 +77,5 @@ myLen [] r = r
 main = do
   [n, freq] <- getArgs
   let mList = mk_Map (read n) (read freq)
-  let v :: Int = fold (\_ v r -> if v then r + 1 else r) (head mList) 0
+  let v = fold (\_ v r -> if v then r + 1 else r) (head mList) 0 :: Int
   print (show (myLen mList 0) ++ " " ++ show v)

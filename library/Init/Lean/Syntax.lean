@@ -358,23 +358,23 @@ match arg with
 
 /- Helper functions for creating string and numeric literals -/
 
-def mkLit (kind : SyntaxNodeKind) (val : String) (info : Option SourceInfo := none) : Syntax :=
+def mkStxLit (kind : SyntaxNodeKind) (val : String) (info : Option SourceInfo := none) : Syntax :=
 let atom : Syntax := Syntax.atom info val;
 Syntax.node kind #[atom]
 
-def mkStrLit (val : String) (info : Option SourceInfo := none) : Syntax :=
-mkLit strLitKind val info
+def mkStxStrLit (val : String) (info : Option SourceInfo := none) : Syntax :=
+mkStxLit strLitKind val info
 
-def mkNumLit (val : String) (info : Option SourceInfo := none) : Syntax :=
-mkLit numLitKind val info
+def mkStxNumLit (val : String) (info : Option SourceInfo := none) : Syntax :=
+mkStxLit numLitKind val info
 
 @[export lean_mk_syntax_str_lit]
-def mkStrLitAux (val : String) : Syntax :=
-mkStrLit val
+def mkStxStrLitAux (val : String) : Syntax :=
+mkStxStrLit val
 
 @[export lean_mk_syntax_num_lit]
-def mkNumLitAux (val : Nat) : Syntax :=
-mkNumLit (toString val)
+def mkStxNumLitAux (val : Nat) : Syntax :=
+mkStxNumLit (toString val)
 
 namespace Syntax
 

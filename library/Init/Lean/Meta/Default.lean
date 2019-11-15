@@ -26,9 +26,8 @@ private def exprToBool : Expr → Bool
 | _                    => true
 
 private def boolToExpr : Bool → Expr
-| false => Expr.sort Level.zero
-| true  => Expr.bvar 0
-
+| false => mkSort Level.zero
+| true  => mkBVar 0
 private partial def auxFixpoint : MetaOp → Expr → Expr → MetaM Expr
 | op, e₁, e₂ =>
   let whnf         := fun e => auxFixpoint whnfOp e e;

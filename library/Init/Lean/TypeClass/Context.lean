@@ -48,7 +48,7 @@ def eNewMeta (type : Expr) : StateM Context Expr :=
 do ctx ← get;
    let idx := ctx.eTypes.size;
    set { eTypes := ctx.eTypes.push type, eVals := ctx.eVals.push none, .. ctx };
-   pure $ Expr.mvar (mkNumName metaPrefix idx)
+   pure $ mkMVar (mkNumName metaPrefix idx)
 
 def eLookupIdx (idx : Nat) : StateM Context (Option Expr) :=
 do ctx ← get; pure $ ctx.eVals.get! idx
@@ -195,7 +195,7 @@ partial def slowWhnfApp (args : Array Expr) : Expr → Nat → Expr
     f
 | f, i =>
   if h : i < args.size then
-    slowWhnfApp (Expr.app f (args.get ⟨i, h⟩)) (i+1)
+    slowWhnfApp (mkApp f (args.get ⟨i, h⟩)) (i+1)
   else
     f
 
@@ -236,10 +236,10 @@ partial def eInstantiate (ctx : Context) : Expr → Expr
   then e
   else
     match e with
-    | Expr.forallE n i d b => Expr.forallE n i (eInstantiate d) (eInstantiate b)
-    | Expr.lam n i d b     => Expr.lam n i (eInstantiate d) (eInstantiate b)
-    | Expr.const n ls      => Expr.const n (ls.map $ uInstantiate ctx)
-    | Expr.app e₁ e₂       => Expr.app (eInstantiate e₁) (eInstantiate e₂)
+    | Expr.forallE n i d b => mkForall n i (eInstantiate d) (eInstantiate b)
+    | Expr.lam n i d b     => mkLambda n i (eInstantiate d) (eInstantiate b)
+    | Expr.const n ls      => mkConst n (ls.map $ uInstantiate ctx)
+    | Expr.app e₁ e₂       => mkApp (eInstantiate e₁) (eInstantiate e₂)
     | _ =>
       match eMetaIdx e with
       | none     => e
@@ -295,11 +295,11 @@ partial def eMetaNormalizeCore {α : Type} (fs : MetaNormFuncs α) : Expr → St
        | Expr.app f a => do
          f ← eMetaNormalizeCore f;
          a ← eMetaNormalizeCore a;
-         pure $ Expr.app f a
+         pure $ mkApp f a
        | Expr.forallE n i d b => do
          d ← eMetaNormalizeCore d;
          b ← eMetaNormalizeCore b;
-         pure $ Expr.forallE n i d b
+         pure $ mkForall n i d b
        | _ =>
          match eMetaIdx e with
          | none     => pure e
@@ -317,10 +317,10 @@ let fs : MetaNormFuncs Unit := {
     pure l },
   uMkMeta := λ idx => pure $ Level.mvar (mkNumName alphaMetaPrefix idx),
   eNewMeta := λ idx => do {
-    e ← get >>= λ ϕ => pure $ Expr.mvar (mkNumName alphaMetaPrefix ϕ.eRenameMap.size);
+    e ← get >>= λ ϕ => pure $ mkMVar (mkNumName alphaMetaPrefix ϕ.eRenameMap.size);
     modify $ λ ϕ => { eRenameMap := ϕ.eRenameMap.insert idx ϕ.eRenameMap.size .. ϕ };
     pure e },
-  eMkMeta := λ idx => pure $ Expr.mvar (mkNumName alphaMetaPrefix idx)
+  eMkMeta := λ idx => pure $ mkMVar (mkNumName alphaMetaPrefix idx)
 };
 (eMetaNormalizeCore fs e).run' { ctx := () }
 
@@ -341,7 +341,7 @@ let fs : MetaNormFuncs (Context × Context) := {
     | some newIdx => modify $ λ ϕ => { ctx := (oldCtx, newCtx), eRenameMap := ϕ.eRenameMap.insert idx newIdx, .. ϕ }
     | none => panic "unreachable";
     pure e },
-  eMkMeta := λ idx => pure $ Expr.mvar (mkNumName metaPrefix idx)
+  eMkMeta := λ idx => pure $ mkMVar (mkNumName metaPrefix idx)
 };
 match (do newType ← eMetaNormalizeCore fs type; newVal ← eMetaNormalizeCore fs val; pure (newVal, newType)).run { ctx := (oldCtx, newCtx) } with
 | ((newVal, newType), ϕ) => (newVal, newType, ϕ.ctx.2)

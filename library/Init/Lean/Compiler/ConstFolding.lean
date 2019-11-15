@@ -53,7 +53,7 @@ def getNumLit : Expr → Option Nat
 | _                            => none
 
 def mkUIntLit (info : NumScalarTypeInfo) (n : Nat) : Expr :=
-Expr.app (Expr.const info.ofNatFn []) (Expr.lit (Literal.natVal (n%info.size)))
+mkApp (mkConst info.ofNatFn) (mkNatLit (n%info.size))
 
 def mkUInt32Lit (n : Nat) : Expr :=
 mkUIntLit {nbits := 32} n
@@ -80,7 +80,7 @@ numScalarTypes.foldl (fun r info => r ++ (preUIntBinFoldFns.map (fun ⟨suffix, 
 def foldNatBinOp (fn : Nat → Nat → Nat) (a₁ a₂ : Expr) : Option Expr :=
 do n₁   ← getNumLit a₁;
    n₂   ← getNumLit a₂;
-   pure $ Expr.lit (Literal.natVal (fn n₁ n₂))
+   pure $ mkNatLit (fn n₁ n₂)
 
 def foldNatAdd (_ : Bool) := foldNatBinOp HasAdd.add
 def foldNatMul (_ : Bool) := foldNatBinOp HasMul.mul
@@ -89,13 +89,13 @@ def foldNatMod (_ : Bool) := foldNatBinOp HasMod.mod
 def foldNatPow (_ : Bool) := foldNatBinOp HasPow.pow
 
 def mkNatEq (a b : Expr) : Expr :=
-mkAppB (Expr.app (Expr.const `Eq [Level.one]) (Expr.const `Nat [])) a b
+mkAppN (mkConst `Eq [Level.one]) #[(mkConst `Nat), a, b]
 
 def mkNatLt (a b : Expr) : Expr :=
-mkAppB (mkAppB (Expr.const `HasLt.lt [Level.zero]) (Expr.const `Nat []) (Expr.const `Nat.HasLt [])) a b
+mkAppN (mkConst `HasLt.lt [Level.zero]) #[mkConst `Nat, mkConst `Nat.HasLt, a, b]
 
 def mkNatLe (a b : Expr) : Expr :=
-mkAppB (mkAppB (Expr.const `HasLt.le [Level.zero]) (Expr.const `Nat []) (Expr.const `Nat.HasLe [])) a b
+mkAppN (mkConst `HasLt.le [Level.zero]) #[mkConst `Nat, mkConst `Nat.HasLe, a, b]
 
 def toDecidableExpr (beforeErasure : Bool) (pred : Expr) (r : Bool) : Expr :=
 match beforeErasure, r with
@@ -158,7 +158,7 @@ boolFoldFns ++ uintBinFoldFns ++ natFoldFns
 
 def foldNatSucc (_ : Bool) (a : Expr) : Option Expr :=
 do n   ← getNumLit a;
-   pure $ Expr.lit (Literal.natVal (n+1))
+   pure $ mkNatLit (n+1)
 
 def foldCharOfNat (beforeErasure : Bool) (a : Expr) : Option Expr :=
 do guard (!beforeErasure);
@@ -169,7 +169,7 @@ do guard (!beforeErasure);
 
 def foldToNat (_ : Bool) (a : Expr) : Option Expr :=
 do n ← getNumLit a;
-   pure $ Expr.lit (Literal.natVal n)
+   pure $ mkNatLit n
 
 def uintFoldToNatFns : List (Name × UnFoldFn) :=
 numScalarTypes.foldl (fun r info => (info.toNatFn, foldToNat) :: r) []

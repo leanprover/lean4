@@ -391,7 +391,7 @@ resettingTypeClassCache $
   let d     := d.instantiateRevRange j fvars.size fvars;
   fvarId ← mkFreshId;
   let lctx  := lctx.mkLocalDecl fvarId n d bi;
-  let fvar  := Expr.fvar fvarId;
+  let fvar  := mkFVar fvarId;
   let fvars := fvars.push fvar;
   match maxFVars? with
   | none          => forallTelescopeReducingAuxAux lctx fvars j b
@@ -486,14 +486,14 @@ do c? ← isClassQuick type;
   let d := d.instantiateRevRange j fvars.size fvars;
   fvarId ← mkFreshId;
   let lctx := lctx.mkLocalDecl fvarId n d bi;
-  let fvar := Expr.fvar fvarId;
+  let fvar := mkFVar fvarId;
   lambdaTelescopeAux lctx (fvars.push fvar) j b
 | lctx, fvars, j, Expr.letE n t v b => do
   let t := t.instantiateRevRange j fvars.size fvars;
   let v := v.instantiateRevRange j fvars.size fvars;
   fvarId ← mkFreshId;
   let lctx := lctx.mkLetDecl fvarId n t v;
-  let fvar := Expr.fvar fvarId;
+  let fvar := mkFVar fvarId;
   lambdaTelescopeAux lctx (fvars.push fvar) j b
 | lctx, fvars, j, e =>
   let e := e.instantiateRevRange j fvars.size fvars;

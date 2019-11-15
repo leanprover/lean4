@@ -9,11 +9,11 @@ import Init.Lean.Environment
 namespace Lean
 namespace Compiler
 
-def neutralExpr : Expr       := Expr.const `_neutral []
-def unreachableExpr : Expr   := Expr.const `_unreachable []
-def objectType : Expr        := Expr.const `_obj []
-def voidType : Expr          := Expr.const `_void []
-def mkLcProof (pred : Expr)  := Expr.app (Expr.const `lcProof []) pred
+def neutralExpr : Expr       := mkConst `_neutral
+def unreachableExpr : Expr   := mkConst `_unreachable
+def objectType : Expr        := mkConst `_obj
+def voidType : Expr          := mkConst `_void
+def mkLcProof (pred : Expr)  := mkApp (mkConst `lcProof []) pred
 
 namespace atMostOnce
 

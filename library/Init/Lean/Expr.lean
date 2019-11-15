@@ -80,15 +80,24 @@ attribute [extern "lean_expr_mk_lit"]    Expr.lit
 attribute [extern "lean_expr_mk_mdata"]  Expr.mdata
 attribute [extern "lean_expr_mk_proj"]   Expr.proj
 
-namespace Literal
-instance : Inhabited Literal := ⟨natVal 0⟩
-def type : Literal → Expr
-| natVal _ => Expr.const `Nat []
-| strVal _ => Expr.const `String []
-end Literal
+def mkLit (l : Literal) : Expr :=
+Expr.lit l
+
+def mkNatLit (n : Nat) : Expr :=
+mkLit (Literal.natVal n)
+
+def mkStrLit (s : String) : Expr :=
+mkLit (Literal.strVal s)
 
 def mkConst (n : Name) (ls : List Level := []) : Expr :=
 Expr.const n ls
+
+namespace Literal
+instance : Inhabited Literal := ⟨natVal 0⟩
+def type : Literal → Expr
+| natVal _ => mkConst `Nat
+| strVal _ => mkConst `String
+end Literal
 
 def mkBVar (idx : Nat) : Expr :=
 Expr.bvar idx
@@ -102,18 +111,36 @@ Expr.fvar fvarId
 def mkMVar (fvarId : Name) : Expr :=
 Expr.mvar fvarId
 
+def mkMData (d : MData) (e : Expr) : Expr :=
+Expr.mdata d e
+
+def mkProj (s : Name) (i : Nat) (e : Expr) : Expr :=
+Expr.proj s i e
+
+def mkApp (f a : Expr) : Expr :=
+Expr.app f a
+
 def mkAppN (f : Expr) (args : Array Expr) : Expr :=
-args.foldl Expr.app f
+args.foldl mkApp f
+
+def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
+Expr.lam x bi t b
+
+def mkForall (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
+Expr.forallE x bi t b
+
+def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) : Expr :=
+Expr.letE x t v b
 
 private partial def mkAppRangeAux (n : Nat) (args : Array Expr) : Nat → Expr → Expr
-| i, e => if i < n then mkAppRangeAux (i+1) (Expr.app e (args.get! i)) else e
+| i, e => if i < n then mkAppRangeAux (i+1) (mkApp e (args.get! i)) else e
 
 /-- `mkAppRange f i j #[a_1, ..., a_i, ..., a_j, ... ]` ==> the expression `f a_i ... a_{j-1}` -/
 def mkAppRange (f : Expr) (i j : Nat) (args : Array Expr) : Expr :=
 mkAppRangeAux j args i f
 
 def mkAppRev (fn : Expr) (revArgs : Array Expr) : Expr :=
-revArgs.foldr (fun a r => Expr.app r a) fn
+revArgs.foldr (fun a r => mkApp r a) fn
 
 namespace Expr
 @[extern "lean_expr_hash"]
@@ -224,7 +251,7 @@ private def getAppArgsAux : Expr → Array Expr → Nat → Array Expr
 | _,       as, _ => as
 
 @[inline] def getAppArgs (e : Expr) : Array Expr :=
-let dummy := Expr.sort Level.zero;
+let dummy := mkSort Level.zero;
 let nargs := e.getAppNumArgs;
 getAppArgsAux e (mkArray nargs dummy) (nargs-1)
 
@@ -240,7 +267,7 @@ getAppRevArgsAux e (Array.mkEmpty e.getAppNumArgs)
 | f, as, i       => k f as
 
 @[inline] def withApp {α} (e : Expr) (k : Expr → Array Expr → α) : α :=
-let dummy := Expr.sort Level.zero;
+let dummy := mkSort Level.zero;
 let nargs := e.getAppNumArgs;
 withAppAux k e (mkArray nargs dummy) (nargs-1)
 
@@ -380,10 +407,10 @@ def mkCAppN (n : Name) (args : Array Expr) : Expr :=
 mkAppN (mkConst n) args
 
 def mkAppB (f a b : Expr) :=
-Expr.app (Expr.app f a) b
+mkApp (mkApp f a) b
 
 def mkCAppB (n : Name) (a b : Expr) :=
-Expr.app (Expr.app (mkConst n) a) b
+mkAppB (mkConst n) a b
 
 def mkDecIsTrue (pred proof : Expr) :=
 mkAppB (Expr.const `Decidable.isTrue []) pred proof
@@ -429,7 +456,7 @@ private partial def mkAppRevRangeAux (revArgs : Array Expr) (start : Nat) : Expr
   if i == start then b
   else
     let i := i - 1;
-    mkAppRevRangeAux (Expr.app b (revArgs.get! i)) i
+    mkAppRevRangeAux (mkApp b (revArgs.get! i)) i
 
 /-- `mkAppRevRange f b e args == mkAppRev f (revArgs.extract b e)` -/
 def mkAppRevRange (f : Expr) (beginIdx endIdx : Nat) (revArgs : Array Expr) : Expr :=

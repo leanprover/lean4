@@ -249,14 +249,14 @@ xs.size.foldRev (fun i b =>
   | some (LocalDecl.cdecl _ _ n ty bi)  =>
     let ty := ty.abstractRange i xs;
     if isLambda then
-      Expr.lam n bi ty b
+      Lean.mkLambda n bi ty b
     else
-      Expr.forallE n bi ty b
+      Lean.mkForall n bi ty b
   | some (LocalDecl.ldecl _ _ n ty val) =>
     if b.hasLooseBVar 0 then
       let ty  := ty.abstractRange i xs;
       let val := val.abstractRange i xs;
-      Expr.letE n ty val b
+      mkLet n ty val b
     else
       b
   | none => panic! "unknown free variable") b

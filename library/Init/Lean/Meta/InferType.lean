@@ -68,7 +68,7 @@ do let failed : Unit → MetaM Expr := fun _ => throwEx $ Exception.invalidProje
                match ctorType with
                | Expr.forallE _ _ _ body =>
                  if body.hasLooseBVars then
-                   pure $ body.instantiate1 $ Expr.proj structName i e
+                   pure $ body.instantiate1 $ mkProj structName i e
                  else
                    pure body
                | _ => failed ())
@@ -92,7 +92,7 @@ do typeType ← inferType type;
        (throwEx $ Exception.typeExpected type)
        (do levelMVarId ← mkFreshId;
            let lvl := Level.mvar levelMVarId;
-           assignExprMVar mvarId (Expr.sort lvl);
+           assignExprMVar mvarId (mkSort lvl);
            pure lvl)
    | _ => throwEx $ Exception.typeExpected type
 
@@ -108,7 +108,7 @@ forallTelescope whnf e $ fun xs e => do
       xTypeLvl ← getLevel whnf inferType xType;
       pure $ Level.imax xTypeLvl lvl)
     lvl;
-  pure $ Expr.sort lvl.normalize
+  pure $ mkSort lvl.normalize
 
 /- Infer type of lambda and let expressions -/
 @[specialize] private def inferLambdaType
@@ -123,7 +123,7 @@ lambdaTelescope whnf e $ fun xs e => do
 savingCache $ do
   fvarId ← mkFreshId;
   adaptReader (fun (ctx : Context) => { lctx := ctx.lctx.mkLocalDecl fvarId name type bi, .. ctx }) $
-    x (Expr.fvar fvarId)
+    x (mkFVar fvarId)
 
 private def inferMVarType (mvarId : Name) : MetaM Expr :=
 do mctx ← getMCtx;
@@ -157,7 +157,7 @@ do s ← get;
 | Expr.bvar bidx           => throw $ Exception.unexpectedBVar bidx
 | Expr.mdata _ e           => inferTypeAuxAux e
 | Expr.lit v               => pure v.type
-| Expr.sort lvl            => pure $ Expr.sort (Level.succ lvl)
+| Expr.sort lvl            => pure $ mkSort (Level.succ lvl)
 | e@(Expr.forallE _ _ _ _) => checkInferTypeCache e (inferForallType whnf inferTypeAuxAux e)
 | e@(Expr.lam _ _ _ _)     => checkInferTypeCache e (inferLambdaType whnf inferTypeAuxAux e)
 | e@(Expr.letE _ _ _ _)    => checkInferTypeCache e (inferLambdaType whnf inferTypeAuxAux e)

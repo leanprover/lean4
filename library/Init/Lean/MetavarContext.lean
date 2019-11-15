@@ -389,7 +389,7 @@ modify $ fun s => { state := f s.state, .. s }
   | some (LocalDecl.cdecl _ _ n ty bi)  => do
     ty ← visit main ty;
     if ty.hasMVar then pure none
-    else instantiateDelayedAux i (Expr.lam n bi (ty.abstractRange i fvars) b)
+    else instantiateDelayedAux i (Lean.mkLambda n bi (ty.abstractRange i fvars) b)
   | some (LocalDecl.ldecl _ _ n ty val) => do
     ty  ← visit main ty;
     if ty.hasMVar then pure none
@@ -399,7 +399,7 @@ modify $ fun s => { state := f s.state, .. s }
       else
         let ty  := ty.abstractRange i fvars;
         let val := val.abstractRange i fvars;
-        instantiateDelayedAux i (Expr.letE n ty val b)
+        instantiateDelayedAux i (mkLet n ty val b)
 
 /-- Try to instantiate a delayed assignment. Return `none` (i.e., fail) if assignment still contains variables. -/
 @[inline] private def instantiateDelayed (main : Expr → M Expr) (mvarId : Name) : DelayedMetavarAssignment → M (Option Expr)
@@ -571,23 +571,23 @@ do e ← abstractRange elimMVarDeps lctx xs xs.size e;
       | some (LocalDecl.cdecl _ _ n type bi) => do
         type ← abstractRange elimMVarDeps lctx xs i type;
         if isLambda then
-          pure $ Expr.lam n bi type e
+          pure $ Lean.mkLambda n bi type e
         else
-          pure $ Expr.forallE n bi type e
+          pure $ Lean.mkForall n bi type e
       | some (LocalDecl.ldecl _ _ n type value) => do
         if e.hasLooseBVar 0 then do
           type  ← abstractRange elimMVarDeps lctx xs i type;
           value ← abstractRange elimMVarDeps lctx xs i value;
-          pure $ Expr.letE n type value e
+          pure $ mkLet n type value e
         else
           pure e
       | none => panic! "unknown free variable")
    e
 
-@[inline] private def mkLambda (elimMVarDeps : Array Expr → Expr → M Expr) (lctx : LocalContext) (xs : Array Expr) (b : Expr) : M Expr :=
+@[inline] def mkLambda (elimMVarDeps : Array Expr → Expr → M Expr) (lctx : LocalContext) (xs : Array Expr) (b : Expr) : M Expr :=
 mkBinding true elimMVarDeps lctx xs b
 
-@[inline] private def mkForall (elimMVarDeps : Array Expr → Expr → M Expr) (lctx : LocalContext) (xs : Array Expr) (b : Expr) : M Expr :=
+@[inline] def mkForall (elimMVarDeps : Array Expr → Expr → M Expr) (lctx : LocalContext) (xs : Array Expr) (b : Expr) : M Expr :=
 mkBinding false elimMVarDeps lctx xs b
 
 /-- Return the local declaration of the free variable `x` in `xs` with the smallest index -/
@@ -665,7 +665,7 @@ mkForall
 /-- Create an application `mvar ys` where `ys` are the free variables `xs` which are not let-declarations.
     All free variables in `xs` are in the context `lctx`. -/
 private def mkMVarApp (lctx : LocalContext) (mvar : Expr) (xs : Array Expr) : Expr :=
-xs.foldl (fun e x => if (lctx.findFVar x).get!.isLet then e else Expr.app e x) mvar
+xs.foldl (fun e x => if (lctx.findFVar x).get!.isLet then e else mkApp e x) mvar
 
 private def mkAuxMVar (lctx : LocalContext) (type : Expr) (synthetic : Bool) : M Name :=
 do s ← get;
@@ -702,7 +702,7 @@ private partial def elimMVarDepsAux : Array Expr → Expr → M Expr
         let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert;
         newMVarType ← mkForallAux (fun xs e => elimMVarDepsAux xs e) mvarLCtx toRevert mvarDecl.type;
         newMVarId   ← mkAuxMVar newMVarLCtx newMVarType mvarDecl.synthetic;
-        let newMVar := Expr.mvar newMVarId;
+        let newMVar := mkMVar newMVarId;
         let result  := mkMVarApp mvarLCtx newMVar toRevert;
         if mvarDecl.synthetic then
           modify (fun s => { mctx := assignDelayed s.mctx newMVarId mvarLCtx toRevert e, .. s })

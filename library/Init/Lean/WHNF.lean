@@ -47,13 +47,13 @@ private def mkNullaryCtor {m : Type → Type} [Monad m]
 match type.getAppFn with
 | Expr.const d lvls => do
   (some ctor) ← getFirstCtor getConst d | pure none;
-  pure $ mkAppN (Expr.const ctor lvls) (type.getAppArgs.shrink nparams)
+  pure $ mkAppN (mkConst ctor lvls) (type.getAppArgs.shrink nparams)
 | _ => pure none
 
 private def toCtorIfLit : Expr → Expr
 | Expr.lit (Literal.natVal v) =>
-  if v == 0 then Expr.const `Nat.zero []
-  else Expr.app (Expr.const `Nat.succ []) (Expr.lit (Literal.natVal (v-1)))
+  if v == 0 then mkConst `Nat.zero
+  else mkApp (mkConst `Nat.succ) (mkNatLit (v-1))
 | e => e
 
 private def getRecRuleFor (rec : RecursorVal) (major : Expr) : Option RecursorRule :=
@@ -154,7 +154,7 @@ let process (majorPos argPos : Nat) : m α :=
     | Expr.app (Expr.app (Expr.app (Expr.const majorFn _) _) _) majorArg => do
       some (ConstantInfo.quotInfo { kind := QuotKind.ctor, .. }) ← getConst majorFn | failK ();
       let f := recArgs.get! argPos;
-      let r := Expr.app f majorArg;
+      let r := mkApp f majorArg;
       let recArity := majorPos + 1;
       successK $ mkAppRange r recArity recArgs.size recArgs
     | _ => failK ()

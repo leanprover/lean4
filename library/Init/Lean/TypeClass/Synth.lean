@@ -128,8 +128,8 @@ do let mvarType := ctx.eInstantiate (ctx.eInfer mvar);
 partial def introduceMVars (lctx : LocalContext) (locals : Array Expr) : Context → Expr → Expr → List Expr → Context × Expr × Expr × List Expr
 | ctx, instVal, Expr.forallE _ info domain body, mvars => do
   let ⟨mvar, ctx⟩ := (Context.eNewMeta $ lctx.mkForall locals domain).run ctx;
-  let arg := mkAppN mvar locals;
-  let instVal := Expr.app instVal arg;
+  let arg      := mkAppN mvar locals;
+  let instVal  := mkApp instVal arg;
   let instType := body.instantiate1 arg;
   let mvars := if info.isInstImplicit then mvar::mvars else mvars;
   introduceMVars ctx instVal instType mvars
@@ -140,7 +140,7 @@ partial def introduceLocals : Nat → LocalContext → Array Expr → Expr → L
 | nextIdx, lctx, ls, Expr.forallE name info domain body =>
   let idxName : Name := mkNumName (mkSimpleName "_tmp") nextIdx;
   let lctx := lctx.mkLocalDecl idxName name domain info;
-  let l : Expr := Expr.fvar idxName;
+  let l : Expr := mkFVar idxName;
   introduceLocals (nextIdx + 1) lctx (ls.push l) (body.instantiate1 l)
 
 | _, lctx, ls, e => (lctx, e, ls)
@@ -226,7 +226,7 @@ do lookupStatus ← get >>= λ ϕ => pure $ ϕ.env.find instName;
                               let ⟨uMeta, ctx⟩ := Context.uNewMeta.run ctx;
                               ⟨uMeta::uMetas, ctx⟩)
                             ([], ctx);
-     let instVal          := Expr.const instName uMetas;
+     let instVal          := mkConst instName uMetas;
      let instType      := cInfo.instantiateTypeLevelParams uMetas;
      pure ⟨⟨instVal, instType⟩, ctx⟩
 
@@ -297,7 +297,7 @@ else
   then ({}, goalType, #[], #[])
   else
     let ⟨ctx, uReplacements, CLevels⟩ := collectUReplacements f.constLevels! {} #[] #[];
-    let f := if uReplacements.isEmpty then f else Expr.const f.constName! CLevels.toList;
+    let f := if uReplacements.isEmpty then f else mkConst f.constName! CLevels.toList;
     let fType :=
       match env.find f.constName! with
       | none => panic! "found constant not in the environment"

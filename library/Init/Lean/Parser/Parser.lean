@@ -617,7 +617,7 @@ let s         := whitespace c s;
 let wsStopPos := s.pos;
 let trailing  := { Substring . str := input, startPos := stopPos, stopPos := wsStopPos };
 let info      := { SourceInfo . leading := leading, pos := startPos, trailing := trailing };
-s.pushSyntax (mkLit n val (some info))
+s.pushSyntax (mkStxLit n val (some info))
 
 def charLitFnAux (startPos : Nat) : BasicParserFn
 | c, s =>
@@ -1442,7 +1442,7 @@ do tables ← tablesRef.get;
 
 def declareBuiltinParser (env : Environment) (addFnName : Name) (refDeclName : Name) (declName : Name) : IO Environment :=
 let name := `_regBuiltinParser ++ declName;
-let type := Expr.app (mkConst `IO) (mkConst `Unit);
+let type := mkApp (mkConst `IO) (mkConst `Unit);
 let val  := mkCAppN addFnName #[mkConst refDeclName, toExpr declName, mkConst declName];
 let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
 match env.addAndCompile {} decl with

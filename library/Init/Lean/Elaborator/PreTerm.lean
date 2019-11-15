@@ -49,18 +49,16 @@ registerAttribute {
 }
 
 def Expr.mkAnnotation (ann : Name) (e : Expr) :=
-Expr.mdata (MData.empty.setName `annotation ann) e
-
-private def dummy : Expr := Expr.const `Prop []
+mkMData (MData.empty.setName `annotation ann) e
 
 def mkAsIs (e : Expr) : PreTerm :=
 e.mkAnnotation `as_is
 
 def mkAsPattern (id : Name) (e : PreTerm) : PreTerm :=
-(Expr.app (Expr.fvar id) e).mkAnnotation `as_pattern
+(mkApp (mkFVar id) e).mkAnnotation `as_pattern
 
 def mkPreTypeAscription (p : PreTerm) (expectedType : Expr) : PreTerm :=
-Expr.app (Expr.app (Expr.const `typedExpr []) expectedType) p
+mkApp (mkApp (mkConst `typedExpr []) expectedType) p
 
 def mkPreTypeAscriptionIfSome (p : PreTerm) (expectedType : Option Expr) : PreTerm :=
 match expectedType with
@@ -104,7 +102,7 @@ else do
   | none => pure p
   | some pos =>
     let pos := cfg.fileMap.toPosition pos;
-    pure $ Expr.mdata ((MData.empty.setNat `column pos.column).setNat `row pos.line) p
+    pure $ mkMData ((MData.empty.setNat `column pos.column).setNat `row pos.line) p
 
 def toPreTerm (stx : Syntax Expr) : Elab PreTerm :=
 stx.ifNode
@@ -118,25 +116,25 @@ stx.ifNode
   (fun _ => throw "`toPreTerm` failed, unexpected syntax")
 
 private def mkHoleFor (stx : Syntax Expr) : Elab PreTerm :=
-setPos stx (Expr.mvar Name.anonymous)
+setPos stx (mkMVar Name.anonymous)
 
 @[builtinPreTermElab «type»] def convertType : PreTermElab :=
-fun _ => pure $ Expr.sort $ Level.succ Level.zero
+fun _ => pure $ mkSort $ Level.succ Level.zero
 
 @[builtinPreTermElab «sort»] def convertSort : PreTermElab :=
-fun _ => pure $ Expr.sort Level.zero
+fun _ => pure $ mkSort Level.zero
 
 @[builtinPreTermElab «prop»] def convertProp : PreTermElab :=
-fun _ => pure $ Expr.sort Level.zero
+fun _ => pure $ mkSort Level.zero
 
 @[builtinPreTermElab «sortApp»] def convertSortApp : PreTermElab :=
 fun n => do
    let sort := n.getArg 0;
    level ← toLevel $ n.getArg 1;
    if sort.isOfKind `Lean.Parser.Term.type then
-     pure $ Expr.sort $ Level.succ level
+     pure $ mkSort $ Level.succ level
    else
-     pure $ Expr.sort level
+     pure $ mkSort level
 
 -- This file will be deleted in the future
 private def mkLocal (decl : LocalDecl) : PreTerm :=
@@ -164,7 +162,7 @@ match b.getKind with
        match defInfo.getKind with
        | `Lean.Parser.Term.binderDefault => do
           defVal ← toPreTerm (defInfo.getArg 1);
-          pure $ Expr.app (Expr.app (Expr.const `optParam []) type) defVal
+          pure $ mkApp (mkApp (mkConst `optParam []) type) defVal
        | `Lean.Parser.Term.binderTactic => logErrorAndThrow optDef "old elaborator does not support tactics in parameters"
        | _ => throw "unknown binder default value annotation";
      -- decl ← mkLocalDecl id type;   -- HACK: this file will be deleted
@@ -187,10 +185,10 @@ fun n => do
     mkForall xs body
 
 @[builtinPreTermElab «hole»] def convertHole : PreTermElab :=
-fun _ => pure $ Expr.mvar Name.anonymous
+fun _ => pure $ mkMVar Name.anonymous
 
 @[builtinPreTermElab «sorry»] def convertSorry : PreTermElab :=
-fun _ => pure $ Expr.app (Expr.const `sorryAx []) (Expr.mvar Name.anonymous)
+fun _ => pure $ mkApp (mkConst `sorryAx []) (mkMVar Name.anonymous)
 
 @[builtinPreTermElab «id»] def convertId : PreTermElab :=
 fun n => do

@@ -30,7 +30,7 @@ if a.isLambda && !b.isLambda then do
   bType ← usingDefault whnf bType;
   match bType with
   | Expr.forallE n bi d b =>
-    let b' := Expr.lam n bi d (Expr.app b (Expr.bvar 0));
+    let b' := Lean.mkLambda n bi d (mkApp b (mkBVar 0));
     try $ isDefEq a b'
   | _ => pure false
 else
@@ -182,7 +182,7 @@ else
     let d₂    := d₂.instantiateRev fvars;
     fvarId    ← mkFreshId;
     let lctx  := lctx.mkLocalDecl fvarId n d₁;
-    let fvars := fvars.push (Expr.fvar fvarId);
+    let fvars := fvars.push (mkFVar fvarId);
     isDefEqBindingAux lctx fvars b₁ b₂ (ds₂.push d₂)
   };
   match e₁, e₂ with
@@ -405,7 +405,7 @@ def mkAuxMVar (lctx : LocalContext) (type : Expr) : CheckAssignmentM Expr :=
 do s ← get;
    let mvarId := s.ngen.curr;
    modify $ fun s => { ngen := s.ngen.next, mctx := s.mctx.addExprMVarDecl mvarId Name.anonymous lctx type, .. s };
-   pure (Expr.mvar mvarId)
+   pure (mkMVar mvarId)
 
 @[inline] def checkMVar (check : Expr → CheckAssignmentM Expr) (mvar : Expr) : CheckAssignmentM Expr :=
 do let mvarId := mvar.mvarId!;
@@ -453,21 +453,21 @@ private def checkAssignmentFailure (mvarId : Name) (fvars : Array Expr) (v : Exp
 match ex with
 | CheckAssignment.Exception.occursCheck => do
   trace! `Meta.isDefEq.assignment.occursCheck
-    (Expr.mvar mvarId ++ fvars ++ " := " ++ v);
+    (mkMVar mvarId ++ fvars ++ " := " ++ v);
   pure none
 | CheckAssignment.Exception.useFOApprox =>
   pure none
 | CheckAssignment.Exception.outOfScopeFVar fvarId => do
   trace! `Meta.isDefEq.assignment.outOfScopeFVar
-    (Expr.fvar fvarId ++ " @ " ++ Expr.mvar mvarId ++ fvars ++ " := " ++ v);
+    (mkFVar fvarId ++ " @ " ++ mkMVar mvarId ++ fvars ++ " := " ++ v);
   pure none
 | CheckAssignment.Exception.readOnlyMVarWithBiggerLCtx nestedMVarId => do
   trace! `Meta.isDefEq.assignment.readOnlyMVarWithBiggerLCtx
-    (Expr.mvar nestedMVarId ++ " @ " ++ Expr.mvar mvarId ++ fvars ++ " := " ++ v);
+    (mkMVar nestedMVarId ++ " @ " ++ mkMVar mvarId ++ fvars ++ " := " ++ v);
   pure none
 | CheckAssignment.Exception.mvarTypeNotWellFormedInSmallerLCtx nestedMVarId => do
   trace! `Meta.isDefEq.assignment.mvarTypeNotWellFormedInSmallerLCtx
-    (Expr.mvar nestedMVarId ++ " @ " ++ Expr.mvar mvarId ++ fvars ++ " := " ++ v);
+    (mkMVar nestedMVarId ++ " @ " ++ mkMVar mvarId ++ fvars ++ " := " ++ v);
   pure none
 | CheckAssignment.Exception.unknownExprMVar mvarId =>
   -- This case can only happen if the MetaM API is being misused

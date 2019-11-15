@@ -122,7 +122,7 @@ match attrParamSyntaxToIdentifier arg with
 
 def declareBuiltinElab (env : Environment) (addFn : Name) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
 let name := `_regBuiltinTermElab ++ declName;
-let type := Expr.app (mkConst `IO) (mkConst `Unit);
+let type := mkApp (mkConst `IO) (mkConst `Unit);
 let val  := mkCAppN addFn #[toExpr kind, toExpr declName, mkConst declName];
 let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
 match env.addAndCompile {} decl with
@@ -439,7 +439,7 @@ do scope ← getScope; pure scope.lctx
 def mkLocalDecl (userName : Name) (type : Expr) (bi : BinderInfo := BinderInfo.default) : Elab Expr :=
 do idx ← mkFreshName;
    modifyScope $ fun scope => { lctx := scope.lctx.mkLocalDecl idx userName type bi, .. scope };
-   pure (Expr.fvar idx)
+   pure (mkFVar idx)
 
 def mkLambda (xs : Array Expr) (b : Expr) : Elab Expr :=
 do lctx ← localContext; pure $ lctx.mkLambda xs b

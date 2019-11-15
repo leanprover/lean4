@@ -84,8 +84,6 @@ void collect_locals(expr const & e, collected_locals & ls, bool restricted) {
             visit(proj_expr(e));
             break;
         case expr_kind::FVar:
-            if (!restricted)
-                visit(local_type(e));
             ls.insert(e);
             break;
         case expr_kind::App:
@@ -101,6 +99,11 @@ void collect_locals(expr const & e, collected_locals & ls, bool restricted) {
             visit(let_type(e));
             visit(let_value(e));
             visit(let_body(e));
+            break;
+        case expr_kind::Local:
+            if (!restricted)
+                visit(local_type(e));
+            ls.insert(e);
             break;
         }
     };
@@ -123,7 +126,7 @@ bool locals_subset(expr const & e1, expr const & e2) {
     for_each(e1, [&](expr const & e, unsigned) {
             if (!is_sub || !has_local(e))
                 return false; // stop search
-            if (is_local(e) && !S.contains(e))
+            if (is_local_or_fvar(e) && !S.contains(e))
                 is_sub = false;
             return true;
         });
@@ -137,7 +140,7 @@ bool contains_local(expr const & e, name const & n) {
     for_each(e, [&](expr const & e, unsigned) {
             if (result || !has_local(e))  {
                 return false;
-            } else if (is_local(e) && local_name(e) == n) {
+            } else if (is_local_or_fvar(e) && local_or_fvar_name(e) == n) {
                 result = true;
                 return false;
             } else {
@@ -154,7 +157,7 @@ bool contains_local(expr const & e, name_set const & s) {
     for_each(e, [&](expr const & e, unsigned) {
             if (result || !has_local(e))  {
                 return false;
-            } else if (is_local(e) && s.contains(local_name(e))) {
+            } else if (is_local_or_fvar(e) && s.contains(local_or_fvar_name(e))) {
                 result = true;
                 return false;
             } else {

@@ -26,17 +26,17 @@ Author: Leonardo de Moura
 namespace lean {
 #define trace_compiler(Code) lean_trace("eqn_compiler", scope_trace_env _scope1(ctx.env(), ctx); Code)
 
-static bool has_nested_rec(expr const & eqns) {
+static bool has_nested_rec(local_context const & lctx, expr const & eqns) {
     return static_cast<bool>(find(eqns, [&](expr const & e, unsigned) {
-                return is_local(e) && is_rec(local_info(e));
-            }));
+                                            return is_fvar(e) && is_rec(lctx.get_local_decl(e).get_info());
+                                        }));
 }
 
 static eqn_compiler_result compile_equations_core(environment & env, elaborator & elab, metavar_context & mctx, local_context const & lctx, expr const & eqns) {
     type_context_old ctx(env, mctx, lctx, elab.get_cache(), transparency_mode::Semireducible);
     trace_compiler(tout() << "compiling\n" << eqns << "\n";);
     trace_compiler(tout() << "recursive:          " << is_recursive_eqns(ctx, eqns) << "\n";);
-    trace_compiler(tout() << "nested recursion:   " << has_nested_rec(eqns) << "\n";);
+    trace_compiler(tout() << "nested recursion:   " << has_nested_rec(lctx, eqns) << "\n";);
     trace_compiler(tout() << "using_well_founded: " << is_wf_equations(eqns) << "\n";);
     equations_header const & header = get_equations_header(eqns);
     trace_compiler(tout() << "partial:            " << header.m_is_partial << "\n";);
@@ -87,10 +87,10 @@ static expr remove_aux_main_name(expr const & e) {
 struct eta_expand_rec_apps_fn : public replace_visitor_with_tc {
     eta_expand_rec_apps_fn(type_context_old & ctx): replace_visitor_with_tc(ctx) {}
 
-    virtual expr visit_local(expr const & e) {
-        if (is_rec(local_info(e))) {
+    virtual expr visit_fvar(expr const & e) {
+        if (is_rec(m_ctx.lctx().get_local_decl(e).get_info())) {
             expr e2 = m_ctx.eta_expand(e);
-            lean_assert(!is_local(e2));
+            lean_assert(!is_fvar(e2));
             return visit(e2);
         }
         return e;
@@ -98,7 +98,7 @@ struct eta_expand_rec_apps_fn : public replace_visitor_with_tc {
 
     virtual expr visit_app(expr const & e) {
         expr const & fn = app_fn(e);
-        if (is_local(fn) && is_rec(local_info(fn))) {
+        if (is_fvar(fn) && is_rec(m_ctx.lctx().get_local_decl(fn).get_info())) {
             // do not eta-expand `fn`
             expr arg = visit(app_arg(e));
             return mk_app(fn, arg);
@@ -123,7 +123,6 @@ static expr compile_equations_main(environment & env, elaborator & elab,
     // } else {
     r = compile_equations_core(env, elab, mctx, lctx, eqns);
     // }
-
     if (report_cexs && r.m_counter_examples) {
         auto pp = mk_pp_ctx(env, elab.get_options(), mctx, lctx);
         auto fmt = format("non-exhaustive match, the following cases are missing:");
@@ -134,7 +133,8 @@ static expr compile_equations_main(environment & env, elaborator & elab,
     }
 
     buffer<expr> fns; to_buffer(r.m_fns, fns);
-    return mk_equations_result(fns.size(), fns.data());
+    expr eqn_result = mk_equations_result(fns.size(), fns.data());
+    return eqn_result;
 }
 
 expr compile_equations(environment & env, elaborator & elab, metavar_context & mctx, local_context const & lctx, expr const & eqns) {

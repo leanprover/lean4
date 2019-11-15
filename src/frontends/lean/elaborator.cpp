@@ -561,7 +561,7 @@ auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
 
     buffer<expr> C_args;
     expr const & C = get_app_args(type, C_args);
-    if (!is_local(C) || C_args.empty() || !std::all_of(C_args.begin(), C_args.end(), is_local)) {
+    if (!is_fvar(C) || C_args.empty() || !std::all_of(C_args.begin(), C_args.end(), is_fvar)) {
         format msg = format("'eliminator' elaboration is not used for '") + format(fn) +
             format("' because resulting type is not of the expected form\n");
         m_elim_failure_info.insert(fn, msg);
@@ -582,8 +582,8 @@ auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
     while (i > 0) {
         --i;
         expr const & param = params[i];
-
-        if (!is_explicit(local_info(param))) {
+        local_decl param_decl = m_ctx.lctx().get_local_decl(param);
+        if (!is_explicit(param_decl.get_info())) {
             continue;
         }
         nexplicit++;
@@ -603,7 +603,7 @@ auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
 
         bool collected = false;
         for_each(param_type, [&](expr const & e, unsigned) {
-                if (is_local(e)) {
+                if (is_fvar(e)) {
                     if (optional<unsigned> pos = C_args.index_of(e)) {
                         if (!found[*pos]) {
                             collected   = true;
@@ -1077,6 +1077,7 @@ expr elaborator::visit_function(expr const & fn, bool has_args, optional<expr> c
     // The expr_kind::App case can only happen when nary notation is used
     case expr_kind::App:       r = visit(ufn, expected_type); break;
     case expr_kind::FVar:      r = ufn; break;
+    case expr_kind::Local:     r = ufn; break;
     case expr_kind::Const:     r = visit_const_core(ufn); break;
     case expr_kind::MData:     r = visit_mdata(ufn, expected_type, true); break;
     case expr_kind::Lambda:    r = visit_lambda(ufn, expected_type); break;
@@ -2186,7 +2187,7 @@ static expr instantiate_rev_locals(expr const & a, unsigned n, expr const * subs
                 unsigned h = offset + n;
                 if (h < offset /* overflow, h is bigger than any vidx */ || vidx < h) {
                     expr local = subst[n - (vidx - offset) - 1];
-                    lean_assert(is_local(local));
+                    lean_assert(is_local_or_fvar(local));
                     return some_expr(copy_pos(m, copy(local)));
                 } else {
                     return some_expr(copy_pos(m, mk_bvar(vidx - n)));
@@ -2374,9 +2375,6 @@ static void mvar_dep_sort_aux(type_context_old & ctx, expr const & m,
                 mvar_dep_sort_aux(ctx, e, mvar_names, visited, result);
                 return false; // do not visit types
             }
-            if (is_local(e)) {
-                return false; // do not visit types
-            }
             return true;
         });
     visited.insert(mvar_name(m));
@@ -2449,6 +2447,10 @@ class validate_and_collect_lhs_mvars : public replace_visitor {
     }
 
     virtual expr visit_local(expr const & e) override {
+        return e;
+    }
+
+    virtual expr visit_fvar(expr const & e) override {
         return e;
     }
 
@@ -2570,7 +2572,7 @@ static expr instantiate_pattern_mvars(type_context_old & ctx, expr const & lhs) 
     return replace(lhs, [&](expr const & e, unsigned) {
             if (is_metavar_decl_ref(e) && ctx.is_assigned(e)) {
                 expr v = ctx.instantiate_mvars(e);
-                if (!is_local(v) && !is_metavar(v))
+                if (!is_local_or_fvar(v) && !is_metavar(v))
                     return some_expr(copy_pos(e, mk_inaccessible(v)));
                 else
                     return some_expr(v);
@@ -2656,7 +2658,7 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
         buffer<expr> rhs_subst;
         for (expr const & local_mvar : local_mvars) {
             expr s = instantiate_mvars(local_mvar);
-            if (!is_local(s)) {
+            if (!is_fvar(s)) {
                 /* The `as_is` annotation affects how applications are elaborated.
                    See comment at first_pass method.
                    So, we only use it if it is really needed. That is,
@@ -3598,6 +3600,8 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
         case expr_kind::Sort:
             return visit_sort(e);
         case expr_kind::FVar:
+            return visit_local(e, expected_type);
+        case expr_kind::Local:
             return visit_local(e, expected_type);
         case expr_kind::Const:
             return visit_constant(e, expected_type);

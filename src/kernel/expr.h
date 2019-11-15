@@ -74,21 +74,25 @@ inline deserializer & operator>>(deserializer & d, literal & l) { l = read_liter
 /* =======================================
    Expressions
 
-inductive expr
-| bvar  : nat → expr          -- bound variables
-| fvar  : name → expr         -- free variables
-| mvar  : name → expr         -- meta variables
-| sort  : level → expr
-| const : name → list level → expr
-| app   : expr → expr → expr
-| lam   : name → binder_info → expr → expr → expr
-| pi    : name → binder_info → expr → expr → expr
-| elet  : name → expr → expr → expr → expr
-| lit   : literal → expr
-| mdata : kvmap → expr → expr
-| proj  : name → nat → expr → expr
+inductive Expr
+| bvar    : Nat → Expr                                -- bound variables
+| fvar    : Name → Expr                               -- free variables
+| mvar    : Name → Expr                               -- meta variables
+| sort    : Level → Expr                              -- Sort
+| const   : Name → List Level → Expr                  -- constants
+| app     : Expr → Expr → Expr                        -- application
+| lam     : Name → BinderInfo → Expr → Expr → Expr    -- lambda abstraction
+| forallE : Name → BinderInfo → Expr → Expr → Expr    -- (dependent) arrow
+| letE    : Name → Expr → Expr → Expr → Expr          -- let expressions
+| lit     : Literal → Expr                            -- literals
+| mdata   : MData → Expr → Expr                       -- metadata
+| proj    : Name → Nat → Expr → Expr                  -- projection
+
+| local   : Name → Name → Expr → BinderInfo → Expr    -- Lean2 local constants
 */
-enum class expr_kind { BVar, FVar, MVar, Sort, Const, App, Lambda, Pi, Let, Lit, MData, Proj };
+enum class expr_kind { BVar, FVar, MVar, Sort, Const, App, Lambda, Pi, Let, Lit, MData, Proj,
+                       /* Extra constructor used in legacy code. */
+                       Local };
 class expr : public object_ref {
     explicit expr(object_ref && o):object_ref(o) {}
 
@@ -97,6 +101,7 @@ class expr : public object_ref {
     friend expr mk_proj(name const & s, nat const & idx, expr const & e);
     friend expr mk_bvar(nat const & idx);
     friend expr mk_mvar(name const & n);
+    friend expr mk_fvar(name const & n);
     friend expr mk_const(name const & n, levels const & ls);
     friend expr mk_app(expr const & f, expr const & a);
     friend expr mk_sort(level const & l);
@@ -344,7 +349,7 @@ inline expr mk_metavar(name const & n) { return mk_mvar(n); }
 expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info bi);
 inline expr mk_local(name const & n, expr const & t) { return mk_local(n, n, t, mk_binder_info()); }
 inline expr mk_local(name const & n, expr const & t, binder_info bi) { return mk_local(n, n, t, bi); }
-inline bool is_local(expr const & e) { return is_fvar(e); }
+inline bool is_local(expr const & e) { return e.kind() == expr_kind::Local; }
 inline name const & local_name(expr const & e) { lean_assert(is_local(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
 inline name const & local_pp_name(expr const & e) { lean_assert(is_local(e)); return static_cast<name const &>(cnstr_get_ref(e, 1)); }
 inline expr const & local_type(expr const & e) { lean_assert(is_local(e)); return static_cast<expr const &>(cnstr_get_ref(e, 2)); }
@@ -362,4 +367,6 @@ optional<expr> has_expr_metavar_strict(expr const & e);
 inline bool is_constant(expr const & e, name const & n) { return is_const(e, n); }
 inline bool is_mlocal(expr const & e) { return is_local(e) || is_metavar(e); }
 inline bool has_local(expr const & e) { return has_fvar(e); }
+inline bool is_local_or_fvar(expr const & e) { return e.kind() == expr_kind::Local || e.kind() == expr_kind::FVar; }
+inline name const & local_or_fvar_name(expr const & e) { lean_assert(is_local_or_fvar(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
 }

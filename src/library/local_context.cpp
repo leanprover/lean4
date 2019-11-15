@@ -31,23 +31,23 @@ struct depends_on_fn {
 
     depends_on_fn(metavar_context const & mctx, local_context const & lctx, unsigned num, expr const * locals):
         m_mctx(mctx), m_lctx(&lctx), m_num(num), m_locals(locals) {
-        lean_assert(std::all_of(locals, locals+num, is_local_decl_ref));
+        lean_assert(std::all_of(locals, locals+num, is_fvar));
     }
 
     depends_on_fn(metavar_context const & mctx, unsigned num, expr const * locals):
         m_mctx(mctx), m_lctx(nullptr), m_num(num), m_locals(locals) {
-        lean_assert(std::all_of(locals, locals+num, is_local_decl_ref));
+        lean_assert(std::all_of(locals, locals+num, is_fvar));
     }
 
     bool visit_local(expr const & e) {
-        lean_assert(is_local_decl_ref(e));
+        lean_assert(is_fvar(e));
         if (std::any_of(m_locals, m_locals + m_num,
-                        [&](expr const & l) { return local_name(e) == local_name(l); }))
+                        [&](expr const & l) { return fvar_name(e) == fvar_name(l); }))
             return true;
 
-        if (!m_lctx || m_visited_decls.contains(local_name(e)))
+        if (!m_lctx || m_visited_decls.contains(fvar_name(e)))
             return false;
-        m_visited_decls.insert(local_name(e));
+        m_visited_decls.insert(fvar_name(e));
         optional<local_decl> decl = m_lctx->find_local_decl(e);
         if (!decl)
             return false;
@@ -83,7 +83,7 @@ struct depends_on_fn {
         for_each(e, [&](expr const & e, unsigned) {
                 if (found) return false;
                 if (!has_local(e) && !has_expr_metavar(e)) return false;
-                if (is_local_decl_ref(e) && visit_local(e)) {
+                if (is_fvar(e) && visit_local(e)) {
                     found = true;
                     return false;
                 }
@@ -135,7 +135,9 @@ local_decl local_context::mk_local_decl_core(name const & n, name const & un, ex
 
 expr local_context::mk_local_decl(name const & n, name const & un, expr const & type, optional<expr> const & value, binder_info bi) {
     local_decl d = value ? local_ctx::mk_local_decl(n, un, type, *value) : local_ctx::mk_local_decl(n, un, type, bi);
-    return d.mk_ref();
+    expr r = d.mk_ref();
+    lean_assert(is_fvar(r));
+    return r;
 }
 
 expr local_context::mk_local_decl(expr const & type, binder_info bi) {
@@ -265,7 +267,7 @@ bool local_context::is_subset_of(local_context const & ctx) const {
 local_context local_context::remove(buffer<expr> const & locals) const {
     lean_assert(std::all_of(locals.begin(), locals.end(),
                             [&](expr const & l) {
-                                return is_local_decl_ref(l) && find_local_decl(l);
+                                return is_fvar(l) && find_local_decl(l);
                             }));
     /* TODO(Leo): check whether the following loop is a performance bottleneck. */
     local_context r          = *this;
@@ -282,7 +284,7 @@ static bool locals_subset_of(expr const & e, name_set const & s) {
     bool ok = true;
     for_each(e, [&](expr const & e, unsigned) {
             if (!ok) return false; // stop search
-            if (is_local_decl_ref(e) && !s.contains(local_name(e))) {
+            if (is_fvar(e) && !s.contains(fvar_name(e))) {
                 ok = false;
                 return false;
             }
@@ -314,7 +316,7 @@ bool local_context::well_formed(expr const & e) const {
     bool ok = true;
     ::lean::for_each(e, [&](expr const & e, unsigned) {
             if (!ok) return false;
-            if (is_local_decl_ref(e) && !find_local_decl(e)) {
+            if (is_fvar(e) && !find_local_decl(e)) {
                 ok = false;
             }
             return true;
@@ -407,7 +409,7 @@ local_context local_context::instantiate_mvars(metavar_context & mctx) const {
 bool contains_let_local_decl(local_context const & lctx, expr const & e) {
     if (!has_local(e)) return false;
     return static_cast<bool>(find(e, [&](expr const & e, unsigned) {
-                if (!is_local(e)) return false;
+                if (!is_fvar(e)) return false;
                 optional<local_decl> d = lctx.find_local_decl(e);
                 return d && d->get_value();
             }));
@@ -417,7 +419,7 @@ expr zeta_expand(local_context const & lctx, expr const & e) {
     if (!contains_let_local_decl(lctx, e)) return e;
     return replace(e, [&](expr const & e, unsigned) {
             if (!has_local(e)) return some_expr(e);
-            if (is_local(e)) {
+            if (is_fvar(e)) {
                 if (auto d = lctx.find_local_decl(e)) {
                     if (auto v = d->get_value())
                         return some_expr(zeta_expand(lctx, *v));

@@ -77,12 +77,12 @@ void finalize_pos_info_provider() {
 
 optional<expr> is_local_p(expr const & e) {
     auto e2 = unwrap_pos(e);
-    if (is_fvar(e2))
+    if (is_local_or_fvar(e2))
         return some_expr(e2);
     else
         return none_expr();
 }
-name const & local_name_p(expr const & e) { auto o = is_local_p(e); lean_assert(o); return local_name(*o); }
+name const & local_name_p(expr const & e) { auto o = is_local_p(e); lean_assert(o); return local_or_fvar_name(*o); }
 name const & local_pp_name_p(expr const & e) { auto o = is_local_p(e); lean_assert(o); return local_pp_name(*o); }
 expr const & local_type_p(expr const & e) { auto o = is_local_p(e); lean_assert(o); return local_type(*o); }
 binder_info local_info_p(expr const & e) { auto o = is_local_p(e); lean_assert(o); return local_info(*o); }
@@ -97,17 +97,17 @@ expr update_local_p(expr const & e, binder_info bi) {
 }
 
 expr abstract_p(expr const & e, unsigned n, expr const * subst) {
-    lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return !has_loose_bvars(e) && is_fvar(unwrap_pos(e)); }));
+    lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return !has_loose_bvars(e) && (is_local_or_fvar(unwrap_pos(e))); }));
     if (!has_fvar(e))
         return e;
     return replace(e, [=](expr const & m, unsigned offset) -> optional<expr> {
         if (!has_fvar(m))
             return some_expr(m); // expression m does not contain free variables
-        if (is_fvar(m)) {
+        if (is_local_or_fvar(m)) {
             unsigned i = n;
             while (i > 0) {
                 --i;
-                if (fvar_name(unwrap_pos(subst[i])) == fvar_name(m))
+                if (local_or_fvar_name(unwrap_pos(subst[i])) == local_or_fvar_name(m))
                     return some_expr(mk_bvar(offset + n - i - 1));
             }
             return none_expr();

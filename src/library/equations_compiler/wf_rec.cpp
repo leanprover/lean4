@@ -165,8 +165,8 @@ struct wf_rec_fn {
         elim_rec_apps_fn(wf_rec_fn & parent, type_context_old & ctx, name const & fn_name, expr const & fn, expr const & x, expr const & F):
             replace_visitor_with_tc(ctx), m_parent(parent), m_fn_name(fn_name), m_fn(fn), m_x(x), m_F(F) {}
 
-        virtual expr visit_local(expr const & e) {
-            if (local_name(e) == local_name(m_fn)) {
+        virtual expr visit_fvar(expr const & e) {
+            if (fvar_name(e) == fvar_name(m_fn)) {
                 /* unexpected occurrence of recursive function */
                 throw generic_exception(e, "unexpected occurrence of recursive function\n");
             }
@@ -226,7 +226,7 @@ struct wf_rec_fn {
 
         virtual expr visit_app(expr const & e) {
             expr const & fn = app_fn(e);
-            if (is_local(fn) && local_name(fn) == local_name(m_fn)) {
+            if (is_fvar(fn) && fvar_name(fn) == fvar_name(m_fn)) {
                 expr y   = visit(app_arg(e));
                 expr hlt = mk_dec_proof(y, e);
                 return mk_app(m_F, y, hlt);
@@ -315,7 +315,7 @@ struct wf_rec_fn {
             expr as, as_type;
             std::tie(as, as_type) = mk_sigma(ctx, i+1, args);
             expr a       = args[i];
-            lean_assert(is_local(a));
+            lean_assert(is_fvar(a));
             expr a_type  = ctx.infer(a);
             level a_lvl  = get_level(ctx, a_type);
             level as_lvl = get_level(ctx, as_type);

@@ -12,8 +12,6 @@ Author: Leonardo de Moura
 #include "library/formatter.h"
 
 namespace lean {
-bool is_local_decl_ref(expr const & e);
-
 class metavar_context;
 class local_context;
 bool depends_on(expr const & e, metavar_context const & mctx, unsigned num, expr const * locals);

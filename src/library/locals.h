@@ -21,7 +21,7 @@ class collected_locals {
 public:
     void insert(expr const & l);
     bool contains(name const & n) const { return m_local_names.contains(n); }
-    bool contains(expr const & l) const { return contains(local_name(l)); }
+    bool contains(expr const & l) const { return contains(local_or_fvar_name(l)); }
     buffer<expr> const & get_collected() const { return m_locals; }
     bool empty() const { return m_locals.empty(); }
 };
@@ -36,13 +36,13 @@ names to_names(name_set const & ls);
 /** \brief Return true iff \c [begin_locals, end_locals) contains \c local */
 template<typename It>
 bool contains_local(expr const & local, It const & begin_locals, It const & end_locals) {
-    return std::any_of(begin_locals, end_locals, [&](expr const & l) { return local_name(local) == local_name(l); });
+    return std::any_of(begin_locals, end_locals, [&](expr const & l) { return local_or_fvar_name(local) == local_or_fvar_name(l); });
 }
 
 template<typename T>
 bool contains_local(expr const & l, T const & locals) {
     return std::any_of(locals.begin(), locals.end(),
-                       [&](expr const & l1) { return local_name(l1) == local_name(l); });
+                       [&](expr const & l1) { return local_or_fvar_name(l1) == local_or_fvar_name(l); });
 }
 
 /** \brief Return true iff \c e contains a local constant \c h s.t. mlocal_name(h) in s */
@@ -53,7 +53,7 @@ bool contains_local(expr const & e, name const & n);
 
 /** \brief Return true iff \e contains the local constant \c h */
 inline bool depends_on(expr const & e, expr const & h) {
-    return contains_local(e, local_name(h));
+    return contains_local(e, local_or_fvar_name(h));
 }
 
 /** \brief Return true iff one of \c es contains the local constant \c h */

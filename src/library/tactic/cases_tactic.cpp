@@ -122,7 +122,7 @@ struct cases_tactic_fn {
         2- it is an indexed inductive family, but all indices are distinct local constants,
         and all hypotheses of g different from h and indices, do not depend on the indices. */
     bool has_indep_indices(metavar_decl const & g, expr const & h) {
-        lean_assert(is_local(h));
+        lean_assert(is_fvar(h));
         if (m_nindices == 0)
             return true;
         type_context_old ctx = mk_type_context_for(g);
@@ -132,10 +132,10 @@ struct cases_tactic_fn {
         lean_assert(m_nindices <= args.size());
         unsigned fidx = args.size() - m_nindices;
         for (unsigned i = fidx; i < args.size(); i++) {
-            if (!is_local(args[i]))
+            if (!is_fvar(args[i]))
                 return false; // the indices must be local constants
             for (unsigned j = 0; j < i; j++) {
-                if (is_local(args[j]) && local_name(args[j]) == local_name(args[i]))
+                if (is_fvar(args[j]) && fvar_name(args[j]) == fvar_name(args[i]))
                     return false; // the indices must be distinct local constants
             }
         }
@@ -221,7 +221,7 @@ struct cases_tactic_fn {
             expr const & index = I_args[i];
             add_eq(index, t);
         }
-        name h_new_name = local_pp_name(h);
+        name h_new_name = *ctx.get_local_pp_name(h);
         expr h_new      = ctx.push_local(h_new_name, h_new_type);
         add_eq(h, h_new);
         /* aux_type is  Pi (j' : J) (h' : I A j'), j == j' -> h == h' -> T */
@@ -259,8 +259,8 @@ struct cases_tactic_fn {
                 name idx_name = aux_indices_H[i];
                 removed.insert(idx_name);
                 if (auto ridx = subst.find(idx_name)) {
-                    lean_assert(is_local(*ridx));
-                    name new_name = local_name(*ridx);
+                    lean_assert(is_fvar(*ridx));
+                    name new_name = fvar_name(*ridx);
                     subst.erase(idx_name);
                     idx_name = new_name;
                 }
@@ -269,8 +269,8 @@ struct cases_tactic_fn {
             }
             hsubstitution new_subst;
             subst.for_each([&](name const & from, expr const & to) {
-                    lean_assert(is_local(to));
-                    if (!removed.contains(local_name(to)))
+                    lean_assert(is_fvar(to));
+                    if (!removed.contains(fvar_name(to)))
                         new_subst.insert(from, to);
                 });
             new_goals.push_back(mvar);
@@ -341,13 +341,13 @@ struct cases_tactic_fn {
                 lean_cases_trace(mvar, tout() << "skip\n";);
                 expr mvar2 = clear(m_mctx, *mvar1, H);
                 return unify_eqs(input_H, mvar2, num_eqs - 1, updating, new_intros, subst);
-            } else if (is_local(rhs) || is_local(lhs)) {
+            } else if (is_fvar(rhs) || is_fvar(lhs)) {
                 lean_cases_trace(mvar, tout() << "substitute\n";);
                 hsubstitution extra_subst;
                 bool symm  =
-                    (!is_local(lhs) && is_local(rhs))
+                    (!is_fvar(lhs) && is_fvar(rhs))
                     ||
-                    (is_local(lhs) && is_local(rhs) &&
+                    (is_fvar(lhs) && is_fvar(rhs) &&
                      ctx.lctx().get_local_decl(lhs).get_idx()
                      <
                      ctx.lctx().get_local_decl(rhs).get_idx());
@@ -474,7 +474,7 @@ struct cases_tactic_fn {
         lean_assert((ilist != nullptr) == (slist != nullptr));
         lean_assert(is_metavar(mvar));
         lean_assert(m_mctx.find_metavar_decl(mvar));
-        if (!is_local(H))
+        if (!is_fvar(H))
             throw exception("cases tactic failed, argument must be a hypothesis");
         if (!is_cases_applicable(mvar, H))
             throw exception("cases tactic failed, it is not applicable to the given hypothesis");

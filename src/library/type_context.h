@@ -565,6 +565,14 @@ public:
     // TODO(Leo): avoid ::lean::mk_fresh_name
     virtual name next_name() override { return ::lean::mk_fresh_name(); }
 
+    virtual optional<name> get_local_pp_name(expr const & e) override {
+        if (optional<local_decl> decl = m_lctx.find_local_decl(e)) {
+            return optional<name>(decl->get_user_name());
+        }
+        return optional<name>();
+    }
+
+
     local_context const & lctx() const { return m_lctx; }
     metavar_context const & mctx() const { return m_mctx; }
     expr mk_metavar_decl(local_context const & ctx, expr const & type) { return m_mctx.mk_metavar_decl(ctx, type); }
@@ -898,7 +906,7 @@ private:
        Type inference
        ------------ */
     expr infer_core(expr const & e);
-    expr infer_local(expr const & e);
+    expr infer_fvar(expr const & e);
     expr infer_metavar(expr const & e);
     expr infer_constant(expr const & e);
     expr infer_lambda(expr e);

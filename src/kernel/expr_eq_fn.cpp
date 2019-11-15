@@ -90,6 +90,8 @@ class expr_eq_fn {
         case expr_kind::MVar:
             return mvar_name(a) == mvar_name(b);
         case expr_kind::FVar:
+            return fvar_name(a) == fvar_name(b);
+        case expr_kind::Local:
             return
                 local_name(a) == local_name(b) &&
                 apply(local_type(a), local_type(b)) &&

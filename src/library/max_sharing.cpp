@@ -53,7 +53,8 @@ struct max_sharing_fn::imp {
             return *r;
         expr res;
         switch (a.kind()) {
-        case expr_kind::BVar: case expr_kind::Lit: case expr_kind::MVar:
+        case expr_kind::BVar: case expr_kind::Lit:
+        case expr_kind::MVar: case expr_kind::FVar:
             res = a;
             break;
         case expr_kind::Const:
@@ -91,7 +92,7 @@ struct max_sharing_fn::imp {
             res = update_let(a, new_t, new_v, new_b);
             break;
         }
-        case expr_kind::FVar:
+        case expr_kind::Local:
             res = update_local(a, apply(local_type(a)));
             break;
         }

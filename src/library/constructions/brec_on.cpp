@@ -21,11 +21,11 @@ Author: Leonardo de Moura
 namespace lean {
 static optional<unsigned> is_typeformer_app(buffer<name> const & typeformer_names, expr const & e) {
     expr const & fn = get_app_fn(e);
-    if (!is_local(fn))
+    if (!is_fvar(fn))
         return optional<unsigned>();
     unsigned r = 0;
     for (name const & n : typeformer_names) {
-        if (local_name(fn) == n)
+        if (fvar_name(fn) == n)
             return optional<unsigned>(r);
         r++;
     }

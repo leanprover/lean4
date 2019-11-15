@@ -56,7 +56,7 @@ static optional<pair<expr, unsigned>> get_eqn_fn_and_arity(expr e) {
     } else {
         expr const & lhs = equation_lhs(e);
         expr const & fn  = get_app_fn(lhs);
-        lean_assert(is_local(fn));
+        lean_assert(is_fvar(fn));
         return optional<pair<expr, unsigned>>(fn, get_app_num_args(lhs));
     }
 }
@@ -132,7 +132,7 @@ unpack_eqns::unpack_eqns(type_context_old & ctx, expr const & e):
 }
 
 expr unpack_eqns::update_fn_type(unsigned fidx, expr const & type) {
-    expr new_fn = m_locals.push_local(local_pp_name(m_fns[fidx]), type, mk_rec_info());
+    expr new_fn = m_locals.push_local(*m_locals.ctx().get_local_pp_name(m_fns[fidx]), type, mk_rec_info());
     m_fns[fidx] = new_fn;
     return new_fn;
 }
@@ -181,7 +181,8 @@ expr unpack_eqn::repack() {
         equation_lhs(m_nested_src) == m_lhs &&
         equation_rhs(m_nested_src) == m_rhs) return m_src;
     expr new_eq = copy_pos(m_nested_src, mk_equation(m_lhs, m_rhs, m_ignore_if_unused));
-    return copy_pos(m_src, m_locals.ctx().mk_lambda(m_vars, new_eq));
+    expr r = copy_pos(m_src, m_locals.ctx().mk_lambda(m_vars, new_eq));
+    return r;
 }
 
 bool is_recursive_eqns(type_context_old & ctx, expr const & e) {
@@ -197,9 +198,9 @@ bool is_recursive_eqns(type_context_old & ctx, expr const & e) {
             if (is_equation(it)) {
                 expr const & rhs = equation_rhs(it);
                 if (find(rhs, [&](expr const & e, unsigned) {
-                            if (is_local(e)) {
+                            if (is_fvar(e)) {
                                 for (unsigned fidx = 0; fidx < ues.get_num_fns(); fidx++) {
-                                    if (local_name(e) == local_name(ues.get_fn(fidx)))
+                                    if (fvar_name(e) == fvar_name(ues.get_fn(fidx)))
                                         return true;
                                 }
                             }
@@ -341,7 +342,7 @@ static expr whnf_inductive(type_context_old & ctx, expr const & e) {
    the type of (c A ...) matches (I A idx). */
 void for_each_compatible_constructor(type_context_old & ctx, expr const & var,
                                      std::function<void(expr const &, buffer<expr> &)> const & fn) {
-    lean_assert(is_local(var));
+    lean_assert(is_fvar(var));
     expr var_type = whnf_inductive(ctx, ctx.infer(var));
     buffer<expr> I_args;
     expr const & I       = get_app_args(var_type, I_args);
@@ -426,7 +427,7 @@ void update_telescope(type_context_old & ctx, buffer<expr> const & vars, expr co
             if (curr_type == new_curr_type) {
                 new_vars.push_back(curr);
             } else {
-                expr new_curr = ctx.push_local(local_pp_name(curr), new_curr_type);
+                expr new_curr = ctx.push_local(*ctx.get_local_pp_name(curr), new_curr_type);
                 from.push_back(curr);
                 to.push_back(new_curr);
                 new_vars.push_back(new_curr);

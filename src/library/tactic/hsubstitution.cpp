@@ -10,11 +10,11 @@ Author: Leonardo de Moura
 namespace lean {
 expr apply(expr const & e, hsubstitution const & s) {
     if (s.empty()) return e;
-    if (!has_local(e)) return e;
+    if (!has_fvar(e)) return e;
     return replace(e, [&](expr const & e, unsigned) {
             if (!has_local(e)) return some_expr(e);
-            if (is_local(e)) {
-                if (auto r = s.find(local_name(e)))
+            if (is_fvar(e)) {
+                if (auto r = s.find(fvar_name(e)))
                     return some_expr(*r);
             }
             return none_expr();

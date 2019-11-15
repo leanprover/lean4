@@ -114,9 +114,10 @@ struct structural_rec_fn {
         /** \brief Return true iff all recursive applications in \c e are structurally smaller than \c m_pattern. */
         bool check_rhs(expr const & e) {
             switch (e.kind()) {
-            case expr_kind::BVar: case expr_kind::MVar:
-            case expr_kind::FVar: case expr_kind::Const:
-            case expr_kind::Sort: case expr_kind::Lit:
+            case expr_kind::BVar:  case expr_kind::MVar:
+            case expr_kind::FVar:  case expr_kind::Const:
+            case expr_kind::Sort:  case expr_kind::Lit:
+            case expr_kind::Local:
                 return true;
             case expr_kind::App: {
                 buffer<expr> args;
@@ -126,15 +127,16 @@ struct structural_rec_fn {
                 for (unsigned i = 0; i < args.size(); i++)
                     if (!check_rhs(args[i]))
                         return false;
-                if (is_local(fn) && local_name(fn) == local_name(m_fn)) {
+                if (is_fvar(fn) && fvar_name(fn) == fvar_name(m_fn)) {
                     /* recusive application */
                     if (m_arg_idx < args.size()) {
                         expr const & arg = args[m_arg_idx];
                         /* arg must be structurally smaller than m_pattern */
                         if (!is_lt(arg, m_pattern)) {
+                            name fname = *m_ctx.get_local_pp_name(m_fn);
                             trace_struct_aux(tout() << "structural recursion on argument #" << (m_arg_idx+1)
                                              << " was not used "
-                                             << "for '" << m_fn << "'\nargument #" << (m_arg_idx+1)
+                                             << "for '" << fname << "'\nargument #" << (m_arg_idx+1)
                                              << " in the application\n  "
                                              << e << "\nis not structurally smaller than the one occurring in "
                                              << "the equation left-hand-side\n  "
@@ -143,8 +145,9 @@ struct structural_rec_fn {
                         }
                     } else {
                         /* function is not fully applied */
+                        name fname = *m_ctx.get_local_pp_name(m_fn);
                         trace_struct_aux(tout() << "structural recursion on argument #" << (m_arg_idx+1) << " was not used "
-                                         << "for '" << m_fn << "' because of the partial application\n  "
+                                         << "for '" << fname << "' because of the partial application\n  "
                                          << e << "\n";);
                         return false;
                     }
@@ -217,9 +220,10 @@ struct structural_rec_fn {
         expr arg_type = ctx.relaxed_whnf(binding_domain(fn_type));
         buffer<expr> I_args;
         expr I        = get_app_args(arg_type, I_args);
+        name fname    = *ctx.get_local_pp_name(fn);
         if (!is_constant(I) || !is_inductive(m_env, const_name(I))) {
             trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "
-                         << "for '" << fn << "' because type is not inductive\n  "
+                         << "for '" << fname << "' because type is not inductive\n  "
                          << arg_type << "\n";);
             return false;
         }
@@ -228,13 +232,13 @@ struct structural_rec_fn {
         m_reflexive   = I_val.is_reflexive();
         if (!m_env.find(name(I_name, g_brec_on))) {
             trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "
-                         << "for '" << fn << "' because the inductive type '" << I << "' does have brec_on recursor\n  "
+                         << "for '" << fname << "' because the inductive type '" << I << "' does have brec_on recursor\n  "
                          << arg_type << "\n";);
             return false;
         }
         if (m_reflexive && !m_env.find(name(I_name, "binduction_on"))) {
             trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "
-                         << "for '" << fn << "' because the reflexive inductive type '" << I << "' does "
+                         << "for '" << fname << "' because the reflexive inductive type '" << I << "' does "
                          << "have binduction_on recursor\n  "
                          << arg_type << "\n";);
             return false;
@@ -245,9 +249,9 @@ struct structural_rec_fn {
             unsigned first_index_pos = I_args.size() - nindices;
             for (unsigned i = first_index_pos; i < I_args.size(); i++) {
                 expr const & idx = I_args[i];
-                if (!is_local(idx)) {
+                if (!is_fvar(idx)) {
                     trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "
-                                 << "for '" << fn << "' because the inductive type '" << I << "' is an indexed family, "
+                                 << "for '" << fname << "' because the inductive type '" << I << "' is an indexed family, "
                                  << "and index #" << (i+1) << " is not a variable\n  "
                                  << arg_type << "\n";);
                     return false;
@@ -257,13 +261,13 @@ struct structural_rec_fn {
                 buffer<expr> const & xs = locals.as_buffer();
                 for (; idx_pos < xs.size(); idx_pos++) {
                     expr const & x = xs[idx_pos];
-                    if (local_name(x) == local_name(idx)) {
+                    if (fvar_name(x) == fvar_name(idx)) {
                         break;
                     }
                 }
                 if (idx_pos == xs.size()) {
                     trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "
-                                 << "for '" << fn << "' because the inductive type '" << I << "' is an indexed family, "
+                                 << "for '" << fname << "' because the inductive type '" << I << "' is an indexed family, "
                                  << "and index #" << (i+1) << " is not an argument of the function being defined\n  "
                                  << arg_type << "\n";);
                     return false;
@@ -275,7 +279,7 @@ struct structural_rec_fn {
                         std::find(m_indices_pos.begin(), m_indices_pos.end(), j) == m_indices_pos.end();
                     if (j_is_not_index && depends_on(idx_type, xs[j])) {
                         trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "
-                                     << "for '" << fn << "' because the inductive type '" << I << "' is an indexed family, "
+                                     << "for '" << fname << "' because the inductive type '" << I << "' is an indexed family, "
                                      << "and index #" << (i+1) << " depends on argument #" << (j+1) << " of '" << fn << "' "
                                      << "which is not an index of the inductive datatype\n  "
                                      << arg_type << "\n";);
@@ -286,9 +290,9 @@ struct structural_rec_fn {
                 /* Each index can only occur once */
                 for (unsigned j = first_index_pos; j < i; j++) {
                     expr const & prev_idx = I_args[j];
-                    if (local_name(prev_idx) == local_name(idx)) {
+                    if (fvar_name(prev_idx) == fvar_name(idx)) {
                         trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "
-                                     << "for '" << fn << "' because the inductive type '" << I << "' is an indexed family, "
+                                     << "for '" << fname << "' because the inductive type '" << I << "' is an indexed family, "
                                      << "and index #" << (i+1) << " and #" << (j+1) << " must be different variables\n  "
                                      << arg_type << "\n";);
                         return false;
@@ -299,7 +303,7 @@ struct structural_rec_fn {
         for (unsigned i = 0; i < I_args.size() - nindices; i++) {
             if (depends_on_locals(I_args[i], locals)) {
                 trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "
-                             << "for '" << fn << "' because type parameter depends on previous arguments\n  "
+                             << "for '" << fname << "' because type parameter depends on previous arguments\n  "
                              << arg_type << "\n";);
                 return false;
             }
@@ -439,8 +443,8 @@ struct structural_rec_fn {
                     return r;
                 else
                     return none_expr();
-            } else if (is_local(fn)) {
-                if (local_name(m_C) == local_name(fn) && m_ctx.is_def_eq(app_arg(d), a))
+            } else if (is_fvar(fn)) {
+                if (fvar_name(m_C) == fvar_name(fn) && m_ctx.is_def_eq(app_arg(d), a))
                     return some_expr(F);
                 return none_expr();
             } else if (is_pi(d)) {
@@ -483,8 +487,8 @@ struct structural_rec_fn {
             }
         }
 
-        virtual expr visit_local(expr const & e) {
-            if (local_name(e) == local_name(m_fn)) {
+        virtual expr visit_fvar(expr const & e) {
+            if (fvar_name(e) == fvar_name(m_fn)) {
                 /* unexpected occurrence of recursive function */
                 trace_struct_aux(tout() << "unexpected occurrence of recursive function: " << e << "\n";);
                 throw elim_rec_apps_failed();
@@ -494,7 +498,7 @@ struct structural_rec_fn {
 
         virtual expr visit_app(expr const & e) {
             expr const & fn = get_app_fn(e);
-            if (is_local(fn) && local_name(fn) == local_name(m_fn)) {
+            if (is_fvar(fn) && fvar_name(fn) == fvar_name(m_fn)) {
                 buffer<expr> args;
                 get_app_args(e, args);
                 if (m_arg_pos >= args.size()) throw elim_rec_apps_failed();
@@ -534,14 +538,14 @@ struct structural_rec_fn {
 
             if (!has_case_analysis_before) {
                 for (unsigned i = 0; i < m_arg_pos; i++) {
-                    if (!is_local(lhs_args[i]) && !is_inaccessible(lhs_args[i])) {
+                    if (!is_fvar(lhs_args[i]) && !is_inaccessible(lhs_args[i])) {
                         has_case_analysis_before = true;
                         break;
                     }
                 }
             }
 
-            if (is_local(lhs_args[m_arg_pos]))
+            if (is_fvar(lhs_args[m_arg_pos]))
                 incomplete = true;
 
             if (has_case_analysis_before && incomplete)
@@ -553,7 +557,8 @@ struct structural_rec_fn {
     void update_eqs(type_context_old & ctx, unpack_eqns & ues, expr const & fn, expr const & new_fn) {
         /* C is a temporary "abstract" motive, we use it to access the "g_brec_on dictionary".
            The g_brec_on dictionary is an element of type below, and it is the last argument of the new function. */
-        expr C = mk_local(ctx.next_name(), "_C", m_motive_type, mk_binder_info());
+        type_context_old::tmp_locals locals(ctx);
+        expr C = locals.push_local("_C", m_motive_type);
         buffer<expr> & eqns = ues.get_eqns_of(0);
         buffer<expr> new_eqns;
         bool complete = must_complete_rec_arg(ctx, ues);
@@ -563,7 +568,7 @@ struct structural_rec_fn {
             expr rhs = ue.rhs();
             buffer<expr> lhs_args;
             get_app_args(lhs, lhs_args);
-            if (complete && is_local(lhs_args[m_arg_pos])) {
+            if (complete && is_fvar(lhs_args[m_arg_pos])) {
                 expr var = lhs_args[m_arg_pos];
                 for_each_compatible_constructor(ctx, var,
                 [&](expr const & c, buffer<expr> const & new_c_vars) {
@@ -617,10 +622,13 @@ struct structural_rec_fn {
         }
         m_fn_type = ctx.infer(ues.get_fn(0));
         m_arity   = ues.get_arity_of(0);
-        if (!find_rec_arg(ctx, ues)) return none_expr();
         expr fn = ues.get_fn(0);
+        lean_assert(ctx.lctx().find_local_decl(fn));
+        if (!find_rec_arg(ctx, ues)) return none_expr();
+        lean_assert(ctx.lctx().find_local_decl(fn));
+        name fname = *ctx.get_local_pp_name(fn);
         trace_struct(tout() << "using structural recursion on argument #" << (m_arg_pos+1) <<
-                     " for '" << fn << "'\n";);
+                     " for '" << fname << "'\n";);
         expr new_fn_type = mk_new_fn_motive_types(ctx, ues);
         trace_struct(
             tout() << "\n";

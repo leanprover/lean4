@@ -60,9 +60,9 @@ struct sigma_packer_fn {
         unpack_eqns const &  m_ues;
 
         optional<unsigned> get_fn_idx(expr const & fn) {
-            if (!is_local(fn)) return optional<unsigned>();
+            if (!is_fvar(fn)) return optional<unsigned>();
             for (unsigned fnidx = 0; fnidx < m_old_fns.size(); fnidx++) {
-                if (local_name(fn) == local_name(m_old_fns[fnidx]))
+                if (fvar_name(fn) == fvar_name(m_old_fns[fnidx]))
                     return optional<unsigned>(fnidx);
             }
             return optional<unsigned>();
@@ -108,7 +108,7 @@ struct sigma_packer_fn {
             return copy_pos(e, mk_app(r, args.size() - arity, args.data() + arity));
         }
 
-        virtual expr visit_local(expr const & e) override {
+        virtual expr visit_fvar(expr const & e) override {
             auto fnidx = get_fn_idx(e);
             if (!fnidx) return replace_visitor_with_tc::visit_local(e);
             expr new_fn = m_ues.get_fn(*fnidx);

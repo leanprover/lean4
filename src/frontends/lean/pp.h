@@ -135,6 +135,7 @@ private:
     result pp_sort(expr const & e);
     result pp_const(expr const & e, optional<unsigned> const & num_ref_univs = optional<unsigned>());
     result pp_meta(expr const & e);
+    result pp_fvar(expr const & e);
     result pp_local(expr const & e);
     result pp_app(expr const & e);
     result pp_lambda(expr const & e);

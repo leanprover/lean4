@@ -121,16 +121,19 @@ list<expr> induction(environment const & env, options const & opts, transparency
                      expr const & mvar, expr const & H, name const & rec_name, names & ns,
                      intros_list * ilist, hsubstitution_list * slist, buffer<name> & minor_names) {
     lean_assert(is_metavar(mvar));
-    lean_assert(is_local(H));
+    lean_assert(is_fvar(H));
     lean_assert((ilist == nullptr) == (slist == nullptr));
 
     optional<metavar_decl> g = mctx.find_metavar_decl(mvar);
     lean_assert(g);
     optional<name> H_name;
-    if (is_local(H) &&
-        !is_internal_name(local_pp_name(H)) && !is_fresh_name(local_pp_name(H)) &&
-        opts.get_bool(*g_induction_concat, true)) {
-        H_name = local_pp_name(H);
+    if (is_fvar(H)) {
+        if (optional<local_decl> d = g->get_context().find_local_decl(H)) {
+            if (!is_internal_name(d->get_user_name()) && !is_fresh_name(d->get_user_name()) &&
+                opts.get_bool(*g_induction_concat, true)) {
+                H_name = d->get_user_name();
+            }
+        }
     }
     recursor_info rec_info = get_recursor_info(env, rec_name);
 
@@ -151,20 +154,21 @@ list<expr> induction(environment const & env, options const & opts, transparency
             throw exception("induction tactic failed, major premise type is ill-formed");
         }
         expr const & idx = H_type_args[pos];
-        if (!is_local(idx)) {
+        if (!is_fvar(idx)) {
             throw_invalid_major_premise_type(pos+1, H_type, "is not a variable");
         }
         for (unsigned i = 0; i < H_type_args.size(); i++) {
-            if (i != pos && is_local(H_type_args[i]) && local_name(H_type_args[i]) == local_name(idx)) {
+            if (i != pos && is_fvar(H_type_args[i]) && fvar_name(H_type_args[i]) == fvar_name(idx)) {
                 throw_invalid_major_premise_type(pos+1, H_type, "is an index, but it occurs more than once");
             }
             if (i < pos && depends_on(H_type_args[i], idx)) {
                 throw_invalid_major_premise_type(pos+1, H_type, "is an index, but it occurs in previous arguments");
             }
+            local_decl idx_decl = ctx1.lctx().get_local_decl(idx);
             if (i > pos && // occurs after idx
                 std::find(idx_pos.begin(), idx_pos.end(), i) != idx_pos.end() && // it is also an index
-                is_local(H_type_args[i]) && // if it is not an index, it will fail anyway.
-                depends_on(local_type(idx), H_type_args[i])) {
+                is_fvar(H_type_args[i]) && // if it is not an index, it will fail anyway.
+                depends_on(idx_decl.get_type(), H_type_args[i])) {
                 throw_invalid_major_premise_type(pos+1, H_type,
                                                  sstream() << "is an index, but its type depends on index at position #" << i+1);
             }
@@ -193,7 +197,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
         local_context lctx = mctx.get_metavar_decl(*mvar2).get_context();
         /* store old index name -> new index name */
         for (unsigned i = 0; i < indices.size(); i++) {
-            base_subst.insert(local_name(indices[i]), lctx.get_local(indices_H[i]));
+            base_subst.insert(fvar_name(indices[i]), lctx.get_local(indices_H[i]));
         }
     }
     optional<metavar_decl> g2 = mctx.find_metavar_decl(*mvar2);
@@ -324,7 +328,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
                     hsubstitution S = base_subst;
                     lean_assert(extra_names.size() == nextra);
                     for (unsigned i = indices.size() + 1, j = 0; i < to_revert.size(); i++, j++) {
-                        S.insert(local_name(to_revert[i]), aux_M_lctx.get_local(extra_names[j]));
+                        S.insert(fvar_name(to_revert[i]), aux_M_lctx.get_local(extra_names[j]));
                     }
                     subst_buffer.push_back(S);
                 }

@@ -420,6 +420,7 @@ class erase_irrelevant_fn {
         case expr_kind::MData:  return visit_mdata(e);
         case expr_kind::Lambda: return visit_lambda(e);
         case expr_kind::Let:    return visit_let(e);
+        case expr_kind::Local:  lean_unreachable();
         }
         lean_unreachable();
     }

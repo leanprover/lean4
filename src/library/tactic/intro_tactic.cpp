@@ -33,7 +33,7 @@ optional<expr> intron_core(environment const & env, options const & opts, metava
                                                 binding_info(type));
             type        = instantiate(binding_body(type), H);
             new_Hs.push_back(H);
-            new_Hns.push_back(local_name(H));
+            new_Hns.push_back(fvar_name(H));
 
         } else {
             lean_assert(is_let(type));
@@ -41,7 +41,7 @@ optional<expr> intron_core(environment const & env, options const & opts, metava
             expr H      = new_locals.push_let(H_name, annotated_head_beta_reduce(let_type(type)), let_value(type));
             type        = instantiate(let_body(type), H);
             new_Hs.push_back(H);
-            new_Hns.push_back(local_name(H));
+            new_Hns.push_back(fvar_name(H));
         }
     }
     expr new_M   = ctx.mk_metavar_decl(ctx.lctx(), type);

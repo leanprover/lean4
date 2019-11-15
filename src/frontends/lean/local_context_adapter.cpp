@@ -13,17 +13,19 @@ Author: Leonardo de Moura
 
 namespace lean {
 bool local_context_adapter::has_local_ref(expr const & e) {
-    return static_cast<bool>(find(e, [](expr const & e, unsigned) { return is_local_decl_ref(e); }));
+    return static_cast<bool>(find(e, [](expr const & e, unsigned) { return is_fvar(e); }));
 }
 
 bool local_context_adapter::has_regular_local(expr const & e) {
-    return static_cast<bool>(find(e, [](expr const & e, unsigned) { return is_local(e) && !is_local_decl_ref(e); }));
+    return static_cast<bool>(find(e, [](expr const & e, unsigned) { return is_local(e); }));
 }
 
 void local_context_adapter::add_local(expr const & local) {
+    lean_assert(is_local(local));
     expr const & _local_type = local_type(local);
     expr new_local_type = translate_to(_local_type);
     expr new_local_ref  = m_lctx.mk_local_decl(local_pp_name(local), new_local_type, local_info(local));
+    lean_assert(is_fvar(new_local_ref));
     m_locals.push_back(local);
     m_local_refs.push_back(new_local_ref);
 }

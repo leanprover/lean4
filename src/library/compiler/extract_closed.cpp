@@ -64,6 +64,7 @@ class extract_closed_fn {
         case expr_kind::Const:  return true;
         case expr_kind::MData:  return is_closed(mdata_expr(e));
         case expr_kind::Proj:   return is_closed(proj_expr(e));
+        case expr_kind::Local:  lean_unreachable();
         default:
             break;
         };

@@ -56,6 +56,7 @@ lean_object* l_Lean_Compiler_getNumLit___main(lean_object*);
 lean_object* l_Lean_Compiler_getBoolLit___closed__2;
 lean_object* l_Lean_Compiler_numScalarTypes___closed__5;
 lean_object* l_Lean_Compiler_mkNatLe___closed__4;
+lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_unFoldFns___closed__7;
 lean_object* l_Lean_Compiler_natFoldFns___closed__12;
 extern lean_object* l_Nat_HasMod___closed__1;
@@ -69,7 +70,6 @@ lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__1;
 lean_object* l_Lean_Compiler_foldStrictOr(uint8_t);
 lean_object* l_Lean_Compiler_foldUIntSub___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_unFoldFns___closed__3;
-lean_object* lean_expr_mk_app(lean_object*, lean_object*);
 uint8_t l_Lean_Compiler_isToNat(lean_object*);
 lean_object* l_Lean_Compiler_foldNatDecLe___closed__2;
 lean_object* l_Lean_Compiler_foldBinUInt(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -94,6 +94,7 @@ lean_object* l_Lean_Compiler_numScalarTypes___closed__21;
 lean_object* l_Lean_Compiler_boolFoldFns___closed__2;
 lean_object* l_Lean_Compiler_natFoldFns___closed__39;
 lean_object* l_Lean_Compiler_natFoldFns___closed__31;
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_getBoolLit___closed__3;
 lean_object* l_Lean_Compiler_foldUIntAdd___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldl___main___at_Lean_Compiler_uintBinFoldFns___spec__2(lean_object*, lean_object*);
@@ -123,7 +124,6 @@ lean_object* l_Lean_Compiler_natFoldFns___closed__16;
 lean_object* l_Lean_Compiler_foldUIntDiv___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_natFoldFns___closed__7;
 lean_object* l_Lean_Compiler_foldBinOp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_expr_mk_const(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_getBoolLit___closed__4;
 extern lean_object* l_Lean_Level_one;
 lean_object* l_List_foldr___main___at_Lean_Compiler_isOfNat___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -998,14 +998,14 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_ctor_get(x_1, 2);
 lean_inc(x_3);
 x_4 = lean_box(0);
-x_5 = lean_expr_mk_const(x_3, x_4);
+x_5 = l_Lean_mkConst(x_3, x_4);
 x_6 = lean_ctor_get(x_1, 4);
 lean_inc(x_6);
 lean_dec(x_1);
 x_7 = lean_nat_mod(x_2, x_6);
 lean_dec(x_6);
 x_8 = l_Lean_mkNatLit(x_7);
-x_9 = lean_expr_mk_app(x_5, x_8);
+x_9 = l_Lean_mkApp(x_5, x_8);
 return x_9;
 }
 }
@@ -2068,7 +2068,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Compiler_mkNatEq___closed__2;
 x_2 = l_Lean_Compiler_mkNatEq___closed__3;
-x_3 = lean_expr_mk_const(x_1, x_2);
+x_3 = l_Lean_mkConst(x_1, x_2);
 return x_3;
 }
 }
@@ -2078,7 +2078,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Literal_type___closed__2;
-x_3 = lean_expr_mk_const(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -2169,7 +2169,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Compiler_mkNatLt___closed__4;
 x_2 = l_Lean_Compiler_mkNatLt___closed__5;
-x_3 = lean_expr_mk_const(x_1, x_2);
+x_3 = l_Lean_mkConst(x_1, x_2);
 return x_3;
 }
 }
@@ -2189,7 +2189,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Compiler_mkNatLt___closed__7;
-x_3 = lean_expr_mk_const(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -2251,7 +2251,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Compiler_mkNatLe___closed__2;
 x_2 = l_Lean_Compiler_mkNatLt___closed__5;
-x_3 = lean_expr_mk_const(x_1, x_2);
+x_3 = l_Lean_mkConst(x_1, x_2);
 return x_3;
 }
 }
@@ -2279,7 +2279,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Compiler_mkNatLe___closed__5;
-x_3 = lean_expr_mk_const(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }

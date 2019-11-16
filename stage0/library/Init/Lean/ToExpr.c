@@ -17,7 +17,7 @@ lean_object* l_Lean_strToExpr;
 lean_object* l_Lean_mkStrLit(lean_object*);
 lean_object* l_Lean_nameToExprAux___main___closed__3;
 lean_object* l_Lean_nameToExprAux___main___closed__1;
-lean_object* lean_expr_mk_const(lean_object*, lean_object*);
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_nameToExprAux___main___closed__7;
 lean_object* l_Lean_nameToExprAux___main___closed__8;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
@@ -171,7 +171,7 @@ x_5 = lean_name_mk_string(x_3, x_4);
 x_6 = l_Lean_nameToExprAux___main___closed__3;
 x_7 = lean_name_mk_string(x_5, x_6);
 x_8 = lean_box(0);
-x_9 = lean_expr_mk_const(x_7, x_8);
+x_9 = l_Lean_mkConst(x_7, x_8);
 return x_9;
 }
 case 1:

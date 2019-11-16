@@ -28,6 +28,7 @@ lean_object* l_Lean_InductiveVal_nctors___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
 lean_object* l_Lean_ConstantInfo_isCtor___boxed(lean_object*);
 uint8_t l_Lean_ConstantInfo_hasValue(lean_object*);
+extern lean_object* l_Lean_Expr_Inhabited;
 lean_object* l_Lean_Name_getPrefix(lean_object*);
 uint8_t l_Lean_ConstantInfo_isCtor(lean_object*);
 lean_object* lean_instantiate_value_lparams(lean_object*, lean_object*);
@@ -40,7 +41,6 @@ lean_object* l_Lean_InductiveVal_nctors(lean_object*);
 lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RecursorVal_getMajorIdx(lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x3f___boxed(lean_object*);
-extern lean_object* l_Lean_Expr_inhabited;
 lean_object* l_Lean_ConstantInfo_hints(lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x21___closed__1;
 lean_object* l_Lean_ConstantInfo_toConstantVal___boxed(lean_object*);
@@ -321,7 +321,7 @@ return x_6;
 default: 
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = l_Lean_Expr_inhabited;
+x_7 = l_Lean_Expr_Inhabited;
 x_8 = l_Lean_ConstantInfo_value_x21___closed__3;
 x_9 = lean_panic_fn(x_8);
 return x_9;

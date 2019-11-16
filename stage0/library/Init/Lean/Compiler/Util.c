@@ -15,15 +15,16 @@ extern "C" {
 #endif
 uint8_t lean_name_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_atMostOnce_HasAndthen;
+lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_atMostOnce_seq(lean_object*, lean_object*, lean_object*);
 uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
 lean_object* l_List_map___main___at___private_Init_Lean_Compiler_Util_1__getDeclNamesForCodeGen___spec__1(lean_object*);
 lean_object* l_Lean_Compiler_mkLcProof___closed__3;
-lean_object* lean_expr_mk_app(lean_object*, lean_object*);
 uint8_t lean_at_most_once(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_atMostOnce_HasAndthen___closed__1;
 lean_object* l_Lean_Compiler_atMostOnce_visit___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_unreachableExpr___closed__2;
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 uint8_t l_Lean_Compiler_isEagerLambdaLiftingName___main(lean_object*);
 lean_object* l_Lean_Compiler_atMostOnce_visit___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_checkIsDefinition___closed__3;
@@ -31,7 +32,6 @@ lean_object* l_Lean_Compiler_mkLcProof(lean_object*);
 lean_object* l_Lean_Compiler_objectType___closed__3;
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_Compiler_neutralExpr___closed__1;
-lean_object* lean_expr_mk_const(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_objectType;
 lean_object* l_Lean_Compiler_neutralExpr___closed__3;
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -94,7 +94,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Compiler_neutralExpr___closed__2;
-x_3 = lean_expr_mk_const(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -130,7 +130,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Compiler_unreachableExpr___closed__2;
-x_3 = lean_expr_mk_const(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -166,7 +166,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Compiler_objectType___closed__2;
-x_3 = lean_expr_mk_const(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -202,7 +202,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Compiler_voidType___closed__2;
-x_3 = lean_expr_mk_const(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -238,7 +238,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Compiler_mkLcProof___closed__2;
-x_3 = lean_expr_mk_const(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -247,7 +247,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_Compiler_mkLcProof___closed__3;
-x_3 = lean_expr_mk_app(x_2, x_1);
+x_3 = l_Lean_mkApp(x_2, x_1);
 return x_3;
 }
 }

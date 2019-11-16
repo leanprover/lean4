@@ -15,20 +15,28 @@ extern "C" {
 #endif
 lean_object* l_Option_Hashable(lean_object*);
 lean_object* l_String_Hashable___closed__1;
+lean_object* l_List_hash___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_String_Hashable;
 size_t l_Nat_hash(lean_object*);
 lean_object* l_Prod_Hashable___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_Hashable___rarg(lean_object*);
+lean_object* l_List_foldl___main___at_List_hash___spec__1(lean_object*);
+lean_object* l_List_hash(lean_object*);
 size_t l_Prod_Hashable___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_hash(lean_object*);
 size_t l_Option_hash___rarg(lean_object*, lean_object*);
 size_t lean_string_hash(lean_object*);
 lean_object* l_String_hash___boxed(lean_object*);
 lean_object* l_Nat_Hashable;
+size_t l_List_foldl___main___at_List_hash___spec__1___rarg(lean_object*, size_t, lean_object*);
+lean_object* l_List_Hashable(lean_object*);
 lean_object* l_Prod_Hashable(lean_object*, lean_object*);
 lean_object* l_mixHash___boxed(lean_object*, lean_object*);
+lean_object* l_List_foldl___main___at_List_hash___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Option_hash___rarg___boxed(lean_object*, lean_object*);
 size_t lean_usize_mix_hash(size_t, size_t);
 size_t lean_usize_of_nat(lean_object*);
+size_t l_List_hash___rarg(lean_object*, lean_object*);
 lean_object* l_Nat_hash___boxed(lean_object*);
 lean_object* l_Option_Hashable___rarg(lean_object*);
 lean_object* l_Nat_Hashable___closed__1;
@@ -196,6 +204,95 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Option_Hashable___rarg), 1, 0);
+return x_2;
+}
+}
+size_t l_List_foldl___main___at_List_hash___spec__1___rarg(lean_object* x_1, size_t x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_3) == 0)
+{
+lean_dec(x_1);
+return x_2;
+}
+else
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; size_t x_7; size_t x_8; 
+x_4 = lean_ctor_get(x_3, 0);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_3, 1);
+lean_inc(x_5);
+lean_dec(x_3);
+lean_inc(x_1);
+x_6 = lean_apply_1(x_1, x_4);
+x_7 = lean_unbox_usize(x_6);
+lean_dec(x_6);
+x_8 = lean_usize_mix_hash(x_2, x_7);
+x_2 = x_8;
+x_3 = x_5;
+goto _start;
+}
+}
+}
+lean_object* l_List_foldl___main___at_List_hash___spec__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_foldl___main___at_List_hash___spec__1___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+size_t l_List_hash___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+size_t x_3; size_t x_4; 
+x_3 = 7;
+x_4 = l_List_foldl___main___at_List_hash___spec__1___rarg(x_1, x_3, x_2);
+return x_4;
+}
+}
+lean_object* l_List_hash(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_hash___rarg___boxed), 2, 0);
+return x_2;
+}
+}
+lean_object* l_List_foldl___main___at_List_hash___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+size_t x_4; size_t x_5; lean_object* x_6; 
+x_4 = lean_unbox_usize(x_2);
+lean_dec(x_2);
+x_5 = l_List_foldl___main___at_List_hash___spec__1___rarg(x_1, x_4, x_3);
+x_6 = lean_box_usize(x_5);
+return x_6;
+}
+}
+lean_object* l_List_hash___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+size_t x_3; lean_object* x_4; 
+x_3 = l_List_hash___rarg(x_1, x_2);
+x_4 = lean_box_usize(x_3);
+return x_4;
+}
+}
+lean_object* l_List_Hashable___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_hash___rarg___boxed), 2, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
+lean_object* l_List_Hashable(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_Hashable___rarg), 1, 0);
 return x_2;
 }
 }

@@ -150,8 +150,7 @@ bool has_univ_mvar(expr const & e);
 inline bool has_mvar(expr const & e) { return has_expr_mvar(e) || has_univ_mvar(e); }
 bool has_fvar(expr const & e);
 bool has_univ_param(expr const & e);
-unsigned expr_get_loose_bvar_range(object * e);
-inline unsigned get_loose_bvar_range(expr const & e) { return expr_get_loose_bvar_range(e.raw()); }
+unsigned get_loose_bvar_range(expr const & e);
 
 struct expr_hash { unsigned operator()(expr const & e) const { return hash(e); } };
 struct expr_pair_hash {
@@ -227,7 +226,7 @@ expr mk_Type();
 inline literal const & lit_value(expr const & e)             { lean_assert(is_lit(e)); return static_cast<literal const &>(cnstr_get_ref(e, 0)); }
 inline bool is_nat_lit(expr const & e)                       { return is_lit(e) && lit_value(e).kind() == literal_kind::Nat; }
 inline bool is_string_lit(expr const & e)                    { return is_lit(e) && lit_value(e).kind() == literal_kind::String; }
-expr const & lit_type(expr const & e);
+expr lit_type(expr const & e);
 inline kvmap const &   mdata_data(expr const & e)            { lean_assert(is_mdata(e)); return static_cast<kvmap const &>(cnstr_get_ref(e, 0)); }
 inline expr const &    mdata_expr(expr const & e)            { lean_assert(is_mdata(e)); return static_cast<expr const &>(cnstr_get_ref(e, 1)); }
 inline name const &    proj_sname(expr const & e)            { lean_assert(is_proj(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }

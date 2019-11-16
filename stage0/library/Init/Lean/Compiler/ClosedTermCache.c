@@ -29,7 +29,7 @@ lean_object* l_PersistentHashMap_findAtAux___main___at_Lean_getClosedTermName___
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_closedTermCacheExt___elambda__2(lean_object*);
-size_t lean_expr_hash(lean_object*);
+size_t l_Lean_Expr_hash(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_mkClosedTermCacheExtension___spec__17(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_closedTermCacheExt___elambda__4___boxed(lean_object*);
 lean_object* lean_cache_closed_term_name(lean_object*, lean_object*, lean_object*);
@@ -256,7 +256,7 @@ else
 lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; size_t x_13; size_t x_14; size_t x_15; size_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_9 = lean_array_fget(x_4, x_5);
 x_10 = lean_array_fget(x_3, x_5);
-x_11 = lean_expr_hash(x_9);
+x_11 = l_Lean_Expr_hash(x_9);
 x_12 = 1;
 x_13 = x_1 - x_12;
 x_14 = 5;
@@ -595,7 +595,7 @@ if (x_4 == 0)
 lean_object* x_5; lean_object* x_6; size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
-x_7 = lean_expr_hash(x_2);
+x_7 = l_Lean_Expr_hash(x_2);
 x_8 = 1;
 x_9 = l_PersistentHashMap_insertAux___main___at_Lean_mkClosedTermCacheExtension___spec__3(x_5, x_7, x_8, x_2, x_3);
 x_10 = lean_unsigned_to_nat(1u);
@@ -613,7 +613,7 @@ x_13 = lean_ctor_get(x_1, 1);
 lean_inc(x_13);
 lean_inc(x_12);
 lean_dec(x_1);
-x_14 = lean_expr_hash(x_2);
+x_14 = l_Lean_Expr_hash(x_2);
 x_15 = 1;
 x_16 = l_PersistentHashMap_insertAux___main___at_Lean_mkClosedTermCacheExtension___spec__3(x_12, x_14, x_15, x_2, x_3);
 x_17 = lean_unsigned_to_nat(1u);
@@ -672,7 +672,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; size_t x_7; size_t x_8; le
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 2);
 x_6 = lean_array_get_size(x_1);
-x_7 = lean_expr_hash(x_4);
+x_7 = l_Lean_Expr_hash(x_4);
 x_8 = lean_usize_modn(x_7, x_6);
 lean_dec(x_6);
 x_9 = lean_array_uget(x_1, x_8);
@@ -693,7 +693,7 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_dec(x_2);
 x_15 = lean_array_get_size(x_1);
-x_16 = lean_expr_hash(x_12);
+x_16 = l_Lean_Expr_hash(x_12);
 x_17 = lean_usize_modn(x_16, x_15);
 lean_dec(x_15);
 x_18 = lean_array_uget(x_1, x_17);
@@ -840,7 +840,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; le
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
 x_7 = lean_array_get_size(x_6);
-x_8 = lean_expr_hash(x_2);
+x_8 = l_Lean_Expr_hash(x_2);
 x_9 = lean_usize_modn(x_8, x_7);
 x_10 = lean_array_uget(x_6, x_9);
 x_11 = l_AssocList_contains___main___at_Lean_mkClosedTermCacheExtension___spec__7(x_2, x_10);
@@ -890,7 +890,7 @@ lean_inc(x_21);
 lean_inc(x_20);
 lean_dec(x_1);
 x_22 = lean_array_get_size(x_21);
-x_23 = lean_expr_hash(x_2);
+x_23 = l_Lean_Expr_hash(x_2);
 x_24 = lean_usize_modn(x_23, x_22);
 x_25 = lean_array_uget(x_21, x_24);
 x_26 = l_AssocList_contains___main___at_Lean_mkClosedTermCacheExtension___spec__7(x_2, x_25);
@@ -2428,7 +2428,7 @@ _start:
 {
 lean_object* x_3; size_t x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_expr_hash(x_2);
+x_4 = l_Lean_Expr_hash(x_2);
 x_5 = l_PersistentHashMap_findAux___main___at_Lean_getClosedTermName___spec__3(x_3, x_4, x_2);
 return x_5;
 }
@@ -2471,7 +2471,7 @@ _start:
 lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_array_get_size(x_3);
-x_5 = lean_expr_hash(x_2);
+x_5 = l_Lean_Expr_hash(x_2);
 x_6 = lean_usize_modn(x_5, x_4);
 lean_dec(x_4);
 x_7 = lean_array_uget(x_3, x_6);

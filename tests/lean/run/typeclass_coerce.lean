@@ -72,5 +72,6 @@ axiom Top (α : Type) (n : Nat) : Type
                   × Top Unit Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ
                   × Top Unit Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ)
 
+#exit -- TODO: enable following test
 #synth HasCoerce (Top Unit Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ → Top Unit Nat.zero)
                  (Top Unit Nat.zero → Top Unit Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ)

@@ -59,6 +59,7 @@ lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 lean_object* l_Lean_Meta_isClassExpensive___at_Lean_Meta_inferTypeAux___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 lean_object* l_Nat_foldMAux___main___at_Lean_Meta_inferTypeAux___spec__33___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 lean_object* l_Lean_Literal_type(lean_object*);
 lean_object* l_Lean_Meta_inferTypeAuxAux(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux___main(lean_object*, lean_object*);
@@ -193,7 +194,6 @@ lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_inferTypeAu
 lean_object* l___private_Init_Lean_Meta_InferType_12__isAlwaysZero___main___boxed(lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_inferTypeAux___spec__10___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_6__inferForallType___at_Lean_Meta_inferTypeAux___spec__16(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Expr_CachedData_binderInfo(uint64_t);
 lean_object* l___private_Init_Lean_Meta_Basic_7__forallTelescopeReducingAuxAux___main___at_Lean_Meta_inferTypeAux___spec__23(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_1__getForallResultType___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:

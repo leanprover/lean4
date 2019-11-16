@@ -75,6 +75,7 @@ lean_object* l_Array_anyRangeMAux___main___at___private_Init_Lean_Meta_Default_3
 uint8_t l___private_Init_Lean_WHNF_6__isIdRhsApp(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_4__getRecRuleFor(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__25(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 lean_object* l_Lean_Literal_type(lean_object*);
 lean_object* l_Lean_reduceQuotRec___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
@@ -267,7 +268,6 @@ lean_object* l_ReaderT_pure___at___private_Init_Lean_Meta_Default_3__auxFixpoint
 lean_object* l___private_Init_Lean_Meta_Default_3__auxFixpoint___main___closed__1;
 lean_object* l___private_Init_Lean_Meta_InferType_7__inferLambdaType___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__31(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_getFunInfo___spec__7(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Expr_CachedData_binderInfo(uint64_t);
 uint8_t l_Lean_Expr_isLambda(lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__50(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Init_Lean_Meta_Default_1__exprToBool(lean_object* x_1) {

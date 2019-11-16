@@ -67,6 +67,7 @@ lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 lean_object* l_Lean_Meta_isClassExpensive___main___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_forallTelescope___spec__5(lean_object*);
 lean_object* l___private_Init_Lean_Meta_Basic_5__getTraceState___boxed(lean_object*);
+uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 lean_object* l___private_Init_Lean_Meta_Basic_5__getTraceState___rarg(lean_object*);
 lean_object* l___private_Init_Lean_Meta_Basic_7__forallTelescopeReducingAuxAux___main___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_dbgTrace___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -229,7 +230,6 @@ lean_object* l___private_Init_Lean_Meta_Basic_9__lambdaTelescopeAux(lean_object*
 lean_object* l_Lean_MetavarContext_MkBinding_mkBinding___at_Lean_MetavarContext_mkBinding___spec__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_MetaM_inhabited___rarg(lean_object*);
 lean_object* l_Lean_Meta_instantiateMVars(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Expr_CachedData_binderInfo(uint64_t);
 uint8_t _init_l_Lean_Meta_TransparencyMode_Inhabited() {
 _start:
 {

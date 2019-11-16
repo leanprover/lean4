@@ -140,6 +140,7 @@ uint8_t l_Lean_LocalContext_contains(lean_object*, lean_object*);
 lean_object* l_List_mapM___main___at_Lean_MetavarContext_InstantiateExprMVars_main___main___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_isLevelAssignable___closed__1;
 lean_object* l_Lean_mkMVar(lean_object*);
+uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 lean_object* l_Lean_MetavarContext_hasAssignedLevelMVar___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux___main(lean_object*, lean_object*);
 extern lean_object* l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
@@ -501,7 +502,6 @@ lean_object* l_Lean_MetavarContext_MkBinding_mkBinding___at_Lean_MetavarContext_
 lean_object* l_Array_iterateMAux___main___at_Lean_MetavarContext_addExprMVarDecl___spec__4(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_foldlFromM___at___private_Init_Lean_MetavarContext_13__collectDeps___spec__40___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_let(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Expr_CachedData_binderInfo(uint64_t);
 uint8_t l_Lean_Expr_isLambda(lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_MetavarContext_assignLevel___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*);

@@ -59,6 +59,7 @@ lean_object* l_Lean_TypeClass_Context_uNewMeta(lean_object*);
 lean_object* l_Stack_pop___at_Lean_TypeClass_consume___spec__3(lean_object*);
 lean_object* l_Lean_TypeClass_TypedExpr_HasToString___boxed(lean_object*);
 lean_object* l_Lean_TypeClass_TypedExpr_HasToString___closed__1;
+uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 extern lean_object* l_Lean_formatDataValue___closed__1;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_TypedExpr_Inhabited;
@@ -203,7 +204,6 @@ lean_object* l_Array_back___at_Lean_TypeClass_generate___spec__2___boxed(lean_ob
 lean_object* l_Lean_TypeClass_synth___closed__3;
 lean_object* l_Lean_TypeClass_constNameToTypedExpr___closed__2;
 lean_object* l_Array_anyRangeMAux___main___at_Lean_TypeClass_newAnswer___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Expr_CachedData_binderInfo(uint64_t);
 uint8_t l_Lean_Expr_isLambda(lean_object*);
 lean_object* _init_l_Lean_TypeClass_TypedExpr_HasToString___closed__1() {
 _start:

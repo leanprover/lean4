@@ -66,6 +66,7 @@ lean_object* l_Lean_TypeClass_Context_eAssign___boxed(lean_object*, lean_object*
 lean_object* l_Lean_TypeClass_Context_uNewMeta(lean_object*);
 lean_object* l_Lean_TypeClass_Context_uUnify___main___closed__3;
 lean_object* l_Lean_mkMVar(lean_object*);
+uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 lean_object* l_Lean_TypeClass_Context_eAssign(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_Context__u03b1Norm___closed__5;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
@@ -232,7 +233,6 @@ lean_object* l_Lean_TypeClass_Context__u03b1Norm___closed__2;
 lean_object* l_Lean_TypeClass_Context_uAssign___closed__1;
 lean_object* l_Lean_TypeClass_Context_uUnify___main___closed__5;
 lean_object* l_Lean_TypeClass_Context__u03b1Norm___closed__6;
-uint8_t l_Lean_Expr_CachedData_binderInfo(uint64_t);
 lean_object* l_Lean_TypeClass_Context_uMetaNormalizeCore___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* _init_l_Lean_TypeClass_Context_Inhabited___closed__1() {
 _start:

@@ -38,13 +38,13 @@ instance : HasAndthen Visitor :=
 | {found := true,  result := true} => {found := true, result := x != y}
 
 def visit (x : Name) : Expr → Visitor
-| Expr.fvar y          => visitFVar y x
-| Expr.app f a         => visit a >> visit f
-| Expr.lam _ _ d b     => visit d >> visit b
-| Expr.forallE _ _ d b => visit d >> visit b
-| Expr.letE _ t v b    => visit t >> visit v >> visit b
-| Expr.mdata _ e       => visit e
-| Expr.proj _ _ e      => visit e
+| Expr.fvar y _        => visitFVar y x
+| Expr.app f a _       => visit a >> visit f
+| Expr.lam _ d b _     => visit d >> visit b
+| Expr.forallE _ d b _ => visit d >> visit b
+| Expr.letE _ t v b _  => visit t >> visit v >> visit b
+| Expr.mdata _ e _     => visit e
+| Expr.proj _ _ e _    => visit e
 | _                    => skip
 
 end atMostOnce

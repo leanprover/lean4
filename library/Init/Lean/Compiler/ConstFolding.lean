@@ -43,14 +43,14 @@ def getInfoFromFn (fn : Name) : List NumScalarTypeInfo → Option NumScalarTypeI
   else getInfoFromFn infos
 
 def getInfoFromVal : Expr → Option NumScalarTypeInfo
-| Expr.app (Expr.const fn _) _   => getInfoFromFn fn numScalarTypes
-| _ => none
+| Expr.app (Expr.const fn _ _) _ _ => getInfoFromFn fn numScalarTypes
+| _                                => none
 
 @[export lean_get_num_lit]
 def getNumLit : Expr → Option Nat
-| Expr.lit (Literal.natVal n)  => some n
-| Expr.app (Expr.const fn _) a => if isOfNat fn then getNumLit a else none
-| _                            => none
+| Expr.lit (Literal.natVal n) _    => some n
+| Expr.app (Expr.const fn _ _) a _ => if isOfNat fn then getNumLit a else none
+| _                                => none
 
 def mkUIntLit (info : NumScalarTypeInfo) (n : Nat) : Expr :=
 mkApp (mkConst info.ofNatFn) (mkNatLit (n%info.size))
@@ -126,9 +126,9 @@ def natFoldFns : List (Name × BinFoldFn) :=
  (`Nat.decLe, foldNatDecLe)]
 
 def getBoolLit : Expr → Option Bool
-| Expr.const `Bool.true _  => some true
-| Expr.const `Bool.false _ => some false
-| _                        => none
+| Expr.const `Bool.true _ _  => some true
+| Expr.const `Bool.false _ _ => some false
+| _                          => none
 
 def foldStrictAnd (_ : Bool) (a₁ a₂ : Expr) : Option Expr :=
 let v₁ := getBoolLit a₁;
@@ -188,7 +188,7 @@ unFoldFns.lookup fn
 @[export lean_fold_bin_op]
 def foldBinOp (beforeErasure : Bool) (f : Expr) (a : Expr) (b : Expr) : Option Expr :=
 match f with
-| Expr.const fn _ => do
+| Expr.const fn _ _ => do
    foldFn ← findBinFoldFn fn;
    foldFn beforeErasure a b
 | _ => none
@@ -196,7 +196,7 @@ match f with
 @[export lean_fold_un_op]
 def foldUnOp (beforeErasure : Bool) (f : Expr) (a : Expr) : Option Expr :=
 match f with
-| Expr.const fn _ => do
+| Expr.const fn _ _ => do
    foldFn ← findUnFoldFn fn;
    foldFn beforeErasure a
 | _ => none

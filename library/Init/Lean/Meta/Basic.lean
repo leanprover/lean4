@@ -293,26 +293,27 @@ do env ← getEnv;
      | none   => pure LOption.none
 
 partial def isClassQuick : Expr → MetaM (LOption Name)
-| Expr.bvar _          => pure LOption.none
-| Expr.lit _           => pure LOption.none
-| Expr.fvar _          => pure LOption.none
-| Expr.sort _          => pure LOption.none
+| Expr.bvar _ _        => pure LOption.none
+| Expr.lit _ _         => pure LOption.none
+| Expr.fvar _ _        => pure LOption.none
+| Expr.sort _ _        => pure LOption.none
 | Expr.lam _ _ _ _     => pure LOption.none
-| Expr.letE _ _ _ _    => pure LOption.undef
-| Expr.proj _ _ _      => pure LOption.undef
-| Expr.forallE _ _ _ b => isClassQuick b
-| Expr.mdata _ e       => isClassQuick e
-| Expr.const n _       => isClassQuickConst n
-| Expr.mvar mvarId     => do
+| Expr.letE _ _ _ _ _  => pure LOption.undef
+| Expr.proj _ _ _  _   => pure LOption.undef
+| Expr.forallE _ _ b _ => isClassQuick b
+| Expr.mdata _ e _     => isClassQuick e
+| Expr.const n _ _     => isClassQuickConst n
+| Expr.mvar mvarId _   => do
   val? ← getExprMVarAssignment mvarId;
   match val? with
   | some val => isClassQuick val
   | none     => pure LOption.none
-| Expr.app f _         =>
+| Expr.app f _ _       =>
   match f.getAppFn with
-  | Expr.const n _   => isClassQuickConst n
-  | Expr.lam _ _ _ _ => pure LOption.undef
-  | _                => pure LOption.none
+  | Expr.const n _ _  => isClassQuickConst n
+  | Expr.lam _ _ _ _  => pure LOption.undef
+  | _                 => pure LOption.none
+| Expr.localE _ _ _ _ => unreachable!
 
 /-- Reset type class cache, execute `x`, and restore cache -/
 @[inline] def resettingTypeClassCache {α} (x : MetaM α) : MetaM α :=
@@ -387,10 +388,10 @@ resettingTypeClassCache $
     (reducing?        : Bool) (maxFVars? : Option Nat)
     (k                : Array Expr → Expr → MetaM α)
     : LocalContext → Array Expr → Nat → Expr → MetaM α
-| lctx, fvars, j, Expr.forallE n bi d b => do
+| lctx, fvars, j, Expr.forallE n d b c => do
   let d     := d.instantiateRevRange j fvars.size fvars;
   fvarId ← mkFreshId;
-  let lctx  := lctx.mkLocalDecl fvarId n d bi;
+  let lctx  := lctx.mkLocalDecl fvarId n d c.binderInfo;
   let fvar  := mkFVar fvarId;
   let fvars := fvars.push fvar;
   match maxFVars? with
@@ -436,7 +437,7 @@ do newType ← whnf type;
 | type => usingTransparency TransparencyMode.reducible $ -- when testing whether a type is a type class, we only unfold reducible constants.
   forallTelescopeReducingAux whnf isClassExpensive type none $ fun xs type => do
     match type.getAppFn with
-    | Expr.const c _ => do
+    | Expr.const c _ _ => do
       env ← getEnv;
       pure $ if isClass env c then some c else none
     | _ => pure none
@@ -482,13 +483,13 @@ do c? ← isClassQuick type;
     (whnf             : Expr → MetaM Expr)
     (k                : Array Expr → Expr → MetaM α)
     : LocalContext → Array Expr → Nat → Expr → MetaM α
-| lctx, fvars, j, Expr.lam n bi d b => do
+| lctx, fvars, j, Expr.lam n d b c => do
   let d := d.instantiateRevRange j fvars.size fvars;
   fvarId ← mkFreshId;
-  let lctx := lctx.mkLocalDecl fvarId n d bi;
+  let lctx := lctx.mkLocalDecl fvarId n d c.binderInfo;
   let fvar := mkFVar fvarId;
   lambdaTelescopeAux lctx (fvars.push fvar) j b
-| lctx, fvars, j, Expr.letE n t v b => do
+| lctx, fvars, j, Expr.letE n t v b _ => do
   let t := t.instantiateRevRange j fvars.size fvars;
   let v := v.instantiateRevRange j fvars.size fvars;
   fvarId ← mkFreshId;

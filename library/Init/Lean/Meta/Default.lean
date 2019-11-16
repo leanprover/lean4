@@ -22,8 +22,8 @@ inductive MetaOp
 open MetaOp
 
 private def exprToBool : Expr → Bool
-| Expr.sort Level.zero => false
-| _                    => true
+| Expr.sort Level.zero _ => false
+| _                      => true
 
 private def boolToExpr : Bool → Expr
 | false => mkSort Level.zero

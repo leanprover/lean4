@@ -17,36 +17,47 @@ inductive Literal
 | natVal (val : Nat)
 | strVal (val : String)
 
+instance Literal.inhabited : Inhabited Literal := ⟨Literal.natVal 0⟩
+
+def Literal.hash : Literal → USize
+| Literal.natVal v => hash v
+| Literal.strVal v => hash v
+
+instance Literal.hashable : Hashable Literal := ⟨Literal.hash⟩
+
 inductive BinderInfo
 | default | implicit | strictImplicit | instImplicit | auxDecl
 
-namespace BinderInfo
+def BinderInfo.hash : BinderInfo → USize
+| BinderInfo.default        => 947
+| BinderInfo.implicit       => 1019
+| BinderInfo.strictImplicit => 1087
+| BinderInfo.instImplicit   => 1153
+| BinderInfo.auxDecl        => 1229
 
-def isInstImplicit : BinderInfo → Bool
-| instImplicit => true
-| _            => false
+instance BinderInfo.hashable : Hashable BinderInfo := ⟨BinderInfo.hash⟩
 
-def isAuxDecl : BinderInfo → Bool
-| auxDecl => true
-| _       => false
+def BinderInfo.isInstImplicit : BinderInfo → Bool
+| BinderInfo.instImplicit => true
+| _                       => false
 
-protected def beq : BinderInfo → BinderInfo → Bool
-| default,        default        => true
-| implicit,       implicit       => true
-| strictImplicit, strictImplicit => true
-| instImplicit,   instImplicit   => true
-| auxDecl,        auxDecl        => true
-| _,              _              => false
+def BinderInfo.isAuxDecl : BinderInfo → Bool
+| BinderInfo.auxDecl => true
+| _                  => false
 
-instance : HasBeq BinderInfo := ⟨BinderInfo.beq⟩
+protected def BinderInfo.beq : BinderInfo → BinderInfo → Bool
+| BinderInfo.default,        BinderInfo.default        => true
+| BinderInfo.implicit,       BinderInfo.implicit       => true
+| BinderInfo.strictImplicit, BinderInfo.strictImplicit => true
+| BinderInfo.instImplicit,   BinderInfo.instImplicit   => true
+| BinderInfo.auxDecl,        BinderInfo.auxDecl        => true
+| _,                         _                         => false
 
-end BinderInfo
+instance BinderInfo.hasBeq : HasBeq BinderInfo := ⟨BinderInfo.beq⟩
 
 abbrev MData := KVMap
-namespace MData
-abbrev empty : MData := {KVMap .}
-instance : HasEmptyc MData := ⟨empty⟩
-end MData
+abbrev MData.empty : MData := {KVMap .}
+instance MVData.hasEmptc : HasEmptyc MData := ⟨MData.empty⟩
 
 /--
  Cached data for `Expr`.
@@ -58,34 +69,37 @@ end MData
    nonDepLet      : 1-bit
    binderInfo     : 3-bits
    looseBVarRange : 24-bits -/
-private def ExprCachedData := UInt64
+def Expr.CachedData := UInt64
 
-instance ExprCachedData.inhabited : Inhabited ExprCachedData :=
+instance Expr.CachedData.inhabited : Inhabited Expr.CachedData :=
 inferInstanceAs (Inhabited UInt64)
 
-def ExprCachedData.hash (c : ExprCachedData) : USize :=
+def Expr.CachedData.hash (c : Expr.CachedData) : USize :=
 c.toUInt32.toUSize
 
-def ExprCachedData.looseBVarRange (c : ExprCachedData) : UInt32 :=
+instance Expr.CachedData.hasBeq : HasBeq Expr.CachedData :=
+⟨fun (a b : UInt64) => a == b⟩
+
+def Expr.CachedData.looseBVarRange (c : Expr.CachedData) : UInt32 :=
 (c.shiftRight 40).toUInt32
 
-def ExprCachedData.hasFVar (c : ExprCachedData) : Bool :=
+def Expr.CachedData.hasFVar (c : Expr.CachedData) : Bool :=
 ((c.shiftRight 32).land 1) == 1
 
-def ExprCachedData.hasExprMVar (c : ExprCachedData) : Bool :=
+def Expr.CachedData.hasExprMVar (c : Expr.CachedData) : Bool :=
 ((c.shiftRight 33).land 1) == 1
 
-def ExprCachedData.hasLevelMVar (c : ExprCachedData) : Bool :=
+def Expr.CachedData.hasLevelMVar (c : Expr.CachedData) : Bool :=
 ((c.shiftRight 34).land 1) == 1
 
-def ExprCachedData.hasLevelParam (c : ExprCachedData) : Bool :=
+def Expr.CachedData.hasLevelParam (c : Expr.CachedData) : Bool :=
 ((c.shiftRight 35).land 1) == 1
 
-def ExprCachedData.nonDepLet (c : ExprCachedData) : Bool :=
+def Expr.CachedData.nonDepLet (c : Expr.CachedData) : Bool :=
 ((c.shiftRight 36).land 1) == 1
 
 @[extern c inline "(uint8_t)((#1 << 24) >> 61)"]
-def ExprCachedData.binderInfo (c : ExprCachedData) : BinderInfo :=
+def Expr.CachedData.binderInfo (c : Expr.CachedData) : BinderInfo :=
 let bi := (c.shiftLeft 24).shiftRight 61;
 if bi == 0 then BinderInfo.default
 else if bi == 1 then BinderInfo.implicit
@@ -101,10 +115,10 @@ def BinderInfo.toUInt64 : BinderInfo → UInt64
 | BinderInfo.instImplicit   => 3
 | BinderInfo.auxDecl        => 4
 
-@[inline] private def mkExprCachedDataCore
+@[inline] private def Expr.mkCachedDataCore
     (h : USize) (looseBVarRange : Nat)
     (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) (bi : BinderInfo)
-    : ExprCachedData :=
+    : Expr.CachedData :=
 if looseBVarRange > Nat.pow 2 24 - 1 then panic! "bound variable index is too big"
 else
   let r : UInt64 :=
@@ -118,49 +132,97 @@ else
     looseBVarRange.toUInt64.shiftLeft 40;
   r
 
-def mkExprCachedData (h : USize) (looseBVarRange : Nat) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) : ExprCachedData :=
-mkExprCachedDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam false BinderInfo.default
+def Expr.mkCachedData (h : USize) (looseBVarRange : Nat := 0) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) : Expr.CachedData :=
+Expr.mkCachedDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam false BinderInfo.default
 
-def mkExprCachedDataForBinder (h : USize) (looseBVarRange : Nat) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : ExprCachedData :=
-mkExprCachedDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam false bi
+def Expr.mkCachedDataForBinder (h : USize) (looseBVarRange : Nat) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : Expr.CachedData :=
+Expr.mkCachedDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam false bi
 
-def mkExprCachedDataForLet (h : USize) (looseBVarRange : Nat) (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) : ExprCachedData :=
-mkExprCachedDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet BinderInfo.default
+def Expr.mkCachedDataForLet (h : USize) (looseBVarRange : Nat) (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) : Expr.CachedData :=
+Expr.mkCachedDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet BinderInfo.default
+
+open Expr
 
 /- We use the `E` suffix (short for `Expr`) to avoid collision with keywords.
    We considered using «...», but it is too inconvenient to use. -/
 inductive Expr
-| bvar    : Nat → Expr                                -- bound variables
-| fvar    : Name → Expr                               -- free variables
-| mvar    : Name → Expr                               -- meta variables
-| sort    : Level → Expr                              -- Sort
-| const   : Name → List Level → Expr                  -- constants
-| app     : Expr → Expr → Expr                        -- application
-| lam     : Name → BinderInfo → Expr → Expr → Expr    -- lambda abstraction
-| forallE : Name → BinderInfo → Expr → Expr → Expr    -- (dependent) arrow
-| letE    : Name → Expr → Expr → Expr → Expr          -- let expressions
-| lit     : Literal → Expr                            -- literals
-| mdata   : MData → Expr → Expr                       -- metadata
-| proj    : Name → Nat → Expr → Expr                  -- projection
+| bvar    : Nat → CachedData → Expr                       -- bound variables
+| fvar    : Name → CachedData → Expr                      -- free variables
+| mvar    : Name → CachedData → Expr                      -- meta variables
+| sort    : Level → CachedData → Expr                     -- Sort
+| const   : Name → List Level → CachedData → Expr         -- constants
+| app     : Expr → Expr → CachedData → Expr               -- application
+| lam     : Name → Expr → Expr → CachedData → Expr        -- lambda abstraction
+| forallE : Name → Expr → Expr → CachedData → Expr        -- (dependent) arrow
+| letE    : Name → Expr → Expr → Expr → CachedData → Expr -- let expressions
+| lit     : Literal → CachedData → Expr                   -- literals
+| mdata   : MData → Expr → CachedData → Expr              -- metadata
+| proj    : Name → Nat → Expr → CachedData → Expr         -- projection
+-- IMPORTANT: the following constructor will be delete
+| localE  : Name → Name → Expr → CachedData → Expr        -- Lean2 legacy. TODO: delete
 
-instance Expr.inhabited : Inhabited Expr :=
-⟨Expr.sort Level.zero⟩
+namespace Expr
 
-attribute [extern "lean_expr_mk_bvar"]   Expr.bvar
-attribute [extern "lean_expr_mk_fvar"]   Expr.fvar
-attribute [extern "lean_expr_mk_mvar"]   Expr.mvar
-attribute [extern "lean_expr_mk_sort"]   Expr.sort
-attribute [extern "lean_expr_mk_const"]  Expr.const
-attribute [extern "lean_expr_mk_app"]    Expr.app
-attribute [extern "lean_expr_mk_lambda"] Expr.lam
-attribute [extern "lean_expr_mk_forall"] Expr.forallE
-attribute [extern "lean_expr_mk_let"]    Expr.letE
-attribute [extern "lean_expr_mk_lit"]    Expr.lit
-attribute [extern "lean_expr_mk_mdata"]  Expr.mdata
-attribute [extern "lean_expr_mk_proj"]   Expr.proj
+instance : Inhabited Expr :=
+⟨sort (arbitrary _) (arbitrary _)⟩
+
+@[inline] def cachedData : Expr → CachedData
+| bvar _ d        => d
+| fvar _ d        => d
+| mvar _ d        => d
+| sort _ d        => d
+| const _ _ d     => d
+| app _ _ d       => d
+| lam _ _ _ d     => d
+| forallE _ _ _ d => d
+| letE _ _ _ _ d  => d
+| lit _ d         => d
+| mdata _ _ d     => d
+| proj _ _ _ d    => d
+| localE _ _ _ d  => d
+
+@[export lean_expr_cached_data] def cachedDataEx : Expr → CachedData := cachedData
+
+def hash (e : Expr) : USize :=
+e.cachedData.hash
+
+instance : Hashable Expr := ⟨Expr.hash⟩
+
+def hasFVar (e : Expr) : Bool :=
+e.cachedData.hasFVar
+
+def hasExprMVar (e : Expr) : Bool :=
+e.cachedData.hasExprMVar
+
+def hasLevelMVar (e : Expr) : Bool :=
+e.cachedData.hasLevelMVar
+
+def hasMVar (e : Expr) : Bool :=
+let d := e.cachedData;
+d.hasExprMVar || d.hasLevelMVar
+
+def hasLevelParam (e : Expr) : Bool :=
+e.cachedData.hasLevelParam
+
+def looseBVarRange (e : Expr) : Nat :=
+e.cachedData.looseBVarRange.toNat
+
+def binderInfo (e : Expr) : BinderInfo :=
+e.cachedData.binderInfo
+
+@[export lean_expr_hash] def hashEx : Expr → USize := hash
+@[export lean_expr_has_fvar] def hasFVarEx : Expr → Bool := hasFVar
+@[export lean_expr_has_expr_mvar] def hasExprMVarEx : Expr → Bool := hasExprMVar
+@[export lean_expr_has_level_mvar] def hasLevelMVarEx : Expr → Bool := hasLevelMVar
+@[export lean_expr_has_mvar] def hasMVarEx : Expr → Bool := hasMVar
+@[export lean_expr_has_level_param] def hasLevelParamEx : Expr → Bool := hasLevelParam
+@[export lean_expr_loose_bvar_range] def looseBVarRangeEx (e : Expr) : UInt32 := e.cachedData.looseBVarRange
+@[export lean_expr_binder_info] def binderInfoEx : Expr → BinderInfo := binderInfo
+
+end Expr
 
 def mkLit (l : Literal) : Expr :=
-Expr.lit l
+Expr.lit l $ mkCachedData (mixHash 3 (hash l))
 
 def mkNatLit (n : Nat) : Expr :=
 mkLit (Literal.natVal n)
@@ -168,48 +230,89 @@ mkLit (Literal.natVal n)
 def mkStrLit (s : String) : Expr :=
 mkLit (Literal.strVal s)
 
-def mkConst (n : Name) (ls : List Level := []) : Expr :=
-Expr.const n ls
+def mkConst (n : Name) (lvls : List Level := []) : Expr :=
+Expr.const n lvls $ mkCachedData (mixHash 5 $ mixHash (hash n) (hash lvls)) 0 false false (lvls.any Level.hasMVar) (lvls.any Level.hasParam)
 
-namespace Literal
-instance : Inhabited Literal := ⟨natVal 0⟩
-def type : Literal → Expr
-| natVal _ => mkConst `Nat
-| strVal _ => mkConst `String
-end Literal
+def Literal.type : Literal → Expr
+| Literal.natVal _ => mkConst `Nat
+| Literal.strVal _ => mkConst `String
+
+@[export lean_lit_type]
+def Literal.typeEx : Literal → Expr := Literal.type
 
 def mkBVar (idx : Nat) : Expr :=
-Expr.bvar idx
+Expr.bvar idx $ mkCachedData (mixHash 7 $ hash idx) (idx+1)
 
 def mkSort (lvl : Level) : Expr :=
-Expr.sort lvl
+Expr.sort lvl $ mkCachedData (mixHash 11 $ hash lvl) 0 false false lvl.hasMVar lvl.hasParam
 
 def mkFVar (fvarId : Name) : Expr :=
-Expr.fvar fvarId
+Expr.fvar fvarId $ mkCachedData (mixHash 13 $ hash fvarId) 0 true
 
 def mkMVar (fvarId : Name) : Expr :=
-Expr.mvar fvarId
+Expr.mvar fvarId $ mkCachedData (mixHash 17 $ hash fvarId) 0 false true
 
 def mkMData (d : MData) (e : Expr) : Expr :=
-Expr.mdata d e
+Expr.mdata d e $ mkCachedData (mixHash 19 $ hash e) e.looseBVarRange e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
 
 def mkProj (s : Name) (i : Nat) (e : Expr) : Expr :=
-Expr.proj s i e
+Expr.proj s i e $ mkCachedData (mixHash 23 $ mixHash (hash s) $ mixHash (hash i) (hash e))
+    e.looseBVarRange e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
 
 def mkApp (f a : Expr) : Expr :=
-Expr.app f a
+Expr.app f a $ mkCachedData (mixHash 29 $ mixHash (hash f) (hash a))
+  (Nat.max f.looseBVarRange a.looseBVarRange)
+  (f.hasFVar || a.hasFVar)
+  (f.hasExprMVar || a.hasExprMVar)
+  (f.hasLevelMVar || a.hasLevelMVar)
+  (f.hasLevelParam || a.hasLevelParam)
+
+def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
+Expr.lam x t b $ mkCachedDataForBinder (mixHash 31 $ mixHash (hash t) (hash b))
+  (Nat.max t.looseBVarRange (b.looseBVarRange - 1))
+  (t.hasFVar || b.hasFVar)
+  (t.hasExprMVar || b.hasExprMVar)
+  (t.hasLevelMVar || b.hasLevelMVar)
+  (t.hasLevelParam || b.hasLevelParam)
+  bi
+
+def mkForall (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
+Expr.forallE x t b $ mkCachedDataForBinder (mixHash 37 $ mixHash (hash t) (hash b))
+  (Nat.max t.looseBVarRange (b.looseBVarRange - 1))
+  (t.hasFVar || b.hasFVar)
+  (t.hasExprMVar || b.hasExprMVar)
+  (t.hasLevelMVar || b.hasLevelMVar)
+  (t.hasLevelParam || b.hasLevelParam)
+  bi
+
+def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nonDep : Bool := false) : Expr :=
+Expr.letE x t v b $ mkCachedDataForLet (mixHash 41 $ mixHash (hash t) $ mixHash (hash v) (hash b))
+  (Nat.max (Nat.max t.looseBVarRange v.looseBVarRange) (b.looseBVarRange - 1))
+  (t.hasFVar || v.hasFVar || b.hasFVar)
+  (t.hasExprMVar || v.hasExprMVar || b.hasExprMVar)
+  (t.hasLevelMVar || v.hasLevelMVar || b.hasLevelMVar)
+  (t.hasLevelParam || v.hasLevelParam || b.hasLevelParam)
+  nonDep
+
+def mkLocal (x u : Name) (t : Expr) (bi : BinderInfo) : Expr :=
+Expr.localE x u t $ mkCachedDataForBinder (mixHash 43 $ hash t) t.looseBVarRange true t.hasExprMVar t.hasLevelMVar t.hasLevelParam bi
+
+@[export lean_expr_mk_bvar] def mkBVarEx : Nat → Expr := mkBVar
+@[export lean_expr_mk_fvar] def mkFVarEx : Name → Expr := mkFVar
+@[export lean_expr_mk_mvar] def mkMVarEx : Name → Expr := mkMVar
+@[export lean_expr_mk_sort] def mkSortEx : Level → Expr := mkSort
+@[export lean_expr_mk_const] def mkConstEx (c : Name) (lvls : List Level) : Expr := mkConst c lvls
+@[export lean_expr_mk_app] def mkAppEx : Expr → Expr → Expr := mkApp
+@[export lean_expr_mk_lambda] def mkLambdaEx (n : Name) (d b : Expr) (bi : BinderInfo) : Expr := mkLambda n bi d b
+@[export lean_expr_mk_forall] def mkForallEx (n : Name) (d b : Expr) (bi : BinderInfo) : Expr := mkForall n bi d b
+@[export lean_expr_mk_let] def mkLetEx (n : Name) (t v b : Expr) : Expr := mkLet n t v b
+@[export lean_expr_mk_lit] def mkLitEx : Literal → Expr := mkLit
+@[export lean_expr_mk_mdata] def mkMDataEx : MData → Expr → Expr := mkMData
+@[export lean_expr_mk_proj] def mkProjEx : Name → Nat → Expr → Expr := mkProj
+@[export lean_expr_mk_local] def mkLocalEx : Name → Name → Expr → BinderInfo → Expr := mkLocal
 
 def mkAppN (f : Expr) (args : Array Expr) : Expr :=
 args.foldl mkApp f
-
-def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
-Expr.lam x bi t b
-
-def mkForall (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
-Expr.forallE x bi t b
-
-def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) : Expr :=
-Expr.letE x t v b
 
 private partial def mkAppRangeAux (n : Nat) (args : Array Expr) : Nat → Expr → Expr
 | i, e => if i < n then mkAppRangeAux (i+1) (mkApp e (args.get! i)) else e
@@ -222,11 +325,6 @@ def mkAppRev (fn : Expr) (revArgs : Array Expr) : Expr :=
 revArgs.foldr (fun a r => mkApp r a) fn
 
 namespace Expr
-@[extern "lean_expr_hash"]
-constant hash (n : @& Expr) : USize := arbitrary USize
-
-instance : Hashable Expr := ⟨Expr.hash⟩
-
 -- TODO: implement it in Lean
 @[extern "lean_expr_dbg_to_string"]
 constant dbgToString (e : @& Expr) : String := arbitrary String
@@ -249,49 +347,37 @@ instance : HasBeq Expr := ⟨Expr.eqv⟩
 @[extern "lean_expr_equal"]
 constant equal (a : @& Expr) (b : @& Expr) : Bool := arbitrary _
 
-@[extern "lean_expr_has_expr_mvar"]
-constant hasExprMVar (a : @& Expr) : Bool := arbitrary _
-
-@[extern "lean_expr_has_level_mvar"]
-constant hasLevelMVar (a : @& Expr) : Bool := arbitrary _
-
-@[inline] def hasMVar (a : Expr) : Bool :=
-a.hasExprMVar || a.hasLevelMVar
-
-@[extern "lean_expr_has_fvar"]
-constant hasFVar (a : @& Expr) : Bool := arbitrary _
-
 def isSort : Expr → Bool
-| sort _ => true
-| _      => false
+| sort _ _ => true
+| _        => false
 
 def isBVar : Expr → Bool
-| bvar _ => true
-| _      => false
+| bvar _ _ => true
+| _        => false
 
 def isMVar : Expr → Bool
-| mvar _ => true
-| _      => false
+| mvar _ _ => true
+| _        => false
 
 def isFVar : Expr → Bool
-| fvar _ => true
-| _      => false
+| fvar _ _ => true
+| _        => false
 
 def isApp : Expr → Bool
-| app _ _ => true
-| _       => false
-
-def isProj : Expr → Bool
-| proj _ _ _ => true
-| _          => false
-
-def isConst : Expr → Bool
-| const _ _ => true
+| app _ _ _ => true
 | _         => false
 
+def isProj : Expr → Bool
+| proj _ _ _ _ => true
+| _            => false
+
+def isConst : Expr → Bool
+| const _ _ _ => true
+| _           => false
+
 def isConstOf : Expr → Name → Bool
-| const n _, m => n == m
-| _,         _ => false
+| const n _ _, m => n == m
+| _,           _ => false
 
 def isForall : Expr → Bool
 | forallE _ _ _ _ => true
@@ -307,27 +393,27 @@ def isBinding : Expr → Bool
 | _               => false
 
 def isLet : Expr → Bool
-| letE _ _ _ _ => true
-| _            => false
+| letE _ _ _ _ _ => true
+| _              => false
 
 def isMData : Expr → Bool
-| mdata _ _ => true
-| _         => false
+| mdata _ _ _ => true
+| _           => false
 
 def getAppFn : Expr → Expr
-| app f a => getAppFn f
-| e       => e
+| app f a _ => getAppFn f
+| e         => e
 
 def getAppNumArgsAux : Expr → Nat → Nat
-| app f a, n => getAppNumArgsAux f (n+1)
-| e,       n => n
+| app f a _, n => getAppNumArgsAux f (n+1)
+| e,         n => n
 
 def getAppNumArgs (e : Expr) : Nat :=
 getAppNumArgsAux e 0
 
 private def getAppArgsAux : Expr → Array Expr → Nat → Array Expr
-| app f a, as, i => getAppArgsAux f (as.set! i a) (i-1)
-| _,       as, _ => as
+| app f a _, as, i => getAppArgsAux f (as.set! i a) (i-1)
+| _,         as, _ => as
 
 @[inline] def getAppArgs (e : Expr) : Array Expr :=
 let dummy := mkSort Level.zero;
@@ -335,15 +421,15 @@ let nargs := e.getAppNumArgs;
 getAppArgsAux e (mkArray nargs dummy) (nargs-1)
 
 private def getAppRevArgsAux : Expr → Array Expr → Array Expr
-| app f a, as => getAppRevArgsAux f (as.push a)
-| _,       as => as
+| app f a _, as => getAppRevArgsAux f (as.push a)
+| _,         as => as
 
 @[inline] def getAppRevArgs (e : Expr) : Array Expr :=
 getAppRevArgsAux e (Array.mkEmpty e.getAppNumArgs)
 
 @[specialize] def withAppAux {α} (k : Expr → Array Expr → α) : Expr → Array Expr → Nat → α
-| app f a, as, i => withAppAux f (as.set! i a) (i-1)
-| f, as, i       => k f as
+| app f a _, as, i => withAppAux f (as.set! i a) (i-1)
+| f,         as, i => k f as
 
 @[inline] def withApp {α} (e : Expr) (k : Expr → Array Expr → α) : α :=
 let dummy := mkSort Level.zero;
@@ -351,21 +437,21 @@ let nargs := e.getAppNumArgs;
 withAppAux k e (mkArray nargs dummy) (nargs-1)
 
 @[specialize] private def withAppRevAux {α} (k : Expr → Array Expr → α) : Expr → Array Expr → α
-| app f a, as => withAppRevAux f (as.push a)
-| f,       as => k f as
+| app f a _, as => withAppRevAux f (as.push a)
+| f,         as => k f as
 
 @[inline] def withAppRev {α} (e : Expr) (k : Expr → Array Expr → α) : α :=
 withAppRevAux k e (Array.mkEmpty e.getAppNumArgs)
 
 def getRevArgD : Expr → Nat → Expr → Expr
-| app f a, 0,   _ => a
-| app f _, i+1, v => getRevArgD f i v
-| _      , _,   v => v
+| app f a _, 0,   _ => a
+| app f _ _, i+1, v => getRevArgD f i v
+| _,         _,   v => v
 
 def getRevArg! : Expr → Nat → Expr
-| app f a, 0   => a
-| app f _, i+1 => getRevArg! f i
-| _      , _   => panic! "invalid index"
+| app f a _, 0   => a
+| app f _ _, i+1 => getRevArg! f i
+| _,         _   => panic! "invalid index"
 
 @[inline] def getArg! (e : Expr) (i : Nat) (n := e.getAppNumArgs) : Expr :=
 getRevArg! e (n - i - 1)
@@ -375,41 +461,41 @@ getRevArgD e (n - i - 1) v₀
 
 def isAppOf (e : Expr) (n : Name) : Bool :=
 match e.getAppFn with
-| const c _ => c == n
-| _         => false
+| const c _ _ => c == n
+| _           => false
 
 def isAppOfArity : Expr → Name → Nat → Bool
-| const c _, n, 0   => c == n
-| app f _,   n, a+1 => isAppOfArity f n a
-| _,         _, _   => false
+| const c _ _, n, 0   => c == n
+| app f _ _,   n, a+1 => isAppOfArity f n a
+| _,           _, _   => false
 
 def appFn! : Expr → Expr
-| app f _ => f
-| _       => panic! "application expected"
+| app f _ _ => f
+| _         => panic! "application expected"
 
 def appArg! : Expr → Expr
-| app _ a => a
-| _       => panic! "application expected"
+| app _ a _ => a
+| _         => panic! "application expected"
 
 def constName! : Expr → Name
-| const n _ => n
-| _         => panic! "constant expected"
+| const n _ _ => n
+| _           => panic! "constant expected"
 
 def constLevels! : Expr → List Level
-| const _ ls => ls
-| _          => panic! "constant expected"
+| const _ ls _ => ls
+| _            => panic! "constant expected"
 
 def bvarIdx! : Expr → Nat
-| bvar idx => idx
-| _        => panic! "bvar expected"
+| bvar idx _ => idx
+| _          => panic! "bvar expected"
 
 def fvarId! : Expr → Name
-| fvar n => n
-| _      => panic! "fvar expected"
+| fvar n _ => n
+| _        => panic! "fvar expected"
 
 def mvarId! : Expr → Name
-| mvar n => n
-| _      => panic! "mvar expected"
+| mvar n _ => n
+| _        => panic! "mvar expected"
 
 def bindingName! : Expr → Name
 | forallE n _ _ _ => n
@@ -422,19 +508,16 @@ def bindingDomain! : Expr → Expr
 | _               => panic! "binding expected"
 
 def bindingBody! : Expr → Expr
-| forallE _ _ _ b => b
-| lam _ _ _ b     => b
+| forallE _ _ b _ => b
+| lam _ _ b _     => b
 | _               => panic! "binding expected"
 
 def letName! : Expr → Name
-| letE n _ _ _ => n
-| _            => panic! "let expression expected"
-
-@[extern "lean_expr_get_loose_bvar_range"]
-constant getLooseBVarRange (e : @& Expr) : Nat := arbitrary _
+| letE n _ _ _ _ => n
+| _              => panic! "let expression expected"
 
 def hasLooseBVars (e : Expr) : Bool :=
-getLooseBVarRange e > 0
+e.looseBVarRange > 0
 
 @[extern "lean_expr_has_loose_bvar"]
 constant hasLooseBVar (e : @& Expr) (bvarIdx : @& Nat) : Bool := arbitrary _
@@ -491,10 +574,10 @@ def mkCAppB (n : Name) (a b : Expr) :=
 mkAppB (mkConst n) a b
 
 def mkDecIsTrue (pred proof : Expr) :=
-mkAppB (Expr.const `Decidable.isTrue []) pred proof
+mkAppB (mkConst `Decidable.isTrue) pred proof
 
 def mkDecIsFalse (pred proof : Expr) :=
-mkAppB (Expr.const `Decidable.isFalse []) pred proof
+mkAppB (mkConst `Decidable.isFalse) pred proof
 
 abbrev ExprMap (α : Type)  := HashMap Expr α
 abbrev PersistentExprMap (α : Type) := PHashMap Expr α
@@ -541,7 +624,7 @@ def mkAppRevRange (f : Expr) (beginIdx endIdx : Nat) (revArgs : Array Expr) : Ex
 mkAppRevRangeAux revArgs beginIdx f endIdx
 
 private def betaRevAux (revArgs : Array Expr) (sz : Nat) : Expr → Nat → Expr
-| Expr.lam _ _ _ b, i =>
+| Expr.lam _ _ b _, i =>
   if i + 1 < sz then
     betaRevAux b (i+1)
   else
@@ -566,12 +649,12 @@ if revArgs.size == 0 then f
 else betaRevAux revArgs revArgs.size f 0
 
 private def etaExpandedBody : Expr → Nat → Nat → Option Expr
-| app f (bvar j), n+1, i => if j == i then etaExpandedBody f n (i+1) else none
-| _,              n+1, _ => none
-| f,              0,   _ => if f.hasLooseBVars then none else some f
+| app f (bvar j _) _, n+1, i => if j == i then etaExpandedBody f n (i+1) else none
+| _,                  n+1, _ => none
+| f,                  0,   _ => if f.hasLooseBVars then none else some f
 
 private def etaExpandedAux : Expr → Nat → Option Expr
-| lam _ _ _ b, n => etaExpandedAux b (n+1)
+| lam _ _ b _, n => etaExpandedAux b (n+1)
 | e,           n => etaExpandedBody e n 0
 
 /- If `e` is of the form `(fun x₁ ... xₙ => f x₁ ... xₙ)` and `f` does not contain `x₁`, ..., `xₙ`,
@@ -592,93 +675,93 @@ etaExpandedAux e 0
 
 @[extern "lean_expr_update_app"]
 def updateApp (e : Expr) (newFn : Expr) (newArg : Expr) (h : e.isApp = true) : Expr :=
-app newFn newArg
+mkApp newFn newArg
 
 @[inline] def updateApp! (e : Expr) (newFn : Expr) (newArg : Expr) : Expr :=
 match e with
-| app fn arg => updateApp (app fn arg) newFn newArg rfl
-| _          => panic! "application expected"
+| app fn arg c => updateApp (app fn arg c) newFn newArg rfl
+| _            => panic! "application expected"
 
 @[extern "lean_expr_update_const"]
 def updateConst (e : Expr) (newLevels : List Level) (h : e.isConst = true) : Expr :=
-const e.constName! newLevels
+mkConst e.constName! newLevels
 
 @[inline] def updateConst! (e : Expr) (newLevels : List Level) : Expr :=
 match e with
-| const n ls => updateConst (const n ls) newLevels rfl
-| _          => panic! "constant expected"
+| const n ls c => updateConst (const n ls c) newLevels rfl
+| _            => panic! "constant expected"
 
 @[extern "lean_expr_update_sort"]
 def updateSort (e : Expr) (newLevel : Level) (h : e.isSort = true) : Expr :=
-sort newLevel
+mkSort newLevel
 
 @[inline] def updateSort! (e : Expr) (newLevel : Level) : Expr :=
 match e with
-| sort l => updateSort (sort l) newLevel rfl
-| _      => panic! "level expected"
+| sort l c => updateSort (sort l c) newLevel rfl
+| _        => panic! "level expected"
 
 @[extern "lean_expr_update_proj"]
 def updateProj (e : Expr) (newExpr : Expr) (h : e.isProj = true) : Expr :=
 match e with
-| proj s i _ => proj s i newExpr
-| _          => e -- unreachable because of `h`
+| proj s i _ _ => mkProj s i newExpr
+| _            => e -- unreachable because of `h`
 
 @[extern "lean_expr_update_mdata"]
 def updateMData (e : Expr) (newExpr : Expr) (h : e.isMData = true) : Expr :=
 match e with
-| mdata d _ => mdata d newExpr
-| _         => e -- unreachable because of `h`
+| mdata d _ _ => mkMData d newExpr
+| _           => e -- unreachable because of `h`
 
 @[inline] def updateMData! (e : Expr) (newExpr : Expr) : Expr :=
 match e with
-| mdata d e => updateMData (mdata d e) newExpr rfl
-| _         => panic! "mdata expected"
+| mdata d e c => updateMData (mdata d e c) newExpr rfl
+| _           => panic! "mdata expected"
 
 @[inline] def updateProj! (e : Expr) (newExpr : Expr) : Expr :=
 match e with
-| proj s i e => updateProj (proj s i e) newExpr rfl
-| _          => panic! "proj expected"
+| proj s i e c => updateProj (proj s i e c) newExpr rfl
+| _            => panic! "proj expected"
 
 @[extern "lean_expr_update_forall"]
 def updateForall (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) (h : e.isForall = true) : Expr :=
-forallE e.bindingName! newBinfo newDomain newBody
+mkForall e.bindingName! newBinfo newDomain newBody
 
 @[inline] def updateForall! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) : Expr :=
 match e with
-| forallE n bi d b => updateForall (forallE n bi d b) newBinfo newDomain newBody rfl
-| _                => panic! "forall expected"
+| forallE n d b c => updateForall (forallE n d b c) newBinfo newDomain newBody rfl
+| _               => panic! "forall expected"
 
 @[inline] def updateForallE! (e : Expr) (newDomain : Expr) (newBody : Expr) : Expr :=
 match e with
-| forallE n bi d b => updateForall (forallE n bi d b) bi newDomain newBody rfl
-| _                => panic! "forall expected"
+| forallE n d b c => updateForall (forallE n d b c) c.binderInfo newDomain newBody rfl
+| _               => panic! "forall expected"
 
 @[extern "lean_expr_update_lambda"]
 def updateLambda (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) (h : e.isLambda = true) : Expr :=
-lam e.bindingName! newBinfo newDomain newBody
+mkLambda e.bindingName! newBinfo newDomain newBody
 
 @[inline] def updateLambda! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) : Expr :=
 match e with
-| lam n bi d b => updateLambda (lam n bi d b) newBinfo newDomain newBody rfl
-| _            => panic! "lambda expected"
+| lam n d b c => updateLambda (lam n d b c) newBinfo newDomain newBody rfl
+| _           => panic! "lambda expected"
 
 @[inline] def updateLambdaE! (e : Expr) (newDomain : Expr) (newBody : Expr) : Expr :=
 match e with
-| lam n bi d b => updateLambda (lam n bi d b) bi newDomain newBody rfl
-| _            => panic! "lambda expected"
+| lam n d b c => updateLambda (lam n d b c) c.binderInfo newDomain newBody rfl
+| _           => panic! "lambda expected"
 
 @[extern "lean_expr_update_let"]
 def updateLet (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) (h : e.isLet = true) : Expr :=
-letE e.letName! newType newVal newBody
+mkLet e.letName! newType newVal newBody
 
 @[inline] def updateLet! (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : Expr :=
 match e with
-| letE n t v b => updateLet (letE n t v b) newType newVal newBody rfl
-| _            => panic! "let expression expected"
+| letE n t v b c => updateLet (letE n t v b c) newType newVal newBody rfl
+| _              => panic! "let expression expected"
 
 def updateFn : Expr → Expr → Expr
-| app f a, g => app (updateFn f g) a
-| _,       g => g
+| e@(app f a _), g => e.updateApp (updateFn f g) a rfl
+| _,             g => g
 
 end Expr
 end Lean

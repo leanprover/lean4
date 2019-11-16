@@ -147,7 +147,7 @@ registerAttribute {
    | none  => throw "unknown declaration"
    | some decl =>
      match decl.type with
-     | Expr.const `Lean.TermElab _ => declareBuiltinTermElab env kind declName
+     | Expr.const `Lean.TermElab _ _ => declareBuiltinTermElab env kind declName
      | _ => throw (IO.userError ("unexpected term elaborator type at '" ++ toString declName ++ "' `TermElab` expected"))
  },
  applicationTime := AttributeApplicationTime.afterCompilation
@@ -164,7 +164,7 @@ registerAttribute {
    | none  => throw "unknown declaration"
    | some decl =>
      match decl.type with
-     | Expr.const `Lean.CommandElab _ => declareBuiltinCommandElab env kind declName
+     | Expr.const `Lean.CommandElab _ _ => declareBuiltinCommandElab env kind declName
      | _ => throw (IO.userError ("unexpected command elaborator type at '" ++ toString declName ++ "' `CommandElab` expected"))
  },
  applicationTime := AttributeApplicationTime.afterCompilation

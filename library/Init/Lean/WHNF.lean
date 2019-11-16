@@ -26,7 +26,7 @@ def matchConstAux {α : Type} {m : Type → Type} [Monad m]
     (getConst : Name → m (Option ConstantInfo))
     (e : Expr) (failK : Unit → m α) (k : ConstantInfo → List Level → m α) : m α :=
 match e with
-| Expr.const name lvls => do
+| Expr.const name lvls _ => do
   (some cinfo) ← getConst name | failK ();
   k cinfo lvls
 | _ => failK ()
@@ -45,21 +45,21 @@ private def mkNullaryCtor {m : Type → Type} [Monad m]
    (getConst : Name → m (Option ConstantInfo))
    (type : Expr) (nparams : Nat) : m (Option Expr) :=
 match type.getAppFn with
-| Expr.const d lvls => do
+| Expr.const d lvls _ => do
   (some ctor) ← getFirstCtor getConst d | pure none;
   pure $ mkAppN (mkConst ctor lvls) (type.getAppArgs.shrink nparams)
 | _ => pure none
 
 private def toCtorIfLit : Expr → Expr
-| Expr.lit (Literal.natVal v) =>
+| Expr.lit (Literal.natVal v) _ =>
   if v == 0 then mkConst `Nat.zero
   else mkApp (mkConst `Nat.succ) (mkNatLit (v-1))
 | e => e
 
 private def getRecRuleFor (rec : RecursorVal) (major : Expr) : Option RecursorRule :=
 match major.getAppFn with
-| Expr.const fn _ => rec.rules.find $ fun r => r.ctor == fn
-| _ => none
+| Expr.const fn _ _ => rec.rules.find $ fun r => r.ctor == fn
+| _                 => none
 
 @[specialize] private def toCtorWhenK {m : Type → Type} [Monad m]
     (getConst  : Name → m (Option ConstantInfo))
@@ -151,7 +151,7 @@ let process (majorPos argPos : Nat) : m α :=
     let major := recArgs.get ⟨majorPos, h⟩;
     major ← whnf major;
     match major with
-    | Expr.app (Expr.app (Expr.app (Expr.const majorFn _) _) _) majorArg => do
+    | Expr.app (Expr.app (Expr.app (Expr.const majorFn _ _) _ _) _ _) majorArg _ => do
       some (ConstantInfo.quotInfo { kind := QuotKind.ctor, .. }) ← getConst majorFn | failK ();
       let f := recArgs.get! argPos;
       let r := mkApp f majorArg;
@@ -190,14 +190,14 @@ match rec.kind with
     (getConst : Name → m (Option ConstantInfo))
     (whnf     : Expr → m Expr)
     : Expr → m (Option Expr)
-| Expr.mdata _ e   => getStuckMVar e
-| Expr.proj _ _ e  => do e ← whnf e; getStuckMVar e
-| e@(Expr.mvar _)  => pure (some e)
-| e@(Expr.app f _) =>
+| Expr.mdata _ e _   => getStuckMVar e
+| Expr.proj _ _ e _  => do e ← whnf e; getStuckMVar e
+| e@(Expr.mvar _ _)  => pure (some e)
+| e@(Expr.app f _ _) =>
   let f := f.getAppFn;
   match f with
-  | Expr.mvar _            => pure (some f)
-  | Expr.const fName fLvls => do
+  | Expr.mvar _ _            => pure (some f)
+  | Expr.const fName fLvls _ => do
     cinfo? ← getConst fName;
     match cinfo? with
     | some $ ConstantInfo.recInfo rec  => isRecStuck whnf getStuckMVar rec fLvls e.getAppArgs
@@ -217,24 +217,25 @@ match rec.kind with
     : Expr → (Expr → m Expr) → m Expr
 | e@(Expr.forallE _ _ _ _), _ => pure e
 | e@(Expr.lam _ _ _ _),     _ => pure e
-| e@(Expr.sort _),          _ => pure e
-| e@(Expr.lit _),           _ => pure e
-| e@(Expr.bvar _),          _ => unreachable!
-| Expr.mdata _ e,           k => whnfEasyCases e k
-| e@(Expr.letE _ _ _ _),    k => k e
-| e@(Expr.fvar fvarId),     k => do
+| e@(Expr.sort _ _),        _ => pure e
+| e@(Expr.lit _ _),         _ => pure e
+| e@(Expr.bvar _ _),        _ => unreachable!
+| Expr.mdata _ e _,         k => whnfEasyCases e k
+| e@(Expr.letE _ _ _ _ _),  k => k e
+| e@(Expr.fvar fvarId _),   k => do
   decl ← getLocalDecl fvarId;
   match decl.value? with
   | none   => pure e
   | some v => whnfEasyCases v k
-| e@(Expr.mvar mvarId),     k => do
+| e@(Expr.mvar mvarId _),   k => do
   v? ← getMVarAssignment mvarId;
   match v? with
   | some v => whnfEasyCases v k
   | none   => pure e
-| e@(Expr.const _ _),       k => k e
-| e@(Expr.app _ _),         k => k e
-| e@(Expr.proj _ _ _),      k => k e
+| e@(Expr.const _ _ _),     k => k e
+| e@(Expr.app _ _ _),       k => k e
+| e@(Expr.proj _ _ _ _),    k => k e
+| Expr.localE _ _ _ _,      _ => unreachable!
 
 /-- Return true iff term is of the form `idRhs ...` -/
 private def isIdRhsApp (e : Expr) : Bool :=
@@ -279,9 +280,9 @@ else
     (getMVarAssignment : Name → m (Option Expr)) : Expr → m Expr
 | e => whnfEasyCases getLocalDecl getMVarAssignment e $ fun e =>
   match e with
-  | e@(Expr.const _ _)    => pure e
-  | e@(Expr.letE _ _ v b) => whnfCore $ b.instantiate1 v
-  | e@(Expr.app f _)      => do
+  | e@(Expr.const _ _ _)    => pure e
+  | e@(Expr.letE _ _ v b _) => whnfCore $ b.instantiate1 v
+  | e@(Expr.app f _ _)      => do
     let f := f.getAppFn;
     f' ← whnfCore f;
     if f'.isLambda then
@@ -301,7 +302,7 @@ else
           else
             done ()
         | _ => done ()
-  | e@(Expr.proj _ i c) => do
+  | e@(Expr.proj _ i c _) => do
     c   ← whnf c;
     matchConstAux getConst c.getAppFn (fun _ => pure e) $ fun cinfo lvls =>
       match cinfo with
@@ -341,7 +342,7 @@ else
     (e : Expr)
     (failK : Unit → m α) (successK : Expr → m α) : m α :=
 match e with
-| Expr.app f _ =>
+| Expr.app f _ _ =>
   matchConstAux getConst f.getAppFn failK $ fun fInfo fLvls =>
     if fInfo.lparams.length != fLvls.length then failK ()
     else do
@@ -355,7 +356,7 @@ match e with
           else
             failK ()
       | _ => if fInfo.hasValue then deltaBetaDefinition fInfo fLvls e.getAppRevArgs failK successK else failK ()
-| Expr.const name lvls => do
+| Expr.const name lvls _ => do
   (some (cinfo@(ConstantInfo.defnInfo _))) ← getConst name | failK ();
   deltaDefinition cinfo lvls failK successK
 | _ => failK ()

@@ -39,7 +39,7 @@ mkSimpleName "_tc_alpha"
 -- Expressions
 
 def eMetaIdx : Expr → Option Nat
-| Expr.mvar (Name.mkNumeral n idx) => guard (n == metaPrefix) *> pure idx
+| Expr.mvar (Name.mkNumeral n idx) _ => guard (n == metaPrefix) *> pure idx
 | _ => none
 
 def eIsMeta (e : Expr) : Bool := (eMetaIdx e).toBool
@@ -84,8 +84,8 @@ partial def eFind (f : Expr → Bool) : Expr → Bool
   then true
   else
     match e with
-    | Expr.app f a => eFind f || eFind a
-    | Expr.forallE _ _ d b => eFind d || eFind b
+    | Expr.app f a _ => eFind f || eFind a
+    | Expr.forallE _ d b _ => eFind d || eFind b
     | _ => false
 
 def eOccursIn (t₀ : Expr) (e : Expr) : Bool :=
@@ -188,7 +188,7 @@ then eFind (λ t => eIsMeta t || (t.isConst && t.constLevels!.any uHasTmpMVar)) 
 else false
 
 partial def slowWhnfApp (args : Array Expr) : Expr → Nat → Expr
-| f@(Expr.lam _ _ d b), i =>
+| f@(Expr.lam _ d b _), i =>
   if h : i < args.size then
     slowWhnfApp (b.instantiate1 (args.get ⟨i, h⟩)) (i+1)
   else
@@ -236,10 +236,10 @@ partial def eInstantiate (ctx : Context) : Expr → Expr
   then e
   else
     match e with
-    | Expr.forallE n i d b => mkForall n i (eInstantiate d) (eInstantiate b)
-    | Expr.lam n i d b     => mkLambda n i (eInstantiate d) (eInstantiate b)
-    | Expr.const n ls      => mkConst n (ls.map $ uInstantiate ctx)
-    | Expr.app e₁ e₂       => mkApp (eInstantiate e₁) (eInstantiate e₂)
+    | Expr.forallE n d b c => mkForall n c.binderInfo (eInstantiate d) (eInstantiate b)
+    | Expr.lam n d b c     => mkLambda n c.binderInfo (eInstantiate d) (eInstantiate b)
+    | Expr.const n ls _    => mkConst n (ls.map $ uInstantiate ctx)
+    | Expr.app e₁ e₂ _     => mkApp (eInstantiate e₁) (eInstantiate e₂)
     | _ =>
       match eMetaIdx e with
       | none     => e
@@ -292,14 +292,14 @@ partial def eMetaNormalizeCore {α : Type} (fs : MetaNormFuncs α) : Expr → St
   else if e.isFVar then pure e
   else if !e.hasMVar then pure e
   else match e with
-       | Expr.app f a => do
+       | Expr.app f a _ => do
          f ← eMetaNormalizeCore f;
          a ← eMetaNormalizeCore a;
          pure $ mkApp f a
-       | Expr.forallE n i d b => do
+       | Expr.forallE n d b c => do
          d ← eMetaNormalizeCore d;
          b ← eMetaNormalizeCore b;
-         pure $ mkForall n i d b
+         pure $ mkForall n c.binderInfo d b
        | _ =>
          match eMetaIdx e with
          | none     => pure e

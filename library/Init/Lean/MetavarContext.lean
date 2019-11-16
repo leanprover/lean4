@@ -321,18 +321,19 @@ def hasAssignedLevelMVar (mctx : MetavarContext) : Level → Bool
 
 /-- Return `true` iff expression contains assigned (level/expr) metavariables -/
 def hasAssignedMVar (mctx : MetavarContext) : Expr → Bool
-| Expr.const _ lvls    => lvls.any (hasAssignedLevelMVar mctx)
-| Expr.sort lvl        => hasAssignedLevelMVar mctx lvl
-| Expr.app f a         => (f.hasMVar && hasAssignedMVar f) || (a.hasMVar && hasAssignedMVar a)
-| Expr.letE _ t v b    => (t.hasMVar && hasAssignedMVar t) || (v.hasMVar && hasAssignedMVar v) || (b.hasMVar && hasAssignedMVar b)
-| Expr.forallE _ _ d b => (d.hasMVar && hasAssignedMVar d) || (b.hasMVar && hasAssignedMVar b)
-| Expr.lam _ _ d b     => (d.hasMVar && hasAssignedMVar d) || (b.hasMVar && hasAssignedMVar b)
-| Expr.fvar _          => false
-| Expr.bvar _          => false
-| Expr.lit _           => false
-| Expr.mdata _ e       => e.hasMVar && hasAssignedMVar e
-| Expr.proj _ _ e      => e.hasMVar && hasAssignedMVar e
-| Expr.mvar mvarId     => mctx.isExprAssigned mvarId
+| Expr.const _ lvls _  => lvls.any (hasAssignedLevelMVar mctx)
+| Expr.sort lvl _      => hasAssignedLevelMVar mctx lvl
+| Expr.app f a _       => (f.hasMVar && hasAssignedMVar f) || (a.hasMVar && hasAssignedMVar a)
+| Expr.letE _ t v b _  => (t.hasMVar && hasAssignedMVar t) || (v.hasMVar && hasAssignedMVar v) || (b.hasMVar && hasAssignedMVar b)
+| Expr.forallE _ d b _ => (d.hasMVar && hasAssignedMVar d) || (b.hasMVar && hasAssignedMVar b)
+| Expr.lam _ d b _     => (d.hasMVar && hasAssignedMVar d) || (b.hasMVar && hasAssignedMVar b)
+| Expr.fvar _ _        => false
+| Expr.bvar _ _        => false
+| Expr.lit _ _         => false
+| Expr.mdata _ e _     => e.hasMVar && hasAssignedMVar e
+| Expr.proj _ _ e _    => e.hasMVar && hasAssignedMVar e
+| Expr.mvar mvarId _   => mctx.isExprAssigned mvarId
+| Expr.localE _ _ _ _  => unreachable!
 
 /-- Return true iff the given level contains a metavariable that can be assigned. -/
 def hasAssignableLevelMVar (mctx : MetavarContext) : Level → Bool
@@ -424,14 +425,14 @@ modify $ fun s => { state := f s.state, .. s }
 
 /-- instantiateExprMVars main function -/
 partial def main : Expr → M Expr
-| e@(Expr.proj _ _ s)      => do s ← visit main s; pure (e.updateProj! s)
-| e@(Expr.forallE _ _ d b) => do d ← visit main d; b ← visit main b; pure (e.updateForallE! d b)
-| e@(Expr.lam _ _ d b)     => do d ← visit main d; b ← visit main b; pure (e.updateLambdaE! d b)
-| e@(Expr.letE _ t v b)    => do t ← visit main t; v ← visit main v; b ← visit main b; pure (e.updateLet! t v b)
-| e@(Expr.const _ lvls)    => do lvls ← lvls.mapM instantiateLevelMVars; pure (e.updateConst! lvls)
-| e@(Expr.sort lvl)        => do lvl ← instantiateLevelMVars lvl; pure (e.updateSort! lvl)
-| e@(Expr.mdata _ b)       => do b ← visit main b; pure (e.updateMData! b)
-| e@(Expr.app _ _)         => e.withAppRev $ fun f revArgs => do
+| e@(Expr.proj _ _ s _)    => do s ← visit main s; pure (e.updateProj! s)
+| e@(Expr.forallE _ d b _) => do d ← visit main d; b ← visit main b; pure (e.updateForallE! d b)
+| e@(Expr.lam _ d b _)     => do d ← visit main d; b ← visit main b; pure (e.updateLambdaE! d b)
+| e@(Expr.letE _ t v b _)  => do t ← visit main t; v ← visit main v; b ← visit main b; pure (e.updateLet! t v b)
+| e@(Expr.const _ lvls _)  => do lvls ← lvls.mapM instantiateLevelMVars; pure (e.updateConst! lvls)
+| e@(Expr.sort lvl _)      => do lvl ← instantiateLevelMVars lvl; pure (e.updateSort! lvl)
+| e@(Expr.mdata _ b _)     => do b ← visit main b; pure (e.updateMData! b)
+| e@(Expr.app _ _ _)       => e.withAppRev $ fun f revArgs => do
   let wasMVar := f.isMVar;
   f ← visit main f;
   if wasMVar && f.isLambda then
@@ -440,7 +441,7 @@ partial def main : Expr → M Expr
   else do
     revArgs ← revArgs.mapM (visit main);
     pure (mkAppRev f revArgs)
-| e@(Expr.mvar mvarId)     => checkCache e $ fun e => do
+| e@(Expr.mvar mvarId _)   => checkCache e $ fun e => do
   mctx ← getMCtx;
   match mctx.getExprAssignment mvarId with
   | some newE => do
@@ -483,19 +484,19 @@ else do
 condM (visit? e) (main e) (pure false)
 
 @[specialize] private partial def dep (mctx : MetavarContext) (p : Name → Bool) : Expr → M Bool
-| e@(Expr.proj _ _ s)      => visit dep s
-| e@(Expr.forallE _ _ d b) => visit dep d <||> visit dep b
-| e@(Expr.lam _ _ d b)     => visit dep d <||> visit dep b
-| e@(Expr.letE _ t v b)    => visit dep t <||> visit dep v <||> visit dep b
-| e@(Expr.mdata _ b)       => visit dep b
-| e@(Expr.app f a)         => visit dep a <||> if f.isApp then dep f else visit dep f
-| e@(Expr.mvar mvarId)     =>
+| e@(Expr.proj _ _ s _)    => visit dep s
+| e@(Expr.forallE _ d b _) => visit dep d <||> visit dep b
+| e@(Expr.lam _ d b _)     => visit dep d <||> visit dep b
+| e@(Expr.letE _ t v b _)  => visit dep t <||> visit dep v <||> visit dep b
+| e@(Expr.mdata _ b _)     => visit dep b
+| e@(Expr.app f a _)       => visit dep a <||> if f.isApp then dep f else visit dep f
+| e@(Expr.mvar mvarId _)   =>
   match mctx.getExprAssignment mvarId with
   | some a => visit dep a
   | none   =>
     let lctx := (mctx.getDecl mvarId).lctx;
     pure $ lctx.any $ fun decl => p decl.name
-| e@(Expr.fvar fvarId)     => pure $ p fvarId
+| e@(Expr.fvar fvarId _)   => pure $ p fvarId
 | e                        => pure false
 
 @[inline] partial def main (mctx : MetavarContext) (p : Name → Bool) (e : Expr) : M Bool :=
@@ -674,16 +675,16 @@ do s ← get;
    pure mvarId
 
 private partial def elimMVarDepsAux : Array Expr → Expr → M Expr
-| xs, e@(Expr.proj _ _ s)      => do s ← visit (elimMVarDepsAux xs) s; pure (e.updateProj! s)
-| xs, e@(Expr.forallE _ _ d b) => do d ← visit (elimMVarDepsAux xs) d; b ← visit (elimMVarDepsAux xs) b; pure (e.updateForallE! d b)
-| xs, e@(Expr.lam _ _ d b)     => do d ← visit (elimMVarDepsAux xs) d; b ← visit (elimMVarDepsAux xs) b; pure (e.updateLambdaE! d b)
-| xs, e@(Expr.letE _ t v b)    => do t ← visit (elimMVarDepsAux xs) t; v ← visit (elimMVarDepsAux xs) v; b ← visit (elimMVarDepsAux xs) b; pure (e.updateLet! t v b)
-| xs, e@(Expr.mdata _ b)       => do b ← visit (elimMVarDepsAux xs) b; pure (e.updateMData! b)
-| xs, e@(Expr.app _ _)         => e.withAppRev $ fun f revArgs => do
+| xs, e@(Expr.proj _ _ s _)    => do s ← visit (elimMVarDepsAux xs) s; pure (e.updateProj! s)
+| xs, e@(Expr.forallE _ d b _) => do d ← visit (elimMVarDepsAux xs) d; b ← visit (elimMVarDepsAux xs) b; pure (e.updateForallE! d b)
+| xs, e@(Expr.lam _ d b _)     => do d ← visit (elimMVarDepsAux xs) d; b ← visit (elimMVarDepsAux xs) b; pure (e.updateLambdaE! d b)
+| xs, e@(Expr.letE _ t v b _)  => do t ← visit (elimMVarDepsAux xs) t; v ← visit (elimMVarDepsAux xs) v; b ← visit (elimMVarDepsAux xs) b; pure (e.updateLet! t v b)
+| xs, e@(Expr.mdata _ b _)     => do b ← visit (elimMVarDepsAux xs) b; pure (e.updateMData! b)
+| xs, e@(Expr.app _ _ _)       => e.withAppRev $ fun f revArgs => do
   f ← visit (elimMVarDepsAux xs) f;
   revArgs ← revArgs.mapM (visit (elimMVarDepsAux xs));
   pure (mkAppRev f revArgs)
-| xs, e@(Expr.mvar mvarId) => do
+| xs, e@(Expr.mvar mvarId _)   => do
   mctx ← getMCtx;
   match mctx.getExprAssignment mvarId with
   | some a => visit (elimMVarDepsAux xs) a
@@ -735,23 +736,24 @@ mkBinding false xs e
   - All locals in `e` are declared in `lctx`
   - All metavariables `?m` in `e` have a local context which is a subprefix of `lctx` or are assigned, and the assignment is well-formed. -/
 partial def isWellFormed (mctx : MetavarContext) (lctx : LocalContext) : Expr → Bool
-| Expr.mdata _ e           => isWellFormed e
-| Expr.proj _ _ e          => isWellFormed e
-| e@(Expr.app f a)         => (e.hasExprMVar || e.hasFVar) && isWellFormed f && isWellFormed a
-| e@(Expr.lam _ _ d b)     => (e.hasExprMVar || e.hasFVar) && isWellFormed d && isWellFormed b
-| e@(Expr.forallE _ _ d b) => (e.hasExprMVar || e.hasFVar) && isWellFormed d && isWellFormed b
-| e@(Expr.letE _ t v b)    => (e.hasExprMVar || e.hasFVar) && isWellFormed t && isWellFormed v && isWellFormed b
-| Expr.const _ _           => true
-| Expr.bvar _              => true
-| Expr.sort _              => true
-| Expr.lit _               => true
-| Expr.mvar mvarId         =>
+| Expr.mdata _ e _         => isWellFormed e
+| Expr.proj _ _ e _        => isWellFormed e
+| e@(Expr.app f a _)       => (e.hasExprMVar || e.hasFVar) && isWellFormed f && isWellFormed a
+| e@(Expr.lam _ d b _)     => (e.hasExprMVar || e.hasFVar) && isWellFormed d && isWellFormed b
+| e@(Expr.forallE _ d b _) => (e.hasExprMVar || e.hasFVar) && isWellFormed d && isWellFormed b
+| e@(Expr.letE _ t v b _)  => (e.hasExprMVar || e.hasFVar) && isWellFormed t && isWellFormed v && isWellFormed b
+| Expr.const _ _ _         => true
+| Expr.bvar _ _            => true
+| Expr.sort _ _            => true
+| Expr.lit _ _             => true
+| Expr.mvar mvarId _       =>
   let mvarDecl := mctx.getDecl mvarId;
   if mvarDecl.lctx.isSubPrefixOf lctx then true
   else match mctx.getExprAssignment mvarId with
     | none   => false
     | some v => isWellFormed v
-| Expr.fvar fvarId         => lctx.contains fvarId
+| Expr.fvar fvarId _       => lctx.contains fvarId
+| Expr.localE _ _ _ _      => unreachable!
 
 end MetavarContext
 end Lean

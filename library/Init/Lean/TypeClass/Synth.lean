@@ -91,12 +91,12 @@ abbrev TCMethod : Type → Type := EStateM String TCState
 -- See: [type_context.cpp] optional<name> type_context_old::is_full_class(expr type)
 -- TODO(dselsam): check if we need to call `get_decl()` as well in the `const` case.
 def quickIsClass (env : Environment) : Expr → Option (Option Name)
-| Expr.letE _ _ _ _    => none
-| Expr.proj _ _ _      => none
-| Expr.mdata _ e       => quickIsClass e
-| Expr.const n _       => if isClass env n then some (some  n) else none
-| Expr.forallE _ _ _ b => quickIsClass b
-| Expr.app e _         =>
+| Expr.letE _ _ _ _ _   => none
+| Expr.proj _ _ _ _     => none
+| Expr.mdata _ e _      => quickIsClass e
+| Expr.const n _ _      => if isClass env n then some (some  n) else none
+| Expr.forallE _ _ b _  => quickIsClass b
+| Expr.app e _ _        =>
   let f := e.getAppFn;
   if f.isConst && isClass env f.constName! then some (some f.constName!)
   else if f.isLambda then none
@@ -126,7 +126,8 @@ do let mvarType := ctx.eInstantiate (ctx.eInfer mvar);
      }
 
 partial def introduceMVars (lctx : LocalContext) (locals : Array Expr) : Context → Expr → Expr → List Expr → Context × Expr × Expr × List Expr
-| ctx, instVal, Expr.forallE _ info domain body, mvars => do
+| ctx, instVal, Expr.forallE _ domain body c, mvars => do
+  let info        := c.binderInfo;
   let ⟨mvar, ctx⟩ := (Context.eNewMeta $ lctx.mkForall locals domain).run ctx;
   let arg      := mkAppN mvar locals;
   let instVal  := mkApp instVal arg;
@@ -137,7 +138,8 @@ partial def introduceMVars (lctx : LocalContext) (locals : Array Expr) : Context
 | ctx, instVal, instType, mvars => (ctx, instVal, instType, mvars)
 
 partial def introduceLocals : Nat → LocalContext → Array Expr → Expr → LocalContext × Expr × Array Expr
-| nextIdx, lctx, ls, Expr.forallE name info domain body =>
+| nextIdx, lctx, ls, Expr.forallE name domain body c =>
+  let info := c.binderInfo;
   let idxName : Name := mkNumName (mkSimpleName "_tmp") nextIdx;
   let lctx := lctx.mkLocalDecl idxName name domain info;
   let l : Expr := mkFVar idxName;
@@ -276,7 +278,7 @@ def collectEReplacements (env : Environment) (lctx : LocalContext) (locals : Arr
     → Context × Array (Expr × Expr) × Array Expr
 | _,               [],        ctx, eReplacements, fArgs => (ctx, eReplacements, fArgs)
 
-| Expr.forallE _ _ d b, arg::args, ctx, eReplacements, fArgs =>
+| Expr.forallE _ d b _, arg::args, ctx, eReplacements, fArgs =>
   if isOutParam d then
     let ⟨eMeta, ctx⟩ := (Context.eNewMeta $ lctx.mkForall locals d).run ctx;
     let fArg : Expr  := mkAppN eMeta locals;

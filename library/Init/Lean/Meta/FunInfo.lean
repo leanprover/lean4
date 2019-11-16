@@ -24,13 +24,13 @@ do s ← get;
 if e.hasFVar then k deps else deps
 
 def collectDepsAux (fvars : Array Expr) : Expr → Array Nat → Array Nat
-| e@(Expr.app f a),         deps => whenHasVar e deps (collectDepsAux a ∘ collectDepsAux f)
-| e@(Expr.forallE _ _ d b), deps => whenHasVar e deps (collectDepsAux b ∘ collectDepsAux d)
-| e@(Expr.lam _ _ d b),     deps => whenHasVar e deps (collectDepsAux b ∘ collectDepsAux d)
-| e@(Expr.letE _ t v b),    deps => whenHasVar e deps (collectDepsAux b ∘ collectDepsAux v ∘ collectDepsAux t)
-| Expr.proj _ _ e,          deps => collectDepsAux e deps
-| Expr.mdata _ e,           deps => collectDepsAux e deps
-| e@(Expr.fvar _),          deps =>
+| e@(Expr.app f a _),       deps => whenHasVar e deps (collectDepsAux a ∘ collectDepsAux f)
+| e@(Expr.forallE _ d b _), deps => whenHasVar e deps (collectDepsAux b ∘ collectDepsAux d)
+| e@(Expr.lam _ d b _),     deps => whenHasVar e deps (collectDepsAux b ∘ collectDepsAux d)
+| e@(Expr.letE _ t v b _),  deps => whenHasVar e deps (collectDepsAux b ∘ collectDepsAux v ∘ collectDepsAux t)
+| Expr.proj _ _ e _,        deps => collectDepsAux e deps
+| Expr.mdata _ e _,         deps => collectDepsAux e deps
+| e@(Expr.fvar _ _),        deps =>
   match fvars.indexOf e with
   | none   => deps
   | some i => if deps.contains i.val then deps else deps.push i.val

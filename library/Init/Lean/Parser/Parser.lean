@@ -1470,9 +1470,9 @@ registerAttribute {
    | none  => throw "unknown declaration"
    | some decl =>
      match decl.type with
-     | Expr.const `Lean.Parser.TrailingParser _ =>
+     | Expr.const `Lean.Parser.TrailingParser _ _ =>
        declareTrailingBuiltinParser env refDeclName declName
-     | Expr.app (Expr.const `Lean.Parser.Parser _) (Expr.const `Lean.Parser.ParserKind.leading _) =>
+     | Expr.app (Expr.const `Lean.Parser.Parser _ _) (Expr.const `Lean.Parser.ParserKind.leading _ _) _ =>
        declareLeadingBuiltinParser env refDeclName declName
      | _ =>
        throw (IO.userError ("unexpected parser type at '" ++ toString declName ++ "' (`Parser` or `TrailingParser` expected"))

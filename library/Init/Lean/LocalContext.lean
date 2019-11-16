@@ -54,7 +54,7 @@ def updateUserName : LocalDecl → Name → LocalDecl
 | ldecl index name _ type val, userName => ldecl index name userName type val
 
 def toExpr (decl : LocalDecl) : Expr :=
-Expr.fvar decl.name
+mkFVar decl.name
 
 end LocalDecl
 

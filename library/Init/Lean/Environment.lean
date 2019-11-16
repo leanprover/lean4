@@ -576,7 +576,7 @@ end Environment
 @[inline]
 def matchConst {α : Type} (env : Environment) (e : Expr) (failK : Unit → α) (k : ConstantInfo → List Level → α) : α :=
 match e with
-| Expr.const n lvls =>
+| Expr.const n lvls _ =>
   match env.find n with
   | some cinfo => k cinfo lvls
   | _          => failK ()

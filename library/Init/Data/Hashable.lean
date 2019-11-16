@@ -33,3 +33,8 @@ def Option.hash {α} [Hashable α] : Option α → USize
 | some a => mixHash (hash a) 13
 
 instance {α} [Hashable α] : Hashable (Option α) := ⟨Option.hash⟩
+
+def List.hash {α} [Hashable α] (as : List α) : USize :=
+as.foldl (fun r a => mixHash r (hash a)) 7
+
+instance {α} [Hashable α] : Hashable (List α) := ⟨List.hash⟩

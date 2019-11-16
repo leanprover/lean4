@@ -42,7 +42,7 @@ registerAttribute {
    | none  => throw "unknown declaration"
    | some decl =>
      match decl.type with
-     | Expr.const `Lean.PreTermElab _ => declareBuiltinPreTermElab env kind declName
+     | Expr.const `Lean.PreTermElab _ _ => declareBuiltinPreTermElab env kind declName
      | _ => throw (IO.userError ("unexpected preterm elaborator type at '" ++ toString declName ++ "' `PreTermElab` expected"))
  },
  applicationTime := AttributeApplicationTime.afterCompilation
@@ -137,7 +137,7 @@ fun n => do
      pure $ mkSort level
 
 -- This file will be deleted in the future
-private def mkLocal (decl : LocalDecl) : PreTerm :=
+private def mkLocalAux (decl : LocalDecl) : PreTerm :=
 panic! "to be deleted"
 
 private def processBinder (b : Syntax Expr) : Elab (Array PreTerm) :=
@@ -196,7 +196,7 @@ fun n => do
   -- TODO add support for `explicitUniv` and `namedPattern`
   lctx ← localContext;
   match lctx.findFromUserName id with
-  | some decl => pure $ mkLocal decl
+  | some decl => pure $ mkLocalAux decl
   | none =>
     -- TODO global name resolution
     logErrorAndThrow n.val ("unknown identifier '" ++ toString id ++ "'")

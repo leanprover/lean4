@@ -17,11 +17,11 @@ do (j, fType) ← args.size.foldM
      (fun i (acc : Nat × Expr) =>
        let (j, type) := acc;
        match type with
-       | Expr.forallE _ _ _ b => pure (j, b)
+       | Expr.forallE _ _ b _ => pure (j, b)
        | _ => do
          type ← whnf $ type.instantiateRevRange j i args;
          match type with
-         | Expr.forallE _ _ _ b => pure (i, b)
+         | Expr.forallE _ _ b _ => pure (i, b)
          | _ => throwEx $ Exception.functionExpected fType args)
      (0, fType);
    pure $ fType.instantiateRevRange j args.size args
@@ -66,7 +66,7 @@ do let failed : Unit → MetaM Expr := fun _ => throwEx $ Exception.invalidProje
              (fun i ctorType => do
                ctorType ← whnf ctorType;
                match ctorType with
-               | Expr.forallE _ _ _ body =>
+               | Expr.forallE _ _ body _ =>
                  if body.hasLooseBVars then
                    pure $ body.instantiate1 $ mkProj structName i e
                  else
@@ -75,7 +75,7 @@ do let failed : Unit → MetaM Expr := fun _ => throwEx $ Exception.invalidProje
              ctorType;
            ctorType ← whnf ctorType;
            match ctorType with
-           | Expr.forallE _ _ d _ => pure d
+           | Expr.forallE _ d _ _ => pure d
            | _                    => failed ()
      | _ => failed ()
 
@@ -86,8 +86,8 @@ do let failed : Unit → MetaM Expr := fun _ => throwEx $ Exception.invalidProje
 do typeType ← inferType type;
    typeType ← whnf typeType;
    match typeType with
-   | Expr.sort lvl    => pure lvl
-   | Expr.mvar mvarId =>
+   | Expr.sort lvl _    => pure lvl
+   | Expr.mvar mvarId _ =>
      condM (isReadOnlyOrSyntheticExprMVar mvarId)
        (throwEx $ Exception.typeExpected type)
        (do levelMVarId ← mkFreshId;
@@ -149,18 +149,19 @@ do s ← get;
 @[specialize] partial def inferTypeAuxAux
     (whnf : Expr → MetaM Expr)
     : Expr → MetaM Expr
-| Expr.const c lvls        => inferConstType c lvls
-| e@(Expr.proj n i s)      => checkInferTypeCache e (inferProjType whnf inferTypeAuxAux n i s)
-| e@(Expr.app f _)         => checkInferTypeCache e (inferAppType whnf inferTypeAuxAux f.getAppFn e.getAppArgs)
-| Expr.mvar mvarId         => inferMVarType mvarId
-| Expr.fvar fvarId         => inferFVarType fvarId
-| Expr.bvar bidx           => throw $ Exception.unexpectedBVar bidx
-| Expr.mdata _ e           => inferTypeAuxAux e
-| Expr.lit v               => pure v.type
-| Expr.sort lvl            => pure $ mkSort (Level.succ lvl)
+| Expr.const c lvls _      => inferConstType c lvls
+| e@(Expr.proj n i s _)    => checkInferTypeCache e (inferProjType whnf inferTypeAuxAux n i s)
+| e@(Expr.app f _ _)       => checkInferTypeCache e (inferAppType whnf inferTypeAuxAux f.getAppFn e.getAppArgs)
+| Expr.mvar mvarId _       => inferMVarType mvarId
+| Expr.fvar fvarId _       => inferFVarType fvarId
+| Expr.bvar bidx _         => throw $ Exception.unexpectedBVar bidx
+| Expr.mdata _ e _         => inferTypeAuxAux e
+| Expr.lit v _             => pure v.type
+| Expr.sort lvl _          => pure $ mkSort (Level.succ lvl)
 | e@(Expr.forallE _ _ _ _) => checkInferTypeCache e (inferForallType whnf inferTypeAuxAux e)
 | e@(Expr.lam _ _ _ _)     => checkInferTypeCache e (inferLambdaType whnf inferTypeAuxAux e)
-| e@(Expr.letE _ _ _ _)    => checkInferTypeCache e (inferLambdaType whnf inferTypeAuxAux e)
+| e@(Expr.letE _ _ _ _ _)  => checkInferTypeCache e (inferLambdaType whnf inferTypeAuxAux e)
+| Expr.localE _ _ _ _      => unreachable!
 
 @[inline] def inferTypeAux
     (whnf : Expr → MetaM Expr)
@@ -183,43 +184,44 @@ private def isAlwaysZero : Level → Bool
    if `type` is of the form `A_1 -> ... -> A_n -> Prop`.
    Remark: `type` can be a dependent arrow. -/
 @[specialize] private partial def isArrowProp : Expr → Nat → MetaM LBool
-| Expr.sort u,          0   => do u ← instantiateLevelMVars u; pure $ (isAlwaysZero u).toLBool
+| Expr.sort u _,        0   => do u ← instantiateLevelMVars u; pure $ (isAlwaysZero u).toLBool
 | Expr.forallE _ _ _ _, 0   => pure LBool.false
-| Expr.forallE _ _ _ b, n+1 => isArrowProp b n
-| Expr.letE _ _ _ b,    n   => isArrowProp b n
-| Expr.mdata _ e,       n   => isArrowProp e n
+| Expr.forallE _ _ b _, n+1 => isArrowProp b n
+| Expr.letE _ _ _ b _,  n   => isArrowProp b n
+| Expr.mdata _ e _,     n   => isArrowProp e n
 | _,                    _   => pure LBool.undef
 
 /--
   `isPropQuickApp f n` is an "approximate" predicate which returns `LBool.true`
    if `f` applied to `n` arguments is a proposition. -/
 @[specialize] private partial def isPropQuickApp : Expr → Nat → MetaM LBool
-| Expr.const c lvls, arity   => do constType ← inferConstType c lvls; isArrowProp constType arity
-| Expr.fvar fvarId,  arity   => do fvarType  ← inferFVarType fvarId;  isArrowProp fvarType arity
-| Expr.mvar mvarId,  arity   => do mvarType  ← inferMVarType mvarId;  isArrowProp mvarType arity
-| Expr.app f _,      arity   => isPropQuickApp f (arity+1)
-| Expr.mdata _ e,    arity   => isPropQuickApp e arity
-| Expr.letE _ _ _ b, arity   => isPropQuickApp b arity
-| Expr.lam _ _ _ _,  0       => pure LBool.false
-| Expr.lam _ _ _ b,  arity+1 => isPropQuickApp b arity
-| _,                 _       => pure LBool.undef
+| Expr.const c lvls _, arity   => do constType ← inferConstType c lvls; isArrowProp constType arity
+| Expr.fvar fvarId _,  arity   => do fvarType  ← inferFVarType fvarId;  isArrowProp fvarType arity
+| Expr.mvar mvarId _,  arity   => do mvarType  ← inferMVarType mvarId;  isArrowProp mvarType arity
+| Expr.app f _ _,      arity   => isPropQuickApp f (arity+1)
+| Expr.mdata _ e _,    arity   => isPropQuickApp e arity
+| Expr.letE _ _ _ b _, arity   => isPropQuickApp b arity
+| Expr.lam _ _ _ _,    0       => pure LBool.false
+| Expr.lam _ _ b _,    arity+1 => isPropQuickApp b arity
+| _,                   _       => pure LBool.undef
 
 /--
   `isPropQuick e` is an "approximate" predicate which returns `LBool.true`
   if `e` is a proposition. -/
 @[specialize] private partial def isPropQuick : Expr → MetaM LBool
-| Expr.bvar _           => pure LBool.undef
-| Expr.lit _            => pure LBool.false
-| Expr.sort _           => pure LBool.false
+| Expr.bvar _ _         => pure LBool.undef
+| Expr.lit _ _          => pure LBool.false
+| Expr.sort _ _         => pure LBool.false
 | Expr.lam _ _ _ _      => pure LBool.false
-| Expr.letE _ _ _ b     => isPropQuick b
-| Expr.proj _ _ _       => pure LBool.undef
-| Expr.forallE _ _ _ b  => isPropQuick b
-| Expr.mdata _ e        => isPropQuick e
-| Expr.const c lvls     => do constType ← inferConstType c lvls; isArrowProp constType 0
-| Expr.fvar fvarId      => do fvarType  ← inferFVarType fvarId;  isArrowProp fvarType 0
-| Expr.mvar mvarId      => do mvarType  ← inferMVarType mvarId;  isArrowProp mvarType 0
-| Expr.app f _          => isPropQuickApp f 1
+| Expr.letE _ _ _ b _   => isPropQuick b
+| Expr.proj _ _ _ _     => pure LBool.undef
+| Expr.forallE _ _ b _  => isPropQuick b
+| Expr.mdata _ e _      => isPropQuick e
+| Expr.const c lvls _   => do constType ← inferConstType c lvls; isArrowProp constType 0
+| Expr.fvar fvarId _    => do fvarType  ← inferFVarType fvarId;  isArrowProp fvarType 0
+| Expr.mvar mvarId _    => do mvarType  ← inferMVarType mvarId;  isArrowProp mvarType 0
+| Expr.app f _ _        => isPropQuickApp f 1
+| Expr.localE _ _ _ _   => unreachable!
 
 /-- `isProp whnf e` return `true` if `e` is a proposition.
 
@@ -237,8 +239,8 @@ do r ← isPropQuick e;
      type ← inferTypeAux whnf e;
      type ← usingDefault whnf type;
      match type with
-     | Expr.sort u => do u ← instantiateLevelMVars u; pure $ isAlwaysZero u
-     | _           => pure false
+     | Expr.sort u _ => do u ← instantiateLevelMVars u; pure $ isAlwaysZero u
+     | _             => pure false
 
 end Meta
 end Lean

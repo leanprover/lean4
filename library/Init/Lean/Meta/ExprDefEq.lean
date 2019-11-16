@@ -29,8 +29,8 @@ if a.isLambda && !b.isLambda then do
   bType ← inferTypeAux whnf b;
   bType ← usingDefault whnf bType;
   match bType with
-  | Expr.forallE n bi d b =>
-    let b' := Lean.mkLambda n bi d (mkApp b (mkBVar 0));
+  | Expr.forallE n d b c =>
+    let b' := Lean.mkLambda n c.binderInfo d (mkApp b (mkBVar 0));
     try $ isDefEq a b'
   | _ => pure false
 else
@@ -41,7 +41,7 @@ else
   Remark: `n` may be 0. -/
 def isEtaUnassignedMVar (e : Expr) : MetaM Bool :=
 match e.etaExpanded? with
-| some (Expr.mvar mvarId) =>
+| some (Expr.mvar mvarId _) =>
   condM (isReadOnlyOrSyntheticExprMVar mvarId)
     (pure false)
     (condM (isExprMVarAssigned mvarId)
@@ -186,8 +186,8 @@ else
     isDefEqBindingAux lctx fvars b₁ b₂ (ds₂.push d₂)
   };
   match e₁, e₂ with
-  | Expr.forallE n _ d₁ b₁, Expr.forallE _ _ d₂ b₂ => process n d₁ d₂ b₁ b₂
-  | Expr.lam     n _ d₁ b₁, Expr.lam     _ _ d₂ b₂ => process n d₁ d₂ b₁ b₂
+  | Expr.forallE n d₁ b₁ _, Expr.forallE _ d₂ b₂ _ => process n d₁ d₂ b₁ b₂
+  | Expr.lam     n d₁ b₁ _, Expr.lam     _ d₂ b₂ _ => process n d₁ d₂ b₁ b₂
   | _,                      _                      =>
     adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
       isDefEqBindingDomain whnf isDefEq fvars ds₂ 0 $
@@ -434,18 +434,19 @@ do let mvarId := mvar.mvarId!;
            pure mvar
 
 partial def check : Expr → CheckAssignmentM Expr
-| e@(Expr.mdata _ b)       => do b ← visit check b; pure $ e.updateMData! b
-| e@(Expr.proj _ _ s)      => do s ← visit check s; pure $ e.updateProj! s
-| e@(Expr.app f a)         => do f ← visit check f; a ← visit check a; pure $ e.updateApp! f a
-| e@(Expr.lam _ _ d b)     => do d ← visit check d; b ← visit check b; pure $ e.updateLambdaE! d b
-| e@(Expr.forallE _ _ d b) => do d ← visit check d; b ← visit check b; pure $ e.updateForallE! d b
-| e@(Expr.letE _ t v b)    => do t ← visit check t; v ← visit check v; b ← visit check b; pure $ e.updateLet! t v b
-| e@(Expr.bvar _)          => pure e
-| e@(Expr.sort _)          => pure e
-| e@(Expr.const _ _)       => pure e
-| e@(Expr.lit _)           => pure e
-| e@(Expr.fvar _)          => visit (checkFVar check) e
-| e@(Expr.mvar _)          => visit (checkMVar check) e
+| e@(Expr.mdata _ b _)     => do b ← visit check b; pure $ e.updateMData! b
+| e@(Expr.proj _ _ s _)    => do s ← visit check s; pure $ e.updateProj! s
+| e@(Expr.app f a _)       => do f ← visit check f; a ← visit check a; pure $ e.updateApp! f a
+| e@(Expr.lam _ d b _)     => do d ← visit check d; b ← visit check b; pure $ e.updateLambdaE! d b
+| e@(Expr.forallE _ d b _) => do d ← visit check d; b ← visit check b; pure $ e.updateForallE! d b
+| e@(Expr.letE _ t v b _)  => do t ← visit check t; v ← visit check v; b ← visit check b; pure $ e.updateLet! t v b
+| e@(Expr.bvar _ _)        => pure e
+| e@(Expr.sort _ _)        => pure e
+| e@(Expr.const _ _ _)     => pure e
+| e@(Expr.lit _ _)         => pure e
+| e@(Expr.fvar _ _)        => visit (checkFVar check) e
+| e@(Expr.mvar _ _)        => visit (checkMVar check) e
+| Expr.localE _ _ _ _      => unreachable!
 
 end CheckAssignment
 
@@ -590,8 +591,8 @@ else
     (unfoldDefinitionAux whnf (inferTypeAux whnf) isDefEq synthesizePending v (pure false) processAssignmentFOApprox)
 
 private partial def simpAssignmentArgAux : Expr → MetaM Expr
-| Expr.mdata _ e       => simpAssignmentArgAux e
-| e@(Expr.fvar fvarId) => do
+| Expr.mdata _ e _       => simpAssignmentArgAux e
+| e@(Expr.fvar fvarId _) => do
   decl ← getLocalDecl fvarId;
   match decl.value? with
   | some value => simpAssignmentArgAux value
@@ -633,7 +634,7 @@ pure true
       else
         pure false;
     match arg with
-    | Expr.fvar fvarId =>
+    | Expr.fvar fvarId _ =>
       if args.anyRange 0 i (fun prevArg => prevArg == arg) then
         useFOApprox ()
       else if mvarDecl.lctx.contains fvarId && !cfg.quasiPatternApprox then

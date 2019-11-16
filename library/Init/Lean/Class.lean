@@ -84,7 +84,7 @@ def isOutParam (e : Expr) : Bool :=
 e.isAppOfArity `outParam 1
 
 def Expr.hasOutParam : Expr → Bool
-| Expr.forallE _ _ d b => isOutParam d || Expr.hasOutParam b
+| Expr.forallE _ d b _ => isOutParam d || Expr.hasOutParam b
 | _                    => false
 
 def addClass (env : Environment) (clsName : Name) : Except String Environment :=
@@ -96,13 +96,13 @@ else match env.find clsName with
 
 private def consumeNLambdas : Nat → Expr → Option Expr
 | 0,   e                => some e
-| i+1, Expr.lam _ _ _ b => consumeNLambdas i b
+| i+1, Expr.lam _ _ b _ => consumeNLambdas i b
 | _,   _                => none
 
 partial def getClassName (env : Environment) : Expr → Option Name
-| Expr.forallE _ _ _ d => getClassName d
+| Expr.forallE _ _ b _ => getClassName b
 | e                    => do
-  Expr.const c _ ← pure e.getAppFn | none;
+  Expr.const c _ _ ← pure e.getAppFn | none;
   info ← env.find c;
   match info.value? with
   | some val => do

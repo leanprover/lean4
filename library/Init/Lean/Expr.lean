@@ -60,7 +60,7 @@ abbrev MData.empty : MData := {KVMap .}
 instance MVData.hasEmptc : HasEmptyc MData := ⟨MData.empty⟩
 
 /--
- Cached data for `Expr`.
+ Cached hash code, cached results, and other data for `Expr`.
    hash           : 32-bits
    hasFVar        : 1-bit
    hasExprMVar    : 1-bit
@@ -69,37 +69,37 @@ instance MVData.hasEmptc : HasEmptyc MData := ⟨MData.empty⟩
    nonDepLet      : 1-bit
    binderInfo     : 3-bits
    looseBVarRange : 24-bits -/
-def Expr.CachedData := UInt64
+def Expr.Data := UInt64
 
-instance Expr.CachedData.inhabited : Inhabited Expr.CachedData :=
+instance Expr.Data.inhabited : Inhabited Expr.Data :=
 inferInstanceAs (Inhabited UInt64)
 
-def Expr.CachedData.hash (c : Expr.CachedData) : USize :=
+def Expr.Data.hash (c : Expr.Data) : USize :=
 c.toUInt32.toUSize
 
-instance Expr.CachedData.hasBeq : HasBeq Expr.CachedData :=
+instance Expr.Data.hasBeq : HasBeq Expr.Data :=
 ⟨fun (a b : UInt64) => a == b⟩
 
-def Expr.CachedData.looseBVarRange (c : Expr.CachedData) : UInt32 :=
+def Expr.Data.looseBVarRange (c : Expr.Data) : UInt32 :=
 (c.shiftRight 40).toUInt32
 
-def Expr.CachedData.hasFVar (c : Expr.CachedData) : Bool :=
+def Expr.Data.hasFVar (c : Expr.Data) : Bool :=
 ((c.shiftRight 32).land 1) == 1
 
-def Expr.CachedData.hasExprMVar (c : Expr.CachedData) : Bool :=
+def Expr.Data.hasExprMVar (c : Expr.Data) : Bool :=
 ((c.shiftRight 33).land 1) == 1
 
-def Expr.CachedData.hasLevelMVar (c : Expr.CachedData) : Bool :=
+def Expr.Data.hasLevelMVar (c : Expr.Data) : Bool :=
 ((c.shiftRight 34).land 1) == 1
 
-def Expr.CachedData.hasLevelParam (c : Expr.CachedData) : Bool :=
+def Expr.Data.hasLevelParam (c : Expr.Data) : Bool :=
 ((c.shiftRight 35).land 1) == 1
 
-def Expr.CachedData.nonDepLet (c : Expr.CachedData) : Bool :=
+def Expr.Data.nonDepLet (c : Expr.Data) : Bool :=
 ((c.shiftRight 36).land 1) == 1
 
 @[extern c inline "(uint8_t)((#1 << 24) >> 61)"]
-def Expr.CachedData.binderInfo (c : Expr.CachedData) : BinderInfo :=
+def Expr.Data.binderInfo (c : Expr.Data) : BinderInfo :=
 let bi := (c.shiftLeft 24).shiftRight 61;
 if bi == 0 then BinderInfo.default
 else if bi == 1 then BinderInfo.implicit
@@ -115,10 +115,10 @@ def BinderInfo.toUInt64 : BinderInfo → UInt64
 | BinderInfo.instImplicit   => 3
 | BinderInfo.auxDecl        => 4
 
-@[inline] private def Expr.mkCachedDataCore
+@[inline] private def Expr.mkDataCore
     (h : USize) (looseBVarRange : Nat)
     (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) (bi : BinderInfo)
-    : Expr.CachedData :=
+    : Expr.Data :=
 if looseBVarRange > Nat.pow 2 24 - 1 then panic! "bound variable index is too big"
 else
   let r : UInt64 :=
@@ -132,41 +132,41 @@ else
     looseBVarRange.toUInt64.shiftLeft 40;
   r
 
-def Expr.mkCachedData (h : USize) (looseBVarRange : Nat := 0) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) : Expr.CachedData :=
-Expr.mkCachedDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam false BinderInfo.default
+def Expr.mkData (h : USize) (looseBVarRange : Nat := 0) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) : Expr.Data :=
+Expr.mkDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam false BinderInfo.default
 
-def Expr.mkCachedDataForBinder (h : USize) (looseBVarRange : Nat) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : Expr.CachedData :=
-Expr.mkCachedDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam false bi
+def Expr.mkDataForBinder (h : USize) (looseBVarRange : Nat) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : Expr.Data :=
+Expr.mkDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam false bi
 
-def Expr.mkCachedDataForLet (h : USize) (looseBVarRange : Nat) (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) : Expr.CachedData :=
-Expr.mkCachedDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet BinderInfo.default
+def Expr.mkDataForLet (h : USize) (looseBVarRange : Nat) (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) : Expr.Data :=
+Expr.mkDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet BinderInfo.default
 
 open Expr
 
 /- We use the `E` suffix (short for `Expr`) to avoid collision with keywords.
    We considered using «...», but it is too inconvenient to use. -/
 inductive Expr
-| bvar    : Nat → CachedData → Expr                       -- bound variables
-| fvar    : Name → CachedData → Expr                      -- free variables
-| mvar    : Name → CachedData → Expr                      -- meta variables
-| sort    : Level → CachedData → Expr                     -- Sort
-| const   : Name → List Level → CachedData → Expr         -- constants
-| app     : Expr → Expr → CachedData → Expr               -- application
-| lam     : Name → Expr → Expr → CachedData → Expr        -- lambda abstraction
-| forallE : Name → Expr → Expr → CachedData → Expr        -- (dependent) arrow
-| letE    : Name → Expr → Expr → Expr → CachedData → Expr -- let expressions
-| lit     : Literal → CachedData → Expr                   -- literals
-| mdata   : MData → Expr → CachedData → Expr              -- metadata
-| proj    : Name → Nat → Expr → CachedData → Expr         -- projection
+| bvar    : Nat → Data → Expr                       -- bound variables
+| fvar    : Name → Data → Expr                      -- free variables
+| mvar    : Name → Data → Expr                      -- meta variables
+| sort    : Level → Data → Expr                     -- Sort
+| const   : Name → List Level → Data → Expr         -- constants
+| app     : Expr → Expr → Data → Expr               -- application
+| lam     : Name → Expr → Expr → Data → Expr        -- lambda abstraction
+| forallE : Name → Expr → Expr → Data → Expr        -- (dependent) arrow
+| letE    : Name → Expr → Expr → Expr → Data → Expr -- let expressions
+| lit     : Literal → Data → Expr                   -- literals
+| mdata   : MData → Expr → Data → Expr              -- metadata
+| proj    : Name → Nat → Expr → Data → Expr         -- projection
 -- IMPORTANT: the following constructor will be delete
-| localE  : Name → Name → Expr → CachedData → Expr        -- Lean2 legacy. TODO: delete
+| localE  : Name → Name → Expr → Data → Expr        -- Lean2 legacy. TODO: delete
 
 namespace Expr
 
 instance : Inhabited Expr :=
 ⟨sort (arbitrary _) (arbitrary _)⟩
 
-@[inline] def cachedData : Expr → CachedData
+@[inline] def data : Expr → Data
 | bvar _ d        => d
 | fvar _ d        => d
 | mvar _ d        => d
@@ -181,34 +181,32 @@ instance : Inhabited Expr :=
 | proj _ _ _ d    => d
 | localE _ _ _ d  => d
 
-@[export lean_expr_cached_data] def cachedDataEx : Expr → CachedData := cachedData
-
 def hash (e : Expr) : USize :=
-e.cachedData.hash
+e.data.hash
 
 instance : Hashable Expr := ⟨Expr.hash⟩
 
 def hasFVar (e : Expr) : Bool :=
-e.cachedData.hasFVar
+e.data.hasFVar
 
 def hasExprMVar (e : Expr) : Bool :=
-e.cachedData.hasExprMVar
+e.data.hasExprMVar
 
 def hasLevelMVar (e : Expr) : Bool :=
-e.cachedData.hasLevelMVar
+e.data.hasLevelMVar
 
 def hasMVar (e : Expr) : Bool :=
-let d := e.cachedData;
+let d := e.data;
 d.hasExprMVar || d.hasLevelMVar
 
 def hasLevelParam (e : Expr) : Bool :=
-e.cachedData.hasLevelParam
+e.data.hasLevelParam
 
 def looseBVarRange (e : Expr) : Nat :=
-e.cachedData.looseBVarRange.toNat
+e.data.looseBVarRange.toNat
 
 def binderInfo (e : Expr) : BinderInfo :=
-e.cachedData.binderInfo
+e.data.binderInfo
 
 @[export lean_expr_hash] def hashEx : Expr → USize := hash
 @[export lean_expr_has_fvar] def hasFVarEx : Expr → Bool := hasFVar
@@ -216,13 +214,13 @@ e.cachedData.binderInfo
 @[export lean_expr_has_level_mvar] def hasLevelMVarEx : Expr → Bool := hasLevelMVar
 @[export lean_expr_has_mvar] def hasMVarEx : Expr → Bool := hasMVar
 @[export lean_expr_has_level_param] def hasLevelParamEx : Expr → Bool := hasLevelParam
-@[export lean_expr_loose_bvar_range] def looseBVarRangeEx (e : Expr) : UInt32 := e.cachedData.looseBVarRange
+@[export lean_expr_loose_bvar_range] def looseBVarRangeEx (e : Expr) : UInt32 := e.data.looseBVarRange
 @[export lean_expr_binder_info] def binderInfoEx : Expr → BinderInfo := binderInfo
 
 end Expr
 
 def mkLit (l : Literal) : Expr :=
-Expr.lit l $ mkCachedData (mixHash 3 (hash l))
+Expr.lit l $ mkData (mixHash 3 (hash l))
 
 def mkNatLit (n : Nat) : Expr :=
 mkLit (Literal.natVal n)
@@ -231,7 +229,7 @@ def mkStrLit (s : String) : Expr :=
 mkLit (Literal.strVal s)
 
 def mkConst (n : Name) (lvls : List Level := []) : Expr :=
-Expr.const n lvls $ mkCachedData (mixHash 5 $ mixHash (hash n) (hash lvls)) 0 false false (lvls.any Level.hasMVar) (lvls.any Level.hasParam)
+Expr.const n lvls $ mkData (mixHash 5 $ mixHash (hash n) (hash lvls)) 0 false false (lvls.any Level.hasMVar) (lvls.any Level.hasParam)
 
 def Literal.type : Literal → Expr
 | Literal.natVal _ => mkConst `Nat
@@ -241,26 +239,26 @@ def Literal.type : Literal → Expr
 def Literal.typeEx : Literal → Expr := Literal.type
 
 def mkBVar (idx : Nat) : Expr :=
-Expr.bvar idx $ mkCachedData (mixHash 7 $ hash idx) (idx+1)
+Expr.bvar idx $ mkData (mixHash 7 $ hash idx) (idx+1)
 
 def mkSort (lvl : Level) : Expr :=
-Expr.sort lvl $ mkCachedData (mixHash 11 $ hash lvl) 0 false false lvl.hasMVar lvl.hasParam
+Expr.sort lvl $ mkData (mixHash 11 $ hash lvl) 0 false false lvl.hasMVar lvl.hasParam
 
 def mkFVar (fvarId : Name) : Expr :=
-Expr.fvar fvarId $ mkCachedData (mixHash 13 $ hash fvarId) 0 true
+Expr.fvar fvarId $ mkData (mixHash 13 $ hash fvarId) 0 true
 
 def mkMVar (fvarId : Name) : Expr :=
-Expr.mvar fvarId $ mkCachedData (mixHash 17 $ hash fvarId) 0 false true
+Expr.mvar fvarId $ mkData (mixHash 17 $ hash fvarId) 0 false true
 
 def mkMData (d : MData) (e : Expr) : Expr :=
-Expr.mdata d e $ mkCachedData (mixHash 19 $ hash e) e.looseBVarRange e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
+Expr.mdata d e $ mkData (mixHash 19 $ hash e) e.looseBVarRange e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
 
 def mkProj (s : Name) (i : Nat) (e : Expr) : Expr :=
-Expr.proj s i e $ mkCachedData (mixHash 23 $ mixHash (hash s) $ mixHash (hash i) (hash e))
+Expr.proj s i e $ mkData (mixHash 23 $ mixHash (hash s) $ mixHash (hash i) (hash e))
     e.looseBVarRange e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
 
 def mkApp (f a : Expr) : Expr :=
-Expr.app f a $ mkCachedData (mixHash 29 $ mixHash (hash f) (hash a))
+Expr.app f a $ mkData (mixHash 29 $ mixHash (hash f) (hash a))
   (Nat.max f.looseBVarRange a.looseBVarRange)
   (f.hasFVar || a.hasFVar)
   (f.hasExprMVar || a.hasExprMVar)
@@ -268,7 +266,7 @@ Expr.app f a $ mkCachedData (mixHash 29 $ mixHash (hash f) (hash a))
   (f.hasLevelParam || a.hasLevelParam)
 
 def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
-Expr.lam x t b $ mkCachedDataForBinder (mixHash 31 $ mixHash (hash t) (hash b))
+Expr.lam x t b $ mkDataForBinder (mixHash 31 $ mixHash (hash t) (hash b))
   (Nat.max t.looseBVarRange (b.looseBVarRange - 1))
   (t.hasFVar || b.hasFVar)
   (t.hasExprMVar || b.hasExprMVar)
@@ -277,7 +275,7 @@ Expr.lam x t b $ mkCachedDataForBinder (mixHash 31 $ mixHash (hash t) (hash b))
   bi
 
 def mkForall (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
-Expr.forallE x t b $ mkCachedDataForBinder (mixHash 37 $ mixHash (hash t) (hash b))
+Expr.forallE x t b $ mkDataForBinder (mixHash 37 $ mixHash (hash t) (hash b))
   (Nat.max t.looseBVarRange (b.looseBVarRange - 1))
   (t.hasFVar || b.hasFVar)
   (t.hasExprMVar || b.hasExprMVar)
@@ -286,7 +284,7 @@ Expr.forallE x t b $ mkCachedDataForBinder (mixHash 37 $ mixHash (hash t) (hash 
   bi
 
 def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nonDep : Bool := false) : Expr :=
-Expr.letE x t v b $ mkCachedDataForLet (mixHash 41 $ mixHash (hash t) $ mixHash (hash v) (hash b))
+Expr.letE x t v b $ mkDataForLet (mixHash 41 $ mixHash (hash t) $ mixHash (hash v) (hash b))
   (Nat.max (Nat.max t.looseBVarRange v.looseBVarRange) (b.looseBVarRange - 1))
   (t.hasFVar || v.hasFVar || b.hasFVar)
   (t.hasExprMVar || v.hasExprMVar || b.hasExprMVar)
@@ -295,7 +293,7 @@ Expr.letE x t v b $ mkCachedDataForLet (mixHash 41 $ mixHash (hash t) $ mixHash 
   nonDep
 
 def mkLocal (x u : Name) (t : Expr) (bi : BinderInfo) : Expr :=
-Expr.localE x u t $ mkCachedDataForBinder (mixHash 43 $ hash t) t.looseBVarRange true t.hasExprMVar t.hasLevelMVar t.hasLevelParam bi
+Expr.localE x u t $ mkDataForBinder (mixHash 43 $ hash t) t.looseBVarRange true t.hasExprMVar t.hasLevelMVar t.hasLevelParam bi
 
 @[export lean_expr_mk_bvar] def mkBVarEx : Nat → Expr := mkBVar
 @[export lean_expr_mk_fvar] def mkFVarEx : Name → Expr := mkFVar

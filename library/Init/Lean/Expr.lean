@@ -158,7 +158,7 @@ inductive Expr
 | lit     : Literal → Data → Expr                   -- literals
 | mdata   : MData → Expr → Data → Expr              -- metadata
 | proj    : Name → Nat → Expr → Data → Expr         -- projection
--- IMPORTANT: the following constructor will be delete
+-- IMPORTANT: the following constructor will be deleted
 | localE  : Name → Name → Expr → Data → Expr        -- Lean2 legacy. TODO: delete
 
 namespace Expr

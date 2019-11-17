@@ -19,6 +19,7 @@ lean_object* l___private_Init_Lean_Meta_LevelDefEq_1__strictOccursMaxAux___main_
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_3__mkMaxArgsDiff___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_10__processPostponedStep___closed__3;
+lean_object* l_Lean_mkLevelMax(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_5__postponeIsLevelDefEq(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_13__restore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_5__postponeIsLevelDefEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -29,7 +30,6 @@ lean_object* l___private_Init_Lean_Meta_LevelDefEq_7__isLevelDefEqAux___main___c
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_7__isLevelDefEqAux___main___closed__6;
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_11__processPostponedAux___main___closed__6;
 lean_object* l___private_Init_Lean_Trace_3__addTrace___at___private_Init_Lean_Meta_LevelDefEq_7__isLevelDefEqAux___main___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_level_mk_mvar(lean_object*);
 lean_object* l___private_Init_Lean_Trace_2__getResetTraces___at___private_Init_Lean_Meta_LevelDefEq_10__processPostponedStep___spec__6___rarg(lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Meta_LevelDefEq_10__processPostponedStep___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshLevelMVarId___rarg(lean_object*);
@@ -113,6 +113,7 @@ lean_object* l___private_Init_Lean_Meta_LevelDefEq_8__getNumPostponed___boxed(le
 uint8_t l_Lean_MetavarContext_hasAssignableLevelMVar___main(lean_object*, lean_object*);
 uint8_t l_Lean_Level_isMVar(lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_3__mkMaxArgsDiff___main(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkLevelMVar(lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_6__getLevelConstraintKind(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_12__processPostponed___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_7__isLevelDefEqAux___main___closed__3;
@@ -122,7 +123,6 @@ lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_8__getNumPostponed___rarg(lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_2__strictOccursMax___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_9__getResetPostponed___rarg(lean_object*);
-lean_object* lean_level_mk_max(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_7__isLevelDefEqAux___main___closed__4;
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_12__processPostponed(uint8_t, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Trace_1__addNode___at___private_Init_Lean_Meta_LevelDefEq_10__processPostponedStep___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -273,7 +273,7 @@ lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; 
-x_10 = lean_level_mk_max(x_3, x_2);
+x_10 = l_Lean_mkLevelMax(x_3, x_2);
 return x_10;
 }
 else
@@ -285,7 +285,7 @@ return x_3;
 default: 
 {
 lean_object* x_11; 
-x_11 = lean_level_mk_max(x_3, x_2);
+x_11 = l_Lean_mkLevelMax(x_3, x_2);
 return x_11;
 }
 }
@@ -328,7 +328,7 @@ x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
 lean_dec(x_4);
 lean_inc(x_5);
-x_7 = lean_level_mk_mvar(x_5);
+x_7 = l_Lean_mkLevelMVar(x_5);
 x_8 = l___private_Init_Lean_Meta_LevelDefEq_3__mkMaxArgsDiff___main(x_5, x_1, x_7);
 x_9 = l_Lean_Meta_assignLevelMVar(x_5, x_8, x_2, x_6);
 return x_9;
@@ -895,12 +895,10 @@ lean_dec(x_14);
 lean_dec(x_9);
 x_19 = lean_ctor_get(x_13, 1);
 lean_inc(x_19);
-lean_inc(x_1);
 x_196 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_19, x_1);
 if (x_196 == 0)
 {
 uint8_t x_197; 
-lean_inc(x_2);
 x_197 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_19, x_2);
 lean_dec(x_19);
 if (x_197 == 0)
@@ -1666,12 +1664,10 @@ lean_dec(x_204);
 lean_dec(x_9);
 x_209 = lean_ctor_get(x_203, 1);
 lean_inc(x_209);
-lean_inc(x_1);
 x_309 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_209, x_1);
 if (x_309 == 0)
 {
 uint8_t x_310; 
-lean_inc(x_2);
 x_310 = l_Lean_MetavarContext_hasAssignableLevelMVar___main(x_209, x_2);
 lean_dec(x_209);
 if (x_310 == 0)

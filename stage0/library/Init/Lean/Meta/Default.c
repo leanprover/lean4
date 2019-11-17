@@ -53,7 +53,6 @@ lean_object* l___private_Init_Lean_Meta_Default_3__auxFixpoint___main___boxed(le
 lean_object* l_Lean_Meta_isPropAux___at_Lean_Meta_isProp___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_7__inferLambdaType___at_Lean_Meta_isProp___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__40(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_level_mk_mvar(lean_object*);
 lean_object* l___private_Init_Lean_Meta_Basic_7__forallTelescopeReducingAuxAux___main___at_Lean_Meta_isProp___spec__20(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_instantiate_rev_range(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_8__deltaDefinition___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__15(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -171,7 +170,6 @@ lean_object* l___private_Init_Lean_Meta_Basic_7__forallTelescopeReducingAuxAux__
 lean_object* l___private_Init_Lean_Meta_InferType_4__inferProjType___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__52(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_isProp___spec__11___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_whnfEasyCases___main___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__11___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_level_mk_imax(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_Basic_7__forallTelescopeReducingAuxAux___main___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__37___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_2__inferAppType___at_Lean_Meta_isProp___spec__14(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -189,7 +187,6 @@ lean_object* l_Nat_foldMAux___main___at___private_Init_Lean_Meta_Default_3__auxF
 lean_object* l_Lean_Meta_instantiateLevelMVars(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_Basic_7__forallTelescopeReducingAuxAux___main___at_Lean_Meta_getFunInfo___spec__5(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_instantiate_lparams(lean_object*, lean_object*, lean_object*);
-lean_object* lean_level_mk_succ(lean_object*);
 lean_object* l_Array_shrink___main___rarg(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_find___at___private_Init_Lean_Meta_FunInfo_1__checkFunInfoCache___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__50___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -214,6 +211,7 @@ lean_object* l___private_Init_Lean_Meta_InferType_3__inferConstType(lean_object*
 lean_object* l_Lean_mkProj(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Meta_getFunInfoNArgs(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkLevelSucc(lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__51(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isDefEq(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -243,9 +241,11 @@ lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at___private_In
 lean_object* l_Lean_Meta_lambdaTelescope___at_Lean_Meta_isProp___spec__4(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_isClassQuick___main___closed__1;
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__40___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkLevelIMax(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_Basic_8__forallTelescopeReducingAux___at_Lean_Meta_getFunInfo___spec__4___closed__1;
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__39___lambda__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
+lean_object* l_Lean_mkLevelMVar(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__24(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_isProp___spec__22___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unreachable_x21___rarg(lean_object*);
@@ -275,26 +275,15 @@ _start:
 {
 if (lean_obj_tag(x_1) == 3)
 {
-lean_object* x_2; 
-x_2 = lean_ctor_get(x_1, 0);
-if (lean_obj_tag(x_2) == 0)
+uint8_t x_2; 
+x_2 = 0;
+return x_2;
+}
+else
 {
 uint8_t x_3; 
-x_3 = 0;
+x_3 = 1;
 return x_3;
-}
-else
-{
-uint8_t x_4; 
-x_4 = 1;
-return x_4;
-}
-}
-else
-{
-uint8_t x_5; 
-x_5 = 1;
-return x_5;
 }
 }
 }
@@ -10096,7 +10085,7 @@ lean_inc(x_23);
 x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec(x_22);
-x_25 = lean_level_mk_mvar(x_23);
+x_25 = l_Lean_mkLevelMVar(x_23);
 lean_inc(x_25);
 x_26 = l_Lean_mkSort(x_25);
 x_27 = l_Lean_Meta_assignExprMVar(x_17, x_26, x_2, x_24);
@@ -10403,7 +10392,7 @@ lean_inc(x_94);
 x_95 = lean_ctor_get(x_93, 1);
 lean_inc(x_95);
 lean_dec(x_93);
-x_96 = lean_level_mk_mvar(x_94);
+x_96 = l_Lean_mkLevelMVar(x_94);
 lean_inc(x_96);
 x_97 = l_Lean_mkSort(x_96);
 x_98 = l_Lean_Meta_assignExprMVar(x_88, x_97, x_2, x_95);
@@ -10676,7 +10665,7 @@ lean_inc(x_17);
 x_18 = lean_ctor_get(x_16, 1);
 lean_inc(x_18);
 lean_dec(x_16);
-x_19 = lean_level_mk_imax(x_17, x_5);
+x_19 = l_Lean_mkLevelIMax(x_17, x_5);
 x_3 = x_11;
 x_4 = lean_box(0);
 x_5 = x_19;
@@ -14099,7 +14088,7 @@ lean_dec(x_2);
 x_62 = lean_ctor_get(x_1, 0);
 lean_inc(x_62);
 lean_dec(x_1);
-x_63 = lean_level_mk_succ(x_62);
+x_63 = l_Lean_mkLevelSucc(x_62);
 x_64 = l_Lean_mkSort(x_63);
 x_65 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_65, 0, x_64);
@@ -18710,7 +18699,7 @@ lean_inc(x_23);
 x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec(x_22);
-x_25 = lean_level_mk_mvar(x_23);
+x_25 = l_Lean_mkLevelMVar(x_23);
 lean_inc(x_25);
 x_26 = l_Lean_mkSort(x_25);
 x_27 = l_Lean_Meta_assignExprMVar(x_17, x_26, x_2, x_24);
@@ -19017,7 +19006,7 @@ lean_inc(x_94);
 x_95 = lean_ctor_get(x_93, 1);
 lean_inc(x_95);
 lean_dec(x_93);
-x_96 = lean_level_mk_mvar(x_94);
+x_96 = l_Lean_mkLevelMVar(x_94);
 lean_inc(x_96);
 x_97 = l_Lean_mkSort(x_96);
 x_98 = l_Lean_Meta_assignExprMVar(x_88, x_97, x_2, x_95);
@@ -19290,7 +19279,7 @@ lean_inc(x_17);
 x_18 = lean_ctor_get(x_16, 1);
 lean_inc(x_18);
 lean_dec(x_16);
-x_19 = lean_level_mk_imax(x_17, x_5);
+x_19 = l_Lean_mkLevelIMax(x_17, x_5);
 x_3 = x_11;
 x_4 = lean_box(0);
 x_5 = x_19;
@@ -22713,7 +22702,7 @@ lean_dec(x_2);
 x_62 = lean_ctor_get(x_1, 0);
 lean_inc(x_62);
 lean_dec(x_1);
-x_63 = lean_level_mk_succ(x_62);
+x_63 = l_Lean_mkLevelSucc(x_62);
 x_64 = l_Lean_mkSort(x_63);
 x_65 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_65, 0, x_64);

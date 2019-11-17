@@ -49,8 +49,6 @@ eqOfHeq
 eqTrueIntro
 eqFalseIntro
 eqSelfIffTrue
-Lean.Level
-Lean.Expr
 Lean.MessageData
 Lean.MonadTracer.trace
 False

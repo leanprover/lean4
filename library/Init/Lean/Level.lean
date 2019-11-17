@@ -84,7 +84,7 @@ u.data.hasParam
 @[export lean_level_hash] def hashEx : Level → USize := hash
 @[export lean_level_has_mvar] def hasMVarEx : Level → Bool := hasMVar
 @[export lean_level_has_param] def hasParamEx : Level → Bool := hasParam
-@[export lean_level_depth] def depthEx : Level → Nat := depth
+@[export lean_level_depth] def depthEx (u : Level) : UInt32 := u.data.depth
 
 end Level
 

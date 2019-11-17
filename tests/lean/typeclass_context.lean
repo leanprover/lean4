@@ -42,13 +42,13 @@ get >>= λ (ctx : Context) => pure $ ctx.eInstantiate t₂
 
 def testEUnify6 : EStateM String Context Expr := do
 u ← EStateM.fromStateM Context.uNewMeta;
-let t₁ := mkConst "foo" [Level.zero];
+let t₁ := mkConst "foo" [levelZero];
 let t₂ := mkConst "foo" [u];
 eUnify t₁ t₂;
 get >>= λ (ctx : Context) => pure $ ctx.eInstantiate t₂
 
 def testEUnify7 : EStateM String Context Expr := do
-e ← EStateM.fromStateM $ Context.eNewMeta $ mkSort Level.zero;
+e ← EStateM.fromStateM $ Context.eNewMeta $ mkSort levelZero;
 let t₁ := mkFVar "foo";
 let t₂ := e;
 eUnify t₁ t₂;

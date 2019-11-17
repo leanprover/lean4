@@ -1,7 +1,7 @@
 import Init.Lean.Expr
 open Lean
 
-def exprType : Expr := mkSort Level.one
+def exprType : Expr := mkSort levelOne
 def biDef           := BinderInfo.default
 def exprNat         := mkConst `Nat []
 -- Type -> Type

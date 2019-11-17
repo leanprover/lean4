@@ -20,12 +20,12 @@ def b0 := mkBVar 0
 def b1 := mkBVar 1
 def b2 := mkBVar 2
 
-def u := Level.param `u
+def u := mkLevelParam `u
 
-def typeE := mkSort Level.one
+def typeE := mkSort levelOne
 def natE  := mkConst `Nat
 def boolE := mkConst `Bool
-def vecE  := mkConst `Vec [Level.zero]
+def vecE  := mkConst `Vec [levelZero]
 
 def α := mkFVar `α
 def x := mkFVar `x

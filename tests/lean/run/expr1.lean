@@ -16,8 +16,8 @@ do let f   := mkConst `f [];
 #eval tst1
 
 def tst2 : IO Unit :=
-do let l1 := Level.max (Level.param `a) (Level.param `b);
-   let l2 := Level.max (Level.param `b) (Level.param `a);
+do let l1 := mkLevelMax (mkLevelParam `a) (mkLevelParam `b);
+   let l2 := mkLevelMax (mkLevelParam `b) (mkLevelParam `a);
    IO.println l1;
    IO.println l2;
    unless (Level.isEquiv l1 l2) $ throw "not equiv";
@@ -47,8 +47,8 @@ do let f   := mkConst `f [];
    let x1   := mkBVar 1;
    let t1   := mkAppN f #[a, b];
    let t2   := mkAppN f #[a, x0];
-   let t3   := mkLambda `x BinderInfo.default (mkSort Level.zero) (mkAppN f #[a, x0]);
-   let t4   := mkLambda `x BinderInfo.default (mkSort Level.zero) (mkAppN f #[a, x1]);
+   let t3   := mkLambda `x BinderInfo.default (mkSort levelZero) (mkAppN f #[a, x0]);
+   let t4   := mkLambda `x BinderInfo.default (mkSort levelZero) (mkAppN f #[a, x1]);
    unless (!t1.hasLooseBVar 0) $ throw "failed-1";
    unless (t2.hasLooseBVar 0) $ throw "failed-2";
    unless (!t3.hasLooseBVar 0) $ throw "failed-3";

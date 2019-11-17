@@ -414,7 +414,7 @@ private def getAppArgsAux : Expr → Array Expr → Nat → Array Expr
 | _,         as, _ => as
 
 @[inline] def getAppArgs (e : Expr) : Array Expr :=
-let dummy := mkSort mkLevelZero;
+let dummy := mkSort levelZero;
 let nargs := e.getAppNumArgs;
 getAppArgsAux e (mkArray nargs dummy) (nargs-1)
 
@@ -430,7 +430,7 @@ getAppRevArgsAux e (Array.mkEmpty e.getAppNumArgs)
 | f,         as, i => k f as
 
 @[inline] def withApp {α} (e : Expr) (k : Expr → Array Expr → α) : α :=
-let dummy := mkSort mkLevelZero;
+let dummy := mkSort levelZero;
 let nargs := e.getAppNumArgs;
 withAppAux k e (mkArray nargs dummy) (nargs-1)
 

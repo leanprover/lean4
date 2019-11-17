@@ -119,13 +119,13 @@ private def mkHoleFor (stx : Syntax Expr) : Elab PreTerm :=
 setPos stx (mkMVar Name.anonymous)
 
 @[builtinPreTermElab «type»] def convertType : PreTermElab :=
-fun _ => pure $ mkSort mkLevelOne
+fun _ => pure $ mkSort levelOne
 
 @[builtinPreTermElab «sort»] def convertSort : PreTermElab :=
-fun _ => pure $ mkSort mkLevelZero
+fun _ => pure $ mkSort levelZero
 
 @[builtinPreTermElab «prop»] def convertProp : PreTermElab :=
-fun _ => pure $ mkSort mkLevelZero
+fun _ => pure $ mkSort levelZero
 
 @[builtinPreTermElab «sortApp»] def convertSortApp : PreTermElab :=
 fun n => do

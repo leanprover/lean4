@@ -88,7 +88,7 @@ u.data.hasParam
 
 end Level
 
-def mkLevelZero :=
+def levelZero :=
 Level.zero $ mkData 2221 0 false false
 
 def mkLevelMVar (mvarId : Name) :=
@@ -110,9 +110,9 @@ Level.imax u v $ mkData (mixHash 2267 $ mixHash (hash u) (hash v)) (Nat.max u.de
    (u.hasMVar || v.hasMVar)
    (u.hasParam || v.hasParam)
 
-def mkLevelOne := mkLevelSucc mkLevelZero
+def levelOne := mkLevelSucc levelZero
 
-@[export lean_level_mk_zero] def mkLevelZeroEx : Unit → Level := fun _ => mkLevelZero
+@[export lean_level_mk_zero] def mkLevelZeroEx : Unit → Level := fun _ => levelZero
 @[export lean_level_mk_succ] def mkLevelSuccEx : Level → Level := mkLevelSucc
 @[export lean_level_mk_mvar] def mkLevelMVarEx : Name → Level := mkLevelMVar
 @[export lean_level_mk_param] def mkLevelParamEx : Name → Level := mkLevelParam
@@ -121,7 +121,7 @@ def mkLevelOne := mkLevelSucc mkLevelZero
 
 namespace Level
 
-instance : Inhabited Level := ⟨mkLevelZero⟩
+instance : Inhabited Level := ⟨levelZero⟩
 
 def isZero : Level → Bool
 | zero _ => true
@@ -167,7 +167,7 @@ def isNeverZero : Level → Bool
 | imax l₁ l₂ _ => isNeverZero l₂
 
 def ofNat : Nat → Level
-| 0   => mkLevelZero
+| 0   => levelZero
 | n+1 => mkLevelSucc (ofNat n)
 
 def addOffsetAux : Nat → Level → Level
@@ -311,7 +311,7 @@ partial def normalize : Level → Level
       let lvl₁  := lvls.get! 0;
       let prev  := lvl₁.getLevelOffset;
       let prevK := lvl₁.getOffset;
-      mkMaxAux lvls k 1 prev prevK mkLevelZero
+      mkMaxAux lvls k 1 prev prevK levelZero
     | imax l₁ l₂ _ =>
       if l₂.isNeverZero then addOffset (normalize (mkLevelMax l₁ l₂)) k
       else

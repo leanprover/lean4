@@ -89,13 +89,13 @@ def foldNatMod (_ : Bool) := foldNatBinOp HasMod.mod
 def foldNatPow (_ : Bool) := foldNatBinOp HasPow.pow
 
 def mkNatEq (a b : Expr) : Expr :=
-mkAppN (mkConst `Eq [mkLevelOne]) #[(mkConst `Nat), a, b]
+mkAppN (mkConst `Eq [levelOne]) #[(mkConst `Nat), a, b]
 
 def mkNatLt (a b : Expr) : Expr :=
-mkAppN (mkConst `HasLt.lt [mkLevelZero]) #[mkConst `Nat, mkConst `Nat.HasLt, a, b]
+mkAppN (mkConst `HasLt.lt [levelZero]) #[mkConst `Nat, mkConst `Nat.HasLt, a, b]
 
 def mkNatLe (a b : Expr) : Expr :=
-mkAppN (mkConst `HasLt.le [mkLevelZero]) #[mkConst `Nat, mkConst `Nat.HasLe, a, b]
+mkAppN (mkConst `HasLt.le [levelZero]) #[mkConst `Nat, mkConst `Nat.HasLe, a, b]
 
 def toDecidableExpr (beforeErasure : Bool) (pred : Expr) (r : Bool) : Expr :=
 match beforeErasure, r with

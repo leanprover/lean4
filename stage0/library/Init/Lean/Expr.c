@@ -62,6 +62,7 @@ lean_object* l_Lean_Expr_Data_looseBVarRange___boxed(lean_object*);
 lean_object* l_Lean_Expr_mkDataForLet___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_HasBeq___closed__1;
 lean_object* l_Lean_Expr_bindingBody_x21___boxed(lean_object*);
+extern lean_object* l_Lean_levelZero;
 lean_object* l_Lean_Expr_isAppOfArity___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateLambda_x21(lean_object*, uint8_t, lean_object*, lean_object*);
 size_t lean_expr_hash(lean_object*);
@@ -248,7 +249,6 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_ExprStructEq_beq___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Expr_8__etaExpandedBody___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_HasRepr;
-extern lean_object* l_Lean_mkLevelZero;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_updateApp_x21___closed__1;
 lean_object* l_Lean_Expr_constLevels_x21___closed__1;
@@ -1401,7 +1401,7 @@ _start:
 {
 uint64_t x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = 0;
-x_2 = l_Lean_mkLevelZero;
+x_2 = l_Lean_levelZero;
 x_3 = lean_alloc_ctor(3, 1, 8);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set_uint64(x_3, sizeof(void*)*1, x_1);
@@ -4949,7 +4949,7 @@ lean_object* _init_l_Lean_Expr_getAppArgs___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_mkLevelZero;
+x_1 = l_Lean_levelZero;
 x_2 = l_Lean_mkSort(x_1);
 return x_2;
 }

@@ -34,6 +34,7 @@ uint8_t l_Lean_Compiler_isOfNat(lean_object*);
 lean_object* l_Lean_Compiler_natFoldFns___closed__6;
 lean_object* l_Lean_Compiler_uintFoldToNatFns___closed__1;
 lean_object* l_Lean_Compiler_foldUIntMod(uint8_t, lean_object*, lean_object*);
+extern lean_object* l_Lean_levelZero;
 lean_object* l_Lean_Compiler_mkNatLt___closed__5;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__7;
 lean_object* l_Lean_Compiler_natFoldFns___closed__27;
@@ -74,7 +75,6 @@ uint8_t l_Lean_Compiler_isToNat(lean_object*);
 lean_object* l_Lean_Compiler_foldNatDecLe___closed__2;
 lean_object* l_Lean_Compiler_foldBinUInt(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__4;
-extern lean_object* l_Lean_mkLevelOne;
 lean_object* l_Lean_Compiler_foldStrictOr___boxed(lean_object*);
 lean_object* l_List_lookup___main___at_Lean_Compiler_findBinFoldFn___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldNatMod___boxed(lean_object*);
@@ -180,7 +180,6 @@ lean_object* l_Lean_Compiler_foldNatPow(uint8_t);
 lean_object* l_Lean_Compiler_boolFoldFns___closed__5;
 lean_object* l_Lean_Compiler_natFoldFns___closed__10;
 lean_object* l_Lean_Compiler_foldUnOp___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_mkLevelZero;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_getBoolLit___boxed(lean_object*);
 lean_object* l_Lean_Compiler_numScalarTypes___closed__14;
@@ -240,6 +239,7 @@ lean_object* l_Lean_Compiler_foldNatPow___rarg___boxed(lean_object*, lean_object
 lean_object* l_Lean_Compiler_foldUIntSub___closed__1;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__5;
 lean_object* l_Lean_mkNatLit(lean_object*);
+extern lean_object* l_Lean_levelOne;
 lean_object* l_Lean_Compiler_natFoldFns___closed__36;
 lean_object* l_Lean_Compiler_foldToNat___rarg___boxed(lean_object*);
 lean_object* l_Lean_Compiler_boolFoldFns___closed__8;
@@ -2056,7 +2056,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_mkLevelOne;
+x_2 = l_Lean_levelOne;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -2157,7 +2157,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_mkLevelZero;
+x_2 = l_Lean_levelZero;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

@@ -77,7 +77,6 @@ lean_object* l_Lean_mkPreTypeAscriptionIfSome(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_convertId(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Elab_toLevel___main___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_setNat(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_mkLevelOne;
 lean_object* l_Array_iterateMAux___main___at_Lean_Elab_toLevel___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_convertType(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_convertForall(lean_object*, lean_object*, lean_object*);
@@ -211,6 +210,7 @@ lean_object* l_Lean_Elab_toLevel___main___closed__1;
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_PreTerm_4__processBinder(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mkAnnotation___closed__1;
+extern lean_object* l_Lean_levelOne;
 lean_object* l_Lean_mkMData(lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at___private_Init_Lean_Elaborator_PreTerm_4__processBinder___spec__1___closed__1;
 size_t lean_usize_modn(size_t, lean_object*);
@@ -2321,7 +2321,7 @@ lean_object* _init_l_Lean_Elab_convertType___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_mkLevelOne;
+x_1 = l_Lean_levelOne;
 x_2 = l_Lean_mkSort(x_1);
 return x_2;
 }

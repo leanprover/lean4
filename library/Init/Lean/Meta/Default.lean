@@ -22,11 +22,11 @@ inductive MetaOp
 open MetaOp
 
 private def exprToBool : Expr → Bool
-| Expr.sort Level.zero _ => false
-| _                      => true
+| Expr.sort _ _ => false
+| _             => true
 
 private def boolToExpr : Bool → Expr
-| false => mkSort Level.zero
+| false => mkSort mkLevelZero
 | true  => mkBVar 0
 private partial def auxFixpoint : MetaOp → Expr → Expr → MetaM Expr
 | op, e₁, e₂ =>

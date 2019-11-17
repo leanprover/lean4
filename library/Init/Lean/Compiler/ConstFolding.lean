@@ -92,10 +92,10 @@ def mkNatEq (a b : Expr) : Expr :=
 mkAppN (mkConst `Eq [Level.one]) #[(mkConst `Nat), a, b]
 
 def mkNatLt (a b : Expr) : Expr :=
-mkAppN (mkConst `HasLt.lt [Level.zero]) #[mkConst `Nat, mkConst `Nat.HasLt, a, b]
+mkAppN (mkConst `HasLt.lt [mkLevelZero]) #[mkConst `Nat, mkConst `Nat.HasLt, a, b]
 
 def mkNatLe (a b : Expr) : Expr :=
-mkAppN (mkConst `HasLt.le [Level.zero]) #[mkConst `Nat, mkConst `Nat.HasLe, a, b]
+mkAppN (mkConst `HasLt.le [mkLevelZero]) #[mkConst `Nat, mkConst `Nat.HasLe, a, b]
 
 def toDecidableExpr (beforeErasure : Bool) (pred : Expr) (r : Bool) : Expr :=
 match beforeErasure, r with

@@ -29,6 +29,14 @@ attribute [extern "lean_level_mk_imax"]  Level.imax
 attribute [extern "lean_level_mk_param"] Level.param
 attribute [extern "lean_level_mk_mvar"]  Level.mvar
 
+def mkLevelZero := Level.zero
+def mkLevelMVar (mvarId : Name) := Level.mvar mvarId
+def mkLevelParam (name : Name) := Level.param name
+def mkLevelSucc (u : Level) := Level.succ u
+def mkLevelIMax (u v : Level) := Level.imax u v
+def mkLevelMax (u v : Level) := Level.max u v
+def mkLevelOne := mkLevelSucc mkLevelZero
+
 namespace Level
 
 instance : Inhabited Level := ⟨zero⟩
@@ -100,7 +108,7 @@ def ofNat : Nat → Level
 
 def addOffsetAux : Nat → Level → Level
 | 0,     l => l
-| (n+1), l => addOffsetAux n (Level.succ l)
+| (n+1), l => addOffsetAux n (mkLevelSucc l)
 
 def addOffset (l : Level) (n : Nat) : Level :=
 l.addOffsetAux n
@@ -377,3 +385,7 @@ abbrev LevelMap (α : Type)  := HashMap Level α
 abbrev PersistentLevelMap (α : Type) := PHashMap Level α
 
 end Lean
+
+def Nat.toLevel : Nat → Lean.Level
+| 0     => Lean.mkLevelZero
+| (n+1) => Lean.mkLevelSucc (Nat.toLevel n)

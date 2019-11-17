@@ -23,7 +23,7 @@ private def strictOccursMax (lvl : Level) : Level → Bool
 /-- `mkMaxArgsDiff mvarId (max u_1 ... (mvar mvarId) ... u_n) v` => `max v u_1 ... u_n` -/
 private def mkMaxArgsDiff (mvarId : Name) : Level → Level → Level
 | Level.max u v,     acc => mkMaxArgsDiff v $ mkMaxArgsDiff u acc
-| l@(Level.mvar id), acc => if id != mvarId then Level.max acc l else acc
+| l@(Level.mvar id), acc => if id != mvarId then mkLevelMax acc l else acc
 | l,                 acc => Level.max acc l
 
 /--
@@ -31,7 +31,7 @@ private def mkMaxArgsDiff (mvarId : Name) : Level → Level → Level
   and assigning `?m := max ?n v` -/
 private def solveSelfMax (mvarId : Name) (v : Level) : MetaM Unit :=
 do mvarId ← mkFreshLevelMVarId;
-   let lhs := mkMaxArgsDiff mvarId v (Level.mvar mvarId);
+   let lhs := mkMaxArgsDiff mvarId v (mkLevelMVar mvarId);
    assignLevelMVar mvarId lhs
 
 private def postponeIsLevelDefEq (lhs : Level) (rhs : Level) : MetaM Unit :=

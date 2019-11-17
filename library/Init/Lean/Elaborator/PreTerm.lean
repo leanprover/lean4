@@ -78,16 +78,16 @@ partial def toLevel : Syntax Expr → Elab Level
   | `Lean.Parser.Level.imax   => do
      let args := (stx.getArg 1).getArgs;
      first ← toLevel (args.get! 0);
-     args.foldlFromM (fun r arg => Level.imax r <$> toLevel arg) first 1
-  | `Lean.Parser.Level.hole   => pure $ Level.mvar Name.anonymous
-  | `Lean.Parser.Level.num    => pure $ Level.ofNat $ (stx.getArg 0).toNat
+     args.foldlFromM (fun r arg => mkLevelIMax r <$> toLevel arg) first 1
+  | `Lean.Parser.Level.hole   => pure $ mkLevelMVar Name.anonymous
+  | `Lean.Parser.Level.num    => pure $ (stx.getArg 0).toNat.toLevel
   | `Lean.Parser.Level.ident  => do
      let id := stx.getIdAt 0;
      univs ← getUniverses;
-     if univs.elem id then pure $ Level.param id
+     if univs.elem id then pure $ mkLevelParam id
      else do
        logError stx ("unknown universe variable '" ++ toString id ++ "'");
-       pure $ Level.mvar Name.anonymous
+       pure $ mkLevelMVar Name.anonymous
   | `Lean.Parser.Level.addLit => do
      level ← toLevel $ stx.getArg 0;
      let k := (stx.getArg 2).toNat;
@@ -119,20 +119,20 @@ private def mkHoleFor (stx : Syntax Expr) : Elab PreTerm :=
 setPos stx (mkMVar Name.anonymous)
 
 @[builtinPreTermElab «type»] def convertType : PreTermElab :=
-fun _ => pure $ mkSort $ Level.succ Level.zero
+fun _ => pure $ mkSort mkLevelOne
 
 @[builtinPreTermElab «sort»] def convertSort : PreTermElab :=
-fun _ => pure $ mkSort Level.zero
+fun _ => pure $ mkSort mkLevelZero
 
 @[builtinPreTermElab «prop»] def convertProp : PreTermElab :=
-fun _ => pure $ mkSort Level.zero
+fun _ => pure $ mkSort mkLevelZero
 
 @[builtinPreTermElab «sortApp»] def convertSortApp : PreTermElab :=
 fun n => do
    let sort := n.getArg 0;
    level ← toLevel $ n.getArg 1;
    if sort.isOfKind `Lean.Parser.Term.type then
-     pure $ mkSort $ Level.succ level
+     pure $ mkSort $ mkLevelSucc level
    else
      pure $ mkSort level
 

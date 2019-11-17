@@ -91,7 +91,7 @@ do typeType ← inferType type;
      condM (isReadOnlyOrSyntheticExprMVar mvarId)
        (throwEx $ Exception.typeExpected type)
        (do levelMVarId ← mkFreshId;
-           let lvl := Level.mvar levelMVarId;
+           let lvl := mkLevelMVar levelMVarId;
            assignExprMVar mvarId (mkSort lvl);
            pure lvl)
    | _ => throwEx $ Exception.typeExpected type
@@ -106,7 +106,7 @@ forallTelescope whnf e $ fun xs e => do
     (fun x lvl => do
       xType    ← inferType x;
       xTypeLvl ← getLevel whnf inferType xType;
-      pure $ Level.imax xTypeLvl lvl)
+      pure $ mkLevelIMax xTypeLvl lvl)
     lvl;
   pure $ mkSort lvl.normalize
 
@@ -157,7 +157,7 @@ do s ← get;
 | Expr.bvar bidx _         => throw $ Exception.unexpectedBVar bidx
 | Expr.mdata _ e _         => inferTypeAuxAux e
 | Expr.lit v _             => pure v.type
-| Expr.sort lvl _          => pure $ mkSort (Level.succ lvl)
+| Expr.sort lvl _          => pure $ mkSort (mkLevelSucc lvl)
 | e@(Expr.forallE _ _ _ _) => checkInferTypeCache e (inferForallType whnf inferTypeAuxAux e)
 | e@(Expr.lam _ _ _ _)     => checkInferTypeCache e (inferLambdaType whnf inferTypeAuxAux e)
 | e@(Expr.letE _ _ _ _ _)  => checkInferTypeCache e (inferLambdaType whnf inferTypeAuxAux e)

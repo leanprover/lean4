@@ -106,7 +106,7 @@ def uNewMeta : StateM Context Level :=
 do ctx ← get;
    let idx := ctx.uVals.size;
    set { uVals := ctx.uVals.push none, .. ctx };
-   pure $ Level.mvar (mkNumName metaPrefix idx)
+   pure $ mkLevelMVar (mkNumName metaPrefix idx)
 
 def uLookupIdx (idx : Nat) : StateM Context (Option Level) :=
 do ctx ← get; pure $ ctx.uVals.get! idx
@@ -175,9 +175,9 @@ partial def uInstantiate (ctx : Context) : Level → Level
                        | none   => l
          | none =>
            match l with
-           | Level.succ l     => Level.succ $ uInstantiate l
-           | Level.max l₁ l₂  => Level.max (uInstantiate l₁) (uInstantiate l₂)
-           | Level.imax l₁ l₂ => Level.imax (uInstantiate l₁) (uInstantiate l₂)
+           | Level.succ l     => mkLevelSucc $ uInstantiate l
+           | Level.max l₁ l₂  => mkLevelMax (uInstantiate l₁) (uInstantiate l₂)
+           | Level.imax l₁ l₂ => mkLevelIMax (uInstantiate l₁) (uInstantiate l₂)
            | _ => l
 
 -- Expressions and Levels
@@ -268,13 +268,13 @@ partial def uMetaNormalizeCore {α : Type} (fs : MetaNormFuncs α) : Level → S
     | Level.zero        => pure l
     | Level.param _     => pure l
     | Level.succ l      => do l ← uMetaNormalizeCore l;
-                             pure $ Level.succ l
+                             pure $ mkLevelSucc l
     | Level.max l₁ l₂   => do l₁ ← uMetaNormalizeCore l₁;
                              l₂ ← uMetaNormalizeCore l₂;
-                             pure $ Level.max l₁ l₂
+                             pure $ mkLevelMax l₁ l₂
     | Level.imax l₁ l₂  => do l₁ ← uMetaNormalizeCore l₁;
                               l₂ ← uMetaNormalizeCore l₂;
-                              pure $ Level.imax l₁ l₂
+                              pure $ mkLevelIMax l₁ l₂
     | Level.mvar m      =>
       match uMetaIdx l with
       | none     => pure l
@@ -312,10 +312,10 @@ partial def eMetaNormalizeCore {α : Type} (fs : MetaNormFuncs α) : Expr → St
 def αNorm (e : Expr) : Expr :=
 let fs : MetaNormFuncs Unit := {
   uNewMeta := λ idx => do {
-    l ← get >>= λ ϕ => pure $ Level.mvar (mkNumName alphaMetaPrefix ϕ.uRenameMap.size);
+    l ← get >>= λ ϕ => pure $ mkLevelMVar (mkNumName alphaMetaPrefix ϕ.uRenameMap.size);
     modify $ λ ϕ => { uRenameMap := ϕ.uRenameMap.insert idx ϕ.uRenameMap.size .. ϕ };
     pure l },
-  uMkMeta := λ idx => pure $ Level.mvar (mkNumName alphaMetaPrefix idx),
+  uMkMeta := λ idx => pure $ mkLevelMVar (mkNumName alphaMetaPrefix idx),
   eNewMeta := λ idx => do {
     e ← get >>= λ ϕ => pure $ mkMVar (mkNumName alphaMetaPrefix ϕ.eRenameMap.size);
     modify $ λ ϕ => { eRenameMap := ϕ.eRenameMap.insert idx ϕ.eRenameMap.size .. ϕ };
@@ -333,7 +333,7 @@ let fs : MetaNormFuncs (Context × Context) := {
     | some newIdx => modify $ λ ϕ => { ctx := (oldCtx, newCtx), uRenameMap := ϕ.uRenameMap.insert idx newIdx, .. ϕ }
     | none => panic "unreachable";
     pure l },
-  uMkMeta := λ idx => pure $ Level.mvar (mkNumName metaPrefix idx),
+  uMkMeta := λ idx => pure $ mkLevelMVar (mkNumName metaPrefix idx),
   eNewMeta := λ idx => do {
     (oldCtx, newCtx) ← get >>= λ ϕ => pure ϕ.ctx;
     (e, newCtx) ← pure $ StateT.run (Context.eNewMeta $ oldCtx.eTypes.get! idx) newCtx;

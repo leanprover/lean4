@@ -172,12 +172,12 @@ inferTypeAuxAux (usingDefault whnf) e
   Return `LBool.true` if given level is always equivalent to universe level zero.
   It is used to implement `isProp`. -/
 private def isAlwaysZero : Level → Bool
-| Level.zero     => true
-| Level.mvar _   => false
-| Level.param _  => false
-| Level.succ _   => false
-| Level.max u v  => isAlwaysZero u && isAlwaysZero v
-| Level.imax _ u => isAlwaysZero u
+| Level.zero _     => true
+| Level.mvar _ _   => false
+| Level.param _ _  => false
+| Level.succ _ _   => false
+| Level.max u v _  => isAlwaysZero u && isAlwaysZero v
+| Level.imax _ u _ => isAlwaysZero u
 
 /--
   `isArrowProp type n` is an "approximate" predicate which returns `LBool.true`

@@ -15,146 +15,199 @@ if m = 0 then 0 else Nat.max n m
 
 namespace Lean
 
+/--
+ Cached hash code, cached results, and other data for `Level`.
+   hash      : 32-bits
+   hasMVar   : 1-bit
+   hasParam  : 1-bit
+   depth     : 24-bits -/
+def Level.Data := UInt64
+
+instance Level.Data.inhabited : Inhabited Level.Data :=
+inferInstanceAs (Inhabited UInt64)
+
+def Level.Data.hash (c : Level.Data) : USize :=
+c.toUInt32.toUSize
+
+instance Level.Data.hasBeq : HasBeq Level.Data :=
+⟨fun (a b : UInt64) => a == b⟩
+
+def Level.Data.depth (c : Level.Data) : UInt32 :=
+(c.shiftRight 40).toUInt32
+
+def Level.Data.hasMVar (c : Level.Data) : Bool :=
+((c.shiftRight 32).land 1) == 1
+
+def Level.Data.hasParam (c : Level.Data) : Bool :=
+((c.shiftRight 33).land 1) == 1
+
+def Level.mkData (h : USize) (depth : Nat) (hasMVar hasParam : Bool) : Level.Data :=
+if depth > Nat.pow 2 24 - 1 then panic! "universe level depth is too big"
+else
+  let r : UInt64 := h.toUInt32.toUInt64 + hasMVar.toUInt64.shiftLeft 32 + hasParam.toUInt64.shiftLeft 33 + depth.toUInt64.shiftLeft 40;
+  r
+
+open Level
+
 inductive Level
-| zero   : Level
-| succ   : Level → Level
-| max    : Level → Level → Level
-| imax   : Level → Level → Level
-| param  : Name → Level
-| mvar   : Name → Level
-
-attribute [extern "lean_level_mk_succ"]  Level.succ
-attribute [extern "lean_level_mk_max"]   Level.max
-attribute [extern "lean_level_mk_imax"]  Level.imax
-attribute [extern "lean_level_mk_param"] Level.param
-attribute [extern "lean_level_mk_mvar"]  Level.mvar
-
-def mkLevelZero := Level.zero
-def mkLevelMVar (mvarId : Name) := Level.mvar mvarId
-def mkLevelParam (name : Name) := Level.param name
-def mkLevelSucc (u : Level) := Level.succ u
-def mkLevelIMax (u v : Level) := Level.imax u v
-def mkLevelMax (u v : Level) := Level.max u v
-def mkLevelOne := mkLevelSucc mkLevelZero
+| zero   : Data → Level
+| succ   : Level → Data → Level
+| max    : Level → Level → Data → Level
+| imax   : Level → Level → Data → Level
+| param  : Name → Data → Level
+| mvar   : Name → Data → Level
 
 namespace Level
 
-instance : Inhabited Level := ⟨zero⟩
+@[inline] def data : Level → Data
+| zero d     => d
+| mvar _ d   => d
+| param _ d  => d
+| succ _ d   => d
+| max _ _ d  => d
+| imax _ _ d => d
+
+def hash (u : Level) : USize :=
+u.data.hash
+
+instance : Hashable Level := ⟨hash⟩
+
+def depth (u : Level) : Nat :=
+u.data.depth.toNat
+
+def hasMVar (u : Level) : Bool :=
+u.data.hasMVar
+
+def hasParam (u : Level) : Bool :=
+u.data.hasParam
+
+@[export lean_level_hash] def hashEx : Level → USize := hash
+@[export lean_level_has_mvar] def hasMVarEx : Level → Bool := hasMVar
+@[export lean_level_has_param] def hasParamEx : Level → Bool := hasParam
+@[export lean_level_depth] def depthEx : Level → Nat := depth
+
+end Level
+
+def mkLevelZero :=
+Level.zero $ mkData 2221 0 false false
+
+def mkLevelMVar (mvarId : Name) :=
+Level.mvar mvarId $ mkData (mixHash 2237 $ hash mvarId) 0 true false
+
+def mkLevelParam (name : Name) :=
+Level.param name $ mkData (mixHash 2239 $ hash name) 0 false true
+
+def mkLevelSucc (u : Level) :=
+Level.succ u $ mkData (mixHash 2243 $ hash u) (u.depth + 1) u.hasMVar u.hasParam
+
+def mkLevelMax (u v : Level) :=
+Level.max u v $ mkData (mixHash 2251 $ mixHash (hash u) (hash v)) (Nat.max u.depth v.depth + 1)
+   (u.hasMVar || v.hasMVar)
+   (u.hasParam || v.hasParam)
+
+def mkLevelIMax (u v : Level) :=
+Level.imax u v $ mkData (mixHash 2267 $ mixHash (hash u) (hash v)) (Nat.max u.depth v.depth + 1)
+   (u.hasMVar || v.hasMVar)
+   (u.hasParam || v.hasParam)
+
+def mkLevelOne := mkLevelSucc mkLevelZero
+
+@[export lean_level_mk_zero] def mkLevelZeroEx : Unit → Level := fun _ => mkLevelZero
+@[export lean_level_mk_succ] def mkLevelSuccEx : Level → Level := mkLevelSucc
+@[export lean_level_mk_mvar] def mkLevelMVarEx : Name → Level := mkLevelMVar
+@[export lean_level_mk_param] def mkLevelParamEx : Name → Level := mkLevelParam
+@[export lean_level_mk_max] def mkLevelMaxEx : Level → Level → Level := mkLevelMax
+@[export lean_level_mk_imax] def mkLevelIMaxEx : Level → Level → Level := mkLevelIMax
+
+namespace Level
+
+instance : Inhabited Level := ⟨mkLevelZero⟩
 
 def isZero : Level → Bool
-| zero => true
-| _    => false
+| zero _ => true
+| _      => false
 
 def isSucc : Level → Bool
-| succ _ => true
-| _      => false
+| succ _ _ => true
+| _        => false
 
 def isMax : Level → Bool
-| max _ _ => true
-| _       => false
+| max _ _ _ => true
+| _         => false
 
 def isIMax : Level → Bool
-| imax _ _ => true
-| _        => false
+| imax _ _ _ => true
+| _          => false
 
 def isMaxIMax : Level → Bool
-| max _ _  => true
-| imax _ _ => true
-| _        => false
+| max _ _ _  => true
+| imax _ _ _ => true
+| _          => false
 
 def isParam : Level → Bool
-| param _ => true
-| _       => false
+| param _ _ => true
+| _         => false
 
 def isMVar : Level → Bool
-| mvar _ => true
-| _      => false
+| mvar _ _ => true
+| _        => false
 
 def mvarId! : Level → Name
-| mvar mvarId => mvarId
-| _           => panic! "metavariable expected"
+| mvar mvarId _ => mvarId
+| _             => panic! "metavariable expected"
 
 /-- If result is true, then forall assignments `A` which assigns all parameters and metavariables occuring
     in `l`, `l[A] != zero` -/
 def isNeverZero : Level → Bool
-| zero       => false
-| param _    => false
-| mvar _     => false
-| succ _     => true
-| max l₁ l₂  => isNeverZero l₁ || isNeverZero l₂
-| imax l₁ l₂ => isNeverZero l₂
-
-def one : Level := succ zero
-
-@[extern "lean_level_has_param"]
-def hasParam : Level → Bool
-| param _    => true
-| succ l     => hasParam l
-| max l₁ l₂  => hasParam l₁ || hasParam l₂
-| imax l₁ l₂ => hasParam l₁ || hasParam l₂
-| _          => false
-
-@[extern "lean_level_has_mvar"]
-def hasMVar : Level → Bool
-| mvar _     => true
-| succ l     => hasMVar l
-| max l₁ l₂  => hasMVar l₁ || hasMVar l₂
-| imax l₁ l₂ => hasMVar l₁ || hasMVar l₂
-| _          => false
+| zero _       => false
+| param _ _    => false
+| mvar _ _     => false
+| succ _ _     => true
+| max l₁ l₂ _  => isNeverZero l₁ || isNeverZero l₂
+| imax l₁ l₂ _ => isNeverZero l₂
 
 def ofNat : Nat → Level
-| 0   => zero
-| n+1 => succ (ofNat n)
+| 0   => mkLevelZero
+| n+1 => mkLevelSucc (ofNat n)
 
 def addOffsetAux : Nat → Level → Level
-| 0,     l => l
-| (n+1), l => addOffsetAux n (mkLevelSucc l)
+| 0,     u => u
+| (n+1), u => addOffsetAux n (mkLevelSucc u)
 
-def addOffset (l : Level) (n : Nat) : Level :=
-l.addOffsetAux n
+def addOffset (u : Level) (n : Nat) : Level :=
+u.addOffsetAux n
 
 def isExplicit : Level → Bool
-| zero   => true
-| succ l => isExplicit l
-| _      => false
+| zero _   => true
+| succ u _ => !u.hasMVar && !u.hasParam && isExplicit u
+| _        => false
 
 def getOffsetAux : Level → Nat → Nat
-| succ l, r => getOffsetAux l (r+1)
-| l,      r => r
+| succ u _, r => getOffsetAux u (r+1)
+| _,        r => r
 
 def getOffset (lvl : Level) : Nat :=
  getOffsetAux lvl 0
 
 def getLevelOffset : Level → Level
-| succ l => getLevelOffset l
-| l      => l
+| succ u _ => getLevelOffset u
+| u        => u
 
 def toNat (lvl : Level) : Option Nat :=
 match lvl.getLevelOffset with
-| zero => lvl.getOffset
-| _    => none
-
-def getDepth : Level → Nat
-| succ l     => getDepth l + 1
-| max l₁ l₂  => (Nat.max (getDepth l₁) (getDepth l₂)) + 1
-| imax l₁ l₂ => (Nat.max (getDepth l₁) (getDepth l₂)) + 1
-| _          => 0
+| zero _ => lvl.getOffset
+| _      => none
 
 def instantiate (s : Name → Option Level) : Level → Level
-| zero        => zero
-| succ l      => succ (instantiate l)
-| max l₁ l₂   => max (instantiate l₁) (instantiate l₂)
-| imax l₁ l₂  => imax (instantiate l₁) (instantiate l₂)
-| l@(param n) =>
+| u@(zero _)    => u
+| succ u _      => mkLevelSucc (instantiate u)
+| max u₁ u₂ _   => mkLevelMax (instantiate u₁) (instantiate u₂)
+| imax u₁ u₂ _  => mkLevelIMax (instantiate u₁) (instantiate u₂)
+| u@(param n _) =>
   match s n with
-  | some l' => l'
-  | none    => l
-| l           => l
-
-@[extern "lean_level_hash"]
-protected constant hash (n : @& Level) : USize := arbitrary USize
-
-instance hashable : Hashable Level := ⟨Level.hash⟩
+  | some u' => u'
+  | none    => u
+| u           => u
 
 @[extern "lean_level_eq"]
 protected constant beq (a : @& Level) (b : @& Level) : Bool := arbitrary _
@@ -163,33 +216,33 @@ instance : HasBeq Level := ⟨Level.beq⟩
 
 /-- `occurs u l` return `true` iff `u` occurs in `l`. -/
 def occurs : Level → Level → Bool
-| u, l@(succ l₁)     => u == l || occurs u l₁
-| u, l@(max l₁ l₂)   => u == l || occurs u l₁ || occurs u l₂
-| u, l@(imax l₁ l₂)  => u == l || occurs u l₁ || occurs u l₂
-| u, l               => u == l
+| u, v@(succ v₁ _)     => u == v || occurs u v₁
+| u, v@(max v₁ v₂ _)   => u == v || occurs u v₁ || occurs u v₂
+| u, v@(imax v₁ v₂ _)  => u == v || occurs u v₁ || occurs u v₂
+| u, v                 => u == v
 
 def ctorToNat : Level → Nat
-| zero     => 0
-| param _  => 1
-| mvar _   => 2
-| succ _   => 3
-| max _ _  => 4
-| imax _ _ => 5
+| zero _     => 0
+| param _ _  => 1
+| mvar _ _   => 2
+| succ _ _   => 3
+| max _ _ _  => 4
+| imax _ _ _ => 5
 
 /- TODO: use well founded recursion. -/
 partial def normLtAux : Level → Nat → Level → Nat → Bool
-| succ l₁, k₁, l₂, k₂ => normLtAux l₁ (k₁+1) l₂ k₂
-| l₁, k₁, succ l₂, k₂ => normLtAux l₁ k₁ l₂ (k₂+1)
-| l₁@(max l₁₁ l₁₂), k₁, l₂@(max l₂₁ l₂₂), k₂ =>
+| succ l₁ _, k₁, l₂, k₂ => normLtAux l₁ (k₁+1) l₂ k₂
+| l₁, k₁, succ l₂ _, k₂ => normLtAux l₁ k₁ l₂ (k₂+1)
+| l₁@(max l₁₁ l₁₂ _), k₁, l₂@(max l₂₁ l₂₂ _), k₂ =>
   if l₁ == l₂ then k₁ < k₂
   else if l₁₁ == l₂₁ then normLtAux l₁₁ 0 l₂₁ 0
   else normLtAux l₁₂ 0 l₂₂ 0
-| l₁@(imax l₁₁ l₁₂), k₁, l₂@(imax l₂₁ l₂₂), k₂ =>
+| l₁@(imax l₁₁ l₁₂ _), k₁, l₂@(imax l₂₁ l₂₂ _), k₂ =>
   if l₁ == l₂ then k₁ < k₂
   else if l₁₁ == l₂₁ then normLtAux l₁₁ 0 l₂₁ 0
   else normLtAux l₁₂ 0 l₂₂ 0
-| param n₁, k₁, param n₂, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.lt n₁ n₂     -- use Name.lt because it is lexicographical
-| mvar n₁, k₁, mvar n₂, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.quickLt n₁ n₂  -- metavariables are temporary, the actual order doesn't matter
+| param n₁ _, k₁, param n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.lt n₁ n₂     -- use Name.lt because it is lexicographical
+| mvar n₁ _, k₁, mvar n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.quickLt n₁ n₂  -- metavariables are temporary, the actual order doesn't matter
 | l₁, k₁, l₂, k₂ => if l₁ == l₂ then k₁ < k₂ else ctorToNat l₁ < ctorToNat l₂
 
 /--
@@ -201,30 +254,27 @@ def normLt (l₁ l₂ : Level) : Bool :=
 normLtAux l₁ 0 l₂ 0
 
 private def isAlreadyNormalizedCheap : Level → Bool
-| zero    => true
-| param _ => true
-| mvar _  => true
-| succ l  => isAlreadyNormalizedCheap l
-| _       => false
+| zero _    => true
+| param _ _ => true
+| mvar _ _  => true
+| succ u _  => isAlreadyNormalizedCheap u
+| _         => false
 
 /- Auxiliary function used at `normalize` -/
 private def mkIMaxAux : Level → Level → Level
-| _,    zero => zero
-| zero, l₂   => l₂
-| l₁,   l₂   =>
-  if l₁ == l₂ then l₁
-  else imax l₁ l₂
+| _,      u@(zero _) => u
+| zero _, u          => u
+| u₁,     u₂         => if u₁ == u₂ then u₁ else mkLevelIMax u₁ u₂
 
 /- Auxiliary function used at `normalize` -/
 @[specialize] private partial def getMaxArgsAux (normalize : Level → Level) : Level → Bool → Array Level → Array Level
-| max l₁ l₂, alreadyNormalized, lvls => getMaxArgsAux l₂ alreadyNormalized (getMaxArgsAux l₁ alreadyNormalized lvls)
-| l,         false,             lvls => getMaxArgsAux (normalize l) true lvls
-| l,         true,              lvls => lvls.push l
-
+| max l₁ l₂ _, alreadyNormalized, lvls => getMaxArgsAux l₂ alreadyNormalized (getMaxArgsAux l₁ alreadyNormalized lvls)
+| l,           false,             lvls => getMaxArgsAux (normalize l) true lvls
+| l,           true,              lvls => lvls.push l
 
 private def accMax (result : Level) (prev : Level) (offset : Nat) : Level :=
 if result.isZero then prev.addOffset offset
-else max result (prev.addOffset offset)
+else mkLevelMax result (prev.addOffset offset)
 
 /- Auxiliary function used at `normalize`.
    Remarks:
@@ -254,16 +304,16 @@ partial def normalize : Level → Level
     let k := l.getOffset;
     let u := l.getLevelOffset;
     match u with
-    | max l₁ l₂  =>
+    | max l₁ l₂ _ =>
       let lvls  := getMaxArgsAux normalize l₁ false #[];
       let lvls  := getMaxArgsAux normalize l₂ false lvls;
       let lvls  := lvls.qsort normLt;
       let lvl₁  := lvls.get! 0;
       let prev  := lvl₁.getLevelOffset;
       let prevK := lvl₁.getOffset;
-      mkMaxAux lvls k 1 prev prevK zero
-    | imax l₁ l₂ =>
-      if l₂.isNeverZero then addOffset (normalize (max l₁ l₂)) k
+      mkMaxAux lvls k 1 prev prevK mkLevelZero
+    | imax l₁ l₂ _ =>
+      if l₂.isNeverZero then addOffset (normalize (mkLevelMax l₁ l₂)) k
       else
         let l₁ := normalize l₁;
         let l₂ := normalize l₂;
@@ -278,14 +328,14 @@ u == v || u.normalize == v.normalize
 
 /-- Reduce (if possible) universe level by 1 -/
 def dec : Level → Option Level
-| zero       => none
-| param _    => none
-| mvar _     => none
-| succ l     => l
-| max l₁ l₂  => max <$> dec l₁ <*> dec l₂
-/- Remark: `max` in the following line is not a typo.
+| zero _       => none
+| param _ _    => none
+| mvar _ _     => none
+| succ l _     => l
+| max l₁ l₂ _  => mkLevelMax <$> dec l₁ <*> dec l₂
+/- Remark: `mkLevelMax` in the following line is not a typo.
    If `dec l₂` succeeds, then `imax l₁ l₂` is equivalent to `max l₁ l₂`. -/
-| imax l₁ l₂ => max <$> dec l₁ <*> dec l₂
+| imax l₁ l₂ _ => mkLevelMax <$> dec l₁ <*> dec l₂
 
 /- Level to Format -/
 namespace LevelToFormat
@@ -328,12 +378,12 @@ partial def Result.format : Result → Bool → Format
 | Result.imaxNode fs,   r => parenIfFalse (Format.group $ "imax" ++ formatLst (fun r => Result.format r false) fs) r
 
 def toResult : Level → Result
-| zero       => Result.num 0
-| succ l     => Result.succ (toResult l)
-| max l₁ l₂  => Result.max (toResult l₁) (toResult l₂)
-| imax l₁ l₂ => Result.imax (toResult l₁) (toResult l₂)
-| param n    => Result.leaf (fmt n)
-| mvar n     => Result.leaf (fmt n)
+| zero _       => Result.num 0
+| succ l _     => Result.succ (toResult l)
+| max l₁ l₂ _  => Result.max (toResult l₁) (toResult l₂)
+| imax l₁ l₂ _ => Result.imax (toResult l₁) (toResult l₂)
+| param n _    => Result.leaf (fmt n)
+| mvar n _     => Result.leaf (fmt n)
 
 end LevelToFormat
 
@@ -354,30 +404,30 @@ instance : HasToString Level := ⟨Format.pretty ∘ Level.format⟩
 
 @[extern "lean_level_update_succ"]
 def updateSucc (lvl : Level) (newLvl : Level) (h : lvl.isSucc = true) : Level :=
-succ newLvl
+mkLevelSucc newLvl
 
 @[inline] def updateSucc! (lvl : Level) (newLvl : Level) : Level :=
 match lvl with
-| succ lvl => updateSucc (succ lvl) newLvl rfl
-| _        => panic! "succ level expected"
+| succ lvl d => updateSucc (succ lvl d) newLvl rfl
+| _          => panic! "succ level expected"
 
 @[extern "lean_level_update_max"]
 def updateMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isMax = true) : Level :=
-max newLhs newRhs
+mkLevelMax newLhs newRhs
 
 @[inline] def updateMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
 match lvl with
-| max lhs rhs => updateMax (max lhs rhs) newLhs newRhs rfl
-| _           => panic! "max level expected"
+| max lhs rhs d => updateMax (max lhs rhs d) newLhs newRhs rfl
+| _             => panic! "max level expected"
 
 @[extern "lean_level_update_imax"]
 def updateIMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isIMax = true) : Level :=
-imax newLhs newRhs
+mkLevelIMax newLhs newRhs
 
 @[inline] def updateIMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
 match lvl with
-| max lhs rhs => updateIMax (imax lhs rhs) newLhs newRhs rfl
-| _           => panic! "imax level expected"
+| max lhs rhs d => updateIMax (imax lhs rhs d) newLhs newRhs rfl
+| _             => panic! "imax level expected"
 
 end Level
 
@@ -386,6 +436,5 @@ abbrev PersistentLevelMap (α : Type) := PHashMap Level α
 
 end Lean
 
-def Nat.toLevel : Nat → Lean.Level
-| 0     => Lean.mkLevelZero
-| (n+1) => Lean.mkLevelSucc (Nat.toLevel n)
+abbrev Nat.toLevel (n : Nat) : Lean.Level :=
+Lean.Level.ofNat n

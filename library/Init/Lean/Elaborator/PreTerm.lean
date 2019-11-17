@@ -74,7 +74,7 @@ partial def toLevel : Syntax Expr → Elab Level
   | `Lean.Parser.Level.max    => do
      let args := (stx.getArg 1).getArgs;
      first ← toLevel (args.get! 0);
-     args.foldlFromM (fun r arg => Level.max r <$> toLevel arg) first 1
+     args.foldlFromM (fun r arg => mkLevelMax r <$> toLevel arg) first 1
   | `Lean.Parser.Level.imax   => do
      let args := (stx.getArg 1).getArgs;
      first ← toLevel (args.get! 0);

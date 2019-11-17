@@ -10,21 +10,21 @@ namespace Lean
 namespace Meta
 
 private def strictOccursMaxAux (lvl : Level) : Level → Bool
-| Level.max u v => strictOccursMaxAux u || strictOccursMaxAux v
-| u             => u != lvl && lvl.occurs u
+| Level.max u v _ => strictOccursMaxAux u || strictOccursMaxAux v
+| u               => u != lvl && lvl.occurs u
 
 /--
   Return true iff `lvl` occurs in `max u_1 ... u_n` and `lvl != u_i` for all `i in [1, n]`.
   That is, `lvl` is a proper level subterm of some `u_i`. -/
 private def strictOccursMax (lvl : Level) : Level → Bool
-| Level.max u v => strictOccursMaxAux lvl u || strictOccursMaxAux lvl v
-| _             => false
+| Level.max u v _ => strictOccursMaxAux lvl u || strictOccursMaxAux lvl v
+| _               => false
 
 /-- `mkMaxArgsDiff mvarId (max u_1 ... (mvar mvarId) ... u_n) v` => `max v u_1 ... u_n` -/
 private def mkMaxArgsDiff (mvarId : Name) : Level → Level → Level
-| Level.max u v,     acc => mkMaxArgsDiff v $ mkMaxArgsDiff u acc
-| l@(Level.mvar id), acc => if id != mvarId then mkLevelMax acc l else acc
-| l,                 acc => Level.max acc l
+| Level.max u v _,     acc => mkMaxArgsDiff v $ mkMaxArgsDiff u acc
+| l@(Level.mvar id _), acc => if id != mvarId then mkLevelMax acc l else acc
+| l,                   acc => mkLevelMax acc l
 
 /--
   Solve `?m =?= max ?m v` by creating a fresh metavariable `?n`
@@ -44,7 +44,7 @@ inductive LevelConstraintKind
 
 private def getLevelConstraintKind (u v : Level) : MetaM LevelConstraintKind :=
 match u with
-| Level.mvar mvarId =>
+| Level.mvar mvarId _ =>
   condM (isReadOnlyLevelMVar mvarId)
     (pure LevelConstraintKind.other)
     (if !u.occurs v then pure LevelConstraintKind.mvarEq
@@ -54,7 +54,7 @@ match u with
   pure LevelConstraintKind.other
 
 private partial def isLevelDefEqAux : Level → Level → MetaM Bool
-| Level.succ lhs, Level.succ rhs => isLevelDefEqAux lhs rhs
+| Level.succ lhs _, Level.succ rhs _ => isLevelDefEqAux lhs rhs
 | lhs, rhs =>
   if lhs == rhs then
     pure true

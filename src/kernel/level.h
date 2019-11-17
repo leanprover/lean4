@@ -40,14 +40,13 @@ class level : public object_ref {
     explicit level(object_ref && o):object_ref(o) {}
 public:
     /** \brief Universe zero */
-    level():object_ref(box(static_cast<unsigned>(level_kind::Zero))) {}
+    level();
     explicit level(obj_arg o):object_ref(o) {}
     explicit level(b_obj_arg o, bool b):object_ref(o, b) {}
     level(level const & other):object_ref(other) {}
     level(level && other):object_ref(other) {}
-    level_kind kind() const { return static_cast<level_kind>(obj_tag(raw())); }
-    static unsigned hash(b_obj_arg l);
-    unsigned hash() const { return hash(raw()); }
+    level_kind kind() const { return static_cast<level_kind>(lean_ptr_tag(raw())); }
+    unsigned hash() const;
 
     level & operator=(level const & other) { object_ref::operator=(other); return *this; }
     level & operator=(level && other) { object_ref::operator=(other); return *this; }
@@ -56,7 +55,7 @@ public:
     void serialize(serializer & s) const { s.write_object(raw()); }
     static level deserialize(deserializer & d) { return level(d.read_object(), true); }
 
-    bool is_zero() const { lean_assert((kind() == level_kind::Zero) == is_scalar(raw())); return is_scalar(raw()); }
+    bool is_zero() const { return kind() == level_kind::Zero; }
     bool is_succ() const { return kind() == level_kind::Succ; }
     bool is_max() const { return kind() == level_kind::Max; }
     bool is_imax() const { return kind() == level_kind::IMax; }
@@ -160,8 +159,6 @@ bool levels_has_mvar(object * ls);
 bool has_mvar(levels const & ls);
 bool levels_has_param(object * ls);
 bool has_param(levels const & ls);
-extern "C" uint8 lean_level_has_mvar(b_obj_arg l);
-extern "C" uint8 lean_level_has_param(b_obj_arg l);
 
 /** \brief An arbitrary (monotonic) total order on universe level terms. */
 bool is_lt(level const & l1, level const & l2, bool use_hash);

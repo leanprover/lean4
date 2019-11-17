@@ -312,12 +312,12 @@ decl.depth == mctx.depth
 
 /-- Return true iff the given level contains an assigned metavariable. -/
 def hasAssignedLevelMVar (mctx : MetavarContext) : Level → Bool
-| Level.succ lvl       => lvl.hasMVar && hasAssignedLevelMVar lvl
-| Level.max lvl₁ lvl₂  => (lvl₁.hasMVar && hasAssignedLevelMVar lvl₁) || (lvl₂.hasMVar && hasAssignedLevelMVar lvl₂)
-| Level.imax lvl₁ lvl₂ => (lvl₁.hasMVar && hasAssignedLevelMVar lvl₁) || (lvl₂.hasMVar && hasAssignedLevelMVar lvl₂)
-| Level.mvar mvarId    => mctx.isLevelAssigned mvarId
-| Level.zero           => false
-| Level.param _        => false
+| Level.succ lvl _       => lvl.hasMVar && hasAssignedLevelMVar lvl
+| Level.max lvl₁ lvl₂ _  => (lvl₁.hasMVar && hasAssignedLevelMVar lvl₁) || (lvl₂.hasMVar && hasAssignedLevelMVar lvl₂)
+| Level.imax lvl₁ lvl₂ _ => (lvl₁.hasMVar && hasAssignedLevelMVar lvl₁) || (lvl₂.hasMVar && hasAssignedLevelMVar lvl₂)
+| Level.mvar mvarId _    => mctx.isLevelAssigned mvarId
+| Level.zero _           => false
+| Level.param _ _        => false
 
 /-- Return `true` iff expression contains assigned (level/expr) metavariables -/
 def hasAssignedMVar (mctx : MetavarContext) : Expr → Bool
@@ -337,18 +337,18 @@ def hasAssignedMVar (mctx : MetavarContext) : Expr → Bool
 
 /-- Return true iff the given level contains a metavariable that can be assigned. -/
 def hasAssignableLevelMVar (mctx : MetavarContext) : Level → Bool
-| Level.succ lvl       => lvl.hasMVar && hasAssignableLevelMVar lvl
-| Level.max lvl₁ lvl₂  => (lvl₁.hasMVar && hasAssignableLevelMVar lvl₁) || (lvl₂.hasMVar && hasAssignableLevelMVar lvl₂)
-| Level.imax lvl₁ lvl₂ => (lvl₁.hasMVar && hasAssignableLevelMVar lvl₁) || (lvl₂.hasMVar && hasAssignableLevelMVar lvl₂)
-| Level.mvar mvarId    => mctx.isLevelAssignable mvarId
-| Level.zero           => false
-| Level.param _        => false
+| Level.succ lvl _       => lvl.hasMVar && hasAssignableLevelMVar lvl
+| Level.max lvl₁ lvl₂ _  => (lvl₁.hasMVar && hasAssignableLevelMVar lvl₁) || (lvl₂.hasMVar && hasAssignableLevelMVar lvl₂)
+| Level.imax lvl₁ lvl₂ _ => (lvl₁.hasMVar && hasAssignableLevelMVar lvl₁) || (lvl₂.hasMVar && hasAssignableLevelMVar lvl₂)
+| Level.mvar mvarId _    => mctx.isLevelAssignable mvarId
+| Level.zero _           => false
+| Level.param _ _        => false
 
 partial def instantiateLevelMVars : Level → StateM MetavarContext Level
-| lvl@(Level.succ lvl₁)      => do lvl₁ ← instantiateLevelMVars lvl₁; pure (Level.updateSucc! lvl lvl₁)
-| lvl@(Level.max lvl₁ lvl₂)  => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateMax! lvl lvl₁ lvl₂)
-| lvl@(Level.imax lvl₁ lvl₂) => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateIMax! lvl lvl₁ lvl₂)
-| lvl@(Level.mvar mvarId)    => do
+| lvl@(Level.succ lvl₁ _)      => do lvl₁ ← instantiateLevelMVars lvl₁; pure (Level.updateSucc! lvl lvl₁)
+| lvl@(Level.max lvl₁ lvl₂ _)  => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateMax! lvl lvl₁ lvl₂)
+| lvl@(Level.imax lvl₁ lvl₂ _) => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateIMax! lvl lvl₁ lvl₂)
+| lvl@(Level.mvar mvarId _)    => do
   mctx ← get;
   match getLevelAssignment mctx mvarId with
   | some newLvl =>

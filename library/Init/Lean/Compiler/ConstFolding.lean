@@ -89,7 +89,7 @@ def foldNatMod (_ : Bool) := foldNatBinOp HasMod.mod
 def foldNatPow (_ : Bool) := foldNatBinOp HasPow.pow
 
 def mkNatEq (a b : Expr) : Expr :=
-mkAppN (mkConst `Eq [Level.one]) #[(mkConst `Nat), a, b]
+mkAppN (mkConst `Eq [mkLevelOne]) #[(mkConst `Nat), a, b]
 
 def mkNatLt (a b : Expr) : Expr :=
 mkAppN (mkConst `HasLt.lt [mkLevelZero]) #[mkConst `Nat, mkConst `Nat.HasLt, a, b]

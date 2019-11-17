@@ -97,7 +97,7 @@ eFind eIsMeta e
 -- Levels
 
 def uMetaIdx : Level → Option Nat
-| Level.mvar (Name.mkNumeral n idx) => guard (n == metaPrefix) *> pure idx
+| Level.mvar (Name.mkNumeral n idx) _ => guard (n == metaPrefix) *> pure idx
 | _ => none
 
 def uIsMeta (l : Level) : Bool := (uMetaIdx l).toBool
@@ -134,10 +134,10 @@ partial def uFind (f : Level → Bool) : Level → Bool
   then true
   else
     match l with
-    | Level.succ l     => uFind l
-    | Level.max l₁ l₂  => uFind l₁ || uFind l₂
-    | Level.imax l₁ l₂ => uFind l₁ || uFind l₂
-    | _                => false
+    | Level.succ l _     => uFind l
+    | Level.max l₁ l₂ _  => uFind l₁ || uFind l₂
+    | Level.imax l₁ l₂ _ => uFind l₁ || uFind l₂
+    | _                  => false
 
 def uOccursIn (l₀ : Level) (l : Level) : Bool :=
 uFind (λ l => l == l₀) l
@@ -153,12 +153,12 @@ partial def uUnify : Level → Level → EStateM String Context Unit
   then uUnify l₂ l₁
   else
     match l₁, l₂ with
-    | Level.zero,         Level.zero         => pure ()
-    | Level.param p₁,     Level.param p₂     => when (p₁ ≠ p₂) $ throw "Level.param clash"
-    | Level.succ  l₁,     Level.succ  l₂     => uUnify l₁ l₂
-    | Level.max l₁₁ l₁₂,  Level.max l₂₁ l₂₂  => uUnify l₁₁ l₂₁ *> uUnify l₁₂ l₂₂
-    | Level.imax l₁₁ l₁₂, Level.imax l₂₁ l₂₂ => uUnify l₁₁ l₂₁ *> uUnify l₁₂ l₂₂
-    | Level.mvar _,       _                  =>
+    | Level.zero _,         Level.zero _         => pure ()
+    | Level.param p₁ _,     Level.param p₂ _     => when (p₁ ≠ p₂) $ throw "Level.param clash"
+    | Level.succ  l₁ _,     Level.succ  l₂ _     => uUnify l₁ l₂
+    | Level.max l₁₁ l₁₂ _,  Level.max l₂₁ l₂₂ _  => uUnify l₁₁ l₂₁ *> uUnify l₁₂ l₂₂
+    | Level.imax l₁₁ l₁₂ _, Level.imax l₂₁ l₂₂ _ => uUnify l₁₁ l₂₁ *> uUnify l₁₂ l₂₂
+    | Level.mvar _ _,       _                    =>
       match uMetaIdx l₁ with
       | none     => when (!(l₁ == l₂)) $ throw "Level.mvar clash"
       | some idx => do when (uOccursIn l₁ l₂) $ throw  "occurs";
@@ -175,9 +175,9 @@ partial def uInstantiate (ctx : Context) : Level → Level
                        | none   => l
          | none =>
            match l with
-           | Level.succ l     => mkLevelSucc $ uInstantiate l
-           | Level.max l₁ l₂  => mkLevelMax (uInstantiate l₁) (uInstantiate l₂)
-           | Level.imax l₁ l₂ => mkLevelIMax (uInstantiate l₁) (uInstantiate l₂)
+           | Level.succ l _     => mkLevelSucc $ uInstantiate l
+           | Level.max l₁ l₂ _  => mkLevelMax (uInstantiate l₁) (uInstantiate l₂)
+           | Level.imax l₁ l₂ _ => mkLevelIMax (uInstantiate l₁) (uInstantiate l₂)
            | _ => l
 
 -- Expressions and Levels
@@ -265,17 +265,17 @@ partial def uMetaNormalizeCore {α : Type} (fs : MetaNormFuncs α) : Level → S
 | l =>
   if !l.hasMVar then pure l else
     match l with
-    | Level.zero        => pure l
-    | Level.param _     => pure l
-    | Level.succ l      => do l ← uMetaNormalizeCore l;
+    | Level.zero _       => pure l
+    | Level.param _ _    => pure l
+    | Level.succ l _     => do l ← uMetaNormalizeCore l;
                              pure $ mkLevelSucc l
-    | Level.max l₁ l₂   => do l₁ ← uMetaNormalizeCore l₁;
+    | Level.max l₁ l₂ _  => do l₁ ← uMetaNormalizeCore l₁;
                              l₂ ← uMetaNormalizeCore l₂;
                              pure $ mkLevelMax l₁ l₂
-    | Level.imax l₁ l₂  => do l₁ ← uMetaNormalizeCore l₁;
+    | Level.imax l₁ l₂ _ => do l₁ ← uMetaNormalizeCore l₁;
                               l₂ ← uMetaNormalizeCore l₂;
                               pure $ mkLevelIMax l₁ l₂
-    | Level.mvar m      =>
+    | Level.mvar m _     =>
       match uMetaIdx l with
       | none     => pure l
       | some idx =>  do

@@ -324,7 +324,7 @@ struct elim_match_fn {
     bool is_value(type_context_old & ctx, expr const & e) {
         try {
             if (!m_use_ite) return false;
-            if (is_nat_int_char_string_name_value(ctx, e)) return true;
+            if (is_nat_int_char_string_value(ctx, e)) return true;
             // TODO(Leo, Sebastian): decide whether we ever want to have this behavior back
             // if (optional<name> I_name = is_constructor(e)) return is_nontrivial_enum(*I_name);
             return false;

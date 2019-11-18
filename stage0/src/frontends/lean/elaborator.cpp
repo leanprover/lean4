@@ -2496,7 +2496,7 @@ class validate_and_collect_lhs_mvars : public replace_visitor {
     virtual expr visit_app(expr const & e) override {
         expr it = e;
         while (true) {
-            if (is_nat_int_char_string_name_value(ctx(), it))
+            if (is_nat_int_char_string_value(ctx(), it))
                 return e;
             if (!is_app(it) && !is_constant(it))
                 return visit(it);

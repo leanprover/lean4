@@ -49,8 +49,10 @@ lean_object* l_Lean_mkStrName(lean_object*, lean_object*);
 lean_object* l_Lean_Name_DecidableEq;
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
+lean_object* l_Lean_mkNameStr(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkNameNum(lean_object*, lean_object*);
 size_t lean_name_hash_usize(lean_object*);
 lean_object* l_Lean_Name_HasAppend___closed__1;
 lean_object* l_Lean_Name_DecidableRel___boxed(lean_object*, lean_object*);
@@ -8932,6 +8934,22 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+lean_object* l_Lean_mkNameStr(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_mkNameNum(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_name_mk_numeral(x_1, x_2);
+return x_3;
 }
 }
 lean_object* l_List_foldl___main___at_String_toName___spec__1(lean_object* x_1, lean_object* x_2) {

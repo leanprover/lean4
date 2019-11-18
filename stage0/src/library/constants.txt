@@ -49,8 +49,6 @@ eqOfHeq
 eqTrueIntro
 eqFalseIntro
 eqSelfIffTrue
-Lean.Level
-Lean.Expr
 Lean.MessageData
 Lean.MonadTracer.trace
 False
@@ -115,6 +113,8 @@ Lean.Name
 Lean.Name.anonymous
 Lean.Name.mkNumeral
 Lean.Name.mkString
+Lean.mkNameNum
+Lean.mkNameStr
 Lean.Parser.leadingNode
 Lean.Parser.trailingNode
 Nat

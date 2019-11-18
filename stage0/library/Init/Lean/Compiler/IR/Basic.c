@@ -21,7 +21,7 @@ lean_object* l_Lean_IR_LocalContext_isJP___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_setBody(lean_object*, lean_object*);
 lean_object* l_Lean_IR_AltCore_mmodifyBody___boxed(lean_object*);
 lean_object* lean_ir_mk_sset(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_name_dec_eq(lean_object*, lean_object*);
+uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Lean_IR_VarIdSet_Inhabited;
 lean_object* l_RBNode_ins___main___at_Lean_IR_mkIndexSet___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_AltCore_setBody(lean_object*, lean_object*);
@@ -650,7 +650,7 @@ x_29 = lean_ctor_get(x_1, 1);
 x_30 = lean_ctor_get(x_2, 1);
 x_31 = lean_ctor_get(x_21, 0);
 x_32 = lean_ctor_get(x_27, 0);
-x_33 = lean_name_dec_eq(x_31, x_32);
+x_33 = l_Lean_Name_beq___main(x_31, x_32);
 if (x_33 == 0)
 {
 uint8_t x_34; 
@@ -682,7 +682,7 @@ x_37 = lean_ctor_get(x_1, 0);
 x_38 = lean_ctor_get(x_1, 1);
 x_39 = lean_ctor_get(x_2, 0);
 x_40 = lean_ctor_get(x_2, 1);
-x_41 = lean_name_dec_eq(x_37, x_39);
+x_41 = l_Lean_Name_beq___main(x_37, x_39);
 if (x_41 == 0)
 {
 uint8_t x_42; 
@@ -1093,7 +1093,7 @@ x_9 = lean_ctor_get(x_2, 1);
 x_10 = lean_ctor_get(x_2, 2);
 x_11 = lean_ctor_get(x_2, 3);
 x_12 = lean_ctor_get(x_2, 4);
-x_13 = lean_name_dec_eq(x_3, x_8);
+x_13 = l_Lean_Name_beq___main(x_3, x_8);
 if (x_13 == 0)
 {
 uint8_t x_14; 
@@ -8915,7 +8915,7 @@ x_65 = lean_ctor_get(x_2, 0);
 x_66 = lean_ctor_get(x_2, 1);
 x_67 = lean_ctor_get(x_3, 0);
 x_68 = lean_ctor_get(x_3, 1);
-x_69 = lean_name_dec_eq(x_65, x_67);
+x_69 = l_Lean_Name_beq___main(x_65, x_67);
 if (x_69 == 0)
 {
 uint8_t x_70; 
@@ -8946,7 +8946,7 @@ lean_object* x_73; lean_object* x_74; lean_object* x_75; uint8_t x_76;
 x_73 = lean_ctor_get(x_2, 0);
 x_74 = lean_ctor_get(x_3, 0);
 x_75 = lean_ctor_get(x_3, 1);
-x_76 = lean_name_dec_eq(x_73, x_74);
+x_76 = l_Lean_Name_beq___main(x_73, x_74);
 if (x_76 == 0)
 {
 uint8_t x_77; 
@@ -12817,7 +12817,7 @@ lean_inc(x_175);
 x_176 = lean_ctor_get(x_3, 3);
 lean_inc(x_176);
 lean_dec(x_3);
-x_177 = lean_name_dec_eq(x_171, x_174);
+x_177 = l_Lean_Name_beq___main(x_171, x_174);
 lean_dec(x_174);
 lean_dec(x_171);
 if (x_177 == 0)

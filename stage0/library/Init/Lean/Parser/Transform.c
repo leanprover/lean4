@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 extern lean_object* l_Array_forMAux___main___at_Lean_Environment_displayStats___spec__9___closed__2;
-uint8_t lean_name_dec_eq(lean_object*, lean_object*);
+uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_setTailInfo___rarg(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -251,7 +251,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5;
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = l_Lean_Syntax_removeParen___closed__4;
-x_5 = lean_name_dec_eq(x_2, x_4);
+x_5 = l_Lean_Name_beq___main(x_2, x_4);
 if (x_5 == 0)
 {
 lean_inc(x_1);

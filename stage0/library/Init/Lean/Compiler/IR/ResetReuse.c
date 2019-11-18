@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_setBody(lean_object*, lean_object*);
-uint8_t lean_name_dec_eq(lean_object*, lean_object*);
+uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_ResetReuse_8__Dmain(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_ResetReuse_9__D(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
@@ -109,7 +109,7 @@ x_15 = lean_ctor_get(x_1, 0);
 x_16 = l_Lean_Name_getPrefix(x_15);
 x_17 = lean_ctor_get(x_2, 0);
 x_18 = l_Lean_Name_getPrefix(x_17);
-x_19 = lean_name_dec_eq(x_16, x_18);
+x_19 = l_Lean_Name_beq___main(x_16, x_18);
 lean_dec(x_18);
 lean_dec(x_16);
 return x_19;

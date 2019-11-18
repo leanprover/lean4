@@ -18,9 +18,9 @@ lean_object* l_Lean_getExternEntryForAux___boxed(lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_fold___main___at_Lean_mkExternAttr___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_expandExternPatternAux(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Lean_getExternNameFor(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getExternNameFor___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t lean_name_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_ExternEntry_backend(lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -1034,7 +1034,7 @@ x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
 lean_dec(x_8);
 x_10 = lean_ctor_get(x_1, 0);
-x_11 = lean_name_dec_eq(x_9, x_10);
+x_11 = l_Lean_Name_beq___main(x_9, x_10);
 lean_dec(x_9);
 if (x_11 == 0)
 {
@@ -2601,11 +2601,11 @@ x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
 x_6 = l_Lean_ExternEntry_backend(x_4);
 x_7 = l___private_Init_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__2;
-x_8 = lean_name_dec_eq(x_6, x_7);
+x_8 = l_Lean_Name_beq___main(x_6, x_7);
 if (x_8 == 0)
 {
 uint8_t x_9; 
-x_9 = lean_name_dec_eq(x_6, x_1);
+x_9 = l_Lean_Name_beq___main(x_6, x_1);
 lean_dec(x_6);
 if (x_9 == 0)
 {
@@ -2745,47 +2745,77 @@ x_9 = lean_ctor_get(x_7, 0);
 lean_inc(x_9);
 if (lean_obj_tag(x_9) == 2)
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
-x_10 = lean_ctor_get(x_7, 1);
+lean_object* x_10; 
+x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
-lean_dec(x_7);
-x_11 = lean_ctor_get(x_9, 0);
-lean_inc(x_11);
 lean_dec(x_9);
-x_12 = l___private_Init_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__2;
-x_13 = lean_name_dec_eq(x_11, x_12);
-lean_dec(x_11);
-if (x_13 == 0)
+if (lean_obj_tag(x_10) == 1)
 {
-uint8_t x_14; 
+lean_object* x_11; 
+x_11 = lean_ctor_get(x_10, 0);
+lean_inc(x_11);
+if (lean_obj_tag(x_11) == 0)
+{
+lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_12 = lean_ctor_get(x_7, 1);
+lean_inc(x_12);
+lean_dec(x_7);
+x_13 = lean_ctor_get(x_10, 1);
+lean_inc(x_13);
 lean_dec(x_10);
-x_14 = 0;
-return x_14;
-}
-else
-{
-if (lean_obj_tag(x_10) == 0)
-{
-uint8_t x_15; 
-x_15 = 1;
-return x_15;
-}
-else
+x_14 = l___private_Init_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__1;
+x_15 = lean_string_dec_eq(x_13, x_14);
+lean_dec(x_13);
+if (x_15 == 0)
 {
 uint8_t x_16; 
-lean_dec(x_10);
+lean_dec(x_12);
 x_16 = 0;
 return x_16;
 }
+else
+{
+if (lean_obj_tag(x_12) == 0)
+{
+uint8_t x_17; 
+x_17 = 1;
+return x_17;
+}
+else
+{
+uint8_t x_18; 
+lean_dec(x_12);
+x_18 = 0;
+return x_18;
+}
 }
 }
 else
 {
-uint8_t x_17; 
+uint8_t x_19; 
+lean_dec(x_11);
+lean_dec(x_10);
+lean_dec(x_7);
+x_19 = 0;
+return x_19;
+}
+}
+else
+{
+uint8_t x_20; 
+lean_dec(x_10);
+lean_dec(x_7);
+x_20 = 0;
+return x_20;
+}
+}
+else
+{
+uint8_t x_21; 
 lean_dec(x_9);
 lean_dec(x_7);
-x_17 = 0;
-return x_17;
+x_21 = 0;
+return x_21;
 }
 }
 }

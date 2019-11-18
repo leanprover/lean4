@@ -20,7 +20,7 @@ lean_object* l___private_Init_Lean_Level_5__mkMaxAux___main(lean_object*, lean_o
 lean_object* l___private_Init_Lean_Level_5__mkMaxAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_hasMVarEx___boxed(lean_object*);
 lean_object* l_Lean_Level_getOffset___boxed(lean_object*);
-uint8_t lean_name_dec_eq(lean_object*, lean_object*);
+uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Lean_Level_normLt___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Level_LevelToFormat_toResult___main___closed__1;
 uint8_t l_Lean_Level_isParam(lean_object*);
@@ -2242,7 +2242,7 @@ case 4:
 lean_object* x_57; lean_object* x_58; uint8_t x_59; 
 x_57 = lean_ctor_get(x_1, 0);
 x_58 = lean_ctor_get(x_3, 0);
-x_59 = lean_name_dec_eq(x_57, x_58);
+x_59 = l_Lean_Name_beq___main(x_57, x_58);
 if (x_59 == 0)
 {
 uint8_t x_60; 
@@ -2288,7 +2288,7 @@ case 5:
 lean_object* x_67; lean_object* x_68; uint8_t x_69; 
 x_67 = lean_ctor_get(x_1, 0);
 x_68 = lean_ctor_get(x_3, 0);
-x_69 = lean_name_dec_eq(x_67, x_68);
+x_69 = l_Lean_Name_beq___main(x_67, x_68);
 if (x_69 == 0)
 {
 uint8_t x_70; 

@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_TypeClass_newSubgoal___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_introduceLocals(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_LocalContext_Inhabited___closed__3;
 size_t l_USize_mul(size_t, size_t);
 lean_object* l_Lean_TypeClass_synth___closed__2;
 extern lean_object* l_Array_empty___closed__1;
@@ -120,6 +119,7 @@ lean_object* l_Array_forMAux___main___at_Lean_TypeClass_newAnswer___spec__5___bo
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_has_out_params(lean_object*, lean_object*);
 lean_object* l_Lean_TypeClass_generate(lean_object*);
+extern lean_object* l_Lean_LocalContext_Inhabited___closed__2;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l_Stack_peek_x21___at_Lean_TypeClass_consume___spec__1(lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
@@ -1527,7 +1527,7 @@ x_8 = lean_ctor_get(x_3, 1);
 lean_inc(x_8);
 lean_dec(x_3);
 x_9 = lean_unsigned_to_nat(0u);
-x_10 = l_Lean_LocalContext_Inhabited___closed__3;
+x_10 = l_Lean_LocalContext_Inhabited___closed__2;
 x_11 = l_Array_empty___closed__1;
 x_12 = l_Lean_TypeClass_introduceLocals___main(x_9, x_10, x_11, x_6);
 x_13 = lean_ctor_get(x_12, 1);
@@ -4431,7 +4431,7 @@ block_266:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 lean_dec(x_3);
 x_4 = lean_unsigned_to_nat(0u);
-x_5 = l_Lean_LocalContext_Inhabited___closed__3;
+x_5 = l_Lean_LocalContext_Inhabited___closed__2;
 x_6 = l_Array_empty___closed__1;
 lean_inc(x_2);
 x_7 = l_Lean_TypeClass_introduceLocals___main(x_4, x_5, x_6, x_2);

@@ -16,7 +16,7 @@ extern "C" {
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_anyAux___main___at___private_Init_Lean_Compiler_ExportAttr_1__isValidCppId___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_attrParamSyntaxToIdentifier(lean_object*);
-uint8_t lean_name_dec_eq(lean_object*, lean_object*);
+uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
@@ -411,20 +411,32 @@ _start:
 {
 if (lean_obj_tag(x_1) == 1)
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
-x_4 = lean_box(0);
-x_5 = lean_name_dec_eq(x_2, x_4);
+if (lean_obj_tag(x_2) == 0)
+{
+uint8_t x_9; 
+x_9 = l___private_Init_Lean_Compiler_ExportAttr_1__isValidCppId(x_3);
+return x_9;
+}
+else
+{
+lean_object* x_10; 
+x_10 = lean_box(0);
+x_4 = x_10;
+goto block_8;
+}
+block_8:
+{
+uint8_t x_5; 
+lean_dec(x_4);
+x_5 = l___private_Init_Lean_Compiler_ExportAttr_1__isValidCppId(x_3);
 if (x_5 == 0)
 {
 uint8_t x_6; 
-x_6 = l___private_Init_Lean_Compiler_ExportAttr_1__isValidCppId(x_3);
-if (x_6 == 0)
-{
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
+x_6 = 0;
+return x_6;
 }
 else
 {
@@ -432,18 +444,12 @@ x_1 = x_2;
 goto _start;
 }
 }
-else
-{
-uint8_t x_9; 
-x_9 = l___private_Init_Lean_Compiler_ExportAttr_1__isValidCppId(x_3);
-return x_9;
-}
 }
 else
 {
-uint8_t x_10; 
-x_10 = 0;
-return x_10;
+uint8_t x_11; 
+x_11 = 0;
+return x_11;
 }
 }
 }
@@ -744,7 +750,7 @@ x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
 lean_dec(x_8);
 x_10 = lean_ctor_get(x_1, 0);
-x_11 = lean_name_dec_eq(x_9, x_10);
+x_11 = l_Lean_Name_beq___main(x_9, x_10);
 lean_dec(x_9);
 if (x_11 == 0)
 {

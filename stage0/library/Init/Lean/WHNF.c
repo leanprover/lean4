@@ -17,8 +17,8 @@ lean_object* l_Lean_matchConstAux___rarg(lean_object*, lean_object*, lean_object
 lean_object* l_Lean_whnfMain___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_2__mkNullaryCtor___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_5__toCtorWhenK___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t lean_name_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_betaRev(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_2__mkNullaryCtor(lean_object*);
 lean_object* l_Lean_reduceRec___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -739,7 +739,7 @@ _start:
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_ctor_get(x_2, 0);
-x_4 = lean_name_dec_eq(x_3, x_1);
+x_4 = l_Lean_Name_beq___main(x_3, x_1);
 return x_4;
 }
 }

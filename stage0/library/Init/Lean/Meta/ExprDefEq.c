@@ -19,7 +19,7 @@ lean_object* l_Array_anyRangeMAux___main___at_Lean_Meta_CheckAssignment_checkFVa
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_8__checkAssignmentFailure___closed__12;
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_4__isDefEqArgs___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_name_dec_eq(lean_object*, lean_object*);
+uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_CheckAssignment_checkMVar(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_14__processAssignmentAux___main___closed__4;
 lean_object* lean_expr_update_app(lean_object*, lean_object*, lean_object*);
@@ -4257,7 +4257,7 @@ lean_object* x_8; uint8_t x_9;
 lean_dec(x_1);
 x_8 = lean_ctor_get(x_3, 1);
 lean_inc(x_8);
-x_9 = lean_name_dec_eq(x_5, x_8);
+x_9 = l_Lean_Name_beq___main(x_5, x_8);
 lean_dec(x_8);
 if (x_9 == 0)
 {
@@ -5240,7 +5240,7 @@ if (lean_obj_tag(x_129) == 0)
 lean_object* x_130; uint8_t x_131; 
 x_130 = lean_ctor_get(x_2, 1);
 lean_inc(x_130);
-x_131 = lean_name_dec_eq(x_127, x_130);
+x_131 = l_Lean_Name_beq___main(x_127, x_130);
 lean_dec(x_130);
 if (x_131 == 0)
 {
@@ -5600,7 +5600,7 @@ if (lean_obj_tag(x_189) == 0)
 lean_object* x_190; uint8_t x_191; 
 x_190 = lean_ctor_get(x_2, 1);
 lean_inc(x_190);
-x_191 = lean_name_dec_eq(x_187, x_190);
+x_191 = l_Lean_Name_beq___main(x_187, x_190);
 lean_dec(x_190);
 if (x_191 == 0)
 {

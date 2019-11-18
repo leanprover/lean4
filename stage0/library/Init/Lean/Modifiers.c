@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_namespacesExt___closed__1;
-uint8_t lean_name_dec_eq(lean_object*, lean_object*);
+uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* lean_environment_main_module(lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
@@ -649,7 +649,7 @@ case 1:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = l_Lean_privateHeader;
-x_5 = lean_name_dec_eq(x_1, x_4);
+x_5 = l_Lean_Name_beq___main(x_1, x_4);
 if (x_5 == 0)
 {
 x_1 = x_3;

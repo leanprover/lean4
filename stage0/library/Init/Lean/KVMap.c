@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_KVMap_HasBeq___closed__1;
-uint8_t lean_name_dec_eq(lean_object*, lean_object*);
+uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getNat(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getName(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_setBool(lean_object*, lean_object*, uint8_t);
@@ -311,7 +311,7 @@ x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_1, 1);
 x_6 = lean_ctor_get(x_4, 0);
 x_7 = lean_ctor_get(x_4, 1);
-x_8 = lean_name_dec_eq(x_6, x_2);
+x_8 = l_Lean_Name_beq___main(x_6, x_2);
 if (x_8 == 0)
 {
 x_1 = x_5;
@@ -430,7 +430,7 @@ x_7 = lean_ctor_get(x_1, 0);
 x_8 = lean_ctor_get(x_1, 1);
 x_9 = lean_ctor_get(x_7, 0);
 lean_inc(x_9);
-x_10 = lean_name_dec_eq(x_9, x_2);
+x_10 = l_Lean_Name_beq___main(x_9, x_2);
 if (x_10 == 0)
 {
 lean_object* x_11; 
@@ -476,7 +476,7 @@ lean_inc(x_16);
 lean_dec(x_1);
 x_18 = lean_ctor_get(x_16, 0);
 lean_inc(x_18);
-x_19 = lean_name_dec_eq(x_18, x_2);
+x_19 = l_Lean_Name_beq___main(x_18, x_2);
 if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; 

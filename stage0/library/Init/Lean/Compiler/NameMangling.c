@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* lean_name_mangle(lean_object*, lean_object*);
-uint8_t lean_name_dec_eq(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_NameMangling_2__Name_mangleAux(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux(lean_object*, lean_object*, lean_object*);
@@ -227,47 +226,52 @@ return x_2;
 }
 case 1:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 1);
 lean_inc(x_4);
 lean_dec(x_1);
 x_5 = l_Lean_String_mangle(x_4);
-x_6 = lean_box(0);
-x_7 = lean_name_dec_eq(x_3, x_6);
-if (x_7 == 0)
+if (lean_obj_tag(x_3) == 0)
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = l___private_Init_Lean_Compiler_NameMangling_2__Name_mangleAux___main(x_3);
-x_9 = l_Lean_Name_appendIndexAfter___closed__1;
-x_10 = lean_string_append(x_8, x_9);
-x_11 = lean_string_append(x_10, x_5);
-lean_dec(x_5);
-return x_11;
+return x_5;
 }
 else
 {
-lean_dec(x_3);
-return x_5;
+lean_object* x_12; 
+x_12 = lean_box(0);
+x_6 = x_12;
+goto block_11;
+}
+block_11:
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_dec(x_6);
+x_7 = l___private_Init_Lean_Compiler_NameMangling_2__Name_mangleAux___main(x_3);
+x_8 = l_Lean_Name_appendIndexAfter___closed__1;
+x_9 = lean_string_append(x_7, x_8);
+x_10 = lean_string_append(x_9, x_5);
+lean_dec(x_5);
+return x_10;
 }
 }
 default: 
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_12 = lean_ctor_get(x_1, 0);
-lean_inc(x_12);
-x_13 = lean_ctor_get(x_1, 1);
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+x_13 = lean_ctor_get(x_1, 0);
 lean_inc(x_13);
+x_14 = lean_ctor_get(x_1, 1);
+lean_inc(x_14);
 lean_dec(x_1);
-x_14 = l___private_Init_Lean_Compiler_NameMangling_2__Name_mangleAux___main(x_12);
-x_15 = l_Lean_Name_appendIndexAfter___closed__1;
-x_16 = lean_string_append(x_14, x_15);
-x_17 = l_Nat_repr(x_13);
-x_18 = lean_string_append(x_16, x_17);
-lean_dec(x_17);
-x_19 = lean_string_append(x_18, x_15);
-return x_19;
+x_15 = l___private_Init_Lean_Compiler_NameMangling_2__Name_mangleAux___main(x_13);
+x_16 = l_Lean_Name_appendIndexAfter___closed__1;
+x_17 = lean_string_append(x_15, x_16);
+x_18 = l_Nat_repr(x_14);
+x_19 = lean_string_append(x_17, x_18);
+lean_dec(x_18);
+x_20 = lean_string_append(x_19, x_16);
+return x_20;
 }
 }
 }

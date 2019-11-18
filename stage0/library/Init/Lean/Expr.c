@@ -28,8 +28,8 @@ lean_object* l_Lean_Expr_bindingBody_x21(lean_object*);
 lean_object* l_Lean_Literal_type___boxed(lean_object*);
 lean_object* l_Lean_Expr_updateProj___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_Data_hasBeq(uint64_t, uint64_t);
+uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 uint8_t lean_expr_binder_info(lean_object*);
-uint8_t lean_name_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bindingName_x21___boxed(lean_object*);
 lean_object* l___private_Init_Lean_Expr_7__betaRevAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
@@ -4637,7 +4637,7 @@ if (lean_obj_tag(x_1) == 4)
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_name_dec_eq(x_3, x_2);
+x_4 = l_Lean_Name_beq___main(x_3, x_2);
 return x_4;
 }
 else
@@ -5355,7 +5355,7 @@ lean_object* x_4; uint8_t x_5;
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 lean_dec(x_3);
-x_5 = lean_name_dec_eq(x_4, x_2);
+x_5 = l_Lean_Name_beq___main(x_4, x_2);
 lean_dec(x_4);
 return x_5;
 }
@@ -5399,7 +5399,7 @@ return x_7;
 else
 {
 uint8_t x_8; 
-x_8 = lean_name_dec_eq(x_4, x_2);
+x_8 = l_Lean_Name_beq___main(x_4, x_2);
 return x_8;
 }
 }

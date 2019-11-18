@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t lean_name_dec_eq(lean_object*, lean_object*);
+uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Lean_IR_CollectMaps_collectFnBody___main(lean_object*, lean_object*);
 lean_object* l_HashMapImp_moveEntries___main___at_Lean_IR_CollectMaps_collectJP___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -118,7 +118,7 @@ return x_10;
 else
 {
 uint8_t x_11; 
-x_11 = lean_name_dec_eq(x_7, x_1);
+x_11 = l_Lean_Name_beq___main(x_7, x_1);
 return x_11;
 }
 }

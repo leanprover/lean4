@@ -16,7 +16,7 @@ extern "C" {
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_IR_Borrow_InitParamMap_visitDecls___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_setBody(lean_object*, lean_object*);
-uint8_t lean_name_dec_eq(lean_object*, lean_object*);
+uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_IR_Borrow_ApplyParamMap_visitFnBody___main___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_IR_Borrow_ownArgs___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
@@ -182,7 +182,7 @@ if (lean_obj_tag(x_2) == 0)
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_2, 0);
-x_5 = lean_name_dec_eq(x_3, x_4);
+x_5 = l_Lean_Name_beq___main(x_3, x_4);
 return x_5;
 }
 else
@@ -207,7 +207,7 @@ x_8 = lean_ctor_get(x_1, 0);
 x_9 = lean_ctor_get(x_1, 1);
 x_10 = lean_ctor_get(x_2, 0);
 x_11 = lean_ctor_get(x_2, 1);
-x_12 = lean_name_dec_eq(x_8, x_10);
+x_12 = l_Lean_Name_beq___main(x_8, x_10);
 if (x_12 == 0)
 {
 uint8_t x_13; 
@@ -2533,7 +2533,7 @@ x_8 = lean_ctor_get(x_2, 1);
 x_9 = lean_ctor_get(x_6, 0);
 x_10 = lean_ctor_get(x_4, 1);
 lean_inc(x_10);
-x_11 = lean_name_dec_eq(x_10, x_7);
+x_11 = l_Lean_Name_beq___main(x_10, x_7);
 lean_dec(x_10);
 if (x_11 == 0)
 {

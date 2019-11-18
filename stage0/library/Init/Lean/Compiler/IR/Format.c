@@ -23,7 +23,7 @@ lean_object* l___private_Init_Lean_Compiler_IR_Format_4__formatExpr___closed__12
 lean_object* l___private_Init_Lean_Compiler_IR_Format_5__formatIRType___main___closed__17;
 lean_object* l_Lean_IR_formatFnBody___main___closed__1;
 lean_object* l___private_Init_Lean_Compiler_IR_Format_5__formatIRType___main___closed__15;
-uint8_t lean_name_dec_eq(lean_object*, lean_object*);
+uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Lean_IR_formatFnBodyHead___closed__21;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__2;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__36;
@@ -452,7 +452,7 @@ lean_ctor_set_uint8(x_10, sizeof(void*)*2, x_8);
 x_11 = lean_unsigned_to_nat(0u);
 x_12 = lean_nat_dec_lt(x_11, x_4);
 x_13 = lean_box(0);
-x_14 = lean_name_dec_eq(x_2, x_13);
+x_14 = l_Lean_Name_beq___main(x_2, x_13);
 if (x_12 == 0)
 {
 uint8_t x_15; 

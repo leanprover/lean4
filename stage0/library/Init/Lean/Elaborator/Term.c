@@ -17,7 +17,7 @@ extern lean_object* l_Lean_Parser_Term_cons___elambda__1___closed__1;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabListLit___closed__1;
 extern lean_object* l_List_foldl___main___at_Lean_Parser_mkAppStx___spec__1___rarg___closed__1;
-uint8_t lean_name_dec_eq(lean_object*, lean_object*);
+uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkExplicitBinder___rarg(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -125,7 +125,7 @@ else
 {
 lean_object* x_9; uint8_t x_10; 
 x_9 = lean_array_fget(x_1, x_4);
-x_10 = lean_name_dec_eq(x_5, x_9);
+x_10 = l_Lean_Name_beq___main(x_5, x_9);
 lean_dec(x_9);
 if (x_10 == 0)
 {
@@ -172,7 +172,7 @@ lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec(x_10);
-x_13 = lean_name_dec_eq(x_3, x_11);
+x_13 = l_Lean_Name_beq___main(x_3, x_11);
 lean_dec(x_11);
 if (x_13 == 0)
 {
@@ -244,7 +244,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
 x_6 = lean_ctor_get(x_2, 2);
-x_7 = lean_name_dec_eq(x_4, x_1);
+x_7 = l_Lean_Name_beq___main(x_4, x_1);
 if (x_7 == 0)
 {
 x_2 = x_6;

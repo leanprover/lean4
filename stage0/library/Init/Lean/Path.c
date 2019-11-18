@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_String_revPosOf(lean_object*, uint32_t);
 lean_object* l_Lean_getBuiltinSearchPath___closed__2;
-uint8_t lean_name_dec_eq(lean_object*, lean_object*);
 lean_object* l_IO_appDir___at_Lean_getBuiltinSearchPath___spec__1(lean_object*);
 lean_object* lean_io_realpath(lean_object*, lean_object*);
 lean_object* l_IO_fileExists___at_Lean_findFile___spec__1(lean_object*, lean_object*);
@@ -1413,31 +1412,37 @@ return x_2;
 }
 case 1:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_1, 1);
-x_5 = lean_box(0);
-x_6 = lean_name_dec_eq(x_3, x_5);
-if (x_6 == 0)
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_7 = l_Lean_modNameToFileName___main(x_3);
-x_8 = l___private_Init_Lean_Path_1__pathSep;
-x_9 = lean_string_append(x_7, x_8);
-x_10 = lean_string_append(x_9, x_4);
-return x_10;
-}
-else
+if (lean_obj_tag(x_3) == 0)
 {
 lean_inc(x_4);
 return x_4;
 }
+else
+{
+lean_object* x_11; 
+x_11 = lean_box(0);
+x_5 = x_11;
+goto block_10;
+}
+block_10:
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_dec(x_5);
+x_6 = l_Lean_modNameToFileName___main(x_3);
+x_7 = l___private_Init_Lean_Path_1__pathSep;
+x_8 = lean_string_append(x_6, x_7);
+x_9 = lean_string_append(x_8, x_4);
+return x_9;
+}
 }
 default: 
 {
-lean_object* x_11; 
-x_11 = lean_ctor_get(x_1, 0);
-x_1 = x_11;
+lean_object* x_12; 
+x_12 = lean_ctor_get(x_1, 0);
+x_1 = x_12;
 goto _start;
 }
 }

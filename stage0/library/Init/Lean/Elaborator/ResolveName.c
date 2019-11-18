@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elaborator_ResolveName_5__resolveNameAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_name_dec_eq(lean_object*, lean_object*);
+uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_preresolveNames___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Elab_preresolveNames(lean_object*);
@@ -287,7 +287,7 @@ lean_inc(x_17);
 x_18 = lean_ctor_get(x_5, 1);
 lean_inc(x_18);
 lean_dec(x_5);
-x_19 = lean_name_dec_eq(x_2, x_17);
+x_19 = l_Lean_Name_beq___main(x_2, x_17);
 lean_dec(x_17);
 if (x_19 == 0)
 {
@@ -320,7 +320,7 @@ lean_inc(x_23);
 x_24 = lean_ctor_get(x_5, 1);
 lean_inc(x_24);
 lean_dec(x_5);
-x_25 = lean_name_dec_eq(x_2, x_23);
+x_25 = l_Lean_Name_beq___main(x_2, x_23);
 lean_dec(x_23);
 if (x_25 == 0)
 {

@@ -144,7 +144,7 @@ lean_object* l_Lean_LocalContext_Inhabited;
 lean_object* l_Array_anyRangeMAux___main___at_Lean_LocalContext_anyM___spec__5(lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_LocalContext_allM___spec__4___rarg___lambda__1(lean_object*, uint8_t);
 lean_object* lean_local_ctx_pop(lean_object*);
-size_t lean_name_hash_usize(lean_object*);
+size_t l_Lean_Name_hash(lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_LocalContext_allM___spec__4___rarg___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_LocalContext_allM___spec__3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Array_iterateMAux___main___at_Lean_LocalContext_foldlFrom___spec__7___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -898,7 +898,7 @@ else
 lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; size_t x_13; size_t x_14; size_t x_15; size_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_9 = lean_array_fget(x_4, x_5);
 x_10 = lean_array_fget(x_3, x_5);
-x_11 = lean_name_hash_usize(x_9);
+x_11 = l_Lean_Name_hash(x_9);
 x_12 = 1;
 x_13 = x_1 - x_12;
 x_14 = 5;
@@ -1237,7 +1237,7 @@ if (x_4 == 0)
 lean_object* x_5; lean_object* x_6; size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
-x_7 = lean_name_hash_usize(x_2);
+x_7 = l_Lean_Name_hash(x_2);
 x_8 = 1;
 x_9 = l_PersistentHashMap_insertAux___main___at_Lean_LocalContext_mkLocalDecl___spec__2(x_5, x_7, x_8, x_2, x_3);
 x_10 = lean_unsigned_to_nat(1u);
@@ -1255,7 +1255,7 @@ x_13 = lean_ctor_get(x_1, 1);
 lean_inc(x_13);
 lean_inc(x_12);
 lean_dec(x_1);
-x_14 = lean_name_hash_usize(x_2);
+x_14 = l_Lean_Name_hash(x_2);
 x_15 = 1;
 x_16 = l_PersistentHashMap_insertAux___main___at_Lean_LocalContext_mkLocalDecl___spec__2(x_12, x_14, x_15, x_2, x_3);
 x_17 = lean_unsigned_to_nat(1u);
@@ -1534,7 +1534,7 @@ _start:
 {
 lean_object* x_3; size_t x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_name_hash_usize(x_2);
+x_4 = l_Lean_Name_hash(x_2);
 x_5 = l_PersistentHashMap_findAux___main___at_Lean_LocalContext_find___spec__2(x_3, x_4, x_2);
 return x_5;
 }
@@ -1701,7 +1701,7 @@ _start:
 {
 lean_object* x_3; size_t x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_name_hash_usize(x_2);
+x_4 = l_Lean_Name_hash(x_2);
 x_5 = l_PersistentHashMap_containsAux___main___at_Lean_LocalContext_contains___spec__2(x_3, x_4, x_2);
 return x_5;
 }
@@ -2519,7 +2519,7 @@ if (x_3 == 0)
 lean_object* x_4; lean_object* x_5; size_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_1, 1);
-x_6 = lean_name_hash_usize(x_2);
+x_6 = l_Lean_Name_hash(x_2);
 x_7 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2(x_4, x_6, x_2);
 x_8 = lean_ctor_get(x_7, 1);
 lean_inc(x_8);
@@ -2556,7 +2556,7 @@ x_15 = lean_ctor_get(x_1, 1);
 lean_inc(x_15);
 lean_inc(x_14);
 lean_dec(x_1);
-x_16 = lean_name_hash_usize(x_2);
+x_16 = l_Lean_Name_hash(x_2);
 x_17 = l_PersistentHashMap_eraseAux___main___at_Lean_LocalContext_erase___spec__2(x_14, x_16, x_2);
 x_18 = lean_ctor_get(x_17, 1);
 lean_inc(x_18);

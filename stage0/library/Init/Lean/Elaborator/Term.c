@@ -37,12 +37,12 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_PersistentHashMap_findAux___main___at_Lean_Elab_elabTermAux___main___spec__3(lean_object*, size_t, lean_object*);
 extern lean_object* l_Lean_termElabAttribute;
 lean_object* l_AssocList_find___main___at_Lean_Elab_elabTermAux___main___spec__6(lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l___regBuiltinTermElab_Lean_Elab_elabListLit___closed__1;
 lean_object* l_Lean_Elab_mkExplicitBinder___rarg___closed__3;
 lean_object* l_Lean_Elab_elabListLit___closed__4;
 lean_object* l___regBuiltinTermElab_Lean_Elab_elabListLit(lean_object*);
-size_t lean_name_hash_usize(lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
+size_t l_Lean_Name_hash(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabTermAux___main___closed__1;
 lean_object* l___regBuiltinTermElab_Lean_Elab_elabArrow___closed__1;
@@ -224,7 +224,7 @@ _start:
 {
 lean_object* x_3; size_t x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_name_hash_usize(x_2);
+x_4 = l_Lean_Name_hash(x_2);
 x_5 = l_PersistentHashMap_findAux___main___at_Lean_Elab_elabTermAux___main___spec__3(x_3, x_4, x_2);
 return x_5;
 }
@@ -267,7 +267,7 @@ _start:
 lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_array_get_size(x_3);
-x_5 = lean_name_hash_usize(x_2);
+x_5 = l_Lean_Name_hash(x_2);
 x_6 = lean_usize_modn(x_5, x_4);
 lean_dec(x_4);
 x_7 = lean_array_uget(x_3, x_6);

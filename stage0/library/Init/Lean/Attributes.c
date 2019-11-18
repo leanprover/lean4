@@ -48,6 +48,7 @@ lean_object* lean_add_scoped_attribute(lean_object*, lean_object*, lean_object*,
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 lean_object* l_Lean_TagAttribute_Inhabited___closed__2;
 lean_object* lean_mk_array(lean_object*, lean_object*);
+extern lean_object* l_Lean_Name_inhabited;
 lean_object* l_HashMapImp_expand___at_Lean_registerAttribute___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_TagAttribute_Inhabited___closed__3;
 lean_object* l_Lean_registerParametricAttribute___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -92,7 +93,6 @@ lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerEnumAttributes___spec__9___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerEnumAttributes___spec__9(lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_registerEnumAttributes___spec__3(lean_object*);
-extern lean_object* l_Lean_Inhabited;
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_registerParametricAttribute___spec__8___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -133,7 +133,7 @@ lean_object* l_Lean_registerParametricAttribute(lean_object*);
 lean_object* l_Lean_AttributeImpl_inhabited___lambda__5(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnumAttributes___rarg___lambda__2___closed__3;
 lean_object* l_List_forM___main___at_Lean_registerEnumAttributes___spec__11(lean_object*, lean_object*);
-size_t lean_name_hash_usize(lean_object*);
+size_t l_Lean_Name_hash(lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 lean_object* l_Lean_Environment_pushScope___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
@@ -609,7 +609,7 @@ _start:
 lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; uint8_t x_8; 
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_array_get_size(x_3);
-x_5 = lean_name_hash_usize(x_2);
+x_5 = l_Lean_Name_hash(x_2);
 x_6 = lean_usize_modn(x_5, x_4);
 lean_dec(x_4);
 x_7 = lean_array_uget(x_3, x_6);
@@ -635,7 +635,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; size_t x_7; size_t x_8; le
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 2);
 x_6 = lean_array_get_size(x_1);
-x_7 = lean_name_hash_usize(x_4);
+x_7 = l_Lean_Name_hash(x_4);
 x_8 = lean_usize_modn(x_7, x_6);
 lean_dec(x_6);
 x_9 = lean_array_uget(x_1, x_8);
@@ -656,7 +656,7 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_dec(x_2);
 x_15 = lean_array_get_size(x_1);
-x_16 = lean_name_hash_usize(x_12);
+x_16 = l_Lean_Name_hash(x_12);
 x_17 = lean_usize_modn(x_16, x_15);
 lean_dec(x_15);
 x_18 = lean_array_uget(x_1, x_17);
@@ -803,7 +803,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; le
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
 x_7 = lean_array_get_size(x_6);
-x_8 = lean_name_hash_usize(x_2);
+x_8 = l_Lean_Name_hash(x_2);
 x_9 = lean_usize_modn(x_8, x_7);
 x_10 = lean_array_uget(x_6, x_9);
 x_11 = l_AssocList_contains___main___at_Lean_registerAttribute___spec__2(x_2, x_10);
@@ -853,7 +853,7 @@ lean_inc(x_21);
 lean_inc(x_20);
 lean_dec(x_1);
 x_22 = lean_array_get_size(x_21);
-x_23 = lean_name_hash_usize(x_2);
+x_23 = l_Lean_Name_hash(x_2);
 x_24 = lean_usize_modn(x_23, x_22);
 x_25 = lean_array_uget(x_21, x_24);
 x_26 = l_AssocList_contains___main___at_Lean_registerAttribute___spec__2(x_2, x_25);
@@ -1760,7 +1760,7 @@ _start:
 lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_array_get_size(x_3);
-x_5 = lean_name_hash_usize(x_2);
+x_5 = l_Lean_Name_hash(x_2);
 x_6 = lean_usize_modn(x_5, x_4);
 lean_dec(x_4);
 x_7 = lean_array_uget(x_3, x_6);
@@ -4017,7 +4017,7 @@ lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_
 _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_7 = l_Lean_Inhabited;
+x_7 = l_Lean_Name_inhabited;
 lean_inc(x_1);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -4083,7 +4083,7 @@ lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_
 _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_7 = l_Lean_Inhabited;
+x_7 = l_Lean_Name_inhabited;
 lean_inc(x_1);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -4149,7 +4149,7 @@ lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_
 _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_7 = l_Lean_Inhabited;
+x_7 = l_Lean_Name_inhabited;
 lean_inc(x_1);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -4215,7 +4215,7 @@ lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_
 _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_7 = l_Lean_Inhabited;
+x_7 = l_Lean_Name_inhabited;
 lean_inc(x_1);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -4281,7 +4281,7 @@ lean_object* l_Array_qsortAux___main___at_Lean_registerParametricAttribute___spe
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_16; 
-x_5 = l_Lean_Inhabited;
+x_5 = l_Lean_Name_inhabited;
 lean_inc(x_1);
 x_6 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_6, 0, x_5);
@@ -5778,7 +5778,7 @@ lean_object* l_Array_binSearchAux___main___at_Lean_ParametricAttribute_getParam_
 _start:
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_6 = l_Lean_Inhabited;
+x_6 = l_Lean_Name_inhabited;
 lean_inc(x_1);
 x_7 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
@@ -6196,7 +6196,7 @@ lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_
 _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_7 = l_Lean_Inhabited;
+x_7 = l_Lean_Name_inhabited;
 lean_inc(x_1);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -6262,7 +6262,7 @@ lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_
 _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_7 = l_Lean_Inhabited;
+x_7 = l_Lean_Name_inhabited;
 lean_inc(x_1);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -6328,7 +6328,7 @@ lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_
 _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_7 = l_Lean_Inhabited;
+x_7 = l_Lean_Name_inhabited;
 lean_inc(x_1);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -6394,7 +6394,7 @@ lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_
 _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_7 = l_Lean_Inhabited;
+x_7 = l_Lean_Name_inhabited;
 lean_inc(x_1);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -6460,7 +6460,7 @@ lean_object* l_Array_qsortAux___main___at_Lean_registerEnumAttributes___spec__2_
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_16; 
-x_5 = l_Lean_Inhabited;
+x_5 = l_Lean_Name_inhabited;
 lean_inc(x_1);
 x_6 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_6, 0, x_5);
@@ -8076,7 +8076,7 @@ lean_object* l_Array_binSearchAux___main___at_Lean_EnumAttributes_getValue___spe
 _start:
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_6 = l_Lean_Inhabited;
+x_6 = l_Lean_Name_inhabited;
 lean_inc(x_1);
 x_7 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_7, 0, x_6);

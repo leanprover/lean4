@@ -64,8 +64,8 @@ lean_object* l_Lean_Parser_testModuleParser___lambda__1(lean_object*, lean_objec
 lean_object* l_Lean_Parser_Module_header___closed__2;
 lean_object* l___private_Init_Lean_Parser_Module_3__consumeInput(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_testModuleParser___closed__1;
-lean_object* l_Lean_Parser_ParserState_mkNode(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_Parser_ParserState_mkNode(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Module_header___closed__1;
 lean_object* l_Lean_Parser_Module_import___closed__3;
 lean_object* l_Lean_Parser_Module_header___elambda__1___closed__1;

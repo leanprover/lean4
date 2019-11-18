@@ -25,6 +25,7 @@ uint8_t l_String_anyAux___main___at___private_Init_Lean_Compiler_ExportAttr_1__i
 lean_object* l_Lean_mkExportAttr___closed__2;
 lean_object* l_Lean_registerParametricAttribute___at_Lean_mkExportAttr___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
+extern lean_object* l_Lean_Name_inhabited;
 lean_object* l_Lean_mkExportAttr___closed__4;
 lean_object* lean_get_export_name_for(lean_object*, lean_object*);
 extern lean_object* l_Lean_AttributeImpl_inhabited___closed__5;
@@ -39,7 +40,6 @@ lean_object* l___private_Init_Lean_Compiler_ExportAttr_2__isValidCppName___main_
 extern lean_object* l___private_Init_Lean_Environment_5__envExtensionsRef;
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__4;
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
-extern lean_object* l_Lean_Inhabited;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_mkExportAttr___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_mkExportAttr___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
@@ -48,9 +48,9 @@ lean_object* lean_io_initializing(lean_object*);
 lean_object* l_Lean_mkExportAttr(lean_object*);
 extern lean_object* l_Lean_AttributeImpl_inhabited___closed__4;
 lean_object* l_Lean_registerTagAttribute___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t l_String_anyAux___main___at___private_Init_Lean_Compiler_ExportAttr_1__isValidCppId___spec__2(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkExportAttr___closed__1;
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___at_Lean_mkExportAttr___spec__1___lambda__1___boxed(lean_object*);
@@ -512,7 +512,7 @@ lean_object* _init_l___private_Init_Data_Array_QSort_1__partitionAux___main___at
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Inhabited;
+x_1 = l_Lean_Name_inhabited;
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);

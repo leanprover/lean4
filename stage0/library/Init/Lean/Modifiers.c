@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_namespacesExt___closed__1;
-lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* lean_environment_main_module(lean_object*);
 extern lean_object* l_Array_empty___closed__1;
@@ -42,6 +41,7 @@ lean_object* l_Lean_protectedExt___elambda__1(lean_object*);
 lean_object* l_Lean_mkPrivateExtension___closed__1;
 lean_object* l_Lean_protectedExt___closed__3;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt___closed__5;
 lean_object* l_Lean_mkProtectedExtension___closed__1;
 lean_object* l_Lean_protectedExt___closed__2;

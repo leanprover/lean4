@@ -37,6 +37,7 @@ extern lean_object* l_Lean_Format_paren___closed__2;
 lean_object* l_Lean_Level_instantiate(lean_object*, lean_object*);
 uint8_t l_Lean_Level_Data_hasBeq(uint64_t, uint64_t);
 uint8_t l_Lean_Name_lt___main(lean_object*, lean_object*);
+extern lean_object* l_Lean_Name_inhabited;
 uint8_t lean_level_has_mvar(lean_object*);
 lean_object* l_Lean_Level_LevelToFormat_toResult(lean_object*);
 lean_object* l_Lean_Level_normalize___main(lean_object*);
@@ -63,7 +64,6 @@ lean_object* l___private_Init_Lean_Level_4__accMax(lean_object*, lean_object*, l
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 uint8_t l_Lean_Level_normLt(lean_object*, lean_object*);
 lean_object* l_Lean_Level_mkData___boxed__const__1;
-extern lean_object* l_Lean_Inhabited;
 lean_object* l_Lean_Level_beq___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Level_isMax(lean_object*);
 lean_object* l_Lean_Level_mkData___closed__3;
@@ -100,7 +100,7 @@ lean_object* l_Lean_Level_isMaxIMax___boxed(lean_object*);
 lean_object* l___private_Init_Lean_Level_6__formatLst(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Level_1__isAlreadyNormalizedCheap___main___boxed(lean_object*);
 uint64_t l_Lean_levelZero___closed__1;
-size_t lean_name_hash_usize(lean_object*);
+size_t l_Lean_Name_hash(lean_object*);
 uint8_t l_Lean_Level_isExplicit___main(lean_object*);
 lean_object* l_Lean_Level_LevelToFormat_Result_max(lean_object*, lean_object*);
 lean_object* l_Lean_Level_hasParam___boxed(lean_object*);
@@ -874,7 +874,7 @@ _start:
 {
 size_t x_2; size_t x_3; size_t x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; uint64_t x_8; lean_object* x_9; 
 x_2 = 2237;
-x_3 = lean_name_hash_usize(x_1);
+x_3 = l_Lean_Name_hash(x_1);
 x_4 = lean_usize_mix_hash(x_2, x_3);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = 1;
@@ -891,7 +891,7 @@ _start:
 {
 size_t x_2; size_t x_3; size_t x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; uint64_t x_8; lean_object* x_9; 
 x_2 = 2239;
-x_3 = lean_name_hash_usize(x_1);
+x_3 = l_Lean_Name_hash(x_1);
 x_4 = lean_usize_mix_hash(x_2, x_3);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = 0;
@@ -1384,7 +1384,7 @@ return x_2;
 else
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Lean_Inhabited;
+x_3 = l_Lean_Name_inhabited;
 x_4 = l_Lean_Level_mvarId_x21___closed__2;
 x_5 = lean_panic_fn(x_4);
 return x_5;

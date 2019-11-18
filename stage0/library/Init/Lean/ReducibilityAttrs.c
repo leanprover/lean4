@@ -32,6 +32,7 @@ lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkReducibilityAttrs___closed__12;
 lean_object* l_RBNode_find___main___at_Lean_getReducibilityStatus___spec__2(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
+extern lean_object* l_Lean_Name_inhabited;
 lean_object* l_Lean_mkReducibilityAttrs(lean_object*);
 extern lean_object* l_Lean_AttributeImpl_inhabited___closed__5;
 extern lean_object* l_Lean_registerTagAttribute___lambda__4___closed__4;
@@ -42,7 +43,6 @@ lean_object* l_Lean_registerEnumAttributes___at_Lean_mkReducibilityAttrs___spec_
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__4;
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_mkReducibilityAttrs___lambda__1___closed__1;
-extern lean_object* l_Lean_Inhabited;
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkReducibilityAttrs___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnumAttributes_getValue___at_Lean_getReducibilityStatus___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
@@ -57,9 +57,9 @@ lean_object* l_Lean_isReducible___boxed(lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_mkReducibilityAttrs___spec__8___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_EnumAttributes_Inhabited___closed__1;
 lean_object* l_Lean_mkReducibilityAttrs___closed__8;
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_mkReducibilityAttrs___lambda__1(lean_object*, lean_object*, uint8_t);
 lean_object* l_List_forM___main___at_Lean_registerEnumAttributes___spec__11(lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_mkReducibilityAttrs___closed__3;
@@ -162,7 +162,7 @@ lean_object* _init_l___private_Init_Data_Array_QSort_1__partitionAux___main___at
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Inhabited;
+x_1 = l_Lean_Name_inhabited;
 x_2 = l_Lean_ReducibilityStatus_inhabited;
 x_3 = lean_box(x_2);
 x_4 = lean_alloc_ctor(0, 2, 0);

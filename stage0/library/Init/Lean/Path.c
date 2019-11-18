@@ -50,9 +50,9 @@ lean_object* l_Lean_findLeanFile___boxed(lean_object*, lean_object*, lean_object
 lean_object* l_Array_toList___rarg(lean_object*);
 lean_object* lean_io_getenv(lean_object*, lean_object*);
 extern lean_object* l_List_repr___rarg___closed__2;
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_getSearchPathFromEnv___closed__2;
 lean_object* l_Lean_findFile(lean_object*, lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_io_file_exists(lean_object*, lean_object*);
 lean_object* l_Lean_realPathNormalized(lean_object*, lean_object*);
 lean_object* l_Lean_modNameToFileName___boxed(lean_object*);

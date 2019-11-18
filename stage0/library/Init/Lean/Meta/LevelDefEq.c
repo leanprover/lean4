@@ -44,8 +44,8 @@ lean_object* l___private_Init_Lean_Meta_LevelDefEq_3__mkMaxArgsDiff(lean_object*
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_7__isLevelDefEqAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_7__isLevelDefEqAux___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
-lean_object* l___private_Init_Lean_Meta_LevelDefEq_6__getLevelConstraintKind___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_Meta_LevelDefEq_6__getLevelConstraintKind___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_12__processPostponed___closed__2;
 extern lean_object* l_PersistentArray_empty___closed__3;
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_10__processPostponedStep(lean_object*, lean_object*);

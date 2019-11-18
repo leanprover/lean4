@@ -371,7 +371,6 @@ bool is_runtime_builtin_type(name const & n) {
         n == get_uint64_name() ||
         n == get_usize_name()  ||
         n == get_thunk_name()  ||
-        n == get_lean_name_name() ||
         n == get_task_name()   ||
         n == get_array_name()  ||
         n == get_byte_array_name()  ||

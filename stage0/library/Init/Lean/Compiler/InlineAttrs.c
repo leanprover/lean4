@@ -28,6 +28,7 @@ lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__5;
 uint8_t l_Array_anyRangeMAux___main___at_Lean_Compiler_mkInlineAttrs___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
+extern lean_object* l_Lean_Name_inhabited;
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__1;
 lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkInlineAttrs___spec__1___closed__2;
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__7;
@@ -45,7 +46,6 @@ extern lean_object* l___private_Init_Lean_Environment_5__envExtensionsRef;
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__4;
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_hasNoInlineAttribute___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_Inhabited;
 lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_mkInlineAttrs___spec__1___lambda__2(lean_object*);
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 uint8_t lean_has_macro_inline_attribute(lean_object*, lean_object*);
@@ -60,10 +60,10 @@ extern lean_object* l_Lean_AttributeImpl_inhabited___closed__4;
 lean_object* l_Lean_registerTagAttribute___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_EnumAttributes_Inhabited___closed__1;
 lean_object* l_Lean_Compiler_mkInlineAttrs___lambda__1(lean_object*, lean_object*, uint8_t);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__17;
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkInlineAttrs___spec__4___closed__1;
 lean_object* l_List_forM___main___at_Lean_registerEnumAttributes___spec__11(lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_getModuleIdxFor(lean_object*, lean_object*);
@@ -291,7 +291,7 @@ lean_object* _init_l___private_Init_Data_Array_QSort_1__partitionAux___main___at
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Inhabited;
+x_1 = l_Lean_Name_inhabited;
 x_2 = l_Lean_Compiler_InlineAttributeKind_Inhabited;
 x_3 = lean_box(x_2);
 x_4 = lean_alloc_ctor(0, 2, 0);

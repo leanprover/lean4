@@ -77,7 +77,7 @@ lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_IR_Borrow_Key_HasBeq;
 lean_object* l_Lean_IR_Borrow_whileModifingOwnedAux(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_IR_Borrow_ApplyParamMap_visitDecls___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-size_t lean_name_hash_usize(lean_object*);
+size_t l_Lean_Name_hash(lean_object*);
 lean_object* l_Lean_IR_AltCore_body(lean_object*);
 uint8_t l_AssocList_contains___main___at_Lean_IR_Borrow_InitParamMap_visitFnBody___main___spec__2(lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_IR_Borrow_updateParamMap___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -258,7 +258,7 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_2; size_t x_3; 
 x_2 = lean_ctor_get(x_1, 0);
-x_3 = lean_name_hash_usize(x_2);
+x_3 = l_Lean_Name_hash(x_2);
 return x_3;
 }
 else
@@ -266,7 +266,7 @@ else
 lean_object* x_4; lean_object* x_5; size_t x_6; size_t x_7; size_t x_8; 
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_1, 1);
-x_6 = lean_name_hash_usize(x_4);
+x_6 = l_Lean_Name_hash(x_4);
 x_7 = lean_usize_of_nat(x_5);
 x_8 = lean_usize_mix_hash(x_6, x_7);
 return x_8;

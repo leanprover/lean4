@@ -58,6 +58,7 @@ lean_object* l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___at_Lean_IR_ExplicitB
 lean_object* l_Lean_IR_ExplicitBoxing_unboxResultIfNeeded___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_findEnvDecl_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_addJP(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Nat_foldMAux___main___at_Lean_IR_ExplicitBoxing_mkBoxedVersionAux___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad___rarg(lean_object*);
 lean_object* l_Lean_IR_reshape(lean_object*, lean_object*);
@@ -78,7 +79,6 @@ lean_object* l_Lean_IR_ExplicitBoxing_castResultIfNeeded(lean_object*, lean_obje
 lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
 uint8_t l_Lean_IR_ExplicitBoxing_eqvTypes(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_getVarType(lean_object*, lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_IR_ExplicitBoxing_mkCast___closed__1;
 lean_object* l_Lean_IR_ExplicitBoxing_mkBoxedVersionAux(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);

@@ -52,6 +52,7 @@ lean_object* lean_io_getenv(lean_object*, lean_object*);
 extern lean_object* l_List_repr___rarg___closed__2;
 lean_object* l_Lean_getSearchPathFromEnv___closed__2;
 lean_object* l_Lean_findFile(lean_object*, lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_io_file_exists(lean_object*, lean_object*);
 lean_object* l_Lean_realPathNormalized(lean_object*, lean_object*);
 lean_object* l_Lean_modNameToFileName___boxed(lean_object*);
@@ -70,7 +71,6 @@ lean_object* l_List_reprAux___main___at_Lean_findAtSearchPath___spec__3___boxed(
 lean_object* l_System_FilePath_dirName(lean_object*);
 lean_object* l_Lean_getBuiltinSearchPath___closed__1;
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_List_foldl___main___at_Lean_moduleNameOfFileName___spec__1(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_findLeanFile___closed__2;

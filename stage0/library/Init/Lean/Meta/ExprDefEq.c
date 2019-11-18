@@ -19,6 +19,7 @@ lean_object* l_Array_anyRangeMAux___main___at_Lean_Meta_CheckAssignment_checkFVa
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_8__checkAssignmentFailure___closed__12;
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_4__isDefEqArgs___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_CheckAssignment_checkMVar(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_14__processAssignmentAux___main___closed__4;
@@ -87,6 +88,7 @@ lean_object* l_Lean_Meta_isDefEqBindingDomain(lean_object*, lean_object*, lean_o
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_3__isDefEqArgsAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_Meta_CheckAssignment_findCached___spec__2(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_8__checkAssignmentFailure___closed__6;
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_Meta_checkAssignment___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambda(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -114,7 +116,6 @@ lean_object* l_Lean_mkFVar(lean_object*);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_8__checkAssignmentFailure___closed__21;
 lean_object* l_Lean_Meta_CheckAssignment_getMCtx___boxed(lean_object*);
 lean_object* l_Lean_Meta_CheckAssignment_check___main(lean_object*, lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_3__isDefEqArgsAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isEtaUnassignedMVar___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -169,7 +170,6 @@ lean_object* l___private_Init_Lean_Expr_3__getAppArgsAux___main(lean_object*, le
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_2__isDefEqArgsFirstPass___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_Lean_LocalDecl_value_x3f(lean_object*);
-lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_13__restore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_CheckAssignment_checkFVar(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_5__isDefEqBindingAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

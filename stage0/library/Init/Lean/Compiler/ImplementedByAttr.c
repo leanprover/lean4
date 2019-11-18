@@ -45,6 +45,7 @@ lean_object* l_Lean_registerTagAttribute___lambda__5___boxed(lean_object*, lean_
 lean_object* l_Lean_registerParametricAttribute___at_Lean_Compiler_mkImplementedByAttr___spec__1___lambda__1___boxed(lean_object*);
 lean_object* l_Lean_registerParametricAttribute___at_Lean_Compiler_mkImplementedByAttr___spec__1___lambda__1(lean_object*);
 lean_object* l_Lean_Compiler_mkImplementedByAttr___lambda__1(lean_object*, lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___main___at_Lean_Compiler_getImplementedBy___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -58,7 +59,6 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__1;
 extern lean_object* l_Char_HasRepr___closed__1;
 extern lean_object* l_Lean_ParametricAttribute_Inhabited___closed__1;
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkImplementedByAttr___closed__3;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkImplementedByAttr___lambda__2(lean_object*, lean_object*, lean_object*);

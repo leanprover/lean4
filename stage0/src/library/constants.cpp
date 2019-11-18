@@ -116,8 +116,8 @@ name const * g_monad = nullptr;
 name const * g_monad_fail = nullptr;
 name const * g_lean_name = nullptr;
 name const * g_lean_name_anonymous = nullptr;
-name const * g_lean_name_mk_numeral = nullptr;
-name const * g_lean_name_mk_string = nullptr;
+name const * g_lean_name_num = nullptr;
+name const * g_lean_name_str = nullptr;
 name const * g_lean_mk_name_num = nullptr;
 name const * g_lean_mk_name_str = nullptr;
 name const * g_lean_parser_leading_node = nullptr;
@@ -305,8 +305,8 @@ void initialize_constants() {
     g_monad_fail = new name{"MonadFail"};
     g_lean_name = new name{"Lean", "Name"};
     g_lean_name_anonymous = new name{"Lean", "Name", "anonymous"};
-    g_lean_name_mk_numeral = new name{"Lean", "Name", "mkNumeral"};
-    g_lean_name_mk_string = new name{"Lean", "Name", "mkString"};
+    g_lean_name_num = new name{"Lean", "Name", "num"};
+    g_lean_name_str = new name{"Lean", "Name", "str"};
     g_lean_mk_name_num = new name{"Lean", "mkNameNum"};
     g_lean_mk_name_str = new name{"Lean", "mkNameStr"};
     g_lean_parser_leading_node = new name{"Lean", "Parser", "leadingNode"};
@@ -495,8 +495,8 @@ void finalize_constants() {
     delete g_monad_fail;
     delete g_lean_name;
     delete g_lean_name_anonymous;
-    delete g_lean_name_mk_numeral;
-    delete g_lean_name_mk_string;
+    delete g_lean_name_num;
+    delete g_lean_name_str;
     delete g_lean_mk_name_num;
     delete g_lean_mk_name_str;
     delete g_lean_parser_leading_node;
@@ -684,8 +684,8 @@ name const & get_monad_name() { return *g_monad; }
 name const & get_monad_fail_name() { return *g_monad_fail; }
 name const & get_lean_name_name() { return *g_lean_name; }
 name const & get_lean_name_anonymous_name() { return *g_lean_name_anonymous; }
-name const & get_lean_name_mk_numeral_name() { return *g_lean_name_mk_numeral; }
-name const & get_lean_name_mk_string_name() { return *g_lean_name_mk_string; }
+name const & get_lean_name_num_name() { return *g_lean_name_num; }
+name const & get_lean_name_str_name() { return *g_lean_name_str; }
 name const & get_lean_mk_name_num_name() { return *g_lean_mk_name_num; }
 name const & get_lean_mk_name_str_name() { return *g_lean_mk_name_str; }
 name const & get_lean_parser_leading_node_name() { return *g_lean_parser_leading_node; }

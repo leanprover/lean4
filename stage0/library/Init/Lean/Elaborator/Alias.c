@@ -73,6 +73,7 @@ lean_object* l_Lean_aliasExtension___elambda__4___boxed(lean_object*);
 lean_object* l_Lean_aliasExtension___closed__6;
 lean_object* l_Lean_addAlias(lean_object*, lean_object*, lean_object*);
 size_t lean_name_hash_usize(lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAux___main___at_Lean_addAliasEntry___spec__3(lean_object*, size_t, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 lean_object* l_Array_iterateMAux___main___at_Lean_mkAliasExtension___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -88,7 +89,6 @@ lean_object* l_HashMapImp_find___at_Lean_addAliasEntry___spec__5(lean_object*, l
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find___at_Lean_addAliasEntry___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_aliasExtension___closed__1;
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_HashMapImp_moveEntries___main___at_Lean_addAliasEntry___spec__15(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l___private_Init_Lean_Environment_8__persistentEnvExtensionsRef;

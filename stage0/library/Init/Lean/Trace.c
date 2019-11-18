@@ -48,6 +48,7 @@ lean_object* l___private_Init_Lean_Trace_5__checkTraceOption___rarg___lambda__1_
 lean_object* l_Lean_MonadTracerAdapter_traceCtx___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TraceState_HasToString;
 lean_object* l_Lean_SimpleMonadTracerAdapter_getTraces___rarg(lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_SimpleMonadTracerAdapter_isTracingEnabledFor___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_monadTracerAdapter___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_SimpleMonadTracerAdapter_getTraces(lean_object*);
@@ -63,7 +64,6 @@ uint8_t l___private_Init_Lean_Trace_4__checkTraceOptionAux(lean_object*, lean_ob
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Trace_5__checkTraceOption___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SimpleMonadTracerAdapter_enableTracing___rarg___boxed(lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_MonadTracerAdapter_trace___boxed(lean_object*);
 lean_object* l_Lean_SimpleMonadTracerAdapter_modifyTraces___rarg(lean_object*, lean_object*);

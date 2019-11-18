@@ -89,6 +89,7 @@ lean_object* l_Lean_whnfCore___boxed(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_3__toCtorIfLit___closed__1;
 lean_object* l_Lean_mkSmartUnfoldingNameFor(lean_object*);
 lean_object* l_Lean_reduceQuotRec___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_whnfCore___main___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_ConstantInfo_hasValue(lean_object*);
@@ -107,7 +108,6 @@ lean_object* l_Lean_reduceRec___rarg___lambda__3(lean_object*, lean_object*, lea
 lean_object* l___private_Init_Lean_WHNF_3__toCtorIfLit___boxed(lean_object*);
 lean_object* l_Lean_whnfMain___boxed(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_3__toCtorIfLit___closed__4;
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_unfoldDefinitionAux___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* lean_instantiate_value_lparams(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);

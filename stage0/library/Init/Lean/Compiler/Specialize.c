@@ -110,6 +110,7 @@ lean_object* l_List_forM___main___at_Lean_registerEnumAttributes___spec__11(lean
 lean_object* l_Lean_Compiler_specExtension;
 lean_object* l_Lean_Compiler_specExtension___closed__1;
 size_t lean_name_hash_usize(lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_insert___at_Lean_Compiler_SpecState_addEntry___spec__12(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 lean_object* l_Array_iterateMAux___main___at_Lean_Compiler_mkSpecExtension___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -142,7 +143,6 @@ lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_Compiler_mkSpecExtension___spec__7___closed__2;
 lean_object* l_Lean_SMap_insert___at_Lean_Compiler_SpecState_addEntry___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_Compiler_mkSpecializeAttrs___spec__5(lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_Compiler_mkSpecExtension___spec__4(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l___private_Init_Lean_Environment_8__persistentEnvExtensionsRef;

@@ -120,6 +120,7 @@ lean_object* l_Lean_Syntax_getIdAt(lean_object*);
 lean_object* l_Lean_mkAtomFrom___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_mreplace___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_updateTrailing___rarg(lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_mreplace___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkStxNumLit(lean_object*, lean_object*);
 lean_object* l_Lean_numLitKind___closed__2;
@@ -170,7 +171,6 @@ lean_object* l_Lean_unreachIsNodeAtom(lean_object*, lean_object*, lean_object*, 
 lean_object* l_Lean_Syntax_mreplace___main___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findMAux___main___at_Lean_Syntax_getHeadInfo___main___spec__1(lean_object*);
 lean_object* l___private_Init_Lean_Syntax_5__decodeBinLitAux___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_mrewriteBottomUp___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l___private_Init_Lean_Syntax_5__decodeBinLitAux___main___boxed(lean_object*, lean_object*, lean_object*);

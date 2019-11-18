@@ -112,6 +112,7 @@ lean_object* l_Nat_foldMAux___main___at_Lean_Meta_getFunInfo___spec__2___boxed(l
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_getFunInfo___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_reduceRec___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_Basic_7__forallTelescopeReducingAuxAux___main___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__37(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isClassExpensive___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__34(lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_9__deltaBetaDefinition___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__23(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -140,7 +141,6 @@ lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_isProp___sp
 lean_object* l_Lean_mkFVar(lean_object*);
 lean_object* l___private_Init_Lean_Meta_Basic_7__forallTelescopeReducingAuxAux___main___at_Lean_Meta_isProp___spec__9(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_reduceRec___at___private_Init_Lean_Meta_Default_3__auxFixpoint___main___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getConstAux(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_instantiate_value_lparams(lean_object*, lean_object*);
 uint8_t l_Lean_LocalDecl_binderInfo(lean_object*);

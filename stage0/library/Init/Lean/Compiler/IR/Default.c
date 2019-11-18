@@ -48,6 +48,7 @@ lean_object* l___private_Init_Lean_Compiler_IR_Default_1__compileAux___closed__2
 extern lean_object* l_Lean_IR_tracePrefixOptionName;
 lean_object* l___private_Init_Lean_Compiler_IR_Default_1__compileAux(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_Default_1__compileAux___closed__28;
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at___private_Init_Lean_Compiler_IR_Default_1__compileAux___spec__5(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_Default_1__compileAux___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_Default_1__compileAux___closed__4;
@@ -56,7 +57,6 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_IR_inferBorrow(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_elimDead(lean_object*);
 extern lean_object* l_Lean_IR_declMapExt;
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_IR_addBoxedVersionAux___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_Default_1__compileAux___closed__19;

@@ -45,6 +45,7 @@ lean_object* l___private_Init_Lean_Meta_LevelDefEq_7__isLevelDefEqAux___boxed(le
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_7__isLevelDefEqAux___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_6__getLevelConstraintKind___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_12__processPostponed___closed__2;
 extern lean_object* l_PersistentArray_empty___closed__3;
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_10__processPostponedStep(lean_object*, lean_object*);
@@ -60,7 +61,6 @@ uint8_t l_Lean_Level_isSucc(lean_object*);
 lean_object* l_Lean_Level_dec___main(lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_7__isLevelDefEqAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_foldlM___at___private_Init_Lean_Meta_LevelDefEq_10__processPostponedStep___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_4__solveSelfMax___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Init_Lean_Meta_LevelDefEq_1__strictOccursMaxAux(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);

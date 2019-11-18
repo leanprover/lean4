@@ -46,6 +46,7 @@ lean_object* lean_io_initializing(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_projectionFnInfoExt___elambda__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_projectionFnInfoExt___elambda__4(lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 lean_object* l_Lean_projectionFnInfoExt___elambda__4___rarg(lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkProjectionFnInfoExtension___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -61,7 +62,6 @@ lean_object* l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_obje
 uint8_t l_Lean_Environment_isProjectionFn(lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_mkProjectionFnInfoExtension___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkProjectionFnInfoExtension___spec__2___closed__1;
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_projectionFnInfoExt___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l___private_Init_Lean_Environment_8__persistentEnvExtensionsRef;

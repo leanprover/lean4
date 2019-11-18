@@ -111,8 +111,8 @@ Monad
 MonadFail
 Lean.Name
 Lean.Name.anonymous
-Lean.Name.mkNumeral
-Lean.Name.mkString
+Lean.Name.num
+Lean.Name.str
 Lean.mkNameNum
 Lean.mkNameStr
 Lean.Parser.leadingNode

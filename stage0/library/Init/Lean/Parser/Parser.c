@@ -343,6 +343,7 @@ uint8_t l_HashMapImp_contains___at_Lean_Parser_isValidSyntaxNodeKind___spec__1(l
 lean_object* l_Lean_Parser_trailingNode(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_mkNode(lean_object*, lean_object*, lean_object*);
 size_t lean_name_hash_usize(lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Array_extract___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 lean_object* l_Lean_Parser_ParserState_next___boxed(lean_object*, lean_object*, lean_object*);
@@ -437,7 +438,6 @@ lean_object* l_Lean_Parser_whitespace___boxed(lean_object*, lean_object*);
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_fieldIdxFn___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_declareBuiltinParser___closed__2;
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t l___private_Init_Lean_Parser_Parser_4__isToken(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_takeUntilFn___main___at_Lean_Parser_decimalNumberFn___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_nameToExprAux___main(lean_object*);

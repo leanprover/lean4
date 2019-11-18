@@ -101,6 +101,7 @@ lean_object* l_Lean_IR_Decl_isExtern___boxed(lean_object*);
 lean_object* l_Lean_IR_Arg_alphaEqv___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_ins___main___at_Lean_IR_LocalContext_addLocal___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_addJP(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_IR_mmodifyJPs___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_AltCore_body(lean_object*);
 lean_object* l_Lean_IR_AltCore_mmodifyBody___rarg(lean_object*, lean_object*, lean_object*);
@@ -132,7 +133,6 @@ lean_object* l_Lean_IR_LocalContext_eraseJoinPointDecl(lean_object*, lean_object
 lean_object* l_Lean_IR_Decl_name___boxed(lean_object*);
 lean_object* l_Lean_IR_mkIf___closed__7;
 lean_object* l_Lean_IR_LitVal_beq___boxed(lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_IR_mkIf___closed__2;
 lean_object* l_RBNode_appendTrees___main___rarg(lean_object*, lean_object*);
 lean_object* lean_ir_mk_ret(lean_object*);

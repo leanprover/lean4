@@ -68,6 +68,7 @@ lean_object* l_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_objec
 lean_object* l_Array_iterateMAux___main___at_Lean_mkClosedTermCacheExtension___spec__16(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_mkClosedTermCacheExtension___spec__21___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkClosedTermCacheExtension___closed__5;
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insert___at_Lean_mkClosedTermCacheExtension___spec__2(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
@@ -82,7 +83,6 @@ lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkClosedTermCacheExtens
 lean_object* l_Lean_SMap_empty___at_Lean_mkClosedTermCacheExtension___spec__12___closed__2;
 lean_object* l_HashMapImp_moveEntries___main___at_Lean_mkClosedTermCacheExtension___spec__9(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkClosedTermCacheExtension___closed__4;
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_mkClosedTermCacheExtension___spec__15___boxed(lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_getClosedTermName___spec__6___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);

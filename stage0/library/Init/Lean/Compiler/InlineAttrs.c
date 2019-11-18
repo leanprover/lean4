@@ -63,6 +63,7 @@ lean_object* l_Lean_Compiler_mkInlineAttrs___lambda__1(lean_object*, lean_object
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__17;
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_Compiler_mkInlineAttrs___spec__4___closed__1;
 lean_object* l_List_forM___main___at_Lean_registerEnumAttributes___spec__11(lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_getModuleIdxFor(lean_object*, lean_object*);
@@ -83,7 +84,6 @@ lean_object* l_Lean_Compiler_mkInlineAttrs___closed__2;
 lean_object* l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_getPrefix(lean_object*);
 lean_object* l_Lean_Compiler_mkInlineAttrs(lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__4;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l___private_Init_Lean_Environment_8__persistentEnvExtensionsRef;

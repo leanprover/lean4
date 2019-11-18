@@ -121,6 +121,7 @@ uint8_t l_List_foldr___main___at_Lean_IR_UnreachableBranches_Value_beq___main___
 uint8_t l_Lean_IR_UnreachableBranches_containsCtor___main(lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_elimDead___boxed(lean_object*, lean_object*);
 size_t lean_name_hash_usize(lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_AssocList_contains___main___at_Lean_IR_UnreachableBranches_mkFunctionSummariesExtension___spec__7___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 lean_object* l_Lean_IR_UnreachableBranches_updateVarAssignment___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -157,7 +158,6 @@ lean_object* l_AssocList_replace___main___at_Lean_IR_UnreachableBranches_mkFunct
 lean_object* l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__1;
 lean_object* l_PersistentArray_modify___at_Lean_IR_UnreachableBranches_updateCurrFnSummary___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_getPrefix(lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_mkHashMap___at_Lean_IR_UnreachableBranches_mkFunctionSummariesExtension___spec__13(lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_IR_UnreachableBranches_findVarValue___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_functionSummariesExt___closed__4;

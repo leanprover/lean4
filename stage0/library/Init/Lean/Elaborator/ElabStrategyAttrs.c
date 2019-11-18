@@ -59,6 +59,7 @@ lean_object* l_Lean_registerTagAttribute___lambda__5___boxed(lean_object*, lean_
 extern lean_object* l_Lean_EnumAttributes_Inhabited___closed__1;
 lean_object* l_Lean_mkElaboratorStrategyAttrs___closed__15;
 lean_object* l_List_forM___main___at_Lean_registerEnumAttributes___spec__11(lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkElaboratorStrategyAttrs___spec__4___closed__1;
@@ -71,7 +72,6 @@ lean_object* l_Lean_mkElaboratorStrategyAttrs___closed__17;
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkElaboratorStrategyAttrs___spec__7(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_mkElaboratorStrategyAttrs___lambda__1___closed__1;
 lean_object* l_Lean_mkElaboratorStrategyAttrs(lean_object*);
 lean_object* l_List_map___main___at_Lean_mkElaboratorStrategyAttrs___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);

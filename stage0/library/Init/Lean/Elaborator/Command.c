@@ -118,6 +118,7 @@ lean_object* l_Lean_Elab_elabOpenRenaming(lean_object*, lean_object*, lean_objec
 extern lean_object* l_Lean_Parser_Command_mixfix___elambda__1___closed__2;
 extern lean_object* l_Lean_Parser_Command_openHiding___elambda__1___closed__2;
 lean_object* l_Lean_addAlias(lean_object*, lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_universes___elambda__1___closed__2;
 lean_object* l_Lean_Elab_elabVariable___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltinTermElab_Lean_Elab_elabOpen___closed__1;
@@ -141,7 +142,6 @@ lean_object* l_Lean_Elab_elabExport(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_resolve__name___elambda__1___rarg___closed__2;
 extern lean_object* l_Lean_Parser_Command_notation___elambda__1___closed__2;
 lean_object* l_Lean_Elab_getUniverses___rarg(lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l_String_Iterator_HasRepr___closed__2;
 extern lean_object* l_Lean_Parser_Command_open___elambda__1___closed__2;

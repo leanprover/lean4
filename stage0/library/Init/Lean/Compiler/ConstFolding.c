@@ -126,6 +126,7 @@ lean_object* l_Lean_Compiler_foldUIntDiv___lambda__1(lean_object*, uint8_t, lean
 lean_object* l_Lean_Compiler_natFoldFns___closed__7;
 lean_object* l_Lean_Compiler_foldBinOp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldr___main___at_Lean_Compiler_isOfNat___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldNatDecEq___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_natFoldFns___closed__3;
 lean_object* l_Lean_Compiler_numScalarTypes___closed__8;
@@ -174,7 +175,6 @@ uint8_t l_List_foldr___main___at_Lean_Compiler_isOfNat___spec__1(lean_object*, u
 lean_object* l_Lean_Compiler_mkUInt32Lit(lean_object*);
 lean_object* l_Lean_Compiler_foldNatDecLe(uint8_t, lean_object*, lean_object*);
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldNatPow(uint8_t);
 lean_object* l_Lean_Compiler_boolFoldFns___closed__5;
 lean_object* l_Lean_Compiler_natFoldFns___closed__10;

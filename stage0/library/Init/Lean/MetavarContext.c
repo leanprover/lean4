@@ -34,6 +34,7 @@ lean_object* l___private_Init_Lean_MetavarContext_5__instantiateDelayedAux___mai
 lean_object* l___private_Init_Lean_MetavarContext_10__dep___main___at___private_Init_Lean_MetavarContext_13__collectDeps___spec__27___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_MkBinding_Exception_hasToString___closed__1;
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_MetavarContext_13__collectDeps___spec__46(lean_object*);
+lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Nat_foldRevMAux___main___at_Lean_MetavarContext_mkBinding___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAux___main___at_Lean_MetavarContext_getLevelAssignment___spec__2(lean_object*, size_t, lean_object*);
@@ -360,7 +361,6 @@ size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_Lean_MetavarContext_Inhabited;
 lean_object* l_Lean_MetavarContext_mkBinding(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_foldlMAux___main___at___private_Init_Lean_MetavarContext_13__collectDeps___spec__42(lean_object*);
-lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* l_PersistentArray_foldlFromM___at___private_Init_Lean_MetavarContext_13__collectDeps___spec__40(lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_MetavarContext_MkBinding_Exception_toString___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_MetavarContext_13__collectDeps___spec__45___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

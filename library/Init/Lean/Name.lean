@@ -21,8 +21,6 @@ inductive Name
 attribute [extern "lean_name_mk_string"] Name.str
 attribute [extern "lean_name_mk_numeral"] Name.num
 
-@[matchPattern] abbrev Name.mkString := Name.str
-
 instance : Inhabited Name :=
 ⟨Name.anonymous⟩
 

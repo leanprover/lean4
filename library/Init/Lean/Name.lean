@@ -29,6 +29,8 @@ def Name.hash : Name → USize
 
 instance Name.hashable : Hashable Name := ⟨Name.hash⟩
 
+@[export lean_name_hash] def Name.hashEx : Name → USize := Name.hash
+
 @[export lean_name_mk_string]
 def mkNameStr (p : Name) (s : String) : Name :=
 Name.str p s $ mixHash (hash p) (hash s)

@@ -308,7 +308,7 @@ protected partial def formatStx {α} : Syntax α → Format
 | atom info val     => format $ repr val
 | ident _ _ val pre => format "`" ++ format val
 | node kind args    =>
-  if kind = `Lean.Parser.noKind then
+  if kind == `Lean.Parser.noKind then
     sbracket $ joinSep (args.toList.map formatStx) line
   else
     let shorterName := kind.replacePrefix `Lean.Parser Name.anonymous;

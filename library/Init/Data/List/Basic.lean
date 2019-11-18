@@ -335,4 +335,12 @@ isPrefixOf l₁.reverse l₂.reverse
 | [],    [],    _   => true
 | a::as, b::bs, eqv => eqv a b && isEqv as bs eqv
 | _,     _,     eqv => false
+
+protected def beq [HasBeq α] : List α → List α → Bool
+| [],    []    => true
+| a::as, b::bs => a == b && beq as bs
+| _,     _     => false
+
+instance [HasBeq α] : HasBeq (List α) := ⟨List.beq⟩
+
 end List

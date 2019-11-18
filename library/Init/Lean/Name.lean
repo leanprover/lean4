@@ -66,30 +66,13 @@ def components' : Name → List Name
 def components (n : Name) : List Name :=
 n.components'.reverse
 
-@[extern "lean_name_dec_eq"]
-protected def decEq : ∀ (a b : @& Name), Decidable (a = b)
-| anonymous,        anonymous        => isTrue rfl
-| mkString p₁ s₁,  mkString p₂ s₂  =>
-  if h₁ : s₁ = s₂ then
-    match decEq p₁ p₂ with
-    | isTrue h₂  => isTrue $ h₁ ▸ h₂ ▸ rfl
-    | isFalse h₂ => isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hp h₂
-  else isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hs h₁
-| mkNumeral p₁ n₁, mkNumeral p₂ n₂ =>
-  if h₁ : n₁ = n₂ then
-    match decEq p₁ p₂ with
-    | isTrue h₂  => isTrue $ h₁ ▸ h₂ ▸ rfl
-    | isFalse h₂ => isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hp h₂
-  else isFalse $ fun h => Name.noConfusion h $ fun hp hs => absurd hs h₁
-| anonymous,       mkString _ _    => isFalse $ fun h => Name.noConfusion h
-| anonymous,       mkNumeral _ _   => isFalse $ fun h => Name.noConfusion h
-| mkString _ _,    anonymous       => isFalse $ fun h => Name.noConfusion h
-| mkString _ _,    mkNumeral _ _   => isFalse $ fun h => Name.noConfusion h
-| mkNumeral _ _,   anonymous       => isFalse $ fun h => Name.noConfusion h
-| mkNumeral _ _,   mkString _ _    => isFalse $ fun h => Name.noConfusion h
+protected def beq : Name → Name → Bool
+| anonymous,       anonymous       => true
+| mkString p₁ s₁,  mkString p₂ s₂  => s₁ == s₂ && beq p₁ p₂
+| mkNumeral p₁ n₁, mkNumeral p₂ n₂ => n₁ == n₂ && beq p₁ p₂
+| _,               _               => false
 
-instance : DecidableEq Name :=
-{decEq := Name.decEq}
+instance : HasBeq Name := ⟨Name.beq⟩
 
 def eqStr : Name → String → Bool
 | mkString Name.anonymous s,   s' => s == s'
@@ -109,12 +92,12 @@ def replacePrefix : Name → Name → Name → Name
 | anonymous, anonymous, newP => newP
 | anonymous, _,         _     => anonymous
 | n@(mkString p s), queryP, newP =>
-  if n = queryP then
+  if n == queryP then
     newP
   else
     mkString (p.replacePrefix queryP newP) s
 | n@(mkNumeral p s), queryP, newP =>
-  if n = queryP then
+  if n == queryP then
     newP
   else
     mkNumeral (p.replacePrefix queryP newP) s

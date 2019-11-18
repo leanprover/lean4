@@ -133,8 +133,8 @@ def ExternEntry.backend : ExternEntry → Name
 def getExternEntryForAux (backend : Name) : List ExternEntry → Option ExternEntry
 | []    => none
 | e::es =>
-  if e.backend = `all then some e
-  else if e.backend = backend then some e
+  if e.backend == `all then some e
+  else if e.backend == backend then some e
   else getExternEntryForAux es
 
 def getExternEntryFor (d : ExternAttrData) (backend : Name) : Option ExternEntry :=

@@ -154,7 +154,7 @@ partial def uUnify : Level → Level → EStateM String Context Unit
   else
     match l₁, l₂ with
     | Level.zero _,         Level.zero _         => pure ()
-    | Level.param p₁ _,     Level.param p₂ _     => when (p₁ ≠ p₂) $ throw "Level.param clash"
+    | Level.param p₁ _,     Level.param p₂ _     => when (p₁ != p₂) $ throw "Level.param clash"
     | Level.succ  l₁ _,     Level.succ  l₂ _     => uUnify l₁ l₂
     | Level.max l₁₁ l₁₂ _,  Level.max l₂₁ l₂₂ _  => uUnify l₁₁ l₂₁ *> uUnify l₁₂ l₂₂
     | Level.imax l₁₁ l₁₂ _, Level.imax l₂₁ l₂₂ _ => uUnify l₁₁ l₂₁ *> uUnify l₁₂ l₂₂

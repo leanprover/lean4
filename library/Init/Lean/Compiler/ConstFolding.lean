@@ -31,15 +31,15 @@ def numScalarTypes : List NumScalarTypeInfo :=
  {id := `USize, nbits := System.Platform.numBits}]
 
 def isOfNat (fn : Name) : Bool :=
-numScalarTypes.any (fun info => info.ofNatFn = fn)
+numScalarTypes.any (fun info => info.ofNatFn == fn)
 
 def isToNat (fn : Name) : Bool :=
-numScalarTypes.any (fun info => info.toNatFn = fn)
+numScalarTypes.any (fun info => info.toNatFn == fn)
 
 def getInfoFromFn (fn : Name) : List NumScalarTypeInfo → Option NumScalarTypeInfo
 | []          => none
 | info::infos =>
-  if info.ofNatFn = fn then some info
+  if info.ofNatFn == fn then some info
   else getInfoFromFn infos
 
 def getInfoFromVal : Expr → Option NumScalarTypeInfo

@@ -234,6 +234,13 @@ def insert (s : NameSet) (n : Name)  := RBTree.insert s n
 def contains (s : NameSet) (n : Name) : Bool := RBMap.contains s n
 
 end NameSet
+
+def mkNameStr (p : Name) (s : String) : Name :=
+Name.mkString p s
+
+def mkNameNum (p : Name) (v : Nat) : Name :=
+Name.mkNumeral p v
+
 end Lean
 
 open Lean

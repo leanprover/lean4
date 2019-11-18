@@ -391,7 +391,7 @@ void parser::add_local_expr(name const & n, expr const & p, bool is_variable) {
 static void check_no_metavars(name const & n, expr const & e) {
     lean_assert(is_local_p(e));
     if (has_metavar(e)) {
-        throw generic_exception(none_expr(), [=](formatter const & fmt) {
+        throw generic_exception(none_expr(), [=](formatter const & /* fmt */) {
                 format r("failed to add declaration '");
                 r += format(n);
                 r += format("' to local context, type has metavariables");
@@ -1522,7 +1522,24 @@ struct to_pattern_fn {
         }
     }
 
-    expr operator()(expr const & e, bool skip_main_fn) {
+    expr fix_quoted_name(expr const & e) {
+        if (!is_app_of(e, get_lean_mk_name_str_name())) return e;
+        buffer<expr> args;
+        get_app_args(e, args);
+        args[0] = fix_quoted_name(args[0]);
+        return mk_app(mk_constant(get_lean_name_mk_string_name()), args);
+    }
+
+    expr fix_quoted_names(expr const & e) {
+        return replace(e, [&](expr const & e) {
+                              if (is_app_of(e, get_lean_mk_name_str_name()))
+                                  return some_expr(fix_quoted_name(e));
+                              return none_expr();
+                          });
+    }
+
+    expr operator()(expr const & e0, bool skip_main_fn) {
+        expr e = fix_quoted_names(e0);
         collect_new_locals(e, skip_main_fn);
         expr r = visit(e);
         return r;

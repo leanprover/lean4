@@ -113,6 +113,8 @@ Lean.Name
 Lean.Name.anonymous
 Lean.Name.mkNumeral
 Lean.Name.mkString
+Lean.mkNameNum
+Lean.mkNameStr
 Lean.Parser.leadingNode
 Lean.Parser.trailingNode
 Nat

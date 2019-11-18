@@ -351,9 +351,9 @@ expr quote(name const & n) {
         case name_kind::ANONYMOUS:
             return mk_constant(get_lean_name_anonymous_name());
         case name_kind::NUMERAL:
-            return mk_app(mk_constant(get_lean_name_mk_numeral_name()), quote(n.get_prefix()), quote(n.get_numeral().get_small_value())); // HACK: it may crash if numeral is not small
+            return mk_app(mk_constant(get_lean_mk_name_num_name()), quote(n.get_prefix()), quote(n.get_numeral().get_small_value())); // HACK: it may crash if numeral is not small
         case name_kind::STRING:
-            return mk_app(mk_constant(get_lean_name_mk_string_name()), quote(n.get_prefix()), quote(n.get_string().data())); // HACK: accessing Lean string as C String
+            return mk_app(mk_constant(get_lean_mk_name_str_name()), quote(n.get_prefix()), quote(n.get_string().data())); // HACK: accessing Lean string as C String
     }
     lean_unreachable();
 }

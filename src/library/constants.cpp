@@ -54,8 +54,6 @@ name const * g_eq_of_heq = nullptr;
 name const * g_eq_true_intro = nullptr;
 name const * g_eq_false_intro = nullptr;
 name const * g_eq_self_iff_true = nullptr;
-name const * g_lean_level = nullptr;
-name const * g_lean_expr = nullptr;
 name const * g_lean_message_data = nullptr;
 name const * g_lean_monad_tracer_trace = nullptr;
 name const * g_false = nullptr;
@@ -120,6 +118,8 @@ name const * g_lean_name = nullptr;
 name const * g_lean_name_anonymous = nullptr;
 name const * g_lean_name_mk_numeral = nullptr;
 name const * g_lean_name_mk_string = nullptr;
+name const * g_lean_mk_name_num = nullptr;
+name const * g_lean_mk_name_str = nullptr;
 name const * g_lean_parser_leading_node = nullptr;
 name const * g_lean_parser_trailing_node = nullptr;
 name const * g_nat = nullptr;
@@ -243,8 +243,6 @@ void initialize_constants() {
     g_eq_true_intro = new name{"eqTrueIntro"};
     g_eq_false_intro = new name{"eqFalseIntro"};
     g_eq_self_iff_true = new name{"eqSelfIffTrue"};
-    g_lean_level = new name{"Lean", "Level"};
-    g_lean_expr = new name{"Lean", "Expr"};
     g_lean_message_data = new name{"Lean", "MessageData"};
     g_lean_monad_tracer_trace = new name{"Lean", "MonadTracer", "trace"};
     g_false = new name{"False"};
@@ -309,6 +307,8 @@ void initialize_constants() {
     g_lean_name_anonymous = new name{"Lean", "Name", "anonymous"};
     g_lean_name_mk_numeral = new name{"Lean", "Name", "mkNumeral"};
     g_lean_name_mk_string = new name{"Lean", "Name", "mkString"};
+    g_lean_mk_name_num = new name{"Lean", "mkNameNum"};
+    g_lean_mk_name_str = new name{"Lean", "mkNameStr"};
     g_lean_parser_leading_node = new name{"Lean", "Parser", "leadingNode"};
     g_lean_parser_trailing_node = new name{"Lean", "Parser", "trailingNode"};
     g_nat = new name{"Nat"};
@@ -433,8 +433,6 @@ void finalize_constants() {
     delete g_eq_true_intro;
     delete g_eq_false_intro;
     delete g_eq_self_iff_true;
-    delete g_lean_level;
-    delete g_lean_expr;
     delete g_lean_message_data;
     delete g_lean_monad_tracer_trace;
     delete g_false;
@@ -499,6 +497,8 @@ void finalize_constants() {
     delete g_lean_name_anonymous;
     delete g_lean_name_mk_numeral;
     delete g_lean_name_mk_string;
+    delete g_lean_mk_name_num;
+    delete g_lean_mk_name_str;
     delete g_lean_parser_leading_node;
     delete g_lean_parser_trailing_node;
     delete g_nat;
@@ -622,8 +622,6 @@ name const & get_eq_of_heq_name() { return *g_eq_of_heq; }
 name const & get_eq_true_intro_name() { return *g_eq_true_intro; }
 name const & get_eq_false_intro_name() { return *g_eq_false_intro; }
 name const & get_eq_self_iff_true_name() { return *g_eq_self_iff_true; }
-name const & get_lean_level_name() { return *g_lean_level; }
-name const & get_lean_expr_name() { return *g_lean_expr; }
 name const & get_lean_message_data_name() { return *g_lean_message_data; }
 name const & get_lean_monad_tracer_trace_name() { return *g_lean_monad_tracer_trace; }
 name const & get_false_name() { return *g_false; }
@@ -688,6 +686,8 @@ name const & get_lean_name_name() { return *g_lean_name; }
 name const & get_lean_name_anonymous_name() { return *g_lean_name_anonymous; }
 name const & get_lean_name_mk_numeral_name() { return *g_lean_name_mk_numeral; }
 name const & get_lean_name_mk_string_name() { return *g_lean_name_mk_string; }
+name const & get_lean_mk_name_num_name() { return *g_lean_mk_name_num; }
+name const & get_lean_mk_name_str_name() { return *g_lean_mk_name_str; }
 name const & get_lean_parser_leading_node_name() { return *g_lean_parser_leading_node; }
 name const & get_lean_parser_trailing_node_name() { return *g_lean_parser_trailing_node; }
 name const & get_nat_name() { return *g_nat; }

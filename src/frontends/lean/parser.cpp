@@ -1527,7 +1527,8 @@ struct to_pattern_fn {
         buffer<expr> args;
         get_app_args(e, args);
         args[0] = fix_quoted_name(args[0]);
-        return mk_app(mk_constant(get_lean_name_mk_string_name()), args);
+//        return mk_app(mk_constant(get_lean_name_str_name()), args);
+        return mk_app(mk_constant(name{"Lean", "Name", "mkString"}), args);
     }
 
     expr fix_quoted_names(expr const & e) {

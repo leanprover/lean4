@@ -140,7 +140,7 @@ partial def introduceMVars (lctx : LocalContext) (locals : Array Expr) : Context
 partial def introduceLocals : Nat → LocalContext → Array Expr → Expr → LocalContext × Expr × Array Expr
 | nextIdx, lctx, ls, Expr.forallE name domain body c =>
   let info := c.binderInfo;
-  let idxName : Name := mkNumName (mkSimpleName "_tmp") nextIdx;
+  let idxName : Name := mkNameNum `_tmp nextIdx;
   let lctx := lctx.mkLocalDecl idxName name domain info;
   let l : Expr := mkFVar idxName;
   introduceLocals (nextIdx + 1) lctx (ls.push l) (body.instantiate1 l)

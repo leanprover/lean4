@@ -36,7 +36,7 @@ constant privateExt : EnvExtension Nat := arbitrary _
    where `<index>` comes from the environment extension `privateExt`.
 
    We assume that `n` is a valid user name and does not contain
-   `Name.mkNumeral` constructors. Thus, we can easily convert from
+   `Name.num` constructors. Thus, we can easily convert from
    private internal name to user given name.
 -/
 
@@ -45,7 +45,7 @@ def privateHeader : Name := `_private
 @[export lean_mk_private_prefix]
 def mkPrivatePrefix (env : Environment) : Environment × Name :=
 let idx := privateExt.getState env;
-let p   := Name.mkNumeral (privateHeader ++ env.mainModule) idx;
+let p   := mkNameNum (privateHeader ++ env.mainModule) idx;
 let env := privateExt.setState env (idx+1);
 (env, p)
 
@@ -55,17 +55,17 @@ let (env, p) := mkPrivatePrefix env;
 (env, p ++ n)
 
 def isPrivateName : Name → Bool
-| n@(Name.mkString p _) => n == privateHeader || isPrivateName p
-| Name.mkNumeral p _    => isPrivateName p
-| _                     => false
+| n@(Name.str p _) => n == privateHeader || isPrivateName p
+| Name.num p _     => isPrivateName p
+| _                => false
 
 @[export lean_is_private_name]
 def isPrivateNameExport (n : Name) : Bool :=
 isPrivateName n
 
 private def privateToUserNameAux : Name → Name
-| Name.mkString p s => Name.mkString (privateToUserNameAux p) s
-| _                 => Name.anonymous
+| Name.str p s => mkNameStr (privateToUserNameAux p) s
+| _            => Name.anonymous
 
 @[export lean_private_to_user_name]
 def privateToUserName (n : Name) : Option Name :=
@@ -73,8 +73,8 @@ if isPrivateName n then privateToUserNameAux n
 else none
 
 private def privatePrefixAux : Name → Name
-| Name.mkString p _ => privatePrefixAux p
-| n                 => n
+| Name.str p _ => privatePrefixAux p
+| n            => n
 
 @[export lean_private_prefix]
 def privatePrefix (n : Name) : Option Name :=

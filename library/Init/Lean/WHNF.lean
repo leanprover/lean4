@@ -15,7 +15,7 @@ namespace Lean
 def smartUnfoldingSuffix := "_sunfold"
 
 @[inline] def mkSmartUnfoldingNameFor (n : Name) : Name :=
-Name.mkString n smartUnfoldingSuffix
+mkNameStr n smartUnfoldingSuffix
 
 /- ===========================
    Helper functions

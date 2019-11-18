@@ -13,11 +13,11 @@ namespace Lean
 namespace Elab
 
 private def addScopes (cmd : String) (updateNamespace : Bool) : Name → List ElabScope → List ElabScope
-| Name.anonymous,      scopes => scopes
-| Name.mkString p h,   scopes =>
+| Name.anonymous, scopes => scopes
+| Name.str p h,   scopes =>
   let scopes := addScopes p scopes;
   let ns     := scopes.head!.ns;
-  let ns     := if updateNamespace then Name.mkString ns h else ns;
+  let ns     := if updateNamespace then mkNameStr ns h else ns;
   { cmd := cmd, header := h, ns := ns } :: scopes
 | _, _ => [] -- unreachable
 
@@ -46,9 +46,9 @@ private def checkAnonymousScope : List ElabScope → Bool
 | _ => false
 
 private def checkEndHeader : Name → List ElabScope → Bool
-| Name.anonymous, _ => true
-| Name.mkString p s,   { header := h, .. } :: scopes   => h.eqStr s && checkEndHeader p scopes
-| _, _ => false
+| Name.anonymous, _                             => true
+| Name.str p s,   { header := h, .. } :: scopes => h.eqStr s && checkEndHeader p scopes
+| _,              _                             => false
 
 @[builtinCommandElab «end»] def elabEnd : CommandElab :=
 fun n => do

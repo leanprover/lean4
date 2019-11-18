@@ -772,7 +772,7 @@ partial def identFnAux (startPos : Nat) (tk : Option TokenConfig) : Name → Bas
       let s         := satisfyFn isIdEndEscape "missing end of escaped identifier" c s;
       if s.hasError then s
       else
-        let r := Name.mkString r (input.extract startPart stopPart);
+        let r := mkNameStr r (input.extract startPart stopPart);
         if isIdCont input s then
           let s := s.next input s.pos;
           identFnAux r c s
@@ -782,7 +782,7 @@ partial def identFnAux (startPos : Nat) (tk : Option TokenConfig) : Name → Bas
       let startPart := i;
       let s         := takeWhileFn isIdRest c (s.next input i);
       let stopPart  := s.pos;
-      let r := Name.mkString r (input.extract startPart stopPart);
+      let r := mkNameStr r (input.extract startPart stopPart);
       if isIdCont input s then
         let s := s.next input s.pos;
         identFnAux r c s
@@ -1273,7 +1273,7 @@ let find (n : Name) : ParserState × List α :=
   | some as => (s, as)
   | _       => (s, []);
 match stx with
-| some (Syntax.atom _ sym)    => find (mkSimpleName sym)
+| some (Syntax.atom _ sym)    => find (mkNameSimple sym)
 | some (Syntax.ident _ _ _ _) => find `ident
 | some (Syntax.node k _)      => find k
 | _                           => (s, [])
@@ -1420,7 +1420,7 @@ do tables ← tablesRef.get;
    updateTokens p.info declName;
    updateSyntaxNodeKinds p.info;
    let addTokens (tks : List TokenConfig) : IO Unit :=
-     let tks := tks.map $ fun tk => mkSimpleName tk.val;
+     let tks := tks.map $ fun tk => mkNameSimple tk.val;
      tablesRef.set $ tks.eraseDups.foldl (fun (tables : ParsingTables) tk => { leadingTable := tables.leadingTable.insert tk p, .. tables }) tables;
    match p.info.firstTokens with
    | FirstTokens.tokens tks    => addTokens tks
@@ -1433,7 +1433,7 @@ do tables ← tablesRef.get;
    updateTokens p.info declName;
    updateSyntaxNodeKinds p.info;
    let addTokens (tks : List TokenConfig) : IO Unit :=
-     let tks := tks.map $ fun tk => mkSimpleName tk.val;
+     let tks := tks.map $ fun tk => mkNameSimple tk.val;
      tablesRef.set $ tks.eraseDups.foldl (fun (tables : ParsingTables) tk => { trailingTable := tables.trailingTable.insert tk p, .. tables }) tables;
    match p.info.firstTokens with
    | FirstTokens.tokens tks    => addTokens tks

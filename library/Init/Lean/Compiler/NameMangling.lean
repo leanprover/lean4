@@ -36,13 +36,13 @@ def String.mangle (s : String) : String :=
 String.mangleAux s.length s.mkIterator ""
 
 private def Name.mangleAux : Name → String
-| Name.anonymous    => ""
-| Name.mkString p s =>
+| Name.anonymous => ""
+| Name.str p s   =>
   let m := String.mangle s;
   match p with
   | Name.anonymous => m
   | _              => Name.mangleAux p ++ "_" ++ m
-| Name.mkNumeral p n => Name.mangleAux p ++ "_" ++ toString n ++ "_"
+| Name.num p n   => Name.mangleAux p ++ "_" ++ toString n ++ "_"
 
 @[export lean_name_mangle]
 def Name.mangle (n : Name) (pre : String := "l_") : String :=

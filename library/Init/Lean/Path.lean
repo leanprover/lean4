@@ -75,10 +75,10 @@ do let fname := System.FilePath.normalizePath fname;
      | other => pure other
 
 def modNameToFileName : Name → String
-| Name.mkString Name.anonymous h => h
-| Name.mkString p h              => modNameToFileName p ++ pathSep ++ h
-| Name.anonymous                 => ""
-| Name.mkNumeral p _             => modNameToFileName p
+| Name.str Name.anonymous h => h
+| Name.str p h              => modNameToFileName p ++ pathSep ++ h
+| Name.anonymous            => ""
+| Name.num p _              => modNameToFileName p
 
 def addRel (baseDir : String) : Nat → String
 | 0   => baseDir
@@ -117,7 +117,7 @@ do path  ← findAtSearchPath fname;
      let modNameStr := fnameSuffix.extract 0 extPos;
      let extStr     := fnameSuffix.extract (extPos + 1) fnameSuffix.bsize;
      let parts      := modNameStr.splitOn pathSep;
-     let modName    := parts.foldl Name.mkString Name.anonymous;
+     let modName    := parts.foldl mkNameStr Name.anonymous;
      fname' ← findLeanFile modName extStr;
      unless (fname == fname') $ throw (IO.userError ("failed to convert file '" ++ fname ++ "' to module name, module name '" ++ toString modName ++ "' resolves to '" ++ fname' ++ "'"));
      pure modName

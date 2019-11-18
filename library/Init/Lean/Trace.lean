@@ -106,8 +106,8 @@ namespace SimpleMonadTracerAdapter
 variables {m : Type → Type} [Monad m] [SimpleMonadTracerAdapter m]
 
 private def checkTraceOptionAux (opts : Options) : Name → Bool
-| n@(Name.mkString p _) => opts.getBool n || (!opts.contains n && checkTraceOptionAux p)
-| _                     => false
+| n@(Name.str p _) => opts.getBool n || (!opts.contains n && checkTraceOptionAux p)
+| _                => false
 
 private def checkTraceOption (optName : Name) : m Bool :=
 do opts ← getOptions;

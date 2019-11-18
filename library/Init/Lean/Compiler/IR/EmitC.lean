@@ -76,7 +76,7 @@ def toCName (n : Name) : M String :=
 do env ← getEnv;
    -- TODO: we should support simple export names only
    match getExportNameFor env n with
-   | some (Name.mkString Name.anonymous s) => pure s
+   | some (Name.str Name.anonymous s) => pure s
    | some _ => throwInvalidExportName n
    | none => if n == `main then pure leanMainFn else pure n.mangle
 
@@ -87,7 +87,7 @@ def toCInitName (n : Name) : M String :=
 do env ← getEnv;
    -- TODO: we should support simple export names only
    match getExportNameFor env n with
-   | some (Name.mkString Name.anonymous s) => pure $ "_init_" ++ s
+   | some (Name.str Name.anonymous s) => pure $ "_init_" ++ s
    | some _  => throwInvalidExportName n
    | none    => pure ("_init_" ++ n.mangle)
 
@@ -119,7 +119,7 @@ do cppBaseName ← toCName decl.name;
    emitFnDeclAux decl cppBaseName addExternForConsts
 
 def emitExternDeclAux (decl : Decl) (cNameStr : String) : M Unit :=
-do let cName := mkSimpleName cNameStr;
+do let cName := mkNameSimple cNameStr;
    env ← getEnv;
    let extC := isExternC env decl.name;
    emitFnDeclAux decl cNameStr (!extC)

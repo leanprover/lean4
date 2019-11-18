@@ -21,9 +21,9 @@ instance natToExpr : ToExpr Nat := ⟨mkNatLit⟩
 instance strToExpr : ToExpr String := ⟨mkStrLit⟩
 
 def nameToExprAux : Name → Expr
-| Name.anonymous     => mkConst `Lean.Name.anonymous
-| Name.mkString p s  => mkCAppB `Lean.Name.mkString (nameToExprAux p) (toExpr s)
-| Name.mkNumeral p n => mkCAppB `Lean.Name.mkNumeral (nameToExprAux p) (toExpr n)
+| Name.anonymous => mkConst `Lean.Name.anonymous
+| Name.str p s   => mkCAppB `Lean.mkNameStr (nameToExprAux p) (toExpr s)
+| Name.num p n   => mkCAppB `Lean.mkNameNum (nameToExprAux p) (toExpr n)
 
 instance nameToExpr : ToExpr Name := ⟨nameToExprAux⟩
 

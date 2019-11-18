@@ -35,10 +35,10 @@ Assumptions:
 -/
 
 def mkBoxedName (n : Name) : Name :=
-Name.mkString n "_boxed"
+mkNameStr n "_boxed"
 
 def isBoxedName : Name → Bool
-| Name.mkString _ "_boxed"   => true
+| Name.str _ "_boxed"   => true
 | _ => false
 
 abbrev N := StateM Nat

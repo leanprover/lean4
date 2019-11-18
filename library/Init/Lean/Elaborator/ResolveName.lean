@@ -20,7 +20,7 @@ else resolvedIds
 
 /- Check surrounding namespaces -/
 private def resolveUsingNamespace (env : Environment) (id : Name) : Name → List Name
-| ns@(Name.mkString p _) =>
+| ns@(Name.str p _) =>
   match resolveQualifiedName env ns id with
   | [] => resolveUsingNamespace p
   | resolvedIds => resolvedIds
@@ -46,7 +46,7 @@ private def resolveOpenDecls (env : Environment) (id : Name) : List OpenDecl →
   resolveOpenDecls openDecls resolvedIds
 
 private def resolveNameAux (env : Environment) (ns : Name) (openDecls : List OpenDecl) : Name → Nat → List (Nat × Name)
-| id@(Name.mkString p _), projSize =>
+| id@(Name.str p _), projSize =>
   match resolveUsingNamespace env id ns with
   | resolvedIds@(_ :: _) => resolvedIds.eraseDups.map $ fun id => (projSize, id)
   | [] =>

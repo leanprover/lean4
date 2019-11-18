@@ -186,18 +186,6 @@ def isAtomic : Name → Bool
 | mkNumeral anonymous _ => true
 | _ => false
 
-theorem mkStringNeMkStringOfNePrefix {p₁ : Name} (s₁ : String) {p₂ : Name} (s₂ : String) : p₁ ≠ p₂ → mkString p₁ s₁ ≠ mkString p₂ s₂ :=
-fun h₁ h₂ => Name.noConfusion h₂ (fun h _ => absurd h h₁)
-
-theorem mkStringNeMkStringOfNeString (p₁ : Name) {s₁ : String} (p₂ : Name) {s₂ : String} : s₁ ≠ s₂ → mkString p₁ s₁ ≠ mkString p₂ s₂ :=
-fun h₁ h₂ => Name.noConfusion h₂ (fun _ h => absurd h h₁)
-
-theorem mkNumeralNeMkNumeralOfNePrefix {p₁ : Name} (n₁ : Nat) {p₂ : Name} (n₂ : Nat) : p₁ ≠ p₂ → mkNumeral p₁ n₁ ≠ mkNumeral p₂ n₂ :=
-fun h₁ h₂ => Name.noConfusion h₂ (fun h _ => absurd h h₁)
-
-theorem mkNumeralNeMkNumeralOfNeNumeral (p₁ : Name) {n₁ : Nat} (p₂ : Name) {n₂ : Nat} : n₁ ≠ n₂ → mkNumeral p₁ n₁ ≠ mkNumeral p₂ n₂ :=
-fun h₁ h₂ => Name.noConfusion h₂ (fun _ h => absurd h h₁)
-
 end Name
 
 def NameMap (α : Type) := RBMap Name α Name.quickLt

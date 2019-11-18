@@ -38,8 +38,8 @@ def mkBoxedName (n : Name) : Name :=
 mkNameStr n "_boxed"
 
 def isBoxedName : Name → Bool
-| Name.str _ "_boxed"   => true
-| _ => false
+| Name.str _ "_boxed" _ => true
+| _                     => false
 
 abbrev N := StateM Nat
 

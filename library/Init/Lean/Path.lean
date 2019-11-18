@@ -75,10 +75,10 @@ do let fname := System.FilePath.normalizePath fname;
      | other => pure other
 
 def modNameToFileName : Name → String
-| Name.str Name.anonymous h => h
-| Name.str p h              => modNameToFileName p ++ pathSep ++ h
-| Name.anonymous            => ""
-| Name.num p _              => modNameToFileName p
+| Name.str Name.anonymous h _ => h
+| Name.str p h _              => modNameToFileName p ++ pathSep ++ h
+| Name.anonymous              => ""
+| Name.num p _ _              => modNameToFileName p
 
 def addRel (baseDir : String) : Nat → String
 | 0   => baseDir

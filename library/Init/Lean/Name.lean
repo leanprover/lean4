@@ -11,24 +11,31 @@ import Init.Data.ToString
 import Init.Data.Hashable
 import Init.Data.RBMap
 import Init.Data.RBTree
+
 namespace Lean
 
 inductive Name
 | anonymous : Name
-| str : Name → String → Name
-| num : Name → Nat → Name
+| str : Name → String → USize → Name
+| num : Name → Nat → USize → Name
 
-attribute [extern "lean_name_mk_string"] Name.str
-attribute [extern "lean_name_mk_numeral"] Name.num
-
-instance : Inhabited Name :=
+instance Name.inhabited : Inhabited Name :=
 ⟨Name.anonymous⟩
 
-def mkNameStr (p : Name) (s : String) : Name :=
-Name.str p s
+def Name.hash : Name → USize
+| Name.anonymous => 1723
+| Name.str p s h => h
+| Name.num p v h => h
 
+instance Name.hashable : Hashable Name := ⟨Name.hash⟩
+
+@[export lean_name_mk_string]
+def mkNameStr (p : Name) (s : String) : Name :=
+Name.str p s $ mixHash (hash p) (hash s)
+
+@[export lean_name_mk_numeral]
 def mkNameNum (p : Name) (v : Nat) : Name :=
-Name.num p v
+Name.num p v $ mixHash (hash p) (hash v)
 
 def mkNameSimple (s : String) : Name :=
 mkNameStr Name.anonymous s
@@ -37,81 +44,76 @@ instance stringToName : HasCoe String Name :=
 ⟨mkNameSimple⟩
 
 namespace Name
-@[extern "lean_name_hash_usize"]
-constant hash (n : @& Name) : USize := arbitrary _
-
-instance : Hashable Name :=
-⟨Name.hash⟩
 
 def getPrefix : Name → Name
 | anonymous => anonymous
-| str p s   => p
-| num p s   => p
+| str p s _ => p
+| num p s _ => p
 
 def getNumParts : Name → Nat
 | anonymous => 0
-| str p _   => getNumParts p + 1
-| num p _   => getNumParts p + 1
+| str p _ _ => getNumParts p + 1
+| num p _ _ => getNumParts p + 1
 
 def updatePrefix : Name → Name → Name
 | anonymous, newP => anonymous
-| str p s,   newP => mkNameStr newP s
-| num p s,   newP => mkNameNum newP s
+| str p s _, newP => mkNameStr newP s
+| num p s _, newP => mkNameNum newP s
 
 def components' : Name → List Name
 | anonymous => []
-| str n s   => mkNameStr anonymous s :: components' n
-| num n v   => mkNameNum anonymous v :: components' n
+| str n s _ => mkNameStr anonymous s :: components' n
+| num n v _ => mkNameNum anonymous v :: components' n
 
 def components (n : Name) : List Name :=
 n.components'.reverse
 
 protected def beq : Name → Name → Bool
-| anonymous, anonymous => true
-| str p₁ s₁, str p₂ s₂ => s₁ == s₂ && beq p₁ p₂
-| num p₁ n₁, num p₂ n₂ => n₁ == n₂ && beq p₁ p₂
-| _,         _         => false
+| anonymous,   anonymous   => true
+| str p₁ s₁ _, str p₂ s₂ _ => s₁ == s₂ && beq p₁ p₂
+| num p₁ n₁ _, num p₂ n₂ _ => n₁ == n₂ && beq p₁ p₂
+| _,           _           => false
 
 instance : HasBeq Name := ⟨Name.beq⟩
 
 def eqStr : Name → String → Bool
-| str anonymous s, s' => s == s'
-| _,               _  => false
+| str anonymous s _, s' => s == s'
+| _,                 _  => false
 
 protected def append : Name → Name → Name
 | n, anonymous => n
-| n, str p s   => mkNameStr (append n p) s
-| n, num p d   => mkNameNum (append n p) d
+| n, str p s _ => mkNameStr (append n p) s
+| n, num p d _ => mkNameNum (append n p) d
 
 instance : HasAppend Name :=
 ⟨Name.append⟩
 
 def replacePrefix : Name → Name → Name → Name
-| anonymous,   anonymous, newP => newP
-| anonymous,   _,         _    => anonymous
-| n@(str p s), queryP,    newP => if n == queryP then newP else mkNameStr (p.replacePrefix queryP newP) s
-| n@(num p s), queryP,    newP => if n == queryP then newP else mkNameNum (p.replacePrefix queryP newP) s
+| anonymous,     anonymous, newP => newP
+| anonymous,     _,         _    => anonymous
+| n@(str p s _), queryP,    newP => if n == queryP then newP else mkNameStr (p.replacePrefix queryP newP) s
+| n@(num p s _), queryP,    newP => if n == queryP then newP else mkNameNum (p.replacePrefix queryP newP) s
 
 def isPrefixOf : Name → Name → Bool
-| p, anonymous    => p == anonymous
-| p, n@(num p' _) => p == n || isPrefixOf p p'
-| p, n@(str p' _) => p == n || isPrefixOf p p'
+| p, anonymous      => p == anonymous
+| p, n@(num p' _ _) => p == n || isPrefixOf p p'
+| p, n@(str p' _ _) => p == n || isPrefixOf p p'
 
 def lt : Name → Name → Bool
-| anonymous, anonymous => false
-| anonymous, _         => true
-| num p₁ i₁, num p₂ i₂ => lt p₁ p₂ || (p₁ == p₂ && i₁ < i₂)
-| num _ _,   str _ _   => true
-| str p₁ n₁, str p₂ n₂ => lt p₁ p₂ || (p₁ == p₂ && n₁ < n₂)
-| _,               _   => false
+| anonymous,   anonymous   => false
+| anonymous,   _           => true
+| num p₁ i₁ _, num p₂ i₂ _ => lt p₁ p₂ || (p₁ == p₂ && i₁ < i₂)
+| num _ _ _,   str _ _ _   => true
+| str p₁ n₁ _, str p₂ n₂ _ => lt p₁ p₂ || (p₁ == p₂ && n₁ < n₂)
+| _,           _           => false
 
 def quickLtAux : Name → Name → Bool
-| anonymous, anonymous => false
-| anonymous, _         => true
-| num n v,   num n' v' => v < v' || (v = v' && n.quickLtAux n')
-| num _ _,   str _ _   => true
-| str n s,   str n' s' => s < s' || (s = s' && n.quickLtAux n')
-| _,              _    => false
+| anonymous, anonymous   => false
+| anonymous, _           => true
+| num n v _, num n' v' _ => v < v' || (v = v' && n.quickLtAux n')
+| num _ _ _, str _ _ _   => true
+| str n s _, str n' s' _ => s < s' || (s = s' && n.quickLtAux n')
+| _,         _           => false
 
 def quickLt (n₁ n₂ : Name) : Bool :=
 if n₁.hash < n₂.hash then true
@@ -126,11 +128,11 @@ else quickLtAux n₁ n₂
 inferInstanceAs (DecidableRel (fun a b => Name.quickLt a b = true))
 
 def toStringWithSep (sep : String) : Name → String
-| anonymous       => "[anonymous]"
-| str anonymous s => s
-| num anonymous v => toString v
-| str n s         => toStringWithSep n ++ sep ++ s
-| num n v         => toStringWithSep n ++ sep ++ repr v
+| anonymous         => "[anonymous]"
+| str anonymous s _ => s
+| num anonymous v _ => toString v
+| str n s _         => toStringWithSep n ++ sep ++ s
+| num n v _         => toStringWithSep n ++ sep ++ repr v
 
 protected def toString : Name → String :=
 toStringWithSep "."
@@ -139,25 +141,25 @@ instance : HasToString Name :=
 ⟨Name.toString⟩
 
 def appendAfter : Name → String → Name
-| str p s, suffix => mkNameStr p (s ++ suffix)
-| n,       suffix => mkNameStr n suffix
+| str p s _, suffix => mkNameStr p (s ++ suffix)
+| n,         suffix => mkNameStr n suffix
 
 def appendIndexAfter : Name → Nat → Name
-| str p s, idx => mkNameStr p (s ++ "_" ++ toString idx)
-| n,       idx => mkNameStr n ("_" ++ toString idx)
+| str p s _, idx => mkNameStr p (s ++ "_" ++ toString idx)
+| n,         idx => mkNameStr n ("_" ++ toString idx)
 
 /- The frontend does not allow user declarations to start with `_` in any of its parts.
    We use name parts starting with `_` internally to create auxiliary names (e.g., `_private`). -/
 def isInternal : Name → Bool
-| str p s => s.get 0 == '_' || isInternal p
-| num p _ => isInternal p
-| _        => false
+| str p s _ => s.get 0 == '_' || isInternal p
+| num p _ _ => isInternal p
+| _         => false
 
 def isAtomic : Name → Bool
-| anonymous       => true
-| str anonymous _ => true
-| num anonymous _ => true
-| _               => false
+| anonymous         => true
+| str anonymous _ _ => true
+| num anonymous _ _ => true
+| _                 => false
 
 end Name
 

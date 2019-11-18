@@ -14,7 +14,7 @@ namespace Elab
 
 private def addScopes (cmd : String) (updateNamespace : Bool) : Name → List ElabScope → List ElabScope
 | Name.anonymous, scopes => scopes
-| Name.str p h,   scopes =>
+| Name.str p h _, scopes =>
   let scopes := addScopes p scopes;
   let ns     := scopes.head!.ns;
   let ns     := if updateNamespace then mkNameStr ns h else ns;
@@ -47,7 +47,7 @@ private def checkAnonymousScope : List ElabScope → Bool
 
 private def checkEndHeader : Name → List ElabScope → Bool
 | Name.anonymous, _                             => true
-| Name.str p s,   { header := h, .. } :: scopes => h.eqStr s && checkEndHeader p scopes
+| Name.str p s _, { header := h, .. } :: scopes => h.eqStr s && checkEndHeader p scopes
 | _,              _                             => false
 
 @[builtinCommandElab «end»] def elabEnd : CommandElab :=

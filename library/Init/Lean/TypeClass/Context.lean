@@ -39,8 +39,8 @@ def alphaMetaPrefix : Name :=
 -- Expressions
 
 def eMetaIdx : Expr → Option Nat
-| Expr.mvar (Name.num n idx) _ => guard (n == metaPrefix) *> pure idx
-| _ => none
+| Expr.mvar (Name.num n idx _) _ => guard (n == metaPrefix) *> pure idx
+| _                              => none
 
 def eIsMeta (e : Expr) : Bool := (eMetaIdx e).toBool
 
@@ -97,7 +97,7 @@ eFind eIsMeta e
 -- Levels
 
 def uMetaIdx : Level → Option Nat
-| Level.mvar (Name.num n idx) _ => guard (n == metaPrefix) *> pure idx
+| Level.mvar (Name.num n idx _) _ => guard (n == metaPrefix) *> pure idx
 | _ => none
 
 def uIsMeta (l : Level) : Bool := (uMetaIdx l).toBool

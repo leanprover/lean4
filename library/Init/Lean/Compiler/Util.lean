@@ -63,9 +63,9 @@ mkNameStr n ("_elambda_" ++ toString idx)
 
 @[export lean_is_eager_lambda_lifting_name]
 def isEagerLambdaLiftingName : Name → Bool
-| Name.str p s => "_elambda".isPrefixOf s || isEagerLambdaLiftingName p
-| Name.num p _ => isEagerLambdaLiftingName p
-| _            => false
+| Name.str p s _ => "_elambda".isPrefixOf s || isEagerLambdaLiftingName p
+| Name.num p _ _ => isEagerLambdaLiftingName p
+| _              => false
 
 /-- Return the name of new definitions in the a given declaration.
     Here we consider only declarations we generate code for.

@@ -55,17 +55,17 @@ let (env, p) := mkPrivatePrefix env;
 (env, p ++ n)
 
 def isPrivateName : Name → Bool
-| n@(Name.str p _) => n == privateHeader || isPrivateName p
-| Name.num p _     => isPrivateName p
-| _                => false
+| n@(Name.str p _ _) => n == privateHeader || isPrivateName p
+| Name.num p _ _     => isPrivateName p
+| _                  => false
 
 @[export lean_is_private_name]
 def isPrivateNameExport (n : Name) : Bool :=
 isPrivateName n
 
 private def privateToUserNameAux : Name → Name
-| Name.str p s => mkNameStr (privateToUserNameAux p) s
-| _            => Name.anonymous
+| Name.str p s _ => mkNameStr (privateToUserNameAux p) s
+| _              => Name.anonymous
 
 @[export lean_private_to_user_name]
 def privateToUserName (n : Name) : Option Name :=
@@ -73,8 +73,8 @@ if isPrivateName n then privateToUserNameAux n
 else none
 
 private def privatePrefixAux : Name → Name
-| Name.str p _ => privatePrefixAux p
-| n            => n
+| Name.str p _ _ => privatePrefixAux p
+| n              => n
 
 @[export lean_private_prefix]
 def privatePrefix (n : Name) : Option Name :=

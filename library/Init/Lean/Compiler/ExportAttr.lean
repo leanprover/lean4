@@ -13,9 +13,9 @@ let first := id.get 0;
 first.isAlpha  && (id.toSubstring.drop 1).all (fun c => c.isAlpha || c.isDigit || c == '_')
 
 private def isValidCppName : Name → Bool
-| Name.str Name.anonymous s => isValidCppId s
-| Name.str p s              => isValidCppId s && isValidCppName p
-| _                         => false
+| Name.str Name.anonymous s _ => isValidCppId s
+| Name.str p s _              => isValidCppId s && isValidCppName p
+| _                           => false
 
 def mkExportAttr : IO (ParametricAttribute Name) :=
 registerParametricAttribute `export "name to be used by code generators" $ fun _ _ stx =>

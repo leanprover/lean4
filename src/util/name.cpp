@@ -24,26 +24,8 @@ extern "C" size_t lean_name_hash_usize(b_obj_arg n) {
     return name::hash(n);
 }
 
-extern "C" obj_res lean_name_mk_string(obj_arg p, obj_arg s) {
-    object * r = alloc_cnstr(static_cast<unsigned>(name_kind::STRING), 2, sizeof(unsigned));
-    size_t sz  = string_size(s);
-    unsigned h = hash_str(sz, string_cstr(s), name::hash(p));
-    cnstr_set(r, 0, p);
-    cnstr_set(r, 1, s);
-    cnstr_set_scalar<unsigned>(r, 2*sizeof(object*), h);
-    return r;
-}
-
-extern "C" obj_res lean_name_mk_numeral(obj_arg p, obj_arg n) {
-    object * r  = alloc_cnstr(static_cast<unsigned>(name_kind::NUMERAL), 2, sizeof(unsigned));
-    unsigned h1 = is_scalar(n) ? unbox(n) : mpz_value(n).hash();
-    unsigned h2 = name::hash(p);
-    unsigned h  = hash(h1, h2);
-    cnstr_set(r, 0, p);
-    cnstr_set(r, 1, n);
-    cnstr_set_scalar<unsigned>(r, 2*sizeof(object*), h);
-    return r;
-}
+extern "C" obj_res lean_name_mk_string(obj_arg p, obj_arg s);
+extern "C" obj_res lean_name_mk_numeral(obj_arg p, obj_arg n);
 
 static inline obj_res name_mk_string_of_cstr(obj_arg p, char const * s) {
     return lean_name_mk_string(p, mk_string(s));
@@ -75,7 +57,7 @@ bool name::eq_core(b_obj_arg n1, b_obj_arg n2) {
     }
 }
 
-extern "C" uint8 lean_name_dec_eq(b_obj_arg a1, b_obj_arg a2) {
+extern "C" uint8 lean_name_eq(b_obj_arg a1, b_obj_arg a2) {
     return name::eq(a1, a2);
 }
 

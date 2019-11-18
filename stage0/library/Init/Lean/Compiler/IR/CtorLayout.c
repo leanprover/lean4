@@ -13,26 +13,26 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_IR_CtorFieldInfo_format(lean_object*);
-lean_object* l___private_Init_Lean_Compiler_IR_Format_5__formatIRType___main(lean_object*);
-lean_object* l_Lean_fmt___at_Lean_IR_CtorFieldInfo_format___spec__1(lean_object*);
-lean_object* l_Lean_fmt___at_Lean_Level_LevelToFormat_Result_format___main___spec__1(lean_object*);
-lean_object* l_Lean_IR_CtorFieldInfo_format___closed__9;
-lean_object* l_Lean_IR_CtorFieldInfo_format___closed__2;
-lean_object* l_Lean_IR_CtorFieldInfo_format___closed__4;
-lean_object* l_Lean_IR_CtorFieldInfo_format___closed__8;
-lean_object* l_Lean_IR_CtorFieldInfo_Lean_HasFormat;
-lean_object* l_Lean_IR_CtorFieldInfo_format___closed__6;
-lean_object* l_Lean_IR_CtorFieldInfo_Lean_HasFormat___closed__1;
-lean_object* l_Lean_IR_CtorFieldInfo_format___closed__1;
-lean_object* l_Lean_fmt___at_Lean_IR_CtorFieldInfo_format___spec__1___boxed(lean_object*);
-lean_object* lean_ir_get_ctor_layout(lean_object*, lean_object*);
-lean_object* l_Lean_IR_CtorFieldInfo_format___closed__3;
-extern lean_object* l___private_Init_Util_1__mkPanicMessage___closed__2;
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__7;
-lean_object* l_Lean_IR_getCtorLayout___boxed(lean_object*, lean_object*);
-extern lean_object* l___private_Init_Lean_Compiler_IR_Format_1__formatArg___closed__2;
+lean_object* l_Lean_IR_CtorFieldInfo_format___closed__6;
+lean_object* l_Lean_fmt___at_Lean_IR_CtorFieldInfo_format___spec__1(lean_object*);
 lean_object* l_Lean_IR_CtorFieldInfo_format___closed__5;
+lean_object* l_Lean_fmt___at_Lean_Level_LevelToFormat_Result_format___main___spec__1(lean_object*);
+lean_object* l_Lean_IR_CtorFieldInfo_Lean_HasFormat___closed__1;
+lean_object* l_Lean_IR_CtorFieldInfo_format(lean_object*);
+lean_object* l_Lean_IR_CtorFieldInfo_format___closed__3;
+lean_object* l_Lean_IR_CtorFieldInfo_format___closed__1;
+lean_object* l_Lean_IR_CtorFieldInfo_format___closed__8;
+lean_object* l_Lean_IR_CtorFieldInfo_format___closed__9;
+lean_object* l_Lean_fmt___at_Lean_IR_CtorFieldInfo_format___spec__1___boxed(lean_object*);
+lean_object* l_Lean_IR_CtorFieldInfo_format___closed__4;
+extern lean_object* l___private_Init_Util_1__mkPanicMessage___closed__2;
+lean_object* l_Lean_IR_CtorFieldInfo_format___closed__2;
+lean_object* l___private_Init_Lean_Compiler_IR_Format_5__formatIRType___main(lean_object*);
+lean_object* l_Lean_IR_getCtorLayout___boxed(lean_object*, lean_object*);
+lean_object* lean_ir_get_ctor_layout(lean_object*, lean_object*);
+lean_object* l_Lean_IR_CtorFieldInfo_Lean_HasFormat;
+extern lean_object* l___private_Init_Lean_Compiler_IR_Format_1__formatArg___closed__2;
 lean_object* l_Lean_fmt___at_Lean_IR_CtorFieldInfo_format___spec__1(lean_object* x_1) {
 _start:
 {

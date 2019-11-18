@@ -13,27 +13,27 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_neverExtractAttr;
-extern lean_object* l_Lean_TagAttribute_Inhabited___closed__3;
+lean_object* l_Lean_mkNeverExtractAttr(lean_object*);
 lean_object* l_Lean_hasNeverExtractAttribute___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_mkNeverExtractAttr___lambda__1(lean_object*, lean_object*);
-lean_object* l_Lean_Name_getPrefix(lean_object*);
-lean_object* l_Lean_mkNeverExtractAttr___closed__2;
+lean_object* l_Lean_mkNeverExtractAttr___closed__3;
+lean_object* l_Lean_mkNeverExtractAttr___lambda__1___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_mkNeverExtractAttr___lambda__1___closed__1;
+uint8_t l___private_Init_Lean_Compiler_NeverExtractAttr_1__hasNeverExtractAttributeAux___main(lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
+uint8_t l___private_Init_Lean_Compiler_NeverExtractAttr_1__hasNeverExtractAttributeAux(lean_object*, lean_object*);
+lean_object* l_Lean_neverExtractAttr;
+uint8_t l_Lean_Name_isInternal___main(lean_object*);
 lean_object* l___private_Init_Lean_Compiler_NeverExtractAttr_1__hasNeverExtractAttributeAux___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_TagAttribute_hasTag(lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Init_Lean_Compiler_NeverExtractAttr_1__hasNeverExtractAttributeAux(lean_object*, lean_object*);
-lean_object* l_Lean_mkNeverExtractAttr___lambda__1___boxed(lean_object*, lean_object*);
-uint8_t l___private_Init_Lean_Compiler_NeverExtractAttr_1__hasNeverExtractAttributeAux___main(lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_Compiler_NeverExtractAttr_1__hasNeverExtractAttributeAux___main___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_mkNeverExtractAttr___closed__3;
+lean_object* l_Lean_Name_getPrefix(lean_object*);
+lean_object* l_Lean_mkNeverExtractAttr___closed__2;
 uint8_t lean_has_never_extract_attribute(lean_object*, lean_object*);
-lean_object* l_Lean_mkNeverExtractAttr___closed__4;
-uint8_t l_Lean_Name_isInternal___main(lean_object*);
-lean_object* l_Lean_mkNeverExtractAttr(lean_object*);
+lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_TagAttribute_Inhabited___closed__3;
+lean_object* l___private_Init_Lean_Compiler_NeverExtractAttr_1__hasNeverExtractAttributeAux___main___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkNeverExtractAttr___closed__1;
-lean_object* l_Lean_mkNeverExtractAttr___lambda__1___closed__1;
+lean_object* l_Lean_mkNeverExtractAttr___closed__4;
 lean_object* _init_l_Lean_mkNeverExtractAttr___lambda__1___closed__1() {
 _start:
 {

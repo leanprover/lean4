@@ -13,42 +13,42 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_List_map___main___at_List_Monad___spec__3___rarg(lean_object*, lean_object*);
+lean_object* l_List_Monad___closed__5;
+lean_object* l_List_Monad___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_map___main___at_List_Monad___spec__3(lean_object*, lean_object*);
+lean_object* l_List_Monad___closed__7;
 lean_object* l_List_Alternative___lambda__1(lean_object*);
+lean_object* l_List_map___main___rarg(lean_object*, lean_object*);
+lean_object* l_List_Alternative___closed__2;
+lean_object* l_List_map___main___at_List_Monad___spec__4(lean_object*, lean_object*);
+lean_object* l_List_Monad___closed__3;
+lean_object* l_List_Monad;
+lean_object* l_List_pure(lean_object*);
+lean_object* l_List_map___main___at_List_Monad___spec__1___rarg(lean_object*, lean_object*);
+lean_object* l_List_Monad___closed__10;
+lean_object* l_List_append(lean_object*);
+lean_object* l_List_map___main___at_List_Monad___spec__5___rarg(lean_object*, lean_object*);
+lean_object* l_List_Alternative___closed__3;
+lean_object* l_List_Monad___closed__4;
+lean_object* l_List_map___main___at_List_Monad___spec__2___rarg(lean_object*, lean_object*);
+lean_object* l_List_Monad___closed__9;
+lean_object* l_List_map___main___at_List_Monad___spec__2(lean_object*, lean_object*);
+lean_object* l_List_Monad___closed__1;
+lean_object* l_List_map(lean_object*, lean_object*);
+lean_object* l_List_map___main___at_List_Monad___spec__3___rarg(lean_object*, lean_object*);
+lean_object* l_List_Monad___closed__8;
+lean_object* l_List_join___main___rarg(lean_object*);
+lean_object* l_List_map___main___at_List_Monad___spec__4___rarg(lean_object*, lean_object*);
+lean_object* l_List_Alternative;
+lean_object* l_List_Monad___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_Monad___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_map___main___at_List_Monad___spec__1(lean_object*, lean_object*);
 lean_object* l_List_bind(lean_object*, lean_object*);
 lean_object* l_List_Monad___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_Monad___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_map___main___at_List_Monad___spec__2___rarg(lean_object*, lean_object*);
-lean_object* l_List_Monad;
-lean_object* l_List_map___main___rarg(lean_object*, lean_object*);
-lean_object* l_List_Monad___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_append(lean_object*);
-lean_object* l_List_Monad___closed__8;
 lean_object* l_List_Monad___closed__6;
-lean_object* l_List_join___main___rarg(lean_object*);
-lean_object* l_List_Alternative___closed__1;
-lean_object* l_List_Monad___closed__10;
-lean_object* l_List_Monad___closed__5;
-lean_object* l_List_pure(lean_object*);
-lean_object* l_List_map___main___at_List_Monad___spec__3(lean_object*, lean_object*);
-lean_object* l_List_Alternative___closed__2;
-lean_object* l_List_Monad___closed__9;
-lean_object* l_List_map___main___at_List_Monad___spec__5___rarg(lean_object*, lean_object*);
-lean_object* l_List_map___main___at_List_Monad___spec__1(lean_object*, lean_object*);
-lean_object* l_List_Monad___closed__1;
-lean_object* l_List_Monad___closed__3;
-lean_object* l_List_Alternative;
-lean_object* l_List_map___main___at_List_Monad___spec__1___rarg(lean_object*, lean_object*);
-lean_object* l_List_Monad___closed__7;
-lean_object* l_List_Monad___closed__4;
-lean_object* l_List_map___main___at_List_Monad___spec__4___rarg(lean_object*, lean_object*);
-lean_object* l_List_map(lean_object*, lean_object*);
-lean_object* l_List_map___main___at_List_Monad___spec__2(lean_object*, lean_object*);
 lean_object* l_List_Monad___closed__2;
-lean_object* l_List_Alternative___closed__3;
-lean_object* l_List_Monad___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at_List_Monad___spec__5(lean_object*, lean_object*);
-lean_object* l_List_map___main___at_List_Monad___spec__4(lean_object*, lean_object*);
+lean_object* l_List_Alternative___closed__1;
 lean_object* l_List_map___main___at_List_Monad___spec__1___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {

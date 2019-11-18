@@ -13,32 +13,32 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Meta_unfoldDefinitionAux___rarg___closed__1;
-uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_whnfEasyCases___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_unfoldDefinitionAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_unfoldDefinitionAux___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_unfoldDefinitionAux___rarg___closed__5;
-lean_object* l_Lean_Meta_unfoldDefinitionAux___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_unfoldDefinitionAux(lean_object*);
+extern lean_object* l_EIO_Monad___closed__1;
 extern lean_object* l_Lean_noConfusionExt;
-lean_object* l_Lean_unfoldDefinitionAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_whnfAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_getExprMVarAssignment___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_unfoldDefinitionAux___rarg___closed__2;
 lean_object* l_ReaderT_Monad___rarg(lean_object*);
+lean_object* l_Lean_Meta_unfoldDefinitionAux___rarg___closed__1;
+lean_object* l_Lean_Meta_unfoldDefinitionAux___rarg___closed__4;
+extern lean_object* l_Lean_auxRecExt;
+lean_object* l_Lean_Meta_unfoldDefinitionAux___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_unfoldDefinitionAux___rarg___closed__3;
+lean_object* l_Lean_Meta_getConstNoEx___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnfAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_WHNF_1__isAuxDef_x3f___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_unfoldDefinitionAux___rarg___closed__4;
-lean_object* l_Lean_Meta_whnfAux___main___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_whnfAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_unfoldDefinitionAux___rarg___closed__2;
-lean_object* l_Lean_Meta_getLocalDecl(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_unfoldDefinitionAux___rarg___closed__3;
+lean_object* l_Lean_Meta_unfoldDefinitionAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_unfoldDefinitionAux___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_unfoldDefinitionAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_WHNF_1__isAuxDef_x3f(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_getExprMVarAssignment___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_getConstNoEx___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_EIO_Monad___closed__1;
+lean_object* l_Lean_Meta_getLocalDecl(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_whnfEasyCases___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_whnfCore___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_whnfAux___main___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_pure___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_auxRecExt;
-lean_object* l_Lean_Meta_unfoldDefinitionAux(lean_object*);
+uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_unfoldDefinitionAux___rarg___closed__5;
 lean_object* l___private_Init_Lean_Meta_WHNF_1__isAuxDef_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {

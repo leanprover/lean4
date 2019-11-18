@@ -13,24 +13,24 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_LBool_toString___closed__1;
 uint8_t l_Lean_LBool_Inhabited;
-lean_object* l_Lean_LBool_HasBeq___closed__1;
 lean_object* l_Lean_LBool_HasToString;
-extern lean_object* l_Bool_HasRepr___closed__2;
-uint8_t l_Lean_LBool_beq(uint8_t, uint8_t);
-uint8_t l_Bool_toLBool(uint8_t);
-lean_object* l_Lean_LBool_toString___boxed(lean_object*);
-lean_object* l_Lean_LBool_HasBeq;
-uint8_t l_Lean_LBool_neg(uint8_t);
-lean_object* l_Lean_LBool_and___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_LBool_HasToString___closed__1;
-uint8_t l_Lean_LBool_and(uint8_t, uint8_t);
 lean_object* l_Lean_LBool_toString(uint8_t);
+lean_object* l_Lean_LBool_HasBeq;
+lean_object* l_Lean_LBool_HasBeq___closed__1;
+lean_object* l_Lean_LBool_toString___boxed(lean_object*);
+uint8_t l_Lean_LBool_and(uint8_t, uint8_t);
 lean_object* l_Lean_LBool_neg___boxed(lean_object*);
 lean_object* l_Bool_toLBool___boxed(lean_object*);
-lean_object* l_Lean_LBool_beq___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_LBool_and___boxed(lean_object*, lean_object*);
 extern lean_object* l_Bool_HasRepr___closed__1;
+extern lean_object* l_Bool_HasRepr___closed__2;
+uint8_t l_Lean_LBool_neg(uint8_t);
+uint8_t l_Bool_toLBool(uint8_t);
+lean_object* l_Lean_LBool_toString___closed__1;
+uint8_t l_Lean_LBool_beq(uint8_t, uint8_t);
+lean_object* l_Lean_LBool_beq___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_LBool_HasToString___closed__1;
 uint8_t _init_l_Lean_LBool_Inhabited() {
 _start:
 {

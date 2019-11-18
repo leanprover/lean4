@@ -13,34 +13,34 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Array_empty___closed__1;
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l_Stack_pop___boxed(lean_object*, lean_object*);
-lean_object* l_Stack_empty(lean_object*);
-lean_object* l_Stack_peek_x21(lean_object*);
-lean_object* l_Array_get_x3f___rarg(lean_object*, lean_object*);
-lean_object* l_Stack_peek_x3f(lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* l_Stack_isEmpty___rarg___boxed(lean_object*);
-uint8_t l_Array_isEmpty___rarg(lean_object*);
-lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* l_Stack_peek_x21___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_Stack_pop___rarg(lean_object*);
-lean_object* lean_array_pop(lean_object*);
 lean_object* l_Stack_modify(lean_object*);
-lean_object* l_Stack_push(lean_object*);
-lean_object* lean_array_get_size(lean_object*);
+extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Stack_peek_x3f___rarg(lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
+lean_object* l_Stack_push(lean_object*);
+lean_object* lean_array_push(lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
 uint8_t l_Stack_isEmpty___rarg(lean_object*);
 lean_object* l_Stack_isEmpty(lean_object*);
-lean_object* l_Stack_pop(lean_object*, lean_object*);
-lean_object* l_Stack_peek_x21___rarg(lean_object*, lean_object*);
+lean_object* l_Stack_peek_x3f(lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* l_Stack_modify___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Stack_peek_x3f___rarg___boxed(lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* l_Stack_push___rarg(lean_object*, lean_object*);
-lean_object* l_Stack_modify___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Stack_peek_x21(lean_object*);
 lean_object* l_Array_back___rarg(lean_object*, lean_object*);
+lean_object* l_Stack_push___rarg(lean_object*, lean_object*);
+uint8_t l_Array_isEmpty___rarg(lean_object*);
+lean_object* l_Stack_isEmpty___rarg___boxed(lean_object*);
+lean_object* l_Array_get_x3f___rarg(lean_object*, lean_object*);
+lean_object* lean_array_pop(lean_object*);
+lean_object* l_Stack_empty(lean_object*);
+lean_object* l_Stack_pop___boxed(lean_object*, lean_object*);
+lean_object* l_Stack_peek_x21___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_Stack_pop(lean_object*, lean_object*);
+lean_object* l_Stack_pop___rarg(lean_object*);
+lean_object* l_Stack_peek_x21___rarg(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Stack_empty(lean_object* x_1) {
 _start:
 {

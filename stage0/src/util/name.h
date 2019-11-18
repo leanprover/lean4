@@ -99,10 +99,7 @@ public:
     static name mk_internal_unique_name();
     name & operator=(name const & other) { object_ref::operator=(other); return *this; }
     name & operator=(name && other) { object_ref::operator=(other); return *this; }
-    static usize hash(b_obj_arg n) {
-        if (lean::is_scalar(n)) return 11;
-        else return lean::cnstr_get_scalar<usize>(n, sizeof(void*)*2);
-    }
+    static usize hash(b_obj_arg n);
     unsigned hash() const { return hash(raw()); }
     /** \brief Return true iff \c n1 is a prefix of \c n2. */
     friend bool is_prefix_of(name const & n1, name const & n2);

@@ -13,26 +13,26 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_hasMonadLiftToHasCoe___elambda__1___rarg(lean_object*, lean_object*);
-lean_object* l_hasMonadLiftToHasCoe___elambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_monadFunctorTTrans(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_hasMonadLiftTRefl___rarg(lean_object*);
-lean_object* l_hasMonadLiftToHasCoe___boxed(lean_object*, lean_object*);
-lean_object* l_hasMonadLiftTRefl___rarg___boxed(lean_object*);
-lean_object* l_monadFunctorTTrans___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_monadFunctorTRefl___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_hasMonadLiftTTrans___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_hasMonadLiftTRefl___boxed(lean_object*, lean_object*);
-lean_object* l_monadFunctorTRefl___rarg(lean_object*, lean_object*);
-lean_object* l_hasMonadLiftToHasCoe___elambda__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_monadFunctorTRefl(lean_object*, lean_object*, lean_object*);
+lean_object* l_hasMonadLiftTRefl___rarg(lean_object*);
+lean_object* l_hasMonadLiftTTrans___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_hasMonadLiftTRefl(lean_object*, lean_object*);
-lean_object* l_hasMonadLiftTTrans(lean_object*, lean_object*, lean_object*);
-lean_object* l_hasMonadLiftToHasCoe(lean_object*, lean_object*);
-lean_object* l_hasMonadLiftTTrans___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_monadFunctorTRefl___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_hasMonadLiftToHasCoe___boxed(lean_object*, lean_object*);
 lean_object* l_monadFunctorTTrans___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_hasMonadLiftToHasCoe___rarg(lean_object*, lean_object*);
+lean_object* l_monadFunctorTTrans___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_hasMonadLiftToHasCoe___elambda__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_hasMonadLiftTTrans(lean_object*, lean_object*, lean_object*);
+lean_object* l_monadFunctorTRefl(lean_object*, lean_object*, lean_object*);
+lean_object* l_hasMonadLiftTTrans___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_hasMonadLiftToHasCoe___elambda__1___rarg(lean_object*, lean_object*);
+lean_object* l_hasMonadLiftToHasCoe(lean_object*, lean_object*);
+lean_object* l_hasMonadLiftTRefl___rarg___boxed(lean_object*);
 lean_object* l_monadFunctorTTrans___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_hasMonadLiftToHasCoe___elambda__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_monadFunctorTRefl___rarg(lean_object*, lean_object*);
+lean_object* l_hasMonadLiftToHasCoe___rarg(lean_object*, lean_object*);
 lean_object* l_hasMonadLiftToHasCoe___elambda__1___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {

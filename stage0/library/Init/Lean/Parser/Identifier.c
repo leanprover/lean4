@@ -13,26 +13,26 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t l_Lean_isSubScriptAlnum(uint32_t);
-lean_object* l_Lean_isIdRest___boxed(lean_object*);
-uint8_t l_Char_isAlphanum(uint32_t);
-lean_object* l_Lean_isLetterLike___boxed(lean_object*);
-uint8_t l_Lean_isIdRest(uint32_t);
-uint8_t l_Lean_isIdEndEscape(uint32_t);
-lean_object* l_Lean_isIdBeginEscape___boxed(lean_object*);
-uint8_t l_Char_isAlpha(uint32_t);
-lean_object* l_Lean_isIdFirst___boxed(lean_object*);
-uint8_t l_Lean_isLetterLike(uint32_t);
-uint8_t l_Lean_isIdBeginEscape(uint32_t);
-uint8_t l_UInt32_decLe(uint32_t, uint32_t);
 uint32_t l_Lean_idBeginEscape;
-uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Lean_isGreek___boxed(lean_object*);
-lean_object* l_Lean_isIdEndEscape___boxed(lean_object*);
 uint32_t l_Lean_idEndEscape;
-uint8_t l_Lean_isIdFirst(uint32_t);
-uint8_t l_Lean_isGreek(uint32_t);
+lean_object* l_Lean_isIdRest___boxed(lean_object*);
+uint8_t l_Lean_isIdBeginEscape(uint32_t);
+lean_object* l_Lean_isIdFirst___boxed(lean_object*);
 lean_object* l_Lean_isSubScriptAlnum___boxed(lean_object*);
+uint8_t l_Lean_isIdEndEscape(uint32_t);
+uint8_t l_Char_isAlpha(uint32_t);
+uint8_t l_Lean_isLetterLike(uint32_t);
+lean_object* l_Lean_isLetterLike___boxed(lean_object*);
+uint8_t l_UInt32_decEq(uint32_t, uint32_t);
+uint8_t l_Char_isAlphanum(uint32_t);
+uint8_t l_Lean_isGreek(uint32_t);
+lean_object* l_Lean_isIdBeginEscape___boxed(lean_object*);
+lean_object* l_Lean_isIdEndEscape___boxed(lean_object*);
+uint8_t l_Lean_isIdFirst(uint32_t);
+uint8_t l_Lean_isSubScriptAlnum(uint32_t);
+uint8_t l_UInt32_decLe(uint32_t, uint32_t);
+uint8_t l_Lean_isIdRest(uint32_t);
 uint8_t l_Lean_isGreek(uint32_t x_1) {
 _start:
 {

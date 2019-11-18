@@ -13,22 +13,22 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l_Nat_div___boxed(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Nat_Div_2__div_F___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_HasDiv___closed__1;
-lean_object* l_Nat_HasMod___closed__1;
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* lean_nat_mod(lean_object*, lean_object*);
-lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Nat_Div_5__mod_F(lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-lean_object* l_Nat_HasMod;
 lean_object* lean_nat_div(lean_object*, lean_object*);
-lean_object* l_Nat_mod___boxed(lean_object*, lean_object*);
+lean_object* l_Nat_div___boxed(lean_object*, lean_object*);
+lean_object* l_Nat_HasMod___closed__1;
 lean_object* l___private_Init_Data_Nat_Div_2__div_F(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Nat_Div_5__mod_F___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Nat_HasDiv;
+lean_object* l___private_Init_Data_Nat_Div_5__mod_F(lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Nat_Div_5__mod_F___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_mod___boxed(lean_object*, lean_object*);
+lean_object* l_Nat_HasDiv___closed__1;
+lean_object* l___private_Init_Data_Nat_Div_2__div_F___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+lean_object* lean_nat_mod(lean_object*, lean_object*);
+lean_object* l_Nat_HasMod;
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Nat_Div_2__div_F(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {

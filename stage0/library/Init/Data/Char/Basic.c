@@ -13,47 +13,47 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t l_Char_isAlphanum(uint32_t);
-lean_object* l_Char_toLower___boxed(lean_object*);
-lean_object* l_Char_isDigit___boxed(lean_object*);
-lean_object* l_Char_toNat___boxed(lean_object*);
-uint32_t l_Char_Inhabited;
-uint8_t l_Char_isLower(uint32_t);
-lean_object* l_Char_decLt___boxed(lean_object*, lean_object*);
-uint8_t l_Char_isAlpha(uint32_t);
 lean_object* l_Char_HasLessEq;
+lean_object* l_Char_isAlpha___boxed(lean_object*);
+uint8_t l_Char_decLe(uint32_t, uint32_t);
 uint32_t l_UInt32_land(uint32_t, uint32_t);
-lean_object* l_Char_decLe___boxed(lean_object*, lean_object*);
+uint8_t l_Char_isUpper(uint32_t);
+uint8_t l_Char_isDigit(uint32_t);
+uint8_t l_Char_isWhitespace(uint32_t);
+lean_object* l_Char_toNat___boxed(lean_object*);
+uint32_t lean_uint32_of_nat(lean_object*);
+lean_object* lean_nat_add(lean_object*, lean_object*);
+uint8_t l_Char_lt(uint32_t, uint32_t);
+lean_object* l_Char_toNat(uint32_t);
 lean_object* l_Char_DecidableEq___boxed(lean_object*, lean_object*);
 lean_object* l_Char_HasLess;
-lean_object* l_Char_toNat(uint32_t);
-uint8_t l_UInt32_decLe(uint32_t, uint32_t);
-uint32_t l_Char_ofNat(lean_object*);
-uint8_t l_Char_isUpper(uint32_t);
-lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Char_toLower___boxed(lean_object*);
 uint8_t l_UInt32_decLt(uint32_t, uint32_t);
-uint8_t l_UInt32_decEq(uint32_t, uint32_t);
-lean_object* l_Char_isWhitespace___boxed(lean_object*);
-uint8_t l_Char_isDigit(uint32_t);
-uint8_t l_Char_decLe(uint32_t, uint32_t);
-uint8_t l_Char_lt(uint32_t, uint32_t);
-uint8_t l_Char_decLt(uint32_t, uint32_t);
 lean_object* l_Char_utf8Size___boxed(lean_object*);
-lean_object* l_Char_isAlpha___boxed(lean_object*);
-lean_object* l_Char_lt___boxed(lean_object*, lean_object*);
-uint8_t l_Char_isWhitespace(uint32_t);
+uint8_t l_Char_isLower(uint32_t);
 lean_object* l_Char_HasSizeof(uint32_t);
 lean_object* l_Char_isAlphanum___boxed(lean_object*);
-uint32_t l_Char_utf8Size(uint32_t);
-uint32_t lean_uint32_of_nat(lean_object*);
+uint32_t l_Char_Inhabited;
+lean_object* l_Char_isWhitespace___boxed(lean_object*);
+uint8_t l_Char_isAlpha(uint32_t);
+lean_object* l_Char_decLt___boxed(lean_object*, lean_object*);
+uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-uint32_t l_Char_toLower(uint32_t);
-lean_object* lean_uint32_to_nat(uint32_t);
-lean_object* l_Char_isLower___boxed(lean_object*);
+uint8_t l_Char_isAlphanum(uint32_t);
+uint8_t l_Char_decLt(uint32_t, uint32_t);
 lean_object* l_Char_HasSizeof___boxed(lean_object*);
+uint32_t l_Char_toLower(uint32_t);
+uint32_t l_Char_utf8Size(uint32_t);
+lean_object* l_Char_isLower___boxed(lean_object*);
 uint8_t l_Char_DecidableEq(uint32_t, uint32_t);
-lean_object* l_Char_isUpper___boxed(lean_object*);
 lean_object* l_Char_ofNat___boxed(lean_object*);
+lean_object* l_Char_lt___boxed(lean_object*, lean_object*);
+lean_object* l_Char_isUpper___boxed(lean_object*);
+uint8_t l_UInt32_decLe(uint32_t, uint32_t);
+lean_object* lean_uint32_to_nat(uint32_t);
+lean_object* l_Char_decLe___boxed(lean_object*, lean_object*);
+uint32_t l_Char_ofNat(lean_object*);
+lean_object* l_Char_isDigit___boxed(lean_object*);
 lean_object* l_Char_HasSizeof(uint32_t x_1) {
 _start:
 {

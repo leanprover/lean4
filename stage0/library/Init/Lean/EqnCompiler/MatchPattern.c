@@ -13,21 +13,21 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t lean_has_match_pattern_attribute(lean_object*, lean_object*);
-lean_object* l_Lean_EqnCompiler_matchPatternAttr;
-lean_object* l_Lean_EqnCompiler_mkMatchPatternAttr___closed__3;
-extern lean_object* l_Lean_TagAttribute_Inhabited___closed__3;
 lean_object* l_Lean_EqnCompiler_mkMatchPatternAttr(lean_object*);
+lean_object* l_Lean_EqnCompiler_hasMatchPatternAttribute___boxed(lean_object*, lean_object*);
+uint8_t lean_has_match_pattern_attribute(lean_object*, lean_object*);
+lean_object* l_Lean_EqnCompiler_mkMatchPatternAttr___closed__3;
+lean_object* l_Lean_EqnCompiler_matchPatternAttr;
+lean_object* l_Lean_EqnCompiler_mkMatchPatternAttr___closed__1;
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_EqnCompiler_mkMatchPatternAttr___closed__4;
+lean_object* l_Lean_EqnCompiler_mkMatchPatternAttr___closed__2;
+lean_object* l_Lean_EqnCompiler_mkMatchPatternAttr___lambda__1(lean_object*, lean_object*);
+uint8_t l_Lean_TagAttribute_hasTag(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_TagAttribute_Inhabited___closed__3;
 lean_object* l_Lean_EqnCompiler_mkMatchPatternAttr___lambda__1___closed__1;
 lean_object* l_Lean_EqnCompiler_mkMatchPatternAttr___lambda__1___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
-lean_object* l_Lean_EqnCompiler_hasMatchPatternAttribute___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_EqnCompiler_mkMatchPatternAttr___closed__4;
-uint8_t l_Lean_TagAttribute_hasTag(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_EqnCompiler_mkMatchPatternAttr___closed__1;
-lean_object* l_Lean_EqnCompiler_mkMatchPatternAttr___lambda__1(lean_object*, lean_object*);
-lean_object* l_Lean_EqnCompiler_mkMatchPatternAttr___closed__2;
 lean_object* _init_l_Lean_EqnCompiler_mkMatchPatternAttr___lambda__1___closed__1() {
 _start:
 {

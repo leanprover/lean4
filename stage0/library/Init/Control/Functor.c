@@ -13,12 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Functor_mapRev___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Functor_mapConstRev___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Functor_mapConstRev(lean_object*);
-lean_object* l_Functor_mapRev(lean_object*);
 lean_object* l_Functor_mapConstRev___boxed(lean_object*);
 lean_object* l_Functor_mapRev___boxed(lean_object*);
+lean_object* l_Functor_mapRev(lean_object*);
+lean_object* l_Functor_mapConstRev___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Functor_mapConstRev(lean_object*);
+lean_object* l_Functor_mapRev___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Functor_mapConstRev___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {

@@ -13,27 +13,27 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___closed__3;
-lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__3;
-extern lean_object* l_Lean_TagAttribute_Inhabited___closed__3;
-lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___closed__1;
-uint8_t l_Lean_IR_UnboxResult_hasUnboxAttr(lean_object*, lean_object*);
-lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__1;
-lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__5;
-lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__7;
-lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__6;
-lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr(lean_object*);
-lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___closed__2;
-lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__4;
-uint8_t l_Lean_TagAttribute_hasTag(lean_object*, lean_object*, lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
-lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__2;
-lean_object* l_Lean_IR_UnboxResult_unboxAttr;
-lean_object* l_Lean_IR_UnboxResult_hasUnboxAttr___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1(lean_object*, lean_object*);
+lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__4;
+lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__6;
+lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__5;
+lean_object* l_Lean_IR_UnboxResult_unboxAttr;
+lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__2;
+lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__1;
 lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___closed__4;
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__3;
+lean_object* l_Lean_IR_UnboxResult_hasUnboxAttr___boxed(lean_object*, lean_object*);
+uint8_t l_Lean_IR_UnboxResult_hasUnboxAttr(lean_object*, lean_object*);
+lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___closed__1;
+uint8_t l_Lean_TagAttribute_hasTag(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___closed__3;
+extern lean_object* l_Lean_TagAttribute_Inhabited___closed__3;
+lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__7;
+lean_object* l_Lean_IR_UnboxResult_mkUnboxAttr___closed__2;
 lean_object* _init_l_Lean_IR_UnboxResult_mkUnboxAttr___lambda__1___closed__1() {
 _start:
 {

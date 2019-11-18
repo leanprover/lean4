@@ -13,33 +13,33 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Id_run___rarg(lean_object*);
-lean_object* l_Id_Monad___closed__5;
-lean_object* l_Id_pure___rarg(lean_object*);
-lean_object* l_Id_MonadRun___closed__1;
-lean_object* l_Id_pure___rarg___boxed(lean_object*);
-lean_object* l_Id_Monad___closed__9;
-lean_object* l_Id_Monad___closed__7;
-lean_object* l_Id_Monad___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Id_pure(lean_object*);
-lean_object* l_Id_bind(lean_object*, lean_object*);
-lean_object* l_Id_Monad;
-lean_object* l_Id_Monad___closed__3;
-lean_object* l_Id_MonadRun;
-lean_object* l_Id_run___rarg___boxed(lean_object*);
-lean_object* l_Id_Monad___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Id_Monad___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Id_Monad___closed__1;
 lean_object* l_Id_bind___rarg(lean_object*, lean_object*);
 lean_object* l_Id_map___rarg(lean_object*, lean_object*);
-lean_object* l_Id_Monad___closed__6;
-lean_object* l_Id_Monad___closed__4;
-lean_object* l_Id_Monad___closed__2;
-lean_object* l_Id_Monad___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Id_map(lean_object*, lean_object*);
-lean_object* l_Id_Monad___closed__8;
 lean_object* l_Id_Monad___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Id_Monad___closed__9;
+lean_object* l_Id_Monad___closed__8;
+lean_object* l_Id_Monad___closed__4;
+lean_object* l_Id_bind(lean_object*, lean_object*);
 lean_object* l_Id_run(lean_object*);
+lean_object* l_Id_pure___rarg___boxed(lean_object*);
+lean_object* l_Id_run___rarg___boxed(lean_object*);
+lean_object* l_Id_map(lean_object*, lean_object*);
+lean_object* l_Id_pure___rarg(lean_object*);
+lean_object* l_Id_Monad___closed__7;
+lean_object* l_Id_pure(lean_object*);
+lean_object* l_Id_Monad;
+lean_object* l_Id_Monad___closed__1;
+lean_object* l_Id_Monad___closed__6;
+lean_object* l_Id_MonadRun;
+lean_object* l_Id_Monad___closed__5;
+lean_object* l_Id_Monad___closed__3;
+lean_object* l_Id_MonadRun___closed__1;
+lean_object* l_Id_Monad___closed__2;
+lean_object* l_Id_Monad___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Id_run___rarg(lean_object*);
+lean_object* l_Id_Monad___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Id_Monad___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Id_Monad___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_pure___rarg(lean_object* x_1) {
 _start:
 {

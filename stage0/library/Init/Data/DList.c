@@ -13,38 +13,38 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_DList_append(lean_object*);
-lean_object* l_DList_singleton___elambda__1___rarg(lean_object*, lean_object*);
-lean_object* l_DList_push(lean_object*);
-lean_object* l_DList_toList___rarg(lean_object*);
-lean_object* l_DList_cons___elambda__1(lean_object*);
-lean_object* l_DList_push___elambda__1(lean_object*);
-lean_object* l_DList_HasAppend___closed__1;
-lean_object* l_DList_append___elambda__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_DList_HasEmptyc(lean_object*);
-lean_object* l_DList_cons___rarg(lean_object*, lean_object*);
-lean_object* l_DList_singleton(lean_object*);
-lean_object* l_DList_toList(lean_object*);
-lean_object* l_DList_push___elambda__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_DList_append___rarg(lean_object*, lean_object*);
-lean_object* l_DList_HasEmptyc___closed__1;
-lean_object* l_DList_empty___elambda__1___rarg___boxed(lean_object*);
 lean_object* l_DList_HasAppend(lean_object*);
-lean_object* l_DList_empty___elambda__1(lean_object*);
-lean_object* l_List_append___rarg(lean_object*, lean_object*);
+lean_object* l_DList_push___elambda__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_DList_append___elambda__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_DList_toList___rarg(lean_object*);
 lean_object* l_DList_cons(lean_object*);
+lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l_DList_empty(lean_object*);
+lean_object* l_DList_ofList___elambda__1(lean_object*);
+lean_object* l_DList_cons___elambda__1(lean_object*);
+lean_object* l_DList_push(lean_object*);
+lean_object* l_DList_empty___elambda__1___rarg___boxed(lean_object*);
+lean_object* l_DList_empty___elambda__1(lean_object*);
+lean_object* l_DList_singleton___elambda__1(lean_object*);
+lean_object* l_DList_HasEmptyc(lean_object*);
 lean_object* l_DList_cons___elambda__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_DList_push___rarg(lean_object*, lean_object*);
+lean_object* l_DList_singleton(lean_object*);
+lean_object* l_DList_ofList___rarg(lean_object*);
 lean_object* l_DList_singleton___rarg(lean_object*);
+lean_object* l_DList_singleton___elambda__1___rarg(lean_object*, lean_object*);
+lean_object* l_DList_cons___rarg(lean_object*, lean_object*);
+lean_object* l_DList_append___rarg(lean_object*, lean_object*);
 lean_object* l_DList_empty___closed__1;
 lean_object* l_DList_empty___elambda__1___rarg(lean_object*);
-lean_object* l_DList_ofList___elambda__1___rarg(lean_object*, lean_object*);
 lean_object* l_DList_ofList(lean_object*);
-lean_object* l_DList_singleton___elambda__1(lean_object*);
-lean_object* l_DList_ofList___elambda__1(lean_object*);
-lean_object* l_DList_ofList___rarg(lean_object*);
+lean_object* l_DList_push___rarg(lean_object*, lean_object*);
+lean_object* l_DList_HasAppend___closed__1;
+lean_object* l_DList_push___elambda__1(lean_object*);
+lean_object* l_DList_HasEmptyc___closed__1;
+lean_object* l_DList_toList(lean_object*);
 lean_object* l_DList_append___elambda__1(lean_object*);
+lean_object* l_DList_append(lean_object*);
+lean_object* l_DList_ofList___elambda__1___rarg(lean_object*, lean_object*);
 lean_object* l_DList_ofList___elambda__1___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {

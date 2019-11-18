@@ -13,18 +13,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Nat_bitwise___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_bitwise___main(lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_bitwise___main___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_nat_mod(lean_object*, lean_object*);
-lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Nat_land___boxed(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* l_Nat_bitwise(lean_object*, lean_object*, lean_object*);
-lean_object* lean_nat_land(lean_object*, lean_object*);
-lean_object* l_Nat_lor___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
+lean_object* lean_nat_add(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* l_Nat_lor___boxed(lean_object*, lean_object*);
+lean_object* l_Nat_bitwise(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_lor(lean_object*, lean_object*);
+lean_object* l_Nat_bitwise___main___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_bitwise___main(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_bitwise___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_land___boxed(lean_object*, lean_object*);
+lean_object* lean_nat_land(lean_object*, lean_object*);
+lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l_Nat_bitwise___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {

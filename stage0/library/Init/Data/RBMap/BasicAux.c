@@ -13,27 +13,27 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_RBMap_max_x21(lean_object*, lean_object*, lean_object*);
-lean_object* l_RBMap_min_x21___rarg___closed__3;
-lean_object* l_RBNode_min___main___rarg(lean_object*);
-lean_object* l_RBNode_max___main___rarg(lean_object*);
-lean_object* l_RBMap_find_x21(lean_object*, lean_object*);
-lean_object* l_RBMap_max_x21___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_RBMap_max_x21___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_RBMap_max_x21___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_RBMap_min_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_RBMap_min_x21___rarg___closed__2;
-lean_object* l_RBNode_find___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
-lean_object* l_RBMap_min_x21___rarg___closed__1;
-lean_object* l_RBMap_find_x21___rarg___closed__1;
-lean_object* l_RBMap_min_x21___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_RBMap_find_x21___rarg___closed__2;
-lean_object* l_RBMap_find_x21___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_RBMap_min_x21___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBMap_min_x21___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_RBMap_min_x21___rarg___closed__1;
+lean_object* l_RBMap_min_x21___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_RBMap_find_x21___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_RBMap_max_x21(lean_object*, lean_object*, lean_object*);
+lean_object* l_RBMap_find_x21(lean_object*, lean_object*);
+lean_object* l_RBNode_min___main___rarg(lean_object*);
 lean_object* l_RBMap_max_x21___rarg___closed__1;
+lean_object* l_RBMap_max_x21___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_RBMap_find_x21___rarg___closed__2;
+lean_object* l_RBMap_find_x21___rarg___closed__1;
+lean_object* l_RBMap_min_x21(lean_object*, lean_object*, lean_object*);
+lean_object* l_RBNode_find___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* l_RBMap_max_x21___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_RBNode_max___main___rarg(lean_object*);
+lean_object* l_RBMap_max_x21___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_RBMap_min_x21___rarg___closed__3;
 lean_object* _init_l_RBMap_min_x21___rarg___closed__1() {
 _start:
 {

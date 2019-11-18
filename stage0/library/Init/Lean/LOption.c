@@ -13,21 +13,21 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_Option_HasRepr___rarg___closed__2;
+lean_object* l_Option_toLOption___rarg(lean_object*);
+extern lean_object* l_Option_HasRepr___rarg___closed__1;
 lean_object* l_Lean_LOption_HasBeq(lean_object*);
 lean_object* l_Lean_LOption_beq___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Option_toLOption___rarg___boxed(lean_object*);
-lean_object* l_Lean_LOption_HasBeq___rarg(lean_object*);
-lean_object* l_Option_toLOption___rarg(lean_object*);
-lean_object* l_Option_toLOption(lean_object*);
-extern lean_object* l_Option_HasRepr___rarg___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
-extern lean_object* l_Option_HasRepr___rarg___closed__3;
 lean_object* l_Lean_LOption_HasToString___rarg___closed__1;
-extern lean_object* l_Option_HasRepr___rarg___closed__2;
+lean_object* l_Lean_LOption_beq(lean_object*);
+lean_object* l_Lean_LOption_HasToString___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_LOption_HasToString(lean_object*);
 lean_object* l_Lean_LOption_Inhabited(lean_object*);
-lean_object* l_Lean_LOption_HasToString___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_LOption_beq(lean_object*);
+lean_object* l_Lean_LOption_HasBeq___rarg(lean_object*);
+lean_object* l_Option_toLOption___rarg___boxed(lean_object*);
+extern lean_object* l_Option_HasRepr___rarg___closed__3;
+lean_object* l_Option_toLOption(lean_object*);
 lean_object* l_Lean_LOption_Inhabited(lean_object* x_1) {
 _start:
 {

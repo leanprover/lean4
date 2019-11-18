@@ -13,20 +13,20 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Queue_enqueueAll___rarg(lean_object*, lean_object*);
+lean_object* l_List_reverse___rarg(lean_object*);
+lean_object* l_Queue_empty___closed__1;
 lean_object* l_Queue_enqueue(lean_object*);
 lean_object* l_Queue_enqueue___rarg(lean_object*, lean_object*);
-lean_object* l_List_reverse___rarg(lean_object*);
-lean_object* l_Queue_dequeue_x3f(lean_object*);
-lean_object* l_Queue_empty___closed__1;
-lean_object* l_Queue_isEmpty___rarg___boxed(lean_object*);
-lean_object* l_Queue_empty(lean_object*);
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
-uint8_t l_List_isEmpty___rarg(lean_object*);
+lean_object* l_Queue_dequeue_x3f(lean_object*);
 uint8_t l_Queue_isEmpty___rarg(lean_object*);
-lean_object* l_Queue_dequeue_x3f___rarg(lean_object*);
+lean_object* l_Queue_enqueueAll___rarg(lean_object*, lean_object*);
 lean_object* l_Queue_isEmpty(lean_object*);
 lean_object* l_Queue_enqueueAll(lean_object*);
+lean_object* l_Queue_dequeue_x3f___rarg(lean_object*);
+lean_object* l_Queue_isEmpty___rarg___boxed(lean_object*);
+lean_object* l_Queue_empty(lean_object*);
+uint8_t l_List_isEmpty___rarg(lean_object*);
 lean_object* _init_l_Queue_empty___closed__1() {
 _start:
 {

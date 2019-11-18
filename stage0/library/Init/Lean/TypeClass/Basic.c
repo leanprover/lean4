@@ -14,14 +14,14 @@
 extern "C" {
 #endif
 extern lean_object* l_Array_empty___closed__1;
-extern lean_object* l_PersistentHashMap_empty___rarg___closed__2;
 extern lean_object* l_Lean_Expr_Inhabited___closed__1;
-lean_object* l_Lean_TypeClass_synthCommand___closed__1;
-lean_object* l_PersistentHashMap_empty___at_Lean_TypeClass_synthCommand___spec__1___closed__1;
 lean_object* l_PersistentHashMap_empty___at_Lean_TypeClass_synthCommand___spec__1;
+lean_object* lean_typeclass_synth_command(lean_object*, lean_object*);
+extern lean_object* l_PersistentHashMap_empty___rarg___closed__2;
+lean_object* l_PersistentHashMap_empty___at_Lean_TypeClass_synthCommand___spec__1___closed__1;
+lean_object* l_Lean_TypeClass_synthCommand___closed__1;
 lean_object* l_Queue_empty(lean_object*);
 lean_object* l_Lean_TypeClass_synth(lean_object*, lean_object*, lean_object*);
-lean_object* lean_typeclass_synth_command(lean_object*, lean_object*);
 lean_object* _init_l_PersistentHashMap_empty___at_Lean_TypeClass_synthCommand___spec__1___closed__1() {
 _start:
 {

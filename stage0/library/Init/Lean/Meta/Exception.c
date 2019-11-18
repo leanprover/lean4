@@ -13,40 +13,40 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_List_toString___at_Lean_Meta_Exception_toStr___spec__1(lean_object*);
+extern lean_object* l_Lean_Name_toString___closed__1;
+lean_object* l_Lean_Meta_Exception_toStr___closed__4;
+lean_object* l_Lean_Meta_Exception_toStr___closed__9;
+lean_object* l_Lean_Meta_Exception_toStr___closed__8;
+extern lean_object* l_List_repr___rarg___closed__1;
 lean_object* l_Lean_Format_pretty(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Exception_toStr___closed__5;
-extern lean_object* l_List_repr___rarg___closed__3;
+lean_object* l_Lean_Meta_Exception_toStr___closed__13;
+lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Exception_toStr___closed__1;
-lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
-extern lean_object* l_Lean_Options_empty;
-lean_object* l_Lean_Level_format(lean_object*);
+extern lean_object* l_String_splitAux___main___closed__1;
+lean_object* l_Lean_Meta_Exception_Inhabited___closed__1;
+extern lean_object* l_List_repr___rarg___closed__3;
+lean_object* l_Lean_Meta_Exception_toStr___closed__2;
+lean_object* l_Lean_Meta_Exception_Inhabited;
+lean_object* l_Lean_Meta_Exception_toStr___closed__12;
 lean_object* l_Lean_Meta_Exception_HasToString;
 lean_object* l_Nat_repr(lean_object*);
-extern lean_object* l_List_repr___rarg___closed__2;
-lean_object* lean_string_append(lean_object*, lean_object*);
-extern lean_object* l_List_reprAux___main___rarg___closed__1;
-lean_object* l_List_toStringAux___main___at_Lean_Meta_Exception_toStr___spec__2___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Exception_toStr___closed__8;
 extern lean_object* l_Char_HasRepr___closed__1;
-lean_object* l_Lean_Meta_Exception_toStr___closed__4;
-lean_object* l_Lean_Meta_Exception_Inhabited;
-lean_object* l_Lean_Meta_Exception_toStr___closed__3;
-lean_object* l_Lean_Meta_Exception_HasToString___closed__1;
-lean_object* l_Lean_Meta_Exception_toStr(lean_object*);
-lean_object* l_Lean_Meta_Exception_toStr___closed__9;
-lean_object* l_Lean_Meta_Exception_toStr___closed__2;
-lean_object* l_Lean_Meta_Exception_toStr___closed__10;
+extern lean_object* l_List_repr___rarg___closed__2;
+extern lean_object* l_List_reprAux___main___rarg___closed__1;
 lean_object* l_Lean_Meta_Exception_toStr___closed__11;
-lean_object* l_Lean_Meta_Exception_toStr___closed__6;
+extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_Meta_Exception_toStr___closed__7;
-lean_object* l_Lean_Meta_Exception_Inhabited___closed__1;
+lean_object* l_List_toStringAux___main___at_Lean_Meta_Exception_toStr___spec__2___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Exception_toStr___closed__10;
 lean_object* l_List_toStringAux___main___at_Lean_Meta_Exception_toStr___spec__2(uint8_t, lean_object*);
-extern lean_object* l_Lean_Name_toString___closed__1;
-lean_object* l_Lean_Meta_Exception_toStr___closed__12;
-extern lean_object* l_List_repr___rarg___closed__1;
-lean_object* l_Lean_Meta_Exception_toStr___closed__13;
-extern lean_object* l_String_splitAux___main___closed__1;
+lean_object* l_Lean_Meta_Exception_toStr(lean_object*);
+lean_object* l_Lean_Meta_Exception_HasToString___closed__1;
+lean_object* l_Lean_Meta_Exception_toStr___closed__6;
+lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Exception_toStr___closed__5;
+lean_object* l_Lean_Meta_Exception_toStr___closed__3;
+lean_object* l_Lean_Level_format(lean_object*);
+lean_object* l_List_toString___at_Lean_Meta_Exception_toStr___spec__1(lean_object*);
 lean_object* _init_l_Lean_Meta_Exception_Inhabited___closed__1() {
 _start:
 {

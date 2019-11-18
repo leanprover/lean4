@@ -13,31 +13,31 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_unreachable_x21___rarg___closed__3;
-lean_object* l_panicWithPos___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_dbg_trace(lean_object*, lean_object*);
-lean_object* l_panic___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_1__mkPanicMessage___closed__3;
-lean_object* l_Nat_repr(lean_object*);
-lean_object* l_unreachable_x21___rarg___closed__1;
-lean_object* lean_string_append(lean_object*, lean_object*);
-lean_object* l_unreachable_x21(lean_object*);
-lean_object* l_dbgSleep___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_panicWithPos(lean_object*);
-lean_object* l_unreachable_x21___rarg___closed__2;
-lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_dbgTraceIfShared___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_dbg_sleep(uint32_t, lean_object*);
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_1__mkPanicMessage___closed__2;
-lean_object* l___private_Init_Util_1__mkPanicMessage___closed__1;
-lean_object* l_unsafeCast___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_panicWithPos___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_dbgTrace___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_unreachable_x21___rarg(lean_object*);
-lean_object* l___private_Init_Util_1__mkPanicMessage___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_dbgTraceIfShared___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_panic___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_dbg_trace(lean_object*, lean_object*);
+lean_object* lean_string_append(lean_object*, lean_object*);
+lean_object* l_unreachable_x21___rarg___closed__2;
+lean_object* l_panicWithPos___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_dbg_sleep(uint32_t, lean_object*);
+lean_object* l_Nat_repr(lean_object*);
 lean_object* lean_dbg_trace_if_shared(lean_object*, lean_object*);
-lean_object* l_panicWithPos___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_unreachable_x21(lean_object*);
+lean_object* l_unreachable_x21___rarg___closed__3;
+lean_object* l___private_Init_Util_1__mkPanicMessage___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_panicWithPos(lean_object*);
+lean_object* l___private_Init_Util_1__mkPanicMessage___closed__1;
+lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Util_1__mkPanicMessage___closed__2;
+lean_object* l_unreachable_x21___rarg___closed__1;
+lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Util_1__mkPanicMessage___closed__3;
+lean_object* l_dbgSleep___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_unsafeCast___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_dbgTrace___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {

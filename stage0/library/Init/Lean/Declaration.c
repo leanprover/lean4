@@ -13,44 +13,44 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_ConstantInfo_name(lean_object*);
-lean_object* lean_task_get(lean_object*);
-lean_object* l_Lean_ConstantInfo_value_x21___closed__2;
+lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_ConstantInfo_instantiateValueLevelParams___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_ConstantInfo_value_x3f___boxed(lean_object*);
+lean_object* l_Lean_RecursorVal_getMajorIdx___boxed(lean_object*);
+lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Lean_ConstantInfo_value_x21___closed__1;
+lean_object* l_Lean_ConstantInfo_lparams___boxed(lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x21___boxed(lean_object*);
-lean_object* l_Lean_ConstantInfo_name___boxed(lean_object*);
-lean_object* l_Lean_ConstantInfo_value_x3f(lean_object*);
-lean_object* l_Lean_ConstantInfo_value_x21___closed__3;
+lean_object* l_Lean_ConstantInfo_value_x21___closed__2;
+lean_object* l_Lean_RecursorVal_getMajorIdx(lean_object*);
+lean_object* l_Lean_ConstantInfo_instantiateTypeLevelParams___boxed(lean_object*, lean_object*);
 lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_toConstantVal(lean_object*);
-lean_object* l_Lean_ConstantInfo_instantiateValueLevelParams___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_RecursorVal_getInduct___boxed(lean_object*);
-lean_object* l_Lean_InductiveVal_nctors___boxed(lean_object*);
-lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
-lean_object* l_Lean_ConstantInfo_isCtor___boxed(lean_object*);
-uint8_t l_Lean_ConstantInfo_hasValue(lean_object*);
-extern lean_object* l_Lean_Expr_Inhabited;
-lean_object* l_Lean_Name_getPrefix(lean_object*);
-uint8_t l_Lean_ConstantInfo_isCtor(lean_object*);
-lean_object* lean_instantiate_value_lparams(lean_object*, lean_object*);
-lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_ConstantInfo_hints___boxed(lean_object*);
-lean_object* l_Lean_RecursorVal_getMajorIdx___boxed(lean_object*);
-lean_object* l_Lean_RecursorVal_getInduct(lean_object*);
-lean_object* l_Lean_ConstantInfo_instantiateTypeLevelParams___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_InductiveVal_nctors(lean_object*);
-lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_RecursorVal_getMajorIdx(lean_object*);
-lean_object* l_Lean_ConstantInfo_value_x3f___boxed(lean_object*);
-lean_object* l_Lean_ConstantInfo_hints(lean_object*);
-lean_object* l_Lean_ConstantInfo_value_x21___closed__1;
-lean_object* l_Lean_ConstantInfo_toConstantVal___boxed(lean_object*);
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
 lean_object* lean_instantiate_type_lparams(lean_object*, lean_object*);
-lean_object* l_Lean_ConstantInfo_type(lean_object*);
-lean_object* l_Lean_ConstantInfo_type___boxed(lean_object*);
-lean_object* l_Lean_ConstantInfo_lparams___boxed(lean_object*);
-lean_object* l_Lean_ConstantInfo_value_x21(lean_object*);
 lean_object* l_Lean_ConstantInfo_hasValue___boxed(lean_object*);
+lean_object* l_Lean_ConstantInfo_name(lean_object*);
+lean_object* l_Lean_ConstantInfo_toConstantVal___boxed(lean_object*);
+uint8_t l_Lean_ConstantInfo_hasValue(lean_object*);
+lean_object* l_Lean_RecursorVal_getInduct___boxed(lean_object*);
+lean_object* l_Lean_ConstantInfo_isCtor___boxed(lean_object*);
+lean_object* l_Lean_ConstantInfo_hints(lean_object*);
+lean_object* l_Lean_ConstantInfo_type(lean_object*);
+lean_object* l_Lean_ConstantInfo_value_x3f(lean_object*);
+lean_object* l_Lean_RecursorVal_getInduct(lean_object*);
+lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
+lean_object* lean_instantiate_value_lparams(lean_object*, lean_object*);
+uint8_t l_Lean_ConstantInfo_isCtor(lean_object*);
+lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_InductiveVal_nctors___boxed(lean_object*);
+lean_object* l_Lean_Name_getPrefix(lean_object*);
+lean_object* l_Lean_ConstantInfo_name___boxed(lean_object*);
+extern lean_object* l_Lean_Expr_Inhabited;
+lean_object* l_Lean_InductiveVal_nctors(lean_object*);
+lean_object* l_Lean_ConstantInfo_value_x21___closed__3;
+lean_object* l_Lean_ConstantInfo_value_x21(lean_object*);
+lean_object* l_Lean_ConstantInfo_hints___boxed(lean_object*);
+lean_object* lean_task_get(lean_object*);
+lean_object* l_Lean_ConstantInfo_type___boxed(lean_object*);
 lean_object* l_Lean_InductiveVal_nctors(lean_object* x_1) {
 _start:
 {

@@ -13,36 +13,36 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_AssocList_foldlM(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_foldl___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_replace___main(lean_object*, lean_object*);
-lean_object* l_AssocList_foldlM___main___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_foldlM___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_erase___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_find___main(lean_object*, lean_object*);
-lean_object* l_AssocList_empty(lean_object*, lean_object*);
-lean_object* l_AssocList_foldlM___main___at_AssocList_foldl___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_foldlM___main___at_AssocList_foldl___spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_erase___main___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_contains___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_contains(lean_object*, lean_object*);
-lean_object* l_AssocList_find___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_find___main___rarg(lean_object*, lean_object*, lean_object*);
-uint8_t l_AssocList_contains___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_contains___main___rarg___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t l_AssocList_contains___main___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_foldlM___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_foldl(lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_replace___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_replace(lean_object*, lean_object*);
-lean_object* l_AssocList_foldlM___main(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_erase(lean_object*, lean_object*);
 lean_object* l_AssocList_foldlM___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_find(lean_object*, lean_object*);
-lean_object* l_AssocList_foldlM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_AssocList_erase___main(lean_object*, lean_object*);
+lean_object* l_AssocList_foldlM___main___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_foldlM___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_find___main___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_foldlM___main___at_AssocList_foldl___spec__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_foldl___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_foldlM___main___at_AssocList_foldl___spec__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_foldlM___main(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_AssocList_contains___main___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_find___main(lean_object*, lean_object*);
+uint8_t l_AssocList_contains___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_replace___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_contains___main(lean_object*, lean_object*);
+lean_object* l_AssocList_erase___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_foldlM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_contains___main___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_empty(lean_object*, lean_object*);
+lean_object* l_AssocList_find___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_replace(lean_object*, lean_object*);
+lean_object* l_AssocList_contains(lean_object*, lean_object*);
+lean_object* l_AssocList_foldlM(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_replace___main(lean_object*, lean_object*);
+lean_object* l_AssocList_foldl(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_replace___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_foldlM___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_erase(lean_object*, lean_object*);
+lean_object* l_AssocList_contains___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_AssocList_erase___main(lean_object*, lean_object*);
+lean_object* l_AssocList_erase___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_empty(lean_object* x_1, lean_object* x_2) {
 _start:
 {

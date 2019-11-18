@@ -13,29 +13,29 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_strToExpr;
-lean_object* l_Lean_mkStrLit(lean_object*);
-lean_object* l_Lean_nameToExprAux___main___closed__3;
 lean_object* l_Lean_nameToExprAux___main___closed__1;
-lean_object* l_Lean_mkConst(lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
-lean_object* l_Lean_nameToExprAux___main___closed__7;
+lean_object* l_Lean_nameToExprAux___main___closed__2;
 lean_object* l_Lean_nameToExprAux___main___closed__8;
+lean_object* l_Lean_nameToExprAux___main___closed__4;
+lean_object* l_Lean_mkCAppB(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_nameToExprAux___main___closed__7;
+lean_object* l_Lean_nameToExprAux___main___closed__5;
+lean_object* l_Lean_natToExpr___closed__1;
+lean_object* l_Lean_nameToExprAux___main___closed__3;
+lean_object* l_Lean_nameToExpr;
+lean_object* l_Lean_nameToExpr___closed__1;
+lean_object* l_Lean_natToExpr;
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_nameToExprAux(lean_object*);
 lean_object* l_Lean_nameToExprAux___main(lean_object*);
 extern lean_object* l_liftRefl___closed__1;
-lean_object* l_Lean_nameToExprAux___main___closed__6;
-lean_object* l_Lean_nameToExprAux(lean_object*);
 lean_object* l_Lean_mkNatLit(lean_object*);
-lean_object* l_Lean_mkCAppB(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_strToExpr___closed__1;
-lean_object* l_Lean_nameToExprAux___main___closed__5;
-lean_object* l_Lean_nameToExprAux___main___closed__4;
-lean_object* l_Lean_natToExpr___closed__1;
+lean_object* l_Lean_mkStrLit(lean_object*);
 lean_object* l_Lean_exprToExpr;
-lean_object* l_Lean_nameToExpr;
-lean_object* l_Lean_natToExpr;
-lean_object* l_Lean_nameToExprAux___main___closed__2;
-lean_object* l_Lean_nameToExpr___closed__1;
+lean_object* l_Lean_nameToExprAux___main___closed__6;
+lean_object* l_Lean_strToExpr;
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
+lean_object* l_Lean_strToExpr___closed__1;
 lean_object* _init_l_Lean_exprToExpr() {
 _start:
 {

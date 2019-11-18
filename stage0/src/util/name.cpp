@@ -31,6 +31,9 @@ static inline obj_res name_mk_string_of_cstr(obj_arg p, char const * s) {
     return lean_name_mk_string(p, mk_string(s));
 }
 
+extern "C" usize lean_name_hash(obj_arg n);
+usize name::hash(b_obj_arg n) { inc(n); return lean_name_hash(n); }
+
 bool name::eq_core(b_obj_arg n1, b_obj_arg n2) {
     while (true) {
         lean_assert(!is_scalar(n1));

@@ -13,14 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_when(lean_object*);
 lean_object* l_unless___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_when___boxed(lean_object*);
 lean_object* l_when___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
+lean_object* l_when___boxed(lean_object*);
+lean_object* l_unless(lean_object*);
 lean_object* l_unless___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_when___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unless___boxed(lean_object*);
-lean_object* l_unless(lean_object*);
-lean_object* l_when(lean_object*);
 lean_object* l_when___rarg(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4) {
 _start:
 {

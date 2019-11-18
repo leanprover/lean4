@@ -13,12 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_profileit___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_lean_profileit(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_IO_lazyPure___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_profileitPure___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_profileit___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_profileitPure(lean_object*);
 lean_object* l_Lean_profileitPure___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_profileitPure___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_lazyPure___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_profileit___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {

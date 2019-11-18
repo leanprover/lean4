@@ -13,17 +13,17 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_System_Platform_getNumBits___boxed(lean_object*);
-lean_object* l_System_Platform_numBits___closed__1;
-uint8_t l_System_Platform_isWindows___closed__1;
-uint8_t l_System_Platform_isWindows;
-lean_object* l_System_Platform_getIsOSX___boxed(lean_object*);
 uint8_t l_System_Platform_isOSX___closed__1;
-uint8_t lean_system_platform_osx(lean_object*);
+uint8_t l_System_Platform_isWindows;
 uint8_t l_System_Platform_isOSX;
-lean_object* lean_system_platform_nbits(lean_object*);
+uint8_t lean_system_platform_osx(lean_object*);
 lean_object* l_System_Platform_numBits;
+lean_object* l_System_Platform_getNumBits___boxed(lean_object*);
+uint8_t l_System_Platform_isWindows___closed__1;
+lean_object* l_System_Platform_getIsOSX___boxed(lean_object*);
 uint8_t lean_system_platform_windows(lean_object*);
+lean_object* l_System_Platform_numBits___closed__1;
+lean_object* lean_system_platform_nbits(lean_object*);
 lean_object* l_System_Platform_getIsWindows___boxed(lean_object*);
 lean_object* l_System_Platform_getNumBits___boxed(lean_object* x_1) {
 _start:

@@ -13,14 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern lean_object* l_Array_empty___closed__1;
-lean_object* lean_linters_ref;
-lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addLinter(lean_object*, lean_object*);
-lean_object* l_Lean_mkLintersRef(lean_object*);
-lean_object* lean_array_push(lean_object*, lean_object*);
+extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
+lean_object* lean_array_push(lean_object*, lean_object*);
+lean_object* lean_linters_ref;
+lean_object* l_Lean_mkLintersRef(lean_object*);
+lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkLintersRef(lean_object* x_1) {
 _start:
 {

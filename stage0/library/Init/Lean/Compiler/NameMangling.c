@@ -13,33 +13,33 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_name_mangle(lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_Compiler_NameMangling_2__Name_mangleAux(lean_object*);
+lean_object* lean_string_push(lean_object*, uint32_t);
+lean_object* lean_nat_div(lean_object*, lean_object*);
+uint8_t l_Char_isDigit(uint32_t);
+lean_object* lean_string_append(lean_object*, lean_object*);
+extern lean_object* l_String_splitAux___main___closed__1;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+extern lean_object* l_Lean_Name_appendIndexAfter___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__1;
-lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__3;
-uint8_t l_Char_isAlpha(uint32_t);
-extern lean_object* l_Lean_Name_appendIndexAfter___closed__1;
-lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l_Nat_repr(lean_object*);
-lean_object* l_String_Iterator_next(lean_object*);
-lean_object* lean_string_append(lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__2;
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* lean_nat_mod(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* l_Lean_String_mangle(lean_object*);
-lean_object* l___private_Init_Lean_Compiler_NameMangling_2__Name_mangleAux___main(lean_object*);
-uint8_t l_UInt32_decEq(uint32_t, uint32_t);
-uint8_t l_Char_isDigit(uint32_t);
-lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main(lean_object*, lean_object*, lean_object*);
-uint32_t l_String_Iterator_curr(lean_object*);
-lean_object* lean_nat_div(lean_object*, lean_object*);
-lean_object* lean_uint32_to_nat(uint32_t);
+lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__1;
 uint32_t l_Nat_digitChar(lean_object*);
-extern lean_object* l_String_splitAux___main___closed__1;
+lean_object* l_String_Iterator_next(lean_object*);
+lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main(lean_object*, lean_object*, lean_object*);
+uint8_t l_Char_isAlpha(uint32_t);
+lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__2;
+uint8_t l_UInt32_decEq(uint32_t, uint32_t);
+lean_object* l_Lean_String_mangle(lean_object*);
+lean_object* l___private_Init_Lean_Compiler_NameMangling_2__Name_mangleAux(lean_object*);
+uint32_t l_String_Iterator_curr(lean_object*);
+lean_object* lean_name_mangle(lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
+lean_object* lean_nat_mod(lean_object*, lean_object*);
+lean_object* lean_uint32_to_nat(uint32_t);
+lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__3;
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_Compiler_NameMangling_2__Name_mangleAux___main(lean_object*);
 lean_object* _init_l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux___main___closed__1() {
 _start:
 {

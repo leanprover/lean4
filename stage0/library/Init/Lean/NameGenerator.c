@@ -13,16 +13,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_NameGenerator_mkChild(lean_object*);
-lean_object* l_Lean_NameGenerator_Inhabited___closed__1;
-lean_object* l_Lean_NameGenerator_next(lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
-lean_object* l_Lean_NameGenerator_Inhabited___closed__3;
-lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
-lean_object* l_Lean_NameGenerator_Inhabited___closed__2;
-lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_NameGenerator_curr(lean_object*);
 lean_object* l_Lean_NameGenerator_Inhabited;
+lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Lean_NameGenerator_next(lean_object*);
+lean_object* l_Lean_NameGenerator_Inhabited___closed__2;
+lean_object* l_Lean_NameGenerator_Inhabited___closed__1;
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_NameGenerator_mkChild(lean_object*);
+lean_object* l_Lean_NameGenerator_curr(lean_object*);
+lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
+lean_object* l_Lean_NameGenerator_Inhabited___closed__3;
 lean_object* _init_l_Lean_NameGenerator_Inhabited___closed__1() {
 _start:
 {

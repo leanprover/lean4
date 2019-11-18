@@ -13,14 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_monadFailLift(lean_object*, lean_object*);
-lean_object* l_matchFailed(lean_object*, lean_object*);
 lean_object* l_matchFailed___boxed(lean_object*, lean_object*);
-lean_object* l_monadFailLift___boxed(lean_object*, lean_object*);
 lean_object* l_monadFailLift___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_matchFailed___rarg___closed__1;
-lean_object* l_matchFailed___rarg(lean_object*);
 lean_object* l_monadFailLift___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_monadFailLift(lean_object*, lean_object*);
+lean_object* l_monadFailLift___boxed(lean_object*, lean_object*);
+lean_object* l_matchFailed___rarg___closed__1;
+lean_object* l_matchFailed(lean_object*, lean_object*);
+lean_object* l_matchFailed___rarg(lean_object*);
 lean_object* _init_l_matchFailed___rarg___closed__1() {
 _start:
 {

@@ -13,29 +13,29 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_guard___boxed(lean_object*);
-lean_object* l_guardb___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_alternativeHasOrelse___rarg(lean_object*);
-lean_object* l_failure___boxed(lean_object*);
-lean_object* l_guard(lean_object*);
 lean_object* l_assert___rarg(lean_object*, lean_object*, uint8_t);
-lean_object* l_optional___rarg___lambda__1(lean_object*);
-lean_object* l_guard___rarg(lean_object*, lean_object*, uint8_t);
-lean_object* l_assert___boxed(lean_object*);
-lean_object* l_assert(lean_object*);
-lean_object* l_optional___boxed(lean_object*);
-lean_object* l_guard___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_assert___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_guardb___boxed(lean_object*);
-lean_object* l_optional___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_guard___boxed(lean_object*);
 lean_object* l_failure___rarg(lean_object*, lean_object*);
-lean_object* l_failure(lean_object*);
+lean_object* l_failure___boxed(lean_object*);
+lean_object* l_guard___rarg(lean_object*, lean_object*, uint8_t);
 lean_object* l_guardb(lean_object*);
-lean_object* l_optional(lean_object*);
+lean_object* l_optional___boxed(lean_object*);
 lean_object* l_optional___rarg___closed__1;
-lean_object* l_alternativeHasOrelse(lean_object*, lean_object*);
 lean_object* l_guardb___rarg(lean_object*, uint8_t);
+lean_object* l_assert(lean_object*);
+lean_object* l_optional___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_alternativeHasOrelse___boxed(lean_object*, lean_object*);
+lean_object* l_failure(lean_object*);
+lean_object* l_guard___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_guardb___boxed(lean_object*);
+lean_object* l_optional___rarg___lambda__1(lean_object*);
+lean_object* l_alternativeHasOrelse(lean_object*, lean_object*);
+lean_object* l_guardb___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_guard(lean_object*);
+lean_object* l_assert___boxed(lean_object*);
+lean_object* l_optional(lean_object*);
+lean_object* l_assert___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_alternativeHasOrelse___rarg(lean_object* x_1) {
 _start:
 {

@@ -26,8 +26,8 @@ uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 lean_object* l_Lean_mkProjectionFnInfoExtension___closed__3;
 lean_object* l_Lean_projectionFnInfoExt___elambda__2___boxed(lean_object*);
 lean_object* l_RBNode_find___main___at_Lean_Environment_getProjectionFnInfo___spec__1___boxed(lean_object*, lean_object*);
-uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkTagDeclarationExtension___closed__2;
 lean_object* l_Lean_mkProjectionFnInfoExtension___closed__1;
@@ -375,7 +375,7 @@ x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
 lean_dec(x_8);
 x_10 = lean_ctor_get(x_1, 0);
-x_11 = l_Lean_Name_beq___main(x_9, x_10);
+x_11 = lean_name_eq(x_9, x_10);
 lean_dec(x_9);
 if (x_11 == 0)
 {

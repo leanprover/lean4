@@ -18,8 +18,8 @@ extern lean_object* l_Lean_Parser_declareLeadingBuiltinParser___closed__1;
 lean_object* l_Lean_Syntax_getArg___rarg(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Syntax_manyToSepBy___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getTailInfo___main___rarg(lean_object*);
-uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_removeParen___closed__4;
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -251,7 +251,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5;
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = l_Lean_Syntax_removeParen___closed__4;
-x_5 = l_Lean_Name_beq___main(x_2, x_4);
+x_5 = lean_name_eq(x_2, x_4);
 if (x_5 == 0)
 {
 lean_inc(x_1);

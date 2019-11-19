@@ -28,10 +28,10 @@ lean_object* l_PersistentHashMap_insertAux___main___at_Lean_mkClosedTermCacheExt
 lean_object* lean_get_closed_term_name(lean_object*, lean_object*);
 extern size_t l_PersistentHashMap_insertAux___main___rarg___closed__2;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_getClosedTermName___spec__6(lean_object*, lean_object*);
 size_t l_USize_sub(size_t, size_t);
 extern lean_object* l_Array_empty___closed__1;
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_closedTermCacheExt___elambda__2(lean_object*);
 lean_object* l_Lean_closedTermCacheExt___closed__7;
@@ -1184,7 +1184,7 @@ x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
 lean_dec(x_8);
 x_10 = lean_ctor_get(x_1, 0);
-x_11 = l_Lean_Name_beq___main(x_9, x_10);
+x_11 = lean_name_eq(x_9, x_10);
 lean_dec(x_9);
 if (x_11 == 0)
 {

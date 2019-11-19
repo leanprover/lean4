@@ -21,8 +21,8 @@ lean_object* l___private_Init_Lean_Modifiers_2__privatePrefixAux(lean_object*);
 uint8_t l_Lean_isPrivateName___main(lean_object*);
 lean_object* l_Lean_protectedExt___closed__5;
 lean_object* l_Lean_privateHeader;
-uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt___elambda__1___boxed(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -649,7 +649,7 @@ case 1:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = l_Lean_privateHeader;
-x_5 = l_Lean_Name_beq___main(x_1, x_4);
+x_5 = lean_name_eq(x_1, x_4);
 if (x_5 == 0)
 {
 x_1 = x_3;

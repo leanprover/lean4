@@ -79,7 +79,6 @@ lean_object* lean_array_fswap(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitInc___closed__5;
 extern lean_object* l_Prod_HasRepr___rarg___closed__1;
 lean_object* l_Lean_IR_EmitC_emitSProj___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Nat_anyAux___main___at_Lean_IR_EmitC_overwriteParam___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitDeclAux___closed__3;
 lean_object* l_Lean_IR_EmitC_emitMainFn___closed__51;
@@ -102,6 +101,7 @@ extern lean_object* l_Lean_closureMaxArgs;
 uint8_t l_Lean_IR_IRType_isIrrelevant(lean_object*);
 lean_object* l_Lean_IR_EmitC_emitMarkPersistent(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_IR_EmitC_toStringArgs___spec__1(lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitApp___closed__3;
 lean_object* lean_ir_emit_c(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitMainFn___closed__35;
@@ -1141,7 +1141,7 @@ if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; uint8_t x_11; 
 x_10 = l_Lean_IR_EmitC_toCName___closed__2;
-x_11 = l_Lean_Name_beq___main(x_1, x_10);
+x_11 = lean_name_eq(x_1, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -1216,7 +1216,7 @@ if (lean_obj_tag(x_23) == 0)
 {
 lean_object* x_24; uint8_t x_25; 
 x_24 = l_Lean_IR_EmitC_toCName___closed__2;
-x_25 = l_Lean_Name_beq___main(x_1, x_24);
+x_25 = lean_name_eq(x_1, x_24);
 if (x_25 == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; 
@@ -3653,7 +3653,7 @@ x_4 = lean_ctor_get(x_2, 1);
 x_5 = l_List_foldr___main___at_Lean_IR_EmitC_hasMainFn___spec__1(x_1, x_4);
 x_6 = l_Lean_IR_Decl_name(x_3);
 x_7 = l_Lean_IR_EmitC_toCName___closed__2;
-x_8 = l_Lean_Name_beq___main(x_6, x_7);
+x_8 = lean_name_eq(x_6, x_7);
 lean_dec(x_6);
 if (x_8 == 0)
 {
@@ -9304,7 +9304,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_7 = lean_ctor_get(x_2, 0);
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_4, 3);
-x_10 = l_Lean_Name_beq___main(x_7, x_9);
+x_10 = lean_name_eq(x_7, x_9);
 if (x_10 == 0)
 {
 uint8_t x_11; lean_object* x_12; lean_object* x_13; 

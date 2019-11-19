@@ -23,9 +23,9 @@ lean_object* l___private_Init_Lean_Trace_1__addNode___at___private_Init_Lean_Met
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_4__solveSelfMax(lean_object*);
 lean_object* l___private_Init_Lean_Trace_1__addNode___at___private_Init_Lean_Meta_LevelDefEq_10__processPostponedStep___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Init_Lean_Meta_LevelDefEq_1__strictOccursMaxAux___main(lean_object*, lean_object*);
-uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_3__mkMaxArgsDiff___main___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Level_dec___main(lean_object*);
 lean_object* l_PersistentArray_foldlMAux___main___at___private_Init_Lean_Meta_LevelDefEq_10__processPostponedStep___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instantiateLevelMVars(lean_object*, lean_object*, lean_object*);
@@ -268,7 +268,7 @@ case 5:
 lean_object* x_8; uint8_t x_9; 
 x_8 = lean_ctor_get(x_2, 0);
 lean_inc(x_8);
-x_9 = l_Lean_Name_beq___main(x_8, x_1);
+x_9 = lean_name_eq(x_8, x_1);
 lean_dec(x_8);
 if (x_9 == 0)
 {

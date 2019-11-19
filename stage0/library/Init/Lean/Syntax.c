@@ -43,7 +43,6 @@ lean_object* l___private_Init_Lean_Syntax_5__decodeBinLitAux(lean_object*, lean_
 lean_object* l_Lean_Syntax_getTailInfo___main___rarg(lean_object*);
 lean_object* l_Lean_Syntax_HasToString(lean_object*);
 lean_object* l___private_Init_Lean_Syntax_5__decodeBinLitAux___main___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Lean_stxInh(lean_object*);
 lean_object* l_Lean_Syntax_isMissing___rarg___boxed(lean_object*);
 extern lean_object* l_Array_empty___closed__1;
@@ -57,6 +56,7 @@ lean_object* l_Lean_SyntaxNode_modifyArgs___rarg(lean_object*, lean_object*);
 uint8_t l_Char_isDigit(uint32_t);
 lean_object* l_Lean_charLitKind___closed__2;
 lean_object* l_Lean_Syntax_getTailInfo___rarg___boxed(lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Syntax_2__updateLeadingAux___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_mkIdentFrom(lean_object*);
 lean_object* l___private_Init_Lean_Syntax_4__reprintLeaf___boxed(lean_object*, lean_object*);
@@ -1114,7 +1114,7 @@ if (lean_obj_tag(x_1) == 1)
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
-x_6 = l_Lean_Name_beq___main(x_5, x_2);
+x_6 = lean_name_eq(x_5, x_2);
 lean_dec(x_5);
 if (x_6 == 0)
 {
@@ -1238,7 +1238,7 @@ if (lean_obj_tag(x_1) == 1)
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_ctor_get(x_1, 0);
-x_4 = l_Lean_Name_beq___main(x_2, x_3);
+x_4 = lean_name_eq(x_2, x_3);
 return x_4;
 }
 else
@@ -3911,7 +3911,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5;
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = l_Lean_choiceKind;
-x_5 = l_Lean_Name_beq___main(x_2, x_4);
+x_5 = lean_name_eq(x_2, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
@@ -4307,7 +4307,7 @@ x_4 = lean_ctor_get(x_1, 1);
 lean_inc(x_4);
 lean_dec(x_1);
 x_5 = l_Lean_Syntax_formatStx___main___rarg___closed__8;
-x_6 = l_Lean_Name_beq___main(x_3, x_5);
+x_6 = lean_name_eq(x_3, x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
@@ -4726,7 +4726,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5;
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = l_Lean_strLitKind;
-x_5 = l_Lean_Name_beq___main(x_2, x_4);
+x_5 = lean_name_eq(x_2, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; 
@@ -5480,7 +5480,7 @@ if (lean_obj_tag(x_2) == 1)
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_Name_beq___main(x_3, x_1);
+x_5 = lean_name_eq(x_3, x_1);
 if (x_5 == 0)
 {
 lean_object* x_6; 

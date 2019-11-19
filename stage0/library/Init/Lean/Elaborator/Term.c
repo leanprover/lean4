@@ -23,10 +23,10 @@ extern lean_object* l_Lean_List_format___rarg___closed__2;
 extern size_t l_PersistentHashMap_insertAux___main___rarg___closed__2;
 extern lean_object* l_Lean_Parser_Term_forall___elambda__1___closed__2;
 extern lean_object* l_Prod_HasRepr___rarg___closed__1;
-uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 extern lean_object* l_PersistentHashMap_mkCollisionNode___rarg___closed__1;
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Elab_elabListLit___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l___regBuiltinTermElab_Lean_Elab_elabArrow(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -125,7 +125,7 @@ else
 {
 lean_object* x_9; uint8_t x_10; 
 x_9 = lean_array_fget(x_1, x_4);
-x_10 = l_Lean_Name_beq___main(x_5, x_9);
+x_10 = lean_name_eq(x_5, x_9);
 lean_dec(x_9);
 if (x_10 == 0)
 {
@@ -172,7 +172,7 @@ lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec(x_10);
-x_13 = l_Lean_Name_beq___main(x_3, x_11);
+x_13 = lean_name_eq(x_3, x_11);
 lean_dec(x_11);
 if (x_13 == 0)
 {
@@ -244,7 +244,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
 x_6 = lean_ctor_get(x_2, 2);
-x_7 = l_Lean_Name_beq___main(x_4, x_1);
+x_7 = lean_name_eq(x_4, x_1);
 if (x_7 == 0)
 {
 x_2 = x_6;

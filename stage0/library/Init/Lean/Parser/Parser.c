@@ -128,7 +128,6 @@ lean_object* l_Lean_Parser_ParserState_next(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Syntax_getTailInfo___main___rarg(lean_object*);
 lean_object* l_Lean_Parser_registerBuiltinParserAttribute___lambda__1___closed__4;
 lean_object* l_Array_extract___rarg(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_optionalFn___boxed(lean_object*);
 lean_object* l_Lean_Syntax_mfoldArgsAux___main___at_Lean_Syntax_foldArgs___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Error_HasToString___closed__1;
@@ -155,6 +154,7 @@ lean_object* l_Lean_Parser_mkParserState(lean_object*);
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParsingTables_inhabited;
 lean_object* l_Lean_Parser_checkNoWsBefore___elambda__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_many1Indent___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_satisfyFn___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3302,7 +3302,7 @@ else
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 2);
-x_6 = l_Lean_Name_beq___main(x_4, x_1);
+x_6 = lean_name_eq(x_4, x_1);
 if (x_6 == 0)
 {
 x_2 = x_5;
@@ -3438,7 +3438,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_5 = lean_ctor_get(x_3, 0);
 x_6 = lean_ctor_get(x_3, 1);
 x_7 = lean_ctor_get(x_3, 2);
-x_8 = l_Lean_Name_beq___main(x_5, x_1);
+x_8 = lean_name_eq(x_5, x_1);
 if (x_8 == 0)
 {
 lean_object* x_9; 
@@ -3465,7 +3465,7 @@ lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_3);
-x_13 = l_Lean_Name_beq___main(x_10, x_1);
+x_13 = lean_name_eq(x_10, x_1);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
@@ -23153,22 +23153,22 @@ x_15 = lean_ctor_get(x_12, 0);
 lean_inc(x_15);
 lean_dec(x_12);
 x_16 = l_Lean_numLitKind;
-x_17 = l_Lean_Name_beq___main(x_15, x_16);
+x_17 = lean_name_eq(x_15, x_16);
 if (x_17 == 0)
 {
 lean_object* x_18; uint8_t x_19; 
 x_18 = l_Lean_charLitKind;
-x_19 = l_Lean_Name_beq___main(x_15, x_18);
+x_19 = lean_name_eq(x_15, x_18);
 if (x_19 == 0)
 {
 lean_object* x_20; uint8_t x_21; 
 x_20 = l_Lean_strLitKind;
-x_21 = l_Lean_Name_beq___main(x_15, x_20);
+x_21 = lean_name_eq(x_15, x_20);
 if (x_21 == 0)
 {
 lean_object* x_22; uint8_t x_23; 
 x_22 = l_Lean_fieldIdxKind;
-x_23 = l_Lean_Name_beq___main(x_15, x_22);
+x_23 = lean_name_eq(x_15, x_22);
 lean_dec(x_15);
 if (x_23 == 0)
 {
@@ -23222,22 +23222,22 @@ x_30 = lean_ctor_get(x_12, 0);
 lean_inc(x_30);
 lean_dec(x_12);
 x_31 = l_Lean_numLitKind;
-x_32 = l_Lean_Name_beq___main(x_30, x_31);
+x_32 = lean_name_eq(x_30, x_31);
 if (x_32 == 0)
 {
 lean_object* x_33; uint8_t x_34; 
 x_33 = l_Lean_charLitKind;
-x_34 = l_Lean_Name_beq___main(x_30, x_33);
+x_34 = lean_name_eq(x_30, x_33);
 if (x_34 == 0)
 {
 lean_object* x_35; uint8_t x_36; 
 x_35 = l_Lean_strLitKind;
-x_36 = l_Lean_Name_beq___main(x_30, x_35);
+x_36 = lean_name_eq(x_30, x_35);
 if (x_36 == 0)
 {
 lean_object* x_37; uint8_t x_38; 
 x_37 = l_Lean_fieldIdxKind;
-x_38 = l_Lean_Name_beq___main(x_30, x_37);
+x_38 = lean_name_eq(x_30, x_37);
 lean_dec(x_30);
 if (x_38 == 0)
 {
@@ -24250,7 +24250,7 @@ x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
 lean_dec(x_8);
 x_10 = lean_ctor_get(x_1, 0);
-x_11 = l_Lean_Name_beq___main(x_9, x_10);
+x_11 = lean_name_eq(x_9, x_10);
 lean_dec(x_9);
 if (x_11 == 0)
 {
@@ -25805,7 +25805,7 @@ else
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
-x_6 = l_Lean_Name_beq___main(x_1, x_4);
+x_6 = lean_name_eq(x_1, x_4);
 if (x_6 == 0)
 {
 x_2 = x_5;
@@ -27694,7 +27694,7 @@ x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
 lean_dec(x_8);
 x_10 = lean_ctor_get(x_1, 0);
-x_11 = l_Lean_Name_beq___main(x_9, x_10);
+x_11 = lean_name_eq(x_9, x_10);
 lean_dec(x_9);
 if (x_11 == 0)
 {
@@ -28680,7 +28680,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5;
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = l_Lean_nullKind;
-x_5 = l_Lean_Name_beq___main(x_2, x_4);
+x_5 = lean_name_eq(x_2, x_4);
 if (x_5 == 0)
 {
 uint8_t x_6; 
@@ -28732,7 +28732,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5;
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = l_Lean_nullKind;
-x_5 = l_Lean_Name_beq___main(x_2, x_4);
+x_5 = lean_name_eq(x_2, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; 

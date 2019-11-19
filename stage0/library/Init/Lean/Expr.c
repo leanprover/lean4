@@ -62,7 +62,6 @@ lean_object* l_Lean_Expr_Data_hasBeq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkLambda___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkLit(lean_object*);
 lean_object* l_Lean_Expr_getAppRevArgs(lean_object*);
-uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hasLevelParamEx___boxed(lean_object*);
 size_t l_Lean_Expr_Data_hash(uint64_t);
 lean_object* l_Lean_mkDecIsTrue___closed__5;
@@ -83,6 +82,7 @@ lean_object* l_Lean_Expr_constName_x21___boxed(lean_object*);
 lean_object* l_Lean_Expr_withAppRev___rarg(lean_object*, lean_object*);
 uint64_t l_Lean_Expr_mkData___closed__3;
 uint64_t l_Lean_Expr_mkDataForBinder(size_t, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_expr_mk_local(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Expr_binderInfoEx___boxed(lean_object*);
 uint8_t l_Lean_Expr_isApp(lean_object*);
@@ -4637,7 +4637,7 @@ if (lean_obj_tag(x_1) == 4)
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_ctor_get(x_1, 0);
-x_4 = l_Lean_Name_beq___main(x_3, x_2);
+x_4 = lean_name_eq(x_3, x_2);
 return x_4;
 }
 else
@@ -5355,7 +5355,7 @@ lean_object* x_4; uint8_t x_5;
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 lean_dec(x_3);
-x_5 = l_Lean_Name_beq___main(x_4, x_2);
+x_5 = lean_name_eq(x_4, x_2);
 lean_dec(x_4);
 return x_5;
 }
@@ -5399,7 +5399,7 @@ return x_7;
 else
 {
 uint8_t x_8; 
-x_8 = l_Lean_Name_beq___main(x_4, x_2);
+x_8 = lean_name_eq(x_4, x_2);
 return x_8;
 }
 }

@@ -25,8 +25,8 @@ lean_object* l_Array_forMAux___main___at_Lean_IR_CollectUsedDecls_collectFnBody_
 lean_object* l_AssocList_foldlM___main___at_Lean_IR_CollectMaps_collectVar___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_IR_collectUsedDecls(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Lean_IR_UsesLeanNamespace_visitFnBody___main(lean_object*, lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_IR_CollectUsedDecls_collectFnBody(lean_object*, lean_object*, lean_object*);
@@ -118,7 +118,7 @@ return x_10;
 else
 {
 uint8_t x_11; 
-x_11 = l_Lean_Name_beq___main(x_7, x_1);
+x_11 = lean_name_eq(x_7, x_1);
 return x_11;
 }
 }

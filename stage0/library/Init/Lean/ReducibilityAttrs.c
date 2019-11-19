@@ -22,9 +22,9 @@ lean_object* l_Array_qsortAux___main___at_Lean_mkReducibilityAttrs___spec__3(lea
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__4___closed__1;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 lean_object* l_Lean_mkReducibilityAttrs___closed__16;
-uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 extern lean_object* l_Lean_registerTagAttribute___closed__1;
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_EnumAttributes_getValue___at_Lean_getReducibilityStatus___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkReducibilityAttrs___closed__8;
@@ -402,7 +402,7 @@ x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
 lean_dec(x_8);
 x_10 = lean_ctor_get(x_1, 0);
-x_11 = l_Lean_Name_beq___main(x_9, x_10);
+x_11 = lean_name_eq(x_9, x_10);
 lean_dec(x_9);
 if (x_11 == 0)
 {

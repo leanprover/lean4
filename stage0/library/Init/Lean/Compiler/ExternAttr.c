@@ -28,12 +28,12 @@ extern lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttri
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkProjectionFnInfoExtension___closed__3;
 extern lean_object* l_Prod_HasRepr___rarg___closed__1;
-uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Lean_ExternAttrData_inhabited___closed__1;
 extern lean_object* l_Array_empty___closed__1;
 extern lean_object* l_Lean_registerTagAttribute___closed__1;
 lean_object* l_Lean_expandExternPattern(lean_object*, lean_object*);
 lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_getExternAttrData___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_mkExternAttr___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_ExternAttr_1__syntaxToExternEntries___main___boxed(lean_object*, lean_object*, lean_object*);
@@ -1034,7 +1034,7 @@ x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
 lean_dec(x_8);
 x_10 = lean_ctor_get(x_1, 0);
-x_11 = l_Lean_Name_beq___main(x_9, x_10);
+x_11 = lean_name_eq(x_9, x_10);
 lean_dec(x_9);
 if (x_11 == 0)
 {
@@ -2601,11 +2601,11 @@ x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
 x_6 = l_Lean_ExternEntry_backend(x_4);
 x_7 = l___private_Init_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__2;
-x_8 = l_Lean_Name_beq___main(x_6, x_7);
+x_8 = lean_name_eq(x_6, x_7);
 if (x_8 == 0)
 {
 uint8_t x_9; 
-x_9 = l_Lean_Name_beq___main(x_6, x_1);
+x_9 = lean_name_eq(x_6, x_1);
 lean_dec(x_6);
 if (x_9 == 0)
 {

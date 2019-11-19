@@ -30,7 +30,6 @@ extern lean_object* l_EIO_Monad___closed__1;
 extern lean_object* l_Lean_Expr_updateMData_x21___closed__2;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Meta_CheckAssignment_checkFVar(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Lean_mkMVar(lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Meta_isDefEqBindingDomain___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -38,6 +37,7 @@ lean_object* l___private_Init_Lean_Meta_ExprDefEq_7__visit(lean_object*, lean_ob
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_8__checkAssignmentFailure___closed__21;
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_9__isDefEqFOApprox(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_10__processAssignmentFOApproxAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_CheckAssignment_Lean_MonadCache;
 uint8_t l_Lean_LocalContext_containsFVar(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_8__checkAssignmentFailure___closed__19;
@@ -4257,7 +4257,7 @@ lean_object* x_8; uint8_t x_9;
 lean_dec(x_1);
 x_8 = lean_ctor_get(x_3, 1);
 lean_inc(x_8);
-x_9 = l_Lean_Name_beq___main(x_5, x_8);
+x_9 = lean_name_eq(x_5, x_8);
 lean_dec(x_8);
 if (x_9 == 0)
 {
@@ -5240,7 +5240,7 @@ if (lean_obj_tag(x_129) == 0)
 lean_object* x_130; uint8_t x_131; 
 x_130 = lean_ctor_get(x_2, 1);
 lean_inc(x_130);
-x_131 = l_Lean_Name_beq___main(x_127, x_130);
+x_131 = lean_name_eq(x_127, x_130);
 lean_dec(x_130);
 if (x_131 == 0)
 {
@@ -5600,7 +5600,7 @@ if (lean_obj_tag(x_189) == 0)
 lean_object* x_190; uint8_t x_191; 
 x_190 = lean_ctor_get(x_2, 1);
 lean_inc(x_190);
-x_191 = l_Lean_Name_beq___main(x_187, x_190);
+x_191 = lean_name_eq(x_187, x_190);
 lean_dec(x_190);
 if (x_191 == 0)
 {

@@ -40,7 +40,6 @@ lean_object* l_Lean_whnfEasyCases___main___rarg___lambda__1(lean_object*, lean_o
 lean_object* l_Lean_whnfMain(lean_object*);
 lean_object* l_Lean_whnfEasyCases___main___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_5__toCtorWhenK___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Lean_isRecStuck___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_whnfMain___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getStuckMVar(lean_object*);
@@ -52,6 +51,7 @@ lean_object* l_Lean_whnfCore___main___rarg___lambda__6___boxed(lean_object*, lea
 lean_object* l___private_Init_Lean_WHNF_2__mkNullaryCtor(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_4__getRecRuleFor___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_10__whnfCoreUnstuck___main___boxed(lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_1__getFirstCtor(lean_object*);
 lean_object* l___private_Init_Lean_WHNF_10__whnfCoreUnstuck___main___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
@@ -739,7 +739,7 @@ _start:
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_ctor_get(x_2, 0);
-x_4 = l_Lean_Name_beq___main(x_3, x_1);
+x_4 = lean_name_eq(x_3, x_1);
 return x_4;
 }
 }

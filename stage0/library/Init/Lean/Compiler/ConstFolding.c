@@ -51,7 +51,6 @@ lean_object* l_Lean_Compiler_boolFoldFns___closed__7;
 lean_object* l_Lean_Compiler_natFoldFns___closed__28;
 lean_object* l_Lean_Compiler_natFoldFns___closed__18;
 lean_object* l_Lean_Compiler_foldNatDiv___rarg(lean_object*, lean_object*);
-uint8_t l_Lean_Name_beq___main(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_numScalarTypes___closed__6;
 lean_object* l_Lean_Compiler_foldStrictAnd(uint8_t);
 extern lean_object* l_PersistentHashMap_mkCollisionNode___rarg___closed__1;
@@ -67,6 +66,7 @@ lean_object* l_Lean_Compiler_boolFoldFns___closed__5;
 lean_object* l_Lean_Compiler_foldUIntSub(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldToNat___rarg(lean_object*);
 lean_object* l_Lean_Compiler_unFoldFns___closed__12;
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_natFoldFns___closed__19;
 lean_object* l_Nat_decLt___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldNatDecLe___closed__2;
@@ -701,7 +701,7 @@ x_4 = lean_ctor_get(x_3, 0);
 x_5 = lean_ctor_get(x_3, 1);
 x_6 = l_List_foldr___main___at_Lean_Compiler_isOfNat___spec__1(x_1, x_2, x_5);
 x_7 = lean_ctor_get(x_4, 2);
-x_8 = l_Lean_Name_beq___main(x_7, x_1);
+x_8 = lean_name_eq(x_7, x_1);
 if (x_8 == 0)
 {
 return x_6;
@@ -762,7 +762,7 @@ x_4 = lean_ctor_get(x_3, 0);
 x_5 = lean_ctor_get(x_3, 1);
 x_6 = l_List_foldr___main___at_Lean_Compiler_isToNat___spec__1(x_1, x_2, x_5);
 x_7 = lean_ctor_get(x_4, 3);
-x_8 = l_Lean_Name_beq___main(x_7, x_1);
+x_8 = lean_name_eq(x_7, x_1);
 if (x_8 == 0)
 {
 return x_6;
@@ -824,7 +824,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
 x_6 = lean_ctor_get(x_4, 2);
-x_7 = l_Lean_Name_beq___main(x_6, x_1);
+x_7 = lean_name_eq(x_6, x_1);
 if (x_7 == 0)
 {
 x_2 = x_5;
@@ -4028,7 +4028,7 @@ x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
 x_6 = lean_ctor_get(x_4, 0);
 x_7 = lean_ctor_get(x_4, 1);
-x_8 = l_Lean_Name_beq___main(x_1, x_6);
+x_8 = lean_name_eq(x_1, x_6);
 if (x_8 == 0)
 {
 x_2 = x_5;
@@ -4089,7 +4089,7 @@ x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
 x_6 = lean_ctor_get(x_4, 0);
 x_7 = lean_ctor_get(x_4, 1);
-x_8 = l_Lean_Name_beq___main(x_1, x_6);
+x_8 = lean_name_eq(x_1, x_6);
 if (x_8 == 0)
 {
 x_2 = x_5;

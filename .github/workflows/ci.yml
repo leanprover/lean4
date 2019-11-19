@@ -1,0 +1,92 @@
+name: CI
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  Build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # NOTE: must list all targets in `include` here to activate them
+        name: [Linux, "Linux Debug", "Linux fsanitize", "Linux LLVM=ON", macOS, Windows]
+        include:
+          - name: Linux
+            os: ubuntu-latest
+          - name: Linux Debug
+            os: ubuntu-latest
+            CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Debug
+          - name: Linux fsanitize
+            os: ubuntu-latest
+            CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined
+          - name: Linux LLVM=ON
+            os: ubuntu-latest
+            CMAKE_OPTIONS: -DLLVM=ON
+          - name: macOS
+            os: macos-latest
+          - name: Windows
+            os: windows-latest
+            CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+      # complete all jobs
+      fail-fast: false
+    env:
+      # must be inside workspace
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_COMPRESS: true
+      # current cache limit
+      CCACHE_MAXSIZE: 200M
+      CMAKE_OPTIONS: ${{ matrix.CMAKE_OPTIONS }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Install Nix
+        uses: cachix/install-nix-action@v5
+        if: matrix.os != 'windows-latest'
+      - name: Install MSYS2
+        uses: numworks/setup-msys2@v1
+        if: matrix.os == 'windows-latest'
+      # binaries segfault without this step (?!), must be separate step because it might update the MSYS2 runtime
+      - name: Update MSYS2
+        run: msys2do pacman -Syu --noconfirm
+        if: matrix.os == 'windows-latest'
+      - name: Cache
+        uses: actions/cache@v1
+        with:
+          path: .ccache
+          key: ${{ matrix.name }}-build-${{ github.sha }}
+          # fall back to (latest) previous cache
+          restore-keys: |
+            ${{ matrix.name }}-build
+      - name: Setup
+        run: |
+          # open shell once for initial setup
+          nix-shell --run true
+        if: matrix.os != 'windows-latest'
+      - name: Setup
+        run: msys2do pacman --noconfirm -S make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-ccache git diffutils
+        if: matrix.os == 'windows-latest'
+      - name: Build
+        run: nix-shell --run ./script/ci.sh
+        if: matrix.os != 'windows-latest'
+      - name: Build
+        run: msys2do ./script/ci.sh
+        if: matrix.os == 'windows-latest'
+      - name: Test
+        run: nix-shell --run "cd build; ctest -j --output-on-failure < /dev/null"
+        if: matrix.os != 'windows-latest'
+      - name: Test
+        run: msys2do cd build; ctest -j --output-on-failure ^< /dev/null
+        shell: cmd
+        if: matrix.os == 'windows-latest'
+      - name: CCache stats
+        run: nix-shell --run "ccache -s"
+        if: matrix.os != 'windows-latest'
+      - name: CCache stats
+        run: msys2do ccache -s
+        if: matrix.os == 'windows-latest'

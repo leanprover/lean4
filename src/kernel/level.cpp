@@ -405,7 +405,6 @@ static format pp_child(level const & l, bool unicode, unsigned indent) {
 
 format pp(level l, bool unicode, unsigned indent) {
     if (is_explicit(l)) {
-        lean_assert(get_depth(l) > 0);
         return format(get_depth(l));
     } else {
         switch (kind(l)) {

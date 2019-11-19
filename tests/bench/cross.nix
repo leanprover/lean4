@@ -41,13 +41,13 @@ in pkgs.stdenv.mkDerivation rec {
   '';
   LEAN_NO_REUSE_BIN = "${lean.overrideAttrs (attrs: {
     prePatch = ''
-      substituteInPlace library/Init/Lean/Compiler/IR/Default.lean --replace "decls.map Decl.insertResetReuse" "decls"
+      substituteInPlace library/Init/Lean/Compiler/IR.lean --replace "decls.map Decl.insertResetReuse" "decls"
     '';
     preBuild = bootstrapChanges;
   })}/bin";
   LEAN_NO_BORROW_BIN = "${lean.overrideAttrs (attrs: {
     prePatch = ''
-      substituteInPlace library/Init/Lean/Compiler/IR/Default.lean --replace "inferBorrow" "pure"
+      substituteInPlace library/Init/Lean/Compiler/IR.lean --replace "inferBorrow" "pure"
     '';
     preBuild = bootstrapChanges;
   })}/bin";

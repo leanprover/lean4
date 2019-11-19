@@ -524,7 +524,7 @@ class interpreter {
                 case fn_body_kind::USet: { // set USize field of unique reference
                     object * o = var(fn_body_uset_var(b)).m_obj;
                     lean_assert(is_exclusive(o));
-                    cnstr_set_usize(o, fn_body_uset_idx(b).get_small_value(), eval_arg(fn_body_uset_arg(b)).m_num);
+                    cnstr_set_usize(o, fn_body_uset_idx(b).get_small_value(), var(fn_body_uset_arg(b)).m_num);
                     b = fn_body_uset_cont(b);
                     break;
                 }

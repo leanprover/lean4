@@ -242,6 +242,9 @@ do lctx ← getLCtx;
    | some d => pure d
    | none   => throwEx $ Exception.unknownFVar fvarId
 
+def getFVarLocalDecl (fvar : Expr) : MetaM LocalDecl :=
+getLocalDecl fvar.fvarId!
+
 def getMVarDecl (mvarId : Name) : MetaM MetavarDecl :=
 do mctx ← getMCtx;
    match mctx.findDecl mvarId with
@@ -344,7 +347,7 @@ resettingTypeClassCache $
 | i, k =>
   if h : i < fvars.size then do
     let fvar := fvars.get ⟨i, h⟩;
-    decl ← getLocalDecl fvar.fvarId!;
+    decl ← getFVarLocalDecl fvar;
     c?   ← isClassQuick decl.type;
     match c? with
     | LOption.none   => withNewLocalInstances (i+1) k

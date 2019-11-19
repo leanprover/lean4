@@ -8,6 +8,7 @@ import Init.Lean.Meta.WHNF
 import Init.Lean.Meta.InferType
 import Init.Lean.Meta.FunInfo
 import Init.Lean.Meta.LevelDefEq
+import Init.Lean.Meta.Check
 
 namespace Lean
 namespace Meta
@@ -156,7 +157,7 @@ else
 | i, k =>
   if h : i < fvars.size then do
     let fvar := fvars.get ⟨i, h⟩;
-    fvarDecl ← getLocalDecl fvar.fvarId!;
+    fvarDecl ← getFVarLocalDecl fvar;
     let fvarType := fvarDecl.type;
     let d₂       := ds₂.get! i;
     condM (isDefEq fvarType d₂)
@@ -606,14 +607,6 @@ private def simpAssignmentArg (arg : Expr) : MetaM Expr :=
 do arg ← if arg.getAppFn.hasExprMVar then instantiateMVars arg else pure arg;
    simpAssignmentArgAux arg
 
-/- TODO: type check `e`, move to different file -/
-def isTypeCorrect
-    (whnf              : Expr → MetaM Expr)
-    (isDefEq           : Expr → Expr → MetaM Bool)
-    (synthesizePending : Expr → MetaM Bool)
-    (e : Expr) : MetaM Bool :=
-pure true
-
 @[specialize] private partial def processAssignmentAux
     (whnf              : Expr → MetaM Expr)
     (isDefEq           : Expr → Expr → MetaM Bool)
@@ -670,7 +663,7 @@ pure true
         if args.any (fun arg => mvarDecl.lctx.containsFVar arg) then
           /- We need to type check `v` because abstraction using `mkLambda` may have produced
              a type incorrect term. See discussion at A2 -/
-          condM (isTypeCorrect whnf isDefEq synthesizePending v)
+          condM (isTypeCorrectAux whnf isDefEq v)
             (finalize ())
             (useFOApprox ())
         else

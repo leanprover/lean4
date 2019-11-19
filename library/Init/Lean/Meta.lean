@@ -9,6 +9,7 @@ import Init.Lean.Meta.WHNF
 import Init.Lean.Meta.InferType
 import Init.Lean.Meta.FunInfo
 import Init.Lean.Meta.LevelDefEq
+import Init.Lean.Meta.ExprDefEq
 
 namespace Lean
 namespace Meta
@@ -60,6 +61,13 @@ getFunInfoAux whnf fn
 
 def getFunInfoNArgs (fn : Expr) (nargs : Nat) : MetaM FunInfo :=
 getFunInfoNArgsAux whnf fn nargs
+
+/-- Throws exception if `e` is not type correct. -/
+def check (e : Expr) : MetaM Unit :=
+checkAux whnf isDefEq e
+
+def isTypeCorrect (e : Expr) : MetaM Bool :=
+isTypeCorrectAux whnf isDefEq e
 
 end Meta
 end Lean

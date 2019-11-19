@@ -62,7 +62,7 @@ checkFunInfoCache fn maxArgs? $ do
     pinfo ← fvars.size.foldM
       (fun (i : Nat) (pinfo : Array ParamInfo) => do
         let fvar := fvars.get! i;
-        decl ← getLocalDecl fvar.fvarId!;
+        decl ← getFVarLocalDecl fvar;
         prop ← isPropAux whnf decl.type;
         let backDeps := collectDeps fvars decl.type;
         let pinfo    := updateHasFwdDeps pinfo backDeps;

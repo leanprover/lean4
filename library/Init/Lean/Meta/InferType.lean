@@ -79,7 +79,7 @@ do let failed : Unit → MetaM Expr := fun _ => throwEx $ Exception.invalidProje
            | _                    => failed ()
      | _ => failed ()
 
-@[specialize] private def getLevel
+@[specialize] def getLevelAux
     (whnf      : Expr → MetaM Expr)
     (inferType : Expr → MetaM Expr)
     (type : Expr) : MetaM Level :=
@@ -101,11 +101,11 @@ do typeType ← inferType type;
     (inferType : Expr → MetaM Expr)
     (e : Expr) : MetaM Expr :=
 forallTelescope whnf e $ fun xs e => do
-  lvl  ← getLevel whnf inferType e;
+  lvl  ← getLevelAux whnf inferType e;
   lvl  ← xs.foldrM
     (fun x lvl => do
       xType    ← inferType x;
-      xTypeLvl ← getLevel whnf inferType xType;
+      xTypeLvl ← getLevelAux whnf inferType xType;
       pure $ mkLevelIMax xTypeLvl lvl)
     lvl;
   pure $ mkSort lvl.normalize

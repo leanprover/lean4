@@ -358,7 +358,6 @@ static void print_child(std::ostream & out, level const & l) {
 
 static void print(std::ostream & out, level l) {
     if (is_explicit(l)) {
-        lean_assert(get_depth(l) > 0);
         out << get_depth(l);
     } else {
         switch (kind(l)) {

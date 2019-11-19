@@ -309,6 +309,9 @@ Expr.localE x u t $ mkDataForBinder (mixHash 43 $ hash t) t.looseBVarRange true 
 @[export lean_expr_mk_proj] def mkProjEx : Name → Nat → Expr → Expr := mkProj
 @[export lean_expr_mk_local] def mkLocalEx : Name → Name → Expr → BinderInfo → Expr := mkLocal
 
+def mkCApp (f : Name) (a : Expr) : Expr :=
+mkApp (mkConst f) a
+
 def mkAppN (f : Expr) (args : Array Expr) : Expr :=
 args.foldl mkApp f
 

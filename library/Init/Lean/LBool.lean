@@ -48,3 +48,6 @@ end Lean
 def Bool.toLBool : Bool → Lean.LBool
 | true  => Lean.LBool.true
 | false => Lean.LBool.false
+
+@[inline] def toLBoolM {m : Type → Type} [Monad m] (x : m Bool) : m Lean.LBool :=
+do b ← x; pure b.toLBool

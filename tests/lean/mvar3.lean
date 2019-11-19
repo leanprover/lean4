@@ -58,8 +58,14 @@ match mkLambdaTest mctx4 {namePrefix := `n} lctx4 #[α, x, y] $ mkAppN f #[m3, x
 def e1    := R1.2.2
 def mctx5 := R1.1
 
-#eval toString $ mctx5.decls.toList.map Prod.fst
-#eval toString mctx5.eAssignment.toList
+def sortNames (xs : List Name) : List Name :=
+(xs.toArray.qsort Name.lt).toList
+
+def sortNamePairs {α} [Inhabited α] (xs : List (Name × α)) : List (Name × α) :=
+(xs.toArray.qsort (fun a b => Name.lt a.1 b.1)).toList
+
+#eval toString $ sortNames $ mctx5.decls.toList.map Prod.fst
+#eval toString $ sortNamePairs $ mctx5.eAssignment.toList
 #eval e1
 #eval check (!e1.hasFVar)
 
@@ -70,10 +76,10 @@ match mkLambdaTest mctx4' {namePrefix := `n} lctx4 #[α, x, y] $ mkAppN f #[m3, 
 def e2    := R2.2.2
 def mctx6 := R2.1
 
-#eval toString $ mctx6.decls.toList.map Prod.fst
-#eval toString mctx6.eAssignment.toList
+#eval toString $ sortNames $ mctx6.decls.toList.map Prod.fst
+#eval toString $ sortNamePairs $ mctx6.eAssignment.toList
 -- ?n.2 was delayed assigned because ?m.3 is synthetic
-#eval toString $ mctx6.dAssignment.toList.map Prod.fst
+#eval toString $ sortNames $ mctx6.dAssignment.toList.map Prod.fst
 #eval e2
 
 #print "assigning ?m1 and ?n.1"
@@ -87,4 +93,4 @@ def mctx7 := R3.2
 #eval e3
 -- The delayed assignment became a regular one.
 #eval mctx7.getExprAssignment (mkNameNum `n 2)
-#eval toString $ mctx7.dAssignment.toList.map Prod.fst
+#eval toString $ sortNames $ mctx7.dAssignment.toList.map Prod.fst

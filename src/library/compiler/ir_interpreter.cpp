@@ -128,9 +128,9 @@ fn_body const & fn_body_set_cont(fn_body const & b) { lean_assert(fn_body_tag(b)
 var_id const & fn_body_set_tag_var(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SetTag); return cnstr_get_ref_t<var_id>(b, 0); }
 nat const & fn_body_set_tag_cidx(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SetTag); return cnstr_get_ref_t<nat>(b, 1); }
 fn_body const & fn_body_set_tag_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SetTag); return cnstr_get_ref_t<fn_body>(b, 2); }
-var_id const & fn_body_uset_var(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::USet); return cnstr_get_ref_t<var_id>(b, 0); }
+var_id const & fn_body_uset_target(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::USet); return cnstr_get_ref_t<var_id>(b, 0); }
 nat const & fn_body_uset_idx(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::USet); return cnstr_get_ref_t<nat>(b, 1); }
-var_id const & fn_body_uset_arg(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::USet); return cnstr_get_ref_t<var_id>(b, 2); }
+var_id const & fn_body_uset_source(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::USet); return cnstr_get_ref_t<var_id>(b, 2); }
 fn_body const & fn_body_uset_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::USet); return cnstr_get_ref_t<fn_body>(b, 3); }
 var_id const & fn_body_sset_target(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<var_id>(b, 0); }
 nat const & fn_body_sset_idx(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<nat>(b, 1); }
@@ -522,9 +522,9 @@ class interpreter {
                     break;
                 }
                 case fn_body_kind::USet: { // set USize field of unique reference
-                    object * o = var(fn_body_uset_var(b)).m_obj;
+                    object * o = var(fn_body_uset_target(b)).m_obj;
                     lean_assert(is_exclusive(o));
-                    cnstr_set_usize(o, fn_body_uset_idx(b).get_small_value(), var(fn_body_uset_arg(b)).m_num);
+                    cnstr_set_usize(o, fn_body_uset_idx(b).get_small_value(), var(fn_body_uset_source(b)).m_num);
                     b = fn_body_uset_cont(b);
                     break;
                 }

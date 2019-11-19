@@ -22,7 +22,7 @@ inductive Exception
 | unknownExprMVar      (mvarId : Name) (ctx : ExceptionContext)
 | unknownLevelMVar     (mvarId : Name) (ctx : ExceptionContext)
 | unexpectedBVar       (bvarIdx : Nat)
-| functionExpected     (fType : Expr) (args : Array Expr) (ctx : ExceptionContext)
+| functionExpected     (f a : Expr) (ctx : ExceptionContext)
 | typeExpected         (type : Expr) (ctx : ExceptionContext)
 | incorrectNumOfLevels (constName : Name) (constLvls : List Level) (ctx : ExceptionContext)
 | invalidProjection    (structName : Name) (idx : Nat) (s : Expr) (ctx : ExceptionContext)

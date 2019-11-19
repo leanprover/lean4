@@ -669,7 +669,7 @@ do arg ← if arg.getAppFn.hasExprMVar then instantiateMVars arg else pure arg;
         else
           finalize ()
 
- /-- Tries to solve `?m a_1 ... a_k =?= v` by assigning `?m`.
+ /-- Tries to solve `?m a₁ ... aₙ =?= v` by assigning `?m`.
      It assumes `?m` is unassigned. -/
 @[specialize] private def processAssignment
     (whnf              : Expr → MetaM Expr)

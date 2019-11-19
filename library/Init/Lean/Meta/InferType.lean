@@ -10,10 +10,12 @@ import Init.Lean.Meta.Basic
 namespace Lean
 namespace Meta
 
-@[specialize] private def getForallResultType
+@[specialize] private def inferAppType
     (whnf      : Expr → MetaM Expr)
-    (fType : Expr) (args : Array Expr) : MetaM Expr :=
-do (j, fType) ← args.size.foldM
+    (inferType : Expr → MetaM Expr)
+    (f : Expr) (args : Array Expr) : MetaM Expr :=
+do fType ← inferType f;
+   (j, fType) ← args.size.foldM
      (fun i (acc : Nat × Expr) =>
        let (j, type) := acc;
        match type with
@@ -22,16 +24,9 @@ do (j, fType) ← args.size.foldM
          type ← whnf $ type.instantiateRevRange j i args;
          match type with
          | Expr.forallE _ _ b _ => pure (i, b)
-         | _ => throwEx $ Exception.functionExpected fType args)
+         | _ => throwEx $ Exception.functionExpected (mkAppRange f 0 i args) (args.get! i))
      (0, fType);
    pure $ fType.instantiateRevRange j args.size args
-
-@[specialize] private def inferAppType
-    (whnf      : Expr → MetaM Expr)
-    (inferType : Expr → MetaM Expr)
-    (f : Expr) (args : Array Expr) : MetaM Expr :=
-do fType ← inferType f;
-   getForallResultType whnf fType args
 
 private def inferConstType (c : Name) (lvls : List Level) : MetaM Expr :=
 do env ← getEnv;
@@ -60,8 +55,7 @@ do let failed : Unit → MetaM Expr := fun _ => throwEx $ Exception.invalidProje
        else match env.find ctor with
          | none            => failed ()
          | some (ctorInfo) => do
-           let ctorType := ctorInfo.instantiateTypeLevelParams structLvls;
-           ctorType ← getForallResultType whnf ctorType structParams;
+           ctorType ← inferAppType whnf inferType (mkConst ctor structLvls) structParams;
            ctorType ← idx.foldM
              (fun i ctorType => do
                ctorType ← whnf ctorType;

@@ -29,6 +29,7 @@ set(CMAKE_COLOR_MAKEFILE ON)
 enable_testing()
 
 option(MULTI_THREAD       "MULTI_THREAD"       ON)
+option(CCACHE             "use ccache"         ON)
 option(STATIC             "STATIC"             OFF)
 option(SPLIT_STACK        "SPLIT_STACK"        OFF)
 option(VM_UNCHECKED       "VM_UNCHECKED"       OFF)
@@ -378,6 +379,17 @@ if(TRACK_MEMORY_USAGE)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D LEAN_TRACK_MEMORY")
 endif()
 
+# ccache
+if(CCACHE)
+  find_program(CCACHE_PATH ccache)
+  if(CCACHE_PATH)
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PATH}")
+    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PATH}")
+  else()
+    message(WARNING "Failed to find ccache, prepare for longer and redundant builds...")
+  endif()
+endif()
+
 # jemalloc
 if(JEMALLOC)
   find_package(Jemalloc)
@@ -519,6 +531,7 @@ if(NOT STAGE0)
     BINARY_DIR stage0
     CMAKE_ARGS
       -DSTAGE0=ON
+      -DCCACHE=${CCACHE}
       -DCHECK_OLEAN_VERSION=${CHECK_OLEAN_VERSION}
       "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
       "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"

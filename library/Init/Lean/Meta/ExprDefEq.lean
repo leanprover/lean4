@@ -704,49 +704,70 @@ match t.getAppFn, s.getAppFn with
     (synthesizePending : Expr → MetaM Bool)
     (t s : Expr) : MetaM LBool :=
 do let isDefEqL (t s : Expr) : MetaM LBool := toLBoolM $ isDefEq t s;
+   let isDefEqLeft (fn : Name) (t s : Expr) : MetaM LBool := do {
+     trace! `Meta.isDefEq.delta.unfoldLeft fn;
+     toLBoolM $ isDefEq t s
+   };
+   let isDefEqRight (fn : Name) (t s : Expr) : MetaM LBool := do {
+     trace! `Meta.isDefEq.delta.unfoldRight fn;
+     toLBoolM $ isDefEq t s
+   };
+   let isDefEqLeftRight (fn : Name) (t s : Expr) : MetaM LBool := do {
+     trace! `Meta.isDefEq.delta.unfoldLeftRight fn;
+     toLBoolM $ isDefEq t s
+   };
    let isListLevelDefEqL (us vs : List Level) : MetaM LBool := toLBoolM $ isListLevelDefEq us vs;
-   let unfold {α} (e failK successK) : MetaM α := unfoldDefinitionAux whnf (inferTypeAux whnf) isDefEq synthesizePending e failK successK;
+   let unfold (e failK successK) : MetaM LBool := unfoldDefinitionAux whnf (inferTypeAux whnf) isDefEq synthesizePending e failK successK;
+   let tryHeuristic : MetaM Bool :=
+     /- Try to solve `f a₁ ... aₙ =?= f b₁ ... bₙ` by solving `a₁ =?= b₁, ..., aₙ =?= bₙ` -/
+     let tFn := t.getAppFn;
+     let sFn := s.getAppFn;
+     traceCtx `Meta.isDefEq.delta $
+       try $
+         isDefEqArgs whnf isDefEq synthesizePending tFn t.getAppArgs s.getAppArgs
+         <&&>
+         isListLevelDefEq tFn.constLevels! sFn.constLevels!;
    tInfo? ← isDeltaCandidate t.getAppFn;
    sInfo? ← isDeltaCandidate s.getAppFn;
    match tInfo?, sInfo? with
    | none,       none       => pure LBool.undef
-   | some _,     none       => unfold t (pure LBool.undef) $ fun t => isDefEqL t s
-   | none,       some _     => unfold s (pure LBool.undef) $ fun s => isDefEqL t s
+   | some tInfo, none       => unfold t (pure LBool.undef) $ fun t => isDefEqLeft tInfo.name t s
+   | none,       some sInfo => unfold s (pure LBool.undef) $ fun s => isDefEqRight sInfo.name t s
    | some tInfo, some sInfo =>
+     let isDefEqLeft (t s)      := isDefEqLeft tInfo.name t s;
+     let isDefEqRight (t s)     := isDefEqRight sInfo.name t s;
+     let isDefEqLeftRight (t s) := isDefEqLeftRight tInfo.name t s;
      if tInfo.name == sInfo.name then
        match t, s with
        | Expr.const _ ls₁ _, Expr.const _ ls₂ _ => isListLevelDefEqL ls₁ ls₂
        | Expr.app _ _ _,     Expr.app _ _ _     =>
-         let tFn := t.getAppFn;
-         let sFn := s.getAppFn;
-         condM (try (isDefEqArgs whnf isDefEq synthesizePending tFn t.getAppArgs s.getAppArgs
-                     <&&> isListLevelDefEq tFn.constLevels! sFn.constLevels!))
+         condM tryHeuristic
            (pure LBool.true)
            (unfold t
-             (unfold s (pure LBool.undef) (fun s => isDefEqL t s))
-             (fun t => unfold s (isDefEqL t s) (fun s => isDefEqL t s)))
+             (unfold s (pure LBool.undef) (fun s => isDefEqRight t s))
+             (fun t => unfold s (isDefEqLeft t s) (fun s => isDefEqLeftRight t s)))
        | _, _ => pure LBool.false
      else
        let unfoldComparingHeads : Unit → MetaM LBool := fun _ =>
          unfold t
            (unfold s
               (pure LBool.undef)
-              (fun s => isDefEqL t s))
+              (fun s => isDefEqRight t s))
            (fun tNew =>
              if sameHeadSymbol tNew s then
-               isDefEqL tNew s
+               isDefEqLeft tNew s
              else
                unfold s
-                 (isDefEqL tNew s)
-                 (fun sNew => if sameHeadSymbol t sNew then isDefEqL t sNew else isDefEqL tNew sNew));
+                 (isDefEqLeft tNew s)
+                 (fun sNew => if sameHeadSymbol t sNew then isDefEqRight t sNew else isDefEqLeftRight tNew sNew));
        let kernelLikeUnfolding : Unit → MetaM LBool := fun _ =>
          if !t.hasExprMVar && !s.hasExprMVar then
            /- If `t` and `s` do not contain metavariables,
               we simulate strategy used in the kernel. -/
            if tInfo.hints.lt sInfo.hints then
-             unfold t (unfoldComparingHeads ()) $ fun t => isDefEqL t s
+             unfold t (unfoldComparingHeads ()) $ fun t => isDefEqLeft t s
            else if sInfo.hints.lt tInfo.hints then
-             unfold s (unfoldComparingHeads ()) $ fun s => isDefEqL t s
+             unfold s (unfoldComparingHeads ()) $ fun s => isDefEqRight t s
            else
              unfoldComparingHeads ()
          else
@@ -760,9 +781,9 @@ do let isDefEqL (t s : Expr) : MetaM LBool := toLBoolM $ isDefEq t s;
            tReducible ← isReducible tInfo.name;
            sReducible ← isReducible sInfo.name;
            if tReducible && !sReducible then
-             unfold t (kernelLikeUnfolding ()) $ fun t => isDefEqL t s
+             unfold t (kernelLikeUnfolding ()) $ fun t => isDefEqLeft t s
            else if !tReducible && sReducible then
-             unfold s (kernelLikeUnfolding ()) $ fun s => isDefEqL t s
+             unfold s (kernelLikeUnfolding ()) $ fun s => isDefEqRight t s
            else
              kernelLikeUnfolding ())
 

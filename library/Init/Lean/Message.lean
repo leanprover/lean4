@@ -25,6 +25,7 @@ inductive MessageData
 | ofSyntax : Syntax → MessageData
 | ofExpr   : Expr → MessageData
 | ofLevel  : Level → MessageData
+| ofName   : Name  → MessageData
 /- `context env mctx lctx d` specifies the pretty printing context `(env, mctx, lctx)` for the nested expressions in `d`. -/
 | context  : Environment → MetavarContext → LocalContext → MessageData → MessageData
 /- Lifted `Format.nest` -/
@@ -46,6 +47,7 @@ partial def formatAux : Option (Environment × MetavarContext × LocalContext) �
 | _, ofFormat fmt                  => fmt
 | _, ofSyntax s                    => s.formatStx
 | _, ofLevel u                     => fmt u
+| _, ofName n                      => fmt n
 | none, ofExpr e                   => "<expr>"
 | some (env, mctx, lctx), ofExpr e => "<expr>" -- TODO: invoke pretty printer
 | _, context env mctx lctx d       => formatAux (some (env, mctx, lctx)) d
@@ -62,6 +64,7 @@ instance : HasFormat MessageData := ⟨fun d => formatAux none d⟩
 instance coeOfFormat    : HasCoe Format MessageData := ⟨ofFormat⟩
 instance coeOfLevel     : HasCoe Level MessageData := ⟨ofLevel⟩
 instance coeOfExpr      : HasCoe Expr MessageData := ⟨ofExpr⟩
+instance coeOfName      : HasCoe Name MessageData := ⟨ofName⟩
 instance coeOfArrayExpr : HasCoe (Array Expr) MessageData := ⟨fun es => node $ es.map $ fun e => ofExpr e⟩
 
 end MessageData

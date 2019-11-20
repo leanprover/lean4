@@ -66,6 +66,15 @@ structure Config :=
 (foApprox           : Bool    := false)
 (ctxApprox          : Bool    := false)
 (quasiPatternApprox : Bool    := false)
+/-
+  When the following flag is set,
+  `isDefEq` throws the exeption `Exeption.isDefEqStuck`
+  whenever it encounters a constraint `?m ... =?= t` where
+  `?m` is read only.
+  This feature is useful for type class resolution where
+  we may want to notify the caller that the TC problem may be solveable
+  later after it assigns `?m`. -/
+(isDefEqStuckEx     : Bool    := false)
 (debug              : Bool    := false)
 (transparency       : TransparencyMode := TransparencyMode.default)
 
@@ -182,6 +191,12 @@ adaptReader
     let mode    := if oldMode.lt mode then mode else oldMode;
     { config := { transparency := mode, .. ctx.config }, .. ctx })
   x
+
+def isSyntheticExprMVar (mvarId : Name) : MetaM Bool :=
+do mctx ← getMCtx;
+   match mctx.findDecl mvarId with
+   | some d => pure $ d.synthetic
+   | _      => throwEx $ Exception.unknownExprMVar mvarId
 
 def isReadOnlyOrSyntheticExprMVar (mvarId : Name) : MetaM Bool :=
 do mctx ← getMCtx;

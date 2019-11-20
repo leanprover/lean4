@@ -28,6 +28,7 @@ inductive Exception
 | invalidProjection    (structName : Name) (idx : Nat) (s : Expr) (ctx : ExceptionContext)
 | revertFailure        (toRevert : Array Expr) (decl : LocalDecl) (ctx : ExceptionContext)
 | readOnlyMVar         (mvarId : Name) (ctx : ExceptionContext)
+| isDefEqStuck         (t s : Expr) (ctx : ExceptionContext)
 | letTypeMismatch      (fvarId : Name) (ctx : ExceptionContext)
 | appTypeMismatch      (f a : Expr) (ctx : ExceptionContext)
 | bug                  (b : Bug) (ctx : ExceptionContext)
@@ -49,6 +50,7 @@ def toStr : Exception → String
 | invalidProjection _ _ _ _     => "invalid projection"
 | revertFailure _ _ _           => "revert failure"
 | readOnlyMVar _ _              => "try to assign read only metavariable"
+| isDefEqStuck _ _ _            => "isDefEq is stuck"
 | letTypeMismatch _ _           => "type mismatch at let-expression"
 | appTypeMismatch _ _ _         => "application type mismatch"
 | bug _ _                       => "bug"

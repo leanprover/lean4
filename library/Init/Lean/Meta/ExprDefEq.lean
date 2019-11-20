@@ -676,9 +676,10 @@ do arg ← if arg.getAppFn.hasExprMVar then instantiateMVars arg else pure arg;
     (whnf              : Expr → MetaM Expr)
     (isDefEq           : Expr → Expr → MetaM Bool)
     (synthesizePending : Expr → MetaM Bool)
-    (mvar : Expr) (args : Array Expr) (v : Expr) : MetaM Bool :=
-do mvarDecl ← getMVarDecl mvar.mvarId!;
-   processAssignmentAux whnf isDefEq synthesizePending mvar mvarDecl v 0 args
+    (mvarApp : Expr) (v : Expr) : MetaM Bool :=
+do let mvar := mvarApp.getAppFn;
+   mvarDecl ← getMVarDecl mvar.mvarId!;
+   processAssignmentAux whnf isDefEq synthesizePending mvar mvarDecl v 0 mvarApp.getAppArgs
 
 @[specialize] private def unfold {α}
     (whnf              : Expr → MetaM Expr)
@@ -716,7 +717,7 @@ do let isDefEqL (t s : Expr) : MetaM LBool := toLBoolM $ isDefEq t s;
      trace! `Meta.isDefEq.delta.unfoldLeftRight fn;
      toLBoolM $ isDefEq t s
    };
-   let isListLevelDefEqL (us vs : List Level) : MetaM LBool := toLBoolM $ isListLevelDefEq us vs;
+   let isListLevelDefEqL (us vs : List Level) : MetaM LBool := toLBoolM $ isListLevelDefEqAux us vs;
    let unfold (e failK successK) : MetaM LBool := unfoldDefinitionAux whnf (inferTypeAux whnf) isDefEq synthesizePending e failK successK;
    let tryHeuristic : MetaM Bool :=
      /- Try to solve `f a₁ ... aₙ =?= f b₁ ... bₙ` by solving `a₁ =?= b₁, ..., aₙ =?= bₙ` -/
@@ -726,7 +727,7 @@ do let isDefEqL (t s : Expr) : MetaM LBool := toLBoolM $ isDefEq t s;
        try $
          isDefEqArgs whnf isDefEq synthesizePending tFn t.getAppArgs s.getAppArgs
          <&&>
-         isListLevelDefEq tFn.constLevels! sFn.constLevels!;
+         isListLevelDefEqAux tFn.constLevels! sFn.constLevels!;
    tInfo? ← isDeltaCandidate t.getAppFn;
    sInfo? ← isDeltaCandidate s.getAppFn;
    match tInfo?, sInfo? with
@@ -790,6 +791,81 @@ do let isDefEqL (t s : Expr) : MetaM LBool := toLBoolM $ isDefEq t s;
              unfold s (kernelLikeUnfolding ()) $ fun s => isDefEqRight t s
            else
              kernelLikeUnfolding ())
+
+private def isAssigned : Expr → MetaM Bool
+| Expr.mvar mvarId _ => isExprMVarAssigned mvarId
+| _                  => pure false
+
+private def isSynthetic : Expr → MetaM Bool
+| Expr.mvar mvarId _ => isSyntheticExprMVar mvarId
+| _                  => pure false
+
+private def isAssignable : Expr → MetaM Bool
+| Expr.mvar mvarId _ => do b ← isReadOnlyOrSyntheticExprMVar mvarId; pure (!b)
+| _                  => pure false
+
+private def etaEq (t s : Expr) : Bool :=
+match t.etaExpanded? with
+| some t => t == s
+| none   => false
+
+private def isLetFVar (fvarId : Name) : MetaM Bool :=
+do decl ← getLocalDecl fvarId;
+   pure decl.isLet
+
+@[specialize] private partial def isDefEqQuick
+    (whnf              : Expr → MetaM Expr)
+    (isDefEq           : Expr → Expr → MetaM Bool)
+    (synthesizePending : Expr → MetaM Bool)
+    : Expr → Expr → MetaM LBool
+| Expr.lit  l₁ _,           Expr.lit l₂ _            => pure (l₁ == l₂).toLBool
+| Expr.sort u _,            Expr.sort v _            => toLBoolM $ isLevelDefEqAux u v
+| t@(Expr.lam _ _ _ _),     s@(Expr.lam _ _ _ _)     => toLBoolM $ isDefEqBinding whnf isDefEq t s
+| t@(Expr.forallE _ _ _ _), s@(Expr.forallE _ _ _ _) => toLBoolM $ isDefEqBinding whnf isDefEq t s
+| Expr.mdata _ t _,         s                        => isDefEqQuick t s
+| t,                        Expr.mdata _ s _         => isDefEqQuick t s
+| Expr.fvar fvarId₁ _,      Expr.fvar fvarId₂ _      =>
+  condM (isLetFVar fvarId₁ <||> isLetFVar fvarId₂)
+    (pure LBool.undef)
+    (pure (fvarId₁ == fvarId₂).toLBool)
+| t, s =>
+  cond (t == s) (pure LBool.true) $
+  cond (etaEq t s || etaEq s t) (pure LBool.true) $  -- t =?= (fun xs => t xs)
+  let tFn := t.getAppFn;
+  let sFn := s.getAppFn;
+  cond (!tFn.isMVar && !sFn.isMVar) (pure LBool.undef) $
+  condM (isAssigned tFn) (do t ← instantiateMVars t; isDefEqQuick t s) $
+  condM (isAssigned sFn) (do s ← instantiateMVars s; isDefEqQuick t s) $
+  condM (isSynthetic tFn <&&> synthesizePending tFn) (do t ← instantiateMVars t; isDefEqQuick t s) $
+  condM (isSynthetic sFn <&&> synthesizePending sFn) (do s ← instantiateMVars s; isDefEqQuick t s) $ do
+  tAssign? ← isAssignable tFn;
+  sAssign? ← isAssignable sFn;
+  let assign (t s : Expr) : MetaM LBool := toLBoolM $ processAssignment whnf isDefEq synthesizePending t s;
+  cond (tAssign? && !sAssign?)  (assign t s) $
+  cond (!tAssign? && sAssign?)  (assign s t) $
+  cond (!tAssign? && !sAssign?)
+    (if tFn.isMVar || sFn.isMVar then do
+       ctx ← read;
+       if ctx.config.isDefEqStuckEx then throwEx $ Exception.isDefEqStuck t s
+       else pure LBool.false
+     else pure LBool.undef) $ do
+  -- Both `t` and `s` are terms of the form `?m ...`
+  tMVarDecl ← getMVarDecl tFn.mvarId!;
+  sMVarDecl ← getMVarDecl sFn.mvarId!;
+  cond (!sMVarDecl.lctx.isSubPrefixOf tMVarDecl.lctx) (assign s t) $
+  /-
+    Local context for `s` is a sub prefix of the local context for `t`.
+
+    Remark:
+    It is easier to solve the assignment
+        ?m2 := ?m1 a_1 ... a_n
+    than
+        ?m1 a_1 ... a_n := ?m2
+    Reason: the first one has a precise solution. For example,
+    consider the constraint `?m1 ?m =?= ?m2` -/
+  cond (!t.isApp && s.isApp) (assign t s) $
+  cond (!s.isApp && t.isApp && tMVarDecl.lctx.isSubPrefixOf sMVarDecl.lctx) (assign s t) $
+  assign t s
 
 end Meta
 end Lean

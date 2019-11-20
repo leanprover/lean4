@@ -25,6 +25,13 @@ def Literal.hash : Literal → USize
 
 instance Literal.hashable : Hashable Literal := ⟨Literal.hash⟩
 
+def Literal.beq : Literal → Literal → Bool
+| Literal.natVal v₁, Literal.natVal v₂ => v₁ == v₂
+| Literal.strVal v₁, Literal.strVal v₂ => v₁ == v₂
+| _,                 _                 => false
+
+instance Literal.hasBeq : HasBeq Literal := ⟨Literal.beq⟩
+
 inductive BinderInfo
 | default | implicit | strictImplicit | instImplicit | auxDecl
 

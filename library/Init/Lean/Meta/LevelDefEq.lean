@@ -53,7 +53,7 @@ match u with
 | _ =>
   pure LevelConstraintKind.other
 
-private partial def isLevelDefEqAux : Level → Level → MetaM Bool
+partial def isLevelDefEqAux : Level → Level → MetaM Bool
 | Level.succ lhs _, Level.succ rhs _ => isLevelDefEqAux lhs rhs
 | lhs, rhs =>
   if lhs == rhs then
@@ -88,6 +88,11 @@ private partial def isLevelDefEqAux : Level → Level → MetaM Bool
               | some lhs', some rhs' => isLevelDefEqAux lhs' rhs'
               | _,         _         => do postponeIsLevelDefEq lhs rhs; pure true
             else do postponeIsLevelDefEq lhs rhs; pure true
+
+def isListLevelDefEqAux : List Level → List Level → MetaM Bool
+| [],    []    => pure true
+| u::us, v::vs => isLevelDefEqAux u v <&&> isListLevelDefEqAux us vs
+| _,     _     => pure false
 
 private def getNumPostponed : MetaM Nat :=
 do s ← get;
@@ -166,11 +171,6 @@ try $ do
   r ← isLevelDefEqAux u v;
   if !r then pure false
   else processPostponed false
-
-def isListLevelDefEq : List Level → List Level → MetaM Bool
-| [],    []    => pure true
-| u::us, v::vs => isLevelDefEq u v <&&> isListLevelDefEq us vs
-| _,     _     => pure false
 
 end Meta
 end Lean

@@ -302,21 +302,23 @@ void load_plugin(std::string path) {
     void * init;
     // we never want to look up plugins using the system library search
     path = lrealpath(path);
+    std::string pkg = stem(path);
+    std::string sym = "initialize_" + pkg + "_Default";
 #ifdef LEAN_WINDOWS
     HMODULE h = LoadLibrary(path.c_str());
     if (!h) {
         throw exception(sstream() << "error loading plugin " << path);
     }
-    init = reinterpret_cast<void *>(GetProcAddress(h, "initialize_Default"));
+    init = reinterpret_cast<void *>(GetProcAddress(h, sym.c_str()));
 #else
     void *handle = dlopen(path.c_str(), RTLD_LAZY);
     if (!handle) {
         throw exception(sstream() << "error loading plugin, " << dlerror());
     }
-    init = dlsym(handle, "initialize_Default");
+    init = dlsym(handle, sym.c_str());
 #endif
     if (!init) {
-        throw exception(sstream() << "error, plugin " << path << " does not seem to contain a module 'Default'");
+        throw exception(sstream() << "error, plugin " << path << " does not seem to contain a module '" << pkg << ".Default'");
     }
     auto init_fn = reinterpret_cast<object *(*)(object *)>(init);
     object *r = init_fn(io_mk_world());

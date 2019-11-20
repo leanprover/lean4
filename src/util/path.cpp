@@ -161,6 +161,21 @@ std::string dirname(std::string const & fname) {
     }
 }
 
+std::string stem(std::string const & fname) {
+    auto nfname = normalize_path(fname);
+    auto i = nfname.rfind(g_sep);
+    if (i == std::string::npos) {
+        i = 0;
+    } else {
+        i++;
+    }
+    auto j = nfname.rfind(".");
+    if (j == std::string::npos) {
+        j = nfname.size();
+    }
+    return nfname.substr(i, j - i);
+}
+
 std::string read_file(std::string const & fname, std::ios_base::openmode mode) {
     std::ifstream in(fname, mode);
     if (!in.good()) throw file_not_found_exception(fname);

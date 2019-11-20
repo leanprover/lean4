@@ -11,7 +11,7 @@ import Init.Lean.Meta.Basic
 namespace Lean
 namespace Meta
 
-private def isAuxDef? (constName : Name) : MetaM Bool :=
+def isAuxDef? (constName : Name) : MetaM Bool :=
 do env ← getEnv; pure (isAuxRecursor env constName || isNoConfusion env constName)
 
 @[specialize] def unfoldDefinitionAux {α}

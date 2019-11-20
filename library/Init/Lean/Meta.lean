@@ -38,8 +38,9 @@ private partial def auxFixpoint : MetaOp → Expr → Expr → MetaM Expr
   match op with
   | whnfOp         => whnfAux inferType isDefEq synthPending e₁
   | inferTypeOp    => inferTypeAux whnf e₁
+  -- | isDefEqOp      => boolToExpr <$> isExprDefEqAux whnf synthPending e₁ e₂
+  | isDefEqOp      => boolToExpr <$> pure false
   | synthPendingOp => boolToExpr <$> pure false -- TODO
-  | isDefEqOp      => boolToExpr <$> pure false -- TODO
 
 def whnf (e : Expr) : MetaM Expr :=
 auxFixpoint whnfOp e e
@@ -48,7 +49,7 @@ def inferType (e : Expr) : MetaM Expr :=
 auxFixpoint inferTypeOp e e
 
 def isDefEq (e₁ e₂ : Expr) : MetaM Bool :=
-exprToBool <$> auxFixpoint isDefEqOp e₁ e₂
+try $ exprToBool <$> auxFixpoint isDefEqOp e₁ e₂
 /- =========================================== -/
 /-          END OF BIG HACK                    -/
 /- =========================================== -/

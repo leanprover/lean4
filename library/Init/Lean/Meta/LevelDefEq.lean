@@ -115,8 +115,8 @@ traceCtx `type_context.level_is_def_eq.postponed_step $ do
         pure false)
     true
 
-private partial def processPostponedAux : Bool → MetaM Bool
-| mayPostpone => do
+private partial def processPostponedAux : Unit → MetaM Bool
+| _ => do
   numPostponed ← getNumPostponed;
   if numPostponed == 0 then
     pure true
@@ -130,15 +130,15 @@ private partial def processPostponedAux : Bool → MetaM Bool
       if numPostponed' == 0 then
         pure true
       else if numPostponed' < numPostponed then
-        processPostponedAux mayPostpone
+        processPostponedAux ()
       else do
         trace! `type_context.level_is_def_eq ("no progress solving pending is-def-eq level constraints");
-        pure mayPostpone
+        pure false
 
-private def processPostponed (mayPostpone : Bool) : MetaM Bool :=
+private def processPostponed : MetaM Bool :=
 do numPostponed ← getNumPostponed;
    if numPostponed == 0 then pure true
-   else traceCtx `type_context.level_is_def_eq.postponed $ processPostponedAux mayPostpone
+   else traceCtx `type_context.level_is_def_eq.postponed $ processPostponedAux ()
 
 
 private def restore (env : Environment) (mctx : MetavarContext) (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
@@ -158,7 +158,7 @@ do s ← get;
    modify $ fun s => { postponed := {}, .. s };
    catch
      (condM x
-       (condM (processPostponed false)
+       (condM processPostponed
          (pure true)
          (do restore env mctx postponed; pure false))
        (do restore env mctx postponed; pure false))
@@ -167,10 +167,7 @@ do s ← get;
 /- Public interface -/
 
 def isLevelDefEq (u v : Level) : MetaM Bool :=
-try $ do
-  r ← isLevelDefEqAux u v;
-  if !r then pure false
-  else processPostponed false
+try $ isLevelDefEqAux u v
 
 end Meta
 end Lean

@@ -749,9 +749,13 @@ do let isDefEqL (t s : Expr) : MetaM LBool := toLBoolM $ isDefEq t s;
        | _, _ => pure LBool.false
      else
        let unfoldComparingHeads : Unit → MetaM LBool := fun _ =>
+         /-
+            - If headSymbol (unfold t) == headSymbol s, then unfold t
+            - If headSymbol (unfold s) == headSymbol t, then unfold s
+            - Otherwise unfold t and s if possible. -/
          unfold t
            (unfold s
-              (pure LBool.undef)
+              (pure LBool.undef) -- `t` and `s` failed to be unfolded
               (fun s => isDefEqRight t s))
            (fun tNew =>
              if sameHeadSymbol tNew s then

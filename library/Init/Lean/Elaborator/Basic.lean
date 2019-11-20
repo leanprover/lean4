@@ -336,18 +336,7 @@ partial def processCommandsAux : Unit → Frontend Unit
 def processCommands : Frontend Unit :=
 processCommandsAux ()
 
-@[export lean_absolutize_module_name]
-def absolutizeModuleName (baseDir : Option String) (m : Name) (k : Option Nat) : IO Name :=
-match k, baseDir with
-| none,   _            => pure m
-| some k, none         => throw (IO.userError ("invalid use of relative import, file name of main file is not available"))
-| some k, some baseDir => do
-  let dir        := addRel baseDir k;
-  let pathSep    := toString System.FilePath.pathSeparator;
-  let oleanFName := dir ++ pathSep ++ modNameToFileName m ++ toString System.FilePath.extSeparator ++ "olean";
-  moduleNameOfFileName oleanFName
-
-def processHeaderAux (baseDir : Option String) (header : Syntax) (trustLevel : UInt32) : IO Environment :=
+def processHeaderAux (baseMod : Option Name) (header : Syntax) (trustLevel : UInt32) : IO Environment :=
 do let header     := header.asNode;
    let imports    := if (header.getArg 0).isNone then [`init.default] else [];
    let modImports := (header.getArg 1).getArgs;
@@ -360,16 +349,16 @@ do let header     := header.asNode;
        let rel := stx.getArg 0;
        let k   := if rel.isNone then none else some (rel.getNumArgs - 1);
        let id  := stx.getIdAt 1;
-       m ← absolutizeModuleName baseDir id k;
+       m ← moduleNameOfRelName baseMod id k;
        pure (m::imports))
        imports)
      imports;
    let imports := imports.reverse;
    importModules imports trustLevel
 
-def processHeader (baseDir : Option String) (header : Syntax) (messages : MessageLog) (ctx : Parser.ParserContextCore) (trustLevel : UInt32 := 0) : IO (Environment × MessageLog) :=
+def processHeader (baseMod : Option Name) (header : Syntax) (messages : MessageLog) (ctx : Parser.ParserContextCore) (trustLevel : UInt32 := 0) : IO (Environment × MessageLog) :=
 catch
-  (do env ← processHeaderAux baseDir header trustLevel;
+  (do env ← processHeaderAux baseMod header trustLevel;
       pure (env, messages))
   (fun e => do
      env ← mkEmptyEnvironment;
@@ -386,12 +375,15 @@ match fileName with
 
 def testFrontend (input : String) (fileName : Option String := none) : IO (Environment × MessageLog) :=
 do env ← mkEmptyEnvironment;
-   baseDir ← toBaseDir fileName;
+   baseMod ← match fileName with
+   -- TODO: (try to) resolve current working directory to support relative imports with --stdin
+   | none   => pure none
+   | some f => moduleNameOfFileName f;
    let fileName := fileName.getD "<input>";
    let ctx := Parser.mkParserContextCore env input fileName;
    match Parser.parseHeader env ctx with
    | (header, parserState, messages) => do
-     (env, messages) ← processHeader baseDir header messages ctx;
+     (env, messages) ← processHeader baseMod header messages ctx;
      let elabState := { ElabState . env := env, messages := messages };
      match (processCommands ctx).run { elabState := elabState, parserState := parserState } with
        | EStateM.Result.ok _ s    => pure (s.elabState.env, s.elabState.messages)

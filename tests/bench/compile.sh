@@ -6,7 +6,7 @@ fi
 ulimit -s 8192
 BIN_DIR=../../bin
 LEAN=$BIN_DIR/lean
-export LEAN_PATH=../../library:.
+export LEAN_PATH=Init=../../library/Init:Test=.
 ff=$1
 
 if [[ "$OSTYPE" == "msys" ]]; then

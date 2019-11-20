@@ -13,9 +13,17 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include "runtime/optional.h"
 #include "library/io_state.h"
 #include "kernel/environment.h"
-#include "util/lean_path.h"
 
 namespace lean {
+using module_name = name;
+struct rel_module_name {
+    optional<unsigned> m_updirs;
+    module_name m_name;
+
+    rel_module_name(unsigned int const & updirs, module_name const & name) : m_updirs(some(updirs)), m_name(name) {}
+    explicit rel_module_name(module_name const & name) : m_name(name) {}
+};
+
 /** \brief Return an environment where all modules in \c modules are imported.
     Modules included directly or indirectly by them are also imported.
 

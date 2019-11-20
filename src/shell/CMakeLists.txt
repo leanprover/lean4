@@ -43,7 +43,7 @@ if(NOT STAGE0)
       set(NODE_JS "node --stack_size=8192")
 
       file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/lean_with_path
-              "#!/bin/sh\nLEAN_PATH=${CMAKE_CURRENT_SOURCE_DIR}/../../library ${NODE_JS} ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
+              "#!/bin/sh\nLEAN_PATH=Init=${CMAKE_CURRENT_SOURCE_DIR}/../../library ${NODE_JS} ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
       execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/lean_with_path)
 
       ADD_CUSTOM_TARGET(bin_lean ALL

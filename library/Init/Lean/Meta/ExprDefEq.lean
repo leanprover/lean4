@@ -476,6 +476,48 @@ match ex with
   -- This case can only happen if the MetaM API is being misused
   throwEx $ Exception.unknownExprMVar mvarId
 
+namespace CheckAssignmentQuick
+
+@[inline] private def visit (f : Expr → Bool) (e : Expr) : Bool :=
+if !e.hasExprMVar && !e.hasFVar then true else f e
+
+partial def check
+    (hasCtxLocals ctxApprox : Bool)
+    (mctx : MetavarContext) (lctx : LocalContext) (mvarDecl : MetavarDecl) (mvarId : Name) (fvars : Array Expr) : Expr → Bool
+| e@(Expr.mdata _ b _)     => check b
+| e@(Expr.proj _ _ s _)    => check s
+| e@(Expr.app f a _)       => visit check f && visit check a
+| e@(Expr.lam _ d b _)     => visit check d && visit check b
+| e@(Expr.forallE _ d b _) => visit check d && visit check b
+| e@(Expr.letE _ t v b _)  => visit check t && visit check v && visit check b
+| e@(Expr.bvar _ _)        => true
+| e@(Expr.sort _ _)        => true
+| e@(Expr.const _ _ _)     => true
+| e@(Expr.lit _ _)         => true
+| e@(Expr.fvar fvarId _)   =>
+  if mvarDecl.lctx.contains fvarId then true
+  else match lctx.find fvarId with
+     | some (LocalDecl.ldecl _ _ _ _ v) => false -- need expensive CheckAssignment.check
+     | _ =>
+       if fvars.any $ fun x => x.fvarId! == fvarId then true
+       else false -- We could throw an exception here, but we would have to use ExceptM. So, we let CheckAssignment.check do it
+| e@(Expr.mvar mvarId' _)        => do
+   match mctx.getExprAssignment mvarId' with
+   | some _ => false -- use CheckAssignment.check to instantiate
+   | none   =>
+     if mvarId' == mvarId then false -- occurs check failed, use CheckAssignment.check to throw exception
+     else match mctx.findDecl mvarId' with
+       | none           => false
+       | some mvarDecl' =>
+         if hasCtxLocals then false -- use CheckAssignment.check
+         else if mvarDecl'.lctx.isSubPrefixOf mvarDecl.lctx then true
+         else if mvarDecl'.depth != mctx.depth || mvarDecl'.synthetic then false  -- use CheckAssignment.check
+         else if ctxApprox && mvarDecl.lctx.isSubPrefixOf mvarDecl'.lctx then false  -- use CheckAssignment.check
+         else true
+| Expr.localE _ _ _ _      => unreachable!
+
+end CheckAssignmentQuick
+
 /--
   Auxiliary function for handling constraints of the form `?m a₁ ... aₙ =?= v`.
   It will check whether we can perform the assignment
@@ -489,17 +531,20 @@ def checkAssignment (mvarId : Name) (fvars : Array Expr) (v : Expr) : MetaM (Opt
 fun ctx s => if !v.hasExprMVar && !v.hasFVar then EStateM.Result.ok (some v) s else
   let mvarDecl     := s.mctx.getDecl mvarId;
   let hasCtxLocals := fvars.any $ fun fvar => mvarDecl.lctx.containsFVar fvar;
-  let checkCtx : CheckAssignment.Context := {
-    lctx         := ctx.lctx,
-    mvarId       := mvarId,
-    mvarDecl     := s.mctx.getDecl mvarId,
-    fvars        := fvars,
-    ctxApprox    := ctx.config.ctxApprox,
-    hasCtxLocals := hasCtxLocals
-  };
-  match (CheckAssignment.check v checkCtx).run { mctx := s.mctx, ngen := s.ngen } with
-  | EStateM.Result.ok e newS     => EStateM.Result.ok (some e) { mctx := newS.mctx, ngen := newS.ngen, .. s }
-  | EStateM.Result.error ex newS => checkAssignmentFailure mvarId fvars v ex ctx { ngen := newS.ngen, .. s }
+  if CheckAssignmentQuick.check hasCtxLocals ctx.config.ctxApprox s.mctx ctx.lctx mvarDecl mvarId fvars v then
+    EStateM.Result.ok (some v) s
+  else
+    let checkCtx : CheckAssignment.Context := {
+      lctx         := ctx.lctx,
+      mvarId       := mvarId,
+      mvarDecl     := s.mctx.getDecl mvarId,
+      fvars        := fvars,
+      ctxApprox    := ctx.config.ctxApprox,
+      hasCtxLocals := hasCtxLocals
+    };
+    match (CheckAssignment.check v checkCtx).run { mctx := s.mctx, ngen := s.ngen } with
+    | EStateM.Result.ok e newS     => EStateM.Result.ok (some e) { mctx := newS.mctx, ngen := newS.ngen, .. s }
+    | EStateM.Result.error ex newS => checkAssignmentFailure mvarId fvars v ex ctx { ngen := newS.ngen, .. s }
 
 /-
   We try to unify arguments before we try to unify the functions.

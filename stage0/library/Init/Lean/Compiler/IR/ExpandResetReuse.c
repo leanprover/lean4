@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Compiler.IR.ExpandResetReuse
-// Imports: Init.Control.State Init.Control.Reader Init.Data.Nat.Default Init.Lean.Compiler.IR.CompilerM Init.Lean.Compiler.IR.NormIds Init.Lean.Compiler.IR.FreeVars
+// Imports: Init.Control.State Init.Control.Reader Init.Data.Nat Init.Lean.Compiler.IR.CompilerM Init.Lean.Compiler.IR.NormIds Init.Lean.Compiler.IR.FreeVars
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3509,7 +3509,7 @@ return x_3;
 }
 lean_object* initialize_Init_Control_State(lean_object*);
 lean_object* initialize_Init_Control_Reader(lean_object*);
-lean_object* initialize_Init_Data_Nat_Default(lean_object*);
+lean_object* initialize_Init_Data_Nat(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_IR_CompilerM(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_IR_NormIds(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_IR_FreeVars(lean_object*);
@@ -3524,7 +3524,7 @@ lean_dec_ref(res);
 res = initialize_Init_Control_Reader(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Default(lean_io_mk_world());
+res = initialize_Init_Data_Nat(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Compiler_IR_CompilerM(lean_io_mk_world());

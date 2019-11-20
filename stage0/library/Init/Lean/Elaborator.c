@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: Init.Lean.Elaborator.Default
+// Module: Init.Lean.Elaborator
 // Imports: Init.Lean.Elaborator.Basic Init.Lean.Elaborator.ElabStrategyAttrs Init.Lean.Elaborator.Command Init.Lean.Elaborator.PreTerm Init.Lean.Elaborator.Term
 #include "runtime/lean.h"
 #if defined(__clang__)
@@ -19,7 +19,7 @@ lean_object* initialize_Init_Lean_Elaborator_Command(lean_object*);
 lean_object* initialize_Init_Lean_Elaborator_PreTerm(lean_object*);
 lean_object* initialize_Init_Lean_Elaborator_Term(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Lean_Elaborator_Default(lean_object* w) {
+lean_object* initialize_Init_Lean_Elaborator(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;

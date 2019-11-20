@@ -19,7 +19,6 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include "runtime/io.h"
 #include "runtime/compact.h"
 #include "util/io.h"
-#include "util/lean_path.h"
 #include "util/buffer.h"
 #include "util/name_map.h"
 #include "util/file_lock.h"

@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: Init.Lean.Parser.Default
+// Module: Init.Lean.Parser
 // Imports: Init.Lean.Parser.Parser Init.Lean.Parser.Level Init.Lean.Parser.Term Init.Lean.Parser.Command Init.Lean.Parser.Module
 #include "runtime/lean.h"
 #if defined(__clang__)
@@ -19,7 +19,7 @@ lean_object* initialize_Init_Lean_Parser_Term(lean_object*);
 lean_object* initialize_Init_Lean_Parser_Command(lean_object*);
 lean_object* initialize_Init_Lean_Parser_Module(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Lean_Parser_Default(lean_object* w) {
+lean_object* initialize_Init_Lean_Parser(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;

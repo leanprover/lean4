@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Hashable
-// Imports: Init.Data.UInt Init.Data.String.Default
+// Imports: Init.Data.UInt Init.Data.String
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -297,7 +297,7 @@ return x_2;
 }
 }
 lean_object* initialize_Init_Data_UInt(lean_object*);
-lean_object* initialize_Init_Data_String_Default(lean_object*);
+lean_object* initialize_Init_Data_String(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_Hashable(lean_object* w) {
 lean_object * res;
@@ -306,7 +306,7 @@ _G_initialized = true;
 res = initialize_Init_Data_UInt(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Default(lean_io_mk_world());
+res = initialize_Init_Data_String(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_String_Hashable___closed__1 = _init_l_String_Hashable___closed__1();

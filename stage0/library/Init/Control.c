@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: Init.Control.Default
+// Module: Init.Control
 // Imports: Init.Control.Applicative Init.Control.Functor Init.Control.Alternative Init.Control.Monad Init.Control.Lift Init.Control.State Init.Control.Id Init.Control.Except Init.Control.Reader Init.Control.Option Init.Control.Conditional
 #include "runtime/lean.h"
 #if defined(__clang__)
@@ -25,7 +25,7 @@ lean_object* initialize_Init_Control_Reader(lean_object*);
 lean_object* initialize_Init_Control_Option(lean_object*);
 lean_object* initialize_Init_Control_Conditional(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Control_Default(lean_object* w) {
+lean_object* initialize_Init_Control(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;

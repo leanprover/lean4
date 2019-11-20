@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.MetavarContext
-// Imports: Init.Data.Nat.Default Init.Data.Option.Default Init.Control.Reader Init.Lean.LocalContext Init.Lean.MonadCache Init.Lean.NameGenerator
+// Imports: Init.Data.Nat Init.Data.Option Init.Control.Reader Init.Lean.LocalContext Init.Lean.MonadCache Init.Lean.NameGenerator
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -31414,8 +31414,8 @@ x_4 = l_Lean_MetavarContext_isWellFormed___main(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* initialize_Init_Data_Nat_Default(lean_object*);
-lean_object* initialize_Init_Data_Option_Default(lean_object*);
+lean_object* initialize_Init_Data_Nat(lean_object*);
+lean_object* initialize_Init_Data_Option(lean_object*);
 lean_object* initialize_Init_Control_Reader(lean_object*);
 lean_object* initialize_Init_Lean_LocalContext(lean_object*);
 lean_object* initialize_Init_Lean_MonadCache(lean_object*);
@@ -31425,10 +31425,10 @@ lean_object* initialize_Init_Lean_MetavarContext(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Nat_Default(lean_io_mk_world());
+res = initialize_Init_Data_Nat(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option_Default(lean_io_mk_world());
+res = initialize_Init_Data_Option(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control_Reader(lean_io_mk_world());

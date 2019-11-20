@@ -13,9 +13,9 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include "runtime/optional.h"
 #include "library/io_state.h"
 #include "kernel/environment.h"
-#include "util/lean_path.h"
 
 namespace lean {
+using module_name = name;
 /** \brief Return an environment where all modules in \c modules are imported.
     Modules included directly or indirectly by them are also imported.
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Compiler.IR.Borrow
-// Imports: Init.Data.Nat.Default Init.Lean.Compiler.ExportAttr Init.Lean.Compiler.IR.CompilerM Init.Lean.Compiler.IR.NormIds
+// Imports: Init.Data.Nat Init.Lean.Compiler.ExportAttr Init.Lean.Compiler.IR.CompilerM Init.Lean.Compiler.IR.NormIds
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3747,7 +3747,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* initialize_Init_Data_Nat_Default(lean_object*);
+lean_object* initialize_Init_Data_Nat(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_ExportAttr(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_IR_CompilerM(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_IR_NormIds(lean_object*);
@@ -3756,7 +3756,7 @@ lean_object* initialize_Init_Lean_Compiler_IR_Borrow(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Nat_Default(lean_io_mk_world());
+res = initialize_Init_Data_Nat(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Compiler_ExportAttr(lean_io_mk_world());

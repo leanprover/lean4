@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.TypeClass.Synth
-// Imports: Init.Lean.Expr Init.Lean.Environment Init.Lean.Class Init.Lean.MetavarContext Init.Lean.TypeClass.Context Init.Data.PersistentHashMap.Default Init.Data.Stack.Default Init.Data.Queue.Default
+// Imports: Init.Lean.Expr Init.Lean.Environment Init.Lean.Class Init.Lean.MetavarContext Init.Lean.TypeClass.Context Init.Data.PersistentHashMap Init.Data.Stack Init.Data.Queue
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5764,9 +5764,9 @@ lean_object* initialize_Init_Lean_Environment(lean_object*);
 lean_object* initialize_Init_Lean_Class(lean_object*);
 lean_object* initialize_Init_Lean_MetavarContext(lean_object*);
 lean_object* initialize_Init_Lean_TypeClass_Context(lean_object*);
-lean_object* initialize_Init_Data_PersistentHashMap_Default(lean_object*);
-lean_object* initialize_Init_Data_Stack_Default(lean_object*);
-lean_object* initialize_Init_Data_Queue_Default(lean_object*);
+lean_object* initialize_Init_Data_PersistentHashMap(lean_object*);
+lean_object* initialize_Init_Data_Stack(lean_object*);
+lean_object* initialize_Init_Data_Queue(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_TypeClass_Synth(lean_object* w) {
 lean_object * res;
@@ -5787,13 +5787,13 @@ lean_dec_ref(res);
 res = initialize_Init_Lean_TypeClass_Context(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_PersistentHashMap_Default(lean_io_mk_world());
+res = initialize_Init_Data_PersistentHashMap(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Stack_Default(lean_io_mk_world());
+res = initialize_Init_Data_Stack(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Queue_Default(lean_io_mk_world());
+res = initialize_Init_Data_Queue(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_TypeClass_TypedExpr_HasToString___closed__1 = _init_l_Lean_TypeClass_TypedExpr_HasToString___closed__1();

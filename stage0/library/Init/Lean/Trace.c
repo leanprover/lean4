@@ -123,9 +123,9 @@ lean_object* l___private_Init_Lean_Trace_1__addNode___rarg___lambda__1(lean_obje
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_alloc_ctor(9, 1, 0);
+x_4 = lean_alloc_ctor(10, 1, 0);
 lean_ctor_set(x_4, 0, x_3);
-x_5 = lean_alloc_ctor(8, 2, 0);
+x_5 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_4);
 x_6 = lean_array_push(x_2, x_5);
@@ -218,7 +218,7 @@ lean_object* l___private_Init_Lean_Trace_3__addTrace___rarg___lambda__1(lean_obj
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_alloc_ctor(8, 2, 0);
+x_4 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
 x_5 = lean_array_push(x_3, x_4);

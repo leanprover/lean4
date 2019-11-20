@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: Init.System.Default
-// Imports: Init.System.IO Init.System.Platform
+// Module: Init.Lean.TypeClass
+// Imports: Init.Lean.TypeClass.Basic
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,17 +13,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init_System_IO(lean_object*);
-lean_object* initialize_Init_System_Platform(lean_object*);
+lean_object* initialize_Init_Lean_TypeClass_Basic(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_System_Default(lean_object* w) {
+lean_object* initialize_Init_Lean_TypeClass(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_System_IO(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_System_Platform(lean_io_mk_world());
+res = initialize_Init_Lean_TypeClass_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_mk_io_result(lean_box(0));

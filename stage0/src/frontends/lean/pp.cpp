@@ -376,8 +376,7 @@ format pretty_fn::pp_meta(level const & l) {
 
 format pretty_fn::pp_level(level const & l) {
     if (is_explicit(l)) {
-        lean_assert(get_depth(l) > 0);
-        return format(get_depth(l) - 1);
+        return format(get_depth(l));
     } else {
         switch (kind(l)) {
         case level_kind::Zero:

@@ -42,17 +42,19 @@ lean_object* l_List_toStringAux___main___at_Lean_Meta_Exception_toStr___spec__2(
 lean_object* l_Lean_Meta_Exception_toStr(lean_object*);
 lean_object* l_Lean_Meta_Exception_HasToString___closed__1;
 lean_object* l_Lean_Meta_Exception_toStr___closed__6;
+lean_object* l_Lean_Meta_Exception_toStr___closed__15;
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Exception_toStr___closed__5;
 lean_object* l_Lean_Meta_Exception_toStr___closed__3;
 lean_object* l_Lean_Level_format(lean_object*);
+lean_object* l_Lean_Meta_Exception_toStr___closed__14;
 lean_object* l_List_toString___at_Lean_Meta_Exception_toStr___spec__1(lean_object*);
 lean_object* _init_l_Lean_Meta_Exception_Inhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_String_splitAux___main___closed__1;
-x_2 = lean_alloc_ctor(12, 1, 0);
+x_2 = lean_alloc_ctor(14, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -247,6 +249,22 @@ lean_object* _init_l_Lean_Meta_Exception_toStr___closed__13() {
 _start:
 {
 lean_object* x_1; 
+x_1 = lean_mk_string("type mismatch at let-expression");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_Meta_Exception_toStr___closed__14() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("application type mismatch");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_Meta_Exception_toStr___closed__15() {
+_start:
+{
+lean_object* x_1; 
 x_1 = lean_mk_string("bug");
 return x_1;
 }
@@ -389,13 +407,27 @@ lean_dec(x_1);
 x_49 = l_Lean_Meta_Exception_toStr___closed__13;
 return x_49;
 }
-default: 
+case 12:
 {
 lean_object* x_50; 
-x_50 = lean_ctor_get(x_1, 0);
-lean_inc(x_50);
 lean_dec(x_1);
+x_50 = l_Lean_Meta_Exception_toStr___closed__14;
 return x_50;
+}
+case 13:
+{
+lean_object* x_51; 
+lean_dec(x_1);
+x_51 = l_Lean_Meta_Exception_toStr___closed__15;
+return x_51;
+}
+default: 
+{
+lean_object* x_52; 
+x_52 = lean_ctor_get(x_1, 0);
+lean_inc(x_52);
+lean_dec(x_1);
+return x_52;
 }
 }
 }
@@ -469,6 +501,10 @@ l_Lean_Meta_Exception_toStr___closed__12 = _init_l_Lean_Meta_Exception_toStr___c
 lean_mark_persistent(l_Lean_Meta_Exception_toStr___closed__12);
 l_Lean_Meta_Exception_toStr___closed__13 = _init_l_Lean_Meta_Exception_toStr___closed__13();
 lean_mark_persistent(l_Lean_Meta_Exception_toStr___closed__13);
+l_Lean_Meta_Exception_toStr___closed__14 = _init_l_Lean_Meta_Exception_toStr___closed__14();
+lean_mark_persistent(l_Lean_Meta_Exception_toStr___closed__14);
+l_Lean_Meta_Exception_toStr___closed__15 = _init_l_Lean_Meta_Exception_toStr___closed__15();
+lean_mark_persistent(l_Lean_Meta_Exception_toStr___closed__15);
 l_Lean_Meta_Exception_HasToString___closed__1 = _init_l_Lean_Meta_Exception_HasToString___closed__1();
 lean_mark_persistent(l_Lean_Meta_Exception_HasToString___closed__1);
 l_Lean_Meta_Exception_HasToString = _init_l_Lean_Meta_Exception_HasToString();

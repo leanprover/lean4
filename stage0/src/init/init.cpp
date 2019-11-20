@@ -20,7 +20,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 extern "C" object* initialize_Init_Default(object* w);
-extern "C" object* initialize_Init_Lean_Default(object* w);
+extern "C" object* initialize_Init_Lean(object* w);
 
 object* sort_const_table_core(object * w);
 
@@ -28,7 +28,7 @@ extern "C" void lean_initialize() {
     save_stack_info();
     initialize_util_module();
     object * w = initialize_Init_Default(io_mk_world());
-    w = initialize_Init_Lean_Default(w);
+    w = initialize_Init_Lean(w);
     // w = sort_const_table_core(w);
     if (io_result_is_error(w)) {
         io_result_show_error(w);

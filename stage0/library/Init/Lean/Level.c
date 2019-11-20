@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Level
-// Imports: Init.Data.Option.Basic Init.Data.HashMap.Default Init.Data.PersistentHashMap.Default Init.Lean.Name Init.Lean.Format
+// Imports: Init.Data.Option.Basic Init.Data.HashMap Init.Data.PersistentHashMap Init.Lean.Name Init.Lean.Format
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4044,8 +4044,8 @@ return x_2;
 }
 }
 lean_object* initialize_Init_Data_Option_Basic(lean_object*);
-lean_object* initialize_Init_Data_HashMap_Default(lean_object*);
-lean_object* initialize_Init_Data_PersistentHashMap_Default(lean_object*);
+lean_object* initialize_Init_Data_HashMap(lean_object*);
+lean_object* initialize_Init_Data_PersistentHashMap(lean_object*);
 lean_object* initialize_Init_Lean_Name(lean_object*);
 lean_object* initialize_Init_Lean_Format(lean_object*);
 static bool _G_initialized = false;
@@ -4056,10 +4056,10 @@ _G_initialized = true;
 res = initialize_Init_Data_Option_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_HashMap_Default(lean_io_mk_world());
+res = initialize_Init_Data_HashMap(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_PersistentHashMap_Default(lean_io_mk_world());
+res = initialize_Init_Data_PersistentHashMap(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Name(lean_io_mk_world());

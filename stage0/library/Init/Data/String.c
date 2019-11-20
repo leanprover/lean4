@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: Init.Data.String.Default
+// Module: Init.Data.String
 // Imports: Init.Data.String.Basic
 #include "runtime/lean.h"
 #if defined(__clang__)
@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* initialize_Init_Data_String_Basic(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Data_String_Default(lean_object* w) {
+lean_object* initialize_Init_Data_String(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;

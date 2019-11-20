@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.PersistentHashSet
-// Imports: Init.Data.PersistentHashMap.Default
+// Imports: Init.Data.PersistentHashMap
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -781,13 +781,13 @@ lean_dec(x_1);
 return x_7;
 }
 }
-lean_object* initialize_Init_Data_PersistentHashMap_Default(lean_object*);
+lean_object* initialize_Init_Data_PersistentHashMap(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Data_PersistentHashSet(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_PersistentHashMap_Default(lean_io_mk_world());
+res = initialize_Init_Data_PersistentHashMap(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_mk_io_result(lean_box(0));

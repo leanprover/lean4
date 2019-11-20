@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Name
-// Imports: Init.Data.String.Basic Init.Coe Init.Data.UInt Init.Data.ToString Init.Data.Hashable Init.Data.RBMap.Default Init.Data.RBTree.Default
+// Imports: Init.Data.String.Basic Init.Coe Init.Data.UInt Init.Data.ToString Init.Data.Hashable Init.Data.RBMap Init.Data.RBTree
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -9013,8 +9013,8 @@ lean_object* initialize_Init_Coe(lean_object*);
 lean_object* initialize_Init_Data_UInt(lean_object*);
 lean_object* initialize_Init_Data_ToString(lean_object*);
 lean_object* initialize_Init_Data_Hashable(lean_object*);
-lean_object* initialize_Init_Data_RBMap_Default(lean_object*);
-lean_object* initialize_Init_Data_RBTree_Default(lean_object*);
+lean_object* initialize_Init_Data_RBMap(lean_object*);
+lean_object* initialize_Init_Data_RBTree(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Name(lean_object* w) {
 lean_object * res;
@@ -9035,10 +9035,10 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Hashable(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_RBMap_Default(lean_io_mk_world());
+res = initialize_Init_Data_RBMap(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_RBTree_Default(lean_io_mk_world());
+res = initialize_Init_Data_RBTree(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Name_inhabited = _init_l_Lean_Name_inhabited();

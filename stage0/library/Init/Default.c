@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Default
-// Imports: Init.Core Init.Control.Default Init.Data.Basic Init.Coe Init.WF Init.Data.Default Init.System.Default Init.Util Init.Fix
+// Imports: Init.Core Init.Control Init.Data.Basic Init.Coe Init.WF Init.Data Init.System Init.Util Init.Fix
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,12 +14,12 @@
 extern "C" {
 #endif
 lean_object* initialize_Init_Core(lean_object*);
-lean_object* initialize_Init_Control_Default(lean_object*);
+lean_object* initialize_Init_Control(lean_object*);
 lean_object* initialize_Init_Data_Basic(lean_object*);
 lean_object* initialize_Init_Coe(lean_object*);
 lean_object* initialize_Init_WF(lean_object*);
-lean_object* initialize_Init_Data_Default(lean_object*);
-lean_object* initialize_Init_System_Default(lean_object*);
+lean_object* initialize_Init_Data(lean_object*);
+lean_object* initialize_Init_System(lean_object*);
 lean_object* initialize_Init_Util(lean_object*);
 lean_object* initialize_Init_Fix(lean_object*);
 static bool _G_initialized = false;
@@ -30,7 +30,7 @@ _G_initialized = true;
 res = initialize_Init_Core(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Default(lean_io_mk_world());
+res = initialize_Init_Control(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Basic(lean_io_mk_world());
@@ -42,10 +42,10 @@ lean_dec_ref(res);
 res = initialize_Init_WF(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Default(lean_io_mk_world());
+res = initialize_Init_Data(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_System_Default(lean_io_mk_world());
+res = initialize_Init_System(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Util(lean_io_mk_world());

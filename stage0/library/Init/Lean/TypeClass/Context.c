@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.TypeClass.Context
-// Imports: Init.Data.Nat.Default Init.Data.PersistentArray.Default Init.Lean.Expr Init.Lean.MetavarContext
+// Imports: Init.Data.Nat Init.Data.PersistentArray Init.Lean.Expr Init.Lean.MetavarContext
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -7759,8 +7759,8 @@ return x_25;
 }
 }
 }
-lean_object* initialize_Init_Data_Nat_Default(lean_object*);
-lean_object* initialize_Init_Data_PersistentArray_Default(lean_object*);
+lean_object* initialize_Init_Data_Nat(lean_object*);
+lean_object* initialize_Init_Data_PersistentArray(lean_object*);
 lean_object* initialize_Init_Lean_Expr(lean_object*);
 lean_object* initialize_Init_Lean_MetavarContext(lean_object*);
 static bool _G_initialized = false;
@@ -7768,10 +7768,10 @@ lean_object* initialize_Init_Lean_TypeClass_Context(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Nat_Default(lean_io_mk_world());
+res = initialize_Init_Data_Nat(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_PersistentArray_Default(lean_io_mk_world());
+res = initialize_Init_Data_PersistentArray(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Expr(lean_io_mk_world());

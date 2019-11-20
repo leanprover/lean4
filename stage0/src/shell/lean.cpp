@@ -22,7 +22,6 @@ Author: Leonardo de Moura
 #include "util/timer.h"
 #include "util/macros.h"
 #include "util/io.h"
-#include "util/lean_path.h"
 #include "util/file_lock.h"
 #include "util/options.h"
 #include "util/option_declarations.h"
@@ -44,6 +43,7 @@ Author: Leonardo de Moura
 #include "init/init.h"
 #include "frontends/lean/simple_pos_info_provider.h"
 #include "library/compiler/ir_interpreter.h"
+#include "util/path.h"
 #ifdef _MSC_VER
 #include <io.h>
 #define STDOUT_FILENO 1
@@ -302,21 +302,23 @@ void load_plugin(std::string path) {
     void * init;
     // we never want to look up plugins using the system library search
     path = lrealpath(path);
+    std::string pkg = stem(path);
+    std::string sym = "initialize_" + pkg + "_Default";
 #ifdef LEAN_WINDOWS
     HMODULE h = LoadLibrary(path.c_str());
     if (!h) {
         throw exception(sstream() << "error loading plugin " << path);
     }
-    init = reinterpret_cast<void *>(GetProcAddress(h, "initialize_Default"));
+    init = reinterpret_cast<void *>(GetProcAddress(h, sym.c_str()));
 #else
     void *handle = dlopen(path.c_str(), RTLD_LAZY);
     if (!handle) {
         throw exception(sstream() << "error loading plugin, " << dlerror());
     }
-    init = dlsym(handle, "initialize_Default");
+    init = dlsym(handle, sym.c_str());
 #endif
     if (!init) {
-        throw exception(sstream() << "error, plugin " << path << " does not seem to contain a module 'Default'");
+        throw exception(sstream() << "error, plugin " << path << " does not seem to contain a module '" << pkg << ".Default'");
     }
     auto init_fn = reinterpret_cast<object *(*)(object *)>(init);
     object *r = init_fn(io_mk_world());
@@ -346,17 +348,25 @@ void init_search_path() {
     get_io_scalar_result<unsigned>(lean_init_search_path(mk_option_none(), io_mk_world()));
 }
 
-extern "C" object* lean_find_lean(object* mod_name, object* w);
+extern "C" object* lean_find_olean(object* mod_name, object* w);
 
-std::string find_lean_file(name mod_name) {
-    string_ref fname = get_io_result<string_ref>(lean_find_lean(mod_name.to_obj_arg(), io_mk_world()));
+std::string find_olean_file(name mod_name) {
+    string_ref fname = get_io_result<string_ref>(lean_find_olean(mod_name.to_obj_arg(), io_mk_world()));
     return fname.to_std_string();
 }
 
 extern "C" object* lean_module_name_of_file(object* fname, object* w);
 
-name module_name_of_file2(std::string const & fname) {
-    return get_io_result<name>(lean_module_name_of_file(mk_string(fname), io_mk_world()));
+optional<name> module_name_of_file(std::string const & fname) {
+    return get_io_result<option_ref<name>>(lean_module_name_of_file(mk_string(fname), io_mk_world())).get();
+}
+
+std::string olean_of_lean(std::string const & lean_fn) {
+    if (lean_fn.size() > 5 && lean_fn.substr(lean_fn.size() - 5) == ".lean") {
+        return lean_fn.substr(0, lean_fn.size() - 5) + ".olean";
+    } else {
+        throw exception(sstream() << "not a .lean file: " << lean_fn);
+    }
 }
 }
 
@@ -407,8 +417,6 @@ int main(int argc, char ** argv) {
 #endif
 
     init_search_path();
-
-    search_path path = get_lean_path_from_env().value_or(get_builtin_search_path());
 
     options opts;
     optional<std::string> server_in;
@@ -528,7 +536,7 @@ int main(int argc, char ** argv) {
     scope_global_ios scope_ios(ios);
     type_context_old trace_ctx(env, opts);
     scope_trace_env scope_trace(env, opts, trace_ctx);
-    name main_module_name;
+    optional<name> main_module_name;
 
     std::string mod_fn = "<unknown>";
     std::string contents;
@@ -542,7 +550,6 @@ int main(int argc, char ** argv) {
         std::stringstream buf;
         buf << std::cin.rdbuf();
         contents = buf.str();
-        main_module_name = name("_stdin");
     } else {
         if (!run && argc - optind != 1) {
             std::cerr << "Expected exactly one file name\n";
@@ -551,7 +558,7 @@ int main(int argc, char ** argv) {
         }
         mod_fn = lrealpath(argv[optind++]);
         contents = read_file(mod_fn);
-        main_module_name = module_name_of_file2(mod_fn);
+        main_module_name = module_name_of_file(mod_fn);
     }
 
     try {
@@ -564,25 +571,16 @@ int main(int argc, char ** argv) {
             scope_pos_info_provider scope_pip(pip);
             message_log l;
             scope_message_log scope_log(l);
-            std::vector<rel_module_name> rel_imports;
+            std::vector<module_name> imports;
             std::istringstream in(contents);
             parser p(env, ios, in, mod_fn);
 
             try {
-                p.parse_imports(rel_imports);
-
-                std::vector<module_name> imports;
-                auto dir = dirname(mod_fn);
-                for (auto const & rel : rel_imports)
-                    imports.push_back(absolutize_module_name(path, dir, rel));
+                p.parse_imports(imports);
 
                 if (only_deps) {
                     for (auto const & import : imports) {
-                        std::string m_name = find_lean_file(import);
-                        auto last_idx = m_name.find_last_of(".");
-                        std::string rawname = m_name.substr(0, last_idx);
-                        std::string ext = m_name.substr(last_idx);
-                        m_name = rawname + ".olean";
+                        std::string m_name = find_olean_file(import);
                         std::cout << m_name << "\n";
                     }
                     return 0;
@@ -594,7 +592,11 @@ int main(int argc, char ** argv) {
                 } else {
                     env = import_modules(trust_lvl, imports);
                 }
-                env.set_main_module(main_module_name);
+                if (main_module_name) {
+                    env.set_main_module(*main_module_name);
+                } else {
+                    env.set_main_module("_stdin");
+                }
                 p.set_env(env);
                 p.parse_commands();
             } catch (lean::throwable & ex) {
@@ -634,13 +636,16 @@ int main(int argc, char ** argv) {
             display_cumulative_profiling_times(std::cerr);
 
         if (c_output && ok) {
+            if (!main_module_name) {
+                std::cerr << "cannot extract code, module name of input file is not known\n";
+                return 1;
+            }
             std::ofstream out(*c_output);
             if (out.fail()) {
                 std::cerr << "failed to create '" << *c_output << "'\n";
                 return 1;
             }
-            auto mod = module_name_of_file2(mod_fn);
-            out << lean::ir::emit_c(env, mod).data();
+            out << lean::ir::emit_c(env, *main_module_name).data();
             out.close();
         }
 

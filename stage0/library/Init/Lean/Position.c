@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Position
-// Imports: Init.Data.Nat.Default Init.Data.RBMap.Default Init.Lean.Format
+// Imports: Init.Data.Nat Init.Data.RBMap Init.Lean.Format
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -579,18 +579,18 @@ x_2 = l_Lean_FileMap_ofString(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Init_Data_Nat_Default(lean_object*);
-lean_object* initialize_Init_Data_RBMap_Default(lean_object*);
+lean_object* initialize_Init_Data_Nat(lean_object*);
+lean_object* initialize_Init_Data_RBMap(lean_object*);
 lean_object* initialize_Init_Lean_Format(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Position(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Nat_Default(lean_io_mk_world());
+res = initialize_Init_Data_Nat(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_RBMap_Default(lean_io_mk_world());
+res = initialize_Init_Data_RBMap(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Format(lean_io_mk_world());

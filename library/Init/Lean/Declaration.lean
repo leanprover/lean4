@@ -36,6 +36,19 @@ inductive ReducibilityHints
 | «abbrev» : ReducibilityHints
 | regular  : UInt32 → ReducibilityHints
 
+namespace ReducibilityHints
+
+instance : Inhabited ReducibilityHints := ⟨opaque⟩
+
+def lt : ReducibilityHints → ReducibilityHints → Bool
+| «abbrev»,   «abbrev»   => false
+| «abbrev»,   _          => true
+| regular d₁, regular d₂ => d₁ < d₂
+| regular _,  opaque     => true
+| _,          _          => false
+
+end ReducibilityHints
+
 /-- Base structure for `AxiomVal`, `DefinitionVal`, `TheoremVal`, `InductiveVal`, `ConstructorVal`, `RecursorVal` and `QuotVal`. -/
 structure ConstantVal :=
 (name : Name) (lparams : List Name) (type : Expr)

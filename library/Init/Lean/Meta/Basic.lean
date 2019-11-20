@@ -152,10 +152,10 @@ do s ← get;
    modify $ fun s => { ngen := s.ngen.next, .. s };
    pure id
 
-@[inline] private def reduceAll? : MetaM Bool :=
+@[inline] def reduceAll? : MetaM Bool :=
 do ctx ← read; pure $ ctx.config.transparency == TransparencyMode.all
 
-@[inline] private def reduceReducibleOnly? : MetaM Bool :=
+@[inline] def reduceReducibleOnly? : MetaM Bool :=
 do ctx ← read; pure $ ctx.config.transparency == TransparencyMode.reducible
 
 @[inline] def getTransparency : MetaM TransparencyMode :=

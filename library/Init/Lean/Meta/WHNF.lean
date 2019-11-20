@@ -14,7 +14,7 @@ namespace Meta
 private def isAuxDef? (constName : Name) : MetaM Bool :=
 do env ← getEnv; pure (isAuxRecursor env constName || isNoConfusion env constName)
 
-@[specialize] partial def unfoldDefinitionAux {α}
+@[specialize] def unfoldDefinitionAux {α}
     (whnf              : Expr → MetaM Expr)
     (inferType         : Expr → MetaM Expr)
     (isDefEq           : Expr → Expr → MetaM Bool)

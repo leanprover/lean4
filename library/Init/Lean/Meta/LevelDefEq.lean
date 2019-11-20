@@ -145,7 +145,7 @@ modify $ fun s => { env := env, mctx := mctx, postponed := postponed, .. s }
 
   Remark: postponed universe level constraints must be solved before returning. Otherwise,
   we don't know whether `x` really succeeded. -/
-@[inline] def try (x : MetaM Bool) : MetaM Bool :=
+@[specialize] def try (x : MetaM Bool) : MetaM Bool :=
 do s ← get;
    let env       := s.env;
    let mctx      := s.mctx;
@@ -166,6 +166,11 @@ try $ do
   r ← isLevelDefEqAux u v;
   if !r then pure false
   else processPostponed false
+
+def isListLevelDefEq : List Level → List Level → MetaM Bool
+| [],    []    => pure true
+| u::us, v::vs => isLevelDefEq u v <&&> isListLevelDefEq us vs
+| _,     _     => pure false
 
 end Meta
 end Lean

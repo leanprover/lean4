@@ -9,6 +9,7 @@ import Init.Lean.Meta.InferType
 import Init.Lean.Meta.FunInfo
 import Init.Lean.Meta.LevelDefEq
 import Init.Lean.Meta.Check
+import Init.Lean.Meta.Offset
 
 namespace Lean
 namespace Meta
@@ -669,8 +670,8 @@ do arg ← if arg.getAppFn.hasExprMVar then instantiateMVars arg else pure arg;
         else
           finalize ()
 
- /-- Tries to solve `?m a₁ ... aₙ =?= v` by assigning `?m`.
-     It assumes `?m` is unassigned. -/
+/-- Tries to solve `?m a₁ ... aₙ =?= v` by assigning `?m`.
+    It assumes `?m` is unassigned. -/
 @[specialize] private def processAssignment
     (whnf              : Expr → MetaM Expr)
     (isDefEq           : Expr → Expr → MetaM Bool)
@@ -678,6 +679,92 @@ do arg ← if arg.getAppFn.hasExprMVar then instantiateMVars arg else pure arg;
     (mvar : Expr) (args : Array Expr) (v : Expr) : MetaM Bool :=
 do mvarDecl ← getMVarDecl mvar.mvarId!;
    processAssignmentAux whnf isDefEq synthesizePending mvar mvarDecl v 0 args
+
+@[specialize] private def unfold {α}
+    (whnf              : Expr → MetaM Expr)
+    (isDefEq           : Expr → Expr → MetaM Bool)
+    (synthesizePending : Expr → MetaM Bool)
+    (e : Expr)
+    (failK : MetaM α) (successK : Expr → MetaM α) : MetaM α :=
+unfoldDefinitionAux whnf (inferTypeAux whnf) isDefEq synthesizePending e failK successK
+
+private def isDeltaCandidate (t : Expr) : MetaM (Option ConstantInfo) :=
+match t.getAppFn with
+| Expr.const c _ _ => getConst c
+| _                => pure none
+
+private def sameHeadSymbol (t s : Expr) : Bool :=
+match t.getAppFn, s.getAppFn with
+| Expr.const c₁ _ _, Expr.const c₂ _ _ => true
+| _,                 _                 => false
+
+@[specialize] private def isDefEqDelta
+    (whnf              : Expr → MetaM Expr)
+    (isDefEq           : Expr → Expr → MetaM Bool)
+    (synthesizePending : Expr → MetaM Bool)
+    (t s : Expr) : MetaM LBool :=
+do let isDefEqL (t s : Expr) : MetaM LBool := toLBoolM $ isDefEq t s;
+   let isListLevelDefEqL (us vs : List Level) : MetaM LBool := toLBoolM $ isListLevelDefEq us vs;
+   let unfold {α} (e failK successK) : MetaM α := unfoldDefinitionAux whnf (inferTypeAux whnf) isDefEq synthesizePending e failK successK;
+   tInfo? ← isDeltaCandidate t.getAppFn;
+   sInfo? ← isDeltaCandidate s.getAppFn;
+   match tInfo?, sInfo? with
+   | none,       none       => pure LBool.undef
+   | some _,     none       => unfold t (pure LBool.undef) $ fun t => isDefEqL t s
+   | none,       some _     => unfold s (pure LBool.undef) $ fun s => isDefEqL t s
+   | some tInfo, some sInfo =>
+     if tInfo.name == sInfo.name then
+       match t, s with
+       | Expr.const _ ls₁ _, Expr.const _ ls₂ _ => isListLevelDefEqL ls₁ ls₂
+       | Expr.app _ _ _,     Expr.app _ _ _     =>
+         let tFn := t.getAppFn;
+         let sFn := s.getAppFn;
+         condM (try (isDefEqArgs whnf isDefEq synthesizePending tFn t.getAppArgs s.getAppArgs
+                     <&&> isListLevelDefEq tFn.constLevels! sFn.constLevels!))
+           (pure LBool.true)
+           (unfold t
+             (unfold s (pure LBool.undef) (fun s => isDefEqL t s))
+             (fun t => unfold s (isDefEqL t s) (fun s => isDefEqL t s)))
+       | _, _ => pure LBool.false
+     else
+       let unfoldComparingHeads : Unit → MetaM LBool := fun _ =>
+         unfold t
+           (unfold s
+              (pure LBool.undef)
+              (fun s => isDefEqL t s))
+           (fun tNew =>
+             if sameHeadSymbol tNew s then
+               isDefEqL tNew s
+             else
+               unfold s
+                 (isDefEqL tNew s)
+                 (fun sNew => if sameHeadSymbol t sNew then isDefEqL t sNew else isDefEqL tNew sNew));
+       let kernelLikeUnfolding : Unit → MetaM LBool := fun _ =>
+         if !t.hasExprMVar && !s.hasExprMVar then
+           /- If `t` and `s` do not contain metavariables,
+              we simulate strategy used in the kernel. -/
+           if tInfo.hints.lt sInfo.hints then
+             unfold t (unfoldComparingHeads ()) $ fun t => isDefEqL t s
+           else if sInfo.hints.lt tInfo.hints then
+             unfold s (unfoldComparingHeads ()) $ fun s => isDefEqL t s
+           else
+             unfoldComparingHeads ()
+         else
+           unfoldComparingHeads ();
+       condM reduceReducibleOnly?
+         (kernelLikeUnfolding ())
+         (do
+           /- TransparencyMode is set to `default` or `all`.
+              If `t` is reducible and `s` is not ==> reduce `t`
+              If `s` is reducible and `t` is not ==> reduce `s` -/
+           tReducible ← isReducible tInfo.name;
+           sReducible ← isReducible sInfo.name;
+           if tReducible && !sReducible then
+             unfold t (kernelLikeUnfolding ()) $ fun t => isDefEqL t s
+           else if !tReducible && sReducible then
+             unfold s (kernelLikeUnfolding ()) $ fun s => isDefEqL t s
+           else
+             kernelLikeUnfolding ())
 
 end Meta
 end Lean

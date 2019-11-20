@@ -2107,7 +2107,14 @@ void parser::parse_mod_doc_block() {
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 
-void parser::parse_imports(std::vector<rel_module_name> & imports) {
+
+extern "C" object* lean_normalize_module_name(object* m);
+
+name normalize_module_name(name m) {
+    return name(lean_normalize_module_name(m.to_obj_arg()));
+}
+
+void parser::parse_imports(std::vector<module_name> & imports) {
     init_scanner();
     scanner::field_notation_scope scope(m_scanner, false);
     m_last_cmd_pos = pos();
@@ -2117,43 +2124,19 @@ void parser::parse_imports(std::vector<rel_module_name> & imports) {
         prelude = true;
     }
     if (!prelude) {
-        rel_module_name m("Init");
-        imports.push_back(m);
+        imports.push_back(normalize_module_name("Init"));
     }
     while (curr_is_token(get_import_tk())) {
         m_last_cmd_pos = pos();
         next();
-        bool k_init = false;
-        unsigned k  = 0;
-        while (true) {
-            if (curr_is_token(get_period_tk()) || curr_is_token(get_dotdot_tk()) ||
-                curr_is_token(get_ellipsis_tk())) {
-                unsigned d = get_token_info().token().size();
-                if (!k_init) {
-                    k = d - 1;
-                    k_init = true;
-                } else {
-                    k = d;
-                }
-                next();
-            } else {
-                break;
-            }
-        }
         name f = get_name_val();
-        if (k_init) {
-            rel_module_name m(k, f);
-            imports.push_back(m);
-        } else {
-            rel_module_name m(f);
-            imports.push_back(m);
-        }
+        imports.push_back(normalize_module_name(f));
         next();
     }
 }
 
 void parser::process_imports() {
-    std::vector<rel_module_name> imports;
+    std::vector<module_name> imports;
     parse_imports(imports);
     // we assume the module manager has already imported the modules into `m_env`
 

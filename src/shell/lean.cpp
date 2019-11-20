@@ -361,13 +361,6 @@ optional<name> module_name_of_file(std::string const & fname) {
     return get_io_result<option_ref<name>>(lean_module_name_of_file(mk_string(fname), io_mk_world())).get();
 }
 
-extern "C" object* lean_module_name_of_rel_name(object* base_mod, object* m , object* k, object* w);
-
-name module_name_of_rel_name(optional<name> const & base_mod, name m, optional<unsigned> const & k) {
-    object * k2 = k ? mk_option_some(box(*k)) : mk_option_none();
-    return get_io_result<name>(lean_module_name_of_rel_name(option_ref<name>(base_mod).to_obj_arg(), m.to_obj_arg(), k2, io_mk_world()));
-}
-
 std::string olean_of_lean(std::string const & lean_fn) {
     if (lean_fn.size() > 5 && lean_fn.substr(lean_fn.size() - 5) == ".lean") {
         return lean_fn.substr(0, lean_fn.size() - 5) + ".olean";
@@ -557,8 +550,6 @@ int main(int argc, char ** argv) {
         std::stringstream buf;
         buf << std::cin.rdbuf();
         contents = buf.str();
-        // if we are inside a package, we still want a correct module path to resolve relative imports
-        main_module_name = module_name_of_file("./stdin.lean");
     } else {
         if (!run && argc - optind != 1) {
             std::cerr << "Expected exactly one file name\n";
@@ -580,16 +571,12 @@ int main(int argc, char ** argv) {
             scope_pos_info_provider scope_pip(pip);
             message_log l;
             scope_message_log scope_log(l);
-            std::vector<rel_module_name> rel_imports;
+            std::vector<module_name> imports;
             std::istringstream in(contents);
             parser p(env, ios, in, mod_fn);
 
             try {
-                p.parse_imports(rel_imports);
-
-                std::vector<module_name> imports;
-                for (auto const & rel : rel_imports)
-                    imports.push_back(module_name_of_rel_name(main_module_name, rel.m_name, rel.m_updirs));
+                p.parse_imports(imports);
 
                 if (only_deps) {
                     for (auto const & import : imports) {

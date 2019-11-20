@@ -123,25 +123,10 @@ do some (pkg, path) ← findAtSearchPath fname
    let modName    := parts.foldl mkNameStr pkg;
    pure modName
 
-/-- Absolutize and normalize parsed import. -/
-@[export lean_module_name_of_rel_name]
-def moduleNameOfRelName (baseMod : Option Name) (m : Name) (k : Option Nat) : IO Name := do
-  m ← match k, baseMod with
-  | none,   _            => pure m
-  | some k, none         => throw (IO.userError ("invalid use of relative import, module name of main file is not available"))
-  | some k, some baseMod => do {
-    -- split out package name so that we cannot leave package
-    let (pkg, path) := splitAtRoot baseMod;
-    -- +1 to go from main file module to surrounding directory
-    path ← (k + 1).foldM (fun _ path => match path with
-      | Name.str path _ _ => pure path
-      | Name.anonymous => throw $ IO.userError $ "invalid relative import, would leave package"
-      | Name.num _ _ _ => unreachable!) path;
-    pure $ pkg ++ path
-  };
-  -- normalize `A` to `A.Default`
-  match m with
-  | Name.str Name.anonymous pkg _ => pure $ mkNameSimple pkg ++ "Default"
-  | _                             => pure m
+-- normalize `A` to `A.Default`
+@[export lean_normalize_module_name]
+def normalizeModuleName : Name → Name
+| Name.str Name.anonymous pkg _ => mkNameSimple pkg ++ "Default"
+| m                             => m
 
 end Lean

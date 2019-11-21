@@ -610,7 +610,10 @@ private partial def processAssignmentFOApprox (mvar : Expr) (args : Array Expr) 
   trace! `Meta.isDefEq.foApprox (mvar ++ " " ++ args ++ " := " ++ v);
   condM (try $ processAssignmentFOApproxAux mvar args v)
     (pure true)
-    (unfoldDefinitionAux v (pure false) processAssignmentFOApprox)
+    (do v? ← unfoldDefinition v;
+        match v? with
+        | none   => pure false
+        | some v => processAssignmentFOApprox v)
 
 private partial def simpAssignmentArgAux : Expr → MetaM Expr
 | Expr.mdata _ e _       => simpAssignmentArgAux e
@@ -733,7 +736,11 @@ traceCtx `Meta.isDefEq.delta $
     isListLevelDefEqAux tFn.constLevels! sFn.constLevels!
 
 /-- Auxiliary method for isDefEqDelta -/
-private abbrev unfold := @unfoldDefinitionAux
+private abbrev unfold {α} (e : Expr) (failK : MetaM α) (successK : Expr → MetaM α) : MetaM α :=
+do e? ← unfoldDefinition e;
+   match e? with
+   | some e => successK e
+   | none   => failK
 
 /-- Auxiliary method for isDefEqDelta -/
 private def unfoldBothDefEq (fn : Name) (t s : Expr) : MetaM LBool :=
@@ -891,9 +898,6 @@ do tType ← inferType t;
      (do sType ← inferType s; toLBoolM $ isExprDefEqAux tType sType)
      (pure LBool.undef)
 
-private def whnfCoreAux (e : Expr) : MetaM Expr :=
-Lean.whnfCore getConstNoEx isAuxDef? whnf inferType isExprDefEqAux getLocalDecl getExprMVarAssignment e
-
 @[inline] def tryL (x : MetaM LBool) (k : MetaM Bool) : MetaM Bool :=
 do status ← x;
    match status with
@@ -904,8 +908,8 @@ do status ← x;
 @[specialize] private partial def isDefEqWHNF
     (t s : Expr)
     (k : Expr → Expr → MetaM Bool) : MetaM Bool :=
-do t' ← whnfCoreAux t;
-   s' ← whnfCoreAux s;
+do t' ← whnfCore t;
+   s' ← whnfCore s;
    if t == t' && s == s' then
      k t' s'
    else
@@ -914,7 +918,7 @@ do t' ← whnfCoreAux t;
 @[specialize] private def unstuckMVar
     (e : Expr)
     (successK : Expr → MetaM Bool) (failK : MetaM Bool): MetaM Bool :=
-do s? ← getStuckMVar getConst whnf e;
+do s? ← WHNF.getStuckMVar getConst whnf e;
    match s? with
    | some s =>
      condM (synthPending s)

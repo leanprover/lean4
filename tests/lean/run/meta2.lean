@@ -5,7 +5,7 @@ open Lean.Meta
 def dbgOpt : Options :=
 let opt : Options := {};
 let opt := opt.setBool `trace.Meta true;
--- let opt := opt.setBool `trace.Meta.check false;
+let opt := opt.setBool `trace.Meta.check false;
 opt
 
 def print (msg : MessageData) : MetaM Unit :=
@@ -24,9 +24,12 @@ do env ← importModules $ mods.map $ fun m => {module := m};
      s.traceState.traces.forM $ fun m => IO.println $ format m;
      throw (IO.userError (toString err))
 
+def nat  := mkConst `Nat
+def succ := mkConst `Nat.succ
+def add  := mkConst `Nat.add
+
 def tst1 : MetaM Unit :=
 do print "----- tst1 -----";
-   let nat := mkConst `Nat;
    mvar ← mkFreshExprMVar nat;
    check $ isExprDefEq mvar (mkNatLit 10);
    check $ isExprDefEq mvar (mkNatLit 10);
@@ -36,8 +39,6 @@ do print "----- tst1 -----";
 
 def tst2 : MetaM Unit :=
 do print "----- tst2 -----";
-   let nat  := mkConst `Nat;
-   let succ := mkConst `Nat.succ;
    mvar ← mkFreshExprMVar nat;
    check $ isExprDefEq (mkApp succ mvar) (mkApp succ (mkNatLit 10));
    check $ isExprDefEq mvar (mkNatLit 10);
@@ -47,8 +48,6 @@ do print "----- tst2 -----";
 
 def tst3 : MetaM Unit :=
 do print "----- tst3 -----";
-   let nat := mkConst `Nat;
-   let add := mkConst `Nat.add;
    let t   := mkLambda `x BinderInfo.default nat $ mkBVar 0;
    mvar ← mkFreshExprMVar (mkForall `x BinderInfo.default nat nat);
    lambdaTelescope t $ fun xs _ => do {
@@ -64,8 +63,6 @@ do print "----- tst3 -----";
 
 def tst4 : MetaM Unit :=
 do print "----- tst4 -----";
-   let nat := mkConst `Nat;
-   let add := mkConst `Nat.add;
    let t   := mkLambda `x BinderInfo.default nat $ mkBVar 0;
    lambdaTelescope t $ fun xs _ => do {
      let x := xs.get! 0;
@@ -80,3 +77,60 @@ do print "----- tst4 -----";
    pure ()
 
 #eval run [`Init.Data.Nat] tst4
+
+def mkProd (a b : Expr) : MetaM Expr :=
+do u ← getLevel a;
+   v ← getLevel b;
+   let r := mkAppN (mkConst `Prod [u.dec.getD u, v.dec.getD v]) #[a, b];
+   check r;
+   pure r
+
+def mkPair (a b : Expr) : MetaM Expr :=
+do aType ← inferType a;
+   bType ← inferType b;
+   u ← getLevel aType;
+   v ← getLevel bType;
+   let r := mkAppN (mkConst `Prod.mk [u.dec.getD u, v.dec.getD v]) #[aType, bType, a, b];
+   check r;
+   pure r
+
+def mkFst (s : Expr) : MetaM Expr :=
+do sType ← inferType s;
+   sType ← whnfUsingDefault sType;
+   unless (sType.isAppOfArity `Prod 2) $ throw $ Exception.other "product expected";
+   let lvls := sType.getAppFn.constLevels!;
+   let r := mkAppN (mkConst `Prod.fst lvls) #[sType.getArg! 0, sType.getArg! 1, s];
+   check r;
+   pure r
+
+def mkSnd (s : Expr) : MetaM Expr :=
+do sType ← inferType s;
+   sType ← whnfUsingDefault sType;
+   unless (sType.isAppOfArity `Prod 2) $ throw $ Exception.other "product expected";
+   let lvls := sType.getAppFn.constLevels!;
+   let r := mkAppN (mkConst `Prod.snd lvls) #[sType.getArg! 0, sType.getArg! 1, s];
+   check r;
+   pure r
+
+def mkId (a : Expr) : MetaM Expr :=
+do aType ← inferType a;
+   lvl   ← getLevel aType;
+   let r := mkAppN (mkConst `id [lvl]) #[aType, a];
+   check r;
+   pure r
+
+#print id
+
+def tst5 : MetaM Unit :=
+do print "----- tst5 -----";
+   p₁ ← mkPair (mkNatLit 1) (mkNatLit 2);
+   x  ← mkFst p₁;
+   x  ← mkId x;
+   print x;
+   prod ← mkProd nat nat;
+   m ← mkFreshExprMVar prod;
+   y ← mkFst m;
+   check $ isExprDefEq y x;
+   print y
+
+#eval run [`Init.Data.Nat] tst5

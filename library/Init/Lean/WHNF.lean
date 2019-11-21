@@ -8,6 +8,7 @@ import Init.Lean.Declaration
 import Init.Lean.LocalContext
 
 namespace Lean
+namespace WHNF
 /- ===========================
    Smart unfolding support
    =========================== -/
@@ -330,7 +331,7 @@ else
   if succeeded then whnfCoreUnstuck e else pure e
 
 /-- Unfold definition using "smart unfolding" if possible. -/
-@[specialize] def unfoldDefinitionAux {α} {m : Type → Type} [Monad m]
+@[specialize] def unfoldDefinitionAux {m : Type → Type} [Monad m]
     (getConst          : Name → m (Option ConstantInfo))
     (isAuxDef?         : Name → m Bool)
     (whnf              : Expr → m Expr)
@@ -339,27 +340,30 @@ else
     (synthesizePending : Expr → m Bool)
     (getLocalDecl      : Name → m LocalDecl)
     (getMVarAssignment : Name → m (Option Expr))
-    (e : Expr)
-    (failK : Unit → m α) (successK : Expr → m α) : m α :=
+    (e : Expr) : m (Option Expr) :=
 match e with
 | Expr.app f _ _ =>
-  matchConstAux getConst f.getAppFn failK $ fun fInfo fLvls =>
-    if fInfo.lparams.length != fLvls.length then failK ()
+  matchConstAux getConst f.getAppFn (fun _ => pure none) $ fun fInfo fLvls =>
+    if fInfo.lparams.length != fLvls.length then pure none
     else do
       fAuxInfo? ← getConst (mkSmartUnfoldingNameFor fInfo.name);
       match fAuxInfo? with
       | some $ fAuxInfo@(ConstantInfo.defnInfo _) =>
-        deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs failK $ fun e₁ => do
+        deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs (fun _ => pure none) $ fun e₁ => do
           e₂ ← whnfCoreUnstuck getConst isAuxDef? whnf inferType isDefEq synthesizePending getLocalDecl getMVarAssignment e₁;
           if isIdRhsApp e₂ then
-            successK $ extractIdRhs e₂
+            pure (some (extractIdRhs e₂))
           else
-            failK ()
-      | _ => if fInfo.hasValue then deltaBetaDefinition fInfo fLvls e.getAppRevArgs failK successK else failK ()
+            pure none
+      | _ =>
+        if fInfo.hasValue then
+          deltaBetaDefinition fInfo fLvls e.getAppRevArgs (fun _ => pure none) (fun e => pure (some e))
+        else
+          pure none
 | Expr.const name lvls _ => do
-  (some (cinfo@(ConstantInfo.defnInfo _))) ← getConst name | failK ();
-  deltaDefinition cinfo lvls failK successK
-| _ => failK ()
+  (some (cinfo@(ConstantInfo.defnInfo _))) ← getConst name | pure none;
+  deltaDefinition cinfo lvls (fun _ => pure none) (fun e => pure (some e))
+| _ => pure none
 
 /- Reference implementation for `whnf`. It does not cache any results.
 
@@ -381,6 +385,10 @@ match e with
     : Expr → m Expr
 | e => do
   e ← whnfCore getConst isAuxDef? whnfMain inferType isDefEq getLocalDecl getMVarAssignment e;
-  unfoldDefinitionAux getConst isAuxDef? whnfMain inferType isDefEq synthesizePending getLocalDecl getMVarAssignment e (fun _ => pure e) whnfMain
+  e? ← unfoldDefinitionAux getConst isAuxDef? whnfMain inferType isDefEq synthesizePending getLocalDecl getMVarAssignment e;
+  match e? with
+  | some e => whnfMain e
+  | none   => pure e
 
+end WHNF
 end Lean

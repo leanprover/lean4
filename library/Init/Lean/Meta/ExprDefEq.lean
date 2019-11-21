@@ -678,7 +678,8 @@ private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) 
              a type incorrect term. See discussion at A2 -/
           condM (isTypeCorrect v)
             (finalize ())
-            (useFOApprox ())
+            (do trace! `Meta.isDefEq.assignment.typeError (mvar ++ " := " ++ v);
+                useFOApprox ())
         else
           finalize ()
 

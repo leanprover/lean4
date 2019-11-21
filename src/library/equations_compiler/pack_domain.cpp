@@ -110,9 +110,9 @@ struct sigma_packer_fn {
 
         virtual expr visit_fvar(expr const & e) override {
             auto fnidx = get_fn_idx(e);
-            if (!fnidx) return replace_visitor_with_tc::visit_local(e);
+            if (!fnidx) return replace_visitor_with_tc::visit_fvar(e);
             expr new_fn = m_ues.get_fn(*fnidx);
-            if (e == new_fn) return replace_visitor_with_tc::visit_local(e);
+            if (e == new_fn) return replace_visitor_with_tc::visit_fvar(e);
             unsigned arity = m_ues.get_arity_of(*fnidx);
             if (0 < arity) {
                 expr new_e = m_ctx.eta_expand(e);

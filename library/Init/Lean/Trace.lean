@@ -15,7 +15,7 @@ class MonadTracer (m : Type → Type u) :=
 
 class MonadTracerAdapter (m : Type → Type) :=
 (isTracingEnabledFor {} : Name → m Bool)
-(enableTracing {} : Bool → m Unit)
+(enableTracing {} : Bool → m Bool)
 (getTraces {} : m (Array MessageData))
 (modifyTraces {} : (Array MessageData → Array MessageData) → m Unit)
 
@@ -44,7 +44,7 @@ whenM (isTracingEnabledFor cls) (addTrace cls (msg ()))
 
 @[inline] def traceCtx (cls : Name) (ctx : m α) : m α :=
 do b ← isTracingEnabledFor cls;
-   if !b then do enableTracing true; a ← ctx; enableTracing false; pure a
+   if !b then do old ← enableTracing false; a ← ctx; enableTracing old; pure a
    else do
      oldCurrTraces ← getResetTraces;
      a ← ctx;
@@ -62,10 +62,10 @@ variables {α : Type}
 @[inline] protected def traceCtxExcept (cls : Name) (ctx : m α) : m α :=
 do b ← isTracingEnabledFor cls;
    if !b then do
-     enableTracing true;
+     old ← enableTracing false;
      catch
-       (do a ← ctx; enableTracing false; pure a)
-       (fun e => do enableTracing false; throw e)
+       (do a ← ctx; enableTracing old; pure a)
+       (fun e => do enableTracing old; throw e)
    else do
      oldCurrTraces ← getResetTraces;
      catch
@@ -119,8 +119,11 @@ do s ← getTraceState;
    if !s.enabled then pure false
    else checkTraceOption (`trace ++ cls)
 
-@[inline] def enableTracing (b : Bool) : m Unit :=
-modifyTraceState $ fun s => { enabled := b, .. s }
+@[inline] def enableTracing (b : Bool) : m Bool :=
+do s ← getTraceState;
+   let oldEnabled := s.enabled;
+   modifyTraceState $ fun s => { enabled := b, .. s };
+   pure oldEnabled
 
 @[inline] def getTraces : m (Array MessageData) :=
 do s ← getTraceState; pure s.traces

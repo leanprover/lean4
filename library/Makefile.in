@@ -36,11 +36,6 @@ depends: $(DEPS)
 # make sure the .olean file is newer than the .depend file to prevent infinite make cycles
 	@touch $*.olean
 
-clean:
-	find . -name *.olean -delete
-	find . -name *.depend -delete
-	-rm -r "$(STAGE1_DIR)" "$(STAGE1_OUT)"
-
 $(STAGE1_DIR)/%.c: %.olean
 	@
 

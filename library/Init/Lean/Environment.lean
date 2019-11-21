@@ -26,12 +26,19 @@ instance ModuleIdx.inhabited : Inhabited ModuleIdx := inferInstanceAs (Inhabited
 
 abbrev ConstMap := SMap Name ConstantInfo
 
+structure Import :=
+(module      : Name)
+(runtimeOnly : Bool := false)
+
+instance : HasToString Import :=
+⟨fun imp => toString imp.module ++ if imp.runtimeOnly then " (runtime)" else ""⟩
+
 /- Environment fields that are not used often. -/
 structure EnvironmentHeader :=
-(trustLevel   : UInt32     := 0)
-(quotInit     : Bool       := false)
-(mainModule   : Name       := arbitrary _)
-(imports      : Array Name := #[])
+(trustLevel   : UInt32       := 0)
+(quotInit     : Bool         := false)
+(mainModule   : Name         := arbitrary _)
+(imports      : Array Import := #[])
 
 /- TODO: mark opaque. -/
 structure Environment :=
@@ -56,7 +63,7 @@ env.constants.find' n
 def contains (env : Environment) (n : Name) : Bool :=
 env.constants.contains n
 
-def imports (env : Environment) : Array Name :=
+def imports (env : Environment) : Array Import :=
 env.header.imports
 
 @[export lean_environment_set_main_module]
@@ -413,7 +420,7 @@ constant performModifications : Environment → ByteArray → IO Environment := 
 /- Content of a .olean file.
    We use `compact.cpp` to generate the image of this object in disk. -/
 structure ModuleData :=
-(imports    : Array Name)
+(imports    : Array Import)
 (constants  : Array ConstantInfo)
 (entries    : Array (Name × Array EnvExtensionEntry))
 (serialized : ByteArray) -- Legacy support: serialized modification objects
@@ -447,18 +454,18 @@ do pExts ← persistentEnvExtensionsRef.get;
 def writeModule (env : Environment) (fname : String) : IO Unit :=
 do modData ← mkModuleData env; saveModuleData fname modData
 
-partial def importModulesAux : List Name → (NameSet × Array ModuleData) → IO (NameSet × Array ModuleData)
+partial def importModulesAux : List Import → (NameSet × Array ModuleData) → IO (NameSet × Array ModuleData)
 | [],    r         => pure r
-| m::ms, (s, mods) =>
-  if s.contains m then
-    importModulesAux ms (s, mods)
+| i::is, (s, mods) =>
+  if i.runtimeOnly || s.contains i.module then
+    importModulesAux is (s, mods)
   else do
-    let s := s.insert m;
-    mFile ← findOLean m;
+    let s := s.insert i.module;
+    mFile ← findOLean i.module;
     mod ← readModuleData mFile;
     (s, mods) ← importModulesAux mod.imports.toList (s, mods);
     let mods := mods.push mod;
-    importModulesAux ms (s, mods)
+    importModulesAux is (s, mods)
 
 private partial def getEntriesFor (mod : ModuleData) (extId : Name) : Nat → Array EnvExtensionState
 | i =>
@@ -483,8 +490,6 @@ do pExtDescrs ← persistentEnvExtensionsRef.get;
      let s := extDescr.toEnvExtension.getState env;
      newState ← extDescr.addImportedFn s.importedEntries;
      pure $ extDescr.toEnvExtension.setState env { state := newState, .. s }
-
-abbrev Import := Name
 
 @[export lean_import_modules]
 def importModules (imports : List Import) (trustLevel : UInt32 := 0) : IO Environment :=

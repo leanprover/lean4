@@ -337,12 +337,13 @@ def processCommands : Frontend Unit :=
 processCommandsAux ()
 
 def headerToImports (header : Syntax) : List Import :=
-let header     := header.asNode;
-let imports    := if (header.getArg 0).isNone then [`Init.Default] else [];
+let header  := header.asNode;
+let imports := if (header.getArg 0).isNone then [{Import . module := `Init.Default}] else [];
 imports ++ (header.getArg 1).getArgs.toList.map (fun stx =>
-  -- `stx` is of the form `(Module.import "import" id)
-  let id  := stx.getIdAt 1;
-  normalizeModuleName id)
+  -- `stx` is of the form `(Module.import "import" "runtime"? id)
+  let runtime := !(stx.getArg 1).isNone;
+  let id      := stx.getIdAt 2;
+  { module := normalizeModuleName id, runtimeOnly := runtime })
 
 def processHeader (header : Syntax) (messages : MessageLog) (ctx : Parser.ParserContextCore) (trustLevel : UInt32 := 0) : IO (Environment × MessageLog) :=
 catch
@@ -364,8 +365,10 @@ do env ← mkEmptyEnvironment;
      pure (headerToImports header, ctx.fileMap.toPosition parserState.pos, messages)
 
 @[export lean_print_deps]
-def printDeps (deps : Array Import) : IO Unit :=
-deps.forM (findOLean >=> IO.println)
+def printDeps (deps : List Import) : IO Unit :=
+deps.forM $ fun dep => do
+  fname ← findOLean dep.module;
+  IO.println fname
 
 def testFrontend (input : String) (fileName : Option String := none) : IO (Environment × MessageLog) :=
 do env ← mkEmptyEnvironment;

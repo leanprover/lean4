@@ -65,7 +65,17 @@ instance coeOfFormat    : HasCoe Format MessageData := ⟨ofFormat⟩
 instance coeOfLevel     : HasCoe Level MessageData := ⟨ofLevel⟩
 instance coeOfExpr      : HasCoe Expr MessageData := ⟨ofExpr⟩
 instance coeOfName      : HasCoe Name MessageData := ⟨ofName⟩
-instance coeOfArrayExpr : HasCoe (Array Expr) MessageData := ⟨fun es => node $ es.map $ fun e => ofExpr e⟩
+
+partial def arrayExpr.toMessageData (es : Array Expr) : Nat → MessageData → MessageData
+| i, acc =>
+  if h : i < es.size then
+    let e   := es.get ⟨i, h⟩;
+    let acc := if i == 0 then acc ++ ofExpr e else acc ++ ", " ++ ofExpr e;
+    arrayExpr.toMessageData (i+1) acc
+  else
+    acc ++ "]"
+
+instance coeOfArrayExpr : HasCoe (Array Expr) MessageData := ⟨fun es => arrayExpr.toMessageData es 0 "#["⟩
 
 end MessageData
 

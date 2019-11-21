@@ -63,6 +63,7 @@ abbrev LocalInstances := Array LocalInstance
 
 structure Config :=
 (opts               : Options := {})
+-- TODO: merge all *Approx flags.
 (foApprox           : Bool    := false)
 (ctxApprox          : Bool    := false)
 (quasiPatternApprox : Bool    := false)
@@ -602,6 +603,11 @@ do mvarId ← mkFreshId;
 
 def whnfUsingDefault : Expr → MetaM Expr :=
 fun e => usingTransparency TransparencyMode.default $ whnf e
+
+/-- Execute `x` using approximate unification. -/
+@[inline] def approxDefEq {α} (x : MetaM α) : MetaM α :=
+adaptReader (fun (ctx : Context) => { config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true, .. ctx.config }, .. ctx })
+  x
 
 end Meta
 end Lean

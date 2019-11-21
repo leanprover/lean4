@@ -605,7 +605,8 @@ else
    def ITactic := Tactic Unit
 -/
 private partial def processAssignmentFOApprox (mvar : Expr) (args : Array Expr) : Expr → MetaM Bool
-| v =>
+| v => do
+  trace! `Meta.isDefEq.foApprox (mvar ++ " " ++ args ++ " := " ++ v);
   condM (try $ processAssignmentFOApproxAux mvar args v)
     (pure true)
     (unfoldDefinitionAux v (pure false) processAssignmentFOApprox)

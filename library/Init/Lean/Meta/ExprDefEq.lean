@@ -811,8 +811,8 @@ do decl ← getLocalDecl fvarId;
 private partial def isDefEqQuick : Expr → Expr → MetaM LBool
 | Expr.lit  l₁ _,           Expr.lit l₂ _            => pure (l₁ == l₂).toLBool
 | Expr.sort u _,            Expr.sort v _            => toLBoolM $ isLevelDefEqAux u v
-| t@(Expr.lam _ _ _ _),     s@(Expr.lam _ _ _ _)     => toLBoolM $ isDefEqBinding t s
-| t@(Expr.forallE _ _ _ _), s@(Expr.forallE _ _ _ _) => toLBoolM $ isDefEqBinding t s
+| t@(Expr.lam _ _ _ _),     s@(Expr.lam _ _ _ _)     => if t == s then pure LBool.true else toLBoolM $ isDefEqBinding t s
+| t@(Expr.forallE _ _ _ _), s@(Expr.forallE _ _ _ _) => if t == s then pure LBool.true else toLBoolM $ isDefEqBinding t s
 | Expr.mdata _ t _,         s                        => isDefEqQuick t s
 | t,                        Expr.mdata _ s _         => isDefEqQuick t s
 | Expr.fvar fvarId₁ _,      Expr.fvar fvarId₂ _      =>

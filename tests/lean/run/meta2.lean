@@ -6,7 +6,6 @@ def dbgOpt : Options :=
 let opt : Options := {};
 let opt := opt.setBool `trace.Meta.debug true;
 let opt := opt.setBool `trace.Meta.isDefEq true;
-let opt := opt.setBool `trace.Meta.isDefEq true;
 opt
 
 def print (msg : MessageData) : MetaM Unit :=
@@ -40,3 +39,20 @@ do print "----- tst2 -----";
    pure ()
 
 #eval run [`Init.Data.Nat] tst2
+
+def tst3 : MetaM Unit :=
+do print "----- tst3 -----";
+   let nat := mkConst `Nat;
+   let add := mkConst `Nat.add;
+   let t   := mkLambda `x BinderInfo.default nat $ mkBVar 0;
+   mvar ← mkFreshExprMVar (mkForall `x BinderInfo.default nat nat);
+   lambdaTelescope t $ fun xs _ => do {
+     let x := xs.get! 0;
+     isExprDefEq (mkApp mvar x) (mkAppN add #[x, mkAppN add #[mkNatLit 10, x]]);
+     pure ()
+   };
+   some v ← getExprMVarAssignment mvar.mvarId! | pure ();
+   print v;
+   pure ()
+
+#eval run [`Init.Data.Nat] tst3

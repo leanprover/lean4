@@ -29,10 +29,9 @@ private def mkMaxArgsDiff (mvarId : Name) : Level → Level → Level
 /--
   Solve `?m =?= max ?m v` by creating a fresh metavariable `?n`
   and assigning `?m := max ?n v` -/
-private def solveSelfMax (mvarId : Name) (v : Level) : MetaM Unit :=
-do mvarId ← mkFreshLevelMVarId;
-   let lhs := mkMaxArgsDiff mvarId v (mkLevelMVar mvarId);
-   assignLevelMVar mvarId lhs
+private def solveSelfMax (mId : Name) (v : Level) : MetaM Unit :=
+do n ← mkFreshLevelMVar;
+   assignLevelMVar mId $ mkMaxArgsDiff mId v n
 
 private def postponeIsLevelDefEq (lhs : Level) (rhs : Level) : MetaM Unit :=
 modify $ fun s => { postponed := s.postponed.push { lhs := lhs, rhs := rhs }, .. s }

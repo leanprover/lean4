@@ -198,6 +198,26 @@ def synthPending (e : Expr) : MetaM Bool :=
 do env ← getEnv;
    (metaExt.getState env).synthPending e
 
+def mkFreshId : MetaM Name :=
+do s ← get;
+   let id := s.ngen.curr;
+   modify $ fun s => { ngen := s.ngen.next, .. s };
+   pure id
+
+def mkFreshExprMVarAt (lctx : LocalContext) (type : Expr) (userName : Name := Name.anonymous) (synthetic : Bool := false) : MetaM Expr :=
+do mvarId ← mkFreshId;
+   modify $ fun s => { mctx := s.mctx.addExprMVarDecl mvarId userName lctx type synthetic, .. s };
+   pure $ mkMVar mvarId
+
+def mkFreshExprMVar (type : Expr) (userName : Name := Name.anonymous) (synthetic : Bool := false) : MetaM Expr :=
+do lctx ← getLCtx;
+   mkFreshExprMVarAt lctx type userName synthetic
+
+def mkFreshLevelMVar : MetaM Level :=
+do mvarId ← mkFreshId;
+   modify $ fun s => { mctx := s.mctx.addLevelMVarDecl mvarId, .. s};
+   pure $ mkLevelMVar mvarId
+
 @[inline] def throwEx {α} (f : ExceptionContext → Exception) : MetaM α :=
 do ctx ← read;
    s ← get;
@@ -210,12 +230,6 @@ throwEx $ Exception.bug b
 @[inline] private def whenDebugging {α} (x : MetaM α) : MetaM Unit :=
 do ctx ← read;
    when ctx.config.debug (do x; pure ())
-
-def mkFreshId : MetaM Name :=
-do s ← get;
-   let id := s.ngen.curr;
-   modify $ fun s => { ngen := s.ngen.next, .. s };
-   pure id
 
 @[inline] def reduceAll? : MetaM Bool :=
 do ctx ← read; pure $ ctx.config.transparency == TransparencyMode.all

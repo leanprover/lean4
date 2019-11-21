@@ -142,6 +142,62 @@ do s ← get; pure s.mctx
 @[inline] def getEnv : MetaM Environment :=
 do s ← get; pure s.env
 
+def mkWHNFRef : IO (IO.Ref (Expr → MetaM Expr)) :=
+IO.mkRef $ fun _ => throw $ Exception.other "whnf implementation was not set"
+
+@[init mkWHNFRef] def whnfRef : IO.Ref (Expr → MetaM Expr) := arbitrary _
+
+def mkInferTypeRef : IO (IO.Ref (Expr → MetaM Expr)) :=
+IO.mkRef $ fun _ => throw $ Exception.other "inferType implementation was not set"
+
+@[init mkInferTypeRef] def inferTypeRef : IO.Ref (Expr → MetaM Expr) := arbitrary _
+
+def mkIsExprDefEqAuxRef : IO (IO.Ref (Expr → Expr → MetaM Bool)) :=
+IO.mkRef $ fun _ _ => throw $ Exception.other "isDefEq implementation was not set"
+
+@[init mkIsExprDefEqAuxRef] def isExprDefEqAuxRef : IO.Ref (Expr → Expr → MetaM Bool) := arbitrary _
+
+def mkSynthPendingRef : IO (IO.Ref (Expr → MetaM Bool)) :=
+IO.mkRef $ fun _ => pure false
+
+@[init mkSynthPendingRef] def synthPendingRef : IO.Ref (Expr → MetaM Bool) := arbitrary _
+
+structure MetaExtState :=
+(whnf         : Expr → MetaM Expr)
+(inferType    : Expr → MetaM Expr)
+(isDefEqAux   : Expr → Expr → MetaM Bool)
+(synthPending : Expr → MetaM Bool)
+
+instance MetaExtState.inhabited : Inhabited MetaExtState :=
+⟨{ whnf := arbitrary _, inferType := arbitrary _, isDefEqAux := arbitrary _, synthPending := arbitrary _ }⟩
+
+def mkMetaExtension : IO (EnvExtension MetaExtState) :=
+registerEnvExtension $ do
+  whnf         ← whnfRef.get;
+  inferType    ← inferTypeRef.get;
+  isDefEqAux   ← isExprDefEqAuxRef.get;
+  synthPending ← synthPendingRef.get;
+  pure { whnf := whnf, inferType := inferType, isDefEqAux := isDefEqAux, synthPending := synthPending }
+
+@[init mkMetaExtension]
+constant metaExt : EnvExtension MetaExtState := arbitrary _
+
+def whnf (e : Expr) : MetaM Expr :=
+do env ← getEnv;
+   (metaExt.getState env).whnf e
+
+def inferType (e : Expr) : MetaM Expr :=
+do env ← getEnv;
+   (metaExt.getState env).inferType e
+
+def isExprDefEqAux (t s : Expr) : MetaM Bool :=
+do env ← getEnv;
+   (metaExt.getState env).isDefEqAux t s
+
+def synthPending (e : Expr) : MetaM Bool :=
+do env ← getEnv;
+   (metaExt.getState env).synthPending e
+
 @[inline] def throwEx {α} (f : ExceptionContext → Exception) : MetaM α :=
 do ctx ← read;
    s ← get;
@@ -401,7 +457,6 @@ resettingTypeClassCache $
   when `fvars.size == max`
 -/
 @[specialize] private partial def forallTelescopeReducingAuxAux {α}
-    (whnf             : Expr → MetaM Expr)
     (isClassExpensive : Expr → MetaM (Option Name))
     (reducing?        : Bool) (maxFVars? : Option Nat)
     (k                : Array Expr → Expr → MetaM α)
@@ -438,22 +493,19 @@ resettingTypeClassCache $
 /- We need this auxiliary definition because it depends on `isClassExpensive`,
    and `isClassExpensive` depends on it. -/
 @[specialize] private def forallTelescopeReducingAux {α}
-    (whnf             : Expr → MetaM Expr)
     (isClassExpensive : Expr → MetaM (Option Name))
     (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α :=
 do newType ← whnf type;
    if newType.isForall then
      savingCache $ do
        lctx ← getLCtx;
-       forallTelescopeReducingAuxAux whnf isClassExpensive true maxFVars? k lctx #[] 0 newType
+       forallTelescopeReducingAuxAux isClassExpensive true maxFVars? k lctx #[] 0 newType
    else
      k #[] type
 
-@[specialize] partial def isClassExpensive
-    (whnf : Expr → MetaM Expr)
-    : Expr → MetaM (Option Name)
+partial def isClassExpensive : Expr → MetaM (Option Name)
 | type => usingTransparency TransparencyMode.reducible $ -- when testing whether a type is a type class, we only unfold reducible constants.
-  forallTelescopeReducingAux whnf isClassExpensive type none $ fun xs type => do
+  forallTelescopeReducingAux isClassExpensive type none $ fun xs type => do
     match type.getAppFn with
     | Expr.const c _ _ => do
       env ← getEnv;
@@ -464,42 +516,33 @@ do newType ← whnf type;
   Given `type` of the form `forall xs, A`, execute `k xs A`.
   This combinator will declare local declarations, create free variables for them,
   execute `k` with updated local context, and make sure the cache is restored after executing `k`. -/
-@[inline] def forallTelescope {α}
-    (whnf : Expr → MetaM Expr)
-    (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+@[inline] def forallTelescope {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
 savingCache $ do
   lctx ← getLCtx;
-  forallTelescopeReducingAuxAux whnf (isClassExpensive whnf) false none k lctx #[] 0 type
+  forallTelescopeReducingAuxAux isClassExpensive false none k lctx #[] 0 type
 
 /--
   Similar to `forallTelescope`, but given `type` of the form `forall xs, A`,
   it reduces `A` and continues bulding the telescope if it is a `forall`. -/
-@[specialize] def forallTelescopeReducing {α}
-    (whnf : Expr → MetaM Expr)
-    (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
-forallTelescopeReducingAux whnf (isClassExpensive whnf) type none k
+@[inline] def forallTelescopeReducing {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+forallTelescopeReducingAux isClassExpensive type none k
 
 /--
   Similar to `forallTelescopeReducing`, stops constructing the telescope when
   it reaches size `maxFVars`. -/
-@[specialize] def forallBoundedTelescope {α}
-    (whnf : Expr → MetaM Expr)
-    (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α :=
-forallTelescopeReducingAux whnf (isClassExpensive whnf) type maxFVars? k
+@[inline] def forallBoundedTelescope {α} (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+forallTelescopeReducingAux isClassExpensive type maxFVars? k
 
-@[specialize] def isClass
-    (whnf : Expr → MetaM Expr)
-    (type : Expr) : MetaM (Option Name) :=
+def isClass (type : Expr) : MetaM (Option Name) :=
 do c? ← isClassQuick type;
    match c? with
    | LOption.none   => pure none
    | LOption.some c => pure (some c)
-   | LOption.undef  => isClassExpensive whnf type
+   | LOption.undef  => isClassExpensive type
 
 /-- Similar to `forallTelescopeAuxAux` but for lambda and let expressions. -/
 @[specialize] private partial def lambdaTelescopeAux {α}
-    (whnf             : Expr → MetaM Expr)
-    (k                : Array Expr → Expr → MetaM α)
+    (k : Array Expr → Expr → MetaM α)
     : LocalContext → Array Expr → Nat → Expr → MetaM α
 | lctx, fvars, j, Expr.lam n d b c => do
   let d := d.instantiateRevRange j fvars.size fvars;
@@ -517,16 +560,15 @@ do c? ← isClassQuick type;
 | lctx, fvars, j, e =>
   let e := e.instantiateRevRange j fvars.size fvars;
   adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
-    withNewLocalInstances (isClassExpensive whnf) fvars j $ do
+    withNewLocalInstances isClassExpensive fvars j $ do
       k fvars e
 
 /-- Similar to `forallTelescope` but for lambda and let expressions. -/
 @[specialize] def lambdaTelescope {α}
-    (whnf             : Expr → MetaM Expr)
     (e : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
 savingCache $ do
   lctx ← getLCtx;
-  lambdaTelescopeAux whnf k lctx #[] 0 e
+  lambdaTelescopeAux k lctx #[] 0 e
 
 @[inline] def liftStateMCtx {α} (x : StateM MetavarContext α) : MetaM α :=
 fun _ s =>
@@ -544,7 +586,7 @@ do mvarId ← mkFreshId;
    modify $ fun s => { mctx := s.mctx.addLevelMVarDecl mvarId, .. s };
    pure mvarId
 
-@[inline] def usingDefault (whnf : Expr → MetaM Expr) : Expr → MetaM Expr :=
+def whnfUsingDefault : Expr → MetaM Expr :=
 fun e => usingTransparency TransparencyMode.default $ whnf e
 
 end Meta

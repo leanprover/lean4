@@ -20,10 +20,10 @@ do s ← get;
      modify $ fun s => { cache := { funInfo := s.cache.funInfo.insert ⟨t, fn, maxArgs?⟩ finfo, .. s.cache }, .. s };
      pure finfo
 
-@[inline] def whenHasVar {α} (e : Expr) (deps : α) (k : α → α) : α :=
+@[inline] private def whenHasVar {α} (e : Expr) (deps : α) (k : α → α) : α :=
 if e.hasFVar then k deps else deps
 
-def collectDepsAux (fvars : Array Expr) : Expr → Array Nat → Array Nat
+private def collectDepsAux (fvars : Array Expr) : Expr → Array Nat → Array Nat
 | e@(Expr.app f a _),       deps => whenHasVar e deps (collectDepsAux a ∘ collectDepsAux f)
 | e@(Expr.forallE _ d b _), deps => whenHasVar e deps (collectDepsAux b ∘ collectDepsAux d)
 | e@(Expr.lam _ d b _),     deps => whenHasVar e deps (collectDepsAux b ∘ collectDepsAux d)
@@ -36,7 +36,7 @@ def collectDepsAux (fvars : Array Expr) : Expr → Array Nat → Array Nat
   | some i => if deps.contains i.val then deps else deps.push i.val
 | _,                        deps => deps
 
-def collectDeps (fvars : Array Expr) (e : Expr) : Array Nat :=
+private def collectDeps (fvars : Array Expr) (e : Expr) : Array Nat :=
 let deps := collectDepsAux fvars e #[];
 deps.qsort (fun i j => i < j)
 
@@ -53,38 +53,33 @@ else
     else
       info
 
-@[specialize] def getFunInfoAuxAux
-    (whnf      : Expr → MetaM Expr)
-    (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
+private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
 checkFunInfoCache fn maxArgs? $ do
-  fnType ← inferTypeAux whnf fn;
-  forallBoundedTelescope (usingDefault whnf) fnType maxArgs? $ fun fvars type => do
-    pinfo ← fvars.size.foldM
-      (fun (i : Nat) (pinfo : Array ParamInfo) => do
-        let fvar := fvars.get! i;
-        decl ← getFVarLocalDecl fvar;
-        prop ← isPropAux whnf decl.type;
-        let backDeps := collectDeps fvars decl.type;
-        let pinfo    := updateHasFwdDeps pinfo backDeps;
-        pure $ pinfo.push {
-          backDeps     := backDeps,
-          prop         := prop,
-          implicit     := decl.binderInfo == BinderInfo.implicit,
-          instImplicit := decl.binderInfo == BinderInfo.instImplicit })
-      #[];
-    let resultDeps := collectDeps fvars type;
-    let pinfo      := updateHasFwdDeps pinfo resultDeps;
-    pure { resultDeps := resultDeps, paramInfo := pinfo }
+  fnType ← inferType fn;
+  usingTransparency TransparencyMode.default $
+    forallBoundedTelescope fnType maxArgs? $ fun fvars type => do
+      pinfo ← fvars.size.foldM
+        (fun (i : Nat) (pinfo : Array ParamInfo) => do
+          let fvar := fvars.get! i;
+          decl ← getFVarLocalDecl fvar;
+          prop ← isProp decl.type;
+          let backDeps := collectDeps fvars decl.type;
+          let pinfo    := updateHasFwdDeps pinfo backDeps;
+          pure $ pinfo.push {
+            backDeps     := backDeps,
+            prop         := prop,
+            implicit     := decl.binderInfo == BinderInfo.implicit,
+            instImplicit := decl.binderInfo == BinderInfo.instImplicit })
+        #[];
+      let resultDeps := collectDeps fvars type;
+      let pinfo      := updateHasFwdDeps pinfo resultDeps;
+      pure { resultDeps := resultDeps, paramInfo := pinfo }
 
-@[inline] def getFunInfoAux
-    (whnf      : Expr → MetaM Expr)
-    (fn : Expr) : MetaM FunInfo :=
-getFunInfoAuxAux whnf fn none
+def getFunInfo (fn : Expr) : MetaM FunInfo :=
+getFunInfoAux fn none
 
-@[inline] def getFunInfoNArgsAux
-    (whnf      : Expr → MetaM Expr)
-    (fn : Expr) (nargs : Nat) : MetaM FunInfo :=
-getFunInfoAuxAux whnf fn (some nargs)
+def getFunInfoNArgs (fn : Expr) (nargs : Nat) : MetaM FunInfo :=
+getFunInfoAux fn (some nargs)
 
 end Meta
 end Lean

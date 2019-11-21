@@ -89,12 +89,8 @@ private partial def isOffset : Expr → Option (Expr × Nat)
   | _ => none
 | _ => none
 
-@[specialize] def isDefEqOffset
-    (whnf    : Expr → MetaM Expr)
-    (isDefEq : Expr → Expr → MetaM Bool)
-    (s t : Expr)
-    (k : MetaM Bool) -- continuation when `isDefEqOffset` could not decide
-    : MetaM Bool :=
+def isDefEqOffset (s t : Expr) : MetaM LBool :=
+let isDefEq (s t) : MetaM LBool := toLBoolM $ isExprDefEqAux s t;
 match isOffset s with
 | some (s, k₁) => match isOffset t with
   | some (t, k₂) => -- s+k₁ =?= t+k₂
@@ -103,16 +99,16 @@ match isOffset s with
     else isDefEq (mkCAppB `Nat.add s (mkNatLit $ k₁ - k₂)) t
   | none => match evalNat t  with
     | some v₂ => -- s+k₁ =?= v₂
-      if v₂ ≥ k₁ then isDefEq s (mkNatLit $ v₂ - k₁) else pure false
-    | none    => k
+      if v₂ ≥ k₁ then isDefEq s (mkNatLit $ v₂ - k₁) else pure LBool.false
+    | none    => pure LBool.undef
 | none => match evalNat s with
   | some v₁ => match isOffset t with
     | some (t, k₂) => -- v₁ =?= t+k₂
-      if v₁ ≥ k₂ then isDefEq s (mkNatLit $ v₁ - k₂) else pure false
+      if v₁ ≥ k₂ then isDefEq s (mkNatLit $ v₁ - k₂) else pure LBool.false
     | none => match evalNat t with
-      | some v₂ => pure (v₁ == v₂) -- v₁ =?= v₂
-      | none    => k
-  | none    => k
+      | some v₂ => pure (v₁ == v₂).toLBool -- v₁ =?= v₂
+      | none    => pure LBool.false
+  | none    => pure LBool.false
 
 end Meta
 end Lean

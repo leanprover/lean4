@@ -169,5 +169,8 @@ do s ← get;
 def isLevelDefEq (u v : Level) : MetaM Bool :=
 try $ isLevelDefEqAux u v
 
+def isExprDefEq (e₁ e₂ : Expr) : MetaM Bool :=
+try $ isExprDefEqAux e₁ e₂
+
 end Meta
 end Lean

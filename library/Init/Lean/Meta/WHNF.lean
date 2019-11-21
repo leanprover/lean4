@@ -7,6 +7,7 @@ prelude
 import Init.Lean.AuxRecursor
 import Init.Lean.WHNF
 import Init.Lean.Meta.Basic
+import Init.Lean.Meta.LevelDefEq
 
 namespace Lean
 namespace Meta
@@ -15,23 +16,18 @@ def isAuxDef? (constName : Name) : MetaM Bool :=
 do env ← getEnv; pure (isAuxRecursor env constName || isNoConfusion env constName)
 
 @[specialize] def unfoldDefinitionAux {α}
-    (whnf              : Expr → MetaM Expr)
-    (inferType         : Expr → MetaM Expr)
-    (isDefEq           : Expr → Expr → MetaM Bool)
-    (synthesizePending : Expr → MetaM Bool)
-    (e : Expr)
-    (failK : MetaM α) (successK : Expr → MetaM α) : MetaM α :=
-Lean.unfoldDefinitionAux getConstNoEx isAuxDef? whnf inferType isDefEq synthesizePending getLocalDecl
+    (e : Expr) (failK : MetaM α) (successK : Expr → MetaM α) : MetaM α :=
+Lean.unfoldDefinitionAux getConstNoEx isAuxDef? whnf inferType isExprDefEq synthPending getLocalDecl
   getExprMVarAssignment e (fun _ => failK) successK
 
-@[specialize] partial def whnfAux
-    (inferType         : Expr → MetaM Expr)
-    (isDefEq           : Expr → Expr → MetaM Bool)
-    (synthesizePending : Expr → MetaM Bool)
-    : Expr → MetaM Expr
+partial def whnfImpl : Expr → MetaM Expr
 | e => whnfEasyCases getLocalDecl getExprMVarAssignment e $ fun e => do
-  e ← whnfCore getConstNoEx isAuxDef? whnfAux inferType isDefEq getLocalDecl getExprMVarAssignment e;
-  unfoldDefinitionAux whnfAux inferType isDefEq synthesizePending e (pure e) whnfAux
+  e ← whnfCore getConstNoEx isAuxDef? whnfImpl inferType isExprDefEqAux getLocalDecl getExprMVarAssignment e;
+  Lean.unfoldDefinitionAux getConstNoEx isAuxDef? whnf inferType isExprDefEq synthPending getLocalDecl
+    getExprMVarAssignment e (fun _ => pure e) whnfImpl
+
+@[init] def setWHNFRef : IO Unit :=
+whnfRef.set whnfImpl
 
 end Meta
 end Lean

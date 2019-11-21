@@ -48,8 +48,8 @@ partial def formatAux : Option (Environment × MetavarContext × LocalContext) �
 | _, ofSyntax s                    => s.formatStx
 | _, ofLevel u                     => fmt u
 | _, ofName n                      => fmt n
-| none, ofExpr e                   => "<expr>"
-| some (env, mctx, lctx), ofExpr e => "<expr>" -- TODO: invoke pretty printer
+| none, ofExpr e                   => format (toString e)
+| some (env, mctx, lctx), ofExpr e => format (toString e) -- TODO: invoke pretty printer
 | _, context env mctx lctx d       => formatAux (some (env, mctx, lctx)) d
 | ctx, tagged cls d                => Format.sbracket (format cls) ++ " " ++ formatAux ctx d
 | ctx, nest n d                    => Format.nest n (formatAux ctx d)

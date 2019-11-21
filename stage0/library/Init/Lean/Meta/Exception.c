@@ -35,6 +35,7 @@ extern lean_object* l_List_repr___rarg___closed__2;
 extern lean_object* l_List_reprAux___main___rarg___closed__1;
 lean_object* l_Lean_Meta_Exception_toStr___closed__11;
 extern lean_object* l_Lean_Options_empty;
+lean_object* l_Lean_Meta_Exception_toStr___closed__16;
 lean_object* l_Lean_Meta_Exception_toStr___closed__7;
 lean_object* l_List_toStringAux___main___at_Lean_Meta_Exception_toStr___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Exception_toStr___closed__10;
@@ -54,7 +55,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_String_splitAux___main___closed__1;
-x_2 = lean_alloc_ctor(14, 1, 0);
+x_2 = lean_alloc_ctor(15, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -249,7 +250,7 @@ lean_object* _init_l_Lean_Meta_Exception_toStr___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("type mismatch at let-expression");
+x_1 = lean_mk_string("isDefEq is stuck");
 return x_1;
 }
 }
@@ -257,11 +258,19 @@ lean_object* _init_l_Lean_Meta_Exception_toStr___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("application type mismatch");
+x_1 = lean_mk_string("type mismatch at let-expression");
 return x_1;
 }
 }
 lean_object* _init_l_Lean_Meta_Exception_toStr___closed__15() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("application type mismatch");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_Meta_Exception_toStr___closed__16() {
 _start:
 {
 lean_object* x_1; 
@@ -421,13 +430,20 @@ lean_dec(x_1);
 x_51 = l_Lean_Meta_Exception_toStr___closed__15;
 return x_51;
 }
-default: 
+case 14:
 {
 lean_object* x_52; 
-x_52 = lean_ctor_get(x_1, 0);
-lean_inc(x_52);
 lean_dec(x_1);
+x_52 = l_Lean_Meta_Exception_toStr___closed__16;
 return x_52;
+}
+default: 
+{
+lean_object* x_53; 
+x_53 = lean_ctor_get(x_1, 0);
+lean_inc(x_53);
+lean_dec(x_1);
+return x_53;
 }
 }
 }
@@ -505,6 +521,8 @@ l_Lean_Meta_Exception_toStr___closed__14 = _init_l_Lean_Meta_Exception_toStr___c
 lean_mark_persistent(l_Lean_Meta_Exception_toStr___closed__14);
 l_Lean_Meta_Exception_toStr___closed__15 = _init_l_Lean_Meta_Exception_toStr___closed__15();
 lean_mark_persistent(l_Lean_Meta_Exception_toStr___closed__15);
+l_Lean_Meta_Exception_toStr___closed__16 = _init_l_Lean_Meta_Exception_toStr___closed__16();
+lean_mark_persistent(l_Lean_Meta_Exception_toStr___closed__16);
 l_Lean_Meta_Exception_HasToString___closed__1 = _init_l_Lean_Meta_Exception_HasToString___closed__1();
 lean_mark_persistent(l_Lean_Meta_Exception_HasToString___closed__1);
 l_Lean_Meta_Exception_HasToString = _init_l_Lean_Meta_Exception_HasToString();

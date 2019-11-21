@@ -88,7 +88,6 @@ def splitAtRoot : Name → String × Name
   (pkg, mkNameStr path s)
 | _              => panic! "ill-formed import"
 
-@[export lean_find_olean]
 def findOLean (mod : Name) : IO String :=
 do sp ← searchPathRef.get;
    let (pkg, path) := splitAtRoot mod;

@@ -484,9 +484,11 @@ do pExtDescrs ← persistentEnvExtensionsRef.get;
      newState ← extDescr.addImportedFn s.importedEntries;
      pure $ extDescr.toEnvExtension.setState env { state := newState, .. s }
 
+abbrev Import := Name
+
 @[export lean_import_modules]
-def importModules (modNames : List Name) (trustLevel : UInt32 := 0) : IO Environment :=
-do (_, mods) ← importModulesAux modNames ({}, #[]);
+def importModules (imports : List Import) (trustLevel : UInt32 := 0) : IO Environment :=
+do (_, mods) ← importModulesAux imports ({}, #[]);
    let const2ModIdx := mods.iterate {} $ fun (modIdx) (mod : ModuleData) (m : HashMap Name ModuleIdx) =>
      mod.constants.iterate m $ fun _ cinfo m =>
        m.insert cinfo.name modIdx.val;
@@ -502,9 +504,9 @@ do (_, mods) ← importModulesAux modNames ({}, #[]);
      constants    := constants,
      extensions   := exts,
      header       := {
-       quotInit     := !modNames.isEmpty, -- We assume `core.lean` initializes quotient module
+       quotInit     := !imports.isEmpty, -- We assume `core.lean` initializes quotient module
        trustLevel   := trustLevel,
-       imports      := modNames.toArray
+       imports      := imports.toArray
      }
    };
    env ← setImportedEntries env mods;

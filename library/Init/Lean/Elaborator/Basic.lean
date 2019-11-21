@@ -336,21 +336,17 @@ partial def processCommandsAux : Unit → Frontend Unit
 def processCommands : Frontend Unit :=
 processCommandsAux ()
 
-def processHeaderAux (header : Syntax) (trustLevel : UInt32) : IO Environment :=
-do let header     := header.asNode;
-   let imports    := if (header.getArg 0).isNone then [`init.default] else [];
-   let modImports := (header.getArg 1).getArgs;
-   imports ← modImports.foldlM (fun imports stx => do
-     -- `stx` is of the form `(Module.import "import" id)
-     let id  := stx.getIdAt 1;
-     pure (normalizeModuleName id :: imports))
-     imports;
-   let imports := imports.reverse;
-   importModules imports trustLevel
+def headerToImports (header : Syntax) : List Import :=
+let header     := header.asNode;
+let imports    := if (header.getArg 0).isNone then [`Init.Default] else [];
+imports ++ (header.getArg 1).getArgs.toList.map (fun stx =>
+  -- `stx` is of the form `(Module.import "import" id)
+  let id  := stx.getIdAt 1;
+  normalizeModuleName id)
 
 def processHeader (header : Syntax) (messages : MessageLog) (ctx : Parser.ParserContextCore) (trustLevel : UInt32 := 0) : IO (Environment × MessageLog) :=
 catch
-  (do env ← processHeaderAux header trustLevel;
+  (do env ← importModules (headerToImports header) trustLevel;
       pure (env, messages))
   (fun e => do
      env ← mkEmptyEnvironment;
@@ -358,12 +354,18 @@ catch
      let pos  := ctx.fileMap.toPosition spos;
      pure (env, messages.add { fileName := ctx.fileName, data := toString e, pos := pos }))
 
-def toBaseDir (fileName : Option String) : IO (Option String) :=
-match fileName with
-| none => pure none
-| some fileName => do
-  fileName ← IO.realPath fileName;
-  pure $ some (System.FilePath.dirName fileName)
+@[export lean_parse_imports]
+def parseImports (input : String) (fileName : Option String := none) : IO (List Import × Position × MessageLog) :=
+do env ← mkEmptyEnvironment;
+   let fileName := fileName.getD "<input>";
+   let ctx := Parser.mkParserContextCore env input fileName;
+   match Parser.parseHeader env ctx with
+   | (header, parserState, messages) => do
+     pure (headerToImports header, ctx.fileMap.toPosition parserState.pos, messages)
+
+@[export lean_print_deps]
+def printDeps (deps : Array Import) : IO Unit :=
+deps.forM (findOLean >=> IO.println)
 
 def testFrontend (input : String) (fileName : Option String := none) : IO (Environment × MessageLog) :=
 do env ← mkEmptyEnvironment;

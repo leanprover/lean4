@@ -86,6 +86,8 @@ structure message_log :=
 class message_log {
     list_ref<message> m_rev_list;
 public:
+    message_log() {}
+    explicit message_log(list_ref<message> const & rev_list) : m_rev_list(rev_list) {}
     bool has_errors() const;
     void add(message const &);
     buffer<message> to_buffer() const;

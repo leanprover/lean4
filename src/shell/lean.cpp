@@ -348,17 +348,25 @@ void init_search_path() {
     get_io_scalar_result<unsigned>(lean_init_search_path(mk_option_none(), io_mk_world()));
 }
 
-extern "C" object* lean_find_olean(object* mod_name, object* w);
-
-std::string find_olean_file(name mod_name) {
-    string_ref fname = get_io_result<string_ref>(lean_find_olean(mod_name.to_obj_arg(), io_mk_world()));
-    return fname.to_std_string();
-}
-
 extern "C" object* lean_module_name_of_file(object* fname, object* w);
 
 optional<name> module_name_of_file(std::string const & fname) {
     return get_io_result<option_ref<name>>(lean_module_name_of_file(mk_string(fname), io_mk_world())).get();
+}
+
+/* def parseImports (input : String) (fileName : Option String := none) : IO (Array Import × Position × MessageLog) */
+extern "C" object* lean_parse_imports(object* input, object* file_name, object* w);
+
+std::tuple<object_ref, position, message_log> parse_imports(std::string const & input, std::string const & fname) {
+    auto r = get_io_result<object_ref>(lean_parse_imports(mk_string(input), mk_option_some(mk_string(fname)), io_mk_world()));
+    return std::make_tuple(cnstr_get_ref(r, 0), cnstr_get_ref_t<position>(cnstr_get_ref(r, 1), 0),
+                           message_log(cnstr_get_ref_t<list_ref<message>>(cnstr_get_ref(r, 1), 1)));
+}
+
+extern "C" object* lean_print_deps(object* deps, object* w);
+
+void print_deps(object_ref const & deps) {
+    consume_io_result(lean_print_deps(deps.to_obj_arg(), io_mk_world()));
 }
 
 std::string olean_of_lean(std::string const & lean_fn) {
@@ -571,18 +579,23 @@ int main(int argc, char ** argv) {
             scope_pos_info_provider scope_pip(pip);
             message_log l;
             scope_message_log scope_log(l);
-            std::vector<module_name> imports;
             std::istringstream in(contents);
+            object_ref imports; position pos(0, 0); message_log import_log;
+            std::tie(imports, pos, import_log) = parse_imports(contents, mod_fn);
+            // the C++ message log is printed immediately if --json is not active, so re-report all Lean message log
+            // messages...
+            for (message const & m : import_log.to_buffer()) {
+                report_message(m);
+            }
+            if (import_log.has_errors()) {
+                return 1;
+            }
             parser p(env, ios, in, mod_fn);
+            p.m_scanner.skip_to_pos(pos.to_pos_info());
 
             try {
-                p.parse_imports(imports);
-
                 if (only_deps) {
-                    for (auto const & import : imports) {
-                        std::string m_name = find_olean_file(import);
-                        std::cout << m_name << "\n";
-                    }
+                    print_deps(imports);
                     return 0;
                 }
 

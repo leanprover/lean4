@@ -78,11 +78,12 @@ private partial def checkAux : Expr → MetaM Unit
 | _                        => pure ()
 
 def check (e : Expr) : MetaM Unit :=
-usingTransparency TransparencyMode.all $ checkAux e
+traceCtx `Meta.check $
+  usingTransparency TransparencyMode.all $ checkAux e
 
 def isTypeCorrect (e : Expr) : MetaM Bool :=
 catch
-  (do checkAux e; pure true)
+  (traceCtx `Meta.check $ do checkAux e; pure true)
   (fun ex => do
     trace! `Meta.typeError ex.toMessageData;
     pure false)

@@ -83,7 +83,9 @@ usingTransparency TransparencyMode.all $ checkAux e
 def isTypeCorrect (e : Expr) : MetaM Bool :=
 catch
   (do checkAux e; pure true)
-  (fun _ => pure false)
+  (fun ex => do
+    trace! `Meta.typeError ex.toMessageData;
+    pure false)
 
 end Meta
 end Lean

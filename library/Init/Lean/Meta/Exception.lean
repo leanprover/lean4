@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Lean.Environment
+import Init.Lean.Message
 import Init.Lean.MetavarContext
 
 namespace Lean
@@ -57,6 +58,27 @@ def toStr : Exception → String
 | other s                       => s
 
 instance : HasToString Exception := ⟨toStr⟩
+
+private def mkCtx (c : ExceptionContext) (m : MessageData) : MessageData :=
+MessageData.context c.env c.mctx c.lctx m
+
+def toMessageData : Exception → MessageData
+| unknownConst c ctx              => mkCtx ctx $ `unknownConst ++ " " ++ c
+| unknownFVar fvarId ctx          => mkCtx ctx $ `unknownFVar ++ " " ++ fvarId
+| unknownExprMVar mvarId ctx      => mkCtx ctx $ `unknownExprMVar ++ " " ++ mkMVar mvarId
+| unknownLevelMVar mvarId ctx     => mkCtx ctx $ `unknownLevelMVar ++ " " ++ mkLevelMVar mvarId
+| unexpectedBVar bvarIdx          => `unexpectedBVar ++ " " ++ mkBVar bvarIdx
+| functionExpected f a ctx        => mkCtx ctx $ `functionExpected ++ " " ++ mkApp f a
+| typeExpected t ctx              => mkCtx ctx $ `typeExpected ++ " " ++ t
+| incorrectNumOfLevels c lvls ctx => mkCtx ctx $ `incorrectNumOfLevels ++ " " ++ mkConst c lvls
+| invalidProjection s i e ctx     => mkCtx ctx $ `invalidProjection ++ " " ++ mkProj s i e
+| revertFailure xs decl ctx       => mkCtx ctx $ `revertFailure -- TODO improve
+| readOnlyMVar mvarId ctx         => mkCtx ctx $ `readOnlyMVar ++ " " ++ mkMVar mvarId
+| isDefEqStuck t s ctx            => mkCtx ctx $ `isDefEqStuck ++ " " ++ t ++ " =?= " ++ s
+| letTypeMismatch fvarId ctx      => mkCtx ctx $ `letTypeMismatch ++ " " ++ mkFVar fvarId
+| appTypeMismatch f a ctx         => mkCtx ctx $ `appTypeMismatch ++ " " ++ mkApp f a
+| bug _ _                         => "internal bug" -- TODO improve
+| other s                         => s
 
 end Exception
 

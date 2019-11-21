@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Lean.ProjFns
 import Init.Lean.Meta.WHNF
 import Init.Lean.Meta.InferType
 import Init.Lean.Meta.FunInfo
@@ -700,82 +701,106 @@ match t.getAppFn, s.getAppFn with
 | Expr.const c₁ _ _, Expr.const c₂ _ _ => true
 | _,                 _                 => false
 
-@[specialize] private def isDefEqDelta (t s : Expr) : MetaM LBool :=
-do let isListLevelDefEqAuxL (us vs) : MetaM LBool := toLBoolM $ isListLevelDefEqAux us vs;
-   let isDefEqL (t s) : MetaM LBool := toLBoolM $ isExprDefEqAux t s;
-   let isDefEqLeft (fn : Name) (t s : Expr) : MetaM LBool := do {
-     trace! `Meta.isDefEq.delta.unfoldLeft fn;
-     isDefEqL t s
-   };
-   let isDefEqRight (fn : Name) (t s : Expr) : MetaM LBool := do {
-     trace! `Meta.isDefEq.delta.unfoldRight fn;
-     isDefEqL t s
-   };
-   let isDefEqLeftRight (fn : Name) (t s : Expr) : MetaM LBool := do {
-     trace! `Meta.isDefEq.delta.unfoldLeftRight fn;
-     isDefEqL t s
-   };
-   let unfold (e failK successK) : MetaM LBool := unfoldDefinitionAux e failK successK;
-   let tryHeuristic : MetaM Bool :=
-     /- Try to solve `f a₁ ... aₙ =?= f b₁ ... bₙ` by solving `a₁ =?= b₁, ..., aₙ =?= bₙ` -/
-     let tFn := t.getAppFn;
-     let sFn := s.getAppFn;
-     traceCtx `Meta.isDefEq.delta $
-       try $
-         isDefEqArgs tFn t.getAppArgs s.getAppArgs
-         <&&>
-         isListLevelDefEqAux tFn.constLevels! sFn.constLevels!;
-   tInfo? ← isDeltaCandidate t.getAppFn;
+/-- Auxiliary method for isDefEqDelta -/
+private def isListLevelDefEq (us vs : List Level) : MetaM LBool :=
+toLBoolM $ isListLevelDefEqAux us vs
+
+/-- Auxiliary method for isDefEqDelta -/
+private def isDefEqLeft (fn : Name) (t s : Expr) : MetaM LBool :=
+do trace! `Meta.isDefEq.delta.unfoldLeft fn;
+   toLBoolM $ isExprDefEqAux t s
+
+/-- Auxiliary method for isDefEqDelta -/
+private def isDefEqRight (fn : Name) (t s : Expr) : MetaM LBool :=
+do trace! `Meta.isDefEq.delta.unfoldRight fn;
+   toLBoolM $ isExprDefEqAux t s
+
+/-- Auxiliary method for isDefEqDelta -/
+private def isDefEqLeftRight (fn : Name) (t s : Expr) : MetaM LBool :=
+do trace! `Meta.isDefEq.delta.unfoldLeftRight fn;
+   toLBoolM $ isExprDefEqAux t s
+
+/-- Try to solve `f a₁ ... aₙ =?= f b₁ ... bₙ` by solving `a₁ =?= b₁, ..., aₙ =?= bₙ`.
+
+    Auxiliary method for isDefEqDelta -/
+private def tryHeuristic (t s : Expr) : MetaM Bool :=
+let tFn := t.getAppFn;
+let sFn := s.getAppFn;
+traceCtx `Meta.isDefEq.delta $
+  try $
+    isDefEqArgs tFn t.getAppArgs s.getAppArgs
+    <&&>
+    isListLevelDefEqAux tFn.constLevels! sFn.constLevels!
+
+/-- Auxiliary method for isDefEqDelta -/
+private abbrev unfold := @unfoldDefinitionAux
+
+/-- Auxiliary method for isDefEqDelta -/
+private def unfoldBothDefEq (fn : Name) (t s : Expr) : MetaM LBool :=
+match t, s with
+| Expr.const _ ls₁ _, Expr.const _ ls₂ _ => isListLevelDefEq ls₁ ls₂
+| Expr.app _ _ _,     Expr.app _ _ _     =>
+  condM (tryHeuristic t s)
+    (pure LBool.true)
+    (unfold t
+      (unfold s (pure LBool.false) (fun s => isDefEqRight fn t s))
+      (fun t => unfold s (isDefEqLeft fn t s) (fun s => isDefEqLeftRight fn t s)))
+| _, _ => pure LBool.false
+
+/--
+  - If headSymbol (unfold t) == headSymbol s, then unfold t
+  - If headSymbol (unfold s) == headSymbol t, then unfold s
+  - Otherwise unfold t and s if possible.
+
+  Auxiliary method for isDefEqDelta -/
+private def unfoldComparingHeadsDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : MetaM LBool :=
+unfold t
+  (unfold s
+    (pure LBool.undef) -- `t` and `s` failed to be unfolded
+    (fun s => isDefEqRight sInfo.name t s))
+  (fun tNew =>
+    if sameHeadSymbol tNew s then
+      isDefEqLeft tInfo.name tNew s
+    else
+      unfold s
+        (isDefEqLeft tInfo.name tNew s)
+        (fun sNew =>
+          if sameHeadSymbol t sNew then
+            isDefEqRight sInfo.name t sNew
+          else
+            isDefEqLeftRight tInfo.name tNew sNew))
+
+/-- If `t` and `s` do not contain metavariables, then use
+    kernel definitional equality heuristics.
+    Otherwise, use `unfoldComparingHeadsDefEq`.
+
+    Auxiliary method for isDefEqDelta -/
+private def unfoldDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : MetaM LBool :=
+if !t.hasExprMVar && !s.hasExprMVar then
+  /- If `t` and `s` do not contain metavariables,
+     we simulate strategy used in the kernel. -/
+  if tInfo.hints.lt sInfo.hints then
+    unfold t (unfoldComparingHeadsDefEq tInfo sInfo t s) $ fun t => isDefEqLeft tInfo.name t s
+  else if sInfo.hints.lt tInfo.hints then
+    unfold s (unfoldComparingHeadsDefEq tInfo sInfo t s) $ fun s => isDefEqRight sInfo.name t s
+  else
+    unfoldComparingHeadsDefEq tInfo sInfo t s
+else
+  unfoldComparingHeadsDefEq tInfo sInfo t s
+
+private def isDefEqDelta (t s : Expr) : MetaM LBool :=
+do tInfo? ← isDeltaCandidate t.getAppFn;
    sInfo? ← isDeltaCandidate s.getAppFn;
    match tInfo?, sInfo? with
    | none,       none       => pure LBool.undef
    | some tInfo, none       => unfold t (pure LBool.undef) $ fun t => isDefEqLeft tInfo.name t s
    | none,       some sInfo => unfold s (pure LBool.undef) $ fun s => isDefEqRight sInfo.name t s
    | some tInfo, some sInfo =>
-     let isDefEqLeft (t s)      := isDefEqLeft tInfo.name t s;
-     let isDefEqRight (t s)     := isDefEqRight sInfo.name t s;
-     let isDefEqLeftRight (t s) := isDefEqLeftRight tInfo.name t s;
      if tInfo.name == sInfo.name then
-       match t, s with
-       | Expr.const _ ls₁ _, Expr.const _ ls₂ _ => isListLevelDefEqAuxL ls₁ ls₂
-       | Expr.app _ _ _,     Expr.app _ _ _     =>
-         condM tryHeuristic
-           (pure LBool.true)
-           (unfold t
-             (unfold s (pure LBool.false) (fun s => isDefEqRight t s))
-             (fun t => unfold s (isDefEqLeft t s) (fun s => isDefEqLeftRight t s)))
-       | _, _ => pure LBool.false
+       unfoldBothDefEq tInfo.name t s
      else
-       let unfoldComparingHeads : Unit → MetaM LBool := fun _ =>
-         /-
-            - If headSymbol (unfold t) == headSymbol s, then unfold t
-            - If headSymbol (unfold s) == headSymbol t, then unfold s
-            - Otherwise unfold t and s if possible. -/
-         unfold t
-           (unfold s
-              (pure LBool.undef) -- `t` and `s` failed to be unfolded
-              (fun s => isDefEqRight t s))
-           (fun tNew =>
-             if sameHeadSymbol tNew s then
-               isDefEqLeft tNew s
-             else
-               unfold s
-                 (isDefEqLeft tNew s)
-                 (fun sNew => if sameHeadSymbol t sNew then isDefEqRight t sNew else isDefEqLeftRight tNew sNew));
-       let kernelLikeUnfolding : Unit → MetaM LBool := fun _ =>
-         if !t.hasExprMVar && !s.hasExprMVar then
-           /- If `t` and `s` do not contain metavariables,
-              we simulate strategy used in the kernel. -/
-           if tInfo.hints.lt sInfo.hints then
-             unfold t (unfoldComparingHeads ()) $ fun t => isDefEqLeft t s
-           else if sInfo.hints.lt tInfo.hints then
-             unfold s (unfoldComparingHeads ()) $ fun s => isDefEqRight t s
-           else
-             unfoldComparingHeads ()
-         else
-           unfoldComparingHeads ();
        condM reduceReducibleOnly?
-         (kernelLikeUnfolding ())
+         (unfoldDefEq tInfo sInfo t s)
          (do
            /- TransparencyMode is set to `default` or `all`.
               If `t` is reducible and `s` is not ==> reduce `t`
@@ -783,11 +808,11 @@ do let isListLevelDefEqAuxL (us vs) : MetaM LBool := toLBoolM $ isListLevelDefEq
            tReducible ← isReducible tInfo.name;
            sReducible ← isReducible sInfo.name;
            if tReducible && !sReducible then
-             unfold t (kernelLikeUnfolding ()) $ fun t => isDefEqLeft t s
+             unfold t (unfoldDefEq tInfo sInfo t s) $ fun t => isDefEqLeft tInfo.name t s
            else if !tReducible && sReducible then
-             unfold s (kernelLikeUnfolding ()) $ fun s => isDefEqRight t s
+             unfold s (unfoldDefEq tInfo sInfo t s) $ fun s => isDefEqRight sInfo.name t s
            else
-             kernelLikeUnfolding ())
+             unfoldDefEq tInfo sInfo t s)
 
 private def isAssigned : Expr → MetaM Bool
 | Expr.mvar mvarId _ => isExprMVarAssigned mvarId
@@ -907,8 +932,8 @@ partial def isExprDefEqAuxImpl : Expr → Expr → MetaM Bool
   trace! `Meta.isDefEq.step (t ++ " =?= " ++ s);
   tryL (isDefEqQuick t s) $
   tryL (isDefEqProofIrrel t s) $
-  isDefEqWHNF t s $ fun t s =>
-  tryL (isDefEqOffset t s) $
+  isDefEqWHNF t s $ fun t s => do
+  tryL (isDefEqOffset t s) $ do
   tryL (isDefEqDelta t s) $
   condM (isDefEqEta t s <||> isDefEqEta s t) (pure true) $
   match t, s with

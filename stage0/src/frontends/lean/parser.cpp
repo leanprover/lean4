@@ -2114,31 +2114,8 @@ name normalize_module_name(name m) {
     return name(lean_normalize_module_name(m.to_obj_arg()));
 }
 
-void parser::parse_imports(std::vector<module_name> & imports) {
-    init_scanner();
-    scanner::field_notation_scope scope(m_scanner, false);
-    m_last_cmd_pos = pos();
-    bool prelude     = false;
-    if (curr_is_token(get_prelude_tk())) {
-        next();
-        prelude = true;
-    }
-    if (!prelude) {
-        imports.push_back(normalize_module_name("Init"));
-    }
-    while (curr_is_token(get_import_tk())) {
-        m_last_cmd_pos = pos();
-        next();
-        name f = get_name_val();
-        imports.push_back(normalize_module_name(f));
-        next();
-    }
-}
-
 void parser::process_imports() {
-    std::vector<module_name> imports;
-    parse_imports(imports);
-    // we assume the module manager has already imported the modules into `m_env`
+    // we assume the Lean parser has already imported the modules into `m_env`
 
     m_env = activate_export_decls(m_env, {}); // explicitly activate exports in root namespace
     m_env = replay_export_decls_core(m_env, m_ios);

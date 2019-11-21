@@ -434,7 +434,6 @@ public:
     bool parse_command_like();
     void parse_command(cmd_meta const & meta);
     environment parse_commands();
-    void parse_imports(std::vector<module_name> &);
 
     struct local_scope {
         parser & m_p; environment m_env;

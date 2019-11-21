@@ -20,7 +20,7 @@ using module_name = name;
     Modules included directly or indirectly by them are also imported.
 
     This procedure looks for imported files in the search path set using `set_search_path`. */
-environment import_modules(unsigned trust_lvl, std::vector<module_name> const & imports);
+environment import_modules(unsigned trust_lvl, object_ref const & imports);
 
 /** \brief Store module using \c env. */
 void write_module(environment const & env, std::string const & olean_fn);

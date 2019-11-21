@@ -40,7 +40,7 @@ lean_object* l_AssocList_foldlM___main___at_Lean_findAtSearchPath___spec__1(lean
 lean_object* lean_io_getenv(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Path_1__pathSep;
 lean_object* l_Lean_modPathToFilePath___main___closed__2;
-lean_object* lean_find_olean(lean_object*, lean_object*);
+lean_object* l_Lean_findOLean(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_AssocList_foldlM___main___at_Lean_parseSearchPath___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_modPathToFilePath___main___closed__1;
@@ -1612,7 +1612,7 @@ x_1 = lean_mk_string(".olean");
 return x_1;
 }
 }
-lean_object* lean_find_olean(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_findOLean(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 

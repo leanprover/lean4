@@ -166,10 +166,16 @@ do s ← get;
 /- Public interface -/
 
 def isLevelDefEq (u v : Level) : MetaM Bool :=
-try $ isLevelDefEqAux u v
+traceCtx `Meta.isLevelDefEq $ do
+  b ← try $ isLevelDefEqAux u v;
+  trace! `Meta.isLevelDefEq (u ++ " =?= " ++ v ++ " ... " ++ if b then "success" else "failure");
+  pure b
 
-def isExprDefEq (e₁ e₂ : Expr) : MetaM Bool :=
-try $ isExprDefEqAux e₁ e₂
+def isExprDefEq (t s : Expr) : MetaM Bool :=
+traceCtx `Meta.isDefEq $ do
+  b ← try $ isExprDefEqAux t s;
+  trace! `Meta.isDefEq (t ++ " =?= " ++ s ++ " ... " ++ if b then "success" else "failure");
+  pure b
 
 end Meta
 end Lean

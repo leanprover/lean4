@@ -14,6 +14,12 @@ trace! `Meta.debug msg
 def check (x : MetaM Bool) : MetaM Unit :=
 unlessM x $ throw $ Exception.other "check failed"
 
+def getAssignment (m : Expr) : MetaM Expr :=
+do v? ← getExprMVarAssignment m.mvarId!;
+   match v? with
+   | some v => pure v
+   | none   => throw $ Exception.other "metavariable is not assigned"
+
 def run (mods : List Name) (x : MetaM Unit) (opts : Options := dbgOpt) : IO Unit :=
 do env ← importModules $ mods.map $ fun m => {module := m};
    match x { config := { opts := opts } } { env := env } with
@@ -55,7 +61,7 @@ do print "----- tst3 -----";
      check $ isExprDefEq (mkApp mvar x) (mkAppN add #[x, mkAppN add #[mkNatLit 10, x]]);
      pure ()
    };
-   some v ← getExprMVarAssignment mvar.mvarId! | pure ();
+   v ← getAssignment mvar;
    print v;
    pure ()
 
@@ -70,7 +76,7 @@ do print "----- tst4 -----";
      -- the following `isExprDefEq` fails because `x` is also in the context of `mvar`
      check $ not <$> isExprDefEq (mkApp mvar x) (mkAppN add #[x, mkAppN add #[mkNatLit 10, x]]);
      check $ approxDefEq $ isExprDefEq (mkApp mvar x) (mkAppN add #[x, mkAppN add #[mkNatLit 10, x]]);
-     some v ← getExprMVarAssignment mvar.mvarId! | pure ();
+     v ← getAssignment mvar;
      print v;
      pure ()
    };
@@ -134,3 +140,28 @@ do print "----- tst5 -----";
    print y
 
 #eval run [`Init.Data.Nat] tst5
+
+def tst6 : MetaM Unit :=
+do print "----- tst6 -----";
+   withLocalDecl `x nat BinderInfo.default $ fun x => do
+     m ← mkFreshExprMVar nat;
+     let t := mkAppN add #[m, mkNatLit 4];
+     let s := mkAppN add #[x, mkNatLit 3];
+     check $ not <$> isExprDefEq t s;
+     let s := mkAppN add #[x, mkNatLit 6];
+     check $ isExprDefEq t s;
+     v ← getAssignment m;
+     check $ pure $ v == mkAppN add #[x, mkNatLit 2];
+     print v;
+     m ← mkFreshExprMVar nat;
+     let t := mkAppN add #[m, mkNatLit 4];
+     let s := mkNatLit 3;
+     check $ not <$> isExprDefEq t s;
+     let s := mkNatLit 10;
+     check $ isExprDefEq t s;
+     v ← getAssignment m;
+     check $ pure $ v == mkNatLit 6;
+     print v;
+     pure ()
+
+#eval run [`Init.Data.Nat] tst6

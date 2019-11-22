@@ -45,7 +45,7 @@ def parseSearchPath (path : String) (sp : SearchPath := ∅) : IO SearchPath := 
 
 def getBuiltinSearchPath : IO SearchPath :=
 do appDir ← IO.appDir;
-   let libDir := appDir ++ pathSep ++ ".." ++ pathSep ++ "library" ++ pathSep ++ "Init";
+   let libDir := appDir ++ pathSep ++ ".." ++ pathSep ++ "src" ++ pathSep ++ "Init";
    libDirExists ← IO.isDir libDir;
    if libDirExists then do
      path ← realPathNormalized libDir;

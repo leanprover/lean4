@@ -2,12 +2,13 @@
 # Released under Apache 2.0 license as described in the file LICENSE.
 # Authors: Simon Hudon, Sebastian Ullrich, Leonardo de Moura
 LEAN = ../bin/lean
+LEANC = ../bin/leanc
 SRCS = $(shell find . -name '*.lean')
 OBJS = $(SRCS:.lean=.olean)
 DEPS = $(SRCS:.lean=.depend)
 OPTS = @LEAN_EXTRA_MAKE_OPTS@
 STAGE0_DIR = ../stage0
-STAGE1_DIR = ../src/stage1
+STAGE1_DIR = stage1
 ifndef STAGE1_OUT
 $(error "`STAGE1_OUT` must be set (use cmake)")
 endif
@@ -42,19 +43,19 @@ $(STAGE1_DIR)/%.c: %.olean
 $(STAGE1_OUT)/%.o: $(STAGE1_DIR)/%.c
 	@echo "[    ] Building $<"
 	@mkdir -p "$(@D)"
-	../bin/leanc -c -o $@ $< $(LEANC_OPTS)
+	$(LEANC) -c -o $@ $< $(LEANC_OPTS)
 
 $(STAGE1_OUT)/libleanstdlib.a: $(addprefix $(STAGE1_OUT)/,$(patsubst %.lean,%.o,$(SRCS)))
 	@rm -f $@
 	@ar rcs $@ $^
 
 update-stage0:
-	-rm -r $(STAGE0_DIR)/src $(STAGE0_DIR)/library
+	-rm -r $(STAGE0_DIR)/src
 	-mkdir $(STAGE0_DIR)
 # don't copy untracked crap
 	git ls-files -z ../src | xargs -0 -I '{}' bash -c 'mkdir -p `dirname ../stage0/src/{}` && cp {} ../stage0/src/{}'
-	cp -R $(STAGE1_DIR) $(STAGE0_DIR)/library
-	echo "add_library (stage0 OBJECT $(CS_CORE))" > $(STAGE0_DIR)/library/CMakeLists.txt
+	cp -R $(STAGE1_DIR) $(STAGE0_DIR)
+	echo "add_library (stage0 OBJECT $(CS_CORE))" > $(STAGE0_DIR)/CMakeLists.txt
 	-git add $(STAGE0_DIR)
 
 .PRECIOUS: %.depend $(STAGE1_DIR)/%.c

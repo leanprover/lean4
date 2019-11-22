@@ -13,7 +13,7 @@ if(NOT STAGE0)
   add_custom_target(make_stdlib
     # '-G Ninja' complains otherwise
     BYPRODUCTS "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"
-    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
+    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}"
     COMMAND ${CMAKE_COMMAND} -E env "LEAN_PATH=Init=Init" $(MAKE) "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" "LEAN=$<TARGET_FILE:lean_stage0>" "LEANC_OPTS=${LEANC_OPTS}" "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
     DEPENDS stage0)
   set_target_properties(leanstdlib PROPERTIES
@@ -25,7 +25,7 @@ if(NOT STAGE0)
   add_custom_target(update-stage0
     COMMAND make update-stage0 "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
     DEPENDS leanstdlib
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/../library")
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 endif()
 
 add_executable(lean lean.cpp)
@@ -43,7 +43,7 @@ if(NOT STAGE0)
       set(NODE_JS "node --stack_size=8192")
 
       file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/lean_with_path
-              "#!/bin/sh\nLEAN_PATH=Init=${CMAKE_CURRENT_SOURCE_DIR}/../../library ${NODE_JS} ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
+              "#!/bin/sh\nLEAN_PATH=Init=${CMAKE_CURRENT_SOURCE_DIR}/.. ${NODE_JS} ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
       execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/lean_with_path)
 
       ADD_CUSTOM_TARGET(bin_lean ALL
@@ -97,34 +97,9 @@ add_test(lean_version2 "${CMAKE_CURRENT_BINARY_DIR}/lean" --v)
 endif()
 add_test(lean_ghash1   "${CMAKE_CURRENT_BINARY_DIR}/lean" -g)
 add_test(lean_ghash2   "${CMAKE_CURRENT_BINARY_DIR}/lean" --githash)
-add_test(lean_new_frontend "${LEAN_SOURCE_DIR}/../bin/lean" --new-frontend "${LEAN_SOURCE_DIR}/../library/Init/Core.lean")
+add_test(lean_new_frontend "${LEAN_SOURCE_DIR}/../bin/lean" --new-frontend "${LEAN_SOURCE_DIR}/Init/Core.lean")
 add_test(lean_unknown_option bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "-z")
 add_test(lean_unknown_file1 bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lean")
-# The following test needs new elaborator to support match
-# add_test(NAME "lean_eqn_macro"
-#         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
-#         COMMAND bash "./test_eqn_macro.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
-# add_test(NAME "lean_print_notation"
-#         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
-#         COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "print_tests.lean")
-# add_test(NAME "issue_597"
-#          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
-#          COMMAND bash "./issue_597.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
-# add_test(NAME "issue_616"
-#          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
-#          COMMAND bash "./issue_616.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
-# add_test(NAME "show_goal"
-#          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
-#          COMMAND bash "./show_goal.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
-# add_test(NAME "issue_755"
-#          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
-#          COMMAND bash "./issue_755.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
-# add_test(NAME "print_info"
-#          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
-#          COMMAND bash "./print_info.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
-# add_test(NAME "dir_option"
-#          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
-#          COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" "--dir=${LEAN_SOURCE_DIR}/../library/data/nat" "dir_option.lean")
 if (NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
   # The following test cannot be executed on Windows because of the
   # bash script timeout.sh
@@ -245,10 +220,10 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   # Skip stdlib tests on Windows
   message(STATUS "skipping stdlib tests")
 else()
-  file(GLOB_RECURSE STDLIBFILES RELATIVE "${LEAN_SOURCE_DIR}/../library" "${LEAN_SOURCE_DIR}/../library/*.lean")
+  file(GLOB_RECURSE STDLIBFILES RELATIVE "${LEAN_SOURCE_DIR}/Init" "${LEAN_SOURCE_DIR}/Init/*.lean")
   FOREACH(T ${STDLIBFILES})
     add_test(NAME "stdlib_${T}"
-             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
+             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/Init"
              COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" "${T}")
   ENDFOREACH(T)
 endif()

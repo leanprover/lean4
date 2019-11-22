@@ -13,8 +13,8 @@ if(NOT STAGE0)
   add_custom_target(make_stdlib
     # '-G Ninja' complains otherwise
     BYPRODUCTS "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"
-    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E env "LEAN_PATH=Init=Init" $(MAKE) "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" "LEAN=$<TARGET_FILE:lean_stage0>" "LEANC_OPTS=${LEANC_OPTS}" "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
+    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/Init"
+    COMMAND ${CMAKE_COMMAND} -E env "LEAN_PATH=Init=." $(MAKE) "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" "LEAN=$<TARGET_FILE:lean_stage0>" "LEANC_OPTS=${LEANC_OPTS}" "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
     DEPENDS stage0)
   set_target_properties(leanstdlib PROPERTIES
     IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"
@@ -25,7 +25,7 @@ if(NOT STAGE0)
   add_custom_target(update-stage0
     COMMAND make update-stage0 "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
     DEPENDS leanstdlib
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/Init")
 endif()
 
 add_executable(lean lean.cpp)

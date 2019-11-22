@@ -489,7 +489,7 @@ configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
 configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_SOURCE_DIR}/config.h")
 install(FILES "${LEAN_SOURCE_DIR}/config.h" DESTINATION "${INCLUDE_DIR}")
 if(NOT STAGE0)
-  configure_file("${LEAN_SOURCE_DIR}/Makefile.in" "${LEAN_SOURCE_DIR}/Makefile")
+  configure_file("${LEAN_SOURCE_DIR}/Init/Makefile.in" "${LEAN_SOURCE_DIR}/Init/Makefile")
 endif()
 
 include_directories("${LEAN_BINARY_DIR}")
@@ -514,7 +514,7 @@ set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:lean_frontend>)
 add_subdirectory(initialize)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:initialize>)
 if(STAGE0)
-  add_subdirectory(Init stdlib)
+  add_subdirectory(../stdlib stdlib)
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:stage0>)
 endif()
 if(EMSCRIPTEN)
@@ -625,7 +625,7 @@ add_custom_target(clean-stdlib
   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/Init"
   COMMAND find . -name '*.olean' -delete
         COMMAND find . -name '*.depend' -delete
-        COMMAND rm -r ../src/stage1 "${CMAKE_BINARY_DIR}/stage1" || true
+        COMMAND rm -r ../stage1 "${CMAKE_BINARY_DIR}/stage1" || true
   )
 
 add_custom_target(clean-olean

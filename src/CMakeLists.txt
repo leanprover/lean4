@@ -512,8 +512,8 @@ add_subdirectory(library/compiler)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:compiler>)
 add_subdirectory(frontends/lean)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:lean_frontend>)
-add_subdirectory(init)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:init>)
+add_subdirectory(initialize)
+set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:initialize>)
 if(STAGE0)
   add_subdirectory(../library stdlib)
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:stage0>)
@@ -632,8 +632,8 @@ endif()
 add_custom_target(clean-stdlib
   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
   COMMAND find . -name *.olean -delete
-	COMMAND find . -name *.depend -delete
-	COMMAND rm -r ../src/stage1 "${CMAKE_BINARY_DIR}/stage1" || true
+        COMMAND find . -name *.depend -delete
+        COMMAND rm -r ../src/stage1 "${CMAKE_BINARY_DIR}/stage1" || true
   )
 
 add_custom_target(clean-leanpkg

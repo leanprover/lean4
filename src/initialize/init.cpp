@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 #include "library/print.h"
 #include "library/compiler/init_module.h"
 #include "frontends/lean/init_module.h"
-#include "init/init.h"
+#include "initialize/init.h"
 
 namespace lean {
 extern "C" object* initialize_Init_Default(object* w);

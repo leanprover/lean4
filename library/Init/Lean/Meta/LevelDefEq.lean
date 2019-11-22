@@ -58,7 +58,7 @@ partial def isLevelDefEqAux : Level → Level → MetaM Bool
   if lhs == rhs then
     pure true
   else do
-    trace! `type_context.level_is_def_eq (lhs ++ " =?= " ++ rhs);
+    trace! `Meta.isLevelDefEq.step (lhs ++ " =?= " ++ rhs);
     lhs' ← instantiateLevelMVars lhs;
     let lhs' := lhs'.normalize;
     rhs' ← instantiateLevelMVars rhs;

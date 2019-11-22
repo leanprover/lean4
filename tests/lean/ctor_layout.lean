@@ -3,7 +3,7 @@ open Lean
 open Lean.IR
 
 def tst : IO Unit :=
-do initSearchPath "Init=../../library/Init";
+do initSearchPath "Init=../../src/Init";
    env ← importModules [{module := `Init.Lean.Compiler.IR.Basic}];
    ctorLayout ← IO.ofExcept $ getCtorLayout env `Lean.IR.Expr.reuse;
    ctorLayout.fieldInfo.forM $ fun finfo => IO.println (format finfo);

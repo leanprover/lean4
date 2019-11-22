@@ -5,7 +5,7 @@ if [ $# -ne 2 -a $# -ne 1 ]; then
 fi
 ulimit -s 8192
 BIN_DIR=../../bin
-export LEAN_PATH=Init=../../library/Init:Test=.
+export LEAN_PATH=Init=../../src/Init:Test=.
 if [ $# -ne 2 ]; then
     INTERACTIVE=no
 else

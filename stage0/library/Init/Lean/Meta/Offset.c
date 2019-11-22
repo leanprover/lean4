@@ -1443,7 +1443,7 @@ uint8_t x_7; lean_object* x_8; lean_object* x_9;
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_7 = 0;
+x_7 = 2;
 x_8 = lean_box(x_7);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_8);
@@ -1469,7 +1469,7 @@ if (lean_obj_tag(x_12) == 0)
 {
 uint8_t x_13; lean_object* x_14; lean_object* x_15; 
 lean_dec(x_10);
-x_13 = 0;
+x_13 = 2;
 x_14 = lean_box(x_13);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_14);

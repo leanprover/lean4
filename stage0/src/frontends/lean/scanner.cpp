@@ -713,7 +713,7 @@ void scanner::skip_to_pos(pos_info const & pos) {
     while (static_cast<unsigned>(m_upos) < pos.second)
         next();
     m_pos = m_upos; // we assume that the argument is the start of a token
-    lean_assert(pos == pos_info(get_line(), get_pos()));
+    // lean_assert(pos == pos_info(get_line(), get_pos()));
 }
 
 std::ostream & operator<<(std::ostream & out, token_kind k) {

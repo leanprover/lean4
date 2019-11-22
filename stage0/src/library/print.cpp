@@ -110,8 +110,10 @@ struct print_expr_fn {
 
     std::ostream & out() { return m_out; }
 
-    bool is_atomic(expr const & a) {
-        return ::lean::is_atomic(a) || is_mlocal(a);
+    static bool is_atomic(expr const & a) {
+        if (::lean::is_atomic(a) || is_mlocal(a)) return true;
+        if (is_proj(a)) return is_atomic(proj_expr(a));
+        return false;
     }
 
     void print_child(expr const & a) {
@@ -245,7 +247,8 @@ struct print_expr_fn {
             print_mdata(a);
             break;
         case expr_kind::Proj:
-            print(proj_expr(a)); out() << "." << proj_idx(a).to_mpz();
+            print_child(proj_expr(a));
+            out() << "." << proj_idx(a).to_mpz();
             break;
         case expr_kind::BVar:
             out() << "#" << bvar_idx(a);

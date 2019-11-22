@@ -36,7 +36,7 @@ do oldTraces ← getTraces;
    modifyTraces $ fun _ => #[];
    pure oldTraces
 
-private def addTrace (cls : Name) (msg : MessageData) : m Unit :=
+def addTrace (cls : Name) (msg : MessageData) : m Unit :=
 modifyTraces $ fun traces => traces.push (MessageData.tagged cls msg)
 
 @[inline] protected def trace (cls : Name) (msg : Unit → MessageData) : m Unit :=

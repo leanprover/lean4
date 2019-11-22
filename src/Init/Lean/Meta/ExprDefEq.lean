@@ -438,22 +438,18 @@ end CheckAssignment
 private def checkAssignmentFailure (mvarId : Name) (fvars : Array Expr) (v : Expr) (ex : CheckAssignment.Exception) : MetaM (Option Expr) :=
 match ex with
 | CheckAssignment.Exception.occursCheck => do
-  trace! `Meta.isDefEq.assign.occursCheck
-    (mkMVar mvarId ++ fvars ++ " := " ++ v);
+  trace `Meta.isDefEq.assign.occursCheck $ fun _ => mkMVar mvarId ++ fvars ++ " := " ++ v;
   pure none
 | CheckAssignment.Exception.useFOApprox =>
   pure none
 | CheckAssignment.Exception.outOfScopeFVar fvarId => do
-  trace! `Meta.isDefEq.assign.outOfScopeFVar
-    (mkFVar fvarId ++ " @ " ++ mkMVar mvarId ++ fvars ++ " := " ++ v);
+  trace `Meta.isDefEq.assign.outOfScopeFVar $ fun _ => mkFVar fvarId ++ " @ " ++ mkMVar mvarId ++ fvars ++ " := " ++ v;
   pure none
 | CheckAssignment.Exception.readOnlyMVarWithBiggerLCtx nestedMVarId => do
-  trace! `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx
-    (mkMVar nestedMVarId ++ " @ " ++ mkMVar mvarId ++ fvars ++ " := " ++ v);
+  trace `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx $ fun _ => mkMVar nestedMVarId ++ " @ " ++ mkMVar mvarId ++ fvars ++ " := " ++ v;
   pure none
 | CheckAssignment.Exception.mvarTypeNotWellFormedInSmallerLCtx nestedMVarId => do
-  trace! `Meta.isDefEq.assign.mvarTypeNotWellFormedInSmallerLCtx
-    (mkMVar nestedMVarId ++ " @ " ++ mkMVar mvarId ++ fvars ++ " := " ++ v);
+  trace `Meta.isDefEq.assign.mvarTypeNotWellFormedInSmallerLCtx $ fun _ => mkMVar nestedMVarId ++ " @ " ++ mkMVar mvarId ++ fvars ++ " := " ++ v;
   pure none
 | CheckAssignment.Exception.unknownExprMVar mvarId =>
   -- This case can only happen if the MetaM API is being misused
@@ -608,7 +604,7 @@ else
 -/
 private partial def processAssignmentFOApprox (mvar : Expr) (args : Array Expr) : Expr → MetaM Bool
 | v => do
-  trace! `Meta.isDefEq.foApprox (mvar ++ " " ++ args ++ " := " ++ v);
+  trace `Meta.isDefEq.foApprox $ fun _ => mvar ++ " " ++ args ++ " := " ++ v;
   condM (try $ processAssignmentFOApproxAux mvar args v)
     (pure true)
     (do v? ← unfoldDefinition v;
@@ -675,7 +671,7 @@ private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) 
            vType    ← inferType v;
            condM (usingTransparency TransparencyMode.default $ isExprDefEqAux mvarType vType)
              (do assignExprMVar mvarId v; pure true)
-             (do trace! `Meta.isDefEq.assign.typeMismatch (mvar ++ " : " ++ mvarType ++ " := " ++ v ++ " : " ++ vType);
+             (do trace `Meta.isDefEq.assign.typeMismatch $ fun _ => mvar ++ " : " ++ mvarType ++ " := " ++ v ++ " : " ++ vType;
                  pure false)
         };
         if args.any (fun arg => mvarDecl.lctx.containsFVar arg) then
@@ -683,7 +679,7 @@ private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) 
              a type incorrect term. See discussion at A2 -/
           condM (isTypeCorrect v)
             (finalize ())
-            (do trace! `Meta.isDefEq.assign.typeError (mvar ++ " := " ++ v);
+            (do trace `Meta.isDefEq.assign.typeError $ fun _ => mvar ++ " := " ++ v;
                 useFOApprox ())
         else
           finalize ()
@@ -692,7 +688,7 @@ private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) 
     It assumes `?m` is unassigned. -/
 private def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :=
 traceCtx `Meta.isDefEq.assign $ do
-  trace! `Meta.isDefEq.assign (mvarApp ++ " := " ++ v);
+  trace `Meta.isDefEq.assign $ fun _ => mvarApp ++ " := " ++ v;
   let mvar := mvarApp.getAppFn;
   mvarDecl ← getMVarDecl mvar.mvarId!;
   processAssignmentAux mvar mvarDecl v 0 mvarApp.getAppArgs
@@ -708,17 +704,17 @@ toLBoolM $ isListLevelDefEqAux us vs
 
 /-- Auxiliary method for isDefEqDelta -/
 private def isDefEqLeft (fn : Name) (t s : Expr) : MetaM LBool :=
-do trace! `Meta.isDefEq.delta.unfoldLeft fn;
+do trace `Meta.isDefEq.delta.unfoldLeft $ fun _ => fn;
    toLBoolM $ isExprDefEqAux t s
 
 /-- Auxiliary method for isDefEqDelta -/
 private def isDefEqRight (fn : Name) (t s : Expr) : MetaM LBool :=
-do trace! `Meta.isDefEq.delta.unfoldRight fn;
+do trace `Meta.isDefEq.delta.unfoldRight $ fun _ => fn;
    toLBoolM $ isExprDefEqAux t s
 
 /-- Auxiliary method for isDefEqDelta -/
 private def isDefEqLeftRight (fn : Name) (t s : Expr) : MetaM LBool :=
-do trace! `Meta.isDefEq.delta.unfoldLeftRight fn;
+do trace `Meta.isDefEq.delta.unfoldLeftRight $ fun _ => fn;
    toLBoolM $ isExprDefEqAux t s
 
 /-- Try to solve `f a₁ ... aₙ =?= f b₁ ... bₙ` by solving `a₁ =?= b₁, ..., aₙ =?= bₙ`.
@@ -732,7 +728,7 @@ traceCtx `Meta.isDefEq.delta $
     b ← isDefEqArgs tFn t.getAppArgs s.getAppArgs
         <&&>
         isListLevelDefEqAux tFn.constLevels! sFn.constLevels!;
-    unless b $ trace! `Meta.isDefEq.delta ("heuristic failed " ++ t ++ " =?= " ++ s);
+    unless b $ trace `Meta.isDefEq.delta $ fun _ => "heuristic failed " ++ t ++ " =?= " ++ s;
     pure b
 
 /-- Auxiliary method for isDefEqDelta -/
@@ -984,7 +980,7 @@ pure false
 
 partial def isExprDefEqAuxImpl : Expr → Expr → MetaM Bool
 | t, s => do
-  trace! `Meta.isDefEq.step (t ++ " =?= " ++ s);
+  trace `Meta.isDefEq.step $ fun _ => t ++ " =?= " ++ s;
   tryL (isDefEqQuick t s) $
   tryL (isDefEqProofIrrel t s) $
   isDefEqWHNF t s $ fun t s => do

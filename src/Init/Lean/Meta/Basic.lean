@@ -303,6 +303,12 @@ instance tracer : SimpleMonadTracerAdapter MetaM :=
   getTraceState    := getTraceState,
   modifyTraceState := fun f => modify $ fun s => { traceState := f s.traceState, .. s } }
 
+@[inline] def trace (cls : Name) (msg : Unit → MessageData) : MetaM Unit :=
+whenM (MonadTracerAdapter.isTracingEnabledFor cls) $ do
+  ctx ← read;
+  s   ← get;
+  MonadTracerAdapter.addTrace cls (MessageData.context s.env s.mctx ctx.lctx (msg ()))
+
 def getConstAux (constName : Name) (exception? : Bool) : MetaM (Option ConstantInfo) :=
 do env ← getEnv;
    match env.find constName with

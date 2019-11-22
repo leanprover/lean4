@@ -5,7 +5,7 @@ if [ $# -lt 2 ]; then
 fi
 ulimit -s 8192
 LEAN=$1
-export LEAN_PATH=Init=../../../library/Init:Test=.
+export LEAN_PATH=Init=../../../src/Init:Test=.
 f=$2
 shift 2
 echo "-- testing $f"

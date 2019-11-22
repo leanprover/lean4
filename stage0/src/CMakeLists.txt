@@ -182,8 +182,7 @@ if("${CMAKE_C_COMPILER}" MATCHES "emcc")
     set(CFLAGS_EMSCRIPTEN "-Oz -O3")
     set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} ${CFLAGS_EMSCRIPTEN} -D LEAN_EMSCRIPTEN")
     set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} --memory-init-file 0 --llvm-lto 1 -s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0 ${CFLAGS_EMSCRIPTEN}")
-    set(LEAN_JS_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/../library" CACHE STRING
-            "location of olean files for lean.js")
+    set(LEAN_JS_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}" CACHE STRING "location of olean files for lean.js")
 endif()
 if (CMAKE_CROSSCOMPILING_EMULATOR)
   # emscripten likes to quote "node"
@@ -490,7 +489,7 @@ configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
 configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_SOURCE_DIR}/config.h")
 install(FILES "${LEAN_SOURCE_DIR}/config.h" DESTINATION "${INCLUDE_DIR}")
 if(NOT STAGE0)
-  configure_file("${LEAN_SOURCE_DIR}/../library/Makefile.in" "${LEAN_SOURCE_DIR}/../library/Makefile")
+  configure_file("${LEAN_SOURCE_DIR}/Init/Makefile.in" "${LEAN_SOURCE_DIR}/Init/Makefile")
 endif()
 
 include_directories("${LEAN_BINARY_DIR}")
@@ -512,10 +511,10 @@ add_subdirectory(library/compiler)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:compiler>)
 add_subdirectory(frontends/lean)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:lean_frontend>)
-add_subdirectory(init)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:init>)
+add_subdirectory(initialize)
+set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:initialize>)
 if(STAGE0)
-  add_subdirectory(../library stdlib)
+  add_subdirectory(../stdlib stdlib)
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:stage0>)
 endif()
 if(EMSCRIPTEN)
@@ -622,23 +621,11 @@ add_style_check_target(style "${LEAN_SOURCES}")
 add_test(NAME style_check COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py" ${LEAN_SOURCES})
 endif()
 
-# add_custom_target(
-#     leanpkg ALL
-#     COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" --make ${LEAN_EXTRA_MAKE_OPTS}
-#     DEPENDS standard_lib
-#     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../leanpkg"
-# )
-
 add_custom_target(clean-stdlib
-  WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
-  COMMAND find . -name *.olean -delete
-	COMMAND find . -name *.depend -delete
-	COMMAND rm -r ../src/stage1 "${CMAKE_BINARY_DIR}/stage1" || true
-  )
-
-add_custom_target(clean-leanpkg
-  WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../leanpkg"
-  COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_MODULE_PATH}/CleanOlean.cmake"
+  WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/Init"
+  COMMAND find . -name '*.olean' -delete
+        COMMAND find . -name '*.depend' -delete
+        COMMAND rm -r ../stage1 "${CMAKE_BINARY_DIR}/stage1" || true
   )
 
 add_custom_target(clean-olean
@@ -654,18 +641,10 @@ install(FILES "${CMAKE_SOURCE_DIR}/../bin/leanpkg"
   DESTINATION bin
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/../library" DESTINATION "${LIBRARY_DIR}"
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/Init" DESTINATION "${LIBRARY_DIR}"
         FILES_MATCHING
         PATTERN "*.lean"
         PATTERN "*.olean"
-        PATTERN "leanpkg.toml"
-        PATTERN "*.md")
-
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/../leanpkg" DESTINATION "${LIBRARY_DIR}"
-        FILES_MATCHING
-        PATTERN "*.lean"
-        PATTERN "*.olean"
-        PATTERN "leanpkg.toml"
         PATTERN "*.md")
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/runtime" DESTINATION "${INCLUDE_DIR}"

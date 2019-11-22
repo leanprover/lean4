@@ -40,7 +40,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/json.h"
 #include "frontends/lean/util.h"
 #include "library/trace.h"
-#include "init/init.h"
+#include "initialize/init.h"
 #include "frontends/lean/simple_pos_info_provider.h"
 #include "library/compiler/ir_interpreter.h"
 #include "util/path.h"

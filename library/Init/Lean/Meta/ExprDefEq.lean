@@ -113,21 +113,22 @@ private partial def isDefEqArgsAux (args₁ args₂ : Array Expr) (h : args₁.s
 private def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : MetaM Bool :=
 if h : args₁.size = args₂.size then do
   finfo ← getFunInfoNArgs f args₁.size;
-  isDefEqArgsAux args₁ args₂ h finfo.paramInfo.size;
   (some postponed) ← isDefEqArgsFirstPass finfo.paramInfo args₁ args₂ 0 #[] | pure false;
-  /- Second pass: unify implicit arguments.
-     In the second pass, we make sure we are unfolding at
-     least non reducible definitions (default setting). -/
-  postponed.allM $ fun i => do
+  (isDefEqArgsAux args₁ args₂ h finfo.paramInfo.size)
+  <&&>
+  (postponed.allM $ fun i => do
+   /- Second pass: unify implicit arguments.
+      In the second pass, we make sure we are unfolding at
+      least non reducible definitions (default setting). -/
     let a₁   := args₁.get! i;
     let a₂   := args₂.get! i;
     let info := finfo.paramInfo.get! i;
     when info.instImplicit $ do {
-       synthPending a₁;
-       synthPending a₂;
-       pure ()
+      synthPending a₁;
+      synthPending a₂;
+      pure ()
     };
-    usingAtLeastTransparency TransparencyMode.default $ isExprDefEqAux a₁ a₂
+    usingAtLeastTransparency TransparencyMode.default $ isExprDefEqAux a₁ a₂)
 else
   pure false
 

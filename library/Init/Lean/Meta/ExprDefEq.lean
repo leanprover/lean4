@@ -700,11 +700,6 @@ match t.getAppFn with
 | Expr.const c _ _ => getConst c
 | _                => pure none
 
-private def sameHeadSymbol (t s : Expr) : Bool :=
-match t.getAppFn, s.getAppFn with
-| Expr.const c₁ _ _, Expr.const c₂ _ _ => true
-| _,                 _                 => false
-
 /-- Auxiliary method for isDefEqDelta -/
 private def isListLevelDefEq (us vs : List Level) : MetaM LBool :=
 toLBoolM $ isListLevelDefEqAux us vs
@@ -731,10 +726,12 @@ private def tryHeuristic (t s : Expr) : MetaM Bool :=
 let tFn := t.getAppFn;
 let sFn := s.getAppFn;
 traceCtx `Meta.isDefEq.delta $
-  try $
-    isDefEqArgs tFn t.getAppArgs s.getAppArgs
-    <&&>
-    isListLevelDefEqAux tFn.constLevels! sFn.constLevels!
+  try $ do
+    b ← isDefEqArgs tFn t.getAppArgs s.getAppArgs
+        <&&>
+        isListLevelDefEqAux tFn.constLevels! sFn.constLevels!;
+    unless b $ trace! `Meta.isDefEq.delta ("heuristic failed " ++ t ++ " =?= " ++ s);
+    pure b
 
 /-- Auxiliary method for isDefEqDelta -/
 private abbrev unfold {α} (e : Expr) (failK : MetaM α) (successK : Expr → MetaM α) : MetaM α :=
@@ -754,6 +751,11 @@ match t, s with
       (unfold s (pure LBool.false) (fun s => isDefEqRight fn t s))
       (fun t => unfold s (isDefEqLeft fn t s) (fun s => isDefEqLeftRight fn t s)))
 | _, _ => pure LBool.false
+
+private def sameHeadSymbol (t s : Expr) : Bool :=
+match t.getAppFn, s.getAppFn with
+| Expr.const c₁ _ _, Expr.const c₂ _ _ => true
+| _,                 _                 => false
 
 /--
   - If headSymbol (unfold t) == headSymbol s, then unfold t
@@ -796,6 +798,65 @@ if !t.hasExprMVar && !s.hasExprMVar then
 else
   unfoldComparingHeadsDefEq tInfo sInfo t s
 
+/--
+  When `TransparencyMode` is set to `default` or `all`.
+  If `t` is reducible and `s` is not ==> `isDefEqLeft  (unfold t) s`
+  If `s` is reducible and `t` is not ==> `isDefEqRight t (unfold s)`
+
+  Otherwise, use `unfoldDefEq`
+
+  Auxiliary method for isDefEqDelta -/
+private def unfoldReducibeDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : MetaM LBool :=
+condM reduceReducibleOnly?
+  (unfoldDefEq tInfo sInfo t s)
+  (do tReducible ← isReducible tInfo.name;
+      sReducible ← isReducible sInfo.name;
+      if tReducible && !sReducible then
+        unfold t (unfoldDefEq tInfo sInfo t s) $ fun t => isDefEqLeft tInfo.name t s
+      else if !tReducible && sReducible then
+        unfold s (unfoldDefEq tInfo sInfo t s) $ fun s => isDefEqRight sInfo.name t s
+      else
+        unfoldDefEq tInfo sInfo t s)
+
+/--
+  If `t` is a projection function application and `s` is not ==> `isDefEqRight t (unfold s)`
+  If `s` is a projection function application and `t` is not ==> `isDefEqRight (unfold t) s`
+
+  Otherwise, use `unfoldReducibeDefEq`
+
+  Auxiliary method for isDefEqDelta -/
+private def unfoldNonProjFnDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : MetaM LBool :=
+do env ← getEnv;
+   let tProj? := env.isProjectionFn tInfo.name;
+   let sProj? := env.isProjectionFn sInfo.name;
+   if tProj? && !sProj? then
+     unfold s (unfoldDefEq tInfo sInfo t s) $ fun s => isDefEqRight sInfo.name t s
+   else if !tProj? && sProj? then
+     unfold t (unfoldDefEq tInfo sInfo t s) $ fun t => isDefEqLeft tInfo.name t s
+   else
+     unfoldReducibeDefEq tInfo sInfo t s
+
+/--
+  isDefEq by lazy delta reduction.
+  This method implements many different heuristics:
+  1- If only `t` can be unfolded => then unfold `t` and continue
+  2- If only `s` can be unfolded => then unfold `s` and continue
+  3- If `t` and `s` can be unfolded and they have the same head symbol, then
+     a) First try to solve unification by unifying arguments.
+     b) If it fails, unfold both and continue.
+     Implemented by `unfoldBothDefEq`
+  4- If `t` is a projection function application and `s` is not => then unfold `s` and continue.
+  5- If `s` is a projection function application and `t` is not => then unfold `t` and continue.
+  Remark: 4&5 are implemented by `unfoldNonProjFnDefEq`
+  6- If `t` is reducible and `s` is not => then unfold `t` and continue.
+  7- If `s` is reducible and `t` is not => then unfold `s` and continue
+  Remark: 6&7 are implemented by `unfoldReducibeDefEq`
+  8- If `t` and `s` do not contain metavariables, then use heuristic used in the Kernel.
+     Implemented by `unfoldDefEq`
+  9- If `headSymbol (unfold t) == headSymbol s`, then unfold t and continue.
+  10- If `headSymbol (unfold s) == headSymbol t`, then unfold s
+  11- Otherwise, unfold `t` and `s` and continue.
+  Remark: 9&10&11 are implemented by `unfoldComparingHeadsDefEq` -/
 private def isDefEqDelta (t s : Expr) : MetaM LBool :=
 do tInfo? ← isDeltaCandidate t.getAppFn;
    sInfo? ← isDeltaCandidate s.getAppFn;
@@ -807,20 +868,7 @@ do tInfo? ← isDeltaCandidate t.getAppFn;
      if tInfo.name == sInfo.name then
        unfoldBothDefEq tInfo.name t s
      else
-       condM reduceReducibleOnly?
-         (unfoldDefEq tInfo sInfo t s)
-         (do
-           /- TransparencyMode is set to `default` or `all`.
-              If `t` is reducible and `s` is not ==> reduce `t`
-              If `s` is reducible and `t` is not ==> reduce `s` -/
-           tReducible ← isReducible tInfo.name;
-           sReducible ← isReducible sInfo.name;
-           if tReducible && !sReducible then
-             unfold t (unfoldDefEq tInfo sInfo t s) $ fun t => isDefEqLeft tInfo.name t s
-           else if !tReducible && sReducible then
-             unfold s (unfoldDefEq tInfo sInfo t s) $ fun s => isDefEqRight sInfo.name t s
-           else
-             unfoldDefEq tInfo sInfo t s)
+       unfoldNonProjFnDefEq tInfo sInfo t s
 
 private def isAssigned : Expr → MetaM Bool
 | Expr.mvar mvarId _ => isExprMVarAssigned mvarId

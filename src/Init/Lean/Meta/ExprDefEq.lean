@@ -999,5 +999,7 @@ partial def isExprDefEqAuxImpl : Expr → Expr → MetaM Bool
 @[init] def setIsExprDefEqAuxRef : IO Unit :=
 isExprDefEqAuxRef.set isExprDefEqAuxImpl
 
+abbrev isDefEq := @isExprDefEq
+
 end Meta
 end Lean

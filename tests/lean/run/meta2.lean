@@ -177,8 +177,8 @@ do print "----- tst6 -----";
      m2 ← mkFreshExprMVar type;
      let t := mkApp io x;
      -- we need to use foApprox to solve `?m1 ?m2 =?= IO x`
-     check $ not <$> isExprDefEq (mkApp m1 m2) t;
-     check $ approxDefEq $ isExprDefEq (mkApp m1 m2) t;
+     check $ not <$> isDefEq (mkApp m1 m2) t;
+     check $ approxDefEq $ isDefEq (mkApp m1 m2) t;
      v ← getAssignment m1;
      check $ pure $ v == io;
      v ← getAssignment m2;

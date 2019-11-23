@@ -100,7 +100,8 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         declaration new_d = mk_definition_inferring_unsafe(env, proj_name, lvl_params, proj_type, proj_val,
                                                          reducibility_hints::mk_abbreviation());
         new_env = new_env.add(new_d);
-        new_env = set_reducible(new_env, proj_name, reducible_status::Reducible, true);
+        if (!inst_implicit)
+            new_env = set_reducible(new_env, proj_name, reducible_status::Reducible, true);
         new_env = save_projection_info(new_env, proj_name, cnstr_info.get_name(), nparams, i, inst_implicit);
         expr proj         = mk_app(mk_app(mk_constant(proj_name, lvls), params), c);
         cnstr_type        = instantiate(binding_body(cnstr_type), proj);

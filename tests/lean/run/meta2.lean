@@ -133,6 +133,11 @@ def tst5 : MetaM Unit :=
 do print "----- tst5 -----";
    p₁ ← mkPair (mkNatLit 1) (mkNatLit 2);
    x  ← mkFst p₁;
+   print x;
+   v  ← whnf x;
+   print v;
+   v  ← usingTransparency TransparencyMode.reducible $ whnf x;
+   print v;
    x  ← mkId x;
    print x;
    prod ← mkProd nat nat;
@@ -171,7 +176,7 @@ do print "----- tst6 -----";
 def mkArrow (d b : Expr) : Expr := mkForall `_ BinderInfo.default d b
 
 def tst7 : MetaM Unit :=
-do print "----- tst6 -----";
+do print "----- tst7 -----";
    withLocalDecl `x type BinderInfo.default $ fun x => do
      m1 ← mkFreshExprMVar (mkArrow type type);
      m2 ← mkFreshExprMVar type;
@@ -186,3 +191,24 @@ do print "----- tst6 -----";
      pure ()
 
 #eval run [`Init.System.IO] tst7
+
+def tst8 : MetaM Unit :=
+do print "----- tst8 -----";
+   let add := mkAppN (mkConst `HasAdd.add [levelOne]) #[nat, mkConst `Nat.HasAdd];
+   let t   := mkAppN add #[mkNatLit 2, mkNatLit 3];
+   t ← usingTransparency TransparencyMode.reducible $ whnf t;
+   print t;
+   t ← whnf t;
+   print t;
+   pure ()
+
+#eval run [`Init.Core] tst8
+
+def tst9 : MetaM Unit :=
+do print "----- tst9 -----";
+   env ← getEnv;
+   print (toString $ Lean.isReducible env `Prod.fst);
+   print (toString $ Lean.isReducible env `HasAdd.add);
+   pure ()
+
+#eval run [`Init.Core] tst9

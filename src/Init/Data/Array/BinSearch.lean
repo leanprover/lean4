@@ -29,4 +29,37 @@ binSearchAux lt id as k lo hi
 @[inline] def binSearchContains {α : Type} [Inhabited α] (as : Array α) (k : α) (lt : α → α → Bool) (lo := 0) (hi := as.size - 1) : Bool :=
 binSearchAux lt Option.isSome as k lo hi
 
+@[specialize] partial def binInsertAuxAux {α : Type u} [Inhabited α]
+    (lt : α → α → Bool)
+    (merge : α → α)
+    (add : Unit → α)
+    (as : Array α)
+    (k : α) : Nat → Nat → Array α
+| lo, hi =>
+  -- as[lo] < k < as[hi]
+  let m := (lo + hi)/2;
+  if lt (as.get! m) k then
+    if m == lo then as.insertAt (lo+1) (add ())
+    else binInsertAuxAux m hi
+  else if lt k (as.get! m) then
+    binInsertAuxAux lo m
+  else
+    as.modify m $ fun a => merge a
+
+@[specialize] partial def binInsertAux {α : Type u} [Inhabited α]
+    (lt : α → α → Bool)
+    (merge : α → α)
+    (add : Unit → α)
+    (as : Array α)
+    (k : α) : Array α :=
+if as.isEmpty then as.push (add ())
+else if lt k (as.get! 0) then as.insertAt 0 (add ())
+else if !lt (as.get! 0) k then as.modify 0 $ fun a => merge a
+else if lt as.back k then as.push (add ())
+else if !lt k as.back then as.modify (as.size - 1) $ fun a => merge a
+else binInsertAuxAux lt merge add as k 0 (as.size - 1)
+
+@[inline] def binInsert {α : Type u} [Inhabited α] (lt : α → α → Bool) (as : Array α) (k : α) : Array α :=
+binInsertAux lt (fun _ => k) (fun _ => k) as k
+
 end Array

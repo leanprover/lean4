@@ -385,17 +385,26 @@ as.iterateM (mkEmpty as.size) (fun i a bs => do b ← f i.val a; pure (bs.push b
 end
 
 section
+variables {m : Type u → Type v} [Monad m]
 variable {β : Type u}
 
-@[inline] def modify [Inhabited α] (a : Array α) (i : Nat) (f : α → α) : Array α :=
-if h : i < a.size then
+@[inline] def modifyM [Inhabited α] (a : Array α) (i : Nat) (f : α → m α) : m (Array α) :=
+if h : i < a.size then do
   let idx : Fin a.size := ⟨i, h⟩;
   let v                := a.get idx;
   let a                := a.set idx (arbitrary α);
-  let v                := f v;
-  a.set idx v
+  v ← f v;
+  pure $ (a.set idx v)
 else
-  a
+  pure a
+
+end
+
+section
+variable {β : Type u}
+
+@[inline] def modify [Inhabited α] (a : Array α) (i : Nat) (f : α → α) : Array α :=
+Id.run $ a.modifyM i f
 
 @[inline] def mapIdx (f : Nat → α → β) (a : Array α) : Array β :=
 Id.run $ mapIdxM f a
@@ -544,6 +553,22 @@ eraseIdxSzAux a (i.val + 1) a rfl
 
 def contains [HasBeq α] (as : Array α) (a : α) : Bool :=
 as.any $ fun b => a == b
+
+partial def insertAtAux {α} (i : Nat) : Array α → Nat → Array α
+| as, j =>
+  if i == j then as
+  else
+    let as := as.swap! (j-1) j;
+    insertAtAux as (j-1)
+
+/--
+  Insert element `a` at position `i`.
+  Pre: `i < as.size` -/
+def insertAt {α} (as : Array α) (i : Nat) (a : α) : Array α :=
+if i > as.size then panic! "invalid index"
+else
+  let as := as.push a;
+  as.insertAtAux i as.size
 
 end Array
 

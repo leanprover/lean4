@@ -303,6 +303,12 @@ instance tracer : SimpleMonadTracerAdapter MetaM :=
   getTraceState    := getTraceState,
   modifyTraceState := fun f => modify $ fun s => { traceState := f s.traceState, .. s } }
 
+@[inline] def trace (cls : Name) (msg : Unit → MessageData) : MetaM Unit :=
+whenM (MonadTracerAdapter.isTracingEnabledFor cls) $ do
+  ctx ← read;
+  s   ← get;
+  MonadTracerAdapter.addTrace cls (MessageData.context s.env s.mctx ctx.lctx (msg ()))
+
 def getConstAux (constName : Name) (exception? : Bool) : MetaM (Option ConstantInfo) :=
 do env ← getEnv;
    match env.find constName with
@@ -608,6 +614,28 @@ fun e => usingTransparency TransparencyMode.default $ whnf e
 @[inline] def approxDefEq {α} (x : MetaM α) : MetaM α :=
 adaptReader (fun (ctx : Context) => { config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true, .. ctx.config }, .. ctx })
   x
+
+@[inline] private def withNewFVar {α} (fvar fvarType : Expr) (k : Expr → MetaM α) : MetaM α :=
+do c? ← isClass fvarType;
+   match c? with
+   | none   => k fvar
+   | some c => withNewLocalInstance c fvar $ k fvar
+
+@[inline] def withLocalDecl {α} (n : Name) (type : Expr) (bi : BinderInfo) (k : Expr → MetaM α) : MetaM α :=
+do fvarId ← mkFreshId;
+   ctx ← read;
+   let lctx := ctx.lctx.mkLocalDecl fvarId n type bi;
+   let fvar := mkFVar fvarId;
+   adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
+     withNewFVar fvar type k
+
+@[inline] def withLetDecl {α} (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) : MetaM α :=
+do fvarId ← mkFreshId;
+   ctx ← read;
+   let lctx := ctx.lctx.mkLetDecl fvarId n type val;
+   let fvar := mkFVar fvarId;
+   adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
+     withNewFVar fvar type k
 
 end Meta
 end Lean

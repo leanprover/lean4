@@ -58,7 +58,7 @@ partial def isLevelDefEqAux : Level → Level → MetaM Bool
   if lhs == rhs then
     pure true
   else do
-    trace! `Meta.isLevelDefEq.step (lhs ++ " =?= " ++ rhs);
+    trace `Meta.isLevelDefEq.step $ fun _ => lhs ++ " =?= " ++ rhs;
     lhs' ← instantiateLevelMVars lhs;
     let lhs' := lhs'.normalize;
     rhs' ← instantiateLevelMVars rhs;
@@ -104,7 +104,7 @@ do s ← get;
    pure ps
 
 private def processPostponedStep : MetaM Bool :=
-traceCtx `type_context.level_is_def_eq.postponed_step $ do
+traceCtx `Meta.isLevelDefEq.postponed.step $ do
   ps ← getResetPostponed;
   ps.foldlM
     (fun (r : Bool) (p : PostponedEntry) =>
@@ -120,7 +120,7 @@ private partial def processPostponedAux : Unit → MetaM Bool
   if numPostponed == 0 then
     pure true
   else do
-    trace! `type_context.level_is_def_eq ("processing #" ++ toString numPostponed ++ " postponed is-def-eq level constraints");
+    trace `Meta.isLevelDefEq.postponed $ fun _ => "processing #" ++ toString numPostponed ++ " postponed is-def-eq level constraints";
     r ← processPostponedStep;
     if !r then
       pure r
@@ -131,13 +131,13 @@ private partial def processPostponedAux : Unit → MetaM Bool
       else if numPostponed' < numPostponed then
         processPostponedAux ()
       else do
-        trace! `type_context.level_is_def_eq ("no progress solving pending is-def-eq level constraints");
+        trace `Meta.isLevelDefEq.postponed $ fun _ => format "no progress solving pending is-def-eq level constraints";
         pure false
 
 private def processPostponed : MetaM Bool :=
 do numPostponed ← getNumPostponed;
    if numPostponed == 0 then pure true
-   else traceCtx `type_context.level_is_def_eq.postponed $ processPostponedAux ()
+   else traceCtx `Meta.isLevelDefEq.postponed $ processPostponedAux ()
 
 
 private def restore (env : Environment) (mctx : MetavarContext) (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
@@ -168,13 +168,13 @@ do s ← get;
 def isLevelDefEq (u v : Level) : MetaM Bool :=
 traceCtx `Meta.isLevelDefEq $ do
   b ← try $ isLevelDefEqAux u v;
-  trace! `Meta.isLevelDefEq (u ++ " =?= " ++ v ++ " ... " ++ if b then "success" else "failure");
+  trace `Meta.isLevelDefEq $ fun _ => u ++ " =?= " ++ v ++ " ... " ++ if b then "success" else "failure";
   pure b
 
 def isExprDefEq (t s : Expr) : MetaM Bool :=
 traceCtx `Meta.isDefEq $ do
   b ← try $ isExprDefEqAux t s;
-  trace! `Meta.isDefEq (t ++ " =?= " ++ s ++ " ... " ++ if b then "success" else "failure");
+  trace `Meta.isDefEq $ fun _ => t ++ " =?= " ++ s ++ " ... " ++ if b then "success" else "failure";
   pure b
 
 end Meta

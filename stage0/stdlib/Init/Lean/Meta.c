@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Meta
-// Imports: Init.Lean.Meta.Basic Init.Lean.Meta.LevelDefEq Init.Lean.Meta.WHNF Init.Lean.Meta.InferType Init.Lean.Meta.FunInfo Init.Lean.Meta.ExprDefEq
+// Imports: Init.Lean.Meta.Basic Init.Lean.Meta.LevelDefEq Init.Lean.Meta.WHNF Init.Lean.Meta.InferType Init.Lean.Meta.FunInfo Init.Lean.Meta.ExprDefEq Init.Lean.Meta.DiscrTree
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,6 +19,7 @@ lean_object* initialize_Init_Lean_Meta_WHNF(lean_object*);
 lean_object* initialize_Init_Lean_Meta_InferType(lean_object*);
 lean_object* initialize_Init_Lean_Meta_FunInfo(lean_object*);
 lean_object* initialize_Init_Lean_Meta_ExprDefEq(lean_object*);
+lean_object* initialize_Init_Lean_Meta_DiscrTree(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Meta(lean_object* w) {
 lean_object * res;
@@ -40,6 +41,9 @@ res = initialize_Init_Lean_Meta_FunInfo(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Meta_ExprDefEq(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Lean_Meta_DiscrTree(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_mk_io_result(lean_box(0));

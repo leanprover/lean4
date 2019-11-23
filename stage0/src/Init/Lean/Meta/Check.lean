@@ -85,7 +85,7 @@ def isTypeCorrect (e : Expr) : MetaM Bool :=
 catch
   (traceCtx `Meta.check $ do checkAux e; pure true)
   (fun ex => do
-    trace! `Meta.typeError ex.toMessageData;
+    trace `Meta.typeError $ fun _ => ex.toMessageData;
     pure false)
 
 end Meta

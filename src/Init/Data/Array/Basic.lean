@@ -545,6 +545,22 @@ eraseIdxSzAux a (i.val + 1) a rfl
 def contains [HasBeq α] (as : Array α) (a : α) : Bool :=
 as.any $ fun b => a == b
 
+partial def insertAtAux {α} (i : Nat) : Array α → Nat → Array α
+| as, j =>
+  if i == j then as
+  else
+    let as := as.swap! (j-1) j;
+    insertAtAux as (j-1)
+
+/--
+  Insert element `a` at position `i`.
+  Pre: `i < as.size` -/
+def insertAt {α} (as : Array α) (i : Nat) (a : α) : Array α :=
+if i > as.size then panic! "invalid index"
+else
+  let as := as.push a;
+  as.insertAtAux i as.size
+
 end Array
 
 export Array (mkArray)

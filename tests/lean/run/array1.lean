@@ -21,3 +21,9 @@ axiom axLt {a b : Nat} : a < b
 #eval (mkArray 10 1).data ⟨1, axLt⟩ + 20
 #eval (mkArray 10 1).data ⟨2, axLt⟩
 #eval (mkArray 10 3).data ⟨2, axLt⟩
+
+#eval #[1, 2, 3].insertAt 0 10
+#eval #[1, 2, 3].insertAt 1 10
+#eval #[1, 2, 3].insertAt 2 10
+#eval #[1, 2, 3].insertAt 3 10
+#eval #[].insertAt 0 10

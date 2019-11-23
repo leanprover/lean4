@@ -1,0 +1,127 @@
+import Init.Lean.Format
+open Lean
+
+def List.insert {α} [HasBeq α] (as : List α) (a : α) : List α :=
+if as.contains a then as else a::as
+
+inductive Term
+| var : Nat → Term
+| app : String → Array Term → Term
+
+instance : Inhabited Term := ⟨Term.var 0⟩
+
+inductive Key
+| var : Key
+| sym : String → Nat → Key
+
+instance : Inhabited Key := ⟨Key.var⟩
+
+def Key.beq : Key → Key → Bool
+| Key.var,       Key.var       => true
+| Key.sym k₁ a₁, Key.sym k₂ a₂ => k₁ == k₂ && a₁ == a₂
+| _,             _             => false
+
+instance : HasBeq Key := ⟨Key.beq⟩
+
+def Key.lt : Key → Key → Bool
+| Key.var,       Key.var       => false
+| Key.var,       _             => true
+| Key.sym k₁ a₁, Key.sym k₂ a₂ => k₁ < k₂ || (k₁ == k₂ && a₁ < a₂)
+| _,             _             => false
+
+instance : HasLess Key := ⟨fun k₁ k₂ => k₁.lt k₂⟩
+
+def Key.format : Key → Format
+| Key.var     => "*"
+| Key.sym k a => if a > 0 then k ++ "." ++ fmt a else k
+
+instance : HasFormat Key := ⟨Key.format⟩
+
+def Term.key : Term → Key
+| Term.var _    => Key.var
+| Term.app f as => Key.sym f as.size
+
+def Term.args : Term → Array Term
+| Term.var _    => #[]
+| Term.app f as => as
+
+-- TODO: root should be a persistent hash map
+inductive Trie (α : Type)
+| node (vals : List α) (children : Array (Key × Trie)) : Trie
+
+namespace Trie
+
+def empty {α} : Trie α :=
+node [] #[]
+
+instance {α} : Inhabited (Trie α) := ⟨empty⟩
+
+partial def appendTodoAux (as : Array Term) : Nat → Array Term → Array Term
+| 0,   todo => todo
+| i+1, todo => appendTodoAux i (todo.push (as.get! i))
+
+def appendTodo (todo : Array Term) (as : Array Term) : Array Term :=
+appendTodoAux as as.size todo
+
+partial def createNodes {α} (v : α) : Array Term → Trie α
+| todo =>
+  if todo.isEmpty then node [v] #[]
+  else
+    let t    := todo.back;
+    let todo := todo.pop;
+    node [] #[(t.key, createNodes (appendTodo todo t.args))]
+
+partial def insertAux {α} [HasBeq α] (v : α) : Array Term → Trie α → Trie α
+| todo, node vs cs =>
+  if todo.isEmpty then node (vs.insert v) cs
+  else
+    let t    := todo.back;
+    let todo := todo.pop;
+    let todo := appendTodo todo t.args;
+    let k    := t.key;
+    node vs $
+      cs.binInsertAux
+        (fun a b => a.1 < b.1)
+        (fun ⟨_, s⟩ => (k, insertAux todo s)) -- merge with existing
+        (fun _ => (k, createNodes v todo))  -- add new node
+        (k, arbitrary _)
+
+def insert {α} [HasBeq α] (d : Trie α) (k : Term) (v : α) : Trie α :=
+let todo : Array Term := Array.mkEmpty 32;
+let todo := todo.push k;
+insertAux v todo d
+
+partial def format {α} [HasFormat α] : Trie α → Format
+| node vs cs => Format.group $ Format.paren $ "node" ++ (if vs.isEmpty then Format.nil else " " ++ fmt vs) ++ Format.join (cs.toList.map $ fun ⟨k, c⟩ => Format.line ++ Format.paren (fmt k ++ " => " ++ format c))
+
+instance {α} [HasFormat α] : HasFormat (Trie α) := ⟨format⟩
+
+end Trie
+
+def mkApp (s : String) (cs : Array Term) := Term.app s cs
+def mkConst (s : String) := Term.app s #[]
+def mkVar (i : Nat) := Term.var i
+
+def tst1 : IO Unit :=
+let d  := @Trie.empty Nat;
+let t  := mkApp "f" #[mkApp "g" #[mkConst "a"], mkApp "g" #[mkConst "b"]];
+let d  := d.insert t 10;
+let t  := mkApp "f" #[mkApp "h" #[mkConst "a", mkVar 0], mkConst "b"];
+let d  := d.insert t 20;
+let t  := mkApp "f" #[mkConst "b", mkConst "c", mkConst "d"];
+let d  := d.insert t 20;
+let d  := (20:Nat).fold
+  (fun i (d : Trie Nat) =>
+    let t  := mkApp "f" #[mkApp "h" #[mkConst "a", mkVar 0], mkApp "f" #[mkConst ("c" ++ toString i)]];
+    d.insert t i)
+  d;
+let d  := (20:Nat).fold
+  (fun i (d : Trie Nat) =>
+    let t  := mkApp "f" #[mkApp "g" #[mkConst ("a" ++ toString i)], mkApp "g" #[mkConst "b"]];
+    d.insert t i)
+  d;
+-- let t  := mkApp "g" [mkApp "h" [mkConst "a"]];
+-- let d  := d.insert t 10;
+IO.println (format d)
+
+#eval tst1

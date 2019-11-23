@@ -10,3 +10,4 @@ import Init.Lean.Meta.WHNF
 import Init.Lean.Meta.InferType
 import Init.Lean.Meta.FunInfo
 import Init.Lean.Meta.ExprDefEq
+import Init.Lean.Meta.DiscrTree

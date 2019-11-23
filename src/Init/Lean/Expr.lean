@@ -32,6 +32,14 @@ def Literal.beq : Literal → Literal → Bool
 
 instance Literal.hasBeq : HasBeq Literal := ⟨Literal.beq⟩
 
+def Literal.lt : Literal → Literal → Bool
+| Literal.natVal _,  Literal.strVal _  => true
+| Literal.natVal v₁, Literal.natVal v₂ => v₁ < v₂
+| Literal.strVal v₁, Literal.strVal v₂ => v₁ < v₂
+| _,                 _                 => false
+
+instance Literal.hasLess : HasLess Literal := ⟨fun a b => a.lt b⟩
+
 inductive BinderInfo
 | default | implicit | strictImplicit | instImplicit | auxDecl
 

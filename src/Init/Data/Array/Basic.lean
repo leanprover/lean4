@@ -385,17 +385,26 @@ as.iterateM (mkEmpty as.size) (fun i a bs => do b ← f i.val a; pure (bs.push b
 end
 
 section
+variables {m : Type u → Type v} [Monad m]
 variable {β : Type u}
 
-@[inline] def modify [Inhabited α] (a : Array α) (i : Nat) (f : α → α) : Array α :=
-if h : i < a.size then
+@[inline] def modifyM [Inhabited α] (a : Array α) (i : Nat) (f : α → m α) : m (Array α) :=
+if h : i < a.size then do
   let idx : Fin a.size := ⟨i, h⟩;
   let v                := a.get idx;
   let a                := a.set idx (arbitrary α);
-  let v                := f v;
-  a.set idx v
+  v ← f v;
+  pure $ (a.set idx v)
 else
-  a
+  pure a
+
+end
+
+section
+variable {β : Type u}
+
+@[inline] def modify [Inhabited α] (a : Array α) (i : Nat) (f : α → α) : Array α :=
+Id.run $ a.modifyM i f
 
 @[inline] def mapIdx (f : Nat → α → β) (a : Array α) : Array β :=
 Id.run $ mapIdxM f a

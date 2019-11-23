@@ -314,10 +314,11 @@ do env ← getEnv;
    match env.find constName with
    | some (info@(ConstantInfo.thmInfo _)) =>
      condM reduceAll? (pure (some info)) (pure none)
-   | some info                            =>
+   | some (info@(ConstantInfo.defnInfo _)) =>
      condM reduceReducibleOnly?
        (condM (isReducible constName) (pure (some info)) (pure none))
        (pure (some info))
+   | some info => pure (some info)
    | none                                 =>
      if exception? then throwEx $ Exception.unknownConst constName
      else pure none

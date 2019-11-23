@@ -79,8 +79,8 @@ partial def insertAux {α} [HasBeq α] (v : α) : Array Term → Trie α → Tri
     let todo := todo.pop;
     let todo := appendTodo todo t.args;
     let k    := t.key;
-    node vs $
-      cs.binInsertAux
+    node vs $ Id.run $
+      cs.binInsertM
         (fun a b => a.1 < b.1)
         (fun ⟨_, s⟩ => (k, insertAux todo s)) -- merge with existing
         (fun _ => (k, createNodes v todo))  -- add new node

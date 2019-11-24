@@ -13,6 +13,9 @@ namespace DiscrTree
 
 /-
   (Imperfect) discrimination trees.
+  We use a hybrid representation.
+  - A `PersistentHashMap` for the root node which usually contains many children.
+  - A sorted array of key/node pairs for inner nodes.
 
   The edges are labeled by keys:
   - Constant names (and arity). Universe levels are ignored.

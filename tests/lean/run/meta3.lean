@@ -39,10 +39,23 @@ do let d : DiscrTree Nat := {};
    mvar ← mkFreshExprMVar nat;
    d ← d.insert (mkAppN add #[mvar, mkNatLit 10]) 1;
    d ← d.insert (mkAppN add #[mkNatLit 0, mkNatLit 10]) 2;
-   d ← d.insert (mkAppN (mkConst `Nat.add) #[mkNatLit 0, mkNatLit 10]) 3;
-   d ← d.insert mvar 4;
+   d ← d.insert (mkAppN (mkConst `Nat.add) #[mkNatLit 0, mkNatLit 20]) 3;
+   d ← d.insert (mkAppN add #[mvar, mkNatLit 20]) 4;
+   d ← d.insert mvar 5;
    print (format d);
    vs ← d.getMatch (mkAppN add #[mkNatLit 1, mkNatLit 10]);
+   print (format vs);
+   let t := mkAppN add #[mvar, mvar];
+   print t;
+   vs ← d.getMatch t;
+   print (format vs);
+   vs ← d.getUnify t;
+   print (format vs);
+   vs ← d.getUnify mvar;
+   print (format vs);
+   vs ← d.getUnify $ mkAppN add #[mkNatLit 0, mvar];
+   print (format vs);
+   vs ← d.getUnify $ mkAppN add #[mvar, mkNatLit 20];
    print (format vs);
    pure ()
 

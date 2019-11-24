@@ -78,21 +78,18 @@ def Key.beq : Key → Key → Bool
 
 instance Key.hasBeq : HasBeq Key := ⟨Key.beq⟩
 
+def Key.ctorIdx : Key → Nat
+| Key.star      => 0
+| Key.other     => 1
+| Key.lit _     => 2
+| Key.fvar _ _  => 3
+| Key.const _ _ => 4
+
 def Key.lt : Key → Key → Bool
-| Key.star,        Key.star        => false
-| Key.star,        _               => true
-| Key.other,       Key.star        => false
-| Key.other,       Key.other       => false
-| Key.other,       _               => true
 | Key.lit v₁,      Key.lit v₂      => v₁ < v₂
-| Key.lit _,       Key.const _ _   => true
-| Key.lit _,       Key.fvar _ _    => true
-| Key.lit _,       _               => false
 | Key.fvar n₁ a₁,  Key.fvar n₂ a₂  => Name.quickLt n₁ n₂ || (n₁ == n₂ && a₁ < a₂)
-| Key.fvar _ _,    Key.const _ _   => true
-| Key.fvar _ _,    _               => false
 | Key.const n₁ a₁, Key.const n₂ a₂ => Name.quickLt n₁ n₂ || (n₁ == n₂ && a₁ < a₂)
-| Key.const _ _,    _              => false
+| k₁,              k₂              => k₁.ctorIdx < k₂.ctorIdx
 
 instance Key.hasLess : HasLess Key := ⟨fun a b => Key.lt a b⟩
 

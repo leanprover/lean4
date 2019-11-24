@@ -149,7 +149,7 @@ do e ← whnf e;
    | Expr.const c _ _   => let nargs := e.getAppNumArgs; push (Key.const c nargs) nargs
    | Expr.fvar fvarId _ => let nargs := e.getAppNumArgs; push (Key.fvar fvarId nargs) nargs
    | Expr.mvar mvarId _ =>
-     if mvarId == `_tmp then
+     if mvarId == tmpMVarId then
        -- We use `tmp to mark implicit arguments and proofs
        pure (Key.star, todo)
      else condM (isReadOnlyOrSyntheticExprMVar mvarId)
@@ -187,7 +187,7 @@ private partial def insertAux {α} [HasBeq α] (v : α) : Array Expr → Trie α
 
 private def initCapacity := 16
 
-private def insert {α} [HasBeq α] (d : DiscrTree α) (e : Expr) (v : α) : MetaM (DiscrTree α) :=
+def insert {α} [HasBeq α] (d : DiscrTree α) (e : Expr) (v : α) : MetaM (DiscrTree α) :=
 usingTransparency TransparencyMode.reducible $ do
   (k, todo) ← pushArgs (Array.mkEmpty initCapacity) e;
   match d.root.find k with

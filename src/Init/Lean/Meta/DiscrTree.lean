@@ -185,7 +185,7 @@ private partial def insertAux {α} [HasBeq α] (v : α) : Array Expr → Trie α
         (k, arbitrary _);
     pure $ Trie.node vs c
 
-private def initCapacity := 16
+private def initCapacity := 8
 
 def insert {α} [HasBeq α] (d : DiscrTree α) (e : Expr) (v : α) : MetaM (DiscrTree α) :=
 usingTransparency TransparencyMode.reducible $ do
@@ -247,16 +247,22 @@ private partial def getMatchAux {α} : Array Expr → Trie α → Array α → M
       | none   => visitStarChild result
       | some c => do result ← visitStarChild result; getMatchAux (todo ++ args) c.2 result
 
-#exit
+private def getStarResult {α} (d : DiscrTree α) : Array α :=
+let result : Array α := Array.mkEmpty initCapacity;
+match d.root.find Key.star with
+| none                  => result
+| some (Trie.node vs _) => result ++ vs
 
 def getMatch {α} (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
 usingTransparency TransparencyMode.reducible $ do
- (k, args) ← getKeyArgs e true;
- match k with
- | Key.star =>
-   match d.root.find (Key.star, arbitrary _) with
-   | none => pure #[]
-   | some
+  let result := getStarResult d;
+  (k, args) ← getKeyArgs e true;
+  match k with
+  | Key.star => pure result
+  | _        =>
+    match d.root.find k with
+    | none   => pure result
+    | some c => getMatchAux args c result
 
 end DiscrTree
 end Meta

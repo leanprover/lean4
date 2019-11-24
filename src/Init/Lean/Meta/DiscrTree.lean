@@ -208,11 +208,55 @@ instance Trie.hasFormat {α} [HasFormat α] : HasFormat (Trie α) := ⟨Trie.for
 partial def format {α} [HasFormat α] (d : DiscrTree α) : Format :=
 let (_, r) := d.root.foldl
   (fun (p : Bool × Format) k c =>
-    (false, p.2 ++ (if p.1 then Format.line else Format.nil) ++ Format.paren (fmt k ++ " => " ++ fmt c)))
+    (false, p.2 ++ (if p.1 then Format.nil else Format.line) ++ Format.paren (fmt k ++ " => " ++ fmt c)))
   (true, Format.nil);
 Format.group r
 
 instance DiscrTree.hasFormat {α} [HasFormat α] : HasFormat (DiscrTree α) := ⟨format⟩
+
+private def getKeyArgs (e : Expr) (isMatch? : Bool) : MetaM (Key × Array Expr) :=
+do e ← whnf e;
+   match e.getAppFn with
+   | Expr.lit v _       => pure (Key.lit v, #[])
+   | Expr.const c _ _   => let nargs := e.getAppNumArgs; pure (Key.const c nargs, e.getAppRevArgs)
+   | Expr.fvar fvarId _ => let nargs := e.getAppNumArgs; pure (Key.fvar fvarId nargs, e.getAppRevArgs)
+   | Expr.mvar mvarId _ =>
+     if isMatch? then pure (Key.other, #[])
+     else condM (isReadOnlyOrSyntheticExprMVar mvarId)
+       (pure (Key.other, #[]))
+       (pure (Key.star, #[]))
+   | _                  => pure (Key.other, #[])
+
+private partial def getMatchAux {α} : Array Expr → Trie α → Array α → MetaM (Array α)
+| todo, Trie.node vs cs, result =>
+  if todo.isEmpty then pure $ result ++ vs
+  else if cs.isEmpty then pure result
+  else do
+    let e     := todo.back;
+    let todo  := todo.pop;
+    let first := cs.get! 0; /- Recall that `Key.star` is the minimal key -/
+    (k, args) ← getKeyArgs e true;
+    /- We must always visit `Key.star` edges since they are wildcards.
+       Thus, `todo` is not used linearly when there is `Key.star` edge
+       and there is an edge for `k` and `k != Key.star`. -/
+    let visitStarChild (result : Array α) : MetaM (Array α) := if first.1 == Key.star then getMatchAux todo first.2 result else pure result;
+    match k with
+    | Key.star => visitStarChild result
+    | _ =>
+      match cs.binSearch (k, arbitrary _) (fun a b => a.1 < b.1) with
+      | none   => visitStarChild result
+      | some c => do result ← visitStarChild result; getMatchAux (todo ++ args) c.2 result
+
+#exit
+
+def getMatch {α} (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
+usingTransparency TransparencyMode.reducible $ do
+ (k, args) ← getKeyArgs e true;
+ match k with
+ | Key.star =>
+   match d.root.find (Key.star, arbitrary _) with
+   | none => pure #[]
+   | some
 
 end DiscrTree
 end Meta

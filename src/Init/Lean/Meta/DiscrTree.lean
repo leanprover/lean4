@@ -11,6 +11,42 @@ namespace Lean
 namespace Meta
 namespace DiscrTree
 
+/-
+  (Imperfect) discrimination trees.
+
+  The edges are labeled by keys:
+  - Constant names (and arity). Universe levels are ignored.
+  - Free variables (and arity). Thus, an entry in the discrimination tree
+    may reference hypotheses from the local context.
+  - Literals
+  - Star/Wildcard. We use them to represent metavariables and terms
+    we want to ignore. We ignore implicit arguments and proofs.
+  - Other. We use to represent other kinds of terms (e.g., nested lambda, forall, sort, etc).
+
+  We reduce terms using `TransparencyMode.reducible`. Thus, all reducible
+  definitions in an expression `e` are unfolded before we insert it into the
+  discrimination tree.
+
+  Recall that projections from classes are **NOT** reducible.
+  For example, the expressions `HasAdd.add α (ringHasAdd ?α ?s) ?x ?x`
+  and `HasAdd.add Nat Nat.hasAdd a b` generates paths with the following keys
+  respctively
+  ```
+  ⟨HasAdd.add, 4⟩, *, *, *, *
+  ⟨HasAdd.add, 4⟩, *, *, ⟨a,0⟩, ⟨b,0⟩
+  ```
+  That is, we don't reduce `HasAdd.add Nat Nat.HasAdd a b` into `Nat.add a b`.
+  We say the `HasAdd.add` applications are the de-facto canonical forms in
+  the metaprogramming framework.
+  Moreover, it is the metaprammer resposability to re-pack applications such as
+  `Nat.add a b` into `HasAdd.add Nat Nat.hasAdd a b`.
+
+  Remark: we store the arity in the keys
+  1- To be able to implement the "skip" operation when retrieving "candidate"
+     unifiers.
+  2- Distinguish partial applications `f a`, `f a b`, and `f a b c`.
+-/
+
 inductive Key
 | const : Name → Nat → Key
 | fvar  : Name → Nat → Key

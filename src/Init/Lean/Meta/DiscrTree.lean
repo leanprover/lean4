@@ -293,7 +293,8 @@ private partial def getUnifyAux {α} : Nat → Array Expr → Trie α → (Array
     | Key.star => cs.foldlM (fun result ⟨k, c⟩ => getUnifyAux k.arity todo c result) result
     | _ =>
       let first := cs.get! 0;
-      let visitStarChild (result : Array α) : MetaM (Array α) := if first.1 == Key.star then getMatchAux todo first.2 result else pure result;
+      let visitStarChild (result : Array α) : MetaM (Array α) :=
+        if first.1 == Key.star then getUnifyAux 0 todo first.2 result else pure result;
       match cs.binSearch (k, arbitrary _) (fun a b => a.1 < b.1) with
       | none   => visitStarChild result
       | some c => do result ← visitStarChild result; getUnifyAux 0 (todo ++ args) c.2 result

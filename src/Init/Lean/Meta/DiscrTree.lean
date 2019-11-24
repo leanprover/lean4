@@ -264,6 +264,57 @@ usingTransparency TransparencyMode.reducible $ do
     | none   => pure result
     | some c => getMatchAux args c result
 
+private partial def getUnifyAux {α} : Nat → Array Expr → Trie α → (Array α) → MetaM (Array α)
+| skip+1, todo, Trie.node vs cs, result =>
+  if cs.isEmpty then pure result
+  else
+    cs.foldlM
+      (fun result ⟨k, c⟩ =>
+        match k with
+        | Key.const _ a => getUnifyAux (skip + a) todo c result
+        | Key.fvar _ a  => getUnifyAux (skip + a) todo c result
+        | _             => getUnifyAux skip todo c result)
+      result
+| 0, todo, Trie.node vs cs, result =>
+  if todo.isEmpty then pure (result ++ vs)
+  else if cs.isEmpty then pure result
+  else do
+    let e     := todo.back;
+    let todo  := todo.pop;
+    (k, args) ← getKeyArgs e true;
+    match k with
+    | Key.star =>
+      cs.foldlM
+        (fun result ⟨k, c⟩ =>
+           match k with
+           | Key.const _ a => getUnifyAux a todo c result
+           | Key.fvar _ a  => getUnifyAux a todo c result
+           | _             => getUnifyAux 0 todo c result)
+        result
+    | _ =>
+      let first := cs.get! 0;
+      let visitStarChild (result : Array α) : MetaM (Array α) := if first.1 == Key.star then getMatchAux todo first.2 result else pure result;
+      match cs.binSearch (k, arbitrary _) (fun a b => a.1 < b.1) with
+      | none   => visitStarChild result
+      | some c => do result ← visitStarChild result; getUnifyAux 0 (todo ++ args) c.2 result
+
+def getUnify {α} (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
+usingTransparency TransparencyMode.reducible $ do
+  (k, args) ← getKeyArgs e true;
+  match k with
+  | Key.star =>
+    d.root.foldlM
+      (fun result k c => match k with
+        | Key.const _ a => getUnifyAux a #[] c result
+        | Key.fvar _ a  => getUnifyAux a #[] c result
+        | _             => getUnifyAux 0 #[] c result)
+      #[]
+  | _ =>
+    let result := getStarResult d;
+    match d.root.find k with
+    | none   => pure result
+    | some c => getUnifyAux 0 args c result
+
 end DiscrTree
 end Meta
 end Lean

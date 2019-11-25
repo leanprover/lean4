@@ -9,7 +9,7 @@
       #  properties: ['cache-misses', 'wall-clock']
   run_config:
     <<: *time
-    cwd: ../../library
+    cwd: ../../src
     cmd: |
       bash -c "find . -name '*.lean' -exec ../bin/lean --stats -Dprofiler=true -Dprofiler.threshold=9999 {} \; 2>&1 | ../tests/bench/accumulate_profile.py"
     max_runs: 3
@@ -23,16 +23,9 @@
       bash -c "
       set -euxo pipefail &&
       echo -n 'lines: ' &&
-      find library -name '*.lean' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1"
+      find src -name '*.lean' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1"
     max_runs: 1
     runner: output
-#- attributes:
-#    description: frontend
-#    tags: [fast, suite]
-#  run_config:
-#    run_cmd: |
-#      ../../bin/lean --new-frontend -Dprofiler=true -Dprofiler.threshold=9999 frontend_test.lean 2>&1 >/dev/null | ./accumulate_profile.py
-#    parse_output: true
 - attributes:
     description: binarytrees
     tags: [fast, suite]

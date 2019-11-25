@@ -26,7 +26,7 @@ MLTON_BIN ?= /usr/bin
 MLKIT ?= mlkit
 SWIFTC ?= swiftc
 
-PARSER_TEST_FILE ?= ../../library/Init/Core.lean
+PARSER_TEST_FILE ?= ../../src/Init/Core.lean
 
 ## IMPLEMENTATION
 

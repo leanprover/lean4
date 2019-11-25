@@ -62,12 +62,10 @@ checkFunInfoCache fn maxArgs? $ do
         (fun (i : Nat) (pinfo : Array ParamInfo) => do
           let fvar := fvars.get! i;
           decl ← getFVarLocalDecl fvar;
-          proof ← isProp decl.type;
           let backDeps := collectDeps fvars decl.type;
           let pinfo    := updateHasFwdDeps pinfo backDeps;
           pure $ pinfo.push {
             backDeps     := backDeps,
-            proof        := proof,
             implicit     := decl.binderInfo == BinderInfo.implicit,
             instImplicit := decl.binderInfo == BinderInfo.instImplicit })
         #[];

@@ -213,11 +213,71 @@ do r ← isPropQuick e;
    | LBool.true  => pure true
    | LBool.false => pure false
    | LBool.undef => do
-     -- dbgTrace ("PropQuick failed " ++ toString e);
+     -- dbgTrace ("isPropQuick failed " ++ toString e);
      type ← inferType e;
      type ← whnfUsingDefault type;
      match type with
      | Expr.sort u _ => do u ← instantiateLevelMVars u; pure $ isAlwaysZero u
+     | _             => pure false
+
+def isProof (e : Expr) : MetaM Bool :=
+do type ← inferType e;
+   isProp type
+
+/--
+  `isArrowType type n` is an "approximate" predicate which returns `LBool.true`
+   if `type` is of the form `A_1 -> ... -> A_n -> Sort _`.
+   Remark: `type` can be a dependent arrow. -/
+private partial def isArrowType : Expr → Nat → MetaM LBool
+| Expr.sort u _,        0   => pure LBool.true
+| Expr.forallE _ _ _ _, 0   => pure LBool.false
+| Expr.forallE _ _ b _, n+1 => isArrowType b n
+| Expr.letE _ _ _ b _,  n   => isArrowType b n
+| Expr.mdata _ e _,     n   => isArrowType e n
+| _,                    _   => pure LBool.undef
+
+/--
+  `isTypeQuickApp f n` is an "approximate" predicate which returns `LBool.true`
+   if `f` applied to `n` arguments is a type. -/
+private partial def isTypeQuickApp : Expr → Nat → MetaM LBool
+| Expr.const c lvls _, arity   => do constType ← inferConstType c lvls; isArrowType constType arity
+| Expr.fvar fvarId _,  arity   => do fvarType  ← inferFVarType fvarId;  isArrowType fvarType arity
+| Expr.mvar mvarId _,  arity   => do mvarType  ← inferMVarType mvarId;  isArrowType mvarType arity
+| Expr.app f _ _,      arity   => isTypeQuickApp f (arity+1)
+| Expr.mdata _ e _,    arity   => isTypeQuickApp e arity
+| Expr.letE _ _ _ b _, arity   => isTypeQuickApp b arity
+| Expr.lam _ _ _ _,    0       => pure LBool.false
+| Expr.lam _ _ b _,    arity+1 => isTypeQuickApp b arity
+| _,                   _       => pure LBool.undef
+
+/--
+  `isTypeQuick e` is an "approximate" predicate which returns `LBool.true`
+  if `e` is a type. -/
+private partial def isTypeQuick : Expr → MetaM LBool
+| Expr.bvar _ _         => pure LBool.undef
+| Expr.lit _ _          => pure LBool.false
+| Expr.sort _ _         => pure LBool.true
+| Expr.lam _ _ _ _      => pure LBool.false
+| Expr.letE _ _ _ b _   => isTypeQuick b
+| Expr.proj _ _ _ _     => pure LBool.undef
+| Expr.forallE _ _ b _  => pure LBool.true
+| Expr.mdata _ e _      => isTypeQuick e
+| Expr.const c lvls _   => do constType ← inferConstType c lvls; isArrowType constType 0
+| Expr.fvar fvarId _    => do fvarType  ← inferFVarType fvarId;  isArrowType fvarType 0
+| Expr.mvar mvarId _    => do mvarType  ← inferMVarType mvarId;  isArrowType mvarType 0
+| Expr.app f _ _        => isTypeQuickApp f 1
+| Expr.localE _ _ _ _   => unreachable!
+
+def isType (e : Expr) : MetaM Bool :=
+do r ← isTypeQuick e;
+   match r with
+   | LBool.true  => pure true
+   | LBool.false => pure false
+   | LBool.undef => do
+     type ← inferType e;
+     type ← whnfUsingDefault type;
+     match type with
+     | Expr.sort _ _ => pure true
      | _             => pure false
 
 end Meta

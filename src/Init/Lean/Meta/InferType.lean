@@ -242,7 +242,7 @@ private partial def isArrowProposition : Expr → Nat → MetaM LBool
 | Expr.mdata _ e _,    arity   => isProofQuickApp e arity
 | Expr.letE _ _ _ b _, arity   => isProofQuickApp b arity
 | Expr.lam _ _ b _,    0       => isProofQuick b
-| Expr.lam _ _ b _,    arity+1 => isPropQuickApp b arity
+| Expr.lam _ _ b _,    arity+1 => isProofQuickApp b arity
 | _,                   _       => pure LBool.undef
 
 /--

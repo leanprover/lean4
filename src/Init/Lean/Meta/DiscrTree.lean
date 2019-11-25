@@ -133,7 +133,7 @@ private partial def pushArgsAux (infos : Array ParamInfo) : Nat → Expr → Arr
 | i, Expr.app f a _, todo =>
   if h : i < infos.size then
     let info := infos.get ⟨i, h⟩;
-    if info.implicit || info.instImplicit || info.prop then
+    if info.implicit || info.instImplicit || info.proof then
       pushArgsAux (i-1) f (todo.push tmpStar)
     else
       pushArgsAux (i-1) f (todo.push a)

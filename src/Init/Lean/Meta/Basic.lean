@@ -82,7 +82,7 @@ structure Config :=
 structure ParamInfo :=
 (implicit     : Bool      := false)
 (instImplicit : Bool      := false)
-(prop         : Bool      := false)
+(proof        : Bool      := false)
 (hasFwdDeps   : Bool      := false)
 (backDeps     : Array Nat := #[])
 

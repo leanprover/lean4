@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Lean.Meta.Basic
 import Init.Lean.Meta.FunInfo
+import Init.Lean.Meta.InferType
 
 namespace Lean
 namespace Meta
@@ -133,12 +134,14 @@ private partial def pushArgsAux (infos : Array ParamInfo) : Nat → Expr → Arr
 | i, Expr.app f a _, todo =>
   if h : i < infos.size then
     let info := infos.get ⟨i, h⟩;
-    if info.implicit || info.instImplicit || info.proof then
+    if info.implicit || info.instImplicit then
       pushArgsAux (i-1) f (todo.push tmpStar)
-    else
-      pushArgsAux (i-1) f (todo.push a)
-  else
-    pushArgsAux (i-1) f (todo.push a)
+    else condM (isProof a)
+      (pushArgsAux (i-1) f (todo.push tmpStar))
+      (pushArgsAux (i-1) f (todo.push a))
+  else condM (isProof a)
+    (pushArgsAux (i-1) f (todo.push tmpStar))
+    (pushArgsAux (i-1) f (todo.push a))
 | _, _, todo => pure todo
 
 private def pushArgs (todo : Array Expr) (e : Expr) : MetaM (Key × Array Expr) :=

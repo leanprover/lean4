@@ -186,7 +186,7 @@ private partial def isPropQuickApp : Expr → Nat → MetaM LBool
 /--
   `isPropQuick e` is an "approximate" predicate which returns `LBool.true`
   if `e` is a proposition. -/
-private partial def isPropQuick : Expr → MetaM LBool
+partial def isPropQuick : Expr → MetaM LBool
 | Expr.bvar _ _         => pure LBool.undef
 | Expr.lit _ _          => pure LBool.false
 | Expr.sort _ _         => pure LBool.false
@@ -220,9 +220,57 @@ do r ← isPropQuick e;
      | Expr.sort u _ => do u ← instantiateLevelMVars u; pure $ isAlwaysZero u
      | _             => pure false
 
+/--
+  `isArrowProposition type n` is an "approximate" predicate which returns `LBool.true`
+   if `type` is of the form `A_1 -> ... -> A_n -> B`, where `B` is a proposition.
+   Remark: `type` can be a dependent arrow. -/
+private partial def isArrowProposition : Expr → Nat → MetaM LBool
+| Expr.forallE _ _ b _, n+1 => isArrowProposition b n
+| Expr.letE _ _ _ b _,  n   => isArrowProposition b n
+| Expr.mdata _ e _,     n   => isArrowProposition e n
+| type,                 0   => isPropQuick type
+| _,                    _   => pure LBool.undef
+
+/--
+  `isProofQuickApp f n` is an "approximate" predicate which returns `LBool.true`
+   if `f` applied to `n` arguments is a proof. -/
+@[specialize] private partial def isProofQuickApp (isProofQuick : Expr → MetaM LBool) : Expr → Nat → MetaM LBool
+| Expr.const c lvls _, arity   => do constType ← inferConstType c lvls; isArrowProposition constType arity
+| Expr.fvar fvarId _,  arity   => do fvarType  ← inferFVarType fvarId;  isArrowProposition fvarType arity
+| Expr.mvar mvarId _,  arity   => do mvarType  ← inferMVarType mvarId;  isArrowProposition mvarType arity
+| Expr.app f _ _,      arity   => isProofQuickApp f (arity+1)
+| Expr.mdata _ e _,    arity   => isProofQuickApp e arity
+| Expr.letE _ _ _ b _, arity   => isProofQuickApp b arity
+| Expr.lam _ _ b _,    0       => isProofQuick b
+| Expr.lam _ _ b _,    arity+1 => isPropQuickApp b arity
+| _,                   _       => pure LBool.undef
+
+/--
+  `isProofQuick e` is an "approximate" predicate which returns `LBool.true`
+  if `e` is a proof. -/
+partial def isProofQuick : Expr → MetaM LBool
+| Expr.bvar _ _         => pure LBool.undef
+| Expr.lit _ _          => pure LBool.false
+| Expr.sort _ _         => pure LBool.false
+| Expr.lam _ _ b _      => isProofQuick b
+| Expr.letE _ _ _ b _   => isProofQuick b
+| Expr.proj _ _ _ _     => pure LBool.undef
+| Expr.forallE _ _ b _  => pure LBool.false
+| Expr.mdata _ e _      => isProofQuick e
+| Expr.const c lvls _   => do constType ← inferConstType c lvls; isArrowProposition constType 0
+| Expr.fvar fvarId _    => do fvarType  ← inferFVarType fvarId;  isArrowProposition fvarType 0
+| Expr.mvar mvarId _    => do mvarType  ← inferMVarType mvarId;  isArrowProposition mvarType 0
+| Expr.app f _ _        => isProofQuickApp isProofQuick f 1
+| Expr.localE _ _ _ _   => unreachable!
+
 def isProof (e : Expr) : MetaM Bool :=
-do type ← inferType e;
-   isProp type
+do r ← isProofQuick e;
+   match r with
+   | LBool.true  => pure true
+   | LBool.false => pure false
+   | LBool.undef => do
+     type ← inferType e;
+     isProp type
 
 /--
   `isArrowType type n` is an "approximate" predicate which returns `LBool.true`
@@ -253,7 +301,7 @@ private partial def isTypeQuickApp : Expr → Nat → MetaM LBool
 /--
   `isTypeQuick e` is an "approximate" predicate which returns `LBool.true`
   if `e` is a type. -/
-private partial def isTypeQuick : Expr → MetaM LBool
+partial def isTypeQuick : Expr → MetaM LBool
 | Expr.bvar _ _         => pure LBool.undef
 | Expr.lit _ _          => pure LBool.false
 | Expr.sort _ _         => pure LBool.true

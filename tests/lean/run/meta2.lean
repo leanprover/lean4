@@ -102,6 +102,20 @@ do aType ← inferType a;
    check r;
    pure r
 
+def mkEq (a b : Expr) : MetaM Expr :=
+do aType ← inferType a;
+   u ← getLevel aType;
+   let r := mkAppN (mkConst `Eq [u]) #[aType, a, b];
+   check r;
+   pure r
+
+def mkEqRefl (a : Expr) : MetaM Expr :=
+do aType ← inferType a;
+   u ← getLevel aType;
+   let r := mkAppN (mkConst `Eq.refl [u]) #[aType, a];
+   check r;
+   pure r
+
 def mkFst (s : Expr) : MetaM Expr :=
 do sType ← inferType s;
    sType ← whnfUsingDefault sType;
@@ -227,3 +241,38 @@ do print "----- tst10 -----";
    pure ()
 
 #eval run [`Init.Core] tst10
+
+def tst11 : MetaM Unit :=
+do print "----- tst11 -----";
+   check $ isType nat;
+   check $ isType (mkArrow nat nat);
+   check $ not <$> isType add;
+   check $ not <$> isType (mkNatLit 1);
+   withLocalDecl `x nat BinderInfo.default $ fun x => do {
+     check $ not <$> isType x;
+     check $ not <$> (mkLambda #[x] x >>= isType);
+     check $ not <$> (mkLambda #[x] nat >>= isType);
+     t ← mkEq x (mkNatLit 0) >>= mkForall #[x];
+     print t;
+     check $ isType t;
+     pure ()
+   };
+   pure ()
+
+#eval run [`Init.Core] tst11
+
+def tst12 : MetaM Unit :=
+do print "----- tst12 -----";
+   withLocalDecl `x nat BinderInfo.default $ fun x => do {
+     t ← mkEqRefl x >>= mkLambda #[x];
+     print t;
+     type ← inferType t;
+     print type;
+     isProofQuick t >>= fun b => print (toString b);
+     isProofQuick nat >>= fun b => print (toString b);
+     isProofQuick type >>= fun b => print (toString b);
+     pure ()
+   };
+   pure ()
+
+#eval run [`Init.Core] tst12

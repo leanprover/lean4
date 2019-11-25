@@ -200,6 +200,8 @@ do print "----- tst8 -----";
    print t;
    t ← whnf t;
    print t;
+   t ← reduce t;
+   print t;
    pure ()
 
 #eval run [`Init.Core] tst8
@@ -212,3 +214,16 @@ do print "----- tst9 -----";
    pure ()
 
 #eval run [`Init.Core] tst9
+
+def tst10 : MetaM Unit :=
+do print "----- tst10 -----";
+   t ← withLocalDecl `x nat BinderInfo.default $ fun x => do {
+     let b := mkAppN add #[x, mkAppN add #[mkNatLit 2, mkNatLit 3]];
+     mkLambda #[x] b
+   };
+   print t;
+   t ← reduce t;
+   print t;
+   pure ()
+
+#eval run [`Init.Core] tst10

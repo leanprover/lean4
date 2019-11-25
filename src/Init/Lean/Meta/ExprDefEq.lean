@@ -940,10 +940,19 @@ private partial def isDefEqQuick : Expr → Expr → MetaM LBool
   assign t s
 
 private def isDefEqProofIrrel (t s : Expr) : MetaM LBool :=
-do tType ← inferType t;
-   condM (isProp tType)
-     (do sType ← inferType s; toLBoolM $ isExprDefEqAux tType sType)
-     (pure LBool.undef)
+do status ← isProofQuick t;
+   match status with
+   | LBool.false =>
+     pure LBool.undef
+   | LBool.true  => do
+     tType ← inferType t;
+     sType ← inferType s;
+     toLBoolM $ isExprDefEqAux tType sType
+   | LBool.undef => do
+     tType ← inferType t;
+     condM (isProp tType)
+       (do sType ← inferType s; toLBoolM $ isExprDefEqAux tType sType)
+       (pure LBool.undef)
 
 @[inline] def tryL (x : MetaM LBool) (k : MetaM Bool) : MetaM Bool :=
 do status ← x;

@@ -59,15 +59,16 @@ Pass these along with the `cmake ../../src` command.
 
 * `-D CMAKE_C_COMPILER=`\
   `-D CMAKE_CXX_COMPILER=`\
-  Select the C++ compiler to use. Because of the bootstrapped build (see below),
-  it is highly recommended to use [CCache](ccache.md) to reduce redundant
-  compilations
+  Select the C++ compiler to use.
 
 * `-D CHECK_OLEAN_VERSION=OFF`\
   The `.olean` files are tagged with the Lean version they were produced with.
   This means that by default, the core library has to be recompiled after e.g.
   every `git commit`. Use this option to avoid the version check. The `.olean`
   files can be removed manually by invoking `make/ninja clean-olean`.
+
+Lean will automatically use [CCache](https://ccache.dev/) if available to avoid
+redundant builds, especially after stage 0 has been updated (see below).
 
 Lean Build Pipeline
 -------------------

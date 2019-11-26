@@ -110,7 +110,7 @@ if(NOT STAGE0)
       ADD_CUSTOM_TARGET(bin_lean ALL
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean>" "$<TARGET_LINKER_FILE:lean>" "${LEAN_SOURCE_DIR}/../bin/"
       )
-      ADD_CUSTOM_TARGET(bin_lean_stage2 ALL
+      ADD_CUSTOM_TARGET(bin_lean_stage2
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean_stage2>" "${LEAN_SOURCE_DIR}/../bin/"
       )
     endif()

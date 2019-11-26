@@ -591,6 +591,41 @@ savingCache $ do
   lctx ← getLCtx;
   lambdaTelescopeAux k lctx #[] 0 e
 
+private partial def forallMetaTelescopeReducingAux
+    (reducing? : Bool) (maxMVars? : Option Nat)
+    : Array Expr → Array BinderInfo → Nat → Expr → MetaM (Array Expr × Array BinderInfo × Expr)
+| mvars, bis, j, Expr.forallE n d b c => do
+  let d     := d.instantiateRevRange j mvars.size mvars;
+  mvar ← mkFreshExprMVar d;
+  let mvars := mvars.push mvar;
+  let bis   := bis.push c.binderInfo;
+  match maxMVars? with
+  | none          => forallMetaTelescopeReducingAux mvars bis j b
+  | some maxMVars =>
+    if mvars.size < maxMVars then
+      forallMetaTelescopeReducingAux mvars bis j b
+    else
+      let type := b.instantiateRevRange j mvars.size mvars;
+      pure (mvars, bis, type)
+| mvars, bis, j, type =>
+  let type := type.instantiateRevRange j mvars.size mvars;
+  if reducing? then do
+    newType ← whnf type;
+    if newType.isForall then
+      forallMetaTelescopeReducingAux mvars bis mvars.size newType
+    else
+      pure (mvars, bis, type)
+  else
+    pure (mvars, bis, type)
+
+/-- Similar to `forallTelescope`, but creates metavariables instead of free variables. -/
+def forallMetaTelescope (e : Expr) : MetaM (Array Expr × Array BinderInfo × Expr) :=
+forallMetaTelescopeReducingAux false none #[] #[] 0 e
+
+/-- Similar to `forallTelescopeReducing`, but creates metavariables instead of free variables. -/
+def forallMetaTelescopeReducing (e : Expr) (maxMVars? : Option Nat := none) : MetaM (Array Expr × Array BinderInfo × Expr) :=
+forallMetaTelescopeReducingAux true maxMVars? #[] #[] 0 e
+
 @[inline] def liftStateMCtx {α} (x : StateM MetavarContext α) : MetaM α :=
 fun _ s =>
   let (a, mctx) := x.run s.mctx;

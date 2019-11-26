@@ -540,9 +540,6 @@ if(NOT STAGE0)
   )
 endif()
 
-# `leanstatic` and `leanstdlib` are cyclically dependent static libraries.
-# We use the approach described at
-# https://cmake.org/cmake/help/v3.3/command/target_link_libraries.html#cyclic-dependencies-of-static-libraries
 add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
 target_link_libraries(leanstatic ${EXTRA_LIBS})
 
@@ -552,11 +549,9 @@ endif()
 
 if(NOT STAGE0)
   add_library(leanstdlib STATIC IMPORTED)
-  target_link_libraries(leanstatic leanstdlib)
   ADD_CUSTOM_TARGET(bin_lib ALL
      COMMAND "${CMAKE_COMMAND}" -E make_directory "${LEAN_SOURCE_DIR}/../bin"
      COMMAND "${CMAKE_COMMAND}" -E copy ${COPY_LIBS} "$<TARGET_FILE:leanstdlib>" "$<TARGET_FILE:leanstatic>" "${LEAN_SOURCE_DIR}/../bin"
-     DEPENDS leanstatic leanstdlib
   )
   # Configure leanc
   configure_file("${LEAN_SOURCE_DIR}/../bin/leanc.in" "${CMAKE_CURRENT_BINARY_DIR}/tmp/leanc")
@@ -577,7 +572,8 @@ endif()
 if (NOT("${CROSS_COMPILE}" MATCHES "ON"))
   if ("${STATIC}" MATCHES "OFF")
     add_library(leanshared SHARED shared/init.cpp)
-    target_link_libraries(leanshared leanstatic)
+    # see `target_link_libraries(lean ...)`
+    target_link_libraries(leanshared leanstatic leanstdlib leanstatic leanstdlib)
     install(TARGETS leanshared DESTINATION lib)
   endif()
   install(TARGETS leanstatic DESTINATION lib)
@@ -624,8 +620,8 @@ endif()
 add_custom_target(clean-stdlib
   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/Init"
   COMMAND find . -name '*.olean' -delete
-        COMMAND find . -name '*.depend' -delete
-        COMMAND rm -r ../stage1 "${CMAKE_BINARY_DIR}/stage1" || true
+  COMMAND find . -name '*.depend' -delete
+  COMMAND rm -rf ../stage1 "${CMAKE_BINARY_DIR}/stage*" || true
   )
 
 add_custom_target(clean-olean

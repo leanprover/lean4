@@ -130,6 +130,8 @@ def empty {α} : DiscrTree α := { root := {} }
 private def tmpMVarId : Name := `_discr_tree_tmp
 private def tmpStar := mkMVar tmpMVarId
 
+instance {α} : Inhabited (DiscrTree α) := ⟨{}⟩
+
 private partial def pushArgsAux (infos : Array ParamInfo) : Nat → Expr → Array Expr → MetaM (Array Expr)
 | i, Expr.app f a _, todo =>
   if h : i < infos.size then
@@ -165,46 +167,64 @@ do e ← whnf e;
        (pure (Key.star, todo))
    | _                  => pure (Key.other, todo)
 
-private partial def createNodes {α} (v : α) : Array Expr → MetaM (Trie α)
-| todo =>
-  if todo.isEmpty then pure $ Trie.node #[v] #[]
+partial def mkPathAux : Array Expr → Array Key → MetaM (Array Key)
+| todo, keys =>
+  if todo.isEmpty then
+    pure keys
   else do
     let e    := todo.back;
     let todo := todo.pop;
     (k, todo) ← pushArgs todo e;
-    c ← createNodes todo;
-    pure $ Trie.node #[] #[(k, c)]
+    mkPathAux todo (keys.push k)
+
+private def initCapacity := 8
+
+def mkPath (e : Expr) : MetaM (Array Key) :=
+usingTransparency TransparencyMode.reducible $ do
+  let todo : Array Expr := Array.mkEmpty initCapacity;
+  let keys : Array Key  := Array.mkEmpty initCapacity;
+  mkPathAux (todo.push e) keys
+
+private partial def createNodes {α} (keys : Array Key) (v : α) : Nat → Trie α
+| i =>
+  if h : i < keys.size then
+    let k := keys.get ⟨i, h⟩;
+    let c := createNodes (i+1);
+    Trie.node #[] #[(k, c)]
+  else
+    Trie.node #[v] #[]
 
 private def insertVal {α} [HasBeq α] (vs : Array α) (v : α) : Array α :=
 if vs.contains v then vs else vs.push v
 
-private partial def insertAux {α} [HasBeq α] (v : α) : Array Expr → Trie α → MetaM (Trie α)
-| todo, Trie.node vs cs =>
-  if todo.isEmpty then
-    pure $ Trie.node (insertVal vs v) cs
-  else do
-    let e    := todo.back;
-    let todo := todo.pop;
-    (k, todo) ← pushArgs todo e;
-    c ← cs.binInsertM
+private partial def insertAux {α} [HasBeq α] (keys : Array Key) (v : α) : Nat → Trie α → Trie α
+| i, Trie.node vs cs =>
+  if h : i < keys.size then
+    let k := keys.get ⟨i, h⟩;
+    let c := Id.run $ cs.binInsertM
         (fun a b => a.1 < b.1)
-        (fun ⟨_, s⟩ => do c ← insertAux todo s; pure (k, c)) -- merge with existing
-        (fun _ => do c ← createNodes v todo; pure (k, c))
+        (fun ⟨_, s⟩ => let c := insertAux (i+1) s; (k, c)) -- merge with existing
+        (fun _ => let c := createNodes keys v (i+1); (k, c))
         (k, arbitrary _);
-    pure $ Trie.node vs c
+    Trie.node vs c
+  else
+    Trie.node (insertVal vs v) cs
 
-private def initCapacity := 8
+def insertCore {α} [HasBeq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTree α :=
+if keys.isEmpty then panic! "invalid key sequence"
+else
+  let k := keys.get! 0;
+  match d.root.find k with
+  | none =>
+    let c := createNodes keys v 1;
+    { root := d.root.insert k c }
+  | some c =>
+    let c := insertAux keys v 1 c;
+    { root := d.root.insert k c }
 
 def insert {α} [HasBeq α] (d : DiscrTree α) (e : Expr) (v : α) : MetaM (DiscrTree α) :=
-usingTransparency TransparencyMode.reducible $ do
-  (k, todo) ← pushArgs (Array.mkEmpty initCapacity) e;
-  match d.root.find k with
-  | none => do
-    c ← createNodes v todo;
-    pure $ { root := d.root.insert k c }
-  | some c => do
-    c ← insertAux v todo c;
-    pure $ { root := d.root.insert k c }
+do keys ← mkPath e;
+   pure $ d.insertCore keys v
 
 partial def Trie.format {α} [HasFormat α] : Trie α → Format
 | Trie.node vs cs => Format.group $ Format.paren $

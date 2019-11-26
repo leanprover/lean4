@@ -208,7 +208,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --threads=num -j   number of threads used to process lean files\n";
     std::cout << "  --tstack=num -s    thread stack size in Kb\n";
 #endif
-    std::cout << "  --plugin=file      load and initialize shared library for registering linters etc.";
+    std::cout << "  --plugin=file      load and initialize shared library for registering linters etc.\n";
     std::cout << "  --deps             just print dependencies of a Lean input\n";
 #if defined(LEAN_JSON)
     std::cout << "  --json             print JSON-formatted structured error messages\n";
@@ -229,7 +229,7 @@ static struct option g_long_options[] = {
     {"help",         no_argument,       0, 'h'},
     {"githash",      no_argument,       0, 'g'},
     {"run",          no_argument,       0, 'r'},
-    {"make",         no_argument,       0, 'm'},
+    {"make",         optional_argument, 0, 'm'},
     {"stdin",        no_argument,       0, 'i'},
     {"memory",       required_argument, 0, 'M'},
     {"trust",        required_argument, 0, 't'},
@@ -257,7 +257,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:c:C:qgvht:012j:012rM:012T:012ap:"
+    "PdD:m::c:C:qgvht:012j:012rM:012T:012ap:"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -407,6 +407,7 @@ int main(int argc, char ** argv) {
     second_duration init_time = std::chrono::steady_clock::now() - init_start;
     bool run = false;
     bool make_mode = false;
+    std::string olean_fn;
     bool use_stdin = false;
     unsigned trust_lvl = LEAN_BELIEVER_TRUST_LEVEL + 1;
     bool only_deps = false;
@@ -465,6 +466,7 @@ int main(int argc, char ** argv) {
                 break;
             case 'm':
                 make_mode = true;
+                olean_fn = optarg;
                 break;
             case 'M':
                 opts = opts.update(get_max_memory_opt_name(), static_cast<unsigned>(atoi(optarg)));
@@ -638,7 +640,9 @@ int main(int argc, char ** argv) {
             return ir::run_main(env, argc - optind, argv + optind);
         }
         if (make_mode && ok) {
-            auto olean_fn = olean_of_lean(mod_fn);
+            if (olean_fn.empty()) {
+                olean_fn = olean_of_lean(mod_fn);
+            }
             time_task t(".olean serialization",
                         message_builder(environment(), get_global_ios(), mod_fn, pos_info(),
                                         message_severity::INFORMATION));

@@ -36,7 +36,6 @@ lean_object* l_Lean_Meta_isClassExpensive___main(lean_object*, lean_object*, lea
 lean_object* l_Lean_Meta_throwBug(lean_object*);
 lean_object* l_Lean_MetavarContext_instantiateMVars(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_dbgTrace___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_reduceAll_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_InfoCacheKey_Inhabited;
 lean_object* l_Lean_Meta_getEnv(lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_forallTelescope___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -115,6 +114,7 @@ lean_object* lean_metavar_ctx_find_decl(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getConfig___boxed(lean_object*, lean_object*);
 uint8_t lean_metavar_ctx_is_expr_assigned(lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_Inhabited___closed__2;
+lean_object* l_Lean_Meta_shouldReduceAll(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isClass(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstances___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstance___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -142,7 +142,6 @@ lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_forallTeles
 lean_object* l_Lean_Meta_mkWHNFRef___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_bind___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_SimpleMonadTracerAdapter_isTracingEnabledFor___rarg___lambda__1___closed__2;
-lean_object* l_Lean_Meta_reduceAll_x3f___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_Basic_5__forallTelescopeReducingAuxAux___main___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_Basic_5__forallTelescopeReducingAuxAux___main___at_Lean_Meta_forallTelescopeReducing___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Meta_InfoCacheKey_HasBeq(lean_object*, lean_object*);
@@ -240,6 +239,7 @@ lean_object* l___private_Init_Lean_Meta_Basic_5__forallTelescopeReducingAuxAux__
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_forallBoundedTelescope___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallMetaTelescopeReducing(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_approxDefEq(lean_object*);
+lean_object* l_Lean_Meta_shouldReduceReducibleOnly___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkIsExprDefEqAuxRef(lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprMVarAt(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_type(lean_object*);
@@ -304,7 +304,6 @@ lean_object* l_Lean_Meta_mkFreshId(lean_object*);
 lean_object* l_Lean_Meta_usingTransparency___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_empty___at_IO_runMeta___spec__1___closed__1;
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_forallTelescope___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_reduceReducibleOnly_x3f___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_Basic_5__forallTelescopeReducingAuxAux___main___at_Lean_Meta_forallBoundedTelescope___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_TransparencyMode_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_metaExt___elambda__1(lean_object*);
@@ -334,6 +333,7 @@ lean_object* l_Lean_Meta_isClassQuickConst(lean_object*, lean_object*, lean_obje
 lean_object* l_Lean_EnvExtension_getStateUnsafe___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_MetaExtState_inhabited;
 lean_object* l_Lean_Meta_withNewMCtxDepth(lean_object*);
+lean_object* l_Lean_Meta_shouldReduceReducibleOnly(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMCtx___rarg(lean_object*);
 lean_object* l___private_Init_Lean_Meta_Basic_7__lambdaTelescopeAux___main(lean_object*);
 lean_object* l___private_Init_Lean_Meta_Basic_4__liftMkBindingM(lean_object*);
@@ -377,9 +377,9 @@ lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_forallTeles
 lean_object* l___private_Init_Lean_Meta_Basic_5__forallTelescopeReducingAuxAux___main___at_Lean_Meta_isClassExpensive___main___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLCtx(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isClassExpensive(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_reduceReducibleOnly_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_resettingTypeClassCache___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_shouldReduceAll___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkIsExprDefEqAuxRef___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Meta_isClassExpensive___main___spec__4(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -2313,7 +2313,7 @@ x_2 = lean_alloc_closure((void*)(l___private_Init_Lean_Meta_Basic_1__whenDebuggi
 return x_2;
 }
 }
-lean_object* l_Lean_Meta_reduceAll_x3f(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Meta_shouldReduceAll(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; uint8_t x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
@@ -2328,16 +2328,16 @@ lean_ctor_set(x_8, 1, x_2);
 return x_8;
 }
 }
-lean_object* l_Lean_Meta_reduceAll_x3f___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Meta_shouldReduceAll___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_Meta_reduceAll_x3f(x_1, x_2);
+x_3 = l_Lean_Meta_shouldReduceAll(x_1, x_2);
 lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_Meta_reduceReducibleOnly_x3f(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Meta_shouldReduceReducibleOnly(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; uint8_t x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
@@ -2352,11 +2352,11 @@ lean_ctor_set(x_8, 1, x_2);
 return x_8;
 }
 }
-lean_object* l_Lean_Meta_reduceReducibleOnly_x3f___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Meta_shouldReduceReducibleOnly___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_Meta_reduceReducibleOnly_x3f(x_1, x_2);
+x_3 = l_Lean_Meta_shouldReduceReducibleOnly(x_1, x_2);
 lean_dec(x_1);
 return x_3;
 }

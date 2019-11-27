@@ -4,14 +4,15 @@
 LEAN = ../../bin/lean
 LEANC = ../../bin/leanc
 SRCS = $(shell find . -name '*.lean')
-OBJS = $(SRCS:.lean=.olean)
 DEPS = $(SRCS:.lean=.depend)
 OPTS = @LEAN_EXTRA_MAKE_OPTS@
 STAGE0_DIR = ../../stage0
-STAGE1_DIR = ../stage1
+STAGE1_C_OUT ?= ../stage1/Init
 ifndef STAGE1_OUT
 $(error "`STAGE1_OUT` must be set (use cmake)")
 endif
+STAGE1_OLEAN_OUT ?= .
+OBJS = $(addprefix $(STAGE1_OLEAN_OUT), $(SRCS:.lean=.olean))
 # ensure deterministic ordering
 CS_CORE=$(addprefix Init/,$(sort $(patsubst %.lean,%.c,$(SRCS))))
 
@@ -27,36 +28,36 @@ depends: $(DEPS)
 # use separate assignment to ensure failure propagation
 	@deps=`$(LEAN) --deps $< | python relative.py`; echo $(<:.lean=.olean): $$deps > $@
 
-%.olean: %.lean %.depend
+$(STAGE1_OLEAN_OUT)/%.olean: %.lean %.depend $(MORE_DEPS)
 	@echo "[    ] Building $<"
-	@mkdir -p $(STAGE1_DIR)/Init/$(@D)
-	$(LEAN) $(OPTS) --make --c="$(STAGE1_DIR)/Init/$*.c.tmp" $<
+	@mkdir -p $(STAGE1_OLEAN_OUT)/$(*D) $(STAGE1_C_OUT)/$(*D)
+	$(LEAN) $(OPTS) --make=$@ --c="$(STAGE1_C_OUT)/$*.c.tmp" $<
 # create the .c file atomically
-	mv "$(STAGE1_DIR)/Init/$*.c.tmp" "$(STAGE1_DIR)/Init/$*.c"
+	mv "$(STAGE1_C_OUT)/$*.c.tmp" "$(STAGE1_C_OUT)/$*.c"
 # make sure the .olean file is newer than the .depend file to prevent infinite make cycles
-	@touch $*.olean
+	@touch $@
 
-$(STAGE1_DIR)/Init/%.c: %.olean
+$(STAGE1_C_OUT)/%.c: $(STAGE1_OLEAN_OUT)/%.olean
 	@
 
-$(STAGE1_OUT)/Init/%.o: $(STAGE1_DIR)/Init/%.c
+$(STAGE1_OUT)/%.o: $(STAGE1_C_OUT)/%.c
 	@echo "[    ] Building $<"
 	@mkdir -p "$(@D)"
 	$(LEANC) -c -o $@ $< $(LEANC_OPTS)
 
-$(STAGE1_OUT)/libleanstdlib.a: $(addprefix $(STAGE1_OUT)/Init/,$(patsubst %.lean,%.o,$(SRCS)))
+$(STAGE1_OUT)/libleanstdlib.a: $(addprefix $(STAGE1_OUT)/,$(patsubst %.lean,%.o,$(SRCS)))
 	@rm -f $@
 	@ar rcs $@ $^
 
 update-stage0:
 	-rm -r $(STAGE0_DIR)
-	-mkdir $(STAGE0_DIR)
-	cp -R $(STAGE1_DIR) $(STAGE0_DIR)/stdlib
+	-mkdir -p $(STAGE0_DIR)/stdlib
+	cp -R $(STAGE1_C_OUT) $(STAGE0_DIR)/stdlib/Init
 	echo "add_library (stage0 OBJECT $(CS_CORE))" > $(STAGE0_DIR)/stdlib/CMakeLists.txt
 # don't copy untracked crap
 	cd ..; git ls-files -z . | xargs -0 -I '{}' bash -c 'mkdir -p `dirname ../stage0/src/{}` && cp {} ../stage0/src/{}'
 	-git add $(STAGE0_DIR)
 
-.PRECIOUS: %.depend $(STAGE1_DIR)/Init/%.c
+.PRECIOUS: %.depend $(STAGE1_C_OUT)/%.c
 
 include $(DEPS)

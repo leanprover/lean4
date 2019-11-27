@@ -231,10 +231,10 @@ throwEx $ Exception.bug b
 do ctx ← read;
    when ctx.config.debug (do x; pure ())
 
-@[inline] def reduceAll? : MetaM Bool :=
+@[inline] def shouldReduceAll : MetaM Bool :=
 do ctx ← read; pure $ ctx.config.transparency == TransparencyMode.all
 
-@[inline] def reduceReducibleOnly? : MetaM Bool :=
+@[inline] def shouldReduceReducibleOnly : MetaM Bool :=
 do ctx ← read; pure $ ctx.config.transparency == TransparencyMode.reducible
 
 @[inline] def getTransparency : MetaM TransparencyMode :=
@@ -312,9 +312,9 @@ def getConstAux (constName : Name) (exception? : Bool) : MetaM (Option ConstantI
 do env ← getEnv;
    match env.find constName with
    | some (info@(ConstantInfo.thmInfo _)) =>
-     condM reduceAll? (pure (some info)) (pure none)
+     condM shouldReduceAll (pure (some info)) (pure none)
    | some (info@(ConstantInfo.defnInfo _)) =>
-     condM reduceReducibleOnly?
+     condM shouldReduceReducibleOnly
        (condM (isReducible constName) (pure (some info)) (pure none))
        (pure (some info))
    | some info => pure (some info)

@@ -805,7 +805,7 @@ else
 
   Auxiliary method for isDefEqDelta -/
 private def unfoldReducibeDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : MetaM LBool :=
-condM reduceReducibleOnly?
+condM shouldReduceReducibleOnly
   (unfoldDefEq tInfo sInfo t s)
   (do tReducible ← isReducible tInfo.name;
       sReducible ← isReducible sInfo.name;

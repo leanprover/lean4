@@ -26,12 +26,18 @@ registerSimplePersistentEnvExtension {
 @[init mkInstanceExtension]
 constant instanceExtension : SimplePersistentEnvExtension InstanceEntry (DiscrTree Expr) := arbitrary _
 
+private def mkInstanceKey (e : Expr) : MetaM (Array DiscrTree.Key) :=
+do type ← inferType e;
+   withNewMCtxDepth $ do
+     (_, _, type) ← forallMetaTelescopeReducing type;
+     DiscrTree.mkPath type
+
 def addGlobalInstance (env : Environment) (constName : Name) : IO Environment :=
 match env.find constName with
 | none => throw $ IO.userError "unknown constant"
 | some cinfo => do
   let c := mkConst constName (cinfo.lparams.map mkLevelParam);
-  (keys, env) ← IO.runMeta (do type ← inferType c; DiscrTree.mkPath type) env;
+  (keys, env) ← IO.runMeta (mkInstanceKey c) env;
   pure $ instanceExtension.addEntry env { keys := keys, val := c }
 
 def getInstances (env : Environment) : DiscrTree Expr :=

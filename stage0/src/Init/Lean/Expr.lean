@@ -52,6 +52,8 @@ def BinderInfo.hash : BinderInfo → USize
 
 instance BinderInfo.hashable : Hashable BinderInfo := ⟨BinderInfo.hash⟩
 
+instance BinderInfo.inhabited : Inhabited BinderInfo := ⟨BinderInfo.default⟩
+
 def BinderInfo.isInstImplicit : BinderInfo → Bool
 | BinderInfo.instImplicit => true
 | _                       => false

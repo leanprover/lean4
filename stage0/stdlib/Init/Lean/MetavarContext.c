@@ -373,6 +373,7 @@ lean_object* l_Array_iterateMAux___main___at_Lean_MetavarContext_addLevelMVarDec
 lean_object* l_PersistentHashMap_insertAtCollisionNodeAux___main___at_Lean_MetavarContext_assignLevel___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_containsAux___main___at_Lean_MetavarContext_isExprAssigned___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_find___at_Lean_MetavarContext_getExprAssignment___spec__1(lean_object*, lean_object*);
+lean_object* l_Lean_MetavarContext_incDepth(lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at___private_Init_Lean_MetavarContext_13__collectDeps___spec__14(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_MetavarContext_10__dep___main___at___private_Init_Lean_MetavarContext_13__collectDeps___spec__33___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_MetavarContext_10__dep___main___at___private_Init_Lean_MetavarContext_13__collectDeps___spec__21(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5348,6 +5349,51 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
+lean_object* l_Lean_MetavarContext_incDepth(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; 
+x_2 = !lean_is_exclusive(x_1);
+if (x_2 == 0)
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_unsigned_to_nat(1u);
+x_5 = lean_nat_add(x_3, x_4);
+lean_dec(x_3);
+lean_ctor_set(x_1, 0, x_5);
+return x_1;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_6 = lean_ctor_get(x_1, 0);
+x_7 = lean_ctor_get(x_1, 1);
+x_8 = lean_ctor_get(x_1, 2);
+x_9 = lean_ctor_get(x_1, 3);
+x_10 = lean_ctor_get(x_1, 4);
+x_11 = lean_ctor_get(x_1, 5);
+lean_inc(x_11);
+lean_inc(x_10);
+lean_inc(x_9);
+lean_inc(x_8);
+lean_inc(x_7);
+lean_inc(x_6);
+lean_dec(x_1);
+x_12 = lean_unsigned_to_nat(1u);
+x_13 = lean_nat_add(x_6, x_12);
+lean_dec(x_6);
+x_14 = lean_alloc_ctor(0, 6, 0);
+lean_ctor_set(x_14, 0, x_13);
+lean_ctor_set(x_14, 1, x_7);
+lean_ctor_set(x_14, 2, x_8);
+lean_ctor_set(x_14, 3, x_9);
+lean_ctor_set(x_14, 4, x_10);
+lean_ctor_set(x_14, 5, x_11);
+return x_14;
+}
+}
+}
 uint8_t l_Lean_MetavarContext_hasAssignedLevelMVar___main(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -7036,7 +7082,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
-x_2 = lean_unsigned_to_nat(389u);
+x_2 = lean_unsigned_to_nat(392u);
 x_3 = lean_unsigned_to_nat(12u);
 x_4 = l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -15228,7 +15274,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
-x_2 = lean_unsigned_to_nat(585u);
+x_2 = lean_unsigned_to_nat(588u);
 x_3 = lean_unsigned_to_nat(16u);
 x_4 = l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);

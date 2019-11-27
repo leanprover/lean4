@@ -310,6 +310,9 @@ def isExprAssignable (mctx : MetavarContext) (mvarId : Name) : Bool :=
 let decl := mctx.getDecl mvarId;
 decl.depth == mctx.depth
 
+def incDepth (mctx : MetavarContext) : MetavarContext :=
+{ depth := mctx.depth + 1, .. mctx }
+
 /-- Return true iff the given level contains an assigned metavariable. -/
 def hasAssignedLevelMVar (mctx : MetavarContext) : Level → Bool
 | Level.succ lvl _       => lvl.hasMVar && hasAssignedLevelMVar lvl

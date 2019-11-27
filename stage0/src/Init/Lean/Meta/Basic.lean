@@ -82,7 +82,6 @@ structure Config :=
 structure ParamInfo :=
 (implicit     : Bool      := false)
 (instImplicit : Bool      := false)
-(prop         : Bool      := false)
 (hasFwdDeps   : Bool      := false)
 (backDeps     : Array Nat := #[])
 
@@ -314,10 +313,11 @@ do env ← getEnv;
    match env.find constName with
    | some (info@(ConstantInfo.thmInfo _)) =>
      condM reduceAll? (pure (some info)) (pure none)
-   | some info                            =>
+   | some (info@(ConstantInfo.defnInfo _)) =>
      condM reduceReducibleOnly?
        (condM (isReducible constName) (pure (some info)) (pure none))
        (pure (some info))
+   | some info => pure (some info)
    | none                                 =>
      if exception? then throwEx $ Exception.unknownConst constName
      else pure none
@@ -591,6 +591,41 @@ savingCache $ do
   lctx ← getLCtx;
   lambdaTelescopeAux k lctx #[] 0 e
 
+private partial def forallMetaTelescopeReducingAux
+    (reducing? : Bool) (maxMVars? : Option Nat)
+    : Array Expr → Array BinderInfo → Nat → Expr → MetaM (Array Expr × Array BinderInfo × Expr)
+| mvars, bis, j, Expr.forallE n d b c => do
+  let d     := d.instantiateRevRange j mvars.size mvars;
+  mvar ← mkFreshExprMVar d;
+  let mvars := mvars.push mvar;
+  let bis   := bis.push c.binderInfo;
+  match maxMVars? with
+  | none          => forallMetaTelescopeReducingAux mvars bis j b
+  | some maxMVars =>
+    if mvars.size < maxMVars then
+      forallMetaTelescopeReducingAux mvars bis j b
+    else
+      let type := b.instantiateRevRange j mvars.size mvars;
+      pure (mvars, bis, type)
+| mvars, bis, j, type =>
+  let type := type.instantiateRevRange j mvars.size mvars;
+  if reducing? then do
+    newType ← whnf type;
+    if newType.isForall then
+      forallMetaTelescopeReducingAux mvars bis mvars.size newType
+    else
+      pure (mvars, bis, type)
+  else
+    pure (mvars, bis, type)
+
+/-- Similar to `forallTelescope`, but creates metavariables instead of free variables. -/
+def forallMetaTelescope (e : Expr) : MetaM (Array Expr × Array BinderInfo × Expr) :=
+forallMetaTelescopeReducingAux false none #[] #[] 0 e
+
+/-- Similar to `forallTelescopeReducing`, but creates metavariables instead of free variables. -/
+def forallMetaTelescopeReducing (e : Expr) (maxMVars? : Option Nat := none) : MetaM (Array Expr × Array BinderInfo × Expr) :=
+forallMetaTelescopeReducingAux true maxMVars? #[] #[] 0 e
+
 @[inline] def liftStateMCtx {α} (x : StateM MetavarContext α) : MetaM α :=
 fun _ s =>
   let (a, mctx) := x.run s.mctx;
@@ -637,5 +672,24 @@ do fvarId ← mkFreshId;
    adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
      withNewFVar fvar type k
 
+/--
+  Save cache and `MetavarContext`, bump the `MetavarContext` depth, execute `x`,
+  and restore saved data. -/
+@[inline] def withNewMCtxDepth {α} (x : MetaM α) : MetaM α :=
+do s ← get;
+   let savedCache := s.cache;
+   let savedMCtx  := s.mctx;
+   modify $ fun s => { mctx := s.mctx.incDepth, .. s };
+   finally x (modify $ fun s => { cache := savedCache, mctx := savedMCtx, .. s })
+
 end Meta
 end Lean
+
+open Lean
+open Lean.Meta
+
+/-- Helper function for running `MetaM` methods in attributes -/
+@[inline] def IO.runMeta {α} (x : MetaM α) (env : Environment) (cfg : Config := {}) : IO (α × Environment) :=
+match (x { config := cfg }).run { env := env } with
+| EStateM.Result.ok a s     => pure (a, s.env)
+| EStateM.Result.error ex _ => throw (IO.userError (toString ex))

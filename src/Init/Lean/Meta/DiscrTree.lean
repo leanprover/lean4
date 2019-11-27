@@ -132,11 +132,11 @@ private def tmpStar := mkMVar tmpMVarId
 
 instance {α} : Inhabited (DiscrTree α) := ⟨{}⟩
 
-private partial def pushArgsAux (infos : Array ParamInfo) : Nat → Expr → Array Expr → MetaM (Array Expr)
+private partial def pushArgsAux (infos : Array ParamInfo) (ignoreImplicit : Bool) : Nat → Expr → Array Expr → MetaM (Array Expr)
 | i, Expr.app f a _, todo =>
   if h : i < infos.size then
     let info := infos.get ⟨i, h⟩;
-    if info.implicit || info.instImplicit then
+    if (info.implicit && ignoreImplicit) || info.instImplicit then
       pushArgsAux (i-1) f (todo.push tmpStar)
     else condM (isProof a)
       (pushArgsAux (i-1) f (todo.push tmpStar))
@@ -146,12 +146,12 @@ private partial def pushArgsAux (infos : Array ParamInfo) : Nat → Expr → Arr
     (pushArgsAux (i-1) f (todo.push a))
 | _, _, todo => pure todo
 
-private def pushArgs (todo : Array Expr) (e : Expr) : MetaM (Key × Array Expr) :=
+private def pushArgs (todo : Array Expr) (e : Expr) (ignoreImplicit : Bool) : MetaM (Key × Array Expr) :=
 do e ← whnf e;
    let fn    := e.getAppFn;
    let push (k : Key) (nargs : Nat) : MetaM (Key × Array Expr) := do {
      info ← getFunInfoNArgs fn nargs;
-     todo ← pushArgsAux info.paramInfo (nargs-1) e todo;
+     todo ← pushArgsAux info.paramInfo ignoreImplicit (nargs-1) e todo;
      pure (k, todo)
    };
    match fn with
@@ -167,23 +167,23 @@ do e ← whnf e;
        (pure (Key.star, todo))
    | _                  => pure (Key.other, todo)
 
-partial def mkPathAux : Array Expr → Array Key → MetaM (Array Key)
+partial def mkPathAux (ignoreImplicit : Bool) : Array Expr → Array Key → MetaM (Array Key)
 | todo, keys =>
   if todo.isEmpty then
     pure keys
   else do
     let e    := todo.back;
     let todo := todo.pop;
-    (k, todo) ← pushArgs todo e;
+    (k, todo) ← pushArgs todo e ignoreImplicit;
     mkPathAux todo (keys.push k)
 
 private def initCapacity := 8
 
-def mkPath (e : Expr) : MetaM (Array Key) :=
+def mkPath (e : Expr) (ignoreImplicit : Bool) : MetaM (Array Key) :=
 usingTransparency TransparencyMode.reducible $ do
   let todo : Array Expr := Array.mkEmpty initCapacity;
   let keys : Array Key  := Array.mkEmpty initCapacity;
-  mkPathAux (todo.push e) keys
+  mkPathAux ignoreImplicit (todo.push e) keys
 
 private partial def createNodes {α} (keys : Array Key) (v : α) : Nat → Trie α
 | i =>
@@ -222,8 +222,8 @@ else
     let c := insertAux keys v 1 c;
     { root := d.root.insert k c }
 
-def insert {α} [HasBeq α] (d : DiscrTree α) (e : Expr) (v : α) : MetaM (DiscrTree α) :=
-do keys ← mkPath e;
+def insert {α} [HasBeq α] (d : DiscrTree α) (e : Expr) (v : α) (ignoreImplicit : Bool := true) : MetaM (DiscrTree α) :=
+do keys ← mkPath e ignoreImplicit;
    pure $ d.insertCore keys v
 
 partial def Trie.format {α} [HasFormat α] : Trie α → Format

@@ -261,6 +261,11 @@ match mctx.decls.find mvarId with
 def findLevelDepth (mctx : MetavarContext) (mvarId : Name) : Option Nat :=
 mctx.lDepth.find mvarId
 
+def getLevelDepth (mctx : MetavarContext) (mvarId : Name) : Nat :=
+match mctx.findLevelDepth mvarId with
+| some d => d
+| none   => panic! "unknown metavariable"
+
 @[export lean_metavar_ctx_assign_level]
 def assignLevel (m : MetavarContext) (mvarId : Name) (val : Level) : MetavarContext :=
 { lAssignment := m.lAssignment.insert mvarId val, .. m }

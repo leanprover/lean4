@@ -13,3 +13,4 @@ import Init.Lean.Meta.ExprDefEq
 import Init.Lean.Meta.DiscrTree
 import Init.Lean.Meta.Reduce
 import Init.Lean.Meta.Instances
+import Init.Lean.Meta.AbstractMVars

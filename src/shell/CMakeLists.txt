@@ -54,11 +54,15 @@ if(NOT STAGE0)
 endif()
 
 add_executable(lean lean.cpp)
-# `leanstatic` and `leanstdlib` are cyclically dependent static libraries.
-# We use the approach described at
-# https://cmake.org/cmake/help/v3.3/command/target_link_libraries.html#cyclic-dependencies-of-static-libraries
-# We don't want to add leanstdlib as a direct dependency of leanstatic since this is only true for stage 1.
-target_link_libraries(lean leanstatic leanstdlib leanstatic leanstdlib)
+if(STAGE0)
+  target_link_libraries(lean leanstatic)
+else()
+  # `leanstatic` and `leanstdlib` are cyclically dependent static libraries.
+  # We use the approach described at
+  # https://cmake.org/cmake/help/v3.3/command/target_link_libraries.html#cyclic-dependencies-of-static-libraries
+  # We don't want to add leanstdlib as a direct dependency of leanstatic since this is only true for stage 1.
+  target_link_libraries(lean leanstatic leanstdlib leanstatic leanstdlib)
+endif()
 # create import library on Windows to link plugins against
 set_target_properties(lean PROPERTIES ENABLE_EXPORTS ON)
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")

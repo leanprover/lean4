@@ -89,6 +89,7 @@ lean_object* l_Decidable_HasRepr___rarg(uint8_t);
 lean_object* l_Char_quoteCore___closed__3;
 lean_object* l_Prod_HasRepr(lean_object*, lean_object*);
 lean_object* l_Option_HasRepr___rarg___closed__3;
+uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Bool_HasRepr___closed__1;
 uint8_t l_String_isEmpty(lean_object*);
 lean_object* l_charToHex(uint32_t);
@@ -103,7 +104,6 @@ lean_object* l_Bool_HasRepr___boxed(lean_object*);
 lean_object* l_Nat_toDigits(lean_object*, lean_object*);
 lean_object* l_List_reprAux___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_UInt32_HasRepr___boxed(lean_object*);
-uint8_t l_Char_DecidableEq(uint32_t, uint32_t);
 lean_object* l_Char_repr___boxed(lean_object*);
 lean_object* l_UInt16_HasRepr___boxed(lean_object*);
 lean_object* lean_uint64_to_nat(uint64_t);
@@ -117,7 +117,6 @@ lean_object* l_Char_HasRepr(uint32_t);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l_Char_quoteCore___closed__5;
 lean_object* l_Option_HasRepr___rarg(lean_object*, lean_object*);
-uint8_t l_Bool_DecidableEq(uint8_t, uint8_t);
 lean_object* lean_uint16_to_nat(uint16_t);
 lean_object* l_id_HasRepr___rarg(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
@@ -1103,22 +1102,22 @@ _start:
 {
 uint32_t x_2; uint8_t x_3; 
 x_2 = 10;
-x_3 = l_Char_DecidableEq(x_1, x_2);
+x_3 = x_1 == x_2;
 if (x_3 == 0)
 {
 uint32_t x_4; uint8_t x_5; 
 x_4 = 9;
-x_5 = l_Char_DecidableEq(x_1, x_4);
+x_5 = x_1 == x_4;
 if (x_5 == 0)
 {
 uint32_t x_6; uint8_t x_7; 
 x_6 = 92;
-x_7 = l_Char_DecidableEq(x_1, x_6);
+x_7 = x_1 == x_6;
 if (x_7 == 0)
 {
 uint32_t x_8; uint8_t x_9; 
 x_8 = 34;
-x_9 = l_Char_DecidableEq(x_1, x_8);
+x_9 = x_1 == x_8;
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
@@ -1130,7 +1129,7 @@ if (x_12 == 0)
 {
 uint32_t x_13; uint8_t x_14; 
 x_13 = 127;
-x_14 = l_Char_DecidableEq(x_1, x_13);
+x_14 = x_1 == x_13;
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
@@ -1281,27 +1280,25 @@ return x_1;
 lean_object* l_String_quote(lean_object* x_1) {
 _start:
 {
-uint8_t x_2; uint8_t x_3; uint8_t x_4; 
+uint8_t x_2; 
 x_2 = l_String_isEmpty(x_1);
-x_3 = 1;
-x_4 = l_Bool_DecidableEq(x_2, x_3);
-if (x_4 == 0)
+if (x_2 == 0)
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_5 = lean_string_data(x_1);
-x_6 = l_String_quoteAux___main(x_5);
-x_7 = l_String_quote___closed__1;
-x_8 = lean_string_append(x_7, x_6);
-lean_dec(x_6);
-x_9 = lean_string_append(x_8, x_7);
-return x_9;
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_3 = lean_string_data(x_1);
+x_4 = l_String_quoteAux___main(x_3);
+x_5 = l_String_quote___closed__1;
+x_6 = lean_string_append(x_5, x_4);
+lean_dec(x_4);
+x_7 = lean_string_append(x_6, x_5);
+return x_7;
 }
 else
 {
-lean_object* x_10; 
+lean_object* x_8; 
 lean_dec(x_1);
-x_10 = l_String_quote___closed__2;
-return x_10;
+x_8 = l_String_quote___closed__2;
+return x_8;
 }
 }
 }

@@ -65,6 +65,7 @@ lean_object* l_Int_natMod___boxed(lean_object*, lean_object*);
 lean_object* l_Int_toNat(lean_object*);
 lean_object* lean_int_neg(lean_object*);
 lean_object* l_Int_one___closed__1;
+uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 extern lean_object* l_Substring_drop___closed__2;
 lean_object* lean_int_neg_succ_of_nat(lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
@@ -82,7 +83,6 @@ lean_object* lean_nat_abs(lean_object*);
 lean_object* lean_int_div(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Int_Basic_1__decNonneg___boxed(lean_object*);
 lean_object* l_Int_HasToString;
-uint8_t l_Char_DecidableEq(uint32_t, uint32_t);
 lean_object* l_Int_ofNat___boxed(lean_object*);
 lean_object* l_String_toInt(lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
@@ -634,7 +634,7 @@ lean_object* x_2; uint32_t x_3; uint32_t x_4; uint8_t x_5;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_string_utf8_get(x_1, x_2);
 x_4 = 45;
-x_5 = l_Char_DecidableEq(x_3, x_4);
+x_5 = x_3 == x_4;
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
@@ -689,7 +689,7 @@ lean_object* x_2; uint32_t x_3; uint32_t x_4; uint8_t x_5;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_string_utf8_get(x_1, x_2);
 x_4 = 45;
-x_5 = l_Char_DecidableEq(x_3, x_4);
+x_5 = x_3 == x_4;
 if (x_5 == 0)
 {
 uint8_t x_6; 

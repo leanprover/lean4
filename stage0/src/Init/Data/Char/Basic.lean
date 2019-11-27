@@ -62,7 +62,7 @@ fun h' => absurd (veqOfEq h') h
 theorem vneOfNe {c d : Char} (h : c ≠ d) : c.val ≠ d.val :=
 fun h' => absurd (eqOfVeq h') h
 
-instance : DecidableEq Char :=
+@[inline] instance : DecidableEq Char :=
 fun i j => decidableOfDecidableOfIff (decEq i.val j.val) ⟨Char.eqOfVeq, Char.veqOfEq⟩
 
 instance : Inhabited Char :=

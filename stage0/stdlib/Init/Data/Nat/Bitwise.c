@@ -25,7 +25,6 @@ lean_object* l_Nat_bitwise___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_land___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_land(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
-uint8_t l_Bool_DecidableEq(uint8_t, uint8_t);
 lean_object* l_Nat_bitwise___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -38,7 +37,7 @@ uint8_t x_6;
 x_6 = lean_nat_dec_eq(x_3, x_4);
 if (x_6 == 0)
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; uint8_t x_20; uint8_t x_21; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; 
 x_7 = lean_unsigned_to_nat(2u);
 x_8 = lean_nat_div(x_2, x_7);
 x_9 = lean_nat_div(x_3, x_7);
@@ -58,41 +57,38 @@ x_17 = lean_box(x_15);
 x_18 = lean_apply_2(x_1, x_16, x_17);
 x_19 = lean_unbox(x_18);
 lean_dec(x_18);
-x_20 = 1;
-x_21 = l_Bool_DecidableEq(x_19, x_20);
-if (x_21 == 0)
+if (x_19 == 0)
 {
-lean_object* x_22; 
-x_22 = lean_nat_add(x_10, x_10);
+lean_object* x_20; 
+x_20 = lean_nat_add(x_10, x_10);
 lean_dec(x_10);
+return x_20;
+}
+else
+{
+lean_object* x_21; lean_object* x_22; 
+x_21 = lean_nat_add(x_10, x_10);
+lean_dec(x_10);
+x_22 = lean_nat_add(x_21, x_12);
+lean_dec(x_21);
 return x_22;
 }
-else
-{
-lean_object* x_23; lean_object* x_24; 
-x_23 = lean_nat_add(x_10, x_10);
-lean_dec(x_10);
-x_24 = lean_nat_add(x_23, x_12);
-lean_dec(x_23);
-return x_24;
-}
 }
 else
 {
-uint8_t x_25; uint8_t x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; uint8_t x_30; uint8_t x_31; 
-x_25 = 1;
-x_26 = 0;
-x_27 = lean_box(x_25);
-x_28 = lean_box(x_26);
-x_29 = lean_apply_2(x_1, x_27, x_28);
-x_30 = lean_unbox(x_29);
-lean_dec(x_29);
-x_31 = l_Bool_DecidableEq(x_30, x_25);
-if (x_31 == 0)
+uint8_t x_23; uint8_t x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; 
+x_23 = 1;
+x_24 = 0;
+x_25 = lean_box(x_23);
+x_26 = lean_box(x_24);
+x_27 = lean_apply_2(x_1, x_25, x_26);
+x_28 = lean_unbox(x_27);
+lean_dec(x_27);
+if (x_28 == 0)
 {
-lean_object* x_32; 
-x_32 = lean_unsigned_to_nat(0u);
-return x_32;
+lean_object* x_29; 
+x_29 = lean_unsigned_to_nat(0u);
+return x_29;
 }
 else
 {
@@ -103,20 +99,19 @@ return x_2;
 }
 else
 {
-uint8_t x_33; uint8_t x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; uint8_t x_38; uint8_t x_39; 
-x_33 = 0;
-x_34 = 1;
-x_35 = lean_box(x_33);
-x_36 = lean_box(x_34);
-x_37 = lean_apply_2(x_1, x_35, x_36);
-x_38 = lean_unbox(x_37);
-lean_dec(x_37);
-x_39 = l_Bool_DecidableEq(x_38, x_34);
-if (x_39 == 0)
+uint8_t x_30; uint8_t x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; 
+x_30 = 0;
+x_31 = 1;
+x_32 = lean_box(x_30);
+x_33 = lean_box(x_31);
+x_34 = lean_apply_2(x_1, x_32, x_33);
+x_35 = lean_unbox(x_34);
+lean_dec(x_34);
+if (x_35 == 0)
 {
-lean_object* x_40; 
-x_40 = lean_unsigned_to_nat(0u);
-return x_40;
+lean_object* x_36; 
+x_36 = lean_unsigned_to_nat(0u);
+return x_36;
 }
 else
 {

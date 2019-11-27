@@ -950,7 +950,7 @@ match decEq a b with
 theorem Bool.falseNeTrue (h : false = true) : False :=
 Bool.noConfusion h
 
-instance : DecidableEq Bool :=
+@[inline] instance : DecidableEq Bool :=
 fun a b => match a, b with
  | false, false => isTrue rfl
  | false, true  => isFalse Bool.falseNeTrue

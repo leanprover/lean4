@@ -28,7 +28,6 @@ uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 uint8_t l_Char_isAlphanum(uint32_t);
 uint8_t l_Lean_isGreek(uint32_t);
 lean_object* l_Lean_isIdBeginEscape___boxed(lean_object*);
-uint8_t l_Char_DecidableEq(uint32_t, uint32_t);
 lean_object* l_Lean_isIdEndEscape___boxed(lean_object*);
 uint8_t l_Lean_isIdFirst(uint32_t);
 uint8_t l_Lean_isSubScriptAlnum(uint32_t);
@@ -489,7 +488,7 @@ if (x_2 == 0)
 {
 uint32_t x_3; uint8_t x_4; 
 x_3 = 95;
-x_4 = l_Char_DecidableEq(x_1, x_3);
+x_4 = x_1 == x_3;
 if (x_4 == 0)
 {
 uint8_t x_5; 
@@ -531,22 +530,22 @@ if (x_2 == 0)
 {
 uint32_t x_3; uint8_t x_4; 
 x_3 = 95;
-x_4 = l_Char_DecidableEq(x_1, x_3);
+x_4 = x_1 == x_3;
 if (x_4 == 0)
 {
 uint32_t x_5; uint8_t x_6; 
 x_5 = 39;
-x_6 = l_Char_DecidableEq(x_1, x_5);
+x_6 = x_1 == x_5;
 if (x_6 == 0)
 {
 uint32_t x_7; uint8_t x_8; 
 x_7 = 33;
-x_8 = l_Char_DecidableEq(x_1, x_7);
+x_8 = x_1 == x_7;
 if (x_8 == 0)
 {
 uint32_t x_9; uint8_t x_10; 
 x_9 = 63;
-x_10 = l_Char_DecidableEq(x_1, x_9);
+x_10 = x_1 == x_9;
 if (x_10 == 0)
 {
 uint8_t x_11; 
@@ -632,8 +631,19 @@ _start:
 {
 uint32_t x_2; uint8_t x_3; 
 x_2 = l_Lean_idBeginEscape;
-x_3 = l_Char_DecidableEq(x_1, x_2);
-return x_3;
+x_3 = x_1 == x_2;
+if (x_3 == 0)
+{
+uint8_t x_4; 
+x_4 = 0;
+return x_4;
+}
+else
+{
+uint8_t x_5; 
+x_5 = 1;
+return x_5;
+}
 }
 }
 lean_object* l_Lean_isIdBeginEscape___boxed(lean_object* x_1) {
@@ -652,8 +662,19 @@ _start:
 {
 uint32_t x_2; uint8_t x_3; 
 x_2 = l_Lean_idEndEscape;
-x_3 = l_Char_DecidableEq(x_1, x_2);
-return x_3;
+x_3 = x_1 == x_2;
+if (x_3 == 0)
+{
+uint8_t x_4; 
+x_4 = 0;
+return x_4;
+}
+else
+{
+uint8_t x_5; 
+x_5 = 1;
+return x_5;
+}
 }
 }
 lean_object* l_Lean_isIdEndEscape___boxed(lean_object* x_1) {

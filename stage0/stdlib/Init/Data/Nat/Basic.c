@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Prod_foldI___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_DecidableEq___closed__1;
+lean_object* l_Nat_DecidableEq___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_sub___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_HasPow___closed__1;
 uint8_t l_Prod_anyI(lean_object*, lean_object*);
@@ -70,7 +70,7 @@ lean_object* l_Nat_HasPow;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Nat_any___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_mul___boxed(lean_object*, lean_object*);
-lean_object* l_Nat_DecidableEq;
+uint8_t l_Nat_DecidableEq(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Nat_repeat___rarg(lean_object*, lean_object*, lean_object*);
@@ -104,20 +104,23 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Nat_DecidableEq___closed__1() {
+uint8_t l_Nat_DecidableEq(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Nat_decEq___boxed), 2, 0);
-return x_1;
+uint8_t x_3; 
+x_3 = lean_nat_dec_eq(x_1, x_2);
+return x_3;
 }
 }
-lean_object* _init_l_Nat_DecidableEq() {
+lean_object* l_Nat_DecidableEq___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Nat_DecidableEq___closed__1;
-return x_1;
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Nat_DecidableEq(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 lean_object* l_Nat_ble___boxed(lean_object* x_1, lean_object* x_2) {
@@ -853,10 +856,6 @@ _G_initialized = true;
 res = initialize_Init_Core(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Nat_DecidableEq___closed__1 = _init_l_Nat_DecidableEq___closed__1();
-lean_mark_persistent(l_Nat_DecidableEq___closed__1);
-l_Nat_DecidableEq = _init_l_Nat_DecidableEq();
-lean_mark_persistent(l_Nat_DecidableEq);
 l_Nat_HasLessEq = _init_l_Nat_HasLessEq();
 lean_mark_persistent(l_Nat_HasLessEq);
 l_Nat_HasLess = _init_l_Nat_HasLess();

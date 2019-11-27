@@ -30,7 +30,7 @@ protected def hasDecEq [DecidableEq α] : ∀ (a b : List α), Decidable (a = b)
   | isFalse nab => isFalse (fun h => List.noConfusion h (fun hab _ => absurd hab nab))
 
 instance [DecidableEq α] : DecidableEq (List α) :=
-{decEq := List.hasDecEq}
+List.hasDecEq
 
 def reverseAux : List α → List α → List α
 | [],   r => r

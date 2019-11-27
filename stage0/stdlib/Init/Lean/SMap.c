@@ -81,6 +81,7 @@ lean_object* l_Lean_SMap_contains___rarg(lean_object*, lean_object*, lean_object
 lean_object* l_Lean_SMap_size(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_PersistentHashMap_find_x21___rarg___closed__2;
 lean_object* l_Lean_SMap_find_x21___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Bool_DecidableEq(uint8_t, uint8_t);
 lean_object* l_Lean_SMap_numBuckets(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_stageSizes(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_HashMap_Inhabited___closed__1;
@@ -516,37 +517,45 @@ return x_5;
 lean_object* l_Lean_SMap_switch___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8_t x_4; 
+uint8_t x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; 
 x_4 = lean_ctor_get_uint8(x_3, sizeof(void*)*2);
-if (x_4 == 0)
+x_5 = lean_ctor_get(x_3, 0);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_3, 1);
+lean_inc(x_6);
+x_7 = 1;
+x_8 = l_Bool_DecidableEq(x_4, x_7);
+if (x_8 == 0)
 {
+lean_dec(x_6);
+lean_dec(x_5);
 return x_3;
 }
 else
 {
-uint8_t x_5; 
-x_5 = !lean_is_exclusive(x_3);
-if (x_5 == 0)
+uint8_t x_9; 
+x_9 = !lean_is_exclusive(x_3);
+if (x_9 == 0)
 {
-uint8_t x_6; 
-x_6 = 0;
-lean_ctor_set_uint8(x_3, sizeof(void*)*2, x_6);
+lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+x_10 = lean_ctor_get(x_3, 1);
+lean_dec(x_10);
+x_11 = lean_ctor_get(x_3, 0);
+lean_dec(x_11);
+x_12 = 0;
+lean_ctor_set_uint8(x_3, sizeof(void*)*2, x_12);
 return x_3;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; 
-x_7 = lean_ctor_get(x_3, 0);
-x_8 = lean_ctor_get(x_3, 1);
-lean_inc(x_8);
-lean_inc(x_7);
+uint8_t x_13; lean_object* x_14; 
 lean_dec(x_3);
-x_9 = 0;
-x_10 = lean_alloc_ctor(0, 2, 1);
-lean_ctor_set(x_10, 0, x_7);
-lean_ctor_set(x_10, 1, x_8);
-lean_ctor_set_uint8(x_10, sizeof(void*)*2, x_9);
-return x_10;
+x_13 = 0;
+x_14 = lean_alloc_ctor(0, 2, 1);
+lean_ctor_set(x_14, 0, x_5);
+lean_ctor_set(x_14, 1, x_6);
+lean_ctor_set_uint8(x_14, sizeof(void*)*2, x_13);
+return x_14;
 }
 }
 }

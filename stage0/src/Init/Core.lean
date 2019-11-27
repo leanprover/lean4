@@ -294,19 +294,17 @@ class inductive Decidable (p : Prop)
 | isFalse (h : ¬p) : Decidable
 | isTrue  (h : p) : Decidable
 
-@[reducible] def DecidablePred {α : Sort u} (r : α → Prop) :=
+abbrev DecidablePred {α : Sort u} (r : α → Prop) :=
 ∀ (a : α), Decidable (r a)
 
-@[reducible] def DecidableRel {α : Sort u} (r : α → α → Prop) :=
+abbrev DecidableRel {α : Sort u} (r : α → α → Prop) :=
 ∀ (a b : α), Decidable (r a b)
 
-class DecidableEq (α : Sort u) :=
-{decEq : ∀ (a b : α), Decidable (a = b)}
+abbrev DecidableEq (α : Sort u) :=
+∀ (a b : α), Decidable (a = b)
 
-export DecidableEq (decEq)
-
-@[inline] instance decidableOfDecidableEq {α : Sort u} (a b : α) [DecidableEq α] : Decidable (a = b) :=
-decEq a b
+def decEq {α : Sort u} [s : DecidableEq α] (a b : α) : Decidable (a = b) :=
+s a b
 
 inductive Option (α : Type u)
 | none {} : Option
@@ -953,11 +951,11 @@ theorem Bool.falseNeTrue (h : false = true) : False :=
 Bool.noConfusion h
 
 instance : DecidableEq Bool :=
-{decEq := fun a b => match a, b with
+fun a b => match a, b with
  | false, false => isTrue rfl
  | false, true  => isFalse Bool.falseNeTrue
  | true, false  => isFalse (Ne.symm Bool.falseNeTrue)
- | true, true   => isTrue rfl}
+ | true, true   => isTrue rfl
 
 /- if-then-else expression theorems -/
 
@@ -1181,9 +1179,9 @@ instance {α : Type u} {p : α → Prop} {a : α} (h : p a) : Inhabited {x // p 
 ⟨⟨a, h⟩⟩
 
 instance {α : Type u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
-{decEq := fun ⟨a, h₁⟩ ⟨b, h₂⟩ =>
+fun ⟨a, h₁⟩ ⟨b, h₂⟩ =>
   if h : a = b then isTrue (Subtype.eq h)
-  else isFalse (fun h' => Subtype.noConfusion h' (fun h' => absurd h' h))}
+  else isFalse (fun h' => Subtype.noConfusion h' (fun h' => absurd h' h))
 end Subtype
 
 /- Sum -/
@@ -1198,7 +1196,7 @@ instance Sum.inhabitedRight [h : Inhabited β] : Inhabited (Sum α β) :=
 ⟨Sum.inr (arbitrary β)⟩
 
 instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : DecidableEq (Sum α β) :=
-{decEq := fun a b =>
+fun a b =>
  match a, b with
  | (Sum.inl a), (Sum.inl b) =>
    if h : a = b then isTrue (h ▸ rfl)
@@ -1207,7 +1205,7 @@ instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : Decidab
    if h : a = b then isTrue (h ▸ rfl)
    else isFalse (fun h' => Sum.noConfusion h' (fun h' => absurd h' h))
  | (Sum.inr a), (Sum.inl b) => isFalse (fun h => Sum.noConfusion h)
- | (Sum.inl a), (Sum.inr b) => isFalse (fun h => Sum.noConfusion h)}
+ | (Sum.inl a), (Sum.inr b) => isFalse (fun h => Sum.noConfusion h)
 end
 
 /- Product -/
@@ -1219,13 +1217,13 @@ instance [Inhabited α] [Inhabited β] : Inhabited (Prod α β) :=
 ⟨(arbitrary α, arbitrary β)⟩
 
 instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
-{decEq := fun ⟨a, b⟩ ⟨a', b'⟩ =>
+fun ⟨a, b⟩ ⟨a', b'⟩ =>
   match (decEq a a') with
   | (isTrue e₁) =>
     match (decEq b b') with
     | (isTrue e₂)  => isTrue (Eq.recOn e₁ (Eq.recOn e₂ rfl))
     | (isFalse n₂) => isFalse (fun h => Prod.noConfusion h (fun e₁' e₂' => absurd e₂' n₂))
-  | (isFalse n₁) => isFalse (fun h => Prod.noConfusion h (fun e₁' e₂' => absurd e₁' n₁))}
+  | (isFalse n₁) => isFalse (fun h => Prod.noConfusion h (fun e₁' e₂' => absurd e₁' n₁))
 
 instance [HasBeq α] [HasBeq β] : HasBeq (α × β) :=
 ⟨fun ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ => a₁ == a₂ && b₁ == b₂⟩
@@ -1284,7 +1282,7 @@ instance : Inhabited PUnit :=
 ⟨⟨⟩⟩
 
 instance : DecidableEq PUnit :=
-{decEq := fun a b => isTrue (punitEq a b)}
+fun a b => isTrue (punitEq a b)
 
 /- Setoid -/
 
@@ -1560,12 +1558,12 @@ EqvGen.recOn H
 end
 
 instance {α : Sort u} {s : Setoid α} [d : ∀ (a b : α), Decidable (a ≈ b)] : DecidableEq (Quotient s) :=
-{decEq := fun (q₁ q₂ : Quotient s) =>
+fun (q₁ q₂ : Quotient s) =>
   Quotient.recOnSubsingleton₂ q₁ q₂
     (fun a₁ a₂ =>
       match (d a₁ a₂) with
       | (isTrue h₁)  => isTrue (Quotient.sound h₁)
-      | (isFalse h₂) => isFalse (fun h => absurd (Quotient.exact h) h₂))}
+      | (isFalse h₂) => isFalse (fun h => absurd (Quotient.exact h) h₂))
 
 /- Function extensionality -/
 
@@ -1706,7 +1704,7 @@ noncomputable def decidableInhabited (a : Prop) : Inhabited (Decidable a) :=
 ⟨propDecidable a⟩
 
 noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α :=
-{decEq := fun x y => propDecidable (x = y)}
+fun x y => propDecidable (x = y)
 
 noncomputable def typeDecidable (α : Sort u) : PSum α (α → False) :=
 match (propDecidable (Nonempty α)) with

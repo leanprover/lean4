@@ -28,7 +28,7 @@ match s₁, s₂ with
  else isFalse (fun h' => String.noConfusion h' (fun h' => absurd h' h))
 
 instance : DecidableEq String :=
-{decEq := String.decEq}
+String.decEq
 
 def List.asString (s : List Char) : String :=
 ⟨s⟩

@@ -16,6 +16,7 @@ extern "C" {
 lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l_List_toStringAux___main(lean_object*);
 extern lean_object* l_Option_HasRepr___rarg___closed__2;
+extern uint8_t l_String_anyAux___main___at_String_all___spec__1___closed__1;
 lean_object* l_String_Iterator_remainingToString(lean_object*);
 lean_object* l_addParenHeuristic___closed__2;
 lean_object* l_UInt64_HasToString(uint64_t);
@@ -23,6 +24,7 @@ lean_object* l_Subtype_HasToString___rarg(lean_object*, lean_object*);
 extern lean_object* l_Sum_HasRepr___rarg___closed__2;
 extern lean_object* l_List_repr___rarg___closed__1;
 extern lean_object* l_Option_HasRepr___rarg___closed__1;
+extern uint8_t l_String_Iterator_extract___closed__1;
 lean_object* l_Decidable_HasToString(lean_object*);
 lean_object* l_UInt16_HasToString___boxed(lean_object*);
 extern lean_object* l_Sum_HasRepr___rarg___closed__1;
@@ -93,6 +95,7 @@ lean_object* l_String_anyAux___main___at_addParenHeuristic___spec__1___boxed(lea
 lean_object* l_String_HasToString(lean_object*);
 lean_object* l_Substring_HasToString(lean_object*);
 lean_object* l_Fin_HasToString___boxed(lean_object*);
+uint8_t l_Bool_DecidableEq(uint8_t, uint8_t);
 lean_object* lean_uint16_to_nat(uint16_t);
 lean_object* l_Nat_HasToString(lean_object*);
 lean_object* l_String_Iterator_HasToString___boxed(lean_object*);
@@ -563,35 +566,38 @@ return x_3;
 uint8_t l_String_anyAux___main___at_addParenHeuristic___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8_t x_4; 
+uint8_t x_4; uint8_t x_5; uint8_t x_6; 
 x_4 = lean_nat_dec_eq(x_3, x_2);
-if (x_4 == 0)
-{
-uint32_t x_5; uint8_t x_6; 
-x_5 = lean_string_utf8_get(x_1, x_3);
-x_6 = l_Char_isWhitespace(x_5);
+x_5 = 1;
+x_6 = l_Bool_DecidableEq(x_4, x_5);
 if (x_6 == 0)
 {
-lean_object* x_7; 
-x_7 = lean_string_utf8_next(x_1, x_3);
+uint32_t x_7; uint8_t x_8; uint8_t x_9; 
+x_7 = lean_string_utf8_get(x_1, x_3);
+x_8 = l_Char_isWhitespace(x_7);
+x_9 = l_Bool_DecidableEq(x_8, x_5);
+if (x_9 == 0)
+{
+lean_object* x_10; 
+x_10 = lean_string_utf8_next(x_1, x_3);
 lean_dec(x_3);
-x_3 = x_7;
+x_3 = x_10;
 goto _start;
 }
 else
 {
-uint8_t x_9; 
+uint8_t x_12; 
 lean_dec(x_3);
-x_9 = 1;
-return x_9;
+x_12 = 1;
+return x_12;
 }
 }
 else
 {
-uint8_t x_10; 
+uint8_t x_13; 
 lean_dec(x_3);
-x_10 = 0;
-return x_10;
+x_13 = 0;
+return x_13;
 }
 }
 }
@@ -629,35 +635,29 @@ x_6 = l_addParenHeuristic___closed__1;
 x_7 = l_String_isPrefixOf(x_6, x_1);
 if (x_7 == 0)
 {
-lean_object* x_8; uint8_t x_9; 
+lean_object* x_8; uint8_t x_9; uint8_t x_10; uint8_t x_11; 
 x_8 = l_addParenHeuristic___closed__2;
 x_9 = l_String_isPrefixOf(x_8, x_1);
-if (x_9 == 0)
+x_10 = 1;
+x_11 = l_Bool_DecidableEq(x_9, x_10);
+if (x_11 == 0)
 {
-lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-x_10 = lean_string_utf8_byte_size(x_1);
-x_11 = lean_unsigned_to_nat(0u);
-x_12 = l_String_anyAux___main___at_addParenHeuristic___spec__1(x_1, x_10, x_11);
-lean_dec(x_10);
-if (x_12 == 0)
+lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+x_12 = lean_string_utf8_byte_size(x_1);
+x_13 = lean_unsigned_to_nat(0u);
+x_14 = l_String_anyAux___main___at_addParenHeuristic___spec__1(x_1, x_12, x_13);
+lean_dec(x_12);
+if (x_14 == 0)
 {
-lean_inc(x_1);
-return x_1;
-}
-else
+uint8_t x_15; 
+x_15 = l_String_Iterator_extract___closed__1;
+if (x_15 == 0)
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_13 = lean_string_append(x_2, x_1);
-x_14 = l_Option_HasRepr___rarg___closed__3;
-x_15 = lean_string_append(x_13, x_14);
-return x_15;
-}
-}
-else
-{
-lean_inc(x_1);
-return x_1;
-}
+lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_16 = lean_string_append(x_2, x_1);
+x_17 = l_Option_HasRepr___rarg___closed__3;
+x_18 = lean_string_append(x_16, x_17);
+return x_18;
 }
 else
 {
@@ -667,14 +667,162 @@ return x_1;
 }
 else
 {
+uint8_t x_19; 
+x_19 = l_String_anyAux___main___at_String_all___spec__1___closed__1;
+if (x_19 == 0)
+{
+lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+x_20 = lean_string_append(x_2, x_1);
+x_21 = l_Option_HasRepr___rarg___closed__3;
+x_22 = lean_string_append(x_20, x_21);
+return x_22;
+}
+else
+{
 lean_inc(x_1);
 return x_1;
+}
 }
 }
 else
 {
 lean_inc(x_1);
 return x_1;
+}
+}
+else
+{
+uint8_t x_23; 
+x_23 = l_String_Iterator_extract___closed__1;
+if (x_23 == 0)
+{
+lean_object* x_24; lean_object* x_25; uint8_t x_26; 
+x_24 = lean_string_utf8_byte_size(x_1);
+x_25 = lean_unsigned_to_nat(0u);
+x_26 = l_String_anyAux___main___at_addParenHeuristic___spec__1(x_1, x_24, x_25);
+lean_dec(x_24);
+if (x_26 == 0)
+{
+lean_object* x_27; lean_object* x_28; lean_object* x_29; 
+x_27 = lean_string_append(x_2, x_1);
+x_28 = l_Option_HasRepr___rarg___closed__3;
+x_29 = lean_string_append(x_27, x_28);
+return x_29;
+}
+else
+{
+uint8_t x_30; 
+x_30 = l_String_anyAux___main___at_String_all___spec__1___closed__1;
+if (x_30 == 0)
+{
+lean_object* x_31; lean_object* x_32; lean_object* x_33; 
+x_31 = lean_string_append(x_2, x_1);
+x_32 = l_Option_HasRepr___rarg___closed__3;
+x_33 = lean_string_append(x_31, x_32);
+return x_33;
+}
+else
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+}
+else
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+}
+else
+{
+uint8_t x_34; 
+x_34 = l_String_Iterator_extract___closed__1;
+if (x_34 == 0)
+{
+lean_object* x_35; lean_object* x_36; uint8_t x_37; 
+x_35 = lean_string_utf8_byte_size(x_1);
+x_36 = lean_unsigned_to_nat(0u);
+x_37 = l_String_anyAux___main___at_addParenHeuristic___spec__1(x_1, x_35, x_36);
+lean_dec(x_35);
+if (x_37 == 0)
+{
+lean_object* x_38; lean_object* x_39; lean_object* x_40; 
+x_38 = lean_string_append(x_2, x_1);
+x_39 = l_Option_HasRepr___rarg___closed__3;
+x_40 = lean_string_append(x_38, x_39);
+return x_40;
+}
+else
+{
+uint8_t x_41; 
+x_41 = l_String_anyAux___main___at_String_all___spec__1___closed__1;
+if (x_41 == 0)
+{
+lean_object* x_42; lean_object* x_43; lean_object* x_44; 
+x_42 = lean_string_append(x_2, x_1);
+x_43 = l_Option_HasRepr___rarg___closed__3;
+x_44 = lean_string_append(x_42, x_43);
+return x_44;
+}
+else
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+}
+else
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+}
+else
+{
+uint8_t x_45; 
+x_45 = l_String_Iterator_extract___closed__1;
+if (x_45 == 0)
+{
+lean_object* x_46; lean_object* x_47; uint8_t x_48; 
+x_46 = lean_string_utf8_byte_size(x_1);
+x_47 = lean_unsigned_to_nat(0u);
+x_48 = l_String_anyAux___main___at_addParenHeuristic___spec__1(x_1, x_46, x_47);
+lean_dec(x_46);
+if (x_48 == 0)
+{
+lean_object* x_49; lean_object* x_50; lean_object* x_51; 
+x_49 = lean_string_append(x_2, x_1);
+x_50 = l_Option_HasRepr___rarg___closed__3;
+x_51 = lean_string_append(x_49, x_50);
+return x_51;
+}
+else
+{
+uint8_t x_52; 
+x_52 = l_String_anyAux___main___at_String_all___spec__1___closed__1;
+if (x_52 == 0)
+{
+lean_object* x_53; lean_object* x_54; lean_object* x_55; 
+x_53 = lean_string_append(x_2, x_1);
+x_54 = l_Option_HasRepr___rarg___closed__3;
+x_55 = lean_string_append(x_53, x_54);
+return x_55;
+}
+else
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+}
+else
+{
+lean_inc(x_1);
+return x_1;
+}
 }
 }
 }

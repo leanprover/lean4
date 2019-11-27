@@ -50,8 +50,8 @@ lean_object* l_USize_hasDecidableLe___boxed(lean_object*, lean_object*);
 size_t l_USize_sub(size_t, size_t);
 lean_object* l_UInt8_lor___boxed(lean_object*, lean_object*);
 lean_object* l_UInt8_decLe___boxed(lean_object*, lean_object*);
+lean_object* l_UInt64_DecidableEq___boxed(lean_object*, lean_object*);
 lean_object* l_UInt16_HasModn;
-lean_object* l_UInt64_DecidableEq___closed__1;
 uint32_t l_UInt32_land(uint32_t, uint32_t);
 lean_object* l_UInt16_HasSub___closed__1;
 lean_object* l_UInt32_land___boxed(lean_object*, lean_object*);
@@ -111,9 +111,9 @@ lean_object* l_UInt8_sub___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_pow___main(lean_object*, lean_object*);
 lean_object* l_UInt32_HasAdd___closed__1;
 uint8_t l_UInt8_hasDecidableLt(uint8_t, uint8_t);
-lean_object* l_UInt8_DecidableEq;
+uint8_t l_UInt8_DecidableEq(uint8_t, uint8_t);
 lean_object* l_uint16Sz;
-lean_object* l_UInt16_DecidableEq;
+uint8_t l_UInt16_DecidableEq(uint16_t, uint16_t);
 size_t l_USize_HasOne;
 lean_object* l_UInt32_add___boxed(lean_object*, lean_object*);
 lean_object* l_UInt8_mod___boxed(lean_object*, lean_object*);
@@ -126,7 +126,7 @@ lean_object* l_UInt8_HasMod;
 lean_object* l_USize_HasAdd___closed__1;
 lean_object* l_UInt32_decLt___boxed(lean_object*, lean_object*);
 lean_object* l_UInt32_toNat___boxed(lean_object*);
-lean_object* l_USize_DecidableEq;
+uint8_t l_USize_DecidableEq(size_t, size_t);
 lean_object* l_UInt8_add___boxed(lean_object*, lean_object*);
 lean_object* l_UInt64_hasDecidableLe___boxed(lean_object*, lean_object*);
 lean_object* l_UInt64_HasMul___closed__1;
@@ -135,7 +135,7 @@ lean_object* l_UInt32_hasDecidableLt___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_toUInt16___boxed(lean_object*);
 uint64_t l_UInt64_Inhabited;
 uint8_t l_UInt64_decLt(uint64_t, uint64_t);
-lean_object* l_UInt32_DecidableEq;
+uint8_t l_UInt32_DecidableEq(uint32_t, uint32_t);
 uint64_t l_Nat_toUInt64(lean_object*);
 lean_object* l_UInt64_mul___boxed(lean_object*, lean_object*);
 size_t l_USize_shiftLeft(size_t, size_t);
@@ -174,6 +174,7 @@ size_t l_USize_mod(size_t, size_t);
 uint8_t l_UInt8_sub(uint8_t, uint8_t);
 lean_object* l_UInt64_HasAdd___closed__1;
 lean_object* l_Nat_toUInt64___boxed(lean_object*);
+lean_object* l_UInt32_DecidableEq___boxed(lean_object*, lean_object*);
 lean_object* l_UInt32_HasSub___closed__1;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_UInt16_HasAdd;
@@ -183,15 +184,15 @@ uint16_t l_UInt16_Inhabited;
 lean_object* l_USize_modn___boxed(lean_object*, lean_object*);
 uint8_t l_UInt8_HasOne;
 lean_object* l_USize_HasModn___closed__1;
+lean_object* l_USize_DecidableEq___boxed(lean_object*, lean_object*);
 uint8_t l_UInt64_toUInt8(uint64_t);
 lean_object* l_UInt8_HasSub___closed__1;
 uint8_t l_USize_decLe(size_t, size_t);
-lean_object* l_UInt32_DecidableEq___closed__1;
 lean_object* l_UInt64_decLe___boxed(lean_object*, lean_object*);
 lean_object* l_UInt32_mod___boxed(lean_object*, lean_object*);
 lean_object* l_usizeSz___closed__1;
 uint64_t lean_uint64_modn(uint64_t, lean_object*);
-lean_object* l_UInt64_DecidableEq;
+uint8_t l_UInt64_DecidableEq(uint64_t, uint64_t);
 uint32_t l_UInt32_Inhabited;
 lean_object* l_UInt64_HasModn___closed__1;
 lean_object* l_UInt32_HasAdd;
@@ -202,7 +203,6 @@ lean_object* l_UInt16_HasMod;
 uint64_t l_UInt64_shiftLeft(uint64_t, uint64_t);
 lean_object* l_UInt64_toNat___boxed(lean_object*);
 lean_object* l_UInt16_toNat___boxed(lean_object*);
-lean_object* l_USize_DecidableEq___closed__1;
 lean_object* l_USize_HasLessEq;
 uint64_t l_UInt64_lor(uint64_t, uint64_t);
 lean_object* l_UInt16_hasDecidableLe___boxed(lean_object*, lean_object*);
@@ -240,9 +240,9 @@ lean_object* l_UInt32_lor___boxed(lean_object*, lean_object*);
 lean_object* l_UInt64_div___boxed(lean_object*, lean_object*);
 uint8_t l_UInt16_hasDecidableLe(uint16_t, uint16_t);
 lean_object* l_UInt16_HasMul___closed__1;
-lean_object* l_UInt8_DecidableEq___closed__1;
 lean_object* l_UInt16_HasDiv;
 lean_object* l_Nat_toUInt32___boxed(lean_object*);
+lean_object* l_UInt8_DecidableEq___boxed(lean_object*, lean_object*);
 lean_object* l_USize_HasDiv;
 lean_object* lean_uint64_to_nat(uint64_t);
 lean_object* l_UInt8_HasModn___closed__1;
@@ -299,8 +299,8 @@ lean_object* l_UInt64_HasMod;
 lean_object* lean_uint8_to_nat(uint8_t);
 lean_object* l_UInt8_HasAdd___closed__1;
 lean_object* l_UInt16_land___boxed(lean_object*, lean_object*);
-lean_object* l_UInt16_DecidableEq___closed__1;
 lean_object* l_UInt8_div___boxed(lean_object*, lean_object*);
+lean_object* l_UInt16_DecidableEq___boxed(lean_object*, lean_object*);
 lean_object* _init_l_uint8Sz() {
 _start:
 {
@@ -625,20 +625,25 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* _init_l_UInt8_DecidableEq___closed__1() {
+uint8_t l_UInt8_DecidableEq(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt8_decEq___boxed), 2, 0);
-return x_1;
+uint8_t x_3; 
+x_3 = x_1 == x_2;
+return x_3;
 }
 }
-lean_object* _init_l_UInt8_DecidableEq() {
+lean_object* l_UInt8_DecidableEq___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_UInt8_DecidableEq___closed__1;
-return x_1;
+uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = lean_unbox(x_1);
+lean_dec(x_1);
+x_4 = lean_unbox(x_2);
+lean_dec(x_2);
+x_5 = l_UInt8_DecidableEq(x_3, x_4);
+x_6 = lean_box(x_5);
+return x_6;
 }
 }
 uint8_t l_UInt8_hasDecidableLt(uint8_t x_1, uint8_t x_2) {
@@ -1007,20 +1012,25 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* _init_l_UInt16_DecidableEq___closed__1() {
+uint8_t l_UInt16_DecidableEq(uint16_t x_1, uint16_t x_2) {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt16_decEq___boxed), 2, 0);
-return x_1;
+uint8_t x_3; 
+x_3 = x_1 == x_2;
+return x_3;
 }
 }
-lean_object* _init_l_UInt16_DecidableEq() {
+lean_object* l_UInt16_DecidableEq___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_UInt16_DecidableEq___closed__1;
-return x_1;
+uint16_t x_3; uint16_t x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = lean_unbox(x_1);
+lean_dec(x_1);
+x_4 = lean_unbox(x_2);
+lean_dec(x_2);
+x_5 = l_UInt16_DecidableEq(x_3, x_4);
+x_6 = lean_box(x_5);
+return x_6;
 }
 }
 uint8_t l_UInt16_hasDecidableLt(uint16_t x_1, uint16_t x_2) {
@@ -1389,20 +1399,25 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* _init_l_UInt32_DecidableEq___closed__1() {
+uint8_t l_UInt32_DecidableEq(uint32_t x_1, uint32_t x_2) {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt32_decEq___boxed), 2, 0);
-return x_1;
+uint8_t x_3; 
+x_3 = x_1 == x_2;
+return x_3;
 }
 }
-lean_object* _init_l_UInt32_DecidableEq() {
+lean_object* l_UInt32_DecidableEq___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_UInt32_DecidableEq___closed__1;
-return x_1;
+uint32_t x_3; uint32_t x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_4 = lean_unbox_uint32(x_2);
+lean_dec(x_2);
+x_5 = l_UInt32_DecidableEq(x_3, x_4);
+x_6 = lean_box(x_5);
+return x_6;
 }
 }
 uint8_t l_UInt32_hasDecidableLt(uint32_t x_1, uint32_t x_2) {
@@ -1860,20 +1875,25 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* _init_l_UInt64_DecidableEq___closed__1() {
+uint8_t l_UInt64_DecidableEq(uint64_t x_1, uint64_t x_2) {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt64_decEq___boxed), 2, 0);
-return x_1;
+uint8_t x_3; 
+x_3 = x_1 == x_2;
+return x_3;
 }
 }
-lean_object* _init_l_UInt64_DecidableEq() {
+lean_object* l_UInt64_DecidableEq___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_UInt64_DecidableEq___closed__1;
-return x_1;
+uint64_t x_3; uint64_t x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = lean_unbox_uint64(x_1);
+lean_dec(x_1);
+x_4 = lean_unbox_uint64(x_2);
+lean_dec(x_2);
+x_5 = l_UInt64_DecidableEq(x_3, x_4);
+x_6 = lean_box(x_5);
+return x_6;
 }
 }
 uint8_t l_UInt64_hasDecidableLt(uint64_t x_1, uint64_t x_2) {
@@ -2311,20 +2331,25 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* _init_l_USize_DecidableEq___closed__1() {
+uint8_t l_USize_DecidableEq(size_t x_1, size_t x_2) {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_USize_decEq___boxed), 2, 0);
-return x_1;
+uint8_t x_3; 
+x_3 = x_1 == x_2;
+return x_3;
 }
 }
-lean_object* _init_l_USize_DecidableEq() {
+lean_object* l_USize_DecidableEq___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_USize_DecidableEq___closed__1;
-return x_1;
+size_t x_3; size_t x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = lean_unbox_usize(x_1);
+lean_dec(x_1);
+x_4 = lean_unbox_usize(x_2);
+lean_dec(x_2);
+x_5 = l_USize_DecidableEq(x_3, x_4);
+x_6 = lean_box(x_5);
+return x_6;
 }
 }
 uint8_t l_USize_hasDecidableLt(size_t x_1, size_t x_2) {
@@ -2415,10 +2440,6 @@ lean_mark_persistent(l_UInt8_HasLess);
 l_UInt8_HasLessEq = _init_l_UInt8_HasLessEq();
 lean_mark_persistent(l_UInt8_HasLessEq);
 l_UInt8_Inhabited = _init_l_UInt8_Inhabited();
-l_UInt8_DecidableEq___closed__1 = _init_l_UInt8_DecidableEq___closed__1();
-lean_mark_persistent(l_UInt8_DecidableEq___closed__1);
-l_UInt8_DecidableEq = _init_l_UInt8_DecidableEq();
-lean_mark_persistent(l_UInt8_DecidableEq);
 l_uint16Sz = _init_l_uint16Sz();
 lean_mark_persistent(l_uint16Sz);
 l_UInt16_HasZero = _init_l_UInt16_HasZero();
@@ -2452,10 +2473,6 @@ lean_mark_persistent(l_UInt16_HasLess);
 l_UInt16_HasLessEq = _init_l_UInt16_HasLessEq();
 lean_mark_persistent(l_UInt16_HasLessEq);
 l_UInt16_Inhabited = _init_l_UInt16_Inhabited();
-l_UInt16_DecidableEq___closed__1 = _init_l_UInt16_DecidableEq___closed__1();
-lean_mark_persistent(l_UInt16_DecidableEq___closed__1);
-l_UInt16_DecidableEq = _init_l_UInt16_DecidableEq();
-lean_mark_persistent(l_UInt16_DecidableEq);
 l_uint32Sz = _init_l_uint32Sz();
 lean_mark_persistent(l_uint32Sz);
 l_UInt32_HasZero = _init_l_UInt32_HasZero();
@@ -2489,10 +2506,6 @@ lean_mark_persistent(l_UInt32_HasLess);
 l_UInt32_HasLessEq = _init_l_UInt32_HasLessEq();
 lean_mark_persistent(l_UInt32_HasLessEq);
 l_UInt32_Inhabited = _init_l_UInt32_Inhabited();
-l_UInt32_DecidableEq___closed__1 = _init_l_UInt32_DecidableEq___closed__1();
-lean_mark_persistent(l_UInt32_DecidableEq___closed__1);
-l_UInt32_DecidableEq = _init_l_UInt32_DecidableEq();
-lean_mark_persistent(l_UInt32_DecidableEq);
 l_uint64Sz___closed__1 = _init_l_uint64Sz___closed__1();
 lean_mark_persistent(l_uint64Sz___closed__1);
 l_uint64Sz = _init_l_uint64Sz();
@@ -2528,10 +2541,6 @@ lean_mark_persistent(l_UInt64_HasLess);
 l_UInt64_HasLessEq = _init_l_UInt64_HasLessEq();
 lean_mark_persistent(l_UInt64_HasLessEq);
 l_UInt64_Inhabited = _init_l_UInt64_Inhabited();
-l_UInt64_DecidableEq___closed__1 = _init_l_UInt64_DecidableEq___closed__1();
-lean_mark_persistent(l_UInt64_DecidableEq___closed__1);
-l_UInt64_DecidableEq = _init_l_UInt64_DecidableEq();
-lean_mark_persistent(l_UInt64_DecidableEq);
 l_usizeSz___closed__1 = _init_l_usizeSz___closed__1();
 lean_mark_persistent(l_usizeSz___closed__1);
 l_usizeSz = _init_l_usizeSz();
@@ -2567,10 +2576,6 @@ lean_mark_persistent(l_USize_HasLess);
 l_USize_HasLessEq = _init_l_USize_HasLessEq();
 lean_mark_persistent(l_USize_HasLessEq);
 l_USize_Inhabited = _init_l_USize_Inhabited();
-l_USize_DecidableEq___closed__1 = _init_l_USize_DecidableEq___closed__1();
-lean_mark_persistent(l_USize_DecidableEq___closed__1);
-l_USize_DecidableEq = _init_l_USize_DecidableEq();
-lean_mark_persistent(l_USize_DecidableEq);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

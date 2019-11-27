@@ -13,7 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern uint8_t l_String_anyAux___main___at_String_all___spec__1___closed__1;
 lean_object* l_Lean_IR_FnBody_elimDead(lean_object*);
+extern uint8_t l_String_Iterator_extract___closed__1;
 lean_object* l_RBNode_findCore___main___at___private_Init_Lean_Compiler_IR_FreeVars_14__collectIndex___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 extern lean_object* l_Lean_IR_Inhabited;
@@ -37,6 +39,7 @@ lean_object* l_Lean_IR_FnBody_flatten(lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_IR_FnBody_elimDead___main___spec__2(lean_object*, lean_object*);
 lean_object* lean_array_pop(lean_object*);
 lean_object* l_Lean_IR_FnBody_elimDead___main(lean_object*);
+uint8_t l_Bool_DecidableEq(uint8_t, uint8_t);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_collectFreeIndices(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -57,68 +60,93 @@ return x_6;
 lean_object* l_Lean_IR_reshapeWithoutDeadAux___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8_t x_4; 
+uint8_t x_4; uint8_t x_5; uint8_t x_6; 
 x_4 = l_Array_isEmpty___rarg(x_1);
-if (x_4 == 0)
+x_5 = 1;
+x_6 = l_Bool_DecidableEq(x_4, x_5);
+if (x_6 == 0)
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_12; 
-x_5 = l_Array_back___at_Lean_IR_reshapeWithoutDeadAux___main___spec__1(x_1);
-x_6 = lean_array_pop(x_1);
-switch (lean_obj_tag(x_5)) {
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_14; 
+x_7 = l_Array_back___at_Lean_IR_reshapeWithoutDeadAux___main___spec__1(x_1);
+x_8 = lean_array_pop(x_1);
+switch (lean_obj_tag(x_7)) {
 case 0:
 {
-lean_object* x_17; 
-x_17 = lean_ctor_get(x_5, 0);
-lean_inc(x_17);
-x_12 = x_17;
-goto block_16;
+lean_object* x_23; 
+x_23 = lean_ctor_get(x_7, 0);
+lean_inc(x_23);
+x_14 = x_23;
+goto block_22;
 }
 case 1:
 {
-lean_object* x_18; 
-x_18 = lean_ctor_get(x_5, 0);
-lean_inc(x_18);
-x_12 = x_18;
-goto block_16;
+lean_object* x_24; 
+x_24 = lean_ctor_get(x_7, 0);
+lean_inc(x_24);
+x_14 = x_24;
+goto block_22;
 }
 default: 
 {
-lean_object* x_19; 
-x_19 = lean_box(0);
-x_7 = x_19;
-goto block_11;
+lean_object* x_25; 
+x_25 = lean_box(0);
+x_9 = x_25;
+goto block_13;
 }
 }
-block_11:
+block_13:
 {
-lean_object* x_8; lean_object* x_9; 
-lean_dec(x_7);
-lean_inc(x_5);
-x_8 = l_Lean_IR_FnBody_collectFreeIndices(x_5, x_3);
-x_9 = l_Lean_IR_FnBody_setBody(x_5, x_2);
-x_1 = x_6;
-x_2 = x_9;
-x_3 = x_8;
+lean_object* x_10; lean_object* x_11; 
+lean_dec(x_9);
+lean_inc(x_7);
+x_10 = l_Lean_IR_FnBody_collectFreeIndices(x_7, x_3);
+x_11 = l_Lean_IR_FnBody_setBody(x_7, x_2);
+x_1 = x_8;
+x_2 = x_11;
+x_3 = x_10;
 goto _start;
 }
-block_16:
+block_22:
 {
-lean_object* x_13; 
-x_13 = l_RBNode_findCore___main___at___private_Init_Lean_Compiler_IR_FreeVars_14__collectIndex___spec__1(x_3, x_12);
-lean_dec(x_12);
-if (lean_obj_tag(x_13) == 0)
+lean_object* x_15; 
+x_15 = l_RBNode_findCore___main___at___private_Init_Lean_Compiler_IR_FreeVars_14__collectIndex___spec__1(x_3, x_14);
+lean_dec(x_14);
+if (lean_obj_tag(x_15) == 0)
 {
-lean_dec(x_5);
-x_1 = x_6;
+uint8_t x_16; 
+x_16 = l_String_anyAux___main___at_String_all___spec__1___closed__1;
+if (x_16 == 0)
+{
+lean_dec(x_7);
+x_1 = x_8;
 goto _start;
 }
 else
 {
-lean_object* x_15; 
-lean_dec(x_13);
-x_15 = lean_box(0);
-x_7 = x_15;
-goto block_11;
+lean_object* x_18; 
+x_18 = lean_box(0);
+x_9 = x_18;
+goto block_13;
+}
+}
+else
+{
+uint8_t x_19; 
+lean_dec(x_15);
+x_19 = l_String_Iterator_extract___closed__1;
+if (x_19 == 0)
+{
+lean_dec(x_7);
+x_1 = x_8;
+goto _start;
+}
+else
+{
+lean_object* x_21; 
+x_21 = lean_box(0);
+x_9 = x_21;
+goto block_13;
+}
 }
 }
 }

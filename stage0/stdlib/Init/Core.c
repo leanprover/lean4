@@ -59,7 +59,6 @@ lean_object* l_idDelta___rarg(lean_object*);
 lean_object* l_PSigma_HasSizeof___boxed(lean_object*, lean_object*);
 lean_object* l_Quot_liftOn___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_id___rarg___boxed(lean_object*);
-lean_object* l_decidableOfDecidableEq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Eq_mpr___rarg___boxed(lean_object*);
 lean_object* l_Quotient_DecidableEq(lean_object*);
 lean_object* l_Decidable_recOnFalse(lean_object*);
@@ -190,12 +189,14 @@ lean_object* l___private_Init_Core_21__extfunApp(lean_object*, lean_object*);
 lean_object* l_Unit_unit;
 lean_object* l_Quot_liftOn___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Sum_DecidableEq___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_decEq(lean_object*);
 lean_object* l_or___boxed(lean_object*, lean_object*);
 uint8_t l_strictOr(uint8_t, uint8_t);
 lean_object* l_Subtype_HasSizeof___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Quot_recOnSubsingleton___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Eq_mpr___rarg(lean_object*);
 lean_object* l_Decidable_recOnTrue(lean_object*);
+lean_object* l_decEq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_inferInstance(lean_object*);
 lean_object* l_decidableOfDecidableOfEq(lean_object*, lean_object*);
 lean_object* l_typedExpr(lean_object*);
@@ -212,7 +213,6 @@ lean_object* l_Thunk_mk___boxed(lean_object*, lean_object*);
 lean_object* l_NonScalar_Inhabited;
 lean_object* l_ite___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_or(uint8_t, uint8_t);
-lean_object* l_decidableOfDecidableEq(lean_object*);
 lean_object* l_Nat_add___boxed(lean_object*, lean_object*);
 uint8_t l_Decidable_decide___rarg(uint8_t);
 lean_object* l_bit1___rarg(lean_object*, lean_object*, lean_object*);
@@ -658,19 +658,19 @@ lean_dec(x_2);
 return x_6;
 }
 }
-lean_object* l_decidableOfDecidableEq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_decEq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_apply_2(x_3, x_1, x_2);
+x_4 = lean_apply_2(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* l_decidableOfDecidableEq(lean_object* x_1) {
+lean_object* l_decEq(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_decidableOfDecidableEq___rarg), 3, 0);
+x_2 = lean_alloc_closure((void*)(l_decEq___rarg), 3, 0);
 return x_2;
 }
 }

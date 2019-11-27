@@ -75,14 +75,14 @@ instance (α : Type u) : Inhabited (Option α) :=
 ⟨none⟩
 
 instance {α : Type u} [DecidableEq α] : DecidableEq (Option α) :=
-{decEq := fun a b => match a, b with
+fun a b => match a, b with
  | none,      none      => isTrue rfl
  | none,      (some v₂) => isFalse (fun h => Option.noConfusion h)
  | (some v₁), none      => isFalse (fun h => Option.noConfusion h)
  | (some v₁), (some v₂) =>
    match decEq v₁ v₂ with
    | (isTrue e)  => isTrue (congrArg (@some α) e)
-   | (isFalse n) => isFalse (fun h => Option.noConfusion h (fun e => absurd e n))}
+   | (isFalse n) => isFalse (fun h => Option.noConfusion h (fun e => absurd e n))
 
 instance {α : Type u} [HasBeq α] : HasBeq (Option α) :=
 ⟨fun a b => match a, b with

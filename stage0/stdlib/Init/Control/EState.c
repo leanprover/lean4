@@ -88,6 +88,7 @@ lean_object* l_EStateM_MonadState___closed__4;
 lean_object* l_EStateM_Result_toString(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_bind(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_MonadStateAdapter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Bool_DecidableEq(uint8_t, uint8_t);
 lean_object* l_EStateM_throw(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_Monad___closed__10;
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
@@ -473,51 +474,53 @@ return x_13;
 }
 else
 {
-if (x_4 == 0)
-{
 uint8_t x_14; 
-lean_dec(x_9);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
 {
+lean_object* x_15; uint8_t x_16; uint8_t x_17; 
+x_15 = lean_ctor_get(x_13, 0);
+x_16 = 1;
+x_17 = l_Bool_DecidableEq(x_4, x_16);
+if (x_17 == 0)
+{
+lean_dec(x_9);
 return x_13;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = lean_ctor_get(x_13, 0);
-x_16 = lean_ctor_get(x_13, 1);
-lean_inc(x_16);
-lean_inc(x_15);
-lean_dec(x_13);
-x_17 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_17, 0, x_15);
-lean_ctor_set(x_17, 1, x_16);
-return x_17;
-}
-}
-else
-{
-uint8_t x_18; 
-x_18 = !lean_is_exclusive(x_13);
-if (x_18 == 0)
-{
-lean_object* x_19; 
-x_19 = lean_ctor_get(x_13, 0);
-lean_dec(x_19);
+lean_dec(x_15);
 lean_ctor_set(x_13, 0, x_9);
 return x_13;
 }
+}
 else
 {
-lean_object* x_20; lean_object* x_21; 
-x_20 = lean_ctor_get(x_13, 1);
-lean_inc(x_20);
+lean_object* x_18; lean_object* x_19; uint8_t x_20; uint8_t x_21; 
+x_18 = lean_ctor_get(x_13, 0);
+x_19 = lean_ctor_get(x_13, 1);
+lean_inc(x_19);
+lean_inc(x_18);
 lean_dec(x_13);
-x_21 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_21, 0, x_9);
-lean_ctor_set(x_21, 1, x_20);
-return x_21;
+x_20 = 1;
+x_21 = l_Bool_DecidableEq(x_4, x_20);
+if (x_21 == 0)
+{
+lean_object* x_22; 
+lean_dec(x_9);
+x_22 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_22, 0, x_18);
+lean_ctor_set(x_22, 1, x_19);
+return x_22;
+}
+else
+{
+lean_object* x_23; 
+lean_dec(x_18);
+x_23 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_23, 0, x_9);
+lean_ctor_set(x_23, 1, x_19);
+return x_23;
 }
 }
 }

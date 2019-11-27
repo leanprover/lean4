@@ -24,7 +24,7 @@ lean_object* l_String_isInt___boxed(lean_object*);
 lean_object* l_Int_sub___boxed(lean_object*, lean_object*);
 lean_object* l_Int_HasMod___closed__1;
 lean_object* l_String_toNat(lean_object*);
-lean_object* l_Int_Int_DecidableEq;
+uint8_t l_Int_Int_DecidableEq(lean_object*, lean_object*);
 lean_object* l_Int_negSucc___boxed(lean_object*);
 lean_object* l_Int_HasRepr;
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -48,6 +48,7 @@ lean_object* l_Int_div___boxed(lean_object*, lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Int_zero___closed__1;
+lean_object* l_Int_Int_DecidableEq___boxed(lean_object*, lean_object*);
 uint8_t l_Substring_isNat(lean_object*);
 lean_object* l_Int_HasMul___closed__1;
 lean_object* l_Int_subNatNat(lean_object*, lean_object*);
@@ -56,7 +57,6 @@ lean_object* l_Int_mod___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Int_HasSub;
 uint8_t l_String_isNat(lean_object*);
-lean_object* l_Int_Int_DecidableEq___closed__1;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* l_Int_HasDiv;
 lean_object* l_Int_negOfNat___boxed(lean_object*);
@@ -65,7 +65,6 @@ lean_object* l_Int_natMod___boxed(lean_object*, lean_object*);
 lean_object* l_Int_toNat(lean_object*);
 lean_object* lean_int_neg(lean_object*);
 lean_object* l_Int_one___closed__1;
-uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 extern lean_object* l_Substring_drop___closed__2;
 lean_object* lean_int_neg_succ_of_nat(lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
@@ -83,6 +82,7 @@ lean_object* lean_nat_abs(lean_object*);
 lean_object* lean_int_div(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Int_Basic_1__decNonneg___boxed(lean_object*);
 lean_object* l_Int_HasToString;
+uint8_t l_Char_DecidableEq(uint32_t, uint32_t);
 lean_object* l_Int_ofNat___boxed(lean_object*);
 lean_object* l_String_toInt(lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
@@ -368,20 +368,23 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* _init_l_Int_Int_DecidableEq___closed__1() {
+uint8_t l_Int_Int_DecidableEq(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Int_decEq___boxed), 2, 0);
-return x_1;
+uint8_t x_3; 
+x_3 = lean_int_dec_eq(x_1, x_2);
+return x_3;
 }
 }
-lean_object* _init_l_Int_Int_DecidableEq() {
+lean_object* l_Int_Int_DecidableEq___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Int_Int_DecidableEq___closed__1;
-return x_1;
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Int_Int_DecidableEq(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 lean_object* l___private_Init_Data_Int_Basic_1__decNonneg___boxed(lean_object* x_1) {
@@ -631,7 +634,7 @@ lean_object* x_2; uint32_t x_3; uint32_t x_4; uint8_t x_5;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_string_utf8_get(x_1, x_2);
 x_4 = 45;
-x_5 = x_3 == x_4;
+x_5 = l_Char_DecidableEq(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
@@ -686,7 +689,7 @@ lean_object* x_2; uint32_t x_3; uint32_t x_4; uint8_t x_5;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_string_utf8_get(x_1, x_2);
 x_4 = 45;
-x_5 = x_3 == x_4;
+x_5 = l_Char_DecidableEq(x_3, x_4);
 if (x_5 == 0)
 {
 uint8_t x_6; 
@@ -787,10 +790,6 @@ l_Int_HasLessEq = _init_l_Int_HasLessEq();
 lean_mark_persistent(l_Int_HasLessEq);
 l_Int_HasLess = _init_l_Int_HasLess();
 lean_mark_persistent(l_Int_HasLess);
-l_Int_Int_DecidableEq___closed__1 = _init_l_Int_Int_DecidableEq___closed__1();
-lean_mark_persistent(l_Int_Int_DecidableEq___closed__1);
-l_Int_Int_DecidableEq = _init_l_Int_Int_DecidableEq();
-lean_mark_persistent(l_Int_Int_DecidableEq);
 l_Int_repr___closed__1 = _init_l_Int_repr___closed__1();
 lean_mark_persistent(l_Int_repr___closed__1);
 l_Int_HasRepr___closed__1 = _init_l_Int_HasRepr___closed__1();

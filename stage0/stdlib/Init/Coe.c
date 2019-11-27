@@ -71,6 +71,7 @@ lean_object* l_coeSortBool;
 lean_object* l_coeToLift(lean_object*, lean_object*);
 lean_object* l_liftFnRange___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_lift___rarg(lean_object*, lean_object*);
+uint8_t l_Bool_DecidableEq(uint8_t, uint8_t);
 lean_object* l_liftList___rarg(lean_object*, lean_object*);
 lean_object* l_liftT___rarg(lean_object*, lean_object*);
 lean_object* l_coeBaseAux___rarg(lean_object*);
@@ -386,18 +387,10 @@ return lean_box(0);
 uint8_t l_coeDecidableEq(uint8_t x_1) {
 _start:
 {
-if (x_1 == 0)
-{
-uint8_t x_2; 
-x_2 = 0;
-return x_2;
-}
-else
-{
-uint8_t x_3; 
-x_3 = 1;
+uint8_t x_2; uint8_t x_3; 
+x_2 = 1;
+x_3 = l_Bool_DecidableEq(x_1, x_2);
 return x_3;
-}
 }
 }
 lean_object* l_coeDecidableEq___boxed(lean_object* x_1) {

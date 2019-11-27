@@ -103,5 +103,4 @@ end Fin
 open Fin
 
 instance (n : Nat) : DecidableEq (Fin n) :=
-{decEq := fun i j => decidableOfDecidableOfIff
-  (decEq i.val j.val) ⟨eqOfVeq, veqOfEq⟩}
+fun i j => decidableOfDecidableOfIff (decEq i.val j.val) ⟨eqOfVeq, veqOfEq⟩

@@ -63,8 +63,7 @@ theorem vneOfNe {c d : Char} (h : c ≠ d) : c.val ≠ d.val :=
 fun h' => absurd (eqOfVeq h') h
 
 instance : DecidableEq Char :=
-{decEq := fun i j => decidableOfDecidableOfIff
-  (decEq i.val j.val) ⟨Char.eqOfVeq, Char.veqOfEq⟩}
+fun i j => decidableOfDecidableOfIff (decEq i.val j.val) ⟨Char.eqOfVeq, Char.veqOfEq⟩
 
 instance : Inhabited Char :=
 ⟨'A'⟩

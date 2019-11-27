@@ -67,7 +67,7 @@ partial def abstractExprMVars : Expr → M Expr
 | e@(Expr.sort u _)        => do u ← visitLevel abstractLevelMVars u; pure $ e.updateSort u rfl
 | e@(Expr.const _ us _)    => do us ← us.mapM (visitLevel abstractLevelMVars); pure $ e.updateConst us rfl
 | e@(Expr.proj _ _ s _)    => do s ← visitExpr abstractExprMVars s; pure $ e.updateProj s rfl
-| e@(Expr.app f a _)       => do f ← visitExpr abstractExprMVars a; a ← visitExpr abstractExprMVars a; pure $ e.updateApp f a rfl
+| e@(Expr.app f a _)       => do f ← visitExpr abstractExprMVars f; a ← visitExpr abstractExprMVars a; pure $ e.updateApp f a rfl
 | e@(Expr.mdata _ b _)     => do b ← visitExpr abstractExprMVars b; pure $ e.updateMData b rfl
 | e@(Expr.lam _ d b _)     => do d ← visitExpr abstractExprMVars d; b ← visitExpr abstractExprMVars b; pure $ e.updateLambdaE! d b
 | e@(Expr.forallE _ d b _) => do d ← visitExpr abstractExprMVars d; b ← visitExpr abstractExprMVars b; pure $ e.updateForallE! d b
@@ -84,10 +84,11 @@ partial def abstractExprMVars : Expr → M Expr
       type   ← visitExpr abstractExprMVars decl.type;
       fvarId ← mkFreshId;
       let fvar := mkFVar fvarId;
+      let userName := if decl.userName.isAnonymous then (`x).appendIndexAfter s.fvars.size else decl.userName;
       modify $ fun s => {
         emap  := s.emap.insert mvarId fvar,
         fvars := s.fvars.push fvar,
-        lctx  := s.lctx.mkLocalDecl fvarId decl.userName type,
+        lctx  := s.lctx.mkLocalDecl fvarId userName type,
         .. s };
       pure fvar
 | Expr.localE _ _ _ _    => unreachable!
@@ -118,7 +119,7 @@ do e ← instantiateMVars e;
    lctx ← getLCtx;
    let (e, s) := AbstractMVars.abstractExprMVars e s.mctx { lctx := lctx, ngen := s.ngen };
    modify $ fun s => { ngen := s.ngen, .. s };
-   e ← mkForall s.fvars e;
+   let e := s.lctx.mkForall s.fvars e;
    pure { levels := s.us, numMVars := s.fvars.size, expr := e }
 
 end Meta

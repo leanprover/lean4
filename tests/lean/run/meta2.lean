@@ -276,3 +276,15 @@ do print "----- tst12 -----";
    pure ()
 
 #eval run [`Init.Core] tst12
+
+def tst13 : MetaM Unit :=
+do print "----- tst13 -----";
+   m₁ ← mkFreshExprMVar (mkArrow type type);
+   m₂ ← mkFreshExprMVar (mkApp m₁ nat);
+   t  ← mkId m₂;
+   print t;
+   ⟨_, _, a⟩ ← abstractMVars t;
+   print a;
+   pure ()
+
+#eval run [`Init.Core] tst13

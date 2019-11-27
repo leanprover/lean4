@@ -64,7 +64,7 @@ def UInt8.decLe (a b : UInt8) : Decidable (a ≤ b) :=
 UInt8.casesOn a $ fun n => UInt8.casesOn b $ fun m =>
   inferInstanceAs (Decidable (n <= m))
 
-instance : DecidableEq UInt8 := {decEq := UInt8.decEq}
+instance : DecidableEq UInt8 := UInt8.decEq
 instance UInt8.hasDecidableLt (a b : UInt8) : Decidable (a < b) := UInt8.decLt a b
 instance UInt8.hasDecidableLe (a b : UInt8) : Decidable (a ≤ b) := UInt8.decLe a b
 
@@ -123,7 +123,7 @@ def UInt16.decLe (a b : UInt16) : Decidable (a ≤ b) :=
 UInt16.casesOn a $ fun n => UInt16.casesOn b $ fun m =>
   inferInstanceAs (Decidable (n <= m))
 
-instance : DecidableEq UInt16 := {decEq := UInt16.decEq}
+instance : DecidableEq UInt16 := UInt16.decEq
 instance UInt16.hasDecidableLt (a b : UInt16) : Decidable (a < b) := UInt16.decLt a b
 instance UInt16.hasDecidableLe (a b : UInt16) : Decidable (a ≤ b) := UInt16.decLe a b
 
@@ -182,7 +182,7 @@ def UInt32.decLe (a b : UInt32) : Decidable (a ≤ b) :=
 UInt32.casesOn a $ fun n => UInt32.casesOn b $ fun m =>
   inferInstanceAs (Decidable (n <= m))
 
-instance : DecidableEq UInt32 := {decEq := UInt32.decEq}
+instance : DecidableEq UInt32 := UInt32.decEq
 instance UInt32.hasDecidableLt (a b : UInt32) : Decidable (a < b) := UInt32.decLt a b
 instance UInt32.hasDecidableLe (a b : UInt32) : Decidable (a ≤ b) := UInt32.decLe a b
 
@@ -258,7 +258,7 @@ def UInt64.decLe (a b : UInt64) : Decidable (a ≤ b) :=
 UInt64.casesOn a $ fun n => UInt64.casesOn b $ fun m =>
   inferInstanceAs (Decidable (n <= m))
 
-instance : DecidableEq UInt64 := {decEq := UInt64.decEq}
+instance : DecidableEq UInt64 := UInt64.decEq
 instance UInt64.hasDecidableLt (a b : UInt64) : Decidable (a < b) := UInt64.decLt a b
 instance UInt64.hasDecidableLe (a b : UInt64) : Decidable (a ≤ b) := UInt64.decLe a b
 
@@ -332,7 +332,7 @@ def USize.decLe (a b : USize) : Decidable (a ≤ b) :=
 USize.casesOn a $ fun n => USize.casesOn b $ fun m =>
   inferInstanceAs (Decidable (n <= m))
 
-instance : DecidableEq USize := {decEq := USize.decEq}
+instance : DecidableEq USize := USize.decEq
 instance USize.hasDecidableLt (a b : USize) : Decidable (a < b) := USize.decLt a b
 instance USize.hasDecidableLe (a b : USize) : Decidable (a ≤ b) := USize.decLe a b
 

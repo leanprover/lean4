@@ -96,7 +96,7 @@ match a, b with
  | negSucc a, ofNat b => isFalse $ fun h => Int.noConfusion h
 
 instance Int.DecidableEq : DecidableEq Int :=
-{decEq := Int.decEq}
+Int.decEq
 
 @[extern "lean_int_dec_nonneg"]
 private def decNonneg (m : @& Int) : Decidable (NonNeg m) :=

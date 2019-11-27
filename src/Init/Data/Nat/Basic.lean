@@ -40,7 +40,7 @@ if h : beq n m = true then isTrue (eqOfBeqEqTt h)
 else isFalse (neOfBeqEqFf (eqFalseOfNeTrue h))
 
 @[inline] instance : DecidableEq Nat :=
-{decEq := Nat.decEq}
+Nat.decEq
 
 @[extern "lean_nat_dec_le"]
 def ble : Nat → Nat → Bool

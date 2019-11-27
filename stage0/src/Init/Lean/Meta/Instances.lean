@@ -32,7 +32,7 @@ private def mkInstanceKey (e : Expr) : MetaM (Array DiscrTree.Key) :=
 do type ← inferType e;
    withNewMCtxDepth $ do
      (_, _, type) ← forallMetaTelescopeReducing type;
-     DiscrTree.mkPath type false /- Do not ignore implicit arguments, only instImplicit -/
+     DiscrTree.mkPath type
 
 def addGlobalInstance (env : Environment) (constName : Name) : IO Environment :=
 match env.find constName with

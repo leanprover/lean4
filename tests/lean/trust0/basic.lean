@@ -62,7 +62,7 @@ def hasDecEq : ∀ (a b : Nat), Decidable (a = b)
     | isFalse xney => isFalse (fun h => Nat.noConfusion h (fun xeqy => absurd xeqy xney))
 
 instance : DecidableEq ℕ :=
-{decEq := hasDecEq}
+hasDecEq
 
 def repeat.{u} {α : Type u} (f : ℕ → α → α) : ℕ → α → α
 | 0,         a => a

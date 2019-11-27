@@ -3,6 +3,6 @@ phashmap_inst_coherence.lean:11:0: error: type mismatch at application
 term
   m
 has type
-  @PersistentHashMap Nat Nat Nat.Hashable (@beqOfEq Nat Nat.DecidableEq)
+  @PersistentHashMap Nat Nat Nat.Hashable (@beqOfEq Nat (λ (ab : Nat), Nat.DecidableEq a b))
 but is expected to have type
-  @PersistentHashMap Nat Nat natDiffHash (@beqOfEq Nat Nat.DecidableEq)
+  @PersistentHashMap Nat Nat natDiffHash (@beqOfEq Nat (λ (ab : Nat), Nat.DecidableEq a b))

@@ -684,3 +684,12 @@ do s ← get;
 
 end Meta
 end Lean
+
+open Lean
+open Lean.Meta
+
+/-- Helper function for running `MetaM` methods in attributes -/
+@[inline] def IO.runMeta {α} (x : MetaM α) (env : Environment) (cfg : Config := {}) : IO (α × Environment) :=
+match (x { config := cfg }).run { env := env } with
+| EStateM.Result.ok a s     => pure (a, s.env)
+| EStateM.Result.error ex _ => throw (IO.userError (toString ex))

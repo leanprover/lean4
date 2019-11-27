@@ -13,24 +13,26 @@ structure InstanceEntry :=
 (keys : Array DiscrTree.Key)
 (val  : Expr)
 
-def addInstanceEntry (d : DiscrTree Expr) (e : InstanceEntry) : DiscrTree Expr :=
+abbrev Instances := DiscrTree Expr
+
+def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
 d.insertCore e.keys e.val
 
-def mkInstanceExtension : IO (SimplePersistentEnvExtension InstanceEntry (DiscrTree Expr)) :=
+def mkInstanceExtension : IO (SimplePersistentEnvExtension InstanceEntry Instances) :=
 registerSimplePersistentEnvExtension {
   name          := `instanceExt,
   addEntryFn    := addInstanceEntry,
-  addImportedFn := fun es => (mkStateFromImportedEntries addInstanceEntry {} es)
+  addImportedFn := fun es => (mkStateFromImportedEntries addInstanceEntry DiscrTree.empty es)
 }
 
 @[init mkInstanceExtension]
-constant instanceExtension : SimplePersistentEnvExtension InstanceEntry (DiscrTree Expr) := arbitrary _
+constant instanceExtension : SimplePersistentEnvExtension InstanceEntry Instances := arbitrary _
 
 private def mkInstanceKey (e : Expr) : MetaM (Array DiscrTree.Key) :=
 do type ← inferType e;
    withNewMCtxDepth $ do
      (_, _, type) ← forallMetaTelescopeReducing type;
-     DiscrTree.mkPath type
+     DiscrTree.mkPath type false /- Do not ignore implicit arguments, only instImplicit -/
 
 def addGlobalInstance (env : Environment) (constName : Name) : IO Environment :=
 match env.find constName with
@@ -40,7 +42,7 @@ match env.find constName with
   (keys, env) ← IO.runMeta (mkInstanceKey c) env;
   pure $ instanceExtension.addEntry env { keys := keys, val := c }
 
-def getInstances (env : Environment) : DiscrTree Expr :=
+def getInstances (env : Environment) : Instances :=
 instanceExtension.getState env
 
 @[init] def registerInstanceAttr : IO Unit :=

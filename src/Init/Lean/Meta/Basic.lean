@@ -204,14 +204,11 @@ do s ← get;
    modify $ fun s => { ngen := s.ngen.next, .. s };
    pure id
 
-def mkFreshExprMVarAt (lctx : LocalContext) (type : Expr) (userName : Name := Name.anonymous) (synthetic : Bool := false) : MetaM Expr :=
-do mvarId ← mkFreshId;
-   modify $ fun s => { mctx := s.mctx.addExprMVarDecl mvarId userName lctx type synthetic, .. s };
-   pure $ mkMVar mvarId
-
 def mkFreshExprMVar (type : Expr) (userName : Name := Name.anonymous) (synthetic : Bool := false) : MetaM Expr :=
 do lctx ← getLCtx;
-   mkFreshExprMVarAt lctx type userName synthetic
+   mvarId ← mkFreshId;
+   modify $ fun s => { mctx := s.mctx.addExprMVarDecl mvarId userName lctx type synthetic, .. s };
+   pure $ mkMVar mvarId
 
 def mkFreshLevelMVar : MetaM Level :=
 do mvarId ← mkFreshId;

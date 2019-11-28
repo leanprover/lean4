@@ -277,8 +277,8 @@ else
     (whnf              : Expr → m Expr)
     (inferType         : Expr → m Expr)
     (isDefEq           : Expr → Expr → m Bool)
-    (getLocalDecl      : Name → m LocalDecl)
-    (getMVarAssignment : Name → m (Option Expr)) : Expr → m Expr
+    (getLocalDecl      : FVarId → m LocalDecl)
+    (getMVarAssignment : MVarId → m (Option Expr)) : Expr → m Expr
 | e => whnfEasyCases getLocalDecl getMVarAssignment e $ fun e =>
   match e with
   | e@(Expr.const _ _ _)    => pure e
@@ -321,8 +321,8 @@ else
     (inferType         : Expr → m Expr)
     (isDefEq           : Expr → Expr → m Bool)
     (synthesizePending : Expr → m Bool)
-    (getLocalDecl      : Name → m LocalDecl)
-    (getMVarAssignment : Name → m (Option Expr))
+    (getLocalDecl      : FVarId → m LocalDecl)
+    (getMVarAssignment : MVarId → m (Option Expr))
     : Expr → m Expr
 | e => do
   e ← whnfCore getConst isAuxDef? whnf inferType isDefEq getLocalDecl getMVarAssignment e;
@@ -338,8 +338,8 @@ else
     (inferType         : Expr → m Expr)
     (isDefEq           : Expr → Expr → m Bool)
     (synthesizePending : Expr → m Bool)
-    (getLocalDecl      : Name → m LocalDecl)
-    (getMVarAssignment : Name → m (Option Expr))
+    (getLocalDecl      : FVarId → m LocalDecl)
+    (getMVarAssignment : MVarId → m (Option Expr))
     (e : Expr) : m (Option Expr) :=
 match e with
 | Expr.app f _ _ =>
@@ -380,8 +380,8 @@ match e with
     (inferType         : Expr → m Expr)
     (isDefEq           : Expr → Expr → m Bool)
     (synthesizePending : Expr → m Bool)
-    (getLocalDecl      : Name → m LocalDecl)
-    (getMVarAssignment : Name → m (Option Expr))
+    (getLocalDecl      : FVarId → m LocalDecl)
+    (getMVarAssignment : MVarId → m (Option Expr))
     : Expr → m Expr
 | e => do
   e ← whnfCore getConst isAuxDef? whnfMain inferType isDefEq getLocalDecl getMVarAssignment e;

@@ -53,7 +53,7 @@ namespace DiscrTree
 
 inductive Key
 | const : Name → Nat → Key
-| fvar  : Name → Nat → Key
+| fvar  : FVarId → Nat → Key
 | lit   : Literal → Key
 | star  : Key
 | other : Key
@@ -127,7 +127,7 @@ def empty {α} : DiscrTree α := { root := {} }
 
 /- The discrimination tree ignores implicit arguments and proofs.
    We use the following auxiliary id as a "mark". -/
-private def tmpMVarId : Name := `_discr_tree_tmp
+private def tmpMVarId : MVarId := `_discr_tree_tmp
 private def tmpStar := mkMVar tmpMVarId
 
 instance {α} : Inhabited (DiscrTree α) := ⟨{}⟩

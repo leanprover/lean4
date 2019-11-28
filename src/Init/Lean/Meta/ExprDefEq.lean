@@ -339,7 +339,7 @@ namespace CheckAssignment
 
 structure Context :=
 (lctx         : LocalContext)
-(mvarId       : Name)
+(mvarId       : MVarId)
 (mvarDecl     : MetavarDecl)
 (fvars        : Array Expr)
 (ctxApprox    : Bool)
@@ -348,10 +348,10 @@ structure Context :=
 inductive Exception
 | occursCheck
 | useFOApprox
-| outOfScopeFVar                     (fvarId : Name)
-| readOnlyMVarWithBiggerLCtx         (mvarId : Name)
-| mvarTypeNotWellFormedInSmallerLCtx (mvarId : Name)
-| unknownExprMVar                    (mvarId : Name)
+| outOfScopeFVar                     (fvarId : FVarId)
+| readOnlyMVarWithBiggerLCtx         (mvarId : MVarId)
+| mvarTypeNotWellFormedInSmallerLCtx (mvarId : MVarId)
+| unknownExprMVar                    (mvarId : MVarId)
 
 structure State :=
 (mctx  : MetavarContext)
@@ -435,7 +435,7 @@ partial def check : Expr → CheckAssignmentM Expr
 
 end CheckAssignment
 
-private def checkAssignmentFailure (mvarId : Name) (fvars : Array Expr) (v : Expr) (ex : CheckAssignment.Exception) : MetaM (Option Expr) :=
+private def checkAssignmentFailure (mvarId : MVarId) (fvars : Array Expr) (v : Expr) (ex : CheckAssignment.Exception) : MetaM (Option Expr) :=
 match ex with
 | CheckAssignment.Exception.occursCheck => do
   trace `Meta.isDefEq.assign.occursCheck $ fun _ => mkMVar mvarId ++ fvars ++ " := " ++ v;
@@ -462,7 +462,7 @@ if !e.hasExprMVar && !e.hasFVar then true else f e
 
 partial def check
     (hasCtxLocals ctxApprox : Bool)
-    (mctx : MetavarContext) (lctx : LocalContext) (mvarDecl : MetavarDecl) (mvarId : Name) (fvars : Array Expr) : Expr → Bool
+    (mctx : MetavarContext) (lctx : LocalContext) (mvarDecl : MetavarDecl) (mvarId : MVarId) (fvars : Array Expr) : Expr → Bool
 | e@(Expr.mdata _ b _)     => check b
 | e@(Expr.proj _ _ s _)    => check s
 | e@(Expr.app f a _)       => visit check f && visit check a
@@ -506,7 +506,7 @@ end CheckAssignmentQuick
   The result is `none` if the assignment can't be performed.
   The result is `some newV` where `newV` is a possibly updated `v`. This method may need
   to unfold let-declarations. -/
-def checkAssignment (mvarId : Name) (fvars : Array Expr) (v : Expr) : MetaM (Option Expr) :=
+def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (Option Expr) :=
 fun ctx s => if !v.hasExprMVar && !v.hasFVar then EStateM.Result.ok (some v) s else
   let mvarDecl     := s.mctx.getDecl mvarId;
   let hasCtxLocals := fvars.any $ fun fvar => mvarDecl.lctx.containsFVar fvar;
@@ -885,7 +885,7 @@ match t.etaExpanded? with
 | some t => t == s
 | none   => false
 
-private def isLetFVar (fvarId : Name) : MetaM Bool :=
+private def isLetFVar (fvarId : FVarId) : MetaM Bool :=
 do decl ← getLocalDecl fvarId;
    pure decl.isLet
 

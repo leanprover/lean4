@@ -257,38 +257,38 @@ adaptReader
     { config := { transparency := mode, .. ctx.config }, .. ctx })
   x
 
-def isSyntheticExprMVar (mvarId : Name) : MetaM Bool :=
+def isSyntheticExprMVar (mvarId : MVarId) : MetaM Bool :=
 do mctx ← getMCtx;
    match mctx.findDecl mvarId with
    | some d => pure $ d.synthetic
    | _      => throwEx $ Exception.unknownExprMVar mvarId
 
-def isReadOnlyExprMVar (mvarId : Name) : MetaM Bool :=
+def isReadOnlyExprMVar (mvarId : MVarId) : MetaM Bool :=
 do mctx ← getMCtx;
    match mctx.findDecl mvarId with
    | some d => pure $ d.depth != mctx.depth
    | _      => throwEx $ Exception.unknownExprMVar mvarId
 
-def isReadOnlyOrSyntheticExprMVar (mvarId : Name) : MetaM Bool :=
+def isReadOnlyOrSyntheticExprMVar (mvarId : MVarId) : MetaM Bool :=
 do mctx ← getMCtx;
    match mctx.findDecl mvarId with
    | some d => pure $ d.synthetic || d.depth != mctx.depth
    | _      => throwEx $ Exception.unknownExprMVar mvarId
 
-def isReadOnlyLevelMVar (mvarId : Name) : MetaM Bool :=
+def isReadOnlyLevelMVar (mvarId : MVarId) : MetaM Bool :=
 do mctx ← getMCtx;
    match mctx.findLevelDepth mvarId with
    | some depth => pure $ depth != mctx.depth
    | _          => throwEx $ Exception.unknownLevelMVar mvarId
 
-@[inline] def isExprMVarAssigned (mvarId : Name) : MetaM Bool :=
+@[inline] def isExprMVarAssigned (mvarId : MVarId) : MetaM Bool :=
 do mctx ← getMCtx;
    pure $ mctx.isExprAssigned mvarId
 
-@[inline] def getExprMVarAssignment (mvarId : Name) : MetaM (Option Expr) :=
+@[inline] def getExprMVarAssignment (mvarId : MVarId) : MetaM (Option Expr) :=
 do mctx ← getMCtx; pure (mctx.getExprAssignment mvarId)
 
-def assignExprMVar (mvarId : Name) (val : Expr) : MetaM Unit :=
+def assignExprMVar (mvarId : MVarId) (val : Expr) : MetaM Unit :=
 do whenDebugging $ whenM (isExprMVarAssigned mvarId) $ throwBug $ Bug.overwritingExprMVar mvarId;
    modify $ fun s => { mctx := s.mctx.assignExpr mvarId val, .. s }
 
@@ -329,7 +329,7 @@ getConstAux constName true
 @[inline] def getConstNoEx (constName : Name) : MetaM (Option ConstantInfo) :=
 getConstAux constName false
 
-def getLocalDecl (fvarId : Name) : MetaM LocalDecl :=
+def getLocalDecl (fvarId : FVarId) : MetaM LocalDecl :=
 do lctx ← getLCtx;
    match lctx.find fvarId with
    | some d => pure d
@@ -635,10 +635,10 @@ fun _ s =>
 def instantiateLevelMVars (lvl : Level) : MetaM Level :=
 liftStateMCtx $ MetavarContext.instantiateLevelMVars lvl
 
-def assignLevelMVar (mvarId : Name) (lvl : Level) : MetaM Unit :=
+def assignLevelMVar (mvarId : MVarId) (lvl : Level) : MetaM Unit :=
 modify $ fun s => { mctx := MetavarContext.assignLevel s.mctx mvarId lvl, .. s }
 
-def mkFreshLevelMVarId : MetaM Name :=
+def mkFreshLevelMVarId : MetaM MVarId :=
 do mvarId ← mkFreshId;
    modify $ fun s => { mctx := s.mctx.addLevelMVarDecl mvarId, .. s };
    pure mvarId

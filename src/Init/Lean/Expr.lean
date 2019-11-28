@@ -160,12 +160,15 @@ Expr.mkDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam 
 
 open Expr
 
+abbrev MVarId := Name
+abbrev FVarId := Name
+
 /- We use the `E` suffix (short for `Expr`) to avoid collision with keywords.
    We considered using «...», but it is too inconvenient to use. -/
 inductive Expr
 | bvar    : Nat → Data → Expr                       -- bound variables
-| fvar    : Name → Data → Expr                      -- free variables
-| mvar    : Name → Data → Expr                      -- meta variables
+| fvar    : FVarId → Data → Expr                    -- free variables
+| mvar    : MVarId → Data → Expr                    -- meta variables
 | sort    : Level → Data → Expr                     -- Sort
 | const   : Name → List Level → Data → Expr         -- constants
 | app     : Expr → Expr → Data → Expr               -- application
@@ -261,10 +264,10 @@ Expr.bvar idx $ mkData (mixHash 7 $ hash idx) (idx+1)
 def mkSort (lvl : Level) : Expr :=
 Expr.sort lvl $ mkData (mixHash 11 $ hash lvl) 0 false false lvl.hasMVar lvl.hasParam
 
-def mkFVar (fvarId : Name) : Expr :=
+def mkFVar (fvarId : FVarId) : Expr :=
 Expr.fvar fvarId $ mkData (mixHash 13 $ hash fvarId) 0 true
 
-def mkMVar (fvarId : Name) : Expr :=
+def mkMVar (fvarId : MVarId) : Expr :=
 Expr.mvar fvarId $ mkData (mixHash 17 $ hash fvarId) 0 false true
 
 def mkMData (d : MData) (e : Expr) : Expr :=
@@ -309,12 +312,13 @@ Expr.letE x t v b $ mkDataForLet (mixHash 41 $ mixHash (hash t) $ mixHash (hash 
   (t.hasLevelParam || v.hasLevelParam || b.hasLevelParam)
   nonDep
 
+-- TODO: delete
 def mkLocal (x u : Name) (t : Expr) (bi : BinderInfo) : Expr :=
 Expr.localE x u t $ mkDataForBinder (mixHash 43 $ hash t) t.looseBVarRange true t.hasExprMVar t.hasLevelMVar t.hasLevelParam bi
 
 @[export lean_expr_mk_bvar] def mkBVarEx : Nat → Expr := mkBVar
-@[export lean_expr_mk_fvar] def mkFVarEx : Name → Expr := mkFVar
-@[export lean_expr_mk_mvar] def mkMVarEx : Name → Expr := mkMVar
+@[export lean_expr_mk_fvar] def mkFVarEx : FVarId → Expr := mkFVar
+@[export lean_expr_mk_mvar] def mkMVarEx : MVarId → Expr := mkMVar
 @[export lean_expr_mk_sort] def mkSortEx : Level → Expr := mkSort
 @[export lean_expr_mk_const] def mkConstEx (c : Name) (lvls : List Level) : Expr := mkConst c lvls
 @[export lean_expr_mk_app] def mkAppEx : Expr → Expr → Expr := mkApp
@@ -507,11 +511,11 @@ def bvarIdx! : Expr → Nat
 | bvar idx _ => idx
 | _          => panic! "bvar expected"
 
-def fvarId! : Expr → Name
+def fvarId! : Expr → FVarId
 | fvar n _ => n
 | _        => panic! "fvar expected"
 
-def mvarId! : Expr → Name
+def mvarId! : Expr → MVarId
 | mvar n _ => n
 | _        => panic! "mvar expected"
 

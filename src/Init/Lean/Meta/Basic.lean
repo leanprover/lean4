@@ -55,12 +55,6 @@ def lt : TransparencyMode → TransparencyMode → Bool
 
 end TransparencyMode
 
-structure LocalInstance :=
-(className : Name)
-(fvar      : Expr)
-
-abbrev LocalInstances := Array LocalInstance
-
 structure Config :=
 (opts               : Options := {})
 -- TODO: merge all *Approx flags.
@@ -132,6 +126,9 @@ instance MetaM.inhabited {α} : Inhabited (MetaM α) :=
 
 @[inline] def getLCtx : MetaM LocalContext :=
 do ctx ← read; pure ctx.lctx
+
+@[inline] def getLocalInstances : MetaM LocalInstances :=
+do ctx ← read; pure ctx.localInstances
 
 @[inline] def getConfig : MetaM Config :=
 do ctx ← read; pure ctx.config
@@ -206,8 +203,9 @@ do s ← get;
 
 def mkFreshExprMVar (type : Expr) (userName : Name := Name.anonymous) (synthetic : Bool := false) : MetaM Expr :=
 do lctx ← getLCtx;
+   localInsts ← getLocalInstances;
    mvarId ← mkFreshId;
-   modify $ fun s => { mctx := s.mctx.addExprMVarDecl mvarId userName lctx type synthetic, .. s };
+   modify $ fun s => { mctx := s.mctx.addExprMVarDecl mvarId userName lctx localInsts type synthetic, .. s };
    pure $ mkMVar mvarId
 
 def mkFreshLevelMVar : MetaM Level :=

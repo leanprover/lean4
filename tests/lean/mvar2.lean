@@ -40,9 +40,9 @@ def lctx3 := lctx2.mkLocalDecl `x `x m1
 def lctx4 := lctx3.mkLocalDecl `y `y (arrow natE (mkAppN m3 #[α, x]))
 
 def mctx1 : MetavarContext := {}
-def mctx2  := mctx1.addExprMVarDecl `m1 `m1 lctx1 typeE
-def mctx3  := mctx2.addExprMVarDecl `m2 `m2 lctx3 natE
-def mctx4  := mctx3.addExprMVarDecl `m3 `m3 lctx1 (arrow typeE (arrow natE natE))
+def mctx2  := mctx1.addExprMVarDecl `m1 `m1 lctx1 #[] typeE
+def mctx3  := mctx2.addExprMVarDecl `m2 `m2 lctx3 #[] natE
+def mctx4  := mctx3.addExprMVarDecl `m3 `m3 lctx1 #[] (arrow typeE (arrow natE natE))
 def mctx5  := mctx4.assignDelayed `m3 lctx3 #[α, x] m2
 def mctx6  := mctx5.assignExpr `m2 (arrow α α)
 def mctx7  := mctx6.assignExpr `m1 natE

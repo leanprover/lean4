@@ -83,7 +83,7 @@ static name mk_meta_decl_name() {
 }
 
 extern "C" object* lean_mk_metavar_ctx(object*);
-extern "C" object* lean_metavar_ctx_mk_decl(object*, object*, object*, object*, object*);
+extern "C" object* lean_metavar_ctx_mk_decl(object*, object*, object*, object*, object*, object*, uint8);
 extern "C" object* lean_metavar_ctx_find_decl(object*, object*);
 extern "C" object* lean_metavar_ctx_assign_level(object*, object*, object*);
 extern "C" object* lean_metavar_ctx_assign_expr(object*, object*, object*);
@@ -123,7 +123,7 @@ level metavar_context::mk_univ_metavar_decl() {
 expr metavar_context::mk_metavar_decl(name const & user_name, local_context const & lctx, expr const & type) {
     // TODO(Leo): should use name_generator
     name n = mk_meta_decl_name();
-    m_obj = lean_metavar_ctx_mk_decl(m_obj, n.to_obj_arg(), user_name.to_obj_arg(), lctx.to_obj_arg(), head_beta_reduce(type).to_obj_arg());
+    m_obj = lean_metavar_ctx_mk_decl(m_obj, n.to_obj_arg(), user_name.to_obj_arg(), lctx.to_obj_arg(), array_mk_empty(), head_beta_reduce(type).to_obj_arg(), false);
     lean_assert(find_metavar_decl(mk_meta_ref(n)));
     return mk_meta_ref(n);
 }
@@ -283,7 +283,9 @@ void metavar_context::instantiate_mvars_at_type_of(expr const & m) {
                                          mvar_name(m).to_obj_arg(),
                                          d.get_user_name().to_obj_arg(),
                                          d.get_context().to_obj_arg(),
-                                         new_type.to_obj_arg());
+                                         array_mk_empty(),
+                                         new_type.to_obj_arg(),
+                                         false);
     }
 }
 

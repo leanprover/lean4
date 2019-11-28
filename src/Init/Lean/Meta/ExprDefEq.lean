@@ -386,10 +386,10 @@ do ctx ← read;
 @[inline] def getMCtx : CheckAssignmentM MetavarContext :=
 do s ← get; pure s.mctx
 
-def mkAuxMVar (lctx : LocalContext) (type : Expr) : CheckAssignmentM Expr :=
+def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) : CheckAssignmentM Expr :=
 do s ← get;
    let mvarId := s.ngen.curr;
-   modify $ fun s => { ngen := s.ngen.next, mctx := s.mctx.addExprMVarDecl mvarId Name.anonymous lctx type, .. s };
+   modify $ fun s => { ngen := s.ngen.next, mctx := s.mctx.addExprMVarDecl mvarId Name.anonymous lctx localInsts type, .. s };
    pure (mkMVar mvarId)
 
 @[specialize] def checkMVar (check : Expr → CheckAssignmentM Expr) (mvar : Expr) : CheckAssignmentM Expr :=
@@ -410,7 +410,7 @@ do let mvarId := mvar.mvarId!;
            let mvarType := mvarDecl.type;
            if mctx.isWellFormed ctx.mvarDecl.lctx mvarType then do
              /- Create an auxiliary metavariable with a smaller context. -/
-             newMVar ← mkAuxMVar ctx.mvarDecl.lctx mvarType;
+             newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
              modify $ fun s => { mctx := s.mctx.assignExpr mvarId newMVar, .. s };
              pure newMVar
            else

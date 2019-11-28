@@ -193,15 +193,22 @@ very simple unification and/or non-nested TC. So, if the "app builder" becomes a
 we may solve the issue by implementing `isDefEqCheap` that never invokes TC and uses tmp metavars.
 -/
 
+structure LocalInstance :=
+(className : Name)
+(fvar      : Expr)
+
+abbrev LocalInstances := Array LocalInstance
+
 structure MetavarDecl :=
-(userName  : Name := Name.anonymous)
-(lctx      : LocalContext)
-(type      : Expr)
-(depth     : Nat)
-(synthetic : Bool)
+(userName       : Name := Name.anonymous)
+(lctx           : LocalContext)
+(type           : Expr)
+(depth          : Nat)
+(localInstances : LocalInstances)
+(synthetic      : Bool)
 
 namespace MetavarDecl
-instance : Inhabited MetavarDecl := ⟨{ lctx := arbitrary _, type := arbitrary _, depth := 0, synthetic := false }⟩
+instance : Inhabited MetavarDecl := ⟨{ lctx := arbitrary _, type := arbitrary _, depth := 0, localInstances := #[], synthetic := false }⟩
 end MetavarDecl
 
 /--
@@ -233,13 +240,19 @@ fun _ => {}
    It is used to implement actions in the monads `MetaM`, `ElabM` and `TacticM`.
    It should not be used directly since the argument `(mvarId : Name)` is assumed to be "unique". -/
 @[export lean_metavar_ctx_mk_decl]
-def addExprMVarDecl (mctx : MetavarContext) (mvarId : Name) (userName : Name) (lctx : LocalContext) (type : Expr) (synthetic : Bool := false) : MetavarContext :=
+def addExprMVarDecl (mctx : MetavarContext)
+    (mvarId : Name)
+    (userName : Name)
+    (lctx : LocalContext)
+    (localInstances : LocalInstances)
+    (type : Expr) (synthetic : Bool := false) : MetavarContext :=
 { decls := mctx.decls.insert mvarId {
-    userName  := userName,
-    lctx      := lctx,
-    type      := type,
-    depth     := mctx.depth,
-    synthetic := synthetic },
+    userName       := userName,
+    lctx           := lctx,
+    localInstances := localInstances,
+    type           := type,
+    depth          := mctx.depth,
+    synthetic      := synthetic },
   .. mctx }
 
 /- Low level API for adding/declaring universe level metavariable declarations.
@@ -676,10 +689,10 @@ mkForall
 private def mkMVarApp (lctx : LocalContext) (mvar : Expr) (xs : Array Expr) : Expr :=
 xs.foldl (fun e x => if (lctx.findFVar x).get!.isLet then e else mkApp e x) mvar
 
-private def mkAuxMVar (lctx : LocalContext) (type : Expr) (synthetic : Bool) : M Name :=
+private def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (synthetic : Bool) : M Name :=
 do s ← get;
    let mvarId := s.ngen.curr;
-   modify $ fun s => { mctx := s.mctx.addExprMVarDecl mvarId Name.anonymous lctx type synthetic, ngen := s.ngen.next, .. s };
+   modify $ fun s => { mctx := s.mctx.addExprMVarDecl mvarId Name.anonymous lctx localInsts type synthetic, ngen := s.ngen.next, .. s };
    pure mvarId
 
 private partial def elimMVarDepsAux : Array Expr → Expr → M Expr
@@ -697,9 +710,9 @@ private partial def elimMVarDepsAux : Array Expr → Expr → M Expr
   match mctx.getExprAssignment mvarId with
   | some a => visit (elimMVarDepsAux xs) a
   | none   =>
-    let mvarDecl := mctx.getDecl mvarId;
-    let mvarLCtx := mvarDecl.lctx;
-    let toRevert := getInScope mvarLCtx xs;
+    let mvarDecl  := mctx.getDecl mvarId;
+    let mvarLCtx  := mvarDecl.lctx;
+    let toRevert  := getInScope mvarLCtx xs;
     if toRevert.size == 0 then
       pure e
     else if !mctx.isExprAssignable mvarId then
@@ -709,8 +722,9 @@ private partial def elimMVarDepsAux : Array Expr → Expr → M Expr
       | Except.error ex    => throw ex
       | Except.ok toRevert => do
         let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert;
+        let newLocalInsts := mvarDecl.localInstances.filter $ fun inst => toRevert.all $ fun x => inst.fvar != x;
         newMVarType ← mkForallAux (fun xs e => elimMVarDepsAux xs e) mvarLCtx toRevert mvarDecl.type;
-        newMVarId   ← mkAuxMVar newMVarLCtx newMVarType mvarDecl.synthetic;
+        newMVarId   ← mkAuxMVar newMVarLCtx newLocalInsts newMVarType mvarDecl.synthetic;
         let newMVar := mkMVar newMVarId;
         let result  := mkMVarApp mvarLCtx newMVar toRevert;
         if mvarDecl.synthetic then

@@ -268,6 +268,12 @@ do mctx ← getMCtx;
    | some d => pure $ d.synthetic
    | _      => throwEx $ Exception.unknownExprMVar mvarId
 
+def isReadOnlyExprMVar (mvarId : Name) : MetaM Bool :=
+do mctx ← getMCtx;
+   match mctx.findDecl mvarId with
+   | some d => pure $ d.depth != mctx.depth
+   | _      => throwEx $ Exception.unknownExprMVar mvarId
+
 def isReadOnlyOrSyntheticExprMVar (mvarId : Name) : MetaM Bool :=
 do mctx ← getMCtx;
    match mctx.findDecl mvarId with

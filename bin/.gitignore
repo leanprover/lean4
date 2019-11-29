@@ -1,4 +1,9 @@
 lean
 lean.exe
+leanc
 lean_stage0
 lean_stage0.exe
+lean_stage2
+lean_stage2.exe
+*.a
+*.so

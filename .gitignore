@@ -14,6 +14,7 @@ GTAGS
 .vs
 /src/stage1
 /src/config.h
+/stage0/src/config.h
 compile_commands.json
 *.idea
 tasks.json
@@ -23,6 +24,4 @@ settings.json
 *.produced.out
 CMakeSettings.json
 CppProperties.json
-/library/Makefile
-/bin/*.a
-/bin/leanc
+/src/Init/Makefile

@@ -104,12 +104,14 @@ structure AbstractMVarsResult :=
 (numMVars : Nat)
 (expr     : Expr)
 
-abbrev SynthInstance.Answer := AbstractMVarsResult
+abbrev SynthInstance.Answer  := AbstractMVarsResult -- The `expr` field is the synthesized instance value
+abbrev SynthInstance.Failure := AbstractMVarsResult -- The `expr` field is the type (i.e, instance) we failed to synthesize
 
 structure Cache :=
-(inferType     : PersistentExprStructMap Expr := {})
-(funInfo       : PersistentHashMap InfoCacheKey FunInfo := {})
-(synthInstance : DiscrTree SynthInstance.Answer := {})
+(inferType            : PersistentExprStructMap Expr := {})
+(funInfo              : PersistentHashMap InfoCacheKey FunInfo := {})
+(synthInstance        : DiscrTree SynthInstance.Answer  := {})
+(synthInstanceFailure : DiscrTree SynthInstance.Failure := {})
 
 structure Context :=
 (config         : Config         := {})
@@ -423,9 +425,10 @@ partial def isClassQuick : Expr → MetaM (LOption Name)
 /-- Reset `synthInstance` cache, execute `x`, and restore cache -/
 @[inline] def resettingSynthInstanceCache {α} (x : MetaM α) : MetaM α :=
 do s ← get;
-   let savedCached := s.cache.synthInstance;
-   modify $ fun s => { cache := { synthInstance := {}, .. s.cache }, .. s };
-   finally x (modify $ fun s => { cache := { synthInstance := savedCached, .. s.cache }, .. s })
+   let savedSythInstance        := s.cache.synthInstance;
+   let savedSythInstanceFailure := s.cache.synthInstanceFailure;
+   modify $ fun s => { cache := { synthInstance := {}, synthInstanceFailure := {}, .. s.cache }, .. s };
+   finally x (modify $ fun s => { cache := { synthInstance := savedSythInstance, synthInstanceFailure := savedSythInstanceFailure, .. s.cache }, .. s })
 
 /-- Add entry `{ className := className, fvar := fvar }` to localInstances,
     and then execute continuation `k`.

@@ -12,12 +12,12 @@ namespace Meta
 namespace AbstractMVars
 
 structure State :=
-(ngen  : NameGenerator)
-(lctx  : LocalContext)
-(us    : Array Level := #[])
-(fvars : Array Expr  := #[])
-(lmap  : HashMap Name Level := {})
-(emap  : HashMap Name Expr  := {})
+(ngen       : NameGenerator)
+(lctx       : LocalContext)
+(paramNames : Array Name := #[])
+(fvars      : Array Expr  := #[])
+(lmap       : HashMap Name Level := {})
+(emap       : HashMap Name Expr  := {})
 
 abbrev M := ReaderT MetavarContext (StateM State)
 
@@ -52,7 +52,7 @@ private partial def abstractLevelMVars : Level → M Level
     | none   => do
       paramId ← mkFreshId;
       let u := mkLevelParam paramId;
-      modify $ fun s => { lmap := s.lmap.insert mvarId u, us := s.us.push u, .. s };
+      modify $ fun s => { lmap := s.lmap.insert mvarId u, paramNames := s.paramNames.push paramId, .. s };
       pure u
 
 partial def abstractExprMVars : Expr → M Expr
@@ -115,7 +115,12 @@ do e ← instantiateMVars e;
    let (e, s) := AbstractMVars.abstractExprMVars e s.mctx { lctx := lctx, ngen := s.ngen };
    modify $ fun s => { ngen := s.ngen, .. s };
    let e := s.lctx.mkLambda s.fvars e;
-   pure { levels := s.us, numMVars := s.fvars.size, expr := e }
+   pure { paramNames := s.paramNames, numMVars := s.fvars.size, expr := e }
+
+def openAbstractMVarsResult (a : AbstractMVarsResult) : MetaM (Array Expr × Array BinderInfo × Expr) :=
+do us ← a.paramNames.mapM $ fun _ => mkFreshLevelMVar;
+   let e := a.expr.instantiateLevelParamsArray a.paramNames us;
+   lambdaMetaTelescope e (some a.numMVars)
 
 end Meta
 end Lean

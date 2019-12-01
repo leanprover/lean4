@@ -283,8 +283,10 @@ do print "----- tst13 -----";
    m₂ ← mkFreshExprMVar (mkApp m₁ nat);
    t  ← mkId m₂;
    print t;
-   ⟨_, _, a⟩ ← abstractMVars t;
-   print a;
+   r ← abstractMVars t;
+   print r.expr;
+   (_, _, e) ← openAbstractMVarsResult r;
+   print e;
    pure ()
 
 #eval run [`Init.Core] tst13

@@ -100,9 +100,9 @@ instance : HasBeq InfoCacheKey :=
 end InfoCacheKey
 
 structure AbstractMVarsResult :=
-(levels   : Array Level)
-(numMVars : Nat)
-(expr     : Expr)
+(paramNames : Array Name)
+(numMVars   : Nat)
+(expr       : Expr)
 
 abbrev SynthInstance.Answer  := AbstractMVarsResult -- The `expr` field is the synthesized instance value
 abbrev SynthInstance.Failure := AbstractMVarsResult -- The `expr` field is the type (i.e, instance) we failed to synthesize

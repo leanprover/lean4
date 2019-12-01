@@ -104,12 +104,12 @@ structure AbstractMVarsResult :=
 (numMVars : Nat)
 (expr     : Expr)
 
-abbrev SynthInstanceAnswer := AbstractMVarsResult
+abbrev SynthInstance.Answer := AbstractMVarsResult
 
 structure Cache :=
 (inferType     : PersistentExprStructMap Expr := {})
 (funInfo       : PersistentHashMap InfoCacheKey FunInfo := {})
-(synthInstance : DiscrTree (List SynthInstanceAnswer) := {})
+(synthInstance : DiscrTree SynthInstance.Answer := {})
 
 structure Context :=
 (config         : Config         := {})

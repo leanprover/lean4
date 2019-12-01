@@ -418,11 +418,11 @@ match lvl with
 | max lhs rhs d => updateIMax (imax lhs rhs d) newLhs newRhs rfl
 | _             => panic! "imax level expected"
 
-@[specialize] def instantiate (s : Name → Option Level) : Level → Level
+@[specialize] def instantiateParams (s : Name → Option Level) : Level → Level
 | u@(zero _)       => u
-| u@(succ v _)     => if u.hasParam then u.updateSucc (instantiate v) rfl else u
-| u@(max v₁ v₂ _)  => if u.hasParam then u.updateMax (instantiate v₁) (instantiate v₂) rfl else u
-| u@(imax v₁ v₂ _) => if u.hasParam then u.updateIMax (instantiate v₁) (instantiate v₂) rfl else u
+| u@(succ v _)     => if u.hasParam then u.updateSucc (instantiateParams v) rfl else u
+| u@(max v₁ v₂ _)  => if u.hasParam then u.updateMax (instantiateParams v₁) (instantiateParams v₂) rfl else u
+| u@(imax v₁ v₂ _) => if u.hasParam then u.updateIMax (instantiateParams v₁) (instantiateParams v₂) rfl else u
 | u@(param n _)    => match s n with
   | some u' => u'
   | none    => u

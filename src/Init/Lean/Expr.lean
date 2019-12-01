@@ -686,6 +686,23 @@ private def etaExpandedAux : Expr → Nat → Option Expr
 def etaExpanded? (e : Expr) : Option Expr :=
 etaExpandedAux e 0
 
+@[specialize] private partial def hasAnyFVarAux (p : FVarId → Bool) : Expr → Bool
+| e => if !e.hasFVar then false else
+  match e with
+  | Expr.forallE _ d b _   => hasAnyFVarAux d || hasAnyFVarAux b
+  | Expr.lam _ d b _       => hasAnyFVarAux d || hasAnyFVarAux b
+  | Expr.mdata _ e _       => hasAnyFVarAux e
+  | Expr.letE _ t v b _    => hasAnyFVarAux t || hasAnyFVarAux v || hasAnyFVarAux b
+  | Expr.app f a _         => hasAnyFVarAux f || hasAnyFVarAux a
+  | Expr.proj _ _ e _      => hasAnyFVarAux e
+  | Expr.localE _ _ _ _    => unreachable!
+  | e@(Expr.fvar fvarId _) => p fvarId
+  | e                      => false
+
+/-- Return true iff `e` contains a free variable which statisfies `p`. -/
+@[inline] def hasAnyFVar (e : Expr) (p : FVarId → Bool) : Bool :=
+hasAnyFVarAux p e
+
 /- The update functions here are defined using C code. They will try to avoid
    allocating new values using pointer equality.
    The hypotheses `(h : e.is... = true)` are used to ensure Lean will not crash

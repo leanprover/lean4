@@ -574,9 +574,6 @@ constant abstract (e : @& Expr) (xs : @& Array Expr) : Expr := arbitrary _
 @[extern "lean_expr_abstract_range"]
 constant abstractRange (e : @& Expr) (n : @& Nat) (xs : @& Array Expr) : Expr := arbitrary _
 
-@[extern "lean_instantiate_lparams"]
-constant instantiateLevelParams (e : Expr) (paramNames : List Name) (lvls : List Level) : Expr := arbitrary _
-
 instance : HasToString Expr :=
 ⟨Expr.dbgToString⟩
 
@@ -801,6 +798,37 @@ match e with
 def updateFn : Expr → Expr → Expr
 | e@(app f a _), g => e.updateApp (updateFn f g) a rfl
 | _,             g => g
+
+/- Instantiate level parameters -/
+
+namespace InstantiateLevelParams
+
+@[inline] def visit (f : Expr → Expr) (e : Expr) : Expr :=
+if e.hasLevelParam then f e else e
+
+@[specialize] partial def instantiate (s : Name → Option Level) : Expr → Expr
+| e@(lam n d b _)     => e.updateLambdaE! (visit instantiate d) (visit instantiate b)
+| e@(forallE n d b _) => e.updateForallE! (visit instantiate d) (visit instantiate b)
+| e@(letE n t v b _)  => e.updateLet! (visit instantiate t) (visit instantiate v) (visit instantiate b)
+| e@(app f a _)       => e.updateApp (visit instantiate f) (visit instantiate a) rfl
+| e@(proj _ _ s _)    => e.updateProj (visit instantiate s) rfl
+| e@(mdata _ b _)     => e.updateMData (visit instantiate b) rfl
+| e@(const _ us _)    => e.updateConst (us.map (fun u => u.instantiateParams s)) rfl
+| e@(sort u _)        => e.updateSort (u.instantiateParams s) rfl
+| localE _ _ _ _      => unreachable!
+| e => e
+
+end InstantiateLevelParams
+
+@[inline] def instantiateLevelParamsCore (s : Name → Option Level) (e : Expr) : Expr :=
+if e.hasLevelParam then InstantiateLevelParams.instantiate s e else e
+
+private def getParamSubst : List Name → List Level → Name → Option Level
+| p::ps, u::us, p' => if p == p' then some u else getParamSubst ps us p'
+| _,     _,     _  => none
+
+def instantiateLevelParams (e : Expr) (paramNames : List Name) (lvls : List Level) : Expr :=
+instantiateLevelParamsCore (getParamSubst paramNames lvls) e
 
 end Expr
 end Lean

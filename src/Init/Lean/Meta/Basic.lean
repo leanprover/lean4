@@ -639,6 +639,31 @@ forallMetaTelescopeReducingAux false none #[] #[] 0 e
 def forallMetaTelescopeReducing (e : Expr) (maxMVars? : Option Nat := none) : MetaM (Array Expr × Array BinderInfo × Expr) :=
 forallMetaTelescopeReducingAux true maxMVars? #[] #[] 0 e
 
+/-- Similar to `forallMetaTelescopeReducingAux` but for lambda expressions. -/
+@[specialize] private partial def lambdaMetaTelescopeAux
+    (maxMVars? : Option Nat)
+    : Array Expr → Array BinderInfo → Nat → Expr → MetaM (Array Expr × Array BinderInfo × Expr)
+| mvars, bis, j, Expr.lam n d b c => do
+  let d     := d.instantiateRevRange j mvars.size mvars;
+  mvar ← mkFreshExprMVar d;
+  let mvars := mvars.push mvar;
+  let bis   := bis.push c.binderInfo;
+  match maxMVars? with
+  | none          => lambdaMetaTelescopeAux mvars bis j b
+  | some maxMVars =>
+    if mvars.size < maxMVars then
+      lambdaMetaTelescopeAux mvars bis j b
+    else
+      let type := b.instantiateRevRange j mvars.size mvars;
+      pure (mvars, bis, type)
+| mvars, bis, j, type =>
+  let type := type.instantiateRevRange j mvars.size mvars;
+  pure (mvars, bis, type)
+
+/-- Similar to `forallMetaTelescope` but for lambda expressions. -/
+def lambdaMetaTelescope (e : Expr) (maxMVars? : Option Nat := none) : MetaM (Array Expr × Array BinderInfo × Expr) :=
+lambdaMetaTelescopeAux maxMVars? #[] #[] 0 e
+
 @[inline] def liftStateMCtx {α} (x : StateM MetavarContext α) : MetaM α :=
 fun _ s =>
   let (a, mctx) := x.run s.mctx;

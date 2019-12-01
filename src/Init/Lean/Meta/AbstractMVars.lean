@@ -9,11 +9,6 @@ import Init.Lean.Meta.Basic
 namespace Lean
 namespace Meta
 
-structure AbstractMVarsResult :=
-(levels   : Array Level)
-(numMVars : Nat)
-(expr     : Expr)
-
 namespace AbstractMVars
 
 structure State :=

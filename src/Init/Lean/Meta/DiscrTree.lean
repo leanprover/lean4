@@ -51,34 +51,6 @@ namespace DiscrTree
   2- Distinguish partial applications `f a`, `f a b`, and `f a b c`.
 -/
 
-inductive Key
-| const : Name → Nat → Key
-| fvar  : FVarId → Nat → Key
-| lit   : Literal → Key
-| star  : Key
-| other : Key
-
-instance Key.inhabited : Inhabited Key := ⟨Key.star⟩
-
-def Key.hash : Key → USize
-| Key.const n a => mixHash 5237 $ mixHash (hash n) (hash a)
-| Key.fvar n a  => mixHash 3541 $ mixHash (hash n) (hash a)
-| Key.lit v     => mixHash 1879 $ hash v
-| Key.star      => 7883
-| Key.other     => 2411
-
-instance Key.hashable : Hashable Key := ⟨Key.hash⟩
-
-def Key.beq : Key → Key → Bool
-| Key.const c₁ a₁, Key.const c₂ a₂ => c₁ == c₂ && a₁ == a₂
-| Key.fvar c₁ a₁,  Key.fvar c₂ a₂  => c₁ == c₂ && a₁ == a₂
-| Key.lit v₁,      Key.lit v₂      => v₁ == v₂
-| Key.star,        Key.star        => true
-| Key.other,       Key.other       => true
-| _,                _              => false
-
-instance Key.hasBeq : HasBeq Key := ⟨Key.beq⟩
-
 def Key.ctorIdx : Key → Nat
 | Key.star      => 0
 | Key.other     => 1
@@ -109,19 +81,7 @@ def Key.arity : Key → Nat
 | Key.fvar _ a  => a
 | _             => 0
 
-inductive Trie (α : Type)
-| node (vs : Array α) (children : Array (Key × Trie)) : Trie
-
 instance Trie.inhabited {α} : Inhabited (Trie α) := ⟨Trie.node #[] #[]⟩
-
-end DiscrTree
-
-open DiscrTree
-
-structure DiscrTree (α : Type) :=
-(root : PersistentHashMap Key (Trie α) := {})
-
-namespace DiscrTree
 
 def empty {α} : DiscrTree α := { root := {} }
 

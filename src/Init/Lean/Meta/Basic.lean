@@ -12,6 +12,7 @@ import Init.Lean.Trace
 import Init.Lean.Class
 import Init.Lean.ReducibilityAttrs
 import Init.Lean.Meta.Exception
+import Init.Lean.Meta.DiscrTreeTypes
 
 /-
 This module provides four (mutually dependent) goodies that are needed for building the elaborator and tactic frameworks.
@@ -98,9 +99,17 @@ instance : HasBeq InfoCacheKey :=
 ⟨fun ⟨t₁, e₁, n₁⟩ ⟨t₂, e₂, n₂⟩ => t₁ == t₂ && n₁ == n₂ && e₁ == e₂⟩
 end InfoCacheKey
 
+structure AbstractMVarsResult :=
+(levels   : Array Level)
+(numMVars : Nat)
+(expr     : Expr)
+
+abbrev SynthInstanceAnswer := AbstractMVarsResult
+
 structure Cache :=
-(inferType : PersistentExprStructMap Expr := {})
-(funInfo   : PersistentHashMap InfoCacheKey FunInfo := {})
+(inferType     : PersistentExprStructMap Expr := {})
+(funInfo       : PersistentHashMap InfoCacheKey FunInfo := {})
+(synthInstance : DiscrTree (List SynthInstanceAnswer) := {})
 
 structure Context :=
 (config         : Config         := {})
@@ -411,15 +420,18 @@ partial def isClassQuick : Expr → MetaM (LOption Name)
   | _                 => pure LOption.none
 | Expr.localE _ _ _ _ => unreachable!
 
-/-- Reset type class cache, execute `x`, and restore cache -/
-@[inline] def resettingTypeClassCache {α} (x : MetaM α) : MetaM α :=
-x -- TODO
+/-- Reset `synthInstance` cache, execute `x`, and restore cache -/
+@[inline] def resettingSynthInstanceCache {α} (x : MetaM α) : MetaM α :=
+do s ← get;
+   let savedCached := s.cache.synthInstance;
+   modify $ fun s => { cache := { synthInstance := {}, .. s.cache }, .. s };
+   finally x (modify $ fun s => { cache := { synthInstance := savedCached, .. s.cache }, .. s })
 
 /-- Add entry `{ className := className, fvar := fvar }` to localInstances,
     and then execute continuation `k`.
-    It resets the type class cache using `resettingTypeClassCache`. -/
+    It resets the type class cache using `resettingSynthInstanceCache`. -/
 @[inline] def withNewLocalInstance {α} (className : Name) (fvar : Expr) (k : MetaM α) : MetaM α :=
-resettingTypeClassCache $
+resettingSynthInstanceCache $
   adaptReader
     (fun (ctx : Context) => {
       localInstances := ctx.localInstances.push { className := className, fvar := fvar },
@@ -433,7 +445,7 @@ resettingTypeClassCache $
   - `isClassExpensive` is defined later.
   - The type class chache is reset whenever a new local instance is found.
   - `isClassExpensive` uses `whnf` which depends (indirectly) on the set of local instances.
-    Thus, each new local instance requires a new `resettingTypeClassCache`. -/
+    Thus, each new local instance requires a new `resettingSynthInstanceCache`. -/
 @[specialize] partial def withNewLocalInstances {α}
     (isClassExpensive : Expr → MetaM (Option Name))
     (fvars : Array Expr) : Nat → MetaM α → MetaM α

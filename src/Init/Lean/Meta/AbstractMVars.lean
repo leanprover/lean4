@@ -100,16 +100,16 @@ end AbstractMVars
   The result contains
   - An array of universe level parameters that replaced universe metavariables occurring in `e`.
   - The number of (expr) metavariables abstracted.
-  - And an expression of the form `forall (m_1 : A_1) ... (m_k : A_k), e'`, where
+  - And an expression of the form `fun (m_1 : A_1) ... (m_k : A_k) => e'`, where
     `k` equal to the number of (expr) metavariables abstracted, and `e'` is `e` after we
     replace the metavariables.
 
   Example: given `f.{?u} ?m1` where `?m1 : ?m2 Nat`, `?m2 : Type -> Type`. This function returns
-  `{ levels := #[u], size := 2, expr := (forall (m2 : Type -> Type) (m1 : m2 Nat), f.{u} m1) }`
+  `{ levels := #[u], size := 2, expr := (fun (m2 : Type -> Type) (m1 : m2 Nat) => f.{u} m1) }`
 
   This API can be used to "transport" to a different metavariable context.
   Given a new metavariable context, we replace the `AbstractMVarsResult.levels` with
-  new fresh universe metavariables, and instantiate the `(m_i : A_i)` in the forall-expression
+  new fresh universe metavariables, and instantiate the `(m_i : A_i)` in the lambda-expression
   with new fresh metavariables.
 
   Application: we use this method to cache the results of type class resolution. -/
@@ -119,7 +119,7 @@ do e ← instantiateMVars e;
    lctx ← getLCtx;
    let (e, s) := AbstractMVars.abstractExprMVars e s.mctx { lctx := lctx, ngen := s.ngen };
    modify $ fun s => { ngen := s.ngen, .. s };
-   let e := s.lctx.mkForall s.fvars e;
+   let e := s.lctx.mkLambda s.fvars e;
    pure { levels := s.us, numMVars := s.fvars.size, expr := e }
 
 end Meta

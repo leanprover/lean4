@@ -830,5 +830,18 @@ private def getParamSubst : List Name → List Level → Name → Option Level
 def instantiateLevelParams (e : Expr) (paramNames : List Name) (lvls : List Level) : Expr :=
 instantiateLevelParamsCore (getParamSubst paramNames lvls) e
 
+private partial def getParamSubstArray (ps : Array Name) (us : Array Level) (p' : Name) : Nat → Option Level
+| i =>
+  if h : i < ps.size then
+    let p := ps.get ⟨i, h⟩;
+    if h : i < us.size then
+      let u := us.get ⟨i, h⟩;
+      if p == p' then some u else getParamSubstArray (i+1)
+    else none
+  else none
+
+def instantiateLevelParamsArray (e : Expr) (paramNames : Array Name) (lvls : Array Level) : Expr :=
+instantiateLevelParamsCore (fun p => getParamSubstArray paramNames lvls p 0) e
+
 end Expr
 end Lean

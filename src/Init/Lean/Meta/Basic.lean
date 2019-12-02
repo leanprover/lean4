@@ -344,7 +344,7 @@ do lctx ← getLCtx;
 def getFVarLocalDecl (fvar : Expr) : MetaM LocalDecl :=
 getLocalDecl fvar.fvarId!
 
-def getMVarDecl (mvarId : Name) : MetaM MetavarDecl :=
+def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl :=
 do mctx ← getMCtx;
    match mctx.findDecl mvarId with
    | some d => pure d
@@ -716,6 +716,19 @@ do s ← get;
    let savedMCtx  := s.mctx;
    modify $ fun s => { mctx := s.mctx.incDepth, .. s };
    finally x (modify $ fun s => { cache := savedCache, mctx := savedMCtx, .. s })
+
+/--
+  Execute `x` using the given metavariable `LocalContext` and `LocalInstances`.
+  The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
+  different from the current ones. -/
+@[inline] def withMVarContext {α} (mvarId : MVarId) (x : MetaM α) : MetaM α :=
+do mvarDecl ← getMVarDecl mvarId;
+   localInsts ← getLocalInstances;
+   adaptReader (fun (ctx : Context) => { lctx := mvarDecl.lctx, localInstances := mvarDecl.localInstances, .. ctx }) $
+     if localInsts == mvarDecl.localInstances then
+       x
+     else
+       resettingSynthInstanceCache x
 
 end Meta
 end Lean

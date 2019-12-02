@@ -199,6 +199,11 @@ structure LocalInstance :=
 
 abbrev LocalInstances := Array LocalInstance
 
+def LocalInstance.beq (i₁ i₂ : LocalInstance) : Bool :=
+i₁.fvar == i₂.fvar
+
+instance LocalInstance.hasBeq : HasBeq LocalInstance := ⟨LocalInstance.beq⟩
+
 structure MetavarDecl :=
 (userName       : Name := Name.anonymous)
 (lctx           : LocalContext)

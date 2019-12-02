@@ -726,6 +726,11 @@ do mvarDecl ← getMVarDecl mvarId;
      else
        resettingSynthInstanceCache x
 
+@[inline] def withMCtx {α} (mctx : MetavarContext) (x : MetaM α) : MetaM α :=
+do mctx' ← getMCtx;
+   modify $ fun s => { mctx := mctx, .. s };
+   finally x (modify $ fun s => { mctx := mctx', .. s })
+
 end Meta
 end Lean
 

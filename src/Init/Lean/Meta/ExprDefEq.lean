@@ -918,7 +918,7 @@ private partial def isDefEqQuick : Expr → Expr → MetaM LBool
   cond (!tAssign? && !sAssign?)
     (if tFn.isMVar || sFn.isMVar then do
        ctx ← read;
-       if ctx.config.isDefEqStuckEx then throwEx $ Exception.isDefEqStuck t s
+       if ctx.config.isDefEqStuckEx then throwEx $ Exception.isExprDefEqStuck t s
        else pure LBool.false
      else pure LBool.undef) $ do
   -- Both `t` and `s` are terms of the form `?m ...`

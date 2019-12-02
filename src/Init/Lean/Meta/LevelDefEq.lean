@@ -67,8 +67,12 @@ partial def isLevelDefEqAux : Level → Level → MetaM Bool
       isLevelDefEqAux lhs' rhs'
     else do
       mctx ← getMCtx;
-      if !mctx.hasAssignableLevelMVar lhs && !mctx.hasAssignableLevelMVar rhs then
-        pure false
+      if !mctx.hasAssignableLevelMVar lhs && !mctx.hasAssignableLevelMVar rhs then do
+        ctx ← read;
+        if ctx.config.isDefEqStuckEx && (lhs.isMVar || rhs.isMVar) then
+          throwEx $ Exception.isLevelDefEqStuck lhs rhs
+        else
+          pure false
       else do
         k ← getLevelConstraintKind lhs rhs;
         match k with

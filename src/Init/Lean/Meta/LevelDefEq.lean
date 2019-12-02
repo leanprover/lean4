@@ -193,5 +193,7 @@ traceCtx `Meta.isDefEq $ do
   trace `Meta.isDefEq $ fun _ => t ++ " =?= " ++ s ++ " ... " ++ if b then "success" else "failure";
   pure b
 
+abbrev isDefEq := @isExprDefEq
+
 end Meta
 end Lean

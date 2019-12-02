@@ -527,10 +527,9 @@ resettingSynthInstanceCache $
     (isClassExpensive : Expr → MetaM (Option Name))
     (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α :=
 do newType ← whnf type;
-   if newType.isForall then
-     savingCache $ do
-       lctx ← getLCtx;
-       forallTelescopeReducingAuxAux isClassExpensive true maxFVars? k lctx #[] 0 newType
+   if newType.isForall then do
+     lctx ← getLCtx;
+     forallTelescopeReducingAuxAux isClassExpensive true maxFVars? k lctx #[] 0 newType
    else
      k #[] type
 
@@ -548,9 +547,8 @@ partial def isClassExpensive : Expr → MetaM (Option Name)
   This combinator will declare local declarations, create free variables for them,
   execute `k` with updated local context, and make sure the cache is restored after executing `k`. -/
 @[inline] def forallTelescope {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
-savingCache $ do
-  lctx ← getLCtx;
-  forallTelescopeReducingAuxAux isClassExpensive false none k lctx #[] 0 type
+do lctx ← getLCtx;
+   forallTelescopeReducingAuxAux isClassExpensive false none k lctx #[] 0 type
 
 /--
   Similar to `forallTelescope`, but given `type` of the form `forall xs, A`,
@@ -597,9 +595,8 @@ do c? ← isClassQuick type;
 /-- Similar to `forallTelescope` but for lambda and let expressions. -/
 @[specialize] def lambdaTelescope {α}
     (e : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
-savingCache $ do
-  lctx ← getLCtx;
-  lambdaTelescopeAux k lctx #[] 0 e
+do lctx ← getLCtx;
+   lambdaTelescopeAux k lctx #[] 0 e
 
 private partial def forallMetaTelescopeReducingAux
     (reducing? : Bool) (maxMVars? : Option Nat)

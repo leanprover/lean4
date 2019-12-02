@@ -365,6 +365,22 @@ def hasAssignableLevelMVar (mctx : MetavarContext) : Level → Bool
 | Level.zero _           => false
 | Level.param _ _        => false
 
+/-- Return `true` iff expression contains a metavariable that can be assigned. -/
+def hasAssignableMVar (mctx : MetavarContext) : Expr → Bool
+| Expr.const _ lvls _  => lvls.any (hasAssignableLevelMVar mctx)
+| Expr.sort lvl _      => hasAssignableLevelMVar mctx lvl
+| Expr.app f a _       => (f.hasMVar && hasAssignableMVar f) || (a.hasMVar && hasAssignableMVar a)
+| Expr.letE _ t v b _  => (t.hasMVar && hasAssignableMVar t) || (v.hasMVar && hasAssignableMVar v) || (b.hasMVar && hasAssignableMVar b)
+| Expr.forallE _ d b _ => (d.hasMVar && hasAssignableMVar d) || (b.hasMVar && hasAssignableMVar b)
+| Expr.lam _ d b _     => (d.hasMVar && hasAssignableMVar d) || (b.hasMVar && hasAssignableMVar b)
+| Expr.fvar _ _        => false
+| Expr.bvar _ _        => false
+| Expr.lit _ _         => false
+| Expr.mdata _ e _     => e.hasMVar && hasAssignableMVar e
+| Expr.proj _ _ e _    => e.hasMVar && hasAssignableMVar e
+| Expr.mvar mvarId _   => mctx.isExprAssignable mvarId
+| Expr.localE _ _ _ _  => unreachable!
+
 partial def instantiateLevelMVars : Level → StateM MetavarContext Level
 | lvl@(Level.succ lvl₁ _)      => do lvl₁ ← instantiateLevelMVars lvl₁; pure (Level.updateSucc! lvl lvl₁)
 | lvl@(Level.max lvl₁ lvl₂ _)  => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateMax! lvl lvl₁ lvl₂)

@@ -289,4 +289,44 @@ do print "----- tst13 -----";
    print e;
    pure ()
 
-#eval run [`Init.Core] tst13
+def mkDecEq (type : Expr) : MetaM Expr :=
+do u ← getLevel type;
+   pure $ mkApp (mkConst `DecidableEq [u]) type
+
+def mkStateM (σ : Expr) : MetaM Expr :=
+do u ← getLevel σ;
+   (some u) ← pure u.dec | throw $ Exception.other "failed to create StateM application";
+   let r := mkApp (mkConst `StateM [u]) σ;
+   check r;
+   pure r
+
+def mkMonadState (σ m : Expr) : MetaM Expr :=
+do u ← getLevel σ;
+   (some u) ← pure u.dec | throw $ Exception.other "failed to create MonadState application";
+   mType ← inferType m;
+   v ← mkFreshLevelMVar;
+   w ← mkFreshLevelMVar;
+   let arrow := mkArrow (mkSort (mkLevelSucc v)) (mkSort (mkLevelSucc w));
+   mType ← whnf mType;
+   print arrow;
+   print mType;
+   condM (isDefEq arrow mType)
+     (do w ← instantiateLevelMVars w;
+         let r := mkAppB (mkConst `MonadState [u, w]) σ m;
+         print r;
+         check r;
+         pure r)
+     (throw $ Exception.other "failed to create MonadState application")
+
+def tst14 : MetaM Unit :=
+do print "----- tst14 -----";
+   decEqNat ← mkDecEq nat;
+   c ← synthInstance decEqNat;
+   stateM ← mkStateM nat;
+   print stateM;
+   monadState ← mkMonadState nat stateM;
+   print monadState;
+   c ← synthInstance monadState;
+   pure ()
+
+#eval run [`Init.Control.State] tst14

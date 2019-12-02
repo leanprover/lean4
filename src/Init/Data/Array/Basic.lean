@@ -451,7 +451,7 @@ b.foldl (fun a v => a.push v) a
 instance : HasAppend (Array α) := ⟨Array.append⟩
 
 -- TODO(Leo): justify termination using wf-rec
-partial def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) : Nat → Bool
+@[specialize] partial def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) : Nat → Bool
 | i =>
   if h : i < a.size then
      let aidx : Fin a.size := ⟨i, h⟩;
@@ -462,7 +462,7 @@ partial def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α →
   else
     true
 
-@[specialize] def isEqv (a b : Array α) (p : α → α → Bool) : Bool :=
+@[inline] def isEqv (a b : Array α) (p : α → α → Bool) : Bool :=
 if h : a.size = b.size then
   isEqvAux a b h p 0
 else

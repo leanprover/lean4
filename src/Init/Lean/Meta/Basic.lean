@@ -709,10 +709,9 @@ do fvarId ← mkFreshId;
   and restore saved data. -/
 @[inline] def withNewMCtxDepth {α} (x : MetaM α) : MetaM α :=
 do s ← get;
-   let savedCache := s.cache;
    let savedMCtx  := s.mctx;
    modify $ fun s => { mctx := s.mctx.incDepth, .. s };
-   finally x (modify $ fun s => { cache := savedCache, mctx := savedMCtx, .. s })
+   finally x (modify $ fun s => { mctx := savedMCtx, .. s })
 
 /--
   Execute `x` using the given metavariable `LocalContext` and `LocalInstances`.

@@ -157,12 +157,14 @@ forallTelescope type $ fun xs typeBody =>
   | _ => pure (type, {})
 
 private def resolveReplacements (r : Replacements) : MetaM Bool :=
-r.levelReplacements.allM (fun ⟨u, u'⟩ => isLevelDefEqAux u u')
-<&&>
-r.exprReplacements.allM (fun ⟨e, e'⟩ => isExprDefEqAux e e')
+try $
+  r.levelReplacements.allM (fun ⟨u, u'⟩ => isLevelDefEqAux u u')
+  <&&>
+  r.exprReplacements.allM (fun ⟨e, e'⟩ => isExprDefEqAux e e')
 
 def synthInstance (type : Expr) : MetaM (Option Expr) :=
 usingTransparency TransparencyMode.reducible $ do
+  type ← instantiateMVars type;
   type ← preprocess type;
   s ← get;
   match s.cache.synthInstance.find type with
@@ -187,6 +189,18 @@ usingTransparency TransparencyMode.reducible $ do
       pure result
     else
       pure result
+
+/--
+  Return `LOption.some r` if succeeded, `LOption.none` if it failed, and `LOption.undef` if
+  instance cannot be synthesized right now because `type` contains metavariables. -/
+def trySynthInstance (type : Expr) : MetaM (LOption Expr) :=
+adaptReader (fun (ctx : Context) => { config := { isDefEqStuckEx := true, .. ctx.config }, .. ctx }) $
+  catch
+    (toLOptionM $ synthInstance type)
+    (fun ex => match ex with
+      | Exception.isExprDefEqStuck _ _ _  => pure LOption.undef
+      | Exception.isLevelDefEqStuck _ _ _ => pure LOption.undef
+      | _                                 => throw ex)
 
 end Meta
 end Lean

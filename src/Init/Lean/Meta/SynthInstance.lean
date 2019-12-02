@@ -14,10 +14,7 @@ namespace Lean
 namespace Meta
 namespace SynthInstance
 
-structure Context :=
-(config          : Config         := {})
-(lctx            : LocalContext   := {})
-(localInstances  : LocalInstances := #[])
+structure Context extends Meta.Context :=
 (globalInstances : DiscrTree Expr := {})
 
 structure GeneratorNode :=
@@ -51,11 +48,14 @@ structure TableEntry :=
 (waiters : Array Waiter)
 (answers : Array AbstractMVarsResult)
 
-structure State :=
-(env            : Environment)
-(cache          : Cache)
-(ngen           : NameGenerator)
-(traceState     : TraceState)
+/-
+  Remark: the SynthInstance.State is not really an extension of `Meta.State`.
+  The field `postponed` is not needed, and the field `mctx` is misleading since
+  `synthInstance` methods operate over different `MetavarContext`s simultaneously.
+  That being said, we still use `extends` because it makes it simpler to move from
+  `M` to `MetaM`.
+-/
+structure State extends Meta.State :=
 (mainMVarId     : MVarId)
 (generatorStack : Array GeneratorNode         := #[])
 (resumeStack    : Array (ConsumerNode × Expr) := #[])
@@ -81,21 +81,8 @@ whenM (MonadTracerAdapter.isTracingEnabledFor cls) $ do
   s   ← get;
   MonadTracerAdapter.addTrace cls (MessageData.context s.env mctx ctx.lctx (msg ()))
 
-@[inline] def updateState (s : State) (newS : Meta.State) : State :=
-{ env := newS.env, cache := newS.cache, ngen := newS.ngen, traceState := newS.traceState, .. s }
-
-@[inline] def runMetaM {α} (x : MetaM α) (mctx : MetavarContext) : M (α × MetavarContext) :=
-fun ctx s =>
-  let r := (x { config := ctx.config, lctx := ctx.lctx, localInstances := ctx.localInstances }).run {
-    env        := s.env,
-    mctx       := mctx,
-    cache      := s.cache,
-    ngen       := s.ngen,
-    traceState := s.traceState
-  };
-  match r with
-  | EStateM.Result.error ex newS => EStateM.Result.error ex (updateState s newS)
-  | EStateM.Result.ok a newS     => EStateM.Result.ok (a, newS.mctx) (updateState s newS)
+@[inline] def runMetaM {α} (x : MetaM α) : M α :=
+fun ctx => adaptState (fun (s : State) => (s.toState, s)) (fun s' s => { toState := s', .. s }) (x ctx.toContext)
 
 def main (type : Expr) : MetaM (Option Expr) :=
 pure none -- TODO

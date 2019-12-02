@@ -62,26 +62,26 @@ structure State extends Meta.State :=
 (tableKeys      : DiscrTree Key               := {})
 (tableEntries   : PersistentArray TableEntry  := {})
 
-abbrev M := ReaderT Context (EStateM Exception State)
+abbrev SynthM := ReaderT Context (EStateM Exception State)
 
-@[inline] private def getTraceState : M TraceState :=
+@[inline] private def getTraceState : SynthM TraceState :=
 do s ← get; pure s.traceState
 
-@[inline] private def getOptions : M Options :=
+@[inline] private def getOptions : SynthM Options :=
 do ctx ← read; pure ctx.config.opts
 
-instance tracer : SimpleMonadTracerAdapter M :=
+instance tracer : SimpleMonadTracerAdapter SynthM :=
 { getOptions       := getOptions,
   getTraceState    := getTraceState,
   modifyTraceState := fun f => modify $ fun s => { traceState := f s.traceState, .. s } }
 
-@[inline] def trace (cls : Name) (mctx : MetavarContext) (msg : Unit → MessageData) : M Unit :=
+@[inline] def trace (cls : Name) (mctx : MetavarContext) (msg : Unit → MessageData) : SynthM Unit :=
 whenM (MonadTracerAdapter.isTracingEnabledFor cls) $ do
   ctx ← read;
   s   ← get;
   MonadTracerAdapter.addTrace cls (MessageData.context s.env mctx ctx.lctx (msg ()))
 
-@[inline] def runMetaM {α} (x : MetaM α) : M α :=
+@[inline] def runMetaM {α} (x : MetaM α) : SynthM α :=
 fun ctx => adaptState (fun (s : State) => (s.toState, s)) (fun s' s => { toState := s', .. s }) (x ctx.toContext)
 
 def main (type : Expr) : MetaM (Option Expr) :=

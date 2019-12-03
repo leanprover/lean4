@@ -372,12 +372,11 @@ do print "----- tst15 -----";
 
 #eval run [`Init.Control.State] tst15
 
-#exit
-
 def tst16 : MetaM Unit :=
 do print "----- tst16 -----";
    prod ← mkProd nat nat;
    inst ← mkHasToString prod;
+   print inst;
    (some r) ← synthInstance inst | throw $ Exception.other "failed `HasToString (Nat × Nat)`";
    print r;
    pure ()

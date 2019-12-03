@@ -56,7 +56,6 @@ partial def normLevel : Level → M Level
   | Level.max v w _     => do v ← normLevel v; w ← normLevel w; pure $ u.updateMax! v w
   | Level.imax v w _    => do v ← normLevel v; w ← normLevel w; pure $ u.updateIMax! v w
   | Level.mvar mvarId _ => do
-
     mctx ← read;
     if !mctx.isLevelAssignable mvarId then pure u
     else do
@@ -133,16 +132,23 @@ instance tracer : SimpleMonadTracerAdapter SynthM :=
   getTraceState    := getTraceState,
   modifyTraceState := fun f => modify $ fun s => { traceState := f s.traceState, .. s } }
 
+def traceCore (cls : Name) (msg : MessageData) : SynthM Unit :=
+do ctx ← read;
+   s   ← get;
+   MonadTracerAdapter.addTrace cls (MessageData.context s.env s.mctx ctx.lctx msg)
+
 @[inline] def trace (cls : Name) (msg : Unit → MessageData) : SynthM Unit :=
-whenM (MonadTracerAdapter.isTracingEnabledFor cls) $ do
-  ctx ← read;
-  s   ← get;
-  MonadTracerAdapter.addTrace cls (MessageData.context s.env s.mctx ctx.lctx (msg ()))
+whenM (MonadTracerAdapter.isTracingEnabledFor cls) $ traceCore cls (msg ())
 
 @[inline] def liftMeta {α} (x : MetaM α) : SynthM α :=
 adaptState (fun (s : State) => (s.toState, s)) (fun s' s => { toState := s', .. s }) x
 
 instance meta2Synth {α} : HasCoe (MetaM α) (SynthM α) := ⟨liftMeta⟩
+
+@[inline] def withMCtx {α} (mctx : MetavarContext) (x : SynthM α) : SynthM α :=
+do mctx' ← getMCtx;
+   modify $ fun s => { mctx := mctx, .. s };
+   finally x (modify $ fun s => { mctx := mctx', .. s })
 
 /-- Return globals and locals instances that may unify with `type` -/
 def getInstances (type : Expr) : MetaM (Array Expr) :=
@@ -165,24 +171,25 @@ forallTelescopeReducing type $ fun _ type => do
 
 /-- Create a new generator node for `mvar` and add `waiter` as its waiter.
     `key` must be `mkTableKey mctx mvarType`. -/
-def newSubgoal (key : Expr) (mvar : Expr) (waiter : Waiter) : SynthM Unit :=
-do mvarType ← inferType mvar;
-   instances ← getInstances mvarType;
-   if instances.isEmpty then pure ()
-   else do
-     mctx ← getMCtx;
-     let node : GeneratorNode := {
-       mvar            := mvar,
-       key             := key,
-       mctx            := mctx,
-       instances       := instances,
-       currInstanceIdx := instances.size
-     };
-     let entry : TableEntry := { waiters := #[waiter] };
-     modify $ fun s =>
-      { generatorStack := s.generatorStack.push node,
-        tableEntries   := s.tableEntries.insert key entry,
-        .. s }
+def newSubgoal (mctx : MetavarContext) (key : Expr) (mvar : Expr) (waiter : Waiter) : SynthM Unit :=
+withMCtx mctx $ do
+  mvarType  ← inferType mvar;
+  instances ← getInstances mvarType;
+  mctx      ← getMCtx;
+  if instances.isEmpty then pure ()
+  else do
+    let node : GeneratorNode := {
+      mvar            := mvar,
+      key             := key,
+      mctx            := mctx,
+      instances       := instances,
+      currInstanceIdx := instances.size
+    };
+    let entry : TableEntry := { waiters := #[waiter] };
+    modify $ fun s =>
+     { generatorStack := s.generatorStack.push node,
+       tableEntries   := s.tableEntries.insert key entry,
+       .. s }
 
 def findEntry (key : Expr) : SynthM (Option TableEntry) :=
 do s ← get;
@@ -194,7 +201,7 @@ do entry? ← findEntry key;
    | none       => panic! "invalid key at synthInstance"
    | some entry => pure entry
 
-def mkTableKeyFor (mctx : MetavarContext) (mvar : Expr) : MetaM Expr :=
+def mkTableKeyFor (mctx : MetavarContext) (mvar : Expr) : SynthM Expr :=
 withMCtx mctx $ do
   mvarType ← inferType mvar;
   pure $ mkTableKey mctx mvarType
@@ -238,10 +245,10 @@ do mvarType ← inferType mvar;
        (do Meta.trace `Meta.synthInstance.tryResolve $ fun _ => fmt "failure";
            pure none)
 
-def tryResolve (mctx : MetavarContext) (mvar : Expr) (inst : Expr) : MetaM (Option (MetavarContext × List Expr)) :=
+def tryResolve (mctx : MetavarContext) (mvar : Expr) (inst : Expr) : SynthM (Option (MetavarContext × List Expr)) :=
 withMCtx mctx $ tryResolveCore mvar inst
 
-def tryAnswer (mctx : MetavarContext) (mvar : Expr) (answer : Answer) : MetaM (Option (MetavarContext × List Expr)) :=
+def tryAnswer (mctx : MetavarContext) (mvar : Expr) (answer : Answer) : SynthM (Option (MetavarContext × List Expr)) :=
 withMCtx mctx $ do
   (_, _, val) ← openAbstractMVarsResult answer;
   tryResolveCore mvar val
@@ -259,18 +266,18 @@ def wakeUp (answer : Answer) : Waiter → SynthM Unit
     (_, _, answerExpr) ← openAbstractMVarsResult answer;
     trace `Meta.synthInstance $ fun _ => "answer contains metavariables " ++ answerExpr;
     pure ()
-
 | Waiter.consumerNode cNode => modify $ fun s => { resumeStack := s.resumeStack.push (cNode, answer), .. s }
 
 def newAnswer (key : Expr) (answer : Answer) : SynthM Unit :=
 do entry ← getEntry key;
    if entry.answers.contains answer then pure ()
-   else condM (pure (entry.waiters.any Waiter.isRoot) <||> hasAssignableMVar answer.expr) (pure ()) $
-   let newEntry := { answers := entry.answers.push answer, .. entry };
-   modify $ fun s => { tableEntries := s.tableEntries.insert key newEntry, .. s };
-   entry.waiters.forM (wakeUp answer)
+   else if entry.waiters.any Waiter.isRoot then pure ()
+   else
+     let newEntry := { answers := entry.answers.push answer, .. entry };
+     modify $ fun s => { tableEntries := s.tableEntries.insert key newEntry, .. s };
+     entry.waiters.forM (wakeUp answer)
 
-def mkAnswer (cNode : ConsumerNode) : MetaM Answer :=
+def mkAnswer (cNode : ConsumerNode) : SynthM Answer :=
 withMCtx cNode.mctx $ do
   val ← instantiateMVars cNode.mvar;
   abstractMVars val
@@ -285,7 +292,7 @@ match cNode.subgoals with
    let key := mkTableKey cNode.mctx mvar;
    entry? ← findEntry key;
    match entry? with
-   | none       => newSubgoal key mvar waiter
+   | none       => newSubgoal cNode.mctx key mvar waiter
    | some entry => modify $ fun s =>
      { resumeStack  := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
        tableEntries := s.tableEntries.insert key { waiters := entry.waiters.push waiter, .. entry },
@@ -358,7 +365,7 @@ traceCtx `Meta.synthInstance $ do
    mctx ← getMCtx;
    let key := mkTableKey mctx type;
    adaptState' (fun (s : Meta.State) => { State . mainMVarId := mvar.mvarId!, .. s }) (fun (s : State) => s.toState) $ do
-     newSubgoal key mvar Waiter.root;
+     newSubgoal mctx key mvar Waiter.root;
      synth fuel
 
 end SynthInstance

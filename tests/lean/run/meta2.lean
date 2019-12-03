@@ -408,28 +408,26 @@ do print "----- tst18 -----";
 
 #eval run [`Init.Control.State] tst18
 
-
-#exit
-
-def tst15 : MetaM Unit :=
-do print "----- tst15 -----";
+def tst19 : MetaM Unit :=
+do print "----- tst19 -----";
    stateM ← mkStateM nat;
    print stateM;
    monad ← mkMonad stateM;
    print monad;
-   c ← synthInstance monad;
+   (some r) ← synthInstance monad | throw $ Exception.other "failed `Monad (StateM Nat)`";
+   print r;
    pure ()
 
-#eval run [`Init.Control.State] tst15
+#eval run [`Init.Control.State] tst19
 
-
-
-#exit
-   decEqNat ← mkDecEq nat;
-   c ← synthInstance decEqNat;
+def tst20 : MetaM Unit :=
+do print "----- tst20 -----";
+   stateM ← mkStateM nat;
+   print stateM;
    monadState ← mkMonadState nat stateM;
    print monadState;
-   c ← synthInstance monadState;
+   (some r) ← synthInstance monadState | throw $ Exception.other "failed `MonadState Nat (StateM Nat)`";
+   print r;
    pure ()
 
-#eval run [`Init.Control.State] tst14
+#eval run [`Init.Control.State] tst20

@@ -5,7 +5,7 @@ open Lean.Meta
 def tst1 : IO Unit :=
 do let mods := [`Init.Lean];
    env ← importModules $ mods.map $ fun m => {module := m};
-   let insts := getInstances env;
+   let insts := env.getGlobalInstances;
    IO.println (format insts);
    pure ()
 

@@ -141,9 +141,16 @@ private partial def pushArgsAux (infos : Array ParamInfo) : Nat → Expr → Arr
     (pushArgsAux (i-1) f (todo.push a))
 | _, _, todo => pure todo
 
+private partial def whnfEta : Expr → MetaM Expr
+| e => do
+  e ← whnf e;
+  match e.etaExpandedStrict? with
+  | some e => whnfEta e
+  | none   => pure e
+
 private def pushArgs (todo : Array Expr) (e : Expr) : MetaM (Key × Array Expr) :=
-do e ← whnf e;
-   let fn    := e.getAppFn;
+do e ← whnfEta e;
+   let fn := e.getAppFn;
    let push (k : Key) (nargs : Nat) : MetaM (Key × Array Expr) := do {
      info ← getFunInfoNArgs fn nargs;
      todo ← pushArgsAux info.paramInfo (nargs-1) e todo;
@@ -238,7 +245,7 @@ Format.group r
 instance DiscrTree.hasFormat {α} [HasFormat α] : HasFormat (DiscrTree α) := ⟨format⟩
 
 private def getKeyArgs (e : Expr) (isMatch? : Bool) : MetaM (Key × Array Expr) :=
-do e ← whnf e;
+do e ← whnfEta e;
    match e.getAppFn with
    | Expr.lit v _       => pure (Key.lit v, #[])
    | Expr.const c _ _   => let nargs := e.getAppNumArgs; pure (Key.const c nargs, e.getAppRevArgs)

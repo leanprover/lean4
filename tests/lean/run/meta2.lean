@@ -300,6 +300,23 @@ do u ← getLevel σ;
    check r;
    pure r
 
+def mkMonad (m : Expr) : MetaM Expr :=
+do u ← mkFreshLevelMVar;
+   v ← mkFreshLevelMVar;
+   let arrow := mkArrow (mkSort (mkLevelSucc u)) (mkSort (mkLevelSucc v));
+   mType ← inferType m;
+   mType ← whnf mType;
+   print arrow;
+   print mType;
+   condM (isDefEq arrow mType)
+     (do u ← instantiateLevelMVars u;
+         v ← instantiateLevelMVars v;
+         let r := mkApp (mkConst `Monad [u, v]) m;
+         print r;
+         check r;
+         pure r)
+     (throw $ Exception.other "failed to create Monad application")
+
 def mkMonadState (σ m : Expr) : MetaM Expr :=
 do u ← getLevel σ;
    (some u) ← pure u.dec | throw $ Exception.other "failed to create MonadState application";
@@ -320,10 +337,31 @@ do u ← getLevel σ;
 
 def tst14 : MetaM Unit :=
 do print "----- tst14 -----";
-   decEqNat ← mkDecEq nat;
-   c ← synthInstance decEqNat;
    stateM ← mkStateM nat;
    print stateM;
+   monad ← mkMonad stateM;
+   globalInsts ← getGlobalInstances;
+   insts ← globalInsts.getUnify monad;
+   print insts;
+   pure ()
+
+#eval run [`Init.Control.State] tst14
+
+#exit
+
+def tst15 : MetaM Unit :=
+do print "----- tst15 -----";
+   stateM ← mkStateM nat;
+   print stateM;
+   monad ← mkMonad stateM;
+   print monad;
+   c ← synthInstance monad;
+   pure ()
+
+
+#exit
+   decEqNat ← mkDecEq nat;
+   c ← synthInstance decEqNat;
    monadState ← mkMonadState nat stateM;
    print monadState;
    c ← synthInstance monadState;

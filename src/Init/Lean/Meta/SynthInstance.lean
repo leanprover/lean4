@@ -289,7 +289,7 @@ match cNode.subgoals with
   newAnswer cNode.key answer
 | mvar::_ => do
    let waiter := Waiter.consumerNode cNode;
-   let key := mkTableKey cNode.mctx mvar;
+   key ← mkTableKeyFor cNode.mctx mvar;
    entry? ← findEntry key;
    match entry? with
    | none       => newSubgoal cNode.mctx key mvar waiter

@@ -463,41 +463,6 @@ environment compact_tst_cmd(parser & p) {
     return env;
 }
 
-extern "C" object * lean_typeclass_synth_command(object * env, object * e);
-
-expr synth(environment const & env, expr const & e) {
-    return get_except_value<expr>(lean_typeclass_synth_command(env.to_obj_arg(), e.to_obj_arg()));
-}
-
-environment synth_cmd(parser & p) {
-    expr e; names ls;
-    transient_cmd_scope cmd_scope(p);
-    std::tie(e, ls) = parse_local_expr(p, "_synth");
-    expr inst;
-    {
-        time_task t("#synth",
-                    message_builder(environment(), get_global_ios(), "foo", pos_info(), message_severity::INFORMATION));
-        inst = synth(p.env(), e);
-    }
-
-    type_context_old tc(p.env());
-    expr inst_type = tc.infer(inst);
-
-    if (!tc.is_def_eq(e, inst_type)) {
-        throw exception(sstream() << "synthesis returned instance of type '" << inst_type << "', expecting type '" << e);
-    }
-
-    auto out              = p.mk_message(p.cmd_pos(), p.pos(), INFORMATION);
-    formatter fmt         = out.get_formatter();
-    unsigned indent       = get_pp_indent(p.get_options());
-    format e_fmt    = fmt(e);
-    format inst_fmt = fmt(inst);
-    format r = group(e_fmt + space() + format("=>") + nest(indent, line() + inst_fmt));
-    out.set_caption("synth result") << r;
-    out.report();
-    return p.env();
-}
-
 void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("open",              "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
@@ -513,7 +478,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("import",            "import module(s)", import_cmd));
     add_cmd(r, cmd_info("hide",              "hide aliases in the current scope", hide_cmd));
     add_cmd(r, cmd_info("#eval",             "evaluate given expression using interpreter/precompiled code", eval_cmd));
-    add_cmd(r, cmd_info("#synth",            "test type class synthesis", synth_cmd));
     register_decl_cmds(r);
     register_inductive_cmds(r);
     register_structure_cmd(r);

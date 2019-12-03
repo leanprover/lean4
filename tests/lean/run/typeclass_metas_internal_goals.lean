@@ -1,3 +1,5 @@
+#exit
+
 namespace T1
 
 class Foo (α : Type) : Type := (u : Unit := ())

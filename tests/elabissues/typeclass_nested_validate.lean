@@ -2,6 +2,7 @@
 This example demonstrates a case where Lean4's tabled typeclass resolution may loop.
 It also suggests a workaround, new instance binder semantics, new syntax support, and a new instance validation rule.
 -/
+#exit
 
 class Field (K : Type) := (u : Unit)
 class VectorSpace (K : Type) [Field K] (E : Type) := (u : Unit)

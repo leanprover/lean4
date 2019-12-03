@@ -6,6 +6,7 @@ Authors: Daniel Selsam, Leonardo de Moura
 Declare new, simpler coercion class without the special support for transitivity.
 Test that new tabled typeclass resolution deals with loops and diamonds correctly.
 -/
+#exit
 
 class HasCoerce (a b : Type) :=
 (coerce : a → b)

@@ -1,3 +1,5 @@
+#exit
+
 class Top₁   (n : Nat) : Type := (u : Unit := ())
 class Bot₁   (n : Nat) : Type := (u : Unit := ())
 class Left₁  (n : Nat) : Type := (u : Unit := ())

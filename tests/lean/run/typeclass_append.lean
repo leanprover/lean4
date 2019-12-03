@@ -5,6 +5,7 @@ Authors: Daniel Selsam
 
 Performance test to ensure quadratic blowup is avoided.
 -/
+#exit
 
 class Append {α : Type} (xs₁ xs₂ : List α) (out : outParam $ List α) : Type :=
 (u : Unit := ())

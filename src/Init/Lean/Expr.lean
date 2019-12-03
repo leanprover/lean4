@@ -676,12 +676,20 @@ private def etaExpandedAux : Expr → Nat → Option Expr
 | lam _ _ b _, n => etaExpandedAux b (n+1)
 | e,           n => etaExpandedBody e n 0
 
-/- If `e` is of the form `(fun x₁ ... xₙ => f x₁ ... xₙ)` and `f` does not contain `x₁`, ..., `xₙ`,
-   then return `some f`. Otherwise, return `none`.
+/--
+  If `e` is of the form `(fun x₁ ... xₙ => f x₁ ... xₙ)` and `f` does not contain `x₁`, ..., `xₙ`,
+  then return `some f`. Otherwise, return `none`.
 
-   It assumes `e` does not have loose bound variables. -/
+  It assumes `e` does not have loose bound variables.
+
+  Remark: `ₙ` may be 0 -/
 def etaExpanded? (e : Expr) : Option Expr :=
 etaExpandedAux e 0
+
+/-- Similar to `etaExpanded?`, but only succeeds if `ₙ ≥ 1`. -/
+def etaExpandedStrict? : Expr → Option Expr
+| lam _ _ b _ => etaExpandedAux b 1
+| _           => none
 
 @[specialize] private partial def hasAnyFVarAux (p : FVarId → Bool) : Expr → Bool
 | e => if !e.hasFVar then false else

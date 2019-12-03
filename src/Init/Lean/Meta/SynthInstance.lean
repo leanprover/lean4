@@ -208,12 +208,15 @@ withMCtx mctx $ do
   mvarType ← instantiateMVars mvarType;
   pure $ mkTableKey mctx mvarType
 
-private partial def mkInstanceTelescopeAux
-    (xs : Array Expr) : Array Expr → Nat → List Expr → Expr → Expr → MetaM (List Expr × Expr × Expr)
+/- Remark: `(lctx, localInsts)` is the local context before we created the telescope containing `xs`.
+   We must use `(lctx, localInsts)` to create the new fresh metavariables `mvar`, otherwise the
+   application `mvar xs` is not a higher order pattern. -/
+private partial def mkInstanceTelescopeAux (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array Expr)
+    : Array Expr → Nat → List Expr → Expr → Expr → MetaM (List Expr × Expr × Expr)
 | subst, j, subgoals, instVal, Expr.forallE n d b c => do
   let d     := d.instantiateRevRange j subst.size subst;
   type ← mkForall xs d;
-  mvar ← mkFreshExprMVar type;
+  mvar ← mkFreshExprMVarAt lctx localInsts type;
   let arg := mkAppN mvar xs;
   let instVal := mkApp instVal arg;
   let subgoals := if c.binderInfo.isInstImplicit then mvar::subgoals else subgoals;
@@ -227,14 +230,16 @@ private partial def mkInstanceTelescopeAux
   else
     pure (subgoals, instVal, type)
 
-def mkInstanceTelescope (xs : Array Expr) (inst : Expr) : MetaM (List Expr × Expr × Expr) :=
+def mkInstanceTelescope (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array Expr) (inst : Expr) : MetaM (List Expr × Expr × Expr) :=
 do instType ← inferType inst;
-   mkInstanceTelescopeAux xs #[] 0 [] inst instType
+   mkInstanceTelescopeAux lctx localInsts xs #[] 0 [] inst instType
 
 def tryResolveCore (mvar : Expr) (inst : Expr) : MetaM (Option (MetavarContext × List Expr)) :=
-do mvarType ← inferType mvar;
+do mvarType   ← inferType mvar;
+   lctx       ← getLCtx;
+   localInsts ← getLocalInstances;
    forallTelescopeReducing mvarType $ fun xs mvarTypeBody => do
-     (subgoals, instVal, instTypeBody) ← mkInstanceTelescope xs inst;
+     (subgoals, instVal, instTypeBody) ← mkInstanceTelescope lctx localInsts xs inst;
      Meta.trace `Meta.synthInstance.tryResolve $ fun _ => mvarTypeBody ++ " =?= " ++ instTypeBody;
      condM (isDefEq mvarTypeBody instTypeBody)
        (do instVal ← mkLambda xs instVal;

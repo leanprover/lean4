@@ -399,6 +399,16 @@ do print "----- tst17 -----";
 
 #eval run [`Init.Control.State] tst17
 
+def tst18 : MetaM Unit :=
+do print "----- tst18 -----";
+   decEqNat ← mkDecEq nat;
+   (some r) ← synthInstance decEqNat | throw $ Exception.other "failed `DecidableEq Nat`";
+   print r;
+   pure ()
+
+#eval run [`Init.Control.State] tst18
+
+
 #exit
 
 def tst15 : MetaM Unit :=

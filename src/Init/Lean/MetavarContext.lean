@@ -723,9 +723,13 @@ private partial def elimMVarDepsAux : Array Expr → Expr → M Expr
 | xs, e@(Expr.letE _ t v b _)  => do t ← visit (elimMVarDepsAux xs) t; v ← visit (elimMVarDepsAux xs) v; b ← visit (elimMVarDepsAux xs) b; pure (e.updateLet! t v b)
 | xs, e@(Expr.mdata _ b _)     => do b ← visit (elimMVarDepsAux xs) b; pure (e.updateMData! b)
 | xs, e@(Expr.app _ _ _)       => e.withAppRev $ fun f revArgs => do
+  let wasMVar := f.isMVar;
   f ← visit (elimMVarDepsAux xs) f;
   revArgs ← revArgs.mapM (visit (elimMVarDepsAux xs));
-  pure (mkAppRev f revArgs)
+ if wasMVar && f.isLambda then
+    pure (f.betaRev revArgs)
+ else
+    pure (mkAppRev f revArgs)
 | xs, e@(Expr.mvar mvarId _)   => do
   mctx ← getMCtx;
   match mctx.getExprAssignment mvarId with

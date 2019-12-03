@@ -14,15 +14,21 @@ structure AbstractMVarsResult :=
 (numMVars   : Nat)
 (expr       : Expr)
 
+def AbstractMVarsResult.beq (r₁ r₂ : AbstractMVarsResult) : Bool :=
+r₁.paramNames == r₂.paramNames && r₁.numMVars == r₂.numMVars && r₁.expr == r₂.expr
+
+instance AbstractMVarsResult.hasBeq : HasBeq AbstractMVarsResult := ⟨AbstractMVarsResult.beq⟩
+
 namespace AbstractMVars
 
 structure State :=
-(ngen       : NameGenerator)
-(lctx       : LocalContext)
-(paramNames : Array Name := #[])
-(fvars      : Array Expr  := #[])
-(lmap       : HashMap Name Level := {})
-(emap       : HashMap Name Expr  := {})
+(ngen         : NameGenerator)
+(lctx         : LocalContext)
+(nextParamIdx : Nat := 0)
+(paramNames   : Array Name := #[])
+(fvars        : Array Expr  := #[])
+(lmap         : HashMap Name Level := {})
+(emap         : HashMap Name Expr  := {})
 
 abbrev M := ReaderT MetavarContext (StateM State)
 
@@ -55,9 +61,9 @@ private partial def abstractLevelMVars : Level → M Level
     match s.lmap.find mvarId with
     | some u => pure u
     | none   => do
-      paramId ← mkFreshId;
+      let paramId := mkNameNum `_abstMVar s.nextParamIdx;
       let u := mkLevelParam paramId;
-      modify $ fun s => { lmap := s.lmap.insert mvarId u, paramNames := s.paramNames.push paramId, .. s };
+      modify $ fun s => { nextParamIdx := s.nextParamIdx + 1, lmap := s.lmap.insert mvarId u, paramNames := s.paramNames.push paramId, .. s };
       pure u
 
 partial def abstractExprMVars : Expr → M Expr

@@ -33,6 +33,7 @@ inductive Exception
 | isExprDefEqStuck     (t s : Expr) (ctx : ExceptionContext)
 | letTypeMismatch      (fvarId : FVarId) (ctx : ExceptionContext)
 | appTypeMismatch      (f a : Expr) (ctx : ExceptionContext)
+| notInstance          (e : Expr) (ctx : ExceptionContext)
 | bug                  (b : Bug) (ctx : ExceptionContext)
 | other                (msg : String)
 
@@ -56,6 +57,7 @@ def toStr : Exception → String
 | isExprDefEqStuck _ _ _        => "isDefEq is stuck"
 | letTypeMismatch _ _           => "type mismatch at let-expression"
 | appTypeMismatch _ _ _         => "application type mismatch"
+| notInstance _ _               => "type class instance expected"
 | bug _ _                       => "bug"
 | other s                       => s
 
@@ -80,6 +82,7 @@ def toMessageData : Exception → MessageData
 | isExprDefEqStuck t s ctx        => mkCtx ctx $ `isExprDefEqStuck ++ " " ++ t ++ " =?= " ++ s
 | letTypeMismatch fvarId ctx      => mkCtx ctx $ `letTypeMismatch ++ " " ++ mkFVar fvarId
 | appTypeMismatch f a ctx         => mkCtx ctx $ `appTypeMismatch ++ " " ++ mkApp f a
+| notInstance i ctx               => mkCtx ctx $ `notInstance ++ " " ++ i
 | bug _ _                         => "internal bug" -- TODO improve
 | other s                         => s
 

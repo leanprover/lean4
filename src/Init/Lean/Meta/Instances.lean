@@ -42,9 +42,6 @@ match env.find constName with
   (keys, env) ← IO.runMeta (mkInstanceKey c) env;
   pure $ instanceExtension.addEntry env { keys := keys, val := c }
 
-def getInstances (env : Environment) : Instances :=
-instanceExtension.getState env
-
 @[init] def registerInstanceAttr : IO Unit :=
 registerAttribute {
   name  := `instance,
@@ -57,4 +54,16 @@ registerAttribute {
 }
 
 end Meta
+
+def Environment.getGlobalInstances (env : Environment) : Meta.Instances :=
+Meta.instanceExtension.getState env
+
+namespace Meta
+
+def getGlobalInstances : MetaM Instances :=
+do env ← getEnv;
+   pure env.getGlobalInstances
+
+end Meta
+
 end Lean

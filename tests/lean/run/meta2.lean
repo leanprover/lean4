@@ -335,6 +335,22 @@ do u ← getLevel σ;
          pure r)
      (throw $ Exception.other "failed to create MonadState application")
 
+def mkHasAdd (a : Expr) : MetaM Expr :=
+do u ← getLevel a;
+   (some u) ← pure u.dec | throw $ Exception.other "failed to create HasAdd application";
+   let r := mkApp (mkConst `HasAdd [u]) a;
+   print r;
+   check r;
+   pure r
+
+def mkHasToString (a : Expr) : MetaM Expr :=
+do u ← getLevel a;
+   (some u) ← pure u.dec | throw $ Exception.other "failed to create HasToString application";
+   let r := mkApp (mkConst `HasToString [u]) a;
+   print r;
+   check r;
+   pure r
+
 def tst14 : MetaM Unit :=
 do print "----- tst14 -----";
    stateM ← mkStateM nat;
@@ -347,6 +363,27 @@ do print "----- tst14 -----";
 
 #eval run [`Init.Control.State] tst14
 
+def tst15 : MetaM Unit :=
+do print "----- tst15 -----";
+   inst ← mkHasAdd nat;
+   (some r) ← synthInstance inst | throw $ Exception.other "failed `HasAdd Nat`";
+   print r;
+   pure ()
+
+#eval run [`Init.Control.State] tst15
+
+#exit
+
+def tst16 : MetaM Unit :=
+do print "----- tst16 -----";
+   prod ← mkProd nat nat;
+   inst ← mkHasToString prod;
+   (some r) ← synthInstance inst | throw $ Exception.other "failed `HasToString (Nat × Nat)`";
+   print r;
+   pure ()
+
+#eval run [`Init.Control.State] tst16
+
 #exit
 
 def tst15 : MetaM Unit :=
@@ -357,6 +394,9 @@ do print "----- tst15 -----";
    print monad;
    c ← synthInstance monad;
    pure ()
+
+#eval run [`Init.Control.State] tst15
+
 
 
 #exit

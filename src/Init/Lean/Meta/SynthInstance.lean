@@ -156,6 +156,7 @@ forallTelescopeReducing type $ fun _ type => do
      result ← result.mapM $ fun c => match c with
        | Expr.const constName us _ => do us ← us.mapM (fun _ => mkFreshLevelMVar); pure $ c.updateConst! us
        | _ => panic! "global instance is not a constant";
+     Meta.trace `Meta.synthInstance.globalInstances $ fun _ => type ++ " " ++ result;
      localInstances ← getLocalInstances;
      let result := localInstances.foldl
        (fun (result : Array Expr) linst => if linst.className == className then result.push linst.fvar else result)

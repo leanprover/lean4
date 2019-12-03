@@ -164,6 +164,10 @@ def isAtomic : Name → Bool
 | num anonymous _ _ => true
 | _                 => false
 
+def isAnonymous : Name → Bool
+| anonymous         => true
+| _                 => false
+
 end Name
 
 def NameMap (α : Type) := RBMap Name α Name.quickLt

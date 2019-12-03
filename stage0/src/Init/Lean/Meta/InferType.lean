@@ -104,13 +104,13 @@ savingCache $ do
   adaptReader (fun (ctx : Context) => { lctx := ctx.lctx.mkLocalDecl fvarId name type bi, .. ctx }) $
     x (mkFVar fvarId)
 
-private def inferMVarType (mvarId : Name) : MetaM Expr :=
+private def inferMVarType (mvarId : MVarId) : MetaM Expr :=
 do mctx ← getMCtx;
    match mctx.findDecl mvarId with
    | some d => pure d.type
    | none   => throwEx $ Exception.unknownExprMVar mvarId
 
-private def inferFVarType (fvarId : Name) : MetaM Expr :=
+private def inferFVarType (fvarId : FVarId) : MetaM Expr :=
 do lctx ← getLCtx;
    match lctx.find fvarId with
    | some d => pure d.type

@@ -21,7 +21,7 @@ private def strictOccursMax (lvl : Level) : Level → Bool
 | _               => false
 
 /-- `mkMaxArgsDiff mvarId (max u_1 ... (mvar mvarId) ... u_n) v` => `max v u_1 ... u_n` -/
-private def mkMaxArgsDiff (mvarId : Name) : Level → Level → Level
+private def mkMaxArgsDiff (mvarId : MVarId) : Level → Level → Level
 | Level.max u v _,     acc => mkMaxArgsDiff v $ mkMaxArgsDiff u acc
 | l@(Level.mvar id _), acc => if id != mvarId then mkLevelMax acc l else acc
 | l,                   acc => mkLevelMax acc l
@@ -29,9 +29,9 @@ private def mkMaxArgsDiff (mvarId : Name) : Level → Level → Level
 /--
   Solve `?m =?= max ?m v` by creating a fresh metavariable `?n`
   and assigning `?m := max ?n v` -/
-private def solveSelfMax (mId : Name) (v : Level) : MetaM Unit :=
+private def solveSelfMax (mvarId : MVarId) (v : Level) : MetaM Unit :=
 do n ← mkFreshLevelMVar;
-   assignLevelMVar mId $ mkMaxArgsDiff mId v n
+   assignLevelMVar mvarId $ mkMaxArgsDiff mvarId v n
 
 private def postponeIsLevelDefEq (lhs : Level) (rhs : Level) : MetaM Unit :=
 modify $ fun s => { postponed := s.postponed.push { lhs := lhs, rhs := rhs }, .. s }
@@ -67,8 +67,12 @@ partial def isLevelDefEqAux : Level → Level → MetaM Bool
       isLevelDefEqAux lhs' rhs'
     else do
       mctx ← getMCtx;
-      if !mctx.hasAssignableLevelMVar lhs && !mctx.hasAssignableLevelMVar rhs then
-        pure false
+      if !mctx.hasAssignableLevelMVar lhs && !mctx.hasAssignableLevelMVar rhs then do
+        ctx ← read;
+        if ctx.config.isDefEqStuckEx && (lhs.isMVar || rhs.isMVar) then
+          throwEx $ Exception.isLevelDefEqStuck lhs rhs
+        else
+          pure false
       else do
         k ← getLevelConstraintKind lhs rhs;
         match k with
@@ -163,6 +167,22 @@ do s ← get;
        (do restore env mctx postponed; pure false))
      (fun ex => do restore env mctx postponed; throw ex)
 
+@[specialize] def tryOpt {α} (x : MetaM (Option α)) : MetaM (Option α) :=
+do s ← get;
+   let env       := s.env;
+   let mctx      := s.mctx;
+   let postponed := s.postponed;
+   modify $ fun s => { postponed := {}, .. s };
+   catch
+     (do a? ← x;
+         match a? with
+         | some a =>
+           condM processPostponed
+             (pure (some a))
+             (do restore env mctx postponed; pure none)
+         | none   => do restore env mctx postponed; pure none)
+     (fun ex => do restore env mctx postponed; throw ex)
+
 /- Public interface -/
 
 def isLevelDefEq (u v : Level) : MetaM Bool :=
@@ -176,6 +196,8 @@ traceCtx `Meta.isDefEq $ do
   b ← try $ isExprDefEqAux t s;
   trace `Meta.isDefEq $ fun _ => t ++ " =?= " ++ s ++ " ... " ++ if b then "success" else "failure";
   pure b
+
+abbrev isDefEq := @isExprDefEq
 
 end Meta
 end Lean

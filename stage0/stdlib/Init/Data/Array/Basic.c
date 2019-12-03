@@ -6040,9 +6040,26 @@ return x_5;
 uint8_t l_Array_HasBeq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8_t x_4; 
-x_4 = l_Array_isEqv___rarg(x_2, x_3, x_1);
-return x_4;
+lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_4 = lean_array_get_size(x_2);
+x_5 = lean_array_get_size(x_3);
+x_6 = lean_nat_dec_eq(x_4, x_5);
+lean_dec(x_5);
+lean_dec(x_4);
+if (x_6 == 0)
+{
+uint8_t x_7; 
+lean_dec(x_1);
+x_7 = 0;
+return x_7;
+}
+else
+{
+lean_object* x_8; uint8_t x_9; 
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = l_Array_isEqvAux___main___rarg(x_2, x_3, lean_box(0), x_1, x_8);
+return x_9;
+}
 }
 }
 lean_object* l_Array_HasBeq(lean_object* x_1) {

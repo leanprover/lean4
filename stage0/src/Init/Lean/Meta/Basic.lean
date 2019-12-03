@@ -12,6 +12,7 @@ import Init.Lean.Trace
 import Init.Lean.Class
 import Init.Lean.ReducibilityAttrs
 import Init.Lean.Meta.Exception
+import Init.Lean.Meta.DiscrTreeTypes
 
 /-
 This module provides four (mutually dependent) goodies that are needed for building the elaborator and tactic frameworks.
@@ -54,12 +55,6 @@ def lt : TransparencyMode → TransparencyMode → Bool
 | _,         _       => false
 
 end TransparencyMode
-
-structure LocalInstance :=
-(className : Name)
-(fvar      : Expr)
-
-abbrev LocalInstances := Array LocalInstance
 
 structure Config :=
 (opts               : Options := {})
@@ -105,8 +100,9 @@ instance : HasBeq InfoCacheKey :=
 end InfoCacheKey
 
 structure Cache :=
-(inferType : PersistentExprStructMap Expr := {})
-(funInfo   : PersistentHashMap InfoCacheKey FunInfo := {})
+(inferType     : PersistentExprStructMap Expr := {})
+(funInfo       : PersistentHashMap InfoCacheKey FunInfo := {})
+(synthInstance : PersistentHashMap Expr (Option Expr) := {})
 
 structure Context :=
 (config         : Config         := {})
@@ -132,6 +128,9 @@ instance MetaM.inhabited {α} : Inhabited (MetaM α) :=
 
 @[inline] def getLCtx : MetaM LocalContext :=
 do ctx ← read; pure ctx.lctx
+
+@[inline] def getLocalInstances : MetaM LocalInstances :=
+do ctx ← read; pure ctx.localInstances
 
 @[inline] def getConfig : MetaM Config :=
 do ctx ← read; pure ctx.config
@@ -204,14 +203,17 @@ do s ← get;
    modify $ fun s => { ngen := s.ngen.next, .. s };
    pure id
 
-def mkFreshExprMVarAt (lctx : LocalContext) (type : Expr) (userName : Name := Name.anonymous) (synthetic : Bool := false) : MetaM Expr :=
+def mkFreshExprMVarAt
+    (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (userName : Name := Name.anonymous) (synthetic : Bool := false)
+    : MetaM Expr :=
 do mvarId ← mkFreshId;
-   modify $ fun s => { mctx := s.mctx.addExprMVarDecl mvarId userName lctx type synthetic, .. s };
+   modify $ fun s => { mctx := s.mctx.addExprMVarDecl mvarId userName lctx localInsts type synthetic, .. s };
    pure $ mkMVar mvarId
 
 def mkFreshExprMVar (type : Expr) (userName : Name := Name.anonymous) (synthetic : Bool := false) : MetaM Expr :=
 do lctx ← getLCtx;
-   mkFreshExprMVarAt lctx type userName synthetic
+   localInsts ← getLocalInstances;
+   mkFreshExprMVarAt lctx localInsts type userName synthetic
 
 def mkFreshLevelMVar : MetaM Level :=
 do mvarId ← mkFreshId;
@@ -262,34 +264,44 @@ adaptReader
     { config := { transparency := mode, .. ctx.config }, .. ctx })
   x
 
-def isSyntheticExprMVar (mvarId : Name) : MetaM Bool :=
+def isSyntheticExprMVar (mvarId : MVarId) : MetaM Bool :=
 do mctx ← getMCtx;
    match mctx.findDecl mvarId with
    | some d => pure $ d.synthetic
    | _      => throwEx $ Exception.unknownExprMVar mvarId
 
-def isReadOnlyOrSyntheticExprMVar (mvarId : Name) : MetaM Bool :=
+def isReadOnlyExprMVar (mvarId : MVarId) : MetaM Bool :=
+do mctx ← getMCtx;
+   match mctx.findDecl mvarId with
+   | some d => pure $ d.depth != mctx.depth
+   | _      => throwEx $ Exception.unknownExprMVar mvarId
+
+def isReadOnlyOrSyntheticExprMVar (mvarId : MVarId) : MetaM Bool :=
 do mctx ← getMCtx;
    match mctx.findDecl mvarId with
    | some d => pure $ d.synthetic || d.depth != mctx.depth
    | _      => throwEx $ Exception.unknownExprMVar mvarId
 
-def isReadOnlyLevelMVar (mvarId : Name) : MetaM Bool :=
+def isReadOnlyLevelMVar (mvarId : MVarId) : MetaM Bool :=
 do mctx ← getMCtx;
    match mctx.findLevelDepth mvarId with
    | some depth => pure $ depth != mctx.depth
    | _          => throwEx $ Exception.unknownLevelMVar mvarId
 
-@[inline] def isExprMVarAssigned (mvarId : Name) : MetaM Bool :=
+@[inline] def isExprMVarAssigned (mvarId : MVarId) : MetaM Bool :=
 do mctx ← getMCtx;
    pure $ mctx.isExprAssigned mvarId
 
-@[inline] def getExprMVarAssignment (mvarId : Name) : MetaM (Option Expr) :=
+@[inline] def getExprMVarAssignment (mvarId : MVarId) : MetaM (Option Expr) :=
 do mctx ← getMCtx; pure (mctx.getExprAssignment mvarId)
 
-def assignExprMVar (mvarId : Name) (val : Expr) : MetaM Unit :=
+def assignExprMVar (mvarId : MVarId) (val : Expr) : MetaM Unit :=
 do whenDebugging $ whenM (isExprMVarAssigned mvarId) $ throwBug $ Bug.overwritingExprMVar mvarId;
    modify $ fun s => { mctx := s.mctx.assignExpr mvarId val, .. s }
+
+def hasAssignableMVar (e : Expr) : MetaM Bool :=
+do mctx ← getMCtx;
+   pure $ mctx.hasAssignableMVar e
 
 def dbgTrace {α} [HasToString α] (a : α) : MetaM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()
@@ -328,7 +340,7 @@ getConstAux constName true
 @[inline] def getConstNoEx (constName : Name) : MetaM (Option ConstantInfo) :=
 getConstAux constName false
 
-def getLocalDecl (fvarId : Name) : MetaM LocalDecl :=
+def getLocalDecl (fvarId : FVarId) : MetaM LocalDecl :=
 do lctx ← getLCtx;
    match lctx.find fvarId with
    | some d => pure d
@@ -337,7 +349,7 @@ do lctx ← getLCtx;
 def getFVarLocalDecl (fvar : Expr) : MetaM LocalDecl :=
 getLocalDecl fvar.fvarId!
 
-def getMVarDecl (mvarId : Name) : MetaM MetavarDecl :=
+def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl :=
 do mctx ← getMCtx;
    match mctx.findDecl mvarId with
    | some d => pure d
@@ -410,15 +422,18 @@ partial def isClassQuick : Expr → MetaM (LOption Name)
   | _                 => pure LOption.none
 | Expr.localE _ _ _ _ => unreachable!
 
-/-- Reset type class cache, execute `x`, and restore cache -/
-@[inline] def resettingTypeClassCache {α} (x : MetaM α) : MetaM α :=
-x -- TODO
+/-- Reset `synthInstance` cache, execute `x`, and restore cache -/
+@[inline] def resettingSynthInstanceCache {α} (x : MetaM α) : MetaM α :=
+do s ← get;
+   let savedSythInstance        := s.cache.synthInstance;
+   modify $ fun s => { cache := { synthInstance := {}, .. s.cache }, .. s };
+   finally x (modify $ fun s => { cache := { synthInstance := savedSythInstance, .. s.cache }, .. s })
 
 /-- Add entry `{ className := className, fvar := fvar }` to localInstances,
     and then execute continuation `k`.
-    It resets the type class cache using `resettingTypeClassCache`. -/
+    It resets the type class cache using `resettingSynthInstanceCache`. -/
 @[inline] def withNewLocalInstance {α} (className : Name) (fvar : Expr) (k : MetaM α) : MetaM α :=
-resettingTypeClassCache $
+resettingSynthInstanceCache $
   adaptReader
     (fun (ctx : Context) => {
       localInstances := ctx.localInstances.push { className := className, fvar := fvar },
@@ -432,7 +447,7 @@ resettingTypeClassCache $
   - `isClassExpensive` is defined later.
   - The type class chache is reset whenever a new local instance is found.
   - `isClassExpensive` uses `whnf` which depends (indirectly) on the set of local instances.
-    Thus, each new local instance requires a new `resettingTypeClassCache`. -/
+    Thus, each new local instance requires a new `resettingSynthInstanceCache`. -/
 @[specialize] partial def withNewLocalInstances {α}
     (isClassExpensive : Expr → MetaM (Option Name))
     (fvars : Array Expr) : Nat → MetaM α → MetaM α
@@ -517,10 +532,9 @@ resettingTypeClassCache $
     (isClassExpensive : Expr → MetaM (Option Name))
     (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α :=
 do newType ← whnf type;
-   if newType.isForall then
-     savingCache $ do
-       lctx ← getLCtx;
-       forallTelescopeReducingAuxAux isClassExpensive true maxFVars? k lctx #[] 0 newType
+   if newType.isForall then do
+     lctx ← getLCtx;
+     forallTelescopeReducingAuxAux isClassExpensive true maxFVars? k lctx #[] 0 newType
    else
      k #[] type
 
@@ -537,21 +551,20 @@ partial def isClassExpensive : Expr → MetaM (Option Name)
   Given `type` of the form `forall xs, A`, execute `k xs A`.
   This combinator will declare local declarations, create free variables for them,
   execute `k` with updated local context, and make sure the cache is restored after executing `k`. -/
-@[inline] def forallTelescope {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
-savingCache $ do
-  lctx ← getLCtx;
-  forallTelescopeReducingAuxAux isClassExpensive false none k lctx #[] 0 type
+def forallTelescope {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+do lctx ← getLCtx;
+   forallTelescopeReducingAuxAux isClassExpensive false none k lctx #[] 0 type
 
 /--
   Similar to `forallTelescope`, but given `type` of the form `forall xs, A`,
   it reduces `A` and continues bulding the telescope if it is a `forall`. -/
-@[inline] def forallTelescopeReducing {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+def forallTelescopeReducing {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
 forallTelescopeReducingAux isClassExpensive type none k
 
 /--
   Similar to `forallTelescopeReducing`, stops constructing the telescope when
   it reaches size `maxFVars`. -/
-@[inline] def forallBoundedTelescope {α} (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+def forallBoundedTelescope {α} (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α :=
 forallTelescopeReducingAux isClassExpensive type maxFVars? k
 
 def isClass (type : Expr) : MetaM (Option Name) :=
@@ -562,7 +575,7 @@ do c? ← isClassQuick type;
    | LOption.undef  => isClassExpensive type
 
 /-- Similar to `forallTelescopeAuxAux` but for lambda and let expressions. -/
-@[specialize] private partial def lambdaTelescopeAux {α}
+private partial def lambdaTelescopeAux {α}
     (k : Array Expr → Expr → MetaM α)
     : LocalContext → Array Expr → Nat → Expr → MetaM α
 | lctx, fvars, j, Expr.lam n d b c => do
@@ -585,11 +598,9 @@ do c? ← isClassQuick type;
       k fvars e
 
 /-- Similar to `forallTelescope` but for lambda and let expressions. -/
-@[specialize] def lambdaTelescope {α}
-    (e : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
-savingCache $ do
-  lctx ← getLCtx;
-  lambdaTelescopeAux k lctx #[] 0 e
+def lambdaTelescope {α} (e : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+do lctx ← getLCtx;
+   lambdaTelescopeAux k lctx #[] 0 e
 
 private partial def forallMetaTelescopeReducingAux
     (reducing? : Bool) (maxMVars? : Option Nat)
@@ -626,6 +637,30 @@ forallMetaTelescopeReducingAux false none #[] #[] 0 e
 def forallMetaTelescopeReducing (e : Expr) (maxMVars? : Option Nat := none) : MetaM (Array Expr × Array BinderInfo × Expr) :=
 forallMetaTelescopeReducingAux true maxMVars? #[] #[] 0 e
 
+/-- Similar to `forallMetaTelescopeReducingAux` but for lambda expressions. -/
+private partial def lambdaMetaTelescopeAux (maxMVars? : Option Nat)
+    : Array Expr → Array BinderInfo → Nat → Expr → MetaM (Array Expr × Array BinderInfo × Expr)
+| mvars, bis, j, Expr.lam n d b c => do
+  let d     := d.instantiateRevRange j mvars.size mvars;
+  mvar ← mkFreshExprMVar d;
+  let mvars := mvars.push mvar;
+  let bis   := bis.push c.binderInfo;
+  match maxMVars? with
+  | none          => lambdaMetaTelescopeAux mvars bis j b
+  | some maxMVars =>
+    if mvars.size < maxMVars then
+      lambdaMetaTelescopeAux mvars bis j b
+    else
+      let type := b.instantiateRevRange j mvars.size mvars;
+      pure (mvars, bis, type)
+| mvars, bis, j, type =>
+  let type := type.instantiateRevRange j mvars.size mvars;
+  pure (mvars, bis, type)
+
+/-- Similar to `forallMetaTelescope` but for lambda expressions. -/
+def lambdaMetaTelescope (e : Expr) (maxMVars? : Option Nat := none) : MetaM (Array Expr × Array BinderInfo × Expr) :=
+lambdaMetaTelescopeAux maxMVars? #[] #[] 0 e
+
 @[inline] def liftStateMCtx {α} (x : StateM MetavarContext α) : MetaM α :=
 fun _ s =>
   let (a, mctx) := x.run s.mctx;
@@ -634,10 +669,10 @@ fun _ s =>
 def instantiateLevelMVars (lvl : Level) : MetaM Level :=
 liftStateMCtx $ MetavarContext.instantiateLevelMVars lvl
 
-def assignLevelMVar (mvarId : Name) (lvl : Level) : MetaM Unit :=
+def assignLevelMVar (mvarId : MVarId) (lvl : Level) : MetaM Unit :=
 modify $ fun s => { mctx := MetavarContext.assignLevel s.mctx mvarId lvl, .. s }
 
-def mkFreshLevelMVarId : MetaM Name :=
+def mkFreshLevelMVarId : MetaM MVarId :=
 do mvarId ← mkFreshId;
    modify $ fun s => { mctx := s.mctx.addLevelMVarDecl mvarId, .. s };
    pure mvarId
@@ -677,10 +712,27 @@ do fvarId ← mkFreshId;
   and restore saved data. -/
 @[inline] def withNewMCtxDepth {α} (x : MetaM α) : MetaM α :=
 do s ← get;
-   let savedCache := s.cache;
    let savedMCtx  := s.mctx;
    modify $ fun s => { mctx := s.mctx.incDepth, .. s };
-   finally x (modify $ fun s => { cache := savedCache, mctx := savedMCtx, .. s })
+   finally x (modify $ fun s => { mctx := savedMCtx, .. s })
+
+/--
+  Execute `x` using the given metavariable `LocalContext` and `LocalInstances`.
+  The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
+  different from the current ones. -/
+@[inline] def withMVarContext {α} (mvarId : MVarId) (x : MetaM α) : MetaM α :=
+do mvarDecl ← getMVarDecl mvarId;
+   localInsts ← getLocalInstances;
+   adaptReader (fun (ctx : Context) => { lctx := mvarDecl.lctx, localInstances := mvarDecl.localInstances, .. ctx }) $
+     if localInsts == mvarDecl.localInstances then
+       x
+     else
+       resettingSynthInstanceCache x
+
+@[inline] def withMCtx {α} (mctx : MetavarContext) (x : MetaM α) : MetaM α :=
+do mctx' ← getMCtx;
+   modify $ fun s => { mctx := mctx, .. s };
+   finally x (modify $ fun s => { mctx := mctx', .. s })
 
 end Meta
 end Lean

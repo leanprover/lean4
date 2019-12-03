@@ -198,17 +198,6 @@ match lvl.getLevelOffset with
 | zero _ => lvl.getOffset
 | _      => none
 
-def instantiate (s : Name → Option Level) : Level → Level
-| u@(zero _)    => u
-| succ u _      => mkLevelSucc (instantiate u)
-| max u₁ u₂ _   => mkLevelMax (instantiate u₁) (instantiate u₂)
-| imax u₁ u₂ _  => mkLevelIMax (instantiate u₁) (instantiate u₂)
-| u@(param n _) =>
-  match s n with
-  | some u' => u'
-  | none    => u
-| u           => u
-
 @[extern "lean_level_eq"]
 protected constant beq (a : @& Level) (b : @& Level) : Bool := arbitrary _
 
@@ -428,6 +417,16 @@ mkLevelIMax newLhs newRhs
 match lvl with
 | max lhs rhs d => updateIMax (imax lhs rhs d) newLhs newRhs rfl
 | _             => panic! "imax level expected"
+
+@[specialize] def instantiateParams (s : Name → Option Level) : Level → Level
+| u@(zero _)       => u
+| u@(succ v _)     => if u.hasParam then u.updateSucc (instantiateParams v) rfl else u
+| u@(max v₁ v₂ _)  => if u.hasParam then u.updateMax (instantiateParams v₁) (instantiateParams v₂) rfl else u
+| u@(imax v₁ v₂ _) => if u.hasParam then u.updateIMax (instantiateParams v₁) (instantiateParams v₂) rfl else u
+| u@(param n _)    => match s n with
+  | some u' => u'
+  | none    => u
+| u           => u
 
 end Level
 

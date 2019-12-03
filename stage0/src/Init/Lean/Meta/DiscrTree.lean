@@ -51,34 +51,6 @@ namespace DiscrTree
   2- Distinguish partial applications `f a`, `f a b`, and `f a b c`.
 -/
 
-inductive Key
-| const : Name → Nat → Key
-| fvar  : Name → Nat → Key
-| lit   : Literal → Key
-| star  : Key
-| other : Key
-
-instance Key.inhabited : Inhabited Key := ⟨Key.star⟩
-
-def Key.hash : Key → USize
-| Key.const n a => mixHash 5237 $ mixHash (hash n) (hash a)
-| Key.fvar n a  => mixHash 3541 $ mixHash (hash n) (hash a)
-| Key.lit v     => mixHash 1879 $ hash v
-| Key.star      => 7883
-| Key.other     => 2411
-
-instance Key.hashable : Hashable Key := ⟨Key.hash⟩
-
-def Key.beq : Key → Key → Bool
-| Key.const c₁ a₁, Key.const c₂ a₂ => c₁ == c₂ && a₁ == a₂
-| Key.fvar c₁ a₁,  Key.fvar c₂ a₂  => c₁ == c₂ && a₁ == a₂
-| Key.lit v₁,      Key.lit v₂      => v₁ == v₂
-| Key.star,        Key.star        => true
-| Key.other,       Key.other       => true
-| _,                _              => false
-
-instance Key.hasBeq : HasBeq Key := ⟨Key.beq⟩
-
 def Key.ctorIdx : Key → Nat
 | Key.star      => 0
 | Key.other     => 1
@@ -109,25 +81,13 @@ def Key.arity : Key → Nat
 | Key.fvar _ a  => a
 | _             => 0
 
-inductive Trie (α : Type)
-| node (vs : Array α) (children : Array (Key × Trie)) : Trie
-
 instance Trie.inhabited {α} : Inhabited (Trie α) := ⟨Trie.node #[] #[]⟩
-
-end DiscrTree
-
-open DiscrTree
-
-structure DiscrTree (α : Type) :=
-(root : PersistentHashMap Key (Trie α) := {})
-
-namespace DiscrTree
 
 def empty {α} : DiscrTree α := { root := {} }
 
 /- The discrimination tree ignores implicit arguments and proofs.
    We use the following auxiliary id as a "mark". -/
-private def tmpMVarId : Name := `_discr_tree_tmp
+private def tmpMVarId : MVarId := `_discr_tree_tmp
 private def tmpStar := mkMVar tmpMVarId
 
 instance {α} : Inhabited (DiscrTree α) := ⟨{}⟩
@@ -181,9 +141,16 @@ private partial def pushArgsAux (infos : Array ParamInfo) : Nat → Expr → Arr
     (pushArgsAux (i-1) f (todo.push a))
 | _, _, todo => pure todo
 
+private partial def whnfEta : Expr → MetaM Expr
+| e => do
+  e ← whnf e;
+  match e.etaExpandedStrict? with
+  | some e => whnfEta e
+  | none   => pure e
+
 private def pushArgs (todo : Array Expr) (e : Expr) : MetaM (Key × Array Expr) :=
-do e ← whnf e;
-   let fn    := e.getAppFn;
+do e ← whnfEta e;
+   let fn := e.getAppFn;
    let push (k : Key) (nargs : Nat) : MetaM (Key × Array Expr) := do {
      info ← getFunInfoNArgs fn nargs;
      todo ← pushArgsAux info.paramInfo (nargs-1) e todo;
@@ -278,7 +245,7 @@ Format.group r
 instance DiscrTree.hasFormat {α} [HasFormat α] : HasFormat (DiscrTree α) := ⟨format⟩
 
 private def getKeyArgs (e : Expr) (isMatch? : Bool) : MetaM (Key × Array Expr) :=
-do e ← whnf e;
+do e ← whnfEta e;
    match e.getAppFn with
    | Expr.lit v _       => pure (Key.lit v, #[])
    | Expr.const c _ _   => let nargs := e.getAppNumArgs; pure (Key.const c nargs, e.getAppRevArgs)

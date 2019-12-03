@@ -11,8 +11,8 @@ import Init.Lean.Expr
 namespace Lean
 
 inductive LocalDecl
-| cdecl (index : Nat) (name : Name) (userName : Name) (type : Expr) (bi : BinderInfo)
-| ldecl (index : Nat) (name : Name) (userName : Name) (type : Expr) (value : Expr)
+| cdecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo)
+| ldecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr)
 
 namespace LocalDecl
 instance : Inhabited LocalDecl := ⟨ldecl (arbitrary _) (arbitrary _) (arbitrary _) (arbitrary _) (arbitrary _)⟩
@@ -25,9 +25,9 @@ def index : LocalDecl → Nat
 | cdecl idx _ _ _ _ => idx
 | ldecl idx _ _ _ _ => idx
 
-def name : LocalDecl → Name
-| cdecl _ n _ _ _ => n
-| ldecl _ n _ _ _ => n
+def fvarId : LocalDecl → FVarId
+| cdecl _ id _ _ _ => id
+| ldecl _ id _ _ _ => id
 
 def userName : LocalDecl → Name
 | cdecl _ _ n _ _ => n
@@ -50,17 +50,17 @@ def value : LocalDecl → Expr
 | ldecl _ _ _ _ v => v
 
 def updateUserName : LocalDecl → Name → LocalDecl
-| cdecl index name _ type bi,  userName => cdecl index name userName type bi
-| ldecl index name _ type val, userName => ldecl index name userName type val
+| cdecl index id _ type bi,  userName => cdecl index id userName type bi
+| ldecl index id _ type val, userName => ldecl index id userName type val
 
 def toExpr (decl : LocalDecl) : Expr :=
-mkFVar decl.name
+mkFVar decl.fvarId
 
 end LocalDecl
 
 structure LocalContext :=
-(nameToDecl : PersistentHashMap Name LocalDecl := {})
-(decls      : PersistentArray (Option LocalDecl) := {})
+(fvarIdToDecl : PersistentHashMap Name LocalDecl := {})
+(decls        : PersistentArray (Option LocalDecl) := {})
 
 namespace LocalContext
 instance : Inhabited LocalContext := ⟨{}⟩
@@ -74,34 +74,34 @@ def empty : LocalContext :=
 
 @[export lean_local_ctx_is_empty]
 def isEmpty (lctx : LocalContext) : Bool :=
-lctx.nameToDecl.isEmpty
+lctx.fvarIdToDecl.isEmpty
 
 /- Low level API for creating local declarations. It is used to implement actions in the monads `Elab` and `Tactic`. It should not be used directly since the argument `(name : Name)` is assumed to be "unique". -/
 @[export lean_local_ctx_mk_local_decl]
-def mkLocalDecl (lctx : LocalContext) (fvarId : Name) (userName : Name) (type : Expr) (bi : BinderInfo := BinderInfo.default) : LocalContext :=
+def mkLocalDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo := BinderInfo.default) : LocalContext :=
 match lctx with
-| { nameToDecl := map, decls := decls } =>
+| { fvarIdToDecl := map, decls := decls } =>
   let idx  := decls.size;
   let decl := LocalDecl.cdecl idx fvarId userName type bi;
-  { nameToDecl := map.insert fvarId decl, decls := decls.push decl }
+  { fvarIdToDecl := map.insert fvarId decl, decls := decls.push decl }
 
 @[export lean_local_ctx_mk_let_decl]
-def mkLetDecl (lctx : LocalContext) (fvarId : Name) (userName : Name) (type : Expr) (value : Expr) : LocalContext :=
+def mkLetDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) : LocalContext :=
 match lctx with
-| { nameToDecl := map, decls := decls } =>
+| { fvarIdToDecl := map, decls := decls } =>
   let idx  := decls.size;
   let decl := LocalDecl.ldecl idx fvarId userName type value;
-  { nameToDecl := map.insert fvarId decl, decls := decls.push decl }
+  { fvarIdToDecl := map.insert fvarId decl, decls := decls.push decl }
 
 @[export lean_local_ctx_find]
-def find (lctx : LocalContext) (fvarId : Name) : Option LocalDecl :=
-lctx.nameToDecl.find fvarId
+def find (lctx : LocalContext) (fvarId : FVarId) : Option LocalDecl :=
+lctx.fvarIdToDecl.find fvarId
 
 def findFVar (lctx : LocalContext) (e : Expr) : Option LocalDecl :=
 lctx.find e.fvarId!
 
-def contains (lctx : LocalContext) (fvarId : Name) : Bool :=
-lctx.nameToDecl.contains fvarId
+def contains (lctx : LocalContext) (fvarId : FVarId) : Bool :=
+lctx.fvarIdToDecl.contains fvarId
 
 def containsFVar (lctx : LocalContext) (e : Expr) : Bool :=
 lctx.contains e.fvarId!
@@ -114,21 +114,21 @@ private partial def popTailNoneAux : PArray (Option LocalDecl) → PArray (Optio
     | some _ => a
 
 @[export lean_local_ctx_erase]
-def erase (lctx : LocalContext) (fvarId : Name) : LocalContext :=
+def erase (lctx : LocalContext) (fvarId : FVarId) : LocalContext :=
 match lctx with
-| { nameToDecl := map, decls := decls } =>
+| { fvarIdToDecl := map, decls := decls } =>
   match map.find fvarId with
   | none      => lctx
-  | some decl => { nameToDecl := map.erase fvarId, decls := popTailNoneAux (decls.set decl.index none) }
+  | some decl => { fvarIdToDecl := map.erase fvarId, decls := popTailNoneAux (decls.set decl.index none) }
 
 @[export lean_local_ctx_pop]
 def pop (lctx : LocalContext): LocalContext :=
 match lctx with
-| { nameToDecl := map, decls := decls } =>
+| { fvarIdToDecl := map, decls := decls } =>
   if decls.size == 0 then lctx
   else match decls.get! (decls.size - 1) with
     | none      => lctx -- unreachable
-    | some decl => { nameToDecl := map.erase decl.name, decls := popTailNoneAux decls.pop }
+    | some decl => { fvarIdToDecl := map.erase decl.fvarId, decls := popTailNoneAux decls.pop }
 
 @[export lean_local_ctx_find_from_user_name]
 def findFromUserName (lctx : LocalContext) (userName : Name) : Option LocalDecl :=
@@ -159,13 +159,13 @@ lctx.decls.get! (lctx.decls.size - 1)
 @[export lean_local_ctx_rename_user_name]
 def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : LocalContext :=
 match lctx with
-| { nameToDecl := map, decls := decls } =>
+| { fvarIdToDecl := map, decls := decls } =>
   match lctx.findFromUserName fromName with
   | none      => lctx
   | some decl =>
     let decl := decl.updateUserName toName;
-    { nameToDecl := map.insert decl.name decl,
-      decls      := decls.set decl.index decl }
+    { fvarIdToDecl := map.insert decl.fvarId decl,
+      decls        := decls.set decl.index decl }
 
 @[export lean_local_ctx_num_indices]
 def numIndices (lctx : LocalContext) : Nat :=
@@ -231,7 +231,7 @@ partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) : Nat → N
       match a₂.get! j with
       | none => isSubPrefixOfAux i (j+1)
       | some decl₂ =>
-        if decl₁.name == decl₂.name then isSubPrefixOfAux (i+1) (j+1) else isSubPrefixOfAux i (j+1)
+        if decl₁.fvarId == decl₂.fvarId then isSubPrefixOfAux (i+1) (j+1) else isSubPrefixOfAux i (j+1)
   else false
   else true
 

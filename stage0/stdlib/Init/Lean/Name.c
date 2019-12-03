@@ -35,6 +35,7 @@ lean_object* l_Lean_Name_quickLt___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_getNumParts___main___boxed(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_updatePrefix(lean_object*, lean_object*);
+lean_object* l_Lean_Name_isAnonymous___boxed(lean_object*);
 lean_object* l_Lean_Name_HasToString___closed__1;
 lean_object* l_Lean_mkNameSimple(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -109,6 +110,7 @@ lean_object* l_Lean_Name_getPrefix___boxed(lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lean_Name_components_x27___main(lean_object*);
 lean_object* l_Lean_Name_beq___boxed(lean_object*, lean_object*);
+uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* l_RBNode_ins___main___at_Lean_NameSet_insert___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_NameSet_Inhabited;
 lean_object* l_Lean_NameMap_find(lean_object*);
@@ -1399,6 +1401,33 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Name_isAtomic(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+uint8_t l_Lean_Name_isAnonymous(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+uint8_t x_2; 
+x_2 = 1;
+return x_2;
+}
+else
+{
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
+}
+}
+}
+lean_object* l_Lean_Name_isAnonymous___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Name_isAnonymous(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;

@@ -97,7 +97,7 @@ lean_object* l___private_Init_Lean_WHNF_3__toCtorIfLit___closed__5;
 lean_object* l_Lean_WHNF_reduceRec___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Expr_2__mkAppRangeAux___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
-lean_object* lean_instantiate_lparams(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_instantiateLevelParams(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
 lean_object* l_Lean_WHNF_whnfCore___main___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_WHNF_10__whnfCoreUnstuck___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1081,7 +1081,6 @@ if (lean_obj_tag(x_10) == 0)
 lean_object* x_11; lean_object* x_12; 
 lean_dec(x_9);
 lean_dec(x_7);
-lean_dec(x_3);
 lean_dec(x_1);
 x_11 = lean_box(0);
 x_12 = lean_apply_1(x_2, x_11);
@@ -1119,7 +1118,6 @@ lean_dec(x_23);
 lean_dec(x_20);
 lean_dec(x_13);
 lean_dec(x_7);
-lean_dec(x_3);
 lean_dec(x_1);
 x_26 = lean_box(0);
 x_27 = lean_apply_1(x_2, x_26);
@@ -1131,7 +1129,8 @@ lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean
 lean_dec(x_2);
 x_28 = lean_ctor_get(x_13, 2);
 lean_inc(x_28);
-x_29 = lean_instantiate_lparams(x_28, x_23, x_3);
+x_29 = l_Lean_Expr_instantiateLevelParams(x_28, x_23, x_3);
+lean_dec(x_23);
 x_30 = lean_ctor_get(x_1, 2);
 lean_inc(x_30);
 x_31 = lean_ctor_get(x_1, 4);
@@ -1315,6 +1314,7 @@ lean_dec(x_8);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
+lean_dec(x_3);
 return x_9;
 }
 }

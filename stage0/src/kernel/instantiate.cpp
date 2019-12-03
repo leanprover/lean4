@@ -233,10 +233,6 @@ expr instantiate_lparams(expr const & e, names const & lps, levels const & ls) {
         });
 }
 
-extern "C" object * lean_instantiate_lparams(b_obj_arg e, b_obj_arg lps, b_obj_arg ls) {
-    return instantiate_lparams(TO_REF(expr, e), TO_REF(names, lps), TO_REF(levels, ls)).steal();
-}
-
 class instantiate_univ_cache {
     typedef std::tuple<constant_info, levels, expr> entry;
     unsigned                     m_capacity;

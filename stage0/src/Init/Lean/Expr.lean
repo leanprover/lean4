@@ -160,12 +160,15 @@ Expr.mkDataCore h looseBVarRange hasFVar hasExprMVar hasLevelMVar hasLevelParam 
 
 open Expr
 
+abbrev MVarId := Name
+abbrev FVarId := Name
+
 /- We use the `E` suffix (short for `Expr`) to avoid collision with keywords.
    We considered using «...», but it is too inconvenient to use. -/
 inductive Expr
 | bvar    : Nat → Data → Expr                       -- bound variables
-| fvar    : Name → Data → Expr                      -- free variables
-| mvar    : Name → Data → Expr                      -- meta variables
+| fvar    : FVarId → Data → Expr                    -- free variables
+| mvar    : MVarId → Data → Expr                    -- meta variables
 | sort    : Level → Data → Expr                     -- Sort
 | const   : Name → List Level → Data → Expr         -- constants
 | app     : Expr → Expr → Data → Expr               -- application
@@ -261,10 +264,10 @@ Expr.bvar idx $ mkData (mixHash 7 $ hash idx) (idx+1)
 def mkSort (lvl : Level) : Expr :=
 Expr.sort lvl $ mkData (mixHash 11 $ hash lvl) 0 false false lvl.hasMVar lvl.hasParam
 
-def mkFVar (fvarId : Name) : Expr :=
+def mkFVar (fvarId : FVarId) : Expr :=
 Expr.fvar fvarId $ mkData (mixHash 13 $ hash fvarId) 0 true
 
-def mkMVar (fvarId : Name) : Expr :=
+def mkMVar (fvarId : MVarId) : Expr :=
 Expr.mvar fvarId $ mkData (mixHash 17 $ hash fvarId) 0 false true
 
 def mkMData (d : MData) (e : Expr) : Expr :=
@@ -309,12 +312,13 @@ Expr.letE x t v b $ mkDataForLet (mixHash 41 $ mixHash (hash t) $ mixHash (hash 
   (t.hasLevelParam || v.hasLevelParam || b.hasLevelParam)
   nonDep
 
+-- TODO: delete
 def mkLocal (x u : Name) (t : Expr) (bi : BinderInfo) : Expr :=
 Expr.localE x u t $ mkDataForBinder (mixHash 43 $ hash t) t.looseBVarRange true t.hasExprMVar t.hasLevelMVar t.hasLevelParam bi
 
 @[export lean_expr_mk_bvar] def mkBVarEx : Nat → Expr := mkBVar
-@[export lean_expr_mk_fvar] def mkFVarEx : Name → Expr := mkFVar
-@[export lean_expr_mk_mvar] def mkMVarEx : Name → Expr := mkMVar
+@[export lean_expr_mk_fvar] def mkFVarEx : FVarId → Expr := mkFVar
+@[export lean_expr_mk_mvar] def mkMVarEx : MVarId → Expr := mkMVar
 @[export lean_expr_mk_sort] def mkSortEx : Level → Expr := mkSort
 @[export lean_expr_mk_const] def mkConstEx (c : Name) (lvls : List Level) : Expr := mkConst c lvls
 @[export lean_expr_mk_app] def mkAppEx : Expr → Expr → Expr := mkApp
@@ -507,11 +511,11 @@ def bvarIdx! : Expr → Nat
 | bvar idx _ => idx
 | _          => panic! "bvar expected"
 
-def fvarId! : Expr → Name
+def fvarId! : Expr → FVarId
 | fvar n _ => n
 | _        => panic! "fvar expected"
 
-def mvarId! : Expr → Name
+def mvarId! : Expr → MVarId
 | mvar n _ => n
 | _        => panic! "mvar expected"
 
@@ -569,9 +573,6 @@ constant abstract (e : @& Expr) (xs : @& Array Expr) : Expr := arbitrary _
 /-- Similar to `abstract`, but consider only the first `min n xs.size` entries in `xs`. -/
 @[extern "lean_expr_abstract_range"]
 constant abstractRange (e : @& Expr) (n : @& Nat) (xs : @& Array Expr) : Expr := arbitrary _
-
-@[extern "lean_instantiate_lparams"]
-constant instantiateLevelParams (e : Expr) (paramNames : List Name) (lvls : List Level) : Expr := arbitrary _
 
 instance : HasToString Expr :=
 ⟨Expr.dbgToString⟩
@@ -675,12 +676,37 @@ private def etaExpandedAux : Expr → Nat → Option Expr
 | lam _ _ b _, n => etaExpandedAux b (n+1)
 | e,           n => etaExpandedBody e n 0
 
-/- If `e` is of the form `(fun x₁ ... xₙ => f x₁ ... xₙ)` and `f` does not contain `x₁`, ..., `xₙ`,
-   then return `some f`. Otherwise, return `none`.
+/--
+  If `e` is of the form `(fun x₁ ... xₙ => f x₁ ... xₙ)` and `f` does not contain `x₁`, ..., `xₙ`,
+  then return `some f`. Otherwise, return `none`.
 
-   It assumes `e` does not have loose bound variables. -/
+  It assumes `e` does not have loose bound variables.
+
+  Remark: `ₙ` may be 0 -/
 def etaExpanded? (e : Expr) : Option Expr :=
 etaExpandedAux e 0
+
+/-- Similar to `etaExpanded?`, but only succeeds if `ₙ ≥ 1`. -/
+def etaExpandedStrict? : Expr → Option Expr
+| lam _ _ b _ => etaExpandedAux b 1
+| _           => none
+
+@[specialize] private partial def hasAnyFVarAux (p : FVarId → Bool) : Expr → Bool
+| e => if !e.hasFVar then false else
+  match e with
+  | Expr.forallE _ d b _   => hasAnyFVarAux d || hasAnyFVarAux b
+  | Expr.lam _ d b _       => hasAnyFVarAux d || hasAnyFVarAux b
+  | Expr.mdata _ e _       => hasAnyFVarAux e
+  | Expr.letE _ t v b _    => hasAnyFVarAux t || hasAnyFVarAux v || hasAnyFVarAux b
+  | Expr.app f a _         => hasAnyFVarAux f || hasAnyFVarAux a
+  | Expr.proj _ _ e _      => hasAnyFVarAux e
+  | Expr.localE _ _ _ _    => unreachable!
+  | e@(Expr.fvar fvarId _) => p fvarId
+  | e                      => false
+
+/-- Return true iff `e` contains a free variable which statisfies `p`. -/
+@[inline] def hasAnyFVar (e : Expr) (p : FVarId → Bool) : Bool :=
+hasAnyFVarAux p e
 
 /- The update functions here are defined using C code. They will try to avoid
    allocating new values using pointer equality.
@@ -780,6 +806,50 @@ match e with
 def updateFn : Expr → Expr → Expr
 | e@(app f a _), g => e.updateApp (updateFn f g) a rfl
 | _,             g => g
+
+/- Instantiate level parameters -/
+
+namespace InstantiateLevelParams
+
+@[inline] def visit (f : Expr → Expr) (e : Expr) : Expr :=
+if e.hasLevelParam then f e else e
+
+@[specialize] partial def instantiate (s : Name → Option Level) : Expr → Expr
+| e@(lam n d b _)     => e.updateLambdaE! (visit instantiate d) (visit instantiate b)
+| e@(forallE n d b _) => e.updateForallE! (visit instantiate d) (visit instantiate b)
+| e@(letE n t v b _)  => e.updateLet! (visit instantiate t) (visit instantiate v) (visit instantiate b)
+| e@(app f a _)       => e.updateApp (visit instantiate f) (visit instantiate a) rfl
+| e@(proj _ _ s _)    => e.updateProj (visit instantiate s) rfl
+| e@(mdata _ b _)     => e.updateMData (visit instantiate b) rfl
+| e@(const _ us _)    => e.updateConst (us.map (fun u => u.instantiateParams s)) rfl
+| e@(sort u _)        => e.updateSort (u.instantiateParams s) rfl
+| localE _ _ _ _      => unreachable!
+| e => e
+
+end InstantiateLevelParams
+
+@[inline] def instantiateLevelParamsCore (s : Name → Option Level) (e : Expr) : Expr :=
+if e.hasLevelParam then InstantiateLevelParams.instantiate s e else e
+
+private def getParamSubst : List Name → List Level → Name → Option Level
+| p::ps, u::us, p' => if p == p' then some u else getParamSubst ps us p'
+| _,     _,     _  => none
+
+def instantiateLevelParams (e : Expr) (paramNames : List Name) (lvls : List Level) : Expr :=
+instantiateLevelParamsCore (getParamSubst paramNames lvls) e
+
+private partial def getParamSubstArray (ps : Array Name) (us : Array Level) (p' : Name) : Nat → Option Level
+| i =>
+  if h : i < ps.size then
+    let p := ps.get ⟨i, h⟩;
+    if h : i < us.size then
+      let u := us.get ⟨i, h⟩;
+      if p == p' then some u else getParamSubstArray (i+1)
+    else none
+  else none
+
+def instantiateLevelParamsArray (e : Expr) (paramNames : Array Name) (lvls : Array Level) : Expr :=
+instantiateLevelParamsCore (fun p => getParamSubstArray paramNames lvls p 0) e
 
 end Expr
 end Lean

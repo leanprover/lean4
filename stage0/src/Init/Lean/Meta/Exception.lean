@@ -19,19 +19,21 @@ inductive Bug
 
 inductive Exception
 | unknownConst         (constName : Name) (ctx : ExceptionContext)
-| unknownFVar          (fvarId : Name) (ctx : ExceptionContext)
-| unknownExprMVar      (mvarId : Name) (ctx : ExceptionContext)
-| unknownLevelMVar     (mvarId : Name) (ctx : ExceptionContext)
+| unknownFVar          (fvarId : FVarId) (ctx : ExceptionContext)
+| unknownExprMVar      (mvarId : MVarId) (ctx : ExceptionContext)
+| unknownLevelMVar     (mvarId : MVarId) (ctx : ExceptionContext)
 | unexpectedBVar       (bvarIdx : Nat)
 | functionExpected     (f a : Expr) (ctx : ExceptionContext)
 | typeExpected         (type : Expr) (ctx : ExceptionContext)
 | incorrectNumOfLevels (constName : Name) (constLvls : List Level) (ctx : ExceptionContext)
 | invalidProjection    (structName : Name) (idx : Nat) (s : Expr) (ctx : ExceptionContext)
 | revertFailure        (toRevert : Array Expr) (decl : LocalDecl) (ctx : ExceptionContext)
-| readOnlyMVar         (mvarId : Name) (ctx : ExceptionContext)
-| isDefEqStuck         (t s : Expr) (ctx : ExceptionContext)
-| letTypeMismatch      (fvarId : Name) (ctx : ExceptionContext)
+| readOnlyMVar         (mvarId : MVarId) (ctx : ExceptionContext)
+| isLevelDefEqStuck    (u v : Level) (ctx : ExceptionContext)
+| isExprDefEqStuck     (t s : Expr) (ctx : ExceptionContext)
+| letTypeMismatch      (fvarId : FVarId) (ctx : ExceptionContext)
 | appTypeMismatch      (f a : Expr) (ctx : ExceptionContext)
+| notInstance          (e : Expr) (ctx : ExceptionContext)
 | bug                  (b : Bug) (ctx : ExceptionContext)
 | other                (msg : String)
 
@@ -51,9 +53,11 @@ def toStr : Exception → String
 | invalidProjection _ _ _ _     => "invalid projection"
 | revertFailure _ _ _           => "revert failure"
 | readOnlyMVar _ _              => "try to assign read only metavariable"
-| isDefEqStuck _ _ _            => "isDefEq is stuck"
+| isLevelDefEqStuck _ _ _       => "isDefEq is stuck"
+| isExprDefEqStuck _ _ _        => "isDefEq is stuck"
 | letTypeMismatch _ _           => "type mismatch at let-expression"
 | appTypeMismatch _ _ _         => "application type mismatch"
+| notInstance _ _               => "type class instance expected"
 | bug _ _                       => "bug"
 | other s                       => s
 
@@ -74,9 +78,11 @@ def toMessageData : Exception → MessageData
 | invalidProjection s i e ctx     => mkCtx ctx $ `invalidProjection ++ " " ++ mkProj s i e
 | revertFailure xs decl ctx       => mkCtx ctx $ `revertFailure -- TODO improve
 | readOnlyMVar mvarId ctx         => mkCtx ctx $ `readOnlyMVar ++ " " ++ mkMVar mvarId
-| isDefEqStuck t s ctx            => mkCtx ctx $ `isDefEqStuck ++ " " ++ t ++ " =?= " ++ s
+| isLevelDefEqStuck u v ctx       => mkCtx ctx $ `isLevelDefEqStuck ++ " " ++ u ++ " =?= " ++ v
+| isExprDefEqStuck t s ctx        => mkCtx ctx $ `isExprDefEqStuck ++ " " ++ t ++ " =?= " ++ s
 | letTypeMismatch fvarId ctx      => mkCtx ctx $ `letTypeMismatch ++ " " ++ mkFVar fvarId
 | appTypeMismatch f a ctx         => mkCtx ctx $ `appTypeMismatch ++ " " ++ mkApp f a
+| notInstance i ctx               => mkCtx ctx $ `notInstance ++ " " ++ i
 | bug _ _                         => "internal bug" -- TODO improve
 | other s                         => s
 

@@ -24,8 +24,8 @@ Name.quickLt a.getName b.getName
 end ClassEntry
 
 structure ClassState :=
-(classToInstances : SMap Name (List Name) := SMap.empty) -- Should be just a set
-(hasOutParam      : SMap Name Bool := SMap.empty)        -- TODO: delete
+(classToInstances : SMap Name (List Name) := SMap.empty) -- TODO: delete
+(hasOutParam      : SMap Name Bool := SMap.empty)        -- We should keep only this one
 (instances        : SMap Name Unit := SMap.empty)        -- TODO: delete
 
 namespace ClassState
@@ -83,15 +83,39 @@ match (classExtension.getState env).hasOutParam.find n with
 def isOutParam (e : Expr) : Bool :=
 e.isAppOfArity `outParam 1
 
-def Expr.hasOutParam : Expr → Bool
-| Expr.forallE _ d b _ => isOutParam d || Expr.hasOutParam b
-| _                    => false
+/--
+  Auxiliary function for checking whether a class has `outParam`, and
+  whether they are being correctly used.
+  A regular (i.e., non `outParam`) must not depend on an `outParam`.
+  Reason for this restriction:
+  When performing type class resolution, we replace arguments that
+  are `outParam`s with fresh metavariables. If regular parameters could
+  depend on `outParam`s, then we would also have to replace them with
+  fresh metavariables. Otherwise, the resulting expression could be type
+  incorrect. This transformation would be counterintuitive to users since
+  we would implicitly treat these regular parameters as `outParam`s.
+-/
+private partial def checkOutParam : Nat → Array FVarId → Expr → Except String Bool
+| i, outParams, Expr.forallE _ d b _ =>
+  if isOutParam d then
+    let fvarId    := mkNameNum `_fvar outParams.size;
+    let outParams := outParams.push fvarId;
+    let fvar      := mkFVar fvarId;
+    let b         := b.instantiate1 fvar;
+    checkOutParam (i+1) outParams b
+  else if d.hasAnyFVar (fun fvarId => outParams.contains fvarId) then
+    Except.error $ "invalid class, parameter #" ++ toString i ++ " depends on `outParam`, but it is not an `outParam`"
+  else
+    checkOutParam (i+1) outParams b
+| i, outParams, e => pure (outParams.size > 0)
 
 def addClass (env : Environment) (clsName : Name) : Except String Environment :=
 if isClass env clsName then Except.error ("class has already been declared '" ++ toString clsName ++ "'")
 else match env.find clsName with
   | none      => Except.error ("unknown declaration '" ++ toString clsName ++ "'")
-  | some decl@(ConstantInfo.inductInfo _) => Except.ok (classExtension.addEntry env (ClassEntry.«class» clsName decl.type.hasOutParam))
+  | some decl@(ConstantInfo.inductInfo _) => do
+    b ← checkOutParam 1 #[] decl.type;
+    Except.ok (classExtension.addEntry env (ClassEntry.«class» clsName b))
   | some _    => Except.error ("invalid 'class', declaration '" ++ toString clsName ++ "' must be inductive datatype or structure")
 
 private def consumeNLambdas : Nat → Expr → Option Expr

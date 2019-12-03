@@ -546,20 +546,20 @@ partial def isClassExpensive : Expr → MetaM (Option Name)
   Given `type` of the form `forall xs, A`, execute `k xs A`.
   This combinator will declare local declarations, create free variables for them,
   execute `k` with updated local context, and make sure the cache is restored after executing `k`. -/
-@[inline] def forallTelescope {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+def forallTelescope {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
 do lctx ← getLCtx;
    forallTelescopeReducingAuxAux isClassExpensive false none k lctx #[] 0 type
 
 /--
   Similar to `forallTelescope`, but given `type` of the form `forall xs, A`,
   it reduces `A` and continues bulding the telescope if it is a `forall`. -/
-@[inline] def forallTelescopeReducing {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+def forallTelescopeReducing {α} (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
 forallTelescopeReducingAux isClassExpensive type none k
 
 /--
   Similar to `forallTelescopeReducing`, stops constructing the telescope when
   it reaches size `maxFVars`. -/
-@[inline] def forallBoundedTelescope {α} (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+def forallBoundedTelescope {α} (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α :=
 forallTelescopeReducingAux isClassExpensive type maxFVars? k
 
 def isClass (type : Expr) : MetaM (Option Name) :=
@@ -570,7 +570,7 @@ do c? ← isClassQuick type;
    | LOption.undef  => isClassExpensive type
 
 /-- Similar to `forallTelescopeAuxAux` but for lambda and let expressions. -/
-@[specialize] private partial def lambdaTelescopeAux {α}
+private partial def lambdaTelescopeAux {α}
     (k : Array Expr → Expr → MetaM α)
     : LocalContext → Array Expr → Nat → Expr → MetaM α
 | lctx, fvars, j, Expr.lam n d b c => do
@@ -593,8 +593,7 @@ do c? ← isClassQuick type;
       k fvars e
 
 /-- Similar to `forallTelescope` but for lambda and let expressions. -/
-@[specialize] def lambdaTelescope {α}
-    (e : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+def lambdaTelescope {α} (e : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
 do lctx ← getLCtx;
    lambdaTelescopeAux k lctx #[] 0 e
 
@@ -634,8 +633,7 @@ def forallMetaTelescopeReducing (e : Expr) (maxMVars? : Option Nat := none) : Me
 forallMetaTelescopeReducingAux true maxMVars? #[] #[] 0 e
 
 /-- Similar to `forallMetaTelescopeReducingAux` but for lambda expressions. -/
-@[specialize] private partial def lambdaMetaTelescopeAux
-    (maxMVars? : Option Nat)
+private partial def lambdaMetaTelescopeAux (maxMVars? : Option Nat)
     : Array Expr → Array BinderInfo → Nat → Expr → MetaM (Array Expr × Array BinderInfo × Expr)
 | mvars, bis, j, Expr.lam n d b c => do
   let d     := d.instantiateRevRange j mvars.size mvars;

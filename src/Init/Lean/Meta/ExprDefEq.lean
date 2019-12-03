@@ -29,7 +29,7 @@ if a.isLambda && !b.isLambda then do
   bType ← inferType b;
   bType ← whnfUsingDefault bType;
   match bType with
-  | Expr.forallE n d b c =>
+  | Expr.forallE n d _ c =>
     let b' := Lean.mkLambda n c.binderInfo d (mkApp b (mkBVar 0));
     try $ isExprDefEqAux a b'
   | _ => pure false

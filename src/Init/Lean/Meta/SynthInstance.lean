@@ -173,6 +173,7 @@ forallTelescopeReducing type $ fun _ type => do
     `key` must be `mkTableKey mctx mvarType`. -/
 def newSubgoal (mctx : MetavarContext) (key : Expr) (mvar : Expr) (waiter : Waiter) : SynthM Unit :=
 withMCtx mctx $ do
+  trace `Meta.synthInstance.newSubgoal $ fun _ => key;
   mvarType  ← inferType mvar;
   instances ← getInstances mvarType;
   mctx      ← getMCtx;
@@ -204,6 +205,7 @@ do entry? ← findEntry key;
 def mkTableKeyFor (mctx : MetavarContext) (mvar : Expr) : SynthM Expr :=
 withMCtx mctx $ do
   mvarType ← inferType mvar;
+  mvarType ← instantiateMVars mvarType;
   pure $ mkTableKey mctx mvarType
 
 private partial def mkInstanceTelescopeAux
@@ -334,7 +336,6 @@ do (cNode, answer) ← getNextToResume;
      match result? with
      | none                  => pure ()
      | some (mctx, subgoals) => consume { key := cNode.key, mvar := cNode.mvar, subgoals := subgoals ++ rest, mctx := mctx }
-
 
 def step : SynthM Bool :=
 do s ← get;

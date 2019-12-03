@@ -5,6 +5,9 @@ open Lean.Meta
 def dbgOpt : Options :=
 let opt : Options := {};
 let opt := opt.setBool `trace.Meta true;
+let opt := opt.setBool `trace.Meta.isDefEq.step false;
+let opt := opt.setBool `trace.Meta.isDefEq.delta false;
+let opt := opt.setBool `trace.Meta.isDefEq.assign false;
 -- let opt := opt.setBool `trace.Meta.check false;
 opt
 
@@ -30,11 +33,12 @@ do env ← importModules $ mods.map $ fun m => {module := m};
      s.traceState.traces.forM $ fun m => IO.println $ format m;
      throw (IO.userError (toString err))
 
-def nat  := mkConst `Nat
-def succ := mkConst `Nat.succ
-def add  := mkConst `Nat.add
-def io   := mkConst `IO
-def type := mkSort levelOne
+def nat   := mkConst `Nat
+def boolE := mkConst `Bool
+def succ  := mkConst `Nat.succ
+def add   := mkConst `Nat.add
+def io    := mkConst `IO
+def type  := mkSort levelOne
 
 def tst1 : MetaM Unit :=
 do print "----- tst1 -----";
@@ -382,6 +386,18 @@ do print "----- tst16 -----";
    pure ()
 
 #eval run [`Init.Control.State] tst16
+
+def tst17 : MetaM Unit :=
+do print "----- tst17 -----";
+   prod ← mkProd nat nat;
+   prod ← mkProd boolE prod;
+   inst ← mkHasToString prod;
+   print inst;
+   (some r) ← synthInstance inst | throw $ Exception.other "failed `HasToString (Bool × (Nat × Nat))`";
+   print r;
+   pure ()
+
+#eval run [`Init.Control.State] tst17
 
 #exit
 

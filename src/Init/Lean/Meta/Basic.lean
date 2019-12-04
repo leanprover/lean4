@@ -13,6 +13,7 @@ import Init.Lean.ReducibilityAttrs
 import Init.Lean.Util.Trace
 import Init.Lean.Meta.Exception
 import Init.Lean.Meta.DiscrTreeTypes
+import Init.Lean.Eval
 
 /-
 This module provides four (mutually dependent) goodies that are needed for building the elaborator and tactic frameworks.
@@ -744,6 +745,16 @@ do mvarDecl ← getMVarDecl mvarId;
 do mctx' ← getMCtx;
    modify $ fun s => { mctx := mctx, .. s };
    finally x (modify $ fun s => { mctx := mctx', .. s })
+
+instance MetaHasEval {α} [MetaHasEval α] : MetaHasEval (MetaM α) :=
+⟨fun env opts x => do
+   match x { config := { opts := opts } } { env := env } with
+   | EStateM.Result.ok a s    => do
+     s.traceState.traces.forM $ fun m => IO.println $ format m;
+     MetaHasEval.eval s.env opts a
+   | EStateM.Result.error err s => do
+     s.traceState.traces.forM $ fun m => IO.println $ format m;
+     throw (IO.userError (toString err))⟩
 
 end Meta
 end Lean

@@ -302,10 +302,12 @@ withMCtx mctx $ tryResolveCore mvar inst
 /--
   Assign a precomputed answer to `mvar`.
   If it succeeds, the result it a new updated metavariable context and a new list of subgoals. -/
-def tryAnswer (mctx : MetavarContext) (mvar : Expr) (answer : Answer) : SynthM (Option (MetavarContext × List Expr)) :=
+def tryAnswer (mctx : MetavarContext) (mvar : Expr) (answer : Answer) : SynthM (Option MetavarContext) :=
 withMCtx mctx $ do
   (_, _, val) ← openAbstractMVarsResult answer;
-  tryResolveCore mvar val
+  condM (isDefEq mvar val)
+    (do mctx ← getMCtx; pure $ some mctx)
+    (pure none)
 
 /-- Move waiters that are waiting for the given answer to the resume stack. -/
 def wakeUp (answer : Answer) : Waiter → SynthM Unit
@@ -393,8 +395,8 @@ do (cNode, answer) ← getNextToResume;
    | mvar::rest => do
      result? ← tryAnswer cNode.mctx mvar answer;
      match result? with
-     | none                  => pure ()
-     | some (mctx, subgoals) => consume { key := cNode.key, mvar := cNode.mvar, subgoals := subgoals ++ rest, mctx := mctx }
+     | none      => pure ()
+     | some mctx => consume { key := cNode.key, mvar := cNode.mvar, subgoals := rest, mctx := mctx }
 
 def step : SynthM Bool :=
 do s ← get;
@@ -463,7 +465,7 @@ do (us, r) ← us.foldlM
        else
          pure (u::r.1, r.2))
      ([], #[]);
-    pure (us.reverse, r)
+   pure (us.reverse, r)
 
 private partial def preprocessArgs (ys : Array Expr) : Nat → Array Expr → Array (Expr × Expr) → MetaM (Array Expr × Array (Expr × Expr))
 | i, args, r => do

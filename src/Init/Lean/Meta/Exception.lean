@@ -34,6 +34,7 @@ inductive Exception
 | letTypeMismatch      (fvarId : FVarId) (ctx : ExceptionContext)
 | appTypeMismatch      (f a : Expr) (ctx : ExceptionContext)
 | notInstance          (e : Expr) (ctx : ExceptionContext)
+| appBuilder           (op : Name) (args : Array Expr) (ctx : ExceptionContext)
 | bug                  (b : Bug) (ctx : ExceptionContext)
 | other                (msg : String)
 
@@ -58,6 +59,7 @@ def toStr : Exception → String
 | letTypeMismatch _ _           => "type mismatch at let-expression"
 | appTypeMismatch _ _ _         => "application type mismatch"
 | notInstance _ _               => "type class instance expected"
+| appBuilder _ _ _              => "application builder failure"
 | bug _ _                       => "bug"
 | other s                       => s
 
@@ -83,6 +85,7 @@ def toMessageData : Exception → MessageData
 | letTypeMismatch fvarId ctx      => mkCtx ctx $ `letTypeMismatch ++ " " ++ mkFVar fvarId
 | appTypeMismatch f a ctx         => mkCtx ctx $ `appTypeMismatch ++ " " ++ mkApp f a
 | notInstance i ctx               => mkCtx ctx $ `notInstance ++ " " ++ i
+| appBuilder op args ctx          => mkCtx ctx $ `appBuilder ++ " " ++ op ++ " " ++ args
 | bug _ _                         => "internal bug" -- TODO improve
 | other s                         => s
 

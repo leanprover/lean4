@@ -586,12 +586,18 @@ end Expr
 def mkCAppN (n : Name) (args : Array Expr) : Expr :=
 mkAppN (mkConst n) args
 
-def mkAppB (f a b : Expr) :=
-mkApp (mkApp f a) b
+def mkAppB (f a b : Expr) := mkApp (mkApp f a) b
+def mkApp2 (f a b : Expr) := mkAppB f a b
+def mkApp3 (f a b c : Expr) := mkApp (mkAppB f a b) c
+def mkApp4 (f a b c d : Expr) := mkAppB (mkAppB f a b) c d
+def mkApp5 (f a b c d e : Expr) := mkApp (mkApp4 f a b c d) e
+def mkApp6 (f a b c d e₁ e₂ : Expr) := mkAppB (mkApp4 f a b c d) e₁ e₂
+def mkApp7 (f a b c d e₁ e₂ e₃ : Expr) := mkApp3 (mkApp4 f a b c d) e₁ e₂ e₃
+def mkApp8 (f a b c d e₁ e₂ e₃ e₄ : Expr) := mkApp4 (mkApp4 f a b c d) e₁ e₂ e₃ e₄
+def mkApp9 (f a b c d e₁ e₂ e₃ e₄ e₅ : Expr) := mkApp5 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅
+def mkApp10 (f a b c d e₁ e₂ e₃ e₄ e₅ e₆ : Expr) := mkApp6 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅ e₆
 
-def mkCAppB (n : Name) (a b : Expr) :=
-mkAppB (mkConst n) a b
-
+def mkCAppB (n : Name) (a b : Expr) := mkAppB (mkConst n) a b
 def mkDecIsTrue (pred proof : Expr) :=
 mkAppB (mkConst `Decidable.isTrue) pred proof
 

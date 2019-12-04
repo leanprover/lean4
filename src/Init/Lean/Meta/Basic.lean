@@ -680,6 +680,8 @@ do mvarId ← mkFreshId;
 def whnfUsingDefault : Expr → MetaM Expr :=
 fun e => usingTransparency TransparencyMode.default $ whnf e
 
+abbrev whnfD := whnfUsingDefault
+
 /-- Execute `x` using approximate unification. -/
 @[inline] def approxDefEq {α} (x : MetaM α) : MetaM α :=
 adaptReader (fun (ctx : Context) => { config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true, .. ctx.config }, .. ctx })
@@ -691,7 +693,7 @@ do c? ← isClass fvarType;
    | none   => k fvar
    | some c => withNewLocalInstance c fvar $ k fvar
 
-@[inline] def withLocalDecl {α} (n : Name) (type : Expr) (bi : BinderInfo) (k : Expr → MetaM α) : MetaM α :=
+def withLocalDecl {α} (n : Name) (type : Expr) (bi : BinderInfo) (k : Expr → MetaM α) : MetaM α :=
 do fvarId ← mkFreshId;
    ctx ← read;
    let lctx := ctx.lctx.mkLocalDecl fvarId n type bi;
@@ -699,7 +701,10 @@ do fvarId ← mkFreshId;
    adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
      withNewFVar fvar type k
 
-@[inline] def withLetDecl {α} (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) : MetaM α :=
+def withLocalDeclD {α} (n : Name) (type : Expr) (k : Expr → MetaM α) : MetaM α :=
+withLocalDecl n type BinderInfo.default k
+
+def withLetDecl {α} (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) : MetaM α :=
 do fvarId ← mkFreshId;
    ctx ← read;
    let lctx := ctx.lctx.mkLetDecl fvarId n type val;

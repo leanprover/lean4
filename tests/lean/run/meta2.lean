@@ -106,20 +106,6 @@ do aType ← inferType a;
    check r;
    pure r
 
-def mkEq (a b : Expr) : MetaM Expr :=
-do aType ← inferType a;
-   u ← getLevel aType;
-   let r := mkAppN (mkConst `Eq [u]) #[aType, a, b];
-   check r;
-   pure r
-
-def mkEqRefl (a : Expr) : MetaM Expr :=
-do aType ← inferType a;
-   u ← getLevel aType;
-   let r := mkAppN (mkConst `Eq.refl [u]) #[aType, a];
-   check r;
-   pure r
-
 def mkFst (s : Expr) : MetaM Expr :=
 do sType ← inferType s;
    sType ← whnfUsingDefault sType;
@@ -431,3 +417,29 @@ do print "----- tst20 -----";
    pure ()
 
 #eval run [`Init.Control.State] tst20
+
+def tst21 : MetaM Unit :=
+do print "----- tst21 -----";
+   withLocalDeclD `x nat $ fun x => do
+   withLocalDeclD `y nat $ fun y => do
+   withLocalDeclD `z nat $ fun z => do
+   eq₁ ← mkEq x y;
+   eq₂ ← mkEq y z;
+   withLocalDeclD `h₁ eq₁ $ fun h₁ => do
+   withLocalDeclD `h₂ eq₂ $ fun h₂ => do
+   h ← mkEqTrans h₁ h₂;
+   h ← mkEqSymm h;
+   h ← mkCongrArg succ h;
+   h₂ ← mkEqRefl succ;
+   h ← mkCongr h₂ h;
+   t ← inferType h;
+   check h;
+   print h;
+   print t;
+   h ← mkCongrFun h₂ x;
+   t ← inferType h;
+   check h;
+   print t;
+   pure ()
+
+#eval run [`Init.Core] tst21

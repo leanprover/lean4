@@ -69,7 +69,7 @@ do let failed : Unit → MetaM Expr := fun _ => throwEx $ Exception.invalidProje
 
 def getLevel (type : Expr) : MetaM Level :=
 do typeType ← inferType type;
-   typeType ← whnf typeType;
+   typeType ← whnfUsingDefault typeType;
    match typeType with
    | Expr.sort lvl _    => pure lvl
    | Expr.mvar mvarId _ =>

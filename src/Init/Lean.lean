@@ -20,3 +20,4 @@ import Init.Lean.MetavarContext
 import Init.Lean.AuxRecursor
 import Init.Lean.Linter
 import Init.Lean.Meta
+import Init.Lean.Eval

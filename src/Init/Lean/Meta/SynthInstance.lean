@@ -132,8 +132,7 @@ structure TableEntry :=
   `M` to `MetaM`.
 -/
 structure State extends Meta.State :=
-(mainMVarId     : MVarId)
-(nextKeyIdx     : Nat                           := 0)
+(result         : Option Expr                   := none)
 (generatorStack : Array GeneratorNode           := #[])
 (resumeStack    : Array (ConsumerNode × Answer) := #[])
 (tableEntries   : HashMap Expr TableEntry       := {})
@@ -313,12 +312,7 @@ withMCtx mctx $ do
 def wakeUp (answer : Answer) : Waiter → SynthM Unit
 | Waiter.root               =>
   if answer.paramNames.isEmpty && answer.numMVars == 0 then do
-    s ← get;
-    let mvar := s.mainMVarId;
-    condM (isDefEq (mkMVar mvar) answer.expr)
-      (pure ())
-      (do trace `Meta.synthInstance $ fun _ => "fail to assign main metavariable " ++ answer.expr;
-          pure ())
+    modify $ fun s => { result := answer.expr, .. s }
   else do
     (_, _, answerExpr) ← openAbstractMVarsResult answer;
     trace `Meta.synthInstance $ fun _ => "answer contains metavariables " ++ answerExpr;
@@ -404,19 +398,19 @@ do s ← get;
    else if !s.generatorStack.isEmpty then do generate; pure true
    else pure false
 
+def getResult : SynthM (Option Expr) :=
+do s ← get; pure s.result
+
 partial def synth : Nat → SynthM (Option Expr)
 | 0   => do
   trace `Meta.synthInstance $ fun _ => fmt "synthInstance is out of fule";
   pure none
 | n+1 => do
   condM step
-    (do s ← get;
-        val? ← getExprMVarAssignment s.mainMVarId;
-        match val? with
-        | none     => synth n
-        | some val => do
-          val ← instantiateMVars val;
-          pure (some val))
+    (do result? ← getResult;
+        match result? with
+        | none        => synth n
+        | some result => pure result)
     (do trace `Meta.synthInstance $ fun _ => fmt "failed";
         pure none)
 
@@ -426,9 +420,10 @@ traceCtx `Meta.synthInstance $ do
    mvar ← mkFreshExprMVar type;
    mctx ← getMCtx;
    let key := mkTableKey mctx type;
-   adaptState' (fun (s : Meta.State) => { State . mainMVarId := mvar.mvarId!, .. s }) (fun (s : State) => s.toState) $ do
+   adaptState' (fun (s : Meta.State) => { State . .. s }) (fun (s : State) => s.toState) $ do {
      newSubgoal mctx key mvar Waiter.root;
      synth fuel
+   }
 
 end SynthInstance
 

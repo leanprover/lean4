@@ -116,7 +116,6 @@ name const & get_list_to_array_name();
 name const & get_match_failed_name();
 name const & get_monad_name();
 name const & get_monad_fail_name();
-name const & get_lean_name_name();
 name const & get_lean_name_anonymous_name();
 name const & get_lean_name_num_name();
 name const & get_lean_name_str_name();

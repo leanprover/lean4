@@ -45,7 +45,7 @@ Eq.refl
 Eq.subst
 Eq.symm
 Eq.trans
-eqOfHeq
+eqOfHEq
 eqTrueIntro
 eqFalseIntro
 eqSelfIffTrue
@@ -74,10 +74,10 @@ HasWellFounded.wf
 HasZero
 HasZero.zero
 HasCoeT
-Heq
-Heq.refl
-Heq.symm
-Heq.trans
+HEq
+HEq.refl
+HEq.symm
+HEq.trans
 heqOfEq
 hugeFuel
 id
@@ -109,7 +109,6 @@ List.toArray
 matchFailed
 Monad
 MonadFail
-Lean.Name
 Lean.Name.anonymous
 Lean.Name.num
 Lean.Name.str

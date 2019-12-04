@@ -114,7 +114,6 @@ name const * g_list_to_array = nullptr;
 name const * g_match_failed = nullptr;
 name const * g_monad = nullptr;
 name const * g_monad_fail = nullptr;
-name const * g_lean_name = nullptr;
 name const * g_lean_name_anonymous = nullptr;
 name const * g_lean_name_num = nullptr;
 name const * g_lean_name_str = nullptr;
@@ -239,7 +238,7 @@ void initialize_constants() {
     g_eq_subst = new name{"Eq", "subst"};
     g_eq_symm = new name{"Eq", "symm"};
     g_eq_trans = new name{"Eq", "trans"};
-    g_eq_of_heq = new name{"eqOfHeq"};
+    g_eq_of_heq = new name{"eqOfHEq"};
     g_eq_true_intro = new name{"eqTrueIntro"};
     g_eq_false_intro = new name{"eqFalseIntro"};
     g_eq_self_iff_true = new name{"eqSelfIffTrue"};
@@ -268,10 +267,10 @@ void initialize_constants() {
     g_has_zero = new name{"HasZero"};
     g_has_zero_zero = new name{"HasZero", "zero"};
     g_has_coe_t = new name{"HasCoeT"};
-    g_heq = new name{"Heq"};
-    g_heq_refl = new name{"Heq", "refl"};
-    g_heq_symm = new name{"Heq", "symm"};
-    g_heq_trans = new name{"Heq", "trans"};
+    g_heq = new name{"HEq"};
+    g_heq_refl = new name{"HEq", "refl"};
+    g_heq_symm = new name{"HEq", "symm"};
+    g_heq_trans = new name{"HEq", "trans"};
     g_heq_of_eq = new name{"heqOfEq"};
     g_huge_fuel = new name{"hugeFuel"};
     g_id = new name{"id"};
@@ -303,7 +302,6 @@ void initialize_constants() {
     g_match_failed = new name{"matchFailed"};
     g_monad = new name{"Monad"};
     g_monad_fail = new name{"MonadFail"};
-    g_lean_name = new name{"Lean", "Name"};
     g_lean_name_anonymous = new name{"Lean", "Name", "anonymous"};
     g_lean_name_num = new name{"Lean", "Name", "num"};
     g_lean_name_str = new name{"Lean", "Name", "str"};
@@ -493,7 +491,6 @@ void finalize_constants() {
     delete g_match_failed;
     delete g_monad;
     delete g_monad_fail;
-    delete g_lean_name;
     delete g_lean_name_anonymous;
     delete g_lean_name_num;
     delete g_lean_name_str;
@@ -682,7 +679,6 @@ name const & get_list_to_array_name() { return *g_list_to_array; }
 name const & get_match_failed_name() { return *g_match_failed; }
 name const & get_monad_name() { return *g_monad; }
 name const & get_monad_fail_name() { return *g_monad_fail; }
-name const & get_lean_name_name() { return *g_lean_name; }
 name const & get_lean_name_anonymous_name() { return *g_lean_name_anonymous; }
 name const & get_lean_name_num_name() { return *g_lean_name_num; }
 name const & get_lean_name_str_name() { return *g_lean_name_str; }

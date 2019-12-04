@@ -233,23 +233,28 @@ withMCtx mctx $ do
   mvarType ← instantiateMVars mvarType;
   pure $ mkTableKey mctx mvarType
 
-/- See `getSubgoals` -/
+/- See `getSubgoals`
+
+   We use the parameter `j` to reduce the number of `instantiate*` invocations.
+   It is the same approach we use at `forallTelescope` and `lambdaTelescope`.
+   Given `getSubgoalsAux args j subgoals instVal type`,
+   we have that `type.instantiateRevRange j args.size args` does not have loose bound variables. -/
 private partial def getSubgoalsAux (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array Expr)
     : Array Expr → Nat → List Expr → Expr → Expr → MetaM (List Expr × Expr × Expr)
-| subst, j, subgoals, instVal, Expr.forallE n d b c => do
-  let d     := d.instantiateRevRange j subst.size subst;
-  type ← mkForall xs d;
-  mvar ← mkFreshExprMVarAt lctx localInsts type;
-  let arg := mkAppN mvar xs;
-  let instVal := mkApp instVal arg;
+| args, j, subgoals, instVal, Expr.forallE n d b c => do
+  let d        := d.instantiateRevRange j args.size args;
+  mvarType ← mkForall xs d;
+  mvar     ← mkFreshExprMVarAt lctx localInsts mvarType;
+  let arg      := mkAppN mvar xs;
+  let instVal  := mkApp instVal arg;
   let subgoals := if c.binderInfo.isInstImplicit then mvar::subgoals else subgoals;
-  let subst    := subst.push (mkAppN mvar xs);
-  getSubgoalsAux subst j subgoals instVal b
-| subst, j, subgoals, instVal, type => do
-  let type := type.instantiateRevRange j subst.size subst;
+  let args     := args.push (mkAppN mvar xs);
+  getSubgoalsAux args j subgoals instVal b
+| args, j, subgoals, instVal, type => do
+  let type := type.instantiateRevRange j args.size args;
   type ← whnf type;
   if type.isForall then
-    getSubgoalsAux subst subst.size subgoals instVal type
+    getSubgoalsAux args args.size subgoals instVal type
   else
     pure (subgoals, instVal, type)
 

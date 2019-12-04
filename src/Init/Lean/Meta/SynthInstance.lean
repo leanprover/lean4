@@ -319,31 +319,32 @@ def wakeUp (answer : Answer) : Waiter → SynthM Unit
     modify $ fun s => { result := answer.expr, .. s }
   else do
     (_, _, answerExpr) ← openAbstractMVarsResult answer;
-    trace `Meta.synthInstance $ fun _ => "answer contains metavariables " ++ answerExpr;
+    trace `Meta.synthInstance $ fun _ => "skip answer containing metavariables " ++ answerExpr;
     pure ()
 | Waiter.consumerNode cNode => modify $ fun s => { resumeStack := s.resumeStack.push (cNode, answer), .. s }
 
-/-- Add a new answer to the goal associated with the given key. -/
-def newAnswer (key : Expr) (answer : Answer) : SynthM Unit :=
-do entry ← getEntry key;
-   if entry.answers.contains answer then pure ()
-   else if entry.waiters.any Waiter.isRoot then pure ()
+/--
+  Create a new answer after `cNode` resolved all subgoals.
+  That is, `cNode.subgoals == []`.
+  And then, store it in the tabled entries map, and wakeup waiters. -/
+def addAnswer (cNode : ConsumerNode) : SynthM Unit :=
+do answer ← withMCtx cNode.mctx $ do {
+     val ← instantiateMVars cNode.mvar;
+     abstractMVars val -- assignable metavariables become parameters
+   };
+   -- Remark: `answer` does not contain assignable or assigned metavariables.
+   let key := cNode.key;
+   entry ← getEntry key;
+   if entry.answers.contains answer then pure () -- if answer was already found, then do nothing
    else
      let newEntry := { answers := entry.answers.push answer, .. entry };
      modify $ fun s => { tableEntries := s.tableEntries.insert key newEntry, .. s };
      entry.waiters.forM (wakeUp answer)
 
-def mkAnswer (cNode : ConsumerNode) : SynthM Answer :=
-withMCtx cNode.mctx $ do
-  val ← instantiateMVars cNode.mvar;
-  abstractMVars val
-
 /-- Process the next subgoal in the given consumer node. -/
 def consume (cNode : ConsumerNode) : SynthM Unit :=
 match cNode.subgoals with
-| [] => do
-  answer ← mkAnswer cNode;
-  newAnswer cNode.key answer
+| []      => addAnswer cNode
 | mvar::_ => do
    let waiter := Waiter.consumerNode cNode;
    key ← mkTableKeyFor cNode.mctx mvar;
@@ -368,14 +369,17 @@ do gNode ← getTop;
    if gNode.currInstanceIdx == 0  then
      modify $ fun s => { generatorStack := s.generatorStack.pop, .. s }
    else do
+     let key  := gNode.key;
      let idx  := gNode.currInstanceIdx - 1;
-     modifyTop $ fun gNode => { currInstanceIdx := idx, .. gNode };
      let inst := gNode.instances.get! idx;
-     trace `Meta.synthInstance $ fun _ => "try instance " ++ inst;
-     result? ← tryResolve gNode.mctx gNode.mvar inst;
+     let mctx := gNode.mctx;
+     let mvar := gNode.mvar;
+     trace `Meta.synthInstance.generate $ fun _ => "instance " ++ inst;
+     modifyTop $ fun gNode => { currInstanceIdx := idx, .. gNode };
+     result? ← tryResolve mctx mvar inst;
      match result? with
      | none                  => pure ()
-     | some (mctx, subgoals) => consume { key := gNode.key, mvar := gNode.mvar, subgoals := subgoals, mctx := mctx }
+     | some (mctx, subgoals) => consume { key := key, mvar := mvar, subgoals := subgoals, mctx := mctx }
 
 def getNextToResume : SynthM (ConsumerNode × Answer) :=
 do s ← get;

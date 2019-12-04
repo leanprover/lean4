@@ -167,7 +167,7 @@ type decl_type(decl const & b) { return cnstr_get_type(b, 2); }
 fn_body const & decl_fun_body(decl const & b) { lean_assert(decl_tag(b) == decl_kind::Fun); return cnstr_get_ref_t<fn_body>(b, 3); }
 
 extern "C" object * lean_ir_find_env_decl(object * env, object * n);
-option_ref<decl> find_env_decl(environment const & env, name const & n) {
+option_ref<decl> find_ir_decl(environment const & env, name const & n) {
     return option_ref<decl>(lean_ir_find_env_decl(env.to_obj_arg(), n.to_obj_arg()));
 }
 
@@ -656,7 +656,7 @@ class interpreter {
 
     /** \brief Retrieve Lean declaration from environment. */
     decl get_decl(name const & fn) {
-        option_ref<decl> d = find_env_decl(m_env, fn);
+        option_ref<decl> d = find_ir_decl(m_env, fn);
         if (!d) {
             throw exception(sstream() << "unknown declaration '" << fn << "'");
         }

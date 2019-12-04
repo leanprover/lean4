@@ -46,11 +46,11 @@ def Waiter.isRoot : Waiter → Bool
 
   We implement this mapping using a `HashMap` where the keys are
   normalized expressions. That is, we replace assignable metavariables
-  with auxiliary free variables of the form `_synthKey.<idx>`. We do
+  with auxiliary free variables of the form `_tc.<idx>`. We do
   not declare these free variables in any local context, and we should
   view them as "normalized names" for metavariables. For example, the
   term `f ?m ?m ?n` is normalized as
-  `f _synthKey.0 _synthKey.0 _synthKey.1`.
+  `f _tc.0 _tc.0 _tc.1`.
 
   This approach is structural, and we may visit the same goal more
   than once if the different occurrences are just definitionally
@@ -62,10 +62,9 @@ def Waiter.isRoot : Waiter → Bool
 namespace  MkTableKey
 
 structure State :=
-(nextLevelIdx : Nat := 0)
-(nextExprIdx  : Nat := 0)
-(lmap : HashMap MVarId Level := {})
-(emap : HashMap MVarId Expr := {})
+(nextIdx : Nat := 0)
+(lmap    : HashMap MVarId Level := {})
+(emap    : HashMap MVarId Expr := {})
 
 abbrev M := ReaderT MetavarContext (StateM State)
 
@@ -83,8 +82,8 @@ partial def normLevel : Level → M Level
       match s.lmap.find mvarId with
       | some u' => pure u'
       | none    => do
-        let u' := mkLevelParam $ mkNameNum `_synthKey s.nextLevelIdx;
-        modify $ fun s => { nextLevelIdx := s.nextLevelIdx + 1, lmap := s.lmap.insert mvarId u', .. s };
+        let u' := mkLevelParam $ mkNameNum `_tc s.nextIdx;
+        modify $ fun s => { nextIdx := s.nextIdx + 1, lmap := s.lmap.insert mvarId u', .. s };
         pure u'
   | u                   => pure u
 
@@ -107,8 +106,8 @@ partial def normExpr : Expr → M Expr
       match s.emap.find mvarId with
       | some e' => pure e'
       | none    => do
-        let e' := mkFVar $ mkNameNum `_synthKey s.nextExprIdx;
-        modify $ fun s => { nextExprIdx := s.nextExprIdx + 1, emap := s.emap.insert mvarId e', .. s };
+        let e' := mkFVar $ mkNameNum `_tc s.nextIdx;
+        modify $ fun s => { nextIdx := s.nextIdx + 1, emap := s.emap.insert mvarId e', .. s };
         pure e'
   | _ => pure e
 

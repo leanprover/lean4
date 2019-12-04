@@ -23,15 +23,8 @@ do v? ← getExprMVarAssignment m.mvarId!;
    | some v => pure v
    | none   => throw $ Exception.other "metavariable is not assigned"
 
-def run (mods : List Name) (x : MetaM Unit) (opts : Options := dbgOpt) : IO Unit :=
-do env ← importModules $ mods.map $ fun m => {module := m};
-   match x { config := { opts := opts } } { env := env } with
-   | EStateM.Result.ok _ s    => do
-     s.traceState.traces.forM $ fun m => IO.println $ format m;
-     pure ()
-   | EStateM.Result.error err s => do
-     s.traceState.traces.forM $ fun m => IO.println $ format m;
-     throw (IO.userError (toString err))
+def run (x : MetaM Unit) (opts : Options := dbgOpt) : MetaM Unit :=
+adaptReader (fun (ctx : Context) => { ctx with config := { ctx.config with opts := opts }}) x
 
 def nat   := mkConst `Nat
 def boolE := mkConst `Bool
@@ -47,7 +40,7 @@ do print "----- tst1 -----";
    check $ isExprDefEq mvar (mkNatLit 10);
    pure ()
 
-#eval run [`Init.Data.Nat] tst1
+#eval run tst1
 
 def tst2 : MetaM Unit :=
 do print "----- tst2 -----";
@@ -56,7 +49,7 @@ do print "----- tst2 -----";
    check $ isExprDefEq mvar (mkNatLit 10);
    pure ()
 
-#eval run [`Init.Data.Nat] tst2
+#eval run tst2
 
 def tst3 : MetaM Unit :=
 do print "----- tst3 -----";
@@ -71,7 +64,7 @@ do print "----- tst3 -----";
    print v;
    pure ()
 
-#eval run [`Init.Data.Nat] tst3
+#eval run tst3
 
 def tst4 : MetaM Unit :=
 do print "----- tst4 -----";
@@ -88,7 +81,7 @@ do print "----- tst4 -----";
    };
    pure ()
 
-#eval run [`Init.Data.Nat] tst4
+#eval run tst4
 
 def mkAppC (c : Name) (xs : Array Expr) : MetaM Expr :=
 do r ← mkAppM c xs;
@@ -119,7 +112,7 @@ do print "----- tst5 -----";
    check $ isExprDefEq y x;
    print y
 
-#eval run [`Init.Data.Nat] tst5
+#eval run tst5
 
 def tst6 : MetaM Unit :=
 do print "----- tst6 -----";
@@ -144,7 +137,7 @@ do print "----- tst6 -----";
      print v;
      pure ()
 
-#eval run [`Init.Data.Nat] tst6
+#eval run tst6
 
 def mkArrow (d b : Expr) : Expr := mkForall `_ BinderInfo.default d b
 
@@ -163,7 +156,7 @@ do print "----- tst7 -----";
      check $ pure $ v == x;
      pure ()
 
-#eval run [`Init.System.IO] tst7
+#eval run tst7
 
 def tst8 : MetaM Unit :=
 do print "----- tst8 -----";
@@ -177,7 +170,7 @@ do print "----- tst8 -----";
    print t;
    pure ()
 
-#eval run [`Init.Core] tst8
+#eval run tst8
 
 def tst9 : MetaM Unit :=
 do print "----- tst9 -----";
@@ -186,7 +179,7 @@ do print "----- tst9 -----";
    print (toString $ Lean.isReducible env `HasAdd.add);
    pure ()
 
-#eval run [`Init.Core] tst9
+#eval run tst9
 
 def tst10 : MetaM Unit :=
 do print "----- tst10 -----";
@@ -199,7 +192,7 @@ do print "----- tst10 -----";
    print t;
    pure ()
 
-#eval run [`Init.Core] tst10
+#eval run tst10
 
 def tst11 : MetaM Unit :=
 do print "----- tst11 -----";
@@ -218,7 +211,7 @@ do print "----- tst11 -----";
    };
    pure ()
 
-#eval run [`Init.Core] tst11
+#eval run tst11
 
 def tst12 : MetaM Unit :=
 do print "----- tst12 -----";
@@ -234,7 +227,7 @@ do print "----- tst12 -----";
    };
    pure ()
 
-#eval run [`Init.Core] tst12
+#eval run tst12
 
 def tst13 : MetaM Unit :=
 do print "----- tst13 -----";
@@ -265,7 +258,7 @@ do print "----- tst14 -----";
    print insts;
    pure ()
 
-#eval run [`Init.Control.State] tst14
+#eval run tst14
 
 def tst15 : MetaM Unit :=
 do print "----- tst15 -----";
@@ -274,7 +267,7 @@ do print "----- tst15 -----";
    print r;
    pure ()
 
-#eval run [`Init.Control.State] tst15
+#eval run tst15
 
 def tst16 : MetaM Unit :=
 do print "----- tst16 -----";
@@ -285,7 +278,7 @@ do print "----- tst16 -----";
    print r;
    pure ()
 
-#eval run [`Init.Control.State] tst16
+#eval run tst16
 
 def tst17 : MetaM Unit :=
 do print "----- tst17 -----";
@@ -297,7 +290,7 @@ do print "----- tst17 -----";
    print r;
    pure ()
 
-#eval run [`Init.Control.State] tst17
+#eval run tst17
 
 def tst18 : MetaM Unit :=
 do print "----- tst18 -----";
@@ -306,7 +299,7 @@ do print "----- tst18 -----";
    print r;
    pure ()
 
-#eval run [`Init.Control.State] tst18
+#eval run tst18
 
 def tst19 : MetaM Unit :=
 do print "----- tst19 -----";
@@ -318,7 +311,7 @@ do print "----- tst19 -----";
    print r;
    pure ()
 
-#eval run [`Init.Control.State] tst19
+#eval run tst19
 
 def tst20 : MetaM Unit :=
 do print "----- tst20 -----";
@@ -330,7 +323,7 @@ do print "----- tst20 -----";
    print r;
    pure ()
 
-#eval run [`Init.Control.State] tst20
+#eval run tst20
 
 def tst21 : MetaM Unit :=
 do print "----- tst21 -----";
@@ -356,7 +349,7 @@ do print "----- tst21 -----";
    print t;
    pure ()
 
-#eval run [`Init.Core] tst21
+#eval run tst21
 
 def tst22 : MetaM Unit :=
 do print "----- tst22 -----";
@@ -370,4 +363,4 @@ do print "----- tst22 -----";
    print t;
    pure ()
 
-#eval run [`Init.Data.ToString] tst22
+#eval run tst22

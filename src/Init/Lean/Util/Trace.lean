@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Leonardo de Moura
 -/
 prelude
-import Init.Lean.Message
+import Init.Lean.Util.Message
 universe u
 
 namespace Lean

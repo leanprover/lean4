@@ -8,8 +8,8 @@ import Init.System.IO
 import Init.Util
 import Init.Data.ByteArray
 import Init.Lean.Data.SMap
+import Init.Lean.Util.Path
 import Init.Lean.Declaration
-import Init.Lean.Path
 import Init.Lean.LocalContext
 
 namespace Lean

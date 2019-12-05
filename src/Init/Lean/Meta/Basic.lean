@@ -8,9 +8,9 @@ import Init.Control.Reader
 import Init.Lean.Data.LOption
 import Init.Lean.Data.NameGenerator
 import Init.Lean.Environment
-import Init.Lean.Trace
 import Init.Lean.Class
 import Init.Lean.ReducibilityAttrs
+import Init.Lean.Util.Trace
 import Init.Lean.Meta.Exception
 import Init.Lean.Meta.DiscrTreeTypes
 

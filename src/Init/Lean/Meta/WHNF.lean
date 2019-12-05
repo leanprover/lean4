@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Lean.AuxRecursor
-import Init.Lean.WHNF
+import Init.Lean.Util.WHNF
 import Init.Lean.Meta.Basic
 import Init.Lean.Meta.LevelDefEq
 

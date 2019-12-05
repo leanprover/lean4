@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Lean.Path
 import Init.Lean.Compiler
 import Init.Lean.Environment
 import Init.Lean.Modifiers
@@ -18,7 +17,6 @@ import Init.Lean.EqnCompiler
 import Init.Lean.Class
 import Init.Lean.LocalContext
 import Init.Lean.MetavarContext
-import Init.Lean.Trace
 import Init.Lean.AuxRecursor
 import Init.Lean.Linter
 import Init.Lean.Meta

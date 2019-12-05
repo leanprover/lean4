@@ -357,3 +357,14 @@ do print "----- tst22 -----";
    pure ()
 
 #eval tst22
+
+def test1 : Nat := (fun x y => x + y) 0 1
+
+def tst23 : MetaM Unit :=
+do print "----- tst22 -----";
+   cinfo ← getConstInfo `test1;
+   let v := cinfo.value?.get!;
+   print v;
+   print v.headBeta
+
+#eval tst23

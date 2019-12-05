@@ -34,7 +34,8 @@ inductive Exception
 | letTypeMismatch      (fvarId : FVarId) (ctx : ExceptionContext)
 | appTypeMismatch      (f a : Expr) (ctx : ExceptionContext)
 | notInstance          (e : Expr) (ctx : ExceptionContext)
-| appBuilder           (op : Name) (args : Array Expr) (ctx : ExceptionContext)
+| appBuilder           (op : Name) (msg : String) (args : Array Expr) (ctx : ExceptionContext)
+| synthInstance        (inst : Expr) (ctx : ExceptionContext)
 | bug                  (b : Bug) (ctx : ExceptionContext)
 | other                (msg : String)
 
@@ -59,7 +60,8 @@ def toStr : Exception → String
 | letTypeMismatch _ _           => "type mismatch at let-expression"
 | appTypeMismatch _ _ _         => "application type mismatch"
 | notInstance _ _               => "type class instance expected"
-| appBuilder _ _ _              => "application builder failure"
+| appBuilder _ _ _ _            => "application builder failure"
+| synthInstance _ _             => "type class instance synthesis failed"
 | bug _ _                       => "bug"
 | other s                       => s
 
@@ -85,7 +87,8 @@ def toMessageData : Exception → MessageData
 | letTypeMismatch fvarId ctx      => mkCtx ctx $ `letTypeMismatch ++ " " ++ mkFVar fvarId
 | appTypeMismatch f a ctx         => mkCtx ctx $ `appTypeMismatch ++ " " ++ mkApp f a
 | notInstance i ctx               => mkCtx ctx $ `notInstance ++ " " ++ i
-| appBuilder op args ctx          => mkCtx ctx $ `appBuilder ++ " " ++ op ++ " " ++ args
+| appBuilder op msg args ctx      => mkCtx ctx $ `appBuilder ++ " " ++ op ++ " " ++ args ++ " " ++ msg
+| synthInstance inst ctx          => mkCtx ctx $ `synthInstance ++ " " ++ inst
 | bug _ _                         => "internal bug" -- TODO improve
 | other s                         => s
 

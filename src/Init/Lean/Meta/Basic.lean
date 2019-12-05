@@ -340,6 +340,12 @@ getConstAux constName true
 @[inline] def getConstNoEx (constName : Name) : MetaM (Option ConstantInfo) :=
 getConstAux constName false
 
+def getConstInfo (constName : Name) : MetaM ConstantInfo :=
+do env ← getEnv;
+   match env.find constName with
+   | some info => pure info
+   | none      => throwEx $ Exception.unknownConst constName
+
 def getLocalDecl (fvarId : FVarId) : MetaM LocalDecl :=
 do lctx ← getLCtx;
    match lctx.find fvarId with

@@ -356,7 +356,7 @@ do print "----- tst14 -----";
 def tst15 : MetaM Unit :=
 do print "----- tst15 -----";
    inst ← mkHasAdd nat;
-   (some r) ← synthInstance inst | throw $ Exception.other "failed `HasAdd Nat`";
+   r ← synthInstance inst;
    print r;
    pure ()
 
@@ -367,7 +367,7 @@ do print "----- tst16 -----";
    prod ← mkProd nat nat;
    inst ← mkHasToString prod;
    print inst;
-   (some r) ← synthInstance inst | throw $ Exception.other "failed `HasToString (Nat × Nat)`";
+   r ← synthInstance inst;
    print r;
    pure ()
 
@@ -379,7 +379,7 @@ do print "----- tst17 -----";
    prod ← mkProd boolE prod;
    inst ← mkHasToString prod;
    print inst;
-   (some r) ← synthInstance inst | throw $ Exception.other "failed `HasToString (Bool × (Nat × Nat))`";
+   r ← synthInstance inst;
    print r;
    pure ()
 
@@ -388,7 +388,7 @@ do print "----- tst17 -----";
 def tst18 : MetaM Unit :=
 do print "----- tst18 -----";
    decEqNat ← mkDecEq nat;
-   (some r) ← synthInstance decEqNat | throw $ Exception.other "failed `DecidableEq Nat`";
+   r ← synthInstance decEqNat;
    print r;
    pure ()
 
@@ -400,7 +400,7 @@ do print "----- tst19 -----";
    print stateM;
    monad ← mkMonad stateM;
    print monad;
-   (some r) ← synthInstance monad | throw $ Exception.other "failed `Monad (StateM Nat)`";
+   r ← synthInstance monad;
    print r;
    pure ()
 
@@ -412,7 +412,7 @@ do print "----- tst20 -----";
    print stateM;
    monadState ← mkMonadState nat stateM;
    print monadState;
-   (some r) ← synthInstance monadState | throw $ Exception.other "failed `MonadState Nat (StateM Nat)`";
+   r ← synthInstance monadState;
    print r;
    pure ()
 
@@ -443,3 +443,17 @@ do print "----- tst21 -----";
    pure ()
 
 #eval run [`Init.Core] tst21
+
+def tst22 : MetaM Unit :=
+do print "----- tst22 -----";
+   withLocalDeclD `x nat $ fun x => do
+   withLocalDeclD `y nat $ fun y => do
+   t ← mkAppM `HasAdd.add #[x, y];
+   print t;
+   t ← mkAppM `HasAdd.add #[y, x];
+   print t;
+   t ← mkAppM `HasToString.toString #[x];
+   print t;
+   pure ()
+
+#eval run [`Init.Data.ToString] tst22

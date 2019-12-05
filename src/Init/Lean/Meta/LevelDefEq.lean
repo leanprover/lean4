@@ -199,5 +199,10 @@ traceCtx `Meta.isDefEq $ do
 
 abbrev isDefEq := @isExprDefEq
 
+@[init] private def regTraceClasses : IO Unit :=
+do registerTraceClass `Meta.isLevelDefEq;
+   registerTraceClass `Meta.isLevelDefEq.step;
+   registerTraceClass `Meta.isLevelDefEq.postponed
+
 end Meta
 end Lean

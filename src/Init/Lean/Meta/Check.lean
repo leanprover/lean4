@@ -88,5 +88,9 @@ catch
     trace `Meta.typeError $ fun _ => ex.toMessageData;
     pure false)
 
+@[init] private def regTraceClasses : IO Unit :=
+do registerTraceClass `Meta.check;
+   registerTraceClass `Meta.typeError
+
 end Meta
 end Lean

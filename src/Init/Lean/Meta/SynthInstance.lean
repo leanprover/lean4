@@ -554,5 +554,12 @@ do result? ← synthInstance? type fuel;
    | some result => pure result
    | none        => throwEx $ Exception.synthInstance type
 
+@[init] private def regTraceClasses : IO Unit :=
+do registerTraceClass `Meta.synthInstance;
+   registerTraceClass `Meta.synthInstance.globalInstances;
+   registerTraceClass `Meta.synthInstance.newSubgoal;
+   registerTraceClass `Meta.synthInstance.tryResolve;
+   registerTraceClass `Meta.synthInstance.generate
+
 end Meta
 end Lean

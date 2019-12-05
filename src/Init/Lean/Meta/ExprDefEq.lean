@@ -1008,5 +1008,12 @@ partial def isExprDefEqAuxImpl : Expr → Expr → MetaM Bool
 @[init] def setIsExprDefEqAuxRef : IO Unit :=
 isExprDefEqAuxRef.set isExprDefEqAuxImpl
 
+@[init] private def regTraceClasses : IO Unit :=
+do registerTraceClass `Meta.isDefEq;
+   registerTraceClass `Meta.isDefEq.foApprox;
+   registerTraceClass `Meta.isDefEq.delta;
+   registerTraceClass `Meta.isDefEq.step;
+   registerTraceClass `Meta.isDefEq.assign
+
 end Meta
 end Lean

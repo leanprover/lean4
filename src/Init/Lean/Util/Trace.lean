@@ -164,4 +164,7 @@ Recipe for adding tracing support for a monad `M`.
     by executing `mysimp`.
 -/
 
+def registerTraceClass (traceClassName : Name) : IO Unit :=
+registerOption (`trace ++ traceClassName) { group := "trace", defValue := false, descr := "enable/disable tracing for the given module and submodules" }
+
 end Lean

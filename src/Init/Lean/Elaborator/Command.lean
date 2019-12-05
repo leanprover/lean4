@@ -190,14 +190,6 @@ fun n => do
   runIO (IO.println (toString pos ++ " " ++ toString resolvedIds));
   pure ()
 
-@[builtinCommandElab «preterm»] def elabPreTerm : CommandElab :=
-fun n => do
-  let s := n.getArg 1;
-  runIO (IO.println s);
-  pre ← toPreTerm (s.lift Expr);
-  runIO (IO.println pre.dbgToString);
-  pure ()
-
 @[builtinCommandElab «elab»] def elabElab : CommandElab :=
 fun n => do
   let s := n.getArg 1;

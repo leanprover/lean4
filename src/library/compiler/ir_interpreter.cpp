@@ -664,15 +664,6 @@ class interpreter {
         return d.get().value();
     }
 
-    /** \brief Retrieve Lean definition from environment. */
-    decl get_fdecl(name const & fn) {
-        decl d = get_decl(fn);
-        if (decl_tag(d) == decl_kind::Extern) {
-            throw exception(sstream() << "unexpected external declaration '" << fn << "'");
-        }
-        return d;
-    }
-
     /** \brief Evaluate nullary function ("constant"). */
     value load(name const & fn, type t) {
         constant_cache_entry const * cached = m_constant_cache.find(fn);
@@ -853,8 +844,9 @@ public:
     }
 
     uint32 run_main(int argc, char * argv[]) {
-        decl d = get_fdecl("main");
+        decl d = get_decl("main");
         array_ref<param> const & params = decl_params(d);
+        buffer<object *> args;
         if (params.size() == 2) { // List String -> IO UInt32
             lean_object * in = lean_box(0);
             int i = argc;
@@ -865,15 +857,13 @@ public:
                 lean_ctor_set(n, 1, in);
                 in = n;
             }
-            m_arg_stack.push_back(in);
+            args.push_back(in);
         } else { // IO UInt32
             lean_assert(params.size() == 1);
         }
         object * w = io_mk_world();
-        m_arg_stack.push_back(w);
-        push_frame(d, 0);
-        w = eval_body(decl_fun_body(d)).m_obj;
-        pop_frame(w, type::Object);
+        args.push_back(w);
+        w = call_boxed("main", args.size(), &args[0]);
         if (io_result_is_ok(w)) {
             // NOTE: in an awesome hack, `IO Unit` works just as well because `pure 0` and `pure ()` use the same
             // representation

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Parser.Parser
-// Imports: Init.Lean.Data.Trie Init.Lean.Data.Position Init.Lean.Syntax Init.Lean.ToExpr Init.Lean.Message Init.Lean.Environment Init.Lean.Attributes Init.Lean.Parser.Identifier Init.Lean.Compiler.InitAttr
+// Imports: Init.Lean.Data.Trie Init.Lean.Data.Position Init.Lean.Syntax Init.Lean.ToExpr Init.Lean.Environment Init.Lean.Attributes Init.Lean.Util.Message Init.Lean.Parser.Identifier Init.Lean.Compiler.InitAttr
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -29407,9 +29407,9 @@ lean_object* initialize_Init_Lean_Data_Trie(lean_object*);
 lean_object* initialize_Init_Lean_Data_Position(lean_object*);
 lean_object* initialize_Init_Lean_Syntax(lean_object*);
 lean_object* initialize_Init_Lean_ToExpr(lean_object*);
-lean_object* initialize_Init_Lean_Message(lean_object*);
 lean_object* initialize_Init_Lean_Environment(lean_object*);
 lean_object* initialize_Init_Lean_Attributes(lean_object*);
+lean_object* initialize_Init_Lean_Util_Message(lean_object*);
 lean_object* initialize_Init_Lean_Parser_Identifier(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_InitAttr(lean_object*);
 static bool _G_initialized = false;
@@ -29429,13 +29429,13 @@ lean_dec_ref(res);
 res = initialize_Init_Lean_ToExpr(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Lean_Message(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Lean_Environment(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Attributes(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Lean_Util_Message(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Parser_Identifier(lean_io_mk_world());

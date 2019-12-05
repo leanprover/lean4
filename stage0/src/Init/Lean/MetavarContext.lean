@@ -8,8 +8,8 @@ import Init.Control.Reader
 import Init.Data.Nat
 import Init.Data.Option
 import Init.Lean.Data.NameGenerator
+import Init.Lean.Util.MonadCache
 import Init.Lean.LocalContext
-import Init.Lean.MonadCache
 
 namespace Lean
 

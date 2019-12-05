@@ -36,6 +36,7 @@ lean_object* l___private_Init_Lean_Meta_SynthInstance_4__preprocess___closed__1;
 lean_object* l_Lean_Meta_SynthInstance_tryAnswer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_try___at___private_Init_Lean_Meta_SynthInstance_8__resolveReplacements___spec__3___lambda__2(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Option_toLOption___rarg(lean_object*);
+lean_object* l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_foldlM___main___at_Lean_Meta_SynthInstance_MkTableKey_normExpr___main___spec__7(lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_Meta_SynthInstance_addAnswer___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_Exception_toMessageData___closed__51;
@@ -53,7 +54,6 @@ lean_object* l_Lean_Meta_SynthInstance_mkTableKey___closed__3;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l___private_Init_Lean_Meta_SynthInstance_2__getOptions___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_tryResolveCore___lambda__1___closed__2;
-lean_object* l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_SynthM_inhabited___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_getResult(lean_object*);
 size_t l_USize_sub(size_t, size_t);
@@ -75,7 +75,6 @@ lean_object* l_Lean_Meta_SynthInstance_SynthM_inhabited(lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_mkTableKey___closed__1;
 lean_object* l_mkHashMap___at_Lean_Meta_SynthInstance_mkTableKey___spec__2(lean_object*);
 lean_object* l_Lean_Meta_instantiateLevelMVars(lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Init_Lean_Trace_3__checkTraceOptionAux___main(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_MkTableKey_normExpr___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_Meta_SynthInstance_addAnswer___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_tryResolveCore___lambda__1___closed__3;
@@ -103,6 +102,7 @@ lean_object* l_Lean_Meta_SynthInstance_main(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Meta_SynthInstance_findEntry(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__2;
 lean_object* l_List_mapM___main___at_Lean_Meta_SynthInstance_MkTableKey_normExpr___main___spec__9(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_FileMap_ofString___closed__1;
 lean_object* l_Lean_Meta_SynthInstance_getInstances___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_newSubgoal___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -119,7 +119,6 @@ lean_object* l___private_Init_Lean_Meta_SynthInstance_1__getTraceState___rarg(le
 lean_object* l_Lean_Meta_SynthInstance_wakeUp(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at___private_Init_Lean_Meta_SynthInstance_8__resolveReplacements___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_Meta_SynthInstance_addAnswer___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_mkOptionalNode___rarg___closed__1;
 uint8_t l_Lean_Meta_SynthInstance_Waiter_isRoot(lean_object*);
 lean_object* l_List_foldlM___main___at___private_Init_Lean_Meta_SynthInstance_5__preprocessLevels___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -141,6 +140,7 @@ lean_object* l_Lean_Meta_SynthInstance_MkTableKey_normExpr___boxed(lean_object*,
 lean_object* l_Lean_MonadTracerAdapter_addTrace___at_Lean_Meta_SynthInstance_traceCore___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_expand___at_Lean_Meta_SynthInstance_MkTableKey_normLevel___main___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_Util_Trace_2__getResetTraces___at___private_Init_Lean_Meta_LevelDefEq_9__processPostponedStep___spec__6___rarg(lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_generate___closed__3;
 lean_object* l_HashMapImp_insert___at_Lean_Meta_SynthInstance_MkTableKey_normExpr___main___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_Meta_SynthInstance_MkTableKey_normLevel___main___spec__2(lean_object*, lean_object*);
@@ -176,7 +176,6 @@ lean_object* l_Lean_Meta_SynthInstance_GeneratorNode_inhabited;
 lean_object* l_Array_back___at_Lean_Meta_SynthInstance_getNextToResume___spec__1___boxed(lean_object*);
 lean_object* l_Lean_Meta_getGlobalInstances___rarg(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_synthInstance_x3f___spec__7(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_synth___main___closed__4;
 extern lean_object* l_PersistentArray_empty___closed__3;
 lean_object* l_Array_back___at_Lean_Meta_SynthInstance_getNextToResume___spec__1___closed__1;
@@ -218,6 +217,7 @@ lean_object* lean_expr_update_proj(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_trace(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_main___closed__4;
 size_t l_USize_land(size_t, size_t);
+lean_object* l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_replace___main___at_Lean_Meta_SynthInstance_MkTableKey_normLevel___main___spec__8(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_getResult___rarg(lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_tracer___closed__4;
@@ -240,7 +240,6 @@ lean_object* l_Lean_Meta_synthInstance(lean_object*, lean_object*, lean_object*,
 lean_object* l_Lean_Meta_trySynthInstance(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_hasAssignableMVar(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_SynthInstance_7__preprocessOutParam___lambda__2___closed__1;
-lean_object* l___private_Init_Lean_Trace_1__addNode___at___private_Init_Lean_Meta_LevelDefEq_9__processPostponedStep___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_synth___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_back___at_Lean_Meta_SynthInstance_getTop___spec__1___boxed(lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_tracer___closed__3;
@@ -276,6 +275,7 @@ lean_object* l_Lean_Meta_SynthInstance_synth___main___closed__2;
 lean_object* l_Lean_Meta_SynthInstance_wakeUp___closed__4;
 lean_object* l_Lean_Meta_SynthInstance_tracer;
 lean_object* l_Lean_Meta_SynthInstance_mkTableKey(lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_Util_Trace_1__addNode___at___private_Init_Lean_Meta_LevelDefEq_9__processPostponedStep___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_SynthInstance_3__getSubgoalsAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_getNextToResume(lean_object*);
@@ -308,14 +308,15 @@ lean_object* l_Lean_Meta_SynthInstance_mkTableKeyFor(lean_object*, lean_object*,
 lean_object* lean_array_pop(lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_MkTableKey_normLevel___main___closed__1;
 lean_object* lean_mk_array(lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_SynthInstance_7__preprocessOutParam___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_Trace_2__getResetTraces___at___private_Init_Lean_Meta_LevelDefEq_9__processPostponedStep___spec__6___rarg(lean_object*);
 lean_object* l___private_Init_Lean_Meta_SynthInstance_3__getSubgoalsAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_moveEntries___main___at_Lean_Meta_SynthInstance_MkTableKey_normLevel___main___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_tryResolveCore(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_Meta_SynthInstance_MkTableKey_normLevel___main___spec__2___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_AbstractMVarsResult_inhabited;
 lean_object* l_Lean_Meta_SynthInstance_getInstances___closed__1;
+uint8_t l___private_Init_Lean_Util_Trace_3__checkTraceOptionAux___main(lean_object*, lean_object*);
 uint8_t l_Lean_MetavarContext_isExprAssignable(lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_Meta_SynthInstance_MkTableKey_normExpr___main___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshLevelMVar___rarg(lean_object*);
@@ -329,7 +330,6 @@ lean_object* l_PersistentHashMap_findAtAux___main___at_Lean_Meta_synthInstance_x
 lean_object* l_Lean_Meta_try___at___private_Init_Lean_Meta_SynthInstance_8__resolveReplacements___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_Meta_SynthInstance_findEntry___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_consume(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_mkAppN___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2601,7 +2601,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-lean_object* l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
@@ -2611,7 +2611,7 @@ x_6 = l_List_isEmpty___rarg(x_5);
 if (x_6 == 0)
 {
 uint8_t x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = l___private_Init_Lean_Trace_3__checkTraceOptionAux___main(x_5, x_1);
+x_7 = l___private_Init_Lean_Util_Trace_3__checkTraceOptionAux___main(x_5, x_1);
 x_8 = lean_box(x_7);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_8);
@@ -2658,7 +2658,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint
 x_10 = l_Lean_SimpleMonadTracerAdapter_isTracingEnabledFor___rarg___lambda__1___closed__2;
 lean_inc(x_1);
 x_11 = l_Lean_Name_append___main(x_10, x_1);
-x_12 = l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(x_11, x_3, x_4);
+x_12 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(x_11, x_3, x_4);
 lean_dec(x_11);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
@@ -2706,11 +2706,11 @@ return x_24;
 }
 }
 }
-lean_object* l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(x_1, x_2, x_3);
+x_4 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
@@ -4170,7 +4170,7 @@ else
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; uint8_t x_45; 
 x_42 = l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__4;
-x_43 = l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_42, x_3, x_33);
+x_43 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_42, x_3, x_33);
 x_44 = lean_ctor_get(x_43, 0);
 lean_inc(x_44);
 x_45 = lean_unbox(x_44);
@@ -4754,7 +4754,7 @@ else
 {
 lean_object* x_140; lean_object* x_141; lean_object* x_142; uint8_t x_143; 
 x_140 = l_Lean_Meta_SynthInstance_newSubgoal___closed__3;
-x_141 = l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(x_140, x_5, x_138);
+x_141 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(x_140, x_5, x_138);
 x_142 = lean_ctor_get(x_141, 0);
 lean_inc(x_142);
 x_143 = lean_unbox(x_142);
@@ -5054,7 +5054,7 @@ lean_ctor_set(x_91, 1, x_2);
 lean_ctor_set(x_91, 2, x_88);
 lean_ctor_set(x_91, 3, x_86);
 lean_ctor_set(x_91, 4, x_90);
-x_92 = l_Lean_mkOptionalNode___rarg___closed__1;
+x_92 = l_Lean_FileMap_ofString___closed__1;
 x_93 = lean_array_push(x_92, x_4);
 x_94 = l_Array_empty___closed__1;
 x_95 = lean_alloc_ctor(0, 2, 0);
@@ -5195,7 +5195,7 @@ lean_ctor_set(x_121, 1, x_2);
 lean_ctor_set(x_121, 2, x_117);
 lean_ctor_set(x_121, 3, x_115);
 lean_ctor_set(x_121, 4, x_120);
-x_122 = l_Lean_mkOptionalNode___rarg___closed__1;
+x_122 = l_Lean_FileMap_ofString___closed__1;
 x_123 = lean_array_push(x_122, x_4);
 x_124 = l_Array_empty___closed__1;
 x_125 = lean_alloc_ctor(0, 2, 0);
@@ -5328,7 +5328,7 @@ else
 {
 lean_object* x_230; lean_object* x_231; lean_object* x_232; uint8_t x_233; 
 x_230 = l_Lean_Meta_SynthInstance_newSubgoal___closed__3;
-x_231 = l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(x_230, x_5, x_228);
+x_231 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(x_230, x_5, x_228);
 x_232 = lean_ctor_get(x_231, 0);
 lean_inc(x_232);
 x_233 = lean_unbox(x_232);
@@ -5579,7 +5579,7 @@ lean_ctor_set(x_210, 1, x_2);
 lean_ctor_set(x_210, 2, x_206);
 lean_ctor_set(x_210, 3, x_204);
 lean_ctor_set(x_210, 4, x_209);
-x_211 = l_Lean_mkOptionalNode___rarg___closed__1;
+x_211 = l_Lean_FileMap_ofString___closed__1;
 x_212 = lean_array_push(x_211, x_4);
 x_213 = l_Array_empty___closed__1;
 x_214 = lean_alloc_ctor(0, 2, 0);
@@ -6969,7 +6969,7 @@ else
 {
 lean_object* x_226; lean_object* x_227; lean_object* x_228; uint8_t x_229; 
 x_226 = l_Lean_Meta_SynthInstance_tryResolveCore___lambda__1___closed__3;
-x_227 = l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_226, x_7, x_12);
+x_227 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_226, x_7, x_12);
 x_228 = lean_ctor_get(x_227, 0);
 lean_inc(x_228);
 x_229 = lean_unbox(x_228);
@@ -7066,7 +7066,7 @@ else
 lean_object* x_27; lean_object* x_28; lean_object* x_29; uint8_t x_30; 
 lean_free_object(x_18);
 x_27 = l_Lean_Meta_SynthInstance_tryResolveCore___lambda__1___closed__3;
-x_28 = l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_27, x_7, x_22);
+x_28 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_27, x_7, x_22);
 x_29 = lean_ctor_get(x_28, 0);
 lean_inc(x_29);
 x_30 = lean_unbox(x_29);
@@ -7168,7 +7168,7 @@ else
 {
 lean_object* x_56; lean_object* x_57; lean_object* x_58; uint8_t x_59; 
 x_56 = l_Lean_Meta_SynthInstance_tryResolveCore___lambda__1___closed__3;
-x_57 = l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_56, x_7, x_51);
+x_57 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_56, x_7, x_51);
 x_58 = lean_ctor_get(x_57, 0);
 lean_inc(x_58);
 x_59 = lean_unbox(x_58);
@@ -7295,7 +7295,7 @@ else
 lean_object* x_89; lean_object* x_90; lean_object* x_91; uint8_t x_92; 
 lean_free_object(x_80);
 x_89 = l_Lean_Meta_SynthInstance_tryResolveCore___lambda__1___closed__3;
-x_90 = l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_89, x_7, x_84);
+x_90 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_89, x_7, x_84);
 x_91 = lean_ctor_get(x_90, 0);
 lean_inc(x_91);
 x_92 = lean_unbox(x_91);
@@ -7397,7 +7397,7 @@ else
 {
 lean_object* x_118; lean_object* x_119; lean_object* x_120; uint8_t x_121; 
 x_118 = l_Lean_Meta_SynthInstance_tryResolveCore___lambda__1___closed__3;
-x_119 = l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_118, x_7, x_113);
+x_119 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_118, x_7, x_113);
 x_120 = lean_ctor_get(x_119, 0);
 lean_inc(x_120);
 x_121 = lean_unbox(x_120);
@@ -7507,7 +7507,7 @@ else
 lean_object* x_146; lean_object* x_147; lean_object* x_148; uint8_t x_149; 
 lean_free_object(x_80);
 x_146 = l_Lean_Meta_SynthInstance_tryResolveCore___lambda__1___closed__3;
-x_147 = l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_146, x_7, x_139);
+x_147 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_146, x_7, x_139);
 x_148 = lean_ctor_get(x_147, 0);
 lean_inc(x_148);
 x_149 = lean_unbox(x_148);
@@ -7661,7 +7661,7 @@ else
 {
 lean_object* x_187; lean_object* x_188; lean_object* x_189; uint8_t x_190; 
 x_187 = l_Lean_Meta_SynthInstance_tryResolveCore___lambda__1___closed__3;
-x_188 = l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_187, x_7, x_180);
+x_188 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_187, x_7, x_180);
 x_189 = lean_ctor_get(x_188, 0);
 lean_inc(x_189);
 x_190 = lean_unbox(x_189);
@@ -9537,7 +9537,7 @@ else
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_13 = lean_ctor_get(x_7, 1);
 x_14 = l_Lean_Meta_SynthInstance_wakeUp___closed__1;
-x_15 = l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(x_14, x_3, x_6);
+x_15 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(x_14, x_3, x_6);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 x_17 = lean_unbox(x_16);
@@ -11112,7 +11112,7 @@ else
 {
 lean_object* x_144; lean_object* x_145; lean_object* x_146; uint8_t x_147; 
 x_144 = l_Lean_Meta_SynthInstance_generate___closed__3;
-x_145 = l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(x_144, x_1, x_6);
+x_145 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(x_144, x_1, x_6);
 x_146 = lean_ctor_get(x_145, 0);
 lean_inc(x_146);
 x_147 = lean_unbox(x_146);
@@ -11800,7 +11800,7 @@ else
 {
 lean_object* x_239; lean_object* x_240; lean_object* x_241; uint8_t x_242; 
 x_239 = l_Lean_Meta_SynthInstance_generate___closed__3;
-x_240 = l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(x_239, x_1, x_169);
+x_240 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(x_239, x_1, x_169);
 x_241 = lean_ctor_get(x_240, 0);
 lean_inc(x_241);
 x_242 = lean_unbox(x_241);
@@ -12770,7 +12770,7 @@ else
 lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 lean_free_object(x_8);
 x_18 = l_Lean_Meta_SynthInstance_wakeUp___closed__1;
-x_19 = l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(x_18, x_2, x_12);
+x_19 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(x_18, x_2, x_12);
 x_20 = lean_ctor_get(x_19, 0);
 lean_inc(x_20);
 x_21 = lean_unbox(x_20);
@@ -12864,7 +12864,7 @@ else
 {
 lean_object* x_44; lean_object* x_45; lean_object* x_46; uint8_t x_47; 
 x_44 = l_Lean_Meta_SynthInstance_wakeUp___closed__1;
-x_45 = l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(x_44, x_2, x_38);
+x_45 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(x_44, x_2, x_38);
 x_46 = lean_ctor_get(x_45, 0);
 lean_inc(x_46);
 x_47 = lean_unbox(x_46);
@@ -13052,7 +13052,7 @@ else
 {
 lean_object* x_84; lean_object* x_85; lean_object* x_86; uint8_t x_87; 
 x_84 = l_Lean_Meta_SynthInstance_wakeUp___closed__1;
-x_85 = l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(x_84, x_2, x_3);
+x_85 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_SynthInstance_trace___spec__1(x_84, x_2, x_3);
 x_86 = lean_ctor_get(x_85, 0);
 lean_inc(x_86);
 x_87 = lean_unbox(x_86);
@@ -13194,7 +13194,7 @@ else
 {
 lean_object* x_365; lean_object* x_366; lean_object* x_367; lean_object* x_368; uint8_t x_369; 
 x_365 = l_Lean_Meta_SynthInstance_wakeUp___closed__1;
-x_366 = l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_365, x_3, x_4);
+x_366 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_365, x_3, x_4);
 x_367 = lean_ctor_get(x_366, 0);
 lean_inc(x_367);
 x_368 = lean_ctor_get(x_366, 1);
@@ -14203,7 +14203,7 @@ return x_210;
 else
 {
 lean_object* x_255; lean_object* x_256; lean_object* x_257; lean_object* x_258; lean_object* x_343; uint8_t x_344; 
-x_255 = l___private_Init_Lean_Trace_2__getResetTraces___at___private_Init_Lean_Meta_LevelDefEq_9__processPostponedStep___spec__6___rarg(x_6);
+x_255 = l___private_Init_Lean_Util_Trace_2__getResetTraces___at___private_Init_Lean_Meta_LevelDefEq_9__processPostponedStep___spec__6___rarg(x_6);
 x_256 = lean_ctor_get(x_255, 0);
 lean_inc(x_256);
 x_257 = lean_ctor_get(x_255, 1);
@@ -14222,7 +14222,7 @@ else
 {
 lean_object* x_345; lean_object* x_346; lean_object* x_347; uint8_t x_348; 
 x_345 = l_Lean_Meta_SynthInstance_wakeUp___closed__1;
-x_346 = l___private_Init_Lean_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_345, x_3, x_257);
+x_346 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_345, x_3, x_257);
 x_347 = lean_ctor_get(x_346, 0);
 lean_inc(x_347);
 x_348 = lean_unbox(x_347);
@@ -14321,7 +14321,7 @@ x_277 = lean_ctor_get(x_276, 0);
 lean_inc(x_277);
 lean_dec(x_276);
 x_278 = l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__1;
-x_279 = l___private_Init_Lean_Trace_1__addNode___at___private_Init_Lean_Meta_LevelDefEq_9__processPostponedStep___spec__7(x_256, x_278, x_3, x_277);
+x_279 = l___private_Init_Lean_Util_Trace_1__addNode___at___private_Init_Lean_Meta_LevelDefEq_9__processPostponedStep___spec__7(x_256, x_278, x_3, x_277);
 lean_dec(x_3);
 x_280 = !lean_is_exclusive(x_279);
 if (x_280 == 0)
@@ -14356,7 +14356,7 @@ x_286 = lean_ctor_get(x_285, 0);
 lean_inc(x_286);
 lean_dec(x_285);
 x_287 = l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__1;
-x_288 = l___private_Init_Lean_Trace_1__addNode___at___private_Init_Lean_Meta_LevelDefEq_9__processPostponedStep___spec__7(x_256, x_287, x_3, x_286);
+x_288 = l___private_Init_Lean_Util_Trace_1__addNode___at___private_Init_Lean_Meta_LevelDefEq_9__processPostponedStep___spec__7(x_256, x_287, x_3, x_286);
 lean_dec(x_3);
 x_289 = !lean_is_exclusive(x_288);
 if (x_289 == 0)
@@ -14394,7 +14394,7 @@ x_295 = lean_ctor_get(x_294, 0);
 lean_inc(x_295);
 lean_dec(x_294);
 x_296 = l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__1;
-x_297 = l___private_Init_Lean_Trace_1__addNode___at___private_Init_Lean_Meta_LevelDefEq_9__processPostponedStep___spec__7(x_256, x_296, x_3, x_295);
+x_297 = l___private_Init_Lean_Util_Trace_1__addNode___at___private_Init_Lean_Meta_LevelDefEq_9__processPostponedStep___spec__7(x_256, x_296, x_3, x_295);
 lean_dec(x_3);
 x_298 = !lean_is_exclusive(x_297);
 if (x_298 == 0)
@@ -14476,7 +14476,7 @@ x_320 = lean_ctor_get(x_319, 0);
 lean_inc(x_320);
 lean_dec(x_319);
 x_321 = l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__1;
-x_322 = l___private_Init_Lean_Trace_1__addNode___at___private_Init_Lean_Meta_LevelDefEq_9__processPostponedStep___spec__7(x_256, x_321, x_3, x_320);
+x_322 = l___private_Init_Lean_Util_Trace_1__addNode___at___private_Init_Lean_Meta_LevelDefEq_9__processPostponedStep___spec__7(x_256, x_321, x_3, x_320);
 lean_dec(x_3);
 x_323 = lean_ctor_get(x_322, 1);
 lean_inc(x_323);
@@ -14509,7 +14509,7 @@ x_328 = lean_ctor_get(x_327, 0);
 lean_inc(x_328);
 lean_dec(x_327);
 x_329 = l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__1;
-x_330 = l___private_Init_Lean_Trace_1__addNode___at___private_Init_Lean_Meta_LevelDefEq_9__processPostponedStep___spec__7(x_256, x_329, x_3, x_328);
+x_330 = l___private_Init_Lean_Util_Trace_1__addNode___at___private_Init_Lean_Meta_LevelDefEq_9__processPostponedStep___spec__7(x_256, x_329, x_3, x_328);
 lean_dec(x_3);
 x_331 = lean_ctor_get(x_330, 1);
 lean_inc(x_331);
@@ -14545,7 +14545,7 @@ x_336 = lean_ctor_get(x_335, 0);
 lean_inc(x_336);
 lean_dec(x_335);
 x_337 = l_Lean_Meta_SynthInstance_getInstances___lambda__1___closed__1;
-x_338 = l___private_Init_Lean_Trace_1__addNode___at___private_Init_Lean_Meta_LevelDefEq_9__processPostponedStep___spec__7(x_256, x_337, x_3, x_336);
+x_338 = l___private_Init_Lean_Util_Trace_1__addNode___at___private_Init_Lean_Meta_LevelDefEq_9__processPostponedStep___spec__7(x_256, x_337, x_3, x_336);
 lean_dec(x_3);
 x_339 = lean_ctor_get(x_338, 1);
 lean_inc(x_339);

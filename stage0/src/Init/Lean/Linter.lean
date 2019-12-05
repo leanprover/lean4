@@ -6,8 +6,8 @@ Authors: Sebastian Ullrich
 prelude
 import Init.System.IO
 import Init.Lean.Attributes
-import Init.Lean.Message
 import Init.Lean.Syntax
+import Init.Lean.Util.Message
 
 namespace Lean
 

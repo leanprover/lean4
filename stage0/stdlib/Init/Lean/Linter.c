@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Linter
-// Imports: Init.System.IO Init.Lean.Attributes Init.Lean.Message Init.Lean.Syntax
+// Imports: Init.System.IO Init.Lean.Attributes Init.Lean.Syntax Init.Lean.Util.Message
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -75,8 +75,8 @@ return x_12;
 }
 lean_object* initialize_Init_System_IO(lean_object*);
 lean_object* initialize_Init_Lean_Attributes(lean_object*);
-lean_object* initialize_Init_Lean_Message(lean_object*);
 lean_object* initialize_Init_Lean_Syntax(lean_object*);
+lean_object* initialize_Init_Lean_Util_Message(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Linter(lean_object* w) {
 lean_object * res;
@@ -88,10 +88,10 @@ lean_dec_ref(res);
 res = initialize_Init_Lean_Attributes(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Lean_Message(lean_io_mk_world());
+res = initialize_Init_Lean_Syntax(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Lean_Syntax(lean_io_mk_world());
+res = initialize_Init_Lean_Util_Message(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = l_Lean_mkLintersRef(lean_io_mk_world());

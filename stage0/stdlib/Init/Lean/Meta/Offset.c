@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Meta.Offset
-// Imports: Init.Lean.LBool Init.Lean.Meta.InferType
+// Imports: Init.Lean.Data.LBool Init.Lean.Meta.InferType
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,10 +14,10 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Meta_isExprDefEqAux(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkCAppB(lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_evalNat___main___closed__10;
 lean_object* l___private_Init_Lean_Meta_Offset_1__getOffset___main(lean_object*);
+lean_object* l_Lean_Meta_isDefEqOffset___closed__1;
 lean_object* l___private_Init_Lean_Meta_Offset_1__getOffset(lean_object*);
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 lean_object* l_Lean_Meta_evalNat(lean_object*);
@@ -51,6 +51,8 @@ lean_object* l_Lean_Meta_evalNat___main___closed__1;
 lean_object* l_Lean_Meta_evalNat___main___boxed(lean_object*);
 lean_object* l_Lean_mkNatLit(lean_object*);
 lean_object* l___private_Init_Lean_Meta_Offset_2__isOffset(lean_object*);
+lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 extern lean_object* l___private_Init_Lean_Syntax_9__decodeNatLitVal___closed__1;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -1427,6 +1429,16 @@ return x_38;
 }
 }
 }
+lean_object* _init_l_Lean_Meta_isDefEqOffset___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_evalNat___main___closed__12;
+x_3 = l_Lean_mkConst(x_2, x_1);
+return x_3;
+}
+}
 lean_object* l_Lean_Meta_isDefEqOffset(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1728,8 +1740,8 @@ x_81 = lean_nat_sub(x_47, x_78);
 lean_dec(x_78);
 lean_dec(x_47);
 x_82 = l_Lean_mkNatLit(x_81);
-x_83 = l_Lean_Meta_evalNat___main___closed__12;
-x_84 = l_Lean_mkCAppB(x_83, x_46, x_82);
+x_83 = l_Lean_Meta_isDefEqOffset___closed__1;
+x_84 = l_Lean_mkAppB(x_83, x_46, x_82);
 x_85 = l_Lean_Meta_isExprDefEqAux(x_84, x_77, x_3, x_4);
 if (lean_obj_tag(x_85) == 0)
 {
@@ -1794,8 +1806,8 @@ x_101 = lean_nat_sub(x_78, x_47);
 lean_dec(x_47);
 lean_dec(x_78);
 x_102 = l_Lean_mkNatLit(x_101);
-x_103 = l_Lean_Meta_evalNat___main___closed__12;
-x_104 = l_Lean_mkCAppB(x_103, x_77, x_102);
+x_103 = l_Lean_Meta_isDefEqOffset___closed__1;
+x_104 = l_Lean_mkAppB(x_103, x_77, x_102);
 x_105 = l_Lean_Meta_isExprDefEqAux(x_46, x_104, x_3, x_4);
 if (lean_obj_tag(x_105) == 0)
 {
@@ -1920,14 +1932,14 @@ return x_136;
 }
 }
 }
-lean_object* initialize_Init_Lean_LBool(lean_object*);
+lean_object* initialize_Init_Lean_Data_LBool(lean_object*);
 lean_object* initialize_Init_Lean_Meta_InferType(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Meta_Offset(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Lean_LBool(lean_io_mk_world());
+res = initialize_Init_Lean_Data_LBool(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Meta_InferType(lean_io_mk_world());
@@ -1961,6 +1973,8 @@ l_Lean_Meta_evalNat___main___closed__13 = _init_l_Lean_Meta_evalNat___main___clo
 lean_mark_persistent(l_Lean_Meta_evalNat___main___closed__13);
 l_Lean_Meta_evalNat___main___closed__14 = _init_l_Lean_Meta_evalNat___main___closed__14();
 lean_mark_persistent(l_Lean_Meta_evalNat___main___closed__14);
+l_Lean_Meta_isDefEqOffset___closed__1 = _init_l_Lean_Meta_isDefEqOffset___closed__1();
+lean_mark_persistent(l_Lean_Meta_isDefEqOffset___closed__1);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

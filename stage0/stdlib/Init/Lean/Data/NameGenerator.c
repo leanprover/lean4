@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: Init.Lean.NameGenerator
+// Module: Init.Lean.Data.NameGenerator
 // Imports: Init.Lean.Data.Name
 #include "runtime/lean.h"
 #if defined(__clang__)
@@ -162,7 +162,7 @@ return x_17;
 }
 lean_object* initialize_Init_Lean_Data_Name(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Lean_NameGenerator(lean_object* w) {
+lean_object* initialize_Init_Lean_Data_NameGenerator(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;

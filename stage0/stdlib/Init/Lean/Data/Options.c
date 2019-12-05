@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: Init.Lean.Options
+// Module: Init.Lean.Data.Options
 // Imports: Init.System.IO Init.Data.ToString Init.Lean.Data.KVMap
 #include "runtime/lean.h"
 #if defined(__clang__)
@@ -23,14 +23,12 @@ lean_object* l_String_toNat(lean_object*);
 lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_setString(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_Options_1__initOptionDeclsRef(lean_object*);
 lean_object* l_Lean_getOptionDefaulValue(lean_object*, lean_object*);
 lean_object* l_Lean_getOptionDecls(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_String_splitOn(lean_object*, lean_object*);
 lean_object* l_Lean_getOptionDecl___closed__1;
 uint8_t l_Lean_NameMap_contains___rarg(lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_Options_2__optionDeclsRef;
 lean_object* l_Lean_registerOption___closed__1;
 lean_object* l_Lean_registerOption___closed__2;
 lean_object* l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -48,6 +46,7 @@ lean_object* l_Lean_KVMap_setName(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Bool_HasRepr___closed__1;
 lean_object* l_Lean_setOptionFromString(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Bool_HasRepr___closed__2;
+lean_object* l___private_Init_Lean_Data_Options_1__initOptionDeclsRef(lean_object*);
 lean_object* l_Lean_setOptionFromString___closed__1;
 lean_object* l_Lean_registerOption(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
@@ -58,6 +57,7 @@ lean_object* l_Lean_Options_HasEmptyc;
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_getOptionDescr(lean_object*, lean_object*);
 lean_object* l_Lean_setOptionFromString___closed__3;
+lean_object* l___private_Init_Lean_Data_Options_2__optionDeclsRef;
 lean_object* l_List_map___main___at_Lean_setOptionFromString___spec__1(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* _init_l_Lean_Options_empty() {
@@ -76,7 +76,7 @@ x_1 = l_Lean_Options_empty;
 return x_1;
 }
 }
-lean_object* l___private_Init_Lean_Options_1__initOptionDeclsRef(lean_object* x_1) {
+lean_object* l___private_Init_Lean_Data_Options_1__initOptionDeclsRef(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -105,7 +105,7 @@ lean_object* l_Lean_registerOption(lean_object* x_1, lean_object* x_2, lean_obje
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l___private_Init_Lean_Options_2__optionDeclsRef;
+x_4 = l___private_Init_Lean_Data_Options_2__optionDeclsRef;
 x_5 = lean_io_ref_get(x_4, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
@@ -207,7 +207,7 @@ lean_object* l_Lean_getOptionDecls(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l___private_Init_Lean_Options_2__optionDeclsRef;
+x_2 = l___private_Init_Lean_Data_Options_2__optionDeclsRef;
 x_3 = lean_io_ref_get(x_2, x_1);
 return x_3;
 }
@@ -267,7 +267,7 @@ lean_object* l_Lean_getOptionDecl(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l___private_Init_Lean_Options_2__optionDeclsRef;
+x_3 = l___private_Init_Lean_Data_Options_2__optionDeclsRef;
 x_4 = lean_io_ref_get(x_3, x_2);
 if (lean_obj_tag(x_4) == 0)
 {
@@ -1011,7 +1011,7 @@ lean_object* initialize_Init_System_IO(lean_object*);
 lean_object* initialize_Init_Data_ToString(lean_object*);
 lean_object* initialize_Init_Lean_Data_KVMap(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Lean_Options(lean_object* w) {
+lean_object* initialize_Init_Lean_Data_Options(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
@@ -1028,10 +1028,10 @@ l_Lean_Options_empty = _init_l_Lean_Options_empty();
 lean_mark_persistent(l_Lean_Options_empty);
 l_Lean_Options_HasEmptyc = _init_l_Lean_Options_HasEmptyc();
 lean_mark_persistent(l_Lean_Options_HasEmptyc);
-res = l___private_Init_Lean_Options_1__initOptionDeclsRef(lean_io_mk_world());
+res = l___private_Init_Lean_Data_Options_1__initOptionDeclsRef(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
-l___private_Init_Lean_Options_2__optionDeclsRef = lean_io_result_get_value(res);
-lean_mark_persistent(l___private_Init_Lean_Options_2__optionDeclsRef);
+l___private_Init_Lean_Data_Options_2__optionDeclsRef = lean_io_result_get_value(res);
+lean_mark_persistent(l___private_Init_Lean_Data_Options_2__optionDeclsRef);
 lean_dec_ref(res);
 l_Lean_registerOption___closed__1 = _init_l_Lean_registerOption___closed__1();
 lean_mark_persistent(l_Lean_registerOption___closed__1);

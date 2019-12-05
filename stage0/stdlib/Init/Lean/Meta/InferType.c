@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Meta.InferType
-// Imports: Init.Lean.LBool Init.Lean.Meta.Basic
+// Imports: Init.Lean.Data.LBool Init.Lean.Meta.Basic
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1722,7 +1722,7 @@ x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
 lean_dec(x_4);
 lean_inc(x_2);
-x_7 = l_Lean_Meta_whnf(x_5, x_2, x_6);
+x_7 = l_Lean_Meta_whnfUsingDefault(x_5, x_2, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; 
@@ -7445,14 +7445,14 @@ return x_56;
 }
 }
 }
-lean_object* initialize_Init_Lean_LBool(lean_object*);
+lean_object* initialize_Init_Lean_Data_LBool(lean_object*);
 lean_object* initialize_Init_Lean_Meta_Basic(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Meta_InferType(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Lean_LBool(lean_io_mk_world());
+res = initialize_Init_Lean_Data_LBool(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Meta_Basic(lean_io_mk_world());

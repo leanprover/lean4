@@ -509,7 +509,7 @@ try $
   <&&>
   r.exprReplacements.allM (fun ⟨e, e'⟩ => isExprDefEqAux e e')
 
-def synthInstance (type : Expr) (fuel : Nat := 10000) : MetaM (Option Expr) :=
+def synthInstance? (type : Expr) (fuel : Nat := 10000) : MetaM (Option Expr) :=
 usingTransparency TransparencyMode.reducible $ do
   type ← instantiateMVars type;
   type ← preprocess type;
@@ -530,10 +530,10 @@ usingTransparency TransparencyMode.reducible $ do
                 (pure (some result)))
           (pure none)
     };
-    if type.hasMVar then do
-      modify $ fun s => { cache := { synthInstance := s.cache.synthInstance.insert type result, .. s.cache }, .. s };
+    if type.hasMVar then
       pure result
-    else
+    else do
+      modify $ fun s => { cache := { synthInstance := s.cache.synthInstance.insert type result, .. s.cache }, .. s };
       pure result
 
 /--
@@ -542,11 +542,17 @@ usingTransparency TransparencyMode.reducible $ do
 def trySynthInstance (type : Expr) (fuel : Nat := 10000) : MetaM (LOption Expr) :=
 adaptReader (fun (ctx : Context) => { config := { isDefEqStuckEx := true, .. ctx.config }, .. ctx }) $
   catch
-    (toLOptionM $ synthInstance type fuel)
+    (toLOptionM $ synthInstance? type fuel)
     (fun ex => match ex with
       | Exception.isExprDefEqStuck _ _ _  => pure LOption.undef
       | Exception.isLevelDefEqStuck _ _ _ => pure LOption.undef
       | _                                 => throw ex)
+
+def synthInstance (type : Expr) (fuel : Nat := 10000) : MetaM Expr :=
+do result? ← synthInstance? type fuel;
+   match result? with
+   | some result => pure result
+   | none        => throwEx $ Exception.synthInstance type
 
 end Meta
 end Lean

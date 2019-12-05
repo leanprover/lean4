@@ -5,9 +5,9 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Control.Reader
-import Init.Lean.NameGenerator
+import Init.Lean.Data.LOption
+import Init.Lean.Data.NameGenerator
 import Init.Lean.Environment
-import Init.Lean.LOption
 import Init.Lean.Trace
 import Init.Lean.Class
 import Init.Lean.ReducibilityAttrs
@@ -339,6 +339,12 @@ getConstAux constName true
 
 @[inline] def getConstNoEx (constName : Name) : MetaM (Option ConstantInfo) :=
 getConstAux constName false
+
+def getConstInfo (constName : Name) : MetaM ConstantInfo :=
+do env ← getEnv;
+   match env.find constName with
+   | some info => pure info
+   | none      => throwEx $ Exception.unknownConst constName
 
 def getLocalDecl (fvarId : FVarId) : MetaM LocalDecl :=
 do lctx ← getLCtx;
@@ -680,6 +686,8 @@ do mvarId ← mkFreshId;
 def whnfUsingDefault : Expr → MetaM Expr :=
 fun e => usingTransparency TransparencyMode.default $ whnf e
 
+abbrev whnfD := whnfUsingDefault
+
 /-- Execute `x` using approximate unification. -/
 @[inline] def approxDefEq {α} (x : MetaM α) : MetaM α :=
 adaptReader (fun (ctx : Context) => { config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true, .. ctx.config }, .. ctx })
@@ -691,7 +699,7 @@ do c? ← isClass fvarType;
    | none   => k fvar
    | some c => withNewLocalInstance c fvar $ k fvar
 
-@[inline] def withLocalDecl {α} (n : Name) (type : Expr) (bi : BinderInfo) (k : Expr → MetaM α) : MetaM α :=
+def withLocalDecl {α} (n : Name) (type : Expr) (bi : BinderInfo) (k : Expr → MetaM α) : MetaM α :=
 do fvarId ← mkFreshId;
    ctx ← read;
    let lctx := ctx.lctx.mkLocalDecl fvarId n type bi;
@@ -699,7 +707,10 @@ do fvarId ← mkFreshId;
    adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
      withNewFVar fvar type k
 
-@[inline] def withLetDecl {α} (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) : MetaM α :=
+def withLocalDeclD {α} (n : Name) (type : Expr) (k : Expr → MetaM α) : MetaM α :=
+withLocalDecl n type BinderInfo.default k
+
+def withLetDecl {α} (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) : MetaM α :=
 do fvarId ← mkFreshId;
    ctx ← read;
    let lctx := ctx.lctx.mkLetDecl fvarId n type val;

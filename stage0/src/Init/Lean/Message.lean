@@ -7,7 +7,7 @@ Message Type used by the Lean frontend
 -/
 prelude
 import Init.Data.ToString
-import Init.Lean.Position
+import Init.Lean.Data.Position
 import Init.Lean.Syntax
 import Init.Lean.MetavarContext
 import Init.Lean.Environment

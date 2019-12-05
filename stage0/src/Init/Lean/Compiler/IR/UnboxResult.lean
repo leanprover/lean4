@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Lean.Format
+import Init.Lean.Data.Format
 import Init.Lean.Compiler.IR.Basic
 import Init.Lean.Compiler.IR.CtorLayout
 

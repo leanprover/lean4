@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: Init.Lean.LBool
+// Module: Init.Lean.Data.LBool
 // Imports: Init.Data.ToString
 #include "runtime/lean.h"
 #if defined(__clang__)
@@ -341,7 +341,7 @@ return x_2;
 }
 lean_object* initialize_Init_Data_ToString(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Lean_LBool(lean_object* w) {
+lean_object* initialize_Init_Lean_Data_LBool(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;

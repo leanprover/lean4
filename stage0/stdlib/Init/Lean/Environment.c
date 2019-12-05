@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Environment
-// Imports: Init.System.IO Init.Util Init.Data.ByteArray Init.Lean.Declaration Init.Lean.SMap Init.Lean.Path Init.Lean.LocalContext
+// Imports: Init.System.IO Init.Util Init.Data.ByteArray Init.Lean.Data.SMap Init.Lean.Declaration Init.Lean.Path Init.Lean.LocalContext
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -12115,8 +12115,8 @@ return x_2;
 lean_object* initialize_Init_System_IO(lean_object*);
 lean_object* initialize_Init_Util(lean_object*);
 lean_object* initialize_Init_Data_ByteArray(lean_object*);
+lean_object* initialize_Init_Lean_Data_SMap(lean_object*);
 lean_object* initialize_Init_Lean_Declaration(lean_object*);
-lean_object* initialize_Init_Lean_SMap(lean_object*);
 lean_object* initialize_Init_Lean_Path(lean_object*);
 lean_object* initialize_Init_Lean_LocalContext(lean_object*);
 static bool _G_initialized = false;
@@ -12133,10 +12133,10 @@ lean_dec_ref(res);
 res = initialize_Init_Data_ByteArray(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Lean_Declaration(lean_io_mk_world());
+res = initialize_Init_Lean_Data_SMap(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Lean_SMap(lean_io_mk_world());
+res = initialize_Init_Lean_Declaration(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Path(lean_io_mk_world());

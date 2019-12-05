@@ -7,8 +7,8 @@ prelude
 import Init.System.IO
 import Init.Util
 import Init.Data.ByteArray
+import Init.Lean.Data.SMap
 import Init.Lean.Declaration
-import Init.Lean.SMap
 import Init.Lean.Path
 import Init.Lean.LocalContext
 

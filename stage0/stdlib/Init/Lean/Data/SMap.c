@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: Init.Lean.SMap
+// Module: Init.Lean.Data.SMap
 // Imports: Init.Data.HashMap Init.Data.PersistentHashMap
 #include "runtime/lean.h"
 #if defined(__clang__)
@@ -345,7 +345,7 @@ lean_object* _init_l_Lean_SMap_find_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Init.Lean.SMap");
+x_1 = lean_mk_string("Init.Lean.Data.SMap");
 return x_1;
 }
 }
@@ -916,7 +916,7 @@ return x_5;
 lean_object* initialize_Init_Data_HashMap(lean_object*);
 lean_object* initialize_Init_Data_PersistentHashMap(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Lean_SMap(lean_object* w) {
+lean_object* initialize_Init_Lean_Data_SMap(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;

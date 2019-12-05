@@ -17,22 +17,24 @@ lean_object* l_Lean_nameToExprAux___main___closed__1;
 lean_object* l_Lean_nameToExprAux___main___closed__2;
 lean_object* l_Lean_nameToExprAux___main___closed__8;
 lean_object* l_Lean_nameToExprAux___main___closed__4;
-lean_object* l_Lean_mkCAppB(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_nameToExprAux___main___closed__7;
 lean_object* l_Lean_nameToExprAux___main___closed__5;
 lean_object* l_Lean_natToExpr___closed__1;
 lean_object* l_Lean_nameToExprAux___main___closed__3;
+extern lean_object* l_joinM___rarg___closed__1;
 lean_object* l_Lean_nameToExpr;
 lean_object* l_Lean_nameToExpr___closed__1;
 lean_object* l_Lean_natToExpr;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_nameToExprAux___main___closed__10;
 lean_object* l_Lean_nameToExprAux(lean_object*);
+lean_object* l_Lean_nameToExprAux___main___closed__9;
 lean_object* l_Lean_nameToExprAux___main(lean_object*);
-extern lean_object* l_liftRefl___closed__1;
 lean_object* l_Lean_mkNatLit(lean_object*);
 lean_object* l_Lean_mkStrLit(lean_object*);
 lean_object* l_Lean_exprToExpr;
 lean_object* l_Lean_nameToExprAux___main___closed__6;
+lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_strToExpr;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_strToExpr___closed__1;
@@ -40,7 +42,7 @@ lean_object* _init_l_Lean_exprToExpr() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_liftRefl___closed__1;
+x_1 = l_joinM___rarg___closed__1;
 return x_1;
 }
 }
@@ -131,18 +133,38 @@ return x_3;
 lean_object* _init_l_Lean_nameToExprAux___main___closed__7() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("mkNameNum");
-return x_1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_nameToExprAux___main___closed__6;
+x_3 = l_Lean_mkConst(x_2, x_1);
+return x_3;
 }
 }
 lean_object* _init_l_Lean_nameToExprAux___main___closed__8() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string("mkNameNum");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_nameToExprAux___main___closed__9() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_nameToExprAux___main___closed__4;
-x_2 = l_Lean_nameToExprAux___main___closed__7;
+x_2 = l_Lean_nameToExprAux___main___closed__8;
 x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_nameToExprAux___main___closed__10() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_nameToExprAux___main___closed__9;
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -173,8 +195,8 @@ lean_inc(x_11);
 lean_dec(x_1);
 x_12 = l_Lean_nameToExprAux___main(x_10);
 x_13 = l_Lean_mkStrLit(x_11);
-x_14 = l_Lean_nameToExprAux___main___closed__6;
-x_15 = l_Lean_mkCAppB(x_14, x_12, x_13);
+x_14 = l_Lean_nameToExprAux___main___closed__7;
+x_15 = l_Lean_mkAppB(x_14, x_12, x_13);
 return x_15;
 }
 default: 
@@ -187,8 +209,8 @@ lean_inc(x_17);
 lean_dec(x_1);
 x_18 = l_Lean_nameToExprAux___main(x_16);
 x_19 = l_Lean_mkNatLit(x_17);
-x_20 = l_Lean_nameToExprAux___main___closed__8;
-x_21 = l_Lean_mkCAppB(x_20, x_18, x_19);
+x_20 = l_Lean_nameToExprAux___main___closed__10;
+x_21 = l_Lean_mkAppB(x_20, x_18, x_19);
 return x_21;
 }
 }
@@ -253,6 +275,10 @@ l_Lean_nameToExprAux___main___closed__7 = _init_l_Lean_nameToExprAux___main___cl
 lean_mark_persistent(l_Lean_nameToExprAux___main___closed__7);
 l_Lean_nameToExprAux___main___closed__8 = _init_l_Lean_nameToExprAux___main___closed__8();
 lean_mark_persistent(l_Lean_nameToExprAux___main___closed__8);
+l_Lean_nameToExprAux___main___closed__9 = _init_l_Lean_nameToExprAux___main___closed__9();
+lean_mark_persistent(l_Lean_nameToExprAux___main___closed__9);
+l_Lean_nameToExprAux___main___closed__10 = _init_l_Lean_nameToExprAux___main___closed__10();
+lean_mark_persistent(l_Lean_nameToExprAux___main___closed__10);
 l_Lean_nameToExpr___closed__1 = _init_l_Lean_nameToExpr___closed__1();
 lean_mark_persistent(l_Lean_nameToExpr___closed__1);
 l_Lean_nameToExpr = _init_l_Lean_nameToExpr();

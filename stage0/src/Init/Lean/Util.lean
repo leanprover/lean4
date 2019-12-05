@@ -5,7 +5,7 @@ Author: Sebastian Ullrich
 -/
 prelude
 import Init.System.IO
-import Init.Lean.Position
+import Init.Lean.Data.Position
 
 namespace Lean
 

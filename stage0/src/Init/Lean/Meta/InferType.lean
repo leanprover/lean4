@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Lean.LBool
+import Init.Lean.Data.LBool
 import Init.Lean.Meta.Basic
 
 namespace Lean
@@ -69,7 +69,7 @@ do let failed : Unit → MetaM Expr := fun _ => throwEx $ Exception.invalidProje
 
 def getLevel (type : Expr) : MetaM Level :=
 do typeType ← inferType type;
-   typeType ← whnf typeType;
+   typeType ← whnfUsingDefault typeType;
    match typeType with
    | Expr.sort lvl _    => pure lvl
    | Expr.mvar mvarId _ =>

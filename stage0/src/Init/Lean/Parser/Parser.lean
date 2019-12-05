@@ -4,13 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
-import Init.Lean.Position
+import Init.Lean.Data.Trie
+import Init.Lean.Data.Position
 import Init.Lean.Syntax
 import Init.Lean.ToExpr
 import Init.Lean.Message
 import Init.Lean.Environment
 import Init.Lean.Attributes
-import Init.Lean.Parser.Trie
 import Init.Lean.Parser.Identifier
 import Init.Lean.Compiler.InitAttr
 
@@ -1443,7 +1443,7 @@ do tables ← tablesRef.get;
 def declareBuiltinParser (env : Environment) (addFnName : Name) (refDeclName : Name) (declName : Name) : IO Environment :=
 let name := `_regBuiltinParser ++ declName;
 let type := mkApp (mkConst `IO) (mkConst `Unit);
-let val  := mkCAppN addFnName #[mkConst refDeclName, toExpr declName, mkConst declName];
+let val  := mkAppN (mkConst addFnName) #[mkConst refDeclName, toExpr declName, mkConst declName];
 let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
 match env.addAndCompile {} decl with
 -- TODO: pretty print error

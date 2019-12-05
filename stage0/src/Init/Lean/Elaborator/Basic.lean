@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 prelude
 import Init.Control.Reader
 import Init.Lean.MetavarContext
-import Init.Lean.NameGenerator
 import Init.Lean.Scopes
 import Init.Lean.Parser.Module
 
@@ -123,7 +122,7 @@ match attrParamSyntaxToIdentifier arg with
 def declareBuiltinElab (env : Environment) (addFn : Name) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
 let name := `_regBuiltinTermElab ++ declName;
 let type := mkApp (mkConst `IO) (mkConst `Unit);
-let val  := mkCAppN addFn #[toExpr kind, toExpr declName, mkConst declName];
+let val  := mkAppN (mkConst addFn) #[toExpr kind, toExpr declName, mkConst declName];
 let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
 match env.addAndCompile {} decl with
 -- TODO: pretty print error

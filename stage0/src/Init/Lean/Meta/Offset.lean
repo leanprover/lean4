@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Lean.LBool
+import Init.Lean.Data.LBool
 import Init.Lean.Meta.InferType
 
 namespace Lean
@@ -95,8 +95,8 @@ match isOffset s with
 | some (s, k₁) => match isOffset t with
   | some (t, k₂) => -- s+k₁ =?= t+k₂
     if k₁ == k₂ then isDefEq s t
-    else if k₁ < k₂ then isDefEq s (mkCAppB `Nat.add t (mkNatLit $ k₂ - k₁))
-    else isDefEq (mkCAppB `Nat.add s (mkNatLit $ k₁ - k₂)) t
+    else if k₁ < k₂ then isDefEq s (mkAppB (mkConst `Nat.add) t (mkNatLit $ k₂ - k₁))
+    else isDefEq (mkAppB (mkConst `Nat.add) s (mkNatLit $ k₁ - k₂)) t
   | none => match evalNat t  with
     | some v₂ => -- s+k₁ =?= v₂
       if v₂ ≥ k₁ then isDefEq s (mkNatLit $ v₂ - k₁) else pure LBool.false

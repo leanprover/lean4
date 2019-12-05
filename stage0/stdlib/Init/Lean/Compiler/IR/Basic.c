@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Compiler.IR.Basic
-// Imports: Init.Data.Array Init.Lean.Name Init.Lean.KVMap Init.Lean.Format Init.Lean.Compiler.ExternAttr
+// Imports: Init.Data.Array Init.Lean.Data.KVMap Init.Lean.Data.Name Init.Lean.Data.Format Init.Lean.Compiler.ExternAttr
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13293,9 +13293,9 @@ return x_13;
 }
 }
 lean_object* initialize_Init_Data_Array(lean_object*);
-lean_object* initialize_Init_Lean_Name(lean_object*);
-lean_object* initialize_Init_Lean_KVMap(lean_object*);
-lean_object* initialize_Init_Lean_Format(lean_object*);
+lean_object* initialize_Init_Lean_Data_KVMap(lean_object*);
+lean_object* initialize_Init_Lean_Data_Name(lean_object*);
+lean_object* initialize_Init_Lean_Data_Format(lean_object*);
 lean_object* initialize_Init_Lean_Compiler_ExternAttr(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Compiler_IR_Basic(lean_object* w) {
@@ -13305,13 +13305,13 @@ _G_initialized = true;
 res = initialize_Init_Data_Array(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Lean_Name(lean_io_mk_world());
+res = initialize_Init_Lean_Data_KVMap(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Lean_KVMap(lean_io_mk_world());
+res = initialize_Init_Lean_Data_Name(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Lean_Format(lean_io_mk_world());
+res = initialize_Init_Lean_Data_Format(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Compiler_ExternAttr(lean_io_mk_world());

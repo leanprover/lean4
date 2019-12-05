@@ -233,13 +233,13 @@ Acc.ndrecOn aca $ fun (xa aca) (iha : ∀ y, r y xa → ∀ (b : β y), Acc (Lex
                            (∀ (y : β xa), s xa y xb → Acc (Lex r s) ⟨xa, y⟩) →
                            Lex r s p ⟨xa, xb⟩ → ∀ (b₁ : β a), s a b₁ b₂ → b₂ ≅ xb → Acc (Lex r s) ⟨a, b₁⟩
               from Eq.subst Eq₂ $ fun xb acb ihb lt b₁ h Eq₃ =>
-                have newEq₃ : b₂ = xb from eqOfHeq Eq₃;
+                have newEq₃ : b₂ = xb from eqOfHEq Eq₃;
                 have aux : (∀ (y : β a), s a y xb → Acc (Lex r s) ⟨a, y⟩) →
                            ∀ (b₁ : β a), s a b₁ b₂ → Acc (Lex r s) ⟨a, b₁⟩
                 from Eq.subst newEq₃ (fun ihb b₁ h => ihb b₁ h);
                 aux ihb b₁ h;
               aux xb acb ihb lt b₁ h Eq₃);
-        aux rfl (Heq.refl xb)
+        aux rfl (HEq.refl xb)
 
 -- The lexicographical order of well founded relations is well-founded
 def lexWf (ha : WellFounded r) (hb : ∀ x, WellFounded (s x)) : WellFounded (Lex r s) :=

@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: Init.Lean.KVMap
-// Imports: Init.Lean.Name Init.Data.Option.Basic Init.Data.Int
+// Module: Init.Lean.Data.KVMap
+// Imports: Init.Data.Option.Basic Init.Data.Int Init.Lean.Data.Name
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1192,21 +1192,21 @@ x_1 = l_Lean_KVMap_stringVal___closed__3;
 return x_1;
 }
 }
-lean_object* initialize_Init_Lean_Name(lean_object*);
 lean_object* initialize_Init_Data_Option_Basic(lean_object*);
 lean_object* initialize_Init_Data_Int(lean_object*);
+lean_object* initialize_Init_Lean_Data_Name(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Lean_KVMap(lean_object* w) {
+lean_object* initialize_Init_Lean_Data_KVMap(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Lean_Name(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Option_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Int(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Lean_Data_Name(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_DataValue_HasBeq___closed__1 = _init_l_Lean_DataValue_HasBeq___closed__1();

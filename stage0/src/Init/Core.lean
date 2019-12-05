@@ -50,7 +50,7 @@ reserve infix ` ≤ `:50
 reserve infix ` < `:50
 reserve infix ` >= `:50
 reserve infix ` ≥ `:50
-reserve infix ` > `:50
+ reserve infix ` > `:50
 
 /- boolean operations -/
 
@@ -205,8 +205,8 @@ constant Quot.ind {α : Sort u} {r : α → α → Prop} {β : Quot r → Prop} 
 -/
 init_quot
 
-inductive Heq {α : Sort u} (a : α) : ∀ {β : Sort u}, β → Prop
-| refl : Heq a
+inductive HEq {α : Sort u} (a : α) : ∀ {β : Sort u}, β → Prop
+| refl : HEq a
 
 structure Prod (α : Type u) (β : Type v) :=
 (fst : α) (snd : β)
@@ -242,14 +242,14 @@ h₂ ▸ h₁
 theorem Eq.symm {α : Sort u} {a b : α} (h : a = b) : b = a :=
 h ▸ rfl
 
-infix `~=` := Heq
-infix `≅` := Heq
+infix `~=` := HEq
+infix `≅` := HEq
 
-@[matchPattern] def Heq.rfl {α : Sort u} {a : α} : a ≅ a := Heq.refl a
+@[matchPattern] def HEq.rfl {α : Sort u} {a : α} : a ≅ a := HEq.refl a
 
-theorem eqOfHeq {α : Sort u} {a a' : α} (h : a ≅ a') : a = a' :=
-have ∀ (α' : Sort u) (a' : α') (h₁ : @Heq α a α' a') (h₂ : α = α'), (Eq.recOn h₂ a : α') = a' :=
-  fun (α' : Sort u) (a' : α') (h₁ : @Heq α a α' a') => Heq.recOn h₁ (fun (h₂ : α = α) => rfl);
+theorem eqOfHEq {α : Sort u} {a a' : α} (h : a ≅ a') : a = a' :=
+have ∀ (α' : Sort u) (a' : α') (h₁ : @HEq α a α' a') (h₂ : α = α'), (Eq.recOn h₂ a : α') = a' :=
+  fun (α' : Sort u) (a' : α') (h₁ : @HEq α a α' a') => HEq.recOn h₁ (fun (h₂ : α = α) => rfl);
 show (Eq.ndrecOn (Eq.refl α) a : α) = a' from
   this α a' h (Eq.refl α)
 
@@ -659,10 +659,10 @@ fun h₁ => h (h₁.symm)
 theorem falseOfNe : a ≠ a → False := Ne.irrefl
 
 theorem neFalseOfSelf : p → p ≠ False :=
-fun (hp : p) (Heq : p = False) => Heq ▸ hp
+fun (hp : p) (h : p = False) => h ▸ hp
 
 theorem neTrueOfNot : ¬p → p ≠ True :=
-fun (hnp : ¬p) (Heq : p = True) => (Heq ▸ hnp) trivial
+fun (hnp : ¬p) (h : p = True) => (h ▸ hnp) trivial
 
 theorem trueNeFalse : ¬True = False :=
 neFalseOfSelf trivial
@@ -680,46 +680,46 @@ section
 variables {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
 
 @[elabAsEliminator]
-theorem Heq.ndrec.{u1, u2} {α : Sort u2} {a : α} {C : ∀ {β : Sort u2}, β → Sort u1} (m : C a) {β : Sort u2} {b : β} (h : a ≅ b) : C b :=
-@Heq.rec α a (fun β b _ => C b) m β b h
+theorem HEq.ndrec.{u1, u2} {α : Sort u2} {a : α} {C : ∀ {β : Sort u2}, β → Sort u1} (m : C a) {β : Sort u2} {b : β} (h : a ≅ b) : C b :=
+@HEq.rec α a (fun β b _ => C b) m β b h
 
 @[elabAsEliminator]
-theorem Heq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {C : ∀ {β : Sort u2}, β → Sort u1} {β : Sort u2} {b : β} (h : a ≅ b) (m : C a) : C b :=
-@Heq.rec α a (fun β b _ => C b) m β b h
+theorem HEq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {C : ∀ {β : Sort u2}, β → Sort u1} {β : Sort u2} {b : β} (h : a ≅ b) (m : C a) : C b :=
+@HEq.rec α a (fun β b _ => C b) m β b h
 
-theorem Heq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : a ≅ b) (h₂ : p a) : p b :=
-Eq.recOn (eqOfHeq h₁) h₂
+theorem HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : a ≅ b) (h₂ : p a) : p b :=
+Eq.recOn (eqOfHEq h₁) h₂
 
-theorem Heq.subst {p : ∀ (T : Sort u), T → Prop} (h₁ : a ≅ b) (h₂ : p α a) : p β b :=
-Heq.ndrecOn h₁ h₂
+theorem HEq.subst {p : ∀ (T : Sort u), T → Prop} (h₁ : a ≅ b) (h₂ : p α a) : p β b :=
+HEq.ndrecOn h₁ h₂
 
-theorem Heq.symm (h : a ≅ b) : b ≅ a :=
-Heq.ndrecOn h (Heq.refl a)
+theorem HEq.symm (h : a ≅ b) : b ≅ a :=
+HEq.ndrecOn h (HEq.refl a)
 
 theorem heqOfEq (h : a = a') : a ≅ a' :=
-Eq.subst h (Heq.refl a)
+Eq.subst h (HEq.refl a)
 
-theorem Heq.trans (h₁ : a ≅ b) (h₂ : b ≅ c) : a ≅ c :=
-Heq.subst h₂ h₁
+theorem HEq.trans (h₁ : a ≅ b) (h₂ : b ≅ c) : a ≅ c :=
+HEq.subst h₂ h₁
 
-theorem heqOfHeqOfEq (h₁ : a ≅ b) (h₂ : b = b') : a ≅ b' :=
-Heq.trans h₁ (heqOfEq h₂)
+theorem heqOfHEqOfEq (h₁ : a ≅ b) (h₂ : b = b') : a ≅ b' :=
+HEq.trans h₁ (heqOfEq h₂)
 
-theorem heqOfEqOfHeq (h₁ : a = a') (h₂ : a' ≅ b) : a ≅ b :=
-Heq.trans (heqOfEq h₁) h₂
+theorem heqOfEqOfHEq (h₁ : a = a') (h₂ : a' ≅ b) : a ≅ b :=
+HEq.trans (heqOfEq h₁) h₂
 
-def typeEqOfHeq (h : a ≅ b) : α = β :=
-Heq.ndrecOn h (Eq.refl α)
+def typeEqOfHEq (h : a ≅ b) : α = β :=
+HEq.ndrecOn h (Eq.refl α)
 end
 
-theorem eqRecHeq {α : Sort u} {φ : α → Sort v} : ∀ {a a' : α} (h : a = a') (p : φ a), (Eq.recOn h p : φ a') ≅ p
-| a, _, rfl, p => Heq.refl p
+theorem eqRecHEq {α : Sort u} {φ : α → Sort v} : ∀ {a a' : α} (h : a = a') (p : φ a), (Eq.recOn h p : φ a') ≅ p
+| a, _, rfl, p => HEq.refl p
 
-theorem ofHeqTrue {a : Prop} (h : a ≅ True) : a :=
-ofEqTrue (eqOfHeq h)
+theorem ofHEqTrue {a : Prop} (h : a ≅ True) : a :=
+ofEqTrue (eqOfHEq h)
 
-theorem castHeq : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≅ a
-| α, _, rfl, a => Heq.refl a
+theorem castHEq : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≅ a
+| α, _, rfl, a => HEq.refl a
 
 variables {a b c d : Prop}
 
@@ -1385,9 +1385,9 @@ Quot.rec f (fun a b h => Subsingleton.elim _ (f b)) q
 protected def hrecOn
    (q : Quot r) (f : ∀ a, β (Quot.mk r a)) (c : ∀ (a b : α) (p : r a b), f a ≅ f b) : β q :=
 Quot.recOn q f $
-  fun a b p => eqOfHeq $
-    have p₁ : (Eq.rec (f a) (sound p) : β (Quot.mk r b)) ≅ f a := eqRecHeq (sound p) (f a);
-    Heq.trans p₁ (c a b p)
+  fun a b p => eqOfHEq $
+    have p₁ : (Eq.rec (f a) (sound p) : β (Quot.mk r b)) ≅ f a := eqRecHEq (sound p) (f a);
+    HEq.trans p₁ (c a b p)
 
 end
 end Quot

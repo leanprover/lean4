@@ -15,9 +15,9 @@ import Init.System.IO
 import Init.System.FilePath
 import Init.Data.Array
 import Init.Data.List.Control
-import Init.Lean.Name
 import Init.Data.HashMap
 import Init.Data.Nat.Control
+import Init.Lean.Data.Name
 
 namespace Lean
 open System.FilePath (pathSeparator extSeparator)

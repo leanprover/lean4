@@ -5,9 +5,9 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Array
-import Init.Lean.Name
-import Init.Lean.KVMap
-import Init.Lean.Format
+import Init.Lean.Data.KVMap
+import Init.Lean.Data.Name
+import Init.Lean.Data.Format
 import Init.Lean.Compiler.ExternAttr
 /-
 Implements (extended) λPure and λRc proposed in the article

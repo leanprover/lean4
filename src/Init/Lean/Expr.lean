@@ -4,12 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Lean.Level
-import Init.Lean.KVMap
 import Init.Data.HashMap
 import Init.Data.HashSet
 import Init.Data.PersistentHashMap
 import Init.Data.PersistentHashSet
+import Init.Lean.Data.KVMap
+import Init.Lean.Level
 
 namespace Lean
 

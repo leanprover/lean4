@@ -7,7 +7,7 @@ Trie for tokenizing the Lean language
 -/
 prelude
 import Init.Data.RBMap
-import Init.Lean.Format
+import Init.Lean.Data.Format
 
 namespace Lean
 namespace Parser

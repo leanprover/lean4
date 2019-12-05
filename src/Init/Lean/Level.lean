@@ -7,8 +7,8 @@ prelude
 import Init.Data.Option.Basic
 import Init.Data.HashMap
 import Init.Data.PersistentHashMap
-import Init.Lean.Name
-import Init.Lean.Format
+import Init.Lean.Data.Name
+import Init.Lean.Data.Format
 
 def Nat.imax (n m : Nat) : Nat :=
 if m = 0 then 0 else Nat.max n m

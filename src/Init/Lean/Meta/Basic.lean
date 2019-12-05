@@ -5,9 +5,9 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Control.Reader
-import Init.Lean.NameGenerator
+import Init.Lean.Data.LOption
+import Init.Lean.Data.NameGenerator
 import Init.Lean.Environment
-import Init.Lean.LOption
 import Init.Lean.Trace
 import Init.Lean.Class
 import Init.Lean.ReducibilityAttrs

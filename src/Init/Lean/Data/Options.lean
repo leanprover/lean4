@@ -6,7 +6,7 @@ Authors: Sebastian Ullrich and Leonardo de Moura
 prelude
 import Init.System.IO
 import Init.Data.ToString
-import Init.Lean.KVMap
+import Init.Lean.Data.KVMap
 
 namespace Lean
 

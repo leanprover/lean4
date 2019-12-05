@@ -159,6 +159,9 @@ do ctx ← read;
 @[inline] def trace (cls : Name) (msg : Unit → MessageData) : SynthM Unit :=
 whenM (MonadTracerAdapter.isTracingEnabledFor cls) $ traceCore cls (msg ())
 
+@[inline] def traceM (cls : Name) (mkMsg : SynthM MessageData) : SynthM Unit :=
+whenM (MonadTracerAdapter.isTracingEnabledFor cls) (do msg ← mkMsg; traceCore cls msg)
+
 @[inline] def liftMeta {α} (x : MetaM α) : SynthM α :=
 adaptState (fun (s : State) => (s.toState, s)) (fun s' s => { toState := s', .. s }) x
 
@@ -301,7 +304,7 @@ do mvarType   ← inferType mvar;
   If it succeeds, the result it a new updated metavariable context and a new list of subgoals.
   A subgoal is created for each instance implicit parameter of `inst`. -/
 def tryResolve (mctx : MetavarContext) (mvar : Expr) (inst : Expr) : SynthM (Option (MetavarContext × List Expr)) :=
-withMCtx mctx $ tryResolveCore mvar inst
+traceCtx `Meta.synthInstance.tryResolve $ withMCtx mctx $ tryResolveCore mvar inst
 
 /--
   Assign a precomputed answer to `mvar`.
@@ -330,6 +333,7 @@ def wakeUp (answer : Answer) : Waiter → SynthM Unit
   And then, store it in the tabled entries map, and wakeup waiters. -/
 def addAnswer (cNode : ConsumerNode) : SynthM Unit :=
 do answer ← withMCtx cNode.mctx $ do {
+     traceM `Meta.synthInstance.newAnswer $ do { mvarType ← inferType cNode.mvar; pure mvarType };
      val ← instantiateMVars cNode.mvar;
      abstractMVars val -- assignable metavariables become parameters
    };
@@ -399,7 +403,13 @@ do (cNode, answer) ← getNextToResume;
      result? ← tryAnswer cNode.mctx mvar answer;
      match result? with
      | none      => pure ()
-     | some mctx => consume { key := cNode.key, mvar := cNode.mvar, subgoals := rest, mctx := mctx }
+     | some mctx => do
+       withMCtx mctx $ traceM `Meta.synthInstance.resume $ do {
+         goal    ← inferType cNode.mvar;
+         subgoal ← inferType mvar;
+         pure (goal ++ " <== " ++ subgoal)
+       };
+       consume { key := cNode.key, mvar := cNode.mvar, subgoals := rest, mctx := mctx }
 
 def step : SynthM Bool :=
 do s ← get;
@@ -560,6 +570,7 @@ do registerTraceClass `Meta.synthInstance;
    registerTraceClass `Meta.synthInstance.globalInstances;
    registerTraceClass `Meta.synthInstance.newSubgoal;
    registerTraceClass `Meta.synthInstance.tryResolve;
+   registerTraceClass `Meta.synthInstance.resume;
    registerTraceClass `Meta.synthInstance.generate
 
 end Meta

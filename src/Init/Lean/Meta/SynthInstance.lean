@@ -194,6 +194,7 @@ def newSubgoal (mctx : MetavarContext) (key : Expr) (mvar : Expr) (waiter : Wait
 withMCtx mctx $ do
   trace `Meta.synthInstance.newSubgoal $ fun _ => key;
   mvarType  ← inferType mvar;
+  mvarType  ← instantiateMVars mvarType;
   instances ← getInstances mvarType;
   mctx      ← getMCtx;
   if instances.isEmpty then pure ()

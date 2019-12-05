@@ -110,9 +110,6 @@ void initialize_format() {
     g_pp_indent  = new name{"pp", "indent"};
     g_pp_unicode = new name{"pp", "unicode"};
     g_pp_width   = new name{"pp", "width"};
-    register_unsigned_option(*g_pp_indent, LEAN_DEFAULT_PP_INDENTATION, "(pretty printer) default indentation");
-    register_bool_option(*g_pp_unicode, LEAN_DEFAULT_PP_UNICODE, "(pretty printer) use unicode characters");
-    register_unsigned_option(*g_pp_width, LEAN_DEFAULT_PP_WIDTH, "(pretty printer) line width");
     g_line  = new format(box(static_cast<unsigned>(format::format_kind::LINE)));
     g_space = new format(" ");
 }

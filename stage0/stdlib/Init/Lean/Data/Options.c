@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Data.Options
-// Imports: Init.System.IO Init.Data.ToString Init.Lean.Data.KVMap
+// Imports: Init.System.IO Init.Data.Array Init.Data.ToString Init.Lean.Data.KVMap
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,16 +19,22 @@ lean_object* l_Lean_KVMap_setBool(lean_object*, lean_object*, uint8_t);
 lean_object* l_RBNode_find___main___at_Lean_getOptionDecl___spec__1(lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_setNat(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Array_empty___closed__1;
+lean_object* l_Lean_verboseOption___closed__3;
 lean_object* l_String_toNat(lean_object*);
 lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_setString(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
+lean_object* l_Lean_maxMemoryOption(lean_object*);
 lean_object* l_Lean_getOptionDefaulValue(lean_object*, lean_object*);
 lean_object* l_Lean_getOptionDecls(lean_object*);
+lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
+extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_String_splitOn(lean_object*, lean_object*);
 lean_object* l_Lean_getOptionDecl___closed__1;
 uint8_t l_Lean_NameMap_contains___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_timeoutOption___closed__4;
 lean_object* l_Lean_registerOption___closed__1;
 lean_object* l_Lean_registerOption___closed__2;
 lean_object* l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -37,29 +43,47 @@ lean_object* l_Lean_setOptionFromString___closed__4;
 lean_object* l_Lean_getOptionDecl(lean_object*, lean_object*);
 lean_object* l_RBNode_find___main___at_Lean_getOptionDecl___spec__1___boxed(lean_object*, lean_object*);
 extern lean_object* l_Char_HasRepr___closed__1;
+lean_object* lean_get_option_decls_array(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_setInt(lean_object*, lean_object*, lean_object*);
 uint8_t l_String_isNat(lean_object*);
+lean_object* l_Lean_verboseOption___closed__4;
 lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_setOptionFromString___closed__5;
+lean_object* l_Lean_maxMemoryOption___closed__5;
+lean_object* l_Lean_maxMemoryOption___closed__3;
 lean_object* l_Lean_KVMap_setName(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Bool_HasRepr___closed__1;
+lean_object* l_Lean_timeoutOption___closed__2;
 lean_object* l_Lean_setOptionFromString(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Bool_HasRepr___closed__2;
 lean_object* l___private_Init_Lean_Data_Options_1__initOptionDeclsRef(lean_object*);
+lean_object* l_Lean_verboseOption___closed__2;
 lean_object* l_Lean_setOptionFromString___closed__1;
-lean_object* l_Lean_registerOption(lean_object*, lean_object*, lean_object*);
+lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_verboseOption___closed__1;
+lean_object* l_Lean_timeoutOption___closed__1;
+lean_object* l_Lean_maxMemoryOption___closed__1;
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
+lean_object* l_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_String_trim(lean_object*);
+lean_object* l_Lean_maxMemoryOption___closed__2;
 lean_object* l_String_toInt(lean_object*);
 lean_object* l_Lean_setOptionFromString___closed__2;
+lean_object* l_Lean_timeoutOption___closed__3;
 lean_object* l_Lean_Options_HasEmptyc;
+lean_object* l_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
+lean_object* l_Lean_verboseOption___closed__5;
 lean_object* l_Lean_getOptionDescr(lean_object*, lean_object*);
+lean_object* l_Lean_timeoutOption(lean_object*);
 lean_object* l_Lean_setOptionFromString___closed__3;
+lean_object* l_Lean_maxMemoryOption___closed__4;
 lean_object* l___private_Init_Lean_Data_Options_2__optionDeclsRef;
 lean_object* l_List_map___main___at_Lean_setOptionFromString___spec__1(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
+lean_object* l_Lean_verboseOption(lean_object*);
+lean_object* l_Lean_timeoutOption___closed__5;
 lean_object* _init_l_Lean_Options_empty() {
 _start:
 {
@@ -101,7 +125,7 @@ x_1 = lean_mk_string("', option already exists");
 return x_1;
 }
 }
-lean_object* l_Lean_registerOption(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* lean_register_option(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
@@ -209,6 +233,103 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = l___private_Init_Lean_Data_Options_2__optionDeclsRef;
 x_3 = lean_io_ref_get(x_2, x_1);
+return x_3;
+}
+}
+lean_object* l_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+return x_1;
+}
+else
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_3 = lean_ctor_get(x_2, 0);
+x_4 = lean_ctor_get(x_2, 1);
+x_5 = lean_ctor_get(x_2, 2);
+x_6 = lean_ctor_get(x_2, 3);
+x_7 = l_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1(x_1, x_3);
+lean_inc(x_5);
+lean_inc(x_4);
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_4);
+lean_ctor_set(x_8, 1, x_5);
+x_9 = lean_array_push(x_7, x_8);
+x_1 = x_9;
+x_2 = x_6;
+goto _start;
+}
+}
+}
+lean_object* lean_get_option_decls_array(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l___private_Init_Lean_Data_Options_2__optionDeclsRef;
+x_3 = lean_io_ref_get(x_2, x_1);
+if (lean_obj_tag(x_3) == 0)
+{
+uint8_t x_4; 
+x_4 = !lean_is_exclusive(x_3);
+if (x_4 == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_5 = lean_ctor_get(x_3, 0);
+x_6 = l_Array_empty___closed__1;
+x_7 = l_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1(x_6, x_5);
+lean_dec(x_5);
+lean_ctor_set(x_3, 0, x_7);
+return x_3;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_8 = lean_ctor_get(x_3, 0);
+x_9 = lean_ctor_get(x_3, 1);
+lean_inc(x_9);
+lean_inc(x_8);
+lean_dec(x_3);
+x_10 = l_Array_empty___closed__1;
+x_11 = l_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1(x_10, x_8);
+lean_dec(x_8);
+x_12 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_12, 0, x_11);
+lean_ctor_set(x_12, 1, x_9);
+return x_12;
+}
+}
+else
+{
+uint8_t x_13; 
+x_13 = !lean_is_exclusive(x_3);
+if (x_13 == 0)
+{
+return x_3;
+}
+else
+{
+lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+x_14 = lean_ctor_get(x_3, 0);
+x_15 = lean_ctor_get(x_3, 1);
+lean_inc(x_15);
+lean_inc(x_14);
+lean_dec(x_3);
+x_16 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_16, 0, x_14);
+lean_ctor_set(x_16, 1, x_15);
+return x_16;
+}
+}
+}
+}
+lean_object* l_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_RBNode_fold___main___at_Lean_getOptionDeclsArray___spec__1(x_1, x_2);
+lean_dec(x_2);
 return x_3;
 }
 }
@@ -1007,7 +1128,188 @@ return x_129;
 }
 }
 }
+lean_object* _init_l_Lean_verboseOption___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("verbose");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_verboseOption___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_verboseOption___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_verboseOption___closed__3() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; 
+x_1 = 1;
+x_2 = lean_alloc_ctor(1, 0, 1);
+lean_ctor_set_uint8(x_2, 0, x_1);
+return x_2;
+}
+}
+lean_object* _init_l_Lean_verboseOption___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("disable/enable verbose messages");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_verboseOption___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_verboseOption___closed__3;
+x_2 = l_String_splitAux___main___closed__1;
+x_3 = l_Lean_verboseOption___closed__4;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+lean_object* l_Lean_verboseOption(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_verboseOption___closed__2;
+x_3 = l_Lean_verboseOption___closed__5;
+x_4 = lean_register_option(x_2, x_3, x_1);
+return x_4;
+}
+}
+lean_object* _init_l_Lean_timeoutOption___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("timeout");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_timeoutOption___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_timeoutOption___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_timeoutOption___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+lean_object* _init_l_Lean_timeoutOption___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("the (deterministic) timeout is measured as the maximum of memory allocations (in thousands) per task, the default is unbounded");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_timeoutOption___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_timeoutOption___closed__3;
+x_2 = l_String_splitAux___main___closed__1;
+x_3 = l_Lean_timeoutOption___closed__4;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+lean_object* l_Lean_timeoutOption(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_timeoutOption___closed__2;
+x_3 = l_Lean_timeoutOption___closed__5;
+x_4 = lean_register_option(x_2, x_3, x_1);
+return x_4;
+}
+}
+lean_object* _init_l_Lean_maxMemoryOption___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("maxMemory");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_maxMemoryOption___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_maxMemoryOption___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_maxMemoryOption___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(2048u);
+x_2 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+lean_object* _init_l_Lean_maxMemoryOption___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("maximum amount of memory available for Lean in megabytes");
+return x_1;
+}
+}
+lean_object* _init_l_Lean_maxMemoryOption___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_maxMemoryOption___closed__3;
+x_2 = l_String_splitAux___main___closed__1;
+x_3 = l_Lean_maxMemoryOption___closed__4;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+lean_object* l_Lean_maxMemoryOption(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_maxMemoryOption___closed__2;
+x_3 = l_Lean_maxMemoryOption___closed__5;
+x_4 = lean_register_option(x_2, x_3, x_1);
+return x_4;
+}
+}
 lean_object* initialize_Init_System_IO(lean_object*);
+lean_object* initialize_Init_Data_Array(lean_object*);
 lean_object* initialize_Init_Data_ToString(lean_object*);
 lean_object* initialize_Init_Lean_Data_KVMap(lean_object*);
 static bool _G_initialized = false;
@@ -1016,6 +1318,9 @@ lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_System_IO(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ToString(lean_io_mk_world());
@@ -1049,6 +1354,45 @@ l_Lean_setOptionFromString___closed__4 = _init_l_Lean_setOptionFromString___clos
 lean_mark_persistent(l_Lean_setOptionFromString___closed__4);
 l_Lean_setOptionFromString___closed__5 = _init_l_Lean_setOptionFromString___closed__5();
 lean_mark_persistent(l_Lean_setOptionFromString___closed__5);
+l_Lean_verboseOption___closed__1 = _init_l_Lean_verboseOption___closed__1();
+lean_mark_persistent(l_Lean_verboseOption___closed__1);
+l_Lean_verboseOption___closed__2 = _init_l_Lean_verboseOption___closed__2();
+lean_mark_persistent(l_Lean_verboseOption___closed__2);
+l_Lean_verboseOption___closed__3 = _init_l_Lean_verboseOption___closed__3();
+lean_mark_persistent(l_Lean_verboseOption___closed__3);
+l_Lean_verboseOption___closed__4 = _init_l_Lean_verboseOption___closed__4();
+lean_mark_persistent(l_Lean_verboseOption___closed__4);
+l_Lean_verboseOption___closed__5 = _init_l_Lean_verboseOption___closed__5();
+lean_mark_persistent(l_Lean_verboseOption___closed__5);
+res = l_Lean_verboseOption(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lean_timeoutOption___closed__1 = _init_l_Lean_timeoutOption___closed__1();
+lean_mark_persistent(l_Lean_timeoutOption___closed__1);
+l_Lean_timeoutOption___closed__2 = _init_l_Lean_timeoutOption___closed__2();
+lean_mark_persistent(l_Lean_timeoutOption___closed__2);
+l_Lean_timeoutOption___closed__3 = _init_l_Lean_timeoutOption___closed__3();
+lean_mark_persistent(l_Lean_timeoutOption___closed__3);
+l_Lean_timeoutOption___closed__4 = _init_l_Lean_timeoutOption___closed__4();
+lean_mark_persistent(l_Lean_timeoutOption___closed__4);
+l_Lean_timeoutOption___closed__5 = _init_l_Lean_timeoutOption___closed__5();
+lean_mark_persistent(l_Lean_timeoutOption___closed__5);
+res = l_Lean_timeoutOption(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lean_maxMemoryOption___closed__1 = _init_l_Lean_maxMemoryOption___closed__1();
+lean_mark_persistent(l_Lean_maxMemoryOption___closed__1);
+l_Lean_maxMemoryOption___closed__2 = _init_l_Lean_maxMemoryOption___closed__2();
+lean_mark_persistent(l_Lean_maxMemoryOption___closed__2);
+l_Lean_maxMemoryOption___closed__3 = _init_l_Lean_maxMemoryOption___closed__3();
+lean_mark_persistent(l_Lean_maxMemoryOption___closed__3);
+l_Lean_maxMemoryOption___closed__4 = _init_l_Lean_maxMemoryOption___closed__4();
+lean_mark_persistent(l_Lean_maxMemoryOption___closed__4);
+l_Lean_maxMemoryOption___closed__5 = _init_l_Lean_maxMemoryOption___closed__5();
+lean_mark_persistent(l_Lean_maxMemoryOption___closed__5);
+res = l_Lean_maxMemoryOption(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

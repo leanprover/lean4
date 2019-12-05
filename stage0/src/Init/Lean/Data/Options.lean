@@ -5,6 +5,7 @@ Authors: Sebastian Ullrich and Leonardo de Moura
 -/
 prelude
 import Init.System.IO
+import Init.Data.Array
 import Init.Data.ToString
 import Init.Lean.Data.KVMap
 
@@ -30,6 +31,7 @@ IO.mkRef (mkNameMap OptionDecl)
 @[init initOptionDeclsRef]
 private constant optionDeclsRef : IO.Ref OptionDecls := arbitrary _
 
+@[export lean_register_option]
 def registerOption (name : Name) (decl : OptionDecl) : IO Unit :=
 do decls ← optionDeclsRef.get;
    when (decls.contains name) $
@@ -37,6 +39,13 @@ do decls ← optionDeclsRef.get;
    optionDeclsRef.set $ decls.insert name decl
 
 def getOptionDecls : IO OptionDecls := optionDeclsRef.get
+
+@[export lean_get_option_decls_array]
+def getOptionDeclsArray : IO (Array (Name × OptionDecl)) :=
+do decls ← getOptionDecls;
+   pure $ decls.fold
+    (fun (r : Array (Name × OptionDecl)) k v => r.push (k, v))
+    #[]
 
 def getOptionDecl (name : Name) : IO OptionDecl :=
 do decls ← getOptionDecls;
@@ -68,5 +77,14 @@ do let ps := (entry.splitOn "=").map String.trim;
    | DataValue.ofInt v    => do
      unless val.isInt $ throw (IO.userError ("invalid Int option value '" ++ val ++ "'"));
      pure $ opts.setInt key val.toInt
+
+@[init] def verboseOption : IO Unit :=
+registerOption `verbose { defValue := true, group := "", descr := "disable/enable verbose messages" }
+
+@[init] def timeoutOption : IO Unit :=
+registerOption `timeout { defValue := DataValue.ofNat 0, group := "", descr := "the (deterministic) timeout is measured as the maximum of memory allocations (in thousands) per task, the default is unbounded" }
+
+@[init] def maxMemoryOption : IO Unit :=
+registerOption `maxMemory { defValue := DataValue.ofNat 2048, group := "", descr := "maximum amount of memory available for Lean in megabytes" }
 
 end Lean

@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "util/fresh_name.h"
 #include "util/name_generator.h"
 #include "util/options.h"
-#include "util/option_declarations.h"
 #include "util/format.h"
 
 namespace lean {
@@ -20,14 +19,12 @@ void initialize_util_module() {
     initialize_name();
     initialize_name_generator();
     initialize_fresh_name();
-    initialize_option_declarations();
     initialize_options();
     initialize_format();
 }
 void finalize_util_module() {
     finalize_format();
     finalize_options();
-    finalize_option_declarations();
     finalize_fresh_name();
     finalize_name_generator();
     finalize_name();

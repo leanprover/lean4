@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <string>
+#include <vector>
 #include "runtime/sstream.h"
 #include "runtime/compact.h"
 #include "util/timeit.h"
@@ -325,29 +326,46 @@ static environment eval_cmd(parser & p) {
     if (has_synthetic_sorry(e))
         return p.env();
 
-    type_context_old tc(p.env(), transparency_mode::All);
+    type_context_old tc(p.env(), p.get_options());
     auto type = tc.infer(e);
+    std::vector<object *> args;
 
-    bool has_eval = false;
-
-    /* Check if resultant type has an instance of has_eval */
+    optional<expr> meta_eval_instance;
     try {
-        expr has_eval_type = mk_app(tc, "HasEval", type);
-        optional<expr> eval_instance = tc.mk_class_instance(has_eval_type);
-        if (eval_instance) {
-            /* Modify the 'program' to (has_eval.eval e) */
-            e             = mk_app(tc, {"HasEval", "eval"}, 3, type, *eval_instance, e);
-            type          = tc.infer(e);
-            has_eval      = true;
-        }
+        expr meta_has_eval_type = mk_app(tc, {"Lean", "MetaHasEval"}, type);
+        meta_eval_instance = tc.mk_class_instance(meta_has_eval_type);
     } catch (exception &) {}
 
-    if (!has_eval) {
-        // NOTE: HasRepr implies HasEval
-        throw exception("result type does not have an instance of type class 'HasRepr' or 'HasEval'");
+    if (meta_eval_instance) {
+        /* Modify the 'program' to (fun env opts => MetaHasEval.eval env opts e) */
+        expr env = tc.push_local("env", mk_const({"Lean", "Environment"}));
+        expr opts = tc.push_local("opts", mk_const({"Lean", "Options"}));
+        e = tc.mk_lambda(env, tc.mk_lambda(opts,
+                                           mk_app(tc, {"Lean", "MetaHasEval", "eval"}, 5,
+                                                  {type, *meta_eval_instance, env, opts, e})));
+        // run `Environment -> Options -> IO Unit`
+        args = { p.env().to_obj_arg(), p.get_options().to_obj_arg(), io_mk_world() };
+    } else {
+        optional<expr> eval_instance;
+        try {
+            expr has_eval_type = mk_app(tc, {"Lean", "HasEval"}, type);
+            eval_instance = tc.mk_class_instance(has_eval_type);
+        } catch (exception &) {}
+
+        if (eval_instance) {
+            /* Modify the 'program' to (HasEval.eval e) */
+            e = mk_app(tc, {"Lean", "HasEval", "eval"}, 3, type, *eval_instance, e);
+            // run `IO Unit`
+            args = { io_mk_world() };
+        } else {
+            // NOTE: HasRepr implies HasEval
+            // NOTE: could also mention MetaHasEval but probably shouldn't
+            throw exception("result type does not have an instance of type class 'HasRepr' or 'Lean.HasEval'");
+        }
     }
 
     name fn_name = "_main";
+    type = tc.infer(e);
     auto new_env = compile_expr(p.env(), p.get_options(), fn_name, ls, type, e, pos);
 
     auto out = p.mk_message(p.cmd_pos(), p.pos(), INFORMATION);
@@ -355,16 +373,14 @@ static environment eval_cmd(parser & p) {
     scope_traces_as_messages scope_traces(p.get_stream_name(), p.cmd_pos());
     std::streambuf * saved_cout = std::cout.rdbuf(out.get_text_stream().get_stream().rdbuf());
 
-    // run `IO Unit`
-    object * args[] = { io_mk_world() };
     object_ref r;
 
     try {
         if (p.profiling()) {
             timeit timer(out.get_text_stream().get_stream(), "eval time");
-            r = object_ref(ir::run_boxed(new_env, fn_name, &args[0]));
+            r = object_ref(ir::run_boxed(new_env, fn_name, args.size(), &args[0]));
         } else {
-            r = object_ref(ir::run_boxed(new_env, fn_name, &args[0]));
+            r = object_ref(ir::run_boxed(new_env, fn_name, args.size(), &args[0]));
         }
     } catch (exception & ex) {
         std::cout.rdbuf(saved_cout);

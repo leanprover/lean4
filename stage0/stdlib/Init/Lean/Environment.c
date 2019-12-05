@@ -118,7 +118,6 @@ lean_object* l_AssocList_contains___main___at_Lean_Environment_addAux___spec__7_
 uint8_t l_HashMapImp_contains___at_Lean_Environment_contains___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_namespacesExt___closed__2;
 lean_object* l_Lean_namespacesExt___elambda__3___boxed(lean_object*, lean_object*);
-lean_object* l_IO_println___at_HasRepr_HasEval___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_inhabited(lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_Inhabited___closed__1;
@@ -184,6 +183,7 @@ lean_object* l_Lean_ModuleData_inhabited___closed__1;
 lean_object* lean_set_extension(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_foldAux___main___at_Lean_mkModuleData___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
+lean_object* l_IO_println___at_Lean_HasRepr_HasEval___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_modifyState___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_size___at_Lean_Environment_displayStats___spec__3___boxed(lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
@@ -11292,7 +11292,7 @@ x_16 = lean_string_append(x_15, x_14);
 lean_dec(x_14);
 x_17 = l_Char_HasRepr___closed__1;
 x_18 = lean_string_append(x_16, x_17);
-x_19 = l_IO_println___at_HasRepr_HasEval___spec__1(x_18, x_4);
+x_19 = l_IO_println___at_Lean_HasRepr_HasEval___spec__1(x_18, x_4);
 lean_dec(x_18);
 if (lean_obj_tag(x_19) == 0)
 {
@@ -11321,7 +11321,7 @@ x_30 = l_Lean_Format_pretty(x_28, x_29);
 x_31 = l_Array_forMAux___main___at_Lean_Environment_displayStats___spec__9___closed__2;
 x_32 = lean_string_append(x_31, x_30);
 lean_dec(x_30);
-x_33 = l_IO_println___at_HasRepr_HasEval___spec__1(x_32, x_20);
+x_33 = l_IO_println___at_Lean_HasRepr_HasEval___spec__1(x_32, x_20);
 lean_dec(x_32);
 if (lean_obj_tag(x_33) == 0)
 {
@@ -11340,7 +11340,7 @@ x_38 = l_Nat_repr(x_37);
 x_39 = l_Array_forMAux___main___at_Lean_Environment_displayStats___spec__9___closed__3;
 x_40 = lean_string_append(x_39, x_38);
 lean_dec(x_38);
-x_41 = l_IO_println___at_HasRepr_HasEval___spec__1(x_40, x_34);
+x_41 = l_IO_println___at_Lean_HasRepr_HasEval___spec__1(x_40, x_34);
 lean_dec(x_40);
 if (lean_obj_tag(x_41) == 0)
 {
@@ -11417,7 +11417,7 @@ x_55 = l_Nat_repr(x_54);
 x_56 = l_Array_forMAux___main___at_Lean_Environment_displayStats___spec__9___closed__3;
 x_57 = lean_string_append(x_56, x_55);
 lean_dec(x_55);
-x_58 = l_IO_println___at_HasRepr_HasEval___spec__1(x_57, x_20);
+x_58 = l_IO_println___at_Lean_HasRepr_HasEval___spec__1(x_57, x_20);
 lean_dec(x_57);
 if (lean_obj_tag(x_58) == 0)
 {
@@ -11584,7 +11584,7 @@ lean_dec(x_17);
 x_20 = l_Lean_Environment_displayStats___closed__1;
 x_21 = lean_string_append(x_20, x_19);
 lean_dec(x_19);
-x_22 = l_IO_println___at_HasRepr_HasEval___spec__1(x_21, x_6);
+x_22 = l_IO_println___at_Lean_HasRepr_HasEval___spec__1(x_21, x_6);
 lean_dec(x_21);
 if (lean_obj_tag(x_22) == 0)
 {
@@ -11596,7 +11596,7 @@ x_24 = l_Nat_repr(x_13);
 x_25 = l_Lean_Environment_displayStats___closed__2;
 x_26 = lean_string_append(x_25, x_24);
 lean_dec(x_24);
-x_27 = l_IO_println___at_HasRepr_HasEval___spec__1(x_26, x_23);
+x_27 = l_IO_println___at_Lean_HasRepr_HasEval___spec__1(x_26, x_23);
 lean_dec(x_26);
 if (lean_obj_tag(x_27) == 0)
 {
@@ -11611,7 +11611,7 @@ x_31 = l_Nat_repr(x_30);
 x_32 = l_Lean_Environment_displayStats___closed__3;
 x_33 = lean_string_append(x_32, x_31);
 lean_dec(x_31);
-x_34 = l_IO_println___at_HasRepr_HasEval___spec__1(x_33, x_28);
+x_34 = l_IO_println___at_Lean_HasRepr_HasEval___spec__1(x_33, x_28);
 lean_dec(x_33);
 if (lean_obj_tag(x_34) == 0)
 {
@@ -11626,7 +11626,7 @@ x_38 = l_Nat_repr(x_37);
 x_39 = l_Lean_Environment_displayStats___closed__4;
 x_40 = lean_string_append(x_39, x_38);
 lean_dec(x_38);
-x_41 = l_IO_println___at_HasRepr_HasEval___spec__1(x_40, x_35);
+x_41 = l_IO_println___at_Lean_HasRepr_HasEval___spec__1(x_40, x_35);
 lean_dec(x_40);
 if (lean_obj_tag(x_41) == 0)
 {
@@ -11641,7 +11641,7 @@ x_44 = l_Nat_repr(x_43);
 x_45 = l_Lean_Environment_displayStats___closed__5;
 x_46 = lean_string_append(x_45, x_44);
 lean_dec(x_44);
-x_47 = l_IO_println___at_HasRepr_HasEval___spec__1(x_46, x_42);
+x_47 = l_IO_println___at_Lean_HasRepr_HasEval___spec__1(x_46, x_42);
 lean_dec(x_46);
 if (lean_obj_tag(x_47) == 0)
 {
@@ -11655,7 +11655,7 @@ x_50 = l_Nat_repr(x_49);
 x_51 = l_Lean_Environment_displayStats___closed__6;
 x_52 = lean_string_append(x_51, x_50);
 lean_dec(x_50);
-x_53 = l_IO_println___at_HasRepr_HasEval___spec__1(x_52, x_48);
+x_53 = l_IO_println___at_Lean_HasRepr_HasEval___spec__1(x_52, x_48);
 lean_dec(x_52);
 if (lean_obj_tag(x_53) == 0)
 {
@@ -11670,7 +11670,7 @@ x_57 = l_Nat_repr(x_56);
 x_58 = l_Lean_Environment_displayStats___closed__7;
 x_59 = lean_string_append(x_58, x_57);
 lean_dec(x_57);
-x_60 = l_IO_println___at_HasRepr_HasEval___spec__1(x_59, x_54);
+x_60 = l_IO_println___at_Lean_HasRepr_HasEval___spec__1(x_59, x_54);
 lean_dec(x_59);
 if (lean_obj_tag(x_60) == 0)
 {
@@ -11686,7 +11686,7 @@ x_64 = l_Nat_repr(x_63);
 x_65 = l_Lean_Environment_displayStats___closed__8;
 x_66 = lean_string_append(x_65, x_64);
 lean_dec(x_64);
-x_67 = l_IO_println___at_HasRepr_HasEval___spec__1(x_66, x_61);
+x_67 = l_IO_println___at_Lean_HasRepr_HasEval___spec__1(x_66, x_61);
 lean_dec(x_66);
 if (lean_obj_tag(x_67) == 0)
 {

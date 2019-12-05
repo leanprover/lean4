@@ -13,10 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_KVMap_setBool(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_KVMap_insert(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_findCore___main___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getInt___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_DataValue_hasToString;
 lean_object* l_Lean_KVMap_boolVal___closed__2;
 lean_object* l_Lean_KVMap_natVal___closed__1;
 lean_object* l_Lean_KVMap_stringVal___closed__1;
@@ -42,6 +44,7 @@ lean_object* l_Lean_KVMap_stringVal___closed__3;
 lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 extern lean_object* l_Int_zero;
 lean_object* l_Lean_KVMap_subsetAux___main___boxed(lean_object*, lean_object*);
+lean_object* l_Int_repr(lean_object*);
 lean_object* l_Lean_nat2DataValue(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t l_Lean_DataValue_beq(lean_object*, lean_object*);
@@ -55,6 +58,7 @@ lean_object* l_Lean_KVMap_stringVal___closed__2;
 lean_object* l_Lean_KVMap_intVal___closed__3;
 lean_object* l_Lean_KVMap_getName___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getString(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_KVMap_getName(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_isEmpty___boxed(lean_object*);
 uint8_t l_Lean_KVMap_subset(lean_object*, lean_object*);
@@ -70,6 +74,7 @@ lean_object* l_Lean_KVMap_HasBeq___closed__1;
 uint8_t l_Lean_KVMap_isEmpty(lean_object*);
 lean_object* l_Lean_KVMap_getNat(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_setName(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Bool_HasRepr___closed__1;
 lean_object* l_Lean_string2DataValue(lean_object*);
 lean_object* l_Lean_KVMap_setBool___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_subset___boxed(lean_object*, lean_object*);
@@ -77,6 +82,8 @@ lean_object* l_Lean_KVMap_HasBeq;
 lean_object* l_Lean_DataValue_HasBeq;
 lean_object* l_Lean_KVMap_get(lean_object*);
 lean_object* l_Lean_KVMap_empty;
+extern lean_object* l_Bool_HasRepr___closed__2;
+lean_object* lean_data_value_to_string(lean_object*);
 lean_object* l_Lean_KVMap_insertCore(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_boolVal;
 lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
@@ -88,9 +95,11 @@ lean_object* l_Lean_KVMap_natVal___closed__2;
 uint8_t l_Lean_KVMap_subsetAux(lean_object*, lean_object*);
 uint8_t l_Lean_KVMap_eqv(lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
+lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_int2DataValue(lean_object*);
 lean_object* l_Lean_KVMap_natVal;
 lean_object* l_Lean_KVMap_subsetAux___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_DataValue_hasToString___closed__1;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getNat___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_DataValue_beq(lean_object* x_1, lean_object* x_2) {
@@ -211,6 +220,84 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lean_DataValue_HasBeq___closed__1;
+return x_1;
+}
+}
+lean_object* lean_data_value_to_string(lean_object* x_1) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+lean_object* x_2; 
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+lean_dec(x_1);
+return x_2;
+}
+case 1:
+{
+uint8_t x_3; 
+x_3 = lean_ctor_get_uint8(x_1, 0);
+lean_dec(x_1);
+if (x_3 == 0)
+{
+lean_object* x_4; 
+x_4 = l_Bool_HasRepr___closed__1;
+return x_4;
+}
+else
+{
+lean_object* x_5; 
+x_5 = l_Bool_HasRepr___closed__2;
+return x_5;
+}
+}
+case 2:
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec(x_1);
+x_7 = l_Lean_Name_toString___closed__1;
+x_8 = l_Lean_Name_toStringWithSep___main(x_7, x_6);
+return x_8;
+}
+case 3:
+{
+lean_object* x_9; lean_object* x_10; 
+x_9 = lean_ctor_get(x_1, 0);
+lean_inc(x_9);
+lean_dec(x_1);
+x_10 = l_Nat_repr(x_9);
+return x_10;
+}
+default: 
+{
+lean_object* x_11; lean_object* x_12; 
+x_11 = lean_ctor_get(x_1, 0);
+lean_inc(x_11);
+lean_dec(x_1);
+x_12 = l_Int_repr(x_11);
+lean_dec(x_11);
+return x_12;
+}
+}
+}
+}
+lean_object* _init_l_Lean_DataValue_hasToString___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(lean_data_value_to_string), 1, 0);
+return x_1;
+}
+}
+lean_object* _init_l_Lean_DataValue_hasToString() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_DataValue_hasToString___closed__1;
 return x_1;
 }
 }
@@ -1213,6 +1300,10 @@ l_Lean_DataValue_HasBeq___closed__1 = _init_l_Lean_DataValue_HasBeq___closed__1(
 lean_mark_persistent(l_Lean_DataValue_HasBeq___closed__1);
 l_Lean_DataValue_HasBeq = _init_l_Lean_DataValue_HasBeq();
 lean_mark_persistent(l_Lean_DataValue_HasBeq);
+l_Lean_DataValue_hasToString___closed__1 = _init_l_Lean_DataValue_hasToString___closed__1();
+lean_mark_persistent(l_Lean_DataValue_hasToString___closed__1);
+l_Lean_DataValue_hasToString = _init_l_Lean_DataValue_hasToString();
+lean_mark_persistent(l_Lean_DataValue_hasToString);
 l_Lean_KVMap_empty = _init_l_Lean_KVMap_empty();
 lean_mark_persistent(l_Lean_KVMap_empty);
 l_Lean_KVMap_HasBeq___closed__1 = _init_l_Lean_KVMap_HasBeq___closed__1();

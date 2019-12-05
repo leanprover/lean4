@@ -282,6 +282,8 @@ do child ← IO.Proc.spawn { stdout := IO.process.stdio.piped, ..args },
 
 universe u
 
+namespace Lean
+
 /-- Typeclass used for presenting the output of an `#eval` command. -/
 class HasEval (α : Type u) :=
 (eval : α → IO Unit)
@@ -295,3 +297,5 @@ instance IO.HasEval {α : Type} [HasEval α] : HasEval (IO α) :=
 -- special case: do not print `()`
 instance IOUnit.HasEval : HasEval (IO Unit) :=
 ⟨fun x => x⟩
+
+end Lean

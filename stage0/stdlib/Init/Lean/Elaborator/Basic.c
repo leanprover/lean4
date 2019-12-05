@@ -121,7 +121,6 @@ lean_object* l_Lean_Elab_inPattern___rarg(lean_object*);
 lean_object* l_Lean_SMap_empty___at_Lean_mkBuiltinTermElabTable___spec__1___closed__1;
 lean_object* l_Lean_Elab_mkAnonymousInstName___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_runElab___at_Lean_Elab_processCommand___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_println___at_HasRepr_HasEval___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_checkSyntaxNodeKindAtNamespaces___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_commandElabAttribute___closed__1;
 lean_object* l_AssocList_find___main___at_Lean_Elab_elabCommand___spec__6(lean_object*, lean_object*);
@@ -203,6 +202,7 @@ lean_object* l_Lean_Elab_runElab___rarg(lean_object*, lean_object*, lean_object*
 lean_object* l_PersistentHashMap_findAux___main___at_Lean_Elab_elabCommand___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ElabScope_Inhabited;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
+lean_object* l_IO_println___at_Lean_HasRepr_HasEval___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_mkElabAttribute___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_contains___main___at_Lean_addBuiltinTermElab___spec__3___boxed(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
@@ -10068,7 +10068,7 @@ lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
 lean_dec(x_8);
-x_11 = l_IO_println___at_HasRepr_HasEval___spec__1(x_9, x_10);
+x_11 = l_IO_println___at_Lean_HasRepr_HasEval___spec__1(x_9, x_10);
 lean_dec(x_9);
 if (lean_obj_tag(x_11) == 0)
 {

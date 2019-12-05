@@ -35,8 +35,6 @@ public:
 };
 
 typedef name_map<option_declaration> option_declarations;
-void initialize_option_declarations();
-void finalize_option_declarations();
 option_declarations get_option_declarations();
 void register_option(name const & n, data_value_kind k, char const * default_value, char const * description);
 #define register_bool_option(n, v, d) register_option(n, data_value_kind::Bool, LEAN_STR(v), d)

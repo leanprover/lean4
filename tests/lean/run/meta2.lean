@@ -90,48 +90,17 @@ do print "----- tst4 -----";
 
 #eval run [`Init.Data.Nat] tst4
 
-def mkProd (a b : Expr) : MetaM Expr :=
-do u ← getLevel a;
-   v ← getLevel b;
-   let r := mkAppN (mkConst `Prod [u.dec.getD u, v.dec.getD v]) #[a, b];
+def mkAppC (c : Name) (xs : Array Expr) : MetaM Expr :=
+do r ← mkAppM c xs;
    check r;
    pure r
 
-def mkPair (a b : Expr) : MetaM Expr :=
-do aType ← inferType a;
-   bType ← inferType b;
-   u ← getLevel aType;
-   v ← getLevel bType;
-   let r := mkAppN (mkConst `Prod.mk [u.dec.getD u, v.dec.getD v]) #[aType, bType, a, b];
-   check r;
-   pure r
+def mkProd (a b : Expr) : MetaM Expr := mkAppC `Prod #[a, b]
+def mkPair (a b : Expr) : MetaM Expr := mkAppC `Prod.mk #[a, b]
+def mkFst (s : Expr) : MetaM Expr := mkAppC `Prod.fst #[s]
+def mkSnd (s : Expr) : MetaM Expr := mkAppC `Prod.snd #[s]
+def mkId (a : Expr) : MetaM Expr := mkAppC `id #[a]
 
-def mkFst (s : Expr) : MetaM Expr :=
-do sType ← inferType s;
-   sType ← whnfUsingDefault sType;
-   unless (sType.isAppOfArity `Prod 2) $ throw $ Exception.other "product expected";
-   let lvls := sType.getAppFn.constLevels!;
-   let r := mkAppN (mkConst `Prod.fst lvls) #[sType.getArg! 0, sType.getArg! 1, s];
-   check r;
-   pure r
-
-def mkSnd (s : Expr) : MetaM Expr :=
-do sType ← inferType s;
-   sType ← whnfUsingDefault sType;
-   unless (sType.isAppOfArity `Prod 2) $ throw $ Exception.other "product expected";
-   let lvls := sType.getAppFn.constLevels!;
-   let r := mkAppN (mkConst `Prod.snd lvls) #[sType.getArg! 0, sType.getArg! 1, s];
-   check r;
-   pure r
-
-def mkId (a : Expr) : MetaM Expr :=
-do aType ← inferType a;
-   lvl   ← getLevel aType;
-   let r := mkAppN (mkConst `id [lvl]) #[aType, a];
-   check r;
-   pure r
-
-#print id
 
 def tst5 : MetaM Unit :=
 do print "----- tst5 -----";
@@ -279,67 +248,12 @@ do print "----- tst13 -----";
    print e;
    pure ()
 
-def mkDecEq (type : Expr) : MetaM Expr :=
-do u ← getLevel type;
-   pure $ mkApp (mkConst `DecidableEq [u]) type
-
-def mkStateM (σ : Expr) : MetaM Expr :=
-do u ← getLevel σ;
-   (some u) ← pure u.dec | throw $ Exception.other "failed to create StateM application";
-   let r := mkApp (mkConst `StateM [u]) σ;
-   check r;
-   pure r
-
-def mkMonad (m : Expr) : MetaM Expr :=
-do u ← mkFreshLevelMVar;
-   v ← mkFreshLevelMVar;
-   let arrow := mkArrow (mkSort (mkLevelSucc u)) (mkSort (mkLevelSucc v));
-   mType ← inferType m;
-   mType ← whnf mType;
-   print arrow;
-   print mType;
-   condM (isDefEq arrow mType)
-     (do u ← instantiateLevelMVars u;
-         v ← instantiateLevelMVars v;
-         let r := mkApp (mkConst `Monad [u, v]) m;
-         print r;
-         check r;
-         pure r)
-     (throw $ Exception.other "failed to create Monad application")
-
-def mkMonadState (σ m : Expr) : MetaM Expr :=
-do u ← getLevel σ;
-   (some u) ← pure u.dec | throw $ Exception.other "failed to create MonadState application";
-   mType ← inferType m;
-   v ← mkFreshLevelMVar;
-   w ← mkFreshLevelMVar;
-   let arrow := mkArrow (mkSort (mkLevelSucc v)) (mkSort (mkLevelSucc w));
-   mType ← whnf mType;
-   print arrow;
-   print mType;
-   condM (isDefEq arrow mType)
-     (do w ← instantiateLevelMVars w;
-         let r := mkAppB (mkConst `MonadState [u, w]) σ m;
-         print r;
-         check r;
-         pure r)
-     (throw $ Exception.other "failed to create MonadState application")
-
-def mkHasAdd (a : Expr) : MetaM Expr :=
-do u ← getLevel a;
-   (some u) ← pure u.dec | throw $ Exception.other "failed to create HasAdd application";
-   let r := mkApp (mkConst `HasAdd [u]) a;
-   print r;
-   check r;
-   pure r
-
-def mkHasToString (a : Expr) : MetaM Expr :=
-do u ← getLevel a;
-   (some u) ← pure u.dec | throw $ Exception.other "failed to create HasToString application";
-   let r := mkApp (mkConst `HasToString [u]) a;
-   print r;
-   check r;
-   pure r
+def mkDecEq (type : Expr) : MetaM Expr := mkAppC `DecidableEq #[type]
+def mkStateM (σ : Expr) : MetaM Expr := mkAppC `StateM #[σ]
+def mkMonad (m : Expr) : MetaM Expr := mkAppC `Monad #[m]
+def mkMonadState (σ m : Expr) : MetaM Expr := mkAppC `MonadState #[σ, m]
+def mkHasAdd (a : Expr) : MetaM Expr := mkAppC `HasAdd #[a]
+def mkHasToString (a : Expr) : MetaM Expr := mkAppC `HasToString #[a]
 
 def tst14 : MetaM Unit :=
 do print "----- tst14 -----";
@@ -448,11 +362,11 @@ def tst22 : MetaM Unit :=
 do print "----- tst22 -----";
    withLocalDeclD `x nat $ fun x => do
    withLocalDeclD `y nat $ fun y => do
-   t ← mkAppM `HasAdd.add #[x, y];
+   t ← mkAppC `HasAdd.add #[x, y];
    print t;
-   t ← mkAppM `HasAdd.add #[y, x];
+   t ← mkAppC `HasAdd.add #[y, x];
    print t;
-   t ← mkAppM `HasToString.toString #[x];
+   t ← mkAppC `HasToString.toString #[x];
    print t;
    pure ()
 

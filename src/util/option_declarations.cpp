@@ -5,69 +5,51 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/option_declarations.h"
+#include "util/array_ref.h"
+#include "util/pair_ref.h"
+#include "util/io.h"
 
 namespace lean {
-void option_declaration::display_value(std::ostream & out, options const & o) const {
-    bool contains = false;
-    if (o.contains(get_name())) {
-/*
-        sexpr s = o.get_sexpr(get_name());
-        switch (kind()) {
-        case BoolOption:
-            if (!is_nil(s) && is_bool(s)) {
-                out << (to_bool(s) ? "true" : "false");
-                contains = true;
-            }
-            break;
-        case IntOption:
-            if (!is_nil(s) && is_int(s)) {
-                out << to_int(s);
-                contains = true;
-            }
-            break;
-        case UnsignedOption:
-            if (!is_nil(s) && is_int(s)) {
-                out << static_cast<unsigned>(to_int(s));
-                contains = true;
-            }
-            break;
-        case StringOption:
-            if (!is_nil(s) && is_string(s)) {
-                out << to_string(s);
-                contains = true;
-            }
-            break;
-        }
-*/
-    }
-    if (!contains)
-        out << get_default_value();
-}
+typedef object_ref option_decl;
 
-static option_declarations * g_option_declarations = nullptr;
-static mutex *               g_option_declarations_guard = nullptr;
+extern "C" object * lean_data_value_to_string (obj_arg d);
 
-void initialize_option_declarations() {
-    g_option_declarations       = new option_declarations();
-    g_option_declarations_guard = new mutex();
-}
-
-void finalize_option_declarations() {
-    delete g_option_declarations;
-    delete g_option_declarations_guard;
-}
+extern "C" object * lean_get_option_decls_array(obj_arg w);
 
 option_declarations get_option_declarations() {
+    auto decl_array = get_io_result<array_ref<pair_ref<name, option_decl> > > (lean_get_option_decls_array(io_mk_world()));
     option_declarations r;
-    {
-        unique_lock<mutex> lock(*g_option_declarations_guard);
-        r = *g_option_declarations;
+    for (pair_ref<name, option_decl> const & p : decl_array) {
+        option_decl decl = p.snd();
+        data_value def_val = cnstr_get_ref_t<data_value>(decl, 0);
+        string_ref def_str(lean_data_value_to_string(def_val.to_obj_arg()));
+        string_ref descr = cnstr_get_ref_t<string_ref>(decl, 2);
+        data_value_kind kind = static_cast<data_value_kind>(lean_obj_tag(def_val.raw()));
+        option_declaration d(p.fst(), kind, def_str.data(), descr.data());
+        r.insert(p.fst(), d);
     }
     return r;
 }
 
+data_value mk_data_value(data_value_kind k, char const * val) {
+    switch (k) {
+    case data_value_kind::String:
+        return data_value(val);
+    case data_value_kind::Bool:
+        return strcmp(val, "true") == 0 ? data_value(true) : data_value(false);
+    case data_value_kind::Nat:
+        return data_value(atoi(val));
+    case data_value_kind::Name:
+        return data_value(name(val));
+    default:
+        lean_unreachable();
+    }
+}
+
+extern "C" object * lean_register_option(obj_arg name, obj_arg decl, obj_arg w);
+
 void register_option(name const & n, data_value_kind k, char const * default_value, char const * description) {
-    unique_lock<mutex> lock(*g_option_declarations_guard);
-    g_option_declarations->insert(n, option_declaration(n, k, default_value, description));
+    object_ref decl = mk_cnstr(0, mk_data_value(k, default_value), string_ref(""), string_ref(description));
+    consume_io_result(lean_register_option(n.to_obj_arg(), decl.to_obj_arg(), io_mk_world()));
 }
 }

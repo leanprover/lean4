@@ -25,6 +25,16 @@ def DataValue.beq : DataValue → DataValue → Bool
 
 instance DataValue.HasBeq : HasBeq DataValue := ⟨DataValue.beq⟩
 
+@[export lean_data_value_to_string]
+def DataValue.str : DataValue → String
+| DataValue.ofString v => v
+| DataValue.ofBool v   => toString v
+| DataValue.ofName v   => toString v
+| DataValue.ofNat v    => toString v
+| DataValue.ofInt v    => toString v
+
+instance DataValue.hasToString : HasToString DataValue := ⟨DataValue.str⟩
+
 instance string2DataValue : HasCoe String DataValue := ⟨DataValue.ofString⟩
 instance bool2DataValue   : HasCoe Bool DataValue   := ⟨DataValue.ofBool⟩
 instance name2DataValue   : HasCoe Name DataValue   := ⟨DataValue.ofName⟩

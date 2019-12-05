@@ -530,10 +530,10 @@ usingTransparency TransparencyMode.reducible $ do
                 (pure (some result)))
           (pure none)
     };
-    if type.hasMVar then do
-      modify $ fun s => { cache := { synthInstance := s.cache.synthInstance.insert type result, .. s.cache }, .. s };
+    if type.hasMVar then
       pure result
-    else
+    else do
+      modify $ fun s => { cache := { synthInstance := s.cache.synthInstance.insert type result, .. s.cache }, .. s };
       pure result
 
 /--

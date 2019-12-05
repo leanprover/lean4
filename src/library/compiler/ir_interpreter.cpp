@@ -817,10 +817,12 @@ public:
         g_interpreter = nullptr;
     }
 
-    object * call_boxed(name const & fn, object ** args) {
-    /** Like `call`, but taking (owned) `object *`s instead of `arg`s. */
+    /** A variant of `call` designed for external uses.
+     *  * takes (owned) `object *`s instead of `arg`s.
+     *  * supports over-application (but no under-application ATM). */
+    object * call_boxed(name const & fn, unsigned n, object ** args) {
         symbol_cache_entry e = lookup_symbol(fn);
-        unsigned n = decl_params(e.m_decl).size();
+        unsigned arity = decl_params(e.m_decl).size();
         object * r;
         if (e.m_addr) {
             push_frame(e.m_decl, 0);
@@ -833,11 +835,15 @@ public:
             }
             // `d` now has a boxed signature
             // evaluate args in old stack frame
-            for (unsigned i = 0; i < n; i++) {
+            for (unsigned i = 0; i < arity; i++) {
                 m_arg_stack.push_back(args[i]);
             }
             push_frame(e.m_decl, 0);
             r = eval_body(decl_fun_body(e.m_decl)).m_obj;
+            if (n > arity) {
+                // `fn` returned a closure
+                r = apply_n(r, n - arity, &args[arity]);
+            }
         }
         pop_frame(r, decl_type(e.m_decl));
         return r;
@@ -878,8 +884,8 @@ public:
     }
 };
 
-object * run_boxed(environment const & env, name const & fn, object ** args) {
-    return interpreter(env).call_boxed(fn, args);
+object * run_boxed(environment const & env, name const & fn, unsigned n, object **args) {
+    return interpreter(env).call_boxed(fn, n, args);
 }
 uint32 run_main(environment const & env, int argv, char * argc[]) {
     return interpreter(env).run_main(argv, argc);

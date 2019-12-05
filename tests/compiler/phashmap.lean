@@ -1,5 +1,5 @@
 import Init.Data.PersistentHashMap
-import Init.Lean.Format
+import Init.Lean.Data.Format
 open Lean PersistentHashMap
 
 abbrev Map := PersistentHashMap Nat Nat

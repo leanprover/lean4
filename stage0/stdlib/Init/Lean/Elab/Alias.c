@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: Init.Lean.Elaborator.Alias
+// Module: Init.Lean.Elab.Alias
 // Imports: Init.Lean.Environment
 #include "runtime/lean.h"
 #if defined(__clang__)
@@ -2670,7 +2670,7 @@ return x_3;
 }
 lean_object* initialize_Init_Lean_Environment(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Lean_Elaborator_Alias(lean_object* w) {
+lean_object* initialize_Init_Lean_Elab_Alias(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;

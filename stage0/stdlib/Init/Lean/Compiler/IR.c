@@ -29,7 +29,6 @@ lean_object* l_Lean_IR_getEnv___rarg(lean_object*);
 lean_object* l_Lean_IR_explicitRC(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_1__compileAux___closed__24;
-extern lean_object* l_Lean_mkOptionalNode___rarg___closed__1;
 lean_object* l_Lean_IR_Decl_insertResetReuse(lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_1__compileAux___closed__10;
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -74,6 +73,7 @@ lean_object* l_Lean_IR_inferBorrow(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_1__compileAux___closed__27;
 lean_object* l___private_Init_Lean_Compiler_IR_1__compileAux___closed__4;
 lean_object* l___private_Init_Lean_Compiler_IR_1__compileAux___closed__9;
+extern lean_object* l_Lean_mkOptionalNode___closed__1;
 lean_object* l___private_Init_Lean_Compiler_IR_1__compileAux___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_pushProj(lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_1__compileAux___closed__1;
@@ -941,7 +941,7 @@ else
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
 lean_free_object(x_4);
 x_10 = l_Lean_IR_ExplicitBoxing_mkBoxedVersion(x_1);
-x_11 = l_Lean_mkOptionalNode___rarg___closed__1;
+x_11 = l_Lean_mkOptionalNode___closed__1;
 x_12 = lean_array_push(x_11, x_10);
 x_13 = l_Lean_IR_explicitRC(x_12, x_2, x_7);
 x_14 = lean_ctor_get(x_13, 0);
@@ -999,7 +999,7 @@ else
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
 x_29 = l_Lean_IR_ExplicitBoxing_mkBoxedVersion(x_1);
-x_30 = l_Lean_mkOptionalNode___rarg___closed__1;
+x_30 = l_Lean_mkOptionalNode___closed__1;
 x_31 = lean_array_push(x_30, x_29);
 x_32 = l_Lean_IR_explicitRC(x_31, x_2, x_25);
 x_33 = lean_ctor_get(x_32, 0);

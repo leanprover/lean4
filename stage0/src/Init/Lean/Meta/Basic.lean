@@ -756,6 +756,9 @@ instance MetaHasEval {α} [MetaHasEval α] : MetaHasEval (MetaM α) :=
      s.traceState.traces.forM $ fun m => IO.println $ format m;
      throw (IO.userError (toString err))⟩
 
+@[init] private def regTraceClasses : IO Unit :=
+registerTraceClass `Meta
+
 end Meta
 end Lean
 

@@ -53,7 +53,6 @@ lean_object* l_Lean_IR_CollectUsedDecls_collect(lean_object*, lean_object*, lean
 uint8_t l_AssocList_contains___main___at_Lean_IR_CollectMaps_collectJP___spec__2(lean_object*, lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_HashMapImp_expand___at_Lean_IR_CollectMaps_collectJP___spec__3(lean_object*, lean_object*);
-extern lean_object* l_Lean_Syntax_formatStx___main___rarg___closed__4;
 lean_object* l_mkHashMap___at_Lean_IR_mkVarJPMaps___spec__1(lean_object*);
 lean_object* l_mkHashMapImp___rarg(lean_object*);
 lean_object* l_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
@@ -86,6 +85,7 @@ lean_object* l_Lean_IR_FnBody_body(lean_object*);
 lean_object* l_Lean_IR_UsesLeanNamespace_visitFnBody(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_CollectMaps_collectVar(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_CollectMaps_collectParams___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_Syntax_formatStx___main___closed__4;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t l_Lean_IR_isTailCallTo(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -166,7 +166,7 @@ lean_object* _init_l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Syntax_formatStx___main___rarg___closed__4;
+x_1 = l_Lean_Syntax_formatStx___main___closed__4;
 return x_1;
 }
 }

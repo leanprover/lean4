@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: Init.Lean.Elaborator.ElabStrategyAttrs
+// Module: Init.Lean.Elab.ElabStrategyAttrs
 // Imports: Init.Lean.Attributes
 #include "runtime/lean.h"
 #if defined(__clang__)
@@ -2057,7 +2057,7 @@ return x_4;
 }
 lean_object* initialize_Init_Lean_Attributes(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Lean_Elaborator_ElabStrategyAttrs(lean_object* w) {
+lean_object* initialize_Init_Lean_Elab_ElabStrategyAttrs(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;

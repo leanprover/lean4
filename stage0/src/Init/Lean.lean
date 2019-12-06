@@ -12,7 +12,7 @@ import Init.Lean.Runtime
 import Init.Lean.Attributes
 import Init.Lean.Parser
 import Init.Lean.ReducibilityAttrs
-import Init.Lean.Elaborator
+import Init.Lean.Elab
 import Init.Lean.EqnCompiler
 import Init.Lean.Class
 import Init.Lean.LocalContext

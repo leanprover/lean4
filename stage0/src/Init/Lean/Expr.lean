@@ -648,7 +648,8 @@ private def betaRevAux (revArgs : Array Expr) (sz : Nat) : Expr → Nat → Expr
   else
     let n := sz - (i + 1);
     mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
-| b, i =>
+| Expr.mdata _ b _, i => betaRevAux b i
+| b,                i =>
   let n := sz - i;
   mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
 
@@ -665,6 +666,15 @@ private def betaRevAux (revArgs : Array Expr) (sz : Nat) : Expr → Nat → Expr
 def betaRev (f : Expr) (revArgs : Array Expr) : Expr :=
 if revArgs.size == 0 then f
 else betaRevAux revArgs revArgs.size f 0
+
+def isHeadBetaTarget : Expr → Bool
+| Expr.lam _ _ _ _ => true
+| Expr.mdata _ b _ => isHeadBetaTarget b
+| _                => false
+
+def headBeta (e : Expr) : Expr :=
+let f := e.getAppFn;
+if f.isHeadBetaTarget then betaRev f e.getAppRevArgs else e
 
 private def etaExpandedBody : Expr → Nat → Nat → Option Expr
 | app f (bvar j _) _, n+1, i => if j == i then etaExpandedBody f n (i+1) else none

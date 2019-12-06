@@ -42,6 +42,7 @@ lean_object* l_Lean_AttributeImpl_inhabited___lambda__1___boxed(lean_object*, le
 extern lean_object* l_Lean_mkTagDeclarationExtension___closed__1;
 lean_object* l_Lean_registerEnumAttributes___rarg___lambda__2___closed__3;
 lean_object* l_Lean_ParametricAttribute_setParam___rarg___closed__2;
+extern lean_object* l_Lean_stxInh;
 lean_object* l_Lean_ParametricAttribute_Inhabited(lean_object*);
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__2___boxed(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
@@ -180,6 +181,7 @@ lean_object* l_Array_binSearchAux___main___at_Lean_EnumAttributes_getValue___spe
 lean_object* l_Lean_AttributeImpl_inhabited___closed__6;
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 lean_object* l_AssocList_replace___main___at_Lean_registerAttribute___spec__7(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Syntax_isMissing(lean_object*);
 lean_object* l_Array_qsortAux___main___at_Lean_registerEnumAttributes___spec__2(lean_object*);
 lean_object* l_Array_qsortAux___main___at_Lean_registerEnumAttributes___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_getAttributeImpl___spec__2___boxed(lean_object*, lean_object*);
@@ -234,7 +236,6 @@ lean_object* l_AssocList_contains___main___at_Lean_registerAttribute___spec__2__
 uint8_t l_Array_anyRangeMAux___main___at_Lean_registerParametricAttribute___spec__8___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_find___main___at_Lean_EnumAttributes_setValue___spec__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* lean_push_scope(lean_object*, lean_object*, uint8_t, lean_object*);
-uint8_t l_Lean_Syntax_isMissing___rarg(lean_object*);
 lean_object* lean_get_namespace(lean_object*);
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__3___boxed(lean_object*);
@@ -3509,7 +3510,7 @@ lean_object* l_Lean_registerTagAttribute___lambda__4(lean_object* x_1, lean_obje
 _start:
 {
 uint8_t x_9; 
-x_9 = l_Lean_Syntax_isMissing___rarg(x_6);
+x_9 = l_Lean_Syntax_isMissing(x_6);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
@@ -8475,7 +8476,7 @@ return x_10;
 else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_11 = lean_box(0);
+x_11 = l_Lean_stxInh;
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_array_get(x_11, x_3, x_12);
 if (lean_obj_tag(x_13) == 3)

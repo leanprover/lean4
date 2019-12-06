@@ -5,11 +5,29 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Init.Lean.Modifiers
-import Init.Lean.Elaborator.Alias
-import Init.Lean.Elaborator.Basic
+import Init.Lean.Elab.Alias
 
 namespace Lean
 namespace Elab
+
+inductive OpenDecl
+| simple   (ns : Name) (except : List Name)
+| explicit (id : Name) (declName : Name)
+
+namespace OpenDecl
+instance : Inhabited OpenDecl := ⟨simple Name.anonymous []⟩
+
+instance : HasToString OpenDecl :=
+⟨fun decl => match decl with
+ | explicit id decl => toString id ++ " → " ++ toString decl
+ | simple ns ex     => toString ns ++ (if ex == [] then "" else " hiding " ++ toString ex)⟩
+
+end OpenDecl
+
+def rootNamespace := `_root_
+
+def removeRoot (n : Name) : Name :=
+n.replacePrefix rootNamespace Name.anonymous
 
 /- Check whether `ns ++ id` is a valid namepace name and/or there are aliases names `ns ++ id`. -/
 private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : List Name :=
@@ -61,6 +79,7 @@ private def resolveNameAux (env : Environment) (ns : Name) (openDecls : List Ope
   | [] => resolveNameAux p (projSize + 1)
 | _, _ => []
 
+/-
 def resolveName (id : Name) : Elab (List (Nat × Name)) :=
 do env ← getEnv;
    ns  ← getNamespace;
@@ -77,6 +96,7 @@ do env ← getEnv;
    ns  ← getNamespace;
    openDecls ← getOpenDecls;
    pure $ preresolveNamesAux env ns openDecls stx
+-/
 
 end Elab
 end Lean

@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: Init.Lean.Elaborator
-// Imports: Init.Lean.Elaborator.Basic Init.Lean.Elaborator.ElabStrategyAttrs Init.Lean.Elaborator.Command Init.Lean.Elaborator.PreTerm Init.Lean.Elaborator.Term
+// Module: Init.Lean.Elab
+// Imports: Init.Lean.Elab.Import Init.Lean.Elab.Exception Init.Lean.Elab.ElabStrategyAttrs Init.Lean.Elab.Command Init.Lean.Elab.Term
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,29 +13,29 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init_Lean_Elaborator_Basic(lean_object*);
-lean_object* initialize_Init_Lean_Elaborator_ElabStrategyAttrs(lean_object*);
-lean_object* initialize_Init_Lean_Elaborator_Command(lean_object*);
-lean_object* initialize_Init_Lean_Elaborator_PreTerm(lean_object*);
-lean_object* initialize_Init_Lean_Elaborator_Term(lean_object*);
+lean_object* initialize_Init_Lean_Elab_Import(lean_object*);
+lean_object* initialize_Init_Lean_Elab_Exception(lean_object*);
+lean_object* initialize_Init_Lean_Elab_ElabStrategyAttrs(lean_object*);
+lean_object* initialize_Init_Lean_Elab_Command(lean_object*);
+lean_object* initialize_Init_Lean_Elab_Term(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Lean_Elaborator(lean_object* w) {
+lean_object* initialize_Init_Lean_Elab(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Lean_Elaborator_Basic(lean_io_mk_world());
+res = initialize_Init_Lean_Elab_Import(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Lean_Elaborator_ElabStrategyAttrs(lean_io_mk_world());
+res = initialize_Init_Lean_Elab_Exception(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Lean_Elaborator_Command(lean_io_mk_world());
+res = initialize_Init_Lean_Elab_ElabStrategyAttrs(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Lean_Elaborator_PreTerm(lean_io_mk_world());
+res = initialize_Init_Lean_Elab_Command(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Lean_Elaborator_Term(lean_io_mk_world());
+res = initialize_Init_Lean_Elab_Term(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_mk_io_result(lean_box(0));

@@ -39,7 +39,6 @@ lean_object* l_Lean_Meta_mkCongrArg___closed__2;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqRefl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux___main(lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_isLevelDefEqAux___main___closed__2;
 lean_object* l_Lean_Meta_mkAppM___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_expr_instantiate_rev_range(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -53,6 +52,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Util_Trace_2__getResetTraces___at___private_Init_Lean_Meta_LevelDefEq_9__processPostponedStep___spec__6___rarg(lean_object*);
 lean_object* l_Lean_Meta_mkEqSymm(lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Init_Lean_Meta_Basic_11__regTraceClasses___closed__2;
 lean_object* l___private_Init_Lean_Meta_AppBuilder_1__infer(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkCongrArg___closed__3;
 lean_object* l_Lean_Expr_heq_x3f___closed__2;
@@ -5106,7 +5106,7 @@ lean_object* _init_l_Lean_Meta_mkAppM___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_isLevelDefEqAux___main___closed__2;
+x_1 = l___private_Init_Lean_Meta_Basic_11__regTraceClasses___closed__2;
 x_2 = l_Lean_Meta_Exception_toMessageData___closed__68;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

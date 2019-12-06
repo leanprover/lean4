@@ -116,6 +116,7 @@ lean_object* l_Lean_Meta_DiscrTree_mkPath(lean_object*, lean_object*, lean_objec
 lean_object* l_Lean_Meta_forallMetaTelescopeReducing(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
+uint8_t l_Lean_Syntax_isMissing(lean_object*);
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_Meta_addInstanceEntry___spec__6(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAux___main___at_Lean_Meta_addInstanceEntry___spec__3(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Meta_registerInstanceAttr___lambda__1___closed__1;
@@ -145,7 +146,6 @@ lean_object* lean_io_ref_reset(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_Meta_mkInstanceExtension___spec__7___closed__2;
 lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_Meta_mkInstanceExtension___spec__1(lean_object*, lean_object*);
-uint8_t l_Lean_Syntax_isMissing___rarg(lean_object*);
 extern lean_object* l_Lean_TraceState_Inhabited___closed__1;
 lean_object* l_Lean_Meta_inferType(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
@@ -3345,7 +3345,7 @@ lean_object* l_Lean_Meta_registerInstanceAttr___lambda__1(lean_object* x_1, lean
 _start:
 {
 uint8_t x_6; 
-x_6 = l_Lean_Syntax_isMissing___rarg(x_3);
+x_6 = l_Lean_Syntax_isMissing(x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 

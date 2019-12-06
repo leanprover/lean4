@@ -4,22 +4,93 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Lean.Elaborator.Alias
-import Init.Lean.Elaborator.Basic
-import Init.Lean.Elaborator.ResolveName
-import Init.Lean.Elaborator.Term
+import Init.Lean.Elab.Util
+import Init.Lean.Elab.Alias
+import Init.Lean.Elab.Exception
+import Init.Lean.Elab.ResolveName
+import Init.Lean.Elab.Term
 
 namespace Lean
 namespace Elab
+namespace Command
 
-private def addScopes (cmd : String) (updateNamespace : Bool) : Name → List ElabScope → List ElabScope
+structure Context :=
+(fileName : String)
+(fileMap  : FileMap)
+
+structure Scope :=
+(cmd         : String)
+(header      : Name)
+(options     : Options := {})
+(ns          : Name := Name.anonymous) -- current namespace
+(openDecls   : List OpenDecl := [])
+(univs       : List Name := [])
+(varDecls    : List Syntax := [])
+
+instance Scope.inhabited : Inhabited Scope := ⟨{ cmd := "", header := arbitrary _ }⟩
+
+private def addScopes (cmd : String) (updateNamespace : Bool) : Name → List Scope → List Scope
 | Name.anonymous, scopes => scopes
 | Name.str p h _, scopes =>
   let scopes := addScopes p scopes;
   let ns     := scopes.head!.ns;
   let ns     := if updateNamespace then mkNameStr ns h else ns;
   { cmd := cmd, header := h, ns := ns } :: scopes
-| _, _ => [] -- unreachable
+| _, _ => unreachable!
+
+structure State :=
+(env      : Environment)
+(messages : MessageLog := {})
+(cmdPos   : String.Pos := 0)
+(scopes   : List Scope := [{ cmd := "root", header := Name.anonymous }])
+
+abbrev CommandElabM := ReaderT Context (EStateM Exception State)
+abbrev CommandElab  := SyntaxNode → CommandElabM Unit
+
+abbrev CommandElabTable := SMap SyntaxNodeKind CommandElab
+def mkBuiltinCommandElabTable : IO (IO.Ref CommandElabTable) := IO.mkRef {}
+@[init mkBuiltinCommandElabTable] constant builtinCommandElabTable : IO.Ref CommandElabTable := arbitrary _
+
+def addBuiltinCommandElab (k : SyntaxNodeKind) (declName : Name) (elab : CommandElab) : IO Unit :=
+do m ← builtinCommandElabTable.get;
+   when (m.contains k) $
+     throw (IO.userError ("invalid builtin command elaborator, elaborator for '" ++ toString k ++ "' has already been defined"));
+   builtinCommandElabTable.modify $ fun m => m.insert k elab
+
+def declareBuiltinCommandElab (env : Environment) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
+let name := `_regBuiltinCommandElab ++ declName;
+let type := mkApp (mkConst `IO) (mkConst `Unit);
+let val  := mkAppN (mkConst `addBuiltinCommandElab) #[toExpr kind, toExpr declName, mkConst declName];
+let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
+match env.addAndCompile {} decl with
+-- TODO: pretty print error
+| Except.error _ => throw (IO.userError ("failed to emit registration code for builtin command elaborator '" ++ toString declName ++ "'"))
+| Except.ok env  => IO.ofExcept (setInitAttr env name)
+
+@[init] def registerBuiltinCommandElabAttr : IO Unit :=
+registerAttribute {
+ name  := `builtinCommandElab,
+ descr := "Builtin command elaborator",
+ add   := fun env declName arg persistent => do {
+   unless persistent $ throw (IO.userError ("invalid attribute 'builtinCommandElab', must be persistent"));
+   kind ← syntaxNodeKindOfAttrParam env `Lean.Parser.Command arg;
+   match env.find declName with
+   | none  => throw "unknown declaration"
+   | some decl =>
+     match decl.type with
+     | Expr.const `Lean.CommandElab _ _ => declareBuiltinCommandElab env kind declName
+     | _ => throw (IO.userError ("unexpected command elaborator type at '" ++ toString declName ++ "' `CommandElab` expected"))
+ },
+ applicationTime := AttributeApplicationTime.afterCompilation
+}
+
+abbrev CommandElabAttribute := ElabAttribute CommandElabTable
+def mkCommandElabAttribute : IO CommandElabAttribute := mkElabAttribute `commandTerm "command" builtinCommandElabTable
+@[init mkCommandElabAttribute] constant commandElabAttribute : CommandElabAttribute := arbitrary _
+
+end Command
+
+/-
 
 @[builtinCommandElab «namespace»] def elabNamespace : CommandElab :=
 fun n => do
@@ -190,14 +261,6 @@ fun n => do
   runIO (IO.println (toString pos ++ " " ++ toString resolvedIds));
   pure ()
 
-@[builtinCommandElab «preterm»] def elabPreTerm : CommandElab :=
-fun n => do
-  let s := n.getArg 1;
-  runIO (IO.println s);
-  pre ← toPreTerm (s.lift Expr);
-  runIO (IO.println pre.dbgToString);
-  pure ()
-
 @[builtinCommandElab «elab»] def elabElab : CommandElab :=
 fun n => do
   let s := n.getArg 1;
@@ -212,6 +275,6 @@ fun n => do
 @[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()
 @[builtinCommandElab «reserve»] def elabReserve : CommandElab := fun _ => pure ()
 @[builtinCommandElab «notation»] def elabNotation : CommandElab := fun _ => pure ()
-
+-/
 end Elab
 end Lean

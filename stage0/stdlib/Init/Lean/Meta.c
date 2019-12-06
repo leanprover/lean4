@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Meta
-// Imports: Init.Lean.Meta.Basic Init.Lean.Meta.LevelDefEq Init.Lean.Meta.WHNF Init.Lean.Meta.InferType Init.Lean.Meta.FunInfo Init.Lean.Meta.ExprDefEq Init.Lean.Meta.DiscrTree Init.Lean.Meta.Reduce Init.Lean.Meta.Instances Init.Lean.Meta.AbstractMVars Init.Lean.Meta.SynthInstance Init.Lean.Meta.AppBuilder
+// Imports: Init.Lean.Meta.Basic Init.Lean.Meta.LevelDefEq Init.Lean.Meta.WHNF Init.Lean.Meta.InferType Init.Lean.Meta.FunInfo Init.Lean.Meta.ExprDefEq Init.Lean.Meta.DiscrTree Init.Lean.Meta.Reduce Init.Lean.Meta.Instances Init.Lean.Meta.AbstractMVars Init.Lean.Meta.SynthInstance Init.Lean.Meta.AppBuilder Init.Lean.Meta.Tactic
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -25,6 +25,7 @@ lean_object* initialize_Init_Lean_Meta_Instances(lean_object*);
 lean_object* initialize_Init_Lean_Meta_AbstractMVars(lean_object*);
 lean_object* initialize_Init_Lean_Meta_SynthInstance(lean_object*);
 lean_object* initialize_Init_Lean_Meta_AppBuilder(lean_object*);
+lean_object* initialize_Init_Lean_Meta_Tactic(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Meta(lean_object* w) {
 lean_object * res;
@@ -64,6 +65,9 @@ res = initialize_Init_Lean_Meta_SynthInstance(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Meta_AppBuilder(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Lean_Meta_Tactic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_mk_io_result(lean_box(0));

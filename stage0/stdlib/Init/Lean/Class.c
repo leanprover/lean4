@@ -196,6 +196,7 @@ lean_object* l_Lean_mkClassExtension___closed__2;
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 lean_object* l___private_Init_Lean_Class_1__checkOutParam(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Class_1__checkOutParam___main(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Syntax_isMissing(lean_object*);
 lean_object* l_HashMapImp_moveEntries___main___at_Lean_ClassState_addEntry___spec__9(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Class_2__consumeNLambdas___main(lean_object*, lean_object*);
@@ -239,7 +240,6 @@ lean_object* l_AssocList_foldlM___main___at_Lean_ClassState_addEntry___spec__27(
 lean_object* l_Lean_SMap_switch___at_Lean_ClassState_switch___spec__3(lean_object*);
 lean_object* l_Lean_classExtension___elambda__3(lean_object*, lean_object*);
 lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_mkClassExtension___spec__1___boxed(lean_object*, lean_object*);
-uint8_t l_Lean_Syntax_isMissing___rarg(lean_object*);
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_empty___at_Lean_ClassState_Inhabited___spec__4___closed__2;
 lean_object* l_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
@@ -6442,7 +6442,7 @@ lean_object* l_Lean_registerClassAttr___lambda__1(lean_object* x_1, lean_object*
 _start:
 {
 uint8_t x_6; 
-x_6 = l_Lean_Syntax_isMissing___rarg(x_3);
+x_6 = l_Lean_Syntax_isMissing(x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 

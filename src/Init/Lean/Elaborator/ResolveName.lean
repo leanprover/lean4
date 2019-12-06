@@ -61,6 +61,7 @@ private def resolveNameAux (env : Environment) (ns : Name) (openDecls : List Ope
   | [] => resolveNameAux p (projSize + 1)
 | _, _ => []
 
+/-
 def resolveName (id : Name) : Elab (List (Nat × Name)) :=
 do env ← getEnv;
    ns  ← getNamespace;
@@ -77,6 +78,7 @@ do env ← getEnv;
    ns  ← getNamespace;
    openDecls ← getOpenDecls;
    pure $ preresolveNamesAux env ns openDecls stx
+-/
 
 end Elab
 end Lean

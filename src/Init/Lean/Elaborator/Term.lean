@@ -6,11 +6,10 @@ Authors: Leonardo de Moura
 prelude
 import Init.Lean.Elaborator.Alias
 import Init.Lean.Elaborator.Basic
-import Init.Lean.Elaborator.PreTerm
 
 namespace Lean
 namespace Elab
-
+/-
 partial def elabTermAux : Syntax Expr → Option Expr → Bool → Elab (Syntax Expr)
 | stx, expectedType, expanding => stx.ifNode
   (fun n => do
@@ -64,5 +63,6 @@ fun stx _ => do
   let rng := stx.getArg 2;
   pure $ mkNode `Lean.Parser.Term.forall [mkAtom "forall", mkNullNode [mkExplicitBinder id dom], mkAtom ",", rng]
 
+-/
 end Elab
 end Lean

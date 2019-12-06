@@ -11,7 +11,7 @@ import Init.Lean.Elaborator.Term
 
 namespace Lean
 namespace Elab
-
+/-
 private def addScopes (cmd : String) (updateNamespace : Bool) : Name → List ElabScope → List ElabScope
 | Name.anonymous, scopes => scopes
 | Name.str p h _, scopes =>
@@ -204,6 +204,6 @@ fun n => do
 @[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()
 @[builtinCommandElab «reserve»] def elabReserve : CommandElab := fun _ => pure ()
 @[builtinCommandElab «notation»] def elabNotation : CommandElab := fun _ => pure ()
-
+-/
 end Elab
 end Lean

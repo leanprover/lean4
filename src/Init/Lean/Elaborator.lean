@@ -7,5 +7,4 @@ prelude
 import Init.Lean.Elaborator.Basic
 import Init.Lean.Elaborator.ElabStrategyAttrs
 import Init.Lean.Elaborator.Command
-import Init.Lean.Elaborator.PreTerm
 import Init.Lean.Elaborator.Term

@@ -25,6 +25,12 @@ instance : HasToString OpenDecl :=
 
 end OpenDecl
 
+def rootNamespace := `_root_
+
+def removeRoot (n : Name) : Name :=
+n.replacePrefix rootNamespace Name.anonymous
+
+/-
 structure ElabContext :=
 (fileName : String)
 (fileMap  : FileMap)
@@ -287,6 +293,19 @@ stx.ifNode
     | some elab => elab n
     | none      => logError stx ("command '" ++ toString k ++ "' has not been implemented"))
   (fun _ => logErrorUsingCmdPos ("unexpected command"))
+-/
+
+structure ElabContext :=
+(fileName : String)
+(fileMap  : FileMap)
+
+inductive ElabException
+| io     : IO.Error → ElabException
+| msg    : Message → ElabException
+| kernel : KernelException → ElabException
+
+structure ElabState :=
+(dummy : Unit := ())
 
 structure FrontendState :=
 (elabState   : ElabState)
@@ -294,6 +313,7 @@ structure FrontendState :=
 
 abbrev Frontend := ReaderT Parser.ParserContextCore (EStateM ElabException FrontendState)
 
+/-
 def getElabContext : Frontend ElabContext :=
 do c ← read;
    pure { fileName := c.fileName, fileMap := c.fileMap }
@@ -334,6 +354,7 @@ partial def processCommandsAux : Unit → Frontend Unit
 
 def processCommands : Frontend Unit :=
 processCommandsAux ()
+-/
 
 def headerToImports (header : Syntax) : List Import :=
 let header  := header.asNode;
@@ -369,6 +390,7 @@ deps.forM $ fun dep => do
   fname ← findOLean dep.module;
   IO.println fname
 
+/-
 def testFrontend (input : String) (fileName : Option String := none) : IO (Environment × MessageLog) :=
 do env ← mkEmptyEnvironment;
    let fileName := fileName.getD "<input>";
@@ -439,11 +461,6 @@ do scope ← getScope;
    modifyScope $ fun scope => { nextInstIdx := scope.nextInstIdx + 1, .. scope };
    pure n
 
-def rootNamespace := `_root_
-
-def removeRoot (n : Name) : Name :=
-n.replacePrefix rootNamespace Name.anonymous
-
 def resolveNamespaceUsingScopes (env : Environment) (n : Name) : List ElabScope → Option Name
 | [] => none
 | { ns := ns, .. } :: scopes   => if isNamespace env (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingScopes scopes
@@ -502,5 +519,5 @@ match unsafeIO x with
 constant runIO {α : Type} (x : IO α) : Elab α := arbitrary _
 
 end Elab
-
+-/
 end Lean

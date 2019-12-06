@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Lean.Elaborator.Alias
-import Init.Lean.Elaborator.Basic
+import Init.Lean.Elab.Alias
+import Init.Lean.Elab.Basic
 
 namespace Lean
 namespace Elab

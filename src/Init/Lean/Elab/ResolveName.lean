@@ -5,8 +5,8 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Init.Lean.Modifiers
-import Init.Lean.Elaborator.Alias
-import Init.Lean.Elaborator.Basic
+import Init.Lean.Elab.Alias
+import Init.Lean.Elab.Basic
 
 namespace Lean
 namespace Elab

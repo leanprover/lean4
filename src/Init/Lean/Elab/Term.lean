@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Lean.Elab.Alias
-import Init.Lean.Elab.Basic
 
 namespace Lean
 namespace Elab

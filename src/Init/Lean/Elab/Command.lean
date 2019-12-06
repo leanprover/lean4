@@ -5,12 +5,14 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Lean.Elab.Alias
-import Init.Lean.Elab.Basic
 import Init.Lean.Elab.ResolveName
 import Init.Lean.Elab.Term
 
 namespace Lean
 namespace Elab
+
+
+
 /-
 private def addScopes (cmd : String) (updateNamespace : Bool) : Name → List ElabScope → List ElabScope
 | Name.anonymous, scopes => scopes

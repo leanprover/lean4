@@ -5,30 +5,11 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Init.Control.Reader
-import Init.Lean.MetavarContext
-import Init.Lean.Scopes
+import Init.Lean.Meta
 import Init.Lean.Parser.Module
 
 namespace Lean
-
-inductive OpenDecl
-| simple   (ns : Name) (except : List Name)
-| explicit (id : Name) (declName : Name)
-
-namespace OpenDecl
-instance : Inhabited OpenDecl := ⟨simple Name.anonymous []⟩
-
-instance : HasToString OpenDecl :=
-⟨fun decl => match decl with
- | explicit id decl => toString id ++ " → " ++ toString decl
- | simple ns ex     => toString ns ++ (if ex == [] then "" else " hiding " ++ toString ex)⟩
-
-end OpenDecl
-
-def rootNamespace := `_root_
-
-def removeRoot (n : Name) : Name :=
-n.replacePrefix rootNamespace Name.anonymous
+namespace Elab
 
 /-
 structure ElabContext :=
@@ -354,43 +335,7 @@ partial def processCommandsAux : Unit → Frontend Unit
 
 def processCommands : Frontend Unit :=
 processCommandsAux ()
--/
 
-def headerToImports (header : Syntax) : List Import :=
-let header  := header.asNode;
-let imports := if (header.getArg 0).isNone then [{Import . module := `Init.Default}] else [];
-imports ++ (header.getArg 1).getArgs.toList.map (fun stx =>
-  -- `stx` is of the form `(Module.import "import" "runtime"? id)
-  let runtime := !(stx.getArg 1).isNone;
-  let id      := stx.getIdAt 2;
-  { module := normalizeModuleName id, runtimeOnly := runtime })
-
-def processHeader (header : Syntax) (messages : MessageLog) (ctx : Parser.ParserContextCore) (trustLevel : UInt32 := 0) : IO (Environment × MessageLog) :=
-catch
-  (do env ← importModules (headerToImports header) trustLevel;
-      pure (env, messages))
-  (fun e => do
-     env ← mkEmptyEnvironment;
-     let spos := header.getPos.getD 0;
-     let pos  := ctx.fileMap.toPosition spos;
-     pure (env, messages.add { fileName := ctx.fileName, data := toString e, pos := pos }))
-
-@[export lean_parse_imports]
-def parseImports (input : String) (fileName : Option String := none) : IO (List Import × Position × MessageLog) :=
-do env ← mkEmptyEnvironment;
-   let fileName := fileName.getD "<input>";
-   let ctx := Parser.mkParserContextCore env input fileName;
-   match Parser.parseHeader env ctx with
-   | (header, parserState, messages) => do
-     pure (headerToImports header, ctx.fileMap.toPosition parserState.pos, messages)
-
-@[export lean_print_deps]
-def printDeps (deps : List Import) : IO Unit :=
-deps.forM $ fun dep => do
-  fname ← findOLean dep.module;
-  IO.println fname
-
-/-
 def testFrontend (input : String) (fileName : Option String := none) : IO (Environment × MessageLog) :=
 do env ← mkEmptyEnvironment;
    let fileName := fileName.getD "<input>";
@@ -520,4 +465,5 @@ constant runIO {α : Type} (x : IO α) : Elab α := arbitrary _
 
 end Elab
 -/
+end Elab
 end Lean

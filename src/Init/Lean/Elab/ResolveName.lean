@@ -6,10 +6,28 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 prelude
 import Init.Lean.Modifiers
 import Init.Lean.Elab.Alias
-import Init.Lean.Elab.Basic
 
 namespace Lean
 namespace Elab
+
+inductive OpenDecl
+| simple   (ns : Name) (except : List Name)
+| explicit (id : Name) (declName : Name)
+
+namespace OpenDecl
+instance : Inhabited OpenDecl := ⟨simple Name.anonymous []⟩
+
+instance : HasToString OpenDecl :=
+⟨fun decl => match decl with
+ | explicit id decl => toString id ++ " → " ++ toString decl
+ | simple ns ex     => toString ns ++ (if ex == [] then "" else " hiding " ++ toString ex)⟩
+
+end OpenDecl
+
+def rootNamespace := `_root_
+
+def removeRoot (n : Name) : Name :=
+n.replacePrefix rootNamespace Name.anonymous
 
 /- Check whether `ns ++ id` is a valid namepace name and/or there are aliases names `ns ++ id`. -/
 private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : List Name :=

@@ -206,37 +206,6 @@ end Command
 
 /-
 
-
-private def getNumEndScopes : Option Name → Nat
-| none   => 1
-| some n => n.getNumParts
-
-private def checkAnonymousScope : List ElabScope → Bool
-| { header := Name.anonymous, .. } :: _   => true
-| _ => false
-
-private def checkEndHeader : Name → List ElabScope → Bool
-| Name.anonymous, _                             => true
-| Name.str p s _, { header := h, .. } :: scopes => h.eqStr s && checkEndHeader p scopes
-| _,              _                             => false
-
-@[builtinCommandElab «end»] def elabEnd : CommandElab :=
-fun n => do
-  s      ← get;
-  let header := (n.getArg 1).getOptionalIdent;
-  let num    := getNumEndScopes header;
-  let scopes := s.scopes;
-  if num < scopes.length then
-    modify $ fun s => { scopes := s.scopes.drop num, .. s }
-  else do {
-    -- we keep "root" scope
-    modify $ fun s => { scopes := s.scopes.drop (s.scopes.length - 1), .. s };
-    throw "invalid 'end', insufficient scopes"
-  };
-  match header with
-  | none => unless (checkAnonymousScope scopes) $ throw "invalid 'end', name is missing"
-  | some header => unless (checkEndHeader header scopes) $ throw "invalid 'end', name mismatch"
-
 @[builtinCommandElab «export»] def elabExport : CommandElab :=
 fun n => do
   -- `n` is of the form (Command.export "export" <namespace> "(" (null <ids>*) ")")

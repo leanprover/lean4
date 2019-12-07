@@ -52,7 +52,7 @@ do m ← builtinTermElabTable.get;
 def declareBuiltinTermElab (env : Environment) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
 let name := `_regBuiltinTermElab ++ declName;
 let type := mkApp (mkConst `IO) (mkConst `Unit);
-let val  := mkAppN (mkConst `addBuiltinTermElab) #[toExpr kind, toExpr declName, mkConst declName];
+let val  := mkAppN (mkConst `Lean.Elab.Term.addBuiltinTermElab) #[toExpr kind, toExpr declName, mkConst declName];
 let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
 match env.addAndCompile {} decl with
 -- TODO: pretty print error
@@ -70,7 +70,7 @@ registerAttribute {
    | none  => throw "unknown declaration"
    | some decl =>
      match decl.type with
-     | Expr.const `Lean.TermElab _ _ => declareBuiltinTermElab env kind declName
+     | Expr.const `Lean.Elab.Term.TermElab _ _ => declareBuiltinTermElab env kind declName
      | _ => throw (IO.userError ("unexpected term elaborator type at '" ++ toString declName ++ "' `TermElab` expected"))
  },
  applicationTime := AttributeApplicationTime.afterCompilation

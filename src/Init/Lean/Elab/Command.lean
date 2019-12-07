@@ -65,7 +65,7 @@ do m ← builtinCommandElabTable.get;
 def declareBuiltinCommandElab (env : Environment) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
 let name := `_regBuiltinCommandElab ++ declName;
 let type := mkApp (mkConst `IO) (mkConst `Unit);
-let val  := mkAppN (mkConst `addBuiltinCommandElab) #[toExpr kind, toExpr declName, mkConst declName];
+let val  := mkAppN (mkConst `Lean.Elab.Command.addBuiltinCommandElab) #[toExpr kind, toExpr declName, mkConst declName];
 let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
 match env.addAndCompile {} decl with
 -- TODO: pretty print error
@@ -83,7 +83,7 @@ registerAttribute {
    | none  => throw "unknown declaration"
    | some decl =>
      match decl.type with
-     | Expr.const `Lean.CommandElab _ _ => declareBuiltinCommandElab env kind declName
+     | Expr.const `Lean.Elab.Command.CommandElab _ _ => declareBuiltinCommandElab env kind declName
      | _ => throw (IO.userError ("unexpected command elaborator type at '" ++ toString declName ++ "' `CommandElab` expected"))
  },
  applicationTime := AttributeApplicationTime.afterCompilation
@@ -103,6 +103,12 @@ stx.ifNode
     | some elab => elab n
     | none      => logError stx ("command '" ++ toString k ++ "' has not been implemented"))
   (fun _ => logErrorUsingCmdPos ("unexpected command"))
+
+def getNamespace : CommandElabM Name :=
+do s ← get;
+   match s.scopes with
+   | []      => pure Name.anonymous
+   | (sc::_) => pure sc.ns
 
 end Command
 

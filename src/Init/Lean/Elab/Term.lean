@@ -5,9 +5,8 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Lean.Meta
-import Init.Lean.Elab.Util
+import Init.Lean.Elab.Log
 import Init.Lean.Elab.Alias
-import Init.Lean.Elab.Exception
 import Init.Lean.Elab.ResolveName
 
 namespace Lean
@@ -27,11 +26,18 @@ inductive SyntheticMVarInfo
 | postponed (macroStack : List Syntax) : SyntheticMVarInfo
 
 structure State extends Meta.State :=
-(macroStack     : List Syntax)
-(syntheticMVars : List (MVarId × SyntheticMVarInfo))
+(macroStack     : List Syntax := [])
+(syntheticMVars : List (MVarId × SyntheticMVarInfo) := [])
+(messages       : MessageLog := {})
 
 abbrev TermElabM := ReaderT Context (EStateM Exception State)
 abbrev TermElab  := SyntaxNode → Option Expr → TermElabM Expr
+
+instance TermElabM.monadLog : MonadLog TermElabM :=
+{ getCmdPos   := do ctx ← read; pure ctx.cmdPos,
+  getFileMap  := do ctx ← read; pure ctx.fileMap,
+  getFileName := do ctx ← read; pure ctx.fileName,
+  logMessage  := fun msg => modify $ fun s => { messages := s.messages.add msg, .. s } }
 
 abbrev TermElabTable := SMap SyntaxNodeKind TermElab
 def mkBuiltinTermElabTable : IO (IO.Ref TermElabTable) :=  IO.mkRef {}
@@ -82,6 +88,17 @@ fun ctx s => match x ctx.toContext s.toState with
 def isDefEq (t s : Expr) : TermElabM Bool := liftMetaM $ Meta.isDefEq t s
 def inferType (e : Expr) : TermElabM Expr := liftMetaM $ Meta.inferType e
 def whnf (e : Expr) : TermElabM Expr := liftMetaM $ Meta.whnf e
+
+def elabTerm (stx : Syntax) (expectedType : Option Expr) : TermElabM Expr :=
+stx.ifNode
+  (fun n => do
+    s ← get;
+    let tables := termElabAttribute.ext.getState s.env;
+    let k := n.getKind;
+    match tables.find k with
+    | some elab => elab n expectedType
+    | none      => throw $ Exception.other ("elaboration function for '" ++ toString k ++ "' has not been implemented"))
+  (fun _ => throw $ Exception.other "term elaborator failed, unexpected syntax")
 
 end Term
 

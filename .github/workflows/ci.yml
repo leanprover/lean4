@@ -19,6 +19,8 @@ jobs:
         include:
           - name: Linux
             os: ubuntu-latest
+            check-stage3: true
+            test-speedcenter: true
           - name: Linux Debug
             os: ubuntu-latest
             CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Debug
@@ -84,6 +86,12 @@ jobs:
         run: msys2do cd build; ctest -j --output-on-failure ^< /dev/null
         shell: cmd
         if: matrix.os == 'windows-latest'
+      - name: Check Stage 3
+        run: nix-shell --run "cd build; make -j4 check-stage3"
+        if: matrix.check-stage3
+      - name: Test Speedcenter Benchmarks
+        run: nix-shell --run "cd tests/bench; temci exec --config speedcenter.yaml --runs 1"
+        if: matrix.test-speedcenter
       - name: CCache stats
         run: nix-shell --run "ccache -s"
         if: matrix.os != 'windows-latest'

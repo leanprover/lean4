@@ -3,5 +3,5 @@ set -e
 mkdir build
 cd build
 eval cmake ../src $CMAKE_OPTIONS
-cmake --build .
+cmake --build . -j4
 cpack

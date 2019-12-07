@@ -4,9 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Lean.Elab.Util
 import Init.Lean.Elab.Alias
-import Init.Lean.Elab.Exception
+import Init.Lean.Elab.Log
 import Init.Lean.Elab.ResolveName
 import Init.Lean.Elab.Term
 
@@ -47,6 +46,12 @@ structure State :=
 abbrev CommandElabM := ReaderT Context (EStateM Exception State)
 abbrev CommandElab  := SyntaxNode → CommandElabM Unit
 
+instance CommandElabM.monadLog : MonadLog CommandElabM :=
+{ getCmdPos   := do s ← get; pure s.cmdPos,
+  getFileMap  := do ctx ← read; pure ctx.fileMap,
+  getFileName := do ctx ← read; pure ctx.fileName,
+  logMessage  := fun msg => modify $ fun s => { messages := s.messages.add msg, .. s } }
+
 abbrev CommandElabTable := SMap SyntaxNodeKind CommandElab
 def mkBuiltinCommandElabTable : IO (IO.Ref CommandElabTable) := IO.mkRef {}
 @[init mkBuiltinCommandElabTable] constant builtinCommandElabTable : IO.Ref CommandElabTable := arbitrary _
@@ -60,7 +65,7 @@ do m ← builtinCommandElabTable.get;
 def declareBuiltinCommandElab (env : Environment) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
 let name := `_regBuiltinCommandElab ++ declName;
 let type := mkApp (mkConst `IO) (mkConst `Unit);
-let val  := mkAppN (mkConst `addBuiltinCommandElab) #[toExpr kind, toExpr declName, mkConst declName];
+let val  := mkAppN (mkConst `Lean.Elab.Command.addBuiltinCommandElab) #[toExpr kind, toExpr declName, mkConst declName];
 let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
 match env.addAndCompile {} decl with
 -- TODO: pretty print error
@@ -78,7 +83,7 @@ registerAttribute {
    | none  => throw "unknown declaration"
    | some decl =>
      match decl.type with
-     | Expr.const `Lean.CommandElab _ _ => declareBuiltinCommandElab env kind declName
+     | Expr.const `Lean.Elab.Command.CommandElab _ _ => declareBuiltinCommandElab env kind declName
      | _ => throw (IO.userError ("unexpected command elaborator type at '" ++ toString declName ++ "' `CommandElab` expected"))
  },
  applicationTime := AttributeApplicationTime.afterCompilation
@@ -87,6 +92,23 @@ registerAttribute {
 abbrev CommandElabAttribute := ElabAttribute CommandElabTable
 def mkCommandElabAttribute : IO CommandElabAttribute := mkElabAttribute `commandTerm "command" builtinCommandElabTable
 @[init mkCommandElabAttribute] constant commandElabAttribute : CommandElabAttribute := arbitrary _
+
+def elabCommand (stx : Syntax) : CommandElabM Unit :=
+stx.ifNode
+  (fun n => do
+    s ← get;
+    let tables := commandElabAttribute.ext.getState s.env;
+    let k := n.getKind;
+    match tables.find k with
+    | some elab => elab n
+    | none      => logError stx ("command '" ++ toString k ++ "' has not been implemented"))
+  (fun _ => logErrorUsingCmdPos ("unexpected command"))
+
+def getNamespace : CommandElabM Name :=
+do s ← get;
+   match s.scopes with
+   | []      => pure Name.anonymous
+   | (sc::_) => pure sc.ns
 
 end Command
 

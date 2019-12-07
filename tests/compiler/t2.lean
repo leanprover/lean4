@@ -92,7 +92,7 @@ do
 def main (xs : List String) : IO UInt32 :=
 do let x := Var "x";
    let f := pow x x;
-   nest deriv 9 f;
+   nest deriv 7 f;
    pure 0
 
 -- setOption profiler True

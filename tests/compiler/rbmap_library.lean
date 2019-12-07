@@ -61,9 +61,9 @@ do IO.setRandSeed seed;
 
 def main (xs : List String) : IO Unit :=
 tst1 *> tst2 *>
-tst3 1 10000 20000 *>
-tst3 2 10000 40000 *>
-tst3 3 1000  4000 *>
-tst3 4 50000 100000 *>
-tst3 5 10000 40000 *>
+tst3 1 1000 20000 *>
+tst3 2 1000 40000 *>
+tst3 3 100  4000 *>
+tst3 4 5000 100000 *>
+tst3 5 1000 40000 *>
 pure ()

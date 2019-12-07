@@ -51,7 +51,7 @@ n.fold (fun i m => m.erase i) m
 
 def main (xs : List String) : IO Unit :=
 do
-let n := 50000;
+let n := 5000;
 let m := mkMap n;
 -- IO.println (formatMap m.root);
 IO.println m.stats;
@@ -59,11 +59,11 @@ check n m;
 let m := delOdd n m;
 IO.println m.stats;
 check2 n 0 m;
-let m := delLess 49900 m;
-check2 n 49900 m;
+let m := delLess 4900 m;
+check2 n 4900 m;
 IO.println m.size;
 IO.println m.stats;
-let m := delLess 49990 m;
-check2 n 49990 m;
+let m := delLess 4990 m;
+check2 n 4990 m;
 IO.println m.size;
 IO.println m.stats

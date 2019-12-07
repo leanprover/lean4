@@ -47,6 +47,9 @@ if(NOT STAGE0)
     set(PREV_LEAN "$<TARGET_FILE:lean_stage${STAGE}>")
   endforeach()
 
+  add_custom_target(check-stage3
+    COMMAND diff "$<TARGET_FILE:lean_stage2>" "$<TARGET_FILE:lean_stage3>")
+
   add_custom_target(update-stage0
     COMMAND make update-stage0 "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1/Init"
     DEPENDS leanstdlib

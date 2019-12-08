@@ -197,20 +197,22 @@ fun _ => do
   | Except.ok env   => setEnv env
   | Except.error ex => logElabException (Exception.kernel ex)
 
-/- We just ignore Lean3 notation declaration commands. -/
-@[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()
-@[builtinCommandElab «reserve»] def elabReserve : CommandElab := fun _ => pure ()
-@[builtinCommandElab «notation»] def elabNotation : CommandElab := fun _ => pure ()
+def getOpenDecls : CommandElabM (List OpenDecl) :=
+do scope ← getScope; pure scope.openDecls
 
-end Command
-
-/-
+def resolveNamespace (id : Name) : CommandElabM Name :=
+do env ← getEnv;
+   ns  ← getNamespace;
+   openDecls ← getOpenDecls;
+   match Elab.resolveNamespace env ns openDecls id with
+   | some ns => pure ns
+   | none    => throw (Exception.other ("unknown namespace '" ++ toString id ++ "'"))
 
 @[builtinCommandElab «export»] def elabExport : CommandElab :=
 fun n => do
   -- `n` is of the form (Command.export "export" <namespace> "(" (null <ids>*) ")")
-  let ns  := n.getIdAt 1;
-  ns ← resolveNamespace ns;
+  let id  := n.getIdAt 1;
+  ns ← resolveNamespace id;
   currNs ← getNamespace;
   when (ns == currNs) $ throw "invalid 'export', self export";
   env ← getEnv;
@@ -227,20 +229,22 @@ fun n => do
     [];
   modify $ fun s => { env := aliases.foldl (fun env p => addAlias env p.1 p.2) s.env, .. s }
 
-def addOpenDecl (d : OpenDecl) : Elab Unit :=
+def addOpenDecl (d : OpenDecl) : CommandElabM Unit :=
 modifyScope $ fun scope => { openDecls := d :: scope.openDecls, .. scope }
 
-def elabOpenSimple (n : SyntaxNode) : Elab Unit :=
+def elabOpenSimple (n : SyntaxNode) : CommandElabM Unit :=
+-- `open` id+
 let nss := n.getArg 0;
-nss.mforArgs $ fun ns => do
+nss.forArgsM $ fun ns => do
   ns ← resolveNamespace ns.getId;
   addOpenDecl (OpenDecl.simple ns [])
 
-def elabOpenOnly (n : SyntaxNode) : Elab Unit :=
+def elabOpenOnly (n : SyntaxNode) : CommandElabM Unit :=
+-- `open` id `(` id+ `)`
 do let ns  := n.getIdAt 0;
    ns ← resolveNamespace ns;
    let ids := n.getArg 2;
-   ids.mforArgs $ fun idStx => do
+   ids.forArgsM $ fun idStx => do
      let id := idStx.getId;
      let declName := ns ++ id;
      env ← getEnv;
@@ -249,12 +253,13 @@ do let ns  := n.getIdAt 0;
      else
        logUnknownDecl idStx declName
 
-def elabOpenHiding (n : SyntaxNode) : Elab Unit :=
+def elabOpenHiding (n : SyntaxNode) : CommandElabM Unit :=
+-- `open` id `hiding` id+
 do let ns := n.getIdAt 0;
    ns ← resolveNamespace ns;
    let idsStx := n.getArg 2;
    env ← getEnv;
-   ids : List Name ← idsStx.mfoldArgs (fun idStx ids => do
+   ids : List Name ← idsStx.foldArgsM (fun idStx ids => do
      let id := idStx.getId;
      let declName := ns ++ id;
      if env.contains declName then
@@ -265,11 +270,12 @@ do let ns := n.getIdAt 0;
      [];
    addOpenDecl (OpenDecl.simple ns ids)
 
-def elabOpenRenaming (n : SyntaxNode) : Elab Unit :=
+def elabOpenRenaming (n : SyntaxNode) : CommandElabM Unit :=
+-- `open` id `renaming` sepBy (id `->` id) `,`
 do let ns := n.getIdAt 0;
    ns ← resolveNamespace ns;
    let rs := (n.getArg 2);
-   rs.mforSepArgs $ fun stx => do
+   rs.forSepArgsM $ fun stx => do
      let fromId   := stx.getIdAt 0;
      let toId     := stx.getIdAt 2;
      let declName := ns ++ fromId;
@@ -292,6 +298,14 @@ fun n => do
   else
     elabOpenRenaming body
 
+/- We just ignore Lean3 notation declaration commands. -/
+@[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()
+@[builtinCommandElab «reserve»] def elabReserve : CommandElab := fun _ => pure ()
+@[builtinCommandElab «notation»] def elabNotation : CommandElab := fun _ => pure ()
+
+end Command
+
+/-
 
 @[builtinCommandElab «variable»] def elabVariable : CommandElab :=
 fun n => do

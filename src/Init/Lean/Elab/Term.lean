@@ -18,6 +18,7 @@ structure Context extends Meta.Context :=
 (fileMap     : FileMap)
 (cmdPos      : String.Pos)
 (ns          : Name) -- current Namespace
+(univNames   : List Name := [])
 (openDecls   : List OpenDecl := [])
 
 inductive SyntheticMVarInfo
@@ -80,7 +81,7 @@ abbrev TermElabAttribute := ElabAttribute TermElabTable
 def mkTermElabAttribute : IO TermElabAttribute := mkElabAttribute `elabTerm "term" builtinTermElabTable
 @[init mkTermElabAttribute] constant termElabAttribute : TermElabAttribute := arbitrary _
 
-@[inline] def liftMetaM {α} (x : Meta.MetaM α) : TermElabM α :=
+@[inline] def liftMetaM {α} (x : MetaM α) : TermElabM α :=
 fun ctx s => match x ctx.toContext s.toState with
   | EStateM.Result.ok a newS     => EStateM.Result.ok a { toState := newS, .. s }
   | EStateM.Result.error ex newS => EStateM.Result.error (Exception.meta ex) { toState := newS, .. s }
@@ -88,6 +89,9 @@ fun ctx s => match x ctx.toContext s.toState with
 def isDefEq (t s : Expr) : TermElabM Bool := liftMetaM $ Meta.isDefEq t s
 def inferType (e : Expr) : TermElabM Expr := liftMetaM $ Meta.inferType e
 def whnf (e : Expr) : TermElabM Expr := liftMetaM $ Meta.whnf e
+def mkFreshLevelMVar : TermElabM Level := liftMetaM $ Meta.mkFreshLevelMVar
+def mkFreshExprMVar (type : Expr) (userName? : Name := Name.anonymous) (synthetic : Bool := false) : TermElabM Expr :=
+liftMetaM $ Meta.mkFreshExprMVar type userName? synthetic
 
 def elabTerm (stx : Syntax) (expectedType : Option Expr) : TermElabM Expr :=
 stx.ifNode
@@ -100,7 +104,13 @@ stx.ifNode
     | none      => throw $ Exception.other ("elaboration function for '" ++ toString k ++ "' has not been implemented"))
   (fun _ => throw $ Exception.other "term elaborator failed, unexpected syntax")
 
+def elabType (stx : Syntax) : TermElabM Expr :=
+do u ← mkFreshLevelMVar;
+   elabTerm stx (mkSort u)
+
 end Term
+
+export Term (TermElabM)
 
 /-
 partial def elabTermAux : Syntax Expr → Option Expr → Bool → Elab (Syntax Expr)

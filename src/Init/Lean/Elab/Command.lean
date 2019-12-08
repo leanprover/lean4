@@ -95,6 +95,26 @@ stx.ifNode
     | none      => logError stx ("command '" ++ toString k ++ "' has not been implemented"))
   (fun _ => logErrorUsingCmdPos ("unexpected command"))
 
+@[specialize] def runTermElabM {α} (x : TermElabM α) : CommandElabM α :=
+fun ctx s =>
+  let scope := s.scopes.head!;
+  let termCtx : Term.Context := {
+    config         := { opts := scope.options, foApprox := true, ctxApprox := true, quasiPatternApprox := true, isDefEqStuckEx := true },
+    fileName       := ctx.fileName,
+    fileMap        := ctx.fileMap,
+    cmdPos         := s.cmdPos,
+    ns             := scope.ns,
+    univNames      := scope.univNames,
+    openDecls      := scope.openDecls
+  };
+  let termState : Term.State := {
+    env      := s.env,
+    messages := s.messages
+  };
+  match x termCtx termState with
+  | EStateM.Result.ok a newS     => EStateM.Result.ok a { env := newS.env, messages := newS.messages, .. s }
+  | EStateM.Result.error ex newS => EStateM.Result.error ex { env := newS.env, messages := newS.messages, .. s }
+
 def getEnv : CommandElabM Environment :=
 do s ← get; pure s.env
 

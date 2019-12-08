@@ -88,6 +88,7 @@ fun ctx s => match x ctx.toContext s.toState with
 
 def getOptions : TermElabM Options       := do ctx ← read; pure ctx.config.opts
 def getTraceState : TermElabM TraceState := do s ← get; pure s.traceState
+def setTraceState (traceState : TraceState) : TermElabM Unit := modify $ fun s => { traceState := traceState, .. s }
 def addContext (msg : MessageData) : TermElabM MessageData :=
 do ctx ← read;
    s   ← get;

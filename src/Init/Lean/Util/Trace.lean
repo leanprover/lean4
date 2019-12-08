@@ -140,6 +140,12 @@ do s ← getTraceState; pure s.traces
 @[inline] def modifyTraces (f : Array MessageData → Array MessageData) : m Unit :=
 modifyTraceState $ fun s => { traces := f s.traces, .. s }
 
+@[inline] def setTrace (f : Array MessageData → Array MessageData) : m Unit :=
+modifyTraceState $ fun s => { traces := f s.traces, .. s }
+
+@[inline] def setTraceState (s : TraceState) : m Unit :=
+modifyTraceState $ fun _ => s
+
 end SimpleMonadTracerAdapter
 
 instance simpleMonadTracerAdapter {m : Type → Type} [SimpleMonadTracerAdapter m] [Monad m] : MonadTracerAdapter m :=

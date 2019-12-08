@@ -25,40 +25,50 @@ do fileMap ← getFileMap;
    cmdPos ← getCmdPos;
    pure $ fileMap.toPosition (pos.getD cmdPos)
 
-def mkMessage (msg : MessageData) (pos : Option String.Pos := none) : m Message :=
+def mkMessage (msgData : MessageData) (severity : MessageSeverity) (pos : Option String.Pos := none) : m Message :=
 do fileMap ← getFileMap;
    fileName ← getFileName;
    cmdPos ← getCmdPos;
    let pos := fileMap.toPosition (pos.getD cmdPos);
-   pure { fileName := fileName, pos := pos, data := msg }
-
-def logErrorAt (pos : String.Pos) (errorMsg : String) : m Unit :=
-do msg ← mkMessage errorMsg pos; logMessage msg
-
-def logErrorUsingCmdPos (errorMsg : String) : m Unit :=
-do cmdPos ← getCmdPos;
-   logErrorAt cmdPos errorMsg
+   pure { fileName := fileName, pos := pos, data := msgData, severity := severity }
 
 def getPos (stx : Syntax) : m String.Pos :=
 match stx.getPos with
 | some p => pure p
 | none   => getCmdPos
 
-def logError (stx : Syntax) (errorMsg : String) : m Unit :=
+def logAt (pos : String.Pos) (severity : MessageSeverity) (msgData : MessageData) : m Unit :=
+do msg ← mkMessage msgData severity pos;
+   logMessage msg
+
+def log (stx : Syntax) (severity : MessageSeverity) (msgData : MessageData) : m Unit :=
 do pos ← getPos stx;
-   logErrorAt pos errorMsg
+   logAt pos severity msgData
+
+def logError (stx : Syntax) (msgData : MessageData) : m Unit :=
+log stx MessageSeverity.error msgData
+
+def logWarning (stx : Syntax) (msgData : MessageData) : m Unit :=
+log stx MessageSeverity.warning msgData
+
+def logInfo (stx : Syntax) (msgData : MessageData) : m Unit :=
+log stx MessageSeverity.information msgData
+
+def logErrorUsingCmdPos (msgData : MessageData) : m Unit :=
+do cmdPos ← getCmdPos;
+   logAt cmdPos MessageSeverity.error msgData
 
 def logElabException (e : Exception) : m Unit :=
 match e with
 | Exception.silent    => pure () -- do nothing since message was already logged
 | Exception.msg m     => logMessage m
-| Exception.io e      => do msg ← mkMessage (toString e); logMessage msg
-| Exception.other e   => do msg ← mkMessage e; logMessage msg
-| Exception.meta e    => do msg ← mkMessage e.toMessageData; logMessage msg
+| Exception.io e      => logErrorUsingCmdPos (toString e)
+| Exception.other e   => logErrorUsingCmdPos e
+| Exception.meta e    => logErrorUsingCmdPos e.toMessageData
 | Exception.kernel e  =>
   match e with
-  | KernelException.other msg => do msg ← mkMessage msg; logMessage msg
-  | _                         => do msg ← mkMessage "kernel exception"; logMessage msg -- TODO(pretty print them)
+  | KernelException.other msg => logErrorUsingCmdPos msg
+  | _                         => logErrorUsingCmdPos "kernel exception" -- TODO(pretty print them)
 
 def logErrorAndThrow {α} [MonadExcept Exception m] (stx : Syntax) (errorMsg : String) : m α :=
 do logError stx errorMsg;
@@ -66,6 +76,21 @@ do logError stx errorMsg;
 
 def logUnknownDecl (stx : Syntax) (declName : Name) : m Unit :=
 logError stx ("unknown declaration '" ++ toString declName ++ "'")
+
+private def resetTraceState {m : Type → Type} [Monad m] [SimpleMonadTracerAdapter m] : m TraceState :=
+do trace ← SimpleMonadTracerAdapter.getTraceState;
+   SimpleMonadTracerAdapter.setTraceState {};
+   pure trace
+
+private def saveNewTraceAsMessages {m : Type → Type} [Monad m] [MonadLog m] [SimpleMonadTracerAdapter m] (ref : Syntax) (oldTraceState : TraceState) : m Unit :=
+do traces ← SimpleMonadTracerAdapter.getTraces;
+   traces.forM $ logInfo ref;
+   SimpleMonadTracerAdapter.setTraceState oldTraceState
+
+/-- Execute `x` and save generated trace messages in the `MessageLog` using position information provided by `ref`. -/
+@[specialize] def tracingAt {α} {m : Type → Type} [Monad m] [MonadExcept Exception m] [MonadLog m] [SimpleMonadTracerAdapter m] (ref : Syntax) (x : m α) : m α :=
+do oldTraceState ← resetTraceState;
+   finally x (saveNewTraceAsMessages ref oldTraceState)
 
 end Elab
 end Lean

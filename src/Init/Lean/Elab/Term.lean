@@ -117,7 +117,7 @@ stx.ifNode
     let tables := termElabAttribute.ext.getState s.env;
     let k := n.getKind;
     match tables.find k with
-    | some elab => elab n expectedType
+    | some elab => tracingAt stx $ elab n expectedType
     | none      => throw $ Exception.other ("elaboration function for '" ++ toString k ++ "' has not been implemented"))
   (fun _ => throw $ Exception.other "term elaborator failed, unexpected syntax")
 

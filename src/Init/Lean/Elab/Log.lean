@@ -41,6 +41,9 @@ def logAt (pos : String.Pos) (severity : MessageSeverity) (msgData : MessageData
 do msg ← mkMessage msgData severity pos;
    logMessage msg
 
+def logInfoAt (pos : String.Pos) (msgData : MessageData) : m Unit :=
+logAt pos MessageSeverity.information msgData
+
 def log (stx : Syntax) (severity : MessageSeverity) (msgData : MessageData) : m Unit :=
 do pos ← getPos stx;
    logAt pos severity msgData
@@ -82,15 +85,21 @@ do trace ← SimpleMonadTracerAdapter.getTraceState;
    SimpleMonadTracerAdapter.setTraceState {};
    pure trace
 
-private def saveNewTraceAsMessages {m : Type → Type} [Monad m] [MonadLog m] [SimpleMonadTracerAdapter m] (ref : Syntax) (oldTraceState : TraceState) : m Unit :=
+private def saveNewTraceAsMessagesAt {m : Type → Type} [Monad m] [MonadLog m] [SimpleMonadTracerAdapter m] (pos : String.Pos) (oldTraceState : TraceState) : m Unit :=
 do traces ← SimpleMonadTracerAdapter.getTraces;
-   traces.forM $ logInfo ref;
+   traces.forM $ logInfoAt pos;
    SimpleMonadTracerAdapter.setTraceState oldTraceState
 
-/-- Execute `x` and save generated trace messages in the `MessageLog` using position information provided by `ref`. -/
-@[specialize] def tracingAt {α} {m : Type → Type} [Monad m] [MonadExcept Exception m] [MonadLog m] [SimpleMonadTracerAdapter m] (ref : Syntax) (x : m α) : m α :=
+@[inline] def tracingAtPos {α} {m : Type → Type} [Monad m] [MonadExcept Exception m] [MonadLog m] [SimpleMonadTracerAdapter m] (pos : String.Pos) (x : m α) : m α :=
 do oldTraceState ← resetTraceState;
-   finally x (saveNewTraceAsMessages ref oldTraceState)
+   finally x (saveNewTraceAsMessagesAt pos oldTraceState)
+
+/-- If `ref` provides position information, then execute `x` and save generated trace messages in the `MessageLog` using the position.
+    Otherwise, just execute `x` -/
+@[inline] def tracingAt {α} {m : Type → Type} [Monad m] [MonadExcept Exception m] [MonadLog m] [SimpleMonadTracerAdapter m] (ref : Syntax) (x : m α) : m α :=
+match ref.getPos with
+| none     => x
+| some pos => tracingAtPos pos x
 
 end Elab
 end Lean

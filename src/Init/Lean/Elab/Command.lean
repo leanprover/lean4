@@ -111,7 +111,7 @@ fun ctx s =>
     env      := s.env,
     messages := s.messages
   };
-  match x termCtx termState with
+  match (tracingAtPos s.cmdPos x) termCtx termState with
   | EStateM.Result.ok a newS     => EStateM.Result.ok a { env := newS.env, messages := newS.messages, .. s }
   | EStateM.Result.error ex newS => EStateM.Result.error ex { env := newS.env, messages := newS.messages, .. s }
 

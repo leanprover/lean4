@@ -108,44 +108,20 @@ def elabType (stx : Syntax) : TermElabM Expr :=
 do u ← mkFreshLevelMVar;
    elabTerm stx (mkSort u)
 
+@[builtinTermElab «prop»] def elabProp : TermElab :=
+fun _ _ => pure $ mkSort levelZero
+
+@[builtinTermElab «sort»] def elabSort : TermElab :=
+fun _ _ => pure $ mkSort levelZero
+
+@[builtinTermElab «type»] def elabTypeStx : TermElab :=
+fun _ _ => pure $ mkSort levelOne
+
 end Term
 
 export Term (TermElabM)
 
 /-
-partial def elabTermAux : Syntax Expr → Option Expr → Bool → Elab (Syntax Expr)
-| stx, expectedType, expanding => stx.ifNode
-  (fun n => do
-    s ← get;
-    let tables := termElabAttribute.ext.getState s.env;
-    let k      := n.getKind;
-    match tables.find k with
-    | some elab => do
-      newStx ← elab n expectedType;
-      match newStx with
-      | Syntax.other _ => pure newStx
-      | _              => elabTermAux newStx expectedType expanding
-    | none      => do
-      -- recursively expand syntax
-      let k := n.getKind;
-      args ← n.getArgs.mapM $ fun arg => elabTermAux arg none true;
-      let newStx := Syntax.node k args;
-      -- if it was already expanding just return new node, otherwise invoke old elaborator
-      if expanding then
-        pure newStx
-      else
-        Syntax.other <$> oldElaborate newStx expectedType)
-  (fun _ =>
-    if expanding then pure stx
-    else match stx with
-    | Syntax.other e => pure stx
-    | _              => throw "term elaborator failed, unexpected syntax")
-
-def elabTerm (stx : Syntax Expr) (expectedType : Option Expr := none) : Elab (Syntax Expr) :=
-elabTermAux stx expectedType false
-
-open Lean.Parser
-
 @[builtinTermElab «listLit»] def elabListLit : TermElab :=
 fun stx _ => do
   let openBkt  := stx.getArg 0;

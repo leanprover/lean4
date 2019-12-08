@@ -86,6 +86,28 @@ fun ctx s => match x ctx.toContext s.toState with
   | EStateM.Result.ok a newS     => EStateM.Result.ok a { toState := newS, .. s }
   | EStateM.Result.error ex newS => EStateM.Result.error (Exception.meta ex) { toState := newS, .. s }
 
+def getOptions : TermElabM Options       := do ctx ← read; pure ctx.config.opts
+def getTraceState : TermElabM TraceState := do s ← get; pure s.traceState
+
+instance tracer : SimpleMonadTracerAdapter TermElabM :=
+{ getOptions       := getOptions,
+  getTraceState    := getTraceState,
+  modifyTraceState := fun f => modify $ fun s => { traceState := f s.traceState, .. s } }
+
+def dbgTrace {α} [HasToString α] (a : α) : TermElabM Unit :=
+_root_.dbgTrace (toString a) $ fun _ => pure ()
+
+private def addTrace (cls : Name) (msg : MessageData) : TermElabM Unit :=
+do ctx ← read;
+   s   ← get;
+   MonadTracerAdapter.addTrace cls (MessageData.context s.env s.mctx ctx.lctx msg)
+
+@[inline] def trace (cls : Name) (msg : Unit → MessageData) : TermElabM Unit :=
+whenM (MonadTracerAdapter.isTracingEnabledFor cls) $ addTrace cls (msg ())
+
+@[inline] def traceM (cls : Name) (mkMsg : TermElabM MessageData) : TermElabM Unit :=
+whenM (MonadTracerAdapter.isTracingEnabledFor cls) $ mkMsg >>= addTrace cls
+
 def isDefEq (t s : Expr) : TermElabM Bool := liftMetaM $ Meta.isDefEq t s
 def inferType (e : Expr) : TermElabM Expr := liftMetaM $ Meta.inferType e
 def whnf (e : Expr) : TermElabM Expr := liftMetaM $ Meta.whnf e

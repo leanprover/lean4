@@ -310,16 +310,16 @@ _root_.dbgTrace (toString a) $ fun _ => pure ()
 @[inline] private def getTraceState : MetaM TraceState :=
 do s ← get; pure s.traceState
 
+def addContext (msg : MessageData) : MetaM MessageData :=
+do ctx ← read;
+   s   ← get;
+   pure $ MessageData.context s.env s.mctx ctx.lctx msg
+
 instance tracer : SimpleMonadTracerAdapter MetaM :=
 { getOptions       := getOptions,
   getTraceState    := getTraceState,
+  addContext       := addContext,
   modifyTraceState := fun f => modify $ fun s => { traceState := f s.traceState, .. s } }
-
-@[inline] def trace (cls : Name) (msg : Unit → MessageData) : MetaM Unit :=
-whenM (MonadTracerAdapter.isTracingEnabledFor cls) $ do
-  ctx ← read;
-  s   ← get;
-  MonadTracerAdapter.addTrace cls (MessageData.context s.env s.mctx ctx.lctx (msg ()))
 
 def getConstAux (constName : Name) (exception? : Bool) : MetaM (Option ConstantInfo) :=
 do env ← getEnv;

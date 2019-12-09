@@ -73,7 +73,7 @@ constant allocprof {α : Type} (msg : @& String) (fn : IO α) : IO α := arbitra
 @[extern "lean_io_initializing"]
 constant IO.initializing : IO Bool := arbitrary _
 
-abbrev monadIO (m : Type → Type) := HasMonadLiftT IO m
+abbrev MonadIO (m : Type → Type) := HasMonadLiftT IO m
 
 namespace IO
 
@@ -131,12 +131,12 @@ constant fileExists (fname : @& String) : IO Bool := arbitrary _
 @[extern "lean_io_app_dir"]
 constant appPath : IO String := arbitrary _
 
-@[inline] def liftIO {m : Type → Type} {α : Type} [monadIO m] (x : IO α) : m α :=
+@[inline] def liftIO {m : Type → Type} {α : Type} [MonadIO m] (x : IO α) : m α :=
 monadLift x
 end Prim
 
 section
-variables {m : Type → Type} [Monad m] [monadIO m]
+variables {m : Type → Type} [Monad m] [MonadIO m]
 
 private def putStr : String → m Unit :=
 Prim.liftIO ∘ Prim.putStr
@@ -157,7 +157,7 @@ do p ← appPath;
 end
 
 namespace Fs
-variables {m : Type → Type} [Monad m] [monadIO m]
+variables {m : Type → Type} [Monad m] [MonadIO m]
 
 def handle.mk (s : String) (Mode : Mode) (bin : Bool := false) : m handle := Prim.liftIO (Prim.handle.mk s Mode bin)
 def handle.isEof : handle → m Bool := Prim.liftIO ∘ Prim.handle.isEof
@@ -213,22 +213,22 @@ end Fs
 /-
 namespace Proc
 def child : Type :=
-monadIOProcess.child ioCore
+MonadIOProcess.child ioCore
 
 def child.stdin : child → handle :=
-monadIOProcess.stdin
+MonadIOProcess.stdin
 
 def child.stdout : child → handle :=
-monadIOProcess.stdout
+MonadIOProcess.stdout
 
 def child.stderr : child → handle :=
-monadIOProcess.stderr
+MonadIOProcess.stderr
 
 def spawn (p : IO.process.spawnArgs) : IO child :=
-monadIOProcess.spawn ioCore p
+MonadIOProcess.spawn ioCore p
 
 def wait (c : child) : IO Nat :=
-monadIOProcess.wait c
+MonadIOProcess.wait c
 
 end Proc
 -/
@@ -253,7 +253,7 @@ constant Ref.reset {α : Type} (r : @& Ref α) : IO Unit        := arbitrary _
 end Prim
 
 section
-variables {m : Type → Type} [Monad m] [monadIO m]
+variables {m : Type → Type} [Monad m] [MonadIO m]
 @[inline] def mkRef {α : Type} (a : α) : m (Ref α) :=  Prim.liftIO (Prim.mkRef a)
 @[inline] def Ref.get {α : Type} (r : Ref α) : m α := Prim.liftIO (Prim.Ref.get r)
 @[inline] def Ref.set {α : Type} (r : Ref α) (a : α) : m Unit := Prim.liftIO (Prim.Ref.set r a)

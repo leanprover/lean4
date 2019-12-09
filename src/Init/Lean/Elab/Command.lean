@@ -138,7 +138,7 @@ do scope ← getScope; pure scope.ns
 private def addScope (kind : String) (header : String) (ns : Name) : CommandElabM Unit :=
 modify $ fun s => {
   env    := s.env.registerNamespace ns,
-  scopes := { kind := kind, header := header, ns := ns } :: s.scopes,
+  scopes := { kind := kind, header := header, ns := ns, .. s.scopes.head! } :: s.scopes,
   .. s }
 
 private def addScopes (kind : String) (updateNamespace : Bool) : Name → CommandElabM Unit

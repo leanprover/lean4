@@ -47,6 +47,9 @@ if(NOT STAGE0)
     set(PREV_LEAN "$<TARGET_FILE:lean_stage${STAGE}>")
   endforeach()
 
+  add_custom_target(check-stage3
+    COMMAND diff "$<TARGET_FILE:lean_stage2>" "$<TARGET_FILE:lean_stage3>")
+
   add_custom_target(update-stage0
     COMMAND make update-stage0 "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1/Init"
     DEPENDS leanstdlib
@@ -249,18 +252,6 @@ FOREACH(T ${LEANT0TESTS})
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/trust10"
            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME} "-t 10")
 ENDFOREACH(T)
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  # Skip stdlib tests on Windows
-  message(STATUS "skipping stdlib tests")
-else()
-  file(GLOB_RECURSE STDLIBFILES RELATIVE "${LEAN_SOURCE_DIR}/Init" "${LEAN_SOURCE_DIR}/Init/*.lean")
-  FOREACH(T ${STDLIBFILES})
-    add_test(NAME "stdlib_${T}"
-             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/Init"
-             COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" "${T}")
-  ENDFOREACH(T)
-endif()
 
 if("${MULTI_THREAD}" MATCHES "ON")
 # LEAN INTERACTIVE TESTS

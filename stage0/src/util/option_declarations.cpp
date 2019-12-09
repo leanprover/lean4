@@ -38,7 +38,7 @@ data_value mk_data_value(data_value_kind k, char const * val) {
     case data_value_kind::Bool:
         return strcmp(val, "true") == 0 ? data_value(true) : data_value(false);
     case data_value_kind::Nat:
-        return data_value(atoi(val));
+        return data_value(nat(atoi(val)));
     case data_value_kind::Name:
         return data_value(name(val));
     default:

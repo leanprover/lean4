@@ -22,5 +22,7 @@ inductive Exception
 
 instance Exception.inhabited : Inhabited Exception := ⟨Exception.silent⟩
 
+instance str2ex : HasCoe String Exception := ⟨Exception.other⟩
+
 end Elab
 end Lean

@@ -17,3 +17,7 @@ import Init.Lean.Meta.AbstractMVars
 import Init.Lean.Meta.SynthInstance
 import Init.Lean.Meta.AppBuilder
 import Init.Lean.Meta.Tactic
+
+namespace Lean
+export Meta (MetaM)
+end Lean

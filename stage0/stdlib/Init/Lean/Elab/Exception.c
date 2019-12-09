@@ -14,12 +14,22 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Elab_Exception_inhabited;
+lean_object* l_Lean_Elab_str2ex(lean_object*);
 lean_object* _init_l_Lean_Elab_Exception_inhabited() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_box(5);
 return x_1;
+}
+}
+lean_object* l_Lean_Elab_str2ex(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_ctor(4, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
 }
 }
 lean_object* initialize_Init_Lean_Meta(lean_object*);

@@ -36,6 +36,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 extern lean_object* l_Lean_FileMap_ofString___closed__1;
 lean_object* l_Lean_Meta_mkCongrArg___closed__2;
+lean_object* l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_isLevelDefEqAux___main___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqRefl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux___main(lean_object*, lean_object*);
@@ -109,7 +110,6 @@ uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 lean_object* l_Lean_Expr_arrow_x3f___boxed(lean_object*);
 lean_object* l_Lean_Meta_getMVarDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instantiateMVars(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_AppBuilder_3__mkAppMAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshLevelMVar___rarg(lean_object*);
 extern lean_object* l_Lean_Meta_Exception_toMessageData___closed__68;
@@ -5142,7 +5142,7 @@ else
 {
 lean_object* x_387; lean_object* x_388; lean_object* x_389; lean_object* x_390; uint8_t x_391; 
 x_387 = l_Lean_Meta_mkAppM___closed__2;
-x_388 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_trace___spec__1(x_387, x_3, x_4);
+x_388 = l___private_Init_Lean_Util_Trace_4__checkTraceOption___at_Lean_Meta_isLevelDefEqAux___main___spec__1(x_387, x_3, x_4);
 x_389 = lean_ctor_get(x_388, 0);
 lean_inc(x_389);
 x_390 = lean_ctor_get(x_388, 1);

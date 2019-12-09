@@ -29,6 +29,8 @@ def rootNamespace := `_root_
 def removeRoot (n : Name) : Name :=
 n.replacePrefix rootNamespace Name.anonymous
 
+/- Name resolution -/
+
 /- Check whether `ns ++ id` is a valid namepace name and/or there are aliases names `ns ++ id`. -/
 private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : List Name :=
 let resolvedId  := ns ++ id;
@@ -79,24 +81,38 @@ private def resolveNameAux (env : Environment) (ns : Name) (openDecls : List Ope
   | [] => resolveNameAux p (projSize + 1)
 | _, _ => []
 
+def resolveName (env : Environment) (ns : Name) (openDecls : List OpenDecl) (id : Name) : List (Nat × Name) :=
+resolveNameAux env ns openDecls id 0
+
+/- Namespace resolution -/
+
+def resolveNamespaceUsingScope (env : Environment) (n : Name) : Name → Option Name
+| Name.anonymous      => none
+| ns@(Name.str p _ _) => if isNamespace env (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingScope p
+| _                   => unreachable!
+
+def resolveNamespaceUsingOpenDecls (env : Environment) (n : Name) : List OpenDecl → Option Name
+| []                          => none
+| OpenDecl.simple ns [] :: ds =>  if isNamespace env (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingOpenDecls ds
+| _ :: ds                     => resolveNamespaceUsingOpenDecls ds
+
 /-
-def resolveName (id : Name) : Elab (List (Nat × Name)) :=
-do env ← getEnv;
-   ns  ← getNamespace;
-   openDecls ← getOpenDecls;
-   pure $ resolveNameAux env ns openDecls id 0
-
-private partial def preresolveNamesAux {α} (env : Environment) (ns : Name) (openDecls : List OpenDecl) : Syntax α → Syntax α
-| Syntax.node k args             => Syntax.node k (args.map preresolveNamesAux)
-| Syntax.ident info rawVal val _ => Syntax.ident info rawVal val (resolveNameAux env ns openDecls val 0)
-| stx                            => stx
-
-def preresolveNames {α} (stx : Syntax α) : Elab (Syntax α) :=
-do env ← getEnv;
-   ns  ← getNamespace;
-   openDecls ← getOpenDecls;
-   pure $ preresolveNamesAux env ns openDecls stx
+Given a name `id` try to find namespace it refers to. The resolution procedure works as follows
+1- If `id` is the extact name of an existing namespace, then return `id`
+2- If `id` is in the scope of `namespace` commands the namespace `s_1. ... . s_n`,
+   then return `s_1 . ... . s_i ++ n` if it is the name of an existing namespace. We search "backwards".
+3- Finally, for each command `open N`, return `N ++ n` if it is the name of an existing namespace.
+   We search "backwards" again. That is, we try the most recent `open` command first.
+   We only consider simple `open` commands.
 -/
+def resolveNamespace (env : Environment) (ns : Name) (openDecls : List OpenDecl) (id : Name) : Option Name :=
+if isNamespace env id then some id
+else match resolveNamespaceUsingScope env id ns with
+  | some n => some n
+  | none   =>
+    match resolveNamespaceUsingOpenDecls env id openDecls with
+    | some n => some n
+    | none   => none
 
 end Elab
 end Lean

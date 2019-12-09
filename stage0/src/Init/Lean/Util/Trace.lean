@@ -11,10 +11,12 @@ namespace Lean
 
 class MonadTracer (m : Type → Type u) :=
 (traceCtx {α} : Name → m α → m α)
-(trace {} : Name → (Unit → MessageData) → m PUnit)
+(trace {}  : Name → (Unit → MessageData) → m PUnit)
+(traceM {} : Name → m MessageData → m PUnit)
 
 class MonadTracerAdapter (m : Type → Type) :=
 (isTracingEnabledFor {} : Name → m Bool)
+(addContext {} : MessageData → m MessageData)
 (enableTracing {} : Bool → m Bool)
 (getTraces {} : m (Array MessageData))
 (modifyTraces {} : (Array MessageData → Array MessageData) → m Unit)
@@ -37,7 +39,8 @@ do oldTraces ← getTraces;
    pure oldTraces
 
 def addTrace (cls : Name) (msg : MessageData) : m Unit :=
-modifyTraces $ fun traces => traces.push (MessageData.tagged cls msg)
+do msg ← addContext msg;
+   modifyTraces $ fun traces => traces.push (MessageData.tagged cls msg)
 
 @[inline] protected def trace (cls : Name) (msg : Unit → MessageData) : m Unit :=
 whenM (isTracingEnabledFor cls) (addTrace cls (msg ()))
@@ -80,11 +83,13 @@ end MonadTracerAdapter
 
 instance monadTracerAdapter {m : Type → Type} [Monad m] [MonadTracerAdapter m] : MonadTracer m :=
 { traceCtx := @MonadTracerAdapter.traceCtx _ _ _,
-  trace    := @MonadTracerAdapter.trace _ _ _ }
+  trace    := @MonadTracerAdapter.trace _ _ _,
+  traceM   := @MonadTracerAdapter.traceM _ _ _ }
 
 instance monadTracerAdapterExcept {ε : Type} {m : Type → Type} [Monad m] [MonadExcept ε m] [MonadTracerAdapter m] : MonadTracer m :=
 { traceCtx := @MonadTracerAdapter.traceCtxExcept _ _ _ _ _,
-  trace    := @MonadTracerAdapter.trace _ _ _ }
+  trace    := @MonadTracerAdapter.trace _ _ _,
+  traceM   := @MonadTracerAdapter.traceM _ _ _ }
 
 structure TraceState :=
 (enabled : Bool := true)
@@ -104,6 +109,7 @@ class SimpleMonadTracerAdapter (m : Type → Type) :=
 (getOptions {}       : m Options)
 (modifyTraceState {} : (TraceState → TraceState) → m Unit)
 (getTraceState {}    : m TraceState)
+(addContext {}       : MessageData → m MessageData)
 
 namespace SimpleMonadTracerAdapter
 variables {m : Type → Type} [Monad m] [SimpleMonadTracerAdapter m]
@@ -134,15 +140,22 @@ do s ← getTraceState; pure s.traces
 @[inline] def modifyTraces (f : Array MessageData → Array MessageData) : m Unit :=
 modifyTraceState $ fun s => { traces := f s.traces, .. s }
 
+@[inline] def setTrace (f : Array MessageData → Array MessageData) : m Unit :=
+modifyTraceState $ fun s => { traces := f s.traces, .. s }
+
+@[inline] def setTraceState (s : TraceState) : m Unit :=
+modifyTraceState $ fun _ => s
+
 end SimpleMonadTracerAdapter
 
 instance simpleMonadTracerAdapter {m : Type → Type} [SimpleMonadTracerAdapter m] [Monad m] : MonadTracerAdapter m :=
 { isTracingEnabledFor := @SimpleMonadTracerAdapter.isTracingEnabledFor _ _ _,
   enableTracing       := @SimpleMonadTracerAdapter.enableTracing _ _ _,
   getTraces           := @SimpleMonadTracerAdapter.getTraces _ _ _,
+  addContext          := @SimpleMonadTracerAdapter.addContext _ _,
   modifyTraces        := @SimpleMonadTracerAdapter.modifyTraces _ _ _ }
 
-export MonadTracer (traceCtx trace)
+export MonadTracer (traceCtx trace traceM)
 
 /-
 Recipe for adding tracing support for a monad `M`.

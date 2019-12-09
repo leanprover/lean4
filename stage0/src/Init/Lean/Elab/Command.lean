@@ -18,30 +18,21 @@ structure Context :=
 (fileMap  : FileMap)
 
 structure Scope :=
-(cmd         : String)
-(header      : Name)
+(kind        : String)
+(header      : String)
 (options     : Options := {})
 (ns          : Name := Name.anonymous) -- current namespace
 (openDecls   : List OpenDecl := [])
-(univs       : List Name := [])
-(varDecls    : List Syntax := [])
+(univNames   : List Name := [])
+(varDecls    : Array Syntax := #[])
 
-instance Scope.inhabited : Inhabited Scope := ⟨{ cmd := "", header := arbitrary _ }⟩
-
-private def addScopes (cmd : String) (updateNamespace : Bool) : Name → List Scope → List Scope
-| Name.anonymous, scopes => scopes
-| Name.str p h _, scopes =>
-  let scopes := addScopes p scopes;
-  let ns     := scopes.head!.ns;
-  let ns     := if updateNamespace then mkNameStr ns h else ns;
-  { cmd := cmd, header := h, ns := ns } :: scopes
-| _, _ => unreachable!
+instance Scope.inhabited : Inhabited Scope := ⟨{ kind := "", header := "" }⟩
 
 structure State :=
 (env      : Environment)
 (messages : MessageLog := {})
 (cmdPos   : String.Pos := 0)
-(scopes   : List Scope := [{ cmd := "root", header := Name.anonymous }])
+(scopes   : List Scope := [{ kind := "root", header := "" }])
 
 abbrev CommandElabM := ReaderT Context (EStateM Exception State)
 abbrev CommandElab  := SyntaxNode → CommandElabM Unit
@@ -104,67 +95,152 @@ stx.ifNode
     | none      => logError stx ("command '" ++ toString k ++ "' has not been implemented"))
   (fun _ => logErrorUsingCmdPos ("unexpected command"))
 
+private def mkTermContext (ctx : Context) (s : State) : Term.Context :=
+let scope := s.scopes.head!;
+{ config         := { opts := scope.options, foApprox := true, ctxApprox := true, quasiPatternApprox := true, isDefEqStuckEx := true },
+  fileName       := ctx.fileName,
+  fileMap        := ctx.fileMap,
+  cmdPos         := s.cmdPos,
+  ns             := scope.ns,
+  univNames      := scope.univNames,
+  openDecls      := scope.openDecls }
+
+private def mkTermState (s : State) : Term.State :=
+{ env      := s.env,
+  messages := s.messages }
+
+private def getVarDecls (s : State) : Array Syntax :=
+s.scopes.head!.varDecls
+
+private def toCommandResult {α} (s : State) (result : EStateM.Result Exception Term.State α) : EStateM.Result Exception State α :=
+match result with
+| EStateM.Result.ok a newS     => EStateM.Result.ok a { env := newS.env, messages := newS.messages, .. s }
+| EStateM.Result.error ex newS => EStateM.Result.error ex { env := newS.env, messages := newS.messages, .. s }
+
+@[inline] def runTermElabM {α} (x : TermElabM α) : CommandElabM α :=
+fun ctx s => toCommandResult s $ tracingAtPos s.cmdPos (Term.elabBinders (getVarDecls s) x) (mkTermContext ctx s) (mkTermState s)
+
+def dbgTrace {α} [HasToString α] (a : α) : CommandElabM Unit :=
+_root_.dbgTrace (toString a) $ fun _ => pure ()
+
+def getEnv : CommandElabM Environment :=
+do s ← get; pure s.env
+
+def setEnv (newEnv : Environment) : CommandElabM Unit :=
+modify $ fun s => { env := newEnv, .. s }
+
+def getScope : CommandElabM Scope :=
+do s ← get; pure s.scopes.head!
+
 def getNamespace : CommandElabM Name :=
-do s ← get;
-   match s.scopes with
-   | []      => pure Name.anonymous
-   | (sc::_) => pure sc.ns
+do scope ← getScope; pure scope.ns
 
-end Command
+private def addScope (kind : String) (header : String) (ns : Name) : CommandElabM Unit :=
+modify $ fun s => {
+  env    := s.env.registerNamespace ns,
+  scopes := { kind := kind, header := header, ns := ns } :: s.scopes,
+  .. s }
 
-/-
+private def addScopes (kind : String) (updateNamespace : Bool) : Name → CommandElabM Unit
+| Name.anonymous => pure ()
+| Name.str p header _ => do
+  addScopes p;
+  ns ← getNamespace;
+  addScope kind header (if updateNamespace then ns ++ header else ns)
+| _ => unreachable!
 
 @[builtinCommandElab «namespace»] def elabNamespace : CommandElab :=
 fun n => do
   let header := n.getIdAt 1;
-  modify $ fun s => { scopes := addScopes "namespace" true header s.scopes, .. s };
-  ns     ← getNamespace;
-  modify $ fun s => { env := registerNamespace s.env ns, .. s }
+  addScopes "namespace" true header
 
 @[builtinCommandElab «section»] def elabSection : CommandElab :=
 fun n => do
-  let header := (n.getArg 1).getOptionalIdent;
-  ns ← getNamespace;
-  modify $ fun s =>
-    match header with
-    | some header => { scopes := addScopes "section" false header s.scopes, .. s }
-    | none        => { scopes := { cmd := "section", header := Name.anonymous, ns := ns } :: s.scopes, .. s }
+  let header? := (n.getArg 1).getOptionalIdent;
+  match header? with
+  | some header => addScopes "section" false header
+  | none        => do ns ← getNamespace; addScope "section" "" ns
 
-private def getNumEndScopes : Option Name → Nat
-| none   => 1
-| some n => n.getNumParts
+def getScopes : CommandElabM (List Scope) :=
+do s ← get; pure s.scopes
 
-private def checkAnonymousScope : List ElabScope → Bool
-| { header := Name.anonymous, .. } :: _   => true
-| _ => false
+private def checkAnonymousScope : List Scope → Bool
+| { header := "", .. } :: _   => true
+| _                           => false
 
-private def checkEndHeader : Name → List ElabScope → Bool
+private def checkEndHeader : Name → List Scope → Bool
 | Name.anonymous, _                             => true
-| Name.str p s _, { header := h, .. } :: scopes => h.eqStr s && checkEndHeader p scopes
+| Name.str p s _, { header := h, .. } :: scopes => h == s && checkEndHeader p scopes
 | _,              _                             => false
 
 @[builtinCommandElab «end»] def elabEnd : CommandElab :=
 fun n => do
-  s      ← get;
-  let header := (n.getArg 1).getOptionalIdent;
-  let num    := getNumEndScopes header;
-  let scopes := s.scopes;
-  if num < scopes.length then
-    modify $ fun s => { scopes := s.scopes.drop num, .. s }
+  let header? := (n.getArg 1).getOptionalIdent;
+  let endSize := match header? with
+    | none   => 1
+    | some n => n.getNumParts;
+  scopes ← getScopes;
+  if endSize < scopes.length then
+    modify $ fun s => { scopes := s.scopes.drop endSize, .. s }
   else do {
     -- we keep "root" scope
     modify $ fun s => { scopes := s.scopes.drop (s.scopes.length - 1), .. s };
     throw "invalid 'end', insufficient scopes"
   };
-  match header with
-  | none => unless (checkAnonymousScope scopes) $ throw "invalid 'end', name is missing"
+  match header? with
+  | none        => unless (checkAnonymousScope scopes) $ throw "invalid 'end', name is missing"
   | some header => unless (checkEndHeader header scopes) $ throw "invalid 'end', name mismatch"
+
+@[specialize] def modifyScope (f : Scope → Scope) : CommandElabM Unit :=
+modify $ fun s =>
+  { scopes := match s.scopes with
+    | h::t => f h :: t
+    | []   => unreachable!,
+    .. s }
+
+def getUniverseNames : CommandElabM (List Name) :=
+do scope ← getScope; pure scope.univNames
+
+def addUniverse (idStx : Syntax) : CommandElabM Unit :=
+do let id := idStx.getId;
+   univs ← getUniverseNames;
+   if univs.elem id then
+     logError idStx ("a universe named '" ++ toString id ++ "' has already been declared in this Scope")
+   else
+     modifyScope $ fun scope => { univNames := id :: scope.univNames, .. scope }
+
+@[builtinCommandElab «universe»] def elabUniverse : CommandElab :=
+fun n => do
+  addUniverse (n.getArg 1)
+
+@[builtinCommandElab «universes»] def elabUniverses : CommandElab :=
+fun n => do
+  let idsStx := n.getArg 1;
+  idsStx.forArgsM addUniverse
+
+@[builtinCommandElab «init_quot»] def elabInitQuot : CommandElab :=
+fun _ => do
+  env ← getEnv;
+  match env.addDecl Declaration.quotDecl with
+  | Except.ok env   => setEnv env
+  | Except.error ex => logElabException (Exception.kernel ex)
+
+def getOpenDecls : CommandElabM (List OpenDecl) :=
+do scope ← getScope; pure scope.openDecls
+
+def resolveNamespace (id : Name) : CommandElabM Name :=
+do env ← getEnv;
+   ns  ← getNamespace;
+   openDecls ← getOpenDecls;
+   match Elab.resolveNamespace env ns openDecls id with
+   | some ns => pure ns
+   | none    => throw (Exception.other ("unknown namespace '" ++ toString id ++ "'"))
 
 @[builtinCommandElab «export»] def elabExport : CommandElab :=
 fun n => do
   -- `n` is of the form (Command.export "export" <namespace> "(" (null <ids>*) ")")
-  let ns  := n.getIdAt 1;
-  ns ← resolveNamespace ns;
+  let id  := n.getIdAt 1;
+  ns ← resolveNamespace id;
   currNs ← getNamespace;
   when (ns == currNs) $ throw "invalid 'export', self export";
   env ← getEnv;
@@ -181,20 +257,22 @@ fun n => do
     [];
   modify $ fun s => { env := aliases.foldl (fun env p => addAlias env p.1 p.2) s.env, .. s }
 
-def addOpenDecl (d : OpenDecl) : Elab Unit :=
+def addOpenDecl (d : OpenDecl) : CommandElabM Unit :=
 modifyScope $ fun scope => { openDecls := d :: scope.openDecls, .. scope }
 
-def elabOpenSimple (n : SyntaxNode) : Elab Unit :=
+def elabOpenSimple (n : SyntaxNode) : CommandElabM Unit :=
+-- `open` id+
 let nss := n.getArg 0;
-nss.mforArgs $ fun ns => do
+nss.forArgsM $ fun ns => do
   ns ← resolveNamespace ns.getId;
   addOpenDecl (OpenDecl.simple ns [])
 
-def elabOpenOnly (n : SyntaxNode) : Elab Unit :=
+def elabOpenOnly (n : SyntaxNode) : CommandElabM Unit :=
+-- `open` id `(` id+ `)`
 do let ns  := n.getIdAt 0;
    ns ← resolveNamespace ns;
    let ids := n.getArg 2;
-   ids.mforArgs $ fun idStx => do
+   ids.forArgsM $ fun idStx => do
      let id := idStx.getId;
      let declName := ns ++ id;
      env ← getEnv;
@@ -203,12 +281,13 @@ do let ns  := n.getIdAt 0;
      else
        logUnknownDecl idStx declName
 
-def elabOpenHiding (n : SyntaxNode) : Elab Unit :=
+def elabOpenHiding (n : SyntaxNode) : CommandElabM Unit :=
+-- `open` id `hiding` id+
 do let ns := n.getIdAt 0;
    ns ← resolveNamespace ns;
    let idsStx := n.getArg 2;
    env ← getEnv;
-   ids : List Name ← idsStx.mfoldArgs (fun idStx ids => do
+   ids : List Name ← idsStx.foldArgsM (fun idStx ids => do
      let id := idStx.getId;
      let declName := ns ++ id;
      if env.contains declName then
@@ -219,11 +298,12 @@ do let ns := n.getIdAt 0;
      [];
    addOpenDecl (OpenDecl.simple ns ids)
 
-def elabOpenRenaming (n : SyntaxNode) : Elab Unit :=
+def elabOpenRenaming (n : SyntaxNode) : CommandElabM Unit :=
+-- `open` id `renaming` sepBy (id `->` id) `,`
 do let ns := n.getIdAt 0;
    ns ← resolveNamespace ns;
    let rs := (n.getArg 2);
-   rs.mforSepArgs $ fun stx => do
+   rs.forSepArgsM $ fun stx => do
      let fromId   := stx.getIdAt 0;
      let toId     := stx.getIdAt 2;
      let declName := ns ++ fromId;
@@ -246,29 +326,39 @@ fun n => do
   else
     elabOpenRenaming body
 
-def addUniverse (idStx : Syntax) : Elab Unit :=
-do let id := idStx.getId;
-   univs ← getUniverses;
-   if univs.elem id then
-     logError idStx ("a universe named '" ++ toString id ++ "' has already been declared in this Scope")
-   else
-     modifyScope $ fun scope => { univs := id :: scope.univs, .. scope }
+/- We just ignore Lean3 notation declaration commands. -/
+@[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()
+@[builtinCommandElab «reserve»] def elabReserve : CommandElab := fun _ => pure ()
+@[builtinCommandElab «notation»] def elabNotation : CommandElab := fun _ => pure ()
 
-@[builtinCommandElab «universe»] def elabUniverse : CommandElab :=
+@[builtinCommandElab «variable»] def elabVariable : CommandElab :=
 fun n => do
-  addUniverse (n.getArg 1)
+  -- `variable` bracktedBinder
+  let binder := n.getArg 1;
+  -- Try to elaborate `binder` for sanity checking
+  runTermElabM $ Term.elabBinder binder $ pure ();
+  modifyScope $ fun scope => { varDecls := scope.varDecls.push binder, .. scope }
 
-@[builtinCommandElab «universes»] def elabUniverses : CommandElab :=
+@[builtinCommandElab «variables»] def elabVariables : CommandElab :=
 fun n => do
-  let idsStx := n.getArg 1;
-  idsStx.mforArgs addUniverse
+  -- `variables` bracktedBinder+
+  let binders := (n.getArg 1).getArgs;
+  -- Try to elaborate `binders` for sanity checking
+  runTermElabM $ Term.elabBinders binders $ pure ();
+  modifyScope $ fun scope => { varDecls := scope.varDecls ++ binders, .. scope }
 
-@[builtinCommandElab «init_quot»] def elabInitQuot : CommandElab :=
-fun _ => do
-  env ← getEnv;
-  match env.addDecl Declaration.quotDecl with
-  | Except.ok env   => setEnv env
-  | Except.error ex => logElabException (ElabException.kernel ex)
+@[builtinCommandElab «check»] def elabCheck : CommandElab :=
+fun n => do
+  let term := n.getArg 1;
+  runTermElabM $ do
+    e    ← Term.elabTerm term none;
+    type ← Term.inferType e;
+    logInfo n.val (e ++ " : " ++ type);
+    pure ()
+
+end Command
+
+/-
 
 @[builtinCommandElab «variable»] def elabVariable : CommandElab :=
 fun n => do
@@ -293,10 +383,6 @@ fun n => do
     runIO (IO.println other);
     throw "failed to elaborate syntax"
 
-/- We just ignore Lean3 notation declaration commands. -/
-@[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()
-@[builtinCommandElab «reserve»] def elabReserve : CommandElab := fun _ => pure ()
-@[builtinCommandElab «notation»] def elabNotation : CommandElab := fun _ => pure ()
 -/
 end Elab
 end Lean

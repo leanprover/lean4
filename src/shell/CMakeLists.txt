@@ -112,10 +112,12 @@ if(NOT STAGE0)
     if (MSVC)
       ADD_CUSTOM_TARGET(bin_lean ALL
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean>" "$<TARGET_FILE_DIR:lean>/mpir.dll" "${LEAN_SOURCE_DIR}/../bin/"
+        DEPENDS bin_lean_stage0
       )
     else()
       ADD_CUSTOM_TARGET(bin_lean ALL
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean>" "$<TARGET_LINKER_FILE:lean>" "${LEAN_SOURCE_DIR}/../bin/"
+        DEPENDS bin_lean_stage0
       )
       ADD_CUSTOM_TARGET(bin_lean_stage2
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean_stage2>" "${LEAN_SOURCE_DIR}/../bin/"

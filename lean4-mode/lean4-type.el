@@ -10,7 +10,7 @@
 (require 'dash-functional)
 (require 's)
 (require 'lean4-util)
-(require 'lean4-server)
+;(require 'lean4-server)
 (require 'lean4-debug)
 (require 'flymake)
 

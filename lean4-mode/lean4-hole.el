@@ -16,7 +16,7 @@
 ;; helm or company's interface would be a good addition.
 ;;
 ;;; Code:
-(require 'lean4-server)
+;(require 'lean4-server)
 
 (defun lean4-hole-handler-completing-read (alternatives)
   "Pick a hole replacement from ALTERNATIVES with `completing-read'."

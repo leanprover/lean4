@@ -85,13 +85,13 @@ match e with
 def lazyPure {α : Type} (fn : Unit → α) : IO α :=
 pure (fn ())
 
-inductive Fs.Mode
+inductive FS.Mode
 | read | write | readWrite | append
 
-constant Fs.handle : Type := Unit
+constant FS.handle : Type := Unit
 
 namespace Prim
-open Fs
+open FS
 
 @[specialize] partial def iterate {α β : Type} : α → (α → IO (Sum α β)) → IO β
 | a, f =>
@@ -156,7 +156,7 @@ do p ← appPath;
 
 end
 
-namespace Fs
+namespace FS
 variables {m : Type → Type} [Monad m] [MonadIO m]
 
 def handle.mk (s : String) (Mode : Mode) (bin : Bool := false) : m handle := Prim.liftIO (Prim.handle.mk s Mode bin)
@@ -204,11 +204,11 @@ do h ← handle.mk fname Mode.read bin;
 --   h.write data,
 --   h.close
 
-end Fs
+end FS
 
--- constant stdin : IO Fs.handle
--- constant stderr : IO Fs.handle
--- constant stdout : IO Fs.handle
+-- constant stdin : IO FS.handle
+-- constant stderr : IO FS.handle
+-- constant stdout : IO FS.handle
 
 /-
 namespace Proc
@@ -273,8 +273,8 @@ end IO
     read into `String` which is then returned. -/
 def IO.cmd (args : IO.process.spawnArgs) : IO String :=
 do child ← IO.Proc.spawn { stdout := IO.process.stdio.piped, ..args },
-  s ← IO.Fs.readToEnd child.stdout,
-  IO.Fs.close child.stdout,
+  s ← IO.FS.readToEnd child.stdout,
+  IO.FS.close child.stdout,
   exitv ← IO.Proc.wait child,
   if exitv ≠ 0 then IO.fail $ "process exited with status " ++ repr exitv else pure (),
   pure s

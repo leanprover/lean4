@@ -34,6 +34,9 @@ structure State :=
 (cmdPos   : String.Pos := 0)
 (scopes   : List Scope := [{ kind := "root", header := "" }])
 
+def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State :=
+{ env := env, messages := messages, scopes := [{ kind := "root", header := "", options := opts }] }
+
 abbrev CommandElabM := ReaderT Context (EStateM Exception State)
 abbrev CommandElab  := SyntaxNode → CommandElabM Unit
 

@@ -62,14 +62,14 @@ end Frontend
 
 open Frontend
 
-def testFrontend (input : String) (fileName : Option String := none) : IO (Environment × MessageLog) :=
+def testFrontend (input : String) (opts : Options := {}) (fileName : Option String := none) : IO (Environment × MessageLog) :=
 do env ← mkEmptyEnvironment;
    let fileName := fileName.getD "<input>";
    let ctx := Parser.mkParserContextCore env input fileName;
    match Parser.parseHeader env ctx with
    | (header, parserState, messages) => do
      (env, messages) ← processHeader header messages ctx;
-     let cmdState := { Command.State . env := env, messages := messages };
+     let cmdState := Command.mkState env messages opts;
      match (processCommands ctx).run { commandState := cmdState, parserState := parserState } with
        | EStateM.Result.ok _ s    => pure (s.commandState.env, s.commandState.messages)
        | EStateM.Result.error _ s => pure (s.commandState.env, s.commandState.messages)

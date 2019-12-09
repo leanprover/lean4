@@ -88,6 +88,9 @@ fun ctx s => match x ctx.toContext s.toState with
   | EStateM.Result.ok a newS     => EStateM.Result.ok a { toState := newS, .. s }
   | EStateM.Result.error ex newS => EStateM.Result.error (Exception.meta ex) { toState := newS, .. s }
 
+def getEnv : TermElabM Environment := do s ← get; pure s.env
+def getNamespace : TermElabM Name := do ctx ← read; pure ctx.ns
+def getOpenDecls : TermElabM (List OpenDecl) := do ctx ← read; pure ctx.openDecls
 def getLCtx : TermElabM LocalContext := do ctx ← read; pure ctx.lctx
 def getLocalInsts : TermElabM LocalInstances := do ctx ← read; pure ctx.localInstances
 def getOptions : TermElabM Options       := do ctx ← read; pure ctx.config.opts
@@ -147,6 +150,31 @@ fun _ expectedType? =>
   match expectedType? with
   | some expectedType => mkFreshExprMVar expectedType
   | none              => do u ← mkFreshLevelMVar; mkFreshExprMVar (mkSort u)
+
+def resolveName (name : Name) : TermElabM (List (Nat × Name)) :=
+do env       ← getEnv;
+   ns        ← getNamespace;
+   openDecls ← getOpenDecls;
+   pure $ Elab.resolveName env ns openDecls name
+
+@[builtinTermElab «id»] def elabId : TermElab :=
+fun n expectedType => do
+  -- ident (explicitUniv <|> namedPattern)?
+  let id := n.getIdAt 0;
+  lctx ← getLCtx;
+  match lctx.findFromUserName id with
+  | some decl => pure decl.toExpr
+  | none      => do
+    pairs ← resolveName id;
+    exprs ← pairs.mapM $ fun ⟨projSize, id⟩ =>
+      -- TODO handle `projSize` and `explicitUniv`
+      pure $ mkConst id;
+    match exprs with
+    | []  => throw $ Exception.other ("unknown identifier '" ++ toString id ++ "'")
+    | [e] => pure e
+    | es  =>
+      -- TODO improve
+      throw $ Exception.other ("ambiguous identifier '" ++ toString id ++ "', possible interpretations " ++ toString es)
 
 private def mkFreshAnonymousName : TermElabM Name :=
 do s ← get;

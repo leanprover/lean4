@@ -17,4 +17,8 @@ do (env, messages) ← testFrontend input;
  -- variable [Monad m]
  #check Type
  #check Prop
+ #check p
+ #check α
+ #check Nat.succ
+ #check Nat.add
  end"

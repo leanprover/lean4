@@ -95,6 +95,9 @@ def matchAlt := parser! " | " >> sepBy1 termParser ", " >> unicodeSymbol "⇒" "
 @[builtinTermParser] def «tparser!» := parser! "tparser! " >> termParser
 @[builtinTermParser] def borrowed   := parser! symbol "@&" appPrec >> termParser (appPrec - 1)
 @[builtinTermParser] def quotedName := parser! symbol "`" appPrec >> rawIdent
+@[builtinTermParser] def stxQuot    := parser! symbol "`(" appPrec >> termParser >> ")"
+@[builtinTermParser] def antiquot   := parser! symbol "%%" appPrec >> termParser appPrec
+@[builtinTermParser] def «match_syntax» := parser! "match_syntax" >> termParser >> " with " >> many1Indent matchAlt "'match_syntax' alternatives must be indented"
 
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
 def letIdLhs : Parser := ident >> checkWsBefore "expected space before binders" >> many bracktedBinder >> optType

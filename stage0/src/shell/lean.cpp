@@ -466,7 +466,9 @@ int main(int argc, char ** argv) {
                 break;
             case 'm':
                 make_mode = true;
-                olean_fn = optarg;
+                if (optarg) {
+                    olean_fn = optarg;
+                }
                 break;
             case 'M':
                 opts = opts.update(get_max_memory_opt_name(), static_cast<unsigned>(atoi(optarg)));

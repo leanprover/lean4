@@ -24,7 +24,7 @@ structure Scope :=
 (ns          : Name := Name.anonymous) -- current namespace
 (openDecls   : List OpenDecl := [])
 (univNames   : List Name := [])
-(varDecls    : List Syntax := [])
+(varDecls    : Array Syntax := #[])
 
 instance Scope.inhabited : Inhabited Scope := ⟨{ kind := "", header := "" }⟩
 
@@ -95,25 +95,33 @@ stx.ifNode
     | none      => logError stx ("command '" ++ toString k ++ "' has not been implemented"))
   (fun _ => logErrorUsingCmdPos ("unexpected command"))
 
-@[specialize] def runTermElabM {α} (x : TermElabM α) : CommandElabM α :=
-fun ctx s =>
-  let scope := s.scopes.head!;
-  let termCtx : Term.Context := {
-    config         := { opts := scope.options, foApprox := true, ctxApprox := true, quasiPatternApprox := true, isDefEqStuckEx := true },
-    fileName       := ctx.fileName,
-    fileMap        := ctx.fileMap,
-    cmdPos         := s.cmdPos,
-    ns             := scope.ns,
-    univNames      := scope.univNames,
-    openDecls      := scope.openDecls
-  };
-  let termState : Term.State := {
-    env      := s.env,
-    messages := s.messages
-  };
-  match (tracingAtPos s.cmdPos x) termCtx termState with
-  | EStateM.Result.ok a newS     => EStateM.Result.ok a { env := newS.env, messages := newS.messages, .. s }
-  | EStateM.Result.error ex newS => EStateM.Result.error ex { env := newS.env, messages := newS.messages, .. s }
+private def mkTermContext (ctx : Context) (s : State) : Term.Context :=
+let scope := s.scopes.head!;
+{ config         := { opts := scope.options, foApprox := true, ctxApprox := true, quasiPatternApprox := true, isDefEqStuckEx := true },
+  fileName       := ctx.fileName,
+  fileMap        := ctx.fileMap,
+  cmdPos         := s.cmdPos,
+  ns             := scope.ns,
+  univNames      := scope.univNames,
+  openDecls      := scope.openDecls }
+
+private def mkTermState (s : State) : Term.State :=
+{ env      := s.env,
+  messages := s.messages }
+
+private def getVarDecls (s : State) : Array Syntax :=
+s.scopes.head!.varDecls
+
+private def toCommandResult {α} (s : State) (result : EStateM.Result Exception Term.State α) : EStateM.Result Exception State α :=
+match result with
+| EStateM.Result.ok a newS     => EStateM.Result.ok a { env := newS.env, messages := newS.messages, .. s }
+| EStateM.Result.error ex newS => EStateM.Result.error ex { env := newS.env, messages := newS.messages, .. s }
+
+@[inline] def runTermElabM {α} (x : TermElabM α) : CommandElabM α :=
+fun ctx s => toCommandResult s $ tracingAtPos s.cmdPos (Term.elabBinders (getVarDecls s) x) (mkTermContext ctx s) (mkTermState s)
+
+def dbgTrace {α} [HasToString α] (a : α) : CommandElabM Unit :=
+_root_.dbgTrace (toString a) $ fun _ => pure ()
 
 def getEnv : CommandElabM Environment :=
 do s ← get; pure s.env
@@ -322,6 +330,22 @@ fun n => do
 @[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()
 @[builtinCommandElab «reserve»] def elabReserve : CommandElab := fun _ => pure ()
 @[builtinCommandElab «notation»] def elabNotation : CommandElab := fun _ => pure ()
+
+@[builtinCommandElab «variable»] def elabVariable : CommandElab :=
+fun n => do
+  -- `variable` bracktedBinder
+  let binder := n.getArg 1;
+  -- Try to elaborate `binder` for sanity checking
+  runTermElabM $ Term.elabBinder binder $ pure ();
+  modifyScope $ fun scope => { varDecls := scope.varDecls.push binder, .. scope }
+
+@[builtinCommandElab «variables»] def elabVariables : CommandElab :=
+fun n => do
+  -- `variables` bracktedBinder+
+  let binders := (n.getArg 1).getArgs;
+  -- Try to elaborate `binders` for sanity checking
+  runTermElabM $ Term.elabBinders binders $ pure ();
+  modifyScope $ fun scope => { varDecls := scope.varDecls ++ binders, .. scope }
 
 end Command
 

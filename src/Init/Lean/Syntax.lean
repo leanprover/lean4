@@ -331,10 +331,10 @@ Syntax.node nullKind args
 def mkAtom (val : String) : Syntax :=
 Syntax.atom none val
 
-@[inline] def mkNode (k : SyntaxNodeKind) (args : List (Syntax)) : Syntax :=
+@[inline] def mkNode (k : SyntaxNodeKind) (args : List Syntax) : Syntax :=
 Syntax.node k args.toArray
 
-@[inline] def mkNullNode (args : List (Syntax)) : Syntax :=
+@[inline] def mkNullNode (args : List Syntax) : Syntax :=
 Syntax.node nullKind args.toArray
 
 def mkOptionalNode (arg : Option Syntax) : Syntax :=

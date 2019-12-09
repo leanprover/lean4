@@ -347,6 +347,15 @@ fun n => do
   runTermElabM $ Term.elabBinders binders $ pure ();
   modifyScope $ fun scope => { varDecls := scope.varDecls ++ binders, .. scope }
 
+@[builtinCommandElab «check»] def elabCheck : CommandElab :=
+fun n => do
+  let term := n.getArg 1;
+  runTermElabM $ do
+    e    ← Term.elabTerm term none;
+    type ← Term.inferType e;
+    logInfo n.val (e ++ " : " ++ type);
+    pure ()
+
 end Command
 
 /-

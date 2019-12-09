@@ -15,4 +15,6 @@ do (env, messages) ← testFrontend input;
  variable (_ b : _)
  variable {α : Type}
  -- variable [Monad m]
+ #check Type
+ #check Prop
  end"

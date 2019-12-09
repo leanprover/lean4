@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Lean.Util.Trace
 import Init.Lean.Parser
 
 namespace Lean
@@ -64,6 +65,9 @@ do ext : PersistentEnvExtension ElabAttributeEntry σ ← registerPersistentEnvE
      add   := fun env decl args persistent => pure env -- TODO
    };
    pure { ext := ext, attr := attrImpl, kind := kind }
+
+@[init] private def regTraceClasses : IO Unit :=
+registerTraceClass `Elab
 
 end Elab
 end Lean

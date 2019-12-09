@@ -48,6 +48,9 @@ structure KVMap :=
 (entries : List (Name × DataValue) := [])
 
 namespace KVMap
+instance : Inhabited KVMap := ⟨{}⟩
+instance : HasToString KVMap := ⟨fun m => toString m.entries⟩
+
 def empty : KVMap :=
 {}
 

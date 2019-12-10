@@ -29,6 +29,8 @@ class HasMonadLiftT (m : Type u → Type v) (n : Type u → Type w) :=
 
 export HasMonadLiftT (monadLift)
 
+abbrev liftM := @monadLift
+
 /-- A coercion that may reduce the need for explicit lifting.
     Because of [limitations of the current coercion resolution](https://github.com/leanprover/Lean/issues/1402), this definition is not marked as a global instance and should be marked locally instead. -/
 @[reducible] def hasMonadLiftToHasCoe {m n} [HasMonadLiftT m n] {α} : HasCoe (m α) (n α) :=

@@ -78,7 +78,7 @@ def optType : Parser := optional typeSpec
 @[builtinTermParser] def explicit := parser! symbol "@" appPrec >> id
 @[builtinTermParser] def inaccessible := parser! symbol ".(" appPrec >> termParser >> ")"
 def binderIdent : Parser  := ident <|> hole
-def binderType (requireType := false) : Parser := if requireType then " : " >> termParser else optional (" : " >> termParser)
+def binderType (requireType := false) : Parser := if requireType then group (" : " >> termParser) else optional (" : " >> termParser)
 def binderDefault := parser! " := " >> termParser
 def binderTactic  := parser! " . " >> termParser
 def explicitBinder (requireType := false) := parser! "(" >> many1 binderIdent >> binderType requireType >> optional (binderDefault <|> binderTactic) >> ")"
@@ -176,9 +176,11 @@ def checkIsSort := checkLeading (fun leading => leading.isOfKind `Lean.Parser.Te
 @[builtinTermParser] def mapConstRev := tparser! infixR " $> "  100
 
 end Term
+end Parser
+
+open Parser
 
 def mkAppStx (fn : Syntax) (args : Array Syntax) : Syntax :=
 args.foldl (fun fn arg => Syntax.node `Lean.Parser.Term.app #[fn, arg]) fn
 
-end Parser
 end Lean

@@ -73,7 +73,7 @@ constant allocprof {α : Type} (msg : @& String) (fn : IO α) : IO α := arbitra
 @[extern "lean_io_initializing"]
 constant IO.initializing : IO Bool := arbitrary _
 
-abbrev monadIO (m : Type → Type) := HasMonadLiftT IO m
+abbrev MonadIO (m : Type → Type) := HasMonadLiftT IO m
 
 namespace IO
 
@@ -85,13 +85,13 @@ match e with
 def lazyPure {α : Type} (fn : Unit → α) : IO α :=
 pure (fn ())
 
-inductive Fs.Mode
+inductive FS.Mode
 | read | write | readWrite | append
 
-constant Fs.handle : Type := Unit
+constant FS.handle : Type := Unit
 
 namespace Prim
-open Fs
+open FS
 
 @[specialize] partial def iterate {α β : Type} : α → (α → IO (Sum α β)) → IO β
 | a, f =>
@@ -131,12 +131,12 @@ constant fileExists (fname : @& String) : IO Bool := arbitrary _
 @[extern "lean_io_app_dir"]
 constant appPath : IO String := arbitrary _
 
-@[inline] def liftIO {m : Type → Type} {α : Type} [monadIO m] (x : IO α) : m α :=
+@[inline] def liftIO {m : Type → Type} {α : Type} [MonadIO m] (x : IO α) : m α :=
 monadLift x
 end Prim
 
 section
-variables {m : Type → Type} [Monad m] [monadIO m]
+variables {m : Type → Type} [Monad m] [MonadIO m]
 
 private def putStr : String → m Unit :=
 Prim.liftIO ∘ Prim.putStr
@@ -156,8 +156,8 @@ do p ← appPath;
 
 end
 
-namespace Fs
-variables {m : Type → Type} [Monad m] [monadIO m]
+namespace FS
+variables {m : Type → Type} [Monad m] [MonadIO m]
 
 def handle.mk (s : String) (Mode : Mode) (bin : Bool := false) : m handle := Prim.liftIO (Prim.handle.mk s Mode bin)
 def handle.isEof : handle → m Bool := Prim.liftIO ∘ Prim.handle.isEof
@@ -204,31 +204,31 @@ do h ← handle.mk fname Mode.read bin;
 --   h.write data,
 --   h.close
 
-end Fs
+end FS
 
--- constant stdin : IO Fs.handle
--- constant stderr : IO Fs.handle
--- constant stdout : IO Fs.handle
+-- constant stdin : IO FS.handle
+-- constant stderr : IO FS.handle
+-- constant stdout : IO FS.handle
 
 /-
 namespace Proc
 def child : Type :=
-monadIOProcess.child ioCore
+MonadIOProcess.child ioCore
 
 def child.stdin : child → handle :=
-monadIOProcess.stdin
+MonadIOProcess.stdin
 
 def child.stdout : child → handle :=
-monadIOProcess.stdout
+MonadIOProcess.stdout
 
 def child.stderr : child → handle :=
-monadIOProcess.stderr
+MonadIOProcess.stderr
 
 def spawn (p : IO.process.spawnArgs) : IO child :=
-monadIOProcess.spawn ioCore p
+MonadIOProcess.spawn ioCore p
 
 def wait (c : child) : IO Nat :=
-monadIOProcess.wait c
+MonadIOProcess.wait c
 
 end Proc
 -/
@@ -253,7 +253,7 @@ constant Ref.reset {α : Type} (r : @& Ref α) : IO Unit        := arbitrary _
 end Prim
 
 section
-variables {m : Type → Type} [Monad m] [monadIO m]
+variables {m : Type → Type} [Monad m] [MonadIO m]
 @[inline] def mkRef {α : Type} (a : α) : m (Ref α) :=  Prim.liftIO (Prim.mkRef a)
 @[inline] def Ref.get {α : Type} (r : Ref α) : m α := Prim.liftIO (Prim.Ref.get r)
 @[inline] def Ref.set {α : Type} (r : Ref α) (a : α) : m Unit := Prim.liftIO (Prim.Ref.set r a)
@@ -273,8 +273,8 @@ end IO
     read into `String` which is then returned. -/
 def IO.cmd (args : IO.process.spawnArgs) : IO String :=
 do child ← IO.Proc.spawn { stdout := IO.process.stdio.piped, ..args },
-  s ← IO.Fs.readToEnd child.stdout,
-  IO.Fs.close child.stdout,
+  s ← IO.FS.readToEnd child.stdout,
+  IO.FS.close child.stdout,
   exitv ← IO.Proc.wait child,
   if exitv ≠ 0 then IO.fail $ "process exited with status " ++ repr exitv else pure (),
   pure s

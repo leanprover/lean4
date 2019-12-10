@@ -65,7 +65,7 @@ do check f;
    | Expr.forallE _ d _ _ => do
      aType ← inferType a;
      unlessM (isExprDefEqAux d aType) $ throwEx $ Exception.appTypeMismatch f a
-   | _ => unless fType.isForall $ throwEx $ Exception.functionExpected f a
+   | _ => throwEx $ Exception.functionExpected f a
 
 private partial def checkAux : Expr → MetaM Unit
 | e@(Expr.forallE _ _ _ _) => checkForall checkAux e

@@ -34,6 +34,8 @@ extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_String_splitOn(lean_object*, lean_object*);
 lean_object* l_Lean_getOptionDecl___closed__1;
 uint8_t l_Lean_NameMap_contains___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_KVMap_HasToString(lean_object*);
+lean_object* l_Lean_Options_HasToString___closed__1;
 lean_object* l_Lean_timeoutOption___closed__4;
 lean_object* l_Lean_registerOption___closed__1;
 lean_object* l_Lean_registerOption___closed__2;
@@ -42,6 +44,8 @@ lean_object* l_String_toName(lean_object*);
 lean_object* l_Lean_setOptionFromString___closed__4;
 lean_object* l_Lean_getOptionDecl(lean_object*, lean_object*);
 lean_object* l_RBNode_find___main___at_Lean_getOptionDecl___spec__1___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Options_Inhabited;
+lean_object* l_Lean_Options_HasToString;
 extern lean_object* l_Char_HasRepr___closed__1;
 lean_object* lean_get_option_decls_array(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
@@ -97,6 +101,30 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lean_Options_empty;
+return x_1;
+}
+}
+lean_object* _init_l_Lean_Options_Inhabited() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Options_empty;
+return x_1;
+}
+}
+lean_object* _init_l_Lean_Options_HasToString___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_KVMap_HasToString), 1, 0);
+return x_1;
+}
+}
+lean_object* _init_l_Lean_Options_HasToString() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Options_HasToString___closed__1;
 return x_1;
 }
 }
@@ -1333,6 +1361,12 @@ l_Lean_Options_empty = _init_l_Lean_Options_empty();
 lean_mark_persistent(l_Lean_Options_empty);
 l_Lean_Options_HasEmptyc = _init_l_Lean_Options_HasEmptyc();
 lean_mark_persistent(l_Lean_Options_HasEmptyc);
+l_Lean_Options_Inhabited = _init_l_Lean_Options_Inhabited();
+lean_mark_persistent(l_Lean_Options_Inhabited);
+l_Lean_Options_HasToString___closed__1 = _init_l_Lean_Options_HasToString___closed__1();
+lean_mark_persistent(l_Lean_Options_HasToString___closed__1);
+l_Lean_Options_HasToString = _init_l_Lean_Options_HasToString();
+lean_mark_persistent(l_Lean_Options_HasToString);
 res = l___private_Init_Lean_Data_Options_1__initOptionDeclsRef(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l___private_Init_Lean_Data_Options_2__optionDeclsRef = lean_io_result_get_value(res);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Elab.Util
-// Imports: Init.Lean.Parser
+// Imports: Init.Lean.Util.Trace Init.Lean.Parser
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 extern lean_object* l_Lean_Name_toString___closed__1;
+lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkElabAttribute___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
@@ -21,6 +22,7 @@ lean_object* lean_get_namespaces(lean_object*);
 lean_object* l_Lean_Elab_mkElabAttribute___rarg___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
+lean_object* l___private_Init_Lean_Elab_Util_1__regTraceClasses(lean_object*);
 lean_object* l_Lean_Elab_checkSyntaxNodeKindAtNamespaces___main(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_AttributeImpl_inhabited___closed__4;
 lean_object* l_Lean_Elab_mkElabAttribute___rarg___lambda__2(lean_object*, lean_object*);
@@ -34,6 +36,7 @@ lean_object* l_Lean_Elab_checkSyntaxNodeKindAtNamespaces___boxed(lean_object*, l
 lean_object* l_Lean_Elab_mkElabAttribute___rarg___lambda__2___boxed(lean_object*, lean_object*);
 extern lean_object* l_Char_HasRepr___closed__1;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkElabAttribute___rarg___lambda__2___closed__1;
 lean_object* l_Lean_Elab_mkElabAttribute___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_attrParamSyntaxToIdentifier(lean_object*);
@@ -49,13 +52,17 @@ lean_object* l_Lean_Parser_isValidSyntaxNodeKind(lean_object*, lean_object*);
 lean_object* l_Lean_registerTagAttribute___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_AttributeImpl_inhabited___closed__1;
 lean_object* l_Lean_Elab_ElabAttribute_inhabited(lean_object*);
+lean_object* l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__4;
+lean_object* l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__1;
 lean_object* l_Lean_Elab_ElabAttribute_inhabited___rarg(lean_object*);
 lean_object* l_Lean_Elab_checkSyntaxNodeKind(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_checkSyntaxNodeKindAtNamespaces___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 extern lean_object* l_Lean_AttributeImpl_inhabited___closed__5;
+lean_object* l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__3;
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4;
 lean_object* l_Lean_Elab_syntaxNodeKindOfAttrParam(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__2;
 lean_object* _init_l_Lean_Elab_checkSyntaxNodeKind___closed__1() {
 _start:
 {
@@ -614,12 +621,92 @@ lean_dec(x_2);
 return x_3;
 }
 }
+lean_object* _init_l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("Elab");
+return x_1;
+}
+}
+lean_object* _init_l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+lean_object* _init_l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("step");
+return x_1;
+}
+}
+lean_object* _init_l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__2;
+x_2 = l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__3;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l___private_Init_Lean_Elab_Util_1__regTraceClasses(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__2;
+x_3 = l_Lean_registerTraceClass(x_2, x_1);
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_4 = lean_ctor_get(x_3, 1);
+lean_inc(x_4);
+lean_dec(x_3);
+x_5 = l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__4;
+x_6 = l_Lean_registerTraceClass(x_5, x_4);
+return x_6;
+}
+else
+{
+uint8_t x_7; 
+x_7 = !lean_is_exclusive(x_3);
+if (x_7 == 0)
+{
+return x_3;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_ctor_get(x_3, 0);
+x_9 = lean_ctor_get(x_3, 1);
+lean_inc(x_9);
+lean_inc(x_8);
+lean_dec(x_3);
+x_10 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_10, 0, x_8);
+lean_ctor_set(x_10, 1, x_9);
+return x_10;
+}
+}
+}
+}
+lean_object* initialize_Init_Lean_Util_Trace(lean_object*);
 lean_object* initialize_Init_Lean_Parser(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Elab_Util(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Lean_Util_Trace(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Lean_Parser(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -633,6 +720,17 @@ l_Lean_Elab_mkElabAttribute___rarg___lambda__2___closed__1 = _init_l_Lean_Elab_m
 lean_mark_persistent(l_Lean_Elab_mkElabAttribute___rarg___lambda__2___closed__1);
 l_Lean_Elab_mkElabAttribute___rarg___closed__1 = _init_l_Lean_Elab_mkElabAttribute___rarg___closed__1();
 lean_mark_persistent(l_Lean_Elab_mkElabAttribute___rarg___closed__1);
+l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__1 = _init_l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__1();
+lean_mark_persistent(l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__1);
+l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__2 = _init_l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__2();
+lean_mark_persistent(l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__2);
+l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__3 = _init_l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__3();
+lean_mark_persistent(l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__3);
+l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__4 = _init_l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__4();
+lean_mark_persistent(l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__4);
+res = l___private_Init_Lean_Elab_Util_1__regTraceClasses(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

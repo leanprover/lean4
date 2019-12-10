@@ -19,6 +19,7 @@ lean_object* l_hasMonadLiftTRefl___rarg(lean_object*);
 lean_object* l_hasMonadLiftTTrans___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_hasMonadLiftTRefl(lean_object*, lean_object*);
 lean_object* l_monadFunctorTRefl___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_liftM___boxed(lean_object*, lean_object*);
 lean_object* l_hasMonadLiftToHasCoe___boxed(lean_object*, lean_object*);
 lean_object* l_monadFunctorTTrans___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_monadFunctorTTrans___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -28,11 +29,39 @@ lean_object* l_monadFunctorTRefl(lean_object*, lean_object*, lean_object*);
 lean_object* l_hasMonadLiftTTrans___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_hasMonadLiftToHasCoe___elambda__1___rarg(lean_object*, lean_object*);
 lean_object* l_hasMonadLiftToHasCoe(lean_object*, lean_object*);
+lean_object* l_liftM(lean_object*, lean_object*);
 lean_object* l_hasMonadLiftTRefl___rarg___boxed(lean_object*);
 lean_object* l_monadFunctorTTrans___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_hasMonadLiftToHasCoe___elambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_monadFunctorTRefl___rarg(lean_object*, lean_object*);
+lean_object* l_liftM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_hasMonadLiftToHasCoe___rarg(lean_object*, lean_object*);
+lean_object* l_liftM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_apply_2(x_1, lean_box(0), x_3);
+return x_4;
+}
+}
+lean_object* l_liftM(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_liftM___rarg), 3, 0);
+return x_3;
+}
+}
+lean_object* l_liftM___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_liftM(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 lean_object* l_hasMonadLiftToHasCoe___elambda__1___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {

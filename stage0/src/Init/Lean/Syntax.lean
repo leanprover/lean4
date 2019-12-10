@@ -51,7 +51,7 @@ inductive Syntax
 | missing {} : Syntax
 | node   (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
 | atom   {} (info : Option SourceInfo) (val : String) : Syntax
-| ident  {} (info : Option SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List (Nat × Name)) : Syntax
+| ident  {} (info : Option SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List (Name × List String)) : Syntax
 
 instance stxInh : Inhabited Syntax :=
 ⟨Syntax.missing⟩

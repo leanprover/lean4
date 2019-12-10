@@ -34,6 +34,9 @@ structure State :=
 (cmdPos   : String.Pos := 0)
 (scopes   : List Scope := [{ kind := "root", header := "" }])
 
+def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State :=
+{ env := env, messages := messages, scopes := [{ kind := "root", header := "", options := opts }] }
+
 abbrev CommandElabM := ReaderT Context (EStateM Exception State)
 abbrev CommandElab  := SyntaxNode → CommandElabM Unit
 
@@ -118,7 +121,7 @@ match result with
 | EStateM.Result.error ex newS => EStateM.Result.error ex { env := newS.env, messages := newS.messages, .. s }
 
 @[inline] def runTermElabM {α} (x : TermElabM α) : CommandElabM α :=
-fun ctx s => toCommandResult s $ tracingAtPos s.cmdPos (Term.elabBinders (getVarDecls s) x) (mkTermContext ctx s) (mkTermState s)
+fun ctx s => toCommandResult s $ tracingAtPos s.cmdPos (Term.elabBinders (getVarDecls s) (fun _ => x)) (mkTermContext ctx s) (mkTermState s)
 
 def dbgTrace {α} [HasToString α] (a : α) : CommandElabM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()
@@ -138,7 +141,7 @@ do scope ← getScope; pure scope.ns
 private def addScope (kind : String) (header : String) (ns : Name) : CommandElabM Unit :=
 modify $ fun s => {
   env    := s.env.registerNamespace ns,
-  scopes := { kind := kind, header := header, ns := ns } :: s.scopes,
+  scopes := { kind := kind, header := header, ns := ns, .. s.scopes.head! } :: s.scopes,
   .. s }
 
 private def addScopes (kind : String) (updateNamespace : Bool) : Name → CommandElabM Unit
@@ -336,7 +339,7 @@ fun n => do
   -- `variable` bracktedBinder
   let binder := n.getArg 1;
   -- Try to elaborate `binder` for sanity checking
-  runTermElabM $ Term.elabBinder binder $ pure ();
+  runTermElabM $ Term.elabBinder binder $ fun _ => pure ();
   modifyScope $ fun scope => { varDecls := scope.varDecls.push binder, .. scope }
 
 @[builtinCommandElab «variables»] def elabVariables : CommandElab :=
@@ -344,7 +347,7 @@ fun n => do
   -- `variables` bracktedBinder+
   let binders := (n.getArg 1).getArgs;
   -- Try to elaborate `binders` for sanity checking
-  runTermElabM $ Term.elabBinders binders $ pure ();
+  runTermElabM $ Term.elabBinders binders $ fun _ => pure ();
   modifyScope $ fun scope => { varDecls := scope.varDecls ++ binders, .. scope }
 
 @[builtinCommandElab «check»] def elabCheck : CommandElab :=

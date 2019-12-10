@@ -192,8 +192,11 @@ do s ← get;
 
 def mkHole := mkNode `Lean.Parser.Term.hole [mkAtom "_"]
 
-/-- Given syntax of the form (`:` term)?, return `term` if it is present, and a hole otherwise. -/
-private def expandOptType (stx : Syntax) : Syntax :=
+/-- Given syntax of the forms
+      a) (`:` term)?
+      b) `:` term
+    into `term` if it is present, or a hole if not. -/
+private def expandBinderType (stx : Syntax) : Syntax :=
 if stx.getNumArgs == 0 then
   mkHole
 else
@@ -226,15 +229,15 @@ withNode stx $ fun node => do
     let type := mkHole;
     ids.mapM $ fun id => do id ← expandBinderIdent id; pure { id := id, type := type, bi := BinderInfo.default }
   else if k == `Lean.Parser.Term.explicitBinder then
-    -- `(` binderIdent+ (`:` type)? (binderDefault <|> binderTactic)? `)`
+    -- `(` binderIdent+ binderType (binderDefault <|> binderTactic)? `)`
     let ids  := (node.getArg 1).getArgs;
-    let type := expandOptType (node.getArg 2);
+    let type := expandBinderType (node.getArg 2);
     -- TODO handle `binderDefault` and `binderTactic`
     ids.mapM $ fun id => do id ← expandBinderIdent id; pure { id := id, type := type, bi := BinderInfo.default }
   else if k == `Lean.Parser.Term.implicitBinder then
-    -- `{` binderIdent+ (`:` type)? `}`
+    -- `{` binderIdent+ binderType `}`
     let ids  := (node.getArg 1).getArgs;
-    let type := expandOptType (node.getArg 2);
+    let type := expandBinderType (node.getArg 2);
     ids.mapM $ fun id => do id ← expandBinderIdent id; pure { id := id, type := type, bi := BinderInfo.implicit }
   else if k == `Lean.Parser.Term.instBinder then do
     -- `[` optIdent type `]`

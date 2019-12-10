@@ -2,11 +2,13 @@ import Init.Lean.Elab
 open Lean
 open Lean.Elab
 
+
 def run (input : String) : MetaIO Unit :=
 do env  ← MetaIO.getEnv;
    opts ← MetaIO.getOptions;
    let (env, messages) := process input env opts;
    messages.toList.forM $ fun msg => IO.println msg;
+   when messages.hasErrors $ throw (IO.userError "errors have been found");
    pure ()
 
 def test := IO Unit

@@ -191,21 +191,23 @@ id (α := Nat) 10
 a -> b
 (Term.arrow (Term.id `a (null)) "->" (Term.id `b (null)))
 {x : a} -> b
-(Term.depArrow (Term.implicitBinder "{" (null `x) ":" (Term.id `a (null)) "}") "->" (Term.id `b (null)))
+(Term.depArrow (Term.implicitBinder "{" (null `x) (null ":" (Term.id `a (null))) "}") "->" (Term.id `b (null)))
 {a : Type} -> [HasToString a] -> (x : a) -> b
 (Term.depArrow
- (Term.implicitBinder "{" (null `a) ":" (Term.type "Type") "}")
+ (Term.implicitBinder "{" (null `a) (null ":" (Term.type "Type")) "}")
  "->"
  (Term.depArrow
   (Term.instBinder "[" (null) (Term.app (Term.id `HasToString (null)) (Term.id `a (null))) "]")
   "->"
-  (Term.depArrow (Term.explicitBinder "(" (null `x) ":" (Term.id `a (null)) (null) ")") "->" (Term.id `b (null)))))
+  (Term.depArrow (Term.explicitBinder "(" (null `x) (null ":" (Term.id `a (null))) (null) ")") "->" (Term.id `b (null)))))
 f ({x : a} -> b)
 (Term.app
  (Term.id `f (null))
  (Term.paren
   "("
-  (null (Term.depArrow (Term.implicitBinder "{" (null `x) ":" (Term.id `a (null)) "}") "->" (Term.id `b (null))) (null))
+  (null
+   (Term.depArrow (Term.implicitBinder "{" (null `x) (null ":" (Term.id `a (null))) "}") "->" (Term.id `b (null)))
+   (null))
   ")"))
 f (x : a) -> b
 (Term.arrow
@@ -220,7 +222,7 @@ f ((x : a) -> b)
  (Term.paren
   "("
   (null
-   (Term.depArrow (Term.explicitBinder "(" (null `x) ":" (Term.id `a (null)) (null) ")") "->" (Term.id `b (null)))
+   (Term.depArrow (Term.explicitBinder "(" (null `x) (null ":" (Term.id `a (null))) (null) ")") "->" (Term.id `b (null)))
    (null))
   ")"))
 (f : (n : Nat) → Vector Nat n) -> Nat
@@ -228,11 +230,12 @@ f ((x : a) -> b)
  (Term.explicitBinder
   "("
   (null `f)
-  ":"
-  (Term.depArrow
-   (Term.explicitBinder "(" (null `n) ":" (Term.id `Nat (null)) (null) ")")
-   "→"
-   (Term.app (Term.app (Term.id `Vector (null)) (Term.id `Nat (null))) (Term.id `n (null))))
+  (null
+   ":"
+   (Term.depArrow
+    (Term.explicitBinder "(" (null `n) (null ":" (Term.id `Nat (null))) (null) ")")
+    "→"
+    (Term.app (Term.app (Term.id `Vector (null)) (Term.id `Nat (null))) (Term.id `n (null)))))
   (null)
   ")")
  "->"

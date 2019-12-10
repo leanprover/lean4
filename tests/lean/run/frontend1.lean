@@ -9,7 +9,7 @@ do env  ← MetaIO.getEnv;
    messages.toList.forM $ fun msg => IO.println msg;
    pure ()
 
-set_option trace.Elab true
+-- set_option trace.Elab true
 
 #eval run
 "universe u universe v
@@ -24,5 +24,6 @@ set_option trace.Elab true
  #check α
  #check Nat.succ
  #check Nat.add
+ #check forall (α : Type), α
  #check run
  end"

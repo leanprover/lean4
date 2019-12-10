@@ -121,7 +121,7 @@ match result with
 | EStateM.Result.error ex newS => EStateM.Result.error ex { env := newS.env, messages := newS.messages, .. s }
 
 @[inline] def runTermElabM {α} (x : TermElabM α) : CommandElabM α :=
-fun ctx s => toCommandResult s $ tracingAtPos s.cmdPos (Term.elabBinders (getVarDecls s) x) (mkTermContext ctx s) (mkTermState s)
+fun ctx s => toCommandResult s $ tracingAtPos s.cmdPos (Term.elabBinders (getVarDecls s) (fun _ => x)) (mkTermContext ctx s) (mkTermState s)
 
 def dbgTrace {α} [HasToString α] (a : α) : CommandElabM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()
@@ -339,7 +339,7 @@ fun n => do
   -- `variable` bracktedBinder
   let binder := n.getArg 1;
   -- Try to elaborate `binder` for sanity checking
-  runTermElabM $ Term.elabBinder binder $ pure ();
+  runTermElabM $ Term.elabBinder binder $ fun _ => pure ();
   modifyScope $ fun scope => { varDecls := scope.varDecls.push binder, .. scope }
 
 @[builtinCommandElab «variables»] def elabVariables : CommandElab :=
@@ -347,7 +347,7 @@ fun n => do
   -- `variables` bracktedBinder+
   let binders := (n.getArg 1).getArgs;
   -- Try to elaborate `binders` for sanity checking
-  runTermElabM $ Term.elabBinders binders $ pure ();
+  runTermElabM $ Term.elabBinders binders $ fun _ => pure ();
   modifyScope $ fun scope => { varDecls := scope.varDecls ++ binders, .. scope }
 
 @[builtinCommandElab «check»] def elabCheck : CommandElab :=

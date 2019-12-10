@@ -117,6 +117,7 @@ def isClass (t : Expr) : TermElabM (Option Name) := liftMetaM $ Meta.isClass t
 def mkFreshLevelMVar : TermElabM Level := liftMetaM $ Meta.mkFreshLevelMVar
 def mkFreshExprMVar (type : Expr) (userName? : Name := Name.anonymous) (synthetic : Bool := false) : TermElabM Expr :=
 liftMetaM $ Meta.mkFreshExprMVar type userName? synthetic
+def mkForall (xs : Array Expr) (e : Expr) : TermElabM Expr := liftMetaM $ Meta.mkForall xs e
 
 @[inline] def withNode {α} (stx : Syntax) (x : SyntaxNode → TermElabM α) : TermElabM α :=
 stx.ifNode x (fun _ => throw $ Exception.other "term elaborator failed, unexpected syntax")
@@ -264,39 +265,54 @@ do s ← get;
    modify $ fun s => { ngen := s.ngen.next, .. s };
    pure id
 
-private partial def elabBindersAux (binders : Array Syntax) : Nat → LocalContext → LocalInstances → TermElabM (LocalContext × LocalInstances)
-| i, lctx, localInsts =>
+private partial def elabBinderViews (binderViews : Array BinderView) : Nat → Array Expr → LocalContext → LocalInstances → TermElabM (Array Expr × LocalContext × LocalInstances)
+| i, fvars, lctx, localInsts =>
+  if h : i < binderViews.size then
+    let binderView := binderViews.get ⟨i, h⟩;
+    withLCtx lctx localInsts $ do
+      type       ← elabType binderView.type;
+      fvarId     ← mkFreshId;
+      let fvar  := mkFVar fvarId;
+      let fvars := fvars.push fvar;
+      -- dbgTrace (toString binderView.id.getId ++ " : " ++ toString type);
+      let lctx  := lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi;
+      className? ← isClass type;
+      match className? with
+      | none           => elabBinderViews (i+1) fvars lctx localInsts
+      | some className => do
+        resetSynthInstanceCache;
+        let localInsts := localInsts.push { className := className, fvar := mkFVar fvarId };
+        elabBinderViews (i+1) fvars lctx localInsts
+  else
+    pure (fvars, lctx, localInsts)
+
+private partial def elabBindersAux (binders : Array Syntax) : Nat → Array Expr → LocalContext → LocalInstances → TermElabM (Array Expr × LocalContext × LocalInstances)
+| i, fvars, lctx, localInsts =>
   if h : i < binders.size then do
     binderViews ← matchBinder (binders.get ⟨i, h⟩);
-    (lctx, localInsts) ← binderViews.foldlM
-      (fun (p : LocalContext × LocalInstances) binderView => do
-        let (lctx, localInsts) := p;
-        withLCtx lctx localInsts $ do
-          type       ← elabType binderView.type;
-          fvarId     ← mkFreshId;
-          -- dbgTrace (toString binderView.id.getId ++ " : " ++ toString type);
-          let lctx  := lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi;
-          className? ← isClass type;
-          match className? with
-          | none           => pure (lctx, localInsts)
-          | some className => do
-            resetSynthInstanceCache;
-            let localInsts := localInsts.push { className := className, fvar := mkFVar fvarId };
-            pure (lctx, localInsts))
-      (lctx, localInsts);
-    elabBindersAux (i+1) lctx localInsts
+    (fvars, lctx, localInsts) ← elabBinderViews binderViews 0 fvars lctx localInsts;
+    elabBindersAux (i+1) fvars lctx localInsts
   else
-    pure (lctx, localInsts)
+    pure (fvars, lctx, localInsts)
 
-@[inline] def elabBinders {α} (binders : Array Syntax) (x : TermElabM α) : TermElabM α :=
+@[inline] def elabBinders {α} (binders : Array Syntax) (x : Array Expr → TermElabM α) : TermElabM α :=
 do lctx ← getLCtx;
    localInsts ← getLocalInsts;
-   (lctx, newLocalInsts) ← elabBindersAux binders 0 lctx localInsts;
+   (fvars, lctx, newLocalInsts) ← elabBindersAux binders 0 #[] lctx localInsts;
    resettingSynthInstanceCacheWhen (newLocalInsts.size > localInsts.size) $
-     adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := newLocalInsts, .. ctx }) x
+     adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := newLocalInsts, .. ctx }) (x fvars)
 
-@[inline] def elabBinder {α} (binder : Syntax) (x : TermElabM α) : TermElabM α :=
-elabBinders #[binder] x
+@[inline] def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
+elabBinders #[binder] (fun fvars => x (fvars.get! 1))
+
+@[builtinTermElab «forall»] def elabForall : TermElab :=
+fun n _ =>
+  -- `forall` binders+ `,` term
+  let binders := (n.getArg 1).getArgs;
+  let term    := n.getArg 3;
+  elabBinders binders $ fun xs => do
+    e ← elabType term;
+    mkForall xs e
 
 end Term
 

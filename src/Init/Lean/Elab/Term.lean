@@ -349,19 +349,19 @@ fun stx expectedType =>
     -- TODO: handle parenSpecial
     elabTerm term expectedType
 
-end Term
-
-export Term (TermElabM)
-
-/-
 @[builtinTermElab «listLit»] def elabListLit : TermElab :=
-fun stx _ => do
+fun stx expectedType => do
   let openBkt  := stx.getArg 0;
   let args     := stx.getArg 1;
   let closeBkt := stx.getArg 2;
   let consId   := mkIdentFrom openBkt `List.cons;
   let nilId    := mkIdentFrom closeBkt `List.nil;
-  pure $ args.foldSepArgs (fun arg r => mkAppStx consId [arg, r]) nilId
--/
+  let newStx   := args.foldSepArgs (fun arg r => mkAppStx consId #[arg, r]) nilId;
+  elabTerm newStx expectedType
+
+end Term
+
+export Term (TermElabM)
+
 end Elab
 end Lean

@@ -176,9 +176,11 @@ def checkIsSort := checkLeading (fun leading => leading.isOfKind `Lean.Parser.Te
 @[builtinTermParser] def mapConstRev := tparser! infixR " $> "  100
 
 end Term
+end Parser
+
+open Parser
 
 def mkAppStx (fn : Syntax) (args : Array Syntax) : Syntax :=
 args.foldl (fun fn arg => Syntax.node `Lean.Parser.Term.app #[fn, arg]) fn
 
-end Parser
 end Lean

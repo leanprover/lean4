@@ -11,28 +11,35 @@ import Init.Lean.Parser -- TODO: remove after removing old elaborator
 namespace Lean
 namespace Elab
 
--- TODO: replace with quotations where possible
-private def const (n : Name) : Syntax :=
-Syntax.node `Lean.Parser.Term.id #[Syntax.ident none n.toString.toSubstring n [(n, [])]]
+/-- A monad that supports syntax quotations. -/
+class MonadQuotation (m : Type → Type) :=
+-- Get the fresh scope of the current macro invocation
+(getCurrMacroScope : m Nat)
 
-private def app (fn arg : Syntax) : Syntax :=
-Syntax.node `Lean.Parser.Term.app #[fn, arg]
+/-- Simplistic MonadQuotation that does not guarantee fresh names. -/
+abbrev Unhygienic := Id
+namespace Unhygienic
+instance MonadQuotation : MonadQuotation Unhygienic := ⟨pure 0⟩
+def run {α : Type} : Unhygienic α → α := Id.run
+end Unhygienic
 
 private def appN (fn : Syntax) (args : Array Syntax) : Syntax :=
-args.foldl app fn
+args.foldl (fun fn arg => Unhygienic.run `(%%fn %%arg)) fn
 
 -- TODO: unclear if the following functions could also be useful to other code
 private def quoteName : Name → Syntax
-| Name.anonymous => const `Lean.Name.anonymous
-| Name.str n s _ => appN (const `Lean.mkNameStr) #[quoteName n, mkStxStrLit s]
-| Name.num n i _ => appN (const `Lean.mkNameNum) #[quoteName n, mkStxNumLit $ toString i]
+| Name.anonymous => Unhygienic.run `(Lean.Name.anonymous)
+| Name.str n s _ => Unhygienic.run `(Lean.mkNameStr %%(quoteName n) %%(Lean.mkStxStrLit s))
+| Name.num n i _ => Unhygienic.run `(Lean.mkNameStr %%(quoteName n) %%(Lean.mkStxNumLit (HasToString.toString i)))
 
 private def quoteList : List Syntax → Syntax
-| [] => const `List.nil
-| (x::xs) => appN (const `List.cons) #[x, quoteList xs]
+| [] =>      Unhygienic.run `(List.nil)
+| (x::xs) => Unhygienic.run `(List.cons %%x %%(quoteList xs))
 
 private def quoteArray : Array Syntax → Syntax
-| xs => app (const `List.toArray) $ quoteList xs.toList
+| xs =>
+  let stx := quoteList xs.toList;
+  Unhygienic.run `(List.toArray %%stx)
 
 private partial def quote (env : Environment) (msc : Syntax) : Syntax → Syntax
 | Syntax.ident info rawVal val preresolved =>
@@ -40,31 +47,25 @@ private partial def quote (env : Environment) (msc : Syntax) : Syntax → Syntax
   let ns := Name.anonymous;
   let openDecls := [];
   let preresolved := resolveGlobalName env ns openDecls val <|> preresolved;
-  --`(Syntax.ident none (String.toSubstring %(rawVal.toString)) (Name.mkNumeral %val %msc))
-  appN (const `Lean.Syntax.ident) #[
-    const `Option.none,
-    app (const `String.toSubstring) (mkStxStrLit rawVal.toString),
-    --appN (const `Lean.Name.mkNumeral) #[quoteName val, msc]
-    -- TODO: hygiene
-    quoteName val,
-    quoteList $ preresolved.map $ fun ⟨n, ss⟩ => appN (const `Prod.mk) #[quoteName n, quoteList $ ss.map mkStxStrLit]
-  ]
+  -- TODO: hygiene
+  -- `(Name.mkNumeral %%val %%msc)
+  let val := quoteName val;
+  let args := quoteList $ preresolved.map $ fun ⟨n, ss⟩ => appN (Unhygienic.run `(Prod.mk)) #[quoteName n, quoteList $ ss.map mkStxStrLit];
+  Unhygienic.run `(Lean.Syntax.ident Option.none (String.toSubstring %%(Lean.mkStxStrLit (HasToString.toString rawVal))) %%val %%args)
 | Syntax.node `Lean.Parser.Term.antiquot args => args.get! 1
 | Syntax.node k args =>
-  --`(Syntax.node %k %args...)
+  let k := quoteName k;
   let args := quoteArray $ args.map quote;
-  appN (const `Lean.Syntax.node) $ #[quoteName k, args]
-| Syntax.atom info val => --`(Syntax.atom none %val)
-  appN (const `Lean.Syntax.atom) #[
-    const `Option.none,
-    mkStxStrLit val
-  ]
+  Unhygienic.run `(Lean.Syntax.node %%k %%args)
+| Syntax.atom info val =>
+  Unhygienic.run `(Lean.Syntax.atom Option.none %%(Lean.mkStxStrLit val))
 | Syntax.missing => unreachable!
 
--- TODO: hygiene
 def stxQuot.expand (env : Environment) (stx : Syntax) : Syntax :=
+-- TODO: hygiene
 -- `(do msc ← getCurMacroScope; pure %(quote `(msc) quoted))
-app (const `HasPure.pure) $ quote env Syntax.missing $ stx.getArg 1
+let stx := quote env Syntax.missing $ stx.getArg 1;
+Unhygienic.run `(HasPure.pure %%stx)
 
 -- REMOVE with old frontend
 private partial def toPreterm (env : Environment) : Syntax → Except String Expr
@@ -100,7 +101,8 @@ let s := Parser.mkParserState c.input;
 let s := s.setPos pos;
 let s := (Parser.termParser : Parser.Parser).fn (0 : Nat) c s;
 let stx := s.stxStack.back;
-let stx := app (const `HasPure.pure) $ quote env Syntax.missing stx;
+let stx := quote env Syntax.missing stx;
+let stx := Unhygienic.run `(HasPure.pure %%stx);
 expr ← toPreterm env stx;
 match s.errorMsg with
 | some errorMsg =>

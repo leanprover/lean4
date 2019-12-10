@@ -132,11 +132,22 @@ withNode stx $ fun node => do
   | some elab => tracingAt stx $ elab node expectedType
   | none      => throw $ Exception.other ("elaboration function for '" ++ toString k ++ "' has not been implemented")
 
+def ensureType (stx : Syntax) (e : Expr) : TermElabM Expr :=
+do eType ← inferType e;
+   eType ← whnf eType;
+   if eType.isSort then
+     pure e
+   else do
+     u ← mkFreshLevelMVar;
+     condM (isDefEq eType (mkSort u))
+       (pure e)
+       (do -- TODO try coercion to sort
+           logErrorAndThrow stx "type expected")
+
 def elabType (stx : Syntax) : TermElabM Expr :=
 do u ← mkFreshLevelMVar;
    type ← elabTerm stx (mkSort u);
-   -- TODO: ensure it is a type
-   pure type
+   ensureType stx type
 
 @[builtinTermElab «prop»] def elabProp : TermElab :=
 fun _ _ => pure $ mkSort levelZero

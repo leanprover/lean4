@@ -123,6 +123,7 @@ stx.ifNode x (fun _ => throw $ Exception.other "term elaborator failed, unexpect
 
 def elabTerm (stx : Syntax) (expectedType : Option Expr) : TermElabM Expr :=
 withNode stx $ fun node => do
+  trace! `Elab.step (toString stx);
   s ← get;
   let tables := termElabAttribute.ext.getState s.env;
   let k := node.getKind;

@@ -67,7 +67,8 @@ do ext : PersistentEnvExtension ElabAttributeEntry σ ← registerPersistentEnvE
    pure { ext := ext, attr := attrImpl, kind := kind }
 
 @[init] private def regTraceClasses : IO Unit :=
-registerTraceClass `Elab
+do registerTraceClass `Elab;
+   registerTraceClass `Elab.step
 
 end Elab
 end Lean

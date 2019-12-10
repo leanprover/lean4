@@ -314,6 +314,9 @@ instance hashAndthen {k : ParserKind} : HasAndthen (Parser k) :=
      So, we force it here to trigger inlining at `node` combinators. -/
   fn   := nodeFn n p.fn }
 
+@[inline] def group {k : ParserKind} (p : Parser k) : Parser k :=
+node nullKind p
+
 @[inline] def leadingNode (n : SyntaxNodeKind) (p : Parser leading) : Parser :=
 node n p
 

@@ -68,12 +68,9 @@ match e with
 | Exception.io e      => logErrorUsingCmdPos (toString e)
 | Exception.other e   => logErrorUsingCmdPos e
 | Exception.meta e    => logErrorUsingCmdPos e.toMessageData
-| Exception.kernel e  =>
-  match e with
-  | KernelException.other msg => logErrorUsingCmdPos msg
-  | _                         => logErrorUsingCmdPos "kernel exception" -- TODO(pretty print them)
+| Exception.kernel e  => logErrorUsingCmdPos e.toMessageData
 
-def logErrorAndThrow {α} [MonadExcept Exception m] (stx : Syntax) (errorMsg : String) : m α :=
+def logErrorAndThrow {α} [MonadExcept Exception m] (stx : Syntax) (errorMsg : MessageData) : m α :=
 do logError stx errorMsg;
    throw Exception.silent
 

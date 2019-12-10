@@ -77,7 +77,25 @@ partial def arrayExpr.toMessageData (es : Array Expr) : Nat → MessageData → 
 
 instance coeOfArrayExpr : HasCoe (Array Expr) MessageData := ⟨fun es => arrayExpr.toMessageData es 0 "#["⟩
 
+def bracket (l : String) (f : MessageData) (r : String) : MessageData := group (nest l.length $ l ++ f ++ r)
+def paren (f : MessageData) : MessageData := bracket "(" f ")"
+def sbracket (f : MessageData) : MessageData := bracket "[" f "]"
+def joinSep : List MessageData → MessageData → MessageData
+| [],    sep => Format.nil
+| [a],   sep => a
+| a::as, sep => a ++ sep ++ joinSep as sep
+def ofList: List MessageData → MessageData
+| [] => "[]"
+| xs => sbracket $ joinSep xs ("," ++ Format.line)
+def ofArray (msgs : Array MessageData) : MessageData :=
+ofList msgs.toList
+
 end MessageData
+
+def KernelException.toMessageData (e : KernelException) : MessageData :=
+match e with
+| KernelException.other msg => msg
+| _                         => "kernel exception" -- TODO
 
 structure Message :=
 (fileName : String)
@@ -129,6 +147,15 @@ def hasErrors (log : MessageLog) : Bool :=
 log.revList.any $ fun m => match m.severity with
 | MessageSeverity.error => true
 | _                     => false
+
+private def getMostRecentErrorAux : List Message → Option Message
+| [] => none
+| msg::msgs => match msg.severity with
+  | MessageSeverity.error => some msg
+  | _                     => getMostRecentErrorAux msgs
+
+def getMostRecentError (log : MessageLog) : Option Message :=
+getMostRecentErrorAux log.revList
 
 def toList (log : MessageLog) : List Message :=
 log.revList.reverse

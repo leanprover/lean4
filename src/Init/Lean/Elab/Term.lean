@@ -35,8 +35,25 @@ structure State extends Meta.State :=
 (instImplicitIdx : Nat := 1)
 (anonymousIdx    : Nat := 1)
 
+instance State.inhabited : Inhabited State := ⟨{ env := arbitrary _ }⟩
+
 abbrev TermElabM := ReaderT Context (EStateM Exception State)
 abbrev TermElab  := SyntaxNode → Option Expr → TermElabM Expr
+
+abbrev TermElabResult := EStateM.Result Exception State Expr
+
+instance TermElabResult.inhabited : Inhabited TermElabResult := ⟨EStateM.Result.ok (arbitrary _) (arbitrary _)⟩
+
+/--
+  Execute `x`, save resulting expression and new state.
+  If `x` fails, then it also stores exception and new state. -/
+@[inline] def observing (x : TermElabM Expr) : TermElabM TermElabResult :=
+fun ctx s => EStateM.Result.ok (x ctx s) s
+
+def applyResult (result : TermElabResult) : TermElabM Expr :=
+match result with
+| EStateM.Result.ok e s     => do set s; pure e
+| EStateM.Result.error ex s => do set s; throw ex
 
 instance TermElabM.monadLog : MonadLog TermElabM :=
 { getCmdPos   := do ctx ← read; pure ctx.cmdPos,
@@ -420,8 +437,58 @@ do result? ← resolveLocalName n;
      else
        process preresolved
 
+private def elabAppCore : Syntax → Array NamedArg → Array Syntax → Option Expr → Array TermElabResult → TermElabM (Array TermElabResult)
+| f, namedArgs, args, expectedType, acc => pure acc
+
+private def getSuccess (candidates : Array TermElabResult) : Array TermElabResult :=
+candidates.filter $ fun c => match c with
+  | EStateM.Result.ok _ _ => true
+  | _ => false
+
+private def toMessageData (msg : Message) (stx : Syntax) : TermElabM MessageData :=
+do strPos ← getPos stx;
+   pos ← getPosition strPos;
+   if pos == msg.pos then
+     pure msg.data
+   else
+     pure $ toString msg.pos.line ++ ":" ++ toString msg.pos.column ++ " " ++ msg.data
+
+private def getFailureMessage (failure : TermElabResult) (stx : Syntax) : TermElabM MessageData :=
+match failure with
+| EStateM.Result.ok _ _ => unreachable!
+| EStateM.Result.error ex s => do
+  lctx ← getLCtx;
+  match ex with
+  | Exception.other msg => pure $ MessageData.context s.env s.mctx lctx msg
+  | Exception.io ex     => pure $ toString ex
+  | Exception.meta ex   => pure $ MessageData.context s.env s.mctx lctx ex.toMessageData
+  | Exception.msg msg   => toMessageData msg stx
+  | Exception.kernel ex => pure $ MessageData.context s.env s.mctx lctx ex.toMessageData
+  | Exception.silent    =>
+    match s.messages.getMostRecentError with
+    | some msg => toMessageData msg stx
+    | _        => unreachable!
+
+private def mergeFailures {α} (failures : Array TermElabResult) (stx : Syntax) : TermElabM α :=
+do msgs ← failures.mapM $ fun failure => getFailureMessage failure stx;
+   logErrorAndThrow stx ("overloaded, errors " ++ MessageData.ofArray msgs)
+
 private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Syntax) (expectedType : Option Expr) : TermElabM Expr :=
-logErrorAndThrow f "TODO"
+do candidates ← elabAppCore f namedArgs args expectedType #[];
+   if candidates.size == 1 then
+     applyResult $ candidates.get! 0
+   else
+     let successes := getSuccess candidates;
+     if successes.size == 1 then
+       applyResult $ successes.get! 0
+     else if successes.size > 1 then do
+       lctx ← getLCtx;
+       let msgs : Array MessageData := successes.map $ fun success => match success with
+         | EStateM.Result.ok e s => MessageData.context s.env s.mctx lctx e
+         | _                     => unreachable!;
+       logErrorAndThrow f ("ambiguous, possible interpretations " ++ MessageData.ofArray msgs)
+     else
+       mergeFailures candidates f
 
 private partial def expandAppAux : Syntax → Array NamedArg → Array Syntax → Syntax × Array NamedArg × Array Syntax
 | stx, namedArgs, args => stx.ifNodeKind `Lean.Parser.Term.app

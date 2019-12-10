@@ -11,7 +11,7 @@ do env  ← MetaIO.getEnv;
    when messages.hasErrors $ throw (IO.userError "errors have been found");
    pure ()
 
-def test := IO Unit
+def M := IO Unit
 
 -- set_option trace.Elab true
 #eval run
@@ -29,6 +29,7 @@ def test := IO Unit
  #check Nat.add
  #check forall (α : Type), α → α
  #check (α : Type) → α → α
- #check {α : Type} → α → test → α
+ #check {α : Type} → {β : Type} → M → (α → β) → α → β
+ #check ()
  #check run
  end"

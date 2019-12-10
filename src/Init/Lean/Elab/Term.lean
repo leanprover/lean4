@@ -338,6 +338,17 @@ fun stx _ =>
     e ← elabType term;
     mkForall xs e
 
+@[builtinTermElab paren] def elabParen : TermElab :=
+fun stx expectedType =>
+  -- `(` (termParser >> parenSpecial)? `)`
+  let body := stx.getArg 1;
+  if body.isNone then
+    pure $ mkConst `Unit.unit
+  else
+    let term := body.getArg 0;
+    -- TODO: handle parenSpecial
+    elabTerm term expectedType
+
 end Term
 
 export Term (TermElabM)

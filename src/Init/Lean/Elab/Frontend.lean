@@ -62,6 +62,14 @@ end Frontend
 
 open Frontend
 
+def process (input : String) (env : Environment) (opts : Options) (fileName : Option String := none) : Environment × MessageLog :=
+let fileName := fileName.getD "<input>";
+let ctx      := Parser.mkParserContextCore env input fileName;
+let cmdState := Command.mkState env {} opts;
+match (processCommands ctx).run { commandState := cmdState, parserState := {} } with
+| EStateM.Result.ok _ s    => (s.commandState.env, s.commandState.messages)
+| EStateM.Result.error _ s => (s.commandState.env, s.commandState.messages)
+
 def testFrontend (input : String) (opts : Options := {}) (fileName : Option String := none) : IO (Environment × MessageLog) :=
 do env ← mkEmptyEnvironment;
    let fileName := fileName.getD "<input>";

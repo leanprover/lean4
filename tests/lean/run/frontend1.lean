@@ -3,16 +3,16 @@ open Lean
 open Lean.Elab
 
 def run (input : String) : MetaIO Unit :=
-do opts ← MetaIO.getOptions;
-   (env, messages) ← liftM $ testFrontend input opts;
+do env  ← MetaIO.getEnv;
+   opts ← MetaIO.getOptions;
+   let (env, messages) := process input env opts;
    messages.toList.forM $ fun msg => IO.println msg;
    pure ()
 
 set_option trace.Elab true
 
 #eval run
-"import Init.Core
- universe u universe v
+"universe u universe v
  section namespace foo.bla end bla end foo
  variable (p q : Prop)
  variable (_ b : _)
@@ -24,4 +24,5 @@ set_option trace.Elab true
  #check α
  #check Nat.succ
  #check Nat.add
+ #check run
  end"

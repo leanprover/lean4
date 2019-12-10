@@ -9,8 +9,9 @@ do env  ← MetaIO.getEnv;
    messages.toList.forM $ fun msg => IO.println msg;
    pure ()
 
--- set_option trace.Elab true
+def test := IO Unit
 
+-- set_option trace.Elab true
 #eval run
 "universe u universe v
  section namespace foo.bla end bla end foo
@@ -25,5 +26,7 @@ do env  ← MetaIO.getEnv;
  #check Nat.succ
  #check Nat.add
  #check forall (α : Type), α → α
+ #check (α : Type) → α → α
+ #check {α : Type} → α → test → α
  #check run
  end"

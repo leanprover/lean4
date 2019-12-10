@@ -309,10 +309,10 @@ do lctx ← getLCtx;
 elabBinders #[binder] (fun fvars => x (fvars.get! 1))
 
 @[builtinTermElab «forall»] def elabForall : TermElab :=
-fun n _ =>
+fun stx _ =>
   -- `forall` binders+ `,` term
-  let binders := (n.getArg 1).getArgs;
-  let term    := n.getArg 3;
+  let binders := (stx.getArg 1).getArgs;
+  let term    := stx.getArg 3;
   elabBinders binders $ fun xs => do
     e ← elabType term;
     mkForall xs e
@@ -328,6 +328,15 @@ fun stx expectedType => do
   let rng    := stx.getArg 2;
   let newStx := mkNode `Lean.Parser.Term.forall [mkAtom "forall", mkNullNode [mkExplicitBinder id dom], mkAtom ",", rng];
   elabTerm newStx expectedType
+
+@[builtinTermElab depArrow] def elabDepArrow : TermElab :=
+fun stx _ =>
+  -- bracktedBinder `->` term
+  let binder := stx.getArg 0;
+  let term   := stx.getArg 2;
+  elabBinders #[binder] $ fun xs => do
+    e ← elabType term;
+    mkForall xs e
 
 end Term
 

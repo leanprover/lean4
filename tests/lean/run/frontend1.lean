@@ -24,6 +24,6 @@ do env  ← MetaIO.getEnv;
  #check α
  #check Nat.succ
  #check Nat.add
- #check forall (α : Type), α
+ #check forall (α : Type), α → α
  #check run
  end"

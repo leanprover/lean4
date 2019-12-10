@@ -314,6 +314,18 @@ fun n _ =>
     e ← elabType term;
     mkForall xs e
 
+def mkExplicitBinder (n : Syntax) (type : Syntax) : Syntax :=
+mkNode `Lean.Parser.Term.explicitBinder [mkAtom "(", mkNullNode [n], mkNullNode [mkAtom ":", type], mkNullNode [], mkAtom ")"]
+
+@[builtinTermElab arrow] def elabArrow : TermElab :=
+fun stx expectedType => do
+  a ← mkFreshAnonymousName;
+  let id     := mkIdentFrom stx.val a;
+  let dom    := stx.getArg 0;
+  let rng    := stx.getArg 2;
+  let newStx := mkNode `Lean.Parser.Term.forall [mkAtom "forall", mkNullNode [mkExplicitBinder id dom], mkAtom ",", rng];
+  elabTerm newStx expectedType
+
 end Term
 
 export Term (TermElabM)
@@ -327,18 +339,6 @@ fun stx _ => do
   let consId   := mkIdentFrom openBkt `List.cons;
   let nilId    := mkIdentFrom closeBkt `List.nil;
   pure $ args.foldSepArgs (fun arg r => mkAppStx consId [arg, r]) nilId
-
-def mkExplicitBinder {α} (n : Syntax α) (type : Syntax α) : Syntax α :=
-mkNode `Lean.Parser.Term.explicitBinder [mkAtom "(", mkNullNode [n], mkNullNode [mkAtom ":", type], mkNullNode [], mkAtom ")"]
-
-@[builtinTermElab arrow] def elabArrow : TermElab :=
-fun stx _ => do
-  n ← mkFreshName;
-  let id  := mkIdentFrom stx.val n;
-  let dom := stx.getArg 0;
-  let rng := stx.getArg 2;
-  pure $ mkNode `Lean.Parser.Term.forall [mkAtom "forall", mkNullNode [mkExplicitBinder id dom], mkAtom ",", rng]
-
 -/
 end Elab
 end Lean

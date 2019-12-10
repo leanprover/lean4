@@ -821,6 +821,21 @@ static expr parse_trace(parser & p, unsigned, expr const *, pos_info const & pos
     return save_pos(r, pos);
 }
 
+extern "C" object * lean_parse_stx_quot(object * env, object * input, object * pos);
+
+static expr parse_stx_quot(parser & p, unsigned, expr const *, pos_info const & pos) {
+    object_ref r(lean_parse_stx_quot(p.env().to_obj_arg(), mk_string(p.m_scanner.m_curr_line), nat(p.m_scanner.m_spos).to_obj_arg()));
+    if (cnstr_tag(r.raw()) == 0) {
+        throw parser_error(sstream() << cnstr_get_ref_t<string_ref>(r, 0).to_std_string(), p.pos());
+    } else {
+        object_ref tup = cnstr_get_ref(r, 0);
+        p.m_scanner.skip_to_pos(pos_info {0, cnstr_get_ref_t<nat>(tup, 1).get_small_value()});
+        p.next();
+        p.check_token_next(get_rparen_tk(), "')' expected");
+        return cnstr_get_ref_t<expr>(tup, 0);
+    }
+}
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -859,6 +874,7 @@ parse_table init_nud_table() {
     r = r.add({transition("tparser!", mk_ext_action(parse_tparser))}, x0);
     r = r.add({transition("panic!", mk_ext_action(parse_panic))}, x0);
     r = r.add({transition("trace!", mk_ext_action(parse_trace))}, x0);
+    r = r.add({transition("`(", mk_ext_action_core(parse_stx_quot))}, x0);
     return r;
 }
 

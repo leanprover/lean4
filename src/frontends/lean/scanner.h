@@ -29,7 +29,7 @@ enum class token_kind {Keyword, CommandKeyword, Identifier, Numeral, Decimal,
     accepted if they are in the token set.
 */
 class scanner {
-protected:
+public:
     token_table const * m_tokens;
     std::istream *      m_stream;
     std::string         m_stream_name;

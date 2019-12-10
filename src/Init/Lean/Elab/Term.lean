@@ -22,6 +22,7 @@ structure Context extends Meta.Context :=
 (univNames   : List Name := [])
 (openDecls   : List OpenDecl := [])
 (macroStack  : List Syntax := [])
+(mayPostpone : Bool := true)
 
 inductive SyntheticMVarInfo
 | typeClass : SyntheticMVarInfo
@@ -119,6 +120,9 @@ def mkFreshLevelMVar : TermElabM Level := liftMetaM $ Meta.mkFreshLevelMVar
 def mkFreshExprMVar (type : Expr) (userName? : Name := Name.anonymous) (synthetic : Bool := false) : TermElabM Expr :=
 liftMetaM $ Meta.mkFreshExprMVar type userName? synthetic
 def mkForall (xs : Array Expr) (e : Expr) : TermElabM Expr := liftMetaM $ Meta.mkForall xs e
+
+@[inline] def withoutPostponing {α} (x : TermElabM α) : TermElabM α :=
+adaptReader (fun (ctx : Context) => { mayPostpone := false, .. ctx }) x
 
 @[inline] def withNode {α} (stx : Syntax) (x : SyntaxNode → TermElabM α) : TermElabM α :=
 stx.ifNode x (fun _ => throw $ Exception.other "term elaborator failed, unexpected syntax")

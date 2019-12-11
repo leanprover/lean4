@@ -58,15 +58,15 @@ private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
 /- We use `Context` to track join points in scope. -/
 abbrev M := ReaderT LocalContext (StateT Index Id)
 
-private def mkFresh : M VarId :=
-do idx ← getModify (fun n => n + 1);
-   pure { idx := idx }
+private def mkFresh : M VarId := do
+idx ← getModify (fun n => n + 1);
+pure { idx := idx }
 
-private def tryS (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=
-do w ← mkFresh;
-   let b' := S w c b;
-   if b == b' then pure b
-   else pure $ FnBody.vdecl w IRType.object (Expr.reset c.size x) b'
+private def tryS (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody := do
+w ← mkFresh;
+let b' := S w c b;
+if b == b' then pure b
+else pure $ FnBody.vdecl w IRType.object (Expr.reset c.size x) b'
 
 private def Dfinalize (x : VarId) (c : CtorInfo) : FnBody × Bool → M FnBody
 | (b, true)  => pure b

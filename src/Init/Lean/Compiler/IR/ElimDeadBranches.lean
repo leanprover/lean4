@@ -130,21 +130,21 @@ abbrev M := ReaderT InterpContext (StateM InterpState)
 
 open Value
 
-def findVarValue (x : VarId) : M Value :=
-do ctx ← read;
-   s ← get;
-   let assignment := s.assignments.get! ctx.currFnIdx;
-   pure $ assignment.findD x bot
+def findVarValue (x : VarId) : M Value := do
+ctx ← read;
+s ← get;
+let assignment := s.assignments.get! ctx.currFnIdx;
+pure $ assignment.findD x bot
 
 def findArgValue (arg : Arg) : M Value :=
 match arg with
 | Arg.var x => findVarValue x
 | _         => pure top
 
-def updateVarAssignment (x : VarId) (v : Value) : M Unit :=
-do v' ← findVarValue x;
-   ctx ← read;
-   modify $ fun s => { assignments := s.assignments.modify ctx.currFnIdx $ fun a => a.insert x (merge v v'), .. s }
+def updateVarAssignment (x : VarId) (v : Value) : M Unit := do
+v' ← findVarValue x;
+ctx ← read;
+modify $ fun s => { assignments := s.assignments.modify ctx.currFnIdx $ fun a => a.insert x (merge v v'), .. s }
 
 partial def projValue : Value → Nat → Value
 | ctor _ vs, i => vs.getD i bot
@@ -171,26 +171,27 @@ partial def containsCtor : Value → CtorInfo → Bool
 | choice vs, j => vs.any $ fun v => containsCtor v j
 | _,         _ => false
 
-def updateCurrFnSummary (v : Value) : M Unit :=
-do ctx ← read;
-   let currFnIdx := ctx.currFnIdx;
-   modify $ fun s => { funVals := s.funVals.modify currFnIdx (fun v' => widening ctx.env v v'), .. s }
+def updateCurrFnSummary (v : Value) : M Unit := do
+ctx ← read;
+let currFnIdx := ctx.currFnIdx;
+modify $ fun s => { funVals := s.funVals.modify currFnIdx (fun v' => widening ctx.env v v'), .. s }
 
 /-- Return true if the assignment of at least one parameter has been updated. -/
-def updateJPParamsAssignment (ys : Array Param) (xs : Array Arg) : M Bool :=
-do ctx ← read;
-   let currFnIdx := ctx.currFnIdx;
-   ys.size.foldM (fun i r => do
-     let y := ys.get! i;
-     let x := xs.get! i;
-     yVal ← findVarValue y.x;
-     xVal ← findArgValue x;
-     let newVal := merge yVal xVal;
-     if newVal == yVal then pure r
-     else do
-       modify $ fun s => { assignments := s.assignments.modify currFnIdx $ fun a => a.insert y.x newVal, .. s };
-       pure true)
-     false
+def updateJPParamsAssignment (ys : Array Param) (xs : Array Arg) : M Bool := do
+ctx ← read;
+let currFnIdx := ctx.currFnIdx;
+ys.size.foldM
+  (fun i r => do
+    let y := ys.get! i;
+    let x := xs.get! i;
+    yVal ← findVarValue y.x;
+    xVal ← findArgValue x;
+    let newVal := merge yVal xVal;
+    if newVal == yVal then pure r
+    else do
+      modify $ fun s => { assignments := s.assignments.modify currFnIdx $ fun a => a.insert y.x newVal, .. s };
+      pure true)
+  false
 
 partial def interpFnBody : FnBody → M Unit
 | FnBody.vdecl x _ e b => do
@@ -218,23 +219,23 @@ partial def interpFnBody : FnBody → M Unit
     interpFnBody $ (ctx.lctx.getJPBody j).get!
 | e => unless (e.isTerminal) $ interpFnBody e.body
 
-def inferStep : M Bool :=
-do ctx ← read;
-   modify $ fun s => { assignments := ctx.decls.map $ fun _ => {}, .. s };
-   ctx.decls.size.foldM (fun idx modified => do
-     match ctx.decls.get! idx with
-     | Decl.fdecl fid ys _ b => do
-       s ← get;
-       -- dbgTrace (">> " ++ toString fid) $ fun _ =>
-       let currVals := s.funVals.get! idx;
-       adaptReader (fun (ctx : InterpContext) => { currFnIdx := idx, .. ctx }) $ do
-         ys.forM $ fun y => updateVarAssignment y.x top;
-         interpFnBody b;
-       s ← get;
-       let newVals := s.funVals.get! idx;
-       pure (modified || currVals != newVals)
-     | Decl.extern _ _ _ _ => pure modified)
-     false
+def inferStep : M Bool := do
+ctx ← read;
+modify $ fun s => { assignments := ctx.decls.map $ fun _ => {}, .. s };
+ctx.decls.size.foldM (fun idx modified => do
+  match ctx.decls.get! idx with
+  | Decl.fdecl fid ys _ b => do
+    s ← get;
+    -- dbgTrace (">> " ++ toString fid) $ fun _ =>
+    let currVals := s.funVals.get! idx;
+    adaptReader (fun (ctx : InterpContext) => { currFnIdx := idx, .. ctx }) $ do
+      ys.forM $ fun y => updateVarAssignment y.x top;
+      interpFnBody b;
+    s ← get;
+    let newVals := s.funVals.get! idx;
+    pure (modified || currVals != newVals)
+  | Decl.extern _ _ _ _ => pure modified)
+  false
 
 partial def inferMain : Unit → M Unit
 | _ => do
@@ -266,23 +267,23 @@ end UnreachableBranches
 
 open UnreachableBranches
 
-def elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) :=
-do  s ← get;
-    let env := s.env;
-    let assignments : Array Assignment := decls.map $ fun _ => {};
-    let funVals := mkPArray decls.size Value.bot;
-    let ctx : InterpContext := { decls := decls, env := env };
-    let s : InterpState := { assignments := assignments, funVals := funVals };
-    let (_, s) := (inferMain () ctx).run s;
-    let funVals := s.funVals;
-    let assignments := s.assignments;
-    modify $ fun s =>
-      let env := decls.size.fold (fun i env =>
-        -- dbgTrace (">> " ++ toString (decls.get! i).name ++ " " ++ toString (funVals.get! i)) $ fun _ =>
-        addFunctionSummary env (decls.get! i).name (funVals.get! i))
-        s.env;
-      { env := env, .. s };
-    pure $ decls.mapIdx $ fun i decl => elimDead (assignments.get! i) decl
+def elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
+s ← get;
+let env := s.env;
+let assignments : Array Assignment := decls.map $ fun _ => {};
+let funVals := mkPArray decls.size Value.bot;
+let ctx : InterpContext := { decls := decls, env := env };
+let s : InterpState := { assignments := assignments, funVals := funVals };
+let (_, s) := (inferMain () ctx).run s;
+let funVals := s.funVals;
+let assignments := s.assignments;
+modify $ fun s =>
+  let env := decls.size.fold (fun i env =>
+    -- dbgTrace (">> " ++ toString (decls.get! i).name ++ " " ++ toString (funVals.get! i)) $ fun _ =>
+    addFunctionSummary env (decls.get! i).name (funVals.get! i))
+    s.env;
+  { env := env, .. s };
+pure $ decls.mapIdx $ fun i decl => elimDead (assignments.get! i) decl
 
 end IR
 end Lean

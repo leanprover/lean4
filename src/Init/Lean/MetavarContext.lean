@@ -411,8 +411,8 @@ WithHashMapCache.fromState $ MetavarContext.instantiateLevelMVars lvl
 @[inline] private def visit (f : Expr → M Expr) (e : Expr) : M Expr :=
 if !e.hasMVar then pure e else checkCache e f
 
-@[inline] private def getMCtx : M MetavarContext :=
-do s ← get; pure s.state
+@[inline] private def getMCtx : M MetavarContext := do
+s ← get; pure s.state
 
 @[inline] private def modifyCtx (f : MetavarContext → MetavarContext) : M Unit :=
 modify $ fun s => { state := f s.state, .. s }
@@ -599,33 +599,33 @@ instance : MonadHashMapCacheAdapter Expr Expr M :=
     contain a metavariable `?m` s.t. local context of `?m` contains a free variable in `xs`.
 
     `elimMVarDeps` is defined later in this file. -/
-@[inline] private def abstractRange (elimMVarDeps : Array Expr → Expr → M Expr) (lctx : LocalContext) (xs : Array Expr) (i : Nat) (e : Expr) : M Expr :=
-do e ← elimMVarDeps xs e;
-   pure (e.abstractRange i xs)
+@[inline] private def abstractRange (elimMVarDeps : Array Expr → Expr → M Expr) (lctx : LocalContext) (xs : Array Expr) (i : Nat) (e : Expr) : M Expr := do
+e ← elimMVarDeps xs e;
+pure (e.abstractRange i xs)
 
 /-- Similar to `LocalContext.mkBinding`, but handles metavariables correctly. -/
 @[specialize] def mkBinding (isLambda : Bool) (elimMVarDeps : Array Expr → Expr → M Expr)
-                            (lctx : LocalContext) (xs : Array Expr) (e : Expr) : M Expr :=
-do e ← abstractRange elimMVarDeps lctx xs xs.size e;
-   xs.size.foldRevM
-    (fun i e =>
-      let x := xs.get! i;
-      match lctx.findFVar x with
-      | some (LocalDecl.cdecl _ _ n type bi) => do
-        type ← abstractRange elimMVarDeps lctx xs i type;
-        if isLambda then
-          pure $ Lean.mkLambda n bi type e
-        else
-          pure $ Lean.mkForall n bi type e
-      | some (LocalDecl.ldecl _ _ n type value) => do
-        if e.hasLooseBVar 0 then do
-          type  ← abstractRange elimMVarDeps lctx xs i type;
-          value ← abstractRange elimMVarDeps lctx xs i value;
-          pure $ mkLet n type value e
-        else
-          pure e
-      | none => panic! "unknown free variable")
-   e
+                            (lctx : LocalContext) (xs : Array Expr) (e : Expr) : M Expr := do
+e ← abstractRange elimMVarDeps lctx xs xs.size e;
+xs.size.foldRevM
+ (fun i e =>
+   let x := xs.get! i;
+   match lctx.findFVar x with
+   | some (LocalDecl.cdecl _ _ n type bi) => do
+     type ← abstractRange elimMVarDeps lctx xs i type;
+     if isLambda then
+       pure $ Lean.mkLambda n bi type e
+     else
+       pure $ Lean.mkForall n bi type e
+   | some (LocalDecl.ldecl _ _ n type value) => do
+     if e.hasLooseBVar 0 then do
+       type  ← abstractRange elimMVarDeps lctx xs i type;
+       value ← abstractRange elimMVarDeps lctx xs i value;
+       pure $ mkLet n type value e
+     else
+       pure e
+   | none => panic! "unknown free variable")
+e
 
 @[inline] def mkLambda (elimMVarDeps : Array Expr → Expr → M Expr) (lctx : LocalContext) (xs : Array Expr) (b : Expr) : M Expr :=
 mkBinding true elimMVarDeps lctx xs b
@@ -675,8 +675,8 @@ toRevert.foldr
 @[inline] private def visit (f : Expr → M Expr) (e : Expr) : M Expr :=
 if !e.hasMVar then pure e else checkCache e f
 
-@[inline] private def getMCtx : M MetavarContext :=
-do s ← get; pure s.mctx
+@[inline] private def getMCtx : M MetavarContext := do
+s ← get; pure s.mctx
 
 /-- Return free variables in `xs` that are in the local context `lctx` -/
 private def getInScope (lctx : LocalContext) (xs : Array Expr) : Array Expr :=
@@ -689,11 +689,11 @@ xs.foldl
   #[]
 
 /-- Execute `x` with an empty cache, and then restore the original cache. -/
-@[inline] private def withFreshCache {α} (x : M α) : M α :=
-do cache ← modifyGet $ fun s => (s.cache, { cache := {}, .. s });
-   a ← x;
-   modify $ fun s => { cache := cache, .. s };
-   pure a
+@[inline] private def withFreshCache {α} (x : M α) : M α := do
+cache ← modifyGet $ fun s => (s.cache, { cache := {}, .. s });
+a ← x;
+modify $ fun s => { cache := cache, .. s };
+pure a
 
 @[inline] private def mkForallAux (elimMVarDepsAux : Array Expr → Expr → M Expr) (lctx : LocalContext) (xs : Array Expr) (b : Expr) : M Expr :=
 mkForall
@@ -710,11 +710,11 @@ mkForall
 private def mkMVarApp (lctx : LocalContext) (mvar : Expr) (xs : Array Expr) : Expr :=
 xs.foldl (fun e x => if (lctx.findFVar x).get!.isLet then e else mkApp e x) mvar
 
-private def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (synthetic : Bool) : M MVarId :=
-do s ← get;
-   let mvarId := s.ngen.curr;
-   modify $ fun s => { mctx := s.mctx.addExprMVarDecl mvarId Name.anonymous lctx localInsts type synthetic, ngen := s.ngen.next, .. s };
-   pure mvarId
+private def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (synthetic : Bool) : M MVarId := do
+s ← get;
+let mvarId := s.ngen.curr;
+modify $ fun s => { mctx := s.mctx.addExprMVarDecl mvarId Name.anonymous lctx localInsts type synthetic, ngen := s.ngen.next, .. s };
+pure mvarId
 
 private partial def elimMVarDepsAux : Array Expr → Expr → M Expr
 | xs, e@(Expr.proj _ _ s _)    => do s ← visit (elimMVarDepsAux xs) s; pure (e.updateProj! s)
@@ -726,9 +726,9 @@ private partial def elimMVarDepsAux : Array Expr → Expr → M Expr
   let wasMVar := f.isMVar;
   f ← visit (elimMVarDepsAux xs) f;
   revArgs ← revArgs.mapM (visit (elimMVarDepsAux xs));
- if wasMVar && f.isLambda then
+  if wasMVar && f.isLambda then
     pure (f.betaRev revArgs)
- else
+  else
     pure (mkAppRev f revArgs)
 | xs, e@(Expr.mvar mvarId _)   => do
   mctx ← getMCtx;

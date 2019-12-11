@@ -65,11 +65,11 @@ abbrev TermElabTable := SMap SyntaxNodeKind TermElab
 def mkBuiltinTermElabTable : IO (IO.Ref TermElabTable) :=  IO.mkRef {}
 @[init mkBuiltinTermElabTable] constant builtinTermElabTable : IO.Ref TermElabTable := arbitrary _
 
-def addBuiltinTermElab (k : SyntaxNodeKind) (declName : Name) (elab : TermElab) : IO Unit :=
-do m ← builtinTermElabTable.get;
-   when (m.contains k) $
-     throw (IO.userError ("invalid builtin term elaborator, elaborator for '" ++ toString k ++ "' has already been defined"));
-   builtinTermElabTable.modify $ fun m => m.insert k elab
+def addBuiltinTermElab (k : SyntaxNodeKind) (declName : Name) (elab : TermElab) : IO Unit := do
+m ← builtinTermElabTable.get;
+when (m.contains k) $
+  throw (IO.userError ("invalid builtin term elaborator, elaborator for '" ++ toString k ++ "' has already been defined"));
+builtinTermElabTable.modify $ fun m => m.insert k elab
 
 def declareBuiltinTermElab (env : Environment) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
 let name := `_regBuiltinTermElab ++ declName;
@@ -115,10 +115,10 @@ def getLocalInsts : TermElabM LocalInstances := do ctx ← read; pure ctx.localI
 def getOptions : TermElabM Options       := do ctx ← read; pure ctx.config.opts
 def getTraceState : TermElabM TraceState := do s ← get; pure s.traceState
 def setTraceState (traceState : TraceState) : TermElabM Unit := modify $ fun s => { traceState := traceState, .. s }
-def addContext (msg : MessageData) : TermElabM MessageData :=
-do ctx ← read;
-   s   ← get;
-   pure $ MessageData.context s.env s.mctx ctx.lctx msg
+def addContext (msg : MessageData) : TermElabM MessageData := do
+ctx ← read;
+s   ← get;
+pure $ MessageData.context s.env s.mctx ctx.lctx msg
 
 instance tracer : SimpleMonadTracerAdapter TermElabM :=
 { getOptions       := getOptions,
@@ -154,22 +154,22 @@ withNode stx $ fun node => do
   | some elab => tracingAt stx $ elab node expectedType?
   | none      => throw $ Exception.other ("elaboration function for '" ++ toString k ++ "' has not been implemented")
 
-def ensureType (stx : Syntax) (e : Expr) : TermElabM Expr :=
-do eType ← inferType e;
-   eType ← whnf eType;
-   if eType.isSort then
-     pure e
-   else do
-     u ← mkFreshLevelMVar;
-     condM (isDefEq eType (mkSort u))
-       (pure e)
-       (do -- TODO try coercion to sort
-           logErrorAndThrow stx "type expected")
+def ensureType (stx : Syntax) (e : Expr) : TermElabM Expr := do
+eType ← inferType e;
+eType ← whnf eType;
+if eType.isSort then
+  pure e
+else do
+  u ← mkFreshLevelMVar;
+  condM (isDefEq eType (mkSort u))
+    (pure e)
+    (do -- TODO try coercion to sort
+        logErrorAndThrow stx "type expected")
 
-def elabType (stx : Syntax) : TermElabM Expr :=
-do u ← mkFreshLevelMVar;
-   type ← elabTerm stx (mkSort u);
-   ensureType stx type
+def elabType (stx : Syntax) : TermElabM Expr := do
+u ← mkFreshLevelMVar;
+type ← elabTerm stx (mkSort u);
+ensureType stx type
 
 @[builtinTermElab «prop»] def elabProp : TermElab :=
 fun _ _ => pure $ mkSort levelZero
@@ -191,24 +191,25 @@ fun stx expectedType? => do
   env ← getEnv;
   elabTerm (stxQuot.expand env (stx.getArg 1)) expectedType?
 
-private def mkFreshAnonymousName : TermElabM Name :=
-do s ← get;
-   let anonymousIdx := s.anonymousIdx;
-   modify $ fun s => { anonymousIdx := s.anonymousIdx + 1, .. s};
-   pure $ (`_a).appendIndexAfter anonymousIdx
+private def mkFreshAnonymousName : TermElabM Name := do
+s ← get;
+let anonymousIdx := s.anonymousIdx;
+modify $ fun s => { anonymousIdx := s.anonymousIdx + 1, .. s};
+pure $ (`_a).appendIndexAfter anonymousIdx
 
-private def mkFreshInstanceName : TermElabM Name :=
-do s ← get;
-   let instIdx := s.instImplicitIdx;
-   modify $ fun s => { instImplicitIdx := s.instImplicitIdx + 1, .. s};
-   pure $ (`_inst).appendIndexAfter instIdx
+private def mkFreshInstanceName : TermElabM Name := do
+s ← get;
+let instIdx := s.instImplicitIdx;
+modify $ fun s => { instImplicitIdx := s.instImplicitIdx + 1, .. s};
+pure $ (`_inst).appendIndexAfter instIdx
 
 def mkHole := mkNode `Lean.Parser.Term.hole [mkAtom "_"]
 
-/-- Given syntax of the forms
-      a) (`:` term)?
-      b) `:` term
-    into `term` if it is present, or a hole if not. -/
+/--
+  Given syntax of the forms
+    a) (`:` term)?
+    b) `:` term
+  into `term` if it is present, or a hole if not. -/
 private def expandBinderType (stx : Syntax) : Syntax :=
 if stx.getNumArgs == 0 then
   mkHole
@@ -266,20 +267,20 @@ adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts
 def resetSynthInstanceCache : TermElabM Unit :=
 modify $ fun s => { cache := { synthInstance := {}, .. s.cache }, .. s }
 
-@[inline] def resettingSynthInstanceCache {α} (x : TermElabM α) : TermElabM α :=
-do s ← get;
-   let savedSythInstance := s.cache.synthInstance;
-   resetSynthInstanceCache;
-   finally x (modify $ fun s => { cache := { synthInstance := savedSythInstance, .. s.cache }, .. s })
+@[inline] def resettingSynthInstanceCache {α} (x : TermElabM α) : TermElabM α := do
+s ← get;
+let savedSythInstance := s.cache.synthInstance;
+resetSynthInstanceCache;
+finally x (modify $ fun s => { cache := { synthInstance := savedSythInstance, .. s.cache }, .. s })
 
 @[inline] def resettingSynthInstanceCacheWhen {α} (b : Bool) (x : TermElabM α) : TermElabM α :=
 if b then resettingSynthInstanceCache x else x
 
-def mkFreshId : TermElabM Name :=
-do s ← get;
-   let id := s.ngen.curr;
-   modify $ fun s => { ngen := s.ngen.next, .. s };
-   pure id
+def mkFreshId : TermElabM Name := do
+s ← get;
+let id := s.ngen.curr;
+modify $ fun s => { ngen := s.ngen.next, .. s };
+pure id
 
 private partial def elabBinderViews (binderViews : Array BinderView) : Nat → Array Expr → LocalContext → LocalInstances → TermElabM (Array Expr × LocalContext × LocalInstances)
 | i, fvars, lctx, localInsts =>
@@ -311,12 +312,12 @@ private partial def elabBindersAux (binders : Array Syntax) : Nat → Array Expr
   else
     pure (fvars, lctx, localInsts)
 
-@[inline] def elabBinders {α} (binders : Array Syntax) (x : Array Expr → TermElabM α) : TermElabM α :=
-do lctx ← getLCtx;
-   localInsts ← getLocalInsts;
-   (fvars, lctx, newLocalInsts) ← elabBindersAux binders 0 #[] lctx localInsts;
-   resettingSynthInstanceCacheWhen (newLocalInsts.size > localInsts.size) $
-     adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := newLocalInsts, .. ctx }) (x fvars)
+@[inline] def elabBinders {α} (binders : Array Syntax) (x : Array Expr → TermElabM α) : TermElabM α := do
+lctx ← getLCtx;
+localInsts ← getLocalInsts;
+(fvars, lctx, newLocalInsts) ← elabBindersAux binders 0 #[] lctx localInsts;
+resettingSynthInstanceCacheWhen (newLocalInsts.size > localInsts.size) $
+  adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := newLocalInsts, .. ctx }) (x fvars)
 
 @[inline] def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
 elabBinders #[binder] (fun fvars => x (fvars.get! 1))
@@ -390,52 +391,52 @@ private def resolveLocalNameAux (lctx : LocalContext) : Name → List String →
   | none      => resolveLocalNameAux pre (s::projs)
 | _, _ => none
 
-private def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) :=
-do lctx ← getLCtx;
-   pure $ resolveLocalNameAux lctx n []
+private def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
+lctx ← getLCtx;
+pure $ resolveLocalNameAux lctx n []
 
 private def mkFreshLevelMVars (num : Nat) : TermElabM (List Level) :=
 num.foldM (fun _ us => do u ← mkFreshLevelMVar; pure $ u::us) []
 
-private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) :=
-do env ← getEnv;
-   candidates.foldlM
-     (fun result ⟨constName, projs⟩ =>
-       match env.find constName with
-       | none       => unreachable!
-       | some cinfo =>
-         if explicitLevels.length > cinfo.lparams.length then
-           -- Remark: we discard candidate because of the number of explicit universe levels provided.
-           pure result
-         else do
-           let numMissingLevels := cinfo.lparams.length - explicitLevels.length;
-           us ← mkFreshLevelMVars numMissingLevels;
-           pure $ (mkConst constName (explicitLevels ++ us), projs) :: result)
-     []
+private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
+env ← getEnv;
+candidates.foldlM
+  (fun result ⟨constName, projs⟩ =>
+    match env.find constName with
+    | none       => unreachable!
+    | some cinfo =>
+      if explicitLevels.length > cinfo.lparams.length then
+        -- Remark: we discard candidate because of the number of explicit universe levels provided.
+        pure result
+      else do
+        let numMissingLevels := cinfo.lparams.length - explicitLevels.length;
+        us ← mkFreshLevelMVars numMissingLevels;
+        pure $ (mkConst constName (explicitLevels ++ us), projs) :: result)
+  []
 
-def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) (ref : Syntax) : TermElabM (List (Expr × List String)) :=
-do result? ← resolveLocalName n;
-   match result? with
-   | some (e, projs) => do
-     unless explicitLevels.isEmpty $
-       logErrorAndThrow ref ("invalid use of explicit universe parameters, '" ++ toString e.fvarId! ++ "' is a local");
-     pure [(e, projs)]
-   | none =>
-     let process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do {
-       when candidates.isEmpty $
-         logErrorAndThrow ref ("unknown identifier '" ++ toString n ++ "'");
-       result ← mkConsts candidates explicitLevels;
-       -- If we had candidates, but `result` is empty, then too many universe levels have been provided
-       when result.isEmpty $ logErrorAndThrow ref ("too many explicit universe levels");
-       pure result
-     };
-     if preresolved.isEmpty then do
-       env       ← getEnv;
-       ns        ← getNamespace;
-       openDecls ← getOpenDecls;
-       process (resolveGlobalName env ns openDecls n)
-     else
-       process preresolved
+def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) (ref : Syntax) : TermElabM (List (Expr × List String)) := do
+result? ← resolveLocalName n;
+match result? with
+| some (e, projs) => do
+  unless explicitLevels.isEmpty $
+    logErrorAndThrow ref ("invalid use of explicit universe parameters, '" ++ toString e.fvarId! ++ "' is a local");
+  pure [(e, projs)]
+| none =>
+  let process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do {
+    when candidates.isEmpty $
+      logErrorAndThrow ref ("unknown identifier '" ++ toString n ++ "'");
+    result ← mkConsts candidates explicitLevels;
+    -- If we had candidates, but `result` is empty, then too many universe levels have been provided
+    when result.isEmpty $ logErrorAndThrow ref ("too many explicit universe levels");
+    pure result
+  };
+  if preresolved.isEmpty then do
+    env       ← getEnv;
+    ns        ← getNamespace;
+    openDecls ← getOpenDecls;
+    process (resolveGlobalName env ns openDecls n)
+  else
+    process preresolved
 
 private partial def elabAppCore : Syntax → Array NamedArg → Array Syntax → Option Expr → Bool → Array TermElabResult → TermElabM (Array TermElabResult)
 | f, namedArgs, args, expectedType?, explicit, acc =>
@@ -455,13 +456,13 @@ candidates.filter $ fun c => match c with
   | EStateM.Result.ok _ _ => true
   | _ => false
 
-private def toMessageData (msg : Message) (stx : Syntax) : TermElabM MessageData :=
-do strPos ← getPos stx;
-   pos ← getPosition strPos;
-   if pos == msg.pos then
-     pure msg.data
-   else
-     pure $ toString msg.pos.line ++ ":" ++ toString msg.pos.column ++ " " ++ msg.data
+private def toMessageData (msg : Message) (stx : Syntax) : TermElabM MessageData := do
+strPos ← getPos stx;
+pos ← getPosition strPos;
+if pos == msg.pos then
+  pure msg.data
+else
+  pure $ toString msg.pos.line ++ ":" ++ toString msg.pos.column ++ " " ++ msg.data
 
 private def getFailureMessage (failure : TermElabResult) (stx : Syntax) : TermElabM MessageData :=
 match failure with
@@ -479,26 +480,26 @@ match failure with
     | some msg => toMessageData msg stx
     | _        => unreachable!
 
-private def mergeFailures {α} (failures : Array TermElabResult) (stx : Syntax) : TermElabM α :=
-do msgs ← failures.mapM $ fun failure => getFailureMessage failure stx;
-   logErrorAndThrow stx ("overloaded, errors " ++ MessageData.ofArray msgs)
+private def mergeFailures {α} (failures : Array TermElabResult) (stx : Syntax) : TermElabM α := do
+msgs ← failures.mapM $ fun failure => getFailureMessage failure stx;
+logErrorAndThrow stx ("overloaded, errors " ++ MessageData.ofArray msgs)
 
-private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
-do candidates ← elabAppCore f namedArgs args expectedType? false #[];
-   if candidates.size == 1 then
-     applyResult $ candidates.get! 0
-   else
-     let successes := getSuccess candidates;
-     if successes.size == 1 then
-       applyResult $ successes.get! 0
-     else if successes.size > 1 then do
-       lctx ← getLCtx;
-       let msgs : Array MessageData := successes.map $ fun success => match success with
-         | EStateM.Result.ok e s => MessageData.context s.env s.mctx lctx e
-         | _                     => unreachable!;
-       logErrorAndThrow f ("ambiguous, possible interpretations " ++ MessageData.ofArray msgs)
-     else
-       mergeFailures candidates f
+private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+candidates ← elabAppCore f namedArgs args expectedType? false #[];
+if candidates.size == 1 then
+  applyResult $ candidates.get! 0
+else
+  let successes := getSuccess candidates;
+  if successes.size == 1 then
+    applyResult $ successes.get! 0
+  else if successes.size > 1 then do
+    lctx ← getLCtx;
+    let msgs : Array MessageData := successes.map $ fun success => match success with
+      | EStateM.Result.ok e s => MessageData.context s.env s.mctx lctx e
+      | _                     => unreachable!;
+    logErrorAndThrow f ("ambiguous, possible interpretations " ++ MessageData.ofArray msgs)
+  else
+    mergeFailures candidates f
 
 private partial def expandAppAux : Syntax → Array NamedArg → Array Syntax → Syntax × Array NamedArg × Array Syntax
 | stx, namedArgs, args => stx.ifNodeKind `Lean.Parser.Term.app
@@ -526,9 +527,9 @@ fun stx expectedType? => elabAppAux stx.val #[] #[] expectedType?
 
 end Term
 
-@[init] private def regTraceClasses : IO Unit :=
-do registerTraceClass `Elab.app;
-   pure ()
+@[init] private def regTraceClasses : IO Unit := do
+registerTraceClass `Elab.app;
+pure ()
 
 export Term (TermElabM)
 
@@ -580,12 +581,12 @@ stx.ifNodeKind choiceKind
   (fun node => node.getArgs)
   (fun _    => #[stx])
 
-private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Syntax) (expectedType : Option Expr) : TermElabM Expr :=
-do let (explicit, f) := expandExplicit f;
-   let fs := expandChoice f;
+private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Syntax) (expectedType : Option Expr) : TermElabM Expr := do
+let (explicit, f) := expandExplicit f;
+let fs := expandChoice f;
 
-   trace! `Elab.app (toString fs ++ " " ++ toString namedArgs ++ " " ++ toString args);
-   throw $ Exception.other "TODO"
+trace! `Elab.app (toString fs ++ " " ++ toString namedArgs ++ " " ++ toString args);
+throw $ Exception.other "TODO"
 
 -/
 -/

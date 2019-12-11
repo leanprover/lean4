@@ -150,12 +150,12 @@ match getExternAttrData env fn with
 | some { entries := [ ExternEntry.standard `all _ ], .. } => true
 | _ => false
 
-def getExternNameFor (env : Environment) (backend : Name) (fn : Name) : Option String :=
-do data ← getExternAttrData env fn;
-   entry ← getExternEntryFor data backend;
-   match entry with
-   | ExternEntry.standard _ n => pure n
-   | ExternEntry.foreign _ n  => pure n
-   | _ => failure
+def getExternNameFor (env : Environment) (backend : Name) (fn : Name) : Option String := do
+data ← getExternAttrData env fn;
+entry ← getExternEntryFor data backend;
+match entry with
+| ExternEntry.standard _ n => pure n
+| ExternEntry.foreign _ n  => pure n
+| _ => failure
 
 end Lean

@@ -239,25 +239,25 @@ That is `mask[j] == none`.
 and `z := reuse x ctor_i ws; F` is replaced with
 `set x i ws[i]` operations, and we replace `z` with `x` in `F`
 -/
-def mkFastPath (x y : VarId) (mask : Mask) (b : FnBody) : M FnBody :=
-do ctx ← read;
-   let b := reuseToSet ctx x y b;
-   releaseUnreadFields y mask b
+def mkFastPath (x y : VarId) (mask : Mask) (b : FnBody) : M FnBody := do
+ctx ← read;
+let b := reuseToSet ctx x y b;
+releaseUnreadFields y mask b
 
 -- Expand `bs; x := reset[n] y; b`
 partial def expand (mainFn : FnBody → Array FnBody → M FnBody)
-            (bs : Array FnBody) (x : VarId) (n : Nat) (y : VarId) (b : FnBody) : M FnBody :=
-do let bOld := FnBody.vdecl x IRType.object (Expr.reset n y) b;
-   let (bs, mask) := eraseProjIncFor n y bs;
-   /- Remark: we may be duplicting variable/JP indices. That is, `bSlow` and `bFast` may
-      have duplicate indices. We run `normalizeIds` to fix the ids after we have expand them. -/
-   let bSlow      := mkSlowPath x y mask b;
-   bFast ← mkFastPath x y mask b;
-   /- We only optimize recursively the fast. -/
-   bFast ← mainFn bFast #[];
-   c ← mkFresh;
-   let b := FnBody.vdecl c IRType.uint8 (Expr.isShared y) (mkIf c bSlow bFast);
-   pure $ reshape bs b
+    (bs : Array FnBody) (x : VarId) (n : Nat) (y : VarId) (b : FnBody) : M FnBody := do
+let bOld := FnBody.vdecl x IRType.object (Expr.reset n y) b;
+let (bs, mask) := eraseProjIncFor n y bs;
+/- Remark: we may be duplicting variable/JP indices. That is, `bSlow` and `bFast` may
+   have duplicate indices. We run `normalizeIds` to fix the ids after we have expand them. -/
+let bSlow      := mkSlowPath x y mask b;
+bFast ← mkFastPath x y mask b;
+/- We only optimize recursively the fast. -/
+bFast ← mainFn bFast #[];
+c ← mkFresh;
+let b := FnBody.vdecl c IRType.uint8 (Expr.isShared y) (mkIf c bSlow bFast);
+pure $ reshape bs b
 
 partial def searchAndExpand : FnBody → Array FnBody → M FnBody
 | d@(FnBody.vdecl x t (Expr.reset n y) b), bs =>

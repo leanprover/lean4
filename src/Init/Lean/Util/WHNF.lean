@@ -38,9 +38,9 @@ match e with
 
 private def getFirstCtor {m : Type → Type} [Monad m]
    (getConst : Name → m (Option ConstantInfo))
-   (d : Name) : m (Option Name) :=
-do some (ConstantInfo.inductInfo { ctors := ctor::_, ..}) ← getConst d | pure none;
-   pure (some ctor)
+   (d : Name) : m (Option Name) := do
+some (ConstantInfo.inductInfo { ctors := ctor::_, ..}) ← getConst d | pure none;
+pure (some ctor)
 
 private def mkNullaryCtor {m : Type → Type} [Monad m]
    (getConst : Name → m (Option ConstantInfo))
@@ -67,19 +67,19 @@ match major.getAppFn with
     (whnf      : Expr → m Expr)
     (inferType : Expr → m Expr)
     (isDefEq   : Expr → Expr → m Bool)
-    (rec : RecursorVal) (major : Expr) : m (Option Expr) :=
-do majorType ← inferType major;
-   majorType ← whnf majorType;
-   let majorTypeI := majorType.getAppFn;
-   if !majorTypeI.isConstOf rec.getInduct then
-     pure none
-   else if majorType.hasExprMVar && majorType.getAppArgs.anyFrom rec.nparams Expr.hasExprMVar then
-     pure none
-   else do
-     (some newCtorApp) ← mkNullaryCtor getConst majorType rec.nparams | pure none;
-     newType ← inferType newCtorApp;
-     defeq ← isDefEq majorType newType;
-     pure $ if defeq then newCtorApp else none
+    (rec : RecursorVal) (major : Expr) : m (Option Expr) := do
+majorType ← inferType major;
+majorType ← whnf majorType;
+let majorTypeI := majorType.getAppFn;
+if !majorTypeI.isConstOf rec.getInduct then
+  pure none
+else if majorType.hasExprMVar && majorType.getAppArgs.anyFrom rec.nparams Expr.hasExprMVar then
+  pure none
+else do
+  (some newCtorApp) ← mkNullaryCtor getConst majorType rec.nparams | pure none;
+  newType ← inferType newCtorApp;
+  defeq ← isDefEq majorType newType;
+  pure $ if defeq then newCtorApp else none
 
 /-- Auxiliary function for reducing recursor applications. -/
 @[specialize] def reduceRec {α} {m : Type → Type} [Monad m]

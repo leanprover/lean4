@@ -23,11 +23,11 @@ instance MetaHasEvalOfHasEval {α : Type u} [HasEval α] : MetaHasEval α :=
 
 abbrev MetaIO := ReaderT (Environment × Options) IO
 
-def MetaIO.getEnv : MetaIO Environment :=
-do ctx ← read; pure ctx.1
+def MetaIO.getEnv : MetaIO Environment := do
+ctx ← read; pure ctx.1
 
-def MetaIO.getOptions : MetaIO Options :=
-do ctx ← read; pure ctx.2
+def MetaIO.getOptions : MetaIO Options := do
+ctx ← read; pure ctx.2
 
 instance MetaIO.metaHasEval : MetaHasEval (MetaIO Unit) :=
 ⟨fun env opts x => x (env, opts)⟩

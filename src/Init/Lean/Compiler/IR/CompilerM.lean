@@ -48,16 +48,16 @@ match opts.find optName with
 | some (DataValue.ofBool v) => v
 | other => opts.getBool tracePrefixOptionName
 
-private def logDeclsAux (optName : Name) (cls : Name) (decls : Array Decl) : CompilerM Unit :=
-do opts ← read;
-   when (isLogEnabledFor opts optName) $ log (LogEntry.step cls decls)
+private def logDeclsAux (optName : Name) (cls : Name) (decls : Array Decl) : CompilerM Unit := do
+opts ← read;
+when (isLogEnabledFor opts optName) $ log (LogEntry.step cls decls)
 
 @[inline] def logDecls (cls : Name) (decl : Array Decl) : CompilerM Unit :=
 logDeclsAux (tracePrefixOptionName ++ cls) cls decl
 
-private def logMessageIfAux {α : Type} [HasFormat α] (optName : Name) (a : α) : CompilerM Unit :=
-do opts ← read;
-   when (isLogEnabledFor opts optName) $ log (LogEntry.message (format a))
+private def logMessageIfAux {α : Type} [HasFormat α] (optName : Name) (a : α) : CompilerM Unit := do
+opts ← read;
+when (isLogEnabledFor opts optName) $ log (LogEntry.message (format a))
 
 @[inline] def logMessageIf {α : Type} [HasFormat α] (cls : Name) (a : α) : CompilerM Unit :=
 logMessageIfAux (tracePrefixOptionName ++ cls) a
@@ -95,17 +95,17 @@ constant declMapExt : SimplePersistentEnvExtension Decl DeclMap := arbitrary _
 def findEnvDecl (env : Environment) (n : Name) : Option Decl :=
 (declMapExt.getState env).find n
 
-def findDecl (n : Name) : CompilerM (Option Decl) :=
-do s ← get;
-   pure $ findEnvDecl s.env n
+def findDecl (n : Name) : CompilerM (Option Decl) := do
+s ← get;
+pure $ findEnvDecl s.env n
 
-def containsDecl (n : Name) : CompilerM Bool :=
-do s ← get;
-   pure $ (declMapExt.getState s.env).contains n
+def containsDecl (n : Name) : CompilerM Bool := do
+s ← get;
+pure $ (declMapExt.getState s.env).contains n
 
-def getDecl (n : Name) : CompilerM Decl :=
-do (some decl) ← findDecl n | throw ("unknown declaration '" ++ toString n ++ "'");
-   pure decl
+def getDecl (n : Name) : CompilerM Decl := do
+(some decl) ← findDecl n | throw ("unknown declaration '" ++ toString n ++ "'");
+pure decl
 
 @[export lean_ir_add_decl]
 def addDeclAux (env : Environment) (decl : Decl) : Environment :=
@@ -114,8 +114,8 @@ declMapExt.addEntry env decl
 def getDecls (env : Environment) : List Decl :=
 declMapExt.getEntries env
 
-def getEnv : CompilerM Environment :=
-do s ← get; pure s.env
+def getEnv : CompilerM Environment := do
+s ← get; pure s.env
 
 def addDecl (decl : Decl) : CompilerM Unit :=
 modifyEnv (fun env => declMapExt.addEntry env decl)
@@ -128,8 +128,8 @@ match decls.find? (fun decl => if decl.name == n then some decl else none) with
 | some decl => some decl
 | none      => (declMapExt.getState env).find n
 
-def findDecl' (n : Name) (decls : Array Decl) : CompilerM (Option Decl) :=
-do s ← get; pure $ findEnvDecl' s.env n decls
+def findDecl' (n : Name) (decls : Array Decl) : CompilerM (Option Decl) := do
+s ← get; pure $ findEnvDecl' s.env n decls
 
 def containsDecl' (n : Name) (decls : Array Decl) : CompilerM Bool :=
 if decls.any (fun decl => decl.name == n) then pure true
@@ -137,9 +137,9 @@ else do
   s ← get;
   pure $ (declMapExt.getState s.env).contains n
 
-def getDecl' (n : Name) (decls : Array Decl) : CompilerM Decl :=
-do (some decl) ← findDecl' n decls | throw ("unknown declaration '" ++ toString n ++ "'");
-   pure decl
+def getDecl' (n : Name) (decls : Array Decl) : CompilerM Decl := do
+(some decl) ← findDecl' n decls | throw ("unknown declaration '" ++ toString n ++ "'");
+pure decl
 
 end IR
 end Lean

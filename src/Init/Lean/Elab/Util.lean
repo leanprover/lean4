@@ -10,10 +10,10 @@ import Init.Lean.Parser
 namespace Lean
 namespace Elab
 
-def checkSyntaxNodeKind (k : Name) : IO Name :=
-do b ← Parser.isValidSyntaxNodeKind k;
-  if b then pure k
-  else throw (IO.userError "failed")
+def checkSyntaxNodeKind (k : Name) : IO Name := do
+b ← Parser.isValidSyntaxNodeKind k;
+if b then pure k
+else throw (IO.userError "failed")
 
 def checkSyntaxNodeKindAtNamespaces (k : Name) : List Name → IO Name
 | []    => throw (IO.userError "failed")
@@ -48,27 +48,27 @@ The state is initialized using `builtinTable`.
 
 The current implementation just uses the bultin elaborators.
 -/
-def mkElabAttribute {σ} [Inhabited σ] (attrName : Name) (kind : String) (builtinTable : IO.Ref σ) : IO (ElabAttribute σ) :=
-do ext : PersistentEnvExtension ElabAttributeEntry σ ← registerPersistentEnvExtension {
-     name            := attrName,
-     addImportedFn   := fun es => do
-       table ← builtinTable.get;
-       -- TODO: populate table with `es`
-       pure table,
-     addEntryFn      := fun (s : σ) _ => s,                            -- TODO
-     exportEntriesFn := fun _ => #[],                                  -- TODO
-     statsFn         := fun _ => fmt (kind ++ " elaborator attribute") -- TODO
-   };
-   let attrImpl : AttributeImpl := {
-     name  := attrName,
-     descr := kind ++ " elaborator",
-     add   := fun env decl args persistent => pure env -- TODO
-   };
-   pure { ext := ext, attr := attrImpl, kind := kind }
+def mkElabAttribute {σ} [Inhabited σ] (attrName : Name) (kind : String) (builtinTable : IO.Ref σ) : IO (ElabAttribute σ) := do
+ext : PersistentEnvExtension ElabAttributeEntry σ ← registerPersistentEnvExtension {
+  name            := attrName,
+  addImportedFn   := fun es => do
+    table ← builtinTable.get;
+    -- TODO: populate table with `es`
+    pure table,
+  addEntryFn      := fun (s : σ) _ => s,                            -- TODO
+  exportEntriesFn := fun _ => #[],                                  -- TODO
+  statsFn         := fun _ => fmt (kind ++ " elaborator attribute") -- TODO
+};
+let attrImpl : AttributeImpl := {
+  name  := attrName,
+  descr := kind ++ " elaborator",
+  add   := fun env decl args persistent => pure env -- TODO
+};
+pure { ext := ext, attr := attrImpl, kind := kind }
 
-@[init] private def regTraceClasses : IO Unit :=
-do registerTraceClass `Elab;
-   registerTraceClass `Elab.step
+@[init] private def regTraceClasses : IO Unit := do
+registerTraceClass `Elab;
+registerTraceClass `Elab.step
 
 end Elab
 end Lean

@@ -23,9 +23,9 @@ namespace Lean
 open System.FilePath (pathSeparator extSeparator)
 private def pathSep : String := toString pathSeparator
 
-def realPathNormalized (fname : String) : IO String :=
-do fname ← IO.realPath fname;
-   pure (System.FilePath.normalizePath fname)
+def realPathNormalized (fname : String) : IO String := do
+fname ← IO.realPath fname;
+pure (System.FilePath.normalizePath fname)
 
 abbrev SearchPath := HashMap String String
 
@@ -36,34 +36,34 @@ IO.mkRef ∅
 constant searchPathRef : IO.Ref SearchPath := arbitrary _
 
 def parseSearchPath (path : String) (sp : SearchPath := ∅) : IO SearchPath := do
-  let ps := System.FilePath.splitSearchPath path;
-  sp ← ps.foldlM (fun (sp : SearchPath) s => match s.splitOn "=" with
-    | [pkg, path] => pure $ sp.insert pkg path
-    | _           => throw $ IO.userError $ "ill-formed search path entry '" ++ s ++ "', should be of form 'pkg=path'")
-    sp;
-  pure sp
+let ps := System.FilePath.splitSearchPath path;
+sp ← ps.foldlM (fun (sp : SearchPath) s => match s.splitOn "=" with
+  | [pkg, path] => pure $ sp.insert pkg path
+  | _           => throw $ IO.userError $ "ill-formed search path entry '" ++ s ++ "', should be of form 'pkg=path'")
+  sp;
+pure sp
 
-def getBuiltinSearchPath : IO SearchPath :=
-do appDir ← IO.appDir;
-   let libDir := appDir ++ pathSep ++ ".." ++ pathSep ++ "src" ++ pathSep ++ "Init";
-   libDirExists ← IO.isDir libDir;
-   if libDirExists then do
-     path ← realPathNormalized libDir;
-     pure $ HashMap.empty.insert "Init" path
-   else do
-     let installedLibDir := appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "library" ++ pathSep ++ "Init";
-     installedLibDirExists ← IO.isDir installedLibDir;
-     if installedLibDirExists then do
-       path ← realPathNormalized installedLibDir;
-       pure $ HashMap.empty.insert "Init" path
-     else
-       pure ∅
+def getBuiltinSearchPath : IO SearchPath := do
+appDir ← IO.appDir;
+let libDir := appDir ++ pathSep ++ ".." ++ pathSep ++ "src" ++ pathSep ++ "Init";
+libDirExists ← IO.isDir libDir;
+if libDirExists then do
+  path ← realPathNormalized libDir;
+  pure $ HashMap.empty.insert "Init" path
+else do
+  let installedLibDir := appDir ++ pathSep ++ ".." ++ pathSep ++ "lib" ++ pathSep ++ "lean" ++ pathSep ++ "library" ++ pathSep ++ "Init";
+  installedLibDirExists ← IO.isDir installedLibDir;
+  if installedLibDirExists then do
+    path ← realPathNormalized installedLibDir;
+    pure $ HashMap.empty.insert "Init" path
+  else
+    pure ∅
 
-def addSearchPathFromEnv (sp : SearchPath) : IO SearchPath :=
-do val ← IO.getEnv "LEAN_PATH";
-   match val with
-   | none     => pure sp
-   | some val => parseSearchPath val sp
+def addSearchPathFromEnv (sp : SearchPath) : IO SearchPath := do
+val ← IO.getEnv "LEAN_PATH";
+match val with
+| none     => pure sp
+| some val => parseSearchPath val sp
 
 @[export lean_init_search_path]
 def initSearchPath (path : Option String := "") : IO Unit :=
@@ -88,39 +88,39 @@ def splitAtRoot : Name → String × Name
   (pkg, mkNameStr path s)
 | _              => panic! "ill-formed import"
 
-def findOLean (mod : Name) : IO String :=
-do sp ← searchPathRef.get;
-   let (pkg, path) := splitAtRoot mod;
-   some root ← pure $ sp.find pkg
-     | throw $ IO.userError $ "unknown package '" ++ pkg ++ "'";
-   let fname := root ++ pathSep ++ modPathToFilePath path ++ ".olean";
-   pure fname
+def findOLean (mod : Name) : IO String := do
+sp ← searchPathRef.get;
+let (pkg, path) := splitAtRoot mod;
+some root ← pure $ sp.find pkg
+  | throw $ IO.userError $ "unknown package '" ++ pkg ++ "'";
+let fname := root ++ pathSep ++ modPathToFilePath path ++ ".olean";
+pure fname
 
-def findAtSearchPath (fname : String) : IO (Option (String × String)) :=
-do fname ← realPathNormalized fname;
-   sp ← searchPathRef.get;
-   results ← sp.foldM (fun results pkg path => do
-     path ← realPathNormalized path;
-     pure $ if String.isPrefixOf path fname then (pkg, path) :: results else results) [];
-   match results with
-   | [res] => pure res
-   | []    => pure none
+def findAtSearchPath (fname : String) : IO (Option (String × String)) := do
+fname ← realPathNormalized fname;
+sp ← searchPathRef.get;
+results ← sp.foldM (fun results pkg path => do
+  path ← realPathNormalized path;
+  pure $ if String.isPrefixOf path fname then (pkg, path) :: results else results) [];
+match results with
+| [res] => pure res
+| []    => pure none
    | _     => throw (IO.userError ("file '" ++ fname ++ "' is contained in multiple packages: " ++ ", ".intercalate (results.map Prod.fst)))
 
 @[export lean_module_name_of_file]
-def moduleNameOfFileName (fname : String) : IO (Option Name) :=
-do some (pkg, path) ← findAtSearchPath fname
-     | pure none;
-   fname ← realPathNormalized fname;
-   let fnameSuffix := fname.drop path.length;
-   let fnameSuffix := if fnameSuffix.get 0 == pathSeparator then fnameSuffix.drop 1 else fnameSuffix;
-   some extPos ← pure (fnameSuffix.revPosOf '.')
-     | throw (IO.userError ("failed to convert file '" ++ fname ++ "' to module name, extension is missing"));
-   let modNameStr := fnameSuffix.extract 0 extPos;
-   let extStr     := fnameSuffix.extract (extPos + 1) fnameSuffix.bsize;
-   let parts      := modNameStr.splitOn pathSep;
-   let modName    := parts.foldl mkNameStr pkg;
-   pure modName
+def moduleNameOfFileName (fname : String) : IO (Option Name) := do
+some (pkg, path) ← findAtSearchPath fname
+  | pure none;
+fname ← realPathNormalized fname;
+let fnameSuffix := fname.drop path.length;
+let fnameSuffix := if fnameSuffix.get 0 == pathSeparator then fnameSuffix.drop 1 else fnameSuffix;
+some extPos ← pure (fnameSuffix.revPosOf '.')
+  | throw (IO.userError ("failed to convert file '" ++ fname ++ "' to module name, extension is missing"));
+let modNameStr := fnameSuffix.extract 0 extPos;
+let extStr     := fnameSuffix.extract (extPos + 1) fnameSuffix.bsize;
+let parts      := modNameStr.splitOn pathSep;
+let modName    := parts.foldl mkNameStr pkg;
+pure modName
 
 -- normalize `A` to `A.Default`
 @[export lean_normalize_module_name]

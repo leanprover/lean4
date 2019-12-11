@@ -33,14 +33,14 @@ modifyTraces $ fun traces =>
   let d := MessageData.tagged cls (MessageData.node traces);
   oldTraces.push d
 
-private def getResetTraces : m (Array MessageData) :=
-do oldTraces ← getTraces;
-   modifyTraces $ fun _ => #[];
-   pure oldTraces
+private def getResetTraces : m (Array MessageData) := do
+oldTraces ← getTraces;
+modifyTraces $ fun _ => #[];
+pure oldTraces
 
-def addTrace (cls : Name) (msg : MessageData) : m Unit :=
-do msg ← addContext msg;
-   modifyTraces $ fun traces => traces.push (MessageData.tagged cls msg)
+def addTrace (cls : Name) (msg : MessageData) : m Unit := do
+msg ← addContext msg;
+modifyTraces $ fun traces => traces.push (MessageData.tagged cls msg)
 
 @[inline] protected def trace (cls : Name) (msg : Unit → MessageData) : m Unit :=
 whenM (isTracingEnabledFor cls) (addTrace cls (msg ()))
@@ -48,14 +48,14 @@ whenM (isTracingEnabledFor cls) (addTrace cls (msg ()))
 @[inline] protected def traceM (cls : Name) (mkMsg : m MessageData) : m Unit :=
 whenM (isTracingEnabledFor cls) (do msg ← mkMsg; addTrace cls msg)
 
-@[inline] def traceCtx (cls : Name) (ctx : m α) : m α :=
-do b ← isTracingEnabledFor cls;
-   if !b then do old ← enableTracing false; a ← ctx; enableTracing old; pure a
-   else do
-     oldCurrTraces ← getResetTraces;
-     a ← ctx;
-     addNode oldCurrTraces cls;
-     pure a
+@[inline] def traceCtx (cls : Name) (ctx : m α) : m α := do
+b ← isTracingEnabledFor cls;
+if !b then do old ← enableTracing false; a ← ctx; enableTracing old; pure a
+else do
+  oldCurrTraces ← getResetTraces;
+  a ← ctx;
+  addNode oldCurrTraces cls;
+  pure a
 
 end
 
@@ -65,18 +65,18 @@ variables [MonadExcept ε m] [Monad m] [MonadTracerAdapter m]
 variables {α : Type}
 
 /- Version of `traceCtx` with exception handling support. -/
-@[inline] protected def traceCtxExcept (cls : Name) (ctx : m α) : m α :=
-do b ← isTracingEnabledFor cls;
-   if !b then do
-     old ← enableTracing false;
-     catch
-       (do a ← ctx; enableTracing old; pure a)
-       (fun e => do enableTracing old; throw e)
-   else do
-     oldCurrTraces ← getResetTraces;
-     catch
-       (do a ← ctx; addNode oldCurrTraces cls; pure a)
-       (fun e => do addNode oldCurrTraces cls; throw e)
+@[inline] protected def traceCtxExcept (cls : Name) (ctx : m α) : m α := do
+b ← isTracingEnabledFor cls;
+if !b then do
+  old ← enableTracing false;
+  catch
+    (do a ← ctx; enableTracing old; pure a)
+    (fun e => do enableTracing old; throw e)
+else do
+  oldCurrTraces ← getResetTraces;
+  catch
+    (do a ← ctx; addNode oldCurrTraces cls; pure a)
+    (fun e => do addNode oldCurrTraces cls; throw e)
 end
 
 end MonadTracerAdapter
@@ -118,24 +118,24 @@ private def checkTraceOptionAux (opts : Options) : Name → Bool
 | n@(Name.str p _ _) => opts.getBool n || (!opts.contains n && checkTraceOptionAux p)
 | _                  => false
 
-private def checkTraceOption (optName : Name) : m Bool :=
-do opts ← getOptions;
-   if opts.isEmpty then pure false
-   else pure $ checkTraceOptionAux opts optName
+private def checkTraceOption (optName : Name) : m Bool := do
+opts ← getOptions;
+if opts.isEmpty then pure false
+else pure $ checkTraceOptionAux opts optName
 
-@[inline] def isTracingEnabledFor (cls : Name) : m Bool :=
-do s ← getTraceState;
-   if !s.enabled then pure false
-   else checkTraceOption (`trace ++ cls)
+@[inline] def isTracingEnabledFor (cls : Name) : m Bool := do
+s ← getTraceState;
+if !s.enabled then pure false
+else checkTraceOption (`trace ++ cls)
 
-@[inline] def enableTracing (b : Bool) : m Bool :=
-do s ← getTraceState;
-   let oldEnabled := s.enabled;
-   modifyTraceState $ fun s => { enabled := b, .. s };
-   pure oldEnabled
+@[inline] def enableTracing (b : Bool) : m Bool := do
+s ← getTraceState;
+let oldEnabled := s.enabled;
+modifyTraceState $ fun s => { enabled := b, .. s };
+pure oldEnabled
 
-@[inline] def getTraces : m (Array MessageData) :=
-do s ← getTraceState; pure s.traces
+@[inline] def getTraces : m (Array MessageData) := do
+s ← getTraceState; pure s.traces
 
 @[inline] def modifyTraces (f : Array MessageData → Array MessageData) : m Unit :=
 modifyTraceState $ fun s => { traces := f s.traces, .. s }

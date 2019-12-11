@@ -16,9 +16,9 @@ def checkNotAssigned (mvarId : MVarId) (tacticName : String) : MetaM Unit :=
 whenM (isExprMVarAssigned mvarId) $
   throw $ Exception.other ("`" ++ tacticName ++ "` failed, metavariable has already been assigned")
 
-def getMVarType (mvarId : MVarId) : MetaM Expr :=
-do mvarDecl ← getMVarDecl mvarId;
-   pure mvarDecl.type
+def getMVarType (mvarId : MVarId) : MetaM Expr := do
+mvarDecl ← getMVarDecl mvarId;
+pure mvarDecl.type
 
 @[init] private def regTraceClasses : IO Unit :=
 registerTraceClass `Meta.Tactic

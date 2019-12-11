@@ -72,11 +72,11 @@ partial def collectFnBody : FnBody → M Unit
 | FnBody.case _ _ _ alts => alts.forM $ fun alt => collectFnBody alt.body
 | e => unless e.isTerminal $ collectFnBody e.body
 
-def collectInitDecl (fn : Name) : M Unit :=
-do env ← read;
-   match getInitFnNameFor env fn with
-   | some initFn => collect initFn
-   | _           => pure ()
+def collectInitDecl (fn : Name) : M Unit := do
+env ← read;
+match getInitFnNameFor env fn with
+| some initFn => collect initFn
+| _           => pure ()
 
 def collectDecl : Decl → M NameSet
 | Decl.fdecl fn _ _ b  => collectInitDecl fn *> CollectUsedDecls.collectFnBody b *> get

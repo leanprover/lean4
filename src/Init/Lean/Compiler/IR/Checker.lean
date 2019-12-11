@@ -19,10 +19,10 @@ structure CheckerState :=
 
 abbrev M := ReaderT CheckerContext (ExceptT String (StateT CheckerState Id))
 
-def markIndex (i : Index) : M Unit :=
-do s ← get;
-   when (s.foundVars.contains i) $ throw ("variable / joinpoint index " ++ toString i ++ " has already been used");
-   modify $ fun s => { foundVars := s.foundVars.insert i, .. s }
+def markIndex (i : Index) : M Unit := do
+s ← get;
+when (s.foundVars.contains i) $ throw ("variable / joinpoint index " ++ toString i ++ " has already been used");
+modify $ fun s => { foundVars := s.foundVars.insert i, .. s }
 
 def markVar (x : VarId) : M Unit :=
 markIndex x.idx
@@ -30,19 +30,19 @@ markIndex x.idx
 def markJP (j : JoinPointId) : M Unit :=
 markIndex j.idx
 
-def getDecl (c : Name) : M Decl :=
-do ctx ← read;
-   match findEnvDecl' ctx.env c ctx.decls with
-   | none   => throw ("unknown declaration '" ++ toString c ++ "'")
-   | some d => pure d
+def getDecl (c : Name) : M Decl := do
+ctx ← read;
+match findEnvDecl' ctx.env c ctx.decls with
+| none   => throw ("unknown declaration '" ++ toString c ++ "'")
+| some d => pure d
 
-def checkVar (x : VarId) : M Unit :=
-do ctx ← read;
-   unless (ctx.localCtx.isLocalVar x.idx || ctx.localCtx.isParam x.idx) $ throw ("unknown variable '" ++ toString x ++ "'")
+def checkVar (x : VarId) : M Unit := do
+ctx ← read;
+unless (ctx.localCtx.isLocalVar x.idx || ctx.localCtx.isParam x.idx) $ throw ("unknown variable '" ++ toString x ++ "'")
 
-def checkJP (j : JoinPointId) : M Unit :=
-do ctx ← read;
-   unless (ctx.localCtx.isJP j.idx) $ throw ("unknown join point '" ++ toString j ++ "'")
+def checkJP (j : JoinPointId) : M Unit := do
+ctx ← read;
+unless (ctx.localCtx.isJP j.idx) $ throw ("unknown join point '" ++ toString j ++ "'")
 
 def checkArg (a : Arg) : M Unit :=
 match a with
@@ -62,14 +62,14 @@ def checkObjType (ty : IRType) : M Unit := checkType ty IRType.isObj
 
 def checkScalarType (ty : IRType) : M Unit := checkType ty IRType.isScalar
 
-def getType (x : VarId) : M IRType :=
-do ctx ← read;
-   match ctx.localCtx.getType x with
-   | some ty => pure ty
-   | none    => throw ("unknown variable '" ++ toString x ++ "'")
+def getType (x : VarId) : M IRType := do
+ctx ← read;
+match ctx.localCtx.getType x with
+| some ty => pure ty
+| none    => throw ("unknown variable '" ++ toString x ++ "'")
 
-@[inline] def checkVarType (x : VarId) (p : IRType → Bool) : M Unit :=
-do ty ← getType x; checkType ty p
+@[inline] def checkVarType (x : VarId) (p : IRType → Bool) : M Unit := do
+ty ← getType x; checkType ty p
 
 def checkObjVar (x : VarId) : M Unit :=
 checkVarType x IRType.isObj
@@ -77,15 +77,17 @@ checkVarType x IRType.isObj
 def checkScalarVar (x : VarId) : M Unit :=
 checkVarType x IRType.isScalar
 
-def checkFullApp (c : FunId) (ys : Array Arg) : M Unit :=
-do decl ← getDecl c;
-   unless (ys.size == decl.params.size) (throw ("incorrect number of arguments to '" ++ toString c ++ "', " ++ toString ys.size ++ " provided, " ++ toString decl.params.size ++ " expected"));
-   checkArgs ys
+def checkFullApp (c : FunId) (ys : Array Arg) : M Unit := do
+decl ← getDecl c;
+unless (ys.size == decl.params.size) $
+  throw ("incorrect number of arguments to '" ++ toString c ++ "', " ++ toString ys.size ++ " provided, " ++ toString decl.params.size ++ " expected");
+checkArgs ys
 
-def checkPartialApp (c : FunId) (ys : Array Arg) : M Unit :=
-do decl ← getDecl c;
-   unless (ys.size < decl.params.size) (throw ("too many arguments too partial application '" ++ toString c ++ "', num. args: " ++ toString ys.size ++ ", arity: " ++ toString decl.params.size));
-   checkArgs ys
+def checkPartialApp (c : FunId) (ys : Array Arg) : M Unit := do
+decl ← getDecl c;
+unless (ys.size < decl.params.size) $
+  throw ("too many arguments too partial application '" ++ toString c ++ "', num. args: " ++ toString ys.size ++ ", arity: " ++ toString decl.params.size);
+checkArgs ys
 
 def checkExpr (ty : IRType) : Expr → M Unit
 | Expr.pap f ys           => checkPartialApp f ys *> checkObjType ty -- partial applications should always produce a closure object
@@ -110,12 +112,12 @@ def checkExpr (ty : IRType) : Expr → M Unit
 | Expr.lit (LitVal.str _) => checkObjType ty
 | Expr.lit _              => pure ()
 
-@[inline] def withParams (ps : Array Param) (k : M Unit) : M Unit :=
-do ctx ← read;
-   localCtx ← ps.foldlM (fun (ctx : LocalContext) p => do
-      markVar p.x;
-      pure $ ctx.addParam p) ctx.localCtx;
-   adaptReader (fun _ => { localCtx := localCtx, .. ctx }) k
+@[inline] def withParams (ps : Array Param) (k : M Unit) : M Unit := do
+ctx ← read;
+localCtx ← ps.foldlM (fun (ctx : LocalContext) p => do
+   markVar p.x;
+   pure $ ctx.addParam p) ctx.localCtx;
+adaptReader (fun _ => { localCtx := localCtx, .. ctx }) k
 
 partial def checkFnBody : FnBody → M Unit
 | FnBody.vdecl x t v b    => do
@@ -147,11 +149,11 @@ def checkDecl : Decl → M Unit
 
 end Checker
 
-def checkDecl (decls : Array Decl) (decl : Decl) : CompilerM Unit :=
-do env ← getEnv;
-   match (Checker.checkDecl decl { env := env, decls := decls }).run' {} with
-   | Except.error msg => throw ("IR check failed at '" ++ toString decl.name ++ "', error: " ++ msg)
-   | other            => pure ()
+def checkDecl (decls : Array Decl) (decl : Decl) : CompilerM Unit := do
+env ← getEnv;
+match (Checker.checkDecl decl { env := env, decls := decls }).run' {} with
+| Except.error msg => throw ("IR check failed at '" ++ toString decl.name ++ "', error: " ++ msg)
+| other            => pure ()
 
 def checkDecls (decls : Array Decl) : CompilerM Unit :=
 decls.forM (checkDecl decls)

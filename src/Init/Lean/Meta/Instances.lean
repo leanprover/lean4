@@ -28,11 +28,11 @@ registerSimplePersistentEnvExtension {
 @[init mkInstanceExtension]
 constant instanceExtension : SimplePersistentEnvExtension InstanceEntry Instances := arbitrary _
 
-private def mkInstanceKey (e : Expr) : MetaM (Array DiscrTree.Key) :=
-do type ← inferType e;
-   withNewMCtxDepth $ do
-     (_, _, type) ← forallMetaTelescopeReducing type;
-     DiscrTree.mkPath type
+private def mkInstanceKey (e : Expr) : MetaM (Array DiscrTree.Key) := do
+type ← inferType e;
+withNewMCtxDepth $ do
+  (_, _, type) ← forallMetaTelescopeReducing type;
+  DiscrTree.mkPath type
 
 def addGlobalInstance (env : Environment) (constName : Name) : IO Environment :=
 match env.find constName with
@@ -60,9 +60,9 @@ Meta.instanceExtension.getState env
 
 namespace Meta
 
-def getGlobalInstances : MetaM Instances :=
-do env ← getEnv;
-   pure env.getGlobalInstances
+def getGlobalInstances : MetaM Instances := do
+env ← getEnv;
+pure env.getGlobalInstances
 
 end Meta
 

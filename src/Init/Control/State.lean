@@ -104,8 +104,8 @@ variables {σ : Type u} {m : Type u → Type v}
 @[inline] def modify [MonadState σ m] (f : σ → σ) : m PUnit :=
 modifyGet (fun s => (PUnit.unit, f s))
 
-@[inline] def getModify [MonadState σ m] [Monad m] (f : σ → σ) : m σ :=
-do s ← get; modify f; pure s
+@[inline] def getModify [MonadState σ m] [Monad m] (f : σ → σ) : m σ := do
+s ← get; modify f; pure s
 
 -- NOTE: The Ordering of the following two instances determines that the top-most `StateT` Monad layer
 -- will be picked first

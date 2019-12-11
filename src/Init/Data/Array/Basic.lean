@@ -294,8 +294,8 @@ variables {m : Type → Type w} [Monad m]
 @[inline] def anyM (a : Array α) (p : α → m Bool) : m Bool :=
 anyRangeMAux a a.size (Nat.leRefl _) p 0
 
-@[inline] def allM (a : Array α) (p : α → m Bool) : m Bool :=
-do b ← anyM a (fun v => do b ← p v; pure (!b)); pure (!b)
+@[inline] def allM (a : Array α) (p : α → m Bool) : m Bool := do
+b ← anyM a (fun v => do b ← p v; pure (!b)); pure (!b)
 
 @[inline] def anyRangeM (a : Array α) (beginIdx endIdx : Nat) (p : α → m Bool) : m Bool :=
 if h : endIdx ≤ a.size then
@@ -303,8 +303,8 @@ if h : endIdx ≤ a.size then
 else
   anyRangeMAux a a.size (Nat.leRefl _) p beginIdx
 
-@[inline] def allRangeM (a : Array α) (beginIdx endIdx : Nat) (p : α → m Bool) : m Bool :=
-do b ← anyRangeM a beginIdx endIdx (fun v => do b ← p v; pure b); pure (!b)
+@[inline] def allRangeM (a : Array α) (beginIdx endIdx : Nat) (p : α → m Bool) : m Bool := do
+b ← anyRangeM a beginIdx endIdx (fun v => do b ← p v; pure b); pure (!b)
 
 end
 

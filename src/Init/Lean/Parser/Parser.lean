@@ -1332,10 +1332,10 @@ IO.mkRef {}
 @[init mkBuiltinTokenTable]
 constant builtinTokenTable : IO.Ref TokenTable := arbitrary _
 
-def mkImportedTokenTable (es : Array (Array TokenConfig)) : IO TokenTable :=
-do table ← builtinTokenTable.get;
-   -- TODO: add `es` to `table`
-   pure table
+def mkImportedTokenTable (es : Array (Array TokenConfig)) : IO TokenTable := do
+table ← builtinTokenTable.get;
+-- TODO: add `es` to `table`
+pure table
 
 /- We use a TokenTable attribute to make sure they are scoped.
    Users do not directly use this attribute. They use them indirectly when
@@ -1348,20 +1348,20 @@ instance TokenTableAttribute.inhabited : Inhabited TokenTableAttribute := ⟨{ a
 
 section
 set_option compiler.extract_closed false
-def mkTokenTableAttribute : IO TokenTableAttribute :=
-do ext : PersistentEnvExtension TokenConfig TokenTable ← registerPersistentEnvExtension {
-     name            := `_tokens_,
-     addImportedFn   := fun es => mkImportedTokenTable es,
-     addEntryFn      := fun (s : TokenTable) _ => s,         -- TODO
-     exportEntriesFn := fun _ => #[],                        -- TODO
-     statsFn         := fun _ => fmt "token table attribute" -- TODO
-   };
-   let attrImpl : AttributeImpl := {
-     name  := `_tokens_,
-     descr := "internal token table attribute",
-     add   := fun env decl args persistent => pure env -- TODO
-   };
-   pure { ext := ext, attr := attrImpl }
+def mkTokenTableAttribute : IO TokenTableAttribute := do
+ext : PersistentEnvExtension TokenConfig TokenTable ← registerPersistentEnvExtension {
+  name            := `_tokens_,
+  addImportedFn   := fun es => mkImportedTokenTable es,
+  addEntryFn      := fun (s : TokenTable) _ => s,         -- TODO
+  exportEntriesFn := fun _ => #[],                        -- TODO
+  statsFn         := fun _ => fmt "token table attribute" -- TODO
+};
+let attrImpl : AttributeImpl := {
+  name  := `_tokens_,
+  descr := "internal token table attribute",
+  add   := fun env decl args persistent => pure env -- TODO
+};
+pure { ext := ext, attr := attrImpl }
 end
 
 @[init mkTokenTableAttribute]
@@ -1375,13 +1375,13 @@ constant syntaxNodeKindSetRef : IO.Ref SyntaxNodeKindSet := arbitrary _
 def updateSyntaxNodeKinds (pinfo : ParserInfo) : IO Unit :=
 syntaxNodeKindSetRef.modify pinfo.updateKindSet
 
-def isValidSyntaxNodeKind (k : SyntaxNodeKind) : IO Bool :=
-do s ← syntaxNodeKindSetRef.get;
-   pure $ s.contains k
+def isValidSyntaxNodeKind (k : SyntaxNodeKind) : IO Bool := do
+s ← syntaxNodeKindSetRef.get;
+pure $ s.contains k
 
-def getSyntaxNodeKinds : IO (List SyntaxNodeKind) :=
-do s ← syntaxNodeKindSetRef.get;
-   pure $ s.fold (fun ks k _ => k::ks) []
+def getSyntaxNodeKinds : IO (List SyntaxNodeKind) := do
+s ← syntaxNodeKindSetRef.get;
+pure $ s.fold (fun ks k _ => k::ks) []
 
 def mkParserContextCore (env : Environment) (input : String) (fileName : String) : ParserContextCore :=
 { input    := input,
@@ -1411,37 +1411,37 @@ else
 def mkBuiltinParsingTablesRef : IO (IO.Ref ParsingTables) :=
 IO.mkRef {}
 
-private def updateTokens (info : ParserInfo) (declName : Name) : IO Unit :=
-do tokens ← builtinTokenTable.swap {};
-   match info.updateTokens tokens with
-   | Except.ok newTokens => builtinTokenTable.set newTokens
-   | Except.error msg    => throw (IO.userError ("invalid builtin parser '" ++ toString declName ++ "', " ++ msg))
+private def updateTokens (info : ParserInfo) (declName : Name) : IO Unit := do
+tokens ← builtinTokenTable.swap {};
+match info.updateTokens tokens with
+| Except.ok newTokens => builtinTokenTable.set newTokens
+| Except.error msg    => throw (IO.userError ("invalid builtin parser '" ++ toString declName ++ "', " ++ msg))
 
-def addBuiltinLeadingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : Parser) : IO Unit :=
-do tables ← tablesRef.get;
-   tablesRef.reset;
-   updateTokens p.info declName;
-   updateSyntaxNodeKinds p.info;
-   let addTokens (tks : List TokenConfig) : IO Unit :=
-     let tks := tks.map $ fun tk => mkNameSimple tk.val;
-     tablesRef.set $ tks.eraseDups.foldl (fun (tables : ParsingTables) tk => { leadingTable := tables.leadingTable.insert tk p, .. tables }) tables;
-   match p.info.firstTokens with
-   | FirstTokens.tokens tks    => addTokens tks
-   | FirstTokens.optTokens tks => addTokens tks
-   | _ => throw (IO.userError ("invalid builtin parser '" ++ toString declName ++ "', initial token is not statically known"))
+def addBuiltinLeadingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : Parser) : IO Unit := do
+tables ← tablesRef.get;
+tablesRef.reset;
+updateTokens p.info declName;
+updateSyntaxNodeKinds p.info;
+let addTokens (tks : List TokenConfig) : IO Unit :=
+  let tks := tks.map $ fun tk => mkNameSimple tk.val;
+  tablesRef.set $ tks.eraseDups.foldl (fun (tables : ParsingTables) tk => { leadingTable := tables.leadingTable.insert tk p, .. tables }) tables;
+match p.info.firstTokens with
+| FirstTokens.tokens tks    => addTokens tks
+| FirstTokens.optTokens tks => addTokens tks
+| _ => throw (IO.userError ("invalid builtin parser '" ++ toString declName ++ "', initial token is not statically known"))
 
-def addBuiltinTrailingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : TrailingParser) : IO Unit :=
-do tables ← tablesRef.get;
-   tablesRef.reset;
-   updateTokens p.info declName;
-   updateSyntaxNodeKinds p.info;
-   let addTokens (tks : List TokenConfig) : IO Unit :=
-     let tks := tks.map $ fun tk => mkNameSimple tk.val;
-     tablesRef.set $ tks.eraseDups.foldl (fun (tables : ParsingTables) tk => { trailingTable := tables.trailingTable.insert tk p, .. tables }) tables;
-   match p.info.firstTokens with
-   | FirstTokens.tokens tks    => addTokens tks
-   | FirstTokens.optTokens tks => addTokens tks
-   | _ => tablesRef.set { trailingParsers := p :: tables.trailingParsers, .. tables }
+def addBuiltinTrailingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : TrailingParser) : IO Unit := do
+tables ← tablesRef.get;
+tablesRef.reset;
+updateTokens p.info declName;
+updateSyntaxNodeKinds p.info;
+let addTokens (tks : List TokenConfig) : IO Unit :=
+  let tks := tks.map $ fun tk => mkNameSimple tk.val;
+  tablesRef.set $ tks.eraseDups.foldl (fun (tables : ParsingTables) tk => { trailingTable := tables.trailingTable.insert tk p, .. tables }) tables;
+match p.info.firstTokens with
+| FirstTokens.tokens tks    => addTokens tks
+| FirstTokens.optTokens tks => addTokens tks
+| _ => tablesRef.set { trailingParsers := p :: tables.trailingParsers, .. tables }
 
 def declareBuiltinParser (env : Environment) (addFnName : Name) (refDeclName : Name) (declName : Name) : IO Environment :=
 let name := `_regBuiltinParser ++ declName;
@@ -1513,25 +1513,25 @@ We still need to:
 - Add a ParserDescr type, and write an interpreter for it.
 - Add support for scoped parser extensions.
 -/
-def registerParserAttribute (attrName : Name) (kind : String) (descr : String) (builtinTable : Option (IO.Ref ParsingTables) := none) : IO ParserAttribute :=
-do ext : PersistentEnvExtension ParserAttributeEntry ParsingTables ← registerPersistentEnvExtension {
-     name            := attrName,
-     addImportedFn   := fun es => do
-       table ← match builtinTable with
-       | some table => table.get
-       | none       => pure {};
-    -- TODO: populate table with `es`
-       pure table,
-     addEntryFn      := fun (s : ParsingTables) _ => s, -- TODO
-     exportEntriesFn := fun _ => #[],                   -- TODO
-     statsFn         := fun _ => fmt "parser attribute" -- TODO
-   };
-   let attrImpl : AttributeImpl := {
-     name  := attrName,
-     descr := descr,
-     add   := fun env decl args persistent => pure env -- TODO
-   };
-   pure { ext := ext, attr := attrImpl, kind := kind }
+def registerParserAttribute (attrName : Name) (kind : String) (descr : String) (builtinTable : Option (IO.Ref ParsingTables) := none) : IO ParserAttribute := do
+ext : PersistentEnvExtension ParserAttributeEntry ParsingTables ← registerPersistentEnvExtension {
+  name            := attrName,
+  addImportedFn   := fun es => do
+    table ← match builtinTable with
+    | some table => table.get
+    | none       => pure {};
+ -- TODO: populate table with `es`
+    pure table,
+  addEntryFn      := fun (s : ParsingTables) _ => s, -- TODO
+  exportEntriesFn := fun _ => #[],                   -- TODO
+  statsFn         := fun _ => fmt "parser attribute" -- TODO
+};
+let attrImpl : AttributeImpl := {
+  name  := attrName,
+  descr := descr,
+  add   := fun env decl args persistent => pure env -- TODO
+};
+pure { ext := ext, attr := attrImpl, kind := kind }
 
 namespace ParserAttribute
 

@@ -50,11 +50,11 @@ abbrev CommandElabTable := SMap SyntaxNodeKind CommandElab
 def mkBuiltinCommandElabTable : IO (IO.Ref CommandElabTable) := IO.mkRef {}
 @[init mkBuiltinCommandElabTable] constant builtinCommandElabTable : IO.Ref CommandElabTable := arbitrary _
 
-def addBuiltinCommandElab (k : SyntaxNodeKind) (declName : Name) (elab : CommandElab) : IO Unit :=
-do m ← builtinCommandElabTable.get;
-   when (m.contains k) $
-     throw (IO.userError ("invalid builtin command elaborator, elaborator for '" ++ toString k ++ "' has already been defined"));
-   builtinCommandElabTable.modify $ fun m => m.insert k elab
+def addBuiltinCommandElab (k : SyntaxNodeKind) (declName : Name) (elab : CommandElab) : IO Unit := do
+m ← builtinCommandElabTable.get;
+when (m.contains k) $
+  throw (IO.userError ("invalid builtin command elaborator, elaborator for '" ++ toString k ++ "' has already been defined"));
+builtinCommandElabTable.modify $ fun m => m.insert k elab
 
 def declareBuiltinCommandElab (env : Environment) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
 let name := `_regBuiltinCommandElab ++ declName;
@@ -126,17 +126,17 @@ fun ctx s => toCommandResult s $ tracingAtPos s.cmdPos (Term.elabBinders (getVar
 def dbgTrace {α} [HasToString α] (a : α) : CommandElabM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()
 
-def getEnv : CommandElabM Environment :=
-do s ← get; pure s.env
+def getEnv : CommandElabM Environment := do
+s ← get; pure s.env
 
 def setEnv (newEnv : Environment) : CommandElabM Unit :=
 modify $ fun s => { env := newEnv, .. s }
 
-def getScope : CommandElabM Scope :=
-do s ← get; pure s.scopes.head!
+def getScope : CommandElabM Scope := do
+s ← get; pure s.scopes.head!
 
-def getNamespace : CommandElabM Name :=
-do scope ← getScope; pure scope.ns
+def getNamespace : CommandElabM Name := do
+scope ← getScope; pure scope.ns
 
 private def addScope (kind : String) (header : String) (ns : Name) : CommandElabM Unit :=
 modify $ fun s => {
@@ -164,8 +164,8 @@ fun n => do
   | some header => addScopes "section" false header
   | none        => do ns ← getNamespace; addScope "section" "" ns
 
-def getScopes : CommandElabM (List Scope) :=
-do s ← get; pure s.scopes
+def getScopes : CommandElabM (List Scope) := do
+s ← get; pure s.scopes
 
 private def checkAnonymousScope : List Scope → Bool
 | { header := "", .. } :: _   => true
@@ -201,16 +201,16 @@ modify $ fun s =>
     | []   => unreachable!,
     .. s }
 
-def getUniverseNames : CommandElabM (List Name) :=
-do scope ← getScope; pure scope.univNames
+def getUniverseNames : CommandElabM (List Name) := do
+scope ← getScope; pure scope.univNames
 
-def addUniverse (idStx : Syntax) : CommandElabM Unit :=
-do let id := idStx.getId;
-   univs ← getUniverseNames;
-   if univs.elem id then
-     logError idStx ("a universe named '" ++ toString id ++ "' has already been declared in this Scope")
-   else
-     modifyScope $ fun scope => { univNames := id :: scope.univNames, .. scope }
+def addUniverse (idStx : Syntax) : CommandElabM Unit := do
+let id := idStx.getId;
+univs ← getUniverseNames;
+if univs.elem id then
+  logError idStx ("a universe named '" ++ toString id ++ "' has already been declared in this Scope")
+else
+  modifyScope $ fun scope => { univNames := id :: scope.univNames, .. scope }
 
 @[builtinCommandElab «universe»] def elabUniverse : CommandElab :=
 fun n => do
@@ -228,16 +228,16 @@ fun _ => do
   | Except.ok env   => setEnv env
   | Except.error ex => logElabException (Exception.kernel ex)
 
-def getOpenDecls : CommandElabM (List OpenDecl) :=
-do scope ← getScope; pure scope.openDecls
+def getOpenDecls : CommandElabM (List OpenDecl) := do
+scope ← getScope; pure scope.openDecls
 
-def resolveNamespace (id : Name) : CommandElabM Name :=
-do env ← getEnv;
-   ns  ← getNamespace;
-   openDecls ← getOpenDecls;
-   match Elab.resolveNamespace env ns openDecls id with
-   | some ns => pure ns
-   | none    => throw (Exception.other ("unknown namespace '" ++ toString id ++ "'"))
+def resolveNamespace (id : Name) : CommandElabM Name := do
+env ← getEnv;
+ns  ← getNamespace;
+openDecls ← getOpenDecls;
+match Elab.resolveNamespace env ns openDecls id with
+| some ns => pure ns
+| none    => throw (Exception.other ("unknown namespace '" ++ toString id ++ "'"))
 
 @[builtinCommandElab «export»] def elabExport : CommandElab :=
 fun n => do
@@ -248,15 +248,16 @@ fun n => do
   when (ns == currNs) $ throw "invalid 'export', self export";
   env ← getEnv;
   let ids := (n.getArg 3).getArgs;
-  aliases ← ids.foldlM (fun (aliases : List (Name × Name)) (idStx : Syntax) => do {
-    let id := idStx.getId;
-    let declName := ns ++ id;
-    if env.contains declName then
-      pure $ (currNs ++ id, declName) :: aliases
-    else do
-      logUnknownDecl idStx declName;
-      pure aliases
-    })
+  aliases ← ids.foldlM
+   (fun (aliases : List (Name × Name)) (idStx : Syntax) => do {
+      let id := idStx.getId;
+      let declName := ns ++ id;
+      if env.contains declName then
+        pure $ (currNs ++ id, declName) :: aliases
+      else do
+        logUnknownDecl idStx declName;
+        pure aliases
+      })
     [];
   modify $ fun s => { env := aliases.foldl (fun env p => addAlias env p.1 p.2) s.env, .. s }
 
@@ -270,51 +271,51 @@ nss.forArgsM $ fun ns => do
   ns ← resolveNamespace ns.getId;
   addOpenDecl (OpenDecl.simple ns [])
 
-def elabOpenOnly (n : SyntaxNode) : CommandElabM Unit :=
 -- `open` id `(` id+ `)`
-do let ns  := n.getIdAt 0;
-   ns ← resolveNamespace ns;
-   let ids := n.getArg 2;
-   ids.forArgsM $ fun idStx => do
-     let id := idStx.getId;
-     let declName := ns ++ id;
-     env ← getEnv;
-     if env.contains declName then
-       addOpenDecl (OpenDecl.explicit id declName)
-     else
-       logUnknownDecl idStx declName
+def elabOpenOnly (n : SyntaxNode) : CommandElabM Unit := do
+let ns  := n.getIdAt 0;
+ns ← resolveNamespace ns;
+let ids := n.getArg 2;
+ids.forArgsM $ fun idStx => do
+  let id := idStx.getId;
+  let declName := ns ++ id;
+  env ← getEnv;
+  if env.contains declName then
+    addOpenDecl (OpenDecl.explicit id declName)
+  else
+    logUnknownDecl idStx declName
 
-def elabOpenHiding (n : SyntaxNode) : CommandElabM Unit :=
 -- `open` id `hiding` id+
-do let ns := n.getIdAt 0;
-   ns ← resolveNamespace ns;
-   let idsStx := n.getArg 2;
-   env ← getEnv;
-   ids : List Name ← idsStx.foldArgsM (fun idStx ids => do
-     let id := idStx.getId;
-     let declName := ns ++ id;
-     if env.contains declName then
-       pure (id::ids)
-     else do
-       logUnknownDecl idStx declName;
-       pure ids)
-     [];
-   addOpenDecl (OpenDecl.simple ns ids)
+def elabOpenHiding (n : SyntaxNode) : CommandElabM Unit := do
+let ns := n.getIdAt 0;
+ns ← resolveNamespace ns;
+let idsStx := n.getArg 2;
+env ← getEnv;
+ids : List Name ← idsStx.foldArgsM (fun idStx ids => do
+  let id := idStx.getId;
+  let declName := ns ++ id;
+  if env.contains declName then
+    pure (id::ids)
+  else do
+    logUnknownDecl idStx declName;
+    pure ids)
+  [];
+addOpenDecl (OpenDecl.simple ns ids)
 
-def elabOpenRenaming (n : SyntaxNode) : CommandElabM Unit :=
 -- `open` id `renaming` sepBy (id `->` id) `,`
-do let ns := n.getIdAt 0;
-   ns ← resolveNamespace ns;
-   let rs := (n.getArg 2);
-   rs.forSepArgsM $ fun stx => do
-     let fromId   := stx.getIdAt 0;
-     let toId     := stx.getIdAt 2;
-     let declName := ns ++ fromId;
-     env ← getEnv;
-     if env.contains declName then
-       addOpenDecl (OpenDecl.explicit toId declName)
-     else
-       logUnknownDecl stx declName
+def elabOpenRenaming (n : SyntaxNode) : CommandElabM Unit := do
+let ns := n.getIdAt 0;
+ns ← resolveNamespace ns;
+let rs := (n.getArg 2);
+rs.forSepArgsM $ fun stx => do
+  let fromId   := stx.getIdAt 0;
+  let toId     := stx.getIdAt 2;
+  let declName := ns ++ fromId;
+  env ← getEnv;
+  if env.contains declName then
+    addOpenDecl (OpenDecl.explicit toId declName)
+  else
+    logUnknownDecl stx declName
 
 @[builtinCommandElab «open»] def elabOpen : CommandElab :=
 fun n => do

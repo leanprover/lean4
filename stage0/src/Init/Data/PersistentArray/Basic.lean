@@ -191,28 +191,28 @@ variable {β : Type v}
 | node cs, b => cs.foldlM (fun b c => foldlMAux c b) b
 | leaf vs, b => vs.foldlM f b
 
-@[specialize] def foldlM (t : PersistentArray α) (f : β → α → m β) (b : β) : m β :=
-do b ← foldlMAux f t.root b; t.tail.foldlM f b
+@[specialize] def foldlM (t : PersistentArray α) (f : β → α → m β) (b : β) : m β := do
+b ← foldlMAux f t.root b; t.tail.foldlM f b
 
 @[specialize] partial def findMAux (f : α → m (Option β)) : PersistentArrayNode α → m (Option β)
 | node cs => cs.findM (fun c => findMAux c)
 | leaf vs => vs.findM f
 
-@[specialize] def findM (t : PersistentArray α) (f : α → m (Option β)) : m (Option β) :=
-do b ← findMAux f t.root;
-   match b with
-   | none   => t.tail.findM f
-   | some b => pure (some b)
+@[specialize] def findM (t : PersistentArray α) (f : α → m (Option β)) : m (Option β) := do
+b ← findMAux f t.root;
+match b with
+| none   => t.tail.findM f
+| some b => pure (some b)
 
 @[specialize] partial def findRevMAux (f : α → m (Option β)) : PersistentArrayNode α → m (Option β)
 | node cs => cs.findRevM (fun c => findRevMAux c)
 | leaf vs => vs.findRevM f
 
-@[specialize] def findRevM (t : PersistentArray α) (f : α → m (Option β)) : m (Option β) :=
-do b ← t.tail.findRevM f;
-   match b with
-   | none   => findRevMAux f t.root
-   | some b => pure (some b)
+@[specialize] def findRevM (t : PersistentArray α) (f : α → m (Option β)) : m (Option β) := do
+b ← t.tail.findRevM f;
+match b with
+| none   => findRevMAux f t.root
+| some b => pure (some b)
 
 partial def foldlFromMAux (f : β → α → m β) : PersistentArrayNode α → USize → USize → β → m β
 | node cs, i, shift, b => do
@@ -261,8 +261,8 @@ variables {m : Type → Type w} [Monad m]
 @[specialize] def anyM (t : PersistentArray α) (p : α → m Bool) : m Bool :=
 anyMAux p t.root <||> t.tail.anyM p
 
-@[inline] def allM (a : PersistentArray α) (p : α → m Bool) : m Bool :=
-do b ← anyM a (fun v => do b ← p v; pure (not b)); pure (not b)
+@[inline] def allM (a : PersistentArray α) (p : α → m Bool) : m Bool := do
+b ← anyM a (fun v => do b ← p v; pure (not b)); pure (not b)
 
 end
 
@@ -280,10 +280,10 @@ variable {β : Type u}
 | node cs => node <$> cs.mapM (fun c => mapMAux c)
 | leaf vs => leaf <$> vs.mapM f
 
-@[specialize] def mapM (f : α → m β) (t : PersistentArray α) : m (PersistentArray β) :=
-do root ← mapMAux f t.root;
-   tail ← t.tail.mapM f;
-   pure { tail := tail, root := root, .. t }
+@[specialize] def mapM (f : α → m β) (t : PersistentArray α) : m (PersistentArray β) := do
+root ← mapMAux f t.root;
+tail ← t.tail.mapM f;
+pure { tail := tail, root := root, .. t }
 
 end
 

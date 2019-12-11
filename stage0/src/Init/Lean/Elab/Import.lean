@@ -29,13 +29,13 @@ catch
      pure (env, messages.add { fileName := ctx.fileName, data := toString e, pos := pos }))
 
 @[export lean_parse_imports]
-def parseImports (input : String) (fileName : Option String := none) : IO (List Import × Position × MessageLog) :=
-do env ← mkEmptyEnvironment;
-   let fileName := fileName.getD "<input>";
-   let ctx := Parser.mkParserContextCore env input fileName;
-   match Parser.parseHeader env ctx with
-   | (header, parserState, messages) => do
-     pure (headerToImports header, ctx.fileMap.toPosition parserState.pos, messages)
+def parseImports (input : String) (fileName : Option String := none) : IO (List Import × Position × MessageLog) := do
+env ← mkEmptyEnvironment;
+let fileName := fileName.getD "<input>";
+let ctx := Parser.mkParserContextCore env input fileName;
+match Parser.parseHeader env ctx with
+| (header, parserState, messages) => do
+  pure (headerToImports header, ctx.fileMap.toPosition parserState.pos, messages)
 
 @[export lean_print_deps]
 def printDeps (deps : List Import) : IO Unit :=

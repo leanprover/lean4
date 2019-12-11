@@ -94,19 +94,19 @@ private partial def toPreterm (env : Environment) : Syntax → Except String Exp
 
 @[export lean_parse_stx_quot]
 def oldParseStxQuot (env : Environment) (input : String) (pos : String.Pos) : Except String (Expr × String.Pos) := do
-  let c := Parser.mkParserContextCore env input "<foo>";
-  let c := c.toParserContext env;
-  let s := Parser.mkParserState c.input;
-  let s := s.setPos pos;
-  let s := (Parser.termParser : Parser.Parser).fn (0 : Nat) c s;
-  let stx := s.stxStack.back;
-  let stx := app (const `HasPure.pure) $ quote env Syntax.missing stx;
-  expr ← toPreterm env stx;
-  match s.errorMsg with
-  | some errorMsg =>
-    Except.error $ toString errorMsg
-  | none =>
-    Except.ok (expr, s.pos)
+let c := Parser.mkParserContextCore env input "<foo>";
+let c := c.toParserContext env;
+let s := Parser.mkParserState c.input;
+let s := s.setPos pos;
+let s := (Parser.termParser : Parser.Parser).fn (0 : Nat) c s;
+let stx := s.stxStack.back;
+let stx := app (const `HasPure.pure) $ quote env Syntax.missing stx;
+expr ← toPreterm env stx;
+match s.errorMsg with
+| some errorMsg =>
+  Except.error $ toString errorMsg
+| none =>
+  Except.ok (expr, s.pos)
 
 end Elab
 end Lean

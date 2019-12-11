@@ -58,11 +58,11 @@ mkApp (mkConst info.ofNatFn) (mkNatLit (n%info.size))
 def mkUInt32Lit (n : Nat) : Expr :=
 mkUIntLit {nbits := 32} n
 
-def foldBinUInt (fn : NumScalarTypeInfo → Bool → Nat → Nat → Nat) (beforeErasure : Bool) (a₁ a₂ : Expr) : Option Expr :=
-do n₁   ← getNumLit a₁;
-   n₂   ← getNumLit a₂;
-   info ← getInfoFromVal a₁;
-   pure $ mkUIntLit info (fn info beforeErasure n₁ n₂)
+def foldBinUInt (fn : NumScalarTypeInfo → Bool → Nat → Nat → Nat) (beforeErasure : Bool) (a₁ a₂ : Expr) : Option Expr := do
+n₁   ← getNumLit a₁;
+n₂   ← getNumLit a₂;
+info ← getInfoFromVal a₁;
+pure $ mkUIntLit info (fn info beforeErasure n₁ n₂)
 
 def foldUIntAdd := foldBinUInt $ fun _ _ => HasAdd.add
 def foldUIntMul := foldBinUInt $ fun _ _ => HasMul.mul
@@ -77,10 +77,10 @@ def preUIntBinFoldFns : List (Name × BinFoldFn) :=
 def uintBinFoldFns : List (Name × BinFoldFn) :=
 numScalarTypes.foldl (fun r info => r ++ (preUIntBinFoldFns.map (fun ⟨suffix, fn⟩ => (info.id ++ suffix, fn)))) []
 
-def foldNatBinOp (fn : Nat → Nat → Nat) (a₁ a₂ : Expr) : Option Expr :=
-do n₁   ← getNumLit a₁;
-   n₂   ← getNumLit a₂;
-   pure $ mkNatLit (fn n₁ n₂)
+def foldNatBinOp (fn : Nat → Nat → Nat) (a₁ a₂ : Expr) : Option Expr := do
+n₁   ← getNumLit a₁;
+n₂   ← getNumLit a₂;
+pure $ mkNatLit (fn n₁ n₂)
 
 def foldNatAdd (_ : Bool) := foldNatBinOp HasAdd.add
 def foldNatMul (_ : Bool) := foldNatBinOp HasMul.mul
@@ -105,10 +105,10 @@ match beforeErasure, r with
 | true,  false => mkDecIsFalse pred (mkLcProof pred)
 
 def foldNatBinPred (mkPred : Expr → Expr → Expr) (fn : Nat → Nat → Bool)
-                      (beforeErasure : Bool) (a₁ a₂ : Expr) : Option Expr :=
-do n₁   ← getNumLit a₁;
-   n₂   ← getNumLit a₂;
-   pure $ toDecidableExpr beforeErasure (mkPred a₁ a₂) (fn n₁ n₂)
+    (beforeErasure : Bool) (a₁ a₂ : Expr) : Option Expr := do
+n₁   ← getNumLit a₁;
+n₂   ← getNumLit a₂;
+pure $ toDecidableExpr beforeErasure (mkPred a₁ a₂) (fn n₁ n₂)
 
 def foldNatDecEq := foldNatBinPred mkNatEq (fun a b => a = b)
 def foldNatDecLt := foldNatBinPred mkNatLt (fun a b => a < b)
@@ -156,20 +156,20 @@ def boolFoldFns : List (Name × BinFoldFn) :=
 def binFoldFns : List (Name × BinFoldFn) :=
 boolFoldFns ++ uintBinFoldFns ++ natFoldFns
 
-def foldNatSucc (_ : Bool) (a : Expr) : Option Expr :=
-do n   ← getNumLit a;
-   pure $ mkNatLit (n+1)
+def foldNatSucc (_ : Bool) (a : Expr) : Option Expr := do
+n ← getNumLit a;
+pure $ mkNatLit (n+1)
 
-def foldCharOfNat (beforeErasure : Bool) (a : Expr) : Option Expr :=
-do guard (!beforeErasure);
-   n ← getNumLit a;
-   pure $
-     if isValidChar n.toUInt32 then mkUInt32Lit n
-     else mkUInt32Lit 0
+def foldCharOfNat (beforeErasure : Bool) (a : Expr) : Option Expr := do
+guard (!beforeErasure);
+n ← getNumLit a;
+pure $
+  if isValidChar n.toUInt32 then mkUInt32Lit n
+  else mkUInt32Lit 0
 
-def foldToNat (_ : Bool) (a : Expr) : Option Expr :=
-do n ← getNumLit a;
-   pure $ mkNatLit n
+def foldToNat (_ : Bool) (a : Expr) : Option Expr := do
+n ← getNumLit a;
+pure $ mkNatLit n
 
 def uintFoldToNatFns : List (Name × UnFoldFn) :=
 numScalarTypes.foldl (fun r info => (info.toNatFn, foldToNat) :: r) []

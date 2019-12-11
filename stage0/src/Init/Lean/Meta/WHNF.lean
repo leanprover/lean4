@@ -12,8 +12,8 @@ import Init.Lean.Meta.LevelDefEq
 namespace Lean
 namespace Meta
 
-def isAuxDef? (constName : Name) : MetaM Bool :=
-do env ← getEnv; pure (isAuxRecursor env constName || isNoConfusion env constName)
+def isAuxDef? (constName : Name) : MetaM Bool := do
+env ← getEnv; pure (isAuxRecursor env constName || isNoConfusion env constName)
 
 def unfoldDefinition (e : Expr) : MetaM (Option Expr)  :=
 Lean.WHNF.unfoldDefinitionAux getConstNoEx isAuxDef? whnf inferType isExprDefEq synthPending getLocalDecl getExprMVarAssignment e

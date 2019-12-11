@@ -284,9 +284,9 @@ partial def visitDecl (env : Environment) (decls : Array Decl) : Decl → Decl
 
 end ExplicitRC
 
-def explicitRC (decls : Array Decl) : CompilerM (Array Decl) :=
-do env ← getEnv;
-   pure $ decls.map (ExplicitRC.visitDecl env decls)
+def explicitRC (decls : Array Decl) : CompilerM (Array Decl) := do
+env ← getEnv;
+pure $ decls.map (ExplicitRC.visitDecl env decls)
 
 end IR
 end Lean

@@ -34,11 +34,11 @@ structure State :=
 
 abbrev M := ReaderT MetavarContext (StateM State)
 
-def mkFreshId : M Name :=
-do s ← get;
-   let fresh := s.ngen.curr;
-   modify $ fun s => { ngen := s.ngen.next, .. s };
-   pure fresh
+def mkFreshId : M Name := do
+s ← get;
+let fresh := s.ngen.curr;
+modify $ fun s => { ngen := s.ngen.next, .. s };
+pure fresh
 
 @[inline] private def visitLevel (f : Level → M Level) (u : Level) : M Level :=
 if !u.hasMVar then pure u
@@ -121,19 +121,19 @@ end AbstractMVars
   with new fresh metavariables.
 
   Application: we use this method to cache the results of type class resolution. -/
-def abstractMVars (e : Expr) : MetaM AbstractMVarsResult :=
-do e ← instantiateMVars e;
-   s ← get;
-   lctx ← getLCtx;
-   let (e, s) := AbstractMVars.abstractExprMVars e s.mctx { lctx := lctx, ngen := s.ngen };
-   modify $ fun s => { ngen := s.ngen, .. s };
-   let e := s.lctx.mkLambda s.fvars e;
-   pure { paramNames := s.paramNames, numMVars := s.fvars.size, expr := e }
+def abstractMVars (e : Expr) : MetaM AbstractMVarsResult := do
+e ← instantiateMVars e;
+s ← get;
+lctx ← getLCtx;
+let (e, s) := AbstractMVars.abstractExprMVars e s.mctx { lctx := lctx, ngen := s.ngen };
+modify $ fun s => { ngen := s.ngen, .. s };
+let e := s.lctx.mkLambda s.fvars e;
+pure { paramNames := s.paramNames, numMVars := s.fvars.size, expr := e }
 
-def openAbstractMVarsResult (a : AbstractMVarsResult) : MetaM (Array Expr × Array BinderInfo × Expr) :=
-do us ← a.paramNames.mapM $ fun _ => mkFreshLevelMVar;
-   let e := a.expr.instantiateLevelParamsArray a.paramNames us;
-   lambdaMetaTelescope e (some a.numMVars)
+def openAbstractMVarsResult (a : AbstractMVarsResult) : MetaM (Array Expr × Array BinderInfo × Expr) := do
+us ← a.paramNames.mapM $ fun _ => mkFreshLevelMVar;
+let e := a.expr.instantiateLevelParamsArray a.paramNames us;
+lambdaMetaTelescope e (some a.numMVars)
 
 end Meta
 end Lean

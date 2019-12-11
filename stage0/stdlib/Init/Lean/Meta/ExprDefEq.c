@@ -17,6 +17,7 @@ lean_object* l_Lean_Meta_CheckAssignmentQuick_check___boxed(lean_object*, lean_o
 extern lean_object* l___private_Init_Lean_Meta_Check_2__checkLambdaLet___lambda__2___closed__1;
 lean_object* l_Lean_Meta_try___at___private_Init_Lean_Meta_ExprDefEq_14__processAssignmentFOApprox___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at___private_Init_Lean_Meta_ExprDefEq_17__processAssignmentAux___main___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__51;
 lean_object* l_Lean_WHNF_isRecStuck___at___private_Init_Lean_Meta_ExprDefEq_42__isDefEqOnFailure___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_12__isDefEqFOApprox(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -33,7 +34,6 @@ lean_object* l_HashMapImp_find___at___private_Init_Lean_Meta_ExprDefEq_7__findCa
 lean_object* l_Lean_Meta_CheckAssignment_Lean_MonadCache___closed__2;
 lean_object* l_unreachable_x21___rarg(lean_object*);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_15__simpAssignmentArgAux(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_Exception_toMessageData___closed__51;
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_34__isSynthetic___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_setIsExprDefEqAuxRef(lean_object*);
@@ -124,7 +124,6 @@ lean_object* l___private_Init_Lean_Meta_ExprDefEq_17__processAssignmentAux___mai
 lean_object* l_Lean_RecursorVal_getMajorIdx(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_2__isDefEqArgsFirstPass___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_Exception_toMessageData___closed__4;
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_10__checkAssignmentFailure___closed__12;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_HashMapImp_expand___at___private_Init_Lean_Meta_ExprDefEq_8__cache___spec__3(lean_object*, lean_object*);
@@ -186,6 +185,7 @@ lean_object* l_Lean_Meta_isEtaUnassignedMVar___boxed(lean_object*, lean_object*,
 lean_object* lean_metavar_ctx_assign_expr(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_isWellFormed___main(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_12__restore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__4;
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_15__simpAssignmentArgAux___main(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Meta_TransparencyMode_beq(uint8_t, uint8_t);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_12__isDefEqFOApprox___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -11728,7 +11728,7 @@ lean_dec(x_36);
 lean_inc(x_1);
 x_41 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_41, 0, x_1);
-x_42 = l_Lean_Meta_Exception_toMessageData___closed__4;
+x_42 = l_Lean_Meta_Exception_toTraceMessageData___closed__4;
 x_43 = lean_alloc_ctor(8, 2, 0);
 lean_ctor_set(x_43, 0, x_41);
 lean_ctor_set(x_43, 1, x_42);
@@ -19737,7 +19737,7 @@ x_24 = l_Lean_Meta_try___at___private_Init_Lean_Meta_ExprDefEq_24__tryHeuristic_
 x_25 = lean_alloc_ctor(8, 2, 0);
 lean_ctor_set(x_25, 0, x_24);
 lean_ctor_set(x_25, 1, x_23);
-x_26 = l_Lean_Meta_Exception_toMessageData___closed__51;
+x_26 = l_Lean_Meta_Exception_toTraceMessageData___closed__51;
 x_27 = lean_alloc_ctor(8, 2, 0);
 lean_ctor_set(x_27, 0, x_25);
 lean_ctor_set(x_27, 1, x_26);
@@ -29461,7 +29461,7 @@ lean_dec(x_59);
 lean_inc(x_1);
 x_64 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_64, 0, x_1);
-x_65 = l_Lean_Meta_Exception_toMessageData___closed__51;
+x_65 = l_Lean_Meta_Exception_toTraceMessageData___closed__51;
 x_66 = lean_alloc_ctor(8, 2, 0);
 lean_ctor_set(x_66, 0, x_64);
 lean_ctor_set(x_66, 1, x_65);

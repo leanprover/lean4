@@ -18,6 +18,7 @@ lean_object* l_Array_iterateMAux___main___at_Lean_Meta_SynthInstance_getInstance
 lean_object* l_Lean_Meta_try___at___private_Init_Lean_Meta_SynthInstance_6__resolveReplacements___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_SynthInstance_4__preprocessArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_SynthInstance_1__getSubgoalsAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__51;
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_synth___main___closed__3;
 size_t l_USize_add(size_t, size_t);
@@ -37,7 +38,6 @@ lean_object* l_Option_toLOption___rarg(lean_object*);
 lean_object* l_AssocList_foldlM___main___at_Lean_Meta_SynthInstance_MkTableKey_normExpr___main___spec__7(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_SynthInstance_4__preprocessArgs___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at_Lean_Meta_SynthInstance_addAnswer___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_Exception_toMessageData___closed__51;
 uint8_t l_AssocList_contains___main___at_Lean_Meta_SynthInstance_MkTableKey_normExpr___main___spec__4(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_Meta_SynthInstance_addAnswer___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -123,7 +123,6 @@ uint8_t l_Array_anyRangeMAux___main___at_Lean_Meta_SynthInstance_addAnswer___spe
 lean_object* l___private_Init_Lean_Meta_SynthInstance_2__preprocess___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Meta_SynthInstance_Waiter_isRoot(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_Exception_toMessageData___closed__4;
 lean_object* l___private_Init_Lean_Util_Trace_2__getResetTraces___at_Lean_Meta_SynthInstance_tryResolve___spec__1___boxed(lean_object*);
 lean_object* l___private_Init_Lean_Meta_SynthInstance_5__preprocessOutParam___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_instantiate_rev_range(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -191,6 +190,7 @@ extern lean_object* l_PersistentArray_empty___closed__3;
 lean_object* l_Array_back___at_Lean_Meta_SynthInstance_getNextToResume___spec__1___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_synthInstance_x3f___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_12__restore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__4;
 lean_object* l_Lean_Meta_SynthInstance_step(lean_object*, lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
 lean_object* l_mkHashMap___at_Lean_Meta_SynthInstance_main___spec__1(lean_object*);
@@ -277,7 +277,6 @@ lean_object* l_List_mapM___main___at_Lean_Meta_SynthInstance_MkTableKey_normExpr
 lean_object* l_Array_umapMAux___main___at_Lean_Meta_SynthInstance_getInstances___spec__2___closed__1;
 lean_object* l_List_foldlM___main___at___private_Init_Lean_Meta_SynthInstance_3__preprocessLevels___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_addContext___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_Exception_toMessageData___closed__72;
 lean_object* l_Lean_Meta_SynthInstance_Waiter_isRoot___boxed(lean_object*);
 uint8_t l_AssocList_contains___main___at_Lean_Meta_SynthInstance_MkTableKey_normLevel___main___spec__4(lean_object*, lean_object*);
 lean_object* l_panic(lean_object*, lean_object*, lean_object*);
@@ -292,6 +291,7 @@ lean_object* l_Lean_Meta_SynthInstance_tracer;
 lean_object* l_Lean_Meta_SynthInstance_mkTableKey(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Util_Trace_1__addNode___at___private_Init_Lean_Meta_LevelDefEq_9__processPostponedStep___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_SynthInstance_5__preprocessOutParam(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_Exception_toTraceMessageData___closed__72;
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_getNextToResume(lean_object*);
 uint8_t l_Lean_MetavarContext_isLevelAssignable(lean_object*, lean_object*);
@@ -3539,7 +3539,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Array_umapMAux___main___at_Lean_Meta_SynthInstance_getInstances___spec__2___closed__1;
 x_2 = lean_unsigned_to_nat(177u);
-x_3 = lean_unsigned_to_nat(14u);
+x_3 = lean_unsigned_to_nat(13u);
 x_4 = l_Array_umapMAux___main___at_Lean_Meta_SynthInstance_getInstances___spec__2___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
 return x_5;
@@ -3758,7 +3758,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Init_Lean_Meta_Basic_11__regTraceClasses___closed__2;
-x_2 = l_Lean_Meta_Exception_toMessageData___closed__72;
+x_2 = l_Lean_Meta_Exception_toTraceMessageData___closed__72;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -3957,7 +3957,7 @@ lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean
 lean_dec(x_34);
 x_40 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_40, 0, x_2);
-x_41 = l_Lean_Meta_Exception_toMessageData___closed__4;
+x_41 = l_Lean_Meta_Exception_toTraceMessageData___closed__4;
 x_42 = lean_alloc_ctor(8, 2, 0);
 lean_ctor_set(x_42, 0, x_40);
 lean_ctor_set(x_42, 1, x_41);
@@ -5982,7 +5982,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Array_umapMAux___main___at_Lean_Meta_SynthInstance_getInstances___spec__2___closed__1;
 x_2 = lean_unsigned_to_nat(216u);
-x_3 = lean_unsigned_to_nat(19u);
+x_3 = lean_unsigned_to_nat(16u);
 x_4 = l_Lean_Meta_SynthInstance_getEntry___closed__2;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
 return x_5;
@@ -7121,7 +7121,7 @@ lean_dec(x_203);
 lean_inc(x_6);
 x_208 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_208, 0, x_6);
-x_209 = l_Lean_Meta_Exception_toMessageData___closed__51;
+x_209 = l_Lean_Meta_Exception_toTraceMessageData___closed__51;
 x_210 = lean_alloc_ctor(8, 2, 0);
 lean_ctor_set(x_210, 0, x_208);
 lean_ctor_set(x_210, 1, x_209);
@@ -15657,8 +15657,8 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Array_umapMAux___main___at_Lean_Meta_SynthInstance_getInstances___spec__2___closed__1;
-x_2 = lean_unsigned_to_nat(392u);
-x_3 = lean_unsigned_to_nat(19u);
+x_2 = lean_unsigned_to_nat(391u);
+x_3 = lean_unsigned_to_nat(16u);
 x_4 = l_Lean_Meta_SynthInstance_resume___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
 return x_5;

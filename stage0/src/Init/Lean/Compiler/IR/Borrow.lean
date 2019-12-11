@@ -156,35 +156,35 @@ match x with
 def ownArgs (xs : Array Arg) : M Unit :=
 xs.forM ownArg
 
-def isOwned (x : VarId) : M Bool :=
-do s ← get;
-   pure $ s.owned.contains x.idx
+def isOwned (x : VarId) : M Bool := do
+s ← get;
+pure $ s.owned.contains x.idx
 
 /- Updates `map[k]` using the current set of `owned` variables. -/
-def updateParamMap (k : Key) : M Unit :=
-do s ← get;
-   match s.map.find k with
-   | some ps => do
-     ps ← ps.mapM $ fun (p : Param) =>
-      if p.borrow && s.owned.contains p.x.idx then do
-        markModifiedParamMap; pure { borrow := false, .. p }
-      else
-        pure p;
-     modify $ fun s => { map := s.map.insert k ps, .. s }
-   | none    => pure ()
+def updateParamMap (k : Key) : M Unit := do
+s ← get;
+match s.map.find k with
+| some ps => do
+  ps ← ps.mapM $ fun (p : Param) =>
+   if p.borrow && s.owned.contains p.x.idx then do
+     markModifiedParamMap; pure { borrow := false, .. p }
+   else
+     pure p;
+  modify $ fun s => { map := s.map.insert k ps, .. s }
+| none    => pure ()
 
-def getParamInfo (k : Key) : M (Array Param) :=
-do s ← get;
-   match s.map.find k with
-   | some ps => pure ps
-   | none    =>
-     match k with
-     | (Key.decl fn) => do
-       ctx ← read;
-       match findEnvDecl ctx.env fn with
-       | some decl => pure decl.params
-       | none      => pure #[]   -- unreachable if well-formed input
-     | _ => pure #[] -- unreachable if well-formed input
+def getParamInfo (k : Key) : M (Array Param) := do
+s ← get;
+match s.map.find k with
+| some ps => pure ps
+| none    =>
+  match k with
+  | (Key.decl fn) => do
+    ctx ← read;
+    match findEnvDecl ctx.env fn with
+    | some decl => pure decl.params
+    | none      => pure #[]   -- unreachable if well-formed input
+  | _ => pure #[] -- unreachable if well-formed input
 
 /- For each ps[i], if ps[i] is owned, then mark xs[i] as owned. -/
 def ownArgsUsingParams (xs : Array Arg) (ps : Array Param) : M Unit :=
@@ -216,12 +216,12 @@ xs.size.forM $ fun i => do
    ret z
    ```
 -/
-def ownArgsIfParam (xs : Array Arg) : M Unit :=
-do ctx ← read;
-   xs.forM $ fun x =>
-     match x with
-     | Arg.var x => when (ctx.paramSet.contains x.idx) $ ownVar x
-     | _ => pure ()
+def ownArgsIfParam (xs : Array Arg) : M Unit := do
+ctx ← read;
+xs.forM $ fun x =>
+  match x with
+  | Arg.var x => when (ctx.paramSet.contains x.idx) $ ownVar x
+  | _ => pure ()
 
 def collectExpr (z : VarId) : Expr → M Unit
 | Expr.reset _ x      => ownVar z *> ownVar x
@@ -235,8 +235,8 @@ def collectExpr (z : VarId) : Expr → M Unit
 | Expr.pap _ xs       => ownVar z *> ownArgs xs
 | other               => pure ()
 
-def preserveTailCall (x : VarId) (v : Expr) (b : FnBody) : M Unit :=
-do ctx ← read;
+def preserveTailCall (x : VarId) (v : Expr) (b : FnBody) : M Unit := do
+ctx ← read;
 match v, b with
 | (Expr.fap g ys), (FnBody.ret (Arg.var z)) =>
   when (ctx.currFn == g && x == z) $ do
@@ -297,20 +297,20 @@ partial def collectDecl : Decl → M Unit
 @[inline] def whileModifingParamMap (x : M Unit) : M Unit :=
 whileModifingParamMapAux x ()
 
-def collectDecls (decls : Array Decl) : M ParamMap :=
-do whileModifingParamMap (decls.forM collectDecl);
-   s ← get;
-   pure s.map
+def collectDecls (decls : Array Decl) : M ParamMap := do
+whileModifingParamMap (decls.forM collectDecl);
+s ← get;
+pure s.map
 
 def infer (env : Environment) (decls : Array Decl) : ParamMap :=
 (collectDecls decls { env := env }).run' { map := mkInitParamMap env decls }
 
 end Borrow
 
-def inferBorrow (decls : Array Decl) : CompilerM (Array Decl) :=
-do env ← getEnv;
-   let paramMap := Borrow.infer env decls;
-   pure (Borrow.applyParamMap decls paramMap)
+def inferBorrow (decls : Array Decl) : CompilerM (Array Decl) := do
+env ← getEnv;
+let paramMap := Borrow.infer env decls;
+pure (Borrow.applyParamMap decls paramMap)
 
 end IR
 end Lean

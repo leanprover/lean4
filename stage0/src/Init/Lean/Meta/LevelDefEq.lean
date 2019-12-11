@@ -29,9 +29,9 @@ private def mkMaxArgsDiff (mvarId : MVarId) : Level → Level → Level
 /--
   Solve `?m =?= max ?m v` by creating a fresh metavariable `?n`
   and assigning `?m := max ?n v` -/
-private def solveSelfMax (mvarId : MVarId) (v : Level) : MetaM Unit :=
-do n ← mkFreshLevelMVar;
-   assignLevelMVar mvarId $ mkMaxArgsDiff mvarId v n
+private def solveSelfMax (mvarId : MVarId) (v : Level) : MetaM Unit := do
+n ← mkFreshLevelMVar;
+assignLevelMVar mvarId $ mkMaxArgsDiff mvarId v n
 
 private def postponeIsLevelDefEq (lhs : Level) (rhs : Level) : MetaM Unit :=
 modify $ fun s => { postponed := s.postponed.push { lhs := lhs, rhs := rhs }, .. s }
@@ -97,15 +97,14 @@ def isListLevelDefEqAux : List Level → List Level → MetaM Bool
 | u::us, v::vs => isLevelDefEqAux u v <&&> isListLevelDefEqAux us vs
 | _,     _     => pure false
 
-private def getNumPostponed : MetaM Nat :=
-do s ← get;
-   pure s.postponed.size
+private def getNumPostponed : MetaM Nat := do
+s ← get; pure s.postponed.size
 
-private def getResetPostponed : MetaM (PersistentArray PostponedEntry) :=
-do s ← get;
-   let ps := s.postponed;
-   modify $ fun s => { postponed := {}, .. s };
-   pure ps
+private def getResetPostponed : MetaM (PersistentArray PostponedEntry) := do
+s ← get;
+let ps := s.postponed;
+modify $ fun s => { postponed := {}, .. s };
+pure ps
 
 private def processPostponedStep : MetaM Bool :=
 traceCtx `Meta.isLevelDefEq.postponed.step $ do
@@ -138,10 +137,10 @@ private partial def processPostponedAux : Unit → MetaM Bool
         trace! `Meta.isLevelDefEq.postponed (format "no progress solving pending is-def-eq level constraints");
         pure false
 
-private def processPostponed : MetaM Bool :=
-do numPostponed ← getNumPostponed;
-   if numPostponed == 0 then pure true
-   else traceCtx `Meta.isLevelDefEq.postponed $ processPostponedAux ()
+private def processPostponed : MetaM Bool := do
+numPostponed ← getNumPostponed;
+if numPostponed == 0 then pure true
+else traceCtx `Meta.isLevelDefEq.postponed $ processPostponedAux ()
 
 
 private def restore (env : Environment) (mctx : MetavarContext) (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
@@ -153,35 +152,35 @@ modify $ fun s => { env := env, mctx := mctx, postponed := postponed, .. s }
 
   Remark: postponed universe level constraints must be solved before returning. Otherwise,
   we don't know whether `x` really succeeded. -/
-@[specialize] def try (x : MetaM Bool) : MetaM Bool :=
-do s ← get;
-   let env       := s.env;
-   let mctx      := s.mctx;
-   let postponed := s.postponed;
-   modify $ fun s => { postponed := {}, .. s };
-   catch
-     (condM x
-       (condM processPostponed
-         (pure true)
-         (do restore env mctx postponed; pure false))
-       (do restore env mctx postponed; pure false))
-     (fun ex => do restore env mctx postponed; throw ex)
+@[specialize] def try (x : MetaM Bool) : MetaM Bool := do
+s ← get;
+let env       := s.env;
+let mctx      := s.mctx;
+let postponed := s.postponed;
+modify $ fun s => { postponed := {}, .. s };
+catch
+  (condM x
+    (condM processPostponed
+      (pure true)
+      (do restore env mctx postponed; pure false))
+    (do restore env mctx postponed; pure false))
+  (fun ex => do restore env mctx postponed; throw ex)
 
-@[specialize] def tryOpt {α} (x : MetaM (Option α)) : MetaM (Option α) :=
-do s ← get;
-   let env       := s.env;
-   let mctx      := s.mctx;
-   let postponed := s.postponed;
-   modify $ fun s => { postponed := {}, .. s };
-   catch
-     (do a? ← x;
-         match a? with
-         | some a =>
-           condM processPostponed
-             (pure (some a))
-             (do restore env mctx postponed; pure none)
-         | none   => do restore env mctx postponed; pure none)
-     (fun ex => do restore env mctx postponed; throw ex)
+@[specialize] def tryOpt {α} (x : MetaM (Option α)) : MetaM (Option α) := do
+s ← get;
+let env       := s.env;
+let mctx      := s.mctx;
+let postponed := s.postponed;
+modify $ fun s => { postponed := {}, .. s };
+catch
+  (do a? ← x;
+      match a? with
+      | some a =>
+        condM processPostponed
+          (pure (some a))
+          (do restore env mctx postponed; pure none)
+      | none   => do restore env mctx postponed; pure none)
+  (fun ex => do restore env mctx postponed; throw ex)
 
 /- Public interface -/
 
@@ -199,10 +198,10 @@ traceCtx `Meta.isDefEq $ do
 
 abbrev isDefEq := @isExprDefEq
 
-@[init] private def regTraceClasses : IO Unit :=
-do registerTraceClass `Meta.isLevelDefEq;
-   registerTraceClass `Meta.isLevelDefEq.step;
-   registerTraceClass `Meta.isLevelDefEq.postponed
+@[init] private def regTraceClasses : IO Unit := do
+registerTraceClass `Meta.isLevelDefEq;
+registerTraceClass `Meta.isLevelDefEq.step;
+registerTraceClass `Meta.isLevelDefEq.postponed
 
 end Meta
 end Lean

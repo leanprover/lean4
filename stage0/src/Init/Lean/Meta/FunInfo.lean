@@ -10,15 +10,15 @@ import Init.Lean.Meta.InferType
 namespace Lean
 namespace Meta
 
-@[inline] private def checkFunInfoCache (fn : Expr) (maxArgs? : Option Nat) (k : MetaM FunInfo) : MetaM FunInfo :=
-do s ← get;
-   t ← getTransparency;
-   match s.cache.funInfo.find ⟨t, fn, maxArgs?⟩ with
-   | some finfo => pure finfo
-   | none       => do
-     finfo ← k;
-     modify $ fun s => { cache := { funInfo := s.cache.funInfo.insert ⟨t, fn, maxArgs?⟩ finfo, .. s.cache }, .. s };
-     pure finfo
+@[inline] private def checkFunInfoCache (fn : Expr) (maxArgs? : Option Nat) (k : MetaM FunInfo) : MetaM FunInfo := do
+s ← get;
+t ← getTransparency;
+match s.cache.funInfo.find ⟨t, fn, maxArgs?⟩ with
+| some finfo => pure finfo
+| none       => do
+  finfo ← k;
+  modify $ fun s => { cache := { funInfo := s.cache.funInfo.insert ⟨t, fn, maxArgs?⟩ finfo, .. s.cache }, .. s };
+  pure finfo
 
 @[inline] private def whenHasVar {α} (e : Expr) (deps : α) (k : α → α) : α :=
 if e.hasFVar then k deps else deps

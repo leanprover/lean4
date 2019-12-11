@@ -14,8 +14,8 @@ whether terms produced by tactics and `isDefEq` are type correct.
 namespace Lean
 namespace Meta
 
-private def ensureType (e : Expr) : MetaM Unit :=
-do getLevel e; pure ()
+private def ensureType (e : Expr) : MetaM Unit := do
+getLevel e; pure ()
 
 @[specialize] private def checkLambdaLet
     (check   : Expr → MetaM Unit)
@@ -48,24 +48,24 @@ forallTelescope e $ fun xs b => do
   ensureType b;
   check b
 
-private def checkConstant (c : Name) (lvls : List Level) : MetaM Unit :=
-do env ← getEnv;
-   match env.find c with
-   | none       => throwEx $ Exception.unknownConst c
-   | some cinfo => unless (lvls.length == cinfo.lparams.length) $ throwEx $ Exception.incorrectNumOfLevels c lvls
+private def checkConstant (c : Name) (lvls : List Level) : MetaM Unit := do
+env ← getEnv;
+match env.find c with
+| none       => throwEx $ Exception.unknownConst c
+| some cinfo => unless (lvls.length == cinfo.lparams.length) $ throwEx $ Exception.incorrectNumOfLevels c lvls
 
 @[specialize] private def checkApp
     (check   : Expr → MetaM Unit)
-    (f a : Expr) : MetaM Unit :=
-do check f;
-   check a;
-   fType ← inferType f;
-   fType ← whnf fType;
-   match fType with
-   | Expr.forallE _ d _ _ => do
-     aType ← inferType a;
-     unlessM (isExprDefEqAux d aType) $ throwEx $ Exception.appTypeMismatch f a
-   | _ => throwEx $ Exception.functionExpected f a
+    (f a : Expr) : MetaM Unit := do
+check f;
+check a;
+fType ← inferType f;
+fType ← whnf fType;
+match fType with
+| Expr.forallE _ d _ _ => do
+  aType ← inferType a;
+  unlessM (isExprDefEqAux d aType) $ throwEx $ Exception.appTypeMismatch f a
+| _ => throwEx $ Exception.functionExpected f a
 
 private partial def checkAux : Expr → MetaM Unit
 | e@(Expr.forallE _ _ _ _) => checkForall checkAux e
@@ -85,12 +85,12 @@ def isTypeCorrect (e : Expr) : MetaM Bool :=
 catch
   (traceCtx `Meta.check $ do checkAux e; pure true)
   (fun ex => do
-    trace! `Meta.typeError ex.toMessageData;
+    trace! `Meta.typeError ex.toTraceMessageData;
     pure false)
 
-@[init] private def regTraceClasses : IO Unit :=
-do registerTraceClass `Meta.check;
-   registerTraceClass `Meta.typeError
+@[init] private def regTraceClasses : IO Unit := do
+registerTraceClass `Meta.check;
+registerTraceClass `Meta.typeError
 
 end Meta
 end Lean

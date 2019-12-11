@@ -67,10 +67,11 @@ def toStr : Exception → String
 
 instance : HasToString Exception := ⟨toStr⟩
 
-private def mkCtx (c : ExceptionContext) (m : MessageData) : MessageData :=
+def mkCtx (c : ExceptionContext) (m : MessageData) : MessageData :=
 MessageData.context c.env c.mctx c.lctx m
 
-def toMessageData : Exception → MessageData
+/-- Generate trace message that is suitable for tracing crawlers -/
+def toTraceMessageData : Exception → MessageData
 | unknownConst c ctx              => mkCtx ctx $ `unknownConst ++ " " ++ c
 | unknownFVar fvarId ctx          => mkCtx ctx $ `unknownFVar ++ " " ++ fvarId
 | unknownExprMVar mvarId ctx      => mkCtx ctx $ `unknownExprMVar ++ " " ++ mkMVar mvarId

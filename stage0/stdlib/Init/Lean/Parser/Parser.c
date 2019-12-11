@@ -346,6 +346,7 @@ lean_object* l_Lean_Parser_checkLeadingFn___boxed(lean_object*, lean_object*, le
 lean_object* l_Lean_Parser_declareBuiltinParser(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_TokenMap_HasEmptyc(lean_object*);
 lean_object* l_Lean_Parser_checkNoWsBefore(uint8_t, lean_object*);
+extern lean_object* l_Lean_choiceKind___closed__2;
 lean_object* l_Lean_Parser_checkWsBefore___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_noFirstTokenInfo(lean_object*);
 lean_object* l_Lean_Parser_checkLeadingFn___closed__1;
@@ -25314,51 +25315,81 @@ uint8_t x_5;
 x_5 = !lean_is_exclusive(x_4);
 if (x_5 == 0)
 {
-lean_object* x_6; uint8_t x_7; lean_object* x_8; 
+lean_object* x_6; uint8_t x_7; 
 x_6 = lean_ctor_get(x_4, 0);
 x_7 = l_HashMapImp_contains___at_Lean_Parser_isValidSyntaxNodeKind___spec__1(x_6, x_1);
 lean_dec(x_6);
-x_8 = lean_box(x_7);
-lean_ctor_set(x_4, 0, x_8);
+if (x_7 == 0)
+{
+lean_object* x_8; uint8_t x_9; lean_object* x_10; 
+x_8 = l_Lean_choiceKind___closed__2;
+x_9 = lean_name_eq(x_1, x_8);
+x_10 = lean_box(x_9);
+lean_ctor_set(x_4, 0, x_10);
 return x_4;
 }
 else
 {
-lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; 
-x_9 = lean_ctor_get(x_4, 0);
-x_10 = lean_ctor_get(x_4, 1);
-lean_inc(x_10);
-lean_inc(x_9);
-lean_dec(x_4);
-x_11 = l_HashMapImp_contains___at_Lean_Parser_isValidSyntaxNodeKind___spec__1(x_9, x_1);
-lean_dec(x_9);
+uint8_t x_11; lean_object* x_12; 
+x_11 = 1;
 x_12 = lean_box(x_11);
-x_13 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_13, 0, x_12);
-lean_ctor_set(x_13, 1, x_10);
-return x_13;
+lean_ctor_set(x_4, 0, x_12);
+return x_4;
 }
 }
 else
 {
-uint8_t x_14; 
-x_14 = !lean_is_exclusive(x_4);
-if (x_14 == 0)
+lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_13 = lean_ctor_get(x_4, 0);
+x_14 = lean_ctor_get(x_4, 1);
+lean_inc(x_14);
+lean_inc(x_13);
+lean_dec(x_4);
+x_15 = l_HashMapImp_contains___at_Lean_Parser_isValidSyntaxNodeKind___spec__1(x_13, x_1);
+lean_dec(x_13);
+if (x_15 == 0)
+{
+lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; 
+x_16 = l_Lean_choiceKind___closed__2;
+x_17 = lean_name_eq(x_1, x_16);
+x_18 = lean_box(x_17);
+x_19 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_19, 0, x_18);
+lean_ctor_set(x_19, 1, x_14);
+return x_19;
+}
+else
+{
+uint8_t x_20; lean_object* x_21; lean_object* x_22; 
+x_20 = 1;
+x_21 = lean_box(x_20);
+x_22 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_22, 0, x_21);
+lean_ctor_set(x_22, 1, x_14);
+return x_22;
+}
+}
+}
+else
+{
+uint8_t x_23; 
+x_23 = !lean_is_exclusive(x_4);
+if (x_23 == 0)
 {
 return x_4;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = lean_ctor_get(x_4, 0);
-x_16 = lean_ctor_get(x_4, 1);
-lean_inc(x_16);
-lean_inc(x_15);
+lean_object* x_24; lean_object* x_25; lean_object* x_26; 
+x_24 = lean_ctor_get(x_4, 0);
+x_25 = lean_ctor_get(x_4, 1);
+lean_inc(x_25);
+lean_inc(x_24);
 lean_dec(x_4);
-x_17 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_17, 0, x_15);
-lean_ctor_set(x_17, 1, x_16);
-return x_17;
+x_26 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_26, 0, x_24);
+lean_ctor_set(x_26, 1, x_25);
+return x_26;
 }
 }
 }

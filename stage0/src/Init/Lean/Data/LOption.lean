@@ -37,5 +37,5 @@ def Option.toLOption {α : Type u} : Option α → Lean.LOption α
 | none   => Lean.LOption.none
 | some a => Lean.LOption.some a
 
-@[inline] def toLOptionM {α} {m : Type → Type} [Monad m] (x : m (Option α)) : m (Lean.LOption α) :=
-do b ← x; pure b.toLOption
+@[inline] def toLOptionM {α} {m : Type → Type} [Monad m] (x : m (Option α)) : m (Lean.LOption α) := do
+b ← x; pure b.toLOption

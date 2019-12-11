@@ -148,26 +148,26 @@ private partial def whnfEta : Expr → MetaM Expr
   | some e => whnfEta e
   | none   => pure e
 
-private def pushArgs (todo : Array Expr) (e : Expr) : MetaM (Key × Array Expr) :=
-do e ← whnfEta e;
-   let fn := e.getAppFn;
-   let push (k : Key) (nargs : Nat) : MetaM (Key × Array Expr) := do {
-     info ← getFunInfoNArgs fn nargs;
-     todo ← pushArgsAux info.paramInfo (nargs-1) e todo;
-     pure (k, todo)
-   };
-   match fn with
-   | Expr.lit v _       => pure (Key.lit v, todo)
-   | Expr.const c _ _   => let nargs := e.getAppNumArgs; push (Key.const c nargs) nargs
-   | Expr.fvar fvarId _ => let nargs := e.getAppNumArgs; push (Key.fvar fvarId nargs) nargs
-   | Expr.mvar mvarId _ =>
-     if mvarId == tmpMVarId then
-       -- We use `tmp to mark implicit arguments and proofs
-       pure (Key.star, todo)
-     else condM (isReadOnlyOrSyntheticExprMVar mvarId)
-       (pure (Key.other, todo))
-       (pure (Key.star, todo))
-   | _                  => pure (Key.other, todo)
+private def pushArgs (todo : Array Expr) (e : Expr) : MetaM (Key × Array Expr) := do
+e ← whnfEta e;
+let fn := e.getAppFn;
+let push (k : Key) (nargs : Nat) : MetaM (Key × Array Expr) := do {
+  info ← getFunInfoNArgs fn nargs;
+  todo ← pushArgsAux info.paramInfo (nargs-1) e todo;
+  pure (k, todo)
+};
+match fn with
+| Expr.lit v _       => pure (Key.lit v, todo)
+| Expr.const c _ _   => let nargs := e.getAppNumArgs; push (Key.const c nargs) nargs
+| Expr.fvar fvarId _ => let nargs := e.getAppNumArgs; push (Key.fvar fvarId nargs) nargs
+| Expr.mvar mvarId _ =>
+  if mvarId == tmpMVarId then
+    -- We use `tmp to mark implicit arguments and proofs
+    pure (Key.star, todo)
+  else condM (isReadOnlyOrSyntheticExprMVar mvarId)
+    (pure (Key.other, todo))
+    (pure (Key.star, todo))
+| _                  => pure (Key.other, todo)
 
 partial def mkPathAux : Array Expr → Array Key → MetaM (Array Key)
 | todo, keys =>
@@ -224,9 +224,9 @@ else
     let c := insertAux keys v 1 c;
     { root := d.root.insert k c }
 
-def insert {α} [HasBeq α] (d : DiscrTree α) (e : Expr) (v : α) : MetaM (DiscrTree α) :=
-do keys ← mkPath e;
-   pure $ d.insertCore keys v
+def insert {α} [HasBeq α] (d : DiscrTree α) (e : Expr) (v : α) : MetaM (DiscrTree α) := do
+keys ← mkPath e;
+pure $ d.insertCore keys v
 
 partial def Trie.format {α} [HasFormat α] : Trie α → Format
 | Trie.node vs cs => Format.group $ Format.paren $
@@ -244,18 +244,18 @@ Format.group r
 
 instance DiscrTree.hasFormat {α} [HasFormat α] : HasFormat (DiscrTree α) := ⟨format⟩
 
-private def getKeyArgs (e : Expr) (isMatch? : Bool) : MetaM (Key × Array Expr) :=
-do e ← whnfEta e;
-   match e.getAppFn with
-   | Expr.lit v _       => pure (Key.lit v, #[])
-   | Expr.const c _ _   => let nargs := e.getAppNumArgs; pure (Key.const c nargs, e.getAppRevArgs)
-   | Expr.fvar fvarId _ => let nargs := e.getAppNumArgs; pure (Key.fvar fvarId nargs, e.getAppRevArgs)
-   | Expr.mvar mvarId _ =>
-     if isMatch? then pure (Key.other, #[])
-     else condM (isReadOnlyOrSyntheticExprMVar mvarId)
-       (pure (Key.other, #[]))
-       (pure (Key.star, #[]))
-   | _                  => pure (Key.other, #[])
+private def getKeyArgs (e : Expr) (isMatch? : Bool) : MetaM (Key × Array Expr) := do
+e ← whnfEta e;
+match e.getAppFn with
+| Expr.lit v _       => pure (Key.lit v, #[])
+| Expr.const c _ _   => let nargs := e.getAppNumArgs; pure (Key.const c nargs, e.getAppRevArgs)
+| Expr.fvar fvarId _ => let nargs := e.getAppNumArgs; pure (Key.fvar fvarId nargs, e.getAppRevArgs)
+| Expr.mvar mvarId _ =>
+  if isMatch? then pure (Key.other, #[])
+  else condM (isReadOnlyOrSyntheticExprMVar mvarId)
+    (pure (Key.other, #[]))
+    (pure (Key.star, #[]))
+| _                  => pure (Key.other, #[])
 
 private abbrev getMatchKeyArgs (e : Expr) : MetaM (Key × Array Expr) :=
 getKeyArgs e true

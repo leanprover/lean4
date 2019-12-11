@@ -150,9 +150,9 @@ def isDir : String → m Bool := Prim.liftIO ∘ Prim.isDir
 def fileExists : String → m Bool := Prim.liftIO ∘ Prim.fileExists
 def appPath : m String := Prim.liftIO Prim.appPath
 
-def appDir : m String :=
-do p ← appPath;
-   realPath (System.FilePath.dirName p)
+def appDir : m String := do
+p ← appPath;
+realPath (System.FilePath.dirName p)
 
 end
 
@@ -168,10 +168,10 @@ def handle.close : handle → m Unit := Prim.liftIO ∘ Prim.handle.flush
 def handle.getLine : handle → m String := Prim.liftIO ∘ Prim.handle.getLine
 
 /-
-def getChar (h : handle) : m Char :=
-do b ← h.read 1,
-   if b.isEmpty then fail "getChar failed"
-   else pure b.mkIterator.curr
+def getChar (h : handle) : m Char := do
+b ← h.read 1,
+if b.isEmpty then fail "getChar failed"
+else pure b.mkIterator.curr
 -/
 
 -- def handle.putChar (h : handle) (c : Char) : m Unit :=
@@ -193,16 +193,11 @@ Prim.liftIO $ Prim.iterate "" $ fun r => do
     c ← h.getLine;
     pure $ Sum.inl (r ++ c) -- continue
 
-def readFile (fname : String) (bin := false) : m String :=
-do h ← handle.mk fname Mode.read bin;
-   r ← h.readToEnd;
-   h.close;
-   pure r
-
--- def writeFile (fname : String) (data : String) (bin := false) : m Unit :=
--- do h ← handle.mk fname Mode.write bin,
---   h.write data,
---   h.close
+def readFile (fname : String) (bin := false) : m String := do
+h ← handle.mk fname Mode.read bin;
+r ← h.readToEnd;
+h.close;
+pure r
 
 end FS
 
@@ -259,26 +254,12 @@ variables {m : Type → Type} [Monad m] [MonadIO m]
 @[inline] def Ref.set {α : Type} (r : Ref α) (a : α) : m Unit := Prim.liftIO (Prim.Ref.set r a)
 @[inline] def Ref.swap {α : Type} (r : Ref α) (a : α) : m α := Prim.liftIO (Prim.Ref.swap r a)
 @[inline] def Ref.reset {α : Type} (r : Ref α) : m Unit := Prim.liftIO (Prim.Ref.reset r)
-@[inline] def Ref.modify {α : Type} (r : Ref α) (f : α → α) : m Unit :=
-do v ← r.get;
-   r.reset;
-   r.set (f v)
+@[inline] def Ref.modify {α : Type} (r : Ref α) (f : α → α) : m Unit := do
+v ← r.get;
+r.reset;
+r.set (f v)
 end
 end IO
-
-/-
-/-- Run the external process specified by `args`.
-
-    The process will run to completion with its output captured by a pipe, and
-    read into `String` which is then returned. -/
-def IO.cmd (args : IO.process.spawnArgs) : IO String :=
-do child ← IO.Proc.spawn { stdout := IO.process.stdio.piped, ..args },
-  s ← IO.FS.readToEnd child.stdout,
-  IO.FS.close child.stdout,
-  exitv ← IO.Proc.wait child,
-  if exitv ≠ 0 then IO.fail $ "process exited with status " ++ repr exitv else pure (),
-  pure s
--/
 
 universe u
 

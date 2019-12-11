@@ -10,76 +10,76 @@ import Init.Lean.Meta.Basic
 namespace Lean
 namespace Meta
 
-private def inferAppType (f : Expr) (args : Array Expr) : MetaM Expr :=
-do fType ← inferType f;
-   (j, fType) ← args.size.foldM
-     (fun i (acc : Nat × Expr) =>
-       let (j, type) := acc;
-       match type with
-       | Expr.forallE _ _ b _ => pure (j, b)
-       | _ => do
-         type ← whnf $ type.instantiateRevRange j i args;
-         match type with
-         | Expr.forallE _ _ b _ => pure (i, b)
-         | _ => throwEx $ Exception.functionExpected (mkAppRange f 0 i args) (args.get! i))
-     (0, fType);
-   pure $ fType.instantiateRevRange j args.size args
+private def inferAppType (f : Expr) (args : Array Expr) : MetaM Expr := do
+fType ← inferType f;
+(j, fType) ← args.size.foldM
+  (fun i (acc : Nat × Expr) =>
+    let (j, type) := acc;
+    match type with
+    | Expr.forallE _ _ b _ => pure (j, b)
+    | _ => do
+      type ← whnf $ type.instantiateRevRange j i args;
+      match type with
+      | Expr.forallE _ _ b _ => pure (i, b)
+      | _ => throwEx $ Exception.functionExpected (mkAppRange f 0 i args) (args.get! i))
+  (0, fType);
+pure $ fType.instantiateRevRange j args.size args
 
-private def inferConstType (c : Name) (lvls : List Level) : MetaM Expr :=
-do env ← getEnv;
-   match env.find c with
-   | some cinfo =>
-     if cinfo.lparams.length == lvls.length then
-       pure $ cinfo.instantiateTypeLevelParams lvls
-     else
-       throwEx $ Exception.incorrectNumOfLevels c lvls
-   | none =>
-     throwEx $ Exception.unknownConst c
+private def inferConstType (c : Name) (lvls : List Level) : MetaM Expr := do
+env ← getEnv;
+match env.find c with
+| some cinfo =>
+  if cinfo.lparams.length == lvls.length then
+    pure $ cinfo.instantiateTypeLevelParams lvls
+  else
+    throwEx $ Exception.incorrectNumOfLevels c lvls
+| none =>
+  throwEx $ Exception.unknownConst c
 
-private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Expr :=
-do let failed : Unit → MetaM Expr := fun _ => throwEx $ Exception.invalidProjection structName idx e;
-   structType ← inferType e;
-   structType ← whnf structType;
-   env ← getEnv;
-   matchConst env structType.getAppFn failed $ fun structInfo structLvls => do
-     match structInfo with
-     | ConstantInfo.inductInfo { nparams := n, ctors := [ctor], .. } =>
-       let structParams := structType.getAppArgs;
-       if n != structParams.size then failed ()
-       else match env.find ctor with
-         | none            => failed ()
-         | some (ctorInfo) => do
-           ctorType ← inferAppType (mkConst ctor structLvls) structParams;
-           ctorType ← idx.foldM
-             (fun i ctorType => do
-               ctorType ← whnf ctorType;
-               match ctorType with
-               | Expr.forallE _ _ body _ =>
-                 if body.hasLooseBVars then
-                   pure $ body.instantiate1 $ mkProj structName i e
-                 else
-                   pure body
-               | _ => failed ())
-             ctorType;
-           ctorType ← whnf ctorType;
-           match ctorType with
-           | Expr.forallE _ d _ _ => pure d
-           | _                    => failed ()
-     | _ => failed ()
+private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Expr := do
+let failed : Unit → MetaM Expr := fun _ => throwEx $ Exception.invalidProjection structName idx e;
+structType ← inferType e;
+structType ← whnf structType;
+env ← getEnv;
+matchConst env structType.getAppFn failed $ fun structInfo structLvls => do
+  match structInfo with
+  | ConstantInfo.inductInfo { nparams := n, ctors := [ctor], .. } =>
+    let structParams := structType.getAppArgs;
+    if n != structParams.size then failed ()
+    else match env.find ctor with
+      | none            => failed ()
+      | some (ctorInfo) => do
+        ctorType ← inferAppType (mkConst ctor structLvls) structParams;
+        ctorType ← idx.foldM
+          (fun i ctorType => do
+            ctorType ← whnf ctorType;
+            match ctorType with
+            | Expr.forallE _ _ body _ =>
+              if body.hasLooseBVars then
+                pure $ body.instantiate1 $ mkProj structName i e
+              else
+                pure body
+            | _ => failed ())
+          ctorType;
+        ctorType ← whnf ctorType;
+        match ctorType with
+        | Expr.forallE _ d _ _ => pure d
+        | _                    => failed ()
+  | _ => failed ()
 
-def getLevel (type : Expr) : MetaM Level :=
-do typeType ← inferType type;
-   typeType ← whnfUsingDefault typeType;
-   match typeType with
-   | Expr.sort lvl _    => pure lvl
-   | Expr.mvar mvarId _ =>
-     condM (isReadOnlyOrSyntheticExprMVar mvarId)
-       (throwEx $ Exception.typeExpected type)
-       (do levelMVarId ← mkFreshId;
-           let lvl := mkLevelMVar levelMVarId;
-           assignExprMVar mvarId (mkSort lvl);
-           pure lvl)
-   | _ => throwEx $ Exception.typeExpected type
+def getLevel (type : Expr) : MetaM Level := do
+typeType ← inferType type;
+typeType ← whnfUsingDefault typeType;
+match typeType with
+| Expr.sort lvl _    => pure lvl
+| Expr.mvar mvarId _ =>
+  condM (isReadOnlyOrSyntheticExprMVar mvarId)
+    (throwEx $ Exception.typeExpected type)
+    (do levelMVarId ← mkFreshId;
+        let lvl := mkLevelMVar levelMVarId;
+        assignExprMVar mvarId (mkSort lvl);
+        pure lvl)
+| _ => throwEx $ Exception.typeExpected type
 
 private def inferForallType (e : Expr) : MetaM Expr :=
 forallTelescope e $ fun xs e => do
@@ -104,26 +104,26 @@ savingCache $ do
   adaptReader (fun (ctx : Context) => { lctx := ctx.lctx.mkLocalDecl fvarId name type bi, .. ctx }) $
     x (mkFVar fvarId)
 
-private def inferMVarType (mvarId : MVarId) : MetaM Expr :=
-do mctx ← getMCtx;
-   match mctx.findDecl mvarId with
-   | some d => pure d.type
-   | none   => throwEx $ Exception.unknownExprMVar mvarId
+private def inferMVarType (mvarId : MVarId) : MetaM Expr := do
+mctx ← getMCtx;
+match mctx.findDecl mvarId with
+| some d => pure d.type
+| none   => throwEx $ Exception.unknownExprMVar mvarId
 
-private def inferFVarType (fvarId : FVarId) : MetaM Expr :=
-do lctx ← getLCtx;
-   match lctx.find fvarId with
-   | some d => pure d.type
-   | none   => throwEx $ Exception.unknownFVar fvarId
+private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
+lctx ← getLCtx;
+match lctx.find fvarId with
+| some d => pure d.type
+| none   => throwEx $ Exception.unknownFVar fvarId
 
-@[inline] private def checkInferTypeCache (e : Expr) (inferType : MetaM Expr) : MetaM Expr :=
-do s ← get;
-   match s.cache.inferType.find e with
-   | some type => pure type
-   | none => do
-     type ← inferType;
-     modify $ fun s => { cache := { inferType := s.cache.inferType.insert e type, .. s.cache }, .. s };
-     pure type
+@[inline] private def checkInferTypeCache (e : Expr) (inferType : MetaM Expr) : MetaM Expr := do
+s ← get;
+match s.cache.inferType.find e with
+| some type => pure type
+| none => do
+  type ← inferType;
+  modify $ fun s => { cache := { inferType := s.cache.inferType.insert e type, .. s.cache }, .. s };
+  pure type
 
 private partial def inferTypeAux : Expr → MetaM Expr
 | Expr.const c lvls _      => inferConstType c lvls
@@ -207,18 +207,18 @@ partial def isPropQuick : Expr → MetaM LBool
      to decide whether is a proposition or not. We return `false` in this
      case. We considered using `LBool` and retuning `LBool.undef`, but
      we have no applications for it. -/
-def isProp (e : Expr) : MetaM Bool :=
-do r ← isPropQuick e;
-   match r with
-   | LBool.true  => pure true
-   | LBool.false => pure false
-   | LBool.undef => do
-     -- dbgTrace ("isPropQuick failed " ++ toString e);
-     type ← inferType e;
-     type ← whnfUsingDefault type;
-     match type with
-     | Expr.sort u _ => do u ← instantiateLevelMVars u; pure $ isAlwaysZero u
-     | _             => pure false
+def isProp (e : Expr) : MetaM Bool := do
+r ← isPropQuick e;
+match r with
+| LBool.true  => pure true
+| LBool.false => pure false
+| LBool.undef => do
+  -- dbgTrace ("isPropQuick failed " ++ toString e);
+  type ← inferType e;
+  type ← whnfUsingDefault type;
+  match type with
+  | Expr.sort u _ => do u ← instantiateLevelMVars u; pure $ isAlwaysZero u
+  | _             => pure false
 
 /--
   `isArrowProposition type n` is an "approximate" predicate which returns `LBool.true`
@@ -263,14 +263,14 @@ partial def isProofQuick : Expr → MetaM LBool
 | Expr.app f _ _        => isProofQuickApp isProofQuick f 1
 | Expr.localE _ _ _ _   => unreachable!
 
-def isProof (e : Expr) : MetaM Bool :=
-do r ← isProofQuick e;
-   match r with
-   | LBool.true  => pure true
-   | LBool.false => pure false
-   | LBool.undef => do
-     type ← inferType e;
-     isProp type
+def isProof (e : Expr) : MetaM Bool := do
+r ← isProofQuick e;
+match r with
+| LBool.true  => pure true
+| LBool.false => pure false
+| LBool.undef => do
+  type ← inferType e;
+  isProp type
 
 /--
   `isArrowType type n` is an "approximate" predicate which returns `LBool.true`
@@ -316,17 +316,17 @@ partial def isTypeQuick : Expr → MetaM LBool
 | Expr.app f _ _        => isTypeQuickApp f 1
 | Expr.localE _ _ _ _   => unreachable!
 
-def isType (e : Expr) : MetaM Bool :=
-do r ← isTypeQuick e;
-   match r with
-   | LBool.true  => pure true
-   | LBool.false => pure false
-   | LBool.undef => do
-     type ← inferType e;
-     type ← whnfUsingDefault type;
-     match type with
-     | Expr.sort _ _ => pure true
-     | _             => pure false
+def isType (e : Expr) : MetaM Bool := do
+r ← isTypeQuick e;
+match r with
+| LBool.true  => pure true
+| LBool.false => pure false
+| LBool.undef => do
+  type ← inferType e;
+  type ← whnfUsingDefault type;
+  match type with
+  | Expr.sort _ _ => pure true
+  | _             => pure false
 
 end Meta
 end Lean

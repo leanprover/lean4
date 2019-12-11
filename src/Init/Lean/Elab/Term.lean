@@ -472,43 +472,47 @@ def consumeDefaultParams (ref : Syntax) (expectedType? : Option Expr) : Expr →
 
 private partial def elabAppArgsAux (ref : Syntax) (args : Array Syntax) (expectedType? : Option Expr) (explicit : Bool)
     : Nat → Array NamedArg → Expr → Expr → TermElabM Expr
-| argIdx, namedArgs, eType, e =>
-  if namedArgs.isEmpty && argIdx == args.size then
+| argIdx, namedArgs, eType, e => do
+  let finalize : Unit → TermElabM Expr := fun _ =>
     -- all user explicit arguments have been consumed
     if explicit then
-       ensureHasType ref expectedType? eType e
+      ensureHasType ref expectedType? eType e
     else
-       consumeDefaultParams ref expectedType? eType e
-  else do
-    eType ← whnfForall eType;
-    match eType with
-    | Expr.forallE n d b c =>
-      match namedArgs.findIdx? (fun namedArg => namedArg.name == n) with
-      | some idx => do
-        let arg       := namedArgs.get! idx;
-        let namedArgs := namedArgs.eraseIdx idx;
-        a ← elabTerm arg.val d;
-        elabAppArgsAux argIdx namedArgs (b.instantiate1 a) (mkApp e a)
-      | none =>
-        let processExplictArg : Unit → TermElabM Expr := fun _ => do {
-          if h : argIdx < args.size then do
-            a ← elabTerm (args.get ⟨argIdx, h⟩) d;
-            elabAppArgsAux (argIdx + 1) namedArgs (b.instantiate1 a) (mkApp e a)
-          else
-            logErrorAndThrow ref ("explicit parameter '" ++ n ++ "' is missing, unused named arguments " ++ toString (namedArgs.map $ fun narg => narg.name))
-        };
-        if explicit then
+      consumeDefaultParams ref expectedType? eType e;
+  eType ← whnfForall eType;
+  match eType with
+  | Expr.forallE n d b c =>
+    match namedArgs.findIdx? (fun namedArg => namedArg.name == n) with
+    | some idx => do
+      let arg       := namedArgs.get! idx;
+      let namedArgs := namedArgs.eraseIdx idx;
+      a ← elabTerm arg.val d;
+      elabAppArgsAux argIdx namedArgs (b.instantiate1 a) (mkApp e a)
+    | none =>
+      let processExplictArg : Unit → TermElabM Expr := fun _ => do {
+        if h : argIdx < args.size then do
+          a ← elabTerm (args.get ⟨argIdx, h⟩) d;
+          elabAppArgsAux (argIdx + 1) namedArgs (b.instantiate1 a) (mkApp e a)
+        else if namedArgs.isEmpty then
+          finalize ()
+        else
+          logErrorAndThrow ref ("explicit parameter '" ++ n ++ "' is missing, unused named arguments " ++ toString (namedArgs.map $ fun narg => narg.name))
+      };
+      if explicit then
+        processExplictArg ()
+      else match c.binderInfo with
+        | BinderInfo.implicit => do
+          a ← mkFreshExprMVar d;
+          elabAppArgsAux argIdx namedArgs (b.instantiate1 a) (mkApp e a)
+        | BinderInfo.instImplicit =>
+          -- TODO
+          pure e
+        | _ =>
           processExplictArg ()
-        else match c.binderInfo with
-          | BinderInfo.implicit => do
-            a ← mkFreshExprMVar d;
-            elabAppArgsAux argIdx namedArgs (b.instantiate1 a) (mkApp e a)
-          | BinderInfo.instImplicit =>
-            -- TODO
-            pure e
-          | _ =>
-            processExplictArg ()
-    | _ =>
+  | _ =>
+    if namedArgs.isEmpty && argIdx == args.size then
+      finalize ()
+    else
       -- TODO: try `HasCoeToFun`
       logErrorAndThrow ref "too many arguments"
 

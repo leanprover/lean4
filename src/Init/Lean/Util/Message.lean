@@ -92,11 +92,6 @@ ofList msgs.toList
 
 end MessageData
 
-def KernelException.toMessageData (e : KernelException) : MessageData :=
-match e with
-| KernelException.other msg => msg
-| _                         => "kernel exception" -- TODO
-
 structure Message :=
 (fileName : String)
 (pos      : Position)

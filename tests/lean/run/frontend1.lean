@@ -13,9 +13,7 @@ do env  ← MetaIO.getEnv;
 
 def M := IO Unit
 
-#exit
-
-set_option trace.Elab.app true
+-- set_option trace.Elab.app true
 
 -- #eval run "#check id (α := Int) 20"
 
@@ -31,11 +29,12 @@ set_option trace.Elab.app true
  #check Prop
  #check p
  #check α
- -- #check Nat.succ
- -- #check Nat.add
+ #check Nat.succ
+ #check Nat.add
+ #check id
  #check forall (α : Type), α → α
  #check (α : Type) → α → α
- -- #check {α : Type} → {β : Type} → M → (α → β) → α → β
+ #check {α : Type} → {β : Type} → M → (α → β) → α → β
  #check ()
  #check run
  end"

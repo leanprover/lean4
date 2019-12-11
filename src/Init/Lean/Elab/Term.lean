@@ -549,6 +549,9 @@ fun stx expectedType? => elabAppAux stx.val #[] #[] expectedType?
 @[builtinTermElab explicit] def elabExplicit : TermElab :=
 fun stx expectedType? => elabAppAux stx.val #[] #[] expectedType?
 
+@[builtinTermElab choice] def elabChoice : TermElab :=
+fun stx expectedType? => elabAppAux stx.val #[] #[] expectedType?
+
 end Term
 
 @[init] private def regTraceClasses : IO Unit := do

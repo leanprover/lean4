@@ -1,0 +1,4 @@
+"(Term.id `Nat.one (null))"
+"(Term.add (numLit \"1\") \"+\" (numLit \"1\"))"
+"(Term.id `Nat.one (null))"
+"(Term.app (Term.id `f (null)) (Term.id `Nat.one (null)))"

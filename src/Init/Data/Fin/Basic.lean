@@ -81,7 +81,7 @@ instance : HasSub (Fin n)         := ⟨Fin.sub⟩
 instance : HasMul (Fin n)         := ⟨Fin.mul⟩
 instance : HasMod (Fin n)         := ⟨Fin.mod⟩
 instance : HasDiv (Fin n)         := ⟨Fin.div⟩
-instance : HasModn (Fin n)        := ⟨Fin.modn⟩
+instance : HasModN (Fin n)        := ⟨Fin.modn⟩
 
 theorem eqOfVeq : ∀ {i j : Fin n}, (val i) = (val j) → i = j
 | ⟨iv, ilt₁⟩, ⟨.(iv), ilt₂⟩, rfl => rfl

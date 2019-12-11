@@ -340,7 +340,7 @@ class HasNeg      (α : Type u) := (neg : α → α)
 class HasSub      (α : Type u) := (sub : α → α → α)
 class HasDiv      (α : Type u) := (div : α → α → α)
 class HasMod      (α : Type u) := (mod : α → α → α)
-class HasModn     (α : Type u) := (modn : α → Nat → α)
+class HasModN     (α : Type u) := (modn : α → Nat → α)
 class HasLessEq   (α : Type u) := (LessEq : α → α → Prop)
 class HasLess     (α : Type u) := (Less : α → α → Prop)
 class HasBeq      (α : Type u) := (beq : α → α → Bool)
@@ -361,7 +361,7 @@ infix `*`        := HasMul.mul
 infix `-`        := HasSub.sub
 infix `/`        := HasDiv.div
 infix `%`        := HasMod.mod
-infix `%ₙ`       := HasModn.modn
+infix `%ₙ`       := HasModN.modn
 prefix `-`       := HasNeg.neg
 infix `<=`       := HasLessEq.LessEq
 infix `≤`        := HasLessEq.LessEq

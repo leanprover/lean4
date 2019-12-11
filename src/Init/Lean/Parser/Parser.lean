@@ -1377,7 +1377,7 @@ syntaxNodeKindSetRef.modify pinfo.updateKindSet
 
 def isValidSyntaxNodeKind (k : SyntaxNodeKind) : IO Bool := do
 s ← syntaxNodeKindSetRef.get;
-pure $ s.contains k
+pure $ s.contains k || k == `choice
 
 def getSyntaxNodeKinds : IO (List SyntaxNodeKind) := do
 s ← syntaxNodeKindSetRef.get;

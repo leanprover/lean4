@@ -186,6 +186,10 @@ def whnf (e : Expr) : MetaM Expr := do
 env ← getEnv;
 (metaExt.getState env).whnf e
 
+def whnfForall (e : Expr) : MetaM Expr := do
+e' ← whnf e;
+if e'.isForall then pure e' else pure e
+
 def inferType (e : Expr) : MetaM Expr := do
 env ← getEnv;
 (metaExt.getState env).inferType e

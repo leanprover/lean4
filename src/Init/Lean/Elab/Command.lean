@@ -357,6 +357,8 @@ fun n => do
   runTermElabM $ do
     e    ← Term.elabTerm term none;
     type ← Term.inferType e;
+    e    ← Term.instantiateMVars e;
+    type ← Term.instantiateMVars type;
     logInfo n.val (e ++ " : " ++ type);
     pure ()
 

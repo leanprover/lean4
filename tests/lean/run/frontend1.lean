@@ -24,9 +24,13 @@ def M := IO Unit
  variable (p q : Prop)
  variable (_ b : _)
  variable {α : Type}
- -- variable [Monad m]
+ variable {m : Type → Type}
+ variable [Monad m]
+ #check m
  #check Type
  #check Prop
+ #check id Nat
+ #check @id Nat
  #check p
  #check α
  #check Nat.succ

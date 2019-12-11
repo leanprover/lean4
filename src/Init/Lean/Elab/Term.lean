@@ -132,11 +132,15 @@ _root_.dbgTrace (toString a) $ fun _ => pure ()
 def isDefEq (t s : Expr) : TermElabM Bool := liftMetaM $ Meta.isDefEq t s
 def inferType (e : Expr) : TermElabM Expr := liftMetaM $ Meta.inferType e
 def whnf (e : Expr) : TermElabM Expr := liftMetaM $ Meta.whnf e
+def whnfForall (e : Expr) : TermElabM Expr := liftMetaM $ Meta.whnfForall e
+def instantiateMVars (e : Expr) : TermElabM Expr := liftMetaM $ Meta.instantiateMVars e
 def isClass (t : Expr) : TermElabM (Option Name) := liftMetaM $ Meta.isClass t
 def mkFreshLevelMVar : TermElabM Level := liftMetaM $ Meta.mkFreshLevelMVar
-def mkFreshExprMVar (type : Expr) (userName? : Name := Name.anonymous) (synthetic : Bool := false) : TermElabM Expr :=
-liftMetaM $ Meta.mkFreshExprMVar type userName? synthetic
 def mkForall (xs : Array Expr) (e : Expr) : TermElabM Expr := liftMetaM $ Meta.mkForall xs e
+def mkFreshExprMVar (type? : Option Expr := none) (synthetic : Bool := false) (userName? : Name := Name.anonymous) : TermElabM Expr :=
+match type? with
+| some type => liftMetaM $ Meta.mkFreshExprMVar type userName? synthetic
+| none      => liftMetaM $ do u ← Meta.mkFreshLevelMVar; Meta.mkFreshExprMVar (mkSort u) userName? synthetic
 
 @[inline] def withoutPostponing {α} (x : TermElabM α) : TermElabM α :=
 adaptReader (fun (ctx : Context) => { mayPostpone := false, .. ctx }) x
@@ -181,10 +185,7 @@ fun _ _ => pure $ mkSort levelZero
 fun _ _ => pure $ mkSort levelOne
 
 @[builtinTermElab «hole»] def elabHole : TermElab :=
-fun _ expectedType? =>
-  match expectedType? with
-  | some expectedType => mkFreshExprMVar expectedType
-  | none              => do u ← mkFreshLevelMVar; mkFreshExprMVar (mkSort u)
+fun _ expectedType? => mkFreshExprMVar expectedType?
 
 @[builtinTermElab stxQuot] def elabStxQuot : TermElab :=
 fun stx expectedType? => do
@@ -443,17 +444,76 @@ match result? with
   else
     process preresolved
 
-private def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Syntax) (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr := do
+def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (eType : Expr) (e : Expr) : TermElabM Expr :=
+match expectedType? with
+| none              => pure e
+| some expectedType =>
+  condM (isDefEq eType expectedType)
+    (pure e)
+    (do -- TODO try `HasCoe`
+        let msg : MessageData :=
+          "type mismatch" ++ indentExpr e
+          ++ Format.line ++ "has type" ++ indentExpr eType
+          ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType;
+        logErrorAndThrow ref msg)
+
+/-- Consume parameters of the form `(x : A := val)` and `(x : A . tactic)` -/
+def consumeDefaultParams (ref : Syntax) (expectedType? : Option Expr) : Expr → Expr → TermElabM Expr
+| eType, e =>
+  -- TODO
+  ensureHasType ref expectedType? eType e
+
+private partial def elabAppArgsAux (ref : Syntax) (args : Array Syntax) (expectedType? : Option Expr) (explicit : Bool)
+    : Nat → Array NamedArg → Expr → Expr → TermElabM Expr
+| argIdx, namedArgs, eType, e =>
+  if namedArgs.isEmpty && argIdx == args.size then
+    -- all user explicit arguments have been consumed
+    if explicit then
+       ensureHasType ref expectedType? eType e
+    else
+       consumeDefaultParams ref expectedType? eType e
+  else do
+    eType ← whnfForall eType;
+    match eType with
+    | Expr.forallE n d b c =>
+      match namedArgs.findIdx? (fun namedArg => namedArg.name == n) with
+      | some namedArgIdx =>
+        -- TODO
+        pure e
+      | none =>
+        let processExplictArg : Unit → TermElabM Expr := fun _ => do {
+          if h : argIdx < args.size then do
+            a ← elabTerm (args.get ⟨argIdx, h⟩) d;
+            elabAppArgsAux (argIdx + 1) namedArgs (b.instantiate1 a) (mkApp e a)
+          else
+            logErrorAndThrow ref ("explicit parameter '" ++ n ++ "' is missing, unused named arguments " ++ toString (namedArgs.map $ fun narg => narg.name))
+        };
+        if explicit then
+          processExplictArg ()
+        else match c.binderInfo with
+          | BinderInfo.implicit => do
+            a ← mkFreshExprMVar d;
+            elabAppArgsAux argIdx namedArgs (b.instantiate1 a) (mkApp e a)
+          | BinderInfo.instImplicit =>
+            -- TODO
+            pure e
+          | _ =>
+            processExplictArg ()
+    | _ =>
+      -- TODO: try `HasCoeToFun`
+      logErrorAndThrow ref "too many arguments"
+
+private def elabAppArgs (ref : Syntax) (f : Expr) (namedArgs : Array NamedArg) (args : Array Syntax)
+    (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr := do
 fType ← inferType f;
--- TODO
-pure f
+elabAppArgsAux ref args expectedType? explicit 0 namedArgs fType f
 
-private def elabAppProjs (f : Expr) (projs : List String) (namedArgs : Array NamedArg) (args : Array Syntax) (expectedType? : Option Expr) (explicit : Bool)
-    : TermElabM Expr :=
+private def elabAppProjs (ref : Syntax) (f : Expr) (projs : List String) (namedArgs : Array NamedArg) (args : Array Syntax)
+    (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr :=
 -- TODO
-elabAppArgs f namedArgs args expectedType? explicit
+elabAppArgs ref f namedArgs args expectedType? explicit
 
-private partial def elabAppFn : Syntax → Array NamedArg → Array Syntax → Option Expr → Bool → Array TermElabResult → TermElabM (Array TermElabResult)
+private partial def elabAppFn (ref : Syntax) : Syntax → Array NamedArg → Array Syntax → Option Expr → Bool → Array TermElabResult → TermElabM (Array TermElabResult)
 | f, namedArgs, args, expectedType?, explicit, acc =>
   let k := f.getKind;
   if k == `Lean.Parser.Term.explicit then
@@ -469,13 +529,13 @@ private partial def elabAppFn : Syntax → Array NamedArg → Array Syntax → O
       fprojs ← resolveName n preresolved us f;
       fprojs.foldlM
         (fun acc ⟨f, projs⟩ => do
-          s ← observing $ elabAppProjs f projs namedArgs args expectedType? explicit;
+          s ← observing $ elabAppProjs ref f projs namedArgs args expectedType? explicit;
           pure $ acc.push s)
         acc
     | _ => unreachable!
   else do
     f ← withoutPostponing $ elabTerm f none;
-    s ← observing $ elabAppArgs f namedArgs args expectedType? explicit;
+    s ← observing $ elabAppArgs ref f namedArgs args expectedType? explicit;
     pure $ acc.push s
 
 private def getSuccess (candidates : Array TermElabResult) : Array TermElabResult :=
@@ -511,13 +571,13 @@ private def mergeFailures {α} (failures : Array TermElabResult) (stx : Syntax) 
 msgs ← failures.mapM $ fun failure => getFailureMessage failure stx;
 logErrorAndThrow stx ("overloaded, errors " ++ MessageData.ofArray msgs)
 
-private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+private def elabAppAux (ref : Syntax) (f : Syntax) (namedArgs : Array NamedArg) (args : Array Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
 /- TODO: if `f` contains `choice` or overloaded symbols, `mayPostpone == true`, and `expectedType? == some ?m` where `?m` is not assigned,
    then we should postpone until `?m` is assigned.
    Another (more expensive) option is: execute, and if successes > 1, `mayPostpone == true`, and `expectedType? == some ?m` where `?m` is not assigned,
    then we postpone `elabAppAux`. It is more expensive because we would have to re-elaborate the whole thing after we assign `?m`.
    We **can't** continue from `TermElabResult` since they contain a snapshot of the state, and state has changed. -/
-candidates ← elabAppFn f namedArgs args expectedType? false #[];
+candidates ← elabAppFn ref f namedArgs args expectedType? false #[];
 if candidates.size == 1 then
   applyResult $ candidates.get! 0
 else
@@ -559,16 +619,11 @@ pure (f, namedArgs, args)
 @[builtinTermElab app] def elabApp : TermElab :=
 fun stx expectedType? => do
   (f, namedArgs, args) ← expandApp stx.val;
-  elabAppAux f namedArgs args expectedType?
+  elabAppAux stx.val f namedArgs args expectedType?
 
-@[builtinTermElab «id»] def elabId : TermElab :=
-fun stx expectedType? => elabAppAux stx.val #[] #[] expectedType?
-
-@[builtinTermElab explicit] def elabExplicit : TermElab :=
-fun stx expectedType? => elabAppAux stx.val #[] #[] expectedType?
-
-@[builtinTermElab choice] def elabChoice : TermElab :=
-fun stx expectedType? => elabAppAux stx.val #[] #[] expectedType?
+@[builtinTermElab «id»] def elabId : TermElab := elabApp
+@[builtinTermElab explicit] def elabExplicit : TermElab := elabApp
+@[builtinTermElab choice] def elabChoice : TermElab := elabApp
 
 end Term
 

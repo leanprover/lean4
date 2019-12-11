@@ -55,7 +55,7 @@ $(OUT)/libleanstdlib.a: $(addprefix $(OUT)/,$(SRCS:.lean=.o))
 update-stage0:
 	-rm -r $(STAGE0_DIR)
 	-mkdir -p $(STAGE0_DIR)/stdlib
-	cp -R $(C_OUT) $(STAGE0_DIR)/stdlib/Init
+	for f in $(SRCS:.lean=.c); do mkdir -p `dirname $(STAGE0_DIR)/stdlib/Init/$$f`; cp $(C_OUT)/$$f $(STAGE0_DIR)/stdlib/Init/$$f; done
 	echo "add_library (stage0 OBJECT $(CS_CORE))" > $(STAGE0_DIR)/stdlib/CMakeLists.txt
 # don't copy untracked crap
 	cd ..; git ls-files -z . | xargs -0 -I '{}' bash -c 'mkdir -p `dirname ../stage0/src/{}` && cp {} ../stage0/src/{}'

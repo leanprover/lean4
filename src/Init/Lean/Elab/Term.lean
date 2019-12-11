@@ -384,6 +384,11 @@ structure NamedArg :=
 instance NamedArg.hasToString : HasToString NamedArg :=
 ⟨fun s => "(" ++ toString s.name ++ " := " ++ toString s.val ++ ")"⟩
 
+def addNamedArg (namedArgs : Array NamedArg) (namedArg : NamedArg) (ref : Syntax) : TermElabM (Array NamedArg) := do
+when (namedArgs.any $ fun namedArg' => namedArg.name == namedArg'.name) $
+  logErrorAndThrow ref ("argument '" ++ toString namedArg.name ++ "' was already set");
+pure $ namedArgs.push namedArg
+
 private def resolveLocalNameAux (lctx : LocalContext) : Name → List String → Option (Expr × List String)
 | n@(Name.str pre s _), projs =>
   match lctx.findFromUserName n with
@@ -438,7 +443,8 @@ match result? with
   else
     process preresolved
 
-private def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Syntax) (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr :=
+private def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Syntax) (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr := do
+fType ← inferType f;
 -- TODO
 pure f
 
@@ -527,25 +533,32 @@ else
   else
     mergeFailures candidates f
 
-private partial def expandAppAux : Syntax → Array NamedArg → Array Syntax → Syntax × Array NamedArg × Array Syntax
-| stx, namedArgs, args => stx.ifNodeKind `Lean.Parser.Term.app
+private partial def expandAppAux : Syntax → Array Syntax → Syntax × Array Syntax
+| stx, args => stx.ifNodeKind `Lean.Parser.Term.app
   (fun node =>
     let fn  := node.getArg 0;
     let arg := node.getArg 1;
-    arg.ifNodeKind `Lean.Parser.Term.namedArgument
-      (fun argNode =>
-        -- `(` ident `:=` term `)`
-        expandAppAux fn (namedArgs.push { name := argNode.getIdAt 1, val := argNode.getArg 3, stx := arg }) args)
-      (fun _ =>
-        expandAppAux fn namedArgs (args.push arg)))
-  (fun _ => (stx, namedArgs, args))
+    expandAppAux fn (args.push arg))
+  (fun _ => (stx, args.reverse))
 
-private def expandApp (stx : Syntax) : Syntax × Array NamedArg × Array Syntax :=
-expandAppAux stx #[] #[]
+private def expandApp (stx : Syntax) : TermElabM (Syntax × Array NamedArg × Array Syntax) := do
+let (f, args) := expandAppAux stx #[];
+(namedArgs, args) ← args.foldlM
+  (fun (acc : Array NamedArg × Array Syntax) arg =>
+    let (namedArgs, args) := acc;
+    arg.ifNodeKind `Lean.Parser.Term.namedArgument
+      (fun argNode => do
+        -- `(` ident `:=` term `)`
+        namedArgs ← addNamedArg acc.1 { name := argNode.getIdAt 1, val := argNode.getArg 3, stx := arg } arg;
+        pure (namedArgs, args))
+      (fun _ =>
+        pure (namedArgs, args.push arg)))
+  (#[], #[]);
+pure (f, namedArgs, args)
 
 @[builtinTermElab app] def elabApp : TermElab :=
-fun stx expectedType? =>
-  let (f, namedArgs, args) := expandApp stx.val;
+fun stx expectedType? => do
+  (f, namedArgs, args) ← expandApp stx.val;
   elabAppAux f namedArgs args expectedType?
 
 @[builtinTermElab «id»] def elabId : TermElab :=

@@ -327,8 +327,9 @@ expr update_let(expr const & e, expr const & new_type, expr const & new_value, e
 
 extern "C" object * lean_expr_update_mdata(obj_arg e, obj_arg new_expr) {
     if (mdata_expr(TO_REF(expr, e)).raw() != new_expr) {
+        object * r = lean_expr_mk_mdata(mdata_data(TO_REF(expr, e)).to_obj_arg(), new_expr);
         lean_dec_ref(e);
-        return lean_expr_mk_mdata(mdata_data(TO_REF(expr, e)).to_obj_arg(), new_expr);
+        return r;
     } else {
         lean_dec_ref(new_expr);
         return e;
@@ -337,8 +338,9 @@ extern "C" object * lean_expr_update_mdata(obj_arg e, obj_arg new_expr) {
 
 extern "C" object * lean_expr_update_const(obj_arg e, obj_arg new_levels) {
     if (const_levels(TO_REF(expr, e)).raw() != new_levels) {
+        object * r = lean_expr_mk_const(const_name(TO_REF(expr, e)).to_obj_arg(), new_levels);
         lean_dec_ref(e);
-        return lean_expr_mk_const(const_name(TO_REF(expr, e)).to_obj_arg(), new_levels);
+        return r;
     } else {
         lean_dec(new_levels);
         return e;
@@ -347,8 +349,9 @@ extern "C" object * lean_expr_update_const(obj_arg e, obj_arg new_levels) {
 
 extern "C" object * lean_expr_update_sort(obj_arg e, obj_arg new_level) {
     if (sort_level(TO_REF(expr, e)).raw() != new_level) {
+        object * r = lean_expr_mk_sort(new_level);
         lean_dec_ref(e);
-        return lean_expr_mk_sort(new_level);
+        return r;
     } else {
         lean_dec(new_level);
         return e;
@@ -357,8 +360,9 @@ extern "C" object * lean_expr_update_sort(obj_arg e, obj_arg new_level) {
 
 extern "C" object * lean_expr_update_proj(obj_arg e, obj_arg new_expr) {
     if (proj_expr(TO_REF(expr, e)).raw() != new_expr) {
+        object * r = lean_expr_mk_proj(proj_sname(TO_REF(expr, e)).to_obj_arg(), proj_idx(TO_REF(expr, e)).to_obj_arg(), new_expr);
         lean_dec_ref(e);
-        return lean_expr_mk_proj(proj_sname(TO_REF(expr, e)).to_obj_arg(), proj_idx(TO_REF(expr, e)).to_obj_arg(), new_expr);
+        return r;
     } else {
         lean_dec_ref(new_expr);
         return e;
@@ -367,8 +371,9 @@ extern "C" object * lean_expr_update_proj(obj_arg e, obj_arg new_expr) {
 
 extern "C" object * lean_expr_update_app(obj_arg e, obj_arg new_fn, obj_arg new_arg) {
     if (app_fn(TO_REF(expr, e)).raw() != new_fn || app_arg(TO_REF(expr, e)).raw() != new_arg) {
+        object * r = lean_expr_mk_app(new_fn, new_arg);
         lean_dec_ref(e);
-        return lean_expr_mk_app(new_fn, new_arg);
+        return r;
     } else {
         lean_dec_ref(new_fn); lean_dec_ref(new_arg);
         return e;
@@ -378,8 +383,9 @@ extern "C" object * lean_expr_update_app(obj_arg e, obj_arg new_fn, obj_arg new_
 extern "C" object * lean_expr_update_forall(obj_arg e, uint8 new_binfo, obj_arg new_domain, obj_arg new_body) {
     if (binding_domain(TO_REF(expr, e)).raw() != new_domain || binding_body(TO_REF(expr, e)).raw() != new_body ||
         binding_info(TO_REF(expr, e)) != static_cast<binder_info>(new_binfo)) {
+        object * r = lean_expr_mk_forall(binding_name(TO_REF(expr, e)).to_obj_arg(), new_domain, new_body, new_binfo);
         lean_dec_ref(e);
-        return lean_expr_mk_forall(binding_name(TO_REF(expr, e)).to_obj_arg(), new_domain, new_body, new_binfo);
+        return r;
     } else {
         lean_dec_ref(new_domain); lean_dec_ref(new_body);
         return e;
@@ -389,8 +395,9 @@ extern "C" object * lean_expr_update_forall(obj_arg e, uint8 new_binfo, obj_arg 
 extern "C" object * lean_expr_update_lambda(obj_arg e, uint8 new_binfo, obj_arg new_domain, obj_arg new_body) {
     if (binding_domain(TO_REF(expr, e)).raw() != new_domain || binding_body(TO_REF(expr, e)).raw() != new_body ||
         binding_info(TO_REF(expr, e)) != static_cast<binder_info>(new_binfo)) {
+        object * r = lean_expr_mk_lambda(binding_name(TO_REF(expr, e)).to_obj_arg(), new_domain, new_body, new_binfo);
         lean_dec_ref(e);
-        return lean_expr_mk_lambda(binding_name(TO_REF(expr, e)).to_obj_arg(), new_domain, new_body, new_binfo);
+        return r;
     } else {
         lean_dec_ref(new_domain); lean_dec_ref(new_body);
         return e;
@@ -400,8 +407,9 @@ extern "C" object * lean_expr_update_lambda(obj_arg e, uint8 new_binfo, obj_arg 
 extern "C" object * lean_expr_update_let(obj_arg e, obj_arg new_type, obj_arg new_val, obj_arg new_body) {
     if (let_type(TO_REF(expr, e)).raw() != new_type || let_value(TO_REF(expr, e)).raw() != new_val ||
         let_body(TO_REF(expr, e)).raw() != new_body) {
+        object * r = lean_expr_mk_let(let_name(TO_REF(expr, e)).to_obj_arg(), new_type, new_val, new_body);
         lean_dec_ref(e);
-        return lean_expr_mk_let(let_name(TO_REF(expr, e)).to_obj_arg(), new_type, new_val, new_body);
+        return r;
     } else {
         lean_dec_ref(new_type); lean_dec_ref(new_val); lean_dec_ref(new_body);
         return e;

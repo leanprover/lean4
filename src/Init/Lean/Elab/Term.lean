@@ -385,6 +385,8 @@ structure NamedArg :=
 instance NamedArg.hasToString : HasToString NamedArg :=
 ⟨fun s => "(" ++ toString s.name ++ " := " ++ toString s.val ++ ")"⟩
 
+instance NamedArg.inhabited : Inhabited NamedArg := ⟨{ name := arbitrary _, val := arbitrary _, stx := arbitrary _ }⟩
+
 def addNamedArg (namedArgs : Array NamedArg) (namedArg : NamedArg) (ref : Syntax) : TermElabM (Array NamedArg) := do
 when (namedArgs.any $ fun namedArg' => namedArg.name == namedArg'.name) $
   logErrorAndThrow ref ("argument '" ++ toString namedArg.name ++ "' was already set");
@@ -477,9 +479,11 @@ private partial def elabAppArgsAux (ref : Syntax) (args : Array Syntax) (expecte
     match eType with
     | Expr.forallE n d b c =>
       match namedArgs.findIdx? (fun namedArg => namedArg.name == n) with
-      | some namedArgIdx =>
-        -- TODO
-        pure e
+      | some idx => do
+        let arg       := namedArgs.get! idx;
+        let namedArgs := namedArgs.eraseIdx idx;
+        a ← elabTerm arg.val d;
+        elabAppArgsAux argIdx namedArgs (b.instantiate1 a) (mkApp e a)
       | none =>
         let processExplictArg : Unit → TermElabM Expr := fun _ => do {
           if h : argIdx < args.size then do
@@ -635,58 +639,3 @@ export Term (TermElabM)
 
 end Elab
 end Lean
-
-
-/-
-private def elabFieldNotation : Expr → List String → TermElabM Expr
-| e, []            => pure e
-| e, field::fields => do
-
-#exit
-).mapM $ fun ⟨constName, projs⟩ => do
-     match env.find constName with
-     | none       => unreachable!
-     | some cinfo =>
-
-       pure (mkConst constName, projs)
-
-
-/-
-private def expandFunProj : List (Nat × Name) → Array FunctionView → Bool → TermElabM (Array FunctionView)
-| ps, views, explicit =>
-throw $ Exception.other "failed"
-
-private def expandFunAux : Syntax → Array FunctionView → Bool → TermElabM (Array FunctionView)
-| Syntax.ident _ _ id pre, views, explicit => do
-  lctx ← getLCtx;
-  match lctx.findFromUserName id with
-  | some decl =>
-
-
-  ps ← resolveName id;
-  expandFunProj ps views explicit
-| Syntax.ident _ _ id preresolved, views, explicit => do
-
-
-
-
-/- If `stx` is of the form `@ id`, return `(true, id)`. Otherwise, return `(false, stx)`. -/
-private def expandExplicit (stx : Syntax) : Bool × Syntax :=
-stx.ifNodeKind `Lean.Parser.Term.explicit
-  (fun node => (true, node.getArg 1))
-  (fun _    => (false, stx))
-
-private def expandChoice (stx : Syntax) : Array Syntax :=
-stx.ifNodeKind choiceKind
-  (fun node => node.getArgs)
-  (fun _    => #[stx])
-
-private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Syntax) (expectedType : Option Expr) : TermElabM Expr := do
-let (explicit, f) := expandExplicit f;
-let fs := expandChoice f;
-
-trace! `Elab.app (toString fs ++ " " ++ toString namedArgs ++ " " ++ toString args);
-throw $ Exception.other "TODO"
-
--/
--/

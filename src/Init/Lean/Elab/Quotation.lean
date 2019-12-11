@@ -91,7 +91,7 @@ private partial def toPreterm (env : Environment) : Syntax → Except String Exp
   | `Lean.Parser.Term.paren => toPreterm $ (args.get! 1).getArg 0
   | `strLit => pure $ mkStrLit $ stx.isStrLit?.getD ""
   | `numLit => pure $ mkNatLit $ stx.isNatLit?.getD 0
-  | k => panic! "stxQuot: unimplemented kind " ++ toString k
+  | k => throw $ "stxQuot: unimplemented kind " ++ toString k
 
 @[export lean_parse_stx_quot]
 def oldParseStxQuot (env : Environment) (input : String) (pos : String.Pos) : Except String (Expr × String.Pos) := do

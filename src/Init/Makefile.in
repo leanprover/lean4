@@ -1,20 +1,23 @@
 # Copyright (c) 2018 Simon Hudon. All rights reserved.
 # Released under Apache 2.0 license as described in the file LICENSE.
 # Authors: Simon Hudon, Sebastian Ullrich, Leonardo de Moura
-LEAN = ../../bin/lean
-LEANC = ../../bin/leanc
-SRCS = $(shell find . -name '*.lean')
-DEPS = $(SRCS:.lean=.depend)
+LEAN ?= ../../bin/lean
+LEANC ?= ../../bin/leanc
+LEAN_ROOT ?= .
+# Even though we copy the sources into a new directory for stage2/3, we
+# read the list of files to compile from the original directory to avoid
+# issues with stale copied files
+SRCS = $(shell cd $(LEAN_ROOT); find . -name '*.lean')
+DEPS = $(addprefix $(LEAN_ROOT)/,$(SRCS:.lean=.depend))
 OPTS = @LEAN_EXTRA_MAKE_OPTS@
 STAGE0_DIR = ../../stage0
-STAGE1_C_OUT ?= ../stage1/Init
-ifndef STAGE1_OUT
-$(error "`STAGE1_OUT` must be set (use cmake)")
+C_OUT ?= .
+ifndef OUT
+$(error "`OUT` must be set (use cmake)")
 endif
-STAGE1_OLEAN_OUT ?= .
-OBJS = $(addprefix $(STAGE1_OLEAN_OUT), $(SRCS:.lean=.olean))
+OBJS = $(SRCS:.lean=.olean)
 # ensure deterministic ordering
-CS_CORE=$(addprefix Init/,$(sort $(patsubst %.lean,%.c,$(SRCS))))
+CS_CORE=$(addprefix Init/,$(sort $(SRCS:.lean=.c)))
 
 SHELL = /usr/bin/env bash -eo pipefail
 
@@ -28,36 +31,36 @@ depends: $(DEPS)
 # use separate assignment to ensure failure propagation
 	@deps=`$(LEAN) --deps $< | python relative.py`; echo $(<:.lean=.olean): $$deps > $@
 
-$(STAGE1_OLEAN_OUT)/%.olean: %.lean %.depend $(MORE_DEPS)
+%.olean: %.lean %.depend $(MORE_DEPS)
 	@echo "[    ] Building $<"
-	@mkdir -p $(STAGE1_OLEAN_OUT)/$(*D) $(STAGE1_C_OUT)/$(*D)
-	$(LEAN) $(OPTS) --make=$@ --c="$(STAGE1_C_OUT)/$*.c.tmp" $<
+	@mkdir -p $(C_OUT)/$(*D)
+	$(LEAN) $(OPTS) --make --c="$(C_OUT)/$*.c.tmp" $<
 # create the .c file atomically
-	mv "$(STAGE1_C_OUT)/$*.c.tmp" "$(STAGE1_C_OUT)/$*.c"
+	mv "$(C_OUT)/$*.c.tmp" "$(C_OUT)/$*.c"
 # make sure the .olean file is newer than the .depend file to prevent infinite make cycles
 	@touch $@
 
-$(STAGE1_C_OUT)/%.c: $(STAGE1_OLEAN_OUT)/%.olean
+$(C_OUT)/%.c: %.olean
 	@
 
-$(STAGE1_OUT)/%.o: $(STAGE1_C_OUT)/%.c
+$(OUT)/%.o: $(C_OUT)/%.c
 	@echo "[    ] Building $<"
 	@mkdir -p "$(@D)"
 	$(LEANC) -c -o $@ $< $(LEANC_OPTS)
 
-$(STAGE1_OUT)/libleanstdlib.a: $(addprefix $(STAGE1_OUT)/,$(patsubst %.lean,%.o,$(SRCS)))
+$(OUT)/libleanstdlib.a: $(addprefix $(OUT)/,$(SRCS:.lean=.o))
 	@rm -f $@
 	@ar rcs $@ $^
 
 update-stage0:
 	-rm -r $(STAGE0_DIR)
 	-mkdir -p $(STAGE0_DIR)/stdlib
-	cp -R $(STAGE1_C_OUT) $(STAGE0_DIR)/stdlib/Init
+	cp -R $(C_OUT) $(STAGE0_DIR)/stdlib/Init
 	echo "add_library (stage0 OBJECT $(CS_CORE))" > $(STAGE0_DIR)/stdlib/CMakeLists.txt
 # don't copy untracked crap
 	cd ..; git ls-files -z . | xargs -0 -I '{}' bash -c 'mkdir -p `dirname ../stage0/src/{}` && cp {} ../stage0/src/{}'
 	-git add $(STAGE0_DIR)
 
-.PRECIOUS: %.depend $(STAGE1_C_OUT)/%.c
+.PRECIOUS: %.depend $(C_OUT)/%.c
 
 include $(DEPS)

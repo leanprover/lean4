@@ -437,8 +437,18 @@ do result? ← resolveLocalName n;
      else
        process preresolved
 
-private def elabAppCore : Syntax → Array NamedArg → Array Syntax → Option Expr → Array TermElabResult → TermElabM (Array TermElabResult)
-| f, namedArgs, args, expectedType?, acc => pure acc
+private partial def elabAppCore : Syntax → Array NamedArg → Array Syntax → Option Expr → Bool → Array TermElabResult → TermElabM (Array TermElabResult)
+| f, namedArgs, args, expectedType?, explicit, acc =>
+  let k := f.getKind;
+  if k == `Lean.Parser.Term.explicit then
+    -- `f` is of the form `@ id`
+    elabAppCore (f.getArg 1) namedArgs args expectedType? true acc
+  else if k == choiceKind then
+    f.getArgs.foldlM (fun acc f => elabAppCore f namedArgs args expectedType? explicit acc) acc
+  else if k == `Lean.Parser.Term.id then
+    pure acc -- TODO
+  else
+    pure acc -- TODO
 
 private def getSuccess (candidates : Array TermElabResult) : Array TermElabResult :=
 candidates.filter $ fun c => match c with
@@ -474,7 +484,7 @@ do msgs ← failures.mapM $ fun failure => getFailureMessage failure stx;
    logErrorAndThrow stx ("overloaded, errors " ++ MessageData.ofArray msgs)
 
 private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
-do candidates ← elabAppCore f namedArgs args expectedType? #[];
+do candidates ← elabAppCore f namedArgs args expectedType? false #[];
    if candidates.size == 1 then
      applyResult $ candidates.get! 0
    else

@@ -144,14 +144,14 @@ adaptReader (fun (ctx : Context) => { mayPostpone := false, .. ctx }) x
 @[inline] def withNode {α} (stx : Syntax) (x : SyntaxNode → TermElabM α) : TermElabM α :=
 stx.ifNode x (fun _ => throw $ Exception.other "term elaborator failed, unexpected syntax")
 
-def elabTerm (stx : Syntax) (expectedType : Option Expr) : TermElabM Expr :=
+def elabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
 withNode stx $ fun node => do
   trace! `Elab.step (toString stx);
   s ← get;
   let tables := termElabAttribute.ext.getState s.env;
   let k := node.getKind;
   match tables.find k with
-  | some elab => tracingAt stx $ elab node expectedType
+  | some elab => tracingAt stx $ elab node expectedType?
   | none      => throw $ Exception.other ("elaboration function for '" ++ toString k ++ "' has not been implemented")
 
 def ensureType (stx : Syntax) (e : Expr) : TermElabM Expr :=
@@ -334,13 +334,13 @@ def mkExplicitBinder (n : Syntax) (type : Syntax) : Syntax :=
 mkNode `Lean.Parser.Term.explicitBinder [mkAtom "(", mkNullNode [n], mkNullNode [mkAtom ":", type], mkNullNode [], mkAtom ")"]
 
 @[builtinTermElab arrow] def elabArrow : TermElab :=
-fun stx expectedType => do
+fun stx expectedType? => do
   a ← mkFreshAnonymousName;
   let id     := mkIdentFrom stx.val a;
   let dom    := stx.getArg 0;
   let rng    := stx.getArg 2;
   let newStx := mkNode `Lean.Parser.Term.forall [mkAtom "forall", mkNullNode [mkExplicitBinder id dom], mkAtom ",", rng];
-  elabTerm newStx expectedType
+  elabTerm newStx expectedType?
 
 @[builtinTermElab depArrow] def elabDepArrow : TermElab :=
 fun stx _ =>
@@ -352,7 +352,7 @@ fun stx _ =>
     mkForall xs e
 
 @[builtinTermElab paren] def elabParen : TermElab :=
-fun stx expectedType =>
+fun stx expectedType? =>
   -- `(` (termParser >> parenSpecial)? `)`
   let body := stx.getArg 1;
   if body.isNone then
@@ -360,17 +360,17 @@ fun stx expectedType =>
   else
     let term := body.getArg 0;
     -- TODO: handle parenSpecial
-    elabTerm term expectedType
+    elabTerm term expectedType?
 
 @[builtinTermElab «listLit»] def elabListLit : TermElab :=
-fun stx expectedType => do
+fun stx expectedType? => do
   let openBkt  := stx.getArg 0;
   let args     := stx.getArg 1;
   let closeBkt := stx.getArg 2;
   let consId   := mkIdentFrom openBkt `List.cons;
   let nilId    := mkIdentFrom closeBkt `List.nil;
   let newStx   := args.foldSepArgs (fun arg r => mkAppStx consId #[arg, r]) nilId;
-  elabTerm newStx expectedType
+  elabTerm newStx expectedType?
 
 def elabExplicitUniv (stx : Syntax) : TermElabM (List Level) :=
 pure [] -- TODO
@@ -438,7 +438,7 @@ do result? ← resolveLocalName n;
        process preresolved
 
 private def elabAppCore : Syntax → Array NamedArg → Array Syntax → Option Expr → Array TermElabResult → TermElabM (Array TermElabResult)
-| f, namedArgs, args, expectedType, acc => pure acc
+| f, namedArgs, args, expectedType?, acc => pure acc
 
 private def getSuccess (candidates : Array TermElabResult) : Array TermElabResult :=
 candidates.filter $ fun c => match c with
@@ -473,8 +473,8 @@ private def mergeFailures {α} (failures : Array TermElabResult) (stx : Syntax) 
 do msgs ← failures.mapM $ fun failure => getFailureMessage failure stx;
    logErrorAndThrow stx ("overloaded, errors " ++ MessageData.ofArray msgs)
 
-private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Syntax) (expectedType : Option Expr) : TermElabM Expr :=
-do candidates ← elabAppCore f namedArgs args expectedType #[];
+private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
+do candidates ← elabAppCore f namedArgs args expectedType? #[];
    if candidates.size == 1 then
      applyResult $ candidates.get! 0
    else
@@ -507,12 +507,12 @@ private def expandApp (stx : Syntax) : Syntax × Array NamedArg × Array Syntax 
 expandAppAux stx #[] #[]
 
 @[builtinTermElab app] def elabApp : TermElab :=
-fun stx expectedType =>
+fun stx expectedType? =>
   let (f, namedArgs, args) := expandApp stx.val;
-  elabAppAux f namedArgs args expectedType
+  elabAppAux f namedArgs args expectedType?
 
 @[builtinTermElab «id»] def elabId : TermElab :=
-fun stx expectedType => elabAppAux stx.val #[] #[] expectedType
+fun stx expectedType? => elabAppAux stx.val #[] #[] expectedType?
 
 end Term
 

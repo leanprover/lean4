@@ -375,8 +375,7 @@ fun stx expectedType? => do
   let closeBkt := stx.getArg 2;
   let consId   := mkTermId openBkt `List.cons;
   let nilId    := mkTermId closeBkt `List.nil;
-  let newStx   := args.foldSepArgs (fun arg r => mkAppStx consId #[arg, r]) nilId;
-  dbgTrace newStx;
+  let newStx   := args.foldSepRevArgs (fun arg r => mkAppStx consId #[arg, r]) nilId;
   elabTerm newStx expectedType?
 
 def elabExplicitUniv (stx : Syntax) : TermElabM (List Level) :=

@@ -13,8 +13,13 @@ do env  ← MetaIO.getEnv;
 
 def M := IO Unit
 
+def zero := 0
+def one := 1
+def two := 2
 -- set_option trace.Elab.app true
 -- set_option trace.Elab true
+
+#eval run "#check [zero, one, two]"
 
 #eval run
 "universe u universe v

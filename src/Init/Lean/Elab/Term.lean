@@ -506,6 +506,11 @@ msgs ← failures.mapM $ fun failure => getFailureMessage failure stx;
 logErrorAndThrow stx ("overloaded, errors " ++ MessageData.ofArray msgs)
 
 private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+/- TODO: if `f` contains `choice` or overloaded symbols, `mayPostpone == true`, and `expectedType? == some ?m` where `?m` is not assigned,
+   then we should postpone until `?m` is assigned.
+   Another (more expensive) option is: execute, and if successes > 1, `mayPostpone == true`, and `expectedType? == some ?m` where `?m` is not assigned,
+   then we postpone `elabAppAux`. It is more expensive because we would have to re-elaborate the whole thing after we assign `?m`.
+   We **can't** continue from `TermElabResult` since they contain a snapshot of the state, and state has changed. -/
 candidates ← elabAppFn f namedArgs args expectedType? false #[];
 if candidates.size == 1 then
   applyResult $ candidates.get! 0

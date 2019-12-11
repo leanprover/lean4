@@ -823,7 +823,7 @@ static expr parse_trace(parser & p, unsigned, expr const *, pos_info const & pos
 
 extern "C" object * lean_parse_stx_quot(object * env, object * input, object * pos);
 
-static expr parse_stx_quot(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_stx_quot(parser & p, unsigned, expr const *, pos_info const & /* pos */) {
     object_ref r(lean_parse_stx_quot(p.env().to_obj_arg(), mk_string(p.m_scanner.m_curr_line), nat(p.m_scanner.m_spos).to_obj_arg()));
     if (cnstr_tag(r.raw()) == 0) {
         throw parser_error(sstream() << cnstr_get_ref_t<string_ref>(r, 0).to_std_string(), p.pos());

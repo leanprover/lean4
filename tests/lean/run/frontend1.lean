@@ -20,6 +20,7 @@ def two := 2
 -- set_option trace.Elab true
 
 #eval run "#check [zero, one, two]"
+#eval run "#check id $ Nat.succ one"
 
 #eval run
 "universe u universe v

@@ -637,6 +637,13 @@ fun stx expectedType? => do
 @[builtinTermElab explicit] def elabExplicit : TermElab := elabApp
 @[builtinTermElab choice] def elabChoice : TermElab := elabApp
 
+@[builtinTermElab dollar] def elabDollar : TermElab :=
+fun stx expectedType? => do
+  -- term `$` term
+  let f := stx.getArg 0;
+  let a := stx.getArg 2;
+  elabTerm (mkAppStx f #[a]) expectedType?
+
 end Term
 
 @[init] private def regTraceClasses : IO Unit := do

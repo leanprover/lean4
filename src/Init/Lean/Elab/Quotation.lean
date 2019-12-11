@@ -6,6 +6,7 @@ Authors: Sebastian Ullrich
 prelude
 import Init.Lean.Syntax
 import Init.Lean.Elab.ResolveName
+import Init.Lean.Elab.Term
 import Init.Lean.Parser -- TODO: remove after removing old elaborator
 
 namespace Lean
@@ -16,32 +17,40 @@ class MonadQuotation (m : Type → Type) :=
 -- Get the fresh scope of the current macro invocation
 (getCurrMacroScope : m Nat)
 
-/-- Simplistic MonadQuotation that does not guarantee fresh names. -/
+/-- Simplistic MonadQuotation that does not guarantee fresh names. It is only safe
+    if the syntax quotations do not introduce bindings around antiquotations, and
+    if references to globals are prefixed with `_root_.`. -/
 abbrev Unhygienic := Id
 namespace Unhygienic
 instance MonadQuotation : MonadQuotation Unhygienic := ⟨pure 0⟩
 def run {α : Type} : Unhygienic α → α := Id.run
 end Unhygienic
 
+namespace Term
+
+instance TermElabM.MonadQuotation : MonadQuotation TermElabM :=
+-- FIXME: actually allocate macro scopes when we actually make use of them
+⟨pure 0⟩
+
 private def appN (fn : Syntax) (args : Array Syntax) : Syntax :=
 args.foldl (fun fn arg => Unhygienic.run `(%%fn %%arg)) fn
 
 -- TODO: unclear if the following functions could also be useful to other code
 private def quoteName : Name → Syntax
-| Name.anonymous => Unhygienic.run `(Lean.Name.anonymous)
-| Name.str n s _ => Unhygienic.run `(Lean.mkNameStr %%(quoteName n) %%(Lean.mkStxStrLit s))
-| Name.num n i _ => Unhygienic.run `(Lean.mkNameStr %%(quoteName n) %%(Lean.mkStxNumLit (HasToString.toString i)))
+| Name.anonymous => Unhygienic.run `(_root_.Lean.Name.anonymous)
+| Name.str n s _ => Unhygienic.run `(_root_.Lean.mkNameStr %%(quoteName n) %%(Lean.mkStxStrLit s))
+| Name.num n i _ => Unhygienic.run `(_root_.Lean.mkNameStr %%(quoteName n) %%(Lean.mkStxNumLit (HasToString.toString i)))
 
 private def quoteList : List Syntax → Syntax
-| [] =>      Unhygienic.run `(List.nil)
-| (x::xs) => Unhygienic.run `(List.cons %%x %%(quoteList xs))
+| [] =>      Unhygienic.run `(_root_.List.nil)
+| (x::xs) => Unhygienic.run `(_root_.List.cons %%x %%(quoteList xs))
 
 private def quoteArray : Array Syntax → Syntax
 | xs =>
   let stx := quoteList xs.toList;
-  Unhygienic.run `(List.toArray %%stx)
+  Unhygienic.run `(_root_.List.toArray %%stx)
 
-private partial def quote (env : Environment) (msc : Syntax) : Syntax → Syntax
+private partial def quote {m : Type → Type} [Monad m] [MonadQuotation m] (env : Environment) (msc : Syntax) : Syntax → m Syntax
 | Syntax.ident info rawVal val preresolved =>
   -- TODO: pass scope information
   let ns := Name.anonymous;
@@ -50,22 +59,28 @@ private partial def quote (env : Environment) (msc : Syntax) : Syntax → Syntax
   -- TODO: hygiene
   -- `(Name.mkNumeral %%val %%msc)
   let val := quoteName val;
-  let args := quoteList $ preresolved.map $ fun ⟨n, ss⟩ => appN (Unhygienic.run `(Prod.mk)) #[quoteName n, quoteList $ ss.map mkStxStrLit];
-  Unhygienic.run `(Lean.Syntax.ident Option.none (String.toSubstring %%(Lean.mkStxStrLit (HasToString.toString rawVal))) %%val %%args)
-| Syntax.node `Lean.Parser.Term.antiquot args => args.get! 1
-| Syntax.node k args =>
+  let args := quoteList $ preresolved.map $ fun ⟨n, ss⟩ => appN (Unhygienic.run `(_root_.Prod.mk)) #[quoteName n, quoteList $ ss.map mkStxStrLit];
+  `(Lean.Syntax.ident Option.none (String.toSubstring %%(Lean.mkStxStrLit (HasToString.toString rawVal))) %%val %%args)
+| Syntax.node `Lean.Parser.Term.antiquot args => pure $ args.get! 1
+| Syntax.node k args => do
   let k := quoteName k;
-  let args := quoteArray $ args.map quote;
-  Unhygienic.run `(Lean.Syntax.node %%k %%args)
+  args ← quoteArray <$> args.mapM quote;
+  `(Lean.Syntax.node %%k %%args)
 | Syntax.atom info val =>
-  Unhygienic.run `(Lean.Syntax.atom Option.none %%(Lean.mkStxStrLit val))
+  `(Lean.Syntax.atom Option.none %%(Lean.mkStxStrLit val))
 | Syntax.missing => unreachable!
 
-def stxQuot.expand (env : Environment) (stx : Syntax) : Syntax :=
--- TODO: hygiene
--- `(do msc ← getCurMacroScope; pure %(quote `(msc) quoted))
-let stx := quote env Syntax.missing $ stx.getArg 1;
-Unhygienic.run `(HasPure.pure %%stx)
+def stxQuot.expand {m : Type → Type} [Monad m] [MonadQuotation m] (env : Environment) (stx : Syntax) : m Syntax := do
+  -- TODO: hygiene
+  -- `(do msc ← getCurMacroScope; pure %(quote `(msc) quoted))
+  stx ← quote env Syntax.missing $ stx.getArg 1;
+  `(HasPure.pure %%stx)
+
+@[builtinTermElab stxQuot] def elabStxQuot : TermElab :=
+fun stx expectedType? => do
+  env ← getEnv;
+  stx ← stxQuot.expand env (stx.getArg 1);
+  elabTerm stx expectedType?
 
 -- REMOVE with old frontend
 private partial def toPreterm (env : Environment) : Syntax → Except String Expr
@@ -80,7 +95,7 @@ private partial def toPreterm (env : Environment) : Syntax → Except String Exp
       let openDecls := [];
       let resolved := resolveGlobalName env ns openDecls val <|> preresolved;
       match resolved with
-      | (pre,[])::_ => pure $ mkConst pre
+      | (pre,[])::_ => pure $ Lean.mkConst pre
       | [] => pure $ mkFVar val
       | _ => throw "stxQuot: unimplemented: projection notation"
     | _ => unreachable!
@@ -101,7 +116,7 @@ let s := Parser.mkParserState c.input;
 let s := s.setPos pos;
 let s := (Parser.termParser : Parser.Parser).fn (0 : Nat) c s;
 let stx := s.stxStack.back;
-let stx := quote env Syntax.missing stx;
+let stx := Unhygienic.run $ quote env Syntax.missing stx;
 let stx := Unhygienic.run `(HasPure.pure %%stx);
 expr ← toPreterm env stx;
 match s.errorMsg with
@@ -110,5 +125,6 @@ match s.errorMsg with
 | none =>
   Except.ok (expr, s.pos)
 
+end Term
 end Elab
 end Lean

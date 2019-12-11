@@ -10,7 +10,6 @@ import Init.Lean.Meta
 import Init.Lean.Elab.Log
 import Init.Lean.Elab.Alias
 import Init.Lean.Elab.ResolveName
-import Init.Lean.Elab.Quotation
 
 namespace Lean
 namespace Elab
@@ -261,11 +260,6 @@ fun _ _ => pure $ mkSort levelOne
 
 @[builtinTermElab «hole»] def elabHole : TermElab :=
 fun stx expectedType? => mkFreshExprMVar stx.val expectedType?
-
-@[builtinTermElab stxQuot] def elabStxQuot : TermElab :=
-fun stx expectedType? => do
-  env ← getEnv;
-  elabTerm (stxQuot.expand env (stx.getArg 1)) expectedType?
 
 private def mkFreshAnonymousName : TermElabM Name := do
 s ← get;

@@ -204,7 +204,7 @@ let instIdx := s.instImplicitIdx;
 modify $ fun s => { instImplicitIdx := s.instImplicitIdx + 1, .. s};
 pure $ (`_inst).appendIndexAfter instIdx
 
-def mkHole := mkNode `Lean.Parser.Term.hole [mkAtom "_"]
+def mkHole := mkNode `Lean.Parser.Term.hole #[mkAtom "_"]
 
 /--
   Given syntax of the forms
@@ -333,7 +333,7 @@ fun stx _ =>
     mkForall xs e
 
 def mkExplicitBinder (n : Syntax) (type : Syntax) : Syntax :=
-mkNode `Lean.Parser.Term.explicitBinder [mkAtom "(", mkNullNode [n], mkNullNode [mkAtom ":", type], mkNullNode [], mkAtom ")"]
+mkNode `Lean.Parser.Term.explicitBinder #[mkAtom "(", mkNullNode #[n], mkNullNode #[mkAtom ":", type], mkNullNode, mkAtom ")"]
 
 @[builtinTermElab arrow] def elabArrow : TermElab :=
 fun stx expectedType? => do
@@ -341,7 +341,7 @@ fun stx expectedType? => do
   let id     := mkIdentFrom stx.val a;
   let dom    := stx.getArg 0;
   let rng    := stx.getArg 2;
-  let newStx := mkNode `Lean.Parser.Term.forall [mkAtom "forall", mkNullNode [mkExplicitBinder id dom], mkAtom ",", rng];
+  let newStx := mkNode `Lean.Parser.Term.forall #[mkAtom "forall", mkNullNode #[mkExplicitBinder id dom], mkAtom ",", rng];
   elabTerm newStx expectedType?
 
 @[builtinTermElab depArrow] def elabDepArrow : TermElab :=
@@ -364,14 +364,19 @@ fun stx expectedType? =>
     -- TODO: handle parenSpecial
     elabTerm term expectedType?
 
+def mkTermId (ref : Syntax) (n : Name) : Syntax :=
+let id := mkIdentFrom ref n;
+mkNode `Lean.Parser.Term.id #[id, mkNullNode]
+
 @[builtinTermElab «listLit»] def elabListLit : TermElab :=
 fun stx expectedType? => do
   let openBkt  := stx.getArg 0;
   let args     := stx.getArg 1;
   let closeBkt := stx.getArg 2;
-  let consId   := mkIdentFrom openBkt `List.cons;
-  let nilId    := mkIdentFrom closeBkt `List.nil;
+  let consId   := mkTermId openBkt `List.cons;
+  let nilId    := mkTermId closeBkt `List.nil;
   let newStx   := args.foldSepArgs (fun arg r => mkAppStx consId #[arg, r]) nilId;
+  dbgTrace newStx;
   elabTerm newStx expectedType?
 
 def elabExplicitUniv (stx : Syntax) : TermElabM (List Level) :=

@@ -21,7 +21,7 @@ variables {α : Type u}
 open List
 
 def ofList (l : List α) : DList α :=
-⟨append l, fun t => (appendNil l).symm ▸ rfl⟩
+⟨HasAppend.append l, fun t => (appendNil l).symm ▸ rfl⟩
 
 def empty : DList α :=
 ⟨id, fun t => rfl⟩

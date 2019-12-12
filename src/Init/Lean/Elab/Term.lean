@@ -470,6 +470,9 @@ match expectedType? with
   condM (isDefEq eType expectedType)
     (pure e)
     (do -- TODO try `HasCoe`
+        e ← instantiateMVars e;
+        eType ← instantiateMVars eType;
+        expectedType ← instantiateMVars expectedType;
         let msg : MessageData :=
           "type mismatch" ++ indentExpr e
           ++ Format.line ++ "has type" ++ indentExpr eType
@@ -486,6 +489,7 @@ def synthesizeInstMVar (ref : Syntax) (instMVar : MVarId) : TermElabM Unit :=
 condM (isExprMVarAssigned instMVar) (pure ()) $ do
   instMVarDecl ← getMVarDecl instMVar;
   let type := instMVarDecl.type;
+  type ← instantiateMVars type;
   result ← trySynthInstance type;
   match result with
   | LOption.some val => assignExprMVar instMVar val
@@ -667,13 +671,6 @@ fun stx expectedType? => do
 @[builtinTermElab «id»] def elabId : TermElab := elabApp
 @[builtinTermElab explicit] def elabExplicit : TermElab := elabApp
 @[builtinTermElab choice] def elabChoice : TermElab := elabApp
-
-@[builtinTermElab dollar] def elabDollar : TermElab :=
-fun stx expectedType? => do
-  -- term `$` term
-  let f := stx.getArg 0;
-  let a := stx.getArg 2;
-  elabTerm (mkAppStx f #[a]) expectedType?
 
 end Term
 

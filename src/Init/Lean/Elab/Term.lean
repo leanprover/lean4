@@ -45,7 +45,17 @@ abbrev TermElab  := SyntaxNode → Option Expr → TermElabM Expr
 
 abbrev TermElabResult := EStateM.Result Exception State Expr
 
+instance TermElabM.inhabited {α} : Inhabited (TermElabM α) :=
+⟨throw $ Exception.other ""⟩
+
 instance TermElabResult.inhabited : Inhabited TermElabResult := ⟨EStateM.Result.ok (arbitrary _) (arbitrary _)⟩
+
+inductive Projection
+| num (fieldIdx  : Nat)
+| str (fieldName : String)
+
+instance Projection.hasToString : HasToString Projection :=
+⟨fun p => match p with | Projection.num n => toString n | Projection.str s => s⟩
 
 /--
   Execute `x`, save resulting expression and new state.
@@ -141,6 +151,8 @@ def isDefEq (t s : Expr) : TermElabM Bool := liftMetaM $ Meta.isDefEq t s
 def inferType (e : Expr) : TermElabM Expr := liftMetaM $ Meta.inferType e
 def whnf (e : Expr) : TermElabM Expr := liftMetaM $ Meta.whnf e
 def whnfForall (e : Expr) : TermElabM Expr := liftMetaM $ Meta.whnfForall e
+def whnfCore (e : Expr) : TermElabM Expr := liftMetaM $ Meta.whnfCore e
+def unfoldDefinition (e : Expr) : TermElabM (Option Expr) := liftMetaM $ Meta.unfoldDefinition e
 def instantiateMVars (e : Expr) : TermElabM Expr := liftMetaM $ Meta.instantiateMVars e
 def isClass (t : Expr) : TermElabM (Option Name) := liftMetaM $ Meta.isClass t
 def mkFreshLevelMVar : TermElabM Level := liftMetaM $ Meta.mkFreshLevelMVar
@@ -555,19 +567,34 @@ let argIdx    := 0;
 let instMVars := #[];
 elabAppArgsAux ref args expectedType? explicit argIdx namedArgs instMVars fType f
 
-private def elabAppProjs (ref : Syntax) (f : Expr) (projs : List String) (namedArgs : Array NamedArg) (args : Array Syntax)
-    (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr :=
--- TODO
-elabAppArgs ref f namedArgs args expectedType? explicit
+private def elabAppProjsAux (ref : Syntax) (namedArgs : Array NamedArg) (args : Array Syntax) (expectedType? : Option Expr) (explicit : Bool)
+    : Expr → List Projection → TermElabM Expr
+| f, []          => elabAppArgs ref f namedArgs args expectedType? explicit
+| f, proj::projs => do
+  fType ← inferType f;
+  -- TODO
+  elabAppArgs ref f namedArgs args expectedType? explicit
 
-private partial def elabAppFn (ref : Syntax) : Syntax → Array NamedArg → Array Syntax → Option Expr → Bool → Array TermElabResult → TermElabM (Array TermElabResult)
-| f, namedArgs, args, expectedType?, explicit, acc =>
+private def elabAppProjs (ref : Syntax) (f : Expr) (projs : List Projection) (namedArgs : Array NamedArg) (args : Array Syntax)
+    (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr := do
+when (!projs.isEmpty && explicit) $ logErrorAndThrow ref "invalid use of projection notation with `@` modifier";
+elabAppProjsAux ref namedArgs args expectedType? explicit f projs
+
+private partial def elabAppFn (ref : Syntax) : Syntax → List Projection → Array NamedArg → Array Syntax → Option Expr → Bool → Array TermElabResult → TermElabM (Array TermElabResult)
+| f, projs, namedArgs, args, expectedType?, explicit, acc =>
   let k := f.getKind;
   if k == `Lean.Parser.Term.explicit then
     -- `f` is of the form `@ id`
-    elabAppFn (f.getArg 1) namedArgs args expectedType? true acc
+    elabAppFn (f.getArg 1) projs namedArgs args expectedType? true acc
   else if k == choiceKind then
-    f.getArgs.foldlM (fun acc f => elabAppFn f namedArgs args expectedType? explicit acc) acc
+    f.getArgs.foldlM (fun acc f => elabAppFn f projs namedArgs args expectedType? explicit acc) acc
+  else if k == `Lean.Parser.Term.proj then
+    -- term `.` (fieldIdx <|> ident)
+    let field := f.getArg 2;
+    match field.isFieldIdx?, field with
+    | some idx, _                      => elabAppFn (f.getArg 0) (Projection.num idx :: projs) namedArgs args expectedType? true acc
+    | _,        Syntax.ident _ val _ _ => elabAppFn (f.getArg 0) (Projection.str val.toString :: projs) namedArgs args expectedType? true acc
+    | _,        _                      => logErrorAndThrow field "unexpected kind of field access"
   else if k == `Lean.Parser.Term.id then
     -- ident (explicitUniv | namedPattern)?
     match f.getArg 0 with
@@ -575,14 +602,15 @@ private partial def elabAppFn (ref : Syntax) : Syntax → Array NamedArg → Arr
       us     ← elabExplicitUniv (f.getArg 1); -- `namedPattern` should already have been expanded
       fprojs ← resolveName n preresolved us f;
       fprojs.foldlM
-        (fun acc ⟨f, projs⟩ => do
-          s ← observing $ elabAppProjs ref f projs namedArgs args expectedType? explicit;
+        (fun acc ⟨f, projs'⟩ => do
+          let projs' := projs'.map Projection.str;
+          s ← observing $ elabAppProjs ref f (projs' ++ projs) namedArgs args expectedType? explicit;
           pure $ acc.push s)
         acc
     | _ => unreachable!
   else do
     f ← withoutPostponing $ elabTerm f none;
-    s ← observing $ elabAppArgs ref f namedArgs args expectedType? explicit;
+    s ← observing $ elabAppProjs ref f projs namedArgs args expectedType? explicit;
     pure $ acc.push s
 
 private def getSuccess (candidates : Array TermElabResult) : Array TermElabResult :=
@@ -624,7 +652,7 @@ private def elabAppAux (ref : Syntax) (f : Syntax) (namedArgs : Array NamedArg) 
    Another (more expensive) option is: execute, and if successes > 1, `mayPostpone == true`, and `expectedType? == some ?m` where `?m` is not assigned,
    then we postpone `elabAppAux`. It is more expensive because we would have to re-elaborate the whole thing after we assign `?m`.
    We **can't** continue from `TermElabResult` since they contain a snapshot of the state, and state has changed. -/
-candidates ← elabAppFn ref f namedArgs args expectedType? false #[];
+candidates ← elabAppFn ref f [] namedArgs args expectedType? false #[];
 if candidates.size == 1 then
   applyResult $ candidates.get! 0
 else
@@ -671,6 +699,7 @@ fun stx expectedType? => do
 @[builtinTermElab «id»] def elabId : TermElab := elabApp
 @[builtinTermElab explicit] def elabExplicit : TermElab := elabApp
 @[builtinTermElab choice] def elabChoice : TermElab := elabApp
+@[builtinTermElab proj] def elabProj : TermElab := elabApp
 
 end Term
 

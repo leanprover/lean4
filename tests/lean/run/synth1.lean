@@ -47,3 +47,11 @@ do inst ← mkAppM `HasBind #[mkConst `IO];
    pure ()
 
 #eval tst2
+
+def tst3 : MetaM Unit :=
+do inst ← mkAppM `HasBeq #[mkConst `Nat];
+   r ← synthInstance inst;
+   print r;
+   pure ()
+
+#eval tst3

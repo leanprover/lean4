@@ -651,22 +651,28 @@ forallMetaTelescopeReducingAux true maxMVars? #[] #[] 0 e
 /-- Similar to `forallMetaTelescopeReducingAux` but for lambda expressions. -/
 private partial def lambdaMetaTelescopeAux (maxMVars? : Option Nat)
     : Array Expr → Array BinderInfo → Nat → Expr → MetaM (Array Expr × Array BinderInfo × Expr)
-| mvars, bis, j, Expr.lam n d b c => do
-  let d     := d.instantiateRevRange j mvars.size mvars;
-  mvar ← mkFreshExprMVar d;
-  let mvars := mvars.push mvar;
-  let bis   := bis.push c.binderInfo;
+| mvars, bis, j, type => do
+  let finalize : Unit → MetaM (Array Expr × Array BinderInfo × Expr) := fun _ => do {
+    let type := type.instantiateRevRange j mvars.size mvars;
+    pure (mvars, bis, type)
+  };
+  let process : Unit → MetaM (Array Expr × Array BinderInfo × Expr) := fun _ => do {
+    match type with
+    | Expr.lam n d b c => do
+      let d     := d.instantiateRevRange j mvars.size mvars;
+      mvar ← mkFreshExprMVar d;
+      let mvars := mvars.push mvar;
+      let bis   := bis.push c.binderInfo;
+      lambdaMetaTelescopeAux mvars bis j b
+    | _ => finalize ()
+  };
   match maxMVars? with
-  | none          => lambdaMetaTelescopeAux mvars bis j b
+  | none          => process ()
   | some maxMVars =>
     if mvars.size < maxMVars then
-      lambdaMetaTelescopeAux mvars bis j b
+      process ()
     else
-      let type := b.instantiateRevRange j mvars.size mvars;
-      pure (mvars, bis, type)
-| mvars, bis, j, type =>
-  let type := type.instantiateRevRange j mvars.size mvars;
-  pure (mvars, bis, type)
+      finalize ()
 
 /-- Similar to `forallMetaTelescope` but for lambda expressions. -/
 def lambdaMetaTelescope (e : Expr) (maxMVars? : Option Nat := none) : MetaM (Array Expr × Array BinderInfo × Expr) :=

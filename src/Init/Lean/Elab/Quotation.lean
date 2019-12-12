@@ -197,7 +197,7 @@ fun stx expectedType? => do
 -- REMOVE with old frontend
 private def exprPlaceholder := mkMVar Name.anonymous
 
-private partial def toPreterm (env : Environment) : Syntax → Except String Expr
+private unsafe partial def toPreterm (env : Environment) : Syntax → Except String Expr
 | stx =>
   let args := stx.getArgs;
   match stx.getKind with
@@ -214,11 +214,19 @@ private partial def toPreterm (env : Environment) : Syntax → Except String Exp
       | _ => throw "stxQuot: unimplemented: projection notation"
     | _ => unreachable!
   | `Lean.Parser.Term.fun => do
-    let ids := (args.get! 1).getArgs;
+    let params := (args.get! 1).getArgs;
     body ← toPreterm $ args.get! 3;
-    pure $ ids.foldr (fun id e =>
-      let n := id.getIdAt 0;
-      Lean.mkLambda n BinderInfo.default exprPlaceholder (Expr.abstract e #[mkFVar n]))
+    params.foldrM (fun param e => do
+      (n, ty) ← if param.isOfKind `Lean.Parser.Term.id then
+          pure (param.getIdAt 0, exprPlaceholder)
+        else if param.isOfKind `Lean.Parser.Term.hole then
+          pure (`_a, exprPlaceholder)
+        else do {
+          let n := ((param.getArg 1).getArg 0).getIdAt 0;
+          ty ← toPreterm $ (((param.getArg 1).getArg 1).getArg 0).getArg 1;
+          pure (n, ty)
+        };
+      pure $ Lean.mkLambda n BinderInfo.default ty (Expr.abstract e #[mkFVar n]))
       body
   | `Lean.Parser.Term.let => do
     let n := (args.get! 1).getIdAt 0;
@@ -229,9 +237,24 @@ private partial def toPreterm (env : Environment) : Syntax → Except String Exp
     fn ← toPreterm $ args.get! 0;
     arg ← toPreterm $ args.get! 1;
     pure $ mkApp fn arg
-  | `Lean.Parser.Term.paren => toPreterm $ (args.get! 1).getArg 0
+  | `Lean.Parser.Term.if => do
+    let con := args.get! 2;
+    let yes := args.get! 4;
+    let no := args.get! 6;
+    toPreterm $ Unhygienic.run `(ite %%con %%yes %%no)
+  | `Lean.Parser.Term.paren =>
+    let inner := (args.get! 1).getArgs;
+    if inner.size == 0 then pure $ Lean.mkConst `Unit.unit
+    else toPreterm $ inner.get! 0
+  | `Lean.Parser.Term.band =>
+    let lhs := args.get! 0; let rhs := args.get! 2;
+    toPreterm $ Unhygienic.run `(and %%lhs %%rhs)
+  | `Lean.Parser.Term.beq =>
+    let lhs := args.get! 0; let rhs := args.get! 2;
+    toPreterm $ Unhygienic.run `(HasBeq.beq %%lhs %%rhs)
   | `strLit => pure $ mkStrLit $ stx.isStrLit?.getD ""
   | `numLit => pure $ mkNatLit $ stx.isNatLit?.getD 0
+  | `expr => pure $ unsafeCast $ stx.getArg 0  -- HACK: see below
   | k => throw $ "stxQuot: unimplemented kind " ++ toString k
 
 @[export lean_parse_expr]
@@ -251,6 +274,26 @@ match s.errorMsg with
 @[export lean_expand_stx_quot]
 unsafe def oldExpandStxQuot (env : Environment) (stx : Syntax) : Except String Expr := do
 let stx := Unhygienic.run $ stxQuot.expand env stx;
+toPreterm env stx
+
+private def oldRunTermElabM {α} (env : Environment) (x : TermElabM α) : Except String α := do
+match x {fileName := "foo", fileMap := FileMap.ofString "", cmdPos := 0, currNamespace := `foo} {env := env} with
+| EStateM.Result.ok a _    => Except.ok a
+| EStateM.Result.error msg _ => Except.error $ toString msg
+
+@[export lean_get_antiquot_vars]
+def oldGetAntiquotVars (env : Environment) (pats : List Syntax) : Except String (List Name) := oldRunTermElabM env $ do
+vars ← List.join <$> pats.mapM getAntiquotVars;
+pure $ vars.map $ fun var => var.getIdAt 0
+
+@[export lean_expand_match_syntax]
+unsafe def oldExpandMatchSyntax (env : Environment) (discr : Syntax) (alts : List (List Syntax × Syntax)) : Except String Expr := do
+stx ← oldRunTermElabM env $ do {
+  -- HACK: discr and the RHSs are actually `Expr`
+  let discr := Syntax.node `expr #[discr];
+  let alts := alts.map $ fun alt => (alt.1, Syntax.node `expr #[alt.2]);
+  letBindRhss (compileStxMatch Syntax.missing [discr]) alts []
+};
 toPreterm env stx
 
 end Term

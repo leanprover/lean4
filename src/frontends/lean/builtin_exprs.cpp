@@ -849,6 +849,43 @@ static expr parse_stx_quot(parser & p, unsigned, expr const *, pos_info const & 
     return handle_res<expr>(lean_expand_stx_quot(p.env().to_obj_arg(), stx.steal()), p);
 }
 
+extern "C" object * lean_expand_match_syntax(object * env, object * discr, object * alts);
+extern "C" object * lean_get_antiquot_vars(object * env, object * pats);
+
+static expr parse_match_syntax(parser & p, unsigned, expr const *, pos_info const & /* pos */) {
+    parser::local_scope scope1(p);
+    parser::error_if_undef_scope eius(p);
+    expr discr = p.parse_expr();
+    p.check_token_next(get_with_tk(), "invalid 'match_syntax' expression, 'with' expected");
+    unsigned case_column = p.pos().second;
+    if (is_eqn_prefix(p))
+        p.next(); // optional '|' in the first case
+    buffer<object_ref> alts;
+    while (true) {
+        buffer<object_ref> lhs_args;
+        lhs_args.push_back(parse_expr(p));
+        while (p.curr_is_token(get_comma_tk())) {
+            p.next();
+            lhs_args.push_back(parse_expr(p));
+        }
+        list_ref<object_ref> lhs(lhs_args);
+        p.check_token_next(get_darrow_tk(), "invalid 'match_syntax' expression, '=>' expected");
+        {
+            parser::local_scope scope2(p);
+            auto vars = handle_res<list_ref<name>>(lean_get_antiquot_vars(p.env().to_obj_arg(), lhs.to_obj_arg()), p);
+            for (name const & var : vars)
+                p.add_local_expr(var, mk_fvar(var));
+            expr rhs = p.parse_expr();
+            alts.push_back(mk_cnstr(0, lhs.to_obj_arg(), rhs.to_obj_arg()));
+        }
+        // terminate match on dedent
+        if (!is_eqn_prefix(p) || p.pos().second < case_column)
+            break;
+        p.next();
+    }
+    return handle_res<expr>(lean_expand_match_syntax(p.env().to_obj_arg(), discr.to_obj_arg(), list_ref<object_ref>(alts).to_obj_arg()), p);
+}
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -888,6 +925,7 @@ parse_table init_nud_table() {
     r = r.add({transition("panic!", mk_ext_action(parse_panic))}, x0);
     r = r.add({transition("trace!", mk_ext_action(parse_trace))}, x0);
     r = r.add({transition("`(", mk_ext_action_core(parse_stx_quot))}, x0);
+    r = r.add({transition("match_syntax", mk_ext_action(parse_match_syntax))}, x0);
     return r;
 }
 

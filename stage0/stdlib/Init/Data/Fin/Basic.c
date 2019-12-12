@@ -23,7 +23,6 @@ lean_object* l_Fin_DecidableEq(lean_object*);
 uint8_t l_Fin_decLe___rarg(lean_object*, lean_object*);
 lean_object* l_Fin_HasOne(lean_object*);
 lean_object* l_Fin_land___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Fin_HasModn(lean_object*);
 lean_object* l_Fin_HasLessEq(lean_object*);
 lean_object* l_Fin_div(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_add___boxed(lean_object*, lean_object*, lean_object*);
@@ -52,6 +51,7 @@ lean_object* l_Fin_HasLess___boxed(lean_object*);
 lean_object* l_Fin_mod___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_decLt(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+lean_object* l_Fin_HasModN(lean_object*);
 uint8_t l_Fin_DecidableEq___rarg(lean_object*, lean_object*);
 lean_object* l_Fin_lor(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_HasLess(lean_object*);
@@ -477,7 +477,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* l_Fin_HasModn(lean_object* x_1) {
+lean_object* l_Fin_HasModN(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 

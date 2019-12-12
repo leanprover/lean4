@@ -24,13 +24,16 @@ structure Context extends Meta.Context :=
 (macroStack  : List Syntax := [])
 (mayPostpone : Bool := true)
 
-inductive SyntheticMVarInfo
-| typeClass : SyntheticMVarInfo
-| tactic (tacticCode : Syntax) : SyntheticMVarInfo
-| postponed (macroStack : List Syntax) : SyntheticMVarInfo
+inductive SyntheticMVarKind
+| typeClass
+| tactic (tacticCode : Syntax)
+| postponed (macroStack : List Syntax)
+
+structure SyntheticMVarDecl :=
+(mvarId : MVarId) (ref : Syntax) (kind : SyntheticMVarKind)
 
 structure State extends Meta.State :=
-(syntheticMVars  : List (MVarId × SyntheticMVarInfo) := [])
+(syntheticMVars  : List SyntheticMVarDecl := [])
 (messages        : MessageLog := {})
 (instImplicitIdx : Nat := 1)
 (anonymousIdx    : Nat := 1)
@@ -108,6 +111,7 @@ fun ctx s => match x ctx.toContext s.toState with
   | EStateM.Result.error ex newS => EStateM.Result.error (Exception.meta ex) { toState := newS, .. s }
 
 def getEnv : TermElabM Environment := do s ← get; pure s.env
+def getMCtx : TermElabM MetavarContext := do s ← get; pure s.mctx
 def getNamespace : TermElabM Name := do ctx ← read; pure ctx.ns
 def getOpenDecls : TermElabM (List OpenDecl) := do ctx ← read; pure ctx.openDecls
 def getLCtx : TermElabM LocalContext := do ctx ← read; pure ctx.lctx
@@ -115,6 +119,10 @@ def getLocalInsts : TermElabM LocalInstances := do ctx ← read; pure ctx.localI
 def getOptions : TermElabM Options       := do ctx ← read; pure ctx.config.opts
 def getTraceState : TermElabM TraceState := do s ← get; pure s.traceState
 def setTraceState (traceState : TraceState) : TermElabM Unit := modify $ fun s => { traceState := traceState, .. s }
+def isExprMVarAssigned (mvarId : MVarId) : TermElabM Bool := do mctx ← getMCtx; pure $ mctx.isExprAssigned mvarId
+def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
+def assignExprMVar (mvarId : MVarId) (val : Expr) : TermElabM Unit := modify $ fun s => { mctx := s.mctx.assignExpr mvarId val, .. s }
+
 def addContext (msg : MessageData) : TermElabM MessageData := do
 ctx ← read;
 s   ← get;
@@ -136,11 +144,16 @@ def whnfForall (e : Expr) : TermElabM Expr := liftMetaM $ Meta.whnfForall e
 def instantiateMVars (e : Expr) : TermElabM Expr := liftMetaM $ Meta.instantiateMVars e
 def isClass (t : Expr) : TermElabM (Option Name) := liftMetaM $ Meta.isClass t
 def mkFreshLevelMVar : TermElabM Level := liftMetaM $ Meta.mkFreshLevelMVar
-def mkForall (xs : Array Expr) (e : Expr) : TermElabM Expr := liftMetaM $ Meta.mkForall xs e
 def mkFreshExprMVar (type? : Option Expr := none) (synthetic : Bool := false) (userName? : Name := Name.anonymous) : TermElabM Expr :=
 match type? with
 | some type => liftMetaM $ Meta.mkFreshExprMVar type userName? synthetic
 | none      => liftMetaM $ do u ← Meta.mkFreshLevelMVar; Meta.mkFreshExprMVar (mkSort u) userName? synthetic
+
+def mkForall (xs : Array Expr) (e : Expr) : TermElabM Expr := liftMetaM $ Meta.mkForall xs e
+def trySynthInstance (type : Expr) : TermElabM (LOption Expr) := liftMetaM $ Meta.trySynthInstance type
+
+def registerSyntheticMVar (mvarId : MVarId) (ref : Syntax) (kind : SyntheticMVarKind) : TermElabM Unit :=
+modify $ fun s => { syntheticMVars := { mvarId := mvarId, ref := ref, kind := kind } :: s.syntheticMVars, .. s }
 
 @[inline] def withoutPostponing {α} (x : TermElabM α) : TermElabM α :=
 adaptReader (fun (ctx : Context) => { mayPostpone := false, .. ctx }) x
@@ -204,7 +217,7 @@ let instIdx := s.instImplicitIdx;
 modify $ fun s => { instImplicitIdx := s.instImplicitIdx + 1, .. s};
 pure $ (`_inst).appendIndexAfter instIdx
 
-def mkHole := mkNode `Lean.Parser.Term.hole [mkAtom "_"]
+def mkHole := mkNode `Lean.Parser.Term.hole #[mkAtom "_"]
 
 /--
   Given syntax of the forms
@@ -333,7 +346,7 @@ fun stx _ =>
     mkForall xs e
 
 def mkExplicitBinder (n : Syntax) (type : Syntax) : Syntax :=
-mkNode `Lean.Parser.Term.explicitBinder [mkAtom "(", mkNullNode [n], mkNullNode [mkAtom ":", type], mkNullNode [], mkAtom ")"]
+mkNode `Lean.Parser.Term.explicitBinder #[mkAtom "(", mkNullNode #[n], mkNullNode #[mkAtom ":", type], mkNullNode, mkAtom ")"]
 
 @[builtinTermElab arrow] def elabArrow : TermElab :=
 fun stx expectedType? => do
@@ -341,7 +354,7 @@ fun stx expectedType? => do
   let id     := mkIdentFrom stx.val a;
   let dom    := stx.getArg 0;
   let rng    := stx.getArg 2;
-  let newStx := mkNode `Lean.Parser.Term.forall [mkAtom "forall", mkNullNode [mkExplicitBinder id dom], mkAtom ",", rng];
+  let newStx := mkNode `Lean.Parser.Term.forall #[mkAtom "forall", mkNullNode #[mkExplicitBinder id dom], mkAtom ",", rng];
   elabTerm newStx expectedType?
 
 @[builtinTermElab depArrow] def elabDepArrow : TermElab :=
@@ -364,14 +377,18 @@ fun stx expectedType? =>
     -- TODO: handle parenSpecial
     elabTerm term expectedType?
 
+def mkTermId (ref : Syntax) (n : Name) : Syntax :=
+let id := mkIdentFrom ref n;
+mkNode `Lean.Parser.Term.id #[id, mkNullNode]
+
 @[builtinTermElab «listLit»] def elabListLit : TermElab :=
 fun stx expectedType? => do
   let openBkt  := stx.getArg 0;
   let args     := stx.getArg 1;
   let closeBkt := stx.getArg 2;
-  let consId   := mkIdentFrom openBkt `List.cons;
-  let nilId    := mkIdentFrom closeBkt `List.nil;
-  let newStx   := args.foldSepArgs (fun arg r => mkAppStx consId #[arg, r]) nilId;
+  let consId   := mkTermId openBkt `List.cons;
+  let nilId    := mkTermId closeBkt `List.nil;
+  let newStx   := args.foldSepRevArgs (fun arg r => mkAppStx consId #[arg, r]) nilId;
   elabTerm newStx expectedType?
 
 def elabExplicitUniv (stx : Syntax) : TermElabM (List Level) :=
@@ -453,6 +470,9 @@ match expectedType? with
   condM (isDefEq eType expectedType)
     (pure e)
     (do -- TODO try `HasCoe`
+        e ← instantiateMVars e;
+        eType ← instantiateMVars eType;
+        expectedType ← instantiateMVars expectedType;
         let msg : MessageData :=
           "type mismatch" ++ indentExpr e
           ++ Format.line ++ "has type" ++ indentExpr eType
@@ -460,57 +480,80 @@ match expectedType? with
         logErrorAndThrow ref msg)
 
 /-- Consume parameters of the form `(x : A := val)` and `(x : A . tactic)` -/
-def consumeDefaultParams (ref : Syntax) (expectedType? : Option Expr) : Expr → Expr → TermElabM Expr
+def consumeDefaultParams (ref : Syntax) : Expr → Expr → TermElabM Expr
 | eType, e =>
   -- TODO
-  ensureHasType ref expectedType? eType e
+  pure e
+
+def synthesizeInstMVar (ref : Syntax) (instMVar : MVarId) : TermElabM Unit :=
+condM (isExprMVarAssigned instMVar) (pure ()) $ do
+  instMVarDecl ← getMVarDecl instMVar;
+  let type := instMVarDecl.type;
+  type ← instantiateMVars type;
+  result ← trySynthInstance type;
+  match result with
+  | LOption.some val => assignExprMVar instMVar val
+  | LOption.undef    => pure () -- we will try later
+  | LOption.none     => logErrorAndThrow ref ("failed to synthesize instance" ++ indentExpr type)
+
+def synthesizeInstMVars (ref : Syntax) (instMVars : Array MVarId) : TermElabM Unit :=
+instMVars.forM $ synthesizeInstMVar ref
 
 private partial def elabAppArgsAux (ref : Syntax) (args : Array Syntax) (expectedType? : Option Expr) (explicit : Bool)
-    : Nat → Array NamedArg → Expr → Expr → TermElabM Expr
-| argIdx, namedArgs, eType, e =>
-  if namedArgs.isEmpty && argIdx == args.size then
+    : Nat → Array NamedArg → Array MVarId → Expr → Expr → TermElabM Expr
+| argIdx, namedArgs, instMVars, eType, e => do
+  let finalize : Unit → TermElabM Expr := fun _ => do {
     -- all user explicit arguments have been consumed
-    if explicit then
-       ensureHasType ref expectedType? eType e
-    else
-       consumeDefaultParams ref expectedType? eType e
-  else do
-    eType ← whnfForall eType;
-    match eType with
-    | Expr.forallE n d b c =>
-      match namedArgs.findIdx? (fun namedArg => namedArg.name == n) with
-      | some idx => do
-        let arg       := namedArgs.get! idx;
-        let namedArgs := namedArgs.eraseIdx idx;
-        a ← elabTerm arg.val d;
-        elabAppArgsAux argIdx namedArgs (b.instantiate1 a) (mkApp e a)
-      | none =>
-        let processExplictArg : Unit → TermElabM Expr := fun _ => do {
-          if h : argIdx < args.size then do
-            a ← elabTerm (args.get ⟨argIdx, h⟩) d;
-            elabAppArgsAux (argIdx + 1) namedArgs (b.instantiate1 a) (mkApp e a)
-          else
-            logErrorAndThrow ref ("explicit parameter '" ++ n ++ "' is missing, unused named arguments " ++ toString (namedArgs.map $ fun narg => narg.name))
-        };
-        if explicit then
+    e ← if explicit then pure e else consumeDefaultParams ref eType e;
+    e ← ensureHasType ref expectedType? eType e;
+    synthesizeInstMVars ref instMVars;
+    pure e
+  };
+  eType ← whnfForall eType;
+  match eType with
+  | Expr.forallE n d b c =>
+    match namedArgs.findIdx? (fun namedArg => namedArg.name == n) with
+    | some idx => do
+      let arg       := namedArgs.get! idx;
+      let namedArgs := namedArgs.eraseIdx idx;
+      a ← elabTerm arg.val d;
+      elabAppArgsAux argIdx namedArgs instMVars (b.instantiate1 a) (mkApp e a)
+    | none =>
+      let processExplictArg : Unit → TermElabM Expr := fun _ => do {
+        if h : argIdx < args.size then do
+          a ← elabTerm (args.get ⟨argIdx, h⟩) d;
+          elabAppArgsAux (argIdx + 1) namedArgs instMVars (b.instantiate1 a) (mkApp e a)
+        else if namedArgs.isEmpty then
+          finalize ()
+        else
+          logErrorAndThrow ref ("explicit parameter '" ++ n ++ "' is missing, unused named arguments " ++ toString (namedArgs.map $ fun narg => narg.name))
+      };
+      if explicit then
+        processExplictArg ()
+      else match c.binderInfo with
+        | BinderInfo.implicit => do
+          a ← mkFreshExprMVar d;
+          elabAppArgsAux argIdx namedArgs instMVars (b.instantiate1 a) (mkApp e a)
+        | BinderInfo.instImplicit => do
+          a ← mkFreshExprMVar d true;
+          let mvarId := a.mvarId!;
+          registerSyntheticMVar mvarId ref SyntheticMVarKind.typeClass;
+          elabAppArgsAux argIdx namedArgs (instMVars.push mvarId) (b.instantiate1 a) (mkApp e a)
+        | _ =>
           processExplictArg ()
-        else match c.binderInfo with
-          | BinderInfo.implicit => do
-            a ← mkFreshExprMVar d;
-            elabAppArgsAux argIdx namedArgs (b.instantiate1 a) (mkApp e a)
-          | BinderInfo.instImplicit =>
-            -- TODO
-            pure e
-          | _ =>
-            processExplictArg ()
-    | _ =>
+  | _ =>
+    if namedArgs.isEmpty && argIdx == args.size then
+      finalize ()
+    else
       -- TODO: try `HasCoeToFun`
       logErrorAndThrow ref "too many arguments"
 
 private def elabAppArgs (ref : Syntax) (f : Expr) (namedArgs : Array NamedArg) (args : Array Syntax)
     (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr := do
 fType ← inferType f;
-elabAppArgsAux ref args expectedType? explicit 0 namedArgs fType f
+let argIdx    := 0;
+let instMVars := #[];
+elabAppArgsAux ref args expectedType? explicit argIdx namedArgs instMVars fType f
 
 private def elabAppProjs (ref : Syntax) (f : Expr) (projs : List String) (namedArgs : Array NamedArg) (args : Array Syntax)
     (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr :=

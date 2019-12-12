@@ -340,7 +340,7 @@ class HasNeg      (α : Type u) := (neg : α → α)
 class HasSub      (α : Type u) := (sub : α → α → α)
 class HasDiv      (α : Type u) := (div : α → α → α)
 class HasMod      (α : Type u) := (mod : α → α → α)
-class HasModn     (α : Type u) := (modn : α → Nat → α)
+class HasModN     (α : Type u) := (modn : α → Nat → α)
 class HasLessEq   (α : Type u) := (LessEq : α → α → Prop)
 class HasLess     (α : Type u) := (Less : α → α → Prop)
 class HasBeq      (α : Type u) := (beq : α → α → Bool)
@@ -353,15 +353,12 @@ class HasEmptyc   (α : Type u) := (emptyc : α)
 class HasPow (α : Type u) (β : Type v) :=
 (pow : α → β → α)
 
-export HasAndthen (andthen)
-export HasPow (pow)
-
 infix `+`        := HasAdd.add
 infix `*`        := HasMul.mul
 infix `-`        := HasSub.sub
 infix `/`        := HasDiv.div
 infix `%`        := HasMod.mod
-infix `%ₙ`       := HasModn.modn
+infix `%ₙ`       := HasModN.modn
 prefix `-`       := HasNeg.neg
 infix `<=`       := HasLessEq.LessEq
 infix `≤`        := HasLessEq.LessEq
@@ -381,8 +378,6 @@ infix `↔`        := Iff
 -- notation `∃` binders `, ` r:(scoped P, Exists P) := r
 infixr `<|>`     := HasOrelse.orelse
 infixr `>>`      := HasAndthen.andthen
-
-export HasAppend (append)
 
 @[reducible] def GreaterEq {α : Type u} [HasLessEq α] (a b : α) : Prop := HasLessEq.LessEq b a
 @[reducible] def Greater {α : Type u} [HasLess α] (a b : α) : Prop     := HasLess.Less b a

@@ -17,11 +17,11 @@ def zero := 0
 def one := 1
 def two := 2
 -- set_option trace.Elab.app true
--- set_option trace.Elab true
 
 def act1 : IO String :=
 pure "hello"
 
+#eval run "#check HasAdd.add"
 #eval run "#check [zero, one, two]"
 #eval run "#check id $ Nat.succ one"
 #eval run "#check HasAdd.add one two"
@@ -31,6 +31,7 @@ pure "hello"
 
 #eval run
 "universe u universe v
+ export HasToString (toString)
  section namespace foo.bla end bla end foo
  variable (p q : Prop)
  variable (_ b : _)
@@ -40,6 +41,7 @@ pure "hello"
  #check m
  #check Type
  #check Prop
+ #check toString zero
  #check id Nat.zero (α := Nat)
  #check id _ (α := Nat)
  #check id Nat.zero

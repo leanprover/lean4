@@ -252,9 +252,28 @@ match e.getAppFn with
 | Expr.fvar fvarId _ => let nargs := e.getAppNumArgs; pure (Key.fvar fvarId nargs, e.getAppRevArgs)
 | Expr.mvar mvarId _ =>
   if isMatch? then pure (Key.other, #[])
-  else condM (isReadOnlyOrSyntheticExprMVar mvarId)
-    (pure (Key.other, #[]))
-    (pure (Key.star, #[]))
+  else do
+    ctx ← read;
+    if ctx.config.isDefEqStuckEx then
+      /-
+        When the configuration flag `isDefEqStuckEx` is set to true,
+        we want `isDefEq` to throw an exception whenever it tries to assign
+        a read-only metavariable.
+        This feature is useful for type class resolution where
+        we may want to notify the caller that the TC problem may be solveable
+        later after it assigns `?m`.
+        The method `DiscrTree.getUnify e` returns candidates `c` that may "unify" with `e`.
+        That is, `isDefEq c e` may return true. Now, consider `DiscrTree.getUnify d (HasAdd ?m)`
+        where `?m` is a read-only metavariable, and the discrimination tree contains the keys
+        `HadAdd Nat` and `HasAdd Int`. If `isDefEqStuckEx` is set to true, we must treat `?m` as
+        a regular metavariable here, otherwise we return the empty set of candidates.
+        This is incorrect because it is equivalent to saying that there is no solution even if
+        the caller assigns `?m` and try again. -/
+      pure (Key.star, #[])
+    else
+      condM (isReadOnlyOrSyntheticExprMVar mvarId)
+        (pure (Key.other, #[]))
+        (pure (Key.star, #[]))
 | _                  => pure (Key.other, #[])
 
 private abbrev getMatchKeyArgs (e : Expr) : MetaM (Key × Array Expr) :=

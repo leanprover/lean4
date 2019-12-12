@@ -15,14 +15,24 @@ namespace Lean
 class MonadQuotation (m : Type → Type) :=
 -- Get the fresh scope of the current macro invocation
 (getCurrMacroScope : m Nat)
+-- Execute action in a new macro invocation context
+(withFreshMacroScope {α : Type} : m α → m α)
+export MonadQuotation
 
-/-- Simplistic MonadQuotation that does not guarantee fresh names. It is only safe
+/-- Simplistic MonadQuotation that does not guarantee globally fresh names. It is only safe
     if the syntax quotations do not introduce bindings around antiquotations, and
     if references to globals are prefixed with `_root_.`. -/
-abbrev Unhygienic := Id
+abbrev Unhygienic := ReaderT (List Nat) $ StateM Nat
 namespace Unhygienic
-instance MonadQuotation : MonadQuotation Unhygienic := ⟨pure 0⟩
-def run {α : Type} : Unhygienic α → α := Id.run
+instance MonadQuotation : MonadQuotation Unhygienic := {
+  getCurrMacroScope := do
+    stack ← read;
+    pure $ stack.head!,
+  withFreshMacroScope := fun α x => do
+    fresh ← modifyGet (fun n => (n, n + 1));
+    adaptReader (fun stack => fresh::stack) x
+}
+protected def run {α : Type} (x : Unhygienic α) : α := run x [0] 1
 end Unhygienic
 
 /-- Reflect a runtime datum back to surface syntax (best-effort). -/
@@ -60,9 +70,11 @@ instance Array.HasQuote {α : Type} [HasQuote α] : HasQuote (Array α) :=
 namespace Elab
 namespace Term
 
-instance TermElabM.MonadQuotation : MonadQuotation TermElabM :=
+instance TermElabM.MonadQuotation : MonadQuotation TermElabM := {
 -- FIXME: actually allocate macro scopes when we actually make use of them
-⟨pure 0⟩
+  getCurrMacroScope := pure 0,
+  withFreshMacroScope := fun α => id
+}
 
 private partial def quoteSyntax {m : Type → Type} [Monad m] [MonadQuotation m] (env : Environment) (msc : Syntax) : Syntax → m Syntax
 | Syntax.ident info rawVal val preresolved =>

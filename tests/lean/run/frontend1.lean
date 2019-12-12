@@ -27,6 +27,7 @@ pure "hello"
 #eval run "#check HasAdd.add one two"
 #eval run "#check one + two > one ∧ True"
 #eval run "#check act1 >>= IO.println"
+#eval run "#check one + two == one"
 
 #eval run
 "universe u universe v

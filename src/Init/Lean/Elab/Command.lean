@@ -18,13 +18,13 @@ structure Context :=
 (fileMap  : FileMap)
 
 structure Scope :=
-(kind        : String)
-(header      : String)
-(options     : Options := {})
-(ns          : Name := Name.anonymous) -- current namespace
-(openDecls   : List OpenDecl := [])
-(univNames   : List Name := [])
-(varDecls    : Array Syntax := #[])
+(kind          : String)
+(header        : String)
+(options       : Options := {})
+(currNamespace : Name := Name.anonymous)
+(openDecls     : List OpenDecl := [])
+(univNames     : List Name := [])
+(varDecls      : Array Syntax := #[])
 
 instance Scope.inhabited : Inhabited Scope := ⟨{ kind := "", header := "" }⟩
 
@@ -116,7 +116,7 @@ let scope := s.scopes.head!;
   fileName       := ctx.fileName,
   fileMap        := ctx.fileMap,
   cmdPos         := s.cmdPos,
-  ns             := scope.ns,
+  currNamespace  := scope.currNamespace,
   univNames      := scope.univNames,
   openDecls      := scope.openDecls }
 
@@ -147,21 +147,21 @@ modify $ fun s => { env := newEnv, .. s }
 def getScope : CommandElabM Scope := do
 s ← get; pure s.scopes.head!
 
-def getNamespace : CommandElabM Name := do
-scope ← getScope; pure scope.ns
+def getCurrNamespace : CommandElabM Name := do
+scope ← getScope; pure scope.currNamespace
 
-private def addScope (kind : String) (header : String) (ns : Name) : CommandElabM Unit :=
+private def addScope (kind : String) (header : String) (newNamespace : Name) : CommandElabM Unit :=
 modify $ fun s => {
-  env    := s.env.registerNamespace ns,
-  scopes := { kind := kind, header := header, ns := ns, .. s.scopes.head! } :: s.scopes,
+  env    := s.env.registerNamespace newNamespace,
+  scopes := { kind := kind, header := header, currNamespace := newNamespace, .. s.scopes.head! } :: s.scopes,
   .. s }
 
 private def addScopes (kind : String) (updateNamespace : Bool) : Name → CommandElabM Unit
 | Name.anonymous => pure ()
 | Name.str p header _ => do
   addScopes p;
-  ns ← getNamespace;
-  addScope kind header (if updateNamespace then ns ++ header else ns)
+  currNamespace ← getCurrNamespace;
+  addScope kind header (if updateNamespace then currNamespace ++ header else currNamespace)
 | _ => unreachable!
 
 @[builtinCommandElab «namespace»] def elabNamespace : CommandElab :=
@@ -174,7 +174,7 @@ fun n => do
   let header? := (n.getArg 1).getOptionalIdent;
   match header? with
   | some header => addScopes "section" false header
-  | none        => do ns ← getNamespace; addScope "section" "" ns
+  | none        => do currNamespace ← getCurrNamespace; addScope "section" "" currNamespace
 
 def getScopes : CommandElabM (List Scope) := do
 s ← get; pure s.scopes
@@ -244,10 +244,10 @@ def getOpenDecls : CommandElabM (List OpenDecl) := do
 scope ← getScope; pure scope.openDecls
 
 def resolveNamespace (id : Name) : CommandElabM Name := do
-env ← getEnv;
-ns  ← getNamespace;
+env           ← getEnv;
+currNamespace ← getCurrNamespace;
 openDecls ← getOpenDecls;
-match Elab.resolveNamespace env ns openDecls id with
+match Elab.resolveNamespace env currNamespace openDecls id with
 | some ns => pure ns
 | none    => throwErrorUsingCmdPos ("unknown namespace '" ++ toString id ++ "'")
 
@@ -256,8 +256,8 @@ fun stx => do
   -- `stx` is of the form (Command.export "export" <namespace> "(" (null <ids>*) ")")
   let id  := stx.getIdAt 1;
   ns ← resolveNamespace id;
-  currNs ← getNamespace;
-  when (ns == currNs) $ throwError stx.val "invalid 'export', self export";
+  currNamespace ← getCurrNamespace;
+  when (ns == currNamespace) $ throwError stx.val "invalid 'export', self export";
   env ← getEnv;
   let ids := (stx.getArg 3).getArgs;
   aliases ← ids.foldlM
@@ -265,7 +265,7 @@ fun stx => do
       let id := idStx.getId;
       let declName := ns ++ id;
       if env.contains declName then
-        pure $ (currNs ++ id, declName) :: aliases
+        pure $ (currNamespace ++ id, declName) :: aliases
       else do
         logUnknownDecl idStx declName;
         pure aliases

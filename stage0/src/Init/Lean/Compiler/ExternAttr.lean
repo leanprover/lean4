@@ -45,14 +45,14 @@ private partial def syntaxToExternEntries (a : Array Syntax) : Nat → List Exte
     | Syntax.ident _ _ backend _ =>
       let i := i + 1;
       if i == a.size then Except.error "string or identifier expected"
-      else match (a.get! i).isIdOrAtom with
+      else match (a.get! i).isIdOrAtom? with
         | some "adhoc"  => syntaxToExternEntries (i+1) (ExternEntry.adhoc backend :: entries)
         | some "inline" =>
           let i := i + 1;
-          match (a.get! i).isStrLit with
+          match (a.get! i).isStrLit? with
           | some pattern => syntaxToExternEntries (i+1) (ExternEntry.inline backend pattern :: entries)
           | none => Except.error "string literal expected"
-        | _ => match (a.get! i).isStrLit with
+        | _ => match (a.get! i).isStrLit? with
           | some fn => syntaxToExternEntries (i+1) (ExternEntry.standard backend fn :: entries)
           | none => Except.error "string literal expected"
     | _ => Except.error "identifier expected"
@@ -63,10 +63,10 @@ match s with
 | Syntax.node _ args =>
   if args.size == 0 then Except.error "unexpected kind of argument"
   else
-    let (arity, i) : Option Nat × Nat := match (args.get! 0).isNatLit with
+    let (arity, i) : Option Nat × Nat := match (args.get! 0).isNatLit? with
       | some arity => (some arity, 1)
       | none       => (none, 0);
-    match (args.get! i).isStrLit with
+    match (args.get! i).isStrLit? with
     | some str =>
       if args.size == i+1 then
         Except.ok { arity := arity, entries := [ ExternEntry.standard `all str ] }

@@ -125,6 +125,7 @@ size_t lean_usize_mix_hash(size_t, size_t);
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 lean_object* l_Lean_Name_isPrefixOf___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
+lean_object* l_Lean_Name_appendBefore(lean_object*, lean_object*);
 lean_object* l_RBNode_ins___main___at_Lean_NameMap_insert___spec__3(lean_object*);
 lean_object* l_RBNode_ins___main___at_Lean_NameMap_insert___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_find___main___at_Lean_NameMap_contains___spec__1___rarg(lean_object*, lean_object*);
@@ -1296,6 +1297,44 @@ x_6 = lean_string_append(x_5, x_4);
 lean_dec(x_4);
 x_7 = lean_name_mk_string(x_1, x_6);
 return x_7;
+}
+}
+}
+lean_object* l_Lean_Name_appendBefore(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+lean_object* x_3; 
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+case 1:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_1, 1);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = lean_string_append(x_2, x_5);
+lean_dec(x_5);
+x_7 = lean_name_mk_string(x_4, x_6);
+return x_7;
+}
+default: 
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_1, 1);
+lean_inc(x_9);
+lean_dec(x_1);
+x_10 = lean_name_mk_string(x_8, x_2);
+x_11 = lean_name_mk_numeral(x_10, x_9);
+return x_11;
+}
 }
 }
 }

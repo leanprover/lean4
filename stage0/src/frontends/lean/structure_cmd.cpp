@@ -136,20 +136,6 @@ buffer<name> get_parent_structures(environment const & env, name const & S_name)
     return parents;
 }
 
-name_set get_ancestor_structures(environment const & env, name const & S_name) {
-    name_set ns;
-    std::function<void(name const &)> go = [&](name const & n) {
-        for (auto const & p : get_parent_structures(env, n)) {
-            if (!ns.contains(p)) {
-                ns.insert(p);
-                go(p);
-            }
-        }
-    };
-    go(S_name);
-    return ns;
-}
-
 optional<name> find_field(environment const & env, name const & S_name, name const & fname) {
     for (auto const & n : get_structure_fields(env, S_name))
         if (n == fname)

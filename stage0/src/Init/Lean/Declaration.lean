@@ -53,6 +53,8 @@ end ReducibilityHints
 structure ConstantVal :=
 (name : Name) (lparams : List Name) (type : Expr)
 
+instance ConstantVal.inhabited : Inhabited ConstantVal := ⟨{ name := arbitrary _, lparams := arbitrary _, type := arbitrary _ }⟩
+
 structure AxiomVal extends ConstantVal :=
 (isUnsafe : Bool)
 
@@ -111,6 +113,9 @@ structure ConstructorVal extends ConstantVal :=
 (nparams : Nat)   -- Number of parameters in inductive datatype `induct`
 (nfields : Nat)   -- Number of fields (i.e., arity - nparams)
 (isUnsafe : Bool)
+
+instance ConstructorVal.inhabited : Inhabited ConstructorVal :=
+⟨{ toConstantVal := arbitrary _, induct := arbitrary _, cidx := 0, nparams := 0, nfields := 0, isUnsafe := true }⟩
 
 /-- Information for reducing a recursor -/
 structure RecursorRule :=

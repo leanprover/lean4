@@ -77,6 +77,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkExternAttr___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_expandExternPatternAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_isStrLit_x3f(lean_object*);
 lean_object* l_Lean_expandExternPatternAux___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__5;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -85,7 +86,6 @@ lean_object* l___private_Init_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData
 lean_object* l_Lean_expandExternPatternAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkExternAttr___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkExternAttr___closed__2;
-lean_object* l_Lean_Syntax_isStrLit(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Array_qsortAux___main___at_Lean_mkExternAttr___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_List_reprAux___main___rarg___closed__1;
@@ -106,6 +106,7 @@ lean_object* l_List_foldl___main___at_Lean_mkSimpleFnCall___spec__1___boxed(lean
 uint8_t l_String_Iterator_hasNext(lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 lean_object* l_Lean_isExternC___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_isIdOrAtom_x3f(lean_object*);
 extern lean_object* l_Option_HasRepr___rarg___closed__3;
 lean_object* l___private_Init_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData(lean_object*);
 lean_object* lean_get_extern_attr_data(lean_object*, lean_object*);
@@ -133,7 +134,6 @@ lean_object* l_Lean_expandExternPatternAux(lean_object*, lean_object*, lean_obje
 lean_object* l_Lean_getExternEntryForAux___boxed(lean_object*, lean_object*);
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkExternAttr___closed__4;
-lean_object* l_Lean_Syntax_isIdOrAtom(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* lean_io_initializing(lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
@@ -286,11 +286,11 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
 x_12 = lean_array_get(x_6, x_1, x_10);
-x_13 = l_Lean_Syntax_isIdOrAtom(x_12);
+x_13 = l_Lean_Syntax_isIdOrAtom_x3f(x_12);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; 
-x_14 = l_Lean_Syntax_isStrLit(x_12);
+x_14 = l_Lean_Syntax_isStrLit_x3f(x_12);
 lean_dec(x_12);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -337,7 +337,7 @@ lean_dec(x_21);
 if (x_25 == 0)
 {
 lean_object* x_26; 
-x_26 = l_Lean_Syntax_isStrLit(x_12);
+x_26 = l_Lean_Syntax_isStrLit_x3f(x_12);
 lean_dec(x_12);
 if (lean_obj_tag(x_26) == 0)
 {
@@ -374,7 +374,7 @@ lean_dec(x_12);
 x_33 = lean_nat_add(x_10, x_9);
 lean_dec(x_10);
 x_34 = lean_array_get(x_6, x_1, x_33);
-x_35 = l_Lean_Syntax_isStrLit(x_34);
+x_35 = l_Lean_Syntax_isStrLit_x3f(x_34);
 lean_dec(x_34);
 if (lean_obj_tag(x_35) == 0)
 {
@@ -633,7 +633,7 @@ lean_inc(x_9);
 lean_dec(x_7);
 x_10 = l_Lean_stxInh;
 x_11 = lean_array_get(x_10, x_3, x_9);
-x_12 = l_Lean_Syntax_isStrLit(x_11);
+x_12 = l_Lean_Syntax_isStrLit_x3f(x_11);
 lean_dec(x_11);
 if (lean_obj_tag(x_12) == 0)
 {

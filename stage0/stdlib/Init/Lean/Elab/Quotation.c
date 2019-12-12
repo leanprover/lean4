@@ -77,6 +77,7 @@ extern lean_object* l_Lean_Parser_Term_id___elambda__1___closed__2;
 extern lean_object* l_Lean_numLitKind;
 extern lean_object* l_Lean_strLitKind;
 lean_object* l___private_Init_Lean_Elab_Quotation_7__quote(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_isStrLit_x3f(lean_object*);
 extern lean_object* l_Lean_Parser_Term_antiquot___elambda__1___rarg___closed__1;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_numLitKind___closed__1;
@@ -92,7 +93,6 @@ extern lean_object* l_Lean_Parser_Term_id___elambda__1___closed__1;
 lean_object* l_Array_umapMAux___main___at___private_Init_Lean_Elab_Quotation_7__quote___main___spec__8___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_1__const(lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_8__toPreterm___main___closed__2;
-lean_object* l_Lean_Syntax_isStrLit(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_8__toPreterm___main___closed__1;
 lean_object* l_Array_umapMAux___main___at___private_Init_Lean_Elab_Quotation_7__quote___main___spec__3___boxed(lean_object*, lean_object*, lean_object*);
@@ -2706,7 +2706,7 @@ else
 lean_object* x_30; 
 lean_dec(x_18);
 lean_dec(x_4);
-x_30 = l_Lean_Syntax_isStrLit(x_2);
+x_30 = l_Lean_Syntax_isStrLit_x3f(x_2);
 lean_dec(x_2);
 if (lean_obj_tag(x_30) == 0)
 {

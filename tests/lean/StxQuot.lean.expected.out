@@ -2,3 +2,6 @@
 "(Term.add (numLit \"1\") \"+\" (numLit \"1\"))"
 "(Term.id `Nat.one (null))"
 "(Term.app (Term.id `f (null)) (Term.id `Nat.one (null)))"
+"(Term.stxQuot \"`(\" (Term.id `hi (null)) \")\")"
+"(Term.stxQuot \"`(\" (Term.antiquot \"%%\" (Term.id `a (null))) \")\")"
+"(Term.stxQuot \"`(\" (Term.antiquot \"%%\" (Term.id `Nat.one (null))) \")\")"

@@ -9,5 +9,8 @@ def run : Unhygienic Syntax → String := toString ∘ Unhygienic.run
 #eval run `(1 + 1)
 #eval run $ do a ← `(Nat.one); `(%%a)
 #eval run $ do a ← `(Nat.one); `(f %%(id a))
+#eval run `(`(hi))
+#eval run `(`(%%a))
+#eval run $ do a ← `(Nat.one); `(`(%%%%a))
 
 end Lean

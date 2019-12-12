@@ -7,6 +7,7 @@ Helper functions for retrieving structure information.
 -/
 prelude
 import Init.Lean.Environment
+import Init.Lean.ProjFns
 
 namespace Lean
 
@@ -97,5 +98,27 @@ private partial def getStructureFieldsFlattenedAux (env : Environment) : Name �
 
 def getStructureFieldsFlattened (env : Environment) (structName : Name) : Array Name :=
 getStructureFieldsFlattenedAux env structName #[]
+
+private def hasProjFn (env : Environment) (structName : Name) (nparams : Nat) : Nat → Expr → Bool
+| i, Expr.forallE n d b _ =>
+  if i < nparams then
+    hasProjFn (i+1) b
+  else
+    let fullFieldName := structName ++ deinternalizeFieldName n;
+    env.isProjectionFn fullFieldName
+| _, _ => false
+
+/--
+  Return true if `constName` is the name of an inductive datatype
+  created using the `structure` or `class` commands.
+
+  We perform the check by testing whether auxiliary projection functions
+  have been created. -/
+def isStructure (env : Environment) (constName : Name) : Bool :=
+if isStructureLike env constName then
+  let ctor := getStructureCtor env constName;
+  hasProjFn env constName ctor.nparams 0 ctor.type
+else
+  false
 
 end Lean

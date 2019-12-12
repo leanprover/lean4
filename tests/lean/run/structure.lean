@@ -16,6 +16,12 @@ structure S4 extends S2, S3 :=
 def check (b : Bool) : MetaIO Unit :=
 unless b $ throw $ IO.userError "check failed"
 
+class S5 :=
+(x y : Nat)
+
+inductive D
+| mk (x y z : Nat) : D
+
 def tst : MetaIO Unit :=
 do env ← MetaIO.getEnv;
    IO.println (getStructureFields env `Lean.Environment);
@@ -25,7 +31,15 @@ do env ← MetaIO.getEnv;
    check $ getParentStructures env `S4 == #[`S2, `S3];
    check $ findField? env `S4 `x == some `S1;
    check $ findField? env `S4 `x1 == none;
+   check $ isStructure env `S1;
+   check $ isStructure env `S2;
+   check $ isStructure env `S3;
+   check $ isStructure env `S4;
+   check $ isStructure env `S5;
+   check $ !isStructure env `Nat;
+   check $ !isStructure env `D;
    IO.println (getStructureFieldsFlattened env `S4);
+   IO.println (getStructureFields env `D);
    pure ()
 
 #eval tst

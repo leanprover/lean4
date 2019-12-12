@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Lean.Util.Sorry
 import Init.Lean.Meta
 import Init.Lean.Elab.Log
 import Init.Lean.Elab.Alias
@@ -46,7 +47,7 @@ abbrev TermElab  := SyntaxNode → Option Expr → TermElabM Expr
 abbrev TermElabResult := EStateM.Result Exception State Expr
 
 instance TermElabM.inhabited {α} : Inhabited (TermElabM α) :=
-⟨throw $ Exception.other ""⟩
+⟨throw $ arbitrary _⟩
 
 instance TermElabResult.inhabited : Inhabited TermElabResult := ⟨EStateM.Result.ok (arbitrary _) (arbitrary _)⟩
 
@@ -115,11 +116,6 @@ abbrev TermElabAttribute := ElabAttribute TermElabTable
 def mkTermElabAttribute : IO TermElabAttribute := mkElabAttribute `elabTerm "term" builtinTermElabTable
 @[init mkTermElabAttribute] constant termElabAttribute : TermElabAttribute := arbitrary _
 
-@[inline] def liftMetaM {α} (x : MetaM α) : TermElabM α :=
-fun ctx s => match x ctx.toContext s.toState with
-  | EStateM.Result.ok a newS     => EStateM.Result.ok a { toState := newS, .. s }
-  | EStateM.Result.error ex newS => EStateM.Result.error (Exception.meta ex) { toState := newS, .. s }
-
 def getEnv : TermElabM Environment := do s ← get; pure s.env
 def getMCtx : TermElabM MetavarContext := do s ← get; pure s.mctx
 def getNamespace : TermElabM Name := do ctx ← read; pure ctx.ns
@@ -147,31 +143,79 @@ instance tracer : SimpleMonadTracerAdapter TermElabM :=
 def dbgTrace {α} [HasToString α] (a : α) : TermElabM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()
 
-def isDefEq (t s : Expr) : TermElabM Bool := liftMetaM $ Meta.isDefEq t s
-def inferType (e : Expr) : TermElabM Expr := liftMetaM $ Meta.inferType e
-def whnf (e : Expr) : TermElabM Expr := liftMetaM $ Meta.whnf e
-def whnfForall (e : Expr) : TermElabM Expr := liftMetaM $ Meta.whnfForall e
-def whnfCore (e : Expr) : TermElabM Expr := liftMetaM $ Meta.whnfCore e
-def unfoldDefinition (e : Expr) : TermElabM (Option Expr) := liftMetaM $ Meta.unfoldDefinition e
-def instantiateMVars (e : Expr) : TermElabM Expr := liftMetaM $ Meta.instantiateMVars e
-def isClass (t : Expr) : TermElabM (Option Name) := liftMetaM $ Meta.isClass t
-def mkFreshLevelMVar : TermElabM Level := liftMetaM $ Meta.mkFreshLevelMVar
-def mkFreshExprMVar (type? : Option Expr := none) (synthetic : Bool := false) (userName? : Name := Name.anonymous) : TermElabM Expr :=
-match type? with
-| some type => liftMetaM $ Meta.mkFreshExprMVar type userName? synthetic
-| none      => liftMetaM $ do u ← Meta.mkFreshLevelMVar; Meta.mkFreshExprMVar (mkSort u) userName? synthetic
+def mkMessage (ctx : Context) (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity) : Message :=
+mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos.getD ctx.cmdPos)
 
-def mkForall (xs : Array Expr) (e : Expr) : TermElabM Expr := liftMetaM $ Meta.mkForall xs e
-def trySynthInstance (type : Expr) : TermElabM (LOption Expr) := liftMetaM $ Meta.trySynthInstance type
+def mkException (ctx : Context) (ref : Syntax) (msgData : MessageData) : Exception :=
+mkMessage ctx ref msgData MessageSeverity.error
+
+private def fromMetaException (ctx : Context) (ref : Syntax) (ex : Meta.Exception) : Exception :=
+mkException ctx ref ex.toMessageData
+
+private def fromMetaState (ref : Syntax) (ctx : Context) (s : State) (newS : Meta.State) (oldTraceState : TraceState) : State :=
+let traces   := newS.traceState.traces;
+let messages := traces.foldl (fun (messages : MessageLog) trace => messages.add (mkMessage ctx ref trace MessageSeverity.information)) s.messages;
+{ toState  := { traceState := oldTraceState, .. newS },
+  messages := messages,
+  .. s }
+
+@[inline] def liftMetaM {α} (ref : Syntax) (x : MetaM α) : TermElabM α :=
+fun ctx s =>
+  let oldTraceState := s.traceState;
+  match x ctx.toContext { traceState := {}, .. s.toState } with
+  | EStateM.Result.ok a newS     => EStateM.Result.ok a (fromMetaState ref ctx s newS oldTraceState)
+  | EStateM.Result.error ex newS => EStateM.Result.error (fromMetaException ctx ref ex) (fromMetaState ref ctx s newS oldTraceState)
+
+def isDefEq (ref : Syntax) (t s : Expr) : TermElabM Bool := liftMetaM ref $ Meta.isDefEq t s
+def inferType (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.inferType e
+def whnf (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.whnf e
+def whnfForall (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.whnfForall e
+def whnfCore (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.whnfCore e
+def unfoldDefinition (ref : Syntax) (e : Expr) : TermElabM (Option Expr) := liftMetaM ref $ Meta.unfoldDefinition e
+def instantiateMVars (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.instantiateMVars e
+def isClass (ref : Syntax) (t : Expr) : TermElabM (Option Name) := liftMetaM ref $ Meta.isClass t
+def mkFreshLevelMVar (ref : Syntax) : TermElabM Level := liftMetaM ref $ Meta.mkFreshLevelMVar
+def mkFreshExprMVar (ref : Syntax) (type? : Option Expr := none) (synthetic : Bool := false) (userName? : Name := Name.anonymous) : TermElabM Expr :=
+match type? with
+| some type => liftMetaM ref $ Meta.mkFreshExprMVar type userName? synthetic
+| none      => liftMetaM ref $ do u ← Meta.mkFreshLevelMVar; Meta.mkFreshExprMVar (mkSort u) userName? synthetic
+def getLevel (ref : Syntax) (type : Expr) : TermElabM Level := liftMetaM ref $ Meta.getLevel type
+
+def mkForall (ref : Syntax) (xs : Array Expr) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.mkForall xs e
+def trySynthInstance (ref : Syntax) (type : Expr) : TermElabM (LOption Expr) := liftMetaM ref $ Meta.trySynthInstance type
 
 def registerSyntheticMVar (mvarId : MVarId) (ref : Syntax) (kind : SyntheticMVarKind) : TermElabM Unit :=
 modify $ fun s => { syntheticMVars := { mvarId := mvarId, ref := ref, kind := kind } :: s.syntheticMVars, .. s }
+
+def throwError {α} (ref : Syntax) (msgData : MessageData) : TermElabM α := do
+ctx ← read; throw $ mkException ctx ref msgData
 
 @[inline] def withoutPostponing {α} (x : TermElabM α) : TermElabM α :=
 adaptReader (fun (ctx : Context) => { mayPostpone := false, .. ctx }) x
 
 @[inline] def withNode {α} (stx : Syntax) (x : SyntaxNode → TermElabM α) : TermElabM α :=
-stx.ifNode x (fun _ => throw $ Exception.other "term elaborator failed, unexpected syntax")
+stx.ifNode x (fun _ => throwError stx "term elaborator failed, unexpected syntax")
+
+@[inline] def tracingAtPos {α} (pos : String.Pos) (x : TermElabM α) : TermElabM α := do
+oldTraceState ← getTraceState;
+setTraceState {};
+finally x $ do
+  traceState ← getTraceState;
+  traceState.traces.forM $ logInfoAt pos;
+  setTraceState oldTraceState
+
+@[inline] def tracingAt {α} (ref : Syntax) (x : TermElabM α) : TermElabM α := do
+ctx ← read;
+tracingAtPos (ref.getPos.getD ctx.cmdPos) x
+
+def exceptionToSorry (ref : Syntax) (ex : Exception) (expectedType? : Option Expr) : TermElabM Expr := do
+expectedType : Expr ← match expectedType? with
+  | none              => mkFreshExprMVar ref
+  | some expectedType => pure expectedType;
+u ← getLevel ref expectedType;
+let syntheticSorry := mkApp2 (mkConst `sorryAx [u]) expectedType (mkConst `Bool.true);
+unless ex.data.hasSyntheticSorry $ logMessage ex;
+pure syntheticSorry
 
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
 withNode stx $ fun node => do
@@ -180,23 +224,26 @@ withNode stx $ fun node => do
   let tables := termElabAttribute.ext.getState s.env;
   let k := node.getKind;
   match tables.find k with
-  | some elab => tracingAt stx $ elab node expectedType?
-  | none      => throw $ Exception.other ("elaboration function for '" ++ toString k ++ "' has not been implemented")
+  | some elab =>
+    catch
+      (tracingAt stx (elab node expectedType?))
+      (fun ex => exceptionToSorry stx ex expectedType?)
+  | none      => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
 
-def ensureType (stx : Syntax) (e : Expr) : TermElabM Expr := do
-eType ← inferType e;
-eType ← whnf eType;
+def ensureType (ref : Syntax) (e : Expr) : TermElabM Expr := do
+eType ← inferType ref e;
+eType ← whnf ref eType;
 if eType.isSort then
   pure e
 else do
-  u ← mkFreshLevelMVar;
-  condM (isDefEq eType (mkSort u))
+  u ← mkFreshLevelMVar ref;
+  condM (isDefEq ref eType (mkSort u))
     (pure e)
     (do -- TODO try coercion to sort
-        logErrorAndThrow stx "type expected")
+        throwError ref "type expected")
 
 def elabType (stx : Syntax) : TermElabM Expr := do
-u ← mkFreshLevelMVar;
+u ← mkFreshLevelMVar stx;
 type ← elabTerm stx (mkSort u);
 ensureType stx type
 
@@ -210,7 +257,7 @@ fun _ _ => pure $ mkSort levelZero
 fun _ _ => pure $ mkSort levelOne
 
 @[builtinTermElab «hole»] def elabHole : TermElab :=
-fun _ expectedType? => mkFreshExprMVar expectedType?
+fun stx expectedType? => mkFreshExprMVar stx.val expectedType?
 
 @[builtinTermElab stxQuot] def elabStxQuot : TermElab :=
 fun stx expectedType? => do
@@ -285,7 +332,7 @@ withNode stx $ fun node => do
     let type := node.getArg 2;
     pure #[ { id := id, type := type, bi := BinderInfo.instImplicit } ]
   else
-    throw $ Exception.other "term elaborator failed, unexpected binder syntax"
+    throwError stx "term elaborator failed, unexpected binder syntax"
 
 @[inline] def withLCtx {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TermElabM α) : TermElabM α :=
 adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts, .. ctx }) x
@@ -308,7 +355,8 @@ let id := s.ngen.curr;
 modify $ fun s => { ngen := s.ngen.next, .. s };
 pure id
 
-private partial def elabBinderViews (binderViews : Array BinderView) : Nat → Array Expr → LocalContext → LocalInstances → TermElabM (Array Expr × LocalContext × LocalInstances)
+private partial def elabBinderViews (binderViews : Array BinderView)
+    : Nat → Array Expr → LocalContext → LocalInstances → TermElabM (Array Expr × LocalContext × LocalInstances)
 | i, fvars, lctx, localInsts =>
   if h : i < binderViews.size then
     let binderView := binderViews.get ⟨i, h⟩;
@@ -319,7 +367,7 @@ private partial def elabBinderViews (binderViews : Array BinderView) : Nat → A
       let fvars := fvars.push fvar;
       -- dbgTrace (toString binderView.id.getId ++ " : " ++ toString type);
       let lctx  := lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi;
-      className? ← isClass type;
+      className? ← isClass binderView.type type;
       match className? with
       | none           => elabBinderViews (i+1) fvars lctx localInsts
       | some className => do
@@ -329,7 +377,8 @@ private partial def elabBinderViews (binderViews : Array BinderView) : Nat → A
   else
     pure (fvars, lctx, localInsts)
 
-private partial def elabBindersAux (binders : Array Syntax) : Nat → Array Expr → LocalContext → LocalInstances → TermElabM (Array Expr × LocalContext × LocalInstances)
+private partial def elabBindersAux (binders : Array Syntax)
+    : Nat → Array Expr → LocalContext → LocalInstances → TermElabM (Array Expr × LocalContext × LocalInstances)
 | i, fvars, lctx, localInsts =>
   if h : i < binders.size then do
     binderViews ← matchBinder (binders.get ⟨i, h⟩);
@@ -355,7 +404,7 @@ fun stx _ =>
   let term    := stx.getArg 3;
   elabBinders binders $ fun xs => do
     e ← elabType term;
-    mkForall xs e
+    mkForall stx.val xs e
 
 def mkExplicitBinder (n : Syntax) (type : Syntax) : Syntax :=
 mkNode `Lean.Parser.Term.explicitBinder #[mkAtom "(", mkNullNode #[n], mkNullNode #[mkAtom ":", type], mkNullNode, mkAtom ")"]
@@ -376,7 +425,7 @@ fun stx _ =>
   let term   := stx.getArg 2;
   elabBinders #[binder] $ fun xs => do
     e ← elabType term;
-    mkForall xs e
+    mkForall stx.val xs e
 
 @[builtinTermElab paren] def elabParen : TermElab :=
 fun stx expectedType? =>
@@ -418,7 +467,7 @@ instance NamedArg.inhabited : Inhabited NamedArg := ⟨{ name := arbitrary _, va
 
 def addNamedArg (namedArgs : Array NamedArg) (namedArg : NamedArg) (ref : Syntax) : TermElabM (Array NamedArg) := do
 when (namedArgs.any $ fun namedArg' => namedArg.name == namedArg'.name) $
-  logErrorAndThrow ref ("argument '" ++ toString namedArg.name ++ "' was already set");
+  throwError ref ("argument '" ++ toString namedArg.name ++ "' was already set");
 pure $ namedArgs.push namedArg
 
 private def resolveLocalNameAux (lctx : LocalContext) : Name → List String → Option (Expr × List String)
@@ -432,10 +481,10 @@ private def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String
 lctx ← getLCtx;
 pure $ resolveLocalNameAux lctx n []
 
-private def mkFreshLevelMVars (num : Nat) : TermElabM (List Level) :=
-num.foldM (fun _ us => do u ← mkFreshLevelMVar; pure $ u::us) []
+private def mkFreshLevelMVars (ref : Syntax) (num : Nat) : TermElabM (List Level) :=
+num.foldM (fun _ us => do u ← mkFreshLevelMVar ref; pure $ u::us) []
 
-private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
+private def mkConsts (ref : Syntax) (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
 env ← getEnv;
 candidates.foldlM
   (fun result ⟨constName, projs⟩ =>
@@ -447,7 +496,7 @@ candidates.foldlM
         pure result
       else do
         let numMissingLevels := cinfo.lparams.length - explicitLevels.length;
-        us ← mkFreshLevelMVars numMissingLevels;
+        us ← mkFreshLevelMVars ref numMissingLevels;
         pure $ (mkConst constName (explicitLevels ++ us), projs) :: result)
   []
 
@@ -456,15 +505,16 @@ result? ← resolveLocalName n;
 match result? with
 | some (e, projs) => do
   unless explicitLevels.isEmpty $
-    logErrorAndThrow ref ("invalid use of explicit universe parameters, '" ++ toString e.fvarId! ++ "' is a local");
+    throwError ref ("invalid use of explicit universe parameters, '" ++ toString e.fvarId! ++ "' is a local");
   pure [(e, projs)]
 | none =>
   let process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do {
     when candidates.isEmpty $
-      logErrorAndThrow ref ("unknown identifier '" ++ toString n ++ "'");
-    result ← mkConsts candidates explicitLevels;
+      throwError ref ("unknown identifier '" ++ toString n ++ "'");
+    result ← mkConsts ref candidates explicitLevels;
     -- If we had candidates, but `result` is empty, then too many universe levels have been provided
-    when result.isEmpty $ logErrorAndThrow ref ("too many explicit universe levels");
+    when result.isEmpty $
+      throwError ref ("too many explicit universe levels");
     pure result
   };
   if preresolved.isEmpty then do
@@ -479,17 +529,17 @@ def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (eType : Expr) (e
 match expectedType? with
 | none              => pure e
 | some expectedType =>
-  condM (isDefEq eType expectedType)
+  condM (isDefEq ref eType expectedType)
     (pure e)
     (do -- TODO try `HasCoe`
-        e ← instantiateMVars e;
-        eType ← instantiateMVars eType;
-        expectedType ← instantiateMVars expectedType;
+        e ← instantiateMVars ref e;
+        eType ← instantiateMVars ref eType;
+        expectedType ← instantiateMVars ref expectedType;
         let msg : MessageData :=
           "type mismatch" ++ indentExpr e
           ++ Format.line ++ "has type" ++ indentExpr eType
           ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType;
-        logErrorAndThrow ref msg)
+        throwError ref msg)
 
 /-- Consume parameters of the form `(x : A := val)` and `(x : A . tactic)` -/
 def consumeDefaultParams (ref : Syntax) : Expr → Expr → TermElabM Expr
@@ -501,12 +551,12 @@ def synthesizeInstMVar (ref : Syntax) (instMVar : MVarId) : TermElabM Unit :=
 condM (isExprMVarAssigned instMVar) (pure ()) $ do
   instMVarDecl ← getMVarDecl instMVar;
   let type := instMVarDecl.type;
-  type ← instantiateMVars type;
-  result ← trySynthInstance type;
+  type ← instantiateMVars ref type;
+  result ← trySynthInstance ref type;
   match result with
   | LOption.some val => assignExprMVar instMVar val
   | LOption.undef    => pure () -- we will try later
-  | LOption.none     => logErrorAndThrow ref ("failed to synthesize instance" ++ indentExpr type)
+  | LOption.none     => throwError ref ("failed to synthesize instance" ++ indentExpr type)
 
 def synthesizeInstMVars (ref : Syntax) (instMVars : Array MVarId) : TermElabM Unit :=
 instMVars.forM $ synthesizeInstMVar ref
@@ -521,7 +571,7 @@ private partial def elabAppArgsAux (ref : Syntax) (args : Array Syntax) (expecte
     synthesizeInstMVars ref instMVars;
     pure e
   };
-  eType ← whnfForall eType;
+  eType ← whnfForall ref eType;
   match eType with
   | Expr.forallE n d b c =>
     match namedArgs.findIdx? (fun namedArg => namedArg.name == n) with
@@ -538,16 +588,16 @@ private partial def elabAppArgsAux (ref : Syntax) (args : Array Syntax) (expecte
         else if namedArgs.isEmpty then
           finalize ()
         else
-          logErrorAndThrow ref ("explicit parameter '" ++ n ++ "' is missing, unused named arguments " ++ toString (namedArgs.map $ fun narg => narg.name))
+          throwError ref ("explicit parameter '" ++ n ++ "' is missing, unused named arguments " ++ toString (namedArgs.map $ fun narg => narg.name))
       };
       if explicit then
         processExplictArg ()
       else match c.binderInfo with
         | BinderInfo.implicit => do
-          a ← mkFreshExprMVar d;
+          a ← mkFreshExprMVar ref d;
           elabAppArgsAux argIdx namedArgs instMVars (b.instantiate1 a) (mkApp e a)
         | BinderInfo.instImplicit => do
-          a ← mkFreshExprMVar d true;
+          a ← mkFreshExprMVar ref d true;
           let mvarId := a.mvarId!;
           registerSyntheticMVar mvarId ref SyntheticMVarKind.typeClass;
           elabAppArgsAux argIdx namedArgs (instMVars.push mvarId) (b.instantiate1 a) (mkApp e a)
@@ -558,11 +608,11 @@ private partial def elabAppArgsAux (ref : Syntax) (args : Array Syntax) (expecte
       finalize ()
     else
       -- TODO: try `HasCoeToFun`
-      logErrorAndThrow ref "too many arguments"
+      throwError ref "too many arguments"
 
 private def elabAppArgs (ref : Syntax) (f : Expr) (namedArgs : Array NamedArg) (args : Array Syntax)
     (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr := do
-fType ← inferType f;
+fType ← inferType ref f;
 let argIdx    := 0;
 let instMVars := #[];
 elabAppArgsAux ref args expectedType? explicit argIdx namedArgs instMVars fType f
@@ -571,13 +621,13 @@ private def elabAppProjsAux (ref : Syntax) (namedArgs : Array NamedArg) (args : 
     : Expr → List Projection → TermElabM Expr
 | f, []          => elabAppArgs ref f namedArgs args expectedType? explicit
 | f, proj::projs => do
-  fType ← inferType f;
+  fType ← inferType ref f;
   -- TODO
   elabAppArgs ref f namedArgs args expectedType? explicit
 
 private def elabAppProjs (ref : Syntax) (f : Expr) (projs : List Projection) (namedArgs : Array NamedArg) (args : Array Syntax)
     (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr := do
-when (!projs.isEmpty && explicit) $ logErrorAndThrow ref "invalid use of projection notation with `@` modifier";
+when (!projs.isEmpty && explicit) $ throwError ref "invalid use of projection notation with `@` modifier";
 elabAppProjsAux ref namedArgs args expectedType? explicit f projs
 
 private partial def elabAppFn (ref : Syntax) : Syntax → List Projection → Array NamedArg → Array Syntax → Option Expr → Bool → Array TermElabResult → TermElabM (Array TermElabResult)
@@ -594,7 +644,7 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List Projection → Ar
     match field.isFieldIdx?, field with
     | some idx, _                      => elabAppFn (f.getArg 0) (Projection.num idx :: projs) namedArgs args expectedType? true acc
     | _,        Syntax.ident _ val _ _ => elabAppFn (f.getArg 0) (Projection.str val.toString :: projs) namedArgs args expectedType? true acc
-    | _,        _                      => logErrorAndThrow field "unexpected kind of field access"
+    | _,        _                      => throwError field "unexpected kind of field access"
   else if k == `Lean.Parser.Term.id then
     -- ident (explicitUniv | namedPattern)?
     match f.getArg 0 with
@@ -626,25 +676,12 @@ if pos == msg.pos then
 else
   pure $ toString msg.pos.line ++ ":" ++ toString msg.pos.column ++ " " ++ msg.data
 
-private def getFailureMessage (failure : TermElabResult) (stx : Syntax) : TermElabM MessageData :=
-match failure with
-| EStateM.Result.ok _ _ => unreachable!
-| EStateM.Result.error ex s => do
-  lctx ← getLCtx;
-  match ex with
-  | Exception.other msg => pure $ MessageData.context s.env s.mctx lctx msg
-  | Exception.io ex     => pure $ toString ex
-  | Exception.meta ex   => pure $ MessageData.context s.env s.mctx lctx ex.toMessageData
-  | Exception.msg msg   => toMessageData msg stx
-  | Exception.kernel ex => pure $ MessageData.context s.env s.mctx lctx ex.toMessageData
-  | Exception.silent    =>
-    match s.messages.getMostRecentError with
-    | some msg => toMessageData msg stx
-    | _        => unreachable!
-
 private def mergeFailures {α} (failures : Array TermElabResult) (stx : Syntax) : TermElabM α := do
-msgs ← failures.mapM $ fun failure => getFailureMessage failure stx;
-logErrorAndThrow stx ("overloaded, errors " ++ MessageData.ofArray msgs)
+msgs ← failures.mapM $ fun failure =>
+  match failure with
+  | EStateM.Result.ok _ _     => unreachable!
+  | EStateM.Result.error ex s => toMessageData ex stx;
+throwError stx ("overloaded, errors " ++ MessageData.ofArray msgs)
 
 private def elabAppAux (ref : Syntax) (f : Syntax) (namedArgs : Array NamedArg) (args : Array Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
 /- TODO: if `f` contains `choice` or overloaded symbols, `mayPostpone == true`, and `expectedType? == some ?m` where `?m` is not assigned,
@@ -664,7 +701,7 @@ else
     let msgs : Array MessageData := successes.map $ fun success => match success with
       | EStateM.Result.ok e s => MessageData.context s.env s.mctx lctx e
       | _                     => unreachable!;
-    logErrorAndThrow f ("ambiguous, possible interpretations " ++ MessageData.ofArray msgs)
+    throwError f ("ambiguous, possible interpretations " ++ MessageData.ofArray msgs)
   else
     mergeFailures candidates f
 

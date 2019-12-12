@@ -328,7 +328,7 @@ inductive Nat
 /- Auxiliary axiom used to implement `sorry`.
    TODO: add this theorem on-demand. That is,
    we should only add it if after the first error. -/
-unsafe axiom sorryAx (α : Sort u) (synthetic := true) : α
+axiom sorryAx (α : Sort u) (synthetic := true) : α
 
 /- Declare builtin and reserved notation -/
 

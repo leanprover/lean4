@@ -22,7 +22,6 @@ lean_object* l_Lean_MessageData_ofArray___boxed(lean_object*);
 lean_object* l_Lean_Message_toString___closed__3;
 lean_object* l_Lean_MessageLog_Inhabited;
 lean_object* l_Lean_Format_pretty(lean_object*, lean_object*);
-lean_object* l_Lean_MessageLog_getMostRecentError(lean_object*);
 lean_object* l_Lean_MessageLog_hasErrors___boxed(lean_object*);
 lean_object* l_Lean_MessageData_sbracket(lean_object*);
 extern lean_object* l_Lean_List_format___rarg___closed__1;
@@ -49,7 +48,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l_Lean_Format_sbracket___closed__2;
 extern lean_object* l_EStateM_Result_toString___rarg___closed__2;
 lean_object* l_Lean_MessageLog_toList(lean_object*);
-lean_object* l___private_Init_Lean_Util_Message_1__getMostRecentErrorAux___main(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_MessageLog_append(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -58,7 +56,6 @@ lean_object* l_Array_iterateMAux___main___at_Lean_MessageData_formatAux___main__
 lean_object* l_Lean_MessageData_Inhabited;
 lean_object* l_Lean_fmt___at_Lean_MessageData_formatAux___main___spec__1(lean_object*);
 lean_object* l_Lean_Message_Inhabited;
-lean_object* l___private_Init_Lean_Util_Message_1__getMostRecentErrorAux___boxed(lean_object*);
 lean_object* l_Lean_Message_HasToString;
 lean_object* l_Lean_MessageLog_HasAppend;
 lean_object* l_Nat_repr(lean_object*);
@@ -108,15 +105,12 @@ lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_Message_toString___closed__5;
 uint8_t l_Lean_MessageLog_isEmpty(lean_object*);
 lean_object* l_Lean_MessageData_coeOfExpr(lean_object*);
-lean_object* l___private_Init_Lean_Util_Message_1__getMostRecentErrorAux(lean_object*);
 lean_object* l_Lean_Message_toString(lean_object*);
 lean_object* l_Lean_MessageData_formatAux(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_paren(lean_object*);
 lean_object* l_Lean_Level_format(lean_object*);
-lean_object* l___private_Init_Lean_Util_Message_1__getMostRecentErrorAux___main___boxed(lean_object*);
 lean_object* l_Lean_MessageData_Inhabited___closed__1;
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
-lean_object* l_Lean_MessageLog_getMostRecentError___boxed(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_MessageData_formatAux___main___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkErrorStringWithPos(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofList___closed__1;
@@ -1713,83 +1707,6 @@ x_2 = l_Lean_MessageLog_hasErrors(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
-}
-}
-lean_object* l___private_Init_Lean_Util_Message_1__getMostRecentErrorAux___main(lean_object* x_1) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_2; 
-x_2 = lean_box(0);
-return x_2;
-}
-else
-{
-lean_object* x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_ctor_get_uint8(x_3, sizeof(void*)*5);
-x_5 = lean_box(x_4);
-if (lean_obj_tag(x_5) == 2)
-{
-lean_object* x_6; 
-lean_inc(x_3);
-x_6 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_6, 0, x_3);
-return x_6;
-}
-else
-{
-lean_object* x_7; 
-lean_dec(x_5);
-x_7 = lean_ctor_get(x_1, 1);
-x_1 = x_7;
-goto _start;
-}
-}
-}
-}
-lean_object* l___private_Init_Lean_Util_Message_1__getMostRecentErrorAux___main___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Init_Lean_Util_Message_1__getMostRecentErrorAux___main(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-lean_object* l___private_Init_Lean_Util_Message_1__getMostRecentErrorAux(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Init_Lean_Util_Message_1__getMostRecentErrorAux___main(x_1);
-return x_2;
-}
-}
-lean_object* l___private_Init_Lean_Util_Message_1__getMostRecentErrorAux___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Init_Lean_Util_Message_1__getMostRecentErrorAux(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-lean_object* l_Lean_MessageLog_getMostRecentError(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Init_Lean_Util_Message_1__getMostRecentErrorAux___main(x_1);
-return x_2;
-}
-}
-lean_object* l_Lean_MessageLog_getMostRecentError___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_MessageLog_getMostRecentError(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* l_Lean_MessageLog_toList(lean_object* x_1) {

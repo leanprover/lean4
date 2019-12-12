@@ -616,18 +616,21 @@ lambdaTelescopeAux k lctx #[] 0 e
 private partial def forallMetaTelescopeReducingAux
     (reducing? : Bool) (maxMVars? : Option Nat)
     : Array Expr → Array BinderInfo → Nat → Expr → MetaM (Array Expr × Array BinderInfo × Expr)
-| mvars, bis, j, Expr.forallE n d b c => do
-  let d     := d.instantiateRevRange j mvars.size mvars;
-  mvar ← mkFreshExprMVar d;
-  let mvars := mvars.push mvar;
-  let bis   := bis.push c.binderInfo;
+| mvars, bis, j, type@(Expr.forallE n d b c) => do
+  let process : Unit → MetaM (Array Expr × Array BinderInfo × Expr) := fun _ => do {
+    let d     := d.instantiateRevRange j mvars.size mvars;
+    mvar ← mkFreshExprMVar d;
+    let mvars := mvars.push mvar;
+    let bis   := bis.push c.binderInfo;
+    forallMetaTelescopeReducingAux mvars bis j b
+  };
   match maxMVars? with
-  | none          => forallMetaTelescopeReducingAux mvars bis j b
+  | none          => process ()
   | some maxMVars =>
     if mvars.size < maxMVars then
-      forallMetaTelescopeReducingAux mvars bis j b
+      process ()
     else
-      let type := b.instantiateRevRange j mvars.size mvars;
+      let type := type.instantiateRevRange j mvars.size mvars;
       pure (mvars, bis, type)
 | mvars, bis, j, type =>
   let type := type.instantiateRevRange j mvars.size mvars;

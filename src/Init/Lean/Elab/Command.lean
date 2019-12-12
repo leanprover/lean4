@@ -87,18 +87,6 @@ abbrev CommandElabAttribute := ElabAttribute CommandElabTable
 def mkCommandElabAttribute : IO CommandElabAttribute := mkElabAttribute `commandTerm "command" builtinCommandElabTable
 @[init mkCommandElabAttribute] constant commandElabAttribute : CommandElabAttribute := arbitrary _
 
-def throwErrorAt {α} (pos : String.Pos) (msgData : MessageData) : CommandElabM α := do
-ctx ← read;
-throw $ mkExceptionCore ctx.fileName ctx.fileMap msgData pos
-
-def throwError {α} (ref : Syntax) (msgData : MessageData) : CommandElabM α := do
-s ← get;
-throwErrorAt (ref.getPos.getD s.cmdPos) msgData
-
-def throwErrorUsingCmdPos {α} (msgData : MessageData) : CommandElabM α := do
-s ← get;
-throwErrorAt s.cmdPos msgData
-
 def elabCommand (stx : Syntax) : CommandElabM Unit :=
 stx.ifNode
   (fun n => do
@@ -242,6 +230,9 @@ fun stx => do
 
 def getOpenDecls : CommandElabM (List OpenDecl) := do
 scope ← getScope; pure scope.openDecls
+
+def logUnknownDecl (stx : Syntax) (declName : Name) : CommandElabM Unit :=
+logError stx ("unknown declaration '" ++ toString declName ++ "'")
 
 def resolveNamespace (id : Name) : CommandElabM Name := do
 env           ← getEnv;

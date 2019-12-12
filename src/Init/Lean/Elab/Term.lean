@@ -143,18 +143,15 @@ instance tracer : SimpleMonadTracerAdapter TermElabM :=
 def dbgTrace {α} [HasToString α] (a : α) : TermElabM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()
 
-def mkMessage (ctx : Context) (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity) : Message :=
+private def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity) : Message :=
 mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos.getD ctx.cmdPos)
 
-def mkException (ctx : Context) (ref : Syntax) (msgData : MessageData) : Exception :=
-mkMessage ctx ref msgData MessageSeverity.error
-
 private def fromMetaException (ctx : Context) (ref : Syntax) (ex : Meta.Exception) : Exception :=
-mkException ctx ref ex.toMessageData
+mkMessageAux ctx ref ex.toMessageData MessageSeverity.error
 
 private def fromMetaState (ref : Syntax) (ctx : Context) (s : State) (newS : Meta.State) (oldTraceState : TraceState) : State :=
 let traces   := newS.traceState.traces;
-let messages := traces.foldl (fun (messages : MessageLog) trace => messages.add (mkMessage ctx ref trace MessageSeverity.information)) s.messages;
+let messages := traces.foldl (fun (messages : MessageLog) trace => messages.add (mkMessageAux ctx ref trace MessageSeverity.information)) s.messages;
 { toState  := { traceState := oldTraceState, .. newS },
   messages := messages,
   .. s }
@@ -186,9 +183,6 @@ def trySynthInstance (ref : Syntax) (type : Expr) : TermElabM (LOption Expr) := 
 
 def registerSyntheticMVar (mvarId : MVarId) (ref : Syntax) (kind : SyntheticMVarKind) : TermElabM Unit :=
 modify $ fun s => { syntheticMVars := { mvarId := mvarId, ref := ref, kind := kind } :: s.syntheticMVars, .. s }
-
-def throwError {α} (ref : Syntax) (msgData : MessageData) : TermElabM α := do
-ctx ← read; throw $ mkException ctx ref msgData
 
 @[inline] def withoutPostponing {α} (x : TermElabM α) : TermElabM α :=
 adaptReader (fun (ctx : Context) => { mayPostpone := false, .. ctx }) x

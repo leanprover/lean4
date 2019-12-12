@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Lean.Util.Sorry
 import Init.Lean.Meta
 import Init.Lean.Elab.Log
 import Init.Lean.Elab.Alias
@@ -178,6 +179,7 @@ def mkFreshExprMVar (ref : Syntax) (type? : Option Expr := none) (synthetic : Bo
 match type? with
 | some type => liftMetaM ref $ Meta.mkFreshExprMVar type userName? synthetic
 | none      => liftMetaM ref $ do u ← Meta.mkFreshLevelMVar; Meta.mkFreshExprMVar (mkSort u) userName? synthetic
+def getLevel (ref : Syntax) (type : Expr) : TermElabM Level := liftMetaM ref $ Meta.getLevel type
 
 def mkForall (ref : Syntax) (xs : Array Expr) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.mkForall xs e
 def trySynthInstance (ref : Syntax) (type : Expr) : TermElabM (LOption Expr) := liftMetaM ref $ Meta.trySynthInstance type
@@ -206,6 +208,15 @@ finally x $ do
 ctx ← read;
 tracingAtPos (ref.getPos.getD ctx.cmdPos) x
 
+def exceptionToSorry (ref : Syntax) (ex : Exception) (expectedType? : Option Expr) : TermElabM Expr := do
+expectedType : Expr ← match expectedType? with
+  | none              => mkFreshExprMVar ref
+  | some expectedType => pure expectedType;
+u ← getLevel ref expectedType;
+let syntheticSorry := mkApp2 (mkConst `sorryAx [u]) expectedType (mkConst `Bool.true);
+unless ex.data.hasSyntheticSorry $ logMessage ex;
+pure syntheticSorry
+
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
 withNode stx $ fun node => do
   trace! `Elab.step (toString stx);
@@ -213,7 +224,10 @@ withNode stx $ fun node => do
   let tables := termElabAttribute.ext.getState s.env;
   let k := node.getKind;
   match tables.find k with
-  | some elab => tracingAt stx (elab node expectedType?)
+  | some elab =>
+    catch
+      (tracingAt stx (elab node expectedType?))
+      (fun ex => exceptionToSorry stx ex expectedType?)
   | none      => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
 
 def ensureType (ref : Syntax) (e : Expr) : TermElabM Expr := do

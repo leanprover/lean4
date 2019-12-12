@@ -3,21 +3,24 @@ open Lean
 open Lean.Elab
 
 
-def run (input : String) : MetaIO Unit :=
+def run (input : String) (failIff : Bool := true) : MetaIO Unit :=
 do env  ← MetaIO.getEnv;
    opts ← MetaIO.getOptions;
    let (env, messages) := process input env opts;
    messages.toList.forM $ fun msg => IO.println msg;
-   when messages.hasErrors $ throw (IO.userError "errors have been found");
+   when (failIff && messages.hasErrors) $ throw (IO.userError "errors have been found");
+   when (!failIff && !messages.hasErrors) $ throw (IO.userError "there are no errors");
    pure ()
+
+def fail (input : String) : MetaIO Unit :=
+run input false
 
 def M := IO Unit
 
 def zero := 0
 def one := 1
 def two := 2
--- set_option trace.Elab.app true
--- set_option trace.Meta true
+def hello : String := "hello"
 
 def act1 : IO String :=
 pure "hello"
@@ -29,6 +32,7 @@ pure "hello"
 #eval run "#check one + two > one ∧ True"
 #eval run "#check act1 >>= IO.println"
 #eval run "#check one + two == one"
+#eval fail "#check one + one + hello == hello ++ one"
 
 #eval run
 "universe u universe v

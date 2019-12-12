@@ -88,8 +88,8 @@ private partial def toPreterm (env : Environment) : Syntax → Except String Exp
     arg ← toPreterm $ args.get! 1;
     pure $ mkApp fn arg
   | `Lean.Parser.Term.paren => toPreterm $ (args.get! 1).getArg 0
-  | `strLit => pure $ mkStrLit $ stx.isStrLit.getD ""
-  | `numLit => pure $ mkNatLit $ stx.isNatLit.getD 0
+  | `strLit => pure $ mkStrLit $ stx.isStrLit?.getD ""
+  | `numLit => pure $ mkNatLit $ stx.isNatLit?.getD 0
   | k => panic! "stxQuot: unimplemented kind " ++ toString k
 
 @[export lean_parse_stx_quot]

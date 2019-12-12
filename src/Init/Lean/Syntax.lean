@@ -364,7 +364,7 @@ mkStxNumLit (toString val)
 
 namespace Syntax
 
-def isStrLit : Syntax → Option String
+def isStrLit? : Syntax → Option String
 | Syntax.node k args   =>
   if k == strLitKind && args.size == 1 then
     match args.get! 0 with
@@ -443,19 +443,19 @@ def isNatLitAux (nodeKind : SyntaxNodeKind) : Syntax → Option Nat
     none
 | _ => none
 
-def isNatLit (s : Syntax) : Option Nat :=
+def isNatLit? (s : Syntax) : Option Nat :=
 isNatLitAux numLitKind s
 
-def isFieldIdx (s : Syntax) : Option Nat :=
+def isFieldIdx? (s : Syntax) : Option Nat :=
 isNatLitAux fieldIdxKind s
 
-def isIdOrAtom : Syntax → Option String
+def isIdOrAtom? : Syntax → Option String
 | Syntax.atom _ val           => some val
 | Syntax.ident _ rawVal _ _   => some rawVal.toString
 | _ => none
 
 def toNat (stx : Syntax) : Nat :=
-match stx.isNatLit with
+match stx.isNatLit? with
 | some val => val
 | none     => 0
 

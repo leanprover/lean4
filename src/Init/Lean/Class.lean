@@ -147,7 +147,7 @@ registerAttribute {
 }
 
 -- TODO: delete
-@[export lean_add_instance]
+@[export lean_add_instance_old]
 def addGlobalInstanceOld (env : Environment) (instName : Name) : Except String Environment :=
 match env.find instName with
 | none      => Except.error ("unknown declaration '" ++ toString instName ++ "'")

@@ -34,6 +34,7 @@ withNewMCtxDepth $ do
   (_, _, type) ← forallMetaTelescopeReducing type;
   DiscrTree.mkPath type
 
+@[export lean_add_instance]
 def addGlobalInstance (env : Environment) (constName : Name) : IO Environment :=
 match env.find constName with
 | none => throw $ IO.userError "unknown constant"

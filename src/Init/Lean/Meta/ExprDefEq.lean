@@ -997,8 +997,8 @@ partial def isExprDefEqAuxImpl : Expr → Expr → MetaM Bool
   tryL (isDefEqDelta t s) $
   condM (isDefEqEta t s <||> isDefEqEta s t) (pure true) $
   match t, s with
-  | Expr.const _ us _, Expr.const _ vs _ => isListLevelDefEqAux us vs
-  | Expr.app _ _ _, Expr.app _ _ _ =>
+  | Expr.const c us _, Expr.const d vs _ => if c == d then isListLevelDefEqAux us vs else pure false
+  | Expr.app _ _ _,    Expr.app _ _ _    =>
     let tFn := t.getAppFn;
     condM (try (isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs))
       (pure true)

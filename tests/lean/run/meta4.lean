@@ -32,6 +32,10 @@ print e;
 (_, _, e') ← forallMetaTelescopeReducing cinfo.type;
 print e';
 check (isDefEq e e');
+forallBoundedTelescope cinfo.type (some 0) $ fun xs body => check (pure (xs.size == 0));
+forallBoundedTelescope cinfo.type (some 1) $ fun xs body => check (pure (xs.size == 1));
+forallBoundedTelescope cinfo.type (some 6) $ fun xs body => do { print xs; check (pure (xs.size == 6)) };
+forallBoundedTelescope cinfo.type (some 10) $ fun xs body => do { print xs; check (pure (xs.size == 6)) };
 pure ()
 
 #eval tst1

@@ -508,19 +508,22 @@ resettingSynthInstanceCache $
     (reducing?        : Bool) (maxFVars? : Option Nat)
     (k                : Array Expr → Expr → MetaM α)
     : LocalContext → Array Expr → Nat → Expr → MetaM α
-| lctx, fvars, j, Expr.forallE n d b c => do
-  let d     := d.instantiateRevRange j fvars.size fvars;
-  fvarId ← mkFreshId;
-  let lctx  := lctx.mkLocalDecl fvarId n d c.binderInfo;
-  let fvar  := mkFVar fvarId;
-  let fvars := fvars.push fvar;
+| lctx, fvars, j, type@(Expr.forallE n d b c) => do
+  let process : Unit → MetaM α := fun _ => do {
+    let d     := d.instantiateRevRange j fvars.size fvars;
+    fvarId ← mkFreshId;
+    let lctx  := lctx.mkLocalDecl fvarId n d c.binderInfo;
+    let fvar  := mkFVar fvarId;
+    let fvars := fvars.push fvar;
+    forallTelescopeReducingAuxAux lctx fvars j b
+  };
   match maxFVars? with
-  | none          => forallTelescopeReducingAuxAux lctx fvars j b
+  | none          => process ()
   | some maxFVars =>
     if fvars.size < maxFVars then
-      forallTelescopeReducingAuxAux lctx fvars j b
+      process ()
     else
-      let type := b.instantiateRevRange j fvars.size fvars;
+      let type := type.instantiateRevRange j fvars.size fvars;
       adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
         withNewLocalInstances isClassExpensive fvars j $
           k fvars type

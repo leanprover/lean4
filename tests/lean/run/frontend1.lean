@@ -17,6 +17,7 @@ def zero := 0
 def one := 1
 def two := 2
 -- set_option trace.Elab.app true
+-- set_option trace.Meta true
 
 def act1 : IO String :=
 pure "hello"

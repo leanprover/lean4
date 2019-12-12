@@ -143,15 +143,6 @@ log.revList.any $ fun m => match m.severity with
 | MessageSeverity.error => true
 | _                     => false
 
-private def getMostRecentErrorAux : List Message → Option Message
-| [] => none
-| msg::msgs => match msg.severity with
-  | MessageSeverity.error => some msg
-  | _                     => getMostRecentErrorAux msgs
-
-def getMostRecentError (log : MessageLog) : Option Message :=
-getMostRecentErrorAux log.revList
-
 def toList (log : MessageLog) : List Message :=
 log.revList.reverse
 end MessageLog

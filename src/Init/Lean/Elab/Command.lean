@@ -87,6 +87,18 @@ abbrev CommandElabAttribute := ElabAttribute CommandElabTable
 def mkCommandElabAttribute : IO CommandElabAttribute := mkElabAttribute `commandTerm "command" builtinCommandElabTable
 @[init mkCommandElabAttribute] constant commandElabAttribute : CommandElabAttribute := arbitrary _
 
+def throwErrorAt {α} (pos : String.Pos) (msgData : MessageData) : CommandElabM α := do
+ctx ← read;
+throw $ mkExceptionCore ctx.fileName ctx.fileMap msgData pos
+
+def throwError {α} (ref : Syntax) (msgData : MessageData) : CommandElabM α := do
+s ← get;
+throwErrorAt (ref.getPos.getD s.cmdPos) msgData
+
+def throwErrorUsingCmdPos {α} (msgData : MessageData) : CommandElabM α := do
+s ← get;
+throwErrorAt s.cmdPos msgData
+
 def elabCommand (stx : Syntax) : CommandElabM Unit :=
 stx.ifNode
   (fun n => do
@@ -95,8 +107,8 @@ stx.ifNode
     let k := n.getKind;
     match tables.find k with
     | some elab => elab n
-    | none      => logError stx ("command '" ++ toString k ++ "' has not been implemented"))
-  (fun _ => logErrorUsingCmdPos ("unexpected command"))
+    | none      => throwError stx ("command '" ++ toString k ++ "' has not been implemented"))
+  (fun _ => throwError stx ("unexpected command"))
 
 private def mkTermContext (ctx : Context) (s : State) : Term.Context :=
 let scope := s.scopes.head!;
@@ -121,7 +133,7 @@ match result with
 | EStateM.Result.error ex newS => EStateM.Result.error ex { env := newS.env, messages := newS.messages, .. s }
 
 @[inline] def runTermElabM {α} (x : TermElabM α) : CommandElabM α :=
-fun ctx s => toCommandResult s $ tracingAtPos s.cmdPos (Term.elabBinders (getVarDecls s) (fun _ => x)) (mkTermContext ctx s) (mkTermState s)
+fun ctx s => toCommandResult s $ Term.tracingAtPos s.cmdPos (Term.elabBinders (getVarDecls s) (fun _ => x)) (mkTermContext ctx s) (mkTermState s)
 
 def dbgTrace {α} [HasToString α] (a : α) : CommandElabM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()
@@ -188,11 +200,11 @@ fun n => do
   else do {
     -- we keep "root" scope
     modify $ fun s => { scopes := s.scopes.drop (s.scopes.length - 1), .. s };
-    throw "invalid 'end', insufficient scopes"
+    throwError n.val "invalid 'end', insufficient scopes"
   };
   match header? with
-  | none        => unless (checkAnonymousScope scopes) $ throw "invalid 'end', name is missing"
-  | some header => unless (checkEndHeader header scopes) $ throw "invalid 'end', name mismatch"
+  | none        => unless (checkAnonymousScope scopes) $ throwError n.val "invalid 'end', name is missing"
+  | some header => unless (checkEndHeader header scopes) $ throwError n.val "invalid 'end', name mismatch"
 
 @[specialize] def modifyScope (f : Scope → Scope) : CommandElabM Unit :=
 modify $ fun s =>
@@ -208,7 +220,7 @@ def addUniverse (idStx : Syntax) : CommandElabM Unit := do
 let id := idStx.getId;
 univs ← getUniverseNames;
 if univs.elem id then
-  logError idStx ("a universe named '" ++ toString id ++ "' has already been declared in this Scope")
+  throwError idStx ("a universe named '" ++ toString id ++ "' has already been declared in this Scope")
 else
   modifyScope $ fun scope => { univNames := id :: scope.univNames, .. scope }
 
@@ -222,11 +234,11 @@ fun n => do
   idsStx.forArgsM addUniverse
 
 @[builtinCommandElab «init_quot»] def elabInitQuot : CommandElab :=
-fun _ => do
+fun stx => do
   env ← getEnv;
   match env.addDecl Declaration.quotDecl with
   | Except.ok env   => setEnv env
-  | Except.error ex => logElabException (Exception.kernel ex)
+  | Except.error ex => throwError stx.val ex.toMessageData
 
 def getOpenDecls : CommandElabM (List OpenDecl) := do
 scope ← getScope; pure scope.openDecls
@@ -237,17 +249,17 @@ ns  ← getNamespace;
 openDecls ← getOpenDecls;
 match Elab.resolveNamespace env ns openDecls id with
 | some ns => pure ns
-| none    => throw (Exception.other ("unknown namespace '" ++ toString id ++ "'"))
+| none    => throwErrorUsingCmdPos ("unknown namespace '" ++ toString id ++ "'")
 
 @[builtinCommandElab «export»] def elabExport : CommandElab :=
-fun n => do
-  -- `n` is of the form (Command.export "export" <namespace> "(" (null <ids>*) ")")
-  let id  := n.getIdAt 1;
+fun stx => do
+  -- `stx` is of the form (Command.export "export" <namespace> "(" (null <ids>*) ")")
+  let id  := stx.getIdAt 1;
   ns ← resolveNamespace id;
   currNs ← getNamespace;
-  when (ns == currNs) $ throw "invalid 'export', self export";
+  when (ns == currNs) $ throwError stx.val "invalid 'export', self export";
   env ← getEnv;
-  let ids := (n.getArg 3).getArgs;
+  let ids := (stx.getArg 3).getArgs;
   aliases ← ids.foldlM
    (fun (aliases : List (Name × Name)) (idStx : Syntax) => do {
       let id := idStx.getId;
@@ -352,43 +364,16 @@ fun n => do
   modifyScope $ fun scope => { varDecls := scope.varDecls ++ binders, .. scope }
 
 @[builtinCommandElab «check»] def elabCheck : CommandElab :=
-fun n => do
-  let term := n.getArg 1;
+fun stx => do
+  let term := stx.getArg 1;
   runTermElabM $ do
     e    ← Term.elabTerm term none;
-    type ← Term.inferType e;
-    e    ← Term.instantiateMVars e;
-    type ← Term.instantiateMVars type;
-    logInfo n.val (e ++ " : " ++ type);
+    type ← Term.inferType stx.val e;
+    e    ← Term.instantiateMVars stx.val e;
+    type ← Term.instantiateMVars stx.val type;
+    logInfo stx.val (e ++ " : " ++ type);
     pure ()
 
 end Command
-
-/-
-
-@[builtinCommandElab «variable»] def elabVariable : CommandElab :=
-fun n => do
-  runIO (IO.println n.val);
-  pure ()
-
-@[builtinCommandElab «resolve_name»] def elabResolveName : CommandElab :=
-fun n => do
-  let id := n.getIdAt 1;
-  resolvedIds ← resolveName id;
-  pos ← getPosition;
-  runIO (IO.println (toString pos ++ " " ++ toString resolvedIds));
-  pure ()
-
-@[builtinCommandElab «elab»] def elabElab : CommandElab :=
-fun n => do
-  let s := n.getArg 1;
-  r ← elabTerm (s.lift Expr);
-  match r with
-  | Syntax.other e => runIO (IO.println e.dbgToString)
-  | other          => do
-    runIO (IO.println other);
-    throw "failed to elaborate syntax"
-
--/
 end Elab
 end Lean

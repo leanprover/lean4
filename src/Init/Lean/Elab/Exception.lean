@@ -9,20 +9,15 @@ import Init.Lean.Meta
 namespace Lean
 namespace Elab
 
-inductive Exception
-| io     : IO.Error → Exception
-| msg    : Message → Exception
-| kernel : KernelException → Exception
-| meta   : Meta.Exception → Exception
-| other  : String → Exception
-/- Elab.Exception.silent is used when we log an error in `messages`, and then
-   want to interrupt the elaborator execution. We use it to make sure the
-   top-level handler does not record it again in `messages`. See `logErrorAndThrow` -/
-| silent : Exception
+abbrev Exception := Message
 
-instance Exception.inhabited : Inhabited Exception := ⟨Exception.silent⟩
+def mkMessageCore (fileName : String) (fileMap : FileMap) (msgData : MessageData) (severity : MessageSeverity) (pos : String.Pos) : Message :=
+let pos := fileMap.toPosition pos;
+{ fileName := fileName, pos := pos, data := msgData, severity := severity }
 
-instance str2ex : HasCoe String Exception := ⟨Exception.other⟩
+def mkExceptionCore (fileName : String) (fileMap : FileMap) (msgData : MessageData) (pos : String.Pos) : Exception :=
+let pos := fileMap.toPosition pos;
+{ fileName := fileName, pos := pos, data := msgData, severity := MessageSeverity.error }
 
 end Elab
 end Lean

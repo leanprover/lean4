@@ -15,18 +15,20 @@ structure State :=
 (commandState : Command.State)
 (parserState  : Parser.ModuleParserState)
 
-abbrev FrontendM := ReaderT Parser.ParserContextCore (EStateM Exception State)
+abbrev FrontendM := ReaderT Parser.ParserContextCore (StateM State)
 
 private def getCmdContext : FrontendM Command.Context := do
 c ← read;
 pure { fileName := c.fileName, fileMap := c.fileMap }
 
-@[inline] def runCommandElabM {α} (x : Command.CommandElabM α) : FrontendM α := do
-c ← getCmdContext;
-monadLift $ EStateM.adaptState
-  (fun (s : State) => (s.commandState, s.parserState))
-  (fun es ps => { commandState := es, parserState := ps })
-  (x c)
+@[inline] def runCommandElabM (x : Command.CommandElabM Unit) : FrontendM Unit := do
+fun ctx s =>
+  let parserState := s.parserState;
+  match x { fileName := ctx.fileName, fileMap := ctx.fileMap } s.commandState with
+  | EStateM.Result.ok _ newCmdState     => ((), { commandState := newCmdState, parserState := parserState })
+  | EStateM.Result.error ex newCmdState =>
+    let newCmdState := { messages := newCmdState.messages.add ex, .. newCmdState };
+    ((), { commandState := newCmdState, parserState := parserState })
 
 def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit :=
 runCommandElabM (Command.elabCommand stx)
@@ -46,7 +48,7 @@ match Parser.parseCommand cs.env c ps cs.messages with
   if Parser.isEOI cmd || Parser.isExitCommand cmd then do
     pure true -- Done
   else do
-    catch (elabCommandAtFrontend cmd) $ fun e => runCommandElabM (logElabException e);
+    elabCommandAtFrontend cmd;
     pure false
 
 partial def processCommandsAux : Unit → FrontendM Unit
@@ -63,12 +65,11 @@ end Frontend
 open Frontend
 
 def process (input : String) (env : Environment) (opts : Options) (fileName : Option String := none) : Environment × MessageLog :=
-let fileName := fileName.getD "<input>";
-let ctx      := Parser.mkParserContextCore env input fileName;
-let cmdState := Command.mkState env {} opts;
+let fileName        := fileName.getD "<input>";
+let ctx             := Parser.mkParserContextCore env input fileName;
+let cmdState        := Command.mkState env {} opts;
 match (processCommands ctx).run { commandState := cmdState, parserState := {} } with
-| EStateM.Result.ok _ s    => (s.commandState.env, s.commandState.messages)
-| EStateM.Result.error _ s => (s.commandState.env, s.commandState.messages)
+| (_, { commandState := { env := env, messages := messages, .. }, .. }) => (env, messages)
 
 def testFrontend (input : String) (opts : Options := {}) (fileName : Option String := none) : IO (Environment × MessageLog) := do
 env ← mkEmptyEnvironment;
@@ -79,8 +80,7 @@ match Parser.parseHeader env ctx with
   (env, messages) ← processHeader header messages ctx;
   let cmdState := Command.mkState env messages opts;
   match (processCommands ctx).run { commandState := cmdState, parserState := parserState } with
-  | EStateM.Result.ok _ s    => pure (s.commandState.env, s.commandState.messages)
-  | EStateM.Result.error _ s => pure (s.commandState.env, s.commandState.messages)
+  | (_, { commandState := { env := env, messages := messages, .. }, .. }) => pure (env, messages)
 
 end Elab
 end Lean

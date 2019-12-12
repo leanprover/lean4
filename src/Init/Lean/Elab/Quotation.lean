@@ -76,8 +76,8 @@ instance TermElabM.MonadQuotation : MonadQuotation TermElabM := {
   withFreshMacroScope := fun α => id
 }
 
-private partial def quoteSyntax {m : Type → Type} [Monad m] [MonadQuotation m] (env : Environment) (msc : Syntax) : Syntax → m Syntax
-| Syntax.ident info rawVal val preresolved =>
+private partial def quoteSyntax {m : Type → Type} [Monad m] [MonadQuotation m] (env : Environment) (msc : Syntax) : Nat → Syntax → m Syntax
+| _, Syntax.ident info rawVal val preresolved =>
   -- TODO: pass scope information
   let ns := Name.anonymous;
   let openDecls := [];
@@ -87,19 +87,23 @@ private partial def quoteSyntax {m : Type → Type} [Monad m] [MonadQuotation m]
   let val := quote val;
   let args := quote preresolved;
   `(Lean.Syntax.ident Option.none (String.toSubstring %%(Lean.mkStxStrLit (HasToString.toString rawVal))) %%val %%args)
-| Syntax.node `Lean.Parser.Term.antiquot args => pure $ args.get! 1
-| Syntax.node k args => do
+| 0, Syntax.node `Lean.Parser.Term.antiquot args => pure $ args.get! 1
+| lvl, Syntax.node k args => do
+  let lvl := match k with
+    | `Lean.Parser.Term.stxQuot => lvl + 1
+    | `Lean.Parser.Term.antiquot => lvl - 1
+    | _ => lvl;
   let k := quote k;
-  args ← quote <$> args.mapM quoteSyntax;
+  args ← quote <$> args.mapM (quoteSyntax lvl);
   `(Lean.Syntax.node %%k %%args)
-| Syntax.atom info val =>
+| _, Syntax.atom info val =>
   `(Lean.Syntax.atom Option.none %%(Lean.mkStxStrLit val))
-| Syntax.missing => unreachable!
+| _, Syntax.missing => unreachable!
 
 def stxQuot.expand {m : Type → Type} [Monad m] [MonadQuotation m] (env : Environment) (stx : Syntax) : m Syntax := do
   -- TODO: hygiene
   -- `(do msc ← getCurMacroScope; pure %(quote `(msc) quoted))
-  stx ← quoteSyntax env Syntax.missing $ stx.getArg 1;
+  stx ← quoteSyntax env Syntax.missing 0 $ stx.getArg 1;
   `(HasPure.pure %%stx)
 
 @[builtinTermElab stxQuot] def elabStxQuot : TermElab :=
@@ -142,7 +146,7 @@ let s := Parser.mkParserState c.input;
 let s := s.setPos pos;
 let s := (Parser.termParser : Parser.Parser).fn (0 : Nat) c s;
 let stx := s.stxStack.back;
-let stx := Unhygienic.run $ quoteSyntax env Syntax.missing stx;
+let stx := Unhygienic.run $ quoteSyntax env Syntax.missing 0 stx;
 let stx := Unhygienic.run `(HasPure.pure %%stx);
 expr ← toPreterm env stx;
 match s.errorMsg with

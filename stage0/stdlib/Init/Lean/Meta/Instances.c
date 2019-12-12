@@ -63,7 +63,7 @@ lean_object* l_Lean_Meta_instanceExtension___elambda__4___rarg(lean_object*);
 extern lean_object* l_Lean_AttributeImpl_inhabited___closed__4;
 lean_object* l_Lean_Environment_getGlobalInstances___boxed(lean_object*);
 lean_object* l_Lean_Meta_mkInstanceExtension___closed__5;
-lean_object* l_Lean_Meta_addGlobalInstance(lean_object*, lean_object*, lean_object*);
+lean_object* lean_add_instance(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_Inhabited___closed__2;
 lean_object* l_PersistentHashMap_find___at_Lean_Meta_addInstanceEntry___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
@@ -107,7 +107,7 @@ lean_object* l_Lean_Meta_instanceExtension___closed__1;
 lean_object* l_Lean_Meta_registerInstanceAttr___closed__6;
 lean_object* l_Lean_Meta_instanceExtension___closed__2;
 lean_object* l_Lean_Meta_registerInstanceAttr___lambda__1___closed__2;
-lean_object* lean_add_instance(lean_object*, lean_object*);
+lean_object* lean_add_instance_old(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 size_t l_USize_land(size_t, size_t);
 lean_object* l_Lean_Meta_addGlobalInstance___closed__2;
@@ -3207,7 +3207,7 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-lean_object* l_Lean_Meta_addGlobalInstance(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* lean_add_instance(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -3374,7 +3374,7 @@ else
 {
 lean_object* x_11; lean_object* x_12; 
 lean_inc(x_2);
-x_11 = lean_add_instance(x_1, x_2);
+x_11 = lean_add_instance_old(x_1, x_2);
 x_12 = l_IO_ofExcept___at_Lean_registerClassAttr___spec__1(x_11, x_5);
 lean_dec(x_11);
 if (lean_obj_tag(x_12) == 0)
@@ -3385,7 +3385,7 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
-x_15 = l_Lean_Meta_addGlobalInstance(x_13, x_2, x_14);
+x_15 = lean_add_instance(x_13, x_2, x_14);
 return x_15;
 }
 else

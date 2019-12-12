@@ -181,7 +181,7 @@ lean_object* l_Lean_getClassName(lean_object*, lean_object*);
 uint8_t l_Lean_SMap_contains___at_Lean_isInstance___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_addGlobalInstanceOld___closed__1;
 lean_object* l_Lean_ConstantInfo_value_x3f(lean_object*);
-lean_object* lean_add_instance(lean_object*, lean_object*);
+lean_object* lean_add_instance_old(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_ClassState_addEntry___spec__20(lean_object*, size_t, size_t, lean_object*, lean_object*);
 uint8_t lean_is_instance(lean_object*, lean_object*);
 lean_object* l_Lean_classExtension___elambda__4(lean_object*);
@@ -6602,7 +6602,7 @@ x_1 = lean_mk_string("', failed to retrieve class");
 return x_1;
 }
 }
-lean_object* lean_add_instance(lean_object* x_1, lean_object* x_2) {
+lean_object* lean_add_instance_old(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 

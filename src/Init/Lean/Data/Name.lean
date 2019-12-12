@@ -151,6 +151,11 @@ def appendIndexAfter : Name → Nat → Name
 | str p s _, idx => mkNameStr p (s ++ "_" ++ toString idx)
 | n,         idx => mkNameStr n ("_" ++ toString idx)
 
+def appendBefore : Name → String → Name
+| anonymous, pre => mkNameStr anonymous pre
+| str p s _, pre => mkNameStr p (pre ++ s)
+| num p n _, pre => mkNameNum (mkNameStr p pre) n
+
 /- The frontend does not allow user declarations to start with `_` in any of its parts.
    We use name parts starting with `_` internally to create auxiliary names (e.g., `_private`). -/
 def isInternal : Name → Bool

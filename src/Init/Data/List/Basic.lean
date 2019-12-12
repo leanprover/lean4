@@ -159,6 +159,12 @@ def find (p : α → Bool) : List α → Option α
   | true  => some a
   | false => find as
 
+def findSome? (f : α → Option β) : List α → Option β
+| []    => none
+| a::as => match f a with
+  | some b => some b
+  | none   => findSome? as
+
 def elem [HasBeq α] (a : α) : List α → Bool
 | []    => false
 | b::bs => match a == b with

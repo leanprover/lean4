@@ -27,6 +27,9 @@ fun stx expectedType? => do
 def elabInfixOp (op : Name) : TermElab :=
 fun stx expectedType? => elabInfix (mkTermId (stx.getArg 1) op) stx expectedType?
 
+@[builtinTermElab prod] def elabProd : TermElab := elabInfixOp `Prod
+@[builtinTermElab fcomp] def ElabFComp : TermElab := elabInfixOp `Function.comp
+
 @[builtinTermElab add] def elabAdd : TermElab := elabInfixOp `HasAdd.add
 @[builtinTermElab sub] def elabSub : TermElab := elabInfixOp `HasSub.sub
 @[builtinTermElab mul] def elabMul : TermElab := elabInfixOp `HasMul.mul
@@ -57,7 +60,7 @@ fun stx expectedType? => elabInfix (mkTermId (stx.getArg 1) op) stx expectedType
 @[builtinTermElab cons] def elabCons : TermElab := elabInfixOp `List.cons
 
 @[builtinTermElab andthen] def elabAndThen : TermElab := elabInfixOp `HasAndthen.andthen
--- @[builtinTermElab bind] def elabBind : TermElab := elabInfixOp `HasBind.bind
+@[builtinTermElab bindOp] def elabBind : TermElab := elabInfixOp `HasBind.bind
 
 @[builtinTermElab seq] def elabseq : TermElab := elabInfixOp `HasSeq.seq
 @[builtinTermElab seqLeft] def elabseqLeft : TermElab := elabInfixOp `HasSeqLeft.seqLeft
@@ -73,6 +76,7 @@ fun stx expectedType? => elabInfix (mkTermId (stx.getArg 1) op) stx expectedType
 @[builtinTermElab andM] def elabAndM : TermElab := elabInfixOp `andM
 
 /-
+TODO
 @[builtinTermElab] def elabsubst : TermElab := elabInfixOp infixR " ▸ " 75
 -/
 

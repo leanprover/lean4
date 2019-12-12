@@ -19,10 +19,14 @@ def two := 2
 -- set_option trace.Elab.app true
 -- set_option trace.Elab true
 
+def act1 : IO String :=
+pure "hello"
+
 #eval run "#check [zero, one, two]"
 #eval run "#check id $ Nat.succ one"
 #eval run "#check HasAdd.add one two"
 #eval run "#check one + two > one ∧ True"
+-- #eval run "#check act1 >>= IO.println"
 
 #eval run
 "universe u universe v

@@ -35,3 +35,15 @@ do inst ← mkAppM `HasCoerce #[mkConst `Nat, mkSort levelZero];
    print r
 
 #eval tst1
+
+def tst2 : MetaM Unit :=
+do inst ← mkAppM `HasBind #[mkConst `IO];
+   -- globalInstances ← getGlobalInstances;
+   -- print (format globalInstances);
+   -- result ← globalInstances.getUnify inst;
+   -- print result;
+   r ← synthInstance inst;
+   print r;
+   pure ()
+
+#eval tst2

@@ -43,6 +43,7 @@ public:
     uchar               m_curr;  // current char;
 
     int                 m_pos;   // start position of the token
+    int                 m_tk_spos;   // start position of the token (bytes)
     int                 m_line;  // line of the token
 
     name                m_name_val;

@@ -138,22 +138,24 @@ private partial def toPreterm (env : Environment) : Syntax → Except String Exp
   | `numLit => pure $ mkNatLit $ stx.isNatLit?.getD 0
   | k => throw $ "stxQuot: unimplemented kind " ++ toString k
 
-@[export lean_parse_stx_quot]
-def oldParseStxQuot (env : Environment) (input : String) (pos : String.Pos) : Except String (Expr × String.Pos) := do
+@[export lean_parse_expr]
+def oldParseExpr (env : Environment) (input : String) (pos : String.Pos) : Except String (Syntax × String.Pos) := do
 let c := Parser.mkParserContextCore env input "<foo>";
 let c := c.toParserContext env;
 let s := Parser.mkParserState c.input;
 let s := s.setPos pos;
 let s := (Parser.termParser : Parser.Parser).fn (0 : Nat) c s;
 let stx := s.stxStack.back;
-let stx := Unhygienic.run $ quoteSyntax env Syntax.missing 0 stx;
-let stx := Unhygienic.run `(HasPure.pure %%stx);
-expr ← toPreterm env stx;
 match s.errorMsg with
 | some errorMsg =>
   Except.error $ toString errorMsg
 | none =>
-  Except.ok (expr, s.pos)
+  Except.ok (stx, s.pos)
+
+@[export lean_expand_stx_quot]
+unsafe def oldExpandStxQuot (env : Environment) (stx : Syntax) : Except String Expr := do
+let stx := Unhygienic.run $ stxQuot.expand env stx;
+toPreterm env stx
 
 end Term
 end Elab

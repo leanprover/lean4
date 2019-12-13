@@ -169,7 +169,7 @@ def inferType (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta
 def whnf (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.whnf e
 def whnfForall (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.whnfForall e
 def whnfCore (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.whnfCore e
-def unfoldDefinition (ref : Syntax) (e : Expr) : TermElabM (Option Expr) := liftMetaM ref $ Meta.unfoldDefinition e
+def unfoldDefinition? (ref : Syntax) (e : Expr) : TermElabM (Option Expr) := liftMetaM ref $ Meta.unfoldDefinition? e
 def instantiateMVars (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.instantiateMVars e
 def isClass (ref : Syntax) (t : Expr) : TermElabM (Option Name) := liftMetaM ref $ Meta.isClass t
 def mkFreshLevelMVar (ref : Syntax) : TermElabM Level := liftMetaM ref $ Meta.mkFreshLevelMVar
@@ -621,7 +621,7 @@ inductive FieldResolution
 private def throwFieldError {α} (ref : Syntax) (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
 throwError ref $ msg ++ indentExpr e ++ Format.line ++ "has type" ++ indentExpr eType
 
-private def resolveField (ref : Syntax) (e : Expr) (eType : Expr) (field : Field) : TermElabM FieldResolution :=
+private def resolveFieldAux (ref : Syntax) (e : Expr) (eType : Expr) (field : Field) : TermElabM FieldResolution :=
 match eType.getAppFn, field with
 | Expr.const structName _ _, Field.num idx => do
   when (idx == 0) $
@@ -669,10 +669,26 @@ match eType.getAppFn, field with
     searchLCtx ()
 | _, _ => throwFieldError ref e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
 
+private partial def resolveFieldLoop (ref : Syntax) (e : Expr) (field : Field) : Expr → Array Exception → TermElabM FieldResolution
+| eType, previousExceptions => do
+  eType ← whnfCore ref eType;
+  catch (resolveFieldAux ref e eType field)
+    (fun ex => do
+      eType? ← unfoldDefinition? ref eType;
+      match eType? with
+      | some eType => resolveFieldLoop eType (previousExceptions.push ex)
+      | none => do
+        previousExceptions.forM $ fun ex => logMessage ex;
+        throw ex)
+
+private def resolveField (ref : Syntax) (e : Expr) (field : Field) : TermElabM FieldResolution := do
+eType ← inferType ref e;
+resolveFieldLoop ref e field eType #[]
+
 private def elabAppFieldsAux (ref : Syntax) (namedArgs : Array NamedArg) (args : Array Syntax) (expectedType? : Option Expr) (explicit : Bool)
     : Expr → List Field → TermElabM Expr
-| f, []          => elabAppArgs ref f namedArgs args expectedType? explicit
-| f, proj::fields => do
+| f, []            => elabAppArgs ref f namedArgs args expectedType? explicit
+| f, field::fields => do
   fType ← inferType ref f;
   -- TODO
   elabAppArgs ref f namedArgs args expectedType? explicit

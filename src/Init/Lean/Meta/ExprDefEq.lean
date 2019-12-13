@@ -607,7 +607,7 @@ private partial def processAssignmentFOApprox (mvar : Expr) (args : Array Expr) 
   trace! `Meta.isDefEq.foApprox (mvar ++ " " ++ args ++ " := " ++ v);
   condM (try $ processAssignmentFOApproxAux mvar args v)
     (pure true)
-    (do v? ← unfoldDefinition v;
+    (do v? ← unfoldDefinition? v;
         match v? with
         | none   => pure false
         | some v => processAssignmentFOApprox v)
@@ -733,7 +733,7 @@ traceCtx `Meta.isDefEq.delta $
 
 /-- Auxiliary method for isDefEqDelta -/
 private abbrev unfold {α} (e : Expr) (failK : MetaM α) (successK : Expr → MetaM α) : MetaM α := do
-e? ← unfoldDefinition e;
+e? ← unfoldDefinition? e;
 match e? with
 | some e => successK e
 | none   => failK

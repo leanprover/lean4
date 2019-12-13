@@ -131,7 +131,7 @@ match lctx with
     | some decl => { fvarIdToDecl := map.erase decl.fvarId, decls := popTailNoneAux decls.pop }
 
 @[export lean_local_ctx_find_from_user_name]
-def findFromUserName (lctx : LocalContext) (userName : Name) : Option LocalDecl :=
+def findFromUserName? (lctx : LocalContext) (userName : Name) : Option LocalDecl :=
 lctx.decls.findRev (fun decl =>
   match decl with
   | none      => none
@@ -139,7 +139,7 @@ lctx.decls.findRev (fun decl =>
 
 @[export lean_local_ctx_uses_user_name]
 def usesUserName (lctx : LocalContext) (userName : Name) : Bool :=
-(lctx.findFromUserName userName).isSome
+(lctx.findFromUserName? userName).isSome
 
 partial def getUnusedNameAux (lctx : LocalContext) (suggestion : Name) : Nat → Name × Nat
 | i =>
@@ -160,7 +160,7 @@ lctx.decls.get! (lctx.decls.size - 1)
 def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : LocalContext :=
 match lctx with
 | { fvarIdToDecl := map, decls := decls } =>
-  match lctx.findFromUserName fromName with
+  match lctx.findFromUserName? fromName with
   | none      => lctx
   | some decl =>
     let decl := decl.updateUserName toName;

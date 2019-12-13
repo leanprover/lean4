@@ -162,6 +162,7 @@ class LeanExprPrinter:
         ('lit', ['literal']),
         ('mdata', ['kvmap', 'expr']),
         ('proj', ['name', 'nat', 'expr']),
+        ('elet', ['name', 'name', 'expr']),
     ]
 
 

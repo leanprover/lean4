@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include <algorithm>
 #include "runtime/sstream.h"
 #include "util/option_declarations.h"
 #include "kernel/abstract.h"
@@ -821,19 +822,31 @@ static expr parse_trace(parser & p, unsigned, expr const *, pos_info const & pos
     return save_pos(r, pos);
 }
 
-extern "C" object * lean_parse_stx_quot(object * env, object * input, object * pos);
+template<class T>
+static T handle_res(object * r, parser const & p) {
+    if (cnstr_tag(r) == 0) {
+        throw parser_error(sstream() << cnstr_get_ref_t<string_ref>(object_ref(r), 0).to_std_string(), p.pos());
+    } else {
+        return cnstr_get_ref_t<T>(object_ref(r), 0);
+    }
+}
+
+extern "C" object * lean_parse_expr(object * env, object * input, object * pos);
+
+static object_ref parse_expr(parser & p) {
+    object_ref tup = handle_res<object_ref>(lean_parse_expr(p.env().to_obj_arg(), mk_string(p.m_scanner.m_curr_line), nat(p.m_scanner.m_tk_spos).to_obj_arg()), p);
+    size_t col = cnstr_get_ref_t<nat>(tup, 1).get_small_value();
+    col = std::min(col, p.m_scanner.m_curr_line.size() - 1);
+    p.m_scanner.skip_to_pos(pos_info {0, col});
+    p.next();
+    return cnstr_get_ref(tup, 0);
+}
+
+extern "C" object * lean_expand_stx_quot(object * env, object * stx);
 
 static expr parse_stx_quot(parser & p, unsigned, expr const *, pos_info const & /* pos */) {
-    object_ref r(lean_parse_stx_quot(p.env().to_obj_arg(), mk_string(p.m_scanner.m_curr_line), nat(p.m_scanner.m_spos).to_obj_arg()));
-    if (cnstr_tag(r.raw()) == 0) {
-        throw parser_error(sstream() << cnstr_get_ref_t<string_ref>(r, 0).to_std_string(), p.pos());
-    } else {
-        object_ref tup = cnstr_get_ref(r, 0);
-        p.m_scanner.skip_to_pos(pos_info {0, cnstr_get_ref_t<nat>(tup, 1).get_small_value()});
-        p.next();
-        p.check_token_next(get_rparen_tk(), "')' expected");
-        return cnstr_get_ref_t<expr>(tup, 0);
-    }
+    object_ref stx = parse_expr(p);
+    return handle_res<expr>(lean_expand_stx_quot(p.env().to_obj_arg(), stx.steal()), p);
 }
 
 parse_table init_nud_table() {

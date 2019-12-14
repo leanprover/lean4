@@ -692,7 +692,9 @@ match eType.getAppFn, field with
     | none                => searchLCtx ()
   else
     searchLCtx ()
-| _, _ => throwFieldError ref e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
+| _, _ =>
+  -- TODO postpone if it is a metavariable
+  throwFieldError ref e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
 
 private partial def resolveFieldLoop (ref : Syntax) (e : Expr) (field : Field) : Expr → Array Exception → TermElabM FieldResolution
 | eType, previousExceptions => do

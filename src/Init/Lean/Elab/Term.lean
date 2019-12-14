@@ -182,7 +182,7 @@ def getLevel (ref : Syntax) (type : Expr) : TermElabM Level := liftMetaM ref $ M
 def mkForall (ref : Syntax) (xs : Array Expr) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.mkForall xs e
 def trySynthInstance (ref : Syntax) (type : Expr) : TermElabM (LOption Expr) := liftMetaM ref $ Meta.trySynthInstance type
 
-def registerSyntheticMVar (mvarId : MVarId) (ref : Syntax) (kind : SyntheticMVarKind) : TermElabM Unit :=
+def registerSyntheticMVar (ref : Syntax) (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit :=
 modify $ fun s => { syntheticMVars := { mvarId := mvarId, ref := ref, kind := kind } :: s.syntheticMVars, .. s }
 
 @[inline] def withoutPostponing {α} (x : TermElabM α) : TermElabM α :=
@@ -469,7 +469,7 @@ instance NamedArg.hasToString : HasToString NamedArg :=
 
 instance NamedArg.inhabited : Inhabited NamedArg := ⟨{ name := arbitrary _, val := arbitrary _ }⟩
 
-def addNamedArg (namedArgs : Array NamedArg) (namedArg : NamedArg) (ref : Syntax) : TermElabM (Array NamedArg) := do
+def addNamedArg (ref : Syntax) (namedArgs : Array NamedArg) (namedArg : NamedArg) : TermElabM (Array NamedArg) := do
 when (namedArgs.any $ fun namedArg' => namedArg.name == namedArg'.name) $
   throwError ref ("argument '" ++ toString namedArg.name ++ "' was already set");
 pure $ namedArgs.push namedArg
@@ -512,7 +512,7 @@ candidates.foldlM
           pure result))
   []
 
-def resolveName (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) (ref : Syntax) : TermElabM (List (Expr × List String)) := do
+def resolveName (ref : Syntax) (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
 result? ← resolveLocalName n;
 match result? with
 | some (e, projs) => do
@@ -619,7 +619,7 @@ private partial def elabAppArgsAux (ref : Syntax) (args : Array Arg) (expectedTy
         | BinderInfo.instImplicit => do
           a ← mkFreshExprMVar ref d true;
           let mvarId := a.mvarId!;
-          registerSyntheticMVar mvarId ref SyntheticMVarKind.typeClass;
+          registerSyntheticMVar ref mvarId SyntheticMVarKind.typeClass;
           elabAppArgsAux argIdx namedArgs (instMVars.push mvarId) (b.instantiate1 a) (mkApp e a)
         | _ =>
           processExplictArg ()
@@ -736,7 +736,7 @@ private def elabAppFieldsAux (ref : Syntax) (namedArgs : Array NamedArg) (args :
     f ← mkBaseProjections ref baseStructName structName f;
     projFn ← mkConst ref (baseStructName ++ fieldName);
     if fields.isEmpty then do
-      namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f } ref;
+      namedArgs ← addNamedArg ref namedArgs { name := `self, val := Arg.expr f };
       elabAppArgs ref projFn namedArgs args expectedType? explicit
     else do
       f ← elabAppArgs ref projFn #[{ name := `self, val := Arg.expr f }] #[] none false;
@@ -771,7 +771,7 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List Field → Array N
     match f.getArg 0 with
     | Syntax.ident _ _ n preresolved => do
       us        ← elabExplicitUniv (f.getArg 1);
-      funFields ← resolveName n preresolved us f;
+      funFields ← resolveName f n preresolved us;
       funFields.foldlM
         (fun acc ⟨f, fields'⟩ => do
           let fields' := fields'.map Field.str;
@@ -842,7 +842,7 @@ let (f, args) := expandAppAux stx #[];
     arg.ifNodeKind `Lean.Parser.Term.namedArgument
       (fun argNode => do
         -- `(` ident `:=` term `)`
-        namedArgs ← addNamedArg acc.1 { name := argNode.getIdAt 1, val := Arg.stx $ argNode.getArg 3 } arg;
+        namedArgs ← addNamedArg arg acc.1 { name := argNode.getIdAt 1, val := Arg.stx $ argNode.getArg 3 };
         pure (namedArgs, args))
       (fun _ =>
         pure (namedArgs, args.push $ Arg.stx arg)))

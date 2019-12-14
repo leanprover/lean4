@@ -259,18 +259,19 @@ ctx ← read; pure ctx.config.opts
 @[inline] def isReducible (constName : Name) : MetaM Bool := do
 env ← getEnv; pure $ isReducible env constName
 
+@[inline] def withConfig {α} (f : Config → Config) (x : MetaM α) : MetaM α :=
+adaptReader (fun (ctx : Context) => { config := f ctx.config, .. ctx }) x
+
 /-- While executing `x`, ensure the given transparency mode is used. -/
 @[inline] def withTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
-adaptReader
-  (fun (ctx : Context) => { config := { transparency := mode, .. ctx.config }, .. ctx })
-  x
+withConfig (fun config => { transparency := mode, .. config }) x
 
 @[inline] def withAtLeastTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
-adaptReader
-  (fun (ctx : Context) =>
-    let oldMode := ctx.config.transparency;
+withConfig
+  (fun config =>
+    let oldMode := config.transparency;
     let mode    := if oldMode.lt mode then mode else oldMode;
-    { config := { transparency := mode, .. ctx.config }, .. ctx })
+    { transparency := mode, .. config })
   x
 
 def isSyntheticExprMVar (mvarId : MVarId) : MetaM Bool := do

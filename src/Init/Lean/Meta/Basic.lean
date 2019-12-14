@@ -59,10 +59,14 @@ end TransparencyMode
 
 structure Config :=
 (opts               : Options := {})
--- TODO: merge all *Approx flags.
 (foApprox           : Bool    := false)
 (ctxApprox          : Bool    := false)
 (quasiPatternApprox : Bool    := false)
+/- When `constApprox` is set to true,
+   we solve `?m t =?= c` using
+   `?m := fun _ => c`
+   when `?m t` is not a higher-order pattern and `c` is not an application as -/
+(constApprox        : Bool    := false)
 /-
   When the following flag is set,
   `isDefEq` throws the exeption `Exeption.isDefEqStuck`
@@ -707,7 +711,7 @@ abbrev whnfD := whnfUsingDefault
 
 /-- Execute `x` using approximate unification. -/
 @[inline] def approxDefEq {α} (x : MetaM α) : MetaM α :=
-adaptReader (fun (ctx : Context) => { config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true, .. ctx.config }, .. ctx })
+adaptReader (fun (ctx : Context) => { config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true, constApprox := true, .. ctx.config }, .. ctx })
   x
 
 @[inline] private def withNewFVar {α} (fvar fvarType : Expr) (k : Expr → MetaM α) : MetaM α := do

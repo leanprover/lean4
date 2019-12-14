@@ -361,10 +361,25 @@ do print "----- tst22 -----";
 def test1 : Nat := (fun x y => x + y) 0 1
 
 def tst23 : MetaM Unit :=
-do print "----- tst22 -----";
+do print "----- tst23 -----";
    cinfo ← getConstInfo `test1;
    let v := cinfo.value?.get!;
    print v;
    print v.headBeta
 
 #eval tst23
+
+def tst24 : MetaM Unit :=
+do print "----- tst24 -----";
+   m1 ← mkFreshExprMVar (mkArrow nat (mkArrow type type));
+   m2 ← mkFreshExprMVar type;
+   zero ← mkAppM `HasZero.zero #[nat];
+   idNat ← mkAppM `Id #[nat];
+   let lhs := mkAppB m1 zero m2;
+   print zero;
+   print idNat;
+   print lhs;
+   check $ approxDefEq $ isDefEq lhs idNat;
+   pure ()
+
+#eval tst24

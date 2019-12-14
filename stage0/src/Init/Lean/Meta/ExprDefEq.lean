@@ -27,7 +27,7 @@ namespace Meta
 private def isDefEqEta (a b : Expr) : MetaM Bool :=
 if a.isLambda && !b.isLambda then do
   bType ← inferType b;
-  bType ← whnfUsingDefault bType;
+  bType ← whnfD bType;
   match bType with
   | Expr.forallE n d _ c =>
     let b' := Lean.mkLambda n c.binderInfo d (mkApp b (mkBVar 0));
@@ -128,7 +128,7 @@ if h : args₁.size = args₂.size then do
       synthPending a₂;
       pure ()
     };
-    usingAtLeastTransparency TransparencyMode.default $ isExprDefEqAux a₁ a₂)
+    withAtLeastTransparency TransparencyMode.default $ isExprDefEqAux a₁ a₂)
 else
   pure false
 
@@ -628,6 +628,29 @@ private def simpAssignmentArg (arg : Expr) : MetaM Expr := do
 arg ← if arg.getAppFn.hasExprMVar then instantiateMVars arg else pure arg;
 simpAssignmentArgAux arg
 
+private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
+traceCtx `Meta.isDefEq.assign.checkTypes $ do
+  -- must check whether types are definitionally equal or not, before assigning and returning true
+  mvarType ← inferType mvar;
+  vType    ← inferType v;
+  condM (withTransparency TransparencyMode.default $ isExprDefEqAux mvarType vType)
+    (do assignExprMVar mvar.mvarId! v; pure true)
+    (do trace `Meta.isDefEq.assign.typeMismatch $ fun _ => mvar ++ " : " ++ mvarType ++ " := " ++ v ++ " : " ++ vType;
+        pure false)
+
+private def processConstApprox (mvar : Expr) (numArgs : Nat) (v : Expr) : MetaM Bool := do
+let mvarId := mvar.mvarId!;
+v? ← checkAssignment mvarId #[] v;
+match v? with
+| none   => pure false
+| some v => do
+  mvarDecl ← getMVarDecl mvarId;
+  forallBoundedTelescope mvarDecl.type numArgs $ fun xs _ =>
+    if xs.size != numArgs then pure false
+    else do
+      v ← mkLambda xs v;
+      checkTypesAndAssign mvar v
+
 private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) (v : Expr) : Nat → Array Expr → MetaM Bool
 | i, args =>
   if h : i < args.size then do
@@ -636,8 +659,10 @@ private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) 
     arg ← simpAssignmentArg arg;
     let args := args.set ⟨i, h⟩ arg;
     let useFOApprox : Unit → MetaM Bool := fun _ =>
-      if cfg.foApprox then
+      if cfg.foApprox && v.isApp then
         processAssignmentFOApprox mvar args v
+      else if cfg.constApprox then
+        processConstApprox mvar args.size v
       else
         pure false;
     match arg with
@@ -654,6 +679,7 @@ private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) 
     cfg ← getConfig;
     v ← instantiateMVars v; -- enforce A4
     if cfg.foApprox && args.isEmpty && v.getAppFn == mvar then
+      -- using A6
       processAssignmentFOApprox mvar args v
     else do
       let useFOApprox : Unit → MetaM Bool := fun _ =>
@@ -669,7 +695,7 @@ private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) 
            -- must check whether types are definitionally equal or not, before assigning and returning true
            mvarType ← inferType mvar;
            vType    ← inferType v;
-           condM (usingTransparency TransparencyMode.default $ isExprDefEqAux mvarType vType)
+           condM (withTransparency TransparencyMode.default $ isExprDefEqAux mvarType vType)
              (do assignExprMVar mvarId v; pure true)
              (do trace `Meta.isDefEq.assign.typeMismatch $ fun _ => mvar ++ " : " ++ mvarType ++ " := " ++ v ++ " : " ++ vType;
                  pure false)
@@ -678,11 +704,11 @@ private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) 
           /- We need to type check `v` because abstraction using `mkLambda` may have produced
              a type incorrect term. See discussion at A2 -/
           condM (isTypeCorrect v)
-            (finalize ())
+            (checkTypesAndAssign mvar v)
             (do trace `Meta.isDefEq.assign.typeError $ fun _ => mvar ++ " := " ++ v;
                 useFOApprox ())
         else
-          finalize ()
+          checkTypesAndAssign mvar v
 
 /-- Tries to solve `?m a₁ ... aₙ =?= v` by assigning `?m`.
     It assumes `?m` is unassigned. -/

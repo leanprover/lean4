@@ -511,7 +511,7 @@ try $
   r.exprReplacements.allM (fun ⟨e, e'⟩ => isExprDefEqAux e e')
 
 def synthInstance? (type : Expr) (fuel : Nat := 10000) : MetaM (Option Expr) :=
-usingTransparency TransparencyMode.reducible $ do
+withConfig (fun config => { transparency := TransparencyMode.reducible, foApprox := true, ctxApprox := true, .. config }) $ do
   type ← instantiateMVars type;
   type ← preprocess type;
   s ← get;

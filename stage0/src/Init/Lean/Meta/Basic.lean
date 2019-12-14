@@ -59,10 +59,14 @@ end TransparencyMode
 
 structure Config :=
 (opts               : Options := {})
--- TODO: merge all *Approx flags.
 (foApprox           : Bool    := false)
 (ctxApprox          : Bool    := false)
 (quasiPatternApprox : Bool    := false)
+/- When `constApprox` is set to true,
+   we solve `?m t =?= c` using
+   `?m := fun _ => c`
+   when `?m t` is not a higher-order pattern and `c` is not an application as -/
+(constApprox        : Bool    := false)
 /-
   When the following flag is set,
   `isDefEq` throws the exeption `Exeption.isDefEqStuck`
@@ -255,18 +259,19 @@ ctx ← read; pure ctx.config.opts
 @[inline] def isReducible (constName : Name) : MetaM Bool := do
 env ← getEnv; pure $ isReducible env constName
 
-/-- While executing `x`, ensure the given transparency mode is used. -/
-@[inline] def usingTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
-adaptReader
-  (fun (ctx : Context) => { config := { transparency := mode, .. ctx.config }, .. ctx })
-  x
+@[inline] def withConfig {α} (f : Config → Config) (x : MetaM α) : MetaM α :=
+adaptReader (fun (ctx : Context) => { config := f ctx.config, .. ctx }) x
 
-@[inline] def usingAtLeastTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
-adaptReader
-  (fun (ctx : Context) =>
-    let oldMode := ctx.config.transparency;
+/-- While executing `x`, ensure the given transparency mode is used. -/
+@[inline] def withTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
+withConfig (fun config => { transparency := mode, .. config }) x
+
+@[inline] def withAtLeastTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
+withConfig
+  (fun config =>
+    let oldMode := config.transparency;
     let mode    := if oldMode.lt mode then mode else oldMode;
-    { config := { transparency := mode, .. ctx.config }, .. ctx })
+    { transparency := mode, .. config })
   x
 
 def isSyntheticExprMVar (mvarId : MVarId) : MetaM Bool := do
@@ -553,7 +558,7 @@ else
   k #[] type
 
 partial def isClassExpensive : Expr → MetaM (Option Name)
-| type => usingTransparency TransparencyMode.reducible $ -- when testing whether a type is a type class, we only unfold reducible constants.
+| type => withTransparency TransparencyMode.reducible $ -- when testing whether a type is a type class, we only unfold reducible constants.
   forallTelescopeReducingAux isClassExpensive type none $ fun xs type => do
     match type.getAppFn with
     | Expr.const c _ _ => do
@@ -700,14 +705,12 @@ mvarId ← mkFreshId;
 modify $ fun s => { mctx := s.mctx.addLevelMVarDecl mvarId, .. s };
 pure mvarId
 
-def whnfUsingDefault : Expr → MetaM Expr :=
-fun e => usingTransparency TransparencyMode.default $ whnf e
-
-abbrev whnfD := whnfUsingDefault
+def whnfD : Expr → MetaM Expr :=
+fun e => withTransparency TransparencyMode.default $ whnf e
 
 /-- Execute `x` using approximate unification. -/
 @[inline] def approxDefEq {α} (x : MetaM α) : MetaM α :=
-adaptReader (fun (ctx : Context) => { config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true, .. ctx.config }, .. ctx })
+adaptReader (fun (ctx : Context) => { config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true, constApprox := true, .. ctx.config }, .. ctx })
   x
 
 @[inline] private def withNewFVar {α} (fvar fvarType : Expr) (k : Expr → MetaM α) : MetaM α := do

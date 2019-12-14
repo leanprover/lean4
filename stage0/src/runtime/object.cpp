@@ -1232,6 +1232,13 @@ static object * mpz_to_int(mpz const & m) {
         return lean_box(static_cast<unsigned>(m.get_int()));
 }
 
+extern "C" lean_obj_res lean_big_int_to_nat(lean_obj_arg a) {
+    lean_assert(!lean_is_scalar(a));
+    mpz m = mpz_value(a);
+    lean_dec(a);
+    return mpz_to_nat(m);
+}
+
 extern "C" object * lean_cstr_to_int(char const * n) {
     return mpz_to_int(mpz(n));
 }

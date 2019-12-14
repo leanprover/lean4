@@ -1434,12 +1434,22 @@ static inline bool lean_int_lt(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     }
 }
 
+lean_obj_res lean_big_int_to_nat(lean_obj_arg a);
+static inline lean_obj_res lean_int_to_nat(lean_obj_arg a) {
+    assert(!lean_int_lt(a, lean_box(0)));
+    if (lean_is_scalar(a)) {
+        return a;
+    } else {
+        return lean_big_int_to_nat(a);
+    }
+}
+
 static inline lean_obj_res lean_nat_abs(b_lean_obj_arg i) {
     if (lean_int_lt(i, lean_box(0))) {
-        return lean_int_neg(i);
+        return lean_int_to_nat(lean_int_neg(i));
     } else {
         lean_inc(i);
-        return i;
+        return lean_int_to_nat(i);
     }
 }
 

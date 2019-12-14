@@ -39,6 +39,8 @@ struct unifier_config {
     bool m_fo_approx{false};
     bool m_ctx_approx{false};
     bool m_quasi_pattern_approx{false};
+    bool m_const_approx{false};
+
     unifier_config() {}
     unifier_config(bool fo_approx, bool ctx_approx, bool qp_approx):
         m_fo_approx(fo_approx), m_ctx_approx(ctx_approx), m_quasi_pattern_approx(qp_approx) {}
@@ -754,6 +756,11 @@ public:
     struct fo_unif_approx_scope : public flet<bool> {
         fo_unif_approx_scope(type_context_old & ctx, bool approx = true):
             flet<bool>(ctx.m_unifier_cfg.m_fo_approx, approx) {}
+    };
+
+    struct const_unif_approx_scope : public flet<bool> {
+        const_unif_approx_scope(type_context_old & ctx, bool approx = true):
+            flet<bool>(ctx.m_unifier_cfg.m_const_approx, approx) {}
     };
 
     struct ctx_unif_approx_scope : public flet<bool> {

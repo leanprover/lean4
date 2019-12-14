@@ -823,8 +823,9 @@ optional<expr> elaborator::mk_coercion(expr const & e, expr e_type, expr type, e
 }
 
 bool elaborator::is_def_eq(expr const & e1, expr const & e2) {
-    type_context_old::fo_unif_approx_scope  scope1(m_ctx);
-    type_context_old::ctx_unif_approx_scope scope2(m_ctx);
+    type_context_old::fo_unif_approx_scope    scope1(m_ctx);
+    type_context_old::ctx_unif_approx_scope   scope2(m_ctx);
+    type_context_old::const_unif_approx_scope scope3(m_ctx);
     try {
         return m_ctx.is_def_eq(e1, e2);
     } catch (exception &) {

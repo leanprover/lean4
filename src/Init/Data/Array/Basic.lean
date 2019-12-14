@@ -200,7 +200,7 @@ iterateM₂ a₁ a₂ b (fun _ a₁ a₂ b => f b a₁ a₂)
         | none   => findMAux (i+1)
   else pure none
 
-@[inline] def findM (a : Array α) (f : α → m (Option β)) : m (Option β) :=
+@[inline] def findM? (a : Array α) (f : α → m (Option β)) : m (Option β) :=
 findMAux a f 0
 
 @[specialize] partial def findRevMAux (a : Array α) (f : α → m (Option β)) : ∀ (idx : Nat), idx ≤ a.size → m (Option β)
@@ -218,7 +218,7 @@ findMAux a f 0
         findRevMAux (i-1) this
   else pure none
 
-@[inline] def findRevM (a : Array α) (f : α → m (Option β)) : m (Option β) :=
+@[inline] def findRevM? (a : Array α) (f : α → m (Option β)) : m (Option β) :=
 findRevMAux a f a.size (Nat.leRefl _)
 
 end

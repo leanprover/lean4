@@ -132,7 +132,7 @@ match lctx with
 
 @[export lean_local_ctx_find_from_user_name]
 def findFromUserName? (lctx : LocalContext) (userName : Name) : Option LocalDecl :=
-lctx.decls.findRev (fun decl =>
+lctx.decls.findRev? (fun decl =>
   match decl with
   | none      => none
   | some decl => if decl.userName == userName then some decl else none)
@@ -191,13 +191,13 @@ lctx.decls.forM $ fun decl => match decl with
   | none      => pure PUnit.unit
   | some decl => f decl *> pure PUnit.unit
 
-@[specialize] def findDeclM (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
-lctx.decls.findM $ fun decl => match decl with
+@[specialize] def findDeclM? (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
+lctx.decls.findM? $ fun decl => match decl with
   | none      => pure none
   | some decl => f decl
 
-@[specialize] def findDeclRevM (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
-lctx.decls.findRevM $ fun decl => match decl with
+@[specialize] def findDeclRevM? (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
+lctx.decls.findRevM? $ fun decl => match decl with
   | none      => pure none
   | some decl => f decl
 
@@ -212,11 +212,11 @@ end
 @[inline] def foldl {β} (lctx : LocalContext) (f : β → LocalDecl → β) (b : β) : β :=
 Id.run $ lctx.foldlM f b
 
-@[inline] def findDecl {β} (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
-Id.run $ lctx.findDeclM f
+@[inline] def findDecl? {β} (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
+Id.run $ lctx.findDeclM? f
 
-@[inline] def findDeclRev {β} (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
-Id.run $ lctx.findDeclRevM f
+@[inline] def findDeclRev? {β} (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
+Id.run $ lctx.findDeclRevM? f
 
 @[inline] def foldlFrom {β} (lctx : LocalContext) (f : β → LocalDecl → β) (b : β) (decl : LocalDecl) : β :=
 Id.run $ lctx.foldlFromM f b decl

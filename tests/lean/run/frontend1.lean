@@ -63,3 +63,37 @@ pure "hello"
  #check ()
  #check run
  end"
+
+structure S1 :=
+(x y : Nat := 0)
+
+structure S2 extends S1 :=
+(z : Nat := 0)
+
+structure S3 :=
+(w : Nat := 0)
+
+structure S4 extends S2, S3 :=
+(s : Nat := 0)
+
+def s4 : S4 := {}
+
+structure S (α : Type) :=
+(field1 : S4 := {})
+(field2 : S4 × S4 := ({}, {}))
+(field3 : α)
+
+inductive D (α : Type)
+| mk (a : α) (s : S4) : D
+
+def s : S Nat := { field3 := 0 }
+def d : D Nat := D.mk 10 {}
+
+#eval run "#check s4.x"
+#eval run "#check s.field1.x"
+#eval run "#check s.field2.fst"
+#eval run "#check s.field2.fst.w"
+#eval run "#check s.1.x"
+#eval run "#check s.2.1.x"
+#eval run "#check d.1"
+#eval run "#check d.2.x"

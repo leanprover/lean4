@@ -121,4 +121,21 @@ if isStructureLike env constName then
 else
   false
 
+partial def getPathToBaseStructureAux (env : Environment) (baseStructName : Name) : Name → List Name → Option (List Name)
+| structName, path =>
+  if baseStructName == structName then
+    some path.reverse
+  else
+    let fieldNames := getStructureFields env structName;
+    fieldNames.find? $ fun fieldName =>
+      match isSubobjectField? env structName fieldName with
+      | none                  => none
+      | some parentStructName => getPathToBaseStructureAux parentStructName ((structName ++ fieldName) :: path)
+
+/--
+  If `baseStructName` is an ancestor structure for `structName`, then return a sequence of projection functions
+  to go from `structName` to `baseStructName`. -/
+def getPathToBaseStructure? (env : Environment) (baseStructName : Name) (structName : Name) : Option (List Name) :=
+getPathToBaseStructureAux env baseStructName structName []
+
 end Lean

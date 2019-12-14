@@ -40,6 +40,8 @@ do env ← MetaIO.getEnv;
    check $ !isStructure env `D;
    IO.println (getStructureFieldsFlattened env `S4);
    IO.println (getStructureFields env `D);
+   IO.println (getPathToBaseStructure? env `S1 `S4);
+   check $ getPathToBaseStructure? env `S1 `S4 == some [`S4.toS2, `S2.toS1];
    pure ()
 
 #eval tst

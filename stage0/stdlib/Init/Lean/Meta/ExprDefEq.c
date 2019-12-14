@@ -84,6 +84,7 @@ lean_object* l___private_Init_Lean_Util_Trace_2__getResetTraces___at_Lean_Meta_c
 lean_object* l_Lean_Meta_isTypeCorrect(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 extern lean_object* l_Lean_Expr_getAppArgs___closed__1;
+lean_object* l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_moveEntries___main___at___private_Init_Lean_Meta_ExprDefEq_8__cache___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_23__isDefEqLeftRight___closed__3;
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_21__isDefEqLeft(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -315,7 +316,6 @@ lean_object* l___private_Init_Lean_Meta_ExprDefEq_18__processAssignment___closed
 lean_object* l_Lean_Meta_checkAssignment___closed__1;
 lean_object* l_Array_anyRangeMAux___main___at___private_Init_Lean_Meta_ExprDefEq_17__processAssignmentAux___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_CheckAssignment_mkAuxMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_CheckAssignment_Lean_MonadCache___closed__3;
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_19__isDeltaCandidate(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_ExprDefEq_18__processAssignment(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -11777,7 +11777,7 @@ x_10 = lean_ctor_get(x_7, 1);
 lean_inc(x_10);
 lean_dec(x_7);
 lean_inc(x_4);
-x_11 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition___spec__1(x_3, x_4, x_10);
+x_11 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(x_3, x_4, x_10);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; 
@@ -21383,7 +21383,7 @@ _start:
 {
 lean_object* x_6; 
 lean_inc(x_4);
-x_6 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition___spec__1(x_1, x_4, x_5);
+x_6 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(x_1, x_4, x_5);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; 
@@ -21506,7 +21506,7 @@ lean_inc(x_15);
 lean_dec(x_12);
 lean_inc(x_4);
 lean_inc(x_2);
-x_16 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition___spec__1(x_2, x_4, x_15);
+x_16 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(x_2, x_4, x_15);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; 
@@ -21519,7 +21519,7 @@ x_18 = lean_ctor_get(x_16, 1);
 lean_inc(x_18);
 lean_dec(x_16);
 lean_inc(x_4);
-x_19 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition___spec__1(x_3, x_4, x_18);
+x_19 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(x_3, x_4, x_18);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; 
@@ -21607,7 +21607,7 @@ lean_inc(x_37);
 lean_dec(x_17);
 lean_inc(x_4);
 lean_inc(x_3);
-x_38 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition___spec__1(x_3, x_4, x_36);
+x_38 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(x_3, x_4, x_36);
 if (lean_obj_tag(x_38) == 0)
 {
 lean_object* x_39; 
@@ -21834,7 +21834,7 @@ _start:
 lean_object* x_7; 
 lean_inc(x_5);
 lean_inc(x_3);
-x_7 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition___spec__1(x_3, x_5, x_6);
+x_7 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(x_3, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; 
@@ -21847,7 +21847,7 @@ x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec(x_7);
 lean_inc(x_5);
-x_10 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition___spec__1(x_4, x_5, x_9);
+x_10 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(x_4, x_5, x_9);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; 
@@ -21938,7 +21938,7 @@ lean_object* x_31; lean_object* x_32;
 x_31 = l_Lean_ConstantInfo_name(x_1);
 lean_inc(x_5);
 lean_inc(x_4);
-x_32 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition___spec__1(x_4, x_5, x_28);
+x_32 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(x_4, x_5, x_28);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; 
@@ -22090,7 +22090,7 @@ else
 lean_object* x_14; 
 lean_inc(x_5);
 lean_inc(x_4);
-x_14 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition___spec__1(x_4, x_5, x_6);
+x_14 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(x_4, x_5, x_6);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; 
@@ -22154,7 +22154,7 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_inc(x_5);
 lean_inc(x_3);
-x_26 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition___spec__1(x_3, x_5, x_6);
+x_26 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(x_3, x_5, x_6);
 if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; 
@@ -22274,7 +22274,7 @@ lean_object* x_44;
 lean_dec(x_14);
 lean_inc(x_5);
 lean_inc(x_3);
-x_44 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition___spec__1(x_3, x_5, x_6);
+x_44 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(x_3, x_5, x_6);
 if (lean_obj_tag(x_44) == 0)
 {
 lean_object* x_45; 
@@ -22357,7 +22357,7 @@ else
 lean_object* x_18; 
 lean_inc(x_5);
 lean_inc(x_4);
-x_18 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition___spec__1(x_4, x_5, x_6);
+x_18 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(x_4, x_5, x_6);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; 
@@ -22438,7 +22438,7 @@ else
 lean_object* x_31; 
 lean_inc(x_5);
 lean_inc(x_4);
-x_31 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition___spec__1(x_4, x_5, x_6);
+x_31 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(x_4, x_5, x_6);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; 
@@ -22545,7 +22545,7 @@ else
 lean_object* x_13; 
 lean_inc(x_5);
 lean_inc(x_3);
-x_13 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition___spec__1(x_3, x_5, x_6);
+x_13 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(x_3, x_5, x_6);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; 
@@ -22611,7 +22611,7 @@ if (x_11 == 0)
 lean_object* x_24; 
 lean_inc(x_5);
 lean_inc(x_4);
-x_24 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition___spec__1(x_4, x_5, x_6);
+x_24 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(x_4, x_5, x_6);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; 
@@ -22754,7 +22754,7 @@ x_21 = lean_ctor_get(x_11, 0);
 lean_inc(x_21);
 lean_dec(x_11);
 lean_inc(x_3);
-x_22 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition___spec__1(x_2, x_3, x_20);
+x_22 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(x_2, x_3, x_20);
 if (lean_obj_tag(x_22) == 0)
 {
 lean_object* x_23; 
@@ -22848,7 +22848,7 @@ x_42 = lean_ctor_get(x_7, 0);
 lean_inc(x_42);
 lean_dec(x_7);
 lean_inc(x_3);
-x_43 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition___spec__1(x_1, x_3, x_41);
+x_43 = l_Lean_WHNF_unfoldDefinitionAux___at_Lean_Meta_unfoldDefinition_x3f___spec__1(x_1, x_3, x_41);
 if (lean_obj_tag(x_43) == 0)
 {
 lean_object* x_44; 

@@ -56,7 +56,7 @@ else
 private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
 checkFunInfoCache fn maxArgs? $ do
   fnType ← inferType fn;
-  usingTransparency TransparencyMode.default $
+  withTransparency TransparencyMode.default $
     forallBoundedTelescope fnType maxArgs? $ fun fvars type => do
       pinfo ← fvars.size.foldM
         (fun (i : Nat) (pinfo : Array ParamInfo) => do

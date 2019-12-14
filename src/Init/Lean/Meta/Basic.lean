@@ -260,12 +260,12 @@ ctx ← read; pure ctx.config.opts
 env ← getEnv; pure $ isReducible env constName
 
 /-- While executing `x`, ensure the given transparency mode is used. -/
-@[inline] def usingTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
+@[inline] def withTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
 adaptReader
   (fun (ctx : Context) => { config := { transparency := mode, .. ctx.config }, .. ctx })
   x
 
-@[inline] def usingAtLeastTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
+@[inline] def withAtLeastTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
 adaptReader
   (fun (ctx : Context) =>
     let oldMode := ctx.config.transparency;
@@ -557,7 +557,7 @@ else
   k #[] type
 
 partial def isClassExpensive : Expr → MetaM (Option Name)
-| type => usingTransparency TransparencyMode.reducible $ -- when testing whether a type is a type class, we only unfold reducible constants.
+| type => withTransparency TransparencyMode.reducible $ -- when testing whether a type is a type class, we only unfold reducible constants.
   forallTelescopeReducingAux isClassExpensive type none $ fun xs type => do
     match type.getAppFn with
     | Expr.const c _ _ => do
@@ -704,10 +704,8 @@ mvarId ← mkFreshId;
 modify $ fun s => { mctx := s.mctx.addLevelMVarDecl mvarId, .. s };
 pure mvarId
 
-def whnfUsingDefault : Expr → MetaM Expr :=
-fun e => usingTransparency TransparencyMode.default $ whnf e
-
-abbrev whnfD := whnfUsingDefault
+def whnfD : Expr → MetaM Expr :=
+fun e => withTransparency TransparencyMode.default $ whnf e
 
 /-- Execute `x` using approximate unification. -/
 @[inline] def approxDefEq {α} (x : MetaM α) : MetaM α :=

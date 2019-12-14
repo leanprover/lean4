@@ -69,7 +69,7 @@ matchConst env structType.getAppFn failed $ fun structInfo structLvls => do
 
 def getLevel (type : Expr) : MetaM Level := do
 typeType ← inferType type;
-typeType ← whnfUsingDefault typeType;
+typeType ← whnfD typeType;
 match typeType with
 | Expr.sort lvl _    => pure lvl
 | Expr.mvar mvarId _ =>
@@ -141,7 +141,7 @@ private partial def inferTypeAux : Expr → MetaM Expr
 | Expr.localE _ _ _ _      => unreachable!
 
 def inferTypeImpl (e : Expr) : MetaM Expr :=
-usingTransparency TransparencyMode.default (inferTypeAux e)
+withTransparency TransparencyMode.default (inferTypeAux e)
 
 @[init] def setInferTypeRef : IO Unit :=
 inferTypeRef.set inferTypeImpl
@@ -215,7 +215,7 @@ match r with
 | LBool.undef => do
   -- dbgTrace ("isPropQuick failed " ++ toString e);
   type ← inferType e;
-  type ← whnfUsingDefault type;
+  type ← whnfD type;
   match type with
   | Expr.sort u _ => do u ← instantiateLevelMVars u; pure $ isAlwaysZero u
   | _             => pure false
@@ -323,7 +323,7 @@ match r with
 | LBool.false => pure false
 | LBool.undef => do
   type ← inferType e;
-  type ← whnfUsingDefault type;
+  type ← whnfD type;
   match type with
   | Expr.sort _ _ => pure true
   | _             => pure false

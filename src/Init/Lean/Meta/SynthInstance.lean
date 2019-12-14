@@ -511,7 +511,7 @@ try $
   r.exprReplacements.allM (fun ⟨e, e'⟩ => isExprDefEqAux e e')
 
 def synthInstance? (type : Expr) (fuel : Nat := 10000) : MetaM (Option Expr) :=
-usingTransparency TransparencyMode.reducible $ do
+withTransparency TransparencyMode.reducible $ do
   type ← instantiateMVars type;
   type ← preprocess type;
   s ← get;

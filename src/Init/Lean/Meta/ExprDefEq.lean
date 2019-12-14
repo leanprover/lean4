@@ -27,7 +27,7 @@ namespace Meta
 private def isDefEqEta (a b : Expr) : MetaM Bool :=
 if a.isLambda && !b.isLambda then do
   bType ← inferType b;
-  bType ← whnfUsingDefault bType;
+  bType ← whnfD bType;
   match bType with
   | Expr.forallE n d _ c =>
     let b' := Lean.mkLambda n c.binderInfo d (mkApp b (mkBVar 0));
@@ -128,7 +128,7 @@ if h : args₁.size = args₂.size then do
       synthPending a₂;
       pure ()
     };
-    usingAtLeastTransparency TransparencyMode.default $ isExprDefEqAux a₁ a₂)
+    withAtLeastTransparency TransparencyMode.default $ isExprDefEqAux a₁ a₂)
 else
   pure false
 
@@ -633,7 +633,7 @@ traceCtx `Meta.isDefEq.assign.checkTypes $ do
   -- must check whether types are definitionally equal or not, before assigning and returning true
   mvarType ← inferType mvar;
   vType    ← inferType v;
-  condM (usingTransparency TransparencyMode.default $ isExprDefEqAux mvarType vType)
+  condM (withTransparency TransparencyMode.default $ isExprDefEqAux mvarType vType)
     (do assignExprMVar mvar.mvarId! v; pure true)
     (do trace `Meta.isDefEq.assign.typeMismatch $ fun _ => mvar ++ " : " ++ mvarType ++ " := " ++ v ++ " : " ++ vType;
         pure false)
@@ -695,7 +695,7 @@ private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) 
            -- must check whether types are definitionally equal or not, before assigning and returning true
            mvarType ← inferType mvar;
            vType    ← inferType v;
-           condM (usingTransparency TransparencyMode.default $ isExprDefEqAux mvarType vType)
+           condM (withTransparency TransparencyMode.default $ isExprDefEqAux mvarType vType)
              (do assignExprMVar mvarId v; pure true)
              (do trace `Meta.isDefEq.assign.typeMismatch $ fun _ => mvar ++ " : " ++ mvarType ++ " := " ++ v ++ " : " ++ vType;
                  pure false)

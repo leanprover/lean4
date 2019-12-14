@@ -79,7 +79,7 @@ private partial def checkAux : Expr → MetaM Unit
 
 def check (e : Expr) : MetaM Unit :=
 traceCtx `Meta.check $
-  usingTransparency TransparencyMode.all $ checkAux e
+  withTransparency TransparencyMode.all $ checkAux e
 
 def isTypeCorrect (e : Expr) : MetaM Bool :=
 catch

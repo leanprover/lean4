@@ -347,8 +347,13 @@ public:
     void check_constructors() {
         for (unsigned idx = 0; idx < m_ind_types.size(); idx++) {
             inductive_type const & ind_type = m_ind_types[idx];
+            name_set found_cnstrs;
             for (constructor const & cnstr : ind_type.get_cnstrs()) {
                 name const & n = constructor_name(cnstr);
+                if (found_cnstrs.contains(n)) {
+                    throw kernel_exception(m_env, sstream() << "duplicate constructor name '" << n << "'");
+                }
+                found_cnstrs.insert(n);
                 expr t = constructor_type(cnstr);
                 m_env.check_name(n);
                 check_no_metavar_no_fvar(m_env, n, t);

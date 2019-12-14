@@ -95,7 +95,7 @@ do print "----- tst5 -----";
    print x;
    v  ← whnf x;
    print v;
-   v  ← usingTransparency TransparencyMode.reducible $ whnf x;
+   v  ← withTransparency TransparencyMode.reducible $ whnf x;
    print v;
    x  ← mkId x;
    print x;
@@ -155,7 +155,7 @@ def tst8 : MetaM Unit :=
 do print "----- tst8 -----";
    let add := mkAppN (mkConst `HasAdd.add [levelOne]) #[nat, mkConst `Nat.HasAdd];
    let t   := mkAppN add #[mkNatLit 2, mkNatLit 3];
-   t ← usingTransparency TransparencyMode.reducible $ whnf t;
+   t ← withTransparency TransparencyMode.reducible $ whnf t;
    print t;
    t ← whnf t;
    print t;

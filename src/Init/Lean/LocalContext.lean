@@ -94,11 +94,19 @@ match lctx with
   { fvarIdToDecl := map.insert fvarId decl, decls := decls.push decl }
 
 @[export lean_local_ctx_find]
-def find (lctx : LocalContext) (fvarId : FVarId) : Option LocalDecl :=
+def find? (lctx : LocalContext) (fvarId : FVarId) : Option LocalDecl :=
 lctx.fvarIdToDecl.find fvarId
 
-def findFVar (lctx : LocalContext) (e : Expr) : Option LocalDecl :=
-lctx.find e.fvarId!
+def findFVar? (lctx : LocalContext) (e : Expr) : Option LocalDecl :=
+lctx.find? e.fvarId!
+
+def get! (lctx : LocalContext) (fvarId : FVarId) : LocalDecl :=
+match lctx.find? fvarId with
+| some d => d
+| none   => panic! "unknown free variable"
+
+def getFVar! (lctx : LocalContext) (e : Expr) : LocalDecl :=
+lctx.get! e.fvarId!
 
 def contains (lctx : LocalContext) (fvarId : FVarId) : Bool :=
 lctx.fvarIdToDecl.contains fvarId
@@ -245,7 +253,7 @@ isSubPrefixOfAux lctx₁.decls lctx₂.decls 0 0
 let b := b.abstract xs;
 xs.size.foldRev (fun i b =>
   let x := xs.get! i;
-  match lctx.findFVar x with
+  match lctx.findFVar? x with
   | some (LocalDecl.cdecl _ _ n ty bi)  =>
     let ty := ty.abstractRange i xs;
     if isLambda then

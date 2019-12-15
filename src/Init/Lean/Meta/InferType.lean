@@ -112,7 +112,7 @@ match mctx.findDecl mvarId with
 
 private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
 lctx ← getLCtx;
-match lctx.find fvarId with
+match lctx.find? fvarId with
 | some d => pure d.type
 | none   => throwEx $ Exception.unknownFVar fvarId
 

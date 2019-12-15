@@ -358,7 +358,7 @@ match env.find constName with
 
 def getLocalDecl (fvarId : FVarId) : MetaM LocalDecl := do
 lctx ← getLCtx;
-match lctx.find fvarId with
+match lctx.find? fvarId with
 | some d => pure d
 | none   => throwEx $ Exception.unknownFVar fvarId
 

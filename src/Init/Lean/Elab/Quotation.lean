@@ -94,7 +94,7 @@ fun stx expectedType? => do
 private abbrev Alt := List Syntax × Syntax
 
 private def isVarPat? (pat : Syntax) : Option (Syntax → TermElabM Syntax) :=
-if pat.isOfKind `Lean.Parser.Term.id then some $ fun rhs => `(%%rhs discr)
+if pat.isOfKind `Lean.Parser.Term.id then some $ fun rhs => `(let %%pat := discr; %%rhs)
 else if pat.isOfKind `Lean.Parser.Term.hole then some pure
 else if pat.isOfKind `Lean.Parser.Term.stxQuot then
   let quoted := pat.getArg 1;
@@ -103,11 +103,12 @@ else if pat.isOfKind `Lean.Parser.Term.stxQuot then
   else if quoted.isOfKind `Lean.Parser.Term.antiquot then
     let anti := quoted.getArg 1;
     if (quoted.getArg 3).getArgs.size == 1 then some $ fun _ => throwError quoted "unexpected antiquotation splice"
-    else if anti.isOfKind `Lean.Parser.Term.id then some $ fun rhs => `(%%rhs discr)
+    else if anti.isOfKind `Lean.Parser.Term.id then some $ fun rhs => `(let %%anti := discr; %%rhs)
     else unreachable!
   else if quoted.isOfKind nullKind && quoted.getArgs.size == 1 && (quoted.getArg 0).isOfKind `Lean.Parser.Term.antiquot &&
     ((quoted.getArg 0).getArg 3).getArgs.size == 1 then
-    some $ fun rhs => `(%%rhs (Lean.Syntax.getArgs discr))
+    let anti := (quoted.getArg 0).getArg 1;
+    some $ fun rhs => `(let %%anti := Lean.Syntax.getArgs discr; %%rhs)
   else none
 else none
 
@@ -200,7 +201,8 @@ alts ← alts.getArgs.mapM $ fun alt => do {
   let rhs := alt.getArg 3;
   pure ([pat], rhs)
 };
-letBindRhss (compileStxMatch stx.val [discr]) alts.toList []
+-- letBindRhss (compileStxMatch stx.val [discr]) alts.toList []
+compileStxMatch stx.val [discr] alts.toList
 
 @[builtinTermElab «match_syntax»] def elabMatchSyntax : TermElab :=
 fun stx expectedType? => do
@@ -242,8 +244,11 @@ private unsafe partial def toPreterm (env : Environment) : Syntax → Except Str
       pure $ Lean.mkLambda n BinderInfo.default ty (Expr.abstract e #[mkFVar n]))
       body
   | `Lean.Parser.Term.let => do
-    let n := (args.get! 1).getIdAt 0;
-    val ← toPreterm $ (args.get! 1).getArg 4;
+    let ⟨n, val⟩ := show Name × Syntax from match (args.get! 1).getKind with
+      | `Lean.Parser.Term.letIdDecl  => ((args.get! 1).getIdAt 0, (args.get! 1).getArg 4)
+      | `Lean.Parser.Term.letPatDecl => (((args.get! 1).getArg 0).getIdAt 0, (args.get! 1).getArg 3)
+      | _                            => unreachable!;
+    val ← toPreterm val;
     body ← toPreterm $ args.get! 3;
     pure $ mkLet n exprPlaceholder val (Expr.abstract body #[mkFVar n])
   | `Lean.Parser.Term.app => do
@@ -305,7 +310,8 @@ stx ← oldRunTermElabM env $ do {
   -- HACK: discr and the RHSs are actually `Expr`
   let discr := Syntax.node `expr #[discr];
   let alts := alts.map $ fun alt => (alt.1, Syntax.node `expr #[alt.2]);
-  letBindRhss (compileStxMatch Syntax.missing [discr]) alts []
+  -- letBindRhss (compileStxMatch Syntax.missing [discr]) alts []
+  compileStxMatch Syntax.missing [discr] alts
 };
 toPreterm env stx
 

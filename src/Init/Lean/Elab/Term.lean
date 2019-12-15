@@ -640,8 +640,8 @@ elabAppArgsAux ref args expectedType? explicit argIdx namedArgs instMVars fType 
 inductive FieldResolution
 | projFn   (baseStructName : Name) (structName : Name) (fieldName : Name)
 | projIdx  (structName : Name) (idx : Nat)
-| const    (constName : Name)
-| localRec (fvar : Expr)
+| const    (baseName : Name) (constName : Name)
+| localRec (baseName : Name) (fullName : Name) (fvar : Expr)
 
 private def throwFieldError {α} (ref : Syntax) (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
 throwError ref $ msg ++ indentExpr e ++ Format.line ++ "has type" ++ indentExpr eType
@@ -668,7 +668,7 @@ match eType.getAppFn, field with
   env ← getEnv;
   let searchEnv (fullName : Name) : TermElabM FieldResolution := do {
     match env.find? fullName with
-    | some _ => pure $ FieldResolution.const fullName
+    | some _ => pure $ FieldResolution.const structName fullName
     | none   => throwFieldError ref e eType $
       "invalid field notation, '" ++ fieldName ++ "' is not a valid \"field\" because environment does not contain '" ++ fullName ++ "'"
   };
@@ -681,7 +681,7 @@ match eType.getAppFn, field with
     | some localDecl =>
       if localDecl.binderInfo == BinderInfo.auxDecl then
         /- Field notation is being used to make a "local" recursive call. -/
-        pure $ FieldResolution.localRec localDecl.toExpr
+        pure $ FieldResolution.localRec structName fullName localDecl.toExpr
       else
         searchEnv fullName
     | none => searchEnv fullName
@@ -723,6 +723,23 @@ match getPathToBaseStructure? env baseStructName structName with
       elabAppArgs ref projFn #[{ name := `self, val := Arg.expr e }] #[] none false)
     e
 
+/- Auxiliary method for field notation. It tries to add `e` to `args` as the first explicit parameter
+   which takes an element of type `(C ...)` where `C` is `baseName`.
+   `fullName` is the name of the resolved "field" access function. It is used for reporting errors -/
+private def addFieldArg (ref : Syntax) (baseName : Name) (fullName : Name) (e : Expr) (args : Array Arg) : Nat → Expr → TermElabM (Array Arg)
+| i, Expr.forallE _ d b c =>
+  if !c.binderInfo.isExplicit then
+    addFieldArg i b
+  else if d.isAppOf baseName then
+    pure $ args.insertAt i (Arg.expr e)
+  else if i < args.size then
+    addFieldArg (i+1) b
+  else
+    throwError ref $ "invalid field notation, insufficient number of arguments for '" ++ fullName ++ "'"
+| _, fType =>
+  throwError ref $
+    "invalid field notation, function '" ++ fullName ++ "' does not have explicit argument with type (" ++ baseName ++ " ...)"
+
 private def elabAppFieldsAux (ref : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit : Bool)
     : Expr → List Field → TermElabM Expr
 | f, []            => elabAppArgs ref f namedArgs args expectedType? explicit
@@ -741,9 +758,23 @@ private def elabAppFieldsAux (ref : Syntax) (namedArgs : Array NamedArg) (args :
     else do
       f ← elabAppArgs ref projFn #[{ name := `self, val := Arg.expr f }] #[] none false;
       elabAppFieldsAux f fields
-  | _ =>
-    -- TODO
-    elabAppArgs ref f namedArgs args expectedType? explicit
+  | FieldResolution.const baseName constName => do
+    projFn ← mkConst ref constName;
+    if fields.isEmpty then do
+      projFnType ← inferType ref projFn;
+      args ← addFieldArg ref baseName constName f args 0 projFnType;
+      elabAppArgs ref projFn namedArgs args expectedType? explicit
+    else do
+      f ← elabAppArgs ref projFn #[] #[Arg.expr f] none false;
+      elabAppFieldsAux f fields
+  | FieldResolution.localRec baseName fullName fvar =>
+    if fields.isEmpty then do
+      fvarType ← inferType ref fvar;
+      args ← addFieldArg ref baseName fullName f args 0 fvarType;
+      elabAppArgs ref fvar namedArgs args expectedType? explicit
+    else do
+      f ← elabAppArgs ref fvar #[] #[Arg.expr f] none false;
+      elabAppFieldsAux f fields
 
 private def elabAppFields (ref : Syntax) (f : Expr) (fields : List Field) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr := do

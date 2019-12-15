@@ -46,7 +46,7 @@ instance Array.HasQuote {α : Type} [HasQuote α] : HasQuote (Array α) :=
 namespace Elab
 namespace Term
 
-private partial def quoteSyntax {m : Type → Type} [Monad m] [MonadQuotation m] (env : Environment) : Nat → Syntax → m Syntax
+private partial def quoteSyntax (env : Environment) : Nat → Syntax → TermElabM Syntax
 | _, Syntax.ident info rawVal val preresolved => do
   -- TODO: pass scope information
   let ns := Name.anonymous;
@@ -70,7 +70,7 @@ private partial def quoteSyntax {m : Type → Type} [Monad m] [MonadQuotation m]
   `(Lean.Syntax.atom Option.none %%(Lean.mkStxStrLit val))
 | _, Syntax.missing => unreachable!
 
-def stxQuot.expand {m : Type → Type} [Monad m] [MonadQuotation m] (env : Environment) (stx : Syntax) : m Syntax := do
+def stxQuot.expand (env : Environment) (stx : Syntax) : TermElabM Syntax := do
 let quoted := stx.getArg 1;
 -- `(do msc ← getCurrMacroScope; pure %(quoteSyntax env 0 quoted))
 stx ← quoteSyntax env 0 quoted;
@@ -271,15 +271,15 @@ match s.errorMsg with
 | none =>
   Except.ok (stx, s.pos)
 
-@[export lean_expand_stx_quot]
-unsafe def oldExpandStxQuot (env : Environment) (stx : Syntax) : Except String Expr := do
-let stx := Unhygienic.run $ stxQuot.expand env stx;
-toPreterm env stx
-
 private def oldRunTermElabM {α} (env : Environment) (x : TermElabM α) : Except String α := do
 match x {fileName := "foo", fileMap := FileMap.ofString "", cmdPos := 0, currNamespace := `foo} {env := env} with
 | EStateM.Result.ok a _    => Except.ok a
 | EStateM.Result.error msg _ => Except.error $ toString msg
+
+@[export lean_expand_stx_quot]
+unsafe def oldExpandStxQuot (env : Environment) (stx : Syntax) : Except String Expr := do
+stx ← oldRunTermElabM env $ stxQuot.expand env stx;
+toPreterm env stx
 
 @[export lean_get_antiquot_vars]
 def oldGetAntiquotVars (env : Environment) (pats : List Syntax) : Except String (List Name) := oldRunTermElabM env $ do

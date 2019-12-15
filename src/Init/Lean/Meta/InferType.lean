@@ -27,7 +27,7 @@ pure $ fType.instantiateRevRange j args.size args
 
 private def inferConstType (c : Name) (lvls : List Level) : MetaM Expr := do
 env ← getEnv;
-match env.find c with
+match env.find? c with
 | some cinfo =>
   if cinfo.lparams.length == lvls.length then
     pure $ cinfo.instantiateTypeLevelParams lvls
@@ -46,7 +46,7 @@ matchConst env structType.getAppFn failed $ fun structInfo structLvls => do
   | ConstantInfo.inductInfo { nparams := n, ctors := [ctor], .. } =>
     let structParams := structType.getAppArgs;
     if n != structParams.size then failed ()
-    else match env.find ctor with
+    else match env.find? ctor with
       | none            => failed ()
       | some (ctorInfo) => do
         ctorType ← inferAppType (mkConst ctor structLvls) structParams;

@@ -15,7 +15,7 @@ namespace Lean
   Return true iff `constName` is the a non-recursive inductive
   datatype that has only one constructor. -/
 def isStructureLike (env : Environment) (constName : Name) : Bool :=
-match env.find constName with
+match env.find? constName with
 | some (ConstantInfo.inductInfo { isRec := false, ctors := [ctor], .. }) => true
 | _ => false
 
@@ -32,9 +32,9 @@ def deinternalizeFieldName : Name → Name
 | n                  => n
 
 def getStructureCtor (env : Environment) (constName : Name) : ConstructorVal :=
-match env.find constName with
+match env.find? constName with
 | some (ConstantInfo.inductInfo { nparams := nparams, isRec := false, ctors := [ctorName], .. }) =>
-  match env.find ctorName with
+  match env.find? ctorName with
   | some (ConstantInfo.ctorInfo val) => val
   | _ => panic! "ill-formed environment"
 | _ => panic! "structure expected"

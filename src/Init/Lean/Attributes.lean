@@ -163,7 +163,7 @@ let attrImpl : AttributeImpl := {
   add   := fun env decl args persistent => do
     unless args.isMissing $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', unexpected argument"));
     unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
-    unless (env.getModuleIdxFor decl).isNone $
+    unless (env.getModuleIdxFor? decl).isNone $
       throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
     match validate env decl with
     | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
@@ -177,7 +177,7 @@ namespace TagAttribute
 instance : Inhabited TagAttribute := ⟨{attr := arbitrary _, ext := arbitrary _}⟩
 
 def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
-match env.getModuleIdxFor decl with
+match env.getModuleIdxFor? decl with
 | some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
 | none        => (attr.ext.getState env).contains decl
 
@@ -210,7 +210,7 @@ let attrImpl : AttributeImpl := {
   descr := descr,
   add   := fun env decl args persistent => do
     unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
-    unless (env.getModuleIdxFor decl).isNone $
+    unless (env.getModuleIdxFor? decl).isNone $
       throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
     match getParam env decl args with
     | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
@@ -228,7 +228,7 @@ namespace ParametricAttribute
 instance {α : Type} : Inhabited (ParametricAttribute α) := ⟨{attr := arbitrary _, ext := arbitrary _}⟩
 
 def getParam {α : Type} [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) : Option α :=
-match env.getModuleIdxFor decl with
+match env.getModuleIdxFor? decl with
 | some modIdx =>
   match (attr.ext.getModuleEntries env modIdx).binSearch (decl, arbitrary _) (fun a b => Name.quickLt a.1 b.1) with
   | some (_, val) => some val
@@ -236,7 +236,7 @@ match env.getModuleIdxFor decl with
 | none        => (attr.ext.getState env).find decl
 
 def setParam {α : Type} (attr : ParametricAttribute α) (env : Environment) (decl : Name) (param : α) : Except String Environment :=
-if (env.getModuleIdxFor decl).isSome then
+if (env.getModuleIdxFor? decl).isSome then
   Except.error ("invalid '" ++ toString attr.attr.name ++ "'.setParam, declaration is in an imported module")
 else if ((attr.ext.getState env).find decl).isSome then
   Except.error ("invalid '" ++ toString attr.attr.name ++ "'.setParam, attribute has already been set")
@@ -269,7 +269,7 @@ let attrs := attrDescrs.map $ fun ⟨name, descr, val⟩ => { AttributeImpl .
   applicationTime := applicationTime,
   add             := fun env decl args persistent => do
     unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
-    unless (env.getModuleIdxFor decl).isNone $
+    unless (env.getModuleIdxFor? decl).isNone $
       throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));
     match validate env decl val with
     | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
@@ -283,7 +283,7 @@ namespace EnumAttributes
 instance {α : Type} : Inhabited (EnumAttributes α) := ⟨{attrs := [], ext := arbitrary _}⟩
 
 def getValue {α : Type} [Inhabited α] (attr : EnumAttributes α) (env : Environment) (decl : Name) : Option α :=
-match env.getModuleIdxFor decl with
+match env.getModuleIdxFor? decl with
 | some modIdx =>
   match (attr.ext.getModuleEntries env modIdx).binSearch (decl, arbitrary _) (fun a b => Name.quickLt a.1 b.1) with
   | some (_, val) => some val
@@ -291,7 +291,7 @@ match env.getModuleIdxFor decl with
 | none        => (attr.ext.getState env).find decl
 
 def setValue {α : Type} (attrs : EnumAttributes α) (env : Environment) (decl : Name) (val : α) : Except String Environment :=
-if (env.getModuleIdxFor decl).isSome then
+if (env.getModuleIdxFor? decl).isSome then
   Except.error ("invalid '" ++ toString attrs.ext.name ++ "'.setValue, declaration is in an imported module")
 else if ((attrs.ext.getState env).find decl).isSome then
   Except.error ("invalid '" ++ toString attrs.ext.name ++ "'.setValue, attribute has already been set")

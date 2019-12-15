@@ -50,7 +50,7 @@ forallTelescope e $ fun xs b => do
 
 private def checkConstant (c : Name) (lvls : List Level) : MetaM Unit := do
 env ← getEnv;
-match env.find c with
+match env.find? c with
 | none       => throwEx $ Exception.unknownConst c
 | some cinfo => unless (lvls.length == cinfo.lparams.length) $ throwEx $ Exception.incorrectNumOfLevels c lvls
 

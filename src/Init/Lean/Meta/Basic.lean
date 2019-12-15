@@ -332,7 +332,7 @@ instance tracer : SimpleMonadTracerAdapter MetaM :=
 
 def getConstAux (constName : Name) (exception? : Bool) : MetaM (Option ConstantInfo) := do
 env ← getEnv;
-match env.find constName with
+match env.find? constName with
 | some (info@(ConstantInfo.thmInfo _)) =>
   condM shouldReduceAll (pure (some info)) (pure none)
 | some (info@(ConstantInfo.defnInfo _)) =>
@@ -352,7 +352,7 @@ getConstAux constName false
 
 def getConstInfo (constName : Name) : MetaM ConstantInfo := do
 env ← getEnv;
-match env.find constName with
+match env.find? constName with
 | some info => pure info
 | none      => throwEx $ Exception.unknownConst constName
 

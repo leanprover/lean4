@@ -11,12 +11,12 @@ namespace Compiler
 
 def mkImplementedByAttr : IO (ParametricAttribute Name) :=
 registerParametricAttribute `implementedBy "name of the Lean (probably unsafe) function that implements opaque constant" $ fun env declName stx =>
-  match env.find declName with
+  match env.find? declName with
   | none => Except.error "unknown declaration"
   | some decl =>
     match attrParamSyntaxToIdentifier stx with
     | some fnName =>
-      match env.find fnName with
+      match env.find? fnName with
       | none => Except.error ("unknown function '" ++ toString fnName ++ "'")
       | some fnDecl =>
         if decl.type == fnDecl.type then Except.ok fnName

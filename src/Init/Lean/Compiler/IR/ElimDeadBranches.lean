@@ -77,7 +77,7 @@ partial def truncate (env : Environment) : Value → NameSet → Value
   else
     let cont (found' : NameSet) : Value :=
       ctor i (vs.map $ fun v => truncate v found');
-    match env.find I with
+    match env.find? I with
     | some (ConstantInfo.inductInfo d) =>
       if d.isRec then cont (found.insert I)
       else cont found

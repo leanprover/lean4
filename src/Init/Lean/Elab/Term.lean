@@ -103,7 +103,7 @@ registerAttribute {
  add   := fun env declName arg persistent => do {
    unless persistent $ throw (IO.userError ("invalid attribute 'builtinTermElab', must be persistent"));
    kind ← syntaxNodeKindOfAttrParam env `Lean.Parser.Term arg;
-   match env.find declName with
+   match env.find? declName with
    | none  => throw "unknown declaration"
    | some decl =>
      match decl.type with
@@ -490,7 +490,7 @@ num.foldM (fun _ us => do u ← mkFreshLevelMVar ref; pure $ u::us) []
 
 def mkConst (ref : Syntax) (constName : Name) (explicitLevels : List Level := []) : TermElabM Expr := do
 env ← getEnv;
-match env.find constName with
+match env.find? constName with
 | none       => throwError ref ("unknown constant '" ++ constName ++ "'")
 | some cinfo =>
   if explicitLevels.length > cinfo.lparams.length then
@@ -667,7 +667,7 @@ match eType.getAppFn, field with
 | Expr.const structName _ _, Field.str fieldName => do
   env ← getEnv;
   let searchEnv (fullName : Name) : TermElabM FieldResolution := do {
-    match env.find fullName with
+    match env.find? fullName with
     | some _ => pure $ FieldResolution.const fullName
     | none   => throwFieldError ref e eType $
       "invalid field notation, '" ++ fieldName ++ "' is not a valid \"field\" because environment does not contain '" ++ fullName ++ "'"

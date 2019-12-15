@@ -36,7 +36,7 @@ withNewMCtxDepth $ do
 
 @[export lean_add_instance]
 def addGlobalInstance (env : Environment) (constName : Name) : IO Environment :=
-match env.find constName with
+match env.find? constName with
 | none => throw $ IO.userError "unknown constant"
 | some cinfo => do
   let c := mkConst constName (cinfo.lparams.map mkLevelParam);

@@ -70,8 +70,12 @@ structure S1 :=
 structure S2 extends S1 :=
 (z : Nat := 0)
 
+def fD {α} [HasToString α] (a b : α) : String :=
+toString a ++ toString b
+
 structure S3 :=
 (w : Nat := 0)
+(f : forall {α : Type} [HasToString α], α → α → String := @fD)
 
 structure S4 extends S2, S3 :=
 (s : Nat := 0)
@@ -82,12 +86,24 @@ structure S (α : Type) :=
 (field1 : S4 := {})
 (field2 : S4 × S4 := ({}, {}))
 (field3 : α)
+(field4 : List α × Nat := ([], 0))
+
+class
 
 inductive D (α : Type)
 | mk (a : α) (s : S4) : D
 
 def s : S Nat := { field3 := 0 }
 def d : D Nat := D.mk 10 {}
+
+universes u
+
+class Monoid (α : Type u) :=
+(one {} : α)
+(mul    : α → α → α)
+
+def m : Monoid Nat :=
+{ one := 1, mul := Nat.mul }
 
 #eval run "#check s4.x"
 #eval run "#check s.field1.x"
@@ -97,3 +113,7 @@ def d : D Nat := D.mk 10 {}
 #eval run "#check s.2.1.x"
 #eval run "#check d.1"
 #eval run "#check d.2.x"
+#eval run "#check s4.f s4.x"
+#eval run "#check m.mul m.one"
+#eval run "#check s.field4.1.length.succ"
+#eval run "#check s.field4.1.map Nat.succ"

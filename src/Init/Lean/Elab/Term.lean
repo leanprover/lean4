@@ -794,7 +794,9 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List Field → Array N
     let field := f.getArg 2;
     match field.isFieldIdx?, field with
     | some idx, _                      => elabAppFn (f.getArg 0) (Field.num idx :: fields) namedArgs args expectedType? explicit acc
-    | _,        Syntax.ident _ val _ _ => elabAppFn (f.getArg 0) (Field.str val.toString :: fields) namedArgs args expectedType? explicit acc
+    | _,        Syntax.ident _ _ val _ =>
+      let newFields := val.components.map (fun n => Field.str (toString n));
+      elabAppFn (f.getArg 0) (newFields ++ fields) namedArgs args expectedType? explicit acc
     | _,        _                      => throwError field "unexpected kind of field access"
   else if k == `Lean.Parser.Term.id then
     -- ident (explicitUniv | namedPattern)?

@@ -57,15 +57,24 @@ private partial def quoteSyntax (env : Environment) : Nat → Syntax → TermEla
   val ← `(Lean.addMacroScope %%val scp);
   let args := quote preresolved;
   `(Lean.Syntax.ident Option.none (String.toSubstring %%(Lean.mkStxStrLit (HasToString.toString rawVal))) %%val %%args)
-| 0, Syntax.node `Lean.Parser.Term.antiquot args => pure $ args.get! 1
-| lvl, Syntax.node k args => do
-  let lvl := match k with
-    | `Lean.Parser.Term.stxQuot => lvl + 1
-    | `Lean.Parser.Term.antiquot => lvl - 1
-    | _ => lvl;
-  let k := quote k;
-  args ← quote <$> args.mapM (quoteSyntax lvl);
-  `(Lean.Syntax.node %%k %%args)
+| 0, Syntax.node `Lean.Parser.Term.antiquot args =>
+  if (args.get! 3).getArgs.size == 1 then throwError (args.get! 3) "unexpected antiquotation splice"
+  else pure $ args.get! 1
+| lvl, Syntax.node k args =>
+  -- %%id* splice
+  -- TODO: Can this be cleaned up using match_syntax?
+  if k == nullKind && lvl == 0 && args.size == 1 && (args.get! 0).isOfKind `Lean.Parser.Term.antiquot &&
+    ((args.get! 0).getArg 3).getArgs.size == 1 then
+    let quoted := (args.get! 0).getArg 1;
+    `(Lean.Syntax.node Lean.Syntax.nullKind %%quoted)
+  else do
+    let lvl := match k with
+      | `Lean.Parser.Term.stxQuot => lvl + 1
+      | `Lean.Parser.Term.antiquot => lvl - 1
+      | _ => lvl;
+    let k := quote k;
+    args ← quote <$> args.mapM (quoteSyntax lvl);
+    `(Lean.Syntax.node %%k %%args)
 | _, Syntax.atom info val =>
   `(Lean.Syntax.atom Option.none %%(Lean.mkStxStrLit val))
 | _, Syntax.missing => unreachable!
@@ -90,11 +99,15 @@ else if pat.isOfKind `Lean.Parser.Term.hole then some pure
 else if pat.isOfKind `Lean.Parser.Term.stxQuot then
   let quoted := pat.getArg 1;
   if quoted.isAtom then some pure
+  -- TODO: antiquotations with kinds (`%%id:id`) probably can't be handled as unconditional patterns
   else if quoted.isOfKind `Lean.Parser.Term.antiquot then
     let anti := quoted.getArg 1;
-    if anti.isOfKind `Lean.Parser.Term.id then some $ fun rhs => `(%%rhs discr)
-    -- TODO: *, ?
+    if (quoted.getArg 3).getArgs.size == 1 then some $ fun _ => throwError quoted "unexpected antiquotation splice"
+    else if anti.isOfKind `Lean.Parser.Term.id then some $ fun rhs => `(%%rhs discr)
     else unreachable!
+  else if quoted.isOfKind nullKind && quoted.getArgs.size == 1 && (quoted.getArg 0).isOfKind `Lean.Parser.Term.antiquot &&
+    ((quoted.getArg 0).getArg 3).getArgs.size == 1 then
+    some $ fun rhs => `(%%rhs (Lean.Syntax.getArgs discr))
   else none
 else none
 

@@ -172,7 +172,7 @@ def numIndices (lctx : LocalContext) : Nat :=
 lctx.decls.size
 
 @[export lean_local_ctx_get]
-def get! (lctx : LocalContext) (i : Nat) : Option LocalDecl :=
+def getAt! (lctx : LocalContext) (i : Nat) : Option LocalDecl :=
 lctx.decls.get! i
 
 section

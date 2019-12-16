@@ -701,15 +701,14 @@ match eType.getAppFn, field with
   | some _ => pure $ FieldResolution.arrayRef fullName idx
   | none   => throwFieldError ref e eType $ "invalid [..] notation because environment does not contain '" ++ fullName ++ "'"
 | _, Field.arrayRef idx =>
-  -- TODO postpone if it is a metavariable
   throwFieldError ref e eType "invalid [..] notation, type is not of the form (C ...) where C is a constant"
 | _, _ =>
-  -- TODO postpone if it is a metavariable
   throwFieldError ref e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
 
 private partial def resolveFieldLoop (ref : Syntax) (e : Expr) (field : Field) : Expr → Array Exception → TermElabM FieldResolution
 | eType, previousExceptions => do
   eType ← whnfCore ref eType;
+  -- If eType is metavariable, we must interrupt and postpone
   catch (resolveFieldAux ref e eType field)
     (fun ex => do
       eType? ← unfoldDefinition? ref eType;

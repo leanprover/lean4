@@ -936,6 +936,7 @@ private partial def isDefEqQuick : Expr → Expr → MetaM LBool
   condM (isAssigned sFn) (do s ← instantiateMVars s; isDefEqQuick t s) $
   condM (isSynthetic tFn <&&> synthPending tFn) (do t ← instantiateMVars t; isDefEqQuick t s) $
   condM (isSynthetic sFn <&&> synthPending sFn) (do s ← instantiateMVars s; isDefEqQuick t s) $ do
+  -- TODO: if `t` or `s` are synthetic metavars, we must invoke synthPending
   tAssign? ← isAssignable tFn;
   sAssign? ← isAssignable sFn;
   let assign (t s : Expr) : MetaM LBool := toLBoolM $ processAssignment t s;

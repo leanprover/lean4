@@ -55,9 +55,10 @@ instance TermElabResult.inhabited : Inhabited TermElabResult := ⟨EStateM.Resul
 inductive Field
 | num (fieldIdx  : Nat)
 | str (fieldName : String)
+| arrayRef (idx : Syntax)
 
 instance Field.hasToString : HasToString Field :=
-⟨fun p => match p with | Field.num n => toString n | Field.str s => s⟩
+⟨fun p => match p with | Field.num n => toString n | Field.str s => s | Field.arrayRef idx => "[" ++ toString idx ++ "]"⟩
 
 /--
   Execute `x`, save resulting expression and new state.
@@ -642,6 +643,7 @@ inductive FieldResolution
 | projIdx  (structName : Name) (idx : Nat)
 | const    (baseName : Name) (constName : Name)
 | localRec (baseName : Name) (fullName : Name) (fvar : Expr)
+| arrayRef (fullName : Name) (idx : Syntax)
 
 private def throwFieldError {α} (ref : Syntax) (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
 throwError ref $ msg ++ indentExpr e ++ Format.line ++ "has type" ++ indentExpr eType
@@ -692,6 +694,15 @@ match eType.getAppFn, field with
     | none                => searchLCtx ()
   else
     searchLCtx ()
+| Expr.const structName _ _, Field.arrayRef idx => do
+  env ← getEnv;
+  let fullName := mkNameStr structName "getOp";
+  match env.find? fullName with
+  | some _ => pure $ FieldResolution.arrayRef fullName idx
+  | none   => throwFieldError ref e eType $ "invalid [..] notation because environment does not contain '" ++ fullName ++ "'"
+| _, Field.arrayRef idx =>
+  -- TODO postpone if it is a metavariable
+  throwFieldError ref e eType "invalid [..] notation, type is not of the form (C ...) where C is a constant"
 | _, _ =>
   -- TODO postpone if it is a metavariable
   throwFieldError ref e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
@@ -775,6 +786,15 @@ private def elabAppFieldsAux (ref : Syntax) (namedArgs : Array NamedArg) (args :
     else do
       f ← elabAppArgs ref fvar #[] #[Arg.expr f] none false;
       elabAppFieldsAux f fields
+  | FieldResolution.arrayRef fullName idx => do
+    getOpFn ← mkConst ref fullName;
+    if fields.isEmpty then do
+      namedArgs ← addNamedArg ref namedArgs { name := `self, val := Arg.expr f };
+      namedArgs ← addNamedArg ref namedArgs { name := `idx, val := Arg.stx idx };
+      elabAppArgs ref getOpFn namedArgs args expectedType? explicit
+    else do
+      f ← elabAppArgs ref getOpFn #[{ name := `self, val := Arg.expr f }, { name := `idx, val := Arg.stx idx }] #[] none false;
+      elabAppFieldsAux f fields
 
 private def elabAppFields (ref : Syntax) (f : Expr) (fields : List Field) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr := do
@@ -798,6 +818,10 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List Field → Array N
       let newFields := val.components.map (fun n => Field.str (toString n));
       elabAppFn (f.getArg 0) (newFields ++ fields) namedArgs args expectedType? explicit acc
     | _,        _                      => throwError field "unexpected kind of field access"
+  else if k == `Lean.Parser.Term.arrayRef then do
+    -- term `[` term `]`
+    let idx := f.getArg 2;
+    elabAppFn (f.getArg 0) (Field.arrayRef idx :: fields) namedArgs args expectedType? explicit acc
   else if k == `Lean.Parser.Term.id then
     -- ident (explicitUniv | namedPattern)?
     -- Remark: `namedPattern` should already have been expanded
@@ -891,6 +915,7 @@ fun stx expectedType? => do
 @[builtinTermElab explicit] def elabExplicit : TermElab := elabApp
 @[builtinTermElab choice] def elabChoice : TermElab := elabApp
 @[builtinTermElab proj] def elabProj : TermElab := elabApp
+@[builtinTermElab arrayRef] def elabArrayRef : TermElab := elabApp
 
 end Term
 

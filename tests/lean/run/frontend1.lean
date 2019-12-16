@@ -87,6 +87,8 @@ structure S (α : Type) :=
 (field2 : S4 × S4 := ({}, {}))
 (field3 : α)
 (field4 : List α × Nat := ([], 0))
+(vec : Array (α × α) := #[])
+(map : HashMap String α := {})
 
 class
 
@@ -95,6 +97,8 @@ inductive D (α : Type)
 
 def s : S Nat := { field3 := 0 }
 def d : D Nat := D.mk 10 {}
+def i : Nat := 10
+def k : String := "hello"
 
 universes u
 
@@ -117,3 +121,4 @@ def m : Monoid Nat :=
 #eval run "#check m.mul m.one"
 #eval run "#check s.field4.1.length.succ"
 #eval run "#check s.field4.1.map Nat.succ"
+#eval run "#check s.vec[i].1"

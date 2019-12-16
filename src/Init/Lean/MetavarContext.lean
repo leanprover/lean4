@@ -86,15 +86,30 @@ same invocation. In the C++ and Lean implementations we use a trick to
 ensure they do:
 https://github.com/leanprover/lean/blob/92826917a252a6092cffaf5fc5f1acb1f8cef379/src/library/type_context.cpp#L3583-L3594
 
-- Metavariables may be natural or synthetic. Natural metavariables may
-be assigned by the unification (i.e., `isDefEq`). Synthetic
-metavariables are assigned by procedures (e.g., TC, tactic, or
-elaborator). This distinction was not precise in Lean3 and produced
-counterintuitive behavior. For example, the following hack was added
-in Lean3 to work around one of these issues:
-https://github.com/leanprover/lean/blob/92826917a252a6092cffaf5fc5f1acb1f8cef379/src/library/type_context.cpp#L2751
-`isDefEq` should not assign synthetic metavariables, but it must
-accumulate the constraints imposed on them by unification.
+- Metavariables may be natural, synthetic or syntheticOpaque.
+  a) Natural metavariables may be assigned by unification (i.e., `isDefEq`).
+
+  b) Synthetic metavariables may still be assigned by unification,
+     but whenever possible `isDefEq` will avoid the assignment. For example,
+     if we have the unification constaint `?m =?= ?n`, where `?m` is synthetic,
+     but `?n` is not, `isDefEq` solves it by using the assignment `?n := ?m`.
+     We use synthetic metavariables for type class resolution.
+     Any module that creates synthetic metavariables, must also check
+     whether they have been assigned by `isDefEq`, and then still synthesize
+     them, and check whether the sythesized result is compatible with the one
+     assigned by `isDefEq`.
+
+  c) SyntheticOpaque metavariables are never assigned by `isDefEq`.
+     That is, the constraint `?n =?= Nat.succ Nat.zero` always fail
+     if `?n` is a syntheticOpaque metavariable. This kind of metavariable
+     is created by tactics such as `intro`. Reason: in the tactic framework,
+     subgoals as represented as metavariables, and a subgoal `?n` is considered
+     as solved whenever the metavariable is assigned.
+
+  This distinction was not precise in Lean3 and produced
+  counterintuitive behavior. For example, the following hack was added
+  in Lean3 to work around one of these issues:
+  https://github.com/leanprover/lean/blob/92826917a252a6092cffaf5fc5f1acb1f8cef379/src/library/type_context.cpp#L2751
 
 - When creating lambda/forall expressions, we need to convert/abstract
 free variables and convert them to bound variables. Now, suppose we a
@@ -112,10 +127,10 @@ is natural, `?m` is synthetic. Assume the type of `?m` is
 type `forall xs => A`, and local context := local context of `?m` - `xs`.
 In both cases, we produce the term `fun xs => t[?n xs]`
 
-  1- If `?m` is natural, then we assign `?m := ?n xs`, and we produce
+  1- If `?m` is natural or synthetic, then we assign `?m := ?n xs`, and we produce
   the term `fun xs => t[?n xs]`
 
-  2- If `?m` is synthetic, then we mark `?n` as a synthetic variable.
+  2- If `?m` is syntheticOpaque, then we mark `?n` as a syntheticOpaque variable.
   However, `?n` is managed by the metavariable context itself.
   We say we have a "delayed assignment" `?n xs := ?m`.
   That is, after a term `s` is assigned to `?m`, and `s`

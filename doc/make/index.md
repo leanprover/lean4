@@ -57,7 +57,7 @@ Pass these along with the `cmake ../../src` command.
   The `.olean` files are tagged with the Lean version they were produced with.
   This means that by default, the core library has to be recompiled after e.g.
   every `git commit`. Use this option to avoid the version check. The `.olean`
-  files can be removed manually by invoking `make/ninja clean-olean`.
+  files can be removed manually by invoking `make clean-olean`.
 
 Lean will automatically use [CCache](https://ccache.dev/) if available to avoid
 redundant builds, especially after stage 0 has been updated (see below).
@@ -95,7 +95,13 @@ Development Workflows
   to the location of `src/Init` manually in this case.
 * Changes in the frontend or compiler do not immediately affect the stdlib because of
   the staged build until stage0 is updated by making the `update-stage0` target, after
-  which the stdlib can be updated appropriately if necessary.
+  which the stdlib can be updated appropriately if necessary. Alternatively, the
+  `bin_lean_stage2` target can be used to build a binary `bin/lean_stage2` from stage1
+  without updating stage0. The build is done in a separate directory (`<build>/stage2`)
+  and has a Makefile dependency on the stage1 binary, which in practice means that
+  *any* change in `src/` leads to a complete rebuild of stage2. Finally, the
+  `check-stage3` target analogously builds a stage3 binary from stage2 and checks that
+  they are bitwise equal (which they should always be given a deterministic build).
 
 Troubleshooting
 ---------------

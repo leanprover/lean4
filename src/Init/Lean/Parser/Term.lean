@@ -44,9 +44,9 @@ pushLeading >> symbol sym lbp >> termParser lbp
 def explicitUniv   := parser! ".{" >> sepBy1 levelParser ", " >> "}"
 def namedPattern := parser! checkNoWsBefore "no space before '@'" >> "@" >> termParser appPrec
 @[builtinTermParser] def id := parser! ident >> optional (explicitUniv <|> namedPattern)
-@[builtinTermParser] def num : Parser := numLit
-@[builtinTermParser] def str : Parser := strLit
-@[builtinTermParser] def char : Parser := charLit
+@[builtinTermParser] def num : Parser := parser! numLit
+@[builtinTermParser] def str : Parser := parser! strLit
+@[builtinTermParser] def char : Parser := parser! charLit
 @[builtinTermParser] def type := parser! symbol "Type" appPrec
 @[builtinTermParser] def sort := parser! symbol "Sort" appPrec
 @[builtinTermParser] def prop := parser! symbol "Prop" appPrec

@@ -155,6 +155,9 @@ partial def findAux [HasBeq α] : Node α β → USize → α → Option β
 def find [HasBeq α] [Hashable α] : PersistentHashMap α β → α → Option β
 | { root := n, .. }, k => findAux n (hash k) k
 
+@[inline] def getOp [HasBeq α] [Hashable α] (self : PersistentHashMap α β) (idx : α) : Option β :=
+self.find idx
+
 @[inline] def findD [HasBeq α] [Hashable α] (m : PersistentHashMap α β) (a : α) (b₀ : β) : β :=
 (m.find a).getD b₀
 

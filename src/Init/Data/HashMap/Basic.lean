@@ -154,6 +154,9 @@ match m.find a with
 | some b => b
 | none   => panic! "key is not in the map"
 
+@[inline] def getOp (self : HashMap α β) (idx : α) : Option β :=
+self.find idx
+
 @[inline] def contains (m : HashMap α β) (a : α) : Bool :=
 match m with
 | ⟨ m, _ ⟩ => m.contains a

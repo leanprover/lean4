@@ -68,6 +68,9 @@ if i >= t.tailOff then
 else
   getAux t.root (USize.ofNat i) t.shift
 
+def getOp [Inhabited α] (self : PersistentArray α) (idx : Nat) : α :=
+self.get! idx
+
 partial def setAux : PersistentArrayNode α → USize → USize → α → PersistentArrayNode α
 | node cs, i, shift, a =>
   let j     := div2Shift i shift;

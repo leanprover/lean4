@@ -93,6 +93,9 @@ if h : i < a.size then some (a.get ⟨i, h⟩) else none
 def getD (a : Array α) (i : Nat) (v₀ : α) : α :=
 if h : i < a.size then a.get ⟨i, h⟩ else v₀
 
+def getOp [Inhabited α] (self : Array α) (idx : Nat) : α :=
+self.get! idx
+
 @[extern "lean_array_fset"]
 def set (a : Array α) (i : @& Fin a.size) (v : α) : Array α :=
 { sz   := a.sz,

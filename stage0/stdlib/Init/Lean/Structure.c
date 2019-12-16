@@ -13,12 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Lean_getStructureCtor___closed__1;
 lean_object* l_Lean_getStructureCtor___closed__2;
 lean_object* l___private_Init_Lean_Structure_4__hasProjFn___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Init_Lean_Structure_4__hasProjFn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getStructureCtor___closed__4;
 extern lean_object* l_Array_empty___closed__1;
+lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_findField_x3f___main___boxed(lean_object*, lean_object*, lean_object*);
@@ -28,7 +30,6 @@ uint8_t l_Lean_isInternalSubobjectFieldName(lean_object*);
 lean_object* l___private_Init_Lean_Structure_2__isSubobjectFieldAux___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findMAux___main___at_Lean_findField_x3f___main___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Array_contains___at_Lean_findField_x3f___main___spec__1___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Environment_isProjectionFn(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -47,14 +48,18 @@ uint8_t l_Array_anyRangeMAux___main___at_Lean_findField_x3f___main___spec__2(lea
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Structure_1__getStructureFieldsAux___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getStructureFields(lean_object*, lean_object*);
+lean_object* l_Array_findMAux___main___at_Lean_getPathToBaseStructureAux___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
+lean_object* l_Lean_getPathToBaseStructure_x3f(lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_contains___at_Lean_findField_x3f___main___spec__1(lean_object*, lean_object*);
+lean_object* l_Lean_getPathToBaseStructureAux___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Structure_1__getStructureFieldsAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Init_Lean_Structure_4__hasProjFn___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_getParentStructures___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_Lean_getParentStructures(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Structure_2__isSubobjectFieldAux(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_findMAux___main___at_Lean_getPathToBaseStructureAux___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkInternalSubobjectFieldName(lean_object*);
 lean_object* l___private_Init_Lean_Structure_2__isSubobjectFieldAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Structure_2__isSubobjectFieldAux___main___closed__1;
@@ -72,14 +77,18 @@ lean_object* lean_string_length(lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Structure_3__getStructureFieldsFlattenedAux___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_deinternalizeFieldName(lean_object*);
 lean_object* l_Lean_findField_x3f(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_getPathToBaseStructureAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_appendBefore(lean_object*, lean_object*);
+lean_object* l_Lean_getPathToBaseStructureAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_drop(lean_object*, lean_object*);
+lean_object* l_Lean_getPathToBaseStructure_x3f___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_isStructureLike(lean_object*, lean_object*);
 lean_object* l_Lean_findField_x3f___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Structure_4__hasProjFn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isInternalSubobjectFieldName___boxed(lean_object*);
 lean_object* l_Lean_findField_x3f___main(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_isStructure(lean_object*, lean_object*);
+lean_object* l_Lean_getPathToBaseStructureAux(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Structure_3__getStructureFieldsFlattenedAux___main(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t l_Lean_isStructureLike(lean_object* x_1, lean_object* x_2) {
@@ -1136,6 +1145,157 @@ _start:
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_isStructure(x_1, x_2);
 x_4 = lean_box(x_3);
+return x_4;
+}
+}
+lean_object* l_Array_findMAux___main___at_Lean_getPathToBaseStructureAux___main___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; uint8_t x_8; 
+x_7 = lean_array_get_size(x_5);
+x_8 = lean_nat_dec_lt(x_6, x_7);
+lean_dec(x_7);
+if (x_8 == 0)
+{
+lean_object* x_9; 
+lean_dec(x_6);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_1);
+x_9 = lean_box(0);
+return x_9;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; 
+x_10 = lean_array_fget(x_5, x_6);
+lean_inc(x_10);
+lean_inc(x_3);
+lean_inc(x_1);
+x_11 = l_Lean_isSubobjectField_x3f(x_1, x_3, x_10);
+if (lean_obj_tag(x_11) == 0)
+{
+lean_object* x_12; lean_object* x_13; 
+lean_dec(x_10);
+x_12 = lean_unsigned_to_nat(1u);
+x_13 = lean_nat_add(x_6, x_12);
+lean_dec(x_6);
+x_6 = x_13;
+goto _start;
+}
+else
+{
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_15 = lean_ctor_get(x_11, 0);
+lean_inc(x_15);
+lean_dec(x_11);
+x_16 = l_Lean_Name_append___main(x_3, x_10);
+lean_inc(x_4);
+x_17 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_17, 0, x_16);
+lean_ctor_set(x_17, 1, x_4);
+lean_inc(x_1);
+x_18 = l_Lean_getPathToBaseStructureAux___main(x_1, x_2, x_15, x_17);
+if (lean_obj_tag(x_18) == 0)
+{
+lean_object* x_19; lean_object* x_20; 
+x_19 = lean_unsigned_to_nat(1u);
+x_20 = lean_nat_add(x_6, x_19);
+lean_dec(x_6);
+x_6 = x_20;
+goto _start;
+}
+else
+{
+lean_dec(x_6);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_1);
+return x_18;
+}
+}
+}
+}
+}
+lean_object* l_Lean_getPathToBaseStructureAux___main(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; 
+x_5 = lean_name_eq(x_2, x_3);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_inc(x_3);
+lean_inc(x_1);
+x_6 = l_Lean_getStructureFields(x_1, x_3);
+x_7 = lean_unsigned_to_nat(0u);
+x_8 = l_Array_findMAux___main___at_Lean_getPathToBaseStructureAux___main___spec__1(x_1, x_2, x_3, x_4, x_6, x_7);
+lean_dec(x_6);
+return x_8;
+}
+else
+{
+lean_object* x_9; lean_object* x_10; 
+lean_dec(x_3);
+lean_dec(x_1);
+x_9 = l_List_reverse___rarg(x_4);
+x_10 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_10, 0, x_9);
+return x_10;
+}
+}
+}
+lean_object* l_Array_findMAux___main___at_Lean_getPathToBaseStructureAux___main___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Array_findMAux___main___at_Lean_getPathToBaseStructureAux___main___spec__1(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_5);
+lean_dec(x_2);
+return x_7;
+}
+}
+lean_object* l_Lean_getPathToBaseStructureAux___main___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_getPathToBaseStructureAux___main(x_1, x_2, x_3, x_4);
+lean_dec(x_2);
+return x_5;
+}
+}
+lean_object* l_Lean_getPathToBaseStructureAux(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_getPathToBaseStructureAux___main(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+lean_object* l_Lean_getPathToBaseStructureAux___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_getPathToBaseStructureAux(x_1, x_2, x_3, x_4);
+lean_dec(x_2);
+return x_5;
+}
+}
+lean_object* l_Lean_getPathToBaseStructure_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_box(0);
+x_5 = l_Lean_getPathToBaseStructureAux___main(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+lean_object* l_Lean_getPathToBaseStructure_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_getPathToBaseStructure_x3f(x_1, x_2, x_3);
+lean_dec(x_2);
 return x_4;
 }
 }

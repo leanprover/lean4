@@ -93,7 +93,7 @@ constant declMapExt : SimplePersistentEnvExtension Decl DeclMap := arbitrary _
 
 @[export lean_ir_find_env_decl]
 def findEnvDecl (env : Environment) (n : Name) : Option Decl :=
-(declMapExt.getState env).find n
+(declMapExt.getState env).find? n
 
 def findDecl (n : Name) : CompilerM (Option Decl) := do
 s ← get;
@@ -126,7 +126,7 @@ decls.forM addDecl
 def findEnvDecl' (env : Environment) (n : Name) (decls : Array Decl) : Option Decl :=
 match decls.find? (fun decl => if decl.name == n then some decl else none) with
 | some decl => some decl
-| none      => (declMapExt.getState env).find n
+| none      => (declMapExt.getState env).find? n
 
 def findDecl' (n : Name) (decls : Array Decl) : CompilerM (Option Decl) := do
 s ← get; pure $ findEnvDecl' s.env n decls

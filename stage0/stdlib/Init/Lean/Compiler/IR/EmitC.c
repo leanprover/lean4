@@ -169,7 +169,6 @@ lean_object* l_Lean_IR_EmitC_main(lean_object*, lean_object*);
 extern lean_object* l_Char_quoteCore___closed__2;
 lean_object* l_Lean_IR_EmitC_emit___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_IR_Arg_Inhabited;
-lean_object* l_HashMapImp_find___at_Lean_IR_EmitC_getJPParams___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitMainFn___closed__4;
 lean_object* l_Lean_IR_EmitC_emitIf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitReset(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -311,7 +310,6 @@ lean_object* l_Lean_IR_EmitC_emitDeclAux___closed__2;
 lean_object* l_List_forM___main___at_Lean_IR_EmitC_emitFnDecls___spec__5___closed__2;
 lean_object* l_Lean_IR_EmitC_emitMainFn(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitVDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_HashMapImp_find___at_Lean_IR_EmitC_getJPParams___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitMainFn___closed__32;
 lean_object* l_Nat_forMAux___main___at_Lean_IR_EmitC_emitJmp___spec__1___closed__1;
 lean_object* l_Lean_IR_EmitC_emitMainFn___closed__10;
@@ -475,6 +473,7 @@ lean_object* l_AssocList_find___main___at_Lean_IR_EmitC_getJPParams___spec__2(le
 lean_object* l_Lean_IR_EmitC_emitFullApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitMainFn___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitPartialApp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_HashMapImp_find_x3f___at_Lean_IR_EmitC_getJPParams___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_declareVar___closed__1;
 lean_object* l_Lean_IR_EmitC_declareVar___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitSSet(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -499,6 +498,7 @@ lean_object* l_Lean_IR_EmitC_emitSSet___closed__4;
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitInitFn___closed__2;
 lean_object* l_Lean_IR_EmitC_emitMainFn___closed__48;
+lean_object* l_HashMapImp_find_x3f___at_Lean_IR_EmitC_getJPParams___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_EmitC_emitLn(lean_object*);
 extern lean_object* l_Lean_IR_declMapExt;
 lean_object* l_Lean_IR_FnBody_body(lean_object*);
@@ -4278,7 +4278,7 @@ return x_9;
 }
 }
 }
-lean_object* l_HashMapImp_find___at_Lean_IR_EmitC_getJPParams___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_HashMapImp_find_x3f___at_Lean_IR_EmitC_getJPParams___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; 
@@ -4306,7 +4306,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_2, 2);
-x_5 = l_HashMapImp_find___at_Lean_IR_EmitC_getJPParams___spec__1(x_4, x_1);
+x_5 = l_HashMapImp_find_x3f___at_Lean_IR_EmitC_getJPParams___spec__1(x_4, x_1);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; 
@@ -4339,11 +4339,11 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_HashMapImp_find___at_Lean_IR_EmitC_getJPParams___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_HashMapImp_find_x3f___at_Lean_IR_EmitC_getJPParams___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_HashMapImp_find___at_Lean_IR_EmitC_getJPParams___spec__1(x_1, x_2);
+x_3 = l_HashMapImp_find_x3f___at_Lean_IR_EmitC_getJPParams___spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

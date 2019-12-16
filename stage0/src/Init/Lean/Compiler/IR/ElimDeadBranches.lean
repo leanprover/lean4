@@ -77,7 +77,7 @@ partial def truncate (env : Environment) : Value → NameSet → Value
   else
     let cont (found' : NameSet) : Value :=
       ctor i (vs.map $ fun v => truncate v found');
-    match env.find I with
+    match env.find? I with
     | some (ConstantInfo.inductInfo d) =>
       if d.isRec then cont (found.insert I)
       else cont found
@@ -111,8 +111,8 @@ constant functionSummariesExt : SimplePersistentEnvExtension (FunId × Value) Fu
 def addFunctionSummary (env : Environment) (fid : FunId) (v : Value) : Environment :=
 functionSummariesExt.addEntry env (fid, v)
 
-def getFunctionSummary (env : Environment) (fid : FunId) : Option Value :=
-(functionSummariesExt.getState env).find fid
+def getFunctionSummary? (env : Environment) (fid : FunId) : Option Value :=
+(functionSummariesExt.getState env).find? fid
 
 abbrev Assignment := HashMap VarId Value
 
@@ -156,7 +156,7 @@ def interpExpr : Expr → M Value
 | Expr.proj i x  => do v ← findVarValue x; pure $ projValue v i
 | Expr.fap fid ys => do
   ctx ← read;
-  match getFunctionSummary ctx.env fid with
+  match getFunctionSummary? ctx.env fid with
   | some v => pure v
   | none   => do
     s ← get;

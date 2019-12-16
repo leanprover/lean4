@@ -88,7 +88,6 @@ extern lean_object* l___private_Init_Lean_Environment_5__envExtensionsRef;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__6;
 lean_object* l___private_Init_Lean_Compiler_InlineAttrs_1__hasInlineAttrAux___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Environment_getModuleIdxFor(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__17;
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__8;
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
@@ -119,6 +118,7 @@ lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_Compiler_mkIn
 lean_object* lean_io_ref_reset(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
 lean_object* l_Lean_Name_getPrefix(lean_object*);
+lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_EnumAttributes_getValue___at___private_Init_Lean_Compiler_InlineAttrs_1__hasInlineAttrAux___main___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_has_inline_if_reduce_attribute(lean_object*, lean_object*);
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
@@ -1269,7 +1269,7 @@ return x_16;
 else
 {
 lean_object* x_17; 
-x_17 = l_Lean_Environment_getModuleIdxFor(x_5, x_6);
+x_17 = l_Lean_Environment_getModuleIdxFor_x3f(x_5, x_6);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; 
@@ -2125,7 +2125,7 @@ lean_object* l_Lean_EnumAttributes_getValue___at___private_Init_Lean_Compiler_In
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lean_Environment_getModuleIdxFor(x_2, x_3);
+x_4 = l_Lean_Environment_getModuleIdxFor_x3f(x_2, x_3);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 

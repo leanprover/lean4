@@ -268,19 +268,19 @@ def addLevelMVarDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarContext 
   .. mctx }
 
 @[export lean_metavar_ctx_find_decl]
-def findDecl (mctx : MetavarContext) (mvarId : MVarId) : Option MetavarDecl :=
-mctx.decls.find mvarId
+def findDecl? (mctx : MetavarContext) (mvarId : MVarId) : Option MetavarDecl :=
+mctx.decls.find? mvarId
 
 def getDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarDecl :=
-match mctx.decls.find mvarId with
+match mctx.decls.find? mvarId with
 | some decl => decl
 | none      => panic! "unknown metavariable"
 
-def findLevelDepth (mctx : MetavarContext) (mvarId : MVarId) : Option Nat :=
-mctx.lDepth.find mvarId
+def findLevelDepth? (mctx : MetavarContext) (mvarId : MVarId) : Option Nat :=
+mctx.lDepth.find? mvarId
 
 def getLevelDepth (mctx : MetavarContext) (mvarId : MVarId) : Nat :=
-match mctx.findLevelDepth mvarId with
+match mctx.findLevelDepth? mvarId with
 | some d => d
 | none   => panic! "unknown metavariable"
 
@@ -297,16 +297,16 @@ def assignDelayed (m : MetavarContext) (mvarId : MVarId) (lctx : LocalContext) (
 { dAssignment := m.dAssignment.insert mvarId { lctx := lctx, fvars := fvars, val := val }, .. m }
 
 @[export lean_metavar_ctx_get_level_assignment]
-def getLevelAssignment (m : MetavarContext) (mvarId : MVarId) : Option Level :=
-m.lAssignment.find mvarId
+def getLevelAssignment? (m : MetavarContext) (mvarId : MVarId) : Option Level :=
+m.lAssignment.find? mvarId
 
 @[export lean_metavar_ctx_get_expr_assignment]
-def getExprAssignment (m : MetavarContext) (mvarId : MVarId) : Option Expr :=
-m.eAssignment.find mvarId
+def getExprAssignment? (m : MetavarContext) (mvarId : MVarId) : Option Expr :=
+m.eAssignment.find? mvarId
 
 @[export lean_metavar_ctx_get_delayed_assignment]
-def getDelayedAssignment (m : MetavarContext) (mvarId : MVarId) : Option DelayedMetavarAssignment :=
-m.dAssignment.find mvarId
+def getDelayedAssignment? (m : MetavarContext) (mvarId : MVarId) : Option DelayedMetavarAssignment :=
+m.dAssignment.find? mvarId
 
 @[export lean_metavar_ctx_is_level_assigned]
 def isLevelAssigned (m : MetavarContext) (mvarId : MVarId) : Bool :=
@@ -325,7 +325,7 @@ def eraseDelayed (m : MetavarContext) (mvarId : MVarId) : MetavarContext :=
 { dAssignment := m.dAssignment.erase mvarId, .. m }
 
 def isLevelAssignable (mctx : MetavarContext) (mvarId : MVarId) : Bool :=
-match mctx.lDepth.find mvarId with
+match mctx.lDepth.find? mvarId with
 | some d => d == mctx.depth
 | _      => panic! "unknown universe metavariable"
 
@@ -392,7 +392,7 @@ partial def instantiateLevelMVars : Level → StateM MetavarContext Level
 | lvl@(Level.imax lvl₁ lvl₂ _) => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateIMax! lvl lvl₁ lvl₂)
 | lvl@(Level.mvar mvarId _)    => do
   mctx ← get;
-  match getLevelAssignment mctx mvarId with
+  match getLevelAssignment? mctx mvarId with
   | some newLvl =>
     if !newLvl.hasMVar then pure newLvl
     else do
@@ -427,13 +427,12 @@ modify $ fun s => { state := f s.state, .. s }
 | 0,   b => pure b
 | i+1, b => do
   let fvar := fvars.get! i;
-  match lctx.findFVar fvar with
-  | none => panic! "unknown free variable"
-  | some (LocalDecl.cdecl _ _ n ty bi)  => do
+  match lctx.getFVar! fvar with
+  | LocalDecl.cdecl _ _ n ty bi  => do
     ty ← visit main ty;
     if ty.hasMVar then pure none
     else instantiateDelayedAux i (Lean.mkLambda n bi (ty.abstractRange i fvars) b)
-  | some (LocalDecl.ldecl _ _ n ty val) => do
+  | LocalDecl.ldecl _ _ n ty val => do
     ty  ← visit main ty;
     if ty.hasMVar then pure none
     else do
@@ -485,7 +484,7 @@ partial def main : Expr → M Expr
     pure (mkAppRev f revArgs)
 | e@(Expr.mvar mvarId _)   => checkCache e $ fun e => do
   mctx ← getMCtx;
-  match mctx.getExprAssignment mvarId with
+  match mctx.getExprAssignment? mvarId with
   | some newE => do
     newE' ← visit main newE;
     modifyCtx $ fun mctx => mctx.assignExpr mvarId newE';
@@ -494,7 +493,7 @@ partial def main : Expr → M Expr
     /- A delayed assignment can be transformed into a regular assignment
        as soon as all metavariables occurring in the assigned value have
        been assigned. -/
-    match mctx.getDelayedAssignment mvarId with
+    match mctx.getDelayedAssignment? mvarId with
     | some d => do
        newE ← instantiateDelayed main mvarId d;
        pure $ newE.getD e
@@ -533,7 +532,7 @@ condM (visit? e) (main e) (pure false)
 | e@(Expr.mdata _ b _)     => visit dep b
 | e@(Expr.app f a _)       => visit dep a <||> if f.isApp then dep f else visit dep f
 | e@(Expr.mvar mvarId _)   =>
-  match mctx.getExprAssignment mvarId with
+  match mctx.getExprAssignment? mvarId with
   | some a => visit dep a
   | none   =>
     let lctx := (mctx.getDecl mvarId).lctx;
@@ -571,7 +570,7 @@ inductive Exception
 def Exception.toString : Exception → String
 | Exception.revertFailure _ lctx toRevert decl =>
   "failed to revert "
-  ++ toString (toRevert.map (fun x => "'" ++ toString (lctx.findFVar x).get!.userName ++ "'"))
+  ++ toString (toRevert.map (fun x => "'" ++ toString (lctx.getFVar! x).userName ++ "'"))
   ++ ", '" ++ toString decl.userName ++ "' depends on them, and it is an auxiliary declaration created by the elaborator"
   ++ " (possible solution: use tactic 'clear' to remove '" ++ toString decl.userName ++ "' from local context)"
 | Exception.readOnlyMVar _ mvarId => "failed to create binding due to read only metavariable " ++ toString mvarId
@@ -608,24 +607,23 @@ pure (e.abstractRange i xs)
                             (lctx : LocalContext) (xs : Array Expr) (e : Expr) : M Expr := do
 e ← abstractRange elimMVarDeps lctx xs xs.size e;
 xs.size.foldRevM
- (fun i e =>
-   let x := xs.get! i;
-   match lctx.findFVar x with
-   | some (LocalDecl.cdecl _ _ n type bi) => do
-     type ← abstractRange elimMVarDeps lctx xs i type;
-     if isLambda then
-       pure $ Lean.mkLambda n bi type e
-     else
-       pure $ Lean.mkForall n bi type e
-   | some (LocalDecl.ldecl _ _ n type value) => do
-     if e.hasLooseBVar 0 then do
-       type  ← abstractRange elimMVarDeps lctx xs i type;
-       value ← abstractRange elimMVarDeps lctx xs i value;
-       pure $ mkLet n type value e
-     else
-       pure e
-   | none => panic! "unknown free variable")
-e
+  (fun i e =>
+    let x := xs.get! i;
+    match lctx.getFVar! x with
+    | LocalDecl.cdecl _ _ n type bi => do
+      type ← abstractRange elimMVarDeps lctx xs i type;
+      if isLambda then
+        pure $ Lean.mkLambda n bi type e
+      else
+        pure $ Lean.mkForall n bi type e
+    | LocalDecl.ldecl _ _ n type value => do
+      if e.hasLooseBVar 0 then do
+        type  ← abstractRange elimMVarDeps lctx xs i type;
+        value ← abstractRange elimMVarDeps lctx xs i value;
+        pure $ mkLet n type value e
+      else
+        pure e)
+  e
 
 @[inline] def mkLambda (elimMVarDeps : Array Expr → Expr → M Expr) (lctx : LocalContext) (xs : Array Expr) (b : Expr) : M Expr :=
 mkBinding true elimMVarDeps lctx xs b
@@ -635,10 +633,10 @@ mkBinding false elimMVarDeps lctx xs b
 
 /-- Return the local declaration of the free variable `x` in `xs` with the smallest index -/
 private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) : LocalDecl :=
-let d : LocalDecl := (lctx.findFVar $ xs.get! 0).get!;
+let d : LocalDecl := lctx.getFVar! $ xs.get! 0;
 xs.foldlFrom
   (fun d x =>
-    let decl := (lctx.findFVar x).get!;
+    let decl := lctx.getFVar! x;
     if decl.index < d.index then decl else d)
   d 1
 
@@ -708,7 +706,7 @@ mkForall
 /-- Create an application `mvar ys` where `ys` are the free variables `xs` which are not let-declarations.
     All free variables in `xs` are in the context `lctx`. -/
 private def mkMVarApp (lctx : LocalContext) (mvar : Expr) (xs : Array Expr) : Expr :=
-xs.foldl (fun e x => if (lctx.findFVar x).get!.isLet then e else mkApp e x) mvar
+xs.foldl (fun e x => if (lctx.getFVar! x).isLet then e else mkApp e x) mvar
 
 private def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (synthetic : Bool) : M MVarId := do
 s ← get;
@@ -732,7 +730,7 @@ private partial def elimMVarDepsAux : Array Expr → Expr → M Expr
     pure (mkAppRev f revArgs)
 | xs, e@(Expr.mvar mvarId _)   => do
   mctx ← getMCtx;
-  match mctx.getExprAssignment mvarId with
+  match mctx.getExprAssignment? mvarId with
   | some a => visit (elimMVarDepsAux xs) a
   | none   =>
     let mvarDecl  := mctx.getDecl mvarId;
@@ -796,7 +794,7 @@ partial def isWellFormed (mctx : MetavarContext) (lctx : LocalContext) : Expr �
 | Expr.mvar mvarId _       =>
   let mvarDecl := mctx.getDecl mvarId;
   if mvarDecl.lctx.isSubPrefixOf lctx then true
-  else match mctx.getExprAssignment mvarId with
+  else match mctx.getExprAssignment? mvarId with
     | none   => false
     | some v => isWellFormed v
 | Expr.fvar fvarId _       => lctx.contains fvarId

@@ -47,7 +47,7 @@ mkCtx ctx $
 
 def mkLetTypeMismatchMessage (fvarId : FVarId) (ctx : ExceptionContext) : MessageData :=
 mkCtx ctx $
-  match ctx.lctx.find fvarId with
+  match ctx.lctx.find? fvarId with
   | some (LocalDecl.ldecl _ n t v b) =>
     match inferType? ctx v with
     | some vType =>

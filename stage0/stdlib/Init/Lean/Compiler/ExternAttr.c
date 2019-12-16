@@ -101,7 +101,6 @@ lean_object* l_Lean_registerParametricAttribute___rarg___lambda__4___boxed(lean_
 uint8_t l_Array_anyRangeMAux___main___at_Lean_mkExternAttr___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Iterator_next(lean_object*);
 lean_object* l___private_Init_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData___closed__3;
-lean_object* l_Lean_Environment_getModuleIdxFor(lean_object*, lean_object*);
 lean_object* l_List_foldl___main___at_Lean_mkSimpleFnCall___spec__1___boxed(lean_object*, lean_object*);
 uint8_t l_String_Iterator_hasNext(lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
@@ -132,6 +131,7 @@ lean_object* l___private_Init_Lean_Compiler_ExternAttr_1__syntaxToExternEntries_
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Lean_expandExternPatternAux(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getExternEntryForAux___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkExternAttr___closed__4;
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
@@ -2202,7 +2202,7 @@ lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_getExternAttrData___s
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lean_Environment_getModuleIdxFor(x_2, x_3);
+x_4 = l_Lean_Environment_getModuleIdxFor_x3f(x_2, x_3);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 

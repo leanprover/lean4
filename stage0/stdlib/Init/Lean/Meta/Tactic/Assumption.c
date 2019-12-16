@@ -14,23 +14,24 @@
 extern "C" {
 #endif
 lean_object* l_Array_findRevMAux___main___at_Lean_Meta_assumptionAux___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_PersistentArray_findRevM___at_Lean_Meta_assumptionAux___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_Meta_assumptionAux___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findRevMAux___main___at_Lean_Meta_assumptionAux___spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_PersistentArray_findRevM_x3f___at_Lean_Meta_assumptionAux___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_PersistentArray_findRevM_x3f___at_Lean_Meta_assumptionAux___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assumption___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Meta_assumption___closed__1;
 lean_object* l_Array_findRevMAux___main___at_Lean_Meta_assumptionAux___spec__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_PersistentArray_findRevM_x3f___at_Lean_Meta_assumptionAux___spec__9(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEqvAux___main___at_Lean_Meta_assumptionAux___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_LocalContext_findDeclRevM___at_Lean_Meta_assumptionAux___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assumptionAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findRevMAux___main___at_Lean_Meta_assumptionAux___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_LocalContext_findDeclRevM___at_Lean_Meta_assumptionAux___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_PersistentArray_findRevM_x3f___at_Lean_Meta_assumptionAux___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assumption___closed__2;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarType(lean_object*, lean_object*, lean_object*);
-lean_object* l_PersistentArray_findRevM___at_Lean_Meta_assumptionAux___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Array_findRevMAux___main___at_Lean_Meta_assumptionAux___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findRevMAux___main___at_Lean_Meta_assumptionAux___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -39,25 +40,24 @@ lean_object* l_PersistentArray_findRevMAux___main___at_Lean_Meta_assumptionAux__
 lean_object* l_Lean_LocalDecl_toExpr(lean_object*);
 lean_object* l_Lean_Meta_assumption(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findRevMAux___main___at_Lean_Meta_assumptionAux___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_Meta_assumptionAux___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findRevMAux___main___at_Lean_Meta_assumptionAux___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_type(lean_object*);
 lean_object* l_Lean_Meta_assignExprMVar(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assumptionAux___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assumptionAux___closed__1;
 lean_object* l_Lean_Meta_checkNotAssigned(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_LocalContext_findDeclRevM___at_Lean_Meta_assumptionAux___spec__8(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_Meta_assumptionAux___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findRevMAux___main___at_Lean_Meta_assumptionAux___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_isEqvAux___main___at_Lean_Meta_assumptionAux___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_findRevMAux___main___at_Lean_Meta_assumptionAux___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_findRevMAux___main___at_Lean_Meta_assumptionAux___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findRevMAux___main___at_Lean_Meta_assumptionAux___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_PersistentArray_findRevM___at_Lean_Meta_assumptionAux___spec__9(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarDecl(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_LocalContext_findDeclRevM___at_Lean_Meta_assumptionAux___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_PersistentArray_findRevM___at_Lean_Meta_assumptionAux___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalInstance_beq(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_resettingSynthInstanceCache___rarg___closed__1;
+lean_object* l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_Meta_assumptionAux___spec__8(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findRevMAux___main___at_Lean_Meta_assumptionAux___spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_findRevMAux___main___at_Lean_Meta_assumptionAux___spec__11(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -616,7 +616,7 @@ return x_10;
 }
 }
 }
-lean_object* l_PersistentArray_findRevM___at_Lean_Meta_assumptionAux___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_PersistentArray_findRevM_x3f___at_Lean_Meta_assumptionAux___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
@@ -692,12 +692,12 @@ return x_19;
 }
 }
 }
-lean_object* l_Lean_LocalContext_findDeclRevM___at_Lean_Meta_assumptionAux___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_Meta_assumptionAux___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_ctor_get(x_2, 1);
-x_6 = l_PersistentArray_findRevM___at_Lean_Meta_assumptionAux___spec__2(x_1, x_5, x_3, x_4);
+x_6 = l_PersistentArray_findRevM_x3f___at_Lean_Meta_assumptionAux___spec__2(x_1, x_5, x_3, x_4);
 return x_6;
 }
 }
@@ -1298,7 +1298,7 @@ return x_10;
 }
 }
 }
-lean_object* l_PersistentArray_findRevM___at_Lean_Meta_assumptionAux___spec__9(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_PersistentArray_findRevM_x3f___at_Lean_Meta_assumptionAux___spec__9(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
@@ -1374,12 +1374,12 @@ return x_19;
 }
 }
 }
-lean_object* l_Lean_LocalContext_findDeclRevM___at_Lean_Meta_assumptionAux___spec__8(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_Meta_assumptionAux___spec__8(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_ctor_get(x_2, 1);
-x_6 = l_PersistentArray_findRevM___at_Lean_Meta_assumptionAux___spec__9(x_1, x_5, x_3, x_4);
+x_6 = l_PersistentArray_findRevM_x3f___at_Lean_Meta_assumptionAux___spec__9(x_1, x_5, x_3, x_4);
 return x_6;
 }
 }
@@ -1477,7 +1477,7 @@ x_236 = lean_ctor_get(x_234, 1);
 lean_inc(x_236);
 lean_dec(x_234);
 lean_inc(x_15);
-x_237 = l_Lean_LocalContext_findDeclRevM___at_Lean_Meta_assumptionAux___spec__8(x_235, x_10, x_15, x_236);
+x_237 = l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_Meta_assumptionAux___spec__8(x_235, x_10, x_15, x_236);
 lean_dec(x_10);
 if (lean_obj_tag(x_237) == 0)
 {
@@ -1691,7 +1691,7 @@ x_78 = lean_ctor_get(x_76, 1);
 lean_inc(x_78);
 lean_dec(x_76);
 lean_inc(x_15);
-x_79 = l_Lean_LocalContext_findDeclRevM___at_Lean_Meta_assumptionAux___spec__1(x_77, x_10, x_15, x_78);
+x_79 = l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_Meta_assumptionAux___spec__1(x_77, x_10, x_15, x_78);
 lean_dec(x_10);
 if (lean_obj_tag(x_79) == 0)
 {
@@ -2027,7 +2027,7 @@ x_139 = lean_ctor_get(x_137, 1);
 lean_inc(x_139);
 lean_dec(x_137);
 lean_inc(x_15);
-x_140 = l_Lean_LocalContext_findDeclRevM___at_Lean_Meta_assumptionAux___spec__1(x_138, x_10, x_15, x_139);
+x_140 = l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_Meta_assumptionAux___spec__1(x_138, x_10, x_15, x_139);
 lean_dec(x_10);
 if (lean_obj_tag(x_140) == 0)
 {
@@ -2335,7 +2335,7 @@ x_208 = lean_ctor_get(x_206, 1);
 lean_inc(x_208);
 lean_dec(x_206);
 lean_inc(x_15);
-x_209 = l_Lean_LocalContext_findDeclRevM___at_Lean_Meta_assumptionAux___spec__1(x_207, x_10, x_15, x_208);
+x_209 = l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_Meta_assumptionAux___spec__1(x_207, x_10, x_15, x_208);
 lean_dec(x_10);
 if (lean_obj_tag(x_209) == 0)
 {
@@ -2638,20 +2638,20 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* l_PersistentArray_findRevM___at_Lean_Meta_assumptionAux___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_PersistentArray_findRevM_x3f___at_Lean_Meta_assumptionAux___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_PersistentArray_findRevM___at_Lean_Meta_assumptionAux___spec__2(x_1, x_2, x_3, x_4);
+x_5 = l_PersistentArray_findRevM_x3f___at_Lean_Meta_assumptionAux___spec__2(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* l_Lean_LocalContext_findDeclRevM___at_Lean_Meta_assumptionAux___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_Meta_assumptionAux___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_LocalContext_findDeclRevM___at_Lean_Meta_assumptionAux___spec__1(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_Meta_assumptionAux___spec__1(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 return x_5;
 }
@@ -2705,20 +2705,20 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* l_PersistentArray_findRevM___at_Lean_Meta_assumptionAux___spec__9___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_PersistentArray_findRevM_x3f___at_Lean_Meta_assumptionAux___spec__9___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_PersistentArray_findRevM___at_Lean_Meta_assumptionAux___spec__9(x_1, x_2, x_3, x_4);
+x_5 = l_PersistentArray_findRevM_x3f___at_Lean_Meta_assumptionAux___spec__9(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* l_Lean_LocalContext_findDeclRevM___at_Lean_Meta_assumptionAux___spec__8___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_Meta_assumptionAux___spec__8___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_LocalContext_findDeclRevM___at_Lean_Meta_assumptionAux___spec__8(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_Meta_assumptionAux___spec__8(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 return x_5;
 }

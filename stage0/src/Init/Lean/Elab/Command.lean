@@ -73,7 +73,7 @@ registerAttribute {
  add   := fun env declName arg persistent => do {
    unless persistent $ throw (IO.userError ("invalid attribute 'builtinCommandElab', must be persistent"));
    kind ← syntaxNodeKindOfAttrParam env `Lean.Parser.Command arg;
-   match env.find declName with
+   match env.find? declName with
    | none  => throw "unknown declaration"
    | some decl =>
      match decl.type with
@@ -93,7 +93,7 @@ stx.ifNode
     s ← get;
     let tables := commandElabAttribute.ext.getState s.env;
     let k := n.getKind;
-    match tables.find k with
+    match tables.find? k with
     | some elab => elab n
     | none      => throwError stx ("command '" ++ toString k ++ "' has not been implemented"))
   (fun _ => throwError stx ("unexpected command"))

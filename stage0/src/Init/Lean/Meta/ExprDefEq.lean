@@ -360,14 +360,14 @@ structure State :=
 
 abbrev CheckAssignmentM := ReaderT Context (EStateM Exception State)
 
-private def findCached (e : Expr) : CheckAssignmentM (Option Expr) := do
-s ← get; pure $ s.cache.find e
+private def findCached? (e : Expr) : CheckAssignmentM (Option Expr) := do
+s ← get; pure $ s.cache.find? e
 
 private def cache (e r : Expr) : CheckAssignmentM Unit :=
 modify $ fun s => { cache := s.cache.insert e r, .. s }
 
 instance : MonadCache Expr Expr CheckAssignmentM :=
-{ findCached := findCached, cache := cache }
+{ findCached? := findCached?, cache := cache }
 
 @[inline] private def visit (f : Expr → CheckAssignmentM Expr) (e : Expr) : CheckAssignmentM Expr :=
 if !e.hasExprMVar && !e.hasFVar then pure e else checkCache e f
@@ -377,7 +377,7 @@ ctx ← read;
 if ctx.mvarDecl.lctx.containsFVar fvar then pure fvar
 else do
   let lctx := ctx.lctx;
-  match lctx.findFVar fvar with
+  match lctx.findFVar? fvar with
   | some (LocalDecl.ldecl _ _ _ _ v) => visit check v
   | _ =>
     if ctx.fvars.contains fvar then pure fvar
@@ -396,11 +396,11 @@ pure (mkMVar mvarId)
 let mvarId := mvar.mvarId!;
 ctx  ← read;
 mctx ← getMCtx;
-match mctx.getExprAssignment mvarId with
+match mctx.getExprAssignment? mvarId with
 | some v => visit check v
 | none   =>
   if mvarId == ctx.mvarId then throw Exception.occursCheck
-  else match mctx.findDecl mvarId with
+  else match mctx.findDecl? mvarId with
     | none          => throw $ Exception.unknownExprMVar mvarId
     | some mvarDecl =>
       if ctx.hasCtxLocals then throw $ Exception.useFOApprox -- we use option c) described at workaround A2
@@ -475,17 +475,17 @@ partial def check
 | e@(Expr.lit _ _)         => true
 | e@(Expr.fvar fvarId _)   =>
   if mvarDecl.lctx.contains fvarId then true
-  else match lctx.find fvarId with
+  else match lctx.find? fvarId with
     | some (LocalDecl.ldecl _ _ _ _ v) => false -- need expensive CheckAssignment.check
     | _ =>
       if fvars.any $ fun x => x.fvarId! == fvarId then true
       else false -- We could throw an exception here, but we would have to use ExceptM. So, we let CheckAssignment.check do it
 | e@(Expr.mvar mvarId' _)        => do
-  match mctx.getExprAssignment mvarId' with
+  match mctx.getExprAssignment? mvarId' with
   | some _ => false -- use CheckAssignment.check to instantiate
   | none   =>
     if mvarId' == mvarId then false -- occurs check failed, use CheckAssignment.check to throw exception
-    else match mctx.findDecl mvarId' with
+    else match mctx.findDecl? mvarId' with
       | none           => false
       | some mvarDecl' =>
         if hasCtxLocals then false -- use CheckAssignment.check
@@ -936,6 +936,7 @@ private partial def isDefEqQuick : Expr → Expr → MetaM LBool
   condM (isAssigned sFn) (do s ← instantiateMVars s; isDefEqQuick t s) $
   condM (isSynthetic tFn <&&> synthPending tFn) (do t ← instantiateMVars t; isDefEqQuick t s) $
   condM (isSynthetic sFn <&&> synthPending sFn) (do s ← instantiateMVars s; isDefEqQuick t s) $ do
+  -- TODO: if `t` or `s` are synthetic metavars, we must invoke synthPending
   tAssign? ← isAssignable tFn;
   sAssign? ← isAssignable sFn;
   let assign (t s : Expr) : MetaM LBool := toLBoolM $ processAssignment t s;

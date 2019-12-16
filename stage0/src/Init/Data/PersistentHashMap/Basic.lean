@@ -152,14 +152,17 @@ partial def findAux [HasBeq α] : Node α β → USize → α → Option β
   | Entry.entry k' v => if k == k' then some v else none
 | Node.collision keys vals heq, _, k => findAtAux keys vals heq 0 k
 
-def find [HasBeq α] [Hashable α] : PersistentHashMap α β → α → Option β
+def find? [HasBeq α] [Hashable α] : PersistentHashMap α β → α → Option β
 | { root := n, .. }, k => findAux n (hash k) k
 
+@[inline] def getOp [HasBeq α] [Hashable α] (self : PersistentHashMap α β) (idx : α) : Option β :=
+self.find? idx
+
 @[inline] def findD [HasBeq α] [Hashable α] (m : PersistentHashMap α β) (a : α) (b₀ : β) : β :=
-(m.find a).getD b₀
+(m.find? a).getD b₀
 
 @[inline] def find! [HasBeq α] [Hashable α] [Inhabited β] (m : PersistentHashMap α β) (a : α) : β :=
-match m.find a with
+match m.find? a with
 | some b => b
 | none   => panic! "key is not in the map"
 

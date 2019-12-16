@@ -23,6 +23,7 @@ lean_object* l_Lean_Meta_mkForall(lean_object*, lean_object*, lean_object*, lean
 extern size_t l_PersistentHashMap_insertAux___main___rarg___closed__2;
 lean_object* l___private_Init_Lean_Meta_InferType_15__isProofQuickApp___main___at_Lean_Meta_isProofQuick___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_sub(size_t, size_t);
+lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isProofQuick___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_setInferTypeRef(lean_object*);
 lean_object* l_Lean_Meta_instantiateLevelMVars(lean_object*, lean_object*, lean_object*);
@@ -31,11 +32,9 @@ lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_5__inferLambdaType___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_PersistentHashMap_find___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescope___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_5__inferLambdaType___closed__1;
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_getAppArgs___closed__1;
 lean_object* l___private_Init_Lean_Meta_InferType_8__inferFVarType(lean_object*, lean_object*, lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
@@ -48,7 +47,6 @@ lean_object* l___private_Init_Lean_Meta_InferType_13__isPropQuickApp___main(lean
 lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t l___private_Init_Lean_Meta_InferType_11__isAlwaysZero(lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at___private_Init_Lean_Meta_InferType_4__inferForallType___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_metavar_ctx_find_decl(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_15__isProofQuickApp___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux___main(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_7__inferMVarType(lean_object*, lean_object*, lean_object*);
@@ -69,6 +67,7 @@ lean_object* l___private_Init_Lean_Meta_InferType_11__isAlwaysZero___boxed(lean_
 lean_object* l_Lean_Meta_isPropQuick(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insertAux___main___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_Meta_InferType_5__inferLambdaType___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Expr_2__mkAppRangeAux___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
@@ -80,6 +79,7 @@ extern lean_object* l_Lean_Meta_inferTypeRef;
 extern lean_object* l_PersistentHashMap_insertAux___main___rarg___closed__3;
 lean_object* l_Lean_Meta_isPropQuick___main(lean_object*, lean_object*, lean_object*);
 size_t l_Lean_Expr_hash(lean_object*);
+lean_object* l_PersistentHashMap_find_x3f___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_2__inferConstType(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_inferTypeImpl(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_12__isArrowProp___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -98,6 +98,7 @@ lean_object* l_Lean_mkFVar(lean_object*);
 lean_object* l_PersistentHashMap_insertAtCollisionNodeAux___main___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__6(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelMVar(lean_object*);
 size_t l_USize_land(size_t, size_t);
+lean_object* l_PersistentHashMap_find_x3f___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_12__isArrowProp___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_type(lean_object*);
 lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
@@ -114,6 +115,7 @@ uint8_t l_Bool_toLBool(uint8_t);
 lean_object* l___private_Init_Lean_Meta_InferType_6__withLocalDecl___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_lambdaTelescope___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*);
+lean_object* lean_metavar_ctx_find_decl(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_5__inferLambdaType(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_15__isProofQuickApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAtAux___main___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -136,12 +138,11 @@ lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at___p
 lean_object* l___private_Init_Lean_Meta_InferType_7__inferMVarType___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_17__isTypeQuickApp(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_isClassQuick___main___closed__1;
-lean_object* l_PersistentHashMap_find___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1___boxed(lean_object*, lean_object*);
+lean_object* lean_local_ctx_find(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_11__isAlwaysZero___main___boxed(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_3__inferProjType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_local_ctx_find(lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_InferType_12__isArrowProp(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Init_Lean_Meta_InferType_11__isAlwaysZero___main(lean_object*);
@@ -2291,7 +2292,6 @@ else
 {
 uint8_t x_9; 
 lean_dec(x_3);
-lean_dec(x_1);
 x_9 = !lean_is_exclusive(x_5);
 if (x_9 == 0)
 {
@@ -2317,7 +2317,7 @@ lean_object* _init_l___private_Init_Lean_Meta_InferType_5__inferLambdaType___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Init_Lean_Meta_InferType_5__inferLambdaType___lambda__1), 4, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Init_Lean_Meta_InferType_5__inferLambdaType___lambda__1___boxed), 4, 0);
 return x_1;
 }
 }
@@ -2327,6 +2327,15 @@ _start:
 lean_object* x_4; lean_object* x_5; 
 x_4 = l___private_Init_Lean_Meta_InferType_5__inferLambdaType___closed__1;
 x_5 = l_Lean_Meta_lambdaTelescope___rarg(x_1, x_4, x_2, x_3);
+return x_5;
+}
+}
+lean_object* l___private_Init_Lean_Meta_InferType_5__inferLambdaType___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l___private_Init_Lean_Meta_InferType_5__inferLambdaType___lambda__1(x_1, x_2, x_3, x_4);
+lean_dec(x_1);
 return x_5;
 }
 }
@@ -2896,7 +2905,7 @@ return x_23;
 }
 }
 }
-lean_object* l_PersistentHashMap_find___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_PersistentHashMap_find_x3f___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; size_t x_4; lean_object* x_5; 
@@ -3394,7 +3403,7 @@ lean_inc(x_5);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = l_PersistentHashMap_find___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1(x_6, x_1);
+x_7 = l_PersistentHashMap_find_x3f___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1(x_6, x_1);
 lean_dec(x_6);
 if (lean_obj_tag(x_7) == 0)
 {
@@ -3633,11 +3642,11 @@ lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* l_PersistentHashMap_find___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_PersistentHashMap_find_x3f___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_PersistentHashMap_find___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1(x_1, x_2);
+x_3 = l_PersistentHashMap_find_x3f___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
@@ -3753,7 +3762,7 @@ lean_inc(x_27);
 x_28 = lean_ctor_get(x_27, 0);
 lean_inc(x_28);
 lean_dec(x_27);
-x_29 = l_PersistentHashMap_find___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1(x_28, x_1);
+x_29 = l_PersistentHashMap_find_x3f___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1(x_28, x_1);
 lean_dec(x_28);
 if (lean_obj_tag(x_29) == 0)
 {
@@ -3977,7 +3986,7 @@ lean_inc(x_79);
 x_80 = lean_ctor_get(x_79, 0);
 lean_inc(x_80);
 lean_dec(x_79);
-x_81 = l_PersistentHashMap_find___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1(x_80, x_1);
+x_81 = l_PersistentHashMap_find_x3f___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1(x_80, x_1);
 lean_dec(x_80);
 if (lean_obj_tag(x_81) == 0)
 {
@@ -4230,7 +4239,7 @@ lean_inc(x_140);
 x_141 = lean_ctor_get(x_140, 0);
 lean_inc(x_141);
 lean_dec(x_140);
-x_142 = l_PersistentHashMap_find___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1(x_141, x_1);
+x_142 = l_PersistentHashMap_find_x3f___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1(x_141, x_1);
 lean_dec(x_141);
 if (lean_obj_tag(x_142) == 0)
 {
@@ -4464,7 +4473,7 @@ lean_inc(x_195);
 x_196 = lean_ctor_get(x_195, 0);
 lean_inc(x_196);
 lean_dec(x_195);
-x_197 = l_PersistentHashMap_find___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1(x_196, x_1);
+x_197 = l_PersistentHashMap_find_x3f___at___private_Init_Lean_Meta_InferType_9__checkInferTypeCache___spec__1(x_196, x_1);
 lean_dec(x_196);
 if (lean_obj_tag(x_197) == 0)
 {

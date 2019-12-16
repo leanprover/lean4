@@ -77,7 +77,7 @@ private def getDeclNamesForCodeGen : Declaration → List Name
 | _                                      => []
 
 def checkIsDefinition (env : Environment) (n : Name) : Except String Unit :=
-match env.find n with
+match env.find? n with
 | (some (ConstantInfo.defnInfo _)) => Except.ok ()
 | none => Except.error "unknow declaration"
 | _    => Except.error "declaration is not a definition"

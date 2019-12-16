@@ -25,6 +25,7 @@ uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 lean_object* l_RBNode_find___main___at_Lean_Compiler_getImplementedBy___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkImplementedByAttr___lambda__1___closed__4;
 extern lean_object* l_Array_empty___closed__1;
+lean_object* lean_environment_find(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerTagAttribute___closed__1;
 lean_object* l_Array_binSearchAux___main___at_Lean_Compiler_getImplementedBy___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -35,7 +36,6 @@ lean_object* l_Lean_registerAttribute(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkImplementedByAttr___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_inhabited;
-lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___at_Lean_Compiler_mkImplementedByAttr___spec__1___lambda__1(lean_object*);
 lean_object* l_Lean_Compiler_implementedByAttr;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -64,7 +64,6 @@ extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__2;
 extern lean_object* l___private_Init_Lean_Environment_5__envExtensionsRef;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Environment_getModuleIdxFor(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* l_Lean_Compiler_mkImplementedByAttr___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_fold___main___at_Lean_Compiler_mkImplementedByAttr___spec__2___boxed(lean_object*, lean_object*);
@@ -89,6 +88,7 @@ lean_object* lean_get_implemented_by(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkImplementedByAttr___closed__4;
 lean_object* lean_io_ref_reset(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
+lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_Compiler_mkImplementedByAttr___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
@@ -1656,7 +1656,7 @@ lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_Compiler_getImplement
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lean_Environment_getModuleIdxFor(x_2, x_3);
+x_4 = l_Lean_Environment_getModuleIdxFor_x3f(x_2, x_3);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 

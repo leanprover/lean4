@@ -71,7 +71,6 @@ extern lean_object* l___private_Init_Lean_Environment_5__envExtensionsRef;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
 lean_object* l_Lean_mkReducibilityAttrs___closed__9;
 lean_object* l_Lean_mkReducibilityAttrs___closed__11;
-lean_object* l_Lean_Environment_getModuleIdxFor(lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_mkReducibilityAttrs___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_EnumAttributes_getValue___at_Lean_getReducibilityStatus___spec__1(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_ReducibilityStatus_inhabited;
@@ -99,6 +98,7 @@ lean_object* l_Lean_mkReducibilityAttrs___closed__13;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
 lean_object* l_Lean_mkReducibilityAttrs(lean_object*);
 lean_object* l_Lean_registerEnumAttributes___at_Lean_mkReducibilityAttrs___spec__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
+lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* lean_set_reducibility_status(lean_object*, lean_object*, uint8_t);
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkReducibilityAttrs___spec__7(lean_object*, lean_object*);
@@ -1140,7 +1140,7 @@ return x_16;
 else
 {
 lean_object* x_17; 
-x_17 = l_Lean_Environment_getModuleIdxFor(x_5, x_6);
+x_17 = l_Lean_Environment_getModuleIdxFor_x3f(x_5, x_6);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; 
@@ -1921,7 +1921,7 @@ lean_object* l_Lean_EnumAttributes_getValue___at_Lean_getReducibilityStatus___sp
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lean_Environment_getModuleIdxFor(x_2, x_3);
+x_4 = l_Lean_Environment_getModuleIdxFor_x3f(x_2, x_3);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 

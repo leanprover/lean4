@@ -94,11 +94,19 @@ match lctx with
   { fvarIdToDecl := map.insert fvarId decl, decls := decls.push decl }
 
 @[export lean_local_ctx_find]
-def find (lctx : LocalContext) (fvarId : FVarId) : Option LocalDecl :=
-lctx.fvarIdToDecl.find fvarId
+def find? (lctx : LocalContext) (fvarId : FVarId) : Option LocalDecl :=
+lctx.fvarIdToDecl.find? fvarId
 
-def findFVar (lctx : LocalContext) (e : Expr) : Option LocalDecl :=
-lctx.find e.fvarId!
+def findFVar? (lctx : LocalContext) (e : Expr) : Option LocalDecl :=
+lctx.find? e.fvarId!
+
+def get! (lctx : LocalContext) (fvarId : FVarId) : LocalDecl :=
+match lctx.find? fvarId with
+| some d => d
+| none   => panic! "unknown free variable"
+
+def getFVar! (lctx : LocalContext) (e : Expr) : LocalDecl :=
+lctx.get! e.fvarId!
 
 def contains (lctx : LocalContext) (fvarId : FVarId) : Bool :=
 lctx.fvarIdToDecl.contains fvarId
@@ -117,7 +125,7 @@ private partial def popTailNoneAux : PArray (Option LocalDecl) → PArray (Optio
 def erase (lctx : LocalContext) (fvarId : FVarId) : LocalContext :=
 match lctx with
 | { fvarIdToDecl := map, decls := decls } =>
-  match map.find fvarId with
+  match map.find? fvarId with
   | none      => lctx
   | some decl => { fvarIdToDecl := map.erase fvarId, decls := popTailNoneAux (decls.set decl.index none) }
 
@@ -132,7 +140,7 @@ match lctx with
 
 @[export lean_local_ctx_find_from_user_name]
 def findFromUserName? (lctx : LocalContext) (userName : Name) : Option LocalDecl :=
-lctx.decls.findRev (fun decl =>
+lctx.decls.findRev? (fun decl =>
   match decl with
   | none      => none
   | some decl => if decl.userName == userName then some decl else none)
@@ -172,7 +180,7 @@ def numIndices (lctx : LocalContext) : Nat :=
 lctx.decls.size
 
 @[export lean_local_ctx_get]
-def get! (lctx : LocalContext) (i : Nat) : Option LocalDecl :=
+def getAt! (lctx : LocalContext) (i : Nat) : Option LocalDecl :=
 lctx.decls.get! i
 
 section
@@ -191,13 +199,13 @@ lctx.decls.forM $ fun decl => match decl with
   | none      => pure PUnit.unit
   | some decl => f decl *> pure PUnit.unit
 
-@[specialize] def findDeclM (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
-lctx.decls.findM $ fun decl => match decl with
+@[specialize] def findDeclM? (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
+lctx.decls.findM? $ fun decl => match decl with
   | none      => pure none
   | some decl => f decl
 
-@[specialize] def findDeclRevM (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
-lctx.decls.findRevM $ fun decl => match decl with
+@[specialize] def findDeclRevM? (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
+lctx.decls.findRevM? $ fun decl => match decl with
   | none      => pure none
   | some decl => f decl
 
@@ -212,11 +220,11 @@ end
 @[inline] def foldl {β} (lctx : LocalContext) (f : β → LocalDecl → β) (b : β) : β :=
 Id.run $ lctx.foldlM f b
 
-@[inline] def findDecl {β} (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
-Id.run $ lctx.findDeclM f
+@[inline] def findDecl? {β} (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
+Id.run $ lctx.findDeclM? f
 
-@[inline] def findDeclRev {β} (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
-Id.run $ lctx.findDeclRevM f
+@[inline] def findDeclRev? {β} (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
+Id.run $ lctx.findDeclRevM? f
 
 @[inline] def foldlFrom {β} (lctx : LocalContext) (f : β → LocalDecl → β) (b : β) (decl : LocalDecl) : β :=
 Id.run $ lctx.foldlFromM f b decl
@@ -245,7 +253,7 @@ isSubPrefixOfAux lctx₁.decls lctx₂.decls 0 0
 let b := b.abstract xs;
 xs.size.foldRev (fun i b =>
   let x := xs.get! i;
-  match lctx.findFVar x with
+  match lctx.findFVar? x with
   | some (LocalDecl.cdecl _ _ n ty bi)  =>
     let ty := ty.abstractRange i xs;
     if isLambda then

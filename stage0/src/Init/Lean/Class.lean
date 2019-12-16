@@ -38,7 +38,7 @@ match entry with
   { hasOutParam := s.hasOutParam.insert clsName hasOutParam, .. s }
 | ClassEntry.«instance» instName clsName =>
   { instances        := s.instances.insert instName (),
-    classToInstances := match s.classToInstances.find clsName with
+    classToInstances := match s.classToInstances.find? clsName with
       | some insts => s.classToInstances.insert clsName (instName :: insts)
       | none       => s.classToInstances.insert clsName [instName],
     .. s }
@@ -69,13 +69,13 @@ def isInstance (env : Environment) (n : Name) : Bool :=
 
 @[export lean_get_class_instances]
 def getClassInstances (env : Environment) (n : Name) : List Name :=
-match (classExtension.getState env).classToInstances.find n with
+match (classExtension.getState env).classToInstances.find? n with
 | some insts => insts
 | none       => []
 
 @[export lean_has_out_params]
 def hasOutParams (env : Environment) (n : Name) : Bool :=
-match (classExtension.getState env).hasOutParam.find n with
+match (classExtension.getState env).hasOutParam.find? n with
 | some b => b
 | none   => false
 
@@ -111,7 +111,7 @@ private partial def checkOutParam : Nat → Array FVarId → Expr → Except Str
 
 def addClass (env : Environment) (clsName : Name) : Except String Environment :=
 if isClass env clsName then Except.error ("class has already been declared '" ++ toString clsName ++ "'")
-else match env.find clsName with
+else match env.find? clsName with
   | none      => Except.error ("unknown declaration '" ++ toString clsName ++ "'")
   | some decl@(ConstantInfo.inductInfo _) => do
     b ← checkOutParam 1 #[] decl.type;
@@ -127,7 +127,7 @@ partial def getClassName (env : Environment) : Expr → Option Name
 | Expr.forallE _ _ b _ => getClassName b
 | e                    => do
   Expr.const c _ _ ← pure e.getAppFn | none;
-  info ← env.find c;
+  info ← env.find? c;
   match info.value? with
   | some val => do
     body ← consumeNLambdas e.getAppNumArgs val;
@@ -149,7 +149,7 @@ registerAttribute {
 -- TODO: delete
 @[export lean_add_instance_old]
 def addGlobalInstanceOld (env : Environment) (instName : Name) : Except String Environment :=
-match env.find instName with
+match env.find? instName with
 | none      => Except.error ("unknown declaration '" ++ toString instName ++ "'")
 | some decl =>
   match getClassName env decl.type with

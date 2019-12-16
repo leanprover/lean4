@@ -66,7 +66,6 @@ lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkElaboratorStrategyAtt
 extern lean_object* l___private_Init_Lean_Environment_5__envExtensionsRef;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
 lean_object* lean_get_elaborator_strategy(lean_object*, lean_object*);
-lean_object* l_Lean_Environment_getModuleIdxFor(lean_object*, lean_object*);
 lean_object* l_Lean_EnumAttributes_getValue___at_Lean_getElaboratorStrategy___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___main___at_Lean_getElaboratorStrategy___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkElaboratorStrategyAttrs___closed__6;
@@ -94,6 +93,7 @@ lean_object* l_Lean_registerEnumAttributes___at_Lean_mkElaboratorStrategyAttrs__
 lean_object* l_Lean_mkElaboratorStrategyAttrs(lean_object*);
 lean_object* l_Array_qsortAux___main___at_Lean_mkElaboratorStrategyAttrs___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkElaboratorStrategyAttrs___closed__2;
+lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkElaboratorStrategyAttrs___closed__3;
 lean_object* l_Lean_mkElaboratorStrategyAttrs___closed__15;
@@ -1137,7 +1137,7 @@ return x_16;
 else
 {
 lean_object* x_17; 
-x_17 = l_Lean_Environment_getModuleIdxFor(x_5, x_6);
+x_17 = l_Lean_Environment_getModuleIdxFor_x3f(x_5, x_6);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; 
@@ -1942,7 +1942,7 @@ lean_object* l_Lean_EnumAttributes_getValue___at_Lean_getElaboratorStrategy___sp
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lean_Environment_getModuleIdxFor(x_2, x_3);
+x_4 = l_Lean_Environment_getModuleIdxFor_x3f(x_2, x_3);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 

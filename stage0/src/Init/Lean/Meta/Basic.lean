@@ -276,25 +276,25 @@ withConfig
 
 def isSyntheticExprMVar (mvarId : MVarId) : MetaM Bool := do
 mctx ← getMCtx;
-match mctx.findDecl mvarId with
+match mctx.findDecl? mvarId with
 | some d => pure $ d.synthetic
 | _      => throwEx $ Exception.unknownExprMVar mvarId
 
 def isReadOnlyExprMVar (mvarId : MVarId) : MetaM Bool := do
 mctx ← getMCtx;
-match mctx.findDecl mvarId with
+match mctx.findDecl? mvarId with
 | some d => pure $ d.depth != mctx.depth
 | _      => throwEx $ Exception.unknownExprMVar mvarId
 
 def isReadOnlyOrSyntheticExprMVar (mvarId : MVarId) : MetaM Bool := do
 mctx ← getMCtx;
-match mctx.findDecl mvarId with
+match mctx.findDecl? mvarId with
 | some d => pure $ d.synthetic || d.depth != mctx.depth
 | _      => throwEx $ Exception.unknownExprMVar mvarId
 
 def isReadOnlyLevelMVar (mvarId : MVarId) : MetaM Bool := do
 mctx ← getMCtx;
-match mctx.findLevelDepth mvarId with
+match mctx.findLevelDepth? mvarId with
 | some depth => pure $ depth != mctx.depth
 | _          => throwEx $ Exception.unknownLevelMVar mvarId
 
@@ -302,8 +302,8 @@ match mctx.findLevelDepth mvarId with
 mctx ← getMCtx;
 pure $ mctx.isExprAssigned mvarId
 
-@[inline] def getExprMVarAssignment (mvarId : MVarId) : MetaM (Option Expr) := do
-mctx ← getMCtx; pure (mctx.getExprAssignment mvarId)
+@[inline] def getExprMVarAssignment? (mvarId : MVarId) : MetaM (Option Expr) := do
+mctx ← getMCtx; pure (mctx.getExprAssignment? mvarId)
 
 def assignExprMVar (mvarId : MVarId) (val : Expr) : MetaM Unit := do
 whenDebugging $ whenM (isExprMVarAssigned mvarId) $ throwBug $ Bug.overwritingExprMVar mvarId;
@@ -332,7 +332,7 @@ instance tracer : SimpleMonadTracerAdapter MetaM :=
 
 def getConstAux (constName : Name) (exception? : Bool) : MetaM (Option ConstantInfo) := do
 env ← getEnv;
-match env.find constName with
+match env.find? constName with
 | some (info@(ConstantInfo.thmInfo _)) =>
   condM shouldReduceAll (pure (some info)) (pure none)
 | some (info@(ConstantInfo.defnInfo _)) =>
@@ -352,13 +352,13 @@ getConstAux constName false
 
 def getConstInfo (constName : Name) : MetaM ConstantInfo := do
 env ← getEnv;
-match env.find constName with
+match env.find? constName with
 | some info => pure info
 | none      => throwEx $ Exception.unknownConst constName
 
 def getLocalDecl (fvarId : FVarId) : MetaM LocalDecl := do
 lctx ← getLCtx;
-match lctx.find fvarId with
+match lctx.find? fvarId with
 | some d => pure d
 | none   => throwEx $ Exception.unknownFVar fvarId
 
@@ -367,7 +367,7 @@ getLocalDecl fvar.fvarId!
 
 def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
 mctx ← getMCtx;
-match mctx.findDecl mvarId with
+match mctx.findDecl? mvarId with
 | some d => pure d
 | none   => throwEx $ Exception.unknownExprMVar mvarId
 
@@ -427,7 +427,7 @@ partial def isClassQuick : Expr → MetaM (LOption Name)
 | Expr.mdata _ e _     => isClassQuick e
 | Expr.const n _ _     => isClassQuickConst n
 | Expr.mvar mvarId _   => do
-  val? ← getExprMVarAssignment mvarId;
+  val? ← getExprMVarAssignment? mvarId;
   match val? with
   | some val => isClassQuick val
   | none     => pure LOption.none

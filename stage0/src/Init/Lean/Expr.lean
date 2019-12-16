@@ -50,6 +50,12 @@ def BinderInfo.hash : BinderInfo → USize
 | BinderInfo.instImplicit   => 1153
 | BinderInfo.auxDecl        => 1229
 
+def BinderInfo.isExplicit : BinderInfo → Bool
+| BinderInfo.implicit       => false
+| BinderInfo.strictImplicit => false
+| BinderInfo.instImplicit   => false
+| _                         => true
+
 instance BinderInfo.hashable : Hashable BinderInfo := ⟨BinderInfo.hash⟩
 
 instance BinderInfo.inhabited : Inhabited BinderInfo := ⟨BinderInfo.default⟩

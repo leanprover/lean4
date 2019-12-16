@@ -27,7 +27,7 @@ def cacheClosedTermName (env : Environment) (e : Expr) (n : Name) : Environment 
 closedTermCacheExt.addEntry env (e, n)
 
 @[export lean_get_closed_term_name]
-def getClosedTermName (env : Environment) (e : Expr) : Option Name :=
-(closedTermCacheExt.getState env).find e
+def getClosedTermName? (env : Environment) (e : Expr) : Option Name :=
+(closedTermCacheExt.getState env).find? e
 
 end Lean

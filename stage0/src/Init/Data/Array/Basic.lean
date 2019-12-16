@@ -93,6 +93,9 @@ if h : i < a.size then some (a.get ⟨i, h⟩) else none
 def getD (a : Array α) (i : Nat) (v₀ : α) : α :=
 if h : i < a.size then a.get ⟨i, h⟩ else v₀
 
+def getOp [Inhabited α] (self : Array α) (idx : Nat) : α :=
+self.get! idx
+
 @[extern "lean_array_fset"]
 def set (a : Array α) (i : @& Fin a.size) (v : α) : Array α :=
 { sz   := a.sz,
@@ -200,7 +203,7 @@ iterateM₂ a₁ a₂ b (fun _ a₁ a₂ b => f b a₁ a₂)
         | none   => findMAux (i+1)
   else pure none
 
-@[inline] def findM (a : Array α) (f : α → m (Option β)) : m (Option β) :=
+@[inline] def findM? (a : Array α) (f : α → m (Option β)) : m (Option β) :=
 findMAux a f 0
 
 @[specialize] partial def findRevMAux (a : Array α) (f : α → m (Option β)) : ∀ (idx : Nat), idx ≤ a.size → m (Option β)
@@ -218,7 +221,7 @@ findMAux a f 0
         findRevMAux (i-1) this
   else pure none
 
-@[inline] def findRevM (a : Array α) (f : α → m (Option β)) : m (Option β) :=
+@[inline] def findRevM? (a : Array α) (f : α → m (Option β)) : m (Option β) :=
 findRevMAux a f a.size (Nat.leRefl _)
 
 end

@@ -13,12 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_HashMapImp_find_x3f___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__7___boxed(lean_object*, lean_object*);
 lean_object* l_Array_isEqvAux___main___at_Lean_Meta_AbstractMVarsResult_beq___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_HashMapImp_expand___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__3(lean_object*, lean_object*);
 lean_object* l_AssocList_contains___main___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Array_umapMAux___main___at_Lean_Meta_openAbstractMVarsResult___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Init_Lean_MetavarContext_5__instantiateDelayedAux___main___closed__1;
 lean_object* l_unreachable_x21___rarg(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
@@ -33,6 +33,7 @@ lean_object* l_ReaderT_Monad___rarg(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_AssocList_replace___main___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__6(lean_object*, lean_object*, lean_object*);
+lean_object* l_HashMapImp_find_x3f___at___private_Init_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__1(lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__8___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_updateLambdaE_x21___closed__1;
@@ -43,10 +44,8 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_Inhabited___closed__1;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_abstractMVars(lean_object*, lean_object*, lean_object*);
-lean_object* l_HashMapImp_find___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__7___boxed(lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___at___private_Init_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_AbstractMVars_abstractExprMVars(lean_object*, lean_object*, lean_object*);
-lean_object* l_HashMapImp_find___at___private_Init_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_mkHashMap___at_Lean_Meta_abstractMVars___spec__1(lean_object*);
 lean_object* lean_level_update_max(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___closed__1;
@@ -65,11 +64,13 @@ lean_object* l_mkHashMap___at_Lean_Meta_abstractMVars___spec__2(lean_object*);
 lean_object* l___private_Init_Lean_Meta_AbstractMVars_3__abstractLevelMVars(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__3;
 size_t lean_usize_modn(size_t, lean_object*);
+lean_object* l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__5;
 lean_object* l___private_Init_Lean_Meta_AbstractMVars_1__visitLevel(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_mkHashMapImp___rarg(lean_object*);
 lean_object* lean_expr_update_let(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkFVar(lean_object*);
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
+extern lean_object* l_Id_Monad;
 lean_object* l_HashMapImp_insert___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_proj(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_AbstractMVars_2__visitExpr(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -78,14 +79,15 @@ uint8_t l_AssocList_contains___main___at_Lean_Meta_AbstractMVars_abstractExprMVa
 lean_object* lean_local_ctx_mk_local_decl(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Meta_AbstractMVars_mkFreshId___boxed(lean_object*);
 lean_object* lean_level_update_imax(lean_object*, lean_object*, lean_object*);
+lean_object* l_HashMapImp_find_x3f___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__7(lean_object*, lean_object*);
 lean_object* l_HashMapImp_moveEntries___main___at___private_Init_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__6(lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* lean_expr_update_sort(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
+lean_object* l_StateT_Monad___rarg(lean_object*);
 lean_object* l_panic(lean_object*, lean_object*, lean_object*);
-lean_object* l_HashMapImp_find___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__7(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_mkLambda(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_AbstractMVarsResult_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_AbstractMVarsResult_hasBeq___closed__1;
@@ -108,6 +110,7 @@ lean_object* l___private_Init_Lean_Meta_AbstractMVars_3__abstractLevelMVars___bo
 lean_object* l_Lean_Meta_abstractMVars___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshLevelMVar___rarg(lean_object*);
 lean_object* l_Lean_MetavarContext_getDecl(lean_object*, lean_object*);
+lean_object* l_HashMapImp_find_x3f___at___private_Init_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__4;
 lean_object* l_Lean_Meta_abstractMVars___closed__2;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -123,7 +126,6 @@ extern lean_object* l_Lean_Expr_updateForallE_x21___closed__1;
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* lean_expr_update_const(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__1;
-lean_object* l_HashMapImp_find___at___private_Init_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__1(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_monadInhabited___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__2;
@@ -487,7 +489,7 @@ return x_9;
 }
 }
 }
-lean_object* l_HashMapImp_find___at___private_Init_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_HashMapImp_find_x3f___at___private_Init_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; 
@@ -1204,7 +1206,7 @@ x_104 = lean_ctor_get(x_3, 5);
 lean_inc(x_104);
 x_105 = lean_ctor_get(x_3, 6);
 lean_inc(x_105);
-x_106 = l_HashMapImp_find___at___private_Init_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__1(x_104, x_94);
+x_106 = l_HashMapImp_find_x3f___at___private_Init_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__1(x_104, x_94);
 if (lean_obj_tag(x_106) == 0)
 {
 uint8_t x_107; 
@@ -1316,11 +1318,11 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_HashMapImp_find___at___private_Init_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_HashMapImp_find_x3f___at___private_Init_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_HashMapImp_find___at___private_Init_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__1(x_1, x_2);
+x_3 = l_HashMapImp_find_x3f___at___private_Init_Lean_Meta_AbstractMVars_3__abstractLevelMVars___main___spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
@@ -1705,7 +1707,7 @@ return x_9;
 }
 }
 }
-lean_object* l_HashMapImp_find___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__7(lean_object* x_1, lean_object* x_2) {
+lean_object* l_HashMapImp_find_x3f___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__7(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; 
@@ -1904,16 +1906,25 @@ lean_object* _init_l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_Lean_MetavarContext_5__instantiateDelayedAux___main___closed__1;
-x_2 = l_ReaderT_Monad___rarg(x_1);
+x_1 = l_Id_Monad;
+x_2 = l_StateT_Monad___rarg(x_1);
 return x_2;
 }
 }
 lean_object* _init_l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__4() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__3;
+x_2 = l_ReaderT_Monad___rarg(x_1);
+return x_2;
+}
+}
+lean_object* _init_l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__4;
 x_2 = l_Lean_Expr_Inhabited;
 x_3 = l_monadInhabited___rarg(x_1, x_2);
 return x_3;
@@ -1953,7 +1964,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_83; lean_object* x_84;
 lean_dec(x_1);
 x_83 = lean_ctor_get(x_3, 6);
 lean_inc(x_83);
-x_84 = l_HashMapImp_find___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__7(x_83, x_4);
+x_84 = l_HashMapImp_find_x3f___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__7(x_83, x_4);
 lean_dec(x_83);
 if (lean_obj_tag(x_84) == 0)
 {
@@ -3137,7 +3148,7 @@ case 12:
 {
 lean_object* x_330; lean_object* x_331; lean_object* x_332; 
 lean_dec(x_1);
-x_330 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__4;
+x_330 = l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__5;
 x_331 = l_unreachable_x21___rarg(x_330);
 x_332 = lean_apply_2(x_331, x_2, x_3);
 return x_332;
@@ -3175,11 +3186,11 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_HashMapImp_find___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__7___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_HashMapImp_find_x3f___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__7___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_HashMapImp_find___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__7(x_1, x_2);
+x_3 = l_HashMapImp_find_x3f___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__7(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
@@ -3567,6 +3578,8 @@ l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__3 = _init_l_Lean_Me
 lean_mark_persistent(l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__3);
 l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__4 = _init_l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__4();
 lean_mark_persistent(l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__4);
+l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__5 = _init_l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__5();
+lean_mark_persistent(l_Lean_Meta_AbstractMVars_abstractExprMVars___main___closed__5);
 l_Lean_Meta_abstractMVars___closed__1 = _init_l_Lean_Meta_abstractMVars___closed__1();
 lean_mark_persistent(l_Lean_Meta_abstractMVars___closed__1);
 l_Lean_Meta_abstractMVars___closed__2 = _init_l_Lean_Meta_abstractMVars___closed__2();

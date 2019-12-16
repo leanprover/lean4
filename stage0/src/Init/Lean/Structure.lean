@@ -15,7 +15,7 @@ namespace Lean
   Return true iff `constName` is the a non-recursive inductive
   datatype that has only one constructor. -/
 def isStructureLike (env : Environment) (constName : Name) : Bool :=
-match env.find constName with
+match env.find? constName with
 | some (ConstantInfo.inductInfo { isRec := false, ctors := [ctor], .. }) => true
 | _ => false
 
@@ -32,9 +32,9 @@ def deinternalizeFieldName : Name → Name
 | n                  => n
 
 def getStructureCtor (env : Environment) (constName : Name) : ConstructorVal :=
-match env.find constName with
+match env.find? constName with
 | some (ConstantInfo.inductInfo { nparams := nparams, isRec := false, ctors := [ctorName], .. }) =>
-  match env.find ctorName with
+  match env.find? ctorName with
   | some (ConstantInfo.ctorInfo val) => val
   | _ => panic! "ill-formed environment"
 | _ => panic! "structure expected"
@@ -120,5 +120,22 @@ if isStructureLike env constName then
   hasProjFn env constName ctor.nparams 0 ctor.type
 else
   false
+
+partial def getPathToBaseStructureAux (env : Environment) (baseStructName : Name) : Name → List Name → Option (List Name)
+| structName, path =>
+  if baseStructName == structName then
+    some path.reverse
+  else
+    let fieldNames := getStructureFields env structName;
+    fieldNames.find? $ fun fieldName =>
+      match isSubobjectField? env structName fieldName with
+      | none                  => none
+      | some parentStructName => getPathToBaseStructureAux parentStructName ((structName ++ fieldName) :: path)
+
+/--
+  If `baseStructName` is an ancestor structure for `structName`, then return a sequence of projection functions
+  to go from `structName` to `baseStructName`. -/
+def getPathToBaseStructure? (env : Environment) (baseStructName : Name) (structName : Name) : Option (List Name) :=
+getPathToBaseStructureAux env baseStructName structName []
 
 end Lean

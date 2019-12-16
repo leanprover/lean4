@@ -24,6 +24,7 @@ extern lean_object* l_EIO_Monad___closed__1;
 lean_object* l___private_Init_Lean_Meta_Check_2__checkLambdaLet___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_Check_6__checkAux(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
+lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEqAux(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Util_Trace_2__getResetTraces___at_Lean_Meta_check___spec__1___boxed(lean_object*);
 lean_object* l_ReaderT_Monad___rarg(lean_object*);
@@ -36,7 +37,6 @@ lean_object* l___private_Init_Lean_Util_Trace_2__getResetTraces___at_Lean_Meta_c
 lean_object* l_Lean_MonadTracerAdapter_addTrace___at_Lean_Meta_isTypeCorrect___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isTypeCorrect(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_check___closed__2;
-lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_Check_3__checkForall___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Util_Trace_2__getResetTraces___at_Lean_Meta_check___spec__1(lean_object*);
 lean_object* l___private_Init_Lean_Meta_Check_6__checkAux___main(lean_object*, lean_object*, lean_object*);

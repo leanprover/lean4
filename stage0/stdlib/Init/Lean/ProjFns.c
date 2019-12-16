@@ -69,7 +69,6 @@ extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkTagDeclarationExtension___spec__6___closed__2;
 lean_object* l_List_redLength___main___rarg(lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkProjectionFnInfoExtension___spec__2___closed__1;
-lean_object* l_Lean_Environment_getModuleIdxFor(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_projectionFnInfoExt;
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
@@ -88,6 +87,7 @@ extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
 lean_object* l_Lean_ProjectionFunctionInfo_inhabited;
 lean_object* l_Array_qsortAux___main___at_Lean_mkProjectionFnInfoExtension___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_projectionFnInfoExt___closed__1;
+lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_projectionFnInfoExt___elambda__4(lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkProjectionFnInfoExtension___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1521,7 +1521,7 @@ lean_object* lean_get_projection_info(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_Environment_getModuleIdxFor(x_1, x_2);
+x_3 = l_Lean_Environment_getModuleIdxFor_x3f(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -1695,7 +1695,7 @@ uint8_t l_Lean_Environment_isProjectionFn(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_Environment_getModuleIdxFor(x_1, x_2);
+x_3 = l_Lean_Environment_getModuleIdxFor_x3f(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 

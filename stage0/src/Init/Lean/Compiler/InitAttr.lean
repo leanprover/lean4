@@ -24,12 +24,12 @@ match getIOTypeArg type with
 
 def mkInitAttr : IO (ParametricAttribute Name) :=
 registerParametricAttribute `init "initialization procedure for global references" $ fun env declName stx =>
-  match env.find declName with
+  match env.find? declName with
   | none => Except.error "unknown declaration"
   | some decl =>
     match attrParamSyntaxToIdentifier stx with
     | some initFnName =>
-      match env.find initFnName with
+      match env.find? initFnName with
       | none => Except.error ("unknown initialization function '" ++ toString initFnName ++ "'")
       | some initDecl =>
         match getIOTypeArg initDecl.type with

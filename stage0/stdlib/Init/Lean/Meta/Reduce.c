@@ -268,7 +268,6 @@ else
 {
 uint8_t x_12; 
 lean_dec(x_6);
-lean_dec(x_4);
 x_12 = !lean_is_exclusive(x_8);
 if (x_12 == 0)
 {
@@ -311,7 +310,6 @@ else
 {
 uint8_t x_12; 
 lean_dec(x_6);
-lean_dec(x_4);
 x_12 = !lean_is_exclusive(x_8);
 if (x_12 == 0)
 {
@@ -763,6 +761,7 @@ lean_dec(x_2);
 x_10 = lean_unbox(x_3);
 lean_dec(x_3);
 x_11 = l_Lean_Meta_reduceAux___main___lambda__1(x_8, x_9, x_10, x_4, x_5, x_6, x_7);
+lean_dec(x_4);
 return x_11;
 }
 }
@@ -777,6 +776,7 @@ lean_dec(x_2);
 x_10 = lean_unbox(x_3);
 lean_dec(x_3);
 x_11 = l_Lean_Meta_reduceAux___main___lambda__2(x_8, x_9, x_10, x_4, x_5, x_6, x_7);
+lean_dec(x_4);
 return x_11;
 }
 }

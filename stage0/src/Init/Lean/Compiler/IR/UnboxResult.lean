@@ -14,7 +14,7 @@ namespace UnboxResult
 
 def mkUnboxAttr : IO TagAttribute :=
 registerTagAttribute `unbox "compiler tries to unbox result values if their types are tagged with `[unbox]`" $ fun env declName =>
-  match env.find declName with
+  match env.find? declName with
   | none => Except.error "unknown declaration"
   | some cinfo => match cinfo with
     | ConstantInfo.inductInfo v =>

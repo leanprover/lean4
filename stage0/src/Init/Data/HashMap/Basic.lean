@@ -56,7 +56,7 @@ foldBucketsM h.buckets d f
 @[inline] def fold {δ : Type w} (f : δ → α → β → δ) (d : δ) (m : HashMapImp α β) : δ :=
 foldBuckets m.buckets d f
 
-def find [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option β :=
+def find? [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option β :=
 match m with
 | ⟨_, buckets⟩ =>
   let ⟨i, h⟩ := mkIdx buckets.property (hash a);
@@ -142,17 +142,20 @@ match m with
 match m with
 | ⟨ m, hw ⟩ => ⟨ m.erase a, WellFormed.eraseWff m a hw ⟩
 
-@[inline] def find (m : HashMap α β) (a : α) : Option β :=
+@[inline] def find? (m : HashMap α β) (a : α) : Option β :=
 match m with
-| ⟨ m, _ ⟩ => m.find a
+| ⟨ m, _ ⟩ => m.find? a
 
 @[inline] def findD (m : HashMap α β) (a : α) (b₀ : β) : β :=
-(m.find a).getD b₀
+(m.find? a).getD b₀
 
 @[inline] def find! [Inhabited β] (m : HashMap α β) (a : α) : β :=
-match m.find a with
+match m.find? a with
 | some b => b
 | none   => panic! "key is not in the map"
+
+@[inline] def getOp (self : HashMap α β) (idx : α) : Option β :=
+self.find? idx
 
 @[inline] def contains (m : HashMap α β) (a : α) : Bool :=
 match m with

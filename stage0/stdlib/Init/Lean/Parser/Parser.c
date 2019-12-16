@@ -132,6 +132,7 @@ lean_object* l_RBNode_ins___main___at_Lean_Parser_TokenMap_insert___spec__6___ra
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Parser_ParserState_pushSyntax(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_foldSepArgsM(lean_object*, lean_object*);
+lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_rawCh___elambda__1___rarg(uint32_t, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_group(uint8_t, lean_object*);
 lean_object* l_Lean_Parser_ident(uint8_t);
@@ -191,7 +192,6 @@ lean_object* l_Lean_Parser_declareBuiltinParser___closed__1;
 lean_object* l_Lean_Parser_mkTokenTableAttribute___lambda__1___boxed(lean_object*, lean_object*);
 uint8_t l_Char_isWhitespace(uint32_t);
 extern lean_object* l_String_splitAux___main___closed__1;
-lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_withPosition(uint8_t, lean_object*);
 lean_object* l_Lean_Parser_charLitFnAux(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_List_repr___rarg___closed__3;

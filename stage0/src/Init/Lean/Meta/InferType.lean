@@ -27,7 +27,7 @@ pure $ fType.instantiateRevRange j args.size args
 
 private def inferConstType (c : Name) (lvls : List Level) : MetaM Expr := do
 env ← getEnv;
-match env.find c with
+match env.find? c with
 | some cinfo =>
   if cinfo.lparams.length == lvls.length then
     pure $ cinfo.instantiateTypeLevelParams lvls
@@ -46,7 +46,7 @@ matchConst env structType.getAppFn failed $ fun structInfo structLvls => do
   | ConstantInfo.inductInfo { nparams := n, ctors := [ctor], .. } =>
     let structParams := structType.getAppArgs;
     if n != structParams.size then failed ()
-    else match env.find ctor with
+    else match env.find? ctor with
       | none            => failed ()
       | some (ctorInfo) => do
         ctorType ← inferAppType (mkConst ctor structLvls) structParams;
@@ -106,19 +106,19 @@ savingCache $ do
 
 private def inferMVarType (mvarId : MVarId) : MetaM Expr := do
 mctx ← getMCtx;
-match mctx.findDecl mvarId with
+match mctx.findDecl? mvarId with
 | some d => pure d.type
 | none   => throwEx $ Exception.unknownExprMVar mvarId
 
 private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
 lctx ← getLCtx;
-match lctx.find fvarId with
+match lctx.find? fvarId with
 | some d => pure d.type
 | none   => throwEx $ Exception.unknownFVar fvarId
 
 @[inline] private def checkInferTypeCache (e : Expr) (inferType : MetaM Expr) : MetaM Expr := do
 s ← get;
-match s.cache.inferType.find e with
+match s.cache.inferType.find? e with
 | some type => pure type
 | none => do
   type ← inferType;

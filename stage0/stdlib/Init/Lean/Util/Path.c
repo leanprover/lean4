@@ -22,6 +22,7 @@ lean_object* l_HashMapImp_expand___at_Lean_parseSearchPath___spec__3(lean_object
 lean_object* l_String_revPosOf(lean_object*, uint32_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_searchPathRef;
+lean_object* l_HashMapImp_find_x3f___at_Lean_findOLean___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
@@ -48,7 +49,6 @@ lean_object* l_Lean_modPathToFilePath___main___closed__1;
 lean_object* l_List_foldlM___main___at_Lean_parseSearchPath___spec__7(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_modPathToFilePath___main(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
-lean_object* l_HashMapImp_find___at_Lean_findOLean___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_findAtSearchPath(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_findAtSearchPath___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
@@ -84,7 +84,6 @@ lean_object* l_AssocList_contains___main___at_Lean_parseSearchPath___spec__2___b
 lean_object* l_IO_getEnv___at_Lean_addSearchPathFromEnv___spec__1(lean_object*, lean_object*);
 lean_object* l_HashMapImp_insert___at_Lean_parseSearchPath___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_init_search_path(lean_object*, lean_object*);
-lean_object* l_HashMapImp_find___at_Lean_findOLean___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_splitAtRoot(lean_object*);
 lean_object* l_Lean_findOLean___closed__1;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
@@ -98,6 +97,7 @@ uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_panic(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addSearchPathFromEnv(lean_object*, lean_object*);
+lean_object* l_HashMapImp_find_x3f___at_Lean_findOLean___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_getBuiltinSearchPath___closed__2;
 lean_object* l_Lean_getBuiltinSearchPath___closed__4;
 lean_object* lean_nat_mul(lean_object*, lean_object*);
@@ -1589,7 +1589,7 @@ return x_9;
 }
 }
 }
-lean_object* l_HashMapImp_find___at_Lean_findOLean___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_HashMapImp_find_x3f___at_Lean_findOLean___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; 
@@ -1643,7 +1643,7 @@ x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec(x_7);
 lean_inc(x_8);
-x_10 = l_HashMapImp_find___at_Lean_findOLean___spec__1(x_6, x_8);
+x_10 = l_HashMapImp_find_x3f___at_Lean_findOLean___spec__1(x_6, x_8);
 lean_dec(x_6);
 if (lean_obj_tag(x_10) == 0)
 {
@@ -1692,7 +1692,7 @@ x_26 = lean_ctor_get(x_24, 1);
 lean_inc(x_26);
 lean_dec(x_24);
 lean_inc(x_25);
-x_27 = l_HashMapImp_find___at_Lean_findOLean___spec__1(x_22, x_25);
+x_27 = l_HashMapImp_find_x3f___at_Lean_findOLean___spec__1(x_22, x_25);
 lean_dec(x_22);
 if (lean_obj_tag(x_27) == 0)
 {
@@ -1765,11 +1765,11 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_HashMapImp_find___at_Lean_findOLean___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_HashMapImp_find_x3f___at_Lean_findOLean___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_HashMapImp_find___at_Lean_findOLean___spec__1(x_1, x_2);
+x_3 = l_HashMapImp_find_x3f___at_Lean_findOLean___spec__1(x_1, x_2);
 lean_dec(x_1);
 return x_3;
 }

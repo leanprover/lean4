@@ -56,9 +56,9 @@ def addAux (env : Environment) (cinfo : ConstantInfo) : Environment :=
 { constants := env.constants.insert cinfo.name cinfo, .. env }
 
 @[export lean_environment_find]
-def find (env : Environment) (n : Name) : Option ConstantInfo :=
+def find? (env : Environment) (n : Name) : Option ConstantInfo :=
 /- It is safe to use `find'` because we never overwrite imported declarations. -/
-env.constants.find' n
+env.constants.find?' n
 
 def contains (env : Environment) (n : Name) : Bool :=
 env.constants.contains n
@@ -86,13 +86,13 @@ env.header.quotInit
 private def getTrustLevel (env : Environment) : UInt32 :=
 env.header.trustLevel
 
-def getModuleIdxFor (env : Environment) (c : Name) : Option ModuleIdx :=
-env.const2ModIdx.find c
+def getModuleIdxFor? (env : Environment) (c : Name) : Option ModuleIdx :=
+env.const2ModIdx.find? c
 
 def isConstructor (env : Environment) (c : Name) : Bool :=
-match env.find c with
+match env.find? c with
 | ConstantInfo.ctorInfo _ => true
-| _ => false
+| _                       => false
 
 end Environment
 
@@ -358,7 +358,7 @@ def tag (ext : TagDeclarationExtension) (env : Environment) (n : Name) : Environ
 ext.addEntry env n
 
 def isTagged (ext : TagDeclarationExtension) (env : Environment) (n : Name) : Bool :=
-match env.getModuleIdxFor n with
+match env.getModuleIdxFor? n with
 | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains n Name.quickLt
 | none        => (ext.getState env).contains n
 
@@ -587,7 +587,7 @@ end Environment
 def matchConst {α : Type} (env : Environment) (e : Expr) (failK : Unit → α) (k : ConstantInfo → List Level → α) : α :=
 match e with
 | Expr.const n lvls _ =>
-  match env.find n with
+  match env.find? n with
   | some cinfo => k cinfo lvls
   | _          => failK ()
 | _ => failK ()

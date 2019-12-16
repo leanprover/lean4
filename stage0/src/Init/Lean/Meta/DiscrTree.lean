@@ -216,7 +216,7 @@ def insertCore {α} [HasBeq α] (d : DiscrTree α) (keys : Array Key) (v : α) :
 if keys.isEmpty then panic! "invalid key sequence"
 else
   let k := keys.get! 0;
-  match d.root.find k with
+  match d.root.find? k with
   | none =>
     let c := createNodes keys v 1;
     { root := d.root.insert k c }
@@ -304,7 +304,7 @@ private partial def getMatchAux {α} : Array Expr → Trie α → Array α → M
 
 private def getStarResult {α} (d : DiscrTree α) : Array α :=
 let result : Array α := Array.mkEmpty initCapacity;
-match d.root.find Key.star with
+match d.root.find? Key.star with
 | none                  => result
 | some (Trie.node vs _) => result ++ vs
 
@@ -315,7 +315,7 @@ withTransparency TransparencyMode.reducible $ do
   match k with
   | Key.star => pure result
   | _        =>
-    match d.root.find k with
+    match d.root.find? k with
     | none   => pure result
     | some c => getMatchAux args c result
 
@@ -347,7 +347,7 @@ withTransparency TransparencyMode.reducible $ do
   | Key.star => d.root.foldlM (fun result k c => getUnifyAux k.arity #[] c result) #[]
   | _ =>
     let result := getStarResult d;
-    match d.root.find k with
+    match d.root.find? k with
     | none   => pure result
     | some c => getUnifyAux 0 args c result
 

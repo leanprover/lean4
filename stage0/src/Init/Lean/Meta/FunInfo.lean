@@ -13,7 +13,7 @@ namespace Meta
 @[inline] private def checkFunInfoCache (fn : Expr) (maxArgs? : Option Nat) (k : MetaM FunInfo) : MetaM FunInfo := do
 s ← get;
 t ← getTransparency;
-match s.cache.funInfo.find ⟨t, fn, maxArgs?⟩ with
+match s.cache.funInfo.find? ⟨t, fn, maxArgs?⟩ with
 | some finfo => pure finfo
 | none       => do
   finfo ← k;

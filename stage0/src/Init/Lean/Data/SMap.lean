@@ -43,15 +43,15 @@ instance : HasEmptyc (SMap α β) := ⟨SMap.empty⟩
 | ⟨true, m₁, m₂⟩, k, v  => ⟨true, m₁.insert k v, m₂⟩
 | ⟨false, m₁, m₂⟩, k, v => ⟨false, m₁, m₂.insert k v⟩
 
-@[specialize] def find : SMap α β → α → Option β
-| ⟨true, m₁, _⟩, k   => m₁.find k
-| ⟨false, m₁, m₂⟩, k => (m₂.find k).orelse (m₁.find k)
+@[specialize] def find? : SMap α β → α → Option β
+| ⟨true, m₁, _⟩, k   => m₁.find? k
+| ⟨false, m₁, m₂⟩, k => (m₂.find? k).orelse (m₁.find? k)
 
 @[inline] def findD (m : SMap α β) (a : α) (b₀ : β) : β :=
-(m.find a).getD b₀
+(m.find? a).getD b₀
 
 @[inline] def find! [Inhabited β] (m : SMap α β) (a : α) : β :=
-match m.find a with
+match m.find? a with
 | some b => b
 | none   => panic! "key is not in the map"
 
@@ -59,11 +59,11 @@ match m.find a with
 | ⟨true, m₁, _⟩, k   => m₁.contains k
 | ⟨false, m₁, m₂⟩, k => m₁.contains k || m₂.contains k
 
-/- Similar to `find`, but searches for result in the hashmap first.
+/- Similar to `find?`, but searches for result in the hashmap first.
    So, the result is correct only if we never "overwrite" `map₁` entries using `map₂`. -/
-@[specialize] def find' : SMap α β → α → Option β
-| ⟨true, m₁, _⟩, k   => m₁.find k
-| ⟨false, m₁, m₂⟩, k => (m₁.find k).orelse (m₂.find k)
+@[specialize] def find?' : SMap α β → α → Option β
+| ⟨true, m₁, _⟩, k   => m₁.find? k
+| ⟨false, m₁, m₂⟩, k => (m₁.find? k).orelse (m₂.find? k)
 
 /- Move from stage 1 into stage 2. -/
 def switch (m : SMap α β) : SMap α β :=

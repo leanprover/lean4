@@ -52,13 +52,13 @@ instance TermElabM.inhabited {α} : Inhabited (TermElabM α) :=
 
 instance TermElabResult.inhabited : Inhabited TermElabResult := ⟨EStateM.Result.ok (arbitrary _) (arbitrary _)⟩
 
-inductive Field
-| num (fieldIdx  : Nat)
-| str (fieldName : String)
-| arrayRef (idx : Syntax)
+inductive LVal
+| fieldIdx  (i : Nat)
+| fieldName (name : String)
+| getOp     (idx : Syntax)
 
-instance Field.hasToString : HasToString Field :=
-⟨fun p => match p with | Field.num n => toString n | Field.str s => s | Field.arrayRef idx => "[" ++ toString idx ++ "]"⟩
+instance LVal.hasToString : HasToString LVal :=
+⟨fun p => match p with | LVal.fieldIdx i => toString i | LVal.fieldName n => n | LVal.getOp idx => "[" ++ toString idx ++ "]"⟩
 
 /--
   Execute `x`, save resulting expression and new state.
@@ -640,43 +640,43 @@ let argIdx    := 0;
 let instMVars := #[];
 elabAppArgsAux ref args expectedType? explicit argIdx namedArgs instMVars fType f
 
-inductive FieldResolution
+inductive LValResolution
 | projFn   (baseStructName : Name) (structName : Name) (fieldName : Name)
 | projIdx  (structName : Name) (idx : Nat)
 | const    (baseName : Name) (constName : Name)
 | localRec (baseName : Name) (fullName : Name) (fvar : Expr)
-| arrayRef (fullName : Name) (idx : Syntax)
+| getOp    (fullName : Name) (idx : Syntax)
 
-private def throwFieldError {α} (ref : Syntax) (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
+private def throwLValError {α} (ref : Syntax) (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
 throwError ref $ msg ++ indentExpr e ++ Format.line ++ "has type" ++ indentExpr eType
 
-private def resolveFieldAux (ref : Syntax) (e : Expr) (eType : Expr) (field : Field) : TermElabM FieldResolution :=
-match eType.getAppFn, field with
-| Expr.const structName _ _, Field.num idx => do
+private def resolveLValAux (ref : Syntax) (e : Expr) (eType : Expr) (lval : LVal) : TermElabM LValResolution :=
+match eType.getAppFn, lval with
+| Expr.const structName _ _, LVal.fieldIdx idx => do
   when (idx == 0) $
     throwError ref "invalid projection, index must be greater than 0";
   env ← getEnv;
   unless (isStructureLike env structName) $
-    throwFieldError ref e eType "invalid projection, structure expected";
+    throwLValError ref e eType "invalid projection, structure expected";
   let fieldNames := getStructureFields env structName;
   if h : idx - 1 < fieldNames.size then
     if isStructure env structName then
-      pure $ FieldResolution.projFn structName structName (fieldNames.get ⟨idx - 1, h⟩)
+      pure $ LValResolution.projFn structName structName (fieldNames.get ⟨idx - 1, h⟩)
     else
       /- `structName` was declared using `inductive` command.
          So, we don't projection functions for it. Thus, we use `Expr.proj` -/
-      pure $ FieldResolution.projIdx structName (idx - 1)
+      pure $ LValResolution.projIdx structName (idx - 1)
   else
-    throwFieldError ref e eType ("invalid projection, structure has only " ++ toString fieldNames.size ++ " field(s)")
-| Expr.const structName _ _, Field.str fieldName => do
+    throwLValError ref e eType ("invalid projection, structure has only " ++ toString fieldNames.size ++ " field(s)")
+| Expr.const structName _ _, LVal.fieldName fieldName => do
   env ← getEnv;
-  let searchEnv (fullName : Name) : TermElabM FieldResolution := do {
+  let searchEnv (fullName : Name) : TermElabM LValResolution := do {
     match env.find? fullName with
-    | some _ => pure $ FieldResolution.const structName fullName
-    | none   => throwFieldError ref e eType $
+    | some _ => pure $ LValResolution.const structName fullName
+    | none   => throwLValError ref e eType $
       "invalid field notation, '" ++ fieldName ++ "' is not a valid \"field\" because environment does not contain '" ++ fullName ++ "'"
   };
-  let searchLCtx : Unit → TermElabM FieldResolution := fun _ => do {
+  let searchLCtx : Unit → TermElabM LValResolution := fun _ => do {
     let fullName := structName ++ fieldName;
     currNamespace ← getCurrNamespace;
     let localName := fullName.replacePrefix currNamespace Name.anonymous;
@@ -684,45 +684,45 @@ match eType.getAppFn, field with
     match lctx.findFromUserName? localName with
     | some localDecl =>
       if localDecl.binderInfo == BinderInfo.auxDecl then
-        /- Field notation is being used to make a "local" recursive call. -/
-        pure $ FieldResolution.localRec structName fullName localDecl.toExpr
+        /- LVal notation is being used to make a "local" recursive call. -/
+        pure $ LValResolution.localRec structName fullName localDecl.toExpr
       else
         searchEnv fullName
     | none => searchEnv fullName
   };
   if isStructure env structName then
     match findField? env structName fieldName with
-    | some baseStructName => pure $ FieldResolution.projFn baseStructName structName fieldName
+    | some baseStructName => pure $ LValResolution.projFn baseStructName structName fieldName
     | none                => searchLCtx ()
   else
     searchLCtx ()
-| Expr.const structName _ _, Field.arrayRef idx => do
+| Expr.const structName _ _, LVal.getOp idx => do
   env ← getEnv;
   let fullName := mkNameStr structName "getOp";
   match env.find? fullName with
-  | some _ => pure $ FieldResolution.arrayRef fullName idx
-  | none   => throwFieldError ref e eType $ "invalid [..] notation because environment does not contain '" ++ fullName ++ "'"
-| _, Field.arrayRef idx =>
-  throwFieldError ref e eType "invalid [..] notation, type is not of the form (C ...) where C is a constant"
+  | some _ => pure $ LValResolution.getOp fullName idx
+  | none   => throwLValError ref e eType $ "invalid [..] notation because environment does not contain '" ++ fullName ++ "'"
+| _, LVal.getOp idx =>
+  throwLValError ref e eType "invalid [..] notation, type is not of the form (C ...) where C is a constant"
 | _, _ =>
-  throwFieldError ref e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
+  throwLValError ref e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
 
-private partial def resolveFieldLoop (ref : Syntax) (e : Expr) (field : Field) : Expr → Array Exception → TermElabM FieldResolution
+private partial def resolveLValLoop (ref : Syntax) (e : Expr) (lval : LVal) : Expr → Array Exception → TermElabM LValResolution
 | eType, previousExceptions => do
   eType ← whnfCore ref eType;
   -- If eType is metavariable, we must interrupt and postpone
-  catch (resolveFieldAux ref e eType field)
+  catch (resolveLValAux ref e eType lval)
     (fun ex => do
       eType? ← unfoldDefinition? ref eType;
       match eType? with
-      | some eType => resolveFieldLoop eType (previousExceptions.push ex)
+      | some eType => resolveLValLoop eType (previousExceptions.push ex)
       | none => do
         previousExceptions.forM $ fun ex => logMessage ex;
         throw ex)
 
-private def resolveField (ref : Syntax) (e : Expr) (field : Field) : TermElabM FieldResolution := do
+private def resolveLVal (ref : Syntax) (e : Expr) (lval : LVal) : TermElabM LValResolution := do
 eType ← inferType ref e;
-resolveFieldLoop ref e field eType #[]
+resolveLValLoop ref e lval eType #[]
 
 private partial def mkBaseProjections (ref : Syntax) (baseStructName : Name) (structName : Name) (e : Expr) : TermElabM Expr := do
 env ← getEnv;
@@ -738,108 +738,108 @@ match getPathToBaseStructure? env baseStructName structName with
 /- Auxiliary method for field notation. It tries to add `e` to `args` as the first explicit parameter
    which takes an element of type `(C ...)` where `C` is `baseName`.
    `fullName` is the name of the resolved "field" access function. It is used for reporting errors -/
-private def addFieldArg (ref : Syntax) (baseName : Name) (fullName : Name) (e : Expr) (args : Array Arg) : Nat → Expr → TermElabM (Array Arg)
+private def addLValArg (ref : Syntax) (baseName : Name) (fullName : Name) (e : Expr) (args : Array Arg) : Nat → Expr → TermElabM (Array Arg)
 | i, Expr.forallE _ d b c =>
   if !c.binderInfo.isExplicit then
-    addFieldArg i b
+    addLValArg i b
   else if d.isAppOf baseName then
     pure $ args.insertAt i (Arg.expr e)
   else if i < args.size then
-    addFieldArg (i+1) b
+    addLValArg (i+1) b
   else
     throwError ref $ "invalid field notation, insufficient number of arguments for '" ++ fullName ++ "'"
 | _, fType =>
   throwError ref $
     "invalid field notation, function '" ++ fullName ++ "' does not have explicit argument with type (" ++ baseName ++ " ...)"
 
-private def elabAppFieldsAux (ref : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit : Bool)
-    : Expr → List Field → TermElabM Expr
+private def elabAppLValsAux (ref : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit : Bool)
+    : Expr → List LVal → TermElabM Expr
 | f, []            => elabAppArgs ref f namedArgs args expectedType? explicit
-| f, field::fields => do
-  fieldRes ← resolveField ref f field;
-  match fieldRes with
-  | FieldResolution.projIdx structName idx =>
+| f, lval::lvals => do
+  lvalRes ← resolveLVal ref f lval;
+  match lvalRes with
+  | LValResolution.projIdx structName idx =>
     let f := mkProj structName idx f;
-    elabAppFieldsAux f fields
-  | FieldResolution.projFn baseStructName structName fieldName => do
+    elabAppLValsAux f lvals
+  | LValResolution.projFn baseStructName structName fieldName => do
     f ← mkBaseProjections ref baseStructName structName f;
     projFn ← mkConst ref (baseStructName ++ fieldName);
-    if fields.isEmpty then do
+    if lvals.isEmpty then do
       namedArgs ← addNamedArg ref namedArgs { name := `self, val := Arg.expr f };
       elabAppArgs ref projFn namedArgs args expectedType? explicit
     else do
       f ← elabAppArgs ref projFn #[{ name := `self, val := Arg.expr f }] #[] none false;
-      elabAppFieldsAux f fields
-  | FieldResolution.const baseName constName => do
+      elabAppLValsAux f lvals
+  | LValResolution.const baseName constName => do
     projFn ← mkConst ref constName;
-    if fields.isEmpty then do
+    if lvals.isEmpty then do
       projFnType ← inferType ref projFn;
-      args ← addFieldArg ref baseName constName f args 0 projFnType;
+      args ← addLValArg ref baseName constName f args 0 projFnType;
       elabAppArgs ref projFn namedArgs args expectedType? explicit
     else do
       f ← elabAppArgs ref projFn #[] #[Arg.expr f] none false;
-      elabAppFieldsAux f fields
-  | FieldResolution.localRec baseName fullName fvar =>
-    if fields.isEmpty then do
+      elabAppLValsAux f lvals
+  | LValResolution.localRec baseName fullName fvar =>
+    if lvals.isEmpty then do
       fvarType ← inferType ref fvar;
-      args ← addFieldArg ref baseName fullName f args 0 fvarType;
+      args ← addLValArg ref baseName fullName f args 0 fvarType;
       elabAppArgs ref fvar namedArgs args expectedType? explicit
     else do
       f ← elabAppArgs ref fvar #[] #[Arg.expr f] none false;
-      elabAppFieldsAux f fields
-  | FieldResolution.arrayRef fullName idx => do
+      elabAppLValsAux f lvals
+  | LValResolution.getOp fullName idx => do
     getOpFn ← mkConst ref fullName;
-    if fields.isEmpty then do
+    if lvals.isEmpty then do
       namedArgs ← addNamedArg ref namedArgs { name := `self, val := Arg.expr f };
       namedArgs ← addNamedArg ref namedArgs { name := `idx, val := Arg.stx idx };
       elabAppArgs ref getOpFn namedArgs args expectedType? explicit
     else do
       f ← elabAppArgs ref getOpFn #[{ name := `self, val := Arg.expr f }, { name := `idx, val := Arg.stx idx }] #[] none false;
-      elabAppFieldsAux f fields
+      elabAppLValsAux f lvals
 
-private def elabAppFields (ref : Syntax) (f : Expr) (fields : List Field) (namedArgs : Array NamedArg) (args : Array Arg)
+private def elabAppLVals (ref : Syntax) (f : Expr) (lvals : List LVal) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr := do
-when (!fields.isEmpty && explicit) $ throwError ref "invalid use of field notation with `@` modifier";
-elabAppFieldsAux ref namedArgs args expectedType? explicit f fields
+when (!lvals.isEmpty && explicit) $ throwError ref "invalid use of field notation with `@` modifier";
+elabAppLValsAux ref namedArgs args expectedType? explicit f lvals
 
-private partial def elabAppFn (ref : Syntax) : Syntax → List Field → Array NamedArg → Array Arg → Option Expr → Bool → Array TermElabResult → TermElabM (Array TermElabResult)
-| f, fields, namedArgs, args, expectedType?, explicit, acc =>
+private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array NamedArg → Array Arg → Option Expr → Bool → Array TermElabResult → TermElabM (Array TermElabResult)
+| f, lvals, namedArgs, args, expectedType?, explicit, acc =>
   let k := f.getKind;
   if k == `Lean.Parser.Term.explicit then
     -- `f` is of the form `@ id`
-    elabAppFn (f.getArg 1) fields namedArgs args expectedType? true acc
+    elabAppFn (f.getArg 1) lvals namedArgs args expectedType? true acc
   else if k == choiceKind then
-    f.getArgs.foldlM (fun acc f => elabAppFn f fields namedArgs args expectedType? explicit acc) acc
+    f.getArgs.foldlM (fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit acc) acc
   else if k == `Lean.Parser.Term.proj then
     -- term `.` (fieldIdx <|> ident)
     let field := f.getArg 2;
     match field.isFieldIdx?, field with
-    | some idx, _                      => elabAppFn (f.getArg 0) (Field.num idx :: fields) namedArgs args expectedType? explicit acc
+    | some idx, _                      => elabAppFn (f.getArg 0) (LVal.fieldIdx idx :: lvals) namedArgs args expectedType? explicit acc
     | _,        Syntax.ident _ _ val _ =>
-      let newFields := val.components.map (fun n => Field.str (toString n));
-      elabAppFn (f.getArg 0) (newFields ++ fields) namedArgs args expectedType? explicit acc
+      let newLVals := val.components.map (fun n => LVal.fieldName (toString n));
+      elabAppFn (f.getArg 0) (newLVals ++ lvals) namedArgs args expectedType? explicit acc
     | _,        _                      => throwError field "unexpected kind of field access"
   else if k == `Lean.Parser.Term.arrayRef then do
     -- term `[` term `]`
     let idx := f.getArg 2;
-    elabAppFn (f.getArg 0) (Field.arrayRef idx :: fields) namedArgs args expectedType? explicit acc
+    elabAppFn (f.getArg 0) (LVal.getOp idx :: lvals) namedArgs args expectedType? explicit acc
   else if k == `Lean.Parser.Term.id then
     -- ident (explicitUniv | namedPattern)?
     -- Remark: `namedPattern` should already have been expanded
     match f.getArg 0 with
     | Syntax.ident _ _ n preresolved => do
       us        ← elabExplicitUniv (f.getArg 1);
-      funFields ← resolveName f n preresolved us;
-      funFields.foldlM
-        (fun acc ⟨f, fields'⟩ => do
-          let fields' := fields'.map Field.str;
-          s ← observing $ elabAppFields ref f (fields' ++ fields) namedArgs args expectedType? explicit;
+      funLVals ← resolveName f n preresolved us;
+      funLVals.foldlM
+        (fun acc ⟨f, fields⟩ => do
+          let lvals' := fields.map LVal.fieldName;
+          s ← observing $ elabAppLVals ref f (lvals' ++ lvals) namedArgs args expectedType? explicit;
           pure $ acc.push s)
         acc
     | _ => unreachable!
   else do
     f ← withoutPostponing $ elabTerm f none;
-    s ← observing $ elabAppFields ref f fields namedArgs args expectedType? explicit;
+    s ← observing $ elabAppLVals ref f lvals namedArgs args expectedType? explicit;
     pure $ acc.push s
 
 private def getSuccess (candidates : Array TermElabResult) : Array TermElabResult :=

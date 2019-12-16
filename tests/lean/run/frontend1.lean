@@ -123,3 +123,4 @@ def m : Monoid Nat :=
 #eval run "#check s.field4.1.map Nat.succ"
 #eval run "#check s.vec[i].1"
 #eval run "#check \"hello\""
+-- #eval run "#check 1"

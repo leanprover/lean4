@@ -179,9 +179,9 @@ match type? with
 | some type => liftMetaM ref $ Meta.mkFreshExprMVar type userName? synthetic
 | none      => liftMetaM ref $ do u ← Meta.mkFreshLevelMVar; Meta.mkFreshExprMVar (mkSort u) userName? synthetic
 def getLevel (ref : Syntax) (type : Expr) : TermElabM Level := liftMetaM ref $ Meta.getLevel type
-
 def mkForall (ref : Syntax) (xs : Array Expr) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.mkForall xs e
 def trySynthInstance (ref : Syntax) (type : Expr) : TermElabM (LOption Expr) := liftMetaM ref $ Meta.trySynthInstance type
+def mkAppM (ref : Syntax) (constName : Name) (args : Array Expr) : TermElabM Expr := liftMetaM ref $ Meta.mkAppM constName args
 
 def registerSyntheticMVar (ref : Syntax) (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit :=
 modify $ fun s => { syntheticMVars := { mvarId := mvarId, ref := ref, kind := kind } :: s.syntheticMVars, .. s }
@@ -923,6 +923,22 @@ fun stx _ => do
   match (stx.getArg 0).isStrLit? with
   | some val => pure $ mkStrLit val
   | none     => throwError stx.val "ill-formed syntax"
+
+@[builtinTermElab num] def elabNum : TermElab :=
+fun stx expectedType? => do
+  -- TODO: postpone if expectedType? is none or metavariable
+  let ref := stx.val;
+  val ← match (stx.getArg 0).isNatLit? with
+    | some val => pure (mkNatLit val)
+    | none     => throwError stx.val "ill-formed syntax";
+  expectedType ← match expectedType? with
+    | some expectedType => pure expectedType
+    | none              => mkFreshExprMVar ref;
+  hasOfNatInst ← mkAppM ref `HasOfNat #[expectedType];
+  mvar ← mkFreshExprMVar ref hasOfNatInst;
+  synthesizeInstMVar ref mvar.mvarId!;
+  u ← getLevel ref expectedType;
+  pure $ mkApp3 (Lean.mkConst `HasOfNat.ofNat [u]) expectedType mvar val
 
 end Term
 

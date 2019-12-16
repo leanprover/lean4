@@ -441,6 +441,15 @@ infixr `×` := Prod
 structure NonScalar :=
 (val : Nat)
 
+/- For numeric literals notation -/
+class HasOfNat (α : Type u) :=
+(ofNat : Nat → α)
+
+export HasOfNat (ofNat)
+
+instance : HasOfNat Nat :=
+⟨id⟩
+
 /- sizeof -/
 
 class HasSizeof (α : Sort u) :=

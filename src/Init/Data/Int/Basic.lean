@@ -128,6 +128,9 @@ instance : HasRepr Int :=
 instance : HasToString Int :=
 ⟨Int.repr⟩
 
+instance : HasOfNat Int :=
+⟨Int.ofNat⟩
+
 @[extern "lean_int_div"]
 def div : (@& Int) → (@& Int) → Int
 | ofNat m,   ofNat n   => ofNat (m / n)

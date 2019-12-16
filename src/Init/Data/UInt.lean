@@ -39,6 +39,7 @@ def UInt8.le (a b : UInt8) : Prop := a.val ≤ b.val
 
 instance : HasZero UInt8     := ⟨UInt8.ofNat 0⟩
 instance : HasOne UInt8      := ⟨UInt8.ofNat 1⟩
+instance : HasOfNat UInt8    := ⟨UInt8.ofNat⟩
 instance : HasAdd UInt8      := ⟨UInt8.add⟩
 instance : HasSub UInt8      := ⟨UInt8.sub⟩
 instance : HasMul UInt8      := ⟨UInt8.mul⟩
@@ -48,6 +49,7 @@ instance : HasDiv UInt8      := ⟨UInt8.div⟩
 instance : HasLess UInt8     := ⟨UInt8.lt⟩
 instance : HasLessEq UInt8   := ⟨UInt8.le⟩
 instance : Inhabited UInt8   := ⟨0⟩
+
 
 @[extern c inline "#1 == #2"]
 def UInt8.decEq (a b : UInt8) : Decidable (a = b) :=
@@ -98,6 +100,7 @@ def UInt16.le (a b : UInt16) : Prop := a.val ≤ b.val
 
 instance : HasZero UInt16     := ⟨UInt16.ofNat 0⟩
 instance : HasOne UInt16      := ⟨UInt16.ofNat 1⟩
+instance : HasOfNat UInt16    := ⟨UInt16.ofNat⟩
 instance : HasAdd UInt16      := ⟨UInt16.add⟩
 instance : HasSub UInt16      := ⟨UInt16.sub⟩
 instance : HasMul UInt16      := ⟨UInt16.mul⟩
@@ -157,6 +160,7 @@ def UInt32.le (a b : UInt32) : Prop := a.val ≤ b.val
 
 instance : HasZero UInt32     := ⟨UInt32.ofNat 0⟩
 instance : HasOne UInt32      := ⟨UInt32.ofNat 1⟩
+instance : HasOfNat UInt32    := ⟨UInt32.ofNat⟩
 instance : HasAdd UInt32      := ⟨UInt32.add⟩
 instance : HasSub UInt32      := ⟨UInt32.sub⟩
 instance : HasMul UInt32      := ⟨UInt32.mul⟩
@@ -230,6 +234,7 @@ constant UInt64.shiftRight (a b : UInt64) : UInt64 := (arbitrary Nat).toUInt64
 
 instance : HasZero UInt64     := ⟨UInt64.ofNat 0⟩
 instance : HasOne UInt64      := ⟨UInt64.ofNat 1⟩
+instance : HasOfNat UInt64    := ⟨UInt64.ofNat⟩
 instance : HasAdd UInt64      := ⟨UInt64.add⟩
 instance : HasSub UInt64      := ⟨UInt64.sub⟩
 instance : HasMul UInt64      := ⟨UInt64.mul⟩
@@ -307,6 +312,7 @@ def USize.le (a b : USize) : Prop := a.val ≤ b.val
 
 instance : HasZero USize     := ⟨USize.ofNat 0⟩
 instance : HasOne USize      := ⟨USize.ofNat 1⟩
+instance : HasOfNat USize    := ⟨USize.ofNat⟩
 instance : HasAdd USize      := ⟨USize.add⟩
 instance : HasSub USize      := ⟨USize.sub⟩
 instance : HasMul USize      := ⟨USize.mul⟩

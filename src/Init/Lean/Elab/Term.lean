@@ -579,8 +579,10 @@ match arg with
 | Arg.expr val => do
   valType ← inferType ref val;
   ensureHasType ref expectedType valType val
-| Arg.stx val  =>
-  elabTerm val expectedType
+| Arg.stx val  => do
+  val ← elabTerm val expectedType;
+  valType ← inferType ref val;
+  ensureHasType ref expectedType valType val
 
 private partial def elabAppArgsAux (ref : Syntax) (args : Array Arg) (expectedType? : Option Expr) (explicit : Bool)
     : Nat → Array NamedArg → Array MVarId → Expr → Expr → TermElabM Expr
@@ -915,6 +917,12 @@ fun stx expectedType? => do
 @[builtinTermElab choice] def elabChoice : TermElab := elabApp
 @[builtinTermElab proj] def elabProj : TermElab := elabApp
 @[builtinTermElab arrayRef] def elabArrayRef : TermElab := elabApp
+
+/-
+@[builtinTermElab str] def elabStr : TermElab :=
+fun stx _ => do
+  throw (arbitrary _)
+-/
 
 end Term
 

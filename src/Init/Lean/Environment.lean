@@ -58,7 +58,7 @@ def addAux (env : Environment) (cinfo : ConstantInfo) : Environment :=
 @[export lean_environment_find]
 def find? (env : Environment) (n : Name) : Option ConstantInfo :=
 /- It is safe to use `find'` because we never overwrite imported declarations. -/
-env.constants.find' n
+env.constants.find?' n
 
 def contains (env : Environment) (n : Name) : Bool :=
 env.constants.contains n
@@ -87,7 +87,7 @@ private def getTrustLevel (env : Environment) : UInt32 :=
 env.header.trustLevel
 
 def getModuleIdxFor? (env : Environment) (c : Name) : Option ModuleIdx :=
-env.const2ModIdx.find c
+env.const2ModIdx.find? c
 
 def isConstructor (env : Environment) (c : Name) : Bool :=
 match env.find? c with

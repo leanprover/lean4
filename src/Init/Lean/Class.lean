@@ -38,7 +38,7 @@ match entry with
   { hasOutParam := s.hasOutParam.insert clsName hasOutParam, .. s }
 | ClassEntry.«instance» instName clsName =>
   { instances        := s.instances.insert instName (),
-    classToInstances := match s.classToInstances.find clsName with
+    classToInstances := match s.classToInstances.find? clsName with
       | some insts => s.classToInstances.insert clsName (instName :: insts)
       | none       => s.classToInstances.insert clsName [instName],
     .. s }
@@ -69,13 +69,13 @@ def isInstance (env : Environment) (n : Name) : Bool :=
 
 @[export lean_get_class_instances]
 def getClassInstances (env : Environment) (n : Name) : List Name :=
-match (classExtension.getState env).classToInstances.find n with
+match (classExtension.getState env).classToInstances.find? n with
 | some insts => insts
 | none       => []
 
 @[export lean_has_out_params]
 def hasOutParams (env : Environment) (n : Name) : Bool :=
-match (classExtension.getState env).hasOutParam.find n with
+match (classExtension.getState env).hasOutParam.find? n with
 | some b => b
 | none   => false
 

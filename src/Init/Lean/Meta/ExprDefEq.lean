@@ -360,14 +360,14 @@ structure State :=
 
 abbrev CheckAssignmentM := ReaderT Context (EStateM Exception State)
 
-private def findCached (e : Expr) : CheckAssignmentM (Option Expr) := do
-s ← get; pure $ s.cache.find e
+private def findCached? (e : Expr) : CheckAssignmentM (Option Expr) := do
+s ← get; pure $ s.cache.find? e
 
 private def cache (e r : Expr) : CheckAssignmentM Unit :=
 modify $ fun s => { cache := s.cache.insert e r, .. s }
 
 instance : MonadCache Expr Expr CheckAssignmentM :=
-{ findCached := findCached, cache := cache }
+{ findCached? := findCached?, cache := cache }
 
 @[inline] private def visit (f : Expr → CheckAssignmentM Expr) (e : Expr) : CheckAssignmentM Expr :=
 if !e.hasExprMVar && !e.hasFVar then pure e else checkCache e f
@@ -396,11 +396,11 @@ pure (mkMVar mvarId)
 let mvarId := mvar.mvarId!;
 ctx  ← read;
 mctx ← getMCtx;
-match mctx.getExprAssignment mvarId with
+match mctx.getExprAssignment? mvarId with
 | some v => visit check v
 | none   =>
   if mvarId == ctx.mvarId then throw Exception.occursCheck
-  else match mctx.findDecl mvarId with
+  else match mctx.findDecl? mvarId with
     | none          => throw $ Exception.unknownExprMVar mvarId
     | some mvarDecl =>
       if ctx.hasCtxLocals then throw $ Exception.useFOApprox -- we use option c) described at workaround A2
@@ -481,11 +481,11 @@ partial def check
       if fvars.any $ fun x => x.fvarId! == fvarId then true
       else false -- We could throw an exception here, but we would have to use ExceptM. So, we let CheckAssignment.check do it
 | e@(Expr.mvar mvarId' _)        => do
-  match mctx.getExprAssignment mvarId' with
+  match mctx.getExprAssignment? mvarId' with
   | some _ => false -- use CheckAssignment.check to instantiate
   | none   =>
     if mvarId' == mvarId then false -- occurs check failed, use CheckAssignment.check to throw exception
-    else match mctx.findDecl mvarId' with
+    else match mctx.findDecl? mvarId' with
       | none           => false
       | some mvarDecl' =>
         if hasCtxLocals then false -- use CheckAssignment.check

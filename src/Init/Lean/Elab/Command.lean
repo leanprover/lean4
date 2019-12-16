@@ -93,7 +93,7 @@ stx.ifNode
     s ← get;
     let tables := commandElabAttribute.ext.getState s.env;
     let k := n.getKind;
-    match tables.find k with
+    match tables.find? k with
     | some elab => elab n
     | none      => throwError stx ("command '" ++ toString k ++ "' has not been implemented"))
   (fun _ => throwError stx ("unexpected command"))

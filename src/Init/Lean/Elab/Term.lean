@@ -219,7 +219,7 @@ withNode stx $ fun node => do
   s ← get;
   let tables := termElabAttribute.ext.getState s.env;
   let k := node.getKind;
-  match tables.find k with
+  match tables.find? k with
   | some elab =>
     catch
       (tracingAt stx (elab node expectedType?))

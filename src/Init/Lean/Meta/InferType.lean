@@ -106,7 +106,7 @@ savingCache $ do
 
 private def inferMVarType (mvarId : MVarId) : MetaM Expr := do
 mctx ← getMCtx;
-match mctx.findDecl mvarId with
+match mctx.findDecl? mvarId with
 | some d => pure d.type
 | none   => throwEx $ Exception.unknownExprMVar mvarId
 
@@ -118,7 +118,7 @@ match lctx.find? fvarId with
 
 @[inline] private def checkInferTypeCache (e : Expr) (inferType : MetaM Expr) : MetaM Expr := do
 s ← get;
-match s.cache.inferType.find e with
+match s.cache.inferType.find? e with
 | some type => pure type
 | none => do
   type ← inferType;

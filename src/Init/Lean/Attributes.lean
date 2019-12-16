@@ -60,7 +60,7 @@ m ← attributeMapRef.get; pure $ m.fold (fun r n _ => n::r) []
 
 def getAttributeImpl (attrName : Name) : IO AttributeImpl := do
 m ← attributeMapRef.get;
-match m.find attrName with
+match m.find? attrName with
 | some attr => pure attr
 | none      => throw (IO.userError ("unknown attribute '" ++ toString attrName ++ "'"))
 

@@ -227,7 +227,7 @@ throw ("unknown variable '" ++ toString x ++ "'")
 
 def getJPParams (j : JoinPointId) : M (Array Param) := do
 ctx ← read;
-match ctx.jpMap.find j with
+match ctx.jpMap.find? j with
 | some ps => pure ps
 | none    => throw "unknown join point"
 

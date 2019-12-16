@@ -79,7 +79,7 @@ partial def normLevel : Level → M Level
     if !mctx.isLevelAssignable mvarId then pure u
     else do
       s ← get;
-      match s.lmap.find mvarId with
+      match s.lmap.find? mvarId with
       | some u' => pure u'
       | none    => do
         let u' := mkLevelParam $ mkNameNum `_tc s.nextIdx;
@@ -103,7 +103,7 @@ partial def normExpr : Expr → M Expr
     if !mctx.isExprAssignable mvarId then pure e
     else do
       s ← get;
-      match s.emap.find mvarId with
+      match s.emap.find? mvarId with
       | some e' => pure e'
       | none    => do
         let e' := mkFVar $ mkNameNum `_tc s.nextIdx;
@@ -206,12 +206,12 @@ withMCtx mctx $ do
        tableEntries   := s.tableEntries.insert key entry,
        .. s }
 
-def findEntry (key : Expr) : SynthM (Option TableEntry) := do
+def findEntry? (key : Expr) : SynthM (Option TableEntry) := do
 s ← get;
-pure $ s.tableEntries.find key
+pure $ s.tableEntries.find? key
 
 def getEntry (key : Expr) : SynthM TableEntry := do
-entry? ← findEntry key;
+entry? ← findEntry? key;
 match entry? with
 | none       => panic! "invalid key at synthInstance"
 | some entry => pure entry
@@ -344,7 +344,7 @@ match cNode.subgoals with
 | mvar::_ => do
    let waiter := Waiter.consumerNode cNode;
    key ← mkTableKeyFor cNode.mctx mvar;
-   entry? ← findEntry key;
+   entry? ← findEntry? key;
    match entry? with
    | none       => newSubgoal cNode.mctx key mvar waiter
    | some entry => modify $ fun s =>
@@ -515,7 +515,7 @@ withConfig (fun config => { transparency := TransparencyMode.reducible, foApprox
   type ← instantiateMVars type;
   type ← preprocess type;
   s ← get;
-  match s.cache.synthInstance.find type with
+  match s.cache.synthInstance.find? type with
   | some result => pure result
   | none        => do
     result ← withNewMCtxDepth $ do {

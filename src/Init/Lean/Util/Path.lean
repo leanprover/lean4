@@ -91,7 +91,7 @@ def splitAtRoot : Name → String × Name
 def findOLean (mod : Name) : IO String := do
 sp ← searchPathRef.get;
 let (pkg, path) := splitAtRoot mod;
-some root ← pure $ sp.find pkg
+some root ← pure $ sp.find? pkg
   | throw $ IO.userError $ "unknown package '" ++ pkg ++ "'";
 let fname := root ++ pathSep ++ modPathToFilePath path ++ ".olean";
 pure fname

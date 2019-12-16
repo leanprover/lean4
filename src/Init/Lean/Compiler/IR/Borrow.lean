@@ -99,7 +99,7 @@ partial def visitFnBody : FnBody → FunId → ParamMap → FnBody
 | FnBody.jdecl j xs v b,   fnid, map =>
   let v := visitFnBody v fnid map;
   let b := visitFnBody b fnid map;
-  match map.find (Key.jp fnid j) with
+  match map.find? (Key.jp fnid j) with
   | some ys => FnBody.jdecl j ys v b
   | none    => FnBody.jdecl j xs v b
 | e, fnid, map =>
@@ -113,7 +113,7 @@ def visitDecls (decls : Array Decl) (map : ParamMap) : Array Decl :=
 decls.map $ fun decl => match decl with
   | Decl.fdecl f xs ty b =>
     let b := visitFnBody b f map;
-    match map.find (Key.decl f) with
+    match map.find? (Key.decl f) with
     | some xs => Decl.fdecl f xs ty b
     | none    => Decl.fdecl f xs ty b
   | other => other
@@ -163,7 +163,7 @@ pure $ s.owned.contains x.idx
 /- Updates `map[k]` using the current set of `owned` variables. -/
 def updateParamMap (k : Key) : M Unit := do
 s ← get;
-match s.map.find k with
+match s.map.find? k with
 | some ps => do
   ps ← ps.mapM $ fun (p : Param) =>
    if p.borrow && s.owned.contains p.x.idx then do
@@ -175,7 +175,7 @@ match s.map.find k with
 
 def getParamInfo (k : Key) : M (Array Param) := do
 s ← get;
-match s.map.find k with
+match s.map.find? k with
 | some ps => pure ps
 | none    =>
   match k with

@@ -268,19 +268,19 @@ def addLevelMVarDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarContext 
   .. mctx }
 
 @[export lean_metavar_ctx_find_decl]
-def findDecl (mctx : MetavarContext) (mvarId : MVarId) : Option MetavarDecl :=
-mctx.decls.find mvarId
+def findDecl? (mctx : MetavarContext) (mvarId : MVarId) : Option MetavarDecl :=
+mctx.decls.find? mvarId
 
 def getDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarDecl :=
-match mctx.decls.find mvarId with
+match mctx.decls.find? mvarId with
 | some decl => decl
 | none      => panic! "unknown metavariable"
 
-def findLevelDepth (mctx : MetavarContext) (mvarId : MVarId) : Option Nat :=
-mctx.lDepth.find mvarId
+def findLevelDepth? (mctx : MetavarContext) (mvarId : MVarId) : Option Nat :=
+mctx.lDepth.find? mvarId
 
 def getLevelDepth (mctx : MetavarContext) (mvarId : MVarId) : Nat :=
-match mctx.findLevelDepth mvarId with
+match mctx.findLevelDepth? mvarId with
 | some d => d
 | none   => panic! "unknown metavariable"
 
@@ -297,16 +297,16 @@ def assignDelayed (m : MetavarContext) (mvarId : MVarId) (lctx : LocalContext) (
 { dAssignment := m.dAssignment.insert mvarId { lctx := lctx, fvars := fvars, val := val }, .. m }
 
 @[export lean_metavar_ctx_get_level_assignment]
-def getLevelAssignment (m : MetavarContext) (mvarId : MVarId) : Option Level :=
-m.lAssignment.find mvarId
+def getLevelAssignment? (m : MetavarContext) (mvarId : MVarId) : Option Level :=
+m.lAssignment.find? mvarId
 
 @[export lean_metavar_ctx_get_expr_assignment]
-def getExprAssignment (m : MetavarContext) (mvarId : MVarId) : Option Expr :=
-m.eAssignment.find mvarId
+def getExprAssignment? (m : MetavarContext) (mvarId : MVarId) : Option Expr :=
+m.eAssignment.find? mvarId
 
 @[export lean_metavar_ctx_get_delayed_assignment]
-def getDelayedAssignment (m : MetavarContext) (mvarId : MVarId) : Option DelayedMetavarAssignment :=
-m.dAssignment.find mvarId
+def getDelayedAssignment? (m : MetavarContext) (mvarId : MVarId) : Option DelayedMetavarAssignment :=
+m.dAssignment.find? mvarId
 
 @[export lean_metavar_ctx_is_level_assigned]
 def isLevelAssigned (m : MetavarContext) (mvarId : MVarId) : Bool :=
@@ -325,7 +325,7 @@ def eraseDelayed (m : MetavarContext) (mvarId : MVarId) : MetavarContext :=
 { dAssignment := m.dAssignment.erase mvarId, .. m }
 
 def isLevelAssignable (mctx : MetavarContext) (mvarId : MVarId) : Bool :=
-match mctx.lDepth.find mvarId with
+match mctx.lDepth.find? mvarId with
 | some d => d == mctx.depth
 | _      => panic! "unknown universe metavariable"
 
@@ -392,7 +392,7 @@ partial def instantiateLevelMVars : Level → StateM MetavarContext Level
 | lvl@(Level.imax lvl₁ lvl₂ _) => do lvl₁ ← instantiateLevelMVars lvl₁; lvl₂ ← instantiateLevelMVars lvl₂; pure (Level.updateIMax! lvl lvl₁ lvl₂)
 | lvl@(Level.mvar mvarId _)    => do
   mctx ← get;
-  match getLevelAssignment mctx mvarId with
+  match getLevelAssignment? mctx mvarId with
   | some newLvl =>
     if !newLvl.hasMVar then pure newLvl
     else do
@@ -484,7 +484,7 @@ partial def main : Expr → M Expr
     pure (mkAppRev f revArgs)
 | e@(Expr.mvar mvarId _)   => checkCache e $ fun e => do
   mctx ← getMCtx;
-  match mctx.getExprAssignment mvarId with
+  match mctx.getExprAssignment? mvarId with
   | some newE => do
     newE' ← visit main newE;
     modifyCtx $ fun mctx => mctx.assignExpr mvarId newE';
@@ -493,7 +493,7 @@ partial def main : Expr → M Expr
     /- A delayed assignment can be transformed into a regular assignment
        as soon as all metavariables occurring in the assigned value have
        been assigned. -/
-    match mctx.getDelayedAssignment mvarId with
+    match mctx.getDelayedAssignment? mvarId with
     | some d => do
        newE ← instantiateDelayed main mvarId d;
        pure $ newE.getD e
@@ -532,7 +532,7 @@ condM (visit? e) (main e) (pure false)
 | e@(Expr.mdata _ b _)     => visit dep b
 | e@(Expr.app f a _)       => visit dep a <||> if f.isApp then dep f else visit dep f
 | e@(Expr.mvar mvarId _)   =>
-  match mctx.getExprAssignment mvarId with
+  match mctx.getExprAssignment? mvarId with
   | some a => visit dep a
   | none   =>
     let lctx := (mctx.getDecl mvarId).lctx;
@@ -730,7 +730,7 @@ private partial def elimMVarDepsAux : Array Expr → Expr → M Expr
     pure (mkAppRev f revArgs)
 | xs, e@(Expr.mvar mvarId _)   => do
   mctx ← getMCtx;
-  match mctx.getExprAssignment mvarId with
+  match mctx.getExprAssignment? mvarId with
   | some a => visit (elimMVarDepsAux xs) a
   | none   =>
     let mvarDecl  := mctx.getDecl mvarId;
@@ -794,7 +794,7 @@ partial def isWellFormed (mctx : MetavarContext) (lctx : LocalContext) : Expr �
 | Expr.mvar mvarId _       =>
   let mvarDecl := mctx.getDecl mvarId;
   if mvarDecl.lctx.isSubPrefixOf lctx then true
-  else match mctx.getExprAssignment mvarId with
+  else match mctx.getExprAssignment? mvarId with
     | none   => false
     | some v => isWellFormed v
 | Expr.fvar fvarId _       => lctx.contains fvarId

@@ -16,13 +16,13 @@ def isAuxDef? (constName : Name) : MetaM Bool := do
 env ← getEnv; pure (isAuxRecursor env constName || isNoConfusion env constName)
 
 def unfoldDefinition? (e : Expr) : MetaM (Option Expr)  :=
-Lean.WHNF.unfoldDefinitionAux getConstNoEx isAuxDef? whnf inferType isExprDefEq synthPending getLocalDecl getExprMVarAssignment e
+Lean.WHNF.unfoldDefinitionAux getConstNoEx isAuxDef? whnf inferType isExprDefEq synthPending getLocalDecl getExprMVarAssignment? e
 
 def whnfCore (e : Expr) : MetaM Expr :=
-Lean.WHNF.whnfCore getConstNoEx isAuxDef? whnf inferType isExprDefEqAux getLocalDecl getExprMVarAssignment e
+Lean.WHNF.whnfCore getConstNoEx isAuxDef? whnf inferType isExprDefEqAux getLocalDecl getExprMVarAssignment? e
 
 partial def whnfImpl : Expr → MetaM Expr
-| e => Lean.WHNF.whnfEasyCases getLocalDecl getExprMVarAssignment e $ fun e => do
+| e => Lean.WHNF.whnfEasyCases getLocalDecl getExprMVarAssignment? e $ fun e => do
   e ← whnfCore e;
   e? ← unfoldDefinition? e;
   match e? with

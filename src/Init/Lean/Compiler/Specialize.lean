@@ -106,7 +106,7 @@ specExtension.addEntry env (SpecEntry.info fn info)
 
 @[export lean_get_specialization_info]
 def getSpecializationInfo (env : Environment) (fn : Name) : Option SpecInfo :=
-(specExtension.getState env).specInfo.find fn
+(specExtension.getState env).specInfo.find? fn
 
 @[export lean_cache_specialization]
 def cacheSpecialization (env : Environment) (e : Expr) (fn : Name) : Environment :=
@@ -114,7 +114,7 @@ specExtension.addEntry env (SpecEntry.cache e fn)
 
 @[export lean_get_cached_specialization]
 def getCachedSpecialization (env : Environment) (e : Expr) : Option Name :=
-(specExtension.getState env).cache.find e
+(specExtension.getState env).cache.find? e
 
 end Compiler
 end Lean

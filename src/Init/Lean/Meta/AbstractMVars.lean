@@ -60,7 +60,7 @@ private partial def abstractLevelMVars : Level → M Level
   if depth != mctx.depth then pure u -- metavariables from lower depths are treated as constants
   else do
     s ← get;
-    match s.lmap.find mvarId with
+    match s.lmap.find? mvarId with
     | some u => pure u
     | none   => do
       let paramId := mkNameNum `_abstMVar s.nextParamIdx;
@@ -86,7 +86,7 @@ partial def abstractExprMVars : Expr → M Expr
   if decl.depth != mctx.depth then pure e -- metavariables from lower depths are treated as constants
   else do
     s ← get;
-    match s.emap.find mvarId with
+    match s.emap.find? mvarId with
     | some e => pure e
     | none   => do
       type   ← visitExpr abstractExprMVars decl.type;

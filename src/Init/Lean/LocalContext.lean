@@ -95,7 +95,7 @@ match lctx with
 
 @[export lean_local_ctx_find]
 def find? (lctx : LocalContext) (fvarId : FVarId) : Option LocalDecl :=
-lctx.fvarIdToDecl.find fvarId
+lctx.fvarIdToDecl.find? fvarId
 
 def findFVar? (lctx : LocalContext) (e : Expr) : Option LocalDecl :=
 lctx.find? e.fvarId!
@@ -125,7 +125,7 @@ private partial def popTailNoneAux : PArray (Option LocalDecl) → PArray (Optio
 def erase (lctx : LocalContext) (fvarId : FVarId) : LocalContext :=
 match lctx with
 | { fvarIdToDecl := map, decls := decls } =>
-  match map.find fvarId with
+  match map.find? fvarId with
   | none      => lctx
   | some decl => { fvarIdToDecl := map.erase fvarId, decls := popTailNoneAux (decls.set decl.index none) }
 

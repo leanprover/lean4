@@ -918,11 +918,11 @@ fun stx expectedType? => do
 @[builtinTermElab proj] def elabProj : TermElab := elabApp
 @[builtinTermElab arrayRef] def elabArrayRef : TermElab := elabApp
 
-/-
 @[builtinTermElab str] def elabStr : TermElab :=
 fun stx _ => do
-  throw (arbitrary _)
--/
+  match (stx.getArg 0).isStrLit? with
+  | some val => pure $ mkStrLit val
+  | none     => throwError stx.val "ill-formed syntax"
 
 end Term
 

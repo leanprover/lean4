@@ -621,7 +621,7 @@ add_custom_target(clean-stdlib
   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/Init"
   COMMAND find . -name '*.olean' -delete
   COMMAND find . -name '*.depend' -delete
-  COMMAND rm -rf ../stage1 "${CMAKE_BINARY_DIR}/stage*" || true
+  COMMAND rm -rf ../stage1 "${CMAKE_BINARY_DIR}/stage2" "${CMAKE_BINARY_DIR}/stage3" || true
   )
 
 add_custom_target(clean-olean

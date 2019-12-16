@@ -41,13 +41,13 @@ do IO.println TypeArrowType;
 def tst2 : IO Unit :=
 do let m1 : ExprMap Nat := {};
    let m1 := m1.insert exprT1 10;
-   check (m1.find exprT1 == some 10);
-   check (m1.find exprT2 == some 10);
-   check (m1.find exprT3 == none);
+   check (m1.find? exprT1 == some 10);
+   check (m1.find? exprT2 == some 10);
+   check (m1.find? exprT3 == none);
    let m1 := m1.insert exprT4 20;
-   check (m1.find exprT1 == some 10);
-   check (m1.find exprT3 == some 20);
-   IO.println (m1.find exprT1);
+   check (m1.find? exprT1 == some 10);
+   check (m1.find? exprT3 == some 20);
+   IO.println (m1.find? exprT1);
    pure ()
 
 #eval tst2
@@ -55,14 +55,14 @@ do let m1 : ExprMap Nat := {};
 def tst3 : IO Unit :=
 do let m1 : ExprStructMap Nat := {};
    let m1 := m1.insert exprT1 10;
-   check (m1.find exprT1 == some 10);
-   check (m1.find exprT2 == none);
-   check (m1.find exprT3 == none);
+   check (m1.find? exprT1 == some 10);
+   check (m1.find? exprT2 == none);
+   check (m1.find? exprT3 == none);
    let m1 := m1.insert exprT4 20;
-   check (m1.find exprT1 == some 10);
-   check (m1.find exprT4 == some 20);
-   check (m1.find exprT3 == none);
-   IO.println (m1.find exprT1);
+   check (m1.find? exprT1 == some 10);
+   check (m1.find? exprT4 == some 20);
+   check (m1.find? exprT3 == none);
+   IO.println (m1.find? exprT1);
    pure ()
 
 #eval tst3
@@ -70,13 +70,13 @@ do let m1 : ExprStructMap Nat := {};
 def tst4 : IO Unit :=
 do let m1 : PersistentExprMap Nat := {};
    let m1 := m1.insert exprT1 10;
-   check (m1.find exprT1 == some 10);
-   check (m1.find exprT2 == some 10);
-   check (m1.find exprT3 == none);
+   check (m1.find? exprT1 == some 10);
+   check (m1.find? exprT2 == some 10);
+   check (m1.find? exprT3 == none);
    let m1 := m1.insert exprT4 20;
-   check (m1.find exprT1 == some 10);
-   check (m1.find exprT3 == some 20);
-   IO.println (m1.find exprT1);
+   check (m1.find? exprT1 == some 10);
+   check (m1.find? exprT3 == some 20);
+   IO.println (m1.find? exprT1);
    pure ()
 
 #eval tst4
@@ -84,14 +84,14 @@ do let m1 : PersistentExprMap Nat := {};
 def tst5 : IO Unit :=
 do let m1 : PersistentExprStructMap Nat := {};
    let m1 := m1.insert exprT1 10;
-   check (m1.find exprT1 == some 10);
-   check (m1.find exprT2 == none);
-   check (m1.find exprT3 == none);
+   check (m1.find? exprT1 == some 10);
+   check (m1.find? exprT2 == none);
+   check (m1.find? exprT3 == none);
    let m1 := m1.insert exprT4 20;
-   check (m1.find exprT1 == some 10);
-   check (m1.find exprT4 == some 20);
-   check (m1.find exprT3 == none);
-   IO.println (m1.find exprT1);
+   check (m1.find? exprT1 == some 10);
+   check (m1.find? exprT4 == some 20);
+   check (m1.find? exprT3 == none);
+   IO.println (m1.find? exprT1);
    pure ()
 
 #eval tst5

@@ -1,5 +1,5 @@
 phashmap_inst_coherence.lean:11:0: error: type mismatch at application
-  PersistentHashMap.find m
+  PersistentHashMap.find? m
 term
   m
 has type

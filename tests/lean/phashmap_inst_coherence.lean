@@ -8,4 +8,4 @@ def natDiffHash : Hashable Nat :=
 ⟨fun n => USize.ofNat $ n+10⟩
 
 -- The following example should fail since the `Hashable` instance used to create `m` is not `natDiffHash`
-#eval @PersistentHashMap.find Nat Nat _ natDiffHash m 1
+#eval @PersistentHashMap.find? Nat Nat _ natDiffHash m 1

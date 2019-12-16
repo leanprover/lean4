@@ -14,7 +14,7 @@ def check (x : MetaM Bool) : MetaM Unit :=
 unlessM x $ throw $ Exception.other "check failed"
 
 def getAssignment (m : Expr) : MetaM Expr :=
-do v? ← getExprMVarAssignment m.mvarId!;
+do v? ← getExprMVarAssignment? m.mvarId!;
    match v? with
    | some v => pure v
    | none   => throw $ Exception.other "metavariable is not assigned"

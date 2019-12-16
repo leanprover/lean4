@@ -92,5 +92,5 @@ def e3    := R3.1
 def mctx7 := R3.2
 #eval e3
 -- The delayed assignment became a regular one.
-#eval mctx7.getExprAssignment (mkNameNum `n 2)
+#eval mctx7.getExprAssignment? (mkNameNum `n 2)
 #eval toString $ sortNames $ mctx7.dAssignment.toList.map Prod.fst

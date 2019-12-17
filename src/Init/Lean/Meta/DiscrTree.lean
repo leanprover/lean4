@@ -164,7 +164,7 @@ match fn with
   if mvarId == tmpMVarId then
     -- We use `tmp to mark implicit arguments and proofs
     pure (Key.star, todo)
-  else condM (isReadOnlyOrSyntheticExprMVar mvarId)
+  else condM (isReadOnlyOrSyntheticOpaqueExprMVar mvarId)
     (pure (Key.other, todo))
     (pure (Key.star, todo))
 | _                  => pure (Key.other, todo)
@@ -271,7 +271,7 @@ match e.getAppFn with
         the caller assigns `?m` and try again. -/
       pure (Key.star, #[])
     else
-      condM (isReadOnlyOrSyntheticExprMVar mvarId)
+      condM (isReadOnlyOrSyntheticOpaqueExprMVar mvarId)
         (pure (Key.other, #[]))
         (pure (Key.star, #[]))
 | _                  => pure (Key.other, #[])

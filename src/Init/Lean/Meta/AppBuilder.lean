@@ -140,7 +140,7 @@ private partial def mkAppMAux (f : Expr) (xs : Array Expr) : Nat → Array Expr 
   let d  := d.instantiateRevRange j args.size args;
   match c.binderInfo with
   | BinderInfo.implicit     => do mvar ← mkFreshExprMVar d n; mkAppMAux i (args.push mvar) j instMVars b
-  | BinderInfo.instImplicit => do mvar ← mkFreshExprMVar d n true; mkAppMAux i (args.push mvar) j (instMVars.push mvar.mvarId!) b
+  | BinderInfo.instImplicit => do mvar ← mkFreshExprMVar d n MetavarKind.synthetic; mkAppMAux i (args.push mvar) j (instMVars.push mvar.mvarId!) b
   | _ =>
     if h : i < xs.size then do
       let x := xs.get ⟨i, h⟩;

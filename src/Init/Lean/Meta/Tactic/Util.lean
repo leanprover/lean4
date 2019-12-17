@@ -9,8 +9,8 @@ import Init.Lean.Meta.Basic
 namespace Lean
 namespace Meta
 
-def mkFreshExprSyntheticMVar (type : Expr) (userName : Name := Name.anonymous) : MetaM Expr :=
-mkFreshExprMVar type userName true
+def mkFreshExprSyntheticOpaqueMVar (type : Expr) (userName : Name := Name.anonymous) : MetaM Expr :=
+mkFreshExprMVar type userName MetavarKind.syntheticOpaque
 
 def checkNotAssigned (mvarId : MVarId) (tacticName : String) : MetaM Unit :=
 whenM (isExprMVarAssigned mvarId) $

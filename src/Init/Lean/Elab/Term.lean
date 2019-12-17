@@ -174,10 +174,10 @@ def unfoldDefinition? (ref : Syntax) (e : Expr) : TermElabM (Option Expr) := lif
 def instantiateMVars (ref : Syntax) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.instantiateMVars e
 def isClass (ref : Syntax) (t : Expr) : TermElabM (Option Name) := liftMetaM ref $ Meta.isClass t
 def mkFreshLevelMVar (ref : Syntax) : TermElabM Level := liftMetaM ref $ Meta.mkFreshLevelMVar
-def mkFreshExprMVar (ref : Syntax) (type? : Option Expr := none) (synthetic : Bool := false) (userName? : Name := Name.anonymous) : TermElabM Expr :=
+def mkFreshExprMVar (ref : Syntax) (type? : Option Expr := none) (kind : MetavarKind := MetavarKind.natural) (userName? : Name := Name.anonymous) : TermElabM Expr :=
 match type? with
-| some type => liftMetaM ref $ Meta.mkFreshExprMVar type userName? synthetic
-| none      => liftMetaM ref $ do u ← Meta.mkFreshLevelMVar; Meta.mkFreshExprMVar (mkSort u) userName? synthetic
+| some type => liftMetaM ref $ Meta.mkFreshExprMVar type userName? kind
+| none      => liftMetaM ref $ do u ← Meta.mkFreshLevelMVar; Meta.mkFreshExprMVar (mkSort u) userName? kind
 def getLevel (ref : Syntax) (type : Expr) : TermElabM Level := liftMetaM ref $ Meta.getLevel type
 def mkForall (ref : Syntax) (xs : Array Expr) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.mkForall xs e
 def trySynthInstance (ref : Syntax) (type : Expr) : TermElabM (LOption Expr) := liftMetaM ref $ Meta.trySynthInstance type
@@ -620,7 +620,7 @@ private partial def elabAppArgsAux (ref : Syntax) (args : Array Arg) (expectedTy
           a ← mkFreshExprMVar ref d;
           elabAppArgsAux argIdx namedArgs instMVars (b.instantiate1 a) (mkApp e a)
         | BinderInfo.instImplicit => do
-          a ← mkFreshExprMVar ref d true;
+          a ← mkFreshExprMVar ref d MetavarKind.synthetic;
           let mvarId := a.mvarId!;
           registerSyntheticMVar ref mvarId SyntheticMVarKind.typeClass;
           elabAppArgsAux argIdx namedArgs (instMVars.push mvarId) (b.instantiate1 a) (mkApp e a)

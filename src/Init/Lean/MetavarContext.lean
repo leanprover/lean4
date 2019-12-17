@@ -219,16 +219,25 @@ i₁.fvar == i₂.fvar
 
 instance LocalInstance.hasBeq : HasBeq LocalInstance := ⟨LocalInstance.beq⟩
 
+inductive MetavarKind
+| natural
+| synthetic
+| syntheticOpaque
+
+def MetavarKind.isSyntheticOpaque : MetavarKind → Bool
+| MetavarKind.syntheticOpaque => true
+| _                           => false
+
 structure MetavarDecl :=
 (userName       : Name := Name.anonymous)
 (lctx           : LocalContext)
 (type           : Expr)
 (depth          : Nat)
 (localInstances : LocalInstances)
-(synthetic      : Bool)
+(kind           : MetavarKind)
 
 namespace MetavarDecl
-instance : Inhabited MetavarDecl := ⟨{ lctx := arbitrary _, type := arbitrary _, depth := 0, localInstances := #[], synthetic := false }⟩
+instance : Inhabited MetavarDecl := ⟨{ lctx := arbitrary _, type := arbitrary _, depth := 0, localInstances := #[], kind := MetavarKind.natural }⟩
 end MetavarDecl
 
 /--
@@ -265,14 +274,14 @@ def addExprMVarDecl (mctx : MetavarContext)
     (userName : Name)
     (lctx : LocalContext)
     (localInstances : LocalInstances)
-    (type : Expr) (synthetic : Bool := false) : MetavarContext :=
+    (type : Expr) (kind : MetavarKind := MetavarKind.natural) : MetavarContext :=
 { decls := mctx.decls.insert mvarId {
     userName       := userName,
     lctx           := lctx,
     localInstances := localInstances,
     type           := type,
     depth          := mctx.depth,
-    synthetic      := synthetic },
+    kind           := kind },
   .. mctx }
 
 /- Low level API for adding/declaring universe level metavariable declarations.
@@ -723,10 +732,10 @@ mkForall
 private def mkMVarApp (lctx : LocalContext) (mvar : Expr) (xs : Array Expr) : Expr :=
 xs.foldl (fun e x => if (lctx.getFVar! x).isLet then e else mkApp e x) mvar
 
-private def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (synthetic : Bool) : M MVarId := do
+private def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (kind : MetavarKind) : M MVarId := do
 s ← get;
 let mvarId := s.ngen.curr;
-modify $ fun s => { mctx := s.mctx.addExprMVarDecl mvarId Name.anonymous lctx localInsts type synthetic, ngen := s.ngen.next, .. s };
+modify $ fun s => { mctx := s.mctx.addExprMVarDecl mvarId Name.anonymous lctx localInsts type kind, ngen := s.ngen.next, .. s };
 pure mvarId
 
 private partial def elimMVarDepsAux : Array Expr → Expr → M Expr
@@ -762,13 +771,12 @@ private partial def elimMVarDepsAux : Array Expr → Expr → M Expr
         let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert;
         let newLocalInsts := mvarDecl.localInstances.filter $ fun inst => toRevert.all $ fun x => inst.fvar != x;
         newMVarType ← mkForallAux (fun xs e => elimMVarDepsAux xs e) mvarLCtx toRevert mvarDecl.type;
-        newMVarId   ← mkAuxMVar newMVarLCtx newLocalInsts newMVarType mvarDecl.synthetic;
+        newMVarId   ← mkAuxMVar newMVarLCtx newLocalInsts newMVarType mvarDecl.kind;
         let newMVar := mkMVar newMVarId;
         let result  := mkMVarApp mvarLCtx newMVar toRevert;
-        if mvarDecl.synthetic then
-          modify (fun s => { mctx := assignDelayed s.mctx newMVarId mvarLCtx toRevert e, .. s })
-        else
-          modify (fun s => { mctx := assignExpr s.mctx mvarId result, .. s });
+        match mvarDecl.kind with
+        | MetavarKind.syntheticOpaque => modify $ fun s => { mctx := assignDelayed s.mctx newMVarId mvarLCtx toRevert e, .. s }
+        | _                           => modify $ fun s => { mctx := assignExpr s.mctx mvarId result, .. s };
         pure result
 | xs, e => pure e
 

@@ -143,6 +143,9 @@ add_test(lean_ghash2   "${CMAKE_CURRENT_BINARY_DIR}/lean" --githash)
 # add_test(lean_new_frontend "${LEAN_SOURCE_DIR}/../bin/lean" --new-frontend "${LEAN_SOURCE_DIR}/Init/Core.lean")
 add_test(lean_unknown_option bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "-z")
 add_test(lean_unknown_file1 bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lean")
+add_test(NAME lean_test_main_error
+         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/run"
+         COMMAND bash "${LEAN_SOURCE_DIR}/cmake/check_main.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "print_error.lean")
 if (NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
   # The following test cannot be executed on Windows because of the
   # bash script timeout.sh

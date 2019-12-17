@@ -2,7 +2,7 @@ import Init.Lean.MetavarContext
 open Lean
 
 def check (b : Bool) : IO Unit :=
-unless b (throw "error")
+unless b (throw $ IO.userError "error")
 
 def f := mkConst `f []
 def g := mkConst `g []

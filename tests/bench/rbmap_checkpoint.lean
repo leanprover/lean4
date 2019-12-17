@@ -82,9 +82,8 @@ def myLen : List Tree → Nat → Nat
 | _ :: xs,   r => myLen xs r
 | [], r => r
 
-def main (xs : List String) : IO UInt32 :=
-do
-[n, freq] ← pure xs | throw "invalid input";
+def main (xs : List String) : IO UInt32 := do
+[n, freq] ← pure xs | throw $ IO.userError "invalid input";
 let n     := n.toNat;
 let freq  := freq.toNat;
 let freq  := if freq == 0 then 1 else freq;

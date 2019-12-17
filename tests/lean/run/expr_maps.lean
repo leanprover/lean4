@@ -18,7 +18,7 @@ def exprT3          := mkLambda `x biDef exprNat (mkApp (mkConst `f []) (mkBVar 
 def exprT4          := mkLambda `x BinderInfo.implicit exprNat (mkApp (mkConst `f []) (mkBVar 0))
 
 def check (b : Bool) : IO Unit :=
-unless b (throw "failed")
+unless b (throw $ IO.userError "failed")
 
 def tst1 : IO Unit :=
 do IO.println TypeArrowType;

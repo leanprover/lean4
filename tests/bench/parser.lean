@@ -6,4 +6,4 @@ def main : List String → IO Unit
   n.toNat.forM $ fun _ =>
     Lean.Parser.parseFile env fname *> pure ();
   pure ()
-| _    => throw "give file"
+| _    => throw $ IO.userError "give file"

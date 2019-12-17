@@ -1600,3 +1600,18 @@ end
 
 end Syntax
 end Lean
+
+section
+variables {β : Type} {m : Type → Type} [Monad m]
+open Lean
+open Lean.Syntax
+
+@[inline] def Array.foldSepByM (args : Array Syntax) (f : Syntax → β → m β) (b : β) : m β :=
+foldArgsAuxM 2 args f 0 b
+
+@[inline] def Array.foldSepBy (args : Array Syntax) (f : Syntax → β → β) (b : β) : β :=
+Id.run $ args.foldSepByM f b
+
+@[inline] def Array.getEvenElems (args : Array Syntax) : Array Syntax :=
+args.foldSepBy (fun a as => Array.push as a) #[]
+end

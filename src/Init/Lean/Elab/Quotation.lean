@@ -68,9 +68,9 @@ stx.isOfKind `Lean.Parser.Term.antiquot && (stx.getArg 3).getOptional.isSome
 private def isAntiquotSplicePat (stx : Syntax) : Bool :=
 stx.isOfKind nullKind && stx.getArgs.size == 1 && isAntiquotSplice (stx.getArg 0)
 
--- Elaborate the content of a syntax quotation term. Also tracks the level of quotation/antiquotation nesting.
-private partial def quoteSyntax (env : Environment) : Nat → Syntax → TermElabM Syntax
-| _, Syntax.ident info rawVal val preresolved => do
+-- Elaborate the content of a syntax quotation term
+private partial def quoteSyntax (env : Environment) : Syntax → TermElabM Syntax
+| Syntax.ident info rawVal val preresolved => do
   -- Add global scopes at compilation time (now), add macro scope at runtime (in the quotation).
   -- See the paper for details.
   currNamespace ← getCurrNamespace;
@@ -82,27 +82,23 @@ private partial def quoteSyntax (env : Environment) : Nat → Syntax → TermEla
   let args := quote preresolved;
   -- TODO: simplify quotations when we're no longer limited by name resolution in the old frontend
   `(Lean.Syntax.ident Option.none (String.toSubstring %%(Lean.mkStxStrLit (HasToString.toString rawVal))) %%val %%args)
-| 0, stx@(Syntax.node `Lean.Parser.Term.antiquot _) => -- top-level antiquotation
-  -- splices must occur in a `many` node
-  if isAntiquotSplice stx then throwError stx "unexpected antiquotation splice"
-  else pure $ stx.getArg 1
-| lvl, stx@(Syntax.node k args) =>
-  if lvl == 0 && isAntiquotSplicePat stx then
+-- if antiquotation, insert contents as-is, else recurse
+| stx@(Syntax.node k args) =>
+  if k == `Lean.Parser.Term.antiquot then
+    -- splices must occur in a `many` node
+    if isAntiquotSplice stx then throwError stx "unexpected antiquotation splice"
+    else pure $ stx.getArg 1
+  else if isAntiquotSplicePat stx then
     -- top-level antiquotation splice pattern: inject args array
     let quoted := (args.get! 0).getArg 1;
     `(Lean.Syntax.node Lean.nullKind %%quoted)
   else do
-    -- adjust nesting level and recurse
-    let lvl := match k with
-      | `Lean.Parser.Term.stxQuot => lvl + 1
-      | `Lean.Parser.Term.antiquot => lvl - 1
-      | _ => lvl;
     let k := quote k;
-    args ← quote <$> args.mapM (quoteSyntax lvl);
+    args ← quote <$> args.mapM quoteSyntax;
     `(Lean.Syntax.node %%k %%args)
-| _, Syntax.atom info val =>
+| Syntax.atom info val =>
   `(Lean.Syntax.atom Option.none %%(Lean.mkStxStrLit val))
-| _, Syntax.missing => unreachable!
+| Syntax.missing => unreachable!
 
 def stxQuot.expand (env : Environment) (stx : Syntax) : TermElabM Syntax := do
 let quoted := stx.getArg 1;

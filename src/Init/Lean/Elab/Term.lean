@@ -125,7 +125,7 @@ def getCurrNamespace : TermElabM Name := do ctx ← read; pure ctx.currNamespace
 def getOpenDecls : TermElabM (List OpenDecl) := do ctx ← read; pure ctx.openDecls
 def getLCtx : TermElabM LocalContext := do ctx ← read; pure ctx.lctx
 def getLocalInsts : TermElabM LocalInstances := do ctx ← read; pure ctx.localInstances
-def getOptions : TermElabM Options       := do ctx ← read; pure ctx.config.opts
+def getOptions : TermElabM Options := do ctx ← read; pure ctx.config.opts
 def getTraceState : TermElabM TraceState := do s ← get; pure s.traceState
 def setTraceState (traceState : TraceState) : TermElabM Unit := modify $ fun s => { traceState := traceState, .. s }
 def isExprMVarAssigned (mvarId : MVarId) : TermElabM Bool := do mctx ← getMCtx; pure $ mctx.isExprAssigned mvarId

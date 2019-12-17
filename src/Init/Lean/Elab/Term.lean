@@ -17,15 +17,15 @@ namespace Elab
 namespace Term
 
 structure Context extends Meta.Context :=
-(fileName      : String)
-(fileMap       : FileMap)
-(cmdPos        : String.Pos)
-(currNamespace : Name)
-(univNames     : List Name := [])
-(openDecls     : List OpenDecl := [])
-(macroStack    : List Syntax := [])
+(fileName        : String)
+(fileMap         : FileMap)
+(cmdPos          : String.Pos)
+(currNamespace   : Name)
+(univNames       : List Name := [])
+(openDecls       : List OpenDecl := [])
+(macroStack      : List Syntax := [])
 (macroScopeStack : List MacroScope := [0])
-(mayPostpone   : Bool := true)
+(mayPostpone     : Bool := true)
 
 inductive SyntheticMVarKind
 | typeClass
@@ -1101,6 +1101,8 @@ fun stx expectedType? => do
 @[builtinTermElab choice] def elabChoice : TermElab := elabApp
 @[builtinTermElab proj] def elabProj : TermElab := elabApp
 @[builtinTermElab arrayRef] def elabArrayRef : TermElab := elabApp
+@[builtinTermElab cdot] def elabBadCDot : TermElab :=
+fun stx _ => throwError stx.val "invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)"
 
 @[builtinTermElab str] def elabStr : TermElab :=
 fun stx _ => do

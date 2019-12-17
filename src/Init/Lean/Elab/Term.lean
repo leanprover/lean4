@@ -203,6 +203,10 @@ match u? with
 | some u => pure u
 | none   => throwError ref ("invalid universe level, " ++ u ++ " is not greater than 0")
 
+/- Elaborate `x` with `stx` on the macro stack -/
+@[inline] def withMacro {α} (stx : Syntax) (x : TermElabM α) : TermElabM α :=
+adaptReader (fun (ctx : Context) => { macroStack := stx :: ctx.macroStack, .. ctx }) x
+
 def registerSyntheticMVar (ref : Syntax) (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit :=
 modify $ fun s => { syntheticMVars := { mvarId := mvarId, ref := ref, kind := kind } :: s.syntheticMVars, .. s }
 

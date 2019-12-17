@@ -2,12 +2,26 @@
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
+
+Elaboration of syntax quotations as terms and patterns (in `match_syntax`). Quotation terms are auto-hygienic by
+mangling identifiers introduced by them with a "macro scope" supplied by the context. Details to appear in a
+paper.
 -/
 prelude
 import Init.Lean.Syntax
 import Init.Lean.Elab.ResolveName
 import Init.Lean.Elab.Term
 import Init.Lean.Parser -- TODO: remove after removing old elaborator
+
+/- TODO
+
+Quotations are currently integrated hackily into the old frontend. This implies the following restrictions:
+* quotations have to fit in a single line, because that's how the old scanner works :)
+* no namespace information: references to constants must use full names
+* antiquotation terms have to be trivial (locals, fully-qualified consts, and apps (no projections), basically)
+
+After removing the old frontend, quotations in this and other files should be cleaned up.
+-/
 
 namespace Lean
 
@@ -46,28 +60,40 @@ instance Array.HasQuote {α : Type} [HasQuote α] : HasQuote (Array α) :=
 namespace Elab
 namespace Term
 
+-- `%%e*` is an antiquotation "splice" matching an arbitrary number of syntax nodes
+private def isAntiquotSplice (stx : Syntax) : Bool :=
+stx.isOfKind `Lean.Parser.Term.antiquot && (stx.getArg 3).getOptional.isSome
+
+-- If an antiquotation splice is the sole item of a `many` node, its result should
+-- be substituted for the `many` node
+private def isAntiquotSplicePat (stx : Syntax) : Bool :=
+stx.isOfKind nullKind && stx.getArgs.size == 1 && isAntiquotSplice (stx.getArg 0)
+
+-- Elaborate the content of a syntax quotation term. Also tracks the level of quotation/antiquotation nesting.
 private partial def quoteSyntax (env : Environment) : Nat → Syntax → TermElabM Syntax
 | _, Syntax.ident info rawVal val preresolved => do
-  -- TODO: pass scope information
-  let ns := Name.anonymous;
-  let openDecls := [];
-  let preresolved := resolveGlobalName env ns openDecls val <|> preresolved;
+  -- Add global scopes at compilation time (now), add macro scope at runtime (in the quotation).
+  -- See the paper for details.
+  currNamespace ← getCurrNamespace;
+  openDecls     ← getOpenDecls;
+  let preresolved := resolveGlobalName env currNamespace openDecls val ++ preresolved;
   let val := quote val;
   -- `scp` is bound in stxQuot.expand
   val ← `(Lean.addMacroScope %%val scp);
   let args := quote preresolved;
+  -- TODO: simplify quotations when we're no longer limited by name resolution in the old frontend
   `(Lean.Syntax.ident Option.none (String.toSubstring %%(Lean.mkStxStrLit (HasToString.toString rawVal))) %%val %%args)
-| 0, Syntax.node `Lean.Parser.Term.antiquot args =>
-  if (args.get! 3).getArgs.size == 1 then throwError (args.get! 3) "unexpected antiquotation splice"
-  else pure $ args.get! 1
-| lvl, Syntax.node k args =>
-  -- %%id* splice
-  -- TODO: Can this be cleaned up using match_syntax?
-  if k == nullKind && lvl == 0 && args.size == 1 && (args.get! 0).isOfKind `Lean.Parser.Term.antiquot &&
-    ((args.get! 0).getArg 3).getArgs.size == 1 then
+| 0, stx@(Syntax.node `Lean.Parser.Term.antiquot _) => -- top-level antiquotation
+  -- splices must occur in a `many` node
+  if isAntiquotSplice stx then throwError stx "unexpected antiquotation splice"
+  else pure $ stx.getArg 1
+| lvl, stx@(Syntax.node k args) =>
+  if lvl == 0 && isAntiquotSplicePat stx then
+    -- top-level antiquotation splice pattern: inject args array
     let quoted := (args.get! 0).getArg 1;
-    `(Lean.Syntax.node Lean.Syntax.nullKind %%quoted)
+    `(Lean.Syntax.node Lean.nullKind %%quoted)
   else do
+    -- adjust nesting level and recurse
     let lvl := match k with
       | `Lean.Parser.Term.stxQuot => lvl + 1
       | `Lean.Parser.Term.antiquot => lvl - 1
@@ -81,7 +107,10 @@ private partial def quoteSyntax (env : Environment) : Nat → Syntax → TermEla
 
 def stxQuot.expand (env : Environment) (stx : Syntax) : TermElabM Syntax := do
 let quoted := stx.getArg 1;
--- `(do msc ← getCurrMacroScope; pure %(quoteSyntax env 0 quoted))
+-- Syntax quotations are monadic values depending on the current macro scope. For efficiency, we bind
+-- the macro scope once for each quotation, then build the syntax tree in a completely pure computation
+-- depending on this binding.
+-- TODO: simplify to `(do scp ← getCurrMacroScope; pure %%(quoteSyntax env 0 quoted))
 stx ← quoteSyntax env 0 quoted;
 `(HasBind.bind Lean.MonadQuotation.getCurrMacroScope (fun scp => HasPure.pure %%stx))
 
@@ -91,27 +120,34 @@ fun stx expectedType? => do
   stx ← stxQuot.expand env (stx.getArg 1);
   elabTerm stx expectedType?
 
+/- match_syntax -/
+
+-- an "alternative" of patterns plus right-hand side
 private abbrev Alt := List Syntax × Syntax
 
+-- If `pat` is an unconditional pattern, return a transformation of the RHS that appropriately introduces
+-- bindings on the RHS.
 private def isVarPat? (pat : Syntax) : Option (Syntax → TermElabM Syntax) :=
+-- TODO: reimplement using match_syntax
 if pat.isOfKind `Lean.Parser.Term.id then some $ fun rhs => `(let %%pat := discr; %%rhs)
 else if pat.isOfKind `Lean.Parser.Term.hole then some pure
 else if pat.isOfKind `Lean.Parser.Term.stxQuot then
   let quoted := pat.getArg 1;
+  -- We assume that atoms are uniquely determined by the surrounding node and never have to be checked
   if quoted.isAtom then some pure
   -- TODO: antiquotations with kinds (`%%id:id`) probably can't be handled as unconditional patterns
   else if quoted.isOfKind `Lean.Parser.Term.antiquot then
     let anti := quoted.getArg 1;
-    if (quoted.getArg 3).getArgs.size == 1 then some $ fun _ => throwError quoted "unexpected antiquotation splice"
+    if isAntiquotSplice quoted then some $ fun _ => throwError quoted "unexpected antiquotation splice"
     else if anti.isOfKind `Lean.Parser.Term.id then some $ fun rhs => `(let %%anti := discr; %%rhs)
     else unreachable!
-  else if quoted.isOfKind nullKind && quoted.getArgs.size == 1 && (quoted.getArg 0).isOfKind `Lean.Parser.Term.antiquot &&
-    ((quoted.getArg 0).getArg 3).getArgs.size == 1 then
+  else if isAntiquotSplicePat quoted then
     let anti := (quoted.getArg 0).getArg 1;
     some $ fun rhs => `(let %%anti := Lean.Syntax.getArgs discr; %%rhs)
   else none
 else none
 
+-- If the first pattern of the alternative is a conditional pattern, return the node we should match against
 private def altNextNode? : Alt → Option SyntaxNode
 | (pat::_, _) =>
   if (isVarPat? pat).isNone && pat.isOfKind `Lean.Parser.Term.stxQuot then
@@ -120,9 +156,14 @@ private def altNextNode? : Alt → Option SyntaxNode
   else none
 | _ => none
 
+-- Assuming that the first pattern of the alternative is taken, replace it with patterns (if any) for its
+-- child nodes.
+-- Ex: `(%%a + (- %%b)) => `(%%a), `(+), `(- %%b)
+-- Note: The atom pattern `(+) will be discarded in a later step
 private def explodeHeadPat (numArgs : Nat) : Alt → TermElabM Alt
 | (pat::pats, rhs) => match isVarPat? pat with
   | some fnRhs => do
+    -- unconditional pattern: replace with appropriate number of wildcards
     newPat ← `(_);
     let newPats := List.replicate numArgs newPat;
     rhs ← fnRhs rhs;
@@ -135,29 +176,37 @@ private def explodeHeadPat (numArgs : Nat) : Alt → TermElabM Alt
     else throwError pat $ "unsupported `syntax_match` pattern kind " ++ toString pat.getKind
 | _ => unreachable!
 
+-- The "shape" is the information that should be compared in a single matching step. Currently, it is the node kind
+-- and its arity (which is not constant in the case of `many` nodes)
 private def nodeShape (n : SyntaxNode) : SyntaxNodeKind × Nat :=
 (n.getKind, n.getArgs.size)
 
 private partial def compileStxMatch (ref : Syntax) : List Syntax → List Alt → TermElabM Syntax
-| [],            ([], rhs)::_ => pure rhs
+| [],            ([], rhs)::_ => pure rhs  -- nothing left to match
 | _,             []           => throwError ref "non-exhaustive 'match_syntax'"
 | discr::discrs, alts         =>
   match alts.findSome? altNextNode? with
+  -- at least one conditional pattern: introduce an `if` for it and recurse
   | some node => do
     let shape := nodeShape node;
+    -- introduce pattern matches on the discriminant's children
     newDiscrs ← (List.range node.getArgs.size).mapM $ fun i => `(Lean.Syntax.getArg discr %%(Lean.HasQuote.quote i));
+    -- collect matching alternatives and explode them
     let yesAlts := alts.filter $ fun alt => match altNextNode? alt with some n => nodeShape n == shape | none => true;
     yesAlts ← yesAlts.mapM $ explodeHeadPat node.getArgs.size;
+    -- non-matching alternatives are left as-is
+    -- NOTE: unconditional patterns must go into both `yesAlts` and `noAlts`
     let noAlts  := alts.filter $ fun alt => match altNextNode? alt with some n => nodeShape n != shape | none => true;
+    -- NOTE: use fresh macro scopes for recursion so that different `discr`s introduced by the quotation below do not collide
     yes ← withFreshMacroScope $ compileStxMatch (newDiscrs ++ discrs) yesAlts;
-    no ← withFreshMacroScope $ compileStxMatch (discr::discrs) noAlts;
-    `(let discr := %%discr; if Lean.Syntax.isOfKind discr %%(Lean.HasQuote.quote (Prod.fst shape)) then %%yes else %%no)
+    no  ← withFreshMacroScope $ compileStxMatch (discr::discrs) noAlts;
+    `(let discr := %%discr; if Lean.Syntax.isOfKind discr %%(Lean.HasQuote.quote (Prod.fst shape)) && Array.size (Lean.Syntax.getArgs discr) == %%(Lean.HasQuote.quote (Prod.snd shape)) then %%yes else %%no)
+  -- only unconditional patterns: introduce binds and discard patterns
   | none => do
     alts ← alts.mapM $ explodeHeadPat 0;
     res ← withFreshMacroScope $ compileStxMatch discrs alts;
     `(let discr := %%discr; %%res)
---| _, _ => unreachable!
-| discrs, alts => throwError ref $ toString (discrs, alts)
+| _, _ => unreachable!
 
 private partial def getAntiquotVarsAux : Syntax → TermElabM (List Syntax)
 | Syntax.node `Lean.Parser.Term.antiquot args =>
@@ -168,28 +217,33 @@ private partial def getAntiquotVarsAux : Syntax → TermElabM (List Syntax)
   List.join <$> args.toList.mapM getAntiquotVarsAux
 | _ => pure []
 
+-- Get all antiquotations (as Term.id nodes) in `stx`
 private partial def getAntiquotVars (stx : Syntax) : TermElabM (List Syntax) :=
 if stx.isOfKind `Lean.Parser.Term.stxQuot then do
   let quoted := stx.getArg 1;
   getAntiquotVarsAux stx
 else pure []
 
+-- Transform alternatives by binding all right-hand sides to outside the match_syntax in order to prevent
+-- code duplication during match_syntax compilation
 private def letBindRhss (cont : List Alt → TermElabM Syntax) : List Alt → List Alt → TermElabM Syntax
 | [],                altsRev' => cont altsRev'.reverse
 | (pats, rhs)::alts, altsRev' => do
   vars ← List.join <$> pats.mapM getAntiquotVars;
   match vars with
+  -- no antiquotations => introduce Unit parameter to preserve evaluation order
   | [] => do
+    -- NOTE: references binding below
     rhs' ← `(rhs ());
-    cont ← withFreshMacroScope $ letBindRhss alts ((pats, rhs')::altsRev');
-    `(let rhs := fun _ => %%rhs; %%cont)
+    -- NOTE: new macro scope so that introduced bindings do not collide
+    stx ← withFreshMacroScope $ letBindRhss alts ((pats, rhs')::altsRev');
+    `(let rhs := fun _ => %%rhs; %%stx)
   | _ => do
-    -- rhs ← `(fun %%vars... => %%rhs)
+    -- rhs ← `(fun %%vars* => %%rhs)
     let rhs := Syntax.node `Lean.Parser.Term.fun #[mkAtom "fun", Syntax.node `null vars.toArray, mkAtom "=>", rhs];
-    -- rhs' ← `(rhs %%vars...);
     rhs' ← `(rhs);
-    cont ← withFreshMacroScope $ letBindRhss alts ((pats, rhs')::altsRev');
-    `(let rhs := %%rhs; %%cont)
+    stx ← withFreshMacroScope $ letBindRhss alts ((pats, rhs')::altsRev');
+    `(let rhs := %%rhs; %%stx)
 
 def match_syntax.expand (stx : SyntaxNode) : TermElabM Syntax := do
 let discr := stx.getArg 1;

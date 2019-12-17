@@ -30,6 +30,7 @@ inductive SyntheticMVarKind
 | typeClass
 | tactic (tacticCode : Syntax)
 | postponed (macroStack : List Syntax)
+| withDefault (defaultVal : Expr)
 
 structure SyntheticMVarDecl :=
 (mvarId : MVarId) (ref : Syntax) (kind : SyntheticMVarKind)

@@ -8,7 +8,7 @@ match MetavarContext.mkLambda xs e lctx { mctx := mctx, ngen := ngen } with
 | EStateM.Result.error e s => Except.error e
 
 def check (b : Bool) : IO Unit :=
-unless b (throw "error")
+unless b (throw $ IO.userError "error")
 
 def f := mkConst `f
 def g := mkConst `g

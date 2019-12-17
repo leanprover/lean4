@@ -6,6 +6,8 @@ Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich
 prelude
 import Init.Control.EState
 import Init.Data.String.Basic
+import Init.Data.ByteArray
+import Init.System.IOError
 import Init.System.FilePath
 
 /-- Like https://hackage.haskell.org/package/ghc-Prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld.
@@ -36,22 +38,6 @@ instance (ε : Type) : MonadExcept ε (EIO ε) := inferInstanceAs (MonadExcept �
 instance (α ε : Type) : HasOrelse (EIO ε α) := ⟨MonadExcept.orelse⟩
 instance {ε : Type} {α : Type} [Inhabited ε] : Inhabited (EIO ε α) :=
 inferInstanceAs (Inhabited (EStateM ε IO.RealWorld α))
-
-/-
-In the future, we may want to give more concrete data
-like in https://doc.rust-lang.org/std/IO/enum.ErrorKind.html
--/
-def IO.Error := String
-
-instance : HasToString IO.Error := inferInstanceAs (HasToString String)
-instance : Inhabited IO.Error := inferInstanceAs (Inhabited String)
-
-def IO.userError (s : String) : IO.Error :=
-s
-
-@[export lean_io_error_to_string]
-def IO.Error.toString : IO.Error → String :=
-id
 
 abbrev IO : Type → Type := EIO IO.Error
 
@@ -96,17 +82,28 @@ pure (fn ())
 inductive FS.Mode
 | read | write | readWrite | append
 
-constant FS.handle : Type := Unit
+constant FS.Handle : Type := Unit
 
 namespace Prim
 open FS
 
 @[specialize] partial def iterate {α β : Type} : α → (α → IO (Sum α β)) → IO β
-| a, f =>
-  do v ← f a;
+| a, f => do
+  v ← f a;
   match v with
   | Sum.inl a => iterate a f
   | Sum.inr b => pure b
+
+-- @[export lean_fopen_flags]
+def fopenFlags (m : FS.Mode) (b : Bool) : String :=
+let mode :=
+  match m with
+  | FS.Mode.read      => "r"
+  | FS.Mode.write     => "w"
+  | FS.Mode.readWrite => "r+"
+  | FS.Mode.append    => "a" ;
+let bin := if b then "b" else "t";
+mode ++ bin
 
 @[extern "lean_io_prim_put_str"]
 constant putStr (s: @& String) : IO Unit := arbitrary _
@@ -115,18 +112,26 @@ constant readTextFile (s : @& String) : IO String := arbitrary _
 @[extern "lean_io_prim_get_line"]
 constant getLine : IO String := arbitrary _
 @[extern "lean_io_prim_handle_mk"]
-constant handle.mk (s : @& String) (m : Mode) (bin : Bool := false) : IO handle := arbitrary _
+constant Handle.mk (s : @& String) (mode : @& String) : IO Handle := arbitrary _
 @[extern "lean_io_prim_handle_is_eof"]
-constant handle.isEof (h : @& handle) : IO Bool := arbitrary _
+constant Handle.isEof (h : @& Handle) : IO Bool := arbitrary _
 @[extern "lean_io_prim_handle_flush"]
-constant handle.flush (h : @& handle) : IO Unit := arbitrary _
-@[extern "lean_io_prim_handle_close"]
-constant handle.close (h : @& handle) : IO Unit := arbitrary _
+constant Handle.flush (h : @& Handle) : IO Unit := arbitrary _
 -- TODO: replace `String` with byte buffer
--- constant handle.read : handle → Nat → EIO String
--- constant handle.write : handle → String → EIO Unit
+@[extern "lean_io_prim_handle_read"]
+constant Handle.read  (h : @& Handle) (bytes : USize) : IO ByteArray := arbitrary _
+@[extern "lean_io_prim_handle_write"]
+constant Handle.write (h : @& Handle) (buffer : @& ByteArray) : IO Unit := arbitrary _
+
+@[extern "lean_io_prim_handle_read_byte"]
+constant Handle.getByte  (h : @& Handle) : IO UInt8 := arbitrary _
+@[extern "lean_io_prim_handle_write_byte"]
+constant Handle.putByte (h : @& Handle) (c : UInt8) : IO Unit := arbitrary _
+
 @[extern "lean_io_prim_handle_get_line"]
-constant handle.getLine (h : @& handle) : IO String := arbitrary _
+constant Handle.getLine (h : @& Handle) : IO String := arbitrary _
+@[extern "lean_io_prim_handle_put_str"]
+constant Handle.putStr (h : @& Handle) (s : @& String) : IO Unit := arbitrary _
 
 @[extern "lean_io_getenv"]
 constant getEnv (var : @& String) : IO (Option String) := arbitrary _
@@ -167,31 +172,33 @@ end
 namespace FS
 variables {m : Type → Type} [Monad m] [MonadIO m]
 
-def handle.mk (s : String) (Mode : Mode) (bin : Bool := false) : m handle := Prim.liftIO (Prim.handle.mk s Mode bin)
-def handle.isEof : handle → m Bool := Prim.liftIO ∘ Prim.handle.isEof
-def handle.flush : handle → m Unit := Prim.liftIO ∘ Prim.handle.flush
-def handle.close : handle → m Unit := Prim.liftIO ∘ Prim.handle.flush
--- def handle.read (h : handle) (bytes : Nat) : m String := Prim.liftEIO (Prim.handle.read h bytes)
--- def handle.write (h : handle) (s : String) : m Unit := Prim.liftEIO (Prim.handle.write h s)
-def handle.getLine : handle → m String := Prim.liftIO ∘ Prim.handle.getLine
+def Handle.mk (s : String) (Mode : Mode) (bin : Bool := false) : m Handle :=
+Prim.liftIO (Prim.Handle.mk s (Prim.fopenFlags Mode bin))
 
-/-
-def getChar (h : handle) : m Char := do
-b ← h.read 1,
-if b.isEmpty then fail "getChar failed"
-else pure b.mkIterator.curr
+@[inline]
+def withFile {α} (fn : String) (m : Mode) (f : Handle → IO α) : IO α :=
+Handle.mk fn m >>= f
+
+/-- returns whether the end of the file has been reached while reading a file.
+`h.isEof` returns true /after/ the first attempt at reading past the end of `h`.
+Once `h.isEof` is true, the reading `h` raises `IO.Error.eof`.
 -/
+def Handle.isEof : Handle → m Bool := Prim.liftIO ∘ Prim.Handle.isEof
+def Handle.flush : Handle → m Unit := Prim.liftIO ∘ Prim.Handle.flush
+def Handle.read (h : Handle) (bytes : Nat) : m ByteArray := Prim.liftIO (Prim.Handle.read h (USize.ofNat bytes))
+def Handle.write (h : Handle) (s : ByteArray) : m Unit := Prim.liftIO (Prim.Handle.write h s)
+def Handle.getByte (h : Handle) : m UInt8 := Prim.liftIO (Prim.Handle.getByte h)
+def Handle.putByte (h : Handle) (b : UInt8) : m Unit := Prim.liftIO (Prim.Handle.putByte h b)
 
--- def handle.putChar (h : handle) (c : Char) : m Unit :=
--- h.write (toString c)
+def Handle.getLine : Handle → m String := Prim.liftIO ∘ Prim.Handle.getLine
 
--- def handle.putStr (h : handle) (s : String) : m Unit :=
--- h.write s
+def Handle.putStr (h : Handle) (s : String) : m Unit :=
+Prim.liftIO $ Prim.Handle.putStr h s
 
--- def handle.putStrLn (h : handle) (s : String) : m Unit :=
--- h.putStr s *> h.putStr "\n"
+def Handle.putStrLn (h : Handle) (s : String) : m Unit :=
+h.putStr s *> h.putStr "\n"
 
-def handle.readToEnd (h : handle) : m String :=
+def Handle.readToEnd (h : Handle) : m String :=
 Prim.liftIO $ Prim.iterate "" $ fun r => do
   done ← h.isEof;
   if done
@@ -202,29 +209,28 @@ Prim.liftIO $ Prim.iterate "" $ fun r => do
     pure $ Sum.inl (r ++ c) -- continue
 
 def readFile (fname : String) (bin := false) : m String := do
-h ← handle.mk fname Mode.read bin;
+h ← Handle.mk fname Mode.read bin;
 r ← h.readToEnd;
-h.close;
 pure r
 
 end FS
 
--- constant stdin : IO FS.handle
--- constant stderr : IO FS.handle
--- constant stdout : IO FS.handle
+-- constant stdin : IO FS.Handle
+-- constant stderr : IO FS.Handle
+-- constant stdout : IO FS.Handle
 
 /-
 namespace Proc
 def child : Type :=
 MonadIOProcess.child ioCore
 
-def child.stdin : child → handle :=
+def child.stdin : child → Handle :=
 MonadIOProcess.stdin
 
-def child.stdout : child → handle :=
+def child.stdout : child → Handle :=
 MonadIOProcess.stdout
 
-def child.stderr : child → handle :=
+def child.stderr : child → Handle :=
 MonadIOProcess.stderr
 
 def spawn (p : IO.process.spawnArgs) : IO child :=
@@ -236,6 +242,34 @@ MonadIOProcess.wait c
 end Proc
 -/
 
+structure AccessRight :=
+(read write execution : Bool := false)
+
+def AccessRight.flags (acc : AccessRight) : UInt32 :=
+let r : UInt32 := if acc.read      then 0x4 else 0;
+let w : UInt32 := if acc.write     then 0x2 else 0;
+let x : UInt32 := if acc.execution then 0x1 else 0;
+r.lor $ w.lor x
+
+structure FileRight :=
+(user group other : AccessRight := { })
+
+def FileRight.flags (acc : FileRight) : UInt32 :=
+let u : UInt32 := acc.user.flags.shiftLeft 6;
+let g : UInt32 := acc.group.flags.shiftLeft 3;
+let o : UInt32 := acc.other.flags;
+u.lor $ g.lor o
+
+namespace Access
+
+@[extern "lean_chmod"]
+constant Prim.setAccessRights (filename : @& String) (mode : UInt32) : IO Unit :=
+arbitrary _
+
+def setAccessRights (filename : String) (mode : FileRight) : IO Unit :=
+Prim.setAccessRights filename mode.flags
+
+end Access
 
 /- References -/
 constant RefPointed (α : Type) : PointedType := arbitrary _

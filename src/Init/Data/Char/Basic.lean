@@ -5,6 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.UInt
+
 @[inline, reducible] def isValidChar (n : UInt32) : Prop :=
 n < 0xd800 ∨ (0xdfff < n ∧ n < 0x110000)
 
@@ -19,14 +20,10 @@ instance : HasSizeof Char :=
 namespace Char
 def utf8Size (c : Char) : UInt32 :=
 let v := c.val;
-     if UInt32.land v 0x80 = 0    then 1
-else if UInt32.land v 0xE0 = 0xC0 then 2
-else if UInt32.land v 0xF0 = 0xE0 then 3
-else if UInt32.land v 0xF8 = 0xF0 then 4
-else if UInt32.land v 0xFC = 0xF8 then 5
-else if UInt32.land v 0xFE = 0xFC then 6
-else if v = 0xFF                  then 1
-else 0
+if v < 0x7F then 1
+else if v < 0x7FF then 2
+else if v < 0xFFFF then 3
+else 4
 
 protected def Less (a b : Char) : Prop := a.val < b.val
 protected def LessEq (a b : Char) : Prop := a.val ≤ b.val

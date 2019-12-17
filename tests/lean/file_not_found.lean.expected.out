@@ -1,0 +1,9 @@
+
+file_not_found.lean:6:0: error: No such file or directory
+  file: non-existant-file.txt
+
+
+file_not_found.lean:12:0: error: Permission denied
+  file: readonly.txt
+
+file_not_found.lean:13:0: error: Invalid argument: bad file descriptor

@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "runtime/compact.h"
 #include "util/timeit.h"
+#include "util/io.h"
 #include "util/option_declarations.h"
 #include "kernel/replace_fn.h"
 #include "kernel/find_fn.h"
@@ -392,8 +393,12 @@ static environment eval_cmd(parser & p) {
     out.report();
     if (io_result_is_error(r.raw())) {
         message_builder msg = p.mk_message(p.cmd_pos(), p.pos(), ERROR);
-        msg << string_to_std(io_result_get_error(r.raw()));
+        object * err = io_result_get_error(r.raw());
+        inc_ref(err);
+        object * str = lean_io_error_to_string(err);
+        msg << string_to_std(str);
         msg.report();
+        dec_ref(str);
     }
     return p.env();
 }

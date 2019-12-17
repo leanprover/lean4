@@ -170,7 +170,7 @@ registerAttribute {
    unless persistent $ throw (IO.userError ("invalid attribute 'builtinCommandElab', must be persistent"));
    kind ← IO.ofExcept $ syntaxNodeKindOfAttrParam env `Lean.Parser.Command arg;
    match env.find? declName with
-   | none  => throw "unknown declaration"
+   | none  => throw $ IO.userError "unknown declaration"
    | some decl =>
      match decl.type with
      | Expr.const `Lean.Elab.Command.CommandElab _ _ => declareBuiltinCommandElab env kind declName

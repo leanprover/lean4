@@ -17,15 +17,15 @@ namespace Elab
 namespace Term
 
 structure Context extends Meta.Context :=
-(fileName      : String)
-(fileMap       : FileMap)
-(cmdPos        : String.Pos)
-(currNamespace : Name)
-(univNames     : List Name := [])
-(openDecls     : List OpenDecl := [])
-(macroStack    : List Syntax := [])
+(fileName        : String)
+(fileMap         : FileMap)
+(cmdPos          : String.Pos)
+(currNamespace   : Name)
+(univNames       : List Name := [])
+(openDecls       : List OpenDecl := [])
+(macroStack      : List Syntax := [])
 (macroScopeStack : List MacroScope := [0])
-(mayPostpone   : Bool := true)
+(mayPostpone     : Bool := true)
 
 inductive SyntheticMVarKind
 | typeClass
@@ -203,6 +203,10 @@ match u? with
 | some u => pure u
 | none   => throwError ref ("invalid universe level, " ++ u ++ " is not greater than 0")
 
+/- Elaborate `x` with `stx` on the macro stack -/
+@[inline] def withMacroExpansion {α} (stx : Syntax) (x : TermElabM α) : TermElabM α :=
+adaptReader (fun (ctx : Context) => { macroStack := stx :: ctx.macroStack, .. ctx }) x
+
 def registerSyntheticMVar (ref : Syntax) (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit :=
 modify $ fun s => { syntheticMVars := { mvarId := mvarId, ref := ref, kind := kind } :: s.syntheticMVars, .. s }
 
@@ -265,15 +269,12 @@ partial def hasCDot : Syntax → Bool
 | Syntax.node `Lean.Parser.Term.app args => hasCDot (args.getA 0) || hasCDot (args.getA 1)
 | _ => false
 
-def hasCDotArg : Syntax → Bool
-| Syntax.node _ args => args.any hasCDot
-| _                  => false
-
 partial def expandCDotAux : Bool → Syntax → StateT (Array Syntax) TermElabM Syntax
 | _, n@(Syntax.node `Lean.Parser.Term.cdot _) => do
-  id ← liftM $ mkFreshAnonymousIdent n;
-  modify $ fun s => s.push (mkExplicitBinder id mkHole); -- TODO: fix `fun` uses a different kind of binder
-  pure (mkTermIdFromIdent id)
+  ident ← liftM $ mkFreshAnonymousIdent n;
+  let id := mkTermIdFromIdent ident;
+  modify $ fun s => s.push id;
+  pure id
 | false, n@(Syntax.node `Lean.Parser.Term.app args) =>
   if args.size == 2 then do
     a1 ← expandCDotAux false $ args.get! 0;
@@ -282,6 +283,20 @@ partial def expandCDotAux : Bool → Syntax → StateT (Array Syntax) TermElabM 
   else
     pure n
 | _, n => pure n
+
+def expandCDotArgs (args : Array Syntax) : StateT (Array Syntax) TermElabM (Array Syntax) :=
+args.mapM (expandCDotAux false)
+
+def expandCDot? : Syntax → TermElabM (Option Syntax)
+| Syntax.node k args =>
+  if args.any hasCDot then do
+    (args, binders) ← (expandCDotArgs args).run #[];
+    let newNode := Syntax.node k args;
+    result ← `(fun %%binders* => %%newNode);
+    pure result
+  else
+    pure none
+| _ => pure none
 
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
 withFreshMacroScope $ withNode stx $ fun node => do
@@ -491,35 +506,40 @@ partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Nat → Ar
   if h : i < binders.size then
     let binder := binders.get ⟨i, h⟩;
     let processAsPattern : Unit → TermElabM (Array Syntax × Syntax) := fun _ => do {
-      throwError binder "not implemented yet"
+      let pattern := binder;
+      ident ← mkFreshAnonymousIdent binder;
+      (binders, newBody) ← expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder ident mkHole);
+      let major := mkTermIdFromIdent ident;
+      newBody ← `(match %%major with | %%pattern => %%newBody);
+      pure (binders, newBody)
     };
     match binder with
     | Syntax.node `Lean.Parser.Term.id args => do
       unless (args.getA 1).isNone $ throwError binder "invalid binder, simple identifier expected";
-      let id   := args.getA 0;
-      let type := mkHole;
-      expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder id type)
+      let ident := args.getA 0;
+      let type  := mkHole;
+      expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder ident type)
     | Syntax.node `Lean.Parser.Term.hole _ => do
-      id ← mkFreshAnonymousIdent binder;
+      ident ← mkFreshAnonymousIdent binder;
       let type := binder;
-      expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder id type)
+      expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder ident type)
     | Syntax.node `Lean.Parser.Term.paren args =>
       -- `(` (termParser >> parenSpecial)? `)`
       -- parenSpecial := (tupleTail <|> typeAscription)?
       let binderBody := binder.getArg 1;
       if binderBody.isNone then processAsPattern ()
       else
-        let ids     := binderBody.getArg 0;
+        let idents  := binderBody.getArg 0;
         let special := binderBody.getArg 1;
         if special.isNone then processAsPattern ()
         else if (special.getArg 0).getKind != `Lean.Parser.Term.typeAscription then processAsPattern ()
         else do
           -- typeAscription := `:` term
           let type := ((special.getArg 0).getArg 1);
-          ids? ← getFunBinderIds? ids;
-          match ids? with
-          | some ids => expandFunBindersAux body (i+1) (newBinders ++ ids.map (fun id => mkExplicitBinder id type))
-          | none     => processAsPattern ()
+          idents? ← getFunBinderIds? idents;
+          match idents? with
+          | some idents => expandFunBindersAux body (i+1) (newBinders ++ idents.map (fun ident => mkExplicitBinder ident type))
+          | none        => processAsPattern ()
     | _ => processAsPattern ()
   else
     pure (newBinders, body)
@@ -538,16 +558,81 @@ fun stx expectedType? => do
     e ← elabTerm body none;
     mkLambda stx.val xs e
 
+def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (eType : Expr) (e : Expr) : TermElabM Expr :=
+match expectedType? with
+| none              => pure e
+| some expectedType =>
+  condM (isDefEq ref eType expectedType)
+    (pure e)
+    (do -- TODO try `HasCoe`
+        e ← instantiateMVars ref e;
+        eType ← instantiateMVars ref eType;
+        expectedType ← instantiateMVars ref expectedType;
+        let msg : MessageData :=
+          "type mismatch" ++ indentExpr e
+          ++ Format.line ++ "has type" ++ indentExpr eType
+          ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType;
+        throwError ref msg)
+
+partial def mkPairsAux (elems : Array Syntax) : Nat → Syntax → TermElabM Syntax
+| i, acc =>
+  if i > 0 then do
+    let i    := i - 1;
+    let elem := elems.get! i;
+    acc ← `(Prod.mk %%elem %%acc);
+    mkPairsAux i acc
+  else
+    pure acc
+
+def mkPairs (elems : Array Syntax) : TermElabM Syntax :=
+mkPairsAux elems (elems.size - 1) elems.back
+
+def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+stx? ← expandCDot? stx;
+match stx? with
+| some stx' => withMacroExpansion stx (elabTerm stx' expectedType?)
+| none      => elabTerm stx expectedType?
+
 @[builtinTermElab paren] def elabParen : TermElab :=
-fun stx expectedType? =>
+ fun stx expectedType? =>
   -- `(` (termParser >> parenSpecial)? `)`
+  let ref := stx.val;
   let body := stx.getArg 1;
   if body.isNone then
-    pure $ mkConst `Unit.unit
+    pure $ Lean.mkConst `Unit.unit
   else
     let term := body.getArg 0;
-    -- TODO: handle parenSpecial
-    elabTerm term expectedType?
+    let special := body.getArg 1;
+    if special.isNone then do
+      elabCDot term expectedType?
+    else
+      let special := special.getArg 0;
+      if special.getKind == `Lean.Parser.Term.typeAscription then do
+        type ← elabType (special.getArg 1);
+        e ← elabCDot term expectedType?;
+        eType ← inferType ref e;
+        ensureHasType ref type eType e
+      else if special.getKind == `Lean.Parser.Term.tupleTail then do
+        -- tupleTail := `,` >> sepBy1 term `,`
+        let terms := (special.getArg 1).foldSepArgs (fun e (elems : Array Syntax) => elems.push e) #[term];
+        pairs ← mkPairs terms;
+        withMacroExpansion stx.val (elabTerm pairs expectedType?)
+      else
+        throwError ref "unexpected parentheses notation"
+
+/-
+@[builtinTermElab paren] def elabParen : TermElab :=
+fun stx expectedType? =>
+  match_syntax stx.val with
+  | `(())             => pure $ Lean.mkConst `Unit.unit
+  | `((%%e : %%type)) => do type ← elabType type; elabTerm e type
+  | `((%%e))          => elabTerm e expectedType?
+  | `((%%e, %%es))    => do
+
+    pairs ← mkPairs elems;
+    withMacroExpansion stx.val (elabTerm pairs expectedType?)
+  | _ => throwError stx.val "unexpected parentheses notation"
+-/
 
 @[builtinTermElab «listLit»] def elabListLit : TermElab :=
 fun stx expectedType? => do
@@ -648,22 +733,6 @@ match result? with
     process (resolveGlobalName env currNamespace openDecls n)
   else
     process preresolved
-
-def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (eType : Expr) (e : Expr) : TermElabM Expr :=
-match expectedType? with
-| none              => pure e
-| some expectedType =>
-  condM (isDefEq ref eType expectedType)
-    (pure e)
-    (do -- TODO try `HasCoe`
-        e ← instantiateMVars ref e;
-        eType ← instantiateMVars ref eType;
-        expectedType ← instantiateMVars ref expectedType;
-        let msg : MessageData :=
-          "type mismatch" ++ indentExpr e
-          ++ Format.line ++ "has type" ++ indentExpr eType
-          ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType;
-        throwError ref msg)
 
 /-- Consume parameters of the form `(x : A := val)` and `(x : A . tactic)` -/
 def consumeDefaultParams (ref : Syntax) : Expr → Expr → TermElabM Expr
@@ -1032,6 +1101,8 @@ fun stx expectedType? => do
 @[builtinTermElab choice] def elabChoice : TermElab := elabApp
 @[builtinTermElab proj] def elabProj : TermElab := elabApp
 @[builtinTermElab arrayRef] def elabArrayRef : TermElab := elabApp
+@[builtinTermElab cdot] def elabBadCDot : TermElab :=
+fun stx _ => throwError stx.val "invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)"
 
 @[builtinTermElab str] def elabStr : TermElab :=
 fun stx _ => do

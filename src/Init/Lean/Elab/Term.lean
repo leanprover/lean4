@@ -506,35 +506,40 @@ partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Nat → Ar
   if h : i < binders.size then
     let binder := binders.get ⟨i, h⟩;
     let processAsPattern : Unit → TermElabM (Array Syntax × Syntax) := fun _ => do {
-      throwError binder "not implemented yet"
+      let pattern := binder;
+      ident ← mkFreshAnonymousIdent binder;
+      (binders, newBody) ← expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder ident mkHole);
+      let major := mkTermIdFromIdent ident;
+      newBody ← `(match %%major with | %%pattern => %%newBody);
+      pure (binders, newBody)
     };
     match binder with
     | Syntax.node `Lean.Parser.Term.id args => do
       unless (args.getA 1).isNone $ throwError binder "invalid binder, simple identifier expected";
-      let id   := args.getA 0;
-      let type := mkHole;
-      expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder id type)
+      let ident := args.getA 0;
+      let type  := mkHole;
+      expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder ident type)
     | Syntax.node `Lean.Parser.Term.hole _ => do
-      id ← mkFreshAnonymousIdent binder;
+      ident ← mkFreshAnonymousIdent binder;
       let type := binder;
-      expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder id type)
+      expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder ident type)
     | Syntax.node `Lean.Parser.Term.paren args =>
       -- `(` (termParser >> parenSpecial)? `)`
       -- parenSpecial := (tupleTail <|> typeAscription)?
       let binderBody := binder.getArg 1;
       if binderBody.isNone then processAsPattern ()
       else
-        let ids     := binderBody.getArg 0;
+        let idents  := binderBody.getArg 0;
         let special := binderBody.getArg 1;
         if special.isNone then processAsPattern ()
         else if (special.getArg 0).getKind != `Lean.Parser.Term.typeAscription then processAsPattern ()
         else do
           -- typeAscription := `:` term
           let type := ((special.getArg 0).getArg 1);
-          ids? ← getFunBinderIds? ids;
-          match ids? with
-          | some ids => expandFunBindersAux body (i+1) (newBinders ++ ids.map (fun id => mkExplicitBinder id type))
-          | none     => processAsPattern ()
+          idents? ← getFunBinderIds? idents;
+          match idents? with
+          | some idents => expandFunBindersAux body (i+1) (newBinders ++ idents.map (fun ident => mkExplicitBinder ident type))
+          | none        => processAsPattern ()
     | _ => processAsPattern ()
   else
     pure (newBinders, body)

@@ -40,11 +40,13 @@ pushLeading >> unicodeSymbol sym asciiSym lbp >> termParser lbp
 def infixL (sym : String) (lbp : Nat) : TrailingParser :=
 pushLeading >> symbol sym lbp >> termParser lbp
 
--- Define parser for `%%e` (if name = none) or `%%e:n` (if name = some n). Both
+def dollarSymbol {k : ParserKind} : Parser k := symbol "$" 1
+
+-- Define parser for `$e` (if name = none) or `$e:n` (if name = some n). Both
 -- forms can also be used with an appended `*` to turn them into an
 -- antiquotation "splice".
 def mkAntiquot (name : Option String) : Parser leading :=
-leadingNode `Lean.Parser.Term.antiquot $ symbol "$" 1 >> checkNoWsBefore "no space before" >> termParser appPrec >> (
+leadingNode `Lean.Parser.Term.antiquot $ dollarSymbol >> checkNoWsBefore "no space before" >> termParser appPrec >> (
   match name with
   | some name => let sym := ":" ++ name; checkNoWsBefore ("no space before '" ++ sym ++ "'") >> sym
   -- make sure to generate as many children (1) as in the first case to keep arity constant
@@ -140,7 +142,7 @@ def checkIsSort := checkLeading (fun leading => leading.isOfKind `Lean.Parser.Te
 @[builtinTermParser] def arrow   := tparser! unicodeInfixR " → " " -> " 25
 @[builtinTermParser] def arrayRef := tparser! pushLeading >> symbolNoWs "[" (appPrec+1) >> termParser >>"]"
 
-@[builtinTermParser] def dollar := tparser! try (pushLeading >> symbol " $ " 1 >> checkWsBefore "space expected") >> termParser 0
+@[builtinTermParser] def dollar := tparser! try (pushLeading >> dollarSymbol >> checkWsBefore "space expected") >> termParser 0
 @[builtinTermParser] def fcomp  := tparser! infixR " ∘ " 90
 
 @[builtinTermParser] def prod  := tparser! infixR " × " 35

@@ -292,7 +292,7 @@ def expandCDot? : Syntax → TermElabM (Option Syntax)
   if args.any hasCDot then do
     (args, binders) ← (expandCDotArgs args).run #[];
     let newNode := Syntax.node k args;
-    result ← `(fun %%binders* => %%newNode);
+    result ← `(fun $binders* => $newNode);
     pure result
   else
     pure none
@@ -513,7 +513,7 @@ partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Nat → Ar
       ident ← mkFreshAnonymousIdent binder;
       (binders, newBody) ← expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder ident mkHole);
       let major := mkTermIdFromIdent ident;
-      newBody ← `(match %%major with | %%pattern => %%newBody);
+      newBody ← `(match $major with | $pattern => $newBody);
       pure (binders, newBody)
     };
     match binder with
@@ -582,7 +582,7 @@ partial def mkPairsAux (elems : Array Syntax) : Nat → Syntax → TermElabM Syn
   if i > 0 then do
     let i    := i - 1;
     let elem := elems.get! i;
-    acc ← `(Prod.mk %%elem %%acc);
+    acc ← `(Prod.mk $elem $acc);
     mkPairsAux i acc
   else
     pure acc
@@ -601,13 +601,13 @@ fun stx expectedType? =>
   let ref := stx.val;
   match_syntax ref with
   | `(())             => pure $ Lean.mkConst `Unit.unit
-  | `((%%e : %%type)) => do
+  | `(($e : $type)) => do
     type ← elabType type;
     e ← elabCDot e expectedType?;
     eType ← inferType ref e;
     ensureHasType ref type eType e
-  | `((%%e))          => elabCDot e expectedType?
-  | `((%%e, %%es*))   => do
+  | `(($e))          => elabCDot e expectedType?
+  | `(($e, $es*))   => do
     pairs ← mkPairs (#[e] ++ es.getEvenElems);
     withMacroExpansion stx.val (elabTerm pairs expectedType?)
   | _ => throwError stx.val "unexpected parentheses notation"

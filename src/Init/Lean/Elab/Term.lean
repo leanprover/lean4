@@ -182,6 +182,13 @@ def getLevel (ref : Syntax) (type : Expr) : TermElabM Level := liftMetaM ref $ M
 def mkForall (ref : Syntax) (xs : Array Expr) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.mkForall xs e
 def trySynthInstance (ref : Syntax) (type : Expr) : TermElabM (LOption Expr) := liftMetaM ref $ Meta.trySynthInstance type
 def mkAppM (ref : Syntax) (constName : Name) (args : Array Expr) : TermElabM Expr := liftMetaM ref $ Meta.mkAppM constName args
+def decLevel? (ref : Syntax) (u : Level) : TermElabM (Option Level) := liftMetaM ref $ Meta.decLevel? u
+
+def decLevel (ref : Syntax) (u : Level) : TermElabM Level := do
+u? ← decLevel? ref u;
+match u? with
+| some u => pure u
+| none   => throwError ref ("invalid universe level, " ++ u ++ " is not greater than 0")
 
 def registerSyntheticMVar (ref : Syntax) (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit :=
 modify $ fun s => { syntheticMVars := { mvarId := mvarId, ref := ref, kind := kind } :: s.syntheticMVars, .. s }
@@ -560,6 +567,12 @@ def consumeDefaultParams (ref : Syntax) : Expr → Expr → TermElabM Expr
   -- TODO
   pure e
 
+def mkInstMVar (ref : Syntax) (type : Expr) : TermElabM Expr := do
+mvar ← mkFreshExprMVar ref type MetavarKind.synthetic;
+let mvarId := mvar.mvarId!;
+registerSyntheticMVar ref mvarId SyntheticMVarKind.typeClass;
+pure mvar
+
 def synthesizeInstMVar (ref : Syntax) (instMVar : MVarId) : TermElabM Unit :=
 condM (isExprMVarAssigned instMVar) (pure ()) $ do
   instMVarDecl ← getMVarDecl instMVar;
@@ -620,10 +633,8 @@ private partial def elabAppArgsAux (ref : Syntax) (args : Array Arg) (expectedTy
           a ← mkFreshExprMVar ref d;
           elabAppArgsAux argIdx namedArgs instMVars (b.instantiate1 a) (mkApp e a)
         | BinderInfo.instImplicit => do
-          a ← mkFreshExprMVar ref d MetavarKind.synthetic;
-          let mvarId := a.mvarId!;
-          registerSyntheticMVar ref mvarId SyntheticMVarKind.typeClass;
-          elabAppArgsAux argIdx namedArgs (instMVars.push mvarId) (b.instantiate1 a) (mkApp e a)
+          a ← mkInstMVar ref d;
+          elabAppArgsAux argIdx namedArgs (instMVars.push a.mvarId!) (b.instantiate1 a) (mkApp e a)
         | _ =>
           processExplictArg ()
   | _ =>
@@ -934,10 +945,10 @@ fun stx expectedType? => do
   expectedType ← match expectedType? with
     | some expectedType => pure expectedType
     | none              => mkFreshExprMVar ref;
-  hasOfNatInst ← mkAppM ref `HasOfNat #[expectedType];
-  mvar ← mkFreshExprMVar ref hasOfNatInst;
-  synthesizeInstMVar ref mvar.mvarId!;
   u ← getLevel ref expectedType;
+  u ← decLevel ref u;
+  mvar ← mkInstMVar ref (mkApp (Lean.mkConst `HasOfNat [u]) expectedType);
+  synthesizeInstMVar ref mvar.mvarId!;
   pure $ mkApp3 (Lean.mkConst `HasOfNat.ofNat [u]) expectedType mvar val
 
 end Term

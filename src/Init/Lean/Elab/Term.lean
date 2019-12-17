@@ -597,45 +597,20 @@ match stx? with
 | none      => elabTerm stx expectedType?
 
 @[builtinTermElab paren] def elabParen : TermElab :=
- fun stx expectedType? =>
-  -- `(` (termParser >> parenSpecial)? `)`
-  let ref := stx.val;
-  let body := stx.getArg 1;
-  if body.isNone then
-    pure $ Lean.mkConst `Unit.unit
-  else
-    let term := body.getArg 0;
-    let special := body.getArg 1;
-    if special.isNone then do
-      elabCDot term expectedType?
-    else
-      let special := special.getArg 0;
-      if special.getKind == `Lean.Parser.Term.typeAscription then do
-        type ← elabType (special.getArg 1);
-        e ← elabCDot term expectedType?;
-        eType ← inferType ref e;
-        ensureHasType ref type eType e
-      else if special.getKind == `Lean.Parser.Term.tupleTail then do
-        -- tupleTail := `,` >> sepBy1 term `,`
-        let terms := (special.getArg 1).foldSepArgs (fun e (elems : Array Syntax) => elems.push e) #[term];
-        pairs ← mkPairs terms;
-        withMacroExpansion stx.val (elabTerm pairs expectedType?)
-      else
-        throwError ref "unexpected parentheses notation"
-
-/-
-@[builtinTermElab paren] def elabParen : TermElab :=
 fun stx expectedType? =>
-  match_syntax stx.val with
+  let ref := stx.val;
+  match_syntax ref with
   | `(())             => pure $ Lean.mkConst `Unit.unit
-  | `((%%e : %%type)) => do type ← elabType type; elabTerm e type
-  | `((%%e))          => elabTerm e expectedType?
-  | `((%%e, %%es))    => do
-
-    pairs ← mkPairs elems;
+  | `((%%e : %%type)) => do
+    type ← elabType type;
+    e ← elabCDot e expectedType?;
+    eType ← inferType ref e;
+    ensureHasType ref type eType e
+  | `((%%e))          => elabCDot e expectedType?
+  | `((%%e, %%es*))   => do
+    pairs ← mkPairs (#[e] ++ es.getEvenElems);
     withMacroExpansion stx.val (elabTerm pairs expectedType?)
   | _ => throwError stx.val "unexpected parentheses notation"
--/
 
 @[builtinTermElab «listLit»] def elabListLit : TermElab :=
 fun stx expectedType? => do

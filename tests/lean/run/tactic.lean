@@ -11,7 +11,7 @@ set_option trace.Meta.Tactic true
 
 def tst1 : MetaM Unit :=
 do cinfo ← getConstInfo `simple;
-   mvar  ← mkFreshExprSyntheticMVar cinfo.type;
+   mvar  ← mkFreshExprSyntheticOpaqueMVar cinfo.type;
    let mvarId := mvar.mvarId!;
    (_, mvarId) ← introN mvarId 4;
    assumption mvarId;

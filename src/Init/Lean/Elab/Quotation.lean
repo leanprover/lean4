@@ -3,9 +3,8 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 
-Elaboration of syntax quotations as terms and patterns (in `match_syntax`). Quotation terms are auto-hygienic by
-mangling identifiers introduced by them with a "macro scope" supplied by the context. Details to appear in a
-paper.
+Elaboration of syntax quotations as terms and patterns (in `match_syntax`). See also `./Hygiene.lean` for the basic
+hygiene workings and data types.
 -/
 prelude
 import Init.Lean.Syntax

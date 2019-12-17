@@ -40,10 +40,14 @@ pushLeading >> unicodeSymbol sym asciiSym lbp >> termParser lbp
 def infixL (sym : String) (lbp : Nat) : TrailingParser :=
 pushLeading >> symbol sym lbp >> termParser lbp
 
+-- Define parser for `%%e` (if name = none) or `%%e:n` (if name = some n). Both
+-- forms can also be used with an appended `*` to turn them into an
+-- antiquotation "splice".
 def mkAntiquot (name : Option String) : Parser leading :=
 leadingNode `Lean.Parser.Term.antiquot $ symbol "%%" appPrec >> termParser appPrec >> (
   match name with
   | some name => let sym := ":" ++ name; checkNoWsBefore ("no space before '" ++ sym ++ "'") >> sym
+  -- make sure to generate as many children (1) as in the first case to keep arity constant
   | none      => { info := epsilonInfo, fn := fun a c s => s.mkNode nullKind s.stackSize }
 ) >> optional "*"
 

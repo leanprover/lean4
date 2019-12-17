@@ -44,7 +44,7 @@ pushLeading >> symbol sym lbp >> termParser lbp
 -- forms can also be used with an appended `*` to turn them into an
 -- antiquotation "splice".
 def mkAntiquot (name : Option String) : Parser leading :=
-leadingNode `Lean.Parser.Term.antiquot $ symbol "%%" appPrec >> termParser appPrec >> (
+leadingNode `Lean.Parser.Term.antiquot $ symbol "$" 1 >> checkNoWsBefore "no space before" >> termParser appPrec >> (
   match name with
   | some name => let sym := ":" ++ name; checkNoWsBefore ("no space before '" ++ sym ++ "'") >> sym
   -- make sure to generate as many children (1) as in the first case to keep arity constant
@@ -140,7 +140,7 @@ def checkIsSort := checkLeading (fun leading => leading.isOfKind `Lean.Parser.Te
 @[builtinTermParser] def arrow   := tparser! unicodeInfixR " → " " -> " 25
 @[builtinTermParser] def arrayRef := tparser! pushLeading >> symbolNoWs "[" (appPrec+1) >> termParser >>"]"
 
-@[builtinTermParser] def dollar := tparser! infixR " $ " 1
+@[builtinTermParser] def dollar := tparser! try (pushLeading >> symbol " $ " 1 >> checkWsBefore "space expected") >> termParser 0
 @[builtinTermParser] def fcomp  := tparser! infixR " ∘ " 90
 
 @[builtinTermParser] def prod  := tparser! infixR " × " 35

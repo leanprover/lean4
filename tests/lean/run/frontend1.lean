@@ -139,3 +139,4 @@ x + y + z
 #eval run "#check (· + · : Nat → Nat → Nat)"
 #eval run "#check (f one · zero)"
 #eval run "#check (f · · zero)"
+#eval run "#check fun (_ b : Nat) => b + 1"

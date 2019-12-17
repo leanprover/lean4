@@ -496,7 +496,10 @@ partial def getFunBinderIdsAux? : Bool → Syntax → Array Syntax → TermElabM
     pure (some (acc.push (args.getA 0)))
   else
     pure none
-| _, _, _ => pure none
+| _, n@(Syntax.node `Lean.Parser.Term.hole _), acc => do
+  ident ← mkFreshAnonymousIdent n;
+  pure (some (acc.push ident))
+| idOnly, stx, acc => pure none
 
 def getFunBinderIds? (stx : Syntax) : TermElabM (Option (Array Syntax)) :=
 getFunBinderIdsAux? false stx #[]

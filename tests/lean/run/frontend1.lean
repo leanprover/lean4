@@ -125,3 +125,4 @@ def m : Monoid Nat :=
 #eval run "#check \"hello\""
 #eval run "#check 1"
 #eval run "#check Nat.succ 1"
+#eval run "#check fun _ a (x y : Int) => x + y + a"

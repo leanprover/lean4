@@ -109,6 +109,9 @@ class Monoid (α : Type u) :=
 def m : Monoid Nat :=
 { one := 1, mul := Nat.mul }
 
+def f (x y z : Nat) : Nat :=
+x + y + z
+
 #eval run "#check s4.x"
 #eval run "#check s.field1.x"
 #eval run "#check s.field2.fst"
@@ -132,3 +135,7 @@ def m : Monoid Nat :=
 #eval run "#check (one, two, zero)"
 #eval run "#check (1 : Int)"
 #eval run "#check ((1, 2) : Nat × Int)"
+#eval run "#check (· + one)"
+#eval run "#check (· + · : Nat → Nat → Nat)"
+#eval run "#check (f one · zero)"
+#eval run "#check (f · · zero)"

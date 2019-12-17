@@ -204,7 +204,7 @@ match u? with
 | none   => throwError ref ("invalid universe level, " ++ u ++ " is not greater than 0")
 
 /- Elaborate `x` with `stx` on the macro stack -/
-@[inline] def withMacro {α} (stx : Syntax) (x : TermElabM α) : TermElabM α :=
+@[inline] def withMacroExpansion {α} (stx : Syntax) (x : TermElabM α) : TermElabM α :=
 adaptReader (fun (ctx : Context) => { macroStack := stx :: ctx.macroStack, .. ctx }) x
 
 def registerSyntheticMVar (ref : Syntax) (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit :=
@@ -582,7 +582,13 @@ partial def mkPairsAux (elems : Array Syntax) : Nat → Syntax → TermElabM Syn
 def mkPairs (elems : Array Syntax) : TermElabM Syntax :=
 mkPairsAux elems (elems.size - 1) elems.back
 
- @[builtinTermElab paren] def elabParen : TermElab :=
+def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+stx? ← expandCDot? stx;
+match stx? with
+| some stx' => withMacroExpansion stx (elabTerm stx' expectedType?)
+| none      => elabTerm stx expectedType?
+
+@[builtinTermElab paren] def elabParen : TermElab :=
  fun stx expectedType? =>
   -- `(` (termParser >> parenSpecial)? `)`
   let ref := stx.val;
@@ -593,19 +599,19 @@ mkPairsAux elems (elems.size - 1) elems.back
     let term := body.getArg 0;
     let special := body.getArg 1;
     if special.isNone then do
-      elabTerm term expectedType?
+      elabCDot term expectedType?
     else
       let special := special.getArg 0;
       if special.getKind == `Lean.Parser.Term.typeAscription then do
         type ← elabType (special.getArg 1);
-        e ← elabTerm term type;
+        e ← elabCDot term expectedType?;
         eType ← inferType ref e;
         ensureHasType ref type eType e
       else if special.getKind == `Lean.Parser.Term.tupleTail then do
         -- tupleTail := `,` >> sepBy1 term `,`
         let terms := (special.getArg 1).foldSepArgs (fun e (elems : Array Syntax) => elems.push e) #[term];
         pairs ← mkPairs terms;
-        withMacro stx.val (elabTerm pairs expectedType?)
+        withMacroExpansion stx.val (elabTerm pairs expectedType?)
       else
         throwError ref "unexpected parentheses notation"
 
@@ -619,7 +625,7 @@ fun stx expectedType? =>
   | `((%%e, %%es))    => do
 
     pairs ← mkPairs elems;
-    withMacro stx.val (elabTerm pairs expectedType?)
+    withMacroExpansion stx.val (elabTerm pairs expectedType?)
   | _ => throwError stx.val "unexpected parentheses notation"
 -/
 

@@ -102,12 +102,29 @@ private partial def quoteSyntax (env : Environment) : Syntax → TermElabM Synta
 
 def stxQuot.expand (env : Environment) (stx : Syntax) : TermElabM Syntax := do
 let quoted := stx.getArg 1;
--- Syntax quotations are monadic values depending on the current macro scope. For efficiency, we bind
--- the macro scope once for each quotation, then build the syntax tree in a completely pure computation
--- depending on this binding.
--- TODO: simplify to `(do scp ← getCurrMacroScope; pure %%(quoteSyntax env 0 quoted))
-stx ← quoteSyntax env 0 quoted;
+/- Syntax quotations are monadic values depending on the current macro scope. For efficiency, we bind
+   the macro scope once for each quotation, then build the syntax tree in a completely pure computation
+   depending on this binding. Note that regular function calls do not introduce a new macro scope (i.e.
+   we preserve referential transparency), so we can refer to this same `scp` inside `quoteSyntax` by
+   including it literally in a syntax quotation. -/
+-- TODO: simplify to `(do scp ← getCurrMacroScope; pure %%(quoteSyntax env quoted))
+stx ← quoteSyntax env quoted;
 `(HasBind.bind Lean.MonadQuotation.getCurrMacroScope (fun scp => HasPure.pure %%stx))
+/- NOTE: It may seem like the newly introduced binding `scp` may accidentally
+   capture identifiers in an antiquotation introduced by `quoteSyntax`. However,
+   note that the syntax quotation above enjoys the same hygiene guarantees as
+   anywhere else in Lean; that is, we implement hygienic quotations by making
+   use of the hygienic quotation support of the bootstrapped Lean compiler!
+
+   Aside: While this might sound "dangerous", it is in fact less reliant on a
+   "chain of trust" than other bootstrapping parts of Lean: because this
+   implementation itself never uses `scp` (or any other identifier) both inside
+   and outside quotations, it can actually correctly be compiled by an
+   unhygienic (but otherwise correct) implementation of syntax quotations. As
+   long as it is then compiled again with the resulting executable (i.e. up to
+   stage 2), the result is a correct hygienic implementation. In this sense the
+   implementation is "self-stabilizing". It was in fact originally compiled
+   by an unhygienic prototype implementation. -/
 
 @[builtinTermElab stxQuot] def elabStxQuot : TermElab :=
 fun stx expectedType? => do

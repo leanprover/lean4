@@ -141,7 +141,6 @@ lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_getUnify___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Meta_DiscrTree_16__getUnifyAux___main___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___main___at___private_Init_Lean_Meta_DiscrTree_16__getUnifyAux___main___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_isReadOnlyOrSyntheticExprMVar(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAux___main___at___private_Init_Lean_Meta_DiscrTree_15__getStarResult___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_DiscrTree_2__tmpStar;
 lean_object* l___private_Init_Lean_Meta_DiscrTree_16__getUnifyAux___main___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -284,6 +283,7 @@ lean_object* l_Lean_fmt___at_Lean_Meta_DiscrTree_Trie_format___main___spec__3___
 lean_object* l_Lean_Expr_etaExpandedStrict_x3f(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Trie_format___main___rarg___closed__1;
 lean_object* l_PersistentHashMap_findAtAux___main___at_Lean_Meta_DiscrTree_insertCore___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_isReadOnlyOrSyntheticOpaqueExprMVar(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_fmt___at_Lean_Meta_DiscrTree_format___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_Meta_DiscrTree_Trie_format___main___spec__2(lean_object*);
 extern lean_object* l_System_FilePath_dirName___closed__1;
@@ -1288,7 +1288,7 @@ if (x_38 == 0)
 {
 lean_object* x_39; 
 lean_free_object(x_5);
-x_39 = l_Lean_Meta_isReadOnlyOrSyntheticExprMVar(x_36, x_3, x_8);
+x_39 = l_Lean_Meta_isReadOnlyOrSyntheticOpaqueExprMVar(x_36, x_3, x_8);
 lean_dec(x_3);
 if (lean_obj_tag(x_39) == 0)
 {
@@ -1679,7 +1679,7 @@ x_124 = lean_name_eq(x_122, x_123);
 if (x_124 == 0)
 {
 lean_object* x_125; 
-x_125 = l_Lean_Meta_isReadOnlyOrSyntheticExprMVar(x_122, x_3, x_96);
+x_125 = l_Lean_Meta_isReadOnlyOrSyntheticOpaqueExprMVar(x_122, x_3, x_96);
 lean_dec(x_3);
 if (lean_obj_tag(x_125) == 0)
 {
@@ -5269,7 +5269,7 @@ lean_free_object(x_5);
 x_19 = lean_ctor_get(x_9, 0);
 lean_inc(x_19);
 lean_dec(x_9);
-x_20 = l_Lean_Meta_isReadOnlyOrSyntheticExprMVar(x_19, x_3, x_8);
+x_20 = l_Lean_Meta_isReadOnlyOrSyntheticOpaqueExprMVar(x_19, x_3, x_8);
 lean_dec(x_3);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -5475,7 +5475,7 @@ lean_object* x_66; lean_object* x_67;
 x_66 = lean_ctor_get(x_55, 0);
 lean_inc(x_66);
 lean_dec(x_55);
-x_67 = l_Lean_Meta_isReadOnlyOrSyntheticExprMVar(x_66, x_3, x_54);
+x_67 = l_Lean_Meta_isReadOnlyOrSyntheticOpaqueExprMVar(x_66, x_3, x_54);
 lean_dec(x_3);
 if (lean_obj_tag(x_67) == 0)
 {

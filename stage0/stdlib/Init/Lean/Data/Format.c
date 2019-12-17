@@ -63,9 +63,9 @@ lean_object* l_Lean_formatEntry(lean_object*);
 lean_object* l_Lean_Format_prefixJoin___main___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Option_format___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_usizeHasFormat(size_t);
+extern lean_object* l_Nat_HasOfNat___closed__1;
 lean_object* l_Lean_Format_be___main(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Format_widthOption(lean_object*);
-extern lean_object* l_joinM___rarg___closed__1;
 lean_object* l_Lean_List_format___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Format_repr___main___closed__21;
 lean_object* l_Lean_Format_joinArraySep___rarg(lean_object*, lean_object*, lean_object*);
@@ -1752,7 +1752,7 @@ lean_object* _init_l_Lean_formatHasFormat() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_joinM___rarg___closed__1;
+x_1 = l_Nat_HasOfNat___closed__1;
 return x_1;
 }
 }

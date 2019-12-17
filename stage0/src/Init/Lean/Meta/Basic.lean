@@ -213,16 +213,16 @@ modify $ fun s => { ngen := s.ngen.next, .. s };
 pure id
 
 def mkFreshExprMVarAt
-    (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (userName : Name := Name.anonymous) (synthetic : Bool := false)
+    (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural)
     : MetaM Expr := do
 mvarId ← mkFreshId;
-modify $ fun s => { mctx := s.mctx.addExprMVarDecl mvarId userName lctx localInsts type synthetic, .. s };
+modify $ fun s => { mctx := s.mctx.addExprMVarDecl mvarId userName lctx localInsts type kind, .. s };
 pure $ mkMVar mvarId
 
-def mkFreshExprMVar (type : Expr) (userName : Name := Name.anonymous) (synthetic : Bool := false) : MetaM Expr := do
+def mkFreshExprMVar (type : Expr) (userName : Name := Name.anonymous) (kind : MetavarKind := MetavarKind.natural) : MetaM Expr := do
 lctx ← getLCtx;
 localInsts ← getLocalInstances;
-mkFreshExprMVarAt lctx localInsts type userName synthetic
+mkFreshExprMVarAt lctx localInsts type userName kind
 
 def mkFreshLevelMVar : MetaM Level := do
 mvarId ← mkFreshId;
@@ -274,23 +274,24 @@ withConfig
     { transparency := mode, .. config })
   x
 
-def isSyntheticExprMVar (mvarId : MVarId) : MetaM Bool := do
+def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
 mctx ← getMCtx;
 match mctx.findDecl? mvarId with
-| some d => pure $ d.synthetic
-| _      => throwEx $ Exception.unknownExprMVar mvarId
+| some d => pure d
+| none   => throwEx $ Exception.unknownExprMVar mvarId
 
 def isReadOnlyExprMVar (mvarId : MVarId) : MetaM Bool := do
-mctx ← getMCtx;
-match mctx.findDecl? mvarId with
-| some d => pure $ d.depth != mctx.depth
-| _      => throwEx $ Exception.unknownExprMVar mvarId
+mvarDecl ← getMVarDecl mvarId;
+mctx     ← getMCtx;
+pure $ mvarDecl.depth != mctx.depth
 
-def isReadOnlyOrSyntheticExprMVar (mvarId : MVarId) : MetaM Bool := do
-mctx ← getMCtx;
-match mctx.findDecl? mvarId with
-| some d => pure $ d.synthetic || d.depth != mctx.depth
-| _      => throwEx $ Exception.unknownExprMVar mvarId
+def isReadOnlyOrSyntheticOpaqueExprMVar (mvarId : MVarId) : MetaM Bool := do
+mvarDecl ← getMVarDecl mvarId;
+match mvarDecl.kind with
+| MetavarKind.syntheticOpaque => pure true
+| _ => do
+  mctx ← getMCtx;
+  pure $ mvarDecl.depth != mctx.depth
 
 def isReadOnlyLevelMVar (mvarId : MVarId) : MetaM Bool := do
 mctx ← getMCtx;
@@ -364,12 +365,6 @@ match lctx.find? fvarId with
 
 def getFVarLocalDecl (fvar : Expr) : MetaM LocalDecl :=
 getLocalDecl fvar.fvarId!
-
-def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
-mctx ← getMCtx;
-match mctx.findDecl? mvarId with
-| some d => pure d
-| none   => throwEx $ Exception.unknownExprMVar mvarId
 
 def instantiateMVars (e : Expr) : MetaM Expr :=
 if e.hasMVar then

@@ -9,6 +9,45 @@ import Init.Lean.Meta.Basic
 namespace Lean
 namespace Meta
 
+private partial def decAux? : Level → MetaM (Option Level)
+| Level.zero _        => pure none
+| Level.param _ _     => pure none
+| Level.mvar mvarId _ => do
+  mctx ← getMCtx;
+  match mctx.getLevelAssignment? mvarId with
+  | some u => decAux? u
+  | none   =>
+    condM (isReadOnlyLevelMVar mvarId) (pure none) $ do
+      u ← mkFreshLevelMVar;
+      assignLevelMVar mvarId (mkLevelSucc u);
+      pure u
+| Level.succ u _  => pure u
+| u =>
+  let process (u v : Level) : MetaM (Option Level) := do {
+    u? ← decAux? u;
+    match u? with
+    | none   => pure none
+    | some u => do
+      v? ← decAux? v;
+      match v? with
+      | none   => pure none
+      | some v => pure $ mkLevelMax u v
+  };
+  match u with
+  | Level.max u v _  => process u v
+  /- Remark: If `decAux? v` returns `some ...`, then `imax u v` is equivalent to `max u v`. -/
+  | Level.imax u v _ => process u v
+  | _                => unreachable!
+
+partial def decLevel? (u : Level) : MetaM (Option Level) := do
+mctx ← getMCtx;
+result? ← decAux? u;
+match result? with
+| some v => pure $ some v
+| none   => do
+  modify $ fun s => { mctx := mctx, .. s };
+  pure none
+
 private def strictOccursMaxAux (lvl : Level) : Level → Bool
 | Level.max u v _ => strictOccursMaxAux u || strictOccursMaxAux v
 | u               => u != lvl && lvl.occurs u
@@ -86,11 +125,18 @@ partial def isLevelDefEqAux : Level → Level → MetaM Bool
           | _ =>
             if lhs.isMVar || rhs.isMVar then
               pure false
-            else if lhs.isSucc || rhs.isSucc then
-              match lhs.dec, rhs.dec with
-              | some lhs', some rhs' => isLevelDefEqAux lhs' rhs'
-              | _,         _         => do postponeIsLevelDefEq lhs rhs; pure true
-            else do postponeIsLevelDefEq lhs rhs; pure true
+            else
+              let isSuccEq (u v : Level) : MetaM Bool :=
+                match u with
+                | Level.succ u _ => do
+                  v? ← decLevel? v;
+                  match v? with
+                  | some v => isLevelDefEqAux u v
+                  | none   => pure false
+                | _ => pure false;
+              condM (isSuccEq lhs rhs) (pure true) $
+              condM (isSuccEq rhs lhs) (pure true) $ do
+              postponeIsLevelDefEq lhs rhs; pure true
 
 def isListLevelDefEqAux : List Level → List Level → MetaM Bool
 | [],    []    => pure true

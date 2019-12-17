@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Option_HasToBool(lean_object*);
 lean_object* l_notM___rarg___lambda__1___boxed(lean_object*);
+extern lean_object* l_Nat_HasOfNat___closed__1;
 lean_object* l_andM___boxed(lean_object*, lean_object*);
 lean_object* l_notM___boxed(lean_object*);
 lean_object* l_andM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -28,7 +29,6 @@ lean_object* l_orM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_o
 lean_object* l_orM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_andM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_notM___rarg___lambda__1(uint8_t);
-extern lean_object* l_liftRefl___closed__1;
 lean_object* l_bool___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Bool_HasToBool;
 lean_object* l_orM___boxed(lean_object*, lean_object*);
@@ -41,7 +41,7 @@ lean_object* _init_l_Bool_HasToBool() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_liftRefl___closed__1;
+x_1 = l_Nat_HasOfNat___closed__1;
 return x_1;
 }
 }

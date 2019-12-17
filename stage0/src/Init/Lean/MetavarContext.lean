@@ -86,15 +86,30 @@ same invocation. In the C++ and Lean implementations we use a trick to
 ensure they do:
 https://github.com/leanprover/lean/blob/92826917a252a6092cffaf5fc5f1acb1f8cef379/src/library/type_context.cpp#L3583-L3594
 
-- Metavariables may be natural or synthetic. Natural metavariables may
-be assigned by the unification (i.e., `isDefEq`). Synthetic
-metavariables are assigned by procedures (e.g., TC, tactic, or
-elaborator). This distinction was not precise in Lean3 and produced
-counterintuitive behavior. For example, the following hack was added
-in Lean3 to work around one of these issues:
-https://github.com/leanprover/lean/blob/92826917a252a6092cffaf5fc5f1acb1f8cef379/src/library/type_context.cpp#L2751
-`isDefEq` should not assign synthetic metavariables, but it must
-accumulate the constraints imposed on them by unification.
+- Metavariables may be natural, synthetic or syntheticOpaque.
+  a) Natural metavariables may be assigned by unification (i.e., `isDefEq`).
+
+  b) Synthetic metavariables may still be assigned by unification,
+     but whenever possible `isDefEq` will avoid the assignment. For example,
+     if we have the unification constaint `?m =?= ?n`, where `?m` is synthetic,
+     but `?n` is not, `isDefEq` solves it by using the assignment `?n := ?m`.
+     We use synthetic metavariables for type class resolution.
+     Any module that creates synthetic metavariables, must also check
+     whether they have been assigned by `isDefEq`, and then still synthesize
+     them, and check whether the sythesized result is compatible with the one
+     assigned by `isDefEq`.
+
+  c) SyntheticOpaque metavariables are never assigned by `isDefEq`.
+     That is, the constraint `?n =?= Nat.succ Nat.zero` always fail
+     if `?n` is a syntheticOpaque metavariable. This kind of metavariable
+     is created by tactics such as `intro`. Reason: in the tactic framework,
+     subgoals as represented as metavariables, and a subgoal `?n` is considered
+     as solved whenever the metavariable is assigned.
+
+  This distinction was not precise in Lean3 and produced
+  counterintuitive behavior. For example, the following hack was added
+  in Lean3 to work around one of these issues:
+  https://github.com/leanprover/lean/blob/92826917a252a6092cffaf5fc5f1acb1f8cef379/src/library/type_context.cpp#L2751
 
 - When creating lambda/forall expressions, we need to convert/abstract
 free variables and convert them to bound variables. Now, suppose we a
@@ -112,10 +127,10 @@ is natural, `?m` is synthetic. Assume the type of `?m` is
 type `forall xs => A`, and local context := local context of `?m` - `xs`.
 In both cases, we produce the term `fun xs => t[?n xs]`
 
-  1- If `?m` is natural, then we assign `?m := ?n xs`, and we produce
+  1- If `?m` is natural or synthetic, then we assign `?m := ?n xs`, and we produce
   the term `fun xs => t[?n xs]`
 
-  2- If `?m` is synthetic, then we mark `?n` as a synthetic variable.
+  2- If `?m` is syntheticOpaque, then we mark `?n` as a syntheticOpaque variable.
   However, `?n` is managed by the metavariable context itself.
   We say we have a "delayed assignment" `?n xs := ?m`.
   That is, after a term `s` is assigned to `?m`, and `s`
@@ -204,16 +219,25 @@ i₁.fvar == i₂.fvar
 
 instance LocalInstance.hasBeq : HasBeq LocalInstance := ⟨LocalInstance.beq⟩
 
+inductive MetavarKind
+| natural
+| synthetic
+| syntheticOpaque
+
+def MetavarKind.isSyntheticOpaque : MetavarKind → Bool
+| MetavarKind.syntheticOpaque => true
+| _                           => false
+
 structure MetavarDecl :=
 (userName       : Name := Name.anonymous)
 (lctx           : LocalContext)
 (type           : Expr)
 (depth          : Nat)
 (localInstances : LocalInstances)
-(synthetic      : Bool)
+(kind           : MetavarKind)
 
 namespace MetavarDecl
-instance : Inhabited MetavarDecl := ⟨{ lctx := arbitrary _, type := arbitrary _, depth := 0, localInstances := #[], synthetic := false }⟩
+instance : Inhabited MetavarDecl := ⟨{ lctx := arbitrary _, type := arbitrary _, depth := 0, localInstances := #[], kind := MetavarKind.natural }⟩
 end MetavarDecl
 
 /--
@@ -250,14 +274,14 @@ def addExprMVarDecl (mctx : MetavarContext)
     (userName : Name)
     (lctx : LocalContext)
     (localInstances : LocalInstances)
-    (type : Expr) (synthetic : Bool := false) : MetavarContext :=
+    (type : Expr) (kind : MetavarKind := MetavarKind.natural) : MetavarContext :=
 { decls := mctx.decls.insert mvarId {
     userName       := userName,
     lctx           := lctx,
     localInstances := localInstances,
     type           := type,
     depth          := mctx.depth,
-    synthetic      := synthetic },
+    kind           := kind },
   .. mctx }
 
 /- Low level API for adding/declaring universe level metavariable declarations.
@@ -708,10 +732,10 @@ mkForall
 private def mkMVarApp (lctx : LocalContext) (mvar : Expr) (xs : Array Expr) : Expr :=
 xs.foldl (fun e x => if (lctx.getFVar! x).isLet then e else mkApp e x) mvar
 
-private def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (synthetic : Bool) : M MVarId := do
+private def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (kind : MetavarKind) : M MVarId := do
 s ← get;
 let mvarId := s.ngen.curr;
-modify $ fun s => { mctx := s.mctx.addExprMVarDecl mvarId Name.anonymous lctx localInsts type synthetic, ngen := s.ngen.next, .. s };
+modify $ fun s => { mctx := s.mctx.addExprMVarDecl mvarId Name.anonymous lctx localInsts type kind, ngen := s.ngen.next, .. s };
 pure mvarId
 
 private partial def elimMVarDepsAux : Array Expr → Expr → M Expr
@@ -747,13 +771,12 @@ private partial def elimMVarDepsAux : Array Expr → Expr → M Expr
         let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert;
         let newLocalInsts := mvarDecl.localInstances.filter $ fun inst => toRevert.all $ fun x => inst.fvar != x;
         newMVarType ← mkForallAux (fun xs e => elimMVarDepsAux xs e) mvarLCtx toRevert mvarDecl.type;
-        newMVarId   ← mkAuxMVar newMVarLCtx newLocalInsts newMVarType mvarDecl.synthetic;
+        newMVarId   ← mkAuxMVar newMVarLCtx newLocalInsts newMVarType mvarDecl.kind;
         let newMVar := mkMVar newMVarId;
         let result  := mkMVarApp mvarLCtx newMVar toRevert;
-        if mvarDecl.synthetic then
-          modify (fun s => { mctx := assignDelayed s.mctx newMVarId mvarLCtx toRevert e, .. s })
-        else
-          modify (fun s => { mctx := assignExpr s.mctx mvarId result, .. s });
+        match mvarDecl.kind with
+        | MetavarKind.syntheticOpaque => modify $ fun s => { mctx := assignDelayed s.mctx newMVarId mvarLCtx toRevert e, .. s }
+        | _                           => modify $ fun s => { mctx := assignExpr s.mctx mvarId result, .. s };
         pure result
 | xs, e => pure e
 

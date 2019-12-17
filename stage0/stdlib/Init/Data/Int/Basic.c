@@ -31,6 +31,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Int_HasZero;
 lean_object* l_Int_HasAdd;
 lean_object* lean_string_utf8_byte_size(lean_object*);
+lean_object* l_Int_HasOfNat(lean_object*);
 lean_object* l_Int_HasSub___closed__1;
 lean_object* l_Int_zero;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -497,6 +498,14 @@ _start:
 lean_object* x_1; 
 x_1 = l_Int_HasRepr___closed__1;
 return x_1;
+}
+}
+lean_object* l_Int_HasOfNat(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
 }
 }
 lean_object* l_Int_div___boxed(lean_object* x_1, lean_object* x_2) {

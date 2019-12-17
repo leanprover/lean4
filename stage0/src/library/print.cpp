@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <string>
 #include <utility>
 #include "util/escaped.h"
 #include "kernel/environment.h"
@@ -280,8 +281,11 @@ struct print_expr_fn {
         case expr_kind::Lit:
             switch (lit_value(a).kind()) {
             case literal_kind::Nat: out() << lit_value(a).get_nat().to_mpz(); break;
-            case literal_kind::String: out() << escaped(lit_value(a).get_string().data()); break; // HACK Lean string as C string
-            }
+            case literal_kind::String: {
+                std::string val(lit_value(a).get_string().data() + 1);
+                val.pop_back();
+                out() << "\"" << escaped(val.c_str()) << "\""; break; // HACK Lean string as C string
+            }}
             break;
         }
     }

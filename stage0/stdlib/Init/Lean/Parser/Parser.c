@@ -226,6 +226,7 @@ lean_object* l_Lean_Parser_declareBuiltinParser___closed__4;
 lean_object* l_Lean_Parser_quotedSymbolFn(uint8_t);
 lean_object* l_Lean_Parser_quotedSymbolFn___rarg___closed__4;
 lean_object* l_Lean_Parser_insertToken(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Nat_HasOfNat___closed__1;
 lean_object* l_Lean_Parser_tokenTableAttribute;
 lean_object* l_List_foldl___main___at_Lean_Parser_addBuiltinLeadingParser___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_takeUntilFn___main(lean_object*, lean_object*, lean_object*);
@@ -238,7 +239,6 @@ lean_object* l_Lean_Parser_pushLeading___closed__1;
 lean_object* l_Lean_Syntax_foldArgsM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_charLitFn___rarg___closed__1;
 lean_object* l_Lean_Parser_registerBuiltinParserAttribute___lambda__1___closed__2;
-extern lean_object* l_joinM___rarg___closed__1;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_Parser_mkTokenTableAttribute___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ident___closed__1;
 lean_object* l_Lean_Parser_finishCommentBlock___main(lean_object*, lean_object*, lean_object*);
@@ -2864,7 +2864,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_ExceptT_lift___rarg___closed__1;
-x_2 = l_joinM___rarg___closed__1;
+x_2 = l_Nat_HasOfNat___closed__1;
 x_3 = lean_box(1);
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);

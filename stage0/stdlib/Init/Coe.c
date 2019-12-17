@@ -25,7 +25,6 @@ lean_object* l_coeSubtype___rarg(lean_object*);
 lean_object* l_coeBoolToProp;
 lean_object* l_coeBase(lean_object*, lean_object*);
 lean_object* l_coeTrans(lean_object*, lean_object*, lean_object*);
-lean_object* l_id___rarg___boxed(lean_object*);
 lean_object* l_coeB___rarg(lean_object*, lean_object*);
 lean_object* l_coeT(lean_object*, lean_object*);
 lean_object* l_coeFnTrans___rarg(lean_object*, lean_object*, lean_object*);
@@ -39,6 +38,7 @@ lean_object* l_coeSort___rarg(lean_object*, lean_object*);
 lean_object* l_liftPair___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeBaseAux(lean_object*, lean_object*);
 lean_object* l_coeFn(lean_object*);
+extern lean_object* l_Nat_HasOfNat___closed__1;
 lean_object* l_List_map___main___at_liftList___spec__1(lean_object*, lean_object*);
 lean_object* l_liftT(lean_object*, lean_object*);
 lean_object* l_coeOption(lean_object*);
@@ -62,7 +62,6 @@ lean_object* l_coeFnTrans(lean_object*, lean_object*);
 lean_object* l_liftPair_u2081___rarg(lean_object*, lean_object*);
 lean_object* l_coeTrans___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_coeFnB(lean_object*);
-lean_object* l_liftRefl___closed__1;
 lean_object* l_coeB(lean_object*, lean_object*);
 lean_object* l_liftFn___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_coeT___rarg(lean_object*, lean_object*);
@@ -219,19 +218,11 @@ x_4 = lean_alloc_closure((void*)(l_liftTrans___rarg), 3, 0);
 return x_4;
 }
 }
-lean_object* _init_l_liftRefl___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_id___rarg___boxed), 1, 0);
-return x_1;
-}
-}
 lean_object* l_liftRefl(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_liftRefl___closed__1;
+x_2 = l_Nat_HasOfNat___closed__1;
 return x_2;
 }
 }
@@ -689,8 +680,6 @@ _G_initialized = true;
 res = initialize_Init_Data_List_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_liftRefl___closed__1 = _init_l_liftRefl___closed__1();
-lean_mark_persistent(l_liftRefl___closed__1);
 l_coeBoolToProp = _init_l_coeBoolToProp();
 l_coeSortBool = _init_l_coeSortBool();
 return lean_mk_io_result(lean_box(0));

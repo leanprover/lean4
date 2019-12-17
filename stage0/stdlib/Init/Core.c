@@ -92,6 +92,7 @@ lean_object* l_default_sizeof___boxed(lean_object*, lean_object*);
 lean_object* l_Task_map___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_prio;
 lean_object* l_Subtype_HasSizeof(lean_object*);
+lean_object* l_Nat_HasOfNat___closed__1;
 lean_object* l_cond(lean_object*);
 lean_object* l_PSigma_sizeof___at_PSigma_HasSizeof___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Decidable_byCases___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -361,6 +362,7 @@ lean_object* l_Prod_HasSizeof(lean_object*, lean_object*);
 uint8_t l_PUnit_DecidableEq(lean_object*, lean_object*);
 lean_object* l_Bool_HasSizeof___closed__1;
 lean_object* l_Sum_HasSizeof___rarg(lean_object*, lean_object*);
+lean_object* l_Nat_HasOfNat;
 lean_object* l_Quot_hrecOn___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_id___rarg(lean_object* x_1) {
 _start:
@@ -825,6 +827,22 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_std_prec_maxPlus___closed__1;
+return x_1;
+}
+}
+lean_object* _init_l_Nat_HasOfNat___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_id___rarg___boxed), 1, 0);
+return x_1;
+}
+}
+lean_object* _init_l_Nat_HasOfNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Nat_HasOfNat___closed__1;
 return x_1;
 }
 }
@@ -3981,6 +3999,10 @@ l_std_prec_maxPlus___closed__1 = _init_l_std_prec_maxPlus___closed__1();
 lean_mark_persistent(l_std_prec_maxPlus___closed__1);
 l_std_prec_maxPlus = _init_l_std_prec_maxPlus();
 lean_mark_persistent(l_std_prec_maxPlus);
+l_Nat_HasOfNat___closed__1 = _init_l_Nat_HasOfNat___closed__1();
+lean_mark_persistent(l_Nat_HasOfNat___closed__1);
+l_Nat_HasOfNat = _init_l_Nat_HasOfNat();
+lean_mark_persistent(l_Nat_HasOfNat);
 l_defaultHasSizeof___closed__1 = _init_l_defaultHasSizeof___closed__1();
 lean_mark_persistent(l_defaultHasSizeof___closed__1);
 l_Nat_HasSizeof___closed__1 = _init_l_Nat_HasSizeof___closed__1();

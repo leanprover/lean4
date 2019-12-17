@@ -119,6 +119,10 @@ match stx with
 | Syntax.node k args => if k == kind then hyes ⟨Syntax.node k args, IsNode.mk k args⟩ else hno ()
 | _                  => hno ()
 
+def isAtom : Syntax → Bool
+| atom _ _ => true
+| _        => false
+
 def isIdent : Syntax → Bool
 | ident _ _ _ _ => true
 | _             => false

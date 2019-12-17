@@ -40,10 +40,21 @@ pushLeading >> unicodeSymbol sym asciiSym lbp >> termParser lbp
 def infixL (sym : String) (lbp : Nat) : TrailingParser :=
 pushLeading >> symbol sym lbp >> termParser lbp
 
-/- Builting parsers -/
+-- Define parser for `%%e` (if name = none) or `%%e:n` (if name = some n). Both
+-- forms can also be used with an appended `*` to turn them into an
+-- antiquotation "splice".
+def mkAntiquot (name : Option String) : Parser leading :=
+leadingNode `Lean.Parser.Term.antiquot $ symbol "%%" appPrec >> termParser appPrec >> (
+  match name with
+  | some name => let sym := ":" ++ name; checkNoWsBefore ("no space before '" ++ sym ++ "'") >> sym
+  -- make sure to generate as many children (1) as in the first case to keep arity constant
+  | none      => { info := epsilonInfo, fn := fun a c s => s.mkNode nullKind s.stackSize }
+) >> optional "*"
+
+/- Built-in parsers -/
 def explicitUniv   := parser! ".{" >> sepBy1 levelParser ", " >> "}"
 def namedPattern := parser! checkNoWsBefore "no space before '@'" >> "@" >> termParser appPrec
-@[builtinTermParser] def id := parser! ident >> optional (explicitUniv <|> namedPattern)
+@[builtinTermParser] def id := mkAntiquot "id" <|> parser! ident >> optional (explicitUniv <|> namedPattern)
 @[builtinTermParser] def num : Parser := parser! numLit
 @[builtinTermParser] def str : Parser := parser! strLit
 @[builtinTermParser] def char : Parser := parser! charLit
@@ -96,7 +107,7 @@ def matchAlt := parser! " | " >> sepBy1 termParser ", " >> unicodeSymbol "⇒" "
 @[builtinTermParser] def borrowed   := parser! symbol "@&" appPrec >> termParser (appPrec - 1)
 @[builtinTermParser] def quotedName := parser! symbol "`" appPrec >> rawIdent
 @[builtinTermParser] def stxQuot    := parser! symbol "`(" appPrec >> termParser >> ")"
-@[builtinTermParser] def antiquot   := parser! symbol "%%" appPrec >> termParser appPrec
+@[builtinTermParser] def antiquot   := mkAntiquot none
 @[builtinTermParser] def «match_syntax» := parser! "match_syntax" >> termParser >> " with " >> many1Indent matchAlt "'match_syntax' alternatives must be indented"
 
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/

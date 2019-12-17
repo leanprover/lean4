@@ -20,8 +20,8 @@ lean_object* l_Lean_nameToExprAux___main___closed__4;
 lean_object* l_Lean_nameToExprAux___main___closed__7;
 lean_object* l_Lean_nameToExprAux___main___closed__5;
 lean_object* l_Lean_natToExpr___closed__1;
+extern lean_object* l_Nat_HasOfNat___closed__1;
 lean_object* l_Lean_nameToExprAux___main___closed__3;
-extern lean_object* l_joinM___rarg___closed__1;
 lean_object* l_Lean_nameToExpr;
 lean_object* l_Lean_nameToExpr___closed__1;
 lean_object* l_Lean_natToExpr;
@@ -42,7 +42,7 @@ lean_object* _init_l_Lean_exprToExpr() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_joinM___rarg___closed__1;
+x_1 = l_Nat_HasOfNat___closed__1;
 return x_1;
 }
 }

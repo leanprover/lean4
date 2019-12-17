@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include <algorithm>
 #include "runtime/sstream.h"
 #include "util/option_declarations.h"
 #include "kernel/abstract.h"
@@ -821,19 +822,68 @@ static expr parse_trace(parser & p, unsigned, expr const *, pos_info const & pos
     return save_pos(r, pos);
 }
 
-extern "C" object * lean_parse_stx_quot(object * env, object * input, object * pos);
+template<class T>
+static T handle_res(object * r, parser const & p) {
+    if (cnstr_tag(r) == 0) {
+        throw parser_error(sstream() << cnstr_get_ref_t<string_ref>(object_ref(r), 0).to_std_string(), p.pos());
+    } else {
+        return cnstr_get_ref_t<T>(object_ref(r), 0);
+    }
+}
+
+extern "C" object * lean_parse_expr(object * env, object * input, object * pos);
+
+static object_ref parse_expr(parser & p) {
+    object_ref tup = handle_res<object_ref>(lean_parse_expr(p.env().to_obj_arg(), mk_string(p.m_scanner.m_curr_line), nat(p.m_scanner.m_tk_spos).to_obj_arg()), p);
+    size_t col = cnstr_get_ref_t<nat>(tup, 1).get_small_value();
+    col = std::min(col, p.m_scanner.m_curr_line.size() - 1);
+    p.m_scanner.skip_to_pos(pos_info {0, col});
+    p.next();
+    return cnstr_get_ref(tup, 0);
+}
+
+extern "C" object * lean_expand_stx_quot(object * env, object * stx);
 
 static expr parse_stx_quot(parser & p, unsigned, expr const *, pos_info const & /* pos */) {
-    object_ref r(lean_parse_stx_quot(p.env().to_obj_arg(), mk_string(p.m_scanner.m_curr_line), nat(p.m_scanner.m_spos).to_obj_arg()));
-    if (cnstr_tag(r.raw()) == 0) {
-        throw parser_error(sstream() << cnstr_get_ref_t<string_ref>(r, 0).to_std_string(), p.pos());
-    } else {
-        object_ref tup = cnstr_get_ref(r, 0);
-        p.m_scanner.skip_to_pos(pos_info {0, cnstr_get_ref_t<nat>(tup, 1).get_small_value()});
+    object_ref stx = parse_expr(p);
+    return handle_res<expr>(lean_expand_stx_quot(p.env().to_obj_arg(), stx.steal()), p);
+}
+
+extern "C" object * lean_expand_match_syntax(object * env, object * discr, object * alts);
+extern "C" object * lean_get_antiquot_vars(object * env, object * pats);
+
+static expr parse_match_syntax(parser & p, unsigned, expr const *, pos_info const & /* pos */) {
+    parser::local_scope scope1(p);
+    parser::error_if_undef_scope eius(p);
+    expr discr = p.parse_expr();
+    p.check_token_next(get_with_tk(), "invalid 'match_syntax' expression, 'with' expected");
+    unsigned case_column = p.pos().second;
+    if (is_eqn_prefix(p))
+        p.next(); // optional '|' in the first case
+    buffer<object_ref> alts;
+    while (true) {
+        buffer<object_ref> lhs_args;
+        lhs_args.push_back(parse_expr(p));
+        while (p.curr_is_token(get_comma_tk())) {
+            p.next();
+            lhs_args.push_back(parse_expr(p));
+        }
+        list_ref<object_ref> lhs(lhs_args);
+        p.check_token_next(get_darrow_tk(), "invalid 'match_syntax' expression, '=>' expected");
+        {
+            parser::local_scope scope2(p);
+            auto vars = handle_res<list_ref<name>>(lean_get_antiquot_vars(p.env().to_obj_arg(), lhs.to_obj_arg()), p);
+            for (name const & var : vars)
+                p.add_local_expr(var, mk_fvar(var));
+            expr rhs = p.parse_expr();
+            alts.push_back(mk_cnstr(0, lhs.to_obj_arg(), rhs.to_obj_arg()));
+        }
+        // terminate match on dedent
+        if (!is_eqn_prefix(p) || p.pos().second < case_column)
+            break;
         p.next();
-        p.check_token_next(get_rparen_tk(), "')' expected");
-        return cnstr_get_ref_t<expr>(tup, 0);
     }
+    return handle_res<expr>(lean_expand_match_syntax(p.env().to_obj_arg(), discr.to_obj_arg(), list_ref<object_ref>(alts).to_obj_arg()), p);
 }
 
 parse_table init_nud_table() {
@@ -875,6 +925,7 @@ parse_table init_nud_table() {
     r = r.add({transition("panic!", mk_ext_action(parse_panic))}, x0);
     r = r.add({transition("trace!", mk_ext_action(parse_trace))}, x0);
     r = r.add({transition("`(", mk_ext_action_core(parse_stx_quot))}, x0);
+    r = r.add({transition("match_syntax", mk_ext_action(parse_match_syntax))}, x0);
     return r;
 }
 

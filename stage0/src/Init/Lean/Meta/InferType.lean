@@ -73,7 +73,7 @@ typeType ← whnfD typeType;
 match typeType with
 | Expr.sort lvl _    => pure lvl
 | Expr.mvar mvarId _ =>
-  condM (isReadOnlyOrSyntheticExprMVar mvarId)
+  condM (isReadOnlyOrSyntheticOpaqueExprMVar mvarId)
     (throwEx $ Exception.typeExpected type)
     (do levelMVarId ← mkFreshId;
         let lvl := mkLevelMVar levelMVarId;

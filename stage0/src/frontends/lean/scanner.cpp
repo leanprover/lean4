@@ -642,6 +642,7 @@ auto scanner::scan(environment const & env) -> token_kind {
     while (true) {
         uchar c = curr();
         m_pos  = m_upos;
+        m_tk_spos = m_spos;
         m_line = m_sline;
         switch (c) {
         case ' ': case '\r': case '\t': case '\n':
@@ -713,6 +714,7 @@ void scanner::skip_to_pos(pos_info const & pos) {
     while (static_cast<unsigned>(m_spos) < pos.second)
         next();
     m_pos = m_upos; // we assume that the argument is the start of a token
+    m_tk_spos = m_spos;
     // lean_assert(pos == pos_info(get_line(), get_pos()));
 }
 

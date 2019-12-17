@@ -16,7 +16,7 @@ def introNCoreAux {σ} (mvarId : MVarId) (mkName : LocalContext → Name → σ 
   let type := type.instantiateRevRange j fvars.size fvars;
   adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $
     withNewLocalInstances isClassExpensive fvars j $ do
-      newMVar ← mkFreshExprSyntheticMVar type;
+      newMVar ← mkFreshExprSyntheticOpaqueMVar type;
       lctx    ← getLCtx;
       modify $ fun s => { mctx := s.mctx.assignDelayed mvarId lctx fvars newMVar, .. s };
       pure $ (fvars, newMVar.mvarId!)

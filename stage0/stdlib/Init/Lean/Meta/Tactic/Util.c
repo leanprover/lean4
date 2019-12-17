@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkNotAssigned___closed__1;
 extern lean_object* l_Lean_formatDataValue___closed__1;
-lean_object* l_Lean_Meta_mkFreshExprSyntheticMVar(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkNotAssigned___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_metavar_ctx_is_expr_assigned(lean_object*, lean_object*);
@@ -30,11 +29,12 @@ lean_object* l_Lean_Meta_mkFreshExprMVar(lean_object*, lean_object*, uint8_t, le
 lean_object* l_Lean_Meta_getMVarDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_Tactic_Util_1__regTraceClasses___closed__1;
 lean_object* l___private_Init_Lean_Meta_Tactic_Util_1__regTraceClasses___closed__2;
-lean_object* l_Lean_Meta_mkFreshExprSyntheticMVar(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; lean_object* x_6; 
-x_5 = 1;
+x_5 = 2;
 x_6 = l_Lean_Meta_mkFreshExprMVar(x_1, x_2, x_5, x_3, x_4);
 return x_6;
 }

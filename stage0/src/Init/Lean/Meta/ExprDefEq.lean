@@ -42,7 +42,7 @@ else
 def isEtaUnassignedMVar (e : Expr) : MetaM Bool :=
 match e.etaExpanded? with
 | some (Expr.mvar mvarId _) =>
-  condM (isReadOnlyOrSyntheticExprMVar mvarId)
+  condM (isReadOnlyOrSyntheticOpaqueExprMVar mvarId)
     (pure false)
     (condM (isExprMVarAssigned mvarId)
       (pure false)
@@ -405,7 +405,7 @@ match mctx.getExprAssignment? mvarId with
     | some mvarDecl =>
       if ctx.hasCtxLocals then throw $ Exception.useFOApprox -- we use option c) described at workaround A2
       else if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx then pure mvar
-      else if mvarDecl.depth != mctx.depth || mvarDecl.synthetic then throw $ Exception.readOnlyMVarWithBiggerLCtx mvarId
+      else if mvarDecl.depth != mctx.depth || mvarDecl.kind.isSyntheticOpaque then throw $ Exception.readOnlyMVarWithBiggerLCtx mvarId
       else if ctx.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx then
         let mvarType := mvarDecl.type;
         if mctx.isWellFormed ctx.mvarDecl.lctx mvarType then do
@@ -490,7 +490,7 @@ partial def check
       | some mvarDecl' =>
         if hasCtxLocals then false -- use CheckAssignment.check
         else if mvarDecl'.lctx.isSubPrefixOf mvarDecl.lctx then true
-        else if mvarDecl'.depth != mctx.depth || mvarDecl'.synthetic then false  -- use CheckAssignment.check
+        else if mvarDecl'.depth != mctx.depth || mvarDecl'.kind.isSyntheticOpaque then false  -- use CheckAssignment.check
         else if ctxApprox && mvarDecl.lctx.isSubPrefixOf mvarDecl'.lctx then false  -- use CheckAssignment.check
         else true
 | Expr.localE _ _ _ _      => unreachable!
@@ -899,11 +899,16 @@ private def isAssigned : Expr → MetaM Bool
 | _                  => pure false
 
 private def isSynthetic : Expr → MetaM Bool
-| Expr.mvar mvarId _ => isSyntheticExprMVar mvarId
+| Expr.mvar mvarId _ => do
+  mvarDecl ← getMVarDecl mvarId;
+  match mvarDecl.kind with
+  | MetavarKind.synthetic       => pure true
+  | MetavarKind.syntheticOpaque => pure true
+  | MetavarKind.natural         => pure false
 | _                  => pure false
 
 private def isAssignable : Expr → MetaM Bool
-| Expr.mvar mvarId _ => do b ← isReadOnlyOrSyntheticExprMVar mvarId; pure (!b)
+| Expr.mvar mvarId _ => do b ← isReadOnlyOrSyntheticOpaqueExprMVar mvarId; pure (!b)
 | _                  => pure false
 
 private def etaEq (t s : Expr) : Bool :=
@@ -936,7 +941,6 @@ private partial def isDefEqQuick : Expr → Expr → MetaM LBool
   condM (isAssigned sFn) (do s ← instantiateMVars s; isDefEqQuick t s) $
   condM (isSynthetic tFn <&&> synthPending tFn) (do t ← instantiateMVars t; isDefEqQuick t s) $
   condM (isSynthetic sFn <&&> synthPending sFn) (do s ← instantiateMVars s; isDefEqQuick t s) $ do
-  -- TODO: if `t` or `s` are synthetic metavars, we must invoke synthPending
   tAssign? ← isAssignable tFn;
   sAssign? ← isAssignable sFn;
   let assign (t s : Expr) : MetaM LBool := toLBoolM $ processAssignment t s;

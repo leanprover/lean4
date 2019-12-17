@@ -9,5 +9,6 @@ import Init.Lean.Elab.Exception
 import Init.Lean.Elab.ElabStrategyAttrs
 import Init.Lean.Elab.Command
 import Init.Lean.Elab.Term
+import Init.Lean.Elab.Quotation
 import Init.Lean.Elab.Frontend
 import Init.Lean.Elab.BuiltinNotation

@@ -16,11 +16,10 @@ extern "C" {
 lean_object* l_whenM___rarg___lambda__1(lean_object*, lean_object*, uint8_t);
 lean_object* l_whenM(lean_object*);
 lean_object* l_whenM___boxed(lean_object*);
-lean_object* l_id___rarg___boxed(lean_object*);
 lean_object* l_condM___rarg___lambda__1(lean_object*, lean_object*, uint8_t);
 lean_object* l_whenM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_unlessM___boxed(lean_object*);
-lean_object* l_joinM___rarg___closed__1;
+extern lean_object* l_Nat_HasOfNat___closed__1;
 lean_object* l_unlessM___rarg___lambda__1(lean_object*, lean_object*, uint8_t);
 lean_object* l_monadInhabited_x27___rarg(lean_object*);
 lean_object* l_unlessM___rarg(lean_object*, lean_object*, lean_object*);
@@ -130,14 +129,6 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* _init_l_joinM___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_id___rarg___boxed), 1, 0);
-return x_1;
-}
-}
 lean_object* l_joinM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -145,7 +136,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6;
 x_4 = lean_ctor_get(x_1, 1);
 lean_inc(x_4);
 lean_dec(x_1);
-x_5 = l_joinM___rarg___closed__1;
+x_5 = l_Nat_HasOfNat___closed__1;
 x_6 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_3, x_5);
 return x_6;
 }
@@ -364,8 +355,6 @@ _G_initialized = true;
 res = initialize_Init_Control_Applicative(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_joinM___rarg___closed__1 = _init_l_joinM___rarg___closed__1();
-lean_mark_persistent(l_joinM___rarg___closed__1);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

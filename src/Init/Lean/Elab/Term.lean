@@ -213,6 +213,33 @@ finally x $ do
 ctx ← read;
 tracingAtPos (ref.getPos.getD ctx.cmdPos) x
 
+def mkExplicitBinder (n : Syntax) (type : Syntax) : Syntax :=
+mkNode `Lean.Parser.Term.explicitBinder #[mkAtom "(", mkNullNode #[n], mkNullNode #[mkAtom ":", type], mkNullNode, mkAtom ")"]
+
+private def mkFreshAnonymousName : TermElabM Name := do
+s ← get;
+let anonymousIdx := s.anonymousIdx;
+modify $ fun s => { anonymousIdx := s.anonymousIdx + 1, .. s};
+pure $ (`_a).appendIndexAfter anonymousIdx
+
+private def mkFreshAnonymousIdent (ref : Syntax) : TermElabM Syntax := do
+n ← mkFreshAnonymousName;
+pure $ mkIdentFrom ref n
+
+private def mkFreshInstanceName : TermElabM Name := do
+s ← get;
+let instIdx := s.instImplicitIdx;
+modify $ fun s => { instImplicitIdx := s.instImplicitIdx + 1, .. s};
+pure $ (`_inst).appendIndexAfter instIdx
+
+def mkHole := mkNode `Lean.Parser.Term.hole #[mkAtom "_"]
+
+def mkTermIdFromIdent (ident : Syntax) : Syntax :=
+mkNode `Lean.Parser.Term.id #[ident, mkNullNode]
+
+def mkTermId (ref : Syntax) (n : Name) : Syntax :=
+mkTermIdFromIdent (mkIdentFrom ref n)
+
 def exceptionToSorry (ref : Syntax) (ex : Exception) (expectedType? : Option Expr) : TermElabM Expr := do
 expectedType : Expr ← match expectedType? with
   | none              => mkFreshExprMVar ref
@@ -226,6 +253,24 @@ partial def hasCDot : Syntax → Bool
 | Syntax.node `Lean.Parser.Term.cdot _   => true
 | Syntax.node `Lean.Parser.Term.app args => hasCDot (args.getA 0) || hasCDot (args.getA 1)
 | _ => false
+
+def hasCDotArg : Syntax → Bool
+| Syntax.node _ args => args.any hasCDot
+| _                  => false
+
+partial def expandCDotAux : Bool → Syntax → StateT (Array Syntax) TermElabM Syntax
+| _, n@(Syntax.node `Lean.Parser.Term.cdot _) => do
+  id ← liftM $ mkFreshAnonymousIdent n;
+  modify $ fun s => s.push (mkExplicitBinder id mkHole); -- TODO: fix `fun` uses a different kind of binder
+  pure (mkTermIdFromIdent id)
+| false, n@(Syntax.node `Lean.Parser.Term.app args) =>
+  if args.size == 2 then do
+    a1 ← expandCDotAux false $ args.get! 0;
+    a2 ← expandCDotAux true  $ args.get! 1;
+    pure $ Syntax.node `Lean.Parser.Term.app #[a1, a2]
+  else
+    pure n
+| _, n => pure n
 
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
 withNode stx $ fun node => do
@@ -274,20 +319,6 @@ fun stx expectedType? => do
   env ← getEnv;
   elabTerm (stxQuot.expand env (stx.getArg 1)) expectedType?
 
-private def mkFreshAnonymousName : TermElabM Name := do
-s ← get;
-let anonymousIdx := s.anonymousIdx;
-modify $ fun s => { anonymousIdx := s.anonymousIdx + 1, .. s};
-pure $ (`_a).appendIndexAfter anonymousIdx
-
-private def mkFreshInstanceName : TermElabM Name := do
-s ← get;
-let instIdx := s.instImplicitIdx;
-modify $ fun s => { instImplicitIdx := s.instImplicitIdx + 1, .. s};
-pure $ (`_inst).appendIndexAfter instIdx
-
-def mkHole := mkNode `Lean.Parser.Term.hole #[mkAtom "_"]
-
 /--
   Given syntax of the forms
     a) (`:` term)?
@@ -302,8 +333,7 @@ else
 /-- Given syntax of the form `ident <|> hole`, return `ident`. If `hole`, then we create a new anonymous name. -/
 private def expandBinderIdent (stx : Syntax) : TermElabM Syntax :=
 if stx.getKind == `Lean.Parser.Term.hole then do
-  id ← mkFreshAnonymousName;
-  pure $ mkIdentFrom stx id
+  mkFreshAnonymousIdent stx
 else
   pure stx
 
@@ -416,13 +446,9 @@ fun stx _ =>
     e ← elabType term;
     mkForall stx.val xs e
 
-def mkExplicitBinder (n : Syntax) (type : Syntax) : Syntax :=
-mkNode `Lean.Parser.Term.explicitBinder #[mkAtom "(", mkNullNode #[n], mkNullNode #[mkAtom ":", type], mkNullNode, mkAtom ")"]
-
 @[builtinTermElab arrow] def elabArrow : TermElab :=
 fun stx expectedType? => do
-  a ← mkFreshAnonymousName;
-  let id     := mkIdentFrom stx.val a;
+  id ← mkFreshAnonymousIdent stx.val;
   let dom    := stx.getArg 0;
   let rng    := stx.getArg 2;
   let newStx := mkNode `Lean.Parser.Term.forall #[mkAtom "forall", mkNullNode #[mkExplicitBinder id dom], mkAtom ",", rng];
@@ -468,8 +494,7 @@ partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Nat → Ar
       let type := mkHole;
       expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder id type)
     | Syntax.node `Lean.Parser.Term.hole _ => do
-      id ← mkFreshAnonymousName;
-      let id := mkIdentFrom binder id;
+      id ← mkFreshAnonymousIdent binder;
       let type := binder;
       expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder id type)
     | Syntax.node `Lean.Parser.Term.paren args =>
@@ -517,10 +542,6 @@ fun stx expectedType? =>
     let term := body.getArg 0;
     -- TODO: handle parenSpecial
     elabTerm term expectedType?
-
-def mkTermId (ref : Syntax) (n : Name) : Syntax :=
-let id := mkIdentFrom ref n;
-mkNode `Lean.Parser.Term.id #[id, mkNullNode]
 
 @[builtinTermElab «listLit»] def elabListLit : TermElab :=
 fun stx expectedType? => do

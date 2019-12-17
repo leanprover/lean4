@@ -221,6 +221,11 @@ let syntheticSorry := mkApp2 (mkConst `sorryAx [u]) expectedType (mkConst `Bool.
 unless ex.data.hasSyntheticSorry $ logMessage ex;
 pure syntheticSorry
 
+partial def hasCDot : Syntax → Bool
+| Syntax.node `Lean.Parser.Term.cdot _   => true
+| Syntax.node `Lean.Parser.Term.app args => hasCDot (args.getA 0) || hasCDot (args.getA 1)
+| _ => false
+
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
 withNode stx $ fun node => do
   trace! `Elab.step (toString stx);

@@ -16,8 +16,8 @@ import Init.Lean.Parser -- TODO: remove after removing old elaborator
 
 Quotations are currently integrated hackily into the old frontend. This implies the following restrictions:
 * quotations have to fit in a single line, because that's how the old scanner works :)
-* no namespace information: references to constants must use full names
-* antiquotation terms have to be trivial (locals, fully-qualified consts, and apps (no projections), basically)
+* `open` commands are not respected (but `export`, `namespace` are)
+* antiquotation terms have to be trivial (locals, consts (w/ projections), and apps, basically)
 
 After removing the old frontend, quotations in this and other files should be cleaned up.
 -/
@@ -69,10 +69,11 @@ private def isAntiquotSplicePat (stx : Syntax) : Bool :=
 stx.isOfKind nullKind && stx.getArgs.size == 1 && isAntiquotSplice (stx.getArg 0)
 
 -- Elaborate the content of a syntax quotation term
-private partial def quoteSyntax (env : Environment) : Syntax → TermElabM Syntax
+private partial def quoteSyntax : Syntax → TermElabM Syntax
 | Syntax.ident info rawVal val preresolved => do
   -- Add global scopes at compilation time (now), add macro scope at runtime (in the quotation).
   -- See the paper for details.
+  env           ← getEnv;
   currNamespace ← getCurrNamespace;
   openDecls     ← getOpenDecls;
   let preresolved := resolveGlobalName env currNamespace openDecls val ++ preresolved;
@@ -100,15 +101,15 @@ private partial def quoteSyntax (env : Environment) : Syntax → TermElabM Synta
   `(Lean.Syntax.atom Option.none $(Lean.HasQuote.quote val))
 | Syntax.missing => unreachable!
 
-def stxQuot.expand (env : Environment) (stx : Syntax) : TermElabM Syntax := do
+def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
 let quoted := stx.getArg 1;
 /- Syntax quotations are monadic values depending on the current macro scope. For efficiency, we bind
    the macro scope once for each quotation, then build the syntax tree in a completely pure computation
    depending on this binding. Note that regular function calls do not introduce a new macro scope (i.e.
    we preserve referential transparency), so we can refer to this same `scp` inside `quoteSyntax` by
    including it literally in a syntax quotation. -/
--- TODO: simplify to `(do scp ← getCurrMacroScope; pure $(quoteSyntax env quoted))
-stx ← quoteSyntax env quoted;
+-- TODO: simplify to `(do scp ← getCurrMacroScope; pure $(quoteSyntax quoted))
+stx ← quoteSyntax quoted;
 `(HasBind.bind Lean.MonadQuotation.getCurrMacroScope (fun scp => HasPure.pure $stx))
 /- NOTE: It may seem like the newly introduced binding `scp` may accidentally
    capture identifiers in an antiquotation introduced by `quoteSyntax`. However,
@@ -128,8 +129,7 @@ stx ← quoteSyntax env quoted;
 
 @[builtinTermElab stxQuot] def elabStxQuot : TermElab :=
 fun stx expectedType? => do
-  env ← getEnv;
-  stx ← stxQuot.expand env (stx.getArg 1);
+  stx ← stxQuot.expand (stx.getArg 1);
   elabTerm stx expectedType?
 
 /- match_syntax -/
@@ -278,26 +278,28 @@ fun stx expectedType? => do
 -- REMOVE with old frontend
 private def exprPlaceholder := mkMVar Name.anonymous
 
-private unsafe partial def toPreterm (env : Environment) : Syntax → Except String Expr
+private unsafe partial def toPreterm : Syntax → TermElabM Expr
 | stx =>
   let args := stx.getArgs;
   match stx.getKind with
   | `Lean.Parser.Term.id =>
     match args.get! 0 with
-    | Syntax.ident _ _ val preresolved =>
-      -- TODO: pass scope information
-      let ns := Name.anonymous;
-      let openDecls := [];
-      let resolved := resolveGlobalName env ns openDecls val <|> preresolved;
+    | Syntax.ident _ _ val preresolved => do
+      resolved ← resolveName stx val preresolved [];
       match resolved with
-      | (pre,[])::_ => pure $ Lean.mkConst pre
-      | [] => pure $ mkFVar val
-      | _ => throw "stxQuot: unimplemented: projection notation"
+      | (pre,projs)::_ =>
+        let pre := match pre with
+        | Expr.const c _ _ => Lean.mkConst c  -- remove universes confusing the old frontend
+        | _ => pre;
+        pure $ projs.foldl (fun e proj => mkMData (MData.empty.setName `fieldNotation proj) e) pre
+      | [] => unreachable!
     | _ => unreachable!
   | `Lean.Parser.Term.fun => do
     let params := (args.get! 1).getArgs;
-    body ← toPreterm $ args.get! 3;
-    params.foldrM (fun param e => do
+    let body := args.get! 3;
+    if params.size == 0 then toPreterm body
+    else do
+      let param := params.get! 0;
       (n, ty) ← if param.isOfKind `Lean.Parser.Term.id then
           pure (param.getIdAt 0, exprPlaceholder)
         else if param.isOfKind `Lean.Parser.Term.hole then
@@ -307,16 +309,24 @@ private unsafe partial def toPreterm (env : Environment) : Syntax → Except Str
           ty ← toPreterm $ (((param.getArg 1).getArg 1).getArg 0).getArg 1;
           pure (n, ty)
         };
-      pure $ Lean.mkLambda n BinderInfo.default ty (Expr.abstract e #[mkFVar n]))
-      body
+      lctx ← getLCtx;
+      let lctx := lctx.mkLocalDecl n n ty;
+      let params := params.eraseIdx 0;
+      stx ← `(fun $params* => $body);
+      adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $ do
+        e ← toPreterm stx;
+        pure $ lctx.mkLambda #[mkFVar n] e
   | `Lean.Parser.Term.let => do
     let ⟨n, val⟩ := show Name × Syntax from match (args.get! 1).getKind with
       | `Lean.Parser.Term.letIdDecl  => ((args.get! 1).getIdAt 0, (args.get! 1).getArg 4)
       | `Lean.Parser.Term.letPatDecl => (((args.get! 1).getArg 0).getIdAt 0, (args.get! 1).getArg 3)
       | _                            => unreachable!;
     val ← toPreterm val;
-    body ← toPreterm $ args.get! 3;
-    pure $ mkLet n exprPlaceholder val (Expr.abstract body #[mkFVar n])
+    lctx ← getLCtx;
+    let lctx := lctx.mkLetDecl n n exprPlaceholder val;
+    adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $ do
+      e ← toPreterm $ args.get! 3;
+      pure $ lctx.mkLambda #[mkFVar n] e
   | `Lean.Parser.Term.app => do
     fn ← toPreterm $ args.get! 0;
     arg ← toPreterm $ args.get! 1;
@@ -339,7 +349,7 @@ private unsafe partial def toPreterm (env : Environment) : Syntax → Except Str
   | `Lean.Parser.Term.str => pure $ mkStrLit $ (stx.getArg 0).isStrLit?.getD ""
   | `Lean.Parser.Term.num => pure $ mkNatLit $ (stx.getArg 0).isNatLit?.getD 0
   | `expr => pure $ unsafeCast $ stx.getArg 0  -- HACK: see below
-  | k => throw $ "stxQuot: unimplemented kind " ++ toString k
+  | k => throwError stx $ "stxQuot: unimplemented kind " ++ toString k
 
 @[export lean_parse_expr]
 def oldParseExpr (env : Environment) (input : String) (pos : String.Pos) : Except String (Syntax × String.Pos) := do
@@ -355,31 +365,38 @@ match s.errorMsg with
 | none =>
   Except.ok (stx, s.pos)
 
-private def oldRunTermElabM {α} (env : Environment) (x : TermElabM α) : Except String α := do
-match x {fileName := "foo", fileMap := FileMap.ofString "", cmdPos := 0, currNamespace := `foo} {env := env} with
+structure OldContext :=
+(env : Environment)
+(locals : List Name)
+(open_nss : List Name)
+
+private def oldRunTermElabM {α} (ctx : OldContext) (x : TermElabM α) : Except String α := do
+match x {fileName := "foo", fileMap := FileMap.ofString "", cmdPos := 0,
+  currNamespace := ctx.env.getNamespace,
+  openDecls := ctx.open_nss.map $ fun n => OpenDecl.simple n [],
+  lctx := ctx.locals.foldl (fun lctx l => LocalContext.mkLocalDecl lctx l l exprPlaceholder) $ LocalContext.mkEmpty ()}
+  {env := ctx.env} with
 | EStateM.Result.ok a _    => Except.ok a
 | EStateM.Result.error msg _ => Except.error $ toString msg
 
 @[export lean_expand_stx_quot]
-unsafe def oldExpandStxQuot (env : Environment) (stx : Syntax) : Except String Expr := do
-stx ← oldRunTermElabM env $ stxQuot.expand env stx;
-toPreterm env stx
+unsafe def oldExpandStxQuot (ctx : OldContext) (stx : Syntax) : Except String Expr := oldRunTermElabM ctx $ do
+stx ← stxQuot.expand stx;
+toPreterm stx
 
 @[export lean_get_antiquot_vars]
-def oldGetAntiquotVars (env : Environment) (pats : List Syntax) : Except String (List Name) := oldRunTermElabM env $ do
+def oldGetAntiquotVars (ctx : OldContext) (pats : List Syntax) : Except String (List Name) := oldRunTermElabM ctx $ do
 vars ← List.join <$> pats.mapM getAntiquotVars;
 pure $ vars.map $ fun var => var.getIdAt 0
 
 @[export lean_expand_match_syntax]
-unsafe def oldExpandMatchSyntax (env : Environment) (discr : Syntax) (alts : List (List Syntax × Syntax)) : Except String Expr := do
-stx ← oldRunTermElabM env $ do {
-  -- HACK: discr and the RHSs are actually `Expr`
-  let discr := Syntax.node `expr #[discr];
-  let alts := alts.map $ fun alt => (alt.1, Syntax.node `expr #[alt.2]);
-  -- letBindRhss (compileStxMatch Syntax.missing [discr]) alts []
-  compileStxMatch Syntax.missing [discr] alts
-};
-toPreterm env stx
+unsafe def oldExpandMatchSyntax (ctx : OldContext) (discr : Syntax) (alts : List (List Syntax × Syntax)) : Except String Expr := oldRunTermElabM ctx $ do
+-- HACK: discr and the RHSs are actually `Expr`
+let discr := Syntax.node `expr #[discr];
+let alts := alts.map $ fun alt => (alt.1, Syntax.node `expr #[alt.2]);
+-- letBindRhss (compileStxMatch Syntax.missing [discr]) alts []
+stx ← compileStxMatch Syntax.missing [discr] alts;
+toPreterm stx
 
 end Term
 end Elab

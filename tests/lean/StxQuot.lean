@@ -6,6 +6,13 @@ open Lean.Elab
 def run {α} [HasToString α] : Unhygienic α → String := toString ∘ Unhygienic.run
 
 #eval run `(Nat.one)
+#eval run `($Syntax.missing)
+namespace Syntax
+#eval run `($missing)
+#eval run `($(missing.getArg 0))
+#eval run `($(id Syntax.missing) + 1)
+#eval run $ let id := Syntax.missing; `($id + 1)
+end Syntax
 #eval run `(1 + 1)
 #eval run $ do a ← `(Nat.one); `($a)
 #eval run $ do a ← `(Nat.one); `(f $a $a)

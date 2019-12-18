@@ -994,7 +994,7 @@ when (namedArgs.any $ fun namedArg' => namedArg.name == namedArg'.name) $
 pure $ namedArgs.push namedArg
 
 private def resolveLocalNameAux (lctx : LocalContext) : Name → List String → Option (Expr × List String)
-| n@(Name.str pre s _), projs =>
+| n, projs =>
   match lctx.findFromUserName? n with
   | some decl => some (decl.toExpr, projs)
   | none      => resolveLocalNameAux pre (s::projs)

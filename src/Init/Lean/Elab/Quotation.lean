@@ -31,8 +31,8 @@ class HasQuote (α : Type) :=
 export HasQuote (quote)
 
 instance Syntax.HasQuote : HasQuote Syntax := ⟨id⟩
-instance String.HasQuote : HasQuote String := ⟨mkStxStrLit⟩
-instance Nat.HasQuote : HasQuote Nat := ⟨fun n => mkStxNumLit $ toString n⟩
+instance String.HasQuote : HasQuote String := ⟨fun s => Syntax.node `Lean.Parser.Term.str #[mkStxStrLit s]⟩
+instance Nat.HasQuote : HasQuote Nat := ⟨fun n => Syntax.node `Lean.Parser.Term.num #[mkStxNumLit $ toString n]⟩
 
 private def quoteName : Name → Syntax
 | Name.anonymous => Unhygienic.run `(_root_.Lean.Name.anonymous)
@@ -81,7 +81,7 @@ private partial def quoteSyntax (env : Environment) : Syntax → TermElabM Synta
   val ← `(Lean.addMacroScope $val scp);
   let args := quote preresolved;
   -- TODO: simplify quotations when we're no longer limited by name resolution in the old frontend
-  `(Lean.Syntax.ident Option.none (String.toSubstring $(Lean.mkStxStrLit (HasToString.toString rawVal))) $val $args)
+  `(Lean.Syntax.ident Option.none (String.toSubstring $(Lean.HasQuote.quote (HasToString.toString rawVal))) $val $args)
 -- if antiquotation, insert contents as-is, else recurse
 | stx@(Syntax.node k args) =>
   if k == `Lean.Parser.Term.antiquot then
@@ -97,7 +97,7 @@ private partial def quoteSyntax (env : Environment) : Syntax → TermElabM Synta
     args ← quote <$> args.mapM quoteSyntax;
     `(Lean.Syntax.node $k $args)
 | Syntax.atom info val =>
-  `(Lean.Syntax.atom Option.none $(Lean.mkStxStrLit val))
+  `(Lean.Syntax.atom Option.none $(Lean.HasQuote.quote val))
 | Syntax.missing => unreachable!
 
 def stxQuot.expand (env : Environment) (stx : Syntax) : TermElabM Syntax := do
@@ -336,8 +336,8 @@ private unsafe partial def toPreterm (env : Environment) : Syntax → Except Str
   | `Lean.Parser.Term.beq =>
     let lhs := args.get! 0; let rhs := args.get! 2;
     toPreterm $ Unhygienic.run `(HasBeq.beq $lhs $rhs)
-  | `strLit => pure $ mkStrLit $ stx.isStrLit?.getD ""
-  | `numLit => pure $ mkNatLit $ stx.isNatLit?.getD 0
+  | `Lean.Parser.Term.str => pure $ mkStrLit $ (stx.getArg 0).isStrLit?.getD ""
+  | `Lean.Parser.Term.num => pure $ mkNatLit $ (stx.getArg 0).isNatLit?.getD 0
   | `expr => pure $ unsafeCast $ stx.getArg 0  -- HACK: see below
   | k => throw $ "stxQuot: unimplemented kind " ++ toString k
 

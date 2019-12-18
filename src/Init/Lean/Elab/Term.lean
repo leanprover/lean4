@@ -649,12 +649,13 @@ when (namedArgs.any $ fun namedArg' => namedArg.name == namedArg'.name) $
   throwError ref ("argument '" ++ toString namedArg.name ++ "' was already set");
 pure $ namedArgs.push namedArg
 
-private def resolveLocalNameAux (lctx : LocalContext) : Name → List String → Option (Expr × List String)
+private partial def resolveLocalNameAux (lctx : LocalContext) : Name → List String → Option (Expr × List String)
 | n, projs =>
   match lctx.findFromUserName? n with
   | some decl => some (decl.toExpr, projs)
-  | none      => resolveLocalNameAux pre (s::projs)
-| _, _ => none
+  | none      => match n with
+    | Name.str pre s _ => resolveLocalNameAux pre (s::projs)
+    | _                => none
 
 private def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
 lctx ← getLCtx;

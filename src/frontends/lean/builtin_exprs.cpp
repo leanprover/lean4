@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <algorithm>
+#include "library/export_decl.h"
 #include "runtime/sstream.h"
 #include "util/option_declarations.h"
 #include "kernel/abstract.h"
@@ -842,15 +843,28 @@ static object_ref parse_expr(parser & p) {
     return cnstr_get_ref(tup, 0);
 }
 
-extern "C" object * lean_expand_stx_quot(object * env, object * stx);
+static object * mk_lean_ctx(parser & p) {
+    buffer<name> locals;
+    for (auto const & l : p.get_local_expr_decls().get_entries())
+        locals.push_back(l.first);
+    buffer<name> open_nss;
+    for (auto const & e : get_active_export_decls(p.env()))
+        open_nss.push_back(e.m_ns);
+    return mk_cnstr(0,
+                    p.env().to_obj_arg(),
+                    to_list_ref(locals).to_obj_arg(),
+                    to_list_ref(open_nss).to_obj_arg()).steal();
+}
+
+extern "C" object * lean_expand_stx_quot(object * ctx, object * stx);
 
 static expr parse_stx_quot(parser & p, unsigned, expr const *, pos_info const & /* pos */) {
     object_ref stx = parse_expr(p);
-    return handle_res<expr>(lean_expand_stx_quot(p.env().to_obj_arg(), stx.steal()), p);
+    return handle_res<expr>(lean_expand_stx_quot(mk_lean_ctx(p), stx.steal()), p);
 }
 
-extern "C" object * lean_expand_match_syntax(object * env, object * discr, object * alts);
-extern "C" object * lean_get_antiquot_vars(object * env, object * pats);
+extern "C" object * lean_expand_match_syntax(object * ctx, object * discr, object * alts);
+extern "C" object * lean_get_antiquot_vars(object * ctx, object * pats);
 
 static expr parse_match_syntax(parser & p, unsigned, expr const *, pos_info const & /* pos */) {
     parser::local_scope scope1(p);
@@ -872,7 +886,7 @@ static expr parse_match_syntax(parser & p, unsigned, expr const *, pos_info cons
         p.check_token_next(get_darrow_tk(), "invalid 'match_syntax' expression, '=>' expected");
         {
             parser::local_scope scope2(p);
-            auto vars = handle_res<list_ref<name>>(lean_get_antiquot_vars(p.env().to_obj_arg(), lhs.to_obj_arg()), p);
+            auto vars = handle_res<list_ref<name>>(lean_get_antiquot_vars(mk_lean_ctx(p), lhs.to_obj_arg()), p);
             for (name const & var : vars)
                 p.add_local_expr(var, mk_fvar(var));
             expr rhs = p.parse_expr();
@@ -883,7 +897,7 @@ static expr parse_match_syntax(parser & p, unsigned, expr const *, pos_info cons
             break;
         p.next();
     }
-    return handle_res<expr>(lean_expand_match_syntax(p.env().to_obj_arg(), discr.to_obj_arg(), list_ref<object_ref>(alts).to_obj_arg()), p);
+    return handle_res<expr>(lean_expand_match_syntax(mk_lean_ctx(p), discr.to_obj_arg(), list_ref<object_ref>(alts).to_obj_arg()), p);
 }
 
 parse_table init_nud_table() {

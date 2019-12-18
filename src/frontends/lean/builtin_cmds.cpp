@@ -276,10 +276,10 @@ environment open_export_cmd(parser & p, bool open) {
             p.check_token_next(get_rparen_tk(), "invalid 'open/export' command option, ')' expected");
         }
         export_decl edecl(ns, as, found_explicit, renames, exception_names);
-        env = execute_open(env, p.ios(), edecl);
         if (!open) {
             env = add_export_decl(env, edecl);
         }
+        env = execute_open(env, p.ios(), edecl);
         if (!p.curr_is_identifier())
             break;
     }

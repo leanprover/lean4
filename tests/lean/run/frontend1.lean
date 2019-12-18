@@ -25,7 +25,7 @@ def hello : String := "hello"
 def act1 : IO String :=
 pure "hello"
 
-#eval run "#check HasAdd.add"
+#eval run "#check @HasAdd.add"
 #eval run "#check [zero, one, two]"
 #eval run "#check id $ Nat.succ one"
 #eval run "#check HasAdd.add one two"

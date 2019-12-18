@@ -24,8 +24,9 @@ protected def Result.repr [HasRepr ε] [HasRepr α] : Result ε σ α → String
 | Result.error e _ => "(error " ++ repr e ++ ")"
 | Result.ok a _    => "(ok " ++ repr a ++ ")"
 
-instance [HasToString ε] [HasToString α] : HasToString (Result ε σ α) := ⟨Result.toString⟩
-instance [HasRepr ε] [HasRepr α] : HasRepr (Result ε σ α) := ⟨Result.repr⟩
+instance Result.hasToString [HasToString ε] [HasToString α] : HasToString (Result ε σ α) := ⟨Result.toString⟩
+instance Result.hasRepr [HasRepr ε] [HasRepr α] : HasRepr (Result ε σ α) := ⟨Result.repr⟩
+instance Result.inhabited [Inhabited ε] [Inhabited σ] : Inhabited (Result ε σ α) := ⟨Result.error (arbitrary _) (arbitrary _)⟩
 
 end EStateM
 

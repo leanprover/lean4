@@ -21,11 +21,14 @@ structure Context extends Meta.Context :=
 (fileMap         : FileMap)
 (cmdPos          : String.Pos)
 (currNamespace   : Name)
-(univNames       : List Name := [])
-(openDecls       : List OpenDecl := [])
-(macroStack      : List Syntax := [])
+(univNames       : List Name       := [])
+(openDecls       : List OpenDecl   := [])
+(macroStack      : List Syntax     := [])
 (macroScopeStack : List MacroScope := [0])
-(mayPostpone     : Bool := true)
+/- When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
+   The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
+   the list of pending synthetic metavariables, and returns `?m`. -/
+(mayPostpone     : Bool            := true)
 
 inductive SyntheticMVarKind
 | typeClass
@@ -45,23 +48,60 @@ structure State extends Meta.State :=
 
 instance State.inhabited : Inhabited State := ⟨{ env := arbitrary _ }⟩
 
+inductive Exception
+| error    : Elab.Exception → Exception
+| postpone : Exception
+
+instance Exception.inhabited : Inhabited Exception := ⟨Exception.postpone⟩
+instance Exception.hasToString : HasToString Exception :=
+⟨fun ex => match ex with | Exception.postpone => "posponed" | Exception.error ex => toString ex⟩
+
 abbrev TermElabM := ReaderT Context (EStateM Exception State)
 abbrev TermElab  := SyntaxNode → Option Expr → TermElabM Expr
 
-abbrev TermElabResult := EStateM.Result Exception State Expr
-
 instance TermElabM.inhabited {α} : Inhabited (TermElabM α) :=
-⟨throw $ arbitrary _⟩
+⟨throw $ Exception.postpone⟩
 
+abbrev TermElabResult := EStateM.Result Elab.Exception State Expr
 instance TermElabResult.inhabited : Inhabited TermElabResult := ⟨EStateM.Result.ok (arbitrary _) (arbitrary _)⟩
 
+/--
+  Execute `x`, save resulting expression and new state.
+  If `x` fails, then it also stores exception and new state.
+  Remark: we do not capture `Exception.postpone`. -/
+@[inline] def observing (x : TermElabM Expr) : TermElabM TermElabResult :=
+fun ctx s =>
+  match x ctx s with
+  | EStateM.Result.error Exception.postpone newS   => EStateM.Result.error Exception.postpone newS
+  | EStateM.Result.error (Exception.error ex) newS => EStateM.Result.ok (EStateM.Result.error ex newS) s
+  | EStateM.Result.ok e newS                       => EStateM.Result.ok (EStateM.Result.ok e newS) s
+
+def applyResult (result : TermElabResult) : TermElabM Expr :=
+match result with
+| EStateM.Result.ok e s     => do set s; pure e
+| EStateM.Result.error ex s => do set s; throw (Exception.error ex)
+
+instance TermElabM.monadLog : MonadLog TermElabM :=
+{ getCmdPos   := do ctx ← read; pure ctx.cmdPos,
+  getFileMap  := do ctx ← read; pure ctx.fileMap,
+  getFileName := do ctx ← read; pure ctx.fileName,
+  logMessage  := fun msg => modify $ fun s => { messages := s.messages.add msg, .. s } }
+
+def throwError {α} (ref : Syntax) (msgData : MessageData) : TermElabM α := do
+msg ← mkMessage msgData MessageSeverity.error ref;
+throw (Exception.error msg)
+
+protected def getCurrMacroScope : TermElabM Nat := do
+ctx ← read;
+pure ctx.macroScopeStack.head!
+
+@[inline] protected def withFreshMacroScope {α} (x : TermElabM α) : TermElabM α := do
+fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }));
+adaptReader (fun (ctx : Context) => { ctx with macroScopeStack := fresh::ctx.macroScopeStack }) x
+
 instance TermElabM.MonadQuotation : MonadQuotation TermElabM := {
-  getCurrMacroScope := do
-    ctx ← read;
-    pure ctx.macroScopeStack.head!,
-  withFreshMacroScope := fun α x => do
-    fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }));
-    adaptReader (fun (ctx : Context) => { ctx with macroScopeStack := fresh::ctx.macroScopeStack }) x
+  getCurrMacroScope   := Term.getCurrMacroScope,
+  withFreshMacroScope := @Term.withFreshMacroScope
 }
 
 inductive LVal
@@ -71,23 +111,6 @@ inductive LVal
 
 instance LVal.hasToString : HasToString LVal :=
 ⟨fun p => match p with | LVal.fieldIdx i => toString i | LVal.fieldName n => n | LVal.getOp idx => "[" ++ toString idx ++ "]"⟩
-
-/--
-  Execute `x`, save resulting expression and new state.
-  If `x` fails, then it also stores exception and new state. -/
-@[inline] def observing (x : TermElabM Expr) : TermElabM TermElabResult :=
-fun ctx s => EStateM.Result.ok (x ctx s) s
-
-def applyResult (result : TermElabResult) : TermElabM Expr :=
-match result with
-| EStateM.Result.ok e s     => do set s; pure e
-| EStateM.Result.error ex s => do set s; throw ex
-
-instance TermElabM.monadLog : MonadLog TermElabM :=
-{ getCmdPos   := do ctx ← read; pure ctx.cmdPos,
-  getFileMap  := do ctx ← read; pure ctx.fileMap,
-  getFileName := do ctx ← read; pure ctx.fileName,
-  logMessage  := fun msg => modify $ fun s => { messages := s.messages.add msg, .. s } }
 
 abbrev TermElabTable := SMap SyntaxNodeKind TermElab
 def mkBuiltinTermElabTable : IO (IO.Ref TermElabTable) :=  IO.mkRef {}
@@ -161,7 +184,7 @@ private def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) 
 mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos.getD ctx.cmdPos)
 
 private def fromMetaException (ctx : Context) (ref : Syntax) (ex : Meta.Exception) : Exception :=
-mkMessageAux ctx ref ex.toMessageData MessageSeverity.error
+Exception.error $ mkMessageAux ctx ref ex.toMessageData MessageSeverity.error
 
 private def fromMetaState (ref : Syntax) (ctx : Context) (s : State) (newS : Meta.State) (oldTraceState : TraceState) : State :=
 let traces   := newS.traceState.traces;
@@ -255,15 +278,6 @@ mkNode `Lean.Parser.Term.id #[ident, mkNullNode]
 def mkTermId (ref : Syntax) (n : Name) : Syntax :=
 mkTermIdFromIdent (mkIdentFrom ref n)
 
-def exceptionToSorry (ref : Syntax) (ex : Exception) (expectedType? : Option Expr) : TermElabM Expr := do
-expectedType : Expr ← match expectedType? with
-  | none              => mkFreshExprMVar ref
-  | some expectedType => pure expectedType;
-u ← getLevel ref expectedType;
-let syntheticSorry := mkApp2 (mkConst `sorryAx [u]) expectedType (mkConst `Bool.true);
-unless ex.data.hasSyntheticSorry $ logMessage ex;
-pure syntheticSorry
-
 partial def hasCDot : Syntax → Bool
 | Syntax.node `Lean.Parser.Term.cdot _   => true
 | Syntax.node `Lean.Parser.Term.app args => hasCDot (args.getA 0) || hasCDot (args.getA 1)
@@ -298,7 +312,29 @@ def expandCDot? : Syntax → TermElabM (Option Syntax)
     pure none
 | _ => pure none
 
-def elabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
+def exceptionToSorry (ref : Syntax) (ex : Elab.Exception) (expectedType? : Option Expr) : TermElabM Expr := do
+expectedType : Expr ← match expectedType? with
+  | none              => mkFreshExprMVar ref
+  | some expectedType => pure expectedType;
+u ← getLevel ref expectedType;
+let syntheticSorry := mkApp2 (mkConst `sorryAx [u]) expectedType (mkConst `Bool.true);
+unless ex.data.hasSyntheticSorry $ logMessage ex;
+pure syntheticSorry
+
+def tryPostpone : TermElabM Unit := do
+ctx ← read;
+when ctx.mayPostpone $ throw Exception.postpone
+
+def tryPostponeIfMVar (e : Expr) : TermElabM Unit :=
+when e.getAppFn.isMVar $ tryPostpone
+
+def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+mvar ← mkFreshExprMVar stx expectedType? MetavarKind.syntheticOpaque;
+ctx ← read;
+registerSyntheticMVar stx mvar.mvarId! (SyntheticMVarKind.postponed ctx.macroStack);
+pure mvar
+
+def elabTerm (stx : Syntax) (expectedType? : Option Expr) (resuming := false) : TermElabM Expr :=
 withFreshMacroScope $ withNode stx $ fun node => do
   trace! `Elab.step (toString stx);
   s ← get;
@@ -308,8 +344,13 @@ withFreshMacroScope $ withNode stx $ fun node => do
   | some elab =>
     catch
       (tracingAt stx (elab node expectedType?))
-      (fun ex => exceptionToSorry stx ex expectedType?)
+      (fun ex => match ex with
+        | Exception.error ex => exceptionToSorry stx ex expectedType?
+        | Exception.postpone => if resuming then throw ex else postponeElabTerm stx expectedType?)
   | none      => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
+
+def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
+elabTerm stx expectedType? true
 
 def ensureType (ref : Syntax) (e : Expr) : TermElabM Expr := do
 eType ← inferType ref e;
@@ -322,6 +363,133 @@ else do
     (pure e)
     (do -- TODO try coercion to sort
         throwError ref "type expected")
+
+/--
+  Execute `x` using the given metavariable `LocalContext` and `LocalInstances`.
+  The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
+  different from the current ones. -/
+@[inline] def withMVarContext {α} (mvarId : MVarId) (x : TermElabM α) : TermElabM α := do
+mvarDecl  ← getMVarDecl mvarId;
+ctx       ← read;
+let reset := ctx.localInstances == mvarDecl.localInstances;
+adaptReader (fun (ctx : Context) => { lctx := mvarDecl.lctx, localInstances := mvarDecl.localInstances, .. ctx }) $ do
+  s : State ← get;
+  let savedSythInstance := s.cache.synthInstance;
+  when reset (modify $ fun (s : State) => { cache := { synthInstance := {}, .. s.cache }, .. s });
+  finally x (when reset $ modify $ fun (s : State) => { cache := { synthInstance := savedSythInstance, .. s.cache }, .. s })
+
+def resumePostponed (macroStack : List Syntax) (stx : Syntax) (mvarId : MVarId) : TermElabM Bool := do
+mvarDecl     ← getMVarDecl mvarId;
+expectedType ← instantiateMVars stx mvarDecl.type;
+withMVarContext mvarId $ do
+  catch
+    (adaptReader (fun (ctx : Context) => { macroStack      := macroStack, .. ctx })
+      (do result ← resumeElabTerm stx expectedType;
+          assignExprMVar mvarId result;
+          pure true))
+    (fun ex => match ex with
+      | Exception.postpone => pure false
+      | Exception.error ex => do logMessage ex; pure true)
+
+/- Try to synthesize metavariable using type class resolution.
+   This method assumes the local context and local instances of `instMVar` coincide
+   with the current local context and local instances. -/
+def synthesizeInstMVarCore (ref : Syntax) (instMVar : MVarId) : TermElabM Bool := do
+instMVarDecl ← getMVarDecl instMVar;
+let type := instMVarDecl.type;
+type ← instantiateMVars ref type;
+result ← trySynthInstance ref type;
+match result with
+| LOption.some val => do
+  whenM (isExprMVarAssigned instMVar) $ do {
+    oldVal ← instantiateMVars ref (mkMVar instMVar);
+    unlessM (isDefEq ref oldVal val) $
+      throwError ref $
+        "synthesized type class instance is not definitionally equal to expression "
+        ++ "inferred by typing rules, synthesized" ++ indentExpr val
+        ++ Format.line ++ "inferred" ++ indentExpr oldVal
+  };
+  assignExprMVar instMVar val;
+  pure true
+| LOption.undef    => pure false -- we will try later
+| LOption.none     => throwError ref ("failed to synthesize instance" ++ indentExpr type)
+
+def synthesizePendingInstMVar (ref : Syntax) (instMVar : MVarId) : TermElabM Bool := do
+withMVarContext instMVar $ catch
+  (synthesizeInstMVarCore ref instMVar)
+  (fun ex => match ex with
+    | Exception.error ex => do logMessage ex; pure true
+    | Exception.postpone => unreachable!)
+
+def checkWithDefault (ref : Syntax) (mvarId : MVarId) : TermElabM Bool := do
+val ← instantiateMVars ref (mkMVar mvarId);
+pure $ !val.getAppFn.isMVar
+
+def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) : TermElabM Bool :=
+match mvarSyntheticDecl.kind with
+| SyntheticMVarKind.typeClass              => synthesizePendingInstMVar mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
+| SyntheticMVarKind.withDefault defaultVal => checkWithDefault mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
+| SyntheticMVarKind.postponed macroStack   => resumePostponed macroStack mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
+| SyntheticMVarKind.tactic tacticCode      => throwError tacticCode "not implemented yet"
+
+def synthesizeSyntheticMVarsStepAux : List SyntheticMVarDecl → List SyntheticMVarDecl → TermElabM (List SyntheticMVarDecl)
+| [],                    remaining => pure remaining
+| mvarDecl :: mvarDecls, remaining =>
+  condM (synthesizeSyntheticMVar mvarDecl)
+    (synthesizeSyntheticMVarsStepAux mvarDecls remaining)
+    (synthesizeSyntheticMVarsStepAux mvarDecls (mvarDecl :: remaining))
+
+def synthesizeSyntheticMVarsStep : TermElabM Bool := do
+s ← get;
+let syntheticMVars    := s.syntheticMVars.reverse;
+let numSyntheticMVars := syntheticMVars.length;
+modify $ fun s => { syntheticMVars := [], .. s };
+remainingSyntheticMVars ← synthesizeSyntheticMVarsStepAux syntheticMVars [];
+modify $ fun s => { syntheticMVars := s.syntheticMVars ++ remainingSyntheticMVars, .. s };
+pure $ numSyntheticMVars != remainingSyntheticMVars.length
+
+def synthesizeUsingDefault : TermElabM Bool := do
+s ← get;
+let syntheticMVars := s.syntheticMVars.reverse;
+newSyntheticMVars ← syntheticMVars.foldlM
+  (fun newSyntheticMVars mvarDecl => match mvarDecl.kind with
+    | SyntheticMVarKind.withDefault defaultVal => do
+      val ← instantiateMVars mvarDecl.ref (mkMVar mvarDecl.mvarId);
+      when val.getAppFn.isMVar $
+        unlessM (isDefEq mvarDecl.ref val defaultVal) $
+          throwError mvarDecl.ref "failed to assign default value to metavariable"; -- TODO: better error message
+      pure newSyntheticMVars
+    | _ => pure $ mvarDecl :: newSyntheticMVars)
+  [];
+modify $ fun s => { syntheticMVars := newSyntheticMVars, .. s };
+pure $ newSyntheticMVars.length != syntheticMVars.length
+
+def reportStuckSyntheticMVars : TermElabM Unit := do
+s ← get;
+s.syntheticMVars.forM $ fun mvarSyntheticDecl =>
+  match mvarSyntheticDecl.kind with
+  | SyntheticMVarKind.typeClass =>
+    withMVarContext mvarSyntheticDecl.mvarId $ do
+      mvarDecl ← getMVarDecl mvarSyntheticDecl.mvarId;
+      logError mvarSyntheticDecl.ref $
+        "failed to create type class instance for " ++ indentExpr mvarDecl.type
+  | _ => unreachable!
+
+partial def synthesizeSyntheticMVarsAux (mayPostpone := true) : Unit → TermElabM Unit
+| _ => do
+  s ← get;
+  if s.syntheticMVars.isEmpty then pure ()
+  else do
+    progress ← synthesizeSyntheticMVarsStep;
+    if progress then synthesizeSyntheticMVarsAux ()
+    else if mayPostpone then pure ()
+    else condM synthesizeUsingDefault (synthesizeSyntheticMVarsAux ()) $ do
+      progress ← withoutPostponing synthesizeSyntheticMVarsStep;
+      if progress then synthesizeSyntheticMVarsAux ()
+      else reportStuckSyntheticMVars
+
+def synthesizeSyntheticMVars (mayPostpone := true) : TermElabM Unit :=
+synthesizeSyntheticMVarsAux mayPostpone ()
 
 def elabType (stx : Syntax) : TermElabM Expr := do
 u ← mkFreshLevelMVar stx;
@@ -718,25 +886,10 @@ def consumeDefaultParams (ref : Syntax) : Expr → Expr → TermElabM Expr
   -- TODO
   pure e
 
-def mkInstMVar (ref : Syntax) (type : Expr) : TermElabM Expr := do
-mvar ← mkFreshExprMVar ref type MetavarKind.synthetic;
-let mvarId := mvar.mvarId!;
-registerSyntheticMVar ref mvarId SyntheticMVarKind.typeClass;
-pure mvar
-
-def synthesizeInstMVar (ref : Syntax) (instMVar : MVarId) : TermElabM Unit :=
-condM (isExprMVarAssigned instMVar) (pure ()) $ do
-  instMVarDecl ← getMVarDecl instMVar;
-  let type := instMVarDecl.type;
-  type ← instantiateMVars ref type;
-  result ← trySynthInstance ref type;
-  match result with
-  | LOption.some val => assignExprMVar instMVar val
-  | LOption.undef    => pure () -- we will try later
-  | LOption.none     => throwError ref ("failed to synthesize instance" ++ indentExpr type)
-
-def synthesizeInstMVars (ref : Syntax) (instMVars : Array MVarId) : TermElabM Unit :=
-instMVars.forM $ synthesizeInstMVar ref
+def synthesizeAppInstMVars (ref : Syntax) (instMVars : Array MVarId) : TermElabM Unit :=
+instMVars.forM $ fun mvarId =>
+  unlessM (synthesizeInstMVarCore ref mvarId) $
+    registerSyntheticMVar ref mvarId SyntheticMVarKind.typeClass
 
 private def elabArg (ref : Syntax) (arg : Arg) (expectedType : Expr) : TermElabM Expr :=
 match arg with
@@ -755,7 +908,7 @@ private partial def elabAppArgsAux (ref : Syntax) (args : Array Arg) (expectedTy
     -- all user explicit arguments have been consumed
     e ← if explicit then pure e else consumeDefaultParams ref eType e;
     e ← ensureHasType ref expectedType? eType e;
-    synthesizeInstMVars ref instMVars;
+    synthesizeAppInstMVars ref instMVars;
     pure e
   };
   eType ← whnfForall ref eType;
@@ -784,7 +937,7 @@ private partial def elabAppArgsAux (ref : Syntax) (args : Array Arg) (expectedTy
           a ← mkFreshExprMVar ref d;
           elabAppArgsAux argIdx namedArgs instMVars (b.instantiate1 a) (mkApp e a)
         | BinderInfo.instImplicit => do
-          a ← mkInstMVar ref d;
+          a ← mkFreshExprMVar ref d MetavarKind.synthetic;
           elabAppArgsAux argIdx namedArgs (instMVars.push a.mvarId!) (b.instantiate1 a) (mkApp e a)
         | _ =>
           processExplictArg ()
@@ -869,18 +1022,22 @@ match eType.getAppFn, lval with
 | _, _ =>
   throwLValError ref e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
 
-private partial def resolveLValLoop (ref : Syntax) (e : Expr) (lval : LVal) : Expr → Array Exception → TermElabM LValResolution
+private partial def resolveLValLoop (ref : Syntax) (e : Expr) (lval : LVal) : Expr → Array Elab.Exception → TermElabM LValResolution
 | eType, previousExceptions => do
   eType ← whnfCore ref eType;
-  -- If eType is metavariable, we must interrupt and postpone
+  tryPostponeIfMVar eType;
   catch (resolveLValAux ref e eType lval)
-    (fun ex => do
-      eType? ← unfoldDefinition? ref eType;
-      match eType? with
-      | some eType => resolveLValLoop eType (previousExceptions.push ex)
-      | none => do
-        previousExceptions.forM $ fun ex => logMessage ex;
-        throw ex)
+    (fun ex =>
+      match ex with
+      | Exception.postpone => throw ex
+      | Exception.error ex => do
+        eType? ← unfoldDefinition? ref eType;
+        match eType? with
+        | some eType => resolveLValLoop eType (previousExceptions.push ex)
+        | none       => do
+          previousExceptions.forM $ fun ex =>
+            logMessage ex;
+          throw (Exception.error ex))
 
 private def resolveLVal (ref : Syntax) (e : Expr) (lval : LVal) : TermElabM LValResolution := do
 eType ← inferType ref e;
@@ -1088,21 +1245,28 @@ fun stx _ => do
   | some val => pure $ mkStrLit val
   | none     => throwError stx.val "ill-formed syntax"
 
+def mkInstMVar (ref : Syntax) (type : Expr) : TermElabM Expr := do
+mvar ← mkFreshExprMVar ref type MetavarKind.synthetic;
+let mvarId := mvar.mvarId!;
+unlessM (synthesizeInstMVarCore ref mvarId) $
+  registerSyntheticMVar ref mvarId SyntheticMVarKind.typeClass;
+pure mvar
+
 @[builtinTermElab num] def elabNum : TermElab :=
 fun stx expectedType? => do
-  -- TODO: postpone if expectedType? is none or metavariable
   let ref := stx.val;
   val ← match (stx.getArg 0).isNatLit? with
     | some val => pure (mkNatLit val)
     | none     => throwError stx.val "ill-formed syntax";
-  expectedType ← match expectedType? with
-    | some expectedType => pure expectedType
-    | none              => mkFreshExprMVar ref;
-  u ← getLevel ref expectedType;
+  typeMVar ← mkFreshExprMVar ref none MetavarKind.synthetic;
+  registerSyntheticMVar ref typeMVar.mvarId! (SyntheticMVarKind.withDefault (Lean.mkConst `Nat));
+  match expectedType? with
+  | some expectedType => do isDefEq ref expectedType typeMVar; pure ()
+  | _                 => pure ();
+  u ← getLevel ref typeMVar;
   u ← decLevel ref u;
-  mvar ← mkInstMVar ref (mkApp (Lean.mkConst `HasOfNat [u]) expectedType);
-  synthesizeInstMVar ref mvar.mvarId!;
-  pure $ mkApp3 (Lean.mkConst `HasOfNat.ofNat [u]) expectedType mvar val
+  mvar ← mkInstMVar ref (mkApp (Lean.mkConst `HasOfNat [u]) typeMVar);
+  pure $ mkApp3 (Lean.mkConst `HasOfNat.ofNat [u]) typeMVar mvar val
 
 end Term
 

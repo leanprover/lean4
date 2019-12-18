@@ -34,6 +34,8 @@ structure State :=
 (cmdPos   : String.Pos := 0)
 (scopes   : List Scope := [{ kind := "root", header := "" }])
 
+instance State.inhabited : Inhabited State := ⟨{ env := arbitrary _ }⟩
+
 def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State :=
 { env := env, messages := messages, scopes := [{ kind := "root", header := "", options := opts }] }
 
@@ -115,13 +117,14 @@ private def mkTermState (s : State) : Term.State :=
 private def getVarDecls (s : State) : Array Syntax :=
 s.scopes.head!.varDecls
 
-private def toCommandResult {α} (s : State) (result : EStateM.Result Exception Term.State α) : EStateM.Result Exception State α :=
+private def toCommandResult {α} (ctx : Context) (s : State) (result : EStateM.Result Term.Exception Term.State α) : EStateM.Result Exception State α :=
 match result with
-| EStateM.Result.ok a newS     => EStateM.Result.ok a { env := newS.env, messages := newS.messages, .. s }
-| EStateM.Result.error ex newS => EStateM.Result.error ex { env := newS.env, messages := newS.messages, .. s }
+| EStateM.Result.ok a newS                            => EStateM.Result.ok a { env := newS.env, messages := newS.messages, .. s }
+| EStateM.Result.error (Term.Exception.error ex) newS => EStateM.Result.error ex { env := newS.env, messages := newS.messages, .. s }
+| EStateM.Result.error Term.Exception.postpone newS   => unreachable!
 
 @[inline] def runTermElabM {α} (x : TermElabM α) : CommandElabM α :=
-fun ctx s => toCommandResult s $ Term.tracingAtPos s.cmdPos (Term.elabBinders (getVarDecls s) (fun _ => x)) (mkTermContext ctx s) (mkTermState s)
+fun ctx s => toCommandResult ctx s $ Term.tracingAtPos s.cmdPos (Term.elabBinders (getVarDecls s) (fun _ => x)) (mkTermContext ctx s) (mkTermState s)
 
 def dbgTrace {α} [HasToString α] (a : α) : CommandElabM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()
@@ -359,6 +362,7 @@ fun stx => do
   let term := stx.getArg 1;
   runTermElabM $ do
     e    ← Term.elabTerm term none;
+    Term.synthesizeSyntheticMVars false;
     type ← Term.inferType stx.val e;
     e    ← Term.instantiateMVars stx.val e;
     type ← Term.instantiateMVars stx.val type;

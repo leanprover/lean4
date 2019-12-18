@@ -357,7 +357,7 @@ match s.errorMsg with
 
 private def oldRunTermElabM {α} (env : Environment) (x : TermElabM α) : Except String α := do
 match x {fileName := "foo", fileMap := FileMap.ofString "", cmdPos := 0, currNamespace := `foo} {env := env} with
-| EStateM.Result.ok a _    => Except.ok a
+| EStateM.Result.ok a _      => Except.ok a
 | EStateM.Result.error msg _ => Except.error $ toString msg
 
 @[export lean_expand_stx_quot]

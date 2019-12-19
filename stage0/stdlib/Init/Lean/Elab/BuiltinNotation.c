@@ -161,7 +161,7 @@ lean_object* l_Lean_Elab_Term_elabseq___closed__3;
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabseqLeft___closed__2;
 extern lean_object* l_Lean_Expr_heq_x3f___closed__2;
 lean_object* l_Lean_Elab_Term_elabDiv___closed__2;
-lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_sub___elambda__1___closed__1;
 extern lean_object* l_Lean_Parser_Term_seq___elambda__1___closed__2;
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabEq(lean_object*);
@@ -200,7 +200,6 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabBEq___closed__2;
 lean_object* l_Lean_Elab_Term_elabIff___closed__2;
 lean_object* l_Lean_Elab_Term_elabHEq(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_Term_mkPairsAux___main___closed__5;
 lean_object* l_Lean_Elab_Term_elabMapConstRev(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabseqRight___closed__2;
 lean_object* l_Lean_Elab_Term_elabIff___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -266,6 +265,7 @@ extern lean_object* l_Lean_Parser_Term_heq___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Term_elabOrElse___closed__1;
 lean_object* l_Lean_Elab_Term_elabBEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabAppend___closed__2;
+extern lean_object* l___private_Init_Lean_Elab_Term_29__mkPairsAux___main___closed__5;
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabMod___closed__2;
 lean_object* l_Lean_Elab_Term_elabAppend___closed__1;
 lean_object* l_Lean_Elab_Term_elabGT(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -415,7 +415,7 @@ lean_object* l_Lean_Elab_Term_elabAndM___boxed(lean_object*, lean_object*, lean_
 lean_object* l_Lean_Elab_Term_elabDollar(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; 
 x_5 = lean_ctor_get(x_1, 1);
 x_6 = l_Lean_stxInh;
 x_7 = lean_unsigned_to_nat(0u);
@@ -426,8 +426,9 @@ x_11 = l_Lean_mkOptionalNode___closed__1;
 x_12 = lean_array_push(x_11, x_10);
 x_13 = l_Array_iterateMAux___main___at_Lean_mkAppStx___spec__1(x_12, x_12, x_7, x_8);
 lean_dec(x_12);
-x_14 = l_Lean_Elab_Term_elabTerm(x_13, x_2, x_3, x_4);
-return x_14;
+x_14 = 0;
+x_15 = l_Lean_Elab_Term_elabTerm(x_13, x_2, x_14, x_3, x_4);
+return x_15;
 }
 }
 lean_object* l_Lean_Elab_Term_elabDollar___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -479,7 +480,7 @@ return x_5;
 lean_object* l_Lean_Elab_Term_elabInfix(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; 
 x_6 = lean_ctor_get(x_2, 1);
 x_7 = l_Lean_stxInh;
 x_8 = lean_unsigned_to_nat(0u);
@@ -491,8 +492,9 @@ x_13 = lean_array_get(x_7, x_6, x_12);
 x_14 = lean_array_push(x_11, x_13);
 x_15 = l_Array_iterateMAux___main___at_Lean_mkAppStx___spec__1(x_14, x_14, x_8, x_1);
 lean_dec(x_14);
-x_16 = l_Lean_Elab_Term_elabTerm(x_15, x_3, x_4, x_5);
-return x_16;
+x_16 = 0;
+x_17 = l_Lean_Elab_Term_elabTerm(x_15, x_3, x_16, x_4, x_5);
+return x_17;
 }
 }
 lean_object* l_Lean_Elab_Term_elabInfix___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -531,7 +533,7 @@ lean_object* l_Lean_Elab_Term_elabProd(lean_object* x_1, lean_object* x_2, lean_
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = l_Lean_Elab_Term_mkPairsAux___main___closed__5;
+x_5 = l___private_Init_Lean_Elab_Term_29__mkPairsAux___main___closed__5;
 x_6 = l_Lean_Elab_Term_elabInfixOp(x_5, x_1, x_2, x_3, x_4);
 return x_6;
 }

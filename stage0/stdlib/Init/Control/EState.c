@@ -20,6 +20,8 @@ lean_object* l_EStateM_orelse_x27___rarg(lean_object*, lean_object*, lean_object
 lean_object* l_EStateM_seqRight___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_Monad___closed__2;
 lean_object* l_EStateM_Monad___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_Result_inhabited___rarg(lean_object*, lean_object*);
+lean_object* l_EStateM_Result_hasToString(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_run(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_fromStateM___rarg(lean_object*, lean_object*);
 lean_object* l_EStateM_MonadExcept(lean_object*, lean_object*, lean_object*);
@@ -33,11 +35,11 @@ lean_object* l_EStateM_dummySave___boxed(lean_object*, lean_object*);
 lean_object* l_EStateM_catch___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_dummyRestore(lean_object*);
 lean_object* l_EStateM_MonadState___closed__3;
-lean_object* l_EStateM_HasRepr___rarg(lean_object*, lean_object*);
 lean_object* l_EStateM_Result_toString___rarg___closed__2;
 lean_object* l_EStateM_Inhabited___rarg(lean_object*, lean_object*);
 lean_object* l_EStateM_orelse(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_Monad___closed__6;
+lean_object* l_EStateM_Result_hasRepr___rarg(lean_object*, lean_object*);
 lean_object* l_EStateM_dummyRestore___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_EStateM_HasOrelse(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_set___rarg___boxed(lean_object*, lean_object*);
@@ -58,10 +60,10 @@ lean_object* l_EStateM_HasOrelse___rarg(lean_object*);
 lean_object* l_EStateM_modifyGet(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_nonBacktrackable___closed__1;
 lean_object* l_EStateM_MonadState(lean_object*, lean_object*);
-lean_object* l_EStateM_HasToString(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_adaptState___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_nonBacktrackable___closed__2;
 lean_object* l_EStateM_Monad___closed__7;
+lean_object* l_EStateM_Result_inhabited(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_Result_toString___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_fromStateM(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_seqRight(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -72,6 +74,7 @@ lean_object* l_EStateM_nonBacktrackable(lean_object*);
 lean_object* l_EStateM_nonBacktrackable___closed__3;
 lean_object* l_EStateM_map___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_MonadStateAdapter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_Result_hasToString___rarg(lean_object*, lean_object*);
 lean_object* l_EStateM_adaptExcept___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_Monad(lean_object*, lean_object*);
 lean_object* l_EStateM_adaptState(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -90,12 +93,11 @@ lean_object* l_EStateM_bind(lean_object*, lean_object*, lean_object*, lean_objec
 lean_object* l_EStateM_MonadStateAdapter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_throw(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_Monad___closed__10;
+lean_object* l_EStateM_Result_hasRepr(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 lean_object* l_EStateM_MonadState___closed__1;
 lean_object* l_EStateM_Result_repr___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_HasToString___rarg(lean_object*, lean_object*);
 lean_object* l_EStateM_MonadState___closed__2;
-lean_object* l_EStateM_HasRepr(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_orelse_x27___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_orelse_x27(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* _init_l_EStateM_Result_toString___rarg___closed__1() {
@@ -196,7 +198,7 @@ x_4 = lean_alloc_closure((void*)(l_EStateM_Result_repr___rarg), 3, 0);
 return x_4;
 }
 }
-lean_object* l_EStateM_HasToString___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_EStateM_Result_hasToString___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -206,15 +208,15 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* l_EStateM_HasToString(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_EStateM_Result_hasToString(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_EStateM_HasToString___rarg), 2, 0);
+x_4 = lean_alloc_closure((void*)(l_EStateM_Result_hasToString___rarg), 2, 0);
 return x_4;
 }
 }
-lean_object* l_EStateM_HasRepr___rarg(lean_object* x_1, lean_object* x_2) {
+lean_object* l_EStateM_Result_hasRepr___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -224,11 +226,29 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* l_EStateM_HasRepr(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_EStateM_Result_hasRepr(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_EStateM_HasRepr___rarg), 2, 0);
+x_4 = lean_alloc_closure((void*)(l_EStateM_Result_hasRepr___rarg), 2, 0);
+return x_4;
+}
+}
+lean_object* l_EStateM_Result_inhabited___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+lean_object* l_EStateM_Result_inhabited(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_EStateM_Result_inhabited___rarg), 2, 0);
 return x_4;
 }
 }

@@ -62,9 +62,12 @@ instance : HasAppend MessageData := ⟨compose⟩
 instance : HasFormat MessageData := ⟨fun d => formatAux none d⟩
 
 instance coeOfFormat    : HasCoe Format MessageData := ⟨ofFormat⟩
-instance coeOfLevel     : HasCoe Level MessageData := ⟨ofLevel⟩
-instance coeOfExpr      : HasCoe Expr MessageData := ⟨ofExpr⟩
-instance coeOfName      : HasCoe Name MessageData := ⟨ofName⟩
+instance coeOfLevel     : HasCoe Level MessageData  := ⟨ofLevel⟩
+instance coeOfExpr      : HasCoe Expr MessageData   := ⟨ofExpr⟩
+instance coeOfName      : HasCoe Name MessageData   := ⟨ofName⟩
+instance coeOfSyntax    : HasCoe Syntax MessageData := ⟨ofSyntax⟩
+instance coeOfOptExpr   : HasCoe (Option Expr) MessageData :=
+⟨fun o => match o with | none => "none" | some e => ofExpr e⟩
 
 partial def arrayExpr.toMessageData (es : Array Expr) : Nat → MessageData → MessageData
 | i, acc =>

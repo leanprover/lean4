@@ -426,7 +426,7 @@ x_11 = l_Lean_mkOptionalNode___closed__1;
 x_12 = lean_array_push(x_11, x_10);
 x_13 = l_Array_iterateMAux___main___at_Lean_mkAppStx___spec__1(x_12, x_12, x_7, x_8);
 lean_dec(x_12);
-x_14 = 0;
+x_14 = 1;
 x_15 = l_Lean_Elab_Term_elabTerm(x_13, x_2, x_14, x_3, x_4);
 return x_15;
 }
@@ -492,7 +492,7 @@ x_13 = lean_array_get(x_7, x_6, x_12);
 x_14 = lean_array_push(x_11, x_13);
 x_15 = l_Array_iterateMAux___main___at_Lean_mkAppStx___spec__1(x_14, x_14, x_8, x_1);
 lean_dec(x_14);
-x_16 = 0;
+x_16 = 1;
 x_17 = l_Lean_Elab_Term_elabTerm(x_15, x_3, x_16, x_4, x_5);
 return x_17;
 }

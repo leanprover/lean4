@@ -4840,7 +4840,7 @@ lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec(x_9);
-x_12 = 0;
+x_12 = 1;
 x_13 = l_Lean_Elab_Term_elabTerm(x_10, x_2, x_12, x_3, x_11);
 return x_13;
 }
@@ -13659,7 +13659,7 @@ lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
 lean_dec(x_5);
-x_8 = 0;
+x_8 = 1;
 x_9 = l_Lean_Elab_Term_elabTerm(x_6, x_2, x_8, x_3, x_7);
 return x_9;
 }

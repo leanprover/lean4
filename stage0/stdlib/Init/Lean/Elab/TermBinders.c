@@ -4400,7 +4400,7 @@ x_25 = l_Lean_Parser_Term_forall___elambda__1___closed__2;
 x_26 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_24);
-x_27 = 0;
+x_27 = 1;
 x_28 = l_Lean_Elab_Term_elabTerm(x_26, x_2, x_27, x_3, x_7);
 return x_28;
 }
@@ -4432,7 +4432,7 @@ x_45 = l_Lean_Parser_Term_forall___elambda__1___closed__2;
 x_46 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_46, 0, x_45);
 lean_ctor_set(x_46, 1, x_44);
-x_47 = 0;
+x_47 = 1;
 x_48 = l_Lean_Elab_Term_elabTerm(x_46, x_2, x_47, x_3, x_7);
 return x_48;
 }
@@ -16534,7 +16534,7 @@ _start:
 {
 lean_object* x_6; uint8_t x_7; lean_object* x_8; 
 x_6 = lean_box(0);
-x_7 = 0;
+x_7 = 1;
 lean_inc(x_4);
 x_8 = l_Lean_Elab_Term_elabTerm(x_1, x_6, x_7, x_4, x_5);
 if (lean_obj_tag(x_8) == 0)

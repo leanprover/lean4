@@ -17,6 +17,16 @@ fun stx expectedType? => do
   let a := stx.getArg 2;
   elabTerm (mkAppStx f #[a]) expectedType?
 
+def mkProjStx (t : Syntax) (i : Syntax) : Syntax :=
+Syntax.node `Lean.Parser.Term.proj #[t, mkAtom("."), i]
+
+@[builtinTermElab dollarProj] def elabDollarProj : TermElab :=
+fun stx expectedType? => do
+  -- term `$.` field
+  let f := stx.getArg 0;
+  let i := stx.getArg 2;
+  elabTerm (mkProjStx f i) expectedType?
+
 def elabInfix (f : Syntax) : TermElab :=
 fun stx expectedType? => do
   -- term `op` term

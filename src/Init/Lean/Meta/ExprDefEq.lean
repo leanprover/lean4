@@ -678,7 +678,7 @@ private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) 
   else do
     cfg ← getConfig;
     v ← instantiateMVars v; -- enforce A4
-    if cfg.foApprox && args.isEmpty && v.getAppFn == mvar then
+    if cfg.foApprox && !args.isEmpty && v.getAppFn == mvar then
       -- using A6
       processAssignmentFOApprox mvar args v
     else do

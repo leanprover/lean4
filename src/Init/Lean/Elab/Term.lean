@@ -723,6 +723,14 @@ fun stx expectedType? => do
   let newStx   := args.foldSepRevArgs (fun arg r => mkAppStx consId #[arg, r]) nilId;
   elabTerm newStx expectedType?
 
+@[builtinTermElab «arrayLit»] def elabArrayLit : TermElab :=
+fun stx expectedType? => do
+  match_syntax stx.val with
+  | `(#[$args*]) => do
+    newStx ← `(List.toArray [$args*]);
+    withMacroExpansion stx.val (elabTerm newStx expectedType?)
+  | _ => throwError stx.val "unexpected array literal syntax"
+
 def elabExplicitUniv (stx : Syntax) : TermElabM (List Level) :=
 pure [] -- TODO
 

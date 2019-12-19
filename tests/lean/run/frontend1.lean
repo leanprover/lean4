@@ -150,3 +150,4 @@ f a
 
 #eval run "#check fun x => foo x x.w s4"
 #eval run "#check bla (fun x => x.w) s4"
+#eval run "#check #[1, 2, 3]"

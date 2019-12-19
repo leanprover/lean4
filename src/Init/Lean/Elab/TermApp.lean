@@ -234,7 +234,7 @@ private def addLValArg (ref : Syntax) (baseName : Name) (fullName : Name) (e : E
 
 private def elabAppLValsAux (ref : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit : Bool)
     : Expr → List LVal → TermElabM Expr
-| f, []            => elabAppArgs ref f namedArgs args expectedType? explicit
+| f, []          => elabAppArgs ref f namedArgs args expectedType? explicit
 | f, lval::lvals => do
   lvalRes ← resolveLVal ref f lval;
   match lvalRes with

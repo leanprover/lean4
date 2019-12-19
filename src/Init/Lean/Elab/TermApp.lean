@@ -220,17 +220,24 @@ match getPathToBaseStructure? env baseStructName structName with
 /- Auxiliary method for field notation. It tries to add `e` to `args` as the first explicit parameter
    which takes an element of type `(C ...)` where `C` is `baseName`.
    `fullName` is the name of the resolved "field" access function. It is used for reporting errors -/
-private def addLValArg (ref : Syntax) (baseName : Name) (fullName : Name) (e : Expr) (args : Array Arg) : Nat → Expr → TermElabM (Array Arg)
-| i, Expr.forallE _ d b c =>
+private def addLValArg (ref : Syntax) (baseName : Name) (fullName : Name) (e : Expr) (args : Array Arg) : Nat → Array NamedArg → Expr → TermElabM (Array Arg)
+| i, namedArgs, Expr.forallE n d b c =>
   if !c.binderInfo.isExplicit then
-    addLValArg i b
-  else if d.isAppOf baseName then
-    pure $ args.insertAt i (Arg.expr e)
-  else if i < args.size then
-    addLValArg (i+1) b
+    addLValArg i namedArgs b
   else
-    throwError ref $ "invalid field notation, insufficient number of arguments for '" ++ fullName ++ "'"
-| _, fType =>
+    /- If there is named argument with name `n`, then we should skip. -/
+    match namedArgs.findIdx? (fun namedArg => namedArg.name == n) with
+    | some idx => do
+      let namedArgs := namedArgs.eraseIdx idx;
+      addLValArg i namedArgs b
+    | none =>
+      if d.isAppOf baseName then
+        pure $ args.insertAt i (Arg.expr e)
+      else if i < args.size then
+        addLValArg (i+1) namedArgs b
+      else
+        throwError ref $ "invalid field notation, insufficient number of arguments for '" ++ fullName ++ "'"
+| _, _, fType =>
   throwError ref $
     "invalid field notation, function '" ++ fullName ++ "' does not have explicit argument with type (" ++ baseName ++ " ...)"
 
@@ -256,7 +263,7 @@ private def elabAppLValsAux (ref : Syntax) (namedArgs : Array NamedArg) (args : 
     projFn ← mkConst ref constName;
     if lvals.isEmpty then do
       projFnType ← inferType ref projFn;
-      args ← addLValArg ref baseName constName f args 0 projFnType;
+      args ← addLValArg ref baseName constName f args 0 namedArgs projFnType;
       elabAppArgs ref projFn namedArgs args expectedType? explicit
     else do
       f ← elabAppArgs ref projFn #[] #[Arg.expr f] none false;
@@ -264,7 +271,7 @@ private def elabAppLValsAux (ref : Syntax) (namedArgs : Array NamedArg) (args : 
   | LValResolution.localRec baseName fullName fvar =>
     if lvals.isEmpty then do
       fvarType ← inferType ref fvar;
-      args ← addLValArg ref baseName fullName f args 0 fvarType;
+      args ← addLValArg ref baseName fullName f args 0 namedArgs fvarType;
       elabAppArgs ref fvar namedArgs args expectedType? explicit
     else do
       f ← elabAppArgs ref fvar #[] #[Arg.expr f] none false;

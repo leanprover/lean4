@@ -199,4 +199,22 @@ open Parser
 def mkAppStx (fn : Syntax) (args : Array Syntax) : Syntax :=
 args.foldl (fun fn arg => Syntax.node `Lean.Parser.Term.app #[fn, arg]) fn
 
+def Syntax.isTermId? (stx : Syntax) : Option (Syntax × Syntax) :=
+stx.ifNode
+ (fun node =>
+    if node.getKind == `Lean.Parser.Term.id && node.getNumArgs == 2 then
+      some (node.getArg 0, node.getArg 1)
+    else
+      none)
+ (fun _ => none)
+
+def Syntax.isSimpleTermId? (stx : Syntax) : Option Syntax :=
+stx.ifNode
+ (fun node =>
+    if node.getKind == `Lean.Parser.Term.id && node.getNumArgs == 2 && (node.getArg 1).isNone then
+      some (node.getArg 0)
+    else
+      none)
+ (fun _ => none)
+
 end Lean

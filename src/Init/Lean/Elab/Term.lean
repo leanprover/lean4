@@ -792,18 +792,18 @@ fun stx _ =>
 
 /-- Main loop `getFunBinderIds?` -/
 private partial def getFunBinderIdsAux? : Bool → Syntax → Array Syntax → TermElabM (Option (Array Syntax))
-| false, Syntax.node `Lean.Parser.Term.app args, acc => do
-  (some acc) ← getFunBinderIdsAux? false (args.getA 0) acc | pure none;
-  getFunBinderIdsAux? true (args.getA 1) acc
-| _, Syntax.node `Lean.Parser.Term.id args, acc =>
-  if (args.getA 1).isNone then
-    pure (some (acc.push (args.getA 0)))
-  else
-    pure none
-| _, n@(Syntax.node `Lean.Parser.Term.hole _), acc => do
-  ident ← mkFreshAnonymousIdent n;
-  pure (some (acc.push ident))
-| idOnly, stx, acc => pure none
+| idOnly, stx, acc =>
+  match_syntax stx with
+  | `($f $a) =>
+     if idOnly then pure none
+     else do
+       (some acc) ← getFunBinderIdsAux? false f acc | pure none;
+       getFunBinderIdsAux? true a acc
+  | `(_) => do ident ← mkFreshAnonymousIdent stx; pure (some (acc.push ident))
+  | stx  =>
+    match stx.isSimpleTermId? with
+    | some id => pure (some (acc.push id))
+    | _       => pure none
 
 /--
   Auxiliary functions for converting `Term.app ... (Term.app id_1 id_2) ... id_n` into #[id_1, ..., id_m]`
@@ -825,11 +825,6 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
       pure (binders, newBody)
     };
     match binder with
-    | Syntax.node `Lean.Parser.Term.id args => do
-      unless (args.getA 1).isNone $ throwError binder "invalid binder, simple identifier expected";
-      let ident := args.getA 0;
-      let type  := mkHole;
-      expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder ident type)
     | Syntax.node `Lean.Parser.Term.hole _ => do
       ident ← mkFreshAnonymousIdent binder;
       let type := binder;
@@ -851,7 +846,13 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
           match idents? with
           | some idents => expandFunBindersAux body (i+1) (newBinders ++ idents.map (fun ident => mkExplicitBinder ident type))
           | none        => processAsPattern ()
-    | _ => processAsPattern ()
+    | binder =>
+      match binder.isTermId? with
+      | some (ident, extra) => do
+        unless extra.isNone $ throwError binder "invalid binder, simple identifier expected";
+        let type  := mkHole;
+        expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder ident type)
+      | none => processAsPattern ()
   else
     pure (newBinders, body)
 

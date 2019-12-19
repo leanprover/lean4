@@ -93,9 +93,6 @@ if h : i < a.size then some (a.get ⟨i, h⟩) else none
 def getD (a : Array α) (i : Nat) (v₀ : α) : α :=
 if h : i < a.size then a.get ⟨i, h⟩ else v₀
 
-def getA [Inhabited α] (a : Array α) (i : Nat) : α :=
-getD a i (arbitrary _)
-
 def getOp [Inhabited α] (self : Array α) (idx : Nat) : α :=
 self.get! idx
 

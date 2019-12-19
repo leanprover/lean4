@@ -111,6 +111,8 @@ private partial def elabAppArgsAux (ref : Syntax) (args : Array Arg) (expectedTy
 private def elabAppArgs (ref : Syntax) (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr := do
 fType ← inferType ref f;
+fType ← instantiateMVars ref fType;
+tryPostponeIfMVar fType;
 let argIdx    := 0;
 let instMVars := #[];
 elabAppArgsAux ref args expectedType? explicit argIdx namedArgs instMVars fType f

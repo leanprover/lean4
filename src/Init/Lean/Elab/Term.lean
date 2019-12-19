@@ -48,6 +48,11 @@ structure State extends Meta.State :=
 
 instance State.inhabited : Inhabited State := ⟨{ env := arbitrary _ }⟩
 
+/-
+  The Term elaborator monad has a special kind of exception `Exception.postpone` which is used by
+  an elaboration function to notify the main driver that it should be tried later.
+
+  Remark: `Exception.postpone` is used only when `mayPostpone == true` in the `Context`. -/
 inductive Exception
 | error    : Elab.Exception → Exception
 | postpone : Exception
@@ -56,6 +61,11 @@ instance Exception.inhabited : Inhabited Exception := ⟨Exception.postpone⟩
 instance Exception.hasToString : HasToString Exception :=
 ⟨fun ex => match ex with | Exception.postpone => "posponed" | Exception.error ex => toString ex⟩
 
+/-
+  Term elaborator Monad. In principle, we could track statically which methods
+  may postpone or not by having adding a Boolean parameter `mayPostpone` to
+  `TermElabM`. This would be useful to ensure that `Exception.postpone` does not leak
+  to `CommandElabM`, but we abandoned this design because it adds unnecessary complexity. -/
 abbrev TermElabM := ReaderT Context (EStateM Exception State)
 abbrev TermElab  := SyntaxNode → Option Expr → TermElabM Expr
 
@@ -76,6 +86,9 @@ fun ctx s =>
   | EStateM.Result.error (Exception.error ex) newS => EStateM.Result.ok (EStateM.Result.error ex newS) s
   | EStateM.Result.ok e newS                       => EStateM.Result.ok (EStateM.Result.ok e newS) s
 
+/--
+  Apply the result/exception and state captured with `observing`.
+  We use this method to implement overloaded notation and symbols. -/
 def applyResult (result : TermElabResult) : TermElabM Expr :=
 match result with
 | EStateM.Result.ok e s     => do set s; pure e
@@ -87,6 +100,9 @@ instance TermElabM.monadLog : MonadLog TermElabM :=
   getFileName := do ctx ← read; pure ctx.fileName,
   logMessage  := fun msg => modify $ fun s => { messages := s.messages.add msg, .. s } }
 
+/--
+  Throws an error with the given `msgData` and extracting position information from `ref`.
+  If `ref` does not contain position information, then use `cmdPos` -/
 def throwError {α} (ref : Syntax) (msgData : MessageData) : TermElabM α := do
 msg ← mkMessage msgData MessageSeverity.error ref;
 throw (Exception.error msg)
@@ -103,14 +119,6 @@ instance TermElabM.MonadQuotation : MonadQuotation TermElabM := {
   getCurrMacroScope   := Term.getCurrMacroScope,
   withFreshMacroScope := @Term.withFreshMacroScope
 }
-
-inductive LVal
-| fieldIdx  (i : Nat)
-| fieldName (name : String)
-| getOp     (idx : Syntax)
-
-instance LVal.hasToString : HasToString LVal :=
-⟨fun p => match p with | LVal.fieldIdx i => toString i | LVal.fieldName n => n | LVal.getOp idx => "[" ++ toString idx ++ "]"⟩
 
 abbrev TermElabTable := SMap SyntaxNodeKind TermElab
 def mkBuiltinTermElabTable : IO (IO.Ref TermElabTable) :=  IO.mkRef {}
@@ -153,6 +161,20 @@ abbrev TermElabAttribute := ElabAttribute TermElabTable
 def mkTermElabAttribute : IO TermElabAttribute := mkElabAttribute `elabTerm "term" builtinTermElabTable
 @[init mkTermElabAttribute] constant termElabAttribute : TermElabAttribute := arbitrary _
 
+/--
+  Auxiliary datatatype for presenting a Lean lvalue modifier.
+  We represent a unelaborated lvalue as a `Syntax` (or `Expr`) and `List LVal`.
+  Example: `a.foo[i].1` is represented as the `Syntax` `a` and the list
+  `[LVal.fieldName "foo", LVal.getOp i, LVal.fieldIdx 1]`.
+  Recall that the notation `a[i]` is not just for accessing arrays in Lean. -/
+inductive LVal
+| fieldIdx  (i : Nat)
+| fieldName (name : String)
+| getOp     (idx : Syntax)
+
+instance LVal.hasToString : HasToString LVal :=
+⟨fun p => match p with | LVal.fieldIdx i => toString i | LVal.fieldName n => n | LVal.getOp idx => "[" ++ toString idx ++ "]"⟩
+
 def getEnv : TermElabM Environment := do s ← get; pure s.env
 def getMCtx : TermElabM MetavarContext := do s ← get; pure s.mctx
 def getCurrNamespace : TermElabM Name := do ctx ← read; pure ctx.currNamespace
@@ -166,6 +188,9 @@ def isExprMVarAssigned (mvarId : MVarId) : TermElabM Bool := do mctx ← getMCtx
 def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
 def assignExprMVar (mvarId : MVarId) (val : Expr) : TermElabM Unit := modify $ fun s => { mctx := s.mctx.assignExpr mvarId val, .. s }
 
+/--
+  Wraps the given message with the current contextual information: environment, metavariable context, and local context.
+  We need the context to be able to invoke the pretty printer. -/
 def addContext (msg : MessageData) : TermElabM MessageData := do
 ctx ← read;
 s   ← get;
@@ -180,12 +205,15 @@ instance tracer : SimpleMonadTracerAdapter TermElabM :=
 def dbgTrace {α} [HasToString α] (a : α) : TermElabM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()
 
+/-- Auxiliary function for `liftMetaM` -/
 private def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity) : Message :=
 mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos.getD ctx.cmdPos)
 
+/-- Auxiliary function for `liftMetaM` -/
 private def fromMetaException (ctx : Context) (ref : Syntax) (ex : Meta.Exception) : Exception :=
 Exception.error $ mkMessageAux ctx ref ex.toMessageData MessageSeverity.error
 
+/-- Auxiliary function for `liftMetaM` -/
 private def fromMetaState (ref : Syntax) (ctx : Context) (s : State) (newS : Meta.State) (oldTraceState : TraceState) : State :=
 let traces   := newS.traceState.traces;
 let messages := traces.foldl (fun (messages : MessageLog) trace => messages.add (mkMessageAux ctx ref trace MessageSeverity.information)) s.messages;
@@ -230,15 +258,22 @@ match u? with
 @[inline] def withMacroExpansion {α} (stx : Syntax) (x : TermElabM α) : TermElabM α :=
 adaptReader (fun (ctx : Context) => { macroStack := stx :: ctx.macroStack, .. ctx }) x
 
+/-
+  Add the given metavariable to the list of pending synthetic metavariables.
+  The method `synthesizeSyntheticMVars` is used to process the metavariables on this list. -/
 def registerSyntheticMVar (ref : Syntax) (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit :=
 modify $ fun s => { syntheticMVars := { mvarId := mvarId, ref := ref, kind := kind } :: s.syntheticMVars, .. s }
 
+/-
+  Execute `x` without allowing it to postpone elaboration tasks.
+  That is, `tryPostpone` is a noop. -/
 @[inline] def withoutPostponing {α} (x : TermElabM α) : TermElabM α :=
 adaptReader (fun (ctx : Context) => { mayPostpone := false, .. ctx }) x
 
 @[inline] def withNode {α} (stx : Syntax) (x : SyntaxNode → TermElabM α) : TermElabM α :=
 stx.ifNode x (fun _ => throwError stx "term elaborator failed, unexpected syntax")
 
+/-- Execute `x` and logs all unlogged trace messages produced by `x` using position `pos`. -/
 @[inline] def tracingAtPos {α} (pos : String.Pos) (x : TermElabM α) : TermElabM α := do
 oldTraceState ← getTraceState;
 setTraceState {};
@@ -247,24 +282,36 @@ finally x $ do
   traceState.traces.forM $ logInfoAt pos;
   setTraceState oldTraceState
 
+/-- Similar to `tracingAt`, but uses `ref` to obtain position information. -/
 @[inline] def tracingAt {α} (ref : Syntax) (x : TermElabM α) : TermElabM α := do
 ctx ← read;
 tracingAtPos (ref.getPos.getD ctx.cmdPos) x
 
-def mkExplicitBinder (n : Syntax) (type : Syntax) : Syntax :=
-mkNode `Lean.Parser.Term.explicitBinder #[mkAtom "(", mkNullNode #[n], mkNullNode #[mkAtom ":", type], mkNullNode, mkAtom ")"]
+/-- Creates syntax for `(` <ident> `:` <type> `)` -/
+def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
+mkNode `Lean.Parser.Term.explicitBinder #[mkAtom "(", mkNullNode #[ident], mkNullNode #[mkAtom ":", type], mkNullNode, mkAtom ")"]
 
-private def mkFreshAnonymousName : TermElabM Name := do
+/--
+  Auxiliary method for creating fresh binder names.
+  Do not confuse with the method for creating fresh free/meta variable ids. -/
+def mkFreshAnonymousName : TermElabM Name := do
 s ← get;
 let anonymousIdx := s.anonymousIdx;
 modify $ fun s => { anonymousIdx := s.anonymousIdx + 1, .. s};
 pure $ (`_a).appendIndexAfter anonymousIdx
 
-private def mkFreshAnonymousIdent (ref : Syntax) : TermElabM Syntax := do
+/--
+  Auxiliary method for creating a `Syntax.ident` containing
+  a fresh name. This method is intended for creating fresh binder names.
+  It is just a thin layer on top of `mkFreshAnonymousName`. -/
+def mkFreshAnonymousIdent (ref : Syntax) : TermElabM Syntax := do
 n ← mkFreshAnonymousName;
 pure $ mkIdentFrom ref n
 
-private def mkFreshInstanceName : TermElabM Name := do
+/--
+  Auxiliary method for creating binder names for local instances.
+  Users expect them to be named as `_inst_<idx>`. -/
+def mkFreshInstanceName : TermElabM Name := do
 s ← get;
 let instIdx := s.instImplicitIdx;
 modify $ fun s => { instImplicitIdx := s.instImplicitIdx + 1, .. s};
@@ -272,47 +319,80 @@ pure $ (`_inst).appendIndexAfter instIdx
 
 def mkHole := mkNode `Lean.Parser.Term.hole #[mkAtom "_"]
 
+/-- Convert a `Syntax.ident` into a `Lean.Parser.Term.id` node -/
 def mkTermIdFromIdent (ident : Syntax) : Syntax :=
-mkNode `Lean.Parser.Term.id #[ident, mkNullNode]
+match ident with
+| Syntax.ident _ _ _ _ => mkNode `Lean.Parser.Term.id #[ident, mkNullNode]
+| _                    => unreachable!
 
+/--
+  Create a simple `Lean.Parser.Term.id` syntax using position
+  information from `ref` and name `n`. By simple, we mean that
+  `optional (explicitUniv <|> namedPattern)` is none. -/
 def mkTermId (ref : Syntax) (n : Name) : Syntax :=
 mkTermIdFromIdent (mkIdentFrom ref n)
 
-partial def hasCDot : Syntax → Bool
+/--
+  Return true if the given syntax is a `Lean.Parser.Term.cdot` or
+  is a `Lean.Parser.Term.app` containing a `cdot`.
+  We use this function as a filter to skip `expandCDotAux` (the expensive part)
+  at `expandCDot?` -/
+private partial def hasCDot : Syntax → Bool
 | Syntax.node `Lean.Parser.Term.cdot _   => true
 | Syntax.node `Lean.Parser.Term.app args => hasCDot (args.getA 0) || hasCDot (args.getA 1)
 | _ => false
 
-partial def expandCDotAux : Bool → Syntax → StateT (Array Syntax) TermElabM Syntax
-| _, n@(Syntax.node `Lean.Parser.Term.cdot _) => do
-  ident ← liftM $ mkFreshAnonymousIdent n;
+/--
+  Auxiliary function for expandind the `·` notation.
+  The extra state `Array Syntax` contains the new binder names.
+  If `stx` is a `·`, we create a fresh identifier, store in the
+  extra state, and return it. Otherwise, we just return `stx`. -/
+private def expandCDot (stx : Syntax) : StateT (Array Syntax) TermElabM Syntax :=
+match stx with
+| Syntax.node `Lean.Parser.Term.cdot _ => do
+  ident ← liftM $ mkFreshAnonymousIdent stx;
   let id := mkTermIdFromIdent ident;
   modify $ fun s => s.push id;
   pure id
-| false, n@(Syntax.node `Lean.Parser.Term.app args) =>
+| _ => pure stx
+
+/--
+  Auxiliary function for expanding `·`s occurring as arguments of
+  applications (i.e., `Lean.Parser.Term.app` nodes).
+  Example: `foo · s` should expand into `foo _a_<idx> s` where
+  `_a_<idx>` is a fresh identifier. -/
+private partial def expandCDotInApp : Syntax → StateT (Array Syntax) TermElabM Syntax
+| n@(Syntax.node `Lean.Parser.Term.app args) =>
   if args.size == 2 then do
-    a1 ← expandCDotAux false $ args.get! 0;
-    a2 ← expandCDotAux true  $ args.get! 1;
+    a1 ← expandCDotInApp $ args.get! 0;
+    a2 ← expandCDot $ args.get! 1;
     pure $ Syntax.node `Lean.Parser.Term.app #[a1, a2]
   else
     pure n
-| _, n => pure n
+| n => pure n
 
-def expandCDotArgs (args : Array Syntax) : StateT (Array Syntax) TermElabM (Array Syntax) :=
-args.mapM (expandCDotAux false)
-
+/--
+  Return `some` if succeeded expanding `·` notation occurring in
+  the given syntax. Otherwise, return `none`.
+  Examples:
+  - `· + 1` => `fun _a_1 => _a_1 + 1`
+  - `f · · b` => `fun _a_1 _a_2 => f _a_1 _a_2 b` -/
 def expandCDot? : Syntax → TermElabM (Option Syntax)
-| Syntax.node k args =>
-  if args.any hasCDot then do
-    (args, binders) ← (expandCDotArgs args).run #[];
-    let newNode := Syntax.node k args;
-    result ← `(fun $binders* => $newNode);
-    pure result
+| n@(Syntax.node k args) =>
+  if args.any hasCDot then
+    if k == `Lean.Parser.Term.app then do
+      (newNode, binders) ← (expandCDotInApp n).run #[];
+      `(fun $binders* => $newNode)
+    else do {
+      (args, binders) ← (args.mapM expandCDot).run #[];
+      let newNode := Syntax.node k args;
+      `(fun $binders* => $newNode)
+    }
   else
     pure none
 | _ => pure none
 
-def exceptionToSorry (ref : Syntax) (ex : Elab.Exception) (expectedType? : Option Expr) : TermElabM Expr := do
+private def exceptionToSorry (ref : Syntax) (ex : Elab.Exception) (expectedType? : Option Expr) : TermElabM Expr := do
 expectedType : Expr ← match expectedType? with
   | none              => mkFreshExprMVar ref
   | some expectedType => pure expectedType;
@@ -321,19 +401,34 @@ let syntheticSorry := mkApp2 (mkConst `sorryAx [u]) expectedType (mkConst `Bool.
 unless ex.data.hasSyntheticSorry $ logMessage ex;
 pure syntheticSorry
 
+/-- If `mayPostpone == true`, throw `Expection.postpone`. -/
 def tryPostpone : TermElabM Unit := do
 ctx ← read;
 when ctx.mayPostpone $ throw Exception.postpone
 
+/-- If `mayPostpone == true` and `e`'s head is a metavariable, throw `Exception.postpone`. -/
 def tryPostponeIfMVar (e : Expr) : TermElabM Unit :=
 when e.getAppFn.isMVar $ tryPostpone
 
-def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
 mvar ← mkFreshExprMVar stx expectedType? MetavarKind.syntheticOpaque;
 ctx ← read;
 registerSyntheticMVar stx mvar.mvarId! (SyntheticMVarKind.postponed ctx.macroStack);
 pure mvar
 
+/--
+  Main function for elaborating terms.
+  It extracts the elaboration methods from the environment using the node kind.
+  Recall that the environment has a mapping from `SyntaxNodeKind` to `TermElab` methods.
+  It creates a fresh macro scope for executing the elaboration method.
+  All unlogged trace messages produced by the elaboration method are logged using
+  the position information at `stx`. If the elaboration method throws an `Exception.error`,
+  the error is logged and a synthetic sorry expression is returned.
+  If the elaboration throws `Exception.postpone` and `resuming == false`,
+  a new synthetic metavariable of kind `SyntheticMVarKind.postponed` is created, registered,
+  and returned.
+  We use `resuming == true` to prevent the creation of another synthetic metavariable
+  when resuming the elaboration. -/
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (resuming := false) : TermElabM Expr :=
 withFreshMacroScope $ withNode stx $ fun node => do
   trace! `Elab.step (toString stx);
@@ -349,9 +444,13 @@ withFreshMacroScope $ withNode stx $ fun node => do
         | Exception.postpone => if resuming then throw ex else postponeElabTerm stx expectedType?)
   | none      => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
 
-def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
+/-- Auxiliary function used to implement `synthesizeSyntheticMVars`. -/
+private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
 elabTerm stx expectedType? true
 
+/--
+  Make sure `e` is a type by inferring its type and making sure it is a `Expr.sort`
+  or is unifiable with `Expr.sort`, or can be coerced into one. -/
 def ensureType (ref : Syntax) (e : Expr) : TermElabM Expr := do
 eType ← inferType ref e;
 eType ← whnf ref eType;
@@ -363,6 +462,12 @@ else do
     (pure e)
     (do -- TODO try coercion to sort
         throwError ref "type expected")
+
+/-- Elaborate `stx` and ensure result is a type. -/
+def elabType (stx : Syntax) : TermElabM Expr := do
+u ← mkFreshLevelMVar stx;
+type ← elabTerm stx (mkSort u);
+ensureType stx type
 
 /--
   Execute `x` using the given metavariable `LocalContext` and `LocalInstances`.
@@ -378,23 +483,30 @@ adaptReader (fun (ctx : Context) => { lctx := mvarDecl.lctx, localInstances := m
   when reset (modify $ fun (s : State) => { cache := { synthInstance := {}, .. s.cache }, .. s });
   finally x (when reset $ modify $ fun (s : State) => { cache := { synthInstance := savedSythInstance, .. s.cache }, .. s })
 
-def resumePostponed (macroStack : List Syntax) (stx : Syntax) (mvarId : MVarId) : TermElabM Bool := do
-mvarDecl     ← getMVarDecl mvarId;
-expectedType ← instantiateMVars stx mvarDecl.type;
+/--
+  Try to elaborate `stx` that was postponed by an elaboration method using `Expection.postpone`.
+  It returns `true` if it succeeded, and `false` otherwise.
+  It is used to implement `synthesizeSyntheticMVars`. -/
+private def resumePostponed (macroStack : List Syntax) (stx : Syntax) (mvarId : MVarId) : TermElabM Bool := do
 withMVarContext mvarId $ do
   catch
-    (adaptReader (fun (ctx : Context) => { macroStack      := macroStack, .. ctx })
-      (do result ← resumeElabTerm stx expectedType;
-          assignExprMVar mvarId result;
-          pure true))
+    (adaptReader (fun (ctx : Context) => { macroStack := macroStack, .. ctx }) $ do
+      mvarDecl     ← getMVarDecl mvarId;
+      expectedType ← instantiateMVars stx mvarDecl.type;
+      result       ← resumeElabTerm stx expectedType;
+      assignExprMVar mvarId result;
+      pure true)
     (fun ex => match ex with
       | Exception.postpone => pure false
       | Exception.error ex => do logMessage ex; pure true)
 
 /- Try to synthesize metavariable using type class resolution.
    This method assumes the local context and local instances of `instMVar` coincide
-   with the current local context and local instances. -/
-def synthesizeInstMVarCore (ref : Syntax) (instMVar : MVarId) : TermElabM Bool := do
+   with the current local context and local instances.
+   Return `true` if the instance was synthesized successfully, and `false` if
+   the instance contains unassigned metavariables that are blocking the type class
+   resolution procedure. -/
+private def synthesizeInstMVarCore (ref : Syntax) (instMVar : MVarId) : TermElabM Bool := do
 instMVarDecl ← getMVarDecl instMVar;
 let type := instMVarDecl.type;
 type ← instantiateMVars ref type;
@@ -414,32 +526,43 @@ match result with
 | LOption.undef    => pure false -- we will try later
 | LOption.none     => throwError ref ("failed to synthesize instance" ++ indentExpr type)
 
-def synthesizePendingInstMVar (ref : Syntax) (instMVar : MVarId) : TermElabM Bool := do
+/--
+  Similar to `synthesizeInstMVarCore`, but makes sure that `instMVar` local context and instances
+  are used. It also logs any error message produced. -/
+private def synthesizePendingInstMVar (ref : Syntax) (instMVar : MVarId) : TermElabM Bool := do
 withMVarContext instMVar $ catch
   (synthesizeInstMVarCore ref instMVar)
   (fun ex => match ex with
     | Exception.error ex => do logMessage ex; pure true
     | Exception.postpone => unreachable!)
 
-def checkWithDefault (ref : Syntax) (mvarId : MVarId) : TermElabM Bool := do
+/--
+  Return `true` iff `mvarId` is assigned to a term whose the
+  head is not a metavariable. We use this method to process `SyntheticMVarKind.withDefault`. -/
+private def checkWithDefault (ref : Syntax) (mvarId : MVarId) : TermElabM Bool := do
 val ← instantiateMVars ref (mkMVar mvarId);
 pure $ !val.getAppFn.isMVar
 
-def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) : TermElabM Bool :=
+/-- Try to synthesize the given pending synthetic metavariable. -/
+private def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) : TermElabM Bool :=
 match mvarSyntheticDecl.kind with
 | SyntheticMVarKind.typeClass              => synthesizePendingInstMVar mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
 | SyntheticMVarKind.withDefault defaultVal => checkWithDefault mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
 | SyntheticMVarKind.postponed macroStack   => resumePostponed macroStack mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
 | SyntheticMVarKind.tactic tacticCode      => throwError tacticCode "not implemented yet"
 
-def synthesizeSyntheticMVarsStepAux : List SyntheticMVarDecl → List SyntheticMVarDecl → TermElabM (List SyntheticMVarDecl)
+/-- Auxiliary function for `synthesizeSyntheticMVarsStep`. -/
+private def synthesizeSyntheticMVarsStepAux : List SyntheticMVarDecl → List SyntheticMVarDecl → TermElabM (List SyntheticMVarDecl)
 | [],                    remaining => pure remaining
 | mvarDecl :: mvarDecls, remaining =>
   condM (synthesizeSyntheticMVar mvarDecl)
     (synthesizeSyntheticMVarsStepAux mvarDecls remaining)
     (synthesizeSyntheticMVarsStepAux mvarDecls (mvarDecl :: remaining))
 
-def synthesizeSyntheticMVarsStep : TermElabM Bool := do
+/--
+  Try to synthesize the current list of pending synthetic metavariables.
+  Return `true` if it managed to synthesize at least one of them. -/
+private def synthesizeSyntheticMVarsStep : TermElabM Bool := do
 s ← get;
 let syntheticMVars    := s.syntheticMVars.reverse;
 let numSyntheticMVars := syntheticMVars.length;
@@ -448,6 +571,7 @@ remainingSyntheticMVars ← synthesizeSyntheticMVarsStepAux syntheticMVars [];
 modify $ fun s => { syntheticMVars := s.syntheticMVars ++ remainingSyntheticMVars, .. s };
 pure $ numSyntheticMVars != remainingSyntheticMVars.length
 
+/-- Apply default value to any pending synthetic metavariable of kinf `SyntheticMVarKind.withDefault` -/
 def synthesizeUsingDefault : TermElabM Bool := do
 s ← get;
 let syntheticMVars := s.syntheticMVars.reverse;
@@ -464,7 +588,8 @@ newSyntheticMVars ← syntheticMVars.foldlM
 modify $ fun s => { syntheticMVars := newSyntheticMVars, .. s };
 pure $ newSyntheticMVars.length != syntheticMVars.length
 
-def reportStuckSyntheticMVars : TermElabM Unit := do
+/-- Report an error for each synthetic metavariable that could not be resolved. -/
+private def reportStuckSyntheticMVars : TermElabM Unit := do
 s ← get;
 s.syntheticMVars.forM $ fun mvarSyntheticDecl =>
   match mvarSyntheticDecl.kind with
@@ -473,9 +598,16 @@ s.syntheticMVars.forM $ fun mvarSyntheticDecl =>
       mvarDecl ← getMVarDecl mvarSyntheticDecl.mvarId;
       logError mvarSyntheticDecl.ref $
         "failed to create type class instance for " ++ indentExpr mvarDecl.type
-  | _ => unreachable!
+  | _ => unreachable! -- TODO handle other cases.
 
-partial def synthesizeSyntheticMVarsAux (mayPostpone := true) : Unit → TermElabM Unit
+/--
+  Main loop for `synthesizeSyntheticMVars.
+  It keeps executing `synthesizeSyntheticMVarsStep` while progress is being made.
+  If `mayPostpone == false`, then it applies default values to `SyntheticMVarKind.withDefault`
+  metavariables that are still unresolved, and then tries to resolve metavariables
+  with `mayPostpone == false`. That is, we force them to produce error messages and/or commit to
+  a "best option". If after that, we still haven't made progress, we report "stuck" errors. -/
+private partial def synthesizeSyntheticMVarsAux (mayPostpone := true) : Unit → TermElabM Unit
 | _ => do
   s ← get;
   if s.syntheticMVars.isEmpty then pure ()
@@ -488,13 +620,15 @@ partial def synthesizeSyntheticMVarsAux (mayPostpone := true) : Unit → TermEla
       if progress then synthesizeSyntheticMVarsAux ()
       else reportStuckSyntheticMVars
 
+/--
+  Try to process pending synthetic metavariables. If `mayPostpone == false`,
+  then `syntheticMVars` is `[]` after executing this method.  -/
 def synthesizeSyntheticMVars (mayPostpone := true) : TermElabM Unit :=
 synthesizeSyntheticMVarsAux mayPostpone ()
 
-def elabType (stx : Syntax) : TermElabM Expr := do
-u ← mkFreshLevelMVar stx;
-type ← elabTerm stx (mkSort u);
-ensureType stx type
+/- =======================================
+       Builtin elaboration functions
+   ======================================= -/
 
 @[builtinTermElab «prop»] def elabProp : TermElab :=
 fun _ _ => pure $ mkSort levelZero
@@ -616,6 +750,10 @@ private partial def elabBindersAux (binders : Array Syntax)
   else
     pure (fvars, lctx, localInsts)
 
+/--
+  Elaborate the given binders (i.e., `Syntax` objects for `simpleBinder <|> bracktedBinder`),
+  update the local context, set of local instances, reset instance chache (if needed), and then
+  execute `x` with the updated context. -/
 @[inline] def elabBinders {α} (binders : Array Syntax) (x : Array Expr → TermElabM α) : TermElabM α := do
 lctx ← getLCtx;
 localInsts ← getLocalInsts;
@@ -652,10 +790,8 @@ fun stx _ =>
     e ← elabType term;
     mkForall stx.val xs e
 
-/-
-  Auxiliary functions for converting `Term.app ... (Term.app id_1 id_2) ... id_n` into #[id_1, ..., id_m]`
-  It is used at `expandFunBinders`. -/
-partial def getFunBinderIdsAux? : Bool → Syntax → Array Syntax → TermElabM (Option (Array Syntax))
+/-- Main loop `getFunBinderIds?` -/
+private partial def getFunBinderIdsAux? : Bool → Syntax → Array Syntax → TermElabM (Option (Array Syntax))
 | false, Syntax.node `Lean.Parser.Term.app args, acc => do
   (some acc) ← getFunBinderIdsAux? false (args.getA 0) acc | pure none;
   getFunBinderIdsAux? true (args.getA 1) acc
@@ -669,10 +805,14 @@ partial def getFunBinderIdsAux? : Bool → Syntax → Array Syntax → TermElabM
   pure (some (acc.push ident))
 | idOnly, stx, acc => pure none
 
-def getFunBinderIds? (stx : Syntax) : TermElabM (Option (Array Syntax)) :=
+/--
+  Auxiliary functions for converting `Term.app ... (Term.app id_1 id_2) ... id_n` into #[id_1, ..., id_m]`
+  It is used at `expandFunBinders`. -/
+private def getFunBinderIds? (stx : Syntax) : TermElabM (Option (Array Syntax)) :=
 getFunBinderIdsAux? false stx #[]
 
-partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Nat → Array Syntax → TermElabM (Array Syntax × Syntax)
+/-- Main loop for `expandFunBinders`. -/
+private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Nat → Array Syntax → TermElabM (Array Syntax × Syntax)
 | body, i, newBinders =>
   if h : i < binders.size then
     let binder := binders.get ⟨i, h⟩;
@@ -715,7 +855,21 @@ partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Nat → Ar
   else
     pure (newBinders, body)
 
-def expandFunBinders (binders : Array Syntax) (body : Syntax) : TermElabM (Array Syntax × Syntax) :=
+/--
+  Auxiliary function for expanding `fun` notation binders. Recall that `fun` parser is defined as
+  ```
+  parser! unicodeSymbol "λ" "fun" >> many1 (termParser appPrec) >> unicodeSymbol "⇒" "=>" >> termParser
+  ```
+  to allow notation such as `fun (a, b) => a + b`, where `(a, b)` should be treated as a pattern.
+  The result is pair `(explicitBinders, newBody)`, where `explicitBinders` is syntax of the form
+  ```
+  `(` ident `:` term `)`
+  ```
+  which can be elaborated using `elabBinders`, and `newBody` is the updated `body` syntax.
+  We update the `body` syntax when expanding the pattern notation.
+  Example: `fun (a, b) => a + b` expands into `fun _a_1 => match _a_1 with | (a, b) => a + b`.
+  See local function `processAsPattern` at `expandFunBindersAux`. -/
+private def expandFunBinders (binders : Array Syntax) (body : Syntax) : TermElabM (Array Syntax × Syntax) :=
 expandFunBindersAux binders body 0 #[]
 
 @[builtinTermElab «fun»] def elabFun : TermElab :=
@@ -729,6 +883,9 @@ fun stx expectedType? => do
     e ← elabTerm body none;
     mkLambda stx.val xs e
 
+/--
+  If `expectedType?` is `some t`, then ensure `t` and `eType` are definitionally equal.
+  If they are not, then try coercions. -/
 def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (eType : Expr) (e : Expr) : TermElabM Expr :=
 match expectedType? with
 | none              => pure e
@@ -745,7 +902,8 @@ match expectedType? with
           ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType;
         throwError ref msg)
 
-partial def mkPairsAux (elems : Array Syntax) : Nat → Syntax → TermElabM Syntax
+/-- Main loop for `mkPairs`. -/
+private partial def mkPairsAux (elems : Array Syntax) : Nat → Syntax → TermElabM Syntax
 | i, acc =>
   if i > 0 then do
     let i    := i - 1;
@@ -755,10 +913,19 @@ partial def mkPairsAux (elems : Array Syntax) : Nat → Syntax → TermElabM Syn
   else
     pure acc
 
+/-- Return syntax `Prod.mk elems[0] (Prod.mk elems[1] ... (Prod.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
 def mkPairs (elems : Array Syntax) : TermElabM Syntax :=
 mkPairsAux elems (elems.size - 1) elems.back
 
-def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+/--
+  Try to expand `·` notation, and if successful elaborate result.
+  This method is used to elaborate the Lean parentheses notation.
+  Recall that in Lean the `·` notation must be surrounded by parentheses.
+  We may change this is the future, but right now, here are valid examples
+  - `(· + 1)`
+  - `(· + ·)`
+  - `(f · a b)` -/
+private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
 stx? ← expandCDot? stx;
 match stx? with
 | some stx' => withMacroExpansion stx (elabTerm stx' expectedType?)
@@ -793,6 +960,9 @@ fun stx expectedType? => do
 def elabExplicitUniv (stx : Syntax) : TermElabM (List Level) :=
 pure [] -- TODO
 
+/--
+  Auxiliary inductive datatype for combining unelaborated syntax
+  and already elaborated expressions. It is used to elaborate applications. -/
 inductive Arg
 | stx  (val : Syntax)
 | expr (val : Expr)
@@ -804,6 +974,7 @@ instance Arg.hasToString : HasToString Arg :=
   | Arg.stx  val => toString val
   | Arg.expr val => toString val⟩
 
+/-- Named arguments created using the notation `(x := val)` -/
 structure NamedArg :=
 (name : Name) (val : Arg)
 
@@ -812,6 +983,9 @@ instance NamedArg.hasToString : HasToString NamedArg :=
 
 instance NamedArg.inhabited : Inhabited NamedArg := ⟨{ name := arbitrary _, val := arbitrary _ }⟩
 
+/--
+  Added a new named argument to `namedArgs`, and throw erros if it already contains a named argument
+  with the same name. -/
 def addNamedArg (ref : Syntax) (namedArgs : Array NamedArg) (namedArg : NamedArg) : TermElabM (Array NamedArg) := do
 when (namedArgs.any $ fun namedArg' => namedArg.name == namedArg'.name) $
   throwError ref ("argument '" ++ toString namedArg.name ++ "' was already set");
@@ -831,6 +1005,10 @@ pure $ resolveLocalNameAux lctx n []
 private def mkFreshLevelMVars (ref : Syntax) (num : Nat) : TermElabM (List Level) :=
 num.foldM (fun _ us => do u ← mkFreshLevelMVar ref; pure $ u::us) []
 
+/--
+  Create an `Expr.const` using the given name and explicit levels.
+  Remark: fresh universe metavariables are created if the constant has more universe
+  parameters than `explicitLevels`. -/
 def mkConst (ref : Syntax) (constName : Name) (explicitLevels : List Level := []) : TermElabM Expr := do
 env ← getEnv;
 match env.find? constName with
@@ -881,12 +1059,12 @@ match result? with
     process preresolved
 
 /-- Consume parameters of the form `(x : A := val)` and `(x : A . tactic)` -/
-def consumeDefaultParams (ref : Syntax) : Expr → Expr → TermElabM Expr
+private def consumeDefaultParams (ref : Syntax) : Expr → Expr → TermElabM Expr
 | eType, e =>
   -- TODO
   pure e
 
-def synthesizeAppInstMVars (ref : Syntax) (instMVars : Array MVarId) : TermElabM Unit :=
+private def synthesizeAppInstMVars (ref : Syntax) (instMVars : Array MVarId) : TermElabM Unit :=
 instMVars.forM $ fun mvarId =>
   unlessM (synthesizeInstMVarCore ref mvarId) $
     registerSyntheticMVar ref mvarId SyntheticMVarKind.typeClass
@@ -955,6 +1133,7 @@ let argIdx    := 0;
 let instMVars := #[];
 elabAppArgsAux ref args expectedType? explicit argIdx namedArgs instMVars fType f
 
+/-- Auxiliary inductive datatype that represents the resolution of an `LVal`. -/
 inductive LValResolution
 | projFn   (baseStructName : Name) (structName : Name) (fieldName : Name)
 | projIdx  (structName : Name) (idx : Nat)

@@ -513,15 +513,14 @@ type ← instantiateMVars ref type;
 result ← trySynthInstance ref type;
 match result with
 | LOption.some val => do
-  whenM (isExprMVarAssigned instMVar) $ do {
-    oldVal ← instantiateMVars ref (mkMVar instMVar);
-    unlessM (isDefEq ref oldVal val) $
-      throwError ref $
-        "synthesized type class instance is not definitionally equal to expression "
-        ++ "inferred by typing rules, synthesized" ++ indentExpr val
-        ++ Format.line ++ "inferred" ++ indentExpr oldVal
-  };
-  assignExprMVar instMVar val;
+  condM (isExprMVarAssigned instMVar)
+    (do oldVal ← instantiateMVars ref (mkMVar instMVar);
+        unlessM (isDefEq ref oldVal val) $
+          throwError ref $
+            "synthesized type class instance is not definitionally equal to expression "
+            ++ "inferred by typing rules, synthesized" ++ indentExpr val
+            ++ Format.line ++ "inferred" ++ indentExpr oldVal)
+    (assignExprMVar instMVar val);
   pure true
 | LOption.undef    => pure false -- we will try later
 | LOption.none     => throwError ref ("failed to synthesize instance" ++ indentExpr type)

@@ -68,4 +68,8 @@ instance MonadQuotation : MonadQuotation Unhygienic := {
 protected def run {α : Type} (x : Unhygienic α) : α := run x [0] 1
 end Unhygienic
 
+instance monadQuotationTrans {m n : Type → Type} [MonadQuotation m] [HasMonadLift m n] [MonadFunctorT m m n n] : MonadQuotation n :=
+{ getCurrMacroScope   := liftM (getCurrMacroScope : m Nat),
+  withFreshMacroScope := fun α => monadMap (fun α => (withFreshMacroScope : m α → m α)) }
+
 end Lean

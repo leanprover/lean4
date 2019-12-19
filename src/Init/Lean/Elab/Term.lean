@@ -338,9 +338,11 @@ mkTermIdFromIdent (mkIdentFrom ref n)
   We use this function as a filter to skip `expandCDotAux` (the expensive part)
   at `expandCDot?` -/
 private partial def hasCDot : Syntax → Bool
-| Syntax.node `Lean.Parser.Term.cdot _   => true
-| Syntax.node `Lean.Parser.Term.app args => hasCDot (args.getA 0) || hasCDot (args.getA 1)
-| _ => false
+| stx =>
+  match_syntax stx with
+  | `(·)     => true
+  | `($f $a) => hasCDot f || hasCDot a
+  | _        => false
 
 /--
   Auxiliary function for expandind the `·` notation.
@@ -348,13 +350,13 @@ private partial def hasCDot : Syntax → Bool
   If `stx` is a `·`, we create a fresh identifier, store in the
   extra state, and return it. Otherwise, we just return `stx`. -/
 private def expandCDot (stx : Syntax) : StateT (Array Syntax) TermElabM Syntax :=
-match stx with
-| Syntax.node `Lean.Parser.Term.cdot _ => do
-  ident ← liftM $ mkFreshAnonymousIdent stx;
-  let id := mkTermIdFromIdent ident;
-  modify $ fun s => s.push id;
-  pure id
-| _ => pure stx
+withFreshMacroScope $
+  match_syntax stx with
+  | `(·) => do
+     id ← `(a);
+     modify $ fun s => s.push id;
+     pure id
+  | _ => pure stx
 
 /--
   Auxiliary function for expanding `·`s occurring as arguments of
@@ -362,14 +364,10 @@ match stx with
   Example: `foo · s` should expand into `foo _a_<idx> s` where
   `_a_<idx>` is a fresh identifier. -/
 private partial def expandCDotInApp : Syntax → StateT (Array Syntax) TermElabM Syntax
-| n@(Syntax.node `Lean.Parser.Term.app args) =>
-  if args.size == 2 then do
-    a1 ← expandCDotInApp $ args.get! 0;
-    a2 ← expandCDot $ args.get! 1;
-    pure $ Syntax.node `Lean.Parser.Term.app #[a1, a2]
-  else
-    pure n
-| n => pure n
+| n =>
+  match_syntax n with
+  | `($f $a) => do f ← expandCDotInApp f; a ← expandCDot a; `($f $a)
+  | n        => pure n
 
 /--
   Return `some` if succeeded expanding `·` notation occurring in

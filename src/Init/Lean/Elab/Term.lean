@@ -411,6 +411,7 @@ def tryPostponeIfMVar (e : Expr) : TermElabM Unit :=
 when e.getAppFn.isMVar $ tryPostpone
 
 private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+trace! `Elab.postpone (stx ++ " : " ++ expectedType?);
 mvar ← mkFreshExprMVar stx expectedType? MetavarKind.syntheticOpaque;
 ctx ← read;
 registerSyntheticMVar stx mvar.mvarId! (SyntheticMVarKind.postponed ctx.macroStack);
@@ -493,6 +494,7 @@ withMVarContext mvarId $ do
     (adaptReader (fun (ctx : Context) => { macroStack := macroStack, .. ctx }) $ do
       mvarDecl     ← getMVarDecl mvarId;
       expectedType ← instantiateMVars stx mvarDecl.type;
+      trace! `Elab.postpone.resume (stx ++ " : " ++ expectedType);
       result       ← resumeElabTerm stx expectedType;
       assignExprMVar mvarId result;
       pure true)
@@ -1451,6 +1453,7 @@ end Term
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.app;
+registerTraceClass `Elab.postpone;
 pure ()
 
 export Term (TermElabM)

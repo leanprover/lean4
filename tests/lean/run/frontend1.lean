@@ -91,8 +91,6 @@ structure S (α : Type) :=
 (vec : Array (α × α) := #[])
 (map : HashMap String α := {})
 
-class
-
 inductive D (α : Type)
 | mk (a : α) (s : S4) : D
 
@@ -141,3 +139,10 @@ x + y + z
 #eval run "#check (f one · zero)"
 #eval run "#check (f · · zero)"
 #eval run "#check fun (_ b : Nat) => b + 1"
+
+def foo {α β} (a : α) (b : β) (a' : α) : α :=
+a
+
+-- #check fun x => foo x x.w s4 -- fails in old elaborator
+
+#eval run "#check fun x => foo x x.w s4"

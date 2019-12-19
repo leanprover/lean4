@@ -156,3 +156,4 @@ f a
 #eval run "#check #[1, 2, 3].foldl (fun r a => ((r.push a).push a).push a) #[]"
 #eval run "#check #[].push one $.push two $.push zero $.size.succ"
 #eval run "#check #[1, 2].foldl (fun r a => r.push a $.push a $.push a) #[]"
+#eval run "#check #[1, 2].foldl (init := #[]) $ fun r a => r.push a $.push a"

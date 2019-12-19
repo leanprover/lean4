@@ -683,8 +683,10 @@ private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) 
       processAssignmentFOApprox mvar args v
     else do
       let useFOApprox : Unit → MetaM Bool := fun _ =>
-        if cfg.foApprox then processAssignmentFOApprox mvar args v
-        else pure false;
+        if cfg.foApprox && !args.isEmpty then
+          processAssignmentFOApprox mvar args v
+        else
+          pure false;
       let mvarId := mvar.mvarId!;
       v? ← checkAssignment mvarId args v;
       match v? with

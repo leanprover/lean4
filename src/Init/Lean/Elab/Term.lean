@@ -490,19 +490,30 @@ u ← mkFreshLevelMVar stx;
 type ← elabTerm stx (mkSort u);
 ensureType stx type
 
+@[inline] def withLCtx {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TermElabM α) : TermElabM α :=
+adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts, .. ctx }) x
+
+def resetSynthInstanceCache : TermElabM Unit :=
+modify $ fun s => { cache := { synthInstance := {}, .. s.cache }, .. s }
+
+@[inline] def resettingSynthInstanceCache {α} (x : TermElabM α) : TermElabM α := do
+s ← get;
+let savedSythInstance := s.cache.synthInstance;
+resetSynthInstanceCache;
+finally x (modify $ fun s => { cache := { synthInstance := savedSythInstance, .. s.cache }, .. s })
+
+@[inline] def resettingSynthInstanceCacheWhen {α} (b : Bool) (x : TermElabM α) : TermElabM α :=
+if b then resettingSynthInstanceCache x else x
+
 /--
   Execute `x` using the given metavariable `LocalContext` and `LocalInstances`.
   The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
   different from the current ones. -/
-@[inline] def withMVarContext {α} (mvarId : MVarId) (x : TermElabM α) : TermElabM α := do
+def withMVarContext {α} (mvarId : MVarId) (x : TermElabM α) : TermElabM α := do
 mvarDecl  ← getMVarDecl mvarId;
 ctx       ← read;
-let reset := ctx.localInstances == mvarDecl.localInstances;
-adaptReader (fun (ctx : Context) => { lctx := mvarDecl.lctx, localInstances := mvarDecl.localInstances, .. ctx }) $ do
-  s : State ← get;
-  let savedSythInstance := s.cache.synthInstance;
-  when reset (modify $ fun (s : State) => { cache := { synthInstance := {}, .. s.cache }, .. s });
-  finally x (when reset $ modify $ fun (s : State) => { cache := { synthInstance := savedSythInstance, .. s.cache }, .. s })
+let needReset := ctx.localInstances == mvarDecl.localInstances;
+withLCtx mvarDecl.lctx mvarDecl.localInstances $ resettingSynthInstanceCacheWhen needReset x
 
 /--
   Try to elaborate `stx` that was postponed by an elaboration method using `Expection.postpone`.

@@ -64,21 +64,6 @@ withNode stx $ fun node => do
   else
     throwError stx "term elaborator failed, unexpected binder syntax"
 
-@[inline] def withLCtx {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TermElabM α) : TermElabM α :=
-adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts, .. ctx }) x
-
-def resetSynthInstanceCache : TermElabM Unit :=
-modify $ fun s => { cache := { synthInstance := {}, .. s.cache }, .. s }
-
-@[inline] def resettingSynthInstanceCache {α} (x : TermElabM α) : TermElabM α := do
-s ← get;
-let savedSythInstance := s.cache.synthInstance;
-resetSynthInstanceCache;
-finally x (modify $ fun s => { cache := { synthInstance := savedSythInstance, .. s.cache }, .. s })
-
-@[inline] def resettingSynthInstanceCacheWhen {α} (b : Bool) (x : TermElabM α) : TermElabM α :=
-if b then resettingSynthInstanceCache x else x
-
 private partial def elabBinderViews (binderViews : Array BinderView)
     : Nat → Array Expr → LocalContext → LocalInstances → TermElabM (Array Expr × LocalContext × LocalInstances)
 | i, fvars, lctx, localInsts =>

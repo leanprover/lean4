@@ -281,7 +281,7 @@ lean_object* l_List_foldlM___main___at___private_Init_Lean_Meta_SynthInstance_3_
 lean_object* l_Lean_Meta_SynthInstance_addContext___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_Waiter_isRoot___boxed(lean_object*);
 uint8_t l_AssocList_contains___main___at_Lean_Meta_SynthInstance_MkTableKey_normLevel___main___spec__4(lean_object*, lean_object*);
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_try___at___private_Init_Lean_Meta_SynthInstance_6__resolveReplacements___spec__3___lambda__2(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_incDepth(lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_getResult___boxed(lean_object*);
@@ -944,7 +944,7 @@ x_34 = lean_ctor_get(x_32, 0);
 lean_dec(x_34);
 x_35 = l_Lean_Level_Inhabited;
 x_36 = l_Lean_Level_updateIMax_x21___closed__2;
-x_37 = lean_panic_fn(x_36);
+x_37 = lean_panic_fn(x_35, x_36);
 lean_ctor_set(x_32, 0, x_37);
 return x_32;
 }
@@ -956,7 +956,7 @@ lean_inc(x_38);
 lean_dec(x_32);
 x_39 = l_Lean_Level_Inhabited;
 x_40 = l_Lean_Level_updateIMax_x21___closed__2;
-x_41 = lean_panic_fn(x_40);
+x_41 = lean_panic_fn(x_39, x_40);
 x_42 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_42, 0, x_41);
 lean_ctor_set(x_42, 1, x_38);
@@ -3614,7 +3614,7 @@ else
 lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
 x_36 = l_Lean_Meta_isClassQuick___main___closed__1;
 x_37 = l_Array_umapMAux___main___at_Lean_Meta_SynthInstance_getInstances___spec__2___closed__3;
-x_38 = lean_panic_fn(x_37);
+x_38 = lean_panic_fn(x_36, x_37);
 lean_inc(x_3);
 x_39 = lean_apply_2(x_38, x_3, x_4);
 x_14 = x_39;
@@ -6006,7 +6006,7 @@ lean_inc(x_6);
 lean_dec(x_4);
 x_7 = l_Lean_Meta_SynthInstance_getEntry___closed__1;
 x_8 = l_Lean_Meta_SynthInstance_getEntry___closed__3;
-x_9 = lean_panic_fn(x_8);
+x_9 = lean_panic_fn(x_7, x_8);
 x_10 = lean_apply_2(x_9, x_2, x_6);
 return x_10;
 }
@@ -15754,7 +15754,7 @@ lean_inc(x_7);
 lean_dec(x_3);
 x_8 = l_Lean_Meta_SynthInstance_getEntry___closed__1;
 x_9 = l_Lean_Meta_SynthInstance_resume___closed__2;
-x_10 = lean_panic_fn(x_9);
+x_10 = lean_panic_fn(x_8, x_9);
 x_11 = lean_apply_2(x_10, x_1, x_7);
 return x_11;
 }

@@ -189,7 +189,7 @@ lean_object* l_RBNode_appendTrees___main___rarg(lean_object*, lean_object*);
 extern lean_object* l_Bool_HasRepr___closed__2;
 lean_object* l_Lean_IR_FnBody_flatten(lean_object*);
 lean_object* lean_ir_mk_var_arg(lean_object*);
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_RBNode_balLeft___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_altInh;
 lean_object* lean_ir_mk_jmp(lean_object*, lean_object*);
@@ -2398,7 +2398,7 @@ x_9 = lean_unsigned_to_nat(0u);
 x_10 = l___private_Init_Util_1__mkPanicMessage(x_7, x_8, x_9, x_6);
 lean_dec(x_6);
 x_11 = l___private_Init_Data_Array_Basic_1__swapAtPanic_x21___at_Lean_IR_reshapeAux___main___spec__1___closed__1;
-x_12 = lean_panic_fn(x_10);
+x_12 = lean_panic_fn(x_11, x_10);
 return x_12;
 }
 }

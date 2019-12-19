@@ -234,7 +234,7 @@ lean_object* l_Lean_Meta_DiscrTree_empty___closed__1;
 lean_object* l_PersistentHashMap_findAtAux___main___at_Lean_Meta_DiscrTree_getMatch___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___main___at___private_Init_Lean_Meta_DiscrTree_16__getUnifyAux___main___spec__1(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_DiscrTree_insertCore___spec__11(lean_object*);
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_find_x3f___at_Lean_Meta_DiscrTree_getMatch___spec__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_DiscrTree_4__pushArgsAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_DiscrTree_9__insertVal___rarg(lean_object*, lean_object*, lean_object*);
@@ -4071,7 +4071,7 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_17 = l_Lean_Meta_DiscrTree_insertCore___rarg___closed__1;
 x_18 = l_Lean_Meta_DiscrTree_insertCore___rarg___closed__4;
-x_19 = lean_panic_fn(x_18);
+x_19 = lean_panic_fn(x_17, x_18);
 return x_19;
 }
 }

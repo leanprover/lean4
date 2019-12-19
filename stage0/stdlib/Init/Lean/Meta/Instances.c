@@ -134,7 +134,7 @@ uint8_t l_USize_decLe(size_t, size_t);
 extern lean_object* l_Lean_Meta_DiscrTree_empty___closed__1;
 lean_object* l_Lean_registerTagAttribute___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___closed__1;
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_mkInstanceExtension___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_incDepth(lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__4;
@@ -1303,7 +1303,7 @@ lean_dec(x_3);
 lean_dec(x_1);
 x_16 = l_Lean_Meta_DiscrTree_insertCore___rarg___closed__1;
 x_17 = l_Lean_Meta_DiscrTree_insertCore___rarg___closed__4;
-x_18 = lean_panic_fn(x_17);
+x_18 = lean_panic_fn(x_16, x_17);
 return x_18;
 }
 }

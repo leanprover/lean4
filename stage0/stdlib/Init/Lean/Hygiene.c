@@ -34,7 +34,7 @@ lean_object* l_Lean_Unhygienic_MonadQuotation;
 lean_object* l_Lean_Unhygienic_MonadQuotation___closed__1;
 lean_object* l_ReaderT_bind___at_Lean_Unhygienic_MonadQuotation___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_monadQuotationTrans___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_List_head_x21___at_Lean_Unhygienic_MonadQuotation___spec__2(lean_object*);
 lean_object* l_Lean_Unhygienic_MonadQuotation___closed__2;
 lean_object* l_Lean_Unhygienic_run___rarg___closed__1;
@@ -67,7 +67,7 @@ if (lean_obj_tag(x_1) == 0)
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Nat_Inhabited;
 x_3 = l_List_head_x21___rarg___closed__2;
-x_4 = lean_panic_fn(x_3);
+x_4 = lean_panic_fn(x_2, x_3);
 return x_4;
 }
 else

@@ -383,7 +383,7 @@ lean_object* l_Lean_Elab_Command_CommandElabM_monadLog___closed__5;
 lean_object* l___regBuiltinCommandElab_Lean_Elab_Command_elabUniverse___closed__2;
 lean_object* l_Lean_registerTagAttribute___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabEnd___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_registerBuiltinCommandElabAttr___closed__3;
 extern lean_object* l_Lean_AttributeImpl_inhabited___closed__1;
 lean_object* l___regBuiltinCommandElab_Lean_Elab_Command_elabCheck___closed__2;
@@ -4429,7 +4429,7 @@ if (lean_obj_tag(x_1) == 0)
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Lean_Elab_Command_Scope_inhabited;
 x_3 = l_List_head_x21___rarg___closed__2;
-x_4 = lean_panic_fn(x_3);
+x_4 = lean_panic_fn(x_2, x_3);
 return x_4;
 }
 else

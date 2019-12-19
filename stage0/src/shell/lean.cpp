@@ -241,6 +241,7 @@ static struct option g_long_options[] = {
     {"timeout",      optional_argument, 0, 'T'},
     {"cpp",          optional_argument, 0, 'c'},
     {"c",            optional_argument, 0, 'C'},
+    {"exitOnPanic",  no_argument,       0, 'e'},
 #if defined(LEAN_JSON)
     {"json",         no_argument,       0, 'J'},
     {"server",       optional_argument, 0, 'S'},
@@ -257,7 +258,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:m::c:C:qgvht:012j:012rM:012T:012ap:"
+    "PdD:m::c:C:qgvht:012j:012rM:012T:012ap:e"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -436,6 +437,9 @@ int main(int argc, char ** argv) {
         if (c == -1)
             break; // end of command line
         switch (c) {
+            case 'e':
+                lean_set_exit_on_panic(true);
+                break;
             case 'j':
                 // num_threads = static_cast<unsigned>(atoi(optarg));
                 break;

@@ -388,7 +388,7 @@ lean_object* l_Lean_IR_EmitC_emitInc___closed__4;
 lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__5;
 lean_object* l_Lean_IR_EmitC_emitUSet___closed__1;
 lean_object* l_Lean_IR_EmitC_emitFnBody___main___closed__1;
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Nat_forMAux___main___at_Lean_IR_EmitC_emitTailCall___spec__2___closed__1;
 lean_object* l_Lean_IR_EmitC_emitNumLit___closed__2;
 lean_object* l_Lean_IR_EmitC_isTailCall___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1026,7 +1026,7 @@ case 9:
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = l_String_Inhabited;
 x_9 = l_Lean_IR_EmitC_toCType___closed__10;
-x_10 = lean_panic_fn(x_9);
+x_10 = lean_panic_fn(x_8, x_9);
 return x_10;
 }
 case 10:
@@ -1034,7 +1034,7 @@ case 10:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_11 = l_String_Inhabited;
 x_12 = l_Lean_IR_EmitC_toCType___closed__11;
-x_13 = lean_panic_fn(x_12);
+x_13 = lean_panic_fn(x_11, x_12);
 return x_13;
 }
 default: 

@@ -19,7 +19,7 @@ lean_object* l_Option_get_x21___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Option_get_x21___rarg___closed__2;
 lean_object* l_Option_get_x21___rarg___closed__1;
 lean_object* l_Option_get_x21___rarg(lean_object*, lean_object*);
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Option_get_x21(lean_object*);
 lean_object* _init_l_Option_get_x21___rarg___closed__1() {
 _start:
@@ -56,7 +56,7 @@ if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_Option_get_x21___rarg___closed__3;
-x_4 = lean_panic_fn(x_3);
+x_4 = lean_panic_fn(x_1, x_3);
 return x_4;
 }
 else

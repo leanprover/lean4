@@ -39,8 +39,20 @@ extern "C" void lean_panic_rc_overflow() {
     lean_panic("reference counter overflowed");
 }
 
-extern "C" object * lean_panic_fn(object * msg) {
-    lean_panic(lean_string_cstr(msg));
+bool g_exit_on_panic = false;
+
+extern "C" void lean_set_exit_on_panic(bool flag) {
+    g_exit_on_panic = flag;
+}
+
+extern "C" object * lean_panic_fn(object * default_val, object * msg) {
+    // TODO(Leo, Kha): add thread local buffer for interpreter.
+    std::cerr << lean_string_cstr(msg) << "\n";
+    if (g_exit_on_panic) {
+        std::exit(1);
+    }
+    lean_dec(msg);
+    return default_val;
 }
 
 extern "C" size_t lean_object_byte_size(lean_object * o) {

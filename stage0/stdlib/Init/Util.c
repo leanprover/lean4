@@ -31,7 +31,7 @@ lean_object* l_unreachable_x21___rarg___closed__3;
 lean_object* l___private_Init_Util_1__mkPanicMessage___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos(lean_object*);
 lean_object* l___private_Init_Util_1__mkPanicMessage___closed__1;
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_1__mkPanicMessage___closed__2;
 lean_object* l_unreachable_x21___rarg___closed__1;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -76,7 +76,7 @@ lean_object* l_panic___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_panic_fn(x_3);
+x_4 = lean_panic_fn(x_2, x_3);
 return x_4;
 }
 }
@@ -140,7 +140,7 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = l___private_Init_Util_1__mkPanicMessage(x_2, x_3, x_4, x_5);
-x_7 = lean_panic_fn(x_6);
+x_7 = lean_panic_fn(x_1, x_6);
 return x_7;
 }
 }
@@ -195,7 +195,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_unreachable_x21___rarg___closed__3;
-x_3 = lean_panic_fn(x_2);
+x_3 = lean_panic_fn(x_1, x_2);
 return x_3;
 }
 }

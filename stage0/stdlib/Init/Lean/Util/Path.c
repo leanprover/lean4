@@ -95,7 +95,7 @@ lean_object* l_List_map___main___at_Lean_findAtSearchPath___spec__3(lean_object*
 lean_object* l_Lean_normalizeModuleName___closed__1;
 uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_addSearchPathFromEnv(lean_object*, lean_object*);
 lean_object* l_HashMapImp_find_x3f___at_Lean_findOLean___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_getBuiltinSearchPath___closed__2;
@@ -1426,7 +1426,7 @@ default:
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_12 = l_String_Inhabited;
 x_13 = l_Lean_modPathToFilePath___main___closed__3;
-x_14 = lean_panic_fn(x_13);
+x_14 = lean_panic_fn(x_12, x_13);
 return x_14;
 }
 }
@@ -1544,7 +1544,7 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18;
 lean_dec(x_1);
 x_16 = l_Lean_splitAtRoot___main___closed__1;
 x_17 = l_Lean_splitAtRoot___main___closed__2;
-x_18 = lean_panic_fn(x_17);
+x_18 = lean_panic_fn(x_16, x_17);
 return x_18;
 }
 }

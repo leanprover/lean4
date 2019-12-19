@@ -71,7 +71,7 @@ lean_object* l_Lean_SMap_find_x3f(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_foldlM___at_Lean_SMap_foldStage2___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_foldStage2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_numBuckets___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_size___rarg___boxed(lean_object*);
 lean_object* l_Lean_SMap_size___rarg(lean_object*);
@@ -370,7 +370,7 @@ if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; 
 x_7 = l_Lean_SMap_find_x21___rarg___closed__2;
-x_8 = lean_panic_fn(x_7);
+x_8 = lean_panic_fn(x_3, x_7);
 return x_8;
 }
 else

@@ -65,7 +65,7 @@ lean_object* l___private_Init_Lean_Structure_2__isSubobjectFieldAux___main___box
 lean_object* l___private_Init_Lean_Structure_2__isSubobjectFieldAux___main___closed__1;
 lean_object* l___private_Init_Lean_Structure_2__isSubobjectFieldAux___main___closed__2;
 lean_object* l_Array_anyRangeMAux___main___at_Lean_findField_x3f___main___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_getStructureCtor(lean_object*, lean_object*);
 lean_object* l_Lean_isStructure___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Structure_1__getStructureFieldsAux(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -350,7 +350,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6;
 lean_dec(x_1);
 x_4 = l_Lean_ConstructorVal_inhabited;
 x_5 = l_Lean_getStructureCtor___closed__3;
-x_6 = lean_panic_fn(x_5);
+x_6 = lean_panic_fn(x_4, x_5);
 return x_6;
 }
 else
@@ -374,7 +374,7 @@ lean_dec(x_8);
 lean_dec(x_1);
 x_10 = l_Lean_ConstructorVal_inhabited;
 x_11 = l_Lean_getStructureCtor___closed__3;
-x_12 = lean_panic_fn(x_11);
+x_12 = lean_panic_fn(x_10, x_11);
 return x_12;
 }
 else
@@ -399,7 +399,7 @@ if (lean_obj_tag(x_16) == 0)
 lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_17 = l_Lean_ConstructorVal_inhabited;
 x_18 = l_Lean_getStructureCtor___closed__5;
-x_19 = lean_panic_fn(x_18);
+x_19 = lean_panic_fn(x_17, x_18);
 return x_19;
 }
 else
@@ -422,7 +422,7 @@ lean_object* x_22; lean_object* x_23; lean_object* x_24;
 lean_dec(x_20);
 x_22 = l_Lean_ConstructorVal_inhabited;
 x_23 = l_Lean_getStructureCtor___closed__5;
-x_24 = lean_panic_fn(x_23);
+x_24 = lean_panic_fn(x_22, x_23);
 return x_24;
 }
 }
@@ -434,7 +434,7 @@ lean_dec(x_9);
 lean_dec(x_1);
 x_25 = l_Lean_ConstructorVal_inhabited;
 x_26 = l_Lean_getStructureCtor___closed__3;
-x_27 = lean_panic_fn(x_26);
+x_27 = lean_panic_fn(x_25, x_26);
 return x_27;
 }
 }
@@ -447,7 +447,7 @@ lean_dec(x_8);
 lean_dec(x_1);
 x_28 = l_Lean_ConstructorVal_inhabited;
 x_29 = l_Lean_getStructureCtor___closed__3;
-x_30 = lean_panic_fn(x_29);
+x_30 = lean_panic_fn(x_28, x_29);
 return x_30;
 }
 }
@@ -459,7 +459,7 @@ lean_dec(x_7);
 lean_dec(x_1);
 x_31 = l_Lean_ConstructorVal_inhabited;
 x_32 = l_Lean_getStructureCtor___closed__3;
-x_33 = lean_panic_fn(x_32);
+x_33 = lean_panic_fn(x_31, x_32);
 return x_33;
 }
 }
@@ -621,7 +621,7 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18;
 lean_dec(x_13);
 x_16 = lean_box(0);
 x_17 = l___private_Init_Lean_Structure_2__isSubobjectFieldAux___main___closed__2;
-x_18 = lean_panic_fn(x_17);
+x_18 = lean_panic_fn(x_16, x_17);
 return x_18;
 }
 }

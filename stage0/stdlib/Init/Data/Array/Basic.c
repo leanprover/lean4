@@ -384,7 +384,7 @@ lean_object* l_Array_findRevMAux___main___rarg(lean_object*, lean_object*, lean_
 lean_object* l_Array_foldr___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlFrom___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateRev(lean_object*, lean_object*);
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_List_redLength(lean_object*);
 lean_object* l_Array_findMAux___boxed(lean_object*, lean_object*);
 lean_object* l_Array_findRev_x21___rarg(lean_object*, lean_object*, lean_object*);
@@ -944,7 +944,7 @@ x_11 = lean_unsigned_to_nat(143u);
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = l___private_Init_Util_1__mkPanicMessage(x_10, x_11, x_12, x_9);
 lean_dec(x_9);
-x_14 = lean_panic_fn(x_13);
+x_14 = lean_panic_fn(x_4, x_13);
 return x_14;
 }
 }
@@ -975,7 +975,7 @@ x_11 = lean_unsigned_to_nat(143u);
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = l___private_Init_Util_1__mkPanicMessage(x_10, x_11, x_12, x_9);
 lean_dec(x_9);
-x_14 = lean_panic_fn(x_13);
+x_14 = lean_panic_fn(x_4, x_13);
 return x_14;
 }
 }
@@ -2602,7 +2602,7 @@ if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = l_Array_find_x21___rarg___closed__2;
-x_7 = lean_panic_fn(x_6);
+x_7 = lean_panic_fn(x_1, x_6);
 return x_7;
 }
 else
@@ -2791,7 +2791,7 @@ if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = l_Array_findRev_x21___rarg___closed__1;
-x_7 = lean_panic_fn(x_6);
+x_7 = lean_panic_fn(x_1, x_6);
 return x_7;
 }
 else
@@ -2965,7 +2965,7 @@ if (lean_obj_tag(x_4) == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = l_Nat_Inhabited;
 x_6 = l_Array_findIdx_x21___rarg___closed__1;
-x_7 = lean_panic_fn(x_6);
+x_7 = lean_panic_fn(x_5, x_6);
 return x_7;
 }
 else
@@ -6839,7 +6839,7 @@ lean_dec(x_3);
 lean_dec(x_1);
 x_9 = l_Array_empty___closed__1;
 x_10 = l_Array_insertAt___rarg___closed__2;
-x_11 = lean_panic_fn(x_10);
+x_11 = lean_panic_fn(x_9, x_10);
 return x_11;
 }
 }

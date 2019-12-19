@@ -29,7 +29,7 @@ lean_object* l_RBMap_find_x21___rarg___closed__2;
 lean_object* l_RBMap_find_x21___rarg___closed__1;
 lean_object* l_RBMap_min_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_find___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_RBMap_max_x21___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_RBNode_max___main___rarg(lean_object*);
 lean_object* l_RBMap_max_x21___rarg(lean_object*, lean_object*, lean_object*);
@@ -123,7 +123,7 @@ x_5 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
 x_6 = l_RBMap_min_x21___rarg___closed__3;
-x_7 = lean_panic_fn(x_6);
+x_7 = lean_panic_fn(x_5, x_6);
 return x_7;
 }
 else
@@ -238,7 +238,7 @@ x_5 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
 x_6 = l_RBMap_max_x21___rarg___closed__1;
-x_7 = lean_panic_fn(x_6);
+x_7 = lean_panic_fn(x_5, x_6);
 return x_7;
 }
 else
@@ -309,7 +309,7 @@ if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = l_RBMap_find_x21___rarg___closed__2;
-x_7 = lean_panic_fn(x_6);
+x_7 = lean_panic_fn(x_2, x_6);
 return x_7;
 }
 else

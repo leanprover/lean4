@@ -287,7 +287,7 @@ lean_object* l_Array_findRevMAux___main___at_Lean_LocalContext_findFromUserName_
 lean_object* l_Lean_LocalContext_isEmpty___boxed(lean_object*);
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_LocalContext_mkLocalDecl___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_PersistentArray_anyMAux___main___at_Lean_LocalContext_all___spec__2___boxed(lean_object*, lean_object*);
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_LocalContext_anyM___spec__5___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_LocalContext_all___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_findRevM_x3f___at_Lean_LocalContext_findFromUserName_x3f___spec__1___boxed(lean_object*, lean_object*);
@@ -594,7 +594,7 @@ if (lean_obj_tag(x_1) == 0)
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Lean_Expr_Inhabited;
 x_3 = l_Lean_LocalDecl_value___closed__3;
-x_4 = lean_panic_fn(x_3);
+x_4 = lean_panic_fn(x_2, x_3);
 return x_4;
 }
 else
@@ -1637,7 +1637,7 @@ if (lean_obj_tag(x_3) == 0)
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = l_Lean_LocalDecl_Inhabited;
 x_5 = l_Lean_LocalContext_get_x21___closed__2;
-x_6 = lean_panic_fn(x_5);
+x_6 = lean_panic_fn(x_4, x_5);
 return x_6;
 }
 else
@@ -5201,7 +5201,7 @@ if (lean_obj_tag(x_12) == 0)
 lean_object* x_13; lean_object* x_14; 
 lean_dec(x_5);
 x_13 = l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
-x_14 = lean_panic_fn(x_13);
+x_14 = lean_panic_fn(x_10, x_13);
 x_4 = x_9;
 x_5 = x_14;
 goto _start;
@@ -5338,7 +5338,7 @@ if (lean_obj_tag(x_11) == 0)
 lean_object* x_12; lean_object* x_13; 
 lean_dec(x_4);
 x_12 = l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
-x_13 = lean_panic_fn(x_12);
+x_13 = lean_panic_fn(x_9, x_12);
 x_3 = x_8;
 x_4 = x_13;
 goto _start;
@@ -5459,7 +5459,7 @@ if (lean_obj_tag(x_11) == 0)
 lean_object* x_12; lean_object* x_13; 
 lean_dec(x_4);
 x_12 = l_Nat_foldRevAux___main___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
-x_13 = lean_panic_fn(x_12);
+x_13 = lean_panic_fn(x_9, x_12);
 x_3 = x_8;
 x_4 = x_13;
 goto _start;

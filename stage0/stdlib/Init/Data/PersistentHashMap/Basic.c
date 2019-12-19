@@ -150,7 +150,7 @@ lean_object* l_PersistentHashMap_isEmpty___rarg___boxed(lean_object*);
 lean_object* l_PersistentHashMap_Stats_toString(lean_object*);
 lean_object* l_PersistentHashMap_isUnaryEntries___main___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_USize_decLe(size_t, size_t);
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_isUnaryEntries___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_empty(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_collectStats___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -1579,7 +1579,7 @@ if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; 
 x_7 = l_PersistentHashMap_find_x21___rarg___closed__3;
-x_8 = lean_panic_fn(x_7);
+x_8 = lean_panic_fn(x_3, x_7);
 return x_8;
 }
 else

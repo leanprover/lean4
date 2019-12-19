@@ -235,7 +235,7 @@ extern lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___closed_
 lean_object* l_Array_findIdxAux___main___at_Lean_IR_UnreachableBranches_interpExpr___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_UnreachableBranches_projValue___main(lean_object*, lean_object*);
 lean_object* l_Nat_foldAux___main___at_Lean_IR_elimDeadBranches___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 uint8_t l_Lean_IR_UnreachableBranches_containsCtor___main(lean_object*, lean_object*);
 lean_object* l_List_foldl___main___at_Lean_IR_UnreachableBranches_projValue___main___spec__1(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Format_sbracket___closed__1;
@@ -842,7 +842,7 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_22 = l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__1;
 x_23 = l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__4;
-x_24 = lean_panic_fn(x_23);
+x_24 = lean_panic_fn(x_22, x_23);
 return x_24;
 }
 }
@@ -855,7 +855,7 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_25 = l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__1;
 x_26 = l_Lean_IR_UnreachableBranches_Value_addChoice___main___closed__4;
-x_27 = lean_panic_fn(x_26);
+x_27 = lean_panic_fn(x_25, x_26);
 return x_27;
 }
 }
@@ -6260,7 +6260,7 @@ if (lean_obj_tag(x_50) == 0)
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; 
 x_51 = l_Array_empty___closed__1;
 x_52 = l_Option_get_x21___rarg___closed__3;
-x_53 = lean_panic_fn(x_52);
+x_53 = lean_panic_fn(x_51, x_52);
 x_54 = l_Lean_IR_UnreachableBranches_updateJPParamsAssignment(x_53, x_48, x_2, x_3);
 lean_dec(x_48);
 lean_dec(x_53);
@@ -6310,7 +6310,7 @@ if (lean_obj_tag(x_64) == 0)
 {
 lean_object* x_65; lean_object* x_66; 
 x_65 = l_Lean_IR_Inhabited;
-x_66 = lean_panic_fn(x_52);
+x_66 = lean_panic_fn(x_65, x_52);
 x_1 = x_66;
 x_3 = x_63;
 goto _start;
@@ -6383,7 +6383,7 @@ if (lean_obj_tag(x_81) == 0)
 lean_object* x_82; lean_object* x_83; lean_object* x_84; 
 x_82 = l_Lean_IR_Inhabited;
 x_83 = l_Option_get_x21___rarg___closed__3;
-x_84 = lean_panic_fn(x_83);
+x_84 = lean_panic_fn(x_82, x_83);
 x_1 = x_84;
 x_3 = x_80;
 goto _start;

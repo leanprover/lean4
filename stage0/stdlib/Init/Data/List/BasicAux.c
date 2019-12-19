@@ -57,7 +57,7 @@ lean_object* l_List_get_x21(lean_object*);
 lean_object* l_List_get_x3f___main___rarg(lean_object*, lean_object*);
 lean_object* l_List_tail_x3f___rarg___boxed(lean_object*);
 lean_object* l_List_getLast___main(lean_object*);
-lean_object* l_panic(lean_object*, lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_List_get_x3f___main___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_List_get_x21___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_get_x21___main(lean_object*);
@@ -113,7 +113,7 @@ if (lean_obj_tag(x_3) == 0)
 lean_object* x_6; lean_object* x_7; 
 lean_dec(x_2);
 x_6 = l_List_get_x21___main___rarg___closed__3;
-x_7 = lean_panic_fn(x_6);
+x_7 = lean_panic_fn(x_1, x_6);
 return x_7;
 }
 else
@@ -135,7 +135,7 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_12; lean_object* x_13; 
 x_12 = l_List_get_x21___main___rarg___closed__3;
-x_13 = lean_panic_fn(x_12);
+x_13 = lean_panic_fn(x_1, x_12);
 return x_13;
 }
 else
@@ -346,7 +346,7 @@ if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_List_head_x21___rarg___closed__2;
-x_4 = lean_panic_fn(x_3);
+x_4 = lean_panic_fn(x_1, x_3);
 return x_4;
 }
 else
@@ -468,7 +468,7 @@ if (lean_obj_tag(x_1) == 0)
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_box(0);
 x_3 = l_List_tail_x21___rarg___closed__1;
-x_4 = lean_panic_fn(x_3);
+x_4 = lean_panic_fn(x_2, x_3);
 return x_4;
 }
 else
@@ -650,7 +650,7 @@ if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_List_getLast_x21___rarg___closed__1;
-x_4 = lean_panic_fn(x_3);
+x_4 = lean_panic_fn(x_1, x_3);
 return x_4;
 }
 else

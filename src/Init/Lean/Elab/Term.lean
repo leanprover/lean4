@@ -572,14 +572,6 @@ match mvarSyntheticDecl.kind with
 | SyntheticMVarKind.postponed macroStack   => resumePostponed macroStack mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
 | SyntheticMVarKind.tactic tacticCode      => throwError tacticCode "not implemented yet"
 
-/-- Auxiliary function for `synthesizeSyntheticMVarsStep`. -/
-private def synthesizeSyntheticMVarsStepAux : List SyntheticMVarDecl → List SyntheticMVarDecl → TermElabM (List SyntheticMVarDecl)
-| [],                    remaining => pure remaining
-| mvarDecl :: mvarDecls, remaining =>
-  condM (synthesizeSyntheticMVar mvarDecl)
-    (synthesizeSyntheticMVarsStepAux mvarDecls remaining)
-    (synthesizeSyntheticMVarsStepAux mvarDecls (mvarDecl :: remaining))
-
 /--
   Try to synthesize the current list of pending synthetic metavariables.
   Return `true` if it managed to synthesize at least one of them. -/
@@ -588,7 +580,7 @@ s ← get;
 let syntheticMVars    := s.syntheticMVars.reverse;
 let numSyntheticMVars := syntheticMVars.length;
 modify $ fun s => { syntheticMVars := [], .. s };
-remainingSyntheticMVars ← synthesizeSyntheticMVarsStepAux syntheticMVars [];
+remainingSyntheticMVars ← syntheticMVars.filterRevM $ fun mvarDecl => not <$> synthesizeSyntheticMVar mvarDecl;
 modify $ fun s => { syntheticMVars := s.syntheticMVars ++ remainingSyntheticMVars, .. s };
 pure $ numSyntheticMVars != remainingSyntheticMVars.length
 

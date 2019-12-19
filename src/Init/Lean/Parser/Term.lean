@@ -143,6 +143,8 @@ def checkIsSort := checkLeading (fun leading => leading.isOfKind `Lean.Parser.Te
 @[builtinTermParser] def arrayRef := tparser! pushLeading >> symbolNoWs "[" (appPrec+1) >> termParser >>"]"
 
 @[builtinTermParser] def dollar := tparser! try (pushLeading >> dollarSymbol >> checkWsBefore "space expected") >> termParser 0
+@[builtinTermParser] def dollarProj := tparser! pushLeading >> symbol "$." 1 >> (fieldIdx <|> ident)
+
 @[builtinTermParser] def fcomp  := tparser! infixR " ∘ " 90
 
 @[builtinTermParser] def prod  := tparser! infixR " × " 35

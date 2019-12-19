@@ -25,7 +25,7 @@ f ()
 @[extern c inline "#4"]
 unsafe def unsafeCast {α : Type u} {β : Type v} [Inhabited β] (a : α) : β := arbitrary _
 
-@[neverExtract, extern c inline "lean_panic_fn(#3)"]
+@[neverExtract, extern "lean_panic_fn"]
 constant panic {α : Type u} [Inhabited α] (msg : String) : α := arbitrary _
 
 @[noinline] private def mkPanicMessage (modName : String) (line col : Nat) (msg : String) : String :=

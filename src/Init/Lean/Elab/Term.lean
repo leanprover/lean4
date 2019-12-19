@@ -595,19 +595,18 @@ pure $ numSyntheticMVars != remainingSyntheticMVars.length
 /-- Apply default value to any pending synthetic metavariable of kinf `SyntheticMVarKind.withDefault` -/
 def synthesizeUsingDefault : TermElabM Bool := do
 s ← get;
-let syntheticMVars := s.syntheticMVars.reverse;
-newSyntheticMVars ← syntheticMVars.foldlM
-  (fun newSyntheticMVars mvarDecl => match mvarDecl.kind with
-    | SyntheticMVarKind.withDefault defaultVal => do
+let len := s.syntheticMVars.length;
+newSyntheticMVars ← s.syntheticMVars.filterM $ fun mvarDecl =>
+  match mvarDecl.kind with
+  | SyntheticMVarKind.withDefault defaultVal => do
       val ← instantiateMVars mvarDecl.ref (mkMVar mvarDecl.mvarId);
       when val.getAppFn.isMVar $
         unlessM (isDefEq mvarDecl.ref val defaultVal) $
           throwError mvarDecl.ref "failed to assign default value to metavariable"; -- TODO: better error message
-      pure newSyntheticMVars
-    | _ => pure $ mvarDecl :: newSyntheticMVars)
-  [];
+      pure false
+  | _ => pure true;
 modify $ fun s => { syntheticMVars := newSyntheticMVars, .. s };
-pure $ newSyntheticMVars.length != syntheticMVars.length
+pure $ newSyntheticMVars.length != len
 
 /-- Report an error for each synthetic metavariable that could not be resolved. -/
 private def reportStuckSyntheticMVars : TermElabM Unit := do

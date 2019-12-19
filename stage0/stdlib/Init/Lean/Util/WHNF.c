@@ -2897,15 +2897,15 @@ goto block_17;
 else
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
-lean_dec(x_12);
 lean_dec(x_11);
+lean_dec(x_1);
 x_31 = lean_unsigned_to_nat(0u);
 x_32 = l_Lean_Expr_getAppNumArgsAux___main(x_3, x_31);
 x_33 = lean_mk_empty_array_with_capacity(x_32);
 lean_dec(x_32);
 x_34 = l___private_Init_Lean_Expr_4__getAppRevArgsAux___main(x_3, x_33);
-x_35 = l_Lean_Expr_betaRev(x_1, x_34);
-lean_dec(x_1);
+x_35 = l_Lean_Expr_betaRev(x_12, x_34);
+lean_dec(x_12);
 x_36 = l_Lean_WHNF_whnfCore___main___rarg(x_2, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_35);
 return x_36;
 }

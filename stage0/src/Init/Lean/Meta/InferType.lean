@@ -75,8 +75,7 @@ match typeType with
 | Expr.mvar mvarId _ =>
   condM (isReadOnlyOrSyntheticOpaqueExprMVar mvarId)
     (throwEx $ Exception.typeExpected type)
-    (do levelMVarId ← mkFreshId;
-        let lvl := mkLevelMVar levelMVarId;
+    (do lvl ← mkFreshLevelMVar;
         assignExprMVar mvarId (mkSort lvl);
         pure lvl)
 | _ => throwEx $ Exception.typeExpected type

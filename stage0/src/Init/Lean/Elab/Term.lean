@@ -240,7 +240,9 @@ def mkFreshLevelMVar (ref : Syntax) : TermElabM Level := liftMetaM ref $ Meta.mk
 def mkFreshExprMVar (ref : Syntax) (type? : Option Expr := none) (kind : MetavarKind := MetavarKind.natural) (userName? : Name := Name.anonymous) : TermElabM Expr :=
 match type? with
 | some type => liftMetaM ref $ Meta.mkFreshExprMVar type userName? kind
-| none      => liftMetaM ref $ do u ← Meta.mkFreshLevelMVar; Meta.mkFreshExprMVar (mkSort u) userName? kind
+| none      => liftMetaM ref $ do u ← Meta.mkFreshLevelMVar; type ← Meta.mkFreshExprMVar (mkSort u); Meta.mkFreshExprMVar type userName? kind
+def mkFreshTypeMVar (ref : Syntax) (kind : MetavarKind := MetavarKind.natural) (userName? : Name := Name.anonymous) : TermElabM Expr :=
+liftMetaM ref $ do u ← Meta.mkFreshLevelMVar; Meta.mkFreshExprMVar (mkSort u) userName? kind
 def getLevel (ref : Syntax) (type : Expr) : TermElabM Level := liftMetaM ref $ Meta.getLevel type
 def mkForall (ref : Syntax) (xs : Array Expr) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.mkForall xs e
 def mkLambda (ref : Syntax) (xs : Array Expr) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.mkLambda xs e
@@ -392,7 +394,7 @@ def expandCDot? : Syntax → TermElabM (Option Syntax)
 
 private def exceptionToSorry (ref : Syntax) (ex : Elab.Exception) (expectedType? : Option Expr) : TermElabM Expr := do
 expectedType : Expr ← match expectedType? with
-  | none              => mkFreshExprMVar ref
+  | none              => mkFreshTypeMVar ref
   | some expectedType => pure expectedType;
 u ← getLevel ref expectedType;
 let syntheticSorry := mkApp2 (mkConst `sorryAx [u]) expectedType (mkConst `Bool.true);
@@ -513,15 +515,14 @@ type ← instantiateMVars ref type;
 result ← trySynthInstance ref type;
 match result with
 | LOption.some val => do
-  whenM (isExprMVarAssigned instMVar) $ do {
-    oldVal ← instantiateMVars ref (mkMVar instMVar);
-    unlessM (isDefEq ref oldVal val) $
-      throwError ref $
-        "synthesized type class instance is not definitionally equal to expression "
-        ++ "inferred by typing rules, synthesized" ++ indentExpr val
-        ++ Format.line ++ "inferred" ++ indentExpr oldVal
-  };
-  assignExprMVar instMVar val;
+  condM (isExprMVarAssigned instMVar)
+    (do oldVal ← instantiateMVars ref (mkMVar instMVar);
+        unlessM (isDefEq ref oldVal val) $
+          throwError ref $
+            "synthesized type class instance is not definitionally equal to expression "
+            ++ "inferred by typing rules, synthesized" ++ indentExpr val
+            ++ Format.line ++ "inferred" ++ indentExpr oldVal)
+    (assignExprMVar instMVar val);
   pure true
 | LOption.undef    => pure false -- we will try later
 | LOption.none     => throwError ref ("failed to synthesize instance" ++ indentExpr type)
@@ -722,6 +723,14 @@ fun stx expectedType? => do
   let newStx   := args.foldSepRevArgs (fun arg r => mkAppStx consId #[arg, r]) nilId;
   elabTerm newStx expectedType?
 
+@[builtinTermElab «arrayLit»] def elabArrayLit : TermElab :=
+fun stx expectedType? => do
+  match_syntax stx.val with
+  | `(#[$args*]) => do
+    newStx ← `(List.toArray [$args*]);
+    withMacroExpansion stx.val (elabTerm newStx expectedType?)
+  | _ => throwError stx.val "unexpected array literal syntax"
+
 def elabExplicitUniv (stx : Syntax) : TermElabM (List Level) :=
 pure [] -- TODO
 
@@ -815,7 +824,7 @@ fun stx expectedType? => do
   val ← match (stx.getArg 0).isNatLit? with
     | some val => pure (mkNatLit val)
     | none     => throwError stx.val "ill-formed syntax";
-  typeMVar ← mkFreshExprMVar ref none MetavarKind.synthetic;
+  typeMVar ← mkFreshTypeMVar ref MetavarKind.synthetic;
   registerSyntheticMVar ref typeMVar.mvarId! (SyntheticMVarKind.withDefault (Lean.mkConst `Nat));
   match expectedType? with
   | some expectedType => do isDefEq ref expectedType typeMVar; pure ()

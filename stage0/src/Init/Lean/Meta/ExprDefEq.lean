@@ -438,18 +438,18 @@ end CheckAssignment
 private def checkAssignmentFailure (mvarId : MVarId) (fvars : Array Expr) (v : Expr) (ex : CheckAssignment.Exception) : MetaM (Option Expr) :=
 match ex with
 | CheckAssignment.Exception.occursCheck => do
-  trace! `Meta.isDefEq.assign.occursCheck (mkMVar mvarId ++ fvars ++ " := " ++ v);
+  trace! `Meta.isDefEq.assign.occursCheck (mkMVar mvarId ++ " " ++ fvars ++ " := " ++ v);
   pure none
 | CheckAssignment.Exception.useFOApprox =>
   pure none
 | CheckAssignment.Exception.outOfScopeFVar fvarId => do
-  trace! `Meta.isDefEq.assign.outOfScopeFVar (mkFVar fvarId ++ " @ " ++ mkMVar mvarId ++ fvars ++ " := " ++ v);
+  trace! `Meta.isDefEq.assign.outOfScopeFVar (mkFVar fvarId ++ " @ " ++ mkMVar mvarId ++ " " ++ fvars ++ " := " ++ v);
   pure none
 | CheckAssignment.Exception.readOnlyMVarWithBiggerLCtx nestedMVarId => do
-  trace! `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx (mkMVar nestedMVarId ++ " @ " ++ mkMVar mvarId ++ fvars ++ " := " ++ v);
+  trace! `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx (mkMVar nestedMVarId ++ " @ " ++ mkMVar mvarId ++ " " ++ fvars ++ " := " ++ v);
   pure none
 | CheckAssignment.Exception.mvarTypeNotWellFormedInSmallerLCtx nestedMVarId => do
-  trace! `Meta.isDefEq.assign.mvarTypeNotWellFormedInSmallerLCtx (mkMVar nestedMVarId ++ " @ " ++ mkMVar mvarId ++ fvars ++ " := " ++ v);
+  trace! `Meta.isDefEq.assign.mvarTypeNotWellFormedInSmallerLCtx (mkMVar nestedMVarId ++ " @ " ++ mkMVar mvarId ++ " " ++ fvars ++ " := " ++ v);
   pure none
 | CheckAssignment.Exception.unknownExprMVar mvarId =>
   -- This case can only happen if the MetaM API is being misused
@@ -678,13 +678,15 @@ private partial def processAssignmentAux (mvar : Expr) (mvarDecl : MetavarDecl) 
   else do
     cfg ← getConfig;
     v ← instantiateMVars v; -- enforce A4
-    if cfg.foApprox && args.isEmpty && v.getAppFn == mvar then
+    if cfg.foApprox && !args.isEmpty && v.getAppFn == mvar then
       -- using A6
       processAssignmentFOApprox mvar args v
     else do
       let useFOApprox : Unit → MetaM Bool := fun _ =>
-        if cfg.foApprox then processAssignmentFOApprox mvar args v
-        else pure false;
+        if cfg.foApprox && !args.isEmpty then
+          processAssignmentFOApprox mvar args v
+        else
+          pure false;
       let mvarId := mvar.mvarId!;
       v? ← checkAssignment mvarId args v;
       match v? with
@@ -956,19 +958,9 @@ private partial def isDefEqQuick : Expr → Expr → MetaM LBool
   tMVarDecl ← getMVarDecl tFn.mvarId!;
   sMVarDecl ← getMVarDecl sFn.mvarId!;
   cond (!sMVarDecl.lctx.isSubPrefixOf tMVarDecl.lctx) (assign s t) $
-  /-
-    Local context for `s` is a sub prefix of the local context for `t`.
-
-    Remark:
-    It is easier to solve the assignment
-        ?m2 := ?m1 a_1 ... a_n
-    than
-        ?m1 a_1 ... a_n := ?m2
-    Reason: the first one has a precise solution. For example,
-    consider the constraint `?m1 ?m =?= ?m2` -/
-  cond (!t.isApp && s.isApp) (assign t s) $
-  cond (!s.isApp && t.isApp && tMVarDecl.lctx.isSubPrefixOf sMVarDecl.lctx) (assign s t) $
-  assign t s
+  cond (!tMVarDecl.lctx.isSubPrefixOf sMVarDecl.lctx) (assign t s) $
+  condM (try (processAssignment t s)) (pure LBool.true) $
+  assign s t
 
 private def isDefEqProofIrrel (t s : Expr) : MetaM LBool := do
 status ← isProofQuick t;

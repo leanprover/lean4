@@ -288,7 +288,7 @@ else
     f' ← whnfCore f;
     if f'.isLambda then
       let revArgs := e.getAppRevArgs;
-      whnfCore $ f.betaRev revArgs
+      whnfCore $ f'.betaRev revArgs
     else do
       let done : Unit → m Expr := fun _ =>
         if f == f' then pure e else pure $ e.updateFn f';

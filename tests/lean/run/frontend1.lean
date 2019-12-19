@@ -147,7 +147,8 @@ f a
 
 -- #check fun x => foo x x.w s4 -- fails in old elaborator
 -- #check bla (fun x => x.w) s4 -- fails in the old elaborator
+-- #check #[1, 2, 3].foldl (fun r a => r.push a) #[] -- fails in the old elaborator
 
 #eval run "#check fun x => foo x x.w s4"
 #eval run "#check bla (fun x => x.w) s4"
-#eval run "#check #[1, 2, 3]"
+#eval run "#check #[1, 2, 3].foldl (fun r a => r.push a) #[]"

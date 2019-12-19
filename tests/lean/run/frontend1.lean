@@ -152,3 +152,5 @@ f a
 #eval run "#check fun x => foo x x.w s4"
 #eval run "#check bla (fun x => x.w) s4"
 #eval run "#check #[1, 2, 3].foldl (fun r a => r.push a) #[]"
+#eval run "#check #[1, 2, 3].foldl (fun r a => (r.push a).push a) #[]"
+#eval run "#check #[1, 2, 3].foldl (fun r a => ((r.push a).push a).push a) #[]"

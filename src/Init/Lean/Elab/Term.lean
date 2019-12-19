@@ -425,12 +425,12 @@ pure mvar
   All unlogged trace messages produced by the elaboration method are logged using
   the position information at `stx`. If the elaboration method throws an `Exception.error`,
   the error is logged and a synthetic sorry expression is returned.
-  If the elaboration throws `Exception.postpone` and `resuming == false`,
+  If the elaboration throws `Exception.postpone` and `catchExPostpone == true`,
   a new synthetic metavariable of kind `SyntheticMVarKind.postponed` is created, registered,
   and returned.
-  We use `resuming == true` to prevent the creation of another synthetic metavariable
-  when resuming the elaboration. -/
-def elabTerm (stx : Syntax) (expectedType? : Option Expr) (resuming := false) : TermElabM Expr :=
+  The option `catchExPostpone == false` is used to implement `resumeElabTerm`
+  to prevent the creation of another synthetic metavariable when resuming the elaboration. -/
+def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr :=
 withFreshMacroScope $ withNode stx $ fun node => do
   trace! `Elab.step (toString stx);
   s ← get;
@@ -442,12 +442,32 @@ withFreshMacroScope $ withNode stx $ fun node => do
       (tracingAt stx (elab node expectedType?))
       (fun ex => match ex with
         | Exception.error ex => exceptionToSorry stx ex expectedType?
-        | Exception.postpone => if resuming then throw ex else postponeElabTerm stx expectedType?)
+        | Exception.postpone =>
+          if catchExPostpone then do
+            /- If `elab` threw `Exception.postpone`, we reset any state modifications.
+               For example, we want to make sure pending synthetic metavariables created by `elab` before
+               it threw `Exception.postpone` are discarded.
+               Note that we are also discarding the trace messages created by `elab`. If we decide to save
+               them, we can do by modifying `tracingAt`.
+
+               For example, consider the expression.
+               `((f.x a1).x a2).x a3`
+               Now, suppose the elaboration of `f.x a1` produces an `Exception.postpone`.
+               Then, a new metavariable `?m` is created. Then, `?m.x a2` also throws `Exception.postpone`
+               because the type of `?m` is not yet known. Then another, metavariable `?n` is created, and
+               finally `?n.x a3` also throws `Exception.postpone`. If we did not restore the state, we would
+               keep "dead" metavariables `?m` and `?n` on the pending synthetic metavariable list. This is
+               wasteful because when we resume the elaboration of `((f.x a1).x a2).x a3`, we start it from scratch
+               and new metavariables are created for the nested functions. -/
+            set s;
+            postponeElabTerm stx expectedType?
+          else
+            throw ex)
   | none      => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
 
 /-- Auxiliary function used to implement `synthesizeSyntheticMVars`. -/
 private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
-elabTerm stx expectedType? true
+elabTerm stx expectedType? false
 
 /--
   Make sure `e` is a type by inferring its type and making sure it is a `Expr.sort`

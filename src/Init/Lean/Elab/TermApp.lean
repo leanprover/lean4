@@ -318,7 +318,7 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
         acc
     | _ => unreachable!
   else do
-    f ← withoutPostponing $ elabTerm f none;
+    f ← elabTerm f none;
     s ← observing $ elabAppLVals ref f lvals namedArgs args expectedType? explicit;
     pure $ acc.push s
 

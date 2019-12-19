@@ -36,8 +36,8 @@ instance Nat.HasQuote : HasQuote Nat := ⟨fun n => Syntax.node `Lean.Parser.Ter
 
 private def quoteName : Name → Syntax
 | Name.anonymous => Unhygienic.run `(_root_.Lean.Name.anonymous)
-| Name.str n s _ => Unhygienic.run `(_root_.Lean.mkNameStr $(quoteName n) $(Lean.HasQuote.quote s))
-| Name.num n i _ => Unhygienic.run `(_root_.Lean.mkNameNum $(quoteName n) $(Lean.HasQuote.quote i))
+| Name.str n s _ => Unhygienic.run `(_root_.Lean.mkNameStr $(quoteName n) $(quote s))
+| Name.num n i _ => Unhygienic.run `(_root_.Lean.mkNameNum $(quoteName n) $(quote i))
 
 instance Name.HasQuote : HasQuote Name := ⟨quoteName⟩
 
@@ -45,11 +45,11 @@ private def appN (fn : Syntax) (args : Array Syntax) : Syntax :=
 args.foldl (fun fn arg => Unhygienic.run `($fn $arg)) fn
 
 instance Prod.HasQuote {α β : Type} [HasQuote α] [HasQuote β] : HasQuote (α × β) :=
-⟨fun ⟨a, b⟩ => Unhygienic.run `(_root_.Prod.mk $(Lean.HasQuote.quote a) $(Lean.HasQuote.quote b))⟩
+⟨fun ⟨a, b⟩ => Unhygienic.run `(_root_.Prod.mk $(quote a) $(quote b))⟩
 
 private def quoteList {α : Type} [HasQuote α] : List α → Syntax
 | [] =>      Unhygienic.run `(_root_.List.nil)
-| (x::xs) => Unhygienic.run `(_root_.List.cons $(Lean.HasQuote.quote x) $(quoteList xs))
+| (x::xs) => Unhygienic.run `(_root_.List.cons $(quote x) $(quoteList xs))
 
 instance List.HasQuote {α : Type} [HasQuote α] : HasQuote (List α) := ⟨quoteList⟩
 
@@ -79,10 +79,10 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
   let preresolved := resolveGlobalName env currNamespace openDecls val ++ preresolved;
   let val := quote val;
   -- `scp` is bound in stxQuot.expand
-  val ← `(Lean.addMacroScope $val scp);
+  val ← `(addMacroScope $val scp);
   let args := quote preresolved;
   -- TODO: simplify quotations when we're no longer limited by name resolution in the old frontend
-  `(Lean.Syntax.ident Option.none (String.toSubstring $(Lean.HasQuote.quote (HasToString.toString rawVal))) $val $args)
+  `(Syntax.ident none (String.toSubstring $(quote (toString rawVal))) $val $args)
 -- if antiquotation, insert contents as-is, else recurse
 | stx@(Syntax.node k args) =>
   if k == `Lean.Parser.Term.antiquot then
@@ -92,13 +92,13 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
   else if isAntiquotSplicePat stx then
     -- top-level antiquotation splice pattern: inject args array
     let quoted := (args.get! 0).getArg 1;
-    `(Lean.Syntax.node Lean.nullKind $quoted)
+    `(Syntax.node nullKind $quoted)
   else do
     let k := quote k;
     args ← quote <$> args.mapM quoteSyntax;
-    `(Lean.Syntax.node $k $args)
+    `(Syntax.node $k $args)
 | Syntax.atom info val =>
-  `(Lean.Syntax.atom Option.none $(Lean.HasQuote.quote val))
+  `(Syntax.atom none $(quote val))
 | Syntax.missing => unreachable!
 
 def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
@@ -110,7 +110,7 @@ let quoted := stx.getArg 1;
    including it literally in a syntax quotation. -/
 -- TODO: simplify to `(do scp ← getCurrMacroScope; pure $(quoteSyntax quoted))
 stx ← quoteSyntax quoted;
-`(HasBind.bind Lean.MonadQuotation.getCurrMacroScope (fun scp => HasPure.pure $stx))
+`(bind getCurrMacroScope (fun scp => pure $stx))
 /- NOTE: It may seem like the newly introduced binding `scp` may accidentally
    capture identifiers in an antiquotation introduced by `quoteSyntax`. However,
    note that the syntax quotation above enjoys the same hygiene guarantees as
@@ -155,7 +155,7 @@ else if pat.isOfKind `Lean.Parser.Term.stxQuot then
     else unreachable!
   else if isAntiquotSplicePat quoted then
     let anti := (quoted.getArg 0).getArg 1;
-    some $ fun rhs => `(let $anti := Lean.Syntax.getArgs discr; $rhs)
+    some $ fun rhs => `(let $anti := Syntax.getArgs discr; $rhs)
   else none
 else none
 
@@ -202,7 +202,7 @@ private partial def compileStxMatch (ref : Syntax) : List Syntax → List Alt �
   | some node => do
     let shape := nodeShape node;
     -- introduce pattern matches on the discriminant's children
-    newDiscrs ← (List.range node.getArgs.size).mapM $ fun i => `(Lean.Syntax.getArg discr $(Lean.HasQuote.quote i));
+    newDiscrs ← (List.range node.getArgs.size).mapM $ fun i => `(Syntax.getArg discr $(quote i));
     -- collect matching alternatives and explode them
     let yesAlts := alts.filter $ fun alt => match altNextNode? alt with some n => nodeShape n == shape | none => true;
     yesAlts ← yesAlts.mapM $ explodeHeadPat node.getArgs.size;
@@ -212,7 +212,7 @@ private partial def compileStxMatch (ref : Syntax) : List Syntax → List Alt �
     -- NOTE: use fresh macro scopes for recursion so that different `discr`s introduced by the quotation below do not collide
     yes ← withFreshMacroScope $ compileStxMatch (newDiscrs ++ discrs) yesAlts;
     no  ← withFreshMacroScope $ compileStxMatch (discr::discrs) noAlts;
-    `(let discr := $discr; if Lean.Syntax.isOfKind discr $(Lean.HasQuote.quote (Prod.fst shape)) && Array.size (Lean.Syntax.getArgs discr) == $(Lean.HasQuote.quote (Prod.snd shape)) then $yes else $no)
+    `(let discr := $discr; if Syntax.isOfKind discr $(quote shape.fst) && Array.size (Syntax.getArgs discr) == $(quote shape.snd) then $yes else $no)
   -- only unconditional patterns: introduce binds and discard patterns
   | none => do
     alts ← alts.mapM $ explodeHeadPat 0;

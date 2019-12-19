@@ -8,6 +8,7 @@ import Init.Lean.Elab.Alias
 import Init.Lean.Elab.Log
 import Init.Lean.Elab.ResolveName
 import Init.Lean.Elab.Term
+import Init.Lean.Elab.TermBinders
 
 namespace Lean
 namespace Elab

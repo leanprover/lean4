@@ -48,6 +48,7 @@ lean_object* l_Lean_Elab_Term_elabModN___closed__3;
 lean_object* l_Lean_Elab_Term_elabBind___closed__4;
 lean_object* l_Lean_Elab_Term_elabBOr___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabInfix(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Init_Lean_Elab_Term_18__mkPairsAux___main___closed__5;
 extern lean_object* l_Lean_Parser_Term_eq___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Term_elabInfixOp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabBNe(lean_object*);
@@ -265,7 +266,6 @@ extern lean_object* l_Lean_Parser_Term_heq___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Term_elabOrElse___closed__1;
 lean_object* l_Lean_Elab_Term_elabBEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabAppend___closed__2;
-extern lean_object* l___private_Init_Lean_Elab_Term_29__mkPairsAux___main___closed__5;
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabMod___closed__2;
 lean_object* l_Lean_Elab_Term_elabAppend___closed__1;
 lean_object* l_Lean_Elab_Term_elabGT(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -533,7 +533,7 @@ lean_object* l_Lean_Elab_Term_elabProd(lean_object* x_1, lean_object* x_2, lean_
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = l___private_Init_Lean_Elab_Term_29__mkPairsAux___main___closed__5;
+x_5 = l___private_Init_Lean_Elab_Term_18__mkPairsAux___main___closed__5;
 x_6 = l_Lean_Elab_Term_elabInfixOp(x_5, x_1, x_2, x_3, x_4);
 return x_6;
 }

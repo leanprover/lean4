@@ -2,7 +2,6 @@ import Init.Lean.Elab
 open Lean
 open Lean.Elab
 
-
 def run (input : String) (failIff : Bool := true) : MetaIO Unit :=
 do env  ← MetaIO.getEnv;
    opts ← MetaIO.getOptions;
@@ -143,6 +142,11 @@ x + y + z
 def foo {α β} (a : α) (b : β) (a' : α) : α :=
 a
 
+def bla {α β} (f : α → β) (a : α) : β :=
+f a
+
 -- #check fun x => foo x x.w s4 -- fails in old elaborator
+-- #check bla (fun x => x.w) s4 -- fails in the old elaborator
 
 #eval run "#check fun x => foo x x.w s4"
+#eval run "#check bla (fun x => x.w) s4"

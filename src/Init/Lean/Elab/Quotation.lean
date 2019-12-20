@@ -59,13 +59,17 @@ instance Array.HasQuote {α : Type} [HasQuote α] : HasQuote (Array α) :=
 namespace Elab
 namespace Term
 
+def isAntiquot : Syntax → Bool
+| Syntax.node (Name.str _ "antiquot" _) _ => true
+| _                                       => false
+
 -- `$e*` is an antiquotation "splice" matching an arbitrary number of syntax nodes
-private def isAntiquotSplice (stx : Syntax) : Bool :=
-stx.isOfKind `Lean.Parser.Term.antiquot && (stx.getArg 3).getOptional.isSome
+def isAntiquotSplice (stx : Syntax) : Bool :=
+isAntiquot stx && (stx.getArg 3).getOptional.isSome
 
 -- If an antiquotation splice is the sole item of a `many` node, its result should
 -- be substituted for the `many` node
-private def isAntiquotSplicePat (stx : Syntax) : Bool :=
+def isAntiquotSplicePat (stx : Syntax) : Bool :=
 stx.isOfKind nullKind && stx.getArgs.size == 1 && isAntiquotSplice (stx.getArg 0)
 
 -- Elaborate the content of a syntax quotation term
@@ -85,7 +89,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
   `(Syntax.ident none (String.toSubstring $(quote (toString rawVal))) $val $args)
 -- if antiquotation, insert contents as-is, else recurse
 | stx@(Syntax.node k args) =>
-  if k == `Lean.Parser.Term.antiquot then
+  if isAntiquot stx then
     -- splices must occur in a `many` node
     if isAntiquotSplice stx then throwError stx "unexpected antiquotation splice"
     else pure $ stx.getArg 1
@@ -148,7 +152,7 @@ else if pat.isOfKind `Lean.Parser.Term.stxQuot then
   -- We assume that atoms are uniquely determined by the surrounding node and never have to be checked
   if quoted.isAtom then some pure
   -- TODO: antiquotations with kinds (`$id:id`) probably can't be handled as unconditional patterns
-  else if quoted.isOfKind `Lean.Parser.Term.antiquot then
+  else if isAntiquot quoted then
     let anti := quoted.getArg 1;
     if isAntiquotSplice quoted then some $ fun _ => throwError quoted "unexpected antiquotation splice"
     else if anti.isOfKind `Lean.Parser.Term.id then some $ fun rhs => `(let $anti := discr; $rhs)

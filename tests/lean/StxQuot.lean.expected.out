@@ -11,5 +11,6 @@
 "(Term.app (Term.id `f.0 (null)) (Term.id `Nat.one.0 (null)))"
 "(Term.add (Term.num (numLit \"2\")) \"+\" (Term.num (numLit \"1\")))"
 "0"
+"1"
 "(Term.fun\n \"fun\"\n (null\n  (Term.id `a.0 (null))\n  (Term.paren \"(\" (null (Term.id `b.0 (null)) (null (Term.typeAscription \":\" (Term.id `Nat.0 (null))))) \")\"))\n \"=>\"\n (Term.num (numLit \"1\")))"
 "#[(Term.paren \"(\" (null (Term.id `a.0 (null)) (null (Term.typeAscription \":\" (Term.id `Nat.0 (null))))) \")\"), (Term.id `b.0 (null))]"

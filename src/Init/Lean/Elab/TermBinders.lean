@@ -13,7 +13,7 @@ namespace Term
   Given syntax of the forms
     a) (`:` term)?
     b) `:` term
-  into `term` if it is present, or a hole if not. -/
+  return `term` if it is present, or a hole if not. -/
 private def expandBinderType (stx : Syntax) : Syntax :=
 if stx.getNumArgs == 0 then
   mkHole
@@ -106,8 +106,8 @@ else do
   lctx ← getLCtx;
   localInsts ← getLocalInsts;
   (fvars, lctx, newLocalInsts) ← elabBindersAux binders 0 #[] lctx localInsts;
-  resettingSynthInstanceCacheWhen (newLocalInsts.size > localInsts.size) $
-    adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := newLocalInsts, .. ctx }) (x fvars)
+  resettingSynthInstanceCacheWhen (newLocalInsts.size > localInsts.size) $ withLCtx lctx newLocalInsts $
+    x fvars
 
 @[inline] def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
 elabBinders #[binder] (fun fvars => x (fvars.get! 1))
@@ -154,7 +154,7 @@ private partial def getFunBinderIdsAux? : Bool → Syntax → Array Syntax → T
     | _       => pure none
 
 /--
-  Auxiliary functions for converting `Term.app ... (Term.app id_1 id_2) ... id_n` into #[id_1, ..., id_m]`
+  Auxiliary functions for converting `Term.app ... (Term.app id_1 id_2) ... id_n` into `#[id_1, ..., id_m]`
   It is used at `expandFunBinders`. -/
 private def getFunBinderIds? (stx : Syntax) : TermElabM (Option (Array Syntax)) :=
 getFunBinderIdsAux? false stx #[]
@@ -210,7 +210,7 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
   parser! unicodeSymbol "λ" "fun" >> many1 (termParser appPrec) >> unicodeSymbol "⇒" "=>" >> termParser
   ```
   to allow notation such as `fun (a, b) => a + b`, where `(a, b)` should be treated as a pattern.
-  The result is pair `(explicitBinders, newBody)`, where `explicitBinders` is syntax of the form
+  The result is a pair `(explicitBinders, newBody)`, where `explicitBinders` is syntax of the form
   ```
   `(` ident `:` term `)`
   ```

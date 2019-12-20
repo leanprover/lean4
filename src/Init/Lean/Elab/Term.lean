@@ -30,10 +30,15 @@ structure Context extends Meta.Context :=
    the list of pending synthetic metavariables, and returns `?m`. -/
 (mayPostpone     : Bool            := true)
 
+/-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind
+-- typeclass instance search
 | typeClass
+-- tactic block execution
 | tactic (tacticCode : Syntax)
+-- `elabTerm` call that threw `Exception.postpone` (input is stored at `SyntheticMVarDecl.ref`)
 | postponed (macroStack : List Syntax)
+-- type defaulting (currently: defaulting numeric literals to `Nat`)
 | withDefault (defaultVal : Expr)
 
 structure SyntheticMVarDecl :=
@@ -59,7 +64,7 @@ inductive Exception
 
 instance Exception.inhabited : Inhabited Exception := ⟨Exception.postpone⟩
 instance Exception.hasToString : HasToString Exception :=
-⟨fun ex => match ex with | Exception.postpone => "posponed" | Exception.error ex => toString ex⟩
+⟨fun ex => match ex with | Exception.postpone => "postponed" | Exception.error ex => toString ex⟩
 
 /-
   Term elaborator Monad. In principle, we could track statically which methods
@@ -94,7 +99,7 @@ match result with
 | EStateM.Result.ok e s     => do set s; pure e
 | EStateM.Result.error ex s => do set s; throw (Exception.error ex)
 
-instance TermElabM.monadLog : MonadLog TermElabM :=
+instance TermElabM.MonadLog : MonadLog TermElabM :=
 { getCmdPos   := do ctx ← read; pure ctx.cmdPos,
   getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
@@ -398,6 +403,7 @@ expectedType : Expr ← match expectedType? with
   | none              => mkFreshTypeMVar ref
   | some expectedType => pure expectedType;
 u ← getLevel ref expectedType;
+-- TODO: should be `(sorryAx.{$u} $expectedType true) when we support antiquotations at that place
 let syntheticSorry := mkApp2 (mkConst `sorryAx [u]) expectedType (mkConst `Bool.true);
 unless ex.data.hasSyntheticSorry $ logMessage ex;
 pure syntheticSorry
@@ -507,7 +513,7 @@ finally x (modify $ fun s => { cache := { synthInstance := savedSythInstance, ..
 if b then resettingSynthInstanceCache x else x
 
 /--
-  Execute `x` using the given metavariable `LocalContext` and `LocalInstances`.
+  Execute `x` using the given metavariable's `LocalContext` and `LocalInstances`.
   The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
   different from the current ones. -/
 def withMVarContext {α} (mvarId : MVarId) (x : TermElabM α) : TermElabM α := do
@@ -539,7 +545,7 @@ withMVarContext mvarId $ do
    with the current local context and local instances.
    Return `true` if the instance was synthesized successfully, and `false` if
    the instance contains unassigned metavariables that are blocking the type class
-   resolution procedure. -/
+   resolution procedure. Throw an exception if resolution or assignment irrevocably fails. -/
 def synthesizeInstMVarCore (ref : Syntax) (instMVar : MVarId) : TermElabM Bool := do
 instMVarDecl ← getMVarDecl instMVar;
 let type := instMVarDecl.type;
@@ -579,14 +585,15 @@ pure $ !val.getAppFn.isMVar
 /-- Try to synthesize the given pending synthetic metavariable. -/
 private def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) : TermElabM Bool :=
 match mvarSyntheticDecl.kind with
-| SyntheticMVarKind.typeClass              => synthesizePendingInstMVar mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
-| SyntheticMVarKind.withDefault defaultVal => checkWithDefault mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
-| SyntheticMVarKind.postponed macroStack   => resumePostponed macroStack mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
-| SyntheticMVarKind.tactic tacticCode      => throwError tacticCode "not implemented yet"
+| SyntheticMVarKind.typeClass            => synthesizePendingInstMVar mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
+-- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
+| SyntheticMVarKind.withDefault _        => checkWithDefault mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
+| SyntheticMVarKind.postponed macroStack => resumePostponed macroStack mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
+| SyntheticMVarKind.tactic tacticCode    => throwError tacticCode "not implemented yet"
 
 /--
   Try to synthesize the current list of pending synthetic metavariables.
-  Return `true` if it managed to synthesize at least one of them. -/
+  Return `true` if at least one of them was synthesized. -/
 private def synthesizeSyntheticMVarsStep : TermElabM Bool := do
 s ← get;
 let syntheticMVars    := s.syntheticMVars.reverse;
@@ -596,7 +603,7 @@ remainingSyntheticMVars ← syntheticMVars.filterRevM $ fun mvarDecl => not <$> 
 modify $ fun s => { syntheticMVars := s.syntheticMVars ++ remainingSyntheticMVars, .. s };
 pure $ numSyntheticMVars != remainingSyntheticMVars.length
 
-/-- Apply default value to any pending synthetic metavariable of kinf `SyntheticMVarKind.withDefault` -/
+/-- Apply default value to any pending synthetic metavariable of kind `SyntheticMVarKind.withDefault` -/
 def synthesizeUsingDefault : TermElabM Bool := do
 s ← get;
 let len := s.syntheticMVars.length;
@@ -630,7 +637,7 @@ s.syntheticMVars.forM $ fun mvarSyntheticDecl =>
   If `mayPostpone == false`, then it applies default values to `SyntheticMVarKind.withDefault`
   metavariables that are still unresolved, and then tries to resolve metavariables
   with `mayPostpone == false`. That is, we force them to produce error messages and/or commit to
-  a "best option". If after that, we still haven't made progress, we report "stuck" errors. -/
+  a "best option". If, after that, we still haven't made progress, we report "stuck" errors. -/
 private partial def synthesizeSyntheticMVarsAux (mayPostpone := true) : Unit → TermElabM Unit
 | _ => do
   s ← get;
@@ -724,13 +731,13 @@ match stx? with
 fun stx expectedType? =>
   let ref := stx.val;
   match_syntax ref with
-  | `(())             => pure $ Lean.mkConst `Unit.unit
+  | `(())           => pure $ Lean.mkConst `Unit.unit
   | `(($e : $type)) => do
     type ← elabType type;
     e ← elabCDot e expectedType?;
     eType ← inferType ref e;
     ensureHasType ref type eType e
-  | `(($e))          => elabCDot e expectedType?
+  | `(($e))         => elabCDot e expectedType?
   | `(($e, $es*))   => do
     pairs ← mkPairs (#[e] ++ es.getEvenElems);
     withMacroExpansion stx.val (elabTerm pairs expectedType?)

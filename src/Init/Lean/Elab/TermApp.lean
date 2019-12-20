@@ -33,7 +33,7 @@ instance NamedArg.hasToString : HasToString NamedArg :=
 instance NamedArg.inhabited : Inhabited NamedArg := ⟨{ name := arbitrary _, val := arbitrary _ }⟩
 
 /--
-  Added a new named argument to `namedArgs`, and throw erros if it already contains a named argument
+  Add a new named argument to `namedArgs`, and throw an error if it already contains a named argument
   with the same name. -/
 def addNamedArg (ref : Syntax) (namedArgs : Array NamedArg) (namedArg : NamedArg) : TermElabM (Array NamedArg) := do
 when (namedArgs.any $ fun namedArg' => namedArg.name == namedArg'.name) $
@@ -154,7 +154,8 @@ match eType.getAppFn, lval with
     | none   => throwLValError ref e eType $
       "invalid field notation, '" ++ fieldName ++ "' is not a valid \"field\" because environment does not contain '" ++ fullName ++ "'"
   };
-  let searchLCtx : Unit → TermElabM LValResolution := fun _ => do {
+  -- search local context first, then environment
+  let searchCtx : Unit → TermElabM LValResolution := fun _ => do {
     let fullName := structName ++ fieldName;
     currNamespace ← getCurrNamespace;
     let localName := fullName.replacePrefix currNamespace Name.anonymous;
@@ -171,9 +172,9 @@ match eType.getAppFn, lval with
   if isStructure env structName then
     match findField? env structName fieldName with
     | some baseStructName => pure $ LValResolution.projFn baseStructName structName fieldName
-    | none                => searchLCtx ()
+    | none                => searchCtx ()
   else
-    searchLCtx ()
+    searchCtx ()
 | Expr.const structName _ _, LVal.getOp idx => do
   env ← getEnv;
   let fullName := mkNameStr structName "getOp";

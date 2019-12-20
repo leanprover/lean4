@@ -158,5 +158,6 @@ f a
 #eval run "#check #[1, 2].foldl (fun r a => r.push a $.push a $.push a) #[]"
 #eval run "#check #[1, 2].foldl (init := #[]) $ fun r a => r.push a $.push a"
 
-
-#eval run "#check (fun x => let v := x.w; v + 1) s4"
+#eval run "#check let x := one + zero; x + x"
+-- set_option trace.Elab true
+#eval run "#check (fun x => let v := x.w; v + v) s4"

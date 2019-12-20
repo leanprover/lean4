@@ -262,9 +262,14 @@ let val      := decl.getArg 4;
   val  ← mkLambda ref xs val;
   pure (type, val)
 };
+trace! `Elab.let.decl (n ++ " : " ++ type ++ " := " ++ val);
 withLetDecl ref n type val $ fun x => do
   body ← elabTerm body expectedType?;
-  mkLet ref x body
+  body ← instantiateMVars ref body;
+  trace! `Elab.let.body body;
+  result ← mkLet ref x body;
+  trace! `Elab.let.result result;
+  pure result
 
 def elabLetEqnsDecl (ref : Syntax) (decl body : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
 throwError decl "not implemented yet"

@@ -123,8 +123,8 @@ will be ill-formed if we later assign a term `s` to `?m`, and
 `s` contains free variables in `xs`. We address this issue by changing
 the free variable abstraction procedure. We consider two cases: `?m`
 is natural, `?m` is synthetic. Assume the type of `?m` is
-`A`. Then, in both cases we create an auxiliary metavariable `?n` with
-type `forall xs => A`, and local context := local context of `?m` - `xs`.
+`A[xs]`. Then, in both cases we create an auxiliary metavariable `?n` with
+type `forall xs => A[xs]`, and local context := local context of `?m` - `xs`.
 In both cases, we produce the term `fun xs => t[?n xs]`
 
   1- If `?m` is natural or synthetic, then we assign `?m := ?n xs`, and we produce
@@ -134,7 +134,8 @@ In both cases, we produce the term `fun xs => t[?n xs]`
   However, `?n` is managed by the metavariable context itself.
   We say we have a "delayed assignment" `?n xs := ?m`.
   That is, after a term `s` is assigned to `?m`, and `s`
-  does not contain metavariables, we assign `fun xs => s` to `?n`.
+  does not contain metavariables, we replace any occurrence
+  `?n ts` with `s[xs := ts]`.
 
 Gruesome details:
 
@@ -143,15 +144,29 @@ Gruesome details:
   process above is recursive. We claim it terminates because we keep
   creating new metavariables with smaller local contexts.
 
-  - The type of variables `xs` may contain metavariables, and we must
-  recursively apply the process above. Again, we claim the process
-  terminates because the metavariables is ocurring in the types of
-  `xs`, they must have smaller local contexts.
+  - Suppose, we have `t[?m]` and we want to create a let-expression by
+  abstracting a let-decl free variable `x`, and the local context of
+  `?m` contatins `x`. Similarly to the previous case
+  ```
+  let x : T := v; t[?m]
+  ```
+  will be ill-formed if we later assign a term `s` to `?m`, and
+  `s` contains free variable `x`. Again, assume the type of `?m` is `A[x]`.
 
-  - We can only assign `fun xs => s` to `?n` in case 2, the types of
-  `xs` must also not contain metavariables. To be precise, it is
-  sufficient they do not contain metavariables with local contexts
-  containing any of the `xs`s.
+    1- If `?m` is natural or synthetic, then we create `?n : (let x : T := v; A[x])` with
+    and local context := local context of `?m` - `x`, we assign `?m := ?n`,
+    and produce the term `let x : T := v; t[?n]`. That is, we are just making
+    sure `?n` must never be assigned to a term containing `x`.
+
+    2- If `?m` is syntheticOpaque, we create a fresh syntheticOpaque `?n`
+    with type `?n : T -> (let x : T := v; A[x])` and local context := local context of `?m` - `x`,
+    create the delayed assignment `?n #[x] := ?m`, and produce the term `let x : T := v; t[?n x]`.
+    Now suppose we assign `s` to `?m`. We do not assign the term `fun (x : T) => s` to `?n`, since
+    `fun (x : T) => s` may not even be type correct. Instead, we just replace applications `?n r`
+    with `s[x/r]`. The term `r` may not necessarily be a bound variable. For example, a tactic
+    may have reduced `let x : T := v; t[?n x]` into `t[?n v]`.
+    We are essentially using the pair "delayed assignment + application" to implement a delayed
+    substitution.
 
 - We use TC for implementing coercions. Both Joe Hendrix and Reid Barton
 reported a nasty limitation. In Lean3, TC will not be used if there are

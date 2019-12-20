@@ -24,7 +24,7 @@ structure Context extends Meta.Context :=
 (univNames       : List Name       := [])
 (openDecls       : List OpenDecl   := [])
 (macroStack      : List Syntax     := [])
-(macroScopeStack : List MacroScope := [0])
+(currMacroScope  : MacroScope := 0)
 /- When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
    The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
    the list of pending synthetic metavariables, and returns `?m`. -/
@@ -109,11 +109,11 @@ throw (Exception.error msg)
 
 protected def getCurrMacroScope : TermElabM Nat := do
 ctx ← read;
-pure ctx.macroScopeStack.head!
+pure ctx.currMacroScope
 
 @[inline] protected def withFreshMacroScope {α} (x : TermElabM α) : TermElabM α := do
 fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }));
-adaptReader (fun (ctx : Context) => { ctx with macroScopeStack := fresh::ctx.macroScopeStack }) x
+adaptReader (fun (ctx : Context) => { ctx with currMacroScope := fresh }) x
 
 instance TermElabM.MonadQuotation : MonadQuotation TermElabM := {
   getCurrMacroScope   := Term.getCurrMacroScope,

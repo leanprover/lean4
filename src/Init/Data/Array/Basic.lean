@@ -426,12 +426,27 @@ partial def forMAux {α : Type w} {β : Type u} (f : α → m β) (a : Array α)
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩;
      let v   : α          := a.get idx;
-     f v *> forMAux (i+1)
+     do f v; forMAux (i+1)
   else
      pure ⟨⟩
 
-def forM {α : Type w} {β : Type u} (f : α → m β) (a : Array α) : m PUnit :=
+@[inline] def forM {α : Type w} {β : Type u} (f : α → m β) (a : Array α) : m PUnit :=
 a.forMAux f 0
+
+@[specialize]
+partial def forRevMAux {α : Type w} {β : Type u} (f : α → m β) (a : Array α) : forall (i : Nat), i ≤ a.size → m PUnit
+| i, h =>
+  if hLt : 0 < i then
+    have i - 1 < i from Nat.subLt hLt (Nat.zeroLtSucc 0);
+    have i - 1 < a.size from Nat.ltOfLtOfLe this h;
+    let v : α := a.get ⟨i-1, this⟩;
+    have i - 1 ≤ a.size from Nat.leOfLt this;
+    do f v; forRevMAux (i-1) this
+  else
+     pure ⟨⟩
+
+@[inline] def forRevM {α : Type w} {β : Type u} (f : α → m β) (a : Array α) : m PUnit :=
+a.forRevMAux f a.size (Nat.leRefl _)
 
 end
 

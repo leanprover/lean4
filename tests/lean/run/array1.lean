@@ -27,3 +27,8 @@ axiom axLt {a b : Nat} : a < b
 #eval #[1, 2, 3].insertAt 2 10
 #eval #[1, 2, 3].insertAt 3 10
 #eval #[].insertAt 0 10
+
+def tst1 : IO Unit :=
+#[1, 2, 3, 4].forRevM IO.println
+
+#eval tst1

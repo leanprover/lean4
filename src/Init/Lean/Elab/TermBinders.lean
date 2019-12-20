@@ -64,6 +64,12 @@ withNode stx $ fun node => do
   else
     throwError stx "term elaborator failed, unexpected binder syntax"
 
+def mkFreshFVarId : TermElabM Name := do
+s ← get;
+let id := s.ngen.curr;
+modify $ fun s => { ngen := s.ngen.next, .. s };
+pure id
+
 private partial def elabBinderViews (binderViews : Array BinderView)
     : Nat → Array Expr → LocalContext → LocalInstances → TermElabM (Array Expr × LocalContext × LocalInstances)
 | i, fvars, lctx, localInsts =>
@@ -71,7 +77,7 @@ private partial def elabBinderViews (binderViews : Array BinderView)
     let binderView := binderViews.get ⟨i, h⟩;
     withLCtx lctx localInsts $ do
       type       ← elabType binderView.type;
-      fvarId     ← mkFreshId;
+      fvarId     ← mkFreshFVarId;
       let fvar  := mkFVar fvarId;
       let fvars := fvars.push fvar;
       -- dbgTrace (toString binderView.id.getId ++ " : " ++ toString type);
@@ -233,7 +239,7 @@ fun stx expectedType? => do
     mkLambda stx.val xs e
 
 def withLetDecl {α} (ref : Syntax) (n : Name) (type : Expr) (val : Expr) (k : Expr → TermElabM α) : TermElabM α := do
-fvarId ← mkFreshId;
+fvarId ← mkFreshFVarId;
 ctx ← read;
 let lctx       := ctx.lctx.mkLetDecl fvarId n type val;
 let localInsts := ctx.localInstances;

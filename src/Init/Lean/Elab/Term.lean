@@ -598,8 +598,10 @@ private def synthesizeSyntheticMVarsStep : TermElabM Bool := do
 s ← get;
 let syntheticMVars    := s.syntheticMVars.reverse;
 let numSyntheticMVars := syntheticMVars.length;
+-- We reset `syntheticMVars` because new synthetic metavariables may be created by `synthesizeSyntheticMVar`.
 modify $ fun s => { syntheticMVars := [], .. s };
 remainingSyntheticMVars ← syntheticMVars.filterRevM $ fun mvarDecl => not <$> synthesizeSyntheticMVar mvarDecl;
+-- Merge new synthetic metavariables with `remainingSyntheticMVars`, i.e., metavariables that still couldn't be synthesized
 modify $ fun s => { syntheticMVars := s.syntheticMVars ++ remainingSyntheticMVars, .. s };
 pure $ numSyntheticMVars != remainingSyntheticMVars.length
 
@@ -657,28 +659,6 @@ private partial def synthesizeSyntheticMVarsAux (mayPostpone := true) : Unit →
 def synthesizeSyntheticMVars (mayPostpone := true) : TermElabM Unit :=
 synthesizeSyntheticMVarsAux mayPostpone ()
 
-/- =======================================
-       Builtin elaboration functions
-   ======================================= -/
-
-@[builtinTermElab «prop»] def elabProp : TermElab :=
-fun _ _ => pure $ mkSort levelZero
-
-@[builtinTermElab «sort»] def elabSort : TermElab :=
-fun _ _ => pure $ mkSort levelZero
-
-@[builtinTermElab «type»] def elabTypeStx : TermElab :=
-fun _ _ => pure $ mkSort levelOne
-
-@[builtinTermElab «hole»] def elabHole : TermElab :=
-fun stx expectedType? => mkFreshExprMVar stx.val expectedType?
-
-def mkFreshId : TermElabM Name := do
-s ← get;
-let id := s.ngen.curr;
-modify $ fun s => { ngen := s.ngen.next, .. s };
-pure id
-
 /--
   If `expectedType?` is `some t`, then ensure `t` and `eType` are definitionally equal.
   If they are not, then try coercions. -/
@@ -697,6 +677,29 @@ match expectedType? with
           ++ Format.line ++ "has type" ++ indentExpr eType
           ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType;
         throwError ref msg)
+
+def mkInstMVar (ref : Syntax) (type : Expr) : TermElabM Expr := do
+mvar ← mkFreshExprMVar ref type MetavarKind.synthetic;
+let mvarId := mvar.mvarId!;
+unlessM (synthesizeInstMVarCore ref mvarId) $
+  registerSyntheticMVar ref mvarId SyntheticMVarKind.typeClass;
+pure mvar
+
+/- =======================================
+       Builtin elaboration functions
+   ======================================= -/
+
+@[builtinTermElab «prop»] def elabProp : TermElab :=
+fun _ _ => pure $ mkSort levelZero
+
+@[builtinTermElab «sort»] def elabSort : TermElab :=
+fun _ _ => pure $ mkSort levelZero
+
+@[builtinTermElab «type»] def elabTypeStx : TermElab :=
+fun _ _ => pure $ mkSort levelOne
+
+@[builtinTermElab «hole»] def elabHole : TermElab :=
+fun stx expectedType? => mkFreshExprMVar stx.val expectedType?
 
 /-- Main loop for `mkPairs`. -/
 private partial def mkPairsAux (elems : Array Syntax) : Nat → Syntax → TermElabM Syntax
@@ -840,13 +843,6 @@ fun stx _ => do
   match (stx.getArg 0).isStrLit? with
   | some val => pure $ mkStrLit val
   | none     => throwError stx.val "ill-formed syntax"
-
-def mkInstMVar (ref : Syntax) (type : Expr) : TermElabM Expr := do
-mvar ← mkFreshExprMVar ref type MetavarKind.synthetic;
-let mvarId := mvar.mvarId!;
-unlessM (synthesizeInstMVarCore ref mvarId) $
-  registerSyntheticMVar ref mvarId SyntheticMVarKind.typeClass;
-pure mvar
 
 @[builtinTermElab num] def elabNum : TermElab :=
 fun stx expectedType? => do

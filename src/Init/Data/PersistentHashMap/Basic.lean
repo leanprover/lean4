@@ -253,6 +253,9 @@ variables {σ : Type w}
 @[specialize] def foldlM [Hashable α] [HasBeq α] (map : PersistentHashMap α β) (f : σ → α → β → m σ) (acc : σ) : m σ :=
 foldlMAux f map.root acc
 
+@[specialize] def forM [Hashable α] [HasBeq α] (map : PersistentHashMap α β) (f : α → β → m PUnit) : m PUnit :=
+map.foldlM (fun _ => f) ⟨⟩
+
 @[specialize] def foldl [Hashable α] [HasBeq α] (map : PersistentHashMap α β) (f : σ → α → β → σ) (acc : σ) : σ :=
 Id.run $ map.foldlM f acc
 end

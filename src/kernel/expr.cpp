@@ -480,6 +480,14 @@ expr lower_loose_bvars(expr const & e, unsigned d) {
     return lower_loose_bvars(e, d, d);
 }
 
+extern "C" object * lean_expr_lower_loose_bvars(b_obj_arg e, b_obj_arg s, b_obj_arg d) {
+    if (!lean_is_scalar(s) || !lean_is_scalar(d) || lean_unbox(s) < lean_unbox(d)) {
+        lean_inc(e);
+        return e;
+    }
+    return lower_loose_bvars(TO_REF(expr, e), lean_unbox(s), lean_unbox(d)).steal();
+}
+
 expr lift_loose_bvars(expr const & e, unsigned s, unsigned d) {
     if (d == 0 || s >= get_loose_bvar_range(e))
         return e;
@@ -499,6 +507,14 @@ expr lift_loose_bvars(expr const & e, unsigned s, unsigned d) {
 
 expr lift_loose_bvars(expr const & e, unsigned d) {
     return lift_loose_bvars(e, 0, d);
+}
+
+extern "C" object * lean_expr_lift_loose_bvars(b_obj_arg e, b_obj_arg s, b_obj_arg d) {
+    if (!lean_is_scalar(s) || !lean_is_scalar(d)) {
+        lean_inc(e);
+        return e;
+    }
+    return lift_loose_bvars(TO_REF(expr, e), lean_unbox(s), lean_unbox(d)).steal();
 }
 
 // =======================================

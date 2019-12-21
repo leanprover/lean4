@@ -92,3 +92,17 @@ do let f   := mkConst `f [];
    pure ()
 
 #eval tst5
+
+def tst6 : IO Unit := do
+let x1 := mkBVar 0;
+let x2 := mkBVar 1;
+let t1 := mkApp2 (mkConst `f) x1 x2;
+let t2 := mkForall `x BinderInfo.default (mkConst `Nat) t1;
+IO.println (t1.liftLooseBVars 0 1);
+IO.println (t2.liftLooseBVars 0 1);
+let t3 := (t2.liftLooseBVars 0 1).lowerLooseBVars 1 1;
+IO.println $ t3;
+unless (t2 == t3) $ throw "failed-1";
+pure ()
+
+#eval tst6

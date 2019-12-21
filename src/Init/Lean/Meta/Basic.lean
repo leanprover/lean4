@@ -379,10 +379,6 @@ fun ctx s =>
   match x ctx.lctx { mctx := s.mctx, ngen := s.ngen } with
   | EStateM.Result.ok e newS      =>
     EStateM.Result.ok e { mctx := newS.mctx, ngen := newS.ngen, .. s}
-  | EStateM.Result.error (MetavarContext.MkBinding.Exception.readOnlyMVar mctx mvarId) newS =>
-    EStateM.Result.error
-      (Exception.readOnlyMVar mvarId { lctx := ctx.lctx, mctx := newS.mctx, env := s.env })
-      { mctx := newS.mctx, ngen := newS.ngen, .. s }
   | EStateM.Result.error (MetavarContext.MkBinding.Exception.revertFailure mctx lctx toRevert decl) newS =>
     EStateM.Result.error
       (Exception.revertFailure toRevert decl { lctx := lctx, mctx := mctx, env := s.env })

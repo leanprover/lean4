@@ -161,3 +161,4 @@ f a
 #eval run "#check let x := one + zero; x + x"
 -- set_option trace.Elab true
 #eval run "#check (fun x => let v := x.w; v + v) s4"
+#eval run "#check fun x => foo x (let v := x.w; v + one) s4"

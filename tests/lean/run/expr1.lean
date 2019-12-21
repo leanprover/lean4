@@ -106,3 +106,15 @@ unless (t2 == t3) $ throw "failed-1";
 pure ()
 
 #eval tst6
+
+
+def tst7 : IO Unit := do
+let x := mkFVar `x;
+let y := mkFVar `y;
+let f := mkConst `f;
+let t := mkAppN f #[x, y, mkNatLit 2];
+let t := t.abstract #[x, y];
+let t := t.instantiateRev #[mkNatLit 0, mkNatLit 1];
+IO.println t
+
+#eval tst7

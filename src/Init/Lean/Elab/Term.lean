@@ -596,10 +596,13 @@ match mvarSyntheticDecl.kind with
   Return `true` if at least one of them was synthesized. -/
 private def synthesizeSyntheticMVarsStep : TermElabM Bool := do
 s ← get;
-let syntheticMVars    := s.syntheticMVars.reverse;
+let syntheticMVars    := s.syntheticMVars;
 let numSyntheticMVars := syntheticMVars.length;
 -- We reset `syntheticMVars` because new synthetic metavariables may be created by `synthesizeSyntheticMVar`.
 modify $ fun s => { syntheticMVars := [], .. s };
+-- Recall that `syntheticMVars` is a list where head is the most recent pending synthetic metavariable.
+-- We use `filterRevM` instead of `filterM` to make sure we process the synthetic metavariables using the order they were created.
+-- It would not be incorrect to use `filterM`.
 remainingSyntheticMVars ← syntheticMVars.filterRevM $ fun mvarDecl => not <$> synthesizeSyntheticMVar mvarDecl;
 -- Merge new synthetic metavariables with `remainingSyntheticMVars`, i.e., metavariables that still couldn't be synthesized
 modify $ fun s => { syntheticMVars := s.syntheticMVars ++ remainingSyntheticMVars, .. s };

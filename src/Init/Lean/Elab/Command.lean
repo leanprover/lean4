@@ -125,7 +125,7 @@ match result with
 | EStateM.Result.error Term.Exception.postpone newS   => unreachable!
 
 @[inline] def runTermElabM {α} (x : TermElabM α) : CommandElabM α :=
-fun ctx s => toCommandResult ctx s $ Term.tracingAtPos s.cmdPos (Term.elabBinders (getVarDecls s) (fun _ => x)) (mkTermContext ctx s) (mkTermState s)
+fun ctx s => toCommandResult ctx s $ (Term.elabBinders (getVarDecls s) (fun _ => x)) (mkTermContext ctx s) (mkTermState s)
 
 def dbgTrace {α} [HasToString α] (a : α) : CommandElabM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()

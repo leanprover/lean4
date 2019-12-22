@@ -193,19 +193,16 @@ def isExprMVarAssigned (mvarId : MVarId) : TermElabM Bool := do mctx ← getMCtx
 def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
 def assignExprMVar (mvarId : MVarId) (val : Expr) : TermElabM Unit := modify $ fun s => { mctx := s.mctx.assignExpr mvarId val, .. s }
 
-/--
-  Wraps the given message with the current contextual information: environment, metavariable context, and local context.
-  We need the context to be able to invoke the pretty printer. -/
-def addContext (msg : MessageData) : TermElabM MessageData := do
+def logTrace (cls : Name) (ref : Syntax) (msg : MessageData) : TermElabM Unit := do
 ctx ← read;
 s   ← get;
-pure $ MessageData.withContext { env := s.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctx.config.opts } msg
+logInfo ref $
+  MessageData.withContext { env := s.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctx.config.opts } $
+    MessageData.tagged cls msg
 
-instance tracer : SimpleMonadTracerAdapter TermElabM :=
-{ getOptions       := getOptions,
-  getTraceState    := getTraceState,
-  addContext       := addContext,
-  modifyTraceState := fun f => modify $ fun s => { traceState := f s.traceState, .. s } }
+@[inline] def trace (cls : Name) (ref : Syntax) (msg : Unit → MessageData) : TermElabM Unit := do
+opts ← getOptions;
+when (checkTraceOption opts cls) $ logTrace cls ref (msg ())
 
 def dbgTrace {α} [HasToString α] (a : α) : TermElabM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()
@@ -280,20 +277,6 @@ adaptReader (fun (ctx : Context) => { mayPostpone := false, .. ctx }) x
 
 @[inline] def withNode {α} (stx : Syntax) (x : SyntaxNode → TermElabM α) : TermElabM α :=
 stx.ifNode x (fun _ => throwError stx ("term elaborator failed, unexpected syntax: " ++ toString stx))
-
-/-- Execute `x` and logs all unlogged trace messages produced by `x` using position `pos`. -/
-@[inline] def tracingAtPos {α} (pos : String.Pos) (x : TermElabM α) : TermElabM α := do
-oldTraceState ← getTraceState;
-setTraceState {};
-finally x $ do
-  traceState ← getTraceState;
-  traceState.traces.forM $ logInfoAt pos;
-  setTraceState oldTraceState
-
-/-- Similar to `tracingAt`, but uses `ref` to obtain position information. -/
-@[inline] def tracingAt {α} (ref : Syntax) (x : TermElabM α) : TermElabM α := do
-ctx ← read;
-tracingAtPos (ref.getPos.getD ctx.cmdPos) x
 
 /-- Creates syntax for `(` <ident> `:` <type> `)` -/
 def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
@@ -418,7 +401,7 @@ def tryPostponeIfMVar (e : Expr) : TermElabM Unit :=
 when e.getAppFn.isMVar $ tryPostpone
 
 private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
-trace! `Elab.postpone (stx ++ " : " ++ expectedType?);
+trace `Elab.postpone stx $ fun _ => stx ++ " : " ++ expectedType?;
 mvar ← mkFreshExprMVar stx expectedType? MetavarKind.syntheticOpaque;
 ctx ← read;
 registerSyntheticMVar stx mvar.mvarId! (SyntheticMVarKind.postponed ctx.macroStack);
@@ -439,14 +422,14 @@ pure mvar
   to prevent the creation of another synthetic metavariable when resuming the elaboration. -/
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr :=
 withFreshMacroScope $ withNode stx $ fun node => do
-  tracingAt stx $ trace! `Elab.step stx;
+  trace `Elab.step stx $ fun _ => stx;
   s ← get;
   let tables := termElabAttribute.ext.getState s.env;
   let k := node.getKind;
   match tables.find? k with
   | some elab =>
     catch
-      (tracingAt stx (elab node expectedType?))
+      (elab node expectedType?)
       (fun ex => match ex with
         | Exception.error ex => exceptionToSorry stx ex expectedType?
         | Exception.postpone =>
@@ -454,8 +437,7 @@ withFreshMacroScope $ withNode stx $ fun node => do
             /- If `elab` threw `Exception.postpone`, we reset any state modifications.
                For example, we want to make sure pending synthetic metavariables created by `elab` before
                it threw `Exception.postpone` are discarded.
-               Note that we are also discarding the trace messages created by `elab`. If we decide to save
-               them, we can do by modifying `tracingAt`.
+               Note that we are also discarding the messages created by `elab`.
 
                For example, consider the expression.
                `((f.x a1).x a2).x a3`
@@ -532,7 +514,7 @@ withMVarContext mvarId $ do
     (adaptReader (fun (ctx : Context) => { macroStack := macroStack, .. ctx }) $ do
       mvarDecl     ← getMVarDecl mvarId;
       expectedType ← instantiateMVars stx mvarDecl.type;
-      trace! `Elab.postpone.resume (stx ++ " : " ++ expectedType);
+      trace `Elab.postpone.resume stx $ fun _ => stx ++ " : " ++ expectedType;
       result       ← resumeElabTerm stx expectedType;
       assignExprMVar mvarId result;
       pure true)
@@ -584,13 +566,12 @@ pure $ !val.getAppFn.isMVar
 
 /-- Try to synthesize the given pending synthetic metavariable. -/
 private def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) : TermElabM Bool :=
-tracingAt mvarSyntheticDecl.ref $
-  match mvarSyntheticDecl.kind with
-  | SyntheticMVarKind.typeClass            => synthesizePendingInstMVar mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
-  -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
-  | SyntheticMVarKind.withDefault _        => checkWithDefault mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
-  | SyntheticMVarKind.postponed macroStack => resumePostponed macroStack mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
-  | SyntheticMVarKind.tactic tacticCode    => throwError tacticCode "not implemented yet"
+match mvarSyntheticDecl.kind with
+| SyntheticMVarKind.typeClass            => synthesizePendingInstMVar mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
+-- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
+| SyntheticMVarKind.withDefault _        => checkWithDefault mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
+| SyntheticMVarKind.postponed macroStack => resumePostponed macroStack mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
+| SyntheticMVarKind.tactic tacticCode    => throwError tacticCode "not implemented yet"
 
 /--
   Try to synthesize the current list of pending synthetic metavariables.

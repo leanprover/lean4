@@ -21,6 +21,14 @@ class MonadTracerAdapter (m : Type → Type) :=
 (getTraces {} : m (PersistentArray MessageData))
 (modifyTraces {} : (PersistentArray MessageData → PersistentArray MessageData) → m Unit)
 
+private def checkTraceOptionAux (opts : Options) : Name → Bool
+| n@(Name.str p _ _) => opts.getBool n || (!opts.contains n && checkTraceOptionAux p)
+| _                  => false
+
+def checkTraceOption (opts : Options) (cls : Name) : Bool :=
+if opts.isEmpty then false
+else checkTraceOptionAux opts (`trace ++ cls)
+
 namespace MonadTracerAdapter
 
 section
@@ -121,19 +129,14 @@ class SimpleMonadTracerAdapter (m : Type → Type) :=
 namespace SimpleMonadTracerAdapter
 variables {m : Type → Type} [Monad m] [SimpleMonadTracerAdapter m]
 
-private def checkTraceOptionAux (opts : Options) : Name → Bool
-| n@(Name.str p _ _) => opts.getBool n || (!opts.contains n && checkTraceOptionAux p)
-| _                  => false
-
-private def checkTraceOption (optName : Name) : m Bool := do
+private def checkTraceOptionM (cls : Name) : m Bool := do
 opts ← getOptions;
-if opts.isEmpty then pure false
-else pure $ checkTraceOptionAux opts optName
+pure $ checkTraceOption opts cls
 
 @[inline] def isTracingEnabledFor (cls : Name) : m Bool := do
 s ← getTraceState;
 if !s.enabled then pure false
-else checkTraceOption (`trace ++ cls)
+else checkTraceOptionM cls
 
 @[inline] def enableTracing (b : Bool) : m Bool := do
 s ← getTraceState;

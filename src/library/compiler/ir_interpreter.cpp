@@ -838,8 +838,8 @@ public:
             for (unsigned i = 0; i < arity; i++) {
                 m_arg_stack.push_back(args[i]);
             }
-            push_frame(e.m_decl, 0);
-            r = eval_body(decl_fun_body(e.m_decl)).m_obj;
+            push_frame(d, 0);
+            r = eval_body(decl_fun_body(d)).m_obj;
             if (n > arity) {
                 // `fn` returned a closure
                 r = apply_n(r, n - arity, &args[arity]);

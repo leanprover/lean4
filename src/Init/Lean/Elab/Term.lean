@@ -439,7 +439,7 @@ pure mvar
   to prevent the creation of another synthetic metavariable when resuming the elaboration. -/
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr :=
 withFreshMacroScope $ withNode stx $ fun node => do
-  trace! `Elab.step (toString stx);
+  tracingAt stx $ trace! `Elab.step stx;
   s ← get;
   let tables := termElabAttribute.ext.getState s.env;
   let k := node.getKind;

@@ -16,7 +16,7 @@ namespace Term
   return `term` if it is present, or a hole if not. -/
 private def expandBinderType (stx : Syntax) : Syntax :=
 if stx.getNumArgs == 0 then
-  mkHole
+  mkHole stx
 else
   stx.getArg 1
 
@@ -43,7 +43,7 @@ withNode stx $ fun node => do
   if k == `Lean.Parser.Term.simpleBinder then
     -- binderIdent+
     let ids  := (node.getArg 0).getArgs;
-    let type := mkHole;
+    let type := mkHole stx;
     ids.mapM $ fun id => do id ← expandBinderIdent id; pure { id := id, type := type, bi := BinderInfo.default }
   else if k == `Lean.Parser.Term.explicitBinder then
     -- `(` binderIdent+ binderType (binderDefault <|> binderTactic)? `)`
@@ -173,7 +173,7 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
     let processAsPattern : Unit → TermElabM (Array Syntax × Syntax) := fun _ => do {
       let pattern := binder;
       ident ← mkFreshAnonymousIdent binder;
-      (binders, newBody) ← expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder ident mkHole);
+      (binders, newBody) ← expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder ident (mkHole binder));
       let major := mkTermIdFromIdent ident;
       newBody ← `(match $major with | $pattern => $newBody);
       pure (binders, newBody)
@@ -204,7 +204,7 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
       match binder.isTermId? with
       | some (ident, extra) => do
         unless extra.isNone $ throwError binder "invalid binder, simple identifier expected";
-        let type  := mkHole;
+        let type  := mkHole binder;
         expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder ident type)
       | none => processAsPattern ()
   else
@@ -249,9 +249,9 @@ match c? with
 | some c => adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts.push { className := c, fvar := fvar }, .. ctx }) $ k fvar
 | none   => adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $ k fvar
 
-def expandOptType (optType : Syntax) : Syntax :=
+def expandOptType (ref : Syntax) (optType : Syntax) : Syntax :=
 if optType.isNone then
-  mkHole
+  mkHole ref
 else
   optType.getArg 1
 
@@ -259,7 +259,7 @@ def elabLetIdDecl (ref : Syntax) (decl body : Syntax) (expectedType? : Option Ex
 -- `decl` is of the form: ident bracktedBinder+ (`:` term)? `:=` term
 let n        := decl.getIdAt 0;
 let binders  := (decl.getArg 1).getArgs;
-let type     := expandOptType (decl.getArg 2);
+let type     := expandOptType ref (decl.getArg 2);
 let val      := decl.getArg 4;
 (type, val) ← elabBinders binders $ fun xs => do {
   type ← elabType type;

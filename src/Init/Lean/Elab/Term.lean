@@ -325,7 +325,7 @@ let instIdx := s.instImplicitIdx;
 modify $ fun s => { instImplicitIdx := s.instImplicitIdx + 1, .. s};
 pure $ (`_inst).appendIndexAfter instIdx
 
-def mkHole := mkNode `Lean.Parser.Term.hole #[mkAtom "_"]
+def mkHole (ref : Syntax) := mkNode `Lean.Parser.Term.hole #[mkAtomFrom ref "_"]
 
 /-- Convert a `Syntax.ident` into a `Lean.Parser.Term.id` node -/
 def mkTermIdFromIdent (ident : Syntax) : Syntax :=

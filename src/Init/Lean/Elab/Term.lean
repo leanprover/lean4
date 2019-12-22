@@ -584,12 +584,13 @@ pure $ !val.getAppFn.isMVar
 
 /-- Try to synthesize the given pending synthetic metavariable. -/
 private def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) : TermElabM Bool :=
-match mvarSyntheticDecl.kind with
-| SyntheticMVarKind.typeClass            => synthesizePendingInstMVar mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
--- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
-| SyntheticMVarKind.withDefault _        => checkWithDefault mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
-| SyntheticMVarKind.postponed macroStack => resumePostponed macroStack mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
-| SyntheticMVarKind.tactic tacticCode    => throwError tacticCode "not implemented yet"
+tracingAt mvarSyntheticDecl.ref $
+  match mvarSyntheticDecl.kind with
+  | SyntheticMVarKind.typeClass            => synthesizePendingInstMVar mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
+  -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
+  | SyntheticMVarKind.withDefault _        => checkWithDefault mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
+  | SyntheticMVarKind.postponed macroStack => resumePostponed macroStack mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
+  | SyntheticMVarKind.tactic tacticCode    => throwError tacticCode "not implemented yet"
 
 /--
   Try to synthesize the current list of pending synthetic metavariables.

@@ -8,5 +8,3 @@ fun (α : Type) (x : ?n.1 α) (y : Nat -> (?n.3 α x)) => f (?n.2 α x) x
 fun (α : Type) (x : ?n.1 α) (y : Nat -> (?n.3 α x)) => f (?n.2 α x) y
 assigning ?m1 and ?n.1
 fun (α : Type) (x : Nat) (y : Nat -> (?n.3 α x)) => f x y
-(some fun (α : Type) (x : Nat) => x)
-"[]"

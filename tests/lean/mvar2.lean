@@ -53,7 +53,3 @@ def t2 := lctx4.mkLambda #[α, x, y] $ mkAppN f #[mkAppN m3 #[α, x], x]
 #eval t2
 #eval (mctx6.instantiateMVars t2).1
 #eval (mctx7.instantiateMVars t2).1
-/- m3 is not prompoted to regular assignment until m1 is assigned. Reason: m1 occurs in the type of x, and m3 depends on x.
-   This corner case in to correcly handled in the C++ code. -/
-#eval (mctx6.instantiateMVars t2).2.getExprAssignment? `m3
-#eval (mctx7.instantiateMVars t2).2.getExprAssignment? `m3

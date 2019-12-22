@@ -24,7 +24,7 @@ structure Context extends Meta.Context :=
 (univNames       : List Name       := [])
 (openDecls       : List OpenDecl   := [])
 (macroStack      : List Syntax     := [])
-(currMacroScope  : MacroScope := 0)
+(currMacroScope  : MacroScope      := 0)
 /- When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
    The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
    the list of pending synthetic metavariables, and returns `?m`. -/

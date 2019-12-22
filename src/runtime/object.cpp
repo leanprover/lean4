@@ -453,6 +453,12 @@ static obj_res mark_persistent_fn(obj_arg o) {
     return lean_box(0);
 }
 
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+#include <sanitizer/lsan_interface.h>
+#endif
+#endif
+
 extern "C" void lean_mark_persistent(object * o) {
     buffer<object*> todo;
     todo.push_back(o);
@@ -467,6 +473,16 @@ extern "C" void lean_mark_persistent(object * o) {
             LEAN_BYTE(o->m_header, 5) = LEAN_PERSISTENT_MEM_KIND;
 #else
             o->m_mem_kind = LEAN_PERSISTENT_MEM_KIND;
+#endif
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+            // do not report as leak
+            // NOTE: Most persistent objects are actually reachable from global
+            // variables up to the end of the process. However, this is *not*
+            // true for closures inside of persistent thunks, which are
+            // "orphaned" after being evaluated.
+            __lsan_ignore_object(o);
+#endif
 #endif
             uint8_t tag = lean_ptr_tag(o);
             if (tag <= LeanMaxCtorTag) {

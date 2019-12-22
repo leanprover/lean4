@@ -56,7 +56,7 @@ extern "C" object * lean_expr_instantiate1(object * a0, object * e0) {
     return r.steal();
 }
 
-static object * lean_expr_instantiate_core(object * a0, size_t n, object** subst) {
+static object * lean_expr_instantiate_core(b_obj_arg a0, size_t n, object** subst) {
     expr const & a = reinterpret_cast<expr const &>(a0);
     if (!has_loose_bvars(a) || n == 0) {
         lean_inc(a0);
@@ -82,11 +82,11 @@ static object * lean_expr_instantiate_core(object * a0, size_t n, object** subst
     return r.steal();
 }
 
-extern "C" object * lean_expr_instantiate(object * a, object * subst) {
+extern "C" object * lean_expr_instantiate(b_obj_arg a, b_obj_arg subst) {
     return lean_expr_instantiate_core(a, lean_array_size(subst), lean_array_cptr(subst));
 }
 
-extern "C" object * lean_expr_instantiate_range(object * a, object * begin, object * end, object * subst) {
+extern "C" object * lean_expr_instantiate_range(b_obj_arg a, b_obj_arg begin, b_obj_arg end, b_obj_arg subst) {
     if (!lean_is_scalar(begin) || !lean_is_scalar(end)) {
         lean_panic("invalid range for Expr.instantiateRange");
     } else {
@@ -147,11 +147,11 @@ static object * lean_expr_instantiate_rev_core(object * a0, size_t n, object ** 
     return r.steal();
 }
 
-extern "C" object * lean_expr_instantiate_rev(object * a, object * subst) {
+extern "C" object * lean_expr_instantiate_rev(b_obj_arg a, b_obj_arg subst) {
     return lean_expr_instantiate_rev_core(a, lean_array_size(subst), lean_array_cptr(subst));
 }
 
-extern "C" object * lean_expr_instantiate_rev_range(object * a, object * begin, object * end, object * subst) {
+extern "C" object * lean_expr_instantiate_rev_range(b_obj_arg a, b_obj_arg begin, b_obj_arg end, b_obj_arg subst) {
     if (!lean_is_scalar(begin) || !lean_is_scalar(end)) {
         lean_panic("invalid range for Expr.instantiateRevRange");
     } else {
@@ -306,11 +306,11 @@ expr instantiate_value_lparams(constant_info const & info, levels const & ls) {
     return r;
 }
 
-extern "C" object * lean_instantiate_type_lparams(object * info, object * ls) {
+extern "C" object * lean_instantiate_type_lparams(b_obj_arg info, b_obj_arg ls) {
     return instantiate_type_lparams(TO_REF(constant_info, info), TO_REF(levels, ls)).steal();
 }
 
-extern "C" object * lean_instantiate_value_lparams(object * info, object * ls) {
+extern "C" object * lean_instantiate_value_lparams(b_obj_arg info, b_obj_arg ls) {
     return instantiate_value_lparams(TO_REF(constant_info, info), TO_REF(levels, ls)).steal();
 }
 

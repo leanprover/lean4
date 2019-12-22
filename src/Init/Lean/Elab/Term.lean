@@ -204,6 +204,9 @@ logInfo ref $
 opts ← getOptions;
 when (checkTraceOption opts cls) $ logTrace cls ref (msg ())
 
+@[inline] def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TermElabM Unit :=
+trace cls Syntax.missing msg
+
 def dbgTrace {α} [HasToString α] (a : α) : TermElabM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()
 
@@ -397,7 +400,7 @@ ctx ← read;
 when ctx.mayPostpone $ throw Exception.postpone
 
 /-- If `mayPostpone == true` and `e`'s head is a metavariable, throw `Exception.postpone`. -/
-def tryPostponeIfMVar (e : Expr) : TermElabM Unit :=
+def tryPostponeIfMVar (e : Expr) : TermElabM Unit := do
 when e.getAppFn.isMVar $ tryPostpone
 
 private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
@@ -514,7 +517,6 @@ withMVarContext mvarId $ do
     (adaptReader (fun (ctx : Context) => { macroStack := macroStack, .. ctx }) $ do
       mvarDecl     ← getMVarDecl mvarId;
       expectedType ← instantiateMVars stx mvarDecl.type;
-      trace `Elab.postpone.resume stx $ fun _ => stx ++ " : " ++ expectedType;
       result       ← resumeElabTerm stx expectedType;
       assignExprMVar mvarId result;
       pure true)
@@ -577,6 +579,8 @@ match mvarSyntheticDecl.kind with
   Try to synthesize the current list of pending synthetic metavariables.
   Return `true` if at least one of them was synthesized. -/
 private def synthesizeSyntheticMVarsStep : TermElabM Bool := do
+ctx ← read;
+traceAtCmdPos `Elab.resuming $ fun _ => fmt "resuming synthetic metavariables, mayPostpone: " ++ fmt ctx.mayPostpone;
 s ← get;
 let syntheticMVars    := s.syntheticMVars;
 let numSyntheticMVars := syntheticMVars.length;
@@ -585,7 +589,12 @@ modify $ fun s => { syntheticMVars := [], .. s };
 -- Recall that `syntheticMVars` is a list where head is the most recent pending synthetic metavariable.
 -- We use `filterRevM` instead of `filterM` to make sure we process the synthetic metavariables using the order they were created.
 -- It would not be incorrect to use `filterM`.
-remainingSyntheticMVars ← syntheticMVars.filterRevM $ fun mvarDecl => not <$> synthesizeSyntheticMVar mvarDecl;
+remainingSyntheticMVars ← syntheticMVars.filterRevM $ fun mvarDecl => do {
+   trace `Elab.postpone mvarDecl.ref $ fun _ => fmt "resuming";
+   succeeded ← synthesizeSyntheticMVar mvarDecl;
+   trace `Elab.postpone mvarDecl.ref $ fun _ => if succeeded then fmt "succeeded" else fmt "not ready yet";
+   pure $ !succeeded
+};
 -- Merge new synthetic metavariables with `remainingSyntheticMVars`, i.e., metavariables that still couldn't be synthesized
 modify $ fun s => { syntheticMVars := s.syntheticMVars ++ remainingSyntheticMVars, .. s };
 pure $ numSyntheticMVars != remainingSyntheticMVars.length

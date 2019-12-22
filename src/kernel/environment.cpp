@@ -42,7 +42,7 @@ void environment::set_main_module(name const & n) {
 }
 
 name environment::get_main_module() const {
-    return name(lean_environment_main_module(to_obj_arg()), true);
+    return name(lean_environment_main_module(to_obj_arg()));
 }
 
 unsigned environment::trust_lvl() const {

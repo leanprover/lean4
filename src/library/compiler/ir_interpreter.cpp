@@ -223,9 +223,9 @@ value unbox_t(object * o, type t) {
         case type::Float: throw exception("floats are not supported yet");
         case type::UInt8: return unbox(o);
         case type::UInt16: return unbox(o);
-        case type::UInt32: return unbox_uint32(o);
-        case type::UInt64: return unbox_uint64(o);
-        case type::USize: return unbox_size_t(o);
+        case type::UInt32: { value v = unbox_uint32(o); dec(o); return v; }
+        case type::UInt64: { value v = unbox_uint64(o); dec(o); return v; }
+        case type::USize: { value v = unbox_size_t(o); dec(o); return v; }
         case type::Object:
         case type::TObject:
         case type::Irrelevant:
@@ -838,8 +838,8 @@ public:
             for (unsigned i = 0; i < arity; i++) {
                 m_arg_stack.push_back(args[i]);
             }
-            push_frame(e.m_decl, 0);
-            r = eval_body(decl_fun_body(e.m_decl)).m_obj;
+            push_frame(d, 0);
+            r = eval_body(decl_fun_body(d)).m_obj;
             if (n > arity) {
                 // `fn` returned a closure
                 r = apply_n(r, n - arity, &args[arity]);

@@ -562,12 +562,12 @@ constant instantiateRev (e : @& Expr) (subst : @& Array Expr) : Expr := arbitrar
 /-- Similar to `instantiate`, but consider only the variables `xs` in the range `[beginIdx, endIdx)`.
     Function panics if `beginIdx <= endIdx <= xs.size` does not hold. -/
 @[extern "lean_expr_instantiate_range"]
-constant instantiateRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : Array Expr) : Expr := arbitrary _
+constant instantiateRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : @& Array Expr) : Expr := arbitrary _
 
 /-- Similar to `instantiateRev`, but consider only the variables `xs` in the range `[beginIdx, endIdx)`.
     Function panics if `beginIdx <= endIdx <= xs.size` does not hold. -/
 @[extern "lean_expr_instantiate_rev_range"]
-constant instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : Array Expr) : Expr := arbitrary _
+constant instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : @& Array Expr) : Expr := arbitrary _
 
 /-- Replace free variables `xs` with loose bound variables. -/
 @[extern "lean_expr_abstract"]

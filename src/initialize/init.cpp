@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "runtime/init_module.h"
 #include "util/init_module.h"
+#include "util/io.h"
 #include "kernel/init_module.h"
 #include "library/init_module.h"
 #include "library/tactic/init_module.h"
@@ -22,21 +23,11 @@ namespace lean {
 extern "C" object* initialize_Init_Default(object* w);
 extern "C" object* initialize_Init_Lean(object* w);
 
-object* sort_const_table_core(object * w);
-
 extern "C" void lean_initialize() {
     save_stack_info();
     initialize_util_module();
-    object * w = initialize_Init_Default(io_mk_world());
-    w = initialize_Init_Lean(w);
-    // w = sort_const_table_core(w);
-    if (io_result_is_error(w)) {
-        io_result_show_error(w);
-        dec(w);
-        throw exception("initialization failed");
-    } else {
-        dec(w);
-    }
+    consume_io_result(initialize_Init_Default(io_mk_world()));
+    consume_io_result(initialize_Init_Lean(io_mk_world()));
     initialize_kernel_module();
     init_default_print_fn();
     initialize_library_core_module();

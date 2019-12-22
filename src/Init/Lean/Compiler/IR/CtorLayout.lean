@@ -36,7 +36,7 @@ structure CtorLayout :=
 (scalarSize : Nat)
 
 @[extern "lean_ir_get_ctor_layout"]
-constant getCtorLayout (env : Environment) (ctorName : Name) : Except String CtorLayout := arbitrary _
+constant getCtorLayout (env : @& Environment) (ctorName : @& Name) : Except String CtorLayout := arbitrary _
 
 end IR
 end Lean

@@ -1729,6 +1729,7 @@ extern "C" obj_res lean_string_utf8_set(obj_arg s, b_obj_arg i0, uint32 c) {
     std::string tmp;
     push_unicode_scalar(tmp, c);
     std::string new_s = string_to_std(s);
+    dec(s);
     new_s.replace(i, get_utf8_char_size_at(new_s, i), tmp);
     return mk_string(new_s);
 }

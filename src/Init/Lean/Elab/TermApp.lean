@@ -367,8 +367,9 @@ else
     applyResult $ successes.get! 0
   else if successes.size > 1 then do
     lctx ← getLCtx;
+    opts ← getOptions;
     let msgs : Array MessageData := successes.map $ fun success => match success with
-      | EStateM.Result.ok e s => MessageData.context s.env s.mctx lctx e
+      | EStateM.Result.ok e s => MessageData.withContext { env := s.env, mctx := s.mctx, lctx := lctx, opts := opts } e
       | _                     => unreachable!;
     throwError f ("ambiguous, possible interpretations " ++ MessageData.ofArray msgs)
   else

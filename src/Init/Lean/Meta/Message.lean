@@ -87,13 +87,13 @@ end Meta
 
 namespace KernelException
 
-private def mkCtx (env : Environment) (lctx : LocalContext) (msg : MessageData) : MessageData :=
-MessageData.context env {} lctx msg
+private def mkCtx (env : Environment) (lctx : LocalContext) (opts : Options) (msg : MessageData) : MessageData :=
+MessageData.withContext { env := env, mctx := {}, lctx := lctx, opts := opts } msg
 
-def toMessageData (e : KernelException) : MessageData :=
+def toMessageData (e : KernelException) (opts : Options) : MessageData :=
 match e with
-| unknownConstant env constName       => mkCtx env {} $ "(kernel) unknown constant " ++ constName
-| alreadyDeclared env constName       => mkCtx env {} $ "(kernel) constant has already been declared " ++ constName
+| unknownConstant env constName       => mkCtx env {} opts $ "(kernel) unknown constant " ++ constName
+| alreadyDeclared env constName       => mkCtx env {} opts $ "(kernel) constant has already been declared " ++ constName
 | declTypeMismatch env decl givenType =>
   let process (n : Name) (expectedType : Expr) : MessageData :=
     "(kernel) declaration type mismatch " ++ n
@@ -103,17 +103,17 @@ match e with
   | Declaration.defnDecl { name := n, type := type, .. } => process n type
   | Declaration.thmDecl { name := n, type := type, .. }  => process n type
   | _ => "(kernel) declaration type mismatch" -- TODO fix type checker, type mismatch for mutual decls does not have enough information
-| declHasMVars env constName _        => mkCtx env {} $ "(kernel) declaration has metavariables " ++ constName
-| declHasFVars env constName _        => mkCtx env {} $ "(kernel) declaration has free variables " ++ constName
-| funExpected env lctx e              => mkCtx env lctx $ "(kernel) function expected" ++ indentExpr e
-| typeExpected env lctx e             => mkCtx env lctx $ "(kernel) type expected" ++ indentExpr e
-| letTypeMismatch  env lctx n _ _     => mkCtx env lctx $ "(kernel) let-declaration type mismatch " ++ n
-| exprTypeMismatch env lctx e _       => mkCtx env lctx $ "(kernel) type mismatch at " ++ indentExpr e
+| declHasMVars env constName _        => mkCtx env {} opts $ "(kernel) declaration has metavariables " ++ constName
+| declHasFVars env constName _        => mkCtx env {} opts $ "(kernel) declaration has free variables " ++ constName
+| funExpected env lctx e              => mkCtx env lctx opts $ "(kernel) function expected" ++ indentExpr e
+| typeExpected env lctx e             => mkCtx env lctx opts $ "(kernel) type expected" ++ indentExpr e
+| letTypeMismatch  env lctx n _ _     => mkCtx env lctx opts $ "(kernel) let-declaration type mismatch " ++ n
+| exprTypeMismatch env lctx e _       => mkCtx env lctx opts $ "(kernel) type mismatch at " ++ indentExpr e
 | appTypeMismatch  env lctx e _ _     =>
   match e with
-  | Expr.app f a _ => "(kernel) " ++ Meta.Exception.mkAppTypeMismatchMessage f a { env := env, lctx := lctx, mctx := {} }
+  | Expr.app f a _ => "(kernel) " ++ Meta.Exception.mkAppTypeMismatchMessage f a { env := env, lctx := lctx, mctx := {}, opts := opts }
   | _              => "(kernel) application type mismatch at" ++ indentExpr e
-| invalidProj env lctx e              => mkCtx env lctx $ "(kernel) invalid projection" ++ indentExpr e
+| invalidProj env lctx e              => mkCtx env lctx opts $ "(kernel) invalid projection" ++ indentExpr e
 | other msg                           => "(kernel) " ++ msg
 
 end KernelException

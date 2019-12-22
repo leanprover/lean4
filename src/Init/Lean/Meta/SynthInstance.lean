@@ -145,7 +145,7 @@ def getOptions : SynthM Options := do ctx ← read; pure ctx.config.opts
 def addContext (msg : MessageData) : SynthM MessageData := do
 ctx ← read;
 s   ← get;
-pure $ MessageData.context s.env s.mctx ctx.lctx msg
+pure $ MessageData.withContext { env := s.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctx.config.opts } msg
 
 instance tracer : SimpleMonadTracerAdapter SynthM :=
 { getOptions       := getOptions,

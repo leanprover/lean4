@@ -19,6 +19,9 @@ fileName ++ ":" ++ toString line ++ ":" ++ toString col ++ " " ++ toString msg
 inductive MessageSeverity
 | information | warning | error
 
+structure MessageDataContext :=
+(env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options)
+
 /- Structure message data. We use it for reporting errors, trace messages, etc. -/
 inductive MessageData
 | ofFormat    : Format → MessageData
@@ -26,9 +29,8 @@ inductive MessageData
 | ofExpr      : Expr → MessageData
 | ofLevel     : Level → MessageData
 | ofName      : Name  → MessageData
-/- `context env mctx lctx d` specifies the pretty printing context `(env, mctx, lctx)` for the nested expressions in `d`. -/
-| context     : Environment → MetavarContext → LocalContext → MessageData → MessageData
-| withOptions : Options → MessageData → MessageData
+/- `withContext ctx d` specifies the pretty printing context `(env, mctx, lctx, opts)` for the nested expressions in `d`. -/
+| withContext : MessageDataContext → MessageData → MessageData
 /- Lifted `Format.nest` -/
 | nest        : Nat → MessageData → MessageData
 /- Lifted `Format.group` -/
@@ -50,24 +52,24 @@ registerOption `syntaxMaxDepth { defValue := (2 : Nat), group := "", descr := "m
 def getSyntaxMaxDepth (opts : Options) : Nat :=
 opts.getNat `syntaxMaxDepth 2
 
-partial def formatAux : Option (Environment × MetavarContext × LocalContext) → Options → MessageData → Format
-| _, _, ofFormat fmt                     => fmt
-| _, _, ofLevel u                        => fmt u
-| _, _, ofName n                         => fmt n
-| _, opts, ofSyntax s                    => s.formatStx (getSyntaxMaxDepth opts)
-| none, _, ofExpr e                      => format (toString e)
-| some (env, mctx, lctx), opts, ofExpr e => format (toString (mctx.instantiateMVars e).1) -- TODO: invoke pretty printer
-| ctx, opts, context env mctx lctx d     => formatAux (some (env, mctx, lctx)) opts d
-| ctx, _,    withOptions opts d          => formatAux ctx opts d
-| ctx, opts, tagged cls d                => Format.sbracket (format cls) ++ " " ++ formatAux ctx opts d
-| ctx, opts, nest n d                    => Format.nest n (formatAux ctx opts d)
-| ctx, opts, compose d₁ d₂               => formatAux ctx opts d₁ ++ formatAux ctx opts d₂
-| ctx, opts, group d                     => Format.group (formatAux ctx opts d)
-| ctx, opts, node ds                     => Format.nest 2 $ ds.foldl (fun r d => r ++ Format.line ++ formatAux ctx opts d) Format.nil
+partial def formatAux : Option MessageDataContext → MessageData → Format
+| _,         ofFormat fmt      => fmt
+| _,         ofLevel u         => fmt u
+| _,         ofName n          => fmt n
+| some ctx,  ofSyntax s        => s.formatStx (getSyntaxMaxDepth ctx.opts)
+| none,      ofSyntax s        => s.formatStx
+| none,      ofExpr e          => format (toString e)
+| some ctx,  ofExpr e          => format (toString (ctx.mctx.instantiateMVars e).1) -- TODO: invoke pretty printer
+| _,         withContext ctx d => formatAux (some ctx) d
+| ctx,       tagged cls d      => Format.sbracket (format cls) ++ " " ++ formatAux ctx d
+| ctx,       nest n d          => Format.nest n (formatAux ctx d)
+| ctx,       compose d₁ d₂     => formatAux ctx d₁ ++ formatAux ctx d₂
+| ctx,       group d           => Format.group (formatAux ctx d)
+| ctx,       node ds           => Format.nest 2 $ ds.foldl (fun r d => r ++ Format.line ++ formatAux ctx d) Format.nil
 
 instance : HasAppend MessageData := ⟨compose⟩
 
-instance : HasFormat MessageData := ⟨fun d => formatAux none {} d⟩
+instance : HasFormat MessageData := ⟨fun d => formatAux none d⟩
 
 instance coeOfFormat    : HasCoe Format MessageData := ⟨ofFormat⟩
 instance coeOfLevel     : HasCoe Level MessageData  := ⟨ofLevel⟩

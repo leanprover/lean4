@@ -90,7 +90,7 @@ private partial def testModuleParserAux (env : Environment) (c : ParserContextCo
   match parseCommand env c s messages with
   | (stx, s, messages) =>
     if isEOI stx || isExitCommand stx then do
-      messages.toList.forM $ fun msg => IO.println msg;
+      messages.forM $ fun msg => IO.println msg;
       pure (!messages.hasErrors)
     else do
       when displayStx (IO.println stx);
@@ -113,7 +113,7 @@ partial def parseFileAux (env : Environment) (ctx : ParserContextCore) : ModuleP
         let stx := mkListNode stxs;
         pure stx.updateLeading
       else do
-        msgs.toList.forM $ fun msg => IO.println msg;
+        msgs.forM $ fun msg => IO.println msg;
         throw (IO.userError "failed to parse file")
     else
       parseFileAux state msgs (stxs.push stx)

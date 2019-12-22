@@ -246,6 +246,12 @@ Id.run (t.foldlM f b)
 def toArray (t : PersistentArray α) : Array α :=
 t.foldl Array.push #[]
 
+def append (t₁ t₂ : PersistentArray α) : PersistentArray α :=
+if t₁.isEmpty then t₂
+else t₂.foldl PersistentArray.push t₁
+
+instance : HasAppend (PersistentArray α) := ⟨append⟩
+
 @[inline] def find? {β} (t : PersistentArray α) (f : α → (Option β)) : Option β :=
 Id.run (t.findM? f)
 

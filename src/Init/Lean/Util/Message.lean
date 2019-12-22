@@ -121,32 +121,35 @@ instance : HasToString Message :=
 end Message
 
 structure MessageLog :=
--- messages are stored in reverse for efficient append
-(revList : List Message := [])
+(msgs : PersistentArray Message := {})
 
 namespace MessageLog
 def empty : MessageLog := ⟨{}⟩
 
 def isEmpty (log : MessageLog) : Bool :=
-log.revList.isEmpty
+log.msgs.isEmpty
 
 instance : Inhabited MessageLog := ⟨{}⟩
 
 def add (msg : Message) (log : MessageLog) : MessageLog :=
-⟨msg :: log.revList⟩
+⟨log.msgs.push msg⟩
 
 protected def append (l₁ l₂ : MessageLog) : MessageLog :=
-⟨l₂.revList ++ l₁.revList⟩
+⟨l₁.msgs ++ l₂.msgs⟩
 
 instance : HasAppend MessageLog :=
 ⟨MessageLog.append⟩
 
 def hasErrors (log : MessageLog) : Bool :=
-log.revList.any $ fun m => match m.severity with
+log.msgs.any $ fun m => match m.severity with
 | MessageSeverity.error => true
 | _                     => false
 
+def forM {m : Type → Type} [Monad m] (log : MessageLog) (f : Message → m Unit) : m Unit :=
+log.msgs.forM f
+
 def toList (log : MessageLog) : List Message :=
-log.revList.reverse
+(log.msgs.foldl (fun acc msg => msg :: acc) []).reverse
+
 end MessageLog
 end Lean

@@ -6,7 +6,7 @@ def run (input : String) (failIff : Bool := true) : MetaIO Unit :=
 do env  ← MetaIO.getEnv;
    opts ← MetaIO.getOptions;
    let (env, messages) := process input env opts;
-   messages.toList.forM $ fun msg => IO.println msg;
+   messages.forM $ fun msg => IO.println msg;
    when (failIff && messages.hasErrors) $ throw (IO.userError "errors have been found");
    when (!failIff && !messages.hasErrors) $ throw (IO.userError "there are no errors");
    pure ()
@@ -158,7 +158,8 @@ f a
 #eval run "#check #[1, 2].foldl (fun r a => r.push a $.push a $.push a) #[]"
 #eval run "#check #[1, 2].foldl (init := #[]) $ fun r a => r.push a $.push a"
 
+
 #eval run "#check let x := one + zero; x + x"
--- set_option trace.Elab true
+set_option trace.Elab true
 #eval run "#check (fun x => let v := x.w; v + v) s4"
 #eval run "#check fun x => foo x (let v := x.w; v + one) s4"

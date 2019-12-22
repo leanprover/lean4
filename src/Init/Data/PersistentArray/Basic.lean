@@ -243,6 +243,9 @@ end
 @[inline] def foldl {β} (t : PersistentArray α) (f : β → α → β) (b : β) : β :=
 Id.run (t.foldlM f b)
 
+def toArray (t : PersistentArray α) : Array α :=
+t.foldl Array.push #[]
+
 @[inline] def find? {β} (t : PersistentArray α) (f : α → (Option β)) : Option β :=
 Id.run (t.findM? f)
 

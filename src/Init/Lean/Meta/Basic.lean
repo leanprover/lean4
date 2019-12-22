@@ -323,7 +323,7 @@ s ← get; pure s.traceState
 def addContext (msg : MessageData) : MetaM MessageData := do
 ctx ← read;
 s   ← get;
-pure $ MessageData.context s.env s.mctx ctx.lctx msg
+pure $ MessageData.withOptions ctx.config.opts $ MessageData.context s.env s.mctx ctx.lctx msg
 
 instance tracer : SimpleMonadTracerAdapter MetaM :=
 { getOptions       := getOptions,

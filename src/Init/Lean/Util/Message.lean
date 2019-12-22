@@ -21,45 +21,53 @@ inductive MessageSeverity
 
 /- Structure message data. We use it for reporting errors, trace messages, etc. -/
 inductive MessageData
-| ofFormat : Format → MessageData
-| ofSyntax : Syntax → MessageData
-| ofExpr   : Expr → MessageData
-| ofLevel  : Level → MessageData
-| ofName   : Name  → MessageData
+| ofFormat    : Format → MessageData
+| ofSyntax    : Syntax → MessageData
+| ofExpr      : Expr → MessageData
+| ofLevel     : Level → MessageData
+| ofName      : Name  → MessageData
 /- `context env mctx lctx d` specifies the pretty printing context `(env, mctx, lctx)` for the nested expressions in `d`. -/
-| context  : Environment → MetavarContext → LocalContext → MessageData → MessageData
+| context     : Environment → MetavarContext → LocalContext → MessageData → MessageData
+| withOptions : Options → MessageData → MessageData
 /- Lifted `Format.nest` -/
-| nest     : Nat → MessageData → MessageData
+| nest        : Nat → MessageData → MessageData
 /- Lifted `Format.group` -/
-| group    : MessageData → MessageData
+| group       : MessageData → MessageData
 /- Lifted `Format.compose` -/
-| compose  : MessageData → MessageData → MessageData
+| compose     : MessageData → MessageData → MessageData
 /- Tagged sections. `Name` should be viewed as a "kind", and is used by `MessageData` inspector functions.
    Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
-| tagged   : Name → MessageData → MessageData
-| node     : Array MessageData → MessageData
+| tagged      : Name → MessageData → MessageData
+| node        : Array MessageData → MessageData
 
 namespace MessageData
 
 instance : Inhabited MessageData := ⟨MessageData.ofFormat (arbitrary _)⟩
 
-partial def formatAux : Option (Environment × MetavarContext × LocalContext) → MessageData → Format
-| _, ofFormat fmt                  => fmt
-| _, ofSyntax s                    => s.formatStx
-| _, ofLevel u                     => fmt u
-| _, ofName n                      => fmt n
-| none, ofExpr e                   => format (toString e)
-| some (env, mctx, lctx), ofExpr e => format (toString (mctx.instantiateMVars e).1) -- TODO: invoke pretty printer
-| _, context env mctx lctx d       => formatAux (some (env, mctx, lctx)) d
-| ctx, tagged cls d                => Format.sbracket (format cls) ++ " " ++ formatAux ctx d
-| ctx, nest n d                    => Format.nest n (formatAux ctx d)
-| ctx, compose d₁ d₂               => formatAux ctx d₁ ++ formatAux ctx d₂
-| ctx, group d                     => Format.group (formatAux ctx d)
-| ctx, node ds                     => Format.nest 2 $ ds.foldl (fun r d => r ++ Format.line ++ formatAux ctx d) Format.nil
+@[init] def stxMaxDepthOption : IO Unit :=
+registerOption `syntaxMaxDepth { defValue := (2 : Nat), group := "", descr := "maximum depth when displaying syntax objects in messages" }
+
+def getSyntaxMaxDepth (opts : Options) : Nat :=
+opts.getNat `syntaxMaxDepth 2
+
+partial def formatAux : Option (Environment × MetavarContext × LocalContext) → Options → MessageData → Format
+| _, _, ofFormat fmt                     => fmt
+| _, _, ofLevel u                        => fmt u
+| _, _, ofName n                         => fmt n
+| _, opts, ofSyntax s                    => s.formatStx (getSyntaxMaxDepth opts)
+| none, _, ofExpr e                      => format (toString e)
+| some (env, mctx, lctx), opts, ofExpr e => format (toString (mctx.instantiateMVars e).1) -- TODO: invoke pretty printer
+| ctx, opts, context env mctx lctx d     => formatAux (some (env, mctx, lctx)) opts d
+| ctx, _,    withOptions opts d          => formatAux ctx opts d
+| ctx, opts, tagged cls d                => Format.sbracket (format cls) ++ " " ++ formatAux ctx opts d
+| ctx, opts, nest n d                    => Format.nest n (formatAux ctx opts d)
+| ctx, opts, compose d₁ d₂               => formatAux ctx opts d₁ ++ formatAux ctx opts d₂
+| ctx, opts, group d                     => Format.group (formatAux ctx opts d)
+| ctx, opts, node ds                     => Format.nest 2 $ ds.foldl (fun r d => r ++ Format.line ++ formatAux ctx opts d) Format.nil
 
 instance : HasAppend MessageData := ⟨compose⟩
 
-instance : HasFormat MessageData := ⟨fun d => formatAux none d⟩
+instance : HasFormat MessageData := ⟨fun d => formatAux none {} d⟩
 
 instance coeOfFormat    : HasCoe Format MessageData := ⟨ofFormat⟩
 instance coeOfLevel     : HasCoe Level MessageData  := ⟨ofLevel⟩

@@ -199,7 +199,7 @@ def assignExprMVar (mvarId : MVarId) (val : Expr) : TermElabM Unit := modify $ f
 def addContext (msg : MessageData) : TermElabM MessageData := do
 ctx ← read;
 s   ← get;
-pure $ MessageData.context s.env s.mctx ctx.lctx msg
+pure $ MessageData.withOptions ctx.config.opts $ MessageData.context s.env s.mctx ctx.lctx msg
 
 instance tracer : SimpleMonadTracerAdapter TermElabM :=
 { getOptions       := getOptions,

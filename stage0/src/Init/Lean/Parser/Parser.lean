@@ -215,15 +215,6 @@ inductive FirstTokens
 
 namespace FirstTokens
 
-def merge : FirstTokens → FirstTokens → FirstTokens
-| epsilon,      tks          => tks
-| tks,          epsilon      => tks
-| tokens s₁,    tokens s₂    => tokens (s₁ ++ s₂)
-| optTokens s₁, optTokens s₂ => optTokens (s₁ ++ s₂)
-| tokens s₁,    optTokens s₂ => tokens (s₁ ++ s₂)
-| optTokens s₁, tokens s₂    => tokens (s₁ ++ s₂)
-| _,            _            => unknown
-
 def seq : FirstTokens → FirstTokens → FirstTokens
 | epsilon,      tks          => tks
 | optTokens s₁, optTokens s₂ => optTokens (s₁ ++ s₂)
@@ -233,6 +224,15 @@ def seq : FirstTokens → FirstTokens → FirstTokens
 def toOptional : FirstTokens → FirstTokens
 | tokens tks => optTokens tks
 | tks        => tks
+
+def merge : FirstTokens → FirstTokens → FirstTokens
+| epsilon,      tks          => toOptional tks
+| tks,          epsilon      => toOptional tks
+| tokens s₁,    tokens s₂    => tokens (s₁ ++ s₂)
+| optTokens s₁, optTokens s₂ => optTokens (s₁ ++ s₂)
+| tokens s₁,    optTokens s₂ => optTokens (s₁ ++ s₂)
+| optTokens s₁, tokens s₂    => optTokens (s₁ ++ s₂)
+| _,            _            => unknown
 
 def toStr : FirstTokens → String
 | epsilon       => "epsilon"
@@ -1073,7 +1073,7 @@ fun _ c s =>
   let s      := tokenFn c s;
   if s.hasError || !(s.stxStack.back.isIdent) then s.mkErrorAt "identifier" iniPos else s
 
-@[inline] def ident {k : ParserKind} : Parser k :=
+@[inline] def identNoAntiquot {k : ParserKind} : Parser k :=
 { fn   := identFn,
   info := mkAtomicInfo "ident" }
 
@@ -1097,20 +1097,6 @@ fun _ c s =>
 
 def unquotedSymbol {k : ParserKind} : Parser k :=
 { fn := unquotedSymbolFn }
-
-def fieldIdxFn : BasicParserFn :=
-fun c s =>
-  let iniPos := s.pos;
-  let curr     := c.input.get iniPos;
-  if curr.isDigit && curr != '0' then
-    let s     := takeWhileFn (fun c => c.isDigit) c s;
-    mkNodeToken fieldIdxKind iniPos c s
-  else
-    s.mkErrorAt "field index" iniPos
-
-@[inline] def fieldIdx {k : ParserKind} : Parser k :=
-{ fn   := fun _ => fieldIdxFn,
-  info := mkAtomicInfo "fieldIdx" }
 
 instance string2basic {k : ParserKind} : HasCoe String (Parser k) :=
 ⟨symbolAux⟩
@@ -1541,6 +1527,54 @@ fun a c s =>
   prattParser attr.kind tables a c s
 
 end ParserAttribute
+
+-- declare `termParser` here since it is used everywhere via antiquotations
+
+@[init mkBuiltinParsingTablesRef]
+constant builtinTermParsingTable : IO.Ref ParsingTables := arbitrary _
+
+@[init] def regBuiltinTermParserAttr : IO Unit :=
+registerBuiltinParserAttribute `builtinTermParser `Lean.Parser.builtinTermParsingTable
+
+def mkTermParserAttribute : IO ParserAttribute :=
+registerParserAttribute `termParser "term" "term parser" (some builtinTermParsingTable)
+
+@[init mkTermParserAttribute]
+constant termParserAttribute : ParserAttribute := arbitrary _
+
+@[inline] def termParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
+{ fn := fun _ => termParserAttribute.runParser rbp }
+
+def dollarSymbol {k : ParserKind} : Parser k := symbol "$" 1
+
+-- Define parser for `$e` (if anonymous == true) and `$e:name`. Both
+-- forms can also be used with an appended `*` to turn them into an
+-- antiquotation "splice". If `kind` is given, it will additionally be checked
+-- when evaluating `match_syntax`.
+def mkAntiquot {k : ParserKind} (name : String) (kind : Option SyntaxNodeKind) (anonymous := false) : Parser k :=
+let kind := (kind.getD Name.anonymous) ++ `antiquot;
+let sym := ":" ++ name;
+let nameP := checkNoWsBefore ("no space before '" ++ sym ++ "'") >> coe sym;
+node kind $ try $ dollarSymbol >> checkNoWsBefore "no space before" >> termParser appPrec >>
+  (if anonymous then optional nameP else nameP) >> optional "*"
+
+def ident {k : ParserKind} : Parser k :=
+mkAntiquot "ident" `ident <|> identNoAntiquot
+
+def fieldIdxFn : BasicParserFn :=
+fun c s =>
+  let iniPos := s.pos;
+  let curr     := c.input.get iniPos;
+  if curr.isDigit && curr != '0' then
+    let s     := takeWhileFn (fun c => c.isDigit) c s;
+    mkNodeToken fieldIdxKind iniPos c s
+  else
+    s.mkErrorAt "field index" iniPos
+
+@[inline] def fieldIdx {k : ParserKind} : Parser k :=
+mkAntiquot "fieldIdx" `fieldIdx <|>
+{ fn   := fun _ => fieldIdxFn,
+  info := mkAtomicInfo "fieldIdx" }
 
 end Parser
 

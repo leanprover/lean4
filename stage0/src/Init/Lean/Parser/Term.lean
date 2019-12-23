@@ -9,22 +9,6 @@ import Init.Lean.Parser.Level
 
 namespace Lean
 namespace Parser
-
-@[init mkBuiltinParsingTablesRef]
-constant builtinTermParsingTable : IO.Ref ParsingTables := arbitrary _
-
-@[init] def regBuiltinTermParserAttr : IO Unit :=
-registerBuiltinParserAttribute `builtinTermParser `Lean.Parser.builtinTermParsingTable
-
-def mkTermParserAttribute : IO ParserAttribute :=
-registerParserAttribute `termParser "term" "term parser" (some builtinTermParsingTable)
-
-@[init mkTermParserAttribute]
-constant termParserAttribute : ParserAttribute := arbitrary _
-
-@[inline] def termParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
-{ fn := fun _ => termParserAttribute.runParser rbp }
-
 namespace Term
 /- Helper functions for defining simple parsers -/
 
@@ -40,23 +24,10 @@ pushLeading >> unicodeSymbol sym asciiSym lbp >> termParser lbp
 def infixL (sym : String) (lbp : Nat) : TrailingParser :=
 pushLeading >> symbol sym lbp >> termParser lbp
 
-def dollarSymbol {k : ParserKind} : Parser k := symbol "$" 1
-
--- Define parser for `$e` (if name = none) or `$e:n` (if name = some n). Both
--- forms can also be used with an appended `*` to turn them into an
--- antiquotation "splice".
-def mkAntiquot (name : Option String) : Parser leading :=
-leadingNode `Lean.Parser.Term.antiquot $ dollarSymbol >> checkNoWsBefore "no space before" >> termParser appPrec >> (
-  match name with
-  | some name => let sym := ":" ++ name; checkNoWsBefore ("no space before '" ++ sym ++ "'") >> sym
-  -- make sure to generate as many children (1) as in the first case to keep arity constant
-  | none      => { info := epsilonInfo, fn := fun a c s => s.mkNode nullKind s.stackSize }
-) >> optional "*"
-
 /- Built-in parsers -/
 def explicitUniv   := parser! ".{" >> sepBy1 levelParser ", " >> "}"
 def namedPattern := parser! checkNoWsBefore "no space before '@'" >> "@" >> termParser appPrec
-@[builtinTermParser] def id := mkAntiquot "id" <|> parser! ident >> optional (explicitUniv <|> namedPattern)
+@[builtinTermParser] def id := parser! ident >> optional (explicitUniv <|> namedPattern)
 @[builtinTermParser] def num : Parser := parser! numLit
 @[builtinTermParser] def str : Parser := parser! strLit
 @[builtinTermParser] def char : Parser := parser! charLit
@@ -109,7 +80,7 @@ def matchAlt := parser! " | " >> sepBy1 termParser ", " >> unicodeSymbol "⇒" "
 @[builtinTermParser] def borrowed   := parser! symbol "@&" appPrec >> termParser (appPrec - 1)
 @[builtinTermParser] def quotedName := parser! symbol "`" appPrec >> rawIdent
 @[builtinTermParser] def stxQuot    := parser! symbol "`(" appPrec >> termParser >> ")"
-@[builtinTermParser] def antiquot   := mkAntiquot none
+@[builtinTermParser] def antiquot   := (mkAntiquot "term" none true : Parser)
 @[builtinTermParser] def «match_syntax» := parser! "match_syntax" >> termParser >> " with " >> many1Indent matchAlt "'match_syntax' alternatives must be indented"
 
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/

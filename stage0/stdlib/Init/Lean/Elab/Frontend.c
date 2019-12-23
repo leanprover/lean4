@@ -556,10 +556,12 @@ lean_ctor_set(x_5, 1, x_15);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_5);
 lean_ctor_set(x_16, 1, x_14);
+lean_inc(x_12);
 x_17 = l_Lean_Parser_isEOI(x_12);
 if (x_17 == 0)
 {
 uint8_t x_18; 
+lean_inc(x_12);
 x_18 = l_Lean_Parser_isExitCommand(x_12);
 if (x_18 == 0)
 {
@@ -628,10 +630,12 @@ lean_ctor_set(x_5, 1, x_33);
 x_34 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_34, 0, x_5);
 lean_ctor_set(x_34, 1, x_32);
+lean_inc(x_12);
 x_35 = l_Lean_Parser_isEOI(x_12);
 if (x_35 == 0)
 {
 uint8_t x_36; 
+lean_inc(x_12);
 x_36 = l_Lean_Parser_isExitCommand(x_12);
 if (x_36 == 0)
 {
@@ -726,10 +730,12 @@ lean_ctor_set(x_59, 3, x_52);
 x_60 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_60, 0, x_59);
 lean_ctor_set(x_60, 1, x_56);
+lean_inc(x_55);
 x_61 = l_Lean_Parser_isEOI(x_55);
 if (x_61 == 0)
 {
 uint8_t x_62; 
+lean_inc(x_55);
 x_62 = l_Lean_Parser_isExitCommand(x_55);
 if (x_62 == 0)
 {

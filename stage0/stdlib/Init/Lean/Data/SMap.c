@@ -14,20 +14,16 @@
 extern "C" {
 #endif
 lean_object* l_Lean_SMap_HasEmptyc___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_SMap_find_x21___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x21___rarg___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_SMap_foldStage2___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_foldlMAux___main___at_Lean_SMap_foldStage2___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_SMap_find_x3f___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_SMap_find_x3f_x27___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_Inhabited___rarg(lean_object*, lean_object*);
 lean_object* l_HashMapImp_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_Inhabited(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_HashMapImp_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x3f_x27(lean_object*, lean_object*);
-lean_object* l_Lean_SMap_contains___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_empty(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_foldlM___at_Lean_SMap_foldStage2___spec__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -258,7 +254,10 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = lean_ctor_get(x_3, 0);
+lean_inc(x_6);
 x_7 = lean_ctor_get(x_3, 1);
+lean_inc(x_7);
+lean_dec(x_3);
 lean_inc(x_4);
 lean_inc(x_2);
 lean_inc(x_1);
@@ -267,10 +266,12 @@ if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; 
 x_9 = l_HashMapImp_find_x3f___rarg(x_1, x_2, x_6, x_4);
+lean_dec(x_6);
 return x_9;
 }
 else
 {
+lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -281,7 +282,10 @@ else
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_ctor_get(x_3, 0);
+lean_inc(x_10);
+lean_dec(x_3);
 x_11 = l_HashMapImp_find_x3f___rarg(x_1, x_2, x_10, x_4);
+lean_dec(x_10);
 return x_11;
 }
 }
@@ -290,17 +294,8 @@ lean_object* l_Lean_SMap_find_x3f(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_SMap_find_x3f___rarg___boxed), 4, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_SMap_find_x3f___rarg), 4, 0);
 return x_3;
-}
-}
-lean_object* l_Lean_SMap_find_x3f___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_SMap_find_x3f___rarg(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-return x_5;
 }
 }
 lean_object* l_Lean_SMap_findD___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -337,7 +332,6 @@ _start:
 lean_object* x_6; 
 x_6 = l_Lean_SMap_findD___rarg(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
-lean_dec(x_3);
 return x_6;
 }
 }
@@ -388,17 +382,8 @@ lean_object* l_Lean_SMap_find_x21(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_SMap_find_x21___rarg___boxed), 5, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_SMap_find_x21___rarg), 5, 0);
 return x_3;
-}
-}
-lean_object* l_Lean_SMap_find_x21___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Lean_SMap_find_x21___rarg(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_4);
-return x_6;
 }
 }
 lean_object* l_Lean_SMap_contains___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -410,11 +395,15 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_ctor_get(x_3, 0);
+lean_inc(x_6);
 x_7 = lean_ctor_get(x_3, 1);
+lean_inc(x_7);
+lean_dec(x_3);
 lean_inc(x_4);
 lean_inc(x_2);
 lean_inc(x_1);
 x_8 = l_HashMapImp_contains___rarg(x_1, x_2, x_6, x_4);
+lean_dec(x_6);
 if (x_8 == 0)
 {
 lean_object* x_9; 
@@ -424,6 +413,7 @@ return x_9;
 else
 {
 uint8_t x_10; lean_object* x_11; 
+lean_dec(x_7);
 lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -436,7 +426,10 @@ else
 {
 lean_object* x_12; uint8_t x_13; lean_object* x_14; 
 x_12 = lean_ctor_get(x_3, 0);
+lean_inc(x_12);
+lean_dec(x_3);
 x_13 = l_HashMapImp_contains___rarg(x_1, x_2, x_12, x_4);
+lean_dec(x_12);
 x_14 = lean_box(x_13);
 return x_14;
 }
@@ -446,17 +439,8 @@ lean_object* l_Lean_SMap_contains(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_SMap_contains___rarg___boxed), 4, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_SMap_contains___rarg), 4, 0);
 return x_3;
-}
-}
-lean_object* l_Lean_SMap_contains___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_SMap_contains___rarg(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-return x_5;
 }
 }
 lean_object* l_Lean_SMap_find_x3f_x27___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -468,11 +452,15 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = lean_ctor_get(x_3, 0);
+lean_inc(x_6);
 x_7 = lean_ctor_get(x_3, 1);
+lean_inc(x_7);
+lean_dec(x_3);
 lean_inc(x_4);
 lean_inc(x_2);
 lean_inc(x_1);
 x_8 = l_HashMapImp_find_x3f___rarg(x_1, x_2, x_6, x_4);
+lean_dec(x_6);
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; 
@@ -481,6 +469,7 @@ return x_9;
 }
 else
 {
+lean_dec(x_7);
 lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -491,7 +480,10 @@ else
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_ctor_get(x_3, 0);
+lean_inc(x_10);
+lean_dec(x_3);
 x_11 = l_HashMapImp_find_x3f___rarg(x_1, x_2, x_10, x_4);
+lean_dec(x_10);
 return x_11;
 }
 }
@@ -500,17 +492,8 @@ lean_object* l_Lean_SMap_find_x3f_x27(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_SMap_find_x3f_x27___rarg___boxed), 4, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_SMap_find_x3f_x27___rarg), 4, 0);
 return x_3;
-}
-}
-lean_object* l_Lean_SMap_find_x3f_x27___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_SMap_find_x3f_x27___rarg(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-return x_5;
 }
 }
 lean_object* l_Lean_SMap_switch___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

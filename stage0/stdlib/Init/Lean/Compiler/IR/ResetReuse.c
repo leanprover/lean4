@@ -1115,6 +1115,7 @@ lean_inc(x_137);
 x_138 = lean_ctor_get(x_3, 3);
 lean_inc(x_138);
 lean_inc(x_4);
+lean_inc(x_3);
 x_139 = l_Lean_IR_FnBody_hasLiveVar(x_3, x_4, x_1);
 x_140 = lean_unbox(x_139);
 lean_dec(x_139);
@@ -1548,6 +1549,7 @@ return x_84;
 else
 {
 lean_object* x_85; uint8_t x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; 
+lean_inc(x_3);
 x_85 = l_Lean_IR_FnBody_hasLiveVar(x_3, x_4, x_1);
 lean_dec(x_1);
 x_86 = lean_unbox(x_85);

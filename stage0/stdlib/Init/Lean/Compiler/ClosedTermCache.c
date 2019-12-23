@@ -2360,6 +2360,8 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_4; size_t x_5; size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_dec(x_1);
 x_5 = 5;
 x_6 = l_PersistentHashMap_insertAux___main___rarg___closed__2;
 x_7 = x_2 & x_6;
@@ -2367,6 +2369,7 @@ x_8 = lean_usize_to_nat(x_7);
 x_9 = lean_box(2);
 x_10 = lean_array_get(x_9, x_4, x_8);
 lean_dec(x_8);
+lean_dec(x_4);
 switch (lean_obj_tag(x_10)) {
 case 0:
 {
@@ -2395,14 +2398,14 @@ return x_15;
 }
 case 1:
 {
-lean_object* x_16; size_t x_17; lean_object* x_18; 
+lean_object* x_16; size_t x_17; 
 x_16 = lean_ctor_get(x_10, 0);
 lean_inc(x_16);
 lean_dec(x_10);
 x_17 = x_2 >> x_5;
-x_18 = l_PersistentHashMap_findAux___main___at_Lean_getClosedTermName_x3f___spec__3(x_16, x_17, x_3);
-lean_dec(x_16);
-return x_18;
+x_1 = x_16;
+x_2 = x_17;
+goto _start;
 }
 default: 
 {
@@ -2416,9 +2419,14 @@ else
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_20 = lean_ctor_get(x_1, 0);
+lean_inc(x_20);
 x_21 = lean_ctor_get(x_1, 1);
+lean_inc(x_21);
+lean_dec(x_1);
 x_22 = lean_unsigned_to_nat(0u);
 x_23 = l_PersistentHashMap_findAtAux___main___at_Lean_getClosedTermName_x3f___spec__4(x_20, x_21, lean_box(0), x_22, x_3);
+lean_dec(x_21);
+lean_dec(x_20);
 return x_23;
 }
 }
@@ -2428,6 +2436,8 @@ _start:
 {
 lean_object* x_3; size_t x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec(x_1);
 x_4 = l_Lean_Expr_hash(x_2);
 x_5 = l_PersistentHashMap_findAux___main___at_Lean_getClosedTermName_x3f___spec__3(x_3, x_4, x_2);
 return x_5;
@@ -2489,16 +2499,21 @@ if (x_3 == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
+lean_inc(x_5);
+lean_dec(x_1);
 x_6 = l_PersistentHashMap_find_x3f___at_Lean_getClosedTermName_x3f___spec__2(x_5, x_2);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; 
 x_7 = l_HashMapImp_find_x3f___at_Lean_getClosedTermName_x3f___spec__5(x_4, x_2);
+lean_dec(x_4);
 return x_7;
 }
 else
 {
+lean_dec(x_4);
 return x_6;
 }
 }
@@ -2506,7 +2521,10 @@ else
 {
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+lean_dec(x_1);
 x_9 = l_HashMapImp_find_x3f___at_Lean_getClosedTermName_x3f___spec__5(x_8, x_2);
+lean_dec(x_8);
 return x_9;
 }
 }
@@ -2520,7 +2538,6 @@ x_4 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_3, x_1);
 lean_dec(x_1);
 x_5 = l_Lean_SMap_find_x3f___at_Lean_getClosedTermName_x3f___spec__1(x_4, x_2);
 lean_dec(x_2);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -2543,7 +2560,6 @@ x_4 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_5 = l_PersistentHashMap_findAux___main___at_Lean_getClosedTermName_x3f___spec__3(x_1, x_4, x_3);
 lean_dec(x_3);
-lean_dec(x_1);
 return x_5;
 }
 }
@@ -2553,7 +2569,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_PersistentHashMap_find_x3f___at_Lean_getClosedTermName_x3f___spec__2(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_3;
 }
 }
@@ -2583,7 +2598,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_SMap_find_x3f___at_Lean_getClosedTermName_x3f___spec__1(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_3;
 }
 }

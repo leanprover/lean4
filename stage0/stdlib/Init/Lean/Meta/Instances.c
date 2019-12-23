@@ -241,6 +241,8 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_4; size_t x_5; size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_dec(x_1);
 x_5 = 5;
 x_6 = l_PersistentHashMap_insertAux___main___rarg___closed__2;
 x_7 = x_2 & x_6;
@@ -248,6 +250,7 @@ x_8 = lean_usize_to_nat(x_7);
 x_9 = lean_box(2);
 x_10 = lean_array_get(x_9, x_4, x_8);
 lean_dec(x_8);
+lean_dec(x_4);
 switch (lean_obj_tag(x_10)) {
 case 0:
 {
@@ -276,14 +279,14 @@ return x_15;
 }
 case 1:
 {
-lean_object* x_16; size_t x_17; lean_object* x_18; 
+lean_object* x_16; size_t x_17; 
 x_16 = lean_ctor_get(x_10, 0);
 lean_inc(x_16);
 lean_dec(x_10);
 x_17 = x_2 >> x_5;
-x_18 = l_PersistentHashMap_findAux___main___at_Lean_Meta_addInstanceEntry___spec__3(x_16, x_17, x_3);
-lean_dec(x_16);
-return x_18;
+x_1 = x_16;
+x_2 = x_17;
+goto _start;
 }
 default: 
 {
@@ -297,9 +300,14 @@ else
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_20 = lean_ctor_get(x_1, 0);
+lean_inc(x_20);
 x_21 = lean_ctor_get(x_1, 1);
+lean_inc(x_21);
+lean_dec(x_1);
 x_22 = lean_unsigned_to_nat(0u);
 x_23 = l_PersistentHashMap_findAtAux___main___at_Lean_Meta_addInstanceEntry___spec__4(x_20, x_21, lean_box(0), x_22, x_3);
+lean_dec(x_21);
+lean_dec(x_20);
 return x_23;
 }
 }
@@ -309,6 +317,8 @@ _start:
 {
 lean_object* x_3; size_t x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec(x_1);
 x_4 = l_Lean_Meta_DiscrTree_Key_hash(x_2);
 x_5 = l_PersistentHashMap_findAux___main___at_Lean_Meta_addInstanceEntry___spec__3(x_3, x_4, x_2);
 return x_5;
@@ -1269,6 +1279,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_5 = l_Lean_Meta_DiscrTree_Key_inhabited;
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_get(x_5, x_2, x_6);
+lean_inc(x_1);
 x_8 = l_PersistentHashMap_find_x3f___at_Lean_Meta_addInstanceEntry___spec__2(x_1, x_7);
 if (lean_obj_tag(x_8) == 0)
 {
@@ -1335,7 +1346,6 @@ x_4 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_5 = l_PersistentHashMap_findAux___main___at_Lean_Meta_addInstanceEntry___spec__3(x_1, x_4, x_3);
 lean_dec(x_3);
-lean_dec(x_1);
 return x_5;
 }
 }
@@ -1345,7 +1355,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_PersistentHashMap_find_x3f___at_Lean_Meta_addInstanceEntry___spec__2(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_3;
 }
 }
@@ -2591,7 +2600,6 @@ x_10 = l_Lean_MetavarContext_incDepth(x_9);
 lean_ctor_set(x_6, 1, x_10);
 lean_inc(x_2);
 x_11 = l_Lean_Meta_forallMetaTelescopeReducing(x_5, x_7, x_2, x_6);
-lean_dec(x_5);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
@@ -2904,7 +2912,6 @@ lean_ctor_set(x_84, 4, x_81);
 lean_ctor_set(x_84, 5, x_82);
 lean_inc(x_2);
 x_85 = l_Lean_Meta_forallMetaTelescopeReducing(x_5, x_7, x_2, x_84);
-lean_dec(x_5);
 if (lean_obj_tag(x_85) == 0)
 {
 lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; 

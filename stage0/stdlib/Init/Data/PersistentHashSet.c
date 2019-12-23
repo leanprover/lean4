@@ -33,7 +33,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_PersistentHashSet_foldM___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashSet_foldM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashSet_size___rarg___boxed(lean_object*);
-lean_object* l_PersistentHashSet_contains___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_PersistentHashSet_foldM___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_PersistentHashSet_foldM___spec__3___boxed(lean_object*, lean_object*, lean_object*);
@@ -238,17 +237,8 @@ lean_object* l_PersistentHashSet_contains(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_PersistentHashSet_contains___rarg___boxed), 4, 0);
+x_2 = lean_alloc_closure((void*)(l_PersistentHashSet_contains___rarg), 4, 0);
 return x_2;
-}
-}
-lean_object* l_PersistentHashSet_contains___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_PersistentHashSet_contains___rarg(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-return x_5;
 }
 }
 lean_object* l_PersistentHashSet_size___rarg(lean_object* x_1) {

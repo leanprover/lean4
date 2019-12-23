@@ -232,7 +232,7 @@ pure $ mkLevelMVar mvarId
 @[inline] def throwEx {α} (f : ExceptionContext → Exception) : MetaM α := do
 ctx ← read;
 s ← get;
-throw (f {env := s.env, mctx := s.mctx, lctx := ctx.lctx })
+throw (f {env := s.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctx.config.opts })
 
 def throwBug {α} (b : Bug) : MetaM α :=
 throwEx $ Exception.bug b
@@ -323,7 +323,7 @@ s ← get; pure s.traceState
 def addContext (msg : MessageData) : MetaM MessageData := do
 ctx ← read;
 s   ← get;
-pure $ MessageData.context s.env s.mctx ctx.lctx msg
+pure $ MessageData.withContext { env := s.env, mctx := s.mctx, lctx := ctx.lctx, opts := ctx.config.opts } msg
 
 instance tracer : SimpleMonadTracerAdapter MetaM :=
 { getOptions       := getOptions,
@@ -379,13 +379,9 @@ fun ctx s =>
   match x ctx.lctx { mctx := s.mctx, ngen := s.ngen } with
   | EStateM.Result.ok e newS      =>
     EStateM.Result.ok e { mctx := newS.mctx, ngen := newS.ngen, .. s}
-  | EStateM.Result.error (MetavarContext.MkBinding.Exception.readOnlyMVar mctx mvarId) newS =>
-    EStateM.Result.error
-      (Exception.readOnlyMVar mvarId { lctx := ctx.lctx, mctx := newS.mctx, env := s.env })
-      { mctx := newS.mctx, ngen := newS.ngen, .. s }
   | EStateM.Result.error (MetavarContext.MkBinding.Exception.revertFailure mctx lctx toRevert decl) newS =>
     EStateM.Result.error
-      (Exception.revertFailure toRevert decl { lctx := lctx, mctx := mctx, env := s.env })
+      (Exception.revertFailure toRevert decl { lctx := lctx, mctx := mctx, env := s.env, opts := ctx.config.opts })
       { mctx := newS.mctx, ngen := newS.ngen, .. s }
 
 def mkForall (xs : Array Expr) (e : Expr) : MetaM Expr :=

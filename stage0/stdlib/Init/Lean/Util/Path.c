@@ -283,7 +283,6 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; size_t x_7; size_t x_8; le
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 2);
 x_6 = lean_array_get_size(x_1);
-lean_inc(x_4);
 x_7 = lean_string_hash(x_4);
 x_8 = lean_usize_modn(x_7, x_6);
 lean_dec(x_6);
@@ -305,7 +304,6 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_dec(x_2);
 x_15 = lean_array_get_size(x_1);
-lean_inc(x_12);
 x_16 = lean_string_hash(x_12);
 x_17 = lean_usize_modn(x_16, x_15);
 lean_dec(x_15);
@@ -453,7 +451,6 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; le
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
 x_7 = lean_array_get_size(x_6);
-lean_inc(x_2);
 x_8 = lean_string_hash(x_2);
 x_9 = lean_usize_modn(x_8, x_7);
 x_10 = lean_array_uget(x_6, x_9);
@@ -504,7 +501,6 @@ lean_inc(x_21);
 lean_inc(x_20);
 lean_dec(x_1);
 x_22 = lean_array_get_size(x_21);
-lean_inc(x_2);
 x_23 = lean_string_hash(x_2);
 x_24 = lean_usize_modn(x_23, x_22);
 x_25 = lean_array_uget(x_21, x_24);
@@ -1595,14 +1591,12 @@ _start:
 lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_array_get_size(x_3);
-lean_inc(x_2);
 x_5 = lean_string_hash(x_2);
 x_6 = lean_usize_modn(x_5, x_4);
 lean_dec(x_4);
 x_7 = lean_array_uget(x_3, x_6);
 x_8 = l_AssocList_find___main___at_Lean_findOLean___spec__2(x_2, x_7);
 lean_dec(x_7);
-lean_dec(x_2);
 return x_8;
 }
 }
@@ -1642,7 +1636,6 @@ lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec(x_7);
-lean_inc(x_8);
 x_10 = l_HashMapImp_find_x3f___at_Lean_findOLean___spec__1(x_6, x_8);
 lean_dec(x_6);
 if (lean_obj_tag(x_10) == 0)
@@ -1691,7 +1684,6 @@ lean_inc(x_25);
 x_26 = lean_ctor_get(x_24, 1);
 lean_inc(x_26);
 lean_dec(x_24);
-lean_inc(x_25);
 x_27 = l_HashMapImp_find_x3f___at_Lean_findOLean___spec__1(x_22, x_25);
 lean_dec(x_22);
 if (lean_obj_tag(x_27) == 0)
@@ -1770,6 +1762,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_HashMapImp_find_x3f___at_Lean_findOLean___spec__1(x_1, x_2);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }

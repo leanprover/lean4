@@ -657,7 +657,7 @@ return x_3;
 case 5:
 {
 lean_object* x_4; 
-x_4 = lean_ctor_get(x_1, 3);
+x_4 = lean_ctor_get(x_1, 1);
 x_1 = x_4;
 goto _start;
 }
@@ -808,7 +808,7 @@ return x_3;
 case 5:
 {
 lean_object* x_4; 
-x_4 = lean_ctor_get(x_1, 3);
+x_4 = lean_ctor_get(x_1, 1);
 x_1 = x_4;
 goto _start;
 }

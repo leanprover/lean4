@@ -217,7 +217,6 @@ _start:
 {
 size_t x_3; size_t x_4; size_t x_5; lean_object* x_6; 
 x_3 = l_Lean_Name_hash(x_1);
-lean_inc(x_2);
 x_4 = lean_string_hash(x_2);
 x_5 = lean_usize_mix_hash(x_3, x_4);
 x_6 = lean_alloc_ctor(1, 2, sizeof(size_t)*1);

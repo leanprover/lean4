@@ -18,8 +18,16 @@ class MonadTracerAdapter (m : Type → Type) :=
 (isTracingEnabledFor {} : Name → m Bool)
 (addContext {} : MessageData → m MessageData)
 (enableTracing {} : Bool → m Bool)
-(getTraces {} : m (Array MessageData))
-(modifyTraces {} : (Array MessageData → Array MessageData) → m Unit)
+(getTraces {} : m (PersistentArray MessageData))
+(modifyTraces {} : (PersistentArray MessageData → PersistentArray MessageData) → m Unit)
+
+private def checkTraceOptionAux (opts : Options) : Name → Bool
+| n@(Name.str p _ _) => opts.getBool n || (!opts.contains n && checkTraceOptionAux p)
+| _                  => false
+
+def checkTraceOption (opts : Options) (cls : Name) : Bool :=
+if opts.isEmpty then false
+else checkTraceOptionAux opts (`trace ++ cls)
 
 namespace MonadTracerAdapter
 
@@ -28,14 +36,14 @@ variables {m : Type → Type}
 variables [Monad m] [MonadTracerAdapter m]
 variables {α : Type}
 
-private def addNode (oldTraces : Array MessageData) (cls : Name) : m Unit :=
+private def addNode (oldTraces : PersistentArray MessageData) (cls : Name) : m Unit :=
 modifyTraces $ fun traces =>
-  let d := MessageData.tagged cls (MessageData.node traces);
+  let d := MessageData.tagged cls (MessageData.node traces.toArray);
   oldTraces.push d
 
-private def getResetTraces : m (Array MessageData) := do
+private def getResetTraces : m (PersistentArray MessageData) := do
 oldTraces ← getTraces;
-modifyTraces $ fun _ => #[];
+modifyTraces $ fun _ => {};
 pure oldTraces
 
 def addTrace (cls : Name) (msg : MessageData) : m Unit := do
@@ -93,13 +101,20 @@ instance monadTracerAdapterExcept {ε : Type} {m : Type → Type} [Monad m] [Mon
 
 structure TraceState :=
 (enabled : Bool := true)
-(traces  : Array MessageData := #[])
+(traces  : PersistentArray MessageData := {})
 
 namespace TraceState
 
 instance : Inhabited TraceState := ⟨{}⟩
 
-instance : HasFormat TraceState := ⟨fun s => Format.joinArraySep s.traces Format.line⟩
+private def toFormat (traces : PersistentArray MessageData) (sep : Format) : Format :=
+traces.size.fold
+  (fun i r =>
+    let curr := format $ traces.get! i;
+    if i > 0 then r ++ sep ++ curr else r ++ curr)
+  Format.nil
+
+instance : HasFormat TraceState := ⟨fun s => toFormat s.traces Format.line⟩
 
 instance : HasToString TraceState := ⟨toString ∘ fmt⟩
 
@@ -114,19 +129,14 @@ class SimpleMonadTracerAdapter (m : Type → Type) :=
 namespace SimpleMonadTracerAdapter
 variables {m : Type → Type} [Monad m] [SimpleMonadTracerAdapter m]
 
-private def checkTraceOptionAux (opts : Options) : Name → Bool
-| n@(Name.str p _ _) => opts.getBool n || (!opts.contains n && checkTraceOptionAux p)
-| _                  => false
-
-private def checkTraceOption (optName : Name) : m Bool := do
+private def checkTraceOptionM (cls : Name) : m Bool := do
 opts ← getOptions;
-if opts.isEmpty then pure false
-else pure $ checkTraceOptionAux opts optName
+pure $ checkTraceOption opts cls
 
 @[inline] def isTracingEnabledFor (cls : Name) : m Bool := do
 s ← getTraceState;
 if !s.enabled then pure false
-else checkTraceOption (`trace ++ cls)
+else checkTraceOptionM cls
 
 @[inline] def enableTracing (b : Bool) : m Bool := do
 s ← getTraceState;
@@ -134,13 +144,13 @@ let oldEnabled := s.enabled;
 modifyTraceState $ fun s => { enabled := b, .. s };
 pure oldEnabled
 
-@[inline] def getTraces : m (Array MessageData) := do
+@[inline] def getTraces : m (PersistentArray MessageData) := do
 s ← getTraceState; pure s.traces
 
-@[inline] def modifyTraces (f : Array MessageData → Array MessageData) : m Unit :=
+@[inline] def modifyTraces (f : PersistentArray MessageData → PersistentArray MessageData) : m Unit :=
 modifyTraceState $ fun s => { traces := f s.traces, .. s }
 
-@[inline] def setTrace (f : Array MessageData → Array MessageData) : m Unit :=
+@[inline] def setTrace (f : PersistentArray MessageData → PersistentArray MessageData) : m Unit :=
 modifyTraceState $ fun s => { traces := f s.traces, .. s }
 
 @[inline] def setTraceState (s : TraceState) : m Unit :=

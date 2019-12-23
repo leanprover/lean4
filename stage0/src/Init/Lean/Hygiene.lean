@@ -55,17 +55,15 @@ mkNameNum n scp
     processing of a file). It uses the state monad to query and allocate the
     next macro scope, and uses the reader monad to store the stack of scopes
     corresponding to `withFreshMacroScope` calls. -/
-abbrev Unhygienic := ReaderT (List Nat) $ StateM Nat
+abbrev Unhygienic := ReaderT MacroScope $ StateM MacroScope
 namespace Unhygienic
 instance MonadQuotation : MonadQuotation Unhygienic := {
-  getCurrMacroScope := do
-    stack ← read;
-    pure stack.head!,
+  getCurrMacroScope := read,
   withFreshMacroScope := fun α x => do
     fresh ← modifyGet (fun n => (n, n + 1));
-    adaptReader (fun stack => fresh::stack) x
+    adaptReader (fun _ => fresh) x
 }
-protected def run {α : Type} (x : Unhygienic α) : α := run x [0] 1
+protected def run {α : Type} (x : Unhygienic α) : α := run x 0 1
 end Unhygienic
 
 instance monadQuotationTrans {m n : Type → Type} [MonadQuotation m] [HasMonadLift m n] [MonadFunctorT m m n n] : MonadQuotation n :=

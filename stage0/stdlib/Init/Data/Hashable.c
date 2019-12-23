@@ -58,6 +58,7 @@ _start:
 {
 size_t x_2; lean_object* x_3; 
 x_2 = lean_string_hash(x_1);
+lean_dec(x_1);
 x_3 = lean_box_usize(x_2);
 return x_3;
 }

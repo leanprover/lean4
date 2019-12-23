@@ -45,15 +45,10 @@ case 0:
 {
 lean_object* x_2; lean_object* x_3; size_t x_4; size_t x_5; size_t x_6; size_t x_7; size_t x_8; 
 x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
-lean_dec(x_1);
 x_4 = 5237;
 x_5 = l_Lean_Name_hash(x_2);
-lean_dec(x_2);
 x_6 = lean_usize_of_nat(x_3);
-lean_dec(x_3);
 x_7 = lean_usize_mix_hash(x_5, x_6);
 x_8 = lean_usize_mix_hash(x_4, x_7);
 return x_8;
@@ -62,15 +57,10 @@ case 1:
 {
 lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; size_t x_13; size_t x_14; size_t x_15; 
 x_9 = lean_ctor_get(x_1, 0);
-lean_inc(x_9);
 x_10 = lean_ctor_get(x_1, 1);
-lean_inc(x_10);
-lean_dec(x_1);
 x_11 = 3541;
 x_12 = l_Lean_Name_hash(x_9);
-lean_dec(x_9);
 x_13 = lean_usize_of_nat(x_10);
-lean_dec(x_10);
 x_14 = lean_usize_mix_hash(x_12, x_13);
 x_15 = lean_usize_mix_hash(x_11, x_14);
 return x_15;
@@ -79,8 +69,6 @@ case 2:
 {
 lean_object* x_16; size_t x_17; size_t x_18; size_t x_19; 
 x_16 = lean_ctor_get(x_1, 0);
-lean_inc(x_16);
-lean_dec(x_1);
 x_17 = 1879;
 x_18 = l_Lean_Literal_hash(x_16);
 x_19 = lean_usize_mix_hash(x_17, x_18);
@@ -106,6 +94,7 @@ _start:
 {
 size_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Meta_DiscrTree_Key_hash(x_1);
+lean_dec(x_1);
 x_3 = lean_box_usize(x_2);
 return x_3;
 }

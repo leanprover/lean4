@@ -295,18 +295,29 @@ partial def reprint : Syntax → Option String
 
 open Lean.Format
 
-protected partial def formatStx : Syntax → Format
-| atom info val     => format $ repr val
-| ident _ _ val pre => format "`" ++ format val
-| node kind args    =>
+partial def formatStxAux (maxDepth : Option Nat) : Nat → Syntax → Format
+| _,     atom info val     => format $ repr val
+| _,     ident _ _ val pre => format "`" ++ format val
+| _,     missing           => "<missing>"
+| depth, node kind args    =>
+  let depth := depth + 1;
   if kind == `Lean.Parser.noKind then
-    sbracket $ joinSep (args.toList.map formatStx) line
+    sbracket $
+      if depth > maxDepth.getD depth then
+        ".."
+      else
+        joinSep (args.toList.map (formatStxAux depth)) line
   else
     let shorterName := kind.replacePrefix `Lean.Parser Name.anonymous;
-    paren $ joinSep ((format shorterName) :: args.toList.map formatStx) line
-| missing => "<missing>"
+    let header      := format shorterName;
+    let body : List Format :=
+      if depth > maxDepth.getD depth then [".."] else args.toList.map (formatStxAux depth);
+    paren $ joinSep (header :: body) line
 
-instance : HasFormat (Syntax)   := ⟨Syntax.formatStx⟩
+def formatStx (stx : Syntax) (maxDepth : Option Nat := none) : Format :=
+formatStxAux maxDepth 0 stx
+
+instance : HasFormat (Syntax)   := ⟨formatStx⟩
 instance : HasToString (Syntax) := ⟨toString ∘ format⟩
 
 end Syntax

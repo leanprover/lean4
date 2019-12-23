@@ -13,10 +13,10 @@ namespace Term
   Given syntax of the forms
     a) (`:` term)?
     b) `:` term
-  into `term` if it is present, or a hole if not. -/
+  return `term` if it is present, or a hole if not. -/
 private def expandBinderType (stx : Syntax) : Syntax :=
 if stx.getNumArgs == 0 then
-  mkHole
+  mkHole stx
 else
   stx.getArg 1
 
@@ -43,7 +43,7 @@ withNode stx $ fun node => do
   if k == `Lean.Parser.Term.simpleBinder then
     -- binderIdent+
     let ids  := (node.getArg 0).getArgs;
-    let type := mkHole;
+    let type := mkHole stx;
     ids.mapM $ fun id => do id ← expandBinderIdent id; pure { id := id, type := type, bi := BinderInfo.default }
   else if k == `Lean.Parser.Term.explicitBinder then
     -- `(` binderIdent+ binderType (binderDefault <|> binderTactic)? `)`
@@ -64,20 +64,11 @@ withNode stx $ fun node => do
   else
     throwError stx "term elaborator failed, unexpected binder syntax"
 
-@[inline] def withLCtx {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TermElabM α) : TermElabM α :=
-adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts, .. ctx }) x
-
-def resetSynthInstanceCache : TermElabM Unit :=
-modify $ fun s => { cache := { synthInstance := {}, .. s.cache }, .. s }
-
-@[inline] def resettingSynthInstanceCache {α} (x : TermElabM α) : TermElabM α := do
+def mkFreshFVarId : TermElabM Name := do
 s ← get;
-let savedSythInstance := s.cache.synthInstance;
-resetSynthInstanceCache;
-finally x (modify $ fun s => { cache := { synthInstance := savedSythInstance, .. s.cache }, .. s })
-
-@[inline] def resettingSynthInstanceCacheWhen {α} (b : Bool) (x : TermElabM α) : TermElabM α :=
-if b then resettingSynthInstanceCache x else x
+let id := s.ngen.curr;
+modify $ fun s => { ngen := s.ngen.next, .. s };
+pure id
 
 private partial def elabBinderViews (binderViews : Array BinderView)
     : Nat → Array Expr → LocalContext → LocalInstances → TermElabM (Array Expr × LocalContext × LocalInstances)
@@ -86,7 +77,7 @@ private partial def elabBinderViews (binderViews : Array BinderView)
     let binderView := binderViews.get ⟨i, h⟩;
     withLCtx lctx localInsts $ do
       type       ← elabType binderView.type;
-      fvarId     ← mkFreshId;
+      fvarId     ← mkFreshFVarId;
       let fvar  := mkFVar fvarId;
       let fvars := fvars.push fvar;
       -- dbgTrace (toString binderView.id.getId ++ " : " ++ toString type);
@@ -115,12 +106,14 @@ private partial def elabBindersAux (binders : Array Syntax)
   Elaborate the given binders (i.e., `Syntax` objects for `simpleBinder <|> bracktedBinder`),
   update the local context, set of local instances, reset instance chache (if needed), and then
   execute `x` with the updated context. -/
-def elabBinders {α} (binders : Array Syntax) (x : Array Expr → TermElabM α) : TermElabM α := do
-lctx ← getLCtx;
-localInsts ← getLocalInsts;
-(fvars, lctx, newLocalInsts) ← elabBindersAux binders 0 #[] lctx localInsts;
-resettingSynthInstanceCacheWhen (newLocalInsts.size > localInsts.size) $
-  adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := newLocalInsts, .. ctx }) (x fvars)
+def elabBinders {α} (binders : Array Syntax) (x : Array Expr → TermElabM α) : TermElabM α :=
+if binders.isEmpty then x #[]
+else do
+  lctx ← getLCtx;
+  localInsts ← getLocalInsts;
+  (fvars, lctx, newLocalInsts) ← elabBindersAux binders 0 #[] lctx localInsts;
+  resettingSynthInstanceCacheWhen (newLocalInsts.size > localInsts.size) $ withLCtx lctx newLocalInsts $
+    x fvars
 
 @[inline] def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
 elabBinders #[binder] (fun fvars => x (fvars.get! 1))
@@ -167,7 +160,7 @@ private partial def getFunBinderIdsAux? : Bool → Syntax → Array Syntax → T
     | _       => pure none
 
 /--
-  Auxiliary functions for converting `Term.app ... (Term.app id_1 id_2) ... id_n` into #[id_1, ..., id_m]`
+  Auxiliary functions for converting `Term.app ... (Term.app id_1 id_2) ... id_n` into `#[id_1, ..., id_m]`
   It is used at `expandFunBinders`. -/
 private def getFunBinderIds? (stx : Syntax) : TermElabM (Option (Array Syntax)) :=
 getFunBinderIdsAux? false stx #[]
@@ -180,7 +173,7 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
     let processAsPattern : Unit → TermElabM (Array Syntax × Syntax) := fun _ => do {
       let pattern := binder;
       ident ← mkFreshAnonymousIdent binder;
-      (binders, newBody) ← expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder ident mkHole);
+      (binders, newBody) ← expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder ident (mkHole binder));
       let major := mkTermIdFromIdent ident;
       newBody ← `(match $major with | $pattern => $newBody);
       pure (binders, newBody)
@@ -211,7 +204,7 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
       match binder.isTermId? with
       | some (ident, extra) => do
         unless extra.isNone $ throwError binder "invalid binder, simple identifier expected";
-        let type  := mkHole;
+        let type  := mkHole binder;
         expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder ident type)
       | none => processAsPattern ()
   else
@@ -223,7 +216,7 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
   parser! unicodeSymbol "λ" "fun" >> many1 (termParser appPrec) >> unicodeSymbol "⇒" "=>" >> termParser
   ```
   to allow notation such as `fun (a, b) => a + b`, where `(a, b)` should be treated as a pattern.
-  The result is pair `(explicitBinders, newBody)`, where `explicitBinders` is syntax of the form
+  The result is a pair `(explicitBinders, newBody)`, where `explicitBinders` is syntax of the form
   ```
   `(` ident `:` term `)`
   ```
@@ -244,6 +237,68 @@ fun stx expectedType? => do
     -- TODO: expected type
     e ← elabTerm body none;
     mkLambda stx.val xs e
+
+def withLetDecl {α} (ref : Syntax) (n : Name) (type : Expr) (val : Expr) (k : Expr → TermElabM α) : TermElabM α := do
+fvarId ← mkFreshFVarId;
+ctx ← read;
+let lctx       := ctx.lctx.mkLetDecl fvarId n type val;
+let localInsts := ctx.localInstances;
+let fvar       := mkFVar fvarId;
+c? ← isClass ref type;
+match c? with
+| some c => adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts.push { className := c, fvar := fvar }, .. ctx }) $ k fvar
+| none   => adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $ k fvar
+
+def expandOptType (ref : Syntax) (optType : Syntax) : Syntax :=
+if optType.isNone then
+  mkHole ref
+else
+  optType.getArg 1
+
+def elabLetIdDecl (ref : Syntax) (decl body : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+-- `decl` is of the form: ident bracktedBinder+ (`:` term)? `:=` term
+let n        := decl.getIdAt 0;
+let binders  := (decl.getArg 1).getArgs;
+let type     := expandOptType ref (decl.getArg 2);
+let val      := decl.getArg 4;
+(type, val) ← elabBinders binders $ fun xs => do {
+  type ← elabType type;
+  val  ← elabTerm val type;
+  type ← mkForall ref xs type;
+  val  ← mkLambda ref xs val;
+  pure (type, val)
+};
+trace `Elab.let.decl ref $ fun _ => n ++ " : " ++ type ++ " := " ++ val;
+withLetDecl ref n type val $ fun x => do
+  body ← elabTerm body expectedType?;
+  body ← instantiateMVars ref body;
+  mkLet ref x body
+
+def elabLetEqnsDecl (ref : Syntax) (decl body : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
+throwError decl "not implemented yet"
+
+def elabLetPatDecl (ref : Syntax) (decl body : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
+throwError decl "not implemented yet"
+
+@[builtinTermElab «let»] def elabLet : TermElab :=
+fun stx expectedType? => do
+  -- `let` decl `;` body
+  let ref      := stx.val;
+  let decl     := stx.getArg 1;
+  let body     := stx.getArg 3;
+  let declKind := decl.getKind;
+  if declKind == `Lean.Parser.Term.letIdDecl then
+    elabLetIdDecl ref decl body expectedType?
+  else if declKind == `Lean.Parser.Term.letEqns then
+    elabLetEqnsDecl ref decl body expectedType?
+  else if declKind == `Lean.Parser.Term.letPatDecl then
+    elabLetPatDecl ref decl body expectedType?
+  else
+    throwError ref "unknown let-declaration kind"
+
+@[init] private def regTraceClasses : IO Unit := do
+registerTraceClass `Elab.let;
+pure ()
 
 end Term
 end Elab

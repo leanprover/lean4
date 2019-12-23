@@ -69,6 +69,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = x_4;
+lean_dec(x_3);
 return x_5;
 }
 }

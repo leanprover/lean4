@@ -207,10 +207,10 @@ def isCtor : ConstantInfo → Bool
 | _          => false
 
 @[extern "lean_instantiate_type_lparams"]
-constant instantiateTypeLevelParams (c : ConstantInfo) (ls : List Level) : Expr := arbitrary _
+constant instantiateTypeLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr := arbitrary _
 
 @[extern "lean_instantiate_value_lparams"]
-constant instantiateValueLevelParams (c : ConstantInfo) (ls : List Level) : Expr := arbitrary _
+constant instantiateValueLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr := arbitrary _
 
 end ConstantInfo
 end Lean

@@ -19,43 +19,53 @@ fileName ++ ":" ++ toString line ++ ":" ++ toString col ++ " " ++ toString msg
 inductive MessageSeverity
 | information | warning | error
 
+structure MessageDataContext :=
+(env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options)
+
 /- Structure message data. We use it for reporting errors, trace messages, etc. -/
 inductive MessageData
-| ofFormat : Format → MessageData
-| ofSyntax : Syntax → MessageData
-| ofExpr   : Expr → MessageData
-| ofLevel  : Level → MessageData
-| ofName   : Name  → MessageData
-/- `context env mctx lctx d` specifies the pretty printing context `(env, mctx, lctx)` for the nested expressions in `d`. -/
-| context  : Environment → MetavarContext → LocalContext → MessageData → MessageData
+| ofFormat    : Format → MessageData
+| ofSyntax    : Syntax → MessageData
+| ofExpr      : Expr → MessageData
+| ofLevel     : Level → MessageData
+| ofName      : Name  → MessageData
+/- `withContext ctx d` specifies the pretty printing context `(env, mctx, lctx, opts)` for the nested expressions in `d`. -/
+| withContext : MessageDataContext → MessageData → MessageData
 /- Lifted `Format.nest` -/
-| nest     : Nat → MessageData → MessageData
+| nest        : Nat → MessageData → MessageData
 /- Lifted `Format.group` -/
-| group    : MessageData → MessageData
+| group       : MessageData → MessageData
 /- Lifted `Format.compose` -/
-| compose  : MessageData → MessageData → MessageData
+| compose     : MessageData → MessageData → MessageData
 /- Tagged sections. `Name` should be viewed as a "kind", and is used by `MessageData` inspector functions.
    Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
-| tagged   : Name → MessageData → MessageData
-| node     : Array MessageData → MessageData
+| tagged      : Name → MessageData → MessageData
+| node        : Array MessageData → MessageData
 
 namespace MessageData
 
 instance : Inhabited MessageData := ⟨MessageData.ofFormat (arbitrary _)⟩
 
-partial def formatAux : Option (Environment × MetavarContext × LocalContext) → MessageData → Format
-| _, ofFormat fmt                  => fmt
-| _, ofSyntax s                    => s.formatStx
-| _, ofLevel u                     => fmt u
-| _, ofName n                      => fmt n
-| none, ofExpr e                   => format (toString e)
-| some (env, mctx, lctx), ofExpr e => format (toString (mctx.instantiateMVars e).1) -- TODO: invoke pretty printer
-| _, context env mctx lctx d       => formatAux (some (env, mctx, lctx)) d
-| ctx, tagged cls d                => Format.sbracket (format cls) ++ " " ++ formatAux ctx d
-| ctx, nest n d                    => Format.nest n (formatAux ctx d)
-| ctx, compose d₁ d₂               => formatAux ctx d₁ ++ formatAux ctx d₂
-| ctx, group d                     => Format.group (formatAux ctx d)
-| ctx, node ds                     => Format.nest 2 $ ds.foldl (fun r d => r ++ Format.line ++ formatAux ctx d) Format.nil
+@[init] def stxMaxDepthOption : IO Unit :=
+registerOption `syntaxMaxDepth { defValue := (2 : Nat), group := "", descr := "maximum depth when displaying syntax objects in messages" }
+
+def getSyntaxMaxDepth (opts : Options) : Nat :=
+opts.getNat `syntaxMaxDepth 2
+
+partial def formatAux : Option MessageDataContext → MessageData → Format
+| _,         ofFormat fmt      => fmt
+| _,         ofLevel u         => fmt u
+| _,         ofName n          => fmt n
+| some ctx,  ofSyntax s        => s.formatStx (getSyntaxMaxDepth ctx.opts)
+| none,      ofSyntax s        => s.formatStx
+| none,      ofExpr e          => format (toString e)
+| some ctx,  ofExpr e          => format (toString (ctx.mctx.instantiateMVars e).1) -- TODO: invoke pretty printer
+| _,         withContext ctx d => formatAux (some ctx) d
+| ctx,       tagged cls d      => Format.sbracket (format cls) ++ " " ++ formatAux ctx d
+| ctx,       nest n d          => Format.nest n (formatAux ctx d)
+| ctx,       compose d₁ d₂     => formatAux ctx d₁ ++ formatAux ctx d₂
+| ctx,       group d           => Format.group (formatAux ctx d)
+| ctx,       node ds           => Format.nest 2 $ ds.foldl (fun r d => r ++ Format.line ++ formatAux ctx d) Format.nil
 
 instance : HasAppend MessageData := ⟨compose⟩
 
@@ -121,32 +131,35 @@ instance : HasToString Message :=
 end Message
 
 structure MessageLog :=
--- messages are stored in reverse for efficient append
-(revList : List Message := [])
+(msgs : PersistentArray Message := {})
 
 namespace MessageLog
 def empty : MessageLog := ⟨{}⟩
 
 def isEmpty (log : MessageLog) : Bool :=
-log.revList.isEmpty
+log.msgs.isEmpty
 
 instance : Inhabited MessageLog := ⟨{}⟩
 
 def add (msg : Message) (log : MessageLog) : MessageLog :=
-⟨msg :: log.revList⟩
+⟨log.msgs.push msg⟩
 
 protected def append (l₁ l₂ : MessageLog) : MessageLog :=
-⟨l₂.revList ++ l₁.revList⟩
+⟨l₁.msgs ++ l₂.msgs⟩
 
 instance : HasAppend MessageLog :=
 ⟨MessageLog.append⟩
 
 def hasErrors (log : MessageLog) : Bool :=
-log.revList.any $ fun m => match m.severity with
+log.msgs.any $ fun m => match m.severity with
 | MessageSeverity.error => true
 | _                     => false
 
+def forM {m : Type → Type} [Monad m] (log : MessageLog) (f : Message → m Unit) : m Unit :=
+log.msgs.forM f
+
 def toList (log : MessageLog) : List Message :=
-log.revList.reverse
+(log.msgs.foldl (fun acc msg => msg :: acc) []).reverse
+
 end MessageLog
 end Lean

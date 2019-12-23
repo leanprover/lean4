@@ -540,6 +540,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_instantiate_type_lparams(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -548,6 +550,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_instantiate_value_lparams(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }

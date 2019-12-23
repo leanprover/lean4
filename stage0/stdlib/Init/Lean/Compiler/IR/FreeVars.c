@@ -55,6 +55,7 @@ lean_object* l___private_Init_Lean_Compiler_IR_FreeVars_3__collectVar(lean_objec
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_FreeVars_13__skip___rarg___boxed(lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_FreeVars_16__collectJP(lean_object*, lean_object*, lean_object*);
+lean_object* l_PersistentHashMap_forM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_FreeVars_23__collectArray___at___private_Init_Lean_Compiler_IR_FreeVars_24__collectArgs___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_FreeVars_6__collectArg___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_FreeVars_7__collectArray(lean_object*);
@@ -132,10 +133,8 @@ lean_object* l___private_Init_Lean_Compiler_IR_FreeVars_5__seq(lean_object*, lea
 uint8_t l_Lean_IR_FnBody_hasFreeVar(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_FreeVars_9__collectParam(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_FreeVars_11__collectExpr(lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_Compiler_IR_FreeVars_7__collectArray___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_FreeVars_23__collectArray___at___private_Init_Lean_Compiler_IR_FreeVars_24__collectArgs___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_FreeVars_14__collectIndex___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_Compiler_IR_FreeVars_7__collectArray___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_HasIndex_visitParams___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_MaxIndex_collectDecl(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_FreeVars_25__collectExpr(lean_object*, lean_object*, lean_object*);
@@ -301,19 +300,11 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l___private_Init_Lean_Compiler_IR_FreeVars_7__collectArray___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_apply_2(x_1, x_3, x_4);
-return x_5;
-}
-}
 lean_object* l___private_Init_Lean_Compiler_IR_FreeVars_7__collectArray___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_4 = lean_alloc_closure((void*)(l___private_Init_Lean_Compiler_IR_FreeVars_7__collectArray___rarg___lambda__1___boxed), 4, 1);
+x_4 = lean_alloc_closure((void*)(l_PersistentHashMap_forM___rarg___lambda__1___boxed), 4, 1);
 lean_closure_set(x_4, 0, x_2);
 x_5 = l_Id_Monad;
 x_6 = lean_unsigned_to_nat(0u);
@@ -327,15 +318,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l___private_Init_Lean_Compiler_IR_FreeVars_7__collectArray___rarg), 3, 0);
 return x_2;
-}
-}
-lean_object* l___private_Init_Lean_Compiler_IR_FreeVars_7__collectArray___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l___private_Init_Lean_Compiler_IR_FreeVars_7__collectArray___rarg___lambda__1(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
-return x_5;
 }
 }
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Compiler_IR_FreeVars_8__collectArgs___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

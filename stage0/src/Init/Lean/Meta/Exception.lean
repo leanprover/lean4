@@ -11,8 +11,7 @@ import Init.Lean.Util.Message
 namespace Lean
 namespace Meta
 
-structure ExceptionContext :=
-(env : Environment) (mctx : MetavarContext) (lctx : LocalContext)
+abbrev ExceptionContext := MessageDataContext
 
 inductive Bug
 | overwritingExprMVar (mvarId : Name)
@@ -67,8 +66,8 @@ def toStr : Exception → String
 
 instance : HasToString Exception := ⟨toStr⟩
 
-def mkCtx (c : ExceptionContext) (m : MessageData) : MessageData :=
-MessageData.context c.env c.mctx c.lctx m
+def mkCtx (ctx : ExceptionContext) (m : MessageData) : MessageData :=
+MessageData.withContext ctx m
 
 /-- Generate trace message that is suitable for tracing crawlers -/
 def toTraceMessageData : Exception → MessageData

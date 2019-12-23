@@ -3939,8 +3939,6 @@ if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec(x_1);
 x_6 = l_Lean_PersistentEnvExtension_getState___rarg(x_5, x_2);
 x_7 = l_Lean_NameSet_contains(x_6, x_3);
 lean_dec(x_6);
@@ -3953,8 +3951,6 @@ x_8 = lean_ctor_get(x_4, 0);
 lean_inc(x_8);
 lean_dec(x_4);
 x_9 = lean_ctor_get(x_1, 1);
-lean_inc(x_9);
-lean_dec(x_1);
 x_10 = l_Lean_PersistentEnvExtension_getModuleEntries___rarg(x_9, x_2, x_8);
 lean_dec(x_8);
 x_11 = lean_array_get_size(x_10);
@@ -3975,6 +3971,7 @@ uint8_t x_4; lean_object* x_5;
 x_4 = l_Lean_TagAttribute_hasTag(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 x_5 = lean_box(x_4);
 return x_5;
 }
@@ -5882,8 +5879,6 @@ if (lean_obj_tag(x_5) == 0)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 lean_dec(x_1);
 x_6 = lean_ctor_get(x_2, 1);
-lean_inc(x_6);
-lean_dec(x_2);
 x_7 = l_Lean_PersistentEnvExtension_getState___rarg(x_6, x_3);
 x_8 = l_RBNode_find___main___at_Lean_ParametricAttribute_getParam___spec__1___rarg(x_7, x_4);
 lean_dec(x_4);
@@ -5897,8 +5892,6 @@ x_9 = lean_ctor_get(x_5, 0);
 lean_inc(x_9);
 lean_dec(x_5);
 x_10 = lean_ctor_get(x_2, 1);
-lean_inc(x_10);
-lean_dec(x_2);
 x_11 = l_Lean_PersistentEnvExtension_getModuleEntries___rarg(x_10, x_3, x_9);
 lean_dec(x_9);
 lean_inc(x_1);
@@ -5984,6 +5977,7 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_ParametricAttribute_getParam___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
+lean_dec(x_2);
 return x_5;
 }
 }
@@ -6071,7 +6065,6 @@ if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = lean_ctor_get(x_1, 1);
-lean_inc(x_6);
 lean_inc(x_6);
 x_7 = l_Lean_PersistentEnvExtension_getState___rarg(x_6, x_2);
 x_8 = l_RBNode_find___main___at_Lean_ParametricAttribute_setParam___spec__1___rarg(x_7, x_3);
@@ -8180,8 +8173,6 @@ if (lean_obj_tag(x_5) == 0)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 lean_dec(x_1);
 x_6 = lean_ctor_get(x_2, 1);
-lean_inc(x_6);
-lean_dec(x_2);
 x_7 = l_Lean_PersistentEnvExtension_getState___rarg(x_6, x_3);
 x_8 = l_RBNode_find___main___at_Lean_EnumAttributes_getValue___spec__1___rarg(x_7, x_4);
 lean_dec(x_4);
@@ -8195,8 +8186,6 @@ x_9 = lean_ctor_get(x_5, 0);
 lean_inc(x_9);
 lean_dec(x_5);
 x_10 = lean_ctor_get(x_2, 1);
-lean_inc(x_10);
-lean_dec(x_2);
 x_11 = l_Lean_PersistentEnvExtension_getModuleEntries___rarg(x_10, x_3, x_9);
 lean_dec(x_9);
 lean_inc(x_1);
@@ -8282,6 +8271,7 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_EnumAttributes_getValue___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
+lean_dec(x_2);
 return x_5;
 }
 }
@@ -8363,7 +8353,6 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_6 = lean_ctor_get(x_1, 1);
 lean_inc(x_6);
 lean_dec(x_1);
-lean_inc(x_6);
 x_7 = l_Lean_PersistentEnvExtension_getState___rarg(x_6, x_2);
 x_8 = l_RBNode_find___main___at_Lean_EnumAttributes_setValue___spec__1___rarg(x_7, x_3);
 lean_dec(x_7);

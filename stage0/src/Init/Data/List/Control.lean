@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 prelude
 import Init.Control.Monad
 import Init.Control.Alternative
+import Init.Data.List.Basic
 
 namespace List
 universes u v w u₁ u₂
@@ -81,9 +82,17 @@ def forA₂ {m : Type u → Type v} [Applicative m] {α : Type u₁} {β : Type 
 | _,     _     => pure ⟨⟩
 
 @[specialize]
-def filterM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) : List α → m (List α)
-| []     => pure []
-| h :: t => do b ← f h; t' ← filterM t; cond b (pure (h :: t')) (pure t')
+def filterAuxM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) : List α → List α → m (List α)
+| [],     acc => pure acc
+| h :: t, acc => do b ← f h; filterAuxM t (cond b (h :: acc) acc)
+
+@[inline]
+def filterM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) (as : List α) : m (List α) :=
+do as ← filterAuxM f as []; pure as.reverse
+
+@[inline]
+def filterRevM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) (as : List α) : m (List α) :=
+filterAuxM f as.reverse []
 
 @[specialize]
 def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (s → α → m s) → s → List α → m s

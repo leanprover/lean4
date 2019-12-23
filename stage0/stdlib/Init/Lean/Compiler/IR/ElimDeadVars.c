@@ -177,7 +177,6 @@ else
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_7 = lean_array_fget(x_2, x_1);
 x_8 = lean_box(0);
-lean_inc(x_7);
 x_9 = x_8;
 x_10 = lean_array_fset(x_2, x_1, x_9);
 x_11 = lean_unsigned_to_nat(1u);
@@ -212,6 +211,7 @@ block_17:
 {
 lean_object* x_14; lean_object* x_15; 
 x_14 = x_13;
+lean_dec(x_7);
 x_15 = lean_array_fset(x_10, x_1, x_14);
 lean_dec(x_1);
 x_1 = x_12;
@@ -241,7 +241,6 @@ else
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_7 = lean_array_fget(x_2, x_1);
 x_8 = lean_box(0);
-lean_inc(x_7);
 x_9 = x_8;
 x_10 = lean_array_fset(x_2, x_1, x_9);
 x_11 = lean_unsigned_to_nat(1u);
@@ -258,6 +257,7 @@ x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_13);
 lean_ctor_set(x_16, 1, x_15);
 x_17 = x_16;
+lean_dec(x_7);
 x_18 = lean_array_fset(x_10, x_1, x_17);
 lean_dec(x_1);
 x_1 = x_12;
@@ -273,6 +273,7 @@ x_21 = l_Lean_IR_FnBody_elimDead___main(x_20);
 x_22 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_22, 0, x_21);
 x_23 = x_22;
+lean_dec(x_7);
 x_24 = lean_array_fset(x_10, x_1, x_23);
 lean_dec(x_1);
 x_1 = x_12;

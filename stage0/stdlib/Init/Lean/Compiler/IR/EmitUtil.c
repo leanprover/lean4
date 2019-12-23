@@ -40,6 +40,7 @@ lean_object* l_Array_iterateMAux___main___at_Lean_IR_CollectMaps_collectParams__
 lean_object* l_HashMapImp_moveEntries___main___at_Lean_IR_CollectMaps_collectVar___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_replace___main___at_Lean_IR_CollectMaps_collectVar___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_contains___main___at_Lean_IR_CollectMaps_collectJP___spec__2___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_Syntax_formatStxAux___main___closed__4;
 lean_object* l_Lean_IR_AltCore_body(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -85,7 +86,6 @@ lean_object* l_Lean_IR_FnBody_body(lean_object*);
 lean_object* l_Lean_IR_UsesLeanNamespace_visitFnBody(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_CollectMaps_collectVar(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_CollectMaps_collectParams___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_Syntax_formatStx___main___closed__4;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t l_Lean_IR_isTailCallTo(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -166,7 +166,7 @@ lean_object* _init_l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Syntax_formatStx___main___closed__4;
+x_1 = l_Lean_Syntax_formatStxAux___main___closed__4;
 return x_1;
 }
 }
@@ -676,17 +676,17 @@ else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_9 = lean_array_fget(x_1, x_2);
-x_10 = lean_unsigned_to_nat(1u);
-x_11 = lean_nat_add(x_2, x_10);
-lean_dec(x_2);
-x_12 = l_Lean_IR_AltCore_body(x_9);
+x_10 = l_Lean_IR_AltCore_body(x_9);
 lean_dec(x_9);
-x_13 = l_Lean_IR_CollectUsedDecls_collectFnBody___main(x_12, x_3, x_4);
-x_14 = lean_ctor_get(x_13, 1);
-lean_inc(x_14);
-lean_dec(x_13);
-x_2 = x_11;
-x_4 = x_14;
+x_11 = l_Lean_IR_CollectUsedDecls_collectFnBody___main(x_10, x_3, x_4);
+x_12 = lean_ctor_get(x_11, 1);
+lean_inc(x_12);
+lean_dec(x_11);
+x_13 = lean_unsigned_to_nat(1u);
+x_14 = lean_nat_add(x_2, x_13);
+lean_dec(x_2);
+x_2 = x_14;
+x_4 = x_12;
 goto _start;
 }
 }

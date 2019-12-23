@@ -214,12 +214,12 @@ def take : Nat → List α → List α
 | n+1, []    => []
 | n+1, a::as => a :: take n as
 
-@[specialize] def foldl (f : α → β → α) : α → List β → α
+@[specialize] def foldl (f : α → β → α) : forall (init : α), List β → α
 | a, []     => a
 | a, b :: l => foldl (f a b) l
 
-@[specialize] def foldr (f : α → β → β) (b : β) : List α → β
-| []     => b
+@[specialize] def foldr (f : α → β → β) (init : β) : List α → β
+| []     => init
 | a :: l => f a (foldr l)
 
 @[specialize] def foldr1 (f : α → α → α) : ∀ (xs : List α), xs ≠ [] → α

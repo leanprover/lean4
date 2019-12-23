@@ -79,6 +79,7 @@ lean_object* l_Lean_Parser_checkLeadingFn(lean_object*, lean_object*, lean_objec
 lean_object* l_Lean_Parser_strAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_satisfyFn___at_Lean_Parser_rawCh___elambda__1___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
+extern lean_object* l_Lean_Syntax_formatStxAux___main___closed__5;
 lean_object* l_Lean_Syntax_foldArgsAuxM___main___at_Array_foldSepBy___spec__1(lean_object*);
 lean_object* l_Lean_Syntax_foldArgsAuxM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_rawFn___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -481,7 +482,6 @@ lean_object* l_Lean_Parser_takeUntilFn___main___at_Lean_Parser_quotedSymbolFn___
 uint8_t l_Array_anyRangeMAux___main___at_Lean_Parser_mkTokenTableAttribute___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_declareTrailingBuiltinParser(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_hashAndthen(uint8_t);
-extern lean_object* l_Lean_Syntax_formatStx___main___closed__5;
 lean_object* l_Lean_Parser_takeUntilFn___main___at_Lean_Parser_octalNumberFn___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Parser_Parser_3__rawAux___boxed(lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
@@ -24420,6 +24420,7 @@ lean_ctor_set(x_32, 1, x_30);
 lean_ctor_set(x_32, 2, x_31);
 lean_inc(x_24);
 x_33 = x_24;
+lean_dec(x_32);
 x_34 = lean_array_push(x_26, x_33);
 x_35 = lean_io_ref_set(x_13, x_34, x_29);
 if (lean_obj_tag(x_35) == 0)
@@ -24649,6 +24650,7 @@ x_29 = l_Lean_EnvExtensionState_inhabited;
 x_30 = l_Lean_PersistentEnvExtension_inhabited___rarg(x_29);
 lean_inc(x_23);
 x_31 = x_23;
+lean_dec(x_30);
 x_32 = lean_array_push(x_25, x_31);
 x_33 = lean_io_ref_set(x_3, x_32, x_28);
 if (lean_obj_tag(x_33) == 0)
@@ -24865,6 +24867,7 @@ x_84 = l_Lean_EnvExtensionState_inhabited;
 x_85 = l_Lean_PersistentEnvExtension_inhabited___rarg(x_84);
 lean_inc(x_78);
 x_86 = x_78;
+lean_dec(x_85);
 x_87 = lean_array_push(x_80, x_86);
 x_88 = lean_io_ref_set(x_3, x_87, x_83);
 if (lean_obj_tag(x_88) == 0)
@@ -25587,6 +25590,7 @@ x_5 = l_Lean_Parser_tokenTableAttribute;
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
 x_7 = l_Lean_PersistentEnvExtension_getState___rarg(x_6, x_1);
+lean_dec(x_6);
 x_8 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_8, 0, x_2);
 lean_ctor_set(x_8, 1, x_3);
@@ -26848,7 +26852,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_nameToExprAux___main___closed__4;
-x_2 = l_Lean_Syntax_formatStx___main___closed__5;
+x_2 = l_Lean_Syntax_formatStxAux___main___closed__5;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -27068,7 +27072,7 @@ goto block_31;
 else
 {
 lean_object* x_47; uint8_t x_48; 
-x_47 = l_Lean_Syntax_formatStx___main___closed__5;
+x_47 = l_Lean_Syntax_formatStxAux___main___closed__5;
 x_48 = lean_string_dec_eq(x_42, x_47);
 lean_dec(x_42);
 if (x_48 == 0)
@@ -27214,7 +27218,7 @@ goto block_31;
 else
 {
 lean_object* x_70; uint8_t x_71; 
-x_70 = l_Lean_Syntax_formatStx___main___closed__5;
+x_70 = l_Lean_Syntax_formatStxAux___main___closed__5;
 x_71 = lean_string_dec_eq(x_65, x_70);
 lean_dec(x_65);
 if (x_71 == 0)
@@ -28751,6 +28755,7 @@ x_6 = lean_ctor_get(x_3, 1);
 lean_inc(x_6);
 x_7 = l_Lean_PersistentEnvExtension_getState___rarg(x_5, x_6);
 lean_dec(x_6);
+lean_dec(x_5);
 x_8 = lean_ctor_get(x_1, 2);
 lean_inc(x_8);
 lean_dec(x_1);

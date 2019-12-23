@@ -37,7 +37,7 @@ def Expr.hasSyntheticSorry : Expr → Bool
 
 partial def MessageData.hasSorry : MessageData → Bool
 | MessageData.ofExpr e          => e.hasSorry
-| MessageData.context _ _ _ msg => msg.hasSorry
+| MessageData.withContext _ msg => msg.hasSorry
 | MessageData.nest _ msg        => msg.hasSorry
 | MessageData.group msg         => msg.hasSorry
 | MessageData.compose msg₁ msg₂ => msg₁.hasSorry || msg₂.hasSorry
@@ -47,7 +47,7 @@ partial def MessageData.hasSorry : MessageData → Bool
 
 partial def MessageData.hasSyntheticSorry : MessageData → Bool
 | MessageData.ofExpr e          => e.hasSyntheticSorry
-| MessageData.context _ _ _ msg => msg.hasSyntheticSorry
+| MessageData.withContext _ msg => msg.hasSyntheticSorry
 | MessageData.nest _ msg        => msg.hasSyntheticSorry
 | MessageData.group msg         => msg.hasSyntheticSorry
 | MessageData.compose msg₁ msg₂ => msg₁.hasSyntheticSorry || msg₂.hasSyntheticSorry

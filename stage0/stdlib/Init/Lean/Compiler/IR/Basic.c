@@ -2499,7 +2499,6 @@ else
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_8 = lean_array_fget(x_3, x_2);
 x_9 = lean_box(0);
-lean_inc(x_8);
 x_10 = x_9;
 x_11 = lean_array_fset(x_3, x_2, x_10);
 x_12 = lean_unsigned_to_nat(1u);
@@ -2535,6 +2534,7 @@ block_18:
 {
 lean_object* x_15; lean_object* x_16; 
 x_15 = x_14;
+lean_dec(x_8);
 x_16 = lean_array_fset(x_11, x_2, x_15);
 lean_dec(x_2);
 x_2 = x_13;
@@ -2612,7 +2612,6 @@ else
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_12 = lean_array_fget(x_4, x_3);
 x_13 = lean_box(0);
-lean_inc(x_12);
 x_14 = x_13;
 x_15 = lean_array_fset(x_4, x_3, x_14);
 x_16 = lean_ctor_get(x_1, 1);
@@ -2702,6 +2701,7 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Array_umapMAux___main___at_Lean_IR_mmodifyJPs___spec__1___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_7;
 }

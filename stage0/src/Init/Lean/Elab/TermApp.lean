@@ -33,7 +33,7 @@ instance NamedArg.hasToString : HasToString NamedArg :=
 instance NamedArg.inhabited : Inhabited NamedArg := ⟨{ name := arbitrary _, val := arbitrary _ }⟩
 
 /--
-  Added a new named argument to `namedArgs`, and throw erros if it already contains a named argument
+  Add a new named argument to `namedArgs`, and throw an error if it already contains a named argument
   with the same name. -/
 def addNamedArg (ref : Syntax) (namedArgs : Array NamedArg) (namedArg : NamedArg) : TermElabM (Array NamedArg) := do
 when (namedArgs.any $ fun namedArg' => namedArg.name == namedArg'.name) $
@@ -111,6 +111,8 @@ private partial def elabAppArgsAux (ref : Syntax) (args : Array Arg) (expectedTy
 private def elabAppArgs (ref : Syntax) (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit : Bool) : TermElabM Expr := do
 fType ← inferType ref f;
+fType ← instantiateMVars ref fType;
+tryPostponeIfMVar fType;
 let argIdx    := 0;
 let instMVars := #[];
 elabAppArgsAux ref args expectedType? explicit argIdx namedArgs instMVars fType f
@@ -152,7 +154,8 @@ match eType.getAppFn, lval with
     | none   => throwLValError ref e eType $
       "invalid field notation, '" ++ fieldName ++ "' is not a valid \"field\" because environment does not contain '" ++ fullName ++ "'"
   };
-  let searchLCtx : Unit → TermElabM LValResolution := fun _ => do {
+  -- search local context first, then environment
+  let searchCtx : Unit → TermElabM LValResolution := fun _ => do {
     let fullName := structName ++ fieldName;
     currNamespace ← getCurrNamespace;
     let localName := fullName.replacePrefix currNamespace Name.anonymous;
@@ -169,9 +172,9 @@ match eType.getAppFn, lval with
   if isStructure env structName then
     match findField? env structName fieldName with
     | some baseStructName => pure $ LValResolution.projFn baseStructName structName fieldName
-    | none                => searchLCtx ()
+    | none                => searchCtx ()
   else
-    searchLCtx ()
+    searchCtx ()
 | Expr.const structName _ _, LVal.getOp idx => do
   env ← getEnv;
   let fullName := mkNameStr structName "getOp";
@@ -218,17 +221,24 @@ match getPathToBaseStructure? env baseStructName structName with
 /- Auxiliary method for field notation. It tries to add `e` to `args` as the first explicit parameter
    which takes an element of type `(C ...)` where `C` is `baseName`.
    `fullName` is the name of the resolved "field" access function. It is used for reporting errors -/
-private def addLValArg (ref : Syntax) (baseName : Name) (fullName : Name) (e : Expr) (args : Array Arg) : Nat → Expr → TermElabM (Array Arg)
-| i, Expr.forallE _ d b c =>
+private def addLValArg (ref : Syntax) (baseName : Name) (fullName : Name) (e : Expr) (args : Array Arg) : Nat → Array NamedArg → Expr → TermElabM (Array Arg)
+| i, namedArgs, Expr.forallE n d b c =>
   if !c.binderInfo.isExplicit then
-    addLValArg i b
-  else if d.isAppOf baseName then
-    pure $ args.insertAt i (Arg.expr e)
-  else if i < args.size then
-    addLValArg (i+1) b
+    addLValArg i namedArgs b
   else
-    throwError ref $ "invalid field notation, insufficient number of arguments for '" ++ fullName ++ "'"
-| _, fType =>
+    /- If there is named argument with name `n`, then we should skip. -/
+    match namedArgs.findIdx? (fun namedArg => namedArg.name == n) with
+    | some idx => do
+      let namedArgs := namedArgs.eraseIdx idx;
+      addLValArg i namedArgs b
+    | none =>
+      if d.isAppOf baseName then
+        pure $ args.insertAt i (Arg.expr e)
+      else if i < args.size then
+        addLValArg (i+1) namedArgs b
+      else
+        throwError ref $ "invalid field notation, insufficient number of arguments for '" ++ fullName ++ "'"
+| _, _, fType =>
   throwError ref $
     "invalid field notation, function '" ++ fullName ++ "' does not have explicit argument with type (" ++ baseName ++ " ...)"
 
@@ -254,7 +264,7 @@ private def elabAppLValsAux (ref : Syntax) (namedArgs : Array NamedArg) (args : 
     projFn ← mkConst ref constName;
     if lvals.isEmpty then do
       projFnType ← inferType ref projFn;
-      args ← addLValArg ref baseName constName f args 0 projFnType;
+      args ← addLValArg ref baseName constName f args 0 namedArgs projFnType;
       elabAppArgs ref projFn namedArgs args expectedType? explicit
     else do
       f ← elabAppArgs ref projFn #[] #[Arg.expr f] none false;
@@ -262,7 +272,7 @@ private def elabAppLValsAux (ref : Syntax) (namedArgs : Array NamedArg) (args : 
   | LValResolution.localRec baseName fullName fvar =>
     if lvals.isEmpty then do
       fvarType ← inferType ref fvar;
-      args ← addLValArg ref baseName fullName f args 0 fvarType;
+      args ← addLValArg ref baseName fullName f args 0 namedArgs fvarType;
       elabAppArgs ref fvar namedArgs args expectedType? explicit
     else do
       f ← elabAppArgs ref fvar #[] #[Arg.expr f] none false;
@@ -357,8 +367,9 @@ else
     applyResult $ successes.get! 0
   else if successes.size > 1 then do
     lctx ← getLCtx;
+    opts ← getOptions;
     let msgs : Array MessageData := successes.map $ fun success => match success with
-      | EStateM.Result.ok e s => MessageData.context s.env s.mctx lctx e
+      | EStateM.Result.ok e s => MessageData.withContext { env := s.env, mctx := s.mctx, lctx := lctx, opts := opts } e
       | _                     => unreachable!;
     throwError f ("ambiguous, possible interpretations " ++ MessageData.ofArray msgs)
   else

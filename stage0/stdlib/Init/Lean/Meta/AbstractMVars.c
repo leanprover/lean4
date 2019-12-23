@@ -3489,7 +3489,6 @@ else
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_10 = lean_array_fget(x_2, x_1);
 x_11 = lean_box(0);
-lean_inc(x_10);
 x_12 = x_11;
 x_13 = lean_array_fset(x_2, x_1, x_12);
 x_14 = l_Lean_Meta_mkFreshLevelMVar___rarg(x_4);
@@ -3501,6 +3500,7 @@ lean_dec(x_14);
 x_17 = lean_unsigned_to_nat(1u);
 x_18 = lean_nat_add(x_1, x_17);
 x_19 = x_15;
+lean_dec(x_10);
 x_20 = lean_array_fset(x_13, x_1, x_19);
 lean_dec(x_1);
 x_1 = x_18;

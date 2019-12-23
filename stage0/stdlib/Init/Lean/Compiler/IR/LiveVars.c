@@ -43,6 +43,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_RBNode_erase___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_IR_collectLiveVars(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_IsLive_visitArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_PersistentHashMap_forM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_LiveVars_7__collectJP___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_LiveVars_9__bindParams(lean_object*, lean_object*);
 lean_object* l_Lean_IR_LiveVars_collectFnBody___main(lean_object*, lean_object*, lean_object*);
@@ -94,7 +95,6 @@ lean_object* l___private_Init_Lean_Compiler_IR_LiveVars_8__bindVar___boxed(lean_
 lean_object* l_Lean_IR_IsLive_visitVar(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_IsLive_visitFnBody___main(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_LiveVars_4__collectArray(lean_object*);
-lean_object* l___private_Init_Lean_Compiler_IR_FreeVars_7__collectArray___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_RBNode_isBlack___rarg(lean_object*);
 lean_object* l_Lean_IR_LiveVars_updateJPLiveVarMap(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -3125,7 +3125,7 @@ lean_object* l___private_Init_Lean_Compiler_IR_LiveVars_4__collectArray___rarg(l
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_4 = lean_alloc_closure((void*)(l___private_Init_Lean_Compiler_IR_FreeVars_7__collectArray___rarg___lambda__1___boxed), 4, 1);
+x_4 = lean_alloc_closure((void*)(l_PersistentHashMap_forM___rarg___lambda__1___boxed), 4, 1);
 lean_closure_set(x_4, 0, x_2);
 x_5 = l_Id_Monad;
 x_6 = lean_unsigned_to_nat(0u);

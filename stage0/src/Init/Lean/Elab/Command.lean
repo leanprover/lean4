@@ -21,7 +21,7 @@ structure Context :=
 structure Scope :=
 (kind          : String)
 (header        : String)
-(options       : Options := {})
+(opts          : Options := {})
 (currNamespace : Name := Name.anonymous)
 (openDecls     : List OpenDecl := [])
 (univNames     : List Name := [])
@@ -38,7 +38,7 @@ structure State :=
 instance State.inhabited : Inhabited State := ⟨{ env := arbitrary _ }⟩
 
 def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State :=
-{ env := env, messages := messages, scopes := [{ kind := "root", header := "", options := opts }] }
+{ env := env, messages := messages, scopes := [{ kind := "root", header := "", opts := opts }] }
 
 abbrev CommandElabM := ReaderT Context (EStateM Exception State)
 abbrev CommandElab  := SyntaxNode → CommandElabM Unit
@@ -103,7 +103,7 @@ stx.ifNode
 
 private def mkTermContext (ctx : Context) (s : State) : Term.Context :=
 let scope := s.scopes.head!;
-{ config         := { opts := scope.options, foApprox := true, ctxApprox := true, quasiPatternApprox := true, isDefEqStuckEx := true },
+{ config         := { opts := scope.opts, foApprox := true, ctxApprox := true, quasiPatternApprox := true, isDefEqStuckEx := true },
   fileName       := ctx.fileName,
   fileMap        := ctx.fileMap,
   cmdPos         := s.cmdPos,
@@ -125,7 +125,7 @@ match result with
 | EStateM.Result.error Term.Exception.postpone newS   => unreachable!
 
 @[inline] def runTermElabM {α} (x : TermElabM α) : CommandElabM α :=
-fun ctx s => toCommandResult ctx s $ Term.tracingAtPos s.cmdPos (Term.elabBinders (getVarDecls s) (fun _ => x)) (mkTermContext ctx s) (mkTermState s)
+fun ctx s => toCommandResult ctx s $ (Term.elabBinders (getVarDecls s) (fun _ => x)) (mkTermContext ctx s) (mkTermState s)
 
 def dbgTrace {α} [HasToString α] (a : α) : CommandElabM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()
@@ -138,6 +138,9 @@ modify $ fun s => { env := newEnv, .. s }
 
 def getScope : CommandElabM Scope := do
 s ← get; pure s.scopes.head!
+
+def getOptions : CommandElabM Options := do
+scope ← getScope; pure scope.opts
 
 def getCurrNamespace : CommandElabM Name := do
 scope ← getScope; pure scope.currNamespace
@@ -230,7 +233,9 @@ fun stx => do
   env ← getEnv;
   match env.addDecl Declaration.quotDecl with
   | Except.ok env   => setEnv env
-  | Except.error ex => throwError stx.val ex.toMessageData
+  | Except.error ex => do
+    opts ← getOptions;
+    throwError stx.val (ex.toMessageData opts)
 
 def getOpenDecls : CommandElabM (List OpenDecl) := do
 scope ← getScope; pure scope.openDecls

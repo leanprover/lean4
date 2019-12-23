@@ -1949,8 +1949,6 @@ if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec(x_1);
 x_6 = l_Lean_PersistentEnvExtension_getState___rarg(x_5, x_2);
 x_7 = l_RBNode_find___main___at_Lean_isIOUnitInitFn___spec__2(x_6, x_3);
 lean_dec(x_3);
@@ -1964,8 +1962,6 @@ x_8 = lean_ctor_get(x_4, 0);
 lean_inc(x_8);
 lean_dec(x_4);
 x_9 = lean_ctor_get(x_1, 1);
-lean_inc(x_9);
-lean_dec(x_1);
 x_10 = l_Lean_PersistentEnvExtension_getModuleEntries___rarg(x_9, x_2, x_8);
 lean_dec(x_8);
 x_11 = lean_box(0);
@@ -2077,6 +2073,7 @@ _start:
 lean_object* x_4; 
 x_4 = l_Lean_ParametricAttribute_getParam___at_Lean_isIOUnitInitFn___spec__1(x_1, x_2, x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_4;
 }
 }

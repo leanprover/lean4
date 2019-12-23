@@ -3693,15 +3693,15 @@ else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_9 = lean_array_fget(x_1, x_2);
-x_10 = lean_unsigned_to_nat(1u);
-x_11 = lean_nat_add(x_2, x_10);
+x_10 = l_Lean_IR_addDecl(x_9, x_3, x_4);
+x_11 = lean_ctor_get(x_10, 1);
+lean_inc(x_11);
+lean_dec(x_10);
+x_12 = lean_unsigned_to_nat(1u);
+x_13 = lean_nat_add(x_2, x_12);
 lean_dec(x_2);
-x_12 = l_Lean_IR_addDecl(x_9, x_3, x_4);
-x_13 = lean_ctor_get(x_12, 1);
-lean_inc(x_13);
-lean_dec(x_12);
-x_2 = x_11;
-x_4 = x_13;
+x_2 = x_13;
+x_4 = x_11;
 goto _start;
 }
 }

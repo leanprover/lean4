@@ -547,6 +547,18 @@ e.looseBVarRange > 0
 @[extern "lean_expr_has_loose_bvar"]
 constant hasLooseBVar (e : @& Expr) (bvarIdx : @& Nat) : Bool := arbitrary _
 
+/--
+  Lower the loose bound variables `>= s` in `e` by `d`.
+  That is, a loose bound variable `bvar i`.
+  `i >= s` is mapped into `bvar (i-d)`. -/
+@[extern "lean_expr_lower_loose_bvars"]
+constant lowerLooseBVars (e : @& Expr) (s d : @& Nat) : Expr := arbitrary _
+
+/--
+  Lift loose bound variables `>= s` in `e` by `d`. -/
+@[extern "lean_expr_lift_loose_bvars"]
+constant liftLooseBVars (e : @& Expr) (s d : @& Nat) : Expr := arbitrary _
+
 /-- Instantiate the loose bound variables in `e` using `subst`.
     That is, a loose `Expr.bvar i` is replaced with `subst[i]`. -/
 @[extern "lean_expr_instantiate"]
@@ -562,12 +574,12 @@ constant instantiateRev (e : @& Expr) (subst : @& Array Expr) : Expr := arbitrar
 /-- Similar to `instantiate`, but consider only the variables `xs` in the range `[beginIdx, endIdx)`.
     Function panics if `beginIdx <= endIdx <= xs.size` does not hold. -/
 @[extern "lean_expr_instantiate_range"]
-constant instantiateRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : Array Expr) : Expr := arbitrary _
+constant instantiateRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : @& Array Expr) : Expr := arbitrary _
 
 /-- Similar to `instantiateRev`, but consider only the variables `xs` in the range `[beginIdx, endIdx)`.
     Function panics if `beginIdx <= endIdx <= xs.size` does not hold. -/
 @[extern "lean_expr_instantiate_rev_range"]
-constant instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : Array Expr) : Expr := arbitrary _
+constant instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : @& Array Expr) : Expr := arbitrary _
 
 /-- Replace free variables `xs` with loose bound variables. -/
 @[extern "lean_expr_abstract"]

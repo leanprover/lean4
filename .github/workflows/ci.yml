@@ -26,7 +26,10 @@ jobs:
             CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Debug
           - name: Linux fsanitize
             os: ubuntu-latest
-            CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined
+            # do one sanitized build of the stdlib
+            build-stage2: true
+            # turn off custom allocator to make LSAN do its magic
+            CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined -DSMALL_ALLOCATOR=OFF
           - name: Linux LLVM=ON
             os: ubuntu-latest
             CMAKE_OPTIONS: -DLLVM=ON
@@ -86,6 +89,9 @@ jobs:
         run: msys2do cd build; ctest -j --output-on-failure ^< /dev/null
         shell: cmd
         if: matrix.os == 'windows-latest'
+      - name: Build Stage 2
+        run: nix-shell --run "cd build; make -j4 lean_stage2"
+        if: matrix.build-stage2 || matrix.check-stage3
       - name: Check Stage 3
         run: nix-shell --run "cd build; make -j4 check-stage3"
         if: matrix.check-stage3

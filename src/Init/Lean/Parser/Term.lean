@@ -46,12 +46,15 @@ def dollarSymbol {k : ParserKind} : Parser k := symbol "$" 1
 -- forms can also be used with an appended `*` to turn them into an
 -- antiquotation "splice". If `kind` is given, it will additionally be checked
 -- when evaluating `match_syntax`.
-def mkAntiquot (name : String) (kind : Option SyntaxNodeKind) (anonymous := false) : Parser leading :=
+def mkAntiquot {k : ParserKind} (name : String) (kind : Option SyntaxNodeKind) (anonymous := false) : Parser k :=
 let kind := (kind.getD Name.anonymous) ++ `antiquot;
 let sym := ":" ++ name;
 let nameP := checkNoWsBefore ("no space before '" ++ sym ++ "'") >> coe sym;
-leadingNode kind $ dollarSymbol >> checkNoWsBefore "no space before" >> termParser appPrec >>
+node kind $ try $ dollarSymbol >> checkNoWsBefore "no space before" >> termParser appPrec >>
   (if anonymous then optional nameP else nameP) >> optional "*"
+
+-- shadow `ident` parser with one with antiquotation support
+def ident {k : ParserKind} : Parser k := mkAntiquot "ident" `ident <|> Parser.ident
 
 /- Built-in parsers -/
 def explicitUniv   := parser! ".{" >> sepBy1 levelParser ", " >> "}"
@@ -109,7 +112,7 @@ def matchAlt := parser! " | " >> sepBy1 termParser ", " >> unicodeSymbol "⇒" "
 @[builtinTermParser] def borrowed   := parser! symbol "@&" appPrec >> termParser (appPrec - 1)
 @[builtinTermParser] def quotedName := parser! symbol "`" appPrec >> rawIdent
 @[builtinTermParser] def stxQuot    := parser! symbol "`(" appPrec >> termParser >> ")"
-@[builtinTermParser] def antiquot   := mkAntiquot "term" none true
+@[builtinTermParser] def antiquot   := (mkAntiquot "term" none true : Parser)
 @[builtinTermParser] def «match_syntax» := parser! "match_syntax" >> termParser >> " with " >> many1Indent matchAlt "'match_syntax' alternatives must be indented"
 
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/

@@ -131,10 +131,6 @@ def getId : Syntax → Name
 | ident _ _ val _ => val
 | _               => Name.anonymous
 
-def isOfKind : Syntax → SyntaxNodeKind → Bool
-| node kind _, k => k == kind
-| _,           _ => false
-
 def asNode : Syntax → SyntaxNode
 | Syntax.node kind args => ⟨Syntax.node kind args, IsNode.mk kind args⟩
 | _                     => ⟨Syntax.node nullKind #[], IsNode.mk nullKind #[]⟩
@@ -172,7 +168,14 @@ def getIdAt (stx : Syntax) (i : Nat) : Name :=
 (stx.getArg i).getId
 
 def getKind (stx : Syntax) : SyntaxNodeKind :=
-stx.asNode.getKind
+match stx with
+| Syntax.node k args   => k
+-- We use these "pseudo kinds" for antiquotation kinds.
+-- For example, an antiquotation `$id:ident` (using Lean.Parser.Term.ident)
+-- is compiled to ``if stx.isOfKind `ident ...``
+| Syntax.missing       => `missing
+| Syntax.atom _ v      => v
+| Syntax.ident _ _ _ _ => `ident
 
 @[specialize] partial def mreplace {m : Type → Type} [Monad m] (fn : Syntax → m (Option Syntax)) : Syntax → m (Syntax)
 | stx@(node kind args) => do
@@ -181,6 +184,9 @@ stx.asNode.getKind
   | some stx => pure stx
   | none     => do args ← args.mapM mreplace; pure (node kind args)
 | stx => do o ← fn stx; pure $ o.getD stx
+
+def isOfKind : Syntax → SyntaxNodeKind → Bool
+| stx, k => stx.getKind == k
 
 @[specialize] partial def mrewriteBottomUp {m : Type → Type} [Monad m] (fn : Syntax → m (Syntax)) : Syntax → m (Syntax)
 | node kind args   => do

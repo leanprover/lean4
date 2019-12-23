@@ -25,5 +25,9 @@ end Syntax
 
 #eval run $ do params ← #[`(a), `((b : Nat))].mapM id; `(fun $params* => 1)
 #eval run $ do a ← `(fun (a : Nat) b => c); match_syntax a with `(fun $aa* => $e) => pure aa | _ => pure #[]
+#eval run $ do a ← `(∀ a, c); match_syntax a with `(∀ $id:ident, $e) => pure id | _ => pure a
+#eval run $ do a ← `(∀ _, c); match_syntax a with `(∀ $id:ident, $e) => pure id | _ => pure a
+#eval run $ do a ← `(a); match_syntax a with `($id:ident) => pure id | _ => pure a
+#eval run $ do a ← `(a.{0}); match_syntax a with `($id:ident) => pure id | _ => pure a
 
 end Lean

@@ -42,18 +42,16 @@ pushLeading >> symbol sym lbp >> termParser lbp
 
 def dollarSymbol {k : ParserKind} : Parser k := symbol "$" 1
 
--- Define parser for `$e` (if name = none) or `$e:n` (if name = some n). Both
+-- Define parser for `$e` (if anonymous == true) and `$e:name`. Both
 -- forms can also be used with an appended `*` to turn them into an
 -- antiquotation "splice". If `kind` is given, it will additionally be checked
 -- when evaluating `match_syntax`.
-def mkAntiquot (name : Option String) (kind : Option SyntaxNodeKind) : Parser leading :=
+def mkAntiquot (name : String) (kind : Option SyntaxNodeKind) (anonymous := false) : Parser leading :=
 let kind := (kind.getD Name.anonymous) ++ `antiquot;
-leadingNode kind $ dollarSymbol >> checkNoWsBefore "no space before" >> termParser appPrec >> (
-  match name with
-  | some name => let sym := ":" ++ name; checkNoWsBefore ("no space before '" ++ sym ++ "'") >> sym
-  -- make sure to generate as many children (1) as in the first case to keep arity constant
-  | none      => { info := epsilonInfo, fn := fun a c s => s.mkNode nullKind s.stackSize }
-) >> optional "*"
+let sym := ":" ++ name;
+let nameP := checkNoWsBefore ("no space before '" ++ sym ++ "'") >> coe sym;
+leadingNode kind $ dollarSymbol >> checkNoWsBefore "no space before" >> termParser appPrec >>
+  (if anonymous then optional nameP else nameP) >> optional "*"
 
 /- Built-in parsers -/
 def explicitUniv   := parser! ".{" >> sepBy1 levelParser ", " >> "}"
@@ -111,7 +109,7 @@ def matchAlt := parser! " | " >> sepBy1 termParser ", " >> unicodeSymbol "⇒" "
 @[builtinTermParser] def borrowed   := parser! symbol "@&" appPrec >> termParser (appPrec - 1)
 @[builtinTermParser] def quotedName := parser! symbol "`" appPrec >> rawIdent
 @[builtinTermParser] def stxQuot    := parser! symbol "`(" appPrec >> termParser >> ")"
-@[builtinTermParser] def antiquot   := mkAntiquot none none
+@[builtinTermParser] def antiquot   := mkAntiquot "term" none true
 @[builtinTermParser] def «match_syntax» := parser! "match_syntax" >> termParser >> " with " >> many1Indent matchAlt "'match_syntax' alternatives must be indented"
 
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/

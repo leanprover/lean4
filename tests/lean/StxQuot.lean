@@ -14,6 +14,7 @@ namespace Syntax
 #eval run $ let id := Syntax.missing; `($id + 1)
 end Syntax
 #eval run `(1 + 1)
+#eval run $ `(fun a => a) >>= pure
 #eval run $ do a ← `(Nat.one); `($a)
 #eval run $ do a ← `(Nat.one); `(f $a $a)
 #eval run $ do a ← `(Nat.one); `(f $ f $a 1)

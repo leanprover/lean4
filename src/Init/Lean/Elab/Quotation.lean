@@ -390,7 +390,7 @@ let c := Parser.mkParserContextCore env input "<foo>";
 let c := c.toParserContext env;
 let s := Parser.mkParserState c.input;
 let s := s.setPos pos;
-let s := (Parser.termParser : Parser.Parser).fn (0 : Nat) c s;
+let s := (Parser.termParser Parser.appPrec : Parser.Parser).fn Parser.appPrec c s;
 let stx := s.stxStack.back;
 match s.errorMsg with
 | some errorMsg =>

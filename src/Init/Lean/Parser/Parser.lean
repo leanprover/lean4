@@ -215,15 +215,6 @@ inductive FirstTokens
 
 namespace FirstTokens
 
-def merge : FirstTokens → FirstTokens → FirstTokens
-| epsilon,      tks          => tks
-| tks,          epsilon      => tks
-| tokens s₁,    tokens s₂    => tokens (s₁ ++ s₂)
-| optTokens s₁, optTokens s₂ => optTokens (s₁ ++ s₂)
-| tokens s₁,    optTokens s₂ => tokens (s₁ ++ s₂)
-| optTokens s₁, tokens s₂    => tokens (s₁ ++ s₂)
-| _,            _            => unknown
-
 def seq : FirstTokens → FirstTokens → FirstTokens
 | epsilon,      tks          => tks
 | optTokens s₁, optTokens s₂ => optTokens (s₁ ++ s₂)
@@ -233,6 +224,15 @@ def seq : FirstTokens → FirstTokens → FirstTokens
 def toOptional : FirstTokens → FirstTokens
 | tokens tks => optTokens tks
 | tks        => tks
+
+def merge : FirstTokens → FirstTokens → FirstTokens
+| epsilon,      tks          => toOptional tks
+| tks,          epsilon      => toOptional tks
+| tokens s₁,    tokens s₂    => tokens (s₁ ++ s₂)
+| optTokens s₁, optTokens s₂ => optTokens (s₁ ++ s₂)
+| tokens s₁,    optTokens s₂ => optTokens (s₁ ++ s₂)
+| optTokens s₁, tokens s₂    => optTokens (s₁ ++ s₂)
+| _,            _            => unknown
 
 def toStr : FirstTokens → String
 | epsilon       => "epsilon"

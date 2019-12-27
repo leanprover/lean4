@@ -30,5 +30,6 @@ end Syntax
 #eval run $ do a ← `(∀ _, c); match_syntax a with `(∀ $id:ident, $e) => pure id | _ => pure a
 #eval run $ do a ← `(a); match_syntax a with `($id:ident) => pure id | _ => pure a
 #eval run $ do a ← `(a.{0}); match_syntax a with `($id:ident) => pure id | _ => pure a
+#eval run $ do a ← `(match a with | a => 1 | _ => 2); match_syntax a with `(match $e with $eqns:matchAlt*) => pure eqns | _ => pure #[]
 
 end Lean

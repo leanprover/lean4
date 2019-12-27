@@ -75,7 +75,7 @@ ys ← withFile fn2 Mode.read $ fun h => do
     pure ys };
 let rs := [xs₀ ++ xs₀ ++ "\n", xs₂ ++ "\n", xs₁ ++ "\n", xs₁ ++ "\n", ""];
 check_eq "2" rs ys;
-ys ← readFile fn2;
+ys ← IO.readFile fn2;
 check_eq "3" (String.join rs) ys;
 pure ()
 

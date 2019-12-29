@@ -605,7 +605,7 @@ s ← get;
 let len := s.syntheticMVars.length;
 newSyntheticMVars ← s.syntheticMVars.filterM $ fun mvarDecl =>
   match mvarDecl.kind with
-  | SyntheticMVarKind.withDefault defaultVal => do
+  | SyntheticMVarKind.withDefault defaultVal => withMVarContext mvarDecl.mvarId $ do
       val ← instantiateMVars mvarDecl.ref (mkMVar mvarDecl.mvarId);
       when val.getAppFn.isMVar $
         unlessM (isDefEq mvarDecl.ref val defaultVal) $

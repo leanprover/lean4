@@ -415,8 +415,8 @@ mkLevelIMax newLhs newRhs
 
 @[inline] def updateIMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
 match lvl with
-| max lhs rhs d => updateIMax (imax lhs rhs d) newLhs newRhs rfl
-| _             => panic! "imax level expected"
+| imax lhs rhs d => updateIMax (imax lhs rhs d) newLhs newRhs rfl
+| _              => panic! "imax level expected"
 
 @[specialize] def instantiateParams (s : Name → Option Level) : Level → Level
 | u@(zero _)       => u

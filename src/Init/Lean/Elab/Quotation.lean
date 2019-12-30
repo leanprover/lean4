@@ -209,6 +209,9 @@ else if pat.isOfKind `Lean.Parser.Term.stxQuot then
     --   let e := stx; ...
     let kind := if k == Name.anonymous then none else some k;
     let anti := quoted.getArg 1;
+    let anti := match_syntax anti with
+    | `(($e)) => e
+    | _       => anti;
     -- Splices should only appear inside a nullKind node, see next case
     if isAntiquotSplice quoted then unconditional $ fun _ => throwError quoted "unexpected antiquotation splice"
     else if anti.isOfKind `Lean.Parser.Term.id then { kind := kind, rhsFn :=  fun rhs => `(let $anti := discr; $rhs) }
@@ -271,6 +274,9 @@ private partial def getAntiquotVarsAux : Syntax → TermElabM (List Syntax)
 | stx@(Syntax.node k args) => do
   if isAntiquot stx then
     let anti := args.get! 1;
+    let anti := match_syntax anti with
+    | `(($e)) => e
+    | _       => anti;
     if anti.isOfKind `Lean.Parser.Term.id then pure [anti]
     else throwError anti "syntax_match: antiquotation must be variable"
   else

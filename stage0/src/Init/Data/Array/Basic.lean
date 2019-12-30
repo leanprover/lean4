@@ -343,6 +343,19 @@ iterateRevMAux a f a.size (Nat.leRefl _) b
 @[inline] def foldrM (f : α → β → m β) (init : β) (a : Array α) : m β :=
 iterateRevM a init (fun _ => f)
 
+@[specialize] private def foldrRangeMAux (a : Array α) (f : α → β → m β) (beginIdx : Nat) : ∀ (i : Nat), i ≤ a.size → β → m β
+| 0,   h, b => pure b
+| j+1, h, b => do
+  let i : Fin a.size := ⟨j, h⟩;
+  b ← f (a.get i) b;
+  if j == beginIdx then pure b else foldrRangeMAux j (Nat.leOfLt h) b
+
+@[inline] def foldrRangeM (beginIdx endIdx : Nat) (f : α → β → m β) (ini : β) (a : Array α) : m β :=
+if h : endIdx ≤ a.size then
+  foldrRangeMAux a f beginIdx endIdx h ini
+else
+  foldrRangeMAux a f beginIdx a.size (Nat.leRefl _) ini
+
 end
 
 @[inline] def iterateRev {β} (a : Array α) (b : β) (f : ∀ (i : Fin a.size), α → β → β) : β :=
@@ -350,6 +363,9 @@ Id.run $ iterateRevM a b f
 
 @[inline] def foldr {β} (f : α → β → β) (init : β) (a : Array α) : β :=
 Id.run $ foldrM f init a
+
+@[inline] def foldrRange {β} (beginIdx endIdx : Nat) (f : α → β → β) (init : β) (a : Array α) : β :=
+Id.run $ foldrRangeM beginIdx endIdx f init a
 
 def toList (a : Array α) : List α :=
 a.foldr List.cons []

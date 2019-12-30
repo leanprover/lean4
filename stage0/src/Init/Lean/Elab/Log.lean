@@ -10,61 +10,65 @@ import Init.Lean.Elab.Exception
 namespace Lean
 namespace Elab
 
-class MonadLog (m : Type → Type) :=
-(logMessage  {} : Message → m Unit)
+class MonadPosInfo (m : Type → Type) :=
 (getFileMap  {} : m FileMap)
 (getFileName {} : m String)
 (getCmdPos   {} : m String.Pos)
 
-export MonadLog (logMessage getFileMap getFileName getCmdPos)
+export MonadPosInfo (getFileMap getFileName getCmdPos)
 
-variables {m : Type → Type} [Monad m] [MonadLog m]
+class MonadLog (m : Type → Type) extends MonadPosInfo m :=
+(logMessage  {} : Message → m Unit)
 
-def getPosition (pos : Option String.Pos := none) : m Position := do
+export MonadLog (logMessage)
+
+variables {m : Type → Type} [Monad m]
+
+def getPosition [MonadPosInfo m] (pos : Option String.Pos := none) : m Position := do
 fileMap ← getFileMap;
 cmdPos ← getCmdPos;
 pure $ fileMap.toPosition (pos.getD cmdPos)
 
-def mkMessageAt (msgData : MessageData) (severity : MessageSeverity) (pos : Option String.Pos := none) : m Message := do
+def mkMessageAt [MonadPosInfo m] (msgData : MessageData) (severity : MessageSeverity) (pos : Option String.Pos := none) : m Message := do
 fileMap ← getFileMap;
 fileName ← getFileName;
 cmdPos ← getCmdPos;
 let pos := fileMap.toPosition (pos.getD cmdPos);
 pure { fileName := fileName, pos := pos, data := msgData, severity := severity }
 
-def getPos (stx : Syntax) : m String.Pos :=
+def getPos [MonadPosInfo m] (stx : Syntax) : m String.Pos :=
 match stx.getPos with
 | some p => pure p
 | none   => getCmdPos
 
-def mkMessage (msgData : MessageData) (severity : MessageSeverity) (stx : Syntax) : m Message := do
+def mkMessage [MonadPosInfo m] (msgData : MessageData) (severity : MessageSeverity) (stx : Syntax) : m Message := do
 pos ← getPos stx;
 mkMessageAt msgData severity pos
 
-def logAt (pos : String.Pos) (severity : MessageSeverity) (msgData : MessageData) : m Unit := do
+def logAt [MonadLog m] (pos : String.Pos) (severity : MessageSeverity) (msgData : MessageData) : m Unit := do
 msg ← mkMessageAt msgData severity pos;
 logMessage msg
 
-def logInfoAt (pos : String.Pos) (msgData : MessageData) : m Unit :=
+def logInfoAt [MonadLog m] (pos : String.Pos) (msgData : MessageData) : m Unit :=
 logAt pos MessageSeverity.information msgData
 
-def log (stx : Syntax) (severity : MessageSeverity) (msgData : MessageData) : m Unit := do
+def log [MonadLog m] (stx : Syntax) (severity : MessageSeverity) (msgData : MessageData) : m Unit := do
 pos ← getPos stx;
 logAt pos severity msgData
 
-def logError (stx : Syntax) (msgData : MessageData) : m Unit :=
+def logError [MonadLog m] (stx : Syntax) (msgData : MessageData) : m Unit :=
 log stx MessageSeverity.error msgData
 
-def logWarning (stx : Syntax) (msgData : MessageData) : m Unit :=
+def logWarning [MonadLog m] (stx : Syntax) (msgData : MessageData) : m Unit :=
 log stx MessageSeverity.warning msgData
 
-def logInfo (stx : Syntax) (msgData : MessageData) : m Unit :=
+def logInfo [MonadLog m] (stx : Syntax) (msgData : MessageData) : m Unit :=
 log stx MessageSeverity.information msgData
 
-def throwError {α} [MonadExcept Exception m] (ref : Syntax) (msgData : MessageData) : m α := do
+def throwError {α} [MonadPosInfo m] [MonadExcept Exception m] (ref : Syntax) (msgData : MessageData) : m α := do
 msg ← mkMessage msgData MessageSeverity.error ref; throw msg
 
-def throwErrorUsingCmdPos {α} [MonadExcept Exception m] (msgData : MessageData) : m α := do
+def throwErrorUsingCmdPos {α} [MonadPosInfo m] [MonadExcept Exception m] (msgData : MessageData) : m α := do
 cmdPos ← getCmdPos;
 msg ← mkMessageAt msgData MessageSeverity.error cmdPos;
 throw msg

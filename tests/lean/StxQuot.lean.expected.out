@@ -10,6 +10,7 @@
 "(Term.app (Term.app (Term.id `f.0 (null)) (Term.id `Nat.one.0 (null))) (Term.id `Nat.one.0 (null)))"
 "(Term.dollar\n (Term.id `f.0 (null))\n \"$\"\n (Term.app (Term.app (Term.id `f.0 (null)) (Term.id `Nat.one.0 (null))) (Term.num (numLit \"1\"))))"
 "(Term.app (Term.id `f.0 (null)) (Term.id `Nat.one.0 (null)))"
+"(Term.proj (Term.id `Nat.one.0 (null)) \".\" `b.0)"
 "(Term.add (Term.num (numLit \"2\")) \"+\" (Term.num (numLit \"1\")))"
 "0"
 "1"

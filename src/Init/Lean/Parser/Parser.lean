@@ -1578,7 +1578,9 @@ let nameP := checkNoWsBefore ("no space before '" ++ sym ++ "'") >> coe sym;
 -- if parsing the kind fails and `anonymous` is true, check that we're not ignoring a different
 -- antiquotation kind via `noImmediateColon`
 let nameP := if anonymous then nameP <|> noImmediateColon >> pushNone else nameP;
-node kind $ try $ dollarSymbol >> checkNoWsBefore "no space before" >> termParser appPrec >>
+node kind $ try $ dollarSymbol >> checkNoWsBefore "no space before" >>
+  -- use high precedence so that `$(x).y` is parsed as a projection of an antiquotation
+  termParser (appPrec + 1) >>
   nameP >> optional "*"
 
 def ident {k : ParserKind} : Parser k :=

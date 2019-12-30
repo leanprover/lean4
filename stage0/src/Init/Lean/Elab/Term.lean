@@ -590,7 +590,7 @@ modify $ fun s => { syntheticMVars := [], .. s };
 -- We use `filterRevM` instead of `filterM` to make sure we process the synthetic metavariables using the order they were created.
 -- It would not be incorrect to use `filterM`.
 remainingSyntheticMVars ← syntheticMVars.filterRevM $ fun mvarDecl => do {
-   trace `Elab.postpone mvarDecl.ref $ fun _ => fmt "resuming";
+   trace `Elab.postpone mvarDecl.ref $ fun _ => "resuming ?" ++ mvarDecl.mvarId;
    succeeded ← synthesizeSyntheticMVar mvarDecl;
    trace `Elab.postpone mvarDecl.ref $ fun _ => if succeeded then fmt "succeeded" else fmt "not ready yet";
    pure $ !succeeded
@@ -605,7 +605,7 @@ s ← get;
 let len := s.syntheticMVars.length;
 newSyntheticMVars ← s.syntheticMVars.filterM $ fun mvarDecl =>
   match mvarDecl.kind with
-  | SyntheticMVarKind.withDefault defaultVal => do
+  | SyntheticMVarKind.withDefault defaultVal => withMVarContext mvarDecl.mvarId $ do
       val ← instantiateMVars mvarDecl.ref (mkMVar mvarDecl.mvarId);
       when val.getAppFn.isMVar $
         unlessM (isDefEq mvarDecl.ref val defaultVal) $

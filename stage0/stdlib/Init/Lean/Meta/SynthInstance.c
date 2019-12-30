@@ -89,7 +89,6 @@ lean_object* l_Lean_Meta_SynthInstance_resume(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_withMCtx(lean_object*);
 lean_object* l_PersistentArray_push___rarg(lean_object*, lean_object*);
-extern lean_object* l_Lean_Level_Inhabited;
 lean_object* l___private_Init_Lean_Meta_SynthInstance_4__preprocessArgs___main___closed__1;
 extern lean_object* l_Lean_Expr_getAppArgs___closed__1;
 lean_object* l_Lean_Meta_SynthInstance_tryResolveCore___lambda__1___closed__5;
@@ -243,6 +242,7 @@ lean_object* l_HashMapImp_insert___at_Lean_Meta_SynthInstance_newSubgoal___spec_
 lean_object* l_Lean_Meta_DiscrTree_getUnify___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_find_x3f___at_Lean_Meta_SynthInstance_MkTableKey_normLevel___main___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_wakeUp___closed__2;
+lean_object* lean_level_update_imax(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_synthInstance(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_find_x3f___at_Lean_Meta_SynthInstance_MkTableKey_normExpr___main___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_trySynthInstance(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -355,7 +355,6 @@ lean_object* l_Array_umapMAux___main___at_Lean_Meta_SynthInstance_getInstances__
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* l_HashMapImp_moveEntries___main___at_Lean_Meta_SynthInstance_MkTableKey_normExpr___main___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_const(lean_object*, lean_object*);
-extern lean_object* l_Lean_Level_updateIMax_x21___closed__2;
 lean_object* l_AssocList_contains___main___at_Lean_Meta_SynthInstance_newSubgoal___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SynthInstance_resume___closed__2;
@@ -908,148 +907,146 @@ return x_27;
 }
 case 3:
 {
-lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; uint8_t x_33; 
+lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; uint8_t x_34; 
 x_28 = lean_ctor_get(x_1, 0);
 lean_inc(x_28);
 x_29 = lean_ctor_get(x_1, 1);
 lean_inc(x_29);
-lean_dec(x_1);
 lean_inc(x_2);
 x_30 = l_Lean_Meta_SynthInstance_MkTableKey_normLevel___main(x_28, x_2, x_3);
-x_31 = lean_ctor_get(x_30, 1);
+x_31 = lean_ctor_get(x_30, 0);
 lean_inc(x_31);
+x_32 = lean_ctor_get(x_30, 1);
+lean_inc(x_32);
 lean_dec(x_30);
-x_32 = l_Lean_Meta_SynthInstance_MkTableKey_normLevel___main(x_29, x_2, x_31);
-x_33 = !lean_is_exclusive(x_32);
-if (x_33 == 0)
+x_33 = l_Lean_Meta_SynthInstance_MkTableKey_normLevel___main(x_29, x_2, x_32);
+x_34 = !lean_is_exclusive(x_33);
+if (x_34 == 0)
 {
-lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
-x_34 = lean_ctor_get(x_32, 0);
-lean_dec(x_34);
-x_35 = l_Lean_Level_Inhabited;
-x_36 = l_Lean_Level_updateIMax_x21___closed__2;
-x_37 = lean_panic_fn(x_35, x_36);
-lean_ctor_set(x_32, 0, x_37);
-return x_32;
+lean_object* x_35; lean_object* x_36; 
+x_35 = lean_ctor_get(x_33, 0);
+x_36 = lean_level_update_imax(x_1, x_31, x_35);
+lean_ctor_set(x_33, 0, x_36);
+return x_33;
 }
 else
 {
-lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
-x_38 = lean_ctor_get(x_32, 1);
+lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
+x_37 = lean_ctor_get(x_33, 0);
+x_38 = lean_ctor_get(x_33, 1);
 lean_inc(x_38);
-lean_dec(x_32);
-x_39 = l_Lean_Level_Inhabited;
-x_40 = l_Lean_Level_updateIMax_x21___closed__2;
-x_41 = lean_panic_fn(x_39, x_40);
-x_42 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_42, 0, x_41);
-lean_ctor_set(x_42, 1, x_38);
-return x_42;
+lean_inc(x_37);
+lean_dec(x_33);
+x_39 = lean_level_update_imax(x_1, x_31, x_37);
+x_40 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_40, 0, x_39);
+lean_ctor_set(x_40, 1, x_38);
+return x_40;
 }
 }
 case 5:
 {
-lean_object* x_43; uint8_t x_44; 
-x_43 = lean_ctor_get(x_1, 0);
-lean_inc(x_43);
-x_44 = l_Lean_MetavarContext_isLevelAssignable(x_2, x_43);
-if (x_44 == 0)
+lean_object* x_41; uint8_t x_42; 
+x_41 = lean_ctor_get(x_1, 0);
+lean_inc(x_41);
+x_42 = l_Lean_MetavarContext_isLevelAssignable(x_2, x_41);
+if (x_42 == 0)
 {
-lean_object* x_45; 
-lean_dec(x_43);
-x_45 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_45, 0, x_1);
-lean_ctor_set(x_45, 1, x_3);
-return x_45;
+lean_object* x_43; 
+lean_dec(x_41);
+x_43 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_43, 0, x_1);
+lean_ctor_set(x_43, 1, x_3);
+return x_43;
 }
 else
 {
-lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; 
+lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
 lean_dec(x_1);
-x_46 = lean_ctor_get(x_3, 0);
+x_44 = lean_ctor_get(x_3, 0);
+lean_inc(x_44);
+x_45 = lean_ctor_get(x_3, 1);
+lean_inc(x_45);
+x_46 = lean_ctor_get(x_3, 2);
 lean_inc(x_46);
-x_47 = lean_ctor_get(x_3, 1);
-lean_inc(x_47);
-x_48 = lean_ctor_get(x_3, 2);
-lean_inc(x_48);
-x_49 = l_HashMapImp_find_x3f___at_Lean_Meta_SynthInstance_MkTableKey_normLevel___main___spec__1(x_47, x_43);
-if (lean_obj_tag(x_49) == 0)
+x_47 = l_HashMapImp_find_x3f___at_Lean_Meta_SynthInstance_MkTableKey_normLevel___main___spec__1(x_45, x_41);
+if (lean_obj_tag(x_47) == 0)
 {
-uint8_t x_50; 
-x_50 = !lean_is_exclusive(x_3);
-if (x_50 == 0)
+uint8_t x_48; 
+x_48 = !lean_is_exclusive(x_3);
+if (x_48 == 0)
 {
-lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; 
-x_51 = lean_ctor_get(x_3, 2);
-lean_dec(x_51);
-x_52 = lean_ctor_get(x_3, 1);
-lean_dec(x_52);
-x_53 = lean_ctor_get(x_3, 0);
-lean_dec(x_53);
-x_54 = l_Lean_Meta_SynthInstance_MkTableKey_normLevel___main___closed__2;
-lean_inc(x_46);
-x_55 = lean_name_mk_numeral(x_54, x_46);
-x_56 = l_Lean_mkLevelParam(x_55);
-x_57 = lean_unsigned_to_nat(1u);
-x_58 = lean_nat_add(x_46, x_57);
-lean_dec(x_46);
-lean_inc(x_56);
-x_59 = l_HashMapImp_insert___at_Lean_Meta_SynthInstance_MkTableKey_normLevel___main___spec__3(x_47, x_43, x_56);
-lean_ctor_set(x_3, 1, x_59);
-lean_ctor_set(x_3, 0, x_58);
-x_60 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_60, 0, x_56);
-lean_ctor_set(x_60, 1, x_3);
-return x_60;
-}
-else
-{
-lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; 
-lean_dec(x_3);
-x_61 = l_Lean_Meta_SynthInstance_MkTableKey_normLevel___main___closed__2;
-lean_inc(x_46);
-x_62 = lean_name_mk_numeral(x_61, x_46);
-x_63 = l_Lean_mkLevelParam(x_62);
-x_64 = lean_unsigned_to_nat(1u);
-x_65 = lean_nat_add(x_46, x_64);
-lean_dec(x_46);
-lean_inc(x_63);
-x_66 = l_HashMapImp_insert___at_Lean_Meta_SynthInstance_MkTableKey_normLevel___main___spec__3(x_47, x_43, x_63);
-x_67 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_67, 0, x_65);
-lean_ctor_set(x_67, 1, x_66);
-lean_ctor_set(x_67, 2, x_48);
-x_68 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_68, 0, x_63);
-lean_ctor_set(x_68, 1, x_67);
-return x_68;
-}
-}
-else
-{
-lean_object* x_69; lean_object* x_70; 
-lean_dec(x_48);
-lean_dec(x_47);
-lean_dec(x_46);
-lean_dec(x_43);
-x_69 = lean_ctor_get(x_49, 0);
-lean_inc(x_69);
+lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; 
+x_49 = lean_ctor_get(x_3, 2);
 lean_dec(x_49);
-x_70 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_70, 0, x_69);
-lean_ctor_set(x_70, 1, x_3);
-return x_70;
+x_50 = lean_ctor_get(x_3, 1);
+lean_dec(x_50);
+x_51 = lean_ctor_get(x_3, 0);
+lean_dec(x_51);
+x_52 = l_Lean_Meta_SynthInstance_MkTableKey_normLevel___main___closed__2;
+lean_inc(x_44);
+x_53 = lean_name_mk_numeral(x_52, x_44);
+x_54 = l_Lean_mkLevelParam(x_53);
+x_55 = lean_unsigned_to_nat(1u);
+x_56 = lean_nat_add(x_44, x_55);
+lean_dec(x_44);
+lean_inc(x_54);
+x_57 = l_HashMapImp_insert___at_Lean_Meta_SynthInstance_MkTableKey_normLevel___main___spec__3(x_45, x_41, x_54);
+lean_ctor_set(x_3, 1, x_57);
+lean_ctor_set(x_3, 0, x_56);
+x_58 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_58, 0, x_54);
+lean_ctor_set(x_58, 1, x_3);
+return x_58;
+}
+else
+{
+lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; 
+lean_dec(x_3);
+x_59 = l_Lean_Meta_SynthInstance_MkTableKey_normLevel___main___closed__2;
+lean_inc(x_44);
+x_60 = lean_name_mk_numeral(x_59, x_44);
+x_61 = l_Lean_mkLevelParam(x_60);
+x_62 = lean_unsigned_to_nat(1u);
+x_63 = lean_nat_add(x_44, x_62);
+lean_dec(x_44);
+lean_inc(x_61);
+x_64 = l_HashMapImp_insert___at_Lean_Meta_SynthInstance_MkTableKey_normLevel___main___spec__3(x_45, x_41, x_61);
+x_65 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_65, 0, x_63);
+lean_ctor_set(x_65, 1, x_64);
+lean_ctor_set(x_65, 2, x_46);
+x_66 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_66, 0, x_61);
+lean_ctor_set(x_66, 1, x_65);
+return x_66;
+}
+}
+else
+{
+lean_object* x_67; lean_object* x_68; 
+lean_dec(x_46);
+lean_dec(x_45);
+lean_dec(x_44);
+lean_dec(x_41);
+x_67 = lean_ctor_get(x_47, 0);
+lean_inc(x_67);
+lean_dec(x_47);
+x_68 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_68, 0, x_67);
+lean_ctor_set(x_68, 1, x_3);
+return x_68;
 }
 }
 }
 default: 
 {
-lean_object* x_71; 
+lean_object* x_69; 
 lean_dec(x_2);
-x_71 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_71, 0, x_1);
-lean_ctor_set(x_71, 1, x_3);
-return x_71;
+x_69 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_69, 0, x_1);
+lean_ctor_set(x_69, 1, x_3);
+return x_69;
 }
 }
 }

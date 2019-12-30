@@ -64,6 +64,13 @@ def isAntiquot : Syntax → Bool
 | Syntax.node (Name.str _ "antiquot" _) _ => true
 | _                                       => false
 
+def antiquotKind? : Syntax → Option SyntaxNodeKind
+| Syntax.node (Name.str k "antiquot" _) args =>
+  -- we treat all antiquotations where the kind was left implicit (`$e`) the same (see `elimAntiquotChoices`)
+  if (args.get! 2).isNone then some Name.anonymous
+  else some k
+| _                                          => none
+
 -- `$e*` is an antiquotation "splice" matching an arbitrary number of syntax nodes
 def isAntiquotSplice (stx : Syntax) : Bool :=
 isAntiquot stx && (stx.getArg 3).getOptional.isSome
@@ -72,6 +79,17 @@ isAntiquot stx && (stx.getArg 3).getOptional.isSome
 -- be substituted for the `many` node
 def isAntiquotSplicePat (stx : Syntax) : Bool :=
 stx.isOfKind nullKind && stx.getArgs.size == 1 && isAntiquotSplice (stx.getArg 0)
+
+/-- A term like `($e) is actually ambiguous: the antiquotation could be of kind `term`,
+    or `ident`, or ... . But it shouldn't really matter because antiquotations without
+    explicit kinds behave the same at runtime. So we replace `choice` nodes that contain
+    at least one implicit antiquotation with that antiquotation. -/
+private partial def elimAntiquotChoices : Syntax → Syntax
+| Syntax.node `choice args => match args.find? (fun arg => if antiquotKind? arg == Name.anonymous then some arg else none) with
+  | some anti => anti
+  | none      => Syntax.node `choice $ args.map elimAntiquotChoices
+| Syntax.node k args       => Syntax.node k $ args.map elimAntiquotChoices
+| stx                      => stx
 
 -- Elaborate the content of a syntax quotation term
 private partial def quoteSyntax : Syntax → TermElabM Syntax
@@ -114,7 +132,7 @@ let quoted := stx.getArg 1;
    we preserve referential transparency), so we can refer to this same `scp` inside `quoteSyntax` by
    including it literally in a syntax quotation. -/
 -- TODO: simplify to `(do scp ← getCurrMacroScope; pure $(quoteSyntax quoted))
-stx ← quoteSyntax quoted;
+stx ← quoteSyntax (elimAntiquotChoices quoted);
 `(bind getCurrMacroScope (fun scp => pure $stx))
 /- NOTE: It may seem like the newly introduced binding `scp` may accidentally
    capture identifiers in an antiquotation introduced by `quoteSyntax`. However,
@@ -177,11 +195,12 @@ else if pat.isOfKind `Lean.Parser.Term.hole then unconditional pure
 -- quotation pattern
 else if pat.isOfKind `Lean.Parser.Term.stxQuot then
   let quoted := pat.getArg 1;
-  match quoted with
-  -- We assume that atoms are uniquely determined by the node kind and never have to be checked
-  | Syntax.atom _ _ => unconditional pure
+  if quoted.isAtom then
+    -- We assume that atoms are uniquely determined by the node kind and never have to be checked
+    unconditional pure
+  else match antiquotKind? quoted with
   -- quotation is a single antiquotation
-  | Syntax.node (Name.str k "antiquot" _) _ =>
+  | some k =>
     -- Antiquotation kinds like `$id:id` influence the parser, but also need to be considered by
     -- match_syntax (but not by quotation terms). For example, `($id:id) and `($e) are not
     -- distinguishable without checking the kind of the node to be captured. Note that some
@@ -194,6 +213,9 @@ else if pat.isOfKind `Lean.Parser.Term.stxQuot then
     --   let e := stx; ...
     let kind := if k == Name.anonymous then none else some k;
     let anti := quoted.getArg 1;
+    let anti := match_syntax anti with
+    | `(($e)) => e
+    | _       => anti;
     -- Splices should only appear inside a nullKind node, see next case
     if isAntiquotSplice quoted then unconditional $ fun _ => throwError quoted "unexpected antiquotation splice"
     else if anti.isOfKind `Lean.Parser.Term.id then { kind := kind, rhsFn :=  fun rhs => `(let $anti := discr; $rhs) }
@@ -256,6 +278,9 @@ private partial def getAntiquotVarsAux : Syntax → TermElabM (List Syntax)
 | stx@(Syntax.node k args) => do
   if isAntiquot stx then
     let anti := args.get! 1;
+    let anti := match_syntax anti with
+    | `(($e)) => e
+    | _       => anti;
     if anti.isOfKind `Lean.Parser.Term.id then pure [anti]
     else throwError anti "syntax_match: antiquotation must be variable"
   else
@@ -297,6 +322,7 @@ alts ← alts.getArgs.mapM $ fun alt => do {
   let pats := alt.getArg 1;
   pat ← if pats.getArgs.size == 1 then pure $ pats.getArg 0
     else throwError stx.val "syntax_match: expected exactly one pattern per alternative";
+  let pat := if pat.isOfKind `Lean.Parser.Term.stxQuot then pat.setArg 1 $ elimAntiquotChoices $ pat.getArg 1 else pat;
   let rhs := alt.getArg 3;
   pure ([pat], rhs)
 };
@@ -426,7 +452,9 @@ pure $ vars.map $ fun var => var.getIdAt 0
 unsafe def oldExpandMatchSyntax (ctx : OldContext) (discr : Syntax) (alts : List (List Syntax × Syntax)) : Except String Expr := oldRunTermElabM ctx $ do
 -- HACK: discr and the RHSs are actually `Expr`
 let discr := Syntax.node `expr #[discr];
-let alts := alts.map $ fun alt => (alt.1, Syntax.node `expr #[alt.2]);
+let alts := alts.map $ fun alt =>
+  let pats := alt.1.map elimAntiquotChoices;
+  (pats, Syntax.node `expr #[alt.2]);
 -- letBindRhss (compileStxMatch Syntax.missing [discr]) alts []
 stx ← compileStxMatch Syntax.missing [discr] alts;
 toPreterm stx

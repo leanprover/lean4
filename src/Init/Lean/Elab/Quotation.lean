@@ -65,8 +65,11 @@ def isAntiquot : Syntax → Bool
 | _                                       => false
 
 def antiquotKind? : Syntax → Option SyntaxNodeKind
-| Syntax.node (Name.str k "antiquot" _) _              => some k
-| _                                                    => none
+| Syntax.node (Name.str k "antiquot" _) args =>
+  -- we treat all antiquotations where the kind was left implicit (`$e`) the same (see `elimAntiquotChoices`)
+  if (args.get! 2).isNone then some Name.anonymous
+  else some k
+| _                                          => none
 
 -- `$e*` is an antiquotation "splice" matching an arbitrary number of syntax nodes
 def isAntiquotSplice (stx : Syntax) : Bool :=
@@ -192,11 +195,12 @@ else if pat.isOfKind `Lean.Parser.Term.hole then unconditional pure
 -- quotation pattern
 else if pat.isOfKind `Lean.Parser.Term.stxQuot then
   let quoted := pat.getArg 1;
-  match quoted with
-  -- We assume that atoms are uniquely determined by the node kind and never have to be checked
-  | Syntax.atom _ _ => unconditional pure
+  if quoted.isAtom then
+    -- We assume that atoms are uniquely determined by the node kind and never have to be checked
+    unconditional pure
+  else match antiquotKind? quoted with
   -- quotation is a single antiquotation
-  | Syntax.node (Name.str k "antiquot" _) _ =>
+  | some k =>
     -- Antiquotation kinds like `$id:id` influence the parser, but also need to be considered by
     -- match_syntax (but not by quotation terms). For example, `($id:id) and `($e) are not
     -- distinguishable without checking the kind of the node to be captured. Note that some

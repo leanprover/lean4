@@ -11,21 +11,14 @@ namespace Elab
 namespace Term
 
 @[builtinTermElab dollar] def elabDollar : TermElab :=
-fun stx expectedType? => do
-  -- term `$` term
-  let f := stx.getArg 0;
-  let a := stx.getArg 2;
-  elabTerm (mkAppStx f #[a]) expectedType?
-
-def mkProjStx (t : Syntax) (i : Syntax) : Syntax :=
-Syntax.node `Lean.Parser.Term.proj #[t, mkAtom("."), i]
+adaptExpander $ fun stx => match_syntax stx with
+| `($f $ $a) => `($f $a)
+| _          => unreachable!
 
 @[builtinTermElab dollarProj] def elabDollarProj : TermElab :=
-fun stx expectedType? => do
-  -- term `$.` field
-  let f := stx.getArg 0;
-  let i := stx.getArg 2;
-  elabTerm (mkProjStx f i) expectedType?
+adaptExpander $ fun stx => match_syntax stx with
+| `($term $.$field) => `($(term).$field)
+| _                 => unreachable!
 
 def elabInfix (f : Syntax) : TermElab :=
 fun stx expectedType? => do

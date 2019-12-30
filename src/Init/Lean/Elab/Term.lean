@@ -471,6 +471,12 @@ withFreshMacroScope $ withNode stx $ fun node => do
 private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
 elabTerm stx expectedType? false
 
+/-- Adapt a syntax transformation to a regular, term-producing elaborator. -/
+def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab :=
+fun stx expectedType? => withMacroExpansion stx.val $ do
+  stx ← exp stx.val;
+  elabTerm stx expectedType?
+
 /--
   Make sure `e` is a type by inferring its type and making sure it is a `Expr.sort`
   or is unifiable with `Expr.sort`, or can be coerced into one. -/

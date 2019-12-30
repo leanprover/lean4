@@ -11,6 +11,7 @@ import Init.Lean.Hygiene
 import Init.Lean.Elab.Log
 import Init.Lean.Elab.Alias
 import Init.Lean.Elab.ResolveName
+import Init.Lean.Elab.Level
 
 namespace Lean
 namespace Elab
@@ -262,6 +263,15 @@ match u? with
 | some u => pure u
 | none   => throwError ref ("invalid universe level, " ++ u ++ " is not greater than 0")
 
+def liftLevelM {α} (x : LevelElabM α) : TermElabM α :=
+fun ctx s =>
+  match (x { .. ctx }).run { .. s } with
+  | EStateM.Result.ok a newS     => EStateM.Result.ok a { mctx := newS.mctx, ngen := newS.ngen, .. s }
+  | EStateM.Result.error ex newS => EStateM.Result.error (Exception.error ex) s
+
+def elabLevel (stx : Syntax) : TermElabM Level :=
+liftLevelM $ Level.elabLevel stx
+
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline] def withMacroExpansion {α} (stx : Syntax) (x : TermElabM α) : TermElabM α :=
 adaptReader (fun (ctx : Context) => { macroStack := stx :: ctx.macroStack, .. ctx }) x
@@ -460,6 +470,12 @@ withFreshMacroScope $ withNode stx $ fun node => do
 /-- Auxiliary function used to implement `synthesizeSyntheticMVars`. -/
 private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
 elabTerm stx expectedType? false
+
+/-- Adapt a syntax transformation to a regular, term-producing elaborator. -/
+def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab :=
+fun stx expectedType? => withMacroExpansion stx.val $ do
+  stx ← exp stx.val;
+  elabTerm stx expectedType?
 
 /--
   Make sure `e` is a type by inferring its type and making sure it is a `Expr.sort`
@@ -757,9 +773,6 @@ fun stx expectedType? => do
     newStx ← `(List.toArray [$args*]);
     withMacroExpansion stx.val (elabTerm newStx expectedType?)
   | _ => throwError stx.val "unexpected array literal syntax"
-
-def elabExplicitUniv (stx : Syntax) : TermElabM (List Level) :=
-pure [] -- TODO
 
 private partial def resolveLocalNameAux (lctx : LocalContext) : Name → List String → Option (Expr × List String)
 | n, projs =>

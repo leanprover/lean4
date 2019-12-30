@@ -890,6 +890,19 @@ object * run_boxed(environment const & env, name const & fn, unsigned n, object 
 uint32 run_main(environment const & env, int argv, char * argc[]) {
     return interpreter(env).run_main(argv, argc);
 }
+
+extern "C" object * lean_eval_const(object * /* inh */, object * env, object * c) {
+    try {
+        if (g_interpreter == nullptr) {
+            return mk_cnstr(1, run_boxed(TO_REF(environment, env), TO_REF(name, c), 0, 0)).steal();
+        } else {
+            flet<interpreter*> reset(g_interpreter, nullptr);
+            return mk_cnstr(1, run_boxed(TO_REF(environment, env), TO_REF(name, c), 0, 0)).steal();
+        }
+    } catch (exception & ex) {
+        return mk_cnstr(0, string_ref(ex.what())).steal();
+    }
+}
 }
 
 void initialize_ir_interpreter() {

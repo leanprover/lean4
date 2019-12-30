@@ -81,5 +81,8 @@ partial def elabLevel : Syntax → LevelElabM Level
     throwError stx "unexpected universe level syntax kind"
 
 end Level
+
+export Level (LevelElabM)
+
 end Elab
 end Lean

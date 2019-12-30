@@ -108,6 +108,7 @@ lean_object* l_Lean_namespacesExt___elambda__4___rarg(lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_regModListExtension___spec__1___closed__1;
 lean_object* l_Lean_PersistentEnvExtension_modifyState___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Environment_evalConst___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtension___rarg(lean_object*);
 extern lean_object* l_List_repr___rarg___closed__3;
 lean_object* l_Lean_PersistentEnvExtension_setState___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -230,6 +231,7 @@ lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerSimplePersisten
 extern lean_object* l_List_reprAux___main___rarg___closed__1;
 lean_object* l_Lean_SimplePersistentEnvExtension_modifyState___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_matchConst(lean_object*);
+lean_object* lean_eval_const(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_contains___at_Lean_Environment_contains___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getEntries___rarg(lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_registerSimplePersistentEnvExtension___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -12105,6 +12107,17 @@ lean_object* x_5;
 x_5 = l_Array_forMAux___main___at_Lean_Environment_displayStats___spec__9(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
+return x_5;
+}
+}
+lean_object* l_Lean_Environment_evalConst___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = lean_eval_const(x_2, x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
 return x_5;
 }
 }

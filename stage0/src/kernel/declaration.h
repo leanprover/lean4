@@ -141,7 +141,7 @@ structure opaque_val extends constant_val :=
 */
 class opaque_val : public object_ref {
 public:
-    opaque_val(name const & n, names const & lparams, expr const & type, expr const & val);
+    opaque_val(name const & n, names const & lparams, expr const & type, expr const & val, bool is_unsafe);
     opaque_val(opaque_val const & other):object_ref(other) {}
     opaque_val(opaque_val && other):object_ref(other) {}
     opaque_val & operator=(opaque_val const & other) { object_ref::operator=(other); return *this; }
@@ -151,6 +151,7 @@ public:
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
     expr const & get_type() const { return to_constant_val().get_type(); }
     expr const & get_value() const { return static_cast<expr const &>(cnstr_get_ref(*this, 1)); }
+    bool is_unsafe() const;
 };
 
 /*
@@ -242,7 +243,7 @@ declaration mk_definition(environment const & env, name const & n, names const &
                           bool unsafe = false);
 declaration mk_theorem(name const & n, names const & lparams, expr const & t, expr const & v);
 declaration mk_theorem(name const & n, names const & lparams, expr const & t, expr const & v);
-declaration mk_opaque(name const & n, names const & lparams, expr const & t, expr const & v);
+declaration mk_opaque(name const & n, names const & lparams, expr const & t, expr const & v, bool unsafe);
 declaration mk_axiom(name const & n, names const & lparams, expr const & t, bool unsafe = false);
 declaration mk_mutual_definitions(definition_vals const & ds);
 declaration mk_inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_unsafe);

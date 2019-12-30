@@ -292,33 +292,35 @@ private def elabAppLVals (ref : Syntax) (f : Expr) (lvals : List LVal) (namedArg
 when (!lvals.isEmpty && explicit) $ throwError ref "invalid use of field notation with `@` modifier";
 elabAppLValsAux ref namedArgs args expectedType? explicit f lvals
 
+def elabExplicitUniv (stx : Syntax) : TermElabM (List Level) := do
+let lvls := stx.getArg 1;
+lvls.foldSepRevArgsM
+  (fun stx lvls => do
+    lvl ← elabLevel stx;
+    pure (lvl::lvls))
+  []
+
 private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array NamedArg → Array Arg → Option Expr → Bool → Array TermElabResult → TermElabM (Array TermElabResult)
 | f, lvals, namedArgs, args, expectedType?, explicit, acc =>
-  let k := f.getKind;
-  if k == `Lean.Parser.Term.explicit then
-    -- `f` is of the form `@ id`
-    elabAppFn (f.getArg 1) lvals namedArgs args expectedType? true acc
-  else if k == choiceKind then
+  if f.getKind == choiceKind then
     f.getArgs.foldlM (fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit acc) acc
-  else if k == `Lean.Parser.Term.proj then
-    -- term `.` (fieldIdx <|> ident)
-    let field := f.getArg 2;
-    match field.isFieldIdx?, field with
-    | some idx, _                      => elabAppFn (f.getArg 0) (LVal.fieldIdx idx :: lvals) namedArgs args expectedType? explicit acc
-    | _,        Syntax.ident _ _ val _ =>
-      let newLVals := val.components.map (fun n => LVal.fieldName (toString n));
-      elabAppFn (f.getArg 0) (newLVals ++ lvals) namedArgs args expectedType? explicit acc
-    | _,        _                      => throwError field "unexpected kind of field access"
-  else if k == `Lean.Parser.Term.arrayRef then do
-    -- term `[` term `]`
-    let idx := f.getArg 2;
-    elabAppFn (f.getArg 0) (LVal.getOp idx :: lvals) namedArgs args expectedType? explicit acc
-  else if k == `Lean.Parser.Term.id then
-    -- ident (explicitUniv | namedPattern)?
-    -- Remark: `namedPattern` should already have been expanded
-    match f.getArg 0 with
+  else match_syntax f with
+  | `(@$id:id) =>
+    elabAppFn id lvals namedArgs args expectedType? true acc
+  | `($(e).$idx:fieldIdx) =>
+    let idx := idx.isFieldIdx?.get!;
+    elabAppFn (f.getArg 0) (LVal.fieldIdx idx :: lvals) namedArgs args expectedType? explicit acc
+  | `($(e).$field:ident) =>
+    let newLVals := field.getId.components.map (fun n => LVal.fieldName (toString n));
+    elabAppFn (f.getArg 0) (newLVals ++ lvals) namedArgs args expectedType? explicit acc
+  | `($e[$idx]) =>
+    elabAppFn e (LVal.getOp idx :: lvals) namedArgs args expectedType? explicit acc
+  -- TODO: replace `*` with new `?` optional modifier
+  | `($id:ident$us:explicitUniv*) =>
+    -- Remark: `id.<namedPattern>` should already have been expanded
+    match id with
     | Syntax.ident _ _ n preresolved => do
-      us        ← elabExplicitUniv (f.getArg 1);
+      us ← if us.isEmpty then pure [] else elabExplicitUniv (us.get! 0);
       funLVals ← resolveName f n preresolved us;
       funLVals.foldlM
         (fun acc ⟨f, fields⟩ => do
@@ -327,7 +329,7 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
           pure $ acc.push s)
         acc
     | _ => unreachable!
-  else do
+  | _ => do
     f ← elabTerm f none;
     s ← observing $ elabAppLVals ref f lvals namedArgs args expectedType? explicit;
     pure $ acc.push s
@@ -375,28 +377,17 @@ else
   else
     mergeFailures candidates f
 
-private partial def expandAppAux : Syntax → Array Syntax → Syntax × Array Syntax
-| stx, args => stx.ifNodeKind `Lean.Parser.Term.app
-  (fun node =>
-    let fn  := node.getArg 0;
-    let arg := node.getArg 1;
-    expandAppAux fn (args.push arg))
-  (fun _ => (stx, args.reverse))
-
-private def expandApp (stx : Syntax) : TermElabM (Syntax × Array NamedArg × Array Arg) := do
-let (f, args) := expandAppAux stx #[];
-(namedArgs, args) ← args.foldlM
-  (fun (acc : Array NamedArg × Array Arg) arg =>
-    let (namedArgs, args) := acc;
-    arg.ifNodeKind `Lean.Parser.Term.namedArgument
-      (fun argNode => do
-        -- `(` ident `:=` term `)`
-        namedArgs ← addNamedArg arg acc.1 { name := argNode.getIdAt 1, val := Arg.stx $ argNode.getArg 3 };
-        pure (namedArgs, args))
-      (fun _ =>
-        pure (namedArgs, args.push $ Arg.stx arg)))
-  (#[], #[]);
-pure (f, namedArgs, args)
+private partial def expandApp : Syntax → TermElabM (Syntax × Array NamedArg × Array Arg)
+| stx => match_syntax stx with
+  | `($fn ($id := $arg)) => do
+    (stx, namedArgs, args) ← expandApp fn;
+    namedArgs ← addNamedArg id namedArgs { name := id.getId, val := Arg.stx arg };
+    pure (stx, namedArgs, args)
+  | `($fn $arg)       => do
+    (stx, namedArgs, args) ← expandApp fn;
+    let args := args.push $ Arg.stx arg;
+    pure (stx, namedArgs, args)
+  | _                 => pure (stx, #[], #[])
 
 @[builtinTermElab app] def elabApp : TermElab :=
 fun stx expectedType? => do
@@ -408,6 +399,14 @@ fun stx expectedType? => do
 @[builtinTermElab choice] def elabChoice : TermElab := elabApp
 @[builtinTermElab proj] def elabProj : TermElab := elabApp
 @[builtinTermElab arrayRef] def elabArrayRef : TermElab := elabApp
+
+@[builtinTermElab sortApp] def elabSortApp : TermElab :=
+fun stx _ => do
+  u ← elabLevel (stx.getArg 1);
+  if (stx.getArg 0).getKind == `Lean.Parser.Term.sort then do
+    pure $ mkSort u
+  else
+    pure $ mkSort (mkLevelSucc u)
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.app;

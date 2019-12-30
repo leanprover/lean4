@@ -262,7 +262,7 @@ bool constant_info::is_unsafe() const {
     case constant_info_kind::Axiom:       return to_axiom_val().is_unsafe();
     case constant_info_kind::Definition:  return to_definition_val().is_unsafe();
     case constant_info_kind::Theorem:     return false;
-    case constant_info_kind::Opaque:     return false;
+    case constant_info_kind::Opaque:      return to_opaque_val().is_unsafe();
     case constant_info_kind::Quot:        return false;
     case constant_info_kind::Inductive:   return to_inductive_val().is_unsafe();
     case constant_info_kind::Constructor: return to_constructor_val().is_unsafe();

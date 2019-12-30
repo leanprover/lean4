@@ -579,6 +579,9 @@ pExtDescrs.forM $ fun extDescr => do {
 };
 pure ()
 
+@[extern "lean_eval_const"]
+unsafe constant evalConst (α) [s : @& Inhabited α] (env : @& Environment) (constName : @& Name) : Except String α := arbitrary _
+
 end Environment
 
 /- Helper functions for accessing environment -/

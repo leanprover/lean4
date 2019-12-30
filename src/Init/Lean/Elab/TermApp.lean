@@ -292,6 +292,14 @@ private def elabAppLVals (ref : Syntax) (f : Expr) (lvals : List LVal) (namedArg
 when (!lvals.isEmpty && explicit) $ throwError ref "invalid use of field notation with `@` modifier";
 elabAppLValsAux ref namedArgs args expectedType? explicit f lvals
 
+def elabExplicitUniv (stx : Syntax) : TermElabM (List Level) := do
+let lvls := stx.getArg 1;
+lvls.foldSepRevArgsM
+  (fun stx lvls => do
+    lvl ← elabLevel stx;
+    pure (lvl::lvls))
+  []
+
 private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array NamedArg → Array Arg → Option Expr → Bool → Array TermElabResult → TermElabM (Array TermElabResult)
 | f, lvals, namedArgs, args, expectedType?, explicit, acc =>
   if f.getKind == choiceKind then
@@ -312,7 +320,7 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
     -- Remark: `id.<namedPattern>` should already have been expanded
     match id with
     | Syntax.ident _ _ n preresolved => do
-      us        ← elabExplicitUniv (mkNullNode us);
+      us ← if us.isEmpty then pure [] else elabExplicitUniv (us.get! 0);
       funLVals ← resolveName f n preresolved us;
       funLVals.foldlM
         (fun acc ⟨f, fields⟩ => do

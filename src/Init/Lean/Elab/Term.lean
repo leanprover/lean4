@@ -774,9 +774,6 @@ fun stx expectedType? => do
     withMacroExpansion stx.val (elabTerm newStx expectedType?)
   | _ => throwError stx.val "unexpected array literal syntax"
 
-def elabExplicitUniv (stx : Syntax) : TermElabM (List Level) :=
-pure [] -- TODO
-
 private partial def resolveLocalNameAux (lctx : LocalContext) : Name → List String → Option (Expr × List String)
 | n, projs =>
   match lctx.findFromUserName? n with

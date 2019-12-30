@@ -160,7 +160,12 @@ f a
 
 
 #eval run "#check let x := one + zero; x + x"
-set_option trace.Elab true
+-- set_option trace.Elab true
 #eval run "#check (fun x => let v := x.w; v + v) s4"
 #eval run "#check fun x => foo x (let v := x.w; v + one) s4"
 #eval run "#check fun x => foo x (let v := x.w; let w := x.x; v + w + one) s4"
+#eval fail "#check id.{1,1}"
+#eval fail "#check @id.{0} Nat"
+#eval run "#check @id.{1} Nat"
+#eval run "universes u #check id.{u}"
+#eval fail "universes u #check id.{v}"

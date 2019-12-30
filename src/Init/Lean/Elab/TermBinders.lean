@@ -22,10 +22,9 @@ else
 
 /-- Given syntax of the form `ident <|> hole`, return `ident`. If `hole`, then we create a new anonymous name. -/
 private def expandBinderIdent (stx : Syntax) : TermElabM Syntax :=
-if stx.getKind == `Lean.Parser.Term.hole then do
-  mkFreshAnonymousIdent stx
-else
-  pure stx
+match_syntax stx with
+| `(_) => mkFreshAnonymousIdent stx
+| _    => pure stx
 
 /-- Given syntax of the form `(ident >> " : ")?`, return `ident`, or a new instance name. -/
 private def expandOptIdent (stx : Syntax) : TermElabM Syntax :=
@@ -119,21 +118,19 @@ else do
 elabBinders #[binder] (fun fvars => x (fvars.get! 1))
 
 @[builtinTermElab «forall»] def elabForall : TermElab :=
-fun stx _ =>
-  -- `forall` binders+ `,` term
-  let binders := (stx.getArg 1).getArgs;
-  let term    := stx.getArg 3;
+fun stx _ => match_syntax stx.val with
+| `(forall $binders*, $term) =>
   elabBinders binders $ fun xs => do
     e ← elabType term;
     mkForall stx.val xs e
+| _ => unreachable!
 
 @[builtinTermElab arrow] def elabArrow : TermElab :=
-fun stx expectedType? => do
-  id ← mkFreshAnonymousIdent stx.val;
-  let dom    := stx.getArg 0;
-  let rng    := stx.getArg 2;
-  let newStx := mkNode `Lean.Parser.Term.forall #[mkAtom "forall", mkNullNode #[mkExplicitBinder id dom], mkAtom ",", rng];
+fun stx expectedType? => match_syntax stx.val with
+| `($dom:term -> $rng) => do
+  newStx ← `(forall (a : $dom), $rng);
   elabTerm newStx expectedType?
+| _ => unreachable!
 
 @[builtinTermElab depArrow] def elabDepArrow : TermElab :=
 fun stx _ =>

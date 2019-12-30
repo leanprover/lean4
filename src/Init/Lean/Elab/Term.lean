@@ -11,6 +11,7 @@ import Init.Lean.Hygiene
 import Init.Lean.Elab.Log
 import Init.Lean.Elab.Alias
 import Init.Lean.Elab.ResolveName
+import Init.Lean.Elab.Level
 
 namespace Lean
 namespace Elab
@@ -261,6 +262,15 @@ u? ← decLevel? ref u;
 match u? with
 | some u => pure u
 | none   => throwError ref ("invalid universe level, " ++ u ++ " is not greater than 0")
+
+def liftLevelM {α} (x : LevelElabM α) : TermElabM α :=
+fun ctx s =>
+  match (x { .. ctx }).run { .. s } with
+  | EStateM.Result.ok a newS     => EStateM.Result.ok a { mctx := newS.mctx, ngen := newS.ngen, .. s }
+  | EStateM.Result.error ex newS => EStateM.Result.error (Exception.error ex) s
+
+def elabLevel (stx : Syntax) : TermElabM Level :=
+liftLevelM $ Level.elabLevel stx
 
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline] def withMacroExpansion {α} (stx : Syntax) (x : TermElabM α) : TermElabM α :=

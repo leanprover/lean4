@@ -170,7 +170,7 @@ declare_definition(environment const & env, decl_cmd_kind kind, buffer<name> con
     switch (kind) {
     case decl_cmd_kind::Theorem:      def = mk_theorem(c_real_name, names(lp_names), type, *val); break;
     case decl_cmd_kind::Abbreviation: def = mk_definition(c_real_name, names(lp_names), type, *val, reducibility_hints::mk_abbreviation(), is_unsafe); break;
-    case decl_cmd_kind::OpaqueConst:  def = mk_opaque(c_real_name, names(lp_names), type, *val); break;
+    case decl_cmd_kind::OpaqueConst:  def = mk_opaque(c_real_name, names(lp_names), type, *val, is_unsafe); break;
     case decl_cmd_kind::Instance:
     case decl_cmd_kind::Definition:   def = mk_definition(new_env, c_real_name, names(lp_names), type, *val, is_unsafe); break;
     default:

@@ -66,7 +66,7 @@ structure TheoremVal extends ConstantVal :=
 
 /- Value for an opaque constant declaration `constant x : t := e` -/
 structure OpaqueVal extends ConstantVal :=
-(value : Expr)
+(value : Expr) (isUnsafe : Bool)
 
 structure Constructor :=
 (name : Name) (type : Expr)

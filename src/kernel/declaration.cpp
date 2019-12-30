@@ -59,10 +59,12 @@ theorem_val::theorem_val(name const & n, names const & lparams, expr const & typ
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), val)) {
 }
 
-opaque_val::opaque_val(name const & n, names const & lparams, expr const & type, expr const & val):
-    object_ref(mk_cnstr(0, constant_val(n, lparams, type), val)) {
+opaque_val::opaque_val(name const & n, names const & lparams, expr const & type, expr const & val, bool is_unsafe):
+    object_ref(mk_cnstr(0, constant_val(n, lparams, type), val, 1)) {
+    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*2, static_cast<unsigned char>(is_unsafe));
 }
 
+bool opaque_val::is_unsafe() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*2) != 0; }
 
 quot_val::quot_val(name const & n, names const & lparams, expr const & type, quot_kind k):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), 1)) {
@@ -106,7 +108,7 @@ bool declaration::is_unsafe() const {
     case declaration_kind::Definition:       return to_definition_val().is_unsafe();
     case declaration_kind::Axiom:            return to_axiom_val().is_unsafe();
     case declaration_kind::Theorem:          return false;
-    case declaration_kind::Opaque:           return false;
+    case declaration_kind::Opaque:           return to_opaque_val().is_unsafe();
     case declaration_kind::Inductive:        return inductive_decl(*this).is_unsafe();
     case declaration_kind::Quot:             return false;
     case declaration_kind::MutualDefinition: return true;
@@ -166,8 +168,8 @@ declaration mk_theorem(name const & n, names const & params, expr const & t, exp
     return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Theorem), theorem_val(n, params, t, v)));
 }
 
-declaration mk_opaque(name const & n, names const & params, expr const & t, expr const & v) {
-    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Opaque), opaque_val(n, params, t, v)));
+declaration mk_opaque(name const & n, names const & params, expr const & t, expr const & v, bool is_unsafe) {
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Opaque), opaque_val(n, params, t, v, is_unsafe)));
 }
 
 declaration mk_axiom(name const & n, names const & params, expr const & t, bool unsafe) {

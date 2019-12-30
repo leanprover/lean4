@@ -400,6 +400,14 @@ fun stx expectedType? => do
 @[builtinTermElab proj] def elabProj : TermElab := elabApp
 @[builtinTermElab arrayRef] def elabArrayRef : TermElab := elabApp
 
+@[builtinTermElab sortApp] def elabSortApp : TermElab :=
+fun stx _ => do
+  u ← elabLevel (stx.getArg 1);
+  if (stx.getArg 0).getKind == `Lean.Parser.Term.sort then do
+    pure $ mkSort u
+  else
+    pure $ mkSort (mkLevelSucc u)
+
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.app;
 pure ()

@@ -47,6 +47,10 @@ funext (fun o => match o with | none => rfl | some x => rfl)
 instance : Monad Option :=
 {pure := @some, bind := @Option.bind, map := @Option.map}
 
+@[inline] protected def filter {α} (p : α → Bool) : Option α → Option α
+| some a => if p a then some a else none
+| none   => none
+
 @[macroInline] protected def orelse {α : Type u} : Option α → Option α → Option α
 | some a, _ => some a
 | none,   b => b

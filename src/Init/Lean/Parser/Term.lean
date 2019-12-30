@@ -25,8 +25,10 @@ def infixL (sym : String) (lbp : Nat) : TrailingParser :=
 pushLeading >> symbol sym lbp >> termParser lbp
 
 /- Built-in parsers -/
-def explicitUniv   := parser! ".{" >> sepBy1 levelParser ", " >> "}"
-def namedPattern := parser! checkNoWsBefore "no space before '@'" >> "@" >> termParser appPrec
+-- NOTE: `checkNoWsBefore` should be used *before* `parser!` so that it is also applied to the generated
+-- antiquotation.
+def explicitUniv := checkNoWsBefore "no space before '.{'" >> parser! ".{" >> sepBy1 levelParser ", " >> "}"
+def namedPattern := checkNoWsBefore "no space before '@'" >> parser! "@" >> termParser appPrec
 @[builtinTermParser] def id := parser! ident >> optional (explicitUniv <|> namedPattern)
 @[builtinTermParser] def num : Parser := parser! numLit
 @[builtinTermParser] def str : Parser := parser! strLit

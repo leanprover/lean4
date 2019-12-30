@@ -1547,17 +1547,39 @@ constant termParserAttribute : ParserAttribute := arbitrary _
 
 def dollarSymbol {k : ParserKind} : Parser k := symbol "$" 1
 
+/-- Fail if previous token is immediately followed by ':'. -/
+private def noImmediateColon {k : ParserKind} : Parser k :=
+{ fn := fun _ c s =>
+  let prev := s.stxStack.back;
+  if checkTailNoWs prev then
+    let input := c.input;
+    let i     := s.pos;
+    if input.atEnd i then s
+    else
+      let curr := input.get i;
+      if curr == ':' then
+        s.mkUnexpectedError "unexpected ':'"
+      else s
+  else s
+}
+
+private def pushNone {k : ParserKind} : Parser k :=
+{ fn := fun a c s => s.pushSyntax mkNullNode }
+
 /--
   Define parser for `$e` (if anonymous == true) and `$e:name`. Both
   forms can also be used with an appended `*` to turn them into an
   antiquotation "splice". If `kind` is given, it will additionally be checked
   when evaluating `match_syntax`. -/
-def mkAntiquot {k : ParserKind} (name : String) (kind : Option SyntaxNodeKind) (anonymous := false) : Parser k :=
+def mkAntiquot {k : ParserKind} (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parser k :=
 let kind := (kind.getD Name.anonymous) ++ `antiquot;
 let sym := ":" ++ name;
 let nameP := checkNoWsBefore ("no space before '" ++ sym ++ "'") >> coe sym;
+-- if parsing the kind fails and `anonymous` is true, check that we're not ignoring a different
+-- antiquotation kind via `noImmediateColon`
+let nameP := if anonymous then nameP <|> noImmediateColon >> pushNone else nameP;
 node kind $ try $ dollarSymbol >> checkNoWsBefore "no space before" >> termParser appPrec >>
-  (if anonymous then optional nameP else nameP) >> optional "*"
+  nameP >> optional "*"
 
 def ident {k : ParserKind} : Parser k :=
 mkAntiquot "ident" `ident <|> identNoAntiquot

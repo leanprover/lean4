@@ -189,7 +189,7 @@ private def getHeadInfo (alt : Alt) : HeadInfo :=
 let pat := alt.fst.head!;
 let unconditional (rhsFn) := { HeadInfo . rhsFn := rhsFn };
 -- variable pattern
-if pat.isOfKind `Lean.Parser.Term.id then unconditional $ fun rhs => `(let $pat := discr; $rhs)
+if pat.isOfKind `Lean.Parser.Term.id then unconditional $ fun rhs => `(let $pat:id := discr; $rhs)
 -- wildcard pattern
 else if pat.isOfKind `Lean.Parser.Term.hole then unconditional pure
 -- quotation pattern
@@ -218,13 +218,13 @@ else if pat.isOfKind `Lean.Parser.Term.stxQuot then
     | _       => anti;
     -- Splices should only appear inside a nullKind node, see next case
     if isAntiquotSplice quoted then unconditional $ fun _ => throwError quoted "unexpected antiquotation splice"
-    else if anti.isOfKind `Lean.Parser.Term.id then { kind := kind, rhsFn :=  fun rhs => `(let $anti := discr; $rhs) }
+    else if anti.isOfKind `Lean.Parser.Term.id then { kind := kind, rhsFn :=  fun rhs => `(let $anti:id := discr; $rhs) }
     else unconditional $ fun _ => throwError anti "syntax_match: antiquotation must be variable"
   | _ =>
     -- quotation is a single antiquotation splice => bind args array
     if isAntiquotSplicePat quoted then
       let anti := (quoted.getArg 0).getArg 1;
-      unconditional $ fun rhs => `(let $anti := Syntax.getArgs discr; $rhs)
+      unconditional $ fun rhs => `(let $anti:term := Syntax.getArgs discr; $rhs)
     else
       -- not an antiquotation: match head shape
       let argPats := quoted.getArgs.map $ fun arg => Syntax.node `Lean.Parser.Term.stxQuot #[mkAtom "`(", arg, mkAtom ")"];

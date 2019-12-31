@@ -1412,14 +1412,6 @@ match p.info.firstTokens with
 | FirstTokens.optTokens tks => pure $ addTokens tks
 | _ => throw ("invalid builtin parser '" ++ toString parserName ++ "', initial token is not statically known")
 
-def addBuiltinLeadingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : Parser) : IO Unit := do
-tables ← tablesRef.get;
-tablesRef.reset;
-updateBuiltinTokens p.info declName;
-updateBuiltinSyntaxNodeKinds p.info;
-tables ← IO.ofExcept $ addLeadingParser tables declName p;
-tablesRef.set tables
-
 def addTrailingParser (tables : ParsingTables) (p : TrailingParser) : ParsingTables :=
 let addTokens (tks : List TokenConfig) : ParsingTables :=
   let tks := tks.map $ fun tk => mkNameSimple tk.val;
@@ -1429,12 +1421,24 @@ match p.info.firstTokens with
 | FirstTokens.optTokens tks => addTokens tks
 | _                         => { trailingParsers := p :: tables.trailingParsers, .. tables }
 
-def addBuiltinTrailingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : TrailingParser) : IO Unit := do
+def addParser {k} (tables : ParsingTables) (declName : Name) (p : Parser k) : Except String ParsingTables :=
+match k, p with
+| leading, p  => addLeadingParser tables declName p
+| trailing, p => pure $ addTrailingParser tables p
+
+def addBuiltinParser {k} (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : Parser k) : IO Unit := do
 tables ← tablesRef.get;
 tablesRef.reset;
 updateBuiltinTokens p.info declName;
 updateBuiltinSyntaxNodeKinds p.info;
-tablesRef.set $ addTrailingParser tables p
+tables ← IO.ofExcept $ addParser tables declName p;
+tablesRef.set tables
+
+def addBuiltinLeadingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : Parser) : IO Unit :=
+addBuiltinParser tablesRef declName p
+
+def addBuiltinTrailingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : TrailingParser) : IO Unit :=
+addBuiltinParser tablesRef declName p
 
 def declareBuiltinParser (env : Environment) (addFnName : Name) (refDeclName : Name) (declName : Name) : IO Environment :=
 let name := `_regBuiltinParser ++ declName;
@@ -1497,9 +1501,11 @@ structure ParserAttributeExtensionState :=
 instance ParserAttributeExtensionState.inhabited : Inhabited ParserAttributeExtensionState :=
 ⟨{}⟩
 
+abbrev ParserAttributeExtension := PersistentEnvExtension Name ParserAttributeEntry ParserAttributeExtensionState
+
 structure ParserAttribute :=
 (attr : AttributeImpl)
-(ext  : PersistentEnvExtension Name ParserAttributeEntry ParserAttributeExtensionState)
+(ext  : ParserAttributeExtension)
 (kind : String)
 
 namespace ParserAttribute
@@ -1579,11 +1585,10 @@ tables ← es.foldlM
     constNames.foldlM
       (fun tables constName =>
         match mkParserOfConstant env attrTable constName with
-        | Except.ok ⟨leading, p⟩  =>
-          match addLeadingParser tables constName p with
+        | Except.ok p =>
+          match addParser tables constName p.2 with
           | Except.ok tables => pure tables
           | Except.error ex  => throw (IO.userError ex)
-        | Except.ok ⟨trailing, p⟩ => pure $ addTrailingParser tables p
         | Except.error ex         => throw (IO.userError ex))
       tables)
   tables;
@@ -1591,21 +1596,29 @@ pure { tables := tables }
 
 private def addParserAttributeEntry (s : ParserAttributeExtensionState) (e : ParserAttributeEntry) : ParserAttributeExtensionState :=
 match e with
-| { parserName := parserName, kind := leading, parser := p } =>
-  match addLeadingParser s.tables parserName p with
+| { parserName := parserName, parser := p, .. } =>
+  match addParser s.tables parserName p with
   | Except.ok tables => { newEntries := parserName :: s.newEntries, tables := tables }
   | Except.error _   => unreachable!
-| { parserName := parserName, kind := trailing, parser := p } =>
-  { newEntries := parserName :: s.newEntries, tables := addTrailingParser s.tables p }
+
+private def addParserAttribute (env : Environment) (ext : ParserAttributeExtension) (constName : Name) (persistent : Bool) : IO Environment := do
+attrTable ← parserAttributeTableRef.get;
+match mkParserOfConstant env attrTable constName with
+| Except.error ex         => throw (IO.userError ex)
+| Except.ok p =>
+  -- TODO: register kinds and symbols
+  let entry : ParserAttributeEntry := { parserName := constName, kind := p.1, parser := p.2 };
+  let s : ParserAttributeExtensionState := ext.getState env;
+  -- Remark: addEntry does not handle exceptions. So, we use `addParser` here to make sure it does not throw an exception.
+  match addParser s.tables constName p.2 with
+  | Except.ok _     => pure $ ext.addEntry env entry
+  | Except.error ex => throw (IO.userError ex)
 
 /-
-This is just the basic skeleton where we create an
-extensible/scoped parser attribute that is optionally initialized with
+Parser attribute that can be optionally initialized with
 a builtin parser attribute.
 
-The current implementation just uses the bultin parser.
-We still need to:
-- Add support for scoped parser extensions.
+TODO: support for scoped attributes.
 -/
 def registerParserAttribute (attrName : Name) (kind : String) (descr : String) (builtinTables : Option (IO.Ref ParsingTables) := none) : IO ParserAttribute := do
 let kindSym := mkNameSimple kind;
@@ -1621,7 +1634,7 @@ ext : PersistentEnvExtension Name ParserAttributeEntry ParserAttributeExtensionS
 let attrImpl : AttributeImpl := {
   name  := attrName,
   descr := descr,
-  add   := fun env decl args persistent => pure env -- TODO
+  add   := fun env constName _ persistent => addParserAttribute env ext constName persistent
 };
 let attr : ParserAttribute := { ext := ext, attr := attrImpl, kind := kind };
 parserAttributeTableRef.modify $ fun table => table.insert kindSym attr;

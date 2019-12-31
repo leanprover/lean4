@@ -1315,41 +1315,69 @@ IO.mkRef {}
 @[init mkBuiltinTokenTable]
 constant builtinTokenTable : IO.Ref TokenTable := arbitrary _
 
-def mkImportedTokenTable (es : Array (Array TokenConfig)) : IO TokenTable := do
+abbrev TokenTableAttributeExtensionState := List TokenConfig × TokenTable
+
+abbrev TokenTableAttributeExtension := PersistentEnvExtension TokenConfig TokenConfig TokenTableAttributeExtensionState
+
+private def addTokenConfig (table : TokenTable) (tk : TokenConfig) : Except String TokenTable := do
+table ← insertToken tk.val tk.lbp table;
+match tk.lbpNoWs with
+| none   => pure table
+| some _ => insertNoWsToken tk.val tk.lbpNoWs table
+
+private def mkImportedTokenTable (es : Array (Array TokenConfig)) : IO TokenTableAttributeExtensionState := do
 table ← builtinTokenTable.get;
--- TODO: add `es` to `table`
-pure table
+table ← es.foldlM
+  (fun table tokens =>
+    tokens.foldlM
+      (fun table tk => IO.ofExcept (addTokenConfig table tk))
+      table)
+  table;
+pure ([], table)
+
+private def addTokenTableEntry (s : TokenTableAttributeExtensionState) (tk : TokenConfig) : TokenTableAttributeExtensionState :=
+match addTokenConfig s.2 tk with
+| Except.ok table => (tk :: s.1, table)
+| _               => unreachable!
 
 /- We use a TokenTable attribute to make sure they are scoped.
    Users do not directly use this attribute. They use them indirectly when
    they use parser attributes. -/
 structure TokenTableAttribute :=
 (attr : AttributeImpl)
-(ext  : PersistentEnvExtension TokenConfig TokenConfig TokenTable)
+(ext  : TokenTableAttributeExtension)
 
 instance TokenTableAttribute.inhabited : Inhabited TokenTableAttribute := ⟨{ attr := arbitrary _, ext := arbitrary _ }⟩
 
-section
-set_option compiler.extract_closed false
+private def addTokenAux (env : Environment) (ext : TokenTableAttributeExtension) (tk : TokenConfig) : Except String Environment := do
+let s := ext.getState env;
+-- Recall that addTokenTableEntry is pure, and assumes `addTokenConfig` does not fail.
+-- So, we must run it here to handle exception.
+addTokenConfig s.2 tk;
+pure $ ext.addEntry env tk
+
 def mkTokenTableAttribute : IO TokenTableAttribute := do
-ext : PersistentEnvExtension TokenConfig TokenConfig TokenTable ← registerPersistentEnvExtension {
+ext : TokenTableAttributeExtension ← registerPersistentEnvExtension {
   name            := `_tokens_,
-  initial         := {},
-  addImportedFn   := fun _ es => mkImportedTokenTable es,
-  addEntryFn      := fun (s : TokenTable) _ => s,         -- TODO
-  exportEntriesFn := fun _ => #[],                        -- TODO
-  statsFn         := fun _ => fmt "token table attribute" -- TODO
+  initial         := ([], {}),
+  addImportedFn   := fun env es => mkImportedTokenTable es,
+  addEntryFn      := addTokenTableEntry,
+  exportEntriesFn := fun s => s.1.reverse.toArray,
+  statsFn         := fun s => format "number of local entries: " ++ format s.1.length
 };
 let attrImpl : AttributeImpl := {
   name  := `_tokens_,
   descr := "internal token table attribute",
   add   := fun env decl args persistent => pure env -- TODO
 };
+registerAttribute attrImpl;
 pure { ext := ext, attr := attrImpl }
-end
 
 @[init mkTokenTableAttribute]
 constant tokenTableAttribute : TokenTableAttribute := arbitrary _
+
+def addToken (env : Environment) (tk : TokenConfig) : Except String Environment :=
+addTokenAux env tokenTableAttribute.2 tk
 
 /- Global table with all SyntaxNodeKind's -/
 def mkSyntaxNodeKindSetRef : IO (IO.Ref SyntaxNodeKindSet) := IO.mkRef {}
@@ -1371,7 +1399,7 @@ def mkParserContextCore (env : Environment) (input : String) (fileName : String)
 { input    := input,
   fileName := fileName,
   fileMap  := input.toFileMap,
-  tokens   := tokenTableAttribute.ext.getState env }
+  tokens   := (tokenTableAttribute.ext.getState env).2 }
 
 @[inline] def ParserContextCore.toParserContext (env : Environment) (ctx : ParserContextCore) : ParserContext :=
 { env := env, toParserContextCore := ctx }

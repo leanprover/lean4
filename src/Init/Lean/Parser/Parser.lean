@@ -1325,14 +1325,14 @@ pure table
    they use parser attributes. -/
 structure TokenTableAttribute :=
 (attr : AttributeImpl)
-(ext  : PersistentEnvExtension TokenConfig TokenTable)
+(ext  : PersistentEnvExtension TokenConfig TokenConfig TokenTable)
 
 instance TokenTableAttribute.inhabited : Inhabited TokenTableAttribute := ⟨{ attr := arbitrary _, ext := arbitrary _ }⟩
 
 section
 set_option compiler.extract_closed false
 def mkTokenTableAttribute : IO TokenTableAttribute := do
-ext : PersistentEnvExtension TokenConfig TokenTable ← registerPersistentEnvExtension {
+ext : PersistentEnvExtension TokenConfig TokenConfig TokenTable ← registerPersistentEnvExtension {
   name            := `_tokens_,
   addImportedFn   := fun es => mkImportedTokenTable es,
   addEntryFn      := fun (s : TokenTable) _ => s,         -- TODO
@@ -1484,7 +1484,7 @@ inductive ParserAttributeEntry
 
 structure ParserAttribute :=
 (attr : AttributeImpl)
-(ext  : PersistentEnvExtension ParserAttributeEntry ParsingTables)
+(ext  : PersistentEnvExtension ParserAttributeEntry ParserAttributeEntry ParsingTables)
 (kind : String)
 
 namespace ParserAttribute
@@ -1541,7 +1541,7 @@ def registerParserAttribute (attrName : Name) (kind : String) (descr : String) (
 let kindSym := mkNameSimple kind;
 attrTable ← parserAttributeTable.get;
 when (attrTable.contains kindSym) $ throw (IO.userError ("parser attribute '" ++ kind ++ "' has already been defined"));
-ext : PersistentEnvExtension ParserAttributeEntry ParsingTables ← registerPersistentEnvExtension {
+ext : PersistentEnvExtension ParserAttributeEntry ParserAttributeEntry ParsingTables ← registerPersistentEnvExtension {
   name            := attrName,
   addImportedFn   := fun es => do
     table ← match builtinTable with

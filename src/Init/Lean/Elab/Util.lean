@@ -37,7 +37,7 @@ structure ElabAttributeEntry :=
 
 structure ElabAttribute (σ : Type) :=
 (attr : AttributeImpl)
-(ext  : PersistentEnvExtension ElabAttributeEntry σ)
+(ext  : PersistentEnvExtension ElabAttributeEntry ElabAttributeEntry σ)
 (kind : String)
 
 instance ElabAttribute.inhabited {σ} [Inhabited σ] : Inhabited (ElabAttribute σ) := ⟨{ attr := arbitrary _, ext := arbitrary _, kind := "" }⟩
@@ -49,7 +49,7 @@ The state is initialized using `builtinTable`.
 The current implementation just uses the bultin elaborators.
 -/
 def mkElabAttribute {σ} [Inhabited σ] (attrName : Name) (kind : String) (builtinTable : IO.Ref σ) : IO (ElabAttribute σ) := do
-ext : PersistentEnvExtension ElabAttributeEntry σ ← registerPersistentEnvExtension {
+ext : PersistentEnvExtension ElabAttributeEntry ElabAttributeEntry σ ← registerPersistentEnvExtension {
   name            := attrName,
   addImportedFn   := fun es => do
     table ← builtinTable.get;

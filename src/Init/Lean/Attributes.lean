@@ -153,7 +153,7 @@ structure TagAttribute :=
 def registerTagAttribute (name : Name) (descr : String) (validate : Environment → Name → Except String Unit := fun _ _ => Except.ok ()) : IO TagAttribute := do
 ext : PersistentEnvExtension Name Name NameSet ← registerPersistentEnvExtension {
   name            := name,
-  initial         := {},
+  mkInitial       := pure {},
   addImportedFn   := fun _ _ => pure {},
   addEntryFn      := fun (s : NameSet) n => s.insert n,
   exportEntriesFn := fun es =>
@@ -202,7 +202,7 @@ def registerParametricAttribute {α : Type} [Inhabited α] (name : Name) (descr 
        (afterSet : Environment → Name → α → Except String Environment := fun env _ _ => Except.ok env) : IO (ParametricAttribute α) := do
 ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
   name            := name,
-  initial         := {},
+  mkInitial       := pure {},
   addImportedFn   := fun _ _ => pure {},
   addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2,
   exportEntriesFn := fun m =>
@@ -261,7 +261,7 @@ structure EnumAttributes (α : Type) :=
 def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDescrs : List (Name × String × α)) (validate : Environment → Name → α → Except String Unit := fun _ _ _ => Except.ok ()) (applicationTime := AttributeApplicationTime.afterTypeChecking) : IO (EnumAttributes α) := do
 ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
   name            := extName,
-  initial         := {},
+  mkInitial       := pure {},
   addImportedFn   := fun _ _ => pure {},
   addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2,
   exportEntriesFn := fun m =>

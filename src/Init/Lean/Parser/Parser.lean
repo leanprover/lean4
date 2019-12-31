@@ -1359,8 +1359,8 @@ pure $ ext.addEntry env tk
 def mkTokenTableAttribute : IO TokenTableAttribute := do
 ext : TokenTableAttributeExtension ← registerPersistentEnvExtension {
   name            := `_tokens_,
-  initial         := ([], {}),
-  addImportedFn   := fun env es => mkImportedTokenTable es,
+  mkInitial       := do table ← builtinTokenTable.get; pure ([], table),
+  addImportedFn   := fun env => mkImportedTokenTable,
   addEntryFn      := addTokenTableEntry,
   exportEntriesFn := fun s => s.1.reverse.toArray,
   statsFn         := fun s => format "number of local entries: " ++ format s.1.length
@@ -1643,6 +1643,11 @@ match mkParserOfConstant env attrTable constName with
   | Except.ok _     => pure $ ext.addEntry env entry
   | Except.error ex => throw (IO.userError ex)
 
+private def ParserAttribute.mkInitial (builtinTablesRef : Option (IO.Ref ParsingTables) := none) : IO (ParserAttributeExtensionState) :=
+match builtinTablesRef with
+| none           => pure {}
+| some tablesRef => do tables ← tablesRef.get; pure { tables := tables }
+
 /-
 Parser attribute that can be optionally initialized with
 a builtin parser attribute.
@@ -1655,7 +1660,7 @@ attrTable ← parserAttributeTableRef.get;
 when (attrTable.contains kindSym) $ throw (IO.userError ("parser attribute '" ++ kind ++ "' has already been defined"));
 ext : PersistentEnvExtension Name ParserAttributeEntry ParserAttributeExtensionState ← registerPersistentEnvExtension {
   name            := attrName,
-  initial         := { ParserAttributeExtensionState . },
+  mkInitial       := ParserAttribute.mkInitial,
   addImportedFn   := addImportedParsers builtinTables,
   addEntryFn      := addParserAttributeEntry,
   exportEntriesFn := fun s => s.newEntries.reverse.toArray,

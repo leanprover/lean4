@@ -1394,6 +1394,9 @@ else
 def mkBuiltinParsingTablesRef : IO (IO.Ref ParsingTables) :=
 IO.mkRef {}
 
+@[init mkBuiltinParsingTablesRef]
+constant builtinTermParsingTable : IO.Ref ParsingTables := arbitrary _
+
 private def updateTokens (info : ParserInfo) (declName : Name) : IO Unit := do
 tokens ← builtinTokenTable.swap {};
 match info.updateTokens tokens with
@@ -1484,7 +1487,46 @@ structure ParserAttribute :=
 (ext  : PersistentEnvExtension ParserAttributeEntry ParsingTables)
 (kind : String)
 
-instance ParserAttribute.inhabited : Inhabited ParserAttribute := ⟨{ attr := arbitrary _, ext := arbitrary _, kind := "" }⟩
+namespace ParserAttribute
+
+instance : Inhabited ParserAttribute := ⟨{ attr := arbitrary _, ext := arbitrary _, kind := "" }⟩
+
+def runParserFn (attr : ParserAttribute) : ParserFn leading :=
+fun a c s =>
+  let tables : ParsingTables := attr.ext.getState c.env;
+  prattParser attr.kind tables a c s
+
+def mkParser (attr : ParserAttribute) (rbp : Nat) : Parser leading :=
+{ fn := fun _ => attr.runParserFn rbp }
+
+end ParserAttribute
+
+abbrev ParserAttributeTable := HashMap Name ParserAttribute
+
+def mkParserAttributeTable : IO (IO.Ref ParserAttributeTable) :=
+IO.mkRef {}
+
+@[init mkParserAttributeTable]
+constant parserAttributeTable : IO.Ref ParserAttributeTable := arbitrary _
+
+def compileParserDescr (table : ParserAttributeTable) : forall {k : ParserKind}, ParserDescr k → Except String (Parser k)
+| _, ParserDescr.andthen d₁ d₂                 => andthen <$> compileParserDescr d₁ <*> compileParserDescr d₂
+| _, ParserDescr.orelse d₁ d₂                  => orelse <$> compileParserDescr d₁ <*> compileParserDescr d₂
+| _, ParserDescr.optional d                    => optional <$> compileParserDescr d
+| _, ParserDescr.lookahead d                   => lookahead <$> compileParserDescr d
+| _, ParserDescr.try d                         => try <$> compileParserDescr d
+| _, ParserDescr.many d                        => many <$> compileParserDescr d
+| _, ParserDescr.many1 d                       => many1 <$> compileParserDescr d
+| _, ParserDescr.sepBy d₁ d₂                   => sepBy <$> compileParserDescr d₁ <*> compileParserDescr d₂
+| _, ParserDescr.sepBy1 d₁ d₂                  => sepBy1 <$> compileParserDescr d₁ <*> compileParserDescr d₂
+| _, ParserDescr.node k d                      => node k <$> compileParserDescr d
+| _, ParserDescr.symbol tk lbp                 => pure $ symbol tk lbp
+| _, ParserDescr.unicodeSymbol tk₁ tk₂ lbp     => pure $ unicodeSymbol tk₁ tk₂ lbp
+| ParserKind.leading, ParserDescr.parser n rbp =>
+  match table.find? n with
+  | some attr => pure $ attr.mkParser rbp
+  | none      => throw ("unknow parser kind '" ++ toString n ++ "'")
+| ParserKind.trailing, ParserDescr.pushLeading => pure $ pushLeading
 
 /-
 This is just the basic skeleton where we create an
@@ -1493,10 +1535,12 @@ a builtin parser attribute.
 
 The current implementation just uses the bultin parser.
 We still need to:
-- Add a ParserDescr type, and write an interpreter for it.
 - Add support for scoped parser extensions.
 -/
 def registerParserAttribute (attrName : Name) (kind : String) (descr : String) (builtinTable : Option (IO.Ref ParsingTables) := none) : IO ParserAttribute := do
+let kindSym := mkNameSimple kind;
+attrTable ← parserAttributeTable.get;
+when (attrTable.contains kindSym) $ throw (IO.userError ("parser attribute '" ++ kind ++ "' has already been defined"));
 ext : PersistentEnvExtension ParserAttributeEntry ParsingTables ← registerPersistentEnvExtension {
   name            := attrName,
   addImportedFn   := fun es => do
@@ -1514,21 +1558,11 @@ let attrImpl : AttributeImpl := {
   descr := descr,
   add   := fun env decl args persistent => pure env -- TODO
 };
-pure { ext := ext, attr := attrImpl, kind := kind }
-
-namespace ParserAttribute
-
-def runParser (attr : ParserAttribute) : ParserFn leading :=
-fun a c s =>
-  let tables : ParsingTables := attr.ext.getState c.env;
-  prattParser attr.kind tables a c s
-
-end ParserAttribute
+let attr : ParserAttribute := { ext := ext, attr := attrImpl, kind := kind };
+parserAttributeTable.modify $ fun table => table.insert kindSym attr;
+pure attr
 
 -- declare `termParser` here since it is used everywhere via antiquotations
-
-@[init mkBuiltinParsingTablesRef]
-constant builtinTermParsingTable : IO.Ref ParsingTables := arbitrary _
 
 @[init] def regBuiltinTermParserAttr : IO Unit :=
 registerBuiltinParserAttribute `builtinTermParser `Lean.Parser.builtinTermParsingTable
@@ -1540,7 +1574,7 @@ registerParserAttribute `termParser "term" "term parser" (some builtinTermParsin
 constant termParserAttribute : ParserAttribute := arbitrary _
 
 @[inline] def termParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
-{ fn := fun _ => termParserAttribute.runParser rbp }
+{ fn := fun _ => termParserAttribute.runParserFn rbp }
 
 def dollarSymbol {k : ParserKind} : Parser k := symbol "$" 1
 

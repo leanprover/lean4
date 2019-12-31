@@ -22,7 +22,7 @@ registerParserAttribute `levelParser "level" "universe level parser" (some built
 constant levelParserAttribute : ParserAttribute := arbitrary _
 
 @[inline] def levelParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
-{ fn := fun _ => levelParserAttribute.runParser rbp }
+{ fn := fun _ => levelParserAttribute.runParserFn rbp }
 
 namespace Level
 

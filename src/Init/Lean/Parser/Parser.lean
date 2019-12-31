@@ -1334,7 +1334,7 @@ set_option compiler.extract_closed false
 def mkTokenTableAttribute : IO TokenTableAttribute := do
 ext : PersistentEnvExtension TokenConfig TokenConfig TokenTable ← registerPersistentEnvExtension {
   name            := `_tokens_,
-  addImportedFn   := fun es => mkImportedTokenTable es,
+  addImportedFn   := fun _ es => mkImportedTokenTable es,
   addEntryFn      := fun (s : TokenTable) _ => s,         -- TODO
   exportEntriesFn := fun _ => #[],                        -- TODO
   statsFn         := fun _ => fmt "token table attribute" -- TODO
@@ -1569,6 +1569,35 @@ match env.find? constName with
 constant mkParserOfConstant (env : Environment) (table : ParserAttributeTable) (constName : Name) : Except String (Sigma (fun (k : ParserKind) => Parser k)) :=
 arbitrary _
 
+private def addImportedParsers (builtinTables : Option (IO.Ref ParsingTables)) (env : Environment) (es : Array (Array Name)) : IO ParserAttributeExtensionState := do
+tables ← match builtinTables with
+| some tables => tables.get
+| none        => pure {};
+attrTable ← parserAttributeTableRef.get;
+tables ← es.foldlM
+  (fun tables constNames =>
+    constNames.foldlM
+      (fun tables constName =>
+        match mkParserOfConstant env attrTable constName with
+        | Except.ok ⟨leading, p⟩  =>
+          match addLeadingParser tables constName p with
+          | Except.ok tables => pure tables
+          | Except.error ex  => throw (IO.userError ex)
+        | Except.ok ⟨trailing, p⟩ => pure $ addTrailingParser tables p
+        | Except.error ex         => throw (IO.userError ex))
+      tables)
+  tables;
+pure { tables := tables }
+
+private def addParserAttributeEntry (s : ParserAttributeExtensionState) (e : ParserAttributeEntry) : ParserAttributeExtensionState :=
+match e with
+| { parserName := parserName, kind := leading, parser := p } =>
+  match addLeadingParser s.tables parserName p with
+  | Except.ok tables => { newEntries := parserName :: s.newEntries, tables := tables }
+  | Except.error _   => unreachable!
+| { parserName := parserName, kind := trailing, parser := p } =>
+  { newEntries := parserName :: s.newEntries, tables := addTrailingParser s.tables p }
+
 /-
 This is just the basic skeleton where we create an
 extensible/scoped parser attribute that is optionally initialized with
@@ -1584,30 +1613,10 @@ attrTable ← parserAttributeTableRef.get;
 when (attrTable.contains kindSym) $ throw (IO.userError ("parser attribute '" ++ kind ++ "' has already been defined"));
 ext : PersistentEnvExtension Name ParserAttributeEntry ParserAttributeExtensionState ← registerPersistentEnvExtension {
   name            := attrName,
-  addImportedFn   := fun es => do
-    tables ← match builtinTables with
-    | some tables => tables.get
-    | none        => pure {};
-    attrTable ← parserAttributeTableRef.get;
-    tables ← es.foldlM
-      (fun tables constNames =>
-        constNames.foldlM
-          (fun tables constName =>
-            -- TODO: we need environment
-            pure tables)
-          tables)
-      tables;
-    pure { ParserAttributeExtensionState . tables := tables },
-  addEntryFn      := fun (s : ParserAttributeExtensionState) (e : ParserAttributeEntry) =>
-    match e with
-    | { parserName := parserName, kind := leading, parser := p } =>
-      match addLeadingParser s.tables parserName p with
-      | Except.ok tables => { newEntries := parserName :: s.newEntries, tables := tables }
-      | Except.error _   => unreachable!
-    | { parserName := parserName, kind := trailing, parser := p } =>
-      { newEntries := parserName :: s.newEntries, tables := addTrailingParser s.tables p },
-  exportEntriesFn := fun (s : ParserAttributeExtensionState)   => s.newEntries.reverse.toArray,
-  statsFn         := fun (s : ParserAttributeExtensionState)   => format "number of local entries: " ++ format s.newEntries.length
+  addImportedFn   := addImportedParsers builtinTables,
+  addEntryFn      := addParserAttributeEntry,
+  exportEntriesFn := fun s => s.newEntries.reverse.toArray,
+  statsFn         := fun s => format "number of local entries: " ++ format s.newEntries.length
 };
 let attrImpl : AttributeImpl := {
   name  := attrName,

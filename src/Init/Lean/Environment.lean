@@ -225,7 +225,7 @@ structure PersistentEnvExtensionState (α : Type) (σ : Type) :=
    closures which we currently cannot store in files. -/
 structure PersistentEnvExtension (α : Type) (β : Type) (σ : Type) extends EnvExtension (PersistentEnvExtensionState α σ) :=
 (name            : Name)
-(addImportedFn   : Array (Array α) → IO σ)
+(addImportedFn   : Environment → Array (Array α) → IO σ)
 (addEntryFn      : σ → β → σ)
 (exportEntriesFn : σ → Array α)
 (statsFn         : σ → Format)
@@ -242,7 +242,7 @@ instance PersistentEnvExtensionState.inhabited {α σ} [Inhabited σ] : Inhabite
 instance PersistentEnvExtension.inhabited {α β σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α β σ) :=
 ⟨{ toEnvExtension := { idx := 0, stateInh := arbitrary _, mkInitial := arbitrary _ },
    name := arbitrary _,
-   addImportedFn := fun _ => arbitrary _,
+   addImportedFn := fun _ _ => arbitrary _,
    addEntryFn := fun s _ => s,
    exportEntriesFn := fun _ => #[],
    statsFn := fun _ => Format.nil }⟩
@@ -276,7 +276,7 @@ private constant persistentEnvExtensionsRef : IO.Ref (Array (PersistentEnvExtens
 
 structure PersistentEnvExtensionDescr (α β σ : Type) :=
 (name            : Name)
-(addImportedFn   : Array (Array α) → IO σ)
+(addImportedFn   : Environment → Array (Array α) → IO σ)
 (addEntryFn      : σ → β → σ)
 (exportEntriesFn : σ → Array α)
 (statsFn         : σ → Format := fun _ => Format.nil)
@@ -285,7 +285,8 @@ unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ]
 pExts ← persistentEnvExtensionsRef.get;
 when (pExts.any (fun ext => ext.name == descr.name)) $ throw (IO.userError ("invalid environment extension, '" ++ toString descr.name ++ "' has already been used"));
 ext ← registerEnvExtension $ do {
-  state ← descr.addImportedFn #[];
+  env ← mkEmptyEnvironment;
+  state ← descr.addImportedFn env #[];
   let s : PersistentEnvExtensionState α σ := {
     importedEntries := #[],
     state           := state
@@ -322,7 +323,7 @@ structure SimplePersistentEnvExtensionDescr (α σ : Type) :=
 def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : SimplePersistentEnvExtensionDescr α σ) : IO (SimplePersistentEnvExtension α σ) :=
 registerPersistentEnvExtension {
   name := descr.name,
-  addImportedFn := fun as => pure ([], descr.addImportedFn as),
+  addImportedFn := fun _ as => pure ([], descr.addImportedFn as),
   addEntryFn := fun s e => match s with
     | (entries, s) => (e::entries, descr.addEntryFn s e),
   exportEntriesFn := fun s => descr.toArrayFn s.1.reverse,
@@ -502,7 +503,7 @@ private def finalizePersistentExtensions (env : Environment) : IO Environment :=
 pExtDescrs ← persistentEnvExtensionsRef.get;
 pExtDescrs.iterateM env $ fun _ extDescr env => do
   let s := extDescr.toEnvExtension.getState env;
-  newState ← extDescr.addImportedFn s.importedEntries;
+  newState ← extDescr.addImportedFn env s.importedEntries;
   pure $ extDescr.toEnvExtension.setState env { state := newState, .. s }
 
 @[export lean_import_modules]

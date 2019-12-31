@@ -12,6 +12,9 @@ namespace Lean
 inductive AttributeApplicationTime
 | afterTypeChecking | afterCompilation | beforeElaboration
 
+-- TODO: after we delete the old frontend, we should use `EIO` with a richer exception kind at AttributeImpl.
+-- We must perform a similar modification at `PersistentEnvExtension`
+
 structure AttributeImpl :=
 (name : Name)
 (descr : String)

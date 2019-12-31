@@ -276,6 +276,7 @@ private constant persistentEnvExtensionsRef : IO.Ref (Array (PersistentEnvExtens
 
 structure PersistentEnvExtensionDescr (α β σ : Type) :=
 (name            : Name)
+(initial         : σ)
 (addImportedFn   : Environment → Array (Array α) → IO σ)
 (addEntryFn      : σ → β → σ)
 (exportEntriesFn : σ → Array α)
@@ -285,11 +286,9 @@ unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ]
 pExts ← persistentEnvExtensionsRef.get;
 when (pExts.any (fun ext => ext.name == descr.name)) $ throw (IO.userError ("invalid environment extension, '" ++ toString descr.name ++ "' has already been used"));
 ext ← registerEnvExtension $ do {
-  env ← mkEmptyEnvironment;
-  state ← descr.addImportedFn env #[];
   let s : PersistentEnvExtensionState α σ := {
     importedEntries := #[],
-    state           := state
+    state           := descr.initial
   };
   pure s
 };
@@ -322,9 +321,10 @@ structure SimplePersistentEnvExtensionDescr (α σ : Type) :=
 
 def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : SimplePersistentEnvExtensionDescr α σ) : IO (SimplePersistentEnvExtension α σ) :=
 registerPersistentEnvExtension {
-  name := descr.name,
-  addImportedFn := fun _ as => pure ([], descr.addImportedFn as),
-  addEntryFn := fun s e => match s with
+  name            := descr.name,
+  initial         := ([], descr.addImportedFn #[]),
+  addImportedFn   := fun _ as => pure ([], descr.addImportedFn as),
+  addEntryFn      := fun s e => match s with
     | (entries, s) => (e::entries, descr.addEntryFn s e),
   exportEntriesFn := fun s => descr.toArrayFn s.1.reverse,
   statsFn := fun s => format "number of local entries: " ++ format s.1.length

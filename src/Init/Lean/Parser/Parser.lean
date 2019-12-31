@@ -1334,6 +1334,7 @@ set_option compiler.extract_closed false
 def mkTokenTableAttribute : IO TokenTableAttribute := do
 ext : PersistentEnvExtension TokenConfig TokenConfig TokenTable ← registerPersistentEnvExtension {
   name            := `_tokens_,
+  initial         := {},
   addImportedFn   := fun _ es => mkImportedTokenTable es,
   addEntryFn      := fun (s : TokenTable) _ => s,         -- TODO
   exportEntriesFn := fun _ => #[],                        -- TODO
@@ -1626,6 +1627,7 @@ attrTable ← parserAttributeTableRef.get;
 when (attrTable.contains kindSym) $ throw (IO.userError ("parser attribute '" ++ kind ++ "' has already been defined"));
 ext : PersistentEnvExtension Name ParserAttributeEntry ParserAttributeExtensionState ← registerPersistentEnvExtension {
   name            := attrName,
+  initial         := { ParserAttributeExtensionState . },
   addImportedFn   := addImportedParsers builtinTables,
   addEntryFn      := addParserAttributeEntry,
   exportEntriesFn := fun s => s.newEntries.reverse.toArray,

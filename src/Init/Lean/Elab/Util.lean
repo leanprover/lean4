@@ -51,6 +51,7 @@ The current implementation just uses the bultin elaborators.
 def mkElabAttribute {σ} [Inhabited σ] (attrName : Name) (kind : String) (builtinTable : IO.Ref σ) : IO (ElabAttribute σ) := do
 ext : PersistentEnvExtension ElabAttributeEntry ElabAttributeEntry σ ← registerPersistentEnvExtension {
   name            := attrName,
+  initial         := arbitrary _,
   addImportedFn   := fun env es => do
     table ← builtinTable.get;
     -- TODO: populate table with `es`

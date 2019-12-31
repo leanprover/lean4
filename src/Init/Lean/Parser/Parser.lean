@@ -192,14 +192,11 @@ match s with
 
 end ParserState
 
-inductive ParserKind
-| leading | trailing
-
-export ParserKind (leading trailing)
-
 def ParserArg : ParserKind → Type
 | ParserKind.leading => Nat
 | ParserKind.trailing => Syntax
+
+export ParserKind (leading trailing)
 
 def BasicParserFn := ParserContext → ParserState → ParserState
 

@@ -23,10 +23,13 @@ inductive Name
 | str : Name → String → USize → Name
 | num : Name → Nat → USize → Name
 
+inductive ParserKind
+| leading | trailing
+
 /-
   Small DSL for describing parsers. We implement an interpreter for it
   at `Parser.lean` -/
-inductive ParserDescr
+inductive ParserDescr (kind : ParserKind := ParserKind.leading)
 | andthen       : ParserDescr → ParserDescr → ParserDescr
 | orelse        : ParserDescr → ParserDescr → ParserDescr
 | optional      : ParserDescr → ParserDescr

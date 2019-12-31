@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import Init.Data.String.Basic
+import Init.LeanExt
 import Init.Coe
 import Init.Data.UInt
 import Init.Data.ToString
@@ -13,11 +13,6 @@ import Init.Data.RBMap
 import Init.Data.RBTree
 
 namespace Lean
-
-inductive Name
-| anonymous : Name
-| str : Name → String → USize → Name
-| num : Name → Nat → USize → Name
 
 instance Name.inhabited : Inhabited Name :=
 ⟨Name.anonymous⟩

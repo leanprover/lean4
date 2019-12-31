@@ -22,7 +22,7 @@ registerParserAttribute `commandParser "command" "command parser" (some builtinC
 constant commandParserAttribute : ParserAttribute := arbitrary _
 
 @[inline] def commandParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
-{ fn := fun _ => commandParserAttribute.runParser rbp }
+{ fn := fun _ => commandParserAttribute.runParserFn rbp }
 
 namespace Command
 def commentBody : Parser :=

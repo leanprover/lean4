@@ -126,7 +126,6 @@ lean_object* l___private_Init_Lean_Elab_Quotation_7__getHeadInfo___elambda__1___
 lean_object* l___private_Init_Lean_Elab_Quotation_9__compileStxMatch___main___closed__19;
 lean_object* l___private_Init_Lean_Elab_Quotation_5__quoteSyntax___main___closed__16;
 lean_object* l___private_Init_Lean_Elab_Quotation_9__compileStxMatch___main___closed__31;
-lean_object* l_Lean_Parser_ParserAttribute_runParser(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_parse_expr(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_1__quoteName___main___lambda__3___closed__3;
 lean_object* l_Lean_Array_HasQuote___rarg___lambda__1___closed__4;
@@ -134,6 +133,7 @@ lean_object* l_Lean_Elab_Term_stxQuot_expand(lean_object*, lean_object*, lean_ob
 lean_object* l___private_Init_Lean_Elab_Quotation_14__toPreterm___main___closed__4;
 lean_object* l___private_Init_Lean_Elab_Quotation_7__getHeadInfo___elambda__2___closed__4;
 lean_object* l_Lean_Elab_Term_antiquotKind_x3f___boxed(lean_object*);
+lean_object* l_Lean_Parser_ParserAttribute_runParserFn(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_5__quoteSyntax___main___closed__64;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_5__quoteSyntax___main___closed__1;
@@ -24823,7 +24823,7 @@ lean_dec(x_2);
 x_8 = l_Lean_Parser_ParserState_setPos(x_7, x_3);
 x_9 = l_Lean_Parser_termParserAttribute;
 x_10 = l_Lean_Parser_appPrec;
-x_11 = l_Lean_Parser_ParserAttribute_runParser(x_9, x_10, x_6, x_8);
+x_11 = l_Lean_Parser_ParserAttribute_runParserFn(x_9, x_10, x_6, x_8);
 x_12 = lean_ctor_get(x_11, 3);
 lean_inc(x_12);
 if (lean_obj_tag(x_12) == 0)

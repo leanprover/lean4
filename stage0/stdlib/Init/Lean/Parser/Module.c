@@ -40,8 +40,8 @@ lean_object* l_Lean_Parser_mkParserState(lean_object*);
 lean_object* l_Lean_Parser_Module_prelude___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Module_import;
 lean_object* l_Lean_Parser_Module_import___elambda__1___closed__2;
-lean_object* l_Lean_Parser_ParserAttribute_runParser(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Module_header___closed__4;
+lean_object* l_Lean_Parser_ParserAttribute_runParserFn(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at___private_Init_Lean_Parser_Module_4__testModuleParserAux___main___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -1849,7 +1849,7 @@ lean_ctor_set(x_15, 3, x_13);
 x_16 = l_Lean_Parser_commandParserAttribute;
 x_17 = lean_unsigned_to_nat(0u);
 lean_inc(x_11);
-x_18 = l_Lean_Parser_ParserAttribute_runParser(x_16, x_17, x_11, x_15);
+x_18 = l_Lean_Parser_ParserAttribute_runParserFn(x_16, x_17, x_11, x_15);
 x_19 = lean_ctor_get(x_18, 3);
 lean_inc(x_19);
 if (lean_obj_tag(x_19) == 0)
@@ -1933,7 +1933,7 @@ lean_ctor_set(x_42, 3, x_40);
 x_43 = l_Lean_Parser_commandParserAttribute;
 x_44 = lean_unsigned_to_nat(0u);
 lean_inc(x_38);
-x_45 = l_Lean_Parser_ParserAttribute_runParser(x_43, x_44, x_38, x_42);
+x_45 = l_Lean_Parser_ParserAttribute_runParserFn(x_43, x_44, x_38, x_42);
 x_46 = lean_ctor_get(x_45, 3);
 lean_inc(x_46);
 if (lean_obj_tag(x_46) == 0)

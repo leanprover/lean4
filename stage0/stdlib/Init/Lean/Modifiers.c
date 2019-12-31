@@ -63,7 +63,7 @@ lean_object* lean_io_ref_reset(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
 lean_object* l_Lean_protectedExt___elambda__3(lean_object*, lean_object*);
 lean_object* l_Lean_mkPrivateExtension___closed__1;
-lean_object* l_Lean_protectedExt___elambda__4___boxed(lean_object*);
+lean_object* l_Lean_protectedExt___elambda__4___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_privateExt;
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
@@ -78,7 +78,7 @@ lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*
 lean_object* l___private_Init_Lean_Modifiers_1__privateToUserNameAux(lean_object*);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_privateHeader___closed__2;
-lean_object* l_Lean_protectedExt___elambda__4(lean_object*);
+lean_object* l_Lean_protectedExt___elambda__4(lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt___closed__4;
 lean_object* l_Lean_mkProtectedExtension___closed__2;
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
@@ -146,19 +146,19 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_protectedExt___elambda__4(lean_object* x_1) {
+lean_object* l_Lean_protectedExt___elambda__4(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_protectedExt___elambda__4___rarg), 1, 0);
-return x_2;
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Lean_protectedExt___elambda__4___rarg), 1, 0);
+return x_3;
 }
 }
 lean_object* _init_l_Lean_protectedExt___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_protectedExt___elambda__4___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_protectedExt___elambda__4___boxed), 2, 0);
 return x_1;
 }
 }
@@ -234,13 +234,14 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_protectedExt___elambda__4___boxed(lean_object* x_1) {
+lean_object* l_Lean_protectedExt___elambda__4___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lean_protectedExt___elambda__4(x_1);
+lean_object* x_3; 
+x_3 = l_Lean_protectedExt___elambda__4(x_1, x_2);
+lean_dec(x_2);
 lean_dec(x_1);
-return x_2;
+return x_3;
 }
 }
 lean_object* lean_add_protected(lean_object* x_1, lean_object* x_2) {

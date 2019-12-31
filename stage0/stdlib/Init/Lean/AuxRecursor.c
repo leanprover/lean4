@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_noConfusionExt___elambda__4___boxed(lean_object*);
+lean_object* l_Lean_noConfusionExt___elambda__4___boxed(lean_object*, lean_object*);
 lean_object* lean_mark_aux_recursor(lean_object*, lean_object*);
 lean_object* l_Lean_noConfusionExt;
 lean_object* l_Lean_noConfusionExt___elambda__2___boxed(lean_object*);
@@ -22,7 +22,7 @@ lean_object* l_Lean_noConfusionExt___closed__5;
 lean_object* l_Lean_auxRecExt___elambda__1___boxed(lean_object*);
 lean_object* l_Lean_noConfusionExt___closed__3;
 extern lean_object* l_String_splitAux___main___closed__1;
-lean_object* l_Lean_auxRecExt___elambda__4(lean_object*);
+lean_object* l_Lean_auxRecExt___elambda__4(lean_object*, lean_object*);
 lean_object* l_Lean_auxRecExt;
 lean_object* l_Lean_auxRecExt___closed__4;
 lean_object* l_Lean_noConfusionExt___closed__1;
@@ -54,13 +54,13 @@ lean_object* l_Lean_noConfusionExt___elambda__1(lean_object*);
 lean_object* l_Lean_auxRecExt___elambda__3___boxed(lean_object*, lean_object*);
 uint8_t lean_is_aux_recursor(lean_object*, lean_object*);
 lean_object* l_Lean_auxRecExt___elambda__2(lean_object*);
-lean_object* l_Lean_noConfusionExt___elambda__4(lean_object*);
+lean_object* l_Lean_noConfusionExt___elambda__4(lean_object*, lean_object*);
 lean_object* l_Lean_mkNoConfusionExtension(lean_object*);
 lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_namespacesExt___closed__1;
 lean_object* l_Lean_isAuxRecursor___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_auxRecExt___elambda__4___boxed(lean_object*);
+lean_object* l_Lean_auxRecExt___elambda__4___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_noConfusionExt___elambda__2(lean_object*);
 lean_object* _init_l_Lean_mkAuxRecursorExtension___closed__1() {
 _start:
@@ -123,19 +123,19 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_auxRecExt___elambda__4(lean_object* x_1) {
+lean_object* l_Lean_auxRecExt___elambda__4(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_auxRecExt___elambda__4___rarg), 1, 0);
-return x_2;
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Lean_auxRecExt___elambda__4___rarg), 1, 0);
+return x_3;
 }
 }
 lean_object* _init_l_Lean_auxRecExt___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_auxRecExt___elambda__4___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_auxRecExt___elambda__4___boxed), 2, 0);
 return x_1;
 }
 }
@@ -211,13 +211,14 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_auxRecExt___elambda__4___boxed(lean_object* x_1) {
+lean_object* l_Lean_auxRecExt___elambda__4___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lean_auxRecExt___elambda__4(x_1);
+lean_object* x_3; 
+x_3 = l_Lean_auxRecExt___elambda__4(x_1, x_2);
+lean_dec(x_2);
 lean_dec(x_1);
-return x_2;
+return x_3;
 }
 }
 lean_object* lean_mark_aux_recursor(lean_object* x_1, lean_object* x_2) {
@@ -310,19 +311,19 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_noConfusionExt___elambda__4(lean_object* x_1) {
+lean_object* l_Lean_noConfusionExt___elambda__4(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_noConfusionExt___elambda__4___rarg), 1, 0);
-return x_2;
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Lean_noConfusionExt___elambda__4___rarg), 1, 0);
+return x_3;
 }
 }
 lean_object* _init_l_Lean_noConfusionExt___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_noConfusionExt___elambda__4___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_noConfusionExt___elambda__4___boxed), 2, 0);
 return x_1;
 }
 }
@@ -398,13 +399,14 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_noConfusionExt___elambda__4___boxed(lean_object* x_1) {
+lean_object* l_Lean_noConfusionExt___elambda__4___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lean_noConfusionExt___elambda__4(x_1);
+lean_object* x_3; 
+x_3 = l_Lean_noConfusionExt___elambda__4(x_1, x_2);
+lean_dec(x_2);
 lean_dec(x_1);
-return x_2;
+return x_3;
 }
 }
 lean_object* lean_mark_no_confusion(lean_object* x_1, lean_object* x_2) {

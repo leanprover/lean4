@@ -275,6 +275,8 @@ class interpreter {
     };
     std::vector<frame> m_call_stack;
     environment const & m_env;
+    // if we were called within the execution of a different interpreter, restore the value of `g_interpreter` in the end
+    interpreter * m_prev_interpreter;
     struct constant_cache_entry {
       bool m_is_scalar;
       value m_val;
@@ -753,10 +755,10 @@ class interpreter {
     // closure stub stub
     static object * stub_m_aux(object ** args) {
         environment env(args[0]);
-        if (g_interpreter) {
+        if (g_interpreter && is_eqp(g_interpreter->m_env, env)) {
             return g_interpreter->stub_m(args);
         } else {
-            // We changed threads or the closure was stored and called after the original interpreter exited.
+            // We changed threads or the closure was stored and called in a different context.
             // Create new interpreter with new stacks.
             return interpreter(env).stub_m(args);
         }
@@ -804,7 +806,7 @@ class interpreter {
     }
 public:
     explicit interpreter(environment const & env) : m_env(env) {
-        lean_assert(g_interpreter == nullptr);
+        m_prev_interpreter = g_interpreter;
         g_interpreter = this;
     }
     ~interpreter() {
@@ -814,7 +816,7 @@ public:
             }
         });
         lean_assert(g_interpreter == this);
-        g_interpreter = nullptr;
+        g_interpreter = m_prev_interpreter;
     }
 
     /** A variant of `call` designed for external uses.
@@ -893,12 +895,7 @@ uint32 run_main(environment const & env, int argv, char * argc[]) {
 
 extern "C" object * lean_eval_const(object * /* inh */, object * env, object * c) {
     try {
-        if (g_interpreter == nullptr) {
-            return mk_cnstr(1, run_boxed(TO_REF(environment, env), TO_REF(name, c), 0, 0)).steal();
-        } else {
-            flet<interpreter*> reset(g_interpreter, nullptr);
-            return mk_cnstr(1, run_boxed(TO_REF(environment, env), TO_REF(name, c), 0, 0)).steal();
-        }
+        return mk_cnstr(1, run_boxed(TO_REF(environment, env), TO_REF(name, c), 0, 0)).steal();
     } catch (exception & ex) {
         return mk_cnstr(0, string_ref(ex.what())).steal();
     }

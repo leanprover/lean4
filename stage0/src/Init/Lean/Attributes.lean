@@ -12,6 +12,9 @@ namespace Lean
 inductive AttributeApplicationTime
 | afterTypeChecking | afterCompilation | beforeElaboration
 
+-- TODO: after we delete the old frontend, we should use `EIO` with a richer exception kind at AttributeImpl.
+-- We must perform a similar modification at `PersistentEnvExtension`
+
 structure AttributeImpl :=
 (name : Name)
 (descr : String)
@@ -145,12 +148,13 @@ end Environment
   is tagged in the environment `env`. -/
 structure TagAttribute :=
 (attr : AttributeImpl)
-(ext  : PersistentEnvExtension Name NameSet)
+(ext  : PersistentEnvExtension Name Name NameSet)
 
 def registerTagAttribute (name : Name) (descr : String) (validate : Environment → Name → Except String Unit := fun _ _ => Except.ok ()) : IO TagAttribute := do
-ext : PersistentEnvExtension Name NameSet ← registerPersistentEnvExtension {
+ext : PersistentEnvExtension Name Name NameSet ← registerPersistentEnvExtension {
   name            := name,
-  addImportedFn   := fun _ => pure {},
+  mkInitial       := pure {},
+  addImportedFn   := fun _ _ => pure {},
   addEntryFn      := fun (s : NameSet) n => s.insert n,
   exportEntriesFn := fun es =>
     let r : Array Name := es.fold (fun a e => a.push e) #[];
@@ -191,14 +195,15 @@ end TagAttribute
   contains the attribute `pAttr` with parameter `p`. -/
 structure ParametricAttribute (α : Type) :=
 (attr : AttributeImpl)
-(ext  : PersistentEnvExtension (Name × α) (NameMap α))
+(ext  : PersistentEnvExtension (Name × α) (Name × α) (NameMap α))
 
 def registerParametricAttribute {α : Type} [Inhabited α] (name : Name) (descr : String)
        (getParam : Environment → Name → Syntax → Except String α)
        (afterSet : Environment → Name → α → Except String Environment := fun env _ _ => Except.ok env) : IO (ParametricAttribute α) := do
-ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistentEnvExtension {
+ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
   name            := name,
-  addImportedFn   := fun _ => pure {},
+  mkInitial       := pure {},
+  addImportedFn   := fun _ _ => pure {},
   addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2,
   exportEntriesFn := fun m =>
     let r : Array (Name × α) := m.fold (fun a n p => a.push (n, p)) #[];
@@ -251,12 +256,13 @@ end ParametricAttribute
   Note that whenever we register an `EnumAttributes`, we create `n` attributes, but only one environment extension. -/
 structure EnumAttributes (α : Type) :=
 (attrs : List AttributeImpl)
-(ext   : PersistentEnvExtension (Name × α) (NameMap α))
+(ext   : PersistentEnvExtension (Name × α) (Name × α) (NameMap α))
 
 def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDescrs : List (Name × String × α)) (validate : Environment → Name → α → Except String Unit := fun _ _ _ => Except.ok ()) (applicationTime := AttributeApplicationTime.afterTypeChecking) : IO (EnumAttributes α) := do
-ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistentEnvExtension {
+ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
   name            := extName,
-  addImportedFn   := fun _ => pure {},
+  mkInitial       := pure {},
+  addImportedFn   := fun _ _ => pure {},
   addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2,
   exportEntriesFn := fun m =>
     let r : Array (Name × α) := m.fold (fun a n p => a.push (n, p)) #[];

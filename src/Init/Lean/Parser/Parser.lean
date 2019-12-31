@@ -1643,7 +1643,7 @@ match mkParserOfConstant env attrTable constName with
   | Except.ok _     => pure $ ext.addEntry env entry
   | Except.error ex => throw (IO.userError ex)
 
-private def ParserAttribute.mkInitial (builtinTablesRef : Option (IO.Ref ParsingTables) := none) : IO (ParserAttributeExtensionState) :=
+private def ParserAttribute.mkInitial (builtinTablesRef : Option (IO.Ref ParsingTables)) : IO (ParserAttributeExtensionState) :=
 match builtinTablesRef with
 | none           => pure {}
 | some tablesRef => do tables ← tablesRef.get; pure { tables := tables }
@@ -1660,7 +1660,7 @@ attrTable ← parserAttributeTableRef.get;
 when (attrTable.contains kindSym) $ throw (IO.userError ("parser attribute '" ++ kind ++ "' has already been defined"));
 ext : PersistentEnvExtension Name ParserAttributeEntry ParserAttributeExtensionState ← registerPersistentEnvExtension {
   name            := attrName,
-  mkInitial       := ParserAttribute.mkInitial,
+  mkInitial       := ParserAttribute.mkInitial builtinTables,
   addImportedFn   := addImportedParsers builtinTables,
   addEntryFn      := addParserAttributeEntry,
   exportEntriesFn := fun s => s.newEntries.reverse.toArray,

@@ -1634,12 +1634,14 @@ ext : PersistentEnvExtension Name ParserAttributeEntry ParserAttributeExtensionS
   statsFn         := fun s => format "number of local entries: " ++ format s.newEntries.length
 };
 let attrImpl : AttributeImpl := {
-  name  := attrName,
-  descr := descr,
-  add   := fun env constName _ persistent => addParserAttribute env ext constName persistent
+  name            := attrName,
+  descr           := descr,
+  add             := fun env constName _ persistent => addParserAttribute env ext constName persistent,
+  applicationTime := AttributeApplicationTime.afterCompilation
 };
 let attr : ParserAttribute := { ext := ext, attr := attrImpl, kind := kind };
 parserAttributeTableRef.modify $ fun table => table.insert kindSym attr;
+registerAttribute attrImpl;
 pure attr
 
 -- declare `termParser` here since it is used everywhere via antiquotations

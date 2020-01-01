@@ -153,11 +153,11 @@ def dropWhile (p : α → Bool) : List α → List α
   | true  => dropWhile l
   | false =>  a::l
 
-def find (p : α → Bool) : List α → Option α
+def find? (p : α → Bool) : List α → Option α
 | []    => none
 | a::as => match p a with
   | true  => some a
-  | false => find as
+  | false => find? as
 
 def findSome? (f : α → Option β) : List α → Option β
 | []    => none

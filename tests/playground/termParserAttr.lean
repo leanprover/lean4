@@ -22,5 +22,11 @@ ParserDescr.node `boo
       (ParserDescr.parser `term 0)
       (ParserDescr.symbol "|]" 0)))
 
+open Lean.Elab.Term
+
+@[termElab tst] def elabTst : TermElab :=
+fun stx expected? =>
+  elabTerm (stx.getArg 1) expected?
+
 #eval run "#check [| @id.{1} Nat |]"
-#eval run "#check (| id 1 |)"
+-- #eval run "#check (| id 1 |)"

@@ -126,7 +126,7 @@ instance TermElabM.MonadQuotation : MonadQuotation TermElabM := {
   withFreshMacroScope := @Term.withFreshMacroScope
 }
 
-abbrev TermElabTable := SMap SyntaxNodeKind TermElab
+abbrev TermElabTable := ElabFnTable TermElab
 def mkBuiltinTermElabTable : IO (IO.Ref TermElabTable) :=  IO.mkRef {}
 @[init mkBuiltinTermElabTable] constant builtinTermElabTable : IO.Ref TermElabTable := arbitrary _
 
@@ -163,8 +163,9 @@ registerAttribute {
  applicationTime := AttributeApplicationTime.afterCompilation
 }
 
-abbrev TermElabAttribute := ElabAttribute TermElabTable
-def mkTermElabAttribute : IO TermElabAttribute := mkElabAttribute `elabTerm "term" builtinTermElabTable
+abbrev TermElabAttribute := ElabAttribute TermElab
+def mkTermElabAttribute : IO TermElabAttribute :=
+mkElabAttribute TermElab `termElab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term" builtinTermElabTable
 @[init mkTermElabAttribute] constant termElabAttribute : TermElabAttribute := arbitrary _
 
 /--
@@ -437,9 +438,9 @@ def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := tr
 withFreshMacroScope $ withNode stx $ fun node => do
   trace `Elab.step stx $ fun _ => stx;
   s ← get;
-  let tables := termElabAttribute.ext.getState s.env;
+  let table := (termElabAttribute.ext.getState s.env).table;
   let k := node.getKind;
-  match tables.find? k with
+  match table.find? k with
   | some elab =>
     catch
       (elab node expectedType?)

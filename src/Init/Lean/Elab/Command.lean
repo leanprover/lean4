@@ -49,7 +49,7 @@ instance CommandElabM.monadLog : MonadLog CommandElabM :=
   getFileName := do ctx ← read; pure ctx.fileName,
   logMessage  := fun msg => modify $ fun s => { messages := s.messages.add msg, .. s } }
 
-abbrev CommandElabTable := SMap SyntaxNodeKind CommandElab
+abbrev CommandElabTable := ElabFnTable CommandElab
 def mkBuiltinCommandElabTable : IO (IO.Ref CommandElabTable) := IO.mkRef {}
 @[init mkBuiltinCommandElabTable] constant builtinCommandElabTable : IO.Ref CommandElabTable := arbitrary _
 
@@ -86,17 +86,18 @@ registerAttribute {
  applicationTime := AttributeApplicationTime.afterCompilation
 }
 
-abbrev CommandElabAttribute := ElabAttribute CommandElabTable
-def mkCommandElabAttribute : IO CommandElabAttribute := mkElabAttribute `commandTerm "command" builtinCommandElabTable
+abbrev CommandElabAttribute := ElabAttribute CommandElab
+def mkCommandElabAttribute : IO CommandElabAttribute :=
+mkElabAttribute CommandElab `commandElab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command" builtinCommandElabTable
 @[init mkCommandElabAttribute] constant commandElabAttribute : CommandElabAttribute := arbitrary _
 
 def elabCommand (stx : Syntax) : CommandElabM Unit :=
 stx.ifNode
   (fun n => do
     s ← get;
-    let tables := commandElabAttribute.ext.getState s.env;
+    let table := (commandElabAttribute.ext.getState s.env).table;
     let k := n.getKind;
-    match tables.find? k with
+    match table.find? k with
     | some elab => elab n
     | none      => throwError stx ("command '" ++ toString k ++ "' has not been implemented"))
   (fun _ => throwError stx ("unexpected command"))

@@ -18,7 +18,7 @@ inductive Except (ε : Type u) (α : Type v)
 
 attribute [unbox] Except
 
-instance {ε α : Type} [Inhabited ε] : Inhabited (Except ε α) :=
+instance {ε : Type u} {α : Type v} [Inhabited ε] : Inhabited (Except ε α) :=
 ⟨Except.error (arbitrary ε)⟩
 
 section

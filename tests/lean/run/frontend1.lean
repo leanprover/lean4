@@ -176,3 +176,4 @@ f a
 #eval run "universes u v #check Sort (max u v)"
 #eval run "universes u v #check Type (max u v)"
 #eval run "#check 'a'"
+#eval fail "#check #['a', \"hello\"]"

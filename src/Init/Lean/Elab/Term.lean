@@ -106,10 +106,33 @@ instance TermElabM.MonadLog : MonadLog TermElabM :=
   getFileName := do ctx ← read; pure ctx.fileName,
   logMessage  := fun msg => modify $ fun s => { messages := s.messages.add msg, .. s } }
 
+/- If `ref` does not have position information, then try to use macroStack -/
+private def getBetterRef (ref : Syntax) : TermElabM Syntax :=
+match ref.getPos with
+| some _ => pure ref
+| none   => do
+  ctx ← read;
+  match ctx.macroStack.find? $ fun (macro : Syntax) => macro.getPos != none with
+  | some macro => pure macro
+  | none       => pure ref
+
+private def addMacroStack (msgData : MessageData) : TermElabM MessageData := do
+ctx ← read;
+if ctx.macroStack.isEmpty then pure msgData
+else
+  pure $ ctx.macroStack.foldl
+    (fun (msgData : MessageData) (macro : Syntax) =>
+      match macro.reprint with -- TODO use pretty printer
+      | some str => msgData ++ Format.line ++ "while expanding" ++ MessageData.nest 2 (Format.line ++ str)
+      | none     => msgData ++ Format.line ++ "while expanding macro")
+    msgData
+
 /--
   Throws an error with the given `msgData` and extracting position information from `ref`.
   If `ref` does not contain position information, then use `cmdPos` -/
 def throwError {α} (ref : Syntax) (msgData : MessageData) : TermElabM α := do
+ref ← getBetterRef ref;
+msgData ← addMacroStack msgData;
 msg ← mkMessage msgData MessageSeverity.error ref;
 throw (Exception.error msg)
 

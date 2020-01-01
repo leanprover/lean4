@@ -32,6 +32,7 @@ lean_object* l_ExceptT_MonadFunctor___boxed(lean_object*, lean_object*, lean_obj
 lean_object* l_ExceptT_bindCont___at_ExceptT_Monad___spec__4___boxed(lean_object*, lean_object*);
 lean_object* l_Except_toOption___rarg(lean_object*);
 lean_object* l_MonadExcept_orelse_x27___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_MonadExcept_HasOrelse(lean_object*, lean_object*);
 lean_object* l_Except_Monad___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_MonadRun___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_return(lean_object*, lean_object*);
@@ -63,6 +64,7 @@ lean_object* l_Except_repr(lean_object*, lean_object*);
 lean_object* l_ExceptT_adapt(lean_object*, lean_object*);
 lean_object* l_ExceptT_HasMonadLift___boxed(lean_object*, lean_object*);
 lean_object* l_ExceptT_bindCont___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_MonadExcept_HasOrelse___rarg(lean_object*, lean_object*);
 lean_object* l_ExceptT_mk___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_Monad___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_map___rarg(lean_object*, lean_object*);
@@ -134,6 +136,7 @@ lean_object* l_Except_MonadExcept(lean_object*);
 lean_object* l_ExceptT_exceptTOfExcept___boxed(lean_object*, lean_object*);
 lean_object* l_monadFunctorTTrans___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_MonadFail___boxed(lean_object*);
+lean_object* l_MonadExcept_HasOrelse___boxed(lean_object*, lean_object*);
 lean_object* l_Except_Monad___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_HasToString___rarg(lean_object*, lean_object*);
 lean_object* l_Except_Monad___closed__1;
@@ -2047,6 +2050,33 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_MonadExcept_orelse(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+lean_object* l_MonadExcept_HasOrelse___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_MonadExcept_orelse___rarg), 4, 2);
+lean_closure_set(x_3, 0, x_1);
+lean_closure_set(x_3, 1, lean_box(0));
+return x_3;
+}
+}
+lean_object* l_MonadExcept_HasOrelse(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_MonadExcept_HasOrelse___rarg), 2, 0);
+return x_3;
+}
+}
+lean_object* l_MonadExcept_HasOrelse___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_MonadExcept_HasOrelse(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }

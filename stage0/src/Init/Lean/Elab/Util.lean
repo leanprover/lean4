@@ -10,26 +10,25 @@ import Init.Lean.Parser
 namespace Lean
 namespace Elab
 
-def checkSyntaxNodeKind (k : Name) : IO Name := do
-b ← Parser.isValidSyntaxNodeKind k;
-if b then pure k
-else throw (IO.userError "failed")
+def checkSyntaxNodeKind (env : Environment) (k : Name) : ExceptT String Id Name :=
+if Parser.isValidSyntaxNodeKind env k then pure k
+else throw "failed"
 
-def checkSyntaxNodeKindAtNamespaces (k : Name) : List Name → IO Name
-| []    => throw (IO.userError "failed")
-| n::ns => checkSyntaxNodeKind (n ++ k) <|> checkSyntaxNodeKindAtNamespaces ns
+def checkSyntaxNodeKindAtNamespaces (env : Environment) (k : Name) : List Name → ExceptT String Id Name
+| []    => throw "failed"
+| n::ns => checkSyntaxNodeKind env (n ++ k) <|> checkSyntaxNodeKindAtNamespaces ns
 
-def syntaxNodeKindOfAttrParam (env : Environment) (parserNamespace : Name) (arg : Syntax) : IO SyntaxNodeKind :=
+def syntaxNodeKindOfAttrParam (env : Environment) (parserNamespace : Name) (arg : Syntax) : ExceptT String Id SyntaxNodeKind :=
 match attrParamSyntaxToIdentifier arg with
 | some k =>
-  checkSyntaxNodeKind k
+  checkSyntaxNodeKind env k
   <|>
-  checkSyntaxNodeKindAtNamespaces k env.getNamespaces
+  checkSyntaxNodeKindAtNamespaces env k env.getNamespaces
   <|>
-  checkSyntaxNodeKind (parserNamespace ++ k)
+  checkSyntaxNodeKind env (parserNamespace ++ k)
   <|>
-  throw (IO.userError ("invalid syntax node kind '" ++ toString k ++ "'"))
-| none   => throw (IO.userError ("syntax node kind is missing"))
+  throw ("invalid syntax node kind '" ++ toString k ++ "'")
+| none   => throw ("syntax node kind is missing")
 
 structure ElabAttributeEntry :=
 (kind     : SyntaxNodeKind)

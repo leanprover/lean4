@@ -75,7 +75,7 @@ registerAttribute {
  descr := "Builtin command elaborator",
  add   := fun env declName arg persistent => do {
    unless persistent $ throw (IO.userError ("invalid attribute 'builtinCommandElab', must be persistent"));
-   kind ← syntaxNodeKindOfAttrParam env `Lean.Parser.Command arg;
+   kind ← IO.ofExcept $ syntaxNodeKindOfAttrParam env `Lean.Parser.Command arg;
    match env.find? declName with
    | none  => throw "unknown declaration"
    | some decl =>

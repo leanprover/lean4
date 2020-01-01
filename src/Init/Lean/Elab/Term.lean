@@ -868,6 +868,12 @@ fun stx expectedType? => do
   mvar ← mkInstMVar ref (mkApp (Lean.mkConst `HasOfNat [u]) typeMVar);
   pure $ mkApp3 (Lean.mkConst `HasOfNat.ofNat [u]) typeMVar mvar val
 
+@[builtinTermElab char] def elabChar : TermElab :=
+fun stx _ => do
+  match (stx.getArg 0).isCharLit? with
+  | some val => pure $ mkApp (Lean.mkConst `Char.ofNat) (mkNatLit val.toNat)
+  | none     => throwError stx.val "ill-formed syntax"
+
 end Term
 
 @[init] private def regTraceClasses : IO Unit := do

@@ -175,3 +175,4 @@ f a
 #eval run "#check Type 0"
 #eval run "universes u v #check Sort (max u v)"
 #eval run "universes u v #check Type (max u v)"
+#eval run "#check 'a'"

@@ -245,9 +245,9 @@ instance : HasToString FirstTokens := ⟨toStr⟩
 end FirstTokens
 
 structure ParserInfo :=
-(collectTokens  : List TokenConfig → List TokenConfig   := id)
-(collectKindSet : SyntaxNodeKindSet → SyntaxNodeKindSet := id)
-(firstTokens    : FirstTokens                           := FirstTokens.unknown)
+(collectTokens : List TokenConfig → List TokenConfig   := id)
+(collectKinds  : SyntaxNodeKindSet → SyntaxNodeKindSet := id)
+(firstTokens   : FirstTokens                           := FirstTokens.unknown)
 
 structure Parser (k : ParserKind := leading) :=
 (info : ParserInfo := {})
@@ -286,9 +286,9 @@ fun c s =>
 fun a c s => andthenAux (p a) (q a) c s
 
 @[noinline] def andthenInfo (p q : ParserInfo) : ParserInfo :=
-{ collectTokens  := p.collectTokens ∘ q.collectTokens,
-  collectKindSet := p.collectKindSet ∘ q.collectKindSet,
-  firstTokens    := p.firstTokens.seq q.firstTokens }
+{ collectTokens := p.collectTokens ∘ q.collectTokens,
+  collectKinds  := p.collectKinds ∘ q.collectKinds,
+  firstTokens   := p.firstTokens.seq q.firstTokens }
 
 @[inline] def andthen {k : ParserKind} (p q : Parser k) : Parser k :=
 { info := andthenInfo p.info q.info,
@@ -304,9 +304,9 @@ instance hashAndthen {k : ParserKind} : HasAndthen (Parser k) :=
   s.mkNode n iniSz
 
 @[noinline] def nodeInfo (n : SyntaxNodeKind) (p : ParserInfo) : ParserInfo :=
-{ collectTokens  := p.collectTokens,
-  collectKindSet := fun s => (p.collectKindSet s).insert n,
-  firstTokens    := p.firstTokens }
+{ collectTokens := p.collectTokens,
+  collectKinds  := fun s => (p.collectKinds s).insert n,
+  firstTokens   := p.firstTokens }
 
 @[inline] def node {k : ParserKind} (n : SyntaxNodeKind) (p : Parser k) : Parser k :=
 { info := nodeInfo n p.info,
@@ -344,9 +344,9 @@ match s with
   | none => s
 
 @[noinline] def orelseInfo (p q : ParserInfo) : ParserInfo :=
-{ collectTokens  := p.collectTokens ∘ q.collectTokens,
-  collectKindSet := p.collectKindSet ∘ q.collectKindSet,
-  firstTokens    := p.firstTokens.merge q.firstTokens }
+{ collectTokens := p.collectTokens ∘ q.collectTokens,
+  collectKinds  := p.collectKinds ∘ q.collectKinds,
+  firstTokens   := p.firstTokens.merge q.firstTokens }
 
 @[inline] def orelse {k : ParserKind} (p q : Parser k) : Parser k :=
 { info := orelseInfo p.info q.info,
@@ -356,8 +356,8 @@ instance hashOrelse {k : ParserKind} : HasOrelse (Parser k) :=
 ⟨orelse⟩
 
 @[noinline] def noFirstTokenInfo (info : ParserInfo) : ParserInfo :=
-{ collectTokens  := info.collectTokens,
-  collectKindSet := info.collectKindSet }
+{ collectTokens := info.collectTokens,
+  collectKinds  := info.collectKinds }
 
 @[inline] def tryFn {k : ParserKind} (p : ParserFn k ) : ParserFn k
 | a, c, s =>
@@ -380,9 +380,9 @@ fun a c s =>
   s.mkNode nullKind iniSz
 
 @[noinline] def optionaInfo (p : ParserInfo) : ParserInfo :=
-{ collectTokens  := p.collectTokens,
-  collectKindSet := p.collectKindSet,
-  firstTokens    := p.firstTokens.toOptional }
+{ collectTokens := p.collectTokens,
+  collectKinds  := p.collectKinds,
+  firstTokens   := p.firstTokens.toOptional }
 
 @[inline] def optional {k : ParserKind} (p : Parser k) : Parser k :=
 { info := optionaInfo p.info,
@@ -463,13 +463,13 @@ fun a c s =>
   sepByFnAux p sep allowTrailingSep iniSz false a c s
 
 @[noinline] def sepByInfo (p sep : ParserInfo) : ParserInfo :=
-{ collectTokens  := p.collectTokens ∘ sep.collectTokens,
-  collectKindSet := p.collectKindSet ∘ sep.collectKindSet }
+{ collectTokens := p.collectTokens ∘ sep.collectTokens,
+  collectKinds  := p.collectKinds ∘ sep.collectKinds }
 
 @[noinline] def sepBy1Info (p sep : ParserInfo) : ParserInfo :=
-{ collectTokens  := p.collectTokens ∘ sep.collectTokens,
-  collectKindSet := p.collectKindSet ∘ sep.collectKindSet,
-  firstTokens    := p.firstTokens }
+{ collectTokens := p.collectTokens ∘ sep.collectTokens,
+  collectKinds  := p.collectKinds ∘ sep.collectKinds,
+  firstTokens   := p.firstTokens }
 
 @[inline] def sepBy {k : ParserKind} (p sep : Parser k) (allowTrailingSep : Bool := false) : Parser k :=
 { info := sepByInfo p.info sep.info,
@@ -1383,7 +1383,7 @@ def mkSyntaxNodeKindSetRef : IO (IO.Ref SyntaxNodeKindSet) := IO.mkRef {}
 constant syntaxNodeKindSetRef : IO.Ref SyntaxNodeKindSet := arbitrary _
 
 def updateBuiltinSyntaxNodeKinds (pinfo : ParserInfo) : IO Unit :=
-syntaxNodeKindSetRef.modify pinfo.collectKindSet
+syntaxNodeKindSetRef.modify pinfo.collectKinds
 
 abbrev SyntaxNodeKindExtensionState := List SyntaxNodeKind × SyntaxNodeKindSet
 
@@ -1661,7 +1661,8 @@ match mkParserOfConstant env attrTable constName with
       | Except.ok env    => pure env
       | Except.error msg => throw (IO.userError ("invalid parser '" ++ toString constName ++ "', " ++ msg)))
     env;
-  -- TODO: register kinds
+  let kinds := parser.info.collectKinds {};
+  let env := kinds.foldl (fun env kind _ => addSyntaxNodeKind env kind) env;
   let entry : ParserAttributeEntry := { parserName := constName, kind := p.1, parser := parser };
   let s : ParserAttributeExtensionState := ext.getState env;
   -- Remark: addEntry does not handle exceptions. So, we use `addParser` here to make sure it does not throw an exception.

@@ -36,6 +36,7 @@ lean_object* l_Lean_Elab_Term_instantiateMVars(lean_object*, lean_object*, lean_
 lean_object* l_List_foldlM___main___at___private_Init_Lean_Elab_TermApp_14__elabAppFn___main___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_mkFreshExprMVar(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_unreachable_x21___rarg(lean_object*);
+extern lean_object* l___private_Init_Lean_Elab_Util_7__regTraceClasses___closed__2;
 lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lean_Elab_Term_elabExplicitUniv___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_fieldIdxKind___closed__2;
 extern lean_object* l_Lean_MessageData_ofList___closed__3;
@@ -337,7 +338,6 @@ uint8_t l_Lean_isStructure(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_TermApp_7__resolveLValAux___closed__25;
 lean_object* l_Lean_Elab_Term_Arg_inhabited;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-extern lean_object* l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__2;
 lean_object* _init_l_Lean_Elab_Term_Arg_inhabited___closed__1() {
 _start:
 {
@@ -9677,7 +9677,7 @@ lean_object* _init_l___private_Init_Lean_Elab_TermApp_20__regTraceClasses___clos
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__2;
+x_1 = l___private_Init_Lean_Elab_Util_7__regTraceClasses___closed__2;
 x_2 = l_Lean_Parser_Term_app___elambda__1___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

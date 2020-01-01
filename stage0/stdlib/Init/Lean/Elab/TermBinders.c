@@ -30,6 +30,7 @@ lean_object* l___private_Init_Lean_Elab_TermBinders_10__expandFunBinders___boxed
 extern lean_object* l_Lean_nameToExprAux___main___closed__1;
 lean_object* l_Array_umapMAux___main___at___private_Init_Lean_Elab_TermBinders_4__matchBinder___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_unreachable_x21___rarg(lean_object*);
+extern lean_object* l___private_Init_Lean_Elab_Util_7__regTraceClasses___closed__2;
 lean_object* l_Lean_Elab_Term_elabDepArrow(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabArrow___closed__1;
 extern lean_object* l_Lean_Syntax_formatStxAux___main___closed__5;
@@ -240,7 +241,6 @@ lean_object* l___private_Init_Lean_Elab_TermBinders_9__expandFunBindersAux___mai
 lean_object* l_Lean_Elab_Term_elabLet___closed__2;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-extern lean_object* l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__2;
 lean_object* l_Lean_Elab_Term_elabBinder(lean_object*);
 lean_object* l___private_Init_Lean_Elab_TermBinders_9__expandFunBindersAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_TermBinders_1__expandBinderType(lean_object* x_1) {
@@ -16397,7 +16397,7 @@ lean_object* _init_l_Lean_Elab_Term_elabLetIdDecl___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Lean_Elab_Util_1__regTraceClasses___closed__2;
+x_1 = l___private_Init_Lean_Elab_Util_7__regTraceClasses___closed__2;
 x_2 = l_Lean_Parser_Term_let___elambda__1___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

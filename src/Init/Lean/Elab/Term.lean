@@ -152,7 +152,7 @@ registerAttribute {
  descr := "Builtin term elaborator",
  add   := fun env declName arg persistent => do {
    unless persistent $ throw (IO.userError ("invalid attribute 'builtinTermElab', must be persistent"));
-   kind ← syntaxNodeKindOfAttrParam env `Lean.Parser.Term arg;
+   kind ← IO.ofExcept $ syntaxNodeKindOfAttrParam env `Lean.Parser.Term arg;
    match env.find? declName with
    | none  => throw "unknown declaration"
    | some decl =>

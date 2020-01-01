@@ -68,7 +68,10 @@ def initCacheForInput (input : String) : ParserCache :=
 
 abbrev TokenTable := Trie TokenConfig
 
-abbrev SyntaxNodeKindSet := HashMap SyntaxNodeKind Unit
+abbrev SyntaxNodeKindSet := PersistentHashMap SyntaxNodeKind Unit
+
+def SyntaxNodeKindSet.insert (s : SyntaxNodeKindSet) (k : SyntaxNodeKind) : SyntaxNodeKindSet :=
+s.insert k ()
 
 structure ParserContextCore :=
 (input    : String)
@@ -302,7 +305,7 @@ instance hashAndthen {k : ParserKind} : HasAndthen (Parser k) :=
 
 @[noinline] def nodeInfo (n : SyntaxNodeKind) (p : ParserInfo) : ParserInfo :=
 { collectTokens  := p.collectTokens,
-  collectKindSet := fun s => (p.collectKindSet s).insert n (),
+  collectKindSet := fun s => (p.collectKindSet s).insert n,
   firstTokens    := p.firstTokens }
 
 @[inline] def node {k : ParserKind} (n : SyntaxNodeKind) (p : Parser k) : Parser k :=
@@ -1382,13 +1385,33 @@ constant syntaxNodeKindSetRef : IO.Ref SyntaxNodeKindSet := arbitrary _
 def updateBuiltinSyntaxNodeKinds (pinfo : ParserInfo) : IO Unit :=
 syntaxNodeKindSetRef.modify pinfo.collectKindSet
 
-def isValidSyntaxNodeKind (k : SyntaxNodeKind) : IO Bool := do
-s ← syntaxNodeKindSetRef.get;
-pure $ s.contains k || k == `choice
+abbrev SyntaxNodeKindExtensionState := List SyntaxNodeKind × SyntaxNodeKindSet
 
-def getSyntaxNodeKinds : IO (List SyntaxNodeKind) := do
-s ← syntaxNodeKindSetRef.get;
-pure $ s.fold (fun ks k _ => k::ks) []
+def mkSyntaxNodeKindExtension : IO (PersistentEnvExtension SyntaxNodeKind SyntaxNodeKind SyntaxNodeKindExtensionState) :=
+registerPersistentEnvExtension {
+  name            := `stxNodeKind,
+  mkInitial       := do s ← syntaxNodeKindSetRef.get; pure ([], s),
+  addEntryFn      := fun (s : SyntaxNodeKindExtensionState) e => (e :: s.1, s.2.insert e),
+  addImportedFn   := fun _ es => do
+    s ← syntaxNodeKindSetRef.get;
+    let s := mkStateFromImportedEntries SyntaxNodeKindSet.insert s es;
+    pure ([], s),
+  exportEntriesFn := fun (s : SyntaxNodeKindExtensionState) => s.1.reverse.toArray
+}
+
+@[init mkSyntaxNodeKindExtension]
+constant syntaxNodeKindExtension : PersistentEnvExtension SyntaxNodeKind SyntaxNodeKind SyntaxNodeKindExtensionState := arbitrary _
+
+def addSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Environment :=
+syntaxNodeKindExtension.addEntry env k
+
+def isValidSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Bool :=
+let s := syntaxNodeKindExtension.getState env;
+s.2.contains k || k == `choice
+
+def getSyntaxNodeKinds (env : Environment) : List SyntaxNodeKind := do
+let s := syntaxNodeKindExtension.getState env;
+s.2.foldl (fun ks k _ => k::ks) []
 
 def mkParserContextCore (env : Environment) (input : String) (fileName : String) : ParserContextCore :=
 { input    := input,

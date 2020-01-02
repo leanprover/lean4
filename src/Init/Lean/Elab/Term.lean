@@ -437,6 +437,11 @@ when ctx.mayPostpone $ throw Exception.postpone
 def tryPostponeIfMVar (e : Expr) : TermElabM Unit := do
 when e.getAppFn.isMVar $ tryPostpone
 
+def tryPostponeIfNoneOrMVar (e? : Option Expr) : TermElabM Unit :=
+match e? with
+| some e => tryPostponeIfMVar e
+| none   => tryPostpone
+
 private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
 trace `Elab.postpone stx $ fun _ => stx ++ " : " ++ expectedType?;
 mvar ← mkFreshExprMVar stx expectedType? MetavarKind.syntheticOpaque;

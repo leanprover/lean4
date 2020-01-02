@@ -182,3 +182,6 @@ f a
 #eval run "#check fun (i : Nat) (a : Array Nat) => if h : i < a.size then a.get (Fin.mk i h) else i"
 #eval run "#check { x : Nat // x > 0 }"
 #eval run "#check { x // x > 0 }"
+#eval run "#check fun (i : Nat) (a : Array Nat) => if h : i < a.size then a.get ⟨i, h⟩ else i"
+#eval run "#check Prod.fst ⟨1, 2⟩"
+-- #eval run "#check let x := ⟨1, 2⟩; Prod.fst x"

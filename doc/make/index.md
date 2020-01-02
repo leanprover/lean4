@@ -111,6 +111,5 @@ Troubleshooting
 Further Information
 -------------------
 
-- [Using CCache](ccache.md) to avoid recompilation
 - [Measuring Code Coverage](coverage.md)
 - [Compiling Lean with Split Stacks](split-stack.md)

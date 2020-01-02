@@ -177,3 +177,4 @@ f a
 #eval run "universes u v #check Type (max u v)"
 #eval run "#check 'a'"
 #eval fail "#check #['a', \"hello\"]"
+#eval run "#check fun (a : Array Nat) => a.size"

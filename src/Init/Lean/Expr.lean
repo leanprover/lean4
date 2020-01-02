@@ -541,6 +541,10 @@ def letName! : Expr → Name
 | letE n _ _ _ _ => n
 | _              => panic! "let expression expected"
 
+def consumeMData : Expr → Expr
+| mdata _ e _ => consumeMData e
+| e           => e
+
 def hasLooseBVars (e : Expr) : Bool :=
 e.looseBVarRange > 0
 

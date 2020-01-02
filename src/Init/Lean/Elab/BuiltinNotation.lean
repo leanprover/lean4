@@ -55,6 +55,11 @@ match expectedType? with
     | _ => throwError ref ("invalid constructor ⟨...⟩, '" ++ constName ++ "' is not an inductive type")
   | _ => throwError ref ("invalid constructor ⟨...⟩, expected type is not an inductive type " ++ indentExpr expectedType)
 
+@[builtinTermElab «show»] def elabShow : TermElab :=
+adaptExpander $ fun stx => match_syntax stx with
+| `(show $type from $val) => let thisId := mkTermId stx `this; `((fun ($thisId : $type) => $thisId) $val)
+| _                       => unreachable!
+
 def elabInfix (f : Syntax) : TermElab :=
 fun stx expectedType? => do
   -- term `op` term

@@ -185,3 +185,5 @@ f a
 #eval run "#check fun (i : Nat) (a : Array Nat) => if h : i < a.size then a.get ⟨i, h⟩ else i"
 #eval run "#check Prod.fst ⟨1, 2⟩"
 #eval run "#check let x := ⟨1, 2⟩; Prod.fst x"
+#eval run "#check show Nat from 1"
+#eval run "#check show Int from 1"

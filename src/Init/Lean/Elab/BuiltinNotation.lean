@@ -20,6 +20,12 @@ adaptExpander $ fun stx => match_syntax stx with
 | `($term $.$field) => `($(term).$field)
 | _                 => unreachable!
 
+@[builtinTermElab «if»] def elabIf : TermElab :=
+adaptExpander $ fun stx => match_syntax stx with
+| `(if $h : $cond then $t else $e) => let h := mkTermIdFromIdent h; `(dite $cond (fun $h => $t) (fun $h => $e))
+| `(if $cond then $t else $e)      => `(ite $cond $t $e)
+| _                                => unreachable!
+
 def elabInfix (f : Syntax) : TermElab :=
 fun stx expectedType? => do
   -- term `op` term

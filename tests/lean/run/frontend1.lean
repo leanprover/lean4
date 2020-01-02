@@ -178,3 +178,5 @@ f a
 #eval run "#check 'a'"
 #eval fail "#check #['a', \"hello\"]"
 #eval run "#check fun (a : Array Nat) => a.size"
+#eval run "#check if 0 = 1 then 'a' else 'b'"
+#eval run "#check fun (i : Nat) (a : Array Nat) => if h : i < a.size then a.get (Fin.mk i h) else i"

@@ -26,6 +26,12 @@ adaptExpander $ fun stx => match_syntax stx with
 | `(if $cond then $t else $e)      => `(ite $cond $t $e)
 | _                                => unreachable!
 
+@[builtinTermElab subtype] def elabSubtype : TermElab :=
+adaptExpander $ fun stx => match_syntax stx with
+| `({ $x : $type // $p }) => let x := mkTermIdFromIdent x; `(Subtype (fun ($x : $type) => $p))
+| `({ $x // $p })         => let x := mkTermIdFromIdent x; `(Subtype (fun ($x : _) => $p))
+| _                       => unreachable!
+
 def elabInfix (f : Syntax) : TermElab :=
 fun stx expectedType? => do
   -- term `op` term

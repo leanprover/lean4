@@ -123,12 +123,12 @@ fun stx _ => match_syntax stx.val with
   elabBinders binders $ fun xs => do
     e ← elabType term;
     mkForall stx.val xs e
-| _ => unreachable!
+| _ => throwUnexpectedSyntax stx.val "forall"
 
 @[builtinTermElab arrow] def elabArrow : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `($dom:term -> $rng) => `(forall (a : $dom), $rng)
-| _                    => unreachable!
+| _                    => throwUnexpectedSyntax stx "->"
 
 @[builtinTermElab depArrow] def elabDepArrow : TermElab :=
 fun stx _ =>

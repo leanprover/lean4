@@ -231,8 +231,8 @@ private def addLValArg (ref : Syntax) (baseName : Name) (fullName : Name) (e : E
     | some idx => do
       let namedArgs := namedArgs.eraseIdx idx;
       addLValArg i namedArgs b
-    | none =>
-      if d.isAppOf baseName then
+    | none => do
+      if d.consumeMData.isAppOf baseName then
         pure $ args.insertAt i (Arg.expr e)
       else if i < args.size then
         addLValArg (i+1) namedArgs b
@@ -328,7 +328,7 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
           s ← observing $ elabAppLVals ref f (lvals' ++ lvals) namedArgs args expectedType? explicit;
           pure $ acc.push s)
         acc
-    | _ => unreachable!
+    | _ => throwUnexpectedSyntax id "identifier"
   | _ => do
     f ← elabTerm f none;
     s ← observing $ elabAppLVals ref f lvals namedArgs args expectedType? explicit;

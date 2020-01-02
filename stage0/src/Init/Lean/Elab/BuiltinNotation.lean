@@ -13,12 +13,60 @@ namespace Term
 @[builtinTermElab dollar] def elabDollar : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `($f $ $a) => `($f $a)
-| _          => unreachable!
+| _          => throwUnexpectedSyntax stx "application"
 
 @[builtinTermElab dollarProj] def elabDollarProj : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `($term $.$field) => `($(term).$field)
-| _                 => unreachable!
+| _                 => throwUnexpectedSyntax stx "$."
+
+@[builtinTermElab «if»] def elabIf : TermElab :=
+adaptExpander $ fun stx => match_syntax stx with
+| `(if $h : $cond then $t else $e) => let h := mkTermIdFromIdent h; `(dite $cond (fun $h => $t) (fun $h => $e))
+| `(if $cond then $t else $e)      => `(ite $cond $t $e)
+| _                                => throwUnexpectedSyntax stx "if-then-else"
+
+@[builtinTermElab subtype] def elabSubtype : TermElab :=
+adaptExpander $ fun stx => match_syntax stx with
+| `({ $x : $type // $p }) => let x := mkTermIdFromIdent x; `(Subtype (fun ($x : $type) => $p))
+| `({ $x // $p })         => let x := mkTermIdFromIdent x; `(Subtype (fun ($x : _) => $p))
+| _                       => throwUnexpectedSyntax stx "subtype"
+
+@[builtinTermElab anonymousCtor] def elabAnoymousCtor : TermElab :=
+fun stx expectedType? => do
+let ref := stx.val;
+tryPostponeIfNoneOrMVar expectedType?;
+match expectedType? with
+| none              => throwError ref "invalid constructor ⟨...⟩, expected type must be known"
+| some expectedType => do
+  expectedType ← instantiateMVars ref expectedType;
+  let expectedType := expectedType.consumeMData;
+  match expectedType.getAppFn with
+  | Expr.const constName _ _ => do
+    env ← getEnv;
+    match env.find? constName with
+    | some (ConstantInfo.inductInfo val) =>
+      if val.ctors.length != 1 then
+        throwError ref ("invalid constructor ⟨...⟩, '" ++ constName ++ "' must have only one constructor")
+      else
+        let ctor := mkTermId ref val.ctors.head!;
+        let args := (stx.getArg 1).getArgs.getEvenElems; do
+        withMacroExpansion ref $ elabTerm (mkAppStx ctor args) expectedType?
+    | _ => throwError ref ("invalid constructor ⟨...⟩, '" ++ constName ++ "' is not an inductive type")
+  | _ => throwError ref ("invalid constructor ⟨...⟩, expected type is not an inductive type " ++ indentExpr expectedType)
+
+@[builtinTermElab «show»] def elabShow : TermElab :=
+adaptExpander $ fun stx => match_syntax stx with
+| `(show $type from $val) => let thisId := mkTermId stx `this; `((fun ($thisId : $type) => $thisId) $val)
+| _                       => throwUnexpectedSyntax stx "show-from"
+
+@[builtinTermElab «have»] def elabHave : TermElab :=
+adaptExpander $ fun stx => match_syntax stx with
+| `(have $type from $val; $body)      => let thisId := mkTermId stx `this; `((fun ($thisId : $type) => $body) $val)
+| `(have $type := $val; $body)        => let thisId := mkTermId stx `this; `((fun ($thisId : $type) => $body) $val)
+| `(have $x : $type from $val; $body) => let x := mkTermIdFromIdent x; `((fun ($x : $type) => $body) $val)
+| `(have $x : $type := $val; $body)   => let x := mkTermIdFromIdent x; `((fun ($x : $type) => $body) $val)
+| _                                   => throwUnexpectedSyntax stx "have"
 
 def elabInfix (f : Syntax) : TermElab :=
 fun stx expectedType? => do

@@ -59,7 +59,7 @@ private def toCtorIfLit : Expr → Expr
 
 private def getRecRuleFor (rec : RecursorVal) (major : Expr) : Option RecursorRule :=
 match major.getAppFn with
-| Expr.const fn _ _ => rec.rules.find $ fun r => r.ctor == fn
+| Expr.const fn _ _ => rec.rules.find? $ fun r => r.ctor == fn
 | _                 => none
 
 @[specialize] private def toCtorWhenK {m : Type → Type} [Monad m]

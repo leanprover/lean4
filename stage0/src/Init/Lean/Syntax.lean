@@ -395,6 +395,16 @@ def isStrLit? : Syntax → Option String
     none
 | _ => none
 
+def isCharLit? : Syntax → Option Char
+| Syntax.node k args   =>
+  if k == charLitKind && args.size == 1 then
+    match args.get! 0 with
+    | (Syntax.atom _ val) => some (val.get 1)
+    | _ => none
+  else
+    none
+| _ => none
+
 /- Recall that we don't have special Syntax constructors for storing numeric atoms.
    The idea is to have an extensible approach where embedded DSLs may have new kind of atoms and/or
    different ways of representing them. So, our atoms contain just the parsed string.

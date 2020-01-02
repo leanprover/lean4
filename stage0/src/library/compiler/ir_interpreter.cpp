@@ -335,6 +335,18 @@ class interpreter {
         }
     }
 
+    /** \brief Return closure pointing to interpreter stub taking interpreter data, declaration to be called, and partially
+        applied arguments. */
+    object * mk_stub_closure(decl const & d, unsigned n, object ** args) {
+        unsigned cls_size = 2 + decl_params(d).size();
+        object * cls = alloc_closure(get_stub(cls_size), cls_size, 2 + n);
+        closure_set(cls, 0, m_env.to_obj_arg());
+        closure_set(cls, 1, d.to_obj_arg());
+        for (unsigned i = 0; i < n ; i++)
+            closure_set(cls, 2 + i, args[i]);
+        return cls;
+    }
+
     value eval_expr(expr const & e, type t) {
         switch (expr_tag(e)) {
             case expr_kind::Ctor:
@@ -395,23 +407,21 @@ class interpreter {
             }
             case expr_kind::PAp: { // unsatured (partial) application of top-level function
                 symbol_cache_entry sym = lookup_symbol(expr_pap_fun(e));
-                unsigned i = 0;
-                object * cls;
                 if (sym.m_addr) {
-                    // point closure directly to native symbol
-                    cls = alloc_closure(sym.m_addr, decl_params(sym.m_decl).size(), expr_pap_args(e).size());
+                    // point closure directly at native symbol
+                    object * cls = alloc_closure(sym.m_addr, decl_params(sym.m_decl).size(), expr_pap_args(e).size());
+                    for (unsigned i = 0; i < expr_pap_args(e).size(); i++) {
+                        closure_set(cls, i, eval_arg(expr_pap_args(e)[i]).m_obj);
+                    }
+                    return cls;
                 } else {
-                    // point closure to interpreter stub taking interpreter data, declaration to be called, and partially
-                    // applied arguments
-                    unsigned cls_size = 2 + decl_params(sym.m_decl).size();
-                    cls = alloc_closure(get_stub(cls_size), cls_size, 2 + expr_pap_args(e).size());
-                    closure_set(cls, i++, m_env.to_obj_arg());
-                    closure_set(cls, i++, sym.m_decl.to_obj_arg());
+                    // point closure at interpreter stub
+                    object ** args = static_cast<object **>(LEAN_ALLOCA(expr_pap_args(e).size() * sizeof(object *))); // NOLINT
+                    for (size_t i = 0; i < expr_pap_args(e).size(); i++) {
+                        args[i] = eval_arg(expr_pap_args(e)[i]).m_obj;
+                    }
+                    return mk_stub_closure(sym.m_decl, expr_pap_args(e).size(), args);
                 }
-                for (arg const & a : expr_pap_args(e)) {
-                    closure_set(cls, i++, eval_arg(a).m_obj);
-                }
-                return cls;
             }
             case expr_kind::Ap: { // (saturated or unsatured) application of closure; mostly handled by runtime
                 object ** args = static_cast<object **>(LEAN_ALLOCA(expr_ap_args(e).size() * sizeof(object *))); // NOLINT
@@ -821,33 +831,32 @@ public:
 
     /** A variant of `call` designed for external uses.
      *  * takes (owned) `object *`s instead of `arg`s.
-     *  * supports over-application (but no under-application ATM). */
+     *  * supports under- and over-application.
+     *  * supports "calling" (evaluating) nullary constants. */
     object * call_boxed(name const & fn, unsigned n, object ** args) {
         symbol_cache_entry e = lookup_symbol(fn);
         unsigned arity = decl_params(e.m_decl).size();
         object * r;
-        if (e.m_addr) {
-            push_frame(e.m_decl, 0);
-            // directly call boxed function, nothing more to do
-            r = curry(e.m_addr, n, args);
+        if (arity == 0) {
+            r = load(fn, decl_type(e.m_decl)).m_obj;
         } else {
-            decl d = e.m_decl;
-            if (option_ref<decl> d_boxed = find_ir_decl(m_env, fn + *g_boxed_suffix)) {
-                d = *d_boxed.get();
-            }
-            // `d` now has a boxed signature
-            // evaluate args in old stack frame
-            for (unsigned i = 0; i < arity; i++) {
-                m_arg_stack.push_back(args[i]);
-            }
-            push_frame(d, 0);
-            r = eval_body(decl_fun_body(d)).m_obj;
-            if (n > arity) {
-                // `fn` returned a closure
-                r = apply_n(r, n - arity, &args[arity]);
+            // First allocate a closure with zero fixed parameters. This is slightly wasteful in the under-application
+            // case, but simpler to handle.
+            if (e.m_addr) {
+                // `lookup_symbol` always prefers the boxed version for compiled functions, so nothing to do here
+                r = alloc_closure(e.m_addr, arity, 0);
+            } else {
+                // `lookup_symbol` does not prefer the boxed version for interpreted functions, so check manually.
+                decl d = e.m_decl;
+                if (option_ref<decl> d_boxed = find_ir_decl(m_env, fn + *g_boxed_suffix)) {
+                    d = *d_boxed.get();
+                }
+                r = mk_stub_closure(d, 0, nullptr);
             }
         }
-        pop_frame(r, decl_type(e.m_decl));
+        if (n > 0) {
+            r = apply_n(r, n, args);
+        }
         return r;
     }
 

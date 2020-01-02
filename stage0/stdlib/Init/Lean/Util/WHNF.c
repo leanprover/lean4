@@ -45,6 +45,7 @@ lean_object* l___private_Init_Lean_Util_WHNF_5__toCtorWhenK___rarg___lambda__4(l
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l___private_Init_Lean_Util_WHNF_1__getFirstCtor___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_find_x3f___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_whnfEasyCases___main___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_getStuckMVar___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_matchConstAux___boxed(lean_object*, lean_object*);
@@ -58,7 +59,6 @@ lean_object* l_Lean_WHNF_unfoldDefinitionAux___rarg___lambda__7___boxed(lean_obj
 lean_object* l_Lean_WHNF_smartUnfoldingSuffix___closed__1;
 lean_object* l_Lean_WHNF_whnfCore___main___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Util_WHNF_4__getRecRuleFor(lean_object*, lean_object*);
-lean_object* l_List_find___main___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Util_WHNF_5__toCtorWhenK___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_getStuckMVar(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -768,7 +768,7 @@ lean_closure_set(x_5, 0, x_4);
 x_6 = lean_ctor_get(x_1, 6);
 lean_inc(x_6);
 lean_dec(x_1);
-x_7 = l_List_find___main___rarg(x_5, x_6);
+x_7 = l_List_find_x3f___main___rarg(x_5, x_6);
 return x_7;
 }
 else

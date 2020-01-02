@@ -268,6 +268,10 @@ fun a c s => s.pushSyntax a
 { info := epsilonInfo,
   fn   := pushLeadingFn }
 
+@[inline] def toTrailing (p : Parser) (rbp : Nat := 0) : TrailingParser :=
+{ info := p.info,
+  fn   := fun a => p.fn rbp }
+
 @[inline] def checkLeadingFn (p : Syntax → Bool) : ParserFn trailing :=
 fun a c s =>
   if p a then s

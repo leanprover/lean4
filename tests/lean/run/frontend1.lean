@@ -191,3 +191,5 @@ f a
 #eval run "#check have x : Nat from one + zero; x + x"
 #eval run "#check have Nat := one + zero; this + this"
 #eval run "#check have x : Nat := one + zero; x + x"
+#eval run "#check x + y where x := 1; where y := x + x"
+#eval run "#check let z := 2; x + y where x := z + 1; where y := x + x"

@@ -455,14 +455,14 @@ pure mvar
   Recall that the environment has a mapping from `SyntaxNodeKind` to `TermElab` methods.
   It creates a fresh macro scope for executing the elaboration method.
   All unlogged trace messages produced by the elaboration method are logged using
-  the position information at `stx`. If the elaboration method throws an `Exception.error`,
+  the position information at `stx`. If the elaboration method throws an `Exception.error` and `errToSorry == true`,
   the error is logged and a synthetic sorry expression is returned.
   If the elaboration throws `Exception.postpone` and `catchExPostpone == true`,
   a new synthetic metavariable of kind `SyntheticMVarKind.postponed` is created, registered,
   and returned.
   The option `catchExPostpone == false` is used to implement `resumeElabTerm`
   to prevent the creation of another synthetic metavariable when resuming the elaboration. -/
-def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr :=
+def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (errToSorry := true) : TermElabM Expr :=
 withFreshMacroScope $ withNode stx $ fun node => do
   trace `Elab.step stx $ fun _ => stx;
   s ← get;
@@ -473,7 +473,7 @@ withFreshMacroScope $ withNode stx $ fun node => do
     catch
       (elab node expectedType?)
       (fun ex => match ex with
-        | Exception.error ex => exceptionToSorry stx ex expectedType?
+        | Exception.error err => if errToSorry then exceptionToSorry stx err expectedType? else throw ex
         | Exception.postpone =>
           if catchExPostpone then do
             /- If `elab` threw `Exception.postpone`, we reset any state modifications.
@@ -497,8 +497,8 @@ withFreshMacroScope $ withNode stx $ fun node => do
   | none      => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
 
 /-- Auxiliary function used to implement `synthesizeSyntheticMVars`. -/
-private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
-elabTerm stx expectedType? false
+private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) (errToSorry := true) : TermElabM Expr :=
+elabTerm stx expectedType? false errToSorry
 
 /-- Adapt a syntax transformation to a regular, term-producing elaborator. -/
 def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab :=
@@ -556,18 +556,19 @@ withLCtx mvarDecl.lctx mvarDecl.localInstances $ resettingSynthInstanceCacheWhen
   Try to elaborate `stx` that was postponed by an elaboration method using `Expection.postpone`.
   It returns `true` if it succeeded, and `false` otherwise.
   It is used to implement `synthesizeSyntheticMVars`. -/
-private def resumePostponed (macroStack : List Syntax) (stx : Syntax) (mvarId : MVarId) : TermElabM Bool := do
+private def resumePostponed (macroStack : List Syntax) (stx : Syntax) (mvarId : MVarId) (postponeOnError : Bool) : TermElabM Bool := do
 withMVarContext mvarId $ do
+  s ← get;
   catch
     (adaptReader (fun (ctx : Context) => { macroStack := macroStack, .. ctx }) $ do
       mvarDecl     ← getMVarDecl mvarId;
       expectedType ← instantiateMVars stx mvarDecl.type;
-      result       ← resumeElabTerm stx expectedType;
+      result       ← resumeElabTerm stx expectedType (!postponeOnError);
       assignExprMVar mvarId result;
       pure true)
     (fun ex => match ex with
-      | Exception.postpone => pure false
-      | Exception.error ex => do logMessage ex; pure true)
+      | Exception.postpone  => pure false
+      | Exception.error msg => if postponeOnError then do set s; pure false else do logMessage msg; pure true)
 
 /- Try to synthesize metavariable using type class resolution.
    This method assumes the local context and local instances of `instMVar` coincide
@@ -612,20 +613,21 @@ val ← instantiateMVars ref (mkMVar mvarId);
 pure $ !val.getAppFn.isMVar
 
 /-- Try to synthesize the given pending synthetic metavariable. -/
-private def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) : TermElabM Bool :=
+private def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (postponeOnError : Bool) : TermElabM Bool :=
 match mvarSyntheticDecl.kind with
 | SyntheticMVarKind.typeClass            => synthesizePendingInstMVar mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
 -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
 | SyntheticMVarKind.withDefault _        => checkWithDefault mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
-| SyntheticMVarKind.postponed macroStack => resumePostponed macroStack mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
+| SyntheticMVarKind.postponed macroStack => resumePostponed macroStack mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId postponeOnError
 | SyntheticMVarKind.tactic tacticCode    => throwError tacticCode "not implemented yet"
 
 /--
   Try to synthesize the current list of pending synthetic metavariables.
   Return `true` if at least one of them was synthesized. -/
-private def synthesizeSyntheticMVarsStep : TermElabM Bool := do
+private def synthesizeSyntheticMVarsStep (postponeOnError : Bool) : TermElabM Bool := do
 ctx ← read;
-traceAtCmdPos `Elab.resuming $ fun _ => fmt "resuming synthetic metavariables, mayPostpone: " ++ fmt ctx.mayPostpone;
+traceAtCmdPos `Elab.resuming $ fun _ =>
+  fmt "resuming synthetic metavariables, mayPostpone: " ++ fmt ctx.mayPostpone ++ ", postponeOnError: " ++ toString postponeOnError;
 s ← get;
 let syntheticMVars    := s.syntheticMVars;
 let numSyntheticMVars := syntheticMVars.length;
@@ -636,7 +638,7 @@ modify $ fun s => { syntheticMVars := [], .. s };
 -- It would not be incorrect to use `filterM`.
 remainingSyntheticMVars ← syntheticMVars.filterRevM $ fun mvarDecl => do {
    trace `Elab.postpone mvarDecl.ref $ fun _ => "resuming ?" ++ mvarDecl.mvarId;
-   succeeded ← synthesizeSyntheticMVar mvarDecl;
+   succeeded ← synthesizeSyntheticMVar mvarDecl postponeOnError;
    trace `Elab.postpone mvarDecl.ref $ fun _ => if succeeded then fmt "succeeded" else fmt "not ready yet";
    pure $ !succeeded
 };
@@ -684,13 +686,33 @@ private partial def synthesizeSyntheticMVarsAux (mayPostpone := true) : Unit →
   s ← get;
   if s.syntheticMVars.isEmpty then pure ()
   else do
-    progress ← synthesizeSyntheticMVarsStep;
+    progress ← synthesizeSyntheticMVarsStep false;
     if progress then synthesizeSyntheticMVarsAux ()
     else if mayPostpone then pure ()
     else condM synthesizeUsingDefault (synthesizeSyntheticMVarsAux ()) $ do
-      progress ← withoutPostponing synthesizeSyntheticMVarsStep;
+      /- Resume pending metavariables with "elaboration postponement" disabled.
+         We postpone elaboration errors in this step by setting `postponeOnError := true`.
+         Example:
+         ```
+         #check let x := ⟨1, 2⟩; Prod.fst x
+         ```
+         The term `⟨1, 2⟩` can't be elaborated because the expected type is not know.
+         The `x` at `Prod.fst x` is not elaborated because the type of `x` is not known.
+         When we execute the following step with "elaboration postponement" disabled,
+         the elaborator fails at `⟨1, 2⟩` and postpones it, and succeeds at `x` and learns
+         that its type must be of the form `Prod ?α ?β`.
+
+         Recall that we postponed `x` at `Prod.fst x` because its type it is not known.
+         We the type of `x` may learn later its type and it may contain implicit and/or auto arguments.
+         By disabling postponement, we are essentially giving up the opportunity of learning `x`s type
+         and assume it does not have implict and/or auto arguments. -/
+      let postponeOnError := true;
+      progress ← withoutPostponing (synthesizeSyntheticMVarsStep postponeOnError);
       if progress then synthesizeSyntheticMVarsAux ()
-      else reportStuckSyntheticMVars
+      else do
+        progress ← withoutPostponing (synthesizeSyntheticMVarsStep false);
+        if progress then synthesizeSyntheticMVarsAux ()
+        else reportStuckSyntheticMVars
 
 /--
   Try to process pending synthetic metavariables. If `mayPostpone == false`,

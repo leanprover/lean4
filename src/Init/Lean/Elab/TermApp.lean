@@ -328,7 +328,7 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
           s ← observing $ elabAppLVals ref f (lvals' ++ lvals) namedArgs args expectedType? explicit;
           pure $ acc.push s)
         acc
-    | _ => unreachable!
+    | _ => throwUnexpectedSyntax id "identifier"
   | _ => do
     f ← elabTerm f none;
     s ← observing $ elabAppLVals ref f lvals namedArgs args expectedType? explicit;

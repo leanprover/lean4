@@ -116,15 +116,19 @@ match ref.getPos with
   | some macro => pure macro
   | none       => pure ref
 
+private def prettyPrint (stx : Syntax) : TermElabM Format :=
+match stx.reprint with -- TODO use syntax pretty printer
+| some str => pure $ format str
+| none     => pure $ format stx
+
 private def addMacroStack (msgData : MessageData) : TermElabM MessageData := do
 ctx ← read;
 if ctx.macroStack.isEmpty then pure msgData
 else
-  pure $ ctx.macroStack.foldl
-    (fun (msgData : MessageData) (macro : Syntax) =>
-      match macro.reprint with -- TODO use pretty printer
-      | some str => msgData ++ Format.line ++ "while expanding" ++ MessageData.nest 2 (Format.line ++ str)
-      | none     => msgData ++ Format.line ++ "while expanding macro")
+  ctx.macroStack.foldlM
+    (fun (msgData : MessageData) (macro : Syntax) => do
+      macroFmt ← prettyPrint macro;
+      pure (msgData ++ Format.line ++ "while expanding" ++ MessageData.nest 2 (Format.line ++ macroFmt)))
     msgData
 
 /--
@@ -135,6 +139,12 @@ ref ← getBetterRef ref;
 msgData ← addMacroStack msgData;
 msg ← mkMessage msgData MessageSeverity.error ref;
 throw (Exception.error msg)
+
+def throwUnexpectedSyntax {α} (ref : Syntax) (expectedMsg : Option String := none) : TermElabM α := do
+refFmt ← prettyPrint ref;
+match expectedMsg with
+| none    => throwError ref ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
+| some ex => throwError ref ("unexpected syntax, expected '" ++ ex ++ "'" ++ MessageData.nest 2 (Format.line ++ refFmt))
 
 protected def getCurrMacroScope : TermElabM Nat := do
 ctx ← read;

@@ -13,24 +13,24 @@ namespace Term
 @[builtinTermElab dollar] def elabDollar : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `($f $ $a) => `($f $a)
-| _          => unreachable!
+| _          => throwUnexpectedSyntax stx "application"
 
 @[builtinTermElab dollarProj] def elabDollarProj : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `($term $.$field) => `($(term).$field)
-| _                 => unreachable!
+| _                 => throwUnexpectedSyntax stx "$."
 
 @[builtinTermElab «if»] def elabIf : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `(if $h : $cond then $t else $e) => let h := mkTermIdFromIdent h; `(dite $cond (fun $h => $t) (fun $h => $e))
 | `(if $cond then $t else $e)      => `(ite $cond $t $e)
-| _                                => unreachable!
+| _                                => throwUnexpectedSyntax stx "if-then-else"
 
 @[builtinTermElab subtype] def elabSubtype : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `({ $x : $type // $p }) => let x := mkTermIdFromIdent x; `(Subtype (fun ($x : $type) => $p))
 | `({ $x // $p })         => let x := mkTermIdFromIdent x; `(Subtype (fun ($x : _) => $p))
-| _                       => unreachable!
+| _                       => throwUnexpectedSyntax stx "subtype"
 
 @[builtinTermElab anonymousCtor] def elabAnoymousCtor : TermElab :=
 fun stx expectedType? => do
@@ -58,7 +58,7 @@ match expectedType? with
 @[builtinTermElab «show»] def elabShow : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `(show $type from $val) => let thisId := mkTermId stx `this; `((fun ($thisId : $type) => $thisId) $val)
-| _                       => unreachable!
+| _                       => throwUnexpectedSyntax stx "show-from"
 
 def elabInfix (f : Syntax) : TermElab :=
 fun stx expectedType? => do

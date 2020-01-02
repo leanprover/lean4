@@ -60,6 +60,14 @@ adaptExpander $ fun stx => match_syntax stx with
 | `(show $type from $val) => let thisId := mkTermId stx `this; `((fun ($thisId : $type) => $thisId) $val)
 | _                       => throwUnexpectedSyntax stx "show-from"
 
+@[builtinTermElab «have»] def elabHave : TermElab :=
+adaptExpander $ fun stx => match_syntax stx with
+| `(have $type from $val; $body)      => let thisId := mkTermId stx `this; `((fun ($thisId : $type) => $body) $val)
+| `(have $type := $val; $body)        => let thisId := mkTermId stx `this; `((fun ($thisId : $type) => $body) $val)
+| `(have $x : $type from $val; $body) => let x := mkTermIdFromIdent x; `((fun ($x : $type) => $body) $val)
+| `(have $x : $type := $val; $body)   => let x := mkTermIdFromIdent x; `((fun ($x : $type) => $body) $val)
+| _                                   => throwUnexpectedSyntax stx "have"
+
 def elabInfix (f : Syntax) : TermElab :=
 fun stx expectedType? => do
   -- term `op` term

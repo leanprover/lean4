@@ -187,3 +187,7 @@ f a
 #eval run "#check let x := ⟨1, 2⟩; Prod.fst x"
 #eval run "#check show Nat from 1"
 #eval run "#check show Int from 1"
+#eval run "#check have Nat from one + zero; this + this"
+#eval run "#check have x : Nat from one + zero; x + x"
+#eval run "#check have Nat := one + zero; this + this"
+#eval run "#check have x : Nat := one + zero; x + x"

@@ -167,7 +167,7 @@ fun n => do
 
 @[builtinCommandElab «section»] def elabSection : CommandElab :=
 fun n => do
-  let header? := (n.getArg 1).getOptionalIdent;
+  let header? := (n.getArg 1).getOptionalIdent?;
   match header? with
   | some header => addScopes "section" false header
   | none        => do currNamespace ← getCurrNamespace; addScope "section" "" currNamespace
@@ -186,7 +186,7 @@ private def checkEndHeader : Name → List Scope → Bool
 
 @[builtinCommandElab «end»] def elabEnd : CommandElab :=
 fun n => do
-  let header? := (n.getArg 1).getOptionalIdent;
+  let header? := (n.getArg 1).getOptionalIdent?;
   let endSize := match header? with
     | none   => 1
     | some n => n.getNumParts;

@@ -23,6 +23,14 @@ def IO.RealWorld : Type := Unit
 -/
 def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
 
+@[inline] def EIO.adaptExcept {α ε ε'} (f : ε → ε') (x : EIO ε α) : EIO ε' α :=
+EStateM.adaptExcept f x
+
+@[inline] def EIO.catchExceptions {ε} (x : EIO ε Unit) (h : ε → EIO Empty Unit) : EIO Empty Unit :=
+fun s => match x s with
+| EStateM.Result.ok _ s     => EStateM.Result.ok () s
+| EStateM.Result.error ex s => h ex s
+
 instance (ε : Type) : Monad (EIO ε) := inferInstanceAs (Monad (EStateM ε IO.RealWorld))
 instance (ε : Type) : MonadExcept ε (EIO ε) := inferInstanceAs (MonadExcept ε (EStateM ε IO.RealWorld))
 instance (α ε : Type) : HasOrelse (EIO ε α) := ⟨MonadExcept.orelse⟩

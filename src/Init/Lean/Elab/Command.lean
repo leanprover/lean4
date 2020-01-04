@@ -26,9 +26,10 @@ structure Scope :=
 instance Scope.inhabited : Inhabited Scope := ⟨{ kind := "", header := "" }⟩
 
 structure State :=
-(env      : Environment)
-(messages : MessageLog := {})
-(scopes   : List Scope := [{ kind := "root", header := "" }])
+(env            : Environment)
+(messages       : MessageLog := {})
+(scopes         : List Scope := [{ kind := "root", header := "" }])
+(nextMacroScope : Nat := 1)
 
 instance State.inhabited : Inhabited State := ⟨{ env := arbitrary _ }⟩
 
@@ -36,10 +37,11 @@ def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options :=
 { env := env, messages := messages, scopes := [{ kind := "root", header := "", opts := opts }] }
 
 structure Context :=
-(fileName : String)
-(fileMap  : FileMap)
-(stateRef : IO.Ref State)
-(cmdPos   : String.Pos := 0)
+(fileName       : String)
+(fileMap        : FileMap)
+(stateRef       : IO.Ref State)
+(cmdPos         : String.Pos := 0)
+(currMacroScope : MacroScope := 0)
 
 abbrev CommandElabCoreM (ε) := ReaderT Context (EIO ε)
 abbrev CommandElabM := CommandElabCoreM Exception
@@ -76,6 +78,19 @@ instance CommandElabM.monadLog : MonadLog CommandElabM :=
   getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
   logMessage  := fun msg => modify $ fun s => { messages := s.messages.add msg, .. s } }
+
+protected def getCurrMacroScope : CommandElabM Nat := do
+ctx ← read;
+pure ctx.currMacroScope
+
+@[inline] protected def withFreshMacroScope {α} (x : CommandElabM α) : CommandElabM α := do
+fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }));
+adaptReader (fun (ctx : Context) => { ctx with currMacroScope := fresh }) x
+
+instance CommandElabM.MonadQuotation : MonadQuotation CommandElabM := {
+  getCurrMacroScope   := Command.getCurrMacroScope,
+  withFreshMacroScope := @Command.withFreshMacroScope
+}
 
 abbrev CommandElabTable := ElabFnTable CommandElab
 def mkBuiltinCommandElabTable : IO (IO.Ref CommandElabTable) := IO.mkRef {}
@@ -130,27 +145,35 @@ stx.ifNode
     | none      => throwError stx ("command '" ++ toString k ++ "' has not been implemented"))
   (fun _ => throwError stx ("unexpected command"))
 
+/-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
+def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab :=
+fun stx => do
+  stx ← exp stx.val;
+  elabCommand stx
+
 private def mkTermContext (ctx : Context) (s : State) : Term.Context :=
 let scope := s.scopes.head!;
 { config         := { opts := scope.opts, foApprox := true, ctxApprox := true, quasiPatternApprox := true, isDefEqStuckEx := true },
   fileName       := ctx.fileName,
   fileMap        := ctx.fileMap,
   cmdPos         := ctx.cmdPos,
+  currMacroScope := ctx.currMacroScope,
   currNamespace  := scope.currNamespace,
   univNames      := scope.univNames,
   openDecls      := scope.openDecls }
 
 private def mkTermState (s : State) : Term.State :=
-{ env      := s.env,
-  messages := s.messages }
+{ env            := s.env,
+  messages       := s.messages,
+  nextMacroScope := s.nextMacroScope }
 
 private def getVarDecls (s : State) : Array Syntax :=
 s.scopes.head!.varDecls
 
 private def toCommandResult {α} (ctx : Context) (s : State) (result : EStateM.Result Term.Exception Term.State α) : EStateM.Result Exception State α :=
 match result with
-| EStateM.Result.ok a newS                            => EStateM.Result.ok a { env := newS.env, messages := newS.messages, .. s }
-| EStateM.Result.error (Term.Exception.error ex) newS => EStateM.Result.error ex { env := newS.env, messages := newS.messages, .. s }
+| EStateM.Result.ok a newS                            => EStateM.Result.ok a { env := newS.env, messages := newS.messages, nextMacroScope := newS.nextMacroScope, .. s }
+| EStateM.Result.error (Term.Exception.error ex) newS => EStateM.Result.error ex { env := newS.env, messages := newS.messages, nextMacroScope := newS.nextMacroScope, .. s }
 | EStateM.Result.error Term.Exception.postpone newS   => unreachable!
 
 instance CommandElabM.inhabited {α} : Inhabited (CommandElabM α) :=

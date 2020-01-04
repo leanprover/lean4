@@ -146,7 +146,7 @@ match expectedMsg with
 | none    => throwError ref ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
 | some ex => throwError ref ("unexpected syntax, expected '" ++ ex ++ "'" ++ MessageData.nest 2 (Format.line ++ refFmt))
 
-protected def getCurrMacroScope : TermElabM Nat := do
+protected def getCurrMacroScope : TermElabM MacroScope := do
 ctx ← read;
 pure ctx.currMacroScope
 

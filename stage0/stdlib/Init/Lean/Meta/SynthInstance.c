@@ -17168,7 +17168,7 @@ lean_object* _init_l_Lean_Meta_SynthInstance_synth___main___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("synthInstance is out of fule");
+x_1 = lean_mk_string("synthInstance is out of fuel");
 return x_1;
 }
 }

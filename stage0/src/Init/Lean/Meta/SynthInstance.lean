@@ -292,14 +292,14 @@ forallTelescopeReducing mvarType $ fun xs mvarTypeBody => do
 /--
   Try to synthesize metavariable `mvar` using the instance `inst`.
   Remark: `mctx` contains `mvar`.
-  If it succeeds, the result it a new updated metavariable context and a new list of subgoals.
+  If it succeeds, the result is a new updated metavariable context and a new list of subgoals.
   A subgoal is created for each instance implicit parameter of `inst`. -/
 def tryResolve (mctx : MetavarContext) (mvar : Expr) (inst : Expr) : SynthM (Option (MetavarContext × List Expr)) :=
 traceCtx `Meta.synthInstance.tryResolve $ withMCtx mctx $ tryResolveCore mvar inst
 
 /--
   Assign a precomputed answer to `mvar`.
-  If it succeeds, the result it a new updated metavariable context and a new list of subgoals. -/
+  If it succeeds, the result is a new updated metavariable context and a new list of subgoals. -/
 def tryAnswer (mctx : MetavarContext) (mvar : Expr) (answer : Answer) : SynthM (Option MetavarContext) :=
 withMCtx mctx $ do
   (_, _, val) ← openAbstractMVarsResult answer;
@@ -412,7 +412,7 @@ s ← get; pure s.result
 
 partial def synth : Nat → SynthM (Option Expr)
 | 0   => do
-  trace! `Meta.synthInstance "synthInstance is out of fule";
+  trace! `Meta.synthInstance "synthInstance is out of fuel";
   pure none
 | n+1 => do
   condM step

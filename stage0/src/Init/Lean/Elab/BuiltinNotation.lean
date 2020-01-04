@@ -68,6 +68,15 @@ adaptExpander $ fun stx => match_syntax stx with
 | `(have $x : $type := $val; $body)   => let x := mkTermIdFromIdent x; `((fun ($x : $type) => $body) $val)
 | _                                   => throwUnexpectedSyntax stx "have"
 
+@[termElab «where»] def elabWhere : TermElab :=
+adaptExpander $ fun stx => match_syntax stx with
+| `($body where $decls*) =>  do
+  let decls := decls.getEvenElems;
+  decls.foldrM
+    (fun decl body => `(let $decl; $body))
+    body
+| _                      => throwUnexpectedSyntax stx "where"
+
 def elabInfix (f : Syntax) : TermElab :=
 fun stx expectedType? => do
   -- term `op` term

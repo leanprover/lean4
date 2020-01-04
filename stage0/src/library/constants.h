@@ -40,6 +40,8 @@ name const & get_decidable_is_false_name();
 name const & get_decidable_decide_name();
 name const & get_dite_name();
 name const & get_empty_name();
+name const & get_empty_rec_name();
+name const & get_empty_cases_on_name();
 name const & get_exists_name();
 name const & get_eq_name();
 name const & get_eq_cases_on_name();

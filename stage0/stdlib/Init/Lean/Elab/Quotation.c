@@ -59,6 +59,7 @@ extern lean_object* l_Lean_nameToExprAux___main___closed__2;
 lean_object* l_List_head_x21___at___private_Init_Lean_Elab_Quotation_9__compileStxMatch___main___spec__2___closed__1;
 lean_object* l___private_Init_Lean_Elab_Quotation_14__toPreterm___main___closed__3;
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Quotation_2__appN___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_4__elimAntiquotChoices___main(lean_object*);
 lean_object* l_Array_eraseIdx___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Prod_HasQuote___rarg___lambda__1___closed__3;
@@ -544,7 +545,6 @@ extern lean_object* l_Lean_Elab_Term_elabListLit___closed__3;
 lean_object* l_Lean_Elab_Term_stxQuot_expand___closed__23;
 lean_object* l_Lean_mkNatLit(lean_object*);
 lean_object* l_Lean_mkStrLit(lean_object*);
-lean_object* l_Lean_Syntax_getOptional(lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_9__compileStxMatch___main___closed__1;
 lean_object* l___private_Init_Lean_Elab_Quotation_7__getHeadInfo___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_3__quoteList___main___rarg___lambda__1___closed__6;
@@ -1932,7 +1932,7 @@ else
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_unsigned_to_nat(3u);
 x_5 = l_Lean_Syntax_getArg(x_1, x_4);
-x_6 = l_Lean_Syntax_getOptional(x_5);
+x_6 = l_Lean_Syntax_getOptional_x3f(x_5);
 lean_dec(x_5);
 if (lean_obj_tag(x_6) == 0)
 {

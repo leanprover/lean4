@@ -87,9 +87,9 @@ fun s =>
     | ok                 => ok
   | ok                 => ok
 
-@[inline] def adaptExcept {ε' : Type u} [HasLift ε ε'] (x : EStateM ε σ α) : EStateM ε' σ α :=
+@[inline] def adaptExcept {ε' : Type u} (f : ε → ε') (x : EStateM ε σ α) : EStateM ε' σ α :=
 fun s => match x s with
-  | Result.error e s => Result.error (lift e) s
+  | Result.error e s => Result.error (f e) s
   | Result.ok a s    => Result.ok a s
 
 @[inline] protected def bind (x : EStateM ε σ α) (f : α → EStateM ε σ β) : EStateM ε σ β :=

@@ -38,6 +38,8 @@ name const * g_decidable_is_false = nullptr;
 name const * g_decidable_decide = nullptr;
 name const * g_dite = nullptr;
 name const * g_empty = nullptr;
+name const * g_empty_rec = nullptr;
+name const * g_empty_cases_on = nullptr;
 name const * g_exists = nullptr;
 name const * g_eq = nullptr;
 name const * g_eq_cases_on = nullptr;
@@ -226,6 +228,8 @@ void initialize_constants() {
     g_decidable_decide = new name{"Decidable", "decide"};
     g_dite = new name{"dite"};
     g_empty = new name{"Empty"};
+    g_empty_rec = new name{"Empty", "rec"};
+    g_empty_cases_on = new name{"Empty", "casesOn"};
     g_exists = new name{"Exists"};
     g_eq = new name{"Eq"};
     g_eq_cases_on = new name{"Eq", "casesOn"};
@@ -415,6 +419,8 @@ void finalize_constants() {
     delete g_decidable_decide;
     delete g_dite;
     delete g_empty;
+    delete g_empty_rec;
+    delete g_empty_cases_on;
     delete g_exists;
     delete g_eq;
     delete g_eq_cases_on;
@@ -603,6 +609,8 @@ name const & get_decidable_is_false_name() { return *g_decidable_is_false; }
 name const & get_decidable_decide_name() { return *g_decidable_decide; }
 name const & get_dite_name() { return *g_dite; }
 name const & get_empty_name() { return *g_empty; }
+name const & get_empty_rec_name() { return *g_empty_rec; }
+name const & get_empty_cases_on_name() { return *g_empty_cases_on; }
 name const & get_exists_name() { return *g_exists; }
 name const & get_eq_name() { return *g_eq; }
 name const & get_eq_cases_on_name() { return *g_eq_cases_on; }

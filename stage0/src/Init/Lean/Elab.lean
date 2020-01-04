@@ -14,3 +14,4 @@ import Init.Lean.Elab.TermBinders
 import Init.Lean.Elab.Quotation
 import Init.Lean.Elab.Frontend
 import Init.Lean.Elab.BuiltinNotation
+import Init.Lean.Elab.Declaration

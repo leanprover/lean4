@@ -73,7 +73,7 @@ def antiquotKind? : Syntax → Option SyntaxNodeKind
 
 -- `$e*` is an antiquotation "splice" matching an arbitrary number of syntax nodes
 def isAntiquotSplice (stx : Syntax) : Bool :=
-isAntiquot stx && (stx.getArg 3).getOptional.isSome
+isAntiquot stx && (stx.getArg 3).getOptional?.isSome
 
 -- If an antiquotation splice is the sole item of a `many` node, its result should
 -- be substituted for the `many` node

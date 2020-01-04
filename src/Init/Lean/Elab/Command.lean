@@ -451,6 +451,31 @@ fun stx => do
     logInfo stx.val (e ++ " : " ++ type);
     pure ()
 
+@[inline] def withDeclId (declId : Syntax) (f : Name → List Name → CommandElabM Unit) : CommandElabM Unit := do
+-- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
+let id             := declId.getIdAt 0;
+let optUnivDeclStx := declId.getArg 1;
+us ←
+  if optUnivDeclStx.isNone then
+    getUniverseNames
+  else do {
+    univs ← getUniverseNames;
+    let univIds := (optUnivDeclStx.getArg 1).getArgs.getEvenElems;
+    univIds.foldlM
+      (fun univs idStx =>
+        let id := idStx.getId;
+        if univs.elem id then
+          throwAlreadyDeclaredUniverse idStx id
+        else
+          pure (id :: univs))
+      univs
+  };
+let us  := us.reverse;
+let ref := declId;
+match id with
+| Name.str pre s _ => withNamespace ref pre (f (mkNameSimple s) us)
+| _                => throwError ref "invalid declaration name"
+
 end Command
 end Elab
 end Lean

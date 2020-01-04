@@ -33,6 +33,8 @@ Decidable.isFalse
 Decidable.decide
 dite
 Empty
+Empty.rec
+Empty.casesOn
 Exists
 Eq
 Eq.casesOn

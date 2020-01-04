@@ -398,7 +398,8 @@ public:
         } else if (const_name(fn) == get_eq_rec_name() || const_name(fn) == get_eq_ndrec_name() ||
                    const_name(fn) == get_eq_cases_on_name() || const_name(fn) == get_eq_rec_on_name()) {
             return visit_eq_rec(fn, args, root);
-        } else if (const_name(fn) == get_false_rec_name() || const_name(fn) == get_false_cases_on_name()) {
+        } else if (const_name(fn) == get_false_rec_name() || const_name(fn) == get_false_cases_on_name() ||
+                   const_name(fn) == get_empty_rec_name() || const_name(fn) == get_empty_cases_on_name()) {
             return visit_false_rec(fn, args, root);
         } else if (is_cases_on_recursor(env(), const_name(fn))) {
             return visit_cases_on(fn, args, root);

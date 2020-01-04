@@ -15,16 +15,19 @@ namespace Syntax
 end Syntax
 #eval run `(1 + 1)
 #eval run $ `(fun a => a) >>= pure
+#eval run $ `(def foo := 1)
+#eval run $ `(def foo := 1 def bar := 2)
 #eval run $ do a ← `(Nat.one); `($a)
 #eval run $ do a ← `(Nat.one); `(f $a $a)
 #eval run $ do a ← `(Nat.one); `(f $ f $a 1)
 #eval run $ do a ← `(Nat.one); `(f $(id a))
 #eval run $ do a ← `(Nat.one); `($(a).b)
 #eval run $ do a ← `(1 + 2); match_syntax a with `($a + $b) => `($b + $a) | _ => pure Syntax.missing
+#eval run $ do a ← `(def foo := 1); match_syntax a with `($f:command) => pure f | _ => pure Syntax.missing
+#eval run $ do a ← `(def foo := 1 def bar := 2); match_syntax a with `($f:command $g:command) => `($g:command $f:command) | _ => pure Syntax.missing
 
 #eval run $ do a ← `(aa); match_syntax a with `($id:id) => pure 0 | `($e) => pure 1 | _ => pure 2
 #eval run $ do a ← `(1 + 2); match_syntax a with `($id:id) => pure 0 | `($e) => pure 1 | _ => pure 2
-
 #eval run $ do params ← #[`(a), `((b : Nat))].mapM id; `(fun $params* => 1)
 #eval run $ do a ← `(fun (a : Nat) b => c); match_syntax a with `(fun $aa* => $e) => pure aa | _ => pure #[]
 #eval run $ do a ← `(∀ a, c); match_syntax a with `(∀ $id:ident, $e) => pure id | _ => pure a

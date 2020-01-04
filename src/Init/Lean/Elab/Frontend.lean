@@ -11,40 +11,52 @@ namespace Lean
 namespace Elab
 namespace Frontend
 
-structure State :=
-(commandState : Command.State)
-(parserState  : Parser.ModuleParserState)
+structure Context :=
+(commandStateRef : IO.Ref Command.State)
+(parserStateRef  : IO.Ref Parser.ModuleParserState)
+(cmdPosRef       : IO.Ref String.Pos)
+(parserCtx       : Parser.ParserContextCore)
 
-abbrev FrontendM := ReaderT Parser.ParserContextCore (StateM State)
+abbrev FrontendM := ReaderT Context (EIO Empty)
 
-private def getCmdContext : FrontendM Command.Context := do
-c ← read;
-pure { fileName := c.fileName, fileMap := c.fileMap }
+@[inline] def liftIOCore! {α} [Inhabited α] (x : IO α) : EIO Empty α :=
+EIO.catchExceptions x (fun _ => unreachable!)
 
-@[inline] def runCommandElabM (x : Command.CommandElabM Unit) : FrontendM Unit := do
-fun ctx s =>
-  let parserState := s.parserState;
-  match x { fileName := ctx.fileName, fileMap := ctx.fileMap } s.commandState with
-  | EStateM.Result.ok _ newCmdState     => ((), { commandState := newCmdState, parserState := parserState })
-  | EStateM.Result.error ex newCmdState =>
-    let newCmdState := { messages := newCmdState.messages.add ex, .. newCmdState };
-    ((), { commandState := newCmdState, parserState := parserState })
+@[inline] def runCommandElabM (x : Command.CommandElabM Unit) : FrontendM Unit :=
+fun ctx => do
+  cmdPos ← liftIOCore! $ ctx.cmdPosRef.get;
+  let cmdCtx : Command.Context := { cmdPos := cmdPos, stateRef := ctx.commandStateRef, fileName := ctx.parserCtx.fileName, fileMap := ctx.parserCtx.fileMap };
+  EIO.catchExceptions (x cmdCtx) (fun _ => pure ())
 
 def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit :=
-runCommandElabM (Command.elabCommand stx)
+runCommandElabM (Command.withLogging $ Command.elabCommand stx)
 
 def updateCmdPos : FrontendM Unit :=
-modify $ fun s => { commandState := { cmdPos := s.parserState.pos, .. s.commandState }, .. s }
+fun ctx => do
+  parserState ← liftIOCore! $ ctx.parserStateRef.get;
+  liftIOCore! $ ctx.cmdPosRef.set parserState.pos
+
+def getParserState : FrontendM Parser.ModuleParserState :=
+fun ctx => liftIOCore! $ ctx.parserStateRef.get
+
+def getCommandState : FrontendM Command.State :=
+fun ctx => liftIOCore! $ ctx.commandStateRef.get
+
+def setParserState (ps : Parser.ModuleParserState) : FrontendM Unit :=
+fun ctx => liftIOCore! $ ctx.parserStateRef.set ps
+
+def setMessages (msgs : MessageLog) : FrontendM Unit :=
+fun ctx => liftIOCore! $ ctx.commandStateRef.modify $ fun s => { messages := msgs, .. s }
 
 def processCommand : FrontendM Bool := do
 updateCmdPos;
-s ← get;
-let cs := s.commandState;
-let ps := s.parserState;
+cs ← getCommandState;
+ps ← getParserState;
 c ← read;
-match Parser.parseCommand cs.env c ps cs.messages with
+match Parser.parseCommand cs.env c.parserCtx ps cs.messages with
 | (cmd, ps, messages) => do
-  set { commandState := { messages := messages, .. cs }, parserState := ps };
+  setParserState ps;
+  setMessages messages;
   if Parser.isEOI cmd || Parser.isExitCommand cmd then do
     pure true -- Done
   else do
@@ -64,23 +76,33 @@ end Frontend
 
 open Frontend
 
-def process (input : String) (env : Environment) (opts : Options) (fileName : Option String := none) : Environment × MessageLog :=
-let fileName        := fileName.getD "<input>";
-let ctx             := Parser.mkParserContextCore env input fileName;
-let cmdState        := Command.mkState env {} opts;
-match (processCommands ctx).run { commandState := cmdState, parserState := {} } with
-| (_, { commandState := { env := env, messages := messages, .. }, .. }) => (env, messages)
+def IO.processCommands (parserCtx : Parser.ParserContextCore) (parserStateRef : IO.Ref Parser.ModuleParserState) (cmdStateRef : IO.Ref Command.State) : IO Unit := do
+ps ← parserStateRef.get;
+cmdPosRef ← IO.mkRef ps.pos;
+EIO.adaptExcept (fun (ex : Empty) => unreachable!) $ -- TODO: compiler support for Empty.rec is missing
+  processCommands { commandStateRef := cmdStateRef, parserStateRef := parserStateRef, cmdPosRef := cmdPosRef, parserCtx := parserCtx }
+
+def process (input : String) (env : Environment) (opts : Options) (fileName : Option String := none) : IO (Environment × MessageLog) := do
+let fileName   := fileName.getD "<input>";
+let parserCtx  := Parser.mkParserContextCore env input fileName;
+parserStateRef ← IO.mkRef { Parser.ModuleParserState . };
+cmdStateRef    ← IO.mkRef $ Command.mkState env {} opts;
+IO.processCommands parserCtx parserStateRef cmdStateRef;
+cmdState ← cmdStateRef.get;
+pure (cmdState.env, cmdState.messages)
 
 def testFrontend (input : String) (opts : Options := {}) (fileName : Option String := none) : IO (Environment × MessageLog) := do
 env ← mkEmptyEnvironment;
 let fileName := fileName.getD "<input>";
-let ctx := Parser.mkParserContextCore env input fileName;
-match Parser.parseHeader env ctx with
+let parserCtx := Parser.mkParserContextCore env input fileName;
+match Parser.parseHeader env parserCtx with
 | (header, parserState, messages) => do
-  (env, messages) ← processHeader header messages ctx;
-  let cmdState := Command.mkState env messages opts;
-  match (processCommands ctx).run { commandState := cmdState, parserState := parserState } with
-  | (_, { commandState := { env := env, messages := messages, .. }, .. }) => pure (env, messages)
+  (env, messages) ← processHeader header messages parserCtx;
+  parserStateRef ← IO.mkRef parserState;
+  cmdStateRef    ← IO.mkRef $ Command.mkState env messages opts;
+  IO.processCommands parserCtx parserStateRef cmdStateRef;
+  cmdState ← cmdStateRef.get;
+  pure (cmdState.env, cmdState.messages)
 
 end Elab
 end Lean

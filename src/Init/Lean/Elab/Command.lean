@@ -14,10 +14,6 @@ namespace Lean
 namespace Elab
 namespace Command
 
-structure Context :=
-(fileName : String)
-(fileMap  : FileMap)
-
 structure Scope :=
 (kind          : String)
 (header        : String)
@@ -32,7 +28,6 @@ instance Scope.inhabited : Inhabited Scope := ⟨{ kind := "", header := "" }⟩
 structure State :=
 (env      : Environment)
 (messages : MessageLog := {})
-(cmdPos   : String.Pos := 0)
 (scopes   : List Scope := [{ kind := "root", header := "" }])
 
 instance State.inhabited : Inhabited State := ⟨{ env := arbitrary _ }⟩
@@ -40,11 +35,44 @@ instance State.inhabited : Inhabited State := ⟨{ env := arbitrary _ }⟩
 def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State :=
 { env := env, messages := messages, scopes := [{ kind := "root", header := "", opts := opts }] }
 
-abbrev CommandElabM := ReaderT Context (EStateM Exception State)
+structure Context :=
+(fileName : String)
+(fileMap  : FileMap)
+(stateRef : IO.Ref State)
+(cmdPos   : String.Pos := 0)
+
+abbrev CommandElabCoreM (ε) := ReaderT Context (EIO ε)
+abbrev CommandElabM := CommandElabCoreM Exception
 abbrev CommandElab  := SyntaxNode → CommandElabM Unit
 
+def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity) : Message :=
+mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos.getD ctx.cmdPos)
+
+private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : Message :=
+mkMessageAux ctx ref ("IO error, " ++ toString err) MessageSeverity.error
+
+@[inline] def liftIOCore {α} (ctx : Context) (ref : Syntax) (x : IO α) : EIO Exception α :=
+EIO.adaptExcept (ioErrorToMessage ctx ref) x
+
+@[inline] def liftIO {α} (ref : Syntax) (x : IO α) : CommandElabM α :=
+fun ctx => liftIOCore ctx ref x
+
+private def getState : CommandElabM State :=
+fun ctx => liftIOCore ctx Syntax.missing $ ctx.stateRef.get
+
+private def setState (s : State) : CommandElabM Unit :=
+fun ctx => liftIOCore ctx Syntax.missing $ ctx.stateRef.set s
+
+@[inline] private def modifyGetState {α} (f : State → α × State) : CommandElabM α := do
+s ← getState; let (a, s) := f s; setState s; pure a
+
+instance CommandElabCoreM.monadState : MonadState State CommandElabM :=
+{ get       := getState,
+  set       := setState,
+  modifyGet := @modifyGetState }
+
 instance CommandElabM.monadLog : MonadLog CommandElabM :=
-{ getCmdPos   := do s ← get; pure s.cmdPos,
+{ getCmdPos   := do ctx ← read; pure ctx.cmdPos,
   getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
   logMessage  := fun msg => modify $ fun s => { messages := s.messages.add msg, .. s } }
@@ -107,7 +135,7 @@ let scope := s.scopes.head!;
 { config         := { opts := scope.opts, foApprox := true, ctxApprox := true, quasiPatternApprox := true, isDefEqStuckEx := true },
   fileName       := ctx.fileName,
   fileMap        := ctx.fileMap,
-  cmdPos         := s.cmdPos,
+  cmdPos         := ctx.cmdPos,
   currNamespace  := scope.currNamespace,
   univNames      := scope.univNames,
   openDecls      := scope.openDecls }
@@ -125,8 +153,22 @@ match result with
 | EStateM.Result.error (Term.Exception.error ex) newS => EStateM.Result.error ex { env := newS.env, messages := newS.messages, .. s }
 | EStateM.Result.error Term.Exception.postpone newS   => unreachable!
 
-@[inline] def runTermElabM {α} (x : TermElabM α) : CommandElabM α :=
-fun ctx s => toCommandResult ctx s $ (Term.elabBinders (getVarDecls s) (fun _ => x)) (mkTermContext ctx s) (mkTermState s)
+instance CommandElabM.inhabited {α} : Inhabited (CommandElabM α) :=
+⟨throw $ arbitrary _⟩
+
+@[inline] def runTermElabM {α} (x : TermElabM α) : CommandElabM α := do
+ctx ← read;
+s ← get;
+match ((Term.elabBinders (getVarDecls s) (fun _ => x)) (mkTermContext ctx s)).run (mkTermState s) with
+| EStateM.Result.ok a newS                            => do modify $ fun s => { env := newS.env, messages := newS.messages, .. s }; pure a
+| EStateM.Result.error (Term.Exception.error ex) newS => do modify $ fun s => { env := newS.env, messages := newS.messages, .. s }; throw ex
+| EStateM.Result.error Term.Exception.postpone newS   => unreachable!
+
+@[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit :=
+catch x (fun ex => do logMessage ex; pure ())
+
+@[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit :=
+fun ctx => EIO.catchExceptions (withLogging x ctx) (fun _ => pure ())
 
 def dbgTrace {α} [HasToString α] (a : α) : CommandElabM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()

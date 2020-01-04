@@ -5,7 +5,7 @@ open Lean.Elab
 def run (input : String) (failIff : Bool := true) : MetaIO Unit :=
 do env  ← MetaIO.getEnv;
    opts ← MetaIO.getOptions;
-   let (env, messages) := process input env opts;
+   (env, messages) ← liftM $ process input env opts;
    messages.forM $ fun msg => IO.println msg;
    when (failIff && messages.hasErrors) $ throw (IO.userError "errors have been found");
    when (!failIff && !messages.hasErrors) $ throw (IO.userError "there are no errors");

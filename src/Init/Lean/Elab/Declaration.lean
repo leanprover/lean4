@@ -76,13 +76,14 @@ match stx with
 def elabAttr (stx : Syntax) : CommandElabM Attribute := do
 -- rawIdent >> many attrArg
 let nameStx := stx.getArg 0;
-name ← match nameStx.isIdOrAtom? with
+attrName ← match nameStx.isIdOrAtom? with
   | none     => throwError nameStx "identifier expected"
   | some str => pure $ mkNameSimple str;
--- TODO: check whether it is valid attribute or not
+unlessM (liftIO stx (isAttribute attrName)) $
+  throwError stx ("unknown attribute [" ++ attrName ++ "]");
 let argStxs := (stx.getArg 1).getArgs;
 args ← argStxs.mapM elabAttrArg;
-pure { name := name, args := args }
+pure { name := attrName, args := args }
 
 def elabAttrs (stx : Syntax) : CommandElabM (Array Attribute) :=
 (stx.getArg 1).foldSepArgsM

@@ -194,24 +194,25 @@ modify $ fun s => {
   scopes := { kind := kind, header := header, currNamespace := newNamespace, .. s.scopes.head! } :: s.scopes,
   .. s }
 
-private def addScopes (kind : String) (updateNamespace : Bool) : Name → CommandElabM Unit
+private def addScopes (ref : Syntax) (kind : String) (updateNamespace : Bool) : Name → CommandElabM Unit
 | Name.anonymous => pure ()
 | Name.str p header _ => do
   addScopes p;
   currNamespace ← getCurrNamespace;
   addScope kind header (if updateNamespace then currNamespace ++ header else currNamespace)
-| _ => unreachable!
+| _ => throwError ref "invalid scope"
+
+private def addNamespace (ref : Syntax) (header : Name) : CommandElabM Unit :=
+addScopes ref "namespace" true header
 
 @[builtinCommandElab «namespace»] def elabNamespace : CommandElab :=
-fun n => do
-  let header := n.getIdAt 1;
-  addScopes "namespace" true header
+fun stx => addNamespace stx.val (stx.getIdAt 1)
 
 @[builtinCommandElab «section»] def elabSection : CommandElab :=
-fun n => do
-  let header? := (n.getArg 1).getOptionalIdent?;
+fun stx => do
+  let header? := (stx.getArg 1).getOptionalIdent?;
   match header? with
-  | some header => addScopes "section" false header
+  | some header => addScopes stx.val "section" false header
   | none        => do currNamespace ← getCurrNamespace; addScope "section" "" currNamespace
 
 def getScopes : CommandElabM (List Scope) := do
@@ -244,6 +245,12 @@ fun n => do
   | none        => unless (checkAnonymousScope scopes) $ throwError n.val "invalid 'end', name is missing"
   | some header => unless (checkEndHeader header scopes) $ throwError n.val "invalid 'end', name mismatch"
 
+@[inline] def withNamespace {α} (ref : Syntax) (ns : Name) (elab : CommandElabM α) : CommandElabM α := do
+addNamespace ref ns;
+a ← elab;
+modify $ fun s => { scopes := s.scopes.drop ns.getNumParts, .. s };
+pure a
+
 @[specialize] def modifyScope (f : Scope → Scope) : CommandElabM Unit :=
 modify $ fun s =>
   { scopes := match s.scopes with
@@ -254,11 +261,14 @@ modify $ fun s =>
 def getUniverseNames : CommandElabM (List Name) := do
 scope ← getScope; pure scope.univNames
 
+def throwAlreadyDeclaredUniverse {α} (ref : Syntax) (u : Name) : CommandElabM α :=
+throwError ref ("a universe named '" ++ toString u ++ "' has already been declared")
+
 def addUniverse (idStx : Syntax) : CommandElabM Unit := do
 let id := idStx.getId;
 univs ← getUniverseNames;
 if univs.elem id then
-  throwError idStx ("a universe named '" ++ toString id ++ "' has already been declared in this Scope")
+  throwAlreadyDeclaredUniverse idStx id
 else
   modifyScope $ fun scope => { univNames := id :: scope.univNames, .. scope }
 

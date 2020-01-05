@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
+import Init.Lean.Util.CollectLevelParams
 import Init.Lean.Elab.Definition
 
 namespace Lean
@@ -99,9 +100,9 @@ withDeclId declId $ fun name => do
     type ← Term.mkForall typeStx xs type;
     (type, _) ← Term.mkForallUsedOnly typeStx vars type;
     type ← Term.levelMVarToParam type;
-    -- TODO: unassigned universe metavariables to new parameters
-    -- TODO: if theorem, filter unused vars
+    let levelParams := collectLevelParams type;
     Term.dbgTrace (">>> " ++ toString type);
+    Term.dbgTrace (">>> " ++ toString levelParams);
     pure ()
 
 def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=

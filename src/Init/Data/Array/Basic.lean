@@ -588,6 +588,9 @@ eraseIdxSzAux a (i.val + 1) a rfl
 def contains [HasBeq α] (as : Array α) (a : α) : Bool :=
 as.any $ fun b => a == b
 
+def elem [HasBeq α] (a : α) (as : Array α) : Bool :=
+as.contains a
+
 partial def insertAtAux {α} (i : Nat) : Array α → Nat → Array α
 | as, j =>
   if i == j then as

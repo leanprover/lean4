@@ -100,7 +100,8 @@ withDeclId declId $ fun name => do
     type ← Term.mkForall typeStx xs type;
     (type, _) ← Term.mkForallUsedOnly typeStx vars type;
     type ← Term.levelMVarToParam type;
-    let levelParams := collectLevelParams type;
+    let usedParams  := collectLevelParams type;
+    let levelParams := sortDeclLevelParams univNames usedParams;
     Term.dbgTrace (">>> " ++ toString type);
     Term.dbgTrace (">>> " ++ toString levelParams);
     pure ()

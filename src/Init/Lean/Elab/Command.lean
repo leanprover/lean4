@@ -477,6 +477,18 @@ match id with
   finally (f (mkNameSimple s)) (modifyScope $ fun scope => { univNames := currUnivNames, .. scope })
 | _                => throwError ref "invalid declaration name"
 
+/--
+  Sort the given list of `usedParams` using the following order:
+  - If it is an explicit level `explicitParams`, then use user given order.
+  - Otherwise, use lexicographical.
+
+  Remark: `explicitParams` are in reverse declaration order. That is, the head is the last declared parameter. -/
+def sortDeclLevelParams (explicitParams : List Name) (usedParams : Array Name) : List Name :=
+let result := explicitParams.foldl (fun result univName => if usedParams.elem univName then univName :: result else result) [];
+let remaining := usedParams.filter (fun levelParam => !explicitParams.elem levelParam);
+let remaining := remaining.qsort Name.lt;
+result ++ remaining.toList
+
 end Command
 end Elab
 end Lean

@@ -14,44 +14,30 @@ namespace Command
 inductive DefKind
 | «def» | «theorem» | «example» | «opaque» | «axiom»
 
-structure DefViewCore :=
+structure DefView :=
 (kind          : DefKind)
 (ref           : Syntax)
 (modifiers     : Modifiers)
 (declId        : Syntax)
 (binders       : Syntax)
-(type          : Option Syntax := none)
-(val           : Option Syntax := none)
+(type?         : Option Syntax := none)
+(val?          : Option Syntax := none)
 
-structure DefView extends DefViewCore :=
-(currNamespace : Name)
-(name          : Name)
-(univNames     : List Name)
-(vars          : Array Expr)
-
-end Command
-
-namespace Term
-
-def elabDefTypeVal (view : Command.DefView) : TermElabM (Expr × Option Expr) := do
-dbgTrace (toString view.currNamespace ++ " " ++ toString view.name ++ " " ++ toString view.univNames);
-pure (arbitrary _, none)
-
-end Term
-
-namespace Command
-
-def elabDefCore (view : DefViewCore) : CommandElabM Unit :=
-withDeclId view.declId $ fun name univNames => do
+def elabDefLike (view : DefView) : CommandElabM Unit :=
+withDeclId view.declId $ fun name => do
   currNamespace ← getCurrNamespace;
-  runTermElabM $ fun vars => do
-    (type, val?) ← Term.elabDefTypeVal {
-      currNamespace := currNamespace,
-      name          := name,
-      univNames     := univNames,
-      vars          := vars,
-      .. view };
-    pure ()
+  type ← runTermElabM $ fun vars => Term.elabBinders view.binders.getArgs $ fun xs =>
+    match view.type? with
+    | some typeStx => do
+      type ← Term.elabType typeStx;
+      Term.synthesizeSyntheticMVars false;
+      type ← Term.instantiateMVars typeStx type;
+      -- TODO: unassigned universe metavariables to new parameters
+      -- TODO: if theorem, filter unused vars
+      pure type
+    | none => Term.mkFreshTypeMVar view.binders;
+  dbgTrace (">>> " ++ toString type);
+  pure ()
 
 end Command
 end Elab

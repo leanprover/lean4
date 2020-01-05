@@ -451,29 +451,30 @@ fun stx => do
     logInfo stx.val (e ++ " : " ++ type);
     pure ()
 
-@[inline] def withDeclId (declId : Syntax) (f : Name → List Name → CommandElabM Unit) : CommandElabM Unit := do
+@[inline] def withDeclId (declId : Syntax) (f : Name → CommandElabM Unit) : CommandElabM Unit := do
 -- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
 let id             := declId.getIdAt 0;
 let optUnivDeclStx := declId.getArg 1;
-us ←
+currUnivNames ← getUniverseNames;
+univNames ←
   if optUnivDeclStx.isNone then
-    getUniverseNames
+    pure currUnivNames
   else do {
-    univs ← getUniverseNames;
-    let univIds := (optUnivDeclStx.getArg 1).getArgs.getEvenElems;
-    univIds.foldlM
-      (fun univs idStx =>
+    let extraUnivs := (optUnivDeclStx.getArg 1).getArgs.getEvenElems;
+    extraUnivs.foldlM
+      (fun univNames idStx =>
         let id := idStx.getId;
-        if univs.elem id then
+        if univNames.elem id then
           throwAlreadyDeclaredUniverse idStx id
         else
-          pure (id :: univs))
-      univs
+          pure (id :: univNames))
+      currUnivNames
   };
-let us  := us.reverse;
 let ref := declId;
 match id with
-| Name.str pre s _ => withNamespace ref pre (f (mkNameSimple s) us)
+| Name.str pre s _ => withNamespace ref pre $ do
+  modifyScope $ fun scope => { univNames := univNames, .. scope };
+  finally (f (mkNameSimple s)) (modifyScope $ fun scope => { univNames := currUnivNames, .. scope })
 | _                => throwError ref "invalid declaration name"
 
 end Command

@@ -31,34 +31,33 @@ def elabAbbrev (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 let (binders, type) := expandOptDeclSig (stx.getArg 2);
 let modifiers       := modifiers.addAttribute { name := `inline };
 let modifiers       := modifiers.addAttribute { name := `reducible };
-elabDefCore {
+elabDefLike {
   ref := stx, kind := DefKind.def, modifiers := modifiers,
-  declId := stx.getArg 1, binders := binders, type := type, val := some (stx.getArg 3)
+  declId := stx.getArg 1, binders := binders, type? := type, val? := some (stx.getArg 3)
 }
 
 def elabDef (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 -- parser! "def " >> declId >> optDeclSig >> declVal
 let (binders, type) := expandOptDeclSig (stx.getArg 2);
-elabDefCore {
+elabDefLike {
   ref := stx, kind := DefKind.def, modifiers := modifiers,
-  declId := stx.getArg 1, binders := binders, type := type,
-  val := some (stx.getArg 3)
+  declId := stx.getArg 1, binders := binders, type? := type, val? := some (stx.getArg 3)
 }
 
 def elabTheorem (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 -- parser! "theorem " >> declId >> declSig >> declVal
 let (binders, type) := expandDeclSig (stx.getArg 2);
-elabDefCore {
+elabDefLike {
   ref := stx, kind := DefKind.theorem, modifiers := modifiers,
-  declId := stx.getArg 1, binders := binders, type := some type, val := some (stx.getArg 3)
+  declId := stx.getArg 1, binders := binders, type? := some type, val? := some (stx.getArg 3)
 }
 
 def elabConstant (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 -- parser! "constant " >> declId >> declSig >> optional declValSimple
 let (binders, type) := expandDeclSig (stx.getArg 2);
-elabDefCore {
+elabDefLike {
   ref := stx, kind := DefKind.opaque, modifiers := modifiers,
-  declId := stx.getArg 1, binders := binders, type := some type, val := (stx.getArg 3).getOptional?
+  declId := stx.getArg 1, binders := binders, type? := some type, val? := (stx.getArg 3).getOptional?
 }
 
 def elabInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
@@ -68,17 +67,17 @@ let modifiers       := modifiers.addAttribute { name := `instance };
 declId ← match (stx.getArg 1).getOptional? with
   | some declId => pure declId
   | none        => throwError stx "not implemented yet";
-elabDefCore {
+elabDefLike {
   ref := stx, kind := DefKind.def, modifiers := modifiers,
-  declId := declId, binders := binders, type := type, val := (stx.getArg 3).getOptional?
+  declId := declId, binders := binders, type? := type, val? := (stx.getArg 3).getOptional?
 }
 
 def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 -- parser! "axiom " >> declId >> declSig
 let (binders, type) := expandDeclSig (stx.getArg 2);
-elabDefCore {
+elabDefLike {
   ref := stx, kind := DefKind.axiom, modifiers := modifiers,
-  declId := stx.getArg 1, binders := binders, type := some type, val := none
+  declId := stx.getArg 1, binders := binders, type? := some type, val? := none
 }
 
 def elabExample (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
@@ -86,10 +85,9 @@ def elabExample (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 let (binders, type) := expandDeclSig (stx.getArg 1);
 let id              := mkIdentFrom stx `_example;
 let declId          := Syntax.node `Lean.Parser.Command.declId #[id, mkNullNode];
-elabDefCore {
+elabDefLike {
   ref := stx, kind := DefKind.example, modifiers := modifiers,
-  declId := declId, binders := binders, type := some type,
-  val := some (stx.getArg 2)
+  declId := declId, binders := binders, type? := some type, val? := some (stx.getArg 2)
 }
 
 def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=

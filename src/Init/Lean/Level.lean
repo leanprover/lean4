@@ -7,6 +7,8 @@ prelude
 import Init.Data.Option.Basic
 import Init.Data.HashMap
 import Init.Data.PersistentHashMap
+import Init.Data.HashSet
+import Init.Data.PersistentHashSet
 import Init.Lean.Data.Name
 import Init.Lean.Data.Format
 
@@ -432,6 +434,9 @@ end Level
 
 abbrev LevelMap (α : Type)  := HashMap Level α
 abbrev PersistentLevelMap (α : Type) := PHashMap Level α
+abbrev LevelSet := HashSet Level
+abbrev PersistentLevelSet := PHashSet Level
+abbrev PLevelSet := PersistentLevelSet
 
 end Lean
 

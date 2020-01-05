@@ -12,7 +12,7 @@ namespace Elab
 namespace Command
 
 inductive DefKind
-| «def» | «theorem» | «example» | «opaque» | «axiom»
+| «def» | «theorem» | «example» | «opaque»
 
 structure DefView :=
 (kind          : DefKind)
@@ -20,24 +20,27 @@ structure DefView :=
 (modifiers     : Modifiers)
 (declId        : Syntax)
 (binders       : Syntax)
-(type?         : Option Syntax := none)
-(val?          : Option Syntax := none)
+(type?         : Option Syntax)
+(val           : Syntax)
 
 def elabDefLike (view : DefView) : CommandElabM Unit :=
 withDeclId view.declId $ fun name => do
   currNamespace ← getCurrNamespace;
-  type ← runTermElabM $ fun vars => Term.elabBinders view.binders.getArgs $ fun xs =>
+  runTermElabM $ fun vars => Term.elabBinders view.binders.getArgs $ fun xs =>
     match view.type? with
     | some typeStx => do
-      type ← Term.elabType typeStx;
+      type    ← Term.elabType typeStx;
       Term.synthesizeSyntheticMVars false;
-      type ← Term.instantiateMVars typeStx type;
+      type    ← Term.instantiateMVars typeStx type;
+      defType ← Term.mkForall typeStx xs type;
       -- TODO: unassigned universe metavariables to new parameters
       -- TODO: if theorem, filter unused vars
-      pure type
-    | none => Term.mkFreshTypeMVar view.binders;
-  dbgTrace (">>> " ++ toString type);
-  pure ()
+      Term.dbgTrace (">>> " ++ toString type);
+      pure ()
+    | none => do
+      type ← Term.mkFreshTypeMVar view.binders;
+
+      pure ()
 
 end Command
 end Elab

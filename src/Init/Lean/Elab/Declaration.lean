@@ -33,7 +33,7 @@ let modifiers       := modifiers.addAttribute { name := `inline };
 let modifiers       := modifiers.addAttribute { name := `reducible };
 elabDefLike {
   ref := stx, kind := DefKind.def, modifiers := modifiers,
-  declId := stx.getArg 1, binders := binders, type? := type, val? := some (stx.getArg 3)
+  declId := stx.getArg 1, binders := binders, type? := type, val := stx.getArg 3
 }
 
 def elabDef (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
@@ -41,7 +41,7 @@ def elabDef (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 let (binders, type) := expandOptDeclSig (stx.getArg 2);
 elabDefLike {
   ref := stx, kind := DefKind.def, modifiers := modifiers,
-  declId := stx.getArg 1, binders := binders, type? := type, val? := some (stx.getArg 3)
+  declId := stx.getArg 1, binders := binders, type? := type, val := stx.getArg 3
 }
 
 def elabTheorem (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
@@ -49,15 +49,18 @@ def elabTheorem (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 let (binders, type) := expandDeclSig (stx.getArg 2);
 elabDefLike {
   ref := stx, kind := DefKind.theorem, modifiers := modifiers,
-  declId := stx.getArg 1, binders := binders, type? := some type, val? := some (stx.getArg 3)
+  declId := stx.getArg 1, binders := binders, type? := some type, val := stx.getArg 3
 }
 
-def elabConstant (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
+def elabConstant (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
 -- parser! "constant " >> declId >> declSig >> optional declValSimple
 let (binders, type) := expandDeclSig (stx.getArg 2);
+val ← match (stx.getArg 3).getOptional? with
+  | some val => pure val
+  | none     => `(arbitrary _);
 elabDefLike {
   ref := stx, kind := DefKind.opaque, modifiers := modifiers,
-  declId := stx.getArg 1, binders := binders, type? := some type, val? := (stx.getArg 3).getOptional?
+  declId := stx.getArg 1, binders := binders, type? := some type, val := val
 }
 
 def elabInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
@@ -69,15 +72,7 @@ declId ← match (stx.getArg 1).getOptional? with
   | none        => throwError stx "not implemented yet";
 elabDefLike {
   ref := stx, kind := DefKind.def, modifiers := modifiers,
-  declId := declId, binders := binders, type? := type, val? := (stx.getArg 3).getOptional?
-}
-
-def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
--- parser! "axiom " >> declId >> declSig
-let (binders, type) := expandDeclSig (stx.getArg 2);
-elabDefLike {
-  ref := stx, kind := DefKind.axiom, modifiers := modifiers,
-  declId := stx.getArg 1, binders := binders, type? := some type, val? := none
+  declId := declId, binders := binders, type? := type, val := stx.getArg 3
 }
 
 def elabExample (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
@@ -87,8 +82,26 @@ let id              := mkIdentFrom stx `_example;
 let declId          := Syntax.node `Lean.Parser.Command.declId #[id, mkNullNode];
 elabDefLike {
   ref := stx, kind := DefKind.example, modifiers := modifiers,
-  declId := declId, binders := binders, type? := some type, val? := some (stx.getArg 2)
+  declId := declId, binders := binders, type? := some type, val := stx.getArg 2
 }
+
+def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
+-- parser! "axiom " >> declId >> declSig
+let declId             := stx.getArg 1;
+let (binders, typeStx) := expandDeclSig (stx.getArg 2);
+withDeclId declId $ fun name => do
+  currNamespace ← getCurrNamespace;
+  univNames     ← getUniverseNames;
+  runTermElabM $ fun vars => Term.elabBinders binders.getArgs $ fun xs => do
+    type ← Term.elabType typeStx;
+    Term.synthesizeSyntheticMVars false;
+    type ← Term.instantiateMVars typeStx type;
+    type ← Term.mkForall typeStx xs type;
+    let fullName := currNamespace ++ name;
+    -- TODO: unassigned universe metavariables to new parameters
+    -- TODO: if theorem, filter unused vars
+    Term.dbgTrace (">>> " ++ toString type);
+    pure ()
 
 def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 pure () -- TODO

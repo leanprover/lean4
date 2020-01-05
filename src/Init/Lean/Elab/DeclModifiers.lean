@@ -126,6 +126,18 @@ pure {
   attrs           := attrs
 }
 
+def mkDeclName (modifiers : Modifiers) (atomicName : Name) : CommandElabM Name := do
+currNamespace ← getCurrNamespace;
+let declName := currNamespace ++ atomicName;
+match modifiers.visibility with
+| Visibility.private => do
+  env ← getEnv;
+  let (env, declName) := mkPrivateName env declName;
+  setEnv env;
+  -- TODO: alias?
+  pure declName
+| _                  => pure declName
+
 end Command
 end Elab
 end Lean

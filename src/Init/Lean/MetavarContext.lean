@@ -894,7 +894,7 @@ partial def isWellFormed (mctx : MetavarContext) (lctx : LocalContext) : Expr �
 | Expr.localE _ _ _ _      => unreachable!
 
 
-namespace UnivMVarToParam
+namespace LevelMVarToParam
 
 structure Context :=
 (paramNamePrefix : Name)
@@ -949,7 +949,7 @@ partial def main : Expr → M Expr
 | e@(Expr.sort u _)        => do u ← visitLevel u; pure (e.updateSort! u)
 | e                        => pure e
 
-end UnivMVarToParam
+end LevelMVarToParam
 
 structure UnivMVarParamResult :=
 (mctx          : MetavarContext)
@@ -957,9 +957,9 @@ structure UnivMVarParamResult :=
 (nextParamIdx  : Nat)
 (expr          : Expr)
 
-def univMVarToParam (mctx : MetavarContext) (alreadyUsedPred : Name → Bool) (e : Expr) (paramNamePrefix : Name := `u) (nextParamIdx : Nat := 1)
+def levelMVarToParam (mctx : MetavarContext) (alreadyUsedPred : Name → Bool) (e : Expr) (paramNamePrefix : Name := `u) (nextParamIdx : Nat := 1)
     : UnivMVarParamResult :=
-let (e, s) := UnivMVarToParam.main e { paramNamePrefix := paramNamePrefix, alreadyUsedPred := alreadyUsedPred } { mctx := mctx, nextParamIdx := nextParamIdx };
+let (e, s) := LevelMVarToParam.main e { paramNamePrefix := paramNamePrefix, alreadyUsedPred := alreadyUsedPred } { mctx := mctx, nextParamIdx := nextParamIdx };
 { mctx          := mctx,
   newParamNames := s.paramNames,
   nextParamIdx  := s.nextParamIdx,

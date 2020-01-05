@@ -90,14 +90,15 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 let declId             := stx.getArg 1;
 let (binders, typeStx) := expandDeclSig (stx.getArg 2);
 withDeclId declId $ fun name => do
-  currNamespace ← getCurrNamespace;
-  univNames     ← getUniverseNames;
+  declName  ← mkDeclName modifiers name;
+  univNames ← getUniverseNames;
   runTermElabM $ fun vars => Term.elabBinders binders.getArgs $ fun xs => do
     type ← Term.elabType typeStx;
     Term.synthesizeSyntheticMVars false;
     type ← Term.instantiateMVars typeStx type;
     type ← Term.mkForall typeStx xs type;
-    let fullName := currNamespace ++ name;
+    (type, _) ← Term.mkForallUsedOnly typeStx vars type;
+    type ← Term.levelMVarToParam type;
     -- TODO: unassigned universe metavariables to new parameters
     -- TODO: if theorem, filter unused vars
     Term.dbgTrace (">>> " ++ toString type);

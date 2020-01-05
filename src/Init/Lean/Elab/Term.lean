@@ -285,6 +285,7 @@ def mkFreshTypeMVar (ref : Syntax) (kind : MetavarKind := MetavarKind.natural) (
 liftMetaM ref $ do u ← Meta.mkFreshLevelMVar; Meta.mkFreshExprMVar (mkSort u) userName? kind
 def getLevel (ref : Syntax) (type : Expr) : TermElabM Level := liftMetaM ref $ Meta.getLevel type
 def mkForall (ref : Syntax) (xs : Array Expr) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.mkForall xs e
+def mkForallUsedOnly (ref : Syntax) (xs : Array Expr) (e : Expr) : TermElabM (Expr × Nat) := liftMetaM ref $ Meta.mkForallUsedOnly xs e
 def mkLambda (ref : Syntax) (xs : Array Expr) (e : Expr) : TermElabM Expr := liftMetaM ref $ Meta.mkLambda xs e
 def mkLet (ref : Syntax) (x : Expr) (e : Expr) : TermElabM Expr := mkLambda ref #[x] e
 def trySynthInstance (ref : Syntax) (type : Expr) : TermElabM (LOption Expr) := liftMetaM ref $ Meta.trySynthInstance type
@@ -328,6 +329,14 @@ stx.ifNode x (fun _ => throwError stx ("term elaborator failed, unexpected synta
 /-- Creates syntax for `(` <ident> `:` <type> `)` -/
 def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
 mkNode `Lean.Parser.Term.explicitBinder #[mkAtom "(", mkNullNode #[ident], mkNullNode #[mkAtom ":", type], mkNullNode, mkAtom ")"]
+
+/-- Convert unassigned universe level metavariables into parameters. -/
+def levelMVarToParam (e : Expr) : TermElabM Expr := do
+ctx ← read;
+mctx ← getMCtx;
+let r := mctx.levelMVarToParam (fun n => ctx.univNames.elem n) e;
+modify $ fun s => { mctx := r.mctx, .. s };
+pure r.expr
 
 /--
   Auxiliary method for creating fresh binder names.

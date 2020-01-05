@@ -881,5 +881,77 @@ partial def isWellFormed (mctx : MetavarContext) (lctx : LocalContext) : Expr �
 | Expr.fvar fvarId _       => lctx.contains fvarId
 | Expr.localE _ _ _ _      => unreachable!
 
+
+namespace UnivMVarToParam
+
+structure Context :=
+(paramNamePrefix : Name)
+(alreadyUsedPred : Name → Bool)
+
+structure State :=
+(mctx         : MetavarContext)
+(paramNames   : Array Name := #[])
+(nextParamIdx : Nat)
+
+abbrev M := ReaderT Context $ StateM State
+
+partial def mkParamName : Unit → M Name
+| _ => do
+  ctx ← read;
+  s ← get;
+  let newParamName := ctx.paramNamePrefix.appendIndexAfter s.nextParamIdx;
+  if ctx.alreadyUsedPred newParamName then do
+    modify $ fun s => { nextParamIdx := s.nextParamIdx + 1, .. s};
+    mkParamName ()
+  else do
+    modify $ fun s => { nextParamIdx := s.nextParamIdx + 1, paramNames := s.paramNames.push newParamName, .. s};
+    pure newParamName
+
+partial def visitLevel : Level → M Level
+| u@(Level.succ v _)      => do v ← visitLevel v; pure (u.updateSucc v rfl)
+| u@(Level.max v₁ v₂ _)   => do v₁ ← visitLevel v₁; v₂ ← visitLevel v₂; pure (u.updateMax v₁ v₂ rfl)
+| u@(Level.imax v₁ v₂ _)  => do v₁ ← visitLevel v₁; v₂ ← visitLevel v₂; pure (u.updateIMax v₁ v₂ rfl)
+| u@(Level.zero _)        => pure u
+| u@(Level.param _ _)     => pure u
+| u@(Level.mvar mvarId _) => do
+  s ← get;
+  match s.mctx.getLevelAssignment? mvarId with
+  | some v => visitLevel v
+  | none   => do
+    p ← mkParamName ();
+    let p := mkLevelParam p;
+    modify $ fun s => { mctx := s.mctx.assignLevel mvarId p, .. s };
+    pure p
+
+@[inline] private def visit (f : Expr → M Expr) (e : Expr) : M Expr :=
+if e.hasLevelMVar then f e else pure e
+
+partial def main : Expr → M Expr
+| e@(Expr.proj _ _ s _)    => do s ← visit main s; pure (e.updateProj! s)
+| e@(Expr.forallE _ d b _) => do d ← visit main d; b ← visit main b; pure (e.updateForallE! d b)
+| e@(Expr.lam _ d b _)     => do d ← visit main d; b ← visit main b; pure (e.updateLambdaE! d b)
+| e@(Expr.letE _ t v b _)  => do t ← visit main t; v ← visit main v; b ← visit main b; pure (e.updateLet! t v b)
+| e@(Expr.app f a _)       => do f ← visit main f; a ← visit main a; pure (e.updateApp! f a)
+| e@(Expr.mdata _ b _)     => do b ← visit main b; pure (e.updateMData! b)
+| e@(Expr.const _ us _)    => do us ← us.mapM visitLevel; pure (e.updateConst! us)
+| e@(Expr.sort u _)        => do u ← visitLevel u; pure (e.updateSort! u)
+| e                        => pure e
+
+end UnivMVarToParam
+
+structure UnivMVarParamResult :=
+(mctx          : MetavarContext)
+(newParamNames : Array Name)
+(nextParamIdx  : Nat)
+(expr          : Expr)
+
+def univMVarToParam (mctx : MetavarContext) (alreadyUsedPred : Name → Bool) (e : Expr) (paramNamePrefix : Name := `u) (nextParamIdx : Nat := 1)
+    : UnivMVarParamResult :=
+let (e, s) := UnivMVarToParam.main e { paramNamePrefix := paramNamePrefix, alreadyUsedPred := alreadyUsedPred } { mctx := mctx, nextParamIdx := nextParamIdx };
+{ mctx          := mctx,
+  newParamNames := s.paramNames,
+  nextParamIdx  := s.nextParamIdx,
+  expr          := e }
+
 end MetavarContext
 end Lean

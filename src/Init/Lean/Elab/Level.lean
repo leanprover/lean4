@@ -16,7 +16,7 @@ structure Context :=
 (fileName   : String)
 (fileMap    : FileMap)
 (cmdPos     : String.Pos)
-(univNames  : List Name := [])
+(levelNames : List Name)
 
 structure State :=
 (ngen : NameGenerator)
@@ -70,7 +70,7 @@ partial def elabLevel : Syntax → LevelElabM Level
   else if kind == `Lean.Parser.Level.ident then do
     let paramName := stx.getIdAt 0;
     ctx ← read;
-    unless (ctx.univNames.contains paramName) $ throwError stx ("unknown universe level " ++ paramName);
+    unless (ctx.levelNames.contains paramName) $ throwError stx ("unknown universe level " ++ paramName);
     pure $ mkLevelParam paramName
   else if kind == `Lean.Parser.Level.addLit then do
     lvl ← elabLevel (stx.getArg 0);

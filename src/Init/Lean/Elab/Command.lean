@@ -20,7 +20,7 @@ structure Scope :=
 (opts          : Options := {})
 (currNamespace : Name := Name.anonymous)
 (openDecls     : List OpenDecl := [])
-(univNames     : List Name := [])
+(levelNames    : List Name := [])
 (varDecls      : Array Syntax := #[])
 
 instance Scope.inhabited : Inhabited Scope := ⟨{ kind := "", header := "" }⟩
@@ -159,7 +159,7 @@ let scope := s.scopes.head!;
   cmdPos         := ctx.cmdPos,
   currMacroScope := ctx.currMacroScope,
   currNamespace  := scope.currNamespace,
-  univNames      := scope.univNames,
+  levelNames     := scope.levelNames,
   openDecls      := scope.openDecls }
 
 private def mkTermState (s : State) : Term.State :=
@@ -281,28 +281,28 @@ modify $ fun s =>
     | []   => unreachable!,
     .. s }
 
-def getUniverseNames : CommandElabM (List Name) := do
-scope ← getScope; pure scope.univNames
+def getLevelNames : CommandElabM (List Name) := do
+scope ← getScope; pure scope.levelNames
 
-def throwAlreadyDeclaredUniverse {α} (ref : Syntax) (u : Name) : CommandElabM α :=
-throwError ref ("a universe named '" ++ toString u ++ "' has already been declared")
+def throwAlreadyDeclaredUniverseLevel {α} (ref : Syntax) (u : Name) : CommandElabM α :=
+throwError ref ("a universe level named '" ++ toString u ++ "' has already been declared")
 
-def addUniverse (idStx : Syntax) : CommandElabM Unit := do
+def addUnivLevel (idStx : Syntax) : CommandElabM Unit := do
 let id := idStx.getId;
-univs ← getUniverseNames;
-if univs.elem id then
-  throwAlreadyDeclaredUniverse idStx id
+levelNames ← getLevelNames;
+if levelNames.elem id then
+  throwAlreadyDeclaredUniverseLevel idStx id
 else
-  modifyScope $ fun scope => { univNames := id :: scope.univNames, .. scope }
+  modifyScope $ fun scope => { levelNames := id :: scope.levelNames, .. scope }
 
 @[builtinCommandElab «universe»] def elabUniverse : CommandElab :=
 fun n => do
-  addUniverse (n.getArg 1)
+  addUnivLevel (n.getArg 1)
 
 @[builtinCommandElab «universes»] def elabUniverses : CommandElab :=
 fun n => do
   let idsStx := n.getArg 1;
-  idsStx.forArgsM addUniverse
+  idsStx.forArgsM addUnivLevel
 
 @[builtinCommandElab «init_quot»] def elabInitQuot : CommandElab :=
 fun stx => do
@@ -455,26 +455,26 @@ fun stx => do
 -- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
 let id             := declId.getIdAt 0;
 let optUnivDeclStx := declId.getArg 1;
-currUnivNames ← getUniverseNames;
-univNames ←
+savedLevelNames ← getLevelNames;
+levelNames      ←
   if optUnivDeclStx.isNone then
-    pure currUnivNames
+    pure savedLevelNames
   else do {
-    let extraUnivs := (optUnivDeclStx.getArg 1).getArgs.getEvenElems;
-    extraUnivs.foldlM
-      (fun univNames idStx =>
+    let extraLevels := (optUnivDeclStx.getArg 1).getArgs.getEvenElems;
+    extraLevels.foldlM
+      (fun levelNames idStx =>
         let id := idStx.getId;
-        if univNames.elem id then
-          throwAlreadyDeclaredUniverse idStx id
+        if levelNames.elem id then
+          throwAlreadyDeclaredUniverseLevel idStx id
         else
-          pure (id :: univNames))
-      currUnivNames
+          pure (id :: levelNames))
+      savedLevelNames
   };
 let ref := declId;
 match id with
 | Name.str pre s _ => withNamespace ref pre $ do
-  modifyScope $ fun scope => { univNames := univNames, .. scope };
-  finally (f (mkNameSimple s)) (modifyScope $ fun scope => { univNames := currUnivNames, .. scope })
+  modifyScope $ fun scope => { levelNames := levelNames, .. scope };
+  finally (f (mkNameSimple s)) (modifyScope $ fun scope => { levelNames := savedLevelNames, .. scope })
 | _                => throwError ref "invalid declaration name"
 
 /--
@@ -484,7 +484,7 @@ match id with
 
   Remark: `explicitParams` are in reverse declaration order. That is, the head is the last declared parameter. -/
 def sortDeclLevelParams (explicitParams : List Name) (usedParams : Array Name) : List Name :=
-let result := explicitParams.foldl (fun result univName => if usedParams.elem univName then univName :: result else result) [];
+let result := explicitParams.foldl (fun result levelName => if usedParams.elem levelName then levelName :: result else result) [];
 let remaining := usedParams.filter (fun levelParam => !explicitParams.elem levelParam);
 let remaining := remaining.qsort Name.lt;
 result ++ remaining.toList

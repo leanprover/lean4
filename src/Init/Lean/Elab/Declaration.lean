@@ -91,8 +91,8 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 let declId             := stx.getArg 1;
 let (binders, typeStx) := expandDeclSig (stx.getArg 2);
 withDeclId declId $ fun name => do
-  declName  ← mkDeclName modifiers name;
-  univNames ← getUniverseNames;
+  declName          ← mkDeclName modifiers name;
+  explictLevelNames ← getLevelNames;
   runTermElabM $ fun vars => Term.elabBinders binders.getArgs $ fun xs => do
     type ← Term.elabType typeStx;
     Term.synthesizeSyntheticMVars false;
@@ -101,7 +101,7 @@ withDeclId declId $ fun name => do
     (type, _) ← Term.mkForallUsedOnly typeStx vars type;
     type ← Term.levelMVarToParam type;
     let usedParams  := collectLevelParams type;
-    let levelParams := sortDeclLevelParams univNames usedParams;
+    let levelParams := sortDeclLevelParams explictLevelNames usedParams;
     Term.dbgTrace (">>> " ++ toString type);
     Term.dbgTrace (">>> " ++ toString levelParams);
     pure ()

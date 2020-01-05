@@ -22,7 +22,7 @@ structure Context extends Meta.Context :=
 (fileMap         : FileMap)
 (cmdPos          : String.Pos)
 (currNamespace   : Name)
-(univNames       : List Name       := [])
+(levelNames      : List Name       := [])
 (openDecls       : List OpenDecl   := [])
 (macroStack      : List Syntax     := [])
 (currMacroScope  : MacroScope      := 0)
@@ -334,7 +334,7 @@ mkNode `Lean.Parser.Term.explicitBinder #[mkAtom "(", mkNullNode #[ident], mkNul
 def levelMVarToParam (e : Expr) : TermElabM Expr := do
 ctx ← read;
 mctx ← getMCtx;
-let r := mctx.levelMVarToParam (fun n => ctx.univNames.elem n) e;
+let r := mctx.levelMVarToParam (fun n => ctx.levelNames.elem n) e;
 modify $ fun s => { mctx := r.mctx, .. s };
 pure r.expr
 

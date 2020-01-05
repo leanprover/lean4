@@ -10,22 +10,11 @@ namespace Lean
 namespace Elab
 namespace Command
 
-inductive AttributeArg
-| str (val : String)
-| num (val : Nat)
-| id  (val : Name)
-
-instance AttributeArg.hasToString : HasToString AttributeArg :=
-⟨fun arg => match arg with
- | AttributeArg.str v => repr v
- | AttributeArg.num v => toString v
- | AttributeArg.id v  => toString v⟩
-
 structure Attribute :=
-(name : Name) (args : Array AttributeArg := #[])
+(name : Name) (args : Syntax := Syntax.missing)
 
 instance Attribute.hasFormat : HasFormat Attribute :=
-⟨fun attr => Format.bracket "@[" (toString attr.name ++ (Format.prefixJoin " " attr.args.toList)) "]"⟩
+⟨fun attr => Format.bracket "@[" (toString attr.name ++ (if attr.args.isMissing then "" else toString attr.args)) "]"⟩
 
 inductive Visibility
 | regular | «protected» | «private»
@@ -65,17 +54,6 @@ instance Modifiers.hasFormat : HasFormat Modifiers :=
 
 instance Modifiers.hasToString : HasToString Modifiers := ⟨toString ∘ format⟩
 
-def elabAttrArg (stx : Syntax) : CommandElabM AttributeArg := do
-match stx.isStrLit? with
-| some v => pure $ AttributeArg.str v
-| _ =>
-match stx.isNatLit? with
-| some v => pure $ AttributeArg.num v
-| _ =>
-match stx with
-| Syntax.ident _ _ v _ => pure $ AttributeArg.id v
-| _ => throwError stx "unexpected attribute argument"
-
 def elabAttr (stx : Syntax) : CommandElabM Attribute := do
 -- rawIdent >> many attrArg
 let nameStx := stx.getArg 0;
@@ -84,8 +62,7 @@ attrName ← match nameStx.isIdOrAtom? with
   | some str => pure $ mkNameSimple str;
 unlessM (liftIO stx (isAttribute attrName)) $
   throwError stx ("unknown attribute [" ++ attrName ++ "]");
-let argStxs := (stx.getArg 1).getArgs;
-args ← argStxs.mapM elabAttrArg;
+let args := stx.getArg 1;
 pure { name := attrName, args := args }
 
 def elabAttrs (stx : Syntax) : CommandElabM (Array Attribute) :=

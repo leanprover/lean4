@@ -383,3 +383,29 @@ do print "----- tst24 -----";
    pure ()
 
 #eval tst24
+
+def tst25 : MetaM Unit :=
+do print "----- tst25 -----";
+   withLocalDecl `α type BinderInfo.default $ fun α =>
+   withLocalDecl `β type BinderInfo.default $ fun β =>
+   withLocalDecl `σ type BinderInfo.default $ fun σ => do {
+     (t1, n) ← mkForallUsedOnly #[α, β, σ] $ mkArrow α β;
+     print t1;
+     check $ pure $ n == 2;
+     (t2, n) ← mkForallUsedOnly #[α, β, σ] $ mkArrow α (mkArrow β σ);
+     check $ pure $ n == 3;
+     print t2;
+     (t3, n) ← mkForallUsedOnly #[α, β, σ] $ α;
+     check $ pure $ n == 1;
+     print t3;
+     (t4, n) ← mkForallUsedOnly #[α, β, σ] $ σ;
+     check $ pure $ n == 1;
+     print t4;
+     (t5, n) ← mkForallUsedOnly #[α, β, σ] $ nat;
+     check $ pure $ n == 0;
+     print t5;
+     pure ()
+   };
+   pure ()
+
+#eval tst25

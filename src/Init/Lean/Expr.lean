@@ -554,7 +554,9 @@ constant hasLooseBVar (e : @& Expr) (bvarIdx : @& Nat) : Bool := arbitrary _
 /--
   Lower the loose bound variables `>= s` in `e` by `d`.
   That is, a loose bound variable `bvar i`.
-  `i >= s` is mapped into `bvar (i-d)`. -/
+  `i >= s` is mapped into `bvar (i-d)`.
+
+  Remark: if `s < d`, then result is `e` -/
 @[extern "lean_expr_lower_loose_bvars"]
 constant lowerLooseBVars (e : @& Expr) (s d : @& Nat) : Expr := arbitrary _
 

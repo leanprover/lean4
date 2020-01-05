@@ -813,49 +813,61 @@ if !e.hasMVar then
 else
   withFreshCache $ elimMVarDepsAux xs e
 
-/-- Similar to `Expr.abstractRange`, but handles metavariables correctly.
-    It uses `elimMVarDeps` to ensure `e` and the type of the free variables `xs` do not
-    contain a metavariable `?m` s.t. local context of `?m` contains a free variable in `xs`.
+/--
+  Similar to `Expr.abstractRange`, but handles metavariables correctly.
+  It uses `elimMVarDeps` to ensure `e` and the type of the free variables `xs` do not
+  contain a metavariable `?m` s.t. local context of `?m` contains a free variable in `xs`.
 
-    `elimMVarDeps` is defined later in this file. -/
+  `elimMVarDeps` is defined later in this file. -/
 @[inline] private def abstractRange (xs : Array Expr) (i : Nat) (e : Expr) : M Expr := do
 e ← elimMVarDeps xs e;
 pure (e.abstractRange i xs)
 
-/-- Similar to `LocalContext.mkBinding`, but handles metavariables correctly. -/
-@[specialize] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) : M Expr := do
+/--
+  Similar to `LocalContext.mkBinding`, but handles metavariables correctly.
+  If `usedOnly == false` then `forall` and `lambda` are created only for used variables. -/
+@[specialize] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) : M (Expr × Nat) := do
 e ← abstractRange xs xs.size e;
 xs.size.foldRevM
-  (fun i e =>
+  (fun i (p : Expr × Nat) =>
+    let (e, num) := p;
     let x := xs.get! i;
     match lctx.getFVar! x with
-    | LocalDecl.cdecl _ _ n type bi => do
-      type ← abstractRange xs i type;
-      if isLambda then
-        pure $ Lean.mkLambda n bi type e
+    | LocalDecl.cdecl _ _ n type bi =>
+      if !usedOnly || e.hasLooseBVar 0 then do
+        type ← abstractRange xs i type;
+        if isLambda then
+          pure (Lean.mkLambda n bi type e, num + 1)
+        else
+          pure (Lean.mkForall n bi type e, num + 1)
       else
-        pure $ Lean.mkForall n bi type e
+        pure (e.lowerLooseBVars 1 1, num)
     | LocalDecl.ldecl _ _ n type value => do
       if e.hasLooseBVar 0 then do
         type  ← abstractRange xs i type;
         value ← abstractRange xs i value;
-        pure $ mkLet n type value e
+        pure (mkLet n type value e, num + 1)
       else
-        pure e)
-  e
+        pure (e.lowerLooseBVars 1 1, num))
+  (e, 0)
 
 end MkBinding
 
 abbrev MkBindingM := ReaderT LocalContext MkBinding.M
 
-def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) : MkBindingM Expr :=
-fun lctx => MkBinding.mkBinding isLambda lctx xs e
+def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) : MkBindingM (Expr × Nat) :=
+fun lctx => MkBinding.mkBinding isLambda lctx xs e usedOnly
 
-@[inline] def mkLambda (xs : Array Expr) (e : Expr) : MkBindingM Expr :=
-mkBinding true xs e
+@[inline] def mkLambda (xs : Array Expr) (e : Expr) : MkBindingM Expr := do
+(e, _) ← mkBinding true xs e;
+pure e
 
-@[inline] def mkForall (xs : Array Expr) (e : Expr) : MkBindingM Expr :=
-mkBinding false xs e
+@[inline] def mkForall (xs : Array Expr) (e : Expr) : MkBindingM Expr := do
+(e, _) ← mkBinding false xs e;
+pure e
+
+@[inline] def mkForallUsedOnly (xs : Array Expr) (e : Expr) : MkBindingM (Expr × Nat) := do
+mkBinding false xs e true
 
 /--
   `isWellFormed mctx lctx e` return true if

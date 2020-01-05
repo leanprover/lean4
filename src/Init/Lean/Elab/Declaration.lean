@@ -93,7 +93,7 @@ let (binders, typeStx) := expandDeclSig (stx.getArg 2);
 withDeclId declId $ fun name => do
   declName          ← mkDeclName modifiers name;
   explictLevelNames ← getLevelNames;
-  runTermElabM $ fun vars => Term.elabBinders binders.getArgs $ fun xs => do
+  decl ← runTermElabM $ fun vars => Term.elabBinders binders.getArgs $ fun xs => do {
     type ← Term.elabType typeStx;
     Term.synthesizeSyntheticMVars false;
     type ← Term.instantiateMVars typeStx type;
@@ -102,9 +102,15 @@ withDeclId declId $ fun name => do
     type ← Term.levelMVarToParam type;
     let usedParams  := collectLevelParams type;
     let levelParams := sortDeclLevelParams explictLevelNames usedParams;
-    Term.dbgTrace (">>> " ++ toString type);
-    Term.dbgTrace (">>> " ++ toString levelParams);
-    pure ()
+    pure $ Declaration.axiomDecl {
+      name     := declName,
+      lparams  := levelParams,
+      type     := type,
+      isUnsafe := modifiers.isUnsafe
+    }
+  };
+  addDecl stx decl
+  -- TODO: apply attributes
 
 def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 pure () -- TODO

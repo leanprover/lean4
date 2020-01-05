@@ -489,6 +489,14 @@ let remaining := usedParams.filter (fun levelParam => !explicitParams.elem level
 let remaining := remaining.qsort Name.lt;
 result ++ remaining.toList
 
+def addDecl (ref : Syntax) (decl : Declaration) : CommandElabM Unit := do
+env ← getEnv;
+match env.addDecl decl with
+| Except.ok    env => modify $ fun s => { env := env, .. s }
+| Except.error kex => do
+  opts ← getOptions;
+  throwError ref (kex.toMessageData opts)
+
 end Command
 end Elab
 end Lean

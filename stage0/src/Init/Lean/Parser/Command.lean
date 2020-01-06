@@ -24,6 +24,14 @@ constant commandParserAttribute : ParserAttribute := arbitrary _
 @[inline] def commandParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
 { fn := fun _ => commandParserAttribute.runParserFn rbp }
 
+/--
+  Syntax quotation for terms and (lists of) commands. We prefer terms, so ambiguous quotations like
+  `($x $y) will be parsed as an application, not two commands. Use `($x:command $y:command) instead.
+  Multiple command will be put in a `null node, but a single command will not (so that you can directly
+  match against a quotation in a command kind's elaborator). -/
+@[builtinTermParser] def Term.stxQuot := parser! symbol "`(" appPrec >> (termParser <|> many1 commandParser true) >> ")"
+@[builtinCommandParser] def Command.antiquot := (mkAntiquot "command" none true : Parser)
+
 namespace Command
 def commentBody : Parser :=
 { fn := rawFn (fun _ => finishCommentBlock 1) true }

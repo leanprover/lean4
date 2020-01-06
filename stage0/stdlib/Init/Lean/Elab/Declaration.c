@@ -81,7 +81,7 @@ lean_object* l_Lean_Elab_Command_elabClassInductive(lean_object*, lean_object*, 
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_modifyScope___at_Lean_Elab_Command_elabAxiom___spec__4(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_namespace___elambda__1___closed__1;
-extern lean_object* l_Lean_Parser_Command_docComment___elambda__1___closed__2;
+extern lean_object* l___regBuiltinParser_Lean_Parser_Command_antiquot___closed__2;
 lean_object* l_Lean_Elab_Command_elabConstant___closed__7;
 lean_object* l_Lean_Elab_Command_modifyScope___at_Lean_Elab_Command_elabAxiom___spec__3(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_hole___elambda__1___closed__1;
@@ -4393,7 +4393,7 @@ lean_object* _init_l_Lean_Elab_Command_elabDeclaration___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Command_docComment___elambda__1___closed__2;
+x_1 = l___regBuiltinParser_Lean_Parser_Command_antiquot___closed__2;
 x_2 = l_Lean_Meta_registerInstanceAttr___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

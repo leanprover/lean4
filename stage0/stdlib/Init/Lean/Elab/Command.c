@@ -215,7 +215,6 @@ lean_object* l_Lean_Elab_mkMessageCore(lean_object*, lean_object*, lean_object*,
 lean_object* l___regBuiltinCommandElab_Lean_Elab_Command_elabVariables___closed__2;
 lean_object* l_Lean_Elab_Command_elabVariables___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_throwAlreadyDeclaredUniverseLevel___rarg___closed__5;
-extern lean_object* l_Lean_Parser_Command_docComment___elambda__1___closed__1;
 lean_object* l_Lean_KernelException_toMessageData(lean_object*, lean_object*);
 lean_object* l___regBuiltinCommandElab_Lean_Elab_Command_elabNotation___closed__3;
 lean_object* l_Lean_Elab_Command_registerBuiltinCommandElabAttr___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
@@ -261,16 +260,17 @@ extern lean_object* l_PersistentArray_empty___closed__3;
 lean_object* l_Lean_Elab_mkMessageAt___at_Lean_Elab_Command_elabCommand___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltinCommandElab_Lean_Elab_Command_elabUniverses(lean_object*);
 extern lean_object* l_Lean_Parser_Command_namespace___elambda__1___closed__1;
+extern lean_object* l___regBuiltinParser_Lean_Parser_Command_antiquot___closed__2;
 lean_object* l_Lean_Elab_Command_elabVariables___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_foldArgsAuxM___main___at_Lean_Elab_Command_elabOpenHiding___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_throwAlreadyDeclaredUniverseLevel___rarg___closed__6;
 lean_object* l___private_Init_Lean_Elab_Command_12__checkAnonymousScope___boxed(lean_object*);
 lean_object* l_HashMapImp_moveEntries___main___at_Lean_Elab_Command_addBuiltinCommandElab___spec__13(lean_object*, lean_object*, lean_object*);
+extern lean_object* l___regBuiltinParser_Lean_Parser_Command_antiquot___closed__1;
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_Elab_Command_addBuiltinCommandElab___spec__8(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_getScopes(lean_object*, lean_object*);
 lean_object* l___regBuiltinCommandElab_Lean_Elab_Command_elabUniverses___closed__2;
-extern lean_object* l_Lean_Parser_Command_docComment___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Command_elabExport(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_builtinCommandElabTable;
 lean_object* l_Lean_Elab_Command_elabCheck___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3225,7 +3225,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Term_declareBuiltinTermElab___closed__3;
-x_2 = l_Lean_Parser_Command_docComment___elambda__1___closed__1;
+x_2 = l___regBuiltinParser_Lean_Parser_Command_antiquot___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -3387,7 +3387,7 @@ return x_7;
 else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_8 = l_Lean_Parser_Command_docComment___elambda__1___closed__2;
+x_8 = l___regBuiltinParser_Lean_Parser_Command_antiquot___closed__2;
 lean_inc(x_1);
 x_9 = l_Lean_Elab_syntaxNodeKindOfAttrParam(x_1, x_8, x_3);
 x_10 = l_IO_ofExcept___at___private_Init_Lean_Elab_Util_6__ElabAttribute_add___spec__1(x_9, x_5);
@@ -3507,7 +3507,7 @@ goto block_22;
 else
 {
 lean_object* x_43; uint8_t x_44; 
-x_43 = l_Lean_Parser_Command_docComment___elambda__1___closed__1;
+x_43 = l___regBuiltinParser_Lean_Parser_Command_antiquot___closed__1;
 x_44 = lean_string_dec_eq(x_34, x_43);
 lean_dec(x_34);
 if (x_44 == 0)
@@ -3803,7 +3803,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_2 = l_Lean_Elab_Command_mkCommandElabAttribute___closed__2;
-x_3 = l_Lean_Parser_Command_docComment___elambda__1___closed__2;
+x_3 = l___regBuiltinParser_Lean_Parser_Command_antiquot___closed__2;
 x_4 = l_Lean_Elab_Command_mkCommandElabAttribute___closed__3;
 x_5 = l_Lean_Parser_mkCommandParserAttribute___closed__4;
 x_6 = l_Lean_Elab_Command_builtinCommandElabTable;
@@ -15132,7 +15132,7 @@ lean_object* _init_l___regBuiltinCommandElab_Lean_Elab_Command_elabCheck___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Command_docComment___elambda__1___closed__2;
+x_1 = l___regBuiltinParser_Lean_Parser_Command_antiquot___closed__2;
 x_2 = l_Lean_Meta_check___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

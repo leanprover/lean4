@@ -423,15 +423,18 @@ fun a c s =>
 { info := noFirstTokenInfo p.info,
   fn   := manyFn p.fn }
 
-@[inline] def many1Fn {k : ParserKind} (p : ParserFn k) : ParserFn k :=
+@[inline] def many1Fn {k : ParserKind} (p : ParserFn k) (unboxSingleton : Bool) : ParserFn k :=
 fun a c s =>
   let iniSz  := s.stackSize;
   let s := andthenFn p (manyAux p) a c s;
-  s.mkNode nullKind iniSz
+  if s.stackSize - iniSz == 1 && unboxSingleton then
+    s
+  else
+    s.mkNode nullKind iniSz
 
-@[inline] def many1 {k : ParserKind} (p : Parser k) : Parser k :=
+@[inline] def many1 {k : ParserKind} (p : Parser k) (unboxSingleton := false) : Parser k :=
 { info := p.info,
-  fn   := many1Fn p.fn }
+  fn   := many1Fn p.fn unboxSingleton }
 
 @[specialize] private partial def sepByFnAux {k : ParserKind} (p : ParserFn k) (sep : ParserFn k) (allowTrailingSep : Bool) (iniSz : Nat) : Bool → ParserFn k
 | pOpt, a, c, s =>

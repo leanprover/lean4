@@ -115,6 +115,14 @@ match modifiers.visibility with
   pure declName
 | _                  => pure declName
 
+def applyAttributes (ref : Syntax) (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : CommandElabM Unit :=
+attrs.forM $ fun attr => do
+ attrImpl ← liftIO ref $ getAttributeImpl attr.name;
+ when (attrImpl.applicationTime == applicationTime) $ do
+   env ← getEnv;
+   env ← liftIO ref $ attrImpl.add env declName attr.args true;
+   setEnv env
+
 end Command
 end Elab
 end Lean

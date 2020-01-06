@@ -92,6 +92,7 @@ let declId             := stx.getArg 1;
 let (binders, typeStx) := expandDeclSig (stx.getArg 2);
 withDeclId declId $ fun name => do
   declName          ← mkDeclName modifiers name;
+  applyAttributes stx declName modifiers.attrs AttributeApplicationTime.beforeElaboration;
   explictLevelNames ← getLevelNames;
   decl ← runTermElabM $ fun vars => Term.elabBinders binders.getArgs $ fun xs => do {
     type ← Term.elabType typeStx;
@@ -109,8 +110,9 @@ withDeclId declId $ fun name => do
       isUnsafe := modifiers.isUnsafe
     }
   };
-  addDecl stx decl
-  -- TODO: apply attributes
+  addDecl stx decl;
+  applyAttributes stx declName modifiers.attrs AttributeApplicationTime.afterTypeChecking;
+  applyAttributes stx declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
 def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit :=
 pure () -- TODO

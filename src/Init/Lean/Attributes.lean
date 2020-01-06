@@ -12,6 +12,14 @@ namespace Lean
 inductive AttributeApplicationTime
 | afterTypeChecking | afterCompilation | beforeElaboration
 
+def AttributeApplicationTime.beq : AttributeApplicationTime → AttributeApplicationTime → Bool
+| AttributeApplicationTime.afterTypeChecking, AttributeApplicationTime.afterTypeChecking => true
+| AttributeApplicationTime.afterCompilation,  AttributeApplicationTime.afterCompilation  => true
+| AttributeApplicationTime.beforeElaboration, AttributeApplicationTime.beforeElaboration => true
+| _,                                          _                                          => false
+
+instance AttributeApplicationTime.hasBeq : HasBeq AttributeApplicationTime := ⟨AttributeApplicationTime.beq⟩
+
 -- TODO: after we delete the old frontend, we should use `EIO` with a richer exception kind at AttributeImpl.
 -- We must perform a similar modification at `PersistentEnvExtension`
 
@@ -27,6 +35,11 @@ structure AttributeImpl :=
 (pushScope (env : Environment) : IO Environment := pure env)
 (popScope (env : Environment) : IO Environment := pure env)
 (applicationTime := AttributeApplicationTime.afterTypeChecking)
+
+/- Auxiliary function for parsing attribute arguments -/
+def Syntax.hasArgs : Syntax → Bool
+| Syntax.node _ args => args.size > 0
+| _                  => false
 
 instance AttributeImpl.inhabited : Inhabited AttributeImpl :=
 ⟨{ name := arbitrary _, descr := arbitrary _, add := fun env _ _ _ => pure env }⟩
@@ -165,7 +178,7 @@ let attrImpl : AttributeImpl := {
   name  := name,
   descr := descr,
   add   := fun env decl args persistent => do
-    unless args.isMissing $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', unexpected argument"));
+    when args.hasArgs $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', unexpected argument"));
     unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent"));
     unless (env.getModuleIdxFor? decl).isNone $
       throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module"));

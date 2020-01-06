@@ -51,7 +51,7 @@ def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severit
 mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos.getD ctx.cmdPos)
 
 private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : Message :=
-mkMessageAux ctx ref ("IO error, " ++ toString err) MessageSeverity.error
+mkMessageAux ctx ref (toString err) MessageSeverity.error
 
 @[inline] def liftIOCore {α} (ctx : Context) (ref : Syntax) (x : IO α) : EIO Exception α :=
 EIO.adaptExcept (ioErrorToMessage ctx ref) x

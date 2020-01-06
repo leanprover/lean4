@@ -60,7 +60,7 @@ table ← builtinTableRef.get;
 pure { table := table }
 
 private def throwUnexpectedElabType {γ} (typeName : Name) (constName : Name) : ExceptT String Id γ :=
-throw ("unexpected elaborator type at '" ++ toString constName ++ "' `" ++ toString typeName ++ "` expected")
+throw ("unexpected elaborator type at '" ++ toString constName ++ "', `" ++ toString typeName ++ "` expected")
 
 private unsafe def mkElabFnOfConstantUnsafe (γ) (env : Environment) (typeName : Name) (constName : Name) : ExceptT String Id γ :=
 match env.find? constName with

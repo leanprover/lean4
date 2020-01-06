@@ -48,7 +48,7 @@ registerAttribute {
   name  := `instance,
   descr := "type class instance",
   add   := fun env declName args persistent => do
-    unless args.isMissing $ throw (IO.userError ("invalid attribute 'instance', unexpected argument"));
+    when args.hasArgs $ throw (IO.userError ("invalid attribute 'instance', unexpected argument"));
     unless persistent $ throw (IO.userError ("invalid attribute 'instance', must be persistent"));
     env ← IO.ofExcept (addGlobalInstanceOld env declName); -- TODO: delete
     addGlobalInstance env declName

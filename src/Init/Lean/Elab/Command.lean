@@ -135,6 +135,9 @@ logInfo ref msg
 opts ← getOptions;
 when (checkTraceOption opts cls) $ logTrace cls ref (msg ())
 
+def throwUnsupportedSyntax {α} : CommandElabM α :=
+throw Elab.Exception.unsupportedSyntax
+
 protected def getCurrMacroScope : CommandElabM Nat := do
 ctx ← read;
 pure ctx.currMacroScope

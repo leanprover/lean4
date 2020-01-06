@@ -196,12 +196,13 @@ fun stx => withMacroExpansion stx.val $ do
   stx ← exp stx.val;
   elabCommand stx
 
-private def mkTermContext (ctx : Context) (s : State) : Term.Context :=
+private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context :=
 let scope := s.scopes.head!;
 { config         := { opts := scope.opts, foApprox := true, ctxApprox := true, quasiPatternApprox := true, isDefEqStuckEx := true },
   fileName       := ctx.fileName,
   fileMap        := ctx.fileMap,
   cmdPos         := ctx.cmdPos,
+  declName?      := declName?,
   macroStack     := ctx.macroStack,
   currMacroScope := ctx.currMacroScope,
   currNamespace  := scope.currNamespace,
@@ -225,10 +226,10 @@ match result with
 instance CommandElabM.inhabited {α} : Inhabited (CommandElabM α) :=
 ⟨throw $ arbitrary _⟩
 
-@[inline] def runTermElabM {α} (elab : Array Expr → TermElabM α) : CommandElabM α := do
+@[inline] def runTermElabM {α} (declName? : Option Name) (elab : Array Expr → TermElabM α) : CommandElabM α := do
 ctx ← read;
 s ← get;
-match (Term.elabBinders (getVarDecls s) elab (mkTermContext ctx s)).run (mkTermState s) with
+match (Term.elabBinders (getVarDecls s) elab (mkTermContext ctx s declName?)).run (mkTermState s) with
 | EStateM.Result.ok a newS                            => do modify $ fun s => { env := newS.env, messages := newS.messages, .. s }; pure a
 | EStateM.Result.error (Term.Exception.error ex) newS => do modify $ fun s => { env := newS.env, messages := newS.messages, .. s }; throw ex
 | EStateM.Result.error Term.Exception.postpone newS   => unreachable!
@@ -475,7 +476,7 @@ fun n => do
   -- `variable` bracktedBinder
   let binder := n.getArg 1;
   -- Try to elaborate `binder` for sanity checking
-  runTermElabM $ fun _ => Term.elabBinder binder $ fun _ => pure ();
+  runTermElabM none $ fun _ => Term.elabBinder binder $ fun _ => pure ();
   modifyScope $ fun scope => { varDecls := scope.varDecls.push binder, .. scope }
 
 @[builtinCommandElab «variables»] def elabVariables : CommandElab :=
@@ -483,13 +484,13 @@ fun n => do
   -- `variables` bracktedBinder+
   let binders := (n.getArg 1).getArgs;
   -- Try to elaborate `binders` for sanity checking
-  runTermElabM $ fun _ => Term.elabBinders binders $ fun _ => pure ();
+  runTermElabM none $ fun _ => Term.elabBinders binders $ fun _ => pure ();
   modifyScope $ fun scope => { varDecls := scope.varDecls ++ binders, .. scope }
 
 @[builtinCommandElab «check»] def elabCheck : CommandElab :=
 fun stx => do
   let term := stx.getArg 1;
-  runTermElabM $ fun _ => do
+  runTermElabM none $ fun _ => do
     e    ← Term.elabTerm term none;
     Term.synthesizeSyntheticMVars false;
     type ← Term.inferType stx.val e;

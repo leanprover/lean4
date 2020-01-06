@@ -140,7 +140,7 @@ add_test(lean_version2 "${CMAKE_CURRENT_BINARY_DIR}/lean" --v)
 endif()
 add_test(lean_ghash1   "${CMAKE_CURRENT_BINARY_DIR}/lean" -g)
 add_test(lean_ghash2   "${CMAKE_CURRENT_BINARY_DIR}/lean" --githash)
-add_test(lean_new_frontend "${LEAN_SOURCE_DIR}/../bin/lean" --new-frontend "${LEAN_SOURCE_DIR}/Init/Core.lean")
+# add_test(lean_new_frontend "${LEAN_SOURCE_DIR}/../bin/lean" --new-frontend "${LEAN_SOURCE_DIR}/Init/Core.lean")
 add_test(lean_unknown_option bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "-z")
 add_test(lean_unknown_file1 bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lean")
 if (NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
@@ -171,6 +171,17 @@ FOREACH(T ${LEANRUNTESTS})
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
     add_test(NAME "leanruntest_${T_NAME}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/run"
+             COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
+  endif()
+ENDFOREACH(T)
+
+# LEAN new frontend TESTS
+file(GLOB LEANNEWFRONTENDTESTS "${LEAN_SOURCE_DIR}/../tests/lean/newfrontend/*.lean")
+FOREACH(T ${LEANNEWFRONTENDTESTS})
+  if(NOT T MATCHES "\\.#")
+    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+    add_test(NAME "leannewfrontendtest_${T_NAME}"
+             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/newfrontend"
              COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
   endif()
 ENDFOREACH(T)

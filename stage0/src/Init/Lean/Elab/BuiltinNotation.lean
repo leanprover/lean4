@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Lean.Elab.Term
+import Init.Lean.Elab.Quotation
 
 namespace Lean
 namespace Elab
@@ -76,6 +77,29 @@ adaptExpander $ fun stx => match_syntax stx with
     (fun decl body => `(let $decl; $body))
     body
 | _                      => throwUnexpectedSyntax stx "where"
+
+@[termElab «parser!»] def elabParserMacro : TermElab :=
+adaptExpander $ fun stx => match_syntax stx with
+| `(parser! $e) => do
+  declName? ← getDeclName?;
+  match declName? with
+  | some declName@(Name.str _ s _) => do
+    let kind := quote declName;
+    let s    := quote s;
+    -- TODO simplify the following quotation as soon as we have coercions and autoparams
+    `(HasOrelse.orelse (Lean.Parser.mkAntiquot $s (some $kind) true) (Lean.Parser.leadingNode $kind $e))
+  | none          => throwError stx "invalid `parser!` macro, it must be used in definitions"
+  | _             => throwError stx "invalid `parser!` macro, unexpected declaration name"
+| _             => throwUnexpectedSyntax stx "parser!"
+
+@[termElab «tparser!»] def elabTParserMacro : TermElab :=
+adaptExpander $ fun stx => match_syntax stx with
+| `(tparser! $e) => do
+  declName? ← getDeclName?;
+  match declName? with
+  | some declName => let kind := quote declName; `(Lean.Parser.trailingNode $kind $e)
+  | none          => throwError stx "invalid `tparser!` macro, it must be used in definitions"
+| _             => throwUnexpectedSyntax stx "tparser!"
 
 def elabInfix (f : Syntax) : TermElab :=
 fun stx expectedType? => do

@@ -127,7 +127,7 @@ withDeclId view.declId $ fun name => do
   declName          ← mkDeclName view.modifiers name;
   applyAttributes ref declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration;
   explictLevelNames ← getLevelNames;
-  decl? ← runTermElabM $ fun vars => Term.elabBinders view.binders.getArgs $ fun xs =>
+  decl? ← runTermElabM declName $ fun vars => Term.elabBinders view.binders.getArgs $ fun xs =>
     match view.type? with
     | some typeStx => do
       type ← Term.elabType typeStx;

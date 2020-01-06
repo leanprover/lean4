@@ -91,8 +91,7 @@ IO.processCommands parserCtx parserStateRef cmdStateRef;
 cmdState ← cmdStateRef.get;
 pure (cmdState.env, cmdState.messages)
 
-def testFrontend (input : String) (opts : Options := {}) (fileName : Option String := none) : IO (Environment × MessageLog) := do
-env ← mkEmptyEnvironment;
+def runFrontend (env : Environment) (input : String) (opts : Options := {}) (fileName : Option String := none) : IO (Environment × MessageLog) := do
 let fileName := fileName.getD "<input>";
 let parserCtx := Parser.mkParserContextCore env input fileName;
 match Parser.parseHeader env parserCtx with
@@ -103,6 +102,15 @@ match Parser.parseHeader env parserCtx with
   IO.processCommands parserCtx parserStateRef cmdStateRef;
   cmdState ← cmdStateRef.get;
   pure (cmdState.env, cmdState.messages)
+
+@[export lean_run_frontend]
+def runFrontentExport (env : Environment) (input : String) (fileName : String) (opts : Options) : IO (Option Environment) := do
+(env, messages) ← runFrontend env input opts (some fileName);
+messages.forM $ fun msg => IO.println msg;
+if messages.hasErrors then
+  pure none
+else
+  pure (some env)
 
 end Elab
 end Lean

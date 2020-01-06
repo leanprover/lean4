@@ -343,21 +343,23 @@ bool test_module_parser(environment const & env, std::string const & input, std:
     return get_io_scalar_result<bool>(lean_test_module_parser(env.to_obj_arg(), mk_string(input), mk_string(filename), false, io_mk_world()));
 }
 
-extern "C" object* lean_init_search_path(object* opt_path, object* w);
+extern "C" object * lean_run_frontend(object * env, object * input, object * filename, object * opts, object * w);
+optional<environment> run_new_frontend(environment const & env, std::string const & input, std::string const & filename, options const & opts) {
+    return get_io_result<option_ref<environment>>(lean_run_frontend(env.to_obj_arg(), mk_string(input), mk_string(filename), opts.to_obj_arg(), io_mk_world())).get();
+}
 
+extern "C" object* lean_init_search_path(object* opt_path, object* w);
 void init_search_path() {
     get_io_scalar_result<unsigned>(lean_init_search_path(mk_option_none(), io_mk_world()));
 }
 
 extern "C" object* lean_module_name_of_file(object* fname, object* w);
-
 optional<name> module_name_of_file(std::string const & fname) {
     return get_io_result<option_ref<name>>(lean_module_name_of_file(mk_string(fname), io_mk_world())).get();
 }
 
 /* def parseImports (input : String) (fileName : Option String := none) : IO (Array Import × Position × MessageLog) */
 extern "C" object* lean_parse_imports(object* input, object* file_name, object* w);
-
 std::tuple<object_ref, position, message_log> parse_imports(std::string const & input, std::string const & fname) {
     auto r = get_io_result<object_ref>(lean_parse_imports(mk_string(input), mk_option_some(mk_string(fname)), io_mk_world()));
     return std::make_tuple(cnstr_get_ref(r, 0), cnstr_get_ref_t<position>(cnstr_get_ref(r, 1), 0),
@@ -365,7 +367,6 @@ std::tuple<object_ref, position, message_log> parse_imports(std::string const & 
 }
 
 extern "C" object* lean_print_deps(object* deps, object* w);
-
 void print_deps(object_ref const & deps) {
     consume_io_result(lean_print_deps(deps.to_obj_arg(), io_mk_world()));
 }
@@ -580,7 +581,11 @@ int main(int argc, char ** argv) {
     try {
         bool ok = true;
         if (new_frontend) {
-            ok = lean::test_module_parser(env, contents, mod_fn);
+            optional<environment> new_env = run_new_frontend(env, contents, mod_fn, opts);
+            if (!new_env)
+                ok = false;
+            else
+                env = *new_env;
         } else {
             scope_traces_as_messages scope_trace_msgs(mod_fn, {1, 0});
             simple_pos_info_provider pip(mod_fn.c_str());

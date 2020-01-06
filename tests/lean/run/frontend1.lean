@@ -195,5 +195,6 @@ f a
 #eval run "#check let z := 2; x + y where x := z + 1; where y := x + x"
 
 #eval run "variables {α β} axiom x (n : Nat) : α → α #check x 1 0"
-#eval run "@[instance] axiom newInst : HasToString Nat #check newInst"
+#eval run "#check HasToString.toString 0"
+#eval run "@[instance] axiom newInst : HasToString Nat #check newInst #check HasToString.toString 0"
 #eval run "variables {β σ} universes w1 w2 /-- Testing axiom -/ unsafe axiom Nat.aux.{u, v} (γ : Type w1) (v : Nat) : β → (α : Type _) → v = zero /- Nat.zero -/ → Array α #check @Nat.aux"

@@ -813,49 +813,61 @@ if !e.hasMVar then
 else
   withFreshCache $ elimMVarDepsAux xs e
 
-/-- Similar to `Expr.abstractRange`, but handles metavariables correctly.
-    It uses `elimMVarDeps` to ensure `e` and the type of the free variables `xs` do not
-    contain a metavariable `?m` s.t. local context of `?m` contains a free variable in `xs`.
+/--
+  Similar to `Expr.abstractRange`, but handles metavariables correctly.
+  It uses `elimMVarDeps` to ensure `e` and the type of the free variables `xs` do not
+  contain a metavariable `?m` s.t. local context of `?m` contains a free variable in `xs`.
 
-    `elimMVarDeps` is defined later in this file. -/
+  `elimMVarDeps` is defined later in this file. -/
 @[inline] private def abstractRange (xs : Array Expr) (i : Nat) (e : Expr) : M Expr := do
 e ← elimMVarDeps xs e;
 pure (e.abstractRange i xs)
 
-/-- Similar to `LocalContext.mkBinding`, but handles metavariables correctly. -/
-@[specialize] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) : M Expr := do
+/--
+  Similar to `LocalContext.mkBinding`, but handles metavariables correctly.
+  If `usedOnly == false` then `forall` and `lambda` are created only for used variables. -/
+@[specialize] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) : M (Expr × Nat) := do
 e ← abstractRange xs xs.size e;
 xs.size.foldRevM
-  (fun i e =>
+  (fun i (p : Expr × Nat) =>
+    let (e, num) := p;
     let x := xs.get! i;
     match lctx.getFVar! x with
-    | LocalDecl.cdecl _ _ n type bi => do
-      type ← abstractRange xs i type;
-      if isLambda then
-        pure $ Lean.mkLambda n bi type e
+    | LocalDecl.cdecl _ _ n type bi =>
+      if !usedOnly || e.hasLooseBVar 0 then do
+        type ← abstractRange xs i type;
+        if isLambda then
+          pure (Lean.mkLambda n bi type e, num + 1)
+        else
+          pure (Lean.mkForall n bi type e, num + 1)
       else
-        pure $ Lean.mkForall n bi type e
+        pure (e.lowerLooseBVars 1 1, num)
     | LocalDecl.ldecl _ _ n type value => do
       if e.hasLooseBVar 0 then do
         type  ← abstractRange xs i type;
         value ← abstractRange xs i value;
-        pure $ mkLet n type value e
+        pure (mkLet n type value e, num + 1)
       else
-        pure e)
-  e
+        pure (e.lowerLooseBVars 1 1, num))
+  (e, 0)
 
 end MkBinding
 
 abbrev MkBindingM := ReaderT LocalContext MkBinding.M
 
-def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) : MkBindingM Expr :=
-fun lctx => MkBinding.mkBinding isLambda lctx xs e
+def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) : MkBindingM (Expr × Nat) :=
+fun lctx => MkBinding.mkBinding isLambda lctx xs e usedOnly
 
-@[inline] def mkLambda (xs : Array Expr) (e : Expr) : MkBindingM Expr :=
-mkBinding true xs e
+@[inline] def mkLambda (xs : Array Expr) (e : Expr) : MkBindingM Expr := do
+(e, _) ← mkBinding true xs e;
+pure e
 
-@[inline] def mkForall (xs : Array Expr) (e : Expr) : MkBindingM Expr :=
-mkBinding false xs e
+@[inline] def mkForall (xs : Array Expr) (e : Expr) : MkBindingM Expr := do
+(e, _) ← mkBinding false xs e;
+pure e
+
+@[inline] def mkForallUsedOnly (xs : Array Expr) (e : Expr) : MkBindingM (Expr × Nat) := do
+mkBinding false xs e true
 
 /--
   `isWellFormed mctx lctx e` return true if
@@ -880,6 +892,78 @@ partial def isWellFormed (mctx : MetavarContext) (lctx : LocalContext) : Expr �
     | some v => isWellFormed v
 | Expr.fvar fvarId _       => lctx.contains fvarId
 | Expr.localE _ _ _ _      => unreachable!
+
+
+namespace LevelMVarToParam
+
+structure Context :=
+(paramNamePrefix : Name)
+(alreadyUsedPred : Name → Bool)
+
+structure State :=
+(mctx         : MetavarContext)
+(paramNames   : Array Name := #[])
+(nextParamIdx : Nat)
+
+abbrev M := ReaderT Context $ StateM State
+
+partial def mkParamName : Unit → M Name
+| _ => do
+  ctx ← read;
+  s ← get;
+  let newParamName := ctx.paramNamePrefix.appendIndexAfter s.nextParamIdx;
+  if ctx.alreadyUsedPred newParamName then do
+    modify $ fun s => { nextParamIdx := s.nextParamIdx + 1, .. s};
+    mkParamName ()
+  else do
+    modify $ fun s => { nextParamIdx := s.nextParamIdx + 1, paramNames := s.paramNames.push newParamName, .. s};
+    pure newParamName
+
+partial def visitLevel : Level → M Level
+| u@(Level.succ v _)      => do v ← visitLevel v; pure (u.updateSucc v rfl)
+| u@(Level.max v₁ v₂ _)   => do v₁ ← visitLevel v₁; v₂ ← visitLevel v₂; pure (u.updateMax v₁ v₂ rfl)
+| u@(Level.imax v₁ v₂ _)  => do v₁ ← visitLevel v₁; v₂ ← visitLevel v₂; pure (u.updateIMax v₁ v₂ rfl)
+| u@(Level.zero _)        => pure u
+| u@(Level.param _ _)     => pure u
+| u@(Level.mvar mvarId _) => do
+  s ← get;
+  match s.mctx.getLevelAssignment? mvarId with
+  | some v => visitLevel v
+  | none   => do
+    p ← mkParamName ();
+    let p := mkLevelParam p;
+    modify $ fun s => { mctx := s.mctx.assignLevel mvarId p, .. s };
+    pure p
+
+@[inline] private def visit (f : Expr → M Expr) (e : Expr) : M Expr :=
+if e.hasLevelMVar then f e else pure e
+
+partial def main : Expr → M Expr
+| e@(Expr.proj _ _ s _)    => do s ← visit main s; pure (e.updateProj! s)
+| e@(Expr.forallE _ d b _) => do d ← visit main d; b ← visit main b; pure (e.updateForallE! d b)
+| e@(Expr.lam _ d b _)     => do d ← visit main d; b ← visit main b; pure (e.updateLambdaE! d b)
+| e@(Expr.letE _ t v b _)  => do t ← visit main t; v ← visit main v; b ← visit main b; pure (e.updateLet! t v b)
+| e@(Expr.app f a _)       => do f ← visit main f; a ← visit main a; pure (e.updateApp! f a)
+| e@(Expr.mdata _ b _)     => do b ← visit main b; pure (e.updateMData! b)
+| e@(Expr.const _ us _)    => do us ← us.mapM visitLevel; pure (e.updateConst! us)
+| e@(Expr.sort u _)        => do u ← visitLevel u; pure (e.updateSort! u)
+| e                        => pure e
+
+end LevelMVarToParam
+
+structure UnivMVarParamResult :=
+(mctx          : MetavarContext)
+(newParamNames : Array Name)
+(nextParamIdx  : Nat)
+(expr          : Expr)
+
+def levelMVarToParam (mctx : MetavarContext) (alreadyUsedPred : Name → Bool) (e : Expr) (paramNamePrefix : Name := `u) (nextParamIdx : Nat := 1)
+    : UnivMVarParamResult :=
+let (e, s) := LevelMVarToParam.main e { paramNamePrefix := paramNamePrefix, alreadyUsedPred := alreadyUsedPred } { mctx := mctx, nextParamIdx := nextParamIdx };
+{ mctx          := mctx,
+  newParamNames := s.paramNames,
+  nextParamIdx  := s.nextParamIdx,
+  expr          := e }
 
 end MetavarContext
 end Lean

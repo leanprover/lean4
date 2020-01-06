@@ -117,7 +117,6 @@ lean_object* l_Lean_Meta_DiscrTree_mkPath(lean_object*, lean_object*, lean_objec
 lean_object* l_Lean_Meta_forallMetaTelescopeReducing(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 lean_object* l_Lean_ConstantInfo_lparams(lean_object*);
-uint8_t l_Lean_Syntax_isMissing(lean_object*);
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_Meta_addInstanceEntry___spec__6(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAux___main___at_Lean_Meta_addInstanceEntry___spec__3(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Meta_registerInstanceAttr___lambda__1___closed__1;
@@ -129,6 +128,7 @@ lean_object* l_Array_back___at_Lean_Meta_addInstanceEntry___spec__14___boxed(lea
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_registerTagAttribute___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_DiscrTree_insertCore___rarg___closed__1;
+uint8_t l_Lean_Syntax_hasArgs(lean_object*);
 lean_object* l_Lean_Environment_getGlobalInstances(lean_object*);
 uint8_t l_USize_decLe(size_t, size_t);
 extern lean_object* l_Lean_Meta_DiscrTree_empty___closed__1;
@@ -3350,7 +3350,7 @@ lean_object* _init_l_Lean_Meta_registerInstanceAttr___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid attribute 'instance', unexpected argument");
+x_1 = lean_mk_string("invalid attribute 'instance', must be persistent");
 return x_1;
 }
 }
@@ -3358,7 +3358,7 @@ lean_object* _init_l_Lean_Meta_registerInstanceAttr___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid attribute 'instance', must be persistent");
+x_1 = lean_mk_string("invalid attribute 'instance', unexpected argument");
 return x_1;
 }
 }
@@ -3366,8 +3366,10 @@ lean_object* l_Lean_Meta_registerInstanceAttr___lambda__1(lean_object* x_1, lean
 _start:
 {
 uint8_t x_6; 
-x_6 = l_Lean_Syntax_isMissing(x_3);
+x_6 = l_Lean_Syntax_hasArgs(x_3);
 if (x_6 == 0)
+{
+if (x_4 == 0)
 {
 lean_object* x_7; lean_object* x_8; 
 lean_dec(x_2);
@@ -3380,59 +3382,57 @@ return x_8;
 }
 else
 {
-if (x_4 == 0)
-{
 lean_object* x_9; lean_object* x_10; 
+lean_inc(x_2);
+x_9 = lean_add_instance_old(x_1, x_2);
+x_10 = l_IO_ofExcept___at_Lean_registerClassAttr___spec__1(x_9, x_5);
+lean_dec(x_9);
+if (lean_obj_tag(x_10) == 0)
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_11 = lean_ctor_get(x_10, 0);
+lean_inc(x_11);
+x_12 = lean_ctor_get(x_10, 1);
+lean_inc(x_12);
+lean_dec(x_10);
+x_13 = lean_add_instance(x_11, x_2, x_12);
+return x_13;
+}
+else
+{
+uint8_t x_14; 
 lean_dec(x_2);
-lean_dec(x_1);
-x_9 = l_Lean_Meta_registerInstanceAttr___lambda__1___closed__2;
-x_10 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set(x_10, 1, x_5);
+x_14 = !lean_is_exclusive(x_10);
+if (x_14 == 0)
+{
 return x_10;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; 
-lean_inc(x_2);
-x_11 = lean_add_instance_old(x_1, x_2);
-x_12 = l_IO_ofExcept___at_Lean_registerClassAttr___spec__1(x_11, x_5);
-lean_dec(x_11);
-if (lean_obj_tag(x_12) == 0)
-{
-lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_13 = lean_ctor_get(x_12, 0);
-lean_inc(x_13);
-x_14 = lean_ctor_get(x_12, 1);
-lean_inc(x_14);
-lean_dec(x_12);
-x_15 = lean_add_instance(x_13, x_2, x_14);
-return x_15;
+lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_15 = lean_ctor_get(x_10, 0);
+x_16 = lean_ctor_get(x_10, 1);
+lean_inc(x_16);
+lean_inc(x_15);
+lean_dec(x_10);
+x_17 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_17, 0, x_15);
+lean_ctor_set(x_17, 1, x_16);
+return x_17;
+}
+}
+}
 }
 else
 {
-uint8_t x_16; 
+lean_object* x_18; lean_object* x_19; 
 lean_dec(x_2);
-x_16 = !lean_is_exclusive(x_12);
-if (x_16 == 0)
-{
-return x_12;
-}
-else
-{
-lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_17 = lean_ctor_get(x_12, 0);
-x_18 = lean_ctor_get(x_12, 1);
-lean_inc(x_18);
-lean_inc(x_17);
-lean_dec(x_12);
+lean_dec(x_1);
+x_18 = l_Lean_Meta_registerInstanceAttr___lambda__1___closed__2;
 x_19 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_19, 0, x_17);
-lean_ctor_set(x_19, 1, x_18);
+lean_ctor_set(x_19, 0, x_18);
+lean_ctor_set(x_19, 1, x_5);
 return x_19;
-}
-}
-}
 }
 }
 }

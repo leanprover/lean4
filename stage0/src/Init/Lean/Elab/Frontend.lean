@@ -79,7 +79,7 @@ open Frontend
 def IO.processCommands (parserCtx : Parser.ParserContextCore) (parserStateRef : IO.Ref Parser.ModuleParserState) (cmdStateRef : IO.Ref Command.State) : IO Unit := do
 ps ← parserStateRef.get;
 cmdPosRef ← IO.mkRef ps.pos;
-EIO.adaptExcept (fun (ex : Empty) => unreachable!) $ -- TODO: compiler support for Empty.rec is missing
+EIO.adaptExcept (fun (ex : Empty) => Empty.rec _ ex) $
   processCommands { commandStateRef := cmdStateRef, parserStateRef := parserStateRef, cmdPosRef := cmdPosRef, parserCtx := parserCtx }
 
 def process (input : String) (env : Environment) (opts : Options) (fileName : Option String := none) : IO (Environment × MessageLog) := do

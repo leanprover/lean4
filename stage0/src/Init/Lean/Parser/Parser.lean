@@ -1515,7 +1515,7 @@ registerAttribute {
  name  := attrName,
  descr := "Builtin parser",
  add   := fun env declName args persistent => do {
-   unless args.isMissing $ throw (IO.userError ("invalid attribute '" ++ toString attrName ++ "', unexpected argument"));
+   when args.hasArgs $ throw (IO.userError ("invalid attribute '" ++ toString attrName ++ "', unexpected argument"));
    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString attrName ++ "', must be persistent"));
    match env.find? declName with
    | none  => throw "unknown declaration"

@@ -839,7 +839,7 @@ lean_object* _init_l___private_Init_Lean_Elab_Util_2__throwUnexpectedElabType___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' `");
+x_1 = lean_mk_string("', `");
 return x_1;
 }
 }

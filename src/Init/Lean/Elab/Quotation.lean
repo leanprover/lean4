@@ -274,7 +274,7 @@ private partial def compileStxMatch (ref : Syntax) : List Syntax → List Alt �
   `(let discr := $discr; if $cond then $yes else $no)
 | _, _ => unreachable!
 
-private partial def getAntiquotVarsAux : Syntax → TermElabM (List Syntax)
+private partial def getPatternVarsAux : Syntax → TermElabM (List Syntax)
 | stx@(Syntax.node k args) => do
   if isAntiquot stx then
     let anti := args.get! 1;
@@ -284,14 +284,16 @@ private partial def getAntiquotVarsAux : Syntax → TermElabM (List Syntax)
     if anti.isOfKind `Lean.Parser.Term.id then pure [anti]
     else throwError anti ("match_syntax: antiquotation must be variable " ++ toString anti)
   else
-    List.join <$> args.toList.mapM getAntiquotVarsAux
+    List.join <$> args.toList.mapM getPatternVarsAux
 | _ => pure []
 
--- Get all antiquotations (as Term.id nodes) in `stx`
-private partial def getAntiquotVars (stx : Syntax) : TermElabM (List Syntax) :=
+-- Get all pattern vars (as Term.id nodes) in `stx`
+private partial def getPatternVars (stx : Syntax) : TermElabM (List Syntax) :=
 if stx.isOfKind `Lean.Parser.Term.stxQuot then do
   let quoted := stx.getArg 1;
-  getAntiquotVarsAux stx
+  getPatternVarsAux stx
+else if stx.isOfKind `Lean.Parser.Term.id then
+  pure [stx]
 else pure []
 
 -- Transform alternatives by binding all right-hand sides to outside the match_syntax in order to prevent
@@ -299,7 +301,7 @@ else pure []
 private def letBindRhss (cont : List Alt → TermElabM Syntax) : List Alt → List Alt → TermElabM Syntax
 | [],                altsRev' => cont altsRev'.reverse
 | (pats, rhs)::alts, altsRev' => do
-  vars ← List.join <$> pats.mapM getAntiquotVars;
+  vars ← List.join <$> pats.mapM getPatternVars;
   match vars with
   -- no antiquotations => introduce Unit parameter to preserve evaluation order
   | [] => do
@@ -443,8 +445,8 @@ stx ← stxQuot.expand stx;
 toPreterm stx
 
 @[export lean_get_antiquot_vars]
-def oldGetAntiquotVars (ctx : OldContext) (pats : List Syntax) : Except String (List Name) := oldRunTermElabM ctx $ do
-vars ← List.join <$> pats.mapM getAntiquotVars;
+def oldGetPatternVars (ctx : OldContext) (pats : List Syntax) : Except String (List Name) := oldRunTermElabM ctx $ do
+vars ← List.join <$> pats.mapM getPatternVars;
 pure $ vars.map $ fun var => var.getIdAt 0
 
 @[export lean_expand_match_syntax]

@@ -22,6 +22,7 @@ structure Context extends Meta.Context :=
 (fileMap         : FileMap)
 (cmdPos          : String.Pos)
 (currNamespace   : Name)
+(declName?       : Option Name     := none)
 (levelNames      : List Name       := [])
 (openDecls       : List OpenDecl   := [])
 (macroStack      : List Syntax     := [])
@@ -217,6 +218,7 @@ instance LVal.hasToString : HasToString LVal :=
 
 def getEnv : TermElabM Environment := do s ← get; pure s.env
 def getMCtx : TermElabM MetavarContext := do s ← get; pure s.mctx
+def getDeclName? : TermElabM (Option Name) := do ctx ← read; pure ctx.declName?
 def getCurrNamespace : TermElabM Name := do ctx ← read; pure ctx.currNamespace
 def getOpenDecls : TermElabM (List OpenDecl) := do ctx ← read; pure ctx.openDecls
 def getLCtx : TermElabM LocalContext := do ctx ← read; pure ctx.lctx

@@ -94,7 +94,7 @@ withDeclId declId $ fun name => do
   declName          ← mkDeclName modifiers name;
   applyAttributes stx declName modifiers.attrs AttributeApplicationTime.beforeElaboration;
   explictLevelNames ← getLevelNames;
-  decl ← runTermElabM $ fun vars => Term.elabBinders binders.getArgs $ fun xs => do {
+  decl ← runTermElabM declName $ fun vars => Term.elabBinders binders.getArgs $ fun xs => do {
     type ← Term.elabType typeStx;
     Term.synthesizeSyntheticMVars false;
     type ← Term.instantiateMVars typeStx type;

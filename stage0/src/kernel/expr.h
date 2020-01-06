@@ -226,7 +226,7 @@ expr mk_Type();
 inline literal const & lit_value(expr const & e)             { lean_assert(is_lit(e)); return static_cast<literal const &>(cnstr_get_ref(e, 0)); }
 inline bool is_nat_lit(expr const & e)                       { return is_lit(e) && lit_value(e).kind() == literal_kind::Nat; }
 inline bool is_string_lit(expr const & e)                    { return is_lit(e) && lit_value(e).kind() == literal_kind::String; }
-expr lit_type(expr const & e);
+expr lit_type(literal const & e);
 inline kvmap const &   mdata_data(expr const & e)            { lean_assert(is_mdata(e)); return static_cast<kvmap const &>(cnstr_get_ref(e, 0)); }
 inline expr const &    mdata_expr(expr const & e)            { lean_assert(is_mdata(e)); return static_cast<expr const &>(cnstr_get_ref(e, 1)); }
 inline name const &    proj_sname(expr const & e)            { lean_assert(is_proj(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }

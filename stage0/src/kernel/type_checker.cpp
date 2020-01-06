@@ -271,7 +271,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
 
     expr r;
     switch (e.kind()) {
-    case expr_kind::Lit:      r = lit_type(e);    break;
+    case expr_kind::Lit:      r = lit_type(lit_value(e)); break;
     case expr_kind::MData:    r = infer_type_core(mdata_expr(e), infer_only); break;
     case expr_kind::Proj:     r = infer_proj(e, infer_only); break;
     case expr_kind::FVar:     r = infer_fvar(e);  break;

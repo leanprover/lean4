@@ -175,6 +175,17 @@ FOREACH(T ${LEANRUNTESTS})
   endif()
 ENDFOREACH(T)
 
+# LEAN new frontend TESTS
+file(GLOB LEANNEWFRONTENDTESTS "${LEAN_SOURCE_DIR}/../tests/lean/newfrontend/*.lean")
+FOREACH(T ${LEANNEWFRONTENDTESTS})
+  if(NOT T MATCHES "\\.#")
+    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+    add_test(NAME "leannewfrontendtest_${T_NAME}"
+             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/newfrontend"
+             COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
+  endif()
+ENDFOREACH(T)
+
 # LEAN FAIL TESTS
 file(GLOB LEANFAILTESTS "${LEAN_SOURCE_DIR}/../tests/lean/fail/*.lean")
 FOREACH(T ${LEANFAILTESTS})

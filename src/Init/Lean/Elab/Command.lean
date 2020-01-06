@@ -586,10 +586,16 @@ levelNames      ←
       savedLevelNames
   };
 let ref := declId;
+-- extract (optional) namespace part of id, after decoding macro scopes that would interfere with the check
+let (id, scps) := extractMacroScopes id;
 match id with
-| Name.str pre s _ => withNamespace ref pre $ do
-  modifyScope $ fun scope => { levelNames := levelNames, .. scope };
-  finally (f (mkNameSimple s)) (modifyScope $ fun scope => { levelNames := savedLevelNames, .. scope })
+| Name.str pre s _ =>
+  /- Add back macro scopes. We assume a declaration like `def a.b[1,2] ...` with macro scopes `[1,2]`
+     is always meant to mean `namespace a def b[1,2] ...`. -/
+  let id := addMacroScopes (mkNameSimple s) scps;
+  withNamespace ref pre $ do
+    modifyScope $ fun scope => { levelNames := levelNames, .. scope };
+    finally (f id) (modifyScope $ fun scope => { levelNames := savedLevelNames, .. scope })
 | _                => throwError ref "invalid declaration name"
 
 /--

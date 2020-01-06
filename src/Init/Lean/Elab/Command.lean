@@ -275,14 +275,15 @@ private def addNamespace (ref : Syntax) (header : Name) : CommandElabM Unit :=
 addScopes ref "namespace" true header
 
 @[builtinCommandElab «namespace»] def elabNamespace : CommandElab :=
-fun stx => addNamespace stx.val (stx.getIdAt 1)
+fun stx => match_syntax stx.val with
+  | `(namespace $n) => addNamespace stx.val n.getId
+  | _               => throwUnexpectedSyntax stx.val "namespace"
 
 @[builtinCommandElab «section»] def elabSection : CommandElab :=
-fun stx => do
-  let header? := (stx.getArg 1).getOptionalIdent?;
-  match header? with
-  | some header => addScopes stx.val "section" false header
-  | none        => do currNamespace ← getCurrNamespace; addScope "section" "" currNamespace
+fun stx => match_syntax stx.val with
+  | `(section $header:ident) => addScopes stx.val "section" false header.getId
+  | `(section)               => do currNamespace ← getCurrNamespace; addScope "section" "" currNamespace
+  | _                        => throwUnexpectedSyntax stx.val "section"
 
 def getScopes : CommandElabM (List Scope) := do
 s ← get; pure s.scopes

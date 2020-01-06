@@ -196,7 +196,7 @@ private def elabCommandUsing (stx : Syntax) : List CommandElab → CommandElabM 
     | Exception.error _           => throw ex
     | Exception.unsupportedSyntax => elabCommandUsing elabFns)
 
-def elabCommand (stx : Syntax) : CommandElabM Unit :=
+def elabCommandAux (stx : Syntax) : CommandElabM Unit :=
 withIncRecDepth stx $ match stx with
 | Syntax.node _ _ => do
   s ← get;
@@ -206,6 +206,14 @@ withIncRecDepth stx $ match stx with
   | some elabFns => elabCommandUsing stx elabFns
   | none         => throwError stx ("command '" ++ toString k ++ "' has not been implemented")
 | _ => throwError stx "unexpected command"
+
+def elabCommand (stx : Syntax) : CommandElabM Unit :=
+if stx.getKind == nullKind then
+  -- list of commands => elaborate in order
+  -- The parser will only ever return a single command at a time, but syntax quotations can return multiple ones
+  stx.getArgs.forM elabCommandAux
+else
+  elabCommandAux stx
 
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline] def withMacroExpansion {α} (stx : Syntax) (x : CommandElabM α) : CommandElabM α :=

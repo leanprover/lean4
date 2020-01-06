@@ -77,7 +77,7 @@ extern "C" uint8 lean_expr_binder_info(object * e);
 binder_info binding_info(expr const & e) { return static_cast<binder_info>(lean_expr_binder_info(e.to_obj_arg())); }
 
 extern "C" object * lean_lit_type(obj_arg e);
-expr lit_type(expr const & e) { return expr(lean_lit_type(e.to_obj_arg())); }
+expr lit_type(literal const & lit) { return expr(lean_lit_type(lit.to_obj_arg())); }
 
 extern "C" usize lean_expr_hash(obj_arg e);
 unsigned hash(expr const & e) { return lean_expr_hash(e.to_obj_arg()); }

@@ -994,7 +994,7 @@ expr type_context_old::infer_core(expr const & e) {
         r = local_type(e);
         break;
     case expr_kind::Lit:
-        r = lit_type(e);
+        r = lit_type(lit_value(e));
         break;
     case expr_kind::MVar:
         r = infer_metavar(e);

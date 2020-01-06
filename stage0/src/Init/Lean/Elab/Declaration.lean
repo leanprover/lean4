@@ -101,7 +101,7 @@ withDeclId declId $ fun name => do
     type ← Term.mkForall typeStx xs type;
     (type, _) ← Term.mkForallUsedOnly typeStx vars type;
     type ← Term.levelMVarToParam type;
-    let usedParams  := collectLevelParams type;
+    let usedParams  := (collectLevelParams {} type).params;
     let levelParams := sortDeclLevelParams explictLevelNames usedParams;
     pure $ Declaration.axiomDecl {
       name     := declName,

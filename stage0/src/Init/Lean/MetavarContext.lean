@@ -234,6 +234,12 @@ i₁.fvar == i₂.fvar
 
 instance LocalInstance.hasBeq : HasBeq LocalInstance := ⟨LocalInstance.beq⟩
 
+/-- Remove local instance with the given `fvarId`. Do nothing if `localInsts` does not contain any free variable with id `fvarId`. -/
+def LocalInstances.erase (localInsts : LocalInstances) (fvarId : FVarId) : LocalInstances :=
+match localInsts.findIdx? (fun inst => inst.fvar.fvarId! == fvarId) with
+| some idx => localInsts.eraseIdx idx
+| _        => localInsts
+
 inductive MetavarKind
 | natural
 | synthetic

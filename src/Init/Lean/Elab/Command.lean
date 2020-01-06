@@ -41,6 +41,7 @@ structure Context :=
 (fileMap        : FileMap)
 (stateRef       : IO.Ref State)
 (cmdPos         : String.Pos := 0)
+(macroStack     : List Syntax := [])
 (currMacroScope : MacroScope := 0)
 
 abbrev CommandElabCoreM (ε) := ReaderT Context (EIO ε)
@@ -78,6 +79,46 @@ instance CommandElabM.monadLog : MonadLog CommandElabM :=
   getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
   logMessage  := fun msg => modify $ fun s => { messages := s.messages.add msg, .. s } }
+
+/- If `ref` does not have position information, then try to use macroStack -/
+private def getBetterRef (ref : Syntax) : CommandElabM Syntax :=
+match ref.getPos with
+| some _ => pure ref
+| none   => do
+  ctx ← read;
+  match ctx.macroStack.find? $ fun (macro : Syntax) => macro.getPos != none with
+  | some macro => pure macro
+  | none       => pure ref
+
+private def prettyPrint (stx : Syntax) : CommandElabM Format :=
+match stx.reprint with -- TODO use syntax pretty printer
+| some str => pure $ format str
+| none     => pure $ format stx
+
+private def addMacroStack (msgData : MessageData) : CommandElabM MessageData := do
+ctx ← read;
+if ctx.macroStack.isEmpty then pure msgData
+else
+  ctx.macroStack.foldlM
+    (fun (msgData : MessageData) (macro : Syntax) => do
+      macroFmt ← prettyPrint macro;
+      pure (msgData ++ Format.line ++ "while expanding" ++ MessageData.nest 2 (Format.line ++ macroFmt)))
+    msgData
+
+/--
+  Throws an error with the given `msgData` and extracting position information from `ref`.
+  If `ref` does not contain position information, then use `cmdPos` -/
+def throwError {α} (ref : Syntax) (msgData : MessageData) : CommandElabM α := do
+ref ← getBetterRef ref;
+msgData ← addMacroStack msgData;
+msg ← mkMessage msgData MessageSeverity.error ref;
+throw msg
+
+def throwUnexpectedSyntax {α} (ref : Syntax) (expectedMsg : Option String := none) : CommandElabM α := do
+refFmt ← prettyPrint ref;
+match expectedMsg with
+| none    => throwError ref ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
+| some ex => throwError ref ("unexpected syntax, expected '" ++ ex ++ "'" ++ MessageData.nest 2 (Format.line ++ refFmt))
 
 protected def getCurrMacroScope : CommandElabM Nat := do
 ctx ← read;
@@ -145,9 +186,13 @@ stx.ifNode
     | none      => throwError stx ("command '" ++ toString k ++ "' has not been implemented"))
   (fun _ => throwError stx ("unexpected command"))
 
+/- Elaborate `x` with `stx` on the macro stack -/
+@[inline] def withMacroExpansion {α} (stx : Syntax) (x : CommandElabM α) : CommandElabM α :=
+adaptReader (fun (ctx : Context) => { macroStack := stx :: ctx.macroStack, .. ctx }) x
+
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
 def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab :=
-fun stx => do
+fun stx => withMacroExpansion stx.val $ do
   stx ← exp stx.val;
   elabCommand stx
 
@@ -157,6 +202,7 @@ let scope := s.scopes.head!;
   fileName       := ctx.fileName,
   fileMap        := ctx.fileMap,
   cmdPos         := ctx.cmdPos,
+  macroStack     := ctx.macroStack,
   currMacroScope := ctx.currMacroScope,
   currNamespace  := scope.currNamespace,
   levelNames     := scope.levelNames,

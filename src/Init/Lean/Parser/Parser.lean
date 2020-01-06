@@ -1069,7 +1069,7 @@ fun _ c s =>
 { fn   := identFn,
   info := mkAtomicInfo "ident" }
 
-@[inline] def rawIdent {k : ParserKind} : Parser k :=
+@[inline] def rawIdentNoAntiquot {k : ParserKind} : Parser k :=
 { fn := fun _ => rawIdentFn }
 
 def quotedSymbolFn {k : ParserKind} : ParserFn k :=
@@ -1754,6 +1754,10 @@ node kind $ try $ dollarSymbol >> checkNoWsBefore "no space before" >>
 
 def ident {k : ParserKind} : Parser k :=
 mkAntiquot "ident" `ident <|> identNoAntiquot
+
+-- `ident` and `rawIdent` produce the same syntax tree, so we reuse the antiquotation kind name
+def rawIdent {k : ParserKind} : Parser k :=
+mkAntiquot "ident" `ident <|> rawIdentNoAntiquot
 
 def fieldIdxFn : BasicParserFn :=
 fun c s =>

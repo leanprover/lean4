@@ -67,8 +67,8 @@ lean_object* l_Lean_Elab_Command_Visibility_hasToString___boxed(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_Modifiers_hasToString___lambda__1(lean_object*);
 lean_object* l_Lean_Elab_throwError___at_Lean_Elab_Command_elabModifiers___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___regBuiltinParser_Lean_Parser_Command_antiquot___closed__2;
 lean_object* l_Function_comp___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Command_docComment___elambda__1___closed__2;
 extern lean_object* l_Lean_Options_empty;
 extern lean_object* l_Lean_Parser_Command_attributes___elambda__1___closed__5;
 lean_object* l_Lean_Elab_Command_elabModifiers___closed__1;
@@ -78,6 +78,7 @@ lean_object* l_Lean_Elab_Command_elabAttr___closed__6;
 lean_object* l_Lean_Elab_Command_elabAttrs(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabAttr___closed__1;
 lean_object* l_Lean_Elab_Command_elabAttr___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Command_docComment___elambda__1___closed__5;
 lean_object* l_Lean_Elab_Command_Modifiers_hasToString___closed__2;
 lean_object* l_Lean_Elab_Command_Modifiers_hasFormat___closed__12;
 lean_object* l_Lean_Elab_Command_Attribute_hasFormat___closed__1;
@@ -129,7 +130,6 @@ lean_object* l_Lean_Elab_throwError___at_Lean_Elab_Command_elabModifiers___spec_
 lean_object* l_Lean_getAttributeImpl(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabModifiers___closed__5;
 extern lean_object* l_addParenHeuristic___closed__1;
-extern lean_object* l_Lean_Parser_Command_docComment___elambda__1___closed__7;
 lean_object* l_Lean_Elab_Command_mkDeclName___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabModifiers___closed__3;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -568,7 +568,7 @@ lean_object* _init_l_Lean_Elab_Command_Modifiers_hasFormat___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Command_docComment___elambda__1___closed__7;
+x_1 = l_Lean_Parser_Command_docComment___elambda__1___closed__5;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -1495,7 +1495,7 @@ lean_object* _init_l_Lean_Elab_Command_elabModifiers___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Command_docComment___elambda__1___closed__2;
+x_1 = l___regBuiltinParser_Lean_Parser_Command_antiquot___closed__2;
 x_2 = l_Lean_mkProtectedExtension___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

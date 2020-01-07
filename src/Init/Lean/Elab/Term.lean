@@ -825,7 +825,7 @@ fun stx expectedType? =>
   | `(())           => pure $ Lean.mkConst `Unit.unit
   | `(($e : $type)) => do
     type ← elabType type;
-    e ← elabCDot e expectedType?;
+    e ← elabCDot e type;
     eType ← inferType ref e;
     ensureHasType ref type eType e
   | `(($e))         => elabCDot e expectedType?

@@ -284,7 +284,11 @@ match setTailInfoAux info stx with
 | none     => stx
 
 private def reprintLeaf : Option SourceInfo → String → String
-| none,      val => val
+-- no source info => add gracious amounts of whitespace to definitely separate tokens
+-- Note that the proper pretty printer does not use this function.
+-- The parser as well always produces source info, so round-tripping is still
+-- guaranteed.
+| none,      val => " " ++ val ++ " "
 | some info, val => info.leading.toString ++ val ++ info.trailing.toString
 
 partial def reprint : Syntax → Option String

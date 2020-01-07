@@ -2138,12 +2138,10 @@ void parser::parse_new_frontend_cmd() {
     set_env(result.fst());
     for (auto msg : result.snd()) {
         pos_info pos = get_message_pos(msg);
-        pos.first += curr_pos.first;
+        pos.first += curr_pos.first - 1;
         message_severity sev = get_message_severity(msg);
         std::string str = get_message_string(msg);
-        pos_info end_pos = pos; // retrieve message end_pos
-        end_pos.second += 1;
-        auto builder = mk_message(pos, end_pos, sev);
+        auto builder = mk_message(pos, sev);
         builder << str;
         builder.report();
     }

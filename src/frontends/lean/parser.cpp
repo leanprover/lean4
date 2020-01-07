@@ -2141,7 +2141,9 @@ void parser::parse_new_frontend_cmd() {
         pos.first += curr_pos.first;
         message_severity sev = get_message_severity(msg);
         std::string str = get_message_string(msg);
-        auto builder = mk_message(pos, sev);
+        pos_info end_pos = pos; // retrieve message end_pos
+        end_pos.second += 1;
+        auto builder = mk_message(pos, end_pos, sev);
         builder << str;
         builder.report();
     }

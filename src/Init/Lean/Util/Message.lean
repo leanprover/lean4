@@ -123,11 +123,17 @@ mkErrorStringWithPos msg.fileName msg.pos.line msg.pos.column
    | MessageSeverity.error => "error: ") ++
   (if msg.caption == "" then "" else msg.caption ++ ":\n") ++ toString (fmt msg.data))
 
+
 instance : Inhabited Message :=
 ⟨{ fileName := "", pos := ⟨0, 1⟩, data := arbitrary _}⟩
 
 instance : HasToString Message :=
 ⟨Message.toString⟩
+
+@[export lean_message_pos] def getPostEx (msg : Message) : Position := msg.pos
+@[export lean_message_severity] def getSeverityEx (msg : Message) : MessageSeverity := msg.severity
+@[export lean_message_string] def getMessageStringEx (msg : Message) : String := toString (fmt msg.data)
+
 end Message
 
 structure MessageLog :=

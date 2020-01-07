@@ -91,6 +91,11 @@ IO.processCommands parserCtx parserStateRef cmdStateRef;
 cmdState ← cmdStateRef.get;
 pure (cmdState.env, cmdState.messages)
 
+@[export lean_process_input]
+def processExport (env : Environment) (input : String) (opts : Options) (fileName : String) : IO (Environment × List Message) := do
+(env, messages) ← process input env opts fileName;
+pure (env, messages.toList)
+
 def runFrontend (env : Environment) (input : String) (opts : Options := {}) (fileName : Option String := none) : IO (Environment × MessageLog) := do
 let fileName := fileName.getD "<input>";
 let parserCtx := Parser.mkParserContextCore env input fileName;

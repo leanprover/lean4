@@ -92,6 +92,7 @@ struct parser : public abstract_parser {
 
     std::string parse_doc_block();
     void parse_mod_doc_block();
+    void parse_new_frontend_cmd();
 
     void process_imports();
     void process_postponed(buffer<expr> const & args, bool is_left, buffer<notation::action_kind> const & kinds,

@@ -72,6 +72,7 @@ partial def parseCommand (env : Environment) (c : ParserContextCore) : ModulePar
   else
     let c  := c.toParserContext env;
     let s  := { ParserState . cache := initCacheForInput c.input, pos := pos };
+    let s  := whitespace c s;
     let s  := (commandParser : Parser).fn (0:Nat) c s;
     match s.errorMsg with
     | none =>

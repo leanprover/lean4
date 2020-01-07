@@ -23,6 +23,14 @@ def DataValue.beq : DataValue → DataValue → Bool
 | DataValue.ofBool b₁,   DataValue.ofBool b₂   => b₁ = b₂
 | _,                       _                   => false
 
+def DataValue.sameCtor : DataValue → DataValue → Bool
+| DataValue.ofString _, DataValue.ofString _ => true
+| DataValue.ofBool _,   DataValue.ofBool _   => true
+| DataValue.ofName _,   DataValue.ofName _   => true
+| DataValue.ofNat _,    DataValue.ofNat _    => true
+| DataValue.ofInt _,    DataValue.ofInt _    => true
+| _,                    _                    => false
+
 instance DataValue.HasBeq : HasBeq DataValue := ⟨DataValue.beq⟩
 
 @[export lean_data_value_to_string]

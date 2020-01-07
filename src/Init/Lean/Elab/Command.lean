@@ -499,6 +499,27 @@ fun stx => do
     logInfo stx.val (e ++ " : " ++ type);
     pure ()
 
+def setOption (ref : Syntax) (optionName : Name) (val : DataValue) : CommandElabM Unit := do
+decl ← liftIO ref $ getOptionDecl optionName;
+unless (decl.defValue.sameCtor val) $ throwError ref "type mismatch at set_option";
+modifyScope $ fun scope => { opts := scope.opts.insert optionName val, .. scope }
+
+@[builtinCommandElab «set_option»] def elabSetOption : CommandElab :=
+fun stx => do
+  let ref        := stx.val;
+  let optionName := stx.getIdAt 1;
+  let val        := stx.getArg 2;
+  match val.isStrLit? with
+  | some str => setOption ref optionName (DataValue.ofString str)
+  | none     =>
+  match val.isNatLit? with
+  | some num => setOption ref optionName (DataValue.ofNat num)
+  | none     =>
+  match val with
+  | Syntax.atom _ "true"  => setOption ref optionName (DataValue.ofBool true)
+  | Syntax.atom _ "false" => setOption ref optionName (DataValue.ofBool false)
+  | _ => logError val ("unexpected set_option value " ++ toString val)
+
 @[inline] def withDeclId (declId : Syntax) (f : Name → CommandElabM Unit) : CommandElabM Unit := do
 -- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
 let id             := declId.getIdAt 0;

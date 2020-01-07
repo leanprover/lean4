@@ -56,8 +56,6 @@ static format * g_lambda_n_fmt    = nullptr;
 static format * g_lambda_fmt      = nullptr;
 static format * g_forall_n_fmt    = nullptr;
 static format * g_forall_fmt      = nullptr;
-static format * g_pi_n_fmt        = nullptr;
-static format * g_pi_fmt          = nullptr;
 static format * g_arrow_n_fmt     = nullptr;
 static format * g_arrow_fmt       = nullptr;
 static format * g_let_fmt         = nullptr;
@@ -117,8 +115,6 @@ void initialize_pp() {
     g_lambda_fmt      = new format(format("fun"));
     g_forall_n_fmt    = new format(format("∀"));
     g_forall_fmt      = new format(format("forall"));
-    g_pi_n_fmt        = new format(format("Π"));
-    g_pi_fmt          = new format(format("Pi"));
     g_arrow_n_fmt     = new format(format("→"));
     g_arrow_fmt       = new format(format("->"));
     g_let_fmt         = new format(format("let"));
@@ -142,8 +138,6 @@ void finalize_pp() {
     delete g_lambda_fmt;
     delete g_forall_n_fmt;
     delete g_forall_fmt;
-    delete g_pi_n_fmt;
-    delete g_pi_fmt;
     delete g_arrow_n_fmt;
     delete g_arrow_fmt;
     delete g_let_fmt;
@@ -863,10 +857,7 @@ auto pretty_fn::pp_pi(expr const & e) -> result {
             b = p.first;
         }
         format r;
-        if (is_prop(b))
-            r = m_unicode ? *g_forall_n_fmt : *g_forall_fmt;
-        else
-            r = m_unicode ? *g_pi_n_fmt : *g_pi_fmt;
+        r = m_unicode ? *g_forall_n_fmt : *g_forall_fmt;
         r += pp_binders(locals);
         r += group(compose(format(","), nest(m_indent, compose(line(), pp_child(b, 0).fmt()))));
         return result(0, r);

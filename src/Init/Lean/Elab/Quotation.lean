@@ -75,10 +75,10 @@ def antiquotKind? : Syntax → Option SyntaxNodeKind
 def isAntiquotSplice (stx : Syntax) : Bool :=
 isAntiquot stx && (stx.getArg 3).getOptional?.isSome
 
--- If an antiquotation splice is the sole item of a `many` node, its result should
--- be substituted for the `many` node
+-- If any item of a `many` node is an antiquotation splice, its result should
+-- be substituted into the `many` node's children
 def isAntiquotSplicePat (stx : Syntax) : Bool :=
-stx.isOfKind nullKind && stx.getArgs.size == 1 && isAntiquotSplice (stx.getArg 0)
+stx.isOfKind nullKind && stx.getArgs.any isAntiquotSplice
 
 /-- A term like `($e) is actually ambiguous: the antiquotation could be of kind `term`,
     or `ident`, or ... . But it shouldn't really matter because antiquotations without
@@ -112,14 +112,17 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
     -- splices must occur in a `many` node
     if isAntiquotSplice stx then throwError stx "unexpected antiquotation splice"
     else pure $ stx.getArg 1
-  else if isAntiquotSplicePat stx then
-    -- top-level antiquotation splice pattern: inject args array
-    let quoted := (args.get! 0).getArg 1;
-    `(Syntax.node nullKind $quoted)
   else do
-    let k := quote k;
-    args ← quote <$> args.mapM quoteSyntax;
-    `(Syntax.node $k $args)
+    empty ← `(Array.empty);
+    args ← args.foldlM (fun args arg =>
+      if k == nullKind && isAntiquotSplice arg then
+        -- antiquotation splice pattern: inject args array
+        let arg := arg.getArg 1;
+        `(Array.append $args $arg)
+      else do
+        arg ← quoteSyntax arg;
+        `(Array.push $args $arg)) empty;
+    `(Syntax.node $(quote k) $args)
 | Syntax.atom info val =>
   `(Syntax.atom none $(quote val))
 | Syntax.missing => unreachable!
@@ -221,10 +224,11 @@ else if pat.isOfKind `Lean.Parser.Term.stxQuot then
     else if anti.isOfKind `Lean.Parser.Term.id then { kind := kind, rhsFn :=  fun rhs => `(let $anti:id := discr; $rhs) }
     else unconditional $ fun _ => throwError anti ("match_syntax: antiquotation must be variable " ++ toString anti)
   | _ =>
-    -- quotation is a single antiquotation splice => bind args array
-    if isAntiquotSplicePat quoted then
+    if isAntiquotSplicePat quoted && quoted.getArgs.size == 1 then
+      -- quotation is a single antiquotation splice => bind args array
       let anti := (quoted.getArg 0).getArg 1;
       unconditional $ fun rhs => `(let $anti:term := Syntax.getArgs discr; $rhs)
+      -- TODO: support for more complex antiquotation splices
     else
       -- not an antiquotation: match head shape
       let argPats := quoted.getArgs.map $ fun arg => Syntax.node `Lean.Parser.Term.stxQuot #[mkAtom "`(", arg, mkAtom ")"];

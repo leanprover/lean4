@@ -275,7 +275,7 @@ private partial def compileStxMatch (ref : Syntax) : List Syntax → List Alt �
   cond ← match info.argPats with
   | some pats => `(Syntax.isOfKind discr $(quote kind) && Array.size (Syntax.getArgs discr) == $(quote pats.size))
   | none      => `(Syntax.isOfKind discr $(quote kind));
-  `(let discr := $discr; if $cond then $yes else $no)
+  `(let discr := $discr; if coe $cond then $yes else $no)
 | _, _ => unreachable!
 
 private partial def getPatternVarsAux : Syntax → TermElabM (List Syntax)

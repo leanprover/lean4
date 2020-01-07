@@ -1753,4 +1753,13 @@ formatter_factory mk_pretty_formatter_factory() {
             });
     };
 }
+
+format pp(environment const & env, metavar_context const & mctx, local_context const & lctx, options const & opts, expr const & e) {
+    type_context_old ctx(env, opts, mctx, lctx, transparency_mode::All);
+    return pretty_fn(env, opts, ctx)(e);
+}
+
+extern "C" object * lean_pp_expr(object * env, object * mctx, object * lctx, object * opts, object * e) {
+    return pp(environment(env), metavar_context(mctx), local_context(lctx), options(opts), expr(e)).steal();
+}
 }

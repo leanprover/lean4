@@ -203,3 +203,15 @@ f a
 #eval run "open Lean.Parser def x := parser! symbol \"foo\" Nat.zero #check x"
 #eval run "open Lean.Parser def x := tparser! symbol \"foo\" Nat.zero #check x"
 #eval run "def x : Nat := 1 #check x"
+
+
+def g (x : Nat := zero) (y : Nat := one) (z : Nat := two) : Nat :=
+x + y + z
+
+def three := 3
+
+#eval run "#check g"
+#eval run "#check g (x := three) (z := zero)"
+#eval run "#check g (y := three)"
+#eval run "#check g (z := three)"
+#eval run "#check g three (z := zero)"

@@ -40,12 +40,6 @@ when (namedArgs.any $ fun namedArg' => namedArg.name == namedArg'.name) $
   throwError ref ("argument '" ++ toString namedArg.name ++ "' was already set");
 pure $ namedArgs.push namedArg
 
-/-- Consume parameters of the form `(x : A := val)` and `(x : A . tactic)` -/
-private def consumeDefaultParams (ref : Syntax) : Expr → Expr → TermElabM Expr
-| eType, e =>
-  -- TODO
-  pure e
-
 private def synthesizeAppInstMVars (ref : Syntax) (instMVars : Array MVarId) : TermElabM Unit :=
 instMVars.forM $ fun mvarId =>
   unlessM (synthesizeInstMVarCore ref mvarId) $
@@ -66,7 +60,6 @@ private partial def elabAppArgsAux (ref : Syntax) (args : Array Arg) (expectedTy
 | argIdx, namedArgs, instMVars, eType, e => do
   let finalize : Unit → TermElabM Expr := fun _ => do {
     -- all user explicit arguments have been consumed
-    e ← if explicit then pure e else consumeDefaultParams ref eType e;
     e ← ensureHasType ref expectedType? eType e;
     synthesizeAppInstMVars ref instMVars;
     pure e
@@ -85,10 +78,14 @@ private partial def elabAppArgsAux (ref : Syntax) (args : Array Arg) (expectedTy
         if h : argIdx < args.size then do
           argElab ← elabArg ref (args.get ⟨argIdx, h⟩) d;
           elabAppArgsAux (argIdx + 1) namedArgs instMVars (b.instantiate1 argElab) (mkApp e argElab)
-        else if namedArgs.isEmpty then
-          finalize ()
-        else
-          throwError ref ("explicit parameter '" ++ n ++ "' is missing, unused named arguments " ++ toString (namedArgs.map $ fun narg => narg.name))
+        else match d.getOptParamDefault? with
+          | some defVal => elabAppArgsAux argIdx namedArgs instMVars (b.instantiate1 defVal) (mkApp e defVal)
+          | none        =>
+            -- TODO: tactic auto param
+            if namedArgs.isEmpty then
+              finalize ()
+            else
+              throwError ref ("explicit parameter '" ++ n ++ "' is missing, unused named arguments " ++ toString (namedArgs.map $ fun narg => narg.name))
       };
       if explicit then
         processExplictArg ()

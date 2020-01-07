@@ -101,10 +101,21 @@ match result with
 | EStateM.Result.ok e s     => do set s; pure e
 | EStateM.Result.error ex s => do set s; throw (Exception.error ex)
 
+def getEnv : TermElabM Environment := do s ← get; pure s.env
+def getMCtx : TermElabM MetavarContext := do s ← get; pure s.mctx
+def getLCtx : TermElabM LocalContext := do ctx ← read; pure ctx.lctx
+def getLocalInsts : TermElabM LocalInstances := do ctx ← read; pure ctx.localInstances
+def getOptions : TermElabM Options := do ctx ← read; pure ctx.config.opts
+
+def addContext (msg : MessageData) : TermElabM MessageData := do
+env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
+pure (MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } msg)
+
 instance TermElabM.MonadLog : MonadLog TermElabM :=
 { getCmdPos   := do ctx ← read; pure ctx.cmdPos,
   getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
+  addContext  := addContext,
   logMessage  := fun msg => modify $ fun s => { messages := s.messages.add msg, .. s } }
 
 /- If `ref` does not have position information, then try to use macroStack -/
@@ -216,14 +227,9 @@ inductive LVal
 instance LVal.hasToString : HasToString LVal :=
 ⟨fun p => match p with | LVal.fieldIdx i => toString i | LVal.fieldName n => n | LVal.getOp idx => "[" ++ toString idx ++ "]"⟩
 
-def getEnv : TermElabM Environment := do s ← get; pure s.env
-def getMCtx : TermElabM MetavarContext := do s ← get; pure s.mctx
 def getDeclName? : TermElabM (Option Name) := do ctx ← read; pure ctx.declName?
 def getCurrNamespace : TermElabM Name := do ctx ← read; pure ctx.currNamespace
 def getOpenDecls : TermElabM (List OpenDecl) := do ctx ← read; pure ctx.openDecls
-def getLCtx : TermElabM LocalContext := do ctx ← read; pure ctx.lctx
-def getLocalInsts : TermElabM LocalInstances := do ctx ← read; pure ctx.localInstances
-def getOptions : TermElabM Options := do ctx ← read; pure ctx.config.opts
 def getTraceState : TermElabM TraceState := do s ← get; pure s.traceState
 def setTraceState (traceState : TraceState) : TermElabM Unit := modify $ fun s => { traceState := traceState, .. s }
 def isExprMVarAssigned (mvarId : MVarId) : TermElabM Bool := do mctx ← getMCtx; pure $ mctx.isExprAssigned mvarId

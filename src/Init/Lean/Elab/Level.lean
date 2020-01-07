@@ -27,7 +27,8 @@ abbrev LevelElabM := ReaderT Context (EStateM Exception State)
 instance LevelElabM.MonadLog : MonadPosInfo LevelElabM :=
 { getCmdPos   := do ctx ← read; pure ctx.cmdPos,
   getFileMap  := do ctx ← read; pure ctx.fileMap,
-  getFileName := do ctx ← read; pure ctx.fileName }
+  getFileName := do ctx ← read; pure ctx.fileName,
+  addContext  := fun msg => pure msg }
 
 def mkFreshId : LevelElabM Name := do
 s ← get;

@@ -74,10 +74,19 @@ instance CommandElabCoreM.monadState : MonadState State CommandElabM :=
   set       := setState,
   modifyGet := @modifyGetState }
 
+def getEnv : CommandElabM Environment := do s ← get; pure s.env
+def getScope : CommandElabM Scope := do s ← get; pure s.scopes.head!
+def getOptions : CommandElabM Options := do scope ← getScope; pure scope.opts
+
+def addContext (msg : MessageData) : CommandElabM MessageData := do
+env ← getEnv; opts ← getOptions;
+pure (MessageData.withContext { env := env, mctx := {}, lctx := {}, opts := opts } msg)
+
 instance CommandElabM.monadLog : MonadLog CommandElabM :=
 { getCmdPos   := do ctx ← read; pure ctx.cmdPos,
   getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
+  addContext  := addContext,
   logMessage  := fun msg => modify $ fun s => { messages := s.messages.add msg, .. s } }
 
 /- If `ref` does not have position information, then try to use macroStack -/
@@ -243,17 +252,8 @@ fun ctx => EIO.catchExceptions (withLogging x ctx) (fun _ => pure ())
 def dbgTrace {α} [HasToString α] (a : α) : CommandElabM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()
 
-def getEnv : CommandElabM Environment := do
-s ← get; pure s.env
-
 def setEnv (newEnv : Environment) : CommandElabM Unit :=
 modify $ fun s => { env := newEnv, .. s }
-
-def getScope : CommandElabM Scope := do
-s ← get; pure s.scopes.head!
-
-def getOptions : CommandElabM Options := do
-scope ← getScope; pure scope.opts
 
 def getCurrNamespace : CommandElabM Name := do
 scope ← getScope; pure scope.currNamespace

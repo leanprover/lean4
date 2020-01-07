@@ -63,7 +63,12 @@ partial def formatAux : Option MessageDataContext → MessageData → Format
 | some ctx,  ofSyntax s        => s.formatStx (getSyntaxMaxDepth ctx.opts)
 | none,      ofSyntax s        => s.formatStx
 | none,      ofExpr e          => format (toString e)
-| some ctx,  ofExpr e          => ppOld ctx.env ctx.mctx ctx.lctx ctx.opts (ctx.mctx.instantiateMVars e).1 -- TODO: replace with new pretty printer
+| some ctx,  ofExpr e          =>
+  let e := (ctx.mctx.instantiateMVars e).1;
+  if ctx.opts.getBool `ppOld true then
+    ppOld ctx.env ctx.mctx ctx.lctx ctx.opts e -- TODO: replace with new pretty printer
+  else
+    format (toString e)
 | _,         withContext ctx d => formatAux (some ctx) d
 | ctx,       tagged cls d      => Format.sbracket (format cls) ++ " " ++ formatAux ctx d
 | ctx,       nest n d          => Format.nest n (formatAux ctx d)
@@ -170,6 +175,10 @@ log.msgs.forM f
 
 def toList (log : MessageLog) : List Message :=
 (log.msgs.foldl (fun acc msg => msg :: acc) []).reverse
+
+-- TODO: remove after we remove ppOld
+@[init] def ppOldOption : IO Unit :=
+registerOption `ppOld { defValue := true, group := "", descr := "disable/enable old pretty printer" }
 
 end MessageLog
 end Lean

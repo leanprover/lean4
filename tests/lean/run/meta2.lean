@@ -409,3 +409,15 @@ do print "----- tst25 -----";
    pure ()
 
 #eval tst25
+
+def tst26 : MetaM Unit := do
+print "----- tst26 -----";
+m1 ← mkFreshExprMVar (mkArrow nat nat);
+m2 ← mkFreshExprMVar nat;
+m3 ← mkFreshExprMVar nat;
+check $ isDefEq (mkApp m1 m2) m3;
+pure ()
+
+set_option ppOld false
+
+#eval tst26

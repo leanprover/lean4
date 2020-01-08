@@ -873,21 +873,39 @@ lean_ctor_set(x_6, 0, x_4);
 lean_ctor_set(x_6, 1, x_5);
 return x_6;
 }
-case 5:
+case 3:
 {
-lean_object* x_7; lean_object* x_8; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 lean_dec(x_1);
-x_8 = l_List_map___main___at___private_Init_Lean_Compiler_Util_1__getDeclNamesForCodeGen___spec__1(x_7);
-return x_8;
+x_8 = lean_ctor_get(x_7, 0);
+lean_inc(x_8);
+lean_dec(x_7);
+x_9 = lean_ctor_get(x_8, 0);
+lean_inc(x_9);
+lean_dec(x_8);
+x_10 = lean_box(0);
+x_11 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_11, 0, x_9);
+lean_ctor_set(x_11, 1, x_10);
+return x_11;
+}
+case 5:
+{
+lean_object* x_12; lean_object* x_13; 
+x_12 = lean_ctor_get(x_1, 0);
+lean_inc(x_12);
+lean_dec(x_1);
+x_13 = l_List_map___main___at___private_Init_Lean_Compiler_Util_1__getDeclNamesForCodeGen___spec__1(x_12);
+return x_13;
 }
 default: 
 {
-lean_object* x_9; 
+lean_object* x_14; 
 lean_dec(x_1);
-x_9 = lean_box(0);
-return x_9;
+x_14 = lean_box(0);
+return x_14;
 }
 }
 }

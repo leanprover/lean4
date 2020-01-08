@@ -72,9 +72,10 @@ def isEagerLambdaLiftingName : Name → Bool
     We use this definition to implement `add_and_compile`. -/
 @[export lean_get_decl_names_for_code_gen]
 private def getDeclNamesForCodeGen : Declaration → List Name
-| Declaration.defnDecl { name := n, .. } => [n]
-| Declaration.mutualDefnDecl defs        => defs.map $ fun d => d.name
-| _                                      => []
+| Declaration.defnDecl { name := n, .. }   => [n]
+| Declaration.mutualDefnDecl defs          => defs.map $ fun d => d.name
+| Declaration.opaqueDecl { name := n, .. } => [n]
+| _                                        => []
 
 def checkIsDefinition (env : Environment) (n : Name) : Except String Unit :=
 match env.find? n with

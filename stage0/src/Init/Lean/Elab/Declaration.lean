@@ -58,7 +58,10 @@ def elabConstant (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := d
 let (binders, type) := expandDeclSig (stx.getArg 2);
 val ← match (stx.getArg 3).getOptional? with
   | some val => pure val
-  | none     => `(arbitrary _);
+  | none     => do {
+    val ← `(arbitrary _);
+    pure $ Syntax.node `Lean.Parser.Command.declValSimple #[ mkAtomFrom stx ":=", val ]
+  };
 elabDefLike {
   ref := stx, kind := DefKind.opaque, modifiers := modifiers,
   declId := stx.getArg 1, binders := binders, type? := some type, val := val

@@ -42,7 +42,7 @@ namespace DiscrTree
   That is, we don't reduce `HasAdd.add Nat Nat.HasAdd a b` into `Nat.add a b`.
   We say the `HasAdd.add` applications are the de-facto canonical forms in
   the metaprogramming framework.
-  Moreover, it is the metaprammer resposability to re-pack applications such as
+  Moreover, it is the metaprogrammer's responsibility to re-pack applications such as
   `Nat.add a b` into `HasAdd.add Nat Nat.hasAdd a b`.
 
   Remark: we store the arity in the keys

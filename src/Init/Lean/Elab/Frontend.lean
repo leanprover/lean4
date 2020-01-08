@@ -48,12 +48,17 @@ fun ctx => liftIOCore! $ ctx.parserStateRef.set ps
 def setMessages (msgs : MessageLog) : FrontendM Unit :=
 fun ctx => liftIOCore! $ ctx.commandStateRef.modify $ fun s => { messages := msgs, .. s }
 
+def getParserContext : FrontendM Parser.ParserContextCore := do
+cs  ← getCommandState;
+ctx ← read;
+pure { tokens := Parser.getTokenTable cs.env, .. ctx.parserCtx }
+
 def processCommand : FrontendM Bool := do
 updateCmdPos;
 cs ← getCommandState;
 ps ← getParserState;
-c ← read;
-match Parser.parseCommand cs.env c.parserCtx ps cs.messages with
+px ← getParserContext;
+match Parser.parseCommand cs.env px ps cs.messages with
 | (cmd, ps, messages) => do
   setParserState ps;
   setMessages messages;

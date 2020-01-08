@@ -1420,11 +1420,14 @@ def getSyntaxNodeKinds (env : Environment) : List SyntaxNodeKind := do
 let s := syntaxNodeKindExtension.getState env;
 s.2.foldl (fun ks k _ => k::ks) []
 
+def getTokenTable (env : Environment) : TokenTable :=
+(tokenTableAttribute.ext.getState env).2
+
 def mkParserContextCore (env : Environment) (input : String) (fileName : String) : ParserContextCore :=
 { input    := input,
   fileName := fileName,
   fileMap  := input.toFileMap,
-  tokens   := (tokenTableAttribute.ext.getState env).2 }
+  tokens   := getTokenTable env }
 
 @[inline] def ParserContextCore.toParserContext (env : Environment) (ctx : ParserContextCore) : ParserContext :=
 { env := env, toParserContextCore := ctx }

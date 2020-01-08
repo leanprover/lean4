@@ -961,8 +961,14 @@ private partial def isDefEqQuick : Expr → Expr → MetaM LBool
   sMVarDecl ← getMVarDecl sFn.mvarId!;
   cond (!sMVarDecl.lctx.isSubPrefixOf tMVarDecl.lctx) (assign s t) $
   cond (!tMVarDecl.lctx.isSubPrefixOf sMVarDecl.lctx) (assign t s) $
-  condM (try (processAssignment t s)) (pure LBool.true) $
-  assign s t
+  if s.isMVar && !t.isMVar then
+    /- Solve `?m t =?= ?n` by trying first `?n := ?m t`.
+       Reason: this assignment is precise. -/
+    condM (try (processAssignment s t)) (pure LBool.true) $
+    assign t s
+  else
+    condM (try (processAssignment t s)) (pure LBool.true) $
+    assign s t
 
 private def isDefEqProofIrrel (t s : Expr) : MetaM LBool := do
 status ← isProofQuick t;

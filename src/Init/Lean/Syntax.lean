@@ -521,15 +521,19 @@ def isStrLit? : Syntax → Option String
     none
 | _ => none
 
-def decodeCharLit (s : String) : Char :=
--- TODO handle escape seqs
-s.get 1
+def decodeCharLit (s : String) : Option Char :=
+let c := s.get 1;
+if c == '\\' then do
+  (c, _) ← decodeQuotedChar s 2;
+  pure c
+else
+  pure c
 
 def isCharLit? : Syntax → Option Char
 | Syntax.node k args   =>
   if k == charLitKind && args.size == 1 then
     match args.get! 0 with
-    | (Syntax.atom _ val) => some (decodeCharLit val)
+    | (Syntax.atom _ val) => decodeCharLit val
     | _ => none
   else
     none

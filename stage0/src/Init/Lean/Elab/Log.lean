@@ -14,6 +14,7 @@ class MonadPosInfo (m : Type → Type) :=
 (getFileMap  {} : m FileMap)
 (getFileName {} : m String)
 (getCmdPos   {} : m String.Pos)
+(addContext  {} : MessageData → m MessageData)
 
 export MonadPosInfo (getFileMap getFileName getCmdPos)
 
@@ -34,6 +35,7 @@ fileMap ← getFileMap;
 fileName ← getFileName;
 cmdPos ← getCmdPos;
 let pos := fileMap.toPosition (pos.getD cmdPos);
+msgData ← MonadPosInfo.addContext msgData;
 pure { fileName := fileName, pos := pos, data := msgData, severity := severity }
 
 def getPos [MonadPosInfo m] (stx : Syntax) : m String.Pos :=

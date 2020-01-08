@@ -724,6 +724,12 @@ def etaExpandedStrict? : Expr → Option Expr
 | lam _ _ b _ => etaExpandedAux b 1
 | _           => none
 
+def getOptParamDefault? (e : Expr) : Option Expr :=
+if e.isAppOfArity `optParam 2 then
+  some e.appArg!
+else
+  none
+
 @[specialize] private partial def hasAnyFVarAux (p : FVarId → Bool) : Expr → Bool
 | e => if !e.hasFVar then false else
   match e with

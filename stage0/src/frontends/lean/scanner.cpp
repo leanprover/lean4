@@ -377,6 +377,17 @@ auto scanner::read_mod_doc_block() -> token_kind {
     return token_kind::ModDocBlock;
 }
 
+auto scanner::read_new_frontend() -> token_kind {
+    m_buffer.clear();
+    while (true) {
+        uchar c = curr();
+        if (c == Eof) break;
+        next();
+        m_buffer += c;
+    }
+    return token_kind::NewFrontend;
+}
+
 void scanner::read_comment_block() {
     unsigned nesting = 1;
     while (true) {
@@ -620,6 +631,7 @@ static name * g_begin_comment_block_tk  = nullptr;
 static name * g_begin_doc_block_tk      = nullptr;
 static name * g_begin_mod_doc_block_tk  = nullptr;
 static name * g_tick_tk                 = nullptr;
+static name * g_new_frontend_tk         = nullptr;
 
 void initialize_scanner() {
     g_begin_comment_tk       = new name("--");
@@ -627,6 +639,7 @@ void initialize_scanner() {
     g_begin_doc_block_tk     = new name("/--");
     g_begin_mod_doc_block_tk = new name("/-!");
     g_tick_tk                = new name("'");
+    g_new_frontend_tk        = new name("new_frontend");
 }
 
 void finalize_scanner() {
@@ -635,6 +648,7 @@ void finalize_scanner() {
     delete g_begin_doc_block_tk;
     delete g_begin_mod_doc_block_tk;
     delete g_tick_tk;
+    delete g_new_frontend_tk;
 }
 
 auto scanner::scan(environment const & env) -> token_kind {
@@ -676,6 +690,8 @@ auto scanner::scan(environment const & env) -> token_kind {
                         return read_mod_doc_block();
                     else if (n == *g_tick_tk)
                         return read_char();
+                    else if (n == *g_new_frontend_tk)
+                        return read_new_frontend();
                     else
                         return k;
                 } else {
@@ -756,7 +772,7 @@ void token::dealloc() {
     case token_kind::Numeral: case token_kind::Decimal: case token_kind::FieldNum:
         if (m_num_val != nullptr) delete m_num_val;
         return;
-    case token_kind::String: case token_kind::Char:
+    case token_kind::String: case token_kind::Char: case token_kind::NewFrontend:
     case token_kind::DocBlock: case token_kind::ModDocBlock:
         if (m_str_val != nullptr) delete m_str_val;
         return;
@@ -778,7 +794,7 @@ void token::copy(token const & tk) {
     case token_kind::Numeral: case token_kind::Decimal: case token_kind::FieldNum:
         m_num_val = new mpq(*tk.m_num_val);
         return;
-    case token_kind::String: case token_kind::Char:
+    case token_kind::String: case token_kind::Char: case token_kind::NewFrontend:
     case token_kind::DocBlock: case token_kind::ModDocBlock:
         m_str_val = new std::string(*tk.m_str_val);
         return;
@@ -803,7 +819,7 @@ void token::steal(token && tk) {
         m_num_val    = tk.m_num_val;
         tk.m_num_val = nullptr;
         return;
-    case token_kind::String: case token_kind::Char:
+    case token_kind::String: case token_kind::Char: case token_kind::NewFrontend:
     case token_kind::DocBlock: case token_kind::ModDocBlock:
         m_str_val    = tk.m_str_val;
         tk.m_str_val = nullptr;
@@ -833,7 +849,7 @@ token read_tokens(environment & env, io_state const & ios, scanner & s, buffer<t
             case token_kind::Numeral: case token_kind::Decimal: case token_kind::FieldNum:
                 tk.push_back(token(k, s.get_pos_info(), s.get_num_val()));
                 break;
-            case token_kind::String: case token_kind::Char:
+            case token_kind::String: case token_kind::Char: case token_kind::NewFrontend:
             case token_kind::DocBlock: case token_kind::ModDocBlock:
                 tk.push_back(token(k, s.get_pos_info(), s.get_str_val()));
                 break;

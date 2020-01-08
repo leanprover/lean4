@@ -52,6 +52,10 @@ registerOption `syntaxMaxDepth { defValue := (2 : Nat), group := "", descr := "m
 def getSyntaxMaxDepth (opts : Options) : Nat :=
 opts.getNat `syntaxMaxDepth 2
 
+/- TODO: delete after we implement the new pretty printer in Lean -/
+@[extern "lean_pp_expr"]
+constant ppOld : Environment → MetavarContext → LocalContext → Options → Expr → Format := arbitrary _
+
 partial def formatAux : Option MessageDataContext → MessageData → Format
 | _,         ofFormat fmt      => fmt
 | _,         ofLevel u         => fmt u
@@ -59,7 +63,12 @@ partial def formatAux : Option MessageDataContext → MessageData → Format
 | some ctx,  ofSyntax s        => s.formatStx (getSyntaxMaxDepth ctx.opts)
 | none,      ofSyntax s        => s.formatStx
 | none,      ofExpr e          => format (toString e)
-| some ctx,  ofExpr e          => format (toString (ctx.mctx.instantiateMVars e).1) -- TODO: invoke pretty printer
+| some ctx,  ofExpr e          =>
+  let e := (ctx.mctx.instantiateMVars e).1;
+  if ctx.opts.getBool `ppOld true then
+    ppOld ctx.env ctx.mctx ctx.lctx ctx.opts e -- TODO: replace with new pretty printer
+  else
+    format (toString e)
 | _,         withContext ctx d => formatAux (some ctx) d
 | ctx,       tagged cls d      => Format.sbracket (format cls) ++ " " ++ formatAux ctx d
 | ctx,       nest n d          => Format.nest n (formatAux ctx d)
@@ -123,11 +132,17 @@ mkErrorStringWithPos msg.fileName msg.pos.line msg.pos.column
    | MessageSeverity.error => "error: ") ++
   (if msg.caption == "" then "" else msg.caption ++ ":\n") ++ toString (fmt msg.data))
 
+
 instance : Inhabited Message :=
 ⟨{ fileName := "", pos := ⟨0, 1⟩, data := arbitrary _}⟩
 
 instance : HasToString Message :=
 ⟨Message.toString⟩
+
+@[export lean_message_pos] def getPostEx (msg : Message) : Position := msg.pos
+@[export lean_message_severity] def getSeverityEx (msg : Message) : MessageSeverity := msg.severity
+@[export lean_message_string] def getMessageStringEx (msg : Message) : String := toString (fmt msg.data)
+
 end Message
 
 structure MessageLog :=
@@ -160,6 +175,10 @@ log.msgs.forM f
 
 def toList (log : MessageLog) : List Message :=
 (log.msgs.foldl (fun acc msg => msg :: acc) []).reverse
+
+-- TODO: remove after we remove ppOld
+@[init] def ppOldOption : IO Unit :=
+registerOption `ppOld { defValue := true, group := "", descr := "disable/enable old pretty printer" }
 
 end MessageLog
 end Lean

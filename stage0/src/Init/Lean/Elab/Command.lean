@@ -74,10 +74,19 @@ instance CommandElabCoreM.monadState : MonadState State CommandElabM :=
   set       := setState,
   modifyGet := @modifyGetState }
 
+def getEnv : CommandElabM Environment := do s ← get; pure s.env
+def getScope : CommandElabM Scope := do s ← get; pure s.scopes.head!
+def getOptions : CommandElabM Options := do scope ← getScope; pure scope.opts
+
+def addContext (msg : MessageData) : CommandElabM MessageData := do
+env ← getEnv; opts ← getOptions;
+pure (MessageData.withContext { env := env, mctx := {}, lctx := {}, opts := opts } msg)
+
 instance CommandElabM.monadLog : MonadLog CommandElabM :=
 { getCmdPos   := do ctx ← read; pure ctx.cmdPos,
   getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
+  addContext  := addContext,
   logMessage  := fun msg => modify $ fun s => { messages := s.messages.add msg, .. s } }
 
 /- If `ref` does not have position information, then try to use macroStack -/
@@ -243,17 +252,8 @@ fun ctx => EIO.catchExceptions (withLogging x ctx) (fun _ => pure ())
 def dbgTrace {α} [HasToString α] (a : α) : CommandElabM Unit :=
 _root_.dbgTrace (toString a) $ fun _ => pure ()
 
-def getEnv : CommandElabM Environment := do
-s ← get; pure s.env
-
 def setEnv (newEnv : Environment) : CommandElabM Unit :=
 modify $ fun s => { env := newEnv, .. s }
-
-def getScope : CommandElabM Scope := do
-s ← get; pure s.scopes.head!
-
-def getOptions : CommandElabM Options := do
-scope ← getScope; pure scope.opts
 
 def getCurrNamespace : CommandElabM Name := do
 scope ← getScope; pure scope.currNamespace
@@ -499,6 +499,27 @@ fun stx => do
     logInfo stx.val (e ++ " : " ++ type);
     pure ()
 
+def setOption (ref : Syntax) (optionName : Name) (val : DataValue) : CommandElabM Unit := do
+decl ← liftIO ref $ getOptionDecl optionName;
+unless (decl.defValue.sameCtor val) $ throwError ref "type mismatch at set_option";
+modifyScope $ fun scope => { opts := scope.opts.insert optionName val, .. scope }
+
+@[builtinCommandElab «set_option»] def elabSetOption : CommandElab :=
+fun stx => do
+  let ref        := stx.val;
+  let optionName := stx.getIdAt 1;
+  let val        := stx.getArg 2;
+  match val.isStrLit? with
+  | some str => setOption ref optionName (DataValue.ofString str)
+  | none     =>
+  match val.isNatLit? with
+  | some num => setOption ref optionName (DataValue.ofNat num)
+  | none     =>
+  match val with
+  | Syntax.atom _ "true"  => setOption ref optionName (DataValue.ofBool true)
+  | Syntax.atom _ "false" => setOption ref optionName (DataValue.ofBool false)
+  | _ => logError val ("unexpected set_option value " ++ toString val)
+
 @[inline] def withDeclId (declId : Syntax) (f : Name → CommandElabM Unit) : CommandElabM Unit := do
 -- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
 let id             := declId.getIdAt 0;
@@ -540,10 +561,15 @@ result ++ remaining.toList
 def addDecl (ref : Syntax) (decl : Declaration) : CommandElabM Unit := do
 env ← getEnv;
 match env.addDecl decl with
-| Except.ok    env => modify $ fun s => { env := env, .. s }
-| Except.error kex => do
-  opts ← getOptions;
-  throwError ref (kex.toMessageData opts)
+| Except.ok    env => setEnv env
+| Except.error kex => do opts ← getOptions; throwError ref (kex.toMessageData opts)
+
+def compileDecl (ref : Syntax) (decl : Declaration) : CommandElabM Unit := do
+env  ← getEnv;
+opts ← getOptions;
+match env.compileDecl opts decl with
+| Except.ok env    => setEnv env
+| Except.error kex => throwError ref (kex.toMessageData opts)
 
 end Command
 end Elab

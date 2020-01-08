@@ -94,6 +94,10 @@ else withUsedWhen ref vars xs val type view.kind.isDefOrOpaque $ fun vars => do
   type ← Term.mkForall ref vars type;
   val  ← Term.mkLambda ref xs val;
   val  ← Term.mkLambda ref vars val;
+  type ← Term.levelMVarToParam type;
+  val  ← Term.levelMVarToParam val;
+  type ← Term.instantiateMVars ref type;
+  val  ← Term.instantiateMVars view.val val;
   let usedParams : CollectLevelParams.State := {};
   let usedParams  := collectLevelParams usedParams type;
   let usedParams  := collectLevelParams usedParams val;
@@ -146,7 +150,7 @@ withDeclId view.declId $ fun name => do
   | some decl => do
     addDecl ref decl;
     applyAttributes ref declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking;
-    -- TODO invoke compiler
+    compileDecl ref decl;
     applyAttributes ref declName view.modifiers.attrs AttributeApplicationTime.afterCompilation
 
 end Command

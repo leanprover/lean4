@@ -103,6 +103,7 @@ lean_object* l_Lean_KVMap_intVal;
 lean_object* l_Lean_KVMap_findCore___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getString___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_nameVal___closed__2;
+uint8_t l_Lean_DataValue_sameCtor(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_natVal___closed__2;
 uint8_t l_Lean_KVMap_subsetAux(lean_object*, lean_object*);
 uint8_t l_Lean_KVMap_eqv(lean_object*, lean_object*);
@@ -111,6 +112,7 @@ lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_int2DataValue(lean_object*);
 lean_object* l_Lean_KVMap_natVal;
 lean_object* l_Lean_KVMap_subsetAux___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_DataValue_sameCtor___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_DataValue_hasToString___closed__1;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getNat___boxed(lean_object*, lean_object*, lean_object*);
@@ -213,6 +215,99 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_DataValue_beq(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+uint8_t l_Lean_DataValue_sameCtor(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+uint8_t x_3; 
+x_3 = 1;
+return x_3;
+}
+else
+{
+uint8_t x_4; 
+x_4 = 0;
+return x_4;
+}
+}
+case 1:
+{
+if (lean_obj_tag(x_2) == 1)
+{
+uint8_t x_5; 
+x_5 = 1;
+return x_5;
+}
+else
+{
+uint8_t x_6; 
+x_6 = 0;
+return x_6;
+}
+}
+case 2:
+{
+if (lean_obj_tag(x_2) == 2)
+{
+uint8_t x_7; 
+x_7 = 1;
+return x_7;
+}
+else
+{
+uint8_t x_8; 
+x_8 = 0;
+return x_8;
+}
+}
+case 3:
+{
+if (lean_obj_tag(x_2) == 3)
+{
+uint8_t x_9; 
+x_9 = 1;
+return x_9;
+}
+else
+{
+uint8_t x_10; 
+x_10 = 0;
+return x_10;
+}
+}
+default: 
+{
+if (lean_obj_tag(x_2) == 4)
+{
+uint8_t x_11; 
+x_11 = 1;
+return x_11;
+}
+else
+{
+uint8_t x_12; 
+x_12 = 0;
+return x_12;
+}
+}
+}
+}
+}
+lean_object* l_Lean_DataValue_sameCtor___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Lean_DataValue_sameCtor(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);

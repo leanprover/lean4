@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "runtime/flet.h"
 #include "runtime/utf8.h"
 #include "util/option_declarations.h"
+#include "util/io.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
 #include "kernel/find_fn.h"
@@ -1959,7 +1960,7 @@ unsigned parser::curr_lbp() const {
         return get_token_info().expr_precedence();
     case token_kind::CommandKeyword: case token_kind::Eof:
     case token_kind::QuotedSymbol:   case token_kind::DocBlock:
-    case token_kind::ModDocBlock:
+    case token_kind::ModDocBlock:    case token_kind::NewFrontend:
         return 0;
     case token_kind::Identifier:     case token_kind::Numeral:
     case token_kind::Decimal:        case token_kind::String:
@@ -2103,6 +2104,49 @@ void parser::parse_mod_doc_block() {
     next();
 }
 
+extern "C" object * lean_process_input(object * env, object * input, object * opts, object * filename, object * w);
+
+typedef list_ref<object_ref> messages;
+
+pair_ref<environment, messages> process_input(environment const & env, std::string const & input, options const & opts, std::string const & file_name) {
+    return get_io_result<pair_ref<environment, messages>>(lean_process_input(env.to_obj_arg(), mk_string(input), opts.to_obj_arg(), mk_string(file_name), io_mk_world()));
+}
+
+extern "C" object * lean_message_pos(object * msg);
+extern "C" uint8 lean_message_severity(object * msg);
+extern "C" object * lean_message_string(object * msg);
+
+static pos_info get_message_pos(object_ref const & msg) {
+    auto p = pair_ref<nat, nat>(lean_message_pos(msg.to_obj_arg()));
+    return pos_info(p.fst().get_small_value(), p.snd().get_small_value());
+}
+
+static message_severity get_message_severity(object_ref const & msg) {
+    return static_cast<message_severity>(lean_message_severity(msg.to_obj_arg()));
+}
+
+static std::string get_message_string(object_ref const & msg) {
+    string_ref r(lean_message_string(msg.to_obj_arg()));
+    return r.to_std_string();
+}
+
+void parser::parse_new_frontend_cmd() {
+    auto curr_pos = pos();
+    std::string input = m_scanner.get_str_val();
+    next();
+    pair_ref<environment, messages> result = process_input(m_env, input, get_options(), m_file_name);
+    set_env(result.fst());
+    for (auto msg : result.snd()) {
+        pos_info pos = get_message_pos(msg);
+        pos.first += curr_pos.first - 1;
+        message_severity sev = get_message_severity(msg);
+        std::string str = get_message_string(msg);
+        auto builder = mk_message(pos, sev);
+        builder << str;
+        builder.report();
+    }
+}
+
 #if defined(__GNUC__) && !defined(__CLANG__)
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
@@ -2145,6 +2189,9 @@ bool parser::parse_command_like() {
             break;
         case token_kind::ModDocBlock:
             parse_mod_doc_block();
+            break;
+        case token_kind::NewFrontend:
+            parse_new_frontend_cmd();
             break;
         case token_kind::Eof:
             if (has_open_scopes(m_env)) {

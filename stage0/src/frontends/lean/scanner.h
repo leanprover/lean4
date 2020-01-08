@@ -19,7 +19,7 @@ Author: Leonardo de Moura
 namespace lean {
 enum class token_kind {Keyword, CommandKeyword, Identifier, Numeral, Decimal,
         String, Char, QuotedSymbol,
-        DocBlock, ModDocBlock, FieldNum, FieldName, Eof};
+        DocBlock, ModDocBlock, FieldNum, FieldName, NewFrontend, Eof};
 
 /**
     \brief Scanner. The behavior of the scanner is controlled using a token set.
@@ -85,6 +85,7 @@ public:
     void read_doc_block_core();
     token_kind read_doc_block();
     token_kind read_mod_doc_block();
+    token_kind read_new_frontend();
 
 public:
     scanner(std::istream & strm, char const * strm_name = nullptr);

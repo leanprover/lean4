@@ -18,6 +18,7 @@ lean_object* l___private_Init_Lean_Util_Trace_2__addNode___at___private_Init_Lea
 lean_object* l_Lean_Expr_eq_x3f___closed__2;
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_Expr_eq_x3f___boxed(lean_object*);
+lean_object* l___private_Init_Lean_Util_Trace_5__checkTraceOptionM___at_Lean_Meta_isLevelDefEqAux___main___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkHEqSymm___closed__2;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Meta_mkCongr___closed__1;
@@ -108,7 +109,6 @@ lean_object* l_Lean_Meta_getMVarDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instantiateMVars(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_AppBuilder_3__mkAppMAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnfD(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_Util_Trace_5__checkTraceOptionM___at_Lean_Meta_isLevelDefEqAux___main___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshLevelMVar___rarg(lean_object*);
 lean_object* l_Lean_Meta_mkHEq(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkHEqTrans___closed__1;
@@ -5277,7 +5277,7 @@ else
 {
 lean_object* x_387; lean_object* x_388; lean_object* x_389; lean_object* x_390; uint8_t x_391; 
 x_387 = l_Lean_Meta_mkAppM___closed__1;
-x_388 = l___private_Init_Lean_Util_Trace_5__checkTraceOptionM___at_Lean_Meta_isLevelDefEqAux___main___spec__1(x_387, x_3, x_4);
+x_388 = l___private_Init_Lean_Util_Trace_5__checkTraceOptionM___at_Lean_Meta_isLevelDefEqAux___main___spec__2(x_387, x_3, x_4);
 x_389 = lean_ctor_get(x_388, 0);
 lean_inc(x_389);
 x_390 = lean_ctor_get(x_388, 1);

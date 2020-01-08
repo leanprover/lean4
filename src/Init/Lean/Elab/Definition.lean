@@ -150,7 +150,7 @@ withDeclId view.declId $ fun name => do
   | some decl => do
     addDecl ref decl;
     applyAttributes ref declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking;
-    -- TODO invoke compiler
+    compileDecl ref decl;
     applyAttributes ref declName view.modifiers.attrs AttributeApplicationTime.afterCompilation
 
 end Command

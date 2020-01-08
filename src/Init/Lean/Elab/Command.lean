@@ -561,10 +561,15 @@ result ++ remaining.toList
 def addDecl (ref : Syntax) (decl : Declaration) : CommandElabM Unit := do
 env ← getEnv;
 match env.addDecl decl with
-| Except.ok    env => modify $ fun s => { env := env, .. s }
-| Except.error kex => do
-  opts ← getOptions;
-  throwError ref (kex.toMessageData opts)
+| Except.ok    env => setEnv env
+| Except.error kex => do opts ← getOptions; throwError ref (kex.toMessageData opts)
+
+def compileDecl (ref : Syntax) (decl : Declaration) : CommandElabM Unit := do
+env  ← getEnv;
+opts ← getOptions;
+match env.compileDecl opts decl with
+| Except.ok env    => setEnv env
+| Except.error kex => throwError ref (kex.toMessageData opts)
 
 end Command
 end Elab

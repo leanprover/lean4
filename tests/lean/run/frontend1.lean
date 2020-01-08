@@ -215,3 +215,7 @@ def three := 3
 #eval run "#check g (y := three)"
 #eval run "#check g (z := three)"
 #eval run "#check g three (z := zero)"
+
+#eval run "open Lean.Parser
+@[termParser] def myParser : Lean.Parser.Parser Lean.ParserKind.leading := parser! coe \"hi\"
+#check myParser"

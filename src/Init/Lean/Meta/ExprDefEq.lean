@@ -945,6 +945,8 @@ private partial def isDefEqQuick : Expr → Expr → MetaM LBool
   condM (isSynthetic sFn <&&> synthPending sFn) (do s ← instantiateMVars s; isDefEqQuick t s) $ do
   tAssign? ← isAssignable tFn;
   sAssign? ← isAssignable sFn;
+  trace! `Meta.isDefEq
+    (t ++ (if tAssign? then " [assignable]" else " [nonassignable]") ++ " =?= " ++ s ++ (if sAssign? then " [assignable]" else " [nonassignable]"));
   let assign (t s : Expr) : MetaM LBool := toLBoolM $ processAssignment t s;
   cond (tAssign? && !sAssign?)  (assign t s) $
   cond (!tAssign? && sAssign?)  (assign s t) $
@@ -959,8 +961,6 @@ private partial def isDefEqQuick : Expr → Expr → MetaM LBool
   -- Both `t` and `s` are terms of the form `?m ...`
   tMVarDecl ← getMVarDecl tFn.mvarId!;
   sMVarDecl ← getMVarDecl sFn.mvarId!;
-  cond (!sMVarDecl.lctx.isSubPrefixOf tMVarDecl.lctx) (assign s t) $
-  cond (!tMVarDecl.lctx.isSubPrefixOf sMVarDecl.lctx) (assign t s) $
   if s.isMVar && !t.isMVar then
     /- Solve `?m t =?= ?n` by trying first `?n := ?m t`.
        Reason: this assignment is precise. -/

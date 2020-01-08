@@ -16301,16 +16301,19 @@ uint8_t x_3;
 x_3 = l_Lean_Syntax_isNone(x_2);
 if (x_3 == 0)
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = lean_unsigned_to_nat(1u);
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_4 = lean_unsigned_to_nat(0u);
 x_5 = l_Lean_Syntax_getArg(x_2, x_4);
-return x_5;
+x_6 = lean_unsigned_to_nat(1u);
+x_7 = l_Lean_Syntax_getArg(x_5, x_6);
+lean_dec(x_5);
+return x_7;
 }
 else
 {
-lean_object* x_6; 
-x_6 = l_Lean_Elab_Term_mkHole(x_1);
-return x_6;
+lean_object* x_8; 
+x_8 = l_Lean_Elab_Term_mkHole(x_1);
+return x_8;
 }
 }
 }

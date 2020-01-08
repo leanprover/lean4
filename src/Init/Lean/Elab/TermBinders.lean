@@ -244,11 +244,17 @@ match c? with
 | some c => adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts.push { className := c, fvar := fvar }, .. ctx }) $ k fvar
 | none   => adaptReader (fun (ctx : Context) => { lctx := lctx, .. ctx }) $ k fvar
 
+/-
+  Recall that
+  ```
+  def typeSpec := parser! " : " >> termParser
+  def optType : Parser := optional typeSpec
+  ``` -/
 def expandOptType (ref : Syntax) (optType : Syntax) : Syntax :=
 if optType.isNone then
   mkHole ref
 else
-  optType.getArg 1
+  (optType.getArg 0).getArg 1
 
 def elabLetIdDecl (ref : Syntax) (decl body : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
 -- `decl` is of the form: ident bracktedBinder+ (`:` term)? `:=` term

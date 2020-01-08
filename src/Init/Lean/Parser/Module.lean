@@ -34,16 +34,16 @@ private def mkErrorMessage (c : ParserContext) (pos : String.Pos) (errorMsg : St
 let pos := c.fileMap.toPosition pos;
 { fileName := c.fileName, pos := pos, data := errorMsg }
 
-def parseHeader (env : Environment) (c : ParserContextCore) : Syntax × ModuleParserState × MessageLog :=
-let c   := c.toParserContext env;
-let c   := Module.updateTokens c;
-let s   := mkParserState c.input;
-let s   := whitespace c s;
-let s   := Module.header.fn (0:Nat) c s;
+def parseHeader (env : Environment) (inputCtx : InputContext) : Syntax × ModuleParserState × MessageLog :=
+let ctx := mkParserContext env inputCtx;
+let ctx := Module.updateTokens ctx;
+let s   := mkParserState ctx.input;
+let s   := whitespace ctx s;
+let s   := Module.header.fn (0:Nat) ctx s;
 let stx := s.stxStack.back;
 match s.errorMsg with
 | some errorMsg =>
-  let msg := mkErrorMessage c s.pos (toString errorMsg);
+  let msg := mkErrorMessage ctx s.pos (toString errorMsg);
   (stx, { pos := s.pos, recovering := true }, { MessageLog . }.add msg)
 | none =>
   (stx, { pos := s.pos }, {})
@@ -65,12 +65,12 @@ match s.errorMsg with
 | some _ => pos + 1
 | none   => s.pos
 
-partial def parseCommand (env : Environment) (c : ParserContextCore) : ModuleParserState → MessageLog → Syntax × ModuleParserState × MessageLog
+partial def parseCommand (env : Environment) (inputCtx : InputContext) : ModuleParserState → MessageLog → Syntax × ModuleParserState × MessageLog
 | s@{ pos := pos, recovering := recovering }, messages =>
-  if c.input.atEnd pos then
+  if inputCtx.input.atEnd pos then
     (mkEOI pos, s, messages)
   else
-    let c  := c.toParserContext env;
+    let c  := mkParserContext env inputCtx;
     let s  := { ParserState . cache := initCacheForInput c.input, pos := pos };
     let s  := whitespace c s;
     let s  := (commandParser : Parser).fn (0:Nat) c s;
@@ -86,9 +86,9 @@ partial def parseCommand (env : Environment) (c : ParserContextCore) : ModulePar
         let messages := messages.add msg;
         parseCommand { pos := consumeInput c s.pos, recovering := true } messages
 
-private partial def testModuleParserAux (env : Environment) (c : ParserContextCore) (displayStx : Bool) : ModuleParserState → MessageLog → IO Bool
+private partial def testModuleParserAux (env : Environment) (inputCtx : InputContext) (displayStx : Bool) : ModuleParserState → MessageLog → IO Bool
 | s, messages =>
-  match parseCommand env c s messages with
+  match parseCommand env inputCtx s messages with
   | (stx, s, messages) =>
     if isEOI stx || isExitCommand stx then do
       messages.forM $ fun msg => IO.println msg;
@@ -100,14 +100,14 @@ private partial def testModuleParserAux (env : Environment) (c : ParserContextCo
 @[export lean_test_module_parser]
 def testModuleParser (env : Environment) (input : String) (fileName := "<input>") (displayStx := false) : IO Bool :=
 timeit (fileName ++ " parser") $ do
-  let ctx                := mkParserContextCore env input fileName;
-  let (stx, s, messages) := parseHeader env ctx;
+  let inputCtx           := mkInputContext input fileName;
+  let (stx, s, messages) := parseHeader env inputCtx;
   when displayStx (IO.println stx);
-  testModuleParserAux env ctx displayStx s messages
+  testModuleParserAux env inputCtx displayStx s messages
 
-partial def parseFileAux (env : Environment) (ctx : ParserContextCore) : ModuleParserState → MessageLog → Array Syntax → IO Syntax
+partial def parseFileAux (env : Environment) (inputCtx : InputContext) : ModuleParserState → MessageLog → Array Syntax → IO Syntax
 | state, msgs, stxs =>
-  match parseCommand env ctx state msgs with
+  match parseCommand env inputCtx state msgs with
   | (stx, state, msgs) =>
     if isEOI stx then
       if msgs.isEmpty then
@@ -122,9 +122,9 @@ partial def parseFileAux (env : Environment) (ctx : ParserContextCore) : ModuleP
 def parseFile (env : Environment) (fname : String) : IO Syntax := do
 fname ← IO.realPath fname;
 contents ← IO.readTextFile fname;
-let ctx := mkParserContextCore env contents fname;
-let (stx, state, messages) := parseHeader env ctx;
-parseFileAux env ctx state messages #[stx]
+let inputCtx := mkInputContext contents fname;
+let (stx, state, messages) := parseHeader env inputCtx;
+parseFileAux env inputCtx state messages #[stx]
 
 end Parser
 end Lean

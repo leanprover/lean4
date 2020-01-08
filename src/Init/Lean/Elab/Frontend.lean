@@ -15,7 +15,7 @@ structure Context :=
 (commandStateRef : IO.Ref Command.State)
 (parserStateRef  : IO.Ref Parser.ModuleParserState)
 (cmdPosRef       : IO.Ref String.Pos)
-(parserCtx       : Parser.ParserContextCore)
+(inputCtx        : Parser.InputContext)
 
 abbrev FrontendM := ReaderT Context (EIO Empty)
 
@@ -25,7 +25,7 @@ EIO.catchExceptions x (fun _ => unreachable!)
 @[inline] def runCommandElabM (x : Command.CommandElabM Unit) : FrontendM Unit :=
 fun ctx => do
   cmdPos ← liftIOCore! $ ctx.cmdPosRef.get;
-  let cmdCtx : Command.Context := { cmdPos := cmdPos, stateRef := ctx.commandStateRef, fileName := ctx.parserCtx.fileName, fileMap := ctx.parserCtx.fileMap };
+  let cmdCtx : Command.Context := { cmdPos := cmdPos, stateRef := ctx.commandStateRef, fileName := ctx.inputCtx.fileName, fileMap := ctx.inputCtx.fileMap };
   EIO.catchExceptions (x cmdCtx) (fun _ => pure ())
 
 def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit :=
@@ -48,17 +48,15 @@ fun ctx => liftIOCore! $ ctx.parserStateRef.set ps
 def setMessages (msgs : MessageLog) : FrontendM Unit :=
 fun ctx => liftIOCore! $ ctx.commandStateRef.modify $ fun s => { messages := msgs, .. s }
 
-def getParserContext : FrontendM Parser.ParserContextCore := do
-cs  ← getCommandState;
-ctx ← read;
-pure { tokens := Parser.getTokenTable cs.env, .. ctx.parserCtx }
+def getInputContext : FrontendM Parser.InputContext := do
+ctx ← read; pure ctx.inputCtx
 
 def processCommand : FrontendM Bool := do
 updateCmdPos;
-cs ← getCommandState;
-ps ← getParserState;
-px ← getParserContext;
-match Parser.parseCommand cs.env px ps cs.messages with
+cmdState    ← getCommandState;
+parserState ← getParserState;
+inputCtx    ← getInputContext;
+match Parser.parseCommand cmdState.env inputCtx parserState cmdState.messages with
 | (cmd, ps, messages) => do
   setParserState ps;
   setMessages messages;
@@ -81,18 +79,18 @@ end Frontend
 
 open Frontend
 
-def IO.processCommands (parserCtx : Parser.ParserContextCore) (parserStateRef : IO.Ref Parser.ModuleParserState) (cmdStateRef : IO.Ref Command.State) : IO Unit := do
+def IO.processCommands (inputCtx : Parser.InputContext) (parserStateRef : IO.Ref Parser.ModuleParserState) (cmdStateRef : IO.Ref Command.State) : IO Unit := do
 ps ← parserStateRef.get;
 cmdPosRef ← IO.mkRef ps.pos;
 EIO.adaptExcept (fun (ex : Empty) => Empty.rec _ ex) $
-  processCommands { commandStateRef := cmdStateRef, parserStateRef := parserStateRef, cmdPosRef := cmdPosRef, parserCtx := parserCtx }
+  processCommands { commandStateRef := cmdStateRef, parserStateRef := parserStateRef, cmdPosRef := cmdPosRef, inputCtx := inputCtx }
 
 def process (input : String) (env : Environment) (opts : Options) (fileName : Option String := none) : IO (Environment × MessageLog) := do
 let fileName   := fileName.getD "<input>";
-let parserCtx  := Parser.mkParserContextCore env input fileName;
+let inputCtx   := Parser.mkInputContext input fileName;
 parserStateRef ← IO.mkRef { Parser.ModuleParserState . };
 cmdStateRef    ← IO.mkRef $ Command.mkState env {} opts;
-IO.processCommands parserCtx parserStateRef cmdStateRef;
+IO.processCommands inputCtx parserStateRef cmdStateRef;
 cmdState ← cmdStateRef.get;
 pure (cmdState.env, cmdState.messages)
 
@@ -103,13 +101,13 @@ pure (env, messages.toList)
 
 def runFrontend (env : Environment) (input : String) (opts : Options := {}) (fileName : Option String := none) : IO (Environment × MessageLog) := do
 let fileName := fileName.getD "<input>";
-let parserCtx := Parser.mkParserContextCore env input fileName;
-match Parser.parseHeader env parserCtx with
+let inputCtx := Parser.mkInputContext input fileName;
+match Parser.parseHeader env inputCtx with
 | (header, parserState, messages) => do
-  (env, messages) ← processHeader header messages parserCtx;
+  (env, messages) ← processHeader header messages inputCtx;
   parserStateRef ← IO.mkRef parserState;
   cmdStateRef    ← IO.mkRef $ Command.mkState env messages opts;
-  IO.processCommands parserCtx parserStateRef cmdStateRef;
+  IO.processCommands inputCtx parserStateRef cmdStateRef;
   cmdState ← cmdStateRef.get;
   pure (cmdState.env, cmdState.messages)
 

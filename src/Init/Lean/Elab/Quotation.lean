@@ -412,8 +412,7 @@ private unsafe partial def toPreterm : Syntax → TermElabM Expr
 
 @[export lean_parse_expr]
 def oldParseExpr (env : Environment) (input : String) (pos : String.Pos) : Except String (Syntax × String.Pos) := do
-let c := Parser.mkParserContextCore env input "<foo>";
-let c := c.toParserContext env;
+let c := Parser.mkParserContext env (Parser.mkInputContext input "<foo>");
 let s := Parser.mkParserState c.input;
 let s := s.setPos pos;
 let s := (Parser.termParser Parser.appPrec : Parser.Parser).fn Parser.appPrec c s;

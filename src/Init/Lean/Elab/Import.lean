@@ -18,23 +18,23 @@ imports ++ (header.getArg 1).getArgs.toList.map (fun stx =>
   let id      := stx.getIdAt 2;
   { module := normalizeModuleName id, runtimeOnly := runtime })
 
-def processHeader (header : Syntax) (messages : MessageLog) (ctx : Parser.ParserContextCore) (trustLevel : UInt32 := 0) : IO (Environment × MessageLog) :=
+def processHeader (header : Syntax) (messages : MessageLog) (inputCtx : Parser.InputContext) (trustLevel : UInt32 := 0) : IO (Environment × MessageLog) :=
 catch
   (do env ← importModules (headerToImports header) trustLevel;
       pure (env, messages))
   (fun e => do
      env ← mkEmptyEnvironment;
      let spos := header.getPos.getD 0;
-     let pos  := ctx.fileMap.toPosition spos;
-     pure (env, messages.add { fileName := ctx.fileName, data := toString e, pos := pos }))
+     let pos  := inputCtx.fileMap.toPosition spos;
+     pure (env, messages.add { fileName := inputCtx.fileName, data := toString e, pos := pos }))
 
 def parseImports (input : String) (fileName : Option String := none) : IO (List Import × Position × MessageLog) := do
 env ← mkEmptyEnvironment;
 let fileName := fileName.getD "<input>";
-let ctx := Parser.mkParserContextCore env input fileName;
-match Parser.parseHeader env ctx with
+let inputCtx := Parser.mkInputContext input fileName;
+match Parser.parseHeader env inputCtx with
 | (header, parserState, messages) => do
-  pure (headerToImports header, ctx.fileMap.toPosition parserState.pos, messages)
+  pure (headerToImports header, inputCtx.fileMap.toPosition parserState.pos, messages)
 
 @[export lean_parse_imports]
 def parseImportsExport (input : String) (fileName : Option String) : IO (List Import × Position × List Message) := do

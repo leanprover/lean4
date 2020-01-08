@@ -385,21 +385,29 @@ mkStxNumLit (toString val)
 
 namespace Syntax
 
+def decodeStrLit (s : String) : String :=
+ -- TODO handle escape seqs
+s.extract 1 (s.bsize - 1)
+
 def isStrLit? : Syntax → Option String
 | Syntax.node k args   =>
   if k == strLitKind && args.size == 1 then
     match args.get! 0 with
-    | (Syntax.atom _ val) => some val
+    | (Syntax.atom _ val) => some (decodeStrLit val)
     | _ => none
   else
     none
 | _ => none
 
+def decodeCharLit (s : String) : Char :=
+-- TODO handle escape seqs
+s.get 1
+
 def isCharLit? : Syntax → Option Char
 | Syntax.node k args   =>
   if k == charLitKind && args.size == 1 then
     match args.get! 0 with
-    | (Syntax.atom _ val) => some (val.get 1)
+    | (Syntax.atom _ val) => some (decodeCharLit val)
     | _ => none
   else
     none

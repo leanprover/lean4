@@ -350,7 +350,6 @@ inductive Exception
 | useFOApprox
 | outOfScopeFVar                     (fvarId : FVarId)
 | readOnlyMVarWithBiggerLCtx         (mvarId : MVarId)
-| mvarTypeNotWellFormedInSmallerLCtx (mvarId : MVarId)
 | unknownExprMVar                    (mvarId : MVarId)
 
 structure State :=
@@ -406,15 +405,14 @@ match mctx.getExprAssignment? mvarId with
       if ctx.hasCtxLocals then throw $ Exception.useFOApprox -- we use option c) described at workaround A2
       else if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx then pure mvar
       else if mvarDecl.depth != mctx.depth || mvarDecl.kind.isSyntheticOpaque then throw $ Exception.readOnlyMVarWithBiggerLCtx mvarId
-      else if ctx.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx then
-        let mvarType := mvarDecl.type;
-        if mctx.isWellFormed ctx.mvarDecl.lctx mvarType then do
-          /- Create an auxiliary metavariable with a smaller context. -/
-          newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
-          modify $ fun s => { mctx := s.mctx.assignExpr mvarId newMVar, .. s };
-          pure newMVar
-        else
-          throw $ Exception.mvarTypeNotWellFormedInSmallerLCtx mvarId
+      else if ctx.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx then do
+        mvarType ← check mvarDecl.type;
+        /- Create an auxiliary metavariable with a smaller context and "checked" type.
+           Note that `mvarType` may be different from `mvarDecl.type`. Example: `mvarType` contains
+           a metavariable that we also need to reduce the context. -/
+        newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType;
+        modify $ fun s => { mctx := s.mctx.assignExpr mvarId newMVar, .. s };
+        pure newMVar
       else
         pure mvar
 
@@ -447,9 +445,6 @@ match ex with
   pure none
 | CheckAssignment.Exception.readOnlyMVarWithBiggerLCtx nestedMVarId => do
   trace! `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx (mkMVar nestedMVarId ++ " @ " ++ mkMVar mvarId ++ " " ++ fvars ++ " := " ++ v);
-  pure none
-| CheckAssignment.Exception.mvarTypeNotWellFormedInSmallerLCtx nestedMVarId => do
-  trace! `Meta.isDefEq.assign.mvarTypeNotWellFormedInSmallerLCtx (mkMVar nestedMVarId ++ " @ " ++ mkMVar mvarId ++ " " ++ fvars ++ " := " ++ v);
   pure none
 | CheckAssignment.Exception.unknownExprMVar mvarId =>
   -- This case can only happen if the MetaM API is being misused

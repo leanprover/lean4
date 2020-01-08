@@ -370,7 +370,7 @@ let atom : Syntax := Syntax.atom info val;
 Syntax.node kind #[atom]
 
 def mkStxStrLit (val : String) (info : Option SourceInfo := none) : Syntax :=
-mkStxLit strLitKind val info
+mkStxLit strLitKind (repr val) info
 
 def mkStxNumLit (val : String) (info : Option SourceInfo := none) : Syntax :=
 mkStxLit numLitKind val info
@@ -385,34 +385,14 @@ mkStxNumLit (toString val)
 
 namespace Syntax
 
-def isStrLit? : Syntax → Option String
-| Syntax.node k args   =>
-  if k == strLitKind && args.size == 1 then
-    match args.get! 0 with
-    | (Syntax.atom _ val) => some val
-    | _ => none
-  else
-    none
-| _ => none
-
-def isCharLit? : Syntax → Option Char
-| Syntax.node k args   =>
-  if k == charLitKind && args.size == 1 then
-    match args.get! 0 with
-    | (Syntax.atom _ val) => some (val.get 1)
-    | _ => none
-  else
-    none
-| _ => none
-
-/- Recall that we don't have special Syntax constructors for storing numeric atoms.
+/- Recall that we don't have special Syntax constructors for storing numeric and string atoms.
    The idea is to have an extensible approach where embedded DSLs may have new kind of atoms and/or
    different ways of representing them. So, our atoms contain just the parsed string.
    The main Lean parser uses the kind `numLitKind` for storing natural numbers that can be encoded
    in binary, octal, decimal and hexadecimal format. `isNatLit` implements a "decoder"
    for Syntax objects representing these numerals. -/
 
-private partial def decodeBinLitAux (s : String) : Nat → Nat → Option Nat
+private partial def decodeBinLitAux (s : String) : String.Pos → Nat → Option Nat
 | i, val =>
   if s.atEnd i then some val
   else
@@ -421,7 +401,7 @@ private partial def decodeBinLitAux (s : String) : Nat → Nat → Option Nat
     else if c == '1' then decodeBinLitAux (s.next i) (2*val + 1)
     else none
 
-private partial def decodeOctalLitAux (s : String) : Nat → Nat → Option Nat
+private partial def decodeOctalLitAux (s : String) : String.Pos → Nat → Option Nat
 | i, val =>
   if s.atEnd i then some val
   else
@@ -429,17 +409,22 @@ private partial def decodeOctalLitAux (s : String) : Nat → Nat → Option Nat
     if '0' ≤ c && c ≤ '7' then decodeOctalLitAux (s.next i) (8*val + c.toNat - '0'.toNat)
     else none
 
-private partial def decodeHexLitAux (s : String) : Nat → Nat → Option Nat
+private def decodeHexDigit (s : String) (i : String.Pos) : Option (Nat × String.Pos) :=
+let c := s.get i;
+let i := s.next i;
+if '0' ≤ c && c ≤ '9' then some (c.toNat - '0'.toNat, i)
+else if 'a' ≤ c && c ≤ 'f' then some (10 + c.toNat - 'a'.toNat, i)
+else if 'A' ≤ c && c ≤ 'F' then some (10 + c.toNat - 'A'.toNat, i)
+else none
+
+private partial def decodeHexLitAux (s : String) : String.Pos → Nat → Option Nat
 | i, val =>
   if s.atEnd i then some val
-  else
-    let c := s.get i;
-    if '0' ≤ c && c ≤ '9' then decodeHexLitAux (s.next i) (16*val + c.toNat - '0'.toNat)
-    else if 'a' ≤ c && c ≤ 'f' then decodeHexLitAux (s.next i) (16*val + 10 + c.toNat - 'a'.toNat)
-    else if 'A' ≤ c && c ≤ 'F' then decodeHexLitAux (s.next i) (16*val + 10 + c.toNat - 'A'.toNat)
-    else none
+  else match decodeHexDigit s i with
+    | some (d, i) => decodeHexLitAux i (16*val + d)
+    | none        => none
 
-private partial def decodeDecimalLitAux (s : String) : Nat → Nat → Option Nat
+private partial def decodeDecimalLitAux (s : String) : String.Pos → Nat → Option Nat
 | i, val =>
   if s.atEnd i then some val
   else
@@ -489,6 +474,70 @@ def toNat (stx : Syntax) : Nat :=
 match stx.isNatLit? with
 | some val => val
 | none     => 0
+
+private def decodeQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos) :=
+let c := s.get i;
+let i := s.next i;
+if c == '\\' then pure ('\\', i)
+else if c = '\"' then pure ('\"', i)
+else if c = '\'' then pure ('\'', i)
+else if c = 'n'  then pure ('\n', i)
+else if c = 't'  then pure ('\t', i)
+else if c = 'x'  then do
+  (d₁, i) ← decodeHexDigit s i;
+  (d₂, i) ← decodeHexDigit s i;
+  pure (Char.ofNat (16*d₁ + d₂), i)
+else if c = 'u'  then do
+  (d₁, i) ← decodeHexDigit s i;
+  (d₂, i) ← decodeHexDigit s i;
+  (d₃, i) ← decodeHexDigit s i;
+  (d₄, i) ← decodeHexDigit s i;
+  pure $ (Char.ofNat (16*(16*(16*d₁ + d₂) + d₃) + d₄), i)
+else
+  none
+
+partial def decodeStrLitAux (s : String) : String.Pos → String → Option String
+| i, acc => do
+  let c := s.get i;
+  let i := s.next i;
+  if c == '\"' then
+    pure acc
+  else if c == '\\' then do
+    (c, i) ← decodeQuotedChar s i;
+    decodeStrLitAux i (acc.push c)
+  else
+    decodeStrLitAux i (acc.push c)
+
+def decodeStrLit (s : String) : Option String :=
+decodeStrLitAux s 1 ""
+
+def isStrLit? : Syntax → Option String
+| Syntax.node k args   =>
+  if k == strLitKind && args.size == 1 then
+    match args.get! 0 with
+    | (Syntax.atom _ val) => decodeStrLit val
+    | _                   => none
+  else
+    none
+| _ => none
+
+def decodeCharLit (s : String) : Option Char :=
+let c := s.get 1;
+if c == '\\' then do
+  (c, _) ← decodeQuotedChar s 2;
+  pure c
+else
+  pure c
+
+def isCharLit? : Syntax → Option Char
+| Syntax.node k args   =>
+  if k == charLitKind && args.size == 1 then
+    match args.get! 0 with
+    | (Syntax.atom _ val) => decodeCharLit val
+    | _ => none
+  else
+    none
+| _ => none
 
 end Syntax
 

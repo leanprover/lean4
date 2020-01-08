@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l___private_Init_Lean_Syntax_10__decodeNatLitVal___closed__1;
 lean_object* l_Lean_Meta_isExprDefEqAux(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_evalNat___main___closed__10;
@@ -53,7 +54,6 @@ lean_object* l_Lean_mkNatLit(lean_object*);
 lean_object* l___private_Init_Lean_Meta_Offset_2__isOffset(lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
-extern lean_object* l___private_Init_Lean_Syntax_9__decodeNatLitVal___closed__1;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* _init_l_Lean_Meta_evalNat___main___closed__1() {
@@ -227,7 +227,7 @@ return x_12;
 else
 {
 lean_object* x_13; 
-x_13 = l___private_Init_Lean_Syntax_9__decodeNatLitVal___closed__1;
+x_13 = l___private_Init_Lean_Syntax_10__decodeNatLitVal___closed__1;
 return x_13;
 }
 }

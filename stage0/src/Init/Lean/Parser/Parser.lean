@@ -73,17 +73,20 @@ abbrev SyntaxNodeKindSet := PersistentHashMap SyntaxNodeKind Unit
 def SyntaxNodeKindSet.insert (s : SyntaxNodeKindSet) (k : SyntaxNodeKind) : SyntaxNodeKindSet :=
 s.insert k ()
 
-structure ParserContextCore :=
+/-
+  Input string and related data. Recall that the `FileMap` is a helper structure for mapping
+  `String.Pos` in the input string to line/column information.  -/
+structure InputContext :=
 (input    : String)
 (fileName : String)
 (fileMap  : FileMap)
-(tokens   : TokenTable)
 
-instance ParserContextCore.inhabited : Inhabited ParserContextCore :=
-⟨{ input := "", fileName := "", fileMap := arbitrary _, tokens := {} }⟩
+instance InputContext.inhabited : Inhabited InputContext :=
+⟨{ input := "", fileName := "", fileMap := arbitrary _ }⟩
 
-structure ParserContext extends ParserContextCore :=
+structure ParserContext extends InputContext :=
 (env      : Environment)
+(tokens   : TokenTable)
 
 structure Error :=
 (unexpected : String := "")
@@ -1420,23 +1423,24 @@ def getSyntaxNodeKinds (env : Environment) : List SyntaxNodeKind := do
 let s := syntaxNodeKindExtension.getState env;
 s.2.foldl (fun ks k _ => k::ks) []
 
-def mkParserContextCore (env : Environment) (input : String) (fileName : String) : ParserContextCore :=
+def getTokenTable (env : Environment) : TokenTable :=
+(tokenTableAttribute.ext.getState env).2
+
+def mkInputContext (input : String) (fileName : String) : InputContext :=
 { input    := input,
   fileName := fileName,
-  fileMap  := input.toFileMap,
-  tokens   := (tokenTableAttribute.ext.getState env).2 }
+  fileMap  := input.toFileMap }
 
-@[inline] def ParserContextCore.toParserContext (env : Environment) (ctx : ParserContextCore) : ParserContext :=
-{ env := env, toParserContextCore := ctx }
-
-def mkParserContext (env : Environment) (input : String) (fileName : String) : ParserContext :=
-(mkParserContextCore env input fileName).toParserContext env
+def mkParserContext (env : Environment) (ctx : InputContext) : ParserContext :=
+{ toInputContext := ctx,
+  env            := env,
+  tokens         := getTokenTable env }
 
 def mkParserState (input : String) : ParserState :=
 { cache := initCacheForInput input }
 
 def runParser (env : Environment) (tables : ParsingTables) (input : String) (fileName := "<input>") (kind := "<main>") : Except String Syntax :=
-let c := mkParserContext env input fileName;
+let c := mkParserContext env (mkInputContext input fileName);
 let s := mkParserState input;
 let s := whitespace c s;
 let s := prattParser kind tables (0 : Nat) c s;

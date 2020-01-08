@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Parser_mkParserContextCore(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_headerToImports___closed__4;
 lean_object* l_Lean_Parser_parseHeader(lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_Elab_headerToImports___spec__1(lean_object*);
@@ -22,6 +21,7 @@ extern lean_object* l_Lean_stxInh;
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_headerToImports___closed__2;
 lean_object* l_Lean_Elab_headerToImports(lean_object*);
+lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
 lean_object* l_PersistentArray_push___rarg(lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_Lean_Elab_headerToImports___closed__1;
@@ -490,7 +490,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t
 x_7 = lean_ctor_get(x_5, 0);
 x_8 = l_Lean_Elab_parseImports___closed__1;
 lean_inc(x_1);
-x_9 = l_Lean_Parser_mkParserContextCore(x_7, x_1, x_8);
+x_9 = l_Lean_Parser_mkInputContext(x_1, x_8);
 x_10 = l_Lean_Parser_parseHeader(x_7, x_9);
 x_11 = !lean_is_exclusive(x_10);
 if (x_11 == 0)
@@ -597,7 +597,7 @@ lean_inc(x_39);
 lean_dec(x_5);
 x_41 = l_Lean_Elab_parseImports___closed__1;
 lean_inc(x_1);
-x_42 = l_Lean_Parser_mkParserContextCore(x_39, x_1, x_41);
+x_42 = l_Lean_Parser_mkInputContext(x_1, x_41);
 x_43 = l_Lean_Parser_parseHeader(x_39, x_42);
 x_44 = lean_ctor_get(x_43, 1);
 lean_inc(x_44);
@@ -664,7 +664,7 @@ x_59 = lean_ctor_get(x_2, 0);
 lean_inc(x_59);
 lean_dec(x_2);
 lean_inc(x_1);
-x_60 = l_Lean_Parser_mkParserContextCore(x_58, x_1, x_59);
+x_60 = l_Lean_Parser_mkInputContext(x_1, x_59);
 x_61 = l_Lean_Parser_parseHeader(x_58, x_60);
 x_62 = !lean_is_exclusive(x_61);
 if (x_62 == 0)
@@ -773,7 +773,7 @@ x_92 = lean_ctor_get(x_2, 0);
 lean_inc(x_92);
 lean_dec(x_2);
 lean_inc(x_1);
-x_93 = l_Lean_Parser_mkParserContextCore(x_90, x_1, x_92);
+x_93 = l_Lean_Parser_mkInputContext(x_1, x_92);
 x_94 = l_Lean_Parser_parseHeader(x_90, x_93);
 x_95 = lean_ctor_get(x_94, 1);
 lean_inc(x_95);

@@ -756,15 +756,12 @@ match expectedType? with
 | some expectedType =>
   condM (isDefEq ref eType expectedType)
     (pure e)
-    (do -- TODO try `HasCoe`
-        e ← instantiateMVars ref e;
-        eType ← instantiateMVars ref eType;
-        expectedType ← instantiateMVars ref expectedType;
-        let msg : MessageData :=
-          "type mismatch" ++ indentExpr e
-          ++ Format.line ++ "has type" ++ indentExpr eType
-          ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType;
-        throwError ref msg)
+    -- TODO try `HasCoe`
+    (let msg : MessageData :=
+       "type mismatch" ++ indentExpr e
+       ++ Format.line ++ "has type" ++ indentExpr eType
+       ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType;
+     throwError ref msg)
 
 def mkInstMVar (ref : Syntax) (type : Expr) : TermElabM Expr := do
 mvar ← mkFreshExprMVar ref type MetavarKind.synthetic;

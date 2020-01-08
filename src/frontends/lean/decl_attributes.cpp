@@ -24,8 +24,8 @@ namespace lean {
 extern "C" object* lean_is_attribute(object* n, object* w);
 extern "C" object* lean_attribute_application_time(object* n, object* w);
 extern "C" object* lean_add_attribute(object* env, object* decl, object* attr, object* args, uint8 persistent, object *w);
-extern "C" object* lean_add_scoped_attribute(object* env, object* decl, object* attr, object* args, object *w);
-extern "C" object* lean_erase_attribute(object* env, object* decl, object* attr, uint8 persistent, object *w);
+// extern "C" object* lean_add_scoped_attribute(object* env, object* decl, object* attr, object* args, object *w);
+// extern "C" object* lean_erase_attribute(object* env, object* decl, object* attr, uint8 persistent, object *w);
 
 bool is_new_attribute(name const & n) {
     return get_io_scalar_result<bool>(lean_is_attribute(n.to_obj_arg(), io_mk_world()));
@@ -33,12 +33,12 @@ bool is_new_attribute(name const & n) {
 environment add_attribute(environment const & env, name const & decl, name const & attr, syntax const & args, bool persistent) {
     return get_io_result<environment>(lean_add_attribute(env.to_obj_arg(), decl.to_obj_arg(), attr.to_obj_arg(), args.to_obj_arg(), persistent, io_mk_world()));
 }
-environment add_scoped_attribute(environment const & env, name const & decl, name const & attr, syntax const & args) {
-    return get_io_result<environment>(lean_add_scoped_attribute(env.to_obj_arg(), decl.to_obj_arg(), attr.to_obj_arg(), args.to_obj_arg(), io_mk_world()));
-}
-environment erase_attribute(environment const & env, name const & decl, name const & attr, bool persistent) {
-    return get_io_result<environment>(lean_erase_attribute(env.to_obj_arg(), decl.to_obj_arg(), attr.to_obj_arg(), persistent, io_mk_world()));
-}
+// environment add_scoped_attribute(environment const & env, name const & decl, name const & attr, syntax const & args) {
+//    return get_io_result<environment>(lean_add_scoped_attribute(env.to_obj_arg(), decl.to_obj_arg(), attr.to_obj_arg(), args.to_obj_arg(), io_mk_world()));
+// }
+// environment erase_attribute(environment const & env, name const & decl, name const & attr, bool persistent) {
+//    return get_io_result<environment>(lean_erase_attribute(env.to_obj_arg(), decl.to_obj_arg(), attr.to_obj_arg(), persistent, io_mk_world()));
+// }
 /*
 inductive AttributeApplicationTime
 | afterTypeChecking | afterCompilation | beforeElaboration
@@ -216,9 +216,11 @@ environment decl_attributes::apply_new_entries(environment env, list<new_entry> 
         --i;
         auto const & entry = new_entries[i];
         if (entry.m_deleted) {
-            env = erase_attribute(env, d, entry.m_attr, m_persistent);
+            // env = erase_attribute(env, d, entry.m_attr, m_persistent);
+            throw exception("attribute erasure has not been implemented yet");
         } else if (entry.m_scoped) {
-            env = add_scoped_attribute(env, d, entry.m_attr, entry.m_args);
+            // env = add_scoped_attribute(env, d, entry.m_attr, entry.m_args);
+            throw exception("scoped attributes have not been implemented yet");
         } else {
             env = add_attribute(env, d, entry.m_attr, entry.m_args, m_persistent);
         }

@@ -27,6 +27,7 @@ structure AttributeImpl :=
 (name : Name)
 (descr : String)
 (add (env : Environment) (decl : Name) (args : Syntax) (persistent : Bool) : IO Environment)
+/-
 (addScoped (env : Environment) (decl : Name) (args : Syntax) : IO Environment
            := throw (IO.userError ("attribute '" ++ toString name ++ "' does not support scopes")))
 (erase (env : Environment) (decl : Name) (persistent : Bool) : IO Environment
@@ -34,6 +35,7 @@ structure AttributeImpl :=
 (activateScoped (env : Environment) (scope : Name) : IO Environment := pure env)
 (pushScope (env : Environment) : IO Environment := pure env)
 (popScope (env : Environment) : IO Environment := pure env)
+-/
 (applicationTime := AttributeApplicationTime.afterTypeChecking)
 
 /- Auxiliary function for parsing attribute arguments -/
@@ -44,17 +46,11 @@ def Syntax.hasArgs : Syntax → Bool
 instance AttributeImpl.inhabited : Inhabited AttributeImpl :=
 ⟨{ name := arbitrary _, descr := arbitrary _, add := fun env _ _ _ => pure env }⟩
 
-def mkAttributeMapRef : IO (IO.Ref (HashMap Name AttributeImpl)) :=
+def mkAttributeMapRef : IO (IO.Ref (PersistentHashMap Name AttributeImpl)) :=
 IO.mkRef {}
 
 @[init mkAttributeMapRef]
-constant attributeMapRef : IO.Ref (HashMap Name AttributeImpl) := arbitrary _
-
-def mkAttributeArrayRef : IO (IO.Ref (Array AttributeImpl)) :=
-IO.mkRef #[]
-
-@[init mkAttributeArrayRef]
-constant attributeArrayRef : IO.Ref (Array AttributeImpl) := arbitrary _
+constant attributeMapRef : IO.Ref (PersistentHashMap Name AttributeImpl) := arbitrary _
 
 /- Low level attribute registration function. -/
 def registerAttribute (attr : AttributeImpl) : IO Unit := do
@@ -62,8 +58,7 @@ m ← attributeMapRef.get;
 when (m.contains attr.name) $ throw (IO.userError ("invalid attribute declaration, '" ++ toString attr.name ++ "' has already been used"));
 initializing ← IO.initializing;
 unless initializing $ throw (IO.userError ("failed to register attribute, attributes can only be registered during initialization"));
-attributeMapRef.modify (fun m => m.insert attr.name attr);
-attributeArrayRef.modify (fun attrs => attrs.push attr)
+attributeMapRef.modify (fun m => m.insert attr.name attr)
 
 /- Return true iff `n` is the name of a registered attribute. -/
 @[export lean_is_attribute]
@@ -72,7 +67,7 @@ m ← attributeMapRef.get; pure (m.contains n)
 
 /- Return the name of all registered attributes. -/
 def getAttributeNames : IO (List Name) := do
-m ← attributeMapRef.get; pure $ m.fold (fun r n _ => n::r) []
+m ← attributeMapRef.get; pure $ m.foldl (fun r n _ => n::r) []
 
 def getAttributeImpl (attrName : Name) : IO AttributeImpl := do
 m ← attributeMapRef.get;
@@ -97,6 +92,7 @@ def addAttribute (env : Environment) (decl : Name) (attrName : Name) (args : Syn
 attr ← getAttributeImpl attrName;
 attr.add env decl args persistent
 
+/-
 /- Add a scoped attribute `attr` to declaration `decl` with arguments `args` and scope `decl.getPrefix`.
    Scoped attributes are always persistent.
    It returns `Except.error` when
@@ -132,6 +128,7 @@ attr.activateScoped env scope
 def activateScopedAttributes (env : Environment) (scope : Name) : IO Environment := do
 attrs ← attributeArrayRef.get;
 attrs.foldlM (fun env attr => attr.activateScoped env scope) env
+-/
 
 /- We use this function to implement commands `namespace foo` and `section foo`.
    It activates scoped attributes in the new resulting namespace. -/
@@ -139,15 +136,17 @@ attrs.foldlM (fun env attr => attr.activateScoped env scope) env
 def pushScope (env : Environment) (header : Name) (isNamespace : Bool) : IO Environment := do
 let env := env.pushScopeCore header isNamespace;
 let ns  := env.getNamespace;
-attrs ← attributeArrayRef.get;
-attrs.foldlM (fun env attr => do env ← attr.pushScope env; if isNamespace then attr.activateScoped env ns else pure env) env
+-- attrs ← attributeArrayRef.get;
+-- attrs.foldlM (fun env attr => do env ← attr.pushScope env; if isNamespace then attr.activateScoped env ns else pure env) env
+pure env
 
 /- We use this function to implement commands `end foo` for closing namespaces and sections. -/
 @[export lean_pop_scope]
 def popScope (env : Environment) : IO Environment := do
 let env := env.popScopeCore;
-attrs ← attributeArrayRef.get;
-attrs.foldlM (fun env attr => attr.popScope env) env
+-- attrs ← attributeArrayRef.get;
+-- attrs.foldlM (fun env attr => attr.popScope env) env
+pure env
 
 end Environment
 

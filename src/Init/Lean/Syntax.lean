@@ -370,7 +370,7 @@ let atom : Syntax := Syntax.atom info val;
 Syntax.node kind #[atom]
 
 def mkStxStrLit (val : String) (info : Option SourceInfo := none) : Syntax :=
-mkStxLit strLitKind val info
+mkStxLit strLitKind (repr val) info
 
 def mkStxNumLit (val : String) (info : Option SourceInfo := none) : Syntax :=
 mkStxLit numLitKind val info

@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_Elab_Level_mkFreshLevelMVar___rarg(lean_object*);
 lean_object* l_Lean_Elab_throwError___at_Lean_Elab_Level_elabLevel___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___closed__9;
 lean_object* l_Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___closed__4;
 lean_object* l_Lean_Elab_Level_elabLevel___main___closed__7;
@@ -23,6 +24,7 @@ lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___lambda__2(lean_object*, lea
 lean_object* l_Lean_MetavarContext_addLevelMVarDecl(lean_object*, lean_object*);
 lean_object* l_ReaderT_read___at_Lean_Elab_Level_LevelElabM_MonadLog___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getPos___at_Lean_Elab_Level_elabLevel___main___spec__3(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getIdAt(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___lambda__3(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Level_max___elambda__1___closed__1;
@@ -34,7 +36,6 @@ lean_object* l_Lean_Elab_Level_elabLevel(lean_object*, lean_object*, lean_object
 lean_object* l_Lean_Elab_Level_mkFreshLevelMVar___boxed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Level_ofNat___main(lean_object*);
-extern lean_object* l_Lean_AttributeImpl_inhabited___closed__4;
 lean_object* l_Lean_Elab_mkMessageAt___at_Lean_Elab_Level_elabLevel___main___spec__4(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___main___closed__6;
 extern lean_object* l_Lean_Parser_Level_imax___elambda__1___closed__1;
@@ -70,6 +71,7 @@ lean_object* l_Array_back___at___private_Init_Lean_Parser_Parser_6__updateCache_
 extern lean_object* l_Lean_Parser_Level_ident___elambda__1___closed__1;
 uint8_t l_List_elem___main___at_Lean_Parser_addLeadingParser___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelMVar(lean_object*);
+lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___lambda__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog;
 extern lean_object* l_Lean_Parser_Level_hole___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___closed__7;
@@ -195,6 +197,16 @@ lean_ctor_set(x_5, 1, x_3);
 return x_5;
 }
 }
+lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___lambda__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_3);
+return x_4;
+}
+}
 lean_object* _init_l_Lean_Elab_Level_LevelElabM_MonadLog___closed__1() {
 _start:
 {
@@ -266,11 +278,19 @@ return x_3;
 lean_object* _init_l_Lean_Elab_Level_LevelElabM_MonadLog___closed__8() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Level_LevelElabM_MonadLog___lambda__4___boxed), 3, 0);
+return x_1;
+}
+}
+lean_object* _init_l_Lean_Elab_Level_LevelElabM_MonadLog___closed__9() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Elab_Level_LevelElabM_MonadLog___closed__3;
 x_2 = l_Lean_Elab_Level_LevelElabM_MonadLog___closed__5;
 x_3 = l_Lean_Elab_Level_LevelElabM_MonadLog___closed__7;
-x_4 = l_Lean_AttributeImpl_inhabited___closed__4;
+x_4 = l_Lean_Elab_Level_LevelElabM_MonadLog___closed__8;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -283,7 +303,7 @@ lean_object* _init_l_Lean_Elab_Level_LevelElabM_MonadLog() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_Level_LevelElabM_MonadLog___closed__8;
+x_1 = l_Lean_Elab_Level_LevelElabM_MonadLog___closed__9;
 return x_1;
 }
 }
@@ -314,6 +334,15 @@ lean_object* x_4;
 x_4 = l_Lean_Elab_Level_LevelElabM_MonadLog___lambda__3(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec(x_1);
+return x_4;
+}
+}
+lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___lambda__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Elab_Level_LevelElabM_MonadLog___lambda__4(x_1, x_2, x_3);
+lean_dec(x_2);
 return x_4;
 }
 }
@@ -1491,6 +1520,8 @@ l_Lean_Elab_Level_LevelElabM_MonadLog___closed__7 = _init_l_Lean_Elab_Level_Leve
 lean_mark_persistent(l_Lean_Elab_Level_LevelElabM_MonadLog___closed__7);
 l_Lean_Elab_Level_LevelElabM_MonadLog___closed__8 = _init_l_Lean_Elab_Level_LevelElabM_MonadLog___closed__8();
 lean_mark_persistent(l_Lean_Elab_Level_LevelElabM_MonadLog___closed__8);
+l_Lean_Elab_Level_LevelElabM_MonadLog___closed__9 = _init_l_Lean_Elab_Level_LevelElabM_MonadLog___closed__9();
+lean_mark_persistent(l_Lean_Elab_Level_LevelElabM_MonadLog___closed__9);
 l_Lean_Elab_Level_LevelElabM_MonadLog = _init_l_Lean_Elab_Level_LevelElabM_MonadLog();
 lean_mark_persistent(l_Lean_Elab_Level_LevelElabM_MonadLog);
 l_Lean_Elab_Level_elabLevel___main___closed__1 = _init_l_Lean_Elab_Level_elabLevel___main___closed__1();

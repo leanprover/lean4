@@ -2259,7 +2259,7 @@ lean_inc(x_15);
 x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 lean_dec(x_14);
-x_17 = lean_ctor_get_uint8(x_15, sizeof(void*)*8);
+x_17 = lean_ctor_get_uint8(x_15, sizeof(void*)*3);
 x_18 = l_Lean_AttributeApplicationTime_beq(x_17, x_3);
 if (x_18 == 0)
 {

@@ -1461,7 +1461,7 @@ match e with
   else { categories := s.categories.insert catName {}, newEntries := ParserExtensionOleanEntry.category catName :: s.newEntries, .. s }
 | ParserExtensionEntry.parser catName declName _ parser =>
   match addParser s.categories catName declName parser with
-  | Except.ok categories => { categories := categories, newEntries := ParserExtensionOleanEntry.parser catName declName :: s.newEntries }
+  | Except.ok categories => { categories := categories, newEntries := ParserExtensionOleanEntry.parser catName declName :: s.newEntries, .. s }
   | _ => unreachable!
 
 def compileParserDescr (categories : ParserCategories) : forall {k : ParserKind}, ParserDescrCore k → Except String (Parser k)

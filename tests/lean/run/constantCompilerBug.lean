@@ -5,13 +5,10 @@ new_frontend
 open Lean
 open Lean.Parser
 
-def mkParserAttribute : IO ParserAttribute :=
-registerParserAttribute (mkNameSimple "bla") "bla" "bla parser" Option.none
-
-@[init mkParserAttribute]
-constant parserAttribute : ParserAttribute
+def regBlaParserAttribute : IO Unit :=
+registerParserAttribute (mkNameSimple "blaParser") (mkNameSimple "bla")
 
 @[inline] def parser {k : ParserKind} : Parser k :=
-Parser.mk (Parser.info $ Inhabited.default Parser) (fun _ => ParserAttribute.runParserFn parserAttribute (0 : Nat))
+categoryParser (mkNameSimple "bla") 0
 
 #check @parser

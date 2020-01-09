@@ -1453,8 +1453,14 @@ def mkBuiltinParsingTablesRef : IO (IO.Ref ParsingTables) := IO.mkRef {}
 @[init mkBuiltinParsingTablesRef] constant builtinTermParsingTable : IO.Ref ParsingTables := arbitrary _
 @[init mkBuiltinParsingTablesRef] constant builtinLevelParsingTable : IO.Ref ParsingTables := arbitrary _
 @[init mkBuiltinParsingTablesRef] constant builtinCommandParsingTable : IO.Ref ParsingTables := arbitrary _
-def addBuiltinLeadingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : Parser) : IO Unit := pure ()
-def addBuiltinTrailingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : TrailingParser) : IO Unit := pure ()
+def addBuiltinLeadingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : Parser) : IO Unit :=
+condM (tablesRef.ptrEq builtinTermParsingTable) (addBuiltinLeadingParserNew `term declName p) $
+condM (tablesRef.ptrEq builtinLevelParsingTable) (addBuiltinLeadingParserNew `level declName p) $
+(addBuiltinLeadingParserNew `command declName p)
+def addBuiltinTrailingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : TrailingParser) : IO Unit :=
+condM (tablesRef.ptrEq builtinTermParsingTable) (addBuiltinTrailingParserNew `term declName p) $
+condM (tablesRef.ptrEq builtinLevelParsingTable) (addBuiltinTrailingParserNew `level declName p) $
+(addBuiltinTrailingParserNew `command declName p)
 --- END TODO DELETE --
 
 private def ParserExtension.addEntry (s : ParserExtensionState) (e : ParserExtensionEntry) : ParserExtensionState :=

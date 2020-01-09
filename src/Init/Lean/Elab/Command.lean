@@ -127,6 +127,14 @@ msgData ← addMacroStack msgData;
 msg ← mkMessage msgData MessageSeverity.error ref;
 throw (Exception.error msg)
 
+def logTrace (cls : Name) (ref : Syntax) (msg : MessageData) : CommandElabM Unit := do
+msg ← addContext $ MessageData.tagged cls msg;
+logInfo ref msg
+
+@[inline] def trace (cls : Name) (ref : Syntax) (msg : Unit → MessageData) : CommandElabM Unit := do
+opts ← getOptions;
+when (checkTraceOption opts cls) $ logTrace cls ref (msg ())
+
 protected def getCurrMacroScope : CommandElabM Nat := do
 ctx ← read;
 pure ctx.currMacroScope
@@ -199,6 +207,7 @@ private def elabCommandUsing (stx : Syntax) : List CommandElab → CommandElabM 
 def elabCommandAux (stx : Syntax) : CommandElabM Unit :=
 withIncRecDepth stx $ withFreshMacroScope $ match stx with
 | Syntax.node _ _ => do
+  trace `Elab.step stx $ fun _ => stx;
   s ← get;
   let table := (commandElabAttribute.ext.getState s.env).table;
   let k := stx.getKind;

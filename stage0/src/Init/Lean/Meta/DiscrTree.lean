@@ -148,6 +148,13 @@ private partial def whnfEta : Expr → MetaM Expr
   | some e => whnfEta e
   | none   => pure e
 
+/-
+  TODO: add a parameter (wildcardConsts : NameSet) to `DiscrTree.insert`.
+  Then, `DiscrTree` users may control which symbols should be treated as wildcards.
+  Different `DiscrTree` users may populate this set using, for example, attributes. -/
+private def shouldAddAsStar (constName : Name) : Bool :=
+constName == `Nat.zero || constName == `Nat.succ || constName == `Nat.add || constName == `HasAdd.add
+
 private def pushArgs (todo : Array Expr) (e : Expr) : MetaM (Key × Array Expr) := do
 e ← whnfEta e;
 let fn := e.getAppFn;
@@ -158,7 +165,12 @@ let push (k : Key) (nargs : Nat) : MetaM (Key × Array Expr) := do {
 };
 match fn with
 | Expr.lit v _       => pure (Key.lit v, todo)
-| Expr.const c _ _   => let nargs := e.getAppNumArgs; push (Key.const c nargs) nargs
+| Expr.const c _ _   =>
+  if shouldAddAsStar c then
+    pure (Key.star, todo)
+  else
+    let nargs := e.getAppNumArgs;
+    push (Key.const c nargs) nargs
 | Expr.fvar fvarId _ => let nargs := e.getAppNumArgs; push (Key.fvar fvarId nargs) nargs
 | Expr.mvar mvarId _ =>
   if mvarId == tmpMVarId then

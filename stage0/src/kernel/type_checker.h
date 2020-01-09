@@ -72,6 +72,7 @@ private:
     bool is_def_eq(level const & l1, level const & l2);
     bool is_def_eq(levels const & ls1, levels const & ls2);
     lbool quick_is_def_eq(expr const & t, expr const & s, bool use_hash = false);
+    lbool is_def_eq_offset(expr const & t, expr const & s);
     bool is_def_eq_args(expr t, expr s);
     bool try_eta_expansion_core(expr const & t, expr const & s);
     bool try_eta_expansion(expr const & t, expr const & s) {

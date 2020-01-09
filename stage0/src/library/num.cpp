@@ -44,6 +44,12 @@ optional<expr> is_neg(expr const & e) {
     return some_expr(app_arg(e));
 }
 
+optional<expr> is_of_nat(expr const & e) {
+    if (!is_const_app(e, get_has_of_nat_of_nat_name(), 3))
+        return none_expr();
+    return some_expr(app_arg(e));
+}
+
 optional<expr> unfold_num_app(environment const & env, expr const & e) {
     if (is_zero(e) || is_one(e) || is_bit0(e) || is_bit1(e)) {
         return unfold_app(env, e);
@@ -92,6 +98,8 @@ static optional<mpz> to_num(expr const & e, bool first) {
         return first ? some(mpz(0)) : optional<mpz>();
     } else if (is_one(e)) {
         return some(mpz(1));
+    } else if (auto a = is_of_nat(e)) {
+        return to_num(*a, false);
     } else if (is_lit(e) && lit_value(e).kind() == literal_kind::Nat) {
         return some(lit_value(e).get_nat().to_mpz());
     } else if (auto a = is_bit0(e)) {

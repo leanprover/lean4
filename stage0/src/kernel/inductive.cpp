@@ -1121,8 +1121,8 @@ void initialize_inductive() {
     g_nested        = new name("_nested");
     g_ind_fresh     = new name("_ind_fresh");
     g_nested_fresh  = new name("_nested_fresh");
-    g_nat_zero      = new expr(mk_constant(name{"nat", "zero"}));
-    g_nat_succ      = new expr(mk_constant(name{"nat", "succ"}));
+    g_nat_zero      = new expr(mk_constant(name{"Nat", "zero"}));
+    g_nat_succ      = new expr(mk_constant(name{"Nat", "succ"}));
     register_name_generator_prefix(*g_ind_fresh);
     register_name_generator_prefix(*g_nested_fresh);
 }

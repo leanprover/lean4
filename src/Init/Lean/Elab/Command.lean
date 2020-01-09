@@ -197,7 +197,7 @@ private def elabCommandUsing (stx : Syntax) : List CommandElab → CommandElabM 
     | Exception.unsupportedSyntax => elabCommandUsing elabFns)
 
 def elabCommandAux (stx : Syntax) : CommandElabM Unit :=
-withIncRecDepth stx $ match stx with
+withIncRecDepth stx $ withFreshMacroScope $ match stx with
 | Syntax.node _ _ => do
   s ← get;
   let table := (commandElabAttribute.ext.getState s.env).table;

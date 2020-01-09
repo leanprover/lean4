@@ -5,8 +5,7 @@ open Lean.Parser
 def testParser (input : String) : IO Unit :=
 do
 env ← mkEmptyEnvironment;
-termPTables ← builtinTermParsingTable.get;
-stx ← IO.ofExcept $ runParser env termPTables input "<input>" "expr";
+stx ← IO.ofExcept $ runParserCategory env `term input "<input>";
 IO.println stx
 
 def test (is : List String) : IO Unit :=
@@ -17,8 +16,7 @@ is.forM $ fun input => do
 def testParserFailure (input : String) : IO Unit :=
 do
 env ← mkEmptyEnvironment;
-termPTables ← builtinTermParsingTable.get;
-match runParser env termPTables input "<input>" "expr" with
+match runParserCategory env `term input "<input>" with
 | Except.ok stx    => throw (IO.userError ("unexpected success\n" ++ toString stx))
 | Except.error msg => IO.println ("failed as expected, error: " ++ msg)
 

@@ -494,8 +494,6 @@ fun stx => do
     e    ← Term.elabTerm term none;
     Term.synthesizeSyntheticMVars false;
     type ← Term.inferType stx.val e;
-    e    ← Term.instantiateMVars stx.val e;
-    type ← Term.instantiateMVars stx.val type;
     logInfo stx.val (e ++ " : " ++ type);
     pure ()
 

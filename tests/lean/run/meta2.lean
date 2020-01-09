@@ -423,3 +423,15 @@ pure ()
 set_option ppOld false
 
 #eval tst26
+
+set_option trace.Meta.isDefEq.step true
+set_option trace.Meta.isDefEq.delta true
+set_option trace.Meta.isDefEq.assign true
+
+def tst27 : MetaM Unit := do
+print "----- tst27 -----";
+m ← mkFreshExprMVar nat;
+check $ isDefEq (mkNatLit 1) (mkApp (mkConst `Nat.succ) m);
+pure ()
+
+#eval tst27

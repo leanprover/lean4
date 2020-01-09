@@ -114,7 +114,7 @@ match isOffset s with
 | none => match evalNat s with
   | some v₁ => match isOffset t with
     | some (t, k₂) => -- v₁ =?= t+k₂
-      if v₁ ≥ k₂ then isDefEq s (mkNatLit $ v₁ - k₂) else pure LBool.false
+      if v₁ ≥ k₂ then isDefEq (mkNatLit $ v₁ - k₂) t else pure LBool.false
     | none => match evalNat t with
       | some v₂ => pure (v₁ == v₂).toLBool -- v₁ =?= v₂
       | none    => pure LBool.undef

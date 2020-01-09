@@ -24,6 +24,8 @@ Author: Leonardo de Moura
 namespace lean {
 static name * g_kernel_fresh = nullptr;
 static expr * g_dont_care    = nullptr;
+static expr * g_nat_zero     = nullptr;
+static expr * g_nat_succ     = nullptr;
 
 type_checker::state::state(environment const & env):
     m_env(env), m_ngen(*g_kernel_fresh) {}
@@ -781,6 +783,35 @@ lbool type_checker::lazy_delta_reduction(expr & t_n, expr & s_n) {
     }
 }
 
+inline bool is_zero(expr const & t) {
+    return t == *g_nat_zero || (is_nat_lit(t) && lit_value(t).get_nat() == nat(0));
+}
+
+inline optional<expr> is_succ(expr const & t) {
+    if (is_nat_lit(t)) {
+        nat val = lit_value(t).get_nat();
+        if (val > nat(0)) {
+            return some_expr(mk_lit(literal(val - nat(1))));
+        }
+    }
+
+    if (get_app_fn(t) == *g_nat_succ && get_app_num_args(t) == 1) {
+        return some_expr(app_arg(t));
+    }
+    return none_expr();
+}
+
+lbool type_checker::is_def_eq_offset(expr const & t, expr const & s) {
+    if (is_zero(t) && is_zero(s))
+        return l_true;
+    optional<expr> pred_t = is_succ(t);
+    optional<expr> pred_s = is_succ(s);
+    if (pred_t && pred_s)
+        return to_lbool(is_def_eq_core(*pred_t, *pred_s));
+    /* TODO add support for Nat.add */
+    return l_undef;
+}
+
 bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     check_system("is_definitionally_equal");
     bool use_hash = true;
@@ -798,6 +829,9 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
 
     if (is_def_eq_proof_irrel(t_n, s_n))
         return true;
+
+    r = is_def_eq_offset(t_n, s_n);
+    if (r != l_undef) return r == l_true;
 
     r = lazy_delta_reduction(t_n, s_n);
     if (r != l_undef) return r == l_true;
@@ -877,6 +911,8 @@ void initialize_type_checker() {
     g_id_delta     = new name("id_delta");
     g_dont_care    = new expr(mk_const("dontcare"));
     g_kernel_fresh = new name("_kernel_fresh");
+    g_nat_zero     = new expr(mk_constant(name{"Nat", "zero"}));
+    g_nat_succ     = new expr(mk_constant(name{"Nat", "succ"}));
     register_name_generator_prefix(*g_kernel_fresh);
 }
 
@@ -884,5 +920,6 @@ void finalize_type_checker() {
     delete g_dont_care;
     delete g_id_delta;
     delete g_kernel_fresh;
-}
+    delete g_nat_succ;
+    delete g_nat_zero;}
 }

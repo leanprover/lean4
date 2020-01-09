@@ -82,12 +82,12 @@ lean_object* l_Lean_Elab_Command_modifyScope___at_Lean_Elab_Command_elabAxiom___
 extern lean_object* l_Lean_Parser_Command_namespace___elambda__1___closed__1;
 extern lean_object* l___regBuiltinParser_Lean_Parser_Command_antiquot___closed__2;
 lean_object* l_Lean_Elab_Command_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_List_elem___main___at_Lean_Parser_addLeadingParser___spec__7(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabConstant___closed__7;
 lean_object* l_Lean_Elab_Command_modifyScope___at_Lean_Elab_Command_elabAxiom___spec__3(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_hole___elambda__1___closed__1;
 lean_object* l_Lean_Elab_Command_elabTheorem(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_modifyScope___closed__1;
-uint8_t l_List_elem___main___at_Lean_Parser_addLeadingParser___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabDef(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_withDeclId___closed__3;
 lean_object* l_Lean_Elab_Command_elabAxiom___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2942,7 +2942,7 @@ x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_add(x_3, x_11);
 lean_dec(x_3);
 x_13 = l_Lean_Syntax_getId(x_10);
-x_14 = l_List_elem___main___at_Lean_Parser_addLeadingParser___spec__4(x_13, x_4);
+x_14 = l_List_elem___main___at_Lean_Parser_addLeadingParser___spec__7(x_13, x_4);
 if (x_14 == 0)
 {
 lean_object* x_15; 

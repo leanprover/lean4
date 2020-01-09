@@ -9,20 +9,14 @@ import Init.Lean.Parser.Parser
 namespace Lean
 namespace Parser
 
-@[init mkBuiltinParsingTablesRef]
-constant builtinLevelParsingTable : IO.Ref ParsingTables := arbitrary _
-
 @[init] def regBuiltinLevelParserAttr : IO Unit :=
-registerBuiltinParserAttribute `builtinLevelParser `Lean.Parser.builtinLevelParsingTable
+registerBuiltinParserAttribute `builtinLevelParser `level
 
-def mkLevelParserAttribute : IO ParserAttribute :=
-registerParserAttribute `levelParser "level" "universe level parser" (some builtinLevelParsingTable)
-
-@[init mkLevelParserAttribute]
-constant levelParserAttribute : ParserAttribute := arbitrary _
+@[init] def regLevelParserAttribute : IO Unit :=
+registerParserAttribute `levelParser `level
 
 @[inline] def levelParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
-{ fn := fun _ => levelParserAttribute.runParserFn rbp }
+categoryParser `level rbp
 
 namespace Level
 

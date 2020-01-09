@@ -354,6 +354,12 @@ extern "C" obj_res lean_io_ref_swap(b_obj_arg ref, obj_arg a, obj_arg) {
     }
 }
 
+extern "C" obj_res lean_io_ref_ptr_eq(b_obj_arg ref1, b_obj_arg ref2, obj_arg) {
+    // TODO: ref_maybe_mt
+    bool r = ref1 == ref2; // lean_to_ref(ref1)->m_value == lean_to_ref(ref2)->m_value;
+    return set_io_result(box(r));
+}
+
 void initialize_io() {
     g_io_error_nullptr_read = mk_string("null reference read");
     mark_persistent(g_io_error_nullptr_read);

@@ -219,7 +219,7 @@ else if pat.isOfKind `Lean.Parser.Term.stxQuot then
     -- Splices should only appear inside a nullKind node, see next case
     if isAntiquotSplice quoted then unconditional $ fun _ => throwError quoted "unexpected antiquotation splice"
     else if anti.isOfKind `Lean.Parser.Term.id then { kind := kind, rhsFn :=  fun rhs => `(let $anti:id := discr; $rhs) }
-    else unconditional $ fun _ => throwError anti "syntax_match: antiquotation must be variable"
+    else unconditional $ fun _ => throwError anti ("match_syntax: antiquotation must be variable " ++ toString anti)
   | _ =>
     -- quotation is a single antiquotation splice => bind args array
     if isAntiquotSplicePat quoted then
@@ -230,7 +230,7 @@ else if pat.isOfKind `Lean.Parser.Term.stxQuot then
       let argPats := quoted.getArgs.map $ fun arg => Syntax.node `Lean.Parser.Term.stxQuot #[mkAtom "`(", arg, mkAtom ")"];
       { kind := quoted.getKind, argPats := argPats }
 else
-  unconditional $ fun _ => throwError pat "syntax_match: unexpected pattern kind"
+  unconditional $ fun _ => throwError pat ("match_syntax: unexpected pattern kind " ++ toString pat)
 
 -- Assuming that the first pattern of the alternative is taken, replace it with patterns (if any) for its
 -- child nodes.
@@ -282,7 +282,7 @@ private partial def getAntiquotVarsAux : Syntax → TermElabM (List Syntax)
     | `(($e)) => e
     | _       => anti;
     if anti.isOfKind `Lean.Parser.Term.id then pure [anti]
-    else throwError anti "syntax_match: antiquotation must be variable"
+    else throwError anti ("match_syntax: antiquotation must be variable " ++ toString anti)
   else
     List.join <$> args.toList.mapM getAntiquotVarsAux
 | _ => pure []
@@ -321,7 +321,7 @@ let alts := stx.getArg 3;
 alts ← alts.getArgs.mapM $ fun alt => do {
   let pats := alt.getArg 1;
   pat ← if pats.getArgs.size == 1 then pure $ pats.getArg 0
-    else throwError stx.val "syntax_match: expected exactly one pattern per alternative";
+    else throwError stx.val "match_syntax: expected exactly one pattern per alternative";
   let pat := if pat.isOfKind `Lean.Parser.Term.stxQuot then pat.setArg 1 $ elimAntiquotChoices $ pat.getArg 1 else pat;
   let rhs := alt.getArg 3;
   pure ([pat], rhs)

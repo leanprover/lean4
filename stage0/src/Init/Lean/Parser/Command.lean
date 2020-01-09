@@ -9,20 +9,14 @@ import Init.Lean.Parser.Term
 namespace Lean
 namespace Parser
 
-@[init mkBuiltinParsingTablesRef]
-constant builtinCommandParsingTable : IO.Ref ParsingTables := arbitrary _
-
 @[init] def regBuiltinCommandParserAttr : IO Unit :=
-registerBuiltinParserAttribute `builtinCommandParser `Lean.Parser.builtinCommandParsingTable
+registerBuiltinParserAttribute `builtinCommandParser `command
 
-def mkCommandParserAttribute : IO ParserAttribute :=
-registerParserAttribute `commandParser "command" "command parser" (some builtinCommandParsingTable)
-
-@[init mkCommandParserAttribute]
-constant commandParserAttribute : ParserAttribute := arbitrary _
+@[init] def regCommandParserAttribute : IO Unit :=
+registerParserAttribute `commandParser `command
 
 @[inline] def commandParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
-{ fn := fun _ => commandParserAttribute.runParserFn rbp }
+categoryParser `command rbp
 
 /--
   Syntax quotation for terms and (lists of) commands. We prefer terms, so ambiguous quotations like

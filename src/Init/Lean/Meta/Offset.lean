@@ -89,14 +89,24 @@ private partial def isOffset : Expr → Option (Expr × Nat)
   | _ => none
 | _ => none
 
+private def isNatZero (e : Expr) : Bool :=
+match evalNat e with
+| some v => v == 0
+| _      => false
+
+private def mkOffset (e : Expr) (offset : Nat) : Expr :=
+if offset == 0 then e
+else if isNatZero e then mkNatLit offset
+else mkAppB (mkConst `Nat.add) e (mkNatLit offset)
+
 def isDefEqOffset (s t : Expr) : MetaM LBool :=
 let isDefEq (s t) : MetaM LBool := toLBoolM $ isExprDefEqAux s t;
 match isOffset s with
 | some (s, k₁) => match isOffset t with
   | some (t, k₂) => -- s+k₁ =?= t+k₂
     if k₁ == k₂ then isDefEq s t
-    else if k₁ < k₂ then isDefEq s (mkAppB (mkConst `Nat.add) t (mkNatLit $ k₂ - k₁))
-    else isDefEq (mkAppB (mkConst `Nat.add) s (mkNatLit $ k₁ - k₂)) t
+    else if k₁ < k₂ then isDefEq s (mkOffset t (k₂ - k₁))
+    else isDefEq (mkOffset s (k₁ - k₂)) t
   | none => match evalNat t  with
     | some v₂ => -- s+k₁ =?= v₂
       if v₂ ≥ k₁ then isDefEq s (mkNatLit $ v₂ - k₁) else pure LBool.false

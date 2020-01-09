@@ -253,6 +253,8 @@ constant Ref.set {α : Type} (r : @& Ref α) (a : α) : IO Unit  := arbitrary _
 constant Ref.swap {α : Type} (r : @& Ref α) (a : α) : IO α    := arbitrary _
 @[extern "lean_io_ref_reset"]
 constant Ref.reset {α : Type} (r : @& Ref α) : IO Unit        := arbitrary _
+@[extern "lean_io_ref_ptr_eq"]
+constant Ref.ptrEq {α : Type} (r1 r2 : @& Ref α) : IO Bool    := arbitrary _
 end Prim
 
 section
@@ -262,6 +264,7 @@ variables {m : Type → Type} [Monad m] [MonadIO m]
 @[inline] def Ref.set {α : Type} (r : Ref α) (a : α) : m Unit := Prim.liftIO (Prim.Ref.set r a)
 @[inline] def Ref.swap {α : Type} (r : Ref α) (a : α) : m α := Prim.liftIO (Prim.Ref.swap r a)
 @[inline] def Ref.reset {α : Type} (r : Ref α) : m Unit := Prim.liftIO (Prim.Ref.reset r)
+@[inline] def Ref.ptrEq {α : Type} (r1 r2 : Ref α) : m Bool := Prim.liftIO (Prim.Ref.ptrEq r1 r2)
 @[inline] def Ref.modify {α : Type} (r : Ref α) (f : α → α) : m Unit := do
 v ← r.get;
 r.reset;

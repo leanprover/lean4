@@ -479,7 +479,8 @@ private partial def preprocessArgs (ys : Array Expr) : Nat → Array Expr → Ar
     if isOutParam yType then do
       if h : i < args.size then do
         let arg := args.get ⟨i, h⟩;
-        arg' ← mkFreshExprMVar yType;
+        argType ← inferType arg;
+        arg'    ← mkFreshExprMVar argType;
         preprocessArgs (i+1) (args.set ⟨i, h⟩ arg') (r.push (arg, arg'))
       else
         throw $ Exception.other "type class resolution failed, insufficient number of arguments" -- TODO improve error message

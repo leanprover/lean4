@@ -332,7 +332,7 @@ answer ← withMCtx cNode.mctx $ do {
 let key := cNode.key;
 entry ← getEntry key;
 if entry.answers.contains answer then pure () -- if answer was already found, then do nothing
-else
+else do
   let newEntry := { answers := entry.answers.push answer, .. entry };
   modify $ fun s => { tableEntries := s.tableEntries.insert key newEntry, .. s };
   entry.waiters.forM (wakeUp answer)

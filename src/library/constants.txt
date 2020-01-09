@@ -11,6 +11,7 @@ Array.data
 autoParam
 bit0
 bit1
+HasOfNat.ofNat
 ByteArray
 Bool
 Bool.false

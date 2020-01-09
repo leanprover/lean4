@@ -16,6 +16,7 @@ name const * g_array_data = nullptr;
 name const * g_auto_param = nullptr;
 name const * g_bit0 = nullptr;
 name const * g_bit1 = nullptr;
+name const * g_has_of_nat_of_nat = nullptr;
 name const * g_byte_array = nullptr;
 name const * g_bool = nullptr;
 name const * g_bool_false = nullptr;
@@ -206,6 +207,7 @@ void initialize_constants() {
     g_auto_param = new name{"autoParam"};
     g_bit0 = new name{"bit0"};
     g_bit1 = new name{"bit1"};
+    g_has_of_nat_of_nat = new name{"HasOfNat", "ofNat"};
     g_byte_array = new name{"ByteArray"};
     g_bool = new name{"Bool"};
     g_bool_false = new name{"Bool", "false"};
@@ -397,6 +399,7 @@ void finalize_constants() {
     delete g_auto_param;
     delete g_bit0;
     delete g_bit1;
+    delete g_has_of_nat_of_nat;
     delete g_byte_array;
     delete g_bool;
     delete g_bool_false;
@@ -587,6 +590,7 @@ name const & get_array_data_name() { return *g_array_data; }
 name const & get_auto_param_name() { return *g_auto_param; }
 name const & get_bit0_name() { return *g_bit0; }
 name const & get_bit1_name() { return *g_bit1; }
+name const & get_has_of_nat_of_nat_name() { return *g_has_of_nat_of_nat; }
 name const & get_byte_array_name() { return *g_byte_array; }
 name const & get_bool_name() { return *g_bool; }
 name const & get_bool_false_name() { return *g_bool_false; }

@@ -18,6 +18,7 @@ name const & get_array_data_name();
 name const & get_auto_param_name();
 name const & get_bit0_name();
 name const & get_bit1_name();
+name const & get_has_of_nat_of_nat_name();
 name const & get_byte_array_name();
 name const & get_bool_name();
 name const & get_bool_false_name();

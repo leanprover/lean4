@@ -117,7 +117,11 @@ end MkTableKey
 def mkTableKey (mctx : MetavarContext) (e : Expr) : Expr :=
 (MkTableKey.normExpr e mctx).run' {}
 
-abbrev Answer := AbstractMVarsResult
+structure Answer :=
+(result     : AbstractMVarsResult)
+(resultType : Expr)
+
+instance Answer.inhabited : Inhabited Answer := ⟨⟨arbitrary _, arbitrary _⟩⟩
 
 structure TableEntry :=
 (waiters : Array Waiter)
@@ -302,7 +306,7 @@ traceCtx `Meta.synthInstance.tryResolve $ withMCtx mctx $ tryResolveCore mvar in
   If it succeeds, the result is a new updated metavariable context and a new list of subgoals. -/
 def tryAnswer (mctx : MetavarContext) (mvar : Expr) (answer : Answer) : SynthM (Option MetavarContext) :=
 withMCtx mctx $ do
-  (_, _, val) ← openAbstractMVarsResult answer;
+  (_, _, val) ← openAbstractMVarsResult answer.result;
   condM (isDefEq mvar val)
     (do mctx ← getMCtx; pure $ some mctx)
     (pure none)
@@ -310,13 +314,19 @@ withMCtx mctx $ do
 /-- Move waiters that are waiting for the given answer to the resume stack. -/
 def wakeUp (answer : Answer) : Waiter → SynthM Unit
 | Waiter.root               =>
-  if answer.paramNames.isEmpty && answer.numMVars == 0 then do
-    modify $ fun s => { result := answer.expr, .. s }
+  if answer.result.paramNames.isEmpty && answer.result.numMVars == 0 then do
+    modify $ fun s => { result := answer.result.expr, .. s }
   else do
-    (_, _, answerExpr) ← openAbstractMVarsResult answer;
+    (_, _, answerExpr) ← openAbstractMVarsResult answer.result;
     trace! `Meta.synthInstance ("skip answer containing metavariables " ++ answerExpr);
     pure ()
 | Waiter.consumerNode cNode => modify $ fun s => { resumeStack := s.resumeStack.push (cNode, answer), .. s }
+
+def isNewAnswer (oldAnswers : Array Answer) (answer : Answer) : Bool :=
+oldAnswers.all $ fun oldAnswer => do
+  -- Remark: isDefEq here is too expensive. TODO: if `==` is to imprecise, add some light normalization to `resultType` at `addAnswer`
+  -- iseq ← isDefEq oldAnswer.resultType answer.resultType; pure (!iseq)
+  oldAnswer.resultType != answer.resultType
 
 /--
   Create a new answer after `cNode` resolved all subgoals.
@@ -326,13 +336,14 @@ def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
 answer ← withMCtx cNode.mctx $ do {
   traceM `Meta.synthInstance.newAnswer $ do { mvarType ← inferType cNode.mvar; pure mvarType };
   val ← instantiateMVars cNode.mvar;
-  abstractMVars val -- assignable metavariables become parameters
+  result ← abstractMVars val; -- assignable metavariables become parameters
+  resultType ← inferType result.expr;
+  pure { Answer . result := result, resultType := resultType }
 };
 -- Remark: `answer` does not contain assignable or assigned metavariables.
 let key := cNode.key;
 entry ← getEntry key;
-if entry.answers.contains answer then pure () -- if answer was already found, then do nothing
-else do
+when (isNewAnswer entry.answers answer) $  do
   let newEntry := { answers := entry.answers.push answer, .. entry };
   modify $ fun s => { tableEntries := s.tableEntries.insert key newEntry, .. s };
   entry.waiters.forM (wakeUp answer)

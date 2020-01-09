@@ -445,34 +445,29 @@ The result is type correct because we reject type class declarations IF
 it contains a regular parameter X that depends on an `out` parameter Y.
 
 Then, we execute type class resolution as usual.
-If it succeeds, and metavariables ?m_i have been assigned, we solve the unification
-constraints ?m_i =?= a_i. If we succeed, we return the result. Otherwise, we fail.
-These pending unification constraints are stored in the `Replacements` structure.
+If it succeeds, and metavariables ?m_i have been assigned, we try to unify
+the original type `C a_1 ... a_n` witht the normalized one.
 -/
-
-structure Replacements :=
-(levelReplacements : Array (Level × Level) := #[])
-(exprReplacements : Array (Expr × Expr)    := #[])
 
 private def preprocess (type : Expr) : MetaM Expr :=
 forallTelescopeReducing type $ fun xs type => do
   type ← whnf type;
   mkForall xs type
 
-private def preprocessLevels (us : List Level) : MetaM (List Level × Array (Level × Level)) := do
-(us, r) ← us.foldlM
-  (fun (r : List Level × Array (Level × Level)) (u : Level) => do
+private def preprocessLevels (us : List Level) : MetaM (List Level) := do
+us ← us.foldlM
+  (fun (r : List Level) (u : Level) => do
     u ← instantiateLevelMVars u;
     if u.hasMVar then do
       u' ← mkFreshLevelMVar;
-      pure (u'::r.1, r.2.push (u, u'))
+      pure (u'::r)
     else
-      pure (u::r.1, r.2))
-  ([], #[]);
-pure (us.reverse, r)
+      pure (u::r))
+  [];
+pure $ us.reverse
 
-private partial def preprocessArgs (ys : Array Expr) : Nat → Array Expr → Array (Expr × Expr) → MetaM (Array Expr × Array (Expr × Expr))
-| i, args, r => do
+private partial def preprocessArgs (ys : Array Expr) : Nat → Array Expr → MetaM (Array Expr)
+| i, args => do
   if h : i < ys.size then do
     let y := ys.get ⟨i, h⟩;
     yType ← inferType y;
@@ -481,37 +476,32 @@ private partial def preprocessArgs (ys : Array Expr) : Nat → Array Expr → Ar
         let arg := args.get ⟨i, h⟩;
         argType ← inferType arg;
         arg'    ← mkFreshExprMVar argType;
-        preprocessArgs (i+1) (args.set ⟨i, h⟩ arg') (r.push (arg, arg'))
+        preprocessArgs (i+1) (args.set ⟨i, h⟩ arg')
       else
         throw $ Exception.other "type class resolution failed, insufficient number of arguments" -- TODO improve error message
     else
-      preprocessArgs (i+1) args r
+      preprocessArgs (i+1) args
   else
-    pure (args, r)
+    pure args
 
-private def preprocessOutParam (type : Expr) : MetaM (Expr × Replacements) :=
+private def preprocessOutParam (type : Expr) : MetaM Expr :=
 forallTelescope type $ fun xs typeBody =>
   match typeBody.getAppFn with
   | c@(Expr.const constName us _) => do
     env ← getEnv;
-    if !hasOutParams env constName then pure (type, {})
+    if !hasOutParams env constName then pure type
     else do
       let args := typeBody.getAppArgs;
       cType ← inferType c;
       forallTelescopeReducing cType $ fun ys _ => do
-        (us, levelReplacements)  ← preprocessLevels us;
-        (args, exprReplacements) ← preprocessArgs ys 0 args #[];
+        us   ← preprocessLevels us;
+        args ← preprocessArgs ys 0 args;
         type ← mkForall xs (mkAppN (mkConst constName us) args);
-        pure (type, { levelReplacements := levelReplacements, exprReplacements := exprReplacements })
-  | _ => pure (type, {})
+        pure type
+  | _ => pure type
 
-private def resolveReplacements (r : Replacements) : MetaM Bool :=
-try $
-  r.levelReplacements.allM (fun ⟨u, u'⟩ => isLevelDefEqAux u u')
-  <&&>
-  r.exprReplacements.allM (fun ⟨e, e'⟩ => isExprDefEqAux e e')
-
-def synthInstance? (type : Expr) (fuel : Nat := 10000) : MetaM (Option Expr) :=
+def synthInstance? (type : Expr) (fuel : Nat := 10000) : MetaM (Option Expr) := do
+inputConfig ← getConfig;
 withConfig (fun config => { transparency := TransparencyMode.reducible, foApprox := true, ctxApprox := true, .. config }) $ do
   type ← instantiateMVars type;
   type ← preprocess type;
@@ -520,12 +510,13 @@ withConfig (fun config => { transparency := TransparencyMode.reducible, foApprox
   | some result => pure result
   | none        => do
     result ← withNewMCtxDepth $ do {
-      (normType, replacements) ← preprocessOutParam type;
-      result? ← SynthInstance.main normType fuel;
+      normType ← preprocessOutParam type;
+      result?  ← SynthInstance.main normType fuel;
       match result? with
       | none        => pure none
       | some result => do
-        condM (resolveReplacements replacements)
+        resultType ← inferType result;
+        condM (withConfig (fun _ => inputConfig) $ isDefEq type resultType)
           (do result ← instantiateMVars result;
               condM (hasAssignableMVar result)
                 (pure none)

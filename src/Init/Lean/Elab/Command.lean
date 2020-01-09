@@ -497,10 +497,23 @@ fun stx => do
     logInfo stx.val (e ++ " : " ++ type);
     pure ()
 
+@[builtinCommandElab «synth»] def elabSynth : CommandElab :=
+fun stx => do
+  let ref  := stx.val;
+  let term := stx.getArg 1;
+  runTermElabM `_synth_cmd $ fun _ => do
+    inst ← Term.elabTerm term none;
+    Term.synthesizeSyntheticMVars false;
+    inst ← Term.instantiateMVars ref inst;
+    val  ← Term.liftMetaM ref $ Meta.synthInstance inst;
+    logInfo stx.val val;
+    pure ()
+
 def setOption (ref : Syntax) (optionName : Name) (val : DataValue) : CommandElabM Unit := do
 decl ← liftIO ref $ getOptionDecl optionName;
 unless (decl.defValue.sameCtor val) $ throwError ref "type mismatch at set_option";
 modifyScope $ fun scope => { opts := scope.opts.insert optionName val, .. scope }
+
 
 @[builtinCommandElab «set_option»] def elabSetOption : CommandElab :=
 fun stx => do

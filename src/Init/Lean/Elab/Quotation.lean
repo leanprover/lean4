@@ -154,9 +154,7 @@ stx ← quoteSyntax (elimAntiquotChoices quoted);
    by an unhygienic prototype implementation. -/
 
 @[builtinTermElab stxQuot] def elabStxQuot : TermElab :=
-fun stx expectedType? => do
-  stx ← stxQuot.expand (stx.getArg 1);
-  elabTerm stx expectedType?
+adaptExpander stxQuot.expand
 
 /- match_syntax -/
 
@@ -336,9 +334,7 @@ alts ← alts.getArgs.mapM $ fun alt => do {
 compileStxMatch stx [discr] alts.toList
 
 @[builtinTermElab «match_syntax»] def elabMatchSyntax : TermElab :=
-fun stx expectedType? => do
-  stx ← match_syntax.expand stx;
-  elabTerm stx expectedType?
+adaptExpander match_syntax.expand
 
 -- REMOVE with old frontend
 private def exprPlaceholder := mkMVar Name.anonymous

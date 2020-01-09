@@ -1442,26 +1442,11 @@ builtinParserCategoriesRef.set categories;
 builtinSyntaxNodeKindSetRef.modify p.info.collectKinds;
 updateBuiltinTokens p.info declName
 
-def addBuiltinLeadingParserNew (catName : Name) (declName : Name) (p : Parser) : IO Unit :=
+def addBuiltinLeadingParser (catName : Name) (declName : Name) (p : Parser) : IO Unit :=
 addBuiltinParser catName declName p
 
-def addBuiltinTrailingParserNew (catName : Name) (declName : Name) (p : TrailingParser) : IO Unit :=
+def addBuiltinTrailingParser (catName : Name) (declName : Name) (p : TrailingParser) : IO Unit :=
 addBuiltinParser catName declName p
-
--- TODO DELETE --
-def mkBuiltinParsingTablesRef : IO (IO.Ref ParsingTables) := IO.mkRef {}
-@[init mkBuiltinParsingTablesRef] constant builtinTermParsingTable : IO.Ref ParsingTables := arbitrary _
-@[init mkBuiltinParsingTablesRef] constant builtinLevelParsingTable : IO.Ref ParsingTables := arbitrary _
-@[init mkBuiltinParsingTablesRef] constant builtinCommandParsingTable : IO.Ref ParsingTables := arbitrary _
-def addBuiltinLeadingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : Parser) : IO Unit :=
-condM (tablesRef.ptrEq builtinTermParsingTable) (addBuiltinLeadingParserNew `term declName p) $
-condM (tablesRef.ptrEq builtinLevelParsingTable) (addBuiltinLeadingParserNew `level declName p) $
-(addBuiltinLeadingParserNew `command declName p)
-def addBuiltinTrailingParser (tablesRef : IO.Ref ParsingTables) (declName : Name) (p : TrailingParser) : IO Unit :=
-condM (tablesRef.ptrEq builtinTermParsingTable) (addBuiltinTrailingParserNew `term declName p) $
-condM (tablesRef.ptrEq builtinLevelParsingTable) (addBuiltinTrailingParserNew `level declName p) $
-(addBuiltinTrailingParserNew `command declName p)
---- END TODO DELETE --
 
 private def ParserExtension.addEntry (s : ParserExtensionState) (e : ParserExtensionEntry) : ParserExtensionState :=
 match e with
@@ -1630,10 +1615,10 @@ match env.addAndCompile {} decl with
 | Except.ok env  => IO.ofExcept (setInitAttr env name)
 
 def declareLeadingBuiltinParser (env : Environment) (catName : Name) (declName : Name) : IO Environment :=
-declareBuiltinParser env `Lean.Parser.addBuiltinLeadingParserNew catName declName
+declareBuiltinParser env `Lean.Parser.addBuiltinLeadingParser catName declName
 
 def declareTrailingBuiltinParser (env : Environment) (catName : Name) (declName : Name) : IO Environment :=
-declareBuiltinParser env `Lean.Parser.addBuiltinTrailingParserNew catName declName
+declareBuiltinParser env `Lean.Parser.addBuiltinTrailingParser catName declName
 
 private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
     (env : Environment) (declName : Name) (args : Syntax) (persistent : Bool) : IO Environment := do

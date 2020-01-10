@@ -7,7 +7,7 @@ prelude
 import Init.System.IO
 import Init.Lean.Attributes
 import Init.Lean.Syntax
-import Init.Lean.Util.Message
+import Init.Lean.Message
 
 namespace Lean
 

@@ -10,7 +10,7 @@ import Init.Lean.Syntax
 import Init.Lean.ToExpr
 import Init.Lean.Environment
 import Init.Lean.Attributes
-import Init.Lean.Util.Message
+import Init.Lean.Message
 import Init.Lean.Parser.Identifier
 import Init.Lean.Compiler.InitAttr
 

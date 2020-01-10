@@ -36,6 +36,25 @@ else
 structure BinderView :=
 (id : Syntax) (type : Syntax) (bi : BinderInfo)
 
+
+/-
+Expand `optional (binderDefault <|> binderTactic)`
+def binderDefault := parser! " := " >> termParser
+def binderTactic  := parser! " . " >> termParser
+-/
+private def expandBinderModifier (type : Syntax) (optBinderModifier : Syntax) : TermElabM Syntax :=
+if optBinderModifier.isNone then pure type
+else
+  let modifier := optBinderModifier.getArg 0;
+  let kind     := modifier.getKind;
+  if kind == `Lean.Parser.Term.binderDefault then do
+    let defaultVal := modifier.getArg 1;
+    `(optParam $type $defaultVal)
+  else if kind == `Lean.Parser.Term.binderTactic then do
+    throwError modifier "not implemented yet"
+  else
+    throwUnexpectedSyntax modifier "default argument or tactic name"
+
 private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) :=
 withNode stx $ fun node => do
   let k := node.getKind;
@@ -44,11 +63,12 @@ withNode stx $ fun node => do
     let ids  := (node.getArg 0).getArgs;
     let type := mkHole stx;
     ids.mapM $ fun id => do id ← expandBinderIdent id; pure { id := id, type := type, bi := BinderInfo.default }
-  else if k == `Lean.Parser.Term.explicitBinder then
+  else if k == `Lean.Parser.Term.explicitBinder then do
     -- `(` binderIdent+ binderType (binderDefault <|> binderTactic)? `)`
-    let ids  := (node.getArg 1).getArgs;
-    let type := expandBinderType (node.getArg 2);
-    -- TODO handle `binderDefault` and `binderTactic`
+    let ids         := (node.getArg 1).getArgs;
+    let type        := expandBinderType (node.getArg 2);
+    let optModifier := node.getArg 3;
+    type ← expandBinderModifier type optModifier;
     ids.mapM $ fun id => do id ← expandBinderIdent id; pure { id := id, type := type, bi := BinderInfo.default }
   else if k == `Lean.Parser.Term.implicitBinder then
     -- `{` binderIdent+ binderType `}`

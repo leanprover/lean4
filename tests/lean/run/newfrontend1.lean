@@ -19,3 +19,17 @@ xs.foldl (init := 10) (· + ·)
 #check (fun stx => if True then let e := stx; HasPure.pure e else HasPure.pure stx : Nat → Id Nat)
 
 #check let x : Nat := 1; x
+
+def foo (a : Nat) (b : Nat := 10) (c : Bool := Bool.true) : Nat :=
+a + b
+
+set_option pp.all true
+
+#check foo 1
+
+#check foo 3 (c := Bool.false)
+
+def Nat.boo (a : Nat) :=
+succ a -- succ here is resolved as `Nat.succ`.
+
+#check Nat.boo

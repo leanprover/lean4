@@ -37,7 +37,12 @@ structure ElabAttributeOLeanEntry :=
 structure ElabAttributeEntry (γ : Type) extends ElabAttributeOLeanEntry :=
 (elabFn   : γ)
 
-abbrev ElabFnTable (γ : Type) := SMap SyntaxNodeKind γ
+abbrev ElabFnTable (γ : Type) := SMap SyntaxNodeKind (List γ)
+
+def ElabFnTable.insert {γ} (table : ElabFnTable γ) (k : SyntaxNodeKind) (f : γ) : ElabFnTable γ :=
+match table.find? k with
+| some fs => table.insert k (f::fs)
+| none    => table.insert k [f]
 
 structure ElabAttributeExtensionState (γ : Type) :=
 (newEntries : List ElabAttributeOLeanEntry := [])
@@ -75,8 +80,8 @@ match env.find? constName with
 @[implementedBy mkElabFnOfConstantUnsafe]
 constant mkElabFnOfConstant (γ : Type) (env : Environment) (typeName : Name) (constName : Name) : ExceptT String Id γ := throw ""
 
-private def ElabAttribute.addImportedParsers {γ} (typeName : Name) (builtinTableRef : IO.Ref (ElabFnTable γ)) (env : Environment) (es : Array (Array ElabAttributeOLeanEntry))
-    : IO (ElabAttributeExtensionState γ) := do
+private def ElabAttribute.addImportedParsers {γ} (typeName : Name) (builtinTableRef : IO.Ref (ElabFnTable γ))
+    (env : Environment) (es : Array (Array ElabAttributeOLeanEntry)) : IO (ElabAttributeExtensionState γ) := do
 table ← builtinTableRef.get;
 table ← es.foldlM
   (fun table entries =>

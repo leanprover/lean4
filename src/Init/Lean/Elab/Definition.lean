@@ -123,7 +123,7 @@ if kind == `Lean.Parser.Command.declValSimple then
 else if kind == `Lean.Parser.Command.declValEqns then
   Term.throwError defVal "equations have not been implemented yet"
 else
-  Term.throwUnexpectedSyntax defVal "definition body"
+  Term.throwUnsupportedSyntax
 
 def elabDefLike (view : DefView) : CommandElabM Unit :=
 let ref := view.ref;

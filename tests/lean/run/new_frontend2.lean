@@ -3,6 +3,8 @@ new_frontend
 variable {m : Type → Type}
 variable [s : Functor m]
 
+#check @Nat.rec
+
 #check s.map
 
 /-

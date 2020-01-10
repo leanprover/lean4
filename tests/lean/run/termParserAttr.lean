@@ -12,7 +12,7 @@ do env  ← MetaIO.getEnv;
    pure ()
 
 open Lean.Parser
-@[termParser] def tst := parser! "(|" >> termParser >> "|)"
+@[termParser] def tst := parser! "(|" >> termParser >> optional (", " >> termParser) >> "|)"
 
 @[termParser] def boo : ParserDescr :=
 ParserDescr.node `boo
@@ -25,8 +25,9 @@ ParserDescr.node `boo
 open Lean.Elab.Term
 
 @[termElab tst] def elabTst : TermElab :=
-fun stx expected? =>
-  elabTerm (stx.getArg 1) expected?
+adaptExpander $ fun stx => match_syntax stx with
+ | `((| $e |)) => pure e
+ | _           => throwUnsupportedSyntax
 
 @[termElab boo] def elabBoo : TermElab :=
 fun stx expected? =>
@@ -34,3 +35,14 @@ fun stx expected? =>
 
 #eval run "#check [| @id.{1} Nat |]"
 #eval run "#check (| id 1 |)"
+-- #eval run "#check (| id 1, id 1 |)" -- it will fail
+
+@[termElab tst] def elabTst2 : TermElab :=
+adaptExpander $ fun stx => match_syntax stx with
+ | `((| $e1, $e2 |)) => `(($e1, $e2))
+ | _                 => throwUnsupportedSyntax
+
+-- Now both work
+
+#eval run "#check (| id 1 |)"
+#eval run "#check (| id 1, id 2 |)"

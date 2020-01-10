@@ -53,7 +53,7 @@ else
   else if kind == `Lean.Parser.Term.binderTactic then do
     throwError modifier "not implemented yet"
   else
-    throwUnexpectedSyntax modifier "default argument or tactic name"
+    throwUnsupportedSyntax
 
 private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) :=
 withNode stx $ fun node => do
@@ -143,12 +143,12 @@ fun stx _ => match_syntax stx.val with
   elabBinders binders $ fun xs => do
     e ← elabType term;
     mkForall stx.val xs e
-| _ => throwUnexpectedSyntax stx.val "forall"
+| _ => throwUnsupportedSyntax
 
 @[builtinTermElab arrow] def elabArrow : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `($dom:term -> $rng) => `(forall (a : $dom), $rng)
-| _                    => throwUnexpectedSyntax stx "->"
+| _                    => throwUnsupportedSyntax
 
 @[builtinTermElab depArrow] def elabDepArrow : TermElab :=
 fun stx _ =>

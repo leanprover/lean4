@@ -61,12 +61,12 @@ instance State.inhabited : Inhabited State := ⟨{ env := arbitrary _ }⟩
 
   Remark: `Exception.postpone` is used only when `mayPostpone == true` in the `Context`. -/
 inductive Exception
-| error    : Elab.Exception → Exception
+| ex       : Elab.Exception → Exception
 | postpone : Exception
 
 instance Exception.inhabited : Inhabited Exception := ⟨Exception.postpone⟩
 instance Exception.hasToString : HasToString Exception :=
-⟨fun ex => match ex with | Exception.postpone => "postponed" | Exception.error ex => toString ex⟩
+⟨fun ex => match ex with | Exception.postpone => "postponed" | Exception.ex ex => toString ex⟩
 
 /-
   Term elaborator Monad. In principle, we could track statically which methods
@@ -79,7 +79,7 @@ abbrev TermElab  := SyntaxNode → Option Expr → TermElabM Expr
 instance TermElabM.inhabited {α} : Inhabited (TermElabM α) :=
 ⟨throw $ Exception.postpone⟩
 
-abbrev TermElabResult := EStateM.Result Elab.Exception State Expr
+abbrev TermElabResult := EStateM.Result Message State Expr
 instance TermElabResult.inhabited : Inhabited TermElabResult := ⟨EStateM.Result.ok (arbitrary _) (arbitrary _)⟩
 
 /--
@@ -89,17 +89,17 @@ instance TermElabResult.inhabited : Inhabited TermElabResult := ⟨EStateM.Resul
 @[inline] def observing (x : TermElabM Expr) : TermElabM TermElabResult :=
 fun ctx s =>
   match x ctx s with
-  | EStateM.Result.error Exception.postpone newS   => EStateM.Result.error Exception.postpone newS
-  | EStateM.Result.error (Exception.error ex) newS => EStateM.Result.ok (EStateM.Result.error ex newS) s
-  | EStateM.Result.ok e newS                       => EStateM.Result.ok (EStateM.Result.ok e newS) s
+  | EStateM.Result.error (Exception.ex (Elab.Exception.error errMsg)) newS => EStateM.Result.ok (EStateM.Result.error errMsg newS) s
+  | EStateM.Result.error ex newS                                           => EStateM.Result.error ex newS
+  | EStateM.Result.ok e newS                                               => EStateM.Result.ok (EStateM.Result.ok e newS) s
 
 /--
   Apply the result/exception and state captured with `observing`.
   We use this method to implement overloaded notation and symbols. -/
 def applyResult (result : TermElabResult) : TermElabM Expr :=
 match result with
-| EStateM.Result.ok e s     => do set s; pure e
-| EStateM.Result.error ex s => do set s; throw (Exception.error ex)
+| EStateM.Result.ok e s         => do set s; pure e
+| EStateM.Result.error errMsg s => do set s; throw (Exception.ex (Elab.Exception.error errMsg))
 
 def getEnv : TermElabM Environment := do s ← get; pure s.env
 def getMCtx : TermElabM MetavarContext := do s ← get; pure s.mctx
@@ -150,13 +150,10 @@ def throwError {α} (ref : Syntax) (msgData : MessageData) : TermElabM α := do
 ref ← getBetterRef ref;
 msgData ← addMacroStack msgData;
 msg ← mkMessage msgData MessageSeverity.error ref;
-throw (Exception.error msg)
+throw (Exception.ex (Elab.Exception.error msg))
 
-def throwUnexpectedSyntax {α} (ref : Syntax) (expectedMsg : Option String := none) : TermElabM α := do
-refFmt ← prettyPrint ref;
-match expectedMsg with
-| none    => throwError ref ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
-| some ex => throwError ref ("unexpected syntax, expected '" ++ ex ++ "'" ++ MessageData.nest 2 (Format.line ++ refFmt))
+def throwUnsupportedSyntax {α} : TermElabM α :=
+throw (Exception.ex Elab.Exception.unsupportedSyntax)
 
 protected def getCurrMacroScope : TermElabM MacroScope := do
 ctx ← read;
@@ -259,7 +256,7 @@ mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos.getD ctx.cmd
 
 /-- Auxiliary function for `liftMetaM` -/
 private def fromMetaException (ctx : Context) (ref : Syntax) (ex : Meta.Exception) : Exception :=
-Exception.error $ mkMessageAux ctx ref ex.toMessageData MessageSeverity.error
+Exception.ex $ Elab.Exception.error $ mkMessageAux ctx ref ex.toMessageData MessageSeverity.error
 
 /-- Auxiliary function for `liftMetaM` -/
 private def fromMetaState (ref : Syntax) (ctx : Context) (s : State) (newS : Meta.State) (oldTraceState : TraceState) : State :=
@@ -310,7 +307,7 @@ def liftLevelM {α} (x : LevelElabM α) : TermElabM α :=
 fun ctx s =>
   match (x { .. ctx }).run { .. s } with
   | EStateM.Result.ok a newS     => EStateM.Result.ok a { mctx := newS.mctx, ngen := newS.ngen, .. s }
-  | EStateM.Result.error ex newS => EStateM.Result.error (Exception.error ex) s
+  | EStateM.Result.error ex newS => EStateM.Result.error (Exception.ex ex) s
 
 def elabLevel (stx : Syntax) : TermElabM Level :=
 liftLevelM $ Level.elabLevel stx
@@ -445,14 +442,14 @@ def expandCDot? : Syntax → TermElabM (Option Syntax)
     pure none
 | _ => pure none
 
-private def exceptionToSorry (ref : Syntax) (ex : Elab.Exception) (expectedType? : Option Expr) : TermElabM Expr := do
+private def exceptionToSorry (ref : Syntax) (errMsg : Message) (expectedType? : Option Expr) : TermElabM Expr := do
 expectedType : Expr ← match expectedType? with
   | none              => mkFreshTypeMVar ref
   | some expectedType => pure expectedType;
 u ← getLevel ref expectedType;
 -- TODO: should be `(sorryAx.{$u} $expectedType true) when we support antiquotations at that place
 let syntheticSorry := mkApp2 (mkConst `sorryAx [u]) expectedType (mkConst `Bool.true);
-unless ex.data.hasSyntheticSorry $ logMessage ex;
+unless errMsg.data.hasSyntheticSorry $ logMessage errMsg;
 pure syntheticSorry
 
 /-- If `mayPostpone == true`, throw `Expection.postpone`. -/
@@ -476,6 +473,39 @@ ctx ← read;
 registerSyntheticMVar stx mvar.mvarId! (SyntheticMVarKind.postponed ctx.macroStack);
 pure mvar
 
+/-
+  Helper function for `elabTerm` is tries the registered elaboration functions for `stxNode` kind until it finds one that supports the syntax or
+  an error is found. -/
+private def elabTermUsing (s : State) (stxNode : SyntaxNode) (expectedType? : Option Expr) (errToSorry : Bool) (catchExPostpone : Bool)
+    : List TermElab → TermElabM Expr
+| []                => do
+  refFmt ← prettyPrint stxNode.val;
+  throwError stxNode.val ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
+| (elabFn::elabFns) => catch (elabFn stxNode expectedType?)
+  (fun ex => match ex with
+    | Exception.ex (Elab.Exception.error errMsg)    => if errToSorry then exceptionToSorry stxNode.val errMsg expectedType? else throw ex
+    | Exception.ex Elab.Exception.unsupportedSyntax => elabTermUsing elabFns
+    | Exception.postpone          =>
+      if catchExPostpone then do
+        /- If `elab` threw `Exception.postpone`, we reset any state modifications.
+           For example, we want to make sure pending synthetic metavariables created by `elab` before
+           it threw `Exception.postpone` are discarded.
+           Note that we are also discarding the messages created by `elab`.
+
+           For example, consider the expression.
+           `((f.x a1).x a2).x a3`
+           Now, suppose the elaboration of `f.x a1` produces an `Exception.postpone`.
+           Then, a new metavariable `?m` is created. Then, `?m.x a2` also throws `Exception.postpone`
+           because the type of `?m` is not yet known. Then another, metavariable `?n` is created, and
+          finally `?n.x a3` also throws `Exception.postpone`. If we did not restore the state, we would
+          keep "dead" metavariables `?m` and `?n` on the pending synthetic metavariable list. This is
+          wasteful because when we resume the elaboration of `((f.x a1).x a2).x a3`, we start it from scratch
+          and new metavariables are created for the nested functions. -/
+          set s;
+          postponeElabTerm stxNode.val expectedType?
+        else
+          throw ex)
+
 /--
   Main function for elaborating terms.
   It extracts the elaboration methods from the environment using the node kind.
@@ -496,32 +526,8 @@ withFreshMacroScope $ withNode stx $ fun node => do
   let table := (termElabAttribute.ext.getState s.env).table;
   let k := node.getKind;
   match table.find? k with
-  | some elab =>
-    catch
-      (elab node expectedType?)
-      (fun ex => match ex with
-        | Exception.error err => if errToSorry then exceptionToSorry stx err expectedType? else throw ex
-        | Exception.postpone =>
-          if catchExPostpone then do
-            /- If `elab` threw `Exception.postpone`, we reset any state modifications.
-               For example, we want to make sure pending synthetic metavariables created by `elab` before
-               it threw `Exception.postpone` are discarded.
-               Note that we are also discarding the messages created by `elab`.
-
-               For example, consider the expression.
-               `((f.x a1).x a2).x a3`
-               Now, suppose the elaboration of `f.x a1` produces an `Exception.postpone`.
-               Then, a new metavariable `?m` is created. Then, `?m.x a2` also throws `Exception.postpone`
-               because the type of `?m` is not yet known. Then another, metavariable `?n` is created, and
-               finally `?n.x a3` also throws `Exception.postpone`. If we did not restore the state, we would
-               keep "dead" metavariables `?m` and `?n` on the pending synthetic metavariable list. This is
-               wasteful because when we resume the elaboration of `((f.x a1).x a2).x a3`, we start it from scratch
-               and new metavariables are created for the nested functions. -/
-            set s;
-            postponeElabTerm stx expectedType?
-          else
-            throw ex)
-  | none      => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
+  | some elabFns => elabTermUsing s node expectedType? errToSorry catchExPostpone elabFns
+  | none         => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
 
 /-- Auxiliary function used to implement `synthesizeSyntheticMVars`. -/
 private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) (errToSorry := true) : TermElabM Expr :=
@@ -594,8 +600,13 @@ withMVarContext mvarId $ do
       assignExprMVar mvarId result;
       pure true)
     (fun ex => match ex with
-      | Exception.postpone  => pure false
-      | Exception.error msg => if postponeOnError then do set s; pure false else do logMessage msg; pure true)
+      | Exception.postpone                            => pure false
+      | Exception.ex Elab.Exception.unsupportedSyntax => unreachable!
+      | Exception.ex (Elab.Exception.error msg)       =>
+        if postponeOnError then do
+          set s; pure false
+        else do
+          logMessage msg; pure true)
 
 /- Try to synthesize metavariable using type class resolution.
    This method assumes the local context and local instances of `instMVar` coincide
@@ -629,8 +640,8 @@ private def synthesizePendingInstMVar (ref : Syntax) (instMVar : MVarId) : TermE
 withMVarContext instMVar $ catch
   (synthesizeInstMVarCore ref instMVar)
   (fun ex => match ex with
-    | Exception.error ex => do logMessage ex; pure true
-    | Exception.postpone => unreachable!)
+    | Exception.ex (Elab.Exception.error errMsg) => do logMessage errMsg; pure true
+    | _ => unreachable!)
 
 /--
   Return `true` iff `mvarId` is assigned to a term whose the

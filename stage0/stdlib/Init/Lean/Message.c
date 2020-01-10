@@ -1,5 +1,5 @@
 // Lean compiler output
-// Module: Init.Lean.Util.Message
+// Module: Init.Lean.Message
 // Imports: Init.Data.ToString Init.Lean.Data.Position Init.Lean.Syntax Init.Lean.MetavarContext Init.Lean.Environment
 #include "runtime/lean.h"
 #if defined(__clang__)
@@ -2127,7 +2127,7 @@ lean_object* initialize_Init_Lean_Syntax(lean_object*);
 lean_object* initialize_Init_Lean_MetavarContext(lean_object*);
 lean_object* initialize_Init_Lean_Environment(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Lean_Util_Message(lean_object* w) {
+lean_object* initialize_Init_Lean_Message(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;

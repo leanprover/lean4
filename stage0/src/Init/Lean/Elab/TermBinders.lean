@@ -36,6 +36,25 @@ else
 structure BinderView :=
 (id : Syntax) (type : Syntax) (bi : BinderInfo)
 
+
+/-
+Expand `optional (binderDefault <|> binderTactic)`
+def binderDefault := parser! " := " >> termParser
+def binderTactic  := parser! " . " >> termParser
+-/
+private def expandBinderModifier (type : Syntax) (optBinderModifier : Syntax) : TermElabM Syntax :=
+if optBinderModifier.isNone then pure type
+else
+  let modifier := optBinderModifier.getArg 0;
+  let kind     := modifier.getKind;
+  if kind == `Lean.Parser.Term.binderDefault then do
+    let defaultVal := modifier.getArg 1;
+    `(optParam $type $defaultVal)
+  else if kind == `Lean.Parser.Term.binderTactic then do
+    throwError modifier "not implemented yet"
+  else
+    throwUnsupportedSyntax
+
 private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) :=
 withNode stx $ fun node => do
   let k := node.getKind;
@@ -44,11 +63,12 @@ withNode stx $ fun node => do
     let ids  := (node.getArg 0).getArgs;
     let type := mkHole stx;
     ids.mapM $ fun id => do id ← expandBinderIdent id; pure { id := id, type := type, bi := BinderInfo.default }
-  else if k == `Lean.Parser.Term.explicitBinder then
+  else if k == `Lean.Parser.Term.explicitBinder then do
     -- `(` binderIdent+ binderType (binderDefault <|> binderTactic)? `)`
-    let ids  := (node.getArg 1).getArgs;
-    let type := expandBinderType (node.getArg 2);
-    -- TODO handle `binderDefault` and `binderTactic`
+    let ids         := (node.getArg 1).getArgs;
+    let type        := expandBinderType (node.getArg 2);
+    let optModifier := node.getArg 3;
+    type ← expandBinderModifier type optModifier;
     ids.mapM $ fun id => do id ← expandBinderIdent id; pure { id := id, type := type, bi := BinderInfo.default }
   else if k == `Lean.Parser.Term.implicitBinder then
     -- `{` binderIdent+ binderType `}`
@@ -118,17 +138,17 @@ else do
 elabBinders #[binder] (fun fvars => x (fvars.get! 1))
 
 @[builtinTermElab «forall»] def elabForall : TermElab :=
-fun stx _ => match_syntax stx.val with
+fun stx _ => match_syntax stx with
 | `(forall $binders*, $term) =>
   elabBinders binders $ fun xs => do
     e ← elabType term;
-    mkForall stx.val xs e
-| _ => throwUnexpectedSyntax stx.val "forall"
+    mkForall stx xs e
+| _ => throwUnsupportedSyntax
 
 @[builtinTermElab arrow] def elabArrow : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `($dom:term -> $rng) => `(forall (a : $dom), $rng)
-| _                    => throwUnexpectedSyntax stx "->"
+| _                    => throwUnsupportedSyntax
 
 @[builtinTermElab depArrow] def elabDepArrow : TermElab :=
 fun stx _ =>
@@ -137,7 +157,7 @@ fun stx _ =>
   let term   := stx.getArg 2;
   elabBinders #[binder] $ fun xs => do
     e ← elabType term;
-    mkForall stx.val xs e
+    mkForall stx xs e
 
 /-- Main loop `getFunBinderIds?` -/
 private partial def getFunBinderIdsAux? : Bool → Syntax → Array Syntax → TermElabM (Option (Array Syntax))
@@ -231,7 +251,7 @@ fun stx expectedType? => do
   elabBinders binders $ fun xs => do
     -- TODO: expected type
     e ← elabTerm body none;
-    mkLambda stx.val xs e
+    mkLambda stx xs e
 
 def withLetDecl {α} (ref : Syntax) (n : Name) (type : Expr) (val : Expr) (k : Expr → TermElabM α) : TermElabM α := do
 fvarId ← mkFreshFVarId;
@@ -284,7 +304,7 @@ throwError decl "not implemented yet"
 @[builtinTermElab «let»] def elabLet : TermElab :=
 fun stx expectedType? => do
   -- `let` decl `;` body
-  let ref      := stx.val;
+  let ref      := stx;
   let decl     := stx.getArg 1;
   let body     := stx.getArg 3;
   let declKind := decl.getKind;

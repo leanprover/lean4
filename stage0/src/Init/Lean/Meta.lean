@@ -18,6 +18,7 @@ import Init.Lean.Meta.SynthInstance
 import Init.Lean.Meta.AppBuilder
 import Init.Lean.Meta.Tactic
 import Init.Lean.Meta.Message
+import Init.Lean.Meta.KAbstract
 
 namespace Lean
 export Meta (MetaM)

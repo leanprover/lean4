@@ -324,7 +324,7 @@ def wakeUp (answer : Answer) : Waiter → SynthM Unit
 
 def isNewAnswer (oldAnswers : Array Answer) (answer : Answer) : Bool :=
 oldAnswers.all $ fun oldAnswer => do
-  -- Remark: isDefEq here is too expensive. TODO: if `==` is to imprecise, add some light normalization to `resultType` at `addAnswer`
+  -- Remark: isDefEq here is too expensive. TODO: if `==` is too imprecise, add some light normalization to `resultType` at `addAnswer`
   -- iseq ← isDefEq oldAnswer.resultType answer.resultType; pure (!iseq)
   oldAnswer.resultType != answer.resultType
 
@@ -421,15 +421,16 @@ else pure false
 def getResult : SynthM (Option Expr) := do
 s ← get; pure s.result
 
-partial def synth : Nat → SynthM (Option Expr)
+def synth : Nat → SynthM (Option Expr)
 | 0   => do
   trace! `Meta.synthInstance "synthInstance is out of fuel";
   pure none
-| n+1 => do
+| fuel+1 => do
+  trace! `Meta.synthInstance ("remaining fuel " ++ toString fuel);
   condM step
     (do result? ← getResult;
         match result? with
-        | none        => synth n
+        | none        => synth fuel
         | some result => pure result)
     (do trace! `Meta.synthInstance "failed";
         pure none)
@@ -511,7 +512,16 @@ forallTelescope type $ fun xs typeBody =>
         pure type
   | _ => pure type
 
-def synthInstance? (type : Expr) (fuel : Nat := 10000) : MetaM (Option Expr) := do
+
+@[init] def maxStepsOption : IO Unit :=
+registerOption `synthInstance.maxSteps { defValue := (10000 : Nat), group := "", descr := "maximum steps for the type class instance synthesis procedure" }
+
+private def getMaxSteps (opts : Options) : Nat :=
+opts.getNat `synthInstance.maxSteps 10000
+
+def synthInstance? (type : Expr) : MetaM (Option Expr) := do
+opts ← getOptions;
+let fuel := getMaxSteps opts;
 inputConfig ← getConfig;
 withConfig (fun config => { transparency := TransparencyMode.reducible, foApprox := true, ctxApprox := true, .. config }) $ do
   type ← instantiateMVars type;
@@ -543,17 +553,17 @@ withConfig (fun config => { transparency := TransparencyMode.reducible, foApprox
 /--
   Return `LOption.some r` if succeeded, `LOption.none` if it failed, and `LOption.undef` if
   instance cannot be synthesized right now because `type` contains metavariables. -/
-def trySynthInstance (type : Expr) (fuel : Nat := 10000) : MetaM (LOption Expr) :=
+def trySynthInstance (type : Expr) : MetaM (LOption Expr) :=
 adaptReader (fun (ctx : Context) => { config := { isDefEqStuckEx := true, .. ctx.config }, .. ctx }) $
   catch
-    (toLOptionM $ synthInstance? type fuel)
+    (toLOptionM $ synthInstance? type)
     (fun ex => match ex with
       | Exception.isExprDefEqStuck _ _ _  => pure LOption.undef
       | Exception.isLevelDefEqStuck _ _ _ => pure LOption.undef
       | _                                 => throw ex)
 
-def synthInstance (type : Expr) (fuel : Nat := 10000) : MetaM Expr := do
-result? ← synthInstance? type fuel;
+def synthInstance (type : Expr) : MetaM Expr := do
+result? ← synthInstance? type;
 match result? with
 | some result => pure result
 | none        => throwEx $ Exception.synthInstance type

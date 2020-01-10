@@ -44,9 +44,11 @@ structure Context :=
 (macroStack     : List Syntax := [])
 (currMacroScope : MacroScope := 0)
 
+instance Exception.inhabited : Inhabited Exception := ⟨Exception.error $ arbitrary _⟩
+
 abbrev CommandElabCoreM (ε) := ReaderT Context (EIO ε)
 abbrev CommandElabM := CommandElabCoreM Exception
-abbrev CommandElab  := SyntaxNode → CommandElabM Unit
+abbrev CommandElab  := Syntax → CommandElabM Unit
 
 def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity) : Message :=
 mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos.getD ctx.cmdPos)
@@ -55,7 +57,7 @@ private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : M
 mkMessageAux ctx ref (toString err) MessageSeverity.error
 
 @[inline] def liftIOCore {α} (ctx : Context) (ref : Syntax) (x : IO α) : EIO Exception α :=
-EIO.adaptExcept (ioErrorToMessage ctx ref) x
+EIO.adaptExcept (fun ex => Exception.error $ ioErrorToMessage ctx ref ex) x
 
 @[inline] def liftIO {α} (ref : Syntax) (x : IO α) : CommandElabM α :=
 fun ctx => liftIOCore ctx ref x
@@ -121,13 +123,7 @@ def throwError {α} (ref : Syntax) (msgData : MessageData) : CommandElabM α := 
 ref ← getBetterRef ref;
 msgData ← addMacroStack msgData;
 msg ← mkMessage msgData MessageSeverity.error ref;
-throw msg
-
-def throwUnexpectedSyntax {α} (ref : Syntax) (expectedMsg : Option String := none) : CommandElabM α := do
-refFmt ← prettyPrint ref;
-match expectedMsg with
-| none    => throwError ref ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
-| some ex => throwError ref ("unexpected syntax, expected '" ++ ex ++ "'" ++ MessageData.nest 2 (Format.line ++ refFmt))
+throw (Exception.error msg)
 
 protected def getCurrMacroScope : CommandElabM Nat := do
 ctx ← read;
@@ -184,16 +180,25 @@ def mkCommandElabAttribute : IO CommandElabAttribute :=
 mkElabAttribute CommandElab `commandElab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command" builtinCommandElabTable
 @[init mkCommandElabAttribute] constant commandElabAttribute : CommandElabAttribute := arbitrary _
 
+private def elabCommandUsing (stx : Syntax) : List CommandElab → CommandElabM Unit
+| []                => do
+  refFmt ← prettyPrint stx;
+  throwError stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
+| (elabFn::elabFns) => catch (elabFn stx)
+  (fun ex => match ex with
+    | Exception.error _           => throw ex
+    | Exception.unsupportedSyntax => elabCommandUsing elabFns)
+
 def elabCommand (stx : Syntax) : CommandElabM Unit :=
-stx.ifNode
-  (fun n => do
-    s ← get;
-    let table := (commandElabAttribute.ext.getState s.env).table;
-    let k := n.getKind;
-    match table.find? k with
-    | some elab => elab n
-    | none      => throwError stx ("command '" ++ toString k ++ "' has not been implemented"))
-  (fun _ => throwError stx ("unexpected command"))
+match stx with
+| Syntax.node _ _ => do
+  s ← get;
+  let table := (commandElabAttribute.ext.getState s.env).table;
+  let k := stx.getKind;
+  match table.find? k with
+  | some elabFns => elabCommandUsing stx elabFns
+  | none         => throwError stx ("command '" ++ toString k ++ "' has not been implemented")
+| _ => throwError stx "unexpected command"
 
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline] def withMacroExpansion {α} (stx : Syntax) (x : CommandElabM α) : CommandElabM α :=
@@ -201,8 +206,8 @@ adaptReader (fun (ctx : Context) => { macroStack := stx :: ctx.macroStack, .. ct
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
 def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab :=
-fun stx => withMacroExpansion stx.val $ do
-  stx ← exp stx.val;
+fun stx => withMacroExpansion stx $ do
+  stx ← exp stx;
   elabCommand stx
 
 private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context :=
@@ -228,9 +233,10 @@ s.scopes.head!.varDecls
 
 private def toCommandResult {α} (ctx : Context) (s : State) (result : EStateM.Result Term.Exception Term.State α) : EStateM.Result Exception State α :=
 match result with
-| EStateM.Result.ok a newS                            => EStateM.Result.ok a { env := newS.env, messages := newS.messages, nextMacroScope := newS.nextMacroScope, .. s }
-| EStateM.Result.error (Term.Exception.error ex) newS => EStateM.Result.error ex { env := newS.env, messages := newS.messages, nextMacroScope := newS.nextMacroScope, .. s }
-| EStateM.Result.error Term.Exception.postpone newS   => unreachable!
+| EStateM.Result.ok a newS => EStateM.Result.ok a { env := newS.env, messages := newS.messages, nextMacroScope := newS.nextMacroScope, .. s }
+| EStateM.Result.error (Term.Exception.ex ex) newS =>
+  EStateM.Result.error ex { env := newS.env, messages := newS.messages, nextMacroScope := newS.nextMacroScope, .. s }
+| EStateM.Result.error Term.Exception.postpone newS          => unreachable!
 
 instance CommandElabM.inhabited {α} : Inhabited (CommandElabM α) :=
 ⟨throw $ arbitrary _⟩
@@ -239,12 +245,14 @@ instance CommandElabM.inhabited {α} : Inhabited (CommandElabM α) :=
 ctx ← read;
 s ← get;
 match (Term.elabBinders (getVarDecls s) elab (mkTermContext ctx s declName?)).run (mkTermState s) with
-| EStateM.Result.ok a newS                            => do modify $ fun s => { env := newS.env, messages := newS.messages, .. s }; pure a
-| EStateM.Result.error (Term.Exception.error ex) newS => do modify $ fun s => { env := newS.env, messages := newS.messages, .. s }; throw ex
-| EStateM.Result.error Term.Exception.postpone newS   => unreachable!
+| EStateM.Result.ok a newS                          => do modify $ fun s => { env := newS.env, messages := newS.messages, .. s }; pure a
+| EStateM.Result.error (Term.Exception.ex ex) newS  => do modify $ fun s => { env := newS.env, messages := newS.messages, .. s }; throw ex
+| EStateM.Result.error Term.Exception.postpone newS => unreachable!
 
 @[inline] def withLogging (x : CommandElabM Unit) : CommandElabM Unit :=
-catch x (fun ex => do logMessage ex; pure ())
+catch x (fun ex => match ex with
+  | Exception.error ex          => do logMessage ex; pure ()
+  | Exception.unsupportedSyntax => unreachable!)
 
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit :=
 fun ctx => EIO.catchExceptions (withLogging x ctx) (fun _ => pure ())
@@ -276,15 +284,15 @@ private def addNamespace (ref : Syntax) (header : Name) : CommandElabM Unit :=
 addScopes ref "namespace" true header
 
 @[builtinCommandElab «namespace»] def elabNamespace : CommandElab :=
-fun stx => match_syntax stx.val with
-  | `(namespace $n) => addNamespace stx.val n.getId
-  | _               => throwUnexpectedSyntax stx.val "namespace"
+fun stx => match_syntax stx with
+  | `(namespace $n) => addNamespace stx n.getId
+  | _               => throw Exception.unsupportedSyntax
 
 @[builtinCommandElab «section»] def elabSection : CommandElab :=
-fun stx => match_syntax stx.val with
-  | `(section $header:ident) => addScopes stx.val "section" false header.getId
+fun stx => match_syntax stx with
+  | `(section $header:ident) => addScopes stx "section" false header.getId
   | `(section)               => do currNamespace ← getCurrNamespace; addScope "section" "" currNamespace
-  | _                        => throwUnexpectedSyntax stx.val "section"
+  | _                        => throw Exception.unsupportedSyntax
 
 def getScopes : CommandElabM (List Scope) := do
 s ← get; pure s.scopes
@@ -299,8 +307,8 @@ private def checkEndHeader : Name → List Scope → Bool
 | _,              _                             => false
 
 @[builtinCommandElab «end»] def elabEnd : CommandElab :=
-fun n => do
-  let header? := (n.getArg 1).getOptionalIdent?;
+fun stx => do
+  let header? := (stx.getArg 1).getOptionalIdent?;
   let endSize := match header? with
     | none   => 1
     | some n => n.getNumParts;
@@ -310,11 +318,11 @@ fun n => do
   else do {
     -- we keep "root" scope
     modify $ fun s => { scopes := s.scopes.drop (s.scopes.length - 1), .. s };
-    throwError n.val "invalid 'end', insufficient scopes"
+    throwError stx "invalid 'end', insufficient scopes"
   };
   match header? with
-  | none        => unless (checkAnonymousScope scopes) $ throwError n.val "invalid 'end', name is missing"
-  | some header => unless (checkEndHeader header scopes) $ throwError n.val "invalid 'end', name mismatch"
+  | none        => unless (checkAnonymousScope scopes) $ throwError stx "invalid 'end', name is missing"
+  | some header => unless (checkEndHeader header scopes) $ throwError stx "invalid 'end', name mismatch"
 
 @[inline] def withNamespace {α} (ref : Syntax) (ns : Name) (elab : CommandElabM α) : CommandElabM α := do
 addNamespace ref ns;
@@ -359,7 +367,7 @@ fun stx => do
   | Except.ok env   => setEnv env
   | Except.error ex => do
     opts ← getOptions;
-    throwError stx.val (ex.toMessageData opts)
+    throwError stx (ex.toMessageData opts)
 
 def getOpenDecls : CommandElabM (List OpenDecl) := do
 scope ← getScope; pure scope.openDecls
@@ -373,7 +381,7 @@ currNamespace ← getCurrNamespace;
 openDecls ← getOpenDecls;
 match Elab.resolveNamespace env currNamespace openDecls id with
 | some ns => pure ns
-| none    => throwErrorUsingCmdPos ("unknown namespace '" ++ toString id ++ "'")
+| none    => throw Exception.unsupportedSyntax
 
 @[builtinCommandElab «export»] def elabExport : CommandElab :=
 fun stx => do
@@ -381,7 +389,7 @@ fun stx => do
   let id  := stx.getIdAt 1;
   ns ← resolveNamespace id;
   currNamespace ← getCurrNamespace;
-  when (ns == currNamespace) $ throwError stx.val "invalid 'export', self export";
+  when (ns == currNamespace) $ throwError stx "invalid 'export', self export";
   env ← getEnv;
   let ids := (stx.getArg 3).getArgs;
   aliases ← ids.foldlM
@@ -493,20 +501,20 @@ fun stx => do
   runTermElabM none $ fun _ => do
     e    ← Term.elabTerm term none;
     Term.synthesizeSyntheticMVars false;
-    type ← Term.inferType stx.val e;
-    logInfo stx.val (e ++ " : " ++ type);
+    type ← Term.inferType stx e;
+    logInfo stx (e ++ " : " ++ type);
     pure ()
 
 @[builtinCommandElab «synth»] def elabSynth : CommandElab :=
 fun stx => do
-  let ref  := stx.val;
+  let ref  := stx;
   let term := stx.getArg 1;
   runTermElabM `_synth_cmd $ fun _ => do
     inst ← Term.elabTerm term none;
     Term.synthesizeSyntheticMVars false;
     inst ← Term.instantiateMVars ref inst;
     val  ← Term.liftMetaM ref $ Meta.synthInstance inst;
-    logInfo stx.val val;
+    logInfo stx val;
     pure ()
 
 def setOption (ref : Syntax) (optionName : Name) (val : DataValue) : CommandElabM Unit := do
@@ -517,7 +525,7 @@ modifyScope $ fun scope => { opts := scope.opts.insert optionName val, .. scope 
 
 @[builtinCommandElab «set_option»] def elabSetOption : CommandElab :=
 fun stx => do
-  let ref        := stx.val;
+  let ref        := stx;
   let optionName := stx.getIdAt 1;
   let val        := stx.getArg 2;
   match val.isStrLit? with

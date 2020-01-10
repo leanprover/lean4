@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Lean.Environment
 import Init.Lean.MetavarContext
-import Init.Lean.Util.Message
+import Init.Lean.Message
 
 namespace Lean
 namespace Meta

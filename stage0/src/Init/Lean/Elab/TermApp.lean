@@ -45,15 +45,21 @@ instMVars.forM $ fun mvarId =>
   unlessM (synthesizeInstMVarCore ref mvarId) $
     registerSyntheticMVar ref mvarId SyntheticMVarKind.typeClass
 
-private def elabArg (ref : Syntax) (arg : Arg) (expectedType : Expr) : TermElabM Expr :=
+private def ensureArgType (ref : Syntax) (f : Expr) (arg : Expr) (expectedType : Expr) : TermElabM Expr := do
+argType ← inferType ref arg;
+arg? ← tryEnsureHasType? ref expectedType argType arg;
+match arg? with
+| some arg => pure arg
+| none     => do
+  env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
+  throwError ref $ Meta.Exception.mkAppTypeMismatchMessage f arg { env := env, mctx := mctx, lctx := lctx, opts := opts }
+
+private def elabArg (ref : Syntax) (f : Expr) (arg : Arg) (expectedType : Expr) : TermElabM Expr :=
 match arg with
-| Arg.expr val => do
-  valType ← inferType ref val;
-  ensureHasType ref expectedType valType val
+| Arg.expr val => ensureArgType ref f val expectedType
 | Arg.stx val  => do
   val ← elabTerm val expectedType;
-  valType ← inferType ref val;
-  ensureHasType ref expectedType valType val
+  ensureArgType ref f val expectedType
 
 private partial def elabAppArgsAux (ref : Syntax) (args : Array Arg) (expectedType? : Option Expr) (explicit : Bool)
     : Nat → Array NamedArg → Array MVarId → Expr → Expr → TermElabM Expr
@@ -71,12 +77,12 @@ private partial def elabAppArgsAux (ref : Syntax) (args : Array Arg) (expectedTy
     | some idx => do
       let arg := namedArgs.get! idx;
       let namedArgs := namedArgs.eraseIdx idx;
-      argElab ← elabArg ref arg.val d;
+      argElab ← elabArg ref e arg.val d;
       elabAppArgsAux argIdx namedArgs instMVars (b.instantiate1 argElab) (mkApp e argElab)
     | none =>
       let processExplictArg : Unit → TermElabM Expr := fun _ => do {
         if h : argIdx < args.size then do
-          argElab ← elabArg ref (args.get ⟨argIdx, h⟩) d;
+          argElab ← elabArg ref e (args.get ⟨argIdx, h⟩) d;
           elabAppArgsAux (argIdx + 1) namedArgs instMVars (b.instantiate1 argElab) (mkApp e argElab)
         else match d.getOptParamDefault? with
           | some defVal => elabAppArgsAux argIdx namedArgs instMVars (b.instantiate1 defVal) (mkApp e defVal)
@@ -183,22 +189,23 @@ match eType.getAppFn, lval with
 | _, _ =>
   throwLValError ref e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
 
-private partial def resolveLValLoop (ref : Syntax) (e : Expr) (lval : LVal) : Expr → Array Elab.Exception → TermElabM LValResolution
+private partial def resolveLValLoop (ref : Syntax) (e : Expr) (lval : LVal) : Expr → Array Message → TermElabM LValResolution
 | eType, previousExceptions => do
   eType ← whnfCore ref eType;
   tryPostponeIfMVar eType;
   catch (resolveLValAux ref e eType lval)
     (fun ex =>
       match ex with
-      | Exception.postpone => throw ex
-      | Exception.error ex => do
+      | Exception.postpone                            => throw ex
+      | Exception.ex Elab.Exception.unsupportedSyntax => throw ex
+      | Exception.ex (Elab.Exception.error errMsg)    => do
         eType? ← unfoldDefinition? ref eType;
         match eType? with
-        | some eType => resolveLValLoop eType (previousExceptions.push ex)
+        | some eType => resolveLValLoop eType (previousExceptions.push errMsg)
         | none       => do
           previousExceptions.forM $ fun ex =>
-            logMessage ex;
-          throw (Exception.error ex))
+            logMessage errMsg;
+          throw (Exception.ex (Elab.Exception.error errMsg)))
 
 private def resolveLVal (ref : Syntax) (e : Expr) (lval : LVal) : TermElabM LValResolution := do
 eType ← inferType ref e;
@@ -325,7 +332,7 @@ private partial def elabAppFn (ref : Syntax) : Syntax → List LVal → Array Na
           s ← observing $ elabAppLVals ref f (lvals' ++ lvals) namedArgs args expectedType? explicit;
           pure $ acc.push s)
         acc
-    | _ => throwUnexpectedSyntax id "identifier"
+    | _ => throwUnsupportedSyntax
   | _ => do
     f ← elabTerm f none;
     s ← observing $ elabAppLVals ref f lvals namedArgs args expectedType? explicit;
@@ -347,8 +354,8 @@ else
 private def mergeFailures {α} (failures : Array TermElabResult) (stx : Syntax) : TermElabM α := do
 msgs ← failures.mapM $ fun failure =>
   match failure with
-  | EStateM.Result.ok _ _     => unreachable!
-  | EStateM.Result.error ex s => toMessageData ex stx;
+  | EStateM.Result.ok _ _         => unreachable!
+  | EStateM.Result.error errMsg s => toMessageData errMsg stx;
 throwError stx ("overloaded, errors " ++ MessageData.ofArray msgs)
 
 private def elabAppAux (ref : Syntax) (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) : TermElabM Expr := do
@@ -388,8 +395,8 @@ private partial def expandApp : Syntax → TermElabM (Syntax × Array NamedArg �
 
 @[builtinTermElab app] def elabApp : TermElab :=
 fun stx expectedType? => do
-  (f, namedArgs, args) ← expandApp stx.val;
-  elabAppAux stx.val f namedArgs args expectedType?
+  (f, namedArgs, args) ← expandApp stx;
+  elabAppAux stx f namedArgs args expectedType?
 
 @[builtinTermElab «id»] def elabId : TermElab := elabApp
 @[builtinTermElab explicit] def elabExplicit : TermElab := elabApp

@@ -14,28 +14,28 @@ namespace Term
 @[builtinTermElab dollar] def elabDollar : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `($f $ $a) => `($f $a)
-| _          => throwUnexpectedSyntax stx "application"
+| _          => throwUnsupportedSyntax
 
 @[builtinTermElab dollarProj] def elabDollarProj : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `($term $.$field) => `($(term).$field)
-| _                 => throwUnexpectedSyntax stx "$."
+| _                 => throwUnsupportedSyntax
 
 @[builtinTermElab «if»] def elabIf : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `(if $h : $cond then $t else $e) => let h := mkTermIdFromIdent h; `(dite $cond (fun $h => $t) (fun $h => $e))
 | `(if $cond then $t else $e)      => `(ite $cond $t $e)
-| _                                => throwUnexpectedSyntax stx "if-then-else"
+| _                                => throwUnsupportedSyntax
 
 @[builtinTermElab subtype] def elabSubtype : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `({ $x : $type // $p }) => let x := mkTermIdFromIdent x; `(Subtype (fun ($x : $type) => $p))
 | `({ $x // $p })         => let x := mkTermIdFromIdent x; `(Subtype (fun ($x : _) => $p))
-| _                       => throwUnexpectedSyntax stx "subtype"
+| _                       => throwUnsupportedSyntax
 
 @[builtinTermElab anonymousCtor] def elabAnoymousCtor : TermElab :=
 fun stx expectedType? => do
-let ref := stx.val;
+let ref := stx;
 tryPostponeIfNoneOrMVar expectedType?;
 match expectedType? with
 | none              => throwError ref "invalid constructor ⟨...⟩, expected type must be known"
@@ -59,7 +59,7 @@ match expectedType? with
 @[builtinTermElab «show»] def elabShow : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `(show $type from $val) => let thisId := mkTermId stx `this; `((fun ($thisId : $type) => $thisId) $val)
-| _                       => throwUnexpectedSyntax stx "show-from"
+| _                       => throwUnsupportedSyntax
 
 @[builtinTermElab «have»] def elabHave : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
@@ -67,7 +67,7 @@ adaptExpander $ fun stx => match_syntax stx with
 | `(have $type := $val; $body)        => let thisId := mkTermId stx `this; `((fun ($thisId : $type) => $body) $val)
 | `(have $x : $type from $val; $body) => let x := mkTermIdFromIdent x; `((fun ($x : $type) => $body) $val)
 | `(have $x : $type := $val; $body)   => let x := mkTermIdFromIdent x; `((fun ($x : $type) => $body) $val)
-| _                                   => throwUnexpectedSyntax stx "have"
+| _                                   => throwUnsupportedSyntax
 
 @[termElab «where»] def elabWhere : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
@@ -76,7 +76,7 @@ adaptExpander $ fun stx => match_syntax stx with
   decls.foldrM
     (fun decl body => `(let $decl; $body))
     body
-| _                      => throwUnexpectedSyntax stx "where"
+| _                      => throwUnsupportedSyntax
 
 @[termElab «parser!»] def elabParserMacro : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
@@ -90,7 +90,7 @@ adaptExpander $ fun stx => match_syntax stx with
     `(HasOrelse.orelse (Lean.Parser.mkAntiquot $s (some $kind) true) (Lean.Parser.leadingNode $kind $e))
   | none          => throwError stx "invalid `parser!` macro, it must be used in definitions"
   | _             => throwError stx "invalid `parser!` macro, unexpected declaration name"
-| _             => throwUnexpectedSyntax stx "parser!"
+| _             => throwUnsupportedSyntax
 
 @[termElab «tparser!»] def elabTParserMacro : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
@@ -99,7 +99,7 @@ adaptExpander $ fun stx => match_syntax stx with
   match declName? with
   | some declName => let kind := quote declName; `(Lean.Parser.trailingNode $kind $e)
   | none          => throwError stx "invalid `tparser!` macro, it must be used in definitions"
-| _             => throwUnexpectedSyntax stx "tparser!"
+| _             => throwUnsupportedSyntax
 
 def elabInfix (f : Syntax) : TermElab :=
 fun stx expectedType? => do

@@ -324,7 +324,7 @@ def wakeUp (answer : Answer) : Waiter → SynthM Unit
 
 def isNewAnswer (oldAnswers : Array Answer) (answer : Answer) : Bool :=
 oldAnswers.all $ fun oldAnswer => do
-  -- Remark: isDefEq here is too expensive. TODO: if `==` is to imprecise, add some light normalization to `resultType` at `addAnswer`
+  -- Remark: isDefEq here is too expensive. TODO: if `==` is too imprecise, add some light normalization to `resultType` at `addAnswer`
   -- iseq ← isDefEq oldAnswer.resultType answer.resultType; pure (!iseq)
   oldAnswer.resultType != answer.resultType
 

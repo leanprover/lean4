@@ -783,14 +783,14 @@ lbool type_checker::lazy_delta_reduction(expr & t_n, expr & s_n) {
     }
 }
 
-inline bool is_zero(expr const & t) {
-    return t == *g_nat_zero || (is_nat_lit(t) && lit_value(t).get_nat() == nat(0));
+inline bool is_nat_zero(expr const & t) {
+    return t == *g_nat_zero || (is_nat_lit(t) && lit_value(t).is_zero());
 }
 
-inline optional<expr> is_succ(expr const & t) {
+inline optional<expr> is_nat_succ(expr const & t) {
     if (is_nat_lit(t)) {
         nat val = lit_value(t).get_nat();
-        if (val > nat(0)) {
+        if (!val.is_zero()) {
             return some_expr(mk_lit(literal(val - nat(1))));
         }
     }
@@ -802,10 +802,10 @@ inline optional<expr> is_succ(expr const & t) {
 }
 
 lbool type_checker::is_def_eq_offset(expr const & t, expr const & s) {
-    if (is_zero(t) && is_zero(s))
+    if (is_nat_zero(t) && is_nat_zero(s))
         return l_true;
-    optional<expr> pred_t = is_succ(t);
-    optional<expr> pred_s = is_succ(s);
+    optional<expr> pred_t = is_nat_succ(t);
+    optional<expr> pred_s = is_nat_succ(s);
     if (pred_t && pred_s)
         return to_lbool(is_def_eq_core(*pred_t, *pred_s));
     /* TODO add support for Nat.add */

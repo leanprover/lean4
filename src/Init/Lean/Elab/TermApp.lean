@@ -45,15 +45,21 @@ instMVars.forM $ fun mvarId =>
   unlessM (synthesizeInstMVarCore ref mvarId) $
     registerSyntheticMVar ref mvarId SyntheticMVarKind.typeClass
 
-private def elabArg (ref : Syntax) (arg : Arg) (expectedType : Expr) : TermElabM Expr :=
+private def ensureArgType (ref : Syntax) (f : Expr) (arg : Expr) (expectedType : Expr) : TermElabM Expr := do
+argType ← inferType ref arg;
+arg? ← tryEnsureHasType? ref expectedType argType arg;
+match arg? with
+| some arg => pure arg
+| none     => do
+  env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
+  throwError ref $ Meta.Exception.mkAppTypeMismatchMessage f arg { env := env, mctx := mctx, lctx := lctx, opts := opts }
+
+private def elabArg (ref : Syntax) (f : Expr) (arg : Arg) (expectedType : Expr) : TermElabM Expr :=
 match arg with
-| Arg.expr val => do
-  valType ← inferType ref val;
-  ensureHasType ref expectedType valType val
+| Arg.expr val => ensureArgType ref f val expectedType
 | Arg.stx val  => do
   val ← elabTerm val expectedType;
-  valType ← inferType ref val;
-  ensureHasType ref expectedType valType val
+  ensureArgType ref f val expectedType
 
 private partial def elabAppArgsAux (ref : Syntax) (args : Array Arg) (expectedType? : Option Expr) (explicit : Bool)
     : Nat → Array NamedArg → Array MVarId → Expr → Expr → TermElabM Expr
@@ -71,12 +77,12 @@ private partial def elabAppArgsAux (ref : Syntax) (args : Array Arg) (expectedTy
     | some idx => do
       let arg := namedArgs.get! idx;
       let namedArgs := namedArgs.eraseIdx idx;
-      argElab ← elabArg ref arg.val d;
+      argElab ← elabArg ref e arg.val d;
       elabAppArgsAux argIdx namedArgs instMVars (b.instantiate1 argElab) (mkApp e argElab)
     | none =>
       let processExplictArg : Unit → TermElabM Expr := fun _ => do {
         if h : argIdx < args.size then do
-          argElab ← elabArg ref (args.get ⟨argIdx, h⟩) d;
+          argElab ← elabArg ref e (args.get ⟨argIdx, h⟩) d;
           elabAppArgsAux (argIdx + 1) namedArgs instMVars (b.instantiate1 argElab) (mkApp e argElab)
         else match d.getOptParamDefault? with
           | some defVal => elabAppArgsAux argIdx namedArgs instMVars (b.instantiate1 defVal) (mkApp e defVal)

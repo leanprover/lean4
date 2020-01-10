@@ -749,19 +749,32 @@ synthesizeSyntheticMVarsAux mayPostpone ()
 
 /--
   If `expectedType?` is `some t`, then ensure `t` and `eType` are definitionally equal.
-  If they are not, then try coercions. -/
-def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (eType : Expr) (e : Expr) : TermElabM Expr :=
+  If they are not, then try coercions.
+  Return `some e'` if successful, where `e'` may be different from `e` if coercions have been applied,
+  and `none` otherwise
+ -/
+def tryEnsureHasType? (ref : Syntax) (expectedType? : Option Expr) (eType : Expr) (e : Expr) : TermElabM (Option Expr) :=
 match expectedType? with
-| none              => pure e
+| none              => pure (some e)
 | some expectedType =>
   condM (isDefEq ref eType expectedType)
-    (pure e)
+    (pure (some e))
     -- TODO try `HasCoe`
-    (let msg : MessageData :=
-       "type mismatch" ++ indentExpr e
-       ++ Format.line ++ "has type" ++ indentExpr eType
-       ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType;
-     throwError ref msg)
+    (pure none)
+
+/--
+  If `expectedType?` is `some t`, then ensure `t` and `eType` are definitionally equal.
+  If they are not, then try coercions. -/
+def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (eType : Expr) (e : Expr) : TermElabM Expr := do
+e? ← tryEnsureHasType? ref expectedType? eType e;
+match e? with
+| some e => pure e
+| none   =>
+  let msg : MessageData :=
+    "type mismatch" ++ indentExpr e
+    ++ Format.line ++ "has type" ++ indentExpr eType
+    ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType?.get!;
+  throwError ref msg
 
 def mkInstMVar (ref : Syntax) (type : Expr) : TermElabM Expr := do
 mvar ← mkFreshExprMVar ref type MetavarKind.synthetic;

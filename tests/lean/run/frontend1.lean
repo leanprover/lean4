@@ -222,3 +222,5 @@ def three := 3
 
 #eval run "#check (fun stx => if True then let e := stx; HasPure.pure e else HasPure.pure stx : Nat → Id Nat)"
 #eval run "constant n : Nat #check n"
+
+#eval fail "#check Nat.succ 'a'"

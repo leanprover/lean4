@@ -153,7 +153,7 @@ fun stx => do
   else if declKind == `Lean.Parser.Command.structure then
     elabStructure modifiers decl
   else
-    throwError stx.val "unexpected declaration"
+    throwError stx "unexpected declaration"
 
 end Command
 end Elab

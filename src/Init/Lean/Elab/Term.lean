@@ -74,7 +74,7 @@ instance Exception.hasToString : HasToString Exception :=
   `TermElabM`. This would be useful to ensure that `Exception.postpone` does not leak
   to `CommandElabM`, but we abandoned this design because it adds unnecessary complexity. -/
 abbrev TermElabM := ReaderT Context (EStateM Exception State)
-abbrev TermElab  := SyntaxNode → Option Expr → TermElabM Expr
+abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
 
 instance TermElabM.inhabited {α} : Inhabited (TermElabM α) :=
 ⟨throw $ Exception.postpone⟩
@@ -328,8 +328,10 @@ modify $ fun s => { syntheticMVars := { mvarId := mvarId, ref := ref, kind := ki
 @[inline] def withoutPostponing {α} (x : TermElabM α) : TermElabM α :=
 adaptReader (fun (ctx : Context) => { mayPostpone := false, .. ctx }) x
 
-@[inline] def withNode {α} (stx : Syntax) (x : SyntaxNode → TermElabM α) : TermElabM α :=
-stx.ifNode x (fun _ => throwError stx ("term elaborator failed, unexpected syntax: " ++ toString stx))
+@[inline] def withNode {α} (stx : Syntax) (x : Syntax → TermElabM α) : TermElabM α :=
+match stx with
+| Syntax.node _ _ => x stx
+| _               => throwError stx ("term elaborator failed, unexpected syntax: " ++ toString stx)
 
 /-- Creates syntax for `(` <ident> `:` <type> `)` -/
 def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
@@ -476,14 +478,14 @@ pure mvar
 /-
   Helper function for `elabTerm` is tries the registered elaboration functions for `stxNode` kind until it finds one that supports the syntax or
   an error is found. -/
-private def elabTermUsing (s : State) (stxNode : SyntaxNode) (expectedType? : Option Expr) (errToSorry : Bool) (catchExPostpone : Bool)
+private def elabTermUsing (s : State) (stx : Syntax) (expectedType? : Option Expr) (errToSorry : Bool) (catchExPostpone : Bool)
     : List TermElab → TermElabM Expr
 | []                => do
-  refFmt ← prettyPrint stxNode.val;
-  throwError stxNode.val ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
-| (elabFn::elabFns) => catch (elabFn stxNode expectedType?)
+  refFmt ← prettyPrint stx;
+  throwError stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
+| (elabFn::elabFns) => catch (elabFn stx expectedType?)
   (fun ex => match ex with
-    | Exception.ex (Elab.Exception.error errMsg)    => if errToSorry then exceptionToSorry stxNode.val errMsg expectedType? else throw ex
+    | Exception.ex (Elab.Exception.error errMsg)    => if errToSorry then exceptionToSorry stx errMsg expectedType? else throw ex
     | Exception.ex Elab.Exception.unsupportedSyntax => elabTermUsing elabFns
     | Exception.postpone          =>
       if catchExPostpone then do
@@ -502,7 +504,7 @@ private def elabTermUsing (s : State) (stxNode : SyntaxNode) (expectedType? : Op
           wasteful because when we resume the elaboration of `((f.x a1).x a2).x a3`, we start it from scratch
           and new metavariables are created for the nested functions. -/
           set s;
-          postponeElabTerm stxNode.val expectedType?
+          postponeElabTerm stx expectedType?
         else
           throw ex)
 
@@ -535,8 +537,8 @@ elabTerm stx expectedType? false errToSorry
 
 /-- Adapt a syntax transformation to a regular, term-producing elaborator. -/
 def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab :=
-fun stx expectedType? => withMacroExpansion stx.val $ do
-  stx ← exp stx.val;
+fun stx expectedType? => withMacroExpansion stx $ do
+  stx ← exp stx;
   elabTerm stx expectedType?
 
 /--
@@ -808,7 +810,7 @@ fun _ _ => pure $ mkSort levelZero
 fun _ _ => pure $ mkSort levelOne
 
 @[builtinTermElab «hole»] def elabHole : TermElab :=
-fun stx expectedType? => mkFreshExprMVar stx.val expectedType?
+fun stx expectedType? => mkFreshExprMVar stx expectedType?
 
 /-- Main loop for `mkPairs`. -/
 private partial def mkPairsAux (elems : Array Syntax) : Nat → Syntax → TermElabM Syntax
@@ -841,7 +843,7 @@ match stx? with
 
 @[builtinTermElab paren] def elabParen : TermElab :=
 fun stx expectedType? =>
-  let ref := stx.val;
+  let ref := stx;
   match_syntax ref with
   | `(())           => pure $ Lean.mkConst `Unit.unit
   | `(($e : $type)) => do
@@ -852,8 +854,8 @@ fun stx expectedType? =>
   | `(($e))         => elabCDot e expectedType?
   | `(($e, $es*))   => do
     pairs ← mkPairs (#[e] ++ es.getEvenElems);
-    withMacroExpansion stx.val (elabTerm pairs expectedType?)
-  | _ => throwError stx.val "unexpected parentheses notation"
+    withMacroExpansion stx (elabTerm pairs expectedType?)
+  | _ => throwError stx "unexpected parentheses notation"
 
 @[builtinTermElab «listLit»] def elabListLit : TermElab :=
 fun stx expectedType? => do
@@ -867,11 +869,11 @@ fun stx expectedType? => do
 
 @[builtinTermElab «arrayLit»] def elabArrayLit : TermElab :=
 fun stx expectedType? => do
-  match_syntax stx.val with
+  match_syntax stx with
   | `(#[$args*]) => do
     newStx ← `(List.toArray [$args*]);
-    withMacroExpansion stx.val (elabTerm newStx expectedType?)
-  | _ => throwError stx.val "unexpected array literal syntax"
+    withMacroExpansion stx (elabTerm newStx expectedType?)
+  | _ => throwError stx "unexpected array literal syntax"
 
 private partial def resolveLocalNameAux (lctx : LocalContext) : Name → List String → Option (Expr × List String)
 | n, projs =>
@@ -942,20 +944,20 @@ match result? with
     process preresolved
 
 @[builtinTermElab cdot] def elabBadCDot : TermElab :=
-fun stx _ => throwError stx.val "invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)"
+fun stx _ => throwError stx "invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)"
 
 @[builtinTermElab str] def elabStr : TermElab :=
 fun stx _ => do
   match (stx.getArg 0).isStrLit? with
   | some val => pure $ mkStrLit val
-  | none     => throwError stx.val "ill-formed syntax"
+  | none     => throwError stx "ill-formed syntax"
 
 @[builtinTermElab num] def elabNum : TermElab :=
 fun stx expectedType? => do
-  let ref := stx.val;
+  let ref := stx;
   val ← match (stx.getArg 0).isNatLit? with
     | some val => pure (mkNatLit val)
-    | none     => throwError stx.val "ill-formed syntax";
+    | none     => throwError stx "ill-formed syntax";
   typeMVar ← mkFreshTypeMVar ref MetavarKind.synthetic;
   registerSyntheticMVar ref typeMVar.mvarId! (SyntheticMVarKind.withDefault (Lean.mkConst `Nat));
   match expectedType? with
@@ -970,7 +972,7 @@ fun stx expectedType? => do
 fun stx _ => do
   match (stx.getArg 0).isCharLit? with
   | some val => pure $ mkApp (Lean.mkConst `Char.ofNat) (mkNatLit val.toNat)
-  | none     => throwError stx.val "ill-formed syntax"
+  | none     => throwError stx "ill-formed syntax"
 
 end Term
 

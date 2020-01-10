@@ -395,8 +395,8 @@ private partial def expandApp : Syntax → TermElabM (Syntax × Array NamedArg �
 
 @[builtinTermElab app] def elabApp : TermElab :=
 fun stx expectedType? => do
-  (f, namedArgs, args) ← expandApp stx.val;
-  elabAppAux stx.val f namedArgs args expectedType?
+  (f, namedArgs, args) ← expandApp stx;
+  elabAppAux stx f namedArgs args expectedType?
 
 @[builtinTermElab «id»] def elabId : TermElab := elabApp
 @[builtinTermElab explicit] def elabExplicit : TermElab := elabApp

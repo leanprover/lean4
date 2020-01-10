@@ -35,7 +35,7 @@ adaptExpander $ fun stx => match_syntax stx with
 
 @[builtinTermElab anonymousCtor] def elabAnoymousCtor : TermElab :=
 fun stx expectedType? => do
-let ref := stx.val;
+let ref := stx;
 tryPostponeIfNoneOrMVar expectedType?;
 match expectedType? with
 | none              => throwError ref "invalid constructor ⟨...⟩, expected type must be known"

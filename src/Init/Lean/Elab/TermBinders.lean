@@ -138,11 +138,11 @@ else do
 elabBinders #[binder] (fun fvars => x (fvars.get! 1))
 
 @[builtinTermElab «forall»] def elabForall : TermElab :=
-fun stx _ => match_syntax stx.val with
+fun stx _ => match_syntax stx with
 | `(forall $binders*, $term) =>
   elabBinders binders $ fun xs => do
     e ← elabType term;
-    mkForall stx.val xs e
+    mkForall stx xs e
 | _ => throwUnsupportedSyntax
 
 @[builtinTermElab arrow] def elabArrow : TermElab :=
@@ -157,7 +157,7 @@ fun stx _ =>
   let term   := stx.getArg 2;
   elabBinders #[binder] $ fun xs => do
     e ← elabType term;
-    mkForall stx.val xs e
+    mkForall stx xs e
 
 /-- Main loop `getFunBinderIds?` -/
 private partial def getFunBinderIdsAux? : Bool → Syntax → Array Syntax → TermElabM (Option (Array Syntax))
@@ -251,7 +251,7 @@ fun stx expectedType? => do
   elabBinders binders $ fun xs => do
     -- TODO: expected type
     e ← elabTerm body none;
-    mkLambda stx.val xs e
+    mkLambda stx xs e
 
 def withLetDecl {α} (ref : Syntax) (n : Name) (type : Expr) (val : Expr) (k : Expr → TermElabM α) : TermElabM α := do
 fvarId ← mkFreshFVarId;
@@ -304,7 +304,7 @@ throwError decl "not implemented yet"
 @[builtinTermElab «let»] def elabLet : TermElab :=
 fun stx expectedType? => do
   -- `let` decl `;` body
-  let ref      := stx.val;
+  let ref      := stx;
   let decl     := stx.getArg 1;
   let body     := stx.getArg 3;
   let declKind := decl.getKind;

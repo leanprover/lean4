@@ -51,31 +51,29 @@ partial def evalNat : Expr → Option Nat
 | _ => none
 
 /- Quick function for converting `e` into `s + k` s.t. `e` is definitionally equal to `Nat.add s k`. -/
-private partial def getOffset : Expr → Expr × Nat
-| e@(Expr.app _ a _) =>
+private partial def getOffsetAux : Expr → Bool → Option (Expr × Nat)
+| e@(Expr.app _ a _), top =>
   let fn := e.getAppFn;
   match fn with
   | Expr.const c _ _ =>
     let nargs := e.getAppNumArgs;
-    if c == `Nat.succ && nargs == 1 then
-      let (s, k) := getOffset a;
-      (s, k+1)
-    else if c == `Nat.add && nargs == 2 then
-      match evalNat (e.getArg! 1) with
-      | none   => (e, 0)
-      | some v =>
-        let (s, k) := getOffset (e.getArg! 0);
-        (s, k+v)
-    else if c == `HasAdd.add && nargs == 4 then
-      match evalNat (e.getArg! 3) with
-      | none   => (e, 0)
-      | some v =>
-        let (s, k) := getOffset (e.getArg! 0);
-        (s, k+v)
-    else
-       (e, 0)
-  | _ => (e, 0)
-| e => (e, 0)
+    if c == `Nat.succ && nargs == 1 then do
+      (s, k) ← getOffsetAux a false;
+      pure (s, k+1)
+    else if c == `Nat.add && nargs == 2 then do
+      v      ← evalNat (e.getArg! 1);
+      (s, k) ← getOffsetAux (e.getArg! 0) false;
+      pure (s, k+v)
+    else if c == `HasAdd.add && nargs == 4 then do
+      v      ← evalNat (e.getArg! 3);
+      (s, k) ← getOffsetAux (e.getArg! 2) false;
+      pure (s, k+v)
+    else if top then none else pure (e, 0)
+  | _ => if top then none else pure (e, 0)
+| e, top => if top then none else pure (e, 0)
+
+private def getOffset (e : Expr) : Option (Expr × Nat) :=
+getOffsetAux e true
 
 private partial def isOffset : Expr → Option (Expr × Nat)
 | e@(Expr.app _ a _) =>
@@ -84,7 +82,7 @@ private partial def isOffset : Expr → Option (Expr × Nat)
   | Expr.const c _ _ =>
     let nargs := e.getAppNumArgs;
     if (c == `Nat.succ && nargs == 1) || (c == `Nat.add && nargs == 2) || (c == `HasAdd.add && nargs == 4) then
-      some (getOffset e)
+      getOffset e
     else none
   | _ => none
 | _ => none

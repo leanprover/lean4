@@ -60,9 +60,9 @@ public:
     literal_kind kind() const { return kind(raw()); }
     string_ref const & get_string() const { lean_assert(kind() == literal_kind::String); return static_cast<string_ref const &>(cnstr_get_ref(*this, 0)); }
     nat const & get_nat() const { lean_assert(kind() == literal_kind::Nat); return static_cast<nat const &>(cnstr_get_ref(*this, 0)); }
+    bool is_zero() const { return kind() == literal_kind::Nat && get_nat().is_zero(); }
     friend bool operator==(literal const & a, literal const & b);
     friend bool operator<(literal const & a, literal const & b);
-
     void serialize(serializer & s) const { s.write_object(raw()); }
     static literal deserialize(deserializer & d) { return literal(d.read_object(), true); }
 };

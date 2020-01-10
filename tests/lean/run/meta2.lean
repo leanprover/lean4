@@ -420,10 +420,12 @@ check $ do { b ← isExprMVarAssigned $ m1.mvarId!; pure (!b) };
 check $ isExprMVarAssigned $ m3.mvarId!;
 pure ()
 
+section
 set_option ppOld false
-
 #eval tst26
+end
 
+section
 set_option trace.Meta.isDefEq.step true
 set_option trace.Meta.isDefEq.delta true
 set_option trace.Meta.isDefEq.assign true
@@ -435,3 +437,27 @@ check $ isDefEq (mkNatLit 1) (mkApp (mkConst `Nat.succ) m);
 pure ()
 
 #eval tst27
+end
+
+def tst28 : MetaM Unit := do
+print "----- tst28 -----";
+withLocalDecl `x nat BinderInfo.default $ fun x =>
+withLocalDecl `y nat BinderInfo.default $ fun y =>
+withLocalDecl `z nat BinderInfo.default $ fun z => do
+  t1 ← mkAppM `HasAdd.add #[x, y];
+  t1 ← mkAppM `HasAdd.add #[x, t1];
+  t1 ← mkAppM `HasAdd.add #[t1, t1];
+  t2 ← mkAppM `HasAdd.add #[z, y];
+  t3 ← mkAppM `Eq #[t2, t1];
+  t3 ← mkForall #[z] t3;
+  m  ← mkFreshExprMVar nat;
+  p  ← mkAppM `HasAdd.add #[x, m];
+  print t3;
+  r  ← kabstract t3 p;
+  print r;
+  p ← mkAppM `HasAdd.add #[x, y];
+  r  ← kabstract t3 p;
+  print r;
+  pure ()
+
+#eval tst28

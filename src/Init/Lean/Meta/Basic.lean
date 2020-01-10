@@ -251,7 +251,7 @@ ctx ← read; pure $ ctx.config.transparency == TransparencyMode.reducible
 @[inline] def getTransparency : MetaM TransparencyMode := do
 ctx ← read; pure $ ctx.config.transparency
 
-@[inline] private def getOptions : MetaM Options := do
+@[inline] def getOptions : MetaM Options := do
 ctx ← read; pure ctx.config.opts
 
 -- Remark: wanted to use `private`, but in C++ parser, `private` declarations do not shadow outer public ones.

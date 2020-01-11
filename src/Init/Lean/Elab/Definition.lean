@@ -83,11 +83,11 @@ withUsedWhen ref vars xs e dummyExpr cond k
 def mkDef (view : DefView) (declName : Name) (explictLevelNames : List Name) (vars : Array Expr) (xs : Array Expr) (type : Expr) (val : Expr)
     : TermElabM (Option Declaration) := do
 let ref := view.ref;
+valType ← Term.inferType view.val val;
+val     ← Term.ensureHasType ref type valType val;
 Term.synthesizeSyntheticMVars false;
 type    ← Term.instantiateMVars ref type;
 val     ← Term.instantiateMVars view.val val;
-valType ← Term.inferType view.val val;
-val     ← Term.ensureHasType ref type valType val;
 if view.kind.isExample then pure none
 else withUsedWhen ref vars xs val type view.kind.isDefOrOpaque $ fun vars => do
   type ← Term.mkForall ref xs type;

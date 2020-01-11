@@ -63,7 +63,7 @@ def fooParser (rbp : Nat := 0) : Parser := categoryParser (mkNameSimple "foo") r
 @[termParser] def tst3 := parser! symbol "FOO " 0 >> fooParser 0
 
 @[termElab tst3] def elabTst3 : TermElab :=
-fun (stx : Syntax) expected? =>
+fun stx expected? =>
   elabTerm ((stx.getArg 1).getArg 1) expected?
 
 #check FOO ⟨| id 1 |⟩

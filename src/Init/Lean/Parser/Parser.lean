@@ -1334,15 +1334,18 @@ abbrev ParserCategories := PersistentHashMap Name ParsingTables
 def mkBuiltinParserCategories : IO (IO.Ref ParserCategories) := IO.mkRef {}
 @[init mkBuiltinParserCategories] constant builtinParserCategoriesRef : IO.Ref ParserCategories := arbitrary _
 
-private def addParserCategory (categories : ParserCategories) (catName : Name) : Except String ParserCategories :=
+private def throwParserCategoryAlreadyDefined {α} (catName : Name) : ExceptT String Id α :=
+throw ("parser category '" ++ toString catName ++ "' has already been defined")
+
+private def addParserCategoryCore (categories : ParserCategories) (catName : Name) : Except String ParserCategories :=
 if categories.contains catName then
-  throw ("parser category '" ++ toString catName ++ "' has already been defined")
+  throwParserCategoryAlreadyDefined catName
 else
   pure $ categories.insert catName {}
 
 private def addBuiltinParserCategory (catName : Name) : IO Unit := do
 categories ← builtinParserCategoriesRef.get;
-categories ← IO.ofExcept $ addParserCategory categories catName;
+categories ← IO.ofExcept $ addParserCategoryCore categories catName;
 builtinParserCategoriesRef.set categories
 
 inductive ParserExtensionOleanEntry
@@ -1522,7 +1525,7 @@ es.foldlM
        | ParserExtensionOleanEntry.kind k =>
          pure { kinds := s.kinds.insert k, .. s }
        | ParserExtensionOleanEntry.category catName => do
-         categories ← IO.ofExcept (addParserCategory s.categories catName);
+         categories ← IO.ofExcept (addParserCategoryCore s.categories catName);
          pure { categories := categories, .. s }
        | ParserExtensionOleanEntry.parser catName declName =>
          match mkParserOfConstant env s.categories declName with
@@ -1546,6 +1549,15 @@ registerPersistentEnvExtension {
 
 @[init mkParserExtension]
 constant parserExtension : ParserExtension := arbitrary _
+
+def isParserCategory (env : Environment) (catName : Name) : Bool :=
+(parserExtension.getState env).categories.contains catName
+
+def addParserCategory (env : Environment) (catName : Name) : Except String Environment := do
+if isParserCategory env catName then
+  throwParserCategoryAlreadyDefined catName
+else
+  pure $ parserExtension.addEntry env $ ParserExtensionEntry.category catName
 
 def categoryParserFnImpl (catName : Name) : ParserFn leading :=
 fun rbp ctx s =>
@@ -1668,20 +1680,30 @@ match mkParserOfConstant env categories declName with
   | Except.ok _     => pure $ parserExtension.addEntry env $ ParserExtensionEntry.parser catName declName parserKind parser
   | Except.error ex => throw (IO.userError ex)
 
-/-
-Parser attribute that can be optionally initialized with
-a builtin parser attribute.
 
-TODO: support for scoped attributes.
--/
-def registerParserAttribute (attrName : Name) (catName : Name) : IO Unit := do
-let attrImpl : AttributeImpl := {
-  name            := attrName,
+def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl :=
+{ name            := attrName,
   descr           := "parser",
   add             := ParserAttribute.add attrName catName,
-  applicationTime := AttributeApplicationTime.afterCompilation
-};
-registerBuiltinAttribute attrImpl -- TODO improve
+  applicationTime := AttributeApplicationTime.afterCompilation }
+
+/- A builtin parser attribute that can be extended by users. -/
+def registerBuiltinDynamicParserAttribute (attrName : Name) (catName : Name) : IO Unit := do
+registerBuiltinAttribute (mkParserAttributeImpl attrName catName)
+
+def declareAttributeImplFor (env : Environment) (attrDeclName : Name) (attrName : Name) (catName : Name) : Except String Environment :=
+let type := mkConst `Lean.AttributerImpl;
+let val  := mkAppN (mkConst `Lean.Parser.mkParserAttributeImpl) #[toExpr attrName, toExpr catName];
+let decl := Declaration.defnDecl { name := attrDeclName, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
+match env.addAndCompile {} decl with
+| Except.error _ => throw $ "failed to emit attribute implementation code for parser attribute '" ++ toString attrName ++ "'"
+| Except.ok env  => pure env
+
+def registerParserCategory (env : Environment) (attrName : Name) (catName : Name) : Except String Environment := do
+env ← addParserCategory env catName;
+let attrDeclName := `_attr_impl ++ attrName;
+env ← declareAttributeImplFor env attrDeclName attrName catName;
+registerAttribute env attrDeclName
 
 -- declare `termParser` here since it is used everywhere via antiquotations
 
@@ -1689,7 +1711,7 @@ registerBuiltinAttribute attrImpl -- TODO improve
 registerBuiltinParserAttribute `builtinTermParser `term
 
 @[init] def regTermParserAttribute : IO Unit :=
-registerParserAttribute `termParser `term
+registerBuiltinDynamicParserAttribute `termParser `term
 
 @[inline] def termParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
 categoryParser `term rbp

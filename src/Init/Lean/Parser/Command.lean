@@ -13,7 +13,7 @@ namespace Parser
 registerBuiltinParserAttribute `builtinCommandParser `command
 
 @[init] def regCommandParserAttribute : IO Unit :=
-registerParserAttribute `commandParser `command
+registerBuiltinDynamicParserAttribute `commandParser `command
 
 @[inline] def commandParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
 categoryParser `command rbp

@@ -55,7 +55,7 @@ constant attributeMapRef : IO.Ref (PersistentHashMap Name AttributeImpl) := arbi
 /- Low level attribute registration function. -/
 def registerBuiltinAttribute (attr : AttributeImpl) : IO Unit := do
 m ← attributeMapRef.get;
-when (m.contains attr.name) $ throw (IO.userError ("invalid attribute declaration, '" ++ toString attr.name ++ "' has already been used"));
+when (m.contains attr.name) $ throw (IO.userError ("invalid builtin attribute declaration, '" ++ toString attr.name ++ "' has already been used"));
 initializing ← IO.initializing;
 unless initializing $ throw (IO.userError ("failed to register attribute, attributes can only be registered during initialization"));
 attributeMapRef.modify (fun m => m.insert attr.name attr)
@@ -146,7 +146,10 @@ match m.find? attrName with
 
 def registerAttribute (env : Environment) (attrDeclName : Name) : Except String Environment := do
 attrImpl ← mkAttributeImplOfConstant env attrDeclName;
-pure $ attributeExtension.addEntry env (attrDeclName, attrImpl)
+if isAttribute env attrImpl.name then
+  throw ("invalid builtin attribute declaration, '" ++ toString attrImpl.name ++ "' has already been used")
+else
+  pure $ attributeExtension.addEntry env (attrDeclName, attrImpl)
 
 namespace Environment
 

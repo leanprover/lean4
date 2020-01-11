@@ -539,6 +539,10 @@ def isCharLit? : Syntax → Option Char
     none
 | _ => none
 
+def hasArgs : Syntax → Bool
+| Syntax.node _ args => args.size > 0
+| _                  => false
+
 end Syntax
 
 /-- Create an identifier using `SourceInfo` from `src` -/

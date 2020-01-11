@@ -92,6 +92,7 @@ lean_object* l___private_Init_Lean_Elab_TermApp_7__resolveLValAux___closed__16;
 extern lean_object* l_Lean_Parser_Term_sort___elambda__1___closed__2;
 lean_object* l_List_foldlM___main___at___private_Init_Lean_Elab_TermApp_14__elabAppFn___main___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_TermApp_7__resolveLValAux___closed__14;
+extern lean_object* l_Array_iterateMAux___main___at_Lean_mkAppStx___spec__1___closed__1;
 lean_object* l___private_Init_Lean_Elab_TermApp_16__toMessageData___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_NamedArg_inhabited;
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabId___closed__3;
@@ -181,7 +182,6 @@ lean_object* l___private_Init_Lean_Elab_TermApp_17__mergeFailures___rarg___close
 lean_object* l_Lean_Elab_Term_elabApp(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getPathToBaseStructure_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_TermApp_7__resolveLValAux___closed__23;
-extern lean_object* l_Lean_Parser_declareAttributeImplFor___closed__7;
 lean_object* l_Array_umapMAux___main___at___private_Init_Lean_Elab_TermApp_17__mergeFailures___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
@@ -5276,7 +5276,7 @@ x_157 = l___private_Init_Lean_Elab_TermApp_12__elabAppLValsAux___main___closed__
 x_158 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_158, 0, x_157);
 lean_ctor_set(x_158, 1, x_156);
-x_159 = l_Lean_Parser_declareAttributeImplFor___closed__7;
+x_159 = l_Array_iterateMAux___main___at_Lean_mkAppStx___spec__1___closed__1;
 x_160 = lean_array_push(x_159, x_155);
 x_161 = lean_array_push(x_160, x_158);
 x_162 = lean_box(0);

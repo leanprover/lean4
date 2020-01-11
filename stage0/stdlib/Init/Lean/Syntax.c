@@ -108,6 +108,7 @@ lean_object* l___private_Init_Lean_Syntax_8__decodeHexLitAux___main___boxed(lean
 lean_object* l___private_Init_Lean_Syntax_11__decodeQuotedChar___boxed__const__4;
 lean_object* l___private_Init_Lean_Syntax_11__decodeQuotedChar___boxed__const__1;
 lean_object* lean_mk_syntax_ident(lean_object*);
+lean_object* l_Lean_Syntax_hasArgs___boxed(lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___main___closed__4;
 lean_object* l_Array_findRevMAux___main___at_Lean_Syntax_getTailInfo___main___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkStxNumLit(lean_object*, lean_object*);
@@ -223,6 +224,7 @@ lean_object* l_Lean_Syntax_setArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_updateTrailing(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Syntax_8__decodeHexLitAux___main(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Syntax_2__updateLeadingAux(lean_object*, lean_object*);
+uint8_t l_Lean_Syntax_hasArgs(lean_object*);
 lean_object* l_String_quote(lean_object*);
 lean_object* l_Lean_Syntax_asNode___closed__1;
 lean_object* l_Lean_Syntax_HasToString___closed__2;
@@ -6389,6 +6391,37 @@ lean_object* x_2;
 x_2 = l_Lean_Syntax_isCharLit_x3f(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+uint8_t l_Lean_Syntax_hasArgs(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 1)
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_2 = lean_ctor_get(x_1, 1);
+x_3 = lean_array_get_size(x_2);
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = lean_nat_dec_lt(x_4, x_3);
+lean_dec(x_3);
+return x_5;
+}
+else
+{
+uint8_t x_6; 
+x_6 = 0;
+return x_6;
+}
+}
+}
+lean_object* l_Lean_Syntax_hasArgs___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Syntax_hasArgs(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
 }
 }
 lean_object* l_Lean_mkIdentFrom(lean_object* x_1, lean_object* x_2) {

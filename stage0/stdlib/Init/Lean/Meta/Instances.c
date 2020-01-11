@@ -171,6 +171,7 @@ lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_DiscrTree_10__insertVal___at_Lean_Meta_addInstanceEntry___spec__10(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Meta_addInstanceEntry___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkInstanceExtension___closed__1;
+extern lean_object* l_Lean_defaultMaxRecDepth;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Array_binInsertM___at_Lean_Meta_addInstanceEntry___spec__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_insertAt___rarg(lean_object*, lean_object*, lean_object*);
@@ -3211,15 +3212,19 @@ return x_4;
 lean_object* _init_l_Lean_Meta_addGlobalInstance___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_addGlobalInstance___closed__2;
 x_2 = l_Lean_LocalContext_Inhabited___closed__2;
 x_3 = l_Array_empty___closed__1;
-x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = l_Lean_defaultMaxRecDepth;
+x_6 = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_4);
+lean_ctor_set(x_6, 4, x_5);
+return x_6;
 }
 }
 lean_object* lean_add_instance(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

@@ -15,7 +15,7 @@ namespace Meta
 namespace Exception
 
 private def run? {α} (ctx : ExceptionContext) (x : MetaM α) : Option α :=
-match x { lctx := ctx.lctx } { env := ctx.env, mctx := ctx.mctx, ngen := { namePrefix := `_meta_exception } } with
+match x { lctx := ctx.lctx, currRecDepth := 0, maxRecDepth := getMaxRecDepth ctx.opts } { env := ctx.env, mctx := ctx.mctx, ngen := { namePrefix := `_meta_exception } } with
 | EStateM.Result.ok a _ => some a
 | EStateM.Result.error _ _ => none
 

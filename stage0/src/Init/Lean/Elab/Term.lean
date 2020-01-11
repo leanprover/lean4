@@ -8,6 +8,7 @@ import Init.Lean.Util.Sorry
 import Init.Lean.Structure
 import Init.Lean.Meta
 import Init.Lean.Hygiene
+import Init.Lean.Util.RecDepth
 import Init.Lean.Elab.Log
 import Init.Lean.Elab.Alias
 import Init.Lean.Elab.ResolveName
@@ -155,6 +156,11 @@ throw (Exception.ex (Elab.Exception.error msg))
 
 def throwUnsupportedSyntax {α} : TermElabM α :=
 throw (Exception.ex Elab.Exception.unsupportedSyntax)
+
+@[inline] def withIncRecDepth {α} (ref : Syntax) (x : TermElabM α) : TermElabM α := do
+ctx ← read;
+when (ctx.currRecDepth == ctx.maxRecDepth) $ throwError ref maxRecDepthErrorMessage;
+adaptReader (fun (ctx : Context) => { currRecDepth := ctx.currRecDepth + 1, .. ctx }) x
 
 protected def getCurrMacroScope : TermElabM MacroScope := do
 ctx ← read;
@@ -523,7 +529,7 @@ private def elabTermUsing (s : State) (stx : Syntax) (expectedType? : Option Exp
   The option `catchExPostpone == false` is used to implement `resumeElabTerm`
   to prevent the creation of another synthetic metavariable when resuming the elaboration. -/
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (errToSorry := true) : TermElabM Expr :=
-withFreshMacroScope $ withNode stx $ fun node => do
+withFreshMacroScope $ withIncRecDepth stx $ withNode stx $ fun node => do
   trace `Elab.step stx $ fun _ => stx;
   s ← get;
   let table := (termElabAttribute.ext.getState s.env).table;

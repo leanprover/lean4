@@ -11,6 +11,7 @@ import Init.Lean.Environment
 import Init.Lean.Class
 import Init.Lean.ReducibilityAttrs
 import Init.Lean.Util.Trace
+import Init.Lean.Util.RecDepth
 import Init.Lean.Meta.Exception
 import Init.Lean.Meta.DiscrTreeTypes
 import Init.Lean.Eval
@@ -113,6 +114,8 @@ structure Context :=
 (config         : Config         := {})
 (lctx           : LocalContext   := {})
 (localInstances : LocalInstances := #[])
+(currRecDepth   : Nat)
+(maxRecDepth    : Nat)
 
 structure PostponedEntry :=
 (lhs       : Level)
@@ -130,6 +133,11 @@ abbrev MetaM := ReaderT Context (EStateM Exception State)
 
 instance MetaM.inhabited {α} : Inhabited (MetaM α) :=
 ⟨fun c s => EStateM.Result.error (arbitrary _) s⟩
+
+@[inline] def withIncRecDepth {α} (x : MetaM α) : MetaM α := do
+ctx ← read;
+when (ctx.currRecDepth == ctx.maxRecDepth) $ throw $ Exception.other maxRecDepthErrorMessage;
+adaptReader (fun (ctx : Context) => { currRecDepth := ctx.currRecDepth + 1, .. ctx }) x
 
 @[inline] def getLCtx : MetaM LocalContext := do
 ctx ← read; pure ctx.lctx
@@ -186,25 +194,29 @@ registerEnvExtension $ do
 @[init mkMetaExtension]
 constant metaExt : EnvExtension MetaExtState := arbitrary _
 
-def whnf (e : Expr) : MetaM Expr := do
-env ← getEnv;
-(metaExt.getState env).whnf e
+def whnf (e : Expr) : MetaM Expr :=
+withIncRecDepth $ do
+  env ← getEnv;
+  (metaExt.getState env).whnf e
 
 def whnfForall (e : Expr) : MetaM Expr := do
 e' ← whnf e;
 if e'.isForall then pure e' else pure e
 
-def inferType (e : Expr) : MetaM Expr := do
-env ← getEnv;
-(metaExt.getState env).inferType e
+def inferType (e : Expr) : MetaM Expr :=
+withIncRecDepth $ do
+  env ← getEnv;
+  (metaExt.getState env).inferType e
 
-def isExprDefEqAux (t s : Expr) : MetaM Bool := do
-env ← getEnv;
-(metaExt.getState env).isDefEqAux t s
+def isExprDefEqAux (t s : Expr) : MetaM Bool :=
+withIncRecDepth $ do
+  env ← getEnv;
+  (metaExt.getState env).isDefEqAux t s
 
-def synthPending (e : Expr) : MetaM Bool := do
-env ← getEnv;
-(metaExt.getState env).synthPending e
+def synthPending (e : Expr) : MetaM Bool :=
+withIncRecDepth $ do
+  env ← getEnv;
+  (metaExt.getState env).synthPending e
 
 def mkFreshId : MetaM Name := do
 s ← get;
@@ -761,7 +773,7 @@ finally x (modify $ fun s => { mctx := mctx', .. s })
 
 instance MetaHasEval {α} [MetaHasEval α] : MetaHasEval (MetaM α) :=
 ⟨fun env opts x => do
-   match x { config := { opts := opts } } { env := env } with
+   match x { config := { opts := opts }, currRecDepth := 0, maxRecDepth := getMaxRecDepth opts } { env := env } with
    | EStateM.Result.ok a s    => do
      s.traceState.traces.forM $ fun m => IO.println $ format m;
      MetaHasEval.eval s.env opts a
@@ -780,6 +792,6 @@ open Lean.Meta
 
 /-- Helper function for running `MetaM` methods in attributes -/
 @[inline] def IO.runMeta {α} (x : MetaM α) (env : Environment) (cfg : Config := {}) : IO (α × Environment) :=
-match (x { config := cfg }).run { env := env } with
+match (x { config := cfg, currRecDepth := 0, maxRecDepth := defaultMaxRecDepth }).run { env := env } with
 | EStateM.Result.ok a s     => pure (a, s.env)
 | EStateM.Result.error ex _ => throw (IO.userError (toString ex))

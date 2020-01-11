@@ -30,16 +30,18 @@ structure State :=
 (messages       : MessageLog := {})
 (scopes         : List Scope := [{ kind := "root", header := "" }])
 (nextMacroScope : Nat := 1)
+(maxRecDepth    : Nat)
 
-instance State.inhabited : Inhabited State := ⟨{ env := arbitrary _ }⟩
+instance State.inhabited : Inhabited State := ⟨{ env := arbitrary _, maxRecDepth := 0 }⟩
 
 def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State :=
-{ env := env, messages := messages, scopes := [{ kind := "root", header := "", opts := opts }] }
+{ env := env, messages := messages, scopes := [{ kind := "root", header := "", opts := opts }], maxRecDepth := getMaxRecDepth opts }
 
 structure Context :=
 (fileName       : String)
 (fileMap        : FileMap)
 (stateRef       : IO.Ref State)
+(currRecDepth   : Nat := 0)
 (cmdPos         : String.Pos := 0)
 (macroStack     : List Syntax := [])
 (currMacroScope : MacroScope := 0)
@@ -180,6 +182,11 @@ def mkCommandElabAttribute : IO CommandElabAttribute :=
 mkElabAttribute CommandElab `commandElab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command" builtinCommandElabTable
 @[init mkCommandElabAttribute] constant commandElabAttribute : CommandElabAttribute := arbitrary _
 
+@[inline] def withIncRecDepth {α} (ref : Syntax) (x : CommandElabM α) : CommandElabM α := do
+ctx ← read; s ← get;
+when (ctx.currRecDepth == s.maxRecDepth) $ throwError ref maxRecDepthErrorMessage;
+adaptReader (fun (ctx : Context) => { currRecDepth := ctx.currRecDepth + 1, .. ctx }) x
+
 private def elabCommandUsing (stx : Syntax) : List CommandElab → CommandElabM Unit
 | []                => do
   refFmt ← prettyPrint stx;
@@ -190,7 +197,7 @@ private def elabCommandUsing (stx : Syntax) : List CommandElab → CommandElabM 
     | Exception.unsupportedSyntax => elabCommandUsing elabFns)
 
 def elabCommand (stx : Syntax) : CommandElabM Unit :=
-match stx with
+withIncRecDepth stx $ match stx with
 | Syntax.node _ _ => do
   s ← get;
   let table := (commandElabAttribute.ext.getState s.env).table;
@@ -215,6 +222,8 @@ let scope := s.scopes.head!;
 { config         := { opts := scope.opts, foApprox := true, ctxApprox := true, quasiPatternApprox := true, isDefEqStuckEx := true },
   fileName       := ctx.fileName,
   fileMap        := ctx.fileMap,
+  currRecDepth   := ctx.currRecDepth,
+  maxRecDepth    := s.maxRecDepth,
   cmdPos         := ctx.cmdPos,
   declName?      := declName?,
   macroStack     := ctx.macroStack,
@@ -520,8 +529,10 @@ fun stx => do
 def setOption (ref : Syntax) (optionName : Name) (val : DataValue) : CommandElabM Unit := do
 decl ← liftIO ref $ getOptionDecl optionName;
 unless (decl.defValue.sameCtor val) $ throwError ref "type mismatch at set_option";
-modifyScope $ fun scope => { opts := scope.opts.insert optionName val, .. scope }
-
+modifyScope $ fun scope => { opts := scope.opts.insert optionName val, .. scope };
+match optionName, val with
+| `maxRecDepth, DataValue.ofNat max => modify $ fun s => { maxRecDepth := max, .. s}
+| _,            _                   => pure ()
 
 @[builtinCommandElab «set_option»] def elabSetOption : CommandElab :=
 fun stx => do

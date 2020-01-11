@@ -22,7 +22,7 @@ do v? ← getExprMVarAssignment? m.mvarId!;
 
 def run (mods : List Name) (x : MetaM Unit) (opts : Options := dbgOpt) : IO Unit :=
 do env ← importModules $ mods.map $ fun m => {module := m};
-   match x { config := { opts := opts } } { env := env } with
+   match x { config := { opts := opts }, currRecDepth := 0, maxRecDepth := 100000 } { env := env } with
    | EStateM.Result.ok _ s    => do
      s.traceState.traces.forM $ fun m => IO.println $ format m;
      pure ()

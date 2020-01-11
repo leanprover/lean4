@@ -94,7 +94,8 @@ def openRenamingItem := parser! ident >> unicodeSymbol "→" "->" >> ident
 def openRenaming     := parser! try (ident >> "renaming") >> sepBy1 openRenamingItem ", "
 def openOnly         := parser! try (ident >> "(") >> many1 ident >> ")"
 def openSimple       := parser! many1 ident
-@[builtinCommandParser] def «open»       := parser! "open " >> (openHiding <|> openRenaming <|> openOnly <|> openSimple)
+@[builtinCommandParser] def «open»    := parser! "open " >> (openHiding <|> openRenaming <|> openOnly <|> openSimple)
+@[builtinCommandParser] def syntaxCat := parser! "declare_syntax_cat " >> ident
 
 /- Lean3 command declaration commands -/
 def maxPrec := parser! symbolOrIdent "max"

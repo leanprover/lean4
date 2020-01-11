@@ -145,6 +145,7 @@ match m.find? attrName with
 | none      => throw ("unknown attribute '" ++ toString attrName ++ "'")
 
 def registerAttribute (env : Environment) (attrDeclName : Name) : Except String Environment := do
+-- TODO: fix... we should not communicate attribute implementation using Lean.Declaration. Reason: user would need to have a big chunk of Init.Lean in the environment
 attrImpl ← mkAttributeImplOfConstant env attrDeclName;
 if isAttribute env attrImpl.name then
   throw ("invalid builtin attribute declaration, '" ++ toString attrImpl.name ++ "' has already been used")

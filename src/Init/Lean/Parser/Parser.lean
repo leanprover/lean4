@@ -14,6 +14,8 @@ import Init.Lean.Message
 import Init.Lean.Parser.Identifier
 import Init.Lean.Compiler.InitAttr
 
+import Init.Lean.Meta.Message -- TODO remove
+
 namespace Lean
 namespace Parser
 
@@ -1692,11 +1694,11 @@ def registerBuiltinDynamicParserAttribute (attrName : Name) (catName : Name) : I
 registerBuiltinAttribute (mkParserAttributeImpl attrName catName)
 
 def declareAttributeImplFor (env : Environment) (attrDeclName : Name) (attrName : Name) (catName : Name) : Except String Environment :=
-let type := mkConst `Lean.AttributerImpl;
+let type := mkConst `Lean.AttributeImpl;
 let val  := mkAppN (mkConst `Lean.Parser.mkParserAttributeImpl) #[toExpr attrName, toExpr catName];
 let decl := Declaration.defnDecl { name := attrDeclName, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
 match env.addAndCompile {} decl with
-| Except.error _ => throw $ "failed to emit attribute implementation code for parser attribute '" ++ toString attrName ++ "'"
+| Except.error ex => throw $ "failed to emit attribute implementation code for parser attribute '" ++ toString attrName ++ "', " ++ toString (fmt (ex.toMessageData {}))
 | Except.ok env  => pure env
 
 def registerParserCategory (env : Environment) (attrName : Name) (catName : Name) : Except String Environment := do

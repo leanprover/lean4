@@ -46,3 +46,24 @@ adaptExpander $ fun stx => match_syntax stx with
 
 #eval run "#check (| id 1 |)"
 #eval run "#check (| id 1, id 2 |)"
+
+new_frontend
+
+declare_syntax_cat foo
+
+open Lean
+open Lean.Parser
+open Lean.Elab
+open Lean.Elab.Term
+
+@[fooParser] def tst2 : Parser := parser! symbol "⟨|" 0 >> termParser >> symbol "|⟩" 0
+
+def fooParser (rbp : Nat := 0) : Parser := categoryParser (mkNameSimple "foo") rbp
+
+@[termParser] def tst3 := parser! symbol "FOO " 0 >> fooParser 0
+
+@[termElab tst3] def elabTst3 : TermElab :=
+fun (stx : Syntax) expected? =>
+  elabTerm ((stx.getArg 1).getArg 1) expected?
+
+#check FOO ⟨| id 1 |⟩

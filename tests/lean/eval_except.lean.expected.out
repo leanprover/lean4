@@ -1,5 +1,5 @@
 
 eval_except.lean:4:0: error: this is my error
 
-eval_except.lean:5:0: error: No such file or directory
+eval_except.lean:5:0: error: No such file or directory (error code: 31)
   file: file.ext

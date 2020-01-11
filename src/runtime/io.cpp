@@ -35,33 +35,32 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-extern "C" lean_object* lean_mk_io_error_permission_denied_file(lean_object*, lean_object*);
-extern "C" lean_object* lean_mk_io_error_no_file_or_directory(lean_object*, lean_object*);
-extern "C" lean_object* mk_io_user_error(lean_object*);
 extern "C" lean_object* lean_string_append(lean_object*, lean_object*);
-extern "C" lean_object* lean_mk_io_error_resource_exhausted_file(lean_object*, lean_object*);
-extern "C" lean_object* lean_mk_io_error_interrupted(lean_object*, lean_object*);
-extern "C" lean_object* lean_mk_io_error_invalid_argument_file(lean_object*, lean_object*);
-extern "C" lean_object* lean_mk_io_error_no_such_thing_file(lean_object*, lean_object*);
-extern "C" lean_object* lean_mk_io_error_inappropriate_type_file(lean_object*, lean_object*);
+
+extern "C" lean_object* lean_mk_io_error_already_exists(uint32_t, lean_object*);
 extern "C" lean_object* lean_mk_io_error_eof();
-extern "C" lean_object* lean_mk_io_error_unsupported_operation(lean_object*);
-extern "C" lean_object* lean_mk_io_error_resource_exhausted(lean_object*);
-extern "C" lean_object* lean_mk_io_error_already_exists(lean_object*);
-extern "C" lean_object* lean_mk_io_error_inappropriate_type(lean_object*);
-extern "C" lean_object* lean_mk_io_error_no_such_thing(lean_object*);
-extern "C" lean_object* lean_mk_io_error_resource_vanished(lean_object*);
-extern "C" lean_object* lean_mk_io_error_resource_busy(lean_object*);
-extern "C" lean_object* lean_mk_io_error_invalid_argument(lean_object*);
-extern "C" lean_object* lean_mk_io_error_other_error(lean_object*);
-extern "C" lean_object* lean_mk_io_error_permission_denied(lean_object*);
-extern "C" lean_object* lean_mk_io_error_no_such_thing(lean_object*);
-extern "C" lean_object* lean_mk_io_error_unsupported_operation(lean_object*);
-extern "C" lean_object* lean_mk_io_error_hardware_fault(lean_object*);
-extern "C" lean_object* lean_mk_io_error_unsatisfied_constraints(lean_object*);
-extern "C" lean_object* lean_mk_io_error_illegal_operation(lean_object*);
-extern "C" lean_object* lean_mk_io_error_protocol_error(lean_object*);
-extern "C" lean_object* lean_mk_io_error_time_expired(lean_object*);
+extern "C" lean_object* lean_mk_io_error_hardware_fault(uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_illegal_operation(uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_inappropriate_type(uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_inappropriate_type_file(lean_object*, uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_interrupted(lean_object*, uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_invalid_argument(uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_invalid_argument_file(lean_object*, uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_no_file_or_directory(lean_object*, uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_no_such_thing(uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_no_such_thing_file(lean_object*, uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_other_error(uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_permission_denied(uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_permission_denied_file(lean_object*, uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_protocol_error(uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_resource_busy(uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_resource_exhausted(uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_resource_exhausted_file(lean_object*, uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_resource_vanished(uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_time_expired(uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_unsatisfied_constraints(uint32_t, lean_object*);
+extern "C" lean_object* lean_mk_io_error_unsupported_operation(uint32_t, lean_object*);
+
 
 extern "C" void lean_io_result_show_error(b_obj_arg r) {
     object * err = io_result_get_error(r);
@@ -157,89 +156,89 @@ obj_res decode_io_error(int errnum, b_obj_arg fname) {
     case EINTR:
         lean_assert(fname != nullptr);
         inc_ref(fname);
-        return lean_mk_io_error_interrupted(fname, details);
+        return lean_mk_io_error_interrupted(fname, errnum, details);
     case ELOOP: case ENAMETOOLONG: case EDESTADDRREQ:
     case EBADF: case EDOM: case EINVAL: case EILSEQ:
     case ENOEXEC: case ENOSTR: case ENOTCONN:
     case ENOTSOCK:
         if (fname == nullptr) {
-            return lean_mk_io_error_invalid_argument(details);
+            return lean_mk_io_error_invalid_argument(errnum, details);
         } else {
             inc_ref(fname);
-            return lean_mk_io_error_invalid_argument_file(fname, details);
+            return lean_mk_io_error_invalid_argument_file(fname, errnum, details);
         }
     case ENOENT:
         lean_assert(fname != nullptr);
         inc_ref(fname);
-        return lean_mk_io_error_no_file_or_directory(fname, details);
+        return lean_mk_io_error_no_file_or_directory(fname, errnum, details);
     case EACCES: case EROFS: case ECONNABORTED: case EFBIG:
     case EPERM:
         if (fname == nullptr) {
-            return lean_mk_io_error_permission_denied(details);
+            return lean_mk_io_error_permission_denied(errnum, details);
         } else {
             inc_ref(fname);
-            return lean_mk_io_error_permission_denied_file(fname, details);
+            return lean_mk_io_error_permission_denied_file(fname, errnum, details);
         }
     case EMFILE: case ENFILE: case ENOSPC:
     case E2BIG:  case EAGAIN: case EMLINK:
     case EMSGSIZE: case ENOBUFS: case ENOLCK:
     case ENOMEM: case ENOSR:
         if (fname == nullptr) {
-            return lean_mk_io_error_resource_exhausted(details);
+            return lean_mk_io_error_resource_exhausted(errnum, details);
         } else {
             inc_ref(fname);
-            return lean_mk_io_error_resource_exhausted_file(fname, details);
+            return lean_mk_io_error_resource_exhausted_file(fname, errnum, details);
         }
     case EISDIR: case EBADMSG: case ENOTDIR:
         if (fname == nullptr) {
-            return lean_mk_io_error_inappropriate_type(details);
+            return lean_mk_io_error_inappropriate_type(errnum, details);
         } else {
             inc_ref(fname);
-            return lean_mk_io_error_inappropriate_type_file(fname, details);
+            return lean_mk_io_error_inappropriate_type_file(fname, errnum, details);
         }
     case ENXIO: case EHOSTUNREACH: case ENETUNREACH:
     case ECHILD: case ECONNREFUSED: case ENODATA:
     case ENOMSG: case ESRCH:
         if (fname == nullptr) {
-            return lean_mk_io_error_no_such_thing(details);
+            return lean_mk_io_error_no_such_thing(errnum, details);
         } else {
             inc_ref(fname);
-            return lean_mk_io_error_no_such_thing_file(fname, details);
+            return lean_mk_io_error_no_such_thing_file(fname, errnum, details);
         }
     case EEXIST: case EINPROGRESS: case EISCONN:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_already_exists(details);
+        return lean_mk_io_error_already_exists(errnum, details);
     case EIO:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_hardware_fault(details);
+        return lean_mk_io_error_hardware_fault(errnum, details);
     case ENOTEMPTY:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_unsatisfied_constraints(details);
+        return lean_mk_io_error_unsatisfied_constraints(errnum, details);
     case ENOTTY:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_illegal_operation(details);
+        return lean_mk_io_error_illegal_operation(errnum, details);
     case ECONNRESET: case EIDRM: case ENETDOWN: case ENETRESET:
     case ENOLINK: case EPIPE:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_resource_vanished(details);
+        return lean_mk_io_error_resource_vanished(errnum, details);
     case EPROTO: case EPROTONOSUPPORT: case EPROTOTYPE:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_protocol_error(details);
+        return lean_mk_io_error_protocol_error(errnum, details);
     case ETIME: case ETIMEDOUT:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_time_expired(details);
+        return lean_mk_io_error_time_expired(errnum, details);
     case EADDRINUSE: case EBUSY: case EDEADLK: case ETXTBSY:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_resource_busy(details);
+        return lean_mk_io_error_resource_busy(errnum, details);
     case EADDRNOTAVAIL: case EAFNOSUPPORT: case ENODEV:
     case ENOPROTOOPT: case ENOSYS: case EOPNOTSUPP:
     case ERANGE: case ESPIPE: case EXDEV:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_unsupported_operation(details);
+        return lean_mk_io_error_unsupported_operation(errnum, details);
     case EFAULT:
     default:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_other_error(details);
+        return lean_mk_io_error_other_error(errnum, details);
     }
 }
 

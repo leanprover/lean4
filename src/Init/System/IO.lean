@@ -260,16 +260,12 @@ let g : UInt32 := acc.group.flags.shiftLeft 3;
 let o : UInt32 := acc.other.flags;
 u.lor $ g.lor o
 
-namespace Access
-
 @[extern "lean_chmod"]
 constant Prim.setAccessRights (filename : @& String) (mode : UInt32) : IO Unit :=
 arbitrary _
 
 def setAccessRights (filename : String) (mode : FileRight) : IO Unit :=
 Prim.setAccessRights filename mode.flags
-
-end Access
 
 /- References -/
 constant RefPointed (α : Type) : PointedType := arbitrary _

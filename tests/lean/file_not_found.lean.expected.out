@@ -1,9 +1,9 @@
 
-file_not_found.lean:6:0: error: No such file or directory
-  file: non-existant-file.txt
+file_not_found.lean:6:0: error: No such file or directory (error code: 2)
+  file: non-existent-file.txt
 
 
-file_not_found.lean:12:0: error: Permission denied
+file_not_found.lean:12:0: error: Permission denied (error code: 13)
   file: readonly.txt
 
-file_not_found.lean:13:0: error: Invalid argument: bad file descriptor
+file_not_found.lean:13:0: error: Invalid argument (error code: 9, bad file descriptor)

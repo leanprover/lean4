@@ -61,7 +61,7 @@ pure "hello"
  #check (α : Type) → α → α
  #check {α : Type} → {β : Type} → M → (α → β) → α → β
  #check ()
- #check run
+ #check _root_.run
  end"
 
 structure S1 :=
@@ -157,7 +157,6 @@ f a
 #eval run "#check #[].push one $.push two $.push zero $.size.succ"
 #eval run "#check #[1, 2].foldl (fun r a => r.push a $.push a $.push a) #[]"
 #eval run "#check #[1, 2].foldl (init := #[]) $ fun r a => r.push a $.push a"
-
 
 #eval run "#check let x := one + zero; x + x"
 -- set_option trace.Elab true

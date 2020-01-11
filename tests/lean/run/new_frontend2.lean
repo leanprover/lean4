@@ -1,5 +1,7 @@
 new_frontend
 
+declare_syntax_cat foo
+
 variable {m : Type → Type}
 variable [s : Functor m]
 

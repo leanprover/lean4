@@ -1693,19 +1693,15 @@ def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl :=
 def registerBuiltinDynamicParserAttribute (attrName : Name) (catName : Name) : IO Unit := do
 registerBuiltinAttribute (mkParserAttributeImpl attrName catName)
 
-def declareAttributeImplFor (env : Environment) (attrDeclName : Name) (attrName : Name) (catName : Name) : Except String Environment :=
-let type := mkConst `Lean.AttributeImpl;
-let val  := mkAppN (mkConst `Lean.Parser.mkParserAttributeImpl) #[toExpr attrName, toExpr catName];
-let decl := Declaration.defnDecl { name := attrDeclName, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
-match env.addAndCompile {} decl with
-| Except.error ex => throw $ "failed to emit attribute implementation code for parser attribute '" ++ toString attrName ++ "', " ++ toString (fmt (ex.toMessageData {}))
-| Except.ok env  => pure env
+@[init] private def registerParserAttributeImplBuilder : IO Unit :=
+registerAttributeImplBuilder `parserAttr $ fun args =>
+  match args with
+  | [DataValue.ofName attrName, DataValue.ofName catName] => pure $ mkParserAttributeImpl attrName catName
+  | _ => throw ("invalid parser attribute implementation builder arguments")
 
-def registerParserCategory (env : Environment) (attrName : Name) (catName : Name) : Except String Environment := do
-env ← addParserCategory env catName;
-let attrDeclName := `_attr_impl ++ attrName;
-env ← declareAttributeImplFor env attrDeclName attrName catName;
-registerAttribute env attrDeclName
+def registerParserCategory (env : Environment) (attrName : Name) (catName : Name) : IO Environment := do
+env ← IO.ofExcept $ addParserCategory env catName;
+registerAttributeOfBuilder env `parserAttr [DataValue.ofName attrName, DataValue.ofName catName]
 
 -- declare `termParser` here since it is used everywhere via antiquotations
 

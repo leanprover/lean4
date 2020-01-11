@@ -38,11 +38,6 @@ structure AttributeImpl :=
 -/
 (applicationTime := AttributeApplicationTime.afterTypeChecking)
 
-/- Auxiliary function for parsing attribute arguments -/
-def Syntax.hasArgs : Syntax → Bool
-| Syntax.node _ args => args.size > 0
-| _                  => false
-
 instance AttributeImpl.inhabited : Inhabited AttributeImpl :=
 ⟨{ name := arbitrary _, descr := arbitrary _, add := fun env _ _ _ => pure env }⟩
 
@@ -60,11 +55,32 @@ initializing ← IO.initializing;
 unless initializing $ throw (IO.userError ("failed to register attribute, attributes can only be registered during initialization"));
 attributeMapRef.modify (fun m => m.insert attr.name attr)
 
+abbrev AttributeImplBuilder := List DataValue → Except String AttributeImpl
+abbrev AttributeImplBuilderTable := HashMap Name AttributeImplBuilder
+
+def mkAttributeImplBuilderTable : IO (IO.Ref AttributeImplBuilderTable) := IO.mkRef {}
+@[init mkAttributeImplBuilderTable] constant attributeImplBuilderTableRef : IO.Ref AttributeImplBuilderTable := arbitrary _
+
+def registerAttributeImplBuilder (builderId : Name) (builder : AttributeImplBuilder) : IO Unit := do
+table ← attributeImplBuilderTableRef.get;
+when (table.contains builderId) $ throw (IO.userError ("attribute implementation builder '" ++ toString builderId ++ "' has already been declared"));
+attributeImplBuilderTableRef.modify $ fun table => table.insert builderId builder
+
+def mkAttributeImplOfBuilder (builderId : Name) (args : List DataValue) : IO AttributeImpl := do
+table ← attributeImplBuilderTableRef.get;
+match table.find? builderId with
+| none         => throw (IO.userError ("unknown attribute implementation builder '" ++ toString builderId ++ "'"))
+| some builder => IO.ofExcept $ builder args
+
+inductive AttributeExtensionOLeanEntry
+| decl (declName : Name) -- `declName` has type `AttributeImpl`
+| builder (builderId : Name) (args : List DataValue)
+
 structure AttributeExtensionState :=
-(newEntries : List Name := [])
+(newEntries : List AttributeExtensionOLeanEntry := [])
 (map        : PersistentHashMap Name AttributeImpl)
 
-abbrev AttributeExtension := PersistentEnvExtension Name (Name × AttributeImpl) AttributeExtensionState
+abbrev AttributeExtension := PersistentEnvExtension AttributeExtensionOLeanEntry (AttributeExtensionOLeanEntry × AttributeImpl) AttributeExtensionState
 
 instance AttributeExtensionState.inhabited : Inhabited AttributeExtensionState := ⟨{ map := {} }⟩
 
@@ -83,19 +99,24 @@ match env.find? declName with
 @[implementedBy mkAttributeImplOfConstantUnsafe]
 constant mkAttributeImplOfConstant (env : Environment) (declName : Name) : Except String AttributeImpl := arbitrary _
 
-private def AttributeExtension.addImported (env : Environment) (es : Array (Array Name)) : IO AttributeExtensionState := do
+def mkAttributeImplOfEntry (env : Environment) (e : AttributeExtensionOLeanEntry) : IO AttributeImpl :=
+match e with
+| AttributeExtensionOLeanEntry.decl declName          => IO.ofExcept $ mkAttributeImplOfConstant env declName
+| AttributeExtensionOLeanEntry.builder builderId args => mkAttributeImplOfBuilder builderId args
+
+private def AttributeExtension.addImported (env : Environment) (es : Array (Array AttributeExtensionOLeanEntry)) : IO AttributeExtensionState := do
 map ← attributeMapRef.get;
 map ← es.foldlM
   (fun map entries =>
     entries.foldlM
-      (fun (map : PersistentHashMap Name AttributeImpl) declName => do
-        attrImpl ← IO.ofExcept $ mkAttributeImplOfConstant env declName;
+      (fun (map : PersistentHashMap Name AttributeImpl) entry => do
+        attrImpl ← mkAttributeImplOfEntry env entry;
         pure $ map.insert attrImpl.name attrImpl)
       map)
   map;
 pure { map := map }
 
-private def AttributeExtension.addEntry (s : AttributeExtensionState) (e : Name × AttributeImpl) : AttributeExtensionState :=
+private def AttributeExtension.addEntry (s : AttributeExtensionState) (e : AttributeExtensionOLeanEntry × AttributeImpl) : AttributeExtensionState :=
 { map := s.map.insert e.2.name e.2, newEntries := e.1 :: s.newEntries, .. s }
 
 def mkAttributeExtension : IO AttributeExtension :=
@@ -144,13 +165,19 @@ match m.find? attrName with
 | some attr => pure attr
 | none      => throw ("unknown attribute '" ++ toString attrName ++ "'")
 
-def registerAttribute (env : Environment) (attrDeclName : Name) : Except String Environment := do
--- TODO: fix... we should not communicate attribute implementation using Lean.Declaration. Reason: user would need to have a big chunk of Init.Lean in the environment
+def registerAttributeOfDecl (env : Environment) (attrDeclName : Name) : Except String Environment := do
 attrImpl ← mkAttributeImplOfConstant env attrDeclName;
 if isAttribute env attrImpl.name then
   throw ("invalid builtin attribute declaration, '" ++ toString attrImpl.name ++ "' has already been used")
 else
-  pure $ attributeExtension.addEntry env (attrDeclName, attrImpl)
+  pure $ attributeExtension.addEntry env (AttributeExtensionOLeanEntry.decl attrDeclName, attrImpl)
+
+def registerAttributeOfBuilder (env : Environment) (builderId : Name) (args : List DataValue) : IO Environment := do
+attrImpl ← mkAttributeImplOfBuilder builderId args;
+if isAttribute env attrImpl.name then
+  throw (IO.userError ("invalid builtin attribute declaration, '" ++ toString attrImpl.name ++ "' has already been used"))
+else
+  pure $ attributeExtension.addEntry env (AttributeExtensionOLeanEntry.builder builderId args, attrImpl)
 
 namespace Environment
 

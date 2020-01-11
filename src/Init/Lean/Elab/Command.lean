@@ -544,9 +544,8 @@ fun stx => do
   let catName  := stx.getIdAt 1;
   let attrName := catName.appendAfter "Parser";
   env ← getEnv;
-  match Parser.registerParserCategory env attrName catName with
-  | Except.error errMsg => throwError stx errMsg
-  | Except.ok env       => setEnv env
+  env ← liftIO stx $ Parser.registerParserCategory env attrName catName;
+  setEnv env
 
 @[inline] def withDeclId (declId : Syntax) (f : Name → CommandElabM Unit) : CommandElabM Unit := do
 -- ident >> optional (".{" >> sepBy1 ident ", " >> "}")

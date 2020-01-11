@@ -20,9 +20,9 @@ instance : HasSizeof Char :=
 namespace Char
 def utf8Size (c : Char) : UInt32 :=
 let v := c.val;
-if v < 0x7F then 1
-else if v < 0x7FF then 2
-else if v < 0xFFFF then 3
+if v ≤ 0x7F then 1
+else if v ≤ 0x7FF then 2
+else if v ≤ 0xFFFF then 3
 else 4
 
 protected def Less (a b : Char) : Prop := a.val < b.val

@@ -11,44 +11,43 @@ import Init.Data.ToString
 import Init.Data.String.Basic
 
 /-
-Immitate the structure of IOErrorType in Haskell:
+Imitate the structure of IOErrorType in Haskell:
 https://hackage.haskell.org/package/base-4.12.0.0/docs/System-IO-Error.html#t:IOErrorType
 -/
 inductive IO.Error
-| alreadyExists (details : String) -- EEXIST, EINPROGRESS, EISCONN
-| otherError (details : String)    -- EFAULT, default
-| resourceBusy (details : String)
+| alreadyExists (osCode : UInt32) (details : String) -- EEXIST, EINPROGRESS, EISCONN
+| otherError (osCode : UInt32) (details : String)    -- EFAULT, default
+| resourceBusy (osCode : UInt32) (details : String)
     -- EADDRINUSE, EBUSY, EDEADLK, ETXTBSY
-| resourceVanished (details : String)
+| resourceVanished (osCode : UInt32) (details : String)
     -- ECONNRESET, EIDRM, ENETDOWN, ENETRESET,
     -- ENOLINK, EPIPE
-| unsupportedOperation (details : String)
+| unsupportedOperation (osCode : UInt32) (details : String)
     -- EADDRNOTAVAIL, EAFNOSUPPORT, ENODEV, ENOPROTOOPT
     -- ENOSYS, EOPNOTSUPP, ERANGE, ESPIPE, EXDEV
-| hardwareFault (details : String)          -- EIO
-| unsatisfiedConstraints (details : String) -- ENOTEMPTY
-| illegalOperation (details : String)       -- ENOTTY
-| protocolError (details : String)
+| hardwareFault (osCode : UInt32) (details : String)          -- EIO
+| unsatisfiedConstraints (osCode : UInt32) (details : String) -- ENOTEMPTY
+| illegalOperation (osCode : UInt32) (details : String)       -- ENOTTY
+| protocolError (osCode : UInt32) (details : String)
     -- EPROTO, EPROTONOSUPPORT, EPROTOTYPE
-| timeExpired (details : String)
+| timeExpired (osCode : UInt32) (details : String)
     -- ETIME, ETIMEDOUT
 
-| interrupted (filename : String) (details : String)       -- EINTR
-| noFileOrDirectory (filename : String) (details : String) -- ENOENT
-| invalidArgument (filename : Option String) (details : String)
+| interrupted (filename : String) (osCode : UInt32) (details : String)       -- EINTR
+| noFileOrDirectory (filename : String) (osCode : UInt32) (details : String) -- ENOENT
+| invalidArgument (filename : Option String) (osCode : UInt32) (details : String)
     -- ELOOP, ENAMETOOLONG, EDESTADDRREQ, EILSEQ, EINVAL, EDOM, EBADF
     -- ENOEXEC, ENOSTR, ENOTCONN, ENOTSOCK
-| permissionDenied (filename : Option String) (details : String)
+| permissionDenied (filename : Option String) (osCode : UInt32) (details : String)
     -- EACCES, EROFS, ECONNABORTED, EFBIG, EPERM
-| resourceExhausted (filename : Option String) (details : String)
+| resourceExhausted (filename : Option String) (osCode : UInt32) (details : String)
     -- EMFILE, ENFILE, ENOSPC, E2BIG, EAGAIN, EMLINK:
     -- EMSGSIZE, ENOBUFS, ENOLCK, ENOMEM, ENOSR:
-| inappropriateType (filename : Option String) (details : String)
+| inappropriateType (filename : Option String) (osCode : UInt32) (details : String)
     -- EISDIR, EBADMSG, ENOTDIR:
-| noSuchThing (filename : Option String) (details : String)
+| noSuchThing (filename : Option String) (osCode : UInt32) (details : String)
     -- ENXIO, EHOSTUNREACH, ENETUNREACH, ECHILD, ECONNREFUSED,
     -- ENODATA, ENOMSG, ESRCH
--- overflow -- EOVERFLOW
 
 | unexpectedEof
 | userError (msg : String)
@@ -63,129 +62,129 @@ namespace IO.Error
 def mkEofError : IO.Error := unexpectedEof
 
 @[export lean_mk_io_error_inappropriate_type_file]
-def mkInappropriateTypeFile : String → String → IO.Error :=
+def mkInappropriateTypeFile : String → UInt32 → String → IO.Error :=
 inappropriateType ∘ some
 
 @[export lean_mk_io_error_interrupted]
-def mkInterrupted : String → String → IO.Error :=
+def mkInterrupted : String → UInt32 → String → IO.Error :=
 interrupted
 
 @[export lean_mk_io_error_invalid_argument_file]
-def mkInvalidArgumentFile : String → String → IO.Error :=
+def mkInvalidArgumentFile : String → UInt32 → String → IO.Error :=
 invalidArgument ∘ some
 
 @[export lean_mk_io_error_no_file_or_directory]
-def mkNoFileOrDirectory : String → String → IO.Error :=
+def mkNoFileOrDirectory : String → UInt32 → String → IO.Error :=
 noFileOrDirectory
 
 @[export lean_mk_io_error_no_such_thing_file]
-def mkNoSuchThingFile : String → String → IO.Error :=
+def mkNoSuchThingFile : String → UInt32 → String → IO.Error :=
 noSuchThing ∘ some
 
 @[export lean_mk_io_error_permission_denied_file]
-def mkPermissionDeniedFile : String → String → IO.Error :=
+def mkPermissionDeniedFile : String → UInt32 → String → IO.Error :=
 permissionDenied ∘ some
 
 @[export lean_mk_io_error_resource_exhausted_file]
-def mkResourceExhaustedFile : String → String → IO.Error :=
+def mkResourceExhaustedFile : String → UInt32 → String → IO.Error :=
 resourceExhausted ∘ some
 
 @[export lean_mk_io_error_unsupported_operation]
-def mkUnsupportedOperation : String → IO.Error :=
+def mkUnsupportedOperation : UInt32 → String → IO.Error :=
 unsupportedOperation
 
 @[export lean_mk_io_error_resource_exhausted]
-def mkResourceExhausted : String → IO.Error :=
+def mkResourceExhausted : UInt32 → String → IO.Error :=
 resourceExhausted none
 
 @[export lean_mk_io_error_already_exists]
-def mkAlreadyExists : String → IO.Error :=
+def mkAlreadyExists : UInt32 → String → IO.Error :=
 alreadyExists
 
 @[export lean_mk_io_error_inappropriate_type]
-def mkInappropriateType : String → IO.Error :=
+def mkInappropriateType : UInt32 → String → IO.Error :=
 inappropriateType none
 
 @[export lean_mk_io_error_no_such_thing]
-def mkNoSuchThing : String → IO.Error :=
+def mkNoSuchThing : UInt32 → String → IO.Error :=
 noSuchThing none
 
 @[export lean_mk_io_error_resource_vanished]
-def mkResourceVanished : String → IO.Error :=
+def mkResourceVanished : UInt32 → String → IO.Error :=
 resourceVanished
 
 @[export lean_mk_io_error_resource_busy]
-def mkResourceBusy : String → IO.Error :=
+def mkResourceBusy : UInt32 → String → IO.Error :=
 resourceBusy
 
 @[export lean_mk_io_error_invalid_argument]
-def mkInvalidArgument : String → IO.Error :=
+def mkInvalidArgument : UInt32 → String → IO.Error :=
 invalidArgument none
 
 @[export lean_mk_io_error_other_error]
-def mkOtherError : String → IO.Error :=
+def mkOtherError : UInt32 → String → IO.Error :=
 otherError
 
 @[export lean_mk_io_error_permission_denied]
-def mkPermissionDenied : String → IO.Error :=
+def mkPermissionDenied : UInt32 → String → IO.Error :=
 permissionDenied none
 
 @[export lean_mk_io_error_hardware_fault]
-def mkHardwareFault : String → IO.Error :=
+def mkHardwareFault : UInt32 → String → IO.Error :=
 hardwareFault
 
 @[export lean_mk_io_error_unsatisfied_constraints]
-def mkUnsatisfiedConstraints : String → IO.Error :=
+def mkUnsatisfiedConstraints : UInt32 → String → IO.Error :=
 unsatisfiedConstraints
 
 @[export lean_mk_io_error_illegal_operation]
-def mkIllegalOperation : String → IO.Error :=
+def mkIllegalOperation : UInt32 → String → IO.Error :=
 illegalOperation
 
 @[export lean_mk_io_error_protocol_error]
-def mkProtocolError : String → IO.Error :=
+def mkProtocolError : UInt32 → String → IO.Error :=
 protocolError
 
 @[export lean_mk_io_error_time_expired]
-def mkTimeExpired : String → IO.Error :=
+def mkTimeExpired : UInt32 → String → IO.Error :=
 timeExpired
 
-private def downCaseFirst (s : String) : String := s.set 0 (s.get 0).toLower
+private def downCaseFirst (s : String) : String := s.modify 0 Char.toLower
 
-def fopenErrorToString (gist fn : String) : Option String → String
-| some details => gist ++ ": " ++ downCaseFirst details ++ "\n  file: " ++ fn
-| none => gist ++ "\n  file: " ++ fn
+def fopenErrorToString (gist fn : String) (code : UInt32) : Option String → String
+| some details => gist ++ " (error code: " ++ toString code ++ ", " ++ downCaseFirst details ++ ")\n  file: " ++ fn
+| none => gist ++ " (error code: " ++ toString code ++ ")\n  file: " ++ fn
 
-def otherErrorToString (gist : String) : Option String → String
-| some details => gist ++ ": " ++ downCaseFirst details
-| none => gist
+def otherErrorToString (gist : String) (code : UInt32) : Option String → String
+| some details => gist ++ " (error code: " ++ toString code ++ ", " ++ downCaseFirst details ++ ")"
+| none => gist ++ " (error code: " ++ toString code ++ ")"
 
 @[export lean_io_error_to_string]
 def toString : IO.Error → String
-| unexpectedEof                       => "End of file"
-| inappropriateType (some fn) details => fopenErrorToString "Inappropriate type" fn details
-| inappropriateType none details      => otherErrorToString "Inappropriate type" details
-| interrupted fn details              => fopenErrorToString "Interrupted system call" fn details
-| invalidArgument (some fn) details   => fopenErrorToString "Invalid argument" fn details
-| invalidArgument none details        => otherErrorToString "Invalid argument" details
-| noFileOrDirectory fn details        => fopenErrorToString "No such file or directory" fn none
-| noSuchThing (some fn) details       => fopenErrorToString "No such thing" fn details
-| noSuchThing none details            => otherErrorToString "No such thing" details
-| permissionDenied (some fn) details  => fopenErrorToString details fn none
-| permissionDenied none details       => otherErrorToString details none
-| resourceExhausted (some fn) details => fopenErrorToString "Resource exhausted" fn details
-| resourceExhausted none details      => otherErrorToString "Resource exhausted" details
-| alreadyExists details               => otherErrorToString "Already exists" details
-| otherError details                  => details
-| resourceBusy details                => otherErrorToString "Resource busy" details
-| resourceVanished details            => otherErrorToString "Resource vanished" details
-| hardwareFault _                     => otherErrorToString "Hardware fault" none
-| illegalOperation details            => otherErrorToString "Illegal operation" details
-| protocolError details               => otherErrorToString "Protocol error" details
-| timeExpired details                 => otherErrorToString "Time expired" details
-| unsatisfiedConstraints details      => otherErrorToString "Directory not empty" none
-| unsupportedOperation details        => otherErrorToString "Unsupported operation" details
-| userError msg                       => msg
+| unexpectedEof                            => "End of file"
+| inappropriateType (some fn) code details => fopenErrorToString "Inappropriate type" fn code details
+| inappropriateType none code details      => otherErrorToString "Inappropriate type" code details
+| interrupted fn code details              => fopenErrorToString "Interrupted system call" fn code details
+| invalidArgument (some fn) code details   => fopenErrorToString "Invalid argument" fn code details
+| invalidArgument none code details        => otherErrorToString "Invalid argument" code details
+| noFileOrDirectory fn code _              => fopenErrorToString "No such file or directory" fn code none
+| noSuchThing (some fn) code details       => fopenErrorToString "No such thing" fn code details
+| noSuchThing none code details            => otherErrorToString "No such thing" code details
+| permissionDenied (some fn) code details  => fopenErrorToString details fn code none
+| permissionDenied none code details       => otherErrorToString details code none
+| resourceExhausted (some fn) code details => fopenErrorToString "Resource exhausted" fn code details
+| resourceExhausted none code details      => otherErrorToString "Resource exhausted" code details
+| alreadyExists code details               => otherErrorToString "Already exists" code details
+| otherError code details                  => otherErrorToString details code none
+| resourceBusy code details                => otherErrorToString "Resource busy" code details
+| resourceVanished code details            => otherErrorToString "Resource vanished" code details
+| hardwareFault code _                     => otherErrorToString "Hardware fault" code none
+| illegalOperation code details            => otherErrorToString "Illegal operation" code details
+| protocolError code details               => otherErrorToString "Protocol error" code details
+| timeExpired code details                 => otherErrorToString "Time expired" code details
+| unsatisfiedConstraints code _            => otherErrorToString "Directory not empty" code none
+| unsupportedOperation code details        => otherErrorToString "Unsupported operation" code details
+| userError msg                            => msg
 
 instance : HasToString IO.Error := ⟨ IO.Error.toString ⟩
 instance : Inhabited IO.Error := ⟨ userError "" ⟩

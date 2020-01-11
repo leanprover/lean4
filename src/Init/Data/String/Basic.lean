@@ -95,6 +95,9 @@ private def utf8SetAux (c' : Char) : List Char → Pos → Pos → List Char
 def set : String → (@& Pos) → Char → String
 | ⟨s⟩, i, c => ⟨utf8SetAux c s 0 i⟩
 
+def modify (s : String) (i : Pos) (f : Char → Char) : String :=
+s.set i $ f $ s.get i
+
 @[extern "lean_string_utf8_next"]
 def next (s : @& String) (p : @& Pos) : Pos :=
 let c := get s p;

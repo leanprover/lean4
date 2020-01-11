@@ -951,15 +951,6 @@ static inline lean_obj_res lean_byte_array_size(b_lean_obj_arg a) {
     return lean_box(lean_sarray_size(a));
 }
 
-/* static inline uint8_t lean_byte_array_uget(b_lean_obj_arg a, size_t i) { */
-/*     assert(i < lean_sarray_size(a)); */
-/*     return lean_to_sarray(a)->m_data[i]; */
-/* } */
-
-/* static inline uint8_t lean_byte_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) { */
-/*     return lean_byte_array_uget(a, lean_unbox(i)); */
-/* } */
-
 static inline uint8_t lean_byte_array_get(b_lean_obj_arg a, b_lean_obj_arg i) {
     if (lean_is_scalar(i)) {
         size_t idx = lean_unbox(i);

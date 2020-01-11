@@ -90,6 +90,7 @@ instance TermElabResult.inhabited : Inhabited TermElabResult := ⟨EStateM.Resul
 fun ctx s =>
   match x ctx s with
   | EStateM.Result.error (Exception.ex (Elab.Exception.error errMsg)) newS => EStateM.Result.ok (EStateM.Result.error errMsg newS) s
+  | EStateM.Result.error Exception.postpone _                              => EStateM.Result.error Exception.postpone s
   | EStateM.Result.error ex newS                                           => EStateM.Result.error ex newS
   | EStateM.Result.ok e newS                                               => EStateM.Result.ok (EStateM.Result.ok e newS) s
 
@@ -602,7 +603,7 @@ withMVarContext mvarId $ do
       assignExprMVar mvarId result;
       pure true)
     (fun ex => match ex with
-      | Exception.postpone                            => pure false
+      | Exception.postpone                            => do set s; pure false
       | Exception.ex Elab.Exception.unsupportedSyntax => unreachable!
       | Exception.ex (Elab.Exception.error msg)       =>
         if postponeOnError then do

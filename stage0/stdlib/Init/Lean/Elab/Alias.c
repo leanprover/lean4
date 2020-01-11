@@ -37,7 +37,7 @@ uint8_t l_AssocList_contains___main___at_Lean_addAliasEntry___spec__13(lean_obje
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-lean_object* l_Lean_addAlias(lean_object*, lean_object*, lean_object*);
+lean_object* lean_add_alias(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_Lean_getAliases___boxed(lean_object*, lean_object*);
 lean_object* l_mkHashMap___at_Lean_mkAliasExtension___spec__2(lean_object*);
@@ -2656,7 +2656,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_addAlias(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* lean_add_alias(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 

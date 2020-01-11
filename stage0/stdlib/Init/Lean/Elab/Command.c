@@ -129,7 +129,7 @@ lean_object* l_Lean_Elab_Command_elabNotation___boxed(lean_object*, lean_object*
 lean_object* l_Lean_Elab_Command_CommandElabM_monadLog___closed__11;
 extern lean_object* l_Lean_Name_inhabited;
 lean_object* l_PersistentArray_push___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_addAlias(lean_object*, lean_object*, lean_object*);
+lean_object* lean_add_alias(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_setOption(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_Lean_SMap_empty___at_Lean_Elab_Command_mkBuiltinCommandElabTable___spec__1___closed__2;
@@ -10101,7 +10101,7 @@ lean_inc(x_5);
 x_6 = lean_ctor_get(x_3, 1);
 lean_inc(x_6);
 lean_dec(x_3);
-x_7 = l_Lean_addAlias(x_1, x_5, x_6);
+x_7 = lean_add_alias(x_1, x_5, x_6);
 x_1 = x_7;
 x_2 = x_4;
 goto _start;

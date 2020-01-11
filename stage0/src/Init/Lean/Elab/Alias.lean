@@ -29,6 +29,7 @@ registerSimplePersistentEnvExtension {
 constant aliasExtension : SimplePersistentEnvExtension AliasEntry AliasState := arbitrary _
 
 /- Add alias `a` for `e` -/
+@[export lean_add_alias]
 def addAlias (env : Environment) (a : Name) (e : Name) : Environment :=
 aliasExtension.addEntry env (a, e)
 

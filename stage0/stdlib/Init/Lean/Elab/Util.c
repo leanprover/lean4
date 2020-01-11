@@ -60,7 +60,6 @@ lean_object* l_Lean_Elab_mkElabAttribute___rarg___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l___private_Init_Lean_Elab_Util_4__ElabAttribute_addImportedParsers(lean_object*);
-lean_object* l_Lean_registerAttribute(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_Elab_ElabFnTable_insert___spec__6___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Util_1__ElabAttribute_mkInitial___rarg___boxed(lean_object*, lean_object*);
@@ -74,6 +73,7 @@ lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_Elab_mkElabAttribute___
 lean_object* l_Lean_SMap_insert___at_Lean_Elab_ElabFnTable_insert___spec__20(lean_object*);
 lean_object* l___private_Init_Lean_Elab_Util_7__regTraceClasses___closed__3;
 lean_object* l_Lean_SMap_empty___at_Lean_Elab_mkElabAttribute___spec__4___closed__1;
+extern lean_object* l_Lean_mkAttributeImplOfConstantUnsafe___closed__3;
 lean_object* l_AssocList_replace___main___at_Lean_Elab_ElabFnTable_insert___spec__19(lean_object*);
 lean_object* l_Lean_Elab_mkElabAttribute___rarg___closed__3;
 extern lean_object* l_Lean_LocalContext_Inhabited___closed__1;
@@ -87,6 +87,7 @@ lean_object* l_IO_ofExcept___at___private_Init_Lean_Elab_Util_6__ElabAttribute_a
 lean_object* l_Lean_Elab_mkElabAttribute___rarg___lambda__2(lean_object*);
 lean_object* l_Lean_Elab_ElabAttribute_inhabited___closed__6;
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__1;
+extern lean_object* l_Lean_mkAttributeImplOfConstant___closed__1;
 lean_object* l_Lean_SMap_empty___at_Lean_Elab_mkElabAttribute___spec__4___closed__3;
 lean_object* l_Lean_Elab_checkSyntaxNodeKind___closed__2;
 lean_object* l___private_Init_Lean_Elab_Util_3__mkElabFnOfConstantUnsafe___rarg(lean_object*, lean_object*, lean_object*);
@@ -116,7 +117,6 @@ lean_object* l_Lean_Elab_mkElabAttribute___rarg___lambda__2___boxed(lean_object*
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 uint8_t l_AssocList_contains___main___at_Lean_Elab_ElabFnTable_insert___spec__15___rarg(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_Elab_ElabFnTable_insert___spec__22___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_mkParserOfConstant___closed__1;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_Elab_ElabFnTable_insert___spec__1___rarg___boxed(lean_object*, lean_object*);
@@ -144,6 +144,7 @@ size_t lean_usize_modn(size_t, lean_object*);
 extern lean_object* l___private_Init_Lean_Environment_5__envExtensionsRef;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
 lean_object* l_Lean_Elab_mkElabFnOfConstant(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
 lean_object* l_mkHashMap___at_Lean_Elab_ElabAttribute_inhabited___spec__2(lean_object*);
 lean_object* l_HashMapImp_moveEntries___main___at_Lean_Elab_ElabFnTable_insert___spec__28(lean_object*);
 lean_object* l_Lean_Elab_mkElabAttribute___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -239,7 +240,6 @@ lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_Elab_ElabFnTable_insert___spec__1(lean_object*);
 lean_object* l_Lean_SMap_empty___at_Lean_Elab_ElabAttribute_inhabited___spec__1___closed__3;
 lean_object* l_Lean_SMap_empty___at_Lean_Elab_ElabAttributeExtensionState_inhabited___spec__1___closed__2;
-extern lean_object* l_Lean_Parser_mkParserOfConstantUnsafe___closed__3;
 lean_object* l_IO_ofExcept___at___private_Init_Lean_Elab_Util_6__ElabAttribute_add___spec__1(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Util_4__ElabAttribute_addImportedParsers___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_empty___at_Lean_Elab_ElabAttribute_inhabited___spec__1(lean_object*);
@@ -3316,7 +3316,7 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_5 = l_Lean_Name_toString___closed__1;
 x_6 = l_Lean_Name_toStringWithSep___main(x_5, x_3);
-x_7 = l_Lean_Parser_mkParserOfConstantUnsafe___closed__3;
+x_7 = l_Lean_mkAttributeImplOfConstantUnsafe___closed__3;
 x_8 = lean_string_append(x_7, x_6);
 lean_dec(x_6);
 x_9 = l_Char_HasRepr___closed__1;
@@ -3381,7 +3381,7 @@ lean_object* l_Lean_Elab_mkElabFnOfConstant(lean_object* x_1, lean_object* x_2, 
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_Parser_mkParserOfConstant___closed__1;
+x_5 = l_Lean_mkAttributeImplOfConstant___closed__1;
 return x_5;
 }
 }
@@ -4838,7 +4838,7 @@ lean_ctor_set(x_20, 1, x_17);
 lean_ctor_set(x_20, 2, x_18);
 lean_ctor_set_uint8(x_20, sizeof(void*)*3, x_19);
 lean_inc(x_20);
-x_21 = l_Lean_registerAttribute(x_20, x_15);
+x_21 = l_Lean_registerBuiltinAttribute(x_20, x_15);
 if (lean_obj_tag(x_21) == 0)
 {
 uint8_t x_22; 

@@ -44,7 +44,7 @@ match env.find? constName with
   pure $ instanceExtension.addEntry env { keys := keys, val := c }
 
 @[init] def registerInstanceAttr : IO Unit :=
-registerAttribute {
+registerBuiltinAttribute {
   name  := `instance,
   descr := "type class instance",
   add   := fun env declName args persistent => do

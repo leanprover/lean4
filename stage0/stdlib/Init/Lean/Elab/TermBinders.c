@@ -78,7 +78,6 @@ lean_object* l___private_Init_Lean_Elab_TermBinders_11__expandFunBinders___boxed
 lean_object* l___private_Init_Lean_Elab_TermBinders_4__expandBinderModifier___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_TermBinders_4__expandBinderModifier___closed__1;
 lean_object* l_Lean_Elab_Term_withLetDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Array_iterateMAux___main___at_Lean_mkAppStx___spec__1___closed__1;
 extern lean_object* l___private_Init_Lean_Elab_Term_8__expandCDot___closed__4;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_TermBinders_11__expandFunBinders(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -145,6 +144,7 @@ extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_Elab_Term_mkFreshFVarId(lean_object*);
 lean_object* l___private_Init_Lean_Elab_TermBinders_1__expandBinderType(lean_object*);
 extern lean_object* l_Lean_Elab_Term_expandCDot_x3f___closed__2;
+extern lean_object* l_Lean_Parser_declareAttributeImplFor___closed__7;
 extern lean_object* l___private_Init_Lean_Elab_Term_17__synthesizeSyntheticMVar___closed__3;
 lean_object* l_Lean_Elab_Term_elabLetIdDecl___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabLetEqnsDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -501,7 +501,7 @@ lean_ctor_set(x_26, 0, x_21);
 lean_ctor_set(x_26, 1, x_24);
 lean_ctor_set(x_26, 2, x_23);
 lean_ctor_set(x_26, 3, x_25);
-x_27 = l_Array_iterateMAux___main___at_Lean_mkAppStx___spec__1___closed__1;
+x_27 = l_Lean_Parser_declareAttributeImplFor___closed__7;
 x_28 = lean_array_push(x_27, x_26);
 x_29 = l___private_Init_Lean_Elab_Term_8__expandCDot___closed__5;
 x_30 = lean_array_push(x_28, x_29);
@@ -541,7 +541,7 @@ lean_ctor_set(x_47, 0, x_42);
 lean_ctor_set(x_47, 1, x_45);
 lean_ctor_set(x_47, 2, x_44);
 lean_ctor_set(x_47, 3, x_46);
-x_48 = l_Array_iterateMAux___main___at_Lean_mkAppStx___spec__1___closed__1;
+x_48 = l_Lean_Parser_declareAttributeImplFor___closed__7;
 x_49 = lean_array_push(x_48, x_47);
 x_50 = l___private_Init_Lean_Elab_Term_8__expandCDot___closed__5;
 x_51 = lean_array_push(x_49, x_50);
@@ -3496,7 +3496,7 @@ lean_object* _init_l_Lean_Elab_Term_elabArrow___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_iterateMAux___main___at_Lean_mkAppStx___spec__1___closed__1;
+x_1 = l_Lean_Parser_declareAttributeImplFor___closed__7;
 x_2 = l_Lean_Elab_Term_elabArrow___lambda__1___closed__3;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;

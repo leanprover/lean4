@@ -33,7 +33,6 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-lean_object* l_Lean_registerAttribute(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_inhabited;
 lean_object* l_Lean_registerParametricAttribute___at_Lean_mkInitAttr___spec__1___lambda__1(lean_object*);
@@ -68,6 +67,7 @@ extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__1;
 extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__2;
 extern lean_object* l___private_Init_Lean_Environment_5__envExtensionsRef;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
+lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkInitAttr___lambda__1___closed__4;
 lean_object* l___private_Init_Lean_Compiler_InitAttr_1__getIOTypeArg(lean_object*);
@@ -1357,7 +1357,7 @@ lean_ctor_set(x_17, 1, x_2);
 lean_ctor_set(x_17, 2, x_15);
 lean_ctor_set_uint8(x_17, sizeof(void*)*3, x_16);
 lean_inc(x_17);
-x_18 = l_Lean_registerAttribute(x_17, x_14);
+x_18 = l_Lean_registerBuiltinAttribute(x_17, x_14);
 if (lean_obj_tag(x_18) == 0)
 {
 uint8_t x_19; 

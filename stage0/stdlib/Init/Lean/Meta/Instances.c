@@ -47,7 +47,6 @@ lean_object* l_Array_iterateMAux___main___at_Lean_Meta_addInstanceEntry___spec__
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Meta_instanceExtension___elambda__1___boxed(lean_object*);
-lean_object* l_Lean_registerAttribute(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 size_t l_USize_shiftRight(size_t, size_t);
@@ -96,6 +95,7 @@ lean_object* l_Lean_Meta_addGlobalInstance___closed__1;
 extern lean_object* l_Lean_Options_empty;
 extern lean_object* l___private_Init_Lean_Environment_5__envExtensionsRef;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
+lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
 lean_object* l_Array_contains___at_Lean_Meta_addInstanceEntry___spec__11___boxed(lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 size_t l_USize_mul(size_t, size_t);
@@ -3485,7 +3485,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_Meta_registerInstanceAttr___closed__5;
-x_3 = l_Lean_registerAttribute(x_2, x_1);
+x_3 = l_Lean_registerBuiltinAttribute(x_2, x_1);
 return x_3;
 }
 }

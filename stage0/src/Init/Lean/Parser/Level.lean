@@ -13,7 +13,7 @@ namespace Parser
 registerBuiltinParserAttribute `builtinLevelParser `level
 
 @[init] def regLevelParserAttribute : IO Unit :=
-registerParserAttribute `levelParser `level
+registerBuiltinDynamicParserAttribute `levelParser `level
 
 @[inline] def levelParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
 categoryParser `level rbp

@@ -189,7 +189,7 @@ match env.addAndCompile {} decl with
 | Except.ok env  => IO.ofExcept (setInitAttr env name)
 
 @[init] def registerBuiltinTermElabAttr : IO Unit :=
-registerAttribute {
+registerBuiltinAttribute {
  name  := `builtinTermElab,
  descr := "Builtin term elaborator",
  add   := fun env declName arg persistent => do {

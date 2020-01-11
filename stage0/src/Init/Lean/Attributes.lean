@@ -53,32 +53,103 @@ IO.mkRef {}
 constant attributeMapRef : IO.Ref (PersistentHashMap Name AttributeImpl) := arbitrary _
 
 /- Low level attribute registration function. -/
-def registerAttribute (attr : AttributeImpl) : IO Unit := do
+def registerBuiltinAttribute (attr : AttributeImpl) : IO Unit := do
 m ← attributeMapRef.get;
-when (m.contains attr.name) $ throw (IO.userError ("invalid attribute declaration, '" ++ toString attr.name ++ "' has already been used"));
+when (m.contains attr.name) $ throw (IO.userError ("invalid builtin attribute declaration, '" ++ toString attr.name ++ "' has already been used"));
 initializing ← IO.initializing;
 unless initializing $ throw (IO.userError ("failed to register attribute, attributes can only be registered during initialization"));
 attributeMapRef.modify (fun m => m.insert attr.name attr)
 
+structure AttributeExtensionState :=
+(newEntries : List Name := [])
+(map        : PersistentHashMap Name AttributeImpl)
+
+abbrev AttributeExtension := PersistentEnvExtension Name (Name × AttributeImpl) AttributeExtensionState
+
+instance AttributeExtensionState.inhabited : Inhabited AttributeExtensionState := ⟨{ map := {} }⟩
+
+private def AttributeExtension.mkInitial : IO AttributeExtensionState := do
+map ← attributeMapRef.get;
+pure { map := map }
+
+unsafe def mkAttributeImplOfConstantUnsafe (env : Environment) (declName : Name) : Except String AttributeImpl :=
+match env.find? declName with
+| none      => throw ("unknow constant '" ++ toString declName ++ "'")
+| some info =>
+  match info.type with
+  | Expr.const `Lean.AttributeImpl _ _ => env.evalConst AttributeImpl declName
+  | _ => throw ("unexpected attribute implementation type at '" ++ toString declName ++ "' (`AttributeImpl` expected")
+
+@[implementedBy mkAttributeImplOfConstantUnsafe]
+constant mkAttributeImplOfConstant (env : Environment) (declName : Name) : Except String AttributeImpl := arbitrary _
+
+private def AttributeExtension.addImported (env : Environment) (es : Array (Array Name)) : IO AttributeExtensionState := do
+map ← attributeMapRef.get;
+map ← es.foldlM
+  (fun map entries =>
+    entries.foldlM
+      (fun (map : PersistentHashMap Name AttributeImpl) declName => do
+        attrImpl ← IO.ofExcept $ mkAttributeImplOfConstant env declName;
+        pure $ map.insert attrImpl.name attrImpl)
+      map)
+  map;
+pure { map := map }
+
+private def AttributeExtension.addEntry (s : AttributeExtensionState) (e : Name × AttributeImpl) : AttributeExtensionState :=
+{ map := s.map.insert e.2.name e.2, newEntries := e.1 :: s.newEntries, .. s }
+
+def mkAttributeExtension : IO AttributeExtension :=
+registerPersistentEnvExtension {
+  name            := `attrExt,
+  mkInitial       := AttributeExtension.mkInitial,
+  addImportedFn   := AttributeExtension.addImported,
+  addEntryFn      := AttributeExtension.addEntry,
+  exportEntriesFn := fun s => s.newEntries.reverse.toArray,
+  statsFn         := fun s => format "number of local entries: " ++ format s.newEntries.length
+}
+
+@[init mkAttributeExtension]
+def attributeExtension : AttributeExtension := arbitrary _
+
 /- Return true iff `n` is the name of a registered attribute. -/
 @[export lean_is_attribute]
-def isAttribute (n : Name) : IO Bool := do
+def isBuiltinAttribute (n : Name) : IO Bool := do
 m ← attributeMapRef.get; pure (m.contains n)
 
 /- Return the name of all registered attributes. -/
-def getAttributeNames : IO (List Name) := do
+def getBuiltinAttributeNames : IO (List Name) := do
 m ← attributeMapRef.get; pure $ m.foldl (fun r n _ => n::r) []
 
-def getAttributeImpl (attrName : Name) : IO AttributeImpl := do
+def getBuiltinAttributeImpl (attrName : Name) : IO AttributeImpl := do
 m ← attributeMapRef.get;
 match m.find? attrName with
 | some attr => pure attr
 | none      => throw (IO.userError ("unknown attribute '" ++ toString attrName ++ "'"))
 
 @[export lean_attribute_application_time]
-def attributeApplicationTime (n : Name) : IO AttributeApplicationTime := do
-attr ← getAttributeImpl n;
+def getBuiltinAttributeApplicationTime (n : Name) : IO AttributeApplicationTime := do
+attr ← getBuiltinAttributeImpl n;
 pure attr.applicationTime
+
+def isAttribute (env : Environment) (attrName : Name) : Bool :=
+(attributeExtension.getState env).map.contains attrName
+
+def getAttributeNames (env : Environment) : List Name :=
+let m := (attributeExtension.getState env).map;
+m.foldl (fun r n _ => n::r) []
+
+def getAttributeImpl (env : Environment) (attrName : Name) : Except String AttributeImpl :=
+let m := (attributeExtension.getState env).map;
+match m.find? attrName with
+| some attr => pure attr
+| none      => throw ("unknown attribute '" ++ toString attrName ++ "'")
+
+def registerAttribute (env : Environment) (attrDeclName : Name) : Except String Environment := do
+attrImpl ← mkAttributeImplOfConstant env attrDeclName;
+if isAttribute env attrImpl.name then
+  throw ("invalid builtin attribute declaration, '" ++ toString attrImpl.name ++ "' has already been used")
+else
+  pure $ attributeExtension.addEntry env (attrDeclName, attrImpl)
 
 namespace Environment
 
@@ -89,7 +160,7 @@ namespace Environment
    - `args` is not valid for `attr`. -/
 @[export lean_add_attribute]
 def addAttribute (env : Environment) (decl : Name) (attrName : Name) (args : Syntax := Syntax.missing) (persistent := true) : IO Environment := do
-attr ← getAttributeImpl attrName;
+attr ← IO.ofExcept $ getAttributeImpl env attrName;
 attr.add env decl args persistent
 
 /-
@@ -185,7 +256,7 @@ let attrImpl : AttributeImpl := {
     | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
     | _                => pure $ ext.addEntry env decl
 };
-registerAttribute attrImpl;
+registerBuiltinAttribute attrImpl;
 pure { attr := attrImpl, ext := ext }
 
 namespace TagAttribute
@@ -237,7 +308,7 @@ let attrImpl : AttributeImpl := {
       | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
       | Except.ok env    => pure env
 };
-registerAttribute attrImpl;
+registerBuiltinAttribute attrImpl;
 pure { attr := attrImpl, ext := ext }
 
 namespace ParametricAttribute
@@ -293,7 +364,7 @@ let attrs := attrDescrs.map $ fun ⟨name, descr, val⟩ => { AttributeImpl .
     | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
     | _                => pure $ ext.addEntry env (decl, val)
 };
-attrs.forM registerAttribute;
+attrs.forM registerBuiltinAttribute;
 pure { ext := ext, attrs := attrs }
 
 namespace EnumAttributes

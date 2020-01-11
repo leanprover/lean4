@@ -121,7 +121,7 @@ let attrImpl : AttributeImpl := {
   add             := ElabAttribute.add parserNamespace typeName ext,
   applicationTime := AttributeApplicationTime.afterCompilation
 };
-registerAttribute attrImpl;
+registerBuiltinAttribute attrImpl;
 pure { ext := ext, attr := attrImpl, kind := kind }
 
 @[init] private def regTraceClasses : IO Unit := do

@@ -41,7 +41,6 @@ lean_object* l___private_Init_Lean_Compiler_ExternAttr_1__syntaxToExternEntries_
 lean_object* l_List_intersperse___main___rarg(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-lean_object* l_Lean_registerAttribute(lean_object*, lean_object*);
 lean_object* l_RBNode_find___main___at_Lean_getExternAttrData___spec__2___boxed(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_ExternEntry_backend___boxed(lean_object*);
@@ -96,6 +95,7 @@ lean_object* l___private_Init_Lean_Compiler_ExternAttr_3__parseOptNum(lean_objec
 extern lean_object* l_Lean_registerParametricAttribute___rarg___closed__2;
 extern lean_object* l___private_Init_Lean_Environment_5__envExtensionsRef;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
+lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
 lean_object* l_Lean_mkExternAttr___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_mkExternAttr___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1813,7 +1813,7 @@ lean_ctor_set(x_17, 1, x_2);
 lean_ctor_set(x_17, 2, x_15);
 lean_ctor_set_uint8(x_17, sizeof(void*)*3, x_16);
 lean_inc(x_17);
-x_18 = l_Lean_registerAttribute(x_17, x_14);
+x_18 = l_Lean_registerBuiltinAttribute(x_17, x_14);
 if (lean_obj_tag(x_18) == 0)
 {
 uint8_t x_19; 

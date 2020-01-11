@@ -75,7 +75,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAux___main___at_Lean_ClassState_addEntry___spec__14___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_isOutParam___boxed(lean_object*);
-lean_object* l_Lean_registerAttribute(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_isOutParam___closed__1;
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
@@ -162,6 +161,7 @@ size_t lean_usize_modn(size_t, lean_object*);
 extern lean_object* l___private_Init_Lean_Environment_5__envExtensionsRef;
 lean_object* l_Lean_classExtension___closed__1;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
+lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAtAux___main___at_Lean_ClassState_addEntry___spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_find_x3f___at_Lean_ClassState_addEntry___spec__13___boxed(lean_object*, lean_object*);
 size_t l_USize_mul(size_t, size_t);
@@ -6585,7 +6585,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_registerClassAttr___closed__5;
-x_3 = l_Lean_registerAttribute(x_2, x_1);
+x_3 = l_Lean_registerBuiltinAttribute(x_2, x_1);
 return x_3;
 }
 }

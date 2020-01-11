@@ -137,7 +137,7 @@ partial def getClassName (env : Environment) : Expr → Option Name
     else none
 
 @[init] def registerClassAttr : IO Unit :=
-registerAttribute {
+registerBuiltinAttribute {
   name  := `class,
   descr := "type class",
   add   := fun env decl args persistent => do

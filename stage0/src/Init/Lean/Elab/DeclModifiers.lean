@@ -60,7 +60,8 @@ let nameStx := stx.getArg 0;
 attrName ← match nameStx.isIdOrAtom? with
   | none     => throwError nameStx "identifier expected"
   | some str => pure $ mkNameSimple str;
-unlessM (liftIO stx (isAttribute attrName)) $
+env ← getEnv;
+unless (isAttribute env attrName) $
   throwError stx ("unknown attribute [" ++ attrName ++ "]");
 let args := stx.getArg 1;
 pure { name := attrName, args := args }
@@ -117,11 +118,14 @@ match modifiers.visibility with
 
 def applyAttributes (ref : Syntax) (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : CommandElabM Unit :=
 attrs.forM $ fun attr => do
- attrImpl ← liftIO ref $ getAttributeImpl attr.name;
- when (attrImpl.applicationTime == applicationTime) $ do
-   env ← getEnv;
-   env ← liftIO ref $ attrImpl.add env declName attr.args true;
-   setEnv env
+ env ← getEnv;
+ match getAttributeImpl env attr.name with
+ | Except.error errMsg => throwError ref errMsg
+ | Except.ok attrImpl  =>
+   when (attrImpl.applicationTime == applicationTime) $ do
+     env ← getEnv;
+     env ← liftIO ref $ attrImpl.add env declName attr.args true;
+     setEnv env
 
 end Command
 end Elab

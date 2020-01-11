@@ -4664,6 +4664,7 @@ lean_dec(x_88);
 x_117 = 2;
 lean_inc(x_2);
 lean_inc(x_90);
+lean_inc(x_4);
 x_118 = l_Array_forMAux___main___at_Lean_Elab_Command_applyAttributes___spec__1(x_4, x_90, x_117, x_92, x_6, x_2, x_91);
 if (lean_obj_tag(x_118) == 0)
 {
@@ -5087,6 +5088,7 @@ lean_dec(x_97);
 x_99 = 0;
 lean_inc(x_2);
 lean_inc(x_90);
+lean_inc(x_4);
 x_100 = l_Array_forMAux___main___at_Lean_Elab_Command_applyAttributes___spec__1(x_4, x_90, x_99, x_92, x_6, x_2, x_98);
 if (lean_obj_tag(x_100) == 0)
 {
@@ -5108,7 +5110,6 @@ x_104 = 1;
 lean_inc(x_2);
 x_105 = l_Array_forMAux___main___at_Lean_Elab_Command_applyAttributes___spec__1(x_4, x_90, x_104, x_92, x_6, x_2, x_103);
 lean_dec(x_92);
-lean_dec(x_4);
 if (lean_obj_tag(x_105) == 0)
 {
 lean_object* x_106; lean_object* x_107; 

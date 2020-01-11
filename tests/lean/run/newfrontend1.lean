@@ -27,9 +27,11 @@ set_option pp.all true
 
 #check foo 1
 
-#check foo 3 (c := Bool.false)
+#check foo 3 (c := false)
 
 def Nat.boo (a : Nat) :=
 succ a -- succ here is resolved as `Nat.succ`.
 
 #check Nat.boo
+
+#check true

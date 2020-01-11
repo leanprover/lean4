@@ -1640,7 +1640,7 @@ The parsing tables for builtin parsers are "stored" in the extracted source code
 -/
 def registerBuiltinParserAttribute (attrName : Name) (catName : Name) : IO Unit := do
 addBuiltinParserCategory catName;
-registerAttribute {
+registerBuiltinAttribute {
  name            := attrName,
  descr           := "Builtin parser",
  add             := BuiltinParserAttribute.add attrName catName,
@@ -1681,7 +1681,7 @@ let attrImpl : AttributeImpl := {
   add             := ParserAttribute.add attrName catName,
   applicationTime := AttributeApplicationTime.afterCompilation
 };
-registerAttribute attrImpl
+registerBuiltinAttribute attrImpl -- TODO improve
 
 -- declare `termParser` here since it is used everywhere via antiquotations
 

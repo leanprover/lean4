@@ -53,7 +53,7 @@ IO.mkRef {}
 constant attributeMapRef : IO.Ref (PersistentHashMap Name AttributeImpl) := arbitrary _
 
 /- Low level attribute registration function. -/
-def registerAttribute (attr : AttributeImpl) : IO Unit := do
+def registerBuiltinAttribute (attr : AttributeImpl) : IO Unit := do
 m ← attributeMapRef.get;
 when (m.contains attr.name) $ throw (IO.userError ("invalid attribute declaration, '" ++ toString attr.name ++ "' has already been used"));
 initializing ← IO.initializing;
@@ -185,7 +185,7 @@ let attrImpl : AttributeImpl := {
     | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
     | _                => pure $ ext.addEntry env decl
 };
-registerAttribute attrImpl;
+registerBuiltinAttribute attrImpl;
 pure { attr := attrImpl, ext := ext }
 
 namespace TagAttribute
@@ -237,7 +237,7 @@ let attrImpl : AttributeImpl := {
       | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
       | Except.ok env    => pure env
 };
-registerAttribute attrImpl;
+registerBuiltinAttribute attrImpl;
 pure { attr := attrImpl, ext := ext }
 
 namespace ParametricAttribute
@@ -293,7 +293,7 @@ let attrs := attrDescrs.map $ fun ⟨name, descr, val⟩ => { AttributeImpl .
     | Except.error msg => throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
     | _                => pure $ ext.addEntry env (decl, val)
 };
-attrs.forM registerAttribute;
+attrs.forM registerBuiltinAttribute;
 pure { ext := ext, attrs := attrs }
 
 namespace EnumAttributes

@@ -218,6 +218,11 @@ static void check_identifier(parser & p, environment const & env, name const & n
         throw parser_error(sstream() << "invalid 'open' command, unknown declaration '" << full_id << "'", p.pos());
 }
 
+extern "C" object * lean_add_alias(object * env, object * a, object * e);
+static environment add_lean4_alias(environment const & env, name const & a, name const & e) {
+    return environment(lean_add_alias(env.to_obj_arg(), a.to_obj_arg(), e.to_obj_arg()));
+}
+
 // open/export id (as id)? (id ...) (renaming id->id id->id) (hiding id ... id)
 environment open_export_cmd(parser & p, bool open) {
     environment env = p.env();
@@ -274,6 +279,12 @@ environment open_export_cmd(parser & p, bool open) {
                 throw parser_error("invalid 'open/export' command option, "
                                    "mixing explicit and implicit 'open/export' options", p.pos());
             p.check_token_next(get_rparen_tk(), "invalid 'open/export' command option, ')' expected");
+        }
+        if (!open) {
+            // Workaround for "exporting" old frontend exports to new frontend
+            for (auto p : renames) {
+                env = add_lean4_alias(env, p.first, p.second);
+            }
         }
         export_decl edecl(ns, as, found_explicit, renames, exception_names);
         if (!open) {

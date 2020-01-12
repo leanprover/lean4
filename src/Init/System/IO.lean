@@ -5,6 +5,7 @@ Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Init.Control.EState
+import Init.Control.Reader
 import Init.Data.String.Basic
 import Init.Data.ByteArray
 import Init.System.IOError
@@ -98,6 +99,13 @@ constant getStderr : IO FS.Handle := arbitrary _
 @[extern "lean_get_stdout"]
 constant getStdout : IO FS.Handle := arbitrary _
 
+@[extern "lean_set_stdin"]
+constant setStdin  : FS.Handle → IO Unit := arbitrary _
+@[extern "lean_set_stderr"]
+constant setStderr : FS.Handle → IO Unit := arbitrary _
+@[extern "lean_set_stdout"]
+constant setStdout : FS.Handle → IO Unit := arbitrary _
+
 @[specialize] partial def iterate {α β : Type} : α → (α → IO (Sum α β)) → IO β
 | a, f => do
   v ← f a;
@@ -160,8 +168,8 @@ def Handle.mk (s : String) (Mode : Mode) (bin : Bool := false) : m Handle :=
 Prim.liftIO (Prim.Handle.mk s (Prim.fopenFlags Mode bin))
 
 @[inline]
-def withFile {α} (fn : String) (m : Mode) (f : Handle → IO α) : IO α :=
-Handle.mk fn m >>= f
+def withFile {α} (fn : String) (mode : Mode) (f : Handle → m α) : m α :=
+Handle.mk fn mode >>= f
 
 /-- returns whether the end of the file has been reached while reading a file.
 `h.isEof` returns true /after/ the first attempt at reading past the end of `h`.
@@ -206,6 +214,30 @@ Prim.liftIO Prim.getStdout
 def getStdin : m FS.Handle :=
 Prim.liftIO Prim.getStdin
 
+def setStderr : FS.Handle → m Unit :=
+Prim.liftIO ∘ Prim.setStderr
+
+def setStdout : FS.Handle → m Unit :=
+Prim.liftIO ∘ Prim.setStdout
+
+def setStdin : FS.Handle → m Unit :=
+Prim.liftIO ∘ Prim.setStdin
+
+def withStderr {α ε} [MonadExcept ε m] (h : FS.Handle) (x : m α) : m α := do
+prev ← getStderr;
+setStderr h;
+@finally ε _ _ _ _ _ x (setStderr prev)
+
+def withStdout {α ε} [MonadExcept ε m] (h : FS.Handle) (x : m α) : m α := do
+prev ← getStdout;
+setStdout h;
+@finally ε _ _ _ _ _ x (setStdout prev)
+
+def withStdin {α ε} [MonadExcept ε m] (h : FS.Handle) (x : m α) : m α := do
+prev ← getStdin;
+setStdin h;
+@finally ε _ _ _ _ _ x (setStdin prev)
+
 private def putStr (s : String) : m Unit := do
 out ← getStdout;
 out.putStr s
@@ -223,7 +255,6 @@ p ← appPath;
 realPath (System.FilePath.dirName p)
 
 def readFile (fname : String) (bin := false) : m String := do
-IO.println fname;
 h ← FS.Handle.mk fname Mode.read bin;
 r ← h.readToEnd;
 pure r

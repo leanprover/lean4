@@ -186,6 +186,11 @@ def UInt32.decLe (a b : UInt32) : Decidable (a ≤ b) :=
 UInt32.casesOn a $ fun n => UInt32.casesOn b $ fun m =>
   inferInstanceAs (Decidable (n <= m))
 
+@[extern c inline "#1 << #2"]
+constant UInt32.shiftLeft (a b : UInt32) : UInt32 := (arbitrary Nat).toUInt32
+@[extern c inline "#1 >> #2"]
+constant UInt32.shiftRight (a b : UInt32) : UInt32 := (arbitrary Nat).toUInt32
+
 instance : DecidableEq UInt32 := UInt32.decEq
 instance UInt32.hasDecidableLt (a b : UInt32) : Decidable (a < b) := UInt32.decLt a b
 instance UInt32.hasDecidableLe (a b : UInt32) : Decidable (a ≤ b) := UInt32.decLe a b

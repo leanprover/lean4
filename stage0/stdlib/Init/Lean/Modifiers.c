@@ -28,7 +28,6 @@ lean_object* l_Lean_protectedExt___elambda__1___boxed(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkPrivateExtension___spec__1(lean_object*, lean_object*);
-extern lean_object* l_String_splitAux___main___closed__1;
 uint8_t lean_is_private_name(lean_object*);
 lean_object* l_Lean_isPrivateName___boxed(lean_object*);
 lean_object* l___private_Init_Lean_Modifiers_2__privatePrefixAux___main___boxed(lean_object*);
@@ -44,8 +43,8 @@ lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 lean_object* lean_add_protected(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt;
+extern lean_object* l_IO_Error_Inhabited___closed__1;
 extern lean_object* l___private_Init_Lean_Environment_5__envExtensionsRef;
-extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
 lean_object* l___private_Init_Lean_Modifiers_2__privatePrefixAux___boxed(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_protectedExt___elambda__2(lean_object*);
@@ -70,6 +69,7 @@ lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_namespacesExt___closed__1;
 lean_object* l_Lean_protectedExt___elambda__4___rarg(lean_object*);
+extern lean_object* l_Lean_registerEnvExtensionUnsafe___rarg___closed__3;
 lean_object* lean_io_initializing(lean_object*);
 lean_object* l_Lean_EnvExtension_getStateUnsafe___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_isProtected___boxed(lean_object*, lean_object*);
@@ -139,7 +139,7 @@ lean_object* l_Lean_protectedExt___elambda__4___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_String_splitAux___main___closed__1;
+x_2 = l_IO_Error_Inhabited___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -295,7 +295,7 @@ if (x_6 == 0)
 lean_object* x_7; lean_object* x_8; 
 x_7 = lean_ctor_get(x_3, 0);
 lean_dec(x_7);
-x_8 = l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
+x_8 = l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
 lean_ctor_set_tag(x_3, 1);
 lean_ctor_set(x_3, 0, x_8);
 return x_3;
@@ -306,7 +306,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11;
 x_9 = lean_ctor_get(x_3, 1);
 lean_inc(x_9);
 lean_dec(x_3);
-x_10 = l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
+x_10 = l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
 x_11 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_9);
@@ -352,7 +352,7 @@ lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean
 x_24 = lean_ctor_get(x_23, 1);
 lean_inc(x_24);
 lean_dec(x_23);
-x_25 = l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
+x_25 = l_Lean_registerEnvExtensionUnsafe___rarg___closed__3;
 lean_inc(x_19);
 x_26 = x_19;
 x_27 = lean_array_push(x_21, x_26);
@@ -527,7 +527,7 @@ lean_object* l_Lean_privateExt___elambda__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_String_splitAux___main___closed__1;
+x_2 = l_IO_Error_Inhabited___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

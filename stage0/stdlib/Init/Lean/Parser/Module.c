@@ -73,6 +73,7 @@ lean_object* l_Lean_Parser_Module_header___elambda__1___closed__1;
 lean_object* l___private_Init_Lean_Parser_Module_4__testModuleParserAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_initCacheForInput(lean_object*);
 lean_object* l_Lean_Parser_Module_import___elambda__1___closed__4;
+lean_object* l_Lean_Parser_parseFileAux___main___closed__2;
 lean_object* l_Lean_Parser_Module_import___elambda__1___closed__11;
 extern lean_object* l_Lean_Parser_Command_exit___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Module_header___elambda__1___closed__2;
@@ -2773,6 +2774,16 @@ x_1 = lean_mk_string("failed to parse file");
 return x_1;
 }
 }
+lean_object* _init_l_Lean_Parser_parseFileAux___main___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Parser_parseFileAux___main___closed__1;
+x_2 = lean_alloc_ctor(18, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
 lean_object* l_Lean_Parser_parseFileAux___main(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -2825,7 +2836,7 @@ if (x_18 == 0)
 lean_object* x_19; lean_object* x_20; 
 x_19 = lean_ctor_get(x_17, 0);
 lean_dec(x_19);
-x_20 = l_Lean_Parser_parseFileAux___main___closed__1;
+x_20 = l_Lean_Parser_parseFileAux___main___closed__2;
 lean_ctor_set_tag(x_17, 1);
 lean_ctor_set(x_17, 0, x_20);
 return x_17;
@@ -2836,7 +2847,7 @@ lean_object* x_21; lean_object* x_22; lean_object* x_23;
 x_21 = lean_ctor_get(x_17, 1);
 lean_inc(x_21);
 lean_dec(x_17);
-x_22 = l_Lean_Parser_parseFileAux___main___closed__1;
+x_22 = l_Lean_Parser_parseFileAux___main___closed__2;
 x_23 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
 lean_ctor_set(x_23, 1, x_21);
@@ -3134,6 +3145,8 @@ l_Lean_Parser_testModuleParser___closed__2 = _init_l_Lean_Parser_testModuleParse
 lean_mark_persistent(l_Lean_Parser_testModuleParser___closed__2);
 l_Lean_Parser_parseFileAux___main___closed__1 = _init_l_Lean_Parser_parseFileAux___main___closed__1();
 lean_mark_persistent(l_Lean_Parser_parseFileAux___main___closed__1);
+l_Lean_Parser_parseFileAux___main___closed__2 = _init_l_Lean_Parser_parseFileAux___main___closed__2();
+lean_mark_persistent(l_Lean_Parser_parseFileAux___main___closed__2);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

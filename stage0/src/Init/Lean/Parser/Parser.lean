@@ -1639,7 +1639,7 @@ private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
 when args.hasArgs $ throw (IO.userError ("invalid attribute '" ++ toString attrName ++ "', unexpected argument"));
 unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString attrName ++ "', must be persistent"));
 match env.find? declName with
-| none  => throw "unknown declaration"
+| none  => throw $ IO.userError "unknown declaration"
 | some decl =>
   match decl.type with
  | Expr.const `Lean.Parser.TrailingParser _ _ =>

@@ -50,6 +50,7 @@ lean_object* l___private_Init_Lean_Elab_Term_20__synthesizeSyntheticMVarsAux___m
 extern lean_object* l_Lean_Parser_Command_example___elambda__1___closed__2;
 lean_object* l_Lean_Name_getNumParts___main(lean_object*);
 lean_object* l_Lean_Elab_Command_elabInductive___rarg(lean_object*);
+extern lean_object* l___private_Init_Lean_Elab_Term_8__expandCDot___closed__4;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_addBuiltinCommandElab(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_classInductive___elambda__1___closed__2;
@@ -127,7 +128,6 @@ lean_object* l___private_Init_Lean_Elab_Command_14__addScopes___main(lean_object
 lean_object* l_Lean_Syntax_foldArgsAuxM___main___at_Lean_Syntax_foldSepRevArgsM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_expandDeclSig___boxed(lean_object*);
 lean_object* l_Lean_Elab_Term_elabBinders___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Init_Lean_Elab_Term_8__expandCDot___closed__5;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabDeclaration___closed__2;
 lean_object* l_Lean_Elab_Command_elabAxiom___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -502,7 +502,7 @@ lean_ctor_set(x_21, 2, x_18);
 lean_ctor_set(x_21, 3, x_20);
 x_22 = l_Lean_Meta_mkEqTrans___closed__3;
 x_23 = lean_array_push(x_22, x_21);
-x_24 = l___private_Init_Lean_Elab_Term_8__expandCDot___closed__5;
+x_24 = l___private_Init_Lean_Elab_Term_8__expandCDot___closed__4;
 x_25 = lean_array_push(x_23, x_24);
 x_26 = l_Lean_Parser_Term_id___elambda__1___closed__2;
 x_27 = lean_alloc_ctor(1, 2, 0);

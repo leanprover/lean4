@@ -177,7 +177,7 @@ typedef struct {
 
 typedef struct {
     lean_object m_header;
-    size_t      m_size;
+    size_t      m_size;     /* byte length including '\0' terminator */
     size_t      m_capacity;
     size_t      m_length;   /* UTF8 length */
     char        m_data[0];

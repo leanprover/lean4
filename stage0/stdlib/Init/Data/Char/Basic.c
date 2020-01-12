@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_Char_HasLessEq;
 lean_object* l_Char_isAlpha___boxed(lean_object*);
 uint8_t l_Char_decLe(uint32_t, uint32_t);
-uint32_t l_UInt32_land(uint32_t, uint32_t);
 uint8_t l_Char_isUpper(uint32_t);
 uint8_t l_Char_isDigit(uint32_t);
 uint8_t l_Char_isWhitespace(uint32_t);
@@ -75,86 +74,37 @@ return x_3;
 uint32_t l_Char_utf8Size(uint32_t x_1) {
 _start:
 {
-uint32_t x_2; uint32_t x_3; uint32_t x_4; uint32_t x_5; uint32_t x_6; uint32_t x_7; uint8_t x_8; 
+uint32_t x_2; uint32_t x_3; uint32_t x_4; uint8_t x_5; 
 x_2 = 1;
-x_3 = 2;
-x_4 = 4;
-x_5 = 128;
-x_6 = x_1 & x_5;
-x_7 = 0;
-x_8 = x_6 == x_7;
-if (x_8 == 0)
+x_3 = 3;
+x_4 = 127;
+x_5 = x_1 <= x_4;
+if (x_5 == 0)
 {
-uint32_t x_9; uint32_t x_10; uint32_t x_11; uint32_t x_12; uint32_t x_13; uint8_t x_14; 
-x_9 = 3;
-x_10 = 224;
-x_11 = x_1 & x_10;
-x_12 = 6;
-x_13 = 192;
-x_14 = x_11 == x_13;
-if (x_14 == 0)
+uint32_t x_6; uint8_t x_7; 
+x_6 = 2047;
+x_7 = x_1 <= x_6;
+if (x_7 == 0)
 {
-uint32_t x_15; uint32_t x_16; uint8_t x_17; 
-x_15 = 240;
-x_16 = x_1 & x_15;
-x_17 = x_16 == x_10;
-if (x_17 == 0)
+uint32_t x_8; uint8_t x_9; 
+x_8 = 65535;
+x_9 = x_1 <= x_8;
+if (x_9 == 0)
 {
-uint32_t x_18; uint32_t x_19; uint8_t x_20; 
-x_18 = 248;
-x_19 = x_1 & x_18;
-x_20 = x_19 == x_15;
-if (x_20 == 0)
-{
-uint32_t x_21; uint32_t x_22; uint8_t x_23; 
-x_21 = 252;
-x_22 = x_1 & x_21;
-x_23 = x_22 == x_18;
-if (x_23 == 0)
-{
-uint32_t x_24; uint32_t x_25; uint8_t x_26; 
-x_24 = 254;
-x_25 = x_1 & x_24;
-x_26 = x_25 == x_21;
-if (x_26 == 0)
-{
-uint32_t x_27; uint8_t x_28; 
-x_27 = 255;
-x_28 = x_1 == x_27;
-if (x_28 == 0)
-{
-return x_7;
-}
-else
-{
-return x_2;
-}
-}
-else
-{
-return x_12;
-}
-}
-else
-{
-uint32_t x_29; 
-x_29 = 5;
-return x_29;
-}
-}
-else
-{
-return x_4;
-}
-}
-else
-{
-return x_9;
-}
+uint32_t x_10; 
+x_10 = 4;
+return x_10;
 }
 else
 {
 return x_3;
+}
+}
+else
+{
+uint32_t x_11; 
+x_11 = 2;
+return x_11;
 }
 }
 else

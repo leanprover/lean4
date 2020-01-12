@@ -51,6 +51,7 @@ lean_object* l_Substring_toString___boxed(lean_object*);
 lean_object* l_Substring_takeRightWhileAux___main___at_Substring_trimRight___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_offsetOfPosAux(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_anyAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_String_modify(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldl___main___at_String_join___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_String_str___boxed(lean_object*, lean_object*);
 uint8_t l_Substring_any(lean_object*, lean_object*);
@@ -299,6 +300,7 @@ lean_object* l_Substring_get___boxed(lean_object*, lean_object*);
 lean_object* l_String_posOf(lean_object*, uint32_t);
 lean_object* l_Substring_dropRightWhile(lean_object*, lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
+lean_object* l_String_modify___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_anyAux___main___at_String_contains___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l_Substring_contains___boxed(lean_object*, lean_object*);
@@ -715,6 +717,28 @@ lean_dec(x_3);
 x_5 = lean_string_utf8_set(x_1, x_2, x_4);
 lean_dec(x_2);
 return x_5;
+}
+}
+lean_object* l_String_modify(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint32_t x_4; lean_object* x_5; lean_object* x_6; uint32_t x_7; lean_object* x_8; 
+x_4 = lean_string_utf8_get(x_1, x_2);
+x_5 = lean_box_uint32(x_4);
+x_6 = lean_apply_1(x_3, x_5);
+x_7 = lean_unbox_uint32(x_6);
+lean_dec(x_6);
+x_8 = lean_string_utf8_set(x_1, x_2, x_7);
+return x_8;
+}
+}
+lean_object* l_String_modify___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_String_modify(x_1, x_2, x_3);
+lean_dec(x_2);
+return x_4;
 }
 }
 lean_object* l_String_next___boxed(lean_object* x_1, lean_object* x_2) {

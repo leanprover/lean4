@@ -81,14 +81,19 @@ adaptExpander $ fun stx => match_syntax stx with
 @[termElab «parser!»] def elabParserMacro : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `(parser! $e) => do
-  declName? ← getDeclName?;
-  match declName? with
-  | some declName@(Name.str _ s _) => do
+  some declName ← getDeclName?
+    | throwError stx "invalid `parser!` macro, it must be used in definitions";
+  match extractMacroScopes declName with
+  | (Name.str _ s _, scps) => do
     let kind := quote declName;
     let s    := quote s;
-    -- TODO simplify the following quotation as soon as we have coercions and autoparams
-    `(HasOrelse.orelse (Lean.Parser.mkAntiquot $s (some $kind) true) (Lean.Parser.leadingNode $kind $e))
-  | none          => throwError stx "invalid `parser!` macro, it must be used in definitions"
+    p ← `(Lean.Parser.leadingNode $kind $e);
+    if scps == [] then
+      -- TODO simplify the following quotation as soon as we have coercions
+      `(HasOrelse.orelse (Lean.Parser.mkAntiquot $s (some $kind)) $p)
+    else
+      -- if the parser decl is hidden by hygiene, it doesn't make sense to provide an antiquotation kind
+      `(HasOrelse.orelse (Lean.Parser.mkAntiquot $s none) $p)
   | _             => throwError stx "invalid `parser!` macro, unexpected declaration name"
 | _             => throwUnsupportedSyntax
 

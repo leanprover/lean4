@@ -127,6 +127,17 @@ msgData ← addMacroStack msgData;
 msg ← mkMessage msgData MessageSeverity.error ref;
 throw (Exception.error msg)
 
+def logTrace (cls : Name) (ref : Syntax) (msg : MessageData) : CommandElabM Unit := do
+msg ← addContext $ MessageData.tagged cls msg;
+logInfo ref msg
+
+@[inline] def trace (cls : Name) (ref : Syntax) (msg : Unit → MessageData) : CommandElabM Unit := do
+opts ← getOptions;
+when (checkTraceOption opts cls) $ logTrace cls ref (msg ())
+
+def throwUnsupportedSyntax {α} : CommandElabM α :=
+throw Elab.Exception.unsupportedSyntax
+
 protected def getCurrMacroScope : CommandElabM Nat := do
 ctx ← read;
 pure ctx.currMacroScope
@@ -196,9 +207,10 @@ private def elabCommandUsing (stx : Syntax) : List CommandElab → CommandElabM 
     | Exception.error _           => throw ex
     | Exception.unsupportedSyntax => elabCommandUsing elabFns)
 
-def elabCommand (stx : Syntax) : CommandElabM Unit :=
-withIncRecDepth stx $ match stx with
+def elabCommandAux (stx : Syntax) : CommandElabM Unit :=
+withIncRecDepth stx $ withFreshMacroScope $ match stx with
 | Syntax.node _ _ => do
+  trace `Elab.step stx $ fun _ => stx;
   s ← get;
   let table := (commandElabAttribute.ext.getState s.env).table;
   let k := stx.getKind;
@@ -206,6 +218,14 @@ withIncRecDepth stx $ match stx with
   | some elabFns => elabCommandUsing stx elabFns
   | none         => throwError stx ("command '" ++ toString k ++ "' has not been implemented")
 | _ => throwError stx "unexpected command"
+
+def elabCommand (stx : Syntax) : CommandElabM Unit :=
+if stx.getKind == nullKind then
+  -- list of commands => elaborate in order
+  -- The parser will only ever return a single command at a time, but syntax quotations can return multiple ones
+  stx.getArgs.forM elabCommandAux
+else
+  elabCommandAux stx
 
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline] def withMacroExpansion {α} (stx : Syntax) (x : CommandElabM α) : CommandElabM α :=
@@ -578,10 +598,16 @@ levelNames      ←
       savedLevelNames
   };
 let ref := declId;
+-- extract (optional) namespace part of id, after decoding macro scopes that would interfere with the check
+let (id, scps) := extractMacroScopes id;
 match id with
-| Name.str pre s _ => withNamespace ref pre $ do
-  modifyScope $ fun scope => { levelNames := levelNames, .. scope };
-  finally (f (mkNameSimple s)) (modifyScope $ fun scope => { levelNames := savedLevelNames, .. scope })
+| Name.str pre s _ =>
+  /- Add back macro scopes. We assume a declaration like `def a.b[1,2] ...` with macro scopes `[1,2]`
+     is always meant to mean `namespace a def b[1,2] ...`. -/
+  let id := addMacroScopes (mkNameSimple s) scps;
+  withNamespace ref pre $ do
+    modifyScope $ fun scope => { levelNames := levelNames, .. scope };
+    finally (f id) (modifyScope $ fun scope => { levelNames := savedLevelNames, .. scope })
 | _                => throwError ref "invalid declaration name"
 
 /--

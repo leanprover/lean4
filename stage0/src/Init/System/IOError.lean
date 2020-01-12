@@ -162,28 +162,28 @@ def otherErrorToString (gist : String) (code : UInt32) : Option String → Strin
 @[export lean_io_error_to_string]
 def toString : IO.Error → String
 | unexpectedEof                            => "End of file"
-| inappropriateType (some fn) code details => fopenErrorToString "Inappropriate type" fn code details
-| inappropriateType none code details      => otherErrorToString "Inappropriate type" code details
-| interrupted fn code details              => fopenErrorToString "Interrupted system call" fn code details
-| invalidArgument (some fn) code details   => fopenErrorToString "Invalid argument" fn code details
-| invalidArgument none code details        => otherErrorToString "Invalid argument" code details
-| noFileOrDirectory fn code _              => fopenErrorToString "No such file or directory" fn code none
-| noSuchThing (some fn) code details       => fopenErrorToString "No such thing" fn code details
-| noSuchThing none code details            => otherErrorToString "No such thing" code details
+| inappropriateType (some fn) code details => fopenErrorToString "inappropriate type" fn code details
+| inappropriateType none code details      => otherErrorToString "inappropriate type" code details
+| interrupted fn code details              => fopenErrorToString "interrupted system call" fn code details
+| invalidArgument (some fn) code details   => fopenErrorToString "invalid argument" fn code details
+| invalidArgument none code details        => otherErrorToString "invalid argument" code details
+| noFileOrDirectory fn code _              => fopenErrorToString "no such file or directory" fn code none
+| noSuchThing (some fn) code details       => fopenErrorToString "no such thing" fn code details
+| noSuchThing none code details            => otherErrorToString "no such thing" code details
 | permissionDenied (some fn) code details  => fopenErrorToString details fn code none
 | permissionDenied none code details       => otherErrorToString details code none
-| resourceExhausted (some fn) code details => fopenErrorToString "Resource exhausted" fn code details
-| resourceExhausted none code details      => otherErrorToString "Resource exhausted" code details
-| alreadyExists code details               => otherErrorToString "Already exists" code details
+| resourceExhausted (some fn) code details => fopenErrorToString "resource exhausted" fn code details
+| resourceExhausted none code details      => otherErrorToString "resource exhausted" code details
+| alreadyExists code details               => otherErrorToString "already exists" code details
 | otherError code details                  => otherErrorToString details code none
-| resourceBusy code details                => otherErrorToString "Resource busy" code details
-| resourceVanished code details            => otherErrorToString "Resource vanished" code details
-| hardwareFault code _                     => otherErrorToString "Hardware fault" code none
-| illegalOperation code details            => otherErrorToString "Illegal operation" code details
-| protocolError code details               => otherErrorToString "Protocol error" code details
-| timeExpired code details                 => otherErrorToString "Time expired" code details
-| unsatisfiedConstraints code _            => otherErrorToString "Directory not empty" code none
-| unsupportedOperation code details        => otherErrorToString "Unsupported operation" code details
+| resourceBusy code details                => otherErrorToString "resource busy" code details
+| resourceVanished code details            => otherErrorToString "resource vanished" code details
+| hardwareFault code _                     => otherErrorToString "hardware fault" code none
+| illegalOperation code details            => otherErrorToString "illegal operation" code details
+| protocolError code details               => otherErrorToString "protocol error" code details
+| timeExpired code details                 => otherErrorToString "time expired" code details
+| unsatisfiedConstraints code _            => otherErrorToString "directory not empty" code none
+| unsupportedOperation code details        => otherErrorToString "unsupported operation" code details
 | userError msg                            => msg
 
 instance : HasToString IO.Error := ⟨ IO.Error.toString ⟩

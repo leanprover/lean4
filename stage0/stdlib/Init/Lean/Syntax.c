@@ -178,6 +178,7 @@ lean_object* l_Lean_SyntaxNode_modifyArgs(lean_object*, lean_object*);
 lean_object* l_Lean_SyntaxNode_getArgs___boxed(lean_object*);
 lean_object* l_List_map___main___at_Lean_Syntax_formatStxAux___main___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_unreachIsNodeIdent___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_String_Iterator_HasRepr___closed__2;
 lean_object* l_Lean_SourceInfo_appendToLeading(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isCharLit_x3f___boxed(lean_object*);
 lean_object* l_Lean_Syntax_getTailInfo___main___boxed(lean_object*);
@@ -3427,27 +3428,30 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_inc(x_2);
-return x_2;
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = l_String_Iterator_HasRepr___closed__2;
+x_4 = lean_string_append(x_3, x_2);
+x_5 = lean_string_append(x_4, x_3);
+return x_5;
 }
 else
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_ctor_get(x_3, 0);
-x_5 = lean_ctor_get(x_3, 2);
-x_6 = lean_ctor_get(x_4, 0);
-x_7 = lean_ctor_get(x_4, 1);
-x_8 = lean_ctor_get(x_4, 2);
-x_9 = lean_string_utf8_extract(x_6, x_7, x_8);
-x_10 = lean_string_append(x_9, x_2);
-x_11 = lean_ctor_get(x_5, 0);
-x_12 = lean_ctor_get(x_5, 1);
-x_13 = lean_ctor_get(x_5, 2);
-x_14 = lean_string_utf8_extract(x_11, x_12, x_13);
-x_15 = lean_string_append(x_10, x_14);
-lean_dec(x_14);
-return x_15;
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_6 = lean_ctor_get(x_1, 0);
+x_7 = lean_ctor_get(x_6, 0);
+x_8 = lean_ctor_get(x_6, 2);
+x_9 = lean_ctor_get(x_7, 0);
+x_10 = lean_ctor_get(x_7, 1);
+x_11 = lean_ctor_get(x_7, 2);
+x_12 = lean_string_utf8_extract(x_9, x_10, x_11);
+x_13 = lean_string_append(x_12, x_2);
+x_14 = lean_ctor_get(x_8, 0);
+x_15 = lean_ctor_get(x_8, 1);
+x_16 = lean_ctor_get(x_8, 2);
+x_17 = lean_string_utf8_extract(x_14, x_15, x_16);
+x_18 = lean_string_append(x_13, x_17);
+lean_dec(x_17);
+return x_18;
 }
 }
 }

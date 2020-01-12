@@ -302,7 +302,13 @@ def elabLetPatDecl (ref : Syntax) (decl body : Syntax) (expectedType? : Option E
 throwError decl "not implemented yet"
 
 @[builtinTermElab «let»] def elabLet : TermElab :=
-fun stx expectedType? => do
+fun stx expectedType? => match_syntax stx with
+| `(let $id:id := $decl; $body) => do
+  -- HACK: support single-id pattern let (as produced by quotations) by translation to ident let for now
+  let id := id.getArg 0;
+  stx ← `(let $id:ident := $decl; $body);
+  elabTerm stx expectedType?
+| _ => do
   -- `let` decl `;` body
   let ref      := stx;
   let decl     := stx.getArg 1;

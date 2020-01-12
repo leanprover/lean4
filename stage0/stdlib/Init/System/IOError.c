@@ -723,7 +723,7 @@ lean_object* _init_l_IO_Error_toString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Already exists");
+x_1 = lean_mk_string("already exists");
 return x_1;
 }
 }
@@ -731,7 +731,7 @@ lean_object* _init_l_IO_Error_toString___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Resource busy");
+x_1 = lean_mk_string("resource busy");
 return x_1;
 }
 }
@@ -739,7 +739,7 @@ lean_object* _init_l_IO_Error_toString___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Resource vanished");
+x_1 = lean_mk_string("resource vanished");
 return x_1;
 }
 }
@@ -747,7 +747,7 @@ lean_object* _init_l_IO_Error_toString___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Unsupported operation");
+x_1 = lean_mk_string("unsupported operation");
 return x_1;
 }
 }
@@ -755,7 +755,7 @@ lean_object* _init_l_IO_Error_toString___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Hardware fault");
+x_1 = lean_mk_string("hardware fault");
 return x_1;
 }
 }
@@ -763,7 +763,7 @@ lean_object* _init_l_IO_Error_toString___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Directory not empty");
+x_1 = lean_mk_string("directory not empty");
 return x_1;
 }
 }
@@ -771,7 +771,7 @@ lean_object* _init_l_IO_Error_toString___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Illegal operation");
+x_1 = lean_mk_string("illegal operation");
 return x_1;
 }
 }
@@ -779,7 +779,7 @@ lean_object* _init_l_IO_Error_toString___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Protocol error");
+x_1 = lean_mk_string("protocol error");
 return x_1;
 }
 }
@@ -787,7 +787,7 @@ lean_object* _init_l_IO_Error_toString___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Time expired");
+x_1 = lean_mk_string("time expired");
 return x_1;
 }
 }
@@ -795,7 +795,7 @@ lean_object* _init_l_IO_Error_toString___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Interrupted system call");
+x_1 = lean_mk_string("interrupted system call");
 return x_1;
 }
 }
@@ -803,7 +803,7 @@ lean_object* _init_l_IO_Error_toString___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("No such file or directory");
+x_1 = lean_mk_string("no such file or directory");
 return x_1;
 }
 }
@@ -811,7 +811,7 @@ lean_object* _init_l_IO_Error_toString___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Invalid argument");
+x_1 = lean_mk_string("invalid argument");
 return x_1;
 }
 }
@@ -819,7 +819,7 @@ lean_object* _init_l_IO_Error_toString___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Resource exhausted");
+x_1 = lean_mk_string("resource exhausted");
 return x_1;
 }
 }
@@ -827,7 +827,7 @@ lean_object* _init_l_IO_Error_toString___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Inappropriate type");
+x_1 = lean_mk_string("inappropriate type");
 return x_1;
 }
 }
@@ -835,7 +835,7 @@ lean_object* _init_l_IO_Error_toString___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("No such thing");
+x_1 = lean_mk_string("no such thing");
 return x_1;
 }
 }

@@ -619,41 +619,45 @@ _start:
 {
 if (lean_obj_tag(x_4) == 0)
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_5 = l_IO_Error_fopenErrorToString___closed__1;
-x_6 = lean_string_append(x_1, x_5);
-x_7 = lean_uint32_to_nat(x_3);
-x_8 = l_Nat_repr(x_7);
-x_9 = lean_string_append(x_6, x_8);
-lean_dec(x_8);
-x_10 = l_IO_Error_fopenErrorToString___closed__2;
-x_11 = lean_string_append(x_9, x_10);
-x_12 = lean_string_append(x_11, x_2);
-return x_12;
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = l___private_Init_System_IOError_1__downCaseFirst___closed__1;
+x_7 = l_String_modify(x_1, x_5, x_6);
+x_8 = l_IO_Error_fopenErrorToString___closed__1;
+x_9 = lean_string_append(x_7, x_8);
+x_10 = lean_uint32_to_nat(x_3);
+x_11 = l_Nat_repr(x_10);
+x_12 = lean_string_append(x_9, x_11);
+lean_dec(x_11);
+x_13 = l_IO_Error_fopenErrorToString___closed__2;
+x_14 = lean_string_append(x_12, x_13);
+x_15 = lean_string_append(x_14, x_2);
+return x_15;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
-x_13 = lean_ctor_get(x_4, 0);
-lean_inc(x_13);
+lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
+x_16 = lean_ctor_get(x_4, 0);
+lean_inc(x_16);
 lean_dec(x_4);
-x_14 = l_IO_Error_fopenErrorToString___closed__1;
-x_15 = lean_string_append(x_1, x_14);
-x_16 = lean_uint32_to_nat(x_3);
-x_17 = l_Nat_repr(x_16);
-x_18 = lean_string_append(x_15, x_17);
-lean_dec(x_17);
-x_19 = l_List_reprAux___main___rarg___closed__1;
-x_20 = lean_string_append(x_18, x_19);
-x_21 = lean_unsigned_to_nat(0u);
-x_22 = l___private_Init_System_IOError_1__downCaseFirst___closed__1;
-x_23 = l_String_modify(x_13, x_21, x_22);
-x_24 = lean_string_append(x_20, x_23);
+x_17 = lean_unsigned_to_nat(0u);
+x_18 = l___private_Init_System_IOError_1__downCaseFirst___closed__1;
+x_19 = l_String_modify(x_1, x_17, x_18);
+x_20 = l_IO_Error_fopenErrorToString___closed__1;
+x_21 = lean_string_append(x_19, x_20);
+x_22 = lean_uint32_to_nat(x_3);
+x_23 = l_Nat_repr(x_22);
+x_24 = lean_string_append(x_21, x_23);
 lean_dec(x_23);
-x_25 = l_IO_Error_fopenErrorToString___closed__2;
+x_25 = l_List_reprAux___main___rarg___closed__1;
 x_26 = lean_string_append(x_24, x_25);
-x_27 = lean_string_append(x_26, x_2);
-return x_27;
+x_27 = l_String_modify(x_16, x_17, x_18);
+x_28 = lean_string_append(x_26, x_27);
+lean_dec(x_27);
+x_29 = l_IO_Error_fopenErrorToString___closed__2;
+x_30 = lean_string_append(x_28, x_29);
+x_31 = lean_string_append(x_30, x_2);
+return x_31;
 }
 }
 }
@@ -673,39 +677,43 @@ _start:
 {
 if (lean_obj_tag(x_3) == 0)
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_4 = l_IO_Error_fopenErrorToString___closed__1;
-x_5 = lean_string_append(x_1, x_4);
-x_6 = lean_uint32_to_nat(x_2);
-x_7 = l_Nat_repr(x_6);
-x_8 = lean_string_append(x_5, x_7);
-lean_dec(x_7);
-x_9 = l_Option_HasRepr___rarg___closed__3;
-x_10 = lean_string_append(x_8, x_9);
-return x_10;
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = l___private_Init_System_IOError_1__downCaseFirst___closed__1;
+x_6 = l_String_modify(x_1, x_4, x_5);
+x_7 = l_IO_Error_fopenErrorToString___closed__1;
+x_8 = lean_string_append(x_6, x_7);
+x_9 = lean_uint32_to_nat(x_2);
+x_10 = l_Nat_repr(x_9);
+x_11 = lean_string_append(x_8, x_10);
+lean_dec(x_10);
+x_12 = l_Option_HasRepr___rarg___closed__3;
+x_13 = lean_string_append(x_11, x_12);
+return x_13;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_11 = lean_ctor_get(x_3, 0);
-lean_inc(x_11);
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
+x_14 = lean_ctor_get(x_3, 0);
+lean_inc(x_14);
 lean_dec(x_3);
-x_12 = l_IO_Error_fopenErrorToString___closed__1;
-x_13 = lean_string_append(x_1, x_12);
-x_14 = lean_uint32_to_nat(x_2);
-x_15 = l_Nat_repr(x_14);
-x_16 = lean_string_append(x_13, x_15);
-lean_dec(x_15);
-x_17 = l_List_reprAux___main___rarg___closed__1;
-x_18 = lean_string_append(x_16, x_17);
-x_19 = lean_unsigned_to_nat(0u);
-x_20 = l___private_Init_System_IOError_1__downCaseFirst___closed__1;
-x_21 = l_String_modify(x_11, x_19, x_20);
-x_22 = lean_string_append(x_18, x_21);
+x_15 = lean_unsigned_to_nat(0u);
+x_16 = l___private_Init_System_IOError_1__downCaseFirst___closed__1;
+x_17 = l_String_modify(x_1, x_15, x_16);
+x_18 = l_IO_Error_fopenErrorToString___closed__1;
+x_19 = lean_string_append(x_17, x_18);
+x_20 = lean_uint32_to_nat(x_2);
+x_21 = l_Nat_repr(x_20);
+x_22 = lean_string_append(x_19, x_21);
 lean_dec(x_21);
-x_23 = l_Option_HasRepr___rarg___closed__3;
+x_23 = l_List_reprAux___main___rarg___closed__1;
 x_24 = lean_string_append(x_22, x_23);
-return x_24;
+x_25 = l_String_modify(x_14, x_15, x_16);
+x_26 = lean_string_append(x_24, x_25);
+lean_dec(x_25);
+x_27 = l_Option_HasRepr___rarg___closed__3;
+x_28 = lean_string_append(x_26, x_27);
+return x_28;
 }
 }
 }
@@ -843,7 +851,7 @@ lean_object* _init_l_IO_Error_toString___closed__16() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("End of file");
+x_1 = lean_mk_string("end of file");
 return x_1;
 }
 }

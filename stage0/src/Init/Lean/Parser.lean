@@ -7,5 +7,6 @@ prelude
 import Init.Lean.Parser.Parser
 import Init.Lean.Parser.Level
 import Init.Lean.Parser.Term
+import Init.Lean.Parser.Tactic
 import Init.Lean.Parser.Command
 import Init.Lean.Parser.Module

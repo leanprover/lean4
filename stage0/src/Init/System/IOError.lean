@@ -152,16 +152,16 @@ timeExpired
 private def downCaseFirst (s : String) : String := s.modify 0 Char.toLower
 
 def fopenErrorToString (gist fn : String) (code : UInt32) : Option String → String
-| some details => gist ++ " (error code: " ++ toString code ++ ", " ++ downCaseFirst details ++ ")\n  file: " ++ fn
-| none => gist ++ " (error code: " ++ toString code ++ ")\n  file: " ++ fn
+| some details => downCaseFirst gist ++ " (error code: " ++ toString code ++ ", " ++ downCaseFirst details ++ ")\n  file: " ++ fn
+| none => downCaseFirst gist ++ " (error code: " ++ toString code ++ ")\n  file: " ++ fn
 
 def otherErrorToString (gist : String) (code : UInt32) : Option String → String
-| some details => gist ++ " (error code: " ++ toString code ++ ", " ++ downCaseFirst details ++ ")"
-| none => gist ++ " (error code: " ++ toString code ++ ")"
+| some details => downCaseFirst gist ++ " (error code: " ++ toString code ++ ", " ++ downCaseFirst details ++ ")"
+| none => downCaseFirst gist ++ " (error code: " ++ toString code ++ ")"
 
 @[export lean_io_error_to_string]
 def toString : IO.Error → String
-| unexpectedEof                            => "End of file"
+| unexpectedEof                            => "end of file"
 | inappropriateType (some fn) code details => fopenErrorToString "inappropriate type" fn code details
 | inappropriateType none code details      => otherErrorToString "inappropriate type" code details
 | interrupted fn code details              => fopenErrorToString "interrupted system call" fn code details

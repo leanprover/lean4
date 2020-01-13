@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Parser
-// Imports: Init.Lean.Parser.Parser Init.Lean.Parser.Level Init.Lean.Parser.Term Init.Lean.Parser.Command Init.Lean.Parser.Module
+// Imports: Init.Lean.Parser.Parser Init.Lean.Parser.Level Init.Lean.Parser.Term Init.Lean.Parser.Tactic Init.Lean.Parser.Command Init.Lean.Parser.Module
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 lean_object* initialize_Init_Lean_Parser_Parser(lean_object*);
 lean_object* initialize_Init_Lean_Parser_Level(lean_object*);
 lean_object* initialize_Init_Lean_Parser_Term(lean_object*);
+lean_object* initialize_Init_Lean_Parser_Tactic(lean_object*);
 lean_object* initialize_Init_Lean_Parser_Command(lean_object*);
 lean_object* initialize_Init_Lean_Parser_Module(lean_object*);
 static bool _G_initialized = false;
@@ -30,6 +31,9 @@ res = initialize_Init_Lean_Parser_Level(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Parser_Term(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Lean_Parser_Tactic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Parser_Command(lean_io_mk_world());

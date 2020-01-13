@@ -897,7 +897,7 @@ symbolAux sym lbp
     For example, the universe `max` Function is parsed using this combinator so that
     it can still be used as an identifier outside of universes (but registering it
     as a token in a Term Syntax would not break the universe Parser). -/
-def symbolOrIdentFnAux (sym : String) (errorMsg : String) : BasicParserFn :=
+def nonReservedSymbolFnAux (sym : String) (errorMsg : String) : BasicParserFn :=
 fun c s =>
   let startPos := s.pos;
   let s := tokenFn c s;
@@ -914,16 +914,16 @@ fun c s =>
         s.mkErrorAt errorMsg startPos
     | _ => s.mkErrorAt errorMsg startPos
 
-@[inline] def symbolOrIdentFn (sym : String) : BasicParserFn :=
-symbolOrIdentFnAux sym ("'" ++ sym ++ "'")
+@[inline] def nonReservedSymbolFn (sym : String) : BasicParserFn :=
+nonReservedSymbolFnAux sym ("'" ++ sym ++ "'")
 
-def symbolOrIdentInfo (sym : String) : ParserInfo :=
+def nonReservedSymbolInfo (sym : String) : ParserInfo :=
 { firstTokens  := FirstTokens.tokens [ { val := sym }, { val := "ident" } ] }
 
-@[inline] def symbolOrIdent {k : ParserKind} (sym : String) : Parser k :=
+@[inline] def nonReservedSymbol {k : ParserKind} (sym : String) : Parser k :=
 let sym := sym.trim;
-{ info := symbolOrIdentInfo sym,
-  fn   := fun _ => symbolOrIdentFn sym }
+{ info := nonReservedSymbolInfo sym,
+  fn   := fun _ => nonReservedSymbolFn sym }
 
 partial def strAux (sym : String) (errorMsg : String) : Nat → BasicParserFn
 | j, c, s =>

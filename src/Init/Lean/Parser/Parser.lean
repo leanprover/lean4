@@ -1247,26 +1247,32 @@ match stx with
 | some (Syntax.node k _)      => if k == numLitKind || k == charLitKind || k == strLitKind || k == fieldIdxKind then (s, appPrec) else (s, 0)
 | _                           => (s, 0)
 
-def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState) : ParserState × List α :=
+def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState) (leadingIdentAsSymbol : Bool) : ParserState × List α :=
 let (s, stx) := peekToken c s;
 let find (n : Name) : ParserState × List α :=
   match map.find n with
   | some as => (s, as)
   | _       => (s, []);
 match stx with
-| some (Syntax.atom _ sym)    => find (mkNameSimple sym)
-| some (Syntax.ident _ _ _ _) => find `ident
-| some (Syntax.node k _)      => find k
-| _                           => (s, [])
+| some (Syntax.atom _ sym)      => find (mkNameSimple sym)
+| some (Syntax.ident _ _ val _) =>
+  if leadingIdentAsSymbol then
+    match map.find val with
+    | some as => (s, as)
+    | none    => find `ident
+  else
+    find `ident
+| some (Syntax.node k _)        => find k
+| _                             => (s, [])
 
 private def mkResult (s : ParserState) (iniSz : Nat) : ParserState :=
 if s.stackSize == iniSz + 1 then s
 else s.mkNode nullKind iniSz -- throw error instead?
 
-def leadingParser (kind : Name) (tables : ParsingTables) : ParserFn leading :=
+def leadingParser (kind : Name) (tables : ParsingTables) (leadingIdentAsSymbol : Bool) : ParserFn leading :=
 fun a c s =>
   let iniSz   := s.stackSize;
-  let (s, ps) := indexed tables.leadingTable c s;
+  let (s, ps) := indexed tables.leadingTable c s leadingIdentAsSymbol;
   if ps.isEmpty then
     s.mkError (toString kind)
   else
@@ -1282,8 +1288,9 @@ partial def trailingLoop (tables : ParsingTables) (rbp : Nat) (c : ParserContext
   let (s, lbp) := currLbp left c s;
   if rbp ≥ lbp then s.pushSyntax left
   else
-    let iniSz   := s.stackSize;
-    let (s, ps) := indexed tables.trailingTable c s;
+    let iniSz         := s.stackSize;
+    let identAsSymbol := false;
+    let (s, ps)       := indexed tables.trailingTable c s identAsSymbol;
     if ps.isEmpty && tables.trailingParsers.isEmpty then
       s.pushSyntax left -- no available trailing parser
     else
@@ -1295,9 +1302,9 @@ partial def trailingLoop (tables : ParsingTables) (rbp : Nat) (c : ParserContext
         let s    := s.popSyntax;
         trailingLoop left s
 
-def prattParser (kind : Name) (tables : ParsingTables) : ParserFn leading :=
+def prattParser (kind : Name) (tables : ParsingTables) (leadingIdentAsSymbol : Bool) : ParserFn leading :=
 fun rbp c s =>
-  let s := leadingParser kind tables rbp c s;
+  let s := leadingParser kind tables leadingIdentAsSymbol rbp c s;
   if s.hasError then s
   else
     let left := s.stxStack.back;
@@ -1331,7 +1338,11 @@ def mkBuiltinTokenTable : IO (IO.Ref TokenTable) := IO.mkRef {}
 def mkBuiltinSyntaxNodeKindSetRef : IO (IO.Ref SyntaxNodeKindSet) := IO.mkRef {}
 @[init mkBuiltinSyntaxNodeKindSetRef] constant builtinSyntaxNodeKindSetRef : IO.Ref SyntaxNodeKindSet := arbitrary _
 
-abbrev ParserCategories := PersistentHashMap Name ParsingTables
+structure ParserCategory :=
+(tables               : ParsingTables)
+(leadingIdentAsSymbol : Bool := false)
+
+abbrev ParserCategories := PersistentHashMap Name ParserCategory
 
 def mkBuiltinParserCategories : IO (IO.Ref ParserCategories) := IO.mkRef {}
 @[init mkBuiltinParserCategories] constant builtinParserCategoriesRef : IO.Ref ParserCategories := arbitrary _
@@ -1339,27 +1350,27 @@ def mkBuiltinParserCategories : IO (IO.Ref ParserCategories) := IO.mkRef {}
 private def throwParserCategoryAlreadyDefined {α} (catName : Name) : ExceptT String Id α :=
 throw ("parser category '" ++ toString catName ++ "' has already been defined")
 
-private def addParserCategoryCore (categories : ParserCategories) (catName : Name) : Except String ParserCategories :=
+private def addParserCategoryCore (categories : ParserCategories) (catName : Name) (leadingIdentAsSymbol : Bool) : Except String ParserCategories :=
 if categories.contains catName then
   throwParserCategoryAlreadyDefined catName
 else
-  pure $ categories.insert catName {}
+  pure $ categories.insert catName { tables := {}, leadingIdentAsSymbol := leadingIdentAsSymbol }
 
-private def addBuiltinParserCategory (catName : Name) : IO Unit := do
+private def addBuiltinParserCategory (catName : Name) (leadingIdentAsSymbol : Bool) : IO Unit := do
 categories ← builtinParserCategoriesRef.get;
-categories ← IO.ofExcept $ addParserCategoryCore categories catName;
+categories ← IO.ofExcept $ addParserCategoryCore categories catName leadingIdentAsSymbol;
 builtinParserCategoriesRef.set categories
 
 inductive ParserExtensionOleanEntry
 | token    (val : TokenConfig) : ParserExtensionOleanEntry
 | kind     (val : SyntaxNodeKind) : ParserExtensionOleanEntry
-| category (catName : Name)
+| category (catName : Name) (leadingIdentAsSymbol : Bool)
 | parser   (catName : Name) (declName : Name) : ParserExtensionOleanEntry
 
 inductive ParserExtensionEntry
 | token    (val : TokenConfig) : ParserExtensionEntry
 | kind     (val : SyntaxNodeKind) : ParserExtensionEntry
-| category (catName : Name)
+| category (catName : Name) (leadingIdentAsSymbol : Bool)
 | parser   (catName : Name) (declName : Name) (k : ParserKind) (p : Parser k) : ParserExtensionEntry
 
 structure ParserExtensionState :=
@@ -1401,11 +1412,11 @@ throw ("unknown parser category '" ++ toString catName ++ "'")
 def addLeadingParser (categories : ParserCategories) (catName : Name) (parserName : Name) (p : Parser) : Except String ParserCategories :=
 let addTokens (tks : List TokenConfig) : Except String ParserCategories :=
   match categories.find? catName with
-  | none        => throwUnknownParserCategory catName
-  | some tables =>
+  | none     => throwUnknownParserCategory catName
+  | some cat =>
     let tks    := tks.map $ fun tk => mkNameSimple tk.val;
-    let tables := tks.eraseDups.foldl (fun (tables : ParsingTables) tk => { leadingTable := tables.leadingTable.insert tk p, .. tables }) tables;
-    pure (categories.insert catName tables);
+    let tables := tks.eraseDups.foldl (fun (tables : ParsingTables) tk => { leadingTable := tables.leadingTable.insert tk p, .. tables }) cat.tables;
+    pure $ categories.insert catName { tables := tables, .. cat };
 match p.info.firstTokens with
 | FirstTokens.tokens tks    => addTokens tks
 | FirstTokens.optTokens tks => addTokens tks
@@ -1422,8 +1433,8 @@ match p.info.firstTokens with
 
 def addTrailingParser (categories : ParserCategories) (catName : Name) (p : TrailingParser) : Except String ParserCategories :=
 match categories.find? catName with
-| none        => throwUnknownParserCategory catName
-| some tables => pure $ categories.insert catName (addTrailingParserAux tables p)
+| none     => throwUnknownParserCategory catName
+| some cat => pure $ categories.insert catName { tables := addTrailingParserAux cat.tables p, .. cat }
 
 def addParser {k} (categories : ParserCategories) (catName : Name) (declName : Name) (p : Parser k) : Except String ParserCategories :=
 match k, p with
@@ -1461,9 +1472,10 @@ match e with
   | _                => unreachable!
 | ParserExtensionEntry.kind k =>
   { kinds := s.kinds.insert k, newEntries := ParserExtensionOleanEntry.kind k :: s.newEntries, .. s }
-| ParserExtensionEntry.category catName =>
+| ParserExtensionEntry.category catName leadingIdentAsSymbol =>
   if s.categories.contains catName then s
-  else { categories := s.categories.insert catName {}, newEntries := ParserExtensionOleanEntry.category catName :: s.newEntries, .. s }
+  else { categories := s.categories.insert catName { tables := {}, leadingIdentAsSymbol := leadingIdentAsSymbol },
+         newEntries := ParserExtensionOleanEntry.category catName leadingIdentAsSymbol :: s.newEntries, .. s }
 | ParserExtensionEntry.parser catName declName _ parser =>
   match addParser s.categories catName declName parser with
   | Except.ok categories => { categories := categories, newEntries := ParserExtensionOleanEntry.parser catName declName :: s.newEntries, .. s }
@@ -1526,8 +1538,8 @@ es.foldlM
          pure { tokens := tokens, .. s }
        | ParserExtensionOleanEntry.kind k =>
          pure { kinds := s.kinds.insert k, .. s }
-       | ParserExtensionOleanEntry.category catName => do
-         categories ← IO.ofExcept (addParserCategoryCore s.categories catName);
+       | ParserExtensionOleanEntry.category catName leadingIdentAsSymbol => do
+         categories ← IO.ofExcept (addParserCategoryCore s.categories catName leadingIdentAsSymbol);
          pure { categories := categories, .. s }
        | ParserExtensionOleanEntry.parser catName declName =>
          match mkParserOfConstant env s.categories declName with
@@ -1555,18 +1567,18 @@ constant parserExtension : ParserExtension := arbitrary _
 def isParserCategory (env : Environment) (catName : Name) : Bool :=
 (parserExtension.getState env).categories.contains catName
 
-def addParserCategory (env : Environment) (catName : Name) : Except String Environment := do
+def addParserCategory (env : Environment) (catName : Name) (leadingIdentAsSymbol : Bool) : Except String Environment := do
 if isParserCategory env catName then
   throwParserCategoryAlreadyDefined catName
 else
-  pure $ parserExtension.addEntry env $ ParserExtensionEntry.category catName
+  pure $ parserExtension.addEntry env $ ParserExtensionEntry.category catName leadingIdentAsSymbol
 
 def categoryParserFnImpl (catName : Name) : ParserFn leading :=
 fun rbp ctx s =>
   let categories := (parserExtension.getState ctx.env).categories;
   match categories.find? catName with
-  | some tables => prattParser catName tables rbp ctx s
-  | none        => s.mkUnexpectedError ("unknown parser category '" ++ toString catName ++ "'")
+  | some cat => prattParser catName cat.tables cat.leadingIdentAsSymbol rbp ctx s
+  | none     => s.mkUnexpectedError ("unknown parser category '" ++ toString catName ++ "'")
 
 @[init] def setCategoryParserFnRef : IO Unit :=
 categoryParserFnRef.set categoryParserFnImpl
@@ -1607,11 +1619,11 @@ def mkParserState (input : String) : ParserState :=
 def runParserCategory (env : Environment) (catName : Name) (input : String) (fileName := "<input>") : Except String Syntax :=
 let categories := (parserExtension.getState env).categories;
 match categories.find? catName with
-| some tables =>
+| some cat =>
   let c := mkParserContext env (mkInputContext input fileName);
   let s := mkParserState input;
   let s := whitespace c s;
-  let s := prattParser catName tables (0 : Nat) c s;
+  let s := prattParser catName cat.tables cat.leadingIdentAsSymbol (0 : Nat) c s;
   if s.hasError then
     Except.error (s.toErrorMsg c)
   else
@@ -1652,8 +1664,8 @@ match env.find? declName with
 /-
 The parsing tables for builtin parsers are "stored" in the extracted source code.
 -/
-def registerBuiltinParserAttribute (attrName : Name) (catName : Name) : IO Unit := do
-addBuiltinParserCategory catName;
+def registerBuiltinParserAttribute (attrName : Name) (catName : Name) (leadingIdentAsSymbol := false) : IO Unit := do
+addBuiltinParserCategory catName leadingIdentAsSymbol;
 registerBuiltinAttribute {
  name            := attrName,
  descr           := "Builtin parser",
@@ -1699,8 +1711,8 @@ registerAttributeImplBuilder `parserAttr $ fun args =>
   | [DataValue.ofName attrName, DataValue.ofName catName] => pure $ mkParserAttributeImpl attrName catName
   | _ => throw ("invalid parser attribute implementation builder arguments")
 
-def registerParserCategory (env : Environment) (attrName : Name) (catName : Name) : IO Environment := do
-env ← IO.ofExcept $ addParserCategory env catName;
+def registerParserCategory (env : Environment) (attrName : Name) (catName : Name) (leadingIdentAsSymbol := false) : IO Environment := do
+env ← IO.ofExcept $ addParserCategory env catName leadingIdentAsSymbol;
 registerAttributeOfBuilder env `parserAttr [DataValue.ofName attrName, DataValue.ofName catName]
 
 -- declare `termParser` here since it is used everywhere via antiquotations

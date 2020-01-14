@@ -509,7 +509,7 @@ lean_object* l_Lean_Parser_Command_prefix___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Command_prefix___closed__1;
 lean_object* l_Lean_Parser_Command_infixl___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Command_set__option___elambda__1___closed__2;
-lean_object* l_Lean_Parser_nonReservedSymbolInfo(lean_object*);
+lean_object* l_Lean_Parser_nonReservedSymbolInfo(lean_object*, uint8_t);
 lean_object* l_Lean_Parser_Command_example___elambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_declId___closed__1;
 lean_object* l_Lean_Parser_Command_declModifiers___closed__15;
@@ -21685,19 +21685,21 @@ return x_3;
 lean_object* _init_l_Lean_Parser_Command_set__option___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Command_set__option___elambda__1___closed__7;
-x_2 = l_Lean_Parser_nonReservedSymbolInfo(x_1);
-return x_2;
+x_2 = 0;
+x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
+return x_3;
 }
 }
 lean_object* _init_l_Lean_Parser_Command_set__option___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Command_set__option___elambda__1___closed__8;
-x_2 = l_Lean_Parser_nonReservedSymbolInfo(x_1);
-return x_2;
+x_2 = 0;
+x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
+return x_3;
 }
 }
 lean_object* _init_l_Lean_Parser_Command_set__option___closed__4() {
@@ -26205,10 +26207,11 @@ return x_22;
 lean_object* _init_l_Lean_Parser_Command_maxPrec___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Command_maxPrec___elambda__1___closed__5;
-x_2 = l_Lean_Parser_nonReservedSymbolInfo(x_1);
-return x_2;
+x_2 = 0;
+x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
+return x_3;
 }
 }
 lean_object* _init_l_Lean_Parser_Command_maxPrec___closed__2() {

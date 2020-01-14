@@ -24,10 +24,10 @@ sepBy1 tacticParser "; " true
 
 namespace Tactic
 
-@[builtinTacticParser] def «intro» := parser! tacticSymbol "intro " >> optional ident
-@[builtinTacticParser] def «intros» := parser! tacticSymbol "intros " >> many ident
-@[builtinTacticParser] def «assumption» := parser! tacticSymbol "assumption"
-@[builtinTacticParser] def «apply» := parser! tacticSymbol "apply " >> termParser
+@[builtinTacticParser] def «intro» := parser! nonReservedSymbol "intro " >> optional ident
+@[builtinTacticParser] def «intros» := parser! nonReservedSymbol "intros " >> many ident
+@[builtinTacticParser] def «assumption» := parser! nonReservedSymbol "assumption"
+@[builtinTacticParser] def «apply» := parser! nonReservedSymbol "apply " >> termParser
 @[builtinTacticParser] def nestedTacticBlock := parser! "begin " >> tacticSeq >> "end"
 @[builtinTacticParser] def nestedTacticBlockCurly := parser! "{" >> tacticSeq >> "}"
 @[builtinTacticParser] def orelse := tparser! infixR " <|> " 2

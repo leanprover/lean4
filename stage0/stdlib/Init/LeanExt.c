@@ -23,7 +23,6 @@ extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l_Lean_ParserDescr_try(uint8_t, lean_object*);
 lean_object* l_Lean_ParserDescr_unicodeSymbol(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserDescrCore_inhabited(uint8_t);
-lean_object* l_Lean_ParserDescr_tacticSymbol(lean_object*);
 lean_object* l_Lean_ParserDescr_many1(uint8_t, lean_object*);
 lean_object* l_Lean_ParserDescr_many___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_ParserDescr_many1___boxed(lean_object*, lean_object*);
@@ -35,6 +34,7 @@ lean_object* l_Lean_ParserDescr_symbol___boxed(lean_object*, lean_object*, lean_
 lean_object* l_Lean_ParserDescr_node(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_ParserDescr_try___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_ParserDescr_node___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_ParserDescr_nonReservedSymbol___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_ParserDescrCore_inhabited___boxed(lean_object*);
 lean_object* l_Lean_ParserDescr_sepBy1(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_ParserDescr_unicodeSymbol___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -42,6 +42,7 @@ lean_object* l_Lean_ParserDescr_orelse___boxed(lean_object*, lean_object*, lean_
 lean_object* l_Lean_ParserDescr_sepBy___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserDescr_symbol(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_ParserDescr_optional___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_ParserDescr_nonReservedSymbol(lean_object*, uint8_t);
 lean_object* l_Lean_ParserDescr_sepBy1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserDescrCore_inhabited(uint8_t x_1) {
 _start:
@@ -292,13 +293,24 @@ x_5 = l_Lean_ParserDescr_symbol(x_4, x_2, x_3);
 return x_5;
 }
 }
-lean_object* l_Lean_ParserDescr_tacticSymbol(lean_object* x_1) {
+lean_object* l_Lean_ParserDescr_nonReservedSymbol(lean_object* x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_ctor(12, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_3; 
+x_3 = lean_alloc_ctor(12, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_ParserDescr_nonReservedSymbol___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = lean_unbox(x_2);
+lean_dec(x_2);
+x_4 = l_Lean_ParserDescr_nonReservedSymbol(x_1, x_3);
+return x_4;
 }
 }
 lean_object* l_Lean_ParserDescr_unicodeSymbol(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

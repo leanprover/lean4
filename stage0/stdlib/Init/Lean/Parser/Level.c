@@ -80,7 +80,7 @@ lean_object* l_Lean_Parser_nodeInfo(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Level_addLit___elambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Level_imax___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Level_paren___elambda__1___closed__7;
-lean_object* l_Lean_Parser_nonReservedSymbolInfo(lean_object*);
+lean_object* l_Lean_Parser_nonReservedSymbolInfo(lean_object*, uint8_t);
 lean_object* l_Lean_Parser_Level_paren;
 lean_object* l_Lean_Parser_Level_addLit___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Level_paren___closed__10;
@@ -1017,10 +1017,11 @@ return x_41;
 lean_object* _init_l_Lean_Parser_Level_max___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Level_max___elambda__1___closed__5;
-x_2 = l_Lean_Parser_nonReservedSymbolInfo(x_1);
-return x_2;
+x_2 = 0;
+x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
+return x_3;
 }
 }
 lean_object* _init_l_Lean_Parser_Level_max___closed__2() {

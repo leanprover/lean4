@@ -10,7 +10,8 @@ namespace Lean
 namespace Parser
 
 @[init] def regBuiltinTacticParserAttr : IO Unit :=
-registerBuiltinParserAttribute `builtinTacticParser `tactic true
+let leadingIdentAsSymbol := true;
+registerBuiltinParserAttribute `builtinTacticParser `tactic leadingIdentAsSymbol
 
 @[init] def regTacticParserAttribute : IO Unit :=
 registerBuiltinDynamicParserAttribute `tacticParser `tactic
@@ -22,14 +23,6 @@ def tacticSeq {k : ParserKind} : Parser k :=
 sepBy1 tacticParser "; " true
 
 namespace Tactic
-
-def tacticSymbolInfo (sym : String) : ParserInfo :=
-{ firstTokens  := FirstTokens.tokens [ { val := sym } ] }
-
-@[inline] def tacticSymbol {k : ParserKind} (sym : String) : Parser k :=
-let sym := sym.trim;
-{ info := tacticSymbolInfo sym,
-  fn   := fun _ => nonReservedSymbolFn sym }
 
 @[builtinTacticParser] def «intro» := parser! tacticSymbol "intro " >> optional ident
 @[builtinTacticParser] def «intros» := parser! tacticSymbol "intros " >> many ident

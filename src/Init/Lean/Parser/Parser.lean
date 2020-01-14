@@ -1252,6 +1252,20 @@ structure ParserCategory :=
 
 abbrev ParserCategories := PersistentHashMap Name ParserCategory
 
+def tacticSymbolInfo (sym : String) : ParserInfo :=
+{ firstTokens  := FirstTokens.tokens [ { val := sym } ] }
+
+/-
+  Variant of `nonReservedSymbol sym` which only register this parser as a leading parser with first token `sym`.
+  This parser only makes sense for categories that set `leadingIdentAsSymbol == true`, as the `tactic` category.
+
+  TODO: when defining convenient notation for writing new tactics, we should use `tacticSymbol` instead of `symbol`.
+-/
+@[inline] def tacticSymbol (sym : String) : Parser :=
+let sym := sym.trim;
+{ info := tacticSymbolInfo sym,
+  fn   := fun _ => nonReservedSymbolFn sym }
+
 def currLbp (left : Syntax) (c : ParserContext) (s : ParserState) : ParserState × Nat :=
 let (s, stx) := peekToken c s;
 match stx with
@@ -1510,6 +1524,7 @@ def compileParserDescr (categories : ParserCategories) : forall {k : ParserKind}
 | _, ParserDescr.sepBy1 d₁ d₂                        => sepBy1 <$> compileParserDescr d₁ <*> compileParserDescr d₂
 | _, ParserDescr.node k d                            => node k <$> compileParserDescr d
 | _, ParserDescr.symbol tk lbp                       => pure $ symbol tk lbp
+| ParserKind.leading, ParserDescr.tacticSymbol tk    => pure $ tacticSymbol tk
 | _, ParserDescr.unicodeSymbol tk₁ tk₂ lbp           => pure $ unicodeSymbol tk₁ tk₂ lbp
 | ParserKind.leading, ParserDescr.parser catName rbp =>
   match categories.find? catName with

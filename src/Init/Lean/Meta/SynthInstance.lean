@@ -237,8 +237,12 @@ withMCtx mctx $ do
    It is the same approach we use at `forallTelescope` and `lambdaTelescope`.
    Given `getSubgoalsAux args j subgoals instVal type`,
    we have that `type.instantiateRevRange j args.size args` does not have loose bound variables. -/
+structure SubgoalsResult : Type :=
+(subgoals : List Expr)
+(instVal instTypeBody : Expr)
+
 private partial def getSubgoalsAux (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array Expr)
-    : Array Expr → Nat → List Expr → Expr → Expr → MetaM (List Expr × Expr × Expr)
+    : Array Expr → Nat → List Expr → Expr → Expr → MetaM SubgoalsResult
 | args, j, subgoals, instVal, Expr.forallE n d b c => do
   let d        := d.instantiateRevRange j args.size args;
   mvarType ← mkForall xs d;
@@ -254,10 +258,10 @@ private partial def getSubgoalsAux (lctx : LocalContext) (localInsts : LocalInst
   if type.isForall then
     getSubgoalsAux args args.size subgoals instVal type
   else
-    pure (subgoals, instVal, type)
+    pure ⟨subgoals, instVal, type⟩
 
 /--
-  `getSubgoals lctx localInsts xs inst` creates the subgoals for the instantiate `inst`.
+  `getSubgoals lctx localInsts xs inst` creates the subgoals for the instance `inst`.
   The subgoals are in the context of the free variables `xs`, and
   `(lctx, localInsts)` is the local context and instances before we added the free variables to it.
 
@@ -271,7 +275,7 @@ private partial def getSubgoalsAux (lctx : LocalContext) (localInsts : LocalInst
   metavariables that are instance implicit arguments, and the expressions:
     - `inst (?m_1 xs) ... (?m_n xs)` (aka `instVal`)
     - `B (?m_1 xs) ... (?m_n xs)` -/
-def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array Expr) (inst : Expr) : MetaM (List Expr × Expr × Expr) := do
+def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array Expr) (inst : Expr) : MetaM SubgoalsResult := do
 instType ← inferType inst;
 getSubgoalsAux lctx localInsts xs #[] 0 [] inst instType
 
@@ -280,7 +284,7 @@ mvarType   ← inferType mvar;
 lctx       ← getLCtx;
 localInsts ← getLocalInstances;
 forallTelescopeReducing mvarType $ fun xs mvarTypeBody => do
-  (subgoals, instVal, instTypeBody) ← getSubgoals lctx localInsts xs inst;
+  ⟨subgoals, instVal, instTypeBody⟩ ← getSubgoals lctx localInsts xs inst;
   trace! `Meta.synthInstance.tryResolve (mvarTypeBody ++ " =?= " ++ instTypeBody);
   condM (isDefEq mvarTypeBody instTypeBody)
     (do instVal ← mkLambda xs instVal;

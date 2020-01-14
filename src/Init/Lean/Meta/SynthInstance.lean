@@ -231,15 +231,16 @@ withMCtx mctx $ do
   mvarType ← instantiateMVars mvarType;
   pure $ mkTableKey mctx mvarType
 
-/- See `getSubgoals`
+/- See `getSubgoals` and `getSubgoalsAux`
 
    We use the parameter `j` to reduce the number of `instantiate*` invocations.
    It is the same approach we use at `forallTelescope` and `lambdaTelescope`.
    Given `getSubgoalsAux args j subgoals instVal type`,
    we have that `type.instantiateRevRange j args.size args` does not have loose bound variables. -/
 structure SubgoalsResult : Type :=
-(subgoals : List Expr)
-(instVal instTypeBody : Expr)
+(subgoals     : List Expr)
+(instVal      : Expr)
+(instTypeBody : Expr)
 
 private partial def getSubgoalsAux (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array Expr)
     : Array Expr → Nat → List Expr → Expr → Expr → MetaM SubgoalsResult

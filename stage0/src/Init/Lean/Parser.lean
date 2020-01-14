@@ -10,3 +10,4 @@ import Init.Lean.Parser.Term
 import Init.Lean.Parser.Tactic
 import Init.Lean.Parser.Command
 import Init.Lean.Parser.Module
+import Init.Lean.Parser.Syntax

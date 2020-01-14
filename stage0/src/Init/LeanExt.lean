@@ -42,6 +42,7 @@ inductive ParserDescrCore : ParserKind → Type
 | node {k : ParserKind}          : Name → ParserDescrCore k → ParserDescrCore k
 | symbol {k : ParserKind}        : String → Nat → ParserDescrCore k
 | unicodeSymbol {k : ParserKind} : String → String → Nat → ParserDescrCore k
+| tacticSymbol                   : String → ParserDescrCore ParserKind.leading
 | pushLeading                    : ParserDescrCore ParserKind.trailing
 | parser                         : Name → Nat → ParserDescrCore ParserKind.leading
 
@@ -61,6 +62,7 @@ abbrev TrailingParserDescr := ParserDescrCore ParserKind.trailing
 @[matchPattern] abbrev ParserDescr.sepBy1 := @ParserDescrCore.sepBy1
 @[matchPattern] abbrev ParserDescr.node := @ParserDescrCore.node
 @[matchPattern] abbrev ParserDescr.symbol := @ParserDescrCore.symbol
+@[matchPattern] abbrev ParserDescr.tacticSymbol := @ParserDescrCore.tacticSymbol
 @[matchPattern] abbrev ParserDescr.unicodeSymbol := @ParserDescrCore.unicodeSymbol
 @[matchPattern] abbrev ParserDescr.pushLeading := @ParserDescrCore.pushLeading
 @[matchPattern] abbrev ParserDescr.parser := @ParserDescrCore.parser

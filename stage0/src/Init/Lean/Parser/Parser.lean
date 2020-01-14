@@ -1231,6 +1231,41 @@ structure ParsingTables :=
 
 instance ParsingTables.inhabited : Inhabited ParsingTables := ⟨{}⟩
 
+/-
+  Each parser category has its own Pratt's parsing tables.
+  The system comes equipped with the following categories: `level`, `term`, `tactic`, and `command`.
+  Users and plugins may define extra categories.
+
+  The field `leadingIdentAsSymbol` specifies how the parsing table lookup function behaves for identifiers.
+  The function `prattParser` uses two tables `leadingTable` and `trailingTable`. They map tokens to
+  parsers. If `leadingIdentAsSymbol == false` and the leading token is an identifier, then `prattParser`
+  just executes the parsers associated with the auxiliary token "ident".
+  If `leadingIdentAsSymbol == true` and the leading token is an identifier `<foo>`, then `prattParser`
+  combines the parsers associated with the token `<foo>` with the parsers associated with the auxiliary token "ident".
+  We use this feature and a variant of the `nonReservedSymbol` parser to implement the `tactic` parsers.
+  We use this approach to avoid creating a reserved symbol for each builtin tactic (e.g., `apply`, `assumption`, etc.).
+  That is, users may still use these symbols as identifiers (e.g., naming a function).
+-/
+structure ParserCategory :=
+(tables               : ParsingTables)
+(leadingIdentAsSymbol : Bool := false)
+
+abbrev ParserCategories := PersistentHashMap Name ParserCategory
+
+def tacticSymbolInfo (sym : String) : ParserInfo :=
+{ firstTokens  := FirstTokens.tokens [ { val := sym } ] }
+
+/-
+  Variant of `nonReservedSymbol sym` which only register this parser as a leading parser with first token `sym`.
+  This parser only makes sense for categories that set `leadingIdentAsSymbol == true`, as the `tactic` category.
+
+  TODO: when defining convenient notation for writing new tactics, we should use `tacticSymbol` instead of `symbol`.
+-/
+@[inline] def tacticSymbol (sym : String) : Parser :=
+let sym := sym.trim;
+{ info := tacticSymbolInfo sym,
+  fn   := fun _ => nonReservedSymbolFn sym }
+
 def currLbp (left : Syntax) (c : ParserContext) (s : ParserState) : ParserState × Nat :=
 let (s, stx) := peekToken c s;
 match stx with
@@ -1258,7 +1293,9 @@ match stx with
 | some (Syntax.ident _ _ val _) =>
   if leadingIdentAsSymbol then
     match map.find val with
-    | some as => (s, as)
+    | some as => match map.find `ident with
+      | some as' => (s, as ++ as')
+      | _        => (s, as)
     | none    => find `ident
   else
     find `ident
@@ -1337,12 +1374,6 @@ def mkBuiltinTokenTable : IO (IO.Ref TokenTable) := IO.mkRef {}
 /- Global table with all SyntaxNodeKind's -/
 def mkBuiltinSyntaxNodeKindSetRef : IO (IO.Ref SyntaxNodeKindSet) := IO.mkRef {}
 @[init mkBuiltinSyntaxNodeKindSetRef] constant builtinSyntaxNodeKindSetRef : IO.Ref SyntaxNodeKindSet := arbitrary _
-
-structure ParserCategory :=
-(tables               : ParsingTables)
-(leadingIdentAsSymbol : Bool := false)
-
-abbrev ParserCategories := PersistentHashMap Name ParserCategory
 
 def mkBuiltinParserCategories : IO (IO.Ref ParserCategories) := IO.mkRef {}
 @[init mkBuiltinParserCategories] constant builtinParserCategoriesRef : IO.Ref ParserCategories := arbitrary _
@@ -1493,6 +1524,7 @@ def compileParserDescr (categories : ParserCategories) : forall {k : ParserKind}
 | _, ParserDescr.sepBy1 d₁ d₂                        => sepBy1 <$> compileParserDescr d₁ <*> compileParserDescr d₂
 | _, ParserDescr.node k d                            => node k <$> compileParserDescr d
 | _, ParserDescr.symbol tk lbp                       => pure $ symbol tk lbp
+| ParserKind.leading, ParserDescr.tacticSymbol tk    => pure $ tacticSymbol tk
 | _, ParserDescr.unicodeSymbol tk₁ tk₂ lbp           => pure $ unicodeSymbol tk₁ tk₂ lbp
 | ParserKind.leading, ParserDescr.parser catName rbp =>
   match categories.find? catName with

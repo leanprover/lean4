@@ -15,3 +15,4 @@ import Init.Lean.Elab.Quotation
 import Init.Lean.Elab.Frontend
 import Init.Lean.Elab.BuiltinNotation
 import Init.Lean.Elab.Declaration
+import Init.Lean.Elab.Tactic

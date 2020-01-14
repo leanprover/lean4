@@ -99,12 +99,12 @@ constant getStderr : IO FS.Handle := arbitrary _
 @[extern "lean_get_stdout"]
 constant getStdout : IO FS.Handle := arbitrary _
 
-@[extern "lean_set_stdin"]
-constant setStdin  : FS.Handle → IO Unit := arbitrary _
-@[extern "lean_set_stderr"]
-constant setStderr : FS.Handle → IO Unit := arbitrary _
-@[extern "lean_set_stdout"]
-constant setStdout : FS.Handle → IO Unit := arbitrary _
+@[extern "lean_get_set_stdin"]
+constant setStdin  : FS.Handle → IO FS.Handle := arbitrary _
+@[extern "lean_get_set_stderr"]
+constant setStderr : FS.Handle → IO FS.Handle := arbitrary _
+@[extern "lean_get_set_stdout"]
+constant setStdout : FS.Handle → IO FS.Handle := arbitrary _
 
 @[specialize] partial def iterate {α β : Type} : α → (α → IO (Sum α β)) → IO β
 | a, f => do
@@ -205,38 +205,38 @@ end FS
 section
 variables {m : Type → Type} [Monad m] [MonadIO m]
 
-def getStderr : m FS.Handle :=
-Prim.liftIO Prim.getStderr
-
 def getStdout : m FS.Handle :=
 Prim.liftIO Prim.getStdout
+
+def getStderr : m FS.Handle :=
+Prim.liftIO Prim.getStderr
 
 def getStdin : m FS.Handle :=
 Prim.liftIO Prim.getStdin
 
-def setStderr : FS.Handle → m Unit :=
-Prim.liftIO ∘ Prim.setStderr
-
-def setStdout : FS.Handle → m Unit :=
+/- replaces the stdout handle and returns its previous value -/
+def setStdout : FS.Handle → m FS.Handle :=
 Prim.liftIO ∘ Prim.setStdout
 
-def setStdin : FS.Handle → m Unit :=
+/- see `setStdout` -/
+def setStderr : FS.Handle → m FS.Handle :=
+Prim.liftIO ∘ Prim.setStderr
+
+/- see `setStdout` -/
+def setStdin : FS.Handle → m FS.Handle :=
 Prim.liftIO ∘ Prim.setStdin
 
-def withStderr {α ε} [MonadExcept ε m] (h : FS.Handle) (x : m α) : m α := do
-prev ← getStderr;
-setStderr h;
-@finally ε _ _ _ _ _ x (setStderr prev)
+def withStderr {α} (h : FS.Handle) (x : m α) : m α := do
+prev ← setStderr h;
+finally x (setStderr prev)
 
-def withStdout {α ε} [MonadExcept ε m] (h : FS.Handle) (x : m α) : m α := do
-prev ← getStdout;
-setStdout h;
-@finally ε _ _ _ _ _ x (setStdout prev)
+def withStdout {α} (h : FS.Handle) (x : m α) : m α := do
+prev ← setStdout h;
+finally x (setStdout prev)
 
-def withStdin {α ε} [MonadExcept ε m] (h : FS.Handle) (x : m α) : m α := do
-prev ← getStdin;
-setStdin h;
-@finally ε _ _ _ _ _ x (setStdin prev)
+def withStdin {α} (h : FS.Handle) (x : m α) : m α := do
+prev ← setStdin h;
+finally x (setStdin prev)
 
 private def putStr (s : String) : m Unit := do
 out ← getStdout;

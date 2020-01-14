@@ -86,7 +86,7 @@ declModifiers >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «
 @[builtinCommandParser] def exit           := parser! "#exit"
 @[builtinCommandParser] def «resolve_name» := parser! "#resolve_name " >> ident
 @[builtinCommandParser] def «init_quot»    := parser! "init_quot"
-@[builtinCommandParser] def «set_option»   := parser! "set_option " >> ident >> (symbolOrIdent "true" <|> symbolOrIdent "false" <|> strLit <|> numLit)
+@[builtinCommandParser] def «set_option»   := parser! "set_option " >> ident >> (nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit)
 @[builtinCommandParser] def «attribute»    := parser! optional "local " >> "attribute " >> "[" >> sepBy1 attrInstance ", " >> "]" >> many1 ident
 @[builtinCommandParser] def «export»       := parser! "export " >> ident >> "(" >> many1 ident >> ")"
 def openHiding       := parser! try (ident >> "hiding") >> many1 ident
@@ -98,7 +98,7 @@ def openSimple       := parser! many1 ident
 @[builtinCommandParser] def syntaxCat := parser! "declare_syntax_cat " >> ident
 
 /- Lean3 command declaration commands -/
-def maxPrec := parser! symbolOrIdent "max"
+def maxPrec := parser! nonReservedSymbol "max"
 def precedenceLit : Parser := numLit <|> maxPrec
 def «precedence» := parser! " : " >> precedenceLit
 def quotedSymbolPrec := parser! quotedSymbol >> optional «precedence»

@@ -1239,11 +1239,10 @@ instance ParsingTables.inhabited : Inhabited ParsingTables := ⟨{}⟩
   The field `leadingIdentAsSymbol` specifies how the parsing table lookup function behaves for identifiers.
   The function `prattParser` uses two tables `leadingTable` and `trailingTable`. They map tokens to
   parsers. If `leadingIdentAsSymbol == false` and the leading token is an identifier, then `prattParser`
-  just executes the parsers associated with the token "ident".
+  just executes the parsers associated with the auxiliary token "ident".
   If `leadingIdentAsSymbol == true` and the leading token is an identifier `<foo>`, then `prattParser`
-  first checks whether the `leadingTable` has parsers associated with `<foo>` or not. If there are parsers,
-  then they are executed. Otherwise, we search for the token "ident".
-  We use this feature and the `nonReservedSymbol` parser to implement the `tactic` parsers.
+  combines the parsers associated with the token `<foo>` with the parsers associated with the auxiliary token "ident".
+  We use this feature and a variant of the `nonReservedSymbol` parser to implement the `tactic` parsers.
   We use this approach to avoid creating a reserved symbol for each builtin tactic (e.g., `apply`, `assumption`, etc.).
   That is, users may still use these symbols as identifiers (e.g., naming a function).
 -/
@@ -1280,7 +1279,9 @@ match stx with
 | some (Syntax.ident _ _ val _) =>
   if leadingIdentAsSymbol then
     match map.find val with
-    | some as => (s, as)
+    | some as => match map.find `ident with
+      | some as' => (s, as ++ as')
+      | _        => (s, as)
     | none    => find `ident
   else
     find `ident

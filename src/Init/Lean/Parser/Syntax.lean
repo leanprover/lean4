@@ -13,9 +13,6 @@ namespace Parser
 let leadingIdentAsSymbol := true;
 registerBuiltinParserAttribute `builtinSyntaxParser `syntax leadingIdentAsSymbol
 
-@[init] def regSyntaxParserAttribute : IO Unit :=
-registerBuiltinDynamicParserAttribute `syntaxParser `syntax
-
 @[inline] def syntaxParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
 categoryParser `syntax rbp
 

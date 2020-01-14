@@ -9,7 +9,6 @@ import Init.Lean.Parser.Level
 
 namespace Lean
 namespace Parser
-namespace Term
 /- Helper functions for defining simple parsers -/
 
 def unicodeInfixR (sym : String) (asciiSym : String) (lbp : Nat) : TrailingParser :=
@@ -23,6 +22,8 @@ pushLeading >> unicodeSymbol sym asciiSym lbp >> termParser lbp
 
 def infixL (sym : String) (lbp : Nat) : TrailingParser :=
 pushLeading >> symbol sym lbp >> termParser lbp
+
+namespace Term
 
 /- Built-in parsers -/
 -- NOTE: `checkNoWsBefore` should be used *before* `parser!` so that it is also applied to the generated

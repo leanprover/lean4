@@ -40,13 +40,16 @@ inductive ParserDescrCore : ParserKind → Type
 | sepBy {k : ParserKind}         : ParserDescrCore k → ParserDescrCore k → ParserDescrCore k
 | sepBy1 {k : ParserKind}        : ParserDescrCore k → ParserDescrCore k → ParserDescrCore k
 | node {k : ParserKind}          : Name → ParserDescrCore k → ParserDescrCore k
-| symbol {k : ParserKind}        : String → Nat → ParserDescrCore k
-| unicodeSymbol {k : ParserKind} : String → String → Nat → ParserDescrCore k
+| symbol {k : ParserKind}        : String → Option Nat → ParserDescrCore k
 | nonReservedSymbol              : String → Bool → ParserDescrCore ParserKind.leading
+| num {k : ParserKind}           : ParserDescrCore k
+| str {k : ParserKind}           : ParserDescrCore k
+| char {k : ParserKind}          : ParserDescrCore k
+| ident {k : ParserKind}         : ParserDescrCore k
 | pushLeading                    : ParserDescrCore ParserKind.trailing
 | parser                         : Name → Nat → ParserDescrCore ParserKind.leading
 
-instance ParserDescrCore.inhabited {k} : Inhabited (ParserDescrCore k) := ⟨ParserDescrCore.symbol "" 0⟩
+instance ParserDescrCore.inhabited {k} : Inhabited (ParserDescrCore k) := ⟨ParserDescrCore.symbol "" none⟩
 
 abbrev ParserDescr := ParserDescrCore ParserKind.leading
 abbrev TrailingParserDescr := ParserDescrCore ParserKind.trailing
@@ -62,8 +65,11 @@ abbrev TrailingParserDescr := ParserDescrCore ParserKind.trailing
 @[matchPattern] abbrev ParserDescr.sepBy1 := @ParserDescrCore.sepBy1
 @[matchPattern] abbrev ParserDescr.node := @ParserDescrCore.node
 @[matchPattern] abbrev ParserDescr.symbol := @ParserDescrCore.symbol
+@[matchPattern] abbrev ParserDescr.num := @ParserDescrCore.num
+@[matchPattern] abbrev ParserDescr.str := @ParserDescrCore.str
+@[matchPattern] abbrev ParserDescr.char := @ParserDescrCore.char
+@[matchPattern] abbrev ParserDescr.ident := @ParserDescrCore.ident
 @[matchPattern] abbrev ParserDescr.nonReservedSymbol := @ParserDescrCore.nonReservedSymbol
-@[matchPattern] abbrev ParserDescr.unicodeSymbol := @ParserDescrCore.unicodeSymbol
 @[matchPattern] abbrev ParserDescr.pushLeading := @ParserDescrCore.pushLeading
 @[matchPattern] abbrev ParserDescr.parser := @ParserDescrCore.parser
 

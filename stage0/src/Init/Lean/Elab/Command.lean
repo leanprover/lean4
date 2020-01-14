@@ -578,6 +578,11 @@ fun stx => do
   env ← liftIO stx $ Parser.registerParserCategory env attrName catName;
   setEnv env
 
+
+@[builtinCommandElab syntax] def elabSyntax : CommandElab :=
+fun stx =>
+  throwError stx ("not implemented yet " ++ toString stx)
+
 @[inline] def withDeclId (declId : Syntax) (f : Name → CommandElabM Unit) : CommandElabM Unit := do
 -- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
 let id             := declId.getIdAt 0;

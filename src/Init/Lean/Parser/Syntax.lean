@@ -22,8 +22,8 @@ categoryParser `syntax rbp
 namespace Syntax
 
 @[builtinSyntaxParser] def paren     := parser! "(" >> many1 syntaxParser >> ")"
-@[builtinSyntaxParser] def cat       := parser! ident >> optional (":" >> numLit)
-@[builtinSyntaxParser] def atom      := parser! strLit >> optional (":" >> numLit)
+@[builtinSyntaxParser] def cat       := parser! ident >> optional (try (":" >> numLit))
+@[builtinSyntaxParser] def atom      := parser! strLit >> optional (try (":" >> numLit))
 @[builtinSyntaxParser] def num       := parser! nonReservedSymbol "num"
 @[builtinSyntaxParser] def str       := parser! nonReservedSymbol "str"
 @[builtinSyntaxParser] def char      := parser! nonReservedSymbol "char"

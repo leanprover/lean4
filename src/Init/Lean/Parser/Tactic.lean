@@ -10,7 +10,7 @@ namespace Lean
 namespace Parser
 
 @[init] def regBuiltinTacticParserAttr : IO Unit :=
-registerBuiltinParserAttribute `builtinTacticParser `tactic
+registerBuiltinParserAttribute `builtinTacticParser `tactic true
 
 @[init] def regTacticParserAttribute : IO Unit :=
 registerBuiltinDynamicParserAttribute `tacticParser `tactic

@@ -35,3 +35,8 @@ succ a -- succ here is resolved as `Nat.succ`.
 #check Nat.boo
 
 #check true
+
+-- apply is still a valid identifier name
+def apply := "hello"
+
+#check apply

@@ -1513,10 +1513,13 @@ def compileParserDescr (categories : ParserCategories) : forall {k : ParserKind}
 | _, ParserDescr.sepBy d₁ d₂                         => sepBy <$> compileParserDescr d₁ <*> compileParserDescr d₂
 | _, ParserDescr.sepBy1 d₁ d₂                        => sepBy1 <$> compileParserDescr d₁ <*> compileParserDescr d₂
 | _, ParserDescr.node k d                            => node k <$> compileParserDescr d
-| _, ParserDescr.symbol tk lbp                       => pure $ symbol tk lbp
+| _, ParserDescr.symbol tk lbp                       => pure $ symbolAux tk lbp
+| _, ParserDescr.num                                 => pure $ numLit
+| _, ParserDescr.str                                 => pure $ strLit
+| _, ParserDescr.char                                => pure $ charLit
+| _, ParserDescr.ident                               => pure $ identNoAntiquot -- Kha, do we need `ident` here?
 | ParserKind.leading,
   ParserDescr.nonReservedSymbol tk includeIdent      => pure $ nonReservedSymbol tk includeIdent
-| _, ParserDescr.unicodeSymbol tk₁ tk₂ lbp           => pure $ unicodeSymbol tk₁ tk₂ lbp
 | ParserKind.leading, ParserDescr.parser catName rbp =>
   match categories.find? catName with
   | some _ => pure $ categoryParser catName rbp

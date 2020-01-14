@@ -1231,6 +1231,28 @@ structure ParsingTables :=
 
 instance ParsingTables.inhabited : Inhabited ParsingTables := ⟨{}⟩
 
+/-
+  Each parser category has its own Pratt's parsing tables.
+  The system comes equipped with the following categories: `level`, `term`, `tactic`, and `command`.
+  Users and plugins may define extra categories.
+
+  The field `leadingIdentAsSymbol` specifies how the parsing table lookup function behaves for identifiers.
+  The function `prattParser` uses two tables `leadingTable` and `trailingTable`. They map tokens to
+  parsers. If `leadingIdentAsSymbol == false` and the leading token is an identifier, then `prattParser`
+  just executes the parsers associated with the token "ident".
+  If `leadingIdentAsSymbol == true` and the leading token is an identifier `<foo>`, then `prattParser`
+  first checks whether the `leadingTable` has parsers associated with `<foo>` or not. If there are parsers,
+  then they are executed. Otherwise, we search for the token "ident".
+  We use this feature and the `nonReservedSymbol` parser to implement the `tactic` parsers.
+  We use this approach to avoid creating a reserved symbol for each builtin tactic (e.g., `apply`, `assumption`, etc.).
+  That is, users may still use these symbols as identifiers (e.g., naming a function).
+-/
+structure ParserCategory :=
+(tables               : ParsingTables)
+(leadingIdentAsSymbol : Bool := false)
+
+abbrev ParserCategories := PersistentHashMap Name ParserCategory
+
 def currLbp (left : Syntax) (c : ParserContext) (s : ParserState) : ParserState × Nat :=
 let (s, stx) := peekToken c s;
 match stx with
@@ -1337,12 +1359,6 @@ def mkBuiltinTokenTable : IO (IO.Ref TokenTable) := IO.mkRef {}
 /- Global table with all SyntaxNodeKind's -/
 def mkBuiltinSyntaxNodeKindSetRef : IO (IO.Ref SyntaxNodeKindSet) := IO.mkRef {}
 @[init mkBuiltinSyntaxNodeKindSetRef] constant builtinSyntaxNodeKindSetRef : IO.Ref SyntaxNodeKindSet := arbitrary _
-
-structure ParserCategory :=
-(tables               : ParsingTables)
-(leadingIdentAsSymbol : Bool := false)
-
-abbrev ParserCategories := PersistentHashMap Name ParserCategory
 
 def mkBuiltinParserCategories : IO (IO.Ref ParserCategories) := IO.mkRef {}
 @[init mkBuiltinParserCategories] constant builtinParserCategoriesRef : IO.Ref ParserCategories := arbitrary _

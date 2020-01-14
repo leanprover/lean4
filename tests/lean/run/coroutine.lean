@@ -160,7 +160,7 @@ unsafe def visit {α : Type v} : tree α → coroutine Unit α Unit
   yield a;
   visit r
 
-unsafe def tst {α : Type} [HasToString α] (t : tree α) : ExceptT String IO Unit :=
+unsafe def tst {α : Type} [HasToString α] (t : tree α) : IO Unit :=
 do c  ← pure $ visit t;
    (yielded v₁ c) ← pure $ resume c ();
    (yielded v₂ c) ← pure $ resume c ();
@@ -185,7 +185,7 @@ do
   yield ("2) val: " ++ toString (x+y));
   pure ()
 
-unsafe def tst2 : ExceptT String IO Unit :=
+unsafe def tst2 : IO Unit :=
 do let c := StateT.run ex 5;
    (yielded r c₁) ← pure $ resume c 10;
    IO.println r;

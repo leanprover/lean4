@@ -917,12 +917,16 @@ fun c s =>
 @[inline] def nonReservedSymbolFn (sym : String) : BasicParserFn :=
 nonReservedSymbolFnAux sym ("'" ++ sym ++ "'")
 
-def nonReservedSymbolInfo (sym : String) : ParserInfo :=
-{ firstTokens  := FirstTokens.tokens [ { val := sym }, { val := "ident" } ] }
+def nonReservedSymbolInfo (sym : String) (includeIdent : Bool) : ParserInfo :=
+{ firstTokens  :=
+  if includeIdent then
+    FirstTokens.tokens [ { val := sym }, { val := "ident" } ]
+  else
+    FirstTokens.tokens [ { val := sym } ] }
 
-@[inline] def nonReservedSymbol {k : ParserKind} (sym : String) : Parser k :=
+@[inline] def nonReservedSymbol {k : ParserKind} (sym : String) (includeIdent := false) : Parser k :=
 let sym := sym.trim;
-{ info := nonReservedSymbolInfo sym,
+{ info := nonReservedSymbolInfo sym includeIdent,
   fn   := fun _ => nonReservedSymbolFn sym }
 
 partial def strAux (sym : String) (errorMsg : String) : Nat → BasicParserFn
@@ -1242,7 +1246,7 @@ instance ParsingTables.inhabited : Inhabited ParsingTables := ⟨{}⟩
   just executes the parsers associated with the auxiliary token "ident".
   If `leadingIdentAsSymbol == true` and the leading token is an identifier `<foo>`, then `prattParser`
   combines the parsers associated with the token `<foo>` with the parsers associated with the auxiliary token "ident".
-  We use this feature and a variant of the `nonReservedSymbol` parser to implement the `tactic` parsers.
+  We use this feature and the `nonReservedSymbol` parser to implement the `tactic` parsers.
   We use this approach to avoid creating a reserved symbol for each builtin tactic (e.g., `apply`, `assumption`, etc.).
   That is, users may still use these symbols as identifiers (e.g., naming a function).
 -/
@@ -1251,20 +1255,6 @@ structure ParserCategory :=
 (leadingIdentAsSymbol : Bool := false)
 
 abbrev ParserCategories := PersistentHashMap Name ParserCategory
-
-def tacticSymbolInfo (sym : String) : ParserInfo :=
-{ firstTokens  := FirstTokens.tokens [ { val := sym } ] }
-
-/-
-  Variant of `nonReservedSymbol sym` which only register this parser as a leading parser with first token `sym`.
-  This parser only makes sense for categories that set `leadingIdentAsSymbol == true`, as the `tactic` category.
-
-  TODO: when defining convenient notation for writing new tactics, we should use `tacticSymbol` instead of `symbol`.
--/
-@[inline] def tacticSymbol (sym : String) : Parser :=
-let sym := sym.trim;
-{ info := tacticSymbolInfo sym,
-  fn   := fun _ => nonReservedSymbolFn sym }
 
 def currLbp (left : Syntax) (c : ParserContext) (s : ParserState) : ParserState × Nat :=
 let (s, stx) := peekToken c s;
@@ -1524,7 +1514,8 @@ def compileParserDescr (categories : ParserCategories) : forall {k : ParserKind}
 | _, ParserDescr.sepBy1 d₁ d₂                        => sepBy1 <$> compileParserDescr d₁ <*> compileParserDescr d₂
 | _, ParserDescr.node k d                            => node k <$> compileParserDescr d
 | _, ParserDescr.symbol tk lbp                       => pure $ symbol tk lbp
-| ParserKind.leading, ParserDescr.tacticSymbol tk    => pure $ tacticSymbol tk
+| ParserKind.leading,
+  ParserDescr.nonReservedSymbol tk includeIdent      => pure $ nonReservedSymbol tk includeIdent
 | _, ParserDescr.unicodeSymbol tk₁ tk₂ lbp           => pure $ unicodeSymbol tk₁ tk₂ lbp
 | ParserKind.leading, ParserDescr.parser catName rbp =>
   match categories.find? catName with

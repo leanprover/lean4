@@ -39,22 +39,28 @@ private def quoteName : Name → Syntax
 | Name.str n s _ => Unhygienic.run `(_root_.Lean.mkNameStr $(quoteName n) $(quote s))
 | Name.num n i _ => Unhygienic.run `(_root_.Lean.mkNameNum $(quoteName n) $(quote i))
 
-instance Name.HasQuote : HasQuote Name := ⟨quoteName⟩
+instance Name.hasQuote : HasQuote Name := ⟨quoteName⟩
 
 private def appN (fn : Syntax) (args : Array Syntax) : Syntax :=
 args.foldl (fun fn arg => Unhygienic.run `($fn $arg)) fn
 
-instance Prod.HasQuote {α β : Type} [HasQuote α] [HasQuote β] : HasQuote (α × β) :=
+instance Prod.hasQuote {α β : Type} [HasQuote α] [HasQuote β] : HasQuote (α × β) :=
 ⟨fun ⟨a, b⟩ => Unhygienic.run `(_root_.Prod.mk $(quote a) $(quote b))⟩
 
 private def quoteList {α : Type} [HasQuote α] : List α → Syntax
 | [] =>      Unhygienic.run `(_root_.List.nil)
 | (x::xs) => Unhygienic.run `(_root_.List.cons $(quote x) $(quoteList xs))
 
-instance List.HasQuote {α : Type} [HasQuote α] : HasQuote (List α) := ⟨quoteList⟩
+instance List.hasQuote {α : Type} [HasQuote α] : HasQuote (List α) := ⟨quoteList⟩
 
-instance Array.HasQuote {α : Type} [HasQuote α] : HasQuote (Array α) :=
+instance Array.hasQuote {α : Type} [HasQuote α] : HasQuote (Array α) :=
 ⟨fun xs => let stx := quote xs.toList; Unhygienic.run `(_root_.List.toArray $stx)⟩
+
+private def quoteOption {α : Type} [HasQuote α] : Option α → Syntax
+| none     => Unhygienic.run `(_root_.Option.none)
+| (some x) => Unhygienic.run `(_root_.Option.some $(quote x))
+
+instance Option.hasQuote {α : Type} [HasQuote α] : HasQuote (Option α) := ⟨quoteOption⟩
 
 namespace Elab
 namespace Term

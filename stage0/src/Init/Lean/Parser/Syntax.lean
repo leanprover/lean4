@@ -13,17 +13,14 @@ namespace Parser
 let leadingIdentAsSymbol := true;
 registerBuiltinParserAttribute `builtinSyntaxParser `syntax leadingIdentAsSymbol
 
-@[init] def regSyntaxParserAttribute : IO Unit :=
-registerBuiltinDynamicParserAttribute `syntaxParser `syntax
-
 @[inline] def syntaxParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
 categoryParser `syntax rbp
 
 namespace Syntax
 
 @[builtinSyntaxParser] def paren     := parser! "(" >> many1 syntaxParser >> ")"
-@[builtinSyntaxParser] def cat       := parser! ident >> optional (":" >> numLit)
-@[builtinSyntaxParser] def atom      := parser! strLit >> optional (":" >> numLit)
+@[builtinSyntaxParser] def cat       := parser! ident >> optional (try (":" >> numLit))
+@[builtinSyntaxParser] def atom      := parser! strLit >> optional (try (":" >> numLit))
 @[builtinSyntaxParser] def num       := parser! nonReservedSymbol "num"
 @[builtinSyntaxParser] def str       := parser! nonReservedSymbol "str"
 @[builtinSyntaxParser] def char      := parser! nonReservedSymbol "char"
@@ -36,7 +33,7 @@ namespace Syntax
 
 @[builtinSyntaxParser] def many     := tparser! pushLeading >> symbolAux "*" none
 @[builtinSyntaxParser] def many1    := tparser! pushLeading >> symbolAux "+" none
-@[builtinSyntaxParser] def orelse   := tparser! infixR " <|> " 2
+@[builtinSyntaxParser] def orelse   := tparser! pushLeading >> " <|> " >> syntaxParser 1
 
 end Syntax
 

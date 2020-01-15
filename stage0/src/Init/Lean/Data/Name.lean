@@ -14,29 +14,6 @@ import Init.Data.RBTree
 
 namespace Lean
 
-instance Name.inhabited : Inhabited Name :=
-⟨Name.anonymous⟩
-
-def Name.hash : Name → USize
-| Name.anonymous => 1723
-| Name.str p s h => h
-| Name.num p v h => h
-
-instance Name.hashable : Hashable Name := ⟨Name.hash⟩
-
-@[export lean_name_hash] def Name.hashEx : Name → USize := Name.hash
-
-@[export lean_name_mk_string]
-def mkNameStr (p : Name) (s : String) : Name :=
-Name.str p s $ mixHash (hash p) (hash s)
-
-@[export lean_name_mk_numeral]
-def mkNameNum (p : Name) (v : Nat) : Name :=
-Name.num p v $ mixHash (hash p) (hash v)
-
-def mkNameSimple (s : String) : Name :=
-mkNameStr Name.anonymous s
-
 instance stringToName : HasCoe String Name :=
 ⟨mkNameSimple⟩
 

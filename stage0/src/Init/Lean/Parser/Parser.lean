@@ -1395,10 +1395,11 @@ inductive ParserExtensionEntry
 | parser   (catName : Name) (declName : Name) (k : ParserKind) (p : Parser k) : ParserExtensionEntry
 
 structure ParserExtensionState :=
-(tokens     : TokenTable := {})
-(kinds      : SyntaxNodeKindSet := {})
-(categories : ParserCategories := {})
-(newEntries : List ParserExtensionOleanEntry := [])
+(tokens      : TokenTable := {})
+(kinds       : SyntaxNodeKindSet := {})
+(categories  : ParserCategories := {})
+(newEntries  : List ParserExtensionOleanEntry := [])
+(nextKindIdx : Nat := 1)
 
 instance ParserExtensionState.inhabited : Inhabited ParserExtensionState := ⟨{}⟩
 
@@ -1589,6 +1590,18 @@ registerPersistentEnvExtension {
 
 @[init mkParserExtension]
 constant parserExtension : ParserExtension := arbitrary _
+
+partial def mkFreshKindAux (kinds : SyntaxNodeKindSet) (base : Name) : Nat → Name × Nat
+| currIdx =>
+  let candidate := base.appendIndexAfter currIdx;
+  if kinds.contains candidate then mkFreshKindAux (currIdx+1)
+  else (candidate, currIdx)
+
+def mkFreshKind (env : Environment) (part : Name) : Environment × Name :=
+let s := parserExtension.getState env;
+let (kind, idx) := mkFreshKindAux s.kinds (`_kind ++ env.mainModule ++ part) s.nextKindIdx;
+let env := parserExtension.setState env { nextKindIdx := idx+1, .. s };
+(env, kind)
 
 def isParserCategory (env : Environment) (catName : Name) : Bool :=
 (parserExtension.getState env).categories.contains catName
@@ -1811,20 +1824,6 @@ fun c s =>
 mkAntiquot "fieldIdx" `fieldIdx <|>
 { fn   := fun _ => fieldIdxFn,
   info := mkAtomicInfo "fieldIdx" }
-
-/- Helper functions for defining simple parsers -/
-
-def unicodeInfixR (sym : String) (asciiSym : String) (lbp : Nat) : TrailingParser :=
-pushLeading >> unicodeSymbol sym asciiSym lbp >> termParser (lbp - 1)
-
-def infixR (sym : String) (lbp : Nat) : TrailingParser :=
-pushLeading >> symbol sym lbp >> termParser (lbp - 1)
-
-def unicodeInfixL (sym : String) (asciiSym : String) (lbp : Nat) : TrailingParser :=
-pushLeading >> unicodeSymbol sym asciiSym lbp >> termParser lbp
-
-def infixL (sym : String) (lbp : Nat) : TrailingParser :=
-pushLeading >> symbol sym lbp >> termParser lbp
 
 end Parser
 

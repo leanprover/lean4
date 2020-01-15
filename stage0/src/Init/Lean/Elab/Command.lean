@@ -570,19 +570,6 @@ fun stx => do
   | Syntax.atom _ "false" => setOption ref optionName (DataValue.ofBool false)
   | _ => logError val ("unexpected set_option value " ++ toString val)
 
-@[builtinCommandElab syntaxCat] def elabDeclareSyntaxCat : CommandElab :=
-fun stx => do
-  let catName  := stx.getIdAt 1;
-  let attrName := catName.appendAfter "Parser";
-  env ← getEnv;
-  env ← liftIO stx $ Parser.registerParserCategory env attrName catName;
-  setEnv env
-
-
-@[builtinCommandElab syntax] def elabSyntax : CommandElab :=
-fun stx =>
-  throwError stx ("not implemented yet " ++ toString stx)
-
 @[inline] def withDeclId (declId : Syntax) (f : Name → CommandElabM Unit) : CommandElabM Unit := do
 -- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
 let id             := declId.getIdAt 0;

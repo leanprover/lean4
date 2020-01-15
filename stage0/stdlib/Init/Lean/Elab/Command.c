@@ -50,6 +50,7 @@ extern lean_object* l___private_Init_Lean_Elab_Util_7__regTraceClasses___closed_
 lean_object* l_Lean_Elab_Command_CommandElabCoreM_monadState___closed__1;
 lean_object* l_Lean_Elab_Command_trace___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_registerBuiltinCommandElabAttr___closed__1;
+lean_object* l_String_toFormat(lean_object*);
 lean_object* l_Lean_Elab_Command_addContext(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_registerNamespace___main(lean_object*, lean_object*);
 extern lean_object* l_Lean_MessageData_ofList___closed__3;
@@ -2048,8 +2049,7 @@ lean_dec(x_1);
 x_9 = lean_ctor_get(x_4, 0);
 lean_inc(x_9);
 lean_dec(x_4);
-x_10 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_10, 0, x_9);
+x_10 = l_String_toFormat(x_9);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_3);

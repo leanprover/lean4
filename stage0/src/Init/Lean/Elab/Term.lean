@@ -132,7 +132,7 @@ match ref.getPos with
 
 private def prettyPrint (stx : Syntax) : TermElabM Format :=
 match stx.reprint with -- TODO use syntax pretty printer
-| some str => pure $ format str
+| some str => pure $ str.toFormat
 | none     => pure $ format stx
 
 private def addMacroStack (msgData : MessageData) : TermElabM MessageData := do
@@ -916,13 +916,10 @@ match env.find? constName with
 private def mkConsts (ref : Syntax) (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
 env ← getEnv;
 candidates.foldlM
-  (fun result ⟨constName, projs⟩ =>
-    catch
-      (do const ← mkConst ref constName explicitLevels;
-          pure $ (const, projs) :: result)
-      (fun _ =>
-          -- Remark: we discard candidates based on the number of explicit universe levels provided.
-          pure result))
+  (fun result ⟨constName, projs⟩ => do
+    -- TODO: better suppor for `mkConst` failure. We may want to cache the failures, and report them if all candidates fail.
+    const ← mkConst ref constName explicitLevels;
+    pure $ (const, projs) :: result)
   []
 
 def resolveName (ref : Syntax) (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
@@ -936,11 +933,7 @@ match result? with
   let process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do {
     when candidates.isEmpty $
       throwError ref ("unknown identifier '" ++ toString n ++ "'");
-    result ← mkConsts ref candidates explicitLevels;
-    -- If we had candidates, but `result` is empty, then too many universe levels have been provided
-    when result.isEmpty $
-      throwError ref ("too many explicit universe levels");
-    pure result
+    mkConsts ref candidates explicitLevels
   };
   if preresolved.isEmpty then do
     env           ← getEnv;

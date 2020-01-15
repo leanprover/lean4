@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import Init.LeanExt
 import Init.Coe
+import Init.LeanInit
 import Init.Data.UInt
 import Init.Data.ToString
 import Init.Data.Hashable

@@ -163,7 +163,7 @@ builtinCommandElabTable.modify $ fun m => m.insert k elab
 
 def declareBuiltinCommandElab (env : Environment) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
 let name := `_regBuiltinCommandElab ++ declName;
-let type := mkApp (mkConst `IO) (mkConst `Unit);
+let type := mkApp mkIOConst (mkConst `Unit);
 let val  := mkAppN (mkConst `Lean.Elab.Command.addBuiltinCommandElab) #[toExpr kind, toExpr declName, mkConst declName];
 let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
 match env.addAndCompile {} decl with

@@ -37,7 +37,7 @@ do inst ← mkAppM `HasCoerce #[mkConst `Nat, mkSort levelZero];
 #eval tst1
 
 def tst2 : MetaM Unit :=
-do inst ← mkAppM `HasBind #[mkConst `IO];
+do inst ← mkAppM `HasBind #[mkIOConst];
    -- globalInstances ← getGlobalInstances;
    -- print (format globalInstances);
    -- result ← globalInstances.getUnify inst;

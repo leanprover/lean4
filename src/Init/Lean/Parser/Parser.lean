@@ -1671,7 +1671,7 @@ match categories.find? catName with
 
 def declareBuiltinParser (env : Environment) (addFnName : Name) (catName : Name) (declName : Name) : IO Environment :=
 let name := `_regBuiltinParser ++ declName;
-let type := mkApp (mkConst `IO) (mkConst `Unit);
+let type := mkApp mkIOConst (mkConst `Unit);
 let val  := mkAppN (mkConst addFnName) #[toExpr catName, toExpr declName, mkConst declName];
 let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
 match env.addAndCompile {} decl with

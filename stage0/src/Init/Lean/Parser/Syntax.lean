@@ -39,7 +39,7 @@ end Syntax
 
 namespace Command
 
-@[builtinCommandParser] def «syntax» := parser! "syntax " >> many1 syntaxParser >> " : " >> ident
+@[builtinCommandParser] def «syntax» := parser! "syntax " >> optional ("[" >> ident >> "]") >> many1 syntaxParser >> " : " >> ident
 
 end Command
 

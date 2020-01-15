@@ -23,7 +23,7 @@ def nat   := mkConst `Nat
 def boolE := mkConst `Bool
 def succ  := mkConst `Nat.succ
 def add   := mkConst `Nat.add
-def io    := mkConst `IO
+def io    := mkIOConst
 def type  := mkSort levelOne
 
 def tst1 : MetaM Unit :=

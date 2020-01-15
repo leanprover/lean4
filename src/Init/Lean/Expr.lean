@@ -257,6 +257,8 @@ mkLit (Literal.strVal s)
 def mkConst (n : Name) (lvls : List Level := []) : Expr :=
 Expr.const n lvls $ mkData (mixHash 5 $ mixHash (hash n) (hash lvls)) 0 false false (lvls.any Level.hasMVar) (lvls.any Level.hasParam)
 
+def mkIOConst (lvl : Level := levelZero) : Expr := mkConst `IO [lvl]
+
 def Literal.type : Literal → Expr
 | Literal.natVal _ => mkConst `Nat
 | Literal.strVal _ => mkConst `String

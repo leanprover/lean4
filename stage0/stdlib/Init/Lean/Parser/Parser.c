@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Parser_declareBuiltinParser___closed__9;
 lean_object* l_Lean_Parser_nonReservedSymbol___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Lean_Parser_optionalFn___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -37,6 +36,7 @@ extern lean_object* l_Lean_fieldIdxKind;
 lean_object* l_PersistentHashMap_foldlM___at_Lean_Parser_getSyntaxNodeKinds___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_forArgsM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_unicodeSymbolCheckPrec___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkIOConst(lean_object*);
 lean_object* l_Lean_Parser_declareLeadingBuiltinParser___closed__1;
 uint8_t l_RBNode_isRed___rarg(lean_object*);
 lean_object* l_Lean_Parser_andthenFn___boxed(lean_object*);
@@ -282,6 +282,7 @@ lean_object* l_Lean_Syntax_foldArgsM___rarg___boxed(lean_object*, lean_object*, 
 lean_object* l_Array_anyRangeMAux___main___at_Lean_Parser_mkParserExtension___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_charLitFn___rarg___closed__1;
 lean_object* l_PersistentHashMap_foldlMAux___main___at_Lean_Parser_getSyntaxNodeKinds___spec__2(lean_object*, lean_object*);
+extern lean_object* l_Lean_levelZero;
 lean_object* l_Lean_Parser_ident___closed__1;
 lean_object* l_Lean_Parser_finishCommentBlock___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_dollarSymbol___elambda__1___rarg___closed__3;
@@ -498,7 +499,6 @@ lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkParserOfConstant___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Error_HasBeq;
 lean_object* l_Lean_Parser_nonReservedSymbolInfo___closed__3;
-extern lean_object* l___private_Init_Lean_Compiler_InitAttr_1__getIOTypeArg___closed__1;
 lean_object* l_Lean_Name_appendIndexAfter(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_parserExtension___elambda__4(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Error_Inhabited___closed__1;
@@ -33490,24 +33490,13 @@ return x_3;
 lean_object* _init_l_Lean_Parser_declareBuiltinParser___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Init_Lean_Compiler_InitAttr_1__getIOTypeArg___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_levelZero;
+x_2 = l_Lean_mkIOConst(x_1);
+return x_2;
 }
 }
 lean_object* _init_l_Lean_Parser_declareBuiltinParser___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Parser_declareBuiltinParser___closed__3;
-x_3 = l_Lean_mkConst(x_2, x_1);
-return x_3;
-}
-}
-lean_object* _init_l_Lean_Parser_declareBuiltinParser___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -33517,27 +33506,27 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_declareBuiltinParser___closed__6() {
+lean_object* _init_l_Lean_Parser_declareBuiltinParser___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Parser_declareBuiltinParser___closed__5;
+x_2 = l_Lean_Parser_declareBuiltinParser___closed__4;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_declareBuiltinParser___closed__7() {
+lean_object* _init_l_Lean_Parser_declareBuiltinParser___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_declareBuiltinParser___closed__4;
-x_2 = l_Lean_Parser_declareBuiltinParser___closed__6;
+x_1 = l_Lean_Parser_declareBuiltinParser___closed__3;
+x_2 = l_Lean_Parser_declareBuiltinParser___closed__5;
 x_3 = l_Lean_mkApp(x_1, x_2);
 return x_3;
 }
 }
-lean_object* _init_l_Lean_Parser_declareBuiltinParser___closed__8() {
+lean_object* _init_l_Lean_Parser_declareBuiltinParser___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -33546,7 +33535,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-lean_object* _init_l_Lean_Parser_declareBuiltinParser___closed__9() {
+lean_object* _init_l_Lean_Parser_declareBuiltinParser___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -33568,14 +33557,14 @@ lean_inc(x_4);
 x_11 = l_Lean_nameToExprAux___main(x_4);
 lean_inc(x_4);
 x_12 = l_Lean_mkConst(x_4, x_8);
-x_13 = l_Lean_Parser_declareBuiltinParser___closed__8;
+x_13 = l_Lean_Parser_declareBuiltinParser___closed__7;
 x_14 = lean_array_push(x_13, x_10);
 x_15 = lean_array_push(x_14, x_11);
 x_16 = lean_array_push(x_15, x_12);
 x_17 = lean_unsigned_to_nat(0u);
 x_18 = l_Array_iterateMAux___main___at_Lean_mkAppN___spec__1(x_16, x_16, x_17, x_9);
 lean_dec(x_16);
-x_19 = l_Lean_Parser_declareBuiltinParser___closed__7;
+x_19 = l_Lean_Parser_declareBuiltinParser___closed__6;
 lean_inc(x_7);
 x_20 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_20, 0, x_7);
@@ -33600,7 +33589,7 @@ lean_dec(x_26);
 lean_dec(x_7);
 x_27 = l_Lean_Name_toString___closed__1;
 x_28 = l_Lean_Name_toStringWithSep___main(x_27, x_4);
-x_29 = l_Lean_Parser_declareBuiltinParser___closed__9;
+x_29 = l_Lean_Parser_declareBuiltinParser___closed__8;
 x_30 = lean_string_append(x_29, x_28);
 lean_dec(x_28);
 x_31 = l_Char_HasRepr___closed__1;
@@ -37562,8 +37551,6 @@ l_Lean_Parser_declareBuiltinParser___closed__7 = _init_l_Lean_Parser_declareBuil
 lean_mark_persistent(l_Lean_Parser_declareBuiltinParser___closed__7);
 l_Lean_Parser_declareBuiltinParser___closed__8 = _init_l_Lean_Parser_declareBuiltinParser___closed__8();
 lean_mark_persistent(l_Lean_Parser_declareBuiltinParser___closed__8);
-l_Lean_Parser_declareBuiltinParser___closed__9 = _init_l_Lean_Parser_declareBuiltinParser___closed__9();
-lean_mark_persistent(l_Lean_Parser_declareBuiltinParser___closed__9);
 l_Lean_Parser_declareLeadingBuiltinParser___closed__1 = _init_l_Lean_Parser_declareLeadingBuiltinParser___closed__1();
 lean_mark_persistent(l_Lean_Parser_declareLeadingBuiltinParser___closed__1);
 l_Lean_Parser_declareLeadingBuiltinParser___closed__2 = _init_l_Lean_Parser_declareLeadingBuiltinParser___closed__2();

@@ -108,10 +108,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
   let preresolved := resolveGlobalName env currNamespace openDecls val ++ preresolved;
   let val := quote val;
   -- `scp` is bound in stxQuot.expand
-  val ← `(addMacroScope $val scp);
-  let args := quote preresolved;
-  -- TODO: simplify quotations when we're no longer limited by name resolution in the old frontend
-  `(Syntax.ident none (String.toSubstring $(quote (toString rawVal))) $val $args)
+  `(Syntax.ident none (String.toSubstring $(quote (toString rawVal))) (addMacroScope $val scp) $(quote preresolved))
 -- if antiquotation, insert contents as-is, else recurse
 | stx@(Syntax.node k args) =>
   if isAntiquot stx then

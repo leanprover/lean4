@@ -999,6 +999,10 @@ theorem upDown {α : Type u} : ∀ (b : ULift.{v} α), up (down b) = b
 | up a => rfl
 
 theorem downUp {α : Type u} (a : α) : down (up.{v} a) = a := rfl
+
+def map {α β} (f : α → β) : ULift α → ULift β
+| ⟨x⟩ => ⟨f x⟩
+
 end ULift
 
 /-- Universe lifting operation from Sort to Type -/
@@ -1043,6 +1047,8 @@ instance : Inhabited Nat := ⟨0⟩
 instance : Inhabited NonScalar := ⟨⟨arbitrary _⟩⟩
 
 instance : Inhabited PointedType := ⟨{type := PUnit, val := ⟨⟩}⟩
+
+instance {α} [Inhabited α] : Inhabited (ULift.{u, v} α) := ⟨⟨arbitrary _⟩⟩
 
 class inductive Nonempty (α : Sort u) : Prop
 | intro (val : α) : Nonempty

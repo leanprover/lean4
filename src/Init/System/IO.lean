@@ -10,6 +10,8 @@ import Init.Data.ByteArray
 import Init.System.IOError
 import Init.System.FilePath
 
+universes u v
+
 /-- Like https://hackage.haskell.org/package/ghc-Prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld.
     Makes sure we never reorder `IO` operations.
 
@@ -23,41 +25,47 @@ def IO.RealWorld : Type := Unit
    def getWorld : IO (IO.RealWorld) := get
    ```
 -/
-def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
+def EIO (ε : Type) : Type u → Type u := EStateM (ULift ε) (ULift IO.RealWorld)
 
 @[inline] def EIO.adaptExcept {α ε ε'} (f : ε → ε') (x : EIO ε α) : EIO ε' α :=
-EStateM.adaptExcept f x
+EStateM.adaptExcept (ULift.map f) x
 
 @[inline] def EIO.catchExceptions {α ε} (x : EIO ε α) (h : ε → EIO Empty α) : EIO Empty α :=
 fun s => match x s with
 | EStateM.Result.ok a s     => EStateM.Result.ok a s
-| EStateM.Result.error ex s => h ex s
+| EStateM.Result.error ⟨ex⟩ s => h ex s
 
-instance (ε : Type) : Monad (EIO ε) := inferInstanceAs (Monad (EStateM ε IO.RealWorld))
-instance (ε : Type) : MonadExcept ε (EIO ε) := inferInstanceAs (MonadExcept ε (EStateM ε IO.RealWorld))
-instance (α ε : Type) : HasOrelse (EIO ε α) := ⟨MonadExcept.orelse⟩
-instance {ε : Type} {α : Type} [Inhabited ε] : Inhabited (EIO ε α) :=
-inferInstanceAs (Inhabited (EStateM ε IO.RealWorld α))
+instance (ε : Type) : Monad.{u} (EIO ε) := inferInstanceAs (Monad (EStateM (ULift ε) (ULift IO.RealWorld)))
+instance (ε : Type) : MonadExcept.{0, u, u} ε (EIO ε) :=
+{ throw := fun α err w => EStateM.Result.error ⟨err⟩ w,
+  catch := fun α x f w =>
+    match x w with
+    | EStateM.Result.ok r w' => EStateM.Result.ok r w'
+    | EStateM.Result.error ⟨e⟩ w' => f e w' }
 
-abbrev IO : Type → Type := EIO IO.Error
+instance {ε α} : HasOrelse (EIO ε α) := ⟨MonadExcept.orelse⟩
+instance {ε α} [Inhabited ε] : Inhabited (EIO.{u} ε α) :=
+inferInstanceAs (Inhabited (EStateM (ULift ε) (ULift IO.RealWorld) α))
+
+abbrev IO : Type u → Type u := EIO IO.Error
 
 section
 /- After we inline `EState.run'`, the closed term `((), ())` is generated, where the second `()`
    represents the "initial world". We don't want to cache this closed term. So, we disable
    the "extract closed terms" optimization. -/
 set_option compiler.extract_closed false
-@[inline] unsafe def unsafeIO {α : Type} (fn : IO α) : Except IO.Error α :=
-match fn.run () with
-| EStateM.Result.ok a _    => Except.ok a
-| EStateM.Result.error e _ => Except.error e
+@[inline] unsafe def unsafeIO {α : Type u} (fn : IO α) : Except IO.Error α :=
+match fn.run ⟨()⟩ with
+| EStateM.Result.ok a _     => Except.ok a
+| EStateM.Result.error ⟨e⟩ _ => Except.error e
 
 end
 
 @[extern "lean_io_timeit"]
-constant timeit {α : Type} (msg : @& String) (fn : IO α) : IO α := arbitrary _
+constant timeit {α : Type u} (msg : @& String) (fn : IO α) : IO α := arbitrary _
 
 @[extern "lean_io_allocprof"]
-constant allocprof {α : Type} (msg : @& String) (fn : IO α) : IO α := arbitrary _
+constant allocprof {α : Type u} (msg : @& String) (fn : IO α) : IO α := arbitrary _
 
 /- Programs can execute IO actions during initialization that occurs before
    the `main` function is executed. The attribute `[init <action>]` specifies
@@ -67,16 +75,28 @@ constant allocprof {α : Type} (msg : @& String) (fn : IO α) : IO α := arbitra
 @[extern "lean_io_initializing"]
 constant IO.initializing : IO Bool := arbitrary _
 
-abbrev MonadIO (m : Type → Type) := HasMonadLiftT IO m
+abbrev MonadIO (m : Type u → Type u) := HasMonadLiftT IO m
 
 namespace IO
 
-def ofExcept {ε α : Type} [HasToString ε] (e : Except ε α) : IO α :=
+def up {α : Type v} (x : IO α) : IO (ULift.{u} α)
+| ⟨w⟩ =>
+match x ⟨w⟩ with
+| EStateM.Result.ok a ⟨w'⟩     => EStateM.Result.ok ⟨a⟩ ⟨w'⟩
+| EStateM.Result.error ⟨e⟩ ⟨w'⟩ => EStateM.Result.error ⟨e⟩ ⟨w'⟩
+
+def down {α : Type v} (x : IO (ULift.{u} α)) : IO α
+| ⟨w⟩ =>
+match x ⟨w⟩ with
+| EStateM.Result.ok ⟨a⟩ ⟨w'⟩    => EStateM.Result.ok a ⟨w'⟩
+| EStateM.Result.error ⟨e⟩ ⟨w'⟩ => EStateM.Result.error ⟨e⟩ ⟨w'⟩
+
+def ofExcept {ε} {α : Type u} [HasToString ε] (e : Except ε α) : IO α :=
 match e with
 | Except.ok a    => pure a
 | Except.error e => throw (IO.userError (toString e))
 
-def lazyPure {α : Type} (fn : Unit → α) : IO α :=
+def lazyPure {α : Type u} (fn : Unit → α) : IO α :=
 pure (fn ())
 
 inductive FS.Mode
@@ -87,14 +107,13 @@ constant FS.Handle : Type := Unit
 namespace Prim
 open FS
 
-@[specialize] partial def iterate {α β : Type} : α → (α → IO (Sum α β)) → IO β
+@[specialize] partial def iterate {α β : Type u} : α → (α → IO (Sum α β)) → IO β
 | a, f => do
   v ← f a;
   match v with
   | Sum.inl a => iterate a f
   | Sum.inr b => pure b
 
--- @[export lean_fopen_flags]
 def fopenFlags (m : FS.Mode) (b : Bool) : String :=
 let mode :=
   match m with
@@ -144,7 +163,7 @@ constant fileExists (fname : @& String) : IO Bool := arbitrary _
 @[extern "lean_io_app_dir"]
 constant appPath : IO String := arbitrary _
 
-@[inline] def liftIO {m : Type → Type} {α : Type} [MonadIO m] (x : IO α) : m α :=
+@[inline] def liftIO {m : Type u → Type u} {α : Type u} [MonadIO m] (x : IO α) : m α :=
 monadLift x
 end Prim
 
@@ -268,41 +287,39 @@ def setAccessRights (filename : String) (mode : FileRight) : IO Unit :=
 Prim.setAccessRights filename mode.flags
 
 /- References -/
-constant RefPointed (α : Type) : PointedType := arbitrary _
-def Ref (α : Type) : Type := (RefPointed α).type
-instance (α : Type) : Inhabited (Ref α) := ⟨(RefPointed α).val⟩
+constant RefPointed (α : Type u) : PointedType := arbitrary _
+def Ref (α : Type u) : Type u := (RefPointed α).type
+instance (α : Type u) : Inhabited (Ref α) := ⟨(RefPointed α).val⟩
 
 namespace Prim
 @[extern "lean_io_mk_ref"]
-constant mkRef {α : Type} (a : α) : IO (Ref α)                := arbitrary _
+constant mkRef {α : Type u} (a : α) : IO (Ref α)                         := arbitrary _
 @[extern "lean_io_ref_get"]
-constant Ref.get {α : Type} (r : @& Ref α) : IO α             := arbitrary _
+constant Ref.get {α : Type u} (r : @& Ref α) : IO α                      := arbitrary _
 @[extern "lean_io_ref_set"]
-constant Ref.set {α : Type} (r : @& Ref α) (a : α) : IO Unit  := arbitrary _
+constant Ref.set {α : Type u} (r : @& Ref α) (a : α) : IO.{u} PUnit      := arbitrary _
 @[extern "lean_io_ref_swap"]
-constant Ref.swap {α : Type} (r : @& Ref α) (a : α) : IO α    := arbitrary _
+constant Ref.swap {α : Type u} (r : @& Ref α) (a : α) : IO α             := arbitrary _
 @[extern "lean_io_ref_reset"]
-constant Ref.reset {α : Type} (r : @& Ref α) : IO Unit        := arbitrary _
+constant Ref.reset {α : Type u} (r : @& Ref α) : IO.{u} PUnit            := arbitrary _
 @[extern "lean_io_ref_ptr_eq"]
-constant Ref.ptrEq {α : Type} (r1 r2 : @& Ref α) : IO Bool    := arbitrary _
+constant Ref.ptrEq {α : Type u} (r1 r2 : @& Ref α) : IO (ULift.{u} Bool) := arbitrary _
 end Prim
 
 section
-variables {m : Type → Type} [Monad m] [MonadIO m]
-@[inline] def mkRef {α : Type} (a : α) : m (Ref α) :=  Prim.liftIO (Prim.mkRef a)
-@[inline] def Ref.get {α : Type} (r : Ref α) : m α := Prim.liftIO (Prim.Ref.get r)
-@[inline] def Ref.set {α : Type} (r : Ref α) (a : α) : m Unit := Prim.liftIO (Prim.Ref.set r a)
-@[inline] def Ref.swap {α : Type} (r : Ref α) (a : α) : m α := Prim.liftIO (Prim.Ref.swap r a)
-@[inline] def Ref.reset {α : Type} (r : Ref α) : m Unit := Prim.liftIO (Prim.Ref.reset r)
-@[inline] def Ref.ptrEq {α : Type} (r1 r2 : Ref α) : m Bool := Prim.liftIO (Prim.Ref.ptrEq r1 r2)
-@[inline] def Ref.modify {α : Type} (r : Ref α) (f : α → α) : m Unit := do
+variables {m : Type u → Type u} [Monad m] [MonadIO m]
+@[inline] def mkRef {α : Type u} (a : α) : m (Ref α) :=  Prim.liftIO (Prim.mkRef a)
+@[inline] def Ref.get {α : Type u} (r : Ref α) : m α := Prim.liftIO (Prim.Ref.get r)
+@[inline] def Ref.set {α : Type u} (r : Ref α) (a : α) : m PUnit := Prim.liftIO (Prim.Ref.set r a)
+@[inline] def Ref.swap {α : Type u} (r : Ref α) (a : α) : m α := Prim.liftIO (Prim.Ref.swap r a)
+@[inline] def Ref.reset {α : Type u} (r : Ref α) : m PUnit := Prim.liftIO (Prim.Ref.reset r)
+@[inline] def Ref.ptrEq {α : Type u} (r1 r2 : Ref α) : m (ULift.{u} Bool) := Prim.liftIO (Prim.Ref.ptrEq r1 r2)
+@[inline] def Ref.modify {α : Type u} (r : Ref α) (f : α → α) : m PUnit := do
 v ← r.get;
 r.reset;
 r.set (f v)
 end
 end IO
-
-universe u
 
 namespace Lean
 

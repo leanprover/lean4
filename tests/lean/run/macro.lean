@@ -5,8 +5,6 @@ open Lean.Parser
 open Lean.Elab
 open Lean.Elab.Command
 
-@[commandParser] def macro := parser! "macro" >> many1Indent Term.matchAlt "'match' alternatives must be indented"
-
 @[commandElab macro] def elabMacro : CommandElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `(macro $alts*) => do

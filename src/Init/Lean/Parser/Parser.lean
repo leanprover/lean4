@@ -1812,20 +1812,6 @@ mkAntiquot "fieldIdx" `fieldIdx <|>
 { fn   := fun _ => fieldIdxFn,
   info := mkAtomicInfo "fieldIdx" }
 
-/- Helper functions for defining simple parsers -/
-
-def unicodeInfixR (sym : String) (asciiSym : String) (lbp : Nat) : TrailingParser :=
-pushLeading >> unicodeSymbol sym asciiSym lbp >> termParser (lbp - 1)
-
-def infixR (sym : String) (lbp : Nat) : TrailingParser :=
-pushLeading >> symbol sym lbp >> termParser (lbp - 1)
-
-def unicodeInfixL (sym : String) (asciiSym : String) (lbp : Nat) : TrailingParser :=
-pushLeading >> unicodeSymbol sym asciiSym lbp >> termParser lbp
-
-def infixL (sym : String) (lbp : Nat) : TrailingParser :=
-pushLeading >> symbol sym lbp >> termParser lbp
-
 end Parser
 
 namespace Syntax

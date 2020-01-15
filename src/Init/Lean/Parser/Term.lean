@@ -11,6 +11,20 @@ namespace Lean
 namespace Parser
 namespace Term
 
+/- Helper functions for defining simple parsers -/
+
+def unicodeInfixR (sym : String) (asciiSym : String) (lbp : Nat) : TrailingParser :=
+pushLeading >> unicodeSymbol sym asciiSym lbp >> termParser (lbp - 1)
+
+def infixR (sym : String) (lbp : Nat) : TrailingParser :=
+pushLeading >> symbol sym lbp >> termParser (lbp - 1)
+
+def unicodeInfixL (sym : String) (asciiSym : String) (lbp : Nat) : TrailingParser :=
+pushLeading >> unicodeSymbol sym asciiSym lbp >> termParser lbp
+
+def infixL (sym : String) (lbp : Nat) : TrailingParser :=
+pushLeading >> symbol sym lbp >> termParser lbp
+
 /- Built-in parsers -/
 -- NOTE: `checkNoWsBefore` should be used *before* `parser!` so that it is also applied to the generated
 -- antiquotation.

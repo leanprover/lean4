@@ -33,7 +33,7 @@ namespace Syntax
 
 @[builtinSyntaxParser] def many     := tparser! pushLeading >> symbolAux "*" none
 @[builtinSyntaxParser] def many1    := tparser! pushLeading >> symbolAux "+" none
-@[builtinSyntaxParser] def orelse   := tparser! infixR " <|> " 2
+@[builtinSyntaxParser] def orelse   := tparser! pushLeading >> " <|> " >> syntaxParser 1
 
 end Syntax
 

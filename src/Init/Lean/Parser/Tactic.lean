@@ -30,7 +30,7 @@ namespace Tactic
 @[builtinTacticParser] def «apply» := parser! nonReservedSymbol "apply " >> termParser
 @[builtinTacticParser] def nestedTacticBlock := parser! "begin " >> tacticSeq >> "end"
 @[builtinTacticParser] def nestedTacticBlockCurly := parser! "{" >> tacticSeq >> "}"
-@[builtinTacticParser] def orelse := tparser! infixR " <|> " 2
+@[builtinTacticParser] def orelse := tparser! pushLeading >> " <|> " >> tacticParser 1
 
 end Tactic
 

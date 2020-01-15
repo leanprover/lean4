@@ -98,16 +98,26 @@ fun stx => do
   env ← liftIO stx $ Parser.registerParserCategory env attrName catName;
   setEnv env
 
+private def elabKind (stx : Syntax) (catName : Name) : CommandElabM Name := do
+if stx.isNone then do
+  env ← getEnv;
+  let (env, kind) := Parser.mkFreshKind env catName;
+  setEnv env;
+  pure kind
+else do
+  let kind := stx.getIdAt 1;
+  currNamespace ← getCurrNamespace;
+  pure (currNamespace ++ kind)
+
 @[builtinCommandElab syntax] def elabSyntax : CommandElab :=
 fun stx => do
   env ← getEnv;
-  let cat := stx.getIdAt 3;
-  unless (Parser.isParserCategory env cat) $ throwError (stx.getArg 3) ("unknown category '" ++ cat ++ "'");
-  let (env, kind) := Parser.mkFreshKind env cat;
-  setEnv env;
+  let cat := stx.getIdAt 4;
+  unless (Parser.isParserCategory env cat) $ throwError (stx.getArg 4) ("unknown category '" ++ cat ++ "'");
+  kind ← elabKind (stx.getArg 1) cat;
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser");
   type ← `(Lean.ParserDescr);
-  val  ← runTermElabM none $ fun _ => Term.toParserDescr (stx.getArg 1);
+  val  ← runTermElabM none $ fun _ => Term.toParserDescr (stx.getArg 2);
   d ← `(@[$catParserId:ident] private def $catParserId:ident : $type := ParserDescr.node $(quote kind) $val);
   trace `Elab stx $ fun _ => d;
   withMacroExpansion stx $ elabCommand d

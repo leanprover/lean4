@@ -987,7 +987,7 @@ _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Level_max___elambda__1___closed__5;
-x_2 = 0;
+x_2 = 1;
 x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
 }

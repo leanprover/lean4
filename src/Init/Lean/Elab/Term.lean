@@ -120,37 +120,13 @@ instance TermElabM.MonadLog : MonadLog TermElabM :=
   addContext  := addContext,
   logMessage  := fun msg => modify $ fun s => { messages := s.messages.add msg, .. s } }
 
-/- If `ref` does not have position information, then try to use macroStack -/
-private def getBetterRef (ref : Syntax) : TermElabM Syntax :=
-match ref.getPos with
-| some _ => pure ref
-| none   => do
-  ctx ← read;
-  match ctx.macroStack.find? $ fun (macro : Syntax) => macro.getPos != none with
-  | some macro => pure macro
-  | none       => pure ref
-
-private def prettyPrint (stx : Syntax) : TermElabM Format :=
-match stx.reprint with -- TODO use syntax pretty printer
-| some str => pure $ str.toFormat
-| none     => pure $ format stx
-
-private def addMacroStack (msgData : MessageData) : TermElabM MessageData := do
-ctx ← read;
-if ctx.macroStack.isEmpty then pure msgData
-else
-  ctx.macroStack.foldlM
-    (fun (msgData : MessageData) (macro : Syntax) => do
-      macroFmt ← prettyPrint macro;
-      pure (msgData ++ Format.line ++ "while expanding" ++ MessageData.nest 2 (Format.line ++ macroFmt)))
-    msgData
-
 /--
   Throws an error with the given `msgData` and extracting position information from `ref`.
   If `ref` does not contain position information, then use `cmdPos` -/
 def throwError {α} (ref : Syntax) (msgData : MessageData) : TermElabM α := do
-ref ← getBetterRef ref;
-msgData ← addMacroStack msgData;
+ctx ← read;
+let ref     := getBetterRef ref ctx.macroStack;
+let msgData := addMacroStack msgData ctx.macroStack;
 msg ← mkMessage msgData MessageSeverity.error ref;
 throw (Exception.ex (Elab.Exception.error msg))
 
@@ -488,7 +464,7 @@ pure mvar
 private def elabTermUsing (s : State) (stx : Syntax) (expectedType? : Option Expr) (errToSorry : Bool) (catchExPostpone : Bool)
     : List TermElab → TermElabM Expr
 | []                => do
-  refFmt ← prettyPrint stx;
+  let refFmt := stx.prettyPrint;
   throwError stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
 | (elabFn::elabFns) => catch (elabFn stx expectedType?)
   (fun ex => match ex with

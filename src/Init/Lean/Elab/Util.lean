@@ -8,7 +8,31 @@ import Init.Lean.Util.Trace
 import Init.Lean.Parser
 
 namespace Lean
+
+def Syntax.prettyPrint (stx : Syntax) : Format :=
+match stx.reprint with -- TODO use syntax pretty printer
+| some str => format str.toFormat
+| none     => format stx
+
 namespace Elab
+
+/- If `ref` does not have position information, then try to use macroStack -/
+def getBetterRef (ref : Syntax) (macroStack : List Syntax) : Syntax :=
+match ref.getPos with
+| some _ => ref
+| none   =>
+  match macroStack.find? $ fun (macro : Syntax) => macro.getPos != none with
+  | some macro => macro
+  | none       => ref
+
+def addMacroStack (msgData : MessageData) (macroStack : List Syntax) : MessageData :=
+if macroStack.isEmpty then msgData
+else
+  macroStack.foldl
+    (fun (msgData : MessageData) (macro : Syntax) =>
+      let macroFmt := macro.prettyPrint;
+      msgData ++ Format.line ++ "while expanding" ++ MessageData.nest 2 (Format.line ++ macroFmt))
+    msgData
 
 def checkSyntaxNodeKind (env : Environment) (k : Name) : ExceptT String Id Name :=
 if Parser.isValidSyntaxNodeKind env k then pure k
@@ -155,8 +179,6 @@ fun stx =>
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab;
 registerTraceClass `Elab.step
-
-
 
 end Elab
 end Lean

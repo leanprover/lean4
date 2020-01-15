@@ -12,15 +12,16 @@ do env  ← MetaIO.getEnv;
    pure ()
 
 open Lean.Parser
+
 @[termParser] def tst := parser! "(|" >> termParser >> optional (", " >> termParser) >> "|)"
 
 @[termParser] def boo : ParserDescr :=
 ParserDescr.node `boo
   (ParserDescr.andthen
-    (ParserDescr.symbol "[|" 0)
+    (ParserDescr.symbol "[|" (some 0))
     (ParserDescr.andthen
       (ParserDescr.parser `term 0)
-      (ParserDescr.symbol "|]" 0)))
+      (ParserDescr.symbol "|]" (some 0))))
 
 open Lean.Elab.Term
 
@@ -51,12 +52,12 @@ new_frontend
 
 declare_syntax_cat foo
 
+syntax "⟨|" term "|⟩" : foo
+
 open Lean
 open Lean.Parser
 open Lean.Elab
 open Lean.Elab.Term
-
-@[fooParser] def tst2 : Parser := parser! symbol "⟨|" 0 >> termParser >> symbol "|⟩" 0
 
 def fooParser (rbp : Nat := 0) : Parser := categoryParser (mkNameSimple "foo") rbp
 

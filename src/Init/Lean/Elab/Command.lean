@@ -207,29 +207,32 @@ private def elabCommandUsing (stx : Syntax) : List CommandElab → CommandElabM 
     | Exception.error _           => throw ex
     | Exception.unsupportedSyntax => elabCommandUsing elabFns)
 
-def elabCommandAux (stx : Syntax) : CommandElabM Unit :=
-withIncRecDepth stx $ withFreshMacroScope $ match stx with
-| Syntax.node _ _ => do
-  trace `Elab.step stx $ fun _ => stx;
-  s ← get;
-  let table := (commandElabAttribute.ext.getState s.env).table;
-  let k := stx.getKind;
-  match table.find? k with
-  | some elabFns => elabCommandUsing stx elabFns
-  | none         => throwError stx ("command '" ++ toString k ++ "' has not been implemented")
-| _ => throwError stx "unexpected command"
-
-def elabCommand (stx : Syntax) : CommandElabM Unit :=
-if stx.getKind == nullKind then
-  -- list of commands => elaborate in order
-  -- The parser will only ever return a single command at a time, but syntax quotations can return multiple ones
-  stx.getArgs.forM elabCommandAux
-else
-  elabCommandAux stx
-
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline] def withMacroExpansion {α} (stx : Syntax) (x : CommandElabM α) : CommandElabM α :=
 adaptReader (fun (ctx : Context) => { macroStack := stx :: ctx.macroStack, .. ctx }) x
+
+partial def elabCommand : Syntax → CommandElabM Unit
+| stx => withIncRecDepth stx $ withFreshMacroScope $ match stx with
+  | Syntax.node _ _ => do
+    trace `Elab.step stx $ fun _ => stx;
+    s ← get;
+    let table := (commandElabAttribute.ext.getState s.env).table;
+    let k := stx.getKind;
+    match table.find? k with
+    | some elabFns => elabCommandUsing stx elabFns
+    | none         => do
+      scp ← getCurrMacroScope;
+      env ← getEnv;
+      match expandMacro env stx scp with
+      | some stx' => withMacroExpansion stx $
+        if stx'.getKind == nullKind then
+          -- list of commands => elaborate in order
+          -- The parser will only ever return a single command at a time, but syntax quotations can return multiple ones
+          stx'.getArgs.forM elabCommand
+        else
+          elabCommand stx'
+      | none      => throwError stx ("command '" ++ toString k ++ "' has not been implemented")
+  | _ => throwError stx "unexpected command"
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
 def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab :=

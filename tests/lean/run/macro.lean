@@ -5,18 +5,6 @@ open Lean.Parser
 open Lean.Elab
 open Lean.Elab.Command
 
-@[commandElab macro] def elabMacro : CommandElab :=
-adaptExpander $ fun stx => match_syntax stx with
-| `(macro $alts*) => do
-  -- TODO: clean up with matchAlt quotation
-  k ← match_syntax ((alts.get! 0).getArg 1).getArg 0 with
-  | `(`($quot)) => pure quot.getKind
-  | stx         => throwUnsupportedSyntax;
-  -- TODO: meaningful, unhygienic def name for selective macro `open`ing?
-  `(@[termElab $(Lean.mkSimpleIdent k)] def myTermMacro : TermElab := adaptExpander $ fun stx => match_syntax stx with $alts* | _ => throwUnsupportedSyntax @[commandElab $(Lean.mkSimpleIdent k)] def myCommandMacro : Lean.Elab.Command.CommandElab := Lean.Elab.Command.adaptExpander $ fun stx => match_syntax stx with $alts* | _ => Lean.Elab.Command.throwUnsupportedSyntax)
-| _ => throwUnsupportedSyntax
-
-
 abbrev Set (α : Type) := α → Prop
 axiom setOf {α : Type} : (α → Prop) → Set α
 axiom mem {α : Type} : α → Set α → Prop
@@ -36,6 +24,9 @@ open Lean.Parser
 
 syntax "{" term " | " term "}" : term
 
+-- set_option trace.Elab true
+-- set_option syntaxMaxDepth 6
+
 macro
 | `({$x ∈ $s | $p}) => `(setOf (fun $x => $x ∈ $s ∧ $p))
 | `({$x ≤ $e | $p}) => `(setOf (fun $x => $x ≤ $e ∧ $p))
@@ -48,7 +39,6 @@ macro | `(⋃ $b, $r) => `(Union {$b | $r})
 #check ⋃ x,              x = x
 #check ⋃ (x : Set Unit), x = x
 #check ⋃ x ∈ univ,       x = x
-
 
 syntax "#check2" term : command
 

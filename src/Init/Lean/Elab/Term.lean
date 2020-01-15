@@ -515,6 +515,29 @@ private def elabTermUsing (s : State) (stx : Syntax) (expectedType? : Option Exp
         else
           throw ex)
 
+@[inline] def adaptMacro (x : Macro) (stx : Syntax) : TermElabM Syntax := do
+scp ← getCurrMacroScope;
+env ← getEnv;
+match x stx scp with
+| some stx => pure stx
+| none     => throwUnsupportedSyntax
+
+/- Main loop for `elabTerm` -/
+partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone := true) (errToSorry := true) : Syntax → TermElabM Expr
+| stx => withFreshMacroScope $ withIncRecDepth stx $ withNode stx $ fun node => do
+  trace `Elab.step stx $ fun _ => stx;
+  s ← get;
+  let table := (termElabAttribute.ext.getState s.env).table;
+  let k := node.getKind;
+  match table.find? k with
+  | some elabFns => elabTermUsing s node expectedType? errToSorry catchExPostpone elabFns
+  | none         => do
+    scp ← getCurrMacroScope;
+    env ← getEnv;
+    match expandMacro env stx scp with
+    | some stx' => withMacroExpansion stx $ elabTermAux stx'
+    | none      => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
+
 /--
   Main function for elaborating terms.
   It extracts the elaboration methods from the environment using the node kind.
@@ -529,14 +552,7 @@ private def elabTermUsing (s : State) (stx : Syntax) (expectedType? : Option Exp
   The option `catchExPostpone == false` is used to implement `resumeElabTerm`
   to prevent the creation of another synthetic metavariable when resuming the elaboration. -/
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (errToSorry := true) : TermElabM Expr :=
-withFreshMacroScope $ withIncRecDepth stx $ withNode stx $ fun node => do
-  trace `Elab.step stx $ fun _ => stx;
-  s ← get;
-  let table := (termElabAttribute.ext.getState s.env).table;
-  let k := node.getKind;
-  match table.find? k with
-  | some elabFns => elabTermUsing s node expectedType? errToSorry catchExPostpone elabFns
-  | none         => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
+elabTermAux expectedType? catchExPostpone errToSorry stx
 
 /-- Auxiliary function used to implement `synthesizeSyntheticMVars`. -/
 private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) (errToSorry := true) : TermElabM Expr :=

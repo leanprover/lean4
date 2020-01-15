@@ -29,7 +29,6 @@ uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 lean_object* l_Lean_Name_isInternal___boxed(lean_object*);
 lean_object* l_Lean_NameSet_HasEmptyc;
 lean_object* l_Lean_Name_isPrefixOf___main___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Name_HasBeq;
 uint8_t l_Lean_Name_DecidableRel(lean_object*, lean_object*);
 lean_object* l_Lean_Name_quickLt___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_getNumParts___main___boxed(lean_object*);
@@ -103,7 +102,6 @@ lean_object* l_RBNode_find___main___at_Lean_NameMap_find___spec__1(lean_object*)
 lean_object* l_Lean_Name_getPrefix___boxed(lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lean_Name_components_x27___main(lean_object*);
-lean_object* l_Lean_Name_beq___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* l_RBNode_ins___main___at_Lean_NameSet_insert___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_NameSet_Inhabited;
@@ -112,7 +110,6 @@ lean_object* l_Lean_Name_replacePrefix___boxed(lean_object*, lean_object*, lean_
 lean_object* l_List_foldl___main___at_String_toName___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Name_getPrefix(lean_object*);
 lean_object* l_RBNode_setBlack___rarg(lean_object*);
-lean_object* l_Lean_Name_HasBeq___closed__1;
 lean_object* l_Lean_Name_append___main___boxed(lean_object*, lean_object*);
 lean_object* l_String_trim(lean_object*);
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
@@ -312,33 +309,6 @@ lean_object* x_2; lean_object* x_3;
 x_2 = l_Lean_Name_components_x27___main(x_1);
 x_3 = l_List_reverse___rarg(x_2);
 return x_3;
-}
-}
-lean_object* l_Lean_Name_beq___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = lean_name_eq(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-x_4 = lean_box(x_3);
-return x_4;
-}
-}
-lean_object* _init_l_Lean_Name_HasBeq___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Name_beq___boxed), 2, 0);
-return x_1;
-}
-}
-lean_object* _init_l_Lean_Name_HasBeq() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Name_HasBeq___closed__1;
-return x_1;
 }
 }
 uint8_t l_Lean_Name_eqStr(lean_object* x_1, lean_object* x_2) {
@@ -8997,10 +8967,6 @@ l_Lean_stringToName___closed__1 = _init_l_Lean_stringToName___closed__1();
 lean_mark_persistent(l_Lean_stringToName___closed__1);
 l_Lean_stringToName = _init_l_Lean_stringToName();
 lean_mark_persistent(l_Lean_stringToName);
-l_Lean_Name_HasBeq___closed__1 = _init_l_Lean_Name_HasBeq___closed__1();
-lean_mark_persistent(l_Lean_Name_HasBeq___closed__1);
-l_Lean_Name_HasBeq = _init_l_Lean_Name_HasBeq();
-lean_mark_persistent(l_Lean_Name_HasBeq);
 l_Lean_Name_HasAppend___closed__1 = _init_l_Lean_Name_HasAppend___closed__1();
 lean_mark_persistent(l_Lean_Name_HasAppend___closed__1);
 l_Lean_Name_HasAppend = _init_l_Lean_Name_HasAppend();

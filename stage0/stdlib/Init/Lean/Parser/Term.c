@@ -238,7 +238,6 @@ lean_object* l_Lean_Parser_sepBy1Fn___at_Lean_Parser_Term_explicitUniv___elambda
 lean_object* l_Lean_Parser_Term_match___elambda__1___closed__8;
 lean_object* l_Lean_Parser_Term_explicitUniv___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Term_show___elambda__1___closed__2;
-extern lean_object* l_Lean_stxInh;
 lean_object* l_Lean_Parser_Term_cdot___elambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_andM___closed__2;
 lean_object* l_Lean_Parser_Term_paren___elambda__1___closed__3;
@@ -1291,6 +1290,7 @@ lean_object* l_Lean_Parser_Term_uminus___closed__2;
 lean_object* l_Lean_Parser_Term_str___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Term_explicit___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Term_fromTerm___closed__4;
+extern lean_object* l_Lean_Syntax_inhabited;
 lean_object* l_Lean_Parser_Term_matchAlt___closed__9;
 lean_object* l_Lean_Parser_Term_arrayLit;
 lean_object* l_Lean_Parser_Term_mul___closed__2;
@@ -36477,7 +36477,7 @@ return x_10;
 else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_11 = l_Lean_stxInh;
+x_11 = l_Lean_Syntax_inhabited;
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_array_get(x_11, x_3, x_12);
 x_14 = lean_unsigned_to_nat(1u);
@@ -36540,7 +36540,7 @@ return x_10;
 else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
-x_11 = l_Lean_stxInh;
+x_11 = l_Lean_Syntax_inhabited;
 x_12 = lean_unsigned_to_nat(1u);
 x_13 = lean_array_get(x_11, x_3, x_12);
 x_14 = l_Lean_Syntax_isNone(x_13);

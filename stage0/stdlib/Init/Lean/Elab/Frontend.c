@@ -43,8 +43,8 @@ lean_object* l_Lean_Parser_parseCommand___main(lean_object*, lean_object*, lean_
 lean_object* l_Lean_Elab_Frontend_processCommandsAux___boxed(lean_object*);
 extern lean_object* l_PersistentArray_empty___closed__3;
 lean_object* l_Lean_Elab_Frontend_elabCommandAtFrontend(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Command_elabCommand___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_updateCmdPos(lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Command_elabCommand(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommand(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Frontend_processCommandsAux___main(lean_object*);
 lean_object* l_Lean_Elab_Frontend_liftIOCore_x21___rarg(lean_object*, lean_object*, lean_object*);
@@ -376,7 +376,7 @@ lean_ctor_set(x_14, 4, x_6);
 lean_ctor_set(x_14, 5, x_12);
 lean_ctor_set(x_14, 6, x_13);
 lean_inc(x_14);
-x_15 = l_Lean_Elab_Command_elabCommand(x_1, x_14, x_7);
+x_15 = l_Lean_Elab_Command_elabCommand___main(x_1, x_14, x_7);
 if (lean_obj_tag(x_15) == 0)
 {
 uint8_t x_16; 
@@ -683,7 +683,7 @@ lean_ctor_set(x_90, 4, x_82);
 lean_ctor_set(x_90, 5, x_88);
 lean_ctor_set(x_90, 6, x_89);
 lean_inc(x_90);
-x_91 = l_Lean_Elab_Command_elabCommand(x_1, x_90, x_83);
+x_91 = l_Lean_Elab_Command_elabCommand___main(x_1, x_90, x_83);
 if (lean_obj_tag(x_91) == 0)
 {
 uint8_t x_92; 

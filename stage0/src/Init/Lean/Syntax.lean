@@ -9,13 +9,6 @@ import Init.Lean.Data.Name
 import Init.Lean.Data.Format
 
 namespace Lean
-structure SourceInfo :=
-/- Will be inferred after parsing by `Syntax.updateLeading`. During parsing,
-   it is not at all clear what the preceding token was, especially with backtracking. -/
-(leading  : Substring)
-(pos      : String.Pos)
-(trailing : Substring)
-
 namespace SourceInfo
 
 def updateTrailing (info : SourceInfo) (trailing : Substring) : SourceInfo :=
@@ -36,8 +29,6 @@ end SourceInfo
 
 /- Node kind generation -/
 
-abbrev SyntaxNodeKind := Name
-
 @[matchPattern] def choiceKind : SyntaxNodeKind := `choice
 @[matchPattern] def nullKind : SyntaxNodeKind := `null
 def strLitKind : SyntaxNodeKind := `strLit
@@ -46,15 +37,6 @@ def numLitKind : SyntaxNodeKind := `numLit
 def fieldIdxKind : SyntaxNodeKind := `fieldIdx
 
 /- Syntax AST -/
-
-inductive Syntax
-| missing {} : Syntax
-| node   (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
-| atom   {} (info : Option SourceInfo) (val : String) : Syntax
-| ident  {} (info : Option SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List (Name × List String)) : Syntax
-
-instance stxInh : Inhabited Syntax :=
-⟨Syntax.missing⟩
 
 def Syntax.isMissing : Syntax → Bool
 | Syntax.missing => true
@@ -138,12 +120,6 @@ def asNode : Syntax → SyntaxNode
 def getNumArgs (stx : Syntax) : Nat :=
 stx.asNode.getNumArgs
 
-def getArgs (stx : Syntax) : Array Syntax :=
-stx.asNode.getArgs
-
-def getArg (stx : Syntax) (i : Nat) : Syntax :=
-stx.asNode.getArg i
-
 def setArgs (stx : Syntax) (args : Array Syntax) : Syntax :=
 match stx with
 | node k _ => node k args
@@ -167,16 +143,6 @@ match stx with
 def getIdAt (stx : Syntax) (i : Nat) : Name :=
 (stx.getArg i).getId
 
-def getKind (stx : Syntax) : SyntaxNodeKind :=
-match stx with
-| Syntax.node k args   => k
--- We use these "pseudo kinds" for antiquotation kinds.
--- For example, an antiquotation `$id:ident` (using Lean.Parser.Term.ident)
--- is compiled to ``if stx.isOfKind `ident ...``
-| Syntax.missing       => `missing
-| Syntax.atom _ v      => v
-| Syntax.ident _ _ _ _ => `ident
-
 @[specialize] partial def mreplace {m : Type → Type} [Monad m] (fn : Syntax → m (Option Syntax)) : Syntax → m (Syntax)
 | stx@(node kind args) => do
   o ← fn stx;
@@ -184,9 +150,6 @@ match stx with
   | some stx => pure stx
   | none     => do args ← args.mapM mreplace; pure (node kind args)
 | stx => do o ← fn stx; pure $ o.getD stx
-
-def isOfKind : Syntax → SyntaxNodeKind → Bool
-| stx, k => stx.getKind == k
 
 @[specialize] partial def mrewriteBottomUp {m : Type → Type} [Monad m] (fn : Syntax → m (Syntax)) : Syntax → m (Syntax)
 | node kind args   => do

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Hygiene
-// Imports: Init.Control Init.Lean.Syntax
+// Imports: Init.Control Init.LeanInit Init.Lean.Syntax
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -27,99 +27,11 @@ lean_object* l_Lean_monadQuotationTrans(lean_object*, lean_object*);
 lean_object* l_ReaderT_read___at_Lean_Unhygienic_MonadQuotation___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Unhygienic_MonadQuotation___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_monadQuotationTrans___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_addMacroScope(lean_object*, lean_object*);
 lean_object* l_Lean_Unhygienic_MonadQuotation;
 lean_object* l_Lean_Unhygienic_MonadQuotation___closed__1;
 lean_object* l_Lean_monadQuotationTrans___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_addMacroScopes(lean_object*, lean_object*);
 lean_object* l_Lean_Unhygienic_MonadQuotation___closed__2;
 lean_object* l___private_Init_Lean_Hygiene_1__extractMacroScopesAux___main(lean_object*, lean_object*);
-lean_object* l_List_foldl___main___at_Lean_addMacroScopes___spec__1(lean_object*, lean_object*);
-lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
-lean_object* l_Lean_addMacroScope(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_name_mk_numeral(x_1, x_2);
-return x_3;
-}
-}
-lean_object* l_List_foldl___main___at_Lean_addMacroScopes___spec__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-if (lean_obj_tag(x_2) == 0)
-{
-return x_1;
-}
-else
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_2, 1);
-lean_inc(x_4);
-lean_dec(x_2);
-x_5 = lean_name_mk_numeral(x_1, x_3);
-x_1 = x_5;
-x_2 = x_4;
-goto _start;
-}
-}
-}
-lean_object* l_Lean_addMacroScopes(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_foldl___main___at_Lean_addMacroScopes___spec__1(x_1, x_2);
-return x_3;
-}
-}
-lean_object* l___private_Init_Lean_Hygiene_1__extractMacroScopesAux___main(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-if (lean_obj_tag(x_1) == 2)
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_5, 0, x_4);
-lean_ctor_set(x_5, 1, x_2);
-x_1 = x_3;
-x_2 = x_5;
-goto _start;
-}
-else
-{
-lean_object* x_7; lean_object* x_8; 
-x_7 = l_List_reverse___rarg(x_2);
-x_8 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_8, 0, x_1);
-lean_ctor_set(x_8, 1, x_7);
-return x_8;
-}
-}
-}
-lean_object* l___private_Init_Lean_Hygiene_1__extractMacroScopesAux(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l___private_Init_Lean_Hygiene_1__extractMacroScopesAux___main(x_1, x_2);
-return x_3;
-}
-}
-lean_object* l_Lean_extractMacroScopes(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_box(0);
-x_3 = l___private_Init_Lean_Hygiene_1__extractMacroScopesAux___main(x_1, x_2);
-return x_3;
-}
-}
 lean_object* l_ReaderT_read___at_Lean_Unhygienic_MonadQuotation___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -206,6 +118,52 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Unhygienic_run___rarg), 1, 0);
 return x_2;
 }
 }
+lean_object* l___private_Init_Lean_Hygiene_1__extractMacroScopesAux___main(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 2)
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_5, 0, x_4);
+lean_ctor_set(x_5, 1, x_2);
+x_1 = x_3;
+x_2 = x_5;
+goto _start;
+}
+else
+{
+lean_object* x_7; lean_object* x_8; 
+x_7 = l_List_reverse___rarg(x_2);
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_1);
+lean_ctor_set(x_8, 1, x_7);
+return x_8;
+}
+}
+}
+lean_object* l___private_Init_Lean_Hygiene_1__extractMacroScopesAux(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l___private_Init_Lean_Hygiene_1__extractMacroScopesAux___main(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_extractMacroScopes(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_box(0);
+x_3 = l___private_Init_Lean_Hygiene_1__extractMacroScopesAux___main(x_1, x_2);
+return x_3;
+}
+}
 lean_object* l_Lean_monadQuotationTrans___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -262,6 +220,7 @@ return x_3;
 }
 }
 lean_object* initialize_Init_Control(lean_object*);
+lean_object* initialize_Init_LeanInit(lean_object*);
 lean_object* initialize_Init_Lean_Syntax(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Init_Lean_Hygiene(lean_object* w) {
@@ -269,6 +228,9 @@ lean_object * res;
 if (_G_initialized) return lean_mk_io_result(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Control(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_LeanInit(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Syntax(lean_io_mk_world());

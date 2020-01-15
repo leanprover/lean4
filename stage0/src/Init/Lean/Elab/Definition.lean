@@ -98,6 +98,7 @@ else withUsedWhen ref vars xs val type view.kind.isDefOrOpaque $ fun vars => do
   val  ← Term.levelMVarToParam val;
   type ← Term.instantiateMVars ref type;
   val  ← Term.instantiateMVars view.val val;
+  Term.trace `Elab.definition.body ref $ fun _ => val;
   let usedParams : CollectLevelParams.State := {};
   let usedParams  := collectLevelParams usedParams type;
   let usedParams  := collectLevelParams usedParams val;
@@ -152,6 +153,10 @@ withDeclId view.declId $ fun name => do
     applyAttributes ref declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking;
     compileDecl ref decl;
     applyAttributes ref declName view.modifiers.attrs AttributeApplicationTime.afterCompilation
+
+@[init] private def regTraceClasses : IO Unit := do
+registerTraceClass `Elab.definition;
+pure ()
 
 end Command
 end Elab

@@ -28,7 +28,6 @@ extern lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttri
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkProjectionFnInfoExtension___closed__3;
 extern lean_object* l_Prod_HasRepr___rarg___closed__1;
-extern lean_object* l_Lean_stxInh;
 lean_object* l_Lean_ExternAttrData_inhabited___closed__1;
 extern lean_object* l_Array_empty___closed__1;
 extern lean_object* l_Lean_registerTagAttribute___closed__1;
@@ -109,6 +108,7 @@ extern lean_object* l_Option_HasRepr___rarg___closed__3;
 lean_object* l___private_Init_Lean_Compiler_ExternAttr_2__syntaxToExternAttrData(lean_object*);
 lean_object* lean_get_extern_attr_data(lean_object*, lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
+extern lean_object* l_Lean_Syntax_inhabited;
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 lean_object* l_RBNode_find___main___at_Lean_getExternAttrData___spec__2(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -266,7 +266,7 @@ x_5 = lean_nat_dec_eq(x_2, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = l_Lean_stxInh;
+x_6 = l_Lean_Syntax_inhabited;
 x_7 = lean_array_get(x_6, x_1, x_2);
 if (lean_obj_tag(x_7) == 3)
 {
@@ -596,7 +596,7 @@ x_6 = lean_nat_dec_eq(x_4, x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
-x_36 = l_Lean_stxInh;
+x_36 = l_Lean_Syntax_inhabited;
 x_37 = lean_array_get(x_36, x_3, x_5);
 x_38 = l_Lean_numLitKind;
 x_39 = l_Lean_Syntax_isNatLitAux(x_38, x_37);
@@ -628,7 +628,7 @@ lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec(x_7);
-x_10 = l_Lean_stxInh;
+x_10 = l_Lean_Syntax_inhabited;
 x_11 = lean_array_get(x_10, x_3, x_9);
 x_12 = l_Lean_Syntax_isStrLit_x3f(x_11);
 lean_dec(x_11);

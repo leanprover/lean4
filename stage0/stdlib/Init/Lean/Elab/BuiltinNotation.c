@@ -246,7 +246,6 @@ lean_object* l_Lean_Elab_Term_elabSubtype___lambda__1___closed__11;
 lean_object* l_Lean_Elab_Term_elabAnoymousCtor___closed__2;
 extern lean_object* l_Lean_Expr_heq_x3f___closed__2;
 lean_object* l_Lean_Elab_Term_elabDiv___closed__2;
-lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabWhere___lambda__1(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_sub___elambda__1___closed__1;
 lean_object* l_Lean_Elab_Term_elabDollarProj(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -277,6 +276,7 @@ extern lean_object* l___private_Init_Lean_Elab_Quotation_4__quoteOption___rarg__
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabDiv___closed__3;
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabBNe___closed__3;
 lean_object* l_Lean_Elab_Term_elabProd___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Term_elabTermAux___main(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_mod___elambda__1___closed__1;
 extern lean_object* l___private_Init_Lean_Elab_Quotation_13__letBindRhss___main___closed__15;
 lean_object* l_Lean_Elab_Term_elabMapRev___closed__1;
@@ -2537,7 +2537,7 @@ lean_ctor_set(x_60, 0, x_1);
 lean_ctor_set(x_60, 1, x_59);
 lean_ctor_set(x_3, 8, x_60);
 x_61 = 1;
-x_62 = l_Lean_Elab_Term_elabTerm(x_57, x_2, x_61, x_61, x_3, x_26);
+x_62 = l_Lean_Elab_Term_elabTermAux___main(x_2, x_61, x_61, x_57, x_3, x_26);
 return x_62;
 }
 else
@@ -2581,7 +2581,7 @@ lean_ctor_set(x_75, 8, x_74);
 lean_ctor_set(x_75, 9, x_72);
 lean_ctor_set_uint8(x_75, sizeof(void*)*10, x_73);
 x_76 = 1;
-x_77 = l_Lean_Elab_Term_elabTerm(x_57, x_2, x_76, x_76, x_75, x_26);
+x_77 = l_Lean_Elab_Term_elabTermAux___main(x_2, x_76, x_76, x_57, x_75, x_26);
 return x_77;
 }
 }
@@ -5294,7 +5294,7 @@ x_12 = lean_array_push(x_11, x_9);
 x_13 = l_Array_iterateMAux___main___at_Lean_mkAppStx___spec__1(x_12, x_12, x_6, x_1);
 lean_dec(x_12);
 x_14 = 1;
-x_15 = l_Lean_Elab_Term_elabTerm(x_13, x_3, x_14, x_14, x_4, x_5);
+x_15 = l_Lean_Elab_Term_elabTermAux___main(x_3, x_14, x_14, x_13, x_4, x_5);
 return x_15;
 }
 }

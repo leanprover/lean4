@@ -52,7 +52,6 @@ extern lean_object* l_Lean_mkTagDeclarationExtension___closed__1;
 lean_object* l_Lean_registerEnumAttributes___rarg___lambda__2___closed__3;
 lean_object* l_Lean_ParametricAttribute_setParam___rarg___closed__2;
 lean_object* l_Lean_attributeExtension___elambda__4___rarg(lean_object*);
-extern lean_object* l_Lean_stxInh;
 lean_object* l_Lean_ParametricAttribute_Inhabited(lean_object*);
 lean_object* l_Lean_registerParametricAttribute___rarg___lambda__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkAttributeExtension___closed__2;
@@ -246,6 +245,7 @@ extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed_
 lean_object* l_Lean_mkAttributeImplBuilderTable___closed__1;
 lean_object* l_Array_qsortAux___main___at_Lean_registerEnumAttributes___spec__2(lean_object*);
 lean_object* l_Array_qsortAux___main___at_Lean_registerEnumAttributes___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Syntax_inhabited;
 extern lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
 lean_object* l_Lean_EnumAttributes_Inhabited___closed__1;
 uint8_t l_PersistentHashMap_containsAux___main___at_Lean_registerBuiltinAttribute___spec__2(lean_object*, size_t, lean_object*);
@@ -10924,7 +10924,7 @@ return x_10;
 else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_11 = l_Lean_stxInh;
+x_11 = l_Lean_Syntax_inhabited;
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_array_get(x_11, x_3, x_12);
 if (lean_obj_tag(x_13) == 3)

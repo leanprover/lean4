@@ -118,9 +118,21 @@ fun stx => do
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser");
   type ← `(Lean.ParserDescr);
   val  ← runTermElabM none $ fun _ => Term.toParserDescr (stx.getArg 2);
-  d ← `(@[$catParserId:ident] private def $catParserId:ident : $type := ParserDescr.node $(quote kind) $val);
+  -- TODO: meaningful, unhygienic def name for selective parser `open`ing?
+  d ← `(@[$catParserId:ident] def myParser : $type := ParserDescr.node $(quote kind) $val);
   trace `Elab stx $ fun _ => d;
   withMacroExpansion stx $ elabCommand d
+
+@[builtinCommandElab macro] def elabMacro : CommandElab :=
+adaptExpander $ fun stx => match_syntax stx with
+| `(macro $alts*) => do
+  -- TODO: clean up with matchAlt quotation
+  k ← match_syntax ((alts.get! 0).getArg 1).getArg 0 with
+  | `(`($quot)) => pure quot.getKind
+  | stx         => throwUnsupportedSyntax;
+  -- TODO: meaningful, unhygienic def name for selective macro `open`ing?
+  `(@[macro $(Lean.mkSimpleIdent k)] def myMacro : Macro := fun stx => match_syntax stx with $alts* | _ => throw ())
+| _ => throwUnsupportedSyntax
 
 end Command
 end Elab

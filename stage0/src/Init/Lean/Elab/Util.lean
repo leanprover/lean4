@@ -106,7 +106,8 @@ match mkElabFnOfConstant γ env typeName constName with
   pure $ ext.addEntry env { kind := kind, elabFn := f, constName := constName }
 
 /- TODO: add support for scoped attributes -/
-def mkElabAttribute (γ) (attrName : Name) (parserNamespace : Name) (typeName : Name) (kind : String) (builtinTableRef : IO.Ref (ElabFnTable γ)) : IO (ElabAttribute γ) := do
+def mkElabAttributeAux (γ) (attrName : Name) (parserNamespace : Name) (typeName : Name) (descr : String) (kind : String) (builtinTableRef : IO.Ref (ElabFnTable γ))
+    : IO (ElabAttribute γ) := do
 ext : ElabAttributeExtension γ ← registerPersistentEnvExtension {
   name            := attrName,
   mkInitial       := ElabAttribute.mkInitial builtinTableRef,
@@ -124,9 +125,38 @@ let attrImpl : AttributeImpl := {
 registerBuiltinAttribute attrImpl;
 pure { ext := ext, attr := attrImpl, kind := kind }
 
+def mkElabAttribute (γ) (attrName : Name) (parserNamespace : Name) (typeName : Name) (kind : String) (builtinTableRef : IO.Ref (ElabFnTable γ))
+    : IO (ElabAttribute γ) :=
+mkElabAttributeAux γ attrName parserNamespace typeName (kind ++ " elaborator") kind builtinTableRef
+
+abbrev MacroAttribute               := ElabAttribute Macro
+abbrev MacroFnTable                 := ElabFnTable Macro
+
+def mkBuiltinMacroFnTable : IO (IO.Ref MacroFnTable) :=  IO.mkRef {}
+@[init mkBuiltinMacroFnTable] constant builtinMacroFnTable : IO.Ref MacroFnTable := arbitrary _
+
+def mkMacroAttribute : IO MacroAttribute :=
+mkElabAttributeAux Macro `macro Name.anonymous `Lean.Macro "macros" "macro" builtinMacroFnTable
+
+@[init mkMacroAttribute] constant macroAttribute : MacroAttribute := arbitrary _
+
+private def expandMacroFns (stx : Syntax) : List Macro → MacroM Syntax
+| []    => throw ()
+| m::ms => m stx <|> expandMacroFns ms
+
+def expandMacro (env : Environment) : Macro :=
+fun stx =>
+  let k := stx.getKind;
+  let table := (macroAttribute.ext.getState env).table;
+  match table.find? k with
+  | some macroFns => expandMacroFns stx macroFns
+  | none          => throw ()
+
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab;
 registerTraceClass `Elab.step
+
+
 
 end Elab
 end Lean

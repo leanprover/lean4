@@ -16,7 +16,6 @@ extern "C" {
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_declareLeadingBuiltinParser___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_Syntax_manyToSepBy___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_stxInh;
 lean_object* l_Lean_Syntax_removeParen___closed__4;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -39,6 +38,7 @@ lean_object* l_Lean_Syntax_manyToSepBy(lean_object*, lean_object*);
 lean_object* l_Array_back___at___private_Init_Lean_Parser_Parser_6__updateCache___spec__1(lean_object*);
 extern lean_object* l_Array_forMAux___main___at_Lean_Environment_displayStats___spec__9___closed__2;
 extern lean_object* l_Option_HasRepr___rarg___closed__3;
+extern lean_object* l_Lean_Syntax_inhabited;
 lean_object* l_Lean_Syntax_getNumArgs(lean_object*);
 lean_object* l_Lean_Syntax_removeParen(lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
@@ -157,7 +157,7 @@ if (x_3 == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_4 = lean_ctor_get(x_1, 1);
-x_5 = l_Lean_stxInh;
+x_5 = l_Lean_Syntax_inhabited;
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_get(x_5, x_4, x_6);
 x_8 = l_Lean_mkOptionalNode___closed__1;
@@ -176,7 +176,7 @@ x_13 = lean_ctor_get(x_1, 1);
 lean_inc(x_13);
 lean_inc(x_12);
 lean_dec(x_1);
-x_14 = l_Lean_stxInh;
+x_14 = l_Lean_Syntax_inhabited;
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_array_get(x_14, x_13, x_15);
 x_17 = l_Lean_mkOptionalNode___closed__1;
@@ -261,7 +261,7 @@ return x_1;
 else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_6 = l_Lean_stxInh;
+x_6 = l_Lean_Syntax_inhabited;
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_array_get(x_6, x_3, x_7);
 x_9 = l_Lean_Syntax_getNumArgs(x_8);

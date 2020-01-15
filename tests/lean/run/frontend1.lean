@@ -223,3 +223,6 @@ def three := 3
 #eval run "constant n : Nat #check n"
 
 #eval fail "#check Nat.succ 'a'"
+
+#eval run "universes u v #check Type (max u v)"
+#eval run "universes u v #check Type (imax u v)"

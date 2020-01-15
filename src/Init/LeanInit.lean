@@ -10,7 +10,7 @@ import Init.Data.Hashable
 
 namespace Lean
 /-
-Basic Lean types used to implement basic extensions.
+Basic Lean types used to implement builtin commands and extensions.
 Note that this file is part of the Lean `Init` library instead of
 `Lean` actual implementation.
 The idea is to allow users to implement simple parsers, macros and tactics

@@ -13,4 +13,4 @@ import Init.Data
 import Init.System
 import Init.Util
 import Init.Fix
-import Init.LeanExt
+import Init.LeanInit

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.String.Basic
+import Init.Data.Array.Basic
 import Init.Data.UInt
 import Init.Data.Hashable
 
@@ -46,6 +47,15 @@ Name.num p v $ mixHash (hash p) (hash v)
 
 def mkNameSimple (s : String) : Name :=
 mkNameStr Name.anonymous s
+
+@[extern "lean_name_eq"]
+protected def Name.beq : (@& Name) → (@& Name) → Bool
+| Name.anonymous,   Name.anonymous   => true
+| Name.str p₁ s₁ _, Name.str p₂ s₂ _ => s₁ == s₂ && Name.beq p₁ p₂
+| Name.num p₁ n₁ _, Name.num p₂ n₂ _ => n₁ == n₂ && Name.beq p₁ p₂
+| _,                _                => false
+
+instance : HasBeq Name := ⟨Name.beq⟩
 
 inductive ParserKind
 | leading | trailing
@@ -96,5 +106,54 @@ abbrev TrailingParserDescr := ParserDescrCore ParserKind.trailing
 @[matchPattern] abbrev ParserDescr.nonReservedSymbol := @ParserDescrCore.nonReservedSymbol
 @[matchPattern] abbrev ParserDescr.pushLeading := @ParserDescrCore.pushLeading
 @[matchPattern] abbrev ParserDescr.parser := @ParserDescrCore.parser
+
+/- Syntax -/
+
+structure SourceInfo :=
+/- Will be inferred after parsing by `Syntax.updateLeading`. During parsing,
+   it is not at all clear what the preceding token was, especially with backtracking. -/
+(leading  : Substring)
+(pos      : String.Pos)
+(trailing : Substring)
+
+abbrev SyntaxNodeKind := Name
+
+/- Syntax AST -/
+
+inductive Syntax
+| missing {} : Syntax
+| node   (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
+| atom   {} (info : Option SourceInfo) (val : String) : Syntax
+| ident  {} (info : Option SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List (Name × List String)) : Syntax
+
+instance Syntax.inhabited : Inhabited Syntax :=
+⟨Syntax.missing⟩
+
+namespace Syntax
+
+def getKind (stx : Syntax) : SyntaxNodeKind :=
+match stx with
+| Syntax.node k args   => k
+-- We use these "pseudo kinds" for antiquotation kinds.
+-- For example, an antiquotation `$id:ident` (using Lean.Parser.Term.ident)
+-- is compiled to ``if stx.isOfKind `ident ...``
+| Syntax.missing       => `missing
+| Syntax.atom _ v      => mkNameSimple v
+| Syntax.ident _ _ _ _ => `ident
+
+def isOfKind : Syntax → SyntaxNodeKind → Bool
+| stx, k => stx.getKind == k
+
+def getArg (stx : Syntax) (i : Nat) : Syntax :=
+match stx with
+| Syntax.node _ args => args.get! i
+| _                  => arbitrary _
+
+def getArgs (stx : Syntax) : Array Syntax :=
+match stx with
+| Syntax.node _ args => args
+| _                  => #[]
+
+end Syntax
 
 end Lean

@@ -132,7 +132,7 @@ match ref.getPos with
 
 private def prettyPrint (stx : Syntax) : TermElabM Format :=
 match stx.reprint with -- TODO use syntax pretty printer
-| some str => pure $ format str
+| some str => pure $ str.toFormat
 | none     => pure $ format stx
 
 private def addMacroStack (msgData : MessageData) : TermElabM MessageData := do

@@ -215,3 +215,6 @@ sbracket (Format.joinSep m.entries ", ")
 instance kvMapHasFormat : HasFormat KVMap := ⟨formatKVMap⟩
 
 end Lean
+
+def String.toFormat (s : String) : Lean.Format :=
+Lean.Format.joinSep (s.splitOn "\n") Lean.Format.line

@@ -53,15 +53,12 @@ new_frontend
 declare_syntax_cat foo
 
 syntax "⟨|" term "|⟩" : foo
+syntax [tst3] "FOO " foo : term
 
 open Lean
 open Lean.Parser
 open Lean.Elab
 open Lean.Elab.Term
-
-def fooParser (rbp : Nat := 0) : Parser := categoryParser (mkNameSimple "foo") rbp
-
-@[termParser] def tst3 := parser! symbol "FOO " 0 >> fooParser 0
 
 @[termElab tst3] def elabTst3 : TermElab :=
 fun stx expected? =>

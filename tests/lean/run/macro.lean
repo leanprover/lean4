@@ -5,20 +5,6 @@ open Lean.Parser
 open Lean.Elab
 open Lean.Elab.Command
 
-@[commandParser] def syntax := parser! "syntax" >> many1 (termParser appPrec) >> " : " >> ident
-
-@[commandElab syntax] def elabSyntax : CommandElab :=
-adaptExpander $ fun stx => match_syntax stx with
-| `(syntax $parts* : $cat) => do
-  parts ← parts.mapM (fun part => match_syntax part with
-    | `($str:str) => `(Lean.Parser.symbolAux $str)
-    | _           => pure part);
-  p ← parts.foldlFromM (fun p part => `($p >> $part)) (parts.get! 0) 1;
-  -- TODO: trailing parsers
-  -- TODO: meaningful, unhygienic def name for selective syntax `open`ing?
-  `(@[$cat:ident] def myParser : Lean.Parser.Parser Lean.ParserKind.leading := parser! $p)
-| _ => throwUnsupportedSyntax
-
 @[commandParser] def macro := parser! "macro" >> many1Indent Term.matchAlt "'match' alternatives must be indented"
 
 @[commandElab macro] def elabMacro : CommandElab :=
@@ -50,13 +36,15 @@ end Lean.Elab.Term
 new_frontend
 open Lean.Parser
 
-syntax "{" termParser " | " termParser "}" : termParser
+syntax "{" term " | " term "}" : term
+
 macro
 | `({$x ∈ $s | $p}) => `(setOf (fun $x => $x ∈ $s ∧ $p))
 | `({$x ≤ $e | $p}) => `(setOf (fun $x => $x ≤ $e ∧ $p))
 | `({$b      | $r}) => `(setOf (fun $b => $r))
 
-syntax "⋃ " termParser ", " termParser : termParser
+syntax "⋃ " term ", " term : term
+
 macro | `(⋃ $b, $r) => `(Union {$b | $r})
 
 #check ⋃ x,              x = x
@@ -64,7 +52,8 @@ macro | `(⋃ $b, $r) => `(Union {$b | $r})
 #check ⋃ x ∈ univ,       x = x
 
 
-syntax "#check2" termParser : commandParser
+syntax "#check2" term : command
+
 macro | `(#check2 $e) => `(#check $e #check $e)
 
 #check2 1

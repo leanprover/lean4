@@ -114,6 +114,7 @@ def mixfixSymbol := quotedSymbolPrec <|> unquotedSymbol
 @[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> mixfixSymbol >> " := " >> termParser
 def identPrec := parser! ident >> optional «precedence»
 @[builtinCommandParser] def «notation» := parser! "notation" >> optional ident >> many (quotedSymbolPrec <|> identPrec) >> " := " >> termParser
+@[builtinCommandParser] def «macro» := parser! "macro" >> many1Indent Term.matchAlt "'match' alternatives must be indented"
 
 end Command
 end Parser

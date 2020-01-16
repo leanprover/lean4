@@ -59,7 +59,7 @@ mkFVar decl.fvarId
 end LocalDecl
 
 structure LocalContext :=
-(fvarIdToDecl : PersistentHashMap Name LocalDecl := {})
+(fvarIdToDecl : PersistentHashMap FVarId LocalDecl := {})
 (decls        : PersistentArray (Option LocalDecl) := {})
 
 namespace LocalContext

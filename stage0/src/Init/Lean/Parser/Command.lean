@@ -97,25 +97,6 @@ def openSimple       := parser! many1 ident
 @[builtinCommandParser] def «open»    := parser! "open " >> (openHiding <|> openRenaming <|> openOnly <|> openSimple)
 @[builtinCommandParser] def syntaxCat := parser! "declare_syntax_cat " >> ident
 
-/- Lean3 command declaration commands -/
-def maxPrec := parser! nonReservedSymbol "max"
-def precedenceLit : Parser := numLit <|> maxPrec
-def «precedence» := parser! " : " >> precedenceLit
-def quotedSymbolPrec := parser! quotedSymbol >> optional «precedence»
-def «prefix»   := parser! "prefix"
-def «infix»    := parser! "infix"
-def «infixl»   := parser! "infixl"
-def «infixr»   := parser! "infixr"
-def «postfix»  := parser! "postfix"
-def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «postfix»
-@[builtinCommandParser] def «reserve»  := parser! "reserve " >> mixfixKind >> quotedSymbolPrec
-def mixfixSymbol := quotedSymbolPrec <|> unquotedSymbol
-@[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> mixfixSymbol >> " := " >> termParser
-def strLitPrec := parser! strLit >> optional «precedence»
-def identPrec  := parser! ident >> optional «precedence»
-@[builtinCommandParser] def «notation» := parser! "notation" >> many (strLitPrec <|> quotedSymbolPrec <|> identPrec) >> " := " >> termParser
-@[builtinCommandParser] def «macro» := parser! "macro" >> many1Indent Term.matchAlt "'match' alternatives must be indented"
-
 end Command
 end Parser
 end Lean

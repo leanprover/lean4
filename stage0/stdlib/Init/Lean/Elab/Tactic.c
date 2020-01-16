@@ -67,6 +67,7 @@ x_7 = lean_alloc_ctor(8, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
 lean_ctor_set(x_7, 1, x_5);
 x_8 = l_Lean_Elab_Term_throwError___rarg(x_1, x_7, x_3, x_4);
+lean_dec(x_1);
 return x_8;
 }
 }

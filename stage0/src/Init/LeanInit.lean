@@ -83,7 +83,7 @@ inductive ParserDescrCore : ParserKind → Type
 | char {k : ParserKind}          : ParserDescrCore k
 | ident {k : ParserKind}         : ParserDescrCore k
 | pushLeading                    : ParserDescrCore ParserKind.trailing
-| parser                         : Name → Nat → ParserDescrCore ParserKind.leading
+| parser {k : ParserKind}        : Name → Nat → ParserDescrCore k
 
 instance ParserDescrCore.inhabited {k} : Inhabited (ParserDescrCore k) := ⟨ParserDescrCore.symbol "" none⟩
 

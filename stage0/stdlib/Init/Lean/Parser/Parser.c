@@ -29967,12 +29967,38 @@ x_590 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_590, 0, x_589);
 return x_590;
 }
-default: 
+case 16:
 {
 lean_object* x_591; 
 lean_dec(x_1);
 x_591 = l_Lean_Parser_compileParserDescr___main___closed__1;
 return x_591;
+}
+default: 
+{
+lean_object* x_592; lean_object* x_593; lean_object* x_594; 
+x_592 = lean_ctor_get(x_3, 0);
+lean_inc(x_592);
+x_593 = lean_ctor_get(x_3, 1);
+lean_inc(x_593);
+lean_dec(x_3);
+x_594 = l_PersistentHashMap_find_x3f___at_Lean_Parser_addLeadingParser___spec__1(x_1, x_592);
+if (lean_obj_tag(x_594) == 0)
+{
+lean_object* x_595; 
+lean_dec(x_593);
+x_595 = l_Lean_Parser_throwUnknownParserCategory___rarg(x_592);
+return x_595;
+}
+else
+{
+lean_object* x_596; lean_object* x_597; 
+lean_dec(x_594);
+x_596 = l_Lean_Parser_categoryParser(x_2, x_592, x_593);
+x_597 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_597, 0, x_596);
+return x_597;
+}
 }
 }
 }

@@ -102,7 +102,6 @@ def maxPrec := parser! nonReservedSymbol "max"
 def precedenceLit : Parser := numLit <|> maxPrec
 def «precedence» := parser! " : " >> precedenceLit
 def quotedSymbolPrec := parser! quotedSymbol >> optional «precedence»
-def symbol : Parser := quotedSymbolPrec <|> unquotedSymbol
 def «prefix»   := parser! "prefix"
 def «infix»    := parser! "infix"
 def «infixl»   := parser! "infixl"
@@ -112,8 +111,9 @@ def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «p
 @[builtinCommandParser] def «reserve»  := parser! "reserve " >> mixfixKind >> quotedSymbolPrec
 def mixfixSymbol := quotedSymbolPrec <|> unquotedSymbol
 @[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> mixfixSymbol >> " := " >> termParser
-def identPrec := parser! ident >> optional «precedence»
-@[builtinCommandParser] def «notation» := parser! "notation" >> optional ident >> many (quotedSymbolPrec <|> identPrec) >> " := " >> termParser
+def strLitPrec := parser! strLit >> optional «precedence»
+def identPrec  := parser! ident >> optional «precedence»
+@[builtinCommandParser] def «notation» := parser! "notation" >> many (strLitPrec <|> quotedSymbolPrec <|> identPrec) >> " := " >> termParser
 @[builtinCommandParser] def «macro» := parser! "macro" >> many1Indent Term.matchAlt "'match' alternatives must be indented"
 
 end Command

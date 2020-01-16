@@ -1521,7 +1521,7 @@ def compileParserDescr (categories : ParserCategories) : forall {k : ParserKind}
 | _, ParserDescr.ident                               => pure $ identNoAntiquot -- Kha, do we need `ident` here?
 | ParserKind.leading,
   ParserDescr.nonReservedSymbol tk includeIdent      => pure $ nonReservedSymbol tk includeIdent
-| ParserKind.leading, ParserDescr.parser catName rbp =>
+| _, ParserDescr.parser catName rbp =>
   match categories.find? catName with
   | some _ => pure $ categoryParser catName rbp
   | none   => throwUnknownParserCategory catName

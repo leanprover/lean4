@@ -55,7 +55,7 @@ void consume_until_end_or_command(parser & p) {
 
 void check_command_period_docstring_or_eof(parser const & p) {
     if (!p.curr_is_command() && !p.curr_is_eof() && !p.curr_is_token(get_period_tk()) &&
-        p.curr() != token_kind::DocBlock && p.curr() != token_kind::ModDocBlock)
+        p.curr() != token_kind::DocBlock && p.curr() != token_kind::ModDocBlock && p.curr() != token_kind::NewFrontend)
         throw parser_error("unexpected token, '.', command, or end-of-file expected", p.pos());
 }
 

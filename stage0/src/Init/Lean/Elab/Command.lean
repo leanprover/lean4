@@ -56,7 +56,8 @@ def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severit
 mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos.getD ctx.cmdPos)
 
 private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : Message :=
-mkMessageAux ctx ref (toString err) MessageSeverity.error
+let ref := getBetterRef ref ctx.macroStack;
+mkMessageAux ctx ref (addMacroStack (toString err) ctx.macroStack) MessageSeverity.error
 
 @[inline] def liftIOCore {α} (ctx : Context) (ref : Syntax) (x : IO α) : EIO Exception α :=
 EIO.adaptExcept (fun ex => Exception.error $ ioErrorToMessage ctx ref ex) x
@@ -93,37 +94,13 @@ instance CommandElabM.monadLog : MonadLog CommandElabM :=
   addContext  := addContext,
   logMessage  := fun msg => modify $ fun s => { messages := s.messages.add msg, .. s } }
 
-/- If `ref` does not have position information, then try to use macroStack -/
-private def getBetterRef (ref : Syntax) : CommandElabM Syntax :=
-match ref.getPos with
-| some _ => pure ref
-| none   => do
-  ctx ← read;
-  match ctx.macroStack.find? $ fun (macro : Syntax) => macro.getPos != none with
-  | some macro => pure macro
-  | none       => pure ref
-
-private def prettyPrint (stx : Syntax) : CommandElabM Format :=
-match stx.reprint with -- TODO use syntax pretty printer
-| some str => pure $ format str.toFormat
-| none     => pure $ format stx
-
-private def addMacroStack (msgData : MessageData) : CommandElabM MessageData := do
-ctx ← read;
-if ctx.macroStack.isEmpty then pure msgData
-else
-  ctx.macroStack.foldlM
-    (fun (msgData : MessageData) (macro : Syntax) => do
-      macroFmt ← prettyPrint macro;
-      pure (msgData ++ Format.line ++ "while expanding" ++ MessageData.nest 2 (Format.line ++ macroFmt)))
-    msgData
-
 /--
   Throws an error with the given `msgData` and extracting position information from `ref`.
   If `ref` does not contain position information, then use `cmdPos` -/
 def throwError {α} (ref : Syntax) (msgData : MessageData) : CommandElabM α := do
-ref ← getBetterRef ref;
-msgData ← addMacroStack msgData;
+ctx ← read;
+let ref     := getBetterRef ref ctx.macroStack;
+let msgData := addMacroStack msgData ctx.macroStack;
 msg ← mkMessage msgData MessageSeverity.error ref;
 throw (Exception.error msg)
 
@@ -200,7 +177,7 @@ adaptReader (fun (ctx : Context) => { currRecDepth := ctx.currRecDepth + 1, .. c
 
 private def elabCommandUsing (stx : Syntax) : List CommandElab → CommandElabM Unit
 | []                => do
-  refFmt ← prettyPrint stx;
+  let refFmt := stx.prettyPrint;
   throwError stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
 | (elabFn::elabFns) => catch (elabFn stx)
   (fun ex => match ex with
@@ -505,11 +482,6 @@ fun n => do
     elabOpenHiding body
   else
     elabOpenRenaming body
-
-/- We just ignore Lean3 notation declaration commands. -/
-@[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()
-@[builtinCommandElab «reserve»] def elabReserve : CommandElab := fun _ => pure ()
-@[builtinCommandElab «notation»] def elabNotation : CommandElab := fun _ => pure ()
 
 @[builtinCommandElab «variable»] def elabVariable : CommandElab :=
 fun n => do

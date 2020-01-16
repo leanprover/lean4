@@ -1,9 +1,14 @@
 new_frontend
 
+syntax term "+++":60 term:59 : term
+
 syntax "<|" term "|>" : term
 
 macro
-| `(<| $x |>) => `($x + 1)
+| `($a +++ $b) => `($a + $b + $b)
+
+macro
+| `(<| $x |>) => `($x +++ 1)
 
 #check <| 2 |>
 

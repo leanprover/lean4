@@ -17,12 +17,12 @@ registerBuiltinParserAttribute `builtinSyntaxParser `syntax leadingIdentAsSymbol
 categoryParser `syntax rbp
 
 namespace Syntax
-def maxPrec := parser! nonReservedSymbol "max"
+def maxPrec := parser! nonReservedSymbol "max" true
 def precedenceLit : Parser := numLit <|> maxPrec
 def «precedence» := parser! " : " >> precedenceLit
 @[builtinSyntaxParser] def paren     := parser! "(" >> many1 syntaxParser >> ")"
-@[builtinSyntaxParser] def cat       := parser! ident >> optional «precedence»
-@[builtinSyntaxParser] def atom      := parser! strLit >> optional «precedence»
+@[builtinSyntaxParser] def cat       := parser! ident >> optional (try «precedence»)
+@[builtinSyntaxParser] def atom      := parser! strLit >> optional (try «precedence»)
 @[builtinSyntaxParser] def num       := parser! nonReservedSymbol "num"
 @[builtinSyntaxParser] def str       := parser! nonReservedSymbol "str"
 @[builtinSyntaxParser] def char      := parser! nonReservedSymbol "char"

@@ -12,10 +12,16 @@ namespace Elab
 
 namespace Term
 
--- optional (":" >> numLit)
-private def getOptNum (stx : Syntax) : Option Nat :=
+/-
+Expand `optional «precedence»` where
+ «precedence» := parser! " : " >> precedenceLit
+ precedenceLit : Parser := numLit <|> maxPrec
+ maxPrec := parser! nonReservedSymbol "max" -/
+private def expandOptPrecedence (stx : Syntax) : Option Nat :=
 if stx.isNone then none
-else (stx.getArg 1).isNatLit?
+else match ((stx.getArg 0).getArg 1).isNatLit? with
+  | some v => some v
+  | _      => some Parser.appPrec
 
 private def mkParserSeq (ds : Array Syntax) : TermElabM Syntax :=
 if ds.size == 0 then
@@ -57,7 +63,7 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
     toParserDescrAux (stx.getArg 1)
   else if kind == `Lean.Parser.Syntax.cat then do
     let cat : Name := stx.getIdAt 0;
-    let rbp? : Option Nat  := getOptNum (stx.getArg 1);
+    let rbp? : Option Nat  := expandOptPrecedence (stx.getArg 1);
     env ← liftM getEnv;
     unless (Parser.isParserCategory env cat) $ liftM $ throwError (stx.getArg 3) ("unknown category '" ++ cat ++ "'");
     mode ← getMode;
@@ -77,7 +83,7 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
   else if kind == `Lean.Parser.Syntax.atom then do
     match (stx.getArg 0).isStrLit? with
     | some atom =>
-      let rbp : Option Nat  := getOptNum (stx.getArg 1);
+      let rbp : Option Nat  := expandOptPrecedence (stx.getArg 1);
       `(ParserDescr.symbol $(quote atom) $(quote rbp))
     | none => liftM throwUnsupportedSyntax
   else if kind == `Lean.Parser.Syntax.num then

@@ -17,10 +17,12 @@ registerBuiltinParserAttribute `builtinSyntaxParser `syntax leadingIdentAsSymbol
 categoryParser `syntax rbp
 
 namespace Syntax
-
+def maxPrec := parser! nonReservedSymbol "max"
+def precedenceLit : Parser := numLit <|> maxPrec
+def «precedence» := parser! " : " >> precedenceLit
 @[builtinSyntaxParser] def paren     := parser! "(" >> many1 syntaxParser >> ")"
-@[builtinSyntaxParser] def cat       := parser! ident >> optional (try (":" >> numLit))
-@[builtinSyntaxParser] def atom      := parser! strLit >> optional (try (":" >> numLit))
+@[builtinSyntaxParser] def cat       := parser! ident >> optional «precedence»
+@[builtinSyntaxParser] def atom      := parser! strLit >> optional «precedence»
 @[builtinSyntaxParser] def num       := parser! nonReservedSymbol "num"
 @[builtinSyntaxParser] def str       := parser! nonReservedSymbol "str"
 @[builtinSyntaxParser] def char      := parser! nonReservedSymbol "char"
@@ -31,14 +33,30 @@ namespace Syntax
 @[builtinSyntaxParser] def sepBy     := parser! nonReservedSymbol "sepBy " >> syntaxParser >> syntaxParser
 @[builtinSyntaxParser] def sepBy1    := parser! nonReservedSymbol "sepBy1 " >> syntaxParser >> syntaxParser
 
-@[builtinSyntaxParser] def many     := tparser! pushLeading >> symbolAux "*" none
-@[builtinSyntaxParser] def many1    := tparser! pushLeading >> symbolAux "+" none
-@[builtinSyntaxParser] def orelse   := tparser! pushLeading >> " <|> " >> syntaxParser 1
+@[builtinSyntaxParser] def many      := tparser! pushLeading >> symbolAux "*" none
+@[builtinSyntaxParser] def many1     := tparser! pushLeading >> symbolAux "+" none
+@[builtinSyntaxParser] def orelse    := tparser! pushLeading >> " <|> " >> syntaxParser 1
 
 end Syntax
 
 namespace Command
 
+def quotedSymbolPrec := parser! quotedSymbol >> optional Syntax.precedence
+def «prefix»   := parser! "prefix"
+def «infix»    := parser! "infix"
+def «infixl»   := parser! "infixl"
+def «infixr»   := parser! "infixr"
+def «postfix»  := parser! "postfix"
+def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «postfix»
+-- TODO delete reserve
+@[builtinCommandParser] def «reserve»  := parser! "reserve " >> mixfixKind >> quotedSymbolPrec
+def mixfixSymbol := quotedSymbolPrec <|> unquotedSymbol
+@[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> mixfixSymbol >> " := " >> termParser
+def strLitPrec := parser! strLit >> optional Syntax.precedence
+def identPrec  := parser! ident >> optional Syntax.precedence
+
+@[builtinCommandParser] def «notation» := parser! "notation" >> many (strLitPrec <|> quotedSymbolPrec <|> identPrec) >> " := " >> termParser
+@[builtinCommandParser] def «macro» := parser! "macro" >> many1Indent Term.matchAlt "'match' alternatives must be indented"
 @[builtinCommandParser] def «syntax» := parser! "syntax " >> optional ("[" >> ident >> "]") >> many1 syntaxParser >> " : " >> ident
 
 end Command

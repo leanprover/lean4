@@ -71,6 +71,7 @@ attribute [implementedBy Mutable.Quot.toQuotAux] toQuot
 def update {β : Sort v} (f : α → PProd β α)
   (ref : IO.Ref (ULift.{v} α)) : IO (ULift.{u} $ PLift.{v} β) := do
 ⟨x⟩ ← ref.get;
+ref.reset;
 let ⟨y,x'⟩ := f x;
 ref.set ⟨x'⟩;
 pure ⟨⟨y⟩⟩
@@ -87,8 +88,8 @@ panic!"failed IO in mutable quotient"
 @[implementedBy unsafeMutate]
 def mutate {β : Sort v} (f : α → PProd β α)
   (h : ∀ (a b : α), r a b → (f a).1 = (f b).1)
-  (h' : ∀ (a : α), r a (f a).2) : Quot r → β
-| x => lift _ h x
+  (h' : ∀ (a : α), r a (f a).2) : Quot r → β :=
+lift _ h
 
 end Quot
 

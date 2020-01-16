@@ -175,14 +175,14 @@ ctx ← read; s ← get;
 when (ctx.currRecDepth == s.maxRecDepth) $ throwError ref maxRecDepthErrorMessage;
 adaptReader (fun (ctx : Context) => { currRecDepth := ctx.currRecDepth + 1, .. ctx }) x
 
-private def elabCommandUsing (stx : Syntax) : List CommandElab → CommandElabM Unit
+private def elabCommandUsing (s : State) (stx : Syntax) : List CommandElab → CommandElabM Unit
 | []                => do
   let refFmt := stx.prettyPrint;
   throwError stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
 | (elabFn::elabFns) => catch (elabFn stx)
   (fun ex => match ex with
     | Exception.error _           => throw ex
-    | Exception.unsupportedSyntax => elabCommandUsing elabFns)
+    | Exception.unsupportedSyntax => do set s; elabCommandUsing elabFns)
 
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline] def withMacroExpansion {α} (stx : Syntax) (x : CommandElabM α) : CommandElabM α :=
@@ -190,25 +190,24 @@ adaptReader (fun (ctx : Context) => { macroStack := stx :: ctx.macroStack, .. ct
 
 partial def elabCommand : Syntax → CommandElabM Unit
 | stx => withIncRecDepth stx $ withFreshMacroScope $ match stx with
-  | Syntax.node _ _ => do
-    trace `Elab.step stx $ fun _ => stx;
-    s ← get;
-    let table := (commandElabAttribute.ext.getState s.env).table;
-    let k := stx.getKind;
-    match table.find? k with
-    | some elabFns => elabCommandUsing stx elabFns
-    | none         => do
-      scp ← getCurrMacroScope;
-      env ← getEnv;
-      match expandMacro env stx scp with
-      | some stx' => withMacroExpansion stx $
-        if stx'.getKind == nullKind then
-          -- list of commands => elaborate in order
-          -- The parser will only ever return a single command at a time, but syntax quotations can return multiple ones
-          stx'.getArgs.forM elabCommand
-        else
-          elabCommand stx'
-      | none      => throwError stx ("command '" ++ toString k ++ "' has not been implemented")
+  | Syntax.node k args =>
+    if k == nullKind then
+      -- list of commands => elaborate in order
+      -- The parser will only ever return a single command at a time, but syntax quotations can return multiple ones
+      args.forM elabCommand
+    else do
+      trace `Elab.step stx $ fun _ => stx;
+      s ← get;
+      let table := (commandElabAttribute.ext.getState s.env).table;
+      let k := stx.getKind;
+      match table.find? k with
+      | some elabFns => elabCommandUsing s stx elabFns
+      | none         => do
+        scp ← getCurrMacroScope;
+        env ← getEnv;
+        match expandMacro env stx scp with
+        | some stx' => withMacroExpansion stx $ elabCommand stx'
+        | none      => throwError stx ("command '" ++ toString k ++ "' has not been implemented")
   | _ => throwError stx "unexpected command"
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/

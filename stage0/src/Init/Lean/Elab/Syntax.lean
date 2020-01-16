@@ -182,7 +182,61 @@ adaptExpander $ fun stx => match_syntax stx with
 /- We just ignore Lean3 notation declaration commands. -/
 @[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()
 @[builtinCommandElab «reserve»] def elabReserve : CommandElab := fun _ => pure ()
-@[builtinCommandElab «notation»] def elabNotation : CommandElab := fun _ => pure ()
+
+-- wrap all occurrences of the given `ident` nodes in antiquotations
+private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
+| stx => match_syntax stx with
+| `($id:ident) => if (vars.findIdx? (fun var => var.getId == id.getId)).isSome then Syntax.node `antiquot #[mkAtom "$", Unhygienic.run `($id:ident), mkNullNode, mkNullNode] else stx
+| _ => match stx with
+  | Syntax.node k args => Syntax.node k (args.map antiquote)
+  | stx => stx
+
+/- Convert `notation` command lhs item into a `syntax` command item -/
+def expandNotationItemIntoSyntaxItem (stx : Syntax) : CommandElabM Syntax :=
+let k := stx.getKind;
+if k == `Lean.Parser.Command.identPrec then
+  pure $ Syntax.node `Lean.Parser.Syntax.cat #[mkIdentFrom stx `term,  stx.getArg 1]
+else if k == `Lean.Parser.Command.quotedSymbolPrec then
+  match (stx.getArg 0).getArg 1 with
+  | Syntax.atom info val => pure $ Syntax.node `Lean.Parser.Syntax.atom #[mkStxStrLit val info, stx.getArg 1]
+  | _                    => throwUnsupportedSyntax
+else if k == `Lean.Parser.Command.strLitPrec then
+  pure $ Syntax.node `Lean.Parser.Syntax.atom stx.getArgs
+else
+  throwUnsupportedSyntax
+
+/- Convert `notation` command lhs item a pattern element -/
+def expandNotationItemIntoPattern (stx : Syntax) : CommandElabM Syntax :=
+let k := stx.getKind;
+if k == `Lean.Parser.Command.identPrec then
+  let item := stx.getArg 0;
+  pure $ mkNode `antiquot #[mkAtom "$", Term.mkTermIdFromIdent item, mkNullNode, mkNullNode]
+else if k == `Lean.Parser.Command.quotedSymbolPrec then
+  pure $ (stx.getArg 0).getArg 1
+else if k == `Lean.Parser.Command.strLitPrec then
+  match (stx.getArg 0).isStrLit? with
+  | some str => pure $ mkAtomFrom stx str
+  | none     => throwUnsupportedSyntax
+else
+  throwUnsupportedSyntax
+
+@[builtinCommandElab «notation»] def elabNotation : CommandElab :=
+adaptExpander $ fun stx => match_syntax stx with
+| `(notation $items* := $rhs) => do
+  -- build parser
+  syntaxParts ← items.mapM expandNotationItemIntoSyntaxItem;
+  let cat := mkIdentFrom stx `term;
+  -- build macro
+  let vars := items.filter $ fun item => item.getKind == `Lean.Parser.Command.identPrec;
+  let vars := vars.map $ fun var => var.getArg 0;
+  let rhs := antiquote vars rhs;
+  patArgs ← items.mapM expandNotationItemIntoPattern;
+  scp ← getCurrMacroScope;
+  -- manually create hygienic kind name
+  let kind := addMacroScope `myParser scp;
+  let pat := Syntax.node kind patArgs;
+  `(syntax [$(mkIdentFrom stx kind)] $syntaxParts* : $cat macro | `($pat) => `($rhs))
+| _ => throwUnsupportedSyntax
 
 end Command
 end Elab

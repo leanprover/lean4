@@ -107,6 +107,42 @@ def mkTacticElabAttribute : IO TacticElabAttribute :=
 mkElabAttribute TacticElab `tacticElab `Lean.Parser.Tactic `Lean.Elab.Tactic.TacticElab "tactic" builtinTacticElabTable
 @[init mkTacticElabAttribute] constant tacticElabAttribute : TacticElabAttribute := arbitrary _
 
+def logTrace (cls : Name) (ref : Syntax) (msg : MessageData) : TacticElabM Unit := liftTermElabM $ Term.logTrace cls ref msg
+@[inline] def trace (cls : Name) (ref : Syntax) (msg : Unit → MessageData) : TacticElabM Unit := liftTermElabM $ Term.trace cls ref msg
+@[inline] def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TacticElabM Unit := liftTermElabM $ Term.traceAtCmdPos cls msg
+def dbgTrace {α} [HasToString α] (a : α) : TacticElabM Unit :=_root_.dbgTrace (toString a) $ fun _ => pure ()
+
+private def elabTacticUsing (s : State) (stx : Syntax) : List TacticElab → TacticElabM Unit
+| []                => do
+  let refFmt := stx.prettyPrint;
+  throwError stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
+| (elabFn::elabFns) => catch (elabFn stx)
+  (fun ex => match ex with
+    | Exception.error _           => throw ex
+    | Exception.unsupportedSyntax => do set s; elabTacticUsing elabFns)
+
+/- Elaborate `x` with `stx` on the macro stack -/
+@[inline] def withMacroExpansion {α} (stx : Syntax) (x : TacticElabM α) : TacticElabM α :=
+adaptReader (fun (ctx : Context) => { macroStack := stx :: ctx.macroStack, .. ctx }) x
+
+partial def elabTactic : Syntax → TacticElabM Unit
+| stx => withIncRecDepth stx $ withFreshMacroScope $ match stx with
+  | Syntax.node k args => do
+    trace `Elab.step stx $ fun _ => stx;
+    s ← get;
+    let table := (tacticElabAttribute.ext.getState s.env).table;
+    let k := stx.getKind;
+    match table.find? k with
+    | some elabFns => elabTacticUsing s stx elabFns
+      | none         => do
+        scp ← getCurrMacroScope;
+        env ← getEnv;
+        match expandMacro env stx scp with
+        | some stx' => withMacroExpansion stx $ elabTactic stx'
+        | none      => throwError stx ("tactic '" ++ toString k ++ "' has not been implemented")
+  | _ => throwError stx "unexpected command"
+
+
 end Tactic
 
 end Elab

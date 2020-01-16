@@ -19,24 +19,22 @@ registerBuiltinDynamicParserAttribute `tacticParser `tactic
 @[inline] def tacticParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
 categoryParser `tactic rbp
 
-def tacticSeq {k : ParserKind} : Parser k :=
-sepBy1 tacticParser "; " true
-
 namespace Tactic
 
+def seq := parser! sepBy1 tacticParser "; " true
 @[builtinTacticParser] def «intro» := parser! nonReservedSymbol "intro " >> optional ident
 @[builtinTacticParser] def «intros» := parser! nonReservedSymbol "intros " >> many ident
 @[builtinTacticParser] def «assumption» := parser! nonReservedSymbol "assumption"
 @[builtinTacticParser] def «apply» := parser! nonReservedSymbol "apply " >> termParser
-@[builtinTacticParser] def nestedTacticBlock := parser! "begin " >> tacticSeq >> "end"
-@[builtinTacticParser] def nestedTacticBlockCurly := parser! "{" >> tacticSeq >> "}"
+@[builtinTacticParser] def nestedTacticBlock := parser! "begin " >> seq >> "end"
+@[builtinTacticParser] def nestedTacticBlockCurly := parser! "{" >> seq >> "}"
 @[builtinTacticParser] def orelse := tparser! pushLeading >> " <|> " >> tacticParser 1
 
 end Tactic
 
 namespace Term
 
-@[builtinTermParser] def tacticBlock := parser! symbol "begin " appPrec >> tacticSeq >> "end"
+@[builtinTermParser] def tacticBlock := parser! symbol "begin " appPrec >> Tactic.seq >> "end"
 
 end Term
 

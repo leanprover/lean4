@@ -9,11 +9,21 @@ import Init.Lean.Elab.Tactic.Basic
 
 namespace Lean
 namespace Elab
+
 namespace Term
 
+def mkTacticMVar (ref : Syntax) (type : Expr) (tacticCode : Syntax) : TermElabM Expr := do
+mvar ← mkFreshExprMVar ref type MetavarKind.synthetic;
+let mvarId := mvar.mvarId!;
+registerSyntheticMVar ref mvarId $ SyntheticMVarKind.tactic tacticCode;
+pure mvar
+
 @[builtinTermElab tacticBlock] def elabTacticBlock : TermElab :=
-fun stx _ =>
-  throwError stx ("not implemented yet " ++ stx)
+fun stx expectedType? =>
+  match expectedType? with
+  | some expectedType => mkTacticMVar stx expectedType (stx.getArg 1)
+  | none => throwError stx ("invalid tactic block, expected type has not been provided")
+
 
 end Term
 

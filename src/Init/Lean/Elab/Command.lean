@@ -9,6 +9,7 @@ import Init.Lean.Elab.Log
 import Init.Lean.Elab.ResolveName
 import Init.Lean.Elab.Term
 import Init.Lean.Elab.TermBinders
+import Init.Lean.Elab.SynthesizeSyntheticMVars
 
 namespace Lean
 namespace Elab

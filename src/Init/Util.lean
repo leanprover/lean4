@@ -26,14 +26,14 @@ f ()
 unsafe def unsafeCast {α : Type u} {β : Type v} [inh : @& Inhabited β] (a : α) : β := arbitrary _
 
 @[neverExtract, extern "lean_panic_fn"]
-constant panic {α : Type u} [Inhabited α] (msg : String) : α := arbitrary _
+constant panic {α : Sort u} [Inhabited α] (msg : String) : α := arbitrary _
 
 @[noinline] private def mkPanicMessage (modName : String) (line col : Nat) (msg : String) : String :=
 "PANIC at " ++ modName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg
 
-@[neverExtract, inline] def panicWithPos {α : Type u} [Inhabited α] (modName : String) (line col : Nat) (msg : String) : α :=
+@[neverExtract, inline] def panicWithPos {α : Sort u} [Inhabited α] (modName : String) (line col : Nat) (msg : String) : α :=
 panic (mkPanicMessage modName line col msg)
 
 -- TODO: should be a macro
-@[neverExtract, noinline, nospecialize] def unreachable! {α : Type u} [Inhabited α] : α :=
+@[neverExtract, noinline, nospecialize] def unreachable! {α : Sort u} [Inhabited α] : α :=
 panic! "unreachable"

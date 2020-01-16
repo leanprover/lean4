@@ -1,0 +1,72 @@
+> 9
+loop
+loop
+loop
+loop
+loop
+loop
+loop
+loop
+found
+[9, 1, 2, 3, 4, 5, 6, 7, 8, 10]
+10
+loop
+loop
+loop
+loop
+loop
+loop
+loop
+loop
+loop
+found
+[10, 9, 1, 2, 3, 4, 5, 6, 7, 8]
+10
+found
+[10, 9, 1, 2, 3, 4, 5, 6, 7, 8]
+10
+found
+[10, 9, 1, 2, 3, 4, 5, 6, 7, 8]
+10
+found
+[10, 9, 1, 2, 3, 4, 5, 6, 7, 8]
+9
+loop
+found
+[9, 10, 1, 2, 3, 4, 5, 6, 7, 8]
+10
+loop
+found
+[10, 9, 1, 2, 3, 4, 5, 6, 7, 8]
+10
+found
+[10, 9, 1, 2, 3, 4, 5, 6, 7, 8]
+5
+loop
+loop
+loop
+loop
+loop
+loop
+found
+[5, 10, 9, 1, 2, 3, 4, 6, 7, 8]
+10
+loop
+found
+[10, 5, 9, 1, 2, 3, 4, 6, 7, 8]
+10
+found
+[10, 5, 9, 1, 2, 3, 4, 6, 7, 8]
+10
+found
+[10, 5, 9, 1, 2, 3, 4, 6, 7, 8]
+9
+loop
+loop
+found
+[9, 10, 5, 1, 2, 3, 4, 6, 7, 8]
+10
+loop
+found
+[10, 9, 5, 1, 2, 3, 4, 6, 7, 8]
+([(some 10), (some 10), (some 10), (some 10), (some 9), (some 10), (some 10), (some 5), (some 10), (some 10), (some 10), (some 9), (some 10)], (some 9))

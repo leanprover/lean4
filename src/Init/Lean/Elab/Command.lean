@@ -483,11 +483,6 @@ fun n => do
   else
     elabOpenRenaming body
 
-/- We just ignore Lean3 notation declaration commands. -/
-@[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()
-@[builtinCommandElab «reserve»] def elabReserve : CommandElab := fun _ => pure ()
-@[builtinCommandElab «notation»] def elabNotation : CommandElab := fun _ => pure ()
-
 @[builtinCommandElab «variable»] def elabVariable : CommandElab :=
 fun n => do
   -- `variable` bracktedBinder

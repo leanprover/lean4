@@ -1,26 +1,15 @@
-import Init.Lean
-
-open Lean
-open Lean.Parser
-open Lean.Elab
-open Lean.Elab.Command
-
 abbrev Set (α : Type) := α → Prop
 axiom setOf {α : Type} : (α → Prop) → Set α
 axiom mem {α : Type} : α → Set α → Prop
 axiom univ {α : Type} : Set α
 axiom Union {α : Type} : Set (Set α) → Set α
 
-namespace Lean.Parser.Term
-@[termParser] def mem := tparser! infixL " ∈ " 100
-end Lean.Parser.Term
-namespace Lean.Elab.Term
-@[termElab mem] def elabMem : TermElab := elabInfixOp `mem
-end Lean.Elab.Term
-
-
 new_frontend
-open Lean.Parser
+
+syntax term " ∈ ":100 term:99 : term
+
+macro
+| `($x ∈ $s) => `(mem $x $s)
 
 syntax "{" term " | " term "}" : term
 

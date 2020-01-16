@@ -25,28 +25,61 @@ else if ds.size == 1 then
 else
   ds.foldlFromM (fun r d => `(ParserDescr.andthen $r $d)) (ds.get! 0) 1
 
-partial def toParserDescr : Syntax → TermElabM Syntax
+/- The translator from `syntax` to `ParserDescr` syntax uses the following modes -/
+inductive ToParserDescrMode
+| anyCat -- Node kind `Lean.Parser.Syntax.cat` is allowed for any category
+| noCat  -- Node kind `Lean.Parser.Syntax.cat` is not allowed for any category
+| toPushLeading (catName : Name) -- Node kind `Lean.Parser.Syntax.cat` is allowed if the category is `catName`, and it is translated into `ParserDescr.pushLeading`
+
+abbrev ToParserDescrM := ReaderT ToParserDescrMode (StateT Bool TermElabM)
+private def getMode : ToParserDescrM ToParserDescrMode := read
+private def markAsTrailingParser : ToParserDescrM Unit := set true
+
+@[inline] private def withAnyIfNotFirst {α} (first : Bool) (x : ToParserDescrM α) : ToParserDescrM α :=
+fun mode => match mode, first with
+  | mode, true  => x mode
+  | _,    false => x ToParserDescrMode.anyCat
+
+@[inline] private def withNoPushLeading {α} (x : ToParserDescrM α) : ToParserDescrM α :=
+fun mode => match mode with
+  | ToParserDescrMode.toPushLeading _ => x ToParserDescrMode.noCat
+  | mode                              => x mode
+
+partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
 | stx =>
   let kind := stx.getKind;
   if kind == nullKind then do
-     args ← stx.getArgs.mapM toParserDescr;
-     mkParserSeq args
+     args ← stx.getArgs.mapIdxM $ fun i arg => withAnyIfNotFirst (i == 0) (toParserDescrAux arg);
+     liftM $ mkParserSeq args
   else if kind == choiceKind then do
-    toParserDescr (stx.getArg 0)
+    toParserDescrAux (stx.getArg 0)
   else if kind == `Lean.Parser.Syntax.paren then
-    toParserDescr (stx.getArg 1)
+    toParserDescrAux (stx.getArg 1)
   else if kind == `Lean.Parser.Syntax.cat then do
     let cat : Name := stx.getIdAt 0;
-    let rbp : Nat  := (getOptNum (stx.getArg 1)).getD 0;
-    env ← getEnv;
-    unless (Parser.isParserCategory env cat) $ throwError (stx.getArg 3) ("unknown category '" ++ cat ++ "'");
-    `(ParserDescr.parser $(quote cat) $(quote rbp))
+    let rbp? : Option Nat  := getOptNum (stx.getArg 1);
+    env ← liftM getEnv;
+    unless (Parser.isParserCategory env cat) $ liftM $ throwError (stx.getArg 3) ("unknown category '" ++ cat ++ "'");
+    mode ← getMode;
+    match mode with
+    | ToParserDescrMode.toPushLeading cat' =>
+      if cat == cat' then do
+        unless rbp?.isNone $ liftM $ throwError (stx.getArg 1) ("invalid occurrence of ':<num>' modifier in head");
+        markAsTrailingParser; -- mark as trailing par
+        `(ParserDescr.pushLeading)
+      else
+        liftM $ throwError (stx.getArg 3) ("invalid occurrence of '" ++ cat ++ "', '" ++ cat' ++ "', atom, or literal expected")
+    | ToParserDescrMode.anyCat =>
+      let rbp := rbp?.getD 0;
+      `(ParserDescr.parser $(quote cat) $(quote rbp))
+    | ToParserDescrMode.noCat  =>
+      liftM $ throwError (stx.getArg 3) ("invalid occurrence of '" ++ cat ++ "', atom or literal expected")
   else if kind == `Lean.Parser.Syntax.atom then do
     match (stx.getArg 0).isStrLit? with
     | some atom =>
       let rbp : Option Nat  := getOptNum (stx.getArg 1);
       `(ParserDescr.symbol $(quote atom) $(quote rbp))
-    | none => throwUnsupportedSyntax
+    | none => liftM throwUnsupportedSyntax
   else if kind == `Lean.Parser.Syntax.num then
     `(ParserDescr.num)
   else if kind == `Lean.Parser.Syntax.str then
@@ -56,35 +89,41 @@ partial def toParserDescr : Syntax → TermElabM Syntax
   else if kind == `Lean.Parser.Syntax.ident then
     `(ParserDescr.ident)
   else if kind == `Lean.Parser.Syntax.try then do
-    d ← toParserDescr $ stx.getArg 1;
+    d ← withNoPushLeading $ toParserDescrAux (stx.getArg 1);
     `(ParserDescr.try $d)
   else if kind == `Lean.Parser.Syntax.lookahead then do
-    d ← toParserDescr $ stx.getArg 1;
+    d ← withNoPushLeading $ toParserDescrAux (stx.getArg 1);
     `(ParserDescr.lookahead $d)
   else if kind == `Lean.Parser.Syntax.optional then do
-    d ← toParserDescr $ stx.getArg 1;
+    d ← withNoPushLeading $ toParserDescrAux (stx.getArg 1);
     `(ParserDescr.optional $d)
   else if kind == `Lean.Parser.Syntax.sepBy then do
-    d₁ ← toParserDescr $ stx.getArg 1;
-    d₂ ← toParserDescr $ stx.getArg 2;
+    d₁ ← withNoPushLeading $ toParserDescrAux (stx.getArg 1);
+    d₂ ← withNoPushLeading $ toParserDescrAux (stx.getArg 2);
     `(ParserDescr.sepBy $d₁ $d₂)
   else if kind == `Lean.Parser.Syntax.sepBy1 then do
-    d₁ ← toParserDescr $ stx.getArg 1;
-    d₂ ← toParserDescr $ stx.getArg 2;
+    d₁ ← withNoPushLeading $ toParserDescrAux (stx.getArg 1);
+    d₂ ← withNoPushLeading $ toParserDescrAux (stx.getArg 2);
     `(ParserDescr.sepBy1 $d₁ $d₂)
   else if kind == `Lean.Parser.Syntax.many then do
-    d ← toParserDescr $ stx.getArg 0;
+    d ← withNoPushLeading $ toParserDescrAux (stx.getArg 0);
     `(ParserDescr.many $d)
   else if kind == `Lean.Parser.Syntax.many1 then do
-    d ← toParserDescr $ stx.getArg 0;
+    d ← withNoPushLeading $ toParserDescrAux (stx.getArg 0);
     `(ParserDescr.many1 $d)
   else if kind == `Lean.Parser.Syntax.orelse then do
-    d₁ ← toParserDescr $ stx.getArg 0;
-    d₂ ← toParserDescr $ stx.getArg 2;
+    d₁ ← withNoPushLeading $ toParserDescrAux (stx.getArg 0);
+    d₂ ← withNoPushLeading $ toParserDescrAux (stx.getArg 2);
     `(ParserDescr.orelse $d₁ $d₂)
   else
-    throwError stx ("ERROR " ++ toString stx)
-    -- throwUnsupportedSyntax
+    liftM $ throwUnsupportedSyntax
+
+/--
+  Given a `stx` of category `syntax`, return a pair `(newStx, trailingParser)`,
+  where `newStx` is of category `term`. After elaboration, `newStx` should have type
+  `TrailingParserDescr` if `trailingParser == true`, and `ParserDescr` otherwise. -/
+def toParserDescr (stx : Syntax) (catName : Name) : TermElabM (Syntax × Bool) :=
+(toParserDescrAux stx (ToParserDescrMode.toPushLeading catName)).run false
 
 end Term
 
@@ -116,8 +155,8 @@ fun stx => do
   unless (Parser.isParserCategory env cat) $ throwError (stx.getArg 4) ("unknown category '" ++ cat ++ "'");
   kind ← elabKind (stx.getArg 1) cat;
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser");
-  type ← `(Lean.ParserDescr);
-  val  ← runTermElabM none $ fun _ => Term.toParserDescr (stx.getArg 2);
+  (val, trailingParser) ← runTermElabM none $ fun _ => Term.toParserDescr (stx.getArg 2) cat;
+  type ← if trailingParser then `(Lean.TrailingParserDescr) else `(Lean.ParserDescr);
   -- TODO: meaningful, unhygienic def name for selective parser `open`ing?
   d ← `(@[$catParserId:ident] def myParser : $type := ParserDescr.node $(quote kind) $val);
   trace `Elab stx $ fun _ => d;

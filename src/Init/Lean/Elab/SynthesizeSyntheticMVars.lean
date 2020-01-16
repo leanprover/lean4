@@ -56,18 +56,18 @@ val ← instantiateMVars ref (mkMVar mvarId);
 pure $ !val.getAppFn.isMVar
 
 /-- Try to synthesize the given pending synthetic metavariable. -/
-private def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (postponeOnError : Bool) : TermElabM Bool :=
+private def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool :=
 match mvarSyntheticDecl.kind with
 | SyntheticMVarKind.typeClass            => synthesizePendingInstMVar mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
 -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
 | SyntheticMVarKind.withDefault _        => checkWithDefault mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
 | SyntheticMVarKind.postponed macroStack => resumePostponed macroStack mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId postponeOnError
-| SyntheticMVarKind.tactic tacticCode    => throwError tacticCode "not implemented yet"
+| SyntheticMVarKind.tactic tacticCode    => runTactic mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId tacticCode
 
 /--
   Try to synthesize the current list of pending synthetic metavariables.
   Return `true` if at least one of them was synthesized. -/
-private def synthesizeSyntheticMVarsStep (postponeOnError : Bool) : TermElabM Bool := do
+private def synthesizeSyntheticMVarsStep (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool := do
 ctx ← read;
 traceAtCmdPos `Elab.resuming $ fun _ =>
   fmt "resuming synthetic metavariables, mayPostpone: " ++ fmt ctx.mayPostpone ++ ", postponeOnError: " ++ toString postponeOnError;
@@ -81,7 +81,7 @@ modify $ fun s => { syntheticMVars := [], .. s };
 -- It would not be incorrect to use `filterM`.
 remainingSyntheticMVars ← syntheticMVars.filterRevM $ fun mvarDecl => do {
    trace `Elab.postpone mvarDecl.ref $ fun _ => "resuming ?" ++ mvarDecl.mvarId;
-   succeeded ← synthesizeSyntheticMVar mvarDecl postponeOnError;
+   succeeded ← synthesizeSyntheticMVar mvarDecl postponeOnError runTactics;
    trace `Elab.postpone mvarDecl.ref $ fun _ => if succeeded then fmt "succeeded" else fmt "not ready yet";
    pure $ !succeeded
 };
@@ -117,6 +117,12 @@ s.syntheticMVars.forM $ fun mvarSyntheticDecl =>
         "failed to create type class instance for " ++ indentExpr mvarDecl.type
   | _ => unreachable! -- TODO handle other cases.
 
+private def getSomeSynthethicMVarsRef : TermElabM Syntax := do
+s ← get;
+match s.syntheticMVars.find? $ fun (mvarDecl : SyntheticMVarDecl) => !mvarDecl.ref.getPos.isNone with
+| some mvarDecl => pure mvarDecl.ref
+| none          => pure Syntax.missing
+
 /--
   Main loop for `synthesizeSyntheticMVars.
   It keeps executing `synthesizeSyntheticMVarsStep` while progress is being made.
@@ -126,36 +132,34 @@ s.syntheticMVars.forM $ fun mvarSyntheticDecl =>
   a "best option". If, after that, we still haven't made progress, we report "stuck" errors. -/
 private partial def synthesizeSyntheticMVarsAux (mayPostpone := true) : Unit → TermElabM Unit
 | _ => do
-  s ← get;
-  if s.syntheticMVars.isEmpty then pure ()
-  else do
-    progress ← synthesizeSyntheticMVarsStep false;
-    if progress then synthesizeSyntheticMVarsAux ()
-    else if mayPostpone then pure ()
-    else condM synthesizeUsingDefault (synthesizeSyntheticMVarsAux ()) $ do
-      /- Resume pending metavariables with "elaboration postponement" disabled.
-         We postpone elaboration errors in this step by setting `postponeOnError := true`.
-         Example:
-         ```
-         #check let x := ⟨1, 2⟩; Prod.fst x
-         ```
-         The term `⟨1, 2⟩` can't be elaborated because the expected type is not know.
-         The `x` at `Prod.fst x` is not elaborated because the type of `x` is not known.
-         When we execute the following step with "elaboration postponement" disabled,
-         the elaborator fails at `⟨1, 2⟩` and postpones it, and succeeds at `x` and learns
-         that its type must be of the form `Prod ?α ?β`.
+  let try (x : TermElabM Bool) (k : TermElabM Unit) : TermElabM Unit := condM x (synthesizeSyntheticMVarsAux ()) k;
+  ref ← getSomeSynthethicMVarsRef;
+  withIncRecDepth ref $ do
+    s ← get;
+    unless s.syntheticMVars.isEmpty $ do
+      try (synthesizeSyntheticMVarsStep false false) $
+      unless mayPostpone $ do
+        try synthesizeUsingDefault $
+        /- Resume pending metavariables with "elaboration postponement" disabled.
+           We postpone elaboration errors in this step by setting `postponeOnError := true`.
+           Example:
+           ```
+           #check let x := ⟨1, 2⟩; Prod.fst x
+           ```
+           The term `⟨1, 2⟩` can't be elaborated because the expected type is not know.
+           The `x` at `Prod.fst x` is not elaborated because the type of `x` is not known.
+           When we execute the following step with "elaboration postponement" disabled,
+           the elaborator fails at `⟨1, 2⟩` and postpones it, and succeeds at `x` and learns
+           that its type must be of the form `Prod ?α ?β`.
 
-         Recall that we postponed `x` at `Prod.fst x` because its type it is not known.
-         We the type of `x` may learn later its type and it may contain implicit and/or auto arguments.
-         By disabling postponement, we are essentially giving up the opportunity of learning `x`s type
-         and assume it does not have implict and/or auto arguments. -/
-      let postponeOnError := true;
-      progress ← withoutPostponing (synthesizeSyntheticMVarsStep postponeOnError);
-      if progress then synthesizeSyntheticMVarsAux ()
-      else do
-        progress ← withoutPostponing (synthesizeSyntheticMVarsStep false);
-        if progress then synthesizeSyntheticMVarsAux ()
-        else reportStuckSyntheticMVars
+           Recall that we postponed `x` at `Prod.fst x` because its type it is not known.
+           We the type of `x` may learn later its type and it may contain implicit and/or auto arguments.
+           By disabling postponement, we are essentially giving up the opportunity of learning `x`s type
+           and assume it does not have implict and/or auto arguments. -/
+        try (withoutPostponing (synthesizeSyntheticMVarsStep true  false)) $
+        try (withoutPostponing (synthesizeSyntheticMVarsStep false false)) $
+        try (synthesizeSyntheticMVarsStep false true) $
+        reportStuckSyntheticMVars
 
 /--
   Try to process pending synthetic metavariables. If `mayPostpone == false`,

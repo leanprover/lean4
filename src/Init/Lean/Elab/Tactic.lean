@@ -24,6 +24,10 @@ fun stx expectedType? =>
   | some expectedType => mkTacticMVar stx expectedType (stx.getArg 1)
   | none => throwError stx ("invalid tactic block, expected type has not been provided")
 
+def runTactic (ref : Syntax) (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Bool :=
+-- TODO
+pure false
+
 
 end Term
 

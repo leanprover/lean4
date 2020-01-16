@@ -113,7 +113,7 @@ def addContext (msg : MessageData) : TermElabM MessageData := do
 env ← getEnv; mctx ← getMCtx; lctx ← getLCtx; opts ← getOptions;
 pure (MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } msg)
 
-instance TermElabM.MonadLog : MonadLog TermElabM :=
+instance monadLog : MonadLog TermElabM :=
 { getCmdPos   := do ctx ← read; pure ctx.cmdPos,
   getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
@@ -146,7 +146,7 @@ pure ctx.currMacroScope
 fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }));
 adaptReader (fun (ctx : Context) => { ctx with currMacroScope := fresh }) x
 
-instance TermElabM.MonadQuotation : MonadQuotation TermElabM := {
+instance monadQuotation : MonadQuotation TermElabM := {
   getCurrMacroScope   := Term.getCurrMacroScope,
   withFreshMacroScope := @Term.withFreshMacroScope
 }
@@ -469,7 +469,7 @@ private def elabTermUsing (s : State) (stx : Syntax) (expectedType? : Option Exp
 | (elabFn::elabFns) => catch (elabFn stx expectedType?)
   (fun ex => match ex with
     | Exception.ex (Elab.Exception.error errMsg)    => if errToSorry then exceptionToSorry stx errMsg expectedType? else throw ex
-    | Exception.ex Elab.Exception.unsupportedSyntax => elabTermUsing elabFns
+    | Exception.ex Elab.Exception.unsupportedSyntax => do set s; elabTermUsing elabFns
     | Exception.postpone          =>
       if catchExPostpone then do
         /- If `elab` threw `Exception.postpone`, we reset any state modifications.

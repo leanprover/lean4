@@ -175,14 +175,14 @@ ctx ← read; s ← get;
 when (ctx.currRecDepth == s.maxRecDepth) $ throwError ref maxRecDepthErrorMessage;
 adaptReader (fun (ctx : Context) => { currRecDepth := ctx.currRecDepth + 1, .. ctx }) x
 
-private def elabCommandUsing (stx : Syntax) : List CommandElab → CommandElabM Unit
+private def elabCommandUsing (s : State) (stx : Syntax) : List CommandElab → CommandElabM Unit
 | []                => do
   let refFmt := stx.prettyPrint;
   throwError stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
 | (elabFn::elabFns) => catch (elabFn stx)
   (fun ex => match ex with
     | Exception.error _           => throw ex
-    | Exception.unsupportedSyntax => elabCommandUsing elabFns)
+    | Exception.unsupportedSyntax => do set s; elabCommandUsing elabFns)
 
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline] def withMacroExpansion {α} (stx : Syntax) (x : CommandElabM α) : CommandElabM α :=
@@ -201,7 +201,7 @@ partial def elabCommand : Syntax → CommandElabM Unit
       let table := (commandElabAttribute.ext.getState s.env).table;
       let k := stx.getKind;
       match table.find? k with
-      | some elabFns => elabCommandUsing stx elabFns
+      | some elabFns => elabCommandUsing s stx elabFns
       | none         => do
         scp ← getCurrMacroScope;
         env ← getEnv;

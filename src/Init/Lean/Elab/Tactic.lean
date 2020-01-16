@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Init.Lean.Elab.Term
+import Init.Lean.Elab.Tactic.Basic
 
 namespace Lean
 namespace Elab

@@ -1083,6 +1083,20 @@ fun _ c s =>
 @[inline] def rawIdentNoAntiquot {k : ParserKind} : Parser k :=
 { fn := fun _ => rawIdentFn }
 
+def identEqFn {k : ParserKind} (id : Name) : ParserFn k :=
+fun _ c s =>
+  let iniPos := s.pos;
+  let s      := tokenFn c s;
+  if s.hasError then
+    s.mkErrorAt "identifier" iniPos
+  else match s.stxStack.back with
+    | Syntax.ident _ _ val _ => if val != id then s.mkErrorAt ("expected identifier '" ++ toString id ++ "'") iniPos else s
+    | _ => s.mkErrorAt "identifier" iniPos
+
+@[inline] def identEq {k : ParserKind} (id : Name) : Parser k :=
+{ fn   := identEqFn id,
+  info := mkAtomicInfo "ident" }
+
 def quotedSymbolFn {k : ParserKind} : ParserFn k :=
 nodeFn `quotedSymbol (andthenFn (andthenFn (chFn '`') (rawFn (fun _ => takeUntilFn (fun c => c == '`')))) (chFn '`' true))
 
@@ -1364,6 +1378,19 @@ fun rbp ctx s => categoryParserFnExtension.getState ctx.env catName rbp ctx s
 
 def categoryParser {k} (catName : Name) (rbp : Nat) : Parser k :=
 { fn := fun _ => categoryParserFn catName rbp }
+
+def categoryParserOfStackFn (offset : Nat) : ParserFn leading :=
+fun rbp ctx s =>
+  let stack := s.stxStack;
+  if stack.size < offset + 1 then
+    s.mkUnexpectedError ("failed to determine parser category using syntax stack, stack is too small")
+  else
+    match stack.get! (stack.size - offset - 1) with
+    | Syntax.ident _ _ catName _ => categoryParserFn catName rbp ctx s
+    | _ => s.mkUnexpectedError ("failed to determine parser category using syntax stack, the specified element on the stack is not an identifier")
+
+def categoryParserOfStack {k} (offset : Nat) (rbp : Nat := 0) : Parser k :=
+{ fn := fun _ => categoryParserOfStackFn offset rbp }
 
 def mkBuiltinTokenTable : IO (IO.Ref TokenTable) := IO.mkRef {}
 @[init mkBuiltinTokenTable] constant builtinTokenTable : IO.Ref TokenTable := arbitrary _

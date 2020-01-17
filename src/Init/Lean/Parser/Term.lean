@@ -9,6 +9,9 @@ import Init.Lean.Parser.Level
 
 namespace Lean
 namespace Parser
+
+def darrow : Parser := unicodeSymbol "⇒" "=>"
+
 namespace Term
 
 /- Helper functions for defining simple parsers -/
@@ -53,7 +56,7 @@ def haveAssign := parser! " := " >> termParser
 @[builtinTermParser] def «have» := parser! "have " >> optIdent >> termParser >> (haveAssign <|> fromTerm) >> "; " >> termParser
 @[builtinTermParser] def «suffices» := parser! "suffices " >> optIdent >> termParser >> fromTerm >> "; " >> termParser
 @[builtinTermParser] def «show»     := parser! "show " >> termParser >> fromTerm
-@[builtinTermParser] def «fun»      := parser! unicodeSymbol "λ" "fun" >> many1 (termParser appPrec) >> unicodeSymbol "⇒" "=>" >> termParser
+@[builtinTermParser] def «fun»      := parser! unicodeSymbol "λ" "fun" >> many1 (termParser appPrec) >> darrow >> termParser
 def structInstField  := parser! ident >> " := " >> termParser
 def structInstSource := parser! ".." >> optional termParser
 @[builtinTermParser] def structInst := parser! symbol "{" appPrec >> optional (try (ident >> " . ")) >> sepBy (structInstField <|> structInstSource) ", " true >> "}"
@@ -75,7 +78,7 @@ def bracktedBinder (requireType := false) := explicitBinder requireType <|> impl
 @[builtinTermParser] def depArrow := parser! bracktedBinder true >> unicodeSymbolCheckPrec " → " " -> " 25 >> termParser
 def simpleBinder := parser! many1 binderIdent
 @[builtinTermParser] def «forall» := parser! unicodeSymbol "∀" "forall" >> many1 (simpleBinder <|> bracktedBinder) >> ", " >> termParser
-def matchAlt := parser! " | " >> sepBy1 termParser ", " >> unicodeSymbol "⇒" "=>" >> termParser
+def matchAlt := parser! " | " >> sepBy1 termParser ", " >> darrow >> termParser
 @[builtinTermParser] def «match» := parser! "match " >> sepBy1 termParser ", " >> optType >> " with " >> many1Indent matchAlt "'match' alternatives must be indented"
 @[builtinTermParser] def «nomatch»  := parser! "nomatch " >> termParser
 @[builtinTermParser] def «parser!»  := parser! "parser! " >> termParser

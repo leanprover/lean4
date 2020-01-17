@@ -62,3 +62,10 @@ begin
   intro2;
   assumption
 end
+
+-- set_option trace.Elab true
+-- set_option syntaxMaxDepth 100
+
+-- macro intro3 : tactic => `(intro; intro)
+-- macro check2 x: term : command => `(#check $x #check $x)
+-- macro foo x: term ", " y: term : term => `($x + $y + $x)

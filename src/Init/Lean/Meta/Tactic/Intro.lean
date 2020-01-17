@@ -62,11 +62,11 @@ def introN (mvarId : MVarId) (n : Nat) (givenNames : List Name := []) : MetaM (A
 introNCore mvarId n mkAuxName givenNames
 
 def intro (mvarId : MVarId) (name : Name) : MetaM (Expr × MVarId) := do
-(fvars, mvarid) ← introN mvarId 1 [name];
+(fvars, mvarId) ← introN mvarId 1 [name];
 pure (fvars.get! 0, mvarId)
 
 def intro1 (mvarId : MVarId) : MetaM (Expr × MVarId) := do
-(fvars, mvarid) ← introN mvarId 1 [];
+(fvars, mvarId) ← introN mvarId 1 [];
 pure (fvars.get! 0, mvarId)
 
 end Meta

@@ -8,7 +8,7 @@ new_frontend
 
 syntax term " ∈ ":100 term:99 : term
 
-macro
+macro_rules
 | `($x ∈ $s) => `(mem $x $s)
 
 syntax "{" term " | " term "}" : term
@@ -16,14 +16,15 @@ syntax "{" term " | " term "}" : term
 -- set_option trace.Elab true
 -- set_option syntaxMaxDepth 6
 
-macro
+macro_rules
 | `({$x ∈ $s | $p}) => `(setOf (fun $x => $x ∈ $s ∧ $p))
 | `({$x ≤ $e | $p}) => `(setOf (fun $x => $x ≤ $e ∧ $p))
 | `({$b      | $r}) => `(setOf (fun $b => $r))
 
 syntax "⋃ " term ", " term : term
 
-macro | `(⋃ $b, $r) => `(Union {$b | $r})
+macro_rules
+| `(⋃ $b, $r) => `(Union {$b | $r})
 
 #check ⋃ x,              x = x
 #check ⋃ (x : Set Unit), x = x
@@ -31,6 +32,7 @@ macro | `(⋃ $b, $r) => `(Union {$b | $r})
 
 syntax "#check2" term : command
 
-macro | `(#check2 $e) => `(#check $e #check $e)
+macro_rules
+| `(#check2 $e) => `(#check $e #check $e)
 
 #check2 1

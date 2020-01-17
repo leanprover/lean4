@@ -54,7 +54,7 @@ end
 
 syntax "intro2" : tactic
 
-macro
+macro_rules
 | `(tactic| intro2) => `(tactic| intro; intro )
 
 theorem simple3 (x y : Nat) : x = x → x = y → x = y :=

@@ -154,7 +154,7 @@ else do
   currNamespace ← getCurrNamespace;
   pure (currNamespace ++ kind)
 
-@[builtinCommandElab syntax] def elabSyntax : CommandElab :=
+@[builtinCommandElab «syntax»] def elabSyntax : CommandElab :=
 fun stx => do
   env ← getEnv;
   let cat := stx.getIdAt 4;
@@ -168,9 +168,9 @@ fun stx => do
   trace `Elab stx $ fun _ => d;
   withMacroExpansion stx $ elabCommand d
 
-@[builtinCommandElab macro] def elabMacro : CommandElab :=
+@[builtinCommandElab «macro_rules»] def elabMacro : CommandElab :=
 adaptExpander $ fun stx => match_syntax stx with
-| `(macro $alts*) => do
+| `(macro_rules $alts*) => do
   -- TODO: clean up with matchAlt quotation
   k ← match_syntax ((alts.get! 0).getArg 1).getArg 0 with
   | `(`($quot)) => pure quot.getKind
@@ -222,7 +222,7 @@ else
 
 @[builtinCommandElab «notation»] def elabNotation : CommandElab :=
 adaptExpander $ fun stx => match_syntax stx with
-| `(notation $items* := $rhs) => do
+| `(notation $items* => $rhs) => do
   -- build parser
   syntaxParts ← items.mapM expandNotationItemIntoSyntaxItem;
   let cat := mkIdentFrom stx `term;
@@ -235,7 +235,7 @@ adaptExpander $ fun stx => match_syntax stx with
   -- manually create hygienic kind name
   let kind := addMacroScope `myParser scp;
   let pat := Syntax.node kind patArgs;
-  `(syntax [$(mkIdentFrom stx kind)] $syntaxParts* : $cat macro | `($pat) => `($rhs))
+  `(syntax [$(mkIdentFrom stx kind)] $syntaxParts* : $cat macro_rules | `($pat) => `($rhs))
 | _ => throwUnsupportedSyntax
 
 end Command

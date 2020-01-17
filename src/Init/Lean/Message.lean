@@ -12,6 +12,7 @@ import Init.Lean.Syntax
 import Init.Lean.MetavarContext
 import Init.Lean.Environment
 import Init.Lean.Util.PPExt
+import Init.Lean.Util.PPGoal
 
 namespace Lean
 def mkErrorStringWithPos (fileName : String) (line col : Nat) (msg : String) : String :=
@@ -30,6 +31,7 @@ inductive MessageData
 | ofExpr      : Expr → MessageData
 | ofLevel     : Level → MessageData
 | ofName      : Name  → MessageData
+| ofGoal      : MVarId → MessageData
 /- `withContext ctx d` specifies the pretty printing context `(env, mctx, lctx, opts)` for the nested expressions in `d`. -/
 | withContext : MessageDataContext → MessageData → MessageData
 /- Lifted `Format.nest` -/
@@ -61,6 +63,8 @@ partial def formatAux : Option MessageDataContext → MessageData → Format
 | none,      ofSyntax s        => s.formatStx
 | none,      ofExpr e          => format (toString e)
 | some ctx,  ofExpr e          => ppExpr ctx.env ctx.mctx ctx.lctx ctx.opts e
+| none,      ofGoal mvarId     => "goal " ++ format (mkMVar mvarId)
+| some ctx,  ofGoal mvarId     => ppGoal ctx.env ctx.mctx ctx.lctx ctx.opts mvarId
 | _,         withContext ctx d => formatAux (some ctx) d
 | ctx,       tagged cls d      => Format.sbracket (format cls) ++ " " ++ formatAux ctx d
 | ctx,       nest n d          => Format.nest n (formatAux ctx d)

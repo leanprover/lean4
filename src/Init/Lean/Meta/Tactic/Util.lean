@@ -22,6 +22,13 @@ def getMVarType (mvarId : MVarId) : MetaM Expr := do
 mvarDecl ← getMVarDecl mvarId;
 pure mvarDecl.type
 
+def ppGoal (mvarId : MVarId) : MetaM Format := do
+env  ← getEnv;
+mctx ← getMCtx;
+lctx ← getLCtx;
+opts ← getOptions;
+pure $ ppGoal env mctx lctx opts mvarId
+
 @[init] private def regTraceClasses : IO Unit :=
 registerTraceClass `Meta.Tactic
 

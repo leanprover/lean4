@@ -21,9 +21,23 @@ categoryParser `tactic rbp
 
 namespace Tactic
 
+def underscoreFn {k : ParserKind} : ParserFn k :=
+fun a c s =>
+  let s   := symbolFn "_" a c s;
+  let stx := s.stxStack.back;
+  let s   := s.popSyntax;
+  s.pushSyntax $ mkIdentFrom stx `_
+
+@[inline] def underscore {k : ParserKind} : Parser k :=
+{ fn   := underscoreFn,
+  info := mkAtomicInfo "ident" }
+
+def ident' : Parser := ident <|> underscore
+
 def seq := parser! sepBy tacticParser "; " true
-@[builtinTacticParser] def «intro» := parser! nonReservedSymbol "intro " >> optional ident
-@[builtinTacticParser] def «intros» := parser! nonReservedSymbol "intros " >> many ident
+
+@[builtinTacticParser] def «intro» := parser! nonReservedSymbol "intro " >> optional ident'
+@[builtinTacticParser] def «intros» := parser! nonReservedSymbol "intros " >> many ident'
 @[builtinTacticParser] def «assumption» := parser! nonReservedSymbol "assumption"
 @[builtinTacticParser] def «apply» := parser! nonReservedSymbol "apply " >> termParser
 @[builtinTacticParser] def nestedTacticBlock := parser! "begin " >> seq >> "end"

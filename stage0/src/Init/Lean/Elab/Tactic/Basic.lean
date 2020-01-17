@@ -186,7 +186,7 @@ fun stx => liftMetaTactic stx $ fun mvarId => do Meta.assumption mvarId; pure []
 /-
 @[builtinTactic «intro»] def evalIntro : Tactic :=
 fun stx => match_syntax stx with
-  | `(tactic| intro) =>
+  | `(tactic| intro) => `(tactic| intro _) >>= evalTactic
 -/
 
 @[init] private def regTraceClasses : IO Unit := do

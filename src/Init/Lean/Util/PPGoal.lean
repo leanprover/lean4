@@ -43,6 +43,6 @@ match mctx.findDecl? mvarId with
     ([], none, Format.nil);
   let fmt := pushPending varNames type? fmt;
   let fmt := addLine fmt;
-  fmt ++ "⊢" ++ Format.nest indent (pp mvarDecl.type)
+  fmt ++ "⊢" ++ " " ++ Format.nest indent (pp mvarDecl.type)
 
 end Lean

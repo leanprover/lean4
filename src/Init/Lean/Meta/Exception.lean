@@ -7,6 +7,7 @@ prelude
 import Init.Lean.Environment
 import Init.Lean.MetavarContext
 import Init.Lean.Message
+import Init.Lean.Util.PPGoal
 
 namespace Lean
 namespace Meta
@@ -91,7 +92,9 @@ def toTraceMessageData : Exception → MessageData
 | notInstance i ctx               => mkCtx ctx $ `notInstance ++ " " ++ i
 | appBuilder op msg args ctx      => mkCtx ctx $ `appBuilder ++ " " ++ op ++ " " ++ args ++ " " ++ msg
 | synthInstance inst ctx          => mkCtx ctx $ `synthInstance ++ " " ++ inst
-| tactic tacName msg _ ctx        => mkCtx ctx $ `tacticFailure ++ " " ++ tacName ++ " " ++ msg
+| tactic tacName mvarId msg ctx   =>
+  mkCtx ctx $ `tacticFailure ++ " " ++ tacName ++ " " ++ msg ++ Format.line ++
+    ppGoal ctx.env ctx.mctx ctx.lctx ctx.opts mvarId
 | bug _ _                         => "internal bug" -- TODO improve
 | other s                         => s
 

@@ -33,32 +33,30 @@ export HasQuote (quote)
 instance Syntax.HasQuote : HasQuote Syntax := ⟨id⟩
 instance String.HasQuote : HasQuote String := ⟨fun s => Syntax.node `Lean.Parser.Term.str #[mkStxStrLit s]⟩
 instance Nat.HasQuote : HasQuote Nat := ⟨fun n => Syntax.node `Lean.Parser.Term.num #[mkStxNumLit $ toString n]⟩
+instance Substring.HasQuote : HasQuote Substring := ⟨fun s => mkCAppStx `_root_.String.toSubstring #[quote s.toString]⟩
 
 private def quoteName : Name → Syntax
-| Name.anonymous => Unhygienic.run `(_root_.Lean.Name.anonymous)
-| Name.str n s _ => Unhygienic.run `(_root_.Lean.mkNameStr $(quoteName n) $(quote s))
-| Name.num n i _ => Unhygienic.run `(_root_.Lean.mkNameNum $(quoteName n) $(quote i))
+| Name.anonymous => mkTermId `_root_.Lean.Name.anonymous
+| Name.str n s _ => mkCAppStx `_root_.Lean.mkNameStr #[quoteName n, quote s]
+| Name.num n i _ => mkCAppStx `_root_.Lean.mkNameNum #[quoteName n, quote i]
 
 instance Name.hasQuote : HasQuote Name := ⟨quoteName⟩
 
-private def appN (fn : Syntax) (args : Array Syntax) : Syntax :=
-args.foldl (fun fn arg => Unhygienic.run `($fn $arg)) fn
-
 instance Prod.hasQuote {α β : Type} [HasQuote α] [HasQuote β] : HasQuote (α × β) :=
-⟨fun ⟨a, b⟩ => Unhygienic.run `(_root_.Prod.mk $(quote a) $(quote b))⟩
+⟨fun ⟨a, b⟩ => mkCAppStx `_root_.Prod.mk #[quote a, quote b]⟩
 
 private def quoteList {α : Type} [HasQuote α] : List α → Syntax
-| [] =>      Unhygienic.run `(_root_.List.nil)
-| (x::xs) => Unhygienic.run `(_root_.List.cons $(quote x) $(quoteList xs))
+| []      => mkTermId `_root_.List.nil
+| (x::xs) => mkCAppStx `_root_.List.cons #[quote x, quoteList xs]
 
 instance List.hasQuote {α : Type} [HasQuote α] : HasQuote (List α) := ⟨quoteList⟩
 
 instance Array.hasQuote {α : Type} [HasQuote α] : HasQuote (Array α) :=
-⟨fun xs => let stx := quote xs.toList; Unhygienic.run `(_root_.List.toArray $stx)⟩
+⟨fun xs => mkCAppStx `_root_.List.toArray #[quote xs.toList]⟩
 
 private def quoteOption {α : Type} [HasQuote α] : Option α → Syntax
-| none     => Unhygienic.run `(_root_.Option.none)
-| (some x) => Unhygienic.run `(_root_.Option.some $(quote x))
+| none     => mkTermId `_root_.Option.none
+| (some x) => mkCAppStx `_root_.Option.some #[quote x]
 
 instance Option.hasQuote {α : Type} [HasQuote α] : HasQuote (Option α) := ⟨quoteOption⟩
 
@@ -108,7 +106,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
   let preresolved := resolveGlobalName env currNamespace openDecls val ++ preresolved;
   let val := quote val;
   -- `scp` is bound in stxQuot.expand
-  `(Syntax.ident none (String.toSubstring $(quote (toString rawVal))) (addMacroScope $val scp) $(quote preresolved))
+  `(Syntax.ident none $(quote rawVal) (addMacroScope $val scp) $(quote preresolved))
 -- if antiquotation, insert contents as-is, else recurse
 | stx@(Syntax.node k args) =>
   if isAntiquot stx then

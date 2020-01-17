@@ -233,7 +233,6 @@ lean_object* l_Lean_Parser_Command_strictInferMod___elambda__1(lean_object*, lea
 lean_object* l_Lean_Parser_Command_declId___closed__8;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_declValEqns___elambda__1___closed__2;
-extern lean_object* l_Lean_Parser_Term_matchAlt___elambda__1___closed__10;
 lean_object* l_Lean_Parser_Command_openRenamingItem___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Command_abbrev___closed__7;
 lean_object* l_Lean_Parser_tokenFn(lean_object*, lean_object*);
@@ -868,6 +867,7 @@ lean_object* l_Lean_Parser_Command_declModifiers___elambda__1___closed__1;
 extern lean_object* l_Lean_Parser_Term_explicitUniv___closed__1;
 lean_object* l_Lean_Parser_Command_open___closed__6;
 lean_object* l_Lean_Parser_Command_declModifiers___closed__12;
+extern lean_object* l_Lean_Parser_Term_matchAlt___elambda__1___closed__9;
 lean_object* l_Lean_Parser_Command_noncomputable___elambda__1___closed__9;
 lean_object* l_Lean_Parser_Command_attribute___closed__8;
 lean_object* l_Lean_Parser_Command_structureTk___elambda__1(lean_object*, lean_object*, lean_object*);
@@ -11346,7 +11346,7 @@ lean_dec(x_72);
 if (x_74 == 0)
 {
 lean_object* x_75; lean_object* x_76; 
-x_75 = l_Lean_Parser_Term_matchAlt___elambda__1___closed__10;
+x_75 = l_Lean_Parser_Term_matchAlt___elambda__1___closed__9;
 lean_inc(x_10);
 x_76 = l_Lean_Parser_ParserState_mkErrorsAt(x_68, x_75, x_10);
 x_19 = x_76;
@@ -11362,7 +11362,7 @@ else
 {
 lean_object* x_77; lean_object* x_78; 
 lean_dec(x_71);
-x_77 = l_Lean_Parser_Term_matchAlt___elambda__1___closed__10;
+x_77 = l_Lean_Parser_Term_matchAlt___elambda__1___closed__9;
 lean_inc(x_10);
 x_78 = l_Lean_Parser_ParserState_mkErrorsAt(x_68, x_77, x_10);
 x_19 = x_78;
@@ -11373,7 +11373,7 @@ else
 {
 lean_object* x_79; lean_object* x_80; 
 lean_dec(x_69);
-x_79 = l_Lean_Parser_Term_matchAlt___elambda__1___closed__10;
+x_79 = l_Lean_Parser_Term_matchAlt___elambda__1___closed__9;
 lean_inc(x_10);
 x_80 = l_Lean_Parser_ParserState_mkErrorsAt(x_68, x_79, x_10);
 x_19 = x_80;

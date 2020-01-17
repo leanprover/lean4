@@ -314,6 +314,7 @@ lean_object* l_Lean_Elab_Term_elabStr___closed__1;
 lean_object* l_Lean_Elab_Term_TermElabM_inhabited(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_mkInstMVar(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_declareBuiltinTermElab___closed__6;
+extern lean_object* l_Lean_Parser_darrow___elambda__1___rarg___closed__3;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_levelMVarToParam___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_getMVarDecl___boxed(lean_object*, lean_object*, lean_object*);
@@ -722,7 +723,6 @@ lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Term_3__fr
 lean_object* l_Lean_Elab_Term_tryPostponeIfNoneOrMVar___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Init_Lean_Elab_Term_4__hasCDot___main___closed__1;
 lean_object* lean_uint32_to_nat(uint32_t);
-extern lean_object* l_Lean_Parser_Term_fun___elambda__1___closed__10;
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabBadCDot___closed__3;
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabNum___closed__3;
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4;
@@ -10493,7 +10493,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Parser_Term_fun___elambda__1___closed__10;
+x_2 = l_Lean_Parser_darrow___elambda__1___rarg___closed__3;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);

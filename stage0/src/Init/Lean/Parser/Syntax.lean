@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Init.Lean.Parser.Command
+import Init.Lean.Parser.Tactic
 
 namespace Lean
 namespace Parser
@@ -16,13 +17,15 @@ registerBuiltinParserAttribute `builtinSyntaxParser `syntax leadingIdentAsSymbol
 @[inline] def syntaxParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
 categoryParser `syntax rbp
 
-namespace Syntax
 def maxPrec := parser! nonReservedSymbol "max" true
 def precedenceLit : Parser := numLit <|> maxPrec
 def «precedence» := parser! ":" >> precedenceLit
+def optPrecedence := optional (try «precedence»)
+
+namespace Syntax
 @[builtinSyntaxParser] def paren     := parser! "(" >> many1 syntaxParser >> ")"
-@[builtinSyntaxParser] def cat       := parser! ident >> optional (try «precedence»)
-@[builtinSyntaxParser] def atom      := parser! strLit >> optional (try «precedence»)
+@[builtinSyntaxParser] def cat       := parser! ident >> optPrecedence
+@[builtinSyntaxParser] def atom      := parser! strLit >> optPrecedence
 @[builtinSyntaxParser] def num       := parser! nonReservedSymbol "num"
 @[builtinSyntaxParser] def str       := parser! nonReservedSymbol "str"
 @[builtinSyntaxParser] def char      := parser! nonReservedSymbol "char"
@@ -41,7 +44,7 @@ end Syntax
 
 namespace Command
 
-def quotedSymbolPrec := parser! quotedSymbol >> optional Syntax.precedence
+def quotedSymbolPrec := parser! quotedSymbol >> optPrecedence
 def «prefix»   := parser! "prefix"
 def «infix»    := parser! "infix"
 def «infixl»   := parser! "infixl"
@@ -51,17 +54,22 @@ def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «p
 -- TODO delete reserve
 @[builtinCommandParser] def «reserve»  := parser! "reserve " >> mixfixKind >> quotedSymbolPrec
 def mixfixSymbol := quotedSymbolPrec <|> unquotedSymbol
-@[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> mixfixSymbol >> unicodeSymbol "⇒" "=>" >> termParser
-def strLitPrec := parser! strLit >> optional Syntax.precedence
-def identPrec  := parser! ident >> optional Syntax.precedence
+@[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> mixfixSymbol >> darrow >> termParser
+def strLitPrec := parser! strLit >> optPrecedence
+def identPrec  := parser! ident >> optPrecedence
 
-@[builtinCommandParser] def «notation»    := parser! "notation" >> many (strLitPrec <|> quotedSymbolPrec <|> identPrec) >> unicodeSymbol "⇒" "=>" >> termParser
+@[builtinCommandParser] def «notation»    := parser! "notation" >> many (strLitPrec <|> quotedSymbolPrec <|> identPrec) >> darrow >> termParser
 @[builtinCommandParser] def «macro_rules» := parser! "macro_rules" >> many1Indent Term.matchAlt "'match' alternatives must be indented"
 @[builtinCommandParser] def «syntax»      := parser! "syntax " >> optional ("[" >> ident >> "]") >> many1 syntaxParser >> " : " >> ident
 @[builtinCommandParser] def syntaxCat     := parser! "declare_syntax_cat " >> ident
-def macroArgSimple := parser! ident >> ":" >> ident >> optional Syntax.precedence
-def macroArg := try (strLitPrec <|> macroArgSimple)
-@[builtinCommandParser] def «macro»       := parser! "macro " >> (strLitPrec <|> identPrec) >> many macroArg >> " : " >> ident >> unicodeSymbol "⇒" "=>" >> termParser
+def macroArgSimple := parser! ident >> ":" >> ident >> optPrecedence
+def macroArg := try strLitPrec <|> try macroArgSimple
+def macroHead := try strLitPrec <|> try identPrec
+def macroTailTactic   : Parser := try (" : " >> identEq "tactic") >> darrow >> "`(" >> sepBy1 tacticParser "; " true true >> ")"
+def macroTailCommand  : Parser := try (" : " >> identEq "command") >> darrow >> "`(" >> many1 commandParser true >> ")"
+def macroTailDefault  : Parser := try (" : " >> ident) >> darrow >> "`(" >> categoryParserOfStack 2 >> ")"
+def macroTail := macroTailTactic <|> macroTailCommand <|> macroTailDefault
+@[builtinCommandParser] def «macro»       := parser! "macro " >> macroHead >> many macroArg >> macroTail
 
 end Command
 

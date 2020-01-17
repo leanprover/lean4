@@ -45,11 +45,11 @@ def introNCoreAux {σ} (mvarId : MVarId) (mkName : LocalContext → Name → σ 
       if newType.isForall then
         introNCoreAux i lctx fvars fvars.size s newType
       else
-        throw $ Exception.other "`introN` failed, insufficient number of binders"
+        throwTacticEx `introN mvarId "insufficient number of binders"
 
 @[specialize] def introNCore {σ} (mvarId : MVarId) (n : Nat) (mkName : LocalContext → Name → σ → Name × σ) (s : σ) : MetaM (Array Expr × MVarId) :=
 withMVarContext mvarId $ do
-  checkNotAssigned mvarId "introN";
+  checkNotAssigned mvarId `introN;
   mvarType ← getMVarType mvarId;
   lctx ← getLCtx;
   introNCoreAux mvarId mkName n lctx #[] 0 s mvarType

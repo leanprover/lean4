@@ -78,6 +78,7 @@ def toMessageData : Exception → MessageData
 | notInstance i ctx               => mkCtx ctx $ "not a type class instance " ++ i
 | appBuilder op msg args ctx      => mkCtx ctx $ "application builder failure " ++ op ++ " " ++ args ++ " " ++ msg
 | synthInstance inst ctx          => mkCtx ctx $ "failed to synthesize" ++ indentExpr inst
+| tactic tacName mvarId msg ctx   => "tactic '" ++ tacName ++ "' failed " ++ msg
 | bug _ _                         => "internal bug" -- TODO improve
 | other s                         => s
 

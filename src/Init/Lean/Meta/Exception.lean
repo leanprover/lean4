@@ -92,9 +92,7 @@ def toTraceMessageData : Exception → MessageData
 | notInstance i ctx               => mkCtx ctx $ `notInstance ++ " " ++ i
 | appBuilder op msg args ctx      => mkCtx ctx $ `appBuilder ++ " " ++ op ++ " " ++ args ++ " " ++ msg
 | synthInstance inst ctx          => mkCtx ctx $ `synthInstance ++ " " ++ inst
-| tactic tacName mvarId msg ctx   =>
-  mkCtx ctx $ `tacticFailure ++ " " ++ tacName ++ " " ++ msg ++ Format.line ++
-    ppGoal ctx.env ctx.mctx ctx.lctx ctx.opts mvarId
+| tactic tacName mvarId msg ctx   => mkCtx ctx $ `tacticFailure ++ " " ++ tacName ++ " " ++ msg
 | bug _ _                         => "internal bug" -- TODO improve
 | other s                         => s
 

@@ -56,7 +56,13 @@ definition_val::definition_val(name const & n, names const & lparams, expr const
 bool definition_val::is_unsafe() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*3) != 0; }
 
 theorem_val::theorem_val(name const & n, names const & lparams, expr const & type, expr const & val):
-    object_ref(mk_cnstr(0, constant_val(n, lparams, type), val)) {
+    object_ref(mk_cnstr(0, constant_val(n, lparams, type), object_ref(lean_task_pure(val.to_obj_arg())))) {
+}
+
+expr theorem_val::get_value() const {
+    object * v_task = lean_ctor_get(raw(), 1);
+    object * v = lean_task_get(v_task);
+    return expr(v, true);
 }
 
 opaque_val::opaque_val(name const & n, names const & lparams, expr const & type, expr const & val, bool is_unsafe):

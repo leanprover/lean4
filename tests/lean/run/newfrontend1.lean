@@ -41,7 +41,7 @@ def apply := "hello"
 
 #check apply
 
-def simple (x y : Nat) (h : x = y) : x = y :=
+theorem simple (x y : Nat) (h : x = y) : x = y :=
 begin
   assumption
 end

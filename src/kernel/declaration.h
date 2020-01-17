@@ -132,7 +132,7 @@ public:
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
     expr const & get_type() const { return to_constant_val().get_type(); }
-    expr const & get_value() const { return static_cast<expr const &>(cnstr_get_ref(*this, 1)); }
+    expr get_value() const;
 };
 
 /*
@@ -465,11 +465,6 @@ public:
     bool has_value(bool allow_opaque = false) const {
         return is_theorem() || is_definition() || (allow_opaque && is_opaque());
     }
-    expr const & get_value(bool DEBUG_CODE(allow_opaque)) const {
-        lean_assert(has_value(allow_opaque));
-        return static_cast<expr const &>(cnstr_get_ref(to_val(), 1));
-    }
-    expr const & get_value() const { return get_value(false); }
     reducibility_hints const & get_hints() const;
 
     axiom_val const & to_axiom_val() const { lean_assert(is_axiom()); return static_cast<axiom_val const &>(to_val()); }
@@ -480,6 +475,15 @@ public:
     constructor_val const & to_constructor_val() const { lean_assert(is_constructor()); return static_cast<constructor_val const &>(to_val()); }
     recursor_val const & to_recursor_val() const { lean_assert(is_recursor()); return static_cast<recursor_val const &>(to_val()); }
     quot_val const & to_quot_val() const { lean_assert(is_quot()); return static_cast<quot_val const &>(to_val()); }
+
+    expr get_value(bool DEBUG_CODE(allow_opaque)) const {
+        lean_assert(has_value(allow_opaque));
+        if (is_theorem())
+            return to_theorem_val().get_value();
+        else
+            return static_cast<expr const &>(cnstr_get_ref(to_val(), 1));
+    }
+    expr get_value() const { return get_value(false); }
 };
 
 inline optional<constant_info> none_constant_info() { return optional<constant_info>(); }

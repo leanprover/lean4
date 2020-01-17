@@ -263,7 +263,8 @@ optional<name> is_constructor_app_ext(environment const & env, expr const & e) {
     optional<constant_info> info = env.find(const_name(f));
     if (!info || !info->has_value())
         return optional<name>();
-    expr const * it = &info->get_value();
+    expr val = info->get_value();
+    expr const * it = &val;
     while (is_lambda(*it))
         it = &binding_body(*it);
     return is_constructor_app_ext(env, *it);

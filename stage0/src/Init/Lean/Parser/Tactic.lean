@@ -35,6 +35,7 @@ end Tactic
 namespace Term
 
 @[builtinTermParser] def tacticBlock := parser! symbol "begin " appPrec >> Tactic.seq >> "end"
+@[builtinTermParser] def tacticStxQuot : Parser := node `Lean.Parser.Term.stxQuot $ symbol "`(tactic|" appPrec >> tacticParser >> ")"
 
 end Term
 

@@ -441,7 +441,8 @@ fun a c s =>
 { info := p.info,
   fn   := many1Fn p.fn unboxSingleton }
 
-@[specialize] private partial def sepByFnAux {k : ParserKind} (p : ParserFn k) (sep : ParserFn k) (allowTrailingSep : Bool) (iniSz : Nat) : Bool → ParserFn k
+@[specialize] private partial def sepByFnAux {k : ParserKind} (p : ParserFn k) (sep : ParserFn k) (allowTrailingSep : Bool)
+    (iniSz : Nat) (unboxSingleton : Bool)  : Bool → ParserFn k
 | pOpt, a, c, s =>
   let sz  := s.stackSize;
   let pos := s.pos;
@@ -449,7 +450,10 @@ fun a c s =>
   if s.hasError then
     if pOpt then
       let s := s.restore sz pos;
-      s.mkNode nullKind iniSz
+      if s.stackSize - iniSz == 2 && unboxSingleton then
+        s.popSyntax
+      else
+        s.mkNode nullKind iniSz
     else
       -- append `Syntax.missing` to make clear that List is incomplete
       let s := s.pushSyntax Syntax.missing;
@@ -460,19 +464,22 @@ fun a c s =>
     let s   := sep a c s;
     if s.hasError then
       let s := s.restore sz pos;
-      s.mkNode nullKind iniSz
+      if s.stackSize - iniSz == 1 && unboxSingleton then
+        s
+      else
+        s.mkNode nullKind iniSz
     else
       sepByFnAux allowTrailingSep a c s
 
 @[specialize] def sepByFn {k : ParserKind} (allowTrailingSep : Bool) (p : ParserFn k) (sep : ParserFn k) : ParserFn k
 | a, c, s =>
   let iniSz := s.stackSize;
-  sepByFnAux p sep allowTrailingSep iniSz true a c s
+  sepByFnAux p sep allowTrailingSep iniSz false true a c s
 
-@[specialize] def sepBy1Fn {k : ParserKind} (allowTrailingSep : Bool) (p : ParserFn k) (sep : ParserFn k) : ParserFn k
+@[specialize] def sepBy1Fn {k : ParserKind} (allowTrailingSep : Bool) (p : ParserFn k) (sep : ParserFn k) (unboxSingleton : Bool) : ParserFn k
 | a, c, s =>
   let iniSz := s.stackSize;
-  sepByFnAux p sep allowTrailingSep iniSz false a c s
+  sepByFnAux p sep allowTrailingSep iniSz unboxSingleton false a c s
 
 @[noinline] def sepByInfo (p sep : ParserInfo) : ParserInfo :=
 { collectTokens := p.collectTokens ∘ sep.collectTokens,
@@ -487,9 +494,9 @@ fun a c s =>
 { info := sepByInfo p.info sep.info,
   fn   := sepByFn allowTrailingSep p.fn sep.fn }
 
-@[inline] def sepBy1 {k : ParserKind} (p sep : Parser k) (allowTrailingSep : Bool := false) : Parser k :=
+@[inline] def sepBy1 {k : ParserKind} (p sep : Parser k) (allowTrailingSep : Bool := false) (unboxSingleton := false) : Parser k :=
 { info := sepBy1Info p.info sep.info,
-  fn   := sepBy1Fn allowTrailingSep p.fn sep.fn }
+  fn   := sepBy1Fn allowTrailingSep p.fn sep.fn unboxSingleton }
 
 @[specialize] partial def satisfyFn (p : Char → Bool) (errorMsg : String := "unexpected character") : BasicParserFn
 | c, s =>

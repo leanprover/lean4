@@ -136,19 +136,24 @@ adaptReader (fun (ctx : Context) => { macroStack := stx :: ctx.macroStack, .. ct
 
 partial def evalTactic : Syntax → TacticM Unit
 | stx => withIncRecDepth stx $ withFreshMacroScope $ match stx with
-  | Syntax.node k args => do
+  | Syntax.node k args =>
+    if k == nullKind then
+      -- list of tactics separated by `;` => evaluate in order
+      -- Syntax quotations can return multiple ones
+      stx.forSepArgsM evalTactic
+    else do
     trace `Elab.step stx $ fun _ => stx;
-    s ← get;
-    let table := (tacticElabAttribute.ext.getState s.env).table;
-    let k := stx.getKind;
-    match table.find? k with
-    | some elabFns => evalTacticUsing s stx elabFns
-      | none         => do
-        scp ← getCurrMacroScope;
-        env ← getEnv;
-        match expandMacro env stx scp with
-        | some stx' => withMacroExpansion stx $ evalTactic stx'
-        | none      => throwError stx ("tactic '" ++ toString k ++ "' has not been implemented")
+      s ← get;
+      let table := (tacticElabAttribute.ext.getState s.env).table;
+      let k := stx.getKind;
+      match table.find? k with
+      | some elabFns => evalTacticUsing s stx elabFns
+        | none         => do
+          scp ← getCurrMacroScope;
+          env ← getEnv;
+          match expandMacro env stx scp with
+          | some stx' => withMacroExpansion stx $ evalTactic stx'
+          | none      => throwError stx ("tactic '" ++ toString k ++ "' has not been implemented")
   | _ => throwError stx "unexpected command"
 
 @[inline] def withLCtx {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TacticM α) : TacticM α :=

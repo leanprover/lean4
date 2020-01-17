@@ -49,7 +49,8 @@ end Tactic
 namespace Term
 
 @[builtinTermParser] def tacticBlock := parser! symbol "begin " appPrec >> Tactic.seq >> "end"
-@[builtinTermParser] def tacticStxQuot : Parser := node `Lean.Parser.Term.stxQuot $ symbol "`(tactic|" appPrec >> tacticParser >> ")"
+-- Use `unboxSingleton` trick similar to the one used at Command.lean for `Term.stxQuot`
+@[builtinTermParser] def tacticStxQuot : Parser := node `Lean.Parser.Term.stxQuot $ symbol "`(tactic|" appPrec >> sepBy1 tacticParser "; " true true >> ")"
 
 end Term
 

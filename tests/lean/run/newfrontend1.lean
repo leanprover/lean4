@@ -51,3 +51,14 @@ begin
   intro h;
   assumption
 end
+
+syntax "intro2" : tactic
+
+macro
+| `(tactic| intro2) => `(tactic| intro; intro )
+
+theorem simple3 (x y : Nat) : x = x → x = y → x = y :=
+begin
+  intro2;
+  assumption
+end

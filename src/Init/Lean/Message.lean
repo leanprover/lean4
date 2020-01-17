@@ -52,9 +52,27 @@ registerOption `syntaxMaxDepth { defValue := (2 : Nat), group := "", descr := "m
 def getSyntaxMaxDepth (opts : Options) : Nat :=
 opts.getNat `syntaxMaxDepth 2
 
+abbrev PPExprFn := Environment → MetavarContext → LocalContext → Options → Expr → Format
+
 /- TODO: delete after we implement the new pretty printer in Lean -/
 @[extern "lean_pp_expr"]
 constant ppOld : Environment → MetavarContext → LocalContext → Options → Expr → Format := arbitrary _
+
+def mkPPExprFnRef : IO (IO.Ref PPExprFn) := IO.mkRef ppOld
+@[init mkPPExprFnRef] def PPExprFnRef : IO.Ref PPExprFn := arbitrary _
+
+def mkPPExprFnExtension : IO (EnvExtension PPExprFn) :=
+registerEnvExtension $ PPExprFnRef.get
+
+@[init mkPPExprFnExtension]
+constant ppExprExt : EnvExtension PPExprFn := arbitrary _
+
+def ppExpr (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : Format :=
+let e := (mctx.instantiateMVars e).1;
+if opts.getBool `ppOld true then
+  (ppExprExt.getState env) env mctx lctx opts e
+else
+  format (toString e)
 
 partial def formatAux : Option MessageDataContext → MessageData → Format
 | _,         ofFormat fmt      => fmt
@@ -63,12 +81,7 @@ partial def formatAux : Option MessageDataContext → MessageData → Format
 | some ctx,  ofSyntax s        => s.formatStx (getSyntaxMaxDepth ctx.opts)
 | none,      ofSyntax s        => s.formatStx
 | none,      ofExpr e          => format (toString e)
-| some ctx,  ofExpr e          =>
-  let e := (ctx.mctx.instantiateMVars e).1;
-  if ctx.opts.getBool `ppOld true then
-    ppOld ctx.env ctx.mctx ctx.lctx ctx.opts e -- TODO: replace with new pretty printer
-  else
-    format (toString e)
+| some ctx,  ofExpr e          => ppExpr ctx.env ctx.mctx ctx.lctx ctx.opts e
 | _,         withContext ctx d => formatAux (some ctx) d
 | ctx,       tagged cls d      => Format.sbracket (format cls) ++ " " ++ formatAux ctx d
 | ctx,       nest n d          => Format.nest n (formatAux ctx d)

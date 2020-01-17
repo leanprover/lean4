@@ -12,124 +12,127 @@ namespace Elab
 namespace Tactic
 
 structure Context extends toTermCtx : Term.Context :=
-(main : Expr)
+(main : MVarId)
 (ref  : Syntax)
 
 structure State extends toTermState : Term.State :=
-(goals : List Expr)
+(goals : List MVarId)
 
 instance State.inhabited : Inhabited State := ⟨{ goals := [], toTermState := arbitrary _ }⟩
 
 abbrev Exception := Elab.Exception
 
-abbrev TacticElabM := ReaderT Context (EStateM Exception State)
+abbrev TacticM := ReaderT Context (EStateM Exception State)
 
-abbrev TacticElab := Syntax → TacticElabM Unit
+abbrev Tactic := Syntax → TacticM Unit
 
-def liftTermElabM {α} (x : TermElabM α) : TacticElabM α :=
+def liftTermElabM {α} (x : TermElabM α) : TacticM α :=
 fun ctx s => match x ctx.toTermCtx s.toTermState with
  | EStateM.Result.ok a newS                         => EStateM.Result.ok a { toTermState := newS, .. s }
  | EStateM.Result.error (Term.Exception.ex ex) newS => EStateM.Result.error ex { toTermState := newS, .. s }
  | EStateM.Result.error Term.Exception.postpone _   => unreachable!
 
-def getEnv : TacticElabM Environment := do s ← get; pure s.env
-def getMCtx : TacticElabM MetavarContext := do s ← get; pure s.mctx
-def getLCtx : TacticElabM LocalContext := do ctx ← read; pure ctx.lctx
-def getLocalInsts : TacticElabM LocalInstances := do ctx ← read; pure ctx.localInstances
-def getOptions : TacticElabM Options := do ctx ← read; pure ctx.config.opts
+def liftMetaM {α} (ref : Syntax) (x : MetaM α) : TacticM α := liftTermElabM $ Term.liftMetaM ref x
 
-def addContext (msg : MessageData) : TacticElabM MessageData := liftTermElabM $ Term.addContext msg
+def getEnv : TacticM Environment := do s ← get; pure s.env
+def getMCtx : TacticM MetavarContext := do s ← get; pure s.mctx
+def getLCtx : TacticM LocalContext := do ctx ← read; pure ctx.lctx
+def getLocalInsts : TacticM LocalInstances := do ctx ← read; pure ctx.localInstances
+def getOptions : TacticM Options := do ctx ← read; pure ctx.config.opts
+def getMVarDecl (mvarId : MVarId) : TacticM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
 
-instance monadLog : MonadLog TacticElabM :=
+def addContext (msg : MessageData) : TacticM MessageData := liftTermElabM $ Term.addContext msg
+
+instance monadLog : MonadLog TacticM :=
 { getCmdPos   := do ctx ← read; pure ctx.cmdPos,
   getFileMap  := do ctx ← read; pure ctx.fileMap,
   getFileName := do ctx ← read; pure ctx.fileName,
   addContext  := addContext,
   logMessage  := fun msg => modify $ fun s => { messages := s.messages.add msg, .. s } }
 
-def throwError {α} (ref : Syntax) (msgData : MessageData) : TacticElabM α := do
+def throwError {α} (ref : Syntax) (msgData : MessageData) : TacticM α := do
 ref ← if ref.getPos.isNone then do ctx ← read; pure ctx.ref else pure ref;
 liftTermElabM $ Term.throwError ref msgData
 
-def throwUnsupportedSyntax {α} : TacticElabM α := liftTermElabM $ Term.throwUnsupportedSyntax
+def throwUnsupportedSyntax {α} : TacticM α := liftTermElabM $ Term.throwUnsupportedSyntax
 
-@[inline] def withIncRecDepth {α} (ref : Syntax) (x : TacticElabM α) : TacticElabM α := do
+@[inline] def withIncRecDepth {α} (ref : Syntax) (x : TacticM α) : TacticM α := do
 ctx ← read;
 when (ctx.currRecDepth == ctx.maxRecDepth) $ throwError ref maxRecDepthErrorMessage;
 adaptReader (fun (ctx : Context) => { currRecDepth := ctx.currRecDepth + 1, .. ctx }) x
 
-protected def getCurrMacroScope : TacticElabM MacroScope := do ctx ← read; pure ctx.currMacroScope
+protected def getCurrMacroScope : TacticM MacroScope := do ctx ← read; pure ctx.currMacroScope
 
-@[inline] protected def withFreshMacroScope {α} (x : TacticElabM α) : TacticElabM α := do
+@[inline] protected def withFreshMacroScope {α} (x : TacticM α) : TacticM α := do
 fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }));
 adaptReader (fun (ctx : Context) => { ctx with currMacroScope := fresh }) x
 
-instance monadQuotation : MonadQuotation TacticElabM := {
+instance monadQuotation : MonadQuotation TacticM := {
   getCurrMacroScope   := Tactic.getCurrMacroScope,
   withFreshMacroScope := @Tactic.withFreshMacroScope
 }
 
-abbrev TacticElabTable := ElabFnTable TacticElab
-def mkBuiltinTacticElabTable : IO (IO.Ref TacticElabTable) :=  IO.mkRef {}
-@[init mkBuiltinTacticElabTable] constant builtinTacticElabTable : IO.Ref TacticElabTable := arbitrary _
+abbrev TacticTable := ElabFnTable Tactic
+def mkBuiltinTacticTable : IO (IO.Ref TacticTable) :=  IO.mkRef {}
+@[init mkBuiltinTacticTable] constant builtinTacticTable : IO.Ref TacticTable := arbitrary _
 
-def addBuiltinTacticElab (k : SyntaxNodeKind) (declName : Name) (elab : TacticElab) : IO Unit := do
-m ← builtinTacticElabTable.get;
+def addBuiltinTactic (k : SyntaxNodeKind) (declName : Name) (elab : Tactic) : IO Unit := do
+m ← builtinTacticTable.get;
 when (m.contains k) $
   throw (IO.userError ("invalid builtin tactic elaborator, elaborator for '" ++ toString k ++ "' has already been defined"));
-builtinTacticElabTable.modify $ fun m => m.insert k elab
+builtinTacticTable.modify $ fun m => m.insert k elab
 
-def declareBuiltinTacticElab (env : Environment) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
-let name := `_regBuiltinTacticElab ++ declName;
+def declareBuiltinTactic (env : Environment) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
+let name := `_regBuiltinTactic ++ declName;
 let type := mkApp (mkConst `IO) (mkConst `Unit);
-let val  := mkAppN (mkConst `Lean.Elab.Tactic.addBuiltinTacticElab) #[toExpr kind, toExpr declName, mkConst declName];
+let val  := mkAppN (mkConst `Lean.Elab.Tactic.addBuiltinTactic) #[toExpr kind, toExpr declName, mkConst declName];
 let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
 match env.addAndCompile {} decl with
 -- TODO: pretty print error
 | Except.error _ => throw (IO.userError ("failed to emit registration code for builtin tactic elaborator '" ++ toString declName ++ "'"))
 | Except.ok env  => IO.ofExcept (setInitAttr env name)
 
-@[init] def registerBuiltinTacticElabAttr : IO Unit :=
+@[init] def registerBuiltinTacticAttr : IO Unit :=
 registerBuiltinAttribute {
- name  := `builtinTacticElab,
+ name  := `builtinTactic,
  descr := "Builtin tactic elaborator",
  add   := fun env declName arg persistent => do {
-   unless persistent $ throw (IO.userError ("invalid attribute 'builtinTacticElab', must be persistent"));
+   unless persistent $ throw (IO.userError ("invalid attribute 'builtinTactic', must be persistent"));
    kind ← IO.ofExcept $ syntaxNodeKindOfAttrParam env `Lean.Parser.Tactic arg;
    match env.find? declName with
    | none  => throw $ IO.userError "unknown declaration"
    | some decl =>
      match decl.type with
-     | Expr.const `Lean.Elab.Tactic.TacticElab _ _ => declareBuiltinTacticElab env kind declName
-     | _ => throw (IO.userError ("unexpected tactic elaborator type at '" ++ toString declName ++ "' `TacticElab` expected"))
+     | Expr.const `Lean.Elab.Tactic.Tactic _ _ => declareBuiltinTactic env kind declName
+     | _ => throw (IO.userError ("unexpected tactic elaborator type at '" ++ toString declName ++ "' `Tactic` expected"))
  },
  applicationTime := AttributeApplicationTime.afterCompilation
 }
 
-abbrev TacticElabAttribute := ElabAttribute TacticElab
-def mkTacticElabAttribute : IO TacticElabAttribute :=
-mkElabAttribute TacticElab `tacticElab `Lean.Parser.Tactic `Lean.Elab.Tactic.TacticElab "tactic" builtinTacticElabTable
-@[init mkTacticElabAttribute] constant tacticElabAttribute : TacticElabAttribute := arbitrary _
+abbrev TacticAttribute := ElabAttribute Tactic
+def mkTacticAttribute : IO TacticAttribute :=
+mkElabAttribute Tactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic" builtinTacticTable
+@[init mkTacticAttribute] constant tacticElabAttribute : TacticAttribute := arbitrary _
 
-def logTrace (cls : Name) (ref : Syntax) (msg : MessageData) : TacticElabM Unit := liftTermElabM $ Term.logTrace cls ref msg
-@[inline] def trace (cls : Name) (ref : Syntax) (msg : Unit → MessageData) : TacticElabM Unit := liftTermElabM $ Term.trace cls ref msg
-@[inline] def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TacticElabM Unit := liftTermElabM $ Term.traceAtCmdPos cls msg
-def dbgTrace {α} [HasToString α] (a : α) : TacticElabM Unit :=_root_.dbgTrace (toString a) $ fun _ => pure ()
+def logTrace (cls : Name) (ref : Syntax) (msg : MessageData) : TacticM Unit := liftTermElabM $ Term.logTrace cls ref msg
+@[inline] def trace (cls : Name) (ref : Syntax) (msg : Unit → MessageData) : TacticM Unit := liftTermElabM $ Term.trace cls ref msg
+@[inline] def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TacticM Unit := liftTermElabM $ Term.traceAtCmdPos cls msg
+def dbgTrace {α} [HasToString α] (a : α) : TacticM Unit :=_root_.dbgTrace (toString a) $ fun _ => pure ()
 
-private def elabTacticUsing (s : State) (stx : Syntax) : List TacticElab → TacticElabM Unit
+private def evalTacticUsing (s : State) (stx : Syntax) : List Tactic → TacticM Unit
 | []                => do
   let refFmt := stx.prettyPrint;
   throwError stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
 | (elabFn::elabFns) => catch (elabFn stx)
   (fun ex => match ex with
     | Exception.error _           => throw ex
-    | Exception.unsupportedSyntax => do set s; elabTacticUsing elabFns)
+    | Exception.unsupportedSyntax => do set s; evalTacticUsing elabFns)
 
 /- Elaborate `x` with `stx` on the macro stack -/
-@[inline] def withMacroExpansion {α} (stx : Syntax) (x : TacticElabM α) : TacticElabM α :=
+@[inline] def withMacroExpansion {α} (stx : Syntax) (x : TacticM α) : TacticM α :=
 adaptReader (fun (ctx : Context) => { macroStack := stx :: ctx.macroStack, .. ctx }) x
 
-partial def elabTactic : Syntax → TacticElabM Unit
+partial def evalTactic : Syntax → TacticM Unit
 | stx => withIncRecDepth stx $ withFreshMacroScope $ match stx with
   | Syntax.node k args => do
     trace `Elab.step stx $ fun _ => stx;
@@ -137,17 +140,55 @@ partial def elabTactic : Syntax → TacticElabM Unit
     let table := (tacticElabAttribute.ext.getState s.env).table;
     let k := stx.getKind;
     match table.find? k with
-    | some elabFns => elabTacticUsing s stx elabFns
+    | some elabFns => evalTacticUsing s stx elabFns
       | none         => do
         scp ← getCurrMacroScope;
         env ← getEnv;
         match expandMacro env stx scp with
-        | some stx' => withMacroExpansion stx $ elabTactic stx'
+        | some stx' => withMacroExpansion stx $ evalTactic stx'
         | none      => throwError stx ("tactic '" ++ toString k ++ "' has not been implemented")
   | _ => throwError stx "unexpected command"
 
+@[inline] def withLCtx {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TacticM α) : TacticM α :=
+adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts, .. ctx }) x
+
+def resetSynthInstanceCache : TacticM Unit := liftTermElabM Term.resetSynthInstanceCache
+
+@[inline] def resettingSynthInstanceCache {α} (x : TacticM α) : TacticM α := do
+s ← get;
+let savedSythInstance := s.cache.synthInstance;
+resetSynthInstanceCache;
+finally x (modify $ fun s => { cache := { synthInstance := savedSythInstance, .. s.cache }, .. s })
+
+@[inline] def resettingSynthInstanceCacheWhen {α} (b : Bool) (x : TacticM α) : TacticM α :=
+if b then resettingSynthInstanceCache x else x
+
+def withMVarContext {α} (mvarId : MVarId) (x : TacticM α) : TacticM α := do
+mvarDecl  ← getMVarDecl mvarId;
+ctx       ← read;
+let needReset := ctx.localInstances == mvarDecl.localInstances;
+withLCtx mvarDecl.lctx mvarDecl.localInstances $ resettingSynthInstanceCacheWhen needReset x
+
+@[inline] def liftMetaTactic (ref : Syntax) (tactic : MVarId → MetaM (List MVarId)) : TacticM Unit := do
+s ← get;
+(g :: gs) ← pure s.goals | throwError ref "no goals to be solved";
+withMVarContext g $ do
+  gs' ← liftMetaM ref $ tactic g;
+  modify $ fun s => { goals := gs' ++ gs, .. s }
+
+/-
+
+@[builtinTactic seq] def evalSeq : Tactic :=
+fun stx => (stx.getArg 0).forSepArgsM evalTactic
+
+@[builtinTactic «assumption»] def evalAssumption : Tactic :=
+fun _ => pure ()
+-/
+
+@[init] private def regTraceClasses : IO Unit := do
+registerTraceClass `Elab.tactic;
+pure ()
 
 end Tactic
-
 end Elab
 end Lean

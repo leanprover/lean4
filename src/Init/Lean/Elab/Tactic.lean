@@ -24,22 +24,21 @@ fun stx expectedType? =>
   | some expectedType => mkTacticMVar stx expectedType (stx.getArg 1)
   | none => throwError stx ("invalid tactic block, expected type has not been provided")
 
-open Tactic (TacticElabM elabTactic)
+open Tactic (TacticM evalTactic)
 
-def liftTacticElabM {α} (ref : Syntax) (mvarId : MVarId) (x : TacticElabM α) : TermElabM α :=
+def liftTacticElabM {α} (ref : Syntax) (mvarId : MVarId) (x : TacticM α) : TermElabM α :=
 withMVarContext mvarId $ fun ctx s =>
-  let mvar := mkMVar mvarId;
-  match x { ref := ref, main := mvar, .. ctx } { goals := [mvar], .. s } with
+  match x { ref := ref, main := mvarId, .. ctx } { goals := [mvarId], .. s } with
   | EStateM.Result.error ex newS => EStateM.Result.error (Term.Exception.ex ex) newS.toTermState
   | EStateM.Result.ok a newS     => EStateM.Result.ok a newS.toTermState
 
-def reportUnsolvedGoals (ref : Syntax) (goals : List Expr) : TermElabM Unit :=
+def reportUnsolvedGoals (ref : Syntax) (goals : List MVarId) : TermElabM Unit :=
 -- TODO: pretty print goals
 throwError ref "there are unsolved goals"
 
 def runTactic (ref : Syntax) (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
 modify $ fun s => { mctx := s.mctx.instantiateMVarDeclMVars mvarId, .. s };
-remainingGoals ← liftTacticElabM ref mvarId $ do { elabTactic tacticCode; s ← get; pure s.goals };
+remainingGoals ← liftTacticElabM ref mvarId $ do { evalTactic tacticCode; s ← get; pure s.goals };
 unless remainingGoals.isEmpty (reportUnsolvedGoals ref remainingGoals);
 -- TODO: check unassigned metavariables in mvarId
 pure ()

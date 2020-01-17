@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 prelude
 import Init.Lean.Elab.Util
 import Init.Lean.Elab.Term
+import Init.Lean.Meta.Tactic.Assumption
 
 namespace Lean
 namespace Elab
@@ -176,14 +177,11 @@ withMVarContext g $ do
   gs' ← liftMetaM ref $ tactic g;
   modify $ fun s => { goals := gs' ++ gs, .. s }
 
-/-
-
 @[builtinTactic seq] def evalSeq : Tactic :=
 fun stx => (stx.getArg 0).forSepArgsM evalTactic
 
 @[builtinTactic «assumption»] def evalAssumption : Tactic :=
-fun _ => pure ()
--/
+fun stx => liftMetaTactic stx $ fun mvarId => do Meta.assumption mvarId; pure []
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.tactic;

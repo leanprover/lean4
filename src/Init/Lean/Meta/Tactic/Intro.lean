@@ -18,7 +18,8 @@ def introNCoreAux {σ} (mvarId : MVarId) (mkName : LocalContext → Name → σ 
     withNewLocalInstances isClassExpensive fvars j $ do
       newMVar ← mkFreshExprSyntheticOpaqueMVar type;
       lctx    ← getLCtx;
-      modify $ fun s => { mctx := s.mctx.assignDelayed mvarId lctx fvars newMVar, .. s };
+      newVal  ← mkLambda fvars newMVar;
+      modify $ fun s => { mctx := s.mctx.assignExpr mvarId newVal, .. s };
       pure $ (fvars, newMVar.mvarId!)
 | (i+1), lctx, fvars, j, s, Expr.letE n type val body _ => do
   let type   := type.instantiateRevRange j fvars.size fvars;

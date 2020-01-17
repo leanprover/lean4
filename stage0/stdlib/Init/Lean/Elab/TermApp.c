@@ -171,7 +171,6 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 extern lean_object* l_Lean_choiceKind;
 lean_object* l_Lean_Elab_Term_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_TermApp_7__resolveLValAux___closed__12;
-extern lean_object* l___private_Init_Lean_Elab_Term_11__resumePostponed___lambda__1___closed__1;
 lean_object* l_Lean_Elab_Term_resolveName(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getStructureFields(lean_object*, lean_object*);
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabSortApp___closed__1;
@@ -188,6 +187,7 @@ lean_object* l___private_Init_Lean_Elab_TermApp_7__resolveLValAux___closed__23;
 uint8_t l_coeDecidableEq(uint8_t);
 lean_object* l_Array_umapMAux___main___at___private_Init_Lean_Elab_TermApp_17__mergeFailures___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
+lean_object* l_Array_umapMAux___main___at___private_Init_Lean_Elab_TermApp_17__mergeFailures___spec__1___closed__1;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l___private_Init_Lean_Elab_TermApp_7__resolveLValAux___closed__21;
 lean_object* l_Array_forMAux___main___at___private_Init_Lean_Elab_TermApp_8__resolveLValLoop___main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -203,6 +203,7 @@ extern lean_object* l_Lean_formatEntry___closed__1;
 extern lean_object* l_Lean_Elab_Term_TermElabResult_inhabited;
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 lean_object* l___private_Init_Lean_Elab_TermApp_6__throwLValError(lean_object*);
+lean_object* l_Lean_Elab_Term_TermElabM_inhabited___boxed(lean_object*, lean_object*);
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabExplicit___closed__1;
 extern lean_object* l_Lean_Parser_Term_arrayRef___elambda__1___closed__2;
 lean_object* l_Lean_Name_replacePrefix___main(lean_object*, lean_object*, lean_object*);
@@ -8318,6 +8319,15 @@ lean_dec(x_2);
 return x_5;
 }
 }
+lean_object* _init_l_Array_umapMAux___main___at___private_Init_Lean_Elab_TermApp_17__mergeFailures___spec__1___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Term_TermElabM_inhabited___boxed), 2, 1);
+lean_closure_set(x_1, 0, lean_box(0));
+return x_1;
+}
+}
 lean_object* l_Array_umapMAux___main___at___private_Init_Lean_Elab_TermApp_17__mergeFailures___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -8347,7 +8357,7 @@ x_14 = lean_array_fset(x_3, x_2, x_13);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = l___private_Init_Lean_Elab_Term_11__resumePostponed___lambda__1___closed__1;
+x_15 = l_Array_umapMAux___main___at___private_Init_Lean_Elab_TermApp_17__mergeFailures___spec__1___closed__1;
 x_16 = l_unreachable_x21___rarg(x_15);
 lean_inc(x_4);
 x_17 = lean_apply_2(x_16, x_4, x_5);
@@ -9979,6 +9989,8 @@ l___private_Init_Lean_Elab_TermApp_16__toMessageData___closed__1 = _init_l___pri
 lean_mark_persistent(l___private_Init_Lean_Elab_TermApp_16__toMessageData___closed__1);
 l___private_Init_Lean_Elab_TermApp_16__toMessageData___closed__2 = _init_l___private_Init_Lean_Elab_TermApp_16__toMessageData___closed__2();
 lean_mark_persistent(l___private_Init_Lean_Elab_TermApp_16__toMessageData___closed__2);
+l_Array_umapMAux___main___at___private_Init_Lean_Elab_TermApp_17__mergeFailures___spec__1___closed__1 = _init_l_Array_umapMAux___main___at___private_Init_Lean_Elab_TermApp_17__mergeFailures___spec__1___closed__1();
+lean_mark_persistent(l_Array_umapMAux___main___at___private_Init_Lean_Elab_TermApp_17__mergeFailures___spec__1___closed__1);
 l___private_Init_Lean_Elab_TermApp_17__mergeFailures___rarg___closed__1 = _init_l___private_Init_Lean_Elab_TermApp_17__mergeFailures___rarg___closed__1();
 lean_mark_persistent(l___private_Init_Lean_Elab_TermApp_17__mergeFailures___rarg___closed__1);
 l___private_Init_Lean_Elab_TermApp_17__mergeFailures___rarg___closed__2 = _init_l___private_Init_Lean_Elab_TermApp_17__mergeFailures___rarg___closed__2();

@@ -120,7 +120,6 @@ lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_
 lean_object* l___private_Init_Lean_Attributes_2__AttributeExtension_addImported(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__1;
 lean_object* l_Lean_mkAttributeImplOfConstant___closed__1;
-uint8_t l_PersistentHashMap_containsAtAux___main___at_Lean_LocalContext_contains___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerTagAttribute___lambda__4___closed__3;
 lean_object* l_Lean_attributeExtension___elambda__4(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_registerBuiltinAttribute___spec__4(lean_object*, size_t, size_t, lean_object*, lean_object*);
@@ -220,6 +219,7 @@ lean_object* l_List_redLength___main___rarg(lean_object*);
 lean_object* l_mkHashMapImp___rarg(lean_object*);
 lean_object* l_RBNode_fold___main___at_RBMap_size___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_IO_ofExcept___at_Lean_mkAttributeImplOfBuilder___spec__3(lean_object*, lean_object*);
+uint8_t l_PersistentHashMap_containsAtAux___main___at_Lean_Environment_contains___spec__5(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_contains___at_Lean_registerBuiltinAttribute___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_registerTagAttribute___lambda__3___closed__3;
 lean_object* l_Lean_registerAttributeImplBuilder___closed__2;
@@ -599,7 +599,7 @@ x_17 = lean_ctor_get(x_1, 0);
 lean_inc(x_17);
 lean_dec(x_1);
 x_18 = lean_unsigned_to_nat(0u);
-x_19 = l_PersistentHashMap_containsAtAux___main___at_Lean_LocalContext_contains___spec__3(x_17, x_18, x_3);
+x_19 = l_PersistentHashMap_containsAtAux___main___at_Lean_Environment_contains___spec__5(x_17, x_18, x_3);
 lean_dec(x_17);
 return x_19;
 }

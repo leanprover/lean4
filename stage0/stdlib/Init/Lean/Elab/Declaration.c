@@ -85,12 +85,10 @@ extern lean_object* l___regBuiltinParser_Lean_Parser_Command_antiquot___closed__
 lean_object* l_Lean_Elab_Command_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_List_elem___main___at_Lean_Parser_addLeadingParser___spec__7(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Command_6__mkTermContext(lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Init_Lean_Elab_Term_14__synthesizeSyntheticMVar___closed__3;
 lean_object* l_Lean_Elab_Command_elabConstant___closed__7;
 lean_object* l_Lean_Elab_Command_modifyScope___at_Lean_Elab_Command_elabAxiom___spec__3(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_hole___elambda__1___closed__1;
 lean_object* l_Lean_Elab_Command_elabTheorem(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_Elab_Term_17__synthesizeSyntheticMVarsAux___main(uint8_t, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_modifyScope___closed__1;
 lean_object* l_Lean_Elab_Command_elabDef(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_withDeclId___closed__3;
@@ -116,6 +114,7 @@ lean_object* l_Lean_Elab_Command_elabStructure(lean_object*, lean_object*, lean_
 lean_object* l_Lean_Elab_Command_Modifiers_addAttribute(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabType(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_structure___elambda__1___closed__2;
+lean_object* l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_10__synthesizeSyntheticMVarsAux___main(uint8_t, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_declareBuiltinCommandElab___closed__3;
 lean_object* l_Lean_Elab_Command_elabConstant___closed__6;
 extern lean_object* l_Lean_Parser_Command_inductive___elambda__1___closed__2;
@@ -129,6 +128,7 @@ lean_object* l_Lean_Syntax_foldArgsAuxM___main___at_Lean_Syntax_foldSepRevArgsM_
 lean_object* l_Lean_Elab_Command_expandDeclSig___boxed(lean_object*);
 lean_object* l_Lean_Elab_Command_elabDeclaration___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabBinders___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Init_Lean_Elab_TermBinders_4__expandBinderModifier___closed__3;
 extern lean_object* l___private_Init_Lean_Elab_Term_5__expandCDot___closed__4;
 lean_object* l_List_foldl___main___at_Lean_addMacroScopes___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -620,7 +620,7 @@ lean_object* x_15; lean_object* x_16; uint8_t x_17;
 lean_dec(x_11);
 lean_dec(x_9);
 lean_dec(x_8);
-x_15 = l___private_Init_Lean_Elab_Term_14__synthesizeSyntheticMVar___closed__3;
+x_15 = l___private_Init_Lean_Elab_TermBinders_4__expandBinderModifier___closed__3;
 x_16 = l_Lean_Elab_Command_throwError___rarg(x_2, x_15, x_3, x_4);
 lean_dec(x_2);
 x_17 = !lean_is_exclusive(x_16);
@@ -3020,7 +3020,7 @@ lean_dec(x_9);
 x_12 = 0;
 x_13 = lean_box(0);
 lean_inc(x_7);
-x_14 = l___private_Init_Lean_Elab_Term_17__synthesizeSyntheticMVarsAux___main(x_12, x_13, x_7, x_11);
+x_14 = l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_10__synthesizeSyntheticMVarsAux___main(x_12, x_13, x_7, x_11);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 

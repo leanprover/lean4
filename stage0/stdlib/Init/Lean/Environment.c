@@ -138,7 +138,6 @@ lean_object* l_Lean_mkStateFromImportedEntries___rarg___lambda__1___boxed(lean_o
 lean_object* l_Lean_PersistentEnvExtension_setState(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_find_x3f___at_Lean_Environment_find_x3f___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__1;
-uint8_t l_PersistentHashMap_containsAtAux___main___at_Lean_LocalContext_contains___spec__3(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Environment_isConstructor(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_displayStats___closed__7;
 lean_object* l_Array_iterateMAux___main___at_Lean_regNamespacesExtension___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -226,6 +225,7 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Environment_13__registerNamePrefixes(lean_object*, lean_object*);
 extern lean_object* l_List_repr___rarg___closed__2;
 lean_object* l___private_Init_Lean_Environment_10__setImportedEntries___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_PersistentHashMap_containsAtAux___main___at_Lean_Environment_contains___spec__5___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtension_modifyState___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkTagDeclarationExtension___lambda__2(lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerSimplePersistentEnvExtension___spec__3___rarg(lean_object*, lean_object*, lean_object*);
@@ -277,6 +277,7 @@ lean_object* l_Lean_importModules___boxed(lean_object*, lean_object*, lean_objec
 lean_object* l_Lean_EnvExtension_Inhabited___rarg(lean_object*);
 lean_object* l_mkHashMapImp___rarg(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState(lean_object*, lean_object*, lean_object*);
+uint8_t l_PersistentHashMap_containsAtAux___main___at_Lean_Environment_contains___spec__5(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_importModules___closed__1;
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkTagDeclarationExtension___spec__6___closed__1;
 lean_object* l_Lean_Environment_addDecl___boxed(lean_object*, lean_object*);
@@ -1856,6 +1857,45 @@ lean_dec(x_7);
 return x_8;
 }
 }
+uint8_t l_PersistentHashMap_containsAtAux___main___at_Lean_Environment_contains___spec__5(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_array_get_size(x_1);
+x_5 = lean_nat_dec_lt(x_2, x_4);
+lean_dec(x_4);
+if (x_5 == 0)
+{
+uint8_t x_6; 
+lean_dec(x_2);
+x_6 = 0;
+return x_6;
+}
+else
+{
+lean_object* x_7; uint8_t x_8; 
+x_7 = lean_array_fget(x_1, x_2);
+x_8 = lean_name_eq(x_3, x_7);
+lean_dec(x_7);
+if (x_8 == 0)
+{
+lean_object* x_9; lean_object* x_10; 
+x_9 = lean_unsigned_to_nat(1u);
+x_10 = lean_nat_add(x_2, x_9);
+lean_dec(x_2);
+x_2 = x_10;
+goto _start;
+}
+else
+{
+uint8_t x_12; 
+lean_dec(x_2);
+x_12 = 1;
+return x_12;
+}
+}
+}
+}
 uint8_t l_PersistentHashMap_containsAux___main___at_Lean_Environment_contains___spec__4(lean_object* x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
@@ -1910,7 +1950,7 @@ x_17 = lean_ctor_get(x_1, 0);
 lean_inc(x_17);
 lean_dec(x_1);
 x_18 = lean_unsigned_to_nat(0u);
-x_19 = l_PersistentHashMap_containsAtAux___main___at_Lean_LocalContext_contains___spec__3(x_17, x_18, x_3);
+x_19 = l_PersistentHashMap_containsAtAux___main___at_Lean_Environment_contains___spec__5(x_17, x_18, x_3);
 lean_dec(x_17);
 return x_19;
 }
@@ -1989,6 +2029,17 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+lean_object* l_PersistentHashMap_containsAtAux___main___at_Lean_Environment_contains___spec__5___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_PersistentHashMap_containsAtAux___main___at_Lean_Environment_contains___spec__5(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_1);
+x_5 = lean_box(x_4);
+return x_5;
 }
 }
 lean_object* l_PersistentHashMap_containsAux___main___at_Lean_Environment_contains___spec__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

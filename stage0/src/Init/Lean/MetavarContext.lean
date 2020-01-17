@@ -546,6 +546,26 @@ def instantiateMVars (mctx : MetavarContext) (e : Expr) : Expr × MetavarContext
 if !e.hasMVar then (e, mctx)
 else (WithHashMapCache.toState $ InstantiateExprMVars.main e).run mctx
 
+def instantiateLCtxMVars (mctx : MetavarContext) (lctx : LocalContext) : LocalContext × MetavarContext :=
+lctx.foldl
+  (fun (result : LocalContext × MetavarContext) ldecl =>
+     let (lctx, mctx) := result;
+     match ldecl with
+     | LocalDecl.cdecl _ fvarId userName type bi    =>
+       let (type, mctx) := mctx.instantiateMVars type;
+       (lctx.mkLocalDecl fvarId userName type bi, mctx)
+     | LocalDecl.ldecl _ fvarId userName type value =>
+       let (type, mctx)  := mctx.instantiateMVars type;
+       let (value, mctx) := mctx.instantiateMVars value;
+       (lctx.mkLetDecl fvarId userName type value, mctx))
+  ({}, mctx)
+
+def instantiateMVarDeclMVars (mctx : MetavarContext) (mvarId : MVarId) : MetavarContext :=
+let mvarDecl     := mctx.getDecl mvarId;
+let (lctx, mctx) := mctx.instantiateLCtxMVars mvarDecl.lctx;
+let (type, mctx) := mctx.instantiateMVars mvarDecl.type;
+{ decls := mctx.decls.insert mvarId { lctx := lctx, type := type, .. mvarDecl }, .. mctx }
+
 namespace DependsOn
 
 private abbrev M := StateM ExprSet

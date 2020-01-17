@@ -70,6 +70,7 @@ lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 lean_object* l_Lean_Elab_Command_mkDef___lambda__1___closed__2;
 lean_object* l_Lean_Elab_Command_mkDef___lambda__1___closed__1;
 lean_object* l_Lean_Elab_Term_elabTermAux___main(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_2__resumePostponed___lambda__1___closed__1;
 lean_object* l_Lean_Elab_Term_logTrace(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_Elab_Command_modifyScope___at_Lean_Elab_Command_elabDefLike___spec__4(lean_object*, lean_object*, lean_object*);
@@ -80,7 +81,6 @@ lean_object* l_Lean_Elab_Term_throwError___rarg(lean_object*, lean_object*, lean
 extern lean_object* l_Lean_Elab_Term_elabTypeStx___rarg___closed__1;
 lean_object* l_Lean_Elab_Command_collectUsedFVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Definition_1__regTraceClasses(lean_object*);
-extern lean_object* l___private_Init_Lean_Elab_Term_11__resumePostponed___lambda__1___closed__1;
 lean_object* l_Lean_Elab_Command_withUsedWhen___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Command_namespace___elambda__1___closed__1;
 lean_object* l_Lean_Elab_Command_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -91,7 +91,6 @@ lean_object* l_Lean_CollectFVars_main___main(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_withUsedWhen_x27(lean_object*);
 lean_object* l_Lean_Elab_Command_DefKind_isDefOrOpaque___boxed(lean_object*);
 lean_object* l_Lean_Elab_Term_getLocalInsts(lean_object*, lean_object*);
-lean_object* l___private_Init_Lean_Elab_Term_17__synthesizeSyntheticMVarsAux___main(uint8_t, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_modifyScope___closed__1;
 lean_object* l_Lean_Elab_Command_elabDefLike___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Elab_Command_DefKind_isTheorem(uint8_t);
@@ -110,6 +109,7 @@ lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Lean_Elab_Command_mkDef___lambda__1___closed__3;
 lean_object* l_Lean_Elab_Command_mkDef___lambda__1___closed__6;
 lean_object* l_Lean_Elab_Term_elabType(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_10__synthesizeSyntheticMVarsAux___main(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkDef___lambda__1___closed__5;
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 lean_object* l_Lean_Elab_Command_mkDef(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1576,7 +1576,7 @@ lean_dec(x_37);
 lean_dec(x_35);
 lean_dec(x_32);
 lean_dec(x_8);
-x_58 = l___private_Init_Lean_Elab_Term_11__resumePostponed___lambda__1___closed__1;
+x_58 = l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_2__resumePostponed___lambda__1___closed__1;
 x_59 = l_unreachable_x21___rarg(x_58);
 x_60 = lean_apply_2(x_59, x_11, x_38);
 return x_60;
@@ -1760,7 +1760,7 @@ lean_dec(x_16);
 x_19 = 0;
 x_20 = lean_box(0);
 lean_inc(x_8);
-x_21 = l___private_Init_Lean_Elab_Term_17__synthesizeSyntheticMVarsAux___main(x_19, x_20, x_8, x_18);
+x_21 = l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_10__synthesizeSyntheticMVarsAux___main(x_19, x_20, x_8, x_18);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; 
@@ -4458,7 +4458,7 @@ lean_dec(x_26);
 x_29 = 0;
 x_30 = lean_box(0);
 lean_inc(x_8);
-x_31 = l___private_Init_Lean_Elab_Term_17__synthesizeSyntheticMVarsAux___main(x_29, x_30, x_8, x_28);
+x_31 = l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_10__synthesizeSyntheticMVarsAux___main(x_29, x_30, x_8, x_28);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; uint8_t x_36; uint8_t x_37; lean_object* x_38; lean_object* x_39; 

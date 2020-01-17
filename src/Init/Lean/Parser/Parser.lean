@@ -1827,11 +1827,10 @@ private def pushNone {k : ParserKind} : Parser k :=
   when evaluating `match_syntax`. -/
 def mkAntiquot {k : ParserKind} (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parser k :=
 let kind := (kind.getD Name.anonymous) ++ `antiquot;
-let sym := ":" ++ name;
-let nameP := checkNoWsBefore ("no space before '" ++ sym ++ "'") >> coe sym;
+let nameP := checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbolAux ":" >> nonReservedSymbol name;
 -- if parsing the kind fails and `anonymous` is true, check that we're not ignoring a different
 -- antiquotation kind via `noImmediateColon`
-let nameP := if anonymous then nameP <|> noImmediateColon >> pushNone else nameP;
+let nameP := if anonymous then nameP <|> noImmediateColon >> pushNone >> pushNone else nameP;
 node kind $ try $ dollarSymbol >> checkNoWsBefore "no space before" >>
   -- use high precedence so that `$(x).y` is parsed as a projection of an antiquotation
   termParser (appPrec + 1) >>

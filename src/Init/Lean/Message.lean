@@ -11,6 +11,7 @@ import Init.Lean.Data.Position
 import Init.Lean.Syntax
 import Init.Lean.MetavarContext
 import Init.Lean.Environment
+import Init.Lean.Util.PPExt
 
 namespace Lean
 def mkErrorStringWithPos (fileName : String) (line col : Nat) (msg : String) : String :=
@@ -51,28 +52,6 @@ registerOption `syntaxMaxDepth { defValue := (2 : Nat), group := "", descr := "m
 
 def getSyntaxMaxDepth (opts : Options) : Nat :=
 opts.getNat `syntaxMaxDepth 2
-
-abbrev PPExprFn := Environment → MetavarContext → LocalContext → Options → Expr → Format
-
-/- TODO: delete after we implement the new pretty printer in Lean -/
-@[extern "lean_pp_expr"]
-constant ppOld : Environment → MetavarContext → LocalContext → Options → Expr → Format := arbitrary _
-
-def mkPPExprFnRef : IO (IO.Ref PPExprFn) := IO.mkRef ppOld
-@[init mkPPExprFnRef] def PPExprFnRef : IO.Ref PPExprFn := arbitrary _
-
-def mkPPExprFnExtension : IO (EnvExtension PPExprFn) :=
-registerEnvExtension $ PPExprFnRef.get
-
-@[init mkPPExprFnExtension]
-constant ppExprExt : EnvExtension PPExprFn := arbitrary _
-
-def ppExpr (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : Format :=
-let e := (mctx.instantiateMVars e).1;
-if opts.getBool `ppOld true then
-  (ppExprExt.getState env) env mctx lctx opts e
-else
-  format (toString e)
 
 partial def formatAux : Option MessageDataContext → MessageData → Format
 | _,         ofFormat fmt      => fmt
@@ -188,10 +167,6 @@ log.msgs.forM f
 
 def toList (log : MessageLog) : List Message :=
 (log.msgs.foldl (fun acc msg => msg :: acc) []).reverse
-
--- TODO: remove after we remove ppOld
-@[init] def ppOldOption : IO Unit :=
-registerOption `ppOld { defValue := true, group := "", descr := "disable/enable old pretty printer" }
 
 end MessageLog
 end Lean

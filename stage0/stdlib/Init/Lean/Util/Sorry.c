@@ -654,28 +654,28 @@ x_2 = lean_ctor_get(x_1, 0);
 x_3 = l_Lean_Expr_hasSorry___main(x_2);
 return x_3;
 }
-case 5:
+case 6:
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_1, 1);
 x_1 = x_4;
 goto _start;
 }
-case 6:
+case 7:
 {
 lean_object* x_6; 
 x_6 = lean_ctor_get(x_1, 1);
 x_1 = x_6;
 goto _start;
 }
-case 7:
+case 8:
 {
 lean_object* x_8; 
 x_8 = lean_ctor_get(x_1, 0);
 x_1 = x_8;
 goto _start;
 }
-case 8:
+case 9:
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_10 = lean_ctor_get(x_1, 0);
@@ -693,14 +693,14 @@ x_14 = 1;
 return x_14;
 }
 }
-case 9:
+case 10:
 {
 lean_object* x_15; 
 x_15 = lean_ctor_get(x_1, 1);
 x_1 = x_15;
 goto _start;
 }
-case 10:
+case 11:
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_17 = lean_ctor_get(x_1, 0);
@@ -805,28 +805,28 @@ x_2 = lean_ctor_get(x_1, 0);
 x_3 = l_Lean_Expr_hasSyntheticSorry___main(x_2);
 return x_3;
 }
-case 5:
+case 6:
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_1, 1);
 x_1 = x_4;
 goto _start;
 }
-case 6:
+case 7:
 {
 lean_object* x_6; 
 x_6 = lean_ctor_get(x_1, 1);
 x_1 = x_6;
 goto _start;
 }
-case 7:
+case 8:
 {
 lean_object* x_8; 
 x_8 = lean_ctor_get(x_1, 0);
 x_1 = x_8;
 goto _start;
 }
-case 8:
+case 9:
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_10 = lean_ctor_get(x_1, 0);
@@ -844,14 +844,14 @@ x_14 = 1;
 return x_14;
 }
 }
-case 9:
+case 10:
 {
 lean_object* x_15; 
 x_15 = lean_ctor_get(x_1, 1);
 x_1 = x_15;
 goto _start;
 }
-case 10:
+case 11:
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_17 = lean_ctor_get(x_1, 0);

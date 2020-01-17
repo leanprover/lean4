@@ -1024,7 +1024,7 @@ lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean
 x_51 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_51, 0, x_20);
 x_52 = l_List_filterAuxM___main___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_6__synthesizeSyntheticMVarsStep___spec__2___closed__9;
-x_53 = lean_alloc_ctor(8, 2, 0);
+x_53 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_53, 0, x_52);
 lean_ctor_set(x_53, 1, x_51);
 lean_inc(x_19);
@@ -1314,18 +1314,18 @@ x_108 = l_Lean_fmt___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_6__syn
 x_109 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_109, 0, x_108);
 x_110 = l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_6__synthesizeSyntheticMVarsStep___closed__5;
-x_111 = lean_alloc_ctor(8, 2, 0);
+x_111 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_111, 0, x_110);
 lean_ctor_set(x_111, 1, x_109);
 x_112 = l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_6__synthesizeSyntheticMVarsStep___closed__8;
-x_113 = lean_alloc_ctor(8, 2, 0);
+x_113 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_113, 0, x_111);
 lean_ctor_set(x_113, 1, x_112);
 if (x_1 == 0)
 {
 lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; 
 x_114 = l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_6__synthesizeSyntheticMVarsStep___closed__9;
-x_115 = lean_alloc_ctor(8, 2, 0);
+x_115 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_115, 0, x_113);
 lean_ctor_set(x_115, 1, x_114);
 x_116 = lean_box(0);
@@ -1340,7 +1340,7 @@ else
 {
 lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; 
 x_119 = l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_6__synthesizeSyntheticMVarsStep___closed__10;
-x_120 = lean_alloc_ctor(8, 2, 0);
+x_120 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_120, 0, x_113);
 lean_ctor_set(x_120, 1, x_119);
 x_121 = lean_box(0);
@@ -2358,7 +2358,7 @@ x_7 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 x_8 = l_Lean_indentExpr(x_7);
 x_9 = l_List_forM___main___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_8__reportStuckSyntheticMVars___spec__1___lambda__1___closed__3;
-x_10 = lean_alloc_ctor(8, 2, 0);
+x_10 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_8);
 x_11 = 2;

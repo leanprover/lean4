@@ -2555,9 +2555,9 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_o
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = l_PersistentArray_toArray___rarg(x_8);
 lean_dec(x_8);
-x_10 = lean_alloc_ctor(10, 1, 0);
+x_10 = lean_alloc_ctor(11, 1, 0);
 lean_ctor_set(x_10, 0, x_9);
-x_11 = lean_alloc_ctor(9, 2, 0);
+x_11 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_11, 0, x_2);
 lean_ctor_set(x_11, 1, x_10);
 x_12 = l_PersistentArray_push___rarg(x_1, x_11);
@@ -2577,9 +2577,9 @@ lean_inc(x_16);
 lean_dec(x_6);
 x_17 = l_PersistentArray_toArray___rarg(x_16);
 lean_dec(x_16);
-x_18 = lean_alloc_ctor(10, 1, 0);
+x_18 = lean_alloc_ctor(11, 1, 0);
 lean_ctor_set(x_18, 0, x_17);
-x_19 = lean_alloc_ctor(9, 2, 0);
+x_19 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_19, 0, x_2);
 lean_ctor_set(x_19, 1, x_18);
 x_20 = l_PersistentArray_push___rarg(x_1, x_19);
@@ -2622,9 +2622,9 @@ if (lean_is_exclusive(x_24)) {
 }
 x_33 = l_PersistentArray_toArray___rarg(x_31);
 lean_dec(x_31);
-x_34 = lean_alloc_ctor(10, 1, 0);
+x_34 = lean_alloc_ctor(11, 1, 0);
 lean_ctor_set(x_34, 0, x_33);
-x_35 = lean_alloc_ctor(9, 2, 0);
+x_35 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_35, 0, x_2);
 lean_ctor_set(x_35, 1, x_34);
 x_36 = l_PersistentArray_push___rarg(x_1, x_35);
@@ -4128,7 +4128,7 @@ if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_14 = lean_ctor_get(x_7, 0);
-x_15 = lean_alloc_ctor(9, 2, 0);
+x_15 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_15, 0, x_1);
 lean_ctor_set(x_15, 1, x_9);
 x_16 = l_PersistentArray_push___rarg(x_14, x_15);
@@ -4144,7 +4144,7 @@ x_18 = lean_ctor_get_uint8(x_7, sizeof(void*)*1);
 x_19 = lean_ctor_get(x_7, 0);
 lean_inc(x_19);
 lean_dec(x_7);
-x_20 = lean_alloc_ctor(9, 2, 0);
+x_20 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_20, 0, x_1);
 lean_ctor_set(x_20, 1, x_9);
 x_21 = l_PersistentArray_push___rarg(x_19, x_20);
@@ -4181,7 +4181,7 @@ if (lean_is_exclusive(x_7)) {
  lean_dec_ref(x_7);
  x_31 = lean_box(0);
 }
-x_32 = lean_alloc_ctor(9, 2, 0);
+x_32 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_32, 0, x_1);
 lean_ctor_set(x_32, 1, x_9);
 x_33 = l_PersistentArray_push___rarg(x_30, x_32);
@@ -4243,7 +4243,7 @@ if (lean_is_exclusive(x_7)) {
  lean_dec_ref(x_7);
  x_46 = lean_box(0);
 }
-x_47 = lean_alloc_ctor(9, 2, 0);
+x_47 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_47, 0, x_1);
 lean_ctor_set(x_47, 1, x_37);
 x_48 = l_PersistentArray_push___rarg(x_45, x_47);

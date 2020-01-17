@@ -396,7 +396,7 @@ def hasAssignedLevelMVar (mctx : MetavarContext) : Level → Bool
 | Level.zero _           => false
 | Level.param _ _        => false
 
-/-- Return `true` iff expression contains assigned (level/expr) metavariables -/
+/-- Return `true` iff expression contains assigned (level/expr) metavariables or delayed assigned mvars -/
 def hasAssignedMVar (mctx : MetavarContext) : Expr → Bool
 | Expr.const _ lvls _  => lvls.any (hasAssignedLevelMVar mctx)
 | Expr.sort lvl _      => hasAssignedLevelMVar mctx lvl
@@ -409,7 +409,7 @@ def hasAssignedMVar (mctx : MetavarContext) : Expr → Bool
 | Expr.lit _ _         => false
 | Expr.mdata _ e _     => e.hasMVar && hasAssignedMVar e
 | Expr.proj _ _ e _    => e.hasMVar && hasAssignedMVar e
-| Expr.mvar mvarId _   => mctx.isExprAssigned mvarId
+| Expr.mvar mvarId _   => mctx.isExprAssigned mvarId || mctx.isDelayedAssigned mvarId
 | Expr.localE _ _ _ _  => unreachable!
 
 /-- Return true iff the given level contains a metavariable that can be assigned. -/

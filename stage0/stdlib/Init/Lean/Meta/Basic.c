@@ -867,7 +867,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_maxRecDepthErrorMessage;
-x_2 = lean_alloc_ctor(19, 1, 0);
+x_2 = lean_alloc_ctor(20, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1103,7 +1103,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_mkWHNFRef___lambda__1___closed__1;
-x_2 = lean_alloc_ctor(19, 1, 0);
+x_2 = lean_alloc_ctor(20, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1159,7 +1159,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_mkInferTypeRef___lambda__1___closed__1;
-x_2 = lean_alloc_ctor(19, 1, 0);
+x_2 = lean_alloc_ctor(20, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1215,7 +1215,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_mkIsExprDefEqAuxRef___lambda__1___closed__1;
-x_2 = lean_alloc_ctor(19, 1, 0);
+x_2 = lean_alloc_ctor(20, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -2832,7 +2832,7 @@ lean_ctor_set(x_9, 0, x_4);
 lean_ctor_set(x_9, 1, x_5);
 lean_ctor_set(x_9, 2, x_6);
 lean_ctor_set(x_9, 3, x_8);
-x_10 = lean_alloc_ctor(18, 2, 0);
+x_10 = lean_alloc_ctor(19, 2, 0);
 lean_ctor_set(x_10, 0, x_1);
 lean_ctor_set(x_10, 1, x_9);
 x_11 = lean_alloc_ctor(1, 2, 0);
@@ -4038,7 +4038,7 @@ lean_ctor_set(x_9, 0, x_4);
 lean_ctor_set(x_9, 1, x_5);
 lean_ctor_set(x_9, 2, x_6);
 lean_ctor_set(x_9, 3, x_8);
-x_10 = lean_alloc_ctor(5, 2, 0);
+x_10 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_1);
 x_11 = lean_alloc_ctor(0, 2, 0);

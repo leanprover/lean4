@@ -7,6 +7,7 @@ prelude
 import Init.Lean.Environment
 import Init.Lean.MetavarContext
 import Init.Lean.Message
+import Init.Lean.Util.PPGoal
 
 namespace Lean
 namespace Meta
@@ -35,6 +36,7 @@ inductive Exception
 | notInstance          (e : Expr) (ctx : ExceptionContext)
 | appBuilder           (op : Name) (msg : String) (args : Array Expr) (ctx : ExceptionContext)
 | synthInstance        (inst : Expr) (ctx : ExceptionContext)
+| tactic               (tacticName : Name) (mvarId : MVarId) (msg : MessageData) (ctx : ExceptionContext)
 | bug                  (b : Bug) (ctx : ExceptionContext)
 | other                (msg : String)
 
@@ -61,6 +63,7 @@ def toStr : Exception → String
 | notInstance _ _               => "type class instance expected"
 | appBuilder _ _ _ _            => "application builder failure"
 | synthInstance _ _             => "type class instance synthesis failed"
+| tactic tacName _ _ _          => "tactic '" ++ toString tacName ++ "' failed"
 | bug _ _                       => "bug"
 | other s                       => s
 
@@ -89,6 +92,7 @@ def toTraceMessageData : Exception → MessageData
 | notInstance i ctx               => mkCtx ctx $ `notInstance ++ " " ++ i
 | appBuilder op msg args ctx      => mkCtx ctx $ `appBuilder ++ " " ++ op ++ " " ++ args ++ " " ++ msg
 | synthInstance inst ctx          => mkCtx ctx $ `synthInstance ++ " " ++ inst
+| tactic tacName mvarId msg ctx   => mkCtx ctx $ `tacticFailure ++ " " ++ tacName ++ " " ++ msg
 | bug _ _                         => "internal bug" -- TODO improve
 | other s                         => s
 

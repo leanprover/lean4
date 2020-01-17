@@ -7,6 +7,7 @@ prelude
 import Init.Lean.Elab.Util
 import Init.Lean.Elab.Term
 import Init.Lean.Meta.Tactic.Assumption
+import Init.Lean.Meta.Tactic.Intro
 
 namespace Lean
 namespace Elab
@@ -41,7 +42,7 @@ def getLCtx : TacticM LocalContext := do ctx ← read; pure ctx.lctx
 def getLocalInsts : TacticM LocalInstances := do ctx ← read; pure ctx.localInstances
 def getOptions : TacticM Options := do ctx ← read; pure ctx.config.opts
 def getMVarDecl (mvarId : MVarId) : TacticM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
-
+def instantiateMVars (ref : Syntax) (e : Expr) : TacticM Expr := liftTermElabM $ Term.instantiateMVars ref e
 def addContext (msg : MessageData) : TacticM MessageData := liftTermElabM $ Term.addContext msg
 
 instance monadLog : MonadLog TacticM :=
@@ -183,11 +184,11 @@ fun stx => (stx.getArg 0).forSepArgsM evalTactic
 @[builtinTactic «assumption»] def evalAssumption : Tactic :=
 fun stx => liftMetaTactic stx $ fun mvarId => do Meta.assumption mvarId; pure []
 
-/-
 @[builtinTactic «intro»] def evalIntro : Tactic :=
 fun stx => match_syntax stx with
-  | `(tactic| intro) => `(tactic| intro _) >>= evalTactic
--/
+  | `(tactic| intro)    => liftMetaTactic stx $ fun mvarId => do (_, mvarId) ← Meta.intro1 mvarId; pure [mvarId]
+  | `(tactic| intro $h) => liftMetaTactic stx $ fun mvarId => do (_, mvarId) ← Meta.intro mvarId h.getId; pure [mvarId]
+  | _                   => throwUnsupportedSyntax
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.tactic;

@@ -18,7 +18,8 @@ def introNCoreAux {σ} (mvarId : MVarId) (mkName : LocalContext → Name → σ 
     withNewLocalInstances isClassExpensive fvars j $ do
       newMVar ← mkFreshExprSyntheticOpaqueMVar type;
       lctx    ← getLCtx;
-      modify $ fun s => { mctx := s.mctx.assignDelayed mvarId lctx fvars newMVar, .. s };
+      newVal  ← mkLambda fvars newMVar;
+      modify $ fun s => { mctx := s.mctx.assignExpr mvarId newVal, .. s };
       pure $ (fvars, newMVar.mvarId!)
 | (i+1), lctx, fvars, j, s, Expr.letE n type val body _ => do
   let type   := type.instantiateRevRange j fvars.size fvars;
@@ -45,11 +46,11 @@ def introNCoreAux {σ} (mvarId : MVarId) (mkName : LocalContext → Name → σ 
       if newType.isForall then
         introNCoreAux i lctx fvars fvars.size s newType
       else
-        throw $ Exception.other "`introN` failed, insufficient number of binders"
+        throwTacticEx `introN mvarId "insufficient number of binders"
 
 @[specialize] def introNCore {σ} (mvarId : MVarId) (n : Nat) (mkName : LocalContext → Name → σ → Name × σ) (s : σ) : MetaM (Array Expr × MVarId) :=
 withMVarContext mvarId $ do
-  checkNotAssigned mvarId "introN";
+  checkNotAssigned mvarId `introN;
   mvarType ← getMVarType mvarId;
   lctx ← getLCtx;
   introNCoreAux mvarId mkName n lctx #[] 0 s mvarType
@@ -62,11 +63,11 @@ def introN (mvarId : MVarId) (n : Nat) (givenNames : List Name := []) : MetaM (A
 introNCore mvarId n mkAuxName givenNames
 
 def intro (mvarId : MVarId) (name : Name) : MetaM (Expr × MVarId) := do
-(fvars, mvarid) ← introN mvarId 1 [name];
+(fvars, mvarId) ← introN mvarId 1 [name];
 pure (fvars.get! 0, mvarId)
 
 def intro1 (mvarId : MVarId) : MetaM (Expr × MVarId) := do
-(fvars, mvarid) ← introN mvarId 1 [];
+(fvars, mvarId) ← introN mvarId 1 [];
 pure (fvars.get! 0, mvarId)
 
 end Meta

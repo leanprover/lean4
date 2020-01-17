@@ -12,7 +12,7 @@ namespace Meta
 
 def assumptionAux (mvarId : MVarId) : MetaM Bool :=
 withMVarContext mvarId $ do
-  checkNotAssigned mvarId "assumption";
+  checkNotAssigned mvarId `assumption;
   mvarType ← getMVarType mvarId;
   lctx ← getLCtx;
   h? ← lctx.findDeclRevM? $ fun decl => condM (isDefEq mvarType decl.type) (pure (some decl.toExpr)) (pure none);
@@ -21,7 +21,7 @@ withMVarContext mvarId $ do
   | none   => pure false
 
 def assumption (mvarId : MVarId) : MetaM Unit :=
-unlessM (assumptionAux mvarId) $ throw $ Exception.other "`assumption` failed"
+unlessM (assumptionAux mvarId) $ throwTacticEx `assumption mvarId ""
 
 end Meta
 end Lean

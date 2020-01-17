@@ -1177,7 +1177,7 @@ lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; uint
 x_54 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_54, 0, x_51);
 x_55 = l_Lean_Elab_Level_elabLevel___main___closed__9;
-x_56 = lean_alloc_ctor(8, 2, 0);
+x_56 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_56, 0, x_55);
 lean_ctor_set(x_56, 1, x_54);
 x_57 = l_Lean_Elab_throwError___at_Lean_Elab_Level_elabLevel___main___spec__5(x_1, x_56, x_2, x_3);

@@ -33,8 +33,7 @@ withMVarContext mvarId $ fun ctx s =>
   | EStateM.Result.ok a newS     => EStateM.Result.ok a newS.toTermState
 
 def reportUnsolvedGoals (ref : Syntax) (goals : List MVarId) : TermElabM Unit :=
--- TODO: pretty print goals
-throwError ref "there are unsolved goals"
+throwError ref $ "unsolved goals" ++ Format.line ++ MessageData.joinSep (goals.map $ MessageData.ofGoal) Format.line
 
 def runTactic (ref : Syntax) (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
 modify $ fun s => { mctx := s.mctx.instantiateMVarDeclMVars mvarId, .. s };

@@ -51,13 +51,16 @@ def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «p
 -- TODO delete reserve
 @[builtinCommandParser] def «reserve»  := parser! "reserve " >> mixfixKind >> quotedSymbolPrec
 def mixfixSymbol := quotedSymbolPrec <|> unquotedSymbol
-@[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> mixfixSymbol >> " := " >> termParser
+@[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> mixfixSymbol >> unicodeSymbol "⇒" "=>" >> termParser
 def strLitPrec := parser! strLit >> optional Syntax.precedence
 def identPrec  := parser! ident >> optional Syntax.precedence
 
-@[builtinCommandParser] def «notation» := parser! "notation" >> many (strLitPrec <|> quotedSymbolPrec <|> identPrec) >> " := " >> termParser
-@[builtinCommandParser] def «macro» := parser! "macro" >> many1Indent Term.matchAlt "'match' alternatives must be indented"
-@[builtinCommandParser] def «syntax» := parser! "syntax " >> optional ("[" >> ident >> "]") >> many1 syntaxParser >> " : " >> ident
+@[builtinCommandParser] def «notation»    := parser! "notation" >> many (strLitPrec <|> quotedSymbolPrec <|> identPrec) >> unicodeSymbol "⇒" "=>" >> termParser
+@[builtinCommandParser] def «macro_rules» := parser! "macro_rules" >> many1Indent Term.matchAlt "'match' alternatives must be indented"
+@[builtinCommandParser] def «syntax»      := parser! "syntax " >> optional ("[" >> ident >> "]") >> many1 syntaxParser >> " : " >> ident
+@[builtinCommandParser] def syntaxCat     := parser! "declare_syntax_cat " >> ident
+def macroArg := parser! "(" >> optional (ident >> ":") >> syntaxParser >> ")"
+@[builtinCommandParser] def «macro»       := parser! "macro " >> (strLitPrec <|> identPrec) >> many macroArg >> " : " >> ident >> unicodeSymbol "⇒" "=>" >> termParser
 
 end Command
 

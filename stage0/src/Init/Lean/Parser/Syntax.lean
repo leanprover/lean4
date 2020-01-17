@@ -59,7 +59,8 @@ def identPrec  := parser! ident >> optional Syntax.precedence
 @[builtinCommandParser] def «macro_rules» := parser! "macro_rules" >> many1Indent Term.matchAlt "'match' alternatives must be indented"
 @[builtinCommandParser] def «syntax»      := parser! "syntax " >> optional ("[" >> ident >> "]") >> many1 syntaxParser >> " : " >> ident
 @[builtinCommandParser] def syntaxCat     := parser! "declare_syntax_cat " >> ident
-def macroArg := parser! "(" >> optional (ident >> ":") >> syntaxParser >> ")"
+def macroArgSimple := parser! ident >> ":" >> ident >> optional Syntax.precedence
+def macroArg := try (strLitPrec <|> macroArgSimple)
 @[builtinCommandParser] def «macro»       := parser! "macro " >> (strLitPrec <|> identPrec) >> many macroArg >> " : " >> ident >> unicodeSymbol "⇒" "=>" >> termParser
 
 end Command

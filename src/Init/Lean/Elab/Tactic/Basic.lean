@@ -41,7 +41,7 @@ def getLCtx : TacticM LocalContext := do ctx ← read; pure ctx.lctx
 def getLocalInsts : TacticM LocalInstances := do ctx ← read; pure ctx.localInstances
 def getOptions : TacticM Options := do ctx ← read; pure ctx.config.opts
 def getMVarDecl (mvarId : MVarId) : TacticM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
-
+def instantiateMVars (ref : Syntax) (e : Expr) : TacticM Expr := liftTermElabM $ Term.instantiateMVars ref e
 def addContext (msg : MessageData) : TacticM MessageData := liftTermElabM $ Term.addContext msg
 
 instance monadLog : MonadLog TacticM :=

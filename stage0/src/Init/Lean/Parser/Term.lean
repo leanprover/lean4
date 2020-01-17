@@ -113,6 +113,11 @@ def bracketedDoSeq := parser! "{" >> doSeq >> "}"
 
 def namedArgument  := tparser! try ("(" >> ident >> " := ") >> termParser >> ")"
 @[builtinTermParser] def app      := tparser! pushLeading >> (namedArgument <|> termParser appPrec)
+
+-- Auxiliary notation used for fixing bootstrapping issues
+@[builtinTermParser] def appCore   := parser! "_app_ " >> termParser appPrec >> many1 (termParser appPrec)
+
+
 def checkIsSort := checkLeading (fun leading => leading.isOfKind `Lean.Parser.Term.type || leading.isOfKind `Lean.Parser.Term.sort)
 @[builtinTermParser] def sortApp  := tparser! checkIsSort >> pushLeading >> levelParser appPrec
 @[builtinTermParser] def proj     := tparser! pushLeading >> symbolNoWs "." (appPrec+1) >> (fieldIdx <|> ident)

@@ -21,7 +21,7 @@ categoryParser `tactic rbp
 
 namespace Tactic
 
-def seq := parser! sepBy1 tacticParser "; " true
+def seq := parser! sepBy tacticParser "; " true
 @[builtinTacticParser] def «intro» := parser! nonReservedSymbol "intro " >> optional ident
 @[builtinTacticParser] def «intros» := parser! nonReservedSymbol "intros " >> many ident
 @[builtinTacticParser] def «assumption» := parser! nonReservedSymbol "assumption"

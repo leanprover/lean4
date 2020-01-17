@@ -26,10 +26,10 @@ fun stx expectedType? =>
 
 open Tactic (TacticElabM elabTactic)
 
-def liftTacticElabM {α} (mvarId : MVarId) (x : TacticElabM α) : TermElabM α :=
+def liftTacticElabM {α} (ref : Syntax) (mvarId : MVarId) (x : TacticElabM α) : TermElabM α :=
 withMVarContext mvarId $ fun ctx s =>
   let mvar := mkMVar mvarId;
-  match x { main := mvar, .. ctx } { goals := [mvar], .. s } with
+  match x { ref := ref, main := mvar, .. ctx } { goals := [mvar], .. s } with
   | EStateM.Result.error ex newS => EStateM.Result.error (Term.Exception.ex ex) newS.toTermState
   | EStateM.Result.ok a newS     => EStateM.Result.ok a newS.toTermState
 
@@ -39,7 +39,7 @@ throwError ref "there are unsolved goals"
 
 def runTactic (ref : Syntax) (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
 modify $ fun s => { mctx := s.mctx.instantiateMVarDeclMVars mvarId, .. s };
-remainingGoals ← liftTacticElabM mvarId $ do { elabTactic tacticCode; s ← get; pure s.goals };
+remainingGoals ← liftTacticElabM ref mvarId $ do { elabTactic tacticCode; s ← get; pure s.goals };
 unless remainingGoals.isEmpty (reportUnsolvedGoals ref remainingGoals);
 -- TODO: check unassigned metavariables in mvarId
 pure ()

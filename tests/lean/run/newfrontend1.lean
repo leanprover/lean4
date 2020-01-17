@@ -40,3 +40,8 @@ succ a -- succ here is resolved as `Nat.succ`.
 def apply := "hello"
 
 #check apply
+
+theorem tst (x y : Nat) (h : x = y) : x = y :=
+begin
+  -- assumption
+end

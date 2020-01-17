@@ -13,6 +13,7 @@ namespace Tactic
 
 structure Context extends toTermCtx : Term.Context :=
 (main : Expr)
+(ref  : Syntax)
 
 structure State extends toTermState : Term.State :=
 (goals : List Expr)
@@ -46,7 +47,10 @@ instance monadLog : MonadLog TacticElabM :=
   addContext  := addContext,
   logMessage  := fun msg => modify $ fun s => { messages := s.messages.add msg, .. s } }
 
-def throwError {α} (ref : Syntax) (msgData : MessageData) : TacticElabM α :=  liftTermElabM $ Term.throwError ref msgData
+def throwError {α} (ref : Syntax) (msgData : MessageData) : TacticElabM α := do
+ref ← if ref.getPos.isNone then do ctx ← read; pure ctx.ref else pure ref;
+liftTermElabM $ Term.throwError ref msgData
+
 def throwUnsupportedSyntax {α} : TacticElabM α := liftTermElabM $ Term.throwUnsupportedSyntax
 
 @[inline] def withIncRecDepth {α} (ref : Syntax) (x : TacticElabM α) : TacticElabM α := do

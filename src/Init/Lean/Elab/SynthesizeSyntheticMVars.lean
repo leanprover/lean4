@@ -62,7 +62,7 @@ match mvarSyntheticDecl.kind with
 -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
 | SyntheticMVarKind.withDefault _        => checkWithDefault mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId
 | SyntheticMVarKind.postponed macroStack => resumePostponed macroStack mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId postponeOnError
-| SyntheticMVarKind.tactic tacticCode    => runTactic mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId tacticCode
+| SyntheticMVarKind.tactic tacticCode    => do runTactic mvarSyntheticDecl.ref mvarSyntheticDecl.mvarId tacticCode; pure true
 
 /--
   Try to synthesize the current list of pending synthetic metavariables.

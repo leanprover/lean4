@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include <mach-o/dyld.h>
 #else
 // Linux include files
-#include <unistd.h>
 #endif
 #include <iostream>
 #include <chrono>
@@ -20,12 +19,18 @@ Author: Leonardo de Moura
 #include <string>
 #include <cstdlib>
 #include <cctype>
-#include <sys/stat.h>
 #include "util/io.h"
 #include "runtime/utf8.h"
 #include "runtime/object.h"
 #include "runtime/thread.h"
 #include "runtime/allocprof.h"
+
+#include <unistd.h>
+#include <sys/stat.h>
+
+#include <stdio.h>
+#include<sys/types.h>
+#include<fcntl.h>
 
 #ifdef _MSC_VER
 #define S_ISDIR(mode) ((mode & _S_IFDIR) != 0)
@@ -289,6 +294,25 @@ obj_res decode_io_error(int errnum, b_obj_arg fname) {
         lean_assert(fname == nullptr);
         return lean_mk_io_error_other_error(errnum, details);
     }
+}
+
+/* Prim.mkPipe : IO Pipe := arbitrary _ */
+extern "C" obj_res lean_io_mk_pipe(bool non_blocking, obj_arg /* w */) {
+    int fd[2];
+    if (pipe(fd) < 0) {
+        return set_io_error(decode_io_error(errno, nullptr));
+    }
+    object * in, * out, * res;
+    if (non_blocking) {
+        fcntl(fd[0], F_SETFL, O_NONBLOCK);
+    }
+    in  = io_wrap_handle(fdopen(fd[0], "r"));
+    out = io_wrap_handle(fdopen(fd[1], "w"));
+    res = lean_alloc_ctor(0, 2, 0);
+    lean_ctor_set(res, 0, in);
+    lean_ctor_set(res, 1, out);
+
+    return set_io_result(res);
 }
 
 /* IO.setAccessRights (filename : @& String) (mode : UInt32) : IO Handle */

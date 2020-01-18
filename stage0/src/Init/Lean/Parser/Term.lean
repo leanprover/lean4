@@ -41,6 +41,7 @@ def namedPattern := checkNoWsBefore "no space before '@'" >> parser! "@" >> term
 @[builtinTermParser] def sort := parser! symbol "Sort" appPrec
 @[builtinTermParser] def prop := parser! symbol "Prop" appPrec
 @[builtinTermParser] def hole := parser! symbol "_" appPrec
+@[builtinTermParser] def namedHole := parser! symbol "?" appPrec >> ident
 @[builtinTermParser] def «sorry» := parser! symbol "sorry" appPrec
 @[builtinTermParser] def cdot   := parser! symbol "·" appPrec
 @[builtinTermParser] def emptyC := parser! symbol "∅" appPrec

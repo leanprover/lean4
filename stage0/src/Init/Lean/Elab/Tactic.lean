@@ -35,12 +35,16 @@ withMVarContext mvarId $ fun ctx s =>
 def reportUnsolvedGoals (ref : Syntax) (goals : List MVarId) : TermElabM Unit :=
 throwError ref $ "unsolved goals" ++ Format.line ++ MessageData.joinSep (goals.map $ MessageData.ofGoal) Format.line
 
+def ensureAssignmentHasNoMVars (ref : Syntax) (mvarId : MVarId) : TermElabM Unit := do
+val ← instantiateMVars ref (mkMVar mvarId);
+when val.hasMVar $ throwError ref ("tactic failed, result still contain metavariables" ++ indentExpr val)
+
 def runTactic (ref : Syntax) (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
 modify $ fun s => { mctx := s.mctx.instantiateMVarDeclMVars mvarId, .. s };
 remainingGoals ← liftTacticElabM ref mvarId $ do { evalTactic tacticCode; s ← get; pure s.goals };
-unless remainingGoals.isEmpty (reportUnsolvedGoals ref remainingGoals);
--- TODO: check unassigned metavariables in mvarId
-pure ()
+let tailRef := ref.getTailWithInfo.getD ref;
+unless remainingGoals.isEmpty (reportUnsolvedGoals tailRef remainingGoals);
+ensureAssignmentHasNoMVars tailRef mvarId
 
 end Term
 

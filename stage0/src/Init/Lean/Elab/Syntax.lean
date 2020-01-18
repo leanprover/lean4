@@ -143,12 +143,16 @@ fun stx => do
   env ← liftIO stx $ Parser.registerParserCategory env attrName catName;
   setEnv env
 
+def mkFreshKind (catName : Name) : CommandElabM Name := do
+env ← getEnv;
+let (env, kind) := Parser.mkFreshKind env catName;
+setEnv env;
+pure kind
+
+
 private def elabKind (stx : Syntax) (catName : Name) : CommandElabM Name := do
-if stx.isNone then do
-  env ← getEnv;
-  let (env, kind) := Parser.mkFreshKind env catName;
-  setEnv env;
-  pure kind
+if stx.isNone then
+  mkFreshKind catName
 else do
   let kind := stx.getIdAt 1;
   currNamespace ← getCurrNamespace;
@@ -205,6 +209,11 @@ else if k == `Lean.Parser.Command.strLitPrec then
 else
   throwUnsupportedSyntax
 
+def strLitPrecToPattern (stx: Syntax) : CommandElabM Syntax :=
+match (stx.getArg 0).isStrLit? with
+| some str => pure $ mkAtomFrom stx str
+| none     => throwUnsupportedSyntax
+
 /- Convert `notation` command lhs item a pattern element -/
 def expandNotationItemIntoPattern (stx : Syntax) : CommandElabM Syntax :=
 let k := stx.getKind;
@@ -214,29 +223,91 @@ if k == `Lean.Parser.Command.identPrec then
 else if k == `Lean.Parser.Command.quotedSymbolPrec then
   pure $ (stx.getArg 0).getArg 1
 else if k == `Lean.Parser.Command.strLitPrec then
-  match (stx.getArg 0).isStrLit? with
-  | some str => pure $ mkAtomFrom stx str
-  | none     => throwUnsupportedSyntax
+  strLitPrecToPattern stx
 else
   throwUnsupportedSyntax
 
 @[builtinCommandElab «notation»] def elabNotation : CommandElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `(notation $items* => $rhs) => do
+  kind ← mkFreshKind `term;
   -- build parser
   syntaxParts ← items.mapM expandNotationItemIntoSyntaxItem;
   let cat := mkIdentFrom stx `term;
-  -- build macro
+  -- build macro rules
   let vars := items.filter $ fun item => item.getKind == `Lean.Parser.Command.identPrec;
   let vars := vars.map $ fun var => var.getArg 0;
   let rhs := antiquote vars rhs;
   patArgs ← items.mapM expandNotationItemIntoPattern;
-  scp ← getCurrMacroScope;
-  -- manually create hygienic kind name
-  let kind := addMacroScope `myParser scp;
   let pat := Syntax.node kind patArgs;
   `(syntax [$(mkIdentFrom stx kind)] $syntaxParts* : $cat macro_rules | `($pat) => `($rhs))
 | _ => throwUnsupportedSyntax
+
+/- Convert `macro` head into a `syntax` command item -/
+def expandMacroHeadIntoSyntaxItem (stx : Syntax) : CommandElabM Syntax :=
+let k := stx.getKind;
+if k == `Lean.Parser.Command.identPrec then
+  let info := stx.getHeadInfo;
+  let id   := (stx.getArg 0).getId;
+  pure $ Syntax.node `Lean.Parser.Syntax.atom #[mkStxStrLit (toString id) info, stx.getArg 1]
+else if k == `Lean.Parser.Command.strLitPrec then
+  pure $ Syntax.node `Lean.Parser.Syntax.atom stx.getArgs
+else
+  throwUnsupportedSyntax
+
+/- Convert `macro` argument into a `syntax` command item -/
+def expandMacroArgIntoSyntaxItem (stx : Syntax) : CommandElabM Syntax :=
+let k := stx.getKind;
+if k == `Lean.Parser.Command.macroArgSimple then
+  pure $ Syntax.node `Lean.Parser.Syntax.cat #[stx.getArg 2,  stx.getArg 3]
+else if k == `Lean.Parser.Command.strLitPrec then
+  pure $ Syntax.node `Lean.Parser.Syntax.atom stx.getArgs
+else
+  throwUnsupportedSyntax
+
+/- Convert `macro` head into a pattern element -/
+def expandMacroHeadIntoPattern (stx : Syntax) : CommandElabM Syntax :=
+let k := stx.getKind;
+if k == `Lean.Parser.Command.identPrec then
+  let str := toString (stx.getArg 0).getId;
+  pure $ mkAtomFrom stx str
+else if k == `Lean.Parser.Command.strLitPrec then
+  strLitPrecToPattern stx
+else
+  throwUnsupportedSyntax
+
+/- Convert `macro` arg into a pattern element -/
+def expandMacroArgIntoPattern (stx : Syntax) : CommandElabM Syntax :=
+let k := stx.getKind;
+if k == `Lean.Parser.Command.macroArgSimple then
+  let item := stx.getArg 0;
+  pure $ mkNode `antiquot #[mkAtom "$", mkTermIdFromIdent item, mkNullNode, mkNullNode]
+else if k == `Lean.Parser.Command.strLitPrec then
+  strLitPrecToPattern stx
+else
+  throwUnsupportedSyntax
+
+@[builtinCommandElab «macro»] def elabMacro : CommandElab :=
+adaptExpander $ fun stx => do
+  let head    := stx.getArg 1;
+  let args    := (stx.getArg 2).getArgs;
+  let cat     := stx.getArg 4;
+  let rhsBody := stx.getArg 7;
+  kind ← mkFreshKind cat.getId;
+  -- build parser
+  stxPart  ← expandMacroHeadIntoSyntaxItem head;
+  stxParts ← args.mapM expandMacroArgIntoSyntaxItem;
+  let stxParts := #[stxPart] ++ stxParts;
+  -- build macro rules
+  patHead ← expandMacroHeadIntoPattern head;
+  patArgs ← args.mapM expandMacroArgIntoPattern;
+  let pat := Syntax.node kind (#[patHead] ++ patArgs);
+  trace `Elab.syntax stx $ fun _ => pat;
+  `(syntax [$(mkIdentFrom stx kind)] $stxParts* : $cat macro_rules | `($pat) => `($rhsBody))
+
+@[init] private def regTraceClasses : IO Unit := do
+registerTraceClass `Elab.syntax;
+pure ()
 
 end Command
 end Elab

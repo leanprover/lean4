@@ -104,7 +104,6 @@ lean_object* l___private_Init_Lean_Elab_TermApp_17__mergeFailures(lean_object*);
 lean_object* l___private_Init_Lean_Elab_TermApp_8__resolveLValLoop___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_forMAux___main___at___private_Init_Lean_Elab_TermApp_1__synthesizeAppInstMVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Term_ensureHasType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlStepMAux___main___at_Lean_Syntax_foldSepRevArgsM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldlM___main___at___private_Init_Lean_Elab_TermApp_10__mkBaseProjections___spec__1___closed__1;
 lean_object* l___private_Init_Lean_Elab_TermApp_11__addLValArg___main___closed__7;
@@ -331,6 +330,7 @@ lean_object* l___private_Init_Lean_Elab_TermApp_12__elabAppLValsAux___main___box
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabSortApp(lean_object*);
 lean_object* l___private_Init_Lean_Elab_TermApp_1__synthesizeAppInstMVars(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_TermApp_7__resolveLValAux___closed__22;
+lean_object* l_Lean_Elab_Term_ensureHasTypeAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at___private_Init_Lean_Elab_TermApp_14__elabAppFn___main___spec__1(lean_object*);
 lean_object* l_Array_insertAt___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_findField_x3f___main(lean_object*, lean_object*, lean_object*);
@@ -1306,7 +1306,7 @@ lean_object* x_87;
 lean_dec(x_41);
 lean_dec(x_6);
 lean_inc(x_10);
-x_87 = l_Lean_Elab_Term_ensureHasType(x_1, x_3, x_8, x_9, x_10, x_14);
+x_87 = l_Lean_Elab_Term_ensureHasTypeAux(x_1, x_3, x_8, x_9, x_10, x_14);
 if (lean_obj_tag(x_87) == 0)
 {
 lean_object* x_88; lean_object* x_89; lean_object* x_90; 
@@ -1530,7 +1530,7 @@ lean_object* x_138;
 lean_dec(x_41);
 lean_dec(x_6);
 lean_inc(x_10);
-x_138 = l_Lean_Elab_Term_ensureHasType(x_1, x_3, x_8, x_9, x_10, x_14);
+x_138 = l_Lean_Elab_Term_ensureHasTypeAux(x_1, x_3, x_8, x_9, x_10, x_14);
 if (lean_obj_tag(x_138) == 0)
 {
 lean_object* x_139; lean_object* x_140; lean_object* x_141; 
@@ -1812,7 +1812,7 @@ else
 {
 lean_object* x_23; 
 lean_inc(x_10);
-x_23 = l_Lean_Elab_Term_ensureHasType(x_1, x_3, x_8, x_9, x_10, x_14);
+x_23 = l_Lean_Elab_Term_ensureHasTypeAux(x_1, x_3, x_8, x_9, x_10, x_14);
 if (lean_obj_tag(x_23) == 0)
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 

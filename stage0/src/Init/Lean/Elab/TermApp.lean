@@ -66,7 +66,7 @@ private partial def elabAppArgsAux (ref : Syntax) (args : Array Arg) (expectedTy
 | argIdx, namedArgs, instMVars, eType, e => do
   let finalize : Unit → TermElabM Expr := fun _ => do {
     -- all user explicit arguments have been consumed
-    e ← ensureHasType ref expectedType? eType e;
+    e ← ensureHasTypeAux ref expectedType? eType e;
     synthesizeAppInstMVars ref instMVars;
     pure e
   };

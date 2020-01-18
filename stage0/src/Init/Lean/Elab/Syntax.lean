@@ -210,7 +210,7 @@ def expandNotationItemIntoPattern (stx : Syntax) : CommandElabM Syntax :=
 let k := stx.getKind;
 if k == `Lean.Parser.Command.identPrec then
   let item := stx.getArg 0;
-  pure $ mkNode `antiquot #[mkAtom "$", Term.mkTermIdFromIdent item, mkNullNode, mkNullNode]
+  pure $ mkNode `antiquot #[mkAtom "$", mkTermIdFromIdent item, mkNullNode, mkNullNode]
 else if k == `Lean.Parser.Command.quotedSymbolPrec then
   pure $ (stx.getArg 0).getArg 1
 else if k == `Lean.Parser.Command.strLitPrec then

@@ -50,7 +50,7 @@ match expectedType? with
       if val.ctors.length != 1 then
         throwError ref ("invalid constructor ⟨...⟩, '" ++ constName ++ "' must have only one constructor")
       else
-        let ctor := mkTermId ref val.ctors.head!;
+        let ctor := mkTermIdFrom ref val.ctors.head!;
         let args := (stx.getArg 1).getArgs.getEvenElems; do
         withMacroExpansion ref $ elabTerm (mkAppStx ctor args) expectedType?
     | _ => throwError ref ("invalid constructor ⟨...⟩, '" ++ constName ++ "' is not an inductive type")
@@ -58,13 +58,13 @@ match expectedType? with
 
 @[builtinTermElab «show»] def elabShow : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
-| `(show $type from $val) => let thisId := mkTermId stx `this; `((fun ($thisId : $type) => $thisId) $val)
+| `(show $type from $val) => let thisId := mkTermIdFrom stx `this; `((fun ($thisId : $type) => $thisId) $val)
 | _                       => throwUnsupportedSyntax
 
 @[builtinTermElab «have»] def elabHave : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
-| `(have $type from $val; $body)      => let thisId := mkTermId stx `this; `((fun ($thisId : $type) => $body) $val)
-| `(have $type := $val; $body)        => let thisId := mkTermId stx `this; `((fun ($thisId : $type) => $body) $val)
+| `(have $type from $val; $body)      => let thisId := mkTermIdFrom stx `this; `((fun ($thisId : $type) => $body) $val)
+| `(have $type := $val; $body)        => let thisId := mkTermIdFrom stx `this; `((fun ($thisId : $type) => $body) $val)
 | `(have $x : $type from $val; $body) => let x := mkTermIdFromIdent x; `((fun ($x : $type) => $body) $val)
 | `(have $x : $type := $val; $body)   => let x := mkTermIdFromIdent x; `((fun ($x : $type) => $body) $val)
 | _                                   => throwUnsupportedSyntax
@@ -114,7 +114,7 @@ fun stx expectedType? => do
   elabTerm (mkAppStx f #[a, b]) expectedType?
 
 def elabInfixOp (op : Name) : TermElab :=
-fun stx expectedType? => elabInfix (mkTermId (stx.getArg 1) op) stx expectedType?
+fun stx expectedType? => elabInfix (mkTermIdFrom (stx.getArg 1) op) stx expectedType?
 
 @[builtinTermElab prod] def elabProd : TermElab := elabInfixOp `Prod
 @[builtinTermElab fcomp] def ElabFComp : TermElab := elabInfixOp `Function.comp

@@ -305,7 +305,7 @@ end SyntaxNode
 /- Helper functions for creating Syntax objects using C++ -/
 
 @[export lean_mk_syntax_atom]
-def mkSimpleAtomCore (val : String) : Syntax :=
+def mkSimpleAtom (val : String) : Syntax :=
 Syntax.atom none val
 
 @[export lean_mk_syntax_ident]

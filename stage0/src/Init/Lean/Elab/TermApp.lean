@@ -398,6 +398,13 @@ fun stx expectedType? => do
   (f, namedArgs, args) ← expandApp stx;
   elabAppAux stx f namedArgs args expectedType?
 
+@[builtinTermElab appCore] def elabAppCore : TermElab :=
+fun stx expectedType? =>
+  let f    := stx.getArg 1;
+  let args := (stx.getArg 2).getArgs;
+  let args := args.map Arg.stx;
+  elabAppAux stx f #[] args expectedType?
+
 @[builtinTermElab «id»] def elabId : TermElab := elabApp
 @[builtinTermElab explicit] def elabExplicit : TermElab := elabApp
 @[builtinTermElab choice] def elabChoice : TermElab := elabApp

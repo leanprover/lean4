@@ -355,21 +355,6 @@ let instIdx := s.instImplicitIdx;
 modify $ fun s => { instImplicitIdx := s.instImplicitIdx + 1, .. s};
 pure $ (`_inst).appendIndexAfter instIdx
 
-def mkHole (ref : Syntax) := mkNode `Lean.Parser.Term.hole #[mkAtomFrom ref "_"]
-
-/-- Convert a `Syntax.ident` into a `Lean.Parser.Term.id` node -/
-def mkTermIdFromIdent (ident : Syntax) : Syntax :=
-match ident with
-| Syntax.ident _ _ _ _ => mkNode `Lean.Parser.Term.id #[ident, mkNullNode]
-| _                    => unreachable!
-
-/--
-  Create a simple `Lean.Parser.Term.id` syntax using position
-  information from `ref` and name `n`. By simple, we mean that
-  `optional (explicitUniv <|> namedPattern)` is none. -/
-def mkTermId (ref : Syntax) (n : Name) : Syntax :=
-mkTermIdFromIdent (mkIdentFrom ref n)
-
 /--
   Return true if the given syntax is a `Lean.Parser.Term.cdot` or
   is a `Lean.Parser.Term.app` containing a `cdot`.
@@ -710,8 +695,8 @@ fun stx expectedType? => do
   let openBkt  := stx.getArg 0;
   let args     := stx.getArg 1;
   let closeBkt := stx.getArg 2;
-  let consId   := mkTermId openBkt `List.cons;
-  let nilId    := mkTermId closeBkt `List.nil;
+  let consId   := mkTermIdFrom openBkt `List.cons;
+  let nilId    := mkTermIdFrom closeBkt `List.nil;
   let newStx   := args.foldSepRevArgs (fun arg r => mkAppStx consId #[arg, r]) nilId;
   elabTerm newStx expectedType?
 

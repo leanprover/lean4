@@ -927,7 +927,6 @@ lean_ctor_set(x_11, 1, x_9);
 x_12 = lean_array_push(x_8, x_11);
 x_13 = l___private_Init_Lean_Elab_Quotation_3__quoteOption___rarg___closed__6;
 x_14 = l_Lean_mkCAppStx(x_13, x_12);
-lean_dec(x_12);
 return x_14;
 }
 }

@@ -106,7 +106,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
   let preresolved := resolveGlobalName env currNamespace openDecls val ++ preresolved;
   let val := quote val;
   -- `scp` is bound in stxQuot.expand
-  `(_app_ Syntax.ident none $(quote rawVal) (addMacroScope $val scp) $(quote preresolved))
+  `(_app_ Syntax.ident none $(quote rawVal) (_app_ addMacroScope $val scp) $(quote preresolved))
 -- if antiquotation, insert contents as-is, else recurse
 | stx@(Syntax.node k args) =>
   if isAntiquot stx then
@@ -272,7 +272,7 @@ private partial def compileStxMatch (ref : Syntax) : List Syntax → List Alt �
   let noAlts  := (alts.filter $ fun (alt : HeadInfo × Alt) => !info.generalizes alt.1).map Prod.snd;
   no ← withFreshMacroScope $ compileStxMatch (discr::discrs) noAlts;
   cond ← match info.argPats with
-  | some pats => `(_app_ Syntax.isOfKind discr $(quote kind) && _app_ Array.size (Syntax.getArgs discr) == $(quote pats.size))
+  | some pats => `(_app_ Syntax.isOfKind discr $(quote kind) && _app_ Array.size (_app_ Syntax.getArgs discr) == $(quote pats.size))
   | none      => `(_app_ Syntax.isOfKind discr $(quote kind));
   `(let discr := $discr; if _app_ coe $cond then $yes else $no)
 | _, _ => unreachable!
@@ -391,8 +391,8 @@ private unsafe partial def toPreterm : Syntax → TermElabM Expr
       pure $ lctx.mkLambda #[mkFVar n] e
   | `Lean.Parser.Term.app => do
     fn ← toPreterm $ args.get! 0;
-    arg ← toPreterm $ args.get! 1;
-    pure $ mkApp fn arg
+    as ← (args.get! 1).getArgs.mapM toPreterm;
+    pure $ mkAppN fn as
   | `Lean.Parser.Term.appCore => do
     fn ← toPreterm $ args.get! 1;
     as ← (args.get! 2).getArgs.mapM toPreterm;

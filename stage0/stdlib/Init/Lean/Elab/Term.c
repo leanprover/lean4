@@ -25,6 +25,7 @@ extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l___private_Init_Lean_Elab_Term_6__expandCDotInApp(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_mkForall(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_synthesizeInstMVarCore___closed__1;
+lean_object* l_Lean_mkAppStx(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_monadQuotation;
 lean_object* l_Lean_Elab_Term_synthesizeInstMVarCore___closed__8;
 lean_object* l___private_Init_Lean_Elab_Term_7__exceptionToSorry___closed__3;
@@ -186,7 +187,6 @@ lean_object* l_Lean_Elab_Term_adaptMacro___boxed(lean_object*, lean_object*, lea
 extern lean_object* l_Lean_Meta_MetaHasEval___rarg___closed__4;
 lean_object* l_Lean_Elab_Term_assignExprMVar(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Exception_hasToString(lean_object*);
-extern lean_object* l_Array_iterateMAux___main___at_Lean_mkAppStx___spec__1___closed__1;
 lean_object* l_Lean_Elab_Term_elabParen___closed__5;
 extern lean_object* l_Lean_LocalContext_Inhabited___closed__1;
 lean_object* l_Lean_Elab_Term_resolveName___closed__5;
@@ -498,7 +498,6 @@ lean_object* l___private_Init_Lean_Elab_Term_14__mkFreshLevelMVars(lean_object*,
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Term_3__fromMetaState___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_whnfCore___main___at_Lean_Meta_whnfCore___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabStr(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_iterateMAux___main___at_Lean_mkAppStx___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_declareBuiltinTermElab___closed__5;
 lean_object* l_Lean_Elab_Term_getLCtx(lean_object*, lean_object*);
 lean_object* l_PersistentArray_foldlMAux___main___at___private_Init_Lean_Elab_Term_3__fromMetaState___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -733,6 +732,7 @@ lean_object* l_Lean_Elab_Term_mkForall___boxed(lean_object*, lean_object*, lean_
 lean_object* l___private_Init_Lean_Elab_Term_12__resolveLocalNameAux___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_monadLog;
 lean_object* l_Lean_Elab_Term_getMCtx___rarg(lean_object*);
+extern lean_object* l_Lean_mkAppStx___closed__1;
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Term_3__fromMetaState___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_foldlM___at___private_Init_Lean_Elab_Term_3__fromMetaState___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_monadLog___closed__4;
@@ -9013,7 +9013,7 @@ lean_object* _init_l_Lean_Elab_Term_mkExplicitBinder___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_iterateMAux___main___at_Lean_mkAppStx___spec__1___closed__1;
+x_1 = l_Lean_mkAppStx___closed__1;
 x_2 = l_Lean_Elab_Term_mkExplicitBinder___closed__2;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
@@ -18352,12 +18352,11 @@ x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_sub(x_4, x_9);
 lean_dec(x_4);
 x_11 = lean_array_fget(x_3, x_10);
-x_12 = l_Array_iterateMAux___main___at_Lean_mkAppStx___spec__1___closed__1;
+x_12 = l_Lean_mkAppStx___closed__1;
 x_13 = lean_array_push(x_12, x_11);
 x_14 = lean_array_push(x_13, x_6);
 lean_inc(x_2);
-x_15 = l_Array_iterateMAux___main___at_Lean_mkAppStx___spec__1(x_14, x_14, x_7, x_2);
-lean_dec(x_14);
+x_15 = l_Lean_mkAppStx(x_2, x_14);
 x_4 = x_10;
 x_5 = lean_box(0);
 x_6 = x_15;

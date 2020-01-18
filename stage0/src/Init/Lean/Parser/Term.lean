@@ -112,7 +112,7 @@ def bracketedDoSeq := parser! "{" >> doSeq >> "}"
 @[builtinTermParser] def uminus := parser! "-" >> termParser 100
 
 def namedArgument  := tparser! try ("(" >> ident >> " := ") >> termParser >> ")"
-@[builtinTermParser] def app      := tparser! pushLeading >> (namedArgument <|> termParser appPrec)
+@[builtinTermParser] def app      := tparser! pushLeading >> many1 (namedArgument <|> termParser appPrec)
 
 -- Auxiliary notation used for fixing bootstrapping issues
 @[builtinTermParser] def appCore   := parser! "_app_ " >> termParser appPrec >> many1 (termParser appPrec)
@@ -183,7 +183,8 @@ end Parser
 open Parser
 
 def mkAppStx (fn : Syntax) (args : Array Syntax) : Syntax :=
-args.foldl (fun fn arg => Syntax.node `Lean.Parser.Term.app #[fn, arg]) fn
+Syntax.node `Lean.Parser.Term.app #[fn, mkNullNode args]
+-- args.foldl (fun fn arg => Syntax.node `Lean.Parser.Term.app #[fn, arg]) fn
 
 def mkHole (ref : Syntax) := mkNode `Lean.Parser.Term.hole #[mkAtomFrom ref "_"]
 

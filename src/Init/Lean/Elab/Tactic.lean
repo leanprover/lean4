@@ -13,7 +13,7 @@ namespace Elab
 namespace Term
 
 def mkTacticMVar (ref : Syntax) (type : Expr) (tacticCode : Syntax) : TermElabM Expr := do
-mvar ← mkFreshExprMVar ref type MetavarKind.synthetic `main;
+mvar ← mkFreshExprMVar ref type MetavarKind.syntheticOpaque `main;
 let mvarId := mvar.mvarId!;
 registerSyntheticMVar ref mvarId $ SyntheticMVarKind.tactic tacticCode;
 pure mvar

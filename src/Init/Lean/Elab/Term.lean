@@ -641,7 +641,7 @@ fun stx expectedType? => mkFreshExprMVar stx expectedType?
 @[builtinTermElab «namedHole»] def elabNamedHole : TermElab :=
 fun stx expectedType? =>
   let name := stx.getIdAt 1;
-  mkFreshExprMVar stx expectedType? MetavarKind.synthetic name
+  mkFreshExprMVar stx expectedType? MetavarKind.syntheticOpaque name
 
 /-- Main loop for `mkPairs`. -/
 private partial def mkPairsAux (elems : Array Syntax) : Nat → Syntax → TermElabM Syntax

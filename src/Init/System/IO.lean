@@ -207,6 +207,21 @@ Prim.liftIO $ Prim.iterate "" $ fun r => do
     c ← h.getLine;
     pure $ Sum.inl (r ++ c) -- continue
 
+def Handle.readToExhaustion (h : Handle) : m String :=
+Prim.liftIO $ Prim.iterate "" $ fun r => do
+  done ← h.isEof;
+  if done
+  then pure (Sum.inr r) -- stop
+  else do
+    -- HACK: use less efficient `getLine` while `read` is broken
+    catch (do
+      c ← h.getLine;
+      pure $ Sum.inl (r ++ c) /- continue -/ ) $
+    fun e =>
+      match e with
+      | IO.Error.resourceExhausted _ _ _ => pure $ Sum.inr r
+      | _ => throw e
+
 end FS
 
 section
@@ -291,6 +306,13 @@ MonadIOProcess.wait c
 end Proc
 -/
 
+structure Pipe :=
+mk' :: (input : FS.Handle)
+       (output : FS.Handle)
+
+@[extern "lean_io_mk_pipe"]
+constant Pipe.Prim.mk (nonBlocking : Bool) : IO Pipe := arbitrary _
+
 structure AccessRight :=
 (read write execution : Bool := false)
 
@@ -313,8 +335,12 @@ u.lor $ g.lor o
 constant Prim.setAccessRights (filename : @& String) (mode : UInt32) : IO Unit :=
 arbitrary _
 
-def setAccessRights (filename : String) (mode : FileRight) : IO Unit :=
-Prim.setAccessRights filename mode.flags
+def Pipe.mk {m} [MonadIO m] (nonBlocking : Bool := false) : m Pipe :=
+Prim.liftIO $ Pipe.Prim.mk nonBlocking
+
+def setAccessRights {m} [MonadIO m] (filename : String) (mode : FileRight) : m Unit :=
+Prim.liftIO $ Prim.setAccessRights filename mode.flags
+
 
 /- References -/
 constant RefPointed (α : Type) : PointedType := arbitrary _

@@ -13,10 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Syntax_foldArgsAuxM___main___at_Lean_Elab_Command_elabAttrs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_toString___closed__1;
 extern lean_object* l_Lean_List_format___rarg___closed__4;
-lean_object* l_Lean_Syntax_foldArgsAuxM___main___at_Lean_Elab_Command_elabAttrs___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_Modifiers_hasFormat___closed__6;
 lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
 lean_object* l_Lean_Format_pretty(lean_object*, lean_object*);
@@ -56,6 +54,7 @@ lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabModifiers___closed__4;
 lean_object* l_Lean_Elab_Command_Modifiers_hasFormat___closed__9;
 extern lean_object* l_Lean_Format_join___closed__1;
+lean_object* l_Array_foldlStepMAux___main___at_Lean_Elab_Command_elabAttrs___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_Modifiers_hasFormat___closed__13;
 lean_object* l___private_Init_Lean_Elab_Command_1__ioErrorToMessage(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_Visibility_hasToString___boxed(lean_object*);
@@ -87,6 +86,7 @@ lean_object* l_Lean_Elab_Command_Visibility_hasToString___closed__1;
 extern lean_object* l_Lean_Parser_Command_noncomputable___elambda__1___closed__1;
 uint8_t l_Lean_isAttribute(lean_object*, lean_object*);
 extern lean_object* l_PersistentArray_Stats_toString___closed__4;
+lean_object* l_Array_foldlStepMAux___main___at_Lean_Elab_Command_elabAttrs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabAttr___closed__3;
 lean_object* l_Lean_Elab_Command_elabAttr___closed__2;
 lean_object* l_Lean_Elab_Command_Modifiers_hasToString___closed__1;
@@ -1324,7 +1324,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* l_Lean_Syntax_foldArgsAuxM___main___at_Lean_Elab_Command_elabAttrs___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+lean_object* l_Array_foldlStepMAux___main___at_Lean_Elab_Command_elabAttrs___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; uint8_t x_8; 
@@ -1403,16 +1403,16 @@ lean_dec(x_5);
 x_7 = lean_unsigned_to_nat(2u);
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = l_Array_empty___closed__1;
-x_10 = l_Lean_Syntax_foldArgsAuxM___main___at_Lean_Elab_Command_elabAttrs___spec__1(x_7, x_6, x_8, x_9, x_2, x_3);
+x_10 = l_Array_foldlStepMAux___main___at_Lean_Elab_Command_elabAttrs___spec__1(x_7, x_6, x_8, x_9, x_2, x_3);
 lean_dec(x_6);
 return x_10;
 }
 }
-lean_object* l_Lean_Syntax_foldArgsAuxM___main___at_Lean_Elab_Command_elabAttrs___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+lean_object* l_Array_foldlStepMAux___main___at_Lean_Elab_Command_elabAttrs___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
-x_7 = l_Lean_Syntax_foldArgsAuxM___main___at_Lean_Elab_Command_elabAttrs___spec__1(x_1, x_2, x_3, x_4, x_5, x_6);
+x_7 = l_Array_foldlStepMAux___main___at_Lean_Elab_Command_elabAttrs___spec__1(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_7;

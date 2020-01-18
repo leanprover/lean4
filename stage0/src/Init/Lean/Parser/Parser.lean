@@ -1878,17 +1878,8 @@ match stx.getOptional? with
 section
 variables {β : Type} {m : Type → Type} [Monad m]
 
-@[specialize] partial def foldArgsAuxM (delta : Nat) (s : Array Syntax) (f : Syntax → β → m β) : Nat → β → m β
-| i, b =>
-  if h : i < s.size then do
-    let curr := s.get ⟨i, h⟩;
-    b ← f curr b;
-    foldArgsAuxM (i+delta) b
-  else
-    pure b
-
 @[inline] def foldArgsM (s : Syntax) (f : Syntax → β → m β) (b : β) : m β :=
-foldArgsAuxM 1 s.getArgs f 0 b
+s.getArgs.foldlM (flip f) b
 
 @[inline] def foldArgs (s : Syntax) (f : Syntax → β → β) (b : β) : β :=
 Id.run (s.foldArgsM f b)
@@ -1897,7 +1888,7 @@ Id.run (s.foldArgsM f b)
 s.foldArgsM (fun s _ => f s) ()
 
 @[inline] def foldSepArgsM (s : Syntax) (f : Syntax → β → m β) (b : β) : m β :=
-foldArgsAuxM 2 s.getArgs f 0 b
+s.getArgs.foldlStepM (flip f) b 2
 
 @[inline] def foldSepArgs (s : Syntax) (f : Syntax → β → β) (b : β) : β :=
 Id.run (s.foldSepArgsM f b)
@@ -1923,11 +1914,8 @@ open Lean
 open Lean.Syntax
 
 @[inline] def Array.foldSepByM (args : Array Syntax) (f : Syntax → β → m β) (b : β) : m β :=
-foldArgsAuxM 2 args f 0 b
+args.foldlStepM (flip f) b 2
 
 @[inline] def Array.foldSepBy (args : Array Syntax) (f : Syntax → β → β) (b : β) : β :=
 Id.run $ args.foldSepByM f b
-
-@[inline] def Array.getEvenElems (args : Array Syntax) : Array Syntax :=
-args.foldSepBy (fun a as => Array.push as a) #[]
 end

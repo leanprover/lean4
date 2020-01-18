@@ -105,6 +105,7 @@ lean_object* l___private_Init_Lean_Elab_TermApp_8__resolveLValLoop___main(lean_o
 lean_object* l_Array_forMAux___main___at___private_Init_Lean_Elab_TermApp_1__synthesizeAppInstMVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_ensureHasType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_foldlStepMAux___main___at_Lean_Syntax_foldSepRevArgsM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldlM___main___at___private_Init_Lean_Elab_TermApp_10__mkBaseProjections___spec__1___closed__1;
 lean_object* l___private_Init_Lean_Elab_TermApp_11__addLValArg___main___closed__7;
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabArrayRef___closed__3;
@@ -297,7 +298,6 @@ lean_object* l_Lean_Elab_Term_addBuiltinTermElab(lean_object*, lean_object*, lea
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabApp___closed__2;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_TermApp_18__elabAppAux___closed__1;
-lean_object* l_Lean_Syntax_foldArgsAuxM___main___at_Lean_Syntax_foldSepRevArgsM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_Arg_inhabited___closed__1;
 lean_object* l___private_Init_Lean_Elab_TermApp_7__resolveLValAux___closed__6;
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabApp___closed__1;
@@ -5732,7 +5732,7 @@ lean_dec(x_5);
 x_8 = lean_unsigned_to_nat(2u);
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = l_Array_empty___closed__1;
-x_11 = l_Lean_Syntax_foldArgsAuxM___main___at_Lean_Syntax_foldSepRevArgsM___spec__1(x_8, x_7, x_9, x_10);
+x_11 = l_Array_foldlStepMAux___main___at_Lean_Syntax_foldSepRevArgsM___spec__1(x_8, x_7, x_9, x_10);
 lean_dec(x_7);
 x_12 = lean_array_get_size(x_11);
 x_13 = l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lean_Elab_Term_elabExplicitUniv___spec__1(x_1, x_11, x_12, lean_box(0), x_6, x_2, x_3);

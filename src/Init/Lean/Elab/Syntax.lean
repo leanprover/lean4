@@ -168,7 +168,7 @@ fun stx => do
   trace `Elab stx $ fun _ => d;
   withMacroExpansion stx $ elabCommand d
 
-@[builtinCommandElab «macro_rules»] def elabMacro : CommandElab :=
+@[builtinCommandElab «macro_rules»] def elabMacroRules : CommandElab :=
 adaptExpander $ fun stx => match_syntax stx with
 | `(macro_rules $alts*) => do
   -- TODO: clean up with matchAlt quotation

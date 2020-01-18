@@ -571,7 +571,7 @@ match expectedType? with
 /--
   If `expectedType?` is `some t`, then ensure `t` and `eType` are definitionally equal.
   If they are not, then try coercions. -/
-def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (eType : Expr) (e : Expr) : TermElabM Expr := do
+def ensureHasTypeAux (ref : Syntax) (expectedType? : Option Expr) (eType : Expr) (e : Expr) : TermElabM Expr := do
 e? ← tryEnsureHasType? ref expectedType? eType e;
 match e? with
 | some e => pure e
@@ -581,6 +581,14 @@ match e? with
     ++ Format.line ++ "has type" ++ indentExpr eType
     ++ Format.line ++ "but it is expected to have type" ++ indentExpr expectedType?.get!;
   throwError ref msg
+
+/--
+  If `expectedType?` is `some t`, then ensure `t` and type of `e` are definitionally equal.
+  If they are not, then try coercions. -/
+def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (e : Expr) : TermElabM Expr :=
+match expectedType? with
+| none => pure e
+| _    => do eType ← inferType ref e; ensureHasTypeAux ref expectedType? eType e
 
 /- Try to synthesize metavariable using type class resolution.
    This method assumes the local context and local instances of `instMVar` coincide
@@ -667,8 +675,7 @@ fun stx expectedType? =>
   | `(($e : $type)) => do
     type ← elabType type;
     e ← elabCDot e type;
-    eType ← inferType ref e;
-    ensureHasType ref type eType e
+    ensureHasType ref type e
   | `(($e))         => elabCDot e expectedType?
   | `(($e, $es*))   => do
     pairs ← mkPairs (#[e] ++ es.getEvenElems);

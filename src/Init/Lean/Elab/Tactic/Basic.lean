@@ -44,6 +44,9 @@ def getOptions : TacticM Options := do ctx ← read; pure ctx.config.opts
 def getMVarDecl (mvarId : MVarId) : TacticM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
 def instantiateMVars (ref : Syntax) (e : Expr) : TacticM Expr := liftTermElabM $ Term.instantiateMVars ref e
 def addContext (msg : MessageData) : TacticM MessageData := liftTermElabM $ Term.addContext msg
+def assignExprMVar (mvarId : MVarId) (val : Expr) : TacticM Unit := liftTermElabM $ Term.assignExprMVar mvarId val
+def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (e : Expr) : TacticM Expr := liftTermElabM $ Term.ensureHasType ref expectedType? e
+def elabTerm (stx : Syntax) (expectedType? : Option Expr) : TacticM Expr := liftTermElabM $ Term.elabTerm stx expectedType?
 
 instance monadLog : MonadLog TacticM :=
 { getCmdPos   := do ctx ← read; pure ctx.cmdPos,
@@ -176,12 +179,18 @@ ctx       ← read;
 let needReset := ctx.localInstances == mvarDecl.localInstances;
 withLCtx mvarDecl.lctx mvarDecl.localInstances $ resettingSynthInstanceCacheWhen needReset x
 
+def getGoals : TacticM (List MVarId) := do s ← get; pure s.goals
+def getMainGoal (ref : Syntax) : TacticM (MVarId × List MVarId) := do (g::gs) ← getGoals | throwError ref "no goals to be solved"; pure (g, gs)
+def updateGoals (gs : List MVarId) : TacticM Unit := modify $ fun s => { goals := gs, .. s }
+def ensureHasNoMVars (ref : Syntax) (e : Expr) : TacticM Unit := do
+e ← instantiateMVars ref e;
+when e.hasMVar $ throwError ref ("tactic failed, resulting expression contains metavariables" ++ indentExpr e)
+
 @[inline] def liftMetaTactic (ref : Syntax) (tactic : MVarId → MetaM (List MVarId)) : TacticM Unit := do
-s ← get;
-(g :: gs) ← pure s.goals | throwError ref "no goals to be solved";
+(g, gs) ← getMainGoal ref;
 withMVarContext g $ do
   gs' ← liftMetaM ref $ tactic g;
-  modify $ fun s => { goals := gs' ++ gs, .. s }
+  updateGoals (gs' ++ gs)
 
 @[builtinTactic seq] def evalSeq : Tactic :=
 fun stx => (stx.getArg 0).forSepArgsM evalTactic
@@ -193,6 +202,21 @@ fun stx => liftMetaTactic stx $ fun mvarId => do Meta.assumption mvarId; pure []
 fun stx => match_syntax stx with
   | `(tactic| intro)    => liftMetaTactic stx $ fun mvarId => do (_, mvarId) ← Meta.intro1 mvarId; pure [mvarId]
   | `(tactic| intro $h) => liftMetaTactic stx $ fun mvarId => do (_, mvarId) ← Meta.intro mvarId h.getId; pure [mvarId]
+  | _                   => throwUnsupportedSyntax
+
+@[builtinTactic «exact»] def evalExact : Tactic :=
+fun stx => match_syntax stx with
+  | `(tactic| exact $e) => do
+    let ref := stx;
+    (g, gs) ← getMainGoal stx;
+    withMVarContext g $ do {
+      decl ← getMVarDecl g;
+      val  ← elabTerm e decl.type;
+      val  ← ensureHasType ref decl.type val;
+      ensureHasNoMVars ref val;
+      assignExprMVar g val
+    };
+    updateGoals gs
   | _                   => throwUnsupportedSyntax
 
 @[init] private def regTraceClasses : IO Unit := do

@@ -77,3 +77,9 @@ begin
   intro3;
   assumption
 end
+
+theorem simple5 (x y z : Nat) : y = z → x = x → x = y → x = z :=
+begin
+  intro h1; intro _; intro h3;
+  exact Eq.trans h3 h1
+end

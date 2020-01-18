@@ -80,6 +80,7 @@ lean_object* l_Lean_Elab_Command_commandElabAttribute;
 lean_object* l_Lean_Elab_Command_elabUniverse(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fswap(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_withNamespace___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern uint8_t l___private_Init_Lean_Elab_Term_4__isCDot___closed__1;
 lean_object* l_Lean_Elab_Command_runTermElabM___rarg___closed__1;
 lean_object* l___regBuiltinCommandElab_Lean_Elab_Command_elabSetOption___closed__2;
 lean_object* l_Lean_Elab_Command_elabCheck___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -443,7 +444,6 @@ lean_object* l_Lean_Elab_Command_withNamespace___rarg(lean_object*, lean_object*
 lean_object* lean_io_ref_reset(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_compileDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_logUnknownDecl___closed__1;
-extern lean_object* l___private_Init_Lean_Elab_Term_9__elabTermUsing___main___closed__3;
 lean_object* l_Lean_Syntax_getPos(lean_object*);
 lean_object* l_Lean_Elab_Command_State_inhabited;
 lean_object* l_Lean_Elab_Command_elabOpenHiding___boxed(lean_object*, lean_object*, lean_object*);
@@ -543,9 +543,9 @@ lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Command_7__mkTermState(lean_object*);
 lean_object* l_Lean_Elab_Command_commandElabAttribute___closed__5;
 lean_object* l___regBuiltinCommandElab_Lean_Elab_Command_elabNamespace___closed__1;
-extern uint8_t l___private_Init_Lean_Elab_Term_4__hasCDot___main___closed__1;
 lean_object* l_Lean_Elab_Command_CommandElabM_MonadQuotation___closed__3;
 lean_object* l___regBuiltinCommandElab_Lean_Elab_Command_elabSection___closed__1;
+extern lean_object* l___private_Init_Lean_Elab_Term_8__elabTermUsing___main___closed__3;
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4;
 extern lean_object* l_Lean_initAttr;
 lean_object* l_Lean_Elab_Command_logTrace___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4367,7 +4367,7 @@ x_10 = lean_unsigned_to_nat(2u);
 x_11 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_9);
-x_12 = l___private_Init_Lean_Elab_Term_9__elabTermUsing___main___closed__3;
+x_12 = l___private_Init_Lean_Elab_Term_8__elabTermUsing___main___closed__3;
 x_13 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_11);
@@ -8620,7 +8620,7 @@ x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
 {
 uint8_t x_6; 
-x_6 = l___private_Init_Lean_Elab_Term_4__hasCDot___main___closed__1;
+x_6 = l___private_Init_Lean_Elab_Term_4__isCDot___closed__1;
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 
@@ -8798,7 +8798,7 @@ if (x_11 == 0)
 {
 uint8_t x_14; 
 lean_dec(x_9);
-x_14 = l___private_Init_Lean_Elab_Term_4__hasCDot___main___closed__1;
+x_14 = l___private_Init_Lean_Elab_Term_4__isCDot___closed__1;
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 

@@ -63,13 +63,13 @@ lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabTermAux___main(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_2__resumePostponed___lambda__1___closed__1;
 lean_object* l_List_filterAuxM___main___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_7__synthesizeUsingDefault___spec__1___lambda__1___closed__2;
-extern lean_object* l___private_Init_Lean_Elab_Term_8__postponeElabTerm___closed__1;
 lean_object* l_Lean_Elab_Term_logTrace(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_throwError___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_synthesizeSyntheticMVars___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_9__getSomeSynthethicMVarsRef___boxed(lean_object*);
 lean_object* l_List_filterAuxM___main___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_6__synthesizeSyntheticMVarsStep___spec__2___closed__4;
+extern lean_object* l___private_Init_Lean_Elab_Term_7__postponeElabTerm___closed__1;
 lean_object* l_List_filterAuxM___main___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_6__synthesizeSyntheticMVarsStep___spec__2___closed__9;
 lean_object* l_List_filterAuxM___main___at___private_Init_Lean_Elab_SynthesizeSyntheticMVars_6__synthesizeSyntheticMVarsStep___spec__2___closed__8;
 lean_object* l___private_Init_Lean_Elab_SynthesizeSyntheticMVars_9__getSomeSynthethicMVarsRef___rarg___lambda__1___boxed(lean_object*);
@@ -996,7 +996,7 @@ if (lean_is_exclusive(x_4)) {
  lean_dec_ref(x_4);
  x_11 = lean_box(0);
 }
-x_18 = l___private_Init_Lean_Elab_Term_8__postponeElabTerm___closed__1;
+x_18 = l___private_Init_Lean_Elab_Term_7__postponeElabTerm___closed__1;
 lean_inc(x_3);
 x_19 = lean_name_mk_string(x_3, x_18);
 x_20 = lean_ctor_get(x_9, 0);

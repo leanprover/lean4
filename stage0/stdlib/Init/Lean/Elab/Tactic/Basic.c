@@ -50,6 +50,7 @@ lean_object* l_Lean_Elab_Tactic_trace(lean_object*, lean_object*, lean_object*, 
 lean_object* l___private_Init_Lean_Elab_Tactic_Basic_1__evalTacticUsing(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getLCtx___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_monadQuotation___closed__2;
+extern uint8_t l___private_Init_Lean_Elab_Term_4__isCDot___closed__1;
 lean_object* l_Lean_Elab_Tactic_evalIntro___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_liftMetaM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_declareBuiltinTactic(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -228,7 +229,6 @@ lean_object* l_Lean_Elab_Tactic_withMVarContext___rarg___boxed(lean_object*, lea
 lean_object* l_Lean_Elab_Tactic_logTrace(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_ref_reset(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_withFreshMacroScope___rarg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Init_Lean_Elab_Term_9__elabTermUsing___main___closed__3;
 lean_object* l_Lean_SMap_empty___at_Lean_Elab_Tactic_mkBuiltinTacticTable___spec__1;
 lean_object* l_Lean_Elab_Tactic_throwError(lean_object*);
 lean_object* l_PersistentHashMap_findAtAux___main___at_Lean_Elab_Tactic_evalTactic___main___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -292,7 +292,7 @@ lean_object* l_IO_ofExcept___at___private_Init_Lean_Elab_Util_6__ElabAttribute_a
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getCurrMacroScope___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_liftMetaTactic___closed__2;
-extern uint8_t l___private_Init_Lean_Elab_Term_4__hasCDot___main___closed__1;
+extern lean_object* l___private_Init_Lean_Elab_Term_8__elabTermUsing___main___closed__3;
 extern lean_object* l_Lean_PersistentEnvExtension_inhabited___rarg___closed__4;
 lean_object* l_Lean_Elab_Tactic_traceAtCmdPos(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_initAttr;
@@ -3169,7 +3169,7 @@ x_10 = lean_unsigned_to_nat(2u);
 x_11 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_9);
-x_12 = l___private_Init_Lean_Elab_Term_9__elabTermUsing___main___closed__3;
+x_12 = l___private_Init_Lean_Elab_Term_8__elabTermUsing___main___closed__3;
 x_13 = lean_alloc_ctor(9, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_11);
@@ -10188,7 +10188,7 @@ if (x_12 == 0)
 if (x_10 == 0)
 {
 uint8_t x_13; 
-x_13 = l___private_Init_Lean_Elab_Term_4__hasCDot___main___closed__1;
+x_13 = l___private_Init_Lean_Elab_Term_4__isCDot___closed__1;
 if (x_13 == 0)
 {
 lean_object* x_14; 

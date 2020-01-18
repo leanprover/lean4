@@ -67,6 +67,7 @@ extern lean_object* l_Lean_Parser_Term_id___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Command_elabStructure___rarg(lean_object*);
 lean_object* l_Lean_Elab_Command_elabAxiom(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabInstance___closed__1;
+lean_object* l_Lean_Elab_Command_elabConstant___closed__11;
 extern lean_object* l_Lean_Parser_Command_def___elambda__1___closed__2;
 extern lean_object* l_Lean_Parser_Command_declValSimple___elambda__1___closed__2;
 extern lean_object* l_Lean_Meta_registerInstanceAttr___closed__1;
@@ -95,7 +96,9 @@ extern lean_object* l_Lean_Elab_Command_withDeclId___closed__3;
 lean_object* l_Lean_Elab_Command_elabAxiom___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_sortDeclLevelParams(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabClassInductive___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_nullKind___closed__2;
 extern lean_object* l_Lean_mkReducibilityAttrs___closed__4;
+lean_object* l_Lean_Elab_Command_elabConstant___closed__10;
 lean_object* l_Lean_mkAtomFrom(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Command_2__getState(lean_object*, lean_object*);
 lean_object* l_List_drop___main___rarg(lean_object*, lean_object*);
@@ -459,6 +462,28 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
+lean_object* _init_l_Lean_Elab_Command_elabConstant___closed__10() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Array_empty___closed__1;
+x_2 = l_Lean_Elab_Command_elabConstant___closed__9;
+x_3 = lean_array_push(x_1, x_2);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_Elab_Command_elabConstant___closed__11() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_nullKind___closed__2;
+x_2 = l_Lean_Elab_Command_elabConstant___closed__10;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
 lean_object* l_Lean_Elab_Command_elabConstant(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -504,7 +529,7 @@ x_27 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_27, 0, x_26);
 lean_ctor_set(x_27, 1, x_25);
 x_28 = lean_array_push(x_22, x_27);
-x_29 = l_Lean_Elab_Command_elabConstant___closed__9;
+x_29 = l_Lean_Elab_Command_elabConstant___closed__11;
 x_30 = lean_array_push(x_28, x_29);
 x_31 = l_Lean_Parser_Term_app___elambda__1___closed__2;
 x_32 = lean_alloc_ctor(1, 2, 0);
@@ -4897,6 +4922,10 @@ l_Lean_Elab_Command_elabConstant___closed__8 = _init_l_Lean_Elab_Command_elabCon
 lean_mark_persistent(l_Lean_Elab_Command_elabConstant___closed__8);
 l_Lean_Elab_Command_elabConstant___closed__9 = _init_l_Lean_Elab_Command_elabConstant___closed__9();
 lean_mark_persistent(l_Lean_Elab_Command_elabConstant___closed__9);
+l_Lean_Elab_Command_elabConstant___closed__10 = _init_l_Lean_Elab_Command_elabConstant___closed__10();
+lean_mark_persistent(l_Lean_Elab_Command_elabConstant___closed__10);
+l_Lean_Elab_Command_elabConstant___closed__11 = _init_l_Lean_Elab_Command_elabConstant___closed__11();
+lean_mark_persistent(l_Lean_Elab_Command_elabConstant___closed__11);
 l_Lean_Elab_Command_elabInstance___closed__1 = _init_l_Lean_Elab_Command_elabInstance___closed__1();
 lean_mark_persistent(l_Lean_Elab_Command_elabInstance___closed__1);
 l_Lean_Elab_Command_elabExample___closed__1 = _init_l_Lean_Elab_Command_elabExample___closed__1();

@@ -42,8 +42,9 @@ when val.hasMVar $ throwError ref ("tactic failed, result still contain metavari
 def runTactic (ref : Syntax) (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
 modify $ fun s => { mctx := s.mctx.instantiateMVarDeclMVars mvarId, .. s };
 remainingGoals ← liftTacticElabM ref mvarId $ do { evalTactic tacticCode; s ← get; pure s.goals };
-unless remainingGoals.isEmpty (reportUnsolvedGoals ref remainingGoals);
-ensureAssignmentHasNoMVars ref mvarId
+let tailRef := ref.getTailWithInfo.getD ref;
+unless remainingGoals.isEmpty (reportUnsolvedGoals tailRef remainingGoals);
+ensureAssignmentHasNoMVars tailRef mvarId
 
 end Term
 

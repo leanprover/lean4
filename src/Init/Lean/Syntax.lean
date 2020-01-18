@@ -216,6 +216,12 @@ partial def getHeadInfo : Syntax → Option SourceInfo
 def getPos (stx : Syntax) : Option String.Pos :=
 SourceInfo.pos <$> stx.getHeadInfo
 
+partial def getTailWithInfo : Syntax → Option Syntax
+| stx@(atom (some _) _)      => some stx
+| stx@(ident (some _) _ _ _) => some stx
+| node _ args                => args.findRev? getTailWithInfo
+| _                          => none
+
 partial def getTailInfo : Syntax → Option SourceInfo
 | atom info _      => info
 | ident info _ _ _ => info

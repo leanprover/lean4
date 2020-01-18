@@ -393,10 +393,6 @@ private unsafe partial def toPreterm : Syntax → TermElabM Expr
     fn ← toPreterm $ args.get! 0;
     as ← (args.get! 1).getArgs.mapM toPreterm;
     pure $ mkAppN fn as
-  | `Lean.Parser.Term.appCore => do
-    fn ← toPreterm $ args.get! 1;
-    as ← (args.get! 2).getArgs.mapM toPreterm;
-    pure $ mkAppN fn as
   | `Lean.Parser.Term.if => do
     let con := args.get! 2;
     let yes := args.get! 4;

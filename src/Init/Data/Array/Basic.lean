@@ -356,6 +356,18 @@ if h : endIdx ≤ a.size then
 else
   foldrRangeMAux a f beginIdx a.size (Nat.leRefl _) ini
 
+@[specialize] partial def foldlStepMAux (step : Nat) (a : Array α) (f : β → α → m β) : Nat → β → m β
+| i, b =>
+  if h : i < a.size then do
+    let curr := a.get ⟨i, h⟩;
+    b ← f b curr;
+    foldlStepMAux (i+step) b
+  else
+    pure b
+
+@[inline] def foldlStepM (f : β → α → m β) (init : β) (step : Nat) (a : Array α) : m β :=
+foldlStepMAux step a f 0 init
+
 end
 
 @[inline] def iterateRev {β} (a : Array α) (b : β) (f : ∀ (i : Fin a.size), α → β → β) : β :=
@@ -366,6 +378,12 @@ Id.run $ foldrM f init a
 
 @[inline] def foldrRange {β} (beginIdx endIdx : Nat) (f : α → β → β) (init : β) (a : Array α) : β :=
 Id.run $ foldrRangeM beginIdx endIdx f init a
+
+@[inline] def foldlStep {β} (f : β → α → β) (init : β) (step : Nat) (a : Array α) : β :=
+Id.run $ foldlStepM f init step a
+
+@[inline] def getEvenElems (a : Array α) : Array α :=
+a.foldlStep (fun r a => Array.push r a) empty 2
 
 def toList (a : Array α) : List α :=
 a.foldr List.cons []

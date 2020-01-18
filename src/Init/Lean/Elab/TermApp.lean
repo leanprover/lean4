@@ -381,17 +381,21 @@ else
   else
     mergeFailures candidates f
 
-private partial def expandApp : Syntax → TermElabM (Syntax × Array NamedArg × Array Arg)
-| stx => match_syntax stx with
-  | `($fn ($id := $arg)) => do
-    (stx, namedArgs, args) ← expandApp fn;
-    namedArgs ← addNamedArg id namedArgs { name := id.getId, val := Arg.stx arg };
-    pure (stx, namedArgs, args)
-  | `($fn $arg)       => do
-    (stx, namedArgs, args) ← expandApp fn;
-    let args := args.push $ Arg.stx arg;
-    pure (stx, namedArgs, args)
-  | _                 => pure (stx, #[], #[])
+private partial def expandApp (stx : Syntax) : TermElabM (Syntax × Array NamedArg × Array Arg) := do
+let f    := stx.getArg 0;
+(namedArgs, args) ← (stx.getArg 1).getArgs.foldlM
+  (fun (acc : Array NamedArg × Array Arg) (stx : Syntax) => do
+    let (namedArgs, args) := acc;
+    if stx.getKind == `Lean.Parser.Term.namedArgument then do
+      -- tparser! try ("(" >> ident >> " := ") >> termParser >> ")"
+      let name := (stx.getArg 1).getId;
+      let val  := stx.getArg 3;
+      namedArgs ← addNamedArg stx namedArgs { name := name, val := Arg.stx val };
+      pure (namedArgs, args)
+    else
+      pure (namedArgs, args.push $ Arg.stx stx))
+  (#[], #[]);
+pure (f, namedArgs, args)
 
 @[builtinTermElab app] def elabApp : TermElab :=
 fun stx expectedType? => do
@@ -405,11 +409,14 @@ fun stx expectedType? =>
   let args := args.map Arg.stx;
   elabAppAux stx f #[] args expectedType?
 
-@[builtinTermElab «id»] def elabId : TermElab := elabApp
-@[builtinTermElab explicit] def elabExplicit : TermElab := elabApp
-@[builtinTermElab choice] def elabChoice : TermElab := elabApp
-@[builtinTermElab proj] def elabProj : TermElab := elabApp
-@[builtinTermElab arrayRef] def elabArrayRef : TermElab := elabApp
+def elabAtom : TermElab :=
+fun stx expectedType? => elabAppAux stx stx #[] #[] expectedType?
+
+@[builtinTermElab «id»] def elabId : TermElab := elabAtom
+@[builtinTermElab explicit] def elabExplicit : TermElab := elabAtom
+@[builtinTermElab choice] def elabChoice : TermElab := elabAtom
+@[builtinTermElab proj] def elabProj : TermElab := elabAtom
+@[builtinTermElab arrayRef] def elabArrayRef : TermElab := elabAtom
 
 @[builtinTermElab sortApp] def elabSortApp : TermElab :=
 fun stx _ => do

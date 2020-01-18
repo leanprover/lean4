@@ -19,94 +19,94 @@ x.{max u v, 0}
    (null (Level.max "max" (null (Level.ident `u) (Level.ident `v))) "," (Level.num (numLit "0")))
    "}")))
 f 0 1
-(Term.app (Term.app (Term.id `f (null)) (Term.num (numLit "0"))) (Term.num (numLit "1")))
+(Term.app (Term.id `f (null)) (null (Term.num (numLit "0")) (Term.num (numLit "1"))))
 f.{u+1} "foo" x
 (Term.app
- (Term.app
-  (Term.id `f (null (Term.explicitUniv ".{" (null (Level.addLit (Level.ident `u) "+" (numLit "1"))) "}")))
-  (Term.str (strLit "\"foo\"")))
- (Term.id `x (null)))
+ (Term.id `f (null (Term.explicitUniv ".{" (null (Level.addLit (Level.ident `u) "+" (numLit "1"))) "}")))
+ (null (Term.str (strLit "\"foo\"")) (Term.id `x (null))))
 (f x, 0, 1)
 (Term.paren
  "("
  (null
-  (Term.app (Term.id `f (null)) (Term.id `x (null)))
+  (Term.app (Term.id `f (null)) (null (Term.id `x (null))))
   (null (Term.tupleTail "," (null (Term.num (numLit "0")) "," (Term.num (numLit "1"))))))
  ")")
 ()
 (Term.paren "(" (null) ")")
 (f x)
-(Term.paren "(" (null (Term.app (Term.id `f (null)) (Term.id `x (null))) (null)) ")")
+(Term.paren "(" (null (Term.app (Term.id `f (null)) (null (Term.id `x (null)))) (null)) ")")
 (f x : Type)
 (Term.paren
  "("
- (null (Term.app (Term.id `f (null)) (Term.id `x (null))) (null (Term.typeAscription ":" (Term.type "Type"))))
+ (null (Term.app (Term.id `f (null)) (null (Term.id `x (null)))) (null (Term.typeAscription ":" (Term.type "Type"))))
  ")")
 h (f x) (g y)
 (Term.app
- (Term.app (Term.id `h (null)) (Term.paren "(" (null (Term.app (Term.id `f (null)) (Term.id `x (null))) (null)) ")"))
- (Term.paren "(" (null (Term.app (Term.id `g (null)) (Term.id `y (null))) (null)) ")"))
+ (Term.id `h (null))
+ (null
+  (Term.paren "(" (null (Term.app (Term.id `f (null)) (null (Term.id `x (null)))) (null)) ")")
+  (Term.paren "(" (null (Term.app (Term.id `g (null)) (null (Term.id `y (null)))) (null)) ")")))
 if x then f x else g x
 (Term.if
  "if"
  (null)
  (Term.id `x (null))
  "then"
- (Term.app (Term.id `f (null)) (Term.id `x (null)))
+ (Term.app (Term.id `f (null)) (null (Term.id `x (null))))
  "else"
- (Term.app (Term.id `g (null)) (Term.id `x (null))))
+ (Term.app (Term.id `g (null)) (null (Term.id `x (null)))))
 if h : x then f x h else g x h
 (Term.if
  "if"
  (null `h ":")
  (Term.id `x (null))
  "then"
- (Term.app (Term.app (Term.id `f (null)) (Term.id `x (null))) (Term.id `h (null)))
+ (Term.app (Term.id `f (null)) (null (Term.id `x (null)) (Term.id `h (null))))
  "else"
- (Term.app (Term.app (Term.id `g (null)) (Term.id `x (null))) (Term.id `h (null))))
+ (Term.app (Term.id `g (null)) (null (Term.id `x (null)) (Term.id `h (null)))))
 have p x y from f x; g this
 (Term.have
  "have"
  (null)
- (Term.app (Term.app (Term.id `p (null)) (Term.id `x (null))) (Term.id `y (null)))
- (Term.fromTerm "from" (Term.app (Term.id `f (null)) (Term.id `x (null))))
+ (Term.app (Term.id `p (null)) (null (Term.id `x (null)) (Term.id `y (null))))
+ (Term.fromTerm "from" (Term.app (Term.id `f (null)) (null (Term.id `x (null)))))
  ";"
- (Term.app (Term.id `g (null)) (Term.id `this (null))))
+ (Term.app (Term.id `g (null)) (null (Term.id `this (null)))))
 suffices h : p x y from f x; g this
 (Term.suffices
  "suffices"
  (null `h ":")
- (Term.app (Term.app (Term.id `p (null)) (Term.id `x (null))) (Term.id `y (null)))
- (Term.fromTerm "from" (Term.app (Term.id `f (null)) (Term.id `x (null))))
+ (Term.app (Term.id `p (null)) (null (Term.id `x (null)) (Term.id `y (null))))
+ (Term.fromTerm "from" (Term.app (Term.id `f (null)) (null (Term.id `x (null)))))
  ";"
- (Term.app (Term.id `g (null)) (Term.id `this (null))))
+ (Term.app (Term.id `g (null)) (null (Term.id `this (null)))))
 show p x y from f x
 (Term.show
  "show"
- (Term.app (Term.app (Term.id `p (null)) (Term.id `x (null))) (Term.id `y (null)))
- (Term.fromTerm "from" (Term.app (Term.id `f (null)) (Term.id `x (null)))))
+ (Term.app (Term.id `p (null)) (null (Term.id `x (null)) (Term.id `y (null))))
+ (Term.fromTerm "from" (Term.app (Term.id `f (null)) (null (Term.id `x (null))))))
 fun x y => f y x
 (Term.fun
  "fun"
  (null (Term.id `x (null)) (Term.id `y (null)))
  "=>"
- (Term.app (Term.app (Term.id `f (null)) (Term.id `y (null))) (Term.id `x (null))))
+ (Term.app (Term.id `f (null)) (null (Term.id `y (null)) (Term.id `x (null)))))
 fun (x y : Nat) => f y x
 (Term.fun
  "fun"
  (null
   (Term.paren
    "("
-   (null (Term.app (Term.id `x (null)) (Term.id `y (null))) (null (Term.typeAscription ":" (Term.id `Nat (null)))))
+   (null (Term.app (Term.id `x (null)) (null (Term.id `y (null)))) (null (Term.typeAscription ":" (Term.id `Nat (null)))))
    ")"))
  "=>"
- (Term.app (Term.app (Term.id `f (null)) (Term.id `y (null))) (Term.id `x (null))))
+ (Term.app (Term.id `f (null)) (null (Term.id `y (null)) (Term.id `x (null)))))
 fun (x, y) => f y x
 (Term.fun
  "fun"
  (null (Term.paren "(" (null (Term.id `x (null)) (null (Term.tupleTail "," (null (Term.id `y (null)))))) ")"))
  "=>"
- (Term.app (Term.app (Term.id `f (null)) (Term.id `y (null))) (Term.id `x (null))))
+ (Term.app (Term.id `f (null)) (null (Term.id `y (null)) (Term.id `x (null)))))
 fun z (x, y) => f y x
 (Term.fun
  "fun"
@@ -114,7 +114,7 @@ fun z (x, y) => f y x
   (Term.id `z (null))
   (Term.paren "(" (null (Term.id `x (null)) (null (Term.tupleTail "," (null (Term.id `y (null)))))) ")"))
  "=>"
- (Term.app (Term.app (Term.id `f (null)) (Term.id `y (null))) (Term.id `x (null))))
+ (Term.app (Term.id `f (null)) (null (Term.id `y (null)) (Term.id `x (null)))))
 fun ⟨x, y⟩ ⟨z, w⟩ => f y x w z
 (Term.fun
  "fun"
@@ -122,19 +122,14 @@ fun ⟨x, y⟩ ⟨z, w⟩ => f y x w z
   (Term.anonymousCtor "⟨" (null (Term.id `x (null)) "," (Term.id `y (null))) "⟩")
   (Term.anonymousCtor "⟨" (null (Term.id `z (null)) "," (Term.id `w (null))) "⟩"))
  "=>"
- (Term.app
-  (Term.app (Term.app (Term.app (Term.id `f (null)) (Term.id `y (null))) (Term.id `x (null))) (Term.id `w (null)))
-  (Term.id `z (null))))
+ (Term.app (Term.id `f (null)) (null (Term.id `y (null)) (Term.id `x (null)) (Term.id `w (null)) (Term.id `z (null)))))
 fun (Prod.mk x y) => f y x
 (Term.fun
  "fun"
  (null
-  (Term.paren
-   "("
-   (null (Term.app (Term.app (Term.id `Prod.mk (null)) (Term.id `x (null))) (Term.id `y (null))) (null))
-   ")"))
+  (Term.paren "(" (null (Term.app (Term.id `Prod.mk (null)) (null (Term.id `x (null)) (Term.id `y (null)))) (null)) ")"))
  "=>"
- (Term.app (Term.app (Term.id `f (null)) (Term.id `y (null))) (Term.id `x (null))))
+ (Term.app (Term.id `f (null)) (null (Term.id `y (null)) (Term.id `x (null)))))
 { x := 10, y := 20 }
 (Term.structInst
  "{"
@@ -155,20 +150,14 @@ fun (Prod.mk x y) => f y x
   ",")
  "}")
 { x // p x 10 }
-(Term.subtype
- "{"
- `x
- (null)
- "//"
- (Term.app (Term.app (Term.id `p (null)) (Term.id `x (null))) (Term.num (numLit "10")))
- "}")
+(Term.subtype "{" `x (null) "//" (Term.app (Term.id `p (null)) (null (Term.id `x (null)) (Term.num (numLit "10")))) "}")
 { x : Nat // p x 10 }
 (Term.subtype
  "{"
  `x
  (null (Term.typeSpec ":" (Term.id `Nat (null))))
  "//"
- (Term.app (Term.app (Term.id `p (null)) (Term.id `x (null))) (Term.num (numLit "10")))
+ (Term.app (Term.id `p (null)) (null (Term.id `x (null)) (Term.num (numLit "10"))))
  "}")
 { .. }
 (Term.structInst "{" (null) (null (Term.structInstSource ".." (null))) "}")
@@ -181,17 +170,19 @@ fun (Prod.mk x y) => f y x
 a[i]
 (Term.arrayRef (Term.id `a (null)) "[" (Term.id `i (null)) "]")
 f [10, 20]
-(Term.app (Term.id `f (null)) (Term.listLit "[" (null (Term.num (numLit "10")) "," (Term.num (numLit "20"))) "]"))
+(Term.app
+ (Term.id `f (null))
+ (null (Term.listLit "[" (null (Term.num (numLit "10")) "," (Term.num (numLit "20"))) "]")))
 g a[x+2]
 (Term.app
  (Term.id `g (null))
- (Term.arrayRef (Term.id `a (null)) "[" (Term.add (Term.id `x (null)) "+" (Term.num (numLit "2"))) "]"))
+ (null (Term.arrayRef (Term.id `a (null)) "[" (Term.add (Term.id `x (null)) "+" (Term.num (numLit "2"))) "]")))
 g f.a.1.2.bla x.1.a
 (Term.app
- (Term.app
-  (Term.id `g (null))
-  (Term.proj (Term.proj (Term.proj (Term.id `f.a (null)) "." (fieldIdx "1")) "." (fieldIdx "2")) "." `bla))
- (Term.proj (Term.proj (Term.id `x (null)) "." (fieldIdx "1")) "." `a))
+ (Term.id `g (null))
+ (null
+  (Term.proj (Term.proj (Term.proj (Term.id `f.a (null)) "." (fieldIdx "1")) "." (fieldIdx "2")) "." `bla)
+  (Term.proj (Term.proj (Term.id `x (null)) "." (fieldIdx "1")) "." `a)))
 x+y*z < 10/3
 (Term.lt
  (Term.add (Term.id `x (null)) "+" (Term.mul (Term.id `y (null)) "*" (Term.id `z (null))))
@@ -199,8 +190,8 @@ x+y*z < 10/3
  (Term.div (Term.num (numLit "10")) "/" (Term.num (numLit "3"))))
 id (α := Nat) 10
 (Term.app
- (Term.app (Term.id `id (null)) (Term.namedArgument "(" `α ":=" (Term.id `Nat (null)) ")"))
- (Term.num (numLit "10")))
+ (Term.id `id (null))
+ (null (Term.namedArgument "(" `α ":=" (Term.id `Nat (null)) ")") (Term.num (numLit "10"))))
 (x : a)
 (Term.paren "(" (null (Term.id `x (null)) (null (Term.typeAscription ":" (Term.id `a (null))))) ")")
 a -> b
@@ -212,34 +203,36 @@ a -> b
  (Term.implicitBinder "{" (null `a) (null ":" (Term.type "Type")) "}")
  "->"
  (Term.depArrow
-  (Term.instBinder "[" (null) (Term.app (Term.id `HasToString (null)) (Term.id `a (null))) "]")
+  (Term.instBinder "[" (null) (Term.app (Term.id `HasToString (null)) (null (Term.id `a (null)))) "]")
   "->"
   (Term.depArrow (Term.explicitBinder "(" (null `x) (null ":" (Term.id `a (null))) (null) ")") "->" (Term.id `b (null)))))
 f ({x : a} -> b)
 (Term.app
  (Term.id `f (null))
- (Term.paren
-  "("
-  (null
-   (Term.depArrow (Term.implicitBinder "{" (null `x) (null ":" (Term.id `a (null))) "}") "->" (Term.id `b (null)))
-   (null))
-  ")"))
+ (null
+  (Term.paren
+   "("
+   (null
+    (Term.depArrow (Term.implicitBinder "{" (null `x) (null ":" (Term.id `a (null))) "}") "->" (Term.id `b (null)))
+    (null))
+   ")")))
 f (x : a) -> b
 (Term.arrow
  (Term.app
   (Term.id `f (null))
-  (Term.paren "(" (null (Term.id `x (null)) (null (Term.typeAscription ":" (Term.id `a (null))))) ")"))
+  (null (Term.paren "(" (null (Term.id `x (null)) (null (Term.typeAscription ":" (Term.id `a (null))))) ")")))
  "->"
  (Term.id `b (null)))
 f ((x : a) -> b)
 (Term.app
  (Term.id `f (null))
- (Term.paren
-  "("
-  (null
-   (Term.depArrow (Term.explicitBinder "(" (null `x) (null ":" (Term.id `a (null))) (null) ")") "->" (Term.id `b (null)))
-   (null))
-  ")"))
+ (null
+  (Term.paren
+   "("
+   (null
+    (Term.depArrow (Term.explicitBinder "(" (null `x) (null ":" (Term.id `a (null))) (null) ")") "->" (Term.id `b (null)))
+    (null))
+   ")")))
 (f : (n : Nat) → Vector Nat n) -> Nat
 (Term.depArrow
  (Term.explicitBinder
@@ -250,7 +243,7 @@ f ((x : a) -> b)
    (Term.depArrow
     (Term.explicitBinder "(" (null `n) (null ":" (Term.id `Nat (null))) (null) ")")
     "→"
-    (Term.app (Term.app (Term.id `Vector (null)) (Term.id `Nat (null))) (Term.id `n (null)))))
+    (Term.app (Term.id `Vector (null)) (null (Term.id `Nat (null)) (Term.id `n (null))))))
   (null)
   ")")
  "->"
@@ -274,7 +267,7 @@ match x with
  (null)
  "with"
  (null
-  (Term.matchAlt "|" (null (Term.app (Term.id `some (null)) (Term.id `x (null)))) "=>" (Term.id `true (null)))
+  (Term.matchAlt "|" (null (Term.app (Term.id `some (null)) (null (Term.id `x (null))))) "=>" (Term.id `true (null)))
   (Term.matchAlt "|" (null (Term.id `none (null))) "=>" (Term.id `false (null)))))
 
 match x with
@@ -291,7 +284,7 @@ match x with
  (null
   (Term.matchAlt
    "|"
-   (null (Term.app (Term.id `some (null)) (Term.id `y (null))))
+   (null (Term.app (Term.id `some (null)) (null (Term.id `y (null)))))
    "=>"
    (Term.match
     "match"
@@ -304,7 +297,7 @@ match x with
       (null
        (Term.app
         (Term.id `some (null))
-        (Term.paren "(" (null (Term.id `a (null)) (null (Term.tupleTail "," (null (Term.id `b (null)))))) ")")))
+        (null (Term.paren "(" (null (Term.id `a (null)) (null (Term.tupleTail "," (null (Term.id `b (null)))))) ")"))))
       "=>"
       (Term.add (Term.id `a (null)) "+" (Term.id `b (null))))
      (Term.matchAlt "|" (null (Term.id `none (null))) "=>" (Term.num (numLit "1"))))))
@@ -316,7 +309,7 @@ Sort v
 Type 1
 (Term.sortApp (Term.type "Type") (Level.num (numLit "1")))
 f Type 1
-(Term.app (Term.app (Term.id `f (null)) (Term.type "Type")) (Term.num (numLit "1")))
+(Term.app (Term.id `f (null)) (null (Term.type "Type") (Term.num (numLit "1"))))
 let x := 0; x + 1
 (Term.let
  "let"
@@ -339,7 +332,7 @@ let f (x : Nat) := x + 1; f 0
   ":="
   (Term.add (Term.id `x (null)) "+" (Term.num (numLit "1"))))
  ";"
- (Term.app (Term.id `f (null)) (Term.num (numLit "0"))))
+ (Term.app (Term.id `f (null)) (null (Term.num (numLit "0")))))
 let f {α : Type} (a : α) : α := a; f 10
 (Term.let
  "let"
@@ -352,7 +345,7 @@ let f {α : Type} (a : α) : α := a; f 10
   ":="
   (Term.id `a (null)))
  ";"
- (Term.app (Term.id `f (null)) (Term.num (numLit "10"))))
+ (Term.app (Term.id `f (null)) (null (Term.num (numLit "10")))))
 let f (x) := x + 1; f 10 + f 20
 (Term.let
  "let"
@@ -364,9 +357,9 @@ let f (x) := x + 1; f 10 + f 20
   (Term.add (Term.id `x (null)) "+" (Term.num (numLit "1"))))
  ";"
  (Term.add
-  (Term.app (Term.id `f (null)) (Term.num (numLit "10")))
+  (Term.app (Term.id `f (null)) (null (Term.num (numLit "10"))))
   "+"
-  (Term.app (Term.id `f (null)) (Term.num (numLit "20")))))
+  (Term.app (Term.id `f (null)) (null (Term.num (numLit "20"))))))
 let (x, y) := f 10; x + y
 (Term.let
  "let"
@@ -374,7 +367,7 @@ let (x, y) := f 10; x + y
   (Term.paren "(" (null (Term.id `x (null)) (null (Term.tupleTail "," (null (Term.id `y (null)))))) ")")
   (null)
   ":="
-  (Term.app (Term.id `f (null)) (Term.num (numLit "10"))))
+  (Term.app (Term.id `f (null)) (null (Term.num (numLit "10")))))
  ";"
  (Term.add (Term.id `x (null)) "+" (Term.id `y (null))))
 let { fst := x, .. } := f 10; x + x
@@ -388,13 +381,13 @@ let { fst := x, .. } := f 10; x + x
    "}")
   (null)
   ":="
-  (Term.app (Term.id `f (null)) (Term.num (numLit "10"))))
+  (Term.app (Term.id `f (null)) (null (Term.num (numLit "10")))))
  ";"
  (Term.add (Term.id `x (null)) "+" (Term.id `x (null))))
 let x.y := f 10; x
 (Term.let
  "let"
- (Term.letIdDecl `x.y (null) (null) ":=" (Term.app (Term.id `f (null)) (Term.num (numLit "10"))))
+ (Term.letIdDecl `x.y (null) (null) ":=" (Term.app (Term.id `f (null)) (null (Term.num (numLit "10")))))
  ";"
  (Term.id `x (null)))
 let x.1 := f 10; x
@@ -404,7 +397,7 @@ let x.1 := f 10; x
   (Term.proj (Term.id `x (null)) "." (fieldIdx "1"))
   (null)
   ":="
-  (Term.app (Term.id `f (null)) (Term.num (numLit "10"))))
+  (Term.app (Term.id `f (null)) (null (Term.num (numLit "10")))))
  ";"
  (Term.id `x (null)))
 let x[i].y := f 10; x
@@ -414,7 +407,7 @@ let x[i].y := f 10; x
   (Term.proj (Term.arrayRef (Term.id `x (null)) "[" (Term.id `i (null)) "]") "." `y)
   (null)
   ":="
-  (Term.app (Term.id `f (null)) (Term.num (numLit "10"))))
+  (Term.app (Term.id `f (null)) (null (Term.num (numLit "10")))))
  ";"
  (Term.id `x (null)))
 let x[i] := f 20; x
@@ -424,7 +417,7 @@ let x[i] := f 20; x
   (Term.arrayRef (Term.id `x (null)) "[" (Term.id `i (null)) "]")
   (null)
   ":="
-  (Term.app (Term.id `f (null)) (Term.num (numLit "20"))))
+  (Term.app (Term.id `f (null)) (null (Term.num (numLit "20")))))
  ";"
  (Term.id `x (null)))
 -x + y
@@ -446,18 +439,22 @@ do
  "do"
  (Term.doSeq
   (null
-   (Term.doId `x (null) "←" (Term.app (Term.id `f (null)) (Term.id `a (null))))
+   (Term.doId `x (null) "←" (Term.app (Term.id `f (null)) (null (Term.id `a (null)))))
    ";"
-   (Term.doId `x (null (Term.typeSpec ":" (Term.id `Nat (null)))) "←" (Term.app (Term.id `f (null)) (Term.id `a (null))))
+   (Term.doId
+    `x
+    (null (Term.typeSpec ":" (Term.id `Nat (null))))
+    "←"
+    (Term.app (Term.id `f (null)) (null (Term.id `a (null)))))
    ";"
-   (Term.doExpr (Term.app (Term.id `g (null)) (Term.id `x (null))))
+   (Term.doExpr (Term.app (Term.id `g (null)) (null (Term.id `x (null)))))
    ";"
-   (Term.doLet "let" (Term.letIdDecl `y (null) (null) ":=" (Term.app (Term.id `g (null)) (Term.id `x (null)))))
+   (Term.doLet "let" (Term.letIdDecl `y (null) (null) ":=" (Term.app (Term.id `g (null)) (null (Term.id `x (null))))))
    ";"
    (Term.doPat
     (Term.paren "(" (null (Term.id `a (null)) (null (Term.tupleTail "," (null (Term.id `b (null)))))) ")")
     "<-"
-    (Term.app (Term.app (Term.id `h (null)) (Term.id `x (null))) (Term.id `y (null)))
+    (Term.app (Term.id `h (null)) (null (Term.id `x (null)) (Term.id `y (null))))
     (null))
    ";"
    (Term.doLet
@@ -471,7 +468,7 @@ do
    (Term.doExpr
     (Term.app
      (Term.id `pure (null))
-     (Term.paren "(" (null (Term.add (Term.id `a (null)) "+" (Term.id `b (null))) (null)) ")"))))))
+     (null (Term.paren "(" (null (Term.add (Term.id `a (null)) "+" (Term.id `b (null))) (null)) ")")))))))
 do { x ← f a; pure $ a + a }
 (Term.do
  "do"
@@ -479,7 +476,7 @@ do { x ← f a; pure $ a + a }
   "{"
   (Term.doSeq
    (null
-    (Term.doId `x (null) "←" (Term.app (Term.id `f (null)) (Term.id `a (null))))
+    (Term.doId `x (null) "←" (Term.app (Term.id `f (null)) (null (Term.id `a (null)))))
     ";"
     (Term.doExpr (Term.dollar (Term.id `pure (null)) "$" (Term.add (Term.id `a (null)) "+" (Term.id `a (null)))))))
   "}"))
@@ -506,9 +503,9 @@ f 20
     "=>"
     (Term.mul (Term.id `n (null)) "*" (Term.id `b (null))))))
  ";"
- (Term.app (Term.id `f (null)) (Term.num (numLit "20"))))
+ (Term.app (Term.id `f (null)) (null (Term.num (numLit "20")))))
 max a b
-(Term.app (Term.app (Term.id `max (null)) (Term.id `a (null))) (Term.id `b (null)))
+(Term.app (Term.id `max (null)) (null (Term.id `a (null)) (Term.id `b (null))))
 f {x : a} -> b
 failed as expected, error: <input>:1:10 found '→' as expected, but brackets are needed
 (x := 20)

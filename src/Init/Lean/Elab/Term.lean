@@ -355,17 +355,10 @@ let instIdx := s.instImplicitIdx;
 modify $ fun s => { instImplicitIdx := s.instImplicitIdx + 1, .. s};
 pure $ (`_inst).appendIndexAfter instIdx
 
-/--
-  Return true if the given syntax is a `Lean.Parser.Term.cdot` or
-  is a `Lean.Parser.Term.app` containing a `cdot`.
-  We use this function as a filter to skip `expandCDotAux` (the expensive part)
-  at `expandCDot?` -/
-private partial def hasCDot : Syntax → Bool
-| stx =>
-  match_syntax stx with
-  | `(·)     => true
-  | `($f $a) => hasCDot f || hasCDot a
-  | _        => false
+private partial def isCDot (stx : Syntax) : Bool :=
+match_syntax stx with
+| `(·) => true
+| _    => false
 
 /--
   Auxiliary function for expandind the `·` notation.
@@ -382,36 +375,28 @@ withFreshMacroScope $
   | _ => pure stx
 
 /--
-  Auxiliary function for expanding `·`s occurring as arguments of
-  applications (i.e., `Lean.Parser.Term.app` nodes).
-  Example: `foo · s` should expand into `foo _a_<idx> s` where
-  `_a_<idx>` is a fresh identifier. -/
-private partial def expandCDotInApp : Syntax → StateT (Array Syntax) TermElabM Syntax
-| n =>
-  match_syntax n with
-  | `($f $a) => do f ← expandCDotInApp f; a ← expandCDot a; `($f $a)
-  | n        => pure n
-
-/--
   Return `some` if succeeded expanding `·` notation occurring in
   the given syntax. Otherwise, return `none`.
   Examples:
   - `· + 1` => `fun _a_1 => _a_1 + 1`
   - `f · · b` => `fun _a_1 _a_2 => f _a_1 _a_2 b` -/
-def expandCDot? : Syntax → TermElabM (Option Syntax)
-| n@(Syntax.node k args) =>
-  if args.any hasCDot then
-    if k == `Lean.Parser.Term.app then do
-      (newNode, binders) ← (expandCDotInApp n).run #[];
-      `(fun $binders* => $newNode)
-    else do {
+def expandCDot? (stx : Syntax) : TermElabM (Option Syntax) :=
+match_syntax stx with
+| `($f $args*) =>
+   if args.any isCDot then do
+     (args, binders) ← (args.mapM expandCDot).run #[];
+     `(fun $binders* => $f $args*)
+   else
+     pure none
+| _ => match stx with
+  | Syntax.node k args =>
+    if args.any isCDot then do
       (args, binders) ← (args.mapM expandCDot).run #[];
       let newNode := Syntax.node k args;
       `(fun $binders* => $newNode)
-    }
-  else
-    pure none
-| _ => pure none
+    else
+      pure none
+  | _ => pure none
 
 private def exceptionToSorry (ref : Syntax) (errMsg : Message) (expectedType? : Option Expr) : TermElabM Expr := do
 expectedType : Expr ← match expectedType? with

@@ -13,8 +13,9 @@ namespace Term
 
 @[builtinTermElab dollar] def elabDollar : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
-| `($f $ $a) => `($f $a)
-| _          => throwUnsupportedSyntax
+| `($f $args* $ $a) => let args := args.push a; `($f $args*)
+| `($f $ $a)        => `($f $a)
+| _                 => throwUnsupportedSyntax
 
 @[builtinTermElab dollarProj] def elabDollarProj : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with

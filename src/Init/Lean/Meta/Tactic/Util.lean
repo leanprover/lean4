@@ -9,6 +9,11 @@ import Init.Lean.Meta.Basic
 namespace Lean
 namespace Meta
 
+/-- Aka user name -/
+def getMVarTag (mvarId : MVarId) : MetaM Name := do
+mvarDecl ← getMVarDecl mvarId;
+pure mvarDecl.userName
+
 def mkFreshExprSyntheticOpaqueMVar (type : Expr) (userName : Name := Name.anonymous) : MetaM Expr :=
 mkFreshExprMVar type userName MetavarKind.syntheticOpaque
 

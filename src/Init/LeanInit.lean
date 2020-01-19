@@ -30,14 +30,12 @@ inductive Name
 instance Name.inhabited : Inhabited Name :=
 ⟨Name.anonymous⟩
 
-def Name.hash : Name → USize
+protected def Name.hash : Name → USize
 | Name.anonymous => 1723
 | Name.str p s h => h
 | Name.num p v h => h
 
 instance Name.hashable : Hashable Name := ⟨Name.hash⟩
-
-@[export lean_name_hash] def Name.hashEx : Name → USize := Name.hash
 
 @[export lean_name_mk_string]
 def mkNameStr (p : Name) (s : String) : Name :=
@@ -50,14 +48,39 @@ Name.num p v $ mixHash (hash p) (hash v)
 def mkNameSimple (s : String) : Name :=
 mkNameStr Name.anonymous s
 
+namespace Name
+
 @[extern "lean_name_eq"]
 protected def Name.beq : (@& Name) → (@& Name) → Bool
-| Name.anonymous,   Name.anonymous   => true
-| Name.str p₁ s₁ _, Name.str p₂ s₂ _ => s₁ == s₂ && Name.beq p₁ p₂
-| Name.num p₁ n₁ _, Name.num p₂ n₂ _ => n₁ == n₂ && Name.beq p₁ p₂
-| _,                _                => false
+| anonymous,   anonymous   => true
+| str p₁ s₁ _, str p₂ s₂ _ => s₁ == s₂ && Name.beq p₁ p₂
+| num p₁ n₁ _, num p₂ n₂ _ => n₁ == n₂ && Name.beq p₁ p₂
+| _,           _           => false
 
 instance : HasBeq Name := ⟨Name.beq⟩
+
+def toStringWithSep (sep : String) : Name → String
+| anonymous         => "[anonymous]"
+| str anonymous s _ => s
+| num anonymous v _ => toString v
+| str n s _         => toStringWithSep n ++ sep ++ s
+| num n v _         => toStringWithSep n ++ sep ++ repr v
+
+protected def toString : Name → String :=
+toStringWithSep "."
+
+instance : HasToString Name :=
+⟨Name.toString⟩
+
+protected def append : Name → Name → Name
+| n, anonymous => n
+| n, str p s _ => mkNameStr (append n p) s
+| n, num p d _ => mkNameNum (append n p) d
+
+instance : HasAppend Name :=
+⟨Name.append⟩
+
+end Name
 
 inductive ParserKind
 | leading | trailing
@@ -156,6 +179,13 @@ match stx with
 | Syntax.node _ args => args
 | _                  => #[]
 
+/-- Retrieve the left-most leaf's info in the Syntax tree. -/
+partial def getHeadInfo : Syntax → Option SourceInfo
+| atom info _      => info
+| ident info _ _ _ => info
+| node _ args      => args.find? getHeadInfo
+| _                => none
+
 end Syntax
 
 /-
@@ -203,6 +233,93 @@ instance MacroM.monadQuotation : MonadQuotation MacroM :=
   withFreshMacroScope := fun _ x => x }
 
 abbrev Macro := Syntax → MacroM Syntax
+
+/- Builtin kinds -/
+
+@[matchPattern] def choiceKind : SyntaxNodeKind := `choice
+@[matchPattern] def nullKind : SyntaxNodeKind := `null
+def strLitKind : SyntaxNodeKind := `strLit
+def charLitKind : SyntaxNodeKind := `charLit
+def numLitKind : SyntaxNodeKind := `numLit
+def fieldIdxKind : SyntaxNodeKind := `fieldIdx
+
+/- Helper functions for processing Syntax programmatically -/
+
+/--
+  Create an identifier using `SourceInfo` from `src`.
+  To refer to a specific constant, use `mkCIdentFrom` instead. -/
+def mkIdentFrom (src : Syntax) (val : Name) : Syntax :=
+let info := src.getHeadInfo;
+Syntax.ident info (toString val).toSubstring val []
+
+/--
+  Create an identifier referring to a constant `c` using `SourceInfo` from `src`.
+  This variant of `mkIdentFrom` makes sure that the identifier cannot accidentally
+  be captured. -/
+def mkCIdentFrom (src : Syntax) (c : Name) : Syntax :=
+let info := src.getHeadInfo;
+Syntax.ident info (toString c).toSubstring (`_root_ ++ c) [(c, [])]
+
+def mkAtomFrom (src : Syntax) (val : String) : Syntax :=
+let info := src.getHeadInfo;
+Syntax.atom info val
+
+@[export lean_mk_syntax_ident]
+def mkIdent (val : Name) : Syntax :=
+Syntax.ident none (toString val).toSubstring val []
+
+@[inline] def mkNullNode (args : Array Syntax := #[]) : Syntax :=
+Syntax.node nullKind args
+
+def mkOptionalNode (arg : Option Syntax) : Syntax :=
+match arg with
+| some arg => Syntax.node nullKind #[arg]
+| none     => Syntax.node nullKind #[]
+
+/-- Create syntax representing a Lean term application -/
+def mkAppStx (fn : Syntax) (args : Array Syntax) : Syntax :=
+Syntax.node `Lean.Parser.Term.app #[fn, mkNullNode args]
+
+def mkHole (ref : Syntax) : Syntax :=
+Syntax.node `Lean.Parser.Term.hole #[mkAtomFrom ref "_"]
+
+/-- Convert a `Syntax.ident` into a `Lean.Parser.Term.id` node -/
+def mkTermIdFromIdent (ident : Syntax) : Syntax :=
+match ident with
+| Syntax.ident _ _ _ _ => Syntax.node `Lean.Parser.Term.id #[ident, mkNullNode]
+| _                    => unreachable!
+
+/--
+  Create a simple `Lean.Parser.Term.id` syntax using position
+  information from `ref` and name `n`. By simple, we mean that
+  `optional (explicitUniv <|> namedPattern)` is none.
+  To refer to a specific constant, use `mkCTermIdFrom` instead. -/
+def mkTermIdFrom (ref : Syntax) (n : Name) : Syntax :=
+mkTermIdFromIdent (mkIdentFrom ref n)
+
+/-- Variant of `mkTermIdFrom` that makes sure that the identifier cannot accidentally
+    be captured. -/
+def mkCTermIdFrom (ref : Syntax) (c : Name) : Syntax :=
+mkTermIdFromIdent (mkCIdentFrom ref c)
+
+def mkTermId (n : Name) : Syntax :=
+mkTermIdFrom Syntax.missing n
+
+def mkCTermId (c : Name) : Syntax :=
+mkCTermIdFrom Syntax.missing c
+
+def mkCAppStx (fn : Name) (args : Array Syntax) : Syntax :=
+mkAppStx (mkCTermId fn) args
+
+def mkStxLit (kind : SyntaxNodeKind) (val : String) (info : Option SourceInfo := none) : Syntax :=
+let atom : Syntax := Syntax.atom info val;
+Syntax.node kind #[atom]
+
+def mkStxStrLit (val : String) (info : Option SourceInfo := none) : Syntax :=
+mkStxLit strLitKind (repr val) info
+
+def mkStxNumLit (val : String) (info : Option SourceInfo := none) : Syntax :=
+mkStxLit numLitKind val info
 
 end Lean
 

@@ -180,7 +180,7 @@ adaptExpander $ fun stx => match_syntax stx with
   | `(`($quot)) => pure quot.getKind
   | stx         => throwUnsupportedSyntax;
   -- TODO: meaningful, unhygienic def name for selective macro `open`ing?
-  `(@[macro $(Lean.mkSimpleIdent k)] def myMacro : Macro := fun stx => match_syntax stx with $alts* | _ => throw ())
+  `(@[macro $(Lean.mkIdent k)] def myMacro : Macro := fun stx => match_syntax stx with $alts* | _ => throw ())
 | _ => throwUnsupportedSyntax
 
 /- We just ignore Lean3 notation declaration commands. -/

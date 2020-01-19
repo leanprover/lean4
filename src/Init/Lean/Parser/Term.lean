@@ -179,40 +179,6 @@ end Parser
 
 open Parser
 
-def mkAppStx (fn : Syntax) (args : Array Syntax) : Syntax :=
-Syntax.node `Lean.Parser.Term.app #[fn, mkNullNode args]
--- args.foldl (fun fn arg => Syntax.node `Lean.Parser.Term.app #[fn, arg]) fn
-
-def mkHole (ref : Syntax) := mkNode `Lean.Parser.Term.hole #[mkAtomFrom ref "_"]
-
-/-- Convert a `Syntax.ident` into a `Lean.Parser.Term.id` node -/
-def mkTermIdFromIdent (ident : Syntax) : Syntax :=
-match ident with
-| Syntax.ident _ _ _ _ => mkNode `Lean.Parser.Term.id #[ident, mkNullNode]
-| _                    => unreachable!
-
-/--
-  Create a simple `Lean.Parser.Term.id` syntax using position
-  information from `ref` and name `n`. By simple, we mean that
-  `optional (explicitUniv <|> namedPattern)` is none.
-  To refer to a specific constant, use `mkCTermIdFrom` instead. -/
-def mkTermIdFrom (ref : Syntax) (n : Name) : Syntax :=
-mkTermIdFromIdent (mkIdentFrom ref n)
-
-/-- Variant of `mkTermIdFrom` that makes sure that the identifier cannot accidentally
-    be captured. -/
-def mkCTermIdFrom (ref : Syntax) (c : Name) : Syntax :=
-mkTermIdFromIdent (mkCIdentFrom ref c)
-
-def mkTermId (n : Name) : Syntax :=
-mkTermIdFrom Syntax.missing n
-
-def mkCTermId (c : Name) : Syntax :=
-mkCTermIdFrom Syntax.missing c
-
-def mkCAppStx (fn : Name) (args : Array Syntax) : Syntax :=
-mkAppStx (mkCTermId fn) args
-
 def Syntax.isTermId? (stx : Syntax) : Option (Syntax × Syntax) :=
 stx.ifNode
  (fun node =>

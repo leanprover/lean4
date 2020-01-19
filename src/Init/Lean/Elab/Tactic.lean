@@ -24,7 +24,7 @@ fun stx expectedType? =>
   | some expectedType => mkTacticMVar stx expectedType (stx.getArg 1)
   | none => throwError stx ("invalid tactic block, expected type has not been provided")
 
-open Tactic (TacticM evalTactic)
+open Tactic (TacticM evalTactic getUnsolvedGoals)
 
 def liftTacticElabM {α} (ref : Syntax) (mvarId : MVarId) (x : TacticM α) : TermElabM α :=
 withMVarContext mvarId $ fun ctx s =>
@@ -41,7 +41,7 @@ when val.hasMVar $ throwError ref ("tactic failed, result still contain metavari
 
 def runTactic (ref : Syntax) (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
 modify $ fun s => { mctx := s.mctx.instantiateMVarDeclMVars mvarId, .. s };
-remainingGoals ← liftTacticElabM ref mvarId $ do { evalTactic tacticCode; s ← get; pure s.goals };
+remainingGoals ← liftTacticElabM ref mvarId $ do { evalTactic tacticCode; getUnsolvedGoals };
 let tailRef := ref.getTailWithInfo.getD ref;
 unless remainingGoals.isEmpty (reportUnsolvedGoals tailRef remainingGoals);
 ensureAssignmentHasNoMVars tailRef mvarId

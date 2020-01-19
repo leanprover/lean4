@@ -44,6 +44,7 @@ def getOptions : TacticM Options := do ctx ← read; pure ctx.config.opts
 def getMVarDecl (mvarId : MVarId) : TacticM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
 def instantiateMVars (ref : Syntax) (e : Expr) : TacticM Expr := liftTermElabM $ Term.instantiateMVars ref e
 def addContext (msg : MessageData) : TacticM MessageData := liftTermElabM $ Term.addContext msg
+def isExprMVarAssigned (mvarId : MVarId) : TacticM Bool := liftTermElabM $ Term.isExprMVarAssigned mvarId
 def assignExprMVar (mvarId : MVarId) (val : Expr) : TacticM Unit := liftTermElabM $ Term.assignExprMVar mvarId val
 def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (e : Expr) : TacticM Expr := liftTermElabM $ Term.ensureHasType ref expectedType? e
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) : TacticM Expr := liftTermElabM $ Term.elabTerm stx expectedType?
@@ -180,8 +181,13 @@ let needReset := ctx.localInstances == mvarDecl.localInstances;
 withLCtx mvarDecl.lctx mvarDecl.localInstances $ resettingSynthInstanceCacheWhen needReset x
 
 def getGoals : TacticM (List MVarId) := do s ← get; pure s.goals
-def getMainGoal (ref : Syntax) : TacticM (MVarId × List MVarId) := do (g::gs) ← getGoals | throwError ref "no goals to be solved"; pure (g, gs)
-def updateGoals (gs : List MVarId) : TacticM Unit := modify $ fun s => { goals := gs, .. s }
+def setGoals (gs : List MVarId) : TacticM Unit := modify $ fun s => { goals := gs, .. s }
+def pruneSolvedGoals : TacticM Unit := do
+gs ← getGoals;
+gs ← gs.filterM $ fun g => not <$> isExprMVarAssigned g;
+setGoals gs
+def getUnsolvedGoals : TacticM (List MVarId) := do pruneSolvedGoals; getGoals
+def getMainGoal (ref : Syntax) : TacticM (MVarId × List MVarId) := do (g::gs) ← getUnsolvedGoals | throwError ref "no goals to be solved"; pure (g, gs)
 def ensureHasNoMVars (ref : Syntax) (e : Expr) : TacticM Unit := do
 e ← instantiateMVars ref e;
 when e.hasMVar $ throwError ref ("tactic failed, resulting expression contains metavariables" ++ indentExpr e)
@@ -190,7 +196,7 @@ when e.hasMVar $ throwError ref ("tactic failed, resulting expression contains m
 (g, gs) ← getMainGoal ref;
 withMVarContext g $ do
   gs' ← liftMetaM ref $ tactic g;
-  updateGoals (gs' ++ gs)
+  setGoals (gs' ++ gs)
 
 @[builtinTactic seq] def evalSeq : Tactic :=
 fun stx => (stx.getArg 0).forSepArgsM evalTactic
@@ -216,7 +222,7 @@ fun stx => match_syntax stx with
       ensureHasNoMVars ref val;
       assignExprMVar g val
     };
-    updateGoals gs
+    setGoals gs
   | _                   => throwUnsupportedSyntax
 
 @[init] private def regTraceClasses : IO Unit := do

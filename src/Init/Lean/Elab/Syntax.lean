@@ -263,7 +263,14 @@ else
 def expandMacroArgIntoSyntaxItem (stx : Syntax) : CommandElabM Syntax :=
 let k := stx.getKind;
 if k == `Lean.Parser.Command.macroArgSimple then
-  pure $ Syntax.node `Lean.Parser.Syntax.cat #[stx.getArg 2,  stx.getArg 3]
+  let argType := stx.getArg 2;
+  match argType with
+  | Syntax.atom _ "ident" => pure $ Syntax.node `Lean.Parser.Syntax.ident #[argType]
+  | Syntax.atom _ "num"   => pure $ Syntax.node `Lean.Parser.Syntax.num #[argType]
+  | Syntax.atom _ "str"   => pure $ Syntax.node `Lean.Parser.Syntax.str #[argType]
+  | Syntax.atom _ "char"  => pure $ Syntax.node `Lean.Parser.Syntax.char #[argType]
+  | Syntax.ident _ _ _ _  => pure $ Syntax.node `Lean.Parser.Syntax.cat #[stx.getArg 2,  stx.getArg 3]
+  | _                     => throwUnsupportedSyntax
 else if k == `Lean.Parser.Command.strLitPrec then
   pure $ Syntax.node `Lean.Parser.Syntax.atom stx.getArgs
 else

@@ -13,10 +13,10 @@ namespace Tactic
 
 /- `elabTerm` for Tactics and basic tactics that use it. -/
 
-def elabTerm (stx : Syntax) (expectedType? : Option Expr) : TacticM Expr :=
+def elabTerm (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr :=
 liftTermElabM $ adaptReader (fun (ctx : Term.Context) => { errToSorry := false, .. ctx }) $ do
   e ← Term.elabTerm stx expectedType?;
-  Term.synthesizeSyntheticMVars false;
+  Term.synthesizeSyntheticMVars mayPostpone;
   Term.instantiateMVars stx e
 
 @[builtinTactic «exact»] def evalExact : Tactic :=

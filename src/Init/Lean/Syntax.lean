@@ -518,10 +518,18 @@ def hasArgs : Syntax → Bool
 
 end Syntax
 
-/-- Create an identifier using `SourceInfo` from `src` -/
+/-- Create an identifier using `SourceInfo` from `src`.
+    To refer to a specific constant, use `mkCIdentFrom` instead. -/
 def mkIdentFrom (src : Syntax) (val : Name) : Syntax :=
 let info := src.getHeadInfo;
 Syntax.ident info (toString val).toSubstring val []
+
+/-- Create an identifier referring to a constant `c` using `SourceInfo` from `src`.
+    This variant of `mkIdentFrom` makes sure that the identifier cannot accidentally
+    be captured. -/
+def mkCIdentFrom (src : Syntax) (c : Name) : Syntax :=
+let info := src.getHeadInfo;
+Syntax.ident info (toString c).toSubstring (`_root_ ++ c) [(c, [])]
 
 def mkAtomFrom (src : Syntax) (val : String) : Syntax :=
 let info := src.getHeadInfo;

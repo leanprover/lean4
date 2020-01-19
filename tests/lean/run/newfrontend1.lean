@@ -114,3 +114,8 @@ begin
   { refine Eq.trans ?pre ?post;
     (exact h1) <|> (exact y; exact h3; assumption) }
 end
+
+namespace Foo
+  def Prod.mk := 1
+  #check (⟨2, 3⟩ : Prod _ _)
+end Foo

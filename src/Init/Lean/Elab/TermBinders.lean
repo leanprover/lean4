@@ -187,10 +187,9 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
     let binder := binders.get ⟨i, h⟩;
     let processAsPattern : Unit → TermElabM (Array Syntax × Syntax) := fun _ => do {
       let pattern := binder;
-      ident ← mkFreshAnonymousIdent binder;
-      (binders, newBody) ← expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder ident (mkHole binder));
-      let major := mkTermIdFromIdent ident;
-      newBody ← `(match $major with | $pattern => $newBody);
+      major ← mkFreshAnonymousIdent binder;
+      (binders, newBody) ← expandFunBindersAux body (i+1) (newBinders.push $ mkExplicitBinder major (mkHole binder));
+      newBody ← `(match $major:ident with | $pattern => $newBody);
       pure (binders, newBody)
     };
     match binder with

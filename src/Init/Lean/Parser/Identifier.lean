@@ -20,7 +20,7 @@ def isLetterLike (c : Char) : Bool :=
 (0x1d49c ≤ c.val && c.val ≤ 0x1d59f)                                   -- Latin letters, Script, Double-struck, Fractur
 
 def isSubScriptAlnum (c : Char) : Bool :=
-(0x207f ≤ c.val && c.val ≤ 0x2089) || -- n superscript and numberic subscripts
+(0x2080 ≤ c.val && c.val ≤ 0x2089) || -- numeric subscripts
 (0x2090 ≤ c.val && c.val ≤ 0x209c) ||
 (0x1d62 ≤ c.val && c.val ≤ 0x1d6a)
 

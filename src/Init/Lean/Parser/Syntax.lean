@@ -54,11 +54,13 @@ def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «p
 -- TODO delete reserve
 @[builtinCommandParser] def «reserve»  := parser! "reserve " >> mixfixKind >> quotedSymbolPrec
 def mixfixSymbol := quotedSymbolPrec <|> unquotedSymbol
-@[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> mixfixSymbol >> darrow >> termParser
+-- TODO: remove " := " after old frontend is gone
+@[builtinCommandParser] def «mixfix»   := parser! mixfixKind >> mixfixSymbol >> (" := " <|> darrow) >> termParser
 def strLitPrec := parser! strLit >> optPrecedence
 def identPrec  := parser! ident >> optPrecedence
 
-@[builtinCommandParser] def «notation»    := parser! "notation" >> many (strLitPrec <|> quotedSymbolPrec <|> identPrec) >> darrow >> termParser
+-- TODO: remove " := " after old frontend is gone
+@[builtinCommandParser] def «notation»    := parser! "notation" >> many (strLitPrec <|> quotedSymbolPrec <|> identPrec) >> (" := " <|> darrow) >> termParser
 @[builtinCommandParser] def «macro_rules» := parser! "macro_rules" >> many1Indent Term.matchAlt "'match' alternatives must be indented"
 @[builtinCommandParser] def «syntax»      := parser! "syntax " >> optional ("[" >> ident >> "]") >> many1 syntaxParser >> " : " >> ident
 @[builtinCommandParser] def syntaxCat     := parser! "declare_syntax_cat " >> ident

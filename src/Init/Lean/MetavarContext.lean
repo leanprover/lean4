@@ -332,6 +332,16 @@ match mctx.findLevelDepth? mvarId with
 | some d => d
 | none   => panic! "unknown metavariable"
 
+def isAnonymousMVar (mctx : MetavarContext) (mvarId : MVarId) : Bool :=
+match mctx.findDecl? mvarId with
+| none          => false
+| some mvarDecl => mvarDecl.userName.isAnonymous
+
+def renameMVar (mctx : MetavarContext) (mvarId : MVarId) (newUserName : Name) : MetavarContext :=
+match mctx.findDecl? mvarId with
+| none          => panic! "unknown metavariable"
+| some mvarDecl => { decls := mctx.decls.insert mvarId { userName := newUserName, .. mvarDecl }, .. mctx }
+
 @[export lean_metavar_ctx_assign_level]
 def assignLevel (m : MetavarContext) (mvarId : MVarId) (val : Level) : MetavarContext :=
 { lAssignment := m.lAssignment.insert mvarId val, .. m }

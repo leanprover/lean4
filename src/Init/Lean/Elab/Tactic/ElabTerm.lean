@@ -44,7 +44,9 @@ fun stx => match_syntax stx with
       val  ← elabTerm e decl.type;
       val  ← ensureHasType ref decl.type val;
       assignExprMVar g val;
-      collectMVars ref val
+      gs'  ← collectMVars ref val;
+      tagUntaggedGoals decl.userName `refine gs';
+      pure gs'
     };
     setGoals (gs' ++ gs)
   | _ => throwUnsupportedSyntax

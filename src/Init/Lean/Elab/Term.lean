@@ -644,6 +644,18 @@ fun stx expectedType? =>
   let name := stx.getIdAt 1;
   mkFreshExprMVar stx expectedType? MetavarKind.syntheticOpaque name
 
+def mkTacticMVar (ref : Syntax) (type : Expr) (tacticCode : Syntax) : TermElabM Expr := do
+mvar ← mkFreshExprMVar ref type MetavarKind.syntheticOpaque `main;
+let mvarId := mvar.mvarId!;
+registerSyntheticMVar ref mvarId $ SyntheticMVarKind.tactic tacticCode;
+pure mvar
+
+@[builtinTermElab tacticBlock] def elabTacticBlock : TermElab :=
+fun stx expectedType? =>
+  match expectedType? with
+  | some expectedType => mkTacticMVar stx expectedType (stx.getArg 1)
+  | none => throwError stx ("invalid tactic block, expected type has not been provided")
+
 /-- Main loop for `mkPairs`. -/
 private partial def mkPairsAux (elems : Array Syntax) : Nat → Syntax → TermElabM Syntax
 | i, acc =>

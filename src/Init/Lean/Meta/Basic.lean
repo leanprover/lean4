@@ -314,6 +314,9 @@ match mctx.findLevelDepth? mvarId with
 | some depth => pure $ depth != mctx.depth
 | _          => throwEx $ Exception.unknownLevelMVar mvarId
 
+def renameMVar (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
+modify $ fun s => { mctx := s.mctx.renameMVar mvarId newUserName, .. s }
+
 @[inline] def isExprMVarAssigned (mvarId : MVarId) : MetaM Bool := do
 mctx ← getMCtx;
 pure $ mctx.isExprAssigned mvarId
@@ -630,13 +633,15 @@ def lambdaTelescope {α} (e : Expr) (k : Array Expr → Expr → MetaM α) : Met
 lctx ← getLCtx;
 lambdaTelescopeAux k lctx #[] 0 e
 
+-- `kind` specifies the metavariable kind for metavariables not corresponding to instance implicit `[ ... ]` arguments.
 private partial def forallMetaTelescopeReducingAux
-    (reducing? : Bool) (maxMVars? : Option Nat)
+    (reducing? : Bool) (maxMVars? : Option Nat) (kind : MetavarKind)
     : Array Expr → Array BinderInfo → Nat → Expr → MetaM (Array Expr × Array BinderInfo × Expr)
 | mvars, bis, j, type@(Expr.forallE n d b c) => do
   let process : Unit → MetaM (Array Expr × Array BinderInfo × Expr) := fun _ => do {
-    let d     := d.instantiateRevRange j mvars.size mvars;
-    mvar ← mkFreshExprMVar d;
+    let d  := d.instantiateRevRange j mvars.size mvars;
+    let k  := if c.binderInfo.isInstImplicit then  MetavarKind.synthetic else kind;
+    mvar ← mkFreshExprMVar d n k;
     let mvars := mvars.push mvar;
     let bis   := bis.push c.binderInfo;
     forallMetaTelescopeReducingAux mvars bis j b
@@ -661,12 +666,12 @@ private partial def forallMetaTelescopeReducingAux
     pure (mvars, bis, type)
 
 /-- Similar to `forallTelescope`, but creates metavariables instead of free variables. -/
-def forallMetaTelescope (e : Expr) : MetaM (Array Expr × Array BinderInfo × Expr) :=
-forallMetaTelescopeReducingAux false none #[] #[] 0 e
+def forallMetaTelescope (e : Expr) (kind := MetavarKind.natural) : MetaM (Array Expr × Array BinderInfo × Expr) :=
+forallMetaTelescopeReducingAux false none kind #[] #[] 0 e
 
 /-- Similar to `forallTelescopeReducing`, but creates metavariables instead of free variables. -/
-def forallMetaTelescopeReducing (e : Expr) (maxMVars? : Option Nat := none) : MetaM (Array Expr × Array BinderInfo × Expr) :=
-forallMetaTelescopeReducingAux true maxMVars? #[] #[] 0 e
+def forallMetaTelescopeReducing (e : Expr) (maxMVars? : Option Nat := none) (kind := MetavarKind.natural) : MetaM (Array Expr × Array BinderInfo × Expr) :=
+forallMetaTelescopeReducingAux true maxMVars? kind #[] #[] 0 e
 
 /-- Similar to `forallMetaTelescopeReducingAux` but for lambda expressions. -/
 private partial def lambdaMetaTelescopeAux (maxMVars? : Option Nat)

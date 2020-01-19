@@ -278,6 +278,9 @@ adaptReader (fun (ctx : Context) => { config := f ctx.config, .. ctx }) x
 @[inline] def withTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
 withConfig (fun config => { transparency := mode, .. config }) x
 
+@[inline] def withReducible {α} (x : MetaM α) : MetaM α :=
+withTransparency TransparencyMode.reducible x
+
 @[inline] def withAtLeastTransparency {α} (mode : TransparencyMode) (x : MetaM α) : MetaM α :=
 withConfig
   (fun config =>
@@ -564,7 +567,7 @@ else
   k #[] type
 
 partial def isClassExpensive : Expr → MetaM (Option Name)
-| type => withTransparency TransparencyMode.reducible $ -- when testing whether a type is a type class, we only unfold reducible constants.
+| type => withReducible $ -- when testing whether a type is a type class, we only unfold reducible constants.
   forallTelescopeReducingAux isClassExpensive type none $ fun xs type => do
     match type.getAppFn with
     | Expr.const c _ _ => do

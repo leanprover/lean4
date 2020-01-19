@@ -782,16 +782,24 @@ match result? with
 @[builtinTermElab cdot] def elabBadCDot : TermElab :=
 fun stx _ => throwError stx "invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)"
 
-@[builtinTermElab str] def elabStr : TermElab :=
+/-
+  A raw literal is not a valid term, but it is nice to have a handler for them because it allows `macros` to insert them into terms.
+
+  TODO: check whether we still need wrapper nodes around literals. -/
+@[builtinTermElab strLit] def elabRawStrLit : TermElab :=
 fun stx _ => do
-  match (stx.getArg 0).isStrLit? with
+  match stx.isStrLit? with
   | some val => pure $ mkStrLit val
   | none     => throwError stx "ill-formed syntax"
 
-@[builtinTermElab num] def elabNum : TermElab :=
+@[builtinTermElab str] def elabStr : TermElab :=
+fun stx expectedType? => elabRawStrLit (stx.getArg 0) expectedType?
+
+/- See `elabRawStrLit` -/
+@[builtinTermElab numLit] def elabRawNumLit : TermElab :=
 fun stx expectedType? => do
   let ref := stx;
-  val ← match (stx.getArg 0).isNatLit? with
+  val ← match stx.isNatLit? with
     | some val => pure (mkNatLit val)
     | none     => throwError stx "ill-formed syntax";
   typeMVar ← mkFreshTypeMVar ref MetavarKind.synthetic;
@@ -804,11 +812,18 @@ fun stx expectedType? => do
   mvar ← mkInstMVar ref (mkApp (Lean.mkConst `HasOfNat [u]) typeMVar);
   pure $ mkApp3 (Lean.mkConst `HasOfNat.ofNat [u]) typeMVar mvar val
 
-@[builtinTermElab char] def elabChar : TermElab :=
+@[builtinTermElab num] def elabNum : TermElab :=
+fun stx expectedType? => elabRawNumLit (stx.getArg 0) expectedType?
+
+/- See `elabRawStrLit` -/
+@[builtinTermElab charLit] def elabRawCharLit : TermElab :=
 fun stx _ => do
-  match (stx.getArg 0).isCharLit? with
+  match stx.isCharLit? with
   | some val => pure $ mkApp (Lean.mkConst `Char.ofNat) (mkNatLit val.toNat)
   | none     => throwError stx "ill-formed syntax"
+
+@[builtinTermElab char] def elabChar : TermElab :=
+fun stx expectedType? => elabRawCharLit (stx.getArg 0) expectedType?
 
 end Term
 

@@ -439,7 +439,6 @@ lean_object* l_Lean_Syntax_foldSepRevArgsM___rarg(lean_object*, lean_object*, le
 lean_object* l_Lean_Parser_TokenMap_HasEmptyc(lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_3__iterateRevMAux___main___at_Lean_Syntax_foldSepRevArgs___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_checkNoWsBefore(uint8_t, lean_object*);
-extern lean_object* l_Lean_choiceKind___closed__2;
 lean_object* l_Lean_Parser_checkWsBefore___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_noFirstTokenInfo(lean_object*);
 lean_object* l_Lean_Parser_mkParserOfConstantUnsafe___closed__1;
@@ -33523,15 +33522,51 @@ x_6 = l_PersistentHashMap_contains___at_Lean_Parser_mkFreshKindAux___main___spec
 if (x_6 == 0)
 {
 lean_object* x_7; uint8_t x_8; 
-x_7 = l_Lean_choiceKind___closed__2;
+x_7 = l_Lean_choiceKind;
 x_8 = lean_name_eq(x_2, x_7);
-return x_8;
+if (x_8 == 0)
+{
+lean_object* x_9; uint8_t x_10; 
+x_9 = l_Lean_strLitKind;
+x_10 = lean_name_eq(x_2, x_9);
+if (x_10 == 0)
+{
+lean_object* x_11; uint8_t x_12; 
+x_11 = l_Lean_numLitKind;
+x_12 = lean_name_eq(x_2, x_11);
+if (x_12 == 0)
+{
+lean_object* x_13; uint8_t x_14; 
+x_13 = l_Lean_charLitKind;
+x_14 = lean_name_eq(x_2, x_13);
+return x_14;
 }
 else
 {
-uint8_t x_9; 
-x_9 = 1;
-return x_9;
+uint8_t x_15; 
+x_15 = 1;
+return x_15;
+}
+}
+else
+{
+uint8_t x_16; 
+x_16 = 1;
+return x_16;
+}
+}
+else
+{
+uint8_t x_17; 
+x_17 = 1;
+return x_17;
+}
+}
+else
+{
+uint8_t x_18; 
+x_18 = 1;
+return x_18;
 }
 }
 }

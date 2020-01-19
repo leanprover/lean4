@@ -1667,7 +1667,7 @@ parserExtension.addEntry env $ ParserExtensionEntry.kind k
 
 def isValidSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Bool :=
 let kinds := (parserExtension.getState env).kinds;
-kinds.contains k || k == `choice
+kinds.contains k || k == choiceKind || k == strLitKind || k == numLitKind || k == charLitKind
 
 def getSyntaxNodeKinds (env : Environment) : List SyntaxNodeKind := do
 let kinds := (parserExtension.getState env).kinds;

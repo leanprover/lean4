@@ -205,3 +205,5 @@ instance MacroM.monadQuotation : MonadQuotation MacroM :=
 abbrev Macro := Syntax → MacroM Syntax
 
 end Lean
+
+abbrev Array.getSepElems := @Array.getEvenElems

@@ -15,7 +15,7 @@ namespace Term
 private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) (errToSorry := true) : TermElabM Expr :=
 -- Remark: if `ctx.errToSorry` is already false, then we don't enable it. Recall tactics disable `errToSorry`
 adaptReader (fun (ctx : Context) => { errToSorry := ctx.errToSorry && errToSorry, .. ctx }) $
- elabTerm stx expectedType? false
+  elabTerm stx expectedType? false
 
 /--
   Try to elaborate `stx` that was postponed by an elaboration method using `Expection.postpone`.

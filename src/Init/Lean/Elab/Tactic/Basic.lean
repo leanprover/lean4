@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
+import Init.Lean.Util.CollectMVars
 import Init.Lean.Elab.Util
 import Init.Lean.Elab.Term
 import Init.Lean.Meta.Tactic.Assumption
@@ -48,6 +49,11 @@ def isExprMVarAssigned (mvarId : MVarId) : TacticM Bool := liftTermElabM $ Term.
 def assignExprMVar (mvarId : MVarId) (val : Expr) : TacticM Unit := liftTermElabM $ Term.assignExprMVar mvarId val
 def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (e : Expr) : TacticM Expr := liftTermElabM $ Term.ensureHasType ref expectedType? e
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) : TacticM Expr := liftTermElabM $ Term.elabTerm stx expectedType?
+/-- Collect unassigned metavariables -/
+def collectMVars (ref : Syntax) (e : Expr) : TacticM (List MVarId) := do
+e ← instantiateMVars ref e;
+let s := Lean.collectMVars {} e;
+pure s.result.toList
 
 instance monadLog : MonadLog TacticM :=
 { getCmdPos   := do ctx ← read; pure ctx.cmdPos,
@@ -223,6 +229,21 @@ fun stx => match_syntax stx with
       assignExprMVar g val
     };
     setGoals gs
+  | _                   => throwUnsupportedSyntax
+
+@[builtinTactic «refine»] def evalRefine : Tactic :=
+fun stx => match_syntax stx with
+  | `(tactic| refine $e) => do
+    let ref := stx;
+    (g, gs) ← getMainGoal stx;
+    gs' ← withMVarContext g $ do {
+      decl ← getMVarDecl g;
+      val  ← elabTerm e decl.type;
+      val  ← ensureHasType ref decl.type val;
+      assignExprMVar g val;
+      collectMVars ref val
+    };
+    setGoals (gs' ++ gs)
   | _                   => throwUnsupportedSyntax
 
 @[init] private def regTraceClasses : IO Unit := do

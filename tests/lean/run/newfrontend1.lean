@@ -96,6 +96,14 @@ begin
   intro h1; intro _; intro h3;
   refine Eq.trans ?pre ?post;
   exact y;
-  { assumption };
-  { assumption }
+  { exact h3 };
+  { exact h1 }
+end
+
+theorem simple8 (x y z : Nat) : y = z → x = x → x = y → x = z :=
+begin
+  intro h1; intro _; intro h3;
+  refine Eq.trans ?pre ?post;
+  case post { exact h1 };
+  case pre { exact h3 };
 end

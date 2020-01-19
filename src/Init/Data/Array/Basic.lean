@@ -552,6 +552,21 @@ reverseAux a 0
 @[inline] def filter (p : α → Bool) (as : Array α) : Array α :=
 filterAux p as 0 0
 
+@[specialize] partial def filterMAux {m : Type → Type} [Monad m] {α : Type} (p : α → m Bool) : Array α → Nat → Nat → m (Array α)
+| a, i, j =>
+  if h₁ : i < a.size then
+    condM (p (a.get ⟨i, h₁⟩))
+     (if h₂ : j < i then
+        filterMAux (a.swap ⟨i, h₁⟩ ⟨j, Nat.ltTrans h₂ h₁⟩) (i+1) (j+1)
+      else
+        filterMAux a (i+1) (j+1))
+     (filterMAux a (i+1) j)
+  else
+    pure $ a.shrink j
+
+@[inline] def filterM {m : Type → Type} [Monad m] {α : Type}  (p : α → m Bool) (as : Array α) : m (Array α) :=
+filterMAux p as 0 0
+
 partial def indexOfAux {α} [HasBeq α] (a : Array α) (v : α) : Nat → Option (Fin a.size)
 | i =>
   if h : i < a.size then

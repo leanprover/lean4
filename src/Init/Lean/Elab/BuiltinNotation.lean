@@ -51,7 +51,7 @@ match expectedType? with
       if val.ctors.length != 1 then
         throwError ref ("invalid constructor ⟨...⟩, '" ++ constName ++ "' must have only one constructor")
       else
-        let ctor := mkTermIdFrom ref val.ctors.head!;
+        let ctor := mkCTermIdFrom ref val.ctors.head!;
         let args := (stx.getArg 1).getArgs.getEvenElems; do
         withMacroExpansion ref $ elabTerm (mkAppStx ctor args) expectedType?
     | _ => throwError ref ("invalid constructor ⟨...⟩, '" ++ constName ++ "' is not an inductive type")
@@ -115,7 +115,7 @@ fun stx expectedType? => do
   elabTerm (mkAppStx f #[a, b]) expectedType?
 
 def elabInfixOp (op : Name) : TermElab :=
-fun stx expectedType? => elabInfix (mkTermIdFrom (stx.getArg 1) op) stx expectedType?
+fun stx expectedType? => elabInfix (mkCTermIdFrom (stx.getArg 1) op) stx expectedType?
 
 @[builtinTermElab prod] def elabProd : TermElab := elabInfixOp `Prod
 @[builtinTermElab fcomp] def ElabFComp : TermElab := elabInfixOp `Function.comp

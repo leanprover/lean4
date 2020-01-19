@@ -33,30 +33,30 @@ export HasQuote (quote)
 instance Syntax.HasQuote : HasQuote Syntax := ⟨id⟩
 instance String.HasQuote : HasQuote String := ⟨fun s => Syntax.node `Lean.Parser.Term.str #[mkStxStrLit s]⟩
 instance Nat.HasQuote : HasQuote Nat := ⟨fun n => Syntax.node `Lean.Parser.Term.num #[mkStxNumLit $ toString n]⟩
-instance Substring.HasQuote : HasQuote Substring := ⟨fun s => mkCAppStx `_root_.String.toSubstring #[quote s.toString]⟩
+instance Substring.HasQuote : HasQuote Substring := ⟨fun s => mkCAppStx `String.toSubstring #[quote s.toString]⟩
 
 private def quoteName : Name → Syntax
-| Name.anonymous => mkTermId `_root_.Lean.Name.anonymous
-| Name.str n s _ => mkCAppStx `_root_.Lean.mkNameStr #[quoteName n, quote s]
-| Name.num n i _ => mkCAppStx `_root_.Lean.mkNameNum #[quoteName n, quote i]
+| Name.anonymous => mkCTermId `Lean.Name.anonymous
+| Name.str n s _ => mkCAppStx `Lean.mkNameStr #[quoteName n, quote s]
+| Name.num n i _ => mkCAppStx `Lean.mkNameNum #[quoteName n, quote i]
 
 instance Name.hasQuote : HasQuote Name := ⟨quoteName⟩
 
 instance Prod.hasQuote {α β : Type} [HasQuote α] [HasQuote β] : HasQuote (α × β) :=
-⟨fun ⟨a, b⟩ => mkCAppStx `_root_.Prod.mk #[quote a, quote b]⟩
+⟨fun ⟨a, b⟩ => mkCAppStx `Prod.mk #[quote a, quote b]⟩
 
 private def quoteList {α : Type} [HasQuote α] : List α → Syntax
-| []      => mkTermId `_root_.List.nil
-| (x::xs) => mkCAppStx `_root_.List.cons #[quote x, quoteList xs]
+| []      => mkCTermId `List.nil
+| (x::xs) => mkCAppStx `List.cons #[quote x, quoteList xs]
 
 instance List.hasQuote {α : Type} [HasQuote α] : HasQuote (List α) := ⟨quoteList⟩
 
 instance Array.hasQuote {α : Type} [HasQuote α] : HasQuote (Array α) :=
-⟨fun xs => mkCAppStx `_root_.List.toArray #[quote xs.toList]⟩
+⟨fun xs => mkCAppStx `List.toArray #[quote xs.toList]⟩
 
 private def quoteOption {α : Type} [HasQuote α] : Option α → Syntax
-| none     => mkTermId `_root_.Option.none
-| (some x) => mkCAppStx `_root_.Option.some #[quote x]
+| none     => mkTermId `Option.none
+| (some x) => mkCAppStx `Option.some #[quote x]
 
 instance Option.hasQuote {α : Type} [HasQuote α] : HasQuote (Option α) := ⟨quoteOption⟩
 

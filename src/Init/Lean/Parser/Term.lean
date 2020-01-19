@@ -194,15 +194,24 @@ match ident with
 /--
   Create a simple `Lean.Parser.Term.id` syntax using position
   information from `ref` and name `n`. By simple, we mean that
-  `optional (explicitUniv <|> namedPattern)` is none. -/
+  `optional (explicitUniv <|> namedPattern)` is none.
+  To refer to a specific constant, use `mkCTermIdFrom` instead. -/
 def mkTermIdFrom (ref : Syntax) (n : Name) : Syntax :=
 mkTermIdFromIdent (mkIdentFrom ref n)
 
+/-- Variant of `mkTermIdFrom` that makes sure that the identifier cannot accidentally
+    be captured. -/
+def mkCTermIdFrom (ref : Syntax) (c : Name) : Syntax :=
+mkTermIdFromIdent (mkCIdentFrom ref c)
+
 def mkTermId (n : Name) : Syntax :=
-mkTermIdFromIdent (Syntax.ident none n.toString.toSubstring n [])
+mkTermIdFrom Syntax.missing n
+
+def mkCTermId (c : Name) : Syntax :=
+mkCTermIdFrom Syntax.missing c
 
 def mkCAppStx (fn : Name) (args : Array Syntax) : Syntax :=
-mkAppStx (mkTermId fn) args
+mkAppStx (mkCTermId fn) args
 
 def Syntax.isTermId? (stx : Syntax) : Option (Syntax × Syntax) :=
 stx.ifNode

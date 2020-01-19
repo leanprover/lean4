@@ -68,7 +68,8 @@ def addContext (msg : MessageData) : TacticM MessageData := liftTermElabM $ Term
 def isExprMVarAssigned (mvarId : MVarId) : TacticM Bool := liftTermElabM $ Term.isExprMVarAssigned mvarId
 def assignExprMVar (mvarId : MVarId) (val : Expr) : TacticM Unit := liftTermElabM $ Term.assignExprMVar mvarId val
 def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (e : Expr) : TacticM Expr := liftTermElabM $ Term.ensureHasType ref expectedType? e
-def elabTerm (stx : Syntax) (expectedType? : Option Expr) : TacticM Expr := liftTermElabM $ Term.elabTerm stx expectedType?
+def elabTerm (stx : Syntax) (expectedType? : Option Expr) : TacticM Expr :=
+liftTermElabM $ adaptReader (fun (ctx : Term.Context) => { errToSorry := false, .. ctx }) $ Term.elabTerm stx expectedType?
 def reportUnsolvedGoals (ref : Syntax) (goals : List MVarId) : TacticM Unit := liftTermElabM $ Term.reportUnsolvedGoals ref goals
 
 /-- Collect unassigned metavariables -/

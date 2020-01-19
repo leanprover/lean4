@@ -13,7 +13,9 @@ namespace Term
 
 /-- Auxiliary function used to implement `synthesizeSyntheticMVars`. -/
 private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) (errToSorry := true) : TermElabM Expr :=
-elabTerm stx expectedType? false errToSorry
+-- Remark: if `ctx.errToSorry` is already false, then we don't enable it. Recall tactics disable `errToSorry`
+adaptReader (fun (ctx : Context) => { errToSorry := ctx.errToSorry && errToSorry, .. ctx }) $
+ elabTerm stx expectedType? false
 
 /--
   Try to elaborate `stx` that was postponed by an elaboration method using `Expection.postpone`.

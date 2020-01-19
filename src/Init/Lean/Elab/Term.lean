@@ -32,6 +32,7 @@ structure Context extends Meta.Context :=
    The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
    the list of pending synthetic metavariables, and returns `?m`. -/
 (mayPostpone     : Bool            := true)
+(errToSorry      : Bool            := true)
 
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind
@@ -432,14 +433,14 @@ pure mvar
 /-
   Helper function for `elabTerm` is tries the registered elaboration functions for `stxNode` kind until it finds one that supports the syntax or
   an error is found. -/
-private def elabTermUsing (s : State) (stx : Syntax) (expectedType? : Option Expr) (errToSorry : Bool) (catchExPostpone : Bool)
+private def elabTermUsing (s : State) (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool)
     : List TermElab → TermElabM Expr
 | []                => do
   let refFmt := stx.prettyPrint;
   throwError stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
 | (elabFn::elabFns) => catch (elabFn stx expectedType?)
   (fun ex => match ex with
-    | Exception.ex (Elab.Exception.error errMsg)    => if errToSorry then exceptionToSorry stx errMsg expectedType? else throw ex
+    | Exception.ex (Elab.Exception.error errMsg)    => do ctx ← read; if ctx.errToSorry then exceptionToSorry stx errMsg expectedType? else throw ex
     | Exception.ex Elab.Exception.unsupportedSyntax => do set s; elabTermUsing elabFns
     | Exception.postpone          =>
       if catchExPostpone then do
@@ -470,14 +471,14 @@ match x stx scp with
 | none     => throwUnsupportedSyntax
 
 /- Main loop for `elabTerm` -/
-partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone := true) (errToSorry := true) : Syntax → TermElabM Expr
+partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone := true) : Syntax → TermElabM Expr
 | stx => withFreshMacroScope $ withIncRecDepth stx $ withNode stx $ fun node => do
   trace `Elab.step stx $ fun _ => stx;
   s ← get;
   let table := (termElabAttribute.ext.getState s.env).table;
   let k := node.getKind;
   match table.find? k with
-  | some elabFns => elabTermUsing s node expectedType? errToSorry catchExPostpone elabFns
+  | some elabFns => elabTermUsing s node expectedType? catchExPostpone elabFns
   | none         => do
     scp ← getCurrMacroScope;
     env ← getEnv;
@@ -498,8 +499,8 @@ partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone := true) 
   and returned.
   The option `catchExPostpone == false` is used to implement `resumeElabTerm`
   to prevent the creation of another synthetic metavariable when resuming the elaboration. -/
-def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (errToSorry := true) : TermElabM Expr :=
-elabTermAux expectedType? catchExPostpone errToSorry stx
+def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) : TermElabM Expr :=
+elabTermAux expectedType? catchExPostpone stx
 
 /-- Adapt a syntax transformation to a regular, term-producing elaborator. -/
 def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab :=

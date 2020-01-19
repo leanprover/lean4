@@ -65,6 +65,13 @@ def isPrefixOf : Name → Name → Bool
 | p, n@(num p' _ _) => p == n || isPrefixOf p p'
 | p, n@(str p' _ _) => p == n || isPrefixOf p p'
 
+
+def isSuffixOf : Name → Name → Bool
+| anonymous,   _           => true
+| str p₁ s₁ _, str p₂ s₂ _ => s₁ == s₂ && isSuffixOf p₁ p₂
+| num p₁ n₁ _, num p₂ n₂ _ => n₁ == n₂ && isSuffixOf p₁ p₂
+| _,           _           => false
+
 def lt : Name → Name → Bool
 | anonymous,   anonymous   => false
 | anonymous,   _           => true

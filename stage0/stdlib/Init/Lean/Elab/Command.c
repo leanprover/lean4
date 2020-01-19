@@ -149,6 +149,7 @@ size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_Elab_Command_elabCommand___main___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getPos___at_Lean_Elab_Command_throwError___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Exception_inhabited___closed__1;
+extern lean_object* l_Lean_FileMap_ofString___closed__1;
 lean_object* l_Lean_Elab_Command_Scope_inhabited;
 extern lean_object* l_Lean_Parser_Command_section___elambda__1___closed__1;
 extern lean_object* l_Lean_Meta_MetaHasEval___rarg___closed__4;
@@ -463,7 +464,6 @@ lean_object* l___regBuiltinCommandElab_Lean_Elab_Command_elabUniverse___closed__
 extern lean_object* l_Lean_Parser_Command_universes___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Command_elabEnd___closed__3;
 lean_object* lean_io_ref_set(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_mkOptionalNode___closed__1;
 lean_object* l___regBuiltinCommandElab_Lean_Elab_Command_elabCheck___closed__4;
 lean_object* l___private_Init_Lean_Elab_Command_6__mkTermContext___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_getLevelNames(lean_object*, lean_object*);
@@ -14518,7 +14518,7 @@ lean_object* l_Lean_Elab_Command_elabVariable___lambda__1(lean_object* x_1, lean
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = l_Lean_mkOptionalNode___closed__1;
+x_5 = l_Lean_FileMap_ofString___closed__1;
 x_6 = lean_array_push(x_5, x_1);
 x_7 = l_Lean_Meta_dbgTrace___rarg___closed__1;
 x_8 = l_Lean_Elab_Term_elabBinders___rarg(x_6, x_7, x_3, x_4);

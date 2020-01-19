@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
+import Init.Lean.Util.CollectMVars
 import Init.Lean.Elab.Util
 import Init.Lean.Elab.Term
 import Init.Lean.Meta.Tactic.Assumption
@@ -11,6 +12,11 @@ import Init.Lean.Meta.Tactic.Intro
 
 namespace Lean
 namespace Elab
+
+def Term.reportUnsolvedGoals (ref : Syntax) (goals : List MVarId) : TermElabM Unit :=
+let tailRef := ref.getTailWithInfo.getD ref;
+Term.throwError tailRef $ "unsolved goals" ++ Format.line ++ MessageData.joinSep (goals.map $ MessageData.ofGoal) (Format.line ++ Format.line)
+
 namespace Tactic
 
 structure Context extends toTermCtx : Term.Context :=
@@ -22,11 +28,26 @@ structure State extends toTermState : Term.State :=
 
 instance State.inhabited : Inhabited State := ⟨{ goals := [], toTermState := arbitrary _ }⟩
 
+structure BacktrackableState :=
+(env   : Environment)
+(mctx  : MetavarContext)
+(goals : List MVarId)
+
 abbrev Exception := Elab.Exception
 
 abbrev TacticM := ReaderT Context (EStateM Exception State)
 
 abbrev Tactic := Syntax → TacticM Unit
+
+protected def save (s : State) : BacktrackableState :=
+{ .. s }
+
+protected def restore (s : State) (bs : BacktrackableState) : State :=
+{ env := bs.env, mctx := bs.mctx, goals := bs.goals, .. s }
+
+instance : EStateM.Backtrackable BacktrackableState State :=
+{ save    := Tactic.save,
+  restore := Tactic.restore }
 
 def liftTermElabM {α} (x : TermElabM α) : TacticM α :=
 fun ctx s => match x ctx.toTermCtx s.toTermState with
@@ -44,9 +65,17 @@ def getOptions : TacticM Options := do ctx ← read; pure ctx.config.opts
 def getMVarDecl (mvarId : MVarId) : TacticM MetavarDecl := do mctx ← getMCtx; pure $ mctx.getDecl mvarId
 def instantiateMVars (ref : Syntax) (e : Expr) : TacticM Expr := liftTermElabM $ Term.instantiateMVars ref e
 def addContext (msg : MessageData) : TacticM MessageData := liftTermElabM $ Term.addContext msg
+def isExprMVarAssigned (mvarId : MVarId) : TacticM Bool := liftTermElabM $ Term.isExprMVarAssigned mvarId
 def assignExprMVar (mvarId : MVarId) (val : Expr) : TacticM Unit := liftTermElabM $ Term.assignExprMVar mvarId val
 def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (e : Expr) : TacticM Expr := liftTermElabM $ Term.ensureHasType ref expectedType? e
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) : TacticM Expr := liftTermElabM $ Term.elabTerm stx expectedType?
+def reportUnsolvedGoals (ref : Syntax) (goals : List MVarId) : TacticM Unit := liftTermElabM $ Term.reportUnsolvedGoals ref goals
+
+/-- Collect unassigned metavariables -/
+def collectMVars (ref : Syntax) (e : Expr) : TacticM (List MVarId) := do
+e ← instantiateMVars ref e;
+let s := Lean.collectMVars {} e;
+pure s.result.toList
 
 instance monadLog : MonadLog TacticM :=
 { getCmdPos   := do ctx ← read; pure ctx.cmdPos,
@@ -180,8 +209,13 @@ let needReset := ctx.localInstances == mvarDecl.localInstances;
 withLCtx mvarDecl.lctx mvarDecl.localInstances $ resettingSynthInstanceCacheWhen needReset x
 
 def getGoals : TacticM (List MVarId) := do s ← get; pure s.goals
-def getMainGoal (ref : Syntax) : TacticM (MVarId × List MVarId) := do (g::gs) ← getGoals | throwError ref "no goals to be solved"; pure (g, gs)
-def updateGoals (gs : List MVarId) : TacticM Unit := modify $ fun s => { goals := gs, .. s }
+def setGoals (gs : List MVarId) : TacticM Unit := modify $ fun s => { goals := gs, .. s }
+def pruneSolvedGoals : TacticM Unit := do
+gs ← getGoals;
+gs ← gs.filterM $ fun g => not <$> isExprMVarAssigned g;
+setGoals gs
+def getUnsolvedGoals : TacticM (List MVarId) := do pruneSolvedGoals; getGoals
+def getMainGoal (ref : Syntax) : TacticM (MVarId × List MVarId) := do (g::gs) ← getUnsolvedGoals | throwError ref "no goals to be solved"; pure (g, gs)
 def ensureHasNoMVars (ref : Syntax) (e : Expr) : TacticM Unit := do
 e ← instantiateMVars ref e;
 when e.hasMVar $ throwError ref ("tactic failed, resulting expression contains metavariables" ++ indentExpr e)
@@ -190,7 +224,19 @@ when e.hasMVar $ throwError ref ("tactic failed, resulting expression contains m
 (g, gs) ← getMainGoal ref;
 withMVarContext g $ do
   gs' ← liftMetaM ref $ tactic g;
-  updateGoals (gs' ++ gs)
+  setGoals (gs' ++ gs)
+
+def done (ref : Syntax) : TacticM Unit := do
+gs ← getUnsolvedGoals;
+unless gs.isEmpty $ reportUnsolvedGoals ref gs
+
+def focus {α} (ref : Syntax) (tactic : TacticM α) : TacticM α := do
+(g, gs) ← getMainGoal ref;
+setGoals [g];
+a ← tactic;
+done ref;
+setGoals gs;
+pure a
 
 @[builtinTactic seq] def evalSeq : Tactic :=
 fun stx => (stx.getArg 0).forSepArgsM evalTactic
@@ -216,8 +262,29 @@ fun stx => match_syntax stx with
       ensureHasNoMVars ref val;
       assignExprMVar g val
     };
-    updateGoals gs
+    setGoals gs
   | _                   => throwUnsupportedSyntax
+
+@[builtinTactic «refine»] def evalRefine : Tactic :=
+fun stx => match_syntax stx with
+  | `(tactic| refine $e) => do
+    let ref := stx;
+    (g, gs) ← getMainGoal stx;
+    gs' ← withMVarContext g $ do {
+      decl ← getMVarDecl g;
+      val  ← elabTerm e decl.type;
+      val  ← ensureHasType ref decl.type val;
+      assignExprMVar g val;
+      collectMVars ref val
+    };
+    setGoals (gs' ++ gs)
+  | _                   => throwUnsupportedSyntax
+
+@[builtinTactic nestedTacticBlock] def evalNestedTacticBlock : Tactic :=
+fun stx => focus stx (evalTactic (stx.getArg 1))
+
+@[builtinTactic nestedTacticBlockCurly] def evalNestedTacticBlockCurly : Tactic :=
+evalNestedTacticBlock
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.tactic;

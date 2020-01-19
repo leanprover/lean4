@@ -43,6 +43,9 @@ match mctx.findDecl? mvarId with
     ([], none, Format.nil);
   let fmt := pushPending varNames type? fmt;
   let fmt := addLine fmt;
-  fmt ++ "⊢" ++ " " ++ Format.nest indent (pp mvarDecl.type)
+  let fmt := fmt ++ "⊢" ++ " " ++ Format.nest indent (pp mvarDecl.type);
+  match mvarDecl.userName with
+  | Name.anonymous => fmt
+  | name           => "case " ++ format name ++ Format.line ++ fmt
 
 end Lean

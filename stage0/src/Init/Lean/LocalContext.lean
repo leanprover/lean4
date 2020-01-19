@@ -7,6 +7,7 @@ prelude
 import Init.Data.PersistentArray.Basic
 import Init.Data.PersistentHashMap.Basic
 import Init.Lean.Expr
+import Init.Lean.Hygiene
 
 namespace Lean
 
@@ -149,7 +150,7 @@ lctx.decls.findRev? (fun decl =>
 def usesUserName (lctx : LocalContext) (userName : Name) : Bool :=
 (lctx.findFromUserName? userName).isSome
 
-partial def getUnusedNameAux (lctx : LocalContext) (suggestion : Name) : Nat → Name × Nat
+private partial def getUnusedNameAux (lctx : LocalContext) (suggestion : Name) : Nat → Name × Nat
 | i =>
   let curr := suggestion.appendIndexAfter i;
   if lctx.usesUserName curr then getUnusedNameAux (i + 1)
@@ -157,7 +158,8 @@ partial def getUnusedNameAux (lctx : LocalContext) (suggestion : Name) : Nat →
 
 @[export lean_local_ctx_get_unused_name]
 def getUnusedName (lctx : LocalContext) (suggestion : Name) : Name :=
-if lctx.usesUserName suggestion then (lctx.getUnusedNameAux suggestion 1).1
+let (suggestion, _) := extractMacroScopes suggestion;
+if lctx.usesUserName suggestion then (getUnusedNameAux lctx suggestion 1).1
 else suggestion
 
 @[export lean_local_ctx_last_decl]

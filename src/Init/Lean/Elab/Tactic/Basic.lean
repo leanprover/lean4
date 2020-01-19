@@ -303,6 +303,11 @@ fun stx => match_syntax stx with
      setGoals gs
   | _ => throwUnsupportedSyntax
 
+@[builtinTactic «orelse»] def evalOrelse : Tactic :=
+fun stx => match_syntax stx with
+  | `(tactic| $tac1 <|> $tac2) => evalTactic tac1 <|> evalTactic tac2
+  | _                          => throwUnsupportedSyntax
+
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.tactic;
 pure ()

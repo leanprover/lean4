@@ -825,6 +825,16 @@ fun stx _ => do
 @[builtinTermElab char] def elabChar : TermElab :=
 fun stx expectedType? => elabRawCharLit (stx.getArg 0) expectedType?
 
+def reflectName : Name → Expr
+| Name.anonymous => Lean.mkConst `Lean.Name.anonymous
+| Name.str n s _ => mkApp2 (Lean.mkConst `Lean.mkNameStr) (reflectName n) (mkStrLit s)
+| Name.num n i _ => mkApp2 (Lean.mkConst `Lean.mkNameNum) (reflectName n) (mkNatLit i)
+
+@[builtinTermElab quotedName] def elabQuotedName : TermElab :=
+fun stx _ => match_syntax stx with
+| `(`$n) => pure $ reflectName n.getId
+| _      => throwUnsupportedSyntax
+
 end Term
 
 @[init] private def regTraceClasses : IO Unit := do

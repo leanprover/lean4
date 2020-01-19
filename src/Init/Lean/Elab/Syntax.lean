@@ -62,7 +62,7 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
   else if kind == `Lean.Parser.Syntax.paren then
     toParserDescrAux (stx.getArg 1)
   else if kind == `Lean.Parser.Syntax.cat then do
-    let cat : Name := stx.getIdAt 0;
+    let cat := (stx.getIdAt 0).eraseMacroScopes;
     let rbp? : Option Nat  := expandOptPrecedence (stx.getArg 1);
     env ← liftM getEnv;
     unless (Parser.isParserCategory env cat) $ liftM $ throwError (stx.getArg 3) ("unknown category '" ++ cat ++ "'");
@@ -161,7 +161,7 @@ else do
 @[builtinCommandElab «syntax»] def elabSyntax : CommandElab :=
 fun stx => do
   env ← getEnv;
-  let cat := stx.getIdAt 4;
+  let cat := (stx.getIdAt 4).eraseMacroScopes;
   unless (Parser.isParserCategory env cat) $ throwError (stx.getArg 4) ("unknown category '" ++ cat ++ "'");
   kind ← elabKind (stx.getArg 1) cat;
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser");
@@ -297,7 +297,7 @@ adaptExpander $ fun stx => do
   let args    := (stx.getArg 2).getArgs;
   let cat     := stx.getArg 4;
   let rhsBody := stx.getArg 7;
-  kind ← mkFreshKind cat.getId;
+  kind ← mkFreshKind (cat.getId).eraseMacroScopes;
   -- build parser
   stxPart  ← expandMacroHeadIntoSyntaxItem head;
   stxParts ← args.mapM expandMacroArgIntoSyntaxItem;

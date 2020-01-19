@@ -46,6 +46,9 @@ private def extractMacroScopesAux : Name → List MacroScope → Name × List Ma
 def extractMacroScopes (n : Name) : Name × List MacroScope :=
 extractMacroScopesAux n []
 
+def Name.eraseMacroScopes (n : Name) : Name :=
+(extractMacroScopes n).1
+
 instance monadQuotationTrans {m n : Type → Type} [MonadQuotation m] [HasMonadLift m n] [MonadFunctorT m m n n] : MonadQuotation n :=
 { getCurrMacroScope   := liftM (getCurrMacroScope : m Nat),
   withFreshMacroScope := fun α => monadMap (fun α => (withFreshMacroScope : m α → m α)) }

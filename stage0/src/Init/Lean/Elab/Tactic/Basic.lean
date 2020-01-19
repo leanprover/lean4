@@ -263,7 +263,7 @@ fun stx => match_syntax stx with
       assignExprMVar g val
     };
     setGoals gs
-  | _                   => throwUnsupportedSyntax
+  | _ => throwUnsupportedSyntax
 
 @[builtinTactic «refine»] def evalRefine : Tactic :=
 fun stx => match_syntax stx with
@@ -278,13 +278,26 @@ fun stx => match_syntax stx with
       collectMVars ref val
     };
     setGoals (gs' ++ gs)
-  | _                   => throwUnsupportedSyntax
+  | _ => throwUnsupportedSyntax
 
 @[builtinTactic nestedTacticBlock] def evalNestedTacticBlock : Tactic :=
 fun stx => focus stx (evalTactic (stx.getArg 1))
 
 @[builtinTactic nestedTacticBlockCurly] def evalNestedTacticBlockCurly : Tactic :=
 evalNestedTacticBlock
+
+@[builtinTactic «case»] def evalCase : Tactic :=
+fun stx => match_syntax stx with
+  | `(tactic| case $tag $tac) => do
+     let tag := tag.getId;
+     gs ← getUnsolvedGoals;
+     some g ← gs.findM? (fun g => do mvarDecl ← getMVarDecl g; pure $ tag.isSuffixOf mvarDecl.userName) | throwError stx "tag not found";
+     let gs := gs.erase g;
+     setGoals [g];
+     evalTactic tac;
+     done stx;
+     setGoals gs
+  | _ => throwUnsupportedSyntax
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.tactic;

@@ -127,4 +127,9 @@ def allM {m : Type → Type u} [Monad m] {α : Type v} (f : α → m Bool) : Lis
   | true  => allM as
   | false => pure false
 
+@[specialize]
+def findM? {m : Type → Type} [Monad m] {α : Type} (p : α → m Bool) : List α → m (Option α)
+| []    => pure none
+| a::as => condM (p a) (pure (some a)) (findM? as)
+
 end List

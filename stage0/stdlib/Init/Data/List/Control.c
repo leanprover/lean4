@@ -27,6 +27,7 @@ lean_object* l_List_mapA___main(lean_object*);
 lean_object* l_List_filterAuxM___main___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mapM_u2082___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_anyM___main___boxed(lean_object*);
+lean_object* l_List_findM_x3f___main___boxed(lean_object*);
 lean_object* l_List_forA___main___boxed(lean_object*);
 lean_object* l_List_forA___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mapA___main___rarg___lambda__1(lean_object*, lean_object*);
@@ -45,6 +46,7 @@ lean_object* l_List_anyM(lean_object*);
 lean_object* l_List_allM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_firstM___main___boxed(lean_object*);
 lean_object* l_List_mapA_u2082___boxed(lean_object*);
+lean_object* l_List_findM_x3f___main___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_firstM___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forM_u2082___main___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forM_u2082(lean_object*);
@@ -64,6 +66,7 @@ lean_object* l_List_foldlM___boxed(lean_object*);
 lean_object* l_List_filterAuxM___boxed(lean_object*);
 lean_object* l_List_allM___main___boxed(lean_object*);
 lean_object* l_List_foldrM___main___boxed(lean_object*);
+lean_object* l_List_findM_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterAuxM___main(lean_object*);
 lean_object* l_List_mapM___boxed(lean_object*);
 lean_object* l_List_mapA_u2082___main___boxed(lean_object*);
@@ -86,6 +89,7 @@ lean_object* l_List_mapM_u2082___rarg(lean_object*, lean_object*, lean_object*, 
 lean_object* l_List_forM___main___boxed(lean_object*);
 lean_object* l_List_mapA_u2082___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mapA___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_findM_x3f___main(lean_object*);
 lean_object* l_List_forM___main(lean_object*);
 lean_object* l_List_forA___main(lean_object*);
 lean_object* l_List_forM___main___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -101,10 +105,13 @@ lean_object* l_List_mapA___main___boxed(lean_object*);
 lean_object* l_List_mapA_u2082(lean_object*);
 lean_object* l_List_foldrM___boxed(lean_object*);
 lean_object* l_List_forA(lean_object*);
+lean_object* l_List_findM_x3f___boxed(lean_object*);
 lean_object* l_List_mapA_u2082___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterAuxM(lean_object*);
 lean_object* l_List_mapA___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_findM_x3f___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_forM___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_findM_x3f___main___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_List_anyM___boxed(lean_object*);
 lean_object* l_List_forM_u2082___boxed(lean_object*);
 lean_object* l_List_firstM___boxed(lean_object*, lean_object*);
@@ -115,6 +122,7 @@ lean_object* l_List_filterRevM(lean_object*);
 lean_object* l_List_filterM(lean_object*);
 lean_object* l_List_anyM___main___rarg___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_List_foldrM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_findM_x3f(lean_object*);
 lean_object* l_List_forM(lean_object*);
 lean_object* l_List_foldrM(lean_object*);
 lean_object* l_List_mapM___main___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1608,6 +1616,126 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_List_allM(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_List_findM_x3f___main___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5) {
+_start:
+{
+if (x_5 == 0)
+{
+lean_object* x_6; 
+lean_dec(x_4);
+x_6 = l_List_findM_x3f___main___rarg(x_1, lean_box(0), x_2, x_3);
+return x_6;
+}
+else
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_dec(x_3);
+lean_dec(x_2);
+x_7 = lean_ctor_get(x_1, 0);
+lean_inc(x_7);
+lean_dec(x_1);
+x_8 = lean_ctor_get(x_7, 1);
+lean_inc(x_8);
+lean_dec(x_7);
+x_9 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_9, 0, x_4);
+x_10 = lean_apply_2(x_8, lean_box(0), x_9);
+return x_10;
+}
+}
+}
+lean_object* l_List_findM_x3f___main___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_dec(x_3);
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = lean_ctor_get(x_5, 1);
+lean_inc(x_6);
+lean_dec(x_5);
+x_7 = lean_box(0);
+x_8 = lean_apply_2(x_6, lean_box(0), x_7);
+return x_8;
+}
+else
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_9 = lean_ctor_get(x_4, 0);
+lean_inc(x_9);
+x_10 = lean_ctor_get(x_4, 1);
+lean_inc(x_10);
+lean_dec(x_4);
+x_11 = lean_ctor_get(x_1, 1);
+lean_inc(x_11);
+lean_inc(x_3);
+lean_inc(x_9);
+x_12 = lean_apply_1(x_3, x_9);
+x_13 = lean_alloc_closure((void*)(l_List_findM_x3f___main___rarg___lambda__1___boxed), 5, 4);
+lean_closure_set(x_13, 0, x_1);
+lean_closure_set(x_13, 1, x_3);
+lean_closure_set(x_13, 2, x_10);
+lean_closure_set(x_13, 3, x_9);
+x_14 = lean_apply_4(x_11, lean_box(0), lean_box(0), x_12, x_13);
+return x_14;
+}
+}
+}
+lean_object* l_List_findM_x3f___main(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_findM_x3f___main___rarg), 4, 0);
+return x_2;
+}
+}
+lean_object* l_List_findM_x3f___main___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; lean_object* x_7; 
+x_6 = lean_unbox(x_5);
+lean_dec(x_5);
+x_7 = l_List_findM_x3f___main___rarg___lambda__1(x_1, x_2, x_3, x_4, x_6);
+return x_7;
+}
+}
+lean_object* l_List_findM_x3f___main___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_List_findM_x3f___main(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_List_findM_x3f___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_List_findM_x3f___main___rarg(x_1, lean_box(0), x_3, x_4);
+return x_5;
+}
+}
+lean_object* l_List_findM_x3f(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_findM_x3f___rarg), 4, 0);
+return x_2;
+}
+}
+lean_object* l_List_findM_x3f___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_List_findM_x3f(x_1);
 lean_dec(x_1);
 return x_2;
 }

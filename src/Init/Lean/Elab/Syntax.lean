@@ -187,10 +187,14 @@ adaptExpander $ fun stx => match_syntax stx with
 @[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()
 @[builtinCommandElab «reserve»] def elabReserve : CommandElab := fun _ => pure ()
 
--- wrap all occurrences of the given `ident` nodes in antiquotations
+/- Wrap all occurrences of the given `ident` nodes in antiquotations -/
 private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
 | stx => match_syntax stx with
-| `($id:ident) => if (vars.findIdx? (fun var => var.getId == id.getId)).isSome then Syntax.node `antiquot #[mkAtom "$", Unhygienic.run `($id:ident), mkNullNode, mkNullNode] else stx
+| `($id:ident) =>
+  if (vars.findIdx? (fun var => var.getId == id.getId)).isSome then
+    Syntax.node `antiquot #[mkAtom "$", Unhygienic.run `($id:ident), mkNullNode, mkNullNode]
+  else
+    stx
 | _ => match stx with
   | Syntax.node k args => Syntax.node k (args.map antiquote)
   | stx => stx

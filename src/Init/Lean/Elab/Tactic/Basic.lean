@@ -280,6 +280,9 @@ fun stx => match_syntax stx with
     setGoals (gs' ++ gs)
   | _ => throwUnsupportedSyntax
 
+@[builtinTactic paren] def evalParen : Tactic :=
+fun stx => evalTactic (stx.getArg 1)
+
 @[builtinTactic nestedTacticBlock] def evalNestedTacticBlock : Tactic :=
 fun stx => focus stx (evalTactic (stx.getArg 1))
 

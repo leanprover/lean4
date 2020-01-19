@@ -62,7 +62,7 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
   else if kind == `Lean.Parser.Syntax.paren then
     toParserDescrAux (stx.getArg 1)
   else if kind == `Lean.Parser.Syntax.cat then do
-    let cat : Name := stx.getIdAt 0;
+    let cat := (stx.getIdAt 0).eraseMacroScopes;
     let rbp? : Option Nat  := expandOptPrecedence (stx.getArg 1);
     env ← liftM getEnv;
     unless (Parser.isParserCategory env cat) $ liftM $ throwError (stx.getArg 3) ("unknown category '" ++ cat ++ "'");
@@ -161,7 +161,7 @@ else do
 @[builtinCommandElab «syntax»] def elabSyntax : CommandElab :=
 fun stx => do
   env ← getEnv;
-  let cat := stx.getIdAt 4;
+  let cat := (stx.getIdAt 4).eraseMacroScopes;
   unless (Parser.isParserCategory env cat) $ throwError (stx.getArg 4) ("unknown category '" ++ cat ++ "'");
   kind ← elabKind (stx.getArg 1) cat;
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser");
@@ -187,10 +187,14 @@ adaptExpander $ fun stx => match_syntax stx with
 @[builtinCommandElab «mixfix»] def elabMixfix : CommandElab := fun _ => pure ()
 @[builtinCommandElab «reserve»] def elabReserve : CommandElab := fun _ => pure ()
 
--- wrap all occurrences of the given `ident` nodes in antiquotations
+/- Wrap all occurrences of the given `ident` nodes in antiquotations -/
 private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
 | stx => match_syntax stx with
-| `($id:ident) => if (vars.findIdx? (fun var => var.getId == id.getId)).isSome then Syntax.node `antiquot #[mkAtom "$", Unhygienic.run `($id:ident), mkNullNode, mkNullNode] else stx
+| `($id:ident) =>
+  if (vars.findIdx? (fun var => var.getId == id.getId)).isSome then
+    Syntax.node `antiquot #[mkAtom "$", Unhygienic.run `($id:ident), mkNullNode, mkNullNode]
+  else
+    stx
 | _ => match stx with
   | Syntax.node k args => Syntax.node k (args.map antiquote)
   | stx => stx
@@ -293,7 +297,7 @@ adaptExpander $ fun stx => do
   let args    := (stx.getArg 2).getArgs;
   let cat     := stx.getArg 4;
   let rhsBody := stx.getArg 7;
-  kind ← mkFreshKind cat.getId;
+  kind ← mkFreshKind (cat.getId).eraseMacroScopes;
   -- build parser
   stxPart  ← expandMacroHeadIntoSyntaxItem head;
   stxParts ← args.mapM expandMacroArgIntoSyntaxItem;

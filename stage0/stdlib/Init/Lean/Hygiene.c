@@ -17,6 +17,7 @@ lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Lean_Unhygienic_MonadQuotation___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_extractMacroScopes(lean_object*);
 lean_object* l_Lean_Unhygienic_MonadQuotation___closed__3;
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l___private_Init_Lean_Hygiene_1__extractMacroScopesAux(lean_object*, lean_object*);
 lean_object* l_Lean_Unhygienic_run(lean_object*);
 lean_object* l_Lean_monadQuotationTrans___rarg(lean_object*, lean_object*, lean_object*);
@@ -161,6 +162,17 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_box(0);
 x_3 = l___private_Init_Lean_Hygiene_1__extractMacroScopesAux___main(x_1, x_2);
+return x_3;
+}
+}
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_extractMacroScopes(x_1);
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+lean_dec(x_2);
 return x_3;
 }
 }

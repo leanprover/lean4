@@ -5,10 +5,10 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Init.Lean.Util.CollectMVars
-import Init.Lean.Elab.Util
-import Init.Lean.Elab.Term
 import Init.Lean.Meta.Tactic.Assumption
 import Init.Lean.Meta.Tactic.Intro
+import Init.Lean.Elab.Util
+import Init.Lean.Elab.Term
 
 namespace Lean
 namespace Elab
@@ -68,7 +68,6 @@ def addContext (msg : MessageData) : TacticM MessageData := liftTermElabM $ Term
 def isExprMVarAssigned (mvarId : MVarId) : TacticM Bool := liftTermElabM $ Term.isExprMVarAssigned mvarId
 def assignExprMVar (mvarId : MVarId) (val : Expr) : TacticM Unit := liftTermElabM $ Term.assignExprMVar mvarId val
 def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (e : Expr) : TacticM Expr := liftTermElabM $ Term.ensureHasType ref expectedType? e
-def elabTerm (stx : Syntax) (expectedType? : Option Expr) : TacticM Expr := liftTermElabM $ Term.elabTerm stx expectedType?
 def reportUnsolvedGoals (ref : Syntax) (goals : List MVarId) : TacticM Unit := liftTermElabM $ Term.reportUnsolvedGoals ref goals
 
 /-- Collect unassigned metavariables -/
@@ -250,35 +249,8 @@ fun stx => match_syntax stx with
   | `(tactic| intro $h) => liftMetaTactic stx $ fun mvarId => do (_, mvarId) ← Meta.intro mvarId h.getId; pure [mvarId]
   | _                   => throwUnsupportedSyntax
 
-@[builtinTactic «exact»] def evalExact : Tactic :=
-fun stx => match_syntax stx with
-  | `(tactic| exact $e) => do
-    let ref := stx;
-    (g, gs) ← getMainGoal stx;
-    withMVarContext g $ do {
-      decl ← getMVarDecl g;
-      val  ← elabTerm e decl.type;
-      val  ← ensureHasType ref decl.type val;
-      ensureHasNoMVars ref val;
-      assignExprMVar g val
-    };
-    setGoals gs
-  | _ => throwUnsupportedSyntax
-
-@[builtinTactic «refine»] def evalRefine : Tactic :=
-fun stx => match_syntax stx with
-  | `(tactic| refine $e) => do
-    let ref := stx;
-    (g, gs) ← getMainGoal stx;
-    gs' ← withMVarContext g $ do {
-      decl ← getMVarDecl g;
-      val  ← elabTerm e decl.type;
-      val  ← ensureHasType ref decl.type val;
-      assignExprMVar g val;
-      collectMVars ref val
-    };
-    setGoals (gs' ++ gs)
-  | _ => throwUnsupportedSyntax
+@[builtinTactic paren] def evalParen : Tactic :=
+fun stx => evalTactic (stx.getArg 1)
 
 @[builtinTactic nestedTacticBlock] def evalNestedTacticBlock : Tactic :=
 fun stx => focus stx (evalTactic (stx.getArg 1))
@@ -298,6 +270,11 @@ fun stx => match_syntax stx with
      done stx;
      setGoals gs
   | _ => throwUnsupportedSyntax
+
+@[builtinTactic «orelse»] def evalOrelse : Tactic :=
+fun stx => match_syntax stx with
+  | `(tactic| $tac1 <|> $tac2) => evalTactic tac1 <|> evalTactic tac2
+  | _                          => throwUnsupportedSyntax
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.tactic;

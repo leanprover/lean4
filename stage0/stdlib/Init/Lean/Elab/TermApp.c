@@ -164,7 +164,7 @@ lean_object* l___private_Init_Lean_Elab_TermApp_11__addLValArg___main___closed__
 lean_object* l_Lean_Elab_Term_Arg_hasToString(lean_object*);
 lean_object* l_Array_forMAux___main___at___private_Init_Lean_Elab_TermApp_8__resolveLValLoop___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_TermApp_14__elabAppFn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Term_elabTermAux___main(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Term_elabTermAux___main(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Elab_TermApp_19__expandApp___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalDecl_binderInfo(lean_object*);
@@ -940,7 +940,7 @@ x_8 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_8, 0, x_4);
 x_9 = 1;
 lean_inc(x_5);
-x_10 = l_Lean_Elab_Term_elabTermAux___main(x_8, x_9, x_9, x_7, x_5, x_6);
+x_10 = l_Lean_Elab_Term_elabTermAux___main(x_8, x_9, x_7, x_5, x_6);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
@@ -6472,7 +6472,7 @@ lean_dec(x_206);
 x_213 = lean_box(0);
 x_214 = 1;
 lean_inc(x_9);
-x_215 = l_Lean_Elab_Term_elabTermAux___main(x_213, x_214, x_214, x_2, x_9, x_10);
+x_215 = l_Lean_Elab_Term_elabTermAux___main(x_213, x_214, x_2, x_9, x_10);
 if (lean_obj_tag(x_215) == 0)
 {
 uint8_t x_216; 
@@ -6872,7 +6872,7 @@ lean_dec(x_302);
 x_306 = lean_box(0);
 x_307 = 1;
 lean_inc(x_9);
-x_308 = l_Lean_Elab_Term_elabTermAux___main(x_306, x_307, x_307, x_2, x_9, x_10);
+x_308 = l_Lean_Elab_Term_elabTermAux___main(x_306, x_307, x_2, x_9, x_10);
 if (lean_obj_tag(x_308) == 0)
 {
 uint8_t x_309; 
@@ -7200,7 +7200,7 @@ lean_object* x_13; uint8_t x_14; lean_object* x_15;
 x_13 = lean_box(0);
 x_14 = 1;
 lean_inc(x_9);
-x_15 = l_Lean_Elab_Term_elabTermAux___main(x_13, x_14, x_14, x_2, x_9, x_10);
+x_15 = l_Lean_Elab_Term_elabTermAux___main(x_13, x_14, x_2, x_9, x_10);
 if (lean_obj_tag(x_15) == 0)
 {
 uint8_t x_16; 
@@ -7512,7 +7512,7 @@ lean_dec(x_71);
 x_75 = lean_box(0);
 x_76 = 1;
 lean_inc(x_9);
-x_77 = l_Lean_Elab_Term_elabTermAux___main(x_75, x_76, x_76, x_2, x_9, x_10);
+x_77 = l_Lean_Elab_Term_elabTermAux___main(x_75, x_76, x_2, x_9, x_10);
 if (lean_obj_tag(x_77) == 0)
 {
 uint8_t x_78; 

@@ -5,15 +5,36 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Init.Lean.Elab.Term
-import Init.Lean.Elab.Tactic
+import Init.Lean.Elab.Tactic.Basic
 
 namespace Lean
 namespace Elab
 namespace Term
 
+open Tactic (TacticM evalTactic getUnsolvedGoals)
+
+def liftTacticElabM {α} (ref : Syntax) (mvarId : MVarId) (x : TacticM α) : TermElabM α :=
+withMVarContext mvarId $ fun ctx s =>
+  match x { ref := ref, main := mvarId, .. ctx } { goals := [mvarId], .. s } with
+  | EStateM.Result.error ex newS => EStateM.Result.error (Term.Exception.ex ex) newS.toTermState
+  | EStateM.Result.ok a newS     => EStateM.Result.ok a newS.toTermState
+
+def ensureAssignmentHasNoMVars (ref : Syntax) (mvarId : MVarId) : TermElabM Unit := do
+val ← instantiateMVars ref (mkMVar mvarId);
+when val.hasMVar $ throwError ref ("tactic failed, result still contain metavariables" ++ indentExpr val)
+
+def runTactic (ref : Syntax) (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
+modify $ fun s => { mctx := s.mctx.instantiateMVarDeclMVars mvarId, .. s };
+remainingGoals ← liftTacticElabM ref mvarId $ do { evalTactic tacticCode; getUnsolvedGoals };
+let tailRef := ref.getTailWithInfo.getD ref;
+unless remainingGoals.isEmpty (reportUnsolvedGoals tailRef remainingGoals);
+ensureAssignmentHasNoMVars tailRef mvarId
+
 /-- Auxiliary function used to implement `synthesizeSyntheticMVars`. -/
 private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) (errToSorry := true) : TermElabM Expr :=
-elabTerm stx expectedType? false errToSorry
+-- Remark: if `ctx.errToSorry` is already false, then we don't enable it. Recall tactics disable `errToSorry`
+adaptReader (fun (ctx : Context) => { errToSorry := ctx.errToSorry && errToSorry, .. ctx }) $
+  elabTerm stx expectedType? false
 
 /--
   Try to elaborate `stx` that was postponed by an elaboration method using `Expection.postpone`.

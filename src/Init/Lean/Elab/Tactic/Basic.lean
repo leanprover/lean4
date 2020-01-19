@@ -12,6 +12,11 @@ import Init.Lean.Meta.Tactic.Intro
 
 namespace Lean
 namespace Elab
+
+def Term.reportUnsolvedGoals (ref : Syntax) (goals : List MVarId) : TermElabM Unit :=
+let tailRef := ref.getTailWithInfo.getD ref;
+Term.throwError tailRef $ "unsolved goals" ++ Format.line ++ MessageData.joinSep (goals.map $ MessageData.ofGoal) (Format.line ++ Format.line)
+
 namespace Tactic
 
 structure Context extends toTermCtx : Term.Context :=
@@ -23,11 +28,26 @@ structure State extends toTermState : Term.State :=
 
 instance State.inhabited : Inhabited State := ⟨{ goals := [], toTermState := arbitrary _ }⟩
 
+structure BacktrackableState :=
+(env   : Environment)
+(mctx  : MetavarContext)
+(goals : List MVarId)
+
 abbrev Exception := Elab.Exception
 
 abbrev TacticM := ReaderT Context (EStateM Exception State)
 
 abbrev Tactic := Syntax → TacticM Unit
+
+protected def save (s : State) : BacktrackableState :=
+{ .. s }
+
+protected def restore (s : State) (bs : BacktrackableState) : State :=
+{ env := bs.env, mctx := bs.mctx, goals := bs.goals, .. s }
+
+instance : EStateM.Backtrackable BacktrackableState State :=
+{ save    := Tactic.save,
+  restore := Tactic.restore }
 
 def liftTermElabM {α} (x : TermElabM α) : TacticM α :=
 fun ctx s => match x ctx.toTermCtx s.toTermState with
@@ -49,6 +69,8 @@ def isExprMVarAssigned (mvarId : MVarId) : TacticM Bool := liftTermElabM $ Term.
 def assignExprMVar (mvarId : MVarId) (val : Expr) : TacticM Unit := liftTermElabM $ Term.assignExprMVar mvarId val
 def ensureHasType (ref : Syntax) (expectedType? : Option Expr) (e : Expr) : TacticM Expr := liftTermElabM $ Term.ensureHasType ref expectedType? e
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) : TacticM Expr := liftTermElabM $ Term.elabTerm stx expectedType?
+def reportUnsolvedGoals (ref : Syntax) (goals : List MVarId) : TacticM Unit := liftTermElabM $ Term.reportUnsolvedGoals ref goals
+
 /-- Collect unassigned metavariables -/
 def collectMVars (ref : Syntax) (e : Expr) : TacticM (List MVarId) := do
 e ← instantiateMVars ref e;
@@ -204,6 +226,18 @@ withMVarContext g $ do
   gs' ← liftMetaM ref $ tactic g;
   setGoals (gs' ++ gs)
 
+def done (ref : Syntax) : TacticM Unit := do
+gs ← getUnsolvedGoals;
+unless gs.isEmpty $ reportUnsolvedGoals ref gs
+
+def focus {α} (ref : Syntax) (tactic : TacticM α) : TacticM α := do
+(g, gs) ← getMainGoal ref;
+setGoals [g];
+a ← tactic;
+done ref;
+setGoals gs;
+pure a
+
 @[builtinTactic seq] def evalSeq : Tactic :=
 fun stx => (stx.getArg 0).forSepArgsM evalTactic
 
@@ -245,6 +279,12 @@ fun stx => match_syntax stx with
     };
     setGoals (gs' ++ gs)
   | _                   => throwUnsupportedSyntax
+
+@[builtinTactic nestedTacticBlock] def evalNestedTacticBlock : Tactic :=
+fun stx => focus stx (evalTactic (stx.getArg 1))
+
+@[builtinTactic nestedTacticBlockCurly] def evalNestedTacticBlockCurly : Tactic :=
+evalNestedTacticBlock
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.tactic;

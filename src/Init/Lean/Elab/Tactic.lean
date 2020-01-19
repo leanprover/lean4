@@ -32,9 +32,6 @@ withMVarContext mvarId $ fun ctx s =>
   | EStateM.Result.error ex newS => EStateM.Result.error (Term.Exception.ex ex) newS.toTermState
   | EStateM.Result.ok a newS     => EStateM.Result.ok a newS.toTermState
 
-def reportUnsolvedGoals (ref : Syntax) (goals : List MVarId) : TermElabM Unit :=
-throwError ref $ "unsolved goals" ++ Format.line ++ MessageData.joinSep (goals.map $ MessageData.ofGoal) (Format.line ++ Format.line)
-
 def ensureAssignmentHasNoMVars (ref : Syntax) (mvarId : MVarId) : TermElabM Unit := do
 val ← instantiateMVars ref (mkMVar mvarId);
 when val.hasMVar $ throwError ref ("tactic failed, result still contain metavariables" ++ indentExpr val)

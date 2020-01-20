@@ -1821,6 +1821,16 @@ private def noImmediateColon {k : ParserKind} : Parser k :=
 private def pushNone {k : ParserKind} : Parser k :=
 { fn := fun a c s => s.pushSyntax mkNullNode }
 
+/-
+  We support two kinds of antiquotations: `$id` and `$(t)`, where `id` is a term identifier and `t` is a term.
+
+  TODO: we are making both cases look like syntax terms. Reason: the current expander expects a term.
+  We should remove this hack and modify the expander. This hack is bad since it relies on how we define `id` and `paren` in
+  the term parser at `Term.lean`. -/
+private def antiquotId {k} : Parser k         := node `Lean.Parser.Term.id (identNoAntiquot >> pushNone)
+private def antiquotNestedExpr {k} : Parser k := node `Lean.Parser.Term.paren ("(" >> node nullKind (termParser >> pushNone) >> ")")
+private def antiquotExpr {k} : Parser k       := antiquotId <|> antiquotNestedExpr
+
 /--
   Define parser for `$e` (if anonymous == true) and `$e:name`. Both
   forms can also be used with an appended `*` to turn them into an
@@ -1833,8 +1843,7 @@ let nameP := checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbolAux 
 -- antiquotation kind via `noImmediateColon`
 let nameP := if anonymous then nameP <|> noImmediateColon >> pushNone >> pushNone else nameP;
 node kind $ try $ dollarSymbol >> checkNoWsBefore "no space before" >>
-  -- use high precedence so that `$(x).y` is parsed as a projection of an antiquotation
-  termParser (appPrec + 1) >>
+  antiquotExpr >>
   nameP >> optional "*"
 
 def ident {k : ParserKind} : Parser k :=

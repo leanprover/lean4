@@ -13,9 +13,12 @@ import Init.Lean.Elab.Term
 namespace Lean
 namespace Elab
 
+def goalsToMessageData (goals : List MVarId) : MessageData :=
+MessageData.joinSep (goals.map $ MessageData.ofGoal) (Format.line ++ Format.line)
+
 def Term.reportUnsolvedGoals (ref : Syntax) (goals : List MVarId) : TermElabM Unit :=
 let tailRef := ref.getTailWithInfo.getD ref;
-Term.throwError tailRef $ "unsolved goals" ++ Format.line ++ MessageData.joinSep (goals.map $ MessageData.ofGoal) (Format.line ++ Format.line)
+Term.throwError tailRef $ "unsolved goals" ++ Format.line ++ goalsToMessageData goals
 
 namespace Tactic
 
@@ -188,6 +191,12 @@ partial def evalTactic : Syntax → TacticM Unit
           | none      => throwError stx ("tactic '" ++ toString k ++ "' has not been implemented")
   | _ => throwError stx "unexpected command"
 
+/-- Adapt a syntax transformation to a regular tactic evaluator. -/
+def adaptExpander (exp : Syntax → TacticM Syntax) : Tactic :=
+fun stx => withMacroExpansion stx $ do
+  stx ← exp stx;
+  evalTactic stx
+
 @[inline] def withLCtx {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TacticM α) : TacticM α :=
 adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts, .. ctx }) x
 
@@ -259,6 +268,26 @@ match newGoals with
 
 @[builtinTactic seq] def evalSeq : Tactic :=
 fun stx => (stx.getArg 0).forSepArgsM evalTactic
+
+@[builtinTactic skip] def evalSkip : Tactic :=
+fun stx => pure ()
+
+@[builtinTactic traceState] def evalTraceState : Tactic :=
+fun stx => do
+  gs ← getUnsolvedGoals;
+  logInfo stx (goalsToMessageData gs)
+
+@[builtinTactic try] def evalTry : Tactic :=
+adaptExpander $ fun stx => match_syntax stx with
+  | `(tactic| try $t) => `(tactic| $t <|> skip)
+  | _         => throwUnsupportedSyntax
+
+/-
+@[builtinTactic repeat] def evalRepeat : Tactic :=
+adaptExpander $ fun stx => match_syntax stx with
+  | `(tactic| repeat $t) => `(tactic| try ($t; repeat $t))
+  | _                    => throwUnsupportedSyntax
+-/
 
 @[builtinTactic «assumption»] def evalAssumption : Tactic :=
 fun stx => liftMetaTactic stx $ fun mvarId => do Meta.assumption mvarId; pure []

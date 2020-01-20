@@ -123,15 +123,6 @@ extern "C" obj_res lean_io_initializing(obj_arg) {
     return set_io_result(box(g_initializing));
 }
 
-extern "C" obj_res lean_io_prim_put_str(b_obj_arg s, obj_arg) {
-    std::cout << string_to_std(s); // TODO(Leo): use out handle
-    return set_io_result(box(0));
-}
-
-extern "C" obj_res lean_io_prim_get_line(obj_arg /* w */) {
-    // not implemented yet
-    lean_unreachable();
-}
 
 static lean_external_class * g_io_handle_external_class = nullptr;
 
@@ -144,6 +135,58 @@ static void io_handle_foreach(void * /* mod */, b_obj_arg /* fn */) {
 
 static lean_object * io_wrap_handle(FILE *hfile) {
     return lean_alloc_external(g_io_handle_external_class, hfile);
+}
+
+static object * g_handle_stdout = nullptr;
+static object * g_handle_stderr = nullptr;
+static object * g_handle_stdin  = nullptr;
+MK_THREAD_LOCAL_GET(object *, get_handle_current_stdout, g_handle_stdout);
+MK_THREAD_LOCAL_GET(object *, get_handle_current_stderr, g_handle_stderr);
+MK_THREAD_LOCAL_GET(object *, get_handle_current_stdin,  g_handle_stdin);
+
+/* getStdout : IO FS.Handle */
+extern "C" obj_res lean_get_stdout(obj_arg /* w */) {
+    object * r = get_handle_current_stdout();
+    inc_ref(r);
+    return set_io_result(r);
+}
+
+/* getStderr : IO FS.Handle */
+extern "C" obj_res lean_get_stderr(obj_arg /* w */) {
+    object * r = get_handle_current_stderr();
+    inc_ref(r);
+    return set_io_result(r);
+}
+
+/* getStdin : IO FS.Handle */
+extern "C" obj_res lean_get_stdin(obj_arg /* w */) {
+    object * r = get_handle_current_stdin();
+    inc_ref(r);
+    return set_io_result(r);
+}
+
+/* setStdout  : FS.Handle -> IO FS.Handle */
+extern "C" obj_res lean_get_set_stdout(obj_arg h, obj_arg /* w */) {
+    object * & x = get_handle_current_stdout();
+    object * r = x;
+    x = h;
+    return set_io_result(r);
+}
+
+/* setStderr  : FS.Handle -> IO FS.Handle */
+extern "C" obj_res lean_get_set_stderr(obj_arg h, obj_arg /* w */) {
+    object * & x = get_handle_current_stderr();
+    object * r = x;
+    x = h;
+    return set_io_result(r);
+}
+
+/* setStdin  : FS.Handle -> IO FS.Handle */
+extern "C" obj_res lean_get_set_stdin(obj_arg h, obj_arg /* w */) {
+    object * & x = get_handle_current_stdin();
+    object * r = x;
+    x = h;
+    return set_io_result(r);
 }
 
 static FILE * io_get_handle(lean_object * hfile) {
@@ -355,7 +398,7 @@ obj_res lean_get_line(FILE * fp) {
     }
 }
 
-/* Handle.getLine : (@& Handle) → IO Unit                     */
+/* Handle.getLine : (@& Handle) → IO Unit                */
 /*   The line returned by `lean_io_prim_handle_get_line` */
 /*   is truncated at the first '\0' character and the    */
 /*   rest of the line is discarded.                      */
@@ -614,8 +657,14 @@ extern "C" obj_res lean_io_ref_ptr_eq(b_obj_arg ref1, b_obj_arg ref2, obj_arg) {
 
 void initialize_io() {
     g_io_error_nullptr_read = mk_string("null reference read");
-    mark_persistent(g_io_error_nullptr_read);
     g_io_handle_external_class = lean_register_external_class(io_handle_finalizer, io_handle_foreach);
+    g_handle_stdout = io_wrap_handle(stdout);
+    g_handle_stderr = io_wrap_handle(stderr);
+    g_handle_stdin  = io_wrap_handle(stdin);
+    mark_persistent(g_handle_stdout);
+    mark_persistent(g_handle_stderr);
+    mark_persistent(g_handle_stdin);
+    mark_persistent(g_io_error_nullptr_read);
 }
 
 void finalize_io() {

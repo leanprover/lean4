@@ -110,7 +110,8 @@ end
 
 theorem simple9 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 begin
-  intro h1; intro _; intro h3;
+  intros h1 _ h3;
+  traceState;
   { refine Eq.trans ?pre ?post;
     (exact h1) <|> (exact y; exact h3; assumption) }
 end
@@ -151,9 +152,18 @@ end
 
 theorem simple13 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 begin
-  intro h1; intro h2; intro h3;
+  intros h1 h2 h3;
+  traceState;
   apply @Eq.trans;
   case main.b exact y;
   traceState;
+  repeat assumption
+end
+
+theorem simple14 (x y z : Nat) : y = z → x = x → x = y → x = z :=
+begin
+  intros;
+  apply @Eq.trans;
+  case main.b exact y;
   repeat assumption
 end

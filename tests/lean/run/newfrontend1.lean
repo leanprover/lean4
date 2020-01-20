@@ -139,6 +139,13 @@ begin
   assumption
 end
 
+macro try t:tactic : tactic => `($t <|> skip)
+
+syntax "repeat" tactic : tactic
+macro_rules
+| `(tactic| repeat $t) => `(tactic| try ($t; repeat $t))
+
+
 theorem simple12 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 begin
   intro h1; intro h2; intro h3;

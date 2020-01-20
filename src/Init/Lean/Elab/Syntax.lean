@@ -153,10 +153,14 @@ pure kind
 private def elabKind (stx : Syntax) (catName : Name) : CommandElabM Name := do
 if stx.isNone then
   mkFreshKind catName
-else do
+else
   let kind := stx.getIdAt 1;
-  currNamespace ← getCurrNamespace;
-  pure (currNamespace ++ kind)
+  if kind.getRoot == `_kind then
+    -- unique fresh kind, do not qualify
+    pure kind
+  else do
+    currNamespace ← getCurrNamespace;
+    pure (currNamespace ++ kind)
 
 @[builtinCommandElab «syntax»] def elabSyntax : CommandElab :=
 fun stx => do

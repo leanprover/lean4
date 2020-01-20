@@ -43,6 +43,7 @@ lean_object* l_HashMapImp_moveEntries___main___at_Lean_registerAttributeImplBuil
 lean_object* l_Lean_getBuiltinAttributeImpl(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__4___closed__1;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 extern size_t l_PersistentHashMap_insertAux___main___rarg___closed__2;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_registerParametricAttribute___spec__7___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_mkAttributeExtension___closed__8;
@@ -65,7 +66,6 @@ lean_object* l_Lean_registerTagAttribute___closed__1;
 lean_object* l_AssocList_find___main___at_Lean_mkAttributeImplOfBuilder___spec__2___boxed(lean_object*, lean_object*);
 lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_foldlM___at_Lean_getBuiltinAttributeNames___spec__1(lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Attributes_3__AttributeExtension_addEntry(lean_object*, lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_registerEnumAttributes___spec__8(lean_object*);
@@ -164,7 +164,6 @@ lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Attributes_2__AttributeExtension_addImported___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_lengthAux___main___rarg(lean_object*, lean_object*);
-extern lean_object* l_Lean_Syntax_formatStxAux___main___closed__3;
 lean_object* l_Lean_registerEnumAttributes___rarg___lambda__2(lean_object*);
 lean_object* l_Lean_registerEnumAttributes___rarg___lambda__2___boxed(lean_object*);
 lean_object* l_PersistentHashMap_containsAux___main___at_Lean_registerBuiltinAttribute___spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -375,6 +374,7 @@ lean_object* l_List_map___main___at_Lean_registerEnumAttributes___spec__10___rar
 lean_object* l_Lean_getAttributeImpl(lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___main___at_Lean_ParametricAttribute_getParam___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_registerEnumAttributes___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_mkAppStx___closed__1;
 lean_object* l_Lean_mkAttributeExtension___closed__3;
 lean_object* l_RBNode_fold___main___at_Lean_registerParametricAttribute___spec__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2581,7 +2581,7 @@ lean_dec(x_22);
 x_26 = lean_ctor_get(x_23, 1);
 lean_inc(x_26);
 lean_dec(x_23);
-x_27 = l_Lean_Syntax_formatStxAux___main___closed__3;
+x_27 = l_Lean_mkAppStx___closed__1;
 x_28 = lean_string_dec_eq(x_26, x_27);
 lean_dec(x_26);
 if (x_28 == 0)

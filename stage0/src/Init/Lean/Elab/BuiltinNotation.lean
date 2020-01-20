@@ -24,14 +24,14 @@ adaptExpander $ fun stx => match_syntax stx with
 
 @[builtinTermElab «if»] def elabIf : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
-| `(if $h : $cond then $t else $e) => let h := mkTermIdFromIdent h; `(dite $cond (fun $h => $t) (fun $h => $e))
+| `(if $h : $cond then $t else $e) => `(dite $cond (fun $h:ident => $t) (fun $h:ident => $e))
 | `(if $cond then $t else $e)      => `(ite $cond $t $e)
 | _                                => throwUnsupportedSyntax
 
 @[builtinTermElab subtype] def elabSubtype : TermElab :=
 adaptExpander $ fun stx => match_syntax stx with
-| `({ $x : $type // $p }) => let x := mkTermIdFromIdent x; `(Subtype (fun ($x : $type) => $p))
-| `({ $x // $p })         => let x := mkTermIdFromIdent x; `(Subtype (fun ($x : _) => $p))
+| `({ $x : $type // $p }) => `(Subtype (fun ($x:ident : $type) => $p))
+| `({ $x // $p })         => `(Subtype (fun ($x:ident : _) => $p))
 | _                       => throwUnsupportedSyntax
 
 @[builtinTermElab anonymousCtor] def elabAnoymousCtor : TermElab :=
@@ -51,7 +51,7 @@ match expectedType? with
       if val.ctors.length != 1 then
         throwError ref ("invalid constructor ⟨...⟩, '" ++ constName ++ "' must have only one constructor")
       else
-        let ctor := mkTermIdFrom ref val.ctors.head!;
+        let ctor := mkCTermIdFrom ref val.ctors.head!;
         let args := (stx.getArg 1).getArgs.getEvenElems; do
         withMacroExpansion ref $ elabTerm (mkAppStx ctor args) expectedType?
     | _ => throwError ref ("invalid constructor ⟨...⟩, '" ++ constName ++ "' is not an inductive type")
@@ -66,8 +66,8 @@ adaptExpander $ fun stx => match_syntax stx with
 adaptExpander $ fun stx => match_syntax stx with
 | `(have $type from $val; $body)      => let thisId := mkTermIdFrom stx `this; `((fun ($thisId : $type) => $body) $val)
 | `(have $type := $val; $body)        => let thisId := mkTermIdFrom stx `this; `((fun ($thisId : $type) => $body) $val)
-| `(have $x : $type from $val; $body) => let x := mkTermIdFromIdent x; `((fun ($x : $type) => $body) $val)
-| `(have $x : $type := $val; $body)   => let x := mkTermIdFromIdent x; `((fun ($x : $type) => $body) $val)
+| `(have $x : $type from $val; $body) => `((fun ($x:ident : $type) => $body) $val)
+| `(have $x : $type := $val; $body)   => `((fun ($x:ident : $type) => $body) $val)
 | _                                   => throwUnsupportedSyntax
 
 @[termElab «where»] def elabWhere : TermElab :=
@@ -115,7 +115,7 @@ fun stx expectedType? => do
   elabTerm (mkAppStx f #[a, b]) expectedType?
 
 def elabInfixOp (op : Name) : TermElab :=
-fun stx expectedType? => elabInfix (mkTermIdFrom (stx.getArg 1) op) stx expectedType?
+fun stx expectedType? => elabInfix (mkCTermIdFrom (stx.getArg 1) op) stx expectedType?
 
 @[builtinTermElab prod] def elabProd : TermElab := elabInfixOp `Prod
 @[builtinTermElab fcomp] def ElabFComp : TermElab := elabInfixOp `Function.comp

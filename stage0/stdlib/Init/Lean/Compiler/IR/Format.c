@@ -28,6 +28,7 @@ lean_object* l___private_Init_Lean_Compiler_IR_Format_4__formatExpr___closed__11
 lean_object* l___private_Init_Lean_Compiler_IR_Format_5__formatIRType___main___closed__10;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__22;
 lean_object* l_Lean_Format_pretty(lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_IR_formatParams___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_Format_4__formatExpr___closed__26;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__7;
@@ -35,7 +36,6 @@ lean_object* l_Lean_IR_formatAlt___closed__1;
 lean_object* l___private_Init_Lean_Compiler_IR_Format_3__formatCtorInfo___closed__3;
 lean_object* l_Lean_IR_formatFnBodyHead___closed__24;
 extern lean_object* l_Lean_Format_flatten___main___closed__1;
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_formatFnBody___main___closed__3;
 lean_object* l___private_Init_Lean_Compiler_IR_Format_5__formatIRType___main___closed__22;
 lean_object* l___private_Init_Lean_Compiler_IR_Format_6__formatParam___closed__1;

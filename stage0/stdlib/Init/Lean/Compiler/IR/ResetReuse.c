@@ -19,11 +19,11 @@ lean_object* l___private_Init_Lean_Compiler_IR_ResetReuse_3__mkFresh(lean_object
 lean_object* l___private_Init_Lean_Compiler_IR_ResetReuse_3__mkFresh___boxed(lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_ResetReuse_9__D___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_ResetReuse_8__Dmain(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_ResetReuse_1__mayReuse___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_IR_ResetReuse_4__tryS___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l___private_Init_Lean_Compiler_IR_ResetReuse_2__S___main___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 uint8_t l_Lean_IR_HasIndex_visitFnBody___main(lean_object*, lean_object*);
 uint8_t l_Lean_IR_CtorInfo_isScalar(lean_object*);
 lean_object* lean_array_get_size(lean_object*);

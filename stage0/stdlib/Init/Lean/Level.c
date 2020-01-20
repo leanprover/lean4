@@ -33,6 +33,7 @@ lean_object* l_Lean_Level_updateIMax___boxed(lean_object*, lean_object*, lean_ob
 lean_object* l___private_Init_Lean_Level_5__mkMaxAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_mkData___closed__3;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 uint64_t l_UInt64_add(uint64_t, uint64_t);
 uint64_t l_Bool_toUInt64(uint8_t);
 lean_object* l___private_Init_Lean_Level_1__isAlreadyNormalizedCheap___main___boxed(lean_object*);
@@ -53,7 +54,6 @@ lean_object* lean_level_mk_succ(lean_object*);
 uint8_t l_Lean_Level_hasMVar(lean_object*);
 lean_object* l_Lean_Level_hasMVarEx___boxed(lean_object*);
 lean_object* l_Lean_Level_mkData___closed__2;
-uint8_t lean_name_eq(lean_object*, lean_object*);
 uint8_t l_Lean_Level_isEquiv(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Level_3__getMaxArgsAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_HasBeq___closed__1;

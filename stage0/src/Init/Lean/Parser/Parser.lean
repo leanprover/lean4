@@ -1100,6 +1100,7 @@ fun _ c s =>
 def quotedSymbolFn {k : ParserKind} : ParserFn k :=
 nodeFn `quotedSymbol (andthenFn (andthenFn (chFn '`') (rawFn (fun _ => takeUntilFn (fun c => c == '`')))) (chFn '`' true))
 
+-- TODO: remove after old frontend is gone
 def quotedSymbol {k : ParserKind} : Parser k :=
 { fn := quotedSymbolFn }
 

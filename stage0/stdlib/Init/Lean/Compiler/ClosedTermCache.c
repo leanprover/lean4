@@ -24,11 +24,11 @@ lean_object* l_Lean_SMap_insert___at_Lean_mkClosedTermCacheExtension___spec__1(l
 lean_object* l_Lean_mkClosedTermCacheExtension___closed__5;
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_mkClosedTermCacheExtension___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 extern size_t l_PersistentHashMap_insertAux___main___rarg___closed__2;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 size_t l_USize_sub(size_t, size_t);
 extern lean_object* l_Array_empty___closed__1;
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_closedTermCacheExt___elambda__2(lean_object*);
 lean_object* l_Lean_closedTermCacheExt___closed__7;

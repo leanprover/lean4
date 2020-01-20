@@ -27,15 +27,6 @@ def appendToLeading (info₁ info₂ : SourceInfo) : SourceInfo :=
 
 end SourceInfo
 
-/- Node kind generation -/
-
-@[matchPattern] def choiceKind : SyntaxNodeKind := `choice
-@[matchPattern] def nullKind : SyntaxNodeKind := `null
-def strLitKind : SyntaxNodeKind := `strLit
-def charLitKind : SyntaxNodeKind := `charLit
-def numLitKind : SyntaxNodeKind := `numLit
-def fieldIdxKind : SyntaxNodeKind := `fieldIdx
-
 /- Syntax AST -/
 
 def Syntax.isMissing : Syntax → Bool
@@ -206,13 +197,6 @@ partial def updateTrailing (trailing : Substring) : Syntax → Syntax
    Syntax.node k args
 | s => s
 
-/-- Retrieve the left-most leaf's info in the Syntax tree. -/
-partial def getHeadInfo : Syntax → Option SourceInfo
-| atom info _      => info
-| ident info _ _ _ => info
-| node _ args      => args.find? getHeadInfo
-| _                => none
-
 def getPos (stx : Syntax) : Option String.Pos :=
 SourceInfo.pos <$> stx.getHeadInfo
 
@@ -314,10 +298,6 @@ end SyntaxNode
 def mkSimpleAtom (val : String) : Syntax :=
 Syntax.atom none val
 
-@[export lean_mk_syntax_ident]
-def mkSimpleIdent (val : Name) : Syntax :=
-Syntax.ident none (toString val).toSubstring val []
-
 @[export lean_mk_syntax_list]
 def mkListNode (args : Array Syntax) : Syntax :=
 Syntax.node nullKind args
@@ -327,26 +307,6 @@ Syntax.atom none val
 
 @[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : Syntax :=
 Syntax.node k args
-
-@[inline] def mkNullNode (args : Array Syntax := #[]) : Syntax :=
-Syntax.node nullKind args
-
-def mkOptionalNode (arg : Option Syntax) : Syntax :=
-match arg with
-| some arg => Syntax.node nullKind #[arg]
-| none     => Syntax.node nullKind #[]
-
-/- Helper functions for creating string and numeric literals -/
-
-def mkStxLit (kind : SyntaxNodeKind) (val : String) (info : Option SourceInfo := none) : Syntax :=
-let atom : Syntax := Syntax.atom info val;
-Syntax.node kind #[atom]
-
-def mkStxStrLit (val : String) (info : Option SourceInfo := none) : Syntax :=
-mkStxLit strLitKind (repr val) info
-
-def mkStxNumLit (val : String) (info : Option SourceInfo := none) : Syntax :=
-mkStxLit numLitKind val info
 
 @[export lean_mk_syntax_str_lit]
 def mkStxStrLitAux (val : String) : Syntax :=
@@ -517,14 +477,4 @@ def hasArgs : Syntax → Bool
 | _                  => false
 
 end Syntax
-
-/-- Create an identifier using `SourceInfo` from `src` -/
-def mkIdentFrom (src : Syntax) (val : Name) : Syntax :=
-let info := src.getHeadInfo;
-Syntax.ident info (toString val).toSubstring val []
-
-def mkAtomFrom (src : Syntax) (val : String) : Syntax :=
-let info := src.getHeadInfo;
-Syntax.atom info val
-
 end Lean

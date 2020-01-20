@@ -41,7 +41,6 @@ lean_object* l_Lean_Elab_Term_instantiateMVars(lean_object*, lean_object*, lean_
 lean_object* l_Lean_Elab_Command_elabCommand___main___closed__3;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l___regBuiltinCommandElab_Lean_Elab_Command_elabSection___closed__2;
-extern lean_object* l_Lean_nameToExprAux___main___closed__1;
 lean_object* l___regBuiltinCommandElab_Lean_Elab_Command_elabOpen___closed__3;
 lean_object* l_unreachable_x21___rarg(lean_object*);
 extern lean_object* l_Lean_nullKind;
@@ -67,6 +66,7 @@ lean_object* l_Lean_Elab_Command_liftIOCore(lean_object*);
 lean_object* l_Lean_Format_pretty(lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_Elab_Command_elabCommand___main___spec__6___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabOpenSimple(lean_object*, lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_AssocList_find___main___at_Lean_Elab_Command_elabCommand___main___spec__6(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerTraceClass___closed__1;
 lean_object* l_Lean_Elab_log___at_Lean_Elab_Command_logTrace___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -105,7 +105,6 @@ lean_object* l_Lean_Elab_ElabFnTable_insert___rarg(lean_object*, lean_object*, l
 lean_object* l_List_append___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabSetOption(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_logAt___at_Lean_Elab_Command_logTrace___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_registerBuiltinCommandElabAttr___closed__2;
 extern lean_object* l___private_Init_Lean_Meta_ExprDefEq_17__checkTypesAndAssign___closed__5;
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
@@ -150,7 +149,6 @@ size_t l_USize_shiftRight(size_t, size_t);
 lean_object* l_Lean_SMap_find_x3f___at_Lean_Elab_Command_elabCommand___main___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getPos___at_Lean_Elab_Command_throwError___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Exception_inhabited___closed__1;
-extern lean_object* l_Lean_FileMap_ofString___closed__1;
 lean_object* l_Lean_Elab_Command_Scope_inhabited;
 extern lean_object* l_Lean_Parser_Command_section___elambda__1___closed__1;
 extern lean_object* l_Lean_Meta_MetaHasEval___rarg___closed__4;
@@ -510,6 +508,7 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Array_foldlStepMAux___main___at_Lean_Elab_Command_elabOpenRenaming___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_MetavarContext_Inhabited___closed__1;
 lean_object* l_ReaderT_bind___at_Lean_Elab_Command_CommandElabM_monadLog___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l___private_Init_Lean_Elab_Term_3__fromMetaState(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_CommandElabM_monadLog___lambda__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabVariable___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -554,6 +553,7 @@ uint8_t l___private_Init_Lean_Elab_Command_14__checkEndHeader(lean_object*, lean
 lean_object* l_Lean_Elab_Command_declareBuiltinCommandElab___closed__2;
 extern lean_object* l_Lean_Parser_Command_openHiding___elambda__1___closed__2;
 lean_object* l_Lean_Elab_syntaxNodeKindOfAttrParam(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_mkAppStx___closed__1;
 extern lean_object* l_Lean_Parser_regBuiltinCommandParserAttr___closed__3;
 lean_object* l_Lean_Elab_Command_elabInitQuot___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltinCommandElab_Lean_Elab_Command_elabNamespace___closed__2;
@@ -3810,7 +3810,7 @@ lean_dec(x_31);
 x_37 = lean_ctor_get(x_32, 1);
 lean_inc(x_37);
 lean_dec(x_32);
-x_38 = l_Lean_nameToExprAux___main___closed__1;
+x_38 = l_Lean_mkAppStx___closed__1;
 x_39 = lean_string_dec_eq(x_37, x_38);
 lean_dec(x_37);
 if (x_39 == 0)
@@ -14531,7 +14531,7 @@ lean_object* l_Lean_Elab_Command_elabVariable___lambda__1(lean_object* x_1, lean
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = l_Lean_FileMap_ofString___closed__1;
+x_5 = l_Lean_mkOptionalNode___closed__2;
 x_6 = lean_array_push(x_5, x_1);
 x_7 = l_Lean_Meta_dbgTrace___rarg___closed__1;
 x_8 = l_Lean_Elab_Term_elabBinders___rarg(x_6, x_7, x_3, x_4);

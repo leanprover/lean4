@@ -23,11 +23,11 @@ lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*,
 lean_object* l_Lean_mkProjectionFnInfoExtension(lean_object*);
 lean_object* l_Lean_mkProjectionFnInfoExtension___closed__5;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_mkProjectionFnInfoExtension___closed__3;
 lean_object* l_Lean_projectionFnInfoExt___elambda__2___boxed(lean_object*);
 lean_object* l_RBNode_find___main___at_Lean_Environment_getProjectionFnInfo___spec__1___boxed(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkTagDeclarationExtension___closed__2;
 lean_object* l_Lean_mkProjectionFnInfoExtension___closed__1;

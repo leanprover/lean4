@@ -60,6 +60,7 @@ uint8_t l_PersistentHashMap_containsAux___main___at_Lean_MetavarContext_isDelaye
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__44___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_EIO_Monad___closed__1;
 lean_object* l_PersistentArray_foldlFromM___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__40___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_MetavarContext_19__mkAuxMVar___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern size_t l_PersistentHashMap_insertAux___main___rarg___closed__2;
@@ -98,7 +99,6 @@ lean_object* l_Lean_MetavarContext_mkBinding(uint8_t, lean_object*, lean_object*
 lean_object* l_Array_filterAux___main___at___private_Init_Lean_MetavarContext_21__elimMVarDepsApp___main___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_getDecl___closed__1;
 lean_object* l_PersistentArray_anyMAux___main___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__23___boxed(lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_findAtAux___main___at_Lean_MetavarContext_getExprAssignment_x3f___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_foldlFromM___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__39___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_reverseAux___main___rarg(lean_object*, lean_object*);
@@ -133,6 +133,7 @@ lean_object* l_PersistentArray_foldlFromMAux___main___at___private_Init_Lean_Met
 uint8_t l_Array_anyRangeMAux___main___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__36(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_getAppArgs___closed__1;
 lean_object* l_Array_filterAux___main___at___private_Init_Lean_MetavarContext_21__elimMVarDepsApp___main___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MetavarContext_renameMVar(lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_foldlM___at_Lean_MetavarContext_instantiateLCtxMVars___spec__2___boxed(lean_object*, lean_object*);
 extern lean_object* l_List_repr___rarg___closed__3;
 lean_object* l_PersistentHashMap_findAtAux___main___at_Lean_MetavarContext_getDelayedAssignment_x3f___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -144,6 +145,7 @@ lean_object* l_PersistentHashMap_contains___at_Lean_MetavarContext_isLevelAssign
 lean_object* l_PersistentArray_anyMAux___main___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__35___boxed(lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MetavarContext_isAnonymousMVar___boxed(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_MetavarContext_instantiateLCtxMVars___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_PersistentHashMap_contains___at_Lean_MetavarContext_isExprAssigned___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_mkForallUsedOnly(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -371,6 +373,7 @@ lean_object* l_AssocList_replace___main___at___private_Init_Lean_MetavarContext_
 lean_object* l_Lean_MetavarContext_hasAssignableLevelMVar___main___boxed(lean_object*, lean_object*);
 lean_object* lean_level_update_imax(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_MkBinding_Lean_MonadHashMapCacheAdapter;
+uint8_t l_Lean_MetavarContext_isAnonymousMVar(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_MetavarContext_15__withFreshCache___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_index(lean_object*);
 uint8_t l_Lean_MetavarKind_isSyntheticOpaque(uint8_t);
@@ -409,6 +412,7 @@ lean_object* l_Lean_MetavarContext_isExprAssigned___boxed(lean_object*, lean_obj
 lean_object* l_Array_anyRangeMAux___main___at___private_Init_Lean_MetavarContext_21__elimMVarDepsApp___main___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_HashMapImp_contains___at___private_Init_Lean_MetavarContext_6__visit_x3f___spec__1(lean_object*, lean_object*);
 lean_object* l_PersistentArray_anyM___at___private_Init_Lean_MetavarContext_10__collectDeps___spec__34___boxed(lean_object*, lean_object*);
+uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* lean_metavar_ctx_mk_decl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 extern uint8_t l_Bool_Inhabited;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
@@ -424,6 +428,7 @@ lean_object* l_HashMapImp_contains___at___private_Init_Lean_MetavarContext_6__vi
 lean_object* l_Lean_Expr_withAppAux___main___at_Lean_MetavarContext_InstantiateExprMVars_main___main___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_PersistentArray_anyM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_expand___at___private_Init_Lean_MetavarContext_6__visit_x3f___spec__4(lean_object*, lean_object*);
+lean_object* l_Lean_MetavarContext_renameMVar___closed__1;
 lean_object* l_Array_umapMAux___main___at___private_Init_Lean_MetavarContext_21__elimMVarDepsApp___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_eraseIdx_x27___rarg(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
@@ -2388,6 +2393,179 @@ lean_object* x_3;
 x_3 = l_Lean_MetavarContext_getLevelDepth(x_1, x_2);
 lean_dec(x_2);
 return x_3;
+}
+}
+uint8_t l_Lean_MetavarContext_isAnonymousMVar(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_metavar_ctx_find_decl(x_1, x_2);
+if (lean_obj_tag(x_3) == 0)
+{
+uint8_t x_4; 
+x_4 = 0;
+return x_4;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_5 = lean_ctor_get(x_3, 0);
+lean_inc(x_5);
+lean_dec(x_3);
+x_6 = lean_ctor_get(x_5, 0);
+lean_inc(x_6);
+lean_dec(x_5);
+x_7 = l_Lean_Name_isAnonymous(x_6);
+lean_dec(x_6);
+return x_7;
+}
+}
+}
+lean_object* l_Lean_MetavarContext_isAnonymousMVar___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Lean_MetavarContext_isAnonymousMVar(x_1, x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+lean_object* _init_l_Lean_MetavarContext_renameMVar___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_MetavarContext_getDecl___closed__1;
+x_2 = lean_unsigned_to_nat(342u);
+x_3 = lean_unsigned_to_nat(19u);
+x_4 = l_Lean_MetavarContext_getDecl___closed__2;
+x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+lean_object* l_Lean_MetavarContext_renameMVar(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+lean_inc(x_2);
+lean_inc(x_1);
+x_4 = lean_metavar_ctx_find_decl(x_1, x_2);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+x_5 = l_Lean_MetavarContext_Inhabited;
+x_6 = l_Lean_MetavarContext_renameMVar___closed__1;
+x_7 = lean_panic_fn(x_5, x_6);
+return x_7;
+}
+else
+{
+lean_object* x_8; uint8_t x_9; 
+x_8 = lean_ctor_get(x_4, 0);
+lean_inc(x_8);
+lean_dec(x_4);
+x_9 = !lean_is_exclusive(x_1);
+if (x_9 == 0)
+{
+uint8_t x_10; 
+x_10 = !lean_is_exclusive(x_8);
+if (x_10 == 0)
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_11 = lean_ctor_get(x_1, 2);
+x_12 = lean_ctor_get(x_8, 0);
+lean_dec(x_12);
+lean_ctor_set(x_8, 0, x_3);
+x_13 = l_PersistentHashMap_insert___at_Lean_MetavarContext_addExprMVarDecl___spec__1(x_11, x_2, x_8);
+lean_ctor_set(x_1, 2, x_13);
+return x_1;
+}
+else
+{
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; 
+x_14 = lean_ctor_get(x_1, 2);
+x_15 = lean_ctor_get(x_8, 1);
+x_16 = lean_ctor_get(x_8, 2);
+x_17 = lean_ctor_get(x_8, 3);
+x_18 = lean_ctor_get(x_8, 4);
+x_19 = lean_ctor_get_uint8(x_8, sizeof(void*)*5);
+lean_inc(x_18);
+lean_inc(x_17);
+lean_inc(x_16);
+lean_inc(x_15);
+lean_dec(x_8);
+x_20 = lean_alloc_ctor(0, 5, 1);
+lean_ctor_set(x_20, 0, x_3);
+lean_ctor_set(x_20, 1, x_15);
+lean_ctor_set(x_20, 2, x_16);
+lean_ctor_set(x_20, 3, x_17);
+lean_ctor_set(x_20, 4, x_18);
+lean_ctor_set_uint8(x_20, sizeof(void*)*5, x_19);
+x_21 = l_PersistentHashMap_insert___at_Lean_MetavarContext_addExprMVarDecl___spec__1(x_14, x_2, x_20);
+lean_ctor_set(x_1, 2, x_21);
+return x_1;
+}
+}
+else
+{
+lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
+x_22 = lean_ctor_get(x_1, 0);
+x_23 = lean_ctor_get(x_1, 1);
+x_24 = lean_ctor_get(x_1, 2);
+x_25 = lean_ctor_get(x_1, 3);
+x_26 = lean_ctor_get(x_1, 4);
+x_27 = lean_ctor_get(x_1, 5);
+lean_inc(x_27);
+lean_inc(x_26);
+lean_inc(x_25);
+lean_inc(x_24);
+lean_inc(x_23);
+lean_inc(x_22);
+lean_dec(x_1);
+x_28 = lean_ctor_get(x_8, 1);
+lean_inc(x_28);
+x_29 = lean_ctor_get(x_8, 2);
+lean_inc(x_29);
+x_30 = lean_ctor_get(x_8, 3);
+lean_inc(x_30);
+x_31 = lean_ctor_get(x_8, 4);
+lean_inc(x_31);
+x_32 = lean_ctor_get_uint8(x_8, sizeof(void*)*5);
+if (lean_is_exclusive(x_8)) {
+ lean_ctor_release(x_8, 0);
+ lean_ctor_release(x_8, 1);
+ lean_ctor_release(x_8, 2);
+ lean_ctor_release(x_8, 3);
+ lean_ctor_release(x_8, 4);
+ x_33 = x_8;
+} else {
+ lean_dec_ref(x_8);
+ x_33 = lean_box(0);
+}
+if (lean_is_scalar(x_33)) {
+ x_34 = lean_alloc_ctor(0, 5, 1);
+} else {
+ x_34 = x_33;
+}
+lean_ctor_set(x_34, 0, x_3);
+lean_ctor_set(x_34, 1, x_28);
+lean_ctor_set(x_34, 2, x_29);
+lean_ctor_set(x_34, 3, x_30);
+lean_ctor_set(x_34, 4, x_31);
+lean_ctor_set_uint8(x_34, sizeof(void*)*5, x_32);
+x_35 = l_PersistentHashMap_insert___at_Lean_MetavarContext_addExprMVarDecl___spec__1(x_24, x_2, x_34);
+x_36 = lean_alloc_ctor(0, 6, 0);
+lean_ctor_set(x_36, 0, x_22);
+lean_ctor_set(x_36, 1, x_23);
+lean_ctor_set(x_36, 2, x_35);
+lean_ctor_set(x_36, 3, x_25);
+lean_ctor_set(x_36, 4, x_26);
+lean_ctor_set(x_36, 5, x_27);
+return x_36;
+}
+}
 }
 }
 lean_object* l_PersistentHashMap_insertAtCollisionNodeAux___main___at_Lean_MetavarContext_assignLevel___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -5746,7 +5924,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
-x_2 = lean_unsigned_to_nat(381u);
+x_2 = lean_unsigned_to_nat(391u);
 x_3 = lean_unsigned_to_nat(12u);
 x_4 = l_Lean_MetavarContext_isLevelAssignable___closed__1;
 x_5 = l___private_Init_Util_1__mkPanicMessage(x_1, x_2, x_3, x_4);
@@ -34575,6 +34753,8 @@ l_Lean_MetavarContext_getDecl___closed__3 = _init_l_Lean_MetavarContext_getDecl_
 lean_mark_persistent(l_Lean_MetavarContext_getDecl___closed__3);
 l_Lean_MetavarContext_getLevelDepth___closed__1 = _init_l_Lean_MetavarContext_getLevelDepth___closed__1();
 lean_mark_persistent(l_Lean_MetavarContext_getLevelDepth___closed__1);
+l_Lean_MetavarContext_renameMVar___closed__1 = _init_l_Lean_MetavarContext_renameMVar___closed__1();
+lean_mark_persistent(l_Lean_MetavarContext_renameMVar___closed__1);
 l_Lean_MetavarContext_isLevelAssignable___closed__1 = _init_l_Lean_MetavarContext_isLevelAssignable___closed__1();
 lean_mark_persistent(l_Lean_MetavarContext_isLevelAssignable___closed__1);
 l_Lean_MetavarContext_isLevelAssignable___closed__2 = _init_l_Lean_MetavarContext_isLevelAssignable___closed__2();

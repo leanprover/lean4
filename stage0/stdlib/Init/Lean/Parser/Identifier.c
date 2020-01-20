@@ -379,7 +379,7 @@ uint8_t l_Lean_isSubScriptAlnum(uint32_t x_1) {
 _start:
 {
 uint32_t x_2; uint8_t x_3; uint8_t x_19; 
-x_2 = 8319;
+x_2 = 8320;
 x_19 = x_2 <= x_1;
 if (x_19 == 0)
 {

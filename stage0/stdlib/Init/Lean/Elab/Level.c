@@ -23,12 +23,12 @@ extern lean_object* l_Lean_Parser_Level_num___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_addLevelMVarDecl(lean_object*, lean_object*);
 lean_object* l_ReaderT_read___at_Lean_Elab_Level_LevelElabM_MonadLog___spec__1(lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getPos___at_Lean_Elab_Level_elabLevel___main___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getIdAt(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___lambda__3(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Level_max___elambda__1___closed__1;
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 lean_object* l___private_Init_Data_Array_Basic_4__foldrRangeMAux___main___at_Lean_Elab_Level_elabLevel___main___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -73,7 +73,7 @@ extern lean_object* l_Lean_Parser_Level_ident___elambda__1___closed__1;
 lean_object* l_Lean_mkLevelMVar(lean_object*);
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___lambda__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog;
-extern lean_object* l_Lean_Parser_Level_hole___elambda__1___closed__2;
+extern lean_object* l_Lean_Parser_Level_hole___elambda__1___closed__1;
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___closed__7;
 lean_object* l_Lean_Elab_mkMessage___at_Lean_Elab_Level_elabLevel___main___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___closed__5;
@@ -1033,7 +1033,7 @@ x_10 = lean_name_eq(x_4, x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; uint8_t x_12; 
-x_11 = l_Lean_Parser_Level_hole___elambda__1___closed__2;
+x_11 = l_Lean_Parser_Level_hole___elambda__1___closed__1;
 x_12 = lean_name_eq(x_4, x_11);
 if (x_12 == 0)
 {

@@ -26,12 +26,12 @@ lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_getExportNameFor___sp
 lean_object* l_Lean_mkExportAttr___closed__1;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__4___closed__1;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkExportAttr___spec__4___closed__1;
 lean_object* l_Lean_mkExportAttr___lambda__1(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 extern lean_object* l_Lean_registerTagAttribute___closed__1;
 uint8_t l_Char_isDigit(uint32_t);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkExportAttr___spec__7(lean_object*, lean_object*);
 uint8_t l___private_Init_Lean_Compiler_ExportAttr_1__isValidCppId(lean_object*);

@@ -13,12 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_Lean_mkHole___closed__3;
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* lean_local_ctx_get_unused_name(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isClassExpensive___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_introN(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_introN___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_EIO_Monad___closed__1;
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_local_ctx_mk_let_decl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEqvAux___main___at_Lean_Meta_introN___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -26,7 +28,6 @@ lean_object* l_Lean_Meta_withNewLocalInstances___main___at_Lean_Meta_introN___sp
 lean_object* l_Lean_Meta_isClassQuick___main(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_ReaderT_bind___at_Lean_Meta_isClassExpensive___main___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Meta_introNCore___at_Lean_Meta_introN___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -41,7 +42,6 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_introNCoreAux___main___rarg___lambda__1___closed__4;
 lean_object* lean_expr_instantiate_rev_range(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-extern lean_object* l_Lean_Name_appendIndexAfter___closed__1;
 lean_object* l_Lean_Meta_getMVarType(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -2073,7 +2073,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Name_appendIndexAfter___closed__1;
+x_2 = l_Lean_mkHole___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

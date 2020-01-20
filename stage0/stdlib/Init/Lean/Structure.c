@@ -14,15 +14,16 @@
 extern "C" {
 #endif
 lean_object* l_List_reverse___rarg(lean_object*);
+extern lean_object* l_Lean_mkHole___closed__3;
 lean_object* l_Lean_getStructureCtor___closed__1;
 lean_object* l_Lean_getStructureCtor___closed__2;
 lean_object* l___private_Init_Lean_Structure_4__hasProjFn___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Init_Lean_Structure_4__hasProjFn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getStructureCtor___closed__4;
+uint8_t lean_name_eq(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_findField_x3f___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -37,7 +38,6 @@ lean_object* l___private_Init_Lean_Structure_2__isSubobjectFieldAux___boxed(lean
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_isStructureLike___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Structure_1__getStructureFieldsAux___main___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Name_appendIndexAfter___closed__1;
 lean_object* l_Lean_Name_append___main(lean_object*, lean_object*);
 lean_object* l_Lean_getStructureFieldsFlattened(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Structure_3__getStructureFieldsFlattenedAux(lean_object*, lean_object*, lean_object*);
@@ -180,7 +180,7 @@ lean_object* l_Lean_mkInternalSubobjectFieldName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Name_appendIndexAfter___closed__1;
+x_2 = l_Lean_mkHole___closed__3;
 x_3 = l_Lean_Name_appendBefore(x_1, x_2);
 return x_3;
 }
@@ -683,7 +683,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = l_Lean_getStructureCtor(x_1, x_2);
 x_5 = lean_ctor_get(x_4, 3);
 lean_inc(x_5);
-x_6 = l_Lean_Name_appendIndexAfter___closed__1;
+x_6 = l_Lean_mkHole___closed__3;
 x_7 = l_Lean_Name_appendBefore(x_3, x_6);
 x_8 = lean_ctor_get(x_4, 0);
 lean_inc(x_8);

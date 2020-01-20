@@ -40,9 +40,9 @@ lean_object* l_Array_iterateMAux___main___at_Lean_Elab_ElabFnTable_insert___spec
 lean_object* l_PersistentHashMap_findAux___main___at_Lean_Elab_ElabFnTable_insert___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkElabAttributeAux(lean_object*);
 lean_object* l_Lean_Elab_macroAttribute___closed__1;
+uint8_t lean_name_eq(lean_object*, lean_object*);
 extern size_t l_PersistentHashMap_insertAux___main___rarg___closed__2;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-extern lean_object* l_Lean_nameToExprAux___main___closed__4;
 lean_object* l_PersistentHashMap_insertAux___main___at_Lean_Elab_ElabFnTable_insert___spec__22___rarg(lean_object*, size_t, size_t, lean_object*, lean_object*);
 uint8_t l_AssocList_contains___main___at_Lean_Elab_ElabFnTable_insert___spec__26___rarg(lean_object*, lean_object*);
 size_t l_USize_sub(size_t, size_t);
@@ -56,7 +56,6 @@ lean_object* l_Lean_Elab_macroAttribute___closed__4;
 lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_ElabFnTable_insert___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_moveEntries___main___at_Lean_Elab_ElabFnTable_insert___spec__17(lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_find_x3f___at_Lean_Elab_ElabFnTable_insert___spec__2(lean_object*);
 lean_object* l___private_Init_Lean_Elab_Util_8__regTraceClasses(lean_object*);
@@ -299,6 +298,7 @@ lean_object* l_PersistentHashMap_empty___at_Lean_Elab_mkElabAttributeAux___spec_
 lean_object* l_Lean_SMap_empty___at_Lean_Elab_ElabAttribute_inhabited___spec__1___closed__3;
 lean_object* l_Lean_Elab_builtinMacroFnTable;
 lean_object* l_Lean_SMap_empty___at_Lean_Elab_ElabAttributeExtensionState_inhabited___spec__1___closed__2;
+extern lean_object* l_Lean_mkAppStx___closed__2;
 lean_object* l_Lean_SMap_find_x3f___at_Lean_Elab_expandMacro___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMacroAttribute___closed__1;
 lean_object* l_IO_ofExcept___at___private_Init_Lean_Elab_Util_6__ElabAttribute_add___spec__1(lean_object*, lean_object*);
@@ -5357,7 +5357,7 @@ lean_object* _init_l_Lean_Elab_mkMacroAttribute___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_nameToExprAux___main___closed__4;
+x_1 = l_Lean_mkAppStx___closed__2;
 x_2 = l_Lean_Elab_mkMacroAttribute___closed__2;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

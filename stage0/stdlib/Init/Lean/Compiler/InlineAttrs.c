@@ -21,6 +21,7 @@ lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*,
 uint8_t l_Lean_Compiler_InlineAttributeKind_Inhabited;
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__4___closed__1;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__16;
 lean_object* l_RBNode_fold___main___at_Lean_Compiler_mkInlineAttrs___spec__2___boxed(lean_object*, lean_object*);
 uint8_t lean_has_noinline_attribute(lean_object*, lean_object*);
@@ -28,7 +29,6 @@ lean_object* l_RBNode_fold___main___at_Lean_Compiler_mkInlineAttrs___spec__2(lea
 extern lean_object* l_Array_empty___closed__1;
 extern lean_object* l_Lean_registerTagAttribute___closed__1;
 lean_object* l_Lean_Compiler_mkInlineAttrs___closed__10;
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_Compiler_mkInlineAttrs___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Compiler_InlineAttributeKind_beq(uint8_t, uint8_t);

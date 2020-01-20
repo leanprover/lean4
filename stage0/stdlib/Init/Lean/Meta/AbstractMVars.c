@@ -22,13 +22,13 @@ lean_object* l_Array_umapMAux___main___at_Lean_Meta_openAbstractMVarsResult___sp
 lean_object* l_unreachable_x21___rarg(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Expr_instantiateLevelParamsArray(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Level_hasMVar(lean_object*);
 lean_object* l_List_mapM___main___at_Lean_Meta_AbstractMVars_abstractExprMVars___main___spec__9(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_AbstractMVars_mkFreshId___rarg(lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_ReaderT_Monad___rarg(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);

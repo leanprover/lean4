@@ -27,6 +27,7 @@ lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_IR_Borrow_isOwned(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_mkInitParamMap(lean_object*, lean_object*);
 lean_object* l_Lean_Format_pretty(lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_IR_formatParams___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_ParamMap_HasBeq;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -38,7 +39,6 @@ lean_object* l_Lean_IR_Borrow_updateParamSet___boxed(lean_object*, lean_object*)
 lean_object* l_RBNode_insert___at_Lean_IR_mkIndexSet___spec__1(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_AssocList_foldlM___main___at_Lean_IR_Borrow_OwnedSet_insert___spec__5(lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_InitParamMap_visitDecls(lean_object*, lean_object*, lean_object*);
 lean_object* l_AssocList_replace___main___at_Lean_IR_Borrow_OwnedSet_insert___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Borrow_OwnedSet_contains___boxed(lean_object*, lean_object*);

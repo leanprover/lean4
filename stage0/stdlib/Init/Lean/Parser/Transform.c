@@ -14,9 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_declareLeadingBuiltinParser___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_Syntax_manyToSepBy___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_removeParen___closed__4;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -34,6 +32,7 @@ lean_object* l_Lean_Syntax_removeParen___closed__2;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_truncateTrailing(lean_object*);
+extern lean_object* l_Lean_mkAppStx___closed__6;
 lean_object* l_Lean_Syntax_manyToSepBy(lean_object*, lean_object*);
 lean_object* l_Array_back___at___private_Init_Lean_Parser_Parser_6__updateCache___spec__1(lean_object*);
 extern lean_object* l_Array_forMAux___main___at_Lean_Environment_displayStats___spec__9___closed__2;
@@ -42,10 +41,9 @@ extern lean_object* l_Lean_Syntax_inhabited;
 lean_object* l_Lean_Syntax_getNumArgs(lean_object*);
 lean_object* l_Lean_Syntax_removeParen(lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
-extern lean_object* l_Lean_mkOptionalNode___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_Syntax_manyToSepBy___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_removeParen___closed__3;
+extern lean_object* l_Lean_mkOptionalNode___closed__2;
 lean_object* l_Lean_Syntax_getTailInfo___main(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -160,7 +158,7 @@ x_4 = lean_ctor_get(x_1, 1);
 x_5 = l_Lean_Syntax_inhabited;
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_get(x_5, x_4, x_6);
-x_8 = l_Lean_mkOptionalNode___closed__1;
+x_8 = l_Lean_mkOptionalNode___closed__2;
 x_9 = lean_array_push(x_8, x_7);
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = l_Array_iterateMAux___main___at_Lean_Syntax_manyToSepBy___spec__1(x_2, x_4, x_4, x_10, x_9);
@@ -179,7 +177,7 @@ lean_dec(x_1);
 x_14 = l_Lean_Syntax_inhabited;
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_array_get(x_14, x_13, x_15);
-x_17 = l_Lean_mkOptionalNode___closed__1;
+x_17 = l_Lean_mkOptionalNode___closed__2;
 x_18 = lean_array_push(x_17, x_16);
 x_19 = lean_unsigned_to_nat(1u);
 x_20 = l_Array_iterateMAux___main___at_Lean_Syntax_manyToSepBy___spec__1(x_2, x_13, x_13, x_19, x_18);
@@ -211,7 +209,7 @@ lean_object* _init_l_Lean_Syntax_removeParen___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string("paren");
 return x_1;
 }
 }
@@ -219,26 +217,8 @@ lean_object* _init_l_Lean_Syntax_removeParen___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_declareLeadingBuiltinParser___closed__1;
+x_1 = l_Lean_mkAppStx___closed__6;
 x_2 = l_Lean_Syntax_removeParen___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-lean_object* _init_l_Lean_Syntax_removeParen___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("paren");
-return x_1;
-}
-}
-lean_object* _init_l_Lean_Syntax_removeParen___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Syntax_removeParen___closed__2;
-x_2 = l_Lean_Syntax_removeParen___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -251,7 +231,7 @@ if (lean_obj_tag(x_1) == 1)
 lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
-x_4 = l_Lean_Syntax_removeParen___closed__4;
+x_4 = l_Lean_Syntax_removeParen___closed__2;
 x_5 = lean_name_eq(x_2, x_4);
 if (x_5 == 0)
 {
@@ -604,10 +584,6 @@ l_Lean_Syntax_removeParen___closed__1 = _init_l_Lean_Syntax_removeParen___closed
 lean_mark_persistent(l_Lean_Syntax_removeParen___closed__1);
 l_Lean_Syntax_removeParen___closed__2 = _init_l_Lean_Syntax_removeParen___closed__2();
 lean_mark_persistent(l_Lean_Syntax_removeParen___closed__2);
-l_Lean_Syntax_removeParen___closed__3 = _init_l_Lean_Syntax_removeParen___closed__3();
-lean_mark_persistent(l_Lean_Syntax_removeParen___closed__3);
-l_Lean_Syntax_removeParen___closed__4 = _init_l_Lean_Syntax_removeParen___closed__4();
-lean_mark_persistent(l_Lean_Syntax_removeParen___closed__4);
 return lean_mk_io_result(lean_box(0));
 }
 #ifdef __cplusplus

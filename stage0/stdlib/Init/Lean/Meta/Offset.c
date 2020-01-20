@@ -15,8 +15,8 @@ extern "C" {
 #endif
 extern lean_object* l___private_Init_Lean_Syntax_10__decodeNatLitVal___closed__1;
 lean_object* l___private_Init_Lean_Meta_Offset_1__getOffsetAux___main___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_isExprDefEqAux(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_isExprDefEqAux(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_evalNat___main___closed__10;
 lean_object* l_Lean_Expr_getAppFn___main(lean_object*);
 lean_object* l___private_Init_Lean_Meta_Offset_3__isOffset(lean_object*);

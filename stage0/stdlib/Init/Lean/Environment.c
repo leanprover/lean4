@@ -54,6 +54,7 @@ lean_object* l_AssocList_find___main___at_Lean_Environment_getModuleIdxFor_x3f__
 lean_object* l_Lean_Environment_imports(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_importModules___spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_displayStats___closed__8;
 lean_object* l_Array_iterateMAux___main___at_Lean_importModules___spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -80,7 +81,6 @@ lean_object* lean_io_mk_ref(lean_object*, lean_object*);
 lean_object* lean_read_module_data(lean_object*, lean_object*);
 lean_object* l_Lean_TagDeclarationExtension_Inhabited___closed__1;
 lean_object* lean_environment_mark_quot_init(lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_importModules___spec__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Environment_7__mkPersistentEnvExtensionsRef(lean_object*);

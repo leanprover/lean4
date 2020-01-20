@@ -15,9 +15,10 @@ open Tactic (TacticM evalTactic getUnsolvedGoals)
 
 def liftTacticElabM {α} (ref : Syntax) (mvarId : MVarId) (x : TacticM α) : TermElabM α :=
 withMVarContext mvarId $ fun ctx s =>
-  match x { ref := ref, main := mvarId, .. ctx } { goals := [mvarId], .. s } with
-  | EStateM.Result.error ex newS => EStateM.Result.error (Term.Exception.ex ex) newS.toTermState
-  | EStateM.Result.ok a newS     => EStateM.Result.ok a newS.toTermState
+  let savedSyntheticMVars := s.syntheticMVars;
+  match x { ref := ref, main := mvarId, .. ctx } { goals := [mvarId], syntheticMVars := [], .. s } with
+  | EStateM.Result.error ex newS => EStateM.Result.error (Term.Exception.ex ex) { syntheticMVars := savedSyntheticMVars, .. newS.toTermState }
+  | EStateM.Result.ok a newS     => EStateM.Result.ok a { syntheticMVars := savedSyntheticMVars, .. newS.toTermState }
 
 def ensureAssignmentHasNoMVars (ref : Syntax) (mvarId : MVarId) : TermElabM Unit := do
 val ← instantiateMVars ref (mkMVar mvarId);

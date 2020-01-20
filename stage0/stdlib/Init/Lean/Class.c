@@ -39,6 +39,7 @@ lean_object* l_PersistentHashMap_insertAux___main___at_Lean_ClassState_addEntry_
 lean_object* l_Lean_addClass___closed__4;
 lean_object* l_Lean_ClassState_addEntry(lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_PersistentHashMap_find_x3f___at_Lean_hasOutParams___spec__2(lean_object*, lean_object*);
 extern size_t l_PersistentHashMap_insertAux___main___rarg___closed__2;
 lean_object* l_Lean_SMap_contains___at_Lean_isClass___spec__1___boxed(lean_object*, lean_object*);
@@ -63,7 +64,6 @@ lean_object* l_PersistentHashMap_insert___at_Lean_ClassState_addEntry___spec__19
 lean_object* l_Array_iterateMAux___main___at_Lean_ClassState_addEntry___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_HashMapImp_expand___at_Lean_ClassState_addEntry___spec__8(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_mkClassExtension___spec__7___closed__2;
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_AssocList_replace___main___at_Lean_ClassState_addEntry___spec__11___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_ClassEntry_lt(lean_object*, lean_object*);

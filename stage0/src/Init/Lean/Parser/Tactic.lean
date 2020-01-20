@@ -43,6 +43,12 @@ def seq := parser! sepBy tacticParser "; " true
 @[builtinTacticParser] def «exact»      := parser! nonReservedSymbol "exact " >> termParser
 @[builtinTacticParser] def «refine»     := parser! nonReservedSymbol "refine " >> termParser
 @[builtinTacticParser] def «case»       := parser! nonReservedSymbol "case " >> ident >> tacticParser
+@[builtinTacticParser] def «try»        := parser! nonReservedSymbol "try " >> tacticParser
+@[builtinTacticParser] def «repeat»     := parser! nonReservedSymbol "repeat " >> tacticParser
+@[builtinTacticParser] def «allGoals»   := parser! nonReservedSymbol "allGoals " >> tacticParser
+@[builtinTacticParser] def «skip»       := parser! nonReservedSymbol "skip"
+@[builtinTacticParser] def «traceState» := parser! nonReservedSymbol "traceState"
+
 @[builtinTacticParser] def paren        := parser! "(" >> seq >> ")"
 @[builtinTacticParser] def nestedTacticBlock := parser! "begin " >> seq >> "end"
 @[builtinTacticParser] def nestedTacticBlockCurly := parser! "{" >> seq >> "}"

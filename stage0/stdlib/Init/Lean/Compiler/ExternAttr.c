@@ -26,6 +26,7 @@ lean_object* l_Lean_registerParametricAttribute___at_Lean_mkExternAttr___spec__1
 lean_object* l_Lean_getExternNameFor___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__4___closed__1;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 extern lean_object* l_Lean_mkProjectionFnInfoExtension___closed__3;
 extern lean_object* l_Prod_HasRepr___rarg___closed__1;
 lean_object* l_Lean_ExternAttrData_inhabited___closed__1;
@@ -33,7 +34,6 @@ extern lean_object* l_Array_empty___closed__1;
 extern lean_object* l_Lean_registerTagAttribute___closed__1;
 lean_object* l_Lean_expandExternPattern(lean_object*, lean_object*);
 lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_getExternAttrData___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_mkExternAttr___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_ExternAttr_1__syntaxToExternEntries___main___boxed(lean_object*, lean_object*, lean_object*);

@@ -16,6 +16,7 @@ extern "C" {
 extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_IR_Checker_checkFullApp___closed__4;
 lean_object* l_Array_forMAux___main___at_Lean_IR_Checker_checkArgs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_IR_Checker_checkDecl___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_LocalContext_isJP(lean_object*, lean_object*);
 lean_object* l_RBNode_insert___at_Lean_IR_mkIndexSet___spec__1(lean_object*, lean_object*, lean_object*);
@@ -24,7 +25,6 @@ lean_object* l_Lean_IR_Checker_checkExpr(lean_object*, lean_object*, lean_object
 uint8_t l_Lean_IR_IRType_isStruct(lean_object*);
 lean_object* l_Lean_IR_Checker_getType(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Checker_checkType(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Checker_checkJP___closed__1;
 uint8_t l_Lean_IR_LocalContext_isParam(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);

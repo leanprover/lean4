@@ -22,6 +22,7 @@ lean_object* l_Lean_mkElaboratorStrategyAttrs___closed__13;
 lean_object* l_Lean_EnumAttributes_getValue___at_Lean_getElaboratorStrategy___spec__1(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_registerTagAttribute___spec__4___closed__1;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_mkElaboratorStrategyAttrs___spec__8(lean_object*, uint8_t, lean_object*, lean_object*);
 uint8_t l_Lean_ElaboratorStrategy_inhabited;
 lean_object* l_Lean_mkElaboratorStrategyAttrs___closed__12;
@@ -32,7 +33,6 @@ lean_object* l_Lean_mkElaboratorStrategyAttrs___lambda__1___boxed(lean_object*, 
 lean_object* l_Lean_mkElaboratorStrategyAttrs___lambda__1___closed__1;
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkElaboratorStrategyAttrs___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_QSort_1__partitionAux___main___at_Lean_mkElaboratorStrategyAttrs___spec__4___closed__1;
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_mkElaboratorStrategyAttrs___closed__4;
 lean_object* lean_array_push(lean_object*, lean_object*);

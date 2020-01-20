@@ -33,11 +33,11 @@ lean_object* l_Lean_WHNF_whnfEasyCases___main___rarg(lean_object*, lean_object*,
 lean_object* l_unreachable_x21___rarg(lean_object*);
 lean_object* l_Lean_WHNF_matchConstAux(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Util_WHNF_1__getFirstCtor___rarg(lean_object*, lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_whnfMain___main(lean_object*);
 lean_object* l___private_Init_Lean_Util_WHNF_1__getFirstCtor___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_whnfMain___boxed(lean_object*);
 lean_object* l_Lean_WHNF_reduceQuotRec___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_getStuckMVar___main___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_WHNF_whnfCore___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);

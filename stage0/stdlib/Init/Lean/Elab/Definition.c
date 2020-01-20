@@ -23,6 +23,7 @@ lean_object* l_Lean_Elab_Command_withUsedWhen_x27___rarg___boxed(lean_object*, l
 lean_object* l_Lean_Elab_Term_inferType(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Elab_Command_collectUsedFVarsAtFVars___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Elab_Command_elabDefLike___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_modifyScope___at_Lean_Elab_Command_elabDefLike___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabDefLike___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkDef___lambda__1___closed__4;
@@ -33,7 +34,6 @@ lean_object* lean_local_ctx_erase(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabDefVal___closed__2;
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_compileDecl(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_reverseAux___main___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Command_8__getVarDecls(lean_object*);

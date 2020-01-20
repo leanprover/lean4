@@ -194,7 +194,7 @@ partial def mkPathAux : Array Expr → Array Key → MetaM (Array Key)
 private def initCapacity := 8
 
 def mkPath (e : Expr) : MetaM (Array Key) :=
-withTransparency TransparencyMode.reducible $ do
+withReducible $ do
   let todo : Array Expr := Array.mkEmpty initCapacity;
   let keys : Array Key  := Array.mkEmpty initCapacity;
   mkPathAux (todo.push e) keys
@@ -321,7 +321,7 @@ match d.root.find? Key.star with
 | some (Trie.node vs _) => result ++ vs
 
 def getMatch {α} (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
-withTransparency TransparencyMode.reducible $ do
+withReducible $ do
   let result := getStarResult d;
   (k, args) ← getMatchKeyArgs e;
   match k with
@@ -353,7 +353,7 @@ private partial def getUnifyAux {α} : Nat → Array Expr → Trie α → (Array
       | some c => do result ← visitStarChild result; getUnifyAux 0 (todo ++ args) c.2 result
 
 def getUnify {α} (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
-withTransparency TransparencyMode.reducible $ do
+withReducible $ do
   (k, args) ← getUnifyKeyArgs e;
   match k with
   | Key.star => d.root.foldlM (fun result k c => getUnifyAux k.arity #[] c result) #[]

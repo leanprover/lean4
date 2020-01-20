@@ -13,13 +13,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern lean_object* l_Lean_mkHole___closed__3;
 lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 uint8_t l_Char_isDigit(uint32_t);
 lean_object* lean_string_append(lean_object*, lean_object*);
 extern lean_object* l_String_splitAux___main___closed__1;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-extern lean_object* l_Lean_Name_appendIndexAfter___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Compiler_NameMangling_1__String_mangleAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
@@ -249,7 +249,7 @@ block_11:
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 lean_dec(x_6);
 x_7 = l___private_Init_Lean_Compiler_NameMangling_2__Name_mangleAux___main(x_3);
-x_8 = l_Lean_Name_appendIndexAfter___closed__1;
+x_8 = l_Lean_mkHole___closed__3;
 x_9 = lean_string_append(x_7, x_8);
 x_10 = lean_string_append(x_9, x_5);
 lean_dec(x_5);
@@ -265,7 +265,7 @@ x_14 = lean_ctor_get(x_1, 1);
 lean_inc(x_14);
 lean_dec(x_1);
 x_15 = l___private_Init_Lean_Compiler_NameMangling_2__Name_mangleAux___main(x_13);
-x_16 = l_Lean_Name_appendIndexAfter___closed__1;
+x_16 = l_Lean_mkHole___closed__3;
 x_17 = lean_string_append(x_15, x_16);
 x_18 = l_Nat_repr(x_14);
 x_19 = lean_string_append(x_17, x_18);

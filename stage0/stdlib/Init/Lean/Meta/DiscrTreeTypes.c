@@ -13,9 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Key_inhabited;
 lean_object* l_Lean_Meta_DiscrTree_Key_hashable___closed__1;
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Key_hasBeq;
 lean_object* l_Lean_Meta_DiscrTree_Key_beq___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Meta_DiscrTree_Key_beq(lean_object*, lean_object*);

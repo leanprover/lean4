@@ -22,13 +22,13 @@ extern lean_object* l___private_Init_Lean_Environment_8__persistentEnvExtensions
 uint8_t lean_is_namespace(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtensionUnsafe___at_Lean_regScopeManagerExtension___spec__7___closed__2;
 lean_object* l_Lean_Environment_registerNamespace___main(lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_scopeManagerExt___elambda__1(lean_object*);
 lean_object* l_Array_anyRangeMAux___main___at_Lean_regScopeManagerExtension___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_regScopeManagerExtension___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Array_iterateMAux___main___at_Lean_regScopeManagerExtension___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyRangeMAux___main___at_Lean_regScopeManagerExtension___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_io_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_scopeManagerExt___closed__5;
 lean_object* lean_get_namespaces(lean_object*);

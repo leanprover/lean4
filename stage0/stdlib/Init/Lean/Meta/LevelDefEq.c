@@ -22,13 +22,13 @@ lean_object* l___private_Init_Lean_Util_Trace_5__checkTraceOptionM___at_Lean_Met
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_1__decAux_x3f___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Init_Lean_Meta_LevelDefEq_2__strictOccursMaxAux(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq___closed__2;
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Meta_LevelDefEq_5__solveSelfMax(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_try___at_Lean_Meta_isLevelDefEq___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Init_Lean_Meta_LevelDefEq_2__strictOccursMaxAux___main(lean_object*, lean_object*);
 extern lean_object* l___private_Init_Lean_Meta_Basic_10__regTraceClasses___closed__2;
 lean_object* l_Lean_Meta_isExprDefEqAux(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isLevelDefEq___closed__5;
 lean_object* l___private_Init_Lean_Util_Trace_3__getResetTraces___at___private_Init_Lean_Meta_LevelDefEq_10__processPostponedStep___spec__6___rarg(lean_object*);
 lean_object* l_PersistentArray_foldlMAux___main___at___private_Init_Lean_Meta_LevelDefEq_10__processPostponedStep___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);

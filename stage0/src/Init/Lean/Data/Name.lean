@@ -19,6 +19,9 @@ instance stringToName : HasCoe String Name :=
 
 namespace Name
 
+@[export lean_name_hash] def hashEx : Name → USize :=
+Name.hash
+
 def getPrefix : Name → Name
 | anonymous => anonymous
 | str p s _ => p
@@ -45,14 +48,6 @@ n.components'.reverse
 def eqStr : Name → String → Bool
 | str anonymous s _, s' => s == s'
 | _,                 _  => false
-
-protected def append : Name → Name → Name
-| n, anonymous => n
-| n, str p s _ => mkNameStr (append n p) s
-| n, num p d _ => mkNameNum (append n p) d
-
-instance : HasAppend Name :=
-⟨Name.append⟩
 
 def replacePrefix : Name → Name → Name → Name
 | anonymous,     anonymous, newP => newP
@@ -99,19 +94,6 @@ else quickLtAux n₁ n₂
 
 @[inline] instance : DecidableRel (@HasLess.Less Name Name.hasLtQuick) :=
 inferInstanceAs (DecidableRel (fun a b => Name.quickLt a b = true))
-
-def toStringWithSep (sep : String) : Name → String
-| anonymous         => "[anonymous]"
-| str anonymous s _ => s
-| num anonymous v _ => toString v
-| str n s _         => toStringWithSep n ++ sep ++ s
-| num n v _         => toStringWithSep n ++ sep ++ repr v
-
-protected def toString : Name → String :=
-toStringWithSep "."
-
-instance : HasToString Name :=
-⟨Name.toString⟩
 
 def appendAfter : Name → String → Name
 | str p s _, suffix => mkNameStr p (s ++ suffix)

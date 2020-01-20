@@ -59,6 +59,7 @@ def liftMetaM {α} (ref : Syntax) (x : MetaM α) : TacticM α := liftTermElabM $
 
 def getEnv : TacticM Environment := do s ← get; pure s.env
 def getMCtx : TacticM MetavarContext := do s ← get; pure s.mctx
+@[inline] def modifyMCtx (f : MetavarContext → MetavarContext) : TacticM Unit := modify $ fun s => { mctx := f s.mctx, .. s }
 def getLCtx : TacticM LocalContext := do ctx ← read; pure ctx.lctx
 def getLocalInsts : TacticM LocalInstances := do ctx ← read; pure ctx.localInstances
 def getOptions : TacticM Options := do ctx ← read; pure ctx.config.opts
@@ -236,6 +237,25 @@ a ← tactic;
 done ref;
 setGoals gs;
 pure a
+
+/--
+  Use `parentTag` to tag untagged goals at `newGoals`.
+  If there are multiple new goals, they are named using `<parentTag>.<newSuffix>_<idx>` where `idx > 0`.
+  If there is only one new goal, then we just use `parentTag` -/
+def tagUntaggedGoals (parentTag : Name) (newSuffix : Name) (newGoals : List MVarId) : TacticM Unit := do
+mctx ← getMCtx;
+match newGoals with
+| [g] => modifyMCtx $ fun mctx => if mctx.isAnonymousMVar g then mctx.renameMVar g parentTag else mctx
+| _   => modifyMCtx $ fun mctx =>
+  let (mctx, _) := newGoals.foldl
+    (fun (acc : MetavarContext × Nat) (g : MVarId) =>
+       let (mctx, idx) := acc;
+       if mctx.isAnonymousMVar g then
+         (mctx.renameMVar g (parentTag ++ newSuffix.appendIndexAfter idx), idx+1)
+       else
+         acc)
+    (mctx, 1);
+  mctx
 
 @[builtinTactic seq] def evalSeq : Tactic :=
 fun stx => (stx.getArg 0).forSepArgsM evalTactic

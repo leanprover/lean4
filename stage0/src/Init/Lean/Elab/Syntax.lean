@@ -180,7 +180,7 @@ adaptExpander $ fun stx => match_syntax stx with
   | `(`($quot)) => pure quot.getKind
   | stx         => throwUnsupportedSyntax;
   -- TODO: meaningful, unhygienic def name for selective macro `open`ing?
-  `(@[macro $(Lean.mkSimpleIdent k)] def myMacro : Macro := fun stx => match_syntax stx with $alts* | _ => throw ())
+  `(@[macro $(Lean.mkIdent k)] def myMacro : Macro := fun stx => match_syntax stx with $alts* | _ => throw ())
 | _ => throwUnsupportedSyntax
 
 /- We just ignore Lean3 notation declaration commands. -/
@@ -247,18 +247,6 @@ adaptExpander $ fun stx => match_syntax stx with
   `(syntax [$(mkIdentFrom stx kind)] $syntaxParts* : $cat macro_rules | `($pat) => `($rhs))
 | _ => throwUnsupportedSyntax
 
-/- Convert `macro` head into a `syntax` command item -/
-def expandMacroHeadIntoSyntaxItem (stx : Syntax) : CommandElabM Syntax :=
-let k := stx.getKind;
-if k == `Lean.Parser.Command.identPrec then
-  let info := stx.getHeadInfo;
-  let id   := (stx.getArg 0).getId;
-  pure $ Syntax.node `Lean.Parser.Syntax.atom #[mkStxStrLit (toString id) info, stx.getArg 1]
-else if k == `Lean.Parser.Command.strLitPrec then
-  pure $ Syntax.node `Lean.Parser.Syntax.atom stx.getArgs
-else
-  throwUnsupportedSyntax
-
 /- Convert `macro` argument into a `syntax` command item -/
 def expandMacroArgIntoSyntaxItem (stx : Syntax) : CommandElabM Syntax :=
 let k := stx.getKind;
@@ -276,16 +264,15 @@ else if k == `Lean.Parser.Command.strLitPrec then
 else
   throwUnsupportedSyntax
 
-/- Convert `macro` head into a pattern element -/
-def expandMacroHeadIntoPattern (stx : Syntax) : CommandElabM Syntax :=
+/- Convert `macro` head into a `syntax` command item -/
+def expandMacroHeadIntoSyntaxItem (stx : Syntax) : CommandElabM Syntax :=
 let k := stx.getKind;
 if k == `Lean.Parser.Command.identPrec then
-  let str := toString (stx.getArg 0).getId;
-  pure $ mkAtomFrom stx str
-else if k == `Lean.Parser.Command.strLitPrec then
-  strLitPrecToPattern stx
+  let info := stx.getHeadInfo;
+  let id   := (stx.getArg 0).getId;
+  pure $ Syntax.node `Lean.Parser.Syntax.atom #[mkStxStrLit (toString id) info, stx.getArg 1]
 else
-  throwUnsupportedSyntax
+  expandMacroArgIntoSyntaxItem stx
 
 /- Convert `macro` arg into a pattern element -/
 def expandMacroArgIntoPattern (stx : Syntax) : CommandElabM Syntax :=
@@ -297,6 +284,15 @@ else if k == `Lean.Parser.Command.strLitPrec then
   strLitPrecToPattern stx
 else
   throwUnsupportedSyntax
+
+/- Convert `macro` head into a pattern element -/
+def expandMacroHeadIntoPattern (stx : Syntax) : CommandElabM Syntax :=
+let k := stx.getKind;
+if k == `Lean.Parser.Command.identPrec then
+  let str := toString (stx.getArg 0).getId;
+  pure $ mkAtomFrom stx str
+else
+  expandMacroArgIntoPattern stx
 
 @[builtinCommandElab «macro»] def elabMacro : CommandElab :=
 adaptExpander $ fun stx => do

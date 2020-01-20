@@ -16,11 +16,11 @@ extern "C" {
 lean_object* l_Lean_Expr_toHeadIndex___boxed(lean_object*);
 lean_object* l_Lean_Expr_toHeadIndex___main___closed__2;
 lean_object* l_Lean_Expr_head___boxed(lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_toHeadIndex___main___boxed(lean_object*);
 lean_object* l_Lean_Expr_toHeadIndex___main___closed__1;
 lean_object* l_Lean_HeadIndex_HasBeq___closed__1;
 lean_object* l___private_Init_Util_1__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_head___main(lean_object*);
 uint8_t l_Lean_HeadIndex_HeadIndex_beq(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);

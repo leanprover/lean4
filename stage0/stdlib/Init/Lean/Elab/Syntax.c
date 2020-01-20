@@ -298,7 +298,6 @@ extern lean_object* l_Lean_Parser_Command_declModifiers___elambda__1___closed__2
 lean_object* l_Lean_Elab_Command_expandMacroHeadIntoSyntaxItem___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__117;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__77;
-extern lean_object* l_Lean_Parser_dollarSymbol___elambda__1___rarg___closed__1;
 extern lean_object* l_Lean_Parser_Command_notation___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Command_elabMacro(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_nullKind___closed__2;
@@ -471,6 +470,7 @@ extern lean_object* l_Lean_Elab_mkMacroAttribute___closed__2;
 lean_object* l_Array_umapMAux___main___at_Lean_Elab_Command_elabNotation___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabMacroRules___lambda__1___closed__26;
 extern lean_object* l___private_Init_Lean_Elab_Quotation_3__quoteOption___rarg___closed__4;
+extern lean_object* l_Lean_Parser_currLbp___closed__1;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__88;
 lean_object* l_Lean_Elab_Command_elabMacro___lambda__1___closed__1;
 extern lean_object* l_Lean_Parser_Syntax_sepBy___elambda__1___closed__2;
@@ -9582,7 +9582,7 @@ lean_object* _init_l___private_Init_Lean_Elab_Syntax_8__antiquote___main___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_dollarSymbol___elambda__1___rarg___closed__1;
+x_1 = l_Lean_Parser_currLbp___closed__1;
 x_2 = l_Lean_mkAtom(x_1);
 return x_2;
 }

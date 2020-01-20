@@ -148,3 +148,12 @@ begin
   traceState;
   try exact h1;
 end
+
+theorem simple13 (x y z : Nat) : y = z → x = x → x = y → x = z :=
+begin
+  intro h1; intro h2; intro h3;
+  apply @Eq.trans;
+  case main.b exact y;
+  traceState;
+  repeat assumption
+end

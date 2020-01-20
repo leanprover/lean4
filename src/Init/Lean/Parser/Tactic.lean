@@ -34,7 +34,11 @@ fun a c s =>
 
 def ident' : Parser := ident <|> underscore
 
-def seq := parser! sepBy tacticParser "; " true
+/-
+  We must not use the `parser! t` macro here it because it expands into `mkAntiquot ... <|> t`,
+  but a tactic parser may start with an antiquotation. -/
+def seq : Parser := node `Lean.Parser.Tactic.seq $ sepBy1 tacticParser "; " true
+def nonEmptySeq : Parser := node `Lean.Parser.Tactic.seq $ sepBy1 tacticParser "; " true
 
 @[builtinTacticParser] def «intro»      := parser! nonReservedSymbol "intro " >> optional ident'
 @[builtinTacticParser] def «intros»     := parser! nonReservedSymbol "intros " >> many ident'
@@ -49,7 +53,7 @@ def seq := parser! sepBy tacticParser "; " true
 @[builtinTacticParser] def «skip»       := parser! nonReservedSymbol "skip"
 @[builtinTacticParser] def «traceState» := parser! nonReservedSymbol "traceState"
 
-@[builtinTacticParser] def paren        := parser! "(" >> seq >> ")"
+@[builtinTacticParser] def paren        := parser! "(" >> nonEmptySeq >> ")"
 @[builtinTacticParser] def nestedTacticBlock := parser! "begin " >> seq >> "end"
 @[builtinTacticParser] def nestedTacticBlockCurly := parser! "{" >> seq >> "}"
 @[builtinTacticParser] def orelse := tparser! pushLeading >> " <|> " >> tacticParser 1

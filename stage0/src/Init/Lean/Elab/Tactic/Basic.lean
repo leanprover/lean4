@@ -284,7 +284,7 @@ adaptExpander $ fun stx => match_syntax stx with
 
 @[builtinTactic repeat] def evalRepeat : Tactic :=
 adaptExpander $ fun stx => match_syntax stx with
-  | `(tactic| repeat $t) => `(tactic| try (($t); repeat $t)) -- TODO: remove parens around $t
+  | `(tactic| repeat $t) => `(tactic| try ($t; repeat $t))
   | _                    => throwUnsupportedSyntax
 
 @[builtinTactic «assumption»] def evalAssumption : Tactic :=

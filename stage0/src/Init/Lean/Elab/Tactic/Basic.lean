@@ -296,6 +296,24 @@ fun stx => match_syntax stx with
   | `(tactic| intro $h) => liftMetaTactic stx $ fun mvarId => do (_, mvarId) ← Meta.intro mvarId h.getId; pure [mvarId]
   | _                   => throwUnsupportedSyntax
 
+private def getIntrosSize : Expr → Nat
+| Expr.forallE _ _ b _ => getIntrosSize b + 1
+| Expr.letE _ _ _ b _  => getIntrosSize b + 1
+| _                    => 0
+
+@[builtinTactic «intros»] def evalIntros : Tactic :=
+fun stx => match_syntax stx with
+  | `(tactic| intros)       => liftMetaTactic stx $ fun mvarId => do
+    type ← Meta.getMVarType mvarId;
+    type ← Meta.instantiateMVars type;
+    let n := getIntrosSize type;
+    (_, mvarId) ← Meta.introN mvarId n;
+    pure [mvarId]
+  | `(tactic| intros $ids*) => liftMetaTactic stx $ fun mvarId => do
+    (_, mvarId) ← Meta.introN mvarId ids.size (ids.map Syntax.getId).toList;
+    pure [mvarId]
+  | _                       => throwUnsupportedSyntax
+
 @[builtinTactic paren] def evalParen : Tactic :=
 fun stx => evalTactic (stx.getArg 1)
 

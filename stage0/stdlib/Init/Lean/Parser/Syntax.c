@@ -112,7 +112,7 @@ lean_object* l_Lean_Parser_Command_reserve___elambda__1(lean_object*, lean_objec
 lean_object* l_Lean_Parser_Command_macro__rules___elambda__1___closed__7;
 lean_object* l___regBuiltinParser_Lean_Parser_Syntax_try(lean_object*);
 lean_object* l_Lean_Parser_ParserState_mkNode(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Parser_Term_tacticStxQuot___closed__3;
+lean_object* l_Lean_Parser_sepBy1Fn___at_Lean_Parser_Tactic_seq___elambda__1___spec__1(uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Syntax_many___elambda__1___closed__3;
 extern lean_object* l_Lean_Parser_darrow;
 lean_object* l_Lean_Parser_Command_macroArgSimple___closed__4;
@@ -299,6 +299,7 @@ lean_object* l_Lean_Parser_Command_mixfixSymbol___closed__1;
 lean_object* l_Lean_Parser_Syntax_str___closed__1;
 lean_object* l_Lean_Parser_optionaInfo(lean_object*);
 lean_object* l_Lean_Parser_Command_syntaxCat___elambda__1(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Parser_Term_tacticStxQuot___closed__2;
 lean_object* l_Lean_Parser_Syntax_paren___closed__5;
 lean_object* l_Lean_Parser_Command_prefix___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Syntax_optional___elambda__1___closed__1;
@@ -680,7 +681,6 @@ lean_object* l_Lean_Parser_Command_macroTail___closed__1;
 lean_object* l_Lean_Parser_Syntax_try___elambda__1___closed__2;
 lean_object* l_Lean_Parser_Syntax_many___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Syntax_sepBy1___elambda__1___closed__6;
-lean_object* l_Lean_Parser_sepBy1Fn___at_Lean_Parser_Term_tacticStxQuot___elambda__1___spec__1(uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_maxPrec___elambda__1___closed__6;
 lean_object* l_Lean_Parser_Command_infixr___closed__2;
 extern lean_object* l_Lean_Parser_Term_char___elambda__1___closed__1;
@@ -11799,7 +11799,7 @@ uint8_t x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9;
 x_6 = 0;
 x_7 = 1;
 lean_inc(x_2);
-x_8 = l_Lean_Parser_sepBy1Fn___at_Lean_Parser_Term_tacticStxQuot___elambda__1___spec__1(x_6, x_7, x_7, x_1, x_2, x_4);
+x_8 = l_Lean_Parser_sepBy1Fn___at_Lean_Parser_Tactic_seq___elambda__1___spec__1(x_6, x_7, x_7, x_1, x_2, x_4);
 x_9 = lean_ctor_get(x_8, 3);
 lean_inc(x_9);
 if (lean_obj_tag(x_9) == 0)
@@ -12096,7 +12096,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Command_macroTailTactic___closed__2;
-x_2 = l_Lean_Parser_Term_tacticStxQuot___closed__3;
+x_2 = l_Lean_Parser_Term_tacticStxQuot___closed__2;
 x_3 = l_Lean_Parser_andthenInfo(x_1, x_2);
 return x_3;
 }

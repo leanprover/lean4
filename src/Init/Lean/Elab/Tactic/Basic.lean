@@ -191,6 +191,12 @@ partial def evalTactic : Syntax → TacticM Unit
           | none      => throwError stx ("tactic '" ++ toString k ++ "' has not been implemented")
   | _ => throwError stx "unexpected command"
 
+/-- Adapt a syntax transformation to a regular tactic evaluator. -/
+def adaptExpander (exp : Syntax → TacticM Syntax) : Tactic :=
+fun stx => withMacroExpansion stx $ do
+  stx ← exp stx;
+  evalTactic stx
+
 @[inline] def withLCtx {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TacticM α) : TacticM α :=
 adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts, .. ctx }) x
 
@@ -270,6 +276,18 @@ fun stx => pure ()
 fun stx => do
   gs ← getUnsolvedGoals;
   logInfo stx (goalsToMessageData gs)
+
+@[builtinTactic try] def evalTry : Tactic :=
+adaptExpander $ fun stx => match_syntax stx with
+  | `(tactic| try $t) => `(tactic| $t <|> skip)
+  | _         => throwUnsupportedSyntax
+
+/-
+@[builtinTactic repeat] def evalRepeat : Tactic :=
+adaptExpander $ fun stx => match_syntax stx with
+  | `(tactic| repeat $t) => `(tactic| try ($t; repeat $t))
+  | _                    => throwUnsupportedSyntax
+-/
 
 @[builtinTactic «assumption»] def evalAssumption : Tactic :=
 fun stx => liftMetaTactic stx $ fun mvarId => do Meta.assumption mvarId; pure []

@@ -1279,10 +1279,11 @@ structure ParserCategory :=
 abbrev ParserCategories := PersistentHashMap Name ParserCategory
 
 def currLbp (left : Syntax) (c : ParserContext) (s : ParserState) : ParserState × Nat :=
-let (s, stx) := peekToken c s;
-match stx with
-| some (Syntax.atom _ sym) =>
-  match c.tokens.matchPrefix sym 0 with
+let (s, stx?) := peekToken c s;
+match stx? with
+| some stx@(Syntax.atom _ sym) =>
+  if sym == "$" && checkTailNoWs stx then (s, appPrec) -- TODO: split `lbpNoWs` into "before" and "after", and set right lbp for '$' in antiquotations
+  else match c.tokens.matchPrefix sym 0 with
   | (_, some tk) => match tk.lbp, tk.lbpNoWs with
     | some lbp, none         => (s, lbp)
     | none, some lbpNoWs     => (s, lbpNoWs)
@@ -1842,9 +1843,7 @@ let nameP := checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbolAux 
 -- if parsing the kind fails and `anonymous` is true, check that we're not ignoring a different
 -- antiquotation kind via `noImmediateColon`
 let nameP := if anonymous then nameP <|> noImmediateColon >> pushNone >> pushNone else nameP;
-node kind $ try $ dollarSymbol >> checkNoWsBefore "no space before" >>
-  antiquotExpr >>
-  nameP >> optional "*"
+node kind $ try $ dollarSymbol >> checkNoWsBefore "no space before" >> antiquotExpr >> nameP >> optional "*"
 
 def ident {k : ParserKind} : Parser k :=
 mkAntiquot "ident" `ident <|> identNoAntiquot

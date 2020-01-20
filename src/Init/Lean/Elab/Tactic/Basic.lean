@@ -277,16 +277,6 @@ fun stx => do
   gs ← getUnsolvedGoals;
   logInfo stx (goalsToMessageData gs)
 
-@[builtinTactic try] def evalTry : Tactic :=
-adaptExpander $ fun stx => match_syntax stx with
-  | `(tactic| try $t) => `(tactic| $t <|> skip)
-  | _         => throwUnsupportedSyntax
-
-@[builtinTactic repeat] def evalRepeat : Tactic :=
-adaptExpander $ fun stx => match_syntax stx with
-  | `(tactic| repeat $t) => `(tactic| try ($t; repeat $t))
-  | _                    => throwUnsupportedSyntax
-
 @[builtinTactic «assumption»] def evalAssumption : Tactic :=
 fun stx => liftMetaTactic stx $ fun mvarId => do Meta.assumption mvarId; pure []
 

@@ -119,3 +119,19 @@ namespace Foo
   def Prod.mk := 1
   #check (⟨2, 3⟩ : Prod _ _)
 end Foo
+
+theorem simple10 (x y z : Nat) : y = z → x = x → x = y → x = z :=
+begin
+  intro h1; intro h2; intro h3;
+  apply Eq.trans;
+  exact h3;
+  assumption
+end
+
+theorem simple11 (x y z : Nat) : y = z → x = x → x = y → x = z :=
+begin
+  intro h1; intro h2; intro h3;
+  apply @Eq.trans;
+  exact h3;
+  assumption
+end

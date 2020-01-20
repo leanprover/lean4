@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Lean.Meta.Tactic.Apply
 import Init.Lean.Elab.Tactic.Basic
 import Init.Lean.Elab.SynthesizeSyntheticMVars
 
@@ -48,6 +49,22 @@ fun stx => match_syntax stx with
       tagUntaggedGoals decl.userName `refine gs';
       pure gs'
     };
+    setGoals (gs' ++ gs)
+  | _ => throwUnsupportedSyntax
+
+@[builtinTactic «apply»] def evalApply : Tactic :=
+fun stx => match_syntax stx with
+  | `(tactic| apply $e) => do
+    let ref := stx;
+    (g, gs) ← getMainGoal stx;
+    gs' ← withMVarContext g $ do {
+      decl ← getMVarDecl g;
+      val  ← elabTerm e none true;
+      gs'  ← liftMetaM ref $ Meta.apply g val;
+      liftTermElabM $ Term.synthesizeSyntheticMVars false;
+      pure gs'
+    };
+    -- TODO: handle optParam and autoParam
     setGoals (gs' ++ gs)
   | _ => throwUnsupportedSyntax
 

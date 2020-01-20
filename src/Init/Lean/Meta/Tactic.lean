@@ -6,3 +6,4 @@ Authors: Leonardo de Moura
 prelude
 import Init.Lean.Meta.Tactic.Intro
 import Init.Lean.Meta.Tactic.Assumption
+import Init.Lean.Meta.Tactic.Apply

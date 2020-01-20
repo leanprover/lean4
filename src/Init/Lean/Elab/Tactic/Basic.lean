@@ -13,9 +13,12 @@ import Init.Lean.Elab.Term
 namespace Lean
 namespace Elab
 
+def goalsToMessageData (goals : List MVarId) : MessageData :=
+MessageData.joinSep (goals.map $ MessageData.ofGoal) (Format.line ++ Format.line)
+
 def Term.reportUnsolvedGoals (ref : Syntax) (goals : List MVarId) : TermElabM Unit :=
 let tailRef := ref.getTailWithInfo.getD ref;
-Term.throwError tailRef $ "unsolved goals" ++ Format.line ++ MessageData.joinSep (goals.map $ MessageData.ofGoal) (Format.line ++ Format.line)
+Term.throwError tailRef $ "unsolved goals" ++ Format.line ++ goalsToMessageData goals
 
 namespace Tactic
 
@@ -259,6 +262,14 @@ match newGoals with
 
 @[builtinTactic seq] def evalSeq : Tactic :=
 fun stx => (stx.getArg 0).forSepArgsM evalTactic
+
+@[builtinTactic skip] def evalSkip : Tactic :=
+fun stx => pure ()
+
+@[builtinTactic traceState] def evalTraceState : Tactic :=
+fun stx => do
+  gs ← getUnsolvedGoals;
+  logInfo stx (goalsToMessageData gs)
 
 @[builtinTactic «assumption»] def evalAssumption : Tactic :=
 fun stx => liftMetaTactic stx $ fun mvarId => do Meta.assumption mvarId; pure []

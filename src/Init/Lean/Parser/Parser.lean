@@ -1276,6 +1276,7 @@ end TokenMap
 
 structure PrattParsingTables :=
 (leadingTable    : TokenMap Parser := {})
+(leadingParsers  : List Parser := []) -- for supporting parsers we cannot obtain first token
 (trailingTable   : TokenMap TrailingParser := {})
 (trailingParsers : List TrailingParser := []) -- for supporting parsers such as function application
 
@@ -1364,6 +1365,7 @@ def leadingParser (kind : Name) (tables : PrattParsingTables) (leadingIdentAsSym
 fun a c s =>
   let iniSz   := s.stackSize;
   let (s, ps) := indexed tables.leadingTable c s leadingIdentAsSymbol;
+  let ps      := tables.leadingParsers ++ ps;
   if ps.isEmpty then
     s.mkError (toString kind)
   else
@@ -1588,7 +1590,9 @@ match categories.find? catName with
   match p.info.firstTokens with
   | FirstTokens.tokens tks    => addTokens tks
   | FirstTokens.optTokens tks => addTokens tks
-  | _ => throw ("invalid parser '" ++ toString parserName ++ "', initial token is not statically known")
+  | _ =>
+    let tables := { leadingParsers := p :: tables.leadingParsers, .. tables };
+    pure $ categories.insert catName (ParserCategory.pratt tables i)
 
 private def addTrailingParserAux (tables : PrattParsingTables) (p : TrailingParser) : PrattParsingTables :=
 let addTokens (tks : List TokenConfig) : PrattParsingTables :=

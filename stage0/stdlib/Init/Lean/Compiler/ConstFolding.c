@@ -26,7 +26,6 @@ lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__23;
 lean_object* l_List_lookup___main___at_Lean_Compiler_findBinFoldFn___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
-extern lean_object* l_Nat_HasPow___closed__1;
 lean_object* l_Lean_Compiler_boolFoldFns___closed__3;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__13;
 lean_object* l_Lean_Compiler_numScalarTypes___closed__25;
@@ -77,6 +76,7 @@ lean_object* l_Lean_Compiler_foldNatPow___rarg(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_getBoolLit___closed__3;
 lean_object* lean_string_append(lean_object*, lean_object*);
+lean_object* lean_nat_pow(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldNatMod(uint8_t);
 lean_object* l_Lean_Compiler_natFoldFns___closed__27;
 lean_object* l_Lean_Compiler_natFoldFns___closed__9;
@@ -277,6 +277,7 @@ lean_object* l_Lean_Compiler_foldNatAdd___rarg___boxed(lean_object*, lean_object
 lean_object* l_Lean_Compiler_findBinFoldFn___boxed(lean_object*);
 lean_object* l_Lean_Compiler_natFoldFns___closed__17;
 lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__3;
+lean_object* l_Lean_Compiler_natPowThreshold;
 lean_object* l_Lean_Compiler_numScalarTypes___closed__24;
 lean_object* l_Lean_Compiler_foldNatDiv___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldNatDecLt___boxed(lean_object*, lean_object*, lean_object*);
@@ -337,6 +338,7 @@ lean_object* l_Nat_decEq___boxed(lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_Compiler_uintBinFoldFns___spec__1(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_foldNatDecEq___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_boolFoldFns___closed__10;
 lean_object* l_Lean_Compiler_toDecidableExpr___closed__2;
 lean_object* _init_l_Lean_Compiler_mkUIntTypeName___closed__1() {
@@ -1995,13 +1997,99 @@ x_3 = l_Lean_Compiler_foldNatMod(x_2);
 return x_3;
 }
 }
+lean_object* _init_l_Lean_Compiler_natPowThreshold() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_unsigned_to_nat(256u);
+return x_1;
+}
+}
 lean_object* l_Lean_Compiler_foldNatPow___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = l_Nat_HasPow___closed__1;
-x_4 = l_Lean_Compiler_foldNatBinOp(x_3, x_1, x_2);
+lean_object* x_3; 
+x_3 = l_Lean_Compiler_getNumLit___main(x_1);
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; 
+x_4 = lean_box(0);
 return x_4;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_ctor_get(x_3, 0);
+lean_inc(x_5);
+lean_dec(x_3);
+x_6 = l_Lean_Compiler_getNumLit___main(x_2);
+if (lean_obj_tag(x_6) == 0)
+{
+lean_object* x_7; 
+lean_dec(x_5);
+x_7 = lean_box(0);
+return x_7;
+}
+else
+{
+uint8_t x_8; 
+x_8 = !lean_is_exclusive(x_6);
+if (x_8 == 0)
+{
+lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+x_9 = lean_ctor_get(x_6, 0);
+x_10 = l_Lean_Compiler_natPowThreshold;
+x_11 = lean_nat_dec_lt(x_9, x_10);
+if (x_11 == 0)
+{
+lean_object* x_12; 
+lean_free_object(x_6);
+lean_dec(x_9);
+lean_dec(x_5);
+x_12 = lean_box(0);
+return x_12;
+}
+else
+{
+lean_object* x_13; lean_object* x_14; 
+x_13 = lean_nat_pow(x_5, x_9);
+lean_dec(x_9);
+lean_dec(x_5);
+x_14 = l_Lean_mkNatLit(x_13);
+lean_ctor_set(x_6, 0, x_14);
+return x_6;
+}
+}
+else
+{
+lean_object* x_15; lean_object* x_16; uint8_t x_17; 
+x_15 = lean_ctor_get(x_6, 0);
+lean_inc(x_15);
+lean_dec(x_6);
+x_16 = l_Lean_Compiler_natPowThreshold;
+x_17 = lean_nat_dec_lt(x_15, x_16);
+if (x_17 == 0)
+{
+lean_object* x_18; 
+lean_dec(x_15);
+lean_dec(x_5);
+x_18 = lean_box(0);
+return x_18;
+}
+else
+{
+lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+x_19 = lean_nat_pow(x_5, x_15);
+lean_dec(x_15);
+lean_dec(x_5);
+x_20 = l_Lean_mkNatLit(x_19);
+x_21 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_21, 0, x_20);
+return x_21;
+}
+}
+}
+}
 }
 }
 lean_object* l_Lean_Compiler_foldNatPow(uint8_t x_1) {
@@ -4388,6 +4476,8 @@ l_Lean_Compiler_uintBinFoldFns___closed__1 = _init_l_Lean_Compiler_uintBinFoldFn
 lean_mark_persistent(l_Lean_Compiler_uintBinFoldFns___closed__1);
 l_Lean_Compiler_uintBinFoldFns = _init_l_Lean_Compiler_uintBinFoldFns();
 lean_mark_persistent(l_Lean_Compiler_uintBinFoldFns);
+l_Lean_Compiler_natPowThreshold = _init_l_Lean_Compiler_natPowThreshold();
+lean_mark_persistent(l_Lean_Compiler_natPowThreshold);
 l_Lean_Compiler_mkNatEq___closed__1 = _init_l_Lean_Compiler_mkNatEq___closed__1();
 lean_mark_persistent(l_Lean_Compiler_mkNatEq___closed__1);
 l_Lean_Compiler_mkNatEq___closed__2 = _init_l_Lean_Compiler_mkNatEq___closed__2();

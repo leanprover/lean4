@@ -153,6 +153,7 @@ public:
 
     friend mpz rem(mpz const & a, mpz const & b) { mpz r; mpz_tdiv_r(r.m_val, a.m_val, b.m_val); return r; }
     mpz & operator%=(mpz const & o) { mpz r(*this % o); mpz_swap(m_val, r.m_val); return *this; }
+    mpz pow(unsigned int exp) const { mpz r; mpz_pow_ui(r.m_val, m_val, exp); return r; }
 
     friend mpz operator+(mpz a, mpz const & b) { return a += b; }
     friend mpz operator+(mpz a, unsigned b)  { return a += b; }

@@ -71,6 +71,7 @@ lean_object* l_UInt32_mul___boxed(lean_object*, lean_object*);
 lean_object* l_UInt8_HasLess;
 lean_object* l_USize_land___boxed(lean_object*, lean_object*);
 lean_object* l_UInt64_land___boxed(lean_object*, lean_object*);
+lean_object* lean_nat_pow(lean_object*, lean_object*);
 lean_object* l_UInt8_HasDiv___closed__1;
 lean_object* l_UInt64_HasOfNat___closed__1;
 lean_object* l_UInt16_decLe___boxed(lean_object*, lean_object*);
@@ -114,7 +115,6 @@ uint16_t l_Nat_toUInt16(lean_object*);
 lean_object* l_UInt64_sub___boxed(lean_object*, lean_object*);
 uint32_t l_UInt32_sub(uint32_t, uint32_t);
 lean_object* l_UInt8_sub___boxed(lean_object*, lean_object*);
-lean_object* l_Nat_pow___main(lean_object*, lean_object*);
 lean_object* l_UInt32_HasAdd___closed__1;
 uint8_t l_UInt8_hasDecidableLt(uint8_t, uint8_t);
 uint8_t l_UInt8_DecidableEq(uint8_t, uint8_t);
@@ -2048,7 +2048,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(2u);
 x_2 = l_System_Platform_numBits;
-x_3 = l_Nat_pow___main(x_1, x_2);
+x_3 = lean_nat_pow(x_1, x_2);
 return x_3;
 }
 }

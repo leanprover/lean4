@@ -25,7 +25,7 @@ lean_object* l_Nat_foldRevAux(lean_object*);
 lean_object* l_Nat_HasMul___closed__1;
 lean_object* l_Nat_pred___boxed(lean_object*);
 lean_object* l_Nat_decLt___boxed(lean_object*, lean_object*);
-lean_object* l_Nat_pow(lean_object*, lean_object*);
+lean_object* lean_nat_pow(lean_object*, lean_object*);
 lean_object* l_Nat_max(lean_object*, lean_object*);
 lean_object* l_Nat_foldAux___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_HasLess;
@@ -33,7 +33,6 @@ lean_object* l_Prod_foldI(lean_object*);
 lean_object* l_Prod_foldI___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_HasSub;
 lean_object* l_Nat_repeat(lean_object*);
-lean_object* l_Nat_pow___main___boxed(lean_object*, lean_object*);
 uint8_t l_Nat_any(lean_object*, lean_object*);
 lean_object* l_Nat_foldAux___main___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_fold(lean_object*);
@@ -41,7 +40,6 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t l_Nat_anyAux___main___at_Nat_all___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_max___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l_Nat_pow___main(lean_object*, lean_object*);
 lean_object* l_Nat_foldRevAux___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repeatAux(lean_object*);
 uint8_t l_Nat_anyAux___main(lean_object*, lean_object*, lean_object*);
@@ -597,54 +595,11 @@ x_2 = lean_alloc_closure((void*)(l_Nat_repeat___rarg), 3, 0);
 return x_2;
 }
 }
-lean_object* l_Nat_pow___main(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; uint8_t x_4; 
-x_3 = lean_unsigned_to_nat(0u);
-x_4 = lean_nat_dec_eq(x_2, x_3);
-if (x_4 == 0)
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = lean_unsigned_to_nat(1u);
-x_6 = lean_nat_sub(x_2, x_5);
-x_7 = l_Nat_pow___main(x_1, x_6);
-lean_dec(x_6);
-x_8 = lean_nat_mul(x_7, x_1);
-lean_dec(x_7);
-return x_8;
-}
-else
-{
-lean_object* x_9; 
-x_9 = lean_unsigned_to_nat(1u);
-return x_9;
-}
-}
-}
-lean_object* l_Nat_pow___main___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Nat_pow___main(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* l_Nat_pow(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Nat_pow___main(x_1, x_2);
-return x_3;
-}
-}
 lean_object* l_Nat_pow___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Nat_pow(x_1, x_2);
+x_3 = lean_nat_pow(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

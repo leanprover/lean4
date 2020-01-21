@@ -1245,6 +1245,16 @@ extern "C" object * lean_nat_big_lxor(object * a1, object * a2) {
         return mpz_to_nat(mpz_value(a1) ^ mpz_value(a2));
 }
 
+extern "C" lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (!lean_is_scalar(a2)) {
+        lean_panic("Nat.pow exponent is too big");
+    }
+    if (lean_is_scalar(a1))
+        return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)).pow(lean_unbox(a2)));
+    else
+        return mpz_to_nat(mpz_value(a1).pow(lean_unbox(a2)));
+}
+
 // =======================================
 // Integers
 

@@ -114,7 +114,8 @@ anyAux f n n
 @[inline] def repeat {α : Type u} (f : α → α) (n : Nat) (a : α) : α :=
 repeatAux f n a
 
-protected def pow (m : Nat) : Nat → Nat
+@[extern "lean_nat_pow"]
+protected def pow (m : @& Nat) : (@& Nat) → Nat
 | 0      => 1
 | succ n => pow n * m
 

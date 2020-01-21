@@ -1279,6 +1279,8 @@ static inline lean_obj_res lean_nat_lxor(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     }
 }
 
+lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2);
+
 /* Integers */
 
 #define LEAN_MAX_SMALL_INT (sizeof(void*) == 8 ? INT_MAX : (1 << 30))

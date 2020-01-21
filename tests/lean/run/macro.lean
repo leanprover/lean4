@@ -19,19 +19,15 @@ syntax ident ":" term : index
 
 syntax "{" index " | " term "}" : term
 
--- #check { x : Nat → Nat | x > 0 }
-
--- set_option trace.Elab true
--- set_option syntaxMaxDepth 6
-
 macro_rules
 | `({$l ≤ $x:ident < $u | $p}) => `(setOf (fun $x:ident => $l ≤ $x:ident ∧ $x:ident < $u ∧ $p))
--- | `({$x:ident : $t | $p}) => `(setOf (fun ($x:ident : $t) => $p))
+| `({$x:ident : $t | $p}) => `(setOf (fun ($x:ident : $t) => $p))
 | `({$x ∈ $s | $p}) => `(setOf (fun $x => $x ∈ $s ∧ $p))
 | `({$x ≤ $e | $p}) => `(setOf (fun $x => $x ≤ $e ∧ $p))
 | `({$b      | $r}) => `(setOf (fun $b => $r))
 
 #check { 1 ≤ x < 10 | x ≠ 5 }
+#check { f : Nat → Nat | f 1  > 0 }
 
 syntax "⋃ " term ", " term : term
 

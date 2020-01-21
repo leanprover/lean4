@@ -1398,6 +1398,69 @@ fun rbp ctx s => categoryParserFnExtension.getState ctx.env catName rbp ctx s
 def categoryParser {k} (catName : Name) (rbp : Nat) : Parser k :=
 { fn := fun _ => categoryParserFn catName rbp }
 
+-- Define `termParser` here because we need it for antiquotations
+@[inline] def termParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
+categoryParser `term rbp
+
+/- ============== -/
+/- Antiquotations -/
+/- ============== -/
+
+def dollarSymbol {k : ParserKind} : Parser k := symbol "$" 1
+
+/-- Fail if previous token is immediately followed by ':'. -/
+private def noImmediateColon {k : ParserKind} : Parser k :=
+{ fn := fun _ c s =>
+  let prev := s.stxStack.back;
+  if checkTailNoWs prev then
+    let input := c.input;
+    let i     := s.pos;
+    if input.atEnd i then s
+    else
+      let curr := input.get i;
+      if curr == ':' then
+        s.mkUnexpectedError "unexpected ':'"
+      else s
+  else s
+}
+
+private def pushNone {k : ParserKind} : Parser k :=
+{ fn := fun a c s => s.pushSyntax mkNullNode }
+
+/-
+  We support two kinds of antiquotations: `$id` and `$(t)`, where `id` is a term identifier and `t` is a term.
+
+  TODO: we are making both cases look like syntax terms. Reason: the current expander expects a term.
+  We should remove this hack and modify the expander. This hack is bad since it relies on how we define `id` and `paren` in
+  the term parser at `Term.lean`. -/
+private def antiquotId {k} : Parser k         := node `Lean.Parser.Term.id (identNoAntiquot >> pushNone)
+private def antiquotNestedExpr {k} : Parser k := node `Lean.Parser.Term.paren ("(" >> node nullKind (termParser >> pushNone) >> ")")
+private def antiquotExpr {k} : Parser k       := antiquotId <|> antiquotNestedExpr
+
+/--
+  Define parser for `$e` (if anonymous == true) and `$e:name`. Both
+  forms can also be used with an appended `*` to turn them into an
+  antiquotation "splice". If `kind` is given, it will additionally be checked
+  when evaluating `match_syntax`. -/
+def mkAntiquot {k : ParserKind} (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parser k :=
+let kind := (kind.getD Name.anonymous) ++ `antiquot;
+let nameP := checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbolAux ":" >> nonReservedSymbol name;
+-- if parsing the kind fails and `anonymous` is true, check that we're not ignoring a different
+-- antiquotation kind via `noImmediateColon`
+let nameP := if anonymous then nameP <|> noImmediateColon >> pushNone >> pushNone else nameP;
+node kind $ try $ dollarSymbol >> checkNoWsBefore "no space before" >> antiquotExpr >> nameP >> optional (checkNoWsBefore "" >> "*")
+
+/- ===================== -/
+/- End of Antiquotations -/
+/- ===================== -/
+
+def ident {k : ParserKind} : Parser k :=
+mkAntiquot "ident" `ident <|> identNoAntiquot
+
+-- `ident` and `rawIdent` produce the same syntax tree, so we reuse the antiquotation kind name
+def rawIdent {k : ParserKind} : Parser k :=
+mkAntiquot "ident" `ident <|> rawIdentNoAntiquot
+
 def categoryParserOfStackFn (offset : Nat) : ParserFn leading :=
 fun rbp ctx s =>
   let stack := s.stxStack;
@@ -1582,7 +1645,7 @@ def compileParserDescr (categories : ParserCategories) : forall {k : ParserKind}
 | _, ParserDescr.num                                 => pure $ numLit
 | _, ParserDescr.str                                 => pure $ strLit
 | _, ParserDescr.char                                => pure $ charLit
-| _, ParserDescr.ident                               => pure $ identNoAntiquot -- Kha, do we need `ident` here?
+| _, ParserDescr.ident                               => pure $ ident
 | ParserKind.leading,
   ParserDescr.nonReservedSymbol tk includeIdent      => pure $ nonReservedSymbol tk includeIdent
 | _, ParserDescr.parser catName rbp =>
@@ -1850,60 +1913,6 @@ registerBuiltinParserAttribute `builtinTermParser `term
 
 @[init] def regTermParserAttribute : IO Unit :=
 registerBuiltinDynamicParserAttribute `termParser `term
-
-@[inline] def termParser {k : ParserKind} (rbp : Nat := 0) : Parser k :=
-categoryParser `term rbp
-
-def dollarSymbol {k : ParserKind} : Parser k := symbol "$" 1
-
-/-- Fail if previous token is immediately followed by ':'. -/
-private def noImmediateColon {k : ParserKind} : Parser k :=
-{ fn := fun _ c s =>
-  let prev := s.stxStack.back;
-  if checkTailNoWs prev then
-    let input := c.input;
-    let i     := s.pos;
-    if input.atEnd i then s
-    else
-      let curr := input.get i;
-      if curr == ':' then
-        s.mkUnexpectedError "unexpected ':'"
-      else s
-  else s
-}
-
-private def pushNone {k : ParserKind} : Parser k :=
-{ fn := fun a c s => s.pushSyntax mkNullNode }
-
-/-
-  We support two kinds of antiquotations: `$id` and `$(t)`, where `id` is a term identifier and `t` is a term.
-
-  TODO: we are making both cases look like syntax terms. Reason: the current expander expects a term.
-  We should remove this hack and modify the expander. This hack is bad since it relies on how we define `id` and `paren` in
-  the term parser at `Term.lean`. -/
-private def antiquotId {k} : Parser k         := node `Lean.Parser.Term.id (identNoAntiquot >> pushNone)
-private def antiquotNestedExpr {k} : Parser k := node `Lean.Parser.Term.paren ("(" >> node nullKind (termParser >> pushNone) >> ")")
-private def antiquotExpr {k} : Parser k       := antiquotId <|> antiquotNestedExpr
-
-/--
-  Define parser for `$e` (if anonymous == true) and `$e:name`. Both
-  forms can also be used with an appended `*` to turn them into an
-  antiquotation "splice". If `kind` is given, it will additionally be checked
-  when evaluating `match_syntax`. -/
-def mkAntiquot {k : ParserKind} (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parser k :=
-let kind := (kind.getD Name.anonymous) ++ `antiquot;
-let nameP := checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbolAux ":" >> nonReservedSymbol name;
--- if parsing the kind fails and `anonymous` is true, check that we're not ignoring a different
--- antiquotation kind via `noImmediateColon`
-let nameP := if anonymous then nameP <|> noImmediateColon >> pushNone >> pushNone else nameP;
-node kind $ try $ dollarSymbol >> checkNoWsBefore "no space before" >> antiquotExpr >> nameP >> optional (checkNoWsBefore "" >> "*")
-
-def ident {k : ParserKind} : Parser k :=
-mkAntiquot "ident" `ident <|> identNoAntiquot
-
--- `ident` and `rawIdent` produce the same syntax tree, so we reuse the antiquotation kind name
-def rawIdent {k : ParserKind} : Parser k :=
-mkAntiquot "ident" `ident <|> rawIdentNoAntiquot
 
 def fieldIdxFn : BasicParserFn :=
 fun c s =>

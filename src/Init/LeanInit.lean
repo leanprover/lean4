@@ -226,6 +226,20 @@ mkNameNum n scp
 def addMacroScopes (n : Name) (scps : List MacroScope) : Name :=
 scps.foldl addMacroScope n
 
+private def extractMacroScopesAux : Name → List MacroScope → Name × List MacroScope
+| Name.num n scp _, acc => extractMacroScopesAux n (scp::acc)
+| n               , acc => (n, acc.reverse)
+
+/--
+  Revert all `addMacroScope` calls. `(n', scps) = extractMacroScopes n → n = addMacroScopes n' scps`.
+  This operation is useful for analyzing/transforming the original identifiers, then adding back
+  the scopes (via `addMacroScopes`). -/
+def extractMacroScopes (n : Name) : Name × List MacroScope :=
+extractMacroScopesAux n []
+
+def Name.eraseMacroScopes (n : Name) : Name :=
+(extractMacroScopes n).1
+
 abbrev MacroM := ReaderT MacroScope (OptionT Id)
 
 instance MacroM.monadQuotation : MonadQuotation MacroM :=
@@ -263,6 +277,11 @@ Syntax.ident info (toString c).toSubstring (`_root_ ++ c) [(c, [])]
 def mkAtomFrom (src : Syntax) (val : String) : Syntax :=
 let info := src.getHeadInfo;
 Syntax.atom info val
+
+def Syntax.identToAtom (stx : Syntax) : Syntax :=
+match stx with
+| Syntax.ident info _ val _ => Syntax.atom info val.eraseMacroScopes.toString
+| _                         => stx
 
 @[export lean_mk_syntax_ident]
 def mkIdent (val : Name) : Syntax :=

@@ -237,6 +237,7 @@ lean_object* l___private_Init_Lean_Elab_Command_1__ioErrorToMessage(lean_object*
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_Elab_Command_adaptExpander(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_mkParserAttributeImpl___closed__1;
+extern lean_object* l_Lean_Parser_termParser___closed__2;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 extern lean_object* l_Lean_choiceKind;
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Syntax_2__mkParserSeq___spec__1___closed__7;
@@ -312,7 +313,6 @@ extern lean_object* l_Lean_Parser_Syntax_sepBy1___elambda__1___closed__2;
 lean_object* l_Lean_mkAtomFrom(lean_object*, lean_object*);
 lean_object* l___regBuiltinCommandElab_Lean_Elab_Command_elabMixfix___closed__3;
 lean_object* l_Lean_Syntax_getHeadInfo___main(lean_object*);
-extern lean_object* l_Lean_Parser_regBuiltinTermParserAttr___closed__4;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__108;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__7;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__71;
@@ -10478,7 +10478,7 @@ else
 {
 lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; 
 lean_dec(x_4);
-x_43 = l_Lean_Parser_regBuiltinTermParserAttr___closed__4;
+x_43 = l_Lean_Parser_termParser___closed__2;
 x_44 = l_Lean_mkIdentFrom(x_1, x_43);
 x_45 = lean_unsigned_to_nat(1u);
 x_46 = l_Lean_Syntax_getArg(x_1, x_45);
@@ -11003,7 +11003,7 @@ x_10 = lean_unsigned_to_nat(3u);
 x_11 = l_Lean_Syntax_getArg(x_1, x_10);
 x_12 = l_Lean_Syntax_getArgs(x_9);
 lean_dec(x_9);
-x_13 = l_Lean_Parser_regBuiltinTermParserAttr___closed__4;
+x_13 = l_Lean_Parser_termParser___closed__2;
 lean_inc(x_2);
 x_14 = l_Lean_Elab_Command_mkFreshKind(x_13, x_2, x_3);
 if (lean_obj_tag(x_14) == 0)

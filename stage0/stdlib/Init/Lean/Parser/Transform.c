@@ -34,8 +34,8 @@ lean_object* l_Lean_Syntax_manyToSepBy(lean_object*, lean_object*);
 lean_object* l_Array_back___at___private_Init_Lean_Parser_Parser_6__updateCache___spec__1(lean_object*);
 extern lean_object* l_Option_HasRepr___rarg___closed__3;
 extern lean_object* l_Lean_Syntax_inhabited;
+extern lean_object* l___private_Init_Lean_Parser_Parser_12__antiquotNestedExpr___elambda__1___rarg___closed__2;
 lean_object* l_Lean_Syntax_getNumArgs(lean_object*);
-extern lean_object* l___private_Init_Lean_Parser_Parser_24__antiquotNestedExpr___elambda__1___rarg___closed__2;
 lean_object* l_Lean_Syntax_removeParen(lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Syntax_manyToSepBy___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -210,7 +210,7 @@ if (lean_obj_tag(x_1) == 1)
 lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
-x_4 = l___private_Init_Lean_Parser_Parser_24__antiquotNestedExpr___elambda__1___rarg___closed__2;
+x_4 = l___private_Init_Lean_Parser_Parser_12__antiquotNestedExpr___elambda__1___rarg___closed__2;
 x_5 = lean_name_eq(x_2, x_4);
 if (x_5 == 0)
 {

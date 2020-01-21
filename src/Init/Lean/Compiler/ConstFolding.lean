@@ -86,7 +86,14 @@ def foldNatAdd (_ : Bool) := foldNatBinOp HasAdd.add
 def foldNatMul (_ : Bool) := foldNatBinOp HasMul.mul
 def foldNatDiv (_ : Bool) := foldNatBinOp HasDiv.div
 def foldNatMod (_ : Bool) := foldNatBinOp HasMod.mod
-def foldNatPow (_ : Bool) := foldNatBinOp HasPow.pow
+
+-- TODO: add option for controlling the limit
+def natPowThreshold := 256
+
+def foldNatPow (_ : Bool) (a₁ a₂ : Expr) : Option Expr := do
+n₁   ← getNumLit a₁;
+n₂   ← getNumLit a₂;
+if n₂ < natPowThreshold then pure $ mkNatLit (n₁ ^ n₂) else none
 
 def mkNatEq (a b : Expr) : Expr :=
 mkAppN (mkConst `Eq [levelOne]) #[(mkConst `Nat), a, b]

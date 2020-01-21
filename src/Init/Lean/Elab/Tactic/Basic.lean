@@ -177,7 +177,7 @@ partial def evalTactic : Syntax → TacticM Unit
       -- Syntax quotations can return multiple ones
       stx.forSepArgsM evalTactic
     else do
-    trace `Elab.step stx $ fun _ => stx;
+      trace `Elab.step stx $ fun _ => stx;
       s ← get;
       let table := (tacticElabAttribute.ext.getState s.env).table;
       let k := stx.getKind;

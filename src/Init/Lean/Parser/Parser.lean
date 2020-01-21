@@ -17,6 +17,25 @@ import Init.Lean.Compiler.InitAttr
 import Init.Lean.Meta.Message -- TODO remove
 
 namespace Lean
+
+namespace Syntax
+
+def isNone (stx : Syntax) : Bool :=
+stx.ifNode (fun n => n.getKind == nullKind && n.getNumArgs == 0) (fun n => false)
+
+def getOptional? (s : Syntax) : Option Syntax :=
+s.ifNode
+  (fun n => if n.getKind == nullKind && n.getNumArgs == 1 then some (n.getArg 0) else none)
+  (fun _ => none)
+
+def getOptionalIdent? (stx : Syntax) : Option Name :=
+match stx.getOptional? with
+| some stx => some stx.getId
+| none     => none
+
+end Syntax
+
+
 namespace Parser
 
 abbrev mkAtom (info : SourceInfo) (val : String) : Syntax :=
@@ -964,9 +983,14 @@ match prev.getTailInfo with
 | some info => info.trailing.stopPos == info.trailing.startPos
 | none      => false
 
+private def pickNonNone (stack : Array Syntax) : Syntax :=
+match stack.findRev? $ fun stx => if stx.isNone then none else some stx with
+| none => Syntax.missing
+| some stx => stx
+
 def checkNoWsBeforeFn (errorMsg : String) : BasicParserFn :=
 fun c s =>
-  let prev := s.stxStack.back;
+  let prev := pickNonNone s.stxStack;
   if checkTailNoWs prev then s else s.mkError errorMsg
 
 def checkNoWsBefore {k : ParserKind} (errorMsg : String) : Parser k :=
@@ -1932,19 +1956,6 @@ mkAntiquot "fieldIdx" `fieldIdx <|>
 end Parser
 
 namespace Syntax
-
-def isNone (stx : Syntax) : Bool :=
-stx.ifNode (fun n => n.getKind == nullKind && n.getNumArgs == 0) (fun n => false)
-
-def getOptional? (s : Syntax) : Option Syntax :=
-s.ifNode
-  (fun n => if n.getKind == nullKind && n.getNumArgs == 1 then some (n.getArg 0) else none)
-  (fun _ => none)
-
-def getOptionalIdent? (stx : Syntax) : Option Name :=
-match stx.getOptional? with
-| some stx => some stx.getId
-| none     => none
 
 section
 variables {β : Type} {m : Type → Type} [Monad m]

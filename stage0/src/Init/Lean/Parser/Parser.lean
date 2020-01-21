@@ -1673,6 +1673,16 @@ let env := parserExtension.setState env { nextKindIdx := idx+1, .. s };
 def isParserCategory (env : Environment) (catName : Name) : Bool :=
 (parserExtension.getState env).categories.contains catName
 
+def isSimpleParserCategory (env : Environment) (catName : Name) : Bool :=
+match (parserExtension.getState env).categories.find? catName with
+| some (ParserCategory.simple _) => true
+| _                              => false
+
+def isPrattParserCategory (env : Environment) (catName : Name) : Bool :=
+match (parserExtension.getState env).categories.find? catName with
+| some (ParserCategory.pratt _ _) => true
+| _                               => false
+
 def addPrattParserCategory (env : Environment) (catName : Name) (leadingIdentAsSymbol : Bool) : Except String Environment := do
 if isParserCategory env catName then
   throwParserCategoryAlreadyDefined catName

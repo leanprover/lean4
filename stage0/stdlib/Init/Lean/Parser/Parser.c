@@ -98,6 +98,7 @@ lean_object* l_Lean_Parser_addPrattParserCategory___boxed(lean_object*, lean_obj
 uint8_t l_PersistentHashMap_contains___at_Lean_Parser_mkFreshKindAux___main___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_rawFn___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_List_repr___rarg___closed__1;
+uint8_t l_Lean_Parser_isPrattParserCategory(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_takeUntilFn___main___at_Lean_Parser_identFnAux___main___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_optionaInfo___elambda__2(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserFn_inhabited___rarg(lean_object*);
@@ -362,6 +363,7 @@ lean_object* l_Lean_Parser_throwUnknownParserCategory___rarg___closed__1;
 lean_object* l_Lean_Parser_unquotedSymbol___boxed(lean_object*);
 lean_object* l_Lean_Parser_unicodeSymbolCheckPrecFn___closed__1;
 lean_object* l_PersistentHashMap_insert___at___private_Init_Lean_Parser_Parser_9__addParserCategoryCore___spec__3(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Parser_isPrattParserCategory___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_satisfyFn___at_Lean_Parser_quotedSymbolFn___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_takeWhileFn(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Parser_Parser_10__addBuiltinParserCategory(lean_object*, uint8_t, lean_object*);
@@ -817,6 +819,7 @@ lean_object* l_Lean_Parser_rawIdent___elambda__1___rarg(lean_object*, lean_objec
 lean_object* l___private_Init_Lean_Parser_Parser_14__addTrailingParserAux(lean_object*, lean_object*);
 lean_object* lean_environment_main_module(lean_object*);
 lean_object* l_Lean_Parser_longestMatchFnAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Parser_isSimpleParserCategory___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4___closed__2;
 lean_object* l_Lean_Parser_ParserState_mkUnexpectedErrorAt(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_hasArgs(lean_object*);
@@ -976,6 +979,7 @@ uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_mkLongestNodeAlt(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isNone___boxed(lean_object*);
+uint8_t l_Lean_Parser_isSimpleParserCategory(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_currLbp(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkParserOfConstant(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_takeWhile1Fn(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -34183,6 +34187,106 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Parser_isParserCategory(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+uint8_t l_Lean_Parser_isSimpleParserCategory(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_3 = l_Lean_Parser_parserExtension;
+x_4 = l_Lean_PersistentEnvExtension_getState___rarg(x_3, x_1);
+x_5 = lean_ctor_get(x_4, 2);
+lean_inc(x_5);
+lean_dec(x_4);
+x_6 = l_PersistentHashMap_find_x3f___at_Lean_Parser_addLeadingParser___spec__1(x_5, x_2);
+if (lean_obj_tag(x_6) == 0)
+{
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
+}
+else
+{
+lean_object* x_8; 
+x_8 = lean_ctor_get(x_6, 0);
+lean_inc(x_8);
+lean_dec(x_6);
+if (lean_obj_tag(x_8) == 0)
+{
+uint8_t x_9; 
+lean_dec(x_8);
+x_9 = 0;
+return x_9;
+}
+else
+{
+uint8_t x_10; 
+lean_dec(x_8);
+x_10 = 1;
+return x_10;
+}
+}
+}
+}
+lean_object* l_Lean_Parser_isSimpleParserCategory___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Lean_Parser_isSimpleParserCategory(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+uint8_t l_Lean_Parser_isPrattParserCategory(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_3 = l_Lean_Parser_parserExtension;
+x_4 = l_Lean_PersistentEnvExtension_getState___rarg(x_3, x_1);
+x_5 = lean_ctor_get(x_4, 2);
+lean_inc(x_5);
+lean_dec(x_4);
+x_6 = l_PersistentHashMap_find_x3f___at_Lean_Parser_addLeadingParser___spec__1(x_5, x_2);
+if (lean_obj_tag(x_6) == 0)
+{
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
+}
+else
+{
+lean_object* x_8; 
+x_8 = lean_ctor_get(x_6, 0);
+lean_inc(x_8);
+lean_dec(x_6);
+if (lean_obj_tag(x_8) == 0)
+{
+uint8_t x_9; 
+lean_dec(x_8);
+x_9 = 1;
+return x_9;
+}
+else
+{
+uint8_t x_10; 
+lean_dec(x_8);
+x_10 = 0;
+return x_10;
+}
+}
+}
+}
+lean_object* l_Lean_Parser_isPrattParserCategory___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Lean_Parser_isPrattParserCategory(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);

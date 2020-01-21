@@ -31,31 +31,25 @@ else if ds.size == 1 then
 else
   ds.foldlFromM (fun r d => `(ParserDescr.andthen $r $d)) (ds.get! 0) 1
 
-/- The translator from `syntax` to `ParserDescr` syntax uses the following modes -/
-inductive ToParserDescrMode
-| anyCat -- Node kind `Lean.Parser.Syntax.cat` is allowed for any category
-| exceptCat (catName : Name) -- Node kind `Lean.Parser.Syntax.cat` is allowed if the category is not `catName`
-| toPushLeading (catName : Name) -- Node kind `Lean.Parser.Syntax.cat` is allowed if the category is `catName`, and it is translated into `ParserDescr.pushLeading`
+structure ToParserDescrContext :=
+(catName            : Name)
+(first              : Bool)
+(pushLeadingAllowed : Bool)
 
-abbrev ToParserDescrM := ReaderT ToParserDescrMode (StateT Bool TermElabM)
-private def getMode : ToParserDescrM ToParserDescrMode := read
+abbrev ToParserDescrM := ReaderT ToParserDescrContext (StateT Bool TermElabM)
 private def markAsTrailingParser : ToParserDescrM Unit := set true
 
-@[inline] private def withAnyIfNotFirst {α} (first : Bool) (x : ToParserDescrM α) : ToParserDescrM α :=
-fun mode => match mode, first with
-  | mode, true  => x mode
-  | _,    false => x ToParserDescrMode.anyCat
+@[inline] private def withFirst {α} (first : Bool) (x : ToParserDescrM α) : ToParserDescrM α :=
+adaptReader (fun (ctx : ToParserDescrContext) => { first := ctx.first && first, .. ctx }) x
 
 @[inline] private def withNoPushLeading {α} (x : ToParserDescrM α) : ToParserDescrM α :=
-fun mode => match mode with
-  | ToParserDescrMode.toPushLeading cat => x (ToParserDescrMode.exceptCat cat)
-  | mode                                => x mode
+adaptReader (fun (ctx : ToParserDescrContext) => { pushLeadingAllowed := false, .. ctx }) x
 
 partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
 | stx =>
   let kind := stx.getKind;
   if kind == nullKind then do
-     args ← stx.getArgs.mapIdxM $ fun i arg => withAnyIfNotFirst (i == 0) (toParserDescrAux arg);
+     args ← stx.getArgs.mapIdxM $ fun i arg => withFirst (i == 0) (toParserDescrAux arg);
      liftM $ mkParserSeq args
   else if kind == choiceKind then do
     toParserDescrAux (stx.getArg 0)
@@ -66,25 +60,17 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
     let rbp? : Option Nat  := expandOptPrecedence (stx.getArg 1);
     env ← liftM getEnv;
     unless (Parser.isParserCategory env cat) $ liftM $ throwError (stx.getArg 3) ("unknown category '" ++ cat ++ "'");
-    mode ← getMode;
-    match mode with
-    | ToParserDescrMode.toPushLeading cat' =>
-      if cat == cat' then do
-        unless rbp?.isNone $ liftM $ throwError (stx.getArg 1) ("invalid occurrence of ':<num>' modifier in head");
-        markAsTrailingParser; -- mark as trailing par
-        `(ParserDescr.pushLeading)
-      else
-        let rbp := rbp?.getD 0;
-        `(ParserDescr.parser $(quote cat) $(quote rbp))
-    | ToParserDescrMode.anyCat =>
+    ctx ← read;
+    if ctx.first && cat == ctx.catName then do
+      unless rbp?.isNone $ liftM $ throwError (stx.getArg 1) ("invalid occurrence of ':<num>' modifier in head");
+      ctx ← read;
+      unless ctx.pushLeadingAllowed $ liftM $
+        throwError (stx.getArg 3) ("invalid occurrence of '" ++ cat ++ "', parser algorithm does not allow this form of left recursion");
+      markAsTrailingParser; -- mark as trailing par
+      `(ParserDescr.pushLeading)
+    else
       let rbp := rbp?.getD 0;
       `(ParserDescr.parser $(quote cat) $(quote rbp))
-    | ToParserDescrMode.exceptCat cat' =>
-      if cat == cat' then
-        liftM $ throwError (stx.getArg 3) ("invalid occurrence of '" ++ cat ++ "', parser algorithm does not allow this form of left recursion")
-      else
-        let rbp := rbp?.getD 0;
-        `(ParserDescr.parser $(quote cat) $(quote rbp))
   else if kind == `Lean.Parser.Syntax.atom then do
     match (stx.getArg 0).isStrLit? with
     | some atom =>
@@ -134,8 +120,7 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
   where `newStx` is of category `term`. After elaboration, `newStx` should have type
   `TrailingParserDescr` if `trailingParser == true`, and `ParserDescr` otherwise. -/
 def toParserDescr (stx : Syntax) (catName : Name) : TermElabM (Syntax × Bool) :=
-let mode := ToParserDescrMode.toPushLeading catName;
-(toParserDescrAux stx mode).run false
+(toParserDescrAux stx { catName := catName, first := true, pushLeadingAllowed := true }).run false
 
 end Term
 

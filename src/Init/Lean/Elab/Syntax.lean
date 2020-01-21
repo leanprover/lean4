@@ -32,9 +32,13 @@ else
   ds.foldlFromM (fun r d => `(ParserDescr.andthen $r $d)) (ds.get! 0) 1
 
 structure ToParserDescrContext :=
-(catName            : Name)
-(first              : Bool)
-(pushLeadingAllowed : Bool)
+(catName              : Name)
+(first                : Bool)
+(pushLeadingAllowed   : Bool)
+/- When `leadingIdentAsSymbol == true` we convert
+   `Lean.Parser.Syntax.atom` into `Lean.ParserDescr.nonReservedSymbol`
+   See comment at `Parser.ParserCategory`. -/
+(leadingIdentAsSymbol : Bool)
 
 abbrev ToParserDescrM := ReaderT ToParserDescrContext (StateT Bool TermElabM)
 private def markAsTrailingParser : ToParserDescrM Unit := set true
@@ -73,9 +77,13 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
       `(ParserDescr.parser $(quote cat) $(quote rbp))
   else if kind == `Lean.Parser.Syntax.atom then do
     match (stx.getArg 0).isStrLit? with
-    | some atom =>
-      let rbp : Option Nat  := expandOptPrecedence (stx.getArg 1);
-      `(ParserDescr.symbol $(quote atom) $(quote rbp))
+    | some atom => do
+      let rbp? : Option Nat  := expandOptPrecedence (stx.getArg 1);
+      ctx ← read;
+      if ctx.leadingIdentAsSymbol && rbp?.isNone then
+        `(ParserDescr.nonReservedSymbol $(quote atom) false)
+      else
+        `(ParserDescr.symbol $(quote atom) $(quote rbp?))
     | none => liftM throwUnsupportedSyntax
   else if kind == `Lean.Parser.Syntax.num then
     `(ParserDescr.num)
@@ -119,8 +127,10 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
   Given a `stx` of category `syntax`, return a pair `(newStx, trailingParser)`,
   where `newStx` is of category `term`. After elaboration, `newStx` should have type
   `TrailingParserDescr` if `trailingParser == true`, and `ParserDescr` otherwise. -/
-def toParserDescr (stx : Syntax) (catName : Name) : TermElabM (Syntax × Bool) :=
-(toParserDescrAux stx { catName := catName, first := true, pushLeadingAllowed := true }).run false
+def toParserDescr (stx : Syntax) (catName : Name) : TermElabM (Syntax × Bool) := do
+env ← getEnv;
+let leadingIdentAsSymbol := Parser.leadingIdentAsSymbol env catName;
+(toParserDescrAux stx { catName := catName, first := true, pushLeadingAllowed := true, leadingIdentAsSymbol := leadingIdentAsSymbol }).run false
 
 end Term
 

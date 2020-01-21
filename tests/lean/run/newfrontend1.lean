@@ -174,3 +174,13 @@ begin
   case main.b exact y;
   repeat assumption
 end
+
+macro "blabla" : tactic => `(assumption)
+
+-- Tactic head symbols do not become reserved words
+def blabla := 100
+
+#check blabla
+
+theorem simple15 (x : Nat) (h : x = 0) : x = 0 :=
+begin blabla end

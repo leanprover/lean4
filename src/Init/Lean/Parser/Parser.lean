@@ -1747,6 +1747,14 @@ if isParserCategory env catName then
 else
   pure $ parserExtension.addEntry env $ ParserExtensionEntry.category catName leadingIdentAsSymbol
 
+/-
+  Return true if in the given category leading identifiers in parsers may be treated as atoms/symbols.
+  See comment at `ParserCategory`. -/
+def leadingIdentAsSymbol (env : Environment) (catName : Name) : Bool :=
+match (parserExtension.getState env).categories.find? catName with
+| none     => false
+| some cat => cat.leadingIdentAsSymbol
+
 def categoryParserFnImpl (catName : Name) : ParserFn leading :=
 fun rbp ctx s =>
   let categories := (parserExtension.getState ctx.env).categories;

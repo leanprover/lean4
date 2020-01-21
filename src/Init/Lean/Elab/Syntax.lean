@@ -35,6 +35,7 @@ else
 inductive ToParserDescrMode
 | anyCat -- Node kind `Lean.Parser.Syntax.cat` is allowed for any category
 | noCat  -- Node kind `Lean.Parser.Syntax.cat` is not allowed for any category
+| exceptCat (catName : Name) -- Node kind `Lean.Parser.Syntax.cat` is allowed if the category is not `catName`
 | toPushLeading (catName : Name) -- Node kind `Lean.Parser.Syntax.cat` is allowed if the category is `catName`, and it is translated into `ParserDescr.pushLeading`
 
 abbrev ToParserDescrM := ReaderT ToParserDescrMode (StateT Bool TermElabM)
@@ -78,6 +79,12 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
     | ToParserDescrMode.anyCat =>
       let rbp := rbp?.getD 0;
       `(ParserDescr.parser $(quote cat) $(quote rbp))
+    | ToParserDescrMode.exceptCat cat' =>
+      if cat == cat' then
+        liftM $ throwError (stx.getArg 3) ("invalid occurrence of '" ++ cat ++ "', simple parser categories do not allow left recursion (try `pratt` category)")
+      else
+        let rbp := rbp?.getD 0;
+        `(ParserDescr.parser $(quote cat) $(quote rbp))
     | ToParserDescrMode.noCat  =>
       liftM $ throwError (stx.getArg 3) ("invalid occurrence of '" ++ cat ++ "', atom or literal expected")
   else if kind == `Lean.Parser.Syntax.atom then do
@@ -128,8 +135,9 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
   Given a `stx` of category `syntax`, return a pair `(newStx, trailingParser)`,
   where `newStx` is of category `term`. After elaboration, `newStx` should have type
   `TrailingParserDescr` if `trailingParser == true`, and `ParserDescr` otherwise. -/
-def toParserDescr (stx : Syntax) (catName : Name) : TermElabM (Syntax × Bool) :=
-(toParserDescrAux stx (ToParserDescrMode.toPushLeading catName)).run false
+def toParserDescr (stx : Syntax) (catName : Name) (isSimpleCategory : Bool)  : TermElabM (Syntax × Bool) :=
+let mode := if isSimpleCategory then ToParserDescrMode.exceptCat catName else ToParserDescrMode.toPushLeading catName;
+(toParserDescrAux stx mode).run false
 
 end Term
 
@@ -138,9 +146,20 @@ namespace Command
 @[builtinCommandElab syntaxCat] def elabDeclareSyntaxCat : CommandElab :=
 fun stx => do
   let catName  := stx.getIdAt 1;
+  -- kind is of the form `optional (":" >> (nonReservedSymbol "simple" <|> nonReservedSymbol "pratt"))`
+  let kind     := stx.getArg 2;
+  let isSimple :=
+    if kind.isNone then true
+    else match kind.getArg 1 with
+    | Syntax.atom _ "simple" => true
+    | _                      => false;
   let attrName := catName.appendAfter "Parser";
   env ← getEnv;
-  env ← liftIO stx $ Parser.registerPrattParserCategory env attrName catName;
+  env ← liftIO stx $
+    if isSimple then
+      Parser.registerSimpleParserCategory env attrName catName
+    else
+      Parser.registerPrattParserCategory env attrName catName;
   setEnv env
 
 def mkFreshKind (catName : Name) : CommandElabM Name := do
@@ -148,7 +167,6 @@ env ← getEnv;
 let (env, kind) := Parser.mkFreshKind env catName;
 setEnv env;
 pure kind
-
 
 private def elabKind (stx : Syntax) (catName : Name) : CommandElabM Name := do
 if stx.isNone then
@@ -167,9 +185,10 @@ fun stx => do
   env ← getEnv;
   let cat := (stx.getIdAt 4).eraseMacroScopes;
   unless (Parser.isParserCategory env cat) $ throwError (stx.getArg 4) ("unknown category '" ++ cat ++ "'");
+  let isSimpleCategory := Parser.isSimpleParserCategory env cat;
   kind ← elabKind (stx.getArg 1) cat;
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser");
-  (val, trailingParser) ← runTermElabM none $ fun _ => Term.toParserDescr (stx.getArg 2) cat;
+  (val, trailingParser) ← runTermElabM none $ fun _ => Term.toParserDescr (stx.getArg 2) cat isSimpleCategory;
   type ← if trailingParser then `(Lean.TrailingParserDescr) else `(Lean.ParserDescr);
   -- TODO: meaningful, unhygienic def name for selective parser `open`ing?
   d ← `(@[$catParserId:ident] def myParser : $type := ParserDescr.node $(quote kind) $val);

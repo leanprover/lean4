@@ -53,15 +53,16 @@ new_frontend
 declare_syntax_cat foo
 
 syntax "⟨|" term "|⟩" : foo
+syntax term : foo
+syntax term ">>>" term : foo
+
 syntax [tst3] "FOO " foo : term
 
-open Lean
-open Lean.Parser
-open Lean.Elab
-open Lean.Elab.Term
-
-@[termElab tst3] def elabTst3 : TermElab :=
-fun stx expected? =>
-  elabTerm ((stx.getArg 1).getArg 1) expected?
+macro_rules
+| `(FOO ⟨| $t |⟩) => `($t+1)
+| `(FOO $t) => `($t)
+| `(FOO $t >>> $r) => `($t * $r)
 
 #check FOO ⟨| id 1 |⟩
+#check FOO 1
+#check FOO 1 >>> 2

@@ -1896,7 +1896,7 @@ let nameP := checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbolAux 
 -- if parsing the kind fails and `anonymous` is true, check that we're not ignoring a different
 -- antiquotation kind via `noImmediateColon`
 let nameP := if anonymous then nameP <|> noImmediateColon >> pushNone >> pushNone else nameP;
-node kind $ try $ dollarSymbol >> checkNoWsBefore "no space before" >> antiquotExpr >> nameP >> optional "*"
+node kind $ try $ dollarSymbol >> checkNoWsBefore "no space before" >> antiquotExpr >> nameP >> optional (checkNoWsBefore "" >> "*")
 
 def ident {k : ParserKind} : Parser k :=
 mkAntiquot "ident" `ident <|> identNoAntiquot

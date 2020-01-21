@@ -283,28 +283,88 @@ pure r
 
 end
 
-/-
 namespace Proc
-def child : Type :=
-MonadIOProcess.child ioCore
 
-def child.stdin : child → Handle :=
-MonadIOProcess.stdin
+inductive Stdio
+| piped
+| inherit
+| null
 
-def child.stdout : child → Handle :=
-MonadIOProcess.stdout
+structure SpawnArgsIntl :=
+/- Command name. -/
+(cmd : String)
+/- Arguments for the process -/
+(args : Array String := #[])
+/- Configuration for the process' stdin handle. -/
+(stdin : FS.Handle)
+/- Configuration for the process' stdout handle. -/
+(stdout : FS.Handle)
+/- Configuration for the process' stderr handle. -/
+(stderr : FS.Handle)
+/- Working directory for the process. -/
+(cwd : Option String := none)
+/- Environment variables for the process. -/
+(env : Array String := #[])
 
-def child.stderr : child → Handle :=
-MonadIOProcess.stderr
+structure SpawnArgs :=
+/- Command name. -/
+(cmd : String)
+/- Arguments for the process -/
+(args : Array String := #[])
+/- Configuration for the process' stdin handle. -/
+(stdin := Stdio.inherit)
+/- Configuration for the process' stdout handle. -/
+(stdout := Stdio.inherit)
+/- Configuration for the process' stderr handle. -/
+(stderr := Stdio.inherit)
+/- Working directory for the process. -/
+(cwd : Option String := none)
+/- Environment variables for the process. -/
+(env : Array (String × Option String) := #[])
 
-def spawn (p : IO.process.spawnArgs) : IO child :=
-MonadIOProcess.spawn ioCore p
+def createRedirectHandle (input : Bool) (inh : IO FS.Handle) : Stdio → IO (FS.Handle × Option FS.Handle)
+| Stdio.inherit => do h ← inh; pure (h, none)
+| Stdio.null => do
+let mode := if input then IO.FS.Mode.read else IO.FS.Mode.write;
+h ← FS.Handle.mk "/dev/null" mode;
+pure (h, none)
+| Stdio.piped => do
+p ← Pipe.mk; _
 
-def wait (c : child) : IO Nat :=
-MonadIOProcess.wait c
+def prepareArgs (args : SpawnArgs) : IO SpawnArgsIntl := do
+(hStdout, _) ← createRedirectHandle args.stdout;
+(hStderr, _) ← createRedirectHandle args.stderr;
+(hStdin,  _)  ← createRedirectHandle args.stdin;
+pure { cmd := args.cmd,
+       stdout := hStdout,
+       stderr := hStderr,
+       stdin  := hStdin }
+
+
+structure Child : Type :=
+(pid : UInt32)
+(stdout : Option FS.Handle)
+(stderr : Option FS.Handle)
+(stdin : Option FS.Handle)
+-- MonadIOProcess.child ioCore
+
+-- def child.stdin : child → FS.Handle := sorry
+-- MonadIOProcess.stdin
+
+-- def child.stdout : child → Handle :=
+-- MonadIOProcess.stdout
+
+-- def child.stderr : child → Handle :=
+-- MonadIOProcess.stderr
+
+@[extern "lean_spawn"]
+constant spawn (p : SpawnArgs) : IO child := arbitrary _
+-- MonadIOProcess.spawn ioCore p
+
+-- def wait (c : child) : IO Nat :=
+-- MonadIOProcess.wait c
 
 end Proc
--/
 
 structure Pipe :=
 mk' :: (input : FS.Handle)

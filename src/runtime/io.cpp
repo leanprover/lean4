@@ -451,6 +451,16 @@ extern "C" obj_res lean_io_prim_handle_put_str(b_obj_arg h, b_obj_arg s, obj_arg
     }
 }
 
+extern "C" obj_res lean_spawn(b_obj_arg spawn_args, obj_arg /* w */) {
+    int pid = fork();
+    if (pid == 0) {
+        object * args = lean_array_push(ctor_get(spawn_args, 1), nullptr);
+        execve(lean_string_cstr(ctor_get(spawn_args, 0)), lean_array_cptr(args), _);
+    } else {
+
+    }
+}
+
 /* timeit {α : Type} (msg : @& String) (fn : IO α) : IO α */
 extern "C" obj_res lean_io_timeit(b_obj_arg msg, obj_arg fn, obj_arg w) {
     auto start = std::chrono::steady_clock::now();

@@ -146,7 +146,7 @@ fun stx => do
   let catName  := stx.getIdAt 1;
   let attrName := catName.appendAfter "Parser";
   env ← getEnv;
-  env ← liftIO stx $ Parser.registerPrattParserCategory env attrName catName;
+  env ← liftIO stx $ Parser.registerParserCategory env attrName catName;
   setEnv env
 
 def mkFreshKind (catName : Name) : CommandElabM Name := do

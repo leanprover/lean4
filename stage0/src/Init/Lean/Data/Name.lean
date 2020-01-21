@@ -27,6 +27,13 @@ def getPrefix : Name → Name
 | str p s _ => p
 | num p s _ => p
 
+def getRoot : Name → Name
+| anonymous             => anonymous
+| n@(str anonymous _ _) => n
+| n@(num anonymous _ _) => n
+| str n _ _             => getRoot n
+| num n _ _             => getRoot n
+
 def getNumParts : Name → Nat
 | anonymous => 0
 | str p _ _ => getNumParts p + 1

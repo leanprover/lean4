@@ -51,7 +51,7 @@ syntax ident "<-" term "|" term : index
 -- Primitive notation for big operators
 syntax "_big" "[" term "," term "]" "(" index ")" term : term
 
--- We define how to expand different `_bigop` with the different kinds of index
+-- We define how to expand `_bigop` with the different kinds of index
 macro_rules
 | `(_big [$op, $idx] ($i:ident <- $r | $p) $F) => `(bigop $idx $r (fun $i:ident => ($i:ident, $op, $p, $F)))
 | `(_big [$op, $idx] ($i:ident <- $r) $F) => `(bigop $idx $r (fun $i:ident => ($i:ident, $op, true, $F)))

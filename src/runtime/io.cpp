@@ -306,7 +306,7 @@ extern "C" obj_res lean_io_mk_pipe(bool non_blocking, obj_arg /* w */) {
     int in_fd = _open_osfhandle(reinterpret_cast<intptr_t>(read), _O_APPEND);
     int out_fd = _open_osfhandle(reinterpret_cast<intptr_t>(read), _O_APPEND);
     if (non_blocking) {
-        fcntl(in_fd, F_SETFL, O_NONBLOCK);
+        fcntl(in_fd, F_GETFL);
     }
     return set_io_result(mk_pipe_obj(in_fd, out_fd));
 #else

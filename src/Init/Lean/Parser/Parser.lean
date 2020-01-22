@@ -1070,7 +1070,7 @@ fun _ c s =>
   let s      := tokenFn c s;
   if s.hasError || !(s.stxStack.back.isOfKind numLitKind) then s.mkErrorAt "numeral" iniPos else s
 
-@[inline] def numLit {k : ParserKind} : Parser k :=
+@[inline] def numLitNoAntiquot {k : ParserKind} : Parser k :=
 { fn   := numLitFn,
   info := mkAtomicInfo "numLit" }
 
@@ -1080,7 +1080,7 @@ fun _ c s =>
   let s := tokenFn c s;
   if s.hasError || !(s.stxStack.back.isOfKind strLitKind) then s.mkErrorAt "string literal" iniPos else s
 
-@[inline] def strLit {k : ParserKind} : Parser k :=
+@[inline] def strLitNoAntiquot {k : ParserKind} : Parser k :=
 { fn   := strLitFn,
   info := mkAtomicInfo "strLit" }
 
@@ -1090,7 +1090,7 @@ fun _ c s =>
   let s := tokenFn c s;
   if s.hasError || !(s.stxStack.back.isOfKind charLitKind) then s.mkErrorAt "character literal" iniPos else s
 
-@[inline] def charLit {k : ParserKind} : Parser k :=
+@[inline] def charLitNoAntiquot {k : ParserKind} : Parser k :=
 { fn   := charLitFn,
   info := mkAtomicInfo "charLit" }
 
@@ -1475,6 +1475,15 @@ mkAntiquot "ident" `ident <|> identNoAntiquot
 -- `ident` and `rawIdent` produce the same syntax tree, so we reuse the antiquotation kind name
 def rawIdent {k : ParserKind} : Parser k :=
 mkAntiquot "ident" `ident <|> rawIdentNoAntiquot
+
+def numLit {k : ParserKind} : Parser k :=
+mkAntiquot "numLit" numLitKind <|> numLitNoAntiquot
+
+def strLit {k : ParserKind} : Parser k :=
+mkAntiquot "strLit" strLitKind <|> strLitNoAntiquot
+
+def charLit {k : ParserKind} : Parser k :=
+mkAntiquot "charLit" charLitKind <|> charLitNoAntiquot
 
 def categoryParserOfStackFn (offset : Nat) : ParserFn leading :=
 fun rbp ctx s =>

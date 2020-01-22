@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #include <stdio.h>
 #include <sys/types.h>
 #include <fcntl.h>
+#include <wait.h>
 #include <signal.h>
 
 #ifdef _MSC_VER

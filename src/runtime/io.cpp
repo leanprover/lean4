@@ -29,8 +29,9 @@ Author: Leonardo de Moura
 #include <sys/stat.h>
 
 #include <stdio.h>
-#include<sys/types.h>
-#include<fcntl.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <signal.h>
 
 #ifdef _MSC_VER
 #define S_ISDIR(mode) ((mode & _S_IFDIR) != 0)
@@ -40,39 +41,40 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-extern "C" lean_object* lean_string_append(lean_object*, lean_object*);
+extern "C" {
+lean_object* lean_string_append(lean_object*, lean_object*);
 
-extern "C" lean_object* lean_mk_io_error_already_exists(uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_eof();
-extern "C" lean_object* lean_mk_io_error_hardware_fault(uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_illegal_operation(uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_inappropriate_type(uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_inappropriate_type_file(lean_object*, uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_interrupted(lean_object*, uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_invalid_argument(uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_invalid_argument_file(lean_object*, uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_no_file_or_directory(lean_object*, uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_no_such_thing(uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_no_such_thing_file(lean_object*, uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_other_error(uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_permission_denied(uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_permission_denied_file(lean_object*, uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_protocol_error(uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_resource_busy(uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_resource_exhausted(uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_resource_exhausted_file(lean_object*, uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_resource_vanished(uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_time_expired(uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_unsatisfied_constraints(uint32_t, lean_object*);
-extern "C" lean_object* lean_mk_io_error_unsupported_operation(uint32_t, lean_object*);
+lean_object* lean_mk_io_error_already_exists(uint32_t, lean_object*);
+extern lean_object* lean_mk_io_error_eof;
+lean_object* lean_mk_io_error_hardware_fault(uint32_t, lean_object*);
+lean_object* lean_mk_io_error_illegal_operation(uint32_t, lean_object*);
+lean_object* lean_mk_io_error_inappropriate_type(uint32_t, lean_object*);
+lean_object* lean_mk_io_error_inappropriate_type_file(lean_object*, uint32_t, lean_object*);
+lean_object* lean_mk_io_error_interrupted(lean_object*, uint32_t, lean_object*);
+lean_object* lean_mk_io_error_invalid_argument(uint32_t, lean_object*);
+lean_object* lean_mk_io_error_invalid_argument_file(lean_object*, uint32_t, lean_object*);
+lean_object* lean_mk_io_error_no_file_or_directory(lean_object*, uint32_t, lean_object*);
+lean_object* lean_mk_io_error_no_such_thing(uint32_t, lean_object*);
+lean_object* lean_mk_io_error_no_such_thing_file(lean_object*, uint32_t, lean_object*);
+lean_object* lean_mk_io_error_other_error(uint32_t, lean_object*);
+lean_object* lean_mk_io_error_permission_denied(uint32_t, lean_object*);
+lean_object* lean_mk_io_error_permission_denied_file(lean_object*, uint32_t, lean_object*);
+lean_object* lean_mk_io_error_protocol_error(uint32_t, lean_object*);
+lean_object* lean_mk_io_error_resource_busy(uint32_t, lean_object*);
+lean_object* lean_mk_io_error_resource_exhausted(uint32_t, lean_object*);
+lean_object* lean_mk_io_error_resource_exhausted_file(lean_object*, uint32_t, lean_object*);
+lean_object* lean_mk_io_error_resource_vanished(uint32_t, lean_object*);
+lean_object* lean_mk_io_error_time_expired(uint32_t, lean_object*);
+lean_object* lean_mk_io_error_unsatisfied_constraints(uint32_t, lean_object*);
+lean_object* lean_mk_io_error_unsupported_operation(uint32_t, lean_object*);
 
-
-extern "C" void lean_io_result_show_error(b_obj_arg r) {
+void lean_io_result_show_error(b_obj_arg r) {
     object * err = io_result_get_error(r);
     inc_ref(err);
     object * str = lean_io_error_to_string(err);
     std::cerr << "uncaught exception: " << string_cstr(str) << std::endl;
     dec_ref(str);
+}
 }
 
 obj_res set_io_result(obj_arg a) {
@@ -104,24 +106,10 @@ extern "C" void lean_io_mark_end_initialization() {
     g_initializing = false;
 }
 
-static obj_res mk_file_not_found_error(b_obj_arg fname) {
-    object * err = mk_string("file '");
-    err = string_append(err, fname);
-    object * tmp = mk_string("' not found");
-    err = string_append(err, tmp);
-    dec_ref(tmp);
-    return set_io_error(err);
-}
+obj_res decode_io_error(int errnum, b_obj_arg fname);
 
-extern "C" obj_res lean_io_prim_read_text_file(b_obj_arg fname, obj_arg) {
-    std::ifstream in(string_cstr(fname), std::ifstream::binary);
-    if (!in.good()) {
-        return mk_file_not_found_error(fname);
-    } else {
-        std::stringstream buf;
-        buf << in.rdbuf();
-        return set_io_result(mk_string(buf.str()));
-    }
+static obj_res mk_file_not_found_error(b_obj_arg fname) {
+    return set_io_error(decode_io_error(ENOENT, fname));
 }
 
 extern "C" obj_res lean_io_initializing(obj_arg) {
@@ -300,8 +288,10 @@ extern "C" obj_res lean_io_mk_pipe(bool non_blocking, obj_arg /* w */) {
     if (non_blocking) {
         fcntl(fd[0], F_SETFL, O_NONBLOCK);
     }
-    in  = io_wrap_handle(fdopen(fd[0], "r"));
-    out = io_wrap_handle(fdopen(fd[1], "w"));
+    FILE * inh = fdopen(fd[0], "r");
+    FILE * outh = fdopen(fd[1], "w");
+    in  = io_wrap_handle(inh);
+    out = io_wrap_handle(outh);
     res = lean_alloc_ctor(0, 2, 0);
     lean_ctor_set(res, 0, in);
     lean_ctor_set(res, 1, out);
@@ -369,7 +359,7 @@ extern "C" obj_res lean_io_prim_handle_write_byte(b_obj_arg h, uint8 c, obj_arg 
 extern "C" obj_res lean_io_prim_handle_read(b_obj_arg h, usize nbytes, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
     if (feof(fp)) {
-        return set_io_error(lean_mk_io_error_eof());
+        return set_io_error(lean_mk_io_error_eof);
     }
     obj_res res = lean_alloc_sarray(1, 0, nbytes);
     usize n = std::fread(lean_sarray_cptr(res), 1, nbytes, fp);
@@ -429,7 +419,7 @@ obj_res lean_get_line(FILE * fp) {
 extern "C" obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
     if (feof(fp)) {
-        return set_io_error(lean_mk_io_error_eof());
+        return set_io_error(lean_mk_io_error_eof);
     }
     object * res = lean_get_line(fp);
     if (res != nullptr) {
@@ -445,20 +435,88 @@ extern "C" obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg /* w */) {
 extern "C" obj_res lean_io_prim_handle_put_str(b_obj_arg h, b_obj_arg s, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
     if (std::fputs(lean_string_cstr(s), fp) != EOF) {
+        fflush(fp);
         return set_io_result(box(0));
     } else {
         return set_io_error(decode_io_error(errno, nullptr));
     }
 }
 
-extern "C" obj_res lean_spawn(b_obj_arg spawn_args, obj_arg /* w */) {
+static char * const * copy_cstr_array(const char *cmd, object* from) {
+    unsigned i;
+    char ** to = new char * [lean_array_size(from)+2];
+    to[0] = const_cast<char *>(cmd);
+    for (i = 0; i < lean_array_size(from); ++i) {
+        to[i+1] = const_cast<char *>(lean_string_cstr(lean_array_get_core(from, i)));
+    }
+    to[i+1] = nullptr;
+    return to;
+}
+
+// structure SpawnArgsIntl :=
+// (cmd : String)
+// (args : Array String := #[])
+// (stdin : FS.Handle)
+// (stdout : FS.Handle)
+// (stderr : FS.Handle)
+// (cwd : Option String := none)
+// (env : Array String := #[])
+
+extern "C" obj_res lean_proc_spawn(obj_arg spawn_args, b_obj_arg other_handles, obj_arg /* w */) {
+    FILE * hStdin  = static_cast<FILE *>(external_data(lean_ctor_get(spawn_args, 2)));
+    FILE * hStdout = static_cast<FILE *>(external_data(lean_ctor_get(spawn_args, 3)));
+    FILE * hStderr = static_cast<FILE *>(external_data(lean_ctor_get(spawn_args, 4)));
+
     int pid = fork();
     if (pid == 0) {
-        object * args = lean_array_push(ctor_get(spawn_args, 1), nullptr);
-        execve(lean_string_cstr(ctor_get(spawn_args, 0)), lean_array_cptr(args), _);
-    } else {
+        object * cmd  = lean_ctor_get(spawn_args, 0);
+        object * args_o = lean_ctor_get(spawn_args, 1);
+        dup2(fileno(hStdin), 0);
+        dup2(fileno(hStdout), 1);
+        dup2(fileno(hStderr), 2);
+        for (unsigned i = 0; i < lean_array_size(other_handles); i++) {
+            if (!lean_is_scalar(lean_array_get_core(other_handles, i))) {
+                FILE * h = static_cast<FILE *>(external_data(lean_ctor_get(lean_array_get_core(other_handles, i), 0)));
+                fclose(h);
+            }
+        }
+        object * cwd = lean_ctor_get(spawn_args, 5);
+        object * env_o = lean_ctor_get(spawn_args, 6);
+        for (unsigned i = 0; i < lean_array_size(env_o); i++) {
+            auto entry = lean_array_get_core(env_o, i);
+            auto key   = lean_ctor_get(entry, 0);
+            auto value = lean_ctor_get(entry, 1);
+            if (is_scalar(value)) {
+                unsetenv(lean_string_cstr(key));
+            } else {
+                setenv(lean_string_cstr(key),
+                       lean_string_cstr(lean_ctor_get(value, 0)), 1);
+            }
+        }
 
+        char * const * args = copy_cstr_array(lean_string_cstr(cmd), args_o); // we're leaking memory here but it doesn't matter
+        if (!is_scalar(cwd)) {
+            chdir(lean_string_cstr(lean_ctor_get(cwd, 0)));
+        }
+        int r = execvp(lean_string_cstr(cmd), args);
+        exit(-1);
+    } else {
+        return set_io_result(box(pid));
     }
+}
+
+extern "C" obj_res lean_proc_kill(b_obj_arg pid, obj_arg /* w */) {
+    kill(unbox(pid), SIGTERM);
+    return set_io_result(box(0));
+}
+
+extern "C" obj_res lean_proc_wait(b_obj_arg pid, obj_arg /* w */) {
+    int wstatus, w;
+    w = waitpid(unbox(pid), &wstatus, WUNTRACED | WCONTINUED);
+    if (w == -1) {
+        return set_io_error(decode_io_error(errno, nullptr));
+    }
+    return set_io_result(box(wstatus));
 }
 
 /* timeit {α : Type} (msg : @& String) (fn : IO α) : IO α */

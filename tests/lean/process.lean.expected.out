@@ -1,0 +1,41 @@
+> test 1 <
+> output
+/Users/simon/lean/lean4/tests/lean
+
+> test 2 <
+/Users/simon/lean/lean4/tests/lean
+> test 3 <
+part a
+> pause to print 
+line 1
+line 2
+line 3
+> pause to print 
+line 4
+line 5
+line 6
+> wait
+false
+line 31
+line 37
+false
+""
+true
+part b
+line 1
+line 31
+line 37
+
+part c
+line 31
+line 37
+line 1
+line 31
+line 37
+false
+true
+> test 4 <
+3.14159265
+> test 5 <
+/Users/simon/lean/lean4/tests
+

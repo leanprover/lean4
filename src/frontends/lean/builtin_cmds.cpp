@@ -405,7 +405,7 @@ static environment eval_cmd(parser & p) {
     if (io_result_is_error(r.raw())) {
         message_builder msg = p.mk_message(p.cmd_pos(), p.pos(), ERROR);
         object * err = io_result_get_error(r.raw());
-        inc_ref(err);
+        lean_inc(err);
         object * str = lean_io_error_to_string(err);
         msg << string_to_std(str);
         msg.report();

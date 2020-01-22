@@ -283,28 +283,31 @@ pure r
 
 end
 
+structure Pipe :=
+mk' :: (input : FS.Handle)
+       (output : FS.Handle)
+
+@[extern "lean_io_mk_pipe"]
+constant Pipe.Prim.mk (nonBlocking : Bool) : IO Pipe := arbitrary _
+
+def Pipe.mk {m} [MonadIO m] (nonBlocking : Bool := false) : m Pipe :=
+Prim.liftIO $ Pipe.Prim.mk nonBlocking
+
 namespace Proc
 
 inductive Stdio
-| piped
+| piped (nonBlocking : Bool)
 | inherit
 | null
 
 structure SpawnArgsIntl :=
-/- Command name. -/
 (cmd : String)
-/- Arguments for the process -/
-(args : Array String := #[])
-/- Configuration for the process' stdin handle. -/
+(args : Array String)
 (stdin : FS.Handle)
-/- Configuration for the process' stdout handle. -/
 (stdout : FS.Handle)
-/- Configuration for the process' stderr handle. -/
 (stderr : FS.Handle)
-/- Working directory for the process. -/
-(cwd : Option String := none)
-/- Environment variables for the process. -/
-(env : Array String := #[])
+(cwd : Option String)
+(env : Array (String × Option String))
 
 structure SpawnArgs :=
 /- Command name. -/
@@ -328,21 +331,30 @@ def createRedirectHandle (input : Bool) (inh : IO FS.Handle) : Stdio → IO (FS.
 let mode := if input then IO.FS.Mode.read else IO.FS.Mode.write;
 h ← FS.Handle.mk "/dev/null" mode;
 pure (h, none)
-| Stdio.piped => do
-p ← Pipe.mk; _
+| Stdio.piped nonBlocking => do
+p ← Pipe.mk $ nonBlocking && !input;
+if input
+  then pure (p.input, some p.output)
+  else pure (p.output, some p.input)
 
-def prepareArgs (args : SpawnArgs) : IO SpawnArgsIntl := do
-(hStdout, _) ← createRedirectHandle args.stdout;
-(hStderr, _) ← createRedirectHandle args.stderr;
-(hStdin,  _)  ← createRedirectHandle args.stdin;
-pure { cmd := args.cmd,
-       stdout := hStdout,
-       stderr := hStderr,
-       stdin  := hStdin }
+def prepareArgs (args : SpawnArgs) : IO (SpawnArgsIntl × Option FS.Handle × Option FS.Handle × Option FS.Handle) := do
+(hStdout, hOut) ← createRedirectHandle false getStdout args.stdout;
+(hStderr, hErr) ← createRedirectHandle false getStderr args.stderr;
+(hStdin,  hIn)  ← createRedirectHandle true getStdin args.stdin;
+let args : SpawnArgsIntl :=
+  { cmd := args.cmd,
+    args := args.args,
+    stdout := hStdout,
+    stderr := hStderr,
+    stdin  := hStdin,
+    cwd := args.cwd,
+    env := args.env };
+pure (args, hOut, hErr, hIn)
 
+constant ProcessId : Type := Unit
 
 structure Child : Type :=
-(pid : UInt32)
+(pid : ProcessId)
 (stdout : Option FS.Handle)
 (stderr : Option FS.Handle)
 (stdin : Option FS.Handle)
@@ -357,21 +369,35 @@ structure Child : Type :=
 -- def child.stderr : child → Handle :=
 -- MonadIOProcess.stderr
 
-@[extern "lean_spawn"]
-constant spawn (p : SpawnArgs) : IO child := arbitrary _
+@[extern "lean_proc_spawn"]
+constant Prim.spawn (p : @&SpawnArgsIntl) (ar : @& Array (Option FS.Handle)) : IO ProcessId := arbitrary _
+
+@[extern "lean_proc_kill"]
+constant Prim.kill (p : @&ProcessId) : IO Unit := arbitrary _
+
+@[extern "lean_proc_wait"]
+constant Prim.wait (c : @&ProcessId) : IO Nat := arbitrary _
+
 -- MonadIOProcess.spawn ioCore p
 
 -- def wait (c : child) : IO Nat :=
 -- MonadIOProcess.wait c
 
+def spawn (p : SpawnArgs) : IO Child := do
+(args,hOut,hErr,hIn) ← prepareArgs p;
+pid ← Prim.spawn args #[hIn]; -- hOut,hErr,
+pure { pid := pid,
+       stdout := hOut,
+       stderr := hErr,
+       stdin := hIn }
+
+def kill (c : Child) : IO Unit :=
+Prim.kill c.pid
+
+def wait (c : Child) : IO Nat :=
+Prim.wait c.pid
+
 end Proc
-
-structure Pipe :=
-mk' :: (input : FS.Handle)
-       (output : FS.Handle)
-
-@[extern "lean_io_mk_pipe"]
-constant Pipe.Prim.mk (nonBlocking : Bool) : IO Pipe := arbitrary _
 
 structure AccessRight :=
 (read write execution : Bool := false)
@@ -394,9 +420,6 @@ u.lor $ g.lor o
 @[extern "lean_chmod"]
 constant Prim.setAccessRights (filename : @& String) (mode : UInt32) : IO Unit :=
 arbitrary _
-
-def Pipe.mk {m} [MonadIO m] (nonBlocking : Bool := false) : m Pipe :=
-Prim.liftIO $ Pipe.Prim.mk nonBlocking
 
 def setAccessRights {m} [MonadIO m] (filename : String) (mode : FileRight) : m Unit :=
 Prim.liftIO $ Prim.setAccessRights filename mode.flags

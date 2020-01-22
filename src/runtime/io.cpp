@@ -567,16 +567,24 @@ extern "C" obj_res lean_proc_spawn(obj_arg spawn_args, b_obj_arg other_handles, 
 }
 
 extern "C" obj_res lean_proc_kill(b_obj_arg pid, obj_arg /* w */) {
+#if defined(LEAN_WINDOWS)
+    TerminateProcess(unbox(pid));
+#else
     kill(unbox(pid), SIGTERM);
+#endif
     return set_io_result(box(0));
 }
 
 extern "C" obj_res lean_proc_wait(b_obj_arg pid, obj_arg /* w */) {
     int wstatus, w;
+#if defined(LEAN_WINDOWS)
+    WaitForSingleObject(unbox(pid), 0);
+#else
     w = waitpid(unbox(pid), &wstatus, WUNTRACED | WCONTINUED);
     if (w == -1) {
         return set_io_error(decode_io_error(errno, nullptr));
     }
+#endif
     return set_io_result(box(wstatus));
 }
 

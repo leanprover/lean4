@@ -1767,7 +1767,10 @@ private def catNameToString : Name → String
 | n                           => n.toString
 
 def categoryParserFnImpl (catName : Name) : ParserFn leading :=
-orelseFn (mkAntiquot (catNameToString catName) none false).fn (categoryParserFnImplAux catName)
+if catName != `term then
+  orelseFn (mkAntiquot (catNameToString catName) none false).fn (categoryParserFnImplAux catName)
+else
+  categoryParserFnImplAux catName
 
 @[init] def setCategoryParserFnRef : IO Unit :=
 categoryParserFnRef.set categoryParserFnImpl

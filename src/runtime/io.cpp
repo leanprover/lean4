@@ -288,11 +288,9 @@ static FILE * from_win_handle(HANDLE handle, char const * mode) {
 #endif
 
 static obj_res mk_pipe_obj (int read, int write) {
-    FILE * inh = fdopen(read, "r");
-    FILE * outh = fdopen(write, "w");
-    res = lean_alloc_ctor(0, 2, 0);
-    lean_ctor_set(res, 0, io_wrap_handle(inh));
-    lean_ctor_set(res, 1, io_wrap_handle(outh));
+    object * res = lean_alloc_ctor(0, 2, 0);
+    lean_ctor_set(res, 0, io_wrap_handle(fdopen(read, "r")));
+    lean_ctor_set(res, 1, io_wrap_handle(fdopen(write, "w")));
     return res;
 }
 

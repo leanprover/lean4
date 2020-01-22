@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #if defined(LEAN_WINDOWS)
 #include <windows.h>
+#include <unistd.h>
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>
 #else

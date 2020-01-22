@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <mach-o/dyld.h>
 #else
 // Linux include files
+#include <wait.h>
 #endif
 #include <iostream>
 #include <chrono>
@@ -31,7 +32,6 @@ Author: Leonardo de Moura
 #include <stdio.h>
 #include <sys/types.h>
 #include <fcntl.h>
-#include <wait.h>
 #include <signal.h>
 
 #ifdef _MSC_VER

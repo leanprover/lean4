@@ -1,4 +1,10 @@
 
+def pwd : IO String := IO.realPath "."
+
+def dirUp : IO String := do
+path ← IO.realPath ".";
+pure $ System.FilePath.dirName path
+
 def prepareTestFile : IO Unit :=
 IO.FS.withFile "ex.txt" IO.FS.Mode.write $ fun h => do
   h.putStrLn "line 31";
@@ -8,7 +14,9 @@ def test1 : IO Unit := do
 ch ← IO.Proc.spawn { cmd := "pwd", stdout := IO.Proc.Stdio.piped false };
 some out ← pure ch.stdout;
 IO.println "> output";
-out.readToEnd >>= IO.println
+ln ← out.getLine;
+pwd ← pwd;
+unless (ln == pwd ++ "\n") (throw $ IO.userError "assertion error (a)")
 
 def test2 : IO Unit := do
 cd ← IO.Proc.spawn { cmd := "pwd" };
@@ -96,7 +104,11 @@ IO.Proc.wait cd;
 pure ()
 
 def test5 : IO Unit := do
-cd ← IO.Proc.spawn { cmd := "pwd", cwd := some ".." };
+cd ← IO.Proc.spawn { cmd := "pwd", cwd := some "..", stdout := IO.Proc.Stdio.piped false };
+some out ← pure cd.stdout;
+ln ← out.getLine;
+up ← dirUp;
+unless (ln == up ++ "\n") (throw $ IO.userError "assertion error (b)");
 IO.Proc.wait cd;
 pure ()
 
@@ -109,8 +121,8 @@ pure ()
 prepareTestFile;
 IO.println "> test 1 <";
 test1;
-IO.println "> test 2 <";
-test2;
+-- IO.println "> test 2 <";
+-- test2;
 IO.println "> test 3 <";
 test3;
 test3';
@@ -118,4 +130,6 @@ test3'';
 IO.println "> test 4 <";
 test4;
 IO.println "> test 5 <";
-test5
+test5;
+IO.println "> test 6 <";
+test6

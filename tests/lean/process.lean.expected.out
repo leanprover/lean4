@@ -1,9 +1,5 @@
 > test 1 <
 > output
-/Users/simon/lean/lean4/tests/lean
-
-> test 2 <
-/Users/simon/lean/lean4/tests/lean
 > test 3 <
 part a
 > pause to print 
@@ -37,5 +33,6 @@ true
 > test 4 <
 3.14159265
 > test 5 <
-/Users/simon/lean/lean4/tests
+> test 6 <
+foo bar
 

@@ -226,6 +226,20 @@ mkNameNum n scp
 def addMacroScopes (n : Name) (scps : List MacroScope) : Name :=
 scps.foldl addMacroScope n
 
+private def extractMacroScopesAux : Name → List MacroScope → Name × List MacroScope
+| Name.num n scp _, acc => extractMacroScopesAux n (scp::acc)
+| n               , acc => (n, acc.reverse)
+
+/--
+  Revert all `addMacroScope` calls. `(n', scps) = extractMacroScopes n → n = addMacroScopes n' scps`.
+  This operation is useful for analyzing/transforming the original identifiers, then adding back
+  the scopes (via `addMacroScopes`). -/
+def extractMacroScopes (n : Name) : Name × List MacroScope :=
+extractMacroScopesAux n []
+
+def Name.eraseMacroScopes (n : Name) : Name :=
+(extractMacroScopes n).1
+
 abbrev MacroM := ReaderT MacroScope (OptionT Id)
 
 instance MacroM.monadQuotation : MonadQuotation MacroM :=
@@ -263,6 +277,11 @@ Syntax.ident info (toString c).toSubstring (`_root_ ++ c) [(c, [])]
 def mkAtomFrom (src : Syntax) (val : String) : Syntax :=
 let info := src.getHeadInfo;
 Syntax.atom info val
+
+def Syntax.identToAtom (stx : Syntax) : Syntax :=
+match stx with
+| Syntax.ident info _ val _ => Syntax.atom info val.eraseMacroScopes.toString
+| _                         => stx
 
 @[export lean_mk_syntax_ident]
 def mkIdent (val : Name) : Syntax :=
@@ -321,6 +340,177 @@ mkStxLit strLitKind (repr val) info
 def mkStxNumLit (val : String) (info : Option SourceInfo := none) : Syntax :=
 mkStxLit numLitKind val info
 
+namespace Syntax
+
+/- Recall that we don't have special Syntax constructors for storing numeric and string atoms.
+   The idea is to have an extensible approach where embedded DSLs may have new kind of atoms and/or
+   different ways of representing them. So, our atoms contain just the parsed string.
+   The main Lean parser uses the kind `numLitKind` for storing natural numbers that can be encoded
+   in binary, octal, decimal and hexadecimal format. `isNatLit` implements a "decoder"
+   for Syntax objects representing these numerals. -/
+
+private partial def decodeBinLitAux (s : String) : String.Pos → Nat → Option Nat
+| i, val =>
+  if s.atEnd i then some val
+  else
+    let c := s.get i;
+    if c == '0' then decodeBinLitAux (s.next i) (2*val)
+    else if c == '1' then decodeBinLitAux (s.next i) (2*val + 1)
+    else none
+
+private partial def decodeOctalLitAux (s : String) : String.Pos → Nat → Option Nat
+| i, val =>
+  if s.atEnd i then some val
+  else
+    let c := s.get i;
+    if '0' ≤ c && c ≤ '7' then decodeOctalLitAux (s.next i) (8*val + c.toNat - '0'.toNat)
+    else none
+
+private def decodeHexDigit (s : String) (i : String.Pos) : Option (Nat × String.Pos) :=
+let c := s.get i;
+let i := s.next i;
+if '0' ≤ c && c ≤ '9' then some (c.toNat - '0'.toNat, i)
+else if 'a' ≤ c && c ≤ 'f' then some (10 + c.toNat - 'a'.toNat, i)
+else if 'A' ≤ c && c ≤ 'F' then some (10 + c.toNat - 'A'.toNat, i)
+else none
+
+private partial def decodeHexLitAux (s : String) : String.Pos → Nat → Option Nat
+| i, val =>
+  if s.atEnd i then some val
+  else match decodeHexDigit s i with
+    | some (d, i) => decodeHexLitAux i (16*val + d)
+    | none        => none
+
+private partial def decodeDecimalLitAux (s : String) : String.Pos → Nat → Option Nat
+| i, val =>
+  if s.atEnd i then some val
+  else
+    let c := s.get i;
+    if '0' ≤ c && c ≤ '9' then decodeDecimalLitAux (s.next i) (10*val + c.toNat - '0'.toNat)
+    else none
+
+private def decodeNatLitVal (s : String) : Option Nat :=
+let len := s.length;
+if len == 0 then none
+else
+  let c := s.get 0;
+  if c == '0' then
+    if len == 1 then some 0
+    else
+      let c := s.get 1;
+      if c == 'x' || c == 'X' then decodeHexLitAux s 2 0
+      else if c == 'b' || c == 'B' then decodeBinLitAux s 2 0
+      else if c == 'o' || c == 'O' then decodeOctalLitAux s 2 0
+      else if c.isDigit then decodeDecimalLitAux s 0 0
+      else none
+  else if c.isDigit then decodeDecimalLitAux s 0 0
+  else none
+
+def isNatLitAux (nodeKind : SyntaxNodeKind) : Syntax → Option Nat
+| Syntax.node k args   =>
+  if k == nodeKind && args.size == 1 then
+    match args.get! 0 with
+    | (Syntax.atom _ val) => decodeNatLitVal val
+    | _ => none
+  else
+    none
+| _ => none
+
+def isNatLit? (s : Syntax) : Option Nat :=
+isNatLitAux numLitKind s
+
+def isFieldIdx? (s : Syntax) : Option Nat :=
+isNatLitAux fieldIdxKind s
+
+def isIdOrAtom? : Syntax → Option String
+| Syntax.atom _ val           => some val
+| Syntax.ident _ rawVal _ _   => some rawVal.toString
+| _ => none
+
+def toNat (stx : Syntax) : Nat :=
+match stx.isNatLit? with
+| some val => val
+| none     => 0
+
+private def decodeQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos) :=
+let c := s.get i;
+let i := s.next i;
+if c == '\\' then pure ('\\', i)
+else if c = '\"' then pure ('\"', i)
+else if c = '\'' then pure ('\'', i)
+else if c = 'n'  then pure ('\n', i)
+else if c = 't'  then pure ('\t', i)
+else if c = 'x'  then do
+  (d₁, i) ← decodeHexDigit s i;
+  (d₂, i) ← decodeHexDigit s i;
+  pure (Char.ofNat (16*d₁ + d₂), i)
+else if c = 'u'  then do
+  (d₁, i) ← decodeHexDigit s i;
+  (d₂, i) ← decodeHexDigit s i;
+  (d₃, i) ← decodeHexDigit s i;
+  (d₄, i) ← decodeHexDigit s i;
+  pure $ (Char.ofNat (16*(16*(16*d₁ + d₂) + d₃) + d₄), i)
+else
+  none
+
+partial def decodeStrLitAux (s : String) : String.Pos → String → Option String
+| i, acc => do
+  let c := s.get i;
+  let i := s.next i;
+  if c == '\"' then
+    pure acc
+  else if c == '\\' then do
+    (c, i) ← decodeQuotedChar s i;
+    decodeStrLitAux i (acc.push c)
+  else
+    decodeStrLitAux i (acc.push c)
+
+def decodeStrLit (s : String) : Option String :=
+decodeStrLitAux s 1 ""
+
+def isStrLit? : Syntax → Option String
+| Syntax.node k args   =>
+  if k == strLitKind && args.size == 1 then
+    match args.get! 0 with
+    | (Syntax.atom _ val) => decodeStrLit val
+    | _                   => none
+  else
+    none
+| _ => none
+
+def decodeCharLit (s : String) : Option Char :=
+let c := s.get 1;
+if c == '\\' then do
+  (c, _) ← decodeQuotedChar s 2;
+  pure c
+else
+  pure c
+
+def isCharLit? : Syntax → Option Char
+| Syntax.node k args   =>
+  if k == charLitKind && args.size == 1 then
+    match args.get! 0 with
+    | (Syntax.atom _ val) => decodeCharLit val
+    | _ => none
+  else
+    none
+| _ => none
+
+def hasArgs : Syntax → Bool
+| Syntax.node _ args => args.size > 0
+| _                  => false
+
+def identToStrLit (stx : Syntax) : Syntax :=
+match stx with
+| Syntax.ident info _ val _ => mkStxStrLit val.toString info
+| _                         => stx
+
+def strLitToAtom (stx : Syntax) : Syntax :=
+match stx.isStrLit? with
+| none     => stx
+| some val => Syntax.atom stx.getHeadInfo val
+
+end Syntax
 end Lean
 
 abbrev Array.getSepElems := @Array.getEvenElems

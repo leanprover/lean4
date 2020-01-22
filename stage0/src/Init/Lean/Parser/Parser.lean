@@ -1070,7 +1070,7 @@ fun _ c s =>
   let s      := tokenFn c s;
   if s.hasError || !(s.stxStack.back.isOfKind numLitKind) then s.mkErrorAt "numeral" iniPos else s
 
-@[inline] def numLit {k : ParserKind} : Parser k :=
+@[inline] def numLitNoAntiquot {k : ParserKind} : Parser k :=
 { fn   := numLitFn,
   info := mkAtomicInfo "numLit" }
 
@@ -1080,7 +1080,7 @@ fun _ c s =>
   let s := tokenFn c s;
   if s.hasError || !(s.stxStack.back.isOfKind strLitKind) then s.mkErrorAt "string literal" iniPos else s
 
-@[inline] def strLit {k : ParserKind} : Parser k :=
+@[inline] def strLitNoAntiquot {k : ParserKind} : Parser k :=
 { fn   := strLitFn,
   info := mkAtomicInfo "strLit" }
 
@@ -1090,7 +1090,7 @@ fun _ c s =>
   let s := tokenFn c s;
   if s.hasError || !(s.stxStack.back.isOfKind charLitKind) then s.mkErrorAt "character literal" iniPos else s
 
-@[inline] def charLit {k : ParserKind} : Parser k :=
+@[inline] def charLitNoAntiquot {k : ParserKind} : Parser k :=
 { fn   := charLitFn,
   info := mkAtomicInfo "charLit" }
 
@@ -1476,6 +1476,15 @@ mkAntiquot "ident" `ident <|> identNoAntiquot
 def rawIdent {k : ParserKind} : Parser k :=
 mkAntiquot "ident" `ident <|> rawIdentNoAntiquot
 
+def numLit {k : ParserKind} : Parser k :=
+mkAntiquot "numLit" numLitKind <|> numLitNoAntiquot
+
+def strLit {k : ParserKind} : Parser k :=
+mkAntiquot "strLit" strLitKind <|> strLitNoAntiquot
+
+def charLit {k : ParserKind} : Parser k :=
+mkAntiquot "charLit" charLitKind <|> charLitNoAntiquot
+
 def categoryParserOfStackFn (offset : Nat) : ParserFn leading :=
 fun rbp ctx s =>
   let stack := s.stxStack;
@@ -1747,12 +1756,30 @@ if isParserCategory env catName then
 else
   pure $ parserExtension.addEntry env $ ParserExtensionEntry.category catName leadingIdentAsSymbol
 
-def categoryParserFnImpl (catName : Name) : ParserFn leading :=
+/-
+  Return true if in the given category leading identifiers in parsers may be treated as atoms/symbols.
+  See comment at `ParserCategory`. -/
+def leadingIdentAsSymbol (env : Environment) (catName : Name) : Bool :=
+match (parserExtension.getState env).categories.find? catName with
+| none     => false
+| some cat => cat.leadingIdentAsSymbol
+
+def categoryParserFnImplAux (catName : Name) : ParserFn leading :=
 fun rbp ctx s =>
   let categories := (parserExtension.getState ctx.env).categories;
   match categories.find? catName with
   | some cat => prattParser catName cat.tables cat.leadingIdentAsSymbol rbp ctx s
   | none     => s.mkUnexpectedError ("unknown parser category '" ++ toString catName ++ "'")
+
+private def catNameToString : Name → String
+| Name.str Name.anonymous s _ => s
+| n                           => n.toString
+
+def categoryParserFnImpl (catName : Name) : ParserFn leading :=
+if catName != `term then
+  orelseFn (mkAntiquot (catNameToString catName) none false).fn (categoryParserFnImplAux catName)
+else
+  categoryParserFnImplAux catName
 
 @[init] def setCategoryParserFnRef : IO Unit :=
 categoryParserFnRef.set categoryParserFnImpl

@@ -160,14 +160,37 @@ private def evalTacticUsing (s : State) (stx : Syntax) : List Tactic → TacticM
 | []                => do
   let refFmt := stx.prettyPrint;
   throwError stx ("unexpected syntax" ++ MessageData.nest 2 (Format.line ++ refFmt))
-| (elabFn::elabFns) => catch (elabFn stx)
+| (evalFn::evalFns) => catch (evalFn stx)
   (fun ex => match ex with
-    | Exception.error _           => throw ex
-    | Exception.unsupportedSyntax => do set s; evalTacticUsing elabFns)
+    | Exception.error _           =>
+      match evalFns with
+      | [] => throw ex
+      | _  => do set s; evalTacticUsing evalFns
+    | Exception.unsupportedSyntax => do set s; evalTacticUsing evalFns)
 
 /- Elaborate `x` with `stx` on the macro stack -/
 @[inline] def withMacroExpansion {α} (stx : Syntax) (x : TacticM α) : TacticM α :=
 adaptReader (fun (ctx : Context) => { macroStack := stx :: ctx.macroStack, .. ctx }) x
+
+@[specialize] private def expandTacticMacroFns (evalTactic : Syntax → TacticM Unit) (stx : Syntax) : List Macro → TacticM Unit
+| []    => throwError stx ("tactic '" ++ toString stx.getKind ++ "' has not been implemented")
+| m::ms => do
+  scp ← getCurrMacroScope;
+  match m stx scp with
+  | none      => expandTacticMacroFns ms
+  | some stx' =>
+    catch
+      (evalTactic stx')
+      (fun ex => match ms with
+        | [] => throw ex
+        | _  => expandTacticMacroFns ms)
+
+@[inline] def expandTacticMacro (evalTactic : Syntax → TacticM Unit) (stx : Syntax) : TacticM Unit := do
+env ← getEnv;
+let k        := stx.getKind;
+let table    := (macroAttribute.ext.getState env).table;
+let macroFns := (table.find? k).getD [];
+expandTacticMacroFns evalTactic stx macroFns
 
 partial def evalTactic : Syntax → TacticM Unit
 | stx => withIncRecDepth stx $ withFreshMacroScope $ match stx with
@@ -177,18 +200,13 @@ partial def evalTactic : Syntax → TacticM Unit
       -- Syntax quotations can return multiple ones
       stx.forSepArgsM evalTactic
     else do
-    trace `Elab.step stx $ fun _ => stx;
+      trace `Elab.step stx $ fun _ => stx;
       s ← get;
       let table := (tacticElabAttribute.ext.getState s.env).table;
       let k := stx.getKind;
       match table.find? k with
-      | some elabFns => evalTacticUsing s stx elabFns
-        | none         => do
-          scp ← getCurrMacroScope;
-          env ← getEnv;
-          match expandMacro env stx scp with
-          | some stx' => withMacroExpansion stx $ evalTactic stx'
-          | none      => throwError stx ("tactic '" ++ toString k ++ "' has not been implemented")
+      | some evalFns => evalTacticUsing s stx evalFns
+      | none         => expandTacticMacro evalTactic stx
   | _ => throwError stx "unexpected command"
 
 /-- Adapt a syntax transformation to a regular tactic evaluator. -/

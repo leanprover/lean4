@@ -35,20 +35,6 @@ instance MonadQuotation : MonadQuotation Unhygienic := {
 protected def run {α : Type} (x : Unhygienic α) : α := run x 0 1
 end Unhygienic
 
-private def extractMacroScopesAux : Name → List MacroScope → Name × List MacroScope
-| Name.num n scp _, acc => extractMacroScopesAux n (scp::acc)
-| n               , acc => (n, acc.reverse)
-
-/--
-  Revert all `addMacroScope` calls. `(n', scps) = extractMacroScopes n → n = addMacroScopes n' scps`.
-  This operation is useful for analyzing/transforming the original identifiers, then adding back
-  the scopes (via `addMacroScopes`). -/
-def extractMacroScopes (n : Name) : Name × List MacroScope :=
-extractMacroScopesAux n []
-
-def Name.eraseMacroScopes (n : Name) : Name :=
-(extractMacroScopes n).1
-
 instance monadQuotationTrans {m n : Type → Type} [MonadQuotation m] [HasMonadLift m n] [MonadFunctorT m m n n] : MonadQuotation n :=
 { getCurrMacroScope   := liftM (getCurrMacroScope : m Nat),
   withFreshMacroScope := fun α => monadMap (fun α => (withFreshMacroScope : m α → m α)) }

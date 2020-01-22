@@ -475,6 +475,7 @@ lean_object* l_Lean_Elab_Command_throwAlreadyDeclaredUniverseLevel___rarg(lean_o
 extern lean_object* l_Lean_Parser_Command_openOnly___elambda__1___closed__2;
 lean_object* l_Array_toList___rarg(lean_object*);
 lean_object* l_Lean_Elab_Command_CommandElabM_monadLog___lambda__3(lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Init_Lean_Parser_Parser_25__BuiltinParserAttribute_add___closed__2;
 lean_object* l_Lean_Elab_Command_setOption___closed__3;
 lean_object* l_Lean_Elab_Command_registerBuiltinCommandElabAttr___lambda__1___closed__5;
 lean_object* l___private_Init_Lean_Elab_Command_4__modifyGetState___rarg(lean_object*, lean_object*, lean_object*);
@@ -537,7 +538,6 @@ lean_object* l_Lean_Elab_Command_elabOpenOnly___boxed(lean_object*, lean_object*
 extern lean_object* l_Lean_Parser_Command_synth___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Command_registerBuiltinCommandElabAttr___lambda__1___closed__1;
 lean_object* l_Lean_Elab_Command_elabSynth___closed__3;
-extern lean_object* l___private_Init_Lean_Parser_Parser_24__BuiltinParserAttribute_add___closed__2;
 lean_object* l_IO_ofExcept___at___private_Init_Lean_Elab_Util_6__ElabAttribute_add___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkMessageAux(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
@@ -3755,7 +3755,7 @@ lean_dec(x_13);
 lean_dec(x_11);
 lean_dec(x_2);
 lean_dec(x_1);
-x_25 = l___private_Init_Lean_Parser_Parser_24__BuiltinParserAttribute_add___closed__2;
+x_25 = l___private_Init_Lean_Parser_Parser_25__BuiltinParserAttribute_add___closed__2;
 x_26 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_12);

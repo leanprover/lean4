@@ -486,14 +486,52 @@ static char * const * copy_cstr_array(const char *cmd, object* from) {
 // (env : Array String := #[])
 
 extern "C" obj_res lean_proc_spawn(obj_arg spawn_args, b_obj_arg other_handles, obj_arg /* w */) {
+    object * cmd  = lean_ctor_get(spawn_args, 0);
+    object * args_o = lean_ctor_get(spawn_args, 1);
     FILE * hStdin  = static_cast<FILE *>(external_data(lean_ctor_get(spawn_args, 2)));
     FILE * hStdout = static_cast<FILE *>(external_data(lean_ctor_get(spawn_args, 3)));
     FILE * hStderr = static_cast<FILE *>(external_data(lean_ctor_get(spawn_args, 4)));
+    object * cwd = lean_ctor_get(spawn_args, 5);
+    object * env_o = lean_ctor_get(spawn_args, 6);
+#if defined(LEAN_WINDOWS)
+    PROCESS_INFORMATION piProcInfo;
+    STARTUPINFO siStartInfo;
+    BOOL bSuccess = FALSE;
 
+    // Set up members of the PROCESS_INFORMATION structure.
+    ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
+
+    // Set up members of the STARTUPINFO structure.
+    // This structure specifies the STDIN and STDOUT handles for redirection.
+
+    ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
+    siStartInfo.cb = sizeof(STARTUPINFO);
+    siStartInfo.hStdError  = _get_osfhandle(fileno(hStderr));
+    siStartInfo.hStdOutput = _get_osfhandle(fileno(hStdout));
+    siStartInfo.hStdInput  = _get_osfhandle(fileno(hStdin));
+    siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
+    bSuccess = CreateProcess(
+        NULL,
+        lean_string_cstr(cmd), // command line
+        NULL,                                // process security attributes
+        NULL,                                // primary thread security attributes
+        TRUE,                                // handles are inherited
+        0,                                   // creation flags
+        NULL,                                // use parent's environment
+        lean_is_scalar(cwd) ? nullptr : lean_ctor_get(cwd, 0),
+                                             // current directory
+        &siStartInfo,                        // STARTUPINFO pointer
+        &piProcInfo);                        // receives PROCESS_INFORMATION
+
+
+
+    CloseHandle(piProcInfo.hThread);
+
+    return piProcInfo.hProcess;
+
+#else
     int pid = fork();
     if (pid == 0) {
-        object * cmd  = lean_ctor_get(spawn_args, 0);
-        object * args_o = lean_ctor_get(spawn_args, 1);
         dup2(fileno(hStdin), 0);
         dup2(fileno(hStdout), 1);
         dup2(fileno(hStderr), 2);
@@ -503,8 +541,6 @@ extern "C" obj_res lean_proc_spawn(obj_arg spawn_args, b_obj_arg other_handles, 
                 fclose(h);
             }
         }
-        object * cwd = lean_ctor_get(spawn_args, 5);
-        object * env_o = lean_ctor_get(spawn_args, 6);
         for (unsigned i = 0; i < lean_array_size(env_o); i++) {
             auto entry = lean_array_get_core(env_o, i);
             auto key   = lean_ctor_get(entry, 0);
@@ -521,11 +557,13 @@ extern "C" obj_res lean_proc_spawn(obj_arg spawn_args, b_obj_arg other_handles, 
         if (!is_scalar(cwd)) {
             chdir(lean_string_cstr(lean_ctor_get(cwd, 0)));
         }
-        int r = execvp(lean_string_cstr(cmd), args);
+        execvp(lean_string_cstr(cmd), args);
+        std::cerr << "failed to start process\n";
         exit(-1);
     } else {
         return set_io_result(box(pid));
     }
+#endif
 }
 
 extern "C" obj_res lean_proc_kill(b_obj_arg pid, obj_arg /* w */) {

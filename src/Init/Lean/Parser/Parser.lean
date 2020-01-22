@@ -1755,12 +1755,19 @@ match (parserExtension.getState env).categories.find? catName with
 | none     => false
 | some cat => cat.leadingIdentAsSymbol
 
-def categoryParserFnImpl (catName : Name) : ParserFn leading :=
+def categoryParserFnImplAux (catName : Name) : ParserFn leading :=
 fun rbp ctx s =>
   let categories := (parserExtension.getState ctx.env).categories;
   match categories.find? catName with
   | some cat => prattParser catName cat.tables cat.leadingIdentAsSymbol rbp ctx s
   | none     => s.mkUnexpectedError ("unknown parser category '" ++ toString catName ++ "'")
+
+private def catNameToString : Name → String
+| Name.str Name.anonymous s _ => s
+| n                           => n.toString
+
+def categoryParserFnImpl (catName : Name) : ParserFn leading :=
+orelseFn (mkAntiquot (catNameToString catName) none false).fn (categoryParserFnImplAux catName)
 
 @[init] def setCategoryParserFnRef : IO Unit :=
 categoryParserFnRef.set categoryParserFnImpl

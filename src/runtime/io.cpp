@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #if defined(LEAN_WINDOWS)
 #include <windows.h>
-#include <unistd.h>
+#include <namedpipeapi.h>
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>
 #else
@@ -280,26 +280,49 @@ obj_res decode_io_error(int errnum, b_obj_arg fname) {
     }
 }
 
+#if defined(LEAN_WINDOWS)
+static FILE * from_win_handle(HANDLE handle, char const * mode) {
+    int fd = _open_osfhandle(reinterpret_cast<intptr_t>(handle), _O_APPEND);
+    return fdopen(fd, mode);
+}
+#endif
+
+static obj_res mk_pipe_obj (int read, int write) {
+    FILE * inh = fdopen(read, "r");
+    FILE * outh = fdopen(write, "w");
+    res = lean_alloc_ctor(0, 2, 0);
+    lean_ctor_set(res, 0, io_wrap_handle(inh));
+    lean_ctor_set(res, 1, io_wrap_handle(outh));
+    return res;
+}
+
 /* Prim.mkPipe : IO Pipe := arbitrary _ */
 extern "C" obj_res lean_io_mk_pipe(bool non_blocking, obj_arg /* w */) {
+#if defined(LEAN_WINDOWS)
+    HANDLE read, write;
+    SECURITY_ATTRIBUTES sec_attr = { 0, nullptr, true };
+    bool success = CreatePipe(&read, &write, &sec_attr, 0);
+    if (!success) {
+        return set_io_error("Failed to create a pipe");
+    }
+    int in_fd = _open_osfhandle(reinterpret_cast<intptr_t>(read), _O_APPEND);
+    int out_fd = _open_osfhandle(reinterpret_cast<intptr_t>(read), _O_APPEND);
+    if (non_blocking) {
+        fcntl(in_fd, F_SETFL, O_NONBLOCK);
+    }
+    return set_io_result(mk_pipe_obj(in_fd, out_fd));
+#else
     int fd[2];
     if (pipe(fd) < 0) {
         return set_io_error(decode_io_error(errno, nullptr));
     }
-    object * in, * out, * res;
     if (non_blocking) {
         fcntl(fd[0], F_SETFL, O_NONBLOCK);
     }
-    FILE * inh = fdopen(fd[0], "r");
-    FILE * outh = fdopen(fd[1], "w");
-    in  = io_wrap_handle(inh);
-    out = io_wrap_handle(outh);
-    res = lean_alloc_ctor(0, 2, 0);
-    lean_ctor_set(res, 0, in);
-    lean_ctor_set(res, 1, out);
-
-    return set_io_result(res);
+    return set_io_result(mk_pipe_obj(fd[0], fd[1]));
+#endif
 }
+
 
 /* IO.setAccessRights (filename : @& String) (mode : UInt32) : IO Handle */
 extern "C" obj_res lean_chmod (b_obj_arg filename, uint32_t mode, obj_arg /* w */) {

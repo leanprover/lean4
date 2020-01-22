@@ -161,7 +161,6 @@ private partial def synthesizeSyntheticMVarsAux (mayPostpone := true) : Unit →
     unless s.syntheticMVars.isEmpty $ do
       try (synthesizeSyntheticMVarsStep false false) $
       unless mayPostpone $ do
-        try synthesizeUsingDefault $
         /- Resume pending metavariables with "elaboration postponement" disabled.
            We postpone elaboration errors in this step by setting `postponeOnError := true`.
            Example:
@@ -179,6 +178,7 @@ private partial def synthesizeSyntheticMVarsAux (mayPostpone := true) : Unit →
            By disabling postponement, we are essentially giving up the opportunity of learning `x`s type
            and assume it does not have implict and/or auto arguments. -/
         try (withoutPostponing (synthesizeSyntheticMVarsStep true  false)) $
+        try synthesizeUsingDefault $
         try (withoutPostponing (synthesizeSyntheticMVarsStep false false)) $
         try (synthesizeSyntheticMVarsStep false true) $
         reportStuckSyntheticMVars

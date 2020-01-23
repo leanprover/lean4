@@ -192,9 +192,7 @@ adaptReader (fun (ctx : Context) => { macroStack := { before := beforeStx, after
 
 instance : MonadMacroAdapter CommandElabM :=
 { getEnv                 := getEnv,
-  getNameGenerator       := do s ← get; pure s.ngen,
   getCurrMacroScope      := getCurrMacroScope,
-  setNameGenerator       := fun ngen => modify $ fun s => { ngen := ngen, .. s },
   throwError             := @throwError,
   throwUnsupportedSyntax := @throwUnsupportedSyntax}
 

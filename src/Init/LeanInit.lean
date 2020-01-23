@@ -9,7 +9,7 @@ import Init.Data.Array.Basic
 import Init.Data.UInt
 import Init.Data.Hashable
 import Init.Control.Reader
-import Init.Control.EState
+import Init.Control.Except
 
 namespace Lean
 /-
@@ -321,23 +321,17 @@ structure Context :=
 (mainModule     : Name)
 (currMacroScope : MacroScope)
 
-structure State :=
-(ngen : NameGenerator)
-
 inductive Exception
 | error             : String → Exception
 | unsupportedSyntax : Exception
 
 end Macro
 
-abbrev MacroM := ReaderT Macro.Context (EStateM Macro.Exception Macro.State)
+abbrev MacroM := ReaderT Macro.Context (ExceptT Macro.Exception Id)
 
-def Macro.mkFreshName (namePrefix : Name) : MacroM Name := do
+def Macro.addMacroScope (n : Name) : MacroM Name := do
 ctx ← read;
-s   ← get;
-let id := namePrefix ++ ctx.mainModule ++ s.ngen.curr;
-modify $ fun s => { ngen := s.ngen.next, .. s };
-pure id
+pure $ Lean.addMacroScope ctx.mainModule n ctx.currMacroScope
 
 instance MacroM.monadQuotation : MonadQuotation MacroM :=
 { getCurrMacroScope   := fun ctx => pure ctx.currMacroScope,

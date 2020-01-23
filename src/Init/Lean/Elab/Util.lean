@@ -16,21 +16,29 @@ match stx.reprint with -- TODO use syntax pretty printer
 
 namespace Elab
 
+structure MacroStackElem :=
+(before : Syntax) (after : Syntax)
+
+abbrev MacroStack := List MacroStackElem
+
 /- If `ref` does not have position information, then try to use macroStack -/
-def getBetterRef (ref : Syntax) (macroStack : List Syntax) : Syntax :=
+def getBetterRef (ref : Syntax) (macroStack : MacroStack) : Syntax :=
 match ref.getPos with
 | some _ => ref
 | none   =>
-  match macroStack.find? $ fun (macro : Syntax) => macro.getPos != none with
-  | some macro => macro
-  | none       => ref
+  match macroStack.find? $ fun (elem : MacroStackElem) => elem.before.getPos != none with
+  | some elem => elem.before
+  | none      => ref
 
-def addMacroStack (msgData : MessageData) (macroStack : List Syntax) : MessageData :=
-if macroStack.isEmpty then msgData
-else
-  macroStack.foldl
-    (fun (msgData : MessageData) (macro : Syntax) =>
-      let macroFmt := macro.prettyPrint;
+def addMacroStack (msgData : MessageData) (macroStack : MacroStack) : MessageData :=
+match macroStack with
+| []             => msgData
+| stack@(top::_) =>
+  let topFmt  := top.after.prettyPrint;
+  let msgData := msgData ++ Format.line ++ "with resulting expansion" ++ MessageData.nest 2 (Format.line ++ topFmt);
+  stack.foldl
+    (fun (msgData : MessageData) (elem : MacroStackElem) =>
+      let macroFmt := elem.before.prettyPrint;
       msgData ++ Format.line ++ "while expanding" ++ MessageData.nest 2 (Format.line ++ macroFmt))
     msgData
 

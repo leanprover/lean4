@@ -26,7 +26,7 @@ structure Context extends Meta.Context :=
 (declName?       : Option Name     := none)
 (levelNames      : List Name       := [])
 (openDecls       : List OpenDecl   := [])
-(macroStack      : List Syntax     := [])
+(macroStack      : MacroStack      := [])
 (currMacroScope  : MacroScope      := 0)
 /- When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
    The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
@@ -41,7 +41,7 @@ inductive SyntheticMVarKind
 -- tactic block execution
 | tactic (tacticCode : Syntax)
 -- `elabTerm` call that threw `Exception.postpone` (input is stored at `SyntheticMVarDecl.ref`)
-| postponed (macroStack : List Syntax)
+| postponed (macroStack : MacroStack)
 -- type defaulting (currently: defaulting numeric literals to `Nat`)
 | withDefault (defaultVal : Expr)
 
@@ -298,8 +298,8 @@ def elabLevel (stx : Syntax) : TermElabM Level :=
 liftLevelM $ Level.elabLevel stx
 
 /- Elaborate `x` with `stx` on the macro stack -/
-@[inline] def withMacroExpansion {α} (stx : Syntax) (x : TermElabM α) : TermElabM α :=
-adaptReader (fun (ctx : Context) => { macroStack := stx :: ctx.macroStack, .. ctx }) x
+@[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
+adaptReader (fun (ctx : Context) => { macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack, .. ctx }) x
 
 /-
   Add the given metavariable to the list of pending synthetic metavariables.
@@ -483,7 +483,7 @@ partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone := true) 
     scp ← getCurrMacroScope;
     env ← getEnv;
     match expandMacro env stx scp with
-    | some stx' => withMacroExpansion stx $ elabTermAux stx'
+    | some stx' => withMacroExpansion stx stx' $ elabTermAux stx'
     | none      => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
 
 /--
@@ -504,9 +504,9 @@ elabTermAux expectedType? catchExPostpone stx
 
 /-- Adapt a syntax transformation to a regular, term-producing elaborator. -/
 def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab :=
-fun stx expectedType? => withMacroExpansion stx $ do
-  stx ← exp stx;
-  elabTerm stx expectedType?
+fun stx expectedType? => do
+  stx' ← exp stx;
+  withMacroExpansion stx stx' $ elabTerm stx' expectedType?
 
 /--
   Make sure `e` is a type by inferring its type and making sure it is a `Expr.sort`
@@ -682,7 +682,7 @@ mkPairsAux elems (elems.size - 1) elems.back
 private def elabCDot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
 stx? ← expandCDot? stx;
 match stx? with
-| some stx' => withMacroExpansion stx (elabTerm stx' expectedType?)
+| some stx' => withMacroExpansion stx stx' (elabTerm stx' expectedType?)
 | none      => elabTerm stx expectedType?
 
 @[builtinTermElab paren] def elabParen : TermElab :=
@@ -697,7 +697,7 @@ fun stx expectedType? =>
   | `(($e))         => elabCDot e expectedType?
   | `(($e, $es*))   => do
     pairs ← mkPairs (#[e] ++ es.getEvenElems);
-    withMacroExpansion stx (elabTerm pairs expectedType?)
+    withMacroExpansion stx pairs (elabTerm pairs expectedType?)
   | _ => throwError stx "unexpected parentheses notation"
 
 @[builtinTermElab «listLit»] def elabListLit : TermElab :=
@@ -715,7 +715,7 @@ fun stx expectedType? => do
   match_syntax stx with
   | `(#[$args*]) => do
     newStx ← `(List.toArray [$args*]);
-    withMacroExpansion stx (elabTerm newStx expectedType?)
+    withMacroExpansion stx newStx (elabTerm newStx expectedType?)
   | _ => throwError stx "unexpected array literal syntax"
 
 private partial def resolveLocalNameAux (lctx : LocalContext) : Name → List String → Option (Expr × List String)

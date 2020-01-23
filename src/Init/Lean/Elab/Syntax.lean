@@ -174,7 +174,7 @@ fun stx => do
   -- TODO: meaningful, unhygienic def name for selective parser `open`ing?
   d ← `(@[$catParserId:ident] def myParser : $type := ParserDescr.node $(quote kind) $val);
   trace `Elab stx $ fun _ => d;
-  withMacroExpansion stx $ elabCommand d
+  withMacroExpansion stx d $ elabCommand d
 
 @[builtinCommandElab «macro_rules»] def elabMacroRules : CommandElab :=
 adaptExpander $ fun stx => match_syntax stx with

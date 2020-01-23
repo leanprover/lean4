@@ -41,7 +41,7 @@ adaptReader (fun (ctx : Context) => { errToSorry := ctx.errToSorry && errToSorry
   Try to elaborate `stx` that was postponed by an elaboration method using `Expection.postpone`.
   It returns `true` if it succeeded, and `false` otherwise.
   It is used to implement `synthesizeSyntheticMVars`. -/
-private def resumePostponed (macroStack : List Syntax) (stx : Syntax) (mvarId : MVarId) (postponeOnError : Bool) : TermElabM Bool := do
+private def resumePostponed (macroStack : MacroStack) (stx : Syntax) (mvarId : MVarId) (postponeOnError : Bool) : TermElabM Bool := do
 withMVarContext mvarId $ do
   s ← get;
   catch

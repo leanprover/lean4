@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <windows.h>
 #include <namedpipeapi.h>
 #include <Fcntl.h>
-#include <stdio.h>
 #include <io.h>
 #include <Processthreadsapi.h>
 #elif defined(__APPLE__)

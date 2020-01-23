@@ -28,7 +28,6 @@ instance Scope.inhabited : Inhabited Scope := ⟨{ kind := "", header := "" }⟩
 
 structure State :=
 (env            : Environment)
-(ngen           : NameGenerator := {})
 (messages       : MessageLog := {})
 (scopes         : List Scope := [{ kind := "root", header := "" }])
 (nextMacroScope : Nat := 1)
@@ -243,12 +242,11 @@ let scope := s.scopes.head!;
 
 private def mkTermState (s : State) : Term.State :=
 { env            := s.env,
-  ngen           := s.ngen,
   messages       := s.messages,
   nextMacroScope := s.nextMacroScope }
 
 private def updateState (s : State) (newS : Term.State) : State :=
-{ env := newS.env, ngen := newS.ngen, messages := newS.messages, nextMacroScope := newS.nextMacroScope, .. s }
+{ env := newS.env, messages := newS.messages, nextMacroScope := newS.nextMacroScope, .. s }
 
 private def getVarDecls (s : State) : Array Syntax :=
 s.scopes.head!.varDecls

@@ -117,9 +117,8 @@ when (checkTraceOption opts cls) $ logTrace cls ref (msg ())
 def throwUnsupportedSyntax {α} : CommandElabM α :=
 throw Elab.Exception.unsupportedSyntax
 
-protected def getCurrMacroScope : CommandElabM Nat := do
-ctx ← read;
-pure ctx.currMacroScope
+protected def getCurrMacroScope : CommandElabM Nat  := do ctx ← read; pure ctx.currMacroScope
+protected def getMainModule     : CommandElabM Name := do env ← getEnv; pure env.mainModule
 
 @[inline] protected def withFreshMacroScope {α} (x : CommandElabM α) : CommandElabM α := do
 fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }));
@@ -127,6 +126,7 @@ adaptReader (fun (ctx : Context) => { ctx with currMacroScope := fresh }) x
 
 instance CommandElabM.MonadQuotation : MonadQuotation CommandElabM := {
   getCurrMacroScope   := Command.getCurrMacroScope,
+  getMainModule       := Command.getMainModule,
   withFreshMacroScope := @Command.withFreshMacroScope
 }
 
@@ -580,12 +580,11 @@ levelNames      ←
   };
 let ref := declId;
 -- extract (optional) namespace part of id, after decoding macro scopes that would interfere with the check
-let (id, scps) := extractMacroScopes id;
-match id with
-| Name.str pre s _ =>
+match extractMacroScopes id with
+| { name := Name.str pre s _, scopes := scps, mainModule := mainModule } =>
   /- Add back macro scopes. We assume a declaration like `def a.b[1,2] ...` with macro scopes `[1,2]`
      is always meant to mean `namespace a def b[1,2] ...`. -/
-  let id := addMacroScopes (mkNameSimple s) scps;
+  let id := addMacroScopes mainModule (mkNameSimple s) scps;
   withNamespace ref pre $ do
     modifyScope $ fun scope => { levelNames := levelNames, .. scope };
     finally (f id) (modifyScope $ fun scope => { levelNames := savedLevelNames, .. scope })

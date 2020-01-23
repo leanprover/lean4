@@ -86,7 +86,7 @@ adaptExpander $ fun stx => match_syntax stx with
   some declName ← getDeclName?
     | throwError stx "invalid `parser!` macro, it must be used in definitions";
   match extractMacroScopes declName with
-  | (Name.str _ s _, scps) => do
+  | { name := Name.str _ s _, scopes :=  scps, .. } => do
     let kind := quote declName;
     let s    := quote s;
     p ← `(Lean.Parser.leadingNode $kind $e);

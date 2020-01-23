@@ -139,9 +139,8 @@ ctx ← read;
 when (ctx.currRecDepth == ctx.maxRecDepth) $ throwError ref maxRecDepthErrorMessage;
 adaptReader (fun (ctx : Context) => { currRecDepth := ctx.currRecDepth + 1, .. ctx }) x
 
-protected def getCurrMacroScope : TermElabM MacroScope := do
-ctx ← read;
-pure ctx.currMacroScope
+protected def getCurrMacroScope : TermElabM MacroScope := do ctx ← read; pure ctx.currMacroScope
+protected def getMainModule     : TermElabM Name := do env ← getEnv; pure env.mainModule
 
 @[inline] protected def withFreshMacroScope {α} (x : TermElabM α) : TermElabM α := do
 fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }));
@@ -149,6 +148,7 @@ adaptReader (fun (ctx : Context) => { ctx with currMacroScope := fresh }) x
 
 instance monadQuotation : MonadQuotation TermElabM := {
   getCurrMacroScope   := Term.getCurrMacroScope,
+  getMainModule       := Term.getMainModule,
   withFreshMacroScope := @Term.withFreshMacroScope
 }
 

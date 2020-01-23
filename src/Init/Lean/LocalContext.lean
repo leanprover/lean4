@@ -158,7 +158,7 @@ private partial def getUnusedNameAux (lctx : LocalContext) (suggestion : Name) :
 
 @[export lean_local_ctx_get_unused_name]
 def getUnusedName (lctx : LocalContext) (suggestion : Name) : Name :=
-let (suggestion, _) := extractMacroScopes suggestion;
+let suggestion := suggestion.eraseMacroScopes;
 if lctx.usesUserName suggestion then (getUnusedNameAux lctx suggestion 1).1
 else suggestion
 

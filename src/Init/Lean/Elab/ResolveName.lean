@@ -66,10 +66,11 @@ private def resolveOpenDecls (env : Environment) (id : Name) : List OpenDecl →
   let resolvedIds := if id == openedId then resolvedId :: resolvedIds else resolvedIds;
   resolveOpenDecls openDecls resolvedIds
 
-private def resolveGlobalNameAux (env : Environment) (ns : Name) (openDecls : List OpenDecl) (scps : List MacroScope) : Name → List String → List (Name × List String)
+private def resolveGlobalNameAux (env : Environment) (ns : Name) (openDecls : List OpenDecl)
+    (extractionResult : ExtractMacroScopesResult) : Name → List String → List (Name × List String)
 | id@(Name.str p s _), projs =>
   -- NOTE: we assume that macro scopes always belong to the projected constant, not the projections
-  let id := addMacroScopes id scps;
+  let id := addMacroScopes extractionResult.mainModule id extractionResult.scopes;
   match resolveUsingNamespace env id ns with
   | resolvedIds@(_ :: _) => resolvedIds.eraseDups.map $ fun id => (id, projs)
   | [] =>
@@ -86,8 +87,8 @@ private def resolveGlobalNameAux (env : Environment) (ns : Name) (openDecls : Li
 
 def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl) (id : Name) : List (Name × List String) :=
 -- decode macro scopes from name before recursion
-let (id, scps) := extractMacroScopes id;
-resolveGlobalNameAux env ns openDecls scps id []
+let extractionResult := extractMacroScopes id;
+resolveGlobalNameAux env ns openDecls extractionResult extractionResult.name []
 
 /- Namespace resolution -/
 

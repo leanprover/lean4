@@ -46,7 +46,6 @@ lean_object* l_Lean_Elab_Command_elabDefVal(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Elab_Command_collectUsedFVarsAtFVars___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Elab_Command_DefKind_isExample(uint8_t);
 lean_object* l_Lean_Name_getNumParts___main(lean_object*);
-extern lean_object* l___private_Init_Lean_Elab_Util_8__regTraceClasses___closed__2;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_ensureHasType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_mkFreshTypeMVar(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -125,6 +124,7 @@ lean_object* l_Lean_Elab_Term_elabBinders___rarg(lean_object*, lean_object*, lea
 lean_object* l_Lean_Elab_Command_removeUnused___closed__1;
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
+extern lean_object* l___private_Init_Lean_Elab_Util_8__regTraceClasses___closed__1;
 extern lean_object* l_HashMap_Inhabited___closed__1;
 uint8_t l_Lean_Elab_Command_DefKind_isDefOrOpaque(uint8_t);
 lean_object* lean_task_pure(lean_object*);
@@ -1371,7 +1371,7 @@ lean_object* _init_l_Lean_Elab_Command_mkDef___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Lean_Elab_Util_8__regTraceClasses___closed__2;
+x_1 = l___private_Init_Lean_Elab_Util_8__regTraceClasses___closed__1;
 x_2 = l_Lean_Elab_Command_mkDef___lambda__1___closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

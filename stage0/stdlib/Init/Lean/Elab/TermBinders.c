@@ -81,7 +81,6 @@ lean_object* l___private_Init_Lean_Elab_TermBinders_4__expandBinderModifier___bo
 lean_object* l___private_Init_Lean_Elab_TermBinders_4__expandBinderModifier___closed__1;
 lean_object* l_Lean_Elab_Term_withLetDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_getMainModule___rarg(lean_object*);
-extern lean_object* l___private_Init_Lean_Elab_Util_8__regTraceClasses___closed__2;
 extern lean_object* l_Lean_mkAppStx___closed__8;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_TermBinders_11__expandFunBinders(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -99,6 +98,7 @@ extern lean_object* l_Lean_Parser_Term_letIdDecl___elambda__1___closed__2;
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabFun___closed__3;
 lean_object* l_Lean_Elab_Term_elabLetIdDecl___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_Term_declareBuiltinTermElab___closed__3;
 extern lean_object* l_Lean_Expr_getOptParamDefault_x3f___closed__2;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabArrow___closed__2;
@@ -211,7 +211,6 @@ lean_object* l_Lean_Elab_Term_mkFreshFVarId___boxed(lean_object*);
 extern lean_object* l___private_Init_Util_1__mkPanicMessage___closed__2;
 lean_object* l_Lean_Elab_Term_elabLetPatDecl___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_mkHole___closed__1;
-extern lean_object* l_Lean_Elab_Term_declareBuiltinTermElab___closed__4;
 lean_object* l_Lean_Elab_Term_mkExplicitBinder(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_adaptExpander(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_TermBinders_4__expandBinderModifier(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -246,6 +245,7 @@ lean_object* l_Lean_Elab_Term_elabLet___closed__4;
 lean_object* l_Lean_Syntax_formatStxAux___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabArrow___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Init_Lean_Elab_Util_8__regTraceClasses___closed__1;
 lean_object* l_Lean_Elab_Term_elabForall(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabLet___closed__9;
 lean_object* l___private_Init_Lean_Elab_TermBinders_3__expandOptIdent___boxed(lean_object*, lean_object*, lean_object*);
@@ -3562,7 +3562,7 @@ lean_object* _init_l___regBuiltinTermElab_Lean_Elab_Term_elabForall___closed__2(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Term_declareBuiltinTermElab___closed__4;
+x_1 = l_Lean_Elab_Term_declareBuiltinTermElab___closed__3;
 x_2 = l___regBuiltinTermElab_Lean_Elab_Term_elabForall___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -3882,7 +3882,7 @@ lean_object* _init_l___regBuiltinTermElab_Lean_Elab_Term_elabArrow___closed__2()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Term_declareBuiltinTermElab___closed__4;
+x_1 = l_Lean_Elab_Term_declareBuiltinTermElab___closed__3;
 x_2 = l___regBuiltinTermElab_Lean_Elab_Term_elabArrow___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -3946,7 +3946,7 @@ lean_object* _init_l___regBuiltinTermElab_Lean_Elab_Term_elabDepArrow___closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Term_declareBuiltinTermElab___closed__4;
+x_1 = l_Lean_Elab_Term_declareBuiltinTermElab___closed__3;
 x_2 = l___regBuiltinTermElab_Lean_Elab_Term_elabDepArrow___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -17033,7 +17033,7 @@ lean_object* _init_l___regBuiltinTermElab_Lean_Elab_Term_elabFun___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Term_declareBuiltinTermElab___closed__4;
+x_1 = l_Lean_Elab_Term_declareBuiltinTermElab___closed__3;
 x_2 = l___regBuiltinTermElab_Lean_Elab_Term_elabFun___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -17751,7 +17751,7 @@ lean_object* _init_l_Lean_Elab_Term_elabLetIdDecl___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Lean_Elab_Util_8__regTraceClasses___closed__2;
+x_1 = l___private_Init_Lean_Elab_Util_8__regTraceClasses___closed__1;
 x_2 = l_Lean_Parser_Term_let___elambda__1___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -18525,7 +18525,7 @@ lean_object* _init_l___regBuiltinTermElab_Lean_Elab_Term_elabLet___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Term_declareBuiltinTermElab___closed__4;
+x_1 = l_Lean_Elab_Term_declareBuiltinTermElab___closed__3;
 x_2 = l___regBuiltinTermElab_Lean_Elab_Term_elabLet___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

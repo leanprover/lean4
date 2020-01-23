@@ -1541,7 +1541,6 @@ structure ParserExtensionState :=
 (kinds       : SyntaxNodeKindSet := {})
 (categories  : ParserCategories := {})
 (newEntries  : List ParserExtensionOleanEntry := [])
-(nextKindIdx : Nat := 1)
 
 instance ParserExtensionState.inhabited : Inhabited ParserExtensionState := ⟨{}⟩
 
@@ -1735,18 +1734,6 @@ registerPersistentEnvExtension {
 
 @[init mkParserExtension]
 constant parserExtension : ParserExtension := arbitrary _
-
-partial def mkFreshKindAux (kinds : SyntaxNodeKindSet) (base : Name) : Nat → Name × Nat
-| currIdx =>
-  let candidate := base.appendIndexAfter currIdx;
-  if kinds.contains candidate then mkFreshKindAux (currIdx+1)
-  else (candidate, currIdx)
-
-def mkFreshKind (env : Environment) (part : Name) : Environment × Name :=
-let s := parserExtension.getState env;
-let (kind, idx) := mkFreshKindAux s.kinds (`_kind ++ env.mainModule ++ part) s.nextKindIdx;
-let env := parserExtension.setState env { nextKindIdx := idx+1, .. s };
-(env, kind)
 
 def isParserCategory (env : Environment) (catName : Name) : Bool :=
 (parserExtension.getState env).categories.contains catName

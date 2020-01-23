@@ -221,6 +221,7 @@ extern lean_object* l_Lean_Elab_Term_elabParen___closed__4;
 lean_object* l_List_mapM___main___at___private_Init_Lean_Elab_Quotation_9__compileStxMatch___main___spec__8___closed__4;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_HeadInfo_generalizes___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_Term_declareBuiltinTermElab___closed__3;
 lean_object* l_List_mapM___main___at___private_Init_Lean_Elab_Quotation_9__compileStxMatch___main___spec__5___closed__1;
 lean_object* l___private_Init_Lean_Elab_Quotation_14__toPreterm___main___closed__1;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -440,7 +441,6 @@ lean_object* l_Array_umapMAux___main___at_Lean_Elab_Term_match__syntax_expand___
 extern lean_object* l_Lean_mkHole___closed__1;
 lean_object* l___private_Init_Lean_Elab_Quotation_5__quoteSyntax___main___closed__40;
 lean_object* l_List_map___main___at_Lean_Elab_Term_oldExpandMatchSyntax___spec__1(lean_object*);
-extern lean_object* l_Lean_Elab_Term_declareBuiltinTermElab___closed__4;
 lean_object* l_Lean_Elab_Term_elabMatchSyntax(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_12__letBindRhss___main___closed__11;
 lean_object* l___private_Init_Lean_Elab_Quotation_5__quoteSyntax(lean_object*, lean_object*, lean_object*);
@@ -4573,7 +4573,7 @@ lean_object* _init_l___regBuiltinTermElab_Lean_Elab_Term_elabStxQuot___closed__2
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Term_declareBuiltinTermElab___closed__4;
+x_1 = l_Lean_Elab_Term_declareBuiltinTermElab___closed__3;
 x_2 = l___regBuiltinTermElab_Lean_Elab_Term_elabStxQuot___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -14188,7 +14188,7 @@ lean_object* _init_l___regBuiltinTermElab_Lean_Elab_Term_elabMatchSyntax___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Term_declareBuiltinTermElab___closed__4;
+x_1 = l_Lean_Elab_Term_declareBuiltinTermElab___closed__3;
 x_2 = l___regBuiltinTermElab_Lean_Elab_Term_elabMatchSyntax___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

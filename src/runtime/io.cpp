@@ -484,7 +484,7 @@ static obj_res construct_cmd_line(obj_arg cmd, obj_arg args) {
     dec_ref(space);
     return res;
 }
-  
+
 // structure SpawnArgsIntl :=
 // (cmd : String)
 // (args : Array String := #[])
@@ -587,11 +587,11 @@ extern "C" obj_res lean_proc_kill(b_obj_arg pid, obj_arg /* w */) {
 }
 
 extern "C" obj_res lean_proc_wait(b_obj_arg pid, obj_arg /* w */) {
-    int wstatus, w;
+    int wstatus;
 #if defined(LEAN_WINDOWS)
     wstatus = WaitForSingleObject(reinterpret_cast<HANDLE>(unbox(pid)), 0);
 #else
-    w = waitpid(unbox(pid), &wstatus, WUNTRACED | WCONTINUED);
+    int w = waitpid(unbox(pid), &wstatus, WUNTRACED | WCONTINUED);
     if (w == -1) {
         return set_io_error(decode_io_error(errno, nullptr));
     }

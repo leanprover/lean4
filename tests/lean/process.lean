@@ -11,7 +11,7 @@ IO.FS.withFile "ex.txt" IO.FS.Mode.write $ fun h => do
   h.putStrLn "line 37"
 
 def test1 : IO Unit := do
-ch ← IO.Proc.spawn { cmd := "pwd", stdout := IO.Proc.Stdio.piped false };
+ch ← IO.Proc.spawn { cmd := "pwd", stdout := IO.Proc.Stdio.piped };
 some out ← pure ch.stdout;
 IO.println "> output";
 ln ← out.getLine;
@@ -27,8 +27,8 @@ def test3 : IO Unit := do
 IO.println "part a";
 ch ← IO.Proc.spawn
     { cmd := "cat", args := #["-", "ex.txt"],
-      stdin := IO.Proc.Stdio.piped false,
-      stdout := IO.Proc.Stdio.piped false,
+      stdin := IO.Proc.Stdio.piped,
+      stdout := IO.Proc.Stdio.piped,
       };
 let pid := ch.pid;
 some input ← pure ch.stdin;
@@ -63,8 +63,8 @@ def test3' : IO Unit := do
 IO.println "part b";
 ch ← IO.Proc.spawn
     { cmd := "cat", args := #["-","ex.txt"],
-      stdin := IO.Proc.Stdio.piped false,
-      stdout := IO.Proc.Stdio.piped false,
+      stdin := IO.Proc.Stdio.piped,
+      stdout := IO.Proc.Stdio.piped,
       };
 let pid := ch.pid;
 some input ← pure ch.stdin;
@@ -77,8 +77,8 @@ def test3'' : IO Unit := do
 IO.println "part c";
 ch ← IO.Proc.spawn
     { cmd := "cat", args := #["ex.txt","-","ex.txt"],
-      stdin := IO.Proc.Stdio.piped false,
-      stdout := IO.Proc.Stdio.piped false,
+      stdin := IO.Proc.Stdio.piped,
+      stdout := IO.Proc.Stdio.piped,
       };
 let pid := ch.pid;
 some input ← pure ch.stdin;
@@ -104,7 +104,7 @@ IO.Proc.wait cd;
 pure ()
 
 def test5 : IO Unit := do
-cd ← IO.Proc.spawn { cmd := "pwd", cwd := some "..", stdout := IO.Proc.Stdio.piped false };
+cd ← IO.Proc.spawn { cmd := "pwd", cwd := some "..", stdout := IO.Proc.Stdio.piped };
 some out ← pure cd.stdout;
 ln ← out.getLine;
 up ← dirUp;

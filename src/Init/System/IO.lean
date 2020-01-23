@@ -207,21 +207,6 @@ Prim.liftIO $ Prim.iterate "" $ fun r => do
     c ← h.getLine;
     pure $ Sum.inl (r ++ c) -- continue
 
-def Handle.readToExhaustion (h : Handle) : m String :=
-Prim.liftIO $ Prim.iterate "" $ fun r => do
-  done ← h.isEof;
-  if done
-  then pure (Sum.inr r) -- stop
-  else do
-    -- HACK: use less efficient `getLine` while `read` is broken
-    catch (do
-      c ← h.getLine;
-      pure $ Sum.inl (r ++ c) /- continue -/ ) $
-    fun e =>
-      match e with
-      | IO.Error.resourceExhausted _ _ _ => pure $ Sum.inr r
-      | _ => throw e
-
 end FS
 
 section

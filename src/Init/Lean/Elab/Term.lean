@@ -769,10 +769,9 @@ match result? with
 | none =>
   let process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do {
     when candidates.isEmpty $ do {
-      -- TODO: improve pretty printing
-      -- let extractionResult := extractMacroScopes n;
-      -- env ← getEnv;
-      throwError ref ("unknown identifier '" ++ toString n ++ "'")
+      mainModule ← getMainModule;
+      let view := extractMacroScopes n;
+      throwError ref ("unknown identifier '" ++ view.format mainModule ++ "'")
     };
     mkConsts ref candidates explicitLevels
   };

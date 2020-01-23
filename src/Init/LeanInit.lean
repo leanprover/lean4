@@ -259,8 +259,8 @@ mkNameStr (mkNameStr n "_@" ++ mainModule) "_hyg"
 def addMacroScopeExt (mainModule : Name) (n : Name) (scp : MacroScope) : Name :=
 mkNameNum (mkMacroScopeName mainModule n) scp
 
-def addMacroScope (n : Name) (scp : MacroScope) : Name :=
-addMacroScopeExt Name.anonymous n scp
+def addMacroScope (mainModule : Name) (n : Name) (scp : MacroScope) : Name :=
+mkNameNum (mkMacroScopeName mainModule n) scp
 
 def addMacroScopes (mainModule : Name) (n : Name) (scps : List MacroScope) : Name :=
 match scps with

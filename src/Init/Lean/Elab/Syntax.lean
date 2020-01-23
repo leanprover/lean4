@@ -300,10 +300,9 @@ else
 
 @[builtinCommandElab «macro»] def elabMacro : CommandElab :=
 adaptExpander $ fun stx => do
-  let head    := stx.getArg 1;
-  let args    := (stx.getArg 2).getArgs;
-  let cat     := stx.getArg 4;
-  let rhsBody := stx.getArg 7;
+  let head := stx.getArg 1;
+  let args := (stx.getArg 2).getArgs;
+  let cat  := stx.getArg 4;
   kind ← mkFreshKind (cat.getId).eraseMacroScopes;
   -- build parser
   stxPart  ← expandMacroHeadIntoSyntaxItem head;
@@ -313,8 +312,14 @@ adaptExpander $ fun stx => do
   patHead ← expandMacroHeadIntoPattern head;
   patArgs ← args.mapM expandMacroArgIntoPattern;
   let pat := Syntax.node kind (#[patHead] ++ patArgs);
-  trace `Elab.syntax stx $ fun _ => pat;
-  `(syntax [$(mkIdentFrom stx kind)] $stxParts* : $cat macro_rules | `($pat) => `($rhsBody))
+  if stx.getArgs.size == 7 then
+    -- `stx` is of the form `macro $head $args* : $cat => term`
+    let rhs := stx.getArg 6;
+    `(syntax [$(mkIdentFrom stx kind)] $stxParts* : $cat macro_rules | `($pat) => $rhs)
+  else
+    -- `stx` is of the form `macro $head $args* : $cat => `( $body )`
+    let rhsBody := stx.getArg 7;
+    `(syntax [$(mkIdentFrom stx kind)] $stxParts* : $cat macro_rules | `($pat) => `($rhsBody))
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab.syntax;

@@ -1202,7 +1202,10 @@ match prevErrorMsg, s.errorMsg with
   else if s.pos < prevStopPos then s.keepPrevError prevSize prevStopPos prevErrorMsg
   else s.mergeErrors prevSize oldError
 | some _, none => -- prev failed, current succeeded
-  s.mkLongestNodeAlt startSize
+  let s           := s.mkLongestNodeAlt prevSize; -- create successful alternative on the top of the stack
+  let successNode := s.stxStack.back;
+  let s           := s.shrinkStack startSize; -- restore stack to initial size to make sure (failure) nodes are removed from the stack
+  s.pushSyntax successNode -- put successNode back on the stack
 
 def longestMatchMkResult (startSize : Nat) (s : ParserState) : ParserState :=
 if !s.hasError && s.stackSize > startSize + 1 then s.mkNode choiceKind startSize else s

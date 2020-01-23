@@ -253,21 +253,24 @@ foo.bla._@.Init.Data.List.Basic._hyg.2.5
 We use two delimiters for improving `hasMacroScopes` performance.
 -/
 
-private def mkMacroScopeName (mainModule : Name) (n : Name) : Name :=
-mkNameStr (mkNameStr n "_@" ++ mainModule) "_hyg"
-
-def addMacroScope (mainModule : Name) (n : Name) (scp : MacroScope) : Name :=
-mkNameNum (mkMacroScopeName mainModule n) scp
-
-def addMacroScopes (mainModule : Name) (n : Name) (scps : List MacroScope) : Name :=
-match scps with
-| [] => n
-| _  => scps.foldl mkNameNum (mkMacroScopeName mainModule n)
-
 def Name.hasMacroScopes : Name → Bool
 | Name.str _ str _ => str == "_hyg"
 | Name.num p _   _ => Name.hasMacroScopes p
 | _                => false
+
+private def mkMacroScopeName (mainModule : Name) (n : Name) : Name :=
+mkNameStr (mkNameStr n "_@" ++ mainModule) "_hyg"
+
+def addMacroScope (mainModule : Name) (n : Name) (scp : MacroScope) : Name :=
+if n.hasMacroScopes then
+  mkNameNum n scp -- We ignore the case where the main module stored in `n` != `mainModule`
+else
+  mkNameNum (mkMacroScopeName mainModule n) scp
+
+def addMacroScopes (mainModule : Name) (n : Name) (scps : List MacroScope) : Name :=
+match scps with
+| [] => n
+| _  => scps.foldl mkNameNum (if n.hasMacroScopes then n else mkMacroScopeName mainModule n)
 
 structure ExtractMacroScopesResult :=
 (name       : Name)

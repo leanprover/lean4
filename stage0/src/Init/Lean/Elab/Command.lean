@@ -44,7 +44,7 @@ structure Context :=
 (stateRef       : IO.Ref State)
 (currRecDepth   : Nat := 0)
 (cmdPos         : String.Pos := 0)
-(macroStack     : List Syntax := [])
+(macroStack     : MacroStack := [])
 (currMacroScope : MacroScope := 0)
 
 instance Exception.inhabited : Inhabited Exception := ⟨Exception.error $ arbitrary _⟩
@@ -186,8 +186,8 @@ private def elabCommandUsing (s : State) (stx : Syntax) : List CommandElab → C
     | Exception.unsupportedSyntax => do set s; elabCommandUsing elabFns)
 
 /- Elaborate `x` with `stx` on the macro stack -/
-@[inline] def withMacroExpansion {α} (stx : Syntax) (x : CommandElabM α) : CommandElabM α :=
-adaptReader (fun (ctx : Context) => { macroStack := stx :: ctx.macroStack, .. ctx }) x
+@[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : CommandElabM α) : CommandElabM α :=
+adaptReader (fun (ctx : Context) => { macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack, .. ctx }) x
 
 partial def elabCommand : Syntax → CommandElabM Unit
 | stx => withIncRecDepth stx $ withFreshMacroScope $ match stx with
@@ -207,15 +207,15 @@ partial def elabCommand : Syntax → CommandElabM Unit
         scp ← getCurrMacroScope;
         env ← getEnv;
         match expandMacro env stx scp with
-        | some stx' => withMacroExpansion stx $ elabCommand stx'
+        | some stx' => withMacroExpansion stx stx' $ elabCommand stx'
         | none      => throwError stx ("command '" ++ toString k ++ "' has not been implemented")
   | _ => throwError stx "unexpected command"
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
 def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab :=
-fun stx => withMacroExpansion stx $ do
-  stx ← exp stx;
-  elabCommand stx
+fun stx => do
+  stx' ← exp stx;
+  withMacroExpansion stx stx' $ elabCommand stx'
 
 private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context :=
 let scope := s.scopes.head!;

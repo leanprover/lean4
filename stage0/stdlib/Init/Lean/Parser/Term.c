@@ -411,6 +411,7 @@ lean_object* l_Lean_Parser_Term_tupleTail___elambda__1(lean_object*, lean_object
 extern lean_object* l_Lean_Parser_Level_paren___closed__3;
 lean_object* l_Lean_Parser_Term_explicitUniv___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Term_forall___closed__7;
+extern lean_object* l_Lean_Syntax_termIdToAntiquot___closed__1;
 lean_object* l___regBuiltinParser_Lean_Parser_Term_tparser_x21(lean_object*);
 lean_object* l_Lean_Parser_Term_eq___elambda__1___closed__3;
 extern lean_object* l_List_repr___rarg___closed__3;
@@ -1934,7 +1935,6 @@ lean_object* l_Lean_Parser_Term_doId___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Term_proj___elambda__1___closed__3;
 lean_object* l_Lean_Parser_Term_letIdDecl___closed__6;
 lean_object* l_Lean_Parser_Term_app___closed__4;
-extern lean_object* l_Lean_Parser_mkAntiquot___closed__1;
 lean_object* _init_l_Lean_Parser_darrow___elambda__1___rarg___closed__1() {
 _start:
 {
@@ -22850,7 +22850,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_mkAppStx___closed__6;
-x_2 = l_Lean_Parser_mkAntiquot___closed__1;
+x_2 = l_Lean_Syntax_termIdToAntiquot___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

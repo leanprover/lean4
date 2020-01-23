@@ -45,6 +45,8 @@ partial def evalNat : Expr → Option Nat
       v₁ ← evalNat (e.getArg! 2);
       v₂ ← evalNat (e.getArg! 3);
       pure $ v₁ * v₂
+    else if c == `HasOfNat.ofNat && nargs == 3 then
+      evalNat (e.getArg! 2)
     else
       none
   | _ => none

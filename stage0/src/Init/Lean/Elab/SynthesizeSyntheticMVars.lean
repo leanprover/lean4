@@ -41,7 +41,7 @@ adaptReader (fun (ctx : Context) => { errToSorry := ctx.errToSorry && errToSorry
   Try to elaborate `stx` that was postponed by an elaboration method using `Expection.postpone`.
   It returns `true` if it succeeded, and `false` otherwise.
   It is used to implement `synthesizeSyntheticMVars`. -/
-private def resumePostponed (macroStack : List Syntax) (stx : Syntax) (mvarId : MVarId) (postponeOnError : Bool) : TermElabM Bool := do
+private def resumePostponed (macroStack : MacroStack) (stx : Syntax) (mvarId : MVarId) (postponeOnError : Bool) : TermElabM Bool := do
 withMVarContext mvarId $ do
   s ← get;
   catch
@@ -161,7 +161,6 @@ private partial def synthesizeSyntheticMVarsAux (mayPostpone := true) : Unit →
     unless s.syntheticMVars.isEmpty $ do
       try (synthesizeSyntheticMVarsStep false false) $
       unless mayPostpone $ do
-        try synthesizeUsingDefault $
         /- Resume pending metavariables with "elaboration postponement" disabled.
            We postpone elaboration errors in this step by setting `postponeOnError := true`.
            Example:
@@ -179,6 +178,7 @@ private partial def synthesizeSyntheticMVarsAux (mayPostpone := true) : Unit →
            By disabling postponement, we are essentially giving up the opportunity of learning `x`s type
            and assume it does not have implict and/or auto arguments. -/
         try (withoutPostponing (synthesizeSyntheticMVarsStep true  false)) $
+        try synthesizeUsingDefault $
         try (withoutPostponing (synthesizeSyntheticMVarsStep false false)) $
         try (synthesizeSyntheticMVarsStep false true) $
         reportStuckSyntheticMVars

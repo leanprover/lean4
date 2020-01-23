@@ -256,6 +256,7 @@ lean_object* l_Lean_Parser_Command_structInstBinder___closed__6;
 lean_object* l_Lean_Parser_Command_theorem___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Command_openSimple;
 lean_object* l_Lean_Parser_Command_openRenamingItem___elambda__1___closed__1;
+extern lean_object* l_Lean_Syntax_termIdToAntiquot___closed__1;
 lean_object* l_Lean_Parser_Command_instance;
 lean_object* l___private_Init_Lean_Parser_Parser_2__sepByFnAux___main___at_Lean_Parser_Command_openRenaming___elambda__1___spec__2(uint8_t, uint8_t, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_instance___closed__8;
@@ -1167,7 +1168,6 @@ lean_object* l_Lean_Parser_Command_set__option___closed__11;
 lean_object* l_Lean_Parser_Command_open___elambda__1___closed__9;
 lean_object* l_Lean_Parser_Command_theorem___closed__2;
 lean_object* l_Lean_Parser_Command_declId___elambda__1___closed__2;
-extern lean_object* l_Lean_Parser_mkAntiquot___closed__1;
 lean_object* l_Lean_Parser_Command_constant;
 lean_object* _init_l_Lean_Parser_regBuiltinCommandParserAttr___closed__1() {
 _start:
@@ -1939,7 +1939,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___regBuiltinParser_Lean_Parser_Command_antiquot___closed__2;
-x_2 = l_Lean_Parser_mkAntiquot___closed__1;
+x_2 = l_Lean_Syntax_termIdToAntiquot___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

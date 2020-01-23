@@ -510,6 +510,10 @@ match stx.isStrLit? with
 | none     => stx
 | some val => Syntax.atom stx.getHeadInfo val
 
+/-- Given `var` a `Term.id`, created the antiquotation syntax representing `$<var>:<catName>` -/
+def termIdToAntiquot (var : Syntax) (catName : String) : Syntax :=
+Syntax.node `Lean.Parser.antiquot #[mkAtomFrom var "$", var, mkAtomFrom var ":", mkAtomFrom var catName, mkNullNode]
+
 end Syntax
 end Lean
 

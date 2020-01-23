@@ -51,9 +51,10 @@ match expectedType? with
       if val.ctors.length != 1 then
         throwError ref ("invalid constructor ⟨...⟩, '" ++ constName ++ "' must have only one constructor")
       else
-        let ctor := mkCTermIdFrom ref val.ctors.head!;
-        let args := (stx.getArg 1).getArgs.getEvenElems; do
-        withMacroExpansion ref $ elabTerm (mkAppStx ctor args) expectedType?
+        let ctor   := mkCTermIdFrom ref val.ctors.head!;
+        let args   := (stx.getArg 1).getArgs.getEvenElems; do
+        let newStx := mkAppStx ctor args;
+        withMacroExpansion ref newStx $ elabTerm newStx expectedType?
     | _ => throwError ref ("invalid constructor ⟨...⟩, '" ++ constName ++ "' is not an inductive type")
   | _ => throwError ref ("invalid constructor ⟨...⟩, expected type is not an inductive type " ++ indentExpr expectedType)
 

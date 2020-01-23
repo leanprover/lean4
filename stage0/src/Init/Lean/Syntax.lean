@@ -236,6 +236,11 @@ match setTailInfoAux info stx with
 | some stx => stx
 | none     => stx
 
+def truncateTrailing (stx : Syntax) : Syntax :=
+match stx.getTailInfo with
+| none      => stx
+| some info => stx.setTailInfo info.truncateTrailing
+
 private def reprintLeaf : Option SourceInfo → String → String
 -- no source info => add gracious amounts of whitespace to definitely separate tokens
 -- Note that the proper pretty printer does not use this function.

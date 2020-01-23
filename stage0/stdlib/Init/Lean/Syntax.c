@@ -57,6 +57,7 @@ extern lean_object* l_Lean_mkAppStx___closed__4;
 lean_object* l_Lean_mkAtom(lean_object*);
 lean_object* l_Lean_Syntax_mreplace___main(lean_object*);
 lean_object* l_Lean_Syntax_Lean_HasFormat(lean_object*);
+lean_object* l_Lean_Syntax_truncateTrailing(lean_object*);
 lean_object* l_Lean_Syntax_mreplace___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Syntax_3__updateLast___main___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3012,6 +3013,43 @@ x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 lean_dec(x_3);
 return x_4;
+}
+}
+}
+lean_object* l_Lean_Syntax_truncateTrailing(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Syntax_getTailInfo___main(x_1);
+if (lean_obj_tag(x_2) == 0)
+{
+return x_1;
+}
+else
+{
+uint8_t x_3; 
+x_3 = !lean_is_exclusive(x_2);
+if (x_3 == 0)
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_4 = lean_ctor_get(x_2, 0);
+x_5 = l_Lean_SourceInfo_truncateTrailing(x_4);
+lean_ctor_set(x_2, 0, x_5);
+x_6 = l_Lean_Syntax_setTailInfo(x_1, x_2);
+return x_6;
+}
+else
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_7 = lean_ctor_get(x_2, 0);
+lean_inc(x_7);
+lean_dec(x_2);
+x_8 = l_Lean_SourceInfo_truncateTrailing(x_7);
+x_9 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_9, 0, x_8);
+x_10 = l_Lean_Syntax_setTailInfo(x_1, x_9);
+return x_10;
+}
 }
 }
 }

@@ -149,6 +149,7 @@ lean_object* lean_get_antiquot_vars(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_mkFreshAnonymousName___rarg___closed__1;
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Quotation_5__quoteSyntax___main___spec__1___closed__3;
 lean_object* l___private_Init_Lean_Elab_Quotation_12__letBindRhss___main___closed__3;
+extern lean_object* l_Lean_Syntax_termIdToAntiquot___closed__1;
 lean_object* l_List_foldl___main___at___private_Init_Lean_Elab_Quotation_14__toPreterm___main___spec__8(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_stxQuot_expand___closed__24;
 lean_object* l___private_Init_Lean_Elab_Quotation_5__quoteSyntax___main___closed__48;
@@ -593,7 +594,6 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_stxQuot_expand___closed__16;
 lean_object* l_monadInhabited___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_5__quoteSyntax___main___closed__22;
-extern lean_object* l_Lean_Parser_mkAntiquot___closed__1;
 lean_object* l___private_Init_Lean_Elab_Quotation_9__compileStxMatch___main___closed__27;
 lean_object* _init_l_Lean_Syntax_HasQuote() {
 _start:
@@ -1033,7 +1033,7 @@ if (lean_obj_tag(x_2) == 1)
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_2, 1);
-x_4 = l_Lean_Parser_mkAntiquot___closed__1;
+x_4 = l_Lean_Syntax_termIdToAntiquot___closed__1;
 x_5 = lean_string_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
@@ -1096,7 +1096,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t 
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
-x_6 = l_Lean_Parser_mkAntiquot___closed__1;
+x_6 = l_Lean_Syntax_termIdToAntiquot___closed__1;
 x_7 = lean_string_dec_eq(x_5, x_6);
 if (x_7 == 0)
 {

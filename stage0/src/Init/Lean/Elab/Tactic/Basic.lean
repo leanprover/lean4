@@ -169,8 +169,8 @@ private def evalTacticUsing (s : State) (stx : Syntax) : List Tactic → TacticM
     | Exception.unsupportedSyntax => do set s; evalTacticUsing evalFns)
 
 /- Elaborate `x` with `stx` on the macro stack -/
-@[inline] def withMacroExpansion {α} (stx : Syntax) (x : TacticM α) : TacticM α :=
-adaptReader (fun (ctx : Context) => { macroStack := stx :: ctx.macroStack, .. ctx }) x
+@[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : TacticM α) : TacticM α :=
+adaptReader (fun (ctx : Context) => { macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack, .. ctx }) x
 
 @[specialize] private def expandTacticMacroFns (evalTactic : Syntax → TacticM Unit) (stx : Syntax) : List Macro → TacticM Unit
 | []    => throwError stx ("tactic '" ++ toString stx.getKind ++ "' has not been implemented")
@@ -211,9 +211,9 @@ partial def evalTactic : Syntax → TacticM Unit
 
 /-- Adapt a syntax transformation to a regular tactic evaluator. -/
 def adaptExpander (exp : Syntax → TacticM Syntax) : Tactic :=
-fun stx => withMacroExpansion stx $ do
-  stx ← exp stx;
-  evalTactic stx
+fun stx => do
+  stx' ← exp stx;
+  withMacroExpansion stx stx' $ evalTactic stx'
 
 @[inline] def withLCtx {α} (lctx : LocalContext) (localInsts : LocalInstances) (x : TacticM α) : TacticM α :=
 adaptReader (fun (ctx : Context) => { lctx := lctx, localInstances := localInsts, .. ctx }) x

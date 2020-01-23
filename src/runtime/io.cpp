@@ -7,6 +7,10 @@ Author: Leonardo de Moura
 #if defined(LEAN_WINDOWS)
 #include <windows.h>
 #include <namedpipeapi.h>
+#include <Fcntl.h>
+#include <stdio.h>
+#include <io.h>
+#include <Processthreadsapi.h>
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>
 #else
@@ -306,7 +310,7 @@ extern "C" obj_res lean_io_mk_pipe(bool non_blocking, obj_arg /* w */) {
     int in_fd = _open_osfhandle(reinterpret_cast<intptr_t>(read), _O_APPEND);
     int out_fd = _open_osfhandle(reinterpret_cast<intptr_t>(read), _O_APPEND);
     if (non_blocking) {
-        fcntl(in_fd, F_GETFL);
+        fcntl(in_fd, F_SETFL, O_NONBLOCK);
     }
     return set_io_result(mk_pipe_obj(in_fd, out_fd));
 #else

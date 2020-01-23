@@ -272,12 +272,12 @@ match scps with
 | [] => n
 | _  => scps.foldl mkNameNum (if n.hasMacroScopes then n else mkMacroScopeName mainModule n)
 
-structure ExtractMacroScopesResult :=
+structure MacroScopesView :=
 (name       : Name)
 (mainModule : Name)
 (scopes     : List MacroScope)
 
-instance ExtractMacroScopesResult.inhabited : Inhabited ExtractMacroScopesResult :=
+instance MacroScopesView.inhabited : Inhabited MacroScopesView :=
 ⟨⟨arbitrary _, arbitrary _, arbitrary _⟩⟩
 
 private def assembleExtractedName : List Name → Name → Name
@@ -286,7 +286,7 @@ private def assembleExtractedName : List Name → Name → Name
 | (Name.num _ n _) :: ps, acc => assembleExtractedName ps (mkNameNum acc n)
 | _,                      _   => unreachable!
 
-private def extractMainModule (scps : List MacroScope) : Name → List Name → ExtractMacroScopesResult
+private def extractMainModule (scps : List MacroScope) : Name → List Name → MacroScopesView
 | n@(Name.str p str _), acc =>
   if str == "_@" then
     { name := p, mainModule := assembleExtractedName acc Name.anonymous, scopes := scps }
@@ -295,7 +295,7 @@ private def extractMainModule (scps : List MacroScope) : Name → List Name → 
 | n@(Name.num p num _), acc => extractMainModule p (n :: acc)
 | _,                    _   => unreachable!
 
-private def extractMacroScopesAux : Name → List MacroScope → ExtractMacroScopesResult
+private def extractMacroScopesAux : Name → List MacroScope → MacroScopesView
 | Name.num p scp _, acc => extractMacroScopesAux p (scp::acc)
 | Name.str p str _, acc => extractMainModule acc.reverse p [] -- str must be "_hyg"
 | _,                _   => unreachable!
@@ -304,11 +304,14 @@ private def extractMacroScopesAux : Name → List MacroScope → ExtractMacroSco
   Revert all `addMacroScope` calls. `⟨mainModule, n', scps⟩ = extractMacroScopes n → n = addMacroScopes mainModule n' scps`.
   This operation is useful for analyzing/transforming the original identifiers, then adding back
   the scopes (via `addMacroScopes`). -/
-def extractMacroScopes (n : Name) : ExtractMacroScopesResult :=
+def extractMacroScopes (n : Name) : MacroScopesView :=
 if n.hasMacroScopes then
   extractMacroScopesAux n []
 else
   { name := n, scopes := [], mainModule := Name.anonymous }
+
+def MacroScopesView.review (view : MacroScopesView) : Name :=
+addMacroScopes view.mainModule view.name view.scopes
 
 private def eraseMacroScopesAux : Name → Name
 | Name.str p str _ => if str == "_@" then p else eraseMacroScopesAux p

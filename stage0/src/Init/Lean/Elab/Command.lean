@@ -576,15 +576,16 @@ levelNames      ←
   };
 let ref := declId;
 -- extract (optional) namespace part of id, after decoding macro scopes that would interfere with the check
-match extractMacroScopes id with
-| { name := Name.str pre s _, scopes := scps, mainModule := mainModule } =>
+let scpView := extractMacroScopes id;
+match scpView.name with
+| Name.str pre s _ =>
   /- Add back macro scopes. We assume a declaration like `def a.b[1,2] ...` with macro scopes `[1,2]`
      is always meant to mean `namespace a def b[1,2] ...`. -/
-  let id := addMacroScopes mainModule (mkNameSimple s) scps;
+  let id := { name := mkNameSimple s, .. scpView }.review;
   withNamespace ref pre $ do
     modifyScope $ fun scope => { levelNames := levelNames, .. scope };
     finally (f id) (modifyScope $ fun scope => { levelNames := savedLevelNames, .. scope })
-| _                => throwError ref "invalid declaration name"
+| _ => throwError ref "invalid declaration name"
 
 /--
   Sort the given list of `usedParams` using the following order:

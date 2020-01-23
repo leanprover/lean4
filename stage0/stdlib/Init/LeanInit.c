@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Array_getSepElems___rarg___boxed(lean_object*);
 lean_object* l_Lean_mkTermId(lean_object*);
 lean_object* l_Lean_mkHole___closed__3;
@@ -28,6 +27,7 @@ lean_object* l_Lean_extractMacroScopes(lean_object*);
 lean_object* l_Lean_ParserDescr_pushLeading;
 lean_object* l_Lean_fieldIdxKind;
 lean_object* l_Lean_Syntax_isNatLit_x3f___boxed(lean_object*);
+lean_object* l___private_Init_LeanInit_1__eraseMacroScopesAux___main___closed__1;
 lean_object* l_Lean_MacroM_monadQuotation;
 lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l_Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
@@ -35,33 +35,35 @@ lean_object* l_Lean_Macro_throwUnsupported___closed__1;
 lean_object* l_Array_findMAux___main___at_Lean_Syntax_getHeadInfo___main___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l___private_Init_LeanInit_12__decodeQuotedChar___boxed__const__1;
+lean_object* l_Lean_MacroScopesView_inhabited;
 lean_object* l___private_Init_LeanInit_10__decodeDecimalLitAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkTermIdFromIdent(lean_object*);
 lean_object* l_unreachable_x21___rarg(lean_object*);
 lean_object* l_Lean_nullKind;
 lean_object* l_Lean_Name_HasAppend;
+lean_object* l___private_Init_LeanInit_2__assembleParts___main(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_identToAtom___boxed(lean_object*);
 lean_object* l_Lean_Macro_throwUnsupported___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_fieldIdxKind___closed__2;
 lean_object* l_Lean_ParserDescr_orelse(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_MacroM_monadQuotation___lambda__2(lean_object*);
-lean_object* l___private_Init_LeanInit_3__extractMainModule(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_8__decodeHexDigit___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_10__decodeDecimalLitAux___main(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_LeanInit_4__extractMainModule(lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Array_findMAux___main___at_Lean_Syntax_getHeadInfo___main___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_ParserDescr_optional(uint8_t, lean_object*);
 lean_object* l_Lean_Syntax_toNat___boxed(lean_object*);
 lean_object* l___private_Init_LeanInit_8__decodeHexDigit(lean_object*, lean_object*);
+lean_object* l___private_Init_LeanInit_1__eraseMacroScopesAux___main(lean_object*);
 lean_object* l_Lean_ParserDescr_lookahead(uint8_t, lean_object*);
-lean_object* l___private_Init_LeanInit_4__extractMacroScopesAux(lean_object*, lean_object*);
+lean_object* l___private_Init_LeanInit_5__extractMacroScopesAux(lean_object*, lean_object*);
 extern lean_object* l_Array_empty___closed__1;
 lean_object* l_Lean_Syntax_isOfKind___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_HasBeq;
 lean_object* l_Lean_fieldIdxKind___closed__1;
 uint8_t l_Char_isDigit(uint32_t);
 lean_object* l_Lean_charLitKind___closed__2;
-lean_object* l___private_Init_LeanInit_1__mkMacroScopeName(lean_object*, lean_object*);
 lean_object* l_Lean_ParserDescr_many(uint8_t, lean_object*);
 lean_object* l___private_Init_LeanInit_7__decodeOctalLitAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkIdentFrom(lean_object*, lean_object*);
@@ -87,12 +89,10 @@ lean_object* l___private_Init_LeanInit_6__decodeBinLitAux___main(lean_object*, l
 lean_object* l_Lean_Syntax_termIdToAntiquot___closed__1;
 lean_object* l___private_Init_LeanInit_12__decodeQuotedChar___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_hashable___closed__1;
-lean_object* l___private_Init_LeanInit_2__assembleExtractedName(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_Syntax_getHeadInfo___main___boxed(lean_object*);
 lean_object* l_Lean_mkAppStx___closed__4;
 lean_object* l_Lean_mkIdentFrom___boxed(lean_object*, lean_object*);
-lean_object* l___private_Init_LeanInit_2__assembleExtractedName___main(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_decodeStrLitAux___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_NameGenerator_Inhabited;
 lean_object* l_Lean_mkTermIdFromIdent___closed__1;
@@ -101,6 +101,7 @@ lean_object* l_Lean_Syntax_termIdToAntiquot___closed__2;
 lean_object* l_Lean_mkAppStx___closed__8;
 lean_object* l_Lean_mkAppStx___closed__7;
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l___private_Init_LeanInit_4__extractMainModule___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlStepMAux___main___at_Array_getSepElems___spec__1(lean_object*);
 lean_object* l_Lean_Name_toStringWithSep(lean_object*, lean_object*);
 lean_object* l_Array_foldlStepMAux___main___at_Array_getSepElems___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -148,12 +149,14 @@ lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_numLitKind___closed__1;
 lean_object* l_Lean_NameGenerator_next(lean_object*);
 lean_object* l_Lean_Syntax_decodeCharLit___boxed(lean_object*);
+lean_object* l___private_Init_LeanInit_1__eraseMacroScopesAux(lean_object*);
 lean_object* l_Lean_strLitKind___closed__1;
 lean_object* l___private_Init_LeanInit_12__decodeQuotedChar___boxed__const__5;
 lean_object* l_Lean_Syntax_isNatLitAux___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_NameGenerator_Inhabited___closed__2;
 lean_object* l_Lean_Syntax_getArgs___boxed(lean_object*);
 lean_object* l_Array_getSepElems___rarg(lean_object*);
+lean_object* l___private_Init_LeanInit_1__eraseMacroScopesAux___boxed(lean_object*);
 lean_object* l___private_Init_LeanInit_10__decodeDecimalLitAux___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkNullNode(lean_object*);
 lean_object* l_Lean_strLitKind___closed__2;
@@ -171,7 +174,6 @@ lean_object* l_Lean_ParserDescr_andthen(uint8_t, lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_6__decodeBinLitAux___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserDescr_symbol___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_9__decodeHexLitAux___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_LeanInit_5__eraseMacroScopesAux___main___boxed(lean_object*);
 lean_object* l_Lean_numLitKind___closed__2;
 lean_object* l_Lean_ParserDescr_node(uint8_t, lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
@@ -181,27 +183,26 @@ lean_object* l_Lean_ParserDescr_ident___boxed(lean_object*);
 lean_object* l_Lean_mkOptionalNode(lean_object*);
 lean_object* l_Lean_ParserDescr_str___boxed(lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_ExtractMacroScopesResult_inhabited___closed__1;
 lean_object* l_Lean_ParserDescr_node___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_NameGenerator_mkChild(lean_object*);
 lean_object* l_Lean_ParserDescr_parser___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isCharLit_x3f___boxed(lean_object*);
+lean_object* l___private_Init_LeanInit_2__assembleParts(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_nullKind___closed__1;
 lean_object* l_Lean_Syntax_decodeStrLit___boxed(lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserDescr_nonReservedSymbol___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_decodeCharLit(lean_object*);
+lean_object* l_Lean_MacroScopesView_inhabited___closed__1;
 lean_object* l_Lean_Name_toStringWithSep___main___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_7__decodeOctalLitAux___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_nullKind___closed__2;
 lean_object* l_Lean_MacroM_monadQuotation___closed__3;
 lean_object* l_Lean_Syntax_isStrLit_x3f___boxed(lean_object*);
-lean_object* l___private_Init_LeanInit_5__eraseMacroScopesAux___boxed(lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main___closed__1;
 lean_object* l_Lean_mkAtomFrom(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getHeadInfo___main(lean_object*);
-lean_object* l___private_Init_LeanInit_5__eraseMacroScopesAux(lean_object*);
 lean_object* l_Lean_mkAppStx___closed__3;
 lean_object* l_Lean_Syntax_isIdOrAtom_x3f(lean_object*);
 lean_object* l_Lean_ParserDescrCore_inhabited___boxed(lean_object*);
@@ -213,21 +214,21 @@ lean_object* l_Lean_Syntax_inhabited;
 lean_object* l_Lean_mkAppStx___closed__5;
 lean_object* l_Lean_mkHole(lean_object*);
 lean_object* l_Lean_MacroM_monadQuotation___lambda__1___boxed(lean_object*);
+lean_object* l___private_Init_LeanInit_3__extractImported(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserDescr_char___boxed(lean_object*);
-lean_object* l___private_Init_LeanInit_4__extractMacroScopesAux___main(lean_object*, lean_object*);
+lean_object* l___private_Init_LeanInit_5__extractMacroScopesAux___main(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_hasArgs(lean_object*);
 lean_object* l_String_quote(lean_object*);
 lean_object* l___private_Init_LeanInit_12__decodeQuotedChar(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
+lean_object* l_Lean_MacroScopesView_review(lean_object*);
 lean_object* l_Lean_Syntax_getArg___boxed(lean_object*, lean_object*);
-lean_object* l___private_Init_LeanInit_3__extractMainModule___main(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_identToAtom(lean_object*);
 lean_object* l_Lean_Name_Name_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getHeadInfo___boxed(lean_object*);
 lean_object* l___private_Init_LeanInit_11__decodeNatLitVal___boxed(lean_object*);
-lean_object* l_Lean_ExtractMacroScopesResult_inhabited;
 lean_object* l___private_Init_LeanInit_11__decodeNatLitVal___closed__1;
 extern lean_object* l___private_Init_Util_1__mkPanicMessage___closed__2;
 lean_object* l___private_Init_LeanInit_7__decodeOctalLitAux___main(lean_object*, lean_object*, lean_object*);
@@ -237,19 +238,16 @@ lean_object* l_Lean_mkHole___closed__1;
 lean_object* l_Lean_Name_hasMacroScopes___boxed(lean_object*);
 lean_object* l_Lean_mkStxStrLit(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
-lean_object* l_Lean_addMacroScopes(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkCAppStx(lean_object*, lean_object*);
 lean_object* l_Lean_mkAppStx___closed__9;
 lean_object* l_Lean_Name_HasBeq___closed__1;
 lean_object* l_Lean_Name_append___main___boxed(lean_object*, lean_object*);
-lean_object* l___private_Init_LeanInit_5__eraseMacroScopesAux___main(lean_object*);
 lean_object* l_Lean_mkTermIdFrom(lean_object*, lean_object*);
 lean_object* l_Lean_mkOptionalNode___closed__1;
 lean_object* l_Lean_ParserDescr_orelse___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_LeanInit_10__decodeDecimalLitAux___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_termIdToAntiquot(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_decodeStrLit(lean_object*);
-lean_object* l___private_Init_LeanInit_1__mkMacroScopeName___closed__1;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 size_t lean_usize_mix_hash(size_t, size_t);
 lean_object* l_Lean_mkCIdentFrom___boxed(lean_object*, lean_object*);
@@ -258,9 +256,9 @@ lean_object* l_Lean_mkCIdentFrom___closed__1;
 lean_object* lean_string_length(lean_object*);
 lean_object* l_Lean_MacroM_monadQuotation___closed__1;
 lean_object* l_Lean_Syntax_getKind___closed__3;
+lean_object* l_List_foldl___main___at_Lean_MacroScopesView_review___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_ParserDescr_sepBy___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Macro_throwUnsupported(lean_object*, lean_object*);
-lean_object* l_List_foldl___main___at_Lean_addMacroScopes___spec__1(lean_object*, lean_object*);
 lean_object* lean_mk_syntax_ident(lean_object*);
 lean_object* l_Lean_mkStxLit(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -272,6 +270,7 @@ lean_object* l_Lean_Name_eraseMacroScopes___boxed(lean_object*);
 lean_object* l_Lean_mkCTermIdFrom(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_strLitToAtom___boxed(lean_object*);
 lean_object* l_Lean_Syntax_decodeStrLitAux___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t l_List_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_mkAtomFrom___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
 lean_object* l_Lean_ParserDescr_symbol(uint8_t, lean_object*, lean_object*);
@@ -293,8 +292,10 @@ lean_object* l___private_Init_LeanInit_11__decodeNatLitVal(lean_object*);
 lean_object* l_Lean_Syntax_isFieldIdx_x3f___boxed(lean_object*);
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* l_Lean_mkAppStx___closed__1;
+lean_object* l___private_Init_LeanInit_3__extractImported___main(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_string_hash(lean_object*);
 lean_object* l_Lean_ParserDescr_sepBy1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_LeanInit_1__eraseMacroScopesAux___main___boxed(lean_object*);
 lean_object* l_Lean_Name_append___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_NameGenerator_Inhabited___closed__3;
 lean_object* l_Lean_MacroM_monadQuotation___closed__4;
@@ -1471,7 +1472,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-lean_object* _init_l___private_Init_LeanInit_1__mkMacroScopeName___closed__1() {
+lean_object* _init_l___private_Init_LeanInit_1__eraseMacroScopesAux___main___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1479,41 +1480,121 @@ x_1 = lean_mk_string("_@");
 return x_1;
 }
 }
-lean_object* l___private_Init_LeanInit_1__mkMacroScopeName(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_LeanInit_1__eraseMacroScopesAux___main(lean_object* x_1) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_3 = l___private_Init_LeanInit_1__mkMacroScopeName___closed__1;
-x_4 = lean_name_mk_string(x_2, x_3);
-x_5 = l_Lean_Name_append___main(x_4, x_1);
-lean_dec(x_4);
-x_6 = l_Lean_Name_hasMacroScopes___main___closed__1;
-x_7 = lean_name_mk_string(x_5, x_6);
-return x_7;
-}
-}
-lean_object* l_Lean_addMacroScope(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
+switch (lean_obj_tag(x_1)) {
+case 0:
 {
-uint8_t x_4; 
-x_4 = l_Lean_Name_hasMacroScopes___main(x_2);
-if (x_4 == 0)
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_Name_inhabited;
+x_3 = l_unreachable_x21___rarg(x_2);
+return x_3;
+}
+case 1:
 {
-lean_object* x_5; lean_object* x_6; 
-x_5 = l___private_Init_LeanInit_1__mkMacroScopeName(x_1, x_2);
-x_6 = lean_name_mk_numeral(x_5, x_3);
-return x_6;
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_4 = lean_ctor_get(x_1, 0);
+x_5 = lean_ctor_get(x_1, 1);
+x_6 = l___private_Init_LeanInit_1__eraseMacroScopesAux___main___closed__1;
+x_7 = lean_string_dec_eq(x_5, x_6);
+if (x_7 == 0)
+{
+x_1 = x_4;
+goto _start;
 }
 else
 {
-lean_object* x_7; 
+lean_inc(x_4);
+return x_4;
+}
+}
+default: 
+{
+lean_object* x_9; 
+x_9 = lean_ctor_get(x_1, 0);
+x_1 = x_9;
+goto _start;
+}
+}
+}
+}
+lean_object* l___private_Init_LeanInit_1__eraseMacroScopesAux___main___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l___private_Init_LeanInit_1__eraseMacroScopesAux___main(x_1);
 lean_dec(x_1);
-x_7 = lean_name_mk_numeral(x_2, x_3);
-return x_7;
+return x_2;
+}
+}
+lean_object* l___private_Init_LeanInit_1__eraseMacroScopesAux(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l___private_Init_LeanInit_1__eraseMacroScopesAux___main(x_1);
+return x_2;
+}
+}
+lean_object* l___private_Init_LeanInit_1__eraseMacroScopesAux___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l___private_Init_LeanInit_1__eraseMacroScopesAux(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; 
+x_2 = l_Lean_Name_hasMacroScopes___main(x_1);
+if (x_2 == 0)
+{
+lean_inc(x_1);
+return x_1;
+}
+else
+{
+lean_object* x_3; 
+x_3 = l___private_Init_LeanInit_1__eraseMacroScopesAux___main(x_1);
+return x_3;
 }
 }
 }
-lean_object* l_List_foldl___main___at_Lean_addMacroScopes___spec__1(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Name_eraseMacroScopes___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Name_eraseMacroScopes(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+lean_object* _init_l_Lean_MacroScopesView_inhabited___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = lean_box(0);
+x_3 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_2);
+lean_ctor_set(x_3, 2, x_2);
+lean_ctor_set(x_3, 3, x_1);
+return x_3;
+}
+}
+lean_object* _init_l_Lean_MacroScopesView_inhabited() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_MacroScopesView_inhabited___closed__1;
+return x_1;
+}
+}
+lean_object* l_List_foldl___main___at_Lean_MacroScopesView_review___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -1535,57 +1616,46 @@ goto _start;
 }
 }
 }
-lean_object* l_Lean_addMacroScopes(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_MacroScopesView_review(lean_object* x_1) {
 _start:
 {
-if (lean_obj_tag(x_3) == 0)
+lean_object* x_2; uint8_t x_3; 
+x_2 = lean_ctor_get(x_1, 3);
+lean_inc(x_2);
+x_3 = l_List_isEmpty___rarg(x_2);
+if (x_3 == 0)
 {
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+x_5 = l___private_Init_LeanInit_1__eraseMacroScopesAux___main___closed__1;
+x_6 = lean_name_mk_string(x_4, x_5);
+x_7 = lean_ctor_get(x_1, 1);
+lean_inc(x_7);
+x_8 = l_Lean_Name_append___main(x_6, x_7);
+lean_dec(x_6);
+x_9 = lean_ctor_get(x_1, 2);
+lean_inc(x_9);
 lean_dec(x_1);
-return x_2;
+x_10 = l_Lean_Name_append___main(x_8, x_9);
+lean_dec(x_8);
+x_11 = l_Lean_Name_hasMacroScopes___main___closed__1;
+x_12 = lean_name_mk_string(x_10, x_11);
+x_13 = l_List_foldl___main___at_Lean_MacroScopesView_review___spec__1(x_12, x_2);
+return x_13;
 }
 else
 {
-uint8_t x_4; 
-x_4 = l_Lean_Name_hasMacroScopes___main(x_2);
-if (x_4 == 0)
-{
-lean_object* x_5; lean_object* x_6; 
-x_5 = l___private_Init_LeanInit_1__mkMacroScopeName(x_1, x_2);
-x_6 = l_List_foldl___main___at_Lean_addMacroScopes___spec__1(x_5, x_3);
-return x_6;
-}
-else
-{
-lean_object* x_7; 
+lean_object* x_14; 
+lean_dec(x_2);
+x_14 = lean_ctor_get(x_1, 0);
+lean_inc(x_14);
 lean_dec(x_1);
-x_7 = l_List_foldl___main___at_Lean_addMacroScopes___spec__1(x_2, x_3);
-return x_7;
+return x_14;
 }
 }
 }
-}
-lean_object* _init_l_Lean_ExtractMacroScopesResult_inhabited___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = lean_box(0);
-x_3 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_2);
-lean_ctor_set(x_3, 2, x_1);
-return x_3;
-}
-}
-lean_object* _init_l_Lean_ExtractMacroScopesResult_inhabited() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_ExtractMacroScopesResult_inhabited___closed__1;
-return x_1;
-}
-}
-lean_object* l___private_Init_LeanInit_2__assembleExtractedName___main(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_LeanInit_2__assembleParts___main(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1639,15 +1709,86 @@ goto _start;
 }
 }
 }
-lean_object* l___private_Init_LeanInit_2__assembleExtractedName(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_LeanInit_2__assembleParts(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l___private_Init_LeanInit_2__assembleExtractedName___main(x_1, x_2);
+x_3 = l___private_Init_LeanInit_2__assembleParts___main(x_1, x_2);
 return x_3;
 }
 }
-lean_object* l___private_Init_LeanInit_3__extractMainModule___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_LeanInit_3__extractImported___main(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+switch (lean_obj_tag(x_3)) {
+case 0:
+{
+lean_object* x_5; lean_object* x_6; 
+lean_dec(x_4);
+lean_dec(x_2);
+lean_dec(x_1);
+x_5 = l_Lean_MacroScopesView_inhabited;
+x_6 = l_unreachable_x21___rarg(x_5);
+return x_6;
+}
+case 1:
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_7 = lean_ctor_get(x_3, 0);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_3, 1);
+lean_inc(x_8);
+x_9 = l___private_Init_LeanInit_1__eraseMacroScopesAux___main___closed__1;
+x_10 = lean_string_dec_eq(x_8, x_9);
+lean_dec(x_8);
+if (x_10 == 0)
+{
+lean_object* x_11; 
+x_11 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_11, 0, x_3);
+lean_ctor_set(x_11, 1, x_4);
+x_3 = x_7;
+x_4 = x_11;
+goto _start;
+}
+else
+{
+lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_dec(x_3);
+x_13 = lean_box(0);
+x_14 = l___private_Init_LeanInit_2__assembleParts___main(x_4, x_13);
+x_15 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_15, 0, x_7);
+lean_ctor_set(x_15, 1, x_14);
+lean_ctor_set(x_15, 2, x_2);
+lean_ctor_set(x_15, 3, x_1);
+return x_15;
+}
+}
+default: 
+{
+lean_object* x_16; lean_object* x_17; 
+x_16 = lean_ctor_get(x_3, 0);
+lean_inc(x_16);
+x_17 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_17, 0, x_3);
+lean_ctor_set(x_17, 1, x_4);
+x_3 = x_16;
+x_4 = x_17;
+goto _start;
+}
+}
+}
+}
+lean_object* l___private_Init_LeanInit_3__extractImported(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l___private_Init_LeanInit_3__extractImported___main(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+lean_object* l___private_Init_LeanInit_4__extractMainModule___main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 switch (lean_obj_tag(x_2)) {
@@ -1656,7 +1797,7 @@ case 0:
 lean_object* x_4; lean_object* x_5; 
 lean_dec(x_3);
 lean_dec(x_1);
-x_4 = l_Lean_ExtractMacroScopesResult_inhabited;
+x_4 = l_Lean_MacroScopesView_inhabited;
 x_5 = l_unreachable_x21___rarg(x_4);
 return x_5;
 }
@@ -1667,7 +1808,7 @@ x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_2, 1);
 lean_inc(x_7);
-x_8 = l___private_Init_LeanInit_1__mkMacroScopeName___closed__1;
+x_8 = l___private_Init_LeanInit_1__eraseMacroScopesAux___main___closed__1;
 x_9 = lean_string_dec_eq(x_7, x_8);
 lean_dec(x_7);
 if (x_9 == 0)
@@ -1685,38 +1826,36 @@ else
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 lean_dec(x_2);
 x_12 = lean_box(0);
-x_13 = l___private_Init_LeanInit_2__assembleExtractedName___main(x_3, x_12);
-x_14 = lean_alloc_ctor(0, 3, 0);
+x_13 = l___private_Init_LeanInit_2__assembleParts___main(x_3, x_12);
+x_14 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_14, 0, x_6);
-lean_ctor_set(x_14, 1, x_13);
-lean_ctor_set(x_14, 2, x_1);
+lean_ctor_set(x_14, 1, x_12);
+lean_ctor_set(x_14, 2, x_13);
+lean_ctor_set(x_14, 3, x_1);
 return x_14;
 }
 }
 default: 
 {
-lean_object* x_15; lean_object* x_16; 
-x_15 = lean_ctor_get(x_2, 0);
-lean_inc(x_15);
-x_16 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_16, 0, x_2);
-lean_ctor_set(x_16, 1, x_3);
-x_2 = x_15;
-x_3 = x_16;
-goto _start;
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_15 = lean_box(0);
+x_16 = l___private_Init_LeanInit_2__assembleParts___main(x_3, x_15);
+x_17 = lean_box(0);
+x_18 = l___private_Init_LeanInit_3__extractImported___main(x_1, x_16, x_2, x_17);
+return x_18;
 }
 }
 }
 }
-lean_object* l___private_Init_LeanInit_3__extractMainModule(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l___private_Init_LeanInit_4__extractMainModule(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l___private_Init_LeanInit_3__extractMainModule___main(x_1, x_2, x_3);
+x_4 = l___private_Init_LeanInit_4__extractMainModule___main(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* l___private_Init_LeanInit_4__extractMacroScopesAux___main(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_LeanInit_5__extractMacroScopesAux___main(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -1724,44 +1863,43 @@ case 0:
 {
 lean_object* x_3; lean_object* x_4; 
 lean_dec(x_2);
-x_3 = l_Lean_ExtractMacroScopesResult_inhabited;
+x_3 = l_Lean_MacroScopesView_inhabited;
 x_4 = l_unreachable_x21___rarg(x_3);
 return x_4;
 }
 case 1:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
 lean_dec(x_1);
-x_6 = l_List_reverse___rarg(x_2);
-x_7 = lean_box(0);
-x_8 = l___private_Init_LeanInit_3__extractMainModule___main(x_6, x_5, x_7);
-return x_8;
+x_6 = lean_box(0);
+x_7 = l___private_Init_LeanInit_4__extractMainModule___main(x_2, x_5, x_6);
+return x_7;
 }
 default: 
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_9 = lean_ctor_get(x_1, 0);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_1, 1);
 lean_inc(x_9);
-x_10 = lean_ctor_get(x_1, 1);
-lean_inc(x_10);
 lean_dec(x_1);
-x_11 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_11, 0, x_10);
-lean_ctor_set(x_11, 1, x_2);
-x_1 = x_9;
-x_2 = x_11;
+x_10 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_10, 0, x_9);
+lean_ctor_set(x_10, 1, x_2);
+x_1 = x_8;
+x_2 = x_10;
 goto _start;
 }
 }
 }
 }
-lean_object* l___private_Init_LeanInit_4__extractMacroScopesAux(lean_object* x_1, lean_object* x_2) {
+lean_object* l___private_Init_LeanInit_5__extractMacroScopesAux(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l___private_Init_LeanInit_4__extractMacroScopesAux___main(x_1, x_2);
+x_3 = l___private_Init_LeanInit_5__extractMacroScopesAux___main(x_1, x_2);
 return x_3;
 }
 }
@@ -1775,111 +1913,128 @@ if (x_2 == 0)
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_box(0);
 x_4 = lean_box(0);
-x_5 = lean_alloc_ctor(0, 3, 0);
+x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_4);
-lean_ctor_set(x_5, 2, x_3);
+lean_ctor_set(x_5, 2, x_4);
+lean_ctor_set(x_5, 3, x_3);
 return x_5;
 }
 else
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_box(0);
-x_7 = l___private_Init_LeanInit_4__extractMacroScopesAux___main(x_1, x_6);
+x_7 = l___private_Init_LeanInit_5__extractMacroScopesAux___main(x_1, x_6);
 return x_7;
 }
 }
 }
-lean_object* l___private_Init_LeanInit_5__eraseMacroScopesAux___main(lean_object* x_1) {
+lean_object* l_Lean_addMacroScope(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-switch (lean_obj_tag(x_1)) {
-case 0:
+uint8_t x_4; 
+x_4 = l_Lean_Name_hasMacroScopes___main(x_2);
+if (x_4 == 0)
 {
-lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Name_inhabited;
-x_3 = l_unreachable_x21___rarg(x_2);
-return x_3;
-}
-case 1:
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_ctor_get(x_1, 1);
-x_6 = l___private_Init_LeanInit_1__mkMacroScopeName___closed__1;
-x_7 = lean_string_dec_eq(x_5, x_6);
-if (x_7 == 0)
-{
-x_1 = x_4;
-goto _start;
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_5 = l___private_Init_LeanInit_1__eraseMacroScopesAux___main___closed__1;
+x_6 = lean_name_mk_string(x_2, x_5);
+x_7 = l_Lean_Name_append___main(x_6, x_1);
+lean_dec(x_6);
+x_8 = l_Lean_Name_hasMacroScopes___main___closed__1;
+x_9 = lean_name_mk_string(x_7, x_8);
+x_10 = lean_name_mk_numeral(x_9, x_3);
+return x_10;
 }
 else
 {
-lean_inc(x_4);
-return x_4;
-}
-}
-default: 
+lean_object* x_11; uint8_t x_12; 
+lean_inc(x_2);
+x_11 = l_Lean_extractMacroScopes(x_2);
+x_12 = !lean_is_exclusive(x_11);
+if (x_12 == 0)
 {
-lean_object* x_9; 
-x_9 = lean_ctor_get(x_1, 0);
-x_1 = x_9;
-goto _start;
-}
-}
-}
-}
-lean_object* l___private_Init_LeanInit_5__eraseMacroScopesAux___main___boxed(lean_object* x_1) {
-_start:
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
+x_13 = lean_ctor_get(x_11, 0);
+x_14 = lean_ctor_get(x_11, 1);
+x_15 = lean_ctor_get(x_11, 2);
+x_16 = lean_ctor_get(x_11, 3);
+x_17 = lean_name_eq(x_15, x_1);
+if (x_17 == 0)
 {
-lean_object* x_2; 
-x_2 = l___private_Init_LeanInit_5__eraseMacroScopesAux___main(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-lean_object* l___private_Init_LeanInit_5__eraseMacroScopesAux(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Init_LeanInit_5__eraseMacroScopesAux___main(x_1);
-return x_2;
-}
-}
-lean_object* l___private_Init_LeanInit_5__eraseMacroScopesAux___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Init_LeanInit_5__eraseMacroScopesAux(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-lean_object* l_Lean_Name_eraseMacroScopes(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; 
-x_2 = l_Lean_Name_hasMacroScopes___main(x_1);
-if (x_2 == 0)
-{
-lean_inc(x_1);
-return x_1;
+lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+lean_dec(x_2);
+x_18 = l_Lean_Name_append___main(x_14, x_15);
+lean_dec(x_14);
+x_19 = l_List_foldl___main___at_Lean_MacroScopesView_review___spec__1(x_18, x_16);
+x_20 = lean_box(0);
+x_21 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_21, 0, x_3);
+lean_ctor_set(x_21, 1, x_20);
+lean_ctor_set(x_11, 3, x_21);
+lean_ctor_set(x_11, 2, x_1);
+lean_ctor_set(x_11, 1, x_19);
+x_22 = l_Lean_MacroScopesView_review(x_11);
+return x_22;
 }
 else
 {
-lean_object* x_3; 
-x_3 = l___private_Init_LeanInit_5__eraseMacroScopesAux___main(x_1);
-return x_3;
-}
-}
-}
-lean_object* l_Lean_Name_eraseMacroScopes___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Name_eraseMacroScopes(x_1);
+lean_object* x_23; 
+lean_free_object(x_11);
+lean_dec(x_16);
+lean_dec(x_15);
+lean_dec(x_14);
+lean_dec(x_13);
 lean_dec(x_1);
-return x_2;
+x_23 = lean_name_mk_numeral(x_2, x_3);
+return x_23;
+}
+}
+else
+{
+lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; 
+x_24 = lean_ctor_get(x_11, 0);
+x_25 = lean_ctor_get(x_11, 1);
+x_26 = lean_ctor_get(x_11, 2);
+x_27 = lean_ctor_get(x_11, 3);
+lean_inc(x_27);
+lean_inc(x_26);
+lean_inc(x_25);
+lean_inc(x_24);
+lean_dec(x_11);
+x_28 = lean_name_eq(x_26, x_1);
+if (x_28 == 0)
+{
+lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
+lean_dec(x_2);
+x_29 = l_Lean_Name_append___main(x_25, x_26);
+lean_dec(x_25);
+x_30 = l_List_foldl___main___at_Lean_MacroScopesView_review___spec__1(x_29, x_27);
+x_31 = lean_box(0);
+x_32 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_32, 0, x_3);
+lean_ctor_set(x_32, 1, x_31);
+x_33 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_33, 0, x_24);
+lean_ctor_set(x_33, 1, x_30);
+lean_ctor_set(x_33, 2, x_1);
+lean_ctor_set(x_33, 3, x_32);
+x_34 = l_Lean_MacroScopesView_review(x_33);
+return x_34;
+}
+else
+{
+lean_object* x_35; 
+lean_dec(x_27);
+lean_dec(x_26);
+lean_dec(x_25);
+lean_dec(x_24);
+lean_dec(x_1);
+x_35 = lean_name_mk_numeral(x_2, x_3);
+return x_35;
+}
+}
+}
 }
 }
 lean_object* l_Lean_Macro_addMacroScope(lean_object* x_1, lean_object* x_2) {
@@ -4658,12 +4813,12 @@ l_Lean_Syntax_getKind___closed__4 = _init_l_Lean_Syntax_getKind___closed__4();
 lean_mark_persistent(l_Lean_Syntax_getKind___closed__4);
 l_Lean_Name_hasMacroScopes___main___closed__1 = _init_l_Lean_Name_hasMacroScopes___main___closed__1();
 lean_mark_persistent(l_Lean_Name_hasMacroScopes___main___closed__1);
-l___private_Init_LeanInit_1__mkMacroScopeName___closed__1 = _init_l___private_Init_LeanInit_1__mkMacroScopeName___closed__1();
-lean_mark_persistent(l___private_Init_LeanInit_1__mkMacroScopeName___closed__1);
-l_Lean_ExtractMacroScopesResult_inhabited___closed__1 = _init_l_Lean_ExtractMacroScopesResult_inhabited___closed__1();
-lean_mark_persistent(l_Lean_ExtractMacroScopesResult_inhabited___closed__1);
-l_Lean_ExtractMacroScopesResult_inhabited = _init_l_Lean_ExtractMacroScopesResult_inhabited();
-lean_mark_persistent(l_Lean_ExtractMacroScopesResult_inhabited);
+l___private_Init_LeanInit_1__eraseMacroScopesAux___main___closed__1 = _init_l___private_Init_LeanInit_1__eraseMacroScopesAux___main___closed__1();
+lean_mark_persistent(l___private_Init_LeanInit_1__eraseMacroScopesAux___main___closed__1);
+l_Lean_MacroScopesView_inhabited___closed__1 = _init_l_Lean_MacroScopesView_inhabited___closed__1();
+lean_mark_persistent(l_Lean_MacroScopesView_inhabited___closed__1);
+l_Lean_MacroScopesView_inhabited = _init_l_Lean_MacroScopesView_inhabited();
+lean_mark_persistent(l_Lean_MacroScopesView_inhabited);
 l_Lean_Macro_throwUnsupported___closed__1 = _init_l_Lean_Macro_throwUnsupported___closed__1();
 lean_mark_persistent(l_Lean_Macro_throwUnsupported___closed__1);
 l_Lean_MacroM_monadQuotation___closed__1 = _init_l_Lean_MacroM_monadQuotation___closed__1();

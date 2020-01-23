@@ -768,8 +768,12 @@ match result? with
   pure [(e, projs)]
 | none =>
   let process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do {
-    when candidates.isEmpty $
-      throwError ref ("unknown identifier '" ++ toString n ++ "'");
+    when candidates.isEmpty $ do {
+      -- TODO: improve pretty printing
+      -- let extractionResult := extractMacroScopes n;
+      -- env ← getEnv;
+      throwError ref ("unknown identifier '" ++ toString n ++ "'")
+    };
     mkConsts ref candidates explicitLevels
   };
   if preresolved.isEmpty then do

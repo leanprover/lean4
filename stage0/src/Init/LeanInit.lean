@@ -243,72 +243,28 @@ export MonadQuotation
 /-
 We represent a name with macro scopes as
 ```
-<actual name>._@.<main_module>._hyg.<scopes>
+<actual name>._@.(<module_name>.<scopes>)*.<module_name>._hyg.<scopes>
 ```
-Example: suppose the main module name is `Init.Data.List.Basic`, and name is `foo.bla`, and macroscopes [2, 5]
+Example: suppose the module name is `Init.Data.List.Basic`, and name is `foo.bla`, and macroscopes [2, 5]
 ```
 foo.bla._@.Init.Data.List.Basic._hyg.2.5
 ```
 
-We use two delimiters for improving `hasMacroScopes` performance.
+We may have to combine scopes from different files/modules.
+The main modules being processed is always the right most one.
+This situation may happen when we execute a macro generated in
+an imported file in the current file.
+```
+foo.bla._@.Init.Data.List.Basic.2.1.Init.Lean.Expr_hyg.4
+```
+
+The delimiter `_hyg` is used just to improve the `hasMacroScopes` performance.
 -/
 
 def Name.hasMacroScopes : Name → Bool
 | Name.str _ str _ => str == "_hyg"
 | Name.num p _   _ => Name.hasMacroScopes p
 | _                => false
-
-private def mkMacroScopeName (mainModule : Name) (n : Name) : Name :=
-mkNameStr (mkNameStr n "_@" ++ mainModule) "_hyg"
-
-def addMacroScope (mainModule : Name) (n : Name) (scp : MacroScope) : Name :=
-if n.hasMacroScopes then
-  mkNameNum n scp -- We ignore the case where the main module stored in `n` != `mainModule`
-else
-  mkNameNum (mkMacroScopeName mainModule n) scp
-
-def addMacroScopes (mainModule : Name) (n : Name) (scps : List MacroScope) : Name :=
-match scps with
-| [] => n
-| _  => scps.foldl mkNameNum (if n.hasMacroScopes then n else mkMacroScopeName mainModule n)
-
-structure ExtractMacroScopesResult :=
-(name       : Name)
-(mainModule : Name)
-(scopes     : List MacroScope)
-
-instance ExtractMacroScopesResult.inhabited : Inhabited ExtractMacroScopesResult :=
-⟨⟨arbitrary _, arbitrary _, arbitrary _⟩⟩
-
-private def assembleExtractedName : List Name → Name → Name
-| [],                     acc => acc
-| (Name.str _ s _) :: ps, acc => assembleExtractedName ps (mkNameStr acc s)
-| (Name.num _ n _) :: ps, acc => assembleExtractedName ps (mkNameNum acc n)
-| _,                      _   => unreachable!
-
-private def extractMainModule (scps : List MacroScope) : Name → List Name → ExtractMacroScopesResult
-| n@(Name.str p str _), acc =>
-  if str == "_@" then
-    { name := p, mainModule := assembleExtractedName acc Name.anonymous, scopes := scps }
-  else
-    extractMainModule p (n :: acc)
-| n@(Name.num p num _), acc => extractMainModule p (n :: acc)
-| _,                    _   => unreachable!
-
-private def extractMacroScopesAux : Name → List MacroScope → ExtractMacroScopesResult
-| Name.num p scp _, acc => extractMacroScopesAux p (scp::acc)
-| Name.str p str _, acc => extractMainModule acc.reverse p [] -- str must be "_hyg"
-| _,                _   => unreachable!
-
-/--
-  Revert all `addMacroScope` calls. `⟨mainModule, n', scps⟩ = extractMacroScopes n → n = addMacroScopes mainModule n' scps`.
-  This operation is useful for analyzing/transforming the original identifiers, then adding back
-  the scopes (via `addMacroScopes`). -/
-def extractMacroScopes (n : Name) : ExtractMacroScopesResult :=
-if n.hasMacroScopes then
-  extractMacroScopesAux n []
-else
-  { name := n, scopes := [], mainModule := Name.anonymous }
 
 private def eraseMacroScopesAux : Name → Name
 | Name.str p str _ => if str == "_@" then p else eraseMacroScopesAux p
@@ -317,6 +273,70 @@ private def eraseMacroScopesAux : Name → Name
 
 def Name.eraseMacroScopes (n : Name) : Name :=
 if n.hasMacroScopes then eraseMacroScopesAux n else n
+
+structure MacroScopesView :=
+(name       : Name)
+(imported   : Name)
+(mainModule : Name)
+(scopes     : List MacroScope)
+
+instance MacroScopesView.inhabited : Inhabited MacroScopesView :=
+⟨⟨arbitrary _, arbitrary _, arbitrary _, arbitrary _⟩⟩
+
+def MacroScopesView.review (view : MacroScopesView) : Name :=
+if view.scopes.isEmpty then view.name
+else
+  let base := (mkNameStr ((mkNameStr view.name "_@") ++ view.imported ++ view.mainModule) "_hyg");
+  view.scopes.foldl mkNameNum base
+
+private def assembleParts : List Name → Name → Name
+| [],                     acc => acc
+| (Name.str _ s _) :: ps, acc => assembleParts ps (mkNameStr acc s)
+| (Name.num _ n _) :: ps, acc => assembleParts ps (mkNameNum acc n)
+| _,                      _   => unreachable!
+
+private def extractImported (scps : List MacroScope) (mainModule : Name) : Name → List Name → MacroScopesView
+| n@(Name.str p str _), parts =>
+  if str == "_@" then
+    { name := p, mainModule := mainModule, imported := assembleParts parts Name.anonymous, scopes := scps }
+  else
+    extractImported p (n :: parts)
+| n@(Name.num p str _), parts => extractImported p (n :: parts)
+| _,                    _     => unreachable!
+
+private def extractMainModule (scps : List MacroScope) : Name → List Name → MacroScopesView
+| n@(Name.str p str _), parts =>
+  if str == "_@" then
+    { name := p, mainModule := assembleParts parts Name.anonymous, imported := Name.anonymous, scopes := scps }
+  else
+    extractMainModule p (n :: parts)
+| n@(Name.num p num _), acc => extractImported scps (assembleParts acc Name.anonymous) n []
+| _,                    _   => unreachable!
+
+private def extractMacroScopesAux : Name → List MacroScope → MacroScopesView
+| Name.num p scp _, acc => extractMacroScopesAux p (scp::acc)
+| Name.str p str _, acc => extractMainModule acc p [] -- str must be "_hyg"
+| _,                _   => unreachable!
+
+/--
+  Revert all `addMacroScope` calls. `v = extractMacroScopes n → n = v.review`.
+  This operation is useful for analyzing/transforming the original identifiers, then adding back
+  the scopes (via `MacroScopesView.review`). -/
+def extractMacroScopes (n : Name) : MacroScopesView :=
+if n.hasMacroScopes then
+  extractMacroScopesAux n []
+else
+  { name := n, scopes := [], imported := Name.anonymous, mainModule := Name.anonymous }
+
+def addMacroScope (mainModule : Name) (n : Name) (scp : MacroScope) : Name :=
+if n.hasMacroScopes then
+  let view := extractMacroScopes n;
+  if view.mainModule == mainModule then
+    mkNameNum n scp
+  else
+    { imported := view.scopes.foldl mkNameNum (view.imported ++ view.mainModule), mainModule := mainModule, scopes := [scp], .. view }.review
+else
+  mkNameNum (mkNameStr (mkNameStr n "_@" ++ mainModule) "_hyg") scp
 
 namespace Macro
 

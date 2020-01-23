@@ -14,8 +14,6 @@ import Init.Lean.Message
 import Init.Lean.Parser.Identifier
 import Init.Lean.Compiler.InitAttr
 
-import Init.Lean.Meta.Message -- TODO remove
-
 namespace Lean
 
 namespace Syntax

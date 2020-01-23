@@ -9,7 +9,7 @@ import Init.Data.Array.Basic
 import Init.Data.UInt
 import Init.Data.Hashable
 import Init.Control.Reader
-import Init.Control.Option
+import Init.Control.EState
 
 namespace Lean
 /-
@@ -260,10 +260,25 @@ extractMacroScopesAux n []
 def Name.eraseMacroScopes (n : Name) : Name :=
 (extractMacroScopes n).1
 
-abbrev MacroM := ReaderT MacroScope (OptionT Id)
+namespace Macro
+
+structure Context :=
+(mainModule     : Name)
+(currMacroScope : MacroScope)
+
+structure State :=
+(ngen : NameGenerator)
+
+inductive Exception
+| error             : String → Exception
+| unsupportedSyntax : Exception
+
+end Macro
+
+abbrev MacroM := ReaderT Macro.Context (EStateM Macro.Exception Macro.State)
 
 instance MacroM.monadQuotation : MonadQuotation MacroM :=
-{ getCurrMacroScope   := fun scp => some scp,
+{ getCurrMacroScope   := fun ctx => pure ctx.currMacroScope,
   withFreshMacroScope := fun _ x => x }
 
 abbrev Macro := Syntax → MacroM Syntax

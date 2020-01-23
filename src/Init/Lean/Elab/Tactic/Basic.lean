@@ -172,18 +172,23 @@ private def evalTacticUsing (s : State) (stx : Syntax) : List Tactic → TacticM
 @[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : TacticM α) : TacticM α :=
 adaptReader (fun (ctx : Context) => { macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack, .. ctx }) x
 
+instance : MonadMacroAdapter TacticM :=
+{ getEnv                 := getEnv,
+  getNameGenerator       := do s ← get; pure s.ngen,
+  getCurrMacroScope      := getCurrMacroScope,
+  setNameGenerator       := fun ngen => modify $ fun s => { ngen := ngen, .. s },
+  throwError             := @throwError,
+  throwUnsupportedSyntax := @throwUnsupportedSyntax }
+
 @[specialize] private def expandTacticMacroFns (evalTactic : Syntax → TacticM Unit) (stx : Syntax) : List Macro → TacticM Unit
 | []    => throwError stx ("tactic '" ++ toString stx.getKind ++ "' has not been implemented")
 | m::ms => do
-  scp ← getCurrMacroScope;
-  match m stx scp with
-  | none      => expandTacticMacroFns ms
-  | some stx' =>
-    catch
-      (evalTactic stx')
-      (fun ex => match ms with
-        | [] => throw ex
-        | _  => expandTacticMacroFns ms)
+  scp  ← getCurrMacroScope;
+  catch
+    (do stx' ← adaptMacro m stx; evalTactic stx')
+    (fun ex => match ms with
+      | [] => throw ex
+      | _  => expandTacticMacroFns ms)
 
 @[inline] def expandTacticMacro (evalTactic : Syntax → TacticM Unit) (stx : Syntax) : TacticM Unit := do
 env ← getEnv;

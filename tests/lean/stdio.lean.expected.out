@@ -1,5 +1,4 @@
 print stdout
-
 print stderr
 line 4
 
@@ -10,4 +9,3 @@ line 3
 
 > stdout2.txt
 line 2
-

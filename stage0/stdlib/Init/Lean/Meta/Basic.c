@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Lean.Meta.Basic
-// Imports: Init.Control.Reader Init.Lean.Data.LOption Init.Lean.Data.NameGenerator Init.Lean.Environment Init.Lean.Class Init.Lean.ReducibilityAttrs Init.Lean.Util.Trace Init.Lean.Util.RecDepth Init.Lean.Meta.Exception Init.Lean.Meta.DiscrTreeTypes Init.Lean.Eval
+// Imports: Init.Control.Reader Init.Lean.Data.LOption Init.Lean.Environment Init.Lean.Class Init.Lean.ReducibilityAttrs Init.Lean.Util.Trace Init.Lean.Util.RecDepth Init.Lean.Meta.Exception Init.Lean.Meta.DiscrTreeTypes Init.Lean.Eval
 #include "runtime/lean.h"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -47961,7 +47961,6 @@ return x_2;
 }
 lean_object* initialize_Init_Control_Reader(lean_object*);
 lean_object* initialize_Init_Lean_Data_LOption(lean_object*);
-lean_object* initialize_Init_Lean_Data_NameGenerator(lean_object*);
 lean_object* initialize_Init_Lean_Environment(lean_object*);
 lean_object* initialize_Init_Lean_Class(lean_object*);
 lean_object* initialize_Init_Lean_ReducibilityAttrs(lean_object*);
@@ -47979,9 +47978,6 @@ res = initialize_Init_Control_Reader(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Data_LOption(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Lean_Data_NameGenerator(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Lean_Environment(lean_io_mk_world());

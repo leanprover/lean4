@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_Meta_mkInstanceExtension___lambda__1(lean_object*);
 lean_object* l_Array_back___at_Lean_Meta_addInstanceEntry___spec__14(lean_object*);
+extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l_Lean_Meta_mkInstanceExtension___lambda__1___boxed(lean_object*);
 lean_object* l_Lean_Meta_instanceExtension___elambda__4___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_addInstanceEntry___spec__1(lean_object*, lean_object*, lean_object*);
@@ -160,7 +161,6 @@ extern lean_object* l_Lean_MetavarContext_Inhabited___closed__1;
 lean_object* l_Lean_Meta_mkInstanceExtension___closed__2;
 lean_object* l_Lean_Meta_instanceExtension___elambda__3(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkInstanceExtension___closed__4;
-extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_Meta_getGlobalInstances___boxed(lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Array_back___at___private_Init_Lean_Meta_DiscrTree_11__insertAux___main___spec__2___rarg___closed__2;
@@ -2022,7 +2022,7 @@ lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean
 x_52 = lean_ctor_get(x_1, 0);
 lean_inc(x_52);
 lean_dec(x_1);
-x_53 = l_System_FilePath_dirName___closed__1;
+x_53 = l_Lean_Name_toString___closed__1;
 x_54 = l_Lean_Name_toStringWithSep___main(x_53, x_52);
 x_55 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 x_56 = lean_string_append(x_55, x_54);
@@ -2243,7 +2243,7 @@ lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; 
 x_105 = lean_ctor_get(x_1, 0);
 lean_inc(x_105);
 lean_dec(x_1);
-x_106 = l_System_FilePath_dirName___closed__1;
+x_106 = l_Lean_Name_toString___closed__1;
 x_107 = l_Lean_Name_toStringWithSep___main(x_106, x_105);
 x_108 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
 x_109 = lean_string_append(x_108, x_107);

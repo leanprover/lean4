@@ -173,16 +173,33 @@ mkElabAttributeAux Macro `macro Name.anonymous `Lean.Macro "macros" "macro" buil
 @[init mkMacroAttribute] constant macroAttribute : MacroAttribute := arbitrary _
 
 private def expandMacroFns (stx : Syntax) : List Macro → MacroM Syntax
-| []    => throw ()
+| []    => throw Macro.Exception.unsupportedSyntax
 | m::ms => m stx <|> expandMacroFns ms
 
-def expandMacro (env : Environment) : Macro :=
+def getMacros (env : Environment) : Macro :=
 fun stx =>
   let k := stx.getKind;
   let table := (macroAttribute.ext.getState env).table;
   match table.find? k with
   | some macroFns => expandMacroFns stx macroFns
-  | none          => throw ()
+  | none          => throw Macro.Exception.unsupportedSyntax
+
+class MonadMacroAdapter (m : Type → Type) :=
+(getEnv {}                            : m Environment)
+(getCurrMacroScope {}                 : m MacroScope)
+(getNameGenerator {}                  : m NameGenerator)
+(setNameGenerator {}                  : NameGenerator → m Unit)
+(throwError {} {α : Type}             : Syntax → MessageData → m α)
+(throwUnsupportedSyntax {} {α : Type} : m α)
+
+@[inline] def adaptMacro {m : Type → Type} [Monad m] [MonadMacroAdapter m] (x : Macro) (stx : Syntax) : m Syntax := do
+scp  ← MonadMacroAdapter.getCurrMacroScope;
+env  ← MonadMacroAdapter.getEnv;
+ngen ← MonadMacroAdapter.getNameGenerator;
+match x stx { currMacroScope := scp, mainModule := env.mainModule } { ngen := ngen } with
+| EStateM.Result.error Macro.Exception.unsupportedSyntax newS => MonadMacroAdapter.throwUnsupportedSyntax
+| EStateM.Result.ok stx newS                                  => do MonadMacroAdapter.setNameGenerator newS.ngen; pure stx
+| EStateM.Result.error (Macro.Exception.error msg) newS       => do MonadMacroAdapter.setNameGenerator newS.ngen; MonadMacroAdapter.throwError stx msg
 
 @[init] private def regTraceClasses : IO Unit := do
 registerTraceClass `Elab;

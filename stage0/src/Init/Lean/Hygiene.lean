@@ -27,7 +27,8 @@ namespace Lean
 abbrev Unhygienic := ReaderT MacroScope $ StateM MacroScope
 namespace Unhygienic
 instance MonadQuotation : MonadQuotation Unhygienic := {
-  getCurrMacroScope := read,
+  getCurrMacroScope   := read,
+  getMainModule       := pure `UnhygienicMain,
   withFreshMacroScope := fun α x => do
     fresh ← modifyGet (fun n => (n, n + 1));
     adaptReader (fun _ => fresh) x
@@ -36,7 +37,8 @@ protected def run {α : Type} (x : Unhygienic α) : α := run x 0 1
 end Unhygienic
 
 instance monadQuotationTrans {m n : Type → Type} [MonadQuotation m] [HasMonadLift m n] [MonadFunctorT m m n n] : MonadQuotation n :=
-{ getCurrMacroScope   := liftM (getCurrMacroScope : m Nat),
+{ getCurrMacroScope   := liftM (getCurrMacroScope : m MacroScope),
+  getMainModule       := liftM (getMainModule : m Name),
   withFreshMacroScope := fun α => monadMap (fun α => (withFreshMacroScope : m α → m α)) }
 
 end Lean

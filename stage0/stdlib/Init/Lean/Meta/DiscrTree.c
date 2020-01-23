@@ -15,6 +15,7 @@ extern "C" {
 #endif
 uint8_t l___private_Init_Lean_Meta_DiscrTree_6__shouldAddAsStar(lean_object*);
 lean_object* l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(lean_object*);
+extern lean_object* l_Lean_Name_toString___closed__1;
 lean_object* l___private_Init_Lean_Meta_DiscrTree_13__getMatchKeyArgs(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Meta_DiscrTree_17__getUnifyAux___main___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
@@ -289,7 +290,6 @@ lean_object* l_PersistentHashMap_findAtAux___main___at_Lean_Meta_DiscrTree_inser
 lean_object* l_Lean_Meta_isReadOnlyOrSyntheticOpaqueExprMVar(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_fmt___at_Lean_Meta_DiscrTree_format___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_Meta_DiscrTree_Trie_format___main___spec__2(lean_object*);
-extern lean_object* l_System_FilePath_dirName___closed__1;
 lean_object* l_Lean_fmt___at_Lean_Meta_DiscrTree_format___spec__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Array_back___at___private_Init_Lean_Meta_DiscrTree_11__insertAux___main___spec__2___rarg___closed__2;
 lean_object* l_Lean_Name_toStringWithSep___main(lean_object*, lean_object*);
@@ -530,7 +530,7 @@ lean_object* l_Lean_fmt___at_Lean_Meta_DiscrTree_Key_format___spec__1(lean_objec
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_System_FilePath_dirName___closed__1;
+x_2 = l_Lean_Name_toString___closed__1;
 x_3 = l_Lean_Name_toStringWithSep___main(x_2, x_1);
 x_4 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_4, 0, x_3);

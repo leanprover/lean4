@@ -28,6 +28,7 @@ instance Scope.inhabited : Inhabited Scope := ⟨{ kind := "", header := "" }⟩
 
 structure State :=
 (env            : Environment)
+(ngen           : NameGenerator := {})
 (messages       : MessageLog := {})
 (scopes         : List Scope := [{ kind := "root", header := "" }])
 (nextMacroScope : Nat := 1)
@@ -116,9 +117,8 @@ when (checkTraceOption opts cls) $ logTrace cls ref (msg ())
 def throwUnsupportedSyntax {α} : CommandElabM α :=
 throw Elab.Exception.unsupportedSyntax
 
-protected def getCurrMacroScope : CommandElabM Nat := do
-ctx ← read;
-pure ctx.currMacroScope
+protected def getCurrMacroScope : CommandElabM Nat  := do ctx ← read; pure ctx.currMacroScope
+protected def getMainModule     : CommandElabM Name := do env ← getEnv; pure env.mainModule
 
 @[inline] protected def withFreshMacroScope {α} (x : CommandElabM α) : CommandElabM α := do
 fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }));
@@ -126,6 +126,7 @@ adaptReader (fun (ctx : Context) => { ctx with currMacroScope := fresh }) x
 
 instance CommandElabM.MonadQuotation : MonadQuotation CommandElabM := {
   getCurrMacroScope   := Command.getCurrMacroScope,
+  getMainModule       := Command.getMainModule,
   withFreshMacroScope := @Command.withFreshMacroScope
 }
 
@@ -189,6 +190,14 @@ private def elabCommandUsing (s : State) (stx : Syntax) : List CommandElab → C
 @[inline] def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : CommandElabM α) : CommandElabM α :=
 adaptReader (fun (ctx : Context) => { macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack, .. ctx }) x
 
+instance : MonadMacroAdapter CommandElabM :=
+{ getEnv                 := getEnv,
+  getNameGenerator       := do s ← get; pure s.ngen,
+  getCurrMacroScope      := getCurrMacroScope,
+  setNameGenerator       := fun ngen => modify $ fun s => { ngen := ngen, .. s },
+  throwError             := @throwError,
+  throwUnsupportedSyntax := @throwUnsupportedSyntax}
+
 partial def elabCommand : Syntax → CommandElabM Unit
 | stx => withIncRecDepth stx $ withFreshMacroScope $ match stx with
   | Syntax.node k args =>
@@ -204,11 +213,13 @@ partial def elabCommand : Syntax → CommandElabM Unit
       match table.find? k with
       | some elabFns => elabCommandUsing s stx elabFns
       | none         => do
-        scp ← getCurrMacroScope;
-        env ← getEnv;
-        match expandMacro env stx scp with
-        | some stx' => withMacroExpansion stx stx' $ elabCommand stx'
-        | none      => throwError stx ("command '" ++ toString k ++ "' has not been implemented")
+        env  ← getEnv;
+        stx' ← catch
+        (adaptMacro (getMacros env) stx)
+        (fun ex => match ex with
+          | Exception.unsupportedSyntax => throwError stx ("elaboration function for '" ++ toString k ++ "' has not been implemented")
+          | _                           => throw ex);
+        withMacroExpansion stx stx' $ elabCommand stx'
   | _ => throwError stx "unexpected command"
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
@@ -234,18 +245,21 @@ let scope := s.scopes.head!;
 
 private def mkTermState (s : State) : Term.State :=
 { env            := s.env,
+  ngen           := s.ngen,
   messages       := s.messages,
   nextMacroScope := s.nextMacroScope }
+
+private def updateState (s : State) (newS : Term.State) : State :=
+{ env := newS.env, ngen := newS.ngen, messages := newS.messages, nextMacroScope := newS.nextMacroScope, .. s }
 
 private def getVarDecls (s : State) : Array Syntax :=
 s.scopes.head!.varDecls
 
 private def toCommandResult {α} (ctx : Context) (s : State) (result : EStateM.Result Term.Exception Term.State α) : EStateM.Result Exception State α :=
 match result with
-| EStateM.Result.ok a newS => EStateM.Result.ok a { env := newS.env, messages := newS.messages, nextMacroScope := newS.nextMacroScope, .. s }
-| EStateM.Result.error (Term.Exception.ex ex) newS =>
-  EStateM.Result.error ex { env := newS.env, messages := newS.messages, nextMacroScope := newS.nextMacroScope, .. s }
-| EStateM.Result.error Term.Exception.postpone newS          => unreachable!
+| EStateM.Result.ok a newS                          => EStateM.Result.ok a (updateState s newS)
+| EStateM.Result.error (Term.Exception.ex ex) newS  => EStateM.Result.error ex (updateState s newS)
+| EStateM.Result.error Term.Exception.postpone newS => unreachable!
 
 instance CommandElabM.inhabited {α} : Inhabited (CommandElabM α) :=
 ⟨throw $ arbitrary _⟩
@@ -566,12 +580,11 @@ levelNames      ←
   };
 let ref := declId;
 -- extract (optional) namespace part of id, after decoding macro scopes that would interfere with the check
-let (id, scps) := extractMacroScopes id;
-match id with
-| Name.str pre s _ =>
+match extractMacroScopes id with
+| { name := Name.str pre s _, scopes := scps, mainModule := mainModule } =>
   /- Add back macro scopes. We assume a declaration like `def a.b[1,2] ...` with macro scopes `[1,2]`
      is always meant to mean `namespace a def b[1,2] ...`. -/
-  let id := addMacroScopes (mkNameSimple s) scps;
+  let id := addMacroScopes mainModule (mkNameSimple s) scps;
   withNamespace ref pre $ do
     modifyScope $ fun scope => { levelNames := levelNames, .. scope };
     finally (f id) (modifyScope $ fun scope => { levelNames := savedLevelNames, .. scope })

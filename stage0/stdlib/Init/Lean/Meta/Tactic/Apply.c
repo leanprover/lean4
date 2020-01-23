@@ -727,6 +727,7 @@ x_26 = lean_ctor_get(x_24, 1);
 lean_inc(x_26);
 lean_dec(x_24);
 x_27 = l_Lean_Name_eraseMacroScopes(x_25);
+lean_dec(x_25);
 x_28 = l_Lean_Name_append___main(x_3, x_27);
 x_29 = l_Lean_Meta_renameMVar(x_16, x_28, x_6, x_26);
 x_30 = lean_ctor_get(x_29, 1);

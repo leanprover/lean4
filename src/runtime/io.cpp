@@ -22,7 +22,6 @@ Author: Leonardo de Moura
 #include <cctype>
 #include <sys/stat.h>
 #include "util/io.h"
-#include "runtime/flet.h"
 #include "runtime/utf8.h"
 #include "runtime/object.h"
 #include "runtime/thread.h"
@@ -145,8 +144,10 @@ MK_THREAD_LOCAL_GET(object *, get_handle_current_stdout, g_handle_stdout);
 MK_THREAD_LOCAL_GET(object *, get_handle_current_stderr, g_handle_stderr);
 MK_THREAD_LOCAL_GET(object *, get_handle_current_stdin,  g_handle_stdin);
 
-flet<object *> lean_redirect_stdout(object * new_stdout) {
-    return flet<object *>(get_handle_current_stdout(), new_stdout);
+obj_res lean_redirect_stdout(obj_arg new_stdout) {
+    obj_res r = get_handle_current_stdout();
+    get_handle_current_stdout() = new_stdout;
+    return r;
 }
 
 /* getStdout : IO FS.Handle */

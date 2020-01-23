@@ -336,9 +336,19 @@ struct stream_buffer_delete {
     }
 };
 
-flet<object *> lean_redirect_stdout(object * new_stdout);
+obj_res lean_redirect_stdout(obj_arg new_stdout);
 lean_object *  lean_io_wrap_handle(FILE *hfile);
 lean_object *& get_handle_current_stdout();
+
+struct redirect_helper {
+    object_ref m_old_fp;
+    redirect_helper(object_ref const & new_fp):
+        m_old_fp(lean_redirect_stdout(new_fp.to_obj_arg())) {
+    }
+    ~redirect_helper() {
+        lean_dec(lean_redirect_stdout(m_old_fp.to_obj_arg()));
+    }
+};
 
 static environment eval_cmd(parser & p) {
     transient_cmd_scope cmd_scope(p);
@@ -399,8 +409,8 @@ static environment eval_cmd(parser & p) {
     object_ref r;
 
     try {
-        object_ref newFP(lean_io_wrap_handle(fp));
-        flet<object *> oldFP(lean_redirect_stdout(newFP.raw()));
+        object_ref new_fp(lean_io_wrap_handle(fp));
+        redirect_helper helper(new_fp);
         if (p.profiling()) {
             timeit timer(out.get_text_stream().get_stream(), "eval time");
             r = object_ref(ir::run_boxed(new_env, fn_name, args.size(), &args[0]));

@@ -106,7 +106,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
   let preresolved := resolveGlobalName env currNamespace openDecls val ++ preresolved;
   let val := quote val;
   -- `scp` is bound in stxQuot.expand
-  `(Syntax.ident none $(quote rawVal) (addMacroScope $val scp) $(quote preresolved))
+  `(Syntax.ident none $(quote rawVal) (addMacroScopeExt mainModule $val scp) $(quote preresolved))
 -- if antiquotation, insert contents as-is, else recurse
 | stx@(Syntax.node k args) =>
   if isAntiquot stx then
@@ -137,7 +137,7 @@ let quoted := stx.getArg 1;
    including it literally in a syntax quotation. -/
 -- TODO: simplify to `(do scp ← getCurrMacroScope; pure $(quoteSyntax quoted))
 stx ← quoteSyntax (elimAntiquotChoices quoted);
-`(bind getCurrMacroScope (fun scp => pure $stx))
+`(bind getCurrMacroScope (fun scp => bind getMainModule (fun mainModule => pure $stx)))
 /- NOTE: It may seem like the newly introduced binding `scp` may accidentally
    capture identifiers in an antiquotation introduced by `quoteSyntax`. However,
    note that the syntax quotation above enjoys the same hygiene guarantees as

@@ -167,6 +167,37 @@ abbrev MacroFnTable                 := ElabFnTable Macro
 def mkBuiltinMacroFnTable : IO (IO.Ref MacroFnTable) :=  IO.mkRef {}
 @[init mkBuiltinMacroFnTable] constant builtinMacroFnTable : IO.Ref MacroFnTable := arbitrary _
 
+def addBuiltinMacro (k : SyntaxNodeKind) (macro : Macro) : IO Unit := do
+m ← builtinMacroFnTable.get;
+builtinMacroFnTable.modify $ fun m => m.insert k macro
+
+def declareBuiltinMacro (env : Environment) (kind : SyntaxNodeKind) (declName : Name) : IO Environment :=
+let name := `_regBuiltinMacro ++ declName;
+let type := mkApp (mkConst `IO) (mkConst `Unit);
+let val  := mkAppN (mkConst `Lean.Elab.addBuiltinMacro) #[toExpr kind, mkConst declName];
+let decl := Declaration.defnDecl { name := name, lparams := [], type := type, value := val, hints := ReducibilityHints.opaque, isUnsafe := false };
+match env.addAndCompile {} decl with
+-- TODO: pretty print error
+| Except.error _ => throw (IO.userError ("failed to emit registration code for builtin macro '" ++ toString declName ++ "'"))
+| Except.ok env  => IO.ofExcept (setInitAttr env name)
+
+@[init] def registerBuiltinMacroAttr : IO Unit :=
+registerBuiltinAttribute {
+ name  := `builtinMacro,
+ descr := "Builtin macro",
+ add   := fun env declName arg persistent => do {
+   unless persistent $ throw (IO.userError ("invalid attribute 'builtinMacro', must be persistent"));
+   kind ← IO.ofExcept $ syntaxNodeKindOfAttrParam env `Lean.Parser.Term arg;
+   match env.find? declName with
+   | none  => throw $ IO.userError "unknown declaration"
+   | some decl =>
+     match decl.type with
+     | Expr.const `Lean.Macro _ _ => declareBuiltinMacro env kind declName
+     | _ => throw (IO.userError ("unexpected macro type at '" ++ toString declName ++ "' `Macro` expected"))
+ },
+ applicationTime := AttributeApplicationTime.afterCompilation
+}
+
 def mkMacroAttribute : IO MacroAttribute :=
 mkElabAttributeAux Macro `macro Name.anonymous `Lean.Macro "macros" "macro" builtinMacroFnTable
 

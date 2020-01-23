@@ -336,6 +336,9 @@ def Macro.addMacroScope (n : Name) : MacroM Name := do
 ctx ← read;
 pure $ Lean.addMacroScope ctx.mainModule n ctx.currMacroScope
 
+def Macro.throwUnsupported {α} : MacroM α :=
+throw Macro.Exception.unsupportedSyntax
+
 instance MacroM.monadQuotation : MonadQuotation MacroM :=
 { getCurrMacroScope   := fun ctx => pure ctx.currMacroScope,
   getMainModule       := fun ctx => pure ctx.mainModule,

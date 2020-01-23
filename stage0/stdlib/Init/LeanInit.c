@@ -31,6 +31,7 @@ lean_object* l_Lean_Syntax_isNatLit_x3f___boxed(lean_object*);
 lean_object* l_Lean_MacroM_monadQuotation;
 lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l_Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
+lean_object* l_Lean_Macro_throwUnsupported___closed__1;
 lean_object* l_Array_findMAux___main___at_Lean_Syntax_getHeadInfo___main___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l___private_Init_LeanInit_12__decodeQuotedChar___boxed__const__1;
@@ -40,6 +41,7 @@ lean_object* l_unreachable_x21___rarg(lean_object*);
 lean_object* l_Lean_nullKind;
 lean_object* l_Lean_Name_HasAppend;
 lean_object* l_Lean_Syntax_identToAtom___boxed(lean_object*);
+lean_object* l_Lean_Macro_throwUnsupported___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_fieldIdxKind___closed__2;
 lean_object* l_Lean_ParserDescr_orelse(uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_MacroM_monadQuotation___lambda__2(lean_object*);
@@ -257,6 +259,7 @@ lean_object* lean_string_length(lean_object*);
 lean_object* l_Lean_MacroM_monadQuotation___closed__1;
 lean_object* l_Lean_Syntax_getKind___closed__3;
 lean_object* l_Lean_ParserDescr_sepBy___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Macro_throwUnsupported(lean_object*, lean_object*);
 lean_object* l_List_foldl___main___at_Lean_addMacroScopes___spec__1(lean_object*, lean_object*);
 lean_object* lean_mk_syntax_ident(lean_object*);
 lean_object* l_Lean_mkStxLit(lean_object*, lean_object*, lean_object*);
@@ -1892,6 +1895,33 @@ x_5 = l_Lean_addMacroScope(x_3, x_1, x_4);
 x_6 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 return x_6;
+}
+}
+lean_object* _init_l_Lean_Macro_throwUnsupported___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(1);
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+lean_object* l_Lean_Macro_throwUnsupported(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Macro_throwUnsupported___closed__1;
+return x_3;
+}
+}
+lean_object* l_Lean_Macro_throwUnsupported___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Macro_throwUnsupported(x_1, x_2);
+lean_dec(x_2);
+return x_3;
 }
 }
 lean_object* l_Lean_MacroM_monadQuotation___lambda__1(lean_object* x_1) {
@@ -4634,6 +4664,8 @@ l_Lean_ExtractMacroScopesResult_inhabited___closed__1 = _init_l_Lean_ExtractMacr
 lean_mark_persistent(l_Lean_ExtractMacroScopesResult_inhabited___closed__1);
 l_Lean_ExtractMacroScopesResult_inhabited = _init_l_Lean_ExtractMacroScopesResult_inhabited();
 lean_mark_persistent(l_Lean_ExtractMacroScopesResult_inhabited);
+l_Lean_Macro_throwUnsupported___closed__1 = _init_l_Lean_Macro_throwUnsupported___closed__1();
+lean_mark_persistent(l_Lean_Macro_throwUnsupported___closed__1);
 l_Lean_MacroM_monadQuotation___closed__1 = _init_l_Lean_MacroM_monadQuotation___closed__1();
 lean_mark_persistent(l_Lean_MacroM_monadQuotation___closed__1);
 l_Lean_MacroM_monadQuotation___closed__2 = _init_l_Lean_MacroM_monadQuotation___closed__2();

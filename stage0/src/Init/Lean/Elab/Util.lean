@@ -50,14 +50,14 @@ def checkSyntaxNodeKindAtNamespaces (env : Environment) (k : Name) : List Name â
 | []    => throw "failed"
 | n::ns => checkSyntaxNodeKind env (n ++ k) <|> checkSyntaxNodeKindAtNamespaces ns
 
-def syntaxNodeKindOfAttrParam (env : Environment) (parserNamespace : Name) (arg : Syntax) : ExceptT String Id SyntaxNodeKind :=
+def syntaxNodeKindOfAttrParam (env : Environment) (defaultParserNamespace : Name) (arg : Syntax) : ExceptT String Id SyntaxNodeKind :=
 match attrParamSyntaxToIdentifier arg with
 | some k =>
   checkSyntaxNodeKind env k
   <|>
   checkSyntaxNodeKindAtNamespaces env k env.getNamespaces
   <|>
-  checkSyntaxNodeKind env (parserNamespace ++ k)
+  checkSyntaxNodeKind env (defaultParserNamespace ++ k)
   <|>
   throw ("invalid syntax node kind '" ++ toString k ++ "'")
 | none   => throw ("syntax node kind is missing")

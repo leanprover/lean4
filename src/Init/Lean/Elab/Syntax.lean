@@ -144,19 +144,23 @@ fun stx => do
   env ← liftIO stx $ Parser.registerParserCategory env attrName catName;
   setEnv env
 
+def mkKindName (catName : Name) : Name :=
+`_kind ++ catName
+
 def mkFreshKind (catName : Name) : CommandElabM Name := do
-env ← getEnv;
-let (env, kind) := Parser.mkFreshKind env catName;
-setEnv env;
-pure kind
+scp ← getCurrMacroScope;
+mainModule ← getMainModule;
+pure $ Lean.addMacroScope mainModule (mkKindName catName) scp
+
+def Macro.mkFreshKind (catName : Name) : MacroM Name :=
+Macro.addMacroScope (mkKindName catName)
 
 private def elabKind (stx : Syntax) (catName : Name) : CommandElabM Name := do
 if stx.isNone then
   mkFreshKind catName
 else
   let kind := stx.getIdAt 1;
-  if kind.getRoot == `_kind then
-    -- unique fresh kind, do not qualify
+  if kind.hasMacroScopes then
     pure kind
   else do
     currNamespace ← getCurrNamespace;

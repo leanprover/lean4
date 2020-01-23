@@ -256,9 +256,6 @@ We use two delimiters for improving `hasMacroScopes` performance.
 private def mkMacroScopeName (mainModule : Name) (n : Name) : Name :=
 mkNameStr (mkNameStr n "_@" ++ mainModule) "_hyg"
 
-def addMacroScopeExt (mainModule : Name) (n : Name) (scp : MacroScope) : Name :=
-mkNameNum (mkMacroScopeName mainModule n) scp
-
 def addMacroScope (mainModule : Name) (n : Name) (scp : MacroScope) : Name :=
 mkNameNum (mkMacroScopeName mainModule n) scp
 

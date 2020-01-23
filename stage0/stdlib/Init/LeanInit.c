@@ -258,7 +258,6 @@ lean_object* lean_string_length(lean_object*);
 lean_object* l_Lean_MacroM_monadQuotation___closed__1;
 lean_object* l_Lean_Syntax_getKind___closed__3;
 lean_object* l_Lean_ParserDescr_sepBy___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_addMacroScopeExt(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldl___main___at_Lean_addMacroScopes___spec__1(lean_object*, lean_object*);
 lean_object* lean_mk_syntax_ident(lean_object*);
 lean_object* l_Lean_mkStxLit(lean_object*, lean_object*, lean_object*);
@@ -1433,15 +1432,6 @@ lean_dec(x_4);
 x_6 = l___private_Init_LeanInit_1__mkMacroScopeName___closed__2;
 x_7 = lean_name_mk_string(x_5, x_6);
 return x_7;
-}
-}
-lean_object* l_Lean_addMacroScopeExt(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; 
-x_4 = l___private_Init_LeanInit_1__mkMacroScopeName(x_1, x_2);
-x_5 = lean_name_mk_numeral(x_4, x_3);
-return x_5;
 }
 }
 lean_object* l_Lean_addMacroScope(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

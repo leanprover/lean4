@@ -288,15 +288,15 @@ mk' :: (input : FS.Handle)
        (output : FS.Handle)
 
 @[extern "lean_io_mk_pipe"]
-constant Pipe.Prim.mk (nonBlocking : Bool) : IO Pipe := arbitrary _
+constant Pipe.Prim.mk : IO Pipe := arbitrary _
 
-def Pipe.mk {m} [MonadIO m] (nonBlocking : Bool := false) : m Pipe :=
-Prim.liftIO $ Pipe.Prim.mk nonBlocking
+def Pipe.mk {m} [MonadIO m] : m Pipe :=
+Prim.liftIO Pipe.Prim.mk
 
 namespace Proc
 
 inductive Stdio
-| piped (nonBlocking : Bool)
+| piped
 | inherit
 | null
 
@@ -331,8 +331,8 @@ def createRedirectHandle (input : Bool) (inh : IO FS.Handle) : Stdio → IO (FS.
 let mode := if input then IO.FS.Mode.read else IO.FS.Mode.write;
 h ← FS.Handle.mk "/dev/null" mode;
 pure (h, none)
-| Stdio.piped nonBlocking => do
-p ← Pipe.mk $ nonBlocking && !input;
+| Stdio.piped => do
+p ← Pipe.mk;
 if input
   then pure (p.input, some p.output)
   else pure (p.output, some p.input)

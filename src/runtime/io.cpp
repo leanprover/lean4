@@ -298,7 +298,7 @@ static obj_res mk_pipe_obj (int read, int write) {
 }
 
 /* Prim.mkPipe : IO Pipe := arbitrary _ */
-extern "C" obj_res lean_io_mk_pipe(bool non_blocking, obj_arg /* w */) {
+extern "C" obj_res lean_io_mk_pipe(obj_arg /* w */) {
 #if defined(LEAN_WINDOWS)
     HANDLE read, write;
     SECURITY_ATTRIBUTES sec_attr = { 0, nullptr, true };
@@ -308,17 +308,11 @@ extern "C" obj_res lean_io_mk_pipe(bool non_blocking, obj_arg /* w */) {
     }
     int in_fd = _open_osfhandle(reinterpret_cast<intptr_t>(read), _O_APPEND);
     int out_fd = _open_osfhandle(reinterpret_cast<intptr_t>(read), _O_APPEND);
-    if (non_blocking) {
-        fcntl(in_fd, F_SETFL, O_NONBLOCK);
-    }
     return set_io_result(mk_pipe_obj(in_fd, out_fd));
 #else
     int fd[2];
     if (pipe(fd) < 0) {
         return set_io_error(decode_io_error(errno, nullptr));
-    }
-    if (non_blocking) {
-        fcntl(fd[0], F_SETFL, O_NONBLOCK);
     }
     return set_io_result(mk_pipe_obj(fd[0], fd[1]));
 #endif
@@ -479,6 +473,18 @@ static char * const * copy_cstr_array(const char *cmd, object* from) {
     return to;
 }
 
+static obj_res construct_cmd_line(obj_arg cmd, obj_arg args) {
+    object * res = cmd;
+    object * space = lean_mk_string(" ");
+    bool once_through = false;
+    for (int i = 0; i < lean_array_size(args); i++) {
+      res = lean_string_append(res, space);
+      res = lean_string_append(res, lean_array_get_core(args, i));
+    }
+    dec_ref(space);
+    return res;
+}
+  
 // structure SpawnArgsIntl :=
 // (cmd : String)
 // (args : Array String := #[])
@@ -509,19 +515,21 @@ extern "C" obj_res lean_proc_spawn(obj_arg spawn_args, b_obj_arg other_handles, 
 
     ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
     siStartInfo.cb = sizeof(STARTUPINFO);
-    siStartInfo.hStdError  = _get_osfhandle(fileno(hStderr));
-    siStartInfo.hStdOutput = _get_osfhandle(fileno(hStdout));
-    siStartInfo.hStdInput  = _get_osfhandle(fileno(hStdin));
+    siStartInfo.hStdError  = reinterpret_cast<HANDLE>(_get_osfhandle(fileno(hStderr)));
+    siStartInfo.hStdOutput = reinterpret_cast<HANDLE>(_get_osfhandle(fileno(hStdout)));
+    siStartInfo.hStdInput  = reinterpret_cast<HANDLE>(_get_osfhandle(fileno(hStdin)));
     siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
+    inc_ref(cmd);
+    cmd = construct_cmd_line(cmd, args_o);
     bSuccess = CreateProcess(
         NULL,
-        lean_string_cstr(cmd), // command line
+        const_cast<char *>(lean_string_cstr(cmd)), // command line
         NULL,                                // process security attributes
         NULL,                                // primary thread security attributes
         TRUE,                                // handles are inherited
         0,                                   // creation flags
         NULL,                                // use parent's environment
-        lean_is_scalar(cwd) ? nullptr : lean_ctor_get(cwd, 0),
+        lean_is_scalar(cwd) ? nullptr : const_cast<char *>(lean_string_cstr(lean_ctor_get(cwd, 0))),
                                              // current directory
         &siStartInfo,                        // STARTUPINFO pointer
         &piProcInfo);                        // receives PROCESS_INFORMATION
@@ -530,7 +538,7 @@ extern "C" obj_res lean_proc_spawn(obj_arg spawn_args, b_obj_arg other_handles, 
 
     CloseHandle(piProcInfo.hThread);
 
-    return piProcInfo.hProcess;
+    return box(reinterpret_cast<size_t>(piProcInfo.hProcess));
 
 #else
     int pid = fork();
@@ -571,7 +579,7 @@ extern "C" obj_res lean_proc_spawn(obj_arg spawn_args, b_obj_arg other_handles, 
 
 extern "C" obj_res lean_proc_kill(b_obj_arg pid, obj_arg /* w */) {
 #if defined(LEAN_WINDOWS)
-    TerminateProcess(unbox(pid));
+  TerminateProcess(reinterpret_cast<HANDLE>(unbox(pid)), -1);
 #else
     kill(unbox(pid), SIGTERM);
 #endif
@@ -581,7 +589,7 @@ extern "C" obj_res lean_proc_kill(b_obj_arg pid, obj_arg /* w */) {
 extern "C" obj_res lean_proc_wait(b_obj_arg pid, obj_arg /* w */) {
     int wstatus, w;
 #if defined(LEAN_WINDOWS)
-    WaitForSingleObject(unbox(pid), 0);
+    wstatus = WaitForSingleObject(reinterpret_cast<HANDLE>(unbox(pid)), 0);
 #else
     w = waitpid(unbox(pid), &wstatus, WUNTRACED | WCONTINUED);
     if (w == -1) {

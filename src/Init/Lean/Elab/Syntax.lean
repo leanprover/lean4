@@ -86,11 +86,11 @@ partial def toParserDescrAux : Syntax → ToParserDescrM Syntax
         `(ParserDescr.symbol $(quote atom) $(quote rbp?))
     | none => liftM throwUnsupportedSyntax
   else if kind == `Lean.Parser.Syntax.num then
-    `(ParserDescr.num)
+    `(ParserDescr.numLit)
   else if kind == `Lean.Parser.Syntax.str then
-    `(ParserDescr.str)
+    `(ParserDescr.strLit)
   else if kind == `Lean.Parser.Syntax.char then
-    `(ParserDescr.char)
+    `(ParserDescr.charLit)
   else if kind == `Lean.Parser.Syntax.ident then
     `(ParserDescr.ident)
   else if kind == `Lean.Parser.Syntax.try then do

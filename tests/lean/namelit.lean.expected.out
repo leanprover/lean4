@@ -1,0 +1,8 @@
+Lean.mkNameStr Lean.Name.anonymous "foo" : Lean.Name
+Lean.mkNameStr (Lean.mkNameStr Lean.Name.anonymous "foo") "bla" : Lean.Name
+Lean.mkNameStr Lean.Name.anonymous "foo bla" : Lean.Name
+Lean.mkNameStr (Lean.mkNameStr Lean.Name.anonymous "foo bla") "hello world" : Lean.Name
+Lean.mkNameStr (Lean.mkNameStr (Lean.mkNameStr Lean.Name.anonymous "foo bla") "boo") "hello world" : Lean.Name
+Lean.mkNameStr (Lean.mkNameStr Lean.Name.anonymous "foo") "hello" : Lean.Name
+Lean.mkNameStr Lean.Name.anonymous "hello" : Lean.Name
+Lean.mkNameStr (Lean.mkNameStr Lean.Name.anonymous "hello") "world !!!" : Lean.Name

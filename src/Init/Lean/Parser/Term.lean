@@ -85,7 +85,7 @@ def matchAlt := parser! " | " >> sepBy1 termParser ", " >> darrow >> termParser
 @[builtinTermParser] def «parser!»  := parser! "parser! " >> termParser
 @[builtinTermParser] def «tparser!» := parser! "tparser! " >> termParser
 @[builtinTermParser] def borrowed   := parser! symbol "@&" appPrec >> termParser (appPrec - 1)
-@[builtinTermParser] def quotedName := parser! symbol "`" appPrec >> rawIdent
+@[builtinTermParser] def quotedName := parser! nameLit
 -- NOTE: syntax quotations are defined in Init.Lean.Parser.Command
 @[builtinTermParser] def antiquot   := (mkAntiquot "term" none true : Parser)
 @[builtinTermParser] def «match_syntax» := parser! "match_syntax" >> termParser >> " with " >> many1Indent matchAlt "'match_syntax' alternatives must be indented"

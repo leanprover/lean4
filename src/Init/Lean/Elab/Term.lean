@@ -830,9 +830,10 @@ fun stx _ => do
 fun stx expectedType? => elabRawCharLit (stx.getArg 0) expectedType?
 
 @[builtinTermElab quotedName] def elabQuotedName : TermElab :=
-fun stx _ => match_syntax stx with
-| `(`$n) => pure $ toExpr n.getId
-| _      => throwUnsupportedSyntax
+fun stx _ =>
+  match (stx.getArg 0).isNameLit? with
+  | some val => pure $ toExpr val
+  | none     => throwError stx "ill-formed syntax"
 
 end Term
 

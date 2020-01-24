@@ -21,6 +21,36 @@ without importing the whole `Lean` module.
 It also allow us to use extensions to develop the `Init` library.
 -/
 
+/- Valid identifier names -/
+def isGreek (c : Char) : Bool :=
+0x391 ≤ c.val && c.val ≤ 0x3dd
+
+def isLetterLike (c : Char) : Bool :=
+(0x3b1  ≤ c.val && c.val ≤ 0x3c9 && c.val ≠ 0x3bb) ||                  -- Lower greek, but lambda
+(0x391  ≤ c.val && c.val ≤ 0x3A9 && c.val ≠ 0x3A0 && c.val ≠ 0x3A3) || -- Upper greek, but Pi and Sigma
+(0x3ca  ≤ c.val && c.val ≤ 0x3fb) ||                                   -- Coptic letters
+(0x1f00 ≤ c.val && c.val ≤ 0x1ffe) ||                                  -- Polytonic Greek Extended Character Set
+(0x2100 ≤ c.val && c.val ≤ 0x214f) ||                                  -- Letter like block
+(0x1d49c ≤ c.val && c.val ≤ 0x1d59f)                                   -- Latin letters, Script, Double-struck, Fractur
+
+def isSubScriptAlnum (c : Char) : Bool :=
+(0x2080 ≤ c.val && c.val ≤ 0x2089) || -- numeric subscripts
+(0x2090 ≤ c.val && c.val ≤ 0x209c) ||
+(0x1d62 ≤ c.val && c.val ≤ 0x1d6a)
+
+def isIdFirst (c : Char) : Bool :=
+c.isAlpha || c = '_' || isLetterLike c
+
+def isIdRest (c : Char) : Bool :=
+c.isAlphanum || c = '_' || c = '\'' || c == '!' || c == '?' || isLetterLike c || isSubScriptAlnum c
+
+def idBeginEscape := '«'
+def idEndEscape   := '»'
+def isIdBeginEscape (c : Char) : Bool :=
+c = idBeginEscape
+def isIdEndEscape (c : Char) : Bool :=
+c = idEndEscape
+
 /- Hierarchical names -/
 inductive Name
 | anonymous : Name
@@ -121,9 +151,10 @@ inductive ParserDescrCore : ParserKind → Type
 | node {k : ParserKind}          : Name → ParserDescrCore k → ParserDescrCore k
 | symbol {k : ParserKind}        : String → Option Nat → ParserDescrCore k
 | nonReservedSymbol              : String → Bool → ParserDescrCore ParserKind.leading
-| num {k : ParserKind}           : ParserDescrCore k
-| str {k : ParserKind}           : ParserDescrCore k
-| char {k : ParserKind}          : ParserDescrCore k
+| numLit {k : ParserKind}        : ParserDescrCore k
+| strLit {k : ParserKind}        : ParserDescrCore k
+| charLit {k : ParserKind}       : ParserDescrCore k
+| nameLit {k : ParserKind}       : ParserDescrCore k
 | ident {k : ParserKind}         : ParserDescrCore k
 | pushLeading                    : ParserDescrCore ParserKind.trailing
 | parser {k : ParserKind}        : Name → Nat → ParserDescrCore k
@@ -144,9 +175,10 @@ abbrev TrailingParserDescr := ParserDescrCore ParserKind.trailing
 @[matchPattern] abbrev ParserDescr.sepBy1 := @ParserDescrCore.sepBy1
 @[matchPattern] abbrev ParserDescr.node := @ParserDescrCore.node
 @[matchPattern] abbrev ParserDescr.symbol := @ParserDescrCore.symbol
-@[matchPattern] abbrev ParserDescr.num := @ParserDescrCore.num
-@[matchPattern] abbrev ParserDescr.str := @ParserDescrCore.str
-@[matchPattern] abbrev ParserDescr.char := @ParserDescrCore.char
+@[matchPattern] abbrev ParserDescr.numLit := @ParserDescrCore.numLit
+@[matchPattern] abbrev ParserDescr.strLit := @ParserDescrCore.strLit
+@[matchPattern] abbrev ParserDescr.charLit := @ParserDescrCore.charLit
+@[matchPattern] abbrev ParserDescr.nameLit := @ParserDescrCore.nameLit
 @[matchPattern] abbrev ParserDescr.ident := @ParserDescrCore.ident
 @[matchPattern] abbrev ParserDescr.nonReservedSymbol := @ParserDescrCore.nonReservedSymbol
 @[matchPattern] abbrev ParserDescr.pushLeading := @ParserDescrCore.pushLeading
@@ -373,6 +405,7 @@ abbrev Macro := Syntax → MacroM Syntax
 def strLitKind : SyntaxNodeKind := `strLit
 def charLitKind : SyntaxNodeKind := `charLit
 def numLitKind : SyntaxNodeKind := `numLit
+def nameLitKind : SyntaxNodeKind := `nameLit
 def fieldIdxKind : SyntaxNodeKind := `fieldIdx
 
 /- Helper functions for processing Syntax programmatically -/
@@ -524,15 +557,21 @@ else
   else if c.isDigit then decodeDecimalLitAux s 0 0
   else none
 
-def isNatLitAux (nodeKind : SyntaxNodeKind) : Syntax → Option Nat
-| Syntax.node k args   =>
-  if k == nodeKind && args.size == 1 then
+def isLit? (litKind : SyntaxNodeKind) (stx : Syntax) : Option String :=
+match stx with
+| Syntax.node k args =>
+  if k == litKind && args.size == 1 then
     match args.get! 0 with
-    | (Syntax.atom _ val) => decodeNatLitVal val
+    | (Syntax.atom _ val) => some val
     | _ => none
   else
     none
 | _ => none
+
+def isNatLitAux (litKind : SyntaxNodeKind) (stx : Syntax) : Option Nat :=
+match isLit? litKind stx with
+| some val => decodeNatLitVal val
+| _        => none
 
 def isNatLit? (s : Syntax) : Option Nat :=
 isNatLitAux numLitKind s
@@ -586,15 +625,10 @@ partial def decodeStrLitAux (s : String) : String.Pos → String → Option Stri
 def decodeStrLit (s : String) : Option String :=
 decodeStrLitAux s 1 ""
 
-def isStrLit? : Syntax → Option String
-| Syntax.node k args   =>
-  if k == strLitKind && args.size == 1 then
-    match args.get! 0 with
-    | (Syntax.atom _ val) => decodeStrLit val
-    | _                   => none
-  else
-    none
-| _ => none
+def isStrLit? (stx : Syntax) : Option String :=
+match isLit? strLitKind stx with
+| some val => decodeStrLit val
+| _        => none
 
 def decodeCharLit (s : String) : Option Char :=
 let c := s.get 1;
@@ -604,15 +638,43 @@ if c == '\\' then do
 else
   pure c
 
-def isCharLit? : Syntax → Option Char
-| Syntax.node k args   =>
-  if k == charLitKind && args.size == 1 then
-    match args.get! 0 with
-    | (Syntax.atom _ val) => decodeCharLit val
-    | _ => none
+def isCharLit? (stx : Syntax) : Option Char :=
+match isLit? charLitKind stx with
+| some val => decodeCharLit val
+| _        => none
+
+private partial def decodeNameLitAux (s : String) : Nat → Name → Option Name
+| i, r =>
+  let continue? (i : Nat) (r : Name) : Option Name :=
+    if s.get i == '.' then
+       decodeNameLitAux (s.next i) r
+    else if s.atEnd i then
+       pure r
+    else
+       none;
+  let curr := s.get i;
+  if isIdBeginEscape curr then
+    let startPart := s.next i;
+    let stopPart  := s.nextUntil isIdEndEscape startPart;
+    if !isIdEndEscape (s.get stopPart) then none
+    else continue? (s.next stopPart) (mkNameStr r (s.extract startPart stopPart))
+  else if isIdFirst curr then
+    let startPart := i;
+    let stopPart  := s.nextWhile isIdRest startPart;
+    continue? stopPart (mkNameStr r (s.extract startPart stopPart))
   else
     none
-| _ => none
+
+def decodeNameLit (s : String) : Option Name :=
+if s.get 0 == '`' then
+  decodeNameLitAux s 1 Name.anonymous
+else
+  none
+
+def isNameLit? (stx : Syntax) : Option Name :=
+match isLit? nameLitKind stx with
+| some val => decodeNameLit val
+| _        => none
 
 def hasArgs : Syntax → Bool
 | Syntax.node _ args => args.size > 0

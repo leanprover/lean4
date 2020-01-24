@@ -515,6 +515,12 @@ s.toSubstring.trimLeft.toString
 def trim (s : String) : String :=
 s.toSubstring.trim.toString
 
+@[inline] def nextWhile (s : String) (p : Char → Bool) (i : String.Pos) : String.Pos :=
+Substring.takeWhileAux s s.bsize p i
+
+@[inline] def nextUntil (s : String) (p : Char → Bool) (i : String.Pos) : String.Pos :=
+nextWhile s (fun c => !p c) i
+
 end String
 
 protected def Char.toString (c : Char) : String :=

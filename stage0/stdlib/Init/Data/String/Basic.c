@@ -40,6 +40,7 @@ lean_object* l_Substring_extract___boxed(lean_object*, lean_object*, lean_object
 lean_object* l___private_Init_Data_String_Basic_4__utf8SetAux(uint32_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_trimRight___boxed(lean_object*);
 lean_object* l_Substring_takeWhileAux___main___at_Substring_trimLeft___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_String_nextWhile___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_posOfAux___main(lean_object*, uint32_t, lean_object*, lean_object*);
 uint8_t l_String_anyAux___main___at_Substring_all___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Substring_drop(lean_object*, lean_object*);
@@ -48,6 +49,7 @@ lean_object* l_String_Iterator_extract___boxed(lean_object*, lean_object*);
 lean_object* l_Substring_takeRight___boxed(lean_object*, lean_object*);
 lean_object* l_String_revPosOf(lean_object*, uint32_t);
 lean_object* l_Substring_toString___boxed(lean_object*);
+lean_object* l_Substring_takeWhileAux___main___at_String_nextUntil___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Substring_takeRightWhileAux___main___at_Substring_trimRight___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_offsetOfPosAux(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_anyAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -64,6 +66,7 @@ lean_object* l_String_isEmpty___boxed(lean_object*);
 lean_object* l_Nat_repeatAux___main___at_String_pushn___spec__1(uint32_t, lean_object*, lean_object*);
 lean_object* l_String_back___boxed(lean_object*);
 uint8_t l_Char_isDigit(uint32_t);
+lean_object* l_String_nextUntil(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_toSubstring(lean_object*);
 lean_object* l_Substring_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_append___boxed(lean_object*, lean_object*);
@@ -178,6 +181,7 @@ lean_object* l___private_Init_Data_String_Basic_7__utf8ExtractAux_u2081(lean_obj
 lean_object* l_String_foldr___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_anyAux___main___at_Substring_all___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Iterator_next(lean_object*);
+lean_object* l_String_nextUntil___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Substring_front___boxed(lean_object*);
 lean_object* l_String_trimLeft(lean_object*);
 lean_object* l_String_join___boxed(lean_object*);
@@ -198,7 +202,9 @@ lean_object* l_String_dropWhile___boxed(lean_object*, lean_object*);
 lean_object* l_String_anyAux___main___at_Substring_contains___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Substring_atEnd___boxed(lean_object*, lean_object*);
 lean_object* l_Substring_posOf___boxed(lean_object*, lean_object*);
+lean_object* l_Substring_takeWhileAux___main___at_String_nextUntil___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Substring_drop___closed__1;
+lean_object* l_String_nextWhile(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Iterator_hasNext___boxed(lean_object*);
 lean_object* l_String_Iterator_prevn___main(lean_object*, lean_object*);
 lean_object* l_String_offsetOfPosAux___main(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4857,6 +4863,89 @@ lean_object* x_2;
 x_2 = l_String_trim(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+lean_object* l_String_nextWhile(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_string_utf8_byte_size(x_1);
+x_5 = l_Substring_takeWhileAux___main(x_1, x_4, x_2, x_3);
+lean_dec(x_4);
+return x_5;
+}
+}
+lean_object* l_String_nextWhile___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_String_nextWhile(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
+lean_object* l_Substring_takeWhileAux___main___at_String_nextUntil___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; 
+x_5 = lean_nat_dec_eq(x_4, x_3);
+if (x_5 == 0)
+{
+uint32_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_6 = lean_string_utf8_get(x_2, x_4);
+x_7 = lean_box_uint32(x_6);
+lean_inc(x_1);
+x_8 = lean_apply_1(x_1, x_7);
+x_9 = lean_unbox(x_8);
+lean_dec(x_8);
+if (x_9 == 0)
+{
+lean_object* x_10; 
+x_10 = lean_string_utf8_next(x_2, x_4);
+lean_dec(x_4);
+x_4 = x_10;
+goto _start;
+}
+else
+{
+lean_dec(x_1);
+return x_4;
+}
+}
+else
+{
+lean_dec(x_1);
+return x_4;
+}
+}
+}
+lean_object* l_String_nextUntil(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_string_utf8_byte_size(x_1);
+x_5 = l_Substring_takeWhileAux___main___at_String_nextUntil___spec__1(x_2, x_1, x_4, x_3);
+lean_dec(x_4);
+return x_5;
+}
+}
+lean_object* l_Substring_takeWhileAux___main___at_String_nextUntil___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Substring_takeWhileAux___main___at_String_nextUntil___spec__1(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_5;
+}
+}
+lean_object* l_String_nextUntil___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_String_nextUntil(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
 }
 }
 lean_object* l_Char_toString(uint32_t x_1) {

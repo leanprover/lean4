@@ -14,6 +14,14 @@ match stx.truncateTrailing.reprint with -- TODO use syntax pretty printer
 | some str => format str.toFormat
 | none     => format stx
 
+def MacroScopesView.format (view : MacroScopesView) (mainModule : Name) : Format :=
+format $
+  if view.scopes.isEmpty then view.name
+  else if view.mainModule == mainModule then
+   view.scopes.foldl mkNameNum (view.name ++ view.imported)
+  else
+   view.scopes.foldl mkNameNum (view.name ++ view.imported ++ view.mainModule)
+
 namespace Elab
 
 structure MacroStackElem :=

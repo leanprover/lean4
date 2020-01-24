@@ -106,6 +106,7 @@ lean_object* l_Lean_Elab_Command_elabSyntax___lambda__1___boxed(lean_object*, le
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__51;
+extern lean_object* l_Lean_charLitKind___closed__1;
 extern lean_object* l_Lean_Parser_Term_num___elambda__1___closed__1;
 extern lean_object* l_Lean_Syntax_termIdToAntiquot___closed__3;
 lean_object* l_Lean_Elab_Command_strLitPrecToPattern(lean_object*, lean_object*);
@@ -217,9 +218,11 @@ lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__129;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Unhygienic_run___rarg(lean_object*);
 lean_object* l_Lean_Elab_Command_elabSyntax___closed__25;
+extern lean_object* l_Lean_numLitKind___closed__1;
 extern lean_object* l_Lean_Parser_Command_def___elambda__1___closed__1;
 lean_object* l___private_Init_Lean_Elab_Syntax_3__markAsTrailingParser(lean_object*, uint8_t, lean_object*);
 lean_object* l_Array_umapMAux___main___at___private_Init_Lean_Elab_Syntax_7__antiquote___main___spec__1(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_strLitKind___closed__1;
 extern lean_object* l___private_Init_Lean_Elab_TermBinders_10__expandFunBindersAux___main___closed__6;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Syntax_optional___elambda__1___closed__1;
@@ -1877,7 +1880,7 @@ lean_object* _init_l_Lean_Elab_Term_toParserDescrAux___main___closed__64() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ParserDescr.char");
+x_1 = lean_mk_string("ParserDescr.charLit");
 return x_1;
 }
 }
@@ -1909,7 +1912,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Syntax_2__mkParserSeq___spec__1___closed__4;
-x_2 = l_Lean_Parser_Term_char___elambda__1___closed__1;
+x_2 = l_Lean_charLitKind___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -1919,7 +1922,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Syntax_2__mkParserSeq___spec__1___closed__6;
-x_2 = l_Lean_Parser_Term_char___elambda__1___closed__1;
+x_2 = l_Lean_charLitKind___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -1952,7 +1955,7 @@ lean_object* _init_l_Lean_Elab_Term_toParserDescrAux___main___closed__71() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ParserDescr.str");
+x_1 = lean_mk_string("ParserDescr.strLit");
 return x_1;
 }
 }
@@ -1984,7 +1987,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Syntax_2__mkParserSeq___spec__1___closed__4;
-x_2 = l_Lean_Parser_Term_str___elambda__1___closed__1;
+x_2 = l_Lean_strLitKind___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -1994,7 +1997,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Syntax_2__mkParserSeq___spec__1___closed__6;
-x_2 = l_Lean_Parser_Term_str___elambda__1___closed__1;
+x_2 = l_Lean_strLitKind___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2027,7 +2030,7 @@ lean_object* _init_l_Lean_Elab_Term_toParserDescrAux___main___closed__78() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ParserDescr.num");
+x_1 = lean_mk_string("ParserDescr.numLit");
 return x_1;
 }
 }
@@ -2059,7 +2062,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Syntax_2__mkParserSeq___spec__1___closed__4;
-x_2 = l_Lean_Parser_Level_num___elambda__1___closed__1;
+x_2 = l_Lean_numLitKind___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2069,7 +2072,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Syntax_2__mkParserSeq___spec__1___closed__6;
-x_2 = l_Lean_Parser_Level_num___elambda__1___closed__1;
+x_2 = l_Lean_numLitKind___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

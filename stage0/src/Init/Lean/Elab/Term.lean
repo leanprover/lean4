@@ -769,10 +769,9 @@ match result? with
 | none =>
   let process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do {
     when candidates.isEmpty $ do {
-      -- TODO: improve pretty printing
-      -- let extractionResult := extractMacroScopes n;
-      -- env ← getEnv;
-      throwError ref ("unknown identifier '" ++ toString n ++ "'")
+      mainModule ← getMainModule;
+      let view := extractMacroScopes n;
+      throwError ref ("unknown identifier '" ++ view.format mainModule ++ "'")
     };
     mkConsts ref candidates explicitLevels
   };
@@ -831,9 +830,10 @@ fun stx _ => do
 fun stx expectedType? => elabRawCharLit (stx.getArg 0) expectedType?
 
 @[builtinTermElab quotedName] def elabQuotedName : TermElab :=
-fun stx _ => match_syntax stx with
-| `(`$n) => pure $ toExpr n.getId
-| _      => throwUnsupportedSyntax
+fun stx _ =>
+  match (stx.getArg 0).isNameLit? with
+  | some val => pure $ toExpr val
+  | none     => throwError stx "ill-formed syntax"
 
 end Term
 

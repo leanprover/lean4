@@ -11,7 +11,6 @@ import Init.Lean.ToExpr
 import Init.Lean.Environment
 import Init.Lean.Attributes
 import Init.Lean.Message
-import Init.Lean.Parser.Identifier
 import Init.Lean.Compiler.InitAttr
 
 namespace Lean
@@ -33,14 +32,20 @@ match stx.getOptional? with
 
 end Syntax
 
-
 namespace Parser
+
+def isLitKind (k : SyntaxNodeKind) : Bool :=
+k == strLitKind || k == numLitKind || k == charLitKind || k == nameLitKind
 
 abbrev mkAtom (info : SourceInfo) (val : String) : Syntax :=
 Syntax.atom info val
 
 abbrev mkIdent (info : SourceInfo) (rawVal : Substring) (val : Name) : Syntax :=
 Syntax.ident (some info) rawVal val []
+
+/- Return character after position `pos` -/
+def getNext (input : String) (pos : Nat) : Char :=
+input.get (input.next pos)
 
 /- Function application precedence.
    In the standard lean language, only two tokens have precedence higher that `appPrec`.
@@ -830,6 +835,23 @@ partial def identFnAux (startPos : Nat) (tk : Option TokenConfig) : Name → Bas
     else
       mkTokenAndFixPos startPos tk c s
 
+private def isIdFirstOrBeginEscape (c : Char) : Bool :=
+isIdFirst c || isIdBeginEscape c
+
+private def nameLitAux (startPos : Nat) : BasicParserFn
+| c, s =>
+  let input := c.input;
+  let s     := identFnAux startPos none Name.anonymous c (s.next input startPos);
+  if s.hasError then
+    s.mkErrorAt "invalid Name literal" startPos
+  else
+    let stx := s.stxStack.back;
+    match stx with
+    | Syntax.ident _ rawStr _ _ =>
+      let s := s.popSyntax;
+      s.pushSyntax (Syntax.node nameLitKind #[mkAtomFrom stx rawStr.toString])
+    | _ => s.mkError "invalid Name literal"
+
 private def tokenFnAux : BasicParserFn
 | c, s =>
   let input := c.input;
@@ -841,6 +863,8 @@ private def tokenFnAux : BasicParserFn
     charLitFnAux i c (s.next input i)
   else if curr.isDigit then
     numberFnAux c s
+  else if curr == '`' && isIdFirstOrBeginEscape (getNext input i) then
+    nameLitAux i c s
   else
     let (_, tk) := c.tokens.matchPrefix input i;
     identFnAux i tk Name.anonymous c s
@@ -1092,6 +1116,16 @@ fun _ c s =>
 { fn   := charLitFn,
   info := mkAtomicInfo "charLit" }
 
+def nameLitFn {k : ParserKind} : ParserFn k :=
+fun _ c s =>
+  let iniPos := s.pos;
+  let s := tokenFn c s;
+  if s.hasError || !(s.stxStack.back.isOfKind nameLitKind) then s.mkErrorAt "Name literal" iniPos else s
+
+@[inline] def nameLitNoAntiquot {k : ParserKind} : Parser k :=
+{ fn   := nameLitFn,
+  info := mkAtomicInfo "nameLit" }
+
 def identFn {k : ParserKind} : ParserFn k :=
 fun _ c s =>
   let iniPos := s.pos;
@@ -1130,7 +1164,7 @@ def unquotedSymbolFn {k : ParserKind} : ParserFn k :=
 fun _ c s =>
   let iniPos := s.pos;
   let s      := tokenFn c s;
-  if s.hasError || s.stxStack.back.isIdent || s.stxStack.back.isOfKind strLitKind || s.stxStack.back.isOfKind charLitKind || s.stxStack.back.isOfKind numLitKind then
+  if s.hasError || s.stxStack.back.isIdent || isLitKind s.stxStack.back.getKind then
     s.mkErrorAt "symbol" iniPos
   else
     s
@@ -1324,7 +1358,11 @@ match stx? with
   | _            => (s, 0)
 | some (Syntax.ident _ _ _ _) => (s, appPrec)
 -- TODO(Leo): add support for associating lbp with syntax node kinds.
-| some (Syntax.node k _)      => if k == numLitKind || k == charLitKind || k == strLitKind || k == fieldIdxKind then (s, appPrec) else (s, 0)
+| some (Syntax.node k _)      =>
+  if isLitKind k || k == fieldIdxKind then
+    (s, appPrec)
+  else
+    (s, 0)
 | _                           => (s, 0)
 
 def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState) (leadingIdentAsSymbol : Bool) : ParserState × List α :=
@@ -1485,6 +1523,9 @@ mkAntiquot "strLit" strLitKind <|> strLitNoAntiquot
 
 def charLit {k : ParserKind} : Parser k :=
 mkAntiquot "charLit" charLitKind <|> charLitNoAntiquot
+
+def nameLit {k : ParserKind} : Parser k :=
+mkAntiquot "nameLit" nameLitKind <|> nameLitNoAntiquot
 
 def categoryParserOfStackFn (offset : Nat) : ParserFn leading :=
 fun rbp ctx s =>
@@ -1659,9 +1700,10 @@ def compileParserDescr (categories : ParserCategories) : forall {k : ParserKind}
 | _, ParserDescr.sepBy1 d₁ d₂                        => sepBy1 <$> compileParserDescr d₁ <*> compileParserDescr d₂
 | _, ParserDescr.node k d                            => node k <$> compileParserDescr d
 | _, ParserDescr.symbol tk lbp                       => pure $ symbolAux tk lbp
-| _, ParserDescr.num                                 => pure $ numLit
-| _, ParserDescr.str                                 => pure $ strLit
-| _, ParserDescr.char                                => pure $ charLit
+| _, ParserDescr.numLit                              => pure $ numLit
+| _, ParserDescr.strLit                              => pure $ strLit
+| _, ParserDescr.charLit                             => pure $ charLit
+| _, ParserDescr.nameLit                             => pure $ nameLit
 | _, ParserDescr.ident                               => pure $ ident
 | ParserKind.leading,
   ParserDescr.nonReservedSymbol tk includeIdent      => pure $ nonReservedSymbol tk includeIdent
@@ -1783,7 +1825,7 @@ parserExtension.addEntry env $ ParserExtensionEntry.kind k
 
 def isValidSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Bool :=
 let kinds := (parserExtension.getState env).kinds;
-kinds.contains k || k == choiceKind || k == strLitKind || k == numLitKind || k == charLitKind
+kinds.contains k || k == choiceKind || isLitKind k
 
 def getSyntaxNodeKinds (env : Environment) : List SyntaxNodeKind := do
 let kinds := (parserExtension.getState env).kinds;

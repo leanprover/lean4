@@ -59,6 +59,7 @@ lean_object* l_Lean_Level_addOffsetAux___main(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___closed__8;
 lean_object* l_Lean_Elab_Level_mkFreshId(lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___main___closed__3;
+lean_object* l_Array_back___at___private_Init_Lean_Parser_Parser_6__nameLitAux___spec__1(lean_object*);
 lean_object* l_ReaderT_bind___at_Lean_Elab_Level_LevelElabM_MonadLog___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___closed__1;
 uint8_t l_List_elem___main___at_Lean_Parser_addLeadingParser___spec__7(lean_object*, lean_object*);
@@ -68,7 +69,6 @@ lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___main___closed__1;
 lean_object* l_Lean_Elab_Level_mkFreshId___rarg(lean_object*);
 lean_object* l_Lean_Elab_Level_elabLevel___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_back___at___private_Init_Lean_Parser_Parser_6__updateCache___spec__1(lean_object*);
 extern lean_object* l_Lean_Parser_Level_ident___elambda__1___closed__1;
 lean_object* l_Lean_mkLevelMVar(lean_object*);
 lean_object* l_Lean_Elab_Level_LevelElabM_MonadLog___lambda__4(lean_object*, lean_object*, lean_object*);
@@ -1264,7 +1264,7 @@ x_75 = l_Lean_Syntax_getArg(x_1, x_74);
 lean_dec(x_1);
 x_76 = l_Lean_Syntax_getArgs(x_75);
 lean_dec(x_75);
-x_77 = l_Array_back___at___private_Init_Lean_Parser_Parser_6__updateCache___spec__1(x_76);
+x_77 = l_Array_back___at___private_Init_Lean_Parser_Parser_6__nameLitAux___spec__1(x_76);
 x_78 = l_Lean_Elab_Level_elabLevel___main(x_77, x_2, x_3);
 if (lean_obj_tag(x_78) == 0)
 {
@@ -1330,7 +1330,7 @@ x_93 = l_Lean_Syntax_getArg(x_1, x_92);
 lean_dec(x_1);
 x_94 = l_Lean_Syntax_getArgs(x_93);
 lean_dec(x_93);
-x_95 = l_Array_back___at___private_Init_Lean_Parser_Parser_6__updateCache___spec__1(x_94);
+x_95 = l_Array_back___at___private_Init_Lean_Parser_Parser_6__nameLitAux___spec__1(x_94);
 x_96 = l_Lean_Elab_Level_elabLevel___main(x_95, x_2, x_3);
 if (lean_obj_tag(x_96) == 0)
 {

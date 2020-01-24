@@ -172,6 +172,7 @@ lean_object* l_Lean_Elab_Term_expandOptType___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_nullKind___closed__2;
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabDepArrow___closed__1;
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabArrow___closed__3;
+extern lean_object* l___private_Init_Lean_Parser_Parser_14__antiquotNestedExpr___elambda__1___rarg___closed__1;
 extern lean_object* l_Lean_mkAppStx___closed__3;
 lean_object* l___private_Init_Lean_Elab_TermBinders_7__elabBindersAux___main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Lean_Elab_TermBinders_5__matchBinder(lean_object*, lean_object*, lean_object*);
@@ -179,7 +180,6 @@ lean_object* lean_local_ctx_mk_local_decl(lean_object*, lean_object*, lean_objec
 lean_object* l_Lean_Elab_Term_elabLetEqnsDecl___boxed(lean_object*);
 extern lean_object* l_Option_HasRepr___rarg___closed__3;
 lean_object* l___private_Init_Lean_Elab_TermBinders_4__expandBinderModifier___closed__6;
-extern lean_object* l___private_Init_Lean_Parser_Parser_12__antiquotNestedExpr___elambda__1___rarg___closed__1;
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabForall___closed__1;
 extern lean_object* l_Lean_Parser_Term_implicitBinder___elambda__1___closed__2;
 lean_object* l_Lean_Elab_Term_elabArrow(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5852,7 +5852,7 @@ x_492 = lean_string_dec_eq(x_19, x_491);
 if (x_492 == 0)
 {
 lean_object* x_493; uint8_t x_494; 
-x_493 = l___private_Init_Lean_Parser_Parser_12__antiquotNestedExpr___elambda__1___rarg___closed__1;
+x_493 = l___private_Init_Lean_Parser_Parser_14__antiquotNestedExpr___elambda__1___rarg___closed__1;
 x_494 = lean_string_dec_eq(x_19, x_493);
 if (x_494 == 0)
 {
@@ -8264,7 +8264,7 @@ x_1438 = lean_string_dec_eq(x_19, x_1437);
 if (x_1438 == 0)
 {
 lean_object* x_1439; uint8_t x_1440; 
-x_1439 = l___private_Init_Lean_Parser_Parser_12__antiquotNestedExpr___elambda__1___rarg___closed__1;
+x_1439 = l___private_Init_Lean_Parser_Parser_14__antiquotNestedExpr___elambda__1___rarg___closed__1;
 x_1440 = lean_string_dec_eq(x_19, x_1439);
 if (x_1440 == 0)
 {
@@ -9927,7 +9927,7 @@ x_1990 = lean_string_dec_eq(x_19, x_1989);
 if (x_1990 == 0)
 {
 lean_object* x_1991; uint8_t x_1992; 
-x_1991 = l___private_Init_Lean_Parser_Parser_12__antiquotNestedExpr___elambda__1___rarg___closed__1;
+x_1991 = l___private_Init_Lean_Parser_Parser_14__antiquotNestedExpr___elambda__1___rarg___closed__1;
 x_1992 = lean_string_dec_eq(x_19, x_1991);
 if (x_1992 == 0)
 {
@@ -11624,7 +11624,7 @@ x_2548 = lean_string_dec_eq(x_19, x_2547);
 if (x_2548 == 0)
 {
 lean_object* x_2549; uint8_t x_2550; 
-x_2549 = l___private_Init_Lean_Parser_Parser_12__antiquotNestedExpr___elambda__1___rarg___closed__1;
+x_2549 = l___private_Init_Lean_Parser_Parser_14__antiquotNestedExpr___elambda__1___rarg___closed__1;
 x_2550 = lean_string_dec_eq(x_19, x_2549);
 if (x_2550 == 0)
 {
@@ -13353,7 +13353,7 @@ x_3112 = lean_string_dec_eq(x_2871, x_3111);
 if (x_3112 == 0)
 {
 lean_object* x_3113; uint8_t x_3114; 
-x_3113 = l___private_Init_Lean_Parser_Parser_12__antiquotNestedExpr___elambda__1___rarg___closed__1;
+x_3113 = l___private_Init_Lean_Parser_Parser_14__antiquotNestedExpr___elambda__1___rarg___closed__1;
 x_3114 = lean_string_dec_eq(x_2871, x_3113);
 if (x_3114 == 0)
 {

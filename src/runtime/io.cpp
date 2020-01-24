@@ -296,23 +296,32 @@ obj_res decode_io_error(int errnum, b_obj_arg fname) {
     }
 }
 
+static obj_res mk_pipe_obj (int read, int write) {
+    object * res = lean_alloc_ctor(0, 2, 0);
+    lean_ctor_set(res, 0, io_wrap_handle(fdopen(read, "r")));
+    lean_ctor_set(res, 1, io_wrap_handle(fdopen(write, "w")));
+    return res;
+}
+
 /* Prim.mkPipe : IO Pipe := arbitrary _ */
-extern "C" obj_res lean_io_mk_pipe(bool non_blocking, obj_arg /* w */) {
+extern "C" obj_res lean_io_mk_pipe(obj_arg /* w */) {
+#if defined(LEAN_WINDOWS)
+    HANDLE read, write;
+    SECURITY_ATTRIBUTES sec_attr = { 0, nullptr, true };
+    bool success = CreatePipe(&read, &write, &sec_attr, 0);
+    if (!success) {
+        return set_io_error("Failed to create a pipe");
+    }
+    int in_fd = _open_osfhandle(reinterpret_cast<intptr_t>(read), _O_APPEND);
+    int out_fd = _open_osfhandle(reinterpret_cast<intptr_t>(read), _O_APPEND);
+    return set_io_result(mk_pipe_obj(in_fd, out_fd));
+#else
     int fd[2];
     if (pipe(fd) < 0) {
         return set_io_error(decode_io_error(errno, nullptr));
     }
-    object * in, * out, * res;
-    if (non_blocking) {
-        fcntl(fd[0], F_SETFL, O_NONBLOCK);
-    }
-    in  = io_wrap_handle(fdopen(fd[0], "r"));
-    out = io_wrap_handle(fdopen(fd[1], "w"));
-    res = lean_alloc_ctor(0, 2, 0);
-    lean_ctor_set(res, 0, in);
-    lean_ctor_set(res, 1, out);
-
-    return set_io_result(res);
+    return set_io_result(mk_pipe_obj(fd[0], fd[1]));
+#endif
 }
 
 /* IO.setAccessRights (filename : @& String) (mode : UInt32) : IO Handle */

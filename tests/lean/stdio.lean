@@ -10,7 +10,7 @@ err ← IO.getStderr;
 open IO
 
 def test : IO Unit := do
-⟨ instr, outstr ⟩ ← Pipe.mk true;
+⟨ instr, outstr ⟩ ← Pipe.mk;
 FS.withFile "stdout1.txt" IO.FS.Mode.write $ fun h₁ => do
 { h₂ ← FS.Handle.mk "stdout2.txt" IO.FS.Mode.write;
   println "foo";
@@ -30,10 +30,9 @@ readFile "stdout1.txt" >>= print;
 println "\n> stdout2.txt";
 readFile "stdout2.txt" >>= print;
 println "\n> >= pipe =>";
-FS.Handle.readToExhaustion instr >>= print;
 outstr.putStrLn "more stuff";
 outstr.putStrLn "and some more";
-FS.Handle.readToExhaustion instr >>= print;
+FS.Handle.readToEnd instr >>= print;
 pure ()
 
 #eval test

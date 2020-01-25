@@ -700,6 +700,56 @@ match stx.isStrLit? with
 def termIdToAntiquot (var : Syntax) (catName : String) : Syntax :=
 Syntax.node `Lean.Parser.antiquot #[mkAtomFrom var "$", var, mkAtomFrom var ":", mkAtomFrom var catName, mkNullNode]
 
+def isAtom : Syntax → Bool
+| atom _ _ => true
+| _        => false
+
+def isIdent : Syntax → Bool
+| ident _ _ _ _ => true
+| _             => false
+
+def getId : Syntax → Name
+| ident _ _ val _ => val
+| _               => Name.anonymous
+
+def isNone (stx : Syntax) : Bool :=
+match stx with
+| Syntax.node k args => k == nullKind && args.size == 0
+| _                  => false
+
+def getOptional? (stx : Syntax) : Option Syntax :=
+match stx with
+| Syntax.node k args => if k == nullKind && args.size == 1 then some (args.get! 0) else none
+| _                  => none
+
+def getOptionalIdent? (stx : Syntax) : Option Name :=
+match stx.getOptional? with
+| some stx => some stx.getId
+| none     => none
+
+/--
+  Return `some (id, opt)` if `stx` is a Lean term id.
+  The `Lean.Parser.Term.id` parser is `ident >> optional (explicitUniv <|> namedPattern)`.
+
+  If `relaxed == true` and `stx` is a raw identifier `<id>`, it returns `some (<id>, noneStx)`.
+  This feature is useful when we want to implement elaboration functions and macros
+  that have support for raw identifiers where a term is expected. -/
+def isTermId? (stx : Syntax) (relaxed : Bool := false) : Option (Syntax × Syntax) :=
+match stx with
+| Syntax.node k args =>
+  if k == `Lean.Parser.Term.id && args.size == 2 then
+    some (args.get! 0, args.get! 1)
+  else
+    none
+| id@(Syntax.ident _ _ _ _) => if relaxed then some (id, mkNullNode) else none
+| _ => none
+
+/-- Similar to `isTermId?`, but succeeds only if the optional part is a `none`. -/
+def isSimpleTermId? (stx : Syntax) (relaxed : Bool := false) : Option Syntax :=
+match stx.isTermId? relaxed with
+| some (id, opt) => if opt.isNone then some id else none
+| none           => none
+
 end Syntax
 end Lean
 

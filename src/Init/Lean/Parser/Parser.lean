@@ -14,24 +14,6 @@ import Init.Lean.Message
 import Init.Lean.Compiler.InitAttr
 
 namespace Lean
-
-namespace Syntax
-
-def isNone (stx : Syntax) : Bool :=
-stx.ifNode (fun n => n.getKind == nullKind && n.getNumArgs == 0) (fun n => false)
-
-def getOptional? (s : Syntax) : Option Syntax :=
-s.ifNode
-  (fun n => if n.getKind == nullKind && n.getNumArgs == 1 then some (n.getArg 0) else none)
-  (fun _ => none)
-
-def getOptionalIdent? (stx : Syntax) : Option Name :=
-match stx.getOptional? with
-| some stx => some stx.getId
-| none     => none
-
-end Syntax
-
 namespace Parser
 
 def isLitKind (k : SyntaxNodeKind) : Bool :=

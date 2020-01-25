@@ -140,56 +140,20 @@ static lean_object * io_wrap_handle(FILE *hfile) {
 static object * g_handle_stdout = nullptr;
 static object * g_handle_stderr = nullptr;
 static object * g_handle_stdin  = nullptr;
-static __thread object * g_handle_current_stdout = nullptr;
-static __thread object * g_handle_current_stderr = nullptr;
-static __thread object * g_handle_current_stdin  = nullptr;
 
 /* constant stdin  : IO FS.Handle := arbitrary _ */
 extern "C" obj_res lean_get_stdin(obj_arg /* w */) {
-    if (!g_handle_current_stdin) {
-        g_handle_current_stdin = g_handle_stdin;
-    }
-    inc_ref(g_handle_current_stdin);
-    return set_io_result(g_handle_current_stdin);
+    return set_io_result(g_handle_stdin);
 }
 
 /* stderr  : IO FS.Handle */
 extern "C" obj_res lean_get_stderr(obj_arg /* w */) {
-    if (!g_handle_current_stderr) {
-        g_handle_current_stderr = g_handle_stderr;
-    }
-    inc_ref(g_handle_current_stderr);
-    return set_io_result(g_handle_current_stderr);
+    return set_io_result(g_handle_stderr);
 }
 
 /* stdout : IO FS.Handle */
 extern "C" obj_res lean_get_stdout(obj_arg /* w */) {
-    if (!g_handle_current_stdout) {
-        g_handle_current_stdout = g_handle_stdout;
-    }
-    inc_ref(g_handle_current_stdout);
-    return set_io_result(g_handle_current_stdout);
-}
-
-/* setStdin  : FS.Handle -> IO Unit */
-extern "C" obj_res lean_set_stdin(obj_arg h, obj_arg /* w */) {
-    dec_ref(g_handle_current_stdin);
-    g_handle_current_stdin = h;
-    return set_io_result(box(0));
-}
-
-/* setStderr  : FS.Handle -> IO Unit */
-extern "C" obj_res lean_set_stderr(obj_arg h, obj_arg /* w */) {
-    dec_ref(g_handle_current_stderr);
-    g_handle_current_stderr = h;
-    return set_io_result(box(0));
-}
-
-/* setStdout  : FS.Handle -> IO Unit */
-extern "C" obj_res lean_set_stdout(obj_arg h, obj_arg /* w */) {
-    dec_ref(g_handle_current_stdout);
-    g_handle_current_stdout = h;
-    return set_io_result(box(0));
+    return set_io_result(g_handle_stdout);
 }
 
 static FILE * io_get_handle(lean_object * hfile) {

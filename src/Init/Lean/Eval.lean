@@ -33,6 +33,6 @@ instance MetaIO.metaHasEval : MetaHasEval (MetaIO Unit) :=
 ⟨fun env opts x => x (env, opts)⟩
 
 instance MetaIO.monadIO : MonadIO MetaIO :=
-{ monadLift := fun _ x _ => x }
+⟨fun _ x _ => x⟩
 
 end Lean

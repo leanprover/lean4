@@ -121,7 +121,7 @@ partial def parseFileAux (env : Environment) (inputCtx : InputContext) : ModuleP
 
 def parseFile (env : Environment) (fname : String) : IO Syntax := do
 fname ← IO.realPath fname;
-contents ← IO.readFile fname;
+contents ← IO.readTextFile fname;
 let inputCtx := mkInputContext contents fname;
 let (stx, state, messages) := parseHeader env inputCtx;
 parseFileAux env inputCtx state messages #[stx]

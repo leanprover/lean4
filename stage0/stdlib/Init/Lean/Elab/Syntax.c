@@ -19,6 +19,7 @@ lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__95;
 extern lean_object* l_Lean_Parser_Syntax_many___elambda__1___closed__1;
 lean_object* l_Lean_Elab_Term_getEnv___rarg(lean_object*);
 extern lean_object* l_Lean_Name_toString___closed__1;
+extern lean_object* l___private_Init_Lean_Elab_Quotation_7__getHeadInfo___elambda__3___closed__3;
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Syntax_2__mkParserSeq___spec__1___closed__2;
 lean_object* l_Lean_Elab_Command_elabMacroRules___lambda__1___closed__24;
 lean_object* l___private_Init_Lean_Elab_Syntax_4__withFirst(lean_object*);
@@ -264,7 +265,6 @@ lean_object* l_Lean_Elab_Command_expandNotation___closed__3;
 extern lean_object* l___regBuiltinParser_Lean_Parser_Command_antiquot___closed__2;
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Syntax_2__mkParserSeq___spec__1___closed__1;
 lean_object* l_Lean_Elab_Term_getCurrMacroScope(lean_object*, lean_object*);
-extern lean_object* l___private_Init_Lean_Elab_Quotation_7__getHeadInfo___elambda__3___closed__4;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__91;
 lean_object* l_Lean_Elab_Command_elabMacroRules___lambda__1___closed__29;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__78;
@@ -7730,7 +7730,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Array_empty___closed__1;
-x_2 = l___private_Init_Lean_Elab_Quotation_7__getHeadInfo___elambda__3___closed__4;
+x_2 = l___private_Init_Lean_Elab_Quotation_7__getHeadInfo___elambda__3___closed__3;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }

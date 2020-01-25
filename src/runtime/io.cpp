@@ -22,7 +22,6 @@ Author: Leonardo de Moura
 #include <cctype>
 #include <sys/stat.h>
 #include "util/io.h"
-#include "runtime/flet.h"
 #include "runtime/utf8.h"
 #include "runtime/object.h"
 #include "runtime/thread.h"
@@ -134,7 +133,7 @@ static void io_handle_finalizer(void * h) {
 static void io_handle_foreach(void * /* mod */, b_obj_arg /* fn */) {
 }
 
-lean_object * lean_io_wrap_handle(FILE *hfile) {
+static lean_object * io_wrap_handle(FILE *hfile) {
     return lean_alloc_external(g_io_handle_external_class, hfile);
 }
 
@@ -144,10 +143,6 @@ static object * g_handle_stdin  = nullptr;
 MK_THREAD_LOCAL_GET(object *, get_handle_current_stdout, g_handle_stdout);
 MK_THREAD_LOCAL_GET(object *, get_handle_current_stderr, g_handle_stderr);
 MK_THREAD_LOCAL_GET(object *, get_handle_current_stdin,  g_handle_stdin);
-
-flet<object *> lean_redirect_stdout(object * new_stdout) {
-    return flet<object *>(get_handle_current_stdout(), new_stdout);
-}
 
 /* getStdout : IO FS.Handle */
 extern "C" obj_res lean_get_stdout(obj_arg /* w */) {
@@ -305,7 +300,7 @@ extern "C" obj_res lean_io_prim_handle_mk(b_obj_arg filename, b_obj_arg modeStr,
     if (!fp) {
         return set_io_error(decode_io_error(errno, filename));
     } else {
-        return set_io_result(lean_io_wrap_handle(fp));
+        return set_io_result(io_wrap_handle(fp));
     }
 }
 
@@ -663,9 +658,9 @@ extern "C" obj_res lean_io_ref_ptr_eq(b_obj_arg ref1, b_obj_arg ref2, obj_arg) {
 void initialize_io() {
     g_io_error_nullptr_read = mk_string("null reference read");
     g_io_handle_external_class = lean_register_external_class(io_handle_finalizer, io_handle_foreach);
-    g_handle_stdout = lean_io_wrap_handle(stdout);
-    g_handle_stderr = lean_io_wrap_handle(stderr);
-    g_handle_stdin  = lean_io_wrap_handle(stdin);
+    g_handle_stdout = io_wrap_handle(stdout);
+    g_handle_stderr = io_wrap_handle(stderr);
+    g_handle_stdin  = io_wrap_handle(stdin);
     mark_persistent(g_handle_stdout);
     mark_persistent(g_handle_stderr);
     mark_persistent(g_handle_stdin);

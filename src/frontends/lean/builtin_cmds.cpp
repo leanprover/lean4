@@ -330,16 +330,6 @@ environment hide_cmd(parser & p) {
     return new_env;
 }
 
-struct stream_buffer_delete {
-    void operator () (char ** buffer) {
-        free(*buffer);
-    }
-};
-
-flet<object *> lean_redirect_stdout(object * new_stdout);
-lean_object *  lean_io_wrap_handle(FILE *hfile);
-lean_object *& get_handle_current_stdout();
-
 static environment eval_cmd(parser & p) {
     transient_cmd_scope cmd_scope(p);
     auto pos = p.pos();
@@ -393,14 +383,11 @@ static environment eval_cmd(parser & p) {
     auto out = p.mk_message(p.cmd_pos(), p.pos(), INFORMATION);
     out.set_caption("eval result");
     scope_traces_as_messages scope_traces(p.get_stream_name(), p.cmd_pos());
-    char * redirected; size_t redir_size;
-    FILE * fp = open_memstream(&redirected, &redir_size);
-    std::unique_ptr<char *, stream_buffer_delete> stream_buffer(&redirected);
+    std::streambuf * saved_cout = std::cout.rdbuf(out.get_text_stream().get_stream().rdbuf());
+
     object_ref r;
 
     try {
-        object_ref newFP(lean_io_wrap_handle(fp));
-        flet<object *> oldFP(lean_redirect_stdout(newFP.raw()));
         if (p.profiling()) {
             timeit timer(out.get_text_stream().get_stream(), "eval time");
             r = object_ref(ir::run_boxed(new_env, fn_name, args.size(), &args[0]));
@@ -408,12 +395,12 @@ static environment eval_cmd(parser & p) {
             r = object_ref(ir::run_boxed(new_env, fn_name, args.size(), &args[0]));
         }
     } catch (exception & ex) {
-        out << redirected;
+        std::cout.rdbuf(saved_cout);
         out.report();
         throw ex;
     }
 
-    out << redirected;
+    std::cout.rdbuf(saved_cout);
     out.report();
     if (io_result_is_error(r.raw())) {
         message_builder msg = p.mk_message(p.cmd_pos(), p.pos(), ERROR);

@@ -14,24 +14,6 @@ import Init.Lean.Message
 import Init.Lean.Compiler.InitAttr
 
 namespace Lean
-
-namespace Syntax
-
-def isNone (stx : Syntax) : Bool :=
-stx.ifNode (fun n => n.getKind == nullKind && n.getNumArgs == 0) (fun n => false)
-
-def getOptional? (s : Syntax) : Option Syntax :=
-s.ifNode
-  (fun n => if n.getKind == nullKind && n.getNumArgs == 1 then some (n.getArg 0) else none)
-  (fun _ => none)
-
-def getOptionalIdent? (stx : Syntax) : Option Name :=
-match stx.getOptional? with
-| some stx => some stx.getId
-| none     => none
-
-end Syntax
-
 namespace Parser
 
 def isLitKind (k : SyntaxNodeKind) : Bool :=
@@ -1376,12 +1358,12 @@ match stx with
 | some (Syntax.ident _ _ val _) =>
   if leadingIdentAsSymbol then
     match map.find val with
-    | some as => match map.find `ident with
+    | some as => match map.find identKind with
       | some as' => (s, as ++ as')
       | _        => (s, as)
-    | none    => find `ident
+    | none    => find identKind
   else
-    find `ident
+    find identKind
 | some (Syntax.node k _)        => find k
 | _                             => (s, [])
 
@@ -1509,11 +1491,11 @@ node kind $ try $ dollarSymbol >> checkNoWsBefore "no space before" >> antiquotE
 /- ===================== -/
 
 def ident {k : ParserKind} : Parser k :=
-mkAntiquot "ident" `ident <|> identNoAntiquot
+mkAntiquot "ident" identKind <|> identNoAntiquot
 
 -- `ident` and `rawIdent` produce the same syntax tree, so we reuse the antiquotation kind name
 def rawIdent {k : ParserKind} : Parser k :=
-mkAntiquot "ident" `ident <|> rawIdentNoAntiquot
+mkAntiquot "ident" identKind <|> rawIdentNoAntiquot
 
 def numLit {k : ParserKind} : Parser k :=
 mkAntiquot "numLit" numLitKind <|> numLitNoAntiquot
@@ -1825,7 +1807,7 @@ parserExtension.addEntry env $ ParserExtensionEntry.kind k
 
 def isValidSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Bool :=
 let kinds := (parserExtension.getState env).kinds;
-kinds.contains k || k == choiceKind || isLitKind k
+kinds.contains k || k == choiceKind || k == identKind || isLitKind k
 
 def getSyntaxNodeKinds (env : Environment) : List SyntaxNodeKind := do
 let kinds := (parserExtension.getState env).kinds;

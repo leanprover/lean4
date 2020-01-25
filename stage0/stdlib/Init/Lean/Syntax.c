@@ -28,7 +28,6 @@ lean_object* l_Lean_Syntax_modifyArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___main___closed__5;
 lean_object* l_Lean_Syntax_ifNodeKind___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_isAtom___boxed(lean_object*);
 lean_object* l_Array_findRevMAux___main___at_Lean_Syntax_getTailWithInfo___main___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_mrewriteBottomUp___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getIdAt(lean_object*, lean_object*);
@@ -84,7 +83,6 @@ lean_object* l_Lean_Syntax_mreplace___main___rarg(lean_object*, lean_object*, le
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux___main___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at_Lean_Syntax_reprint___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_getId___boxed(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at_Lean_Syntax_formatStxAux___main___spec__5___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_unreachIsNodeMissing(lean_object*, lean_object*);
@@ -125,7 +123,6 @@ lean_object* l_Lean_Syntax_formatStxAux___main___closed__11;
 lean_object* l_Lean_SyntaxNode_getNumArgs___boxed(lean_object*);
 lean_object* l_Lean_Syntax_mrewriteBottomUp___main___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_updateTrailing___main(lean_object*, lean_object*);
-uint8_t l_Lean_Syntax_isAtom(lean_object*);
 lean_object* l_Lean_Format_joinSep___main___at_Lean_Syntax_formatStxAux___main___spec__2(lean_object*, lean_object*);
 extern lean_object* l_Lean_Format_sbracket___closed__3;
 lean_object* l_Lean_unreachIsNodeAtom(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -202,10 +199,8 @@ lean_object* l_Lean_Syntax_formatStxAux___main___closed__7;
 lean_object* l_Lean_Syntax_formatStxAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_reprint(lean_object*);
 lean_object* l_Lean_Syntax_mreplace___main___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_isIdent___boxed(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-uint8_t l_Lean_Syntax_isIdent(lean_object*);
 lean_object* l_Lean_SourceInfo_updateTrailing(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -791,87 +786,6 @@ lean_object* x_5;
 x_5 = l_Lean_Syntax_ifNodeKind___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 return x_5;
-}
-}
-uint8_t l_Lean_Syntax_isAtom(lean_object* x_1) {
-_start:
-{
-if (lean_obj_tag(x_1) == 2)
-{
-uint8_t x_2; 
-x_2 = 1;
-return x_2;
-}
-else
-{
-uint8_t x_3; 
-x_3 = 0;
-return x_3;
-}
-}
-}
-lean_object* l_Lean_Syntax_isAtom___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lean_Syntax_isAtom(x_1);
-lean_dec(x_1);
-x_3 = lean_box(x_2);
-return x_3;
-}
-}
-uint8_t l_Lean_Syntax_isIdent(lean_object* x_1) {
-_start:
-{
-if (lean_obj_tag(x_1) == 3)
-{
-uint8_t x_2; 
-x_2 = 1;
-return x_2;
-}
-else
-{
-uint8_t x_3; 
-x_3 = 0;
-return x_3;
-}
-}
-}
-lean_object* l_Lean_Syntax_isIdent___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lean_Syntax_isIdent(x_1);
-lean_dec(x_1);
-x_3 = lean_box(x_2);
-return x_3;
-}
-}
-lean_object* l_Lean_Syntax_getId(lean_object* x_1) {
-_start:
-{
-if (lean_obj_tag(x_1) == 3)
-{
-lean_object* x_2; 
-x_2 = lean_ctor_get(x_1, 2);
-lean_inc(x_2);
-return x_2;
-}
-else
-{
-lean_object* x_3; 
-x_3 = lean_box(0);
-return x_3;
-}
-}
-}
-lean_object* l_Lean_Syntax_getId___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Syntax_getId(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* l_Lean_Syntax_asNode(lean_object* x_1) {

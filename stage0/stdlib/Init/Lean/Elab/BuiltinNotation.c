@@ -82,6 +82,7 @@ lean_object* l_Lean_Elab_Term_elabAnoymousCtor___closed__14;
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabShow___closed__2;
 lean_object* l_Lean_Elab_Term_elabDollar___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_Term_seqLeft___elambda__1___closed__1;
+extern lean_object* l_Lean_identKind___closed__2;
 lean_object* l_Lean_Elab_Term_elabseqLeft___closed__3;
 extern uint8_t l___private_Init_Lean_Elab_Term_4__isCDot___closed__1;
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabAnd(lean_object*);
@@ -210,7 +211,6 @@ lean_object* l_Lean_Elab_Term_elabParserMacro___lambda__1___closed__21;
 lean_object* l_Lean_Elab_Term_tryPostponeIfNoneOrMVar(lean_object*, lean_object*, lean_object*);
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabHave___closed__2;
 extern lean_object* l_Lean_Parser_Term_div___elambda__1___closed__2;
-extern lean_object* l_Lean_Syntax_getKind___closed__4;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_declareBuiltinTermElab___closed__3;
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabGT___closed__1;
@@ -791,7 +791,7 @@ else
 {
 lean_object* x_17; lean_object* x_18; uint8_t x_19; uint8_t x_20; 
 x_17 = l_Lean_Syntax_getArg(x_13, x_12);
-x_18 = l_Lean_Syntax_getKind___closed__4;
+x_18 = l_Lean_identKind___closed__2;
 lean_inc(x_17);
 x_19 = l_Lean_Syntax_isOfKind(x_17, x_18);
 x_20 = l_coeDecidableEq(x_19);

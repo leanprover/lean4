@@ -55,6 +55,7 @@ lean_object* l_Lean_Parser_Syntax_paren___closed__6;
 lean_object* l_Lean_Parser_Command_syntax___elambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Syntax_str___elambda__1___closed__5;
 lean_object* l_Lean_Parser_Command_macroTail___elambda__1(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_identKind___closed__1;
 lean_object* l_Lean_Parser_maxPrec___elambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_mixfix___elambda__1___closed__4;
 lean_object* l_Lean_Parser_Command_syntaxCat___elambda__1___closed__3;
@@ -591,7 +592,6 @@ lean_object* l_Lean_Parser_Command_macro__rules___closed__3;
 lean_object* l_Lean_Parser_Command_syntaxCat___closed__4;
 lean_object* l_Lean_Parser_Syntax_try___elambda__1___closed__7;
 lean_object* l_Lean_Parser_Syntax_char___closed__5;
-extern lean_object* l_Lean_Syntax_getKind___closed__3;
 lean_object* l_Lean_Parser_manyAux___main___at_Lean_Parser_Command_macro___elambda__1___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot(uint8_t, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Parser_Command_macroTailCommand;
@@ -2963,7 +2963,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Syntax_paren___elambda__1___closed__2;
-x_2 = l_Lean_Syntax_getKind___closed__3;
+x_2 = l_Lean_identKind___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2983,7 +2983,7 @@ _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
 x_1 = 0;
-x_2 = l_Lean_Syntax_getKind___closed__3;
+x_2 = l_Lean_identKind___closed__1;
 x_3 = l_Lean_Parser_Syntax_ident___elambda__1___closed__2;
 x_4 = 1;
 x_5 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3, x_4);
@@ -2994,7 +2994,7 @@ lean_object* _init_l_Lean_Parser_Syntax_ident___elambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Syntax_getKind___closed__3;
+x_1 = l_Lean_identKind___closed__1;
 x_2 = l_String_trim(x_1);
 return x_2;
 }

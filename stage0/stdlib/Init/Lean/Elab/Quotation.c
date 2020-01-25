@@ -53,6 +53,7 @@ extern lean_object* l_Lean_nameToExprAux___main___closed__2;
 lean_object* l_List_head_x21___at___private_Init_Lean_Elab_Quotation_9__compileStxMatch___main___spec__2___closed__1;
 lean_object* l___private_Init_Lean_Elab_Quotation_13__toPreterm___main___lambda__2___closed__1;
 lean_object* l_Lean_Elab_Term_Quotation_stxQuot_expand___closed__26;
+extern lean_object* l_Lean_identKind___closed__1;
 lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
 lean_object* l___private_Init_Lean_Elab_Quotation_4__elimAntiquotChoices___main(lean_object*);
 lean_object* l_Array_eraseIdx___rarg(lean_object*, lean_object*);
@@ -506,7 +507,6 @@ lean_object* l___private_Init_Lean_Elab_Quotation_5__quoteSyntax___main___closed
 extern lean_object* l___private_Init_Lean_Elab_Term_5__expandCDot___closed__4;
 lean_object* l_List_foldl___main___at___private_Init_Lean_Elab_Quotation_13__toPreterm___main___spec__5(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_iterateMAux___main___at___private_Init_Lean_Elab_Quotation_5__quoteSyntax___main___spec__1___closed__1;
-extern lean_object* l_Lean_Syntax_getKind___closed__3;
 lean_object* l_Array_umapMAux___main___at___private_Init_Lean_Elab_Quotation_13__toPreterm___main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findMAux___main___at___private_Init_Lean_Elab_Quotation_4__elimAntiquotChoices___main___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___main___at___private_Init_Lean_Elab_Quotation_10__getPatternVarsAux___main___spec__1(lean_object*);
@@ -2398,7 +2398,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Init_Lean_Elab_Quotation_5__quoteSyntax___main___closed__14;
-x_2 = l_Lean_Syntax_getKind___closed__3;
+x_2 = l_Lean_identKind___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -2408,7 +2408,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Init_Lean_Elab_Quotation_5__quoteSyntax___main___closed__16;
-x_2 = l_Lean_Syntax_getKind___closed__3;
+x_2 = l_Lean_identKind___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }

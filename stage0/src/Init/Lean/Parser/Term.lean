@@ -176,25 +176,4 @@ def checkIsSort := checkLeading (fun leading => leading.isOfKind `Lean.Parser.Te
 
 end Term
 end Parser
-
-open Parser
-
-def Syntax.isTermId? (stx : Syntax) : Option (Syntax × Syntax) :=
-stx.ifNode
- (fun node =>
-    if node.getKind == `Lean.Parser.Term.id && node.getNumArgs == 2 then
-      some (node.getArg 0, node.getArg 1)
-    else
-      none)
- (fun _ => none)
-
-def Syntax.isSimpleTermId? (stx : Syntax) : Option Syntax :=
-stx.ifNode
- (fun node =>
-    if node.getKind == `Lean.Parser.Term.id && node.getNumArgs == 2 && (node.getArg 1).isNone then
-      some (node.getArg 0)
-    else
-      none)
- (fun _ => none)
-
 end Lean

@@ -92,18 +92,6 @@ match stx with
 | Syntax.node k args => if k == kind then hyes ⟨Syntax.node k args, IsNode.mk k args⟩ else hno ()
 | _                  => hno ()
 
-def isAtom : Syntax → Bool
-| atom _ _ => true
-| _        => false
-
-def isIdent : Syntax → Bool
-| ident _ _ _ _ => true
-| _             => false
-
-def getId : Syntax → Name
-| ident _ _ val _ => val
-| _               => Name.anonymous
-
 def asNode : Syntax → SyntaxNode
 | Syntax.node kind args => ⟨Syntax.node kind args, IsNode.mk kind args⟩
 | _                     => ⟨Syntax.node nullKind #[], IsNode.mk nullKind #[]⟩

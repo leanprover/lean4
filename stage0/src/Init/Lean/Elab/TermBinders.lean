@@ -170,7 +170,7 @@ private partial def getFunBinderIdsAux? : Bool → Syntax → Array Syntax → T
        getFunBinderIdsAux? true a acc
   | `(_) => do ident ← mkFreshAnonymousIdent stx; pure (some (acc.push ident))
   | stx  =>
-    match stx.isSimpleTermId? with
+    match stx.isSimpleTermId? true with
     | some id => pure (some (acc.push id))
     | _       => pure none
 
@@ -215,7 +215,7 @@ private partial def expandFunBindersAux (binders : Array Syntax) : Syntax → Na
           | some idents => expandFunBindersAux body (i+1) (newBinders ++ idents.map (fun ident => mkExplicitBinder ident type))
           | none        => processAsPattern ()
     | binder =>
-      match binder.isTermId? with
+      match binder.isTermId? true with
       | some (ident, extra) => do
         unless extra.isNone $ throwError binder "invalid binder, simple identifier expected";
         let type  := mkHole binder;

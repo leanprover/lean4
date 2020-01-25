@@ -206,6 +206,16 @@ inductive Syntax
 instance Syntax.inhabited : Inhabited Syntax :=
 ⟨Syntax.missing⟩
 
+/- Builtin kinds -/
+def choiceKind : SyntaxNodeKind := `choice
+def nullKind : SyntaxNodeKind := `null
+def identKind : SyntaxNodeKind := `ident
+def strLitKind : SyntaxNodeKind := `strLit
+def charLitKind : SyntaxNodeKind := `charLit
+def numLitKind : SyntaxNodeKind := `numLit
+def nameLitKind : SyntaxNodeKind := `nameLit
+def fieldIdxKind : SyntaxNodeKind := `fieldIdx
+
 namespace Syntax
 
 def getKind (stx : Syntax) : SyntaxNodeKind :=
@@ -216,7 +226,7 @@ match stx with
 -- is compiled to ``if stx.isOfKind `ident ...``
 | Syntax.missing       => `missing
 | Syntax.atom _ v      => mkNameSimple v
-| Syntax.ident _ _ _ _ => `ident
+| Syntax.ident _ _ _ _ => identKind
 
 def isOfKind : Syntax → SyntaxNodeKind → Bool
 | stx, k => stx.getKind == k
@@ -401,16 +411,6 @@ instance MacroM.monadQuotation : MonadQuotation MacroM :=
   withFreshMacroScope := fun _ x => x }
 
 abbrev Macro := Syntax → MacroM Syntax
-
-/- Builtin kinds -/
-
-@[matchPattern] def choiceKind : SyntaxNodeKind := `choice
-@[matchPattern] def nullKind : SyntaxNodeKind := `null
-def strLitKind : SyntaxNodeKind := `strLit
-def charLitKind : SyntaxNodeKind := `charLit
-def numLitKind : SyntaxNodeKind := `numLit
-def nameLitKind : SyntaxNodeKind := `nameLit
-def fieldIdxKind : SyntaxNodeKind := `fieldIdx
 
 /- Helper functions for processing Syntax programmatically -/
 
@@ -699,6 +699,56 @@ match stx.isStrLit? with
 /-- Given `var` a `Term.id`, created the antiquotation syntax representing `$<var>:<catName>` -/
 def termIdToAntiquot (var : Syntax) (catName : String) : Syntax :=
 Syntax.node `Lean.Parser.antiquot #[mkAtomFrom var "$", var, mkAtomFrom var ":", mkAtomFrom var catName, mkNullNode]
+
+def isAtom : Syntax → Bool
+| atom _ _ => true
+| _        => false
+
+def isIdent : Syntax → Bool
+| ident _ _ _ _ => true
+| _             => false
+
+def getId : Syntax → Name
+| ident _ _ val _ => val
+| _               => Name.anonymous
+
+def isNone (stx : Syntax) : Bool :=
+match stx with
+| Syntax.node k args => k == nullKind && args.size == 0
+| _                  => false
+
+def getOptional? (stx : Syntax) : Option Syntax :=
+match stx with
+| Syntax.node k args => if k == nullKind && args.size == 1 then some (args.get! 0) else none
+| _                  => none
+
+def getOptionalIdent? (stx : Syntax) : Option Name :=
+match stx.getOptional? with
+| some stx => some stx.getId
+| none     => none
+
+/--
+  Return `some (id, opt)` if `stx` is a Lean term id.
+  The `Lean.Parser.Term.id` parser is `ident >> optional (explicitUniv <|> namedPattern)`.
+
+  If `relaxed == true` and `stx` is a raw identifier `<id>`, it returns `some (<id>, noneStx)`.
+  This feature is useful when we want to implement elaboration functions and macros
+  that have support for raw identifiers where a term is expected. -/
+def isTermId? (stx : Syntax) (relaxed : Bool := false) : Option (Syntax × Syntax) :=
+match stx with
+| Syntax.node k args =>
+  if k == `Lean.Parser.Term.id && args.size == 2 then
+    some (args.get! 0, args.get! 1)
+  else
+    none
+| id@(Syntax.ident _ _ _ _) => if relaxed then some (id, mkNullNode) else none
+| _ => none
+
+/-- Similar to `isTermId?`, but succeeds only if the optional part is a `none`. -/
+def isSimpleTermId? (stx : Syntax) (relaxed : Bool := false) : Option Syntax :=
+match stx.isTermId? relaxed with
+| some (id, opt) => if opt.isNone then some id else none
+| none           => none
 
 end Syntax
 end Lean

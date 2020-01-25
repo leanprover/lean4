@@ -50,6 +50,7 @@ extern lean_object* l_Option_get_x21___rarg___closed__3;
 lean_object* l___private_Init_Lean_Elab_TermApp_20__regTraceClasses(lean_object*);
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabId___closed__2;
 lean_object* lean_array_fswap(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_identKind___closed__2;
 extern uint8_t l___private_Init_Lean_Elab_Term_4__isCDot___closed__1;
 extern lean_object* l_Prod_HasRepr___rarg___closed__1;
 lean_object* l___private_Init_Lean_Elab_TermApp_7__resolveLValAux___closed__7;
@@ -119,7 +120,6 @@ lean_object* l___private_Init_Lean_Elab_TermApp_4__elabAppArgsAux___boxed(lean_o
 extern lean_object* l_Array_HasRepr___rarg___closed__1;
 lean_object* l___regBuiltinTermElab_Lean_Elab_Term_elabArrayRef___closed__1;
 lean_object* l_Lean_Elab_Term_elabLevel(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Syntax_getKind___closed__4;
 lean_object* l___private_Init_Lean_Elab_TermApp_3__elabArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_declareBuiltinTermElab___closed__3;
@@ -6461,7 +6461,7 @@ x_209 = l_coeDecidableEq(x_208);
 if (x_209 == 0)
 {
 lean_object* x_210; uint8_t x_211; uint8_t x_212; 
-x_210 = l_Lean_Syntax_getKind___closed__4;
+x_210 = l_Lean_identKind___closed__2;
 lean_inc(x_206);
 x_211 = l_Lean_Syntax_isOfKind(x_206, x_210);
 x_212 = l_coeDecidableEq(x_211);
@@ -7501,7 +7501,7 @@ else
 lean_object* x_70; lean_object* x_71; lean_object* x_72; uint8_t x_73; uint8_t x_74; 
 x_70 = lean_unsigned_to_nat(0u);
 x_71 = l_Lean_Syntax_getArg(x_2, x_70);
-x_72 = l_Lean_Syntax_getKind___closed__4;
+x_72 = l_Lean_identKind___closed__2;
 lean_inc(x_71);
 x_73 = l_Lean_Syntax_isOfKind(x_71, x_72);
 x_74 = l_coeDecidableEq(x_73);

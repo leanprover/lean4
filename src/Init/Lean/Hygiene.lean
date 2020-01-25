@@ -33,7 +33,7 @@ instance MonadQuotation : MonadQuotation Unhygienic := {
     fresh ← modifyGet (fun n => (n, n + 1));
     adaptReader (fun _ => fresh) x
 }
-protected def run {α : Type} (x : Unhygienic α) : α := run x 0 1
+protected def run {α : Type} (x : Unhygienic α) : α := run x firstFrontendMacroScope (firstFrontendMacroScope+1)
 end Unhygienic
 
 instance monadQuotationTrans {m n : Type → Type} [MonadQuotation m] [HasMonadLift m n] [MonadFunctorT m m n n] : MonadQuotation n :=

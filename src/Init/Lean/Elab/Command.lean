@@ -30,7 +30,7 @@ structure State :=
 (env            : Environment)
 (messages       : MessageLog := {})
 (scopes         : List Scope := [{ kind := "root", header := "" }])
-(nextMacroScope : Nat := 1)
+(nextMacroScope : Nat := firstFrontendMacroScope + 1)
 (maxRecDepth    : Nat)
 
 instance State.inhabited : Inhabited State := ⟨{ env := arbitrary _, maxRecDepth := 0 }⟩
@@ -45,7 +45,7 @@ structure Context :=
 (currRecDepth   : Nat := 0)
 (cmdPos         : String.Pos := 0)
 (macroStack     : MacroStack := [])
-(currMacroScope : MacroScope := 0)
+(currMacroScope : MacroScope := firstFrontendMacroScope)
 
 instance Exception.inhabited : Inhabited Exception := ⟨Exception.error $ arbitrary _⟩
 

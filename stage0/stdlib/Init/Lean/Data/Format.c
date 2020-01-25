@@ -82,7 +82,6 @@ lean_object* l_Lean_Format_defWidth;
 lean_object* l_Lean_Format_joinSuffix(lean_object*);
 lean_object* l_Int_repr(lean_object*);
 lean_object* l_Lean_Format_repr___main___closed__13;
-extern lean_object* l_IO_FS_Handle_putStrLn___rarg___closed__1;
 lean_object* l_Lean_Format_pretty___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Option_format(lean_object*);
 lean_object* l_Lean_Format_repr___main___closed__6;
@@ -125,6 +124,7 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 extern lean_object* l_List_repr___rarg___closed__2;
 lean_object* l_Lean_kvMapHasFormat___closed__1;
 extern lean_object* l_List_reprAux___main___rarg___closed__1;
+extern lean_object* l_IO_println___rarg___closed__1;
 lean_object* l_Lean_formatKVMap(lean_object*);
 lean_object* l_Function_comp___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_prodHasFormat(lean_object*, lean_object*);
@@ -868,7 +868,7 @@ lean_dec(x_4);
 x_10 = lean_ctor_get(x_5, 0);
 lean_inc(x_10);
 lean_dec(x_5);
-x_11 = l_IO_FS_Handle_putStrLn___rarg___closed__1;
+x_11 = l_IO_println___rarg___closed__1;
 x_12 = lean_string_append(x_3, x_11);
 x_13 = 32;
 lean_inc(x_10);
@@ -3498,7 +3498,7 @@ lean_object* l_String_toFormat(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_IO_FS_Handle_putStrLn___rarg___closed__1;
+x_2 = l_IO_println___rarg___closed__1;
 x_3 = l_String_splitOn(x_1, x_2);
 x_4 = lean_box(1);
 x_5 = l_Lean_Format_joinSep___main___at_String_toFormat___spec__1(x_3, x_4);

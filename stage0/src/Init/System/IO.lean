@@ -5,7 +5,6 @@ Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Init.Control.EState
-import Init.Control.Reader
 import Init.Data.String.Basic
 import Init.Data.ByteArray
 import Init.System.IOError
@@ -68,18 +67,7 @@ constant allocprof {α : Type} (msg : @& String) (fn : IO α) : IO α := arbitra
 @[extern "lean_io_initializing"]
 constant IO.initializing : IO Bool := arbitrary _
 
-class MonadIO (m : Type → Type) extends HasMonadLiftT IO m, MonadExcept IO.Error m
-
-instance : MonadIO IO := {  }
-
-instance ExceptT.monadFail (m : Type → Type) [Monad m] [MonadExcept IO.Error m] : MonadFail m :=
-⟨fun _ => throw ∘ IO.userError⟩
-
-/- Omitted instances of MonadIO: OptionT, ExceptT and EStateT. The possibility for
-errors introduces the risk that `withStdout` will not restore the previous handle when
-an error is returned in the topmost monad. -/
-instance ReaderT.monadIO {ρ} (m : Type → Type) [Monad m] [MonadIO m] : MonadIO (ReaderT ρ m) := {  }
-instance StateT.monadIO {σ} (m : Type → Type) [Monad m] [MonadIO m] : MonadIO (StateT σ m) := {  }
+abbrev MonadIO (m : Type → Type) := HasMonadLiftT IO m
 
 namespace IO
 
@@ -99,20 +87,6 @@ constant FS.Handle : Type := Unit
 namespace Prim
 open FS
 
-@[extern "lean_get_stdin"]
-constant getStdin  : IO FS.Handle := arbitrary _
-@[extern "lean_get_stderr"]
-constant getStderr : IO FS.Handle := arbitrary _
-@[extern "lean_get_stdout"]
-constant getStdout : IO FS.Handle := arbitrary _
-
-@[extern "lean_get_set_stdin"]
-constant setStdin  : FS.Handle → IO FS.Handle := arbitrary _
-@[extern "lean_get_set_stderr"]
-constant setStderr : FS.Handle → IO FS.Handle := arbitrary _
-@[extern "lean_get_set_stdout"]
-constant setStdout : FS.Handle → IO FS.Handle := arbitrary _
-
 @[specialize] partial def iterate {α β : Type} : α → (α → IO (Sum α β)) → IO β
 | a, f => do
   v ← f a;
@@ -131,6 +105,12 @@ let mode :=
 let bin := if b then "b" else "t";
 mode ++ bin
 
+@[extern "lean_io_prim_put_str"]
+constant putStr (s: @& String) : IO Unit := arbitrary _
+@[extern "lean_io_prim_read_text_file"]
+constant readTextFile (s : @& String) : IO String := arbitrary _
+@[extern "lean_io_prim_get_line"]
+constant getLine : IO String := arbitrary _
 @[extern "lean_io_prim_handle_mk"]
 constant Handle.mk (s : @& String) (mode : @& String) : IO Handle := arbitrary _
 @[extern "lean_io_prim_handle_is_eof"]
@@ -168,6 +148,27 @@ constant appPath : IO String := arbitrary _
 monadLift x
 end Prim
 
+section
+variables {m : Type → Type} [Monad m] [MonadIO m]
+
+private def putStr : String → m Unit :=
+Prim.liftIO ∘ Prim.putStr
+
+def print {α} [HasToString α] (s : α) : m Unit := putStr ∘ toString $ s
+def println {α} [HasToString α] (s : α) : m Unit := print s *> putStr "\n"
+def readTextFile : String → m String := Prim.liftIO ∘ Prim.readTextFile
+def getEnv : String → m (Option String) := Prim.liftIO ∘ Prim.getEnv
+def realPath : String → m String := Prim.liftIO ∘ Prim.realPath
+def isDir : String → m Bool := Prim.liftIO ∘ Prim.isDir
+def fileExists : String → m Bool := Prim.liftIO ∘ Prim.fileExists
+def appPath : m String := Prim.liftIO Prim.appPath
+
+def appDir : m String := do
+p ← appPath;
+realPath (System.FilePath.dirName p)
+
+end
+
 namespace FS
 variables {m : Type → Type} [Monad m] [MonadIO m]
 
@@ -175,8 +176,8 @@ def Handle.mk (s : String) (Mode : Mode) (bin : Bool := false) : m Handle :=
 Prim.liftIO (Prim.Handle.mk s (Prim.fopenFlags Mode bin))
 
 @[inline]
-def withFile {α} (fn : String) (mode : Mode) (f : Handle → m α) : m α :=
-Handle.mk fn mode >>= f
+def withFile {α} (fn : String) (m : Mode) (f : Handle → IO α) : IO α :=
+Handle.mk fn m >>= f
 
 /-- returns whether the end of the file has been reached while reading a file.
 `h.isEof` returns true /after/ the first attempt at reading past the end of `h`.
@@ -207,66 +208,16 @@ Prim.liftIO $ Prim.iterate "" $ fun r => do
     c ← h.getLine;
     pure $ Sum.inl (r ++ c) -- continue
 
-end FS
-
-section
-variables {m : Type → Type} [Monad m] [MonadIO m]
-
-def getStdout : m FS.Handle :=
-Prim.liftIO Prim.getStdout
-
-def getStderr : m FS.Handle :=
-Prim.liftIO Prim.getStderr
-
-def getStdin : m FS.Handle :=
-Prim.liftIO Prim.getStdin
-
-/- replaces the stdout handle and returns its previous value -/
-def setStdout : FS.Handle → m FS.Handle :=
-Prim.liftIO ∘ Prim.setStdout
-
-/- see `setStdout` -/
-def setStderr : FS.Handle → m FS.Handle :=
-Prim.liftIO ∘ Prim.setStderr
-
-/- see `setStdout` -/
-def setStdin : FS.Handle → m FS.Handle :=
-Prim.liftIO ∘ Prim.setStdin
-
-def withStderr {α} (h : FS.Handle) (x : m α) : m α := do
-prev ← setStderr h;
-finally x (setStderr prev)
-
-def withStdout {α} (h : FS.Handle) (x : m α) : m α := do
-prev ← setStdout h;
-finally x (setStdout prev)
-
-def withStdin {α} (h : FS.Handle) (x : m α) : m α := do
-prev ← setStdin h;
-finally x (setStdin prev)
-
-private def putStr (s : String) : m Unit := do
-out ← getStdout;
-out.putStr s
-
-def print {α} [HasToString α] (s : α) : m Unit := putStr ∘ toString $ s
-def println {α} [HasToString α] (s : α) : m Unit := print s *> putStr "\n"
-def getEnv : String → m (Option String) := Prim.liftIO ∘ Prim.getEnv
-def realPath : String → m String := Prim.liftIO ∘ Prim.realPath
-def isDir : String → m Bool := Prim.liftIO ∘ Prim.isDir
-def fileExists : String → m Bool := Prim.liftIO ∘ Prim.fileExists
-def appPath : m String := Prim.liftIO Prim.appPath
-
-def appDir : m String := do
-p ← appPath;
-realPath (System.FilePath.dirName p)
-
 def readFile (fname : String) (bin := false) : m String := do
-h ← FS.Handle.mk fname Mode.read bin;
+h ← Handle.mk fname Mode.read bin;
 r ← h.readToEnd;
 pure r
 
-end
+end FS
+
+-- constant stdin : IO FS.Handle
+-- constant stderr : IO FS.Handle
+-- constant stdout : IO FS.Handle
 
 /-
 namespace Proc
@@ -360,7 +311,7 @@ class HasEval (α : Type u) :=
 (eval : α → IO Unit)
 
 instance HasRepr.HasEval {α : Type u} [HasRepr α] : HasEval α :=
-⟨fun a => IO.print (repr a)⟩
+⟨fun a => IO.println (repr a)⟩
 
 instance IO.HasEval {α : Type} [HasEval α] : HasEval (IO α) :=
 ⟨fun x => do a ← x; HasEval.eval a⟩

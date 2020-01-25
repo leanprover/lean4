@@ -62,6 +62,7 @@ instance Option.hasQuote {α : Type} [HasQuote α] : HasQuote (Option α) := ⟨
 
 namespace Elab
 namespace Term
+namespace Quotation
 
 -- antiquotation node kinds are formed from the original node kind (if any) plus "antiquot"
 def isAntiquot : Syntax → Bool
@@ -74,6 +75,9 @@ def antiquotKind? : Syntax → Option SyntaxNodeKind
   if (args.get! 2).isNone then some Name.anonymous
   else some k
 | _                                          => none
+
+def getAntiquotTerm (stx : Syntax) : Syntax :=
+stx.getArg 1
 
 -- `$e*` is an antiquotation "splice" matching an arbitrary number of syntax nodes
 def isAntiquotSplice (stx : Syntax) : Bool :=
@@ -112,14 +116,13 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
   if isAntiquot stx then
     -- splices must occur in a `many` node
     if isAntiquotSplice stx then throwError stx "unexpected antiquotation splice"
-    else pure $ stx.getArg 1
+    else pure $ getAntiquotTerm stx
   else do
     empty ← `(Array.empty);
     args ← args.foldlM (fun args arg =>
       if k == nullKind && isAntiquotSplice arg then
         -- antiquotation splice pattern: inject args array
-        let arg := arg.getArg 1;
-        `(Array.append $args $arg)
+        `(Array.append $args $(getAntiquotTerm arg))
       else do
         arg ← quoteSyntax arg;
         `(Array.push $args $arg)) empty;
@@ -214,10 +217,9 @@ else if pat.isOfKind `Lean.Parser.Term.stxQuot then
     -- else
     --   let e := stx; ...
     let kind := if k == Name.anonymous then none else some k;
-    let anti := quoted.getArg 1;
-    let anti := match_syntax anti with
+    let anti := match_syntax getAntiquotTerm quoted with
     | `(($e)) => e
-    | _       => anti;
+    | anti    => anti;
     -- Splices should only appear inside a nullKind node, see next case
     if isAntiquotSplice quoted then unconditional $ fun _ => throwError quoted "unexpected antiquotation splice"
     else if anti.isOfKind `Lean.Parser.Term.id then { kind := kind, rhsFn :=  fun rhs => `(let $anti:id := discr; $rhs) }
@@ -225,7 +227,7 @@ else if pat.isOfKind `Lean.Parser.Term.stxQuot then
   | _ =>
     if isAntiquotSplicePat quoted && quoted.getArgs.size == 1 then
       -- quotation is a single antiquotation splice => bind args array
-      let anti := (quoted.getArg 0).getArg 1;
+      let anti := getAntiquotTerm (quoted.getArg 0);
       unconditional $ fun rhs => `(let $anti:term := Syntax.getArgs discr; $rhs)
       -- TODO: support for more complex antiquotation splices
     else
@@ -277,34 +279,34 @@ private partial def compileStxMatch (ref : Syntax) : List Syntax → List Alt �
   `(let discr := $discr; if coe $cond then $yes else $no)
 | _, _ => unreachable!
 
-private partial def getPatternVarsAux : Syntax → TermElabM (List Syntax)
-| stx@(Syntax.node k args) => do
+private partial def getPatternVarsAux : Syntax → List Syntax
+| stx@(Syntax.node k args) =>
   if isAntiquot stx then
     let anti := args.get! 1;
     let anti := match_syntax anti with
     | `(($e)) => e
     | _       => anti;
-    if anti.isOfKind `Lean.Parser.Term.id then pure [anti]
-    else throwError anti ("match_syntax: antiquotation must be variable " ++ toString anti)
+    if anti.isOfKind `Lean.Parser.Term.id then [anti]
+    else []
   else
-    List.join <$> args.toList.mapM getPatternVarsAux
-| _ => pure []
+    List.join $ args.toList.map getPatternVarsAux
+| _ => []
 
 -- Get all pattern vars (as Term.id nodes) in `stx`
-private partial def getPatternVars (stx : Syntax) : TermElabM (List Syntax) :=
+partial def getPatternVars (stx : Syntax) : List Syntax :=
 if stx.isOfKind `Lean.Parser.Term.stxQuot then do
   let quoted := stx.getArg 1;
   getPatternVarsAux stx
 else if stx.isOfKind `Lean.Parser.Term.id then
-  pure [stx]
-else pure []
+  [stx]
+else []
 
 -- Transform alternatives by binding all right-hand sides to outside the match_syntax in order to prevent
 -- code duplication during match_syntax compilation
 private def letBindRhss (cont : List Alt → TermElabM Syntax) : List Alt → List Alt → TermElabM Syntax
 | [],                altsRev' => cont altsRev'.reverse
 | (pats, rhs)::alts, altsRev' => do
-  vars ← List.join <$> pats.mapM getPatternVars;
+  let vars := List.join $ pats.map getPatternVars;
   match vars with
   -- no antiquotations => introduce Unit parameter to preserve evaluation order
   | [] => do
@@ -447,7 +449,7 @@ toPreterm stx
 
 @[export lean_get_antiquot_vars]
 def oldGetPatternVars (ctx : OldContext) (pats : List Syntax) : Except String (List Name) := oldRunTermElabM ctx $ do
-vars ← List.join <$> pats.mapM getPatternVars;
+let vars := List.join $ pats.map getPatternVars;
 pure $ vars.map $ fun var => var.getIdAt 0
 
 @[export lean_expand_match_syntax]
@@ -461,6 +463,7 @@ let alts := alts.map $ fun alt =>
 stx ← compileStxMatch Syntax.missing [discr] alts;
 toPreterm stx
 
+end Quotation
 end Term
 end Elab
 end Lean

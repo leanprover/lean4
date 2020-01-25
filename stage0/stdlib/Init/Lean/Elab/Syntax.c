@@ -240,6 +240,7 @@ lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__56;
 lean_object* l_Lean_Elab_Command_expandNotation___closed__5;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__66;
 lean_object* l_Nat_repr(lean_object*);
+extern lean_object* l___private_Init_Lean_Elab_Quotation_11__letBindRhss___main___closed__11;
 extern lean_object* l_Lean_Parser_Command_attrInstance___elambda__1___closed__2;
 extern lean_object* l_Lean_Elab_Term_expandCDot_x3f___closed__3;
 lean_object* l_Lean_Elab_Command_elabMacroRules(lean_object*, lean_object*, lean_object*);
@@ -404,7 +405,6 @@ extern lean_object* l_Lean_Parser_Syntax_str___elambda__1___closed__1;
 extern lean_object* l_Lean_Parser_regBuiltinSyntaxParserAttr___closed__3;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__74;
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__60;
-extern lean_object* l___private_Init_Lean_Elab_Quotation_12__letBindRhss___main___closed__11;
 lean_object* l_Lean_Elab_Command_elabMacroRules___lambda__1___closed__4;
 lean_object* l_Lean_mkStxStrLit(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_toParserDescrAux___main___closed__110;
@@ -9444,7 +9444,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Init_Lean_Elab_TermBinders_10__expandFunBindersAux___main___closed__6;
-x_2 = l___private_Init_Lean_Elab_Quotation_12__letBindRhss___main___closed__11;
+x_2 = l___private_Init_Lean_Elab_Quotation_11__letBindRhss___main___closed__11;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }

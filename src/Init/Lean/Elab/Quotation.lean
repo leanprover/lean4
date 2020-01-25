@@ -76,6 +76,9 @@ def antiquotKind? : Syntax → Option SyntaxNodeKind
   else some k
 | _                                          => none
 
+def getAntiquotTerm (stx : Syntax) : Syntax :=
+stx.getArg 1
+
 -- `$e*` is an antiquotation "splice" matching an arbitrary number of syntax nodes
 def isAntiquotSplice (stx : Syntax) : Bool :=
 isAntiquot stx && (stx.getArg 4).getOptional?.isSome
@@ -113,14 +116,13 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
   if isAntiquot stx then
     -- splices must occur in a `many` node
     if isAntiquotSplice stx then throwError stx "unexpected antiquotation splice"
-    else pure $ stx.getArg 1
+    else pure $ getAntiquotTerm stx
   else do
     empty ← `(Array.empty);
     args ← args.foldlM (fun args arg =>
       if k == nullKind && isAntiquotSplice arg then
         -- antiquotation splice pattern: inject args array
-        let arg := arg.getArg 1;
-        `(Array.append $args $arg)
+        `(Array.append $args $(getAntiquotTerm arg))
       else do
         arg ← quoteSyntax arg;
         `(Array.push $args $arg)) empty;
@@ -215,10 +217,9 @@ else if pat.isOfKind `Lean.Parser.Term.stxQuot then
     -- else
     --   let e := stx; ...
     let kind := if k == Name.anonymous then none else some k;
-    let anti := quoted.getArg 1;
-    let anti := match_syntax anti with
+    let anti := match_syntax getAntiquotTerm quoted with
     | `(($e)) => e
-    | _       => anti;
+    | anti    => anti;
     -- Splices should only appear inside a nullKind node, see next case
     if isAntiquotSplice quoted then unconditional $ fun _ => throwError quoted "unexpected antiquotation splice"
     else if anti.isOfKind `Lean.Parser.Term.id then { kind := kind, rhsFn :=  fun rhs => `(let $anti:id := discr; $rhs) }
@@ -226,7 +227,7 @@ else if pat.isOfKind `Lean.Parser.Term.stxQuot then
   | _ =>
     if isAntiquotSplicePat quoted && quoted.getArgs.size == 1 then
       -- quotation is a single antiquotation splice => bind args array
-      let anti := (quoted.getArg 0).getArg 1;
+      let anti := getAntiquotTerm (quoted.getArg 0);
       unconditional $ fun rhs => `(let $anti:term := Syntax.getArgs discr; $rhs)
       -- TODO: support for more complex antiquotation splices
     else
